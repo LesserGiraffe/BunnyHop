@@ -51,8 +51,8 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 				imitCreateImitBtn = (Button)loader.load();
 				setBtnStyle(viewStyle.imitation);
 				getChildren().add(imitCreateImitBtn);
-			} catch (IOException | ClassCastException ex) {
-				MsgPrinter.instance.ErrMsgForDebug(ex.toString());
+			} catch (IOException | ClassCastException e) {
+				MsgPrinter.instance.ErrMsgForDebug("failed to initialize " + ConnectiveNodeView.class.getSimpleName() + "\n" + e.toString());
 			}
 		}
 		getAppearanceManager().addCssClass(BhParams.CSS.classConnectiveNode);

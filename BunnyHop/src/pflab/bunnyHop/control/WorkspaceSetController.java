@@ -169,7 +169,7 @@ public class WorkspaceSetController implements MsgReceiver {
 			break;
 			
 		default:
-			MsgPrinter.instance.ErrMsgForDebug("WorkspaceSetController.receiveMsg error message");
+			MsgPrinter.instance.ErrMsgForDebug(WorkspaceSetController.class.getSimpleName() +  ".receiveMsg unknown msg  " + msg);
 			assert false;
 		}
 

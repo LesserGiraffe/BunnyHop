@@ -48,7 +48,7 @@ public class BhCompiler {
 			commonCode = new String(content, StandardCharsets.UTF_8);
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug(e.getMessage());
+			MsgPrinter.instance.ErrMsgForDebug("failed to initialize + " + BhCompiler.class.getSimpleName() + "\n" + e.toString());
 			return false;
 		}		
 		return true;
@@ -88,11 +88,11 @@ public class BhCompiler {
 			writer.write(code.toString());
 		}
 		catch (IOException e) {
-			Alert alert = new Alert(Alert.AlertType.ERROR);
-			alert.setTitle("ファイル書き込みエラー");
-			alert.setHeaderText(null);
-			alert.setContentText(e.getMessage() + "\n" + appFilePath.toString());
-			alert.showAndWait();
+			MsgPrinter.instance.alert(
+				Alert.AlertType.ERROR,
+				"ファイル書き込みエラー", 
+				null,
+				e.toString() + "\n" + appFilePath.toString());			
 			return Optional.empty();
 		}
 		MsgPrinter.instance.MsgForUser("-- コンパイル成功 --\n");
@@ -129,11 +129,11 @@ public class BhCompiler {
 	private boolean isExecutable(BhNode node) {
 		
 		if (node.getState() != BhNode.State.ROOT_DIRECTLY_UNDER_WS) {
-			Alert alert = new Alert(Alert.AlertType.ERROR);
-			alert.setTitle("実行ノードエラー");
-			alert.setHeaderText(null);
-			alert.setContentText("処理の途中からは実行できません.");
-			alert.showAndWait();
+			MsgPrinter.instance.alert(
+				Alert.AlertType.ERROR, 
+				"実行ノードエラー",
+				null,
+				"処理の途中からは実行できません.");
 			return false;
 		}
 		return true;

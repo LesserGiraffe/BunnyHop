@@ -1,158 +1,121 @@
 package pflab.bunnyHop.bhProgram;
 
+import java.io.BufferedReader;
+import pflab.bunnyHop.bhProgram.common.BhProgramData;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.nio.charset.Charset;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
+import javafx.scene.control.Alert;
 import pflab.bunnyHop.common.BhParams;
 import pflab.bunnyHop.common.Util;
 import pflab.bunnyHop.root.MsgPrinter;
 
 /**
- * BHで作成したスクリプトを実行するクラス
+ * BunnyHopで作成したプログラムのローカル環境での実行、終了、通信を行うクラス
  * @author K.Koike
  */
 public class LocalBhProgramManager {
 	
 	public static final LocalBhProgramManager instance = new LocalBhProgramManager();	//!< シングルトンインスタンス
-	private final ExecutorService runBhProgramExec = Executors.newSingleThreadExecutor();	//!< スクリプト実行命令
-	private final ExecutorService connectProcExec = Executors.newSingleThreadExecutor();	//!< 接続, 切断処理用
-	private final ExecutorService recvProcExec = Executors.newSingleThreadExecutor();	//!< コマンド受信用
-	private final ExecutorService sendProcExec = Executors.newSingleThreadExecutor();	//!< コマンド送信用
-	private final ExecutorService terminationExec = Executors.newSingleThreadExecutor();	//!< プロセス終了用
-	private final RemoteCmdProcessor cmdProcessor = new RemoteCmdProcessor();
-	private BhProgramHandler programHandler;
-	private Process programRunner;
-	private final AtomicBoolean connected = new AtomicBoolean(false);	//!< 接続状態
-	private final AtomicBoolean running = new AtomicBoolean(false);	//!< BhProgramRunner.jar が動いている場合true
-	private final BlockingQueue<BhProgramData> sendDataList = new ArrayBlockingQueue<>(BhParams.ExternalProgram.maxRemoteCmdQueueSize);
+	private final BhProgramManagerCommon common = new BhProgramManagerCommon();
+	private Process process;
+	private AtomicReference<Boolean> programRunning = new AtomicReference(false);	//!< プログラム実行中ならtrue
 	
-	private LocalBhProgramManager() {
-		cmdProcessor.init();
+	private LocalBhProgramManager() {}
+	
+	public boolean init() {
+		return common.init();
 	}
 	
 	/**
-	 * BhProgramを実行する
+	 * BhProgramの実行環境を立ち上げ、BhProgramを実行する
 	 * @param filePath BhProgramのファイルパス
 	 * @param ipAddr BhProgramを実行するマシンのIPアドレス
-	 * @return BhProgram実行開始の完了待ちオブジェクト
+	 * @return BhProgram実行タスクのFutureオブジェクト
 	 */
 	public Future<Boolean> executeAsync(Path filePath, String ipAddr) {
-		
-		Future<Boolean> executionFuture = runBhProgramExec.submit(() -> execute(filePath, ipAddr));
-		recvProcExec.submit(() -> recv(executionFuture));
-		sendProcExec.submit(() -> send(executionFuture));
-		return executionFuture;
+		return common.executeAsync(() -> execute(filePath, ipAddr));
 	}
 	
 	/**
-	 * BhProgramを実行する
+	 * BhProgramの実行環境を立ち上げ、BhProgramを実行する
 	 * @param filePath BhProgramのファイルパス
 	 * @param ipAddr BhProgramを実行するマシンのIPアドレス
-	 * @return 実行ハンドラの処理完了待ちオブジェクト
+	 * @return BhProgramの実行に成功した場合true
 	 */
 	private synchronized boolean execute(Path filePath, String ipAddr) {
-					
-		boolean success = terminate();
+		
+		boolean success = true;
+		
+		if (programRunning.get())
+			success &= terminate();
+		
+		MsgPrinter.instance.MsgForUser("-- プログラム実行準備中 (local) --\n");
 		if (success) {
-			
-			ProcessBuilder procBuilder = 
-				new ProcessBuilder(
-					"java", 
-					"-jar", 
-					Paths.get(Util.execPath, BhParams.ExternalProgram.bhProgramRunnerName).toString(),
-					"true");	//localFlag == true
-
-			try {
-				programRunner = procBuilder.start();
-				int port = Integer.parseInt(readStream(programRunner.getInputStream(), '@'));
-				programHandler = (BhProgramHandler)findRmoteObj(ipAddr, port, BhProgramHandler.class.getSimpleName());
-				running.set(true);	//この時点で BhProgramRunner.jar の起動確定
-				success &= connect();
-				success &= programHandler.runScript(filePath.getFileName().toString());
-			}
-			catch(IOException | NotBoundException | NumberFormatException e) {
-				MsgPrinter.instance.ErrMsgForDebug(e.toString());
+			process = startExecEnvProcess();
+			if (process == null) {
 				success &= false;
 			}
 		}
-				
-		if (!success) {	//リモートでのスクリプト実行失敗
-			terminate();
-			MsgPrinter.instance.ErrMsgForDebug("failed to run " +filePath.getFileName().toString());
+		
+		if (process != null) {
+			String fileName = filePath.getFileName().toString();
+			success &= common.runBhProgram(fileName, ipAddr, process.getInputStream());
 		}
+	
+		if (!success) {	//リモートでのスクリプト実行失敗
+			MsgPrinter.instance.ErrMsgForUser("!! プログラム実行準備失敗 (local) !!\n");
+			MsgPrinter.instance.ErrMsgForDebug("failed to run " +filePath.getFileName().toString() + " (local)");
+			terminate();
+		}
+		else {
+			MsgPrinter.instance.MsgForUser("-- プログラム実行開始 (local) --\n");
+			programRunning.set(true);
+		}
+
 		return success;
 	}
 	
 	/**
-	 * 現在実行中のBhProgramRunner を強制終了する
-	 * @return 強制終了タスクの結果
+	 * 現在実行中のBhProgramExecEnvironment を強制終了する
+	 * @return BhProgram強制終了タスクのFutureオブジェクト
 	 */
 	public Future<Boolean> terminateAsync() {
 		
-		return terminationExec.submit(()-> {
+		return common.terminateAsync(() -> {
+			if (!programRunning.get()) {
+				MsgPrinter.instance.ErrMsgForUser("!! プログラム終了済み (local) !!\n");
+				return true;	//エラーメッセージは出すが, 終了処理の結果は成功とする
+			}
 			return terminate();
 		});
 	}
 	
 	/**
-	 * 現在実行中のBhProgramRunner を強制終了する
+	 * 現在実行中のBhProgramExecEnvironment を強制終了する
 	 * @return 強制終了に成功した場合true
 	 */
 	public synchronized boolean terminate() {
 		
-		if (programRunner == null) {
-			running.set(false);
-			return true;
-		}
+		MsgPrinter.instance.MsgForUser("-- プログラム終了中 (local)  --\n");
+		boolean success = common.haltTransceiver();
 		
-		disconnect();
-		sendDataList.clear();
-		
-		try {
-			programRunner.getErrorStream().close();
-			programRunner.getInputStream().close();
-			programRunner.getOutputStream().close();
-		} catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to close iostream " + BhParams.ExternalProgram.bhProgramRunnerName
-				+ "\n" + e.getMessage());
+		if (process != null) {
+			success &= common.waitForProcessEnd(process, true, BhParams.ExternalProgram.programExecEnvTerminationTimeout);
 		}
-		
-		boolean success = false;
-		try {
-			programRunner.destroy();
-			success = programRunner.waitFor(BhParams.ExternalProgram.programRunnerTerminationTimeout, TimeUnit.SECONDS);
-		}
-		catch(InterruptedException e) {
-			Thread.currentThread().interrupt();
-			MsgPrinter.instance.ErrMsgForDebug("failed to destroy " + BhParams.ExternalProgram.bhProgramRunnerName
-				+ "\n" + e.getMessage());
-		}
-
+		process = null;		
 		if (!success) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to terminate " + BhParams.ExternalProgram.bhProgramRunnerName);
+			MsgPrinter.instance.ErrMsgForUser("!! プログラム終了失敗 (local)  !!\n"); 
 		}
 		else {
-			running.set(false);
+			MsgPrinter.instance.MsgForUser("-- プログラム終了完了 (local)  --\n");
+			programRunning.set(false);
 		}
-		programRunner = null;
 		return success;
 	}
 		
@@ -160,108 +123,14 @@ public class LocalBhProgramManager {
 	 * BhProgram の実行環境と通信を行うようにする
 	 */
 	public void connectAsync() {
-		
-		if (connected.get())
-			return;
-		
-		connectProcExec.submit(() -> {
-			connect();
-		});
-	}
-	
-	/**
-	 * BhProgram の実行環境と通信を行うようにする
-	 */
-	private boolean connect() {
-
-		if (!running.get())
-			return false;
-		
-		synchronized(connected) {
-	
-			try {
-				programHandler.connect();
-			}
-			catch(RemoteException e) {	//接続中にBhProgramRunnerをkillした場合, ここで抜ける
-				MsgPrinter.instance.ErrMsgForDebug("failed to connect " + e.getMessage());
-				return false;
-			}
-			connected.set(true);
-			connected.notifyAll();
-		}
-		return true;
+		common.connectAsync();
 	}
 	
 	/**
 	 * BhProgram の実行環境と通信を行わないようにする
 	 */
 	public void disconnectAsync() {
-		
-		if (!connected.get())
-			return;
-		
-		connectProcExec.submit(() -> {	
-			disconnect();
-		});		
-	}
-	
-	private boolean disconnect() {
-		
-		if (!running.get())
-			return false;
-
-		synchronized(connected) {			
-			try {
-				programHandler.disconnect();
-			}
-			catch(RemoteException e) {	//接続中にBhProgramRunnerをkillした場合, ここで抜ける
-				MsgPrinter.instance.ErrMsgForDebug("failed to disconnect " + e.getMessage());
-				return false;
-			}
-			connected.set(false);
-		}
-		return true;
-	}
-	
-	/**
-	 * BhProgramの実行環境から送られるデータを受信し続ける
-	 * @param execFuture BhProgram開始完了待ちオブジェクト
-	 * @return 受信待ち処理に入れた場合true
-	 */
-	private boolean recv(Future<Boolean> execFuture) {
-					
-		boolean success = false;
-		try {
-			success = execFuture.get(BhParams.ExternalProgram.programRunnerStartTimeout, TimeUnit.SECONDS);	//子プロセス起動待ち
-		}
-		catch(InterruptedException | TimeoutException | ExecutionException e) {}
-			
-		if (!success) {
-			return false;
-		}
-			
-		while (true) {
-					
-			synchronized(connected) {
-				try {
-					if (!connected.get())	//切断時は接続待ち
-						connected.wait();
-				}
-				catch(InterruptedException e) {
-					break;
-				}
-			}
-
-			try {
-				BhProgramData data = programHandler.recvDataFromScript();
-				if (data != null)
-					cmdProcessor.addRemoteData(data);
-			}
-			catch(RemoteException | InterruptedException e) {	//子プロセスをkillした場合, RemoteExceptionで抜ける.
-				break;
-			}
-		}
-		return true;
+		common.disconnectAsync();
 	}
 	
 	/**
@@ -269,54 +138,31 @@ public class LocalBhProgramManager {
 	 * @param data 送信データ
 	 * @return 送信データリストにデータを追加できた場合true
 	 */
-	public boolean sendAsync(BhProgramData data) {
-	
-		if (running.get() && connected.get()) {
-			return sendDataList.offer(data);
-		}
-		else {
-			return false;
-		}		
+	public BhProgramExecEnvError sendAsync(BhProgramData data) {
+		return common.sendAsync(data);
 	}
 	
 	/**
-	 * BhProgramの実行環境にデータを送り続ける
-	 * @param execFuture BhProgram開始完了待ちオブジェクト.
-	 * @return 送信待ち処理に入れた場合true
+	 * BhProgramの実行環境プロセスをスタートする
+	 * @return スタートしたプロセスのオブジェクト. スタートに失敗した場合null.
 	 */
-	private boolean send(Future<Boolean> execFuture) {
+	private Process startExecEnvProcess() {
 		
-		boolean success = false;
+		Process process = null;
+		ProcessBuilder procBuilder = 
+			new ProcessBuilder(
+				"java", 
+				"-jar", 
+				Paths.get(Util.execPath, BhParams.ExternalProgram.bhProgramExecEnvironment).toString(),
+				"true");	//localFlag == true
+		procBuilder.redirectErrorStream(true);
 		try {
-			success = execFuture.get(BhParams.ExternalProgram.programRunnerStartTimeout, TimeUnit.SECONDS);	//子プロセス起動待ち
+			process = procBuilder.start();
 		}
-		catch(InterruptedException | TimeoutException | ExecutionException e) {}
-			
-		if (!success) {
-			return false;
+		catch (IOException e) {
 		}
-			
-		while (true) {
-			
-			BhProgramData data = null;
-			try {
-				data = sendDataList.poll(BhParams.ExternalProgram.popSendDataTimeout, TimeUnit.SECONDS);
-			}
-			catch(InterruptedException e) {
-				break;
-			}
-
-			if (data == null)
-				continue;
-			
-			try {
-				programHandler.sendDataToScript(data);
-			}
-			catch(RemoteException e) {	//子プロセスをkillした場合, ここで抜ける.
-				break;
-			}
-		}
-		return true;
+		
+		return process;
 	}
 	
 	/**
@@ -325,67 +171,8 @@ public class LocalBhProgramManager {
 	 */
 	public boolean end() {
 		
-		boolean success = true;
-		runBhProgramExec.shutdownNow();
-		success = terminate();
-		connectProcExec.shutdownNow();
-		recvProcExec.shutdownNow();
-		sendProcExec.shutdownNow();
-		terminationExec.shutdownNow();
-		success &= cmdProcessor.end();
-		
-		try {
-			success &= runBhProgramExec.awaitTermination(BhParams.executorShutdownTimeout, TimeUnit.SECONDS);
-			success &= connectProcExec.awaitTermination(BhParams.executorShutdownTimeout, TimeUnit.SECONDS);
-			success &= recvProcExec.awaitTermination(BhParams.executorShutdownTimeout, TimeUnit.SECONDS);
-			success &= sendProcExec.awaitTermination(BhParams.executorShutdownTimeout, TimeUnit.SECONDS);
-			success &= terminationExec.awaitTermination(BhParams.executorShutdownTimeout, TimeUnit.SECONDS);
-		}
-		catch(InterruptedException e) {
-			success &= false;
-		}
+		boolean success = terminate();
+		success &= common.end();
 		return success;
-	}
-	
-	/**
-	 * RemoteCmdProcessorオブジェクト(RMIオブジェクト)を探す
-	 * @param ipAddr リモートオブジェクトのIPアドレス
-	 * @param port RMIレジストリのポート
-	 * @param name オブジェクトバインド時の名前
-	 * @return Remoteオブジェクト
-	 */
-	public static Remote findRmoteObj(String ipAddr, int port, String name) 
-		throws MalformedURLException, NotBoundException, RemoteException {
-
-		return Naming.lookup("rmi://" + ipAddr + ":"+ port + "/" + name);
-	}
-	
-	/**
-	 * 引数で指定した文字が出るまでInputStreamから読み、文字列にして返す.<br>
-	 * 返される文字列に endChar は含まれない.
-	 * @param is 文字を読み込むストリーム
-	 * @param endChar この文字が出るまでストリームを読む
-	 * @return ストリームから読み込んだ文字列
-	 */
-	private String readStream(InputStream is, int endChar) {
-		
-		List<Byte> charList = new ArrayList<>();
-		try {
-			while (true) {
-				charList.add((byte)is.read());
-				byte[] s = new byte[] {charList.get(charList.size()-1)};
-				if (charList.get(charList.size()-1) == endChar)
-					break;
-			}
-		}
-		catch(IOException e) {
-			return null;
-		}
-		
-		byte[] charArray = new byte[charList.size()-1];
-		for (int i = 0; i < charArray.length; ++i) {
-			charArray[i] = charList.get(i);
-		}
-		return new String(charArray, Charset.defaultCharset());
 	}
 }

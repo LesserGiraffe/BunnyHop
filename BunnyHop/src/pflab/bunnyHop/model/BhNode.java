@@ -339,7 +339,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgSender, Serializ
 			onMovedToChild.eval(scriptScope);
 		} 
 		catch (ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug("BhNode.execOnMovedToChildScript   " + scriptNameOnMovedToChild + "\n" + e.getMessage() + "\n");
+			MsgPrinter.instance.ErrMsgForDebug(BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptNameOnMovedToChild + "\n" + e.toString() + "\n");
 		}
 	}
 	
@@ -370,7 +370,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgSender, Serializ
 		try {
 			onMovedFromChildToWS.eval(scriptScope);
 		} catch (ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug("BhNode.execOnMovedFromChildToWSScript   " + scriptNameOnMovedFromChildToWS + "\n" + e.getMessage() + "\n");
+			MsgPrinter.instance.ErrMsgForDebug(BhNode.class.getSimpleName() + ".execOnMovedFromChildToWSScript   " + scriptNameOnMovedFromChildToWS + "\n" + e.toString() + "\n");
 		}
 	}
 }

@@ -48,8 +48,8 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 			try {
 				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 				comboBox = (ComboBox<String>)loader.load();
-			} catch (IOException | ClassCastException ex) {
-				MsgPrinter.instance.ErrMsgForDebug(ex.getMessage());
+			} catch (IOException | ClassCastException e) {
+				MsgPrinter.instance.ErrMsgForDebug("failed to initialize " + ComboBoxNodeView.class.getSimpleName() + "\n" + e.toString());
 			}
 		}
 		getChildren().add(comboBox);

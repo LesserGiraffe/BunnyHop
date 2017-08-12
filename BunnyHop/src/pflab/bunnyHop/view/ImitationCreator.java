@@ -100,8 +100,8 @@ public interface ImitationCreator {
 			FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 			imitCreateImitBtn = (Button)loader.load();
 			setBtnStyle(buttonStyle);
-		} catch (IOException | ClassCastException ex) {
-			MsgPrinter.instance.ErrMsgForDebug(ex.toString());
+		} catch (IOException | ClassCastException e) {
+			MsgPrinter.instance.ErrMsgForDebug(ImitationCreator.class.getSimpleName() + ".loadButton\n" + e.toString());
 		}
 		return imitCreateImitBtn;
 	}

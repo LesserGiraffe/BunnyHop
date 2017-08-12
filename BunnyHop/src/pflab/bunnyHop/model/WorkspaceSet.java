@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
+import javafx.scene.control.Alert;
 import pflab.bunnyHop.modelProcessor.NodeMVCBuilder;
 import pflab.bunnyHop.modelProcessor.UnscopedNodeCollector;
 import pflab.bunnyHop.root.MsgPrinter;
@@ -157,18 +158,23 @@ public class WorkspaceSet implements MsgSender {
 	
 	/**
 	 * 全ワークスペースを保存する
-	 * @param saved セーブファイル
+	 * @param fileToSave セーブファイル
 	 * @return セーブに成功した場合true
 	 */
-	public boolean save(File saved) {
+	public boolean save(File fileToSave) {
 		ProjectSaveData saveData = new ProjectSaveData(workspaceList);
 				
-		try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(saved));){			
+		try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(fileToSave));){			
 			outputStream.writeObject(saveData);
+			MsgPrinter.instance.MsgForUser("-- 保存完了 (" + fileToSave.getPath() + ") --\n");
 			return true;
 		}
 		catch(IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug(e.toString());	//don't getMessage
+			MsgPrinter.instance.alert(
+				Alert.AlertType.ERROR,
+				"ファイルの保存に失敗しました",
+				null,
+				fileToSave.getPath() + "\n" + e.toString());
 			return false;
 		}
 	}
@@ -192,7 +198,7 @@ public class WorkspaceSet implements MsgSender {
 			return true;
 		}
 		catch(ClassNotFoundException | IOException | ClassCastException e) {
-			MsgPrinter.instance.ErrMsgForDebug(e.getMessage());
+			MsgPrinter.instance.ErrMsgForDebug(WorkspaceSet.class.getSimpleName() + ".load\n" + e.toString());
 			return false;
 		}
 	}

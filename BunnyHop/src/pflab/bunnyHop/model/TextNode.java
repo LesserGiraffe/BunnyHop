@@ -122,7 +122,7 @@ public class TextNode  extends Imitatable implements Serializable {
 		try {
 			jsReturn = onTextInput.eval(scriptScope);
 		} catch (ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug("TextNode.isTextSettable   " + scriptNameOnTextInput + "\n" + e.getMessage() + "\n");
+			MsgPrinter.instance.ErrMsgForDebug(TextNode.class.getSimpleName() +  ".isTextSettable   " + scriptNameOnTextInput + "\n" + e.toString() + "\n");
 		}
 
 		if(jsReturn instanceof Boolean)

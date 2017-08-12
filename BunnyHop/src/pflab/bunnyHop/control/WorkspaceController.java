@@ -112,7 +112,7 @@ public class WorkspaceController implements MsgReceiver {
 				return new MsgData(model, view);
 				
 			default:
-				MsgPrinter.instance.MsgForDebug("WorkspaceController.receiveMsg error msg " + msg);
+				MsgPrinter.instance.ErrMsgForDebug(WorkspaceController.class.getSimpleName() + ".receiveMsg unknown msg " + msg);
 				assert false;
 		}
 

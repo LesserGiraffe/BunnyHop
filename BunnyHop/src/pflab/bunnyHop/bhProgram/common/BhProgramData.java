@@ -1,4 +1,4 @@
-package pflab.bunnyHop.bhProgram;
+package pflab.bunnyHop.bhProgram.common;
 
 import java.io.Serializable;
 

@@ -242,7 +242,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * */
 		public void addCssClass(String cssClassName) {
 			nodeShape.getStyleClass().add(cssClassName);
-			BhNodeView.this.getStyleClass().add(cssClassName + BhParams.CSS.classPostFixPane);
+			BhNodeView.this.getStyleClass().add(cssClassName + BhParams.CSS.classSuffixPane);
 		}
 
 		/**

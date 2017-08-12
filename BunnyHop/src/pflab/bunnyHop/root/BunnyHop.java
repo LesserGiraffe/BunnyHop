@@ -58,7 +58,7 @@ public class BunnyHop {
 			foundationController.init(workspaceSet, nodeCategoryList);
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to load fxml " + BhParams.Path.foundationFxml + "\n" + e.getMessage() + "\n");
+			MsgPrinter.instance.ErrMsgForDebug("failed to load fxml " + BhParams.Path.foundationFxml + "\n" + e.toString() + "\n");
 			return;
 		}	
 		
@@ -164,7 +164,7 @@ public class BunnyHop {
 			try {
 				scene.getStylesheets().add(path.toUri().toString());
 			} catch (Exception e) {
-				MsgPrinter.instance.ErrMsgForDebug(e.getMessage());
+				MsgPrinter.instance.ErrMsgForDebug(BunnyHop.class.getSimpleName() + ".setCSS\n" + e.toString());
 			}
 		});
 	}

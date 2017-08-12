@@ -1,4 +1,4 @@
-package pflab.bunnyHop.bhProgram;
+package pflab.bunnyHop.programExecEnv;
 
 /**
  *
@@ -19,5 +19,6 @@ public class BhParams {
 	
 	public static class BhProgram {
 		public static String inoutModuleName = "inout";
+		public static String rmiTcpPortSuffix = "@RmiTcpPort";	//BhProgram実行環境との通信に使うRMIオブジェクトを探す際のTCPポート
 	}
 }

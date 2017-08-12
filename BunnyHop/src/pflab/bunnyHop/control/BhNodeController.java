@@ -70,6 +70,7 @@ public class BhNodeController implements MsgReceiver {
 	 * */
 	private void setMouseEventHandlers() {
 		
+		//マウスボタン押下
 		view.getEventManager().setOnMousePressedHandler(mouseEvent -> {
 			//model.show(0);	//for debug
 			if (!isMovable()) {
@@ -227,7 +228,6 @@ public class BhNodeController implements MsgReceiver {
 	 **/
 	private void toWorkspace(Workspace ws) {
 		
-		//System.out.println("子ノード -> ワークスペース");
 		Point2D absPosInWS = view.getPositionManager().getPosOnWorkspace();
 		BhNodeHandler.instance.moveToWS(ws, model, absPosInWS.x, absPosInWS.y, ddInfo.userOpeCmd);
 		model.execScriptOnMovedFromChildToWS(
@@ -388,7 +388,7 @@ public class BhNodeController implements MsgReceiver {
 				break;
 				
 			default:
-				MsgPrinter.instance.ErrMsgForDebug("BhNodeController.receiveMsg errorMsg");
+				MsgPrinter.instance.ErrMsgForDebug(BhNodeController.class.getSimpleName() + ".receiveMsg unknown msg.  " + msg);
 				assert false;
 		}
 

@@ -1,5 +1,6 @@
 package pflab.bunnyHop.bhProgram;
 
+import pflab.bunnyHop.bhProgram.common.BhProgramData;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;

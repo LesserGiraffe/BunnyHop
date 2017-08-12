@@ -1,4 +1,4 @@
-package pflab.bunnyHop.bhProgram.socket;
+package pflab.bunnyHop.bhProgram.common;
 
 import java.io.IOException;
 import java.io.Serializable;

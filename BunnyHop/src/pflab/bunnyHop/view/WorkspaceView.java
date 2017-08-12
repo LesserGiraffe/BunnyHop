@@ -65,7 +65,7 @@ public class WorkspaceView extends Tab {
 			loader.load();
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to init workspaceView");
+			MsgPrinter.instance.ErrMsgForDebug("failed to initizlize " + WorkspaceView.class.getSimpleName() + "\n" + e.toString());
 			return false;
 		}
 

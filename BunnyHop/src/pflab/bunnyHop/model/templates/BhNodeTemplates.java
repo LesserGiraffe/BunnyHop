@@ -59,7 +59,7 @@ public class BhNodeTemplates {
 
 		BhNode newNode = nodeID_nodeTemplate.get(id);
 		if (newNode == null) {
-			MsgPrinter.instance.ErrMsgForDebug("NodeTemplates.genBhNode template not found" + id);
+			MsgPrinter.instance.ErrMsgForDebug(BhNodeTemplates.class.getSimpleName() +  ".genBhNode template not found" + id);
 		}
 		else {
 			newNode = newNode.copy(userOpeCmd);
@@ -127,7 +127,7 @@ public class BhNodeTemplates {
 					return templateConnector.isPresent();
 				}
 				catch (IOException | ParserConfigurationException | SAXException e) {
-					MsgPrinter.instance.ErrMsgForDebug("ConnectorTemplates genTemplate \n" + e.getMessage() + "\n" +  file);
+					MsgPrinter.instance.ErrMsgForDebug("ConnectorTemplates genTemplate \n" + e.toString() + "\n" +  file);
 					return false;
 				}
 			}).allMatch(successful -> successful) ;
@@ -170,7 +170,7 @@ public class BhNodeTemplates {
 					return templateNode.isPresent();
 				}
 				catch (IOException | ParserConfigurationException | SAXException e) {
-					MsgPrinter.instance.ErrMsgForDebug("NodeTemplates genTemplate \n" + e.getMessage() + "\n" +  file);
+					MsgPrinter.instance.ErrMsgForDebug("NodeTemplates genTemplate \n" + e.toString() + "\n" +  file);
 					return false;
 				}
 			}).anyMatch(isSuccessful -> !isSuccessful);
@@ -298,13 +298,15 @@ public class BhNodeTemplates {
 	 * */
 	public static boolean checkIfAllScriptsExist(String fileName, String... scriptNames) {
 			
-		List<String> scriptNameList = new ArrayList<>();
-		for (String scriptName : scriptNames) {
-			if (scriptName != null)
-				if (!scriptName.isEmpty())
-					scriptNameList.add(scriptName);
-		}
-		return BhScriptManager.instance.checkIfScriptsExist(scriptNameList, fileName);
+		String[] scriptNamesFiltered = Stream.of(scriptNames)
+			.filter(scriptName -> {
+				if (scriptName != null)
+					if (!scriptName.isEmpty())
+						return true;
+				return false;})
+			.toArray(String[]::new);
+		
+		return BhScriptManager.instance.checkIfScriptsExist(fileName, scriptNamesFiltered);
 	}
 		
 	/**

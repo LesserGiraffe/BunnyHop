@@ -63,7 +63,7 @@ public class BhNodeCategoryListController implements MsgReceiver {
 			break;
 
 		default :
-			MsgPrinter.instance.ErrMsgForDebug("BhNodeCategoryListController.receiveMsg error msg");
+			MsgPrinter.instance.ErrMsgForDebug(BhNodeCategoryList.class.getSimpleName() + ".receiveMsg unknown msg");
 			assert false;
 		}
 		return null;

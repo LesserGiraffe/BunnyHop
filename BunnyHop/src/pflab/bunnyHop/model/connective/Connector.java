@@ -183,7 +183,7 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 		try {
 			canBeReplaced = onReplaceabilityChecked.eval(scriptScope);
 		} catch (ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug("Connector.isReplacable   " + scriptNameOnReplaceabilityChecked + "\n" + e.getMessage() + "\n");
+			MsgPrinter.instance.ErrMsgForDebug(Connector.class.getSimpleName() +  ".isReplacable   " + scriptNameOnReplaceabilityChecked + "\n" + e.toString() + "\n");
 			return false;
 		}
 		if (canBeReplaced instanceof Boolean)

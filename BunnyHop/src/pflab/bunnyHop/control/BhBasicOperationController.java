@@ -11,13 +11,16 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import pflab.bunnyHop.bhProgram.BhProgramData;
+import pflab.bunnyHop.bhProgram.BhProgramExecEnvError;
+import pflab.bunnyHop.bhProgram.common.BhProgramData;
 import pflab.bunnyHop.bhProgram.LocalBhProgramManager;
+import pflab.bunnyHop.bhProgram.RemoteBhProgramManager;
 import pflab.bunnyHop.root.MsgPrinter;
 import pflab.bunnyHop.common.BhParams;
 import pflab.bunnyHop.common.Point2D;
@@ -60,9 +63,12 @@ public class BhBasicOperationController {
 	private @FXML Button connectBtn;	//!< 接続ボタン
 	private @FXML Button disconnectBtn;	//!< 切断ボタン
 	private @FXML TextField ipAddrTextField;	//IPアドレス入力欄
+	private @FXML TextField unameTextField; //!< ユーザ名
+	private @FXML PasswordField passwordTextField;	//!< ログインパスワード
 	private @FXML Button sendBtn;	//!< 送信ボタン
 	private @FXML TextField stdInTextField;	//!< 標準入力テキストフィールド
 	private File currentSaveFile;	//!< 現在保存対象になっているファイル
+	private boolean bhProgramIsRunningLocally = true;	//!< ルーカルマシン上でBhProgramを実行している場合true
 		
 	/**
 	 * イベントハンドラをセットする
@@ -264,11 +270,11 @@ public class BhBasicOperationController {
 		
 		saveAsBtn.setOnAction(action -> {
 			if (wss.getWorkspaceList().isEmpty()) {
-				Alert alert = new Alert(Alert.AlertType.INFORMATION);
-				alert.setTitle("名前を付けて保存");
-				alert.setHeaderText(null);
-				alert.setContentText("保存すべきワークスペースがありません");
-				alert.showAndWait();
+				MsgPrinter.instance.alert(
+					AlertType.INFORMATION, 
+					"名前を付けて保存",
+					null,
+					"保存すべきワークスペースがありません");
 				return;
 			}
 			
@@ -286,14 +292,6 @@ public class BhBasicOperationController {
 			if (success) {
 				currentSaveFile = selectedFile;
 			}
-			else if (selectedFile != null){
-				String fileName = selectedFile.getPath();
-				Alert alert = new Alert(Alert.AlertType.ERROR);
-				alert.setTitle("名前を付けて保存");
-				alert.setHeaderText(null);
-				alert.setContentText("ファイルの保存に失敗しました\n" + fileName);
-				alert.showAndWait();
-			}
 		});
 	}
 
@@ -305,11 +303,11 @@ public class BhBasicOperationController {
 		
 		saveBtn.setOnAction(action -> {
 			if (wss.getWorkspaceList().isEmpty()) {
-				Alert alert = new Alert(Alert.AlertType.INFORMATION);
-				alert.setTitle("上書き保存");
-				alert.setHeaderText(null);
-				alert.setContentText("保存すべきワークスペースがありません");
-				alert.showAndWait();
+				MsgPrinter.instance.alert(
+					AlertType.INFORMATION, 
+					"上書き保存",
+					null,
+					"保存すべきワークスペースがありません");
 				return;
 			}
 						
@@ -318,13 +316,7 @@ public class BhBasicOperationController {
 				fileExists = currentSaveFile.exists();
 			
 			if (fileExists) {				
-				boolean succes = wss.save(currentSaveFile);
-				if (succes) {
-					MsgPrinter.instance.MsgForUser("保存が完了しました." + currentSaveFile.getPath() + "\n");
-				}
-				else {
-					MsgPrinter.instance.MsgForUser("保存に失敗しました. " + currentSaveFile.getPath() + "\n");
-				}
+				wss.save(currentSaveFile);
 			}
 			else {
 				saveAsBtn.fireEvent(action);	//保存対象のファイルが無い場合, 名前をつけて保存
@@ -355,11 +347,11 @@ public class BhBasicOperationController {
 			}
 			else if (selectedFile != null){
 				String fileName = selectedFile.getPath();
-				Alert alert = new Alert(Alert.AlertType.ERROR);
-				alert.setTitle("開く");
-				alert.setHeaderText(null);
-				alert.setContentText("ファイルを開けませんでした\n" + fileName);
-				alert.showAndWait();
+				MsgPrinter.instance.alert(
+					AlertType.INFORMATION, 
+					"開く",
+					null,
+					"ファイルを開けませんでした\n" + fileName);
 			}
 		});
 	}
@@ -402,7 +394,7 @@ public class BhBasicOperationController {
 	}
 	
 	/**
-	 * 実行ボタンのイベントハンドらを登録する
+	 * 実行ボタンのイベントハンドラを登録する
 	 * @param wss イベント時に操作するワークスペースセット
 	 */
 	private void setExecuteHandler(WorkspaceSet wss) {
@@ -413,13 +405,14 @@ public class BhBasicOperationController {
 			Workspace currentWS = wss.getCurrentWorkspace();
 			HashSet<BhNode> selectedNodeList = currentWS.getSelectedNodeList();
 			if (selectedNodeList.size() != 1) {
-				Alert alert = new Alert(Alert.AlertType.ERROR);
-				alert.setTitle("実行対象の選択");
-				alert.setHeaderText(null);
-				alert.setContentText("実行対象を一つ選択してください");
-				alert.showAndWait();
+				MsgPrinter.instance.alert(
+					AlertType.ERROR,
+					"実行対象の選択",
+					null,
+					"実行対象を一つ選択してください");
 				return;
 			}
+			MsgPrinter.instance.MsgForUser("\n");
 			
 			// 実行対象以外を非選択に.
 			BhNode nodeToExec = selectedNodeList.toArray(new BhNode[selectedNodeList.size()])[0];
@@ -439,8 +432,12 @@ public class BhBasicOperationController {
 			CompileOption option = new CompileOption(isLocalHost(), true, true, true);
 			Optional<Path> execFilePath = BhCompiler.instance.compile(nodeToExec, compiledNode, option);
 			execFilePath.ifPresent(filePath -> {
-				if (isLocalHost())
+				bhProgramIsRunningLocally = isLocalHost();
+				if (bhProgramIsRunningLocally)
 					LocalBhProgramManager.instance.executeAsync(filePath, ipAddrTextField.getText());
+				else
+					RemoteBhProgramManager.instance.executeAsync(
+						filePath, ipAddrTextField.getText(), unameTextField.getText(), passwordTextField.getText());
 			});
 		});
 	}
@@ -450,8 +447,10 @@ public class BhBasicOperationController {
 	 */
 	private void setTerminateHandler() {
 		terminateBtn.setOnAction(action -> {
-			MsgPrinter.instance.MsgForUser("-- 終了 --\n");
-			LocalBhProgramManager.instance.terminateAsync();
+			if (bhProgramIsRunningLocally)
+				LocalBhProgramManager.instance.terminateAsync();
+			else
+				RemoteBhProgramManager.instance.terminateAsync();
 		});
 	}
 	
@@ -460,8 +459,10 @@ public class BhBasicOperationController {
 	 */
 	private void setDisconnectHandler() {
 		disconnectBtn.setOnAction(action -> {
-			MsgPrinter.instance.MsgForUser("-- 切断 --\n");
-			LocalBhProgramManager.instance.disconnectAsync();
+			if (bhProgramIsRunningLocally)
+				LocalBhProgramManager.instance.disconnectAsync();
+			else
+				RemoteBhProgramManager.instance.disconnectAsync();
 		});
 	}
 	
@@ -470,8 +471,10 @@ public class BhBasicOperationController {
 	 */
 	private void setConnectHandler() {
 		connectBtn.setOnAction(action -> {
-			MsgPrinter.instance.MsgForUser("-- 接続 --\n");
-			LocalBhProgramManager.instance.connectAsync();
+			if (bhProgramIsRunningLocally)
+				LocalBhProgramManager.instance.connectAsync();
+			else
+				RemoteBhProgramManager.instance.connectAsync();
 		});
 	}
 	
@@ -480,9 +483,27 @@ public class BhBasicOperationController {
 	 */
 	private void setSendHandler() {
 		sendBtn.setOnAction(action -> {
-			MsgPrinter.instance.MsgForUser("-- 送信 --\n");
-			LocalBhProgramManager.instance.sendAsync(
-				new BhProgramData(BhProgramData.TYPE.INPUT_STR, stdInTextField.getText()));
+			BhProgramExecEnvError errCode;
+			if (bhProgramIsRunningLocally)
+				errCode = LocalBhProgramManager.instance.sendAsync(
+					new BhProgramData(BhProgramData.TYPE.INPUT_STR, stdInTextField.getText()));
+			else
+				errCode = RemoteBhProgramManager.instance.sendAsync(
+					new BhProgramData(BhProgramData.TYPE.INPUT_STR, stdInTextField.getText()));
+			
+			switch (errCode) {
+				case SEND_QUEUE_FULL:
+					MsgPrinter.instance.ErrMsgForUser("!! 送信失敗 (送信データ追加失敗) !!\n");
+					break;
+					
+				case SEND_WHEN_DISCONNECTED:
+					MsgPrinter.instance.ErrMsgForUser("!! 送信失敗 (未接続) --\n");
+					break;
+					
+				case SUCCESS:
+					MsgPrinter.instance.ErrMsgForUser("!! 送信完了 !!\n");
+					break;
+			}
 		});
 	}
 	

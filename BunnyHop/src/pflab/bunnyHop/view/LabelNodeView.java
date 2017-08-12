@@ -38,8 +38,8 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 			try {
 				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 				label = (Label)loader.load();
-			} catch (IOException | ClassCastException ex) {
-				MsgPrinter.instance.ErrMsgForDebug(ex.toString());
+			} catch (IOException | ClassCastException e) {
+				MsgPrinter.instance.ErrMsgForDebug("failed to initialize " + LabelNodeView.class.getSimpleName() + "\n" + e.toString());
 			}
 		}
 		getChildren().add(label);

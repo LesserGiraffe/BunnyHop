@@ -42,70 +42,77 @@ public class BhScriptManager {
 	
 	/**
 	 * Javascriptのファイルパスからコンパイル済みスクリプトを取得する
-	 * @param jsPath 取得したいスクリプトのパス
+	 * @param fileName 取得したいスクリプトのファイル名
 	 * @return jsPath で指定したスクリプト
 	 * */
-	public CompiledScript getCompiledScript(String jsPath) {
-		return scriptName_script.get(jsPath);
+	public CompiledScript getCompiledScript(String fileName) {
+		return scriptName_script.get(fileName);
 	}
 
 	/**
 	 * Javascriptファイルを読み込み、コンパイルする
+	 * @param dirPaths このフォルダの下にある.jsファイルをコンパイルする
 	 * @return ひとつでもコンパイル不能なJSファイルがあった場合 false を返す
 	 * */
-	public boolean genCompiledCode() {
+	public boolean genCompiledCode(Path... dirPaths) {
 
-		Path dirPath = Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.javascriptDir);
-		Stream<Path> paths;	//読み込むファイルパスリスト
-		try {
-			paths = Files.walk(dirPath).filter(path -> path.getFileName().toString().endsWith(".js")); //.jsファイルだけ収集
-		}
-		catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug(BhParams.Path.javascriptDir + " directory not found " + dirPath);
-			return false;
-		}
-		
-		boolean success = paths.map(path -> {
-			
-			try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)){
-				CompiledScript cs = ((Compilable)engine).compile(reader);
-				scriptName_script.put(path.getFileName().toString(), cs);
+		boolean success = true;
+		for (Path dirPath : dirPaths) {
+			Stream<Path> paths;	//読み込むファイルパスリスト
+			try {
+				paths = Files.walk(dirPath).filter(path -> path.getFileName().toString().endsWith(".js")); //.jsファイルだけ収集
 			}
 			catch (IOException e) {
-				MsgPrinter.instance.ErrMsgForDebug(e.getMessage());
-				return false;
+				MsgPrinter.instance.ErrMsgForDebug(BhParams.Path.javascriptDir + " directory not found " + dirPath);
+				success &= false;
+				continue;
 			}
-			catch (ScriptException e) {
-				MsgPrinter.instance.ErrMsgForDebug(path.toUri() + " がコンパイルできません.");
-				MsgPrinter.instance.ErrMsgForDebug(e.getMessage());
-				return false;
-			}
-			return true;
-		}).allMatch(bool -> bool);
 
+			success &= paths.map(path -> {
+
+				try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)){
+					CompiledScript cs = ((Compilable)engine).compile(reader);
+					scriptName_script.put(path.getFileName().toString(), cs);
+				}
+				catch (IOException e) {
+					MsgPrinter.instance.ErrMsgForDebug(e.toString() + "  " + path.toString());
+					return false;
+				}
+				catch (ScriptException e) {
+					MsgPrinter.instance.ErrMsgForDebug(path.toUri() + " がコンパイルできません.");
+					MsgPrinter.instance.ErrMsgForDebug(e.toString());
+					return false;
+				}
+				return true;
+			}).allMatch(bool -> bool);
+			
+		}
+		
 		if (scriptName_script.containsKey(BhParams.Path.commonJS)) {
 			try {
 				commonJsObj = scriptName_script.get(BhParams.Path.commonJS).eval();
 			} catch (ScriptException e) {
-				MsgPrinter.instance.ErrMsgForDebug("exec " + BhParams.Path.commonJS + "\n" + e.getMessage() + "\n");
-				return false;
+				MsgPrinter.instance.ErrMsgForDebug("exec " + BhParams.Path.commonJS + "\n" + e.toString() + "\n");
+				success &= false;
 			}
-		}		
+		}
+		
 		return success;
 	}
 	
 	/**
 	 * 引数で指定したスクリプト名に対応するスクリプトが存在するかどうかチェックする
+ 	 * @param fileName スクリプト名の書いてあるファイル名
 	 * @param scriptNames スクリプトが存在するかどうか調べるスクリプト名
-	 * @param fileName スクリプト名の書いてあるファイル名
 	 * @return 引数で指定したスクリプト名に対応するスクリプトが全て見つかった場合true
 	 */
-	public boolean checkIfScriptsExist(List<String> scriptNames, String fileName) {
-		Stream<String> scriptNameStream = scriptNames.stream();
+	public boolean checkIfScriptsExist(String fileName, String... scriptNames) {
+		
+		Stream<String> scriptNameStream = Stream.of(scriptNames);
 		return scriptNameStream.allMatch(scriptName ->{
 			boolean found = scriptName_script.get(scriptName) != null;
 			if (!found) {
-				MsgPrinter.instance.ErrMsgForDebug(scriptName + " が見つかりません. " + fileName);
+				MsgPrinter.instance.ErrMsgForDebug(scriptName + " が見つかりません.  file: " + fileName);
 			}	
 			return found;
 		});
@@ -128,11 +135,11 @@ public class BhScriptManager {
 			jsonObj = cs.eval();
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug("cannot read json file.  " + filePath + "\n" + e.getMessage() + "\n");
+			MsgPrinter.instance.ErrMsgForDebug("cannot read json file.  " + filePath + "\n" + e.toString() + "\n");
 			return null;
 		}
 		catch (ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug("cannot parse json file.  " + filePath + "\n" + e.getMessage() + "\n");
+			MsgPrinter.instance.ErrMsgForDebug("cannot parse json file.  " + filePath + "\n" + e.toString() + "\n");
 			return null;
 		}
 		if (!(jsonObj instanceof ScriptObjectMirror)) {

@@ -1,7 +1,6 @@
-package pflab.bunnyHop.bhProgram.socket;
+package pflab.bunnyHop.programExecEnv;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.rmi.server.RMIServerSocketFactory;

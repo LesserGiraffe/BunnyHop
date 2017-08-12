@@ -7,6 +7,7 @@ import java.util.concurrent.BlockingQueue;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
 import javafx.util.Duration;
 import pflab.bunnyHop.common.BhParams;
@@ -47,7 +48,7 @@ public class MsgPrinter {
 	 * デバッグ用メッセージ出力メソッド
 	 * */
 	public void ErrMsgForDebug(String msg) {
-		System.out.println("ERR : " + msg);
+		System.err.println("ERR : " + msg);
 	}
 
 	/**
@@ -58,7 +59,7 @@ public class MsgPrinter {
 	}
 	
 	/**
-	 * Bhユーザ向けにメッセージを出力する
+	 * BHユーザ向けにメッセージを出力する
 	 */
 	public void MsgForUser(String msg) {
 		
@@ -74,7 +75,37 @@ public class MsgPrinter {
 			}
 		}
 	}
+	
+	/**
+	 * BHユーザ向けにエラーメッセージを出力する
+	 */
+	public void ErrMsgForUser(String msg) {
+		MsgForUser(msg);
+	}
+
+	/**
+	 * アラーウィンドウでメッセージを出力する
+	 * @param type アラートの種類
+	 * @param title アラートウィンドウのタイトル
+	 * @param header アラートウィンドウのヘッダ
+	 * @param content アラートウィンドウの本文
+	 */
+	public void alert(Alert.AlertType type, String title, String header, String content) {
 		
+		if (Platform.isFxApplicationThread()) {
+			Alert alert = new Alert(type);
+			alert.setTitle(title);
+			alert.setHeaderText(header);
+			alert.setContentText(content);
+			alert.showAndWait();	
+		}
+		else {
+			Platform.runLater(() -> {
+				alert(type, title, header, content);
+			});
+		}
+	}
+	
 	/**
 	 * メインのメッセージ出力エリアを登録する
 	 * @param mainMsgArea 登録するメインのメッセージ出力エリア

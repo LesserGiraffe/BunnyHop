@@ -27,7 +27,7 @@ public class BhParams {
 	public static double maxWorkspaceSizeLevel = 3;		//!< ワークスペースの最大の大きさレベル
 	public static double minWorkspaceSizeLevel = -1;	//!< ワークスペースの最小の大きさレベル
 	public static String mainWorkspaceName = "main";	//!< 最初からあるワークスペースの名前
-	public static int executorShutdownTimeout = 5;	//!< ExecutorService のシャットダウン待ち (sec)
+	public static int executorShutdownTimeout = 5;	//!< ExecutorService のシャットダウンを待つ時間 (sec)
 	
 	/**
 	 * ファイルパス関連のパラメータ
@@ -52,6 +52,7 @@ public class BhParams {
 		public static String compiled = "Compiled";
 		public static String commonCode = "CommonCode.js";
 		public static String appFileName = "BhAppScript.js";
+		public static String remoteDir = "remote";
 	}
 
 	/**
@@ -120,6 +121,11 @@ public class BhParams {
 		public static String keyBhNextSymbolName = "bhNextSymbolName";
 		public static String keyBhUserOpeCmd = "bhUserOpeCmd";
 		public static String keyBhCommon = "bhCommon";
+		public static String keyIpAddr = "ipAddr";
+		public static String keyUname = "uname";
+		public static String keyPassword = "password";
+		public static String keyExecExnvironment = "execEnvironment";
+		public static String keyBhProgramFilePath = "bhProgramFilePath";
 	}
 
 	/**
@@ -210,7 +216,7 @@ public class BhParams {
 		public static String classTextFieldNode = "textFieldNode";
 		public static String classLabelNode = "labelNode";
 		public static String classConnectiveNode = "ConnectiveNode";
-		public static String classPostFixPane = "-Pane";
+		public static String classSuffixPane = "-Pane";
 	}
 	
 	/**
@@ -218,14 +224,18 @@ public class BhParams {
 	 */
 	public static class ExternalProgram {
 		
-		public static int bhServerTCPPort = Registry.REGISTRY_PORT;	//!< BhServerにアクセスする際のTCPポート
-		public static int numFindingRmiObjRetry = 2;	//!< RMIオブジェクトの処理に失敗した際のリトライ回数
-		public static String bhProgramRunnerName = "BhProgramRunner.jar";
-		public static int programRunnerTerminationTimeout = 5;	//!< BhProgramRunner終了待ちのタイムアウト時間 (sec)
-		public static int programRunnerStartTimeout = 10;	//!< BhProgramRunner開始待ちのタイムアウト時間 (sec)
+		public static String bhProgramExecEnvironment = "BhProgramExecEnvironment.jar";
+		public static int programExecEnvTerminationTimeout = 15;	//!< BhProgramExecEnvironment終了待ちのタイムアウト時間 (sec)
+		public static int programExecEnvStartTimeout = 15;	//!< BhProgramExecEnvironment開始待ちのタイムアウト時間 (sec)
+		public static int fileCopyTerminationTimeout = 15;	//!< ファイルコピープロセス終了待ちののタイムアウト (sec)
 		public static int popRecvDataTimeout = 3;	//!< BhProgram実行環境からの受信データ待ちタイムアウト (sec)
 		public static int popSendDataTimeout = 3;	//!< BhProgram実行環境への送信データ待ちタイムアウト (sec)
+		public static int tcpPortReadTimeout = 15;	//!< TCPポート読み取りのタイムアウト (sec)
 		public static int maxRemoteCmdQueueSize = 2048;
+		public static String rmiTcpPortSuffix = "@RmiTcpPort";	//BhProgram実行環境との通信に使うRMIオブジェクトを探す際のTCPポート
+		public static String remoteExecCmdGenerator = "remoteExecCmdGenerator.js";	//!< リモートのBhProgram実行環境をスタートさせるコマンドを生成するスクリプト名
+		public static String remoteKillCmdGenerator = "remoteKillCmdGenerator.js";	//!< リモートのBhProgram実行環境を終わらせるコマンドを生成するスクリプト名
+		public static String copyCmdGenerator = "copyCmdGenerator.js";	//!< リモートのBhProgram実行環境にBhProgramファイルをコピーするコマンドを生成するスクリプト名
 	}
 }
 

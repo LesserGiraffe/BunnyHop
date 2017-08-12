@@ -44,8 +44,8 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 			try {
 				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 				textField = (TextField)loader.load();
-			} catch (IOException | ClassCastException ex) {
-				MsgPrinter.instance.ErrMsgForDebug(ex.toString());
+			} catch (IOException | ClassCastException e) {
+				MsgPrinter.instance.ErrMsgForDebug("failed to initialize " + TextFieldNodeView.class.getSimpleName() + "\n" + e.toString());
 			}
 		}
 		getChildren().add(textField);
