@@ -1,0 +1,40 @@
+<Node type="connective"
+	bhNodeID="idIfStat"
+	name="IfStat"
+	nodeStyleID="IfStat.json"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js">
+
+	<ConnectorSection name="StatSctn">
+		
+		<PrivateConnector
+			name="Moshi"
+			fixed="true">
+			<Node
+				type="label"
+				name="Moshi"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="もし">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idBoolExpCnctr" name="CondExp"/>
+
+		<PrivateConnector
+			name="Nara"
+			fixed="true">
+			<Node
+				type="label"
+				name="Nara"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="なら">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idStatCnctr" name="ThenStat"/>
+		
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+	</ConnectorSection>
+</Node>

@@ -1,0 +1,23 @@
+<Node type="connective"
+	  bhNodeID="idNotExp"
+	  name="NotExp"
+	  nodeStyleID="NotExp.json"
+	  onMovedFromChildToWS=""
+	  onMovedToChild="">
+
+	<ConnectorSection name="BooleanExpSctn">
+		<Connector bhConnectorID="idBoolExpCnctr" name="primaryExp"/>
+
+		<PrivateConnector 
+			name="dehanai"
+			fixed="true">
+			<Node
+				type="label"
+				name="dehanai"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="ではない">
+			</Node>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>

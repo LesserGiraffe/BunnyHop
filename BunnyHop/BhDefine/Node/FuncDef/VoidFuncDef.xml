@@ -1,0 +1,20 @@
+<Node type="connective"
+	bhNodeID="idVoidFuncDef"
+	name="VoidFuncDef"
+	canCreateImitManually="true"
+	nodeStyleID="VoidFuncDef.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<Imitation imitationTag="tagManual" imitationNodeID="idVoidFuncCall"/>
+
+    <Section name="FuncDefSctn">
+		<ConnectorSection name="FuncNameSctn">
+			<Connector bhConnectorID="idFuncNameCnctr" name="FuncName" imitationTag="tagFuncName"/>
+		</ConnectorSection>
+		<ConnectorSection name="VarScopeSctn">
+			<Connector bhConnectorID="idStatCnctr" name="Stat"/>
+			<Connector bhConnectorID="idVarDeclCnctr" name="ParamDecl" imitationTag="tagVarDeclToArg"/>
+		</ConnectorSection>
+	</Section>
+</Node>

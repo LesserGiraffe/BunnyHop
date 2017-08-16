@@ -1,0 +1,40 @@
+<Node
+	type="connective"
+	bhNodeID="idBoolArrayAppendStat"
+	name="BoolArrayAppendStat"
+	nodeStyleID="BoolArrayAppendStat.json"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js">
+
+	<ConnectorSection name="StatSctn">
+		<Connector bhConnectorID="idBoolListCnctr" name="Arg0"/>
+
+		<PrivateConnector
+			name="ni"
+			fixed="true">
+			<Node
+				type="label"
+				name="ni"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="に">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idBoolListCnctr" name="Arg1"/>
+		
+		<PrivateConnector
+			name="noYosoWoSubeteTsuikaSuru"
+			fixed="true">
+			<Node
+				type="label"
+				name="noYosoWoSubeteTsuikaSuru"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="の要素を全て追加する">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+	</ConnectorSection>
+</Node>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox
+	xmlns:fx="http://javafx.com/fxml"
+	fx:controller="pflab.bunnyhop.control.BhBasicOperationController"
+	fx:id="bhBasicOpViewBase">
+	<FlowPane
+		fx:id="bhBasicOpViewUpper">
+		<Button text="コピー" fx:id="copyBtn" styleClass="bhBasicOpButtons"/>
+		<Button text="カット" fx:id="cutBtn" styleClass="bhBasicOpButtons"/>
+		<Button text="貼り付け" fx:id="pasteBtn" styleClass="bhBasicOpButtons"/>
+		<Button text="消去" fx:id="deleteBtn" styleClass="bhBasicOpButtons"/>
+		<Separator fx:id="bhBasicOpSeparator0" orientation="VERTICAL" styleClass="bhBasicOpSeparator"/>
+		<Button text="元に戻す" fx:id="undoBtn" styleClass="bhBasicOpButtons"/>
+		<Button text="やり直す" fx:id="redoBtn" styleClass="bhBasicOpButtons"/>
+		<Separator fx:id="bhBasicOpSeparator1" orientation="VERTICAL" styleClass="bhBasicOpSeparator"/>
+		<Button text="拡大" fx:id="zoonInBtn" styleClass="bhBasicOpButtons"/>
+		<Button text="縮小" fx:id="zoonOutBtn" styleClass="bhBasicOpButtons"/>
+		<Separator fx:id="bhBasicOpSeparator2" orientation="VERTICAL" styleClass="bhBasicOpSeparator"/>
+		<Button text="広げる" fx:id="widenBtn" styleClass="bhBasicOpButtons"/>
+		<Button text="狭める" fx:id="narrowBtn" styleClass="bhBasicOpButtons"/>
+		<Separator fx:id="bhBasicOpSeparator3" orientation="VERTICAL" styleClass="bhBasicOpeSeparator"/>
+		<Button text="名前をつけて保存" fx:id="saveAsBtn" styleClass="bhBasicOpButtons"/>
+		<Button text="上書き保存" fx:id="saveBtn" styleClass="bhBasicOpButtons"/>
+		<Button text="ファイルを開く" fx:id="loadBtn" styleClass="bhBasicOpButtons"/>
+		<Button text="ワークスペースの追加" fx:id="addWorkspaceBtn" styleClass="bhBasicOpButtons"/>		
+	</FlowPane>
+	<FlowPane
+		fx:id="bhBasicOpViewLower">
+		<Button text="実行" fx:id="executeBtn" styleClass="bhBasicOpButtons"/>
+		<Button text="終了" fx:id="terminateBtn" styleClass="bhBasicOpButtons"/>
+		<Button text="接続" fx:id="connectBtn" styleClass="bhBasicOpButtons"/>
+		<Button text="切断" fx:id="disconnectBtn" styleClass="bhBasicOpButtons"/>
+		
+		<Label text="IPアドレス:" styleClass="loginInfoLabel">
+			<FlowPane.margin>
+				<Insets left="15.0"/>
+			</FlowPane.margin>
+		</Label>
+		<TextField fx:id="ipAddrTextField" text="127.0.0.1"/>
+		
+		<Label text="ユーザー名:" styleClass="loginInfoLabel">
+			<FlowPane.margin>
+				<Insets left="15.0"/>
+			</FlowPane.margin>
+		</Label>
+		<TextField fx:id="unameTextField" text=""/>
+		
+		<Label text="パスワード:" styleClass="loginInfoLabel">
+			<FlowPane.margin>
+				<Insets left="15.0"/>
+			</FlowPane.margin>
+		</Label>
+		<PasswordField fx:id="passwordTextField" text=""/>
+		
+		<Separator fx:id="bhBasicOpSeparator4" orientation="VERTICAL" styleClass="bhBasicOpSeparator"/>
+		<TextField fx:id="stdInTextField" text="文字入力"/>
+		<Button text="送信" fx:id="sendBtn" styleClass="bhBasicOpButtons"/>
+	</FlowPane>
+</VBox>

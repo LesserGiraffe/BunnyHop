@@ -1,0 +1,14 @@
+<Node type="connective"
+	  bhNodeID="idVoidFuncCall"
+	  name="VoidFuncCall"
+	  nodeStyleID="VoidFuncCall.json"
+	  onMovedFromChildToWS="onStatMovedToWS.js"
+	  onMovedToChild="onStatMovedToChild.js">
+
+	<ConnectorSection name="StatSctn">
+		<Connector bhConnectorID="idFuncNameCnctr" name="FuncName" imitationTag="tagFuncName"/>
+		<Connector bhConnectorID="idArgCnctr" name="Arg" imitationTag="tagVarDeclToArg"/>
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+	</ConnectorSection>
+</Node>
+

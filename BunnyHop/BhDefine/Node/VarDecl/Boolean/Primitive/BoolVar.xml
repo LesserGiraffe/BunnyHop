@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+
+<Node
+	type="connective"
+	bhNodeID="idBoolVar"
+	name="BoolVar"
+	nodeStyleID="BoolVar.json"
+    imitScopeName="VarScopeSctn"
+    onMovedFromChildToWS=""
+	onMovedToChild="">
+    
+  	<ConnectorSection name="BooleanExpSctn">
+		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitationTag="tagVarName"/>
+	</ConnectorSection>
+
+</Node>

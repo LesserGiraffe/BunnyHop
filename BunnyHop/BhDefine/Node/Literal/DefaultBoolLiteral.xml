@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+
+<Node
+	type="comboBox"
+	bhNodeID="idDefaultBoolLiteral"
+	name="BoolLiteral"
+	nodeStyleID="BoolLiteral.json"
+	nodeInputControl="BoolLiteral.fxml"
+    onMovedFromChildToWS="onDefaultLiteralMovedToWS.js"
+    initString="真">
+</Node>
+

@@ -1,0 +1,150 @@
+/*
+#categoryTree .tree-cell:odd {
+   -fx-background: #c0c0c0;
+}
+
+#categoryTree .tree-cell:even {
+   -fx-background: #d3d3d3;
+}
+
+#categoryTree .tree-cell:hover {
+   -fx-background: #f5f5f5;
+}
+*/
+
+
+#nodeCategoryListViewBase {
+	-fx-pref-width: 15em;
+	-fx-max-width: 15em;
+	-fx-min-width: 3em;
+}
+
+#categoryTree .tree-cell{
+	-fx-font-size: 1.5em;
+	-fx-font-family: "Meiryo UI";
+	-fx-text-fill: #000000;
+}
+
+#categoryTree .tree-cell:selected {
+	-fx-border-color: yellow;
+	-fx-border-width: 0.2em;
+}
+
+#categoryTree .tree-cell:empty {
+	-fx-background: white;
+}
+
+/*-----------------------num----------------------*/
+
+#categoryTree .number {
+	-fx-background: derive(numTypeCol, 0%);
+	-fx-border-color: black;
+}
+
+#categoryTree .number:hover {
+	-fx-background: derive(numTypeCol, 50% );
+}
+
+
+#categoryTree .numVar {
+	-fx-background: derive(numTypeCol, 0% );
+	-fx-border-color: black;
+}
+
+#categoryTree .numVar:hover {
+	-fx-background: derive(numTypeCol, 50% );
+}
+
+#categoryTree .numOpe {
+	-fx-background: derive(numTypeCol, 0% );
+	-fx-border-color: black;
+}
+
+#categoryTree .numOpe:hover {
+	-fx-background: derive(numTypeCol, 50% );
+}
+
+/*------------------------str---------------------*/
+
+#categoryTree .string {
+	-fx-background: derive(strTypeCol, 0% );
+	-fx-border-color: black;
+}
+
+#categoryTree .string:hover {
+	-fx-background: derive(strTypeCol, 50% );
+}
+
+#categoryTree .strVar {
+	-fx-background: derive(strTypeCol, 0% );
+	-fx-border-color: black;
+}
+
+#categoryTree .strVar:hover {
+	-fx-background: derive(strTypeCol, 50% );
+}
+
+#categoryTree .strOpe {
+	-fx-background: derive(strTypeCol, 0% );
+	-fx-border-color: black;
+}
+
+#categoryTree .strOpe:hover {
+	-fx-background: derive(strTypeCol, 50% );
+}
+
+/*------------------------bool---------------------*/
+
+#categoryTree .boolean {
+	-fx-background: derive(boolTypeCol, 0% );
+	-fx-border-color: black;
+	-fx-text-fill: white;
+}
+
+#categoryTree .boolean:hover {
+	-fx-background: derive(boolTypeCol, 50% );
+}
+
+#categoryTree .boolVar {
+	-fx-background: derive(boolTypeCol, 0% );
+	-fx-border-color: black;
+	-fx-text-fill: white;
+}
+
+#categoryTree .boolVar:hover {
+	-fx-background: derive(boolTypeCol, 50% );
+}
+
+#categoryTree .boolOpe {
+	-fx-background: derive(boolTypeCol, 0% );
+	-fx-border-color: black;
+	-fx-text-fill: white;
+}
+
+#categoryTree .boolOpe:hover {
+	-fx-background: derive(boolTypeCol, 50% );
+}
+
+/*--------------------control----------------------*/
+
+#categoryTree .control {
+	-fx-background: derive(controlTypeCol, 0% );
+	-fx-border-color: black;
+}
+
+#categoryTree .control:hover {
+	-fx-background: derive(controlTypeCol, 50% );
+}
+
+/*--------------------funcDef----------------------*/
+
+#categoryTree .funcDef {
+	-fx-background: derive(voidTypeCol, 0% );
+	-fx-border-color: black;
+}
+
+#categoryTree .funcDef:hover {
+	-fx-background: derive(voidTypeCol, 50% );
+	-fx-border-color: black;
+}
+

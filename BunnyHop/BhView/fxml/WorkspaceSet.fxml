@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+<SplitPane
+	xmlns:fx="http://javafx.com/fxml"
+	fx:id="workspaceSetViewBase"
+	fx:controller="pflab.bunnyhop.control.WorkspaceSetController">
+	<StackPane fx:id="workspaceSetStackPane">
+		<TabPane fx:id="workspaceSetTab" tabClosingPolicy="ALL_TABS"/>
+		<ImageView fx:id="closedTrashboxIV" StackPane.Alignment="BOTTOM_RIGHT" PickOnBounds="true" MouseTransparent="true">
+			<image>
+				<Image url="@../images/closedTrashbox.png" requestedWidth="60" requestedHeight="106"/>
+			</image>
+		</ImageView>
+		<ImageView fx:id="openedTrashboxIV" StackPane.Alignment="BOTTOM_RIGHT" PickOnBounds="true" MouseTransparent="true" visible="false">
+			<image>
+				<Image url="@../images/openedTrashbox.png" requestedWidth="60" requestedHeight="106"/>
+			</image>
+		</ImageView>
+	</StackPane>
+	<TextArea  fx:id="bottomMsgArea" VBox.vgrow="ALWAYS"/>
+</SplitPane>

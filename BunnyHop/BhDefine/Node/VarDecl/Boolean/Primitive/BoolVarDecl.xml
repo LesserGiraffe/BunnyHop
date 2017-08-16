@@ -1,0 +1,16 @@
+<Node type="connective"
+	  bhNodeID="idBoolVarDecl"
+	  name="BoolVarDecl"
+      canCreateImitManually="true"
+	  nodeStyleID="BoolVarDecl.json"
+	  onMovedFromChildToWS="onVarDeclMovedToWS.js"
+	  onMovedToChild="">
+
+    <Imitation imitationTag="tagManual" imitationNodeID="idBoolVar"/>
+    <Imitation imitationTag="tagVarDeclToArg" imitationNodeID="idBoolVarArg"/>
+    
+	<ConnectorSection name="VarDeclSctn">
+		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitationTag="tagVarName"/>
+        <Connector bhConnectorID="idVarDeclCnctr" name="NextVarDecl" imitationTag="tagVarDeclToArg"/>
+	</ConnectorSection>
+</Node>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox
+	xmlns:fx="http://javafx.com/fxml"
+	fx:id="foundationVbox"
+    fx:controller="pflab.bunnyhop.control.FoundationController">
+	<fx:include fx:id="bhBasicOperation" source="BhBasicOpControl.fxml"/>
+	<SplitPane fx:id="horizontalSplitter" VBox.vgrow="ALWAYS">
+		<fx:include fx:id="workspaceSet" source="WorkspaceSet.fxml"/>
+		<fx:include fx:id="nodeCategoryList" source="NodeCategoryList.fxml"/>
+	</SplitPane>
+</VBox>

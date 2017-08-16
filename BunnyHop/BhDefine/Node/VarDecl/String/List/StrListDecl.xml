@@ -1,0 +1,29 @@
+<Node type="connective"
+	bhNodeID="idStrListDecl"
+	name="StrListDecl"
+	canCreateImitManually="true"
+	nodeStyleID="StrListDecl.json"
+	onMovedFromChildToWS="onVarDeclMovedToWS.js"
+	onMovedToChild="">
+
+	<Imitation imitationTag="tagManual" imitationNodeID="idStrList"/>
+	<Imitation imitationTag="tagVarDeclToArg" imitationNodeID="idStrListArg"/>
+
+	<ConnectorSection name="VarDeclSctn">
+		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitationTag="tagListName"/>
+		
+		<PrivateConnector
+			name="ListSign"
+			fixed="true">
+			<Node
+				type="label"
+				name="ListSign"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="[...]">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idVarDeclCnctr" name="NextVarDecl" imitationTag="tagVarDeclToArg"/>
+	</ConnectorSection>
+</Node>

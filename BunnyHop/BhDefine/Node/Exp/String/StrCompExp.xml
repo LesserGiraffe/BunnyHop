@@ -1,0 +1,25 @@
+<Node type="connective"
+	  bhNodeID="idStrCompExp"
+	  name="StrCompExp"
+	  nodeStyleID="StrCompExp.json"
+	  onMovedFromChildToWS=""
+	  onMovedToChild="">
+
+	<ConnectorSection name="BooleanExpSctn">
+		<Connector bhConnectorID="idStrExpCnctr" name="LeftExp"/>
+		
+		<PrivateConnector
+			name="Operator"
+			fixed="true">
+			<Node
+				type="comboBox"
+				name="CompOpe"
+				nodeStyleID="CompOpe.json"
+				nodeInputControl="CompOpe.fxml"
+				initString="＝">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idStrExpCnctr" name="RightExp"/>
+	</ConnectorSection>
+</Node>

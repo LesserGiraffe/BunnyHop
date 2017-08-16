@@ -1,0 +1,25 @@
+<Node type="connective"
+	bhNodeID="idFourArithExp"
+	name="FourArithExp"
+	nodeStyleID="FourArithExp.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<ConnectorSection name="NumberExpSctn">
+		<Connector bhConnectorID="idNumExpCnctr" name="LeftExp"/>
+		
+		<PrivateConnector 
+			name="Operator"
+    		fixed="true">
+			<Node
+				type="comboBox"
+				name="FourArithOpe"
+				nodeStyleID="FourArithOpe.json"
+				nodeInputControl="FourArithOpe.fxml"
+				initString="＋">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idNumExpCnctr" name="RightExp"/>
+	</ConnectorSection>
+</Node>

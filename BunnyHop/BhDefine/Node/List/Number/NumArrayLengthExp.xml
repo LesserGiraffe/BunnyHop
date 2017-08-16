@@ -1,0 +1,25 @@
+<Node
+	type="connective"
+	bhNodeID="idNumArrayLengthExp"
+	name="NumArrayLengthExp"
+	nodeStyleID="NumArrayLengthExp.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<ConnectorSection name="NumberExpSctn">
+		<Connector bhConnectorID="idNumListCnctr" name="Array"/>
+		
+		<PrivateConnector
+			name="noSaizu"
+			fixed="true">
+			<Node
+				type="label"
+				name="noSaizu"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="のサイズ">
+			</Node>
+		</PrivateConnector>
+		
+	</ConnectorSection>
+</Node>

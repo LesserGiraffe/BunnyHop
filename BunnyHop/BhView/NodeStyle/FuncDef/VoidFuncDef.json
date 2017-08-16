@@ -1,0 +1,31 @@
+{
+	"topMargin" : 1.0,
+	"bottomMargin" : 1.0,
+	"leftMargin" : 6.5,
+	"rightMargin" : 2.5,
+	"connectorPos" : "Left",
+	"connectorShift" : 0.0,
+	"connectorWidth" : 0.0,
+	"connectorHeight" : 0.0,
+	"connectorShape" : "NONE",
+	"connectorBoundsRate" : 1.25,
+	"cssClass" : "voidFuncDefType",
+    
+    "connective" : {
+		"inner" : {
+			"arrangement" : "Column",
+			"interval" : 2.0,
+			"connectorList" : ["FuncName"],
+			"subGroup0" : {
+				"arrangement" : "Row",
+				"interval" : 4.0,
+				"connectorList" : ["Stat", "ParamDecl"]
+			}
+		}
+	},
+    
+    "imitation" : {
+		"buttonPosX" : 1.5,
+		"buttonPosY" : 1.0
+	}
+}
