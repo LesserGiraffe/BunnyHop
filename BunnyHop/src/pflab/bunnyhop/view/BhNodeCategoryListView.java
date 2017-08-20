@@ -124,7 +124,7 @@ public class BhNodeCategoryListView {
 		}
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		BhNode node = BhNodeTemplates.instance().genBhNode(bhNodeID, userOpeCmd);
-		NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Template, userOpeCmd);
+		NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Template);
 		node.accept(builder);	//MVC構築
 		
 		category_selectionView.get(category).addBhNodeView(builder.getTopNodeView());	//BhNode テンプレートリストパネルにBhNodeテンプレートを追加	

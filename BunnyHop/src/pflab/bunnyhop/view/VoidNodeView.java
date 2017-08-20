@@ -38,10 +38,14 @@ public class VoidNodeView extends BhNodeView {
 		this.model = model;
 	}
 
-	@Override
+	/**
+	 * 初期化する
+	 */
 	public void init() {
+		initialize();
 		getAppearanceManager().addCssClass(BhParams.CSS.classVoidNode);
 		setFuncs(this::updateStyleFunc, null);
+		setMouseTransparent(true);
 	}
 	
 	/**

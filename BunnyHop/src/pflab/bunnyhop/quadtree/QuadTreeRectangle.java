@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import pflab.bunnyhop.common.Linkable;
-import pflab.bunnyhop.message.MsgSender;
+import pflab.bunnyhop.message.MsgReceptionWindow;
 
 /**
  * 4分木空間に登録される矩形オブジェクト<br>

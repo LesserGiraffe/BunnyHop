@@ -83,7 +83,7 @@ public class FuncDefCodeGenerator {
 		code.append(") {")
 			.append(Util.LF);
 
-		SyntaxSymbol stat = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.stat, "*");
+		SyntaxSymbol stat = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.statList, "*");
 		statCodeGen.genStatement(stat, code, nestLevel + 1, option);
 		code.append(common.indent(nestLevel))
 			.append("}")

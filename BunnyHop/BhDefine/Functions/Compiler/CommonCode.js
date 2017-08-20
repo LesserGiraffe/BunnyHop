@@ -2,6 +2,13 @@
 	function _boolToStr(boolVal) {
 		return (boolVal === true) ? '真' : '偽';
 	}
+	
+	function _strToNum(strVal) {
+		const num = Number(strVal);
+		if (isFinite(num))
+			return num;
+		return 0;
+	}
 
 	function _randomInt(min, max) {
 		min = Math.ceil(min);

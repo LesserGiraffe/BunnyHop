@@ -29,18 +29,18 @@ import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.message.BhMsg;
 import pflab.bunnyhop.message.MsgData;
-import pflab.bunnyhop.message.MsgReceiver;
 import pflab.bunnyhop.model.Workspace;
 import pflab.bunnyhop.model.WorkspaceSet;
 import pflab.bunnyhop.undo.UserOpeCmdManager;
 import pflab.bunnyhop.view.BhNodeSelectionView;
 import pflab.bunnyhop.view.WorkspaceView;
+import pflab.bunnyhop.message.MsgProcessor;
 
 /**
  * ワークスペースセットのコントローラ + ビュークラス
  * @author K.Koike
  * */
-public class WorkspaceSetController implements MsgReceiver {
+public class WorkspaceSetController implements MsgProcessor {
 
 	private WorkspaceSet model;
 	@FXML private SplitPane workspaceSetViewBase;
@@ -210,7 +210,7 @@ public class WorkspaceSetController implements MsgReceiver {
 	}
 
 	@Override
-	public MsgData receiveMsg(BhMsg msg, MsgData data){
+	public MsgData processMsg(BhMsg msg, MsgData data){
 
 		switch (msg) {
 

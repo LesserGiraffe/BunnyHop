@@ -8,5 +8,6 @@
 	"connectorWidth" : 3.5,
 	"connectorHeight" : 3.5,
 	"connectorShape" : "CHAR_T",
-	"connectorBoundsRate" : 1.25
+	"connectorBoundsRate" : 1.25,
+	"cssClass" : "voidNode"
 }

@@ -23,21 +23,22 @@ import java.util.List;
 import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.message.BhMsg;
 import pflab.bunnyhop.message.MsgData;
-import pflab.bunnyhop.message.MsgSender;
+import pflab.bunnyhop.message.MsgProcessor;
 import pflab.bunnyhop.message.MsgTransporter;
-import pflab.bunnyhop.root.BunnyHop;
 import pflab.bunnyhop.undo.UserOperationCommand;
+import pflab.bunnyhop.message.MsgReceptionWindow;
 
 /**
  * ワークスペースクラス
  * @author K.Koike
  * */
-public class Workspace implements MsgSender, Serializable {
+public class Workspace implements MsgReceptionWindow, Serializable {
 	
 	private final HashSet<BhNode> rootNodeList = new HashSet<>();	//!< ワークスペースのルートノードのリスト
 	private final HashSet<BhNode> selectedList = new HashSet<>();	//!< 選択中のノード
 	private final String workspaceName;	//!< ワークスペース名
 	transient private WorkspaceSet workspaceSet;	//!< このワークスペースを持つワークスペースセット
+	transient private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
 	
 	/**
 	 * コンストラクタ
@@ -199,6 +200,16 @@ public class Workspace implements MsgSender, Serializable {
 	 */
 	public String getWorkspaceName() {
 		return workspaceName;
+	}
+	
+	@Override
+	public void setMsgProcessor(MsgProcessor processor) {
+		msgProcessor = processor;
+	}
+	
+	@Override
+	public MsgData passMsg(BhMsg msg, MsgData data) {
+		return msgProcessor.processMsg(msg, data);
 	}
 }
 

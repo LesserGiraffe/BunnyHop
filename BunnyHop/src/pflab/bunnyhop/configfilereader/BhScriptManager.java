@@ -79,7 +79,7 @@ public class BhScriptManager {
 				paths = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.getFileName().toString().endsWith(".js")); //.jsファイルだけ収集
 			}
 			catch (IOException e) {
-				MsgPrinter.instance.ErrMsgForDebug(BhParams.Path.javascriptDir + " directory not found " + dirPath);
+				MsgPrinter.instance.ErrMsgForDebug(BhParams.Path.FunctionsDir + " directory not found " + dirPath);
 				success &= false;
 				continue;
 			}

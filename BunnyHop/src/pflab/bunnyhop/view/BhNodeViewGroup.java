@@ -328,6 +328,16 @@ public class BhNodeViewGroup extends Group implements Showable {
 		subGroupList.forEach(subGroup -> subGroup.accept(visitorFunc));
 	}
 	
+	public void toForeGround() {
+		
+		toFront();
+		if (parentGroup != null)
+			parentGroup.toForeGround();
+		
+		if (parentView != null)
+			parentView.getAppearanceManager().toForeGround();
+	}
+	
 	@Override
 	public void show(int depth) {
 

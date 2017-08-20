@@ -75,7 +75,7 @@ public class TextFieldNodeController extends BhNodeController {
 	 * @return メッセージを処理した結果返すデータ
 	 * */
 	@Override
-	public MsgData receiveMsg(BhMsg msg, MsgData data) {
+	public MsgData processMsg(BhMsg msg, MsgData data) {
 	
 		switch (msg) {
 			case IMITATE_TEXT:
@@ -87,7 +87,7 @@ public class TextFieldNodeController extends BhNodeController {
 				break;
 			
 			default:
-				return super.receiveMsg(msg, data);
+				return super.processMsg(msg, data);
 		}
 		return null;
 	}

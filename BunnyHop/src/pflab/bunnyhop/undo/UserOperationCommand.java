@@ -20,8 +20,6 @@ import java.util.LinkedList;
 import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.message.BhMsg;
 import pflab.bunnyhop.message.MsgData;
-import pflab.bunnyhop.message.MsgReceiver;
-import pflab.bunnyhop.message.MsgSender;
 import pflab.bunnyhop.message.MsgTransporter;
 import pflab.bunnyhop.model.BhNode;
 import pflab.bunnyhop.model.Imitatable;
@@ -31,6 +29,8 @@ import pflab.bunnyhop.model.WorkspaceSet;
 import pflab.bunnyhop.model.connective.Connector;
 import pflab.bunnyhop.view.BhNodeView;
 import pflab.bunnyhop.view.WorkspaceView;
+import pflab.bunnyhop.message.MsgProcessor;
+import pflab.bunnyhop.message.MsgReceptionWindow;
 
 /**
  * undo/redo 用コマンドクラス
@@ -69,23 +69,6 @@ public class UserOperationCommand {
 			MsgPrinter.instance.MsgForDebug("subope  " + subope);
 		}
 		MsgPrinter.instance.MsgForDebug("");
-	}
-	
-	/**
-	 * メッセージの送り手と受け手の登録をコマンド化してサブ操作リストに加える
-	 * @param sender 登録されたメッセージ送信者オブジェクト
-	 */
-	public void pushCmdOfSetSenderAndReceiver(MsgSender sender) {
-		subOpeList.addLast(new SetSenderAndReceiverCmd(sender));
-	}
-
-	/**
-	 * メッセージの送り手と受け手の削除をコマンド化してサブ操作リストに加える
-	 * @param sender 削除されたメッセージ送信者オブジェクト
-	 * @param receiver 削除されたメッセージ受信者オブジェクト
-	 */	
-	public void pushCmdOfDeleteSenderAndReceiver(MsgSender sender, MsgReceiver receiver) {
-		subOpeList.addLast(new DeleteSenderAndReceiverCmd(sender, receiver));
 	}
 	
 	/**
@@ -249,42 +232,6 @@ public class UserOperationCommand {
 		public void doInverseOperation(UserOperationCommand inverseCmd);
 	}
 	
-	/**
-	 * メッセージの送り手と受け手の登録を表すコマンド
-	 */
-	class SetSenderAndReceiverCmd implements SubOperation {
-		
-		private final MsgSender sender;
-		
-		public SetSenderAndReceiverCmd(MsgSender sender) {
-			this.sender = sender;
-		}
-		
-		@Override
-		public void doInverseOperation(UserOperationCommand inverseCmd) {
-			MsgTransporter.instance().deleteSenderAndReceiver(sender, inverseCmd);	//送信者, 受信者登録の反対は削除
-		}
-	}
-	
-	/**
-	 * メッセージの送り手と受け手の削除を表すコマンド
-	 */
-	class DeleteSenderAndReceiverCmd implements SubOperation {
-		
-		private final MsgSender sender;
-		private final MsgReceiver receiver;
-		
-		public DeleteSenderAndReceiverCmd(MsgSender sender, MsgReceiver receiver) {
-			this.sender = sender;
-			this.receiver = receiver;
-		}
-		
-		@Override
-		public void doInverseOperation(UserOperationCommand inverseCmd) {
-			MsgTransporter.instance().setSenderAndReceiver(sender, receiver, inverseCmd); //送信者, 受信者削除の反対は登録
-		}
-	}
-
 	/**
 	 * イミテーションノードリストへの追加を表すコマンド
 	 */

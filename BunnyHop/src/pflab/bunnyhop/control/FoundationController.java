@@ -50,7 +50,7 @@ public class FoundationController {
 			workspaceSetController.getTabPane(), 
 			nodeCategoryListController.getView());
 		
-		MsgTransporter.instance().setSenderAndReceiver(wss, workspaceSetController, new UserOperationCommand());
-		MsgTransporter.instance().setSenderAndReceiver(nodeCategoryList, nodeCategoryListController, new UserOperationCommand());
+		wss.setMsgProcessor(workspaceSetController);
+		nodeCategoryList.setMsgProcessor(nodeCategoryListController);		
 	}
 }

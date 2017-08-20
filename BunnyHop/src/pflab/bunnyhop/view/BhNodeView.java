@@ -71,7 +71,9 @@ public abstract class BhNodeView extends Pane implements Showable {
 	/**
 	 * 初期化する
 	 */
-	abstract void init();
+	protected void initialize() {
+		getChildren().add(nodeShape);
+	}
 	
 	/**
 	 * このビューのモデルであるBhNodeを取得する
@@ -89,10 +91,9 @@ public abstract class BhNodeView extends Pane implements Showable {
 		this.setPickOnBounds(false);	//nodeShape 部分だけがMouseEvent を拾うように
 		this.viewStyle = viewStyle;
 		this.model = model;
-		getChildren().add(nodeShape);
 		connectorPart = this.new BhNodeViewConnector(viewStyle.connectorShape);
 		appearanceManager.addCssClass(viewStyle.cssClass);
-		appearanceManager.addCssClass(BhParams.CSS.classBhNode);
+		appearanceManager.addCssClass(BhParams.CSS.classBhNode);	
 	}
 
 	/**
@@ -245,10 +246,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		public void toForeGround() {
 			BhNodeView.this.toFront();
 			if (parent != null)
-				parent.toFront();
-			BhNodeView parentView = viewTreeManager.getParentView();
-			if (parentView != null)
-				parentView.getAppearanceManager().toForeGround();
+				parent.toForeGround();
 		}
 
 		/**

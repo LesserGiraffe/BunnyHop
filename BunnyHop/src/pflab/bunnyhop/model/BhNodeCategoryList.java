@@ -25,16 +25,21 @@ import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.common.TreeNode;
 import pflab.bunnyhop.common.Util;
-import pflab.bunnyhop.message.MsgSender;
 import pflab.bunnyhop.configfilereader.BhScriptManager;
+import pflab.bunnyhop.message.BhMsg;
+import pflab.bunnyhop.message.MsgData;
+import pflab.bunnyhop.message.MsgProcessor;
+import pflab.bunnyhop.message.MsgReceptionWindow;
 
 /**
  * BhNode のカテゴリ一覧を表示している部分のmodel
  * @author K.Koike
  * */
-public class BhNodeCategoryList implements MsgSender {
+public class BhNodeCategoryList implements MsgReceptionWindow {
 
 	private TreeNode<String> templateTreeRoot;
+	private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
+	
 	public BhNodeCategoryList(){};
 
 	/**
@@ -44,7 +49,7 @@ public class BhNodeCategoryList implements MsgSender {
 	 * */
 	public boolean genNodeCategoryList() {
 
-		Path filePath = Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.TemplateListDir, BhParams.Path.nodeTemplateListJson);
+		Path filePath = Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.TemplateListDir, BhParams.Path.nodeTemplateList);
 		ScriptObjectMirror jsonObj = BhScriptManager.instance.parseJsonFile(filePath);
 		templateTreeRoot = new TreeNode<>("root");
 		return addChildren(jsonObj, templateTreeRoot, filePath.toString());
@@ -125,6 +130,16 @@ public class BhNodeCategoryList implements MsgSender {
 	 **/
 	public TreeNode<String> getRootNode() {
 		return templateTreeRoot;
+	}
+	
+	@Override
+	public void setMsgProcessor(MsgProcessor processor) {
+		msgProcessor = processor;
+	}
+	
+	@Override
+	public MsgData passMsg(BhMsg msg, MsgData data) {
+		return msgProcessor.processMsg(msg, data);
 	}
 }
 

@@ -27,10 +27,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.common.Point2D;
+import pflab.bunnyhop.common.Single;
 import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.model.TextNode;
 import pflab.bunnyhop.configfilereader.FXMLCollector;
@@ -45,6 +47,7 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 	private final TextNode model;
 	private Button imitCreateImitBtn;	//!< イミテーション作成ボタン
 	private ListCell<String> buttonCell = new ComboBoxNodeListCell();
+	private Single<Boolean> dragged = new Single<>(false);
 
 	public ComboBoxNodeView(TextNode model, BhNodeViewStyle viewStyle) {
 		super(viewStyle, model);
@@ -52,11 +55,12 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 	}
 
 	/**
-	 * GUI部品の読み込みと初期化を行う
+	 * 初期化する
+	 * @param isTemplate ノード選択パネルに表示されるノードであった場合true
 	 */
-	@Override
-	public void init() {
+	public void init(boolean isTemplate) {
 
+		initialize();
 		String inputControlFileName = BhNodeViewStyle.nodeID_inputControlFileName.get(model.getID());
 		if (inputControlFileName != null) {
 			Path filePath = FXMLCollector.instance.getFilePath(inputControlFileName);
@@ -68,7 +72,17 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 			}
 		}
 		getChildren().add(comboBox);
+		comboBox.addEventFilter(MouseEvent.ANY, event -> {
+			getEventManager().propagateEvent(event);
+			if (isTemplate || dragged.content)
+				event.consume();
 
+			if (event.getEventType().equals(MouseEvent.DRAG_DETECTED))
+				dragged.content = true;
+			else if (event.getEventType().equals(MouseEvent.MOUSE_RELEASED))
+				dragged.content = false;
+		});
+				
 		if (model.getImitationInfo().canCreateImitManually) {
 			imitCreateImitBtn = loadButton(BhParams.Path.imitButtonFXML, viewStyle.imitation);
 			if (imitCreateImitBtn != null)

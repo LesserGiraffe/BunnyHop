@@ -34,27 +34,45 @@ final public class VarDeclCodeGenerator {
 	}
 	
 	/**
-	 * グローバル変数定義のコードを作成する
-	 * @param compiledNodeList コンパイル対象のノードリスト
+	 * 変数定義のコードを作成する
+	 * @param nodeListToCompile コンパイル対象のノードリスト
 	 * @param code 生成したコードの格納先
 	 * @param nestLevel ソースコードのネストレベル
 	 * @param option コンパイルオプション
 	 */
-	public void genGlobalVarDecls(
-		List<? extends SyntaxSymbol> compiledNodeList,
+	public void genVarDecls(
+		List<? extends SyntaxSymbol> nodeListToCompile,
 		StringBuilder code,
 		int nestLevel, 
 		CompileOption option) {
 		
 		List<VarDeclCodeGenerator.VarDeclInfo> varDeclInfoList = new ArrayList<>();
-		compiledNodeList.forEach(node -> {
+		nodeListToCompile.forEach(node -> {
 			if (SymbolNames.VarDecl.varDeclList.contains(node.getSymbolName())) {
 				genVarDeclInfos(node, varDeclInfoList);
 			}
 		});
 		genVarDecls(code, varDeclInfoList, nestLevel, option);
 	}
-
+	
+	/**
+	 * 変数定義のコードを作成する
+	 * @param varDeclNode 変数定義ノード
+	 * @param code 生成したコードの格納先
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 */
+	public void genVarDecls(
+		SyntaxSymbol varDeclNode,
+		StringBuilder code,
+		int nestLevel, 
+		CompileOption option) {
+		
+		List<VarDeclCodeGenerator.VarDeclInfo> varDeclInfoList = new ArrayList<>();
+		genVarDeclInfos(varDeclNode, varDeclInfoList);
+		genVarDecls(code, varDeclInfoList, nestLevel, option);
+	}
+	
 	/**
 	 * 仮引数
 	 * @param paramNode 仮引数のノード
@@ -115,7 +133,6 @@ final public class VarDeclCodeGenerator {
 		varDeclInfoList.add(new VarDeclInfo(varName, initVal, comment));
 		
 		SyntaxSymbol nextVarDecl = varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.nextVarDecl, "*");
-
 		genVarDeclInfos(nextVarDecl, varDeclInfoList);
 	}
 	

@@ -54,7 +54,8 @@ public class AppMain extends Application {
 			System.exit(-1);
 		
 		boolean jsCompleHasSucceeded = BhScriptManager.instance.genCompiledCode(
-			Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.javascriptDir),
+			Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.FunctionsDir),
+			Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.TemplateListDir),
 			Paths.get(Util.execPath, BhParams.Path.remoteDir));
 		if (!jsCompleHasSucceeded) {
 			System.exit(-1);

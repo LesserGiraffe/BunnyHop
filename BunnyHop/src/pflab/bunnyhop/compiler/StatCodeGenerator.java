@@ -71,6 +71,9 @@ public class StatCodeGenerator {
 			return;
 		}
 		SyntaxSymbol nextStat = statementNode.findSymbolInDescendants("*", SymbolNames.AssignStat.nextStat, "*");
+		if (nextStat == null)
+			nextStat = statementNode.findSymbolInDescendants("*", "*", SymbolNames.AssignStat.nextStat, "*");	//for compoundStat
+		
 		if (nextStat != null)
 			genStatement(nextStat, code, nestLevel, option);
 	}
@@ -102,9 +105,13 @@ public class StatCodeGenerator {
 		if (varName == null || rightExpCode == null)
 			return;
 		
+		String assignOpe = " = ";
+		if (assignStatNode.getSymbolName().equals(SymbolNames.AssignStat.numAddAssignStat))
+			assignOpe = " += ";
+		
 		code.append(common.indent(nestLevel))
 			.append(varName)
-			.append(" = ")
+			.append(assignOpe)
 			.append(rightExpCode)
 			.append(";")
 			.append(Util.LF);
@@ -125,18 +132,34 @@ public class StatCodeGenerator {
 	
 		String symbolName = controlStatNode.getSymbolName();
 		
-		if (symbolName.equals(SymbolNames.ControlStat.breakStat)) {
-			code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._break).append(";").append(Util.LF);
-		}
-		else if (symbolName.equals(SymbolNames.ControlStat.continueStat)) {
-			code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._continue).append(";").append(Util.LF);
-		}
-		else if (symbolName.equals(SymbolNames.ControlStat.ifElseStat) ||
-			symbolName.equals(SymbolNames.ControlStat.ifStat)) {
-			genIfElseStat(code, controlStatNode, nestLevel, option);
-		}
-		else if (symbolName.equals(SymbolNames.ControlStat.whileStat)) {
-			genWhileStat(code, controlStatNode, nestLevel, option);
+		switch (symbolName) {
+			case SymbolNames.ControlStat.breakStat:
+				code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._break).append(";").append(Util.LF);
+				break;
+				
+			case SymbolNames.ControlStat.continueStat:
+				code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._continue).append(";").append(Util.LF);
+				break;
+				
+			case SymbolNames.ControlStat.ifElseStat:
+			case SymbolNames.ControlStat.ifStat:
+				genIfElseStat(code, controlStatNode, nestLevel, option);
+				break;
+				
+			case SymbolNames.ControlStat.whileStat:
+				genWhileStat(code, controlStatNode, nestLevel, option);
+				break;
+				
+			case SymbolNames.ControlStat.compoundStat:
+				genCompoundStat(code, controlStatNode, nestLevel, option);
+				break;
+			
+			case SymbolNames.ControlStat.repeatStat:
+				genRepeatStat(code, controlStatNode, nestLevel, option);
+				break;
+				
+			default:
+				break;
 		}
 	}
 	
@@ -223,6 +246,80 @@ public class StatCodeGenerator {
 		
 		//loop part
 		SyntaxSymbol loopStat = whileStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.loopStat, "*");
+		genStatement(loopStat, code, nestLevel+1, option);
+		code.append(common.indent(nestLevel))
+			.append("}")
+			.append(Util.LF);
+	}
+	
+	/**
+	 * While文のコードを生成する
+	 * @param code 生成したコードの格納先
+	 * @param compoundStatNode block文のノード
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 */
+	private void genCompoundStat(
+		StringBuilder code, 
+		SyntaxSymbol compoundStatNode, 
+		int nestLevel,
+		CompileOption option) {
+	
+		code.append(common.indent(nestLevel))
+			.append("{")
+			.append(Util.LF);
+		SyntaxSymbol param = compoundStatNode.findSymbolInDescendants("*", "*", SymbolNames.ControlStat.localVarDecl, "*");
+		varDeclCodeGen.genVarDecls(param, code, nestLevel + 1, option);
+		SyntaxSymbol stat = compoundStatNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.statList, "*");
+		genStatement(stat, code, nestLevel + 1, option);
+		code.append(common.indent(nestLevel))
+			.append("}")
+			.append(Util.LF);
+	}
+
+	/**
+	 * Repeat文のコードを生成する
+	 * @param code 生成したコードの格納先
+	 * @param repeatStatNode Repeat文のノード
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 */	
+	private void genRepeatStat(
+		StringBuilder code, 
+		SyntaxSymbol repeatStatNode, 
+		int nestLevel,
+		CompileOption option) {
+	
+		SyntaxSymbol condExp = repeatStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.condExp, "*");
+		String condExpCode = expCodeGen.genExpression(code, condExp, nestLevel, option);
+		String loopCounter = common.genVarName(repeatStatNode);
+		String numRepetitionVar = "_" + loopCounter;
+		code.append(common.indent(nestLevel))
+			.append(BhCompiler.Keywords.JS._const)
+			.append(numRepetitionVar)
+			.append(" = ")
+			.append(condExpCode)
+			.append(";")
+			.append(Util.LF);
+
+		//for (init; cond; update)
+		code.append(common.indent(nestLevel))
+			.append(BhCompiler.Keywords.JS._for)
+			.append("(")
+			.append(BhCompiler.Keywords.JS._let)
+			.append(loopCounter)
+			.append(" = 0; ")
+			.append(loopCounter)
+			.append("<")
+			.append(numRepetitionVar)
+			.append("; ")
+			.append("++")
+			.append(loopCounter)
+			.append(") {")
+			.append(Util.LF);
+		
+		//loop part
+		SyntaxSymbol loopStat = repeatStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.loopStat, "*");
 		genStatement(loopStat, code, nestLevel+1, option);
 		code.append(common.indent(nestLevel))
 			.append("}")

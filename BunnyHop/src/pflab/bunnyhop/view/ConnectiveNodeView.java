@@ -48,11 +48,12 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 	}
 	
 	/**
-	 * GUI部品の追加とコールバック関数の登録を行う
+	 * 初期化する
+	 * @param isTemplate ノード選択パネルに表示されるノードであった場合true
 	 */
-	@Override
 	public void init() {
 		
+		initialize();
 		innerGroup.buildSubGroup(viewStyle.connective.inner);
 		outerGroup.buildSubGroup(viewStyle.connective.outer);
 		getChildren().add(innerGroup);

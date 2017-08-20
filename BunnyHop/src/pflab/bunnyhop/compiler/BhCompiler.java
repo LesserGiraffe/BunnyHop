@@ -57,7 +57,7 @@ public class BhCompiler {
 	 */
 	public boolean init() {
 		
-		Path commonCodePath = Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.javascriptDir, BhParams.Path.compiler, BhParams.Path.commonCode);
+		Path commonCodePath = Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.FunctionsDir, BhParams.Path.compiler, BhParams.Path.commonCode);
 		try {
 			byte[] content = Files.readAllBytes(commonCodePath);
 			commonCode = new String(content, StandardCharsets.UTF_8);
@@ -132,7 +132,7 @@ public class BhCompiler {
 			.append("(){")
 			.append(Util.LF);
 		code.append(commonCode);
-		varDeclCodeGen.genGlobalVarDecls(compiledNodeList, code, 1, option);
+		varDeclCodeGen.genVarDecls(compiledNodeList, code, 1, option);
 		funcDefCodeGen.genFuncDefs(compiledNodeList, code, 1, option);
 		statCodeGen.genStatement(execNode, code, 1, option);
 		code.append("})();");
@@ -162,6 +162,7 @@ public class BhCompiler {
 			public static final String _if = "if ";
 			public static final String _else = "else ";
 			public static final String _while = "while ";
+			public static final String _for = "for ";
 			public static final String _break = "break";
 			public static final String _continue = "continue";
 			public static final String _let = "let ";

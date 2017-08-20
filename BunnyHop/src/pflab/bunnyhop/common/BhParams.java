@@ -59,14 +59,15 @@ public class BhParams {
 		public static String nodeDefDir = "Node"; //!< ノード定義ファイルがあるフォルダ名
 		public static String connectorDefDir = "Connector"; //!< コネクタ定義ファイルがあるフォルダ名
 		public static String nodeStyleDefDir = "NodeStyle"; //!< ノードのスタイル定義ファイルがあるフォルダ名
-		public static String javascriptDir = "Functions";	//!< Javascript コードが書かれたファイルのあるトップフォルダ
+		public static String FunctionsDir = "Functions";	//!< Javascript コードが書かれたファイルのあるトップフォルダ
 		public static String TemplateListDir = "TemplateList";	//ノードテンプレートの配置情報が書かれたファイルがあるフォルダ名
-		public static String nodeTemplateListJson = "NodeTemplateList.json";	//!< ノードテンプレートの配置情報が書かれたファイルの名前
+		public static String nodeTemplateList = "NodeTemplateList.json";	//!< ノードテンプレートの配置情報が書かれたファイルの名前
 		public static String commonJS = "common.js";
 		public static String compiler = "Compiler";
 		public static String compiled = "Compiled";
 		public static String commonCode = "CommonCode.js";
 		public static String appFileName = "BhAppScript.js";
+		public static String genCompoundNodes = "genCompoundNodes.js";
 		public static String remoteDir = "Remote";
 	}
 
@@ -136,6 +137,7 @@ public class BhParams {
 		public static String keyBhNextSymbolName = "bhNextSymbolName";
 		public static String keyBhUserOpeCmd = "bhUserOpeCmd";
 		public static String keyBhCommon = "bhCommon";
+		public static String keyBhNodeTemplates = "bhNodeTemplates";
 		public static String keyIpAddr = "ipAddr";
 		public static String keyUname = "uname";
 		public static String keyPassword = "password";

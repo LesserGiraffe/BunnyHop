@@ -18,13 +18,13 @@ package pflab.bunnyhop.control;
 import java.util.ArrayList;
 import javafx.application.Platform;
 import javafx.event.Event;
+import javafx.scene.input.MouseEvent;
 import pflab.bunnyhop.modelprocessor.UnscopedNodeCollector;
 import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.common.Pair;
 import pflab.bunnyhop.message.BhMsg;
 import pflab.bunnyhop.message.MsgData;
-import pflab.bunnyhop.message.MsgReceiver;
 import pflab.bunnyhop.message.MsgTransporter;
 import pflab.bunnyhop.model.BhNode;
 import pflab.bunnyhop.model.Workspace;
@@ -37,12 +37,13 @@ import pflab.bunnyhop.model.connective.ConnectiveNode;
 import pflab.bunnyhop.modelhandler.DelayedDeleter;
 import pflab.bunnyhop.root.BunnyHop;
 import pflab.bunnyhop.undo.UserOperationCommand;
+import pflab.bunnyhop.message.MsgProcessor;
 
 /**
  * BhNode のコントローラクラスに共通の処理をまとめたクラス
  * @author K.Koike
  * */
-public class BhNodeController implements MsgReceiver {
+public class BhNodeController implements MsgProcessor {
 
 	private final BhNode model;
 	private final BhNodeView view;
@@ -140,7 +141,7 @@ public class BhNodeController implements MsgReceiver {
 
 		//ドラッグを検出 (先にsetOnMouseDraggedが呼ばれ、ある程度ドラッグしたときにこれが呼ばれる)
 		view.getEventManager().setOnDragDetectedHandler(mouseEvent -> {
-
+			
 			if (ddInfo.propagateEvent) {
 				propagateGUIEvent(model.findParentNode(), mouseEvent);
 				return;
@@ -349,7 +350,7 @@ public class BhNodeController implements MsgReceiver {
 	 * @return メッセージを処理した結果返すデータ
 	 * */
 	@Override
-	public MsgData receiveMsg(BhMsg msg, MsgData data) {
+	public MsgData processMsg(BhMsg msg, MsgData data) {
 
 		Point2D pos;
 

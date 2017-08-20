@@ -25,6 +25,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseEvent;
 import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.common.Point2D;
@@ -49,10 +50,11 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 
 	/**
 	 * GUI部品の読み込みと初期化を行う
+	 * @param isTemplate ノード選択パネルに表示されるノードであった場合true
 	 */
-	@Override
-	public void init() {
+	public void init(boolean isTemplate) {
 		
+		initialize();
 		String inputControlFileName = BhNodeViewStyle.nodeID_inputControlFileName.get(model.getID());
 		if (inputControlFileName != null) {
 			Path filePath = FXMLCollector.instance.getFilePath(inputControlFileName);
@@ -64,12 +66,16 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 			}
 		}
 		getChildren().add(textField);
-
+		textField.addEventFilter(MouseEvent.ANY, event -> {
+			getEventManager().propagateEvent(event);
+			if (isTemplate)
+				event.consume();
+		});
+				
 		if (model.getImitationInfo().canCreateImitManually) {
 			imitCreateImitBtn = loadButton(BhParams.Path.imitButtonFXML, viewStyle.imitation);
 			if (imitCreateImitBtn != null)
 				getChildren().add(imitCreateImitBtn);
-
 		}		
 		initStyle(viewStyle);
 		setFuncs(this::updateStyleFunc, null);

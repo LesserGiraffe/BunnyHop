@@ -59,7 +59,7 @@ public class ProjectSaveData implements Serializable{
 	 */
 	public List<Workspace> load(UserOperationCommand userOpeCmd) {
 		
-		workspaceSaveList.forEach(wsSaveData -> wsSaveData.initBhNodes(userOpeCmd));
+		workspaceSaveList.forEach(wsSaveData -> wsSaveData.initBhNodes());
 		return workspaceSaveList.stream().map(wsSaveData -> {
 			return wsSaveData.load(userOpeCmd);
 		})
@@ -89,8 +89,8 @@ public class ProjectSaveData implements Serializable{
 		 * ワークスペース以下の全てのBhNode を初期化する
 		 * @param userOpeCmd undo用コマンドオブジェクト
 		 */
-		public void initBhNodes(UserOperationCommand userOpeCmd) {
-			rootNodeSaveList.forEach(nodeSaveData -> nodeSaveData.initBhNodes(userOpeCmd));
+		public void initBhNodes() {
+			rootNodeSaveList.forEach(nodeSaveData -> nodeSaveData.initBhNodes());
 		}
 		
 		/**
@@ -103,7 +103,7 @@ public class ProjectSaveData implements Serializable{
 			WorkspaceView wsView = new WorkspaceView(ws);
 			wsView.init(workspaceSize.x, workspaceSize.y);
 			WorkspaceController wsController = new WorkspaceController(ws, wsView);
-			MsgTransporter.instance().setSenderAndReceiver(ws, wsController, userOpeCmd);
+			ws.setMsgProcessor(wsController);
 			ws.initForLoad();
 			rootNodeSaveList.forEach(nodeSaveData -> {
 				Pair<BhNode, Point2D> rootNode_pos = nodeSaveData.getBhNodeAndPos();
@@ -126,10 +126,9 @@ public class ProjectSaveData implements Serializable{
 			
 			/**
 			 * BhNode を初期化する
-			 * @param userOpeCmd undo用コマンドオブジェクト
 			 */
-			public void initBhNodes(UserOperationCommand userOpeCmd) {
-				NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default, userOpeCmd);
+			public void initBhNodes() {
+				NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default);
 				rootNode.accept(builder);	//MVC構築				
 			}
 			

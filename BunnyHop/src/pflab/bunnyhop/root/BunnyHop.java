@@ -127,7 +127,7 @@ public class BunnyHop {
 		WorkspaceView wsView = new WorkspaceView(ws);
 		wsView.init(width, height);
 		WorkspaceController wsController = new WorkspaceController(ws, wsView);
-		MsgTransporter.instance().setSenderAndReceiver(ws, wsController, userOpeCmd);
+		ws.setMsgProcessor(wsController);
 		MsgTransporter.instance().sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, userOpeCmd), workspaceSet);	
 	}
 	
@@ -147,7 +147,6 @@ public class BunnyHop {
 	 */
 	public void deleteWorkspace(Workspace ws, UserOperationCommand userOpeCmd) {
 		MsgTransporter.instance().sendMessage(BhMsg.DELETE_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
-		MsgTransporter.instance().deleteSenderAndReceiver(ws, userOpeCmd);
 	}
 	
 	/**

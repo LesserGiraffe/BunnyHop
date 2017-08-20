@@ -20,6 +20,8 @@
 			"contents":[
 				"idNumVarDecl", 
 				"idNumAssignStat",
+				"idNumAddAssignStat",
+				"idSelectionViewSpace",
 				"idNumListDecl",
 				"idNumArrayPushStat",
 				"idNumArrayGetExp",
@@ -39,14 +41,22 @@
 		
 		"定数 / 演算": {
 			"cssClass":"strOpe",
-			"contents":["idStrLiteral", "idLineFeed", "idPrintStat", "idScanExp", "idAppendStrExp", "idStrCompExp"]
+			"contents":[
+				"idStrLiteral", 
+				"idLineFeed", 
+				"idPrintStat", 
+				"idScanExp", 
+				"idAppendStrExp", 
+				"idStrCompExp",
+				"idStrToNumExp"]
 		},
 		
 		"変数 / リスト": {
 			"cssClass":"strVar",
 			"contents":[
 				"idStrVarDecl", 
-				"idStrAssignStat", 
+				"idStrAssignStat",
+				"idSelectionViewSpace",
 				"idStrListDecl", 
 				"idStrArrayPushStat", 
 				"idStrArrayGetExp",
@@ -66,7 +76,11 @@
 		
 		"定数 / 演算": {
 			"cssClass":"boolOpe",
-			"contents":["idBoolLiteral", "idBinaryBoolExp", "idNotExp", "idBoolToStrExp"]
+			"contents":[
+				"idBoolLiteral", 
+				"idBinaryBoolExp", 
+				"idNotExp", 
+				"idBoolToStrExp"]
 		},
 		
 		"変数 / リスト": {
@@ -74,6 +88,7 @@
 			"contents":[
 				"idBoolVarDecl",
 				"idBoolAssignStat",
+				"idSelectionViewSpace",
 				"idBoolListDecl",
 				"idBoolArrayPushStat", 
 				"idBoolArrayGetExp",
@@ -90,7 +105,15 @@
 
 	"制御" : {
 		"cssClass":"control",
-		"contents":["idIfStat", "idIfElseStat", "idWhileStat", "idBreakStat", "idContinueStat"]
+		"contents":[
+			"idIfStat", 
+			"idIfElseStat",
+			"idRepeatStat",
+			"idWhileStat",
+			"idBreakStat", 
+			"idContinueStat",
+			"idRepeatAndCount",
+			"idCompoundStat"]
 	},
 
 	"機能作成" : {

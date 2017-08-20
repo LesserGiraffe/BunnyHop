@@ -72,31 +72,38 @@ public class SymbolNames {
 	
 	public static class Stat {
 		public static final String voidStat = "VoidStat";
+		public static final String statList = "StatList";
 	}
 	
 	public static class AssignStat {
 		
 		public static final String numAssignStat = "NumAssignStat";
+		public static final String numAddAssignStat = "NumAddAssignStat";
 		public static final String strAssignStat = "StrAssignStat";
 		public static final String boolAssignStat = "BoolAssignStat";
 		public static final String nextStat = "NextStat";
 		public static final String leftVar = "LeftVar";
 		public static HashSet<String> list = 
 			new HashSet<>(Arrays.asList(
-				numAssignStat, 
+				numAssignStat,
+				numAddAssignStat,
 				strAssignStat, 
 				boolAssignStat));
 	}
 	
 	public static class ControlStat {
-
+		
+		public static final String localVarDecl = "LocalVarDecl";
+		
 		public static final String ifStat = "IfStat";
 		public static final String ifElseStat = "IfElseStat";
 		public static final String whileStat = "WhileStat";
+		public static final String repeatStat = "RepeatStat";
 		public static final String thenStat = "ThenStat";
 		public static final String elseStat = "ElseStat";
 		public static final String condExp = "CondExp";
 		public static final String loopStat = "LoopStat";
+		public static final String compoundStat = "CompoundStat";
 		public static final String continueStat = "ContinueStat";
 		public static final String breakStat = "BreakStat";
 		public static HashSet<String> list = 
@@ -104,6 +111,8 @@ public class SymbolNames {
 				ifStat, 
 				ifElseStat, 
 				whileStat,
+				repeatStat,
+				compoundStat,
 				continueStat,
 				breakStat));
 	}
@@ -170,6 +179,7 @@ public class SymbolNames {
 		//ノード名
 		public static final String isFinite = "isFinite";
 		public static final String numToStrExp = "NumToStrExp";
+		public static final String strToNumExp = "StrToNumExp";
 		public static final String boolToStrExp = "BoolToStrExp";
 		public static final String printStat = "PrintStat";
 		public static final String scanExp = "ScanExp";
@@ -184,6 +194,7 @@ public class SymbolNames {
 		public static HashSet<String> preDefFuncCallExpList = 
 			new HashSet<>(Arrays.asList(
 				numToStrExp,
+				strToNumExp,
 				boolToStrExp,
 				scanExp,
 				numRoundExp,
@@ -221,6 +232,7 @@ public class SymbolNames {
 			new HashMap<List<String>, String>() {{
 				put(Arrays.asList(numToStrExp), "String");
 				put(Arrays.asList(boolToStrExp), "_boolToStr");
+				put(Arrays.asList(strToNumExp), "_strToNum");
 				put(Arrays.asList(printStat), "_println");
 				put(Arrays.asList(scanExp), "_scan");
 				put(Arrays.asList(isFinite), "isFinite");
@@ -267,7 +279,6 @@ public class SymbolNames {
 		public static final String nextArg = "NextArg";
 		public static final String argVoid = "ArgVoid";
 		public static final String funcDefSctn = "FuncDefSctn";
-		public static final String stat = "Stat";
 		public static final String paramDecl = "ParamDecl";
 
 		public static final String voidFuncDef = "VoidFuncDef";

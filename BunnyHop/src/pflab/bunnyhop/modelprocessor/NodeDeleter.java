@@ -50,13 +50,10 @@ public class NodeDeleter implements BhModelProcessor {
 
 		node.introduceSectionsTo(this);		
 		node.getImitationInfo().deleteAllImitations(userOpeCmd);	//オリジナルが消えた場合, イミテーションも消える
-		MsgTransporter.instance().deleteSenderAndReceiver(node, userOpeCmd);
 	}
 
 	@Override
-	public void visit(VoidNode node) {		
-		MsgTransporter.instance().deleteSenderAndReceiver(node, userOpeCmd);
-	}
+	public void visit(VoidNode node) {	}
 	
 	@Override
 	public void visit(TextNode node) {
@@ -66,6 +63,5 @@ public class NodeDeleter implements BhModelProcessor {
 			node.getOriginalNode().disconnectOrgImitRelation(node, userOpeCmd);
 
 		node.getImitationInfo().deleteAllImitations(userOpeCmd);	//オリジナルが消えた場合, イミテーションも消える
-		MsgTransporter.instance().deleteSenderAndReceiver(node, userOpeCmd);
 	}
 }

@@ -19,14 +19,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
 import javafx.scene.transform.Scale;
 import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.BhParams;
@@ -116,9 +111,11 @@ public class BhNodeSelectionView extends ScrollPane {
 			--zoomLevel;
 		}
 		nodeSelectionPanel.getTransforms().clear();
-		nodeSelectionPanel.getTransforms().add(scale);		
-		nodeSelectionPanelWrapper.setMinSize(nodeSelectionPanel.getWidth() * nodeSelectionPanel.getTransforms().get(0).getMxx(),
-			nodeSelectionPanel.getHeight() * nodeSelectionPanel.getTransforms().get(0).getMyy());	//スクロール時にスクロールバーの可動域が変わるようにする
+		nodeSelectionPanel.getTransforms().add(scale);
+		double wrapperSizeX = nodeSelectionPanel.getWidth() * nodeSelectionPanel.getTransforms().get(0).getMxx();
+		double wrapperSizeY = nodeSelectionPanel.getHeight() * nodeSelectionPanel.getTransforms().get(0).getMyy();
+		nodeSelectionPanelWrapper.setMinSize(wrapperSizeX, wrapperSizeY);	//スクロール時にスクロールバーの可動域が変わるようにする
+		nodeSelectionPanelWrapper.setMaxSize(wrapperSizeX, wrapperSizeY);
 	}
 	
 	/**

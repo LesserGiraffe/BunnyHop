@@ -22,15 +22,15 @@ import javafx.scene.layout.Region;
 import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.message.BhMsg;
 import pflab.bunnyhop.message.MsgData;
-import pflab.bunnyhop.message.MsgReceiver;
 import pflab.bunnyhop.model.BhNodeCategoryList;
 import pflab.bunnyhop.view.BhNodeCategoryListView;
+import pflab.bunnyhop.message.MsgProcessor;
 
 /**
  * BhNode のカテゴリ選択画面のController
  * @author K.Koike
  * */
-public class BhNodeCategoryListController implements MsgReceiver {
+public class BhNodeCategoryListController implements MsgProcessor {
 
 	@FXML private ScrollPane nodeCategoryListViewBase;
 	@FXML private TreeView<BhNodeCategoryListView.BhNodeCategory> categoryTree;
@@ -64,7 +64,7 @@ public class BhNodeCategoryListController implements MsgReceiver {
 	}
 			
 	@Override
-	public MsgData receiveMsg(BhMsg msg, MsgData data) {
+	public MsgData processMsg(BhMsg msg, MsgData data) {
 		switch (msg) {
 		case BUILD_NODE_CATEGORY_LIST_VIEW:
 			view.buildCategoryList(model.getRootNode());

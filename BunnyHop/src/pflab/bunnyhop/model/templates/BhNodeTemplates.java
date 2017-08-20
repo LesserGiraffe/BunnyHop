@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import javax.script.Bindings;
+import javax.script.CompiledScript;
+import javax.script.ScriptException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -112,7 +115,9 @@ public class BhNodeTemplates {
 		if (!success)
 			return false;
 
-		return registerDefaultNodeWithConnector();
+		success &= registerDefaultNodeWithConnector();
+		success &= genCompoundNodes();
+		return success;
 	}
 
 	/**
@@ -271,9 +276,9 @@ public class BhNodeTemplates {
 	/**
 	 * ノードIDとノードテンプレートを登録する
 	 * @param nodeID bhNodeのID
-	 * @param noteTemplate bhNodeテンプレート
+	 * @param nodeTemplate bhNodeテンプレート
 	 */
-	private void registerNodeTemplate(String nodeID, BhNode nodeTemplate) {
+	public void registerNodeTemplate(String nodeID, BhNode nodeTemplate) {
 		nodeID_nodeTemplate.put(nodeID, nodeTemplate);
 	}
 	
@@ -303,6 +308,26 @@ public class BhNodeTemplates {
 	 */
 	private Optional<Connector> getCnctrTemplate(String cnctrID) {
 		return Optional.ofNullable(cnctrID_cntrTemplate.get(cnctrID));
+	}
+	
+	
+	/**
+	 * 複合ノードを作成する
+	 */
+	private boolean genCompoundNodes() {
+		
+		CompiledScript cs = BhScriptManager.instance.getCompiledScript(BhParams.Path.genCompoundNodes);
+		Bindings scriptScope = BhScriptManager.instance.createScriptScope();
+		scriptScope.put(BhParams.JsKeyword.keyBhUserOpeCmd, new UserOperationCommand());
+		scriptScope.put(BhParams.JsKeyword.keyBhNodeTemplates, instance);
+		try {
+			cs.eval(scriptScope);
+		}
+		catch (ScriptException e) {
+			MsgPrinter.instance.ErrMsgForDebug("eval " + BhParams.Path.genCompoundNodes + "\n" + e.toString());
+			return false;
+		}
+		return true;
 	}
 	
 	/**

@@ -1,5 +1,5 @@
 .bhBasicOpButtons {
-	-fx-font-size: 1.2em;
+	-fx-font-size: 1.0em;
 	-fx-font-family: "Meiryo UI";
 }
 
@@ -32,7 +32,7 @@
 }
 
 .loginInfoLabel {
-	-fx-font-size: 1.2em;
+	-fx-font-size: 1.0em;
 	-fx-font-family: "Meiryo UI";
 }
 

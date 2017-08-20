@@ -19,7 +19,7 @@
 			"subGroup0" : {
 				"arrangement" : "Row",
 				"interval" : 4.0,
-				"connectorList" : ["Stat", "ParamDecl"]
+				"connectorList" : ["StatList", "ParamDecl"]
 			}
 		}
 	},

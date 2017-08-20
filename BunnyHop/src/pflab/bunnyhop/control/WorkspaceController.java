@@ -21,7 +21,6 @@ import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.Point2D;
 import pflab.bunnyhop.message.BhMsg;
 import pflab.bunnyhop.message.MsgData;
-import pflab.bunnyhop.message.MsgReceiver;
 import pflab.bunnyhop.message.MsgTransporter;
 import pflab.bunnyhop.model.BhNode;
 import pflab.bunnyhop.model.Workspace;
@@ -30,13 +29,14 @@ import pflab.bunnyhop.modelhandler.DelayedDeleter;
 import pflab.bunnyhop.undo.UserOpeCmdManager;
 import pflab.bunnyhop.undo.UserOperationCommand;
 import pflab.bunnyhop.view.WorkspaceView;
+import pflab.bunnyhop.message.MsgProcessor;
 
 
 /**
  * ワークスペースとそれに関連するビューのコントローラ
  * @author K.Koike
  */
-public class WorkspaceController implements MsgReceiver {
+public class WorkspaceController implements MsgProcessor {
 
 	private Workspace model; // 操作対象のモデル
 	private WorkspaceView view;
@@ -65,7 +65,7 @@ public class WorkspaceController implements MsgReceiver {
 	 * @param data メッセージの種類に応じて処理するもの
 	 * */
 	@Override
-	public MsgData receiveMsg(BhMsg msg, MsgData data) {
+	public MsgData processMsg(BhMsg msg, MsgData data) {
 
 		switch (msg) {
 			
@@ -129,7 +129,6 @@ public class WorkspaceController implements MsgReceiver {
 			e.printStackTrace();
 		}
 		
-		MsgPrinter.instance.MsgForDebug("num of send-recv pairs " + MsgTransporter.instance().getNumPair());
 		MsgPrinter.instance.MsgForDebug("num of root nodes " + model.getRootNodeList().size());
 		MsgPrinter.instance.MsgForDebug("num of deletion candidates " + DelayedDeleter.instance.getDeletionCadidateList());
 		MsgPrinter.instance.MsgForDebug("num of selected nodes " + model.getSelectedNodeList().size());

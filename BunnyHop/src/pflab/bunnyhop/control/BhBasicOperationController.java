@@ -520,7 +520,7 @@ public class BhBasicOperationController {
 					break;
 					
 				case SUCCESS:
-					MsgPrinter.instance.ErrMsgForUser("!! 送信完了 !!\n");
+					MsgPrinter.instance.ErrMsgForUser("-- 送信完了 --\n");
 					break;
 			}
 		});

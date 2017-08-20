@@ -217,7 +217,7 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 		assert connectedNode != null;
 		
 		BhNode newNode = BhNodeTemplates.instance().genBhNode(defaultNodeID, userOpeCmd);	//デフォルトノードを作成		
-		NodeMVCBuilder mvcBuilder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default, userOpeCmd);
+		NodeMVCBuilder mvcBuilder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default);
 		newNode.accept(mvcBuilder);	//MVC構築
 		connectedNode.replacedWith(newNode, userOpeCmd);
 		return newNode;

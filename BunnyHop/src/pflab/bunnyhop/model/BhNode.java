@@ -25,19 +25,22 @@ import pflab.bunnyhop.modelprocessor.NodeDeleter;
 import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.common.Util;
-import pflab.bunnyhop.message.MsgSender;
 import pflab.bunnyhop.message.MsgTransporter;
 import pflab.bunnyhop.model.connective.ConnectiveNode;
 import pflab.bunnyhop.model.connective.Connector;
 import pflab.bunnyhop.configfilereader.BhScriptManager;
+import pflab.bunnyhop.message.BhMsg;
+import pflab.bunnyhop.message.MsgData;
+import pflab.bunnyhop.message.MsgProcessor;
 import pflab.bunnyhop.undo.UserOperationCommand;
 import pflab.bunnyhop.view.BhNodeView;
+import pflab.bunnyhop.message.MsgReceptionWindow;
 
 /**
  * ノードの基底クラス
  * @author K.Koike
  */
-public abstract class BhNode extends SyntaxSymbol implements MsgSender, Serializable {
+public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow, Serializable {
 
 	private final String bhID; //!< ノードID (\<Node\> タグの bhID)
 	protected Connector parentConnector;	//!< このノードを繋いでいるコネクタ
@@ -47,6 +50,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgSender, Serializ
 	public final String type;	//!< ノードのタイプ (connective, void, textField, ...)
 	private BhNode lastReplaced;	//!< 最後にこのノードと入れ替わったノード
 	transient protected Bindings scriptScope;	//!< Javascript実行時の変数スコープ
+	transient private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
 	
 	/**
 	 * BhNode がとり得る状態
@@ -387,6 +391,16 @@ public abstract class BhNode extends SyntaxSymbol implements MsgSender, Serializ
 		} catch (ScriptException e) {
 			MsgPrinter.instance.ErrMsgForDebug(BhNode.class.getSimpleName() + ".execOnMovedFromChildToWSScript   " + scriptNameOnMovedFromChildToWS + "\n" + e.toString() + "\n");
 		}
+	}
+	
+	@Override
+	public void setMsgProcessor(MsgProcessor processor) {
+		msgProcessor = processor;
+	}
+	
+	@Override
+	public MsgData passMsg(BhMsg msg, MsgData data) {
+		return msgProcessor.processMsg(msg, data);
 	}
 }
 

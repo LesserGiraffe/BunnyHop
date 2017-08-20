@@ -36,12 +36,6 @@ public class VoidNodeController extends BhNodeController {
 		super(model, view);
 		this.model = model;
 		this.view = view;
-		view.getEventManager().setOnMousePressedHandler(mouseEvent -> {
-			mouseEvent.consume();
-		});
-		view.getEventManager().setOnMouseDraggedHandler(null);
-		view.getEventManager().setOnDragDetectedHandler(null);
-		view.getEventManager().setOnMouseReleasedHandler(null);
 	}
 }
 

@@ -37,21 +37,23 @@ import pflab.bunnyhop.common.Point2D;
 
 import pflab.bunnyhop.message.BhMsg;
 import pflab.bunnyhop.message.MsgData;
-import pflab.bunnyhop.message.MsgSender;
+import pflab.bunnyhop.message.MsgProcessor;
 import pflab.bunnyhop.message.MsgTransporter;
 import pflab.bunnyhop.root.BunnyHop;
 import pflab.bunnyhop.saveandload.ProjectSaveData;
 import pflab.bunnyhop.undo.UserOperationCommand;
+import pflab.bunnyhop.message.MsgReceptionWindow;
 
 /**
  * ワークスペースの集合を保持、管理するクラス
  * @author K.Koike
  * */
-public class WorkspaceSet implements MsgSender {
+public class WorkspaceSet implements MsgReceptionWindow {
 
 	private final List<BhNode> readyToCopy = new ArrayList<>();	//!< コピー予定のノード
 	private final List<BhNode> readyToCut = new ArrayList<>();	//!< カット予定のノード
 	private final List<Workspace> workspaceList = new ArrayList<>();	//!< 全てのワークスペースのリスト
+	private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
 
 	public WorkspaceSet() {}
 
@@ -123,7 +125,7 @@ public class WorkspaceSet implements MsgSender {
 				node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS) {
 				
 				BhNode pasted = node.copy(userOpeCmd);
-				NodeMVCBuilder mvcBuilder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default, userOpeCmd);
+				NodeMVCBuilder mvcBuilder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default);
 				pasted.accept(mvcBuilder);
 				BhNodeHandler.instance.addRootNode(wsToPasteIn, pasted, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
 				UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
@@ -226,5 +228,15 @@ public class WorkspaceSet implements MsgSender {
 	 */
 	public Workspace getCurrentWorkspace() {
 		return MsgTransporter.instance().sendMessage(BhMsg.GET_CURRENT_WORKSPACE, this).workspace;
+	}
+	
+	@Override
+	public void setMsgProcessor(MsgProcessor processor) {
+		msgProcessor = processor;
+	}
+	
+	@Override
+	public MsgData passMsg(BhMsg msg, MsgData data) {
+		return msgProcessor.processMsg(msg, data);
 	}
 }

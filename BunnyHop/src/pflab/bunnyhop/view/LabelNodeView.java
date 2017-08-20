@@ -42,11 +42,11 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 	}
 
 	/**
-	 * GUI部品の読み込みと初期化を行う
+	 * 初期化する
 	 */
-	@Override
 	public void init() {
 		
+		initialize();
 		String inputControlFileName = BhNodeViewStyle.nodeID_inputControlFileName.get(model.getID());
 		if (inputControlFileName != null) {
 			Path filePath = FXMLCollector.instance.getFilePath(inputControlFileName);

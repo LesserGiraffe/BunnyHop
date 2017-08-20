@@ -49,16 +49,15 @@ import pflab.bunnyhop.view.LabelNodeView;
 public class NodeMVCBuilder implements BhModelProcessor {
 
 	private BhNodeView topNodeView;	//!< MVCを構築したBhNodeツリーのトップノードのビュー
-	private Deque<ConnectiveNodeView> parentStack = new LinkedList<>();	//!< 子ノードの追加先のビュー
+	private final Deque<ConnectiveNodeView> parentStack = new LinkedList<>();	//!< 子ノードの追加先のビュー
 	private MVCConnector mvcConnector;
-	private final UserOperationCommand userOpeCmd;	//!< undo/redo用コマンドオブジェクト
+	private final boolean isTemplate;
 
 	/**
 	 * コンストラクタ
 	 * @param type Controller の種類 (ワークスペースのノード用かノードセレクタ用)
-	 * @param userOpeCmd undo/redo用コマンドオブジェクト
 	 * */
-	public NodeMVCBuilder(ControllerType type, UserOperationCommand userOpeCmd) {
+	public NodeMVCBuilder(ControllerType type) {
 
 		if (type == ControllerType.Default) {
 			mvcConnector = new DefaultConnector();
@@ -66,8 +65,8 @@ public class NodeMVCBuilder implements BhModelProcessor {
 		else if (type == ControllerType.Template) {
 			mvcConnector = new TemplateConnector();
 		}
-		this.userOpeCmd = userOpeCmd;
-	};
+		isTemplate = type == ControllerType.Template;
+	}
 
 	
 	private void addChildView(BhNode node, BhNodeView view) {
@@ -124,14 +123,14 @@ public class NodeMVCBuilder implements BhModelProcessor {
 		BhNodeView nodeView = null;
 		if (node.type.equals(BhParams.BhModelDef.attrValueTextField)) {
 			TextFieldNodeView textNodeView = new TextFieldNodeView(node, viewStyle);
-			textNodeView.init();
+			textNodeView.init(isTemplate);
 			node.setScriptScope(textNodeView);
 			mvcConnector.connect(node, textNodeView);
 			nodeView = textNodeView;
 		}
 		else if (node.type.equals(BhParams.BhModelDef.attrValueComboBox)) {
 			ComboBoxNodeView comboBoxNodeView = new ComboBoxNodeView(node, viewStyle);
-			comboBoxNodeView.init();
+			comboBoxNodeView.init(isTemplate);
 			node.setScriptScope(comboBoxNodeView);
 			mvcConnector.connect(node, comboBoxNodeView);
 			nodeView = comboBoxNodeView;
@@ -184,31 +183,31 @@ public class NodeMVCBuilder implements BhModelProcessor {
 		@Override
 		public void connect(ConnectiveNode node, ConnectiveNodeView view) {
 			ConnectiveNodeController controller = new ConnectiveNodeController(node, view);
-			MsgTransporter.instance().setSenderAndReceiver(node, controller, userOpeCmd);
+			node.setMsgProcessor(controller);
 		}
 
 		@Override
 		public void connect(VoidNode node, VoidNodeView view) {
 			VoidNodeController controller = new VoidNodeController(node, view);
-			MsgTransporter.instance().setSenderAndReceiver(node, controller, userOpeCmd);
+			node.setMsgProcessor(controller);
 		}
 
 		@Override
 		public void connect(TextNode node, TextFieldNodeView view) {
 			TextFieldNodeController controller = new TextFieldNodeController(node, view);
-			MsgTransporter.instance().setSenderAndReceiver(node, controller, userOpeCmd);
+			node.setMsgProcessor(controller);
 		}
 
 		@Override
 		public void connect(TextNode node, LabelNodeView view) {
 			LabelNodeController controller = new LabelNodeController(node, view);
-			MsgTransporter.instance().setSenderAndReceiver(node, controller, userOpeCmd);
+			node.setMsgProcessor(controller);
 		}
 		
 		@Override
 		public void connect(TextNode node, ComboBoxNodeView view) {
 			ComboBoxNodeController controller = new ComboBoxNodeController(node, view);
-			MsgTransporter.instance().setSenderAndReceiver(node, controller, userOpeCmd);
+			node.setMsgProcessor(controller);
 		}
 	}
 
