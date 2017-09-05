@@ -38,10 +38,9 @@ public class VoidNode extends BhNode implements Serializable {
 	public VoidNode(
 		String bhID,
 		String symbolName) {
-		super(
-			bhID, 
+		super(bhID, 
 			symbolName,
-			BhParams.BhModelDef.attrValueVoid,
+			BhParams.BhModelDef.ATTR_VALUE_VOID,
 			"",
 			"");
 	}

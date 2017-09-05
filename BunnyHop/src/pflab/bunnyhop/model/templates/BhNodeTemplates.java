@@ -127,7 +127,7 @@ public class BhNodeTemplates {
 	private boolean genConnectorTemplate() {
 
 		//コネクタファイルパスリスト取得
-		Path dirPath = Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.connectorDefDir);
+		Path dirPath = Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.CONNECTOR_DEF_DIR);
 		Stream<Path> files;	//読み込むファイルパスリスト
 		try {
 			files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
@@ -164,7 +164,7 @@ public class BhNodeTemplates {
 	private boolean genNodeTemplate() {
 
 		//ノードファイルパスリスト取得
-		Path dirPath = Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.nodeDefDir);
+		Path dirPath = Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.NODE_DEF_DIR);
 		Stream<Path> files;	//読み込むファイルパスリスト
 		try {
 			files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
@@ -216,18 +216,18 @@ public class BhNodeTemplates {
 				//ノードテンプレートが見つからない
 				if (!defNode.isPresent()) {
 					MsgPrinter.instance.ErrMsgForDebug(
-						"<" + BhParams.BhModelDef.elemNameConnector + ">" + " タグの "
-							+ BhParams.BhModelDef.attrNameDefaultBhNodeID + " (" + defNodeID +") " + "と一致する " 
-							+ BhParams.BhModelDef.attrNameBhNodeID + " を持つ"
-							+ BhParams.BhModelDef.elemNameNode + " の定義が見つかりません.");
+						"<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグの "
+							+ BhParams.BhModelDef.ATTR_NAME_DEFAULT_BHNODE_ID + " (" + defNodeID +") " + "と一致する " 
+							+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " を持つ"
+							+ BhParams.BhModelDef.ELEM_NAME_NODE + " の定義が見つかりません.");
 					return false;
 				}
 				else if (!initNode.isPresent()) {
 					MsgPrinter.instance.ErrMsgForDebug(
-						"<" + BhParams.BhModelDef.elemNameConnector + ">" + " タグの "
-							+ BhParams.BhModelDef.attrNameInitialBhNodeID + " (" + initNodeID +") " + "と一致する " 
-							+ BhParams.BhModelDef.attrNameBhNodeID + " を持つ "
-							+ BhParams.BhModelDef.elemNameNode + " の定義が見つかりません.");
+						"<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグの "
+							+ BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID + " (" + initNodeID +") " + "と一致する " 
+							+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " を持つ "
+							+ BhParams.BhModelDef.ELEM_NAME_NODE + " の定義が見つかりません.");
 					return false;				
 				}
 				else {
@@ -252,8 +252,8 @@ public class BhNodeTemplates {
 			if (!bhNodeExists(orgID_imitID._2)) {
 				MsgPrinter.instance.ErrMsgForDebug(
 					"\"" + orgID_imitID._2 + "\"" + " を " 
-					+ BhParams.BhModelDef.attrNameBhNodeID + " に持つ " 
-					+ BhParams.BhModelDef.elemNameNode + " が見つかりません. " + "(" + orgID_imitID._1 + ")");
+					+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " に持つ " 
+					+ BhParams.BhModelDef.ELEM_NAME_NODE + " が見つかりません. " + "(" + orgID_imitID._1 + ")");
 				return false;
 			}
 			
@@ -263,9 +263,9 @@ public class BhNodeTemplates {
 			boolean isSameType = orgNodeOpt.get().getClass() == imitNodeOpt.get().getClass();
 			if (!isSameType) {
 				MsgPrinter.instance.ErrMsgForDebug(
-					BhParams.BhModelDef.attrNameType + " が " + orgNodeOpt.get().type + " の " + BhParams.BhModelDef.elemNameNode + " は " 
-				  + BhParams.BhModelDef.attrNameType + " が " + imitNodeOpt.get().type + " の " + BhParams.BhModelDef.elemNameNode + " を "
-				  + BhParams.BhModelDef.attrNameImitationNodeID + " に指定できません. \n"
+					BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + orgNodeOpt.get().type + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " は " 
+				  + BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + imitNodeOpt.get().type + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " を "
+				  + BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID + " に指定できません. \n"
 				  + "org: " + orgID_imitID._1 + "    imit: " + orgID_imitID._2);
 			}
 			return isSameType;
@@ -316,15 +316,15 @@ public class BhNodeTemplates {
 	 */
 	private boolean genCompoundNodes() {
 		
-		CompiledScript cs = BhScriptManager.instance.getCompiledScript(BhParams.Path.genCompoundNodes);
+		CompiledScript cs = BhScriptManager.instance.getCompiledScript(BhParams.Path.GEN_COMPOUND_NODES_JS);
 		Bindings scriptScope = BhScriptManager.instance.createScriptScope();
-		scriptScope.put(BhParams.JsKeyword.keyBhUserOpeCmd, new UserOperationCommand());
-		scriptScope.put(BhParams.JsKeyword.keyBhNodeTemplates, instance);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, new UserOperationCommand());
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, instance);
 		try {
 			cs.eval(scriptScope);
 		}
 		catch (ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug("eval " + BhParams.Path.genCompoundNodes + "\n" + e.toString());
+			MsgPrinter.instance.ErrMsgForDebug("eval " + BhParams.Path.GEN_COMPOUND_NODES_JS + "\n" + e.toString());
 			return false;
 		}
 		return true;

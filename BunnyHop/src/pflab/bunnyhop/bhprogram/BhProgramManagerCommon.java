@@ -34,11 +34,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 import pflab.bunnyhop.bhprogram.common.BhProgramData;
 import pflab.bunnyhop.bhprogram.common.BhProgramHandler;
 import pflab.bunnyhop.common.BhParams;
-import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.root.MsgPrinter;
 
 /**
@@ -80,8 +78,8 @@ public class BhProgramManagerCommon {
 	 * @param execFunc BhProgram実行関数
 	 * @return BhProgram実行タスクのFutureオブジェクト
 	 */
-	public Future<Boolean> executeAsync(Callable<Boolean> execFunc) {
-		return runBhProgramExec.submit(execFunc);
+	public Optional<Future<Boolean>> executeAsync(Callable<Boolean> execFunc) {
+		return Optional.ofNullable(runBhProgramExec.submit(execFunc));
 	}
 	
 	/**
@@ -89,38 +87,40 @@ public class BhProgramManagerCommon {
 	 * @param terminationFunc BhProgram終了関数
 	 * @return BhProgram終了タスクのFutureオブジェクト
 	 */
-	public Future<Boolean> terminateAsync(Callable<Boolean> terminationFunc) {
-		return terminationExec.submit(terminationFunc);
+	public Optional<Future<Boolean>> terminateAsync(Callable<Boolean> terminationFunc) {
+		return Optional.ofNullable(terminationExec.submit(terminationFunc));
 	}
 	
 	/**
 	 * BhProgram の実行環境と通信を行うようにする
+	 * @return 接続タスクのFutureオブジェクト
 	 */
-	public void connectAsync() {
+	public Optional<Future<Boolean>> connectAsync() {
 		
 		if (!getTransceiver().isPresent()) {
 			MsgPrinter.instance.ErrMsgForUser("!! 接続失敗 (プログラム未実行) !!\n");
-			return;
+			return Optional.empty();
 		}
 		
-		connectTaskExec.submit(() -> {
-			getTransceiver().get().connect();
-		});	
+		return Optional.ofNullable(connectTaskExec.submit(() -> {
+			return getTransceiver().get().connect();
+		}));	
 	}
 	
 	/**
 	 * BhProgram の実行環境と通信を行わないようにする
+	 * @return 切断タスクのFutureオブジェクト
 	 */
-	public void disconnectAsync() {
+	public Optional<Future<Boolean>> disconnectAsync() {
 		
 		if (!getTransceiver().isPresent()) {
 			MsgPrinter.instance.ErrMsgForUser("!! 切断失敗 (プログラム未実行) !!\n");
-			return;
+			return Optional.empty();
 		}
-			
-		connectTaskExec.submit(() -> {	
-			getTransceiver().get().disconnect();
-		});
+		
+		return Optional.ofNullable(connectTaskExec.submit(() -> {
+			return getTransceiver().get().disconnect();
+		}));
 	}
 	
 	/**
@@ -207,11 +207,11 @@ public class BhProgramManagerCommon {
 		success &= cmdProcessor.end();
 		
 		try {
-			success &= runBhProgramExec.awaitTermination(BhParams.executorShutdownTimeout, TimeUnit.SECONDS);
-			success &= connectTaskExec.awaitTermination(BhParams.executorShutdownTimeout, TimeUnit.SECONDS);
-			success &= recvTaskExec.awaitTermination(BhParams.executorShutdownTimeout, TimeUnit.SECONDS);
-			success &= sendTaskExec.awaitTermination(BhParams.executorShutdownTimeout, TimeUnit.SECONDS);
-			success &= terminationExec.awaitTermination(BhParams.executorShutdownTimeout, TimeUnit.SECONDS);
+			success &= runBhProgramExec.awaitTermination(BhParams.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+			success &= connectTaskExec.awaitTermination(BhParams.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+			success &= recvTaskExec.awaitTermination(BhParams.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+			success &= sendTaskExec.awaitTermination(BhParams.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+			success &= terminationExec.awaitTermination(BhParams.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
 		}
 		catch(InterruptedException e) {
 			success &= false;
@@ -261,17 +261,18 @@ public class BhProgramManagerCommon {
 		boolean success = true;
 		transceiverAndFutureRef.get().transceiver.disconnect();
 		transceiverAndFutureRef.get().transceiver.clearSendDataList();
+		cmdProcessor.clearRemoteDataList();
 
 		boolean res = transceiverAndFutureRef.get().recvTaskFuture.cancel(true);	//タスクの終了を待たなくてよい. 新しく起動したプロセスと, 古いトランシーバが通信をしてしまうことはない.
 		success &= res;
 		if (!res) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to cancel recv task " + BhParams.ExternalProgram.bhProgramExecEnvironment);
+			MsgPrinter.instance.ErrMsgForDebug("failed to cancel recv task " + BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENVIRONMENT);
 		}
 			
 		res = transceiverAndFutureRef.get().sendTaskFuture.cancel(true);
 		success &= res;
 		if (!res) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to cancel send task " + BhParams.ExternalProgram.bhProgramExecEnvironment);
+			MsgPrinter.instance.ErrMsgForDebug("failed to cancel send task " + BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENVIRONMENT);
 		}
 		
 		if (success)
@@ -290,15 +291,13 @@ public class BhProgramManagerCommon {
 	public boolean runBhProgram(String fileName, String ipAddr, InputStream is) {
 		
 		MsgPrinter.instance.MsgForUser("-- 通信準備中 --\n");
-		
 		boolean success = true;
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(is))){
 				
 			String portStr = 
-				getSuffixedLine(
-					br, 
-					BhParams.ExternalProgram.rmiTcpPortSuffix,
-					BhParams.ExternalProgram.tcpPortReadTimeout);
+				getSuffixedLine(br, 
+					BhParams.ExternalApplication.RMI_TCP_PORT_SUFFIX,
+					BhParams.ExternalApplication.TCP_PORT_READ_TIMEOUT);
 			int port = Integer.parseInt(portStr);
 			BhProgramHandler programHandler = (BhProgramHandler)findRemoteObj(ipAddr, port, BhProgramHandler.class.getSimpleName());	//リモートオブジェクト取得
 			BhProgramTransceiver transceiver = new BhProgramTransceiver(cmdProcessor, programHandler);

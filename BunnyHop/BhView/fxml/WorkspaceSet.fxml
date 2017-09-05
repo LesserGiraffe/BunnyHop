@@ -3,23 +3,24 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
+<?import pflab.bunnyhop.common.*?>
 
 <SplitPane
 	xmlns:fx="http://javafx.com/fxml"
 	fx:id="workspaceSetViewBase"
 	fx:controller="pflab.bunnyhop.control.WorkspaceSetController">
+	<fx:define>
+		<Rem fx:id="trashBoxWidth" rem="5"/>
+		<Rem fx:id="trashBoxHeight" rem="8.9"/>
+	</fx:define>
 	<StackPane fx:id="workspaceSetStackPane">
 		<TabPane fx:id="workspaceSetTab" tabClosingPolicy="ALL_TABS"/>
 		<ImageView fx:id="closedTrashboxIV" StackPane.Alignment="BOTTOM_RIGHT" PickOnBounds="true" MouseTransparent="true">
-			<image>
-				<Image url="@../images/closedTrashbox.png" requestedWidth="60" requestedHeight="106"/>
-			</image>
+			<Image url="@../images/closedTrashbox.png" requestedWidth="$trashBoxWidth.rem" requestedHeight="$trashBoxHeight.rem"/>
 		</ImageView>
 		<ImageView fx:id="openedTrashboxIV" StackPane.Alignment="BOTTOM_RIGHT" PickOnBounds="true" MouseTransparent="true" visible="false">
-			<image>
-				<Image url="@../images/openedTrashbox.png" requestedWidth="60" requestedHeight="106"/>
-			</image>
+			<Image url="@../images/openedTrashbox.png" requestedWidth="$trashBoxWidth.rem" requestedHeight="$trashBoxHeight.rem"/>
 		</ImageView>
 	</StackPane>
-	<TextArea  fx:id="bottomMsgArea" VBox.vgrow="ALWAYS"/>
+	<TextArea  fx:id="mainMsgArea" VBox.vgrow="ALWAYS"/>
 </SplitPane>

@@ -29,8 +29,6 @@ import pflab.bunnyhop.model.WorkspaceSet;
 import pflab.bunnyhop.model.connective.Connector;
 import pflab.bunnyhop.view.BhNodeView;
 import pflab.bunnyhop.view.WorkspaceView;
-import pflab.bunnyhop.message.MsgProcessor;
-import pflab.bunnyhop.message.MsgReceptionWindow;
 
 /**
  * undo/redo 用コマンドクラス
@@ -304,7 +302,7 @@ public class UserOperationCommand {
 		
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
-			MsgTransporter.instance().sendMessage(BhMsg.REMOVE_ROOT_NODE, node, ws);
+			MsgTransporter.instance.sendMessage(BhMsg.REMOVE_ROOT_NODE, node, ws);
 			inverseCmd.pushCmdOfRemoveRootNode(node, ws);
 		}
 	}
@@ -324,7 +322,7 @@ public class UserOperationCommand {
 		
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
-			MsgTransporter.instance().sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);
+			MsgTransporter.instance.sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);
 			inverseCmd.pushCmdOfAddRootNode(node, ws);
 		}
 	}
@@ -347,10 +345,10 @@ public class UserOperationCommand {
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
 			
-			MsgData curPos = MsgTransporter.instance().sendMessage(BhMsg.GET_POS_ON_WORKSPACE, node);
+			MsgData curPos = MsgTransporter.instance.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, node);
 			inverseCmd.pushCmdOfSetPosOnWorkspace(curPos.doublePair._1, curPos.doublePair._2, node);
-			MsgTransporter.instance().sendMessage(BhMsg.SET_POS_ON_WORKSPACE, new MsgData(x, y), node);
-			MsgTransporter.instance().sendMessage(BhMsg.UPDATE_ABS_POS, node);		//4分木空間での位置確定
+			MsgTransporter.instance.sendMessage(BhMsg.SET_POS_ON_WORKSPACE, new MsgData(x, y), node);
+			MsgTransporter.instance.sendMessage(BhMsg.UPDATE_ABS_POS, node);		//4分木空間での位置確定
 		}
 	}
 	
@@ -370,7 +368,7 @@ public class UserOperationCommand {
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
 			
-			MsgTransporter.instance().sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);
+			MsgTransporter.instance.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);
 			inverseCmd.pushCmdOfRemoveQtRectangle(node, ws);
 		}		
 	}
@@ -391,8 +389,8 @@ public class UserOperationCommand {
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
 
-			MsgTransporter.instance().sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);
-			MsgTransporter.instance().sendMessage(BhMsg.UPDATE_ABS_POS, node);		//4分木空間での位置確定
+			MsgTransporter.instance.sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);
+			MsgTransporter.instance.sendMessage(BhMsg.UPDATE_ABS_POS, node);		//4分木空間での位置確定
 			inverseCmd.pushCmdOfAddQtRectangle(node, ws);
 		}		
 	}	
@@ -413,9 +411,9 @@ public class UserOperationCommand {
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
 
-			BhNodeView oldNodeView = MsgTransporter.instance().sendMessage(BhMsg.GET_VIEW, oldNode).nodeView;
-			MsgTransporter.instance().sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(oldNodeView), newNode);	//元々付いていた古いViewに付け替える
-			MsgTransporter.instance().sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, newNode);			
+			BhNodeView oldNodeView = MsgTransporter.instance.sendMessage(BhMsg.GET_VIEW, oldNode).nodeView;
+			MsgTransporter.instance.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(oldNodeView), newNode);	//元々付いていた古いViewに付け替える
+			MsgTransporter.instance.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, newNode);			
 			inverseCmd.pushCmdOfReplaceNodeView(newNode, oldNode);	//逆操作なので, 入れ替え後のノードがoldNode となる
 		}		
 	}
@@ -532,7 +530,7 @@ public class UserOperationCommand {
 		
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
-			MsgTransporter.instance().sendMessage(BhMsg.DELETE_WORKSPACE, new MsgData(ws, wsView, inverseCmd), wss);
+			MsgTransporter.instance.sendMessage(BhMsg.DELETE_WORKSPACE, new MsgData(ws, wsView, inverseCmd), wss);
 		}
 	}
 	
@@ -550,7 +548,7 @@ public class UserOperationCommand {
 		
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
-			MsgTransporter.instance().sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, inverseCmd), wss);
+			MsgTransporter.instance.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, inverseCmd), wss);
 		}
 	}
 }

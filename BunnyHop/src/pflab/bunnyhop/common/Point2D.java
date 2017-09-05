@@ -38,4 +38,12 @@ public class Point2D implements Serializable {
 		else
 			return false;
 	}
+
+	@Override
+	public int hashCode() {
+		int hash = 5;
+		hash = 67 * hash + (int) (Double.doubleToLongBits(this.x) ^ (Double.doubleToLongBits(this.x) >>> 32));
+		hash = 67 * hash + (int) (Double.doubleToLongBits(this.y) ^ (Double.doubleToLongBits(this.y) >>> 32));
+		return hash;
+	}
 }

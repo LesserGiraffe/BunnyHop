@@ -49,52 +49,52 @@ public class BhNodeAttributes {
 		BhNodeAttributes nodeAttrs = new BhNodeAttributes();
 		
 		//bhNodeID
-		nodeAttrs.bhNodeID = node.getAttribute(BhParams.BhModelDef.attrNameBhNodeID);
+		nodeAttrs.bhNodeID = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_BHNODE_ID);
 		if (nodeAttrs.bhNodeID.isEmpty()) {
 			MsgPrinter.instance.ErrMsgForDebug(
-				"<" + BhParams.BhModelDef.elemNameNode + ">" + " タグには " 
-				+ BhParams.BhModelDef.attrNameBhNodeID + " 属性を記述してください.  " + node.getBaseURI());
+				"<" + BhParams.BhModelDef.ELEM_NAME_NODE + ">" + " タグには " 
+				+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " 属性を記述してください.  " + node.getBaseURI());
 			return Optional.empty();
 		}
 		
 		//name
-		nodeAttrs.name = node.getAttribute(BhParams.BhModelDef.attrNameName);
+		nodeAttrs.name = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_NAME);
 		
 		// nodeStyleID
-		String nodeStyleID = node.getAttribute(BhParams.NodeStyleDef.keyNameNodeStyleID);
-		nodeAttrs.nodeStyleID = nodeStyleID.isEmpty() ? BhParams.BhModelDef.attrValueDefaultNodeStyleID : nodeStyleID;
+		String nodeStyleID = node.getAttribute(BhParams.NodeStyleDef.KEY_NODE_STYLE_ID);
+		nodeAttrs.nodeStyleID = nodeStyleID.isEmpty() ? BhParams.BhModelDef.ATTR_VALUE_DEFAULT_NODE_STYLE_ID : nodeStyleID;
 		BhNodeViewStyle.putNodeID_NodeStyleID(nodeAttrs.bhNodeID, nodeStyleID);
 				
 		//onMovedFromChildToWS
-		nodeAttrs.onMovedFromChildToWS = node.getAttribute(BhParams.BhModelDef.attrNameOnMovedFromChildToWS);
+		nodeAttrs.onMovedFromChildToWS = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_MOVED_FROM_CHILD_TO_WS);
 		
 		//onMovedToChild
-		nodeAttrs.onMovedToChild = node.getAttribute(BhParams.BhModelDef.attrNameOnMovedToChild);
+		nodeAttrs.onMovedToChild = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_MOVED_TO_CHILD);
 		
 		//onTextInput
-		nodeAttrs.onTextInput = node.getAttribute(BhParams.BhModelDef.attrNameOnTextInput);
+		nodeAttrs.onTextInput = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_INPUT_TEXT);
 
 		//imitScopeName
-		nodeAttrs.imitScopeName = node.getAttribute(BhParams.BhModelDef.attrNameImitScopeName);
+		nodeAttrs.imitScopeName = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMIT_SCOPE_NAME);
 		
 		//initString
-		nodeAttrs.initString = node.getAttribute(BhParams.BhModelDef.attrNameInitString);
+		nodeAttrs.initString = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_INIT_STRING);
 		
 		//nodeInputControl
-		nodeAttrs.nodeInputControlFileName = node.getAttribute(BhParams.BhModelDef.attrNameNodeInputControl);
+		nodeAttrs.nodeInputControlFileName = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_NODE_INPUT_CONTROL);
 		
 		//canCreateImitManually
-		String strCreateImit = node.getAttribute(BhParams.BhModelDef.attrNameCanCreateImitManually);
-		if (strCreateImit.equals(BhParams.BhModelDef.attrValueTrue)) {
+		String strCreateImit = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_CAN_CREATE_IMIT_MANUALLY);
+		if (strCreateImit.equals(BhParams.BhModelDef.ATTR_VALUE_TRUE)) {
 			nodeAttrs.canCreateImitManually = true;
 		}
-		else if (strCreateImit.equals(BhParams.BhModelDef.attrValueFalse) || strCreateImit.isEmpty()) {
+		else if (strCreateImit.equals(BhParams.BhModelDef.ATTR_VALUE_FALSE) || strCreateImit.isEmpty()) {
 			nodeAttrs.canCreateImitManually = false;
 		}
 		else {
-			MsgPrinter.instance.ErrMsgForDebug(BhParams.BhModelDef.attrNameCanCreateImitManually + " 属性には "
-				+ BhParams.BhModelDef.attrValueTrue + " か "
-				+ BhParams.BhModelDef.attrValueFalse + " を指定してください. " + node.getBaseURI());
+			MsgPrinter.instance.ErrMsgForDebug(BhParams.BhModelDef.ATTR_NAME_CAN_CREATE_IMIT_MANUALLY + " 属性には "
+				+ BhParams.BhModelDef.ATTR_VALUE_TRUE + " か "
+				+ BhParams.BhModelDef.ATTR_VALUE_FALSE + " を指定してください. " + node.getBaseURI());
 			return Optional.empty();
 		}
 		return Optional.of(nodeAttrs);

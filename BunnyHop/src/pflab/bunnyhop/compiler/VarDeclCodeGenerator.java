@@ -48,7 +48,7 @@ final public class VarDeclCodeGenerator {
 		
 		List<VarDeclCodeGenerator.VarDeclInfo> varDeclInfoList = new ArrayList<>();
 		nodeListToCompile.forEach(node -> {
-			if (SymbolNames.VarDecl.varDeclList.contains(node.getSymbolName())) {
+			if (SymbolNames.VarDecl.VAR_DECL_LIST.contains(node.getSymbolName())) {
 				genVarDeclInfos(node, varDeclInfoList);
 			}
 		});
@@ -120,19 +120,19 @@ final public class VarDeclCodeGenerator {
 	 */
 	private void genVarDeclInfos(SyntaxSymbol varDeclNode, List<VarDeclInfo> varDeclInfoList) {
 	
-		if (!SymbolNames.VarDecl.varDeclList.contains(varDeclNode.getSymbolName()))
+		if (!SymbolNames.VarDecl.VAR_DECL_LIST.contains(varDeclNode.getSymbolName()))
 			return;
 				
-		TextNode varIdTextNode = (TextNode)varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.varName, "*");
+		TextNode varIdTextNode = (TextNode)varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.VAR_NAME, "*");
 		if (varIdTextNode == null)
-			varIdTextNode = (TextNode)varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.listName, "*");
+			varIdTextNode = (TextNode)varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.LIST_NAME, "*");
 		
 		String varName = common.genVarName(varDeclNode);
 		String comment = varIdTextNode.getText();
-		String initVal = SymbolNames.VarDecl.initValMap.get(varDeclNode.getSymbolName());
+		String initVal = SymbolNames.VarDecl.INIT_VAL_MAP.get(varDeclNode.getSymbolName());
 		varDeclInfoList.add(new VarDeclInfo(varName, initVal, comment));
 		
-		SyntaxSymbol nextVarDecl = varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.nextVarDecl, "*");
+		SyntaxSymbol nextVarDecl = varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.NEXT_VAR_DECL, "*");
 		genVarDeclInfos(nextVarDecl, varDeclInfoList);
 	}
 	

@@ -21,12 +21,9 @@ import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.Point2D;
 import pflab.bunnyhop.message.BhMsg;
 import pflab.bunnyhop.message.MsgData;
-import pflab.bunnyhop.message.MsgTransporter;
-import pflab.bunnyhop.model.BhNode;
 import pflab.bunnyhop.model.Workspace;
 import pflab.bunnyhop.root.BunnyHop;
 import pflab.bunnyhop.modelhandler.DelayedDeleter;
-import pflab.bunnyhop.undo.UserOpeCmdManager;
 import pflab.bunnyhop.undo.UserOperationCommand;
 import pflab.bunnyhop.view.WorkspaceView;
 import pflab.bunnyhop.message.MsgProcessor;
@@ -53,9 +50,9 @@ public class WorkspaceController implements MsgProcessor {
 		this.view.setOnMousePressedEvent(
 			event -> {
 				UserOperationCommand userOpeCmd = new UserOperationCommand();
-				BunnyHop.instance().hideTemplatePanel();
+				BunnyHop.instance.hideTemplatePanel();
 				model.clearSelectedNodeList(userOpeCmd);
-				BunnyHop.instance().pushUserOpeCmd(userOpeCmd);
+				BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
 			});
 	}
 

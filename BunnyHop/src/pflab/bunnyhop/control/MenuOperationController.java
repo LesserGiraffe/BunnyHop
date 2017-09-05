@@ -15,33 +15,34 @@
  */
 package pflab.bunnyhop.control;
 
-import java.awt.Event;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import javafx.event.ActionEvent;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 import pflab.bunnyhop.bhprogram.BhProgramExecEnvError;
 import pflab.bunnyhop.bhprogram.common.BhProgramData;
 import pflab.bunnyhop.bhprogram.LocalBhProgramManager;
 import pflab.bunnyhop.bhprogram.RemoteBhProgramManager;
 import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.BhParams;
+import pflab.bunnyhop.common.Pair;
 import pflab.bunnyhop.common.Point2D;
-import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.compiler.BhCompiler;
 import pflab.bunnyhop.compiler.CompileOption;
 import pflab.bunnyhop.message.BhMsg;
@@ -58,23 +59,21 @@ import pflab.bunnyhop.view.BhNodeCategoryListView;
  * 画面上部のボタンのコントローラクラス
  * @author K.Koike
  */
-public class BhBasicOperationController {
+public class MenuOperationController {
 
-	private @FXML VBox bhBasicOpViewBase;	//!< ボタンの基底ペイン
+	private @FXML VBox menuOpViewBase;	//!< ボタンの基底ペイン
 	private @FXML Button copyBtn;	 //!< コピーボタン
 	private @FXML Button cutBtn;	 //!< カットボタン
 	private @FXML Button pasteBtn;	 //!< ペーストボタン
 	private @FXML Button deleteBtn; //!< デリートボタン
 	private @FXML Button undoBtn;	 //!< アンドゥボタン
 	private @FXML Button redoBtn;	 //!< リドゥボタン
-	private @FXML Button zoonInBtn;	 //!< ズームインボタン
-	private @FXML Button zoonOutBtn; //!< ズームアウトボタン
+	private @FXML Button zoomInBtn;	 //!< ズームインボタン
+	private @FXML Button zoomOutBtn; //!< ズームアウトボタン
     private @FXML Button widenBtn;	//!< ワークスペース拡張ボタン
 	private @FXML Button narrowBtn;	//!< ワークスペース縮小ボタン
-    private @FXML Button saveAsBtn;	//!< セーブボタン (新規保存)
-	private @FXML Button saveBtn;	//!< セーブボタン (上書き保存)
-	private @FXML Button loadBtn;	//!< ロードボタン
 	private @FXML Button addWorkspaceBtn; //!< ワークスペース追加ボタン
+	private @FXML ToggleButton remotLocalSelectBtn;	//!< リモート/ローカル選択ボタン
 	private @FXML Button executeBtn;	//!< 実行ボタン
 	private @FXML Button terminateBtn;	//!< 終了ボタン
 	private @FXML Button connectBtn;	//!< 接続ボタン
@@ -85,11 +84,16 @@ public class BhBasicOperationController {
 	private @FXML Button sendBtn;	//!< 送信ボタン
 	private @FXML TextField stdInTextField;	//!< 標準入力テキストフィールド
 	private File currentSaveFile;	//!< 現在保存対象になっているファイル
-	private boolean bhProgramIsRunningLocally = true;	//!< ルーカルマシン上でBhProgramを実行している場合true
-		
+	
+	private final AtomicBoolean preparingForExecution = new AtomicBoolean(false);	//非同期でBhProgramの実行環境準備中の場合true
+	private final AtomicBoolean preparingForTermination = new AtomicBoolean(false);	//非同期でBhProgramの実行環境終了中の場合true
+	private final AtomicBoolean connecting = new AtomicBoolean(false);	//非同期で接続中の場合true
+	private final AtomicBoolean disconnecting = new AtomicBoolean(false);	//非同期で切断中の場合true
+	private final ExecutorService waitTaskExec = Executors.newCachedThreadPool();	//非同期処理完了待ちタスクを実行する
+	
 	/**
 	 * イベントハンドラをセットする
-	 * @param wss ワークスペースセットのモデル
+	 * @param wss ワークスペースセット
 	 * @param workspaceSetTab ワークスペース表示用のタブペイン
 	 * @param bhNodeCategoryListView ノードカテゴリ選択ビュー
 	 */
@@ -108,15 +112,13 @@ public class BhBasicOperationController {
 		setZoomOutHandler(wss, bhNodeCategoryListView);	//ズームアウト
 		setWidenHandler(wss);	//ワークスペースの範囲拡大
 		setNarrowHandler(wss);	//ワークスペースの範囲縮小
-		setSaveAsHandler(wss);	//セーブ (名前をつけて保存)
-		setSaveHandler(wss); //セーブ (上書き保存)
-		setLoadHandler(wss);	//ロード		
 		setAddWorkspaceHandler(wss);//ワークスペース追加
 		setExecuteHandler(wss);
 		setTerminateHandler();
 		setConnectHandler();
 		setDisconnectHandler();
 		setSendHandler();
+		setRemoteLocalSelectHandler();
 	}
 	
 	/**
@@ -160,8 +162,8 @@ public class BhBasicOperationController {
 				return;
 			
 			javafx.geometry.Point2D pos = workspaceSetTab.localToScene(0, workspaceSetTab.getHeight() / 2.0);	
-			MsgData localPos = MsgTransporter.instance().sendMessage(BhMsg.SCENE_TO_WORKSPACE, new MsgData(pos.getX(), pos.getY()), currentWS);
-			double pastePosX = localPos.doublePair._1 + BhParams.replacedNodePos * 2;
+			MsgData localPos = MsgTransporter.instance.sendMessage(BhMsg.SCENE_TO_WORKSPACE, new MsgData(pos.getX(), pos.getY()), currentWS);
+			double pastePosX = localPos.doublePair._1 + BhParams.REPLACED_NODE_POS * 2;
 			double pastePosY = localPos.doublePair._2;
 			wss.paste(currentWS, new Point2D(pastePosX, pastePosY));
 		});
@@ -179,7 +181,7 @@ public class BhBasicOperationController {
 				return;
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
 			currentWS.deleteNodes(currentWS.getSelectedNodeList(), userOpeCmd);
-			BunnyHop.instance().pushUserOpeCmd(userOpeCmd);
+			BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
 		});
 	}
 
@@ -190,7 +192,7 @@ public class BhBasicOperationController {
 	private void setUndoHandler(WorkspaceSet wss) {
 		
 		undoBtn.setOnAction(action -> {
-			MsgTransporter.instance().sendMessage(BhMsg.UNDO, wss);
+			MsgTransporter.instance.sendMessage(BhMsg.UNDO, wss);
 		});
 	}
 
@@ -201,7 +203,7 @@ public class BhBasicOperationController {
 	private void setRedoHandler(WorkspaceSet wss) {
 		
 		redoBtn.setOnAction(action -> {
-			MsgTransporter.instance().sendMessage(BhMsg.REDO, wss);
+			MsgTransporter.instance.sendMessage(BhMsg.REDO, wss);
 		});
 	}
 	
@@ -212,7 +214,7 @@ public class BhBasicOperationController {
 	 */
 	private void setZoomInHandler(WorkspaceSet wss, BhNodeCategoryListView bhNodeCategoryListView) {
 		
-		zoonInBtn.setOnAction(action -> {
+		zoomInBtn.setOnAction(action -> {
 			
 			if (bhNodeCategoryListView.isAnyShowed()) {
 				bhNodeCategoryListView.zoomAll(true);
@@ -222,7 +224,7 @@ public class BhBasicOperationController {
 			Workspace currentWS = wss.getCurrentWorkspace();
 			if (currentWS == null)
 				return;
-			MsgTransporter.instance().sendMessage(BhMsg.ZOOM, new MsgData(true), currentWS);
+			MsgTransporter.instance.sendMessage(BhMsg.ZOOM, new MsgData(true), currentWS);
 		});
 	}
 	
@@ -233,7 +235,7 @@ public class BhBasicOperationController {
 	 */
 	private void setZoomOutHandler(WorkspaceSet wss, BhNodeCategoryListView bhNodeCategoryListView) {
 		
-		zoonOutBtn.setOnAction(action -> {
+		zoomOutBtn.setOnAction(action -> {
 			
 			if (bhNodeCategoryListView.isAnyShowed()) {
 				bhNodeCategoryListView.zoomAll(false);
@@ -243,7 +245,7 @@ public class BhBasicOperationController {
 			Workspace currentWS = wss.getCurrentWorkspace();
 			if (currentWS == null)
 				return;
-			MsgTransporter.instance().sendMessage(BhMsg.ZOOM, new MsgData(false), currentWS);
+			MsgTransporter.instance.sendMessage(BhMsg.ZOOM, new MsgData(false), currentWS);
 		});
 	}
 	
@@ -257,7 +259,7 @@ public class BhBasicOperationController {
 			Workspace currentWS = wss.getCurrentWorkspace();
 			if (currentWS == null)
 				return;
-			MsgTransporter.instance().sendMessage(BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(true), currentWS);
+			MsgTransporter.instance.sendMessage(BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(true), currentWS);
 		});
 	}
 	
@@ -271,120 +273,8 @@ public class BhBasicOperationController {
 			Workspace currentWS = wss.getCurrentWorkspace();
 			if (currentWS == null)
 				return;
-			MsgTransporter.instance().sendMessage(BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(false), currentWS);
+			MsgTransporter.instance.sendMessage(BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(false), currentWS);
 		});
-	}
-	
-	/**
-	 * セーブ(新規保存)ボタンのイベントハンドラを登録する
-	 * @param wss イベント時に操作するワークスペースセット
-	 */
-	private void setSaveAsHandler(WorkspaceSet wss) {
-		
-		saveAsBtn.setOnAction(action -> {
-			if (wss.getWorkspaceList().isEmpty()) {
-				MsgPrinter.instance.alert(
-					AlertType.INFORMATION, 
-					"名前を付けて保存",
-					null,
-					"保存すべきワークスペースがありません");
-				return;
-			}
-			
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("名前を付けて保存");
-			fileChooser.setInitialDirectory(getInitDir());
-			fileChooser.getExtensionFilters().addAll(
-				new FileChooser.ExtensionFilter("BunnyHop Files", "*.bnh"), 
-				new FileChooser.ExtensionFilter("All Files", "*.*"));
-			File selectedFile = fileChooser.showSaveDialog(bhBasicOpViewBase.getScene().getWindow());
-			boolean success = false;
-			if (selectedFile != null) {
-				success = wss.save(selectedFile);
-			}
-			if (success) {
-				currentSaveFile = selectedFile;
-			}
-		});
-	}
-
-	/**
-	 * セーブ(上書き保存)ボタンのイベントハンドラを登録する
-	 * @param wss イベント時に操作するワークスペースセット
-	 */
-	private void setSaveHandler(WorkspaceSet wss) {
-		
-		saveBtn.setOnAction(action -> {
-			if (wss.getWorkspaceList().isEmpty()) {
-				MsgPrinter.instance.alert(
-					AlertType.INFORMATION, 
-					"上書き保存",
-					null,
-					"保存すべきワークスペースがありません");
-				return;
-			}
-						
-			boolean fileExists = false;
-			if (currentSaveFile != null)
-				fileExists = currentSaveFile.exists();
-			
-			if (fileExists) {				
-				wss.save(currentSaveFile);
-			}
-			else {
-				saveAsBtn.fireEvent(action);	//保存対象のファイルが無い場合, 名前をつけて保存
-			}
-		});
-	}
-	
-	/**
-	 * ロードボタンのイベントハンドラを登録する
-	 * @param wss イベント時に操作するワークスペースセット
-	 */
-	private void setLoadHandler(WorkspaceSet wss) {
-		
-		loadBtn.setOnAction(action -> {
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("開く");
-			fileChooser.setInitialDirectory(getInitDir());
-			fileChooser.getExtensionFilters().addAll(
-				new FileChooser.ExtensionFilter("BunnyHop Files", "*.bnh"), 
-				new FileChooser.ExtensionFilter("All Files", "*.*"));
-			File selectedFile = fileChooser.showOpenDialog(bhBasicOpViewBase.getScene().getWindow());
-			boolean success = false;
-			if (selectedFile != null)
-				success = wss.load(selectedFile, this::isOldWsCleared);
-			
-			if (success) {
-				currentSaveFile = selectedFile;
-			}
-			else if (selectedFile != null){
-				String fileName = selectedFile.getPath();
-				MsgPrinter.instance.alert(
-					AlertType.INFORMATION, 
-					"開く",
-					null,
-					"ファイルを開けませんでした\n" + fileName);
-			}
-		});
-	}
-	
-	/**
-	 * ロード方法を確認する
-	 * @retval true 既存のワークスペースをすべて削除
-	 * @retval false 既存のワークスペースにロードしたワークスペースを追加
-	 */
-	private boolean  isOldWsCleared() {
-		
-		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setTitle("ファイルのロード方法");
-		alert.setHeaderText(null);
-		alert.setContentText("既存のワークスペースに追加する場合は[はい].\n既存のワークスペースを全て削除する場合は[いいえ].");
-		ButtonType buttonTypeYes = new ButtonType("はい");
-		ButtonType buttonTypeNo = new ButtonType("いいえ");
-		alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
-		Optional<ButtonType> result = alert.showAndWait();
-		return result.get() == buttonTypeNo;
 	}
 	
 	/**
@@ -394,7 +284,7 @@ public class BhBasicOperationController {
 	private void setAddWorkspaceHandler(WorkspaceSet wss) {
 		
 		addWorkspaceBtn.setOnAction(action -> {
-			String defaultWsName = "workspace" + (wss.getWorkspaceList().size()+1);
+			String defaultWsName = "ワークスペース" + (wss.getWorkspaceList().size()+1);
 			TextInputDialog dialog = new TextInputDialog(defaultWsName);
 			dialog.setTitle("ワークスペースの作成");
 			dialog.setHeaderText(null);
@@ -402,12 +292,11 @@ public class BhBasicOperationController {
 			Optional<String> inputText = dialog.showAndWait();
 			inputText.ifPresent(wsName -> {
 				UserOperationCommand userOpeCmd = new UserOperationCommand();
-				BunnyHop.instance().addNewWorkSpace(
-					wsName, 
-					BhParams.defaultWorkspaceWidth, 
-					BhParams.defaultWorkspaceHeight,
+				BunnyHop.instance.addNewWorkSpace(wsName, 
+					BhParams.DEFAULT_WORKSPACE_WIDTH, 
+					BhParams.DEFAULT_WORKSPACE_HEIGHT,
 					userOpeCmd);
-				BunnyHop.instance().pushUserOpeCmd(userOpeCmd);
+				BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
 			});
 		});
 	}
@@ -419,44 +308,38 @@ public class BhBasicOperationController {
 	private void setExecuteHandler(WorkspaceSet wss) {
 		
 		executeBtn.setOnAction(action -> {
-						
-			//実行対象があるかどうかの確認
-			Workspace currentWS = wss.getCurrentWorkspace();
-			HashSet<BhNode> selectedNodeList = currentWS.getSelectedNodeList();
-			if (selectedNodeList.size() != 1) {
-				MsgPrinter.instance.alert(
-					AlertType.ERROR,
-					"実行対象の選択",
-					null,
-					"実行対象を一つ選択してください");
+			
+			if (preparingForExecution.get()) {
+				MsgPrinter.instance.ErrMsgForUser("!! 実行準備中 !!\n");
 				return;
 			}
-			MsgPrinter.instance.MsgForUser("\n");
 			
-			// 実行対象以外を非選択に.
-			BhNode nodeToExec = selectedNodeList.toArray(new BhNode[selectedNodeList.size()])[0];
-			UserOperationCommand userOpeCmd = new UserOperationCommand();
-			currentWS.clearSelectedNodeList(userOpeCmd);
-			currentWS.addSelectedNode(nodeToExec, userOpeCmd);
-			BunnyHop.instance().pushUserOpeCmd(userOpeCmd);
+			Optional<Pair<List<BhNode>, BhNode>> nodesToCompile_nodeToExec = prepareForCompilation(wss);
+			if (!nodesToCompile_nodeToExec.isPresent()) {
+				return;
+			}
 			
 			//コンパイル
-			List<BhNode> compiledNode = new ArrayList<>();
-			wss.getWorkspaceList().forEach(ws -> {
-				ws.getRootNodeList().forEach(node -> {
-					compiledNode.add(node);
-				});
-			});
-			compiledNode.remove(nodeToExec.findRootNode());
 			CompileOption option = new CompileOption(isLocalHost(), true, true, true);
-			Optional<Path> execFilePath = BhCompiler.instance.compile(nodeToExec, compiledNode, option);
-			execFilePath.ifPresent(filePath -> {
-				bhProgramIsRunningLocally = isLocalHost();
-				if (bhProgramIsRunningLocally)
-					LocalBhProgramManager.instance.executeAsync(filePath, ipAddrTextField.getText());
-				else
-					RemoteBhProgramManager.instance.executeAsync(
+			List<BhNode> nodesToCompile = nodesToCompile_nodeToExec.get()._1;
+			BhNode nodeToExec = nodesToCompile_nodeToExec.get()._2;
+			Optional<Path> execFilePath = BhCompiler.instance.compile(nodeToExec, nodesToCompile, option);
+			Optional<Future<Boolean>> futureOpt = execFilePath.flatMap(filePath -> {
+				if (isLocalHost()) {
+					return LocalBhProgramManager.instance.executeAsync(filePath, BhParams.ExternalApplication.LOLCAL_HOST);
+				}
+				else {
+					return RemoteBhProgramManager.instance.executeAsync(
 						filePath, ipAddrTextField.getText(), unameTextField.getText(), passwordTextField.getText());
+				}
+			});
+			futureOpt.ifPresent(future -> {
+				preparingForExecution.set(true);
+				waitTaskExec.submit(() ->{
+					try { future.get(); }
+					catch(InterruptedException | ExecutionException e){}
+					preparingForExecution.set(false);
+				});
 			});
 		});
 	}
@@ -465,11 +348,27 @@ public class BhBasicOperationController {
 	 * 終了ボタンのイベントハンドラを登録する
 	 */
 	private void setTerminateHandler() {
+		
 		terminateBtn.setOnAction(action -> {
-			if (bhProgramIsRunningLocally)
-				LocalBhProgramManager.instance.terminateAsync();
+			if (preparingForTermination.get()) {
+				MsgPrinter.instance.ErrMsgForUser("!! 終了準備中 !!\n");
+				return;
+			}
+				
+			Optional<Future<Boolean>> futureOpt;
+			if (isLocalHost())
+				futureOpt = LocalBhProgramManager.instance.terminateAsync();
 			else
-				RemoteBhProgramManager.instance.terminateAsync();
+				futureOpt = RemoteBhProgramManager.instance.terminateAsync();
+			
+			futureOpt.ifPresent(future -> {
+				preparingForTermination.set(true);
+				waitTaskExec.submit(() ->{
+					try {future.get();}
+					catch(InterruptedException | ExecutionException e){}
+					preparingForTermination.set(false);
+				});
+			});
 		});
 	}
 	
@@ -478,10 +377,25 @@ public class BhBasicOperationController {
 	 */
 	private void setDisconnectHandler() {
 		disconnectBtn.setOnAction(action -> {
-			if (bhProgramIsRunningLocally)
-				LocalBhProgramManager.instance.disconnectAsync();
+			if (disconnecting.get()) {
+				MsgPrinter.instance.ErrMsgForUser("!! 切断準備中 !!\n");
+				return;
+			}
+			
+			Optional<Future<Boolean>> futureOpt;
+			if (isLocalHost())
+				futureOpt = LocalBhProgramManager.instance.disconnectAsync();
 			else
-				RemoteBhProgramManager.instance.disconnectAsync();
+				futureOpt = RemoteBhProgramManager.instance.disconnectAsync();
+			
+			futureOpt.ifPresent(future -> {
+				disconnecting.set(true);
+				waitTaskExec.submit(() ->{
+					try {future.get();}
+					catch(InterruptedException | ExecutionException e){}
+					disconnecting.set(false);
+				});
+			});
 		});
 	}
 	
@@ -490,10 +404,26 @@ public class BhBasicOperationController {
 	 */
 	private void setConnectHandler() {
 		connectBtn.setOnAction(action -> {
-			if (bhProgramIsRunningLocally)
-				LocalBhProgramManager.instance.connectAsync();
+			
+			if (connecting.get()) {
+				MsgPrinter.instance.ErrMsgForUser("!! 接続準備中 !!\n");
+				return;
+			}
+			
+			Optional<Future<Boolean>> futureOpt;
+			if (isLocalHost())
+				futureOpt = LocalBhProgramManager.instance.connectAsync();
 			else
-				RemoteBhProgramManager.instance.connectAsync();
+				futureOpt = RemoteBhProgramManager.instance.connectAsync();
+			
+			futureOpt.ifPresent(future -> {
+				connecting.set(true);
+				waitTaskExec.submit(() ->{
+					try {future.get();}
+					catch(InterruptedException | ExecutionException e){}
+					connecting.set(false);
+				});
+			});
 		});
 	}
 	
@@ -503,7 +433,7 @@ public class BhBasicOperationController {
 	private void setSendHandler() {
 		sendBtn.setOnAction(action -> {
 			BhProgramExecEnvError errCode;
-			if (bhProgramIsRunningLocally)
+			if (isLocalHost())
 				errCode = LocalBhProgramManager.instance.sendAsync(
 					new BhProgramData(BhProgramData.TYPE.INPUT_STR, stdInTextField.getText()));
 			else
@@ -516,7 +446,7 @@ public class BhBasicOperationController {
 					break;
 					
 				case SEND_WHEN_DISCONNECTED:
-					MsgPrinter.instance.ErrMsgForUser("!! 送信失敗 (未接続) --\n");
+					MsgPrinter.instance.ErrMsgForUser("!! 送信失敗 (未接続) !!\n");
 					break;
 					
 				case SUCCESS:
@@ -527,78 +457,104 @@ public class BhBasicOperationController {
 	}
 	
 	/**
-	 * IPアドレス入力欄にローカルホストが指定してある場合true を返す
+	 * リモート/セレクトを切り替えた時のボタン
 	 */
-	private boolean isLocalHost() {
-		String ipAddr = ipAddrTextField.textProperty().get();
-		return ipAddr.equals("127.0.0.1") || ipAddr.equals("localhost");
+	private void setRemoteLocalSelectHandler() {
+		
+		
+		remotLocalSelectBtn.selectedProperty().addListener((observable, oldVal, newVal) -> {
+			if (newVal) {
+				ipAddrTextField.setDisable(false);
+				unameTextField.setDisable(false);
+				passwordTextField.setDisable(false);
+				remotLocalSelectBtn.setText("リモート");
+			}
+			else {
+				ipAddrTextField.setDisable(true);
+				unameTextField.setDisable(true);
+				passwordTextField.setDisable(true);
+				remotLocalSelectBtn.setText("ローカル");
+			}
+		});
 	}
 	
 	/**
-	 * ファイル保存時の初期ディレクトリを返す
-	 * @return ファイル保存時の初期ディレクトリ
+	 * IPアドレス入力欄にローカルホストが指定してある場合true を返す
 	 */
-	private File getInitDir() {
+	private boolean isLocalHost() {
+		return !remotLocalSelectBtn.isSelected();
+	}
+	
+	/**
+	 * コンパイル前の準備をする
+	 * @return コンパイル対象ノードと実行対象ノードのペア
+	 */
+	private Optional<Pair<List<BhNode>, BhNode>> prepareForCompilation(WorkspaceSet wss) {
 		
-		if (currentSaveFile != null) {
-			File parent = currentSaveFile.getParentFile();
-			if (parent != null) {
-				if (parent.exists()) {
-					return parent;
-				}
-			}
+		//実行対象があるかどうかのチェック
+		Workspace currentWS = wss.getCurrentWorkspace();
+		HashSet<BhNode> selectedNodeList = currentWS.getSelectedNodeList();
+		if (selectedNodeList.size() != 1) {
+			MsgPrinter.instance.alert(AlertType.ERROR, "実行対象の選択", null,"実行対象を一つ選択してください");
+			return Optional.empty();
 		}
-		return new File(Util.execPath);
+			
+		// 実行対象以外を非選択に.
+		BhNode nodeToExec = selectedNodeList.toArray(new BhNode[selectedNodeList.size()])[0];
+		UserOperationCommand userOpeCmd = new UserOperationCommand();
+		currentWS.clearSelectedNodeList(userOpeCmd);
+		currentWS.addSelectedNode(nodeToExec, userOpeCmd);
+		BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
+		
+		//コンパイル対象ノードを集める
+		List<BhNode> nodesToCompile = new ArrayList<>();
+		wss.getWorkspaceList().forEach(ws -> {
+			ws.getRootNodeList().forEach(node -> {
+				nodesToCompile.add(node);
+			});
+		});
+		nodesToCompile.remove(nodeToExec.findRootNode());	
+		return Optional.of(new Pair<List<BhNode>, BhNode>(nodesToCompile, nodeToExec));
 	}
 	
 	/**
 	 * ユーザメニュー操作のイベントを起こす
 	 * @param op 基本操作を表す列挙子
 	 */
-	public void fireEvent(BASIC_OPERATION op) {
+	public void fireEvent(MENU_OPERATION op) {
 		
 		switch (op) {
 			case COPY:
-				copyBtn.fireEvent(new ActionEvent());
+				copyBtn.fire();
 				break;
 				
 			case CUT:
-				cutBtn.fireEvent(new ActionEvent());
+				cutBtn.fire();
 				break;
 				
 			case PASTE:
-				pasteBtn.fireEvent(new ActionEvent());
+				pasteBtn.fire();
 				break;
 				
 			case DELETE:
-				deleteBtn.fireEvent(new ActionEvent());
-				break;
-				
-			case SAVE:
-				saveBtn.fireEvent(new ActionEvent());
-				break;
-				
-			case SAVE_AS:
-				saveAsBtn.fireEvent(new ActionEvent());
+				deleteBtn.fire();
 				break;
 				
 			case UNDO:
-				undoBtn.fireEvent(new ActionEvent());
+				undoBtn.fire();
 				break;
 				
 			case REDO:
-				redoBtn.fireEvent(new ActionEvent());
+				redoBtn.fire();
 				break;
 		}
 	}
 	
-	public enum BASIC_OPERATION {
+	public enum MENU_OPERATION {
 		COPY,
 		CUT,
 		PASTE,
 		DELETE,
-		SAVE,
-		SAVE_AS,
 		UNDO,
 		REDO,
 	}

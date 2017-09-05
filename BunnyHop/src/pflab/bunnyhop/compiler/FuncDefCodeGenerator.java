@@ -52,7 +52,7 @@ public class FuncDefCodeGenerator {
 		CompileOption option) {
 		
 		compiledNodeList.forEach(symbol -> {
-			if (SymbolNames.UserDefFunc.userDefFuncList.contains(symbol.getSymbolName())) {
+			if (SymbolNames.UserDefFunc.USER_DEF_FUNC_LIST.contains(symbol.getSymbolName())) {
 				genFuncDef(symbol, code, nestLevel, option);
 			}
 		});
@@ -78,12 +78,12 @@ public class FuncDefCodeGenerator {
 			.append(funcName)
 			.append("(");
 
-		SyntaxSymbol param = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.paramDecl, "*");
+		SyntaxSymbol param = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.PARAM_DECL, "*");
 		varDeclCodeGen.genParamList(param, code, nestLevel + 1, option);
 		code.append(") {")
 			.append(Util.LF);
 
-		SyntaxSymbol stat = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.statList, "*");
+		SyntaxSymbol stat = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.STAT_LIST, "*");
 		statCodeGen.genStatement(stat, code, nestLevel + 1, option);
 		code.append(common.indent(nestLevel))
 			.append("}")

@@ -35,7 +35,7 @@ public class UserOpeCmdManager {
 	public void pushUndoCommand(UserOperationCommand cmd) {
 		
 		undoStack.addLast(cmd);
-		if(undoStack.size() > BhParams.numTimesMaxUndo)
+		if(undoStack.size() > BhParams.NUM_TIMES_MAX_UNDO)
 			undoStack.removeFirst();
 		
 		redoStack.clear();

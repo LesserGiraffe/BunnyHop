@@ -17,9 +17,6 @@ package pflab.bunnyhop.programexecenv;
 
 import pflab.bunnyhop.bhprogram.common.BhProgramHandler;
 import java.io.IOException;
-import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -56,12 +53,12 @@ public class BhProgramExecEnvironment {
 					socketFactory);
 			registry.rebind(BhProgramHandler.class.getSimpleName(), remote);
 			if (socketFactory instanceof LocalServerSocketFactory)
-				System.out.println("\n" + ((LocalServerSocketFactory)socketFactory).getLocalPort() + BhParams.BhProgram.rmiTcpPortSuffix);	//don't remove
+				System.out.println("\n" + ((LocalServerSocketFactory)socketFactory).getLocalPort() + BhParams.BhProgram.RIM_TCP_PORT_SUFFIX);	//don't remove
 			else
-				System.out.println("\n" + ((RemoteServerSocketFactory)socketFactory).getLocalPort() + BhParams.BhProgram.rmiTcpPortSuffix);	//don't remove
+				System.out.println("\n" + ((RemoteServerSocketFactory)socketFactory).getLocalPort() + BhParams.BhProgram.RIM_TCP_PORT_SUFFIX);	//don't remove
 		}
 		catch(IOException e){
-			System.out.println("\n" + "null" + BhParams.BhProgram.rmiTcpPortSuffix);	//don't remove
+			System.out.println("\n" + "null" + BhParams.BhProgram.RIM_TCP_PORT_SUFFIX);	//don't remove
 		}
 	}
 

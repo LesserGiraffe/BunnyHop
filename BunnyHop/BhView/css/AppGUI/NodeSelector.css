@@ -6,7 +6,7 @@
 
 #nodeSelectionPanelBase {
 	-fx-background-color: transparent;
-	-fx-max-width: 50em;
+	/*-fx-max-width: 45em;*/
 	-fx-translate-y: 2.5em;
 }
 

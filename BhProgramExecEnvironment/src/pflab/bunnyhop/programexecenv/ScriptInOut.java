@@ -29,7 +29,7 @@ import java.util.function.BooleanSupplier;
 public class ScriptInOut {
 	
 	private final BlockingQueue<BhProgramData> sendDataList;	//!< BunnyHopへの送信データキュー
-	private final BlockingQueue<String> stdInDataList = new ArrayBlockingQueue<>(BhParams.maxQueueSize);
+	private final BlockingQueue<String> stdInDataList = new ArrayBlockingQueue<>(BhParams.MAX_QUEUE_SIZE);
 	private final AtomicBoolean connected;	//!< BunnyHopとの接続状況を取得する関数
 	
 	/**
@@ -57,7 +57,7 @@ public class ScriptInOut {
 		BhProgramData data = new BhProgramData(BhProgramData.TYPE.OUTPUT_STR, str);
 		while (!add) {
 			try {
-				add = sendDataList.offer(data, BhParams.pushSendDataTimeout, TimeUnit.SECONDS);
+				add = sendDataList.offer(data, BhParams.PUSH_SEND_DATA_TIMEOUT, TimeUnit.SECONDS);
 				if (!connected.get()) {
 					sendDataList.clear();
 					return;

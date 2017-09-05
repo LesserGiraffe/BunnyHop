@@ -36,6 +36,7 @@ public class BhNodeSelectionView extends ScrollPane {
 
 	@FXML Pane nodeSelectionPanel;	//VBoxにしない
 	@FXML Pane nodeSelectionPanelWrapper;
+	@FXML ScrollPane nodeSelectionPanelBase;
 	private int zoomLevel = 0;
 	private boolean hasNodeHeightChanged = true;	//!< ノードを並べた後に, 表示するノードの高さが変わった場合true
 	
@@ -48,8 +49,9 @@ public class BhNodeSelectionView extends ScrollPane {
 	 * @param categoryListView このビューを保持しているカテゴリリストのビュー
 	 */
 	public void init(String categoryName, String cssClass, BhNodeCategoryListView categoryListView) {
+		
 		try {
-			Path filePath = FXMLCollector.instance.getFilePath(BhParams.Path.nodeSelectionPanelFxml);
+			Path filePath = FXMLCollector.instance.getFilePath(BhParams.Path.NODE_SELECTION_PANEL_FXML);
 			FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 			loader.setController(this);
 			loader.setRoot(this);
@@ -70,9 +72,9 @@ public class BhNodeSelectionView extends ScrollPane {
 				categoryListView.zoomAll(zoomIn);
 			}
 		});
-		
 		getStyleClass().add(cssClass);
-		nodeSelectionPanel.getStyleClass().add(cssClass);		
+		nodeSelectionPanel.getStyleClass().add(cssClass);
+		
 	}
 	
 	/**
@@ -93,29 +95,23 @@ public class BhNodeSelectionView extends ScrollPane {
 	 */
 	public void zoom(boolean zoomIn) {
 		
-		if ((BhParams.minZoomLevel == zoomLevel) && !zoomIn)
+		if ((BhParams.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn)
 			return;
 		
-		if ((BhParams.maxZoomLevel == zoomLevel) && zoomIn)
+		if ((BhParams.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn)
 			return;
 		
 		Scale scale = new Scale();
-		if (zoomIn) {
-			scale.setX(nodeSelectionPanel.getTransforms().get(0).getMxx() * BhParams.wsMagnification);
-			scale.setY(nodeSelectionPanel.getTransforms().get(0).getMyy() * BhParams.wsMagnification);
+		if (zoomIn)
 			++zoomLevel;
-		}
-		else {
-			scale.setX(nodeSelectionPanel.getTransforms().get(0).getMxx() / BhParams.wsMagnification);
-			scale.setY(nodeSelectionPanel.getTransforms().get(0).getMyy() / BhParams.wsMagnification);
+		else
 			--zoomLevel;
-		}
+		double mag = Math.pow(BhParams.ZOOM_MAGNIFICATION, zoomLevel);
+		scale.setX(mag);
+		scale.setY(mag);
 		nodeSelectionPanel.getTransforms().clear();
 		nodeSelectionPanel.getTransforms().add(scale);
-		double wrapperSizeX = nodeSelectionPanel.getWidth() * nodeSelectionPanel.getTransforms().get(0).getMxx();
-		double wrapperSizeY = nodeSelectionPanel.getHeight() * nodeSelectionPanel.getTransforms().get(0).getMyy();
-		nodeSelectionPanelWrapper.setMinSize(wrapperSizeX, wrapperSizeY);	//スクロール時にスクロールバーの可動域が変わるようにする
-		nodeSelectionPanelWrapper.setMaxSize(wrapperSizeX, wrapperSizeY);
+		adjustWrapperSize(nodeSelectionPanel.getWidth(), nodeSelectionPanel.getHeight());
 	}
 	
 	/**
@@ -136,17 +132,34 @@ public class BhNodeSelectionView extends ScrollPane {
 			Point2D bodySize = nodeToShift.getRegionManager().getBodyAndOuterSize(false);
 			double upperCnctrHeight = wholeBodySize.y - bodySize.y;
 			nodeToShift.setTranslateY(offset + upperCnctrHeight);
-			offset += wholeBodySize.y + BhParams.bhNodeSpaceOnSelectionPanel;
+			offset += wholeBodySize.y + BhParams.BHNODE_SPACE_ON_SELECTION_PANEL;
 			panelWidth = Math.max(panelWidth, wholeBodySize.x);
 		}
 		
-		panelHeight = (offset - BhParams.bhNodeSpaceOnSelectionPanel) 
+		panelHeight = (offset - BhParams.BHNODE_SPACE_ON_SELECTION_PANEL) 
 					+ nodeSelectionPanel.getPadding().getTop() 
 					+ nodeSelectionPanel.getPadding().getBottom();
 		panelWidth += nodeSelectionPanel.getPadding().getRight() + nodeSelectionPanel.getPadding().getLeft();
-		nodeSelectionPanel.setMinHeight(panelHeight);
-		nodeSelectionPanel.setMinWidth(panelWidth);
+		nodeSelectionPanel.setMinSize(panelWidth, panelHeight);
 		hasNodeHeightChanged = false;
+		adjustWrapperSize(panelWidth, panelHeight);	//バインディングではなく, ここでこのメソッドを呼ばないとスクロールバーの稼働域が変わらない
+	}
+	
+	/**
+	 * スクロールバーの可動域が変わるようにノード選択パネルのラッパーのサイズを変更する
+	 * @param panelWidth ノード選択パネルの幅
+	 * @param panelHeight ノード選択パネルの高さ
+	 */
+	private void adjustWrapperSize(double panelWidth, double panelHeight) {
+		
+		double wrapperSizeX = panelWidth * nodeSelectionPanel.getTransforms().get(0).getMxx();
+		double wrapperSizeY = panelHeight * nodeSelectionPanel.getTransforms().get(0).getMyy();
+		nodeSelectionPanelWrapper.setMinSize(wrapperSizeX, wrapperSizeY);	//スクロール時にスクロールバーの可動域が変わるようにする
+		nodeSelectionPanelWrapper.setMaxSize(wrapperSizeX, wrapperSizeY);
+		double maxWidth = wrapperSizeX + nodeSelectionPanelBase.getPadding().getLeft() + nodeSelectionPanelBase.getPadding().getRight();		
+		if (nodeSelectionPanelBase.getScene() != null)
+			maxWidth = Math.min(maxWidth, nodeSelectionPanelBase.getScene().getWidth() * 0.5);
+		nodeSelectionPanelBase.setMaxWidth(maxWidth);
 	}
 }
 

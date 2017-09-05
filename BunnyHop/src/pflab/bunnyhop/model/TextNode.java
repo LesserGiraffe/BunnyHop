@@ -132,7 +132,7 @@ public class TextNode  extends Imitatable implements Serializable {
 		if (onTextInput == null)
 			return true;
 		
-		scriptScope.put(BhParams.JsKeyword.keyBhText, text);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_TEXT, text);
 		Object jsReturn = null;
 		try {
 			jsReturn = onTextInput.eval(scriptScope);
@@ -150,7 +150,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	 * 現在のテキストをイミテーションノードにセットする
 	 */
 	public void imitateText() {
-		imitInfo.getImitationList().forEach(imit -> MsgTransporter.instance().sendMessage(BhMsg.IMITATE_TEXT, new MsgData(text), imit));
+		imitInfo.getImitationList().forEach(imit -> MsgTransporter.instance.sendMessage(BhMsg.IMITATE_TEXT, new MsgData(text), imit));
 	}
 
 	/**

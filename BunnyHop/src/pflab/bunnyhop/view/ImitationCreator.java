@@ -51,13 +51,13 @@ public interface ImitationCreator {
 	default void imitHandler(pflab.bunnyhop.model.Imitatable model) {
 		
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
-		MsgData pos = MsgTransporter.instance().sendMessage(BhMsg.GET_POS_ON_WORKSPACE, model);
-		double x = pos.doublePair._1 + BhParams.replacedNodePos;
-		double y = pos.doublePair._2 + BhParams.replacedNodePos;
+		MsgData pos = MsgTransporter.instance.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, model);
+		double x = pos.doublePair._1 + BhParams.REPLACED_NODE_POS;
+		double y = pos.doublePair._2 + BhParams.REPLACED_NODE_POS;
 		ImitationBuilder imitBuilder = new ImitationBuilder(userOpeCmd, true);
 		model.accept(imitBuilder);
 		BhNodeHandler.instance.addRootNode(model.getWorkspace(), imitBuilder.getTopImitation(), x, y, userOpeCmd);
-		BunnyHop.instance().pushUserOpeCmd(userOpeCmd);
+		BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
 	}
 	
 	/**

@@ -5,6 +5,7 @@
 		cnctr.connectNode(childNode, bhUserOpeCmd);
 	}
 
+	//カウンタ付き回数指定ループノード作成
 	function addRepeatAndCountNode(nodeID) {
 	
 		let compoundNode = bhNodeTemplates.genBhNode('idCompoundStat', bhUserOpeCmd);
@@ -29,5 +30,15 @@
 		bhNodeTemplates.registerNodeTemplate(nodeID, compoundNode);
 	}
 	
+	//移動ノードの初期速度を変更して再登録
+	function setInitialMoveSpeed() {
+		let newMoveStat = bhNodeTemplates.genBhNode('idMoveStat', bhUserOpeCmd);
+		let initialMoveSpeed = bhNodeTemplates.genBhNode('idDefaultNumLiteral', bhUserOpeCmd);
+		initialMoveSpeed.setText('2');
+		connect(newMoveStat, initialMoveSpeed, ['*', 'Arg0']);
+		bhNodeTemplates.registerNodeTemplate('idMoveStat', newMoveStat);
+	}
+	
 	addRepeatAndCountNode('idRepeatAndCount');
+	setInitialMoveSpeed();
 })();

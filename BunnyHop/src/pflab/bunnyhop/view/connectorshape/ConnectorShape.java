@@ -91,54 +91,54 @@ public abstract class ConnectorShape {
 	public static CNCTR_SHAPE stringToCNCTR_SHAPE(String shapeStr, String fileName) {
 
 		CNCTR_SHAPE type = null;
-		if (shapeStr.equals(BhParams.NodeStyleDef.valNameArrow)) {
+		if (shapeStr.equals(BhParams.NodeStyleDef.VAL_ARROW)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_ARROW;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNameCharT)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_CHAR_T)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_CHAR_T;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNameCharU)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_CHAR_U)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_CHAR_U;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNameCharV)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_CHAR_V)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_CHAR_V;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNameCross)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_CROSS)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_CROSS;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNameDiamond)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_DIAMOND)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_DIAMOND;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNameHexagon)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_HEXAGON)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_HEXAGON;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNameInvTrapezoid)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_INV_TRAPEZOID)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_INV_TRAPEZOID;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNameInvTriangle)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_INV_TRIANGLE)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_INV_TRIANGLE;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNameNone)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_NONE)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_NONE;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNameOctagon)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_OCTAGON)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_OCTAGON;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNamePentagon)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_PENTAGON)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_PENTAGON;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNameSuare)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_SQARE)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_SQUARE;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNameTrapezoid)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_TRAPEZOID)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_TRAPEZOID;
 		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.valNameTriangle)) {
+		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_TRIANGLE)) {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_TRIANGLE;
 		}
 		else {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_NONE;
-			MsgPrinter.instance.ErrMsgForDebug(BhParams.NodeStyleDef.keyNameConnectorShape + " " + shapeStr + " is invalid.\n" + "\"" + fileName + "\"");
+			MsgPrinter.instance.ErrMsgForDebug(BhParams.NodeStyleDef.KEY_CONNECTOR_SHAPE + " " + shapeStr + " is invalid.\n" + "\"" + fileName + "\"");
 		}
 
 		return type;

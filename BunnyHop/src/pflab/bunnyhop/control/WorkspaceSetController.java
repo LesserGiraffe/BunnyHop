@@ -46,7 +46,7 @@ public class WorkspaceSetController implements MsgProcessor {
 	@FXML private SplitPane workspaceSetViewBase;
 	@FXML private StackPane workspaceSetStackPane;
 	@FXML private TabPane workspaceSetTab;	//!< ワークスペース表示タブ
-	@FXML private TextArea bottomMsgArea;
+	@FXML private TextArea mainMsgArea;
 	@FXML private ImageView openedTrashboxIV;
 	@FXML private ImageView closedTrashboxIV;
 	private final List<BhNodeSelectionView> bhNodeSelectionViewList = new ArrayList<>();
@@ -55,36 +55,33 @@ public class WorkspaceSetController implements MsgProcessor {
 	/**
 	 * モデルとイベントハンドラをセットする
 	 * @param wss ワークスペースセットのモデル
-	 * @param bhBasicOperationController ユーザ操作メニューのコントローラ
 	 */
-	public void init(WorkspaceSet wss, BhBasicOperationController bhBasicOperationController) {
+	public void init(WorkspaceSet wss) {
 		model = wss;
-		setEventHandlers(bhBasicOperationController);
-		workspaceSetViewBase.setDividerPositions(BhParams.defaultVerticalDivPos);
-		MsgPrinter.instance.setMainMsgArea(bottomMsgArea); //メインメッセージエリアの登録
+		setEventHandlers();
+		workspaceSetViewBase.setDividerPositions(BhParams.DEFAULT_VERTICAL_DIV_POS);
+		MsgPrinter.instance.setMainMsgArea(mainMsgArea); //メインメッセージエリアの登録
 	}
 	
 	/**
 	 * イベントハンドラを登録する
-	 * @param bhBasicOperationController ユーザ操作メニューのコントローラ
 	 */
-	private void setEventHandlers(BhBasicOperationController bhBasicOperationController) {
+	private void setEventHandlers() {
 		
-		bottomMsgArea.textProperty().addListener((observable, oldVal, newVal)-> {
-			if (newVal.length() > BhParams.maxBottomTextAreaChars) {
-				int numDeleteChars = newVal.length() - BhParams.maxBottomTextAreaChars;
-				bottomMsgArea.deleteText(0, numDeleteChars);
+		mainMsgArea.textProperty().addListener((observable, oldVal, newVal)-> {
+			if (newVal.length() > BhParams.MAX_MAIN_MSG_AREA_CHARS) {
+				int numDeleteChars = newVal.length() - BhParams.MAX_MAIN_MSG_AREA_CHARS;
+				mainMsgArea.deleteText(0, numDeleteChars);
 			}
-			bottomMsgArea.setScrollTop(Double.MAX_VALUE);
+			mainMsgArea.setScrollTop(Double.MAX_VALUE);
 		});
 
-		bottomMsgArea.scrollTopProperty().addListener((observable, oldVal, newVal) -> {
+		mainMsgArea.scrollTopProperty().addListener((observable, oldVal, newVal) -> {
 			if (oldVal.doubleValue() == Double.MAX_VALUE && newVal.doubleValue() == 0.0)
-				bottomMsgArea.setScrollTop(Double.MAX_VALUE);
+				mainMsgArea.setScrollTop(Double.MAX_VALUE);
 		});
 		
 		setResizeEventHandlers();
-		setKeyEvents(bhBasicOperationController);
 	}
 	
 	/**
@@ -107,56 +104,6 @@ public class WorkspaceSetController implements MsgProcessor {
 //			workspaceSetStackPane.setPrefHeight(0.9 * newVal.doubleValue());
 //			bottomMsgArea.setPrefHeight(0.1 * newVal.doubleValue());
 //		});
-	}
-	
-	/**
-	 * キーボード押下時のイベントを登録する
-	 * @param bhBasicOperationController ユーザ操作メニューのコントローラ
-	 */
-	private void setKeyEvents(BhBasicOperationController bhBasicOperationController) {
-		workspaceSetStackPane.setOnKeyPressed(event -> {
-			
-			switch (event.getCode()) {
-				case C:
-					if (event.isControlDown())
-						bhBasicOperationController.fireEvent(BhBasicOperationController.BASIC_OPERATION.COPY);
-					break;
-				
-				case X:
-					if (event.isControlDown())
-						bhBasicOperationController.fireEvent(BhBasicOperationController.BASIC_OPERATION.CUT);
-					break;
-					
-				case V:
-					if (event.isControlDown())
-						bhBasicOperationController.fireEvent(BhBasicOperationController.BASIC_OPERATION.PASTE);
-					break;
-				
-				case Z:
-					if (event.isControlDown())
-						bhBasicOperationController.fireEvent(BhBasicOperationController.BASIC_OPERATION.UNDO);
-					break;
-					
-				case Y:
-					if (event.isControlDown())
-						bhBasicOperationController.fireEvent(BhBasicOperationController.BASIC_OPERATION.REDO);
-					break;
-					
-				case S:
-					if (event.isControlDown())
-						bhBasicOperationController.fireEvent(BhBasicOperationController.BASIC_OPERATION.SAVE);
-					break;
-					
-				case F12:
-					bhBasicOperationController.fireEvent(BhBasicOperationController.BASIC_OPERATION.SAVE_AS);
-					break;
-					
-				case DELETE:
-					bhBasicOperationController.fireEvent(BhBasicOperationController.BASIC_OPERATION.DELETE);
-					break;
-			}
-			event.consume();
-		});
 	}
 	
 	/**

@@ -35,7 +35,7 @@ public class MsgPrinter {
 
 	public static final MsgPrinter instance = new MsgPrinter();	//!< シングルトンインスタンス
 	private TextArea mainMsgArea;
-	private BlockingQueue<String> queuedMsgs = new ArrayBlockingQueue<>(BhParams.maxTextMsgQueueSize);
+	private BlockingQueue<String> queuedMsgs = new ArrayBlockingQueue<>(BhParams.MAX_MAIN_MSG_QUEUE_SIZE);
 	private final Timeline msgPrintTimer;
 	
 	private MsgPrinter() {

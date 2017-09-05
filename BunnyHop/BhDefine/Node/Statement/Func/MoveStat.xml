@@ -1,0 +1,76 @@
+<Node type="connective"
+	bhNodeID="idMoveStat"
+	name="MoveStat"
+	nodeStyleID="MoveStat.json"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js">
+
+	<ConnectorSection name="StatSctn">
+		
+		<PrivateConnector 
+			name="hayasa"
+			fixed="true">
+			<Node
+				type="label"
+				name="hayasa"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="速さ">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
+		
+		<PrivateConnector 
+			name="de"
+			fixed="true">
+			<Node
+				type="label"
+				name="de"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="(1～10)で">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+		
+		<PrivateConnector 
+			name="byokan"
+			fixed="true">
+			<Node
+				type="label"
+				name="byokan"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="秒間">
+			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector 
+			name="Option0"
+    		fixed="true">
+			<Node
+				type="comboBox"
+				name="MoveOpe"
+				nodeStyleID="MoveOpe.json"
+				nodeInputControl="MoveOpe.fxml"
+				initString="前進">
+			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector 
+			name="suru"
+			fixed="true">
+			<Node
+				type="label"
+				name="suru"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="する">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+	</ConnectorSection>
+</Node>

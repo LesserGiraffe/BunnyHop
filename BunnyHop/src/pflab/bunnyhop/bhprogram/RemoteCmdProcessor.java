@@ -30,7 +30,7 @@ import pflab.bunnyhop.root.MsgPrinter;
  */
 public class RemoteCmdProcessor {
 
-	private final BlockingQueue<BhProgramData> recvDataList = new ArrayBlockingQueue<>(BhParams.ExternalProgram.maxRemoteCmdQueueSize);
+	private final BlockingQueue<BhProgramData> recvDataList = new ArrayBlockingQueue<>(BhParams.ExternalApplication.MAX_REMOTE_CMD_QUEUE_SIZE);
 	private final ExecutorService remoteCmdExec = Executors.newSingleThreadExecutor();	//!< コマンド受信用
 	
 	public void RemoteCmdProcessor(){}
@@ -42,7 +42,7 @@ public class RemoteCmdProcessor {
 				
 				BhProgramData data = null;
 				try {
-					data = recvDataList.poll(BhParams.ExternalProgram.popRecvDataTimeout, TimeUnit.SECONDS);
+					data = recvDataList.poll(BhParams.ExternalApplication.POP_RECV_DATA_TIMEOUT, TimeUnit.SECONDS);
 				}
 				catch(InterruptedException e) {
 					break;
@@ -76,6 +76,13 @@ public class RemoteCmdProcessor {
 	}
 	
 	/**
+	 * 処理対象のリモートデータを全て削除する
+	 */
+	public void clearRemoteDataList() {
+		recvDataList.clear();
+	}
+	
+	/**
 	 * このオブジェクトの終了処理を行う
 	 * @return 終了処理が成功した場合true
 	 */
@@ -84,7 +91,7 @@ public class RemoteCmdProcessor {
 		boolean success = false;
 		remoteCmdExec.shutdownNow();
 		try {
-			success = remoteCmdExec.awaitTermination(BhParams.executorShutdownTimeout, TimeUnit.SECONDS);
+			success = remoteCmdExec.awaitTermination(BhParams.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
 		}
 		catch(InterruptedException e) {
 			Thread.currentThread().interrupt();

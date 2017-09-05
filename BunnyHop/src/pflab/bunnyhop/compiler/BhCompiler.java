@@ -42,6 +42,8 @@ public class BhCompiler {
 	private final FuncDefCodeGenerator funcDefCodeGen;
 	private final StatCodeGenerator statCodeGen;
 	private String commonCode;
+	private String remoteCommonCode;
+	private String localCommonCode;
 
 	private BhCompiler(){
 		CommonCodeGenerator common = new CommonCodeGenerator();
@@ -57,10 +59,28 @@ public class BhCompiler {
 	 */
 	public boolean init() {
 		
-		Path commonCodePath = Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.FunctionsDir, BhParams.Path.compiler, BhParams.Path.commonCode);
+		Path commonCodePath = Paths.get(Util.EXEC_PATH, 
+			BhParams.Path.BH_DEF_DIR, 
+			BhParams.Path.FUNCTIONS_DIR, 
+			BhParams.Path.lib, 
+			BhParams.Path.COMMON_CODE_JS);
+		Path remoteCommonCodePath = Paths.get(Util.EXEC_PATH, 
+			BhParams.Path.BH_DEF_DIR, 
+			BhParams.Path.FUNCTIONS_DIR, 
+			BhParams.Path.lib, 
+			BhParams.Path.REMOTE_COMMON_CODE_JS);
+		Path localCommonCodePath = Paths.get(Util.EXEC_PATH, 
+			BhParams.Path.BH_DEF_DIR, 
+			BhParams.Path.FUNCTIONS_DIR, 
+			BhParams.Path.lib, 
+			BhParams.Path.LOCAL_COMMON_CODE_JS);
 		try {
 			byte[] content = Files.readAllBytes(commonCodePath);
 			commonCode = new String(content, StandardCharsets.UTF_8);
+			content = Files.readAllBytes(remoteCommonCodePath);
+			remoteCommonCode = new String(content, StandardCharsets.UTF_8);
+			content = Files.readAllBytes(localCommonCodePath);
+			localCommonCode = new String(content, StandardCharsets.UTF_8);
 		}
 		catch (IOException e) {
 			MsgPrinter.instance.ErrMsgForDebug("failed to initialize + " + BhCompiler.class.getSimpleName() + "\n" + e.toString());
@@ -92,7 +112,7 @@ public class BhCompiler {
 		StringBuilder code = new StringBuilder();
 		genCode(code, execNode, compiledNodeList, option);
 		
-		Path appFilePath = Paths.get(Util.execPath, BhParams.Path.compiled, BhParams.Path.appFileName);
+		Path appFilePath = Paths.get(Util.EXEC_PATH, BhParams.Path.COMPILED_DIR, BhParams.Path.APP_FILE_NAME_JS);
 		try (BufferedWriter writer = 
 			Files.newBufferedWriter(
 				appFilePath, 
@@ -110,7 +130,7 @@ public class BhCompiler {
 				e.toString() + "\n" + appFilePath.toString());			
 			return Optional.empty();
 		}
-		MsgPrinter.instance.MsgForUser("-- コンパイル成功 --\n");
+		MsgPrinter.instance.MsgForUser("\n-- コンパイル成功 --\n");
 		return Optional.of(appFilePath);
 	}
 	
@@ -132,6 +152,10 @@ public class BhCompiler {
 			.append("(){")
 			.append(Util.LF);
 		code.append(commonCode);
+		if (option.local)
+			code.append(localCommonCode);
+		else
+			code.append(remoteCommonCode);
 		varDeclCodeGen.genVarDecls(compiledNodeList, code, 1, option);
 		funcDefCodeGen.genFuncDefs(compiledNodeList, code, 1, option);
 		statCodeGen.genStatement(execNode, code, 1, option);

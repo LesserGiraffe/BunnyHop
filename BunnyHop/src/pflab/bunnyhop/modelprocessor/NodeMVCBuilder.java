@@ -38,7 +38,6 @@ import pflab.bunnyhop.view.BhNodeViewStyle;
 import pflab.bunnyhop.view.ConnectiveNodeView;
 import pflab.bunnyhop.view.TextFieldNodeView;
 import pflab.bunnyhop.view.VoidNodeView;
-import pflab.bunnyhop.undo.UserOperationCommand;
 import pflab.bunnyhop.view.ComboBoxNodeView;
 import pflab.bunnyhop.view.LabelNodeView;
 
@@ -121,21 +120,21 @@ public class NodeMVCBuilder implements BhModelProcessor {
 
 		BhNodeViewStyle viewStyle = BhNodeViewStyle.getNodeViewStyleFromNodeID(node.getID());
 		BhNodeView nodeView = null;
-		if (node.type.equals(BhParams.BhModelDef.attrValueTextField)) {
+		if (node.type.equals(BhParams.BhModelDef.ATTR_NAME_TEXT_FIELD)) {
 			TextFieldNodeView textNodeView = new TextFieldNodeView(node, viewStyle);
 			textNodeView.init(isTemplate);
 			node.setScriptScope(textNodeView);
 			mvcConnector.connect(node, textNodeView);
 			nodeView = textNodeView;
 		}
-		else if (node.type.equals(BhParams.BhModelDef.attrValueComboBox)) {
+		else if (node.type.equals(BhParams.BhModelDef.ATTR_NAME_COMBO_BOX)) {
 			ComboBoxNodeView comboBoxNodeView = new ComboBoxNodeView(node, viewStyle);
 			comboBoxNodeView.init(isTemplate);
 			node.setScriptScope(comboBoxNodeView);
 			mvcConnector.connect(node, comboBoxNodeView);
 			nodeView = comboBoxNodeView;
 		}
-		else if (node.type.equals(BhParams.BhModelDef.attrValueLabel)) {
+		else if (node.type.equals(BhParams.BhModelDef.ATTR_NAME_LABEL)) {
 			LabelNodeView labelNodeView = new LabelNodeView(node, viewStyle);
 			labelNodeView.init();
 			node.setScriptScope(labelNodeView);
@@ -147,7 +146,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 			topNodeView = nodeView;
 		
 		if(node.getOriginalNode() != null)
-			MsgTransporter.instance().sendMessage(BhMsg.IMITATE_TEXT, new MsgData(node.getOriginalNode().getText()), node);
+			MsgTransporter.instance.sendMessage(BhMsg.IMITATE_TEXT, new MsgData(node.getOriginalNode().getText()), node);
 		
 		addChildView(node, nodeView);
 	}

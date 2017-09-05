@@ -125,17 +125,17 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
 	public void addSelectedNode(BhNode added, UserOperationCommand userOpeCmd) {
-		MsgTransporter.instance().sendMessage(
+		MsgTransporter.instance.sendMessage(
 			BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-			new MsgData(true, BhParams.CSS.pseudoSelected),
+			new MsgData(true, BhParams.CSS.PSEUDO_SELECTED),
 			added);
 		selectedList.add(added);
 		if (added instanceof Imitatable) {
 			List<Imitatable> imitationList = ((Imitatable)added).getImitationInfo().getImitationList();
 			imitationList.forEach(imitation -> {
-				MsgTransporter.instance().sendMessage(
+				MsgTransporter.instance.sendMessage(
 					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-					new MsgData(true, BhParams.CSS.pseudoHighlightImit),
+					new MsgData(true, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT),
 					imitation);
 			});
 		}		
@@ -157,17 +157,17 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	 */
 	public void removeSelectedNode(BhNode removed, UserOperationCommand userOpeCmd) {
 		
-		MsgTransporter.instance().sendMessage(
+		MsgTransporter.instance.sendMessage(
 			BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION, 
-			new MsgData(false, BhParams.CSS.pseudoSelected),
+			new MsgData(false, BhParams.CSS.PSEUDO_SELECTED),
 			removed);
 		selectedList.remove(removed);
 		if (removed instanceof Imitatable) {
 			List<Imitatable> imitationList = ((Imitatable)removed).getImitationInfo().getImitationList();
 			imitationList.forEach(imitation -> {
-				MsgTransporter.instance().sendMessage(
+				MsgTransporter.instance.sendMessage(
 					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-					new MsgData(false, BhParams.CSS.pseudoHighlightImit),
+					new MsgData(false, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT),
 					imitation);
 			});
 		}

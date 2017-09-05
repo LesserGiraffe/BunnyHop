@@ -7,15 +7,15 @@
 	-fx-min-height: 0em;
 }
 
-#bottomMsgArea {
+#mainMsgArea {
 	-fx-min-height: 1em;
-    -fx-font-family: "Arial";
-    -fx-font-size: 10pt;
+    -fx-font-family: "Meiryo UI";
+    -fx-font-size: 1.1em;
 }
 
 #workspaceSetTab .tab-label {
-    -fx-font-family: "Arial";
-    -fx-font-size: 11pt;
+    -fx-font-family: "Meiryo UI";
+    -fx-font-size: 1.1em;
 }
 
 #closedTrashboxIV {

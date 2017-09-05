@@ -15,7 +15,6 @@
  */
 package pflab.bunnyhop.compiler;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,26 +50,26 @@ public class ExpCodeGenerator {
 		CompileOption option) {
 		
 		String expSymbolName = expNode.getSymbolName();
-		if (SymbolNames.BinaryExp.list.contains(expSymbolName)) {
+		if (SymbolNames.BinaryExp.LIST.contains(expSymbolName)) {
 			return genBinaryExp(code, expNode, nestLevel, option);
 		}
-		else if (SymbolNames.UnaryExp.list.contains(expSymbolName)) {
+		else if (SymbolNames.UnaryExp.LIST.contains(expSymbolName)) {
 			return genUnaryExp(code, expNode, nestLevel, option);
 		}
-		else if (SymbolNames.VarDecl.varList.contains(expSymbolName)) {
+		else if (SymbolNames.VarDecl.VAR_LIST.contains(expSymbolName)) {
 			Imitatable varNode = (Imitatable)expNode;
 			return common.genVarName(varNode.getOriginalNode());
 		}
-		else if (SymbolNames.Literal.list.contains(expSymbolName)) {
+		else if (SymbolNames.Literal.LIST.contains(expSymbolName)) {
 			return genLiteral(expNode);
 		}
-		else if (SymbolNames.PreDefFunc.preDefFuncCallExpList.contains(expSymbolName)) {
+		else if (SymbolNames.PreDefFunc.PREDEF_FUNC_CALL_EXP_LIST.contains(expSymbolName)) {
 			return genPreDefFuncCallExp(code, expNode, nestLevel, option, true);
 		}
-		else if (SymbolNames.Array.getExpList.contains(expSymbolName)) {
+		else if (SymbolNames.Array.GET_EXP_LIST.contains(expSymbolName)) {
 			return genArrayGetExp(code, expNode, nestLevel, option);
 		}
-		else if (SymbolNames.Array.lengthExpList.contains(expSymbolName)) {
+		else if (SymbolNames.Array.LENGTH_EXP_LIST.contains(expSymbolName)) {
 			return genArrayLenExp(code, expNode, nestLevel, option);
 		}
 		return null;
@@ -90,17 +89,17 @@ public class ExpCodeGenerator {
 		int nestLevel,
 		CompileOption option) {
 		
-		SyntaxSymbol leftExp = binaryExpNode.findSymbolInDescendants("*",	SymbolNames.BinaryExp.leftExp, "*");
+		SyntaxSymbol leftExp = binaryExpNode.findSymbolInDescendants("*",	SymbolNames.BinaryExp.LEFT_EXP, "*");
 		String leftExpCode = genExpression(code, leftExp, nestLevel, option);
-		SyntaxSymbol rightExp = binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.rightExp, "*");
+		SyntaxSymbol rightExp = binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
 		String rightExpCode = genExpression(code, rightExp, nestLevel, option);
 		String operatorCode = null;
-		if (binaryExpNode.getSymbolName().equals(SymbolNames.BinaryExp.modExp)) {
+		if (binaryExpNode.getSymbolName().equals(SymbolNames.BinaryExp.MOD_EXP)) {
 			operatorCode = " % ";
 		}
 		else {
-			TextNode operator = (TextNode)binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.operator, "*");
-			operatorCode = SymbolNames.BinaryExp.operatorMap.get(operator.getText());
+			TextNode operator = (TextNode)binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.OPERATOR, "*");
+			operatorCode = SymbolNames.BinaryExp.OPERATOR_MAP.get(operator.getText());
 		}
 		
 		if (leftExp == null || rightExp == null)
@@ -118,9 +117,9 @@ public class ExpCodeGenerator {
 			.append(Util.LF);
 		
 		String tmpVarResult = tmpVar;
-		String funcName = SymbolNames.PreDefFunc.preDefFuncNameMap.get(Arrays.asList(SymbolNames.PreDefFunc.isFinite));
+		String funcName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(Arrays.asList(SymbolNames.PreDefFunc.IS_FINITE));
 		if (option.handleException) {
-			if (SymbolNames.BinaryExp.arithExceptionExp.contains(binaryExpNode.getSymbolName())) {
+			if (SymbolNames.BinaryExp.ARITH_EXCEPTION_EXP.contains(binaryExpNode.getSymbolName())) {
 				tmpVarResult = "_" + tmpVar;
 				code.append(common.indent(nestLevel))
 					.append(BhCompiler.Keywords.JS._const)
@@ -153,12 +152,9 @@ public class ExpCodeGenerator {
 		int nestLevel,
 		CompileOption option) {
 		
-		SyntaxSymbol primaryExp = unaryExpNode.findSymbolInDescendants("*",	SymbolNames.UnaryExp.primaryExp, "*");
+		SyntaxSymbol primaryExp = unaryExpNode.findSymbolInDescendants("*",	SymbolNames.UnaryExp.PRIMARY_EXP, "*");
 		String primaryExpCode = genExpression(code, primaryExp, nestLevel, option);
-		String operatorCode = null;
-		if (unaryExpNode.getSymbolName().equals(SymbolNames.UnaryExp.notExp)) {
-			operatorCode = "!";
-		}
+		String operatorCode = SymbolNames.UnaryExp.OPERATOR_MAP.get(unaryExpNode.getSymbolName());
 		
 		if (primaryExp == null)
 			return null;
@@ -183,7 +179,7 @@ public class ExpCodeGenerator {
 	 */
 	private String genLiteral(SyntaxSymbol literalNode) {
 		
-		if (SymbolNames.Literal.listTypes.contains(literalNode.getSymbolName()))
+		if (SymbolNames.Literal.LIST_TYPES.contains(literalNode.getSymbolName()))
 			return "([])";	//空リスト
 		
 		String inputText = "";
@@ -191,17 +187,17 @@ public class ExpCodeGenerator {
 			inputText = ((TextNode)literalNode).getText();
 		
 		switch (literalNode.getSymbolName()) {
-			case SymbolNames.Literal.numLiteral:
-				return inputText;
+			case SymbolNames.Literal.NUM_LITERAL:
+				return "(" + inputText + ")";
 
-			case SymbolNames.Literal.strLiteral:
-				return "'" + inputText.replaceAll("\\\\", "\\\\\\\\").replaceAll("'", "\\\\'") + "'";
+			case SymbolNames.Literal.STR_LITERAL:
+				return "('" + inputText.replaceAll("\\\\", "\\\\\\\\").replaceAll("'", "\\\\'") + "')";
 			
-			case SymbolNames.Literal.lineFeed:
-				return "'\\n'";
+			case SymbolNames.Literal.LINE_FEED:
+				return "('\\n')";
 				
-			case SymbolNames.Literal.boolLiteral:
-				return SymbolNames.Literal.boolLiteralMap.get(inputText);
+			case SymbolNames.Literal.BOOL_LITERAL:
+				return "(" + SymbolNames.Literal.BOOL_LITERAL_MAP.get(inputText) + ")";
 		}
 		return null;
 	}
@@ -225,7 +221,7 @@ public class ExpCodeGenerator {
 		int idArg = 0;
 		List<String> argList = new ArrayList<>();
 		while (true) {
-			String argCnctrName = SymbolNames.PreDefFunc.arg + idArg;
+			String argCnctrName = SymbolNames.PreDefFunc.ARG + idArg;
 			SyntaxSymbol argExp = funcCallNode.findSymbolInDescendants("*", argCnctrName, "*");
 			if (argExp == null)
 				break;
@@ -238,7 +234,7 @@ public class ExpCodeGenerator {
 		int idOption = 0;
 		List<String> funcIdentifier = new ArrayList<>(Arrays.asList(funcCallNode.getSymbolName()));
 		while (true) {
-			String optionCnctrName = SymbolNames.PreDefFunc.option + idOption;
+			String optionCnctrName = SymbolNames.PreDefFunc.OPTION + idOption;
 			SyntaxSymbol optionExp = funcCallNode.findSymbolInDescendants("*", optionCnctrName, "*");
 			if (optionExp == null)
 				break;
@@ -258,7 +254,7 @@ public class ExpCodeGenerator {
 				.append(" = ");
 		}
 		
-		String funcName = SymbolNames.PreDefFunc.preDefFuncNameMap.get(funcIdentifier);
+		String funcName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(funcIdentifier);
 		String[] argArray = argList.toArray(new String[argList.size()]);
 		String funcCallCode = common.genFuncCallCode(funcName, argArray);
 		code.append(funcCallCode)
@@ -284,9 +280,9 @@ public class ExpCodeGenerator {
 		boolean storeRetVal) {
 	
 		String funcName = common.genFuncName(((Imitatable)funcCallNode).getOriginalNode());
-		SyntaxSymbol argment = funcCallNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.arg, "*");
+		SyntaxSymbol argment = funcCallNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.ARG, "*");
 		String argArray[] = new String[0];
-		if (!argment.getSymbolName().equals(SymbolNames.UserDefFunc.argVoid)) {
+		if (!argment.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID)) {
 			List<String> argList = new ArrayList<>();
 			genArgList(code, argment, argList, nestLevel, option);
 			argArray = argList.toArray(new String[argList.size()]);
@@ -323,13 +319,13 @@ public class ExpCodeGenerator {
 		int nestLevel,
 		CompileOption option) {
 		
-		SyntaxSymbol argment = argNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.arg, "*");
+		SyntaxSymbol argment = argNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.ARG, "*");
 		String argCode = genExpression(code, argment, nestLevel, option);
 		argList.add(argCode);
 		
-		SyntaxSymbol nextArg = argNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.nextArg, "*");
+		SyntaxSymbol nextArg = argNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.NEXT_ARG, "*");
 		
-		if (!nextArg.getSymbolName().equals(SymbolNames.UserDefFunc.argVoid)) {
+		if (!nextArg.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID)) {
 			genArgList(code, nextArg, argList, nestLevel, option);
 		}
 	}
@@ -348,9 +344,9 @@ public class ExpCodeGenerator {
 		int nestLevel,
 		CompileOption option) {
 		
-		SyntaxSymbol arrayExp = arrayGetNode.findSymbolInDescendants("*", SymbolNames.Array.array, "*");
+		SyntaxSymbol arrayExp = arrayGetNode.findSymbolInDescendants("*", SymbolNames.Array.ARRAY, "*");
 		String arrayExpCode = genExpression(code, arrayExp, nestLevel, option);
-		SyntaxSymbol indexExp = arrayGetNode.findSymbolInDescendants("*", SymbolNames.Array.index, "*");
+		SyntaxSymbol indexExp = arrayGetNode.findSymbolInDescendants("*", SymbolNames.Array.INDEX, "*");
 		String indexExpCode;
 		if (indexExp == null) {	//最後の要素取得の場合はindexExp == null
 			indexExpCode = "(" + arrayExpCode + ".length - 1)";
@@ -358,10 +354,10 @@ public class ExpCodeGenerator {
 		else {
 			indexExpCode = genExpression(code, indexExp, nestLevel, option);
 		}
-		String literalWhenUndef = SymbolNames.Undefined.substituteLiteralMap.get(arrayGetNode.getSymbolName());	//配列取得結果がundefinedになる場合の代替値
+		String literalWhenUndef = SymbolNames.Undefined.SUBSTITUTE_LITERAL_MAP.get(arrayGetNode.getSymbolName());	//配列取得結果がundefinedになる場合の代替値
 		String tmpVar = common.genVarName(arrayGetNode);
 		
-		String funcName = SymbolNames.PreDefFunc.preDefFuncNameMap.get(Arrays.asList(arrayGetNode.getSymbolName()));
+		String funcName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(Arrays.asList(arrayGetNode.getSymbolName()));
 		String[] argArray = {arrayExpCode, indexExpCode, literalWhenUndef};
 		String funcCallCode = common.genFuncCallCode(funcName, argArray);
 		
@@ -389,7 +385,7 @@ public class ExpCodeGenerator {
 		int nestLevel,
 		CompileOption option) {
 		
-		SyntaxSymbol arayExp = arrayLenNode.findSymbolInDescendants("*", SymbolNames.Array.array, "*");
+		SyntaxSymbol arayExp = arrayLenNode.findSymbolInDescendants("*", SymbolNames.Array.ARRAY, "*");
 		String arrayExpCode = genExpression(code, arayExp, nestLevel, option);
 		
 		String tmpVar = common.genVarName(arrayLenNode);

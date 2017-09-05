@@ -190,10 +190,10 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 		if (onReplaceabilityChecked == null)
 			return false;
 		
-		scriptScope.put(BhParams.JsKeyword.keyBhNewNodeID, newNode.getID());
-		scriptScope.put(BhParams.JsKeyword.keyBhOldNodeID, connectedNode.getID());
-		scriptScope.put(BhParams.JsKeyword.keyBhReplacedNewNode, newNode);
-		scriptScope.put(BhParams.JsKeyword.keyBhReplacedOldNode, connectedNode);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_NEW_NODE_ID, newNode.getID());
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_NODE_ID, connectedNode.getID());
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newNode);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, connectedNode);
 		Object canBeReplaced;
 		try {
 			canBeReplaced = onReplaceabilityChecked.eval(scriptScope);
@@ -240,10 +240,10 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 	 */
 	public final void setScriptScope() {
 		scriptScope = BhScriptManager.instance.createScriptScope();
-		scriptScope.put(BhParams.JsKeyword.keyBhThis, this);
-		scriptScope.put(BhParams.JsKeyword.keyBhNodeHandler, BhNodeHandler.instance);
-		scriptScope.put(BhParams.JsKeyword.keyBhMsgTransporter, MsgTransporter.instance());
-		scriptScope.put(BhParams.JsKeyword.keyBhCommon, BhScriptManager.instance.getCommonJsObj());
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_THIS, this);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.instance);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_MSG_TRANSPORTER, MsgTransporter.instance);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.instance.getCommonJsObj());
 	}
 
 	/**

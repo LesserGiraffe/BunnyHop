@@ -84,7 +84,7 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 		});
 				
 		if (model.getImitationInfo().canCreateImitManually) {
-			imitCreateImitBtn = loadButton(BhParams.Path.imitButtonFXML, viewStyle.imitation);
+			imitCreateImitBtn = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
 			if (imitCreateImitBtn != null)
 				getChildren().add(imitCreateImitBtn);
 		}		
@@ -110,7 +110,7 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 		if (!comboBox.getItems().isEmpty()) {
 			comboBox.setValue(comboBox.getItems().get(0));
 		}
-		getAppearanceManager().addCssClass(BhParams.CSS.classComboBoxNode);
+		getAppearanceManager().addCssClass(BhParams.CSS.CALSS_COMBO_BOX_NODE);
 	}
 	
 	/**

@@ -104,7 +104,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		copyAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
 		cutAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
-		BunnyHop.instance().pushUserOpeCmd(userOpeCmd);
+		BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
 	}
 	
 	/**
@@ -133,8 +133,8 @@ public class WorkspaceSet implements MsgReceptionWindow {
 				BhNodeHandler.instance.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), userOpeCmd);
 				
 				//コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
-				Pair<Double, Double> size = MsgTransporter.instance().sendMessage(BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true), node).doublePair;
-				pasteBasePos.x += size._1 + BhParams.replacedNodePos * 2;
+				Pair<Double, Double> size = MsgTransporter.instance.sendMessage(BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true), node).doublePair;
+				pasteBasePos.x += size._1+ BhParams.REPLACED_NODE_POS * 2;
 			}
 		}
 	}
@@ -161,8 +161,8 @@ public class WorkspaceSet implements MsgReceptionWindow {
 				UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
 				node.accept(unscopedNodeCollector);
 				BhNodeHandler.instance.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), userOpeCmd);
-				Pair<Double, Double> size = MsgTransporter.instance().sendMessage(BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true),node).doublePair;
-				pasteBasePos.x += size._1 + BhParams.replacedNodePos * 2;
+				Pair<Double, Double> size = MsgTransporter.instance.sendMessage(BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true),node).doublePair;
+				pasteBasePos.x += size._1+ BhParams.REPLACED_NODE_POS * 2;
 			}
 		}
 		readyToCut.clear();
@@ -208,12 +208,12 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			ProjectSaveData loadData = (ProjectSaveData)inputStream.readObject();
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
 			if (isOldWsCleared.get())
-				BunnyHop.instance().deleteAllWorkspace(userOpeCmd);
+				BunnyHop.instance.deleteAllWorkspace(userOpeCmd);
 			
 			loadData.load(userOpeCmd).forEach(ws -> {
-				BunnyHop.instance().addWorkspace(ws, userOpeCmd);
+				BunnyHop.instance.addWorkspace(ws, userOpeCmd);
 			});
-			BunnyHop.instance().pushUserOpeCmd(userOpeCmd);
+			BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
 			return true;
 		}
 		catch(ClassNotFoundException | IOException | ClassCastException e) {
@@ -227,7 +227,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @return 現在操作対象のワークスペース
 	 */
 	public Workspace getCurrentWorkspace() {
-		return MsgTransporter.instance().sendMessage(BhMsg.GET_CURRENT_WORKSPACE, this).workspace;
+		return MsgTransporter.instance.sendMessage(BhMsg.GET_CURRENT_WORKSPACE, this).workspace;
 	}
 	
 	@Override

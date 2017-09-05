@@ -326,11 +326,11 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow,
 	 */
 	public void setScriptScope(BhNodeView view) {
 		scriptScope = BhScriptManager.instance.createScriptScope();
-		scriptScope.put(BhParams.JsKeyword.keyBhThis, this);
-		scriptScope.put(BhParams.JsKeyword.keyBhNodeView, view);
-		scriptScope.put(BhParams.JsKeyword.keyBhNodeHandler, BhNodeHandler.instance);
-		scriptScope.put(BhParams.JsKeyword.keyBhMsgTransporter, MsgTransporter.instance());		
-		scriptScope.put(BhParams.JsKeyword.keyBhCommon, BhScriptManager.instance.getCommonJsObj());
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_THIS, this);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_VIEW, view);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.instance);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_MSG_TRANSPORTER, MsgTransporter.instance);		
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.instance.getCommonJsObj());
 	}
 	
 	/**
@@ -350,10 +350,10 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow,
 		if (onMovedToChild == null)
 			return;
 		
-		scriptScope.put(BhParams.JsKeyword.keyBhOldParent, oldParent);
-		scriptScope.put(BhParams.JsKeyword.keyBhOldRoot, oldRoot);
-		scriptScope.put(BhParams.JsKeyword.keyBhReplacedOldNode, oldReplaced);
-		scriptScope.put(BhParams.JsKeyword.keyBhUserOpeCmd, userOpeCmd);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldReplaced);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
 			onMovedToChild.eval(scriptScope);
 		} 
@@ -381,11 +381,11 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow,
 		if (onMovedFromChildToWS == null)
 			return;
 		
-		scriptScope.put(BhParams.JsKeyword.keyBhOldParent, oldParent);
-		scriptScope.put(BhParams.JsKeyword.keyBhOldRoot, oldRoot);
-		scriptScope.put(BhParams.JsKeyword.keyBhReplacedNewNode, newReplaced);
-		scriptScope.put(BhParams.JsKeyword.keyBhManuallyReplaced, manuallyRemoved);
-		scriptScope.put(BhParams.JsKeyword.keyBhUserOpeCmd, userOpeCmd);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newReplaced);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_MANUALLY_REPLACED, manuallyRemoved);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
 			onMovedFromChildToWS.eval(scriptScope);
 		} catch (ScriptException e) {

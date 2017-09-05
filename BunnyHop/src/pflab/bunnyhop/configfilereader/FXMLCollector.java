@@ -44,7 +44,7 @@ public class FXMLCollector {
 	 */
 	public boolean collectFXMLFiles() {
 		
-		Path dirPath = Paths.get(Util.execPath, BhParams.Path.viewDir, BhParams.Path.fxmlDir);
+		Path dirPath = Paths.get(Util.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.FXML_DIR);
 		Stream<Path> paths;	//読み込むファイルパスリスト
 		try {
 			paths = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.getFileName().toString().endsWith(".fxml")); //.fxmlファイルだけ収集

@@ -15,244 +15,232 @@
  */
 package pflab.bunnyhop.common;
 
-import java.rmi.registry.Registry;
-
 /**
  * パラメータ一式をまとめたクラス
  * @author K.Koike
  */
 public class BhParams {
 
-	public static String applicationName = "BunnyHop";
-	public static double defaultAppWidthRate = 0.7; // !< 起動時の画面幅のディスプレイに対する割合
-	public static double defaultAppHeightRate = 0.7; // !< 起動時の画面高さのディスプレイに対する割合
-	public static double defaultWorkspaceWidth = 200 * Util.rem;
-	public static double defaultWorkspaceHeight = 200 * Util.rem;
-	public static double defaultVerticalDivPos = 0.85;	//ワークスペースとメッセージエリアを分けるディバイダの初期位置
-	public static double nodeScale = 0.5 * Util.rem;
-	public static double wsMagnification = 1.2;		//ctrl + マウスホイールや拡大, 縮小ボタンを押したときの拡大縮小倍率
-	public static double maxZoomLevel = 20;		//!< 最大拡大レベル
-	public static double minZoomLevel = -20;	//!< 最小拡大レベル
-	public static double replacedNodePos = 2.0 * BhParams.nodeScale;	//!< 入れ替えられたノードがワークスペースに移ったときの元の位置に対する位置 (単位rem)
-	public static double bhNodeSpaceOnSelectionPanel = 2.0 * BhParams.nodeScale;		//!< BhNode選択パネル上でのBhNode間のスペース
-	public static int numTimesMaxUndo = 128;	//!< undo 可能な最大回数
-	public static int maxBottomTextAreaChars = 4096*4;	//!< 下部テキストエリアの最大表示文字数
-	public static int maxTextMsgQueueSize = 2048;	//!< 下部テキストエリアの表示文字列バッファサイズ
-	public static int numDivOfQTreeSpace = 4;	//!< 4分木空間の分割数 (2^numDivOfQTreeSpace)^2
-	public static double maxWorkspaceSizeLevel = 3;		//!< ワークスペースの最大の大きさレベル
-	public static double minWorkspaceSizeLevel = -1;	//!< ワークスペースの最小の大きさレベル
-	public static String mainWorkspaceName = "main";	//!< 最初からあるワークスペースの名前
-	public static int executorShutdownTimeout = 5;	//!< ExecutorService のシャットダウンを待つ時間 (sec)
+	public static final String APPLICATION_NAME = "BunnyHop";
+	public static final double DEFAULT_APP_WIDTH_RATE = 0.7; // !< 起動時の画面幅のディスプレイに対する割合
+	public static final double DEFAULT_APP_HEIGHT_RATE = 0.7; // !< 起動時の画面高さのディスプレイに対する割合
+	public static final double DEFAULT_WORKSPACE_WIDTH = 200 * Rem.VAL;
+	public static final double DEFAULT_WORKSPACE_HEIGHT = 200 * Rem.VAL;
+	public static final double DEFAULT_VERTICAL_DIV_POS = 0.85;	//!< ワークスペースとメッセージエリアを分けるディバイダの初期位置
+	public static final double NODE_SCALE = 0.5 * Rem.VAL;
+	public static final double ZOOM_MAGNIFICATION = 1.2;		//!< ctrl + マウスホイールや拡大, 縮小ボタンを押したときの拡大縮小倍率
+	public static final double MAX_ZOOM_LEVEL = 20;		//!< 最大拡大レベル
+	public static final double MIN_ZOOM_LEVEL = -20;	//!< 最小拡大レベル
+	public static final int INITIAL_ZOOM_LEVEL = -1;
+	public static final double REPLACED_NODE_POS = 2.0 * BhParams.NODE_SCALE;	//!< 入れ替えられたノードがワークスペースに移ったときの元の位置に対する位置 (単位rem)
+	public static final double BHNODE_SPACE_ON_SELECTION_PANEL = 2.0 * BhParams.NODE_SCALE;		//!< BhNode選択パネル上でのBhNode間のスペース
+	public static final int NUM_TIMES_MAX_UNDO = 128;	//!< undo 可能な最大回数
+	public static final int MAX_MAIN_MSG_AREA_CHARS = 131072;	//!< メインメッセージエリアの最大表示文字数
+	public static final int MAX_MAIN_MSG_QUEUE_SIZE = 2048;	//!< メインメッセージエリアの表示文字列バッファサイズ
+	public static final int NUM_DIV_OF_QTREE_SPACE = 4;	//!< 4分木空間の分割数 (2^numDivOfQTreeSpace)^2
+	public static final double MAX_WORKSPACE_SIZE_LEVEL = 3;		//!< ワークスペースの最大の大きさレベル
+	public static final double MIN_WORKSPACE_SIZE_LEVEL = -1;	//!< ワークスペースの最小の大きさレベル
+	public static final String INITIAL_WORKSPACE_NAME = "メイン";	//!< 最初からあるワークスペースの名前
+	public static final  int EXECUTOR_SHUTDOWN_TIMEOUT = 5;	//!< ExecutorService のシャットダウンを待つ時間 (sec)
 	
 	/**
 	 * ファイルパス関連のパラメータ
 	 */
 	public static class Path {
-		public static String viewDir = "BhView"; //!< fxmlとcssファイルのあるフォルダ名
-		public static String foundationFxml = "Foundation.fxml"; //!< アプリの基底部分のビューが定義してあるfxmlファイルの名前
-		public static String workspaceFxml = "Workspace.fxml"; // !< ワークスペース部分のビューが定義してあるfxmlファイルの名前
-		public static String nodeSelectionPanelFxml = "NodeSelectionPanel.fxml";	//!< BhNodeテンプレートリスト部分のビューが定義してあるfxmlの名前
-		public static String imitButtonFXML = "ImitButton.fxml";	//!< イミテーションボタンが定義してあるfxmlの名前
-		public static String cssDir = "css";	//!< cssファイルのあるフォルダ名
-		public static String fxmlDir = "fxml";	//!< fxmlファイルのあるフォルダ名
-		public static String bhDefDir = "BhDefine"; //!< ノードやコネクタの定義フォルダがあるフォルダ名
-		public static String nodeDefDir = "Node"; //!< ノード定義ファイルがあるフォルダ名
-		public static String connectorDefDir = "Connector"; //!< コネクタ定義ファイルがあるフォルダ名
-		public static String nodeStyleDefDir = "NodeStyle"; //!< ノードのスタイル定義ファイルがあるフォルダ名
-		public static String FunctionsDir = "Functions";	//!< Javascript コードが書かれたファイルのあるトップフォルダ
-		public static String TemplateListDir = "TemplateList";	//ノードテンプレートの配置情報が書かれたファイルがあるフォルダ名
-		public static String nodeTemplateList = "NodeTemplateList.json";	//!< ノードテンプレートの配置情報が書かれたファイルの名前
-		public static String commonJS = "common.js";
-		public static String compiler = "Compiler";
-		public static String compiled = "Compiled";
-		public static String commonCode = "CommonCode.js";
-		public static String appFileName = "BhAppScript.js";
-		public static String genCompoundNodes = "genCompoundNodes.js";
-		public static String remoteDir = "Remote";
+		public static final String VIEW_DIR = "BhView"; //!< fxmlとcssファイルのあるフォルダ名
+		public static final String CSS_DIR = "css";	//!< cssファイルのあるフォルダ名
+		public static final String FXML_DIR = "fxml";	//!< fxmlファイルのあるフォルダ名
+		public static final String BH_DEF_DIR = "BhDefine"; //!< ノードやコネクタの定義フォルダがあるフォルダ名
+		public static final String NODE_DEF_DIR = "Node"; //!< ノード定義ファイルがあるフォルダ名
+		public static final String CONNECTOR_DEF_DIR = "Connector"; //!< コネクタ定義ファイルがあるフォルダ名
+		public static final String NODE_STYLE_DEF_DIR = "NodeStyle"; //!< ノードのスタイル定義ファイルがあるフォルダ名
+		public static final String FUNCTIONS_DIR = "Functions";	//!< Javascript コードが書かれたファイルのあるトップフォルダ
+		public static final String TEMPLATE_LIST_DIR = "TemplateList";	//ノードテンプレートの配置情報が書かれたファイルがあるフォルダ名
+		public static final String lib = "lib";
+		public static final String COMPILED_DIR = "Compiled";
+		public static final String REMOTE_DIR = "Remote";
+		public static final String FOUNDATION_FXML = "Foundation.fxml"; //!< アプリの基底部分のビューが定義してあるfxmlファイルの名前
+		public static final String WORKSPACE_FXML = "Workspace.fxml"; // !< ワークスペース部分のビューが定義してあるfxmlファイルの名前
+		public static final String NODE_SELECTION_PANEL_FXML = "NodeSelectionPanel.fxml";	//!< BhNodeテンプレートリスト部分のビューが定義してあるfxmlの名前
+		public static final String IMIT_BUTTON_FXML = "ImitButton.fxml";	//!< イミテーションボタンが定義してあるfxmlの名前
+		public static final String NODE_TEMPLATE_LIST_JSON = "NodeTemplateList.json";	//!< ノードテンプレートの配置情報が書かれたファイルの名前
+		public static final String COMMON_EVENT_JS = "CommonEvent.js";
+		public static final String COMMON_CODE_JS = "CommonCode.js";
+		public static final String LOCAL_COMMON_CODE_JS = "LocalCommonCode.js";
+		public static final String REMOTE_COMMON_CODE_JS = "RemoteCommonCode.js";
+		public static final String APP_FILE_NAME_JS = "BhAppScript.js";
+		public static final String GEN_COMPOUND_NODES_JS = "genCompoundNodes.js";
+		public static String REMOTE_EXEC_CMD_GENERATOR_JS = "remoteExecCmdGenerator.js";	//!< リモートのBhProgram実行環境をスタートさせるコマンドを生成するスクリプト名
+		public static String REMOTE_KILL_CMD_GENERATOR_JS = "remoteKillCmdGenerator.js";	//!< リモートのBhProgram実行環境を終わらせるコマンドを生成するスクリプト名
+		public static String COPY_CMD_GENERATOR_JS = "copyCmdGenerator.js";	//!< リモートのBhProgram実行環境にBhProgramファイルをコピーするコマンドを生成するスクリプト名
 	}
 
 	/**
 	 * ノードやコネクタ定義のパラメータ
 	 */
 	public static class BhModelDef {
-		public static String elemNameNode = "Node";
-		public static String elemNameSection = "Section";
-		public static String elemNameConnector = "Connector";
-		public static String elemNamePrivateConnector = "PrivateConnector";
-		public static String elemNameConnectorSection = "ConnectorSection";
-		public static String elemNameImitation = "Imitation";
-		public static String elemNameItems = "Items";
-		public static String elemNameString = "String";
-		public static String attrNameBhNodeID = "bhNodeID";
-		public static String attrNameBhConnectorID = "bhConnectorID";
-		public static String attrNameDefaultBhNodeID = "defaultBhNodeID";
-		public static String attrNameInitialBhNodeID = "initialBhNodeID";
-		public static String attrNameType = "type";
-		public static String attrNameName = "name";
-		public static String attrNameUpperLimit = "upperLimit";
-		public static String attrNameLowerLimit = "lowerLimit";
-		public static String attrNameFixed = "fixed";
-		public static String attrNameDefaultStr = "defaultStr";
-		public static String attrNameOnTextInput = "onTextInput";
-		public static String attrNameOnCompiled = "onCompiled";
-		public static String attrNameOnMovedFromChildToWS = "onMovedFromChildToWS";
-		public static String attrNameOnMovedToChild = "onMovedToChild";
-		public static String attrNameOnReplaceabilityChecked = "onReplaceabilityChecked";
-		public static String attrNameImitationNodeID = "imitationNodeID";
-		public static String attrNameCanCreateImitManually = "canCreateImitManually";
-		public static String attrNameNodeInputControl = "nodeInputControl";
-		public static String attrNameInitString = "initString";
-		public static String attrNameImitationTag = "imitationTag";
-		public static String attrNameImitScopeName = "imitScopeName";
-		public static String attrNameValue = "value";
-		public static String attrValueConnective = "connective";
-		public static String attrValueTextField = "textField";
-		public static String attrValueComboBox = "comboBox";
-		public static String attrValueLabel = "label";
-		public static String attrValueVoid = "void";
-		public static String attrValueTrue = "true";
-		public static String attrValueFalse = "false";
-		public static String attrValueDefaultNodeStyleID = "";
-		public static String attrValueTagManual = "tagManual";
-		public static String arrtValueInitialBhNodeID = "initialBhNodeID";
+		public static final String ELEM_NAME_NODE = "Node";
+		public static final String ELEM_NAME_SECTION = "Section";
+		public static final String ELEM_NAME_CONNECTOR = "Connector";
+		public static final String ELEM_NAME_PRIVATE_CONNECTOR = "PrivateConnector";
+		public static final String ELEM_NAME_CONNECTOR_SECTION = "ConnectorSection";
+		public static final String ELEM_NAME_IMITATION = "Imitation";
+		public static final String ATTR_NAME_BHNODE_ID = "bhNodeID";
+		public static final String ATTR_NAME_BHCONNECTOR_ID = "bhConnectorID";
+		public static final String ATTR_NAME_DEFAULT_BHNODE_ID = "defaultBhNodeID";
+		public static final String ATTR_NAME_INITIAL_BHNODE_ID = "initialBhNodeID";
+		public static final String ATTR_NAME_TYPE = "type";
+		public static final String ATTR_NAME_NAME = "name";
+		public static final String ATTR_NAME_FIXED = "fixed";
+		public static final String ATTR_NAME_ON_INPUT_TEXT = "onTextInput";
+		public static final String ATTR_NAME_ON_MOVED_FROM_CHILD_TO_WS = "onMovedFromChildToWS";
+		public static final String ATTR_NAME_ON_MOVED_TO_CHILD = "onMovedToChild";
+		public static final String ATTR_NAME_ON_REPLACEABILITY_CHECKED = "onReplaceabilityChecked";
+		public static final String ATTR_NAME_IMITATION_NODE_ID = "imitationNodeID";
+		public static final String ATTR_NAME_CAN_CREATE_IMIT_MANUALLY = "canCreateImitManually";
+		public static final String ATTR_NAME_NODE_INPUT_CONTROL = "nodeInputControl";
+		public static final String ATTR_NAME_INIT_STRING = "initString";
+		public static final String ATTR_NAME_IMITATION_TAG = "imitationTag";
+		public static final String ATTR_NAME_IMIT_SCOPE_NAME = "imitScopeName";
+		public static final String ATTR_NAME_VALUE = "value";
+		public static final String ATTR_VALUE_CONNECTIVE = "connective";
+		public static final String ATTR_NAME_TEXT_FIELD = "textField";
+		public static final String ATTR_NAME_COMBO_BOX = "comboBox";
+		public static final String ATTR_NAME_LABEL = "label";
+		public static final String ATTR_VALUE_VOID = "void";
+		public static final String ATTR_VALUE_TRUE = "true";
+		public static final String ATTR_VALUE_FALSE = "false";
+		public static final String ATTR_VALUE_DEFAULT_NODE_STYLE_ID = "";
+		public static final String ATTR_VALUE_TAG_MANUAL = "tagManual";
+		public static final String ATTR_VALUE_INITIAL_BHNODE_ID = "initialBhNodeID";
 	}
 
 	/**
 	 * javascript コードに内部でも使うキーワード
 	 * */
 	public static class JsKeyword {
-		public static String keyBhThis = "bhThis";	//!< スクリプトの呼び出し元オブジェクト
-		public static String keyBhNodeHandler = "bhNodeHandler";
-		public static String keyBhNodeView = "bhNodeView";
-		public static String keyBhMsgTransporter = "bhMsgTransporter";
-		public static String keyBhText = "bhText";	//!< TextNode のString型フィールドアクセス用キーワード
-		public static String keyBhOldParent = "bhOldParent";
-		public static String keyBhOldRoot = "bhOldRoot";
-		public static String keyBhOldNodeID = "bhOldNodeID";
-		public static String keyBhNewNodeID = "bhNewNodeID";
-		public static String keyBhReplacedNewNode = "bhReplacedNewNode";
-		public static String keyBhReplacedOldNode = "bhReplacedOldNode";
-		public static String keyBhManuallyReplaced = "bhManuallyReplaced";	//!< 手動で子ノードからワークスペースに移動したかどうかのフラグ名
-		public static String keyBhLocalContext = "bhLocalContext";
-		public static String keyBhNextSymbolName = "bhNextSymbolName";
-		public static String keyBhUserOpeCmd = "bhUserOpeCmd";
-		public static String keyBhCommon = "bhCommon";
-		public static String keyBhNodeTemplates = "bhNodeTemplates";
-		public static String keyIpAddr = "ipAddr";
-		public static String keyUname = "uname";
-		public static String keyPassword = "password";
-		public static String keyExecExnvironment = "execEnvironment";
-		public static String keyBhProgramFilePath = "bhProgramFilePath";
+		public static final String KEY_BH_THIS = "bhThis";	//!< スクリプトの呼び出し元オブジェクト
+		public static final String KEY_BH_NODE_HANDLER = "bhNodeHandler";
+		public static final String KEY_BH_NODE_VIEW = "bhNodeView";
+		public static final String KEY_BH_MSG_TRANSPORTER = "bhMsgTransporter";
+		public static final String KEY_BH_TEXT = "bhText";	//!< TextNode のString型フィールドアクセス用キーワード
+		public static final String KEY_BH_OLD_PARENT = "bhOldParent";
+		public static final String KEY_BH_OLD_ROOT = "bhOldRoot";
+		public static final String KEY_BH_OLD_NODE_ID = "bhOldNodeID";
+		public static final String KEY_BH_NEW_NODE_ID = "bhNewNodeID";
+		public static final String KEY_BH_REPLACED_NEW_NODE = "bhReplacedNewNode";
+		public static final String KEY_BH_REPLACED_OLD_NODE = "bhReplacedOldNode";
+		public static final String KEY_BH_MANUALLY_REPLACED = "bhManuallyReplaced";	//!< 手動で子ノードからワークスペースに移動したかどうかのフラグ名
+		public static final String KEY_BH_NEXT_SYMBOL_NAME = "bhNextSymbolName";
+		public static final String KEY_BH_USER_OPE_CMD = "bhUserOpeCmd";
+		public static final String KEY_BH_COMMON = "bhCommon";
+		public static final String KEY_BH_NODE_TEMPLATES = "bhNodeTemplates";
+		public static final String KEY_IP_ADDR = "ipAddr";
+		public static final String KEY_UNAME = "uname";
+		public static final String KEY_PASSWORD = "password";
+		public static final String KEY_BH_PROGRAM_FILE_PATH = "bhProgramFilePath";
 	}
 
 	/**
 	 * ノードのスタイル定義のパラメータ
 	 */
 	public static class NodeStyleDef {
-		public static String keyNameNodeStyleID = "nodeStyleID";
-		public static String keyNameTopMargine = "topMargin";
-		public static String keyNameBottomMargin = "bottomMargin";
-		public static String keyNameLeftMargin = "leftMargin";
-		public static String keyNameRightMargin = "rightMargin";
-		public static String keyNameWidth = "width";
-		public static String keyNameHeight = "height";
-		public static String keyNameConnectorWidth = "connectorWidth";
-		public static String keyNameConnectorHeight = "connectorHeight";
-		public static String keyNameConnectorShape = "connectorShape";
-		public static String keyNameConnectorBoundsRate = "connectorBoundsRate";
-		public static String keyNameDrawBody = "drawBody";
-		public static String keyNameCssClass = "cssClass";
-		public static String keyNameConnective = "connective";
-		public static String keyNameImitation = "imitation";
-		public static String keyNameButtonPosX = "buttonPosX";
-		public static String keyNameButtonPosY ="buttonPosY";
-		public static String keyNameTextField = "textField";
-		public static String keyNameLabel = "label";
-		public static String keyNameComboBox = "comboBox";
-		public static String keyNameWhiteSpaceMargine = "whiteSpaceMargine";
-		public static String keyNameMinWhiteSpace = "minWhiteSpace";
-		public static String keyNameBackGroundColor = "backGroundColor";
-		public static String keyNameFormatErrColor = "formatErrColor";
-		public static String keyNameFontSize = "fontSize";
-		public static String keyNameFontFamily = "fontFamily";
-		public static String keyNameConnectorPos = "connectorPos";
-		public static String keyNameConnectorShift = "connectorShift";
-		public static String keyNameInner = "inner"; 
-		public static String keyNameOuter = "outer";
-		public static String keyNameArrangement = "arrangement";
-		public static String keyNameInterval = "interval";
-		public static String keyNameConnectorList = "connectorList";
-		public static String keyNameSubGroup = "subGroup";
-		public static String valNameArrow = "ARROW";
-		public static String valNameCharT = "CHAR_T";
-		public static String valNameCharU = "CHAR_U";
-		public static String valNameCharV = "CHAR_V";
-		public static String valNameCross = "CROSS";
-		public static String valNameDiamond = "DIAMOND";
-		public static String valNameHexagon = "HEXAGON";
-		public static String valNameInvTrapezoid = "INV_TRAPEZOID";
-		public static String valNameInvTriangle = "INV_TRIANGLE";
-		public static String valNameNone = "NONE";
-		public static String valNameOctagon = "OCTAGON";
-		public static String valNamePentagon = "PENTAGON";
-		public static String valNameSuare = "SQUARE";
-		public static String valNameTrapezoid = "TRAPEZOID";
-		public static String valNameTriangle = "TRIANGLE";
-		public static String valNameRow = "Row";
-		public static String valNameColumn = "Column";
-		public static String valNameLeft = "Left";
-		public static String valNameTop = "Top";
+		public static final String KEY_NODE_STYLE_ID = "nodeStyleID";
+		public static final String KEY_TOP_MARGIN = "topMargin";
+		public static final String KEY_BOTTOM_MATGIN = "bottomMargin";
+		public static final String KEY_LEFT_MARGIN = "leftMargin";
+		public static final String KEY_RIGHT_MARGIN = "rightMargin";
+		public static final String KEY_WIDTH = "width";
+		public static final String KEY_HEIGHT = "height";
+		public static final String KEY_CONNECTOR_WIDTH = "connectorWidth";
+		public static final String KEY_CONNECTOR_HEIGHT = "connectorHeight";
+		public static final String KEY_CONNECTOR_SHAPE = "connectorShape";
+		public static final String KEY_CONNECTOR_BOUNDS_RATE = "connectorBoundsRate";
+		public static final String KEY_DRAW_BODY = "drawBody";
+		public static final String KEY_CSS_CLASS = "cssClass";
+		public static final String KEY_CONNECTIVE = "connective";
+		public static final String KEY_IMITATION = "imitation";
+		public static final String KEY_BUTTON_POS_X = "buttonPosX";
+		public static final String KEY_BUTTON_POS_Y ="buttonPosY";
+		public static final String KEY_TEXT_FIELD = "textField";
+		public static final String KEY_LABEL = "label";
+		public static final String KEY_COMBO_BOX = "comboBox";
+		public static final String KEY_WHITE_SPACE_MATGIN = "whiteSpaceMargin";
+		public static final String KEY_MIN_WHITE_SPACE = "minWhiteSpace";
+		public static final String KEY_BACK_GROUND_COLOR = "backGroundColor";
+		public static final String KEY_FONT_SIZE = "fontSize";
+		public static final String KEY_FONT_FAMILY = "fontFamily";
+		public static final String KEY_CONNECTOR_POS = "connectorPos";
+		public static final String KEY_CONNECTOR_SHIFT = "connectorShift";
+		public static final String KEY_INNER = "inner"; 
+		public static final String KEY_OUTER = "outer";
+		public static final String KEY_ARRANGEMENR = "arrangement";
+		public static final String KEY_INTERVAL = "interval";
+		public static final String KEY_CONNECTOR_LIST = "connectorList";
+		public static final String KEY_SUB_GROUP = "subGroup";
+		public static final String VAL_ARROW = "ARROW";
+		public static final String VAL_CHAR_T = "CHAR_T";
+		public static final String VAL_CHAR_U = "CHAR_U";
+		public static final String VAL_CHAR_V = "CHAR_V";
+		public static final String VAL_CROSS = "CROSS";
+		public static final String VAL_DIAMOND = "DIAMOND";
+		public static final String VAL_HEXAGON = "HEXAGON";
+		public static final String VAL_INV_TRAPEZOID = "INV_TRAPEZOID";
+		public static final String VAL_INV_TRIANGLE = "INV_TRIANGLE";
+		public static final String VAL_NONE = "NONE";
+		public static final String VAL_OCTAGON = "OCTAGON";
+		public static final String VAL_PENTAGON = "PENTAGON";
+		public static final String VAL_SQARE = "SQUARE";
+		public static final String VAL_TRAPEZOID = "TRAPEZOID";
+		public static final String VAL_TRIANGLE = "TRIANGLE";
+		public static final String VAL_ROW = "Row";
+		public static final String VAL_COLUMN = "Column";
+		public static final String VAL_LEFT = "Left";
+		public static final String VAL_TOP = "Top";
 	}
 	
 	public static class NodeTemplateList {
-		public static String keyNameCssClass = "cssClass";
-		public static String keyNameContents = "contents";
+		public static final String KEY_CSS_CLASS = "cssClass";
+		public static final String KEY_CONTENTS = "contents";
 	}
 
 	/**
 	 * FXMLファイル内のキーワード
 	 * */
 	public static class Fxml {
-		public static String idWsPane = "wsPane";
-		public static String idNodeListPanel = "nodeListPanel";
-		public static String idNodeCategoryList = "nodeCategoryList";
-		public static String idWorkspaceSet = "workspaceSet";
-		public static String idLeftSeparator = "leftSeparator";
-		public static String idBottomMsgArea = "bottomMsgArea";
+		public static final String ID_WS_PANE = "wsPane";
 	}
 	
 	public static class CSS {
-		public static String pseudoSelected = "selected";
-		public static String pseudoHighlightImit = "highlightImit";
-		public static String pseudoOverlapped = "overlapped";
-		public static String pseudoEmpty = "empty";
-		public static String pseudoError = "error";
-		public static String classBhNode = "BhNode";
-		public static String classVoidNode = "voidNode";
-		public static String classComboBoxNode = "comboBoxNode";
-		public static String classTextFieldNode = "textFieldNode";
-		public static String classLabelNode = "labelNode";
-		public static String classConnectiveNode = "ConnectiveNode";
-		public static String classSuffixPane = "-Pane";
+		public static final String PSEUDO_SELECTED = "selected";
+		public static final String PSEUDO_HIGHLIGHT_IMIT = "highlightImit";
+		public static final String PSEUDO_OVERLAPPED = "overlapped";
+		public static final String PSEUDO_EMPTY = "empty";
+		public static final String PSEUDO_BHNODE = "error";
+		public static final String CLASS_BHNODE = "BhNode";
+		public static final String CLASS_VOID_NODE = "voidNode";
+		public static final String CALSS_COMBO_BOX_NODE = "comboBoxNode";
+		public static final String CLASS_TEXT_FIELD_NODE = "textFieldNode";
+		public static final String CLASS_LABEL_NODE = "labelNode";
+		public static final String CLASS_CONNECTIVE_NODE = "ConnectiveNode";
+		public static final String CLASS_SUFFIX_PANE = "-Pane";
 	}
 	
 	/**
 	 * BunnyHopと連携する外部プログラム関連のパラメータ
 	 */
-	public static class ExternalProgram {
+	public static class ExternalApplication {
 		
-		public static String bhProgramExecEnvironment = "BhProgramExecEnvironment.jar";
-		public static int programExecEnvTerminationTimeout = 15;	//!< BhProgramExecEnvironment終了待ちのタイムアウト時間 (sec)
-		public static int programExecEnvStartTimeout = 15;	//!< BhProgramExecEnvironment開始待ちのタイムアウト時間 (sec)
-		public static int fileCopyTerminationTimeout = 15;	//!< ファイルコピープロセス終了待ちののタイムアウト (sec)
-		public static int popRecvDataTimeout = 3;	//!< BhProgram実行環境からの受信データ待ちタイムアウト (sec)
-		public static int popSendDataTimeout = 3;	//!< BhProgram実行環境への送信データ待ちタイムアウト (sec)
-		public static int tcpPortReadTimeout = 15;	//!< TCPポート読み取りのタイムアウト (sec)
-		public static int maxRemoteCmdQueueSize = 2048;
-		public static String rmiTcpPortSuffix = "@RmiTcpPort";	//BhProgram実行環境との通信に使うRMIオブジェクトを探す際のTCPポート
-		public static String remoteExecCmdGenerator = "remoteExecCmdGenerator.js";	//!< リモートのBhProgram実行環境をスタートさせるコマンドを生成するスクリプト名
-		public static String remoteKillCmdGenerator = "remoteKillCmdGenerator.js";	//!< リモートのBhProgram実行環境を終わらせるコマンドを生成するスクリプト名
-		public static String copyCmdGenerator = "copyCmdGenerator.js";	//!< リモートのBhProgram実行環境にBhProgramファイルをコピーするコマンドを生成するスクリプト名
+		public static String BH_PROGRAM_EXEC_ENVIRONMENT = "BhProgramExecEnvironment.jar";
+		public static int PROGRAM_EXEC_ENV_TERMINATION_TIMEOUT = 15;	//!< BhProgramExecEnvironment終了待ちのタイムアウト時間 (sec)
+		public static int PROGRAM_EXEC_ENV_START_TIMEOUT = 15;	//!< BhProgramExecEnvironment開始待ちのタイムアウト時間 (sec)
+		public static int FILE_COPY_TERMINATION_TIMEOUT = 15;	//!< ファイルコピープロセス終了待ちのタイムアウト (sec)
+		public static int POP_RECV_DATA_TIMEOUT = 3;	//!< BhProgram実行環境からの受信データ待ちタイムアウト (sec)
+		public static int POP_SEND_DATA_TIMEOUT = 3;	//!< BhProgram実行環境への送信データ待ちタイムアウト (sec)
+		public static int TCP_PORT_READ_TIMEOUT = 15;	//!< TCPポート読み取りのタイムアウト (sec)
+		public static int MAX_REMOTE_CMD_QUEUE_SIZE = 2048;
+		public static String RMI_TCP_PORT_SUFFIX = "@RmiTcpPort";	//BhProgram実行環境との通信に使うRMIオブジェクトを探す際のTCPポート
+		public static String LOLCAL_HOST = "localhost";
 	}
 }
 

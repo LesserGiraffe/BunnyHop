@@ -43,7 +43,7 @@ public class VoidNodeView extends BhNodeView {
 	 */
 	public void init() {
 		initialize();
-		getAppearanceManager().addCssClass(BhParams.CSS.classVoidNode);
+		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_VOID_NODE);
 		setFuncs(this::updateStyleFunc, null);
 		setMouseTransparent(true);
 	}

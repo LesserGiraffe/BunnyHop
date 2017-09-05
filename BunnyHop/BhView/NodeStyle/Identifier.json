@@ -12,7 +12,7 @@
 	"cssClass" : "Identifier",
 
 	"textField" : {
-		"whiteSpaceMargine" : 2,
+		"whiteSpaceMargin" : 2,
 		"minWhiteSpace" : 5
 	}
 }

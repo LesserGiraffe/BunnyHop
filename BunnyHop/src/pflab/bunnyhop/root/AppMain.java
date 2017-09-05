@@ -15,13 +15,7 @@
  */
 package pflab.bunnyhop.root;
 
-import java.io.BufferedReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 
 import pflab.bunnyhop.configfilereader.FXMLCollector;
 import pflab.bunnyhop.configfilereader.BhScriptManager;
@@ -47,16 +41,16 @@ public class AppMain extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-	
+		
 		setOnCloseHandler(stage);
 		boolean fxmlCollectionHasSucceeded = FXMLCollector.instance.collectFXMLFiles();
 		if (!fxmlCollectionHasSucceeded)
 			System.exit(-1);
 		
 		boolean jsCompleHasSucceeded = BhScriptManager.instance.genCompiledCode(
-			Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.FunctionsDir),
-			Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.TemplateListDir),
-			Paths.get(Util.execPath, BhParams.Path.remoteDir));
+			Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.FUNCTIONS_DIR),
+			Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.TEMPLATE_LIST_DIR),
+			Paths.get(Util.EXEC_PATH, BhParams.Path.REMOTE_DIR));
 		if (!jsCompleHasSucceeded) {
 			System.exit(-1);
 		}
@@ -73,9 +67,9 @@ public class AppMain extends Application {
 			System.exit(-1);
 		}
 		
-		BunnyHop.instance().createWindow(stage);
+		BunnyHop.instance.createWindow(stage);
 
-		boolean selectorGenHasSucceeded = BunnyHop.instance().genNodeCategoryList();
+		boolean selectorGenHasSucceeded = BunnyHop.instance.genNodeCategoryList();
 		if (!selectorGenHasSucceeded) {
 			System.exit(-1);
 		}
@@ -91,6 +85,12 @@ public class AppMain extends Application {
 	 * 終了処理を登録する
 	 */
 	private void setOnCloseHandler(Stage stage) {
+		
+		stage.setOnCloseRequest(event ->{
+			if (!BunnyHop.instance.processCloseRequest())
+				event.consume();
+		});
+		
 		stage.showingProperty().addListener((observable, oldValue, newValue) -> {
 			if (oldValue == true && newValue == false) {
 				LocalBhProgramManager.instance.end();

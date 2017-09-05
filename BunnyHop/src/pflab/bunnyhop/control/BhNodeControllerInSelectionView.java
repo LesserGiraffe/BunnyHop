@@ -76,7 +76,7 @@ public class BhNodeControllerInSelectionView {
 		//マウスボタンを押したとき
 		view.getEventManager().setOnMousePressedHandler(mouseEvent -> {
 			
-			Workspace currentWS = BunnyHop.instance().getCurrentWorkspace();
+			Workspace currentWS = BunnyHop.instance.getCurrentWorkspace();
 			if (currentWS == null)
 				return;
 			
@@ -88,16 +88,16 @@ public class BhNodeControllerInSelectionView {
 			Point2D posOnRootView = BhNodeView.getRelativePos(rootView, view);	//クリックされたテンプレートノードのルートノード上でのクリック位置
 			posOnRootView.x += mouseEvent.getX();
 			posOnRootView.y += mouseEvent.getY();
-			MsgData posOnWS = MsgTransporter.instance().sendMessage(BhMsg.SCENE_TO_WORKSPACE, new MsgData(mouseEvent.getSceneX(), mouseEvent.getSceneY()) ,currentWS);
+			MsgData posOnWS = MsgTransporter.instance.sendMessage(BhMsg.SCENE_TO_WORKSPACE, new MsgData(mouseEvent.getSceneX(), mouseEvent.getSceneY()) ,currentWS);
 			BhNodeHandler.instance.addRootNode(
 				currentWS,
 				newNode,
 				posOnWS.doublePair._1 - posOnRootView.x ,
-				posOnWS.doublePair._2 - posOnRootView.y,
+				posOnWS.doublePair._2- posOnRootView.y,
 				userOpeCmd);
-			MsgTransporter.instance().sendMessage(BhMsg.SET_USER_OPE_CMD, new MsgData(userOpeCmd), newNode);	//undo用コマンドセット
+			MsgTransporter.instance.sendMessage(BhMsg.SET_USER_OPE_CMD, new MsgData(userOpeCmd), newNode);	//undo用コマンドセット
 			currentView.content.getEventManager().propagateEvent(mouseEvent);
-			BunnyHop.instance().hideTemplatePanel();
+			BunnyHop.instance.hideTemplatePanel();
 			mouseEvent.consume();
 		});
 

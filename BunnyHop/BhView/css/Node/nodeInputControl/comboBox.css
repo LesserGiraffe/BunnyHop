@@ -1,6 +1,6 @@
 .defaultComboBox {
 	-fx-font-family: "Meiryo UI";
-	-fx-font-size: 20pt;
+	-fx-font-size: 2.0em;
 }
 
 .defaultComboBox > .arrow-button {
@@ -14,7 +14,7 @@
 
 .wordComboBox {
 	-fx-font-family: "Meiryo UI";
-	-fx-font-size: 15pt;
+	-fx-font-size: 1.5em;
 }
 
 .wordComboBox > .arrow-button {

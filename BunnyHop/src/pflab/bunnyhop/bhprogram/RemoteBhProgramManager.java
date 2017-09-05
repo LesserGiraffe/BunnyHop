@@ -22,8 +22,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import javax.script.Bindings;
@@ -53,11 +53,10 @@ public class RemoteBhProgramManager {
 	
 	public boolean init() {
 		boolean success = common.init();
-		success &= BhScriptManager.instance.checkIfScriptsExist(
-			RemoteBhProgramManager.class.getSimpleName(),
-			BhParams.ExternalProgram.remoteExecCmdGenerator, 
-			BhParams.ExternalProgram.remoteKillCmdGenerator,
-			BhParams.ExternalProgram.copyCmdGenerator);
+		success &= BhScriptManager.instance.checkIfScriptsExist(RemoteBhProgramManager.class.getSimpleName(),
+			BhParams.Path.REMOTE_EXEC_CMD_GENERATOR_JS, 
+			BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS,
+			BhParams.Path.COPY_CMD_GENERATOR_JS);
 		
 		if (!success)
 			MsgPrinter.instance.ErrMsgForDebug("failed to initialize " + RemoteBhProgramManager.class.getSimpleName());			
@@ -72,7 +71,7 @@ public class RemoteBhProgramManager {
 	 * @param password BhProgramを実行するマシンにログインする際のパスワード
 	 * @return BhProgram実行開始の完了待ちオブジェクト
 	 */
-	public Future<Boolean> executeAsync(Path filePath, String ipAddr, String uname, String password) {
+	public Optional<Future<Boolean>> executeAsync(Path filePath, String ipAddr, String uname, String password) {
 		return common.executeAsync(() -> execute(filePath, ipAddr, uname, password));
 	}
 	
@@ -108,7 +107,7 @@ public class RemoteBhProgramManager {
 			String fileName = filePath.getFileName().toString();
 			success &= common.runBhProgram(fileName, ipAddr, remoteEnvProcess.getInputStream());
 			// リモートの実行環境の起動に使ったローカルのプロセスは終了しておく
-			success &= common.waitForProcessEnd(remoteEnvProcess, true, BhParams.ExternalProgram.programExecEnvTerminationTimeout);
+			success &= common.waitForProcessEnd(remoteEnvProcess, true, BhParams.ExternalApplication.PROGRAM_EXEC_ENV_TERMINATION_TIMEOUT);
 		}
 		
 		if (!success) {	//リモートでのスクリプト実行失敗
@@ -126,23 +125,23 @@ public class RemoteBhProgramManager {
 	
 	/**
 	 * 現在実行中のBhProgramExecEnvironment を強制終了する
-	 * @return 強制終了タスクの結果
+	 * @return 強制終了タスクの結果. タスクを実行しなかった場合null.
 	 */
-	public Future<Boolean> terminateAsync() {
+	public Optional<Future<Boolean>> terminateAsync() {
 		
 		continueCopyingFile.set(false);
+		if (!programRunning.get()) {
+			MsgPrinter.instance.ErrMsgForUser("!! プログラム終了済み (remote) !!\n");
+			return Optional.empty();
+		}
 		return common.terminateAsync(() -> {
-			if (!programRunning.get()) {
-				MsgPrinter.instance.ErrMsgForUser("!! プログラム終了済み (remote) !!\n");
-				return true;	//エラーメッセージは出すが, 終了処理の結果は成功とする
-			}
 			return terminate();
 		});
 	}
 	
 	/**
 	 * リモートマシンで実行中のBhProgram実行環境を強制終了する. <br>
-	 * BhProgram終了済みの場合に呼んでも問題ない.
+	 * BhProgram実行環境を終了済みの場合に呼んでも問題ない.
 	 * @return 強制終了に成功した場合true
 	 */
 	private synchronized boolean terminate() {
@@ -153,7 +152,7 @@ public class RemoteBhProgramManager {
 		if (killCmd != null) {
 			Process process = execCmd(killCmd);
 			if (process != null)
-				success &= common.waitForProcessEnd(process, false, BhParams.ExternalProgram.programExecEnvTerminationTimeout);
+				success &= common.waitForProcessEnd(process, false, BhParams.ExternalApplication.PROGRAM_EXEC_ENV_TERMINATION_TIMEOUT);
 			else
 				success = false;
 		}
@@ -170,16 +169,18 @@ public class RemoteBhProgramManager {
 	
 	/**
 	 * BhProgram の実行環境と通信を行うようにする
+	 * @return 接続タスクのFutureオブジェクト. タスクを実行しなかった場合null.
 	 */
-	public void connectAsync() {
-		common.connectAsync();
+	public Optional<Future<Boolean>> connectAsync() {
+		return common.connectAsync();
 	}
 	
 	/**
 	 * BhProgram の実行環境と通信を行わないようにする
+	 * @return 切断タスクのFutureオブジェクト. タスクを実行しなかった場合null.
 	 */
-	public void disconnectAsync() {
-		common.disconnectAsync();
+	public Optional<Future<Boolean>> disconnectAsync() {
+		return common.disconnectAsync();
 	}
 	
 	/**
@@ -198,13 +199,13 @@ public class RemoteBhProgramManager {
 	private Process startExecEnvProcess() {
 		
 		Process process = null;
-		CompiledScript cs = BhScriptManager.instance.getCompiledScript(BhParams.ExternalProgram.remoteExecCmdGenerator);		
+		CompiledScript cs = BhScriptManager.instance.getCompiledScript(BhParams.Path.REMOTE_EXEC_CMD_GENERATOR_JS);		
 		Object retVal = null;
 		try {
 			retVal = cs.eval(bindings);
 		}
 		catch(ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to eval " +  BhParams.ExternalProgram.remoteExecCmdGenerator + " " + e.toString());
+			MsgPrinter.instance.ErrMsgForDebug("failed to eval " +  BhParams.Path.REMOTE_EXEC_CMD_GENERATOR_JS + " " + e.toString());
 			return null;
 		}
 	
@@ -221,7 +222,7 @@ public class RemoteBhProgramManager {
 			process = procBuilder.start();
 		}
 		catch (IOException | IndexOutOfBoundsException | SecurityException e) {	
-			MsgPrinter.instance.ErrMsgForDebug("failed to start " +  BhParams.ExternalProgram.bhProgramExecEnvironment + "\n" + e.toString());
+			MsgPrinter.instance.ErrMsgForDebug("failed to start " +  BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENVIRONMENT + "\n" + e.toString());
 		}		
 		return process;
 	}
@@ -232,13 +233,13 @@ public class RemoteBhProgramManager {
 	 */
 	private String[] genKillCmd() {
 		
-		CompiledScript cs = BhScriptManager.instance.getCompiledScript(BhParams.ExternalProgram.remoteKillCmdGenerator);		
+		CompiledScript cs = BhScriptManager.instance.getCompiledScript(BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS);		
 		Object retVal = null;
 		try {
 			retVal = cs.eval(bindings);
 		}
 		catch(ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to eval" +  BhParams.ExternalProgram.remoteKillCmdGenerator + " " + e.toString());
+			MsgPrinter.instance.ErrMsgForDebug("failed to eval" +  BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS + " " + e.toString());
 			return null;
 		}
 	
@@ -254,13 +255,13 @@ public class RemoteBhProgramManager {
 	 */
 	private String[] genCopyCmd() {
 		
-		CompiledScript cs = BhScriptManager.instance.getCompiledScript(BhParams.ExternalProgram.copyCmdGenerator);		
+		CompiledScript cs = BhScriptManager.instance.getCompiledScript(BhParams.Path.COPY_CMD_GENERATOR_JS);		
 		Object retVal = null;
 		try {
 			retVal = cs.eval(bindings);
 		}
 		catch(ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to eval" +  BhParams.ExternalProgram.copyCmdGenerator + " " + e.toString());
+			MsgPrinter.instance.ErrMsgForDebug("failed to eval" +  BhParams.Path.COPY_CMD_GENERATOR_JS + " " + e.toString());
 			return null;
 		}
 	
@@ -307,7 +308,7 @@ public class RemoteBhProgramManager {
 			
 			success &= showFileCopyProgress(copyProcess);
 			boolean terminate = !success;	//進捗表示を途中で終わらせていた場合, ファイルコピープロセスを強制終了する
-			success &= common.waitForProcessEnd(copyProcess, terminate, BhParams.ExternalProgram.fileCopyTerminationTimeout);
+			success &= common.waitForProcessEnd(copyProcess, terminate, BhParams.ExternalApplication.FILE_COPY_TERMINATION_TIMEOUT);
 			success &= (copyProcess.exitValue() == 0);
 		}
 		
@@ -325,11 +326,20 @@ public class RemoteBhProgramManager {
 	 * @return コピープロセスが終了後にこのメソッドから戻った場合true
 	 **/
 	private boolean showFileCopyProgress(Process copyProcess) {
+
+		long begin = System.currentTimeMillis();
 		
 		boolean success = true;
 		List<Character> charCodeList = new ArrayList<>();
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(copyProcess.getInputStream()))){		
 			while (true) {
+				
+				//ファイル転送プロセスからの応答がない場合, メッセージを出力する
+				if (System.currentTimeMillis() - begin > 5000) {
+					begin = System.currentTimeMillis();
+					MsgPrinter.instance.ErrMsgForUser("!! ファイル転送プロセス応答なし !!\n");
+				}
+				
 				if (!continueCopyingFile.get())	{//コピー停止命令を受けた
 					success = false;
 					break;
@@ -349,6 +359,7 @@ public class RemoteBhProgramManager {
 									charCodeArray[i] = charCodeList.get(i);							
 								String progressInfo = new String(charCodeArray);	//サイズ0の配列の場合 readStr == '\0'
 								MsgPrinter.instance.MsgForUser(progressInfo + "\n");
+								begin = System.currentTimeMillis();
 								charCodeList.clear();
 							}
 							break;
@@ -376,21 +387,11 @@ public class RemoteBhProgramManager {
 	 */
 	private void setScriptBindings(String ipAddr, String uname, String password) {
 		
-		bindings.put(BhParams.JsKeyword.keyIpAddr, ipAddr);
-		bindings.put(BhParams.JsKeyword.keyUname, uname);
-		bindings.put(BhParams.JsKeyword.keyPassword, password);
-		bindings.put(BhParams.JsKeyword.keyExecExnvironment, BhParams.ExternalProgram.bhProgramExecEnvironment);
-		bindings.put(BhParams.JsKeyword.keyBhProgramFilePath, 
-					 Paths.get(Util.execPath, BhParams.Path.compiled, BhParams.Path.appFileName).toString());
-	}
-	
-	/**
-	 * BhProgramファイルをリモート環境にコピーする
-	 * @param cmd コピーコマンド
-	 * @return コピーに成功した場合true
-	 */
-	private boolean copyBhProgramFile(String[] cmd) {
-		return true;
+		bindings.put(BhParams.JsKeyword.KEY_IP_ADDR, ipAddr);
+		bindings.put(BhParams.JsKeyword.KEY_UNAME, uname);
+		bindings.put(BhParams.JsKeyword.KEY_PASSWORD, password);
+		bindings.put(BhParams.JsKeyword.KEY_BH_PROGRAM_FILE_PATH, 
+					 Paths.get(Util.EXEC_PATH, BhParams.Path.COMPILED_DIR, BhParams.Path.APP_FILE_NAME_JS).toString());
 	}
 	
 	/**

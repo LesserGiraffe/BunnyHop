@@ -61,7 +61,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 		
 		setFuncs(this::updateStyleFunc, this::updateAbsPosFunc);
 		if (model.getImitationInfo().canCreateImitManually) {
-			Path filePath = FXMLCollector.instance.getFilePath(BhParams.Path.imitButtonFXML);
+			Path filePath = FXMLCollector.instance.getFilePath(BhParams.Path.IMIT_BUTTON_FXML);
 			try {
 				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 				imitCreateImitBtn = (Button)loader.load();
@@ -71,7 +71,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 				MsgPrinter.instance.ErrMsgForDebug("failed to initialize " + ConnectiveNodeView.class.getSimpleName() + "\n" + e.toString());
 			}
 		}
-		getAppearanceManager().addCssClass(BhParams.CSS.classConnectiveNode);
+		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_CONNECTIVE_NODE);
 	}
 
 	/**

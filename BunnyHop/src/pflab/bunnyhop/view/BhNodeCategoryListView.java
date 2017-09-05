@@ -20,13 +20,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import javafx.application.Platform;
 
 import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.layout.Pane;
 import pflab.bunnyhop.modelprocessor.NodeMVCBuilder;
 import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.common.TreeNode;
@@ -83,11 +81,11 @@ public class BhNodeCategoryListView {
 
 		parent.children.forEach(child -> {
 			
-			if(child.content.equals(BhParams.NodeTemplateList.keyNameCssClass)) {
+			if(child.content.equals(BhParams.NodeTemplateList.KEY_CSS_CLASS)) {
 				String cssClass = child.children.get(0).content;
 				parentItem.getValue().setCssClass(cssClass);
 			}
-			else if (child.content.equals(BhParams.NodeTemplateList.keyNameContents)) {
+			else if (child.content.equals(BhParams.NodeTemplateList.KEY_CONTENTS)) {
 				child.children.forEach((bhNodeID) -> {
 					addBhNodeToSelectionView(parentItem.getValue(), bhNodeID.content);
 				});
@@ -247,7 +245,7 @@ public class BhNodeCategoryListView {
 		 * TreeItemの選択状態を解除する
 		 * */
 		public void select(boolean select) {
-			pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.pseudoSelected), select);
+			pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_SELECTED), select);
 		}
 
 		@Override
@@ -258,14 +256,14 @@ public class BhNodeCategoryListView {
 			if (!empty) {
 				category.setFuncOnCellViewShowed(this::select);
 				getStyleClass().add(model.getCssClass());				
-				pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.pseudoEmpty), false);
+				pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_EMPTY), false);
 				setText(category.toString());
 			}
 			else {
 				select(false);
 				getStyleClass().clear();
 				getStyleClass().add("tree-cell");
-				pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.pseudoEmpty), true);
+				pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_EMPTY), true);
 				setText(null);
 			}
 		}

@@ -15,17 +15,13 @@
  */
 package pflab.bunnyhop.bhprogram;
 
-import java.io.BufferedReader;
 import pflab.bunnyhop.bhprogram.common.BhProgramData;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.ExecutorService;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
-import javafx.scene.control.Alert;
 import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.root.MsgPrinter;
@@ -39,7 +35,7 @@ public class LocalBhProgramManager {
 	public static final LocalBhProgramManager instance = new LocalBhProgramManager();	//!< シングルトンインスタンス
 	private final BhProgramManagerCommon common = new BhProgramManagerCommon();
 	private Process process;
-	private AtomicReference<Boolean> programRunning = new AtomicReference(false);	//!< プログラム実行中ならtrue
+	private final AtomicReference<Boolean> programRunning = new AtomicReference(false);	//!< プログラム実行中ならtrue
 	
 	private LocalBhProgramManager() {}
 	
@@ -53,7 +49,7 @@ public class LocalBhProgramManager {
 	 * @param ipAddr BhProgramを実行するマシンのIPアドレス
 	 * @return BhProgram実行タスクのFutureオブジェクト
 	 */
-	public Future<Boolean> executeAsync(Path filePath, String ipAddr) {
+	public Optional<Future<Boolean>> executeAsync(Path filePath, String ipAddr) {
 		return common.executeAsync(() -> execute(filePath, ipAddr));
 	}
 	
@@ -98,21 +94,21 @@ public class LocalBhProgramManager {
 	
 	/**
 	 * 現在実行中のBhProgramExecEnvironment を強制終了する
-	 * @return BhProgram強制終了タスクのFutureオブジェクト
+	 * @return BhProgram強制終了タスクのFutureオブジェクト. タスクを実行しなかった場合null.
 	 */
-	public Future<Boolean> terminateAsync() {
+	public Optional<Future<Boolean>> terminateAsync() {
 		
-		return common.terminateAsync(() -> {
-			if (!programRunning.get()) {
-				MsgPrinter.instance.ErrMsgForUser("!! プログラム終了済み (local) !!\n");
-				return true;	//エラーメッセージは出すが, 終了処理の結果は成功とする
-			}
-			return terminate();
-		});
+		if (!programRunning.get()) {
+			MsgPrinter.instance.ErrMsgForUser("!! プログラム終了済み (local) !!\n");
+			return Optional.empty();
+		}
+		
+		return common.terminateAsync(() -> terminate());
 	}
 	
 	/**
-	 * 現在実行中のBhProgramExecEnvironment を強制終了する
+	 * 現在実行中のBhProgramExecEnvironment を強制終了する.
+	 * BhProgram実行環境を終了済みの場合に呼んでも問題ない.
 	 * @return 強制終了に成功した場合true
 	 */
 	public synchronized boolean terminate() {
@@ -121,7 +117,7 @@ public class LocalBhProgramManager {
 		boolean success = common.haltTransceiver();
 		
 		if (process != null) {
-			success &= common.waitForProcessEnd(process, true, BhParams.ExternalProgram.programExecEnvTerminationTimeout);
+			success &= common.waitForProcessEnd(process, true, BhParams.ExternalApplication.PROGRAM_EXEC_ENV_TERMINATION_TIMEOUT);
 		}
 		process = null;		
 		if (!success) {
@@ -136,16 +132,18 @@ public class LocalBhProgramManager {
 		
 	/**
 	 * BhProgram の実行環境と通信を行うようにする
+	 * @return 接続タスクのFutureオブジェクト. タスクを実行しなかった場合null.
 	 */
-	public void connectAsync() {
-		common.connectAsync();
+	public Optional<Future<Boolean>> connectAsync() {
+		return common.connectAsync();
 	}
 	
 	/**
 	 * BhProgram の実行環境と通信を行わないようにする
+	 * @return 切断タスクのFutureオブジェクト. タスクを実行しなかった場合null.
 	 */
-	public void disconnectAsync() {
-		common.disconnectAsync();
+	public Optional<Future<Boolean>> disconnectAsync() {
+		return common.disconnectAsync();
 	}
 	
 	/**
@@ -168,7 +166,7 @@ public class LocalBhProgramManager {
 			new ProcessBuilder(
 				"java", 
 				"-jar", 
-				Paths.get(Util.execPath, BhParams.ExternalProgram.bhProgramExecEnvironment).toString(),
+				Paths.get(Util.EXEC_PATH, BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENVIRONMENT).toString(),
 				"true");	//localFlag == true
 		procBuilder.redirectErrorStream(true);
 		try {

@@ -49,7 +49,7 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 	 * */
 	public boolean genNodeCategoryList() {
 
-		Path filePath = Paths.get(Util.execPath, BhParams.Path.bhDefDir, BhParams.Path.TemplateListDir, BhParams.Path.nodeTemplateList);
+		Path filePath = Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.TEMPLATE_LIST_DIR, BhParams.Path.NODE_TEMPLATE_LIST_JSON);
 		ScriptObjectMirror jsonObj = BhScriptManager.instance.parseJsonFile(filePath);
 		templateTreeRoot = new TreeNode<>("root");
 		return addChildren(jsonObj, templateTreeRoot, filePath.toString());
@@ -68,20 +68,20 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 		for(String key : jsonObj.keySet()) {
 		
 			Object val = jsonObj.get(key);
-			if (key.equals(BhParams.NodeTemplateList.keyNameCssClass)) {	//cssクラスのキー
+			if (key.equals(BhParams.NodeTemplateList.KEY_CSS_CLASS)) {	//cssクラスのキー
 				if (!(val instanceof String))
 					continue;
 				
-				TreeNode<String> cssClass = new TreeNode<>(BhParams.NodeTemplateList.keyNameCssClass);
+				TreeNode<String> cssClass = new TreeNode<>(BhParams.NodeTemplateList.KEY_CSS_CLASS);
 				cssClass.children.add(new TreeNode<>(val.toString()));
 				parent.children.add(cssClass);
 			}
-			else if (key.equals(BhParams.NodeTemplateList.keyNameContents)) {	//ノードIDの配列のキー
+			else if (key.equals(BhParams.NodeTemplateList.KEY_CONTENTS)) {	//ノードIDの配列のキー
 				if (!(val instanceof ScriptObjectMirror))
 					continue;
 				
 				if (((ScriptObjectMirror)val).isArray()) {
-					TreeNode<String> contents = new TreeNode<>(BhParams.NodeTemplateList.keyNameContents);
+					TreeNode<String> contents = new TreeNode<>(BhParams.NodeTemplateList.KEY_CONTENTS);
 					bhNodeForLeafExists &= addBhNodeID((ScriptObjectMirror)val, contents, fileName);
 					parent.children.add(contents);
 				}
@@ -118,7 +118,7 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 				}
 				else {
 					allBhNodeExist &= false;
-					MsgPrinter.instance.ErrMsgForDebug(bhNodeIDStr + " に対応する " + BhParams.BhModelDef.elemNameNode + " が存在しません.\n" + "(" + fileName + ")");
+					MsgPrinter.instance.ErrMsgForDebug(bhNodeIDStr + " に対応する " + BhParams.BhModelDef.ELEM_NAME_NODE + " が存在しません.\n" + "(" + fileName + ")");
 				}
 			}
 		}

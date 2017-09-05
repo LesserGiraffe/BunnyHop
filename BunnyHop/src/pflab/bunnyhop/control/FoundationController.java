@@ -16,11 +16,9 @@
 package pflab.bunnyhop.control;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.SplitPane;
-import pflab.bunnyhop.message.MsgTransporter;
+import javafx.scene.layout.VBox;
 import pflab.bunnyhop.model.BhNodeCategoryList;
 import pflab.bunnyhop.model.WorkspaceSet;
-import pflab.bunnyhop.undo.UserOperationCommand;
 
 /**
  * GUIの基底部分のコントローラ
@@ -29,28 +27,83 @@ import pflab.bunnyhop.undo.UserOperationCommand;
 public class FoundationController {
 	
 	//View
-	@FXML SplitPane horizontalSplitter;
+	@FXML VBox foundationVBox;
 	
 	//Controller
-	@FXML private BhBasicOperationController bhBasicOperationController;
+	@FXML private MenuOperationController menuOperationController;
 	@FXML private WorkspaceSetController workspaceSetController;
 	@FXML private BhNodeCategoryListController nodeCategoryListController;
+	@FXML private MenuBarController menuBarController;
 		
 	/**
-	 * モデルとイベントハンドラをセットする
+	 * 初期化する
 	 * @param wss ワークスペースセットのモデル
 	 * @param nodeCategoryList ノードカテゴリリストのモデル
 	 */
 	public void init(WorkspaceSet wss, BhNodeCategoryList nodeCategoryList) {
 		
-		workspaceSetController.init(wss, bhBasicOperationController);
+		workspaceSetController.init(wss);
 		nodeCategoryListController.init(nodeCategoryList);
-		bhBasicOperationController.init(
+		menuOperationController.init(
 			wss,
 			workspaceSetController.getTabPane(), 
 			nodeCategoryListController.getView());
+		menuBarController.init(wss);
 		
 		wss.setMsgProcessor(workspaceSetController);
-		nodeCategoryList.setMsgProcessor(nodeCategoryListController);		
+		nodeCategoryList.setMsgProcessor(nodeCategoryListController);
+		setKeyEvents();
+	}
+	
+	public MenuBarController getMenuBarController() {
+		return menuBarController;
+	}
+	
+	/**
+	 * キーボード押下時のイベントを登録する
+	 */
+	private void setKeyEvents() {
+		foundationVBox.setOnKeyPressed(event -> {
+			switch (event.getCode()) {
+				case C:
+					if (event.isControlDown())
+						menuOperationController.fireEvent(MenuOperationController.MENU_OPERATION.COPY);
+					break;
+				
+				case X:
+					if (event.isControlDown())
+						menuOperationController.fireEvent(MenuOperationController.MENU_OPERATION.CUT);
+					break;
+					
+				case V:
+					if (event.isControlDown())
+						menuOperationController.fireEvent(MenuOperationController.MENU_OPERATION.PASTE);
+					break;
+				
+				case Z:
+					if (event.isControlDown())
+						menuOperationController.fireEvent(MenuOperationController.MENU_OPERATION.UNDO);
+					break;
+					
+				case Y:
+					if (event.isControlDown())
+						menuOperationController.fireEvent(MenuOperationController.MENU_OPERATION.REDO);
+					break;
+					
+				case S:
+					if (event.isControlDown())
+						menuBarController.fireEvent(MenuBarController.MENU_BAR.SAVE);
+					break;
+					
+				case F12:
+					menuBarController.fireEvent(MenuBarController.MENU_BAR.SAVE_AS);
+					break;
+					
+				case DELETE:
+					menuOperationController.fireEvent(MenuOperationController.MENU_OPERATION.DELETE);
+					break;
+			}
+			event.consume();
+		});
 	}
 }

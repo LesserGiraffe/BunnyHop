@@ -45,8 +45,8 @@ public class BhProgramHandlerImpl implements BhProgramHandler, Serializable {
 	
 	private final ExecutorService bhProgramExec = Executors.newSingleThreadExecutor();
 	private final ExecutorService recvDataProcessor = Executors.newSingleThreadExecutor();
-	private final BlockingQueue<BhProgramData> sendDataList = new ArrayBlockingQueue<>(BhParams.maxQueueSize);	//!< to BunnyHop
-	private final BlockingQueue<BhProgramData> recvDataList = new ArrayBlockingQueue<>(BhParams.maxQueueSize);	//!< from BunnyHop
+	private final BlockingQueue<BhProgramData> sendDataList = new ArrayBlockingQueue<>(BhParams.MAX_QUEUE_SIZE);	//!< to BunnyHop
+	private final BlockingQueue<BhProgramData> recvDataList = new ArrayBlockingQueue<>(BhParams.MAX_QUEUE_SIZE);	//!< from BunnyHop
 	private final AtomicBoolean connected = new AtomicBoolean(false);	//!< BunnyHopとの通信が有効な場合true
 	private final ScriptInOut scriptIO = new ScriptInOut(sendDataList, connected);	//!< BhProgramの入出力用オブジェクト
 	
@@ -67,7 +67,7 @@ public class BhProgramHandlerImpl implements BhProgramHandler, Serializable {
 	public boolean runScript(String fileName) {
 		
 		ScriptEngine engine = (new NashornScriptEngineFactory()).getScriptEngine("--language=es6");
-		Path scriptPath = Paths.get(Util.execPath, Util.scriptDir, fileName);
+		Path scriptPath = Paths.get(Util.EXEC_PATH, Util.SCRIPT_DIR, fileName);
 		boolean success = true;
 
 		try (BufferedReader reader = Files.newBufferedReader(scriptPath, StandardCharsets.UTF_8)){
@@ -75,7 +75,8 @@ public class BhProgramHandlerImpl implements BhProgramHandler, Serializable {
 			bhProgramExec.submit(() -> {
 				try {
 					Bindings binding = engine.createBindings();
-					binding.put(BhParams.BhProgram.inoutModuleName, scriptIO);
+					binding.put(BhParams.BhProgram.INOUT_MODULE_NAME, scriptIO);
+					binding.put(BhParams.BhProgram.EXEC_PATH, Util.EXEC_PATH);
 					cs.eval(binding);
 				}
 				catch (ScriptException e) {}
@@ -92,7 +93,7 @@ public class BhProgramHandlerImpl implements BhProgramHandler, Serializable {
 		
 		boolean success = false;
 		try {
-			success = recvDataList.offer(data, BhParams.pushRecvDataTimeout, TimeUnit.SECONDS);
+			success = recvDataList.offer(data, BhParams.PUSH_RECV_DATA_TIMEOUT, TimeUnit.SECONDS);
 		}
 		catch(InterruptedException e) {}
 		return success;
@@ -102,7 +103,7 @@ public class BhProgramHandlerImpl implements BhProgramHandler, Serializable {
 	public BhProgramData recvDataFromScript() {
 		BhProgramData data = null;
 		try {
-			data = sendDataList.poll(BhParams.popSendDataTimeout, TimeUnit.SECONDS);
+			data = sendDataList.poll(BhParams.POP_SEND_DATA_TIMEOUT, TimeUnit.SECONDS);
 		}
 		catch(InterruptedException e) {}
 		return data;

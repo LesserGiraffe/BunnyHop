@@ -48,12 +48,12 @@ public class BhNodeHandler {
 	 * */
 	public void addRootNode(Workspace ws, BhNode node, double x, double y, UserOperationCommand userOpeCmd) {
 
-		MsgData curPos = MsgTransporter.instance().sendMessage(BhMsg.GET_POS_ON_WORKSPACE, node);
+		MsgData curPos = MsgTransporter.instance.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, node);
 		node.accept(new WorkspaceRegisterer(ws, userOpeCmd));							//ツリーの各ノードへのWSの登録
-		MsgTransporter.instance().sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);		//ワークスペース直下に追加
-		MsgTransporter.instance().sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);	//4分木ノード登録(重複登録はされない)
-		MsgTransporter.instance().sendMessage(BhMsg.SET_POS_ON_WORKSPACE, new MsgData(x, y), node);	//ワークスペース内での位置登録
-		MsgTransporter.instance().sendMessage(BhMsg.UPDATE_ABS_POS, node);		//4分木空間での位置確定
+		MsgTransporter.instance.sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);		//ワークスペース直下に追加
+		MsgTransporter.instance.sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);	//4分木ノード登録(重複登録はされない)
+		MsgTransporter.instance.sendMessage(BhMsg.SET_POS_ON_WORKSPACE, new MsgData(x, y), node);	//ワークスペース内での位置登録
+		MsgTransporter.instance.sendMessage(BhMsg.UPDATE_ABS_POS, node);		//4分木空間での位置確定
 
 		userOpeCmd.pushCmdOfAddRootNode(node, ws);
 		userOpeCmd.pushCmdOfAddQtRectangle(node, ws);
@@ -78,20 +78,20 @@ public class BhNodeHandler {
 		switch(nodeState) {
 			case CHILD:
 				removeChild(node, userOpeCmd);
-				MsgTransporter.instance().sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, node);	//GUIツリー上から削除				
+				MsgTransporter.instance.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, node);	//GUIツリー上から削除				
 				break;
 				
 			case ROOT_DANGLING:
-				MsgTransporter.instance().sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, node);	//GUIツリー上から削除				
+				MsgTransporter.instance.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, node);	//GUIツリー上から削除				
 				break;
 			
 			case ROOT_DIRECTLY_UNDER_WS:
-				MsgTransporter.instance().sendMessage(BhMsg.REMOVE_ROOT_NODE, node, ws);	 //WS直下から削除
+				MsgTransporter.instance.sendMessage(BhMsg.REMOVE_ROOT_NODE, node, ws);	 //WS直下から削除
 				userOpeCmd.pushCmdOfRemoveRootNode(node, ws);
 				break;				
 		}
 		
-		MsgTransporter.instance().sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);		 //4分木空間からの削除
+		MsgTransporter.instance.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);		 //4分木空間からの削除
 		userOpeCmd.pushCmdOfRemoveQtRectangle(node, ws);
 		node.accept(new NodeDeselecter(userOpeCmd));
 		node.accept(new WorkspaceRegisterer(null, userOpeCmd));	//ノードの登録されたWSを削除
@@ -116,20 +116,20 @@ public class BhNodeHandler {
 		switch(nodeState) {
 			case CHILD:
 				removeChild(node, userOpeCmd);
-				MsgTransporter.instance().sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, node);	//GUIツリー上から削除				
+				MsgTransporter.instance.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, node);	//GUIツリー上から削除				
 				break;
 				
 			case ROOT_DANGLING:
-				MsgTransporter.instance().sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, node);	//GUIツリー上から削除				
+				MsgTransporter.instance.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, node);	//GUIツリー上から削除				
 				break;
 			
 			case ROOT_DIRECTLY_UNDER_WS:
-				MsgTransporter.instance().sendMessage(BhMsg.REMOVE_ROOT_NODE, node, ws);	 //WS直下から削除
+				MsgTransporter.instance.sendMessage(BhMsg.REMOVE_ROOT_NODE, node, ws);	 //WS直下から削除
 				userOpeCmd.pushCmdOfRemoveRootNode(node, ws);
 				break;				
 		}
 		
-		MsgTransporter.instance().sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);		 //4分木空間からの削除
+		MsgTransporter.instance.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);		 //4分木空間からの削除
 		userOpeCmd.pushCmdOfRemoveQtRectangle(node, ws);
 		node.accept(new NodeDeselecter(userOpeCmd));
 		node.accept(new WorkspaceRegisterer(null, userOpeCmd));	//ノードに対して登録されたWSを削除
@@ -185,10 +185,10 @@ public class BhNodeHandler {
 	 */
 	public void moveToWS(Workspace ws, BhNode node, double x, double y, UserOperationCommand userOpeCmd) {
 		
-		MsgData curPos = MsgTransporter.instance().sendMessage(BhMsg.GET_POS_ON_WORKSPACE, node);
-		MsgTransporter.instance().sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);		//ワークスペースに移動
-		MsgTransporter.instance().sendMessage(BhMsg.SET_POS_ON_WORKSPACE, new MsgData(x, y), node);	//ワークスペース内での位置登録
-		MsgTransporter.instance().sendMessage(BhMsg.UPDATE_ABS_POS, node);		//4分木空間での位置確定
+		MsgData curPos = MsgTransporter.instance.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, node);
+		MsgTransporter.instance.sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);		//ワークスペースに移動
+		MsgTransporter.instance.sendMessage(BhMsg.SET_POS_ON_WORKSPACE, new MsgData(x, y), node);	//ワークスペース内での位置登録
+		MsgTransporter.instance.sendMessage(BhMsg.UPDATE_ABS_POS, node);		//4分木空間での位置確定
 		userOpeCmd.pushCmdOfAddRootNode(node, ws);
 		userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.doublePair._1, curPos.doublePair._2, node);
 	}
@@ -201,7 +201,7 @@ public class BhNodeHandler {
 	public void removeFromWS(BhNode node, UserOperationCommand userOpeCmd) {
 		
 		Workspace ws = node.getWorkspace();
-		MsgTransporter.instance().sendMessage(BhMsg.REMOVE_ROOT_NODE, node, ws);
+		MsgTransporter.instance.sendMessage(BhMsg.REMOVE_ROOT_NODE, node, ws);
 		userOpeCmd.pushCmdOfRemoveRootNode(node, ws);
 	}
 
@@ -216,9 +216,9 @@ public class BhNodeHandler {
 		BhNode newNode = removed.remove(userOpeCmd);
 		//子ノードを取り除いた結果, 新しくできたノードを4分木空間に登録し, ビューツリーにつなぐ
 		newNode.accept(new WorkspaceRegisterer(ws, userOpeCmd));					//ツリーの各ノードへのWSの登録
-		MsgTransporter.instance().sendMessage(BhMsg.ADD_QT_RECTANGLE, newNode, ws);
-		BhNodeView newNodeView = MsgTransporter.instance().sendMessage(BhMsg.GET_VIEW, newNode).nodeView;
-		MsgTransporter.instance().sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), removed);	//ここで4分木空間上での位置も更新される
+		MsgTransporter.instance.sendMessage(BhMsg.ADD_QT_RECTANGLE, newNode, ws);
+		BhNodeView newNodeView = MsgTransporter.instance.sendMessage(BhMsg.GET_VIEW, newNode).nodeView;
+		MsgTransporter.instance.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), removed);	//ここで4分木空間上での位置も更新される
 		userOpeCmd.pushCmdOfAddQtRectangle(newNode, ws);
 		userOpeCmd.pushCmdOfReplaceNodeView(removed, newNode);
 	}
@@ -232,8 +232,8 @@ public class BhNodeHandler {
 	public void replaceChild(BhNode oldNode, BhNode newNode, UserOperationCommand userOpeCmd) {
 		
 		//新しいノードをビューツリーにつないで, 4分木空間内の位置を更新する
-		BhNodeView newNodeView = MsgTransporter.instance().sendMessage(BhMsg.GET_VIEW, newNode).nodeView;
-		MsgTransporter.instance().sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), oldNode);
+		BhNodeView newNodeView = MsgTransporter.instance.sendMessage(BhMsg.GET_VIEW, newNode).nodeView;
+		MsgTransporter.instance.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), oldNode);
 		userOpeCmd.pushCmdOfReplaceNodeView(oldNode, newNode);
 		
 		oldNode.replacedWith(newNode, userOpeCmd);	//イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
@@ -250,9 +250,9 @@ public class BhNodeHandler {
 		//新しいノードを4分木空間に登録し, ビューツリーにつなぐ
 		Workspace ws = oldNode.getWorkspace();
 		newNode.accept(new WorkspaceRegisterer(ws, userOpeCmd));					//ツリーの各ノードへのWSの登録
-		MsgTransporter.instance().sendMessage(BhMsg.ADD_QT_RECTANGLE, newNode, ws);
-		BhNodeView newNodeView = MsgTransporter.instance().sendMessage(BhMsg.GET_VIEW, newNode).nodeView;
-		MsgTransporter.instance().sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), oldNode);	//ここで4分木空間上での位置も更新される
+		MsgTransporter.instance.sendMessage(BhMsg.ADD_QT_RECTANGLE, newNode, ws);
+		BhNodeView newNodeView = MsgTransporter.instance.sendMessage(BhMsg.GET_VIEW, newNode).nodeView;
+		MsgTransporter.instance.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), oldNode);	//ここで4分木空間上での位置も更新される
 		userOpeCmd.pushCmdOfAddQtRectangle(newNode, ws);
 		userOpeCmd.pushCmdOfReplaceNodeView(oldNode, newNode);
 		

@@ -15,24 +15,41 @@
  */
 package pflab.bunnyhop.common;
 
+import java.util.Objects;
+
 /**
  * タプル
  * @author K.Koike
  * */
 public class Pair<T1, T2> {
 
+	public final T1 _1;
+	public final T2 _2;
+	
 	public Pair(T1 _1, T2 _2) {
 		this._1 = _1;
 		this._2 = _2;
 	}
-
-	public Pair(){}
-
-	public T1 _1;
-	public T2 _2;
+	
+	static private boolean equals(Object obj1, Object obj2) {
+		return (obj1 == null) ? (obj2 == null) : obj1.equals(obj2);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		
+		if (!(obj instanceof Pair))
+			return false;
+		
+		Pair pair = (Pair)obj;
+		return equals(_1, pair._1) && equals(_2, pair._2);
+	}
 
 	@Override
-	public String toString() {
-		return "1:" + _1.toString() + "  " + "2:" + _2.toString();
+	public int hashCode() {
+		int hash = 3;
+		hash = 79 * hash + Objects.hashCode(this._1);
+		hash = 79 * hash + Objects.hashCode(this._2);
+		return hash;
 	}
 }

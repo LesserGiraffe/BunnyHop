@@ -74,7 +74,7 @@ public class WorkspaceView extends Tab {
 	public boolean init(double width, double height) {
 
 		try {
-			Path filePath = FXMLCollector.instance.getFilePath(BhParams.Path.workspaceFxml);
+			Path filePath = FXMLCollector.instance.getFilePath(BhParams.Path.WORKSPACE_FXML);
 			FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 			loader.setController(this);
 			loader.setRoot(this);
@@ -84,14 +84,14 @@ public class WorkspaceView extends Tab {
 			MsgPrinter.instance.ErrMsgForDebug("failed to initizlize " + WorkspaceView.class.getSimpleName() + "\n" + e.toString());
 			return false;
 		}
-
+	
 		Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
 		minPaneSize.x = width;
 		minPaneSize.y = height;
 		wsPane.setMinSize(minPaneSize.x, minPaneSize.y);	//タブの中の部分の最小サイズを決める		
 		wsPane.getTransforms().add(new Scale());
-		quadTreeMngForBody = new QuadTreeManager(BhParams.numDivOfQTreeSpace, minPaneSize.x, minPaneSize.y);
-		quadTreeMngForConnector = new QuadTreeManager(BhParams.numDivOfQTreeSpace, minPaneSize.x, minPaneSize.y);
+		quadTreeMngForBody = new QuadTreeManager(BhParams.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
+		quadTreeMngForConnector = new QuadTreeManager(BhParams.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
 		drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());		
 		
 		//拡大縮小処理
@@ -105,8 +105,8 @@ public class WorkspaceView extends Tab {
 
 		setOnClosed(event -> {
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
-			BunnyHop.instance().deleteWorkspace(workspace, userOpeCmd);
-			BunnyHop.instance().pushUserOpeCmd(userOpeCmd);
+			BunnyHop.instance.deleteWorkspace(workspace, userOpeCmd);
+			BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
 		});
 		
 		setOnCloseRequest(event -> {
@@ -124,7 +124,7 @@ public class WorkspaceView extends Tab {
 			event.consume();
 		});
 		
-		setText(workspace.getWorkspaceName());		
+		setText(workspace.getWorkspaceName());
 		return true;
 	}
 
@@ -192,9 +192,9 @@ public class WorkspaceView extends Tab {
 	 */
 	public void changeWorkspaceViewSize(boolean widen) {
 		
-		if ((workspaceSizeLevel == BhParams.minWorkspaceSizeLevel) && !widen)
+		if ((workspaceSizeLevel == BhParams.MIN_WORKSPACE_SIZE_LEVEL) && !widen)
 			return;
-		if ((workspaceSizeLevel == BhParams.maxWorkspaceSizeLevel) && widen)
+		if ((workspaceSizeLevel == BhParams.MAX_WORKSPACE_SIZE_LEVEL) && widen)
 			return;
 		
 		workspaceSizeLevel = widen ? workspaceSizeLevel + 1 : workspaceSizeLevel - 1;		
@@ -203,8 +203,8 @@ public class WorkspaceView extends Tab {
 		double newWsHeight = widen ? currentSize.y * 2.0 : currentSize.y / 2.0;
 		
 		wsPane.setMinSize(newWsWidth, newWsHeight);
-		quadTreeMngForBody = new QuadTreeManager(quadTreeMngForBody, BhParams.numDivOfQTreeSpace, newWsWidth, newWsHeight);
-		quadTreeMngForConnector = new QuadTreeManager(quadTreeMngForConnector, BhParams.numDivOfQTreeSpace, newWsWidth, newWsHeight);
+		quadTreeMngForBody = new QuadTreeManager(quadTreeMngForBody, BhParams.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
+		quadTreeMngForConnector = new QuadTreeManager(quadTreeMngForConnector, BhParams.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
 		
 		//全ノードの位置更新
 		for (BhNodeView rootView : rootNodeViewList) {
@@ -255,28 +255,25 @@ public class WorkspaceView extends Tab {
 	 */
 	public void zoom(boolean zoomIn) {
 		
-		if ((BhParams.minZoomLevel == zoomLevel) && !zoomIn)
+		if ((BhParams.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn)
 			return;
 		
-		if ((BhParams.maxZoomLevel == zoomLevel) && zoomIn)
+		if ((BhParams.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn)
 			return;
 		
 		Scale scale = new Scale();
-		if (zoomIn) {
-			scale.setX(wsPane.getTransforms().get(0).getMxx() * BhParams.wsMagnification);
-			scale.setY(wsPane.getTransforms().get(0).getMyy() * BhParams.wsMagnification);
+		if (zoomIn)
 			++zoomLevel;
-		}
-		else {
-			scale.setX(wsPane.getTransforms().get(0).getMxx() / BhParams.wsMagnification);
-			scale.setY(wsPane.getTransforms().get(0).getMyy() / BhParams.wsMagnification);
+		else
 			--zoomLevel;
-		}
+		double mag = Math.pow(BhParams.ZOOM_MAGNIFICATION, zoomLevel);
+		scale.setX(mag);
+		scale.setY(mag);
 		wsPane.getTransforms().clear();
 		wsPane.getTransforms().add(scale);
 		wsWrapper.setPrefSize(
-			wsPane.getWidth() * wsPane.getTransforms().get(0).getMxx(),
-			wsPane.getHeight() * wsPane.getTransforms().get(0).getMyy());	//スクロール時にスクロールバーの可動域が変わるようにする
+			wsPane.getMinWidth() * wsPane.getTransforms().get(0).getMxx(),
+			wsPane.getMinHeight() * wsPane.getTransforms().get(0).getMyy());	//スクロール時にスクロールバーの可動域が変わるようにする
 	}
 }
 

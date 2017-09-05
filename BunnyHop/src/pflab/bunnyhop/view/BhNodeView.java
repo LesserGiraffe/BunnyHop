@@ -23,14 +23,9 @@ import java.util.function.Consumer;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
-import static javafx.scene.layout.Region.USE_PREF_SIZE;
-import javafx.scene.layout.VBox;
 import javafx.scene.shape.Polygon;
 import pflab.bunnyhop.quadtree.QuadTreeManager;
 import pflab.bunnyhop.common.Showable;
@@ -93,7 +88,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		this.model = model;
 		connectorPart = this.new BhNodeViewConnector(viewStyle.connectorShape);
 		appearanceManager.addCssClass(viewStyle.cssClass);
-		appearanceManager.addCssClass(BhParams.CSS.classBhNode);	
+		appearanceManager.addCssClass(BhParams.CSS.CLASS_BHNODE);	
 	}
 
 	/**
@@ -255,7 +250,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * */
 		public void addCssClass(String cssClassName) {
 			nodeShape.getStyleClass().add(cssClassName);
-			BhNodeView.this.getStyleClass().add(cssClassName + BhParams.CSS.classSuffixPane);
+			BhNodeView.this.getStyleClass().add(cssClassName + BhParams.CSS.CLASS_SUFFIX_PANE);
 		}
 
 		/**
@@ -299,26 +294,26 @@ public abstract class BhNodeView extends Pane implements Showable {
 				if (viewStyle.connectorPos == CNCTR_POS.LEFT) {
 					//ノードの形はここの値で決まる
 					bodyVertices = new ArrayList<>(Arrays.asList(
-						 0.0,                                       0.0 + 0.2 * BhParams.nodeScale,
-						 0.0 + 0.2 * BhParams.nodeScale,        0.0,
-						 nodeWidth - 0.2 * BhParams.nodeScale,  0.0,
-						 nodeWidth,                                 0.0 + 0.2 * BhParams.nodeScale,
-						 nodeWidth,                                 nodeHeight - 0.2 * BhParams.nodeScale,
-						 nodeWidth - 0.2 * BhParams.nodeScale,  nodeHeight,
-					 	 0.0 + 0.2 * BhParams.nodeScale,        nodeHeight,
-					 	 0.0,                                       nodeHeight - 0.2 * BhParams.nodeScale));
+						 0.0,                                       0.0 + 0.2 * BhParams.NODE_SCALE,
+						 0.0 + 0.2 * BhParams.NODE_SCALE,        0.0,
+						 nodeWidth - 0.2 * BhParams.NODE_SCALE,  0.0,
+						 nodeWidth,                                 0.0 + 0.2 * BhParams.NODE_SCALE,
+						 nodeWidth,                                 nodeHeight - 0.2 * BhParams.NODE_SCALE,
+						 nodeWidth - 0.2 * BhParams.NODE_SCALE,  nodeHeight,
+					 	 0.0 + 0.2 * BhParams.NODE_SCALE,        nodeHeight,
+					 	 0.0,                                       nodeHeight - 0.2 * BhParams.NODE_SCALE));
 				}
 				else if (viewStyle.connectorPos == CNCTR_POS.TOP) {
 					//ノードの形はここの値で決まる
 					bodyVertices = new ArrayList<>(Arrays.asList(
-						nodeWidth - 0.2 * BhParams.nodeScale, 0.0,
-						nodeWidth,                                0.0 + 0.2 * BhParams.nodeScale,
-						nodeWidth,                                nodeHeight - 0.2 * BhParams.nodeScale,
-						nodeWidth - 0.2 * BhParams.nodeScale, nodeHeight,
-						0.0 + 0.2 * BhParams.nodeScale,       nodeHeight,
-						0.0,                                      nodeHeight - 0.2 * BhParams.nodeScale,
-						0.0,                                      0.0 + 0.2 * BhParams.nodeScale,
-						0.0 + 0.2 * BhParams.nodeScale,       0.0));
+						nodeWidth - 0.2 * BhParams.NODE_SCALE, 0.0,
+						nodeWidth,                                0.0 + 0.2 * BhParams.NODE_SCALE,
+						nodeWidth,                                nodeHeight - 0.2 * BhParams.NODE_SCALE,
+						nodeWidth - 0.2 * BhParams.NODE_SCALE, nodeHeight,
+						0.0 + 0.2 * BhParams.NODE_SCALE,       nodeHeight,
+						0.0,                                      nodeHeight - 0.2 * BhParams.NODE_SCALE,
+						0.0,                                      0.0 + 0.2 * BhParams.NODE_SCALE,
+						0.0 + 0.2 * BhParams.NODE_SCALE,       0.0));
 				}
 			}
 			bodyVertices.addAll(connectorPart.createVertices());	//コネクタ部分の頂点位置計算
@@ -510,7 +505,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 			
 			Point2D curRelPos = getRelativePosFromParent();
 			Point2D posOnWS = getPosOnWorkspace();
-			Pair<Double, Double> wsSize = MsgTransporter.instance().sendMessage(BhMsg.GET_WORKSPACE_SIZE, model.getWorkspace()).doublePair;
+			Pair<Double, Double> wsSize = MsgTransporter.instance.sendMessage(BhMsg.GET_WORKSPACE_SIZE, model.getWorkspace()).doublePair;
 			double wsWidth = wsSize._1;
 			double wsHeight = wsSize._2;
 			double newDiffX = calcNewDiff(wsWidth, posOnWS.x, diffX);
@@ -641,7 +636,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 
 		Point2D relativePos = new Point2D(0.0, 0.0);
 		Node parent = target;
-		while (parent != base && !BhParams.Fxml.idWsPane.equals(parent.getId())) {	
+		while (parent != base && !BhParams.Fxml.ID_WS_PANE.equals(parent.getId())) {	
 			relativePos.x += parent.getTranslateX();
 			relativePos.y += parent.getTranslateY();
 			parent = parent.getParent();

@@ -15,15 +15,35 @@
  */
 package pflab.bunnyhop.common;
 
+import java.util.Objects;
+
 /**
  * @author K.Koike
  */
-public class Single<T> {
+public class Single<T>{
 
 	public T content;
 
-	public Single() {};
 	public Single(T content) {
 		this.content = content;
 	};
+	
+	public Single() {};
+	
+	@Override
+	public boolean equals(Object obj) {
+		
+		if (!(obj instanceof Single))
+			return false;
+		
+		Single single = (Single)obj;
+		return (content == null) ? (single.content == null) : content.equals(single.content);
+	}
+	
+	@Override
+	public int hashCode() {
+		int hash = 7;
+		hash = 59 * hash + Objects.hashCode(this.content);
+		return hash;
+	}
 }

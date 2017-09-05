@@ -24,16 +24,17 @@ public class BhParams {
 	 * ファイルパス関連のパラメータ
 	 */
 	public static class Path {
-		public static String compiled = "compiled";
+		public static final String COMPILED = "compiled";
 	}
 	
-	public static int maxQueueSize = 2048;
-	public static int popSendDataTimeout = 3;	//!< BunnyHopへの送信データキューの読み出しタイムアウト(sec)
-	public static int pushSendDataTimeout = 3;	//!< BunnyHopへの送信データキューの書き込みタイムアウト(sec)
-	public static int pushRecvDataTimeout = 3;	//!< BunnyHopからの受信データキューの書き込みタイムアウト (sec)
+	public static final int MAX_QUEUE_SIZE = 2048;
+	public static final int POP_SEND_DATA_TIMEOUT = 3;	//!< BunnyHopへの送信データキューの読み出しタイムアウト(sec)
+	public static final int PUSH_SEND_DATA_TIMEOUT = 3;	//!< BunnyHopへの送信データキューの書き込みタイムアウト(sec)
+	public static final int PUSH_RECV_DATA_TIMEOUT = 3;	//!< BunnyHopからの受信データキューの書き込みタイムアウト (sec)
 	
 	public static class BhProgram {
-		public static String inoutModuleName = "inout";
-		public static String rmiTcpPortSuffix = "@RmiTcpPort";	//BhProgram実行環境との通信に使うRMIオブジェクトを探す際のTCPポート
+		public static final String INOUT_MODULE_NAME = "inout";
+		public static final String EXEC_PATH = "execPath";
+		public static final String RIM_TCP_PORT_SUFFIX = "@RmiTcpPort";	//BhProgram実行環境との通信に使うRMIオブジェクトを探す際のTCPポート
 	}
 }

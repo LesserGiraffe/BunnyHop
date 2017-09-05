@@ -59,7 +59,7 @@ public class ImitationBuilder implements BhModelProcessor {
 		
 		String imitTag = null;
 		if (isManualCreation) {
-			imitTag = BhParams.BhModelDef.attrValueTagManual;
+			imitTag = BhParams.BhModelDef.ATTR_VALUE_TAG_MANUAL;
 			isManualCreation = false;
 		}
 		else if (node.getParentConnector() != null) {
@@ -96,7 +96,7 @@ public class ImitationBuilder implements BhModelProcessor {
 		
 		String imitTag = null;
 		if (isManualCreation) {
-			imitTag = BhParams.BhModelDef.attrValueTagManual;
+			imitTag = BhParams.BhModelDef.ATTR_VALUE_TAG_MANUAL;
 			isManualCreation = false;
 		}
 		else if (node.getParentConnector() != null) {

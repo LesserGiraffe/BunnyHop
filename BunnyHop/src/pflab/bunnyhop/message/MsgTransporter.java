@@ -22,14 +22,7 @@ package pflab.bunnyhop.message;
 public class MsgTransporter {
 
 	private MsgTransporter() {};
-	static private MsgTransporter instance = new MsgTransporter();	//!< シングルトンインスタンス
-
-	/**
-	 * シングルトンインスタンスを取得する
-	 * */
-	public static MsgTransporter instance() {
-		return instance;
-	}
+	public static final MsgTransporter instance = new MsgTransporter();	//!< シングルトンインスタンス
 
 	/**
 	 * msgReceptionWindows に対応するそれぞれの MsgProcessor に順番にメッセージを送信する<br>

@@ -59,10 +59,9 @@ public class ConnectiveNode extends Imitatable implements Serializable{
 			String scriptNameOnMovedToChild,
 			Map<String, String> imitTag_imitNodeID,
 			boolean canCreateImitManually) {
-		super(
-			id,
+		super(id,
 			name,
-			BhParams.BhModelDef.attrValueConnective,
+			BhParams.BhModelDef.ATTR_VALUE_CONNECTIVE,
 			scriptNameOnMovedFromChildToWS,
 			scriptNameOnMovedToChild);
 		this.childSection = childSection;

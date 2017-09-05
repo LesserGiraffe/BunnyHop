@@ -1,7 +1,7 @@
 {
 	"topMargin" : 1.0,
 	"bottomMargin" : 1.0,
-	"leftMargin" : 1.5,
+	"leftMargin" : 2.5,
 	"rightMargin" : 1.5,
 	"connectorPos" : "Left",
 	"connectorShift" : 0.0,

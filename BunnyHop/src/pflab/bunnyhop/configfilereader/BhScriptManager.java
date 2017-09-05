@@ -79,7 +79,7 @@ public class BhScriptManager {
 				paths = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.getFileName().toString().endsWith(".js")); //.jsファイルだけ収集
 			}
 			catch (IOException e) {
-				MsgPrinter.instance.ErrMsgForDebug(BhParams.Path.FunctionsDir + " directory not found " + dirPath);
+				MsgPrinter.instance.ErrMsgForDebug(BhParams.Path.FUNCTIONS_DIR + " directory not found " + dirPath);
 				success &= false;
 				continue;
 			}
@@ -105,11 +105,11 @@ public class BhScriptManager {
 			
 		}
 		
-		if (scriptName_script.containsKey(BhParams.Path.commonJS)) {
+		if (scriptName_script.containsKey(BhParams.Path.COMMON_EVENT_JS)) {
 			try {
-				commonJsObj = scriptName_script.get(BhParams.Path.commonJS).eval();
+				commonJsObj = scriptName_script.get(BhParams.Path.COMMON_EVENT_JS).eval();
 			} catch (ScriptException e) {
-				MsgPrinter.instance.ErrMsgForDebug("exec " + BhParams.Path.commonJS + "\n" + e.toString() + "\n");
+				MsgPrinter.instance.ErrMsgForDebug("exec " + BhParams.Path.COMMON_EVENT_JS + "\n" + e.toString() + "\n");
 				success &= false;
 			}
 		}

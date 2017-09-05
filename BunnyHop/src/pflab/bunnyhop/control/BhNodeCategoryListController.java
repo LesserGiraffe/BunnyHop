@@ -77,6 +77,10 @@ public class BhNodeCategoryListController implements MsgProcessor {
 			view.hideAll();
 			break;
 
+		case ZOOM:
+			view.zoomAll(data.bool);
+			break;
+			
 		default :
 			MsgPrinter.instance.ErrMsgForDebug(BhNodeCategoryList.class.getSimpleName() + ".receiveMsg unknown msg");
 			assert false;

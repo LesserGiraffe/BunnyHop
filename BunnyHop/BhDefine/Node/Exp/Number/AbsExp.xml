@@ -1,0 +1,24 @@
+<Node
+	type="connective"
+	bhNodeID="idAbsExp"
+	name="AbsExp"
+	nodeStyleID="AbsExp.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<ConnectorSection name="NumberExpSctn">
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
+		
+		<PrivateConnector
+			name="noZettaichi"
+			fixed="true">
+			<Node
+				type="label"
+				name="noZettaichi"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="の絶対値">
+			</Node>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>

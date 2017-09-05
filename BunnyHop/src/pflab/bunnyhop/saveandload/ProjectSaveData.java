@@ -77,7 +77,7 @@ public class ProjectSaveData implements Serializable{
 		
 		public WorkspaceSaveData(Workspace ws){
 			this.ws = ws;
-			Pair<Double, Double> wsSize = MsgTransporter.instance().sendMessage(BhMsg.GET_WORKSPACE_SIZE, ws).doublePair;
+			Pair<Double, Double> wsSize = MsgTransporter.instance.sendMessage(BhMsg.GET_WORKSPACE_SIZE, ws).doublePair;
 			workspaceSize = new Point2D(wsSize._1, wsSize._2);
 			rootNodeSaveList = ws.getRootNodeList().stream().map(rootNode -> {
 				return this.new RootNodeSaveData(rootNode);
@@ -120,7 +120,7 @@ public class ProjectSaveData implements Serializable{
 			
 			RootNodeSaveData(BhNode rootNode) {
 				this.rootNode = rootNode;				
-				Pair<Double, Double> pos = MsgTransporter.instance().sendMessage(BhMsg.GET_POS_ON_WORKSPACE, rootNode).doublePair;
+				Pair<Double, Double> pos = MsgTransporter.instance.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, rootNode).doublePair;
 				nodePos = new Point2D(pos._1, pos._2);
 			}
 			

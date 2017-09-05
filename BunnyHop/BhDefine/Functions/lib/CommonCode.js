@@ -20,6 +20,13 @@
 		inout.println(str);
 	}
 
+	function _sleep(sec) {
+		try {
+			java.lang.Thread.sleep(Math.round(sec * 1000));
+		}
+		catch (e) {}
+	}
+
 	function _scan(str) {
 		inout.println(str);
 		let input = inout.scan();

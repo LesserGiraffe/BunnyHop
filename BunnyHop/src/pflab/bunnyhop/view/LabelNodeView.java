@@ -60,7 +60,7 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 		getChildren().add(label);
 
 		if (model.getImitationInfo().canCreateImitManually) {
-			imitCreateImitBtn = loadButton(BhParams.Path.imitButtonFXML, viewStyle.imitation);
+			imitCreateImitBtn = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
 			if (imitCreateImitBtn != null)
 				getChildren().add(imitCreateImitBtn);
 		}		
@@ -77,7 +77,7 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 		label.getStyleClass().add(viewStyle.label.cssClass);
 		label.heightProperty().addListener(newValue -> getAppearanceManager().updateStyle(null));
 		label.widthProperty().addListener(newValue -> getAppearanceManager().updateStyle(null));
-		getAppearanceManager().addCssClass(BhParams.CSS.classLabelNode);
+		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_LABEL_NODE);
 	}
 
 	/**

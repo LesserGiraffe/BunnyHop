@@ -35,7 +35,7 @@ import pflab.bunnyhop.root.MsgPrinter;
 public class BhProgramTransceiver {
 	
 	private final AtomicBoolean connected = new AtomicBoolean(false);	//!< 接続状態
-	private final BlockingQueue<BhProgramData> sendDataList = new ArrayBlockingQueue<>(BhParams.ExternalProgram.maxRemoteCmdQueueSize);
+	private final BlockingQueue<BhProgramData> sendDataList = new ArrayBlockingQueue<>(BhParams.ExternalApplication.MAX_REMOTE_CMD_QUEUE_SIZE);
 	private final BhProgramHandler programHandler;	//!< BhProgramの実行環境と通信する用のRMIオブジェクト
 													// BhProgramHandlerは特定のプロセスと紐付いており, RMI Serverが同じTCPポートでも新しく起動したプロセスと通信することはない.
 	private final RemoteCmdProcessor cmdProcessor;	//!< BhProgramの実行環境から受信したデータを処理するオブジェクト
@@ -136,7 +136,7 @@ public class BhProgramTransceiver {
 						
 			BhProgramData data = null;
 			try {
-				data = sendDataList.poll(BhParams.ExternalProgram.popSendDataTimeout, TimeUnit.SECONDS);
+				data = sendDataList.poll(BhParams.ExternalApplication.POP_SEND_DATA_TIMEOUT, TimeUnit.SECONDS);
 			}
 			catch(InterruptedException e) {
 				break;

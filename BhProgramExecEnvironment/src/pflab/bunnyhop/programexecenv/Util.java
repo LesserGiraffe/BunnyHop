@@ -25,14 +25,14 @@ import java.nio.file.Paths;
  */
 public class Util {
 	
-	public static final String execPath;
-	public static String scriptDir = "compiled";
+	public static final String EXEC_PATH;
+	public static String SCRIPT_DIR = "compiled";
 	
 	static {
 		String path = System.getProperty("java.class.path");
 		File jarFile = new File(path);
 		Path jarPath = Paths.get(jarFile.getAbsolutePath());
 		String root = (jarPath.getRoot() == null) ? "" : jarPath.getRoot().toString();
-		execPath = root + jarPath.subpath(0, jarPath.getNameCount()-1).toString();
+		EXEC_PATH = root + jarPath.subpath(0, jarPath.getNameCount()-1).toString();
 	}
 }

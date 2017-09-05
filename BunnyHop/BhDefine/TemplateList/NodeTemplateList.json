@@ -1,5 +1,12 @@
 {
 
+	"動作" : {
+		"cssClass" : "action",
+		"contents":[
+			"idMoveStat",
+			"idSleepStat"]
+	},
+
 	"数値" : {
 		"cssClass":"number",
 	
@@ -12,7 +19,9 @@
 				"idNumCompExp",
 				"idNumToStrExp",
 				"idNumRoundExp",
-				"idRandomIntExp"]
+				"idRandomIntExp",
+				"idAbsExp",
+				"idNegExp"]
 		},
 		
 		"変数 / リスト": {

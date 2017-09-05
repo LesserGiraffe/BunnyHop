@@ -73,7 +73,7 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 		});
 				
 		if (model.getImitationInfo().canCreateImitManually) {
-			imitCreateImitBtn = loadButton(BhParams.Path.imitButtonFXML, viewStyle.imitation);
+			imitCreateImitBtn = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
 			if (imitCreateImitBtn != null)
 				getChildren().add(imitCreateImitBtn);
 		}		
@@ -92,7 +92,7 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 			String text = textField.getText();
 			setText(text + " "); 
 			setText(text);});
-		getAppearanceManager().addCssClass(BhParams.CSS.classTextFieldNode);
+		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_TEXT_FIELD_NODE);
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 	 * */
 	public void setTextChangeListener(Function<String, Boolean> checkFormatFunc) {
 
-		String wsMargine = Stream.iterate(" ", ws -> ws).limit((long)viewStyle.textField.whiteSpaceMargine).reduce("", String::concat);
+		String wsMargine = Stream.iterate(" ", ws -> ws).limit((long)viewStyle.textField.whiteSpaceMargin).reduce("", String::concat);
 		String minWidthWS = Stream.iterate(" ", ws -> ws).limit((long)viewStyle.textField.minWhiteSpace).reduce("", String::concat);
 
 		// テキストの長さに応じてTextField の長さが変わるように
@@ -123,9 +123,9 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 			
 			boolean acceptable = checkFormatFunc.apply(newValue);
 			if (acceptable)
-				textField.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.pseudoError), false);
+				textField.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), false);
 			else
-				textField.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.pseudoError), true);
+				textField.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), true);
 		});
 	}
 
