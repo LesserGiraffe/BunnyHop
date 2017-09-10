@@ -6,10 +6,6 @@
 		TURN_LEFT : '4'
 	};
 	
-	function _getMoveCmd() {
-		return execPath + '/actions' + '/bhMove';
-	}
-
 	function _moveAny(speed, time, cmd) {
 	
 		const _MAX_SPEED = 10;
@@ -18,7 +14,8 @@
 		speed = Math.min(Math.max(0.0, speed), 1.0);
 		time *= 1000;
 		time = Math.floor(time);
-		const procBuilder = new java.lang.ProcessBuilder([_getMoveCmd(), cmd, String(time), String(speed)]);
+		let moveCmd = execPath + '/actions' + '/bhMove';
+		const procBuilder = new java.lang.ProcessBuilder([moveCmd, cmd, String(time), String(speed)]);
 		try {
 			const process =  procBuilder.start();
 			process.waitFor();
@@ -47,4 +44,41 @@
 		_moveAny(speed, time, _MOVE_CMD.TURN_LEFT);
 	}
 
+	function readStream(stream) {
+		let readByte = [];
+		while(true) {
+			const rb = stream.read();
+			if (rb === -1)
+				break;
+			readByte.push(rb);
+		}
+		readByte = Java.to(readByte, "byte[]");
+		const string = Java.type("java.lang.String");
+		return new string(readByte);
+	}
 
+	function _measureDistance() {
+	
+		let spiCmd = execPath + '/actions' + '/bhSpiRead';
+		const procBuilder = new java.lang.ProcessBuilder([spiCmd, '5', '3']);
+		let distance;
+		try {
+			const process =  procBuilder.start();
+			process.waitFor();
+			distance = readStream(process.getInputStream());
+			process.getErrorStream().close();
+			process.getInputStream().close();
+			process.getOutputStream().close();
+		}
+		catch (e) {
+			_println('ERR: _measureDistance ' + e);
+		}
+		distance = Number(distance);
+		if (!isFinite(distance))
+			return 0;
+		if (distance >= 384)
+			distance = 49840 * Math.pow(distance, -1.142);
+		else
+			distance = 467132 * Math.pow(distance, -1.522);
+		return distance;
+	}

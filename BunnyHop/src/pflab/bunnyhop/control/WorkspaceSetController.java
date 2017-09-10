@@ -35,6 +35,7 @@ import pflab.bunnyhop.undo.UserOpeCmdManager;
 import pflab.bunnyhop.view.BhNodeSelectionView;
 import pflab.bunnyhop.view.WorkspaceView;
 import pflab.bunnyhop.message.MsgProcessor;
+import pflab.bunnyhop.root.BunnyHop;
 
 /**
  * ワークスペースセットのコントローラ + ビュークラス
@@ -190,15 +191,18 @@ public class WorkspaceSetController implements MsgProcessor {
 			
 		case UNDO:
 			userOpeCmdManager.undo();
+			BunnyHop.instance.shouldSave(true);
 			break;
 				
 		case REDO:
 			userOpeCmdManager.redo();
+			BunnyHop.instance.shouldSave(true);
 			break;
 		
 		case PUSH_USER_OPE_CMD:
 			if (data.userOpeCmd.getNumSubOpe() > 0) {
 				userOpeCmdManager.pushUndoCommand(data.userOpeCmd);
+				BunnyHop.instance.shouldSave(true);
 			}
 			break;
 

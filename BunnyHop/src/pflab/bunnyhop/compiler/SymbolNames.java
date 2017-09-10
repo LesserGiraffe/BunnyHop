@@ -191,10 +191,11 @@ public class SymbolNames {
 		public static final String RAMDOM_INT_EXP = "RandomIntExp";
 		public static final String NUM_ROUND_EXP = "NumRoundExp";
 		public static final String ABS_EXP = "AbsExp";
+		public static final String MEASURE_DISTANCE_EXP = "MeasureDistanceExp";
 		public static final String PRINT_STAT = "PrintStat";
 		public static final String MOVE_STAT = "MoveStat";
 		public static final String SLEEP_STAT = "SleepStat";
-
+		
 		//オプション名
 		public static final String OPT_ROUND = "四捨五入";
 		public static final String OPT_CEIL = "切り上げ";
@@ -212,7 +213,8 @@ public class SymbolNames {
 				SCAM_EXP,
 				NUM_ROUND_EXP,
 				RAMDOM_INT_EXP,
-				ABS_EXP));	//!< 定義済み関数式のリスト
+				ABS_EXP,
+				MEASURE_DISTANCE_EXP));	//!< 定義済み関数式のリスト
 	
 		public static HashSet<String> PREDEF_FUNC_CALL_STAT_LIST = 
 			new HashSet<>(Arrays.asList(
@@ -257,6 +259,7 @@ public class SymbolNames {
 				put(Arrays.asList(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor");
 				put(Arrays.asList(ABS_EXP), "Math.abs");
 				put(Arrays.asList(RAMDOM_INT_EXP), "_randomInt");
+				put(Arrays.asList(MEASURE_DISTANCE_EXP), "_measureDistance");
 				put(Arrays.asList(MOVE_STAT, OPT_MOVE_FORWARD), "_moveForward");
 				put(Arrays.asList(MOVE_STAT, OPT_MOVE_BACKWARD), "_moveBackward");
 				put(Arrays.asList(MOVE_STAT, OPT_TURN_RIGHT), "_turnRight");

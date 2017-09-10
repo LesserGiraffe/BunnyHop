@@ -15,7 +15,16 @@
  */
 package pflab.bunnyhop.root;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -26,6 +35,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
 import javafx.util.Duration;
 import pflab.bunnyhop.common.BhParams;
+import pflab.bunnyhop.common.Util;
 
 /**
  * メッセージ出力クラス
@@ -63,14 +73,75 @@ public class MsgPrinter {
 	 * デバッグ用メッセージ出力メソッド
 	 * */
 	public void ErrMsgForDebug(String msg) {
-		System.err.println("ERR : " + msg);
+		msg = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(Calendar.getInstance().getTime()) + "  ERR : " + msg + "\n";
+		System.err.print(msg);
+		writeMsgToLogFile(msg + "\n");
 	}
 
 	/**
 	 * デバッグ用メッセージ出力メソッド
 	 * */
 	public void MsgForDebug(String msg) {
-		System.out.println("DBG : " + msg);
+		msg = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(Calendar.getInstance().getTime()) + "  MSG : " + msg + "\n";
+		System.out.print(msg);
+		writeMsgToLogFile(msg + "\n");
+	}
+	
+	/**
+	 * ログファイルにメッセージを書き込む
+	 * @param msg ログファイルに書き込むメッセージ
+	 */
+	private void writeMsgToLogFile(String msg) {
+
+		Path logFilePath = genLogFilePath(0);
+		try {
+			if (!Files.isDirectory(Paths.get(Util.EXEC_PATH, BhParams.Path.LOG_DIR)))
+				Files.createDirectory(Paths.get(Util.EXEC_PATH, BhParams.Path.LOG_DIR));
+			
+			if (!Files.exists(logFilePath))
+				Files.createFile(logFilePath);
+			
+			if (Files.size(logFilePath) > BhParams.MAX_LOG_FILE_SIZE)
+				if (!renameLogFiles())
+					return;
+		}
+		catch (IOException | SecurityException e) {}
+		
+		try {
+			Files.write(logFilePath, msg.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+		}
+		catch(IOException | SecurityException e) {}
+	}
+	
+	/**
+	 * ログローテンションのため, ログファイルをリネームする
+	 * @return リネームに成功した場合true
+	 */
+	private boolean renameLogFiles() {
+				
+		try {
+			Path oldestLogFilePath = genLogFilePath(BhParams.MAX_LOG_FILE_NUM - 1);
+			if (Files.exists(oldestLogFilePath))
+				Files.delete(oldestLogFilePath);
+			
+			for (int fileNo = BhParams.MAX_LOG_FILE_NUM - 2; fileNo >= 0; --fileNo) {
+				Path oldLogFilePath = genLogFilePath(fileNo);
+				Path newLogFilePath = genLogFilePath(fileNo + 1);
+				if (Files.exists(oldLogFilePath))
+					Files.move(oldLogFilePath, newLogFilePath, StandardCopyOption.ATOMIC_MOVE);
+			}
+		}
+		catch (IOException | SecurityException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	private Path genLogFilePath(int fileNo) {
+		String numStr = ("0000" + fileNo);
+		numStr = numStr.substring(numStr.length() - 4, numStr.length());
+		String logFileName = BhParams.Path.LOG_FILE_NAME + numStr + ".log";
+		return Paths.get(Util.EXEC_PATH, BhParams.Path.LOG_DIR, logFileName);
 	}
 	
 	/**

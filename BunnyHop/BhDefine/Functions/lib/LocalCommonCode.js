@@ -21,3 +21,15 @@
 		speed = Math.min(Math.max(_MIN_SPEED, speed), _MAX_SPEED);
 		_println("速度 " + speed + " で " + time + " 秒間「左旋回」した")
 	}
+	
+	function _measureDistance() {
+	
+		let dist = _scan('距離を入力してください (半角)');
+		dist = Number(dist);
+		if (!isFinite(dist))
+			dist = 0;
+		
+		_println("距離 = " + dist);
+		return dist;
+	}
+	

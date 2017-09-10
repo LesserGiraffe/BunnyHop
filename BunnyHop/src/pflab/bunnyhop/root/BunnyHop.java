@@ -54,6 +54,7 @@ public class BunnyHop {
 	private final BhNodeCategoryList nodeCategoryList = new BhNodeCategoryList();	//!< BhNode 選択用画面のモデル
 	private FoundationController foundationController;
 	public static final BunnyHop instance  = new BunnyHop();
+	private boolean shoudlSave = false;
 
 	/**
 	 * メインウィンドウを作成する
@@ -216,7 +217,10 @@ public class BunnyHop {
 	 * @return アプリの終了を許可する場合trueを返す.
 	 */
 	public boolean processCloseRequest() {
-			
+		
+		if (!shoudlSave)
+			return true;
+		
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 		alert.setTitle("BunnyHop");
 		alert.setHeaderText(null);
@@ -228,6 +232,14 @@ public class BunnyHop {
 			return foundationController.getMenuBarController().save(workspaceSet);
 		
 		return result.get().equals(ButtonType.NO);
+	}
+	
+	/**
+	 * 終了時に保存が必要かどうかのフラグをセットする
+	 * @param save trueの場合終了時に保存が必要となる
+	 */
+	public void shouldSave(boolean save) {
+		shoudlSave = save;
 	}
 }
 

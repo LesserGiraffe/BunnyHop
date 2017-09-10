@@ -4,6 +4,7 @@
 		"cssClass" : "action",
 		"contents":[
 			"idMoveStat",
+			"idMeasureDistanceExp",
 			"idSleepStat"]
 	},
 

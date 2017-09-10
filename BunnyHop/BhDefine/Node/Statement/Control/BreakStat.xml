@@ -6,6 +6,8 @@
 	name="BreakStat"
 	nodeStyleID="BreakStat.json"
 	nodeInputControl="Label.fxml"
-	initString="繰り返しを抜ける">
+	initString="繰り返しを抜ける"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js">
 </Node>
 

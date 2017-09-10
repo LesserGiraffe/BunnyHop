@@ -184,6 +184,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(fileToSave));){			
 			outputStream.writeObject(saveData);
 			MsgPrinter.instance.MsgForUser("-- 保存完了 (" + fileToSave.getPath() + ") --\n");
+			BunnyHop.instance.shouldSave(false);
 			return true;
 		}
 		catch(IOException e) {

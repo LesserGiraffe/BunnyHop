@@ -223,7 +223,7 @@ public class RemoteBhProgramManager {
 		}
 		catch (IOException | IndexOutOfBoundsException | SecurityException e) {	
 			MsgPrinter.instance.ErrMsgForDebug("failed to start " +  BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENVIRONMENT + "\n" + e.toString());
-		}		
+		}
 		return process;
 	}
 	

@@ -42,6 +42,8 @@ public class BhParams {
 	public static final double MIN_WORKSPACE_SIZE_LEVEL = -1;	//!< ワークスペースの最小の大きさレベル
 	public static final String INITIAL_WORKSPACE_NAME = "メイン";	//!< 最初からあるワークスペースの名前
 	public static final  int EXECUTOR_SHUTDOWN_TIMEOUT = 5;	//!< ExecutorService のシャットダウンを待つ時間 (sec)
+	public static final int MAX_LOG_FILE_NUM = 4;	//!< ログファイルの最大個数
+	public static final int MAX_LOG_FILE_SIZE = 4 * 1024;	//!< ログファイル1つあたりの最大バイト数
 	
 	/**
 	 * ファイルパス関連のパラメータ
@@ -56,6 +58,8 @@ public class BhParams {
 		public static final String NODE_STYLE_DEF_DIR = "NodeStyle"; //!< ノードのスタイル定義ファイルがあるフォルダ名
 		public static final String FUNCTIONS_DIR = "Functions";	//!< Javascript コードが書かれたファイルのあるトップフォルダ
 		public static final String TEMPLATE_LIST_DIR = "TemplateList";	//ノードテンプレートの配置情報が書かれたファイルがあるフォルダ名
+		public static final String LOG_DIR = "Log";
+		public static final String LOG_FILE_NAME = "msg";
 		public static final String lib = "lib";
 		public static final String COMPILED_DIR = "Compiled";
 		public static final String REMOTE_DIR = "Remote";
@@ -70,9 +74,9 @@ public class BhParams {
 		public static final String REMOTE_COMMON_CODE_JS = "RemoteCommonCode.js";
 		public static final String APP_FILE_NAME_JS = "BhAppScript.js";
 		public static final String GEN_COMPOUND_NODES_JS = "genCompoundNodes.js";
-		public static String REMOTE_EXEC_CMD_GENERATOR_JS = "remoteExecCmdGenerator.js";	//!< リモートのBhProgram実行環境をスタートさせるコマンドを生成するスクリプト名
-		public static String REMOTE_KILL_CMD_GENERATOR_JS = "remoteKillCmdGenerator.js";	//!< リモートのBhProgram実行環境を終わらせるコマンドを生成するスクリプト名
-		public static String COPY_CMD_GENERATOR_JS = "copyCmdGenerator.js";	//!< リモートのBhProgram実行環境にBhProgramファイルをコピーするコマンドを生成するスクリプト名
+		public static final String REMOTE_EXEC_CMD_GENERATOR_JS = "remoteExecCmdGenerator.js";	//!< リモートのBhProgram実行環境をスタートさせるコマンドを生成するスクリプト名
+		public static final String REMOTE_KILL_CMD_GENERATOR_JS = "remoteKillCmdGenerator.js";	//!< リモートのBhProgram実行環境を終わらせるコマンドを生成するスクリプト名
+		public static final String COPY_CMD_GENERATOR_JS = "copyCmdGenerator.js";	//!< リモートのBhProgram実行環境にBhProgramファイルをコピーするコマンドを生成するスクリプト名
 	}
 
 	/**
@@ -232,9 +236,8 @@ public class BhParams {
 	public static class ExternalApplication {
 		
 		public static String BH_PROGRAM_EXEC_ENVIRONMENT = "BhProgramExecEnvironment.jar";
-		public static int PROGRAM_EXEC_ENV_TERMINATION_TIMEOUT = 15;	//!< BhProgramExecEnvironment終了待ちのタイムアウト時間 (sec)
-		public static int PROGRAM_EXEC_ENV_START_TIMEOUT = 15;	//!< BhProgramExecEnvironment開始待ちのタイムアウト時間 (sec)
-		public static int FILE_COPY_TERMINATION_TIMEOUT = 15;	//!< ファイルコピープロセス終了待ちのタイムアウト (sec)
+		public static int PROGRAM_EXEC_ENV_TERMINATION_TIMEOUT = 10;	//!< BhProgramExecEnvironment終了待ちのタイムアウト時間 (sec)
+		public static int FILE_COPY_TERMINATION_TIMEOUT = 10;	//!< ファイルコピープロセス終了待ちのタイムアウト (sec)
 		public static int POP_RECV_DATA_TIMEOUT = 3;	//!< BhProgram実行環境からの受信データ待ちタイムアウト (sec)
 		public static int POP_SEND_DATA_TIMEOUT = 3;	//!< BhProgram実行環境への送信データ待ちタイムアウト (sec)
 		public static int TCP_PORT_READ_TIMEOUT = 15;	//!< TCPポート読み取りのタイムアウト (sec)
