@@ -112,6 +112,7 @@ public class BhCompiler {
 		StringBuilder code = new StringBuilder();
 		genCode(code, execNode, compiledNodeList, option);
 		
+		Util.createDirectoryIfNotExists(Paths.get(Util.EXEC_PATH, BhParams.Path.COMPILED_DIR));
 		Path appFilePath = Paths.get(Util.EXEC_PATH, BhParams.Path.COMPILED_DIR, BhParams.Path.APP_FILE_NAME_JS);
 		try (BufferedWriter writer = 
 			Files.newBufferedWriter(

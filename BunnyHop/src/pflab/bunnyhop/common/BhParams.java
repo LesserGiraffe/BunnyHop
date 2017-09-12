@@ -43,7 +43,7 @@ public class BhParams {
 	public static final String INITIAL_WORKSPACE_NAME = "メイン";	//!< 最初からあるワークスペースの名前
 	public static final  int EXECUTOR_SHUTDOWN_TIMEOUT = 5;	//!< ExecutorService のシャットダウンを待つ時間 (sec)
 	public static final int MAX_LOG_FILE_NUM = 4;	//!< ログファイルの最大個数
-	public static final int MAX_LOG_FILE_SIZE = 4 * 1024;	//!< ログファイル1つあたりの最大バイト数
+	public static final int LOG_FILE_SIZE_LIMIT = 1024 * 1024;	//!< ログファイル1つあたりの最大バイト数
 	
 	/**
 	 * ファイルパス関連のパラメータ

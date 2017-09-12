@@ -16,6 +16,7 @@
 package pflab.bunnyhop.root;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,10 +47,22 @@ public class MsgPrinter {
 	public static final MsgPrinter instance = new MsgPrinter();	//!< シングルトンインスタンス
 	private TextArea mainMsgArea;
 	private BlockingQueue<String> queuedMsgs = new ArrayBlockingQueue<>(BhParams.MAX_MAIN_MSG_QUEUE_SIZE);
-	private final Timeline msgPrintTimer;
+	private Timeline msgPrintTimer;
+	private OutputStream logOutputStream;
 	
-	private MsgPrinter() {
+	private MsgPrinter() {}
+		
+	public boolean init() {
+		startMsgTimer();
+		initLogSystem();	//ログシステムがエラーでも処理は続ける
+		return true;
+	}
 
+	/**
+	 * メッセージ出力タイマーを駆動する
+	 */
+	private void startMsgTimer() {
+		
 		msgPrintTimer = new Timeline(
 			new KeyFrame(
 				Duration.millis(100), 
@@ -70,10 +83,35 @@ public class MsgPrinter {
 	}
 	
 	/**
+	 * ログ機能を初期化する
+	 */
+	private boolean initLogSystem() {
+		
+		Path logFilePath = genLogFilePath(0);
+		if (!Util.createDirectoryIfNotExists(Paths.get(Util.EXEC_PATH, BhParams.Path.LOG_DIR)))
+			return false;
+		
+		if (!Util.createFileIfNotExists(logFilePath))
+			return false;
+			
+		try {
+			//ログローテーション
+			if (Files.size(logFilePath) > BhParams.LOG_FILE_SIZE_LIMIT)
+				if (!renameLogFiles())
+					return false;
+			logOutputStream = Files.newOutputStream(logFilePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND, StandardOpenOption.WRITE);
+		}
+		catch (IOException | SecurityException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	/**
 	 * デバッグ用メッセージ出力メソッド
 	 * */
 	public void ErrMsgForDebug(String msg) {
-		msg = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(Calendar.getInstance().getTime()) + "  ERR : " + msg + "\n";
+		msg = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(Calendar.getInstance().getTime()) + "  ERR : " + msg;
 		System.err.print(msg);
 		writeMsgToLogFile(msg + "\n");
 	}
@@ -82,7 +120,7 @@ public class MsgPrinter {
 	 * デバッグ用メッセージ出力メソッド
 	 * */
 	public void MsgForDebug(String msg) {
-		msg = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(Calendar.getInstance().getTime()) + "  MSG : " + msg + "\n";
+		msg = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(Calendar.getInstance().getTime()) + "  MSG : " + msg;
 		System.out.print(msg);
 		writeMsgToLogFile(msg + "\n");
 	}
@@ -93,22 +131,11 @@ public class MsgPrinter {
 	 */
 	private void writeMsgToLogFile(String msg) {
 
-		Path logFilePath = genLogFilePath(0);
 		try {
-			if (!Files.isDirectory(Paths.get(Util.EXEC_PATH, BhParams.Path.LOG_DIR)))
-				Files.createDirectory(Paths.get(Util.EXEC_PATH, BhParams.Path.LOG_DIR));
-			
-			if (!Files.exists(logFilePath))
-				Files.createFile(logFilePath);
-			
-			if (Files.size(logFilePath) > BhParams.MAX_LOG_FILE_SIZE)
-				if (!renameLogFiles())
-					return;
-		}
-		catch (IOException | SecurityException e) {}
-		
-		try {
-			Files.write(logFilePath, msg.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+			if (logOutputStream != null) {
+				logOutputStream.write(msg.getBytes(StandardCharsets.UTF_8));
+				logOutputStream.flush();
+			}
 		}
 		catch(IOException | SecurityException e) {}
 	}
@@ -198,6 +225,17 @@ public class MsgPrinter {
 	 */
 	public void setMainMsgArea(TextArea mainMsgArea) {		
 		this.mainMsgArea = mainMsgArea;
+	}
+	
+	/**
+	 * 終了処理をする
+	 */
+	public void end() {
+		try {
+			if (logOutputStream != null)
+				logOutputStream.close();
+		}
+		catch (IOException e) {} 
 	}
 	
 	/**

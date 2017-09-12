@@ -17,9 +17,12 @@ package pflab.bunnyhop.common;
 import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javafx.scene.text.Font;
+import pflab.bunnyhop.root.MsgPrinter;
 
 /**
  * @author K.Koike
@@ -75,6 +78,40 @@ public class Util {
 	 */
 	public static String genSerialID() {
 		return Integer.toHexString(serialID++) + "";
+	}
+	
+	/**
+	 * 引数で指定したパスのファイルが存在しない場合作成する
+	 * @param filePath 作成するファイルのパス
+	 * @return 作成に失敗した場合false. 作成しなかった場合はtrue
+	 */
+	public static boolean createFileIfNotExists(Path filePath) {
+		try {
+			if (!Files.exists(filePath))
+				Files.createFile(filePath);
+		}
+		catch (IOException e) {
+			MsgPrinter.instance.MsgForDebug("create file err " + filePath + "\n" + e.toString());
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * 引数で指定したパスのディレクトリが存在しない場合作成する
+	 * @param dirPath 作成するファイルのパス
+	 * @return 作成に失敗した場合false. 作成しなかった場合はtrue
+	 */
+	public static boolean createDirectoryIfNotExists(Path dirPath) {
+		try {
+			if (!Files.isDirectory(dirPath))
+				Files.createDirectory(dirPath);
+		}
+		catch (IOException e) {
+			MsgPrinter.instance.MsgForDebug("create dir err " + dirPath + "\n" + e.toString());
+			return false;
+		}
+		return true;
 	}
 }
 
