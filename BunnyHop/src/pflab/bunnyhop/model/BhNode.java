@@ -15,6 +15,7 @@
  */
 package pflab.bunnyhop.model;
 
+import pflab.bunnyhop.model.imitation.Imitatable;
 import pflab.bunnyhop.modelhandler.BhNodeHandler;
 import java.io.Serializable;
 import javax.script.Bindings;
@@ -42,7 +43,7 @@ import pflab.bunnyhop.message.MsgReceptionWindow;
  */
 public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow, Serializable {
 
-	private final String bhID; //!< ノードID (\<Node\> タグの bhID)
+	private final BhNodeID bhID; //!< ノードID (\<Node\> タグの bhID)
 	protected Connector parentConnector;	//!< このノードを繋いでいるコネクタ
 	protected Workspace workspace;	//!< このノードがあるWorkSpace.
 	private final String scriptNameOnMovedFromChildToWS;	//子ノードからワークスペースに移されたときに実行されるスクリプトの名前
@@ -104,7 +105,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow,
 	 * @param scriptNameOnMovedToChild ワークスペースもしくは, 子ノードから子ノードに移されたときに実行されるスクリプトの名前
 	 * */
 	protected BhNode(
-		String bhID,
+		BhNodeID bhID,
 		String symbolName,
 		String type,
 		String scriptNameOnMovedFromChildToWS,
@@ -132,7 +133,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow,
 		scriptScope = null;
 	}
 	
-	public String getID() {
+	public BhNodeID getID() {
 		return bhID;
 	}
 		

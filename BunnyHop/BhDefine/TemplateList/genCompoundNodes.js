@@ -1,5 +1,15 @@
 (function() {
 
+	let BhNodeID = Java.type("pflab.bunnyhop.model.BhNodeID");
+
+	function registerNodeTemplate(bhNodeID, bhNode) {
+		bhNodeTemplates.registerNodeTemplate(BhNodeID.createBhNodeID(bhNodeID), bhNode);
+	}
+	
+	function genBhNode(bhNodeID, bhUserOpeCmd) {
+		return bhNodeTemplates.genBhNode(BhNodeID.createBhNodeID(bhNodeID), bhUserOpeCmd);
+	}
+
 	function connect(parentNode, childNode, cnctrPath) {
 		const cnctr = parentNode.findSymbolInDescendants(cnctrPath);
 		cnctr.connectNode(childNode, bhUserOpeCmd);
@@ -8,11 +18,11 @@
 	//カウンタ付き回数指定ループノード作成
 	function addRepeatAndCountNode(nodeID) {
 	
-		let compoundNode = bhNodeTemplates.genBhNode('idCompoundStat', bhUserOpeCmd);
-		let countVarNode = bhNodeTemplates.genBhNode('idNumVarDecl', bhUserOpeCmd);
-		let initAssignStatNode = bhNodeTemplates.genBhNode('idNumAssignStat', bhUserOpeCmd);
-		let repeatStatNode = bhNodeTemplates.genBhNode('idRepeatStat', bhUserOpeCmd);
-		let updateAssignStatNode = bhNodeTemplates.genBhNode('idNumAddAssignStat', bhUserOpeCmd);
+		let compoundNode = genBhNode('idCompoundStat', bhUserOpeCmd);
+		let countVarNode = genBhNode('idNumVarDecl', bhUserOpeCmd);
+		let initAssignStatNode = genBhNode('idNumAssignStat', bhUserOpeCmd);
+		let repeatStatNode = genBhNode('idRepeatStat', bhUserOpeCmd);
+		let updateAssignStatNode = genBhNode('idNumAddAssignStat', bhUserOpeCmd);
 		
 		connect(compoundNode, initAssignStatNode, ['*', '*', 'StatList']);
 		connect(compoundNode, countVarNode, ['*', '*', 'LocalVarDecl']);
@@ -27,16 +37,16 @@
 		let updateDiff = updateAssignStatNode.findSymbolInDescendants(['*', 'RightExp', '*']);
 		updateDiff.setText('1');
 				
-		bhNodeTemplates.registerNodeTemplate(nodeID, compoundNode);
+		registerNodeTemplate(nodeID, compoundNode);
 	}
 	
 	//移動ノードの初期速度を変更して再登録
 	function setInitialMoveSpeed() {
-		let newMoveStat = bhNodeTemplates.genBhNode('idMoveStat', bhUserOpeCmd);
-		let initialMoveSpeed = bhNodeTemplates.genBhNode('idDefaultNumLiteral', bhUserOpeCmd);
+		let newMoveStat = genBhNode('idMoveStat', bhUserOpeCmd);
+		let initialMoveSpeed = genBhNode('idDefaultNumLiteral', bhUserOpeCmd);
 		initialMoveSpeed.setText('2');
 		connect(newMoveStat, initialMoveSpeed, ['*', 'Arg0']);
-		bhNodeTemplates.registerNodeTemplate('idMoveStat', newMoveStat);
+		registerNodeTemplate('idMoveStat', newMoveStat);
 	}
 	
 	addRepeatAndCountNode('idRepeatAndCount');

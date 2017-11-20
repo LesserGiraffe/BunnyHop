@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pflab.bunnyhop.model;
+package pflab.bunnyhop.model.imitation;
 
 import pflab.bunnyhop.modelhandler.BhNodeHandler;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import pflab.bunnyhop.model.BhNodeID;
 import pflab.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -27,24 +28,24 @@ import pflab.bunnyhop.undo.UserOperationCommand;
  * @author K.Koike
  */
 public class ImitationInfo<T extends Imitatable> implements Serializable {
-	
+
 	public final boolean canCreateImitManually;	//!< このオブジェクトを持つノードがイミテーションノードの手動作成機能を持つ場合 true
 	private final List<T> imitNodeList;					//!< このオブジェクトを持つノードから作成されたイミテーションノードの集合
 	private T orgNode;									//!< このオブジェクトを持つノードがイミテーションノードの場合、そのオリジナルノードを保持する
-	private final Map<String, String> imitTag_imitNodeID;	//!< イミテーションタグとそれに対応するイミテーションノードIDのマップ
+	private final Map<ImitationID, BhNodeID> imitID_imitNodeID;	//!< イミテーションタグとそれに対応するイミテーションノードIDのマップ
 	public final String scopeName;	//!< オリジナルノードと同じスコープにいるかチェックする際の名前
 	
 	/**
 	 * コンストラクタ
-	 * @param imitTag_imitNodeID イミテーションタグとそれに対応するイミテーションノードIDのマップ
+	 * @param imitID_imitNodeID イミテーションIDとそれに対応するイミテーションノードIDのマップ
 	 * @param canCreateImitManually イミテーションノードの手動作成機能の有無
 	 * @param scopeName オリジナルノードと同じスコープにいるかチェックする際の名前
 	 **/	
 	public ImitationInfo(
-		Map<String, String> imitTag_imitNodeID, 
+		Map<ImitationID, BhNodeID> imitID_imitNodeID, 
 		boolean canCreateImitManually,
 		String scopeName) {
-		this.imitTag_imitNodeID = imitTag_imitNodeID;
+		this.imitID_imitNodeID = imitID_imitNodeID;
 		imitNodeList = new ArrayList<>();
 		orgNode = null;		
 		this.canCreateImitManually = canCreateImitManually;
@@ -55,10 +56,10 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 	 * コピーコンストラクタ
 	 * @param org コピー元オブジェクト
 	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @param imitCreator このオブジェクトを持つノード
+	 * @param owner このオブジェクトを持つノード
 	 **/
-	public ImitationInfo(ImitationInfo<T> org, UserOperationCommand userOpeCmd, T imitCreator) {
-		imitTag_imitNodeID = org.imitTag_imitNodeID;
+	public ImitationInfo(ImitationInfo<T> org, UserOperationCommand userOpeCmd, T owner) {
+		imitID_imitNodeID = org.imitID_imitNodeID;
 		canCreateImitManually = org.canCreateImitManually;
 		imitNodeList = new ArrayList<>();	//元ノードをコピーしても、イミテーションノードとのつながりは無いようにする
 		orgNode = null;
@@ -66,7 +67,7 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 		if (org.isImitationNode()) {
 			//イミテーションをコピーした場合, コピー元と同じオリジナルノードのイミテーションノードとする			
 			T original = org.getOriginal();
-			original.getImitationInfo().addImitation(imitCreator, userOpeCmd);
+			original.getImitationInfo().addImitation(owner, userOpeCmd);
 			setOriginal(original, userOpeCmd);
 		}
 	}
@@ -118,23 +119,23 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 	}
 	
 	/**
-	 * 引数で指定したイミテーションタグに対応するイミテーションノードIDがある場合true を返す
-	 * @param imitTag このイミテーションタグに対応するイミテーションノードIDがあるか調べる
+	 * 引数で指定したイミテーションIDに対応するイミテーションノードIDがある場合true を返す
+	 * @param imitID このイミテーションIDに対応するイミテーションノードIDがあるか調べる
 	 * @return イミテーションノードIDが指定してある場合true
 	 */
-	public boolean hasImitationID(String imitTag) {
-		return imitTag_imitNodeID.containsKey(imitTag);
+	public boolean imitationNodeExists(ImitationID imitID) {		
+		return imitID_imitNodeID.containsKey(imitID);
 	}
 	
 	/**
 	 * 引数で指定したイミテーションタグに対応するイミテーションノードIDを返す
-	 * @param imitTag このイミテーションタグに対応するイミテーションノードIDを返す
+	 * @param imitID このイミテーションIDに対応するイミテーションノードIDを返す
 	 * @return 引数で指定したコネクタ名に対応するイミテーションノードID
 	 */
-	public String getImitationID(String imitTag) {
-		String imitID = imitTag_imitNodeID.get(imitTag);
+	public BhNodeID getImitationNodeID(ImitationID imitID) {
+		BhNodeID imitNodeID = imitID_imitNodeID.get(imitID);
 		assert imitID != null;
-		return imitID;
+		return imitNodeID;
 	}
 	
 	/**

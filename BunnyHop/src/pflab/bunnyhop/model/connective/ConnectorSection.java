@@ -24,6 +24,8 @@ import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.model.BhNode;
 import pflab.bunnyhop.model.SyntaxSymbol;
+import pflab.bunnyhop.model.imitation.ImitationConnectionPos;
+import pflab.bunnyhop.model.imitation.ImitationID;
 import pflab.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -70,10 +72,10 @@ public class ConnectorSection extends Section implements Serializable {
 		for (int i = 0; i < cnctrList.size(); ++i) {
 			CnctrInstantiationParams cnctrInstParams = cnctrInstantiationParamsList.get(i);
 			Connector newConnector = 
-				cnctrList.get(i).copy(
-					userOpeCmd,
+				cnctrList.get(i).copy(userOpeCmd,
 					cnctrInstParams.cnctrName,
-					cnctrInstParams.imitationTag,
+					cnctrInstParams.imitationID,
+					cnctrInstParams.imitCnctPoint,
 					newSection);
 			newSection.cnctrList.add(newConnector);
 		}
@@ -159,17 +161,21 @@ public class ConnectorSection extends Section implements Serializable {
 	public static class CnctrInstantiationParams implements Serializable{
 
 		public final String cnctrName;	//!< コネクタ名
-		public final String imitationTag;	//!< イミテーションタグ
+		public final ImitationID imitationID;	//!< 作成するイミテーションの識別子
+		public final ImitationConnectionPos imitCnctPoint;	//!< イミテーション接続位置
 
 		/**
 		 * @param cnctrName コネクタ名
-		 * @param imitationTag イミテーションタグ
+		 * @param imitationID イミテーションID (作成するイミテーションの識別子)
+		 * @param imitCnctPoint イミテーション接続位置の識別子
 		 */
 		public CnctrInstantiationParams(
 			String cnctrName, 
-			String imitationTag) {
+			ImitationID imitationID,
+			ImitationConnectionPos imitCnctPoint) {
 			this.cnctrName = cnctrName;
-			this.imitationTag = imitationTag;
+			this.imitationID = imitationID;
+			this.imitCnctPoint = imitCnctPoint;
 		}
 	}
 }

@@ -23,10 +23,12 @@ import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.model.BhNode;
-import pflab.bunnyhop.model.Imitatable;
-import pflab.bunnyhop.model.ImitationInfo;
+import pflab.bunnyhop.model.BhNodeID;
+import pflab.bunnyhop.model.imitation.Imitatable;
+import pflab.bunnyhop.model.imitation.ImitationInfo;
 import pflab.bunnyhop.model.templates.BhNodeTemplates;
 import pflab.bunnyhop.model.SyntaxSymbol;
+import pflab.bunnyhop.model.imitation.ImitationID;
 import pflab.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -36,7 +38,7 @@ import pflab.bunnyhop.undo.UserOperationCommand;
 public class ConnectiveNode extends Imitatable implements Serializable{
 
 	private Section childSection;							//!< セクションの集合 (ノード内部に描画されるもの)
-	public ImitationInfo<ConnectiveNode> imitInfo;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
+	private ImitationInfo<ConnectiveNode> imitInfo;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
 
 	/**
 	 * コンストラクタ<br>
@@ -47,17 +49,17 @@ public class ConnectiveNode extends Imitatable implements Serializable{
 	 * @param scopeName イミテーションノードがオリジナルノードと同じスコープにいるかチェックする際の名前
 	 * @param scriptNameOnMovedFromChildToWS ワークスペース移動時に実行されるスクリプトの名前
 	 * @param scriptNameOnMovedToChild 子ノードとして接続されたときに実行されるスクリプトの名前
-	 * @param imitTag_imitNodeID イミテーションタグとそれに対応するイミテーションノードIDのマップ
+	 * @param imitID_imitNodeID イミテーションタグとそれに対応するイミテーションノードIDのマップ
 	 * @param canCreateImitManually このノードがイミテーション作成機能を持つ場合true
 	 * */
 	public ConnectiveNode(
-			String id,
+			BhNodeID id,
 			String name,
 			Section childSection,
 			String scopeName,
 			String scriptNameOnMovedFromChildToWS,
 			String scriptNameOnMovedToChild,
-			Map<String, String> imitTag_imitNodeID,
+			Map<ImitationID, BhNodeID> imitID_imitNodeID,
 			boolean canCreateImitManually) {
 		super(id,
 			name,
@@ -65,7 +67,7 @@ public class ConnectiveNode extends Imitatable implements Serializable{
 			scriptNameOnMovedFromChildToWS,
 			scriptNameOnMovedToChild);
 		this.childSection = childSection;
-		imitInfo = new ImitationInfo<>(imitTag_imitNodeID, canCreateImitManually, scopeName);
+		imitInfo = new ImitationInfo<>(imitID_imitNodeID, canCreateImitManually, scopeName);
 	}
 	
 	/**
@@ -105,10 +107,10 @@ public class ConnectiveNode extends Imitatable implements Serializable{
 
 	
 	@Override 
-	public ConnectiveNode createImitNode(UserOperationCommand userOpeCmd, String imitTag) {
+	public ConnectiveNode createImitNode(UserOperationCommand userOpeCmd, ImitationID imitID) {
 			
 		//イミテーションノード作成
-		BhNode imitationNode = BhNodeTemplates.instance().genBhNode(imitInfo.getImitationID(imitTag), userOpeCmd);
+		BhNode imitationNode = BhNodeTemplates.instance().genBhNode(imitInfo.getImitationNodeID(imitID), userOpeCmd);
 		
 		//オリジナルとイミテーションの関連付け
 		ConnectiveNode connectiveImit = (ConnectiveNode)imitationNode; //ノードテンプレート作成時に整合性チェックしているのでキャストに問題はない
@@ -129,7 +131,11 @@ public class ConnectiveNode extends Imitatable implements Serializable{
 	
 	@Override
 	public BhNode findOuterEndNode() {
-		return childSection.findOuterEndNode();
+		BhNode outerEnd = childSection.findOuterEndNode();
+		if (outerEnd == null)
+			return this;
+		
+		return outerEnd;
 	}
 	
 	/**

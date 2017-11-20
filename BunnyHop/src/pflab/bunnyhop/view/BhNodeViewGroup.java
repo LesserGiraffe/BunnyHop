@@ -34,7 +34,6 @@ import pflab.bunnyhop.model.connective.Connector;
  * */
 public class BhNodeViewGroup extends Group implements Showable {
 
-	//private final List<BhNodeView> bhNodeList = new LinkedList<>();	//!< group が子に持つ BhNodeView のリスト
 	private final List<BhNodeViewGroup> subGroupList = new ArrayList<>();	//!< group が子に持つ BhNodeView のリスト
 	private ConnectiveNodeView parentView;	//!<このグループを持つConnectiveNode
 	private BhNodeViewGroup parentGroup;	//!< このグループを持つBhNodeViewGroup
@@ -306,7 +305,7 @@ public class BhNodeViewGroup extends Group implements Showable {
 				offsetX = Math.max(offsetX, cnctrSize.x);
 			}
 			else if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.ROW &&
-					 childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.TOP){	//グループの中が横並びでかつコネクタが上に付く
+				 childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.TOP){	//グループの中が横並びでかつコネクタが上に付く
 				offsetY = Math.max(offsetY, cnctrSize.y);
 			}
 		}

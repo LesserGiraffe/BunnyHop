@@ -29,6 +29,7 @@ import pflab.bunnyhop.modelprocessor.NodeMVCBuilder;
 import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.common.TreeNode;
 import pflab.bunnyhop.model.BhNode;
+import pflab.bunnyhop.model.BhNodeID;
 import pflab.bunnyhop.model.templates.BhNodeTemplates;
 import pflab.bunnyhop.undo.UserOperationCommand;
 
@@ -81,22 +82,25 @@ public class BhNodeCategoryListView {
 
 		parent.children.forEach(child -> {
 			
-			if(child.content.equals(BhParams.NodeTemplateList.KEY_CSS_CLASS)) {
-				String cssClass = child.children.get(0).content;
-				parentItem.getValue().setCssClass(cssClass);
-			}
-			else if (child.content.equals(BhParams.NodeTemplateList.KEY_CONTENTS)) {
-				child.children.forEach((bhNodeID) -> {
-					addBhNodeToSelectionView(parentItem.getValue(), bhNodeID.content);
-				});
-			}
-			else {
-				BhNodeCategory category = new BhNodeCategory(child.content);
-				categoryList.add(category);
-				TreeItem<BhNodeCategory> childItem = new TreeItem<>(category);
-				parentItem.getChildren().add(childItem);
-				childItem.setExpanded(true);
-				addChildren(child, childItem);
+			switch (child.content) {
+				case BhParams.NodeTemplateList.KEY_CSS_CLASS:
+					String cssClass = child.children.get(0).content;
+					parentItem.getValue().setCssClass(cssClass);
+					break;
+					
+				case BhParams.NodeTemplateList.KEY_CONTENTS:
+					child.children.forEach(bhNodeID -> {
+						addBhNodeToSelectionView(parentItem.getValue(), BhNodeID.createBhNodeID(bhNodeID.content));
+					});	break;
+					
+				default:
+					BhNodeCategory category = new BhNodeCategory(child.content);
+					categoryList.add(category);
+					TreeItem<BhNodeCategory> childItem = new TreeItem<>(category);
+					parentItem.getChildren().add(childItem);
+					childItem.setExpanded(true);
+					addChildren(child, childItem);
+					break;
 			}
 		});
 	}
@@ -106,7 +110,7 @@ public class BhNodeCategoryListView {
 	 * @param category ノード選択ビューが属するカテゴリ
 	 * @param bhNodeID 追加するBhNodeのID
 	 */
-	private void addBhNodeToSelectionView(BhNodeCategory category, String bhNodeID) {
+	private void addBhNodeToSelectionView(BhNodeCategory category, BhNodeID bhNodeID) {
 		
 		if (!category_selectionView.containsKey(category)) {
 			BhNodeSelectionView selectionView = new BhNodeSelectionView();

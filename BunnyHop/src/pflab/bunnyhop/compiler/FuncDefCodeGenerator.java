@@ -15,7 +15,9 @@
  */
 package pflab.bunnyhop.compiler;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.model.SyntaxSymbol;
 
@@ -79,15 +81,62 @@ public class FuncDefCodeGenerator {
 			.append("(");
 
 		SyntaxSymbol param = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.PARAM_DECL, "*");
-		varDeclCodeGen.genParamList(param, code, nestLevel + 1, option);
+		SyntaxSymbol outParam = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.OUT_PARAM_DECL, "*");
+		Optional<Integer> outParamIdxOpt = varDeclCodeGen.genParamList(param, outParam, code, nestLevel + 1, option);
 		code.append(") {")
 			.append(Util.LF);
-
-		SyntaxSymbol stat = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.STAT_LIST, "*");
-		statCodeGen.genStatement(stat, code, nestLevel + 1, option);
+		genFuncDefInner(funcDefNode, code, nestLevel, option);
+		outParamIdxOpt.ifPresent(outParamIdx -> genOutArgCopy(code, outParamIdx, nestLevel + 1));
+		
 		code.append(common.indent(nestLevel))
 			.append("}")
 			.append(Util.LF)
+			.append(Util.LF);
+	}
+	
+	/**
+	 * 関数定義のコードの内部関数部分を作成する
+	 * @param funcDefNode 関数定義のノード
+	 * @param code 生成したコードの格納先
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 */
+	private void genFuncDefInner(
+		SyntaxSymbol funcDefNode,
+		StringBuilder code, 
+		int nestLevel,
+		CompileOption option) {
+		
+		code.append(common.indent(nestLevel + 1))
+			.append("(")
+			.append(BhCompiler.Keywords.JS._function)
+			.append("(){")
+			.append(Util.LF);
+		
+		SyntaxSymbol stat = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.STAT_LIST, "*");
+		statCodeGen.genStatement(stat, code, nestLevel + 2, option);
+		code.append(common.indent(nestLevel+1))
+			.append("})();")
+			.append(Util.LF);	
+	}
+	
+	/**
+	 * 出力引数のコピーコードを作成する
+	 * @param code 生成したコードの格納先
+	 * @param outParamIdx 出力引数の先頭インデックス
+	 * @param nestLevel ソースコードのネストレベル
+	 */
+	private void genOutArgCopy(StringBuilder code, int outParamIdx, int nestLevel) {
+			
+		String copyArgsFuncName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(Arrays.asList(SymbolNames.PreDefFunc.COPY_ARGS));
+		String copyArgsCode = common.genFuncCallCode(
+			copyArgsFuncName, 
+			SymbolNames.PreDefVars.OUT_ARGS, 
+			BhCompiler.Keywords.JS._arguments, 
+			outParamIdx + "");
+		code.append(common.indent(nestLevel))
+			.append(copyArgsCode)
+			.append(";")
 			.append(Util.LF);
 	}
 }

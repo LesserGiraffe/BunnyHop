@@ -48,7 +48,7 @@ public interface ImitationCreator {
 	 * このクラス以外からの呼び出し禁止
 	 * @param model 作成するイミテーションのオリジナルノード
 	 */
-	default void imitHandler(pflab.bunnyhop.model.Imitatable model) {
+	default void imitHandler(pflab.bunnyhop.model.imitation.Imitatable model) {
 		
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		MsgData pos = MsgTransporter.instance.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, model);

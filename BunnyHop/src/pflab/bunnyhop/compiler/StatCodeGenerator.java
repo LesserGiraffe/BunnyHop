@@ -16,7 +16,6 @@
 package pflab.bunnyhop.compiler;
 
 import pflab.bunnyhop.common.Util;
-import pflab.bunnyhop.model.Imitatable;
 import pflab.bunnyhop.model.SyntaxSymbol;
 
 /**
@@ -95,13 +94,11 @@ public class StatCodeGenerator {
 		SyntaxSymbol varSymbol = assignStatNode.findSymbolInDescendants("*", SymbolNames.AssignStat.LEFT_VAR, "*");
 		String varName = null;
 		if (SymbolNames.VarDecl.VAR_LIST.contains(varSymbol.getSymbolName())) {	//varNode である
-			Imitatable varNode = (Imitatable)varSymbol;
-			varName = common.genVarName(varNode.getOriginalNode());
-		}
+			varName = expCodeGen.genExpression(code, varSymbol, nestLevel, option);
+		}		
 		
 		SyntaxSymbol rightExp = assignStatNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
 		String rightExpCode = expCodeGen.genExpression(code, rightExp, nestLevel, option);
-		
 		if (varName == null || rightExpCode == null)
 			return;
 		
@@ -156,6 +153,10 @@ public class StatCodeGenerator {
 			
 			case SymbolNames.ControlStat.REPEAT_STAT:
 				genRepeatStat(code, controlStatNode, nestLevel, option);
+				break;
+				
+			case SymbolNames.ControlStat.RETURN_STAT:
+				code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._return).append(";").append(Util.LF);
 				break;
 				
 			default:
@@ -253,7 +254,7 @@ public class StatCodeGenerator {
 	}
 	
 	/**
-	 * While文のコードを生成する
+	 * ブロック文のコードを生成する
 	 * @param code 生成したコードの格納先
 	 * @param compoundStatNode block文のノード
 	 * @param nestLevel ソースコードのネストレベル

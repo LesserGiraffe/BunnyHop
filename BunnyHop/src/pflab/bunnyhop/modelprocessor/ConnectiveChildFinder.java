@@ -19,6 +19,7 @@ import pflab.bunnyhop.model.connective.ConnectiveNode;
 import pflab.bunnyhop.model.connective.Connector;
 import pflab.bunnyhop.model.connective.ConnectorSection;
 import pflab.bunnyhop.model.connective.Subsection;
+import pflab.bunnyhop.model.imitation.ImitationConnectionPos;
 
 /**
  * イミテーションタグを指定し, 接続されているBhNode を見つける
@@ -27,15 +28,15 @@ import pflab.bunnyhop.model.connective.Subsection;
 public class ConnectiveChildFinder implements BhModelProcessor {
 	
 	BhNode foundNode;	//!< 見つかったノード
-	String imitTag;	//!< 接続されている探したい接続先のコネクタ名
+	ImitationConnectionPos imitCnctPos;	//!< 接続されている探したい接続先のコネクタ名
 	private boolean found = false;
 	
 	/**
 	 * コンストラクタ
-	 * @param imitTag このイミテーションタグを持つコネクタにつながったBhNodeを見つける
+	 * @param imitCnctPos このイミテーションタグを持つコネクタにつながったBhNodeを見つける
 	 */
-	public ConnectiveChildFinder(String imitTag){
-		this.imitTag = imitTag;
+	public ConnectiveChildFinder(ImitationConnectionPos imitCnctPos){
+		this.imitCnctPos = imitCnctPos;
 	}
 	
 	@Override
@@ -62,7 +63,7 @@ public class ConnectiveChildFinder implements BhModelProcessor {
 		if (found)
 			return;
 		
-		if (connector.getImitationTag().equals(imitTag)) {
+		if (connector.getImitCnctPoint().equals(imitCnctPos)) {
 			foundNode = connector.getConnectedNode();
 			found = true;
 		}

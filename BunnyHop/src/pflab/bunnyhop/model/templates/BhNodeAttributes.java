@@ -19,6 +19,7 @@ import java.util.Optional;
 import org.w3c.dom.Element;
 import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.BhParams;
+import pflab.bunnyhop.model.BhNodeID;
 import pflab.bunnyhop.view.BhNodeViewStyle;
 
 /**
@@ -27,7 +28,7 @@ import pflab.bunnyhop.view.BhNodeViewStyle;
  */
 public class BhNodeAttributes {
 	
-	public String bhNodeID;
+	public BhNodeID bhNodeID;
 	public String name;
 	public String nodeStyleID;
 	public String onMovedFromChildToWS;
@@ -49,8 +50,8 @@ public class BhNodeAttributes {
 		BhNodeAttributes nodeAttrs = new BhNodeAttributes();
 		
 		//bhNodeID
-		nodeAttrs.bhNodeID = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_BHNODE_ID);
-		if (nodeAttrs.bhNodeID.isEmpty()) {
+		nodeAttrs.bhNodeID = BhNodeID.createBhNodeID(node.getAttribute(BhParams.BhModelDef.ATTR_NAME_BHNODE_ID));
+		if (nodeAttrs.bhNodeID.equals(BhNodeID.NONE)) {
 			MsgPrinter.instance.ErrMsgForDebug(
 				"<" + BhParams.BhModelDef.ELEM_NAME_NODE + ">" + " タグには " 
 				+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " 属性を記述してください.  " + node.getBaseURI());

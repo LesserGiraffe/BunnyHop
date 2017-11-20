@@ -38,7 +38,7 @@ public class BhNodeSelectionView extends ScrollPane {
 	@FXML Pane nodeSelectionPanelWrapper;
 	@FXML ScrollPane nodeSelectionPanelBase;
 	private int zoomLevel = 0;
-	private boolean hasNodeHeightChanged = true;	//!< ノードを並べた後に, 表示するノードの高さが変わった場合true
+	private boolean nodeHeightHasChanged = true;	//!< ノードを並べた後に, 表示するノードの高さが変わった場合true
 	
 	public BhNodeSelectionView() {}
 
@@ -85,7 +85,7 @@ public class BhNodeSelectionView extends ScrollPane {
 
 		nodeSelectionPanel.getChildren().add(view);
 		view.heightProperty().addListener((observable, oldVal, newVal) -> {
-			hasNodeHeightChanged = true;
+			nodeHeightHasChanged = true;
 		});
 	}
 	
@@ -119,7 +119,7 @@ public class BhNodeSelectionView extends ScrollPane {
 	 */
 	public void arrange() {
 		
-		if (!hasNodeHeightChanged)
+		if (!nodeHeightHasChanged)
 			return;
 		
 		double panelWidth = 0.0;
@@ -141,7 +141,7 @@ public class BhNodeSelectionView extends ScrollPane {
 					+ nodeSelectionPanel.getPadding().getBottom();
 		panelWidth += nodeSelectionPanel.getPadding().getRight() + nodeSelectionPanel.getPadding().getLeft();
 		nodeSelectionPanel.setMinSize(panelWidth, panelHeight);
-		hasNodeHeightChanged = false;
+		nodeHeightHasChanged = false;
 		adjustWrapperSize(panelWidth, panelHeight);	//バインディングではなく, ここでこのメソッドを呼ばないとスクロールバーの稼働域が変わらない
 	}
 	

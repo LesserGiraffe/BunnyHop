@@ -10,7 +10,7 @@
 	onMovedToChild="">
 
 	<ConnectorSection name="BooleanListSctn">
-		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitationTag="tagListName"/>
+		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
 		<PrivateConnector
 			name="ListSign"
 			fixed="true">

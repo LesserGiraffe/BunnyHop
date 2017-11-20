@@ -104,7 +104,8 @@ public class BhParams {
 		public static final String ATTR_NAME_CAN_CREATE_IMIT_MANUALLY = "canCreateImitManually";
 		public static final String ATTR_NAME_NODE_INPUT_CONTROL = "nodeInputControl";
 		public static final String ATTR_NAME_INIT_STRING = "initString";
-		public static final String ATTR_NAME_IMITATION_TAG = "imitationTag";
+		public static final String ATTR_NAME_IMITATION_ID = "imitationID";
+		public static final String ARRT_NAME_IMIT_CNCT_POS ="imitCnctPos";
 		public static final String ATTR_NAME_IMIT_SCOPE_NAME = "imitScopeName";
 		public static final String ATTR_NAME_VALUE = "value";
 		public static final String ATTR_VALUE_CONNECTIVE = "connective";
@@ -115,7 +116,8 @@ public class BhParams {
 		public static final String ATTR_VALUE_TRUE = "true";
 		public static final String ATTR_VALUE_FALSE = "false";
 		public static final String ATTR_VALUE_DEFAULT_NODE_STYLE_ID = "";
-		public static final String ATTR_VALUE_TAG_MANUAL = "tagManual";
+		public static final String ATTR_VALUE_IMIT_ID_MANUAL = "imitIdManual";
+		public static final String ATTR_VALUE_TAG_REFER_TO_PARENT = "tagReferToParent";
 		public static final String ATTR_VALUE_INITIAL_BHNODE_ID = "initialBhNodeID";
 	}
 

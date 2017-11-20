@@ -9,5 +9,5 @@
 	onTextInput="ParseIdentifier.js"
 	initString="リスト名">
 	
-	<Imitation imitationTag="tagListName" imitationNodeID="idListName"/>
+	<Imitation imitationID="imitIdListName" imitationNodeID="idListName"/>
 </Node>

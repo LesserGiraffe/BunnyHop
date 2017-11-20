@@ -196,6 +196,8 @@ public class BhCompiler {
 			public static final String _true = "true";
 			public static final String _false = "false";
 			public static final String _undefined = "undefined";
+			public static final String _arguments = "arguments";
+			public static final String _return = "return";
 		}
 	}
 }

@@ -15,6 +15,8 @@
  */
 package pflab.bunnyhop.model;
 
+import pflab.bunnyhop.model.imitation.ImitationInfo;
+import pflab.bunnyhop.model.imitation.Imitatable;
 import pflab.bunnyhop.model.templates.BhNodeTemplates;
 import java.io.Serializable;
 import java.util.List;
@@ -30,6 +32,7 @@ import pflab.bunnyhop.message.BhMsg;
 import pflab.bunnyhop.message.MsgData;
 import pflab.bunnyhop.message.MsgTransporter;
 import pflab.bunnyhop.configfilereader.BhScriptManager;
+import pflab.bunnyhop.model.imitation.ImitationID;
 import pflab.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -53,11 +56,11 @@ public class TextNode  extends Imitatable implements Serializable {
 	 * @param scriptNameOnTextInput 表示文字列のパターンチェックスクリプトの名前
 	 * @param scriptNameOnMovedFromChildToWS ワークスペース移動時に実行されるスクリプトの名前
 	 * @param scriptNameOnMovedToChild 子ノードとして接続されたときに実行されるスクリプトの名前
-	 * @param imitTag_imitNodeID イミテーションタグとそれに対応するイミテーションノードIDのマップ
+	 * @param imitID_imitNodeID イミテーションIDとそれに対応するイミテーションノードIDのマップ
 	 * @param canCreateImitManually このノードがイミテーション作成機能を持つ場合true
 	 * */
 	public TextNode(
-			String bhID,
+			BhNodeID bhID,
 			String symbolName,
 			String type,
 			String initString,
@@ -65,7 +68,7 @@ public class TextNode  extends Imitatable implements Serializable {
 			String scriptNameOnTextInput,
 			String scriptNameOnMovedFromChildToWS,
 			String scriptNameOnMovedToChild,			
-			Map<String, String> imitTag_imitNodeID,
+			Map<ImitationID, BhNodeID> imitID_imitNodeID,
 			boolean canCreateImitManually) {
 		super(
 			bhID,
@@ -74,7 +77,7 @@ public class TextNode  extends Imitatable implements Serializable {
 			scriptNameOnMovedFromChildToWS,
 			scriptNameOnMovedToChild);
 		this.scriptNameOnTextInput = scriptNameOnTextInput;
-		imitInfo = new ImitationInfo<>(imitTag_imitNodeID, canCreateImitManually, scopeName);
+		imitInfo = new ImitationInfo<>(imitID_imitNodeID, canCreateImitManually, scopeName);
 		text = initString;
 	}
 
@@ -180,10 +183,10 @@ public class TextNode  extends Imitatable implements Serializable {
 	}
 
 	@Override 
-	public TextNode createImitNode(UserOperationCommand userOpeCmd, String imitTag) {
+	public TextNode createImitNode(UserOperationCommand userOpeCmd, ImitationID imitID) {
 
 		//イミテーションノード作成
-		BhNode imitationNode = BhNodeTemplates.instance().genBhNode(imitInfo.getImitationID(imitTag), userOpeCmd);
+		BhNode imitationNode = BhNodeTemplates.instance().genBhNode(imitInfo.getImitationNodeID(imitID), userOpeCmd);
 		
 		//オリジナルとイミテーションの関連付け
 		TextNode textImit = (TextNode)imitationNode; //ノードテンプレート作成時に整合性チェックしているのでキャストに問題はない

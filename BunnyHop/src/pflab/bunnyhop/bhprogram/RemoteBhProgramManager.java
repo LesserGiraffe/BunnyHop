@@ -47,13 +47,13 @@ public class RemoteBhProgramManager {
 	private final Bindings bindings = BhScriptManager.instance.createScriptScope();
 	private String[] killCmd;
 	private AtomicReference<Boolean> programRunning = new AtomicReference(false);	//!< プログラム実行中ならtrue
-	private AtomicReference<Boolean> continueCopyingFile = new AtomicReference(false);	//!< ファイルがコピー中の場合true
+	private AtomicReference<Boolean> fileCopyIsCancelled = new AtomicReference(true);	//!< ファイルがコピー中の場合true
 	
 	private RemoteBhProgramManager() {}
 	
 	public boolean init() {
 		boolean success = common.init();
-		success &= BhScriptManager.instance.checkIfScriptsExist(RemoteBhProgramManager.class.getSimpleName(),
+		success &= BhScriptManager.instance.scriptsExist(RemoteBhProgramManager.class.getSimpleName(),
 			BhParams.Path.REMOTE_EXEC_CMD_GENERATOR_JS, 
 			BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS,
 			BhParams.Path.COPY_CMD_GENERATOR_JS);
@@ -129,7 +129,7 @@ public class RemoteBhProgramManager {
 	 */
 	public Optional<Future<Boolean>> terminateAsync() {
 		
-		continueCopyingFile.set(false);
+		fileCopyIsCancelled.set(true);
 		if (!programRunning.get()) {
 			MsgPrinter.instance.ErrMsgForUser("!! プログラム終了済み (remote) !!\n");
 			return Optional.empty();
@@ -301,7 +301,7 @@ public class RemoteBhProgramManager {
 		MsgPrinter.instance.MsgForUser("-- プログラム転送中 --\n");
 		boolean success = true;
 		
-		continueCopyingFile.set(true);
+		fileCopyIsCancelled.set(false);
 		
 		Process copyProcess = execCmd(copyCmd);
 		if (copyProcess != null) {
@@ -340,7 +340,7 @@ public class RemoteBhProgramManager {
 					MsgPrinter.instance.ErrMsgForUser("!! ファイル転送プロセス応答なし !!\n");
 				}
 				
-				if (!continueCopyingFile.get())	{//コピー停止命令を受けた
+				if (fileCopyIsCancelled.get())	{//コピー停止命令を受けた
 					success = false;
 					break;
 				}

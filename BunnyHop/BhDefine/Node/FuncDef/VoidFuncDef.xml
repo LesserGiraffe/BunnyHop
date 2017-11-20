@@ -6,15 +6,38 @@
 	onMovedFromChildToWS=""
 	onMovedToChild="">
 
-	<Imitation imitationTag="tagManual" imitationNodeID="idVoidFuncCall"/>
+	<Imitation imitationID="imitIdManual" imitationNodeID="idVoidFuncCall"/>
 
     <Section name="FuncDefSctn">
 		<ConnectorSection name="FuncNameSctn">
-			<Connector bhConnectorID="idFuncNameCnctr" name="FuncName" imitationTag="tagFuncName"/>
+			<Connector bhConnectorID="idFuncNameCnctr" name="FuncName" imitationID="imitIdFuncName" imitCnctPos="imitPosFuncName"/>
 		</ConnectorSection>
 		<ConnectorSection name="VarScopeSctn">
 			<Connector bhConnectorID="idStatCnctr" name="StatList"/>
-			<Connector bhConnectorID="idVarDeclCnctr" name="ParamDecl" imitationTag="tagVarDeclToArg"/>
+			<PrivateConnector 
+				name="nyuryoku"
+				fixed="true">
+				<Node
+					type="label"
+					name="nyuryoku"
+					nodeStyleID="WordLabel1.json"
+					nodeInputControl="Label.fxml"
+					initString="入力">
+				</Node>
+			</PrivateConnector>
+			<Connector bhConnectorID="idVarDeclCnctr" name="ParamDecl" imitationID="imitIdVarDeclToArg" imitCnctPos="imitPosArg"/>
+			<PrivateConnector
+				name="shuturyoku"
+				fixed="true">
+				<Node
+					type="label"
+					name="shuturyoku"
+					nodeStyleID="WordLabel1.json"
+					nodeInputControl="Label.fxml"
+					initString="出力">
+				</Node>
+			</PrivateConnector>
+			<Connector bhConnectorID="idVarDeclCnctr" name="OutParamDecl" imitationID="imitIdVarDeclToOutArg" imitCnctPos="imitPosOutArg"/>
 		</ConnectorSection>
 	</Section>
 </Node>

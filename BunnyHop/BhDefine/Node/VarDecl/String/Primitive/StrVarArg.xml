@@ -1,13 +1,13 @@
 <Node type="connective"
-	  bhNodeID="idStrVarArg"
-	  name="StrVarArg"
-	  nodeStyleID="StrVarArg.json"
+	  bhNodeID="idStrArg"
+	  name="StrArg"
+	  nodeStyleID="StrArg.json"
 	  onMovedFromChildToWS=""
 	  onMovedToChild="">
     
     <ConnectorSection>
-        <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitationTag="tagVarName"/>
+        <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
         <Connector bhConnectorID="idStrExpCnctr" name="Arg"/>
-        <Connector bhConnectorID="idArgCnctr" name="NextArg" imitationTag="tagVarDeclToArg"/>
+        <Connector bhConnectorID="idArgCnctr" name="NextArg" imitCnctPos="imitPosNextArg"/>
     </ConnectorSection>    
 </Node>

@@ -10,7 +10,7 @@
 	onMovedToChild="">
     
   	<ConnectorSection name="NumberExpSctn">
-		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitationTag="tagVarName"/>
+		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
 	</ConnectorSection>
 
 </Node>

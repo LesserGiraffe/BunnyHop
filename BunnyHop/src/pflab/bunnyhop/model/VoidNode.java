@@ -15,6 +15,7 @@
  */
 package pflab.bunnyhop.model;
 
+import pflab.bunnyhop.model.imitation.Imitatable;
 import java.io.Serializable;
 import java.util.List;
 import pflab.bunnyhop.modelprocessor.BhModelProcessor;
@@ -36,7 +37,7 @@ public class VoidNode extends BhNode implements Serializable {
 	 * @param symbolName  終端, 非終端記号名
 	 * */
 	public VoidNode(
-		String bhID,
+		BhNodeID bhID,
 		String symbolName) {
 		super(bhID, 
 			symbolName,
@@ -127,7 +128,7 @@ public class VoidNode extends BhNode implements Serializable {
 		}
 		while(false);
 		
-		return parentConnector.canConnectedNodeBeReplacedWith(node);
+		return parentConnector.isConnectedNodeReplaceableWith(node);
 	}
 	
 	@Override

@@ -6,11 +6,12 @@
 	  onMovedFromChildToWS="onVarDeclMovedToWS.js"
 	  onMovedToChild="">
 
-    <Imitation imitationTag="tagManual" imitationNodeID="idStrVar"/>
-    <Imitation imitationTag="tagVarDeclToArg" imitationNodeID="idStrVarArg"/>
+    <Imitation imitationID="imitIdManual" imitationNodeID="idStrVar"/>
+    <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idStrArg"/>
+    <Imitation imitationID="imitIdVarDeclToOutArg" imitationNodeID="idStrOutArg"/>
     
 	<ConnectorSection name="VarDeclSctn">
-		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitationTag="tagVarName"/>
-        <Connector bhConnectorID="idVarDeclCnctr" name="NextVarDecl" imitationTag="tagVarDeclToArg"/>
+		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitationID="imitIdVarName" imitCnctPos="imitPosVarName"/>
+        <Connector bhConnectorID="idVarDeclCnctr" name="NextVarDecl" imitCnctPos="imitPosNextArg"/>
 	</ConnectorSection>
 </Node>

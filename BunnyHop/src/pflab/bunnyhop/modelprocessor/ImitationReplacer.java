@@ -20,10 +20,12 @@ import java.util.Optional;
 import pflab.bunnyhop.model.BhNode;
 import pflab.bunnyhop.model.TextNode;
 import pflab.bunnyhop.model.connective.ConnectiveNode;
-import pflab.bunnyhop.model.Imitatable;
+import pflab.bunnyhop.model.imitation.Imitatable;
 import pflab.bunnyhop.modelhandler.BhNodeHandler;
 import pflab.bunnyhop.model.VoidNode;
 import pflab.bunnyhop.model.Workspace;
+import pflab.bunnyhop.model.imitation.ImitationConnectionPos;
+import pflab.bunnyhop.model.imitation.ImitationID;
 import pflab.bunnyhop.undo.UserOperationCommand;
 	
 /**
@@ -46,53 +48,55 @@ public class ImitationReplacer implements BhModelProcessor {
 	}
 	
 	/**
-	 * @param newOriginal イミテーションを作成して、入れ替えを行いたいオリジナルノード
+	 * @param newOriginal このノードのイミテーションを作成して、親ノードのイミテーションの子ノードと入れ替えを行う
 	 */
 	@Override
-	public void visit(ConnectiveNode newOriginal) {		
+	public void visit(ConnectiveNode newOriginal) {	
 		
-		String imitTag = newOriginal.getParentConnector().getImitationTag();	//オリジナルノードの接続先コネクタのイミテーションタグと一致するイミテーションの位置に接続する
+		ImitationID imitID = newOriginal.getParentConnector().findImitationID();
+		ImitationConnectionPos imitCnctPos = newOriginal.getParentConnector().getImitCnctPoint();
 		//子オリジナルノードに対応するイミテーションがある場合
-		if (newOriginal.getImitationInfo().hasImitationID(imitTag)) {
+		if (newOriginal.getImitationInfo().imitationNodeExists(imitID)) {
 			//オリジナルの親ノードが持つイミテーションの数だけ, 新たにイミテーションを作成して繋ぐ(入れ替える)
-			replaceConnectiveChild(newOriginal.findParentNode().getImitationInfo().getImitationList(), newOriginal, imitTag);
+			replaceConnectiveChild(newOriginal.findParentNode().getImitationInfo().getImitationList(), newOriginal, imitCnctPos);
 		}
 		else {
 			//オリジナルの親ノードが持つイミテーションの数だけ, その子ノードを削除
-			removeConnectiveChild(newOriginal.findParentNode().getImitationInfo().getImitationList(), imitTag);
+			removeConnectiveChild(newOriginal.findParentNode().getImitationInfo().getImitationList(), imitCnctPos);
 		}			
 	}
 	
 	@Override
-	public void visit(TextNode newOrigianl) {
+	public void visit(TextNode newOriginal) {
 		
-		String imitTag = newOrigianl.getParentConnector().getImitationTag();	//オリジナルノードの接続先コネクタのイミテーションタグと一致するイミテーションの位置に接続する
+		ImitationID imitID = newOriginal.getParentConnector().findImitationID();
+		ImitationConnectionPos imitCnctPos = newOriginal.getParentConnector().getImitCnctPoint();
 		//子オリジナルノードに対応するイミテーションがある場合
-		if (newOrigianl.getImitationInfo().hasImitationID(imitTag)) {
+		if (newOriginal.getImitationInfo().imitationNodeExists(imitID)) {
 			//オリジナルの親ノードが持つイミテーションの数だけ, 新たにイミテーションを作成して繋ぐ(入れ替える)
-			replaceConnectiveChild(newOrigianl.findParentNode().getImitationInfo().getImitationList(), newOrigianl, imitTag);
+			replaceConnectiveChild(newOriginal.findParentNode().getImitationInfo().getImitationList(), newOriginal, imitCnctPos);
 		}
 		else {
 			//オリジナルの親ノードが持つイミテーションの数だけ, その子ノードを削除
-			removeConnectiveChild(newOrigianl.findParentNode().getImitationInfo().getImitationList(), imitTag);
+			removeConnectiveChild(newOriginal.findParentNode().getImitationInfo().getImitationList(), imitCnctPos);
 		}
 	}
 	
 	@Override
 	public void  visit(VoidNode newOriginal) {
-		String imitTag = newOriginal.getParentConnector().getImitationTag();	//オリジナルノードの接続先コネクタのイミテーションタグと一致するイミテーションの位置に接続する
-		removeConnectiveChild(newOriginal.findParentNode().getImitationInfo().getImitationList(), imitTag);	
+		ImitationConnectionPos imitCnctPos = newOriginal.getParentConnector().getImitCnctPoint();
+		removeConnectiveChild(newOriginal.findParentNode().getImitationInfo().getImitationList(), imitCnctPos);	
 	}
 	
 	/**
 	 * imitParentが持つコネクタのイミテーションタグがimitTagと一致した場合そのノードを返す
 	 * @param imitParent imitTagの位置に入れ替えもしくはremove対象になるイミテーションノードを持っているか探すノード
-	 * @param imitTag このイミテーションタグを指定されたコネクタがimitParentにあった場合, そのコネクタに接続されたノードを返す
+	 * @param imitCnctPos このイミテーションタグを指定されたコネクタがimitParentにあった場合, そのコネクタに接続されたノードを返す
 	 * @return 入れ替えもしくは削除対象になるノード. 見つからなかった場合 Optional.emptyを返す
 	 */
-	private Optional<BhNode> getNodeToReplaceOrRemove(ConnectiveNode imitParent, String imitTag) {
+	private Optional<BhNode> getNodeToReplaceOrRemove(ConnectiveNode imitParent, ImitationConnectionPos imitCnctPos) {
 		
-		ConnectiveChildFinder finder = new ConnectiveChildFinder(imitTag);
+		ConnectiveChildFinder finder = new ConnectiveChildFinder(imitCnctPos);
 		imitParent.accept(finder);
 		BhNode connectedNode = finder.getFoundNode();	//すでにイミテーションにつながっているノード
 		if (connectedNode == null)
@@ -108,15 +112,15 @@ public class ImitationReplacer implements BhModelProcessor {
 	 * ConnectiveNode の子を入れ替える
 	 * @param parentNodeList 子ノードを入れ替えるConnecitveNodeのリスト
 	 * @param original このノードのイミテーションで子ノードを置き換える
-	 * @param imitTag このイミテーションタグが指定されたコネクタにつながるノードを入れ替える
+	 * @param imiCnctPos このイミテーション位置が指定されたコネクタにつながるノードを入れ替える
 	 */
 	private void replaceConnectiveChild(
 		List<ConnectiveNode> parentNodeList,
 		Imitatable original,
-		String imitTag) {
+		ImitationConnectionPos imiCnctPos) {
 		
 		for (ConnectiveNode parent : parentNodeList) {
-			Optional<BhNode> replacedNode = getNodeToReplaceOrRemove(parent, imitTag);
+			Optional<BhNode> replacedNode = getNodeToReplaceOrRemove(parent, imiCnctPos);
 			replacedNode.ifPresent(replacedImit -> {
 				Workspace ws = replacedImit.getWorkspace();
 				Imitatable newImit = original.findExistingOrCreateNewImit(replacedImit, userOpeCmd);
@@ -129,12 +133,12 @@ public class ImitationReplacer implements BhModelProcessor {
 	/**
 	 * ConnectiveNode の子を削除する
 	 * @param parentNodeList 子ノードを削除するConnecitveノードのリスト
-	 * @param imitTag このイミテーションタグが指定されたコネクタにつながるノードを削除する
+	 * @param imitCnctPos このイミテーション接続位置が指定されたコネクタにつながるノードを削除する
 	 */	
-	private void removeConnectiveChild(List<ConnectiveNode> parentNodeList, String imitTag) {
+	private void removeConnectiveChild(List<ConnectiveNode> parentNodeList, ImitationConnectionPos imitCnctPos) {
 		
 		for (ConnectiveNode parent : parentNodeList) {
-			Optional<BhNode> removedNode = getNodeToReplaceOrRemove(parent, imitTag);
+			Optional<BhNode> removedNode = getNodeToReplaceOrRemove(parent, imitCnctPos);
 			removedNode.ifPresent(removed -> {
 				if (removed.getOriginalNode() == oldOriginal) {	//取り除くノードのオリジナルノードが入れ替え対象の古いノードであった場合
 					Workspace ws = removed.getWorkspace();

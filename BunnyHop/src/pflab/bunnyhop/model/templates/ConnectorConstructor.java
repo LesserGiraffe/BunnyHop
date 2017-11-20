@@ -20,7 +20,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.BhParams;
+import pflab.bunnyhop.model.BhNodeID;
 import pflab.bunnyhop.model.connective.Connector;
+import pflab.bunnyhop.model.connective.ConnectorID;
 
 /**
  * \<Conncetor\> タグからコネクタを作成するクラス
@@ -54,8 +56,8 @@ public class ConnectorConstructor {
 	public Optional<Connector> genTemplate(Element cnctrRoot) {
 		
 		//コネクタID
-		String bhID = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_BHCONNECTOR_ID);
-		if (bhID.isEmpty()) {
+		ConnectorID cnctrID = ConnectorID.createCnctrID(cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_BHCONNECTOR_ID));
+		if (cnctrID.equals(ConnectorID.NONE)) {
 			MsgPrinter.instance.ErrMsgForDebug("<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグには "
 				+ BhParams.BhModelDef.ATTR_NAME_BHCONNECTOR_ID + " 属性を付加してください.  " + cnctrRoot.getBaseURI());
 			return Optional.empty();
@@ -72,18 +74,18 @@ public class ConnectorConstructor {
 		boolean fixed = fixedStr.equals(BhParams.BhModelDef.ATTR_VALUE_TRUE);
 
 		//初期接続ノードID
-		String initNodeID = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID);
+		BhNodeID initNodeID = BhNodeID.createBhNodeID(cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID));
 		
 		//デフォルトノードID
-		String defNodeID;
-		boolean hasFixedInitNode = fixed && !initNodeID.isEmpty();
+		BhNodeID defNodeID;
+		boolean hasFixedInitNode = fixed && !initNodeID.equals(BhNodeID.NONE);
 		if (hasFixedInitNode) {	//初期ノードが固定ノードである => 初期ノードがデフォルトノードとなる
 			defNodeID = initNodeID;
 		}
 		else{	
-			defNodeID = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_DEFAULT_BHNODE_ID);
-			if (defNodeID.equals(BhParams.BhModelDef.ATTR_VALUE_INITIAL_BHNODE_ID))	{	//デフォルトノードに初期ノードを指定してある
-				if (initNodeID.isEmpty()) {	//初期ノードが未指定
+			defNodeID = BhNodeID.createBhNodeID(cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_DEFAULT_BHNODE_ID));
+			if (defNodeID.equals(BhNodeID.REF_INIT))	{	//デフォルトノードに初期ノードを指定してある
+				if (initNodeID.equals(BhNodeID.NONE)) {	//初期ノードが未指定
 					MsgPrinter.instance.ErrMsgForDebug(
 						BhParams.BhModelDef.ATTR_NAME_DEFAULT_BHNODE_ID + "が未指定の場合, "
 						+ BhParams.BhModelDef.ATTR_VALUE_INITIAL_BHNODE_ID + " 属性を指定してください.");
@@ -94,7 +96,7 @@ public class ConnectorConstructor {
 				}
 			}
 			
-			if (defNodeID.isEmpty()) {	//初期ノードが固定ノードではないのに, デフォルトノード
+			if (defNodeID.equals(BhNodeID.REF_INIT)) {	//初期ノードが固定ノードではないのに, デフォルトノード
 				MsgPrinter.instance.ErrMsgForDebug(
 					"固定初期ノードを持たない "
 					+ "<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + "> および "
@@ -106,10 +108,10 @@ public class ConnectorConstructor {
 		
 		//ノード入れ替え時の実行スクリプト
 		String scriptNameOnReplaceabilityChecked = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_REPLACEABILITY_CHECKED);
-		if (!BhNodeTemplates.checkIfAllScriptsExist(cnctrRoot.getBaseURI(), scriptNameOnReplaceabilityChecked)) {
+		if (!BhNodeTemplates.allScriptsExist(cnctrRoot.getBaseURI(), scriptNameOnReplaceabilityChecked)) {
 			return Optional.empty();
 		}
 		
-		return Optional.of(new Connector(bhID, defNodeID, initNodeID, fixed, scriptNameOnReplaceabilityChecked));
+		return Optional.of(new Connector(cnctrID, defNodeID, initNodeID, fixed, scriptNameOnReplaceabilityChecked));
 	}
 }

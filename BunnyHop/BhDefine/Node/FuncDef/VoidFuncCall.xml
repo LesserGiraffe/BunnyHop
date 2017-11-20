@@ -6,8 +6,31 @@
 	  onMovedToChild="onStatMovedToChild.js">
 
 	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idFuncNameCnctr" name="FuncName" imitationTag="tagFuncName"/>
-		<Connector bhConnectorID="idArgCnctr" name="Arg" imitationTag="tagVarDeclToArg"/>
+		<Connector bhConnectorID="idFuncNameCnctr" name="FuncName" imitCnctPos="imitPosFuncName"/>
+		<PrivateConnector 
+			name="nyuryoku"
+			fixed="true">
+			<Node
+				type="label"
+				name="nyuryoku"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="入力">
+			</Node>
+		</PrivateConnector>
+		<Connector bhConnectorID="idArgCnctr" name="Arg" imitCnctPos="imitPosArg"/>
+		<PrivateConnector
+			name="shuturyoku"
+			fixed="true">
+			<Node
+				type="label"
+				name="shuturyoku"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="出力">
+			</Node>
+		</PrivateConnector>
+		<Connector bhConnectorID="idArgCnctr" name="OutArg" imitCnctPos="imitPosOutArg"/>
 		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
 	</ConnectorSection>
 </Node>

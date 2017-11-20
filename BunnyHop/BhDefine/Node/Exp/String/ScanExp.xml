@@ -2,8 +2,8 @@
 	bhNodeID="idScanExp"
 	name="ScanExp"
 	nodeStyleID="ScanExp.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js">
+	onMovedFromChildToWS=""
+	onMovedToChild="">
 
 	<ConnectorSection name="StringExpSctn">
 		<PrivateConnector

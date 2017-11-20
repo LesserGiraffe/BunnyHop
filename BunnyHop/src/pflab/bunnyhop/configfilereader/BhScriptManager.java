@@ -123,7 +123,7 @@ public class BhScriptManager {
 	 * @param scriptNames スクリプトが存在するかどうか調べるスクリプト名
 	 * @return 引数で指定したスクリプト名に対応するスクリプトが全て見つかった場合true
 	 */
-	public boolean checkIfScriptsExist(String fileName, String... scriptNames) {
+	public boolean scriptsExist(String fileName, String... scriptNames) {
 		
 		Stream<String> scriptNameStream = Stream.of(scriptNames);
 		return scriptNameStream.allMatch(scriptName ->{

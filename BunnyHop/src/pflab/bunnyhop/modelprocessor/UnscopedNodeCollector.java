@@ -17,7 +17,7 @@ package pflab.bunnyhop.modelprocessor;
 
 import java.util.ArrayList;
 import java.util.List;
-import pflab.bunnyhop.model.Imitatable;
+import pflab.bunnyhop.model.imitation.Imitatable;
 import pflab.bunnyhop.model.TextNode;
 import pflab.bunnyhop.model.connective.ConnectiveNode;
 

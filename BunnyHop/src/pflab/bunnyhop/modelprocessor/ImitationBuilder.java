@@ -17,11 +17,11 @@ package pflab.bunnyhop.modelprocessor;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.model.BhNode;
 import pflab.bunnyhop.model.TextNode;
 import pflab.bunnyhop.model.connective.ConnectiveNode;
-import pflab.bunnyhop.model.Imitatable;
+import pflab.bunnyhop.model.imitation.Imitatable;
+import pflab.bunnyhop.model.imitation.ImitationID;
 import pflab.bunnyhop.undo.UserOperationCommand;
 	
 /**
@@ -57,20 +57,20 @@ public class ImitationBuilder implements BhModelProcessor {
 	@Override
 	public void visit(ConnectiveNode node) {
 		
-		String imitTag = null;
+		ImitationID imitID = null;
 		if (isManualCreation) {
-			imitTag = BhParams.BhModelDef.ATTR_VALUE_TAG_MANUAL;
+			imitID = ImitationID.MANUAL;
 			isManualCreation = false;
 		}
 		else if (node.getParentConnector() != null) {
-			imitTag = node.getParentConnector().getImitationTag();
+			imitID = node.getParentConnector().findImitationID();
 		}
 		
-		if (!node.getImitationInfo().hasImitationID(imitTag))
+		if (!node.getImitationInfo().imitationNodeExists(imitID))
 			return;
 		
 		if (parentImitStack.isEmpty()) {
-			ConnectiveNode newImit = node.createImitNode(userOpeCmd, imitTag);
+			ConnectiveNode newImit = node.createImitNode(userOpeCmd, imitID);
 			parentImitStack.addLast(newImit);
 			node.introduceSectionsTo(this);
 			newImit.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));
@@ -78,11 +78,11 @@ public class ImitationBuilder implements BhModelProcessor {
 		else {
 			Imitatable parentImit = parentImitStack.peekLast();
 			//接続先を探す
-			ConnectiveChildFinder finder = new ConnectiveChildFinder(imitTag);
+			ConnectiveChildFinder finder = new ConnectiveChildFinder(node.getParentConnector().getImitCnctPoint());
 			parentImit.accept(finder);
 			BhNode oldImit = finder.getFoundNode();
 			if (oldImit != null) {
-				ConnectiveNode newImit = node.createImitNode(userOpeCmd, imitTag);
+				ConnectiveNode newImit = node.createImitNode(userOpeCmd, imitID);
 				oldImit.replacedWith(newImit, userOpeCmd);
 				parentImitStack.addLast(newImit);
 				node.introduceSectionsTo(this);
@@ -94,31 +94,31 @@ public class ImitationBuilder implements BhModelProcessor {
 	@Override
 	public void visit(TextNode node) {
 		
-		String imitTag = null;
+		ImitationID imitID = null;
 		if (isManualCreation) {
-			imitTag = BhParams.BhModelDef.ATTR_VALUE_TAG_MANUAL;
+			imitID = ImitationID.MANUAL;
 			isManualCreation = false;
 		}
 		else if (node.getParentConnector() != null) {
-			imitTag = node.getParentConnector().getImitationTag();
+			imitID = node.getParentConnector().findImitationID();
 		}
 		
-		if (!node.getImitationInfo().hasImitationID(imitTag))
+		if (!node.getImitationInfo().imitationNodeExists(imitID))
 			return;
 		
 		if (parentImitStack.isEmpty()) {
-			TextNode newImit = node.createImitNode(userOpeCmd, imitTag);
+			TextNode newImit = node.createImitNode(userOpeCmd, imitID);
 			parentImitStack.addLast(newImit);
 			newImit.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));
 		}
 		else {
 			Imitatable parentImit = parentImitStack.peekLast();
 			//接続先を探す
-			ConnectiveChildFinder finder = new ConnectiveChildFinder(imitTag);
+			ConnectiveChildFinder finder = new ConnectiveChildFinder(node.getParentConnector().getImitCnctPoint());
 			parentImit.accept(finder);
 			BhNode oldImit = finder.getFoundNode();
 			if (oldImit != null) {
-				TextNode newImit = node.createImitNode(userOpeCmd, imitTag);
+				TextNode newImit = node.createImitNode(userOpeCmd, imitID);
 				oldImit.replacedWith(newImit, userOpeCmd);
 			}			
 		}

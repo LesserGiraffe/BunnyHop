@@ -17,6 +17,7 @@ package pflab.bunnyhop.compiler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.model.SyntaxSymbol;
 import pflab.bunnyhop.model.TextNode;
@@ -74,20 +75,26 @@ final public class VarDeclCodeGenerator {
 	}
 	
 	/**
-	 * 仮引数
+	 * 仮引数リストを作成する
 	 * @param paramNode 仮引数のノード
+	 * @param outParamNode 出力引数ノード
 	 * @param code 生成したコードの格納先
 	 * @param nestLevel ソースコードのネストレベル
 	 * @param option コンパイルオプション
+	 * @return 出力引数のインデックス. emptyの場合は出力引数なし.
 	 */	
-	public void genParamList(
+	public Optional<Integer> genParamList(
 		SyntaxSymbol paramNode,
+		SyntaxSymbol outParamNode,
 		StringBuilder code,
 		int nestLevel,
 		CompileOption option) {
 		
 		List<VarDeclCodeGenerator.VarDeclInfo> varDeclInfoList = new ArrayList<>();
+		List<VarDeclCodeGenerator.VarDeclInfo> outVarDeclInfoList = new ArrayList<>();
 		genVarDeclInfos(paramNode, varDeclInfoList);
+		genVarDeclInfos(outParamNode, outVarDeclInfoList);
+		varDeclInfoList.addAll(outVarDeclInfoList);
 		
 		if (varDeclInfoList.size() >= 1)
 			code.append(Util.LF);
@@ -102,14 +109,17 @@ final public class VarDeclCodeGenerator {
 				code.append(",");
 			}
 			if (option.withComments) {
-				code.append(" /*")
-					.append(varDeclInfo.comment)
-					.append("*/");
+				code.append(" /*").append(varDeclInfo.comment).append("*/");
 			}
 			if (!isLastParam) {
 				code.append(Util.LF);
 			}
 		}
+		
+		if (outVarDeclInfoList.isEmpty())
+			return Optional.empty();
+		
+		return Optional.of(varDeclInfoList.size() - outVarDeclInfoList.size());
 	}
 	
 	

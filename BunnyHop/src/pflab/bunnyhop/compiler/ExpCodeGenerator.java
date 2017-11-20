@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import pflab.bunnyhop.common.Util;
-import pflab.bunnyhop.model.Imitatable;
+import pflab.bunnyhop.model.imitation.Imitatable;
 import pflab.bunnyhop.model.SyntaxSymbol;
 import pflab.bunnyhop.model.TextNode;
 
@@ -48,7 +48,7 @@ public class ExpCodeGenerator {
 		SyntaxSymbol expNode, 
 		int nestLevel,
 		CompileOption option) {
-		
+			
 		String expSymbolName = expNode.getSymbolName();
 		if (SymbolNames.BinaryExp.LIST.contains(expSymbolName)) {
 			return genBinaryExp(code, expNode, nestLevel, option);
@@ -218,18 +218,69 @@ public class ExpCodeGenerator {
 		CompileOption option,
 		boolean storeRetVal) {
 		
-		int idArg = 0;
 		List<String> argList = new ArrayList<>();
+		List<String> outArgList = new ArrayList<>();
+		genPreDefFuncArgs(code, funcCallNode, argList, false, nestLevel, option);
+		genPreDefFuncArgs(code, funcCallNode, outArgList, true, nestLevel, option);
+		argList.addAll(outArgList);
+		List<String> funcIdentifier = buildFuncIdentifier(funcCallNode);
+
+		String retValName = null;
+		code.append(common.indent(nestLevel));
+		if (storeRetVal) {
+			retValName = common.genVarName(funcCallNode);
+			code.append(BhCompiler.Keywords.JS._const)
+				.append(retValName)
+				.append(" = ");
+		}
+		
+		String funcName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(funcIdentifier);
+		String[] argArray =  argList.toArray(new String[argList.size()]);
+		String funcCallCode = common.genFuncCallCode(funcName, argArray);
+		code.append(funcCallCode)
+			.append(";")
+			.append(Util.LF);
+		genOutArgCopy(code, outArgList, nestLevel);
+		return retValName;
+	}
+	
+	/**
+	 * 定義済み関数の実引数部分を作成する
+	 * @param code 関数呼び出し式の格納先
+	 * @param funcCallNode 関数呼び出し式のノード
+	 * @param argList 引数の格納先
+	 * @param outArgList 出力引数の格納先
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 */
+	private void genPreDefFuncArgs(
+		StringBuilder code, 
+		SyntaxSymbol funcCallNode, 
+		List<String> argList,
+		boolean outArg,
+		int nestLevel,
+		CompileOption option) {
+		
+		int idArg = 0;
 		while (true) {
-			String argCnctrName = SymbolNames.PreDefFunc.ARG + idArg;
+			String argCnctrName = (outArg ? SymbolNames.PreDefFunc.OUT_ARG : SymbolNames.PreDefFunc.ARG) + idArg;
 			SyntaxSymbol argExp = funcCallNode.findSymbolInDescendants("*", argCnctrName, "*");
 			if (argExp == null)
 				break;
-			String arg = genExpression(code, argExp, nestLevel, option);
-			argList.add(arg);
+
+			if (outArg)
+				argList.add(genOutArg(code, argExp, nestLevel, option));
+			else
+				argList.add(genExpression(code, argExp, nestLevel, option));
 			++idArg;
 		}
-		
+	}
+	
+	/**
+	 * 関数特定用のリストを作成する
+	 * @return 関数特定用のリスト
+	 */
+	private List<String> buildFuncIdentifier(SyntaxSymbol funcCallNode) {
 		//呼び出しオプションを探す
 		int idOption = 0;
 		List<String> funcIdentifier = new ArrayList<>(Arrays.asList(funcCallNode.getSymbolName()));
@@ -244,23 +295,7 @@ public class ExpCodeGenerator {
 			}
 			++idOption;
 		}
-
-		String retValName = null;
-		code.append(common.indent(nestLevel));
-		if (storeRetVal) {
-			retValName = common.genVarName(funcCallNode);
-			code.append(BhCompiler.Keywords.JS._const)
-				.append(retValName)
-				.append(" = ");
-		}
-		
-		String funcName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(funcIdentifier);
-		String[] argArray = argList.toArray(new String[argList.size()]);
-		String funcCallCode = common.genFuncCallCode(funcName, argArray);
-		code.append(funcCallCode)
-			.append(";")
-			.append(Util.LF);
-		return retValName;
+		return funcIdentifier;
 	}
 	
 	/**
@@ -280,15 +315,21 @@ public class ExpCodeGenerator {
 		boolean storeRetVal) {
 	
 		String funcName = common.genFuncName(((Imitatable)funcCallNode).getOriginalNode());
-		SyntaxSymbol argment = funcCallNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.ARG, "*");
-		String argArray[] = new String[0];
-		if (!argment.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID)) {
-			List<String> argList = new ArrayList<>();
-			genArgList(code, argment, argList, nestLevel, option);
-			argArray = argList.toArray(new String[argList.size()]);
-		}
+		SyntaxSymbol arg = funcCallNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.ARG, "*");
+		SyntaxSymbol outArg = funcCallNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.OUT_ARG, "*");
+		String argArray[];
+		List<String> argList = new ArrayList<>();
+		List<String> outArgList = new ArrayList<>();
 		
-		String  funcCallCode = common.genFuncCallCode(funcName, argArray);
+		if (!arg.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID))
+			genArgList(code, arg, argList, false, nestLevel, option);
+
+		if (!outArg.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID))
+			genArgList(code, outArg, outArgList, true, nestLevel, option);
+		
+		argList.addAll(outArgList);
+		argArray = argList.toArray(new String[argList.size()]);
+		String funcCallCode = common.genFuncCallCode(funcName, argArray);
 		String retValName = null;
 		code.append(common.indent(nestLevel));
 		if (storeRetVal) {
@@ -300,8 +341,29 @@ public class ExpCodeGenerator {
 		code.append(funcCallCode)
 			.append(";")
 			.append(Util.LF);
+		genOutArgCopy(code, outArgList, nestLevel);
 		
 		return retValName;
+	}
+	
+	/**
+	 * 出力変数をコピーするコードを作成する
+	 * @param code 生成したコードの格納先
+	 * @param outArgList 出力変数名
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 */
+	private void genOutArgCopy(
+		StringBuilder code, 
+		List<String> outArgList,
+		int nestLevel) {
+			
+		for (int argIdx = 0; argIdx < outArgList.size(); ++argIdx) {
+			code.append(common.indent(nestLevel))
+				.append(outArgList.get(argIdx))
+				.append(" = ")
+				.append(SymbolNames.PreDefVars.OUT_ARGS).append("[").append(argIdx).append("];\n");
+		}
 	}
 	
 	/**
@@ -309,6 +371,7 @@ public class ExpCodeGenerator {
 	 * @param code 生成したコードの格納先
 	 * @param argNode 引数ノード
 	 * @param argList 引数の格納先
+	 * @param outArg 出力引数だった場合true
 	 * @param nestLevel ソースコードのネストレベル
 	 * @param option コンパイルオプション
 	 */
@@ -316,18 +379,19 @@ public class ExpCodeGenerator {
 		StringBuilder code,
 		SyntaxSymbol argNode,
 		List<String> argList,
+		boolean outArg,
 		int nestLevel,
 		CompileOption option) {
 		
-		SyntaxSymbol argment = argNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.ARG, "*");
-		String argCode = genExpression(code, argment, nestLevel, option);
-		argList.add(argCode);
-		
+		SyntaxSymbol argument = argNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.ARG, "*");
+		if (outArg)
+			argList.add(genOutArg(code, argument, nestLevel, option));
+		else
+			argList.add(genExpression(code, argument, nestLevel, option));
+
 		SyntaxSymbol nextArg = argNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.NEXT_ARG, "*");
-		
-		if (!nextArg.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID)) {
-			genArgList(code, nextArg, argList, nestLevel, option);
-		}
+		if (!nextArg.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID))
+			genArgList(code, nextArg, argList, outArg, nestLevel, option);
 	}
 	
 	/**
@@ -372,7 +436,7 @@ public class ExpCodeGenerator {
 	}
 	
 	/**
-	 * 配列の長さを取得する
+	 * 配列の長さを取得するコードを作成する
 	 * @param code 生成したコードの格納先
 	 * @param arrayLenNode 配列長取得ノード
 	 * @param nestLevel ソースコードのネストレベル
@@ -397,5 +461,38 @@ public class ExpCodeGenerator {
 			.append(".length;")
 			.append(Util.LF);
 		return tmpVar;
+	}
+	
+	/**
+	 * 出力変数を作成する
+	 * @param code 生成したコードの格納先
+	 * @param varNode 変数ノード
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 * @return 出力変数
+	 */
+	private String genOutArg(
+		StringBuilder code, 
+		SyntaxSymbol varNode, 
+		int nestLevel,
+		CompileOption option) {
+		
+		if (SymbolNames.VarDecl.VAR_LIST.contains(varNode.getSymbolName())) {
+			return genExpression(code, varNode, nestLevel, option);
+		}
+		else if (SymbolNames.VarDecl.VAR_VOID_LIST.contains(varNode.getSymbolName())){	//出力引数に変数指定がなかった場合
+			String varName = common.genVarName(varNode);
+			code.append(common.indent(nestLevel))
+				.append(BhCompiler.Keywords.JS._let)
+				.append(varName)				
+				.append(" = ")
+				.append(SymbolNames.VarDecl.INIT_VAL_MAP.get(varNode.getSymbolName()))
+				.append(";\n");
+			return varName;
+		}
+		else {
+			assert false;
+		}
+		return "";
 	}
 }

@@ -15,13 +15,11 @@
  */
 package pflab.bunnyhop.model;
 
-import pflab.bunnyhop.model.templates.BhNodeTemplates;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
-import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.common.TreeNode;
 import pflab.bunnyhop.common.Util;
@@ -30,6 +28,8 @@ import pflab.bunnyhop.message.BhMsg;
 import pflab.bunnyhop.message.MsgData;
 import pflab.bunnyhop.message.MsgProcessor;
 import pflab.bunnyhop.message.MsgReceptionWindow;
+import pflab.bunnyhop.model.templates.BhNodeTemplates;
+import pflab.bunnyhop.root.MsgPrinter;
 
 /**
  * BhNode のカテゴリ一覧を表示している部分のmodel
@@ -68,33 +68,32 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 		for(String key : jsonObj.keySet()) {
 		
 			Object val = jsonObj.get(key);
-			if (key.equals(BhParams.NodeTemplateList.KEY_CSS_CLASS)) {	//cssクラスのキー
-				if (!(val instanceof String))
-					continue;
-				
-				TreeNode<String> cssClass = new TreeNode<>(BhParams.NodeTemplateList.KEY_CSS_CLASS);
-				cssClass.children.add(new TreeNode<>(val.toString()));
-				parent.children.add(cssClass);
-			}
-			else if (key.equals(BhParams.NodeTemplateList.KEY_CONTENTS)) {	//ノードIDの配列のキー
-				if (!(val instanceof ScriptObjectMirror))
-					continue;
-				
-				if (((ScriptObjectMirror)val).isArray()) {
-					TreeNode<String> contents = new TreeNode<>(BhParams.NodeTemplateList.KEY_CONTENTS);
-					bhNodeForLeafExists &= addBhNodeID((ScriptObjectMirror)val, contents, fileName);
-					parent.children.add(contents);
-				}
-			}
-			else {	//カテゴリ名
-				if (!(val instanceof ScriptObjectMirror))
-					continue;
-				
-				if (!((ScriptObjectMirror)val).isArray()) {				
-					TreeNode<String> child = new TreeNode<>(key);
-					parent.children.add(child);
-					bhNodeForLeafExists &= addChildren((ScriptObjectMirror)val, child, fileName);
-				}
+			switch (key) {
+				case BhParams.NodeTemplateList.KEY_CSS_CLASS:	//cssクラスのキー
+					if (!(val instanceof String))
+						continue;
+					TreeNode<String> cssClass = new TreeNode<>(BhParams.NodeTemplateList.KEY_CSS_CLASS);
+					cssClass.children.add(new TreeNode<>(val.toString()));
+					parent.children.add(cssClass);
+					break;
+					
+				case BhParams.NodeTemplateList.KEY_CONTENTS:	//ノードIDの配列のキー
+					if (!(val instanceof ScriptObjectMirror))
+						continue;
+					if (((ScriptObjectMirror)val).isArray()) {
+						TreeNode<String> contents = new TreeNode<>(BhParams.NodeTemplateList.KEY_CONTENTS);
+						bhNodeForLeafExists &= addBhNodeID((ScriptObjectMirror)val, contents, fileName);
+						parent.children.add(contents);
+					}	break;
+					
+				default:					//カテゴリ名
+					if (!(val instanceof ScriptObjectMirror))
+						continue;
+					if (!((ScriptObjectMirror)val).isArray()) {
+						TreeNode<String> child = new TreeNode<>(key);
+						parent.children.add(child);
+						bhNodeForLeafExists &= addChildren((ScriptObjectMirror)val, child, fileName);
+					}	break;
 			}
 		}
 		return bhNodeForLeafExists;
@@ -108,21 +107,21 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 	 * */
 	private boolean addBhNodeID(ScriptObjectMirror bhNodeIDList, TreeNode<String> parent, String fileName) {
 
-		boolean allBhNodeExist = true;
+		boolean allBhNodesExist = true;
 		for (Object bhNodeID : bhNodeIDList.values()) {
 			if (String.class.isAssignableFrom(bhNodeID.getClass())) {	// 配列内の文字列だけをBhNode の IDとみなす
 
 				String bhNodeIDStr = (String)bhNodeID;
-				if (BhNodeTemplates.instance().bhNodeExists(bhNodeIDStr)) {	//IDに対応する BhNode がある
+				if (BhNodeTemplates.instance().bhNodeExists(BhNodeID.createBhNodeID(bhNodeIDStr))) {	//IDに対応する BhNode がある
 					parent.children.add(new TreeNode<>(bhNodeIDStr));
 				}
 				else {
-					allBhNodeExist &= false;
+					allBhNodesExist &= false;
 					MsgPrinter.instance.ErrMsgForDebug(bhNodeIDStr + " に対応する " + BhParams.BhModelDef.ELEM_NAME_NODE + " が存在しません.\n" + "(" + fileName + ")");
 				}
 			}
 		}
-		return allBhNodeExist;
+		return allBhNodesExist;
 	}
 	/**
 	 * BhNode選択リストのルートノードを返す

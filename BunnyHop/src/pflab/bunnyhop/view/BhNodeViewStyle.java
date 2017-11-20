@@ -33,6 +33,7 @@ import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.common.Point2D;
 import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.configfilereader.BhScriptManager;
+import pflab.bunnyhop.model.BhNodeID;
 import pflab.bunnyhop.view.connectorShape.ConnectorShape;
 import pflab.bunnyhop.view.connectorShape.ConnectorShape.CNCTR_SHAPE;
 
@@ -110,8 +111,8 @@ public class BhNodeViewStyle {
 	}
 
 	private static final HashMap<String, BhNodeViewStyle> nodeStyleID_nodeStyleTemplate = new HashMap<>(); //!< ノードスタイルのテンプレートを格納するハッシュ. JSON ファイルの nodeStyleID がキー
-	private static final HashMap<String, String> nodeID_nodeStyleID = new HashMap<>(); //!< ノードIDとノードスタイルのペアを格納するハッシュ
-	public static final HashMap<String, String> nodeID_inputControlFileName = new HashMap<>();	//!< ノードIDとBhNodeの入力GUI部品のfxmlファイル名のペアを格納するハッシュ
+	private static final HashMap<BhNodeID, String> nodeID_nodeStyleID = new HashMap<>(); //!< ノードIDとノードスタイルのペアを格納するハッシュ
+	public static final HashMap<BhNodeID, String> nodeID_inputControlFileName = new HashMap<>();	//!< ノードIDとBhNodeの入力GUI部品のfxmlファイル名のペアを格納するハッシュ
 
 	public enum CNCTR_POS {
 		LEFT,
@@ -184,12 +185,12 @@ public class BhNodeViewStyle {
 
 	/**
 	 * 外部ノードを含む本体部分のサイズを取得する
-	 * @param includedCnctr コネクタ部分の大きさを含む場合true
+	 * @param includCnctr コネクタ部分の大きさを含む場合true
 	 * @return コネクタ部分や外部ノードを含まない本体部分のサイズ
 	 * */
-	public Point2D getBodyAndOuterSize(boolean includedCnctr) {
+	public Point2D getBodyAndOuterSize(boolean includCnctr) {
 	
-		Point2D bodySize = getBodySize(includedCnctr);
+		Point2D bodySize = getBodySize(includCnctr);
 		double totalWidth  = bodySize.x;
 		double totalHeight = bodySize.y;
 		if (connectorPos == CNCTR_POS.LEFT) {		//外部ノードが右に接続される
@@ -520,7 +521,7 @@ public class BhNodeViewStyle {
 	 * @param nodeID ノードID (bhNodeID属性)
 	 * @param nodeStyleID ノードスタイルID (nodeStyleID属性)
 	 * */
-	public static void putNodeID_NodeStyleID(String nodeID, String nodeStyleID) {
+	public static void putNodeID_NodeStyleID(BhNodeID nodeID, String nodeStyleID) {
 		nodeID_nodeStyleID.put(nodeID, nodeStyleID);
 	}
 
@@ -529,7 +530,7 @@ public class BhNodeViewStyle {
 	 * @param nodeID ノードID (bhNodeID属性)
 	 * @return ノードスタイルオブジェクト
 	 * */
-	public static BhNodeViewStyle getNodeViewStyleFromNodeID(String nodeID) {
+	public static BhNodeViewStyle getNodeViewStyleFromNodeID(BhNodeID nodeID) {
 
 		String nodeStyleID = nodeID_nodeStyleID.get(nodeID);
 		BhNodeViewStyle nodeStyle = nodeStyleID_nodeStyleTemplate.get(nodeStyleID);
@@ -542,14 +543,14 @@ public class BhNodeViewStyle {
 	 * */
 	public static boolean checkNodeIdAndNodeTemplate() {
 
-		return nodeID_nodeStyleID.values().stream().map(nodeStyleID -> {
+		return nodeID_nodeStyleID.values().stream().allMatch(nodeStyleID -> {
 				if (!nodeStyleID_nodeStyleTemplate.containsKey(nodeStyleID)) {
-					MsgPrinter.instance.ErrMsgForDebug("The node style file " + "(" + nodeStyleID +")" + " is not found among *.json files");
+					MsgPrinter.instance.ErrMsgForDebug("A node style file " + "(" + nodeStyleID +")" + " is not found among *.json files");
 					return false;
 				}
 				else {
 					return true;
 				}
-			}).allMatch(bool -> bool);
+			});
 	}
 }

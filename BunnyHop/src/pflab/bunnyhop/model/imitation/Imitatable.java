@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pflab.bunnyhop.model;
+package pflab.bunnyhop.model.imitation;
 
 import java.io.Serializable;
+import pflab.bunnyhop.model.BhNode;
+import pflab.bunnyhop.model.BhNodeID;
+import pflab.bunnyhop.model.SyntaxSymbol;
 import pflab.bunnyhop.modelprocessor.ImitationBuilder;
 import pflab.bunnyhop.undo.UserOperationCommand;
 /**
@@ -25,7 +28,7 @@ import pflab.bunnyhop.undo.UserOperationCommand;
 public abstract class Imitatable extends BhNode implements Serializable {
 
 	public Imitatable(
-		String bhID,
+		BhNodeID bhID,
 		String symbolName,
 		String type,
 		String scriptNameOnMovedFromChildToWS,
@@ -49,10 +52,10 @@ public abstract class Imitatable extends BhNode implements Serializable {
 	/**
 	 * 引数で指定したイミテーションタグに対応したイミテーションノードを作成する
 	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @param imitTag このイミテーションタグに対応したイミテーションノードを作成する
+	 * @param imitID このイミテーションIDに対応したイミテーションノードを作成する
 	 * @return 作成されたイミテーションノード. イミテーションを持たないノードの場合nullを返す
 	 */
-	public abstract BhNode createImitNode(UserOperationCommand userOpeCmd, String imitTag);
+	public abstract BhNode createImitNode(UserOperationCommand userOpeCmd, ImitationID imitID);
 	
 	/**
 	 * イミテーションノードであった場合true を返す
@@ -79,7 +82,7 @@ public abstract class Imitatable extends BhNode implements Serializable {
 		
 		BhNode outerTailOfOldNode = oldNode.findOuterEndNode();
 		for(Imitatable imit : getImitationInfo().getImitationList()) {
-			//入れ替わるノードの外部末尾ノードが最後に入れ替わったノードの外部末尾ノードと一致するイミテーションノードを入れ替えイミテーションノードとする
+			//新しく入れ替わるノードの外部末尾ノードが最後に入れ替わったノードの外部末尾ノードと一致するイミテーションノードを入れ替えイミテーションノードとする
 			if  (imit.getLastReplaced() != null) {
 				if(!imit.isInWorkspace() && imit.getLastReplaced().findOuterEndNode() == outerTailOfOldNode) {
 					return imit;
@@ -163,6 +166,6 @@ public abstract class Imitatable extends BhNode implements Serializable {
 		}
 		while(false);
 		
-		return parentConnector.canConnectedNodeBeReplacedWith(node);
+		return parentConnector.isConnectedNodeReplaceableWith(node);
 	}
 }

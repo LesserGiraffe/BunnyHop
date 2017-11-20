@@ -15,6 +15,7 @@
  */
 package pflab.bunnyhop.model;
 
+import pflab.bunnyhop.model.imitation.Imitatable;
 import pflab.bunnyhop.modelhandler.BhNodeHandler;
 import java.io.Serializable;
 import java.util.Collection;

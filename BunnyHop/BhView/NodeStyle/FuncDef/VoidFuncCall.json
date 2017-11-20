@@ -15,7 +15,17 @@
 		"inner" : {
 			"interval" : 1.5,
 			"arrangement" : "Column",
-			"connectorList" : ["FuncName", "Arg"]
+			"connectorList" : ["FuncName"],
+			"subGroup0" : {
+				"interval" : 1.5,
+				"arrangement" : "Row",
+				"connectorList" : ["nyuryoku", "Arg"]
+			},
+			"subGroup1" : {
+				"interval" : 1.5,
+				"arrangement" : "Row",
+				"connectorList" : ["shuturyoku", "OutArg"]
+			}
 		},
 		
 		"outer" : {

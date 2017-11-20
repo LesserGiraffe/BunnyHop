@@ -30,16 +30,22 @@ public class SymbolNames {
 	public static class VarDecl {
 		public static final String NUM_VAR_DECL = "NumVarDecl";
 		public static final String NUM_VAR = "NumVar";
+		public static final String NUM_VAR_VOID = "NumVarVoid";
 		public static final String NUM_LIST_DECL = "NumListDecl";
 		public static final String NUM_LIST = "NumList";
+		public static final String NUM_EMPTY_LIST = "NumEmptyList";
 		public static final String STR_VAR_DECL = "StrVarDecl";
 		public static final String STR_VAR = "StrVar";
+		public static final String STR_VAR_VOID = "StrVarVoid";
 		public static final String STR_LIST_DECL = "StrListDecl";
 		public static final String STR_LIST = "StrList";
+		public static final String STR_EMPTY_LIST = "StrEmptyList";
 		public static final String BOOL_VAR_DECL = "BoolVarDecl";
 		public static final String BOOL_VAR = "BoolVar";
+		public static final String BOOL_VAR_VOID = "BoolVarVoid";
 		public static final String BOOL_LIST_DECL = "BoolListDecl";
 		public static final String BOOL_LIST = "BoolList";
+		public static final String BOOL_EMPTY_LIST = "BoolEmptyList";
 		public static final String VAR_NAME = "VarName";
 		public static final String LIST_NAME = "ListName";
 		public static final String NEXT_VAR_DECL = "NextVarDecl";
@@ -67,7 +73,22 @@ public class SymbolNames {
 				put(STR_LIST_DECL, "[]");
 				put(BOOL_VAR_DECL, "false");
 				put(BOOL_LIST_DECL, "[]");
+				put(NUM_VAR_VOID, "0");
+				put(STR_VAR_VOID, "''");
+				put(BOOL_VAR_VOID, "false");
+				put(NUM_EMPTY_LIST, "[]");
+				put(STR_EMPTY_LIST, "[]");
+				put(BOOL_EMPTY_LIST, "[]");
 			}};
+		public static final HashSet<String> VAR_VOID_LIST = 
+			new HashSet<>(Arrays.asList(
+				NUM_VAR_VOID,
+				STR_VAR_VOID,
+				BOOL_VAR_VOID,
+				NUM_EMPTY_LIST,
+				STR_EMPTY_LIST,
+				BOOL_EMPTY_LIST
+			));
 	}
 	
 	public static class Stat {
@@ -105,6 +126,7 @@ public class SymbolNames {
 		public static final String COMPOUND_STAT = "CompoundStat";
 		public static final String CONTINUE_STAT = "ContinueStat";
 		public static final String BREAK_STAT = "BreakStat";
+		public static final String RETURN_STAT = "ReturnStat";
 		public static final HashSet<String> LIST = 
 			new HashSet<>(Arrays.asList(
 				IF_STAT, 
@@ -113,7 +135,8 @@ public class SymbolNames {
 				REPEAT_STAT,
 				COMPOUND_STAT,
 				CONTINUE_STAT,
-				BREAK_STAT));
+				BREAK_STAT,
+				RETURN_STAT));
 	}
 		
 	public static class BinaryExp {
@@ -180,6 +203,7 @@ public class SymbolNames {
 	public static class PreDefFunc {
 	
 		public static final String ARG = "Arg";
+		public static final String OUT_ARG = "OutArg";
 		public static final String OPTION = "Option";
 		
 		//ノード名
@@ -195,6 +219,7 @@ public class SymbolNames {
 		public static final String PRINT_STAT = "PrintStat";
 		public static final String MOVE_STAT = "MoveStat";
 		public static final String SLEEP_STAT = "SleepStat";
+		public static final String COPY_ARGS =  "CopyArgs";
 		
 		//オプション名
 		public static final String OPT_ROUND = "四捨五入";
@@ -221,6 +246,7 @@ public class SymbolNames {
 				PRINT_STAT,
 				MOVE_STAT,
 				SLEEP_STAT,
+				COPY_ARGS,
 				Array.STR_ARRAY_PUSH_STAT,
 				Array.STR_ARRAY_POP_STAT,
 				Array.STR_ARRAY_SET_STAT,
@@ -254,6 +280,7 @@ public class SymbolNames {
 				put(Arrays.asList(PRINT_STAT), "_println");
 				put(Arrays.asList(SCAM_EXP), "_scan");
 				put(Arrays.asList(IS_FINITE), "isFinite");
+				put(Arrays.asList(COPY_ARGS), "_copyArgs");
 				put(Arrays.asList(NUM_ROUND_EXP, OPT_ROUND), "Math.round");
 				put(Arrays.asList(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
 				put(Arrays.asList(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor");
@@ -288,7 +315,7 @@ public class SymbolNames {
 				
 				put(Arrays.asList(Array.BOOL_ARRAY_PUSH_STAT), "_aryPush");
 				put(Arrays.asList(Array.BOOL_ARRAY_POP_STAT), "_aryPop");
-				put(Arrays.asList(Array.BOOL_ARRAY_GET_STAT), "_aryGet");
+				put(Arrays.asList(Array.BOOL_ARRAY_GET_EXP), "_aryGet");
 				put(Arrays.asList(Array.BOOL_ARRAY_GET_LAST_EXP), "_aryGet");
 				put(Arrays.asList(Array.BOOL_ARRAY_SET_STAT), "_arySet");
 				put(Arrays.asList(Array.BOOL_ARRAY_INSERT_STAT), "_aryInsert");
@@ -298,25 +325,26 @@ public class SymbolNames {
 			}};	//!<  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
 	}
 	
+	public static class PreDefVars {
+		public static final String OUT_ARGS = "outArgs";
+	}
+	
 	public static class UserDefFunc {
 		
 		public static final String ARG = "Arg";
+		public static final String OUT_ARG = "OutArg";
 		public static final String NEXT_ARG = "NextArg";
 		public static final String ARG_VOID = "ArgVoid";
 		public static final String FUNC_DEF_SCTN = "FuncDefSctn";
 		public static final String PARAM_DECL = "ParamDecl";
+		public static final String OUT_PARAM_DECL = "OutParamDecl";
 
 		public static final String VOID_FUNC_DEF = "VoidFuncDef";
-		public static final String NUM_FUNC_DEF = "NumFuncDef";
-		public static final String BOOL_FUNC_DEF = "BoolFuncDef";
-
 		public static final String VOID_FUNC_CALL = "VoidFuncCall";
 		
 		public static final HashSet<String> USER_DEF_FUNC_LIST = 
 			new HashSet<>(Arrays.asList(
-				VOID_FUNC_DEF,
-				NUM_FUNC_DEF,
-				BOOL_FUNC_DEF));	//!< 関数定義ノードのリスト
+				VOID_FUNC_DEF));	//!< 関数定義ノードのリスト
 		
 		public static final HashSet<String> USER_DEF_FUNC_CALL_STAT_LIST = 
 			new HashSet<>(Arrays.asList(VOID_FUNC_CALL));	//!< ユーザ定義関数文のリスト
@@ -383,7 +411,7 @@ public class SymbolNames {
 		public static final String BOOL_ARRAY_REMOVE_STAT = "BoolArrayRemoveStat";
 		public static final String BOOL_ARRAY_APPEND_STAT = "BoolArrayAppendStat";
 		public static final String BOOL_ARRAY_CLEAR_STAT = "BoolArrayClearStat";
-		public static final String BOOL_ARRAY_GET_STAT = "BoolArrayGetExp";
+		public static final String BOOL_ARRAY_GET_EXP = "BoolArrayGetExp";
 		public static final String BOOL_ARRAY_GET_LAST_EXP = "BoolArrayGetLastExp";
 		public static final String BOOL_ARRAY_SET_STAT = "BoolArraySetStat";
 		public static final String BOOL_ARRAY_LEN_EXP = "BoolArrayLengthExp";
@@ -395,12 +423,11 @@ public class SymbolNames {
 				BOOL_ARRAY_LEN_EXP));
 		
 		public static final HashSet<String> GET_EXP_LIST = 
-			new HashSet<>(Arrays.asList(
-				NUM_ARRAY_GET_EXP,
+			new HashSet<>(Arrays.asList(NUM_ARRAY_GET_EXP,
 				NUM_ARRAY_GET_LAST_EXP,
 				STR_ARRAY_GET_EXP,
 				STR_ARRAY_GET_LAST_EXP,
-				BOOL_ARRAY_GET_STAT,
+				BOOL_ARRAY_GET_EXP,
 				BOOL_ARRAY_GET_LAST_EXP));
 	}
 	
@@ -412,7 +439,7 @@ public class SymbolNames {
 				put(Array.NUM_ARRAY_GET_LAST_EXP, "0");
 				put(Array.STR_ARRAY_GET_EXP, "''");
 				put(Array.STR_ARRAY_GET_LAST_EXP, "''");
-				put(Array.BOOL_ARRAY_GET_STAT, "false");
+				put(Array.BOOL_ARRAY_GET_EXP, "false");
 				put(Array.BOOL_ARRAY_GET_LAST_EXP, "false");}};	//undefinedが返った場合の代替値
 	}
 }

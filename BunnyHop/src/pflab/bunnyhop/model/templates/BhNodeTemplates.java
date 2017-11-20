@@ -43,6 +43,8 @@ import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.model.BhNode;
 import pflab.bunnyhop.model.connective.Connector;
 import pflab.bunnyhop.configfilereader.BhScriptManager;
+import pflab.bunnyhop.model.BhNodeID;
+import pflab.bunnyhop.model.connective.ConnectorID;
 import pflab.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -53,9 +55,9 @@ public class BhNodeTemplates {
 
 	private static final BhNodeTemplates instance = new BhNodeTemplates(); //!< シングルトンインスタンス
 
-	private final HashMap<String, BhNode> nodeID_nodeTemplate = new HashMap<>(); //!< ノードのテンプレートを格納するハッシュ. Nodeタグの bhID がキー
-	private final HashMap<String, Connector> cnctrID_cntrTemplate = new HashMap<>(); //!< コネクタのテンプレートを格納するハッシュ. Connectorタグの bhID がキー
-	private final List<Pair<String, String>> orgNodeID_imitNodeID = new ArrayList<>();	// オリジナルノードと, そのイミテーションノードのIDを格納する.
+	private final HashMap<BhNodeID, BhNode> nodeID_nodeTemplate = new HashMap<>(); //!< ノードのテンプレートを格納するハッシュ. Nodeタグの bhID がキー
+	private final HashMap<ConnectorID, Connector> cnctrID_cntrTemplate = new HashMap<>(); //!< コネクタのテンプレートを格納するハッシュ. Connectorタグの bhID がキー
+	private final List<Pair<BhNodeID, BhNodeID>> orgNodeID_imitNodeID = new ArrayList<>();	// オリジナルノードと, そのイミテーションノードのIDを格納する.
 		
 	private BhNodeTemplates() {}
 	
@@ -64,7 +66,7 @@ public class BhNodeTemplates {
 	 * @param id 取得したいノードのID
 	 * @return id で指定したBhNodeのテンプレート.
 	 * */
-	private Optional<BhNode> getBhNodeTemplate(String id) {
+	private Optional<BhNode> getBhNodeTemplate(BhNodeID id) {
 		return Optional.ofNullable(nodeID_nodeTemplate.get(id));
 	}
 
@@ -74,7 +76,7 @@ public class BhNodeTemplates {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @return id で指定したBhNodeのオブジェクト
 	 * */
-	public BhNode genBhNode(String id, UserOperationCommand userOpeCmd) {
+	public BhNode genBhNode(BhNodeID id, UserOperationCommand userOpeCmd) {
 
 		BhNode newNode = nodeID_nodeTemplate.get(id);
 		if (newNode == null) {
@@ -91,7 +93,7 @@ public class BhNodeTemplates {
 	 * @param id 存在を確認するBhNode のID
 	 * @return BhNodeが存在していた場合true
 	 * */
-	public boolean bhNodeExists(String id) {
+	public boolean bhNodeExists(BhNodeID id) {
 		return nodeID_nodeTemplate.get(id) != null;
 	}
 
@@ -201,16 +203,16 @@ public class BhNodeTemplates {
 	}
 
 	/**
-	 * コネクタに最初につながっているノードをテンプレートコネクタ登録する
+	 * コネクタに最初につながっているノードをテンプレートコネクタに登録する
 	 * @return 全てのコネクタに対し、ノードの登録が成功した場合 true を返す
 	 * */
 	private boolean registerDefaultNodeWithConnector() {
 
 		//コネクタに最初につながっているノード(defaultNode) をコネクタに登録する
 		boolean success = cnctrID_cntrTemplate.values().stream().map(connector -> {
-				String defNodeID = connector.defaultNodeID;
+				BhNodeID defNodeID = connector.defaultNodeID;
 				Optional<BhNode> defNode = getBhNodeTemplate(defNodeID);
-				String initNodeID = connector.initNodeID;
+				BhNodeID initNodeID = connector.initNodeID;
 				Optional<BhNode> initNode = getBhNodeTemplate(initNodeID);		
 
 				//ノードテンプレートが見つからない
@@ -244,7 +246,7 @@ public class BhNodeTemplates {
 	 * @param orgNodeID_imitNodeID オリジナルノードとイミテーションノードのIDのリスト
 	 * @return オリジナルノードとイミテーションノードの整合性が取れていた場合 true
 	 */
-	private boolean checkImitationConsistency(List<Pair<String, String>> orgNodeID_imitNodeID) {
+	private boolean checkImitationConsistency(List<Pair<BhNodeID, BhNodeID>> orgNodeID_imitNodeID) {
 
 		boolean hasConsistency = orgNodeID_imitNodeID.stream().allMatch(orgID_imitID -> {
 			
@@ -278,7 +280,7 @@ public class BhNodeTemplates {
 	 * @param nodeID bhNodeのID
 	 * @param nodeTemplate bhNodeテンプレート
 	 */
-	public void registerNodeTemplate(String nodeID, BhNode nodeTemplate) {
+	public void registerNodeTemplate(BhNodeID nodeID, BhNode nodeTemplate) {
 		nodeID_nodeTemplate.put(nodeID, nodeTemplate);
 	}
 	
@@ -288,7 +290,7 @@ public class BhNodeTemplates {
 	 * @param cnctrTemplate コネクタテンプレート
 
 	 */
-	private void registerCnctrTemplate(String cnctrID, Connector cnctrTemplate) {
+	private void registerCnctrTemplate(ConnectorID cnctrID, Connector cnctrTemplate) {
 		cnctrID_cntrTemplate.put(cnctrID, cnctrTemplate);
 	}
 	
@@ -297,7 +299,7 @@ public class BhNodeTemplates {
 	 * @param orgNodID オリジナルノードのID
 	 * @param imitNodeID イミテーションノードのID
 	 */
-	private void registerOrgNodeIdAndImitNodeID(String orgNodeID, String imitNodeID) {
+	private void registerOrgNodeIdAndImitNodeID(BhNodeID orgNodeID, BhNodeID imitNodeID) {
 		orgNodeID_imitNodeID.add(new Pair<>(orgNodeID, imitNodeID));
 	}
 	
@@ -306,7 +308,7 @@ public class BhNodeTemplates {
 	 * @param cnctrID このIDを持つコネクタのテンプレートを取得する
 	 * @return コネクタテンプレート
 	 */
-	private Optional<Connector> getCnctrTemplate(String cnctrID) {
+	private Optional<Connector> getCnctrTemplate(ConnectorID cnctrID) {
 		return Optional.ofNullable(cnctrID_cntrTemplate.get(cnctrID));
 	}
 	
@@ -337,7 +339,7 @@ public class BhNodeTemplates {
 	 * @param scriptNames 実行されるスクリプト名
 	 * @return nullか空文字以外のスクリプト名に対応するスクリプトが全て見つかった場合 trueを返す
 	 * */
-	public static boolean checkIfAllScriptsExist(String fileName, String... scriptNames) {
+	public static boolean allScriptsExist(String fileName, String... scriptNames) {
 			
 		String[] scriptNamesFiltered = Stream.of(scriptNames)
 			.filter(scriptName -> {
@@ -347,7 +349,7 @@ public class BhNodeTemplates {
 				return false;})
 			.toArray(String[]::new);
 		
-		return BhScriptManager.instance.checkIfScriptsExist(fileName, scriptNamesFiltered);
+		return BhScriptManager.instance.scriptsExist(fileName, scriptNamesFiltered);
 	}
 		
 	/**

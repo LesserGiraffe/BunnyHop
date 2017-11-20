@@ -32,6 +32,9 @@ import pflab.bunnyhop.model.templates.BhNodeTemplates;
 import pflab.bunnyhop.model.SyntaxSymbol;
 import pflab.bunnyhop.modelhandler.BhNodeHandler;
 import pflab.bunnyhop.configfilereader.BhScriptManager;
+import pflab.bunnyhop.model.BhNodeID;
+import pflab.bunnyhop.model.imitation.ImitationConnectionPos;
+import pflab.bunnyhop.model.imitation.ImitationID;
 import pflab.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -40,14 +43,15 @@ import pflab.bunnyhop.undo.UserOperationCommand;
  * */
 public class Connector extends SyntaxSymbol implements Cloneable, Showable, Serializable {
 
-	private final String id; 				//!< コネクタID (\<Connector\> タグの bhID)
-	public final String defaultNodeID; 		//!< ノードが取り外されたときに変わりに繋がるノードのID (\<Connector\> タグの bhID)
-	public final String initNodeID;			//!< 最初に接続されているノードのID
+	private final ConnectorID id; 				//!< コネクタID (\<Connector\> タグの bhID)
+	public final BhNodeID defaultNodeID; 		//!< ノードが取り外されたときに変わりに繋がるノードのID (\<Connector\> タグの bhID)
+	public final BhNodeID initNodeID;			//!< 最初に接続されているノードのID
 	private BhNode connectedNode;			//!< 接続中のノード<br> null となるのは、テンプレート構築中とClone メソッドの一瞬のみ
 	private ConnectorSection parent;	//!< このオブジェクトを保持する ConnectorSection オブジェクト
 	private final boolean fixed;	//!< このコネクタにつながるBhNodeが手動で取り外しや入れ替えができない場合true
 	private boolean outer = false;	//!< 外部描画ノードを接続するコネクタの場合true
-	private String imitTag;	//!< イミテーション生成時のタグ
+	private ImitationID imitID;	//!< イミテーション生成時のID
+	private ImitationConnectionPos imitCnctPoint;	//!< イミテーション生成時のタグ
 	private final String scriptNameOnReplaceabilityChecked;	//!< ノードを入れ替え可能かどうかチェックするスクリプトの名前
 	transient protected Bindings scriptScope;
 
@@ -69,9 +73,9 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 	 * @param scriptNameOnReplaceabilityChecked ノードを入れ替え可能かどうかチェックするスクリプトの名前
 	 * */
 	public Connector(
-		String id,
-		String defaultNodeID,
-		String initialNodeID,
+		ConnectorID id,
+		BhNodeID defaultNodeID,
+		BhNodeID initialNodeID,
 		boolean fixed,
 		String scriptNameOnReplaceabilityChecked) {
 		super("");
@@ -79,7 +83,7 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 		this.scriptNameOnReplaceabilityChecked = scriptNameOnReplaceabilityChecked;
 		this.defaultNodeID = defaultNodeID;
 		this.fixed = fixed;
-		if (initialNodeID.isEmpty())
+		if (initialNodeID.equals(BhNodeID.NONE))
 			this.initNodeID = defaultNodeID;
 		else
 			this.initNodeID = initialNodeID;
@@ -89,14 +93,16 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 	 * コピーコンストラクタ
 	 * @param org コピー元オブジェクト
 	 * @param name コネクタ名
-	 * @param imitTag イミテーションノードの接続先識別タグ
+	 * @param imitID 作成するイミテーションノードの識別子
+	 * @param imitCncrPoint イミテーション接続位置の識別子
 	 * @param isOuter 外部描画フラグ
 	 * @param parent 親コネクタセクション
 	 */
 	private Connector(
 		Connector org,
 		String name,
-		String imitTag,
+		ImitationID imitID,
+		ImitationConnectionPos imitCnctPoint,
 		ConnectorSection parent) {
 		
 		super(name);
@@ -105,7 +111,8 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 		initNodeID = org.initNodeID;
 		scriptNameOnReplaceabilityChecked = org.scriptNameOnReplaceabilityChecked;
 		fixed = org.fixed;
-		this.imitTag = imitTag;
+		this.imitID = imitID;
+		this.imitCnctPoint = imitCnctPoint;
 		this.parent = parent;
 	}
 	
@@ -113,21 +120,24 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 	 * このノードのコピーを作成して返す
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @param name コネクタ名
-	 * @param imitTag イミテーションノードの接続先識別タグ
+	 * @param imitID 作成するイミテーションの識別子
+	 * @param imitCnctPoint イミテーション接続位置の識別子
 	 * @param parent 親コネクタセクション
 	 * @return このノードのコピー
 	 */
 	public Connector copy(
 		UserOperationCommand userOpeCmd,
 		String name,
-		String imitTag,
+		ImitationID imitID,
+		ImitationConnectionPos imitCnctPoint,
 		ConnectorSection parent) {
 		
 		Connector newConnector = 
 			new Connector(
 				this,
 				name,
-				imitTag,
+				imitID,
+				imitCnctPoint,
 				parent);
 		BhNode newNode = connectedNode.copy(userOpeCmd);
 		newConnector.connectNode(newNode, null);
@@ -181,7 +191,7 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 	 * @param newNode 新しく入れ替わるノード
 	 * @return 引数で指定したノードが現在つながっているノードと入れ替え可能である場合, true を返す
 	 */
-	public boolean canConnectedNodeBeReplacedWith(BhNode newNode) {
+	public boolean isConnectedNodeReplaceableWith(BhNode newNode) {
 
 		if (fixed)
 			return false;
@@ -194,15 +204,15 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_NODE_ID, connectedNode.getID());
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newNode);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, connectedNode);
-		Object canBeReplaced;
+		Object replaceable;
 		try {
-			canBeReplaced = onReplaceabilityChecked.eval(scriptScope);
+			replaceable = onReplaceabilityChecked.eval(scriptScope);
 		} catch (ScriptException e) {
 			MsgPrinter.instance.ErrMsgForDebug(Connector.class.getSimpleName() +  ".isReplacable   " + scriptNameOnReplaceabilityChecked + "\n" + e.toString() + "\n");
 			return false;
 		}
-		if (canBeReplaced instanceof Boolean)
-			return (Boolean)canBeReplaced;
+		if (replaceable instanceof Boolean)
+			return (Boolean)replaceable;
 
 		return false;
 	}
@@ -223,7 +233,7 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 		return newNode;
 	}
 
-	public String getID() {
+	public ConnectorID getID() {
 		return id;
 	}
 	
@@ -247,13 +257,27 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 	}
 
 	/**
-	 * イミテーション作成時のタグを取得する
-	 * @return イミテーション作成時のタグ
+	 * イミテーション作成時のIDを取得する
+	 * @return イミテーション作成時のID
 	 */
-	public String getImitationTag() {
-		return imitTag;
+	public ImitationID findImitationID() {
+		
+		if (imitID.equals(ImitationID.NONE)) {
+			Connector parentCnctr = getParentNode().getParentConnector();
+			if (parentCnctr != null)
+				return parentCnctr.findImitationID();			
+		}
+		return imitID;
 	}
 	
+	/**
+	 * イミテーション接続位置の識別子を取得する
+	 * @return イミテーション接続位置の識別子
+	 */
+	public ImitationConnectionPos getImitCnctPoint() {
+		return imitCnctPoint;
+	}
+
 	/**
 	 * 外部描画ノードかどうかを示すフラグをセットする
 	 * @param outer このコネクタが外部描画ノードを接続する場合true

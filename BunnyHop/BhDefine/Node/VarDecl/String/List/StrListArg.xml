@@ -6,7 +6,7 @@
 	onMovedToChild="">
 
 	<ConnectorSection>
-		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitationTag="tagListName"/>
+		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
 		<PrivateConnector
 			name="ListSign"
 			fixed="true">
@@ -19,6 +19,6 @@
 			</Node>
 		</PrivateConnector>
 		<Connector bhConnectorID="idStrListCnctr" name="Arg"/>
-		<Connector bhConnectorID="idArgCnctr" name="NextArg" imitationTag="tagVarDeclToArg"/>
+		<Connector bhConnectorID="idArgCnctr" name="NextArg" imitCnctPos="imitPosNextArg"/>
 	</ConnectorSection>
 </Node>

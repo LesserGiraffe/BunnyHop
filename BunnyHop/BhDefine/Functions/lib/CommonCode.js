@@ -1,4 +1,12 @@
 
+	const outArgs = [];
+
+	function _copyArgs(dest, args, beginIdx) {
+		dest.length = 0;
+		for (let i = beginIdx; i < args.length; ++i)
+			dest.push(args[i]);
+	}
+
 	function _boolToStr(boolVal) {
 		return (boolVal === true) ? '真' : '偽';
 	}

@@ -9,5 +9,5 @@
 	onTextInput="ParseIdentifier.js"
     initString="機能名">
 
-    <Imitation imitationTag="tagFuncName" imitationNodeID="idFuncName"/>
+    <Imitation imitationID="imitIdFuncName" imitationNodeID="idFuncName"/>
 </Node>
