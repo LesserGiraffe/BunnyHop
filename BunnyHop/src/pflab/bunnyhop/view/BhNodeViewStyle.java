@@ -230,7 +230,7 @@ public class BhNodeViewStyle {
 			paths = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.getFileName().toString().endsWith(".json"));
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug("style directory not found " + dirPath);
+			MsgPrinter.instance.errMsgForDebug("style directory not found " + dirPath);
 			return false;
 		}
 	
@@ -298,7 +298,7 @@ public class BhNodeViewStyle {
 					bhNodeViewStyle.connectorPos = CNCTR_POS.LEFT;
 				}
 				else {
-					MsgPrinter.instance.ErrMsgForDebug("\"" + BhParams.NodeStyleDef.KEY_CONNECTOR_POS + "\"" + " (" + posStr + ") " + "format is invalid.  " + "(" + fileName + ")");
+					MsgPrinter.instance.errMsgForDebug("\"" + BhParams.NodeStyleDef.KEY_CONNECTOR_POS + "\"" + " (" + posStr + ") " + "format is invalid.  " + "(" + fileName + ")");
 				}
 			});
 
@@ -397,7 +397,7 @@ public class BhNodeViewStyle {
 					arrangement.arrangement = CHILD_ARRANGEMENT.COLUMN;
 				}
 				else {
-					MsgPrinter.instance.ErrMsgForDebug("\"" + BhParams.NodeStyleDef.KEY_ARRANGEMENR + "\"" + " (" + arrangeStr + ") " + "format is invalid.  " + "(" + fileName + ")");
+					MsgPrinter.instance.errMsgForDebug("\"" + BhParams.NodeStyleDef.KEY_ARRANGEMENR + "\"" + " (" + arrangeStr + ") " + "format is invalid.  " + "(" + fileName + ")");
 				}
 			});
 		
@@ -509,7 +509,7 @@ public class BhNodeViewStyle {
 			return Optional.empty();
 		
 		if (!valueType.isAssignableFrom(val.getClass())) {
-			MsgPrinter.instance.ErrMsgForDebug("The type of " + keyName + " must be " + valueType.getSimpleName() + ".  \n"
+			MsgPrinter.instance.errMsgForDebug("The type of " + keyName + " must be " + valueType.getSimpleName() + ".  \n"
 										+"The actual type is " + val.getClass().getSimpleName() + ". " + "(" + fileName + ")");
 			return Optional.empty();
 		}
@@ -545,7 +545,7 @@ public class BhNodeViewStyle {
 
 		return nodeID_nodeStyleID.values().stream().allMatch(nodeStyleID -> {
 				if (!nodeStyleID_nodeStyleTemplate.containsKey(nodeStyleID)) {
-					MsgPrinter.instance.ErrMsgForDebug("A node style file " + "(" + nodeStyleID +")" + " is not found among *.json files");
+					MsgPrinter.instance.errMsgForDebug("A node style file " + "(" + nodeStyleID +")" + " is not found among *.json files");
 					return false;
 				}
 				else {

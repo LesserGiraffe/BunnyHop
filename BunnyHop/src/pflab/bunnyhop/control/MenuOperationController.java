@@ -15,7 +15,6 @@
  */
 package pflab.bunnyhop.control;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -83,7 +82,6 @@ public class MenuOperationController {
 	private @FXML PasswordField passwordTextField;	//!< ログインパスワード
 	private @FXML Button sendBtn;	//!< 送信ボタン
 	private @FXML TextField stdInTextField;	//!< 標準入力テキストフィールド
-	private File currentSaveFile;	//!< 現在保存対象になっているファイル
 	
 	private final AtomicBoolean preparingForExecution = new AtomicBoolean(false);	//非同期でBhProgramの実行環境準備中の場合true
 	private final AtomicBoolean preparingForTermination = new AtomicBoolean(false);	//非同期でBhProgramの実行環境終了中の場合true
@@ -310,7 +308,7 @@ public class MenuOperationController {
 		executeBtn.setOnAction(action -> {
 			
 			if (preparingForExecution.get()) {
-				MsgPrinter.instance.ErrMsgForUser("!! 実行準備中 !!\n");
+				MsgPrinter.instance.errMsgForUser("!! 実行準備中 !!\n");
 				return;
 			}
 			
@@ -351,7 +349,7 @@ public class MenuOperationController {
 		
 		terminateBtn.setOnAction(action -> {
 			if (preparingForTermination.get()) {
-				MsgPrinter.instance.ErrMsgForUser("!! 終了準備中 !!\n");
+				MsgPrinter.instance.errMsgForUser("!! 終了準備中 !!\n");
 				return;
 			}
 				
@@ -378,7 +376,7 @@ public class MenuOperationController {
 	private void setDisconnectHandler() {
 		disconnectBtn.setOnAction(action -> {
 			if (disconnecting.get()) {
-				MsgPrinter.instance.ErrMsgForUser("!! 切断準備中 !!\n");
+				MsgPrinter.instance.errMsgForUser("!! 切断準備中 !!\n");
 				return;
 			}
 			
@@ -406,7 +404,7 @@ public class MenuOperationController {
 		connectBtn.setOnAction(action -> {
 			
 			if (connecting.get()) {
-				MsgPrinter.instance.ErrMsgForUser("!! 接続準備中 !!\n");
+				MsgPrinter.instance.errMsgForUser("!! 接続準備中 !!\n");
 				return;
 			}
 			
@@ -442,15 +440,15 @@ public class MenuOperationController {
 			
 			switch (errCode) {
 				case SEND_QUEUE_FULL:
-					MsgPrinter.instance.ErrMsgForUser("!! 送信失敗 (送信データ追加失敗) !!\n");
+					MsgPrinter.instance.errMsgForUser("!! 送信失敗 (送信データ追加失敗) !!\n");
 					break;
 					
 				case SEND_WHEN_DISCONNECTED:
-					MsgPrinter.instance.ErrMsgForUser("!! 送信失敗 (未接続) !!\n");
+					MsgPrinter.instance.errMsgForUser("!! 送信失敗 (未接続) !!\n");
 					break;
 					
 				case SUCCESS:
-					MsgPrinter.instance.ErrMsgForUser("-- 送信完了 --\n");
+					MsgPrinter.instance.errMsgForUser("-- 送信完了 --\n");
 					break;
 			}
 		});
@@ -514,7 +512,7 @@ public class MenuOperationController {
 			});
 		});
 		nodesToCompile.remove(nodeToExec.findRootNode());	
-		return Optional.of(new Pair<List<BhNode>, BhNode>(nodesToCompile, nodeToExec));
+		return Optional.of(new Pair<>(nodesToCompile, nodeToExec));
 	}
 	
 	/**

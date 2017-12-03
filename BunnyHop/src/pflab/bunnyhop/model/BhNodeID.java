@@ -53,6 +53,8 @@ public class BhNodeID implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
 		return (getClass() == obj.getClass()) && (id.equals(((BhNodeID)obj).id));
 	}
 

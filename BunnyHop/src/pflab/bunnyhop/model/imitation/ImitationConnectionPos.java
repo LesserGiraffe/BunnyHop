@@ -51,6 +51,8 @@ public class ImitationConnectionPos implements Serializable {
 	
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
 		return (getClass() == obj.getClass()) && (pos.equals(((ImitationConnectionPos)obj).pos));
 	}
 

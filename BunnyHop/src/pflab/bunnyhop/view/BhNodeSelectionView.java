@@ -58,7 +58,7 @@ public class BhNodeSelectionView extends ScrollPane {
 			loader.load();
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to initialize "  + BhNodeSelectionView.class.getSimpleName());
+			MsgPrinter.instance.errMsgForDebug("failed to initialize "  + BhNodeSelectionView.class.getSimpleName());
 		}
 		
 		nodeSelectionPanel.getTransforms().add(new Scale());

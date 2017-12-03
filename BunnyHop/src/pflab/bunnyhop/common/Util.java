@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package pflab.bunnyhop.common;
-import com.sun.javafx.tk.FontMetrics;
-import com.sun.javafx.tk.Toolkit;
-import java.io.File;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import pflab.bunnyhop.root.MsgPrinter;
 
 /**
@@ -30,17 +29,25 @@ import pflab.bunnyhop.root.MsgPrinter;
 public class Util {
 	
 	public static final String EXEC_PATH;	//実行時jarパス
+	public static final String JAVA_PATH;
 	public static final String LF;
 	private static int serialID = 0;
 
 	static {
-		String path = System.getProperty("java.class.path");
-		File jarFile = new File(path);
-		Path jarPath = Paths.get(jarFile.getAbsolutePath());
-		String root = (jarPath.getRoot() == null) ? "" : jarPath.getRoot().toString();
-		EXEC_PATH = root + jarPath.subpath(0, jarPath.getNameCount()-1).toString();
+		String pathStr = System.getProperty("jdk.module.path");
+		if (pathStr == null) {	//for self-contained app
+			pathStr = System.getProperty("java.class.path");
+			Path path = Paths.get(pathStr);
+			String root = ((path.getRoot() != null) ? path.getRoot().toString() : "");
+			EXEC_PATH = root + path.subpath(0, path.getNameCount()-1).toString();
+		}
+		else {
+			EXEC_PATH = Paths.get(pathStr).toAbsolutePath().toString();
+		}
 		//EXEC_PATH = System.getProperty("user.dir");
 		LF = System.getProperty("line.separator");
+		String fs = System.getProperty("file.separator");
+		JAVA_PATH = System.getProperty("java.home") + fs + "bin" + fs + "java";
 	}
 	
 	/**
@@ -58,7 +65,7 @@ public class Util {
 		if (!part.contains("*"))
 			return whole.equals(part);
 		
-		return whole.contains(part.substring(0, part.indexOf("*")));
+		return whole.contains(part.substring(0, part.indexOf('*')));
 	}
 	
 	/**
@@ -68,8 +75,9 @@ public class Util {
 	 * @return 文字列を表示したときの幅
 	 */
 	public static double calcStrWidth(String str, Font font) {
-		FontMetrics fm = Toolkit.getToolkit().getFontLoader().getFontMetrics(font);
-		return fm.computeStringWidth(str);
+        Text text = new Text(str);
+        text.setFont(font);
+		return text.getBoundsInLocal().getWidth();
 	}
 	
 	/**
@@ -91,7 +99,7 @@ public class Util {
 				Files.createFile(filePath);
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.MsgForDebug("create file err " + filePath + "\n" + e.toString());
+			MsgPrinter.instance.msgForDebug("create file err " + filePath + "\n" + e.toString());
 			return false;
 		}
 		return true;
@@ -108,7 +116,7 @@ public class Util {
 				Files.createDirectory(dirPath);
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.MsgForDebug("create dir err " + dirPath + "\n" + e.toString());
+			MsgPrinter.instance.msgForDebug("create dir err " + dirPath + "\n" + e.toString());
 			return false;
 		}
 		return true;

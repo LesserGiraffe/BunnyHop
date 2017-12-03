@@ -98,7 +98,7 @@ public class BhProgramManagerCommon {
 	public Optional<Future<Boolean>> connectAsync() {
 		
 		if (!getTransceiver().isPresent()) {
-			MsgPrinter.instance.ErrMsgForUser("!! 接続失敗 (プログラム未実行) !!\n");
+			MsgPrinter.instance.errMsgForUser("!! 接続失敗 (プログラム未実行) !!\n");
 			return Optional.empty();
 		}
 		
@@ -114,7 +114,7 @@ public class BhProgramManagerCommon {
 	public Optional<Future<Boolean>> disconnectAsync() {
 		
 		if (!getTransceiver().isPresent()) {
-			MsgPrinter.instance.ErrMsgForUser("!! 切断失敗 (プログラム未実行) !!\n");
+			MsgPrinter.instance.errMsgForUser("!! 切断失敗 (プログラム未実行) !!\n");
 			return Optional.empty();
 		}
 		
@@ -155,7 +155,7 @@ public class BhProgramManagerCommon {
 				process.getInputStream().close();
 				process.getOutputStream().close();
 			} catch (IOException e) {
-				MsgPrinter.instance.ErrMsgForDebug("failed to close iostream"	+ "\n" + e.toString());
+				MsgPrinter.instance.errMsgForDebug("failed to close iostream"	+ "\n" + e.toString());
 				success = false;
 			}
 			//強制終了
@@ -166,7 +166,7 @@ public class BhProgramManagerCommon {
 			}
 			catch(InterruptedException e) {
 				Thread.currentThread().interrupt();
-				MsgPrinter.instance.ErrMsgForDebug("failed to waitFor" +  "\n" + e.toString());
+				MsgPrinter.instance.errMsgForDebug("failed to waitFor" +  "\n" + e.toString());
 			}
 		}
 		else {
@@ -176,7 +176,7 @@ public class BhProgramManagerCommon {
 			}
 			catch(InterruptedException e) {
 				Thread.currentThread().interrupt();
-				MsgPrinter.instance.ErrMsgForDebug("failed to waitFor" +  "\n" + e.toString());
+				MsgPrinter.instance.errMsgForDebug("failed to waitFor" +  "\n" + e.toString());
 			}
 			//ストリームクローズ
 			try {
@@ -184,7 +184,7 @@ public class BhProgramManagerCommon {
 				process.getInputStream().close();
 				process.getOutputStream().close();
 			} catch (IOException e) {
-				MsgPrinter.instance.ErrMsgForDebug("failed to close iostream"	+ "\n" + e.toString());
+				MsgPrinter.instance.errMsgForDebug("failed to close iostream"	+ "\n" + e.toString());
 				success = false;
 			}
 			process.destroy();
@@ -266,13 +266,13 @@ public class BhProgramManagerCommon {
 		boolean res = transceiverAndFutureRef.get().recvTaskFuture.cancel(true);	//タスクの終了を待たなくてよい. 新しく起動したプロセスと, 古いトランシーバが通信をしてしまうことはない.
 		success &= res;
 		if (!res) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to cancel recv task " + BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENVIRONMENT);
+			MsgPrinter.instance.errMsgForDebug("failed to cancel recv task " + BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENVIRONMENT);
 		}
 			
 		res = transceiverAndFutureRef.get().sendTaskFuture.cancel(true);
 		success &= res;
 		if (!res) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to cancel send task " + BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENVIRONMENT);
+			MsgPrinter.instance.errMsgForDebug("failed to cancel send task " + BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENVIRONMENT);
 		}
 		
 		if (success)
@@ -290,7 +290,7 @@ public class BhProgramManagerCommon {
 	 */
 	public boolean runBhProgram(String fileName, String ipAddr, InputStream is) {
 		
-		MsgPrinter.instance.MsgForUser("-- 通信準備中 --\n");
+		MsgPrinter.instance.msgForUser("-- 通信準備中 --\n");
 		boolean success = true;
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(is))){
 				
@@ -308,11 +308,11 @@ public class BhProgramManagerCommon {
 			setTransceiverAndFutures(transceiver, recvTaskFuture, sendTaskFuture);
 		}
 		catch(IOException | NotBoundException | NumberFormatException | TimeoutException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to run BhProgram " + e.toString());
+			MsgPrinter.instance.errMsgForDebug("failed to run BhProgram " + e.toString() + "\n");
 			success &= false;
 		}
 		if (!success)
-			MsgPrinter.instance.ErrMsgForUser("!! 通信準備失敗 !!\n");
+			MsgPrinter.instance.errMsgForUser("!! 通信準備失敗 !!\n");
 		
 		return success;
 	}

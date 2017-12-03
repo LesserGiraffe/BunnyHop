@@ -68,7 +68,7 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 				comboBox = (ComboBox<String>)loader.load();
 			} catch (IOException | ClassCastException e) {
-				MsgPrinter.instance.ErrMsgForDebug("failed to initialize " + ComboBoxNodeView.class.getSimpleName() + "\n" + e.toString());
+				MsgPrinter.instance.errMsgForDebug("failed to initialize " + ComboBoxNodeView.class.getSimpleName() + "\n" + e.toString());
 			}
 		}
 		getChildren().add(comboBox);
@@ -138,11 +138,11 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 	public void show(int depth) {
 
 		try {
-			MsgPrinter.instance.MsgForDebug(indent(depth) + "<TextNodeView" + ">   " + this.hashCode());
-			MsgPrinter.instance.MsgForDebug(indent(depth + 1) + "<content" + ">   " + comboBox.getValue());
+			MsgPrinter.instance.msgForDebug(indent(depth) + "<TextNodeView" + ">   " + this.hashCode());
+			MsgPrinter.instance.msgForDebug(indent(depth + 1) + "<content" + ">   " + comboBox.getValue());
 		}
 		catch (Exception e) {
-			MsgPrinter.instance.MsgForDebug("TextNodeView show exception " + e);
+			MsgPrinter.instance.msgForDebug("TextNodeView show exception " + e);
 		}
 	}
 

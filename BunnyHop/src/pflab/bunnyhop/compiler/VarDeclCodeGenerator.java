@@ -180,7 +180,7 @@ final public class VarDeclCodeGenerator {
 	/**
 	 * 変数定義に必要な情報
 	 */
-	class VarDeclInfo {
+	private static class VarDeclInfo {
 		
 		public final String varName;	//!< 変数名
 		public final String initVal;	//!< 初期値

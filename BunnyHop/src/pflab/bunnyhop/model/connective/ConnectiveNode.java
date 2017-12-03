@@ -15,7 +15,6 @@
  */
 package pflab.bunnyhop.model.connective;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import pflab.bunnyhop.modelprocessor.BhModelProcessor;
@@ -35,7 +34,7 @@ import pflab.bunnyhop.undo.UserOperationCommand;
  * 子ノードと接続されるノード
  * @author K.Koike
  * */
-public class ConnectiveNode extends Imitatable implements Serializable{
+public class ConnectiveNode extends Imitatable {
 
 	private Section childSection;							//!< セクションの集合 (ノード内部に描画されるもの)
 	private ImitationInfo<ConnectiveNode> imitInfo;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
@@ -153,12 +152,12 @@ public class ConnectiveNode extends Imitatable implements Serializable{
 		if (getLastReplaced() != null)
 			lastReplacedHash =  getLastReplaced().hashCode() + "";
 		
-		MsgPrinter.instance.MsgForDebug(indent(depth) + "<ConnectiveNode" + "  bhID=" + getID()  + "  parent=" + parentHashCode + "  > " + this.hashCode());
-		MsgPrinter.instance.MsgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
-		MsgPrinter.instance.MsgForDebug(indent(depth+1) + "<" + "scopeName " + imitInfo.scopeName + "> ");
-		MsgPrinter.instance.MsgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
+		MsgPrinter.instance.msgForDebug(indent(depth) + "<ConnectiveNode" + "  bhID=" + getID()  + "  parent=" + parentHashCode + "  > " + this.hashCode());
+		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
+		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "scopeName " + imitInfo.scopeName + "> ");
+		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
 		imitInfo.getImitationList().forEach(imit -> {
-			MsgPrinter.instance.MsgForDebug(indent(depth+2) + "imit " + imit.hashCode());
+			MsgPrinter.instance.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());
 		});
 		childSection.show(depth + 1);
 	}

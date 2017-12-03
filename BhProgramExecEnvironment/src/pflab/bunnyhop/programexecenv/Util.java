@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package pflab.bunnyhop.programexecenv;
-
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -26,13 +24,18 @@ import java.nio.file.Paths;
 public class Util {
 	
 	public static final String EXEC_PATH;
-	public static String SCRIPT_DIR = "compiled";
+	public static final String SCRIPT_DIR = "compiled";
 	
-	static {
-		String path = System.getProperty("java.class.path");
-		File jarFile = new File(path);
-		Path jarPath = Paths.get(jarFile.getAbsolutePath());
-		String root = (jarPath.getRoot() == null) ? "" : jarPath.getRoot().toString();
-		EXEC_PATH = root + jarPath.subpath(0, jarPath.getNameCount()-1).toString();
+	static {		
+		String pathStr = System.getProperty("jdk.module.path");
+		if (pathStr == null) {	//for java8
+			pathStr = System.getProperty("java.class.path");		
+			Path path = Paths.get(pathStr);
+			String root = ((path.getRoot() != null) ? path.getRoot().toString() : "");
+			EXEC_PATH = root + path.subpath(0, path.getNameCount()-1).toString();
+		}
+		else {
+			EXEC_PATH = Paths.get(pathStr).toAbsolutePath().toString();
+		}
 	}
 }

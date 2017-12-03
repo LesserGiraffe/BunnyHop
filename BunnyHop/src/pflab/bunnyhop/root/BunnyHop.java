@@ -71,7 +71,7 @@ public class BunnyHop {
 			foundationController.init(workspaceSet, nodeCategoryList);
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to load fxml " + BhParams.Path.FOUNDATION_FXML + "\n" + e.toString() + "\n");
+			MsgPrinter.instance.errMsgForDebug("failed to load fxml " + BhParams.Path.FOUNDATION_FXML + "\n" + e.toString() + "\n");
 			return;
 		}
 		
@@ -182,7 +182,7 @@ public class BunnyHop {
 			files = Files.walk(dirPath, FOLLOW_LINKS).filter(filePath -> filePath.toString().toLowerCase().endsWith(".css"));
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug("css directory not found " + dirPath);
+			MsgPrinter.instance.errMsgForDebug("css directory not found " + dirPath);
 			return;
 		}
 
@@ -191,7 +191,7 @@ public class BunnyHop {
 			try {
 				scene.getStylesheets().add(path.toUri().toString());
 			} catch (Exception e) {
-				MsgPrinter.instance.ErrMsgForDebug(BunnyHop.class.getSimpleName() + ".setCSS\n" + e.toString());
+				MsgPrinter.instance.errMsgForDebug(BunnyHop.class.getSimpleName() + ".setCSS\n" + e.toString());
 			}
 		});
 	}

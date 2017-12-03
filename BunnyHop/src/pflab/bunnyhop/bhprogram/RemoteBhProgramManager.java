@@ -59,7 +59,7 @@ public class RemoteBhProgramManager {
 			BhParams.Path.COPY_CMD_GENERATOR_JS);
 		
 		if (!success)
-			MsgPrinter.instance.ErrMsgForDebug("failed to initialize " + RemoteBhProgramManager.class.getSimpleName());			
+			MsgPrinter.instance.errMsgForDebug("failed to initialize " + RemoteBhProgramManager.class.getSimpleName());			
 		return success;
 	}
 	
@@ -88,7 +88,7 @@ public class RemoteBhProgramManager {
 		if (programRunning.get())
 			success &= terminate();
 
-		MsgPrinter.instance.MsgForUser("-- プログラム実行準備中 (remote) --\n");
+		MsgPrinter.instance.msgForUser("-- プログラム実行準備中 (remote) --\n");
 		setScriptBindings(ipAddr, uname, password);
 		killCmd = genKillCmd();						
 		String[] copyCmd = genCopyCmd();	
@@ -111,12 +111,12 @@ public class RemoteBhProgramManager {
 		}
 		
 		if (!success) {	//リモートでのスクリプト実行失敗
-			MsgPrinter.instance.ErrMsgForUser("!! プログラム実行準備失敗 (remote) !!\n");
-			MsgPrinter.instance.ErrMsgForDebug("failed to run " +filePath.getFileName().toString() + " (remote)");
+			MsgPrinter.instance.errMsgForUser("!! プログラム実行準備失敗 (remote) !!\n");
+			MsgPrinter.instance.errMsgForDebug("failed to run " +filePath.getFileName().toString() + " (remote)");
 			terminate();
 		}
 		else {
-			MsgPrinter.instance.MsgForUser("-- プログラム実行開始 (remote) --\n");
+			MsgPrinter.instance.msgForUser("-- プログラム実行開始 (remote) --\n");
 			programRunning.set(true);
 		}
 		
@@ -131,7 +131,7 @@ public class RemoteBhProgramManager {
 		
 		fileCopyIsCancelled.set(true);
 		if (!programRunning.get()) {
-			MsgPrinter.instance.ErrMsgForUser("!! プログラム終了済み (remote) !!\n");
+			MsgPrinter.instance.errMsgForUser("!! プログラム終了済み (remote) !!\n");
 			return Optional.empty();
 		}
 		return common.terminateAsync(() -> {
@@ -146,7 +146,7 @@ public class RemoteBhProgramManager {
 	 */
 	private synchronized boolean terminate() {
 		
-		MsgPrinter.instance.MsgForUser("-- プログラム終了中 (remote)  --\n");
+		MsgPrinter.instance.msgForUser("-- プログラム終了中 (remote)  --\n");
 		boolean success = common.haltTransceiver();
 
 		if (killCmd != null) {
@@ -158,10 +158,10 @@ public class RemoteBhProgramManager {
 		}
 		
 		if (!success) {
-			MsgPrinter.instance.ErrMsgForUser("!! プログラム終了失敗 (remote)  !!\n"); 
+			MsgPrinter.instance.errMsgForUser("!! プログラム終了失敗 (remote)  !!\n"); 
 		}
 		else {
-			MsgPrinter.instance.MsgForUser("-- プログラム終了完了 (remote)  --\n");
+			MsgPrinter.instance.msgForUser("-- プログラム終了完了 (remote)  --\n");
 			programRunning.set(false);
 		}
 		return success;
@@ -205,7 +205,7 @@ public class RemoteBhProgramManager {
 			retVal = cs.eval(bindings);
 		}
 		catch(ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to eval " +  BhParams.Path.REMOTE_EXEC_CMD_GENERATOR_JS + " " + e.toString());
+			MsgPrinter.instance.errMsgForDebug("failed to eval " +  BhParams.Path.REMOTE_EXEC_CMD_GENERATOR_JS + " " + e.toString());
 			return null;
 		}
 	
@@ -222,7 +222,7 @@ public class RemoteBhProgramManager {
 			process = procBuilder.start();
 		}
 		catch (IOException | IndexOutOfBoundsException | SecurityException e) {	
-			MsgPrinter.instance.ErrMsgForDebug("failed to start " +  BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENVIRONMENT + "\n" + e.toString());
+			MsgPrinter.instance.errMsgForDebug("failed to start " +  BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENVIRONMENT + "\n" + e.toString());
 		}
 		return process;
 	}
@@ -234,12 +234,12 @@ public class RemoteBhProgramManager {
 	private String[] genKillCmd() {
 		
 		CompiledScript cs = BhScriptManager.instance.getCompiledScript(BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS);		
-		Object retVal = null;
+		Object retVal;
 		try {
 			retVal = cs.eval(bindings);
 		}
 		catch(ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to eval" +  BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS + " " + e.toString());
+			MsgPrinter.instance.errMsgForDebug("failed to eval" +  BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS + " " + e.toString());
 			return null;
 		}
 	
@@ -261,7 +261,7 @@ public class RemoteBhProgramManager {
 			retVal = cs.eval(bindings);
 		}
 		catch(ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to eval" +  BhParams.Path.COPY_CMD_GENERATOR_JS + " " + e.toString());
+			MsgPrinter.instance.errMsgForDebug("failed to eval" +  BhParams.Path.COPY_CMD_GENERATOR_JS + " " + e.toString());
 			return null;
 		}
 	
@@ -286,7 +286,7 @@ public class RemoteBhProgramManager {
 		}
 		catch (IOException | IndexOutOfBoundsException | SecurityException e) {	
 			String cmdStr = Stream.of(cmd).reduce("", (p1, p2) -> p1 + " " + p2);
-			MsgPrinter.instance.ErrMsgForDebug("failed to execCmd " +  cmdStr + "\n" + e.toString());
+			MsgPrinter.instance.errMsgForDebug("failed to execCmd " +  cmdStr + "\n" + e.toString());
 		}
 		return process;
 	}
@@ -298,7 +298,7 @@ public class RemoteBhProgramManager {
 	 */
 	private boolean copyFile(String[] copyCmd) {
 		
-		MsgPrinter.instance.MsgForUser("-- プログラム転送中 --\n");
+		MsgPrinter.instance.msgForUser("-- プログラム転送中 --\n");
 		boolean success = true;
 		
 		fileCopyIsCancelled.set(false);
@@ -313,8 +313,8 @@ public class RemoteBhProgramManager {
 		}
 		
 		if (!success) {
-			MsgPrinter.instance.ErrMsgForDebug(RemoteBhProgramManager.class.getSimpleName() + ".copyFile  \n");
-			MsgPrinter.instance.ErrMsgForUser("!! プログラム転送失敗 !!\n");
+			MsgPrinter.instance.errMsgForDebug(RemoteBhProgramManager.class.getSimpleName() + ".copyFile  \n");
+			MsgPrinter.instance.errMsgForUser("!! プログラム転送失敗 !!\n");
 		}
 		
 		return success;
@@ -337,7 +337,7 @@ public class RemoteBhProgramManager {
 				//ファイル転送プロセスからの応答がない場合, メッセージを出力する
 				if (System.currentTimeMillis() - begin > 5000) {
 					begin = System.currentTimeMillis();
-					MsgPrinter.instance.ErrMsgForUser("!! ファイル転送プロセス応答なし !!\n");
+					MsgPrinter.instance.errMsgForUser("!! ファイル転送プロセス応答なし !!\n");
 				}
 				
 				if (fileCopyIsCancelled.get())	{//コピー停止命令を受けた
@@ -358,7 +358,7 @@ public class RemoteBhProgramManager {
 								for (int i = 0; i < charCodeArray.length; ++i)
 									charCodeArray[i] = charCodeList.get(i);							
 								String progressInfo = new String(charCodeArray);	//サイズ0の配列の場合 readStr == '\0'
-								MsgPrinter.instance.MsgForUser(progressInfo + "\n");
+								MsgPrinter.instance.msgForUser(progressInfo + "\n");
 								begin = System.currentTimeMillis();
 								charCodeList.clear();
 							}

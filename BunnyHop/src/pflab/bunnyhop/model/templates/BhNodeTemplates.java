@@ -80,7 +80,7 @@ public class BhNodeTemplates {
 
 		BhNode newNode = nodeID_nodeTemplate.get(id);
 		if (newNode == null) {
-			MsgPrinter.instance.ErrMsgForDebug(BhNodeTemplates.class.getSimpleName() +  ".genBhNode template not found" + id);
+			MsgPrinter.instance.errMsgForDebug(BhNodeTemplates.class.getSimpleName() +  ".genBhNode template not found" + id);
 		}
 		else {
 			newNode = newNode.copy(userOpeCmd);
@@ -135,7 +135,7 @@ public class BhNodeTemplates {
 			files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug("connector directory not found " + dirPath);
+			MsgPrinter.instance.errMsgForDebug("connector directory not found " + dirPath);
 			return false;
 		}
 
@@ -150,7 +150,7 @@ public class BhNodeTemplates {
 					return templateConnector.isPresent();
 				}
 				catch (IOException | ParserConfigurationException | SAXException e) {
-					MsgPrinter.instance.ErrMsgForDebug("ConnectorTemplates genTemplate \n" + e.toString() + "\n" +  file);
+					MsgPrinter.instance.errMsgForDebug("ConnectorTemplates genTemplate \n" + e.toString() + "\n" +  file);
 					return false;
 				}
 			}).allMatch(successful -> successful) ;
@@ -172,7 +172,7 @@ public class BhNodeTemplates {
 			files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug("node directory not found " + dirPath);
+			MsgPrinter.instance.errMsgForDebug("node directory not found " + dirPath);
 			return false;
 		}
 		
@@ -193,7 +193,7 @@ public class BhNodeTemplates {
 					return templateNode.isPresent();
 				}
 				catch (IOException | ParserConfigurationException | SAXException e) {
-					MsgPrinter.instance.ErrMsgForDebug("NodeTemplates genTemplate \n" + e.toString() + "\n" +  file);
+					MsgPrinter.instance.errMsgForDebug("NodeTemplates genTemplate \n" + e.toString() + "\n" +  file);
 					return false;
 				}
 			}).anyMatch(isSuccessful -> !isSuccessful);
@@ -217,7 +217,7 @@ public class BhNodeTemplates {
 
 				//ノードテンプレートが見つからない
 				if (!defNode.isPresent()) {
-					MsgPrinter.instance.ErrMsgForDebug(
+					MsgPrinter.instance.errMsgForDebug(
 						"<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグの "
 							+ BhParams.BhModelDef.ATTR_NAME_DEFAULT_BHNODE_ID + " (" + defNodeID +") " + "と一致する " 
 							+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " を持つ"
@@ -225,7 +225,7 @@ public class BhNodeTemplates {
 					return false;
 				}
 				else if (!initNode.isPresent()) {
-					MsgPrinter.instance.ErrMsgForDebug(
+					MsgPrinter.instance.errMsgForDebug(
 						"<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグの "
 							+ BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID + " (" + initNodeID +") " + "と一致する " 
 							+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " を持つ "
@@ -252,7 +252,7 @@ public class BhNodeTemplates {
 			
 			//イミテーションノードの存在チェック
 			if (!bhNodeExists(orgID_imitID._2)) {
-				MsgPrinter.instance.ErrMsgForDebug(
+				MsgPrinter.instance.errMsgForDebug(
 					"\"" + orgID_imitID._2 + "\"" + " を " 
 					+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " に持つ " 
 					+ BhParams.BhModelDef.ELEM_NAME_NODE + " が見つかりません. " + "(" + orgID_imitID._1 + ")");
@@ -264,7 +264,7 @@ public class BhNodeTemplates {
 			Optional<BhNode> imitNodeOpt = getBhNodeTemplate(orgID_imitID._2);
 			boolean isSameType = orgNodeOpt.get().getClass() == imitNodeOpt.get().getClass();
 			if (!isSameType) {
-				MsgPrinter.instance.ErrMsgForDebug(
+				MsgPrinter.instance.errMsgForDebug(
 					BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + orgNodeOpt.get().type + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " は " 
 				  + BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + imitNodeOpt.get().type + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " を "
 				  + BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID + " に指定できません. \n"
@@ -326,7 +326,7 @@ public class BhNodeTemplates {
 			cs.eval(scriptScope);
 		}
 		catch (ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug("eval " + BhParams.Path.GEN_COMPOUND_NODES_JS + "\n" + e.toString());
+			MsgPrinter.instance.errMsgForDebug("eval " + BhParams.Path.GEN_COMPOUND_NODES_JS + "\n" + e.toString());
 			return false;
 		}
 		return true;

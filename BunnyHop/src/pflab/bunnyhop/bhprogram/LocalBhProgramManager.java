@@ -18,7 +18,6 @@ package pflab.bunnyhop.bhprogram;
 import pflab.bunnyhop.bhprogram.common.BhProgramData;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
@@ -66,7 +65,7 @@ public class LocalBhProgramManager {
 		if (programRunning.get())
 			success &= terminate();
 		
-		MsgPrinter.instance.MsgForUser("-- プログラム実行準備中 (local) --\n");
+		MsgPrinter.instance.msgForUser("-- プログラム実行準備中 (local) --\n");
 		if (success) {
 			process = startExecEnvProcess();
 			if (process == null) {
@@ -80,12 +79,12 @@ public class LocalBhProgramManager {
 		}
 	
 		if (!success) {	//リモートでのスクリプト実行失敗
-			MsgPrinter.instance.ErrMsgForUser("!! プログラム実行準備失敗 (local) !!\n");
-			MsgPrinter.instance.ErrMsgForDebug("failed to run " +filePath.getFileName().toString() + " (local)");
+			MsgPrinter.instance.errMsgForUser("!! プログラム実行準備失敗 (local) !!\n");
+			MsgPrinter.instance.errMsgForDebug("failed to run " +filePath.getFileName().toString() + " (local)");
 			terminate();
 		}
 		else {
-			MsgPrinter.instance.MsgForUser("-- プログラム実行開始 (local) --\n");
+			MsgPrinter.instance.msgForUser("-- プログラム実行開始 (local) --\n");
 			programRunning.set(true);
 		}
 
@@ -99,7 +98,7 @@ public class LocalBhProgramManager {
 	public Optional<Future<Boolean>> terminateAsync() {
 		
 		if (!programRunning.get()) {
-			MsgPrinter.instance.ErrMsgForUser("!! プログラム終了済み (local) !!\n");
+			MsgPrinter.instance.errMsgForUser("!! プログラム終了済み (local) !!\n");
 			return Optional.empty();
 		}
 		
@@ -113,7 +112,7 @@ public class LocalBhProgramManager {
 	 */
 	public synchronized boolean terminate() {
 		
-		MsgPrinter.instance.MsgForUser("-- プログラム終了中 (local)  --\n");
+		MsgPrinter.instance.msgForUser("-- プログラム終了中 (local)  --\n");
 		boolean success = common.haltTransceiver();
 		
 		if (process != null) {
@@ -121,10 +120,10 @@ public class LocalBhProgramManager {
 		}
 		process = null;		
 		if (!success) {
-			MsgPrinter.instance.ErrMsgForUser("!! プログラム終了失敗 (local)  !!\n"); 
+			MsgPrinter.instance.errMsgForUser("!! プログラム終了失敗 (local)  !!\n"); 
 		}
 		else {
-			MsgPrinter.instance.MsgForUser("-- プログラム終了完了 (local)  --\n");
+			MsgPrinter.instance.msgForUser("-- プログラム終了完了 (local)  --\n");
 			programRunning.set(false);
 		}
 		return success;
@@ -161,21 +160,24 @@ public class LocalBhProgramManager {
 	 */
 	private Process startExecEnvProcess() {
 		
-		Process process = null;
+		Process proc = null;
 		ProcessBuilder procBuilder = 
 			new ProcessBuilder(
-				"java", 
-				"-jar", 
-				Paths.get(Util.EXEC_PATH, BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENVIRONMENT).toString(),
+				Util.JAVA_PATH, 
+				"-p", 
+				Util.EXEC_PATH,
+				"-m",
+				BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENVIRONMENT,
 				"true");	//localFlag == true
+		
 		procBuilder.redirectErrorStream(true);
 		try {
-			process = procBuilder.start();
+			proc = procBuilder.start();
 		}
 		catch (IOException e) {
 		}
 		
-		return process;
+		return proc;
 	}
 	
 	/**

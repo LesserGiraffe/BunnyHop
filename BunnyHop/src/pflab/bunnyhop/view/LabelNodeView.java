@@ -54,7 +54,7 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 				label = (Label)loader.load();
 			} catch (IOException | ClassCastException e) {
-				MsgPrinter.instance.ErrMsgForDebug("failed to initialize " + LabelNodeView.class.getSimpleName() + "\n" + e.toString());
+				MsgPrinter.instance.errMsgForDebug("failed to initialize " + LabelNodeView.class.getSimpleName() + "\n" + e.toString());
 			}
 		}
 		getChildren().add(label);
@@ -95,8 +95,8 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 	 * */
 	@Override
 	public void show(int depth) {
-		MsgPrinter.instance.MsgForDebug(indent(depth) + "<LabelView" + ">   " + this.hashCode());
-		MsgPrinter.instance.MsgForDebug(indent(depth + 1) + "<content" + ">   " + label.getText());
+		MsgPrinter.instance.msgForDebug(indent(depth) + "<LabelView" + ">   " + this.hashCode());
+		MsgPrinter.instance.msgForDebug(indent(depth + 1) + "<content" + ">   " + label.getText());
 	}
 
 	/**

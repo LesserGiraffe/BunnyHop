@@ -32,9 +32,7 @@ public class RemoteCmdProcessor {
 
 	private final BlockingQueue<BhProgramData> recvDataList = new ArrayBlockingQueue<>(BhParams.ExternalApplication.MAX_REMOTE_CMD_QUEUE_SIZE);
 	private final ExecutorService remoteCmdExec = Executors.newSingleThreadExecutor();	//!< コマンド受信用
-	
-	public void RemoteCmdProcessor(){}
-	
+		
 	public void init() {
 		remoteCmdExec.submit(() -> {
 			
@@ -62,8 +60,9 @@ public class RemoteCmdProcessor {
 		
 		switch(data.type) {
 			case OUTPUT_STR:
-				MsgPrinter.instance.MsgForUser(data.str + "\n");
+				MsgPrinter.instance.msgForUser(data.str + "\n");
 				break;
+			default:
 		}
 	}
 	

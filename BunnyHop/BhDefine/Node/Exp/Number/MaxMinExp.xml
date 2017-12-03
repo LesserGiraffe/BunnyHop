@@ -1,0 +1,51 @@
+<Node type="connective"
+	bhNodeID="idMaxMinExp"
+	name="MaxMinExp"
+	nodeStyleID="MaxMinExp.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<ConnectorSection name="NumberExpSctn">
+
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
+		
+		<PrivateConnector 
+			name="to"
+			fixed="true">
+			<Node
+				type="label"
+				name="to"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="と">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+		
+		<PrivateConnector 
+			name="no"
+			fixed="true">
+			<Node
+				type="label"
+				name="no"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="の">
+			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector 
+			name="Option0"
+    		fixed="true">
+			<Node
+				type="comboBox"
+				name="MaxMinOpe"
+				nodeStyleID="WordComboBox.json"
+				nodeInputControl="MaxMinOpe.fxml"
+				initString="大きい方">
+			</Node>
+		</PrivateConnector>
+		
+	</ConnectorSection>
+</Node>

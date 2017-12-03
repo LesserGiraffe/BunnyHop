@@ -53,7 +53,7 @@
 			<Node
 				type="comboBox"
 				name="MoveOpe"
-				nodeStyleID="MoveOpe.json"
+				nodeStyleID="WordComboBox.json"
 				nodeInputControl="MoveOpe.fxml"
 				initString="前進">
 			</Node>

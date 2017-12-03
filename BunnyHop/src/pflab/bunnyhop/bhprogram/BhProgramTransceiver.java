@@ -61,14 +61,14 @@ public class BhProgramTransceiver {
 				programHandler.connect();
 			}
 			catch(RemoteException e) {	//接続中にBhProgramExecEnvironmentをkillした場合, ここで抜ける
-				MsgPrinter.instance.ErrMsgForUser("!! 接続失敗 !!\n");
-				MsgPrinter.instance.ErrMsgForDebug("failed to connect. " + e.toString());
+				MsgPrinter.instance.errMsgForUser("!! 接続失敗 !!\n");
+				MsgPrinter.instance.errMsgForDebug("failed to connect. " + e.toString());
 				return false;
 			}
 			connected.set(true);
 			connected.notifyAll();
 		}
-		MsgPrinter.instance.MsgForUser("-- 接続完了 --\n");
+		MsgPrinter.instance.msgForUser("-- 接続完了 --\n");
 		return true;
 	}
 	
@@ -83,13 +83,13 @@ public class BhProgramTransceiver {
 				programHandler.disconnect();
 			}
 			catch(RemoteException e) {	//接続中にBhProgramExecEnvironmentをkillした場合, ここで抜ける
-				MsgPrinter.instance.ErrMsgForUser("!! 切断失敗 !!\n");
-				MsgPrinter.instance.ErrMsgForDebug("failed to disconnect " + e.toString());
+				MsgPrinter.instance.errMsgForUser("!! 切断失敗 !!\n");
+				MsgPrinter.instance.errMsgForDebug("failed to disconnect " + e.toString());
 				return false;
 			}
 			connected.set(false);
 		}
-		MsgPrinter.instance.MsgForUser("-- 切断完了 --\n");
+		MsgPrinter.instance.msgForUser("-- 切断完了 --\n");
 		return true;
 	}
 	

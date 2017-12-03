@@ -52,7 +52,7 @@ public class BhNodeAttributes {
 		//bhNodeID
 		nodeAttrs.bhNodeID = BhNodeID.createBhNodeID(node.getAttribute(BhParams.BhModelDef.ATTR_NAME_BHNODE_ID));
 		if (nodeAttrs.bhNodeID.equals(BhNodeID.NONE)) {
-			MsgPrinter.instance.ErrMsgForDebug(
+			MsgPrinter.instance.errMsgForDebug(
 				"<" + BhParams.BhModelDef.ELEM_NAME_NODE + ">" + " タグには " 
 				+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " 属性を記述してください.  " + node.getBaseURI());
 			return Optional.empty();
@@ -64,7 +64,7 @@ public class BhNodeAttributes {
 		// nodeStyleID
 		String nodeStyleID = node.getAttribute(BhParams.NodeStyleDef.KEY_NODE_STYLE_ID);
 		nodeAttrs.nodeStyleID = nodeStyleID.isEmpty() ? BhParams.BhModelDef.ATTR_VALUE_DEFAULT_NODE_STYLE_ID : nodeStyleID;
-		BhNodeViewStyle.putNodeID_NodeStyleID(nodeAttrs.bhNodeID, nodeStyleID);
+		BhNodeViewStyle.putNodeID_NodeStyleID(nodeAttrs.bhNodeID, nodeAttrs.nodeStyleID);
 				
 		//onMovedFromChildToWS
 		nodeAttrs.onMovedFromChildToWS = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_MOVED_FROM_CHILD_TO_WS);
@@ -93,7 +93,7 @@ public class BhNodeAttributes {
 			nodeAttrs.canCreateImitManually = false;
 		}
 		else {
-			MsgPrinter.instance.ErrMsgForDebug(BhParams.BhModelDef.ATTR_NAME_CAN_CREATE_IMIT_MANUALLY + " 属性には "
+			MsgPrinter.instance.errMsgForDebug(BhParams.BhModelDef.ATTR_NAME_CAN_CREATE_IMIT_MANUALLY + " 属性には "
 				+ BhParams.BhModelDef.ATTR_VALUE_TRUE + " か "
 				+ BhParams.BhModelDef.ATTR_VALUE_FALSE + " を指定してください. " + node.getBaseURI());
 			return Optional.empty();

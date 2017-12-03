@@ -83,7 +83,7 @@ public class BhCompiler {
 			localCommonCode = new String(content, StandardCharsets.UTF_8);
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to initialize + " + BhCompiler.class.getSimpleName() + "\n" + e.toString());
+			MsgPrinter.instance.errMsgForDebug("failed to initialize + " + BhCompiler.class.getSimpleName() + "\n" + e.toString());
 			return false;
 		}		
 		return true;
@@ -131,7 +131,7 @@ public class BhCompiler {
 				e.toString() + "\n" + appFilePath.toString());			
 			return Optional.empty();
 		}
-		MsgPrinter.instance.MsgForUser("\n-- コンパイル成功 --\n");
+		MsgPrinter.instance.msgForUser("\n-- コンパイル成功 --\n");
 		return Optional.of(appFilePath);
 	}
 	

@@ -140,7 +140,7 @@ public class TextNode  extends Imitatable implements Serializable {
 		try {
 			jsReturn = onTextInput.eval(scriptScope);
 		} catch (ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug(TextNode.class.getSimpleName() +  ".isTextSettable   " + scriptNameOnTextInput + "\n" + e.toString() + "\n");
+			MsgPrinter.instance.errMsgForDebug(TextNode.class.getSimpleName() +  ".isTextSettable   " + scriptNameOnTextInput + "\n" + e.toString() + "\n");
 		}
 
 		if(jsReturn instanceof Boolean)
@@ -171,13 +171,13 @@ public class TextNode  extends Imitatable implements Serializable {
 		if (getLastReplaced() != null)
 			lastReplacedHash =  getLastReplaced().hashCode() + "";
 
-		MsgPrinter.instance.MsgForDebug(indent(depth) + "<TextNode" + "string=" + text + "  bhID=" + getID() + "  parent="+ parentHash + "> " + this.hashCode());
-		MsgPrinter.instance.MsgForDebug(indent(depth+1) + "<" + "ws " + workspace + "> ");
-		MsgPrinter.instance.MsgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
-		MsgPrinter.instance.MsgForDebug(indent(depth+1) + "<" + "scopeName " + imitInfo.scopeName + "> ");
-		MsgPrinter.instance.MsgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
+		MsgPrinter.instance.msgForDebug(indent(depth) + "<TextNode" + "string=" + text + "  bhID=" + getID() + "  parent="+ parentHash + "> " + this.hashCode());
+		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "ws " + workspace + "> ");
+		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
+		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "scopeName " + imitInfo.scopeName + "> ");
+		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
 		imitInfo.getImitationList().forEach(imit -> {
-			MsgPrinter.instance.MsgForDebug(indent(depth+2) + "imit " + imit.hashCode());
+			MsgPrinter.instance.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());
 		});
 			
 	}

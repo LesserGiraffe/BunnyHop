@@ -363,6 +363,7 @@ public class BhNodeController implements MsgProcessor {
 
 			case REMOVE_QT_RECTANGLE:
 				view.getRegionManager().removeQtRectable();
+				break;
 
 			case GET_POS_ON_WORKSPACE:
 				pos = view.getPositionManager().getPosOnWorkspace();
@@ -403,7 +404,7 @@ public class BhNodeController implements MsgProcessor {
 				break;
 				
 			default:
-				MsgPrinter.instance.ErrMsgForDebug(BhNodeController.class.getSimpleName() + ".receiveMsg unknown msg.  " + msg);
+				MsgPrinter.instance.errMsgForDebug(BhNodeController.class.getSimpleName() + ".receiveMsg unknown msg.  " + msg);
 				assert false;
 		}
 
@@ -413,7 +414,7 @@ public class BhNodeController implements MsgProcessor {
 	/**
 	 * D&D操作で使用する一連のイベントハンドラがアクセスするデータをまとめたクラス 
 	 **/
-	class DragAndDropEventInfo {
+	private class DragAndDropEventInfo {
 		Point2D mousePressedPos = null;
 		Point2D posOnWorkspace = null;
 		BhNode currentOverlapped = null;	//現在重なっているView

@@ -237,15 +237,15 @@ public class BhParams {
 	 */
 	public static class ExternalApplication {
 		
-		public static String BH_PROGRAM_EXEC_ENVIRONMENT = "BhProgramExecEnvironment.jar";
-		public static int PROGRAM_EXEC_ENV_TERMINATION_TIMEOUT = 10;	//!< BhProgramExecEnvironment終了待ちのタイムアウト時間 (sec)
-		public static int FILE_COPY_TERMINATION_TIMEOUT = 10;	//!< ファイルコピープロセス終了待ちのタイムアウト (sec)
-		public static int POP_RECV_DATA_TIMEOUT = 3;	//!< BhProgram実行環境からの受信データ待ちタイムアウト (sec)
-		public static int POP_SEND_DATA_TIMEOUT = 3;	//!< BhProgram実行環境への送信データ待ちタイムアウト (sec)
-		public static int TCP_PORT_READ_TIMEOUT = 15;	//!< TCPポート読み取りのタイムアウト (sec)
-		public static int MAX_REMOTE_CMD_QUEUE_SIZE = 2048;
-		public static String RMI_TCP_PORT_SUFFIX = "@RmiTcpPort";	//BhProgram実行環境との通信に使うRMIオブジェクトを探す際のTCPポート
-		public static String LOLCAL_HOST = "localhost";
+		public static final String BH_PROGRAM_EXEC_ENVIRONMENT = "net.pflab.bhprogramexecenv/pflab.bunnyhop.programexecenv.BhProgramExecEnvironment";
+		public static final int PROGRAM_EXEC_ENV_TERMINATION_TIMEOUT = 10;	//!< BhProgramExecEnvironment終了待ちのタイムアウト時間 (sec)
+		public static final int FILE_COPY_TERMINATION_TIMEOUT = 10;	//!< ファイルコピープロセス終了待ちのタイムアウト (sec)
+		public static final int POP_RECV_DATA_TIMEOUT = 3;	//!< BhProgram実行環境からの受信データ待ちタイムアウト (sec)
+		public static final int POP_SEND_DATA_TIMEOUT = 3;	//!< BhProgram実行環境への送信データ待ちタイムアウト (sec)
+		public static final int TCP_PORT_READ_TIMEOUT = 15;	//!< TCPポート読み取りのタイムアウト (sec)
+		public static final int MAX_REMOTE_CMD_QUEUE_SIZE = 2048;
+		public static final String RMI_TCP_PORT_SUFFIX = "@RmiTcpPort";	//BhProgram実行環境との通信に使うRMIオブジェクトを探す際のTCPポート
+		public static final String LOLCAL_HOST = "localhost";
 	}
 }
 

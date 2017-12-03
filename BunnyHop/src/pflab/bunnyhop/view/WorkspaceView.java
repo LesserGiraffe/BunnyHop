@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
@@ -29,7 +28,6 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.transform.Scale;
-import javafx.stage.Screen;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -81,11 +79,10 @@ public class WorkspaceView extends Tab {
 			loader.load();
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.ErrMsgForDebug("failed to initizlize " + WorkspaceView.class.getSimpleName() + "\n" + e.toString());
+			MsgPrinter.instance.errMsgForDebug("failed to initizlize " + WorkspaceView.class.getSimpleName() + "\n" + e.toString());
 			return false;
 		}
 	
-		Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
 		minPaneSize.x = width;
 		minPaneSize.y = height;
 		wsPane.setMinSize(minPaneSize.x, minPaneSize.y);	//タブの中の部分の最小サイズを決める		

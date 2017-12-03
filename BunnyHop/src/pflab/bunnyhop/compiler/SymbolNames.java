@@ -215,6 +215,7 @@ public class SymbolNames {
 		public static final String RAMDOM_INT_EXP = "RandomIntExp";
 		public static final String NUM_ROUND_EXP = "NumRoundExp";
 		public static final String ABS_EXP = "AbsExp";
+		public static final String MAX_MIN_EXP = "MaxMinExp";
 		public static final String MEASURE_DISTANCE_EXP = "MeasureDistanceExp";
 		public static final String PRINT_STAT = "PrintStat";
 		public static final String MOVE_STAT = "MoveStat";
@@ -225,12 +226,14 @@ public class SymbolNames {
 		public static final String OPT_ROUND = "四捨五入";
 		public static final String OPT_CEIL = "切り上げ";
 		public static final String OPT_FLOOR = "切り捨て";
+		public static final String OPT_MAX = "大きい方";
+		public static final String OPT_MIN = "小さい方";
 		public static final String OPT_MOVE_FORWARD = "前進";
 		public static final String OPT_MOVE_BACKWARD = "後退";
 		public static final String OPT_TURN_RIGHT = "右旋回";
 		public static final String OPT_TURN_LEFT = "左旋回";
 
-		public static HashSet<String> PREDEF_FUNC_CALL_EXP_LIST = 
+		public static final HashSet<String> PREDEF_FUNC_CALL_EXP_LIST = 
 			new HashSet<>(Arrays.asList(
 				NUM_TO_STR_EXP,
 				STR_TO_NUM_EXP,
@@ -239,9 +242,10 @@ public class SymbolNames {
 				NUM_ROUND_EXP,
 				RAMDOM_INT_EXP,
 				ABS_EXP,
+				MAX_MIN_EXP,
 				MEASURE_DISTANCE_EXP));	//!< 定義済み関数式のリスト
 	
-		public static HashSet<String> PREDEF_FUNC_CALL_STAT_LIST = 
+		public static final HashSet<String> PREDEF_FUNC_CALL_STAT_LIST = 
 			new HashSet<>(Arrays.asList(
 				PRINT_STAT,
 				MOVE_STAT,
@@ -272,7 +276,7 @@ public class SymbolNames {
 				Array.BOOL_ARRAY_CLEAR_STAT)
 			);	//!< 定義済み関数文のリスト
 		
-		public static Map<List<String>, String> PREDEF_FUNC_NAME_MAP = 
+		public static final Map<List<String>, String> PREDEF_FUNC_NAME_MAP = 
 			new HashMap<List<String>, String>() {{
 				put(Arrays.asList(NUM_TO_STR_EXP), "String");
 				put(Arrays.asList(BOOL_TO_STR_EXP), "_boolToStr");
@@ -285,6 +289,8 @@ public class SymbolNames {
 				put(Arrays.asList(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
 				put(Arrays.asList(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor");
 				put(Arrays.asList(ABS_EXP), "Math.abs");
+				put(Arrays.asList(MAX_MIN_EXP, OPT_MAX), "Math.max");
+				put(Arrays.asList(MAX_MIN_EXP, OPT_MIN), "Math.min");
 				put(Arrays.asList(RAMDOM_INT_EXP), "_randomInt");
 				put(Arrays.asList(MEASURE_DISTANCE_EXP), "_measureDistance");
 				put(Arrays.asList(MOVE_STAT, OPT_MOVE_FORWARD), "_moveForward");

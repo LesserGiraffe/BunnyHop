@@ -34,7 +34,7 @@ public class BhProgramData implements Serializable {
 	/**
 	 * データの種類
 	 */
-	public enum TYPE implements Serializable {
+	public enum TYPE {
 		OUTPUT_STR,
 		INPUT_STR,
 	}

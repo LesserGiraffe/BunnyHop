@@ -32,6 +32,7 @@ import pflab.bunnyhop.bhprogram.common.RemoteClientSocketFactory;
 public class BhProgramExecEnvironment {
 
 	public static void main(String[] args) {
+		System.out.println(Util.EXEC_PATH);
 		try {
 			boolean local = true;
 			if (args.length >= 1)

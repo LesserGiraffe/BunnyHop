@@ -56,6 +56,8 @@ public class LocalClientSocketFactory implements RMIClientSocketFactory, Seriali
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
 		return (getClass() == obj.getClass()) && (id == ((LocalClientSocketFactory)obj).id);
     }
 }

@@ -68,7 +68,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 				setBtnStyle(viewStyle.imitation);
 				getChildren().add(imitCreateImitBtn);
 			} catch (IOException | ClassCastException e) {
-				MsgPrinter.instance.ErrMsgForDebug("failed to initialize " + ConnectiveNodeView.class.getSimpleName() + "\n" + e.toString());
+				MsgPrinter.instance.errMsgForDebug("failed to initialize " + ConnectiveNodeView.class.getSimpleName() + "\n" + e.toString());
 			}
 		}
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_CONNECTIVE_NODE);
@@ -190,12 +190,12 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 	public void show(int depth) {
 
 		try {
-			MsgPrinter.instance.MsgForDebug(indent(depth) + "<ConnectiveNodeView" + ">   " + this.hashCode());
+			MsgPrinter.instance.msgForDebug(indent(depth) + "<ConnectiveNodeView" + ">   " + this.hashCode());
 			innerGroup.show(depth + 1);
 			outerGroup.show(depth + 1);
 		}
 		catch (Exception e) {
-			MsgPrinter.instance.MsgForDebug("connectiveNodeView show exception " + e);
+			MsgPrinter.instance.msgForDebug("connectiveNodeView show exception " + e);
 		}
 	}
 	

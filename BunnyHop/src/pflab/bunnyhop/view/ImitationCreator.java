@@ -117,7 +117,7 @@ public interface ImitationCreator {
 			imitCreateImitBtn = (Button)loader.load();
 			setBtnStyle(buttonStyle);
 		} catch (IOException | ClassCastException e) {
-			MsgPrinter.instance.ErrMsgForDebug(ImitationCreator.class.getSimpleName() + ".loadButton\n" + e.toString());
+			MsgPrinter.instance.errMsgForDebug(ImitationCreator.class.getSimpleName() + ".loadButton\n" + e.toString());
 		}
 		return imitCreateImitBtn;
 	}

@@ -40,7 +40,7 @@ public class AppMain extends Application {
 	}
 
 	@Override
-	public void start(Stage stage) throws Exception {
+	public void start(Stage stage) throws Exception {	
 		
 		setOnCloseHandler(stage);
 		

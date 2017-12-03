@@ -87,8 +87,8 @@ public class VoidNode extends BhNode implements Serializable {
 		if (parentConnector != null)
 			parentHashCode = parentConnector.hashCode() + "";
 		
-		MsgPrinter.instance.MsgForDebug(indent(depth) + "<voidNode" + "  bhID=" + getID() + "  parent="+ parentHashCode + "> " + this.hashCode());
-		MsgPrinter.instance.MsgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
+		MsgPrinter.instance.msgForDebug(indent(depth) + "<voidNode" + "  bhID=" + getID() + "  parent="+ parentHashCode + "> " + this.hashCode());
+		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
 	}
 	
 	@Override

@@ -104,7 +104,7 @@ public class WorkspaceController implements MsgProcessor {
 				return new MsgData(model, view, data.userOpeCmd);
 				
 			default:
-				MsgPrinter.instance.ErrMsgForDebug(WorkspaceController.class.getSimpleName() + ".receiveMsg unknown msg " + msg);
+				MsgPrinter.instance.errMsgForDebug(WorkspaceController.class.getSimpleName() + ".receiveMsg unknown msg " + msg);
 				assert false;
 		}
 
@@ -121,14 +121,14 @@ public class WorkspaceController implements MsgProcessor {
 			f = c.getDeclaredField("quadTreeMngForConnector");
 			f.setAccessible(true);
 			QuadTreeManager quadTreeMngForConnector = (QuadTreeManager)f.get(view);
-			MsgPrinter.instance.MsgForDebug("num of QuadTreeNodes " + quadTreeMngForConnector.calcRegisteredNodeNum());
-		} catch (Exception e) {
-			e.printStackTrace();
+			MsgPrinter.instance.msgForDebug("num of QuadTreeNodes " + quadTreeMngForConnector.calcRegisteredNodeNum());
+		} catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException e) {
+			MsgPrinter.instance.errMsgForDebug(e.toString());
 		}
 		
-		MsgPrinter.instance.MsgForDebug("num of root nodes " + model.getRootNodeList().size());
-		MsgPrinter.instance.MsgForDebug("num of deletion candidates " + DelayedDeleter.instance.getDeletionCadidateList());
-		MsgPrinter.instance.MsgForDebug("num of selected nodes " + model.getSelectedNodeList().size());
+		MsgPrinter.instance.msgForDebug("num of root nodes " + model.getRootNodeList().size());
+		MsgPrinter.instance.msgForDebug("num of deletion candidates " + DelayedDeleter.instance.getDeletionCadidateList());
+		MsgPrinter.instance.msgForDebug("num of selected nodes " + model.getSelectedNodeList().size());
 	}
 }
 

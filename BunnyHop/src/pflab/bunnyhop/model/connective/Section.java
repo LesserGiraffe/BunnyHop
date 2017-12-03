@@ -15,7 +15,6 @@
  */
 package pflab.bunnyhop.model.connective;
 
-import java.io.Serializable;
 import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.model.BhNode;
 import pflab.bunnyhop.model.SyntaxSymbol;
@@ -25,7 +24,7 @@ import pflab.bunnyhop.undo.UserOperationCommand;
  * xmlのノード定義の\<ConnectorSection\> と \<Section\> に該当するクラスの基底クラス
  * @author K.Koike
  */
-public abstract class Section extends SyntaxSymbol implements Serializable {
+public abstract class Section extends SyntaxSymbol {
 
 	//どちらか一方のみのフィールドが親オブジェクトを持つ
 	protected ConnectiveNode parentNode;	//!< このセクションを保持している ConnectiveNode オブジェクト

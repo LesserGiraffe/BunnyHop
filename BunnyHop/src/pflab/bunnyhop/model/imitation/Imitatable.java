@@ -15,7 +15,6 @@
  */
 package pflab.bunnyhop.model.imitation;
 
-import java.io.Serializable;
 import pflab.bunnyhop.model.BhNode;
 import pflab.bunnyhop.model.BhNodeID;
 import pflab.bunnyhop.model.SyntaxSymbol;
@@ -25,7 +24,7 @@ import pflab.bunnyhop.undo.UserOperationCommand;
  * イミテーションノード操作のインタフェース<br>
  * @author K.Koike
  */
-public abstract class Imitatable extends BhNode implements Serializable {
+public abstract class Imitatable extends BhNode {
 
 	public Imitatable(
 		BhNodeID bhID,

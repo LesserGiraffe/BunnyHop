@@ -15,7 +15,6 @@
  */
 package pflab.bunnyhop.model.connective;
 
-import java.io.Serializable;
 import java.util.List;
 import javax.script.Bindings;
 import javax.script.CompiledScript;
@@ -24,7 +23,6 @@ import pflab.bunnyhop.modelprocessor.BhModelProcessor;
 import pflab.bunnyhop.modelprocessor.NodeMVCBuilder;
 import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.common.BhParams;
-import pflab.bunnyhop.common.Showable;
 import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.message.MsgTransporter;
 import pflab.bunnyhop.model.BhNode;
@@ -41,7 +39,7 @@ import pflab.bunnyhop.undo.UserOperationCommand;
  * ノードとノードをつなぐ部分のクラス
  * @author K.Koike
  * */
-public class Connector extends SyntaxSymbol implements Cloneable, Showable, Serializable {
+public class Connector extends SyntaxSymbol {
 
 	private final ConnectorID id; 				//!< コネクタID (\<Connector\> タグの bhID)
 	public final BhNodeID defaultNodeID; 		//!< ノードが取り外されたときに変わりに繋がるノードのID (\<Connector\> タグの bhID)
@@ -208,7 +206,7 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 		try {
 			replaceable = onReplaceabilityChecked.eval(scriptScope);
 		} catch (ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug(Connector.class.getSimpleName() +  ".isReplacable   " + scriptNameOnReplaceabilityChecked + "\n" + e.toString() + "\n");
+			MsgPrinter.instance.errMsgForDebug(Connector.class.getSimpleName() +  ".isReplacable   " + scriptNameOnReplaceabilityChecked + "\n" + e.toString() + "\n");
 			return false;
 		}
 		if (replaceable instanceof Boolean)
@@ -341,7 +339,7 @@ public class Connector extends SyntaxSymbol implements Cloneable, Showable, Seri
 	 * */
 	@Override
 	public void show(int depth) {
-		MsgPrinter.instance.MsgForDebug(indent(depth) + "<Connector" + " bhID=" + id + " nodeID=" + connectedNode.getID() + "  parent=" + parent.hashCode() + "> " + this.hashCode());
+		MsgPrinter.instance.msgForDebug(indent(depth) + "<Connector" + " bhID=" + id + " nodeID=" + connectedNode.getID() + "  parent=" + parent.hashCode() + "> " + this.hashCode());
 		connectedNode.show(depth + 1);
 	}
 }

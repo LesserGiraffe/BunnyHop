@@ -82,7 +82,7 @@ public class BhNodeCategoryListController implements MsgProcessor {
 			break;
 			
 		default :
-			MsgPrinter.instance.ErrMsgForDebug(BhNodeCategoryList.class.getSimpleName() + ".receiveMsg unknown msg");
+			MsgPrinter.instance.errMsgForDebug(BhNodeCategoryList.class.getSimpleName() + ".receiveMsg unknown msg");
 			assert false;
 		}
 		return null;

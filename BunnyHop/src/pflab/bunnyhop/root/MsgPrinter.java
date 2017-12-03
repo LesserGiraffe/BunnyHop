@@ -110,7 +110,7 @@ public class MsgPrinter {
 	/**
 	 * デバッグ用メッセージ出力メソッド
 	 * */
-	public void ErrMsgForDebug(String msg) {
+	public void errMsgForDebug(String msg) {
 		msg = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(Calendar.getInstance().getTime()) + "  ERR : " + msg;
 		System.err.print(msg);
 		writeMsgToLogFile(msg + "\n");
@@ -119,7 +119,7 @@ public class MsgPrinter {
 	/**
 	 * デバッグ用メッセージ出力メソッド
 	 * */
-	public void MsgForDebug(String msg) {
+	public void msgForDebug(String msg) {
 		msg = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(Calendar.getInstance().getTime()) + "  MSG : " + msg;
 		System.out.print(msg);
 		writeMsgToLogFile(msg + "\n");
@@ -174,7 +174,7 @@ public class MsgPrinter {
 	/**
 	 * BHユーザ向けにメッセージを出力する
 	 */
-	public void MsgForUser(String msg) {
+	public void msgForUser(String msg) {
 		
 		if (Platform.isFxApplicationThread()) {
 			mainMsgArea.appendText(msg);
@@ -192,8 +192,8 @@ public class MsgPrinter {
 	/**
 	 * BHユーザ向けにエラーメッセージを出力する
 	 */
-	public void ErrMsgForUser(String msg) {
-		MsgForUser(msg);
+	public void errMsgForUser(String msg) {
+		msgForUser(msg);
 	}
 
 	/**

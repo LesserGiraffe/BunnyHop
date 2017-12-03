@@ -15,7 +15,6 @@
  */
 package pflab.bunnyhop.model.connective;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,7 +29,7 @@ import pflab.bunnyhop.undo.UserOperationCommand;
  * サブグループとして Section の集合を持つクラス
  * @author K.Koike
  * */
-public class Subsection extends Section implements Serializable {
+public class Subsection extends Section {
 
 	List<Section> subsectionList = new ArrayList<>();	//!< サブグループリスト
 
@@ -125,7 +124,7 @@ public class Subsection extends Section implements Serializable {
 		else
 			parentHash = parentSection.hashCode();
 
-		MsgPrinter.instance.MsgForDebug(indent(depth) + "<ConnectorGroup" + " name=" + getSymbolName() + "  parent=" + parentHash + "  > " + this.hashCode());
+		MsgPrinter.instance.msgForDebug(indent(depth) + "<ConnectorGroup" + " name=" + getSymbolName() + "  parent=" + parentHash + "  > " + this.hashCode());
 		subsectionList.forEach((connector -> connector.show(depth + 1)));
 	}
 }

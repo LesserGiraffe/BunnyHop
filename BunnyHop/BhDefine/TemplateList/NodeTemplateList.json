@@ -22,7 +22,8 @@
 				"idNumRoundExp",
 				"idRandomIntExp",
 				"idAbsExp",
-				"idNegExp"]
+				"idNegExp",
+				"idMaxMinExp"]
 		},
 		
 		"変数 / リスト": {

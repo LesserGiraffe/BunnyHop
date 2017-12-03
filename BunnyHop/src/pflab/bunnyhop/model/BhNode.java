@@ -17,7 +17,6 @@ package pflab.bunnyhop.model;
 
 import pflab.bunnyhop.model.imitation.Imitatable;
 import pflab.bunnyhop.modelhandler.BhNodeHandler;
-import java.io.Serializable;
 import javax.script.Bindings;
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
@@ -41,7 +40,7 @@ import pflab.bunnyhop.message.MsgReceptionWindow;
  * ノードの基底クラス
  * @author K.Koike
  */
-public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow, Serializable {
+public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow {
 
 	private final BhNodeID bhID; //!< ノードID (\<Node\> タグの bhID)
 	protected Connector parentConnector;	//!< このノードを繋いでいるコネクタ
@@ -359,7 +358,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow,
 			onMovedToChild.eval(scriptScope);
 		} 
 		catch (ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug(BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptNameOnMovedToChild + "\n" + e.toString() + "\n");
+			MsgPrinter.instance.errMsgForDebug(BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptNameOnMovedToChild + "\n" + e.toString() + "\n");
 		}
 	}
 	
@@ -390,7 +389,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow,
 		try {
 			onMovedFromChildToWS.eval(scriptScope);
 		} catch (ScriptException e) {
-			MsgPrinter.instance.ErrMsgForDebug(BhNode.class.getSimpleName() + ".execOnMovedFromChildToWSScript   " + scriptNameOnMovedFromChildToWS + "\n" + e.toString() + "\n");
+			MsgPrinter.instance.errMsgForDebug(BhNode.class.getSimpleName() + ".execOnMovedFromChildToWSScript   " + scriptNameOnMovedFromChildToWS + "\n" + e.toString() + "\n");
 		}
 	}
 	

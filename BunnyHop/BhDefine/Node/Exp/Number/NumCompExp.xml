@@ -14,7 +14,7 @@
 			<Node
 				type="comboBox"
 				name="compOpe"
-				nodeStyleID="CompOpe.json"
+				nodeStyleID="DefaultComboBox.json"
 				nodeInputControl="CompOpe.fxml"
 				initString="＝">
 			</Node>

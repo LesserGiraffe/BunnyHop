@@ -14,7 +14,7 @@
 			<Node
 				type="comboBox"
 				name="BinaryBoolOpe"
-				nodeStyleID="BinaryBoolOpe.json"
+				nodeStyleID="WordComboBox.json"
 				nodeInputControl="BinaryBoolOpe.fxml"
 				initString="かつ">
 			</Node>

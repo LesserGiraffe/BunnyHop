@@ -32,7 +32,7 @@ import pflab.bunnyhop.undo.UserOperationCommand;
  * コネクタ集合を持つグループ
  * @author K.Koike
  * */
-public class ConnectorSection extends Section implements Serializable {
+public class ConnectorSection extends Section {
 
 	private final List<Connector> cnctrList; //!< コネクタリスト
 	private final List<ConnectorSection.CnctrInstantiationParams> cnctrInstantiationParamsList;	//!< コネクタ生成時のパラメータ
@@ -151,7 +151,7 @@ public class ConnectorSection extends Section implements Serializable {
 		else
 			parentHash = parentSection.hashCode();
 
-		MsgPrinter.instance.MsgForDebug(indent(depth) + "<ConnectorGroup  " + "name=" + getSymbolName() + "  parenNode=" + parentHash  + "  > " + this.hashCode());
+		MsgPrinter.instance.msgForDebug(indent(depth) + "<ConnectorGroup  " + "name=" + getSymbolName() + "  parenNode=" + parentHash  + "  > " + this.hashCode());
 		cnctrList.forEach((connector -> connector.show(depth + 1)));
 	}
 	

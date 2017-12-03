@@ -120,27 +120,30 @@ public class NodeMVCBuilder implements BhModelProcessor {
 
 		BhNodeViewStyle viewStyle = BhNodeViewStyle.getNodeViewStyleFromNodeID(node.getID());
 		BhNodeView nodeView = null;
-		if (node.type.equals(BhParams.BhModelDef.ATTR_NAME_TEXT_FIELD)) {
-			TextFieldNodeView textNodeView = new TextFieldNodeView(node, viewStyle);
-			textNodeView.init(isTemplate);
-			node.setScriptScope(textNodeView);
-			mvcConnector.connect(node, textNodeView);
-			nodeView = textNodeView;
-		}
-		else if (node.type.equals(BhParams.BhModelDef.ATTR_NAME_COMBO_BOX)) {
-			ComboBoxNodeView comboBoxNodeView = new ComboBoxNodeView(node, viewStyle);
-			comboBoxNodeView.init(isTemplate);
-			node.setScriptScope(comboBoxNodeView);
-			mvcConnector.connect(node, comboBoxNodeView);
-			nodeView = comboBoxNodeView;
-		}
-		else if (node.type.equals(BhParams.BhModelDef.ATTR_NAME_LABEL)) {
-			LabelNodeView labelNodeView = new LabelNodeView(node, viewStyle);
-			labelNodeView.init();
-			node.setScriptScope(labelNodeView);
-			mvcConnector.connect(node, labelNodeView);
-			nodeView = labelNodeView;
-		
+		switch (node.type) {
+			case BhParams.BhModelDef.ATTR_NAME_TEXT_FIELD:
+				TextFieldNodeView textNodeView = new TextFieldNodeView(node, viewStyle);
+				textNodeView.init(isTemplate);
+				node.setScriptScope(textNodeView);
+				mvcConnector.connect(node, textNodeView);
+				nodeView = textNodeView;
+				break;
+			case BhParams.BhModelDef.ATTR_NAME_COMBO_BOX:
+				ComboBoxNodeView comboBoxNodeView = new ComboBoxNodeView(node, viewStyle);
+				comboBoxNodeView.init(isTemplate);
+				node.setScriptScope(comboBoxNodeView);
+				mvcConnector.connect(node, comboBoxNodeView);
+				nodeView = comboBoxNodeView;
+				break;
+			case BhParams.BhModelDef.ATTR_NAME_LABEL:
+				LabelNodeView labelNodeView = new LabelNodeView(node, viewStyle);
+				labelNodeView.init();
+				node.setScriptScope(labelNodeView);
+				mvcConnector.connect(node, labelNodeView);
+				nodeView = labelNodeView;
+				break;
+			default:
+				break;
 		}
 		if (topNodeView == null)
 			topNodeView = nodeView;
@@ -177,7 +180,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 	/**
 	 * ワークスペースに追加されるノードのModel と View をつなぐ機能を提供するクラス
 	 */
-	private  class DefaultConnector implements MVCConnector {
+	private static class DefaultConnector implements MVCConnector {
 		
 		@Override
 		public void connect(ConnectiveNode node, ConnectiveNodeView view) {
@@ -213,7 +216,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
  	/**
 	 * テンプレートノードリストに追加されるノードのModel と View をつなぐ機能を提供するクラス
 	 */
-	private  class TemplateConnector implements MVCConnector {
+	private static class TemplateConnector implements MVCConnector {
 
 		BhNodeView rootView = null;	//トップノードのビュー
 

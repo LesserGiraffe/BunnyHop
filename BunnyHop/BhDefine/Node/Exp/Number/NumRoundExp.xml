@@ -26,7 +26,7 @@
 			<Node
 				type="comboBox"
 				name="NumRoundOpe"
-				nodeStyleID="NumRoundOpe.json"
+				nodeStyleID="WordComboBox.json"
 				nodeInputControl="NumRoundOpe.fxml"
 				initString="切り捨て">
 			</Node>

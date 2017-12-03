@@ -62,7 +62,7 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 				textField = (TextField)loader.load();
 			} catch (IOException | ClassCastException e) {
-				MsgPrinter.instance.ErrMsgForDebug("failed to initialize " + TextFieldNodeView.class.getSimpleName() + "\n" + e.toString());
+				MsgPrinter.instance.errMsgForDebug("failed to initialize " + TextFieldNodeView.class.getSimpleName() + "\n" + e.toString());
 			}
 		}
 		getChildren().add(textField);
@@ -114,7 +114,7 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 		String minWidthWS = Stream.iterate(" ", ws -> ws).limit((long)viewStyle.textField.minWhiteSpace).reduce("", String::concat);
 
 		// テキストの長さに応じてTextField の長さが変わるように
-		textField.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {				
+		textField.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
 			double newWidth = Util.calcStrWidth(newValue + wsMargine, textField.getFont());
 			double minWidth = Util.calcStrWidth(minWidthWS, textField.getFont());
 			newWidth = Math.max(newWidth, minWidth);	//最低限の長さは確保する
@@ -143,8 +143,8 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 	 * */
 	@Override
 	public void show(int depth) {
-		MsgPrinter.instance.MsgForDebug(indent(depth) + "<TextNodeView" + ">   " + this.hashCode());
-		MsgPrinter.instance.MsgForDebug(indent(depth + 1) + "<content" + ">   " + textField.getText());
+		MsgPrinter.instance.msgForDebug(indent(depth) + "<TextNodeView" + ">   " + this.hashCode());
+		MsgPrinter.instance.msgForDebug(indent(depth + 1) + "<content" + ">   " + textField.getText());
 	}
 
 	/**

@@ -55,6 +55,8 @@ public class RemoteClientSocketFactory implements RMIClientSocketFactory, Serial
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
 		return (getClass() == obj.getClass()) && (id == ((RemoteClientSocketFactory)obj).id);
     }
 }

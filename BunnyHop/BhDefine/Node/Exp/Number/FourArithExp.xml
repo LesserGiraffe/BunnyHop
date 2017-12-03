@@ -14,7 +14,7 @@
 			<Node
 				type="comboBox"
 				name="FourArithOpe"
-				nodeStyleID="FourArithOpe.json"
+				nodeStyleID="DefaultComboBox.json"
 				nodeInputControl="FourArithOpe.fxml"
 				initString="＋">
 			</Node>

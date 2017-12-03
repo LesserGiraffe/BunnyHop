@@ -208,7 +208,7 @@ public class WorkspaceSetController implements MsgProcessor {
 
 			
 		default:
-			MsgPrinter.instance.ErrMsgForDebug(WorkspaceSetController.class.getSimpleName() +  ".receiveMsg unknown msg  " + msg);
+			MsgPrinter.instance.errMsgForDebug(WorkspaceSetController.class.getSimpleName() +  ".receiveMsg unknown msg  " + msg);
 			assert false;
 		}
 

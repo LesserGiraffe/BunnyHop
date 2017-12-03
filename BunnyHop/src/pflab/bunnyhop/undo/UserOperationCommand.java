@@ -64,9 +64,9 @@ public class UserOperationCommand {
 	//for debug
 	public void printSubOpeList() {
 		for (SubOperation subope : subOpeList) {
-			MsgPrinter.instance.MsgForDebug("subope  " + subope);
+			MsgPrinter.instance.msgForDebug("subope  " + subope);
 		}
-		MsgPrinter.instance.MsgForDebug("");
+		MsgPrinter.instance.msgForDebug("");
 	}
 	
 	/**
@@ -233,7 +233,7 @@ public class UserOperationCommand {
 	/**
 	 * イミテーションノードリストへの追加を表すコマンド
 	 */
-	class AddImitationCmd<T extends Imitatable> implements SubOperation {
+	private static class AddImitationCmd<T extends Imitatable> implements SubOperation {
 		
 		private final ImitationInfo<T> imitInfo;	//!< イミテーションノードを追加したイミテーションノードリストを持つオブジェクト
 		private final T imit;	//!< リストに追加されたイミテーション
@@ -252,7 +252,7 @@ public class UserOperationCommand {
 	/**
 	 * イミテーションノードリストからの削除を表すコマンド
 	 */
-	class RemoveImitationCmd<T extends Imitatable> implements SubOperation {
+	private static class RemoveImitationCmd<T extends Imitatable> implements SubOperation {
 		
 		private final ImitationInfo<T> imitInfo;	//!< イミテーションノードを削除したイミテーションノードリストを持つオブジェクト
 		private final T imit;	//!< リストから削除されたイミテーション
@@ -271,7 +271,7 @@ public class UserOperationCommand {
 	/**
 	 * イミテーションノードにそのオリジナルノードを登録する操作を表すコマンド
 	 */
-	class SetOriginalCmd<T extends Imitatable> implements SubOperation {
+	private static class SetOriginalCmd<T extends Imitatable> implements SubOperation {
 
 		private final ImitationInfo<T> imitInfo;	//!< オリジナルノードを登録するイミテーションノードが持つ ImitationInfo オブジェクト
 		private final T original;	//!< 元々登録されていたオリジナルノード
@@ -290,7 +290,7 @@ public class UserOperationCommand {
 	/**
 	 * ワークスペースへのノードの追加を表すコマンド
 	 */
-	class AddRootNodeCmd implements SubOperation {
+	private static class AddRootNodeCmd implements SubOperation {
 		
 		private final BhNode node;	//!< ワークスペース直下に追加したノード
 		private final Workspace ws;	//!< ノードを追加したワークスペース
@@ -310,7 +310,7 @@ public class UserOperationCommand {
 	/**
 	 * ワークスペースからのノードの削除を表すコマンド
 	 */
-	class RemoveRootNodeCmd implements SubOperation {
+	private static class RemoveRootNodeCmd implements SubOperation {
 		
 		private final BhNode node;	//!< ワークスペース直下から削除したノード
 		private final Workspace ws;	//!< ノードを削除したワークスペース
@@ -330,7 +330,7 @@ public class UserOperationCommand {
 	/**
 	 * ワークスペース上の位置指定を表すコマンド
 	 */
-	class SetPosOnWorkspaceCmd implements SubOperation {
+	private static class SetPosOnWorkspaceCmd implements SubOperation {
 		
 		private final double x;	//!< 指定前のワークスペース上での位置X
 		private final double y;	//!< 指定前のワークスペース上での位置y
@@ -355,7 +355,7 @@ public class UserOperationCommand {
 	/**
 	 * 4分木空間への4分木ノード登録を表すコマンド
 	 */
-	class AddQtRectangleCmd implements SubOperation {
+	private static class AddQtRectangleCmd implements SubOperation {
 		
 		private final BhNode node;	//!< 4分木ノードを登録したBhNode
 		private final Workspace ws;	//!< 追加した4分木ノードがあった4分木空間に対応するワークスペース
@@ -376,7 +376,7 @@ public class UserOperationCommand {
 	/**
 	 * 4分木空間からの4分木ノード削除を表すコマンド
 	 */
-	class RemoveQtRectangleCmd implements SubOperation {
+	private static class RemoveQtRectangleCmd implements SubOperation {
 		
 		private final BhNode node;	//!< 4分木ノードから削除したBhNode
 		private final Workspace ws;	//!< 削除した4分木ノードがあった4分木空間に対応するワークスペース
@@ -398,7 +398,7 @@ public class UserOperationCommand {
 	/**
 	 * BhNodeView の入れ替えを表すコマンド
 	 */
-	class ReplaceNodeViewCmd implements SubOperation {
+	private static class ReplaceNodeViewCmd implements SubOperation {
 	
 		private final BhNode oldNode;	//!< 入れ替え前の古いView に対応するBhNode
 		private final BhNode newNode;	//!< 入れ替え後の新しいView に対応するBhNode
@@ -421,7 +421,7 @@ public class UserOperationCommand {
 	/**
 	 * ノードの接続を表すコマンド
 	 */
-	class ConnectNodeCmd implements SubOperation {
+	private static class ConnectNodeCmd implements SubOperation {
 		
 		private final BhNode oldNode;	//!< 繋ぎ替え前のBhNode
 		private final Connector connector;	//!< 繋ぎ替えを行うコネクタ
@@ -440,7 +440,7 @@ public class UserOperationCommand {
 	/**
 	 * 最後に入れ替わったノードをセットする操作を表すコマンド
 	 */
-	class SetLastReplacedCmd implements SubOperation {
+	private static class SetLastReplacedCmd implements SubOperation {
 		
 		private final BhNode oldNode;	//!< 元々セットされていたノード
 		private final BhNode nodeRegisteredWith;	//!< 入れ替わったノードを登録するノード
@@ -459,7 +459,7 @@ public class UserOperationCommand {
 	/**
 	 * ノードに対してワークスペースの登録を行う操作を表すコマンド
 	 */
-	class SetWorkspaceCmd implements SubOperation {
+	private static class SetWorkspaceCmd implements SubOperation {
 		
 		private final BhNode node;	//!< WSを登録するノード
 		private final Workspace oldWS;	//!< WS登録前に登録されていたWS
@@ -478,7 +478,7 @@ public class UserOperationCommand {
 	/**
 	 * 選択ノードリストへのBhNode の追加を表すコマンド
 	 */
-	class AddSelectedNodeCmd implements SubOperation {
+	private static class AddSelectedNodeCmd implements SubOperation {
 		
 		private final Workspace ws;	//!< 選択ノードリストを持つワークスペース
 		private final BhNode node;	//!< 選択リストに追加するノード
@@ -497,7 +497,7 @@ public class UserOperationCommand {
 	/**
 	 * 選択ノードリストへのBhNode の追加を表すコマンド
 	 */
-	class RemoveSelectedNodeCmd implements SubOperation {
+	private static class RemoveSelectedNodeCmd implements SubOperation {
 		
 		private final Workspace ws;	//!< 選択ノードリストを持つワークスペース
 		private final BhNode node;	//!< 選択リストから削除するノード
@@ -516,7 +516,7 @@ public class UserOperationCommand {
 	/**
 	 * ワークスペースの追加を表すコマンド
 	 */
-	class AddWorkspaceCmd implements SubOperation {
+	private static class AddWorkspaceCmd implements SubOperation {
 		
 		Workspace ws;	//!< 追加されたワークスペース
 		WorkspaceView wsView;	//!< 追加されたワークスペースのビュー
@@ -534,7 +534,7 @@ public class UserOperationCommand {
 		}
 	}
 	
-	class DeleteWorkspaceCmd implements SubOperation {
+	private static class DeleteWorkspaceCmd implements SubOperation {
 		
 		Workspace ws;	//!< 削除されたワークスペース
 		WorkspaceView wsView;	//!< 削除されたワークスペースのビュー

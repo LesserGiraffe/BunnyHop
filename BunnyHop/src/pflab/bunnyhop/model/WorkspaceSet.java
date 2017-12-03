@@ -183,7 +183,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 				
 		try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(fileToSave));){			
 			outputStream.writeObject(saveData);
-			MsgPrinter.instance.MsgForUser("-- 保存完了 (" + fileToSave.getPath() + ") --\n");
+			MsgPrinter.instance.msgForUser("-- 保存完了 (" + fileToSave.getPath() + ") --\n");
 			BunnyHop.instance.shouldSave(false);
 			return true;
 		}
@@ -218,7 +218,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			return true;
 		}
 		catch(ClassNotFoundException | IOException | ClassCastException e) {
-			MsgPrinter.instance.ErrMsgForDebug(WorkspaceSet.class.getSimpleName() + ".load\n" + e.toString());
+			MsgPrinter.instance.errMsgForDebug(WorkspaceSet.class.getSimpleName() + ".load\n" + e.toString());
 			return false;
 		}
 	}

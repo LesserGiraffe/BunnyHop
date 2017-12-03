@@ -18,12 +18,15 @@ package pflab.bunnyhop.programexecenv;
 import pflab.bunnyhop.bhprogram.common.BhProgramData;
 import pflab.bunnyhop.bhprogram.common.BhProgramHandler;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -41,7 +44,7 @@ import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
  * スクリプトとBunnyHop間でデータを送受信するクラス
  * @author K.Koike
  */
-public class BhProgramHandlerImpl implements BhProgramHandler, Serializable {	
+public class BhProgramHandlerImpl implements BhProgramHandler {	
 	
 	private final ExecutorService bhProgramExec = Executors.newSingleThreadExecutor();
 	private final ExecutorService recvDataProcessor = Executors.newSingleThreadExecutor();
@@ -139,6 +142,7 @@ public class BhProgramHandlerImpl implements BhProgramHandler, Serializable {
 				case INPUT_STR:
 					scriptIO.addStdInData(data.str);
 					break;
+				default:
 			}
 		}
 	}

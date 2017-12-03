@@ -83,10 +83,10 @@ public class CommonCodeGenerator {
 			case 11: return "											";
 			case 12: return "												";
 			default:{
-				String ret = "";
+				StringBuilder ret = new StringBuilder("");
 				for (int i = 0; i < depth; ++i)
-					ret += "	";
-				return ret;
+					ret.append("	");
+				return ret.toString();
 			}
 		}
 	}
