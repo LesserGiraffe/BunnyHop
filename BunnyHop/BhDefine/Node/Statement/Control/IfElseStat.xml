@@ -8,10 +8,12 @@
 	<ConnectorSection name="StatSctn">
 		
 		<PrivateConnector
+			bhConnectorID="idIfElseStat.prvCnctr0"
 			name="Moshi"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idIfElseStat.prvNode0"
 				name="Moshi"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
@@ -22,10 +24,12 @@
 		<Connector bhConnectorID="idBoolExpCnctr" name="CondExp"/>
 
 		<PrivateConnector
+			bhConnectorID="idIfElseStat.prvCnctr1"
 			name="Nara"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idIfElseStat.prvNode1"
 				name="Nara"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
@@ -36,10 +40,12 @@
 		<Connector bhConnectorID="idStatCnctr" name="ThenStat"/>
 
 		<PrivateConnector
+			bhConnectorID="idIfElseStat.prvCnctr2"
 			name="Sodenakereba"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idIfElseStat.prvNode2"
 				name="Sodenakereba"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
@@ -48,7 +54,6 @@
 		</PrivateConnector>
 		
 		<Connector bhConnectorID="idStatCnctr" name="ElseStat"/>
-				
 		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
 	</ConnectorSection>
 </Node>

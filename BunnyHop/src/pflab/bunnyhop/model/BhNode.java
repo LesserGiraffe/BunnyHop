@@ -325,12 +325,12 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * @param view スクリプト実行時のスコープとして登録するBhNodeView
 	 */
 	public void setScriptScope(BhNodeView view) {
-		scriptScope = BhScriptManager.instance.createScriptScope();
+		scriptScope = BhScriptManager.INSTANCE.createScriptScope();
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_THIS, this);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_VIEW, view);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.instance);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_MSG_TRANSPORTER, MsgTransporter.instance);		
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.instance.getCommonJsObj());
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_MSG_TRANSPORTER, MsgTransporter.INSTANCE);		
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
 	}
 	
 	/**
@@ -346,7 +346,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		BhNode oldReplaced,
 		UserOperationCommand userOpeCmd) {
 		
-		CompiledScript onMovedToChild = BhScriptManager.instance.getCompiledScript(scriptNameOnMovedToChild);
+		CompiledScript onMovedToChild = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnMovedToChild);
 		if (onMovedToChild == null)
 			return;
 		
@@ -358,7 +358,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 			onMovedToChild.eval(scriptScope);
 		} 
 		catch (ScriptException e) {
-			MsgPrinter.instance.errMsgForDebug(BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptNameOnMovedToChild + "\n" + e.toString() + "\n");
+			MsgPrinter.INSTANCE.errMsgForDebug(BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptNameOnMovedToChild + "\n" + e.toString() + "\n");
 		}
 	}
 	
@@ -377,7 +377,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		Boolean manuallyRemoved,
 		UserOperationCommand userOpeCmd) {
 		
-		CompiledScript onMovedFromChildToWS = BhScriptManager.instance.getCompiledScript(scriptNameOnMovedFromChildToWS);
+		CompiledScript onMovedFromChildToWS = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnMovedFromChildToWS);
 		if (onMovedFromChildToWS == null)
 			return;
 		
@@ -389,7 +389,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		try {
 			onMovedFromChildToWS.eval(scriptScope);
 		} catch (ScriptException e) {
-			MsgPrinter.instance.errMsgForDebug(BhNode.class.getSimpleName() + ".execOnMovedFromChildToWSScript   " + scriptNameOnMovedFromChildToWS + "\n" + e.toString() + "\n");
+			MsgPrinter.INSTANCE.errMsgForDebug(BhNode.class.getSimpleName() + ".execOnMovedFromChildToWSScript   " + scriptNameOnMovedFromChildToWS + "\n" + e.toString() + "\n");
 		}
 	}
 	

@@ -151,7 +151,7 @@ public class ConnectorSection extends Section {
 		else
 			parentHash = parentSection.hashCode();
 
-		MsgPrinter.instance.msgForDebug(indent(depth) + "<ConnectorGroup  " + "name=" + getSymbolName() + "  parenNode=" + parentHash  + "  > " + this.hashCode());
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<ConnectorGroup  " + "name=" + getSymbolName() + "  parenNode=" + parentHash  + "  > " + this.hashCode());
 		cnctrList.forEach((connector -> connector.show(depth + 1)));
 	}
 	

@@ -8,13 +8,14 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
+<?import pflab.bunnyhop.view.*?>
 
 <ComboBox xmlns:fx="http://javafx.com/fxml">
 	<items>
 		<FXCollections fx:factory="observableArrayList">
-			<String fx:value="切り捨て" />
-			<String fx:value="切り上げ" />
-			<String fx:value="四捨五入" />
+			<SelectableItem fx:id="idFloor" modelText="floor" viewText="切り捨て"/>
+			<SelectableItem fx:id="idCeil" modelText="ceil" viewText="切り上げ"/>
+			<SelectableItem fx:id="idRound" modelText="round" viewText="四捨五入"/>
 		</FXCollections>
 	</items>
 </ComboBox>

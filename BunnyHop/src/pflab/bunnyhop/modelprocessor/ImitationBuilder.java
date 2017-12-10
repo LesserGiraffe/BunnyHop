@@ -74,6 +74,7 @@ public class ImitationBuilder implements BhModelProcessor {
 			parentImitStack.addLast(newImit);
 			node.introduceSectionsTo(this);
 			newImit.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));
+			newImit.accept(new TextImitationPrompter());
 		}
 		else {
 			Imitatable parentImit = parentImitStack.peekLast();
@@ -110,6 +111,7 @@ public class ImitationBuilder implements BhModelProcessor {
 			TextNode newImit = node.createImitNode(userOpeCmd, imitID);
 			parentImitStack.addLast(newImit);
 			newImit.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));
+			newImit.accept(new TextImitationPrompter());
 		}
 		else {
 			Imitatable parentImit = parentImitStack.peekLast();

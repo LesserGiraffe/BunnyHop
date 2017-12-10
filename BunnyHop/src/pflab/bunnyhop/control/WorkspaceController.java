@@ -50,9 +50,9 @@ public class WorkspaceController implements MsgProcessor {
 		this.view.setOnMousePressedEvent(
 			event -> {
 				UserOperationCommand userOpeCmd = new UserOperationCommand();
-				BunnyHop.instance.hideTemplatePanel();
+				BunnyHop.INSTANCE.hideTemplatePanel();
 				model.clearSelectedNodeList(userOpeCmd);
-				BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
+				BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 			});
 	}
 
@@ -104,7 +104,7 @@ public class WorkspaceController implements MsgProcessor {
 				return new MsgData(model, view, data.userOpeCmd);
 				
 			default:
-				MsgPrinter.instance.errMsgForDebug(WorkspaceController.class.getSimpleName() + ".receiveMsg unknown msg " + msg);
+				MsgPrinter.INSTANCE.errMsgForDebug(WorkspaceController.class.getSimpleName() + ".receiveMsg unknown msg " + msg);
 				assert false;
 		}
 
@@ -121,14 +121,14 @@ public class WorkspaceController implements MsgProcessor {
 			f = c.getDeclaredField("quadTreeMngForConnector");
 			f.setAccessible(true);
 			QuadTreeManager quadTreeMngForConnector = (QuadTreeManager)f.get(view);
-			MsgPrinter.instance.msgForDebug("num of QuadTreeNodes " + quadTreeMngForConnector.calcRegisteredNodeNum());
+			MsgPrinter.INSTANCE.msgForDebug("num of QuadTreeNodes " + quadTreeMngForConnector.calcRegisteredNodeNum());
 		} catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException e) {
-			MsgPrinter.instance.errMsgForDebug(e.toString());
+			MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
 		}
 		
-		MsgPrinter.instance.msgForDebug("num of root nodes " + model.getRootNodeList().size());
-		MsgPrinter.instance.msgForDebug("num of deletion candidates " + DelayedDeleter.instance.getDeletionCadidateList());
-		MsgPrinter.instance.msgForDebug("num of selected nodes " + model.getSelectedNodeList().size());
+		MsgPrinter.INSTANCE.msgForDebug("num of root nodes " + model.getRootNodeList().size());
+		MsgPrinter.INSTANCE.msgForDebug("num of deletion candidates " + DelayedDeleter.INSTANCE.getDeletionCadidateList());
+		MsgPrinter.INSTANCE.msgForDebug("num of selected nodes " + model.getSelectedNodeList().size());
 	}
 }
 

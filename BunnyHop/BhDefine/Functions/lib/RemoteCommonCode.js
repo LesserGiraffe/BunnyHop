@@ -14,7 +14,7 @@
 		speed = Math.min(Math.max(0.0, speed), 1.0);
 		time *= 1000;
 		time = Math.floor(time);
-		let moveCmd = execPath + '/actions' + '/bhMove';
+		let moveCmd = execPath + '/Actions' + '/bhMove';
 		const procBuilder = new java.lang.ProcessBuilder([moveCmd, cmd, String(time), String(speed)]);
 		try {
 			const process =  procBuilder.start();
@@ -59,7 +59,7 @@
 
 	function _measureDistance() {
 	
-		let spiCmd = execPath + '/actions' + '/bhSpiRead';
+		let spiCmd = execPath + '/Actions' + '/bhSpiRead';
 		const procBuilder = new java.lang.ProcessBuilder([spiCmd, '5', '3']);
 		let distance;
 		try {

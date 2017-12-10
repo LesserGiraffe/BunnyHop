@@ -10,10 +10,12 @@
 		<Connector bhConnectorID="idNumExpCnctr" name="CondExp"/>
 
 		<PrivateConnector
+			bhConnectorID="idRepeatStat.prvCnctr0"
 			name="kaiKurikaesu"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idRepeatStat.prvNode0"
 				name="kaiKurikaesu"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"

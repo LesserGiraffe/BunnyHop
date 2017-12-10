@@ -5,7 +5,6 @@
 	bhNodeID="idBoolLiteral"
 	name="BoolLiteral"
 	nodeStyleID="BoolLiteral.json"
-	nodeInputControl="BoolLiteral.fxml"
-    initString="真">
+	nodeInputControl="BoolLiteral.fxml">
 </Node>
 

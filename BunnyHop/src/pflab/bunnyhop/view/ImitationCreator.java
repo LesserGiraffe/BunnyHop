@@ -51,13 +51,13 @@ public interface ImitationCreator {
 	default void imitHandler(pflab.bunnyhop.model.imitation.Imitatable model) {
 		
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
-		MsgData pos = MsgTransporter.instance.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, model);
+		MsgData pos = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, model);
 		double x = pos.doublePair._1 + BhParams.REPLACED_NODE_POS;
 		double y = pos.doublePair._2 + BhParams.REPLACED_NODE_POS;
 		ImitationBuilder imitBuilder = new ImitationBuilder(userOpeCmd, true);
 		model.accept(imitBuilder);
-		BhNodeHandler.instance.addRootNode(model.getWorkspace(), imitBuilder.getTopImitation(), x, y, userOpeCmd);
-		BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
+		BhNodeHandler.INSTANCE.addRootNode(model.getWorkspace(), imitBuilder.getTopImitation(), x, y, userOpeCmd);
+		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 	}
 	
 	/**
@@ -111,13 +111,13 @@ public interface ImitationCreator {
 	default Button loadButton(String fileName, BhNodeViewStyle.Imitation buttonStyle) {
 
 		Button imitCreateImitBtn = null;
-		Path filePath = FXMLCollector.instance.getFilePath(fileName);
+		Path filePath = FXMLCollector.INSTANCE.getFilePath(fileName);
 		try {
 			FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 			imitCreateImitBtn = (Button)loader.load();
 			setBtnStyle(buttonStyle);
 		} catch (IOException | ClassCastException e) {
-			MsgPrinter.instance.errMsgForDebug(ImitationCreator.class.getSimpleName() + ".loadButton\n" + e.toString());
+			MsgPrinter.INSTANCE.errMsgForDebug(ImitationCreator.class.getSimpleName() + ".loadButton\n" + e.toString());
 		}
 		return imitCreateImitBtn;
 	}

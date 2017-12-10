@@ -50,7 +50,7 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 	public boolean genNodeCategoryList() {
 
 		Path filePath = Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.TEMPLATE_LIST_DIR, BhParams.Path.NODE_TEMPLATE_LIST_JSON);
-		ScriptObjectMirror jsonObj = BhScriptManager.instance.parseJsonFile(filePath);
+		ScriptObjectMirror jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
 		templateTreeRoot = new TreeNode<>("root");
 		return addChildren(jsonObj, templateTreeRoot, filePath.toString());
 	}
@@ -112,12 +112,12 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 			if (String.class.isAssignableFrom(bhNodeID.getClass())) {	// 配列内の文字列だけをBhNode の IDとみなす
 
 				String bhNodeIDStr = (String)bhNodeID;
-				if (BhNodeTemplates.instance().bhNodeExists(BhNodeID.createBhNodeID(bhNodeIDStr))) {	//IDに対応する BhNode がある
+				if (BhNodeTemplates.INSTANCE.bhNodeExists(BhNodeID.createBhNodeID(bhNodeIDStr))) {	//IDに対応する BhNode がある
 					parent.children.add(new TreeNode<>(bhNodeIDStr));
 				}
 				else {
 					allBhNodesExist &= false;
-					MsgPrinter.instance.errMsgForDebug(bhNodeIDStr + " に対応する " + BhParams.BhModelDef.ELEM_NAME_NODE + " が存在しません.\n" + "(" + fileName + ")");
+					MsgPrinter.INSTANCE.errMsgForDebug(bhNodeIDStr + " に対応する " + BhParams.BhModelDef.ELEM_NAME_NODE + " が存在しません.\n" + "(" + fileName + ")");
 				}
 			}
 		}

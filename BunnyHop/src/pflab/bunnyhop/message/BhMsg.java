@@ -47,6 +47,7 @@ public enum BhMsg {
 	PUSH_USER_OPE_CMD,		//!< ユーザー操作を表すオブジェクトをundoスタックに追加する
 	REMOVE_FROM_GUI_TREE,	//!< GUIツリー上からViewを消す
 	IMITATE_TEXT,			//!< イミテーションノードのテキストをオリジナルと一致させる
+	GET_MODEL_AND_VIEW_TEXT,//!< モデルとビューのテキストを取得する
 	ZOOM,					//!< WSのズーム処理
 	IS_IN_TRASHBOX_AREA,	//!< ゴミ箱エリアに入っているかどうかを調べる
 	OPEN_TRAHBOX,			//!< ゴミ箱を開閉する

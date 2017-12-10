@@ -10,10 +10,12 @@
 		<Connector bhConnectorID="idNumExpCnctr" name="LeftExp"/>
 		
 		<PrivateConnector
+			bhConnectorID="idModExp.prvCnctr0"
 			name="wo"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idModExp.prvNode0"
 				name="wo"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
@@ -24,10 +26,12 @@
 		<Connector bhConnectorID="idNumExpCnctr" name="RightExp"/>
 		
 		<PrivateConnector
+			bhConnectorID="idModExp.prvCnctr1"
 			name="deWattaAmari"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idModExp.prvNode1"
 				name="deWattaAmari"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"

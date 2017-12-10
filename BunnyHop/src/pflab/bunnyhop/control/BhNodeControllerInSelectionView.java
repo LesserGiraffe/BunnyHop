@@ -29,6 +29,7 @@ import pflab.bunnyhop.view.TextFieldNodeView;
 import pflab.bunnyhop.undo.UserOperationCommand;
 import pflab.bunnyhop.common.Point2D;
 import pflab.bunnyhop.modelhandler.BhNodeHandler;
+import pflab.bunnyhop.modelprocessor.TextImitationPrompter;
 import pflab.bunnyhop.view.ComboBoxNodeView;
 import pflab.bunnyhop.view.LabelNodeView;
 
@@ -67,7 +68,7 @@ public class BhNodeControllerInSelectionView {
 	}
 
 	/**
-	 * View が走査されたときのイベントハンドラをセットする
+	 * View が操作されたときのイベントハンドラをセットする
 	 * */
 	private void setMouseEventHandler() {
 
@@ -76,7 +77,7 @@ public class BhNodeControllerInSelectionView {
 		//マウスボタンを押したとき
 		view.getEventManager().setOnMousePressedHandler(mouseEvent -> {
 			
-			Workspace currentWS = BunnyHop.instance.getCurrentWorkspace();
+			Workspace currentWS = BunnyHop.INSTANCE.getCurrentWorkspace();
 			if (currentWS == null)
 				return;
 			
@@ -84,20 +85,21 @@ public class BhNodeControllerInSelectionView {
 			NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default);
 			BhNode newNode = model.findRootNode().copy(userOpeCmd);
 			newNode.accept(builder);	//MVC構築
+			newNode.accept(new TextImitationPrompter());
 			currentView.content = builder.getTopNodeView();
 			Point2D posOnRootView = BhNodeView.getRelativePos(rootView, view);	//クリックされたテンプレートノードのルートノード上でのクリック位置
 			posOnRootView.x += mouseEvent.getX();
 			posOnRootView.y += mouseEvent.getY();
-			MsgData posOnWS = MsgTransporter.instance.sendMessage(BhMsg.SCENE_TO_WORKSPACE, new MsgData(mouseEvent.getSceneX(), mouseEvent.getSceneY()) ,currentWS);
-			BhNodeHandler.instance.addRootNode(
+			MsgData posOnWS = MsgTransporter.INSTANCE.sendMessage(BhMsg.SCENE_TO_WORKSPACE, new MsgData(mouseEvent.getSceneX(), mouseEvent.getSceneY()) ,currentWS);
+			BhNodeHandler.INSTANCE.addRootNode(
 				currentWS,
 				newNode,
 				posOnWS.doublePair._1 - posOnRootView.x ,
 				posOnWS.doublePair._2- posOnRootView.y,
 				userOpeCmd);
-			MsgTransporter.instance.sendMessage(BhMsg.SET_USER_OPE_CMD, new MsgData(userOpeCmd), newNode);	//undo用コマンドセット
+			MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_USER_OPE_CMD, new MsgData(userOpeCmd), newNode);	//undo用コマンドセット
 			currentView.content.getEventManager().propagateEvent(mouseEvent);
-			BunnyHop.instance.hideTemplatePanel();
+			BunnyHop.INSTANCE.hideTemplatePanel();
 			mouseEvent.consume();
 		});
 

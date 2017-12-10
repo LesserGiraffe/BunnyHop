@@ -61,14 +61,14 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 		
 		setFuncs(this::updateStyleFunc, this::updateAbsPosFunc);
 		if (model.getImitationInfo().canCreateImitManually) {
-			Path filePath = FXMLCollector.instance.getFilePath(BhParams.Path.IMIT_BUTTON_FXML);
+			Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.IMIT_BUTTON_FXML);
 			try {
 				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 				imitCreateImitBtn = (Button)loader.load();
 				setBtnStyle(viewStyle.imitation);
 				getChildren().add(imitCreateImitBtn);
 			} catch (IOException | ClassCastException e) {
-				MsgPrinter.instance.errMsgForDebug("failed to initialize " + ConnectiveNodeView.class.getSimpleName() + "\n" + e.toString());
+				MsgPrinter.INSTANCE.errMsgForDebug("failed to initialize " + ConnectiveNodeView.class.getSimpleName() + "\n" + e.toString());
 			}
 		}
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_CONNECTIVE_NODE);
@@ -190,12 +190,12 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 	public void show(int depth) {
 
 		try {
-			MsgPrinter.instance.msgForDebug(indent(depth) + "<ConnectiveNodeView" + ">   " + this.hashCode());
+			MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<ConnectiveNodeView" + ">   " + this.hashCode());
 			innerGroup.show(depth + 1);
 			outerGroup.show(depth + 1);
 		}
 		catch (Exception e) {
-			MsgPrinter.instance.msgForDebug("connectiveNodeView show exception " + e);
+			MsgPrinter.INSTANCE.msgForDebug("connectiveNodeView show exception " + e);
 		}
 	}
 	

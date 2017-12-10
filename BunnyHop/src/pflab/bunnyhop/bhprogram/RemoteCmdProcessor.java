@@ -60,7 +60,7 @@ public class RemoteCmdProcessor {
 		
 		switch(data.type) {
 			case OUTPUT_STR:
-				MsgPrinter.instance.msgForUser(data.str + "\n");
+				MsgPrinter.INSTANCE.msgForUser(data.str + "\n");
 				break;
 			default:
 		}

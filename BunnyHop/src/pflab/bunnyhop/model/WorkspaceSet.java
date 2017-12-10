@@ -43,6 +43,7 @@ import pflab.bunnyhop.root.BunnyHop;
 import pflab.bunnyhop.saveandload.ProjectSaveData;
 import pflab.bunnyhop.undo.UserOperationCommand;
 import pflab.bunnyhop.message.MsgReceptionWindow;
+import pflab.bunnyhop.modelprocessor.TextImitationPrompter;
 
 /**
  * ワークスペースの集合を保持、管理するクラス
@@ -104,7 +105,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		copyAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
 		cutAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
-		BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
+		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 	}
 	
 	/**
@@ -125,15 +126,15 @@ public class WorkspaceSet implements MsgReceptionWindow {
 				node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS) {
 				
 				BhNode pasted = node.copy(userOpeCmd);
-				NodeMVCBuilder mvcBuilder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default);
-				pasted.accept(mvcBuilder);
-				BhNodeHandler.instance.addRootNode(wsToPasteIn, pasted, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
+				pasted.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));
+				pasted.accept(new TextImitationPrompter());
+				BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, pasted, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
 				UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
 				pasted.accept(unscopedNodeCollector);
-				BhNodeHandler.instance.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), userOpeCmd);
+				BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), userOpeCmd);
 				
 				//コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
-				Pair<Double, Double> size = MsgTransporter.instance.sendMessage(BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true), node).doublePair;
+				Pair<Double, Double> size = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true), node).doublePair;
 				pasteBasePos.x += size._1+ BhParams.REPLACED_NODE_POS * 2;
 			}
 		}
@@ -156,17 +157,17 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			if (node.isRemovable() ||
 				node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS) {			
 				
-				BhNodeHandler.instance.deleteNodeIncompletely(node, userOpeCmd);
-				BhNodeHandler.instance.addRootNode(wsToPasteIn, node, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
+				BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, userOpeCmd);
+				BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, node, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
 				UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
 				node.accept(unscopedNodeCollector);
-				BhNodeHandler.instance.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), userOpeCmd);
-				Pair<Double, Double> size = MsgTransporter.instance.sendMessage(BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true),node).doublePair;
+				BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), userOpeCmd);
+				Pair<Double, Double> size = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true),node).doublePair;
 				pasteBasePos.x += size._1+ BhParams.REPLACED_NODE_POS * 2;
 			}
 		}
 		readyToCut.clear();
-		DelayedDeleter.instance.deleteCandidates(userOpeCmd);
+		DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
 	}
 	
 	public List<Workspace> getWorkspaceList() {
@@ -183,12 +184,12 @@ public class WorkspaceSet implements MsgReceptionWindow {
 				
 		try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(fileToSave));){			
 			outputStream.writeObject(saveData);
-			MsgPrinter.instance.msgForUser("-- 保存完了 (" + fileToSave.getPath() + ") --\n");
-			BunnyHop.instance.shouldSave(false);
+			MsgPrinter.INSTANCE.msgForUser("-- 保存完了 (" + fileToSave.getPath() + ") --\n");
+			BunnyHop.INSTANCE.shouldSave(false);
 			return true;
 		}
 		catch(IOException e) {
-			MsgPrinter.instance.alert(
+			MsgPrinter.INSTANCE.alert(
 				Alert.AlertType.ERROR,
 				"ファイルの保存に失敗しました",
 				null,
@@ -209,16 +210,16 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			ProjectSaveData loadData = (ProjectSaveData)inputStream.readObject();
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
 			if (isOldWsCleared.get())
-				BunnyHop.instance.deleteAllWorkspace(userOpeCmd);
+				BunnyHop.INSTANCE.deleteAllWorkspace(userOpeCmd);
 			
 			loadData.load(userOpeCmd).forEach(ws -> {
-				BunnyHop.instance.addWorkspace(ws, userOpeCmd);
+				BunnyHop.INSTANCE.addWorkspace(ws, userOpeCmd);
 			});
-			BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
+			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 			return true;
 		}
 		catch(ClassNotFoundException | IOException | ClassCastException e) {
-			MsgPrinter.instance.errMsgForDebug(WorkspaceSet.class.getSimpleName() + ".load\n" + e.toString());
+			MsgPrinter.INSTANCE.errMsgForDebug(WorkspaceSet.class.getSimpleName() + ".load\n" + e.toString());
 			return false;
 		}
 	}
@@ -228,7 +229,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @return 現在操作対象のワークスペース
 	 */
 	public Workspace getCurrentWorkspace() {
-		return MsgTransporter.instance.sendMessage(BhMsg.GET_CURRENT_WORKSPACE, this).workspace;
+		return MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_CURRENT_WORKSPACE, this).workspace;
 	}
 	
 	@Override

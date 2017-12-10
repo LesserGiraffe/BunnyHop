@@ -109,7 +109,7 @@ public class ConnectiveNode extends Imitatable {
 	public ConnectiveNode createImitNode(UserOperationCommand userOpeCmd, ImitationID imitID) {
 			
 		//イミテーションノード作成
-		BhNode imitationNode = BhNodeTemplates.instance().genBhNode(imitInfo.getImitationNodeID(imitID), userOpeCmd);
+		BhNode imitationNode = BhNodeTemplates.INSTANCE.genBhNode(imitInfo.getImitationNodeID(imitID), userOpeCmd);
 		
 		//オリジナルとイミテーションの関連付け
 		ConnectiveNode connectiveImit = (ConnectiveNode)imitationNode; //ノードテンプレート作成時に整合性チェックしているのでキャストに問題はない
@@ -152,12 +152,12 @@ public class ConnectiveNode extends Imitatable {
 		if (getLastReplaced() != null)
 			lastReplacedHash =  getLastReplaced().hashCode() + "";
 		
-		MsgPrinter.instance.msgForDebug(indent(depth) + "<ConnectiveNode" + "  bhID=" + getID()  + "  parent=" + parentHashCode + "  > " + this.hashCode());
-		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
-		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "scopeName " + imitInfo.scopeName + "> ");
-		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<ConnectiveNode" + "  bhID=" + getID()  + "  parent=" + parentHashCode + "  > " + this.hashCode());
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "scopeName " + imitInfo.scopeName + "> ");
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
 		imitInfo.getImitationList().forEach(imit -> {
-			MsgPrinter.instance.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());
+			MsgPrinter.INSTANCE.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());
 		});
 		childSection.show(depth + 1);
 	}

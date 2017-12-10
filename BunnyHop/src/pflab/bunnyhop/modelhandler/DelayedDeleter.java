@@ -27,7 +27,7 @@ import pflab.bunnyhop.undo.UserOperationCommand;
  */
 public class DelayedDeleter {
 
-	public static final DelayedDeleter instance = new DelayedDeleter();	//!< シングルトンインスタンス
+	public static final DelayedDeleter INSTANCE = new DelayedDeleter();	//!< シングルトンインスタンス
 	private List<BhNode> deletionCandidateNodeList = new ArrayList<>();	//!< 特定のタイミングで削除するノードのリスト.
 	
 	private DelayedDeleter(){}

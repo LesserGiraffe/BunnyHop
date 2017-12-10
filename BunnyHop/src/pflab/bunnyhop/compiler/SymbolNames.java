@@ -164,24 +164,18 @@ public class SymbolNames {
 				MOD_EXP));	//!< 算術演算例外を発生させる式のノード名
 		public static final Map<String, String> OPERATOR_MAP = 
 			new HashMap<String,String>() {{
-				put("＋", " + ");
-				put("－", " - ");
-				put("÷", " / ");
-				put("×", " * ");
-				put(">>", " >> ");
-				put(">>>"," >>> ");
-				put("<<", " << ");
-				put("｜", " | ");
-				put("＆", " & ");
-				put("＾", " ^ ");
-				put("かつ", " && ");
-				put("または", " || ");
-				put("＝", " === ");
-				put("≠", " !== ");
-				put("＜", " < ");
-				put("≦", " <= ");
-				put("＞", " > ");
-				put("≧", " >= ");}};		
+				put("add", " + ");
+				put("sub", " - ");
+				put("div", " / ");
+				put("mul", " * ");
+				put("and", " && ");
+				put("or", " || ");
+				put("eq", " === ");
+				put("neq", " !== ");
+				put("lt", " < ");
+				put("lte", " <= ");
+				put("gt", " > ");
+				put("gte", " >= ");}};		
 	}
 	
 	public static class UnaryExp {
@@ -223,15 +217,15 @@ public class SymbolNames {
 		public static final String COPY_ARGS =  "CopyArgs";
 		
 		//オプション名
-		public static final String OPT_ROUND = "四捨五入";
-		public static final String OPT_CEIL = "切り上げ";
-		public static final String OPT_FLOOR = "切り捨て";
-		public static final String OPT_MAX = "大きい方";
-		public static final String OPT_MIN = "小さい方";
-		public static final String OPT_MOVE_FORWARD = "前進";
-		public static final String OPT_MOVE_BACKWARD = "後退";
-		public static final String OPT_TURN_RIGHT = "右旋回";
-		public static final String OPT_TURN_LEFT = "左旋回";
+		public static final String OPT_ROUND = "round";
+		public static final String OPT_CEIL = "ceil";
+		public static final String OPT_FLOOR = "floor";
+		public static final String OPT_MAX = "max";
+		public static final String OPT_MIN = "min";
+		public static final String OPT_MOVE_FORWARD = "moveForward";
+		public static final String OPT_MOVE_BACKWARD = "moveBackward";
+		public static final String OPT_TURN_RIGHT = "turnRight";
+		public static final String OPT_TURN_LEFT = "turnLeft";
 
 		public static final HashSet<String> PREDEF_FUNC_CALL_EXP_LIST = 
 			new HashSet<>(Arrays.asList(
@@ -344,7 +338,7 @@ public class SymbolNames {
 		public static final String FUNC_DEF_SCTN = "FuncDefSctn";
 		public static final String PARAM_DECL = "ParamDecl";
 		public static final String OUT_PARAM_DECL = "OutParamDecl";
-
+		public static final String FUNC_NAME = "FuncName";
 		public static final String VOID_FUNC_DEF = "VoidFuncDef";
 		public static final String VOID_FUNC_CALL = "VoidFuncCall";
 		
@@ -378,11 +372,6 @@ public class SymbolNames {
 				STR_EMPTY_LIST,
 				NUM_EMPTY_LIST,
 				BOOL_EMPTY_LIST));
-		
-		public static final Map<String, String> BOOL_LITERAL_MAP = 
-			new HashMap<String,String>() {{
-				put("真", "true");
-				put("偽", "false");}};
 	}
 	
 	public static class Array {

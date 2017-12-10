@@ -17,5 +17,10 @@
 				<MenuItem fx:id="saveAsMenu" text="名前を付けて保存"/>
 			</items>
 		</Menu>
+		<Menu text="ヘルプ">
+			<items>
+				<MenuItem fx:id="aboutBunnyHop" text="BunnyHopについて"/>
+			</items>
+		</Menu>
 	</menus>
 </MenuBar>

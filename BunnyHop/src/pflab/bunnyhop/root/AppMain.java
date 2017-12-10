@@ -44,39 +44,39 @@ public class AppMain extends Application {
 		
 		setOnCloseHandler(stage);
 		
-		if (!MsgPrinter.instance.init())
+		if (!MsgPrinter.INSTANCE.init())
 			System.exit(-1);
 		
-		if (!FXMLCollector.instance.collectFXMLFiles())
+		if (!FXMLCollector.INSTANCE.collectFXMLFiles())
 			System.exit(-1);
 		
-		boolean success = BhScriptManager.instance.genCompiledCode(
+		boolean success = BhScriptManager.INSTANCE.genCompiledCode(
 			Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.FUNCTIONS_DIR),
 			Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.TEMPLATE_LIST_DIR),
 			Paths.get(Util.EXEC_PATH, BhParams.Path.REMOTE_DIR));
+		
 		if (!success) {
 			System.exit(-1);
 		}
 		
-		if (!BhCompiler.instance.init()) {
+		if (!BhCompiler.INSTANCE.init()) {
 			System.exit(-1);
 		}
 
-		success =  BhNodeTemplates.instance().genTemplate();
+		success =  BhNodeTemplates.INSTANCE.genTemplate();
 		success &= BhNodeViewStyle.genViewStyleTemplate();
 		success &= BhNodeViewStyle.checkNodeIdAndNodeTemplate();
 		if (!success)
 			System.exit(-1);
 		
-		BunnyHop.instance.createWindow(stage);
-	
-		if (!BunnyHop.instance.genNodeCategoryList())
+		BunnyHop.INSTANCE.createWindow(stage);
+		if (!BunnyHop.INSTANCE.genNodeCategoryList())
+			System.exit(-1);
+
+		if (!LocalBhProgramManager.INSTANCE.init())
 			System.exit(-1);
 		
-		if (!LocalBhProgramManager.instance.init())
-			System.exit(-1);
-		
-		if (!RemoteBhProgramManager.instance.init())
+		if (!RemoteBhProgramManager.INSTANCE.init())
 			System.exit(-1);
 	}
 	
@@ -86,15 +86,15 @@ public class AppMain extends Application {
 	private void setOnCloseHandler(Stage stage) {
 		
 		stage.setOnCloseRequest(event ->{
-			if (!BunnyHop.instance.processCloseRequest())
+			if (!BunnyHop.INSTANCE.processCloseRequest())
 				event.consume();
 		});
 		
 		stage.showingProperty().addListener((observable, oldValue, newValue) -> {
 			if (oldValue == true && newValue == false) {
-				LocalBhProgramManager.instance.end();
-				RemoteBhProgramManager.instance.end();
-				MsgPrinter.instance.end();
+				LocalBhProgramManager.INSTANCE.end();
+				RemoteBhProgramManager.INSTANCE.end();
+				MsgPrinter.INSTANCE.end();
 				System.exit(0);
 			}
 		});

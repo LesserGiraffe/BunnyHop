@@ -22,6 +22,8 @@ import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javafx.fxml.FXMLLoader;
@@ -53,8 +55,9 @@ public class BunnyHop {
 	private final WorkspaceSet workspaceSet = new WorkspaceSet();	//!<  ワークスペースの集合
 	private final BhNodeCategoryList nodeCategoryList = new BhNodeCategoryList();	//!< BhNode 選択用画面のモデル
 	private FoundationController foundationController;
-	public static final BunnyHop instance  = new BunnyHop();
-	private boolean shoudlSave = false;
+	public static final BunnyHop INSTANCE  = new BunnyHop();
+	private boolean shoudlSave = false;	//!< 終了時の保存が必要かどうかのフラグ
+	private Scene scene;
 
 	/**
 	 * メインウィンドウを作成する
@@ -64,14 +67,14 @@ public class BunnyHop {
 		
 		VBox root;
 		try {
-			Path filePath = FXMLCollector.instance.getFilePath(BhParams.Path.FOUNDATION_FXML);
+			Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.FOUNDATION_FXML);
 			FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 			root = loader.load();
 			foundationController = loader.getController();
 			foundationController.init(workspaceSet, nodeCategoryList);
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.errMsgForDebug("failed to load fxml " + BhParams.Path.FOUNDATION_FXML + "\n" + e.toString() + "\n");
+			MsgPrinter.INSTANCE.errMsgForDebug("failed to load fxml " + BhParams.Path.FOUNDATION_FXML + "\n" + e.toString() + "\n");
 			return;
 		}
 		
@@ -80,13 +83,12 @@ public class BunnyHop {
 		Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
 		double width = primaryScreenBounds.getWidth() * BhParams.DEFAULT_APP_WIDTH_RATE;
 		double height = primaryScreenBounds.getHeight() * BhParams.DEFAULT_APP_HEIGHT_RATE;
-		Scene scene = new Scene(root, width, height);
+		scene = new Scene(root, width, height);
 		setCSS(scene);
 		stage.setScene(scene);
 		stage.setTitle(BhParams.APPLICATION_NAME);
 		stage.show();
-
-		//org.scenicview.ScenicView.show(scene);
+		//ScenicView.show(scene);
 	}
 
 	/**
@@ -99,11 +101,11 @@ public class BunnyHop {
 		if (!success)
 			return false;
 
-		MsgTransporter.instance.sendMessage(BhMsg.BUILD_NODE_CATEGORY_LIST_VIEW, nodeCategoryList);
-		MsgTransporter.instance.sendMessage(BhMsg.ADD_NODE_SELECTION_PANELS, nodeCategoryList, workspaceSet);
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.BUILD_NODE_CATEGORY_LIST_VIEW, nodeCategoryList);
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_NODE_SELECTION_PANELS, nodeCategoryList, workspaceSet);
 		for (int i = 0; i != BhParams.INITIAL_ZOOM_LEVEL; i += Math.abs(BhParams.INITIAL_ZOOM_LEVEL) / BhParams.INITIAL_ZOOM_LEVEL) {
 			boolean zoomIn = BhParams.INITIAL_ZOOM_LEVEL > 0;
-			MsgTransporter.instance.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), nodeCategoryList);
+			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), nodeCategoryList);
 		}
 		return true;
 	}
@@ -112,7 +114,7 @@ public class BunnyHop {
 	 * 現在表示中のパネルを隠す
 	 * */
 	public void hideTemplatePanel() {
-		MsgTransporter.instance.sendMessage(BhMsg.HIDE_NODE_SELECTION_PANEL, nodeCategoryList);
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.HIDE_NODE_SELECTION_PANEL, nodeCategoryList);
 	}
 
 	/**
@@ -129,10 +131,10 @@ public class BunnyHop {
 		wsView.init(width, height);
 		WorkspaceController wsController = new WorkspaceController(ws, wsView);
 		ws.setMsgProcessor(wsController);
-		MsgTransporter.instance.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, userOpeCmd), workspaceSet);	
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, userOpeCmd), workspaceSet);	
 		for (int i = 0; i != BhParams.INITIAL_ZOOM_LEVEL; i += Math.abs(BhParams.INITIAL_ZOOM_LEVEL) / BhParams.INITIAL_ZOOM_LEVEL) {
 			boolean zoomIn = BhParams.INITIAL_ZOOM_LEVEL > 0;
-			MsgTransporter.instance.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
+			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
 		}
 	}
 	
@@ -142,10 +144,10 @@ public class BunnyHop {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
 	public void addWorkspace(Workspace ws, UserOperationCommand userOpeCmd) {
-		MsgTransporter.instance.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
 		for (int i = 0; i != BhParams.INITIAL_ZOOM_LEVEL; i += Math.abs(BhParams.INITIAL_ZOOM_LEVEL) / BhParams.INITIAL_ZOOM_LEVEL) {
 			boolean zoomIn = BhParams.INITIAL_ZOOM_LEVEL > 0;
-			MsgTransporter.instance.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
+			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
 		}
 	}
 	
@@ -155,7 +157,7 @@ public class BunnyHop {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
 	public void deleteWorkspace(Workspace ws, UserOperationCommand userOpeCmd) {
-		MsgTransporter.instance.sendMessage(BhMsg.DELETE_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.DELETE_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
 	}
 	
 	/**
@@ -182,7 +184,7 @@ public class BunnyHop {
 			files = Files.walk(dirPath, FOLLOW_LINKS).filter(filePath -> filePath.toString().toLowerCase().endsWith(".css"));
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.errMsgForDebug("css directory not found " + dirPath);
+			MsgPrinter.INSTANCE.errMsgForDebug("css directory not found " + dirPath);
 			return;
 		}
 
@@ -191,7 +193,7 @@ public class BunnyHop {
 			try {
 				scene.getStylesheets().add(path.toUri().toString());
 			} catch (Exception e) {
-				MsgPrinter.instance.errMsgForDebug(BunnyHop.class.getSimpleName() + ".setCSS\n" + e.toString());
+				MsgPrinter.INSTANCE.errMsgForDebug(BunnyHop.class.getSimpleName() + ".setCSS\n" + e.toString());
 			}
 		});
 	}
@@ -209,7 +211,7 @@ public class BunnyHop {
 	 * @param userOpeCmd undo用コマンドオブジェクト 
 	 */
 	public void pushUserOpeCmd(UserOperationCommand userOpeCmd) {
-		MsgTransporter.instance.sendMessage(BhMsg.PUSH_USER_OPE_CMD, new MsgData(userOpeCmd), workspaceSet);
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.PUSH_USER_OPE_CMD, new MsgData(userOpeCmd), workspaceSet);
 	}
 	
 	/**
@@ -226,8 +228,8 @@ public class BunnyHop {
 		alert.setHeaderText(null);
 		alert.setContentText("保存しますか?");
 		alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+		alert.getDialogPane().getStylesheets().addAll(scene.getStylesheets());
 		Optional<ButtonType> result = alert.showAndWait();
-		
 		if (result.get().equals(ButtonType.YES))
 			return foundationController.getMenuBarController().save(workspaceSet);
 		
@@ -240,6 +242,14 @@ public class BunnyHop {
 	 */
 	public void shouldSave(boolean save) {
 		shoudlSave = save;
+	}
+	
+	/**
+	 * アプリに設定された全スタイルを返す
+	 * @return アプリに設定された全スタイル
+	 */
+	public List<String> getAllStyles() {
+		return new ArrayList<>(scene.getStylesheets());
 	}
 }
 

@@ -33,7 +33,7 @@ import pflab.bunnyhop.root.MsgPrinter;
  */
 public class FXMLCollector {
 	
-	public static final FXMLCollector instance = new FXMLCollector();
+	public static final FXMLCollector INSTANCE = new FXMLCollector();
 	private static final Map<String, Path> fileName_filePath = new HashMap<>();
 	
 	private FXMLCollector(){}
@@ -50,7 +50,7 @@ public class FXMLCollector {
 			paths = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.getFileName().toString().endsWith(".fxml")); //.fxmlファイルだけ収集
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.errMsgForDebug("fxml directory not found " + dirPath + "\n" + e.toString());
+			MsgPrinter.INSTANCE.errMsgForDebug("fxml directory not found " + dirPath + "\n" + e.toString());
 			return false;
 		}
 		paths.forEach(filePath -> fileName_filePath.put(filePath.getFileName().toString(), filePath));

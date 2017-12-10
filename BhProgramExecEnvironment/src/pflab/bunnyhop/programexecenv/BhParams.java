@@ -24,7 +24,7 @@ public class BhParams {
 	 * ファイルパス関連のパラメータ
 	 */
 	public static class Path {
-		public static final String COMPILED = "compiled";
+		public static final String SCRIPT_DIR = "Compiled";
 	}
 	
 	public static final int MAX_QUEUE_SIZE = 2048;

@@ -19,6 +19,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
+import pflab.bunnyhop.common.Rem;
 import pflab.bunnyhop.root.MsgPrinter;
 import pflab.bunnyhop.message.BhMsg;
 import pflab.bunnyhop.message.MsgData;
@@ -45,6 +46,7 @@ public class BhNodeCategoryListController implements MsgProcessor {
 		model = categoryList;
 		view = new BhNodeCategoryListView(categoryTree);
 		nodeCategoryListViewBase.setMinWidth(Region.USE_PREF_SIZE);
+		nodeCategoryListViewBase.widthProperty().addListener((obs, oldVal, newVal) -> {nodeCategoryListViewBase.setMinWidth(Rem.VAL * 3);});
 	}
 	
 	/**
@@ -82,7 +84,7 @@ public class BhNodeCategoryListController implements MsgProcessor {
 			break;
 			
 		default :
-			MsgPrinter.instance.errMsgForDebug(BhNodeCategoryList.class.getSimpleName() + ".receiveMsg unknown msg");
+			MsgPrinter.INSTANCE.errMsgForDebug(BhNodeCategoryList.class.getSimpleName() + ".receiveMsg unknown msg");
 			assert false;
 		}
 		return null;

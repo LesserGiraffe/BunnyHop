@@ -51,14 +51,14 @@ public class BhNodeSelectionView extends ScrollPane {
 	public void init(String categoryName, String cssClass, BhNodeCategoryListView categoryListView) {
 		
 		try {
-			Path filePath = FXMLCollector.instance.getFilePath(BhParams.Path.NODE_SELECTION_PANEL_FXML);
+			Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.NODE_SELECTION_PANEL_FXML);
 			FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 			loader.setController(this);
 			loader.setRoot(this);
 			loader.load();
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.errMsgForDebug("failed to initialize "  + BhNodeSelectionView.class.getSimpleName());
+			MsgPrinter.INSTANCE.errMsgForDebug("failed to initialize "  + BhNodeSelectionView.class.getSimpleName());
 		}
 		
 		nodeSelectionPanel.getTransforms().add(new Scale());

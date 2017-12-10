@@ -31,7 +31,7 @@ import pflab.bunnyhop.root.MsgPrinter;
  */
 public class LocalBhProgramManager {
 	
-	public static final LocalBhProgramManager instance = new LocalBhProgramManager();	//!< シングルトンインスタンス
+	public static final LocalBhProgramManager INSTANCE = new LocalBhProgramManager();	//!< シングルトンインスタンス
 	private final BhProgramManagerCommon common = new BhProgramManagerCommon();
 	private Process process;
 	private final AtomicReference<Boolean> programRunning = new AtomicReference(false);	//!< プログラム実行中ならtrue
@@ -65,7 +65,7 @@ public class LocalBhProgramManager {
 		if (programRunning.get())
 			success &= terminate();
 		
-		MsgPrinter.instance.msgForUser("-- プログラム実行準備中 (local) --\n");
+		MsgPrinter.INSTANCE.msgForUser("-- プログラム実行準備中 (local) --\n");
 		if (success) {
 			process = startExecEnvProcess();
 			if (process == null) {
@@ -79,12 +79,12 @@ public class LocalBhProgramManager {
 		}
 	
 		if (!success) {	//リモートでのスクリプト実行失敗
-			MsgPrinter.instance.errMsgForUser("!! プログラム実行準備失敗 (local) !!\n");
-			MsgPrinter.instance.errMsgForDebug("failed to run " +filePath.getFileName().toString() + " (local)");
+			MsgPrinter.INSTANCE.errMsgForUser("!! プログラム実行準備失敗 (local) !!\n");
+			MsgPrinter.INSTANCE.errMsgForDebug("failed to run " +filePath.getFileName().toString() + " (local)");
 			terminate();
 		}
 		else {
-			MsgPrinter.instance.msgForUser("-- プログラム実行開始 (local) --\n");
+			MsgPrinter.INSTANCE.msgForUser("-- プログラム実行開始 (local) --\n");
 			programRunning.set(true);
 		}
 
@@ -98,7 +98,7 @@ public class LocalBhProgramManager {
 	public Optional<Future<Boolean>> terminateAsync() {
 		
 		if (!programRunning.get()) {
-			MsgPrinter.instance.errMsgForUser("!! プログラム終了済み (local) !!\n");
+			MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了済み (local) !!\n");
 			return Optional.empty();
 		}
 		
@@ -112,7 +112,7 @@ public class LocalBhProgramManager {
 	 */
 	public synchronized boolean terminate() {
 		
-		MsgPrinter.instance.msgForUser("-- プログラム終了中 (local)  --\n");
+		MsgPrinter.INSTANCE.msgForUser("-- プログラム終了中 (local)  --\n");
 		boolean success = common.haltTransceiver();
 		
 		if (process != null) {
@@ -120,10 +120,10 @@ public class LocalBhProgramManager {
 		}
 		process = null;		
 		if (!success) {
-			MsgPrinter.instance.errMsgForUser("!! プログラム終了失敗 (local)  !!\n"); 
+			MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了失敗 (local)  !!\n"); 
 		}
 		else {
-			MsgPrinter.instance.msgForUser("-- プログラム終了完了 (local)  --\n");
+			MsgPrinter.INSTANCE.msgForUser("-- プログラム終了完了 (local)  --\n");
 			programRunning.set(false);
 		}
 		return success;

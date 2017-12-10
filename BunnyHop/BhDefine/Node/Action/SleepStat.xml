@@ -10,10 +10,12 @@
 		<Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
 		
 		<PrivateConnector 
+			bhConnectorID="idSleepStat.prvCnctr0"
 			name="byoMatsu"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idSleepStat.prvNode0"
 				name="byoMatsu"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"

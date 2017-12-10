@@ -42,7 +42,7 @@ public class ConnectorConstructor {
 		//ルートタグチェック
 		Element root = doc.getDocumentElement();
 		if (!root.getNodeName().equals(BhParams.BhModelDef.ELEM_NAME_CONNECTOR)) {
-			MsgPrinter.instance.errMsgForDebug("コネクタ定義のルート要素は " + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + " で始めてください.  " + doc.getBaseURI());
+			MsgPrinter.INSTANCE.errMsgForDebug("コネクタ定義のルート要素は " + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + " で始めてください.  " + doc.getBaseURI());
 			return Optional.empty();
 		}
 		return genTemplate(root);
@@ -58,7 +58,7 @@ public class ConnectorConstructor {
 		//コネクタID
 		ConnectorID cnctrID = ConnectorID.createCnctrID(cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_BHCONNECTOR_ID));
 		if (cnctrID.equals(ConnectorID.NONE)) {
-			MsgPrinter.instance.errMsgForDebug("<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグには "
+			MsgPrinter.INSTANCE.errMsgForDebug("<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグには "
 				+ BhParams.BhModelDef.ATTR_NAME_BHCONNECTOR_ID + " 属性を付加してください.  " + cnctrRoot.getBaseURI());
 			return Optional.empty();
 		}
@@ -66,7 +66,7 @@ public class ConnectorConstructor {
 		//Fixed
 		String fixedStr = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_FIXED);
 		if (!fixedStr.isEmpty() && !fixedStr.equals(BhParams.BhModelDef.ATTR_VALUE_TRUE) && !fixedStr.equals(BhParams.BhModelDef.ATTR_VALUE_FALSE)) {
-			MsgPrinter.instance.errMsgForDebug("<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグの "
+			MsgPrinter.INSTANCE.errMsgForDebug("<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグの "
 				+ BhParams.BhModelDef.ATTR_NAME_FIXED + " 属性は, " + cnctrRoot.getBaseURI()
 				+ BhParams.BhModelDef.ATTR_VALUE_TRUE + "か" + BhParams.BhModelDef.ATTR_VALUE_FALSE + "で無ければなりません.  " + cnctrRoot.getBaseURI());
 			return Optional.empty();
@@ -86,7 +86,7 @@ public class ConnectorConstructor {
 			defNodeID = BhNodeID.createBhNodeID(cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_DEFAULT_BHNODE_ID));
 			if (defNodeID.equals(BhNodeID.REF_INIT))	{	//デフォルトノードに初期ノードを指定してある
 				if (initNodeID.equals(BhNodeID.NONE)) {	//初期ノードが未指定
-					MsgPrinter.instance.errMsgForDebug(
+					MsgPrinter.INSTANCE.errMsgForDebug(
 						BhParams.BhModelDef.ATTR_NAME_DEFAULT_BHNODE_ID + "が未指定の場合, "
 						+ BhParams.BhModelDef.ATTR_VALUE_INITIAL_BHNODE_ID + " 属性を指定してください.");
 					return Optional.empty();
@@ -97,7 +97,7 @@ public class ConnectorConstructor {
 			}
 			
 			if (defNodeID.equals(BhNodeID.REF_INIT)) {	//初期ノードが固定ノードではないのに, デフォルトノード
-				MsgPrinter.instance.errMsgForDebug(
+				MsgPrinter.INSTANCE.errMsgForDebug(
 					"固定初期ノードを持たない "
 					+ "<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + "> および "
 					+ "<" + BhParams.BhModelDef.ELEM_NAME_PRIVATE_CONNECTOR + "> タグは"

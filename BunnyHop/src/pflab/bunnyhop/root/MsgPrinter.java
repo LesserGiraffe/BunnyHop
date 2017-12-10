@@ -44,7 +44,7 @@ import pflab.bunnyhop.common.Util;
  * */
 public class MsgPrinter {
 
-	public static final MsgPrinter instance = new MsgPrinter();	//!< シングルトンインスタンス
+	public static final MsgPrinter INSTANCE = new MsgPrinter();	//!< シングルトンインスタンス
 	private TextArea mainMsgArea;
 	private BlockingQueue<String> queuedMsgs = new ArrayBlockingQueue<>(BhParams.MAX_MAIN_MSG_QUEUE_SIZE);
 	private Timeline msgPrintTimer;
@@ -112,7 +112,7 @@ public class MsgPrinter {
 	 * */
 	public void errMsgForDebug(String msg) {
 		msg = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(Calendar.getInstance().getTime()) + "  ERR : " + msg;
-		System.err.print(msg);
+		System.err.print(msg + "\n");
 		writeMsgToLogFile(msg + "\n");
 	}
 
@@ -210,6 +210,7 @@ public class MsgPrinter {
 			alert.setTitle(title);
 			alert.setHeaderText(header);
 			alert.setContentText(content);
+			alert.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
 			alert.showAndWait();	
 		}
 		else {

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.model.SyntaxSymbol;
+import pflab.bunnyhop.model.TextNode;
 
 /**
  * 関数定義のコード生成を行うクラス
@@ -110,8 +111,14 @@ public class FuncDefCodeGenerator {
 		code.append(common.indent(nestLevel + 1))
 			.append("(")
 			.append(BhCompiler.Keywords.JS._function)
-			.append("(){")
-			.append(Util.LF);
+			.append("(){");
+		if (option.withComments) {
+			TextNode funcNameNode = ((TextNode)funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.FUNC_NAME, "*"));
+			code.append("/*")
+				.append(funcNameNode.getText())
+				.append("*/");
+		}
+		code.append(Util.LF);
 		
 		SyntaxSymbol stat = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.STAT_LIST, "*");
 		statCodeGen.genStatement(stat, code, nestLevel + 2, option);

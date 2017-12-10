@@ -10,10 +10,12 @@
 		<Connector bhConnectorID="idBoolListCnctr" name="Arg0"/>
 
 		<PrivateConnector
+			bhConnectorID="idBoolArrayAppendStat.prvCnctr0"
 			name="ni"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idBoolArrayAppendStat.prvNode0"
 				name="ni"
 				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
@@ -24,10 +26,12 @@
 		<Connector bhConnectorID="idBoolListCnctr" name="Arg1"/>
 		
 		<PrivateConnector
+			bhConnectorID="idBoolArrayAppendStat.prvCnctr1"
 			name="noYosoWoSubeteTsuikaSuru"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idBoolArrayAppendStat.prvNode1"
 				name="noYosoWoSubeteTsuikaSuru"
 				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"

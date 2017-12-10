@@ -8,11 +8,13 @@
 	<ConnectorSection name="BooleanExpSctn">
 		<Connector bhConnectorID="idBoolExpCnctr" name="primaryExp"/>
 
-		<PrivateConnector 
+		<PrivateConnector
+			bhConnectorID="idNotExp.prvCnctr0"
 			name="dehanai"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idNotExp.prvNode0"
 				name="dehanai"
 				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"

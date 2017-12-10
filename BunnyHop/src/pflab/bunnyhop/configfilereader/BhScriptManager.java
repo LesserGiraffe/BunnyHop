@@ -40,7 +40,7 @@ import pflab.bunnyhop.root.MsgPrinter;
  * */
 public class BhScriptManager {
 
-	public static final BhScriptManager instance = new BhScriptManager();	//!< シングルトンインスタンス
+	public static final BhScriptManager INSTANCE = new BhScriptManager();	//!< シングルトンインスタンス
 	private final HashMap<String, CompiledScript> scriptName_script = new HashMap<>();	//!< スクリプト名とコンパイル済みスクリプトのハッシュ
 	private final ScriptEngine engine = (new NashornScriptEngineFactory()).getScriptEngine("--language=es6");
 	private Object commonJsObj;	//!< スクリプト共通で使うJavascriptオブジェクト
@@ -76,7 +76,7 @@ public class BhScriptManager {
 				paths = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.getFileName().toString().endsWith(".js")); //.jsファイルだけ収集
 			}
 			catch (IOException e) {
-				MsgPrinter.instance.errMsgForDebug(BhParams.Path.FUNCTIONS_DIR + " directory not found " + dirPath);
+				MsgPrinter.INSTANCE.errMsgForDebug(BhParams.Path.FUNCTIONS_DIR + " directory not found " + dirPath);
 				success &= false;
 				continue;
 			}
@@ -88,12 +88,12 @@ public class BhScriptManager {
 					scriptName_script.put(path.getFileName().toString(), cs);
 				}
 				catch (IOException e) {
-					MsgPrinter.instance.errMsgForDebug(e.toString() + "  " + path.toString());
+					MsgPrinter.INSTANCE.errMsgForDebug(e.toString() + "  " + path.toString());
 					return false;
 				}
 				catch (ScriptException e) {
-					MsgPrinter.instance.errMsgForDebug(path.toUri() + " がコンパイルできません.");
-					MsgPrinter.instance.errMsgForDebug(e.toString());
+					MsgPrinter.INSTANCE.errMsgForDebug(path.toUri() + " がコンパイルできません.");
+					MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
 					return false;
 				}
 				return true;
@@ -105,7 +105,7 @@ public class BhScriptManager {
 			try {
 				commonJsObj = scriptName_script.get(BhParams.Path.COMMON_EVENT_JS).eval();
 			} catch (ScriptException e) {
-				MsgPrinter.instance.errMsgForDebug("exec " + BhParams.Path.COMMON_EVENT_JS + "\n" + e.toString() + "\n");
+				MsgPrinter.INSTANCE.errMsgForDebug("exec " + BhParams.Path.COMMON_EVENT_JS + "\n" + e.toString() + "\n");
 				success &= false;
 			}
 		}
@@ -125,7 +125,7 @@ public class BhScriptManager {
 		return scriptNameStream.allMatch(scriptName ->{
 			boolean found = scriptName_script.get(scriptName) != null;
 			if (!found) {
-				MsgPrinter.instance.errMsgForDebug(scriptName + " が見つかりません.  file: " + fileName);
+				MsgPrinter.INSTANCE.errMsgForDebug(scriptName + " が見つかりません.  file: " + fileName);
 			}	
 			return found;
 		});
@@ -148,15 +148,15 @@ public class BhScriptManager {
 			jsonObj = cs.eval();
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.errMsgForDebug("cannot read json file.  " + filePath + "\n" + e.toString() + "\n");
+			MsgPrinter.INSTANCE.errMsgForDebug("cannot read json file.  " + filePath + "\n" + e.toString() + "\n");
 			return null;
 		}
 		catch (ScriptException e) {
-			MsgPrinter.instance.errMsgForDebug("cannot parse json file.  " + filePath + "\n" + e.toString() + "\n");
+			MsgPrinter.INSTANCE.errMsgForDebug("cannot parse json file.  " + filePath + "\n" + e.toString() + "\n");
 			return null;
 		}
 		if (!(jsonObj instanceof ScriptObjectMirror)) {
-			MsgPrinter.instance.errMsgForDebug("cannot parse json file.  " + filePath);
+			MsgPrinter.INSTANCE.errMsgForDebug("cannot parse json file.  " + filePath);
 			return null;
 		}
 		return (ScriptObjectMirror)jsonObj;

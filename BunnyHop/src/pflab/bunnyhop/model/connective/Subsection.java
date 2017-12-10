@@ -124,7 +124,7 @@ public class Subsection extends Section {
 		else
 			parentHash = parentSection.hashCode();
 
-		MsgPrinter.instance.msgForDebug(indent(depth) + "<ConnectorGroup" + " name=" + getSymbolName() + "  parent=" + parentHash + "  > " + this.hashCode());
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<ConnectorGroup" + " name=" + getSymbolName() + "  parent=" + parentHash + "  > " + this.hashCode());
 		subsectionList.forEach((connector -> connector.show(depth + 1)));
 	}
 }

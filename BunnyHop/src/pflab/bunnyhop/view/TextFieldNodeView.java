@@ -57,12 +57,12 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 		initialize();
 		String inputControlFileName = BhNodeViewStyle.nodeID_inputControlFileName.get(model.getID());
 		if (inputControlFileName != null) {
-			Path filePath = FXMLCollector.instance.getFilePath(inputControlFileName);
+			Path filePath = FXMLCollector.INSTANCE.getFilePath(inputControlFileName);
 			try {
 				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 				textField = (TextField)loader.load();
 			} catch (IOException | ClassCastException e) {
-				MsgPrinter.instance.errMsgForDebug("failed to initialize " + TextFieldNodeView.class.getSimpleName() + "\n" + e.toString());
+				MsgPrinter.INSTANCE.errMsgForDebug("failed to initialize " + TextFieldNodeView.class.getSimpleName() + "\n" + e.toString());
 			}
 		}
 		getChildren().add(textField);
@@ -143,8 +143,8 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 	 * */
 	@Override
 	public void show(int depth) {
-		MsgPrinter.instance.msgForDebug(indent(depth) + "<TextNodeView" + ">   " + this.hashCode());
-		MsgPrinter.instance.msgForDebug(indent(depth + 1) + "<content" + ">   " + textField.getText());
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<TextNodeView" + ">   " + this.hashCode());
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<content" + ">   " + textField.getText());
 	}
 
 	/**

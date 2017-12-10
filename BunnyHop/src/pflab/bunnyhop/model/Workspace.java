@@ -126,7 +126,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
 	public void addSelectedNode(BhNode added, UserOperationCommand userOpeCmd) {
-		MsgTransporter.instance.sendMessage(
+		MsgTransporter.INSTANCE.sendMessage(
 			BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
 			new MsgData(true, BhParams.CSS.PSEUDO_SELECTED),
 			added);
@@ -134,7 +134,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 		if (added instanceof Imitatable) {
 			List<Imitatable> imitationList = ((Imitatable)added).getImitationInfo().getImitationList();
 			imitationList.forEach(imitation -> {
-				MsgTransporter.instance.sendMessage(
+				MsgTransporter.INSTANCE.sendMessage(
 					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
 					new MsgData(true, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT),
 					imitation);
@@ -158,7 +158,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	 */
 	public void removeSelectedNode(BhNode removed, UserOperationCommand userOpeCmd) {
 		
-		MsgTransporter.instance.sendMessage(
+		MsgTransporter.INSTANCE.sendMessage(
 			BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION, 
 			new MsgData(false, BhParams.CSS.PSEUDO_SELECTED),
 			removed);
@@ -166,7 +166,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 		if (removed instanceof Imitatable) {
 			List<Imitatable> imitationList = ((Imitatable)removed).getImitationInfo().getImitationList();
 			imitationList.forEach(imitation -> {
-				MsgTransporter.instance.sendMessage(
+				MsgTransporter.INSTANCE.sendMessage(
 					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
 					new MsgData(false, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT),
 					imitation);
@@ -192,7 +192,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
 	public void deleteNodes(Collection<BhNode> nodeToDeleteList, UserOperationCommand userOpeCmd) {
-		BhNodeHandler.instance.deleteNodes(nodeToDeleteList, userOpeCmd);
+		BhNodeHandler.INSTANCE.deleteNodes(nodeToDeleteList, userOpeCmd);
 	}
 	
 	/**

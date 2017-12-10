@@ -1,5 +1,3 @@
-<?xml version="1.0" ?>
-
 <Node
 	type="connective"
 	bhNodeID="idBoolList"
@@ -11,11 +9,14 @@
 
 	<ConnectorSection name="BooleanListSctn">
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
+		
 		<PrivateConnector
+			bhConnectorID="idBoolList.prvCnctr0"
 			name="ListSign"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idBoolList.prvNode0"
 				name="ListSign"
 				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"

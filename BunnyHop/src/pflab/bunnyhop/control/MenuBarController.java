@@ -24,8 +24,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
+import pflab.bunnyhop.common.BhParams;
 import pflab.bunnyhop.common.Util;
 import pflab.bunnyhop.model.WorkspaceSet;
+import pflab.bunnyhop.root.BunnyHop;
 import pflab.bunnyhop.root.MsgPrinter;
 
 /**
@@ -35,9 +37,10 @@ import pflab.bunnyhop.root.MsgPrinter;
 public class MenuBarController {
 	
 	@FXML private MenuBar menuBar;
-	@FXML MenuItem loadMenu;
-	@FXML MenuItem saveMenu;
-	@FXML MenuItem saveAsMenu;
+	@FXML private MenuItem loadMenu;
+	@FXML private MenuItem saveMenu;
+	@FXML private MenuItem saveAsMenu;
+	@FXML private MenuItem aboutBunnyHop;
 	private File currentSaveFile;	//!< 現在保存対象になっているファイル
 	
 	/**
@@ -49,6 +52,7 @@ public class MenuBarController {
 		setSaveAsHandler(wss);
 		setSaveHandler(wss);
 		setLoadHandler(wss);
+		setAboutBunnyHopHandler();
 	}
 	
 	/**
@@ -69,7 +73,7 @@ public class MenuBarController {
 	private boolean saveAs(WorkspaceSet wss) {
 		
 		if (wss.getWorkspaceList().isEmpty()) {
-			MsgPrinter.instance.alert(
+			MsgPrinter.INSTANCE.alert(
 				Alert.AlertType.INFORMATION, 
 				"名前を付けて保存",
 				null,
@@ -111,7 +115,7 @@ public class MenuBarController {
 	public boolean save(WorkspaceSet wss) {
 		
 		if (wss.getWorkspaceList().isEmpty()) {
-			MsgPrinter.instance.alert(
+			MsgPrinter.INSTANCE.alert(
 				Alert.AlertType.INFORMATION, 
 				"上書き保存",
 				null,
@@ -154,12 +158,26 @@ public class MenuBarController {
 			}
 			else if (selectedFile != null){
 				String fileName = selectedFile.getPath();
-				MsgPrinter.instance.alert(
+				MsgPrinter.INSTANCE.alert(
 					Alert.AlertType.INFORMATION, 
 					"開く",
 					null,
 					"ファイルを開けませんでした\n" + fileName);
 			}
+		});
+	}
+	
+	/**
+	 * BunnyHopの基本情報を表示するハンドラを登録する
+	 */
+	private void setAboutBunnyHopHandler() {
+		aboutBunnyHop.setOnAction(action -> {
+			String content = "Version: " + BhParams.APP_VERSION;
+			MsgPrinter.INSTANCE.alert(
+				Alert.AlertType.INFORMATION, 
+				"BunnyHopについて",
+				null,
+				content);			
 		});
 	}
 	
@@ -193,6 +211,7 @@ public class MenuBarController {
 		alert.setContentText("既存のワークスペースに追加する場合は" + "[" + ButtonType.YES.getText() + "].\n"
 			+ "既存のワークスペースを全て削除する場合は" + "[" + ButtonType.NO.getText() + "].");
 		alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+		alert.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
 		Optional<ButtonType> result = alert.showAndWait();
 		return result.get().equals(ButtonType.NO);
 	}

@@ -15,8 +15,14 @@
  */
 package pflab.bunnyhop.control;
 
+import java.util.Objects;
+import java.util.Optional;
+import javax.swing.text.View;
+import pflab.bunnyhop.message.BhMsg;
+import pflab.bunnyhop.message.MsgData;
 import pflab.bunnyhop.model.TextNode;
 import pflab.bunnyhop.view.ComboBoxNodeView;
+import pflab.bunnyhop.view.SelectableItem;
 
 /**
  * TextNode と ComboBoxNodeView のコントローラ
@@ -43,19 +49,40 @@ public class ComboBoxNodeController extends BhNodeController {
 	public static void setItemChangeHandler(TextNode model, ComboBoxNodeView view) {
 		
 		view.setTextChangeListener((observable, oldVal, newVal) -> {
-			if (newVal.equals(model.getText())) {
+			if (Objects.equals(newVal.getModelText(), model.getText())) {
 				return;
 			}
 			
-			if (model.isTextAcceptable(newVal)) {
-				model.setText(newVal);	//model の文字列をComboBox のものにする
-				model.imitateText();	//イミテーションのテキストを変える (イミテーションの View がtextFieldの場合のみ有効)	
+			if (model.isTextAcceptable(newVal.getModelText())) {
+				model.setText(newVal.getModelText());	//model の文字列をComboBox の選択アイテムに対応したものにする
+				model.getImitNodesToImitateContents();	//イミテーションのテキストを変える (イミテーションの View がtextFieldの場合のみ有効)	
 			}
 			else {
-				view.setText(oldVal);
+				view.setItem(oldVal);
 			}
 		});
 		
-		view.setText(model.getText());
+		Optional<SelectableItem> optItem = view.getItemByModelText(model.getText());
+		optItem.ifPresentOrElse(
+			item -> view.setItem(item),
+			() -> model.setText(view.getItem().getModelText()));
+	}
+	
+	/**
+	 * 受信したメッセージを処理する
+	 * @param msg メッセージの種類
+	 * @param data メッセージの種類に応じて処理するデータ
+	 * @return メッセージを処理した結果返すデータ
+	 * */
+	@Override
+	public MsgData processMsg(BhMsg msg, MsgData data) {
+	
+		switch (msg) {		
+			case GET_MODEL_AND_VIEW_TEXT:
+				return new MsgData(model.getText(), view.getItem().getViewText());
+				
+			default:
+				return super.processMsg(msg, data);
+		}
 	}
 }

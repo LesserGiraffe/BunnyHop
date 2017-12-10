@@ -124,8 +124,8 @@ public class ImitationReplacer implements BhModelProcessor {
 			replacedNode.ifPresent(replacedImit -> {
 				Workspace ws = replacedImit.getWorkspace();
 				Imitatable newImit = original.findExistingOrCreateNewImit(replacedImit, userOpeCmd);
-				BhNodeHandler.instance.replaceChildNewlyCreated(replacedImit, newImit, userOpeCmd);
-				BhNodeHandler.instance.deleteNodeIncompletely(replacedImit, userOpeCmd);
+				BhNodeHandler.INSTANCE.replaceChildNewlyCreated(replacedImit, newImit, userOpeCmd);
+				BhNodeHandler.INSTANCE.deleteNodeIncompletely(replacedImit, userOpeCmd);
 			});
 		}
 	}
@@ -142,8 +142,8 @@ public class ImitationReplacer implements BhModelProcessor {
 			removedNode.ifPresent(removed -> {
 				if (removed.getOriginalNode() == oldOriginal) {	//取り除くノードのオリジナルノードが入れ替え対象の古いノードであった場合
 					Workspace ws = removed.getWorkspace();
-					BhNodeHandler.instance.removeChild(removed, userOpeCmd);
-					BhNodeHandler.instance.deleteNodeIncompletely(removed, userOpeCmd);				
+					BhNodeHandler.INSTANCE.removeChild(removed, userOpeCmd);
+					BhNodeHandler.INSTANCE.deleteNodeIncompletely(removed, userOpeCmd);				
 				}
 			});
 		}

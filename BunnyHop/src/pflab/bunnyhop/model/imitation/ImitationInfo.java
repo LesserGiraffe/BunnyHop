@@ -157,7 +157,7 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 			if (!deleted.isInWorkspace())
 				deleted.getOriginalNode().disconnectOrgImitRelation(deleted, userOpeCmd);	//WSに居ない場合は, 削除予定のノードなので, オリジナル-イミテーションの関係だけ消しておく.
 			else
-				BhNodeHandler.instance.deleteNode(deleted, userOpeCmd);
+				BhNodeHandler.INSTANCE.deleteNode(deleted, userOpeCmd);
 		}
 	}
 }

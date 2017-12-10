@@ -17,7 +17,9 @@ package pflab.bunnyhop.view;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXMLLoader;
@@ -43,11 +45,11 @@ import pflab.bunnyhop.configfilereader.FXMLCollector;
  */
 public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 
-	private ComboBox<String> comboBox = new ComboBox<>();
+	private ComboBox<SelectableItem> comboBox = new ComboBox<>();
 	private final TextNode model;
 	private Button imitCreateImitBtn;	//!< イミテーション作成ボタン
-	private ListCell<String> buttonCell = new ComboBoxNodeListCell();
-	private Single<Boolean> dragged = new Single<>(false);
+	private final ListCell<SelectableItem> buttonCell = new ComboBoxNodeListCell();
+	private final Single<Boolean> dragged = new Single<>(false);
 
 	public ComboBoxNodeView(TextNode model, BhNodeViewStyle viewStyle) {
 		super(viewStyle, model);
@@ -63,12 +65,12 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 		initialize();
 		String inputControlFileName = BhNodeViewStyle.nodeID_inputControlFileName.get(model.getID());
 		if (inputControlFileName != null) {
-			Path filePath = FXMLCollector.instance.getFilePath(inputControlFileName);
+			Path filePath = FXMLCollector.INSTANCE.getFilePath(inputControlFileName);
 			try {
 				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
-				comboBox = (ComboBox<String>)loader.load();
+				comboBox = (ComboBox<SelectableItem>)loader.load();
 			} catch (IOException | ClassCastException e) {
-				MsgPrinter.instance.errMsgForDebug("failed to initialize " + ComboBoxNodeView.class.getSimpleName() + "\n" + e.toString());
+				MsgPrinter.INSTANCE.errMsgForDebug("failed to initialize " + ComboBoxNodeView.class.getSimpleName() + "\n" + e.toString());
 			}
 		}
 		getChildren().add(comboBox);
@@ -93,7 +95,9 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 		
 		comboBox.setButtonCell(buttonCell);
 		comboBox.setOnShowing(event -> {
-			double maxWidth = calcMaxStrWidth(comboBox.getItems(), buttonCell.fontProperty().get());
+			List<String> itemTextList = new ArrayList<>();
+			comboBox.getItems().forEach(item -> itemTextList.add(item.getViewText()));
+			double maxWidth = calcMaxStrWidth(itemTextList, buttonCell.fontProperty().get());
 			ScrollBar scrollBar = getVerticalScrollbar();
 			if (scrollBar != null)
 				maxWidth += scrollBar.getWidth();
@@ -126,7 +130,7 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 	 * コンボボックスのアイテム変化時のイベントハンドラを登録する
 	 * @param handler コンボボックスのアイテム変化時のイベントハンドラ
 	 * */
-	public void setTextChangeListener(ChangeListener<String> handler) {
+	public void setTextChangeListener(ChangeListener<SelectableItem> handler) {
 		comboBox.valueProperty().addListener(handler);
 	}	
 	
@@ -138,11 +142,11 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 	public void show(int depth) {
 
 		try {
-			MsgPrinter.instance.msgForDebug(indent(depth) + "<TextNodeView" + ">   " + this.hashCode());
-			MsgPrinter.instance.msgForDebug(indent(depth + 1) + "<content" + ">   " + comboBox.getValue());
+			MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<TextNodeView" + ">   " + this.hashCode());
+			MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<content" + ">   " + comboBox.getValue());
 		}
 		catch (Exception e) {
-			MsgPrinter.instance.msgForDebug("TextNodeView show exception " + e);
+			MsgPrinter.INSTANCE.msgForDebug("TextNodeView show exception " + e);
 		}
 	}
 
@@ -165,19 +169,33 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 	}
 
 	/**
-	 * 現在のコンボボックスのテキストを取得する
+	 * 現在選択中のコンボボックスのアイテムを取得する
 	 * @return 現在のコンボボックスのテキスト
 	 */
-	public String getText() {
+	public SelectableItem getItem() {
 		return comboBox.getValue();
 	}
 
 	/**
-	 * 現在のコンボボックスのテキストを設定する
+	 * 引数で指定したモデルテキストを持つアイテムを取得する
+	 * @param modelText このテキストをモデルテキストとして持つコンボボックスのアイテムを見つける
+	 * @return 引数で指定したモデルテキストを持つアイテム
+	 */
+	public Optional<SelectableItem> getItemByModelText(String modelText) {
+		
+		for (SelectableItem item : comboBox.getItems()) {
+			if (item.getModelText().equals(modelText))
+				return Optional.of(item);
+		}
+		return Optional.empty();
+	}
+	
+	/**
+	 * コンボボックスのアイテムを設定する
 	 * @param text 設定するテキスト
 	 */
-	public void setText(String text) {
-		Platform.runLater(() -> comboBox.setValue(text));
+	public void setItem(SelectableItem item) {
+		Platform.runLater(() -> comboBox.setValue(item));
 	}
 	
 	/**
@@ -221,19 +239,19 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 	/**
 	 * BhNode カテゴリのView.  BhNodeCategoryとの結びつきは動的に変わる
 	 * */
-	public class ComboBoxNodeListCell extends ListCell<String> {
+	public class ComboBoxNodeListCell extends ListCell<SelectableItem> {
 
-		String item;
+		SelectableItem item;
 		public ComboBoxNodeListCell() {}
 
 		@Override
-		protected void updateItem(String item, boolean empty) {
+		protected void updateItem(SelectableItem item, boolean empty) {
 
 			super.updateItem(item, empty);
 			this.item = item;
 			if (!empty) { 
-				setText(item);
-				double width = Util.calcStrWidth(item, getFont());
+				setText(item.getViewText());
+				double width = Util.calcStrWidth(item.getViewText(), getFont());
 				getListView().setPrefWidth(width);
 			}
 		}

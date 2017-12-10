@@ -29,6 +29,7 @@ import pflab.bunnyhop.message.MsgTransporter;
 import pflab.bunnyhop.model.BhNode;
 import pflab.bunnyhop.model.Workspace;
 import pflab.bunnyhop.modelhandler.BhNodeHandler;
+import pflab.bunnyhop.modelprocessor.TextImitationPrompter;
 import pflab.bunnyhop.undo.UserOperationCommand;
 import pflab.bunnyhop.view.WorkspaceView;
 
@@ -77,7 +78,7 @@ public class ProjectSaveData implements Serializable{
 		
 		public WorkspaceSaveData(Workspace ws){
 			this.ws = ws;
-			Pair<Double, Double> wsSize = MsgTransporter.instance.sendMessage(BhMsg.GET_WORKSPACE_SIZE, ws).doublePair;
+			Pair<Double, Double> wsSize = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_WORKSPACE_SIZE, ws).doublePair;
 			workspaceSize = new Point2D(wsSize._1, wsSize._2);
 			rootNodeSaveList = ws.getRootNodeList().stream().map(rootNode -> {
 				return this.new RootNodeSaveData(rootNode);
@@ -90,7 +91,8 @@ public class ProjectSaveData implements Serializable{
 		 * @param userOpeCmd undo用コマンドオブジェクト
 		 */
 		public void initBhNodes() {
-			rootNodeSaveList.forEach(nodeSaveData -> nodeSaveData.initBhNodes());
+			rootNodeSaveList.forEach(nodeSaveData -> nodeSaveData.createMVC());
+			rootNodeSaveList.forEach(nodeSaveData -> nodeSaveData.imitOrgNode());
 		}
 		
 		/**
@@ -109,7 +111,7 @@ public class ProjectSaveData implements Serializable{
 				Pair<BhNode, Point2D> rootNode_pos = nodeSaveData.getBhNodeAndPos();
 				Point2D pos = rootNode_pos._2;
 				BhNode rootNode = rootNode_pos._1;
-				BhNodeHandler.instance.addRootNode(ws, rootNode, pos.x, pos.y, userOpeCmd);
+				BhNodeHandler.INSTANCE.addRootNode(ws, rootNode, pos.x, pos.y, userOpeCmd);
 			});
 			return ws;
 		}
@@ -120,16 +122,22 @@ public class ProjectSaveData implements Serializable{
 			
 			RootNodeSaveData(BhNode rootNode) {
 				this.rootNode = rootNode;				
-				Pair<Double, Double> pos = MsgTransporter.instance.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, rootNode).doublePair;
+				Pair<Double, Double> pos = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, rootNode).doublePair;
 				nodePos = new Point2D(pos._1, pos._2);
 			}
 			
 			/**
-			 * BhNode を初期化する
+			 * MVC構築する
 			 */
-			public void initBhNodes() {
-				NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default);
-				rootNode.accept(builder);	//MVC構築				
+			public void createMVC() {
+				rootNode.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));	//MVC構築
+			}
+			
+			/**
+			 * イミテーションノードにオリジナルノードを模倣させる.
+			 */
+			public void imitOrgNode() {
+				rootNode.accept(new TextImitationPrompter());
 			}
 			
 			/**

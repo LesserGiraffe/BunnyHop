@@ -27,7 +27,6 @@ import pflab.bunnyhop.control.TextFieldNodeController;
 import pflab.bunnyhop.control.VoidNodeController;
 import pflab.bunnyhop.message.BhMsg;
 import pflab.bunnyhop.message.MsgData;
-import pflab.bunnyhop.message.MsgTransporter;
 import pflab.bunnyhop.model.BhNode;
 import pflab.bunnyhop.model.TextNode;
 import pflab.bunnyhop.model.VoidNode;
@@ -128,6 +127,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 				mvcConnector.connect(node, textNodeView);
 				nodeView = textNodeView;
 				break;
+				
 			case BhParams.BhModelDef.ATTR_NAME_COMBO_BOX:
 				ComboBoxNodeView comboBoxNodeView = new ComboBoxNodeView(node, viewStyle);
 				comboBoxNodeView.init(isTemplate);
@@ -135,6 +135,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 				mvcConnector.connect(node, comboBoxNodeView);
 				nodeView = comboBoxNodeView;
 				break;
+				
 			case BhParams.BhModelDef.ATTR_NAME_LABEL:
 				LabelNodeView labelNodeView = new LabelNodeView(node, viewStyle);
 				labelNodeView.init();
@@ -142,14 +143,16 @@ public class NodeMVCBuilder implements BhModelProcessor {
 				mvcConnector.connect(node, labelNodeView);
 				nodeView = labelNodeView;
 				break;
+				
+			case BhParams.BhModelDef.ATTR_NAME_NO_VIEW:
+				node.setMsgProcessor((BhMsg msg, MsgData data) -> null);
+				return;
+				
 			default:
 				break;
 		}
 		if (topNodeView == null)
 			topNodeView = nodeView;
-		
-		if(node.getOriginalNode() != null)
-			MsgTransporter.instance.sendMessage(BhMsg.IMITATE_TEXT, new MsgData(node.getOriginalNode().getText()), node);
 		
 		addChildView(node, nodeView);
 	}
@@ -167,7 +170,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 	public BhNodeView getTopNodeView() {
 		return topNodeView;
 	}
-
+	
 	private interface MVCConnector {
 
 		public void connect(ConnectiveNode node, ConnectiveNodeView view);

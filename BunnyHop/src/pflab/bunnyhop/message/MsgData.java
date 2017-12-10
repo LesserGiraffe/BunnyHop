@@ -33,6 +33,7 @@ public class MsgData {
 	public final BhNode node;
 	public final BhNodeView nodeView;
 	public final Pair<Double, Double> doublePair;
+	public final Pair<String, String> strPair;
 	public final Workspace workspace;
 	public final WorkspaceView workspaceView;
 	public final boolean bool;
@@ -44,6 +45,7 @@ public class MsgData {
 		this.node = null;
 		this.nodeView = view;
 		this.doublePair = null;
+		this.strPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -56,6 +58,7 @@ public class MsgData {
 		this.node = null;
 		this.nodeView = null;
 		this.doublePair = new Pair<>(val1, val2);
+		this.strPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -68,6 +71,7 @@ public class MsgData {
 		this.node = null;
 		this.nodeView = null;
 		this.doublePair = null;
+		this.strPair = null;
 		this.workspace = workspace;
 		this.workspaceView = workspaceView;
 		this.bool = false;
@@ -80,6 +84,7 @@ public class MsgData {
 		this.node = node;
 		this.nodeView = view;
 		this.doublePair = null;
+		this.strPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -92,6 +97,7 @@ public class MsgData {
 		this.node = node;
 		this.nodeView = null;
 		this.doublePair = null;
+		this.strPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -104,6 +110,7 @@ public class MsgData {
 		this.node = null;
 		this.nodeView = null;
 		this.doublePair = null;
+		this.strPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -116,6 +123,7 @@ public class MsgData {
 		this.node = null;
 		this.nodeView = null;
 		this.doublePair = null;
+		this.strPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = bool;
@@ -128,6 +136,7 @@ public class MsgData {
 		this.node = null;
 		this.nodeView = null;
 		this.doublePair = null;
+		this.strPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -140,6 +149,7 @@ public class MsgData {
 		this.node = null;
 		this.nodeView = null;
 		this.doublePair = null;
+		this.strPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -152,6 +162,7 @@ public class MsgData {
 		this.node = null;
 		this.nodeView = null;
 		this.doublePair = null;
+		this.strPair = null;
 		this.workspace = workspace;
 		this.workspaceView = null;
 		this.bool = false;
@@ -164,6 +175,7 @@ public class MsgData {
 		this.node = null;
 		this.nodeView = null;
 		this.doublePair = null;
+		this.strPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = bool;
@@ -176,12 +188,26 @@ public class MsgData {
 		this.node = null;
 		this.nodeView = null;
 		this.doublePair = null;
+		this.strPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
 		this.userOpeCmd = null;
 		this.text = null;
 		this.nodeSelectionViewList = nodeSelectionViewList;
+	}
+	
+	public MsgData(String textA, String textB) {
+		this.node = null;
+		this.nodeView = null;
+		this.doublePair = null;
+		this.strPair = new Pair<>(textA, textB);
+		this.workspace = null;
+		this.workspaceView = null;
+		this.bool = false;
+		this.userOpeCmd = null;
+		this.text = null;
+		this.nodeSelectionViewList = null;
 	}
 }
 

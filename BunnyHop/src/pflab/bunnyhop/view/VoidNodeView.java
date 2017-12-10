@@ -85,7 +85,7 @@ public class VoidNodeView extends BhNodeView {
 	 * */
 	@Override
 	public void show(int depth) {
-		MsgPrinter.instance.msgForDebug(indent(depth) + "<VoidNodeView" + ">   " + this.hashCode());
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<VoidNodeView" + ">   " + this.hashCode());
 	}
 }
 

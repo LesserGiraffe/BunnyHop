@@ -11,11 +11,14 @@
 
 	<ConnectorSection name="NumberListSctn">
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
+		
 		<PrivateConnector
+			bhConnectorID="idNumList.prvCnctr0"
 			name="ListSign"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idNumList.prvNode0"
 				name="ListSign"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"

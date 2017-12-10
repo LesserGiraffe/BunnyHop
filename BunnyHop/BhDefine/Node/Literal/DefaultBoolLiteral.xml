@@ -6,7 +6,6 @@
 	name="BoolLiteral"
 	nodeStyleID="BoolLiteral.json"
 	nodeInputControl="BoolLiteral.fxml"
-    onMovedFromChildToWS="onDefaultLiteralMovedToWS.js"
-    initString="真">
+	onMovedFromChildToWS="onDefaultLiteralMovedToWS.js">
 </Node>
 

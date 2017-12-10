@@ -160,7 +160,7 @@ public class MenuOperationController {
 				return;
 			
 			javafx.geometry.Point2D pos = workspaceSetTab.localToScene(0, workspaceSetTab.getHeight() / 2.0);	
-			MsgData localPos = MsgTransporter.instance.sendMessage(BhMsg.SCENE_TO_WORKSPACE, new MsgData(pos.getX(), pos.getY()), currentWS);
+			MsgData localPos = MsgTransporter.INSTANCE.sendMessage(BhMsg.SCENE_TO_WORKSPACE, new MsgData(pos.getX(), pos.getY()), currentWS);
 			double pastePosX = localPos.doublePair._1 + BhParams.REPLACED_NODE_POS * 2;
 			double pastePosY = localPos.doublePair._2;
 			wss.paste(currentWS, new Point2D(pastePosX, pastePosY));
@@ -179,7 +179,7 @@ public class MenuOperationController {
 				return;
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
 			currentWS.deleteNodes(currentWS.getSelectedNodeList(), userOpeCmd);
-			BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
+			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 		});
 	}
 
@@ -190,7 +190,7 @@ public class MenuOperationController {
 	private void setUndoHandler(WorkspaceSet wss) {
 		
 		undoBtn.setOnAction(action -> {
-			MsgTransporter.instance.sendMessage(BhMsg.UNDO, wss);
+			MsgTransporter.INSTANCE.sendMessage(BhMsg.UNDO, wss);
 		});
 	}
 
@@ -201,7 +201,7 @@ public class MenuOperationController {
 	private void setRedoHandler(WorkspaceSet wss) {
 		
 		redoBtn.setOnAction(action -> {
-			MsgTransporter.instance.sendMessage(BhMsg.REDO, wss);
+			MsgTransporter.INSTANCE.sendMessage(BhMsg.REDO, wss);
 		});
 	}
 	
@@ -222,7 +222,7 @@ public class MenuOperationController {
 			Workspace currentWS = wss.getCurrentWorkspace();
 			if (currentWS == null)
 				return;
-			MsgTransporter.instance.sendMessage(BhMsg.ZOOM, new MsgData(true), currentWS);
+			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(true), currentWS);
 		});
 	}
 	
@@ -243,7 +243,7 @@ public class MenuOperationController {
 			Workspace currentWS = wss.getCurrentWorkspace();
 			if (currentWS == null)
 				return;
-			MsgTransporter.instance.sendMessage(BhMsg.ZOOM, new MsgData(false), currentWS);
+			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(false), currentWS);
 		});
 	}
 	
@@ -257,7 +257,7 @@ public class MenuOperationController {
 			Workspace currentWS = wss.getCurrentWorkspace();
 			if (currentWS == null)
 				return;
-			MsgTransporter.instance.sendMessage(BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(true), currentWS);
+			MsgTransporter.INSTANCE.sendMessage(BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(true), currentWS);
 		});
 	}
 	
@@ -271,7 +271,7 @@ public class MenuOperationController {
 			Workspace currentWS = wss.getCurrentWorkspace();
 			if (currentWS == null)
 				return;
-			MsgTransporter.instance.sendMessage(BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(false), currentWS);
+			MsgTransporter.INSTANCE.sendMessage(BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(false), currentWS);
 		});
 	}
 	
@@ -287,14 +287,15 @@ public class MenuOperationController {
 			dialog.setTitle("ワークスペースの作成");
 			dialog.setHeaderText(null);
 			dialog.setContentText("ワークスペース名を入力してください");
+			dialog.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
 			Optional<String> inputText = dialog.showAndWait();
 			inputText.ifPresent(wsName -> {
 				UserOperationCommand userOpeCmd = new UserOperationCommand();
-				BunnyHop.instance.addNewWorkSpace(wsName, 
+				BunnyHop.INSTANCE.addNewWorkSpace(wsName, 
 					BhParams.DEFAULT_WORKSPACE_WIDTH, 
 					BhParams.DEFAULT_WORKSPACE_HEIGHT,
 					userOpeCmd);
-				BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
+				BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 			});
 		});
 	}
@@ -308,29 +309,28 @@ public class MenuOperationController {
 		executeBtn.setOnAction(action -> {
 			
 			if (preparingForExecution.get()) {
-				MsgPrinter.instance.errMsgForUser("!! 実行準備中 !!\n");
+				MsgPrinter.INSTANCE.errMsgForUser("!! 実行準備中 !!\n");
 				return;
 			}
 			
-			Optional<Pair<List<BhNode>, BhNode>> nodesToCompile_nodeToExec = prepareForCompilation(wss);
-			if (!nodesToCompile_nodeToExec.isPresent()) {
-				return;
-			}
-			
-			//コンパイル
-			CompileOption option = new CompileOption(isLocalHost(), true, true, true);
-			List<BhNode> nodesToCompile = nodesToCompile_nodeToExec.get()._1;
-			BhNode nodeToExec = nodesToCompile_nodeToExec.get()._2;
-			Optional<Path> execFilePath = BhCompiler.instance.compile(nodeToExec, nodesToCompile, option);
-			Optional<Future<Boolean>> futureOpt = execFilePath.flatMap(filePath -> {
-				if (isLocalHost()) {
-					return LocalBhProgramManager.instance.executeAsync(filePath, BhParams.ExternalApplication.LOLCAL_HOST);
-				}
-				else {
-					return RemoteBhProgramManager.instance.executeAsync(
-						filePath, ipAddrTextField.getText(), unameTextField.getText(), passwordTextField.getText());
-				}
+			Optional<Pair<List<BhNode>, BhNode>> nodesToCompile_nodeToExecOpt = prepareForCompilation(wss);
+			Optional<Future<Boolean>> futureOpt = nodesToCompile_nodeToExecOpt.flatMap(nodesToCompile_nodeToExec -> {
+				//コンパイル
+				CompileOption option = new CompileOption(isLocalHost(), true, true, true);
+				List<BhNode> nodesToCompile = nodesToCompile_nodeToExec._1;
+				BhNode nodeToExec = nodesToCompile_nodeToExec._2;
+				Optional<Path> execFilePath = BhCompiler.INSTANCE.compile(nodeToExec, nodesToCompile, option);
+				return execFilePath.flatMap(filePath -> {
+					if (isLocalHost()) {
+						return LocalBhProgramManager.INSTANCE.executeAsync(filePath, BhParams.ExternalApplication.LOLCAL_HOST);
+					}
+					else {
+						return RemoteBhProgramManager.INSTANCE.executeAsync(
+							filePath, ipAddrTextField.getText(), unameTextField.getText(), passwordTextField.getText());
+					}
+				});
 			});
+
 			futureOpt.ifPresent(future -> {
 				preparingForExecution.set(true);
 				waitTaskExec.submit(() ->{
@@ -349,15 +349,15 @@ public class MenuOperationController {
 		
 		terminateBtn.setOnAction(action -> {
 			if (preparingForTermination.get()) {
-				MsgPrinter.instance.errMsgForUser("!! 終了準備中 !!\n");
+				MsgPrinter.INSTANCE.errMsgForUser("!! 終了準備中 !!\n");
 				return;
 			}
 				
 			Optional<Future<Boolean>> futureOpt;
 			if (isLocalHost())
-				futureOpt = LocalBhProgramManager.instance.terminateAsync();
+				futureOpt = LocalBhProgramManager.INSTANCE.terminateAsync();
 			else
-				futureOpt = RemoteBhProgramManager.instance.terminateAsync();
+				futureOpt = RemoteBhProgramManager.INSTANCE.terminateAsync();
 			
 			futureOpt.ifPresent(future -> {
 				preparingForTermination.set(true);
@@ -376,15 +376,15 @@ public class MenuOperationController {
 	private void setDisconnectHandler() {
 		disconnectBtn.setOnAction(action -> {
 			if (disconnecting.get()) {
-				MsgPrinter.instance.errMsgForUser("!! 切断準備中 !!\n");
+				MsgPrinter.INSTANCE.errMsgForUser("!! 切断準備中 !!\n");
 				return;
 			}
 			
 			Optional<Future<Boolean>> futureOpt;
 			if (isLocalHost())
-				futureOpt = LocalBhProgramManager.instance.disconnectAsync();
+				futureOpt = LocalBhProgramManager.INSTANCE.disconnectAsync();
 			else
-				futureOpt = RemoteBhProgramManager.instance.disconnectAsync();
+				futureOpt = RemoteBhProgramManager.INSTANCE.disconnectAsync();
 			
 			futureOpt.ifPresent(future -> {
 				disconnecting.set(true);
@@ -404,15 +404,15 @@ public class MenuOperationController {
 		connectBtn.setOnAction(action -> {
 			
 			if (connecting.get()) {
-				MsgPrinter.instance.errMsgForUser("!! 接続準備中 !!\n");
+				MsgPrinter.INSTANCE.errMsgForUser("!! 接続準備中 !!\n");
 				return;
 			}
 			
 			Optional<Future<Boolean>> futureOpt;
 			if (isLocalHost())
-				futureOpt = LocalBhProgramManager.instance.connectAsync();
+				futureOpt = LocalBhProgramManager.INSTANCE.connectAsync();
 			else
-				futureOpt = RemoteBhProgramManager.instance.connectAsync();
+				futureOpt = RemoteBhProgramManager.INSTANCE.connectAsync();
 			
 			futureOpt.ifPresent(future -> {
 				connecting.set(true);
@@ -432,23 +432,23 @@ public class MenuOperationController {
 		sendBtn.setOnAction(action -> {
 			BhProgramExecEnvError errCode;
 			if (isLocalHost())
-				errCode = LocalBhProgramManager.instance.sendAsync(
+				errCode = LocalBhProgramManager.INSTANCE.sendAsync(
 					new BhProgramData(BhProgramData.TYPE.INPUT_STR, stdInTextField.getText()));
 			else
-				errCode = RemoteBhProgramManager.instance.sendAsync(
+				errCode = RemoteBhProgramManager.INSTANCE.sendAsync(
 					new BhProgramData(BhProgramData.TYPE.INPUT_STR, stdInTextField.getText()));
 			
 			switch (errCode) {
 				case SEND_QUEUE_FULL:
-					MsgPrinter.instance.errMsgForUser("!! 送信失敗 (送信データ追加失敗) !!\n");
+					MsgPrinter.INSTANCE.errMsgForUser("!! 送信失敗 (送信データ追加失敗) !!\n");
 					break;
 					
 				case SEND_WHEN_DISCONNECTED:
-					MsgPrinter.instance.errMsgForUser("!! 送信失敗 (未接続) !!\n");
+					MsgPrinter.INSTANCE.errMsgForUser("!! 送信失敗 (未接続) !!\n");
 					break;
 					
 				case SUCCESS:
-					MsgPrinter.instance.errMsgForUser("-- 送信完了 --\n");
+					MsgPrinter.INSTANCE.errMsgForUser("-- 送信完了 --\n");
 					break;
 			}
 		});
@@ -493,16 +493,16 @@ public class MenuOperationController {
 		Workspace currentWS = wss.getCurrentWorkspace();
 		HashSet<BhNode> selectedNodeList = currentWS.getSelectedNodeList();
 		if (selectedNodeList.size() != 1) {
-			MsgPrinter.instance.alert(AlertType.ERROR, "実行対象の選択", null,"実行対象を一つ選択してください");
+			MsgPrinter.INSTANCE.alert(AlertType.ERROR, "実行対象の選択", null,"実行対象を一つ選択してください");
 			return Optional.empty();
 		}
 			
 		// 実行対象以外を非選択に.
-		BhNode nodeToExec = selectedNodeList.toArray(new BhNode[selectedNodeList.size()])[0];
+		BhNode nodeToExec = selectedNodeList.toArray(new BhNode[selectedNodeList.size()])[0].findRootNode();
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		currentWS.clearSelectedNodeList(userOpeCmd);
 		currentWS.addSelectedNode(nodeToExec, userOpeCmd);
-		BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
+		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 		
 		//コンパイル対象ノードを集める
 		List<BhNode> nodesToCompile = new ArrayList<>();
@@ -511,7 +511,7 @@ public class MenuOperationController {
 				nodesToCompile.add(node);
 			});
 		});
-		nodesToCompile.remove(nodeToExec.findRootNode());	
+		nodesToCompile.remove(nodeToExec);	
 		return Optional.of(new Pair<>(nodesToCompile, nodeToExec));
 	}
 	

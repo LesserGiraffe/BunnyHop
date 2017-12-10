@@ -59,10 +59,13 @@ public class LabelNodeController extends BhNodeController {
 	
 		switch (msg) {
 			case IMITATE_TEXT:
-				view.setText(data.text);
-				model.setText(data.text);
+				model.setText(data.strPair._1);
+				view.setText(data.strPair._2);
 				break;
 			
+			case GET_MODEL_AND_VIEW_TEXT:
+				return new MsgData(model.getText(), view.getText());
+				
 			default:
 				return super.processMsg(msg, data);
 		}

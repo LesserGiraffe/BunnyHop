@@ -138,7 +138,7 @@ public abstract class ConnectorShape {
 		}
 		else {
 			type = CNCTR_SHAPE.CNCTR_SHAPE_NONE;
-			MsgPrinter.instance.errMsgForDebug(BhParams.NodeStyleDef.KEY_CONNECTOR_SHAPE + " " + shapeStr + " is invalid.\n" + "\"" + fileName + "\"");
+			MsgPrinter.INSTANCE.errMsgForDebug(BhParams.NodeStyleDef.KEY_CONNECTOR_SHAPE + " " + shapeStr + " is invalid.\n" + "\"" + fileName + "\"");
 		}
 
 		return type;

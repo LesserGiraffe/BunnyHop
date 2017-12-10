@@ -99,7 +99,7 @@ public class Util {
 				Files.createFile(filePath);
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.msgForDebug("create file err " + filePath + "\n" + e.toString());
+			MsgPrinter.INSTANCE.msgForDebug("create file err " + filePath + "\n" + e.toString());
 			return false;
 		}
 		return true;
@@ -116,7 +116,7 @@ public class Util {
 				Files.createDirectory(dirPath);
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.msgForDebug("create dir err " + dirPath + "\n" + e.toString());
+			MsgPrinter.INSTANCE.msgForDebug("create dir err " + dirPath + "\n" + e.toString());
 			return false;
 		}
 		return true;

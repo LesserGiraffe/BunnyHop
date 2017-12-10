@@ -43,7 +43,7 @@ import pflab.bunnyhop.configfilereader.FXMLCollector;
 import pflab.bunnyhop.undo.UserOperationCommand;
 
 /**
- * ワークスペースを表すビュー (タブの中のものに対応)
+ * ワークスペースを表すビュー (タブの中の描画物に対応)
  * @author K.Koike
  * */
 public class WorkspaceView extends Tab {
@@ -72,14 +72,14 @@ public class WorkspaceView extends Tab {
 	public boolean init(double width, double height) {
 
 		try {
-			Path filePath = FXMLCollector.instance.getFilePath(BhParams.Path.WORKSPACE_FXML);
+			Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.WORKSPACE_FXML);
 			FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 			loader.setController(this);
 			loader.setRoot(this);
 			loader.load();
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.errMsgForDebug("failed to initizlize " + WorkspaceView.class.getSimpleName() + "\n" + e.toString());
+			MsgPrinter.INSTANCE.errMsgForDebug("failed to initizlize " + WorkspaceView.class.getSimpleName() + "\n" + e.toString());
 			return false;
 		}
 	
@@ -102,8 +102,8 @@ public class WorkspaceView extends Tab {
 
 		setOnClosed(event -> {
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
-			BunnyHop.instance.deleteWorkspace(workspace, userOpeCmd);
-			BunnyHop.instance.pushUserOpeCmd(userOpeCmd);
+			BunnyHop.INSTANCE.deleteWorkspace(workspace, userOpeCmd);
+			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 		});
 		
 		setOnCloseRequest(event -> {
@@ -115,10 +115,12 @@ public class WorkspaceView extends Tab {
 			alert.setTitle("ワークスペースの削除");
 			alert.setHeaderText(null);
 			alert.setContentText("ワークスペースを削除します.");
+			alert.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
 			Optional<ButtonType> buttonType = alert.showAndWait();			
-			if (buttonType.isPresent() && buttonType.get().equals(ButtonType.OK))
-				return;
-			event.consume();
+			buttonType.ifPresent(btnType -> {
+				if (btnType.equals(ButtonType.OK))
+					event.consume();
+			});
 		});
 		
 		setText(workspace.getWorkspaceName());

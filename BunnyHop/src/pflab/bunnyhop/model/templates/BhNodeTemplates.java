@@ -53,7 +53,7 @@ import pflab.bunnyhop.undo.UserOperationCommand;
  * */
 public class BhNodeTemplates {
 
-	private static final BhNodeTemplates instance = new BhNodeTemplates(); //!< シングルトンインスタンス
+	public static final BhNodeTemplates INSTANCE = new BhNodeTemplates(); //!< シングルトンインスタンス
 
 	private final HashMap<BhNodeID, BhNode> nodeID_nodeTemplate = new HashMap<>(); //!< ノードのテンプレートを格納するハッシュ. Nodeタグの bhID がキー
 	private final HashMap<ConnectorID, Connector> cnctrID_cntrTemplate = new HashMap<>(); //!< コネクタのテンプレートを格納するハッシュ. Connectorタグの bhID がキー
@@ -80,7 +80,7 @@ public class BhNodeTemplates {
 
 		BhNode newNode = nodeID_nodeTemplate.get(id);
 		if (newNode == null) {
-			MsgPrinter.instance.errMsgForDebug(BhNodeTemplates.class.getSimpleName() +  ".genBhNode template not found" + id);
+			MsgPrinter.INSTANCE.errMsgForDebug(BhNodeTemplates.class.getSimpleName() +  ".genBhNode template not found" + id);
 		}
 		else {
 			newNode = newNode.copy(userOpeCmd);
@@ -95,14 +95,6 @@ public class BhNodeTemplates {
 	 * */
 	public boolean bhNodeExists(BhNodeID id) {
 		return nodeID_nodeTemplate.get(id) != null;
-	}
-
-	/**
-	 * シングルトンインスタンス取得
-	 * @return NodeTemplates のシングルトンインスタンス
-	 * */
-	public static BhNodeTemplates instance() {
-		return instance;
 	}
 
 	/**
@@ -135,7 +127,7 @@ public class BhNodeTemplates {
 			files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.errMsgForDebug("connector directory not found " + dirPath);
+			MsgPrinter.INSTANCE.errMsgForDebug("connector directory not found " + dirPath);
 			return false;
 		}
 
@@ -150,7 +142,7 @@ public class BhNodeTemplates {
 					return templateConnector.isPresent();
 				}
 				catch (IOException | ParserConfigurationException | SAXException e) {
-					MsgPrinter.instance.errMsgForDebug("ConnectorTemplates genTemplate \n" + e.toString() + "\n" +  file);
+					MsgPrinter.INSTANCE.errMsgForDebug("ConnectorTemplates genTemplate \n" + e.toString() + "\n" +  file);
 					return false;
 				}
 			}).allMatch(successful -> successful) ;
@@ -172,7 +164,7 @@ public class BhNodeTemplates {
 			files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.errMsgForDebug("node directory not found " + dirPath);
+			MsgPrinter.INSTANCE.errMsgForDebug("node directory not found " + dirPath);
 			return false;
 		}
 		
@@ -193,7 +185,7 @@ public class BhNodeTemplates {
 					return templateNode.isPresent();
 				}
 				catch (IOException | ParserConfigurationException | SAXException e) {
-					MsgPrinter.instance.errMsgForDebug("NodeTemplates genTemplate \n" + e.toString() + "\n" +  file);
+					MsgPrinter.INSTANCE.errMsgForDebug("NodeTemplates genTemplate \n" + e.toString() + "\n" +  file);
 					return false;
 				}
 			}).anyMatch(isSuccessful -> !isSuccessful);
@@ -214,10 +206,10 @@ public class BhNodeTemplates {
 				Optional<BhNode> defNode = getBhNodeTemplate(defNodeID);
 				BhNodeID initNodeID = connector.initNodeID;
 				Optional<BhNode> initNode = getBhNodeTemplate(initNodeID);		
-
+				
 				//ノードテンプレートが見つからない
 				if (!defNode.isPresent()) {
-					MsgPrinter.instance.errMsgForDebug(
+					MsgPrinter.INSTANCE.errMsgForDebug(
 						"<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグの "
 							+ BhParams.BhModelDef.ATTR_NAME_DEFAULT_BHNODE_ID + " (" + defNodeID +") " + "と一致する " 
 							+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " を持つ"
@@ -225,7 +217,7 @@ public class BhNodeTemplates {
 					return false;
 				}
 				else if (!initNode.isPresent()) {
-					MsgPrinter.instance.errMsgForDebug(
+					MsgPrinter.INSTANCE.errMsgForDebug(
 						"<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグの "
 							+ BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID + " (" + initNodeID +") " + "と一致する " 
 							+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " を持つ "
@@ -252,7 +244,7 @@ public class BhNodeTemplates {
 			
 			//イミテーションノードの存在チェック
 			if (!bhNodeExists(orgID_imitID._2)) {
-				MsgPrinter.instance.errMsgForDebug(
+				MsgPrinter.INSTANCE.errMsgForDebug(
 					"\"" + orgID_imitID._2 + "\"" + " を " 
 					+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " に持つ " 
 					+ BhParams.BhModelDef.ELEM_NAME_NODE + " が見つかりません. " + "(" + orgID_imitID._1 + ")");
@@ -264,7 +256,7 @@ public class BhNodeTemplates {
 			Optional<BhNode> imitNodeOpt = getBhNodeTemplate(orgID_imitID._2);
 			boolean isSameType = orgNodeOpt.get().getClass() == imitNodeOpt.get().getClass();
 			if (!isSameType) {
-				MsgPrinter.instance.errMsgForDebug(
+				MsgPrinter.INSTANCE.errMsgForDebug(
 					BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + orgNodeOpt.get().type + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " は " 
 				  + BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + imitNodeOpt.get().type + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " を "
 				  + BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID + " に指定できません. \n"
@@ -318,15 +310,15 @@ public class BhNodeTemplates {
 	 */
 	private boolean genCompoundNodes() {
 		
-		CompiledScript cs = BhScriptManager.instance.getCompiledScript(BhParams.Path.GEN_COMPOUND_NODES_JS);
-		Bindings scriptScope = BhScriptManager.instance.createScriptScope();
+		CompiledScript cs = BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.GEN_COMPOUND_NODES_JS);
+		Bindings scriptScope = BhScriptManager.INSTANCE.createScriptScope();
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, new UserOperationCommand());
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, instance);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, INSTANCE);
 		try {
 			cs.eval(scriptScope);
 		}
 		catch (ScriptException e) {
-			MsgPrinter.instance.errMsgForDebug("eval " + BhParams.Path.GEN_COMPOUND_NODES_JS + "\n" + e.toString());
+			MsgPrinter.INSTANCE.errMsgForDebug("eval " + BhParams.Path.GEN_COMPOUND_NODES_JS + "\n" + e.toString());
 			return false;
 		}
 		return true;
@@ -349,7 +341,7 @@ public class BhNodeTemplates {
 				return false;})
 			.toArray(String[]::new);
 		
-		return BhScriptManager.instance.scriptsExist(fileName, scriptNamesFiltered);
+		return BhScriptManager.INSTANCE.scriptsExist(fileName, scriptNamesFiltered);
 	}
 		
 	/**

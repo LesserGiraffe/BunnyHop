@@ -74,7 +74,7 @@ public class BhNodeController implements MsgProcessor {
 		
 		if (node == null)
 			return;
-		BhNodeView nodeView = MsgTransporter.instance.sendMessage(BhMsg.GET_VIEW, node).nodeView;
+		BhNodeView nodeView = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW, node).nodeView;
 		nodeView.getEventManager().propagateEvent(event);
 		event.consume();
 	}
@@ -148,7 +148,7 @@ public class BhNodeController implements MsgProcessor {
 			if(model.isRemovable()) {	//子ノードでかつ取り外し可能 -> 親ノードから切り離し, ダングリング状態へ
 				ddInfo.latestParent = model.findParentNode();
 				ddInfo.latestRoot = model.findRootNode();
-				BhNodeHandler.instance.removeChild(model, ddInfo.userOpeCmd);
+				BhNodeHandler.INSTANCE.removeChild(model, ddInfo.userOpeCmd);
 			}			
 			mouseEvent.consume();
 		});
@@ -163,7 +163,7 @@ public class BhNodeController implements MsgProcessor {
 			}
 
 			if (ddInfo.currentOverlapped != null) {
-				MsgTransporter.instance.sendMessage(
+				MsgTransporter.INSTANCE.sendMessage(
 					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION, 
 					new MsgData(false, BhParams.CSS.PSEUDO_OVERLAPPED), 
 					ddInfo.currentOverlapped);
@@ -180,12 +180,12 @@ public class BhNodeController implements MsgProcessor {
 			}
 			
 			Workspace ws = model.getWorkspace();
-			DelayedDeleter.instance.deleteCandidates(ddInfo.userOpeCmd);
+			DelayedDeleter.INSTANCE.deleteCandidates(ddInfo.userOpeCmd);
 			deleteUnscopedNodes(model);
 			deleteUnscopedNodes(ddInfo.currentOverlapped);
 			if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS)
 				getRidOfNode(mouseEvent.getSceneX(), mouseEvent.getSceneY());		//ゴミ箱に捨てる
-			BunnyHop.instance.pushUserOpeCmd(ddInfo.userOpeCmd);
+			BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
 			ddInfo.reset();
 			view.setMouseTransparent(false);	// 処理が終わったので、元に戻しておく。
 			mouseEvent.consume();
@@ -201,11 +201,11 @@ public class BhNodeController implements MsgProcessor {
 		boolean fromWorkspace = model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
 		if(fromWorkspace) {	//ワークスペースから移動する場合
 			ddInfo.userOpeCmd.pushCmdOfSetPosOnWorkspace(ddInfo.posOnWorkspace.x, ddInfo.posOnWorkspace.y, model);
-			BhNodeHandler.instance.removeFromWS(model, ddInfo.userOpeCmd);
+			BhNodeHandler.INSTANCE.removeFromWS(model, ddInfo.userOpeCmd);
 		}
 		ConnectiveNode oldParentOfReplaced = replacedNode.findParentNode();	//入れ替えられるノードの親ノード
 		BhNode oldRootOfReplaced = replacedNode.findRootNode();	//入れ替えられるノードのルートノード
-		BhNodeHandler.instance.replaceChild(replacedNode, model, ddInfo.userOpeCmd);	//重なっているノードをこのノードと入れ替え
+		BhNodeHandler.INSTANCE.replaceChild(replacedNode, model, ddInfo.userOpeCmd);	//重なっているノードをこのノードと入れ替え
 		model.execScriptOnMovedToChild(
 			ddInfo.latestParent, 
 			ddInfo.latestRoot,
@@ -213,13 +213,13 @@ public class BhNodeController implements MsgProcessor {
 			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
 		
 		if (replacedNode instanceof VoidNode) { 	//VoidNodeは消す
-			BhNodeHandler.instance.deleteNode(replacedNode, ddInfo.userOpeCmd);
+			BhNodeHandler.INSTANCE.deleteNode(replacedNode, ddInfo.userOpeCmd);
 		}	
 		else {
-			MsgData posInWS = MsgTransporter.instance.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, replacedNode);
+			MsgData posInWS = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, replacedNode);
 			double newXPosInWs = posInWS.doublePair._1+ BhParams.REPLACED_NODE_POS;
 			double newYPosInWs = posInWS.doublePair._2+ BhParams.REPLACED_NODE_POS;
-			BhNodeHandler.instance.moveToWS(replacedNode.getWorkspace(), replacedNode, newXPosInWs, newYPosInWs, ddInfo.userOpeCmd);	//重なっているノードをWSに移動
+			BhNodeHandler.INSTANCE.moveToWS(replacedNode.getWorkspace(), replacedNode, newXPosInWs, newYPosInWs, ddInfo.userOpeCmd);	//重なっているノードをWSに移動
 			replacedNode.execScriptOnMovedFromChildToWS(
 				oldParentOfReplaced, 
 				oldRootOfReplaced,
@@ -230,9 +230,9 @@ public class BhNodeController implements MsgProcessor {
 		
 //		BhNode outerEnd = model.findOuterEndNode();
 //		if(outerEnd instanceof VoidNode && outerEnd.isReplaceable(replacedNode) && !(replacedNode instanceof VoidNode)) {
-//			BhNodeHandler.instance.removeFromWS(replacedNode, ddInfo.userOpeCmd);
-//			BhNodeHandler.instance.replaceChild(outerEnd, replacedNode, ddInfo.userOpeCmd);
-//			BhNodeHandler.instance.deleteNode(outerEnd, ddInfo.userOpeCmd);
+//			BhNodeHandler.INSTANCE.removeFromWS(replacedNode, ddInfo.userOpeCmd);
+//			BhNodeHandler.INSTANCE.replaceChild(outerEnd, replacedNode, ddInfo.userOpeCmd);
+//			BhNodeHandler.INSTANCE.deleteNode(outerEnd, ddInfo.userOpeCmd);
 //		}
 	}
 	
@@ -243,7 +243,7 @@ public class BhNodeController implements MsgProcessor {
 	private void toWorkspace(Workspace ws) {
 		
 		Point2D absPosInWS = view.getPositionManager().getPosOnWorkspace();
-		BhNodeHandler.instance.moveToWS(ws, model, absPosInWS.x, absPosInWS.y, ddInfo.userOpeCmd);
+		BhNodeHandler.INSTANCE.moveToWS(ws, model, absPosInWS.x, absPosInWS.y, ddInfo.userOpeCmd);
 		model.execScriptOnMovedFromChildToWS(
 			ddInfo.latestParent, 
 			ddInfo.latestRoot, 
@@ -273,7 +273,7 @@ public class BhNodeController implements MsgProcessor {
 		
 		UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
 		topNode.accept(unscopedNodeCollector);
-		BhNodeHandler.instance.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), ddInfo.userOpeCmd);
+		BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), ddInfo.userOpeCmd);
 	}
 	
 	/**
@@ -282,7 +282,7 @@ public class BhNodeController implements MsgProcessor {
 	private void highlightOverlappedNode() {
 		
 		if (ddInfo.currentOverlapped != null) {
-			MsgTransporter.instance.sendMessage(
+			MsgTransporter.INSTANCE.sendMessage(
 				BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION, 
 				new MsgData(false, BhParams.CSS.PSEUDO_OVERLAPPED), //前回重なっていたものをライトオフ
 				ddInfo.currentOverlapped);
@@ -292,7 +292,7 @@ public class BhNodeController implements MsgProcessor {
 		ArrayList<BhNode> overlappedList = view.getRegionManager().searchOverlappedModel();	//このノードとコネクタ部分が重なっている
 		for (BhNode overlapped : overlappedList) {
 			if (overlapped.canBeReplacedWith(model)) {	//このノードと入れ替え可能
-				MsgTransporter.instance.sendMessage(
+				MsgTransporter.INSTANCE.sendMessage(
 					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION, 
 					new MsgData(true, BhParams.CSS.PSEUDO_OVERLAPPED),
 					overlapped);	//今回重なっているものをライトオン
@@ -309,12 +309,12 @@ public class BhNodeController implements MsgProcessor {
 	 */
 	private void openCloseTrashbox(double sceneX, double sceneY) {
 		
-		boolean inTrashboxArea = MsgTransporter.instance.sendMessage(
+		boolean inTrashboxArea = MsgTransporter.INSTANCE.sendMessage(
 			BhMsg.IS_IN_TRASHBOX_AREA, 
 			new MsgData(sceneX, sceneY), 
 			model.getWorkspace().getWorkspaceSet()).bool;
 		
-		MsgTransporter.instance.sendMessage(
+		MsgTransporter.INSTANCE.sendMessage(
 			BhMsg.OPEN_TRAHBOX,
 			new MsgData(inTrashboxArea),
 			model.getWorkspace().getWorkspaceSet());
@@ -326,18 +326,18 @@ public class BhNodeController implements MsgProcessor {
 	private void getRidOfNode(double sceneX, double sceneY) {
 
 		WorkspaceSet wss = model.getWorkspace().getWorkspaceSet();
-		MsgTransporter.instance.sendMessage(
+		MsgTransporter.INSTANCE.sendMessage(
 			BhMsg.OPEN_TRAHBOX,
 			new MsgData(false),
 			wss);
 		
-		boolean inTrashboxArea = MsgTransporter.instance.sendMessage(
+		boolean inTrashboxArea = MsgTransporter.INSTANCE.sendMessage(
 			BhMsg.IS_IN_TRASHBOX_AREA, 
 			new MsgData(sceneX, sceneY), 
 			wss).bool;		
 		
 		if (inTrashboxArea) {
-			BhNodeHandler.instance.deleteNode(model, ddInfo.userOpeCmd);
+			BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
 		}
 	}
 	
@@ -404,7 +404,7 @@ public class BhNodeController implements MsgProcessor {
 				break;
 				
 			default:
-				MsgPrinter.instance.errMsgForDebug(BhNodeController.class.getSimpleName() + ".receiveMsg unknown msg.  " + msg);
+				MsgPrinter.INSTANCE.errMsgForDebug(BhNodeController.class.getSimpleName() + ".receiveMsg unknown msg.  " + msg);
 				assert false;
 		}
 

@@ -61,7 +61,7 @@ public class WorkspaceSetController implements MsgProcessor {
 		model = wss;
 		setEventHandlers();
 		workspaceSetViewBase.setDividerPositions(BhParams.DEFAULT_VERTICAL_DIV_POS);
-		MsgPrinter.instance.setMainMsgArea(mainMsgArea); //メインメッセージエリアの登録
+		MsgPrinter.INSTANCE.setMainMsgArea(mainMsgArea); //メインメッセージエリアの登録
 	}
 	
 	/**
@@ -191,24 +191,24 @@ public class WorkspaceSetController implements MsgProcessor {
 			
 		case UNDO:
 			userOpeCmdManager.undo();
-			BunnyHop.instance.shouldSave(true);
+			BunnyHop.INSTANCE.shouldSave(true);
 			break;
 				
 		case REDO:
 			userOpeCmdManager.redo();
-			BunnyHop.instance.shouldSave(true);
+			BunnyHop.INSTANCE.shouldSave(true);
 			break;
 		
 		case PUSH_USER_OPE_CMD:
 			if (data.userOpeCmd.getNumSubOpe() > 0) {
 				userOpeCmdManager.pushUndoCommand(data.userOpeCmd);
-				BunnyHop.instance.shouldSave(true);
+				BunnyHop.INSTANCE.shouldSave(true);
 			}
 			break;
 
 			
 		default:
-			MsgPrinter.instance.errMsgForDebug(WorkspaceSetController.class.getSimpleName() +  ".receiveMsg unknown msg  " + msg);
+			MsgPrinter.INSTANCE.errMsgForDebug(WorkspaceSetController.class.getSimpleName() +  ".receiveMsg unknown msg  " + msg);
 			assert false;
 		}
 

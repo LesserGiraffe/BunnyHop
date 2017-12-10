@@ -90,8 +90,6 @@
 			</graphic>
 		</Button>
 		
-		
-		
 		<Button text="接続" fx:id="connectBtn" styleClass="menuOpFlatButtons"/>
 		<Button text="切断" fx:id="disconnectBtn" styleClass="menuOpFlatButtons"/>
 		

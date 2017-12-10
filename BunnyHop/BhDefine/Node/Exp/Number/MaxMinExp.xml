@@ -9,11 +9,13 @@
 
 		<Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
 		
-		<PrivateConnector 
+		<PrivateConnector
+			bhConnectorID="idMaxMinExp.prvCnctr0"
 			name="to"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idMaxMinExp.prvNode0"
 				name="to"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
@@ -24,10 +26,12 @@
 		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
 		
 		<PrivateConnector 
+			bhConnectorID="idMaxMinExp.prvCnctr1"
 			name="no"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idMaxMinExp.prvNode1"
 				name="no"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
@@ -35,15 +39,16 @@
 			</Node>
 		</PrivateConnector>
 		
-		<PrivateConnector 
+		<PrivateConnector
+			bhConnectorID="idMaxMinExp.prvCnctr2"
 			name="Option0"
     		fixed="true">
 			<Node
 				type="comboBox"
+				bhNodeID="idMaxMinExp.prvNode2"
 				name="MaxMinOpe"
 				nodeStyleID="WordComboBox.json"
-				nodeInputControl="MaxMinOpe.fxml"
-				initString="大きい方">
+				nodeInputControl="MaxMinOpe.fxml">
 			</Node>
 		</PrivateConnector>
 		

@@ -9,10 +9,12 @@
 		<Connector bhConnectorID="idStrVarCnctr" name="LeftVar"/>
 
 		<PrivateConnector
+			bhConnectorID="idStrAssignStat.prvCnctr0"
 			name="ni"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idStrAssignStat.prvNode0"
 				name="ni"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
@@ -23,10 +25,12 @@
 		<Connector bhConnectorID="idStrExpCnctr" name="RightExp"/>
 
 		<PrivateConnector
+			bhConnectorID="idStrAssignStat.prvCnctr1"
 			name="woDainyuSuru"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idStrAssignStat.prvNode1"
 				name="woDainyuSuru"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"

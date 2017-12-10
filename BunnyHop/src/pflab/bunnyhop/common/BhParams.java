@@ -22,6 +22,7 @@ package pflab.bunnyhop.common;
 public class BhParams {
 
 	public static final String APPLICATION_NAME = "BunnyHop";
+	public static final String APP_VERSION = "1.0.0.0";
 	public static final double DEFAULT_APP_WIDTH_RATE = 0.7; // !< 起動時の画面幅のディスプレイに対する割合
 	public static final double DEFAULT_APP_HEIGHT_RATE = 0.7; // !< 起動時の画面高さのディスプレイに対する割合
 	public static final double DEFAULT_WORKSPACE_WIDTH = 200 * Rem.VAL;
@@ -112,6 +113,7 @@ public class BhParams {
 		public static final String ATTR_NAME_TEXT_FIELD = "textField";
 		public static final String ATTR_NAME_COMBO_BOX = "comboBox";
 		public static final String ATTR_NAME_LABEL = "label";
+		public static final String ATTR_NAME_NO_VIEW = "noView";
 		public static final String ATTR_VALUE_VOID = "void";
 		public static final String ATTR_VALUE_TRUE = "true";
 		public static final String ATTR_VALUE_FALSE = "false";

@@ -15,7 +15,6 @@
  */
 package pflab.bunnyhop.control;
 
-import javafx.application.Platform;
 import pflab.bunnyhop.message.BhMsg;
 import pflab.bunnyhop.message.MsgData;
 import pflab.bunnyhop.model.TextNode;
@@ -55,7 +54,7 @@ public class TextFieldNodeController extends BhNodeController {
 				boolean isValidFormat = model.isTextAcceptable(view.getText());
 				if (isValidFormat) {	//正しいフォーマットの文字列が入力されていた場合
 					model.setText(currentGUIText);	//model の文字列をTextField のものに変更する
-					model.imitateText();
+					model.getImitNodesToImitateContents();
 				}
 				else {
 					view.setText(model.getText());	//view の文字列を変更前の文字列に戻す
@@ -79,13 +78,16 @@ public class TextFieldNodeController extends BhNodeController {
 	
 		switch (msg) {
 			case IMITATE_TEXT:
+				model.setText(data.strPair._1);
 				boolean editable = view.getEditable();
 				view.setEditable(true);
-				view.setText(data.text);
+				view.setText(data.strPair._2);
 				view.setEditable(editable);
-				model.setText(data.text);
 				break;
 			
+			case GET_MODEL_AND_VIEW_TEXT:
+				return new MsgData(model.getText(), view.getText());
+				
 			default:
 				return super.processMsg(msg, data);
 		}

@@ -52,7 +52,7 @@ public class BhNodeAttributes {
 		//bhNodeID
 		nodeAttrs.bhNodeID = BhNodeID.createBhNodeID(node.getAttribute(BhParams.BhModelDef.ATTR_NAME_BHNODE_ID));
 		if (nodeAttrs.bhNodeID.equals(BhNodeID.NONE)) {
-			MsgPrinter.instance.errMsgForDebug(
+			MsgPrinter.INSTANCE.errMsgForDebug(
 				"<" + BhParams.BhModelDef.ELEM_NAME_NODE + ">" + " タグには " 
 				+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " 属性を記述してください.  " + node.getBaseURI());
 			return Optional.empty();
@@ -93,7 +93,7 @@ public class BhNodeAttributes {
 			nodeAttrs.canCreateImitManually = false;
 		}
 		else {
-			MsgPrinter.instance.errMsgForDebug(BhParams.BhModelDef.ATTR_NAME_CAN_CREATE_IMIT_MANUALLY + " 属性には "
+			MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ATTR_NAME_CAN_CREATE_IMIT_MANUALLY + " 属性には "
 				+ BhParams.BhModelDef.ATTR_VALUE_TRUE + " か "
 				+ BhParams.BhModelDef.ATTR_VALUE_FALSE + " を指定してください. " + node.getBaseURI());
 			return Optional.empty();

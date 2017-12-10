@@ -8,10 +8,12 @@
 
 	<ConnectorSection name="NumberExpSctn">
 		<PrivateConnector
+			bhConnectorID="idMeasureDistanceExp.prvCnctr0"
 			name="zenpoKyori"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idMeasureDistanceExp.prvNode0"
 				name="zenpoKyori"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"

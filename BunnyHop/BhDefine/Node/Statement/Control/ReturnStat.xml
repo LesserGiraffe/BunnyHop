@@ -9,10 +9,12 @@
 
 	<ConnectorSection name="StatSctn">
 		<PrivateConnector
+			bhConnectorID="idReturnStat.prvCnctr0"
 			name="kinouKaraNukeru"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idReturnStat.prvNode0"
 				name="kinouKaraNukeru"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"

@@ -341,8 +341,8 @@ public class BhNodeViewGroup extends Group implements Showable {
 	public void show(int depth) {
 
 		try {
-			MsgPrinter.instance.msgForDebug(indent(depth) + "<BhNodeViewGroup>  "  + this.hashCode());
-			MsgPrinter.instance.msgForDebug(indent(depth + 1) + (inner ? "<inner>" : "<outer>"));
+			MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<BhNodeViewGroup>  "  + this.hashCode());
+			MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + (inner ? "<inner>" : "<outer>"));
 			arrangeParams.cnctrNameList.forEach(cnctrName -> {
 				BhNodeView childNodeView =  cnctrName_NodeView.get(cnctrName);
 				if (childNodeView != null)
@@ -351,7 +351,7 @@ public class BhNodeViewGroup extends Group implements Showable {
 			subGroupList.forEach(subGroup -> subGroup.show(depth + 1));
 		}
 		catch (Exception e) {
-			MsgPrinter.instance.msgForDebug("connectiveNodeView show exception " + e);
+			MsgPrinter.INSTANCE.msgForDebug("connectiveNodeView show exception " + e);
 		}
 	}
 }

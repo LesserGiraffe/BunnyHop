@@ -33,6 +33,7 @@ import pflab.bunnyhop.configfilereader.BhScriptManager;
 import pflab.bunnyhop.model.BhNodeID;
 import pflab.bunnyhop.model.imitation.ImitationConnectionPos;
 import pflab.bunnyhop.model.imitation.ImitationID;
+import pflab.bunnyhop.modelprocessor.TextImitationPrompter;
 import pflab.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -44,7 +45,7 @@ public class Connector extends SyntaxSymbol {
 	private final ConnectorID id; 				//!< コネクタID (\<Connector\> タグの bhID)
 	public final BhNodeID defaultNodeID; 		//!< ノードが取り外されたときに変わりに繋がるノードのID (\<Connector\> タグの bhID)
 	public final BhNodeID initNodeID;			//!< 最初に接続されているノードのID
-	private BhNode connectedNode;			//!< 接続中のノード<br> null となるのは、テンプレート構築中とClone メソッドの一瞬のみ
+	private BhNode connectedNode;			//!< 接続中のノード. null となるのは、テンプレート構築中とClone メソッドの一瞬のみ
 	private ConnectorSection parent;	//!< このオブジェクトを保持する ConnectorSection オブジェクト
 	private final boolean fixed;	//!< このコネクタにつながるBhNodeが手動で取り外しや入れ替えができない場合true
 	private boolean outer = false;	//!< 外部描画ノードを接続するコネクタの場合true
@@ -194,7 +195,7 @@ public class Connector extends SyntaxSymbol {
 		if (fixed)
 			return false;
 		
-		CompiledScript onReplaceabilityChecked = BhScriptManager.instance.getCompiledScript(scriptNameOnReplaceabilityChecked);
+		CompiledScript onReplaceabilityChecked = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnReplaceabilityChecked);
 		if (onReplaceabilityChecked == null)
 			return false;
 		
@@ -206,7 +207,7 @@ public class Connector extends SyntaxSymbol {
 		try {
 			replaceable = onReplaceabilityChecked.eval(scriptScope);
 		} catch (ScriptException e) {
-			MsgPrinter.instance.errMsgForDebug(Connector.class.getSimpleName() +  ".isReplacable   " + scriptNameOnReplaceabilityChecked + "\n" + e.toString() + "\n");
+			MsgPrinter.INSTANCE.errMsgForDebug(Connector.class.getSimpleName() +  ".isReplacable   " + scriptNameOnReplaceabilityChecked + "\n" + e.toString() + "\n");
 			return false;
 		}
 		if (replaceable instanceof Boolean)
@@ -224,9 +225,9 @@ public class Connector extends SyntaxSymbol {
 
 		assert connectedNode != null;
 		
-		BhNode newNode = BhNodeTemplates.instance().genBhNode(defaultNodeID, userOpeCmd);	//デフォルトノードを作成		
-		NodeMVCBuilder mvcBuilder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default);
-		newNode.accept(mvcBuilder);	//MVC構築
+		BhNode newNode = BhNodeTemplates.INSTANCE.genBhNode(defaultNodeID, userOpeCmd);	//デフォルトノードを作成		
+		newNode.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));	//MVC構築
+		newNode.accept(new TextImitationPrompter());
 		connectedNode.replacedWith(newNode, userOpeCmd);
 		return newNode;
 	}
@@ -247,11 +248,11 @@ public class Connector extends SyntaxSymbol {
 	 * スクリプト実行時のスコープ変数を登録する
 	 */
 	public final void setScriptScope() {
-		scriptScope = BhScriptManager.instance.createScriptScope();
+		scriptScope = BhScriptManager.INSTANCE.createScriptScope();
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_THIS, this);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.instance);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_MSG_TRANSPORTER, MsgTransporter.instance);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.instance.getCommonJsObj());
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_MSG_TRANSPORTER, MsgTransporter.INSTANCE);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
 	}
 
 	/**
@@ -339,7 +340,7 @@ public class Connector extends SyntaxSymbol {
 	 * */
 	@Override
 	public void show(int depth) {
-		MsgPrinter.instance.msgForDebug(indent(depth) + "<Connector" + " bhID=" + id + " nodeID=" + connectedNode.getID() + "  parent=" + parent.hashCode() + "> " + this.hashCode());
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<Connector" + " bhID=" + id + " nodeID=" + connectedNode.getID() + "  parent=" + parent.hashCode() + "> " + this.hashCode());
 		connectedNode.show(depth + 1);
 	}
 }

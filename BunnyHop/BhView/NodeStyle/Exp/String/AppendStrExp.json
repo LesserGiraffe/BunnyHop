@@ -15,7 +15,7 @@
 		"inner" : {
 			"interval" : 2.0,
 			"arrangement" : "Row",
-			"connectorList" : ["LeftExp", "Operator", "RightExp"]
+			"connectorList" : ["LeftExp", "OperatorView", "RightExp"]
 		}
 	}
 }

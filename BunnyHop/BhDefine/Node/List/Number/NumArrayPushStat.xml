@@ -9,10 +9,12 @@
 		<Connector bhConnectorID="idNumListCnctr" name="Arg0"/>
 		
 		<PrivateConnector 
+			bhConnectorID="idNumArrayPushStat.prvCnctr0"
 			name="noMatsubiNi"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idNumArrayPushStat.prvNode0"
 				name="noMatsubiNi"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
@@ -22,11 +24,13 @@
 
 		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
 
-		<PrivateConnector 
+		<PrivateConnector
+			bhConnectorID="idNumArrayPushStat.prvCnctr1"
 			name="woTsuikaSuru"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idNumArrayPushStat.prvNode1"
 				name="woTsuikaSuru"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"

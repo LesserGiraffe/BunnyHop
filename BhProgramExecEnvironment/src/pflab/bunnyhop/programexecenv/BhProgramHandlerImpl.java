@@ -15,18 +15,14 @@
  */
 package pflab.bunnyhop.programexecenv;
 
-import pflab.bunnyhop.bhprogram.common.BhProgramData;
-import pflab.bunnyhop.bhprogram.common.BhProgramHandler;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import pflab.bunnyhop.bhprogram.common.BhProgramData;
+import pflab.bunnyhop.bhprogram.common.BhProgramHandler;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -70,7 +66,7 @@ public class BhProgramHandlerImpl implements BhProgramHandler {
 	public boolean runScript(String fileName) {
 		
 		ScriptEngine engine = (new NashornScriptEngineFactory()).getScriptEngine("--language=es6");
-		Path scriptPath = Paths.get(Util.EXEC_PATH, Util.SCRIPT_DIR, fileName);
+		Path scriptPath = Paths.get(Util.EXEC_PATH, BhParams.Path.SCRIPT_DIR, fileName);
 		boolean success = true;
 
 		try (BufferedReader reader = Files.newBufferedReader(scriptPath, StandardCharsets.UTF_8)){

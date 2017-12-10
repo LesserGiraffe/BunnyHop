@@ -14,9 +14,8 @@
 
 
 #nodeCategoryListViewBase {
-	-fx-pref-width: 11em;
-	-fx-max-width: 11em;
-	-fx-min-width: 3em;
+	-fx-max-width: 26em;
+	-fx-pref-width: 12em;
 }
 
 #categoryTree .tree-cell{

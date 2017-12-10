@@ -131,7 +131,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	 * */
 	public boolean isTextAcceptable(String text) {
 
-		CompiledScript onTextInput = BhScriptManager.instance.getCompiledScript(scriptNameOnTextInput);
+		CompiledScript onTextInput = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnTextInput);
 		if (onTextInput == null)
 			return true;
 		
@@ -140,7 +140,7 @@ public class TextNode  extends Imitatable implements Serializable {
 		try {
 			jsReturn = onTextInput.eval(scriptScope);
 		} catch (ScriptException e) {
-			MsgPrinter.instance.errMsgForDebug(TextNode.class.getSimpleName() +  ".isTextSettable   " + scriptNameOnTextInput + "\n" + e.toString() + "\n");
+			MsgPrinter.INSTANCE.errMsgForDebug(TextNode.class.getSimpleName() +  ".isTextSettable   " + scriptNameOnTextInput + "\n" + e.toString() + "\n");
 		}
 
 		if(jsReturn instanceof Boolean)
@@ -150,10 +150,12 @@ public class TextNode  extends Imitatable implements Serializable {
 	}
 	
 	/**
-	 * 現在のテキストをイミテーションノードにセットする
+	 * イミテーションノードにこのノードを模倣させる
 	 */
-	public void imitateText() {
-		imitInfo.getImitationList().forEach(imit -> MsgTransporter.instance.sendMessage(BhMsg.IMITATE_TEXT, new MsgData(text), imit));
+	public void getImitNodesToImitateContents() {
+		MsgData mvText = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_MODEL_AND_VIEW_TEXT, this);
+		imitInfo.getImitationList().forEach(
+			imit -> MsgTransporter.INSTANCE.sendMessage(BhMsg.IMITATE_TEXT, new MsgData(mvText.strPair._1, mvText.strPair._2), imit));
 	}
 
 	/**
@@ -171,13 +173,13 @@ public class TextNode  extends Imitatable implements Serializable {
 		if (getLastReplaced() != null)
 			lastReplacedHash =  getLastReplaced().hashCode() + "";
 
-		MsgPrinter.instance.msgForDebug(indent(depth) + "<TextNode" + "string=" + text + "  bhID=" + getID() + "  parent="+ parentHash + "> " + this.hashCode());
-		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "ws " + workspace + "> ");
-		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
-		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "scopeName " + imitInfo.scopeName + "> ");
-		MsgPrinter.instance.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<TextNode" + "string=" + text + "  bhID=" + getID() + "  parent="+ parentHash + "> " + this.hashCode());
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "ws " + workspace + "> ");
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "scopeName " + imitInfo.scopeName + "> ");
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
 		imitInfo.getImitationList().forEach(imit -> {
-			MsgPrinter.instance.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());
+			MsgPrinter.INSTANCE.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());
 		});
 			
 	}
@@ -186,7 +188,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	public TextNode createImitNode(UserOperationCommand userOpeCmd, ImitationID imitID) {
 
 		//イミテーションノード作成
-		BhNode imitationNode = BhNodeTemplates.instance().genBhNode(imitInfo.getImitationNodeID(imitID), userOpeCmd);
+		BhNode imitationNode = BhNodeTemplates.INSTANCE.genBhNode(imitInfo.getImitationNodeID(imitID), userOpeCmd);
 		
 		//オリジナルとイミテーションの関連付け
 		TextNode textImit = (TextNode)imitationNode; //ノードテンプレート作成時に整合性チェックしているのでキャストに問題はない

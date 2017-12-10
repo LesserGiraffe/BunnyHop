@@ -31,6 +31,7 @@ import pflab.bunnyhop.common.TreeNode;
 import pflab.bunnyhop.model.BhNode;
 import pflab.bunnyhop.model.BhNodeID;
 import pflab.bunnyhop.model.templates.BhNodeTemplates;
+import pflab.bunnyhop.modelprocessor.TextImitationPrompter;
 import pflab.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -125,10 +126,10 @@ public class BhNodeCategoryListView {
 			selectionView.setVisible(false);
 		}
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
-		BhNode node = BhNodeTemplates.instance().genBhNode(bhNodeID, userOpeCmd);
+		BhNode node = BhNodeTemplates.INSTANCE.genBhNode(bhNodeID, userOpeCmd);
 		NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Template);
 		node.accept(builder);	//MVC構築
-		
+		node.accept(new TextImitationPrompter());
 		category_selectionView.get(category).addBhNodeView(builder.getTopNodeView());	//BhNode テンプレートリストパネルにBhNodeテンプレートを追加	
 	}
 		

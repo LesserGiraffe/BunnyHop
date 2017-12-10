@@ -24,7 +24,6 @@ import java.nio.file.Paths;
 public class Util {
 	
 	public static final String EXEC_PATH;
-	public static final String SCRIPT_DIR = "compiled";
 	
 	static {		
 		String pathStr = System.getProperty("jdk.module.path");

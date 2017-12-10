@@ -16,6 +16,7 @@
 package pflab.bunnyhop.control;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.VBox;
 import pflab.bunnyhop.model.BhNodeCategoryList;
 import pflab.bunnyhop.model.WorkspaceSet;
@@ -28,6 +29,7 @@ public class FoundationController {
 	
 	//View
 	@FXML VBox foundationVBox;
+	@FXML SplitPane horizontalSplitter;
 	
 	//Controller
 	@FXML private MenuOperationController menuOperationController;

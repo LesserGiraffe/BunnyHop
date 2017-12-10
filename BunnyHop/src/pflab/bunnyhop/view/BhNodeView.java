@@ -505,7 +505,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 			
 			Point2D curRelPos = getRelativePosFromParent();
 			Point2D posOnWS = getPosOnWorkspace();
-			Pair<Double, Double> wsSize = MsgTransporter.instance.sendMessage(BhMsg.GET_WORKSPACE_SIZE, model.getWorkspace()).doublePair;
+			Pair<Double, Double> wsSize = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_WORKSPACE_SIZE, model.getWorkspace()).doublePair;
 			double wsWidth = wsSize._1;
 			double wsHeight = wsSize._2;
 			double newDiffX = calcNewDiff(wsWidth, posOnWS.x, diffX);

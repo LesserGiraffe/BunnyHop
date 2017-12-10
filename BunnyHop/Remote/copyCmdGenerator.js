@@ -1,3 +1,3 @@
 (function() {
-	return ['pscp', '-pw', password, bhProgramFilePath, (uname + '@' + ipAddr + ':' + 'BunnyHop/compiled/')];
+	return ['pscp', '-pw', password, bhProgramFilePath, (uname + '@' + ipAddr + ':' + 'BunnyHop/Compiled/')];
 })();

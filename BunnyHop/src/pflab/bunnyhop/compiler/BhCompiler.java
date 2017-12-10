@@ -37,7 +37,7 @@ import pflab.bunnyhop.modelprocessor.SyntaxSymbolIDCreator;
  */
 public class BhCompiler {
 
-	public static final BhCompiler instance = new BhCompiler() {};	//!< シングルトンインスタンス
+	public static final BhCompiler INSTANCE = new BhCompiler() {};	//!< シングルトンインスタンス
 	private final VarDeclCodeGenerator varDeclCodeGen;
 	private final FuncDefCodeGenerator funcDefCodeGen;
 	private final StatCodeGenerator statCodeGen;
@@ -83,7 +83,7 @@ public class BhCompiler {
 			localCommonCode = new String(content, StandardCharsets.UTF_8);
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.errMsgForDebug("failed to initialize + " + BhCompiler.class.getSimpleName() + "\n" + e.toString());
+			MsgPrinter.INSTANCE.errMsgForDebug("failed to initialize + " + BhCompiler.class.getSimpleName() + "\n" + e.toString());
 			return false;
 		}		
 		return true;
@@ -124,14 +124,14 @@ public class BhCompiler {
 			writer.write(code.toString());
 		}
 		catch (IOException e) {
-			MsgPrinter.instance.alert(
+			MsgPrinter.INSTANCE.alert(
 				Alert.AlertType.ERROR,
 				"ファイル書き込みエラー", 
 				null,
 				e.toString() + "\n" + appFilePath.toString());			
 			return Optional.empty();
 		}
-		MsgPrinter.instance.msgForUser("\n-- コンパイル成功 --\n");
+		MsgPrinter.INSTANCE.msgForUser("\n-- コンパイル成功 --\n");
 		return Optional.of(appFilePath);
 	}
 	
@@ -169,7 +169,7 @@ public class BhCompiler {
 	private boolean isExecutable(BhNode node) {
 		
 		if (node.getState() != BhNode.State.ROOT_DIRECTLY_UNDER_WS) {
-			MsgPrinter.instance.alert(
+			MsgPrinter.INSTANCE.alert(
 				Alert.AlertType.ERROR, 
 				"実行ノードエラー",
 				null,

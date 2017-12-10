@@ -197,7 +197,7 @@ public class ExpCodeGenerator {
 				return "('\\n')";
 				
 			case SymbolNames.Literal.BOOL_LITERAL:
-				return "(" + SymbolNames.Literal.BOOL_LITERAL_MAP.get(inputText) + ")";
+				return "(" + inputText + ")";
 		}
 		return null;
 	}

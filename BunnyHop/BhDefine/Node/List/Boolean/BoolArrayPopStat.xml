@@ -8,11 +8,13 @@
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idBoolListCnctr" name="Arg0"/>
 		
-		<PrivateConnector 
+		<PrivateConnector
+			bhConnectorID="idBoolArrayPopStat.prvCnctr0"
 			name="noMatsubiNoYosoWoKesu"
 			fixed="true">
 			<Node
 				type="label"
+				bhNodeID="idBoolArrayPopStat.prvNode0"
 				name="noMatsubiNoYosoWoKesu"
 				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
