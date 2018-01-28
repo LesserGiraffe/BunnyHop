@@ -7,7 +7,7 @@
 	nodeStyleID="StrVar.json"
 	imitScopeName="VarScopeSctn"
 	onMovedFromChildToWS=""
-	onMovedToChild="">
+	onMovedToChild="onVarMovedToChild.js">
 
 	<ConnectorSection name="StringExpSctn">
 		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>

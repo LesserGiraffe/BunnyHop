@@ -9,5 +9,6 @@
     
 	return newNodeName === 'LineFeed' ||
 		   newNodeName === 'StrLiteral' ||
-		   sectionName === 'StringExpSctn';
+		   sectionName === 'StringExpSctn' ||
+		   sectionName === 'AnyExpSctn';
 })();

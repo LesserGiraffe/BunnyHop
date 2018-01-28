@@ -3,12 +3,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
-<?import pflab.bunnyhop.common.*?>
+<?import net.seapanda.bunnyhop.common.*?>
 
 <SplitPane
 	xmlns:fx="http://javafx.com/fxml"
 	fx:id="workspaceSetViewBase"
-	fx:controller="pflab.bunnyhop.control.WorkspaceSetController">
+	fx:controller="net.seapanda.bunnyhop.control.WorkspaceSetController">
 	<fx:define>
 		<Rem fx:id="trashBoxWidth" rem="5"/>
 		<Rem fx:id="trashBoxHeight" rem="8.9"/>

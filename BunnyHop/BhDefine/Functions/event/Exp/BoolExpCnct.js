@@ -8,5 +8,6 @@
 	}
 
 	return newNodeName === 'BoolLiteral' ||
-		   sectionName === 'BooleanExpSctn';
+		   sectionName === 'BooleanExpSctn' ||
+		   sectionName === 'AnyExpSctn';
 })();

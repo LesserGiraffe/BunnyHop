@@ -1,6 +1,6 @@
 (function() {
 
-	let BhNodeID = Java.type("pflab.bunnyhop.model.BhNodeID");
+	let BhNodeID = Java.type("net.seapanda.bunnyhop.model.BhNodeID");
 
 	function registerNodeTemplate(bhNodeID, bhNode) {
 		bhNodeTemplates.registerNodeTemplate(BhNodeID.createBhNodeID(bhNodeID), bhNode);
@@ -36,7 +36,7 @@
 		//カウンタ更新幅変更
 		let updateDiff = updateAssignStatNode.findSymbolInDescendants(['*', 'RightExp', '*']);
 		updateDiff.setText('1');
-				
+		
 		registerNodeTemplate(nodeID, compoundNode);
 	}
 	

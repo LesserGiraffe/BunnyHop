@@ -5,7 +5,7 @@
 	nodeStyleID="BoolList.json"
 	imitScopeName="VarScopeSctn"
 	onMovedFromChildToWS=""
-	onMovedToChild="">
+	onMovedToChild="onVarMovedToChild.js">
 
 	<ConnectorSection name="BooleanListSctn">
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>

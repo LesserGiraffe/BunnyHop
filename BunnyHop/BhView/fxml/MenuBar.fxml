@@ -7,7 +7,7 @@
 
 <MenuBar 
 	xmlns:fx="http://javafx.com/fxml"
-	fx:controller="pflab.bunnyhop.control.MenuBarController"
+	fx:controller="net.seapanda.bunnyhop.control.MenuBarController"
 	fx:id="menuBar">
 	<menus>
 		<Menu text="ファイル">

@@ -45,25 +45,6 @@
 
 /*-----------------------num----------------------*/
 
-#categoryTree .number {
-	-fx-background: derive(numTypeCol, 0%);
-	-fx-border-color: black;
-}
-
-#categoryTree .number:hover {
-	-fx-background: derive(numTypeCol, 50% );
-}
-
-
-#categoryTree .numVar {
-	-fx-background: derive(numTypeCol, 0% );
-	-fx-border-color: black;
-}
-
-#categoryTree .numVar:hover {
-	-fx-background: derive(numTypeCol, 50% );
-}
-
 #categoryTree .numOpe {
 	-fx-background: derive(numTypeCol, 0% );
 	-fx-border-color: black;
@@ -75,24 +56,6 @@
 
 /*------------------------str---------------------*/
 
-#categoryTree .string {
-	-fx-background: derive(strTypeCol, 0% );
-	-fx-border-color: black;
-}
-
-#categoryTree .string:hover {
-	-fx-background: derive(strTypeCol, 50% );
-}
-
-#categoryTree .strVar {
-	-fx-background: derive(strTypeCol, 0% );
-	-fx-border-color: black;
-}
-
-#categoryTree .strVar:hover {
-	-fx-background: derive(strTypeCol, 50% );
-}
-
 #categoryTree .strOpe {
 	-fx-background: derive(strTypeCol, 0% );
 	-fx-border-color: black;
@@ -103,26 +66,6 @@
 }
 
 /*------------------------bool---------------------*/
-
-#categoryTree .boolean {
-	-fx-background: derive(boolTypeCol, 0% );
-	-fx-border-color: black;
-	-fx-text-fill: white;
-}
-
-#categoryTree .boolean:hover {
-	-fx-background: derive(boolTypeCol, 50% );
-}
-
-#categoryTree .boolVar {
-	-fx-background: derive(boolTypeCol, 0% );
-	-fx-border-color: black;
-	-fx-text-fill: white;
-}
-
-#categoryTree .boolVar:hover {
-	-fx-background: derive(boolTypeCol, 50% );
-}
 
 #categoryTree .boolOpe {
 	-fx-background: derive(boolTypeCol, 0% );
@@ -157,3 +100,25 @@
 	-fx-border-color: black;
 }
 
+/*-------------------VarListOpe-----------------*/
+
+#categoryTree .varAndListOpe {
+	-fx-background: linear-gradient(from 0em 0em to 0.0em 0.5em, repeat, #E0E0E0 70%, #F0F0F0 0em);
+	-fx-border-color: black;
+}
+
+#categoryTree .varAndListOpe:hover {
+	-fx-background: linear-gradient(from 0em 0em to 0.0em 0.5em, repeat, #F0F0F0 70%, #FFFFFF 0em);
+	-fx-border-color: black;
+}
+/*-------------------var and list ---------------*/
+
+#categoryTree .varAndList {
+	-fx-background: linear-gradient(to right, #FF7070, #70FF70, #7070FF);
+	-fx-border-color: black;
+}
+
+#categoryTree .varAndList:hover {
+	-fx-background: linear-gradient(to right, #FFA0A0, #A0FFA0, #A0A0FF);
+	-fx-border-color: black;
+}

@@ -8,5 +8,6 @@
 	}
 
 	return newNodeName === 'NumLiteral' ||
-           sectionName === 'NumberExpSctn';
+		   sectionName === 'NumberExpSctn' ||
+		   sectionName === 'AnyExpSctn';
 })();

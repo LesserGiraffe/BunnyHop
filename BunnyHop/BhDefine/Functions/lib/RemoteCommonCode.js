@@ -60,7 +60,7 @@
 	function _measureDistance() {
 	
 		let spiCmd = execPath + '/Actions' + '/bhSpiRead';
-		const procBuilder = new java.lang.ProcessBuilder([spiCmd, '5', '3']);
+		const procBuilder = new java.lang.ProcessBuilder([spiCmd, '15', '1']);
 		let distance;
 		try {
 			const process =  procBuilder.start();

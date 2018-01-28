@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module net.pflab.bhprogramexecenv {
+module net.seapanda.bhprogramexecenv {
 	requires java.rmi;
 	requires jdk.scripting.nashorn;
-	
-	exports pflab.bunnyhop.programexecenv;
-	exports pflab.bunnyhop.bhprogram.common;
+	requires java.base;
+
+	exports net.seapanda.bunnyhop.programexecenv;
+	exports net.seapanda.bunnyhop.bhprogram.common;
 }

@@ -5,7 +5,7 @@
 	nodeStyleID="StrList.json"
 	imitScopeName="VarScopeSctn"
 	onMovedFromChildToWS=""
-	onMovedToChild="">
+	onMovedToChild="onVarMovedToChild.js">
 
 	<ConnectorSection name="StringListSctn">
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>

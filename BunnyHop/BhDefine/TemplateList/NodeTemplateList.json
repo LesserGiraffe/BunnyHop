@@ -9,111 +9,42 @@
 	},
 
 	"数値" : {
-		"cssClass":"number",
-	
-		"定数 / 演算": {
-			"cssClass":"numOpe",
-			"contents":[
-				"idNumLiteral", 
-				"idFourArithExp",
-				"idModExp",
-				"idNumCompExp",
-				"idNumToStrExp",
-				"idNumRoundExp",
-				"idRandomIntExp",
-				"idAbsExp",
-				"idNegExp",
-				"idMaxMinExp"]
-		},
-		
-		"変数 / リスト": {
-			"cssClass":"numVar",
-			"contents":[
-				"idNumVarDecl", 
-				"idNumAssignStat",
-				"idNumAddAssignStat",
-				"idSelectionViewSpace",
-				"idNumListDecl",
-				"idNumArrayPushStat",
-				"idNumArrayGetExp",
-				"idNumArrayGetLastExp",
-				"idNumArrayLengthExp",
-				"idNumArrayPopStat",
-				"idNumArrayInsertStat",
-				"idNumArrayRemoveStat",
-				"idNumArraySetStat",
-				"idNumArrayAppendStat",
-				"idNumArrayClearStat"]
-		}
-	},
-	
-	"文字列" : {
-		"cssClass":"string",
-		
-		"定数 / 演算": {
-			"cssClass":"strOpe",
-			"contents":[
-				"idStrLiteral", 
-				"idLineFeed", 
-				"idPrintStat", 
-				"idScanExp", 
-				"idAppendStrExp", 
-				"idStrCompExp",
-				"idStrToNumExp"]
-		},
-		
-		"変数 / リスト": {
-			"cssClass":"strVar",
-			"contents":[
-				"idStrVarDecl", 
-				"idStrAssignStat",
-				"idSelectionViewSpace",
-				"idStrListDecl", 
-				"idStrArrayPushStat", 
-				"idStrArrayGetExp",
-				"idStrArrayGetLastExp",
-				"idStrArrayLengthExp",
-				"idStrArrayPopStat",
-				"idStrArrayInsertStat",
-				"idStrArrayRemoveStat",
-				"idStrArraySetStat",
-				"idStrArrayAppendStat",
-				"idStrArrayClearStat"]
-		}
+		"cssClass":"numOpe",
+		"contents":[
+			"idNumLiteral", 
+			"idFourArithExp",
+			"idModExp",
+			"idNumCompExp",
+			"idNumToStrExp",
+			"idNumRoundExp",
+			"idRandomIntExp",
+			"idAbsExp",
+			"idNegExp",
+			"idMaxMinExp"]
 	},
 
-	"論理" : {
-		"cssClass":"boolean",
-		
-		"定数 / 演算": {
-			"cssClass":"boolOpe",
-			"contents":[
-				"idBoolLiteral", 
-				"idBinaryBoolExp", 
-				"idNotExp", 
-				"idBoolToStrExp"]
-		},
-		
-		"変数 / リスト": {
-			"cssClass":"boolVar",
-			"contents":[
-				"idBoolVarDecl",
-				"idBoolAssignStat",
-				"idSelectionViewSpace",
-				"idBoolListDecl",
-				"idBoolArrayPushStat", 
-				"idBoolArrayGetExp",
-				"idBoolArrayGetLastExp",
-				"idBoolArrayLengthExp",
-				"idBoolArrayPopStat",
-				"idBoolArrayInsertStat",
-				"idBoolArrayRemoveStat",
-				"idBoolArraySetStat",
-				"idBoolArrayAppendStat",
-				"idBoolArrayClearStat"]
-		}
+	"文字列": {
+		"cssClass":"strOpe",
+		"contents":[
+			"idStrLiteral", 
+			"idLineFeed", 
+			"idPrintStat", 
+			"idPrintNumStat" ,
+			"idScanExp", 
+			"idAppendStrExp", 
+			"idStrCompExp",
+			"idStrToNumExp"]
 	},
-
+	
+	"論理": {
+		"cssClass":"boolOpe",
+		"contents":[
+			"idBoolLiteral", 
+			"idBinaryBoolExp", 
+			"idNotExp", 
+			"idBoolToStrExp"]
+	},
+	
 	"制御" : {
 		"cssClass":"control",
 		"contents":[
@@ -126,9 +57,39 @@
 			"idRepeatAndCount",
 			"idCompoundStat"]
 	},
-
+	
+	"変数 / リスト": {
+		"cssClass":"varAndList",
+		"contents":[
+			"idNumVarDecl",
+			"idNumListDecl",
+			"idStrVarDecl", 
+			"idStrListDecl",
+			"idBoolVarDecl",
+			"idBoolListDecl"
+		]
+	},
+	
+	"変数・リスト操作": {
+		"cssClass":"varAndListOpe",
+		"contents":[
+			"idAnyAssignStat",
+			"idNumAddAssignStat",
+			"idSelectionViewSpace",
+			"idAnyArrayPushStat", 
+			"idAnyArrayGetExp",
+			"idAnyArrayGetLastExp",
+			"idAnyArrayLengthExp",
+			"idAnyArrayPopStat",
+			"idAnyArrayInsertStat",
+			"idAnyArrayRemoveStat",
+			"idAnyArraySetStat",
+			"idAnyArrayAppendStat",
+			"idAnyArrayClearStat"]
+	},
+	
 	"機能作成" : {
 		"cssClass":"funcDef",
 		"contents":["idVoidFuncDef", "idReturnStat"]
-	}
+	},
 }

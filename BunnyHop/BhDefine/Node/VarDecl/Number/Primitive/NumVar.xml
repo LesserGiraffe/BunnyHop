@@ -7,7 +7,7 @@
 	nodeStyleID="NumVar.json"
     imitScopeName="VarScopeSctn"
     onMovedFromChildToWS=""
-	onMovedToChild="">
+	onMovedToChild="onVarMovedToChild.js">
     
   	<ConnectorSection name="NumberExpSctn">
 		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>

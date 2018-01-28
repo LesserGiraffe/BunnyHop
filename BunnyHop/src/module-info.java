@@ -13,23 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module net.pflab.bunnyhop {
+module net.seapanda.bunnyhop {
     requires java.rmi;
     requires java.scripting;
     requires jdk.scripting.nashorn;
-    requires javafx.graphics;
+    requires transitive javafx.graphics;
     requires java.desktop;
 	requires javafx.controls;
 	requires javafx.fxml;
-	
-	exports pflab.bunnyhop.root;
-	exports pflab.bunnyhop.model;
-	exports pflab.bunnyhop.model.templates;
-	exports pflab.bunnyhop.model.connective;
-	exports pflab.bunnyhop.modelhandler;
-	exports pflab.bunnyhop.model.imitation;
-	exports pflab.bunnyhop.common;
-	opens pflab.bunnyhop.root to javafx.fxml;
-	opens pflab.bunnyhop.view to javafx.fxml;
-	opens pflab.bunnyhop.control to javafx.fxml;
+	requires java.base;
+	requires transitive java.xml;
+
+	exports net.seapanda.bunnyhop.root;
+	exports net.seapanda.bunnyhop.model;
+	exports net.seapanda.bunnyhop.model.templates;
+	exports net.seapanda.bunnyhop.model.connective;
+	exports net.seapanda.bunnyhop.modelhandler;
+	exports net.seapanda.bunnyhop.modelprocessor;
+	exports net.seapanda.bunnyhop.model.imitation;
+	exports net.seapanda.bunnyhop.common;
+	exports net.seapanda.bunnyhop.common.tools;
+	exports net.seapanda.bunnyhop.message;
+	exports net.seapanda.bunnyhop.bhprogram.common;	//[java -jar BhProgramExecEnv.jar] を self contained の Javaから呼ぶために必要
+	opens net.seapanda.bunnyhop.root to javafx.fxml;
+	opens net.seapanda.bunnyhop.view to javafx.fxml;
+	opens net.seapanda.bunnyhop.control to javafx.fxml;
 }

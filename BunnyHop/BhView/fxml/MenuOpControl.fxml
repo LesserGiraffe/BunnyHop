@@ -4,11 +4,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
-<?import pflab.bunnyhop.common.*?>
+<?import net.seapanda.bunnyhop.common.*?>
 
 <VBox
 	xmlns:fx="http://javafx.com/fxml"
-	fx:controller="pflab.bunnyhop.control.MenuOperationController"
+	fx:controller="net.seapanda.bunnyhop.control.MenuOperationController"
 	fx:id="menuViewBase">
 	<fx:define>
 		<Rem fx:id="widenSize" rem="2.0"/>
