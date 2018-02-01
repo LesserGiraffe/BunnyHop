@@ -46,8 +46,11 @@
 	 * */
 	function replaceDescendant(rootNode, descendantPath, newNode, bhNodeHandler, bhUserOpeCmd) {
 
-		//concatを使わないと, findSymbolInDescendants(descendantPath) => findSymbolInDescendants('a,b,c') と解釈されてしまう.
-		let oldNode = rootNode.findSymbolInDescendants([].concat(descendantPath));
+		//コピーし直さないと, findSymbolInDescendants(descendantPath) => findSymbolInDescendants('a,b,c') と解釈されてしまう.
+		let path = [];
+		for (let i = 0; i < descendantPath.length; ++i)
+			path[i] = descendantPath[i];
+		let oldNode = rootNode.findSymbolInDescendants(path);
 		bhNodeHandler.replaceChild(oldNode, newNode, bhUserOpeCmd);
 		bhNodeHandler.deleteNode(oldNode, bhUserOpeCmd);
 	}
@@ -98,7 +101,13 @@
 			'StrList'   : 'idStrArrayGetExp',
 			'BoolList'  : 'idBoolArrayGetExp',
 			'ColorList' : 'idColorArrayGetExp',
-			'SoundList' : 'idSoundArrayGetExp'
+			'SoundList' : 'idSoundArrayGetExp',
+			'idNumExpCnctr'   : 'idNumArrayGetExp',
+			'idStrExpCnctr'   : 'idStrArrayGetExp',
+			'idBoolExpCnctr'  : 'idBoolArrayGetExp',
+			'idColorExpCnctr' : 'idColorArrayGetExp',
+			'idSoundExpCnctr' : 'idSoundArrayGetExp'
+
 		},
 
 		'AnyArrayGetLastExp' : {
@@ -106,7 +115,13 @@
 			'StrList'   : 'idStrArrayGetLastExp',
 			'BoolList'  : 'idBoolArrayGetLastExp',
 			'ColorList' : 'idColorArrayGetLastExp',
-			'SoundList' : 'idSoundArrayGetLastExp'
+			'SoundList' : 'idSoundArrayGetLastExp',
+			'idNumExpCnctr'   : 'idNumArrayGetLastExp',
+			'idStrExpCnctr'   : 'idStrArrayGetLastExp',
+			'idBoolExpCnctr'  : 'idBoolArrayGetLastExp',
+			'idColorExpCnctr' : 'idColorArrayGetLastExp',
+			'idSoundExpCnctr' : 'idSoundArrayGetLastExp'
+
 		},
 
 		'AnyArrayInsertStat' : {
@@ -116,15 +131,7 @@
 			'ColorList' : 'idColorArrayInsertStat',
 			'SoundList' : 'idSoundArrayInsertStat'
 		},
-/*
-		'AnyArrayLengthExp' : {
-			'NumList'   : 'idNumArrayLengthExp',
-			'StrList'   : 'idStrArrayLengthExp',
-			'BoolList'  : 'idBoolArrayLengthExp',
-			'ColorList' : 'idColorArrayLengthExp',
-			'SoundList' : 'idSoundArrayLengthExp'
-		},
-*/
+
 		'AnyArrayPopStat' : {
 			'NumList'   : 'idNumArrayPopStat',
 			'StrList'   : 'idStrArrayPopStat',
@@ -155,22 +162,6 @@
 			'BoolList'  : 'idBoolArraySetStat',
 			'ColorList' : 'idColorArraySetStat',
 			'SoundList' : 'idSoundArraySetStat'
-		},
-
-		'AnyArrayGetExp' : {
-			'idNumExpCnctr'   : 'idNumArrayGetExp',
-			'idStrExpCnctr'   : 'idStrArrayGetExp',
-			'idBoolExpCnctr'  : 'idBoolArrayGetExp',
-			'idColorExpCnctr' : 'idColorArrayGetExp',
-			'idSoundExpCnctr' : 'idSoundArrayGetExp'
-		},
-		
-		'AnyArrayGetLastExp' : {
-			'idNumExpCnctr'   : 'idNumArrayGetLastExp',
-			'idStrExpCnctr'   : 'idStrArrayGetLastExp',
-			'idBoolExpCnctr'  : 'idBoolArrayGetLastExp',
-			'idColorExpCnctr' : 'idColorArrayGetLastExp',
-			'idSoundExpCnctr' : 'idSoundArrayGetLastExp'
 		}
 	};
 
