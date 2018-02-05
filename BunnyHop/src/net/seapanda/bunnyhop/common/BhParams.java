@@ -154,10 +154,10 @@ public class BhParams {
 	 */
 	public static class NodeStyleDef {
 		public static final String KEY_NODE_STYLE_ID = "nodeStyleID";
-		public static final String KEY_TOP_MARGIN = "topMargin";
-		public static final String KEY_BOTTOM_MATGIN = "bottomMargin";
-		public static final String KEY_LEFT_MARGIN = "leftMargin";
-		public static final String KEY_RIGHT_MARGIN = "rightMargin";
+		public static final String KEY_PADDING_TOP = "paddingTop";
+		public static final String KEY_PADDING_BOTTOM = "paddingBottom";
+		public static final String KEY_PADDING_LEFT = "paddingLeft";
+		public static final String KEY_PADDING_RIGHT = "paddingRight";
 		public static final String KEY_WIDTH = "width";
 		public static final String KEY_HEIGHT = "height";
 		public static final String KEY_CONNECTOR_WIDTH = "connectorWidth";
@@ -183,7 +183,7 @@ public class BhParams {
 		public static final String KEY_INNER = "inner";
 		public static final String KEY_OUTER = "outer";
 		public static final String KEY_ARRANGEMENR = "arrangement";
-		public static final String KEY_INTERVAL = "interval";
+		public static final String KEY_SPACE = "space";
 		public static final String KEY_CONNECTOR_LIST = "connectorList";
 		public static final String KEY_SUB_GROUP = "subGroup";
 		public static final String VAL_ARROW = "ARROW";
@@ -227,9 +227,10 @@ public class BhParams {
 		public static final String PSEUDO_OVERLAPPED = "overlapped";
 		public static final String PSEUDO_EMPTY = "empty";
 		public static final String PSEUDO_BHNODE = "error";
+		public static final String PSEUDO_IS_EVEN = "isEven";
 		public static final String CLASS_BHNODE = "BhNode";
 		public static final String CLASS_VOID_NODE = "voidNode";
-		public static final String CALSS_COMBO_BOX_NODE = "comboBoxNode";
+		public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";
 		public static final String CLASS_TEXT_FIELD_NODE = "textFieldNode";
 		public static final String CLASS_LABEL_NODE = "labelNode";
 		public static final String CLASS_CONNECTIVE_NODE = "ConnectiveNode";

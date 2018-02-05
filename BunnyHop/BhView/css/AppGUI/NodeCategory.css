@@ -91,12 +91,12 @@
 /*--------------------funcDef----------------------*/
 
 #categoryTree .funcDef {
-	-fx-background: derive(voidTypeCol, 0% );
+	-fx-background: derive(voidFuncTypeCol, 0% );
 	-fx-border-color: black;
 }
 
 #categoryTree .funcDef:hover {
-	-fx-background: derive(voidTypeCol, 50% );
+	-fx-background: derive(voidFuncTypeCol, 50% );
 	-fx-border-color: black;
 }
 

@@ -1,15 +1,15 @@
 {
-	"topMargin" : 1.25,
-	"bottomMargin" : 1.25,
-	"leftMargin" : 2.0,
-	"rightMargin" : 2.0,
+	"paddingTop" : 1.25,
+	"paddingBottom" : 1.25,
+	"paddingLeft" : 2.0,
+	"paddingRight" : 2.0,
 	"connectorPos" : "Left",
 	"connectorShift" : 0.0,
 	"connectorWidth" : 6.5,
 	"connectorHeight" : 6.5,
 	"connectorShape" : "STAR",
 	"connectorBoundsRate" : 1.0,
-	"cssClass" : "voidNode",
+	"cssClass" : "voidVarType",
 	
 	"label" : {
 		"cssClass" : "defaultLabel"

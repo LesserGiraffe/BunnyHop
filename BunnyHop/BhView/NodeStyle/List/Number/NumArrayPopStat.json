@@ -1,8 +1,8 @@
 {
-	"topMargin" : 1.0,
-	"bottomMargin" : 1.0,
-	"leftMargin" : 6.0,
-	"rightMargin" : 1.5,
+	"paddingTop" : 1.0,
+	"paddingBottom" : 1.0,
+	"paddingLeft" : 6.0,
+	"paddingRight" : 1.5,
 	"connectorPos" : "Top",
 	"connectorShift" : 1.0,
 	"connectorWidth" : 3.5,
@@ -14,7 +14,7 @@
 	"connective" : {
 		"inner" : {
 			"arrangement" : "Row",
-			"interval" : 2.0,
+			"space" : 2.0,
 			"connectorList" : ["Arg0", "noMatsubiNoYosoWoKesu"]
 		},
 		"outer" : {

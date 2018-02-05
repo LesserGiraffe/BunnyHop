@@ -4,6 +4,6 @@
 	type="void"
 	bhNodeID="idBoolVarVoid"
 	name="BoolVarVoid"
-	nodeStyleID="BoolExpVoid.json">
+	nodeStyleID="BoolVarVoid.json">
 </Node>
 

@@ -83,8 +83,8 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 	
 	private void initStyle(BhNodeViewStyle viewStyle) {
 		
-		textField.setTranslateX(viewStyle.leftMargin);
-		textField.setTranslateY(viewStyle.topMargin);
+		textField.setTranslateX(viewStyle.paddingLeft);
+		textField.setTranslateY(viewStyle.paddingTop);
 		textField.getStyleClass().add(viewStyle.textField.cssClass);		
 		textField.heightProperty().addListener(observable -> getAppearanceManager().updateStyle(null));
 		textField.widthProperty().addListener(observable -> getAppearanceManager().updateStyle(null));

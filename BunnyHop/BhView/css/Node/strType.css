@@ -2,4 +2,7 @@
 	-fx-fill: strTypeCol;
 }
 
+.strVarType {
+	-fx-fill: linear-gradient(from 0em 0em to 0.0em 0.3em, repeat, strTypeCol 50%, #FFFFFF 0em);
+}
 

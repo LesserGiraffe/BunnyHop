@@ -18,13 +18,15 @@ package net.seapanda.bunnyhop.view;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.function.Consumer;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import net.seapanda.bunnyhop.model.connective.ConnectiveNode;
-import net.seapanda.bunnyhop.view.BhNodeViewStyle.CNCTR_POS;
-import net.seapanda.bunnyhop.common.*;
+import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.Point2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
+import net.seapanda.bunnyhop.model.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.view.BhNodeViewStyle.CNCTR_POS;
 
 /**
  * ConnectiveNode に対応するビュークラス
@@ -36,7 +38,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 	private final BhNodeViewGroup outerGroup = new BhNodeViewGroup(this, false); //!< ノード外部に描画されるノードのGroup
 	private Button imitCreateImitBtn;	//!< イミテーション作成ボタン
 	private ConnectiveNode model;
-	
+
 	/**
 	 * コンストラクタ
 	 * @param model ビューが表すモデル
@@ -46,19 +48,19 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 		super(viewStyle, model);
 		this.model = model;
 	}
-	
+
 	/**
 	 * 初期化する
 	 * @param isTemplate ノード選択パネルに表示されるノードであった場合true
 	 */
 	public void init() {
-		
+
 		initialize();
 		innerGroup.buildSubGroup(viewStyle.connective.inner);
 		outerGroup.buildSubGroup(viewStyle.connective.outer);
 		getChildren().add(innerGroup);
 		getChildren().add(outerGroup);
-		
+
 		setFuncs(this::updateStyleFunc, this::updateAbsPosFunc);
 		if (model.getImitationInfo().canCreateImitManually) {
 			Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.IMIT_BUTTON_FXML);
@@ -82,13 +84,13 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 	public ConnectiveNode getModel() {
 		return model;
 	}
-	
+
 	/**
 	 * ノード内部に描画されるノードをリストの最後に追加する
 	 * @param view ノード内部に描画されるノード
 	 * */
 	public void addToGroup(BhNodeView view) {
-		
+
 		// innerGroup に追加できなかったらouterGroupに入れる
 		if (!innerGroup.addNodeView(view))
 			outerGroup.addNodeView(view);
@@ -105,7 +107,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 		//内部ノード絶対位置更新
 		Point2D relativePos = innerGroup.getRelativePosFromParent();
 		innerGroup.updateAbsPos(posX + relativePos.x, posY + relativePos.y);
-		
+
 		//外部ノード絶対位置更新
 		Point2D bodySize = getRegionManager().getBodySize(false);
 		if (viewStyle.connectorPos == CNCTR_POS.LEFT)	//外部ノードが右に繋がる
@@ -119,16 +121,16 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 	 * @param child 形状が変わった子ノード
 	 * */
 	private void updateStyleFunc(BhNodeViewGroup child) {
-		
+
 		Point2D sizeBefore = getRegionManager().getBodyAndOuterSize(true);
 		if (child == null) {
-			Point2D outerSize = outerGroup.getSize();	
+			Point2D outerSize = outerGroup.getSize();
 			viewStyle.connective.outerWidth = outerSize.x;
 			viewStyle.connective.outerHeight = outerSize.y;
-			Point2D innerSize = innerGroup.getSize();	
+			Point2D innerSize = innerGroup.getSize();
 			viewStyle.width = innerSize.x;
 			viewStyle.height = innerSize.y;
-			getAppearanceManager().updatePolygonShape(viewStyle.drawBody);			
+			getAppearanceManager().updatePolygonShape(viewStyle.drawBody);
 		}
 		else {
 			Point2D childSize = child.getSize();
@@ -142,9 +144,9 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 				getAppearanceManager().updatePolygonShape(viewStyle.drawBody);
 			}
 		}
-		
+
 		updateChildRelativePos();
-		
+
 		Point2D sizeAfter = getRegionManager().getBodyAndOuterSize(true);
 		if (parent == null ||
 			(sizeBefore.equals(sizeAfter) && child != null)) {
@@ -152,7 +154,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 			getPositionManager().updateAbsPos(pos.x, pos.y);
 			return;
 		}
-		
+
 		parent.updateStyle();
 	}
 
@@ -161,15 +163,15 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 	 * @param innerSizeList 内部描画ノードの大きさが格納された配列
 	 * */
 	private void updateChildRelativePos() {
-		
-		innerGroup.setRelativePosFromParent(viewStyle.leftMargin, viewStyle.topMargin);
+
+		innerGroup.setRelativePosFromParent(viewStyle.paddingLeft, viewStyle.paddingTop);
 		Point2D bodySize = getRegionManager().getBodySize(false);
 		if (viewStyle.connectorPos == CNCTR_POS.LEFT)	//外部ノードが右に繋がる
 			outerGroup.setRelativePosFromParent(bodySize.x, 0.0);
 		else										   //外部ノードが下に繋がる
 			outerGroup.setRelativePosFromParent(0.0, bodySize.y);
 	}
-	
+
 	/**
 	 * BhNodeView を引数にとる関数オブジェクトを実行する<br>
 	 * 子ノードがある場合は、子ノードに関数オブジェクトを渡す
@@ -198,7 +200,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 			MsgPrinter.INSTANCE.msgForDebug("connectiveNodeView show exception " + e);
 		}
 	}
-	
+
 	@Override
 	public Button imitCreateButton() {
 		return imitCreateImitBtn;

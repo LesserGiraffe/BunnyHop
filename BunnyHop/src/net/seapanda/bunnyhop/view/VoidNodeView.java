@@ -65,12 +65,12 @@ public class VoidNodeView extends BhNodeView {
 		boolean inner = (parent == null) ? true : parent.inner;
 		//ボディサイズ決定
 		if (!inner) {
-			viewStyle.topMargin = 0.0;
+			viewStyle.paddingTop = 0.0;
 			viewStyle.height = 0.0;
-			viewStyle.bottomMargin = 0.0;
-			viewStyle.leftMargin = 0.0;
+			viewStyle.paddingBottom = 0.0;
+			viewStyle.paddingLeft = 0.0;
 			viewStyle.width = 0.0;
-			viewStyle.rightMargin = 0.0;
+			viewStyle.paddingRight = 0.0;
 		}
 		
 		boolean drawBody = inner && viewStyle.drawBody;

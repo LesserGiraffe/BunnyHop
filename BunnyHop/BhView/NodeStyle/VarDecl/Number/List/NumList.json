@@ -1,20 +1,20 @@
 {
-	"topMargin" : 1.25,
-	"bottomMargin" : 1.25,
-	"leftMargin" : 1.5,
-	"rightMargin" : 4.0,
+	"paddingTop" : 1.25,
+	"paddingBottom" : 1.25,
+	"paddingLeft" : 1.5,
+	"paddingRight" : 4.0,
 	"connectorPos" : "Left",
 	"connectorShift" : 0.0,
 	"connectorWidth" : 6.5,
 	"connectorHeight" : 6.5,
 	"connectorShape" : "DIAMOND",
 	"connectorBoundsRate" : 1.0,
-	"cssClass" : "numType",
+	"cssClass" : "numVarType",
 
 	"connective" : {
 		"inner" : {
 			"arrangement" : "Row",
-			"interval" : 2.0,
+			"space" : 2.0,
 			"connectorList" : ["ListName", "ListSign"]
 		}
 	}

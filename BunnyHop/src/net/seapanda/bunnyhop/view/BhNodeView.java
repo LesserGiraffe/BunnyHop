@@ -336,7 +336,10 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * @param child 形状が変わった子ノード
 		 * */
 		public void updateStyle(BhNodeViewGroup child) {
+
 			updateStyleFunc.accept(child);
+			getTreeManager().updateEvenFlg();
+
 			//BhNoteSelectionView のBhNode配置に必要
 			Point2D wholeBodySize = getRegionManager().getBodyAndOuterSize(true);
 			BhNodeView.this.setMaxSize(0.0, 0.0);
@@ -416,6 +419,9 @@ public abstract class BhNodeView extends Pane implements Showable {
 	 * */
 	public class ViewTreeManager {
 
+		private boolean isEven = true;	//!< ルートを0として、階層が偶数であった場合true.
+											//!< ただし, outerノードは親と同階層とする
+
 		/**
 		 * NodeView の親をセットする
 		 * @param parentGroup このBhNodeViewを保持するBhNodeViewGroup
@@ -453,6 +459,25 @@ public abstract class BhNodeView extends Pane implements Showable {
 		public void removeFromGUITree() {
 			//この関数を呼ぶときには, BhNodeViewGroupとの親子関係は切れているので, キャストして呼ぶ
 			((BhNodeViewGroup)BhNodeView.this.getParent()).removeFromGUITree(BhNodeView.this);
+		}
+
+		/**
+		 * このノード以下の奇遇フラグを更新する
+		 * */
+		public void updateEvenFlg() {
+			accept(view -> {
+				BhNodeView parentView = view.getTreeManager().getParentView();
+				if (parentView != null) {
+					if (view.parent.inner)
+						view.getTreeManager().isEven = !parentView.getTreeManager().isEven;
+					else
+						view.getTreeManager().isEven = parentView.getTreeManager().isEven;
+				}
+				else {
+					view.getTreeManager().isEven = true;	//ルートはeven
+				}
+				view.getAppearanceManager().switchPseudoClassActivation(view.getTreeManager().isEven, BhParams.CSS.PSEUDO_IS_EVEN);
+			});
 		}
 	}
 

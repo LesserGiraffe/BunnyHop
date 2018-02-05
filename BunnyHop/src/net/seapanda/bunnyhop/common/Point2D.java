@@ -29,10 +29,64 @@ public class Point2D implements Serializable {
 		this.x = x;
 		this.y = y;
 	}
-	
+
+	/**
+	 * 引数で指定した数の方が現在の値より大きい場合, その数で置き換える.
+	 * 片方の要素だけ大きい場合は、その要素だけ置き換える.
+	 * */
+	public void updateIfGreter(Point2D pos) {
+		x = Math.max(x, pos.x);
+		y = Math.max(y, pos.y);
+	}
+
+
+	/**
+	 * 引数で指定した数の方が現在の値より大きい場合, その数で置き換える.
+	 * 片方の要素だけ大きい場合は、その要素だけ置き換える.
+	 * */
+	public void updateIfGreter(double x, double y) {
+		this.x = Math.max(this.x, x);
+		this.y = Math.max(this.y, y);
+	}
+
+	/**
+	 * 引数で指定した数の方が現在の値より小さい場合, その数で置き換える.
+	 * 片方の要素だけ小さい場合は、その要素だけ置き換える.
+	 * */
+	public void updateIfLess(Point2D pos) {
+		x = Math.min(x, pos.x);
+		y = Math.min(y, pos.y);
+	}
+
+	/**
+	 * 引数で指定した数の方が現在の値より小さい場合, その数で置き換える.
+	 * 片方の要素だけ小さい場合は、その要素だけ置き換える.
+	 * */
+	public void updateIfLess(double x, double y) {
+		this.x = Math.min(this.x, x);
+		this.y = Math.min(this.y, y);
+	}
+
+
+	/**
+	 * 引数で指定した要素を現在の値に足し込む
+	 * */
+	public void add(Point2D pos) {
+		this.x += pos.x;
+		this.y += pos.y;
+	}
+
+	/**
+	 * 引数で指定した要素を現在の値に足し込む
+	 * */
+	public void add(double x, double y) {
+		this.x += x;
+		this.y += y;
+	}
+
 	@Override
 	public boolean equals(Object point) {
-		
+
 		if (point instanceof Point2D)
 			return (x == ((Point2D)point).x) && (y == ((Point2D)point).y);
 		else

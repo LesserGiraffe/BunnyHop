@@ -72,8 +72,8 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 
 		label.autosize();
 		label.setMouseTransparent(true);
-		label.setTranslateX(viewStyle.leftMargin);
-		label.setTranslateY(viewStyle.topMargin);
+		label.setTranslateX(viewStyle.paddingLeft);
+		label.setTranslateY(viewStyle.paddingTop);
 		label.getStyleClass().add(viewStyle.label.cssClass);
 		label.heightProperty().addListener(newValue -> getAppearanceManager().updateStyle(null));
 		label.widthProperty().addListener(newValue -> getAppearanceManager().updateStyle(null));

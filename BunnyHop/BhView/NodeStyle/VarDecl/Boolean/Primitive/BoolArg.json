@@ -1,8 +1,8 @@
 {
-	"topMargin" : 1.0,
-	"bottomMargin" : 1.0,
-	"leftMargin" : 1.0,
-	"rightMargin" : 1.0,
+	"paddingTop" : 1.0,
+	"paddingBottom" : 1.0,
+	"paddingLeft" : 1.0,
+	"paddingRight" : 1.0,
 	"connectorPos" : "Left",
 	"connectorShift" : 0.0,
 	"connectorWidth" : 0.0,
@@ -14,7 +14,7 @@
     "connective" : {
 		"inner" : {
 			"arrangement" : "Row",
-			"interval" : 2.0,
+			"space" : 2.0,
 			"connectorList" : ["VarName", "Arg"]
 		},
 		"outer" : {

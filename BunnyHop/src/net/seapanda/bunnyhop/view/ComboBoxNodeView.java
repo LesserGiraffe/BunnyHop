@@ -107,15 +107,15 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 	}
 
 	private void initStyle(BhNodeViewStyle viewStyle) {
-		comboBox.setTranslateX(viewStyle.leftMargin);
-		comboBox.setTranslateY(viewStyle.topMargin);
+		comboBox.setTranslateX(viewStyle.paddingLeft);
+		comboBox.setTranslateY(viewStyle.paddingTop);
 		comboBox.getStyleClass().add(viewStyle.comboBox.cssClass);
 		comboBox.heightProperty().addListener(observable -> getAppearanceManager().updateStyle(null));
 		comboBox.widthProperty().addListener(observable -> getAppearanceManager().updateStyle(null));
 		if (!comboBox.getItems().isEmpty()) {
 			comboBox.setValue(comboBox.getItems().get(0));
 		}
-		getAppearanceManager().addCssClass(BhParams.CSS.CALSS_COMBO_BOX_NODE);
+		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_COMBO_BOX_NODE);
 	}
 
 	/**

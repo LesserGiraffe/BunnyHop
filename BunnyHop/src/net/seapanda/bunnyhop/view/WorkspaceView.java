@@ -19,8 +19,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Optional;
+
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
@@ -28,18 +32,15 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.transform.Scale;
-import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
-import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.model.*;
 import net.seapanda.bunnyhop.common.Point2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
+import net.seapanda.bunnyhop.model.Workspace;
+import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
+import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
+import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -58,7 +59,7 @@ public class WorkspaceView extends Tab {
 	private QuadTreeManager quadTreeMngForConnector;	//!< ノードのコネクタ部分の重なり判定に使う4分木管理クラス
 	int zoomLevel = 0;	//!< ワークスペースの拡大/縮小の段階
 	int workspaceSizeLevel = 0;	//!< ワークスペースの大きさの段階
-	
+
 	public WorkspaceView(Workspace workspace) {
 		this.workspace = workspace;
 	}
@@ -82,15 +83,15 @@ public class WorkspaceView extends Tab {
 			MsgPrinter.INSTANCE.errMsgForDebug("failed to initizlize " + WorkspaceView.class.getSimpleName() + "\n" + e.toString());
 			return false;
 		}
-	
+
 		minPaneSize.x = width;
 		minPaneSize.y = height;
-		wsPane.setMinSize(minPaneSize.x, minPaneSize.y);	//タブの中の部分の最小サイズを決める		
+		wsPane.setMinSize(minPaneSize.x, minPaneSize.y);	//タブの中の部分の最小サイズを決める
 		wsPane.getTransforms().add(new Scale());
 		quadTreeMngForBody = new QuadTreeManager(BhParams.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
 		quadTreeMngForConnector = new QuadTreeManager(BhParams.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
-		drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());		
-		
+		drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
+
 		//拡大縮小処理
 		scrollPane.addEventFilter(ScrollEvent.ANY, event -> {
 			if (event.isControlDown()) {
@@ -105,24 +106,24 @@ public class WorkspaceView extends Tab {
 			BunnyHop.INSTANCE.deleteWorkspace(workspace, userOpeCmd);
 			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 		});
-		
+
 		setOnCloseRequest(event -> {
-			
+
 			if (workspace.getRootNodeList().isEmpty())	//空のワークスペース削除時は警告なし
 				return;
-			
+
 			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 			alert.setTitle("ワークスペースの削除");
 			alert.setHeaderText(null);
 			alert.setContentText("ワークスペースを削除します.");
 			alert.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
-			Optional<ButtonType> buttonType = alert.showAndWait();			
+			Optional<ButtonType> buttonType = alert.showAndWait();
 			buttonType.ifPresent(btnType -> {
-				if (btnType.equals(ButtonType.OK))
+				if (!btnType.equals(ButtonType.OK))
 					event.consume();
 			});
 		});
-		
+
 		setText(workspace.getWorkspaceName());
 		return true;
 	}
@@ -176,7 +177,7 @@ public class WorkspaceView extends Tab {
 	public Point2D getWorkspaceSize() {
 		return new Point2D(wsPane.getWidth(), wsPane.getHeight());
 	}
-	
+
 	/**
 	 * このViewに対応しているWorkspace を返す
 	 * @return このViewに対応しているWorkspace
@@ -184,27 +185,27 @@ public class WorkspaceView extends Tab {
 	public Workspace getWorkspace() {
 		return workspace;
 	}
-	
+
 	/**
 	 * ワークスペースの大きさを変える
 	 * @param widen ワークスペースの大きさを大きくする場合true
 	 */
 	public void changeWorkspaceViewSize(boolean widen) {
-		
+
 		if ((workspaceSizeLevel == BhParams.MIN_WORKSPACE_SIZE_LEVEL) && !widen)
 			return;
 		if ((workspaceSizeLevel == BhParams.MAX_WORKSPACE_SIZE_LEVEL) && widen)
 			return;
-		
-		workspaceSizeLevel = widen ? workspaceSizeLevel + 1 : workspaceSizeLevel - 1;		
+
+		workspaceSizeLevel = widen ? workspaceSizeLevel + 1 : workspaceSizeLevel - 1;
 		Point2D currentSize = quadTreeMngForBody.getQTSpaceSize();
 		double newWsWidth = widen ? currentSize.x * 2.0 : currentSize.x / 2.0;
 		double newWsHeight = widen ? currentSize.y * 2.0 : currentSize.y / 2.0;
-		
+
 		wsPane.setMinSize(newWsWidth, newWsHeight);
 		quadTreeMngForBody = new QuadTreeManager(quadTreeMngForBody, BhParams.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
 		quadTreeMngForConnector = new QuadTreeManager(quadTreeMngForConnector, BhParams.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
-		
+
 		//全ノードの位置更新
 		for (BhNodeView rootView : rootNodeViewList) {
 			Point2D pos = rootView.getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
@@ -215,10 +216,10 @@ public class WorkspaceView extends Tab {
 			wsPane.getMinWidth() * wsPane.getTransforms().get(0).getMxx(),
 			wsPane.getMinHeight() * wsPane.getTransforms().get(0).getMyy());	//スクロールバーの可動域が変わるようにする
 	}
-	
+
 	//デバッグ用
 	private void drawGridLines(double width, double height, int numDiv) {
-		
+
 		ArrayList<Line> removedList = new ArrayList<>();
 		wsPane.getChildren().forEach((content) -> {
 			if (content instanceof Line)
@@ -237,7 +238,7 @@ public class WorkspaceView extends Tab {
 			wsPane.getChildren().add(0, new Line(0, y, width, y));
 		}
 	}
-	
+
 	/**
 	 * 引数のローカル座標をWorkspace上での位置に変換して返す
 	 * @param x Scene座標の変換したいX位置
@@ -247,19 +248,19 @@ public class WorkspaceView extends Tab {
 	public javafx.geometry.Point2D sceneToWorkspace(double x, double y) {
 		return wsPane.sceneToLocal(x, y);
 	}
-	
+
 	/**
 	 * ワークスペースのズーム処理を行う
 	 * @param zoomIn 拡大処理を行う場合true
 	 */
 	public void zoom(boolean zoomIn) {
-		
+
 		if ((BhParams.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn)
 			return;
-		
+
 		if ((BhParams.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn)
 			return;
-		
+
 		Scale scale = new Scale();
 		if (zoomIn)
 			++zoomLevel;

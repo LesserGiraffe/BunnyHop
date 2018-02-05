@@ -1,8 +1,8 @@
 {
-	"topMargin" : 1.0,
-	"bottomMargin" : 1.0,
-	"leftMargin" : 11.0,
-	"rightMargin" : 4.0,
+	"paddingTop" : 1.0,
+	"paddingBottom" : 1.0,
+	"paddingLeft" : 11.0,
+	"paddingRight" : 4.0,
 	"connectorPos" : "Top",
 	"connectorShift" : 1.0,
 	"connectorWidth" : 3.5,

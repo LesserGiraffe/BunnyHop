@@ -202,39 +202,50 @@ public class BhNodeViewGroup extends Group implements Showable {
 		Point2D offset = calcOffset();
 		Point2D relPos = new Point2D(offset.x, offset.y);
 		Point2D sizeBefor = new Point2D(size.x, size.y);
+		Point2D childMaxLen = new Point2D(0.0, 0.0);
+		Point2D childSumLen = new Point2D(0.0, 0.0);
 		size.x = 0.0;
 		size.y = 0.0;
 
 		arrangeParams.cnctrNameList.forEach(cnctrName -> {
 			BhNodeView childNodeView = cnctrName_NodeView.get(cnctrName);
 			if (childNodeView != null) {
-				Point2D cnctrSize = childNodeView.getConnectorManager().getConnectorSize();
-				if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.COLUMN &&
-					childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.TOP) {	//グループの中が縦並びでかつコネクタが上に付く
-					relPos.y += cnctrSize.y;
+				//outer はコネクタの大きさを考慮しない
+				Point2D cnctrSize = inner ? childNodeView.getConnectorManager().getConnectorSize() : new Point2D(0.0,  0.0);
+				Point2D childNodeSize = childNodeView.getRegionManager().getBodyAndOuterSize(false);
+				//コネクタが上に付く
+				if (childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.TOP) {
+					childSumLen.add(childNodeSize.x, childNodeSize.y + cnctrSize.y);
+					childMaxLen.updateIfGreter(childNodeSize.x, childNodeSize.y + cnctrSize.y);
+
+					//グループの中が縦並び
+					if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.COLUMN)
+						relPos.add(0, cnctrSize.y);
 				}
-				else if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.ROW &&
-						 childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.LEFT){	//グループの中が横並びでかつコネクタが左に付く
-					relPos.x += cnctrSize.x;
+				//コネクタが左に付く
+				else if (childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.LEFT) {
+					childSumLen.add(childNodeSize.x + cnctrSize.x, childNodeSize.y);
+					childMaxLen.updateIfGreter(childNodeSize.x + cnctrSize.x, childNodeSize.y);
+
+					//グループの中が横並び
+					if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.ROW)
+						relPos.add(cnctrSize.x, 0);
 				}
 				childNodeView.getPositionManager().setRelativePosFromParent(relPos.x, relPos.y);
-				Point2D childNodeSize = childNodeView.getRegionManager().getBodyAndOuterSize(false);
-				updateChildRelativePos(relPos, childNodeSize, offset);
+				updateChildRelativePos(relPos, childNodeSize);
 			}
 		});
 
 		subGroupList.forEach(subGroup -> {
 			subGroup.setRelativePosFromParent(relPos.x, relPos.y);
 			Point2D subGroupSize = subGroup.getSize();
-			updateChildRelativePos(relPos, subGroupSize, offset);
+			updateChildRelativePos(relPos, subGroupSize);
+			childMaxLen.updateIfGreter(subGroupSize);
+			childSumLen.add(subGroupSize);
 		});
 
-		if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.COLUMN) {	//グループの中が縦並び
-			size.y = relPos.y - arrangeParams.interval;
-		}
-		else {	//グループの中が横並び
-			size.x = relPos.x - arrangeParams.interval;
-		}
+		//サイズ更新
+		updateGroupSize(childMaxLen, childSumLen);
 
 		if (sizeBefor.equals(size)) {
 			Point2D posOnWS = BhNodeView.getRelativePos(null, this);
@@ -249,20 +260,39 @@ public class BhNodeViewGroup extends Group implements Showable {
 	}
 
 	/**
-	 * 子ノードとサブグループのこのノードからの相対位置を更新する
-	 * @param relPos 相対位置
-	 * @param childSize 子ノードまたはサブグループの大きさ
-	 * @param offset 子ノードまたはサブグループの位置のオフセット
-	 */
-	private void updateChildRelativePos(Point2D relPos, Point2D childSize, Point2D offset) {
+	 * グループのサイズを更新する
+	 * @param childMaxSize 子ノードの中の最大の長さ
+	 * @param childSumSize 全子ノードの合計の長さ
+	 * */
+	private void updateGroupSize(Point2D childMaxLen, Point2D childSumLen) {
 
-		if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.COLUMN) {	//グループの中が縦並び
-			relPos.y += childSize.y + arrangeParams.interval;
-			size.x = Math.max(size.x, childSize.x + offset.x);
+		int numSpace = arrangeParams.cnctrNameList.size() + subGroupList.size() - 1;
+		//グループの中が縦並び
+		if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.COLUMN) {
+			size.x = arrangeParams.paddingLeft + childMaxLen.x + arrangeParams.paddingRight;
+			size.y = arrangeParams.paddingTop + childSumLen.y + numSpace * arrangeParams.space + arrangeParams.paddingBottom;
 		}
-		else {	//グループの中が横並び
-			relPos.x += childSize.x + arrangeParams.interval;
-			size.y = Math.max(size.y, childSize.y + offset.y);
+		//グループの中が横並び
+		else {
+			size.x = arrangeParams.paddingLeft + childSumLen.x + numSpace * arrangeParams.space + arrangeParams.paddingRight;
+			size.y = arrangeParams.paddingTop + childMaxLen.y + arrangeParams.paddingBottom;
+		}
+	}
+
+	/**
+	 * 子ノードとサブグループのこのノードからの相対位置を更新する
+	 * @param relPos 更新する相対位置
+	 * @param childSize 子ノードまたはサブグループの大きさ
+	 */
+	private void updateChildRelativePos(Point2D relPos, Point2D childSize) {
+
+		//グループの中が縦並び
+		if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.COLUMN) {
+			relPos.y += childSize.y + arrangeParams.space;
+		}
+		//グループの中が横並び
+		else {
+			relPos.x += childSize.x + arrangeParams.space;
 		}
 	}
 
@@ -273,26 +303,6 @@ public class BhNodeViewGroup extends Group implements Showable {
 
 		double offsetX = 0.0;
 		double offsetY = 0.0;
-
-		//外部ノードは, 先頭のコネクタの長さ分オフセットをマイナスしておく
-		if (!inner) {
-			for (String cnctrName : arrangeParams.cnctrNameList) {
-				BhNodeView childNodeView = cnctrName_NodeView.get(cnctrName);
-				if (childNodeView == null)
-					continue;
-
-				Point2D cnctrSize = childNodeView.getConnectorManager().getConnectorSize();
-				if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.COLUMN &&
-					childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.TOP) {	//グループの中が縦並びでかつコネクタが上に付く
-					offsetY -= cnctrSize.y;
-				}
-				else if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.ROW &&
-					childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.LEFT){	//グループの中が横並びでかつコネクタが左に付く
-					offsetX -= cnctrSize.x;
-				}
-				return new Point2D(offsetX, offsetY);
-			}
-		}
 
 		for (String cnctrName : arrangeParams.cnctrNameList) {
 			BhNodeView childNodeView = cnctrName_NodeView.get(cnctrName);
@@ -309,7 +319,7 @@ public class BhNodeViewGroup extends Group implements Showable {
 				offsetY = Math.max(offsetY, cnctrSize.y);
 			}
 		}
-		return new Point2D(offsetX, offsetY);
+		return new Point2D(offsetX + arrangeParams.paddingLeft, offsetY + arrangeParams.paddingTop);
 	}
 
 	/**
@@ -323,7 +333,6 @@ public class BhNodeViewGroup extends Group implements Showable {
 			if (childNodeView != null)
 				childNodeView.accept(visitorFunc);
 		});
-
 		subGroupList.forEach(subGroup -> subGroup.accept(visitorFunc));
 	}
 

@@ -1,5 +1,8 @@
 .controlType {
-	-fx-fill: controlTypeCol;
+	-fx-fill: #e0F5FF;
 }
 
+.controlType:isEven {
+	-fx-fill: controlTypeCol;
+}
 

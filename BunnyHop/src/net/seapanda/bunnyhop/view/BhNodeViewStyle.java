@@ -15,7 +15,6 @@
  */
 package net.seapanda.bunnyhop.view;
 
-
 import static java.nio.file.FileVisitOption.*;
 
 import java.io.IOException;
@@ -44,42 +43,51 @@ import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape.CNCTR_SHAPE;
  * */
 public class BhNodeViewStyle {
 
-	public String nodeStyleID;							//!< ノードスタイルに付けられたID
-	public double topMargin = 2.5 * BhParams.NODE_SCALE;			//!< ノード上部の余白
-	public double bottomMargin = 2.5 * BhParams.NODE_SCALE;		//!< ノード下部の余白
-	public double leftMargin = 2.5 * BhParams.NODE_SCALE;			//!< ノード左部の余白
-	public double rightMargin = 2.5 * BhParams.NODE_SCALE;			//!< ノード右部の余白
-	public double width = 0.0;				//!< ノードの余白とコネクタを除いた部分の幅
-	public double height = 0.0;				//!< ノードの余白とコネクタを除いた部分の高さ
-	public CNCTR_POS connectorPos = CNCTR_POS.TOP;		//!< コネクタの位置
-	public double connectorShift = 0.5 * BhParams.NODE_SCALE;		//!< ノードの左上からのコネクタの位置
-	public double connectorWidth = 1.5 * BhParams.NODE_SCALE;		//!< コネクタ部分の幅
-	public double connectorHeight = 1.5 * BhParams.NODE_SCALE;		//!< コネクタ部分の高さ
-	public ConnectorShape.CNCTR_SHAPE connectorShape = ConnectorShape.CNCTR_SHAPE.CNCTR_SHAPE_ARROW;	//!< コネクタの形
-	public double connectorBoundsRate = 2.0;			//!< ドラッグ&ドロップ時などに適用されるコネクタの範囲
+	public String nodeStyleID; //!< ノードスタイルに付けられたID
+	public double paddingTop = 2.5 * BhParams.NODE_SCALE; //!< ノード上部の余白
+	public double paddingBottom = 2.5 * BhParams.NODE_SCALE; //!< ノード下部の余白
+	public double paddingLeft = 2.5 * BhParams.NODE_SCALE; //!< ノード左部の余白
+	public double paddingRight = 2.5 * BhParams.NODE_SCALE; //!< ノード右部の余白
+	public double width = 0.0; //!< ノードの余白とコネクタを除いた部分の幅
+	public double height = 0.0; //!< ノードの余白とコネクタを除いた部分の高さ
+	public CNCTR_POS connectorPos = CNCTR_POS.TOP; //!< コネクタの位置
+	public double connectorShift = 0.5 * BhParams.NODE_SCALE; //!< ノードの左上からのコネクタの位置
+	public double connectorWidth = 1.5 * BhParams.NODE_SCALE; //!< コネクタ部分の幅
+	public double connectorHeight = 1.5 * BhParams.NODE_SCALE; //!< コネクタ部分の高さ
+	public ConnectorShape.CNCTR_SHAPE connectorShape = ConnectorShape.CNCTR_SHAPE.CNCTR_SHAPE_ARROW; //!< コネクタの形
+	public double connectorBoundsRate = 2.0; //!< ドラッグ&ドロップ時などに適用されるコネクタの範囲
 	public boolean drawBody = true;
 	public String cssClass = "defaultNode";
 
 	Connective connective = new Connective();
+
 	public static class Connective {
-		public double outerWidth = 0.0;						//!< 外部描画される部分の幅
-		public double outerHeight = 0.0;					//!< 外部描画される部分の高さ
+		public double outerWidth = 0.0; //!< 外部描画される部分の幅
+		public double outerHeight = 0.0; //!< 外部描画される部分の高さ
 		public Arrangement inner = new Arrangement();
 		public Arrangement outer = new Arrangement();
 	}
 
 	public static class Arrangement {
-		public double interval = 2.5 * BhParams.NODE_SCALE;		//!< ノード内部に描画するノード同士の間隔
-		public CHILD_ARRANGEMENT arrangement = CHILD_ARRANGEMENT.COLUMN;	//!< 子要素のノードとサブグループが並ぶ方向
+		public double space = 2.5 * BhParams.NODE_SCALE; //!< ノード内部に描画するノード同士の間隔
+		public double paddingTop = 0; //!< 内部ノード上部の余白
+		public double paddingRight = 0; //!< 内部ノード右部の余白
+		public double paddingBottom = 0; //!< 内部ノード下部の余白
+		public double paddingLeft = 0; //!< 内部ノード左部の余白
+		public CHILD_ARRANGEMENT arrangement = CHILD_ARRANGEMENT.COLUMN; //!< 子要素のノードとサブグループが並ぶ方向
 		public List<String> cnctrNameList = new ArrayList<>();
 		public List<Arrangement> subGroup = new ArrayList<>();
 
 		void copy(Arrangement org) {
-			interval = org.interval;
+			space = org.space;
+			paddingTop = org.paddingTop;
+			paddingRight = org.paddingRight;
+			paddingBottom = org.paddingBottom;
+			paddingLeft = org.paddingLeft;
 			arrangement = org.arrangement;
 			cnctrNameList.addAll(org.cnctrNameList);
 			org.subGroup.forEach(orgSubGroup -> {
-				Arrangement newSubGroup =  new Arrangement();
+				Arrangement newSubGroup = new Arrangement();
 				newSubGroup.copy(orgSubGroup);
 				subGroup.add(newSubGroup);
 			});
@@ -88,23 +96,27 @@ public class BhNodeViewStyle {
 	}
 
 	TextField textField = new TextField();
+
 	public static class TextField {
-		public double whiteSpaceMargin = 0;	//!< 入力されたテキストの後に付くwhite space の数
-		public double minWhiteSpace =  5;	//!< テキストーフィールドの最小幅 (white space 換算)
+		public double whiteSpaceMargin = 0; //!< 入力されたテキストの後に付くwhite space の数
+		public double minWhiteSpace = 5; //!< テキストーフィールドの最小幅 (white space 換算)
 		public String cssClass = "defaultTextField";
 	}
 
 	Label label = new Label();
+
 	public static class Label {
 		public String cssClass = "defaultLabel";
 	}
 
 	ComboBox comboBox = new ComboBox();
+
 	public static class ComboBox {
 		public String cssClass = "defaultComboBox";
 	}
 
 	Imitation imitation = new Imitation();
+
 	public static class Imitation {
 		public double buttonPosX = 0.5 * BhParams.NODE_SCALE;
 		public double buttonPosY = 0.5 * BhParams.NODE_SCALE;
@@ -113,34 +125,33 @@ public class BhNodeViewStyle {
 
 	private static final HashMap<String, BhNodeViewStyle> nodeStyleID_nodeStyleTemplate = new HashMap<>(); //!< ノードスタイルのテンプレートを格納するハッシュ. JSON ファイルの nodeStyleID がキー
 	private static final HashMap<BhNodeID, String> nodeID_nodeStyleID = new HashMap<>(); //!< ノードIDとノードスタイルのペアを格納するハッシュ
-	public static final HashMap<BhNodeID, String> nodeID_inputControlFileName = new HashMap<>();	//!< ノードIDとBhNodeの入力GUI部品のfxmlファイル名のペアを格納するハッシュ
+	public static final HashMap<BhNodeID, String> nodeID_inputControlFileName = new HashMap<>(); //!< ノードIDとBhNodeの入力GUI部品のfxmlファイル名のペアを格納するハッシュ
 
 	public enum CNCTR_POS {
-		LEFT,
-		TOP
+		LEFT, TOP
 	}
 
 	public enum CHILD_ARRANGEMENT {
-		ROW,
-		COLUMN
+		ROW, COLUMN
 	}
 
 	/**
 	 * コンストラクタ
 	 * */
-	public BhNodeViewStyle(){}
+	public BhNodeViewStyle() {
+	}
 
 	/**
 	 * コピーコンストラクタ
 	 * @param org コピー元
 	 * */
-	private BhNodeViewStyle(BhNodeViewStyle org){
+	private BhNodeViewStyle(BhNodeViewStyle org) {
 
 		this.nodeStyleID = org.nodeStyleID;
-		this.topMargin = org.topMargin;
-		this.bottomMargin = org.bottomMargin;
-		this.leftMargin = org.leftMargin;
-		this.rightMargin = org.rightMargin;
+		this.paddingTop = org.paddingTop;
+		this.paddingBottom = org.paddingBottom;
+		this.paddingLeft = org.paddingLeft;
+		this.paddingRight = org.paddingRight;
 		this.width = org.width;
 		this.height = org.height;
 		this.connectorPos = org.connectorPos;
@@ -173,11 +184,11 @@ public class BhNodeViewStyle {
 	public Point2D getBodySize(boolean includeCnctr) {
 
 		Point2D cnctrSize = getConnectorSize();
-		double bodyWidth = leftMargin + width  + rightMargin;
+		double bodyWidth = paddingLeft + width + paddingRight;
 		if (includeCnctr && (connectorPos == CNCTR_POS.LEFT))
 			bodyWidth += cnctrSize.x;
 
-		double bodyHeight = topMargin  + height + bottomMargin;
+		double bodyHeight = paddingTop + height + paddingBottom;
 		if (includeCnctr && (connectorPos == CNCTR_POS.TOP))
 			bodyHeight += cnctrSize.y;
 
@@ -192,13 +203,12 @@ public class BhNodeViewStyle {
 	public Point2D getBodyAndOuterSize(boolean includCnctr) {
 
 		Point2D bodySize = getBodySize(includCnctr);
-		double totalWidth  = bodySize.x;
+		double totalWidth = bodySize.x;
 		double totalHeight = bodySize.y;
-		if (connectorPos == CNCTR_POS.LEFT) {		//外部ノードが右に接続される
+		if (connectorPos == CNCTR_POS.LEFT) { //外部ノードが右に接続される
 			totalWidth += connective.outerWidth;
 			totalHeight = Math.max(totalHeight, connective.outerHeight);
-		}
-		else {												//外部ノードが下に接続される
+		} else { //外部ノードが下に接続される
 			totalWidth = Math.max(totalWidth, connective.outerWidth);
 			totalHeight += connective.outerHeight;
 		}
@@ -226,11 +236,10 @@ public class BhNodeViewStyle {
 
 		//コネクタファイルパスリスト取得
 		Path dirPath = Paths.get(Util.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.NODE_STYLE_DEF_DIR);
-		Stream<Path> paths = null;	//読み込むファイルパスリスト
+		Stream<Path> paths = null; //読み込むファイルパスリスト
 		try {
 			paths = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.getFileName().toString().endsWith(".json"));
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			MsgPrinter.INSTANCE.errMsgForDebug("style directory not found " + dirPath);
 			return false;
 		}
@@ -241,7 +250,8 @@ public class BhNodeViewStyle {
 				return false;
 
 			String styleID = filePath.getFileName().toString();
-			Optional<BhNodeViewStyle> bhNodeViewStyle = genBhNodeViewStyle((ScriptObjectMirror)jsonObj, filePath.toAbsolutePath().toString(), styleID);
+			Optional<BhNodeViewStyle> bhNodeViewStyle = genBhNodeViewStyle((ScriptObjectMirror) jsonObj,
+					filePath.toAbsolutePath().toString(), styleID);
 			bhNodeViewStyle.ifPresent(viewStyle -> nodeStyleID_nodeStyleTemplate.put(viewStyle.nodeStyleID, viewStyle));
 			return bhNodeViewStyle.isPresent();
 		}).allMatch(success -> success);
@@ -257,104 +267,121 @@ public class BhNodeViewStyle {
 	 * @param fileName jsonObj が記述してある .JSON ファイルのファイル名
 	 * @return BhNodeViewStyle (オプション)
 	 * */
-	private static Optional<BhNodeViewStyle> genBhNodeViewStyle(ScriptObjectMirror jsonObj, String fileName, String styleID) {
+	private static Optional<BhNodeViewStyle> genBhNodeViewStyle(ScriptObjectMirror jsonObj, String fileName,
+			String styleID) {
 
 		BhNodeViewStyle bhNodeViewStyle = new BhNodeViewStyle();
 
 		//styleID
 		bhNodeViewStyle.nodeStyleID = styleID;
 
-		//topMargin
-		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_TOP_MARGIN, Number.class, jsonObj, fileName);
-		val.ifPresent(topMargin -> bhNodeViewStyle.topMargin = ((Number)topMargin).doubleValue() * BhParams.NODE_SCALE);
+		//paddingTop
+		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_PADDING_TOP, Number.class, jsonObj, fileName);
+		val.ifPresent(
+				paddingTop -> bhNodeViewStyle.paddingTop = ((Number) paddingTop).doubleValue() * BhParams.NODE_SCALE);
 
-		//bottomMargin
-		val = readValue(BhParams.NodeStyleDef.KEY_BOTTOM_MATGIN, Number.class, jsonObj, fileName);
-		val.ifPresent(bottomMargin -> bhNodeViewStyle.bottomMargin = ((Number)bottomMargin).doubleValue() * BhParams.NODE_SCALE);
+		//paddingBottom
+		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_BOTTOM, Number.class, jsonObj, fileName);
+		val.ifPresent(paddingBottom -> bhNodeViewStyle.paddingBottom = ((Number) paddingBottom).doubleValue()
+				* BhParams.NODE_SCALE);
 
-		//leftMargin
-		val = readValue(BhParams.NodeStyleDef.KEY_LEFT_MARGIN, Number.class, jsonObj, fileName);
-		val.ifPresent(leftMargin -> bhNodeViewStyle.leftMargin = ((Number)leftMargin).doubleValue() * BhParams.NODE_SCALE);
+		//paddingLeft
+		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_LEFT, Number.class, jsonObj, fileName);
+		val.ifPresent(paddingLeft -> bhNodeViewStyle.paddingLeft = ((Number) paddingLeft).doubleValue()
+				* BhParams.NODE_SCALE);
 
-		//rightMargin
-		val = readValue(BhParams.NodeStyleDef.KEY_RIGHT_MARGIN, Number.class, jsonObj, fileName);
-		val.ifPresent(rightMargin -> bhNodeViewStyle.rightMargin = ((Number)rightMargin).doubleValue() * BhParams.NODE_SCALE);
+		//paddingRight
+		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_RIGHT, Number.class, jsonObj, fileName);
+		val.ifPresent(paddingRight -> bhNodeViewStyle.paddingRight = ((Number) paddingRight).doubleValue()
+				* BhParams.NODE_SCALE);
 
 		//width
 		val = readValue(BhParams.NodeStyleDef.KEY_WIDTH, Number.class, jsonObj, fileName);
-		val.ifPresent(width -> bhNodeViewStyle.width = ((Number)width).doubleValue() * BhParams.NODE_SCALE);
+		val.ifPresent(width -> bhNodeViewStyle.width = ((Number) width).doubleValue() * BhParams.NODE_SCALE);
 
 		//height
 		val = readValue(BhParams.NodeStyleDef.KEY_HEIGHT, Number.class, jsonObj, fileName);
-		val.ifPresent(height -> bhNodeViewStyle.height = ((Number)height).doubleValue() * BhParams.NODE_SCALE);
+		val.ifPresent(height -> bhNodeViewStyle.height = ((Number) height).doubleValue() * BhParams.NODE_SCALE);
 
 		//connectorPos
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_POS, String.class, jsonObj, fileName);
 		val.ifPresent(connectorPos -> {
-				String posStr = (String)connectorPos;
-				if (posStr.equals(BhParams.NodeStyleDef.VAL_TOP)) {
-					bhNodeViewStyle.connectorPos = CNCTR_POS.TOP;
-				}
-				else if (posStr.equals(BhParams.NodeStyleDef.VAL_LEFT)) {
-					bhNodeViewStyle.connectorPos = CNCTR_POS.LEFT;
-				}
-				else {
-					MsgPrinter.INSTANCE.errMsgForDebug("\"" + BhParams.NodeStyleDef.KEY_CONNECTOR_POS + "\"" + " (" + posStr + ") " + "format is invalid.  " + "(" + fileName + ")");
-				}
-			});
+			String posStr = (String) connectorPos;
+			if (posStr.equals(BhParams.NodeStyleDef.VAL_TOP)) {
+				bhNodeViewStyle.connectorPos = CNCTR_POS.TOP;
+			} else if (posStr.equals(BhParams.NodeStyleDef.VAL_LEFT)) {
+				bhNodeViewStyle.connectorPos = CNCTR_POS.LEFT;
+			} else {
+				MsgPrinter.INSTANCE.errMsgForDebug("\"" + BhParams.NodeStyleDef.KEY_CONNECTOR_POS + "\"" + " (" + posStr
+						+ ") " + "format is invalid.  " + "(" + fileName + ")");
+			}
+		});
 
 		//connectorShift
-		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_SHIFT , Number.class, jsonObj, fileName);
-		val.ifPresent(connectorShift -> bhNodeViewStyle.connectorShift = ((Number)connectorShift).doubleValue() * BhParams.NODE_SCALE);
+		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_SHIFT, Number.class, jsonObj, fileName);
+		val.ifPresent(connectorShift -> bhNodeViewStyle.connectorShift = ((Number) connectorShift).doubleValue()
+				* BhParams.NODE_SCALE);
 
 		//connectorWidth
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_WIDTH, Number.class, jsonObj, fileName);
-		val.ifPresent(connectorWidth -> bhNodeViewStyle.connectorWidth = ((Number)connectorWidth).doubleValue() * BhParams.NODE_SCALE);
+		val.ifPresent(connectorWidth -> bhNodeViewStyle.connectorWidth = ((Number) connectorWidth).doubleValue()
+				* BhParams.NODE_SCALE);
 
 		//connectorHeight
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_HEIGHT, Number.class, jsonObj, fileName);
-		val.ifPresent(connectorHeight -> bhNodeViewStyle.connectorHeight = ((Number)connectorHeight).doubleValue() * BhParams.NODE_SCALE);
+		val.ifPresent(connectorHeight -> bhNodeViewStyle.connectorHeight = ((Number) connectorHeight).doubleValue()
+				* BhParams.NODE_SCALE);
 
 		//connectorShape
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_SHAPE, String.class, jsonObj, fileName);
 		val.ifPresent(
-			connectorShape -> {
-				String shapeStr = (String)connectorShape;
-				CNCTR_SHAPE shapeType = ConnectorShape.stringToCNCTR_SHAPE(shapeStr , fileName);
-				bhNodeViewStyle.connectorShape = shapeType;
-			});
+				connectorShape -> {
+					String shapeStr = (String) connectorShape;
+					CNCTR_SHAPE shapeType = ConnectorShape.stringToCNCTR_SHAPE(shapeStr, fileName);
+					bhNodeViewStyle.connectorShape = shapeType;
+				});
 
 		//connectorBoundsRate
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_BOUNDS_RATE, Number.class, jsonObj, fileName);
-		val.ifPresent(connectorBoundsRate -> bhNodeViewStyle.connectorBoundsRate = ((Number)connectorBoundsRate).doubleValue());
+		val.ifPresent(connectorBoundsRate -> bhNodeViewStyle.connectorBoundsRate = ((Number) connectorBoundsRate)
+				.doubleValue());
 
 		//DrawBody
 		val = readValue(BhParams.NodeStyleDef.KEY_DRAW_BODY, Boolean.class, jsonObj, fileName);
-		val.ifPresent(drawBody -> bhNodeViewStyle.drawBody = ((Boolean)drawBody));
+		val.ifPresent(drawBody -> bhNodeViewStyle.drawBody = ((Boolean) drawBody));
 
 		//bodyCssClass
 		val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
-		val.ifPresent(bodyCssClass -> bhNodeViewStyle.cssClass = (String)bodyCssClass);
+		val.ifPresent(bodyCssClass -> bhNodeViewStyle.cssClass = (String) bodyCssClass);
 
 		//connective
-		Optional<Object> connectiveOpt = readValue(BhParams.NodeStyleDef.KEY_CONNECTIVE, ScriptObjectMirror.class, jsonObj, fileName);
-		connectiveOpt.ifPresent(connective -> fillConnectiveParams(bhNodeViewStyle.connective, (ScriptObjectMirror)connective, fileName));
+		Optional<Object> connectiveOpt = readValue(BhParams.NodeStyleDef.KEY_CONNECTIVE, ScriptObjectMirror.class,
+				jsonObj, fileName);
+		connectiveOpt.ifPresent(connective -> fillConnectiveParams(bhNodeViewStyle.connective,
+				(ScriptObjectMirror) connective, fileName));
 
 		//textField
-		Optional<Object> textFieldOpt = readValue(BhParams.NodeStyleDef.KEY_TEXT_FIELD, ScriptObjectMirror.class, jsonObj, fileName);
-		textFieldOpt.ifPresent(textField -> fillTextFieldParams(bhNodeViewStyle.textField, (ScriptObjectMirror)textField, fileName));
+		Optional<Object> textFieldOpt = readValue(BhParams.NodeStyleDef.KEY_TEXT_FIELD, ScriptObjectMirror.class,
+				jsonObj, fileName);
+		textFieldOpt.ifPresent(
+				textField -> fillTextFieldParams(bhNodeViewStyle.textField, (ScriptObjectMirror) textField, fileName));
 
 		//label
-		Optional<Object> labelOpt = readValue(BhParams.NodeStyleDef.KEY_LABEL, ScriptObjectMirror.class, jsonObj, fileName);
-		labelOpt.ifPresent(label -> fillLabelParams(bhNodeViewStyle.label, (ScriptObjectMirror)label, fileName));
+		Optional<Object> labelOpt = readValue(BhParams.NodeStyleDef.KEY_LABEL, ScriptObjectMirror.class, jsonObj,
+				fileName);
+		labelOpt.ifPresent(label -> fillLabelParams(bhNodeViewStyle.label, (ScriptObjectMirror) label, fileName));
 
 		//comboBox
-		Optional<Object> comboBoxOpt = readValue(BhParams.NodeStyleDef.KEY_COMBO_BOX, ScriptObjectMirror.class, jsonObj, fileName);
-		comboBoxOpt.ifPresent(comboBox -> fillComboBoxParams(bhNodeViewStyle.comboBox, (ScriptObjectMirror)comboBox, fileName));
+		Optional<Object> comboBoxOpt = readValue(BhParams.NodeStyleDef.KEY_COMBO_BOX, ScriptObjectMirror.class, jsonObj,
+				fileName);
+		comboBoxOpt.ifPresent(
+				comboBox -> fillComboBoxParams(bhNodeViewStyle.comboBox, (ScriptObjectMirror) comboBox, fileName));
 
 		//imitation
-		Optional<Object> imitationOpt = readValue(BhParams.NodeStyleDef.KEY_IMITATION, ScriptObjectMirror.class, jsonObj, fileName);
-		imitationOpt.ifPresent(imitation -> fillImitationParams(bhNodeViewStyle.imitation, (ScriptObjectMirror)imitation, fileName));
+		Optional<Object> imitationOpt = readValue(BhParams.NodeStyleDef.KEY_IMITATION, ScriptObjectMirror.class,
+				jsonObj, fileName);
+		imitationOpt.ifPresent(
+				imitation -> fillImitationParams(bhNodeViewStyle.imitation, (ScriptObjectMirror) imitation, fileName));
 
 		return Optional.of(bhNodeViewStyle);
 	}
@@ -364,14 +391,17 @@ public class BhNodeViewStyle {
 	 * @param jsonObj key = "connective" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .JSON ファイルの名前
 	 * */
-	private static void fillConnectiveParams(BhNodeViewStyle.Connective connectiveStyle, ScriptObjectMirror jsonObj, String fileName) {
+	private static void fillConnectiveParams(BhNodeViewStyle.Connective connectiveStyle, ScriptObjectMirror jsonObj,
+			String fileName) {
 		// inner
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_INNER, ScriptObjectMirror.class, jsonObj, fileName);
-		val.ifPresent(innerArrange -> fillArrangementParams(connectiveStyle.inner, (ScriptObjectMirror)innerArrange, fileName));
+		val.ifPresent(innerArrange -> fillArrangementParams(connectiveStyle.inner, (ScriptObjectMirror) innerArrange,
+				fileName));
 
 		// outer
 		val = readValue(BhParams.NodeStyleDef.KEY_OUTER, ScriptObjectMirror.class, jsonObj, fileName);
-		val.ifPresent(outerArrange -> fillArrangementParams(connectiveStyle.outer, (ScriptObjectMirror)outerArrange, fileName));
+		val.ifPresent(outerArrange -> fillArrangementParams(connectiveStyle.outer, (ScriptObjectMirror) outerArrange,
+				fileName));
 
 	}
 
@@ -381,31 +411,57 @@ public class BhNodeViewStyle {
 	 * @param jsonObj key = "inner" または "outer" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .JSON ファイルの名前
 	 * */
-	private static void fillArrangementParams(BhNodeViewStyle.Arrangement arrangement, ScriptObjectMirror jsonObj, String fileName) {
+	private static void fillArrangementParams(BhNodeViewStyle.Arrangement arrangement, ScriptObjectMirror jsonObj,
+			String fileName) {
 
-		//interval
-		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_INTERVAL, Number.class, jsonObj, fileName);
-		val.ifPresent(interval -> {arrangement.interval = ((Number)interval).doubleValue() * BhParams.NODE_SCALE;});
+		//space
+		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_SPACE, Number.class, jsonObj, fileName);
+		val.ifPresent(space -> {
+			arrangement.space = ((Number) space).doubleValue() * BhParams.NODE_SCALE;
+		});
+
+		//paddingTop
+		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_TOP, Number.class, jsonObj, fileName);
+		val.ifPresent(paddingTop -> {
+			arrangement.paddingTop = ((Number) paddingTop).doubleValue() * BhParams.NODE_SCALE;
+		});
+
+		//paddingRight
+		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_RIGHT, Number.class, jsonObj, fileName);
+		val.ifPresent(paddingRight -> {
+			arrangement.paddingRight = ((Number) paddingRight).doubleValue() * BhParams.NODE_SCALE;
+		});
+
+		//paddingBottom
+		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_BOTTOM, Number.class, jsonObj, fileName);
+		val.ifPresent(paddingBottom -> {
+			arrangement.paddingBottom = ((Number) paddingBottom).doubleValue() * BhParams.NODE_SCALE;
+		});
+
+		//paddingLeft
+		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_LEFT, Number.class, jsonObj, fileName);
+		val.ifPresent(paddingLeft -> {
+			arrangement.paddingLeft = ((Number) paddingLeft).doubleValue() * BhParams.NODE_SCALE;
+		});
 
 		//arrangement
 		val = readValue(BhParams.NodeStyleDef.KEY_ARRANGEMENR, String.class, jsonObj, fileName);
 		val.ifPresent(childArrange -> {
-				String arrangeStr = (String)childArrange;
-				if (arrangeStr.equals(BhParams.NodeStyleDef.VAL_ROW)) {
-					arrangement.arrangement = CHILD_ARRANGEMENT.ROW;
-				}
-				else if (arrangeStr.equals(BhParams.NodeStyleDef.VAL_COLUMN)) {
-					arrangement.arrangement = CHILD_ARRANGEMENT.COLUMN;
-				}
-				else {
-					MsgPrinter.INSTANCE.errMsgForDebug("\"" + BhParams.NodeStyleDef.KEY_ARRANGEMENR + "\"" + " (" + arrangeStr + ") " + "format is invalid.  " + "(" + fileName + ")");
-				}
-			});
+			String arrangeStr = (String) childArrange;
+			if (arrangeStr.equals(BhParams.NodeStyleDef.VAL_ROW)) {
+				arrangement.arrangement = CHILD_ARRANGEMENT.ROW;
+			} else if (arrangeStr.equals(BhParams.NodeStyleDef.VAL_COLUMN)) {
+				arrangement.arrangement = CHILD_ARRANGEMENT.COLUMN;
+			} else {
+				MsgPrinter.INSTANCE.errMsgForDebug("\"" + BhParams.NodeStyleDef.KEY_ARRANGEMENR + "\"" + " ("
+						+ arrangeStr + ") " + "format is invalid.  " + "(" + fileName + ")");
+			}
+		});
 
 		//cnctrNameList
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_LIST, ScriptObjectMirror.class, jsonObj, fileName);
 		val.ifPresent(cnctrs -> {
-			ScriptObjectMirror cnctrList = (ScriptObjectMirror)cnctrs;
+			ScriptObjectMirror cnctrList = (ScriptObjectMirror) cnctrs;
 			if (cnctrList.isArray()) {
 				cnctrList.values().forEach(cnctrName -> arrangement.cnctrNameList.add(cnctrName.toString()));
 			}
@@ -418,16 +474,14 @@ public class BhNodeViewStyle {
 			val = readValue(subGroupKeyName, ScriptObjectMirror.class, jsonObj, fileName);
 			if (val.isPresent()) {
 				Arrangement subGroup = new Arrangement();
-				fillArrangementParams(subGroup, (ScriptObjectMirror)val.get(), fileName);
+				fillArrangementParams(subGroup, (ScriptObjectMirror) val.get(), fileName);
 				arrangement.subGroup.add(subGroup);
-			}
-			else {
+			} else {
 				break;
 			}
 			++groupID;
 		}
 	}
-
 
 	/**
 	 * BhNodeViewStyle.Imitaion を埋める
@@ -435,19 +489,24 @@ public class BhNodeViewStyle {
 	 * @param jsonObj key = "imitation" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .json ファイルの名前
 	 * */
-	private static void fillImitationParams(BhNodeViewStyle.Imitation imitation, ScriptObjectMirror jsonObj, String fileName) {
+	private static void fillImitationParams(BhNodeViewStyle.Imitation imitation, ScriptObjectMirror jsonObj,
+			String fileName) {
 
 		//buttonPosX
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_BUTTON_POS_X, Number.class, jsonObj, fileName);
-		val.ifPresent(btnPosX -> {imitation.buttonPosX = ((Number)btnPosX).doubleValue() * BhParams.NODE_SCALE;});
+		val.ifPresent(btnPosX -> {
+			imitation.buttonPosX = ((Number) btnPosX).doubleValue() * BhParams.NODE_SCALE;
+		});
 
 		//buttonPosY
 		val = readValue(BhParams.NodeStyleDef.KEY_BUTTON_POS_Y, Number.class, jsonObj, fileName);
-		val.ifPresent(btnPosY -> {imitation.buttonPosY = ((Number)btnPosY).doubleValue() * BhParams.NODE_SCALE;});
+		val.ifPresent(btnPosY -> {
+			imitation.buttonPosY = ((Number) btnPosY).doubleValue() * BhParams.NODE_SCALE;
+		});
 
 		//buttonCssClass
 		val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
-		val.ifPresent(buttonCssClass -> imitation.cssClass = (String)buttonCssClass);
+		val.ifPresent(buttonCssClass -> imitation.cssClass = (String) buttonCssClass);
 	}
 
 	/**
@@ -456,19 +515,20 @@ public class BhNodeViewStyle {
 	 * @param jsonObj key = "textField" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .json ファイルの名前
 	 * */
-	private static void fillTextFieldParams(BhNodeViewStyle.TextField textField, ScriptObjectMirror jsonObj, String fileName) {
+	private static void fillTextFieldParams(BhNodeViewStyle.TextField textField, ScriptObjectMirror jsonObj,
+			String fileName) {
 
 		//whiteSpaceMargin
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_WHITE_SPACE_MATGIN, Number.class, jsonObj, fileName);
-		val.ifPresent(wsMargine -> textField.whiteSpaceMargin = ((Number)wsMargine).doubleValue());
+		val.ifPresent(wsMargine -> textField.whiteSpaceMargin = ((Number) wsMargine).doubleValue());
 
 		//minWhiteSpace
 		val = readValue(BhParams.NodeStyleDef.KEY_MIN_WHITE_SPACE, Number.class, jsonObj, fileName);
-		val.ifPresent(minWS -> textField.minWhiteSpace = ((Number)minWS).doubleValue());
+		val.ifPresent(minWS -> textField.minWhiteSpace = ((Number) minWS).doubleValue());
 
 		//cssClass
 		val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
-		val.ifPresent(textCssClass -> textField.cssClass = (String)textCssClass);
+		val.ifPresent(textCssClass -> textField.cssClass = (String) textCssClass);
 	}
 
 	/**
@@ -480,7 +540,7 @@ public class BhNodeViewStyle {
 	private static void fillLabelParams(BhNodeViewStyle.Label textField, ScriptObjectMirror jsonObj, String fileName) {
 		//cssClass
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
-		val.ifPresent(textCssClass -> textField.cssClass = (String)textCssClass);
+		val.ifPresent(textCssClass -> textField.cssClass = (String) textCssClass);
 	}
 
 	/**
@@ -489,10 +549,11 @@ public class BhNodeViewStyle {
 	 * @param jsonObj key = "comboBox" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .json ファイルの名前
 	 * */
-	private static void fillComboBoxParams(BhNodeViewStyle.ComboBox comboBox, ScriptObjectMirror jsonObj, String fileName) {
+	private static void fillComboBoxParams(BhNodeViewStyle.ComboBox comboBox, ScriptObjectMirror jsonObj,
+			String fileName) {
 		//cssClass
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
-		val.ifPresent(comboBoxCssClass -> comboBox.cssClass = (String)comboBoxCssClass);
+		val.ifPresent(comboBoxCssClass -> comboBox.cssClass = (String) comboBoxCssClass);
 	}
 
 	/**
@@ -503,15 +564,17 @@ public class BhNodeViewStyle {
 	 * @param fileName jsonObj を読み取ったファイルの名前
 	 * @return JsonValue オブジェクト (オプション)
 	 * */
-	private static Optional<Object> readValue(String keyName, Class<?> valueType, ScriptObjectMirror jsonObj, String fileName) {
+	private static Optional<Object> readValue(String keyName, Class<?> valueType, ScriptObjectMirror jsonObj,
+			String fileName) {
 
 		Object val = jsonObj.get(keyName);
 		if (val == null)
 			return Optional.empty();
 
 		if (!valueType.isAssignableFrom(val.getClass())) {
-			MsgPrinter.INSTANCE.errMsgForDebug("The type of " + keyName + " must be " + valueType.getSimpleName() + ".  \n"
-										+"The actual type is " + val.getClass().getSimpleName() + ". " + "(" + fileName + ")");
+			MsgPrinter.INSTANCE
+					.errMsgForDebug("The type of " + keyName + " must be " + valueType.getSimpleName() + ".  \n"
+							+ "The actual type is " + val.getClass().getSimpleName() + ". " + "(" + fileName + ")");
 			return Optional.empty();
 		}
 		return Optional.of(val);
@@ -545,13 +608,13 @@ public class BhNodeViewStyle {
 	public static boolean checkNodeIdAndNodeTemplate() {
 
 		return nodeID_nodeStyleID.values().stream().allMatch(nodeStyleID -> {
-				if (!nodeStyleID_nodeStyleTemplate.containsKey(nodeStyleID)) {
-					MsgPrinter.INSTANCE.errMsgForDebug("A node style file " + "(" + nodeStyleID +")" + " is not found among *.json files");
-					return false;
-				}
-				else {
-					return true;
-				}
-			});
+			if (!nodeStyleID_nodeStyleTemplate.containsKey(nodeStyleID)) {
+				MsgPrinter.INSTANCE.errMsgForDebug(
+						"A node style file " + "(" + nodeStyleID + ")" + " is not found among *.json files");
+				return false;
+			} else {
+				return true;
+			}
+		});
 	}
 }
