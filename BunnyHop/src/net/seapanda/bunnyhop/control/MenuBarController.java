@@ -29,7 +29,6 @@ import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
-import net.seapanda.bunnyhop.root.BunnyHop;
 
 /**
  * メニューバーのコントローラクラス
@@ -206,15 +205,18 @@ public class MenuBarController {
 	 */
 	private boolean askIfClearOldWs() {
 
-		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setTitle("ファイルのロード方法");
-		alert.setHeaderText(null);
-		alert.setContentText("既存のワークスペースに追加する場合は" + "[" + ButtonType.YES.getText() + "].\n"
-			+ "既存のワークスペースを全て削除する場合は" + "[" + ButtonType.NO.getText() + "].");
-		alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
-		alert.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
-		Optional<ButtonType> result = alert.showAndWait();
-		return result.get().equals(ButtonType.NO);
+		String title = "ファイルのロード方法";
+		String content = "既存のワークスペースに追加する場合は" + " [" + ButtonType.YES.getText() + "].\n"
+				+ "既存のワークスペースを全て削除する場合は" + " [" + ButtonType.NO.getText() + "].";
+
+		Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
+			AlertType.CONFIRMATION,
+			title,
+			null,
+			content,
+			ButtonType.YES, ButtonType.NO);
+
+		return buttonType.map((btntype) -> btntype.equals(ButtonType.NO)).orElse(false);
 	}
 
 		/**

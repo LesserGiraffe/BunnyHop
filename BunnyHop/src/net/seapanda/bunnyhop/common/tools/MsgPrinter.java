@@ -19,13 +19,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.FutureTask;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.util.Duration;
 import net.seapanda.bunnyhop.common.BhParams;
@@ -137,22 +140,40 @@ public class MsgPrinter {
 	 * @param title アラートウィンドウのタイトル
 	 * @param header アラートウィンドウのヘッダ
 	 * @param content アラートウィンドウの本文
+	 * @param buttonTypes 表示するボタン
+	 * @return メッセージに対して選択されたボタン
 	 */
-	public void alert(Alert.AlertType type, String title, String header, String content) {
+	public Optional<ButtonType> alert(
+			Alert.AlertType type,
+			String title,
+			String header,
+			String content,
+			ButtonType ...buttonTypes) {
 
-		if (Platform.isFxApplicationThread()) {
+		FutureTask<Optional<ButtonType>> alertTask = new FutureTask<>(() -> {
 			Alert alert = new Alert(type);
 			alert.setTitle(title);
 			alert.setHeaderText(header);
 			alert.setContentText(content);
 			alert.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
-			alert.showAndWait();
+			if (buttonTypes.length != 0)
+				alert.getButtonTypes().setAll(buttonTypes);
+			return alert.showAndWait();
+		});
+
+		if (Platform.isFxApplicationThread())
+			alertTask.run();
+		else
+			Platform.runLater(alertTask);
+
+		Optional<ButtonType> buttonType = Optional.empty();
+		try {
+			buttonType = alertTask.get();
 		}
-		else {
-			Platform.runLater(() -> {
-				alert(type, title, header, content);
-			});
+		catch(Exception e) {
+			errMsgForDebug(e.toString());
 		}
+		return buttonType;
 	}
 
 	/**

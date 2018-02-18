@@ -59,6 +59,7 @@ public class BhParams {
 		public static final String NODE_STYLE_DEF_DIR = "NodeStyle"; //!< ノードのスタイル定義ファイルがあるフォルダ名
 		public static final String FUNCTIONS_DIR = "Functions";	//!< Javascript コードが書かれたファイルのあるトップフォルダ
 		public static final String TEMPLATE_LIST_DIR = "TemplateList";	//ノードテンプレートの配置情報が書かれたファイルがあるフォルダ名
+		public static final String IMAGES_DIR = "IMAGES";	//!< アイコンなどの画像があるフォルダ名
 		public static final String LOG_DIR = "Log";
 		public static final String LOG_FILE_NAME = "msg";
 		public static final String lib = "lib";
@@ -78,6 +79,7 @@ public class BhParams {
 		public static final String REMOTE_EXEC_CMD_GENERATOR_JS = "remoteExecCmdGenerator.js";	//!< リモートのBhProgram実行環境をスタートさせるコマンドを生成するスクリプト名
 		public static final String REMOTE_KILL_CMD_GENERATOR_JS = "remoteKillCmdGenerator.js";	//!< リモートのBhProgram実行環境を終わらせるコマンドを生成するスクリプト名
 		public static final String COPY_CMD_GENERATOR_JS = "copyCmdGenerator.js";	//!< リモートのBhProgram実行環境にBhProgramファイルをコピーするコマンドを生成するスクリプト名
+		public static final String BUNNY_HOP_ICON = "BunnyHop16.png";	//!< BunnyHopのアイコン画像名
 	}
 
 	/**
@@ -243,8 +245,9 @@ public class BhParams {
 	public static class ExternalApplication {
 
 		public static final String BH_PROGRAM_EXEC_ENV_JAR = "BhProgramExecEnvironment.jar";
-		public static final int PROGRAM_EXEC_ENV_TERMINATION_TIMEOUT = 10;	//!< BhProgramExecEnvironment終了待ちのタイムアウト時間 (sec)
-		public static final int FILE_COPY_TERMINATION_TIMEOUT = 10;	//!< ファイルコピープロセス終了待ちのタイムアウト (sec)
+		public static final int REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT = 10;	//!< リモートのBhProgramExecEnvironment終了待ちのタイムアウト時間 (sec)
+		public static final int REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT_SHORT = 4;	//!< リモートのBhProgramExecEnvironment終了待ちのタイムアウト時間 (sec)
+		public static final int DEAD_PROC_END_TIMEOUT = 3;	//!< 死んでいるプロセスの終了完了待ちタイムアウト時間 (sec)
 		public static final int POP_RECV_DATA_TIMEOUT = 3;	//!< BhProgram実行環境からの受信データ待ちタイムアウト (sec)
 		public static final int POP_SEND_DATA_TIMEOUT = 3;	//!< BhProgram実行環境への送信データ待ちタイムアウト (sec)
 		public static final int TCP_PORT_READ_TIMEOUT = 15;	//!< TCPポート読み取りのタイムアウト (sec)

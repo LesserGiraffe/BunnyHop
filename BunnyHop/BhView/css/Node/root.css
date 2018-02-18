@@ -6,6 +6,6 @@
 	voidTypeCol: #f5f5f5;
 	voidVarTypeCol: linear-gradient(from 0em 0em to 0.0em 0.3em, repeat, #C0C0C0 50%, #FFFFFF 0em);
 	controlTypeCol: #e0F0d0;
-	actionTypeCol: #6495ed;
+	actionTypeCol: #74A5fd;
 	anyTypeCol: #F0F0F0; //linear-gradient(from 0em 0em to 0.0em 1.0em, repeat, #E0E0E0 70%, #FFFFFF 0em);
 }

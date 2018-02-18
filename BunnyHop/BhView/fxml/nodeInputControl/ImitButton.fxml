@@ -5,4 +5,5 @@
 
 <Button xmlns:fx="http://javafx.com/fxml" 
         fx:id="imitBtn" 
-        text="C"/>
+        text="✽"/>
+

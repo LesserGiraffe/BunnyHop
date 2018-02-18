@@ -292,7 +292,8 @@ public class MenuOperationController {
 			Optional<String> inputText = dialog.showAndWait();
 			inputText.ifPresent(wsName -> {
 				UserOperationCommand userOpeCmd = new UserOperationCommand();
-				BunnyHop.INSTANCE.addNewWorkSpace(wsName,
+				BunnyHop.INSTANCE.addNewWorkSpace(
+					wsName,
 					BhParams.DEFAULT_WORKSPACE_WIDTH,
 					BhParams.DEFAULT_WORKSPACE_HEIGHT,
 					userOpeCmd);

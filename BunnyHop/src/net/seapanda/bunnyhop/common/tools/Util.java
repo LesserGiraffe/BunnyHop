@@ -41,21 +41,29 @@ public class Util {
 
 	static {
 
+		boolean isModulePath = true;
 		String pathStr = System.getProperty("jdk.module.path");
-		if (pathStr == null) {	//for self-contained app
-			String path = System.getProperty("java.class.path");
-			File jarFile = new File(path);
-			Path jarPath = Paths.get(jarFile.getAbsolutePath());
-			String root = (jarPath.getRoot() == null) ? "" : jarPath.getRoot().toString();
-			EXEC_PATH = root + jarPath.subpath(0, jarPath.getNameCount()-1).toString();
-		}
-		else {
-			EXEC_PATH = Paths.get(pathStr).toAbsolutePath().toString();
+		if (pathStr == null) {
+			isModulePath = false;
+			pathStr = System.getProperty("java.class.path");
 		}
 
-		//EXEC_PATH = System.getProperty("user.dir");
-		LF = System.getProperty("line.separator");
+		String[] paths = pathStr.split(System.getProperty("path.separator"));
+		pathStr = paths[paths.length - 1];
+		File jarFile = new File(pathStr);
+		Path jarPath = Paths.get(jarFile.getAbsolutePath());
+		String root = (jarPath.getRoot() == null) ? "" : jarPath.getRoot().toString();
+
+		if (isModulePath) {
+			EXEC_PATH = root + jarPath.subpath(0, jarPath.getNameCount()).toString();
+			//EXEC_PATH = System.getProperty("user.dir");
+		}
+		else {
+			EXEC_PATH = root + jarPath.subpath(0, jarPath.getNameCount() - 1).toString();
+		}
+
 		String fs = System.getProperty("file.separator");
+		LF = System.getProperty("line.separator");
 		JAVA_PATH = System.getProperty("java.home") + fs + "bin" + fs + "java";
 	}
 

@@ -24,7 +24,7 @@
 	
 	function _measureDistance() {
 	
-		let dist = _scan('距離を入力してください (半角)');
+		let dist = _scan('距離を入力してください (標準入力に半角で)');
 		dist = Number(dist);
 		if (!isFinite(dist))
 			dist = 0;

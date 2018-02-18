@@ -28,7 +28,6 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.BhNode;
 import net.seapanda.bunnyhop.model.VoidNode;
 import net.seapanda.bunnyhop.model.Workspace;
-import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
@@ -36,6 +35,7 @@ import net.seapanda.bunnyhop.modelprocessor.UnscopedNodeCollector;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.BhNodeView;
+import net.seapanda.bunnyhop.view.TrashboxFacade;
 
 /**
  * BhNode のコントローラクラスに共通の処理をまとめたクラス
@@ -132,7 +132,7 @@ public class BhNodeController implements MsgProcessor {
 				Point2D newPos = view.getPositionManager().move(diffX, diffY);
 				view.getPositionManager().updateAbsPos(newPos.x, newPos.y);	//4分木空間での位置更新
 				highlightOverlappedNode();	// ドラッグ検出されていない場合、強調は行わない. 子ノードがダングリングになっていないのに、重なったノード (入れ替え対象) だけが検出されるのを防ぐ
-				openCloseTrashbox(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+				TrashboxFacade.INSTANCE.openCloseTrashbox(mouseEvent.getSceneX(), mouseEvent.getSceneY());	//ゴミ箱開閉
 			}
 			mouseEvent.consume();
 		});
@@ -183,11 +183,16 @@ public class BhNodeController implements MsgProcessor {
 			DelayedDeleter.INSTANCE.deleteCandidates(ddInfo.userOpeCmd);
 			deleteUnscopedNodes(model);
 			deleteUnscopedNodes(ddInfo.currentOverlapped);
-			if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS)
-				getRidOfNode(mouseEvent.getSceneX(), mouseEvent.getSceneY());		//ゴミ箱に捨てる
+
+			//ゴミ箱に重なっていた場合, 削除
+			if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
+				TrashboxFacade.INSTANCE.isInTrashboxArea(mouseEvent.getSceneX(), mouseEvent.getSceneY())) {
+				BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
+			}
 			BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
 			ddInfo.reset();
 			view.setMouseTransparent(false);	// 処理が終わったので、元に戻しておく。
+			TrashboxFacade.INSTANCE.openCloseTrashbox(false);
 			mouseEvent.consume();
 		});
 	}
@@ -297,45 +302,6 @@ public class BhNodeController implements MsgProcessor {
 				ddInfo.currentOverlapped = overlapped;
 				break;
 			}
-		}
-	}
-
-	/**
-	 * ゴミ箱の開閉を行う
-	 * @param sceneX Scene上でのマウスポインタのX位置
-	 * @param sceneY Scene上でのマウスポインタのY位置
-	 */
-	private void openCloseTrashbox(double sceneX, double sceneY) {
-
-		boolean inTrashboxArea = MsgTransporter.INSTANCE.sendMessage(
-			BhMsg.IS_IN_TRASHBOX_AREA,
-			new MsgData(sceneX, sceneY),
-			model.getWorkspace().getWorkspaceSet()).bool;
-
-		MsgTransporter.INSTANCE.sendMessage(
-			BhMsg.OPEN_TRAHBOX,
-			new MsgData(inTrashboxArea),
-			model.getWorkspace().getWorkspaceSet());
-	}
-
-	/**
-	 * 引数で指定した位置がゴミ箱エリアにあった場合, そのノードを削除する
-	 */
-	private void getRidOfNode(double sceneX, double sceneY) {
-
-		WorkspaceSet wss = model.getWorkspace().getWorkspaceSet();
-		MsgTransporter.INSTANCE.sendMessage(
-			BhMsg.OPEN_TRAHBOX,
-			new MsgData(false),
-			wss);
-
-		boolean inTrashboxArea = MsgTransporter.INSTANCE.sendMessage(
-			BhMsg.IS_IN_TRASHBOX_AREA,
-			new MsgData(sceneX, sceneY),
-			wss).bool;
-
-		if (inTrashboxArea) {
-			BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
 		}
 	}
 

@@ -22,6 +22,7 @@ import javafx.stage.Stage;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramManager;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramManager;
 import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.Single;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
@@ -52,9 +53,9 @@ public class AppMain extends Application {
 			System.exit(-1);
 
 		boolean success = BhScriptManager.INSTANCE.genCompiledCode(
-			Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.FUNCTIONS_DIR),
-			Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.TEMPLATE_LIST_DIR),
-			Paths.get(Util.EXEC_PATH, BhParams.Path.REMOTE_DIR));
+				Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.FUNCTIONS_DIR),
+				Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.TEMPLATE_LIST_DIR),
+				Paths.get(Util.EXEC_PATH, BhParams.Path.REMOTE_DIR));
 
 		if (!success) {
 			System.exit(-1);
@@ -64,7 +65,7 @@ public class AppMain extends Application {
 			System.exit(-1);
 		}
 
-		success =  BhNodeTemplates.INSTANCE.genTemplate();
+		success = BhNodeTemplates.INSTANCE.genTemplate();
 		success &= BhNodeViewStyle.genViewStyleTemplate();
 		success &= BhNodeViewStyle.checkNodeIdAndNodeTemplate();
 		if (!success)
@@ -86,7 +87,23 @@ public class AppMain extends Application {
 	 */
 	private void setOnCloseHandler(Stage stage) {
 
-		stage.setOnCloseRequest(event ->{
+		Single<Boolean> teminate = new Single<>(true);
+
+		stage.setOnCloseRequest(event -> {
+			teminate.content = true;
+			switch (RemoteBhProgramManager.INSTANCE.askIfStopProgram()) {
+			case NO:
+				teminate.content = false;
+				break;
+
+			case CANCEL:
+				event.consume();
+				return;
+
+			default:
+				break;
+			}
+
 			if (!BunnyHop.INSTANCE.processCloseRequest())
 				event.consume();
 		});
@@ -94,27 +111,10 @@ public class AppMain extends Application {
 		stage.showingProperty().addListener((observable, oldValue, newValue) -> {
 			if (oldValue == true && newValue == false) {
 				LocalBhProgramManager.INSTANCE.end();
-				RemoteBhProgramManager.INSTANCE.end();
+				RemoteBhProgramManager.INSTANCE.end(teminate.content);
 				MsgPrinter.INSTANCE.end();
 				System.exit(0);
 			}
 		});
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

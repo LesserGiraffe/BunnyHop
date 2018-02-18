@@ -11,5 +11,5 @@
 
 .defaultTextField:readonly{
     -fx-text-fill: white;
-    -fx-background-color: #909090;
+    -fx-background-color: #353535;
 }

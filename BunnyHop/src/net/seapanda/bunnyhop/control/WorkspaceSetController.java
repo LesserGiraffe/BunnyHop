@@ -185,7 +185,7 @@ public class WorkspaceSetController implements MsgProcessor {
 			case IS_IN_TRASHBOX_AREA:
 				return new MsgData(isPointInTrashBoxArea(data.doublePair._1, data.doublePair._2));
 
-			case OPEN_TRAHBOX:
+			case OPEN_TRASHBOX:
 				openTrashBox(data.bool);
 				break;
 

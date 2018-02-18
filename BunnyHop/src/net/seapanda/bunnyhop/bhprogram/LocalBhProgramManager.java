@@ -65,7 +65,7 @@ public class LocalBhProgramManager {
 		boolean success = true;
 
 		if (programRunning.get())
-			success &= terminate();
+			terminate();
 
 		MsgPrinter.INSTANCE.msgForUser("-- プログラム実行準備中 (local) --\n");
 		if (success) {
@@ -118,7 +118,7 @@ public class LocalBhProgramManager {
 		boolean success = common.haltTransceiver();
 
 		if (process != null) {
-			success &= common.waitForProcessEnd(process, true, BhParams.ExternalApplication.PROGRAM_EXEC_ENV_TERMINATION_TIMEOUT);
+			success &= common.waitForProcessEnd(process, true, BhParams.ExternalApplication.DEAD_PROC_END_TIMEOUT);
 		}
 		process = null;
 		if (!success) {

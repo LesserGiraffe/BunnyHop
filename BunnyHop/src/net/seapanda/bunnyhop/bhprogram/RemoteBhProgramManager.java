@@ -31,9 +31,13 @@ import javax.script.Bindings;
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
 
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.ExclusiveSelection;
+import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
@@ -49,6 +53,7 @@ public class RemoteBhProgramManager {
 	private final Bindings bindings = BhScriptManager.INSTANCE.createScriptScope();
 	private String[] killCmd;
 	private AtomicReference<Boolean> programRunning = new AtomicReference<>(false);	//!< プログラム実行中ならtrue
+	private Pair<String, String> currentExecEnv = new Pair<>(null, null);	//!< 現在プログラムを実行している環境
 	private AtomicReference<Boolean> fileCopyIsCancelled = new AtomicReference<>(true);	//!< ファイルがコピー中の場合true
 
 	private RemoteBhProgramManager() {}
@@ -74,21 +79,48 @@ public class RemoteBhProgramManager {
 	 * @return BhProgram実行開始の完了待ちオブジェクト
 	 */
 	public Optional<Future<Boolean>> executeAsync(Path filePath, String ipAddr, String uname, String password) {
-		return common.executeAsync(() -> execute(filePath, ipAddr, uname, password));
+
+		boolean _terminate = true;
+		Pair<String, String> newExecEnv = new Pair<>(ipAddr, uname);
+		if (!newExecEnv.equals(currentExecEnv)) {
+			switch (askIfStopProgram()) {
+				case NO:
+					_terminate = false;	//実行環境が現在のものと違ってかつ, プログラムを止めないが選択された場合
+					break;
+				case CANCEL:
+					return Optional.empty();
+				default:
+					break;
+			}
+		}
+		boolean terminate = _terminate;
+		return common.executeAsync(() -> execute(filePath, ipAddr, uname, password, terminate));
 	}
 
 	/**
 	 * BhProgramを実行する
 	 * @param filePath BhProgramのファイルパス
 	 * @param ipAddr BhProgramを実行するマシンのIPアドレス
-	 * @return BhProgramの実行に成功した場合true
+	 * @param terminate 現在実行中のプログラムを停止する場合 true. 切断だけする場合 false.
+	 * @return BhProgramの実行処理でエラーが発生しなかった場合 true
 	 */
-	private synchronized boolean execute(Path filePath, String ipAddr, String uname, String password) {
+	private synchronized boolean execute(
+		Path filePath,
+		String ipAddr,
+		String uname,
+		String password,
+		boolean terminate) {
 
 		boolean success = true;
-
-		if (programRunning.get())
-			success &= terminate();
+		if (programRunning.get()) {
+			if (terminate) {
+				terminate(BhParams.ExternalApplication.REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT);
+			}
+			else {
+				common.haltTransceiver();
+				programRunning.set(false);
+			}
+		}
 
 		MsgPrinter.INSTANCE.msgForUser("-- プログラム実行準備中 (remote) --\n");
 		setScriptBindings(ipAddr, uname, password);
@@ -108,18 +140,19 @@ public class RemoteBhProgramManager {
 		if (remoteEnvProcess != null) {
 			String fileName = filePath.getFileName().toString();
 			success &= common.runBhProgram(fileName, ipAddr, remoteEnvProcess.getInputStream());
-			// リモートの実行環境の起動に使ったローカルのプロセスは終了しておく
-			success &= common.waitForProcessEnd(remoteEnvProcess, true, BhParams.ExternalApplication.PROGRAM_EXEC_ENV_TERMINATION_TIMEOUT);
+			// リモートの実行環境の起動に使ったローカルのプロセスは終了しておく.
+			success &= common.waitForProcessEnd(remoteEnvProcess, true, BhParams.ExternalApplication.DEAD_PROC_END_TIMEOUT);
 		}
 
 		if (!success) {	//リモートでのスクリプト実行失敗
 			MsgPrinter.INSTANCE.errMsgForUser("!! プログラム実行準備失敗 (remote) !!\n");
 			MsgPrinter.INSTANCE.errMsgForDebug("failed to run " + filePath.getFileName() + " (remote)");
-			terminate();
+			terminate(BhParams.ExternalApplication.REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT_SHORT);
 		}
 		else {
 			MsgPrinter.INSTANCE.msgForUser("-- プログラム実行開始 (remote) --\n");
 			programRunning.set(true);
+			currentExecEnv = new Pair<>(ipAddr, uname);
 		}
 
 		return success;
@@ -137,16 +170,17 @@ public class RemoteBhProgramManager {
 			return Optional.empty();
 		}
 		return common.terminateAsync(() -> {
-			return terminate();
+			return terminate(BhParams.ExternalApplication.REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT);
 		});
 	}
 
 	/**
 	 * リモートマシンで実行中のBhProgram実行環境を強制終了する. <br>
 	 * BhProgram実行環境を終了済みの場合に呼んでも問題ない.
+	 * @param timeout タイムアウト
 	 * @return 強制終了に成功した場合true
 	 */
-	private synchronized boolean terminate() {
+	private synchronized boolean terminate(int timeout) {
 
 		MsgPrinter.INSTANCE.msgForUser("-- プログラム終了中 (remote)  --\n");
 		boolean success = common.haltTransceiver();
@@ -154,7 +188,7 @@ public class RemoteBhProgramManager {
 		if (killCmd != null) {
 			Process process = execCmd(killCmd);
 			if (process != null)
-				success &= common.waitForProcessEnd(process, false, BhParams.ExternalApplication.PROGRAM_EXEC_ENV_TERMINATION_TIMEOUT);
+				success &= common.waitForProcessEnd(process, false, timeout);
 			else
 				success = false;
 		}
@@ -309,7 +343,7 @@ public class RemoteBhProgramManager {
 		if (copyProcess != null) {
 			success &= showFileCopyProgress(copyProcess);
 			boolean terminate = !success;	//進捗表示を途中で終わらせていた場合, ファイルコピープロセスを強制終了する
-			success &= common.waitForProcessEnd(copyProcess, terminate, BhParams.ExternalApplication.FILE_COPY_TERMINATION_TIMEOUT);
+			success &= common.waitForProcessEnd(copyProcess, terminate, BhParams.ExternalApplication.DEAD_PROC_END_TIMEOUT);
 			success &= (copyProcess.exitValue() == 0);
 		}
 
@@ -419,12 +453,49 @@ public class RemoteBhProgramManager {
 	}
 
 	/**
+	 * 現在実行中のプログラムを止めるかどうかを訪ねる.
+	 * プログラムを実行中でない場合は何も尋ねない
+	 * @retval YES プログラムを止める
+	 * @retval NO プログラムを止めない
+	 * @retval CANCEL キャンセルを選択
+	 * @retval NONE_OF_THEM 何も尋ねなかった場合
+	 * */
+	public ExclusiveSelection askIfStopProgram() {
+
+		if (programRunning.get()) {
+
+			Optional<ButtonType> selected = MsgPrinter.INSTANCE.alert(
+				AlertType.CONFIRMATION,
+				"プログラム停止の確認",
+				null,
+				"現在実行しているプログラムを停止しますか?",
+				ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+
+			return selected.map((btnType) -> {
+
+				if (btnType.equals(ButtonType.YES))
+					return ExclusiveSelection.YES;
+				else if (btnType.equals(ButtonType.NO))
+					return ExclusiveSelection.NO;
+				else
+					return ExclusiveSelection.CANCEL;
+
+			}).orElse(ExclusiveSelection.YES);
+		}
+
+		return ExclusiveSelection.NONE_OF_THEM;
+	}
+
+	/**
 	 * 終了処理をする
+	 * @param terminate 実行中のプログラムを終了する場合true
 	 * @return 終了処理が正常に完了した場合true
 	 */
-	public boolean end() {
+	public boolean end(boolean terminate) {
 
-		boolean success = terminate();
+		boolean success = true;
+		if (terminate && programRunning.get())
+			success = terminate(BhParams.ExternalApplication.REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT);
 		success &= common.end();
 		return success;
 	}

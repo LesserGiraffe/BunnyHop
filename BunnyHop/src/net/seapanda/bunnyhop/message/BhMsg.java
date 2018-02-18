@@ -50,5 +50,5 @@ public enum BhMsg {
 	GET_MODEL_AND_VIEW_TEXT,//!< モデルとビューのテキストを取得する
 	ZOOM,					//!< WSのズーム処理
 	IS_IN_TRASHBOX_AREA,	//!< ゴミ箱エリアに入っているかどうかを調べる
-	OPEN_TRAHBOX,			//!< ゴミ箱を開閉する
+	OPEN_TRASHBOX,			//!< ゴミ箱を開閉する
 }

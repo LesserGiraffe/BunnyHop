@@ -31,6 +31,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -47,6 +48,7 @@ import net.seapanda.bunnyhop.model.BhNodeCategoryList;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.view.TrashboxFacade;
 import net.seapanda.bunnyhop.view.WorkspaceView;
 
 /**
@@ -67,6 +69,7 @@ public class BunnyHop {
 	 * */
 	public void createWindow(Stage stage) {
 
+		TrashboxFacade.INSTANCE.init(workspaceSet);
 		VBox root;
 		try {
 			Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.FOUNDATION_FXML);
@@ -87,6 +90,8 @@ public class BunnyHop {
 		double height = primaryScreenBounds.getHeight() * BhParams.DEFAULT_APP_HEIGHT_RATE;
 		scene = new Scene(root, width, height);
 		setCSS(scene);
+		String iconPath = Paths.get(Util.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.IMAGES_DIR, BhParams.Path.BUNNY_HOP_ICON).toUri().toString();
+		stage.getIcons().add(new Image(iconPath));
 		stage.setScene(scene);
 		stage.setTitle(BhParams.APPLICATION_NAME);
 		stage.show();
@@ -224,17 +229,19 @@ public class BunnyHop {
 		if (!shoudlSave)
 			return true;
 
-		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-		alert.setTitle("BunnyHop");
-		alert.setHeaderText(null);
-		alert.setContentText("保存しますか?");
-		alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
-		alert.getDialogPane().getStylesheets().addAll(scene.getStylesheets());
-		Optional<ButtonType> result = alert.showAndWait();
-		if (result.get().equals(ButtonType.YES))
-			return foundationController.getMenuBarController().save(workspaceSet);
+		Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
+			Alert.AlertType.CONFIRMATION,
+			BhParams.APPLICATION_NAME,
+			null,
+			"保存しますか",
+			ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 
-		return result.get().equals(ButtonType.NO);
+		return buttonType.map((btnType) -> {
+			if (btnType.equals(ButtonType.YES))
+				return foundationController.getMenuBarController().save(workspaceSet);
+
+			return btnType.equals(ButtonType.NO);
+		}).orElse(false);
 	}
 
 	/**

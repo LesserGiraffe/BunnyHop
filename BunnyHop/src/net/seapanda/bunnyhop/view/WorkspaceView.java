@@ -112,12 +112,12 @@ public class WorkspaceView extends Tab {
 			if (workspace.getRootNodeList().isEmpty())	//空のワークスペース削除時は警告なし
 				return;
 
-			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-			alert.setTitle("ワークスペースの削除");
-			alert.setHeaderText(null);
-			alert.setContentText("ワークスペースを削除します.");
-			alert.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
-			Optional<ButtonType> buttonType = alert.showAndWait();
+			Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
+				Alert.AlertType.CONFIRMATION,
+				"ワークスペースの削除",
+				null,
+				"ワークスペースを削除します.");
+
 			buttonType.ifPresent(btnType -> {
 				if (!btnType.equals(ButtonType.OK))
 					event.consume();
