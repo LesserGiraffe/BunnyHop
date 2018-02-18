@@ -494,8 +494,15 @@ public class RemoteBhProgramManager {
 	public boolean end(boolean terminate) {
 
 		boolean success = true;
-		if (terminate && programRunning.get())
-			success = terminate(BhParams.ExternalApplication.REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT);
+		if (programRunning.get()) {
+			if (terminate) {
+				success = terminate(BhParams.ExternalApplication.REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT);
+			}
+			else {
+				success = common.haltTransceiver();
+			}
+		}
+
 		success &= common.end();
 		return success;
 	}
