@@ -13,30 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.control;
+package net.seapanda.bunnyhop.control.node;
 
-import net.seapanda.bunnyhop.model.connective.ConnectiveNode;
-import net.seapanda.bunnyhop.view.ConnectiveNodeView;
+import net.seapanda.bunnyhop.model.VoidNode;
+import net.seapanda.bunnyhop.view.VoidNodeView;
 
 /**
- * ConnectiveNode のコントローラ
+ * VoidNode のコントローラ
  * @author K.Koike
  */
-public class ConnectiveNodeController extends BhNodeController {
+public class VoidNodeController extends BhNodeController {
 
 	/**
 	 * コンストラクタ
 	 * @param model 管理するモデル
 	 * @param view 管理するビュー
 	 * */
-	public ConnectiveNodeController(ConnectiveNode model, ConnectiveNodeView view) {
+	public VoidNodeController(VoidNode model, VoidNodeView view) {
 		super(model, view);
-		view.setCreateImitHandler(model);
 	}
 }
-
-
-
 
 
 

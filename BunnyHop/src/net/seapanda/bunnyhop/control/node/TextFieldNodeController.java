@@ -13,39 +13,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.control;
+package net.seapanda.bunnyhop.control.node;
 
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.model.TextNode;
-import net.seapanda.bunnyhop.view.LabelNodeView;
+import net.seapanda.bunnyhop.view.TextFieldNodeView;
 
 /**
- * TextNodeとLabelNodeViewのコントローラ
+ * TextNodeとTextFieldNodeViewのコントローラ
  * @author K.Koike
  */
-public class LabelNodeController extends BhNodeController {
+public class TextFieldNodeController extends BhNodeController {
 
 	private final TextNode model;	//!< 管理するモデル
-	private final LabelNodeView view;	//!< 管理するビュー
+	private final TextFieldNodeView view;	//!< 管理するビュー
 
-	public LabelNodeController(TextNode model, LabelNodeView view) {
+	public TextFieldNodeController(TextNode model, TextFieldNodeView view) {
 		super(model, view);
 		this.model = model;
 		this.view = view;
-		setInitStr(model, view);
-		view.setCreateImitHandler(model);		
+		if (model.isImitationNode())
+			view.setEditable(false);
+		setTextChangeHandler(model, view);
+		view.setCreateImitHandler(model);
 	}
-	
+
 	/**
-	 * view に初期文字列をセットする
-	 * @param model セット初期文字列を持つTextNode
-	 * @param view 初期文字列をセットするLabelNodeView
-	 */
-	public static void setInitStr(TextNode model, LabelNodeView view) {
+	 * TextNodeView に対して文字列変更時のハンドラを登録する
+	 * @param model TextNodeView に対応する model
+	 * @param view イベントハンドラを登録するview
+	 * */
+	static public void setTextChangeHandler(TextNode model, TextFieldNodeView view) {
+
+		view.setTextChangeListener(model::isTextAcceptable);
+
+		view.setObservableListener((observable, oldValue, newValue) -> {
+			if (!newValue) {	//テキストフィールドからカーソルが外れたとき
+				String currentGUIText = view.getText();
+				boolean isValidFormat = model.isTextAcceptable(view.getText());
+				if (isValidFormat) {	//正しいフォーマットの文字列が入力されていた場合
+					model.setText(currentGUIText);	//model の文字列をTextField のものに変更する
+					model.getImitNodesToImitateContents();
+				}
+				else {
+					view.setText(model.getText());	//view の文字列を変更前の文字列に戻す
+				}
+			}
+		});
+		
 		String initText = model.getText();
 		view.setText(initText + " ");	//初期文字列が空文字だったときのため
-		view.setText(initText);
+		view.setText(initText);			
 	}
 	
 	/**
@@ -60,7 +79,10 @@ public class LabelNodeController extends BhNodeController {
 		switch (msg) {
 			case IMITATE_TEXT:
 				model.setText(data.strPair._1);
+				boolean editable = view.getEditable();
+				view.setEditable(true);
 				view.setText(data.strPair._2);
+				view.setEditable(editable);
 				break;
 			
 			case GET_MODEL_AND_VIEW_TEXT:
