@@ -300,8 +300,10 @@ public class StatCodeGenerator {
 			.append(BhCompiler.Keywords.JS._const)
 			.append(numRepetitionVar)
 			.append(" = ")
+			.append("Math.floor")
+			.append("(")
 			.append(condExpCode)
-			.append(";")
+			.append(");")
 			.append(Util.LF);
 
 		//for (init; cond; update)
