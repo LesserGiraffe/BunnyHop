@@ -19,12 +19,12 @@ import java.util.Deque;
 import java.util.LinkedList;
 
 import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.control.BhNodeControllerInSelectionView;
-import net.seapanda.bunnyhop.control.ComboBoxNodeController;
-import net.seapanda.bunnyhop.control.ConnectiveNodeController;
-import net.seapanda.bunnyhop.control.LabelNodeController;
-import net.seapanda.bunnyhop.control.TextFieldNodeController;
-import net.seapanda.bunnyhop.control.VoidNodeController;
+import net.seapanda.bunnyhop.control.node.BhNodeControllerInSelectionView;
+import net.seapanda.bunnyhop.control.node.ComboBoxNodeController;
+import net.seapanda.bunnyhop.control.node.ConnectiveNodeController;
+import net.seapanda.bunnyhop.control.node.LabelNodeController;
+import net.seapanda.bunnyhop.control.node.TextFieldNodeController;
+import net.seapanda.bunnyhop.control.node.VoidNodeController;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.model.BhNode;
