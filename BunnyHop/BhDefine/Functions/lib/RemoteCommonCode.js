@@ -60,12 +60,12 @@
 	function _measureDistance() {
 	
 		let spiCmd = execPath + '/Actions' + '/bhSpiRead';
-		const procBuilder = new java.lang.ProcessBuilder([spiCmd, '15', '1']);
-		let distance;
+		const procBuilder = new java.lang.ProcessBuilder([spiCmd, '20', '5']);
+		let distanceList;
 		try {
 			const process =  procBuilder.start();
 			process.waitFor();
-			distance = readStream(process.getInputStream());
+			distanceList = readStream(process.getInputStream());
 			process.getErrorStream().close();
 			process.getInputStream().close();
 			process.getOutputStream().close();
@@ -73,12 +73,16 @@
 		catch (e) {
 			_println('ERR: _measureDistance ' + e);
 		}
-		distance = Number(distance);
+		distanceList = distanceList.split(",")
+						.map(function (elem) { return Number(elem); })
+						.sort(function(a,b){ return (a < b ? -1 : 1); });
+
+		let distance = Number(distanceList[0]);
 		if (!isFinite(distance))
 			return 0;
-		if (distance >= 384)
-			distance = 49840 * Math.pow(distance, -1.142);
+		if (distance >= 450)
+			distance = 84581 * Math.pow(distance, -1.224);
 		else
-			distance = 467132 * Math.pow(distance, -1.522);
+			distance = 585242 * Math.pow(distance, -1.54);
 		return distance;
 	}
