@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.view;
+package net.seapanda.bunnyhop.view.node;
 
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.model.VoidNode;
+import net.seapanda.bunnyhop.model.node.VoidNode;
 
 /**
  * VoidNode に対応するビュー

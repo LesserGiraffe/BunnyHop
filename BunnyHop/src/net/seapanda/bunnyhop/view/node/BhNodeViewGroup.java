@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.view;
+package net.seapanda.bunnyhop.view.node;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ import javafx.scene.Group;
 import net.seapanda.bunnyhop.common.Point2D;
 import net.seapanda.bunnyhop.common.Showable;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.model.connective.Connector;
+import net.seapanda.bunnyhop.model.node.connective.Connector;
 
 /**
  * BhNodeView の集合を持つクラス

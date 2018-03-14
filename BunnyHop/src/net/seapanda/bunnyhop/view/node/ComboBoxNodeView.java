@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.view;
+package net.seapanda.bunnyhop.view.node;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -38,7 +38,7 @@ import net.seapanda.bunnyhop.common.Single;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
-import net.seapanda.bunnyhop.model.TextNode;
+import net.seapanda.bunnyhop.model.node.TextNode;
 
 /**
  * コンボボックスを入力フォームに持つビュー
@@ -102,7 +102,12 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 			ScrollBar scrollBar = getVerticalScrollbar();
 			if (scrollBar != null)
 				maxWidth += scrollBar.getWidth();
+			maxWidth += buttonCell.getInsets().getLeft() + buttonCell.getInsets().getRight();
+			maxWidth += buttonCell.getPadding().getLeft() + buttonCell.getPadding().getRight();
 			buttonCell.getListView().setPrefWidth(maxWidth);
+		});
+		comboBox.setOnHidden(event->{
+			fitComboBoxWidthToStr(comboBox.getValue().getViewText(), buttonCell.getFont());
 		});
 	}
 
@@ -252,9 +257,18 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 			this.item = item;
 			if (!empty) {
 				setText(item.getViewText());
-				double width = Util.calcStrWidth(item.getViewText(), getFont());
-				getListView().setPrefWidth(width);
+				fitComboBoxWidthToStr(item.getViewText(), getFont());
 			}
 		}
+	}
+
+	/**
+	 * コンボボックスの幅を文字列幅に合わせる
+	 * */
+	private void fitComboBoxWidthToStr(String currentStr, Font font) {
+		double width = Util.calcStrWidth(currentStr, font);
+		width += buttonCell.getInsets().getLeft() + buttonCell.getInsets().getRight();
+		width += buttonCell.getPadding().getLeft() + buttonCell.getPadding().getRight();
+		buttonCell.getListView().setPrefWidth(width);
 	}
 }
