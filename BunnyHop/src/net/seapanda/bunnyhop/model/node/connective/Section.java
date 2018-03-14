@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.connective;
+package net.seapanda.bunnyhop.model.node.connective;
 
 import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.model.BhNode;
-import net.seapanda.bunnyhop.model.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**

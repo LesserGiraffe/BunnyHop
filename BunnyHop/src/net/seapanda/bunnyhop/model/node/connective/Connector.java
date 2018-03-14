@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.connective;
+package net.seapanda.bunnyhop.model.node.connective;
 
 import java.util.List;
 import javax.script.Bindings;
@@ -25,14 +25,14 @@ import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.BhNode;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
-import net.seapanda.bunnyhop.model.SyntaxSymbol;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
-import net.seapanda.bunnyhop.model.BhNodeID;
 import net.seapanda.bunnyhop.model.imitation.ImitationConnectionPos;
 import net.seapanda.bunnyhop.model.imitation.ImitationID;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNodeID;
+import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.connective;
+package net.seapanda.bunnyhop.model.node.connective;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,10 +22,10 @@ import java.util.List;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.model.BhNode;
-import net.seapanda.bunnyhop.model.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.imitation.ImitationConnectionPos;
 import net.seapanda.bunnyhop.model.imitation.ImitationID;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
