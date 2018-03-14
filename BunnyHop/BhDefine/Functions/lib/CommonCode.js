@@ -1,10 +1,50 @@
+	let _jThread = Java.type('java.lang.Thread');
+	let _jExecutors = Java.type('java.util.concurrent.Executors');
+	let _jLock = Java.type('java.util.concurrent.locks.ReentrantLock');
+	let _eventHandlers = {};
+	let _executor = _jExecutors.newFixedThreadPool(16);
 
-	const outArgs = [];
-
+	function _genCallObj() {
+		return {_outArgs:[]};
+	}
+	
 	function _copyArgs(dest, args, beginIdx) {
 		dest.length = 0;
 		for (let i = beginIdx; i < args.length; ++i)
 			dest.push(args[i]);
+	}
+
+	function _genLockObj() {
+		return new _jLock();
+	}
+	
+	function _tryLock(lockObj) {
+		return lockObj.tryLock();
+	}
+
+	function _unlock(lockObj) {
+		lockObj.unlock();
+	}
+
+	//イベント名とイベントハンドラを登録
+	function _addEvent(eventHandler, event) {
+
+		if (_eventHandlers[event] === void 0)
+			_eventHandlers[event] = [];
+
+		_eventHandlers[event].push(eventHandler);
+	}
+
+	//イベントに応じたイベントハンドラを呼ぶ
+	function _fireEvent(event) {
+		if (_eventHandlers[event] !== void 0) {
+			_eventHandlers[event].forEach(
+				function(handler) {
+					try {_executor['submit(java.util.concurrent.Callable)'](function() {handler();});}
+					catch(e) {}
+				}
+			);
+		}
 	}
 
 	function _boolToStr(boolVal) {
@@ -29,8 +69,11 @@
 	}
 
 	function _sleep(sec) {
+
+		if (sec <= 0)
+			return;
 		try {
-			java.lang.Thread.sleep(Math.round(sec * 1000));
+			_jThread.sleep(Math.round(sec * 1000));
 		}
 		catch (e) {}
 	}

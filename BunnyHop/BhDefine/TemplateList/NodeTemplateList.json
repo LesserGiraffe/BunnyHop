@@ -92,4 +92,10 @@
 		"cssClass":"funcDef",
 		"contents":["idVoidFuncDef", "idReturnStat"]
 	},
+	
+	"イベント" : {
+		"cssClass":"event",
+		"contents":["idKeyPressedEvent",
+					"idDelayedStartEvent"]
+	}
 }

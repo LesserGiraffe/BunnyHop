@@ -20,9 +20,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.model.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.TextNode;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.TextNode;
 
 /**
  * 式のコード生成を行うクラス
@@ -31,9 +31,13 @@ import net.seapanda.bunnyhop.model.imitation.Imitatable;
 public class ExpCodeGenerator {
 
 	private final CommonCodeGenerator common;
+	private final VarDeclCodeGenerator varDeclCodeGen;
 
-	public ExpCodeGenerator(CommonCodeGenerator common) {
+	public ExpCodeGenerator(
+		CommonCodeGenerator common,
+		VarDeclCodeGenerator varDeclCodeGen) {
 		this.common = common;
+		this.varDeclCodeGen = varDeclCodeGen;
 	}
 
 	/**
@@ -114,8 +118,7 @@ public class ExpCodeGenerator {
 			.append(leftExpCode)
 			.append(operatorCode)
 			.append(rightExpCode)
-			.append(";")
-			.append(Util.LF);
+			.append(";").append(Util.LF);
 
 		String tmpVarResult = tmpVar;
 		String funcName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(Arrays.asList(SymbolNames.PreDefFunc.IS_FINITE));
@@ -132,8 +135,7 @@ public class ExpCodeGenerator {
 					.append(tmpVar)
 					.append(" : ")
 					.append(leftExpCode)
-					.append(";")
-					.append(Util.LF);
+					.append(";").append(Util.LF);
 			}
 		}
 		return tmpVarResult;
@@ -167,8 +169,7 @@ public class ExpCodeGenerator {
 			.append(" = ")
 			.append(operatorCode)
 			.append(primaryExpCode)
-			.append(";")
-			.append(Util.LF);
+			.append(";").append(Util.LF);
 
 		return tmpVar;
 	}
@@ -227,6 +228,12 @@ public class ExpCodeGenerator {
 		genPreDefFuncArgs(code, funcCallNode, outArgList, true, nestLevel, option);
 		argList.addAll(outArgList);
 		List<String> funcIdentifier = buildFuncIdentifier(funcCallNode);
+		boolean useCallObj = !outArgList.isEmpty();
+
+		// 呼び出し元オブジェクト作成コード生成
+		String callObjVar = "";
+		if (useCallObj)
+			callObjVar = genCallObjStat(code, funcCallNode, nestLevel);
 
 		String retValName = null;
 		code.append(common.indent(nestLevel));
@@ -238,12 +245,19 @@ public class ExpCodeGenerator {
 		}
 
 		String funcName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(funcIdentifier);
+		if (useCallObj) {
+			argList.add(0, callObjVar);
+			funcName += ".call";
+		}
 		String[] argArray =  argList.toArray(new String[argList.size()]);
 		String funcCallCode = common.genFuncCallCode(funcName, argArray);
 		code.append(funcCallCode)
-			.append(";")
-			.append(Util.LF);
-		genOutArgCopy(code, outArgList, nestLevel);
+			.append(";").append(Util.LF);
+		genOutArgCopyStat(
+			code,
+			common.genPropertyAccessCode(callObjVar, CommonCodeDefinition.Properties.OUT_ARGS),
+			outArgList,
+			nestLevel);
 		return retValName;
 	}
 
@@ -330,6 +344,16 @@ public class ExpCodeGenerator {
 		if (!outArg.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID))
 			genArgList(code, outArg, outArgList, true, nestLevel, option);
 
+		// 呼び出し元オブジェクト作成コード生成
+		boolean useCallObj = !outArgList.isEmpty();
+		String callObjVar = "";
+		if (useCallObj)
+			callObjVar = genCallObjStat(code, funcCallNode, nestLevel);
+
+		if (useCallObj) {
+			argList.add(0, callObjVar);
+			funcName += ".call";
+		}
 		argList.addAll(outArgList);
 		argArray = argList.toArray(new String[argList.size()]);
 		String funcCallCode = common.genFuncCallCode(funcName, argArray);
@@ -342,22 +366,28 @@ public class ExpCodeGenerator {
 				.append(" = ");
 		}
 		code.append(funcCallCode)
-			.append(";")
-			.append(Util.LF);
-		genOutArgCopy(code, outArgList, nestLevel);
+			.append(";").append(Util.LF);
+		genOutArgCopyStat(
+			code,
+			common.genPropertyAccessCode(callObjVar, CommonCodeDefinition.Properties.OUT_ARGS),
+			outArgList,
+			nestLevel);
 
 		return retValName;
 	}
 
 	/**
-	 * 出力変数をコピーするコードを作成する
+	 * 出力変数をコピーするコードを作成する<br
+	 * 例) varName = this.outArgs[0];
 	 * @param code 生成したコードの格納先
+	 * @param outValList 出力値が入ったリストの名前
 	 * @param outArgList 出力変数名
 	 * @param nestLevel ソースコードのネストレベル
 	 * @param option コンパイルオプション
 	 */
-	private void genOutArgCopy(
+	private void genOutArgCopyStat(
 		StringBuilder code,
+		String outValListName,
 		List<String> outArgList,
 		int nestLevel) {
 
@@ -365,7 +395,7 @@ public class ExpCodeGenerator {
 			code.append(common.indent(nestLevel))
 				.append(outArgList.get(argIdx))
 				.append(" = ")
-				.append(SymbolNames.PreDefVars.OUT_ARGS).append("[").append(argIdx).append("];\n");
+				.append(outValListName).append("[").append(argIdx).append("];").append(Util.LF);
 		}
 	}
 
@@ -433,8 +463,7 @@ public class ExpCodeGenerator {
 			.append(tmpVar)
 			.append(" = ")
 			.append(funcCallCode)
-			.append(";")
-			.append(Util.LF);
+			.append(";").append(Util.LF);
 		return tmpVar;
 	}
 
@@ -461,8 +490,7 @@ public class ExpCodeGenerator {
 			.append(tmpVar)
 			.append(" = ")
 			.append(arrayExpCode)
-			.append(".length;")
-			.append(Util.LF);
+			.append(".length;").append(Util.LF);
 		return tmpVar;
 	}
 
@@ -490,7 +518,7 @@ public class ExpCodeGenerator {
 				.append(varName)
 				.append(" = ")
 				.append(SymbolNames.VarDecl.INIT_VAL_MAP.get(varNode.getSymbolName()))
-				.append(";\n");
+				.append(";").append(Util.LF);
 			return varName;
 		}
 		else {
@@ -498,4 +526,46 @@ public class ExpCodeGenerator {
 		}
 		return "";
 	}
+
+	/**
+	 * 関数の呼びだし元オブジェクトを作成する文を生成する
+	 * @param code 生成したコードの格納先
+	 * @param funcCallNode この関数呼び出しノードに対する呼び出し元オブジェクトを作成する
+	 * @retrun 関数の呼びだし元オブジェクトを格納した変数名
+	 * */
+	private String genCallObjStat(
+		StringBuilder code,
+		SyntaxSymbol funcCallNode,
+		int nestLevel) {
+
+		code.append(common.indent(nestLevel))
+			.append(CommonCodeDefinition.Vars.CALL_OBJ)
+			.append(" = ")
+			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.GEN_CALL_OBJ))
+			.append(";").append(Util.LF);
+
+		return CommonCodeDefinition.Vars.CALL_OBJ;
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

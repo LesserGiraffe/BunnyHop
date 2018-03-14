@@ -26,8 +26,9 @@ module net.seapanda.bunnyhop {
 
 	exports net.seapanda.bunnyhop.root;
 	exports net.seapanda.bunnyhop.model;
+	exports net.seapanda.bunnyhop.model.node;
+	exports net.seapanda.bunnyhop.model.node.connective;
 	exports net.seapanda.bunnyhop.model.templates;
-	exports net.seapanda.bunnyhop.model.connective;
 	exports net.seapanda.bunnyhop.modelhandler;
 	exports net.seapanda.bunnyhop.modelprocessor;
 	exports net.seapanda.bunnyhop.model.imitation;
@@ -37,5 +38,7 @@ module net.seapanda.bunnyhop {
 	exports net.seapanda.bunnyhop.bhprogram.common;	//[java -jar BhProgramExecEnv.jar] を self contained の Javaから呼ぶために必要
 	opens net.seapanda.bunnyhop.root to javafx.fxml;
 	opens net.seapanda.bunnyhop.view to javafx.fxml;
+	opens net.seapanda.bunnyhop.view.node to javafx.fxml;
 	opens net.seapanda.bunnyhop.control to javafx.fxml;
+	opens net.seapanda.bunnyhop.control.node to javafx.fxml;
 }

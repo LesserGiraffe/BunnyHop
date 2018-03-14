@@ -126,7 +126,7 @@ public class BhParams {
 	}
 
 	/**
-	 * javascript コードに内部でも使うキーワード
+	 * JavaScript コードに内部でも使うキーワード
 	 * */
 	public static class JsKeyword {
 		public static final String KEY_BH_THIS = "bhThis";	//!< スクリプトの呼び出し元オブジェクト

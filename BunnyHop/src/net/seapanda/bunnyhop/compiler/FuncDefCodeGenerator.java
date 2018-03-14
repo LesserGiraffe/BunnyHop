@@ -15,24 +15,23 @@
  */
 package net.seapanda.bunnyhop.compiler;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.model.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.TextNode;
+import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.TextNode;
 
 /**
  * 関数定義のコード生成を行うクラス
  * @author K.Koike
  */
 public class FuncDefCodeGenerator {
-	
+
 	private final CommonCodeGenerator common;
 	private final StatCodeGenerator statCodeGen;
 	private final VarDeclCodeGenerator varDeclCodeGen;
-	
+
 	public FuncDefCodeGenerator(
 		CommonCodeGenerator common,
 		StatCodeGenerator statCodeGen,
@@ -41,7 +40,7 @@ public class FuncDefCodeGenerator {
 		this.statCodeGen = statCodeGen;
 		this.varDeclCodeGen = varDeclCodeGen;
 	}
-	
+
 	/**
 	 * 関数定義のコードを作成する
 	 * @param compiledNodeList コンパイル対象のノードリスト
@@ -51,17 +50,17 @@ public class FuncDefCodeGenerator {
 	 */
 	public void genFuncDefs(
 		List<? extends SyntaxSymbol> compiledNodeList,
-		StringBuilder code, 
+		StringBuilder code,
 		int nestLevel,
 		CompileOption option) {
-		
+
 		compiledNodeList.forEach(symbol -> {
 			if (SymbolNames.UserDefFunc.USER_DEF_FUNC_LIST.contains(symbol.getSymbolName())) {
 				genFuncDef(symbol, code, nestLevel, option);
 			}
 		});
 	}
-	
+
 	/**
 	 * 関数定義のコードを作成する
 	 * @param funcDefNode 関数定義のノード
@@ -71,31 +70,29 @@ public class FuncDefCodeGenerator {
 	 */
 	private void genFuncDef(
 		SyntaxSymbol funcDefNode,
-		StringBuilder code, 
+		StringBuilder code,
 		int nestLevel,
 		CompileOption option) {
-	
+
 		String funcName = common.genFuncName(funcDefNode);
 		code.append(common.indent(nestLevel))
 			.append(BhCompiler.Keywords.JS._function)
-			.append(" ")
 			.append(funcName)
 			.append("(");
 
 		SyntaxSymbol param = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.PARAM_DECL, "*");
 		SyntaxSymbol outParam = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.OUT_PARAM_DECL, "*");
 		Optional<Integer> outParamIdxOpt = varDeclCodeGen.genParamList(param, outParam, code, nestLevel + 1, option);
-		code.append(") {")
-			.append(Util.LF);
+		code.append(") {").append(Util.LF);
 		genFuncDefInner(funcDefNode, code, nestLevel, option);
 		outParamIdxOpt.ifPresent(outParamIdx -> genOutArgCopy(code, outParamIdx, nestLevel + 1));
-		
+
 		code.append(common.indent(nestLevel))
 			.append("}")
 			.append(Util.LF)
 			.append(Util.LF);
 	}
-	
+
 	/**
 	 * 関数定義のコードの内部関数部分を作成する
 	 * @param funcDefNode 関数定義のノード
@@ -105,10 +102,10 @@ public class FuncDefCodeGenerator {
 	 */
 	private void genFuncDefInner(
 		SyntaxSymbol funcDefNode,
-		StringBuilder code, 
+		StringBuilder code,
 		int nestLevel,
 		CompileOption option) {
-		
+
 		code.append(common.indent(nestLevel + 1))
 			.append("(")
 			.append(BhCompiler.Keywords.JS._function)
@@ -120,14 +117,15 @@ public class FuncDefCodeGenerator {
 				.append("*/");
 		}
 		code.append(Util.LF);
-		
+
+		varDeclCodeGen.genVarDeclStat(code, CommonCodeDefinition.Vars.CALL_OBJ, null, nestLevel + 2);
 		SyntaxSymbol stat = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.STAT_LIST, "*");
 		statCodeGen.genStatement(stat, code, nestLevel + 2, option);
 		code.append(common.indent(nestLevel+1))
 			.append("})();")
-			.append(Util.LF);	
+			.append(Util.LF);
 	}
-	
+
 	/**
 	 * 出力引数のコピーコードを作成する
 	 * @param code 生成したコードの格納先
@@ -135,12 +133,12 @@ public class FuncDefCodeGenerator {
 	 * @param nestLevel ソースコードのネストレベル
 	 */
 	private void genOutArgCopy(StringBuilder code, int outParamIdx, int nestLevel) {
-			
-		String copyArgsFuncName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(Arrays.asList(SymbolNames.PreDefFunc.COPY_ARGS));
+
+		String copyArgsFuncName = CommonCodeDefinition.Funcs.COPY_ARGS;
 		String copyArgsCode = common.genFuncCallCode(
-			copyArgsFuncName, 
-			SymbolNames.PreDefVars.OUT_ARGS, 
-			BhCompiler.Keywords.JS._arguments, 
+			copyArgsFuncName,
+			common.genPropertyAccessCode(BhCompiler.Keywords.JS._this, CommonCodeDefinition.Properties.OUT_ARGS),
+			BhCompiler.Keywords.JS._arguments,
 			outParamIdx + "");
 		code.append(common.indent(nestLevel))
 			.append(copyArgsCode)

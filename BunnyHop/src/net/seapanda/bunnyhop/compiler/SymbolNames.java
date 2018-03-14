@@ -99,7 +99,7 @@ public class SymbolNames {
 	/**
 	 * コンパイル時に無視される文
 	 * */
-	public static class IgnoreStat {
+	public static class IgnoredStat {
 		public static final String ANY_ASSIGN_STAT = "AnyAssignStat";
 		public static final String ANY_ARRAY_APPEND_STAT =  "AnyArrayAppendStat";
 		public static final String ANY_ARRAY_CLEAR_STAT = "AnyArrayClearStat";
@@ -241,7 +241,6 @@ public class SymbolNames {
 		public static final String PRINT_NUM_STAT = "PrintNumStat";
 		public static final String MOVE_STAT = "MoveStat";
 		public static final String SLEEP_STAT = "SleepStat";
-		public static final String COPY_ARGS =  "CopyArgs";
 
 		//オプション名
 		public static final String OPT_ROUND = "round";
@@ -272,7 +271,6 @@ public class SymbolNames {
 				PRINT_NUM_STAT,
 				MOVE_STAT,
 				SLEEP_STAT,
-				COPY_ARGS,
 				Array.STR_ARRAY_PUSH_STAT,
 				Array.STR_ARRAY_POP_STAT,
 				Array.STR_ARRAY_SET_STAT,
@@ -301,61 +299,56 @@ public class SymbolNames {
 		public static final Map<List<String>, String> PREDEF_FUNC_NAME_MAP =
 			new HashMap<List<String>, String>() {{
 				put(Arrays.asList(NUM_TO_STR_EXP), "String");
-				put(Arrays.asList(BOOL_TO_STR_EXP), "_boolToStr");
-				put(Arrays.asList(STR_TO_NUM_EXP), "_strToNum");
-				put(Arrays.asList(PRINT_STAT), "_println");
-				put(Arrays.asList(PRINT_NUM_STAT), "_println");
-				put(Arrays.asList(SCAM_EXP), "_scan");
+				put(Arrays.asList(BOOL_TO_STR_EXP), CommonCodeDefinition.Funcs.BOOL_TO_STR);
+				put(Arrays.asList(STR_TO_NUM_EXP), CommonCodeDefinition.Funcs.STR_TO_NUM);
+				put(Arrays.asList(PRINT_STAT), CommonCodeDefinition.Funcs.PRINTLN);
+				put(Arrays.asList(PRINT_NUM_STAT), CommonCodeDefinition.Funcs.PRINTLN);
+				put(Arrays.asList(SCAM_EXP), CommonCodeDefinition.Funcs.SCAN);
 				put(Arrays.asList(IS_FINITE), "isFinite");
-				put(Arrays.asList(COPY_ARGS), "_copyArgs");
 				put(Arrays.asList(NUM_ROUND_EXP, OPT_ROUND), "Math.round");
 				put(Arrays.asList(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
 				put(Arrays.asList(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor");
 				put(Arrays.asList(ABS_EXP), "Math.abs");
 				put(Arrays.asList(MAX_MIN_EXP, OPT_MAX), "Math.max");
 				put(Arrays.asList(MAX_MIN_EXP, OPT_MIN), "Math.min");
-				put(Arrays.asList(RAMDOM_INT_EXP), "_randomInt");
-				put(Arrays.asList(MEASURE_DISTANCE_EXP), "_measureDistance");
-				put(Arrays.asList(MOVE_STAT, OPT_MOVE_FORWARD), "_moveForward");
-				put(Arrays.asList(MOVE_STAT, OPT_MOVE_BACKWARD), "_moveBackward");
-				put(Arrays.asList(MOVE_STAT, OPT_TURN_RIGHT), "_turnRight");
-				put(Arrays.asList(MOVE_STAT, OPT_TURN_LEFT), "_turnLeft");
-				put(Arrays.asList(SLEEP_STAT), "_sleep");
+				put(Arrays.asList(RAMDOM_INT_EXP), CommonCodeDefinition.Funcs.RANDOM_INT);
+				put(Arrays.asList(MEASURE_DISTANCE_EXP), CommonCodeDefinition.Funcs.MEASURE_DISTANCE);
+				put(Arrays.asList(MOVE_STAT, OPT_MOVE_FORWARD), CommonCodeDefinition.Funcs.MOVE_FORWARD);
+				put(Arrays.asList(MOVE_STAT, OPT_MOVE_BACKWARD), CommonCodeDefinition.Funcs.MOVE_BACKWARD);
+				put(Arrays.asList(MOVE_STAT, OPT_TURN_RIGHT), CommonCodeDefinition.Funcs.TURN_RIGHT);
+				put(Arrays.asList(MOVE_STAT, OPT_TURN_LEFT), CommonCodeDefinition.Funcs.TURN_LEFT);
+				put(Arrays.asList(SLEEP_STAT), CommonCodeDefinition.Funcs.SLEEP);
 
-				put(Arrays.asList(Array.STR_ARRAY_PUSH_STAT), "_aryPush");
-				put(Arrays.asList(Array.STR_ARRAY_POP_STAT), "_aryPop");
-				put(Arrays.asList(Array.STR_ARRAY_GET_EXP), "_aryGet");
-				put(Arrays.asList(Array.STR_ARRAY_GET_LAST_EXP), "_aryGet");
-				put(Arrays.asList(Array.STR_ARRAY_SET_STAT), "_arySet");
-				put(Arrays.asList(Array.STR_ARRAY_INSERT_STAT), "_aryInsert");
-				put(Arrays.asList(Array.STR_ARRAY_REMOVE_STAT), "_aryRemove");
-				put(Arrays.asList(Array.STR_ARRAY_APPEND_STAT), "_aryAddAll");
-				put(Arrays.asList(Array.STR_ARRAY_CLEAR_STAT), "_aryClear");
+				put(Arrays.asList(Array.STR_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
+				put(Arrays.asList(Array.STR_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
+				put(Arrays.asList(Array.STR_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(Arrays.asList(Array.STR_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(Arrays.asList(Array.STR_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
+				put(Arrays.asList(Array.STR_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
+				put(Arrays.asList(Array.STR_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
+				put(Arrays.asList(Array.STR_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
+				put(Arrays.asList(Array.STR_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
 
-				put(Arrays.asList(Array.NUM_ARRAY_PUSH_STAT), "_aryPush");
-				put(Arrays.asList(Array.NUM_ARRAY_POP_STAT), "_aryPop");
-				put(Arrays.asList(Array.NUM_ARRAY_GET_EXP), "_aryGet");
-				put(Arrays.asList(Array.NUM_ARRAY_GET_LAST_EXP), "_aryGet");
-				put(Arrays.asList(Array.NUM_ARRAY_SET_STAT), "_arySet");
-				put(Arrays.asList(Array.NUM_ARRAY_INSERT_STAT), "_aryInsert");
-				put(Arrays.asList(Array.NUM_ARRAY_REMOVE_STAT), "_aryRemove");
-				put(Arrays.asList(Array.NUM_ARRAY_APPEND_STAT), "_aryAddAll");
-				put(Arrays.asList(Array.NUM_ARRAY_CLEAR_STAT), "_aryClear");
+				put(Arrays.asList(Array.NUM_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
+				put(Arrays.asList(Array.NUM_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
+				put(Arrays.asList(Array.NUM_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(Arrays.asList(Array.NUM_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(Arrays.asList(Array.NUM_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
+				put(Arrays.asList(Array.NUM_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
+				put(Arrays.asList(Array.NUM_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
+				put(Arrays.asList(Array.NUM_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
+				put(Arrays.asList(Array.NUM_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
 
-				put(Arrays.asList(Array.BOOL_ARRAY_PUSH_STAT), "_aryPush");
-				put(Arrays.asList(Array.BOOL_ARRAY_POP_STAT), "_aryPop");
-				put(Arrays.asList(Array.BOOL_ARRAY_GET_EXP), "_aryGet");
-				put(Arrays.asList(Array.BOOL_ARRAY_GET_LAST_EXP), "_aryGet");
-				put(Arrays.asList(Array.BOOL_ARRAY_SET_STAT), "_arySet");
-				put(Arrays.asList(Array.BOOL_ARRAY_INSERT_STAT), "_aryInsert");
-				put(Arrays.asList(Array.BOOL_ARRAY_REMOVE_STAT), "_aryRemove");
-				put(Arrays.asList(Array.BOOL_ARRAY_APPEND_STAT), "_aryAddAll");
-				put(Arrays.asList(Array.BOOL_ARRAY_CLEAR_STAT), "_aryClear");
+				put(Arrays.asList(Array.BOOL_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
+				put(Arrays.asList(Array.BOOL_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
+				put(Arrays.asList(Array.BOOL_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(Arrays.asList(Array.BOOL_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(Arrays.asList(Array.BOOL_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
+				put(Arrays.asList(Array.BOOL_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
+				put(Arrays.asList(Array.BOOL_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
+				put(Arrays.asList(Array.BOOL_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
+				put(Arrays.asList(Array.BOOL_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
 			}};	//!<  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
-	}
-
-	public static class PreDefVars {
-		public static final String OUT_ARGS = "outArgs";
 	}
 
 	public static class UserDefFunc {
@@ -377,6 +370,19 @@ public class SymbolNames {
 
 		public static final HashSet<String> USER_DEF_FUNC_CALL_STAT_LIST =
 			new HashSet<>(Arrays.asList(VOID_FUNC_CALL));	//!< ユーザ定義関数文のリスト
+	}
+
+	public static class Event {
+
+		public static final String KEY_PRESS_EVENT = "KeyPressedEvent";
+		public static final String DELAYED_START_EVENT = "DelayedStartEvent";
+		public static final String KEY_CODE = "KeyCode";
+		public static final String DELAY_TIME = "DelayTime";
+
+		public static final HashSet<String> LIST =
+				new HashSet<>(Arrays.asList(
+					KEY_PRESS_EVENT,
+					DELAYED_START_EVENT));	//!< イベントノードのリスト
 	}
 
 	public static class Literal {

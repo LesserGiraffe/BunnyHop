@@ -15,12 +15,13 @@
  */
 package net.seapanda.bunnyhop.programexecenv;
 
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -29,14 +30,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.script.Bindings;
-import javax.script.Compilable;
-import javax.script.CompiledScript;
+import javax.script.Invocable;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramHandler;
+import net.seapanda.bunnyhop.programexecenv.tools.LogManager;
+import net.seapanda.bunnyhop.programexecenv.tools.Util;
 
 /**
  * スクリプトとBunnyHop間でデータを送受信するクラス
@@ -50,6 +53,7 @@ public class BhProgramHandlerImpl implements BhProgramHandler {
 	private final BlockingQueue<BhProgramData> recvDataList = new ArrayBlockingQueue<>(BhParams.MAX_QUEUE_SIZE);	//!< from BunnyHop
 	private final AtomicBoolean connected = new AtomicBoolean(false);	//!< BunnyHopとの通信が有効な場合true
 	private final ScriptInOut scriptIO = new ScriptInOut(sendDataList, connected);	//!< BhProgramの入出力用オブジェクト
+	ScriptEngine engine;
 
 	public BhProgramHandlerImpl(){}
 
@@ -65,28 +69,32 @@ public class BhProgramHandlerImpl implements BhProgramHandler {
 	}
 
 	@Override
-	public boolean runScript(String fileName) {
+	public boolean runScript(String fileName, BhProgramData data) {
 
-		ScriptEngine engine = (new NashornScriptEngineFactory()).getScriptEngine("--language=es6");
 		Path scriptPath = Paths.get(Util.EXEC_PATH, BhParams.Path.SCRIPT_DIR, fileName);
 		boolean success = true;
 
-		try (BufferedReader reader = Files.newBufferedReader(scriptPath, StandardCharsets.UTF_8)){
-			CompiledScript cs = ((Compilable)engine).compile(reader);
+		try (BufferedInputStream is = new BufferedInputStream(Files.newInputStream(scriptPath, StandardOpenOption.READ));){
+			byte[] fileData = new byte[(int)Files.size(scriptPath)];
+			is.read(fileData);
+			String srcCode = new String(fileData, StandardCharsets.UTF_8);
 			bhProgramExec.submit(() -> {
 				try {
+					engine = (new NashornScriptEngineFactory()).getScriptEngine("--language=es6");
 					Bindings binding = engine.createBindings();
 					binding.put(BhParams.BhProgram.INOUT_MODULE_NAME, scriptIO);
 					binding.put(BhParams.BhProgram.EXEC_PATH, Util.EXEC_PATH);
-					cs.eval(binding);
+					engine.setBindings(binding, ScriptContext.ENGINE_SCOPE);
+					engine.eval(srcCode);
+					Invocable invocable = (Invocable)engine;
+					invocable.invokeFunction(data.fireEventFuncName, data.event.toString());
 				}
-				catch (ScriptException e) {
+				catch (ScriptException | NoSuchMethodException e) {
 					LogManager.INSTANCE.errMsgForDebug("runScript 1 " +  e.toString() + " " + fileName);
-
 				}
 			});
 		}
-		catch (IOException | ScriptException e) {
+		catch (IOException e) {
 			LogManager.INSTANCE.errMsgForDebug("runScript 2 " +  e.toString() + " " + fileName);
 			success = false;
 		}
@@ -144,9 +152,47 @@ public class BhProgramHandlerImpl implements BhProgramHandler {
 				case INPUT_STR:
 					scriptIO.addStdInData(data.str);
 					break;
+
+				case INPUT_EVENT:
+					fireEvent(data);
+					break;
+
 				default:
 			}
 		}
 	}
 
+	/**
+	 * BhProgram のイベントハンドラを呼び出す
+	 * @param data イベント情報の入ったデータ
+	 * */
+	private void fireEvent(BhProgramData data) {
+
+		if (engine == null)
+			return;
+
+		try {
+			Invocable invocable = (Invocable)engine;
+			invocable.invokeFunction(data.fireEventFuncName, data.event.toString());
+		}
+		catch ( ScriptException | NoSuchMethodException e) {
+			LogManager.INSTANCE.errMsgForDebug(BhProgramHandlerImpl.class.getSimpleName() + "::fireEvent\n" + e.toString());
+		}
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

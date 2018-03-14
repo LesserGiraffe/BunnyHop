@@ -39,6 +39,7 @@ import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramHandler;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import net.seapanda.bunnyhop.compiler.CommonCodeDefinition;
 
 /**
  * BhProgramの実行環境を操作するクラスが共通で持つ機能と変数をまとめたクラス
@@ -126,7 +127,7 @@ public class BhProgramManagerCommon {
 	/**
 	 * 引数で指定したデータをBhProgramの実行環境に送る
 	 * @param data 送信データ
-	 * @return 送信データリストにデータを追加できた場合true
+	 * @return エラーコード
 	 */
 	public BhProgramExecEnvError sendAsync(BhProgramData data) {
 
@@ -300,7 +301,12 @@ public class BhProgramManagerCommon {
 			BhProgramHandler programHandler = (BhProgramHandler)findRemoteObj(ipAddr, port, BhProgramHandler.class.getSimpleName());	//リモートオブジェクト取得
 			BhProgramTransceiver transceiver = new BhProgramTransceiver(cmdProcessor, programHandler);
 			success &= transceiver.connect();
-			success &= programHandler.runScript(fileName);
+			success &= programHandler.runScript(
+				fileName,
+				new BhProgramData(
+					BhProgramData.TYPE.INPUT_EVENT,
+					BhProgramData.EVENT.PROGRAM_START,
+					CommonCodeDefinition.Funcs.FIRE_EVENT));
 			Future<Boolean> recvTaskFuture = recvTaskExec.submit(() -> transceiver.recv());
 			Future<Boolean> sendTaskFuture = sendTaskExec.submit(() -> transceiver.send());
 			setTransceiverAndFutures(transceiver, recvTaskFuture, sendTaskFuture);

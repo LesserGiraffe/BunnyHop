@@ -16,7 +16,7 @@
 package net.seapanda.bunnyhop.compiler;
 
 import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.model.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 
 /**
  * 文のコード生成を行うクラス
@@ -66,7 +66,7 @@ public class StatCodeGenerator {
 		else if (SymbolNames.ControlStat.LIST.contains(statSymbolName)) {
 			genControlStat(code, statementNode, nestLevel, option);
 		}
-		else if (SymbolNames.IgnoreStat.LIST.contains(statSymbolName)) {}
+		else if (SymbolNames.IgnoredStat.LIST.contains(statSymbolName)) {}
 		else {
 			return;
 		}

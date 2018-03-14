@@ -15,14 +15,14 @@
  */
 package net.seapanda.bunnyhop.compiler;
 
-import net.seapanda.bunnyhop.model.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 
 /**
  * @author K.Koike
  * 式や文のコード生成に必要な共通の機能を持つクラス
  */
 public class CommonCodeGenerator {
-	
+
 	/**
 	 * 変数定義から変数名を生成する
 	 * @param varDecl 変数定義ノード
@@ -31,7 +31,7 @@ public class CommonCodeGenerator {
 	public String genVarName(SyntaxSymbol varDecl) {
 		return BhCompiler.Keywords.varPrefix + varDecl.getSymbolID();
 	}
-	
+
 	/**
 	 * 関数定義から関数名を生成する
 	 * @param funcDef
@@ -40,7 +40,7 @@ public class CommonCodeGenerator {
 	public String genFuncName(SyntaxSymbol funcDef) {
 		return BhCompiler.Keywords.funcPrefix + funcDef.getSymbolID();
 	}
-		
+
 	/**
 	 * 関数呼び出しのコードを作成する
 	 * @param funcName 関数名
@@ -48,26 +48,41 @@ public class CommonCodeGenerator {
 	 * @return 関数呼び出しのコード
 	 */
 	public String genFuncCallCode(String funcName, String... argNames) {
-		
+
 		StringBuilder code = new StringBuilder();
 		code.append(funcName)
 			.append("(");
 		for (int i  = 0; i < argNames.length - 1; ++i) {
 			code.append(argNames[i]).append(",");
 		}
-		
+
 		if (argNames.length == 0) {
 			code.append(")");
 		}
 		else {
 			code.append(argNames[argNames.length-1])
 				.append(")");
-		}		
+		}
 		return code.toString();
 	}
-	
+
+	/**
+	 * プロパティアクセス式を作成する
+	 * @param root プロパティのルート
+	 * @param properties root の下に続くプロパティ名のリスト
+	 * @return プロパティアクセス式
+	 * */
+	public String genPropertyAccessCode(String root, String... properties) {
+
+		StringBuilder code = new StringBuilder(root);
+		for (String prop : properties)
+			code.append(".").append(prop);
+
+		return code.toString();
+	}
+
 	public String indent(int depth) {
-		
+
 		switch(depth) {
 			case 0: return "";
 			case 1: return "	";
