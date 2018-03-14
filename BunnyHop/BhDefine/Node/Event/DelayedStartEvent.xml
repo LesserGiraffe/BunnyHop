@@ -1,0 +1,39 @@
+<Node type="connective"
+	bhNodeID="idDelayedStartEvent"
+	name="DelayedStartEvent"
+	nodeStyleID="DelayedStartEvent.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<ConnectorSection name="EventSctn">
+
+		<PrivateConnector
+			bhConnectorID="idDelayedStartEvent.prvCnctr0"
+			name="TimeCnctr"
+    		fixed="true">
+			<Node
+				type="comboBox"
+				bhNodeID="idKeyPressedEvent.prvNode0"
+				name="KeyCode"
+				nodeStyleID="WordComboBox.json"
+				nodeInputControl="EventKeyCode.fxml">
+			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector
+			bhConnectorID="idDelayedStartEvent.prvCnctr1"
+			name="byoGoNiHajimeru"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idDelayedStartEvent.prvNode1"
+				name="byoGoNiHajimeru"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="秒後に始める">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idStatCnctr" name="StatList"/>
+	</ConnectorSection>
+</Node>
