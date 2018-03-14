@@ -21,9 +21,9 @@ import org.w3c.dom.Element;
 
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.model.BhNodeID;
-import net.seapanda.bunnyhop.model.connective.Connector;
-import net.seapanda.bunnyhop.model.connective.ConnectorID;
+import net.seapanda.bunnyhop.model.node.BhNodeID;
+import net.seapanda.bunnyhop.model.node.connective.Connector;
+import net.seapanda.bunnyhop.model.node.connective.ConnectorID;
 
 /**
  * \<Conncetor\> タグからコネクタを作成するクラス

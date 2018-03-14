@@ -27,6 +27,7 @@ import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Point2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * ノードカテゴリ選択時にワークスペース上に現れるBhNode 選択パネル

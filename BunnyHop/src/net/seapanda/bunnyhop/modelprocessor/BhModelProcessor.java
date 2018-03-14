@@ -15,12 +15,12 @@
  */
 package net.seapanda.bunnyhop.modelprocessor;
 
-import net.seapanda.bunnyhop.model.TextNode;
-import net.seapanda.bunnyhop.model.VoidNode;
-import net.seapanda.bunnyhop.model.connective.ConnectiveNode;
-import net.seapanda.bunnyhop.model.connective.Connector;
-import net.seapanda.bunnyhop.model.connective.ConnectorSection;
-import net.seapanda.bunnyhop.model.connective.Subsection;
+import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.node.VoidNode;
+import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.connective.Connector;
+import net.seapanda.bunnyhop.model.node.connective.ConnectorSection;
+import net.seapanda.bunnyhop.model.node.connective.Subsection;
 
 /**
  * BhNode の各ノードに対して何かしらの処理を施すクラスのインタフェース

@@ -42,6 +42,7 @@ import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * ワークスペースを表すビュー (タブの中の描画物に対応)
@@ -123,7 +124,6 @@ public class WorkspaceView extends Tab {
 					event.consume();
 			});
 		});
-
 		setText(workspace.getWorkspaceName());
 		return true;
 	}

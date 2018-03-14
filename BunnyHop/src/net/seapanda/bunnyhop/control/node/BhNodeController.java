@@ -25,17 +25,17 @@ import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.BhNode;
-import net.seapanda.bunnyhop.model.VoidNode;
 import net.seapanda.bunnyhop.model.Workspace;
-import net.seapanda.bunnyhop.model.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.VoidNode;
+import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
 import net.seapanda.bunnyhop.modelprocessor.UnscopedNodeCollector;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.BhNodeView;
 import net.seapanda.bunnyhop.view.TrashboxFacade;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * BhNode のコントローラクラスに共通の処理をまとめたクラス

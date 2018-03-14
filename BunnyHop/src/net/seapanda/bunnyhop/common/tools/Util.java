@@ -27,7 +27,7 @@ import net.seapanda.bunnyhop.common.Point2D;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNode;
 
 /**
  * @author K.Koike

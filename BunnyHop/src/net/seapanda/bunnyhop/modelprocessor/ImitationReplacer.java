@@ -18,13 +18,13 @@ package net.seapanda.bunnyhop.modelprocessor;
 import java.util.List;
 import java.util.Optional;
 
-import net.seapanda.bunnyhop.model.BhNode;
-import net.seapanda.bunnyhop.model.TextNode;
-import net.seapanda.bunnyhop.model.VoidNode;
-import net.seapanda.bunnyhop.model.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.imitation.ImitationConnectionPos;
 import net.seapanda.bunnyhop.model.imitation.ImitationID;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.node.VoidNode;
+import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 

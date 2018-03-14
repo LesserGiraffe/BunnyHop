@@ -27,18 +27,18 @@ import net.seapanda.bunnyhop.control.node.TextFieldNodeController;
 import net.seapanda.bunnyhop.control.node.VoidNodeController;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.model.BhNode;
-import net.seapanda.bunnyhop.model.TextNode;
-import net.seapanda.bunnyhop.model.VoidNode;
-import net.seapanda.bunnyhop.model.connective.ConnectiveNode;
-import net.seapanda.bunnyhop.model.connective.Connector;
-import net.seapanda.bunnyhop.view.BhNodeView;
-import net.seapanda.bunnyhop.view.BhNodeViewStyle;
-import net.seapanda.bunnyhop.view.ComboBoxNodeView;
-import net.seapanda.bunnyhop.view.ConnectiveNodeView;
-import net.seapanda.bunnyhop.view.LabelNodeView;
-import net.seapanda.bunnyhop.view.TextFieldNodeView;
-import net.seapanda.bunnyhop.view.VoidNodeView;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.node.VoidNode;
+import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.connective.Connector;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
+import net.seapanda.bunnyhop.view.node.ConnectiveNodeView;
+import net.seapanda.bunnyhop.view.node.LabelNodeView;
+import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
+import net.seapanda.bunnyhop.view.node.VoidNodeView;
 
 /**
  * ノードのMVC関係を構築するクラス

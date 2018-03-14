@@ -15,8 +15,8 @@
  */
 package net.seapanda.bunnyhop.control.node;
 
-import net.seapanda.bunnyhop.model.VoidNode;
-import net.seapanda.bunnyhop.view.VoidNodeView;
+import net.seapanda.bunnyhop.model.node.VoidNode;
+import net.seapanda.bunnyhop.view.node.VoidNodeView;
 
 /**
  * VoidNode のコントローラ

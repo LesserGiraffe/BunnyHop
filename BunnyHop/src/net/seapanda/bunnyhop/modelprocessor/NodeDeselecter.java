@@ -15,9 +15,9 @@
  */
 package net.seapanda.bunnyhop.modelprocessor;
 
-import net.seapanda.bunnyhop.model.TextNode;
-import net.seapanda.bunnyhop.model.VoidNode;
-import net.seapanda.bunnyhop.model.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.node.VoidNode;
+import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**

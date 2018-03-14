@@ -17,8 +17,8 @@ package net.seapanda.bunnyhop.control.node;
 
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.model.TextNode;
-import net.seapanda.bunnyhop.view.TextFieldNodeView;
+import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
 
 /**
  * TextNodeとTextFieldNodeViewのコントローラ

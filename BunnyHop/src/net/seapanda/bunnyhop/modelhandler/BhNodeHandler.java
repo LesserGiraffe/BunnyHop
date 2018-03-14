@@ -24,13 +24,13 @@ import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.BhNode;
-import net.seapanda.bunnyhop.model.BhNode.State;
 import net.seapanda.bunnyhop.model.Workspace;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNode.State;
 import net.seapanda.bunnyhop.modelprocessor.NodeDeselecter;
 import net.seapanda.bunnyhop.modelprocessor.WorkspaceRegisterer;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.BhNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * BhNodeの追加, 移動, 入れ替え, 削除用関数を提供するクラス

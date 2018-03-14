@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.modelprocessor;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.TextNode;
+import net.seapanda.bunnyhop.model.node.TextNode;
 
 /**
  * テキストイミテーションノードにオリジナルの模倣をさせるクラス

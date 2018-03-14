@@ -29,7 +29,7 @@ import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
-import net.seapanda.bunnyhop.view.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.BhNodeViewStyle;
 
 /**
  * メインクラス

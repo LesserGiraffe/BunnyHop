@@ -41,11 +41,11 @@ import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.model.BhNode;
-import net.seapanda.bunnyhop.model.connective.Connector;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
-import net.seapanda.bunnyhop.model.BhNodeID;
-import net.seapanda.bunnyhop.model.connective.ConnectorID;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNodeID;
+import net.seapanda.bunnyhop.model.node.connective.Connector;
+import net.seapanda.bunnyhop.model.node.connective.ConnectorID;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**

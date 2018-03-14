@@ -15,12 +15,13 @@
  */
 package net.seapanda.bunnyhop.model.imitation;
 
+import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import net.seapanda.bunnyhop.model.BhNodeID;
+
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**

@@ -20,18 +20,18 @@ import net.seapanda.bunnyhop.common.Single;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.BhNode;
-import net.seapanda.bunnyhop.model.TextNode;
 import net.seapanda.bunnyhop.model.Workspace;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.view.BhNodeView;
-import net.seapanda.bunnyhop.view.TextFieldNodeView;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
+import net.seapanda.bunnyhop.view.node.LabelNodeView;
+import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
 import net.seapanda.bunnyhop.common.Point2D;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
-import net.seapanda.bunnyhop.view.ComboBoxNodeView;
-import net.seapanda.bunnyhop.view.LabelNodeView;
 
 /**
  * ノード選択リストにあるBhNodeのコントローラ

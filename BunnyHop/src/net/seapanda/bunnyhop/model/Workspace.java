@@ -16,6 +16,7 @@
 package net.seapanda.bunnyhop.model;
 
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import java.io.Serializable;
 import java.util.Collection;

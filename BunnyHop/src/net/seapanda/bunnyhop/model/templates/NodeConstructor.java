@@ -33,19 +33,19 @@ import org.w3c.dom.NodeList;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.model.BhNode;
-import net.seapanda.bunnyhop.model.BhNodeID;
-import net.seapanda.bunnyhop.model.TextNode;
-import net.seapanda.bunnyhop.model.VoidNode;
-import net.seapanda.bunnyhop.model.connective.ConnectiveNode;
-import net.seapanda.bunnyhop.model.connective.Connector;
-import net.seapanda.bunnyhop.model.connective.ConnectorID;
-import net.seapanda.bunnyhop.model.connective.ConnectorSection;
-import net.seapanda.bunnyhop.model.connective.Section;
-import net.seapanda.bunnyhop.model.connective.Subsection;
 import net.seapanda.bunnyhop.model.imitation.ImitationConnectionPos;
 import net.seapanda.bunnyhop.model.imitation.ImitationID;
-import net.seapanda.bunnyhop.view.BhNodeViewStyle;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNodeID;
+import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.node.VoidNode;
+import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.connective.Connector;
+import net.seapanda.bunnyhop.model.node.connective.ConnectorID;
+import net.seapanda.bunnyhop.model.node.connective.ConnectorSection;
+import net.seapanda.bunnyhop.model.node.connective.Section;
+import net.seapanda.bunnyhop.model.node.connective.Subsection;
+import net.seapanda.bunnyhop.view.node.BhNodeViewStyle;
 
 /**
  * \<Node\> タグ以下の情報からBhNodeを作成する

@@ -17,11 +17,11 @@ package net.seapanda.bunnyhop.message;
 
 import java.util.Collection;
 import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.model.BhNode;
 import net.seapanda.bunnyhop.model.Workspace;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.view.BhNodeSelectionView;
-import net.seapanda.bunnyhop.view.BhNodeView;
 import net.seapanda.bunnyhop.view.WorkspaceView;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**

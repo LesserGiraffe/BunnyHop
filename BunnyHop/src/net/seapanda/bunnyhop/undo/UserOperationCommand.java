@@ -24,14 +24,14 @@ import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.BhNode;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
-import net.seapanda.bunnyhop.model.connective.Connector;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.imitation.ImitationInfo;
-import net.seapanda.bunnyhop.view.BhNodeView;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.view.WorkspaceView;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * undo/redo 用コマンドクラス

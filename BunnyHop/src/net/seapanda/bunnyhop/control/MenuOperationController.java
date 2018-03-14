@@ -48,9 +48,9 @@ import net.seapanda.bunnyhop.compiler.CompileOption;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.BhNode;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.BhNodeCategoryListView;
@@ -484,7 +484,7 @@ public class MenuOperationController {
 	/**
 	 * IPアドレス入力欄にローカルホストが指定してある場合true を返す
 	 */
-	private boolean isLocalHost() {
+	public boolean isLocalHost() {
 		return !remotLocalSelectBtn.isSelected();
 	}
 

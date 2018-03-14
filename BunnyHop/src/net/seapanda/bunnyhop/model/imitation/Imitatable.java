@@ -15,9 +15,9 @@
  */
 package net.seapanda.bunnyhop.model.imitation;
 
-import net.seapanda.bunnyhop.model.BhNode;
-import net.seapanda.bunnyhop.model.BhNodeID;
-import net.seapanda.bunnyhop.model.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNodeID;
+import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 /**

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import net.seapanda.bunnyhop.view.BhNodeViewStyle.CNCTR_POS;
+import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
 
 public class ConnectorStar extends ConnectorShape {
 	/** コネクタの頂点を算出する

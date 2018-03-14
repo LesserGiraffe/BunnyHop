@@ -18,7 +18,8 @@ package net.seapanda.bunnyhop.modelhandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import net.seapanda.bunnyhop.model.BhNode;
+
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**

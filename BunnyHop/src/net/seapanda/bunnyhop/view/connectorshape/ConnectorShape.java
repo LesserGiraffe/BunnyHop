@@ -19,7 +19,7 @@ import java.util.Collection;
 
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.view.BhNodeViewStyle.CNCTR_POS;
+import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
 
 /**
  * コネクタ描画クラスの基底クラス

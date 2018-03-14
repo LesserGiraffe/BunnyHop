@@ -1,6 +1,6 @@
 (function() {
 
-	let BhNodeID = Java.type("net.seapanda.bunnyhop.model.BhNodeID");
+	let BhNodeID = Java.type("net.seapanda.bunnyhop.model.node.BhNodeID");
 
 	function registerNodeTemplate(bhNodeID, bhNode) {
 		bhNodeTemplates.registerNodeTemplate(BhNodeID.createBhNodeID(bhNodeID), bhNode);

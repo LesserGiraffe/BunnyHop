@@ -23,7 +23,7 @@ import net.seapanda.bunnyhop.common.Rem;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.model.BhNodeCategoryList;
+import net.seapanda.bunnyhop.model.node.BhNodeCategoryList;
 import net.seapanda.bunnyhop.view.BhNodeCategoryListView;
 
 /**

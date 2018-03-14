@@ -2,8 +2,8 @@
 
 	let ControllerType = Java.type('net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder.ControllerType');
 	let NodeMVCBuilder = Java.type('net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder');
-	let BhNodeID = Java.type("net.seapanda.bunnyhop.model.BhNodeID");
-	let BhNodeState = Java.type('net.seapanda.bunnyhop.model.BhNode.State');
+	let BhNodeID = Java.type("net.seapanda.bunnyhop.model.node.BhNodeID");
+	let BhNodeState = Java.type('net.seapanda.bunnyhop.model.node.BhNode.State');
 	let Util =  Java.type("net.seapanda.bunnyhop.common.tools.Util");
 
 	let bhCommon = {};
