@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model;
+package net.seapanda.bunnyhop.model.node;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
@@ -28,15 +28,16 @@ import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
 import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.connective.ConnectiveNode;
-import net.seapanda.bunnyhop.model.connective.Connector;
+import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelprocessor.ImitationReplacer;
 import net.seapanda.bunnyhop.modelprocessor.NodeDeleter;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.BhNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * ノードの基底クラス
