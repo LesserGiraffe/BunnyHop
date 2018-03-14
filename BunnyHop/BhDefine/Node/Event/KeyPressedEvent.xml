@@ -1,0 +1,39 @@
+<Node type="connective"
+	bhNodeID="idKeyPressedEvent"
+	name="KeyPressedEvent"
+	nodeStyleID="KeyPressedEvent.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<ConnectorSection name="EventSctn">
+
+		<PrivateConnector
+			bhConnectorID="idKeyPressedEvent.prvCnctr0"
+			name="keyCodeCnctr"
+    		fixed="true">
+			<Node
+				type="comboBox"
+				bhNodeID="idKeyPressedEvent.prvNode0"
+				name="KeyCode"
+				nodeStyleID="WordComboBox.json"
+				nodeInputControl="EventKeyCode.fxml">
+			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector
+			bhConnectorID="idKeyPressedEvent.prvCnctr1"
+			name="gaOsaretaToki"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idKeyPressedEvent.prvNode1"
+				name="gaOsaretaToki"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="が押されたとき">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idStatCnctr" name="StatList"/>
+	</ConnectorSection>
+</Node>
