@@ -19,8 +19,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -126,6 +128,22 @@ public class FoundationController {
 	 */
 	private void setKeyEvents() {
 
+		Consumer<KeyEvent> forwardEvent = (event) -> {
+			foundationVBox.fireEvent(
+					new KeyEvent(
+						foundationVBox,
+						foundationVBox,
+						event.getEventType(),
+						event.getCharacter(),
+						event.getText(),
+						event.getCode(),
+						event.isShiftDown(),
+						event.isControlDown(),
+						event.isAltDown(),
+						event.isMetaDown()));
+
+		};
+
 		foundationVBox.addEventFilter(KeyEvent.ANY, (event) -> {
 
 			switch (event.getCode()) {
@@ -136,20 +154,16 @@ public class FoundationController {
 					// タブペインが矢印キーで切り替わらないようにする
 					if (event.getTarget() == workspaceSetController.getTabPane()) {
 						event.consume();
-						foundationVBox.fireEvent(
-							new KeyEvent(
-								foundationVBox,
-								foundationVBox,
-								event.getEventType(),
-								event.getCharacter(),
-								event.getText(),
-								event.getCode(),
-								event.isShiftDown(),
-								event.isControlDown(),
-								event.isAltDown(),
-								event.isMetaDown()));
+						forwardEvent.accept(event);
 					}
 					break;
+
+				case SPACE:
+					if (event.getTarget() instanceof Button) {
+						event.consume();
+						forwardEvent.accept(event);
+					}
+
 				default:
 					break;
 			}
