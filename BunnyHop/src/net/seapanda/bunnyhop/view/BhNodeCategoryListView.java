@@ -25,12 +25,12 @@ import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.TreeNode;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
+import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -44,8 +44,8 @@ public class BhNodeCategoryListView {
 	private final Map<BhNodeCategory, BhNodeSelectionView> category_selectionView = new HashMap<>();	//!< BhNode選択カテゴリ名とBhNode選択ビューのマップ
 	private final List<BhNodeSelectionView> selectionViewList = new ArrayList<>();	//!< BhNode選択ビューのリスト
 	private final List<BhNodeCategory> categoryList = new ArrayList<>();
-	
-	
+
+
 	public BhNodeCategoryListView(TreeView<BhNodeCategory> categoryTree) {
 		this.categoryTree = categoryTree;
 	}
@@ -57,6 +57,7 @@ public class BhNodeCategoryListView {
 	public void buildCategoryList(TreeNode<String> root) {
 
 		TreeItem<BhNodeCategory> rootItem = new TreeItem<>(new BhNodeCategory(root.content));
+		rootItem.addEventHandler(TreeItem.branchCollapsedEvent(), (event) -> {event.getTreeItem().setExpanded(true);});
 		rootItem.setExpanded(true);
 		addChildren(root, rootItem);
 		categoryTree.setRoot(rootItem);
@@ -73,7 +74,7 @@ public class BhNodeCategoryListView {
 	public List<BhNodeSelectionView> getSelectionViewList() {
 		return selectionViewList;
 	}
-	
+
 	/**
 	 * テンプレートツリーに子ノードを追加する.<br>
 	 * @param parent 追加する子ノード情報を持ったノード
@@ -82,18 +83,18 @@ public class BhNodeCategoryListView {
 	private void addChildren(TreeNode<String> parent, TreeItem<BhNodeCategory> parentItem) {
 
 		parent.children.forEach(child -> {
-			
+
 			switch (child.content) {
 				case BhParams.NodeTemplateList.KEY_CSS_CLASS:
 					String cssClass = child.children.get(0).content;
 					parentItem.getValue().setCssClass(cssClass);
 					break;
-					
+
 				case BhParams.NodeTemplateList.KEY_CONTENTS:
 					child.children.forEach(bhNodeID -> {
 						addBhNodeToSelectionView(parentItem.getValue(), BhNodeID.createBhNodeID(bhNodeID.content));
 					});	break;
-					
+
 				default:
 					BhNodeCategory category = new BhNodeCategory(child.content);
 					categoryList.add(category);
@@ -112,7 +113,7 @@ public class BhNodeCategoryListView {
 	 * @param bhNodeID 追加するBhNodeのID
 	 */
 	private void addBhNodeToSelectionView(BhNodeCategory category, BhNodeID bhNodeID) {
-		
+
 		if (!category_selectionView.containsKey(category)) {
 			BhNodeSelectionView selectionView = new BhNodeSelectionView();
 			selectionView.init(category.categoryName, category.cssClass, this);
@@ -130,16 +131,16 @@ public class BhNodeCategoryListView {
 		NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Template);
 		node.accept(builder);	//MVC構築
 		node.accept(new TextImitationPrompter());
-		category_selectionView.get(category).addBhNodeView(builder.getTopNodeView());	//BhNode テンプレートリストパネルにBhNodeテンプレートを追加	
+		category_selectionView.get(category).addBhNodeView(builder.getTopNodeView());	//BhNode テンプレートリストパネルにBhNodeテンプレートを追加
 	}
-		
+
 	/**
 	 * 全てのBhNode選択パネルを隠す
 	 * */
 	public void hideAll() {
 		categoryList.forEach(category -> category.hide());
 	}
-	
+
 	/**
 	 * BhNode選択パネルのうち表示されているものがあるかどうか調べる
 	 * @return BhNode選択パネルのうち一つでも表示されている場合true
@@ -147,7 +148,7 @@ public class BhNodeCategoryListView {
 	public boolean isAnyShowed() {
 		return selectionViewList.stream().anyMatch(view -> view.visibleProperty().get());
 	}
-	
+
 	/**
 	 * BhNode選択パネルを全て拡大もしくは縮小する
 	 * @param zoomIn 拡大する場合true
@@ -210,11 +211,11 @@ public class BhNodeCategoryListView {
 		public void setFuncOnSelectionViewShowed(Consumer<Boolean> func) {
 			showTemplatePanel = func;
 		}
-		
+
 		public void setCssClass(String cssClass) {
 			this.cssClass = cssClass;
 		}
-		
+
 		public String getCssClass() {
 			return cssClass;
 		}
@@ -255,21 +256,21 @@ public class BhNodeCategoryListView {
 
 		@Override
 		protected void updateItem(BhNodeCategory category, boolean empty) {
-			
-			super.updateItem(category, empty);
+
 			model = category;
-			if (!empty) {
-				category.setFuncOnCellViewShowed(this::select);
-				getStyleClass().add(model.getCssClass());				
-				pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_EMPTY), false);
-				setText(category.toString());
-			}
-			else {
+			super.updateItem(category, empty);
+			if (empty || category == null){
 				select(false);
 				getStyleClass().clear();
 				getStyleClass().add("tree-cell");
 				pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_EMPTY), true);
 				setText(null);
+			}
+			else {
+				category.setFuncOnCellViewShowed(this::select);
+				getStyleClass().add(model.getCssClass());
+				pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_EMPTY), false);
+				setText(category.toString());
 			}
 		}
 	}
