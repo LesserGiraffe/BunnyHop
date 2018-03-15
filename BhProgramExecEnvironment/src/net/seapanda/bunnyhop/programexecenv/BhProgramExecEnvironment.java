@@ -37,8 +37,13 @@ public class BhProgramExecEnvironment {
 	public static void main(String[] args) {
 
 		boolean local = true;
-		if (args.length >= 1)
+		if (args.length >= 1) {
 			local = args[0].equals("true");
+			if (args[0].equals("--version")) {
+				System.out.println(BhProgramExecEnvironment.class.getSimpleName() + " version " + BhParams.APP_VERSION);
+				return;
+			}
+		}
 
 		LogManager.INSTANCE.init();
 

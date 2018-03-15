@@ -22,7 +22,7 @@ package net.seapanda.bunnyhop.common;
 public class BhParams {
 
 	public static final String APPLICATION_NAME = "BunnyHop";
-	public static final String APP_VERSION = "1.0.0.0";
+	public static final String APP_VERSION = "1.0.0.1";
 	public static final double DEFAULT_APP_WIDTH_RATE = 0.7; // !< 起動時の画面幅のディスプレイに対する割合
 	public static final double DEFAULT_APP_HEIGHT_RATE = 0.7; // !< 起動時の画面高さのディスプレイに対する割合
 	public static final double DEFAULT_WORKSPACE_WIDTH = 200 * Rem.VAL;
