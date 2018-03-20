@@ -50,7 +50,7 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
  * */
 public class WorkspaceView extends Tab {
 
-	private @FXML ScrollPane scrollPane;	//!< 操作対象のビュー
+	private @FXML ScrollPane wsScrollPane;	//!< 操作対象のビュー
 	private @FXML Pane wsPane;	//!< 操作対象のビュー
 	private @FXML Pane wsWrapper;	//!< wsPane の親ペイン
 	private final Workspace workspace;
@@ -94,7 +94,7 @@ public class WorkspaceView extends Tab {
 		drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
 
 		//拡大縮小処理
-		scrollPane.addEventFilter(ScrollEvent.ANY, event -> {
+		wsScrollPane.addEventFilter(ScrollEvent.ANY, event -> {
 			if (event.isControlDown()) {
 				event.consume();
 				boolean zoomIn = event.getDeltaY() >= 0;
@@ -167,7 +167,7 @@ public class WorkspaceView extends Tab {
 	 * @param handler WS内でマウスが押されたときの処理
 	 * */
 	public void setOnMousePressedEvent(EventHandler<? super MouseEvent> handler) {
-		scrollPane.setOnMousePressed(handler);
+		wsScrollPane.setOnMousePressed(handler);
 	}
 
 	/**

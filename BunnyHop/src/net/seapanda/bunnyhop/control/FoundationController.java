@@ -21,8 +21,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import javafx.event.EventTarget;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -30,6 +32,7 @@ import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramManager;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramManager;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
+import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.compiler.CommonCodeDefinition;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.node.BhNodeCategoryList;
@@ -151,10 +154,18 @@ public class FoundationController {
 				case DOWN:
 				case RIGHT:
 				case LEFT:
+					EventTarget target = event.getTarget();
 					// タブペインが矢印キーで切り替わらないようにする
-					if (event.getTarget() == workspaceSetController.getTabPane()) {
+					if (target == workspaceSetController.getTabPane()) {
 						event.consume();
 						forwardEvent.accept(event);
+					}
+					// スクロールペインが矢印キーでスクロールしないようにする。
+					if (target instanceof ScrollPane) {
+						if (((ScrollPane)target).getId().equals(BhParams.Fxml.ID_WS_SCROLL_PANE)) {
+							event.consume();
+							forwardEvent.accept(event);
+						}
 					}
 					break;
 

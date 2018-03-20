@@ -221,6 +221,7 @@ public class BhParams {
 	 * */
 	public static class Fxml {
 		public static final String ID_WS_PANE = "wsPane";
+		public static final String ID_WS_SCROLL_PANE = "wsScrollPane";
 	}
 
 	public static class CSS {
