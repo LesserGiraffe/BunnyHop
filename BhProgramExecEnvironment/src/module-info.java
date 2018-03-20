@@ -19,7 +19,7 @@ module net.seapanda.bhprogramexecenv {
 	requires java.base;
 
 	exports net.seapanda.bunnyhop.programexecenv;
-	exports net.seapanda.bunnyhop.socket;
-	exports net.seapanda.bunnyhop.tools;
+	exports net.seapanda.bunnyhop.programexecenv.socket;
+	exports net.seapanda.bunnyhop.programexecenv.tools;
 	exports net.seapanda.bunnyhop.bhprogram.common;
 }

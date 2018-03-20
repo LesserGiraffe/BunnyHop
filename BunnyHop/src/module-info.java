@@ -23,6 +23,7 @@ module net.seapanda.bunnyhop {
 	requires javafx.fxml;
 	requires java.base;
 	requires transitive java.xml;
+	requires javafx.base;
 
 	exports net.seapanda.bunnyhop.root;
 	exports net.seapanda.bunnyhop.model;
