@@ -77,6 +77,18 @@
 	-fx-background: derive(boolTypeCol, 50% );
 }
 
+/*-----------------------sound---------------------*/
+
+#categoryTree .soundOpe {
+	-fx-background: derive(soundTypeCol, 0% );
+	-fx-border-color: black;
+	-fx-text-fill: black;
+}
+
+#categoryTree .soundOpe:hover {
+	-fx-background: derive(soundTypeCol, 50% );
+}
+
 /*--------------------control----------------------*/
 
 #categoryTree .control {

@@ -4,18 +4,18 @@
 	"paddingLeft" : 2.5,
 	"paddingRight" : 1.5,
 	"connectorPos" : "Left",
-	"connectorShift" : 0.0,
+	"connectorShift" : 1.0,
 	"connectorWidth" : 3.5,
 	"connectorHeight" : 3.5,
-	"connectorShape" : "CROSS",
+	"connectorShape" : "CHAR_U",
 	"connectorBoundsRate" : 1.25,
-	"cssClass" : "boolType",
+	"cssClass" : "soundType",
 
 	"connective" : {
 		"inner" : {
 			"space" : 2.0,
 			"arrangement" : "Row",
-			"connectorList" : ["PrimaryExp", "dehanai"]
+			"connectorList" : ["PrimaryExp"]
 		}
 	}
 }

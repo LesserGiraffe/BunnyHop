@@ -5,6 +5,7 @@
 		"contents":[
 			"idMoveStat",
 			"idMeasureDistanceExp",
+			"idPlayMelodyStat",
 			"idSleepStat"]
 	},
 
@@ -43,6 +44,14 @@
 			"idBinaryBoolExp", 
 			"idNotExp", 
 			"idBoolToStrExp"]
+	},
+	
+	"音": {
+		"cssClass":"soundOpe",
+		"contents":[
+			"idFreqSoundLiteral",
+			"idDefaultMelodyExp",
+			"idPlayMelodyStat"]
 	},
 	
 	"制御" : {

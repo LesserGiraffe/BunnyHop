@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+
+<Connector
+	bhConnectorID="idSoundExpCnctr"
+	defaultBhNodeID="idSoundLiteralVoid"
+	initialBhNodeID="idFreqSoundLiteral"
+	onReplaceabilityChecked="SoundExpCnct.js"/>

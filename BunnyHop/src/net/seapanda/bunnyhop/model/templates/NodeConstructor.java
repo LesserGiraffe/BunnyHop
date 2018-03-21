@@ -453,7 +453,7 @@ public class NodeConstructor {
 	private ConnectorSection.CnctrInstantiationParams genConnectorInstParams(Element connectorTag) {
 
 		String imitationID = connectorTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMITATION_ID);
-		String imitCnctPoint = connectorTag.getAttribute(BhParams.BhModelDef.ARRT_NAME_IMIT_CNCT_POS);
+		String imitCnctPoint = connectorTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMIT_CNCT_POS);
 		String name = connectorTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_NAME);
 		return new ConnectorSection.CnctrInstantiationParams(
 			name,

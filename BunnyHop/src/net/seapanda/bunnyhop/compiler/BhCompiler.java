@@ -163,7 +163,6 @@ public class BhCompiler {
 		varDeclCodeGen.genVarDecls(allNodes, code, 1, option);
 		funcDefCodeGen.genFuncDefs(allNodes, code, 1, option);
 		eventHandlerCodeGen.genEventHandlers(allNodes, code, 1, option);
-
 		String lockVar = BhCompiler.Keywords.lockVarPrefix + CommonCodeDefinition.Funcs.BH_MAIN;
 		eventHandlerCodeGen.genHeaderSnippetOfEventCall(code, CommonCodeDefinition.Funcs.BH_MAIN, lockVar, 1);
 		statCodeGen.genStatement(execNode, code, 5, option);

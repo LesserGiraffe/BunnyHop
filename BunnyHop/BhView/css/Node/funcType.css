@@ -1,0 +1,7 @@
+.voidFuncType {
+	-fx-fill: voidFuncTypeCol;
+}
+
+.voidFuncDefType {
+	-fx-fill: linear-gradient(from 0em 0em to 0em 3.2em, voidFuncTypeCol 99%, #f0f0f0 0em);
+}

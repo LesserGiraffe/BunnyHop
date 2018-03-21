@@ -94,6 +94,7 @@ public class SymbolNames {
 	public static class Stat {
 		public static final String VOID_STAT = "VoidStat";
 		public static final String STAT_LIST = "StatList";
+		public static final String NEXT_STAT = "NextStat";
 	}
 
 	/**
@@ -128,7 +129,6 @@ public class SymbolNames {
 		public static final String NUM_ADD_ASSIGN_STAT = "NumAddAssignStat";
 		public static final String STR_ASSIGN_STAT = "StrAssignStat";
 		public static final String BOOL_ASSIGN_STAT = "BoolAssignStat";
-		public static final String NEXT_STAT = "NextStat";
 		public static final String LEFT_VAR = "LeftVar";
 		public static final HashSet<String> LIST =
 			new HashSet<>(Arrays.asList(
@@ -208,16 +208,19 @@ public class SymbolNames {
 
 		public static final String NOT_EXP = "NotExp";
 		public static final String NEG_EXP = "NegExp";
-		public static final String PRIMARY_EXP = "primaryExp";
+		public static final String DEFAULT_MELODY_EXP = "DefaultMelodyExp";
+		public static final String PRIMARY_EXP = "PrimaryExp";
 		public static final HashSet<String> LIST =
 			new HashSet<>(Arrays.asList(
 				NOT_EXP,
-				NEG_EXP));
+				NEG_EXP,
+				DEFAULT_MELODY_EXP));
 
 		public static final Map<String, String> OPERATOR_MAP =
 			new HashMap<String,String>() {{
 				put(NOT_EXP, "!");
-				put(NEG_EXP, "-");}};
+				put(NEG_EXP, "-");
+				put(DEFAULT_MELODY_EXP, "");}};
 	}
 
 	public static class PreDefFunc {
@@ -227,7 +230,6 @@ public class SymbolNames {
 		public static final String OPTION = "Option";
 
 		//ノード名
-		public static final String IS_FINITE = "isFinite";
 		public static final String NUM_TO_STR_EXP = "NumToStrExp";
 		public static final String STR_TO_NUM_EXP = "StrToNumExp";
 		public static final String BOOL_TO_STR_EXP = "BoolToStrExp";
@@ -241,6 +243,7 @@ public class SymbolNames {
 		public static final String PRINT_NUM_STAT = "PrintNumStat";
 		public static final String MOVE_STAT = "MoveStat";
 		public static final String SLEEP_STAT = "SleepStat";
+		public static final String PLAY_MELODY_STAT = "PlayMelodyStat";
 
 		//オプション名
 		public static final String OPT_ROUND = "round";
@@ -271,6 +274,7 @@ public class SymbolNames {
 				PRINT_NUM_STAT,
 				MOVE_STAT,
 				SLEEP_STAT,
+				PLAY_MELODY_STAT,
 				Array.STR_ARRAY_PUSH_STAT,
 				Array.STR_ARRAY_POP_STAT,
 				Array.STR_ARRAY_SET_STAT,
@@ -304,7 +308,6 @@ public class SymbolNames {
 				put(Arrays.asList(PRINT_STAT), CommonCodeDefinition.Funcs.PRINTLN);
 				put(Arrays.asList(PRINT_NUM_STAT), CommonCodeDefinition.Funcs.PRINTLN);
 				put(Arrays.asList(SCAM_EXP), CommonCodeDefinition.Funcs.SCAN);
-				put(Arrays.asList(IS_FINITE), "isFinite");
 				put(Arrays.asList(NUM_ROUND_EXP, OPT_ROUND), "Math.round");
 				put(Arrays.asList(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
 				put(Arrays.asList(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor");
@@ -318,6 +321,7 @@ public class SymbolNames {
 				put(Arrays.asList(MOVE_STAT, OPT_TURN_RIGHT), CommonCodeDefinition.Funcs.TURN_RIGHT);
 				put(Arrays.asList(MOVE_STAT, OPT_TURN_LEFT), CommonCodeDefinition.Funcs.TURN_LEFT);
 				put(Arrays.asList(SLEEP_STAT), CommonCodeDefinition.Funcs.SLEEP);
+				put(Arrays.asList(PLAY_MELODY_STAT), CommonCodeDefinition.Funcs.PLAY_MELODIES);
 
 				put(Arrays.asList(Array.STR_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
 				put(Arrays.asList(Array.STR_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
@@ -390,6 +394,8 @@ public class SymbolNames {
 		public static final String LINE_FEED = "LineFeed";
 		public static final String NUM_LITERAL = "NumLiteral";
 		public static final String BOOL_LITERAL = "BoolLiteral";
+		public static final String FREQ_SOUND_LITERAL = "FreqSoundLiteral";
+		public static final String SOUND_LITERAL_VOID = "SoundLiteralVoid";
 		public static final String STR_EMPTY_LIST = VarDecl.STR_EMPTY_LIST;
 		public static final String NUM_EMPTY_LIST = VarDecl.NUM_EMPTY_LIST;
 		public static final String BOOL_EMPTY_LIST = VarDecl.BOOL_EMPTY_LIST;
@@ -400,16 +406,24 @@ public class SymbolNames {
 				LINE_FEED,
 				NUM_LITERAL,
 				BOOL_LITERAL,
+				FREQ_SOUND_LITERAL,
+				SOUND_LITERAL_VOID,
 				STR_EMPTY_LIST,
 				NUM_EMPTY_LIST,
 				BOOL_EMPTY_LIST,
 				ANY_ENPTY_LIST));
-		public static final HashSet<String> LIST_TYPES =
+		public static final HashSet<String> ARRAY_TYPES =
 			new HashSet<>(Arrays.asList(
 				STR_EMPTY_LIST,
 				NUM_EMPTY_LIST,
 				BOOL_EMPTY_LIST,
 				ANY_ENPTY_LIST));
+
+		public static class Sound {
+			public static final String DURATION = "Duration";
+			public static final String FREQUENCY = "Frequency";
+			public static final String NEXT_SOUND = "NextSound";
+		}
 	}
 
 	public static class Array {

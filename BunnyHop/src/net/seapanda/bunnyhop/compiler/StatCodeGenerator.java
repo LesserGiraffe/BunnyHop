@@ -70,9 +70,9 @@ public class StatCodeGenerator {
 		else {
 			return;
 		}
-		SyntaxSymbol nextStat = statementNode.findSymbolInDescendants("*", SymbolNames.AssignStat.NEXT_STAT, "*");
+		SyntaxSymbol nextStat = statementNode.findSymbolInDescendants("*", SymbolNames.Stat.NEXT_STAT, "*");
 		if (nextStat == null)
-			nextStat = statementNode.findSymbolInDescendants("*", "*", SymbolNames.AssignStat.NEXT_STAT, "*");	//for compoundStat
+			nextStat = statementNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.NEXT_STAT, "*");	//for compoundStat
 
 		if (nextStat != null)
 			genStatement(nextStat, code, nestLevel, option);

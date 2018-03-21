@@ -6,7 +6,7 @@
 	  onMovedToChild="">
 
 	<ConnectorSection name="BooleanExpSctn">
-		<Connector bhConnectorID="idBoolExpCnctr" name="primaryExp"/>
+		<Connector bhConnectorID="idBoolExpCnctr" name="PrimaryExp"/>
 
 		<PrivateConnector
 			bhConnectorID="idNotExp.prvCnctr0"

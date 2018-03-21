@@ -8,8 +8,8 @@
     imitScopeName="VarScopeSctn"
     onMovedFromChildToWS=""
 	onMovedToChild="onVarMovedToChild.js">
-    
-  	<ConnectorSection name="BooleanExpSctn">
+
+	<ConnectorSection name="BooleanExpSctn">
 		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
 	</ConnectorSection>
 

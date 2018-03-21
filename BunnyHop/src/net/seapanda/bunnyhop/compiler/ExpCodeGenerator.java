@@ -46,7 +46,7 @@ public class ExpCodeGenerator {
 	 * @param expNode 式のノード
 	 * @param nestLevel ソースコードのネストレベル
 	 * @param option コンパイルオプション
-	 * @return 式もしくは式の評価結果を格納した変数
+	 * @return 式もしくは式の評価結果を格納した変数. expNode に該当する式ノードが見つからなかった場合null.
 	 */
 	public String genExpression(
 		StringBuilder code,
@@ -66,7 +66,7 @@ public class ExpCodeGenerator {
 			return common.genVarName(varNode.getOriginalNode());
 		}
 		else if (SymbolNames.Literal.LIST.contains(expSymbolName)) {
-			return genLiteral(expNode);
+			return genLiteral(code, expNode, nestLevel, option);
 		}
 		else if (SymbolNames.PreDefFunc.PREDEF_FUNC_CALL_EXP_LIST.contains(expSymbolName)) {
 			return genPreDefFuncCallExp(code, expNode, nestLevel, option, true);
@@ -121,7 +121,6 @@ public class ExpCodeGenerator {
 			.append(";").append(Util.LF);
 
 		String tmpVarResult = tmpVar;
-		String funcName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(Arrays.asList(SymbolNames.PreDefFunc.IS_FINITE));
 		if (option.handleException) {
 			if (SymbolNames.BinaryExp.ARITH_EXCEPTION_EXP.contains(binaryExpNode.getSymbolName())) {
 				tmpVarResult = "_" + tmpVar;
@@ -130,7 +129,7 @@ public class ExpCodeGenerator {
 					.append(tmpVarResult)
 					.append(" = ")
 					.append("(")
-					.append(common.genFuncCallCode(funcName, tmpVar))
+					.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.IS_FINITE, tmpVar))
 					.append(") ? ")
 					.append(tmpVar)
 					.append(" : ")
@@ -175,13 +174,20 @@ public class ExpCodeGenerator {
 	}
 
 	/**
-	 * リテラルを作成する
+	 * リテラルのコードを作成する
+	 * @param code 生成したコードの格納先
 	 * @param literalNode リテラルのノード
-	 * @return リテラルのソースコード
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 * @return リテラル式
 	 */
-	private String genLiteral(SyntaxSymbol literalNode) {
+	private String genLiteral(
+		StringBuilder code,
+		SyntaxSymbol literalNode,
+		int nestLevel,
+		CompileOption option) {
 
-		if (SymbolNames.Literal.LIST_TYPES.contains(literalNode.getSymbolName()))
+		if (SymbolNames.Literal.ARRAY_TYPES.contains(literalNode.getSymbolName()))
 			return "([])";	//空リスト
 
 		String inputText = "";
@@ -200,6 +206,10 @@ public class ExpCodeGenerator {
 
 			case SymbolNames.Literal.BOOL_LITERAL:
 				return "(" + inputText + ")";
+
+			case SymbolNames.Literal.SOUND_LITERAL_VOID:
+			case SymbolNames.Literal.FREQ_SOUND_LITERAL:
+				return genSoundLiteralExp(code, literalNode, nestLevel, option);
 
 			default:
 				throw new AssertionError("invalid literal " + literalNode.getSymbolName());
@@ -545,6 +555,46 @@ public class ExpCodeGenerator {
 			.append(";").append(Util.LF);
 
 		return CommonCodeDefinition.Vars.CALL_OBJ;
+	}
+
+	/**
+	 * 音リテラルのコードを生成する
+	 * @param code 生成したコードの格納先
+	 * @param soundLiteralNode 音リテラルノード
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 * @return 音リテラルを格納した変数.
+	 * */
+	private String genSoundLiteralExp(
+		StringBuilder code,
+		SyntaxSymbol soundLiteralNode,
+		int nestLevel,
+		CompileOption option) {
+
+		if (soundLiteralNode.getSymbolName().equals(SymbolNames.Literal.SOUND_LITERAL_VOID)) {
+			String soundVar = common.genVarName(soundLiteralNode);
+			String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, "0", "0");
+			code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp).append(";").append(Util.LF);
+			return soundVar;
+		}
+
+		SyntaxSymbol durationNode = soundLiteralNode.findSymbolInDescendants("*", SymbolNames.Literal.Sound.DURATION, "*");
+		SyntaxSymbol frequencyNode = soundLiteralNode.findSymbolInDescendants("*", SymbolNames.Literal.Sound.FREQUENCY, "*");
+		String duration = genExpression(code, durationNode, nestLevel, option);
+		String frequency = genExpression(code, frequencyNode, nestLevel, option);
+
+		// 音オブジェクト作成
+		String soundVar = common.genVarName(soundLiteralNode);
+		String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, frequency, duration);
+		code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp).append(";").append(Util.LF);
+
+
+		// この音の次の音を接続する
+		SyntaxSymbol nextSoundNode = soundLiteralNode.findSymbolInDescendants("*", SymbolNames.Literal.Sound.NEXT_SOUND, "*");
+		String nextSound = genExpression(code, nextSoundNode, nestLevel, option);
+		String appendStat = common.genFuncCallCode(soundVar + "." + CommonCodeDefinition.Funcs.ADD_LAST, nextSound);
+		code.append(common.indent(nestLevel)).append(appendStat).append(";").append(Util.LF);
+		return soundVar;
 	}
 }
 

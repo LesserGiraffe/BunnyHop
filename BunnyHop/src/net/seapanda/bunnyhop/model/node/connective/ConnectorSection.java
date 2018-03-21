@@ -19,13 +19,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.imitation.ImitationConnectionPos;
 import net.seapanda.bunnyhop.model.imitation.ImitationID;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
+import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -64,15 +64,16 @@ public class ConnectorSection extends Section {
 		cnctrList = new ArrayList<>();
 		cnctrInstantiationParamsList = org.cnctrInstantiationParamsList;
 	}
-	
+
 	@Override
 	public ConnectorSection copy(UserOperationCommand userOpeCmd) {
-		
+
 		ConnectorSection newSection = new ConnectorSection(this);
 		for (int i = 0; i < cnctrList.size(); ++i) {
 			CnctrInstantiationParams cnctrInstParams = cnctrInstantiationParamsList.get(i);
-			Connector newConnector = 
-				cnctrList.get(i).copy(userOpeCmd,
+			Connector newConnector =
+				cnctrList.get(i).copy(
+					userOpeCmd,
 					cnctrInstParams.cnctrName,
 					cnctrInstParams.imitationID,
 					cnctrInstParams.imitCnctPoint,
@@ -98,7 +99,7 @@ public class ConnectorSection extends Section {
 	public void introduceConnectorsTo(BhModelProcessor visitor) {
 		cnctrList.forEach(connector -> connector.accept(visitor));
 	}
-		
+
 	/**
 	 * コネクタのリストを返す
 	 * @return コネクタのリスト
@@ -106,10 +107,10 @@ public class ConnectorSection extends Section {
 	public List<Connector> getConnectorList() {
 		return cnctrList;
 	}
-	
+
 	@Override
 	public void findSymbolInDescendants(int hierarchyLevel, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
-		
+
 		if (hierarchyLevel == 0) {
 			for (String symbolName : symbolNames) {
 				if (Util.equals(getSymbolName(), symbolName)) {
@@ -120,16 +121,16 @@ public class ConnectorSection extends Section {
 				return;
 			}
 		}
-		
+
 		int childLevel = hierarchyLevel-1;
 		for (Connector cnctr : cnctrList) {
 			cnctr.findSymbolInDescendants(Math.max(0, childLevel), toBottom, foundSymbolList, symbolNames);
 		}
 	}
-	
+
 	@Override
 	public BhNode findOuterEndNode() {
-		
+
 		for (int i = cnctrList.size() - 1; i >= 0; --i) {
 			if (cnctrList.get(i).isOuter()) {
 				return cnctrList.get(i).getConnectedNode().findOuterEndNode();
@@ -137,7 +138,7 @@ public class ConnectorSection extends Section {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * モデルの構造を表示する
 	 * @param depth 表示インデント数
@@ -154,7 +155,7 @@ public class ConnectorSection extends Section {
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<ConnectorGroup  " + "name=" + getSymbolName() + "  parenNode=" + parentHash  + "  > " + this.hashCode());
 		cnctrList.forEach((connector -> connector.show(depth + 1)));
 	}
-	
+
 	/**
 	 * コネクタ生成時のパラメータ
 	 */
@@ -170,7 +171,7 @@ public class ConnectorSection extends Section {
 		 * @param imitCnctPoint イミテーション接続位置の識別子
 		 */
 		public CnctrInstantiationParams(
-			String cnctrName, 
+			String cnctrName,
 			ImitationID imitationID,
 			ImitationConnectionPos imitCnctPoint) {
 			this.cnctrName = cnctrName;

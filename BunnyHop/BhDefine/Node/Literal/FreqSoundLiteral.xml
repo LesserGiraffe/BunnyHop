@@ -1,0 +1,56 @@
+<Node
+	type="connective"
+	bhNodeID="idFreqSoundLiteral"
+	name="FreqSoundLiteral"
+	nodeStyleID="FreqSoundLiteral.json"
+	onMovedFromChildToWS="onSoundExpMovedToWS.js">
+	
+	<ConnectorSection name="SoundExpSctn">
+
+		<Connector bhConnectorID="idNumExpCnctr" name="Duration"/>
+		
+		<PrivateConnector 
+			bhConnectorID="idFreqSoundLiteral.prvCnctr1"
+			name="ByoKanNo"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idFreqSoundLiteral.prvNode1"
+				name="ByoKanNo"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="秒間の">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idNumExpCnctr" name="Frequency"/>
+
+		<PrivateConnector 
+			bhConnectorID="idFreqSoundLiteral.prvCnctr0"
+			name="HzNoOto"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idFreqSoundLiteral.prvNode0"
+				name="HzNoOto"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="Hz の音">
+			</Node>
+		</PrivateConnector>
+
+		<PrivateConnector 
+			bhConnectorID="idFreqSoundLiteral.prvCnctr2"
+			name="NextSound"
+			fixed="false"
+			defaultBhNodeID="idFreqSoundLiteral.prvNode2"
+			onReplaceabilityChecked="SoundExpCnct.js">
+			<Node
+				type="void"
+				bhNodeID="idFreqSoundLiteral.prvNode2"
+				name="SoundLiteralVoid"
+				nodeStyleID="SoundExpVoid.json">
+			</Node>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>

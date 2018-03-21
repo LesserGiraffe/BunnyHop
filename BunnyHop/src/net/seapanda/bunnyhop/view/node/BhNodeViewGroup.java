@@ -304,7 +304,12 @@ public class BhNodeViewGroup extends Group implements Showable {
 		double offsetX = 0.0;
 		double offsetY = 0.0;
 
+		// 外部ノードはコネクタの大きさを考慮しない
+		if (!inner)
+			return new Point2D(0.0, 0.0);
+
 		for (String cnctrName : arrangeParams.cnctrNameList) {
+
 			BhNodeView childNodeView = cnctrName_NodeView.get(cnctrName);
 			if (childNodeView == null)
 				continue;

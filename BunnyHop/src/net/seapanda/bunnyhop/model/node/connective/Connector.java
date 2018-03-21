@@ -16,23 +16,25 @@
 package net.seapanda.bunnyhop.model.node.connective;
 
 import java.util.List;
+
 import javax.script.Bindings;
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
-import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
-import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
+
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
+import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.imitation.ImitationConnectionPos;
 import net.seapanda.bunnyhop.model.imitation.ImitationID;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
+import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
+import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
+import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -87,7 +89,7 @@ public class Connector extends SyntaxSymbol {
 		else
 			this.initNodeID = initialNodeID;
 	}
-	
+
 	/**
 	 * コピーコンストラクタ
 	 * @param org コピー元オブジェクト
@@ -103,7 +105,7 @@ public class Connector extends SyntaxSymbol {
 		ImitationID imitID,
 		ImitationConnectionPos imitCnctPoint,
 		ConnectorSection parent) {
-		
+
 		super(name);
 		id = org.id;
 		defaultNodeID = org.defaultNodeID;
@@ -114,7 +116,7 @@ public class Connector extends SyntaxSymbol {
 		this.imitCnctPoint = imitCnctPoint;
 		this.parent = parent;
 	}
-	
+
 	/**
 	 * このノードのコピーを作成して返す
 	 * @param userOpeCmd undo用コマンドオブジェクト
@@ -130,8 +132,8 @@ public class Connector extends SyntaxSymbol {
 		ImitationID imitID,
 		ImitationConnectionPos imitCnctPoint,
 		ConnectorSection parent) {
-		
-		Connector newConnector = 
+
+		Connector newConnector =
 			new Connector(
 				this,
 				name,
@@ -159,7 +161,7 @@ public class Connector extends SyntaxSymbol {
 	public final void connectNode(BhNode node, UserOperationCommand userOpeCmd) {
 
 		assert node != null;	//null接続はダメ
-		
+
 		if (userOpeCmd != null)
 			userOpeCmd.pushCmdOfConnectNode(connectedNode, this);
 
@@ -168,7 +170,7 @@ public class Connector extends SyntaxSymbol {
 		connectedNode = node;
 		node.setParentConnector(this);	//新しいノードの親をセット
 	}
-	
+
 	/**
 	 * このコネクタの親となるノードを返す
 	 * @return このコネクタの親となるノード
@@ -184,7 +186,7 @@ public class Connector extends SyntaxSymbol {
 	public boolean isFixed() {
 		return fixed;
 	}
-	
+
 	/**
 	 * 引数で指定したノードが現在つながっているノードと入れ替え可能かどうか調べる
 	 * @param newNode 新しく入れ替わるノード
@@ -194,11 +196,11 @@ public class Connector extends SyntaxSymbol {
 
 		if (fixed)
 			return false;
-		
+
 		CompiledScript onReplaceabilityChecked = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnReplaceabilityChecked);
 		if (onReplaceabilityChecked == null)
 			return false;
-		
+
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_NEW_NODE_ID, newNode.getID());
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_NODE_ID, connectedNode.getID());
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newNode);
@@ -215,7 +217,7 @@ public class Connector extends SyntaxSymbol {
 
 		return false;
 	}
-	
+
 	/**
 	 * 現在繋がっているノードを取り除く
 	 * @param userOpeCmd undo用コマンドオブジェクト
@@ -224,8 +226,8 @@ public class Connector extends SyntaxSymbol {
 	public BhNode remove(UserOperationCommand userOpeCmd) {
 
 		assert connectedNode != null;
-		
-		BhNode newNode = BhNodeTemplates.INSTANCE.genBhNode(defaultNodeID, userOpeCmd);	//デフォルトノードを作成		
+
+		BhNode newNode = BhNodeTemplates.INSTANCE.genBhNode(defaultNodeID, userOpeCmd);	//デフォルトノードを作成
 		newNode.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));	//MVC構築
 		newNode.accept(new TextImitationPrompter());
 		connectedNode.replacedWith(newNode, userOpeCmd);
@@ -235,7 +237,7 @@ public class Connector extends SyntaxSymbol {
 	public ConnectorID getID() {
 		return id;
 	}
-	
+
 	/**
 	 * このコネクタに接続されているBhNode を返す
 	 * @return このコネクタに接続されているBhNode
@@ -243,7 +245,7 @@ public class Connector extends SyntaxSymbol {
 	public BhNode getConnectedNode() {
 		return connectedNode;
 	}
-	
+
 	/**
 	 * スクリプト実行時のスコープ変数を登録する
 	 */
@@ -260,15 +262,15 @@ public class Connector extends SyntaxSymbol {
 	 * @return イミテーション作成時のID
 	 */
 	public ImitationID findImitationID() {
-		
+
 		if (imitID.equals(ImitationID.NONE)) {
 			Connector parentCnctr = getParentNode().getParentConnector();
 			if (parentCnctr != null)
-				return parentCnctr.findImitationID();			
+				return parentCnctr.findImitationID();
 		}
 		return imitID;
 	}
-	
+
 	/**
 	 * イミテーション接続位置の識別子を取得する
 	 * @return イミテーション接続位置の識別子
@@ -284,7 +286,7 @@ public class Connector extends SyntaxSymbol {
 	public void setOuterFlag(boolean outer) {
 		this.outer = outer;
 	}
-	
+
 	/**
 	 * 外部描画ノードをつなぐコネクタかどうかを調べる
 	 * @return 外部描画ノードをコネクタの場合true
@@ -292,10 +294,10 @@ public class Connector extends SyntaxSymbol {
 	public boolean isOuter() {
 		return outer;
 	}
-	
+
 	@Override
 	public void findSymbolInDescendants(int hierarchyLevel, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
-		
+
 		if (hierarchyLevel == 0) {
 			for (String symbolName : symbolNames) {
 				if (Util.equals(getSymbolName(), symbolName)) {
@@ -306,10 +308,10 @@ public class Connector extends SyntaxSymbol {
 				return;
 			}
 		}
-		
+
 		connectedNode.findSymbolInDescendants(Math.max(0, hierarchyLevel-1), toBottom, foundSymbolList, symbolNames);
 	}
-	
+
 	@Override
 	public SyntaxSymbol findSymbolInAncestors(String symbolName, int hierarchyLevel, boolean toTop) {
 
@@ -321,10 +323,10 @@ public class Connector extends SyntaxSymbol {
 				return null;
 			}
 		}
-			
+
 		return parent.findSymbolInAncestors(symbolName, Math.max(0, hierarchyLevel-1), toTop);
 	}
-	
+
 	@Override
 	public boolean isDescendantOf(SyntaxSymbol ancestor) {
 
@@ -333,7 +335,7 @@ public class Connector extends SyntaxSymbol {
 
 		return parent.isDescendantOf(ancestor);
 	}
-	
+
 	/**
 	 * モデルの構造を表示する
 	 * @param depth 表示インデント数

@@ -108,7 +108,7 @@ public class BhParams {
 		public static final String ATTR_NAME_NODE_INPUT_CONTROL = "nodeInputControl";
 		public static final String ATTR_NAME_INIT_STRING = "initString";
 		public static final String ATTR_NAME_IMITATION_ID = "imitationID";
-		public static final String ARRT_NAME_IMIT_CNCT_POS ="imitCnctPos";
+		public static final String ATTR_NAME_IMIT_CNCT_POS ="imitCnctPos";
 		public static final String ATTR_NAME_IMIT_SCOPE_NAME = "imitScopeName";
 		public static final String ATTR_NAME_VALUE = "value";
 		public static final String ATTR_VALUE_CONNECTIVE = "connective";
