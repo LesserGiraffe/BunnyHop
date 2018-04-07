@@ -203,8 +203,10 @@ public class BhNodeController implements MsgProcessor {
      **/
 	private void toChildNode(BhNode oldChildNode) {
 
+		boolean fromWS = model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
+
 		//ワークスペースから移動する場合
-		if(model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS)
+		if(fromWS)
 			ddInfo.userOpeCmd.pushCmdOfSetPosOnWorkspace(ddInfo.posOnWorkspace.x, ddInfo.posOnWorkspace.y, model);
 
 		ConnectiveNode oldParentOfReplaced = oldChildNode.findParentNode();	//入れ替えられるノードの親ノード
@@ -227,16 +229,20 @@ public class BhNodeController implements MsgProcessor {
 			false,
 			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
 
-		if (oldChildNode instanceof VoidNode) { 	//VoidNodeは消す
-			BhNodeHandler.INSTANCE.deleteNode(oldChildNode, ddInfo.userOpeCmd);
+		if (model.findParentNode() != null)
+			model.findParentNode().execScriptOnChildReplaced(oldChildNode, model, ddInfo.userOpeCmd);
+
+		// 子ノードから移動
+		if (!fromWS) {
+			ConnectiveNode parent = model.getLastReplaced().findParentNode();
+				if (parent != null)
+					parent.execScriptOnChildReplaced(model, model.getLastReplaced(), ddInfo.userOpeCmd);
 		}
 
-//		BhNode outerEnd = model.findOuterEndNode();
-//		if(outerEnd instanceof VoidNode && outerEnd.isReplaceable(replacedNode) && !(replacedNode instanceof VoidNode)) {
-//			BhNodeHandler.INSTANCE.removeFromWS(replacedNode, ddInfo.userOpeCmd);
-//			BhNodeHandler.INSTANCE.replaceChild(outerEnd, replacedNode, ddInfo.userOpeCmd);
-//			BhNodeHandler.INSTANCE.deleteNode(outerEnd, ddInfo.userOpeCmd);
-//		}
+		//VoidNodeは消す
+		if (oldChildNode instanceof VoidNode &&
+			oldChildNode.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS)
+			BhNodeHandler.INSTANCE.deleteNode(oldChildNode, ddInfo.userOpeCmd);
 	}
 
 	/**
@@ -253,6 +259,10 @@ public class BhNodeController implements MsgProcessor {
 			model.getLastReplaced(),
 			true,
 			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
+
+		ConnectiveNode parentNode = model.getLastReplaced().findParentNode();
+			if (parentNode != null)
+				parentNode.execScriptOnChildReplaced(model, model.getLastReplaced(), ddInfo.userOpeCmd);
 	}
 
 	/**

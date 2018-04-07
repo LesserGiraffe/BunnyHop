@@ -201,8 +201,6 @@ public class Connector extends SyntaxSymbol {
 		if (onReplaceabilityChecked == null)
 			return false;
 
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_NEW_NODE_ID, newNode.getID());
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_NODE_ID, connectedNode.getID());
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newNode);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, connectedNode);
 		Object replaceable;

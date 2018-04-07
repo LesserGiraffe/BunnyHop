@@ -1,0 +1,27 @@
+<Node type="connective"
+	bhNodeID="idSayStat"
+	name="SayStat"
+	nodeStyleID="SayStat.json"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js">
+
+	<ConnectorSection name="StatSctn">
+		<Connector bhConnectorID="idStrExpCnctr" name="Arg0"/>
+		
+		<PrivateConnector 
+			bhConnectorID="idSayStat.prvCnctr0"
+			name="toIu"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSayStat.prvNode0"
+				name="toIu"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="と言う">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+	</ConnectorSection>
+</Node>

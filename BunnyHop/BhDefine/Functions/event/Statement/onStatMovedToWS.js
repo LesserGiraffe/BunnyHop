@@ -1,5 +1,5 @@
 (function() {
-	bhCommon.appendRemovedNode(bhReplacedNewNode, bhThis, bhManuallyReplaced, bhNodeHandler, bhUserOpeCmd);
+	bhCommon.appendRemovedNode(bhReplacedNewNode, bhThis, bhManuallyRemoved, bhNodeHandler, bhUserOpeCmd);
 	
 	let loopCtrlStatList = [];
 	bhThis.findSymbolInDescendants(1, true, loopCtrlStatList, 'BreakStat', 'ContinueStat');

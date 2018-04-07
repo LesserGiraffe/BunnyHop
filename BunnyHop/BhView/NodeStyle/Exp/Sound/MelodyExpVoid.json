@@ -1,21 +1,22 @@
 {
-	"paddingTop" : 1.0,
-	"paddingBottom" : 1.0,
-	"paddingLeft" : 4.0,
-	"paddingRight" : 1.5,
-	"connectorPos" : "Left",
+	"paddingTop" : 0.0,
+	"paddingBottom" : 0.0,
+	"paddingLeft" : 0.0,
+	"paddingRight" : 0.0,
+	"connectorPos" : "Top",
 	"connectorShift" : 1.0,
 	"connectorWidth" : 3.5,
 	"connectorHeight" : 3.5,
-	"connectorShape" : "CHAR_U",
+	"connectorShape" : "NONE",
 	"connectorBoundsRate" : 1.25,
 	"cssClass" : "soundType",
-    
+
 	"connective" : {
 		"inner" : {
 			"space" : 2.0,
 			"arrangement" : "Row",
-			"connectorList" : ["Duration", "ByoKanNo", "Frequency", "HzNoOto"]
+			"connectorList" : ["PrimaryExp"]
 		}
 	}
 }
+

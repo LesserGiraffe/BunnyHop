@@ -9,10 +9,10 @@
 	let bhCommon = {};
 
 	// 入れ替わってWSに移ったノードを末尾に再接続する
-	function appendRemovedNode(newNode, oldNode, manuallyReplaced, bhNodeHandler, bhUserOpeCmd) {
+	function appendRemovedNode(newNode, oldNode, manuallyRemoved, bhNodeHandler, bhUserOpeCmd) {
 
 		let outerEnd = newNode.findOuterEndNode();
-		if ((outerEnd.type === "void") && outerEnd.canBeReplacedWith(oldNode) && !manuallyReplaced) {
+		if ((outerEnd.type === "void") && outerEnd.canBeReplacedWith(oldNode) && !manuallyRemoved) {
 			bhNodeHandler.replaceChild(outerEnd, oldNode, bhUserOpeCmd);
 			bhNodeHandler.deleteNode(outerEnd, bhUserOpeCmd);
 	    }

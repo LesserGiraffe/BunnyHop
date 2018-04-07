@@ -2,8 +2,7 @@
 	type="connective"
 	bhNodeID="idFreqSoundLiteral"
 	name="FreqSoundLiteral"
-	nodeStyleID="FreqSoundLiteral.json"
-	onMovedFromChildToWS="onSoundExpMovedToWS.js">
+	nodeStyleID="FreqSoundLiteral.json">
 	
 	<ConnectorSection name="SoundExpSctn">
 
@@ -36,20 +35,6 @@
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
 				initString="Hz の音">
-			</Node>
-		</PrivateConnector>
-
-		<PrivateConnector 
-			bhConnectorID="idFreqSoundLiteral.prvCnctr2"
-			name="NextSound"
-			fixed="false"
-			defaultBhNodeID="idFreqSoundLiteral.prvNode2"
-			onReplaceabilityChecked="SoundExpCnct.js">
-			<Node
-				type="void"
-				bhNodeID="idFreqSoundLiteral.prvNode2"
-				name="SoundLiteralVoid"
-				nodeStyleID="SoundExpVoid.json">
 			</Node>
 		</PrivateConnector>
 	</ConnectorSection>

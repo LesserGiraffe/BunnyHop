@@ -145,7 +145,7 @@
 	const isBigEndian = _jByteOrder.nativeOrder() === _jByteOrder.BIG_ENDIAN;
 	const bytePerSample = 2;
 	const samplingRate = 44100;		//44.1KHz
-	let amp = 16384;
+	let amp = 16384/2;
 	const wave1Hz = new _jFloatArray(samplingRate);
 	const waveBuf = new _jByteArray(samplingRate * bytePerSample);
 
@@ -179,10 +179,10 @@
 	}
 
 	//メロディ再生
-	function _playMelodies(melodyList) {
+	function _playMelodies(melodyList, reverse) {
 
-		if (!Array.isArray(melodyList))
-			melodyList = [melodyList];
+		if (reverse)
+			melodyList = melodyList.reverse();
 
 		let format = new _jAudioFormat(
 			_jAudioFormat.Encoding.PCM_SIGNED,
@@ -202,17 +202,15 @@
 
 			melodyList.forEach(
 				function (sound) {
-					while (sound !== null) {
-						if (sound.duration !== 0) {
-							_genWave(waveBuf, sound.hz, amp);
-							let integer = Math.floor(sound.duration);
-							let fractional = sound.duration - integer;
-							for (let i = 0; i < integer; ++i)
-								line.write(waveBuf, 0, waveBuf.length);
-							line.write(waveBuf, 0, Math.floor(waveBuf.length * fractional));
-						}
-						sound = sound.next;
+					if (sound.duration !== 0) {
+						_genWave(waveBuf, sound.hz, amp);
+						let integer = Math.floor(sound.duration);
+						let fractional = sound.duration - integer;
+						for (let i = 0; i < integer; ++i)
+							line.write(waveBuf, 0, waveBuf.length);
+						line.write(waveBuf, 0, Math.floor(waveBuf.length * fractional));
 					}
+					sound = sound.next;
 				});
 		}
 		catch (e) { _println("ERR: _playMelodies " + e); }
@@ -235,18 +233,8 @@
 		return new _Sound(hz, duration);
 	}
 
-	//呼び出し元音オブジェクトに連なる音の末尾に引数の音を追加する
-	_Sound.prototype._addLast = function(sound) {
-
-		let current = this;
-		while (true) {
-			if (current.next !== null) {
-				current = current.next;
-			}
-			else {
-				current.next = sound;
-				break;
-			}
-		}
+	function _pushSound(sound, soundList) {
+		soundList.push(sound);
+		return soundList;
 	}
 

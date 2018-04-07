@@ -6,7 +6,8 @@
 			"idMoveStat",
 			"idMeasureDistanceExp",
 			"idPlayMelodyStat",
-			"idSleepStat"]
+			"idSleepStat",
+			"idSayStat"]
 	},
 
 	"数値" : {
@@ -50,7 +51,6 @@
 		"cssClass":"soundOpe",
 		"contents":[
 			"idFreqSoundLiteral",
-			"idDefaultMelodyExp",
 			"idPlayMelodyStat"]
 	},
 	

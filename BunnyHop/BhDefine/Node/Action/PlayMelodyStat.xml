@@ -21,6 +21,12 @@
 		</PrivateConnector>
 		
 		<Connector bhConnectorID="idMelodyExpCnctr" name="Arg0"/>
+		<PrivateConnector
+			bhConnectorID="idPlayMelodyStat.prvCnctr1"
+			name="Arg1"
+			fixed="true"
+			initialBhNodeID="idBoolLiteral"/>
+			
 		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
 	</ConnectorSection>
 </Node>

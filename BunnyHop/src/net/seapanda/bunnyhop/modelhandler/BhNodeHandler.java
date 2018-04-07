@@ -300,7 +300,13 @@ public class BhNodeHandler {
 			nodeA.getState() == BhNode.State.ROOT_DANGLING ||
 			nodeB.getState() == BhNode.State.DELETED ||
 			nodeB.getState() == BhNode.State.ROOT_DANGLING) {
-			throw new AssertionError("try to exchange dangling/deleted nodes.  " + nodeA.getState() + "   " + nodeB.getState());
+			throw new AssertionError("try to exchange dangling/deleted nodes.  "
+					+ nodeA.getSymbolName() + "(" + nodeA.getState() + ")    "
+					+ nodeB.getSymbolName() + "(" + nodeB.getState() + ")");
+		}
+		else if (nodeA.isDescendantOf(nodeB) || nodeB.isDescendantOf(nodeA)) {
+			throw new AssertionError("try to exchange parent-child relationship nodes.  "
+					+ nodeA.getSymbolName() + "    " + nodeB.getSymbolName());
 		}
 
 		if (nodeA.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS && nodeB.getState() == BhNode.State.CHILD) {

@@ -5,9 +5,9 @@
 		TURN_RIGHT : '3',
 		TURN_LEFT : '4'
 	};
-	
+
 	function _moveAny(speed, time, cmd) {
-	
+
 		const _MAX_SPEED = 10;
 		const _MIN_SPEED = 1;
 		speed = (speed - _MIN_SPEED) / (_MAX_SPEED - _MIN_SPEED);
@@ -16,15 +16,20 @@
 		time = Math.floor(time);
 		let moveCmd = execPath + '/Actions' + '/bhMove';
 		const procBuilder = new java.lang.ProcessBuilder([moveCmd, cmd, String(time), String(speed)]);
+		let process = null;
 		try {
-			const process =  procBuilder.start();
+			process = procBuilder.start();
 			process.waitFor();
-			process.getErrorStream().close();
-			process.getInputStream().close();
-			process.getOutputStream().close();
 		}
 		catch (e) {
 			_println('ERR: _move ' + cmd + ' ' + e);
+		}
+		finally {
+			if (process !== null) {
+				process.getErrorStream().close();
+				process.getInputStream().close();
+				process.getOutputStream().close();
+			}
 		}
 	}
 
@@ -58,7 +63,7 @@
 	}
 
 	function _measureDistance() {
-	
+
 		let spiCmd = execPath + '/Actions' + '/bhSpiRead';
 		const procBuilder = new java.lang.ProcessBuilder([spiCmd, '20', '5']);
 		let distanceList;
@@ -86,3 +91,21 @@
 			distance = 585242 * Math.pow(distance, -1.54);
 		return distance;
 	}
+
+	function _say(word) {
+
+		let talkCmd = execPath + '/Actions' + '/bhTalk.sh';
+		const procBuilder = new java.lang.ProcessBuilder(['sh', talkCmd, word]);
+		try {
+			const process =  procBuilder.start();
+			process.waitFor();
+			process.getErrorStream().close();
+			process.getInputStream().close();
+			process.getOutputStream().close();
+		}
+		catch (e) {
+			_println('ERR: _say ' + e);
+		}
+	}
+
+

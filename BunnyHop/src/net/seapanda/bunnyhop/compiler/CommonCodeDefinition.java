@@ -28,6 +28,7 @@ public class CommonCodeDefinition {
 		public static final String PRINTLN = "_println";
 		public static final String SLEEP = "_sleep";
 		public static final String PLAY_MELODIES = "_playMelodies";
+		public static final String SAY = "_say";
 		public static final String SCAN = "_scan";
 		public static final String ARY_PUSH = "_aryPush";
 		public static final String ARY_POP = "_aryPop";
@@ -50,7 +51,7 @@ public class CommonCodeDefinition {
 		public static final String FIRE_EVENT = "_fireEvent";
 		public static final String BH_MAIN = "_bhMain";
 		public static final String CREATE_SOUND = "_createSound";
-		public static final String ADD_LAST = "_addLast";
+		public static final String PUSH_SOUND = "_pushSound";
 		public static final String IS_FINITE = "isFinite";
 	}
 

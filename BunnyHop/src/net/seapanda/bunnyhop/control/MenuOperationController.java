@@ -179,6 +179,12 @@ public class MenuOperationController {
 			if (currentWS == null)
 				return;
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
+
+			// 直接, 選択 -> 削除をしたノードに対してのみ, 子ノード削除時のスクリプトを呼ぶ
+			new ArrayList<>(currentWS.getSelectedNodeList()).forEach(node -> {
+				if (node.findParentNode() != null)
+					node.findParentNode().execScriptJustBeforeChildToBeDeleted(node, userOpeCmd);
+			});
 			currentWS.deleteNodes(currentWS.getSelectedNodeList(), userOpeCmd);
 			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 		});

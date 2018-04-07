@@ -15,33 +15,34 @@
  */
 package net.seapanda.bunnyhop.model;
 
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
-import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
+import net.seapanda.bunnyhop.message.MsgTransporter;
+import net.seapanda.bunnyhop.model.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
+import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
  * ワークスペースクラス
  * @author K.Koike
  * */
 public class Workspace implements MsgReceptionWindow, Serializable {
-	
+
 	private final HashSet<BhNode> rootNodeList = new HashSet<>();	//!< ワークスペースのルートノードのリスト
 	private final HashSet<BhNode> selectedList = new HashSet<>();	//!< 選択中のノード
 	private final String workspaceName;	//!< ワークスペース名
 	transient private WorkspaceSet workspaceSet;	//!< このワークスペースを持つワークスペースセット
 	transient private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
-	
+
 	/**
 	 * コンストラクタ
 	 * @param workspaceName ワークスペース名
@@ -49,7 +50,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	public Workspace(String workspaceName) {
 		this.workspaceName = workspaceName;
 	}
-	
+
 	/**
 	 *ルートノードを追加する
 	 * @param node 追加するBhノード
@@ -65,7 +66,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	public void removeRootNode(BhNode node) {
 		rootNodeList.remove(node);
 	}
-	
+
 	/**
 	 * このワークスペースを持つワークスペースセットをセットする
 	 * @param wss このワークスペースを持つワークスペースセット
@@ -73,7 +74,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	public void setWorkspaceSet(WorkspaceSet wss) {
 		workspaceSet = wss;
 	}
-	
+
 	/**
 	 * このワークスペースを持つワークスペースセットを返す
 	 * @return このワークスペースを持つワークスペースセット
@@ -81,7 +82,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	public WorkspaceSet getWorkspaceSet() {
 		return workspaceSet;
 	}
-	
+
 	/**
 	 * ロードのための初期化処理をする
 	 */
@@ -106,7 +107,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	public Collection<BhNode> getRootNodeList() {
 		return rootNodeList;
 	}
-	
+
 	/**
 	 * 選択されたノードをセットする. すでに選択されているノードは非選択にする
 	 * @param selected 新たに選択されたノード
@@ -116,7 +117,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 
 		if ((selectedList.size() == 1) && selectedList.contains(selected))
 			return;
-		
+
 		clearSelectedNodeList(userOpeCmd);
 		addSelectedNode(selected, userOpeCmd);
 	}
@@ -140,10 +141,10 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 					new MsgData(true, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT),
 					imitation);
 			});
-		}		
+		}
 		userOpeCmd.pushCmdOfAddSelectedNode(this, added);
 	}
-	
+
 	/**
 	 * 選択中のBhNodeのリストを返す
 	 * @return 選択中のBhNodeのリスト
@@ -151,16 +152,16 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	public HashSet<BhNode> getSelectedNodeList() {
 		return selectedList;
 	}
-	
+
 	/**
 	 * 引数で指定したノードを選択済みリストから削除する
 	 * @param removed 選択済みリストから削除するBhNode
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
 	public void removeSelectedNode(BhNode removed, UserOperationCommand userOpeCmd) {
-		
+
 		MsgTransporter.INSTANCE.sendMessage(
-			BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION, 
+			BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
 			new MsgData(false, BhParams.CSS.PSEUDO_SELECTED),
 			removed);
 		selectedList.remove(removed);
@@ -175,7 +176,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 		}
 		userOpeCmd.pushCmdOfRemoveSelectedNode(this, removed);
 	}
-	
+
 	/**
 	 * 選択中のノードをすべて非選択にする
 	 * @param userOpeCmd undo用コマンドオブジェクト
@@ -186,16 +187,16 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 			removeSelectedNode(node, userOpeCmd);
 		}
 	}
-	
+
 	/**
 	 * 引数で指定したノードを消去する
-	 * @param nodeToDeleteList 消されるノードのリスト
+	 * @param nodesToDelete 消されるノードのリスト
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
-	public void deleteNodes(Collection<BhNode> nodeToDeleteList, UserOperationCommand userOpeCmd) {
-		BhNodeHandler.INSTANCE.deleteNodes(nodeToDeleteList, userOpeCmd);
+	public void deleteNodes(Collection<BhNode> nodesToDelete, UserOperationCommand userOpeCmd) {
+		BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
 	}
-	
+
 	/**
 	 * ワークスペース名を取得する
 	 * @return ワークスペース名
@@ -203,12 +204,12 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	public String getWorkspaceName() {
 		return workspaceName;
 	}
-	
+
 	@Override
 	public void setMsgProcessor(MsgProcessor processor) {
 		msgProcessor = processor;
 	}
-	
+
 	@Override
 	public MsgData passMsg(BhMsg msg, MsgData data) {
 		return msgProcessor.processMsg(msg, data);

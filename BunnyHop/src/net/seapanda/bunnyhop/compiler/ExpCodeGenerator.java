@@ -587,13 +587,6 @@ public class ExpCodeGenerator {
 		String soundVar = common.genVarName(soundLiteralNode);
 		String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, frequency, duration);
 		code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp).append(";").append(Util.LF);
-
-
-		// この音の次の音を接続する
-		SyntaxSymbol nextSoundNode = soundLiteralNode.findSymbolInDescendants("*", SymbolNames.Literal.Sound.NEXT_SOUND, "*");
-		String nextSound = genExpression(code, nextSoundNode, nestLevel, option);
-		String appendStat = common.genFuncCallCode(soundVar + "." + CommonCodeDefinition.Funcs.ADD_LAST, nextSound);
-		code.append(common.indent(nestLevel)).append(appendStat).append(";").append(Util.LF);
 		return soundVar;
 	}
 }

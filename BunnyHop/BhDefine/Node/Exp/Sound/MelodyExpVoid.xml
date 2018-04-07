@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<Node
+	type="void"
+	bhNodeID="idMelodyExpVoid"
+	name="MelodyExpVoid"
+	nodeStyleID="MelodyExpVoid.json">
+</Node>

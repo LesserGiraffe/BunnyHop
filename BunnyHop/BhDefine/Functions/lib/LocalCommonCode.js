@@ -33,3 +33,7 @@
 		return dist;
 	}
 	
+	function _say(word) {
+		_println('「' + word + '」');
+	}
+	

@@ -181,6 +181,8 @@ public class NodeConstructor {
 	 */
 	private Optional<ConnectiveNode> genConnectiveNode(Element node) {
 
+		String onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CHILD_REPLACED);
+		String justBeforeChildToBeDeleted = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_JUST_BEFORE_CHILD_TO_BE_DELETED);
 		Optional<BhNodeAttributes> nodeAttrs = BhNodeAttributes.readBhNodeAttriButes(node);
 		if (!nodeAttrs.isPresent()) {
 			return Optional.empty();
@@ -204,7 +206,8 @@ public class NodeConstructor {
 			BhNodeTemplates.allScriptsExist(
 				node.getBaseURI(),
 				nodeAttrs.get().onMovedFromChildToWS,
-				nodeAttrs.get().onMovedToChild);
+				nodeAttrs.get().onMovedToChild,
+				onChildReplaced);
 		if (!allScriptsFound) {
 			return Optional.empty();
 		}
@@ -222,6 +225,8 @@ public class NodeConstructor {
 			nodeAttrs.get().imitScopeName,
 			nodeAttrs.get().onMovedFromChildToWS,
 			nodeAttrs.get().onMovedToChild,
+			onChildReplaced,
+			justBeforeChildToBeDeleted,
 			imitID_imitNodeID.get(),
 			nodeAttrs.get().canCreateImitManually));
 	}
@@ -431,9 +436,18 @@ public class NodeConstructor {
 		if (privateNodeTagList.size() == 1) {
 			privateNodeOpt = genPirvateNode(privateNodeTagList.get(0));	//プライベートノード作成
 		}
+		else if (privateNodeTagList.size() == 0) {
+			Optional<Connector> privateCnctrOpt = (new ConnectorConstructor()).genTemplate(connectorTag);
+			return privateCnctrOpt.map(privateCnctr -> {
+				registerCnctrTemplate.accept(privateCnctr.getID(), privateCnctr); //コネクタテンプレートリストに登録
+				ConnectorSection.CnctrInstantiationParams cnctrInstParams = genConnectorInstParams(connectorTag);
+				return Optional.of(new Pair<>(privateCnctr, cnctrInstParams));
+			}).orElse(null);
+		}
 
 		// プライベートコネクタ作成
 		return privateNodeOpt.map(privateNode -> {
+
 			connectorTag.setAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID, privateNode.getID().toString());
 			ConnectorConstructor constructor = new ConnectorConstructor();
 			Optional<Connector> privateCnctrOpt = constructor.genTemplate(connectorTag);

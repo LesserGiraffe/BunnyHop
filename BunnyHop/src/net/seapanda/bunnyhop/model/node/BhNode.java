@@ -390,7 +390,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newReplaced);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_MANUALLY_REPLACED, manuallyRemoved);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_MANUALLY_REMOVED, manuallyRemoved);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
 			onMovedFromChildToWS.eval(scriptScope);
