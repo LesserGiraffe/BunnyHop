@@ -2,5 +2,5 @@
 
 <Connector 
 	bhConnectorID="idNumExpCnctr"
-	defaultBhNodeID="idDefaultNumLiteral"
+	defaultBhNodeID="idNumLiteral"
 	onReplaceabilityChecked="NumExpCnct.js"/>

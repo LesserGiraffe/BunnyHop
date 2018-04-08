@@ -10,7 +10,8 @@
 			bhConnectorID="idScanExp.prvCnctr0"
 			name="Arg0"
 			fixed="false"
-			defaultBhNodeID="initialBhNodeID"
+			defaultBhNodeID="idScanExp.prvNode0"
+			initialBhNodeID=""
 			onReplaceabilityChecked="StrExpCnct.js">
 			<Node
 				type="textField"
@@ -19,7 +20,7 @@
 				nodeStyleID="StrLiteral.json"
 				nodeInputControl="TextField.fxml"
 				onTextInput="ParseStr.js"
-				onMovedFromChildToWS="onDefaultLiteralMovedToWS.js"
+				onMovedFromChildToWS="onLiteralMovedToWS.js"
 				initString="入力待ちです">
 			</Node>
 		</PrivateConnector>

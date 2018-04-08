@@ -17,18 +17,16 @@ package net.seapanda.bunnyhop.model.node;
 
 import java.io.Serializable;
 import java.util.Objects;
-import net.seapanda.bunnyhop.common.BhParams;
 
 /**
  * BhノードID
  * @author K.Koike
  */
 public class BhNodeID implements Serializable {
-	
+
 	public static final BhNodeID NONE = new BhNodeID("");	//!< BhNodeIDが存在しないことを表す
-	public static final BhNodeID REF_INIT = new BhNodeID(BhParams.BhModelDef.ATTR_VALUE_INITIAL_BHNODE_ID);	//!< 初期ノードを参照することを意味するID
 	String id;
-	
+
 	/**
 	 * コンストラクタ
 	 * @param id 識別子名
@@ -36,7 +34,7 @@ public class BhNodeID implements Serializable {
 	private BhNodeID(String id) {
 		this.id = id;
 	}
-	
+
 	/**
 	 * BhノードIDを作成する
 	 * @param id 識別子名
@@ -45,7 +43,7 @@ public class BhNodeID implements Serializable {
 	public static BhNodeID createBhNodeID(String id) {
 		return new BhNodeID(id == null ? "" : id);
 	}
-	
+
 	@Override
 	public String toString() {
 		return id;
@@ -63,5 +61,5 @@ public class BhNodeID implements Serializable {
 		int hash = 5;
 		hash = 11 * hash + Objects.hashCode(this.id);
 		return hash;
-	}	
+	}
 }

@@ -83,11 +83,8 @@ public class Connector extends SyntaxSymbol {
 		this.id = id;
 		this.scriptNameOnReplaceabilityChecked = scriptNameOnReplaceabilityChecked;
 		this.defaultNodeID = defaultNodeID;
+		this.initNodeID = initialNodeID;	// BhNodeID.NONE でも initNodeID = defaultNodeID としないこと
 		this.fixed = fixed;
-		if (initialNodeID.equals(BhNodeID.NONE))
-			this.initNodeID = defaultNodeID;
-		else
-			this.initNodeID = initialNodeID;
 	}
 
 	/**
@@ -141,6 +138,8 @@ public class Connector extends SyntaxSymbol {
 				imitCnctPoint,
 				parent);
 		BhNode newNode = connectedNode.copy(userOpeCmd);
+		if (newNode.getID().equals(defaultNodeID) && !defaultNodeID.equals(initNodeID))
+			newNode.setDefaultNode(true);
 		newConnector.connectNode(newNode, null);
 		return newConnector;
 	}
@@ -228,6 +227,7 @@ public class Connector extends SyntaxSymbol {
 		BhNode newNode = BhNodeTemplates.INSTANCE.genBhNode(defaultNodeID, userOpeCmd);	//デフォルトノードを作成
 		newNode.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));	//MVC構築
 		newNode.accept(new TextImitationPrompter());
+		newNode.setDefaultNode(true);
 		connectedNode.replacedWith(newNode, userOpeCmd);
 		return newNode;
 	}

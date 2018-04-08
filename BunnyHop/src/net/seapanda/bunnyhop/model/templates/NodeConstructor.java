@@ -448,7 +448,8 @@ public class NodeConstructor {
 		// プライベートコネクタ作成
 		return privateNodeOpt.map(privateNode -> {
 
-			connectorTag.setAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID, privateNode.getID().toString());
+			if (!connectorTag.hasAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID))
+				connectorTag.setAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID, privateNode.getID().toString());
 			ConnectorConstructor constructor = new ConnectorConstructor();
 			Optional<Connector> privateCnctrOpt = constructor.genTemplate(connectorTag);
 			return privateCnctrOpt.map(privateCnctr -> {

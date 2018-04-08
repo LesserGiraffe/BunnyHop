@@ -2,6 +2,6 @@
 
 <Connector
 	bhConnectorID="idSoundExpCnctr"
-	defaultBhNodeID="idSoundLiteralVoid"
+	defaultBhNodeID="idFreqSoundLiteral"
 	initialBhNodeID="idFreqSoundLiteral"
 	onReplaceabilityChecked="SoundExpCnct.js"/>

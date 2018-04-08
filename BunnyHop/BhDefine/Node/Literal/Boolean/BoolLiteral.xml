@@ -5,6 +5,7 @@
 	bhNodeID="idBoolLiteral"
 	name="BoolLiteral"
 	nodeStyleID="BoolLiteral.json"
-	nodeInputControl="BoolLiteral.fxml">
+	nodeInputControl="BoolLiteral.fxml"
+	onMovedFromChildToWS="onLiteralMovedToWS.js">
 </Node>
 

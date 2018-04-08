@@ -124,7 +124,6 @@ public class BhParams {
 		public static final String ATTR_VALUE_DEFAULT_NODE_STYLE_ID = "";
 		public static final String ATTR_VALUE_IMIT_ID_MANUAL = "imitIdManual";
 		public static final String ATTR_VALUE_TAG_REFER_TO_PARENT = "tagReferToParent";
-		public static final String ATTR_VALUE_INITIAL_BHNODE_ID = "initialBhNodeID";
 	}
 
 	/**

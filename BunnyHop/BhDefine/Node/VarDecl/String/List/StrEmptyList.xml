@@ -6,7 +6,7 @@
 	name="StrEmptyList"
 	nodeStyleID="StrEmptyList.json"
 	nodeInputControl="Label.fxml"
-	onMovedFromChildToWS="onDefaultLiteralMovedToWS.js"
+	onMovedFromChildToWS="onLiteralMovedToWS.js"
 	initString="[...]">
 </Node>
 

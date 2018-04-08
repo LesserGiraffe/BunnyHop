@@ -52,6 +52,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	private final String scriptNameOnMovedToChild;	//!< ワークスペースもしくは, 子ノードから子ノードに移されたときに実行されるスクリプトの名前
 	public final String type;	//!< ノードのタイプ (connective, void, textField, ...)
 	private BhNode lastReplaced;	//!< 最後にこのノードと入れ替わったノード
+	private boolean isDefaultNode = false;	//!< デフォルトノードである場合true
 	transient protected Bindings scriptScope;	//!< Javascript実行時の変数スコープ
 	transient private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
 
@@ -135,6 +136,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		type = org.type;
 		lastReplaced = null;
 		scriptScope = null;
+		isDefaultNode = org.isDefaultNode;
 	}
 
 	public BhNodeID getID() {
@@ -268,7 +270,15 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * @return このBhNodeがデフォルトノードの場合true
 	 */
 	public boolean isDefaultNode() {
-		return parentConnector.defaultNodeID.equals(bhID);
+		return isDefaultNode;
+	}
+
+	/**
+	 * デフォルトノードかどうかを設定する
+	 * @param isDefaultNode デフォルトノードの場合true
+	 * */
+	public void setDefaultNode(boolean isDefaultNode) {
+		this.isDefaultNode = isDefaultNode;
 	}
 
 	/**

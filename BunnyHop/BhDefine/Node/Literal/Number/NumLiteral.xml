@@ -7,6 +7,7 @@
 	nodeStyleID="NumLiteral.json"
 	nodeInputControl="TextField.fxml"
 	onTextInput="ParseNum.js"
+	onMovedFromChildToWS="onLiteralMovedToWS.js"
     initString="0">
 </Node>
 

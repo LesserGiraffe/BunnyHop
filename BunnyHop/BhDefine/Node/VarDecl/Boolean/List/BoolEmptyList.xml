@@ -6,7 +6,7 @@
 	name="BoolEmptyList"
 	nodeStyleID="BoolEmptyList.json"
 	nodeInputControl="Label.fxml"
-	onMovedFromChildToWS="onDefaultLiteralMovedToWS.js"
+	onMovedFromChildToWS="onLiteralMovedToWS.js"
 	initString="[...]">
 </Node>
 

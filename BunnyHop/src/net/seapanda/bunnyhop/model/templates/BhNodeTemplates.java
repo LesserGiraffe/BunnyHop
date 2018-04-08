@@ -208,7 +208,7 @@ public class BhNodeTemplates {
 				BhNodeID defNodeID = connector.defaultNodeID;
 				Optional<BhNode> defNode = getBhNodeTemplate(defNodeID);
 				BhNodeID initNodeID = connector.initNodeID;
-				Optional<BhNode> initNode = getBhNodeTemplate(initNodeID);
+				Optional<BhNode> initNode = initNodeID.equals(BhNodeID.NONE) ? defNode : getBhNodeTemplate(initNodeID);
 
 				//ノードテンプレートが見つからない
 				if (!defNode.isPresent()) {
