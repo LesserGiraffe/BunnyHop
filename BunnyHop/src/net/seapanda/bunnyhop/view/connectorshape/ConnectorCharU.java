@@ -45,25 +45,31 @@ public class ConnectorCharU extends ConnectorShape {
 
 		if (pos == CNCTR_POS.LEFT) {
 			vertices = new ArrayList<>(Arrays.asList(
-				offsetX + width,             offsetY + height,
-				offsetX + 0.0,               offsetY + height,
-				offsetX + 0.0,               offsetY + height * (1.0 - q / p),
-				offsetX + width * (s / r),   offsetY + height * (1.0 - q / p),
-				offsetX + width * (s / r),   offsetY + height * (q / p),
-				offsetX + 0.0,               offsetY + height * (q / p),
-				offsetX + 0.0,               offsetY + 0.0,
-				offsetX + width,             offsetY + 0.0));
+				offsetX + width,                 offsetY + height * (1.0 - q / p),
+				offsetX + width * (1.0 - q / p), offsetY + height,
+				offsetX + 0.0,                   offsetY + height,
+				offsetX + 0.0,                   offsetY + height * (1.0 - q / p),
+				offsetX + width * (s / r),       offsetY + height * (1.0 - q / p),
+
+				offsetX + width * (s / r),       offsetY + height * (q / p),
+				offsetX + 0.0,                   offsetY + height * (q / p),
+				offsetX + 0.0,                   offsetY + 0.0,
+				offsetX + width * (1.0 - q / p), offsetY + 0.0,
+				offsetX + width,                 offsetY + height * (q / p)));
 		}
 		else if (pos == CNCTR_POS.TOP) {
 			vertices = new ArrayList<>(Arrays.asList(
-				offsetX + 0.0,                    offsetY + height,
-				offsetX + 0.0,                    offsetY + 0.0,
-				offsetX + width * (q / p),        offsetY + 0.0,
-				offsetX + width * (q / p),        offsetY + height * (s / r),
+				offsetX + width * (q / p),    offsetY + height,
+				offsetX + 0.0,                offsetY + height * (1.0 - q / p),
+				offsetX + 0.0,                offsetY + 0.0,
+				offsetX + width * (q / p),    offsetY + 0.0,
+				offsetX + width * (q / p),    offsetY + height * (s / r),
+
 				offsetX + width * (1.0 - q / p),  offsetY + height * (s / r),
 				offsetX + width * (1.0 - q / p),  offsetY + 0.0,
 				offsetX + width,                  offsetY + 0.0,
-				offsetX + width,                  offsetY + height));
+				offsetX + width,                  offsetY + height * (1.0 - q / p),
+				offsetX + width * (1.0 - q / p),  offsetY + height * (s / r)));
 		}
 		return vertices;
 	}

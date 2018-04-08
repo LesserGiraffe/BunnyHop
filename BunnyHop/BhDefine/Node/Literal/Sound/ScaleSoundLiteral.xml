@@ -2,7 +2,8 @@
 	type="connective"
 	bhNodeID="idScaleSoundLiteral"
 	name="ScaleSoundLiteral"
-	nodeStyleID="ScaleSoundLiteral.json">
+	nodeStyleID="ScaleSoundLiteral.json"
+	onMovedFromChildToWS="onLiteralMovedToWS.js">
 	
 	<ConnectorSection name="SoundExpSctn">
 

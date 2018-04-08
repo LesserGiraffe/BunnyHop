@@ -141,6 +141,7 @@
 	let _jDataLine = Java.type('javax.sound.sampled.DataLine');
 	let _jSourceDataLine = Java.type('javax.sound.sampled.SourceDataLine');
 	let _jAudioSystem = Java.type('javax.sound.sampled.AudioSystem');
+	let _nilSound = _createSound(0, 0)
 
 	const isBigEndian = _jByteOrder.nativeOrder() === _jByteOrder.BIG_ENDIAN;
 	const bytePerSample = 2;

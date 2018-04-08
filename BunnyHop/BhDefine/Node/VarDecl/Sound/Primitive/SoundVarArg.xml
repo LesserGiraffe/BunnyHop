@@ -1,0 +1,11 @@
+<Node type="connective"
+	  bhNodeID="idSoundArg"
+	  name="SoundArg"
+	  nodeStyleID="SoundArg.json">
+
+	<ConnectorSection>
+		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
+		<Connector bhConnectorID="idSoundExpCnctr" name="Arg"/>
+		<Connector bhConnectorID="idArgCnctr" name="NextArg" imitCnctPos="imitPosNextArg"/>
+	</ConnectorSection>
+</Node>

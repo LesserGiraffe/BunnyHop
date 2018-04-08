@@ -76,7 +76,8 @@
 			"idStrVarDecl", 
 			"idStrListDecl",
 			"idBoolVarDecl",
-			"idBoolListDecl"
+			"idBoolListDecl",
+			"idSoundVarDecl"
 		]
 	},
 	

@@ -7,5 +7,8 @@
 		sectionName = section.getSymbolName();
 	}
 
-	return sectionName === 'SoundExpSctn';
+	return newNodeName === 'FreqSoundLiteral' ||
+		   newNodeName === 'ScaleSoundLiteral' ||
+		   sectionName === 'SoundExpSctn' ||
+		   sectionName === 'AnyExpSctn';
 })();

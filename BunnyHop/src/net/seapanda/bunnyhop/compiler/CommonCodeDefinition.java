@@ -62,5 +62,6 @@ public class CommonCodeDefinition {
 
 	public static class Vars {
 		public static final String CALL_OBJ = "_callObj";
+		public static final String NIL_SOUND = "_nilSound";
 	}
 }

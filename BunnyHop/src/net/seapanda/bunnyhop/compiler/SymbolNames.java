@@ -46,6 +46,13 @@ public class SymbolNames {
 		public static final String BOOL_LIST_DECL = "BoolListDecl";
 		public static final String BOOL_LIST = "BoolList";
 		public static final String BOOL_EMPTY_LIST = "BoolEmptyList";
+		public static final String SOUND_VAR_DECL = "SoundVarDecl";
+		public static final String SOUND_VAR = "SoundVar";
+		public static final String SOUND_VAR_VOID = "SoundVarVoid";
+		public static final String SOUND_LIST_DECL = "SoundListDecl";
+		public static final String SOUND_LIST = "SoundList";
+		public static final String SOUND_EMPTY_LIST = "SoundEmptyList";
+
 		public static final String VAR_NAME = "VarName";
 		public static final String LIST_NAME = "ListName";
 		public static final String NEXT_VAR_DECL = "NextVarDecl";
@@ -56,7 +63,9 @@ public class SymbolNames {
 				STR_VAR_DECL,
 				STR_LIST_DECL,
 				BOOL_VAR_DECL,
-				BOOL_LIST_DECL));
+				BOOL_LIST_DECL,
+				SOUND_VAR_DECL,
+				SOUND_LIST_DECL));
 		public static final HashSet<String> VAR_LIST =
 			new HashSet<>(Arrays.asList(
 				NUM_VAR,
@@ -64,7 +73,9 @@ public class SymbolNames {
 				STR_VAR,
 				STR_LIST,
 				BOOL_VAR,
-				BOOL_LIST));
+				BOOL_LIST,
+				SOUND_VAR,
+				SOUND_LIST));
 		public static final Map<String, String> INIT_VAL_MAP =
 			new HashMap<String,String>() {{
 				put(NUM_VAR_DECL, "0");
@@ -73,21 +84,27 @@ public class SymbolNames {
 				put(STR_LIST_DECL, "[]");
 				put(BOOL_VAR_DECL, "false");
 				put(BOOL_LIST_DECL, "[]");
+				put(SOUND_VAR_DECL, CommonCodeDefinition.Vars.NIL_SOUND);
+				put(SOUND_LIST_DECL, "[]");
 				put(NUM_VAR_VOID, "0");
 				put(STR_VAR_VOID, "''");
 				put(BOOL_VAR_VOID, "false");
+				put(SOUND_VAR_VOID, CommonCodeDefinition.Vars.NIL_SOUND);
 				put(NUM_EMPTY_LIST, "[]");
 				put(STR_EMPTY_LIST, "[]");
 				put(BOOL_EMPTY_LIST, "[]");
+				put(SOUND_EMPTY_LIST, "[]");
 			}};
 		public static final HashSet<String> VAR_VOID_LIST =
 			new HashSet<>(Arrays.asList(
 				NUM_VAR_VOID,
 				STR_VAR_VOID,
 				BOOL_VAR_VOID,
+				SOUND_VAR_VOID,
 				NUM_EMPTY_LIST,
 				STR_EMPTY_LIST,
-				BOOL_EMPTY_LIST
+				BOOL_EMPTY_LIST,
+				SOUND_EMPTY_LIST
 			));
 	}
 
@@ -129,13 +146,15 @@ public class SymbolNames {
 		public static final String NUM_ADD_ASSIGN_STAT = "NumAddAssignStat";
 		public static final String STR_ASSIGN_STAT = "StrAssignStat";
 		public static final String BOOL_ASSIGN_STAT = "BoolAssignStat";
+		public static final String SOUND_ASSIGN_STAT = "SoundAssignStat";
 		public static final String LEFT_VAR = "LeftVar";
 		public static final HashSet<String> LIST =
 			new HashSet<>(Arrays.asList(
 				NUM_ASSIGN_STAT,
 				NUM_ADD_ASSIGN_STAT,
 				STR_ASSIGN_STAT,
-				BOOL_ASSIGN_STAT));
+				BOOL_ASSIGN_STAT,
+				SOUND_ASSIGN_STAT));
 	}
 
 	public static class ControlStat {

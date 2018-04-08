@@ -1,0 +1,13 @@
+<Node
+	type="connective"
+	bhNodeID="idSoundVar"
+	name="SoundVar"
+	nodeStyleID="SoundVar.json"
+	imitScopeName="VarScopeSctn"
+	onMovedToChild="onVarMovedToChild.js">
+
+	<ConnectorSection name="SoundExpSctn">
+		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
+	</ConnectorSection>
+
+</Node>

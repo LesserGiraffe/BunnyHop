@@ -69,6 +69,15 @@
 	//リストと変数名を変更して再登録
 	function setVarAndListName() {
 
+		let varDecls = ['idNumVarDecl', 'idStrVarDecl', 'idBoolVarDecl', 'idSoundVarDecl'];
+		let varNames = ['数値変数', '文字列変数', '論理変数', '音変数'];
+		for (let i = 0; i < varDecls.length; ++i) {
+			let varDecl = genBhNode(varDecls[i], bhUserOpeCmd);
+			let varName = varDecl.findSymbolInDescendants('*', 'VarName', '*');
+			varName.setText(varNames[i]);
+			registerNodeTemplate(varDecls[i], varDecl);
+		}
+/*
 		//数値変数
 		var varDecl = genBhNode('idNumVarDecl', bhUserOpeCmd);
 		var varName = varDecl.findSymbolInDescendants('*', 'VarName', '*');
@@ -76,8 +85,8 @@
 		registerNodeTemplate('idNumVarDecl', varDecl);
 
 		//文字列変数
-		var varDecl = genBhNode('idStrVarDecl', bhUserOpeCmd);
-		var varName = varDecl.findSymbolInDescendants('*', 'VarName', '*');
+		varDecl = genBhNode('idStrVarDecl', bhUserOpeCmd);
+		varName = varDecl.findSymbolInDescendants('*', 'VarName', '*');
 		varName.setText('文字列変数');
 		registerNodeTemplate('idStrVarDecl', varDecl);
 
@@ -86,7 +95,17 @@
 		varName = varDecl.findSymbolInDescendants('*', 'VarName', '*');
 		varName.setText('論理変数');
 		registerNodeTemplate('idBoolVarDecl', varDecl);
+*/
 
+		let listDecls = ['idNumListDecl', 'idStrListDecl', 'idBoolListDecl'];
+		let listNames = ['数値リスト', '文字列リスト', '論理リスト'];
+		for (let i = 0; i < listDecls.length; ++i) {
+			let listDecl = genBhNode(listDecls[i], bhUserOpeCmd);
+			let listName = listDecl.findSymbolInDescendants('*', 'ListName', '*');
+			listName.setText(listNames[i]);
+			registerNodeTemplate(listDecls[i], listDecl);
+		}
+		/*
 		//数値リスト
 		varDecl = genBhNode('idNumListDecl', bhUserOpeCmd);
 		varName = varDecl.findSymbolInDescendants('*', 'ListName', '*');
@@ -103,7 +122,7 @@
 		varDecl = genBhNode('idBoolListDecl', bhUserOpeCmd);
 		varName = varDecl.findSymbolInDescendants('*', 'ListName', '*');
 		varName.setText('論理リスト');
-		registerNodeTemplate('idBoolListDecl', varDecl);
+		registerNodeTemplate('idBoolListDecl', varDecl);*/
 	}
 
 	addRepeatAndCountNode('idRepeatAndCount');
