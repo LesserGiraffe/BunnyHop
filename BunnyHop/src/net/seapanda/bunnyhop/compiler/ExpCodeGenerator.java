@@ -209,6 +209,7 @@ public class ExpCodeGenerator {
 
 			case SymbolNames.Literal.SOUND_LITERAL_VOID:
 			case SymbolNames.Literal.FREQ_SOUND_LITERAL:
+			case SymbolNames.Literal.SCALE_SOUND_LITERAL:
 				return genSoundLiteralExp(code, literalNode, nestLevel, option);
 
 			default:
@@ -578,14 +579,72 @@ public class ExpCodeGenerator {
 			return soundVar;
 		}
 
-		SyntaxSymbol durationNode = soundLiteralNode.findSymbolInDescendants("*", SymbolNames.Literal.Sound.DURATION, "*");
-		SyntaxSymbol frequencyNode = soundLiteralNode.findSymbolInDescendants("*", SymbolNames.Literal.Sound.FREQUENCY, "*");
+		if (soundLiteralNode.getSymbolName().equals(SymbolNames.Literal.FREQ_SOUND_LITERAL))
+			return genFreqSoundLiteralExp(code, soundLiteralNode, nestLevel, option);
+
+		if (soundLiteralNode.getSymbolName().equals(SymbolNames.Literal.SCALE_SOUND_LITERAL))
+			return genScaleSoundLiteralExp(code, soundLiteralNode, nestLevel, option);
+
+		throw new AssertionError(ExpCodeGenerator.class.getSimpleName() + " invalid sound literal " + soundLiteralNode.getSymbolName());
+	}
+
+	/**
+	 * 周波数指定の音リテラルのコードを生成する
+	 * @param code 生成したコードの格納先
+	 * @param freqSoundLiteralNode 周波数指定の音リテラルノード
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 * @return 音リテラルを格納した変数.
+	 * */
+	private String genFreqSoundLiteralExp(
+		StringBuilder code,
+		SyntaxSymbol freqSoundLiteralNode,
+		int nestLevel,
+		CompileOption option) {
+
+		SyntaxSymbol durationNode = freqSoundLiteralNode.findSymbolInDescendants("*", SymbolNames.Literal.Sound.DURATION, "*");
+		SyntaxSymbol frequencyNode = freqSoundLiteralNode.findSymbolInDescendants("*", SymbolNames.Literal.Sound.FREQUENCY, "*");
 		String duration = genExpression(code, durationNode, nestLevel, option);
 		String frequency = genExpression(code, frequencyNode, nestLevel, option);
 
 		// 音オブジェクト作成
-		String soundVar = common.genVarName(soundLiteralNode);
+		String soundVar = common.genVarName(freqSoundLiteralNode);
 		String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, frequency, duration);
+		code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp).append(";").append(Util.LF);
+		return soundVar;
+
+	}
+
+	/**
+	 * 音階の音を指定する音リテラルのコードを生成する
+	 * @param code 生成したコードの格納先
+	 * @param scaleSoundLiteralNode 音階の音を指定する音リテラルノード
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 * @return 音リテラルを格納した変数.
+	 * */
+	private String genScaleSoundLiteralExp(
+		StringBuilder code,
+		SyntaxSymbol scaleSoundLiteralNode,
+		int nestLevel,
+		CompileOption option) {
+
+		SyntaxSymbol durationNode = scaleSoundLiteralNode.findSymbolInDescendants("*", SymbolNames.Literal.Sound.DURATION, "*");
+		SyntaxSymbol octaveNode = scaleSoundLiteralNode.findSymbolInDescendants("*", SymbolNames.Literal.Sound.OCTAVE, "*");
+		SyntaxSymbol scaleSoundNode = scaleSoundLiteralNode.findSymbolInDescendants("*", SymbolNames.Literal.Sound.SCALE_SOUND, "*");
+
+		// 音階の音から周波数を計算する
+		String duration = genExpression(code, durationNode, nestLevel, option);
+		String octave = genExpression(code, octaveNode, nestLevel, option);
+		String scaleSound = genExpression(code, scaleSoundNode, nestLevel, option);
+		octave = octave.replaceAll("[^\\d\\-]", "");
+		scaleSound = scaleSound.replaceAll("[^\\d\\-]", "");
+		double frequency = 440 * Math.pow(2, (Double.parseDouble(octave) + Double.parseDouble(scaleSound))/12);
+		frequency = Math.round(frequency);
+
+		// 音オブジェクト作成
+		String soundVar = common.genVarName(scaleSoundLiteralNode);
+		String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, frequency+"", duration);
 		code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp).append(";").append(Util.LF);
 		return soundVar;
 	}

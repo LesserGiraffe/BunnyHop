@@ -52,12 +52,18 @@
 
 	//音ノードの初期値を変更して再登録
 	function setInitialSoundParams() {
+		
 		let newFreqSoundLiteral = genBhNode('idFreqSoundLiteral', bhUserOpeCmd);
 		let duration = newFreqSoundLiteral.findSymbolInDescendants('*', 'Duration', '*');
 		let freq = newFreqSoundLiteral.findSymbolInDescendants('*', 'Frequency', '*');
 		duration.setText('1');
 		freq.setText('500');
 		registerNodeTemplate('idFreqSoundLiteral', newFreqSoundLiteral);
+		
+		let newScaleSoundLiteral = genBhNode('idScaleSoundLiteral', bhUserOpeCmd);
+		duration = newScaleSoundLiteral.findSymbolInDescendants('*', 'Duration', '*');
+		duration.setText('1');
+		registerNodeTemplate('idScaleSoundLiteral', newScaleSoundLiteral);
 	}
 
 	//リストと変数名を変更して再登録

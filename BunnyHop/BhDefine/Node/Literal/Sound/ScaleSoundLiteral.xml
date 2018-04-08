@@ -1,0 +1,79 @@
+<Node
+	type="connective"
+	bhNodeID="idScaleSoundLiteral"
+	name="ScaleSoundLiteral"
+	nodeStyleID="ScaleSoundLiteral.json">
+	
+	<ConnectorSection name="SoundExpSctn">
+
+		<Connector bhConnectorID="idNumExpCnctr" name="Duration"/>
+		
+		<PrivateConnector 
+			bhConnectorID="idScaleSoundLiteral.prvCnctr0"
+			name="ByoKanNo"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idScaleSoundLiteral.prvNode0"
+				name="ByoKanNo"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="秒間の">
+			</Node>
+		</PrivateConnector>
+
+		<PrivateConnector 
+			bhConnectorID="idScaleSoundLiteral.prvCnctr1"
+			name="takasa"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idScaleSoundLiteral.prvNode1"
+				name="takasa"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="高さ">
+			</Node>
+		</PrivateConnector>
+	
+		<PrivateConnector
+			bhConnectorID="idScaleSoundLiteral.prvCnctr2" 
+			name="Octave"
+			fixed="true">
+			<Node
+				type="comboBox"
+				bhNodeID="idScaleSoundLiteral.prvNode2"
+				name="NumLiteral"
+				nodeStyleID="WordComboBox.json"
+				nodeInputControl="Octave.fxml">
+			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector 
+			bhConnectorID="idScaleSoundLiteral.prvCnctr3"
+			name="no"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idScaleSoundLiteral.prvNode3"
+				name="no"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="の">
+			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector
+			bhConnectorID="idScaleSoundLiteral.prvCnctr4" 
+			name="ScaleSound"
+			fixed="true">
+			<Node
+				type="comboBox"
+				bhNodeID="idScaleSoundLiteral.prvNode4"
+				name="NumLiteral"
+				nodeStyleID="WordComboBox.json"
+				nodeInputControl="MusicalScale.fxml">
+			</Node>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>

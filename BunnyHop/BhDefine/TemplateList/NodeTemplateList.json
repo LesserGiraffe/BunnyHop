@@ -50,8 +50,9 @@
 	"音": {
 		"cssClass":"soundOpe",
 		"contents":[
+			"idScaleSoundLiteral",
 			"idFreqSoundLiteral",
-			"idPlayMelodyStat"]
+			"idPlayMelodyStat",]
 	},
 	
 	"制御" : {

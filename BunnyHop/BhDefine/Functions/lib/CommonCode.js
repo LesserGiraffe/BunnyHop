@@ -173,8 +173,8 @@
 				waveBuf[i+1] = (sample >> 8);
 			}
 			samplePos += hz;
-			if (samplePos >= wave1Hz.length)
-				samplePos -= wave1Hz.length;
+			if (samplePos > (wave1Hz.length - 1))
+				samplePos -= wave1Hz.length - 1;
 		}
 	}
 
@@ -210,7 +210,6 @@
 							line.write(waveBuf, 0, waveBuf.length);
 						line.write(waveBuf, 0, Math.floor(waveBuf.length * fractional));
 					}
-					sound = sound.next;
 				});
 		}
 		catch (e) { _println("ERR: _playMelodies " + e); }
@@ -226,7 +225,6 @@
 	function _Sound(hz, duration) {
 		this.hz = hz;
 		this.duration = duration;
-		this.next = null;
 	}
 
 	function _createSound(hz, duration) {

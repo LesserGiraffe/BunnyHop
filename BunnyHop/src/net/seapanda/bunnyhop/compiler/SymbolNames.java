@@ -398,6 +398,7 @@ public class SymbolNames {
 		public static final String NUM_LITERAL = "NumLiteral";
 		public static final String BOOL_LITERAL = "BoolLiteral";
 		public static final String FREQ_SOUND_LITERAL = "FreqSoundLiteral";
+		public static final String SCALE_SOUND_LITERAL = "ScaleSoundLiteral";
 		public static final String SOUND_LITERAL_VOID = "SoundLiteralVoid";
 		public static final String MELODY_EXP_VOID = "MelodyExpVoid";
 		public static final String STR_EMPTY_LIST = VarDecl.STR_EMPTY_LIST;
@@ -412,6 +413,7 @@ public class SymbolNames {
 				BOOL_LITERAL,
 				FREQ_SOUND_LITERAL,
 				SOUND_LITERAL_VOID,
+				SCALE_SOUND_LITERAL,
 				STR_EMPTY_LIST,
 				NUM_EMPTY_LIST,
 				BOOL_EMPTY_LIST,
@@ -428,6 +430,8 @@ public class SymbolNames {
 		public static class Sound {
 			public static final String DURATION = "Duration";
 			public static final String FREQUENCY = "Frequency";
+			public static final String SCALE_SOUND = "ScaleSound";
+			public static final String OCTAVE = "Octave";
 		}
 	}
 

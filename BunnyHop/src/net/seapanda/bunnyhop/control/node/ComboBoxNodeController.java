@@ -63,7 +63,6 @@ public class ComboBoxNodeController extends BhNodeController {
 		});
 
 		Optional<SelectableItem> optItem = view.getItemByModelText(model.getText());
-
 		optItem.ifPresent(item -> view.setItem(item));
 		if (!optItem.isPresent())
 			model.setText(view.getItem().getModelText());
