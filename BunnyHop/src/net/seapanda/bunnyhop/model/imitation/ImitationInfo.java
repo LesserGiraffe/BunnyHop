@@ -15,13 +15,13 @@
  */
 package net.seapanda.bunnyhop.model.imitation;
 
-import net.seapanda.bunnyhop.model.node.BhNodeID;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.seapanda.bunnyhop.model.node.BhNodeID;
+import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -35,24 +35,24 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 	private T orgNode;									//!< このオブジェクトを持つノードがイミテーションノードの場合、そのオリジナルノードを保持する
 	private final Map<ImitationID, BhNodeID> imitID_imitNodeID;	//!< イミテーションタグとそれに対応するイミテーションノードIDのマップ
 	public final String scopeName;	//!< オリジナルノードと同じスコープにいるかチェックする際の名前
-	
+
 	/**
 	 * コンストラクタ
 	 * @param imitID_imitNodeID イミテーションIDとそれに対応するイミテーションノードIDのマップ
 	 * @param canCreateImitManually イミテーションノードの手動作成機能の有無
 	 * @param scopeName オリジナルノードと同じスコープにいるかチェックする際の名前
-	 **/	
+	 **/
 	public ImitationInfo(
-		Map<ImitationID, BhNodeID> imitID_imitNodeID, 
+		Map<ImitationID, BhNodeID> imitID_imitNodeID,
 		boolean canCreateImitManually,
 		String scopeName) {
 		this.imitID_imitNodeID = imitID_imitNodeID;
 		imitNodeList = new ArrayList<>();
-		orgNode = null;		
+		orgNode = null;
 		this.canCreateImitManually = canCreateImitManually;
 		this.scopeName = scopeName;
 	}
-	
+
 	/**
 	 * コピーコンストラクタ
 	 * @param org コピー元オブジェクト
@@ -66,23 +66,23 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 		orgNode = null;
 		scopeName = org.scopeName;
 		if (org.isImitationNode()) {
-			//イミテーションをコピーした場合, コピー元と同じオリジナルノードのイミテーションノードとする			
+			//イミテーションをコピーした場合, コピー元と同じオリジナルノードのイミテーションノードとする
 			T original = org.getOriginal();
 			original.getImitationInfo().addImitation(owner, userOpeCmd);
 			setOriginal(original, userOpeCmd);
 		}
 	}
-	
+
 	/**
 	 * イミテーションノードのオリジナルノードをセットする
 	 * @param orgNode イミテーションノードの作成元ノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 **/
 	public final void setOriginal(T orgNode, UserOperationCommand userOpeCmd) {
-		userOpeCmd.<T>pushCmdSetOriginal(this, this.orgNode);
+		userOpeCmd.<T>pushCmdOfSetOriginal(this, this.orgNode);
 		this.orgNode = orgNode;
 	}
-	
+
 	/**
 	 * このオブジェクトを持つノードのオリジナルノードを返す
 	 * @return このオブジェクトを持つノードのオリジナルノード
@@ -90,7 +90,7 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 	public final T getOriginal() {
 		return orgNode;
 	}
-	
+
 	/**
 	 * イミテーションノードを追加する
 	 * @param imitNode 追加するイミテーションノード
@@ -100,17 +100,17 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 		imitNodeList.add(imitNode);
 		userOpeCmd.<T>pushCmdOfAddImitation(this, imitNode);
 	}
-	
+
 	/**
 	 * イミテーションノードを削除する
 	 * @param imitNode 削除するイミテーションノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
-	 */	
+	 */
 	public void removeImitation(T imitNode, UserOperationCommand userOpeCmd) {
 		imitNodeList.remove(imitNode);
 		userOpeCmd.<T>pushCmdOfRemoveImitation(this, imitNode);
 	}
-	
+
 	/**
 	 * イミテーションノードリストを取得する
 	 * @return イミテーションノードリスト
@@ -118,16 +118,16 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 	public List<T> getImitationList() {
 		return imitNodeList;
 	}
-	
+
 	/**
 	 * 引数で指定したイミテーションIDに対応するイミテーションノードIDがある場合true を返す
 	 * @param imitID このイミテーションIDに対応するイミテーションノードIDがあるか調べる
 	 * @return イミテーションノードIDが指定してある場合true
 	 */
-	public boolean imitationNodeExists(ImitationID imitID) {		
+	public boolean imitationNodeExists(ImitationID imitID) {
 		return imitID_imitNodeID.containsKey(imitID);
 	}
-	
+
 	/**
 	 * 引数で指定したイミテーションタグに対応するイミテーションノードIDを返す
 	 * @param imitID このイミテーションIDに対応するイミテーションノードIDを返す
@@ -138,7 +138,7 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 		assert imitID != null;
 		return imitNodeID;
 	}
-	
+
 	/**
 	 * イミテーションノードである場合 trueを返す
 	 * @return イミテーションノードである場合 true
@@ -146,19 +146,27 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 	public boolean isImitationNode() {
 		return orgNode != null;
 	}
-	
+
 	/**
 	 * 全てのイミテーションノードを消す
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
 	public void deleteAllImitations(UserOperationCommand userOpeCmd) {
 		while (!imitNodeList.isEmpty()) {	//重複削除を避けるため, while で空になるまで消す
-			
+
 			Imitatable nodeToDelete = imitNodeList.get(0);
-			if (!nodeToDelete.isInWorkspace())
+			if (!nodeToDelete.isInWorkspace()) {
 				nodeToDelete.getOriginalNode().disconnectOrgImitRelation(nodeToDelete, userOpeCmd);	//WSに居ない場合は, 削除予定のノードなので, オリジナル-イミテーションの関係だけ消しておく.
-			else
-				BhNodeHandler.INSTANCE.deleteNode(nodeToDelete, userOpeCmd);
+			}
+			else {
+				BhNodeHandler.INSTANCE.deleteNode(nodeToDelete, userOpeCmd)
+				.ifPresent(
+					newNode -> newNode.findParentNode().execScriptOnChildReplaced(
+						nodeToDelete,
+						newNode,
+						newNode.getParentConnector(),
+						userOpeCmd));
+			}
 		}
 	}
 }

@@ -74,7 +74,7 @@ public class WorkspaceController implements MsgProcessor {
 
 			case REMOVE_ROOT_NODE:
 				model.removeRootNode(data.node);
-				view.removeNodeView(data.nodeView);
+				view.removeNodeView(data.nodeView, data.bool);
 				break;
 
 			case ADD_QT_RECTANGLE:
@@ -127,8 +127,8 @@ public class WorkspaceController implements MsgProcessor {
 		}
 
 		MsgPrinter.INSTANCE.msgForDebug("num of root nodes " + model.getRootNodeList().size());
-		MsgPrinter.INSTANCE.msgForDebug("num of deletion candidates " + DelayedDeleter.INSTANCE.getDeletionCadidateList());
-		MsgPrinter.INSTANCE.msgForDebug("num of selected nodes " + model.getSelectedNodeList().size());
+		MsgPrinter.INSTANCE.msgForDebug("num of deletion candidates " + DelayedDeleter.INSTANCE.getDeletionCadidateList().size());
+		MsgPrinter.INSTANCE.msgForDebug("num of selected nodes " + model.getSelectedNodeList().size() + "\n");
 	}
 }
 

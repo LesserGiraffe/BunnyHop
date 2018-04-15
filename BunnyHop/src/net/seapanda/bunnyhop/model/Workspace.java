@@ -194,7 +194,13 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
 	public void deleteNodes(Collection<BhNode> nodesToDelete, UserOperationCommand userOpeCmd) {
-		BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
+		BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd)
+		.forEach(oldAndNewNode -> {
+			BhNode oldNode = oldAndNewNode._1;
+			BhNode newNode = oldAndNewNode._2;
+			newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
+		});
+
 	}
 
 	/**

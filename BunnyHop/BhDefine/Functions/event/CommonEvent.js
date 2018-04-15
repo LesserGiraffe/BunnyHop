@@ -106,8 +106,8 @@
 			'idStrExpCnctr'   : 'idStrArrayGetExp',
 			'idBoolExpCnctr'  : 'idBoolArrayGetExp',
 			'idColorExpCnctr' : 'idColorArrayGetExp',
-			'idSoundExpCnctr' : 'idSoundArrayGetExp'
-
+			'idSoundExpCnctr' : 'idSoundArrayGetExp',
+			'idSoundExpCnctrDefaultVoid' : 'idSoundArrayGetExp'
 		},
 
 		'AnyArrayGetLastExp' : {
@@ -120,8 +120,8 @@
 			'idStrExpCnctr'   : 'idStrArrayGetLastExp',
 			'idBoolExpCnctr'  : 'idBoolArrayGetLastExp',
 			'idColorExpCnctr' : 'idColorArrayGetLastExp',
-			'idSoundExpCnctr' : 'idSoundArrayGetLastExp'
-
+			'idSoundExpCnctr' : 'idSoundArrayGetLastExp',
+			'idSoundExpCnctrDefaultVoid' : 'idSoundArrayGetLastExp'
 		},
 
 		'AnyArrayInsertStat' : {

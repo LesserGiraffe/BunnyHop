@@ -25,7 +25,7 @@ import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
-import net.seapanda.bunnyhop.message.MsgTransporter;
+import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.imitation.ImitationConnectionPos;
 import net.seapanda.bunnyhop.model.imitation.ImitationID;
 import net.seapanda.bunnyhop.model.node.BhNode;
@@ -251,7 +251,7 @@ public class Connector extends SyntaxSymbol {
 		scriptScope = BhScriptManager.INSTANCE.createScriptScope();
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_THIS, this);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_MSG_TRANSPORTER, MsgTransporter.INSTANCE);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
 	}
 

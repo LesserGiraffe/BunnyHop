@@ -16,25 +16,27 @@
 package net.seapanda.bunnyhop.control.node;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javafx.event.Event;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Point2D;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
+import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
 import net.seapanda.bunnyhop.modelprocessor.UnscopedNodeCollector;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.TrashboxFacade;
+import net.seapanda.bunnyhop.view.TrashboxService;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
@@ -132,7 +134,7 @@ public class BhNodeController implements MsgProcessor {
 				Point2D newPos = view.getPositionManager().move(diffX, diffY);
 				view.getPositionManager().updateAbsPos(newPos.x, newPos.y);	//4分木空間での位置更新
 				highlightOverlappedNode();	// ドラッグ検出されていない場合、強調は行わない. 子ノードがダングリングになっていないのに、重なったノード (入れ替え対象) だけが検出されるのを防ぐ
-				TrashboxFacade.INSTANCE.openCloseTrashbox(mouseEvent.getSceneX(), mouseEvent.getSceneY());	//ゴミ箱開閉
+				TrashboxService.INSTANCE.openCloseTrashbox(mouseEvent.getSceneX(), mouseEvent.getSceneY());	//ゴミ箱開閉
 			}
 			mouseEvent.consume();
 		});
@@ -149,7 +151,8 @@ public class BhNodeController implements MsgProcessor {
 			if(model.isRemovable()) {	//子ノードでかつ取り外し可能 -> 親ノードから切り離し, ダングリング状態へ
 				ddInfo.latestParent = model.findParentNode();
 				ddInfo.latestRoot = model.findRootNode();
-				BhNodeHandler.INSTANCE.removeChild(model, ddInfo.userOpeCmd);
+				BhNode newNode = BhNodeHandler.INSTANCE.removeChild(model, ddInfo.userOpeCmd);
+				ddInfo.latestParent.execScriptOnChildReplaced(model, newNode, newNode.getParentConnector(), ddInfo.userOpeCmd);
 			}
 			mouseEvent.consume();
 		});
@@ -186,13 +189,13 @@ public class BhNodeController implements MsgProcessor {
 
 			//ゴミ箱に重なっていた場合, 削除
 			if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
-				TrashboxFacade.INSTANCE.isInTrashboxArea(mouseEvent.getSceneX(), mouseEvent.getSceneY())) {
+				TrashboxService.INSTANCE.isInTrashboxArea(mouseEvent.getSceneX(), mouseEvent.getSceneY())) {
 				BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
 			}
 			BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
 			ddInfo.reset();
 			view.setMouseTransparent(false);	// 処理が終わったので、元に戻しておく。
-			TrashboxFacade.INSTANCE.openCloseTrashbox(false);
+			TrashboxService.INSTANCE.openCloseTrashbox(false);
 			mouseEvent.consume();
 		});
 	}
@@ -204,6 +207,8 @@ public class BhNodeController implements MsgProcessor {
 	private void toChildNode(BhNode oldChildNode) {
 
 		boolean fromWS = model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
+		ConnectiveNode parentNode = oldChildNode.findParentNode();
+		Connector parentCnctr = oldChildNode.getParentConnector();
 
 		//ワークスペースから移動する場合
 		if(fromWS)
@@ -218,7 +223,7 @@ public class BhNodeController implements MsgProcessor {
 			oldChildNode,
 			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
 
-		Point2D posOnWS = Util.getPosOnWS(oldChildNode);
+		Point2D posOnWS = MsgService.INSTANCE.getPosOnWS(oldChildNode);
 		double newXPosInWs = posOnWS.x + BhParams.REPLACED_NODE_POS;
 		double newYPosInWs = posOnWS.y + BhParams.REPLACED_NODE_POS;
 		BhNodeHandler.INSTANCE.moveToWS(oldChildNode.getWorkspace(), oldChildNode, newXPosInWs, newYPosInWs, ddInfo.userOpeCmd);	//重なっているノードをWSに移動
@@ -229,15 +234,8 @@ public class BhNodeController implements MsgProcessor {
 			false,
 			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
 
-		if (model.findParentNode() != null)
-			model.findParentNode().execScriptOnChildReplaced(oldChildNode, model, ddInfo.userOpeCmd);
-
-		// 子ノードから移動
-		if (!fromWS) {
-			ConnectiveNode parent = model.getLastReplaced().findParentNode();
-				if (parent != null)
-					parent.execScriptOnChildReplaced(model, model.getLastReplaced(), ddInfo.userOpeCmd);
-		}
+		// 子ノード入れ替え時のスクリプト実行
+		parentNode.execScriptOnChildReplaced(oldChildNode, model, parentCnctr, ddInfo.userOpeCmd);
 
 		//VoidNodeは消す
 		if (oldChildNode instanceof VoidNode &&
@@ -259,10 +257,6 @@ public class BhNodeController implements MsgProcessor {
 			model.getLastReplaced(),
 			true,
 			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
-
-		ConnectiveNode parentNode = model.getLastReplaced().findParentNode();
-			if (parentNode != null)
-				parentNode.execScriptOnChildReplaced(model, model.getLastReplaced(), ddInfo.userOpeCmd);
 	}
 
 	/**
@@ -286,7 +280,13 @@ public class BhNodeController implements MsgProcessor {
 
 		UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
 		topNode.accept(unscopedNodeCollector);
-		BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), ddInfo.userOpeCmd);
+		List<Connector> parentCnctrList = new ArrayList<>();
+		BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), ddInfo.userOpeCmd)
+		.forEach(oldAndNewNode -> {
+			BhNode oldNode = oldAndNewNode._1;
+			BhNode newNode = oldAndNewNode._2;
+			newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), ddInfo.userOpeCmd);
+		});
 	}
 
 	/**
@@ -329,8 +329,10 @@ public class BhNodeController implements MsgProcessor {
 		switch (msg) {
 
 			case ADD_ROOT_NODE: // model がWorkSpace のルートノードとして登録された
-			case REMOVE_ROOT_NODE:
 				return  new MsgData(model, view);
+
+			case REMOVE_ROOT_NODE:
+				return  new MsgData(model, view, data.bool);
 
 			case ADD_QT_RECTANGLE:
 				return new MsgData(view);
@@ -375,6 +377,11 @@ public class BhNodeController implements MsgProcessor {
 
 			case REMOVE_FROM_GUI_TREE:
 				view.getTreeManager().removeFromGUITree();
+				break;
+
+			case SET_VISIBLE:
+				view.getAppearanceManager().setVisible(data.bool);
+				data.userOpeCmd.pushCmdOfSetVisible(view, data.bool);
 				break;
 
 			default:

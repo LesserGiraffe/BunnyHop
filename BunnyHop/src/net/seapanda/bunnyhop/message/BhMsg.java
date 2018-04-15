@@ -51,4 +51,5 @@ public enum BhMsg {
 	ZOOM,					//!< WSのズーム処理
 	IS_IN_TRASHBOX_AREA,	//!< ゴミ箱エリアに入っているかどうかを調べる
 	OPEN_TRASHBOX,			//!< ゴミ箱を開閉する
+	SET_VISIBLE,	//!< ノードの可視性をセットする
 }

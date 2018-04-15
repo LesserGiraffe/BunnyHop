@@ -182,7 +182,6 @@ public class NodeConstructor {
 	private Optional<ConnectiveNode> genConnectiveNode(Element node) {
 
 		String onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CHILD_REPLACED);
-		String justBeforeChildToBeDeleted = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_JUST_BEFORE_CHILD_TO_BE_DELETED);
 		Optional<BhNodeAttributes> nodeAttrs = BhNodeAttributes.readBhNodeAttriButes(node);
 		if (!nodeAttrs.isPresent()) {
 			return Optional.empty();
@@ -226,7 +225,6 @@ public class NodeConstructor {
 			nodeAttrs.get().onMovedFromChildToWS,
 			nodeAttrs.get().onMovedToChild,
 			onChildReplaced,
-			justBeforeChildToBeDeleted,
 			imitID_imitNodeID.get(),
 			nodeAttrs.get().canCreateImitManually));
 	}

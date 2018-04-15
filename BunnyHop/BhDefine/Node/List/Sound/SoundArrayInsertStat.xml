@@ -1,0 +1,59 @@
+<Node type="connective"
+	bhNodeID="idSoundArrayInsertStat"
+	name="SoundArrayInsertStat"
+	nodeStyleID="SoundArrayInsertStat.json"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js">
+
+	<ConnectorSection name="StatSctn">
+		<Connector bhConnectorID="idSoundListCnctr" name="Arg0"/>
+		
+		<PrivateConnector
+			bhConnectorID="idSoundArrayInsertStat.prvCnctr0"
+			name="no"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSoundArrayInsertStat.prvNode0"
+				name="no"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="の">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+		
+		<PrivateConnector
+			bhConnectorID="idSoundArrayInsertStat.prvCnctr1"
+			name="banmeNi"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSoundArrayInsertStat.prvNode1"
+				name="banmeNi"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="番目に">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idSoundExpCnctr" name="Arg2"/>
+		
+		<PrivateConnector
+			bhConnectorID="idSoundArrayInsertStat.prvCnctr2"
+			name="woSonyuSuru"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSoundArrayInsertStat.prvNode2"
+				name="woSonyuSuru"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="を挿入する">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+	</ConnectorSection>
+</Node>

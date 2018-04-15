@@ -77,25 +77,6 @@
 			varName.setText(varNames[i]);
 			registerNodeTemplate(varDecls[i], varDecl);
 		}
-/*
-		//数値変数
-		var varDecl = genBhNode('idNumVarDecl', bhUserOpeCmd);
-		var varName = varDecl.findSymbolInDescendants('*', 'VarName', '*');
-		varName.setText('数値変数');
-		registerNodeTemplate('idNumVarDecl', varDecl);
-
-		//文字列変数
-		varDecl = genBhNode('idStrVarDecl', bhUserOpeCmd);
-		varName = varDecl.findSymbolInDescendants('*', 'VarName', '*');
-		varName.setText('文字列変数');
-		registerNodeTemplate('idStrVarDecl', varDecl);
-
-		//論理変数
-		varDecl = genBhNode('idBoolVarDecl', bhUserOpeCmd);
-		varName = varDecl.findSymbolInDescendants('*', 'VarName', '*');
-		varName.setText('論理変数');
-		registerNodeTemplate('idBoolVarDecl', varDecl);
-*/
 
 		let listDecls = ['idNumListDecl', 'idStrListDecl', 'idBoolListDecl'];
 		let listNames = ['数値リスト', '文字列リスト', '論理リスト'];
@@ -105,24 +86,6 @@
 			listName.setText(listNames[i]);
 			registerNodeTemplate(listDecls[i], listDecl);
 		}
-		/*
-		//数値リスト
-		varDecl = genBhNode('idNumListDecl', bhUserOpeCmd);
-		varName = varDecl.findSymbolInDescendants('*', 'ListName', '*');
-		varName.setText('数値リスト');
-		registerNodeTemplate('idNumListDecl', varDecl);
-
-		//文字列リスト
-		varDecl = genBhNode('idStrListDecl', bhUserOpeCmd);
-		varName = varDecl.findSymbolInDescendants('*', 'ListName', '*');
-		varName.setText('文字列リスト');
-		registerNodeTemplate('idStrListDecl', varDecl);
-
-		//論理リスト
-		varDecl = genBhNode('idBoolListDecl', bhUserOpeCmd);
-		varName = varDecl.findSymbolInDescendants('*', 'ListName', '*');
-		varName.setText('論理リスト');
-		registerNodeTemplate('idBoolListDecl', varDecl);*/
 	}
 
 	addRepeatAndCountNode('idRepeatAndCount');

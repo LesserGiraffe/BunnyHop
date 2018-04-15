@@ -19,73 +19,144 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import net.seapanda.bunnyhop.message.BhMsg;
+import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
  * 遅延削除を実装するクラス
- * @author KO\oike
+ * @author Koike
  */
 public class DelayedDeleter {
 
 	public static final DelayedDeleter INSTANCE = new DelayedDeleter();	//!< シングルトンインスタンス
-	private List<BhNode> deletionCandidateNodeList = new ArrayList<>();	//!< 特定のタイミングで削除するノードのリスト.
-	
+	private List<BhNodeWithUnexecutedOpe> deletionCandidateNodeList = new ArrayList<>();	//!< 特定のタイミングで削除するノードのリスト.
+
 	private DelayedDeleter(){}
-	
+
 	/**
 	 * 削除候補のノードを追加する<br>
-	 * 登録するリストは, GUI, 4分木, ワークスペースからの削除が済んでいること
+	 * 登録するリストは, 4分木空間, ワークスペースからの削除とモデルの親子関係の削除が済んでいること
 	 * @param candidate 削除候補のノード
+	 * @param unexecutedModelDeletion モデル間の関係 (親子関係除く) の削除を行っていない場合true
+	 * @param unexecutedGuiTreeDeletion ビュー間の関係の削除を行っていない場合true
 	 */
-	public void addDeletionCandidate(BhNode candidate) {
-		deletionCandidateNodeList.add(candidate);
+	public void addDeletionCandidate(
+		BhNode candidate,
+		boolean unexecutedModelDeletion,
+		boolean unexecutedGuiTreeDeletion) {
+		deletionCandidateNodeList.add(
+			new BhNodeWithUnexecutedOpe(candidate, unexecutedModelDeletion, unexecutedGuiTreeDeletion));
 	}
-	
+
 	/**
-	 * 引数で指定した削除候補のノードを削除する
-	 * @param candidate 削除するノード
+	 * 引数で指定した削除候補のノードを削除し, 削除候補リストから消す. <br>
+	 * ただし, 指定したノードがワークスペース上にあった場合は削除されずに, 削除候補リストから消える.
+	 * @param nodeToDelete 削除するノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @return 引数で指定したノードを削除した場合trueを返す.  削除候補リストに無いノードを指定したときは, 何もせずfalseが返る.
 	 */
-	public boolean deleteCandidate(BhNode candidate, UserOperationCommand userOpeCmd) {
-		
-		boolean canDelete = deletionCandidateNodeList.contains(candidate);
-		if(canDelete) {
-			candidate.delete(userOpeCmd);
+	public void deleteCandidate(BhNode nodeToDelete, UserOperationCommand userOpeCmd) {
+
+		BhNodeWithUnexecutedOpe deleted = null;
+		for (BhNodeWithUnexecutedOpe candidate : deletionCandidateNodeList) {
+			if (candidate.bhNode == nodeToDelete) {
+
+				deleted = candidate;
+				// ワークスペースにあるノードは削除をキャンセルされたものとみなす
+				if (!candidate.bhNode.isInWorkspace()) {
+					if (candidate.modelDeletion)
+						candidate.bhNode.delete(userOpeCmd);
+
+					if (candidate.guiTreeDeletion)
+						MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, candidate.bhNode);
+				}
+				break;
+			}
 		}
-		return canDelete;
+		deletionCandidateNodeList.remove(deleted);
 	}
-	
+
 	/**
-	 * 削除候補のノードを全て削除する
+	 * 削除候補のノードを全て削除し, 削除候補リストから消す. <br>
+	 * ただし, ワークスペース上にあるノードは削除されずに, 削除候補リストから消える.
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
 	public void deleteCandidates(UserOperationCommand userOpeCmd) {
 
 		deletionCandidateNodeList.forEach(
 			candidate -> {
-				if (!candidate.isInWorkspace()) {
-					candidate.delete(userOpeCmd);
+
+				// ワークスペースにあるノードは削除をキャンセルされたものとみなす
+				if (!candidate.bhNode.isInWorkspace()) {
+					if (candidate.modelDeletion)
+						candidate.bhNode.delete(userOpeCmd);
+
+					if (candidate.guiTreeDeletion)
+						MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, candidate.bhNode);
 				}
 			});
 		deletionCandidateNodeList.clear();
 	}
-	
+
 	/**
 	 * 削除候補リストの中に引数で指定したノードが入っているか調べる
 	 * @param node このノードが削除候補リストの中に入っているか調べる
 	 * @return 削除候補リストの中に引数で指定したノードが入っている場合true
 	 */
 	public boolean containsInCandidateList(BhNode node) {
-		return deletionCandidateNodeList.contains(node);
+
+		for (BhNodeWithUnexecutedOpe candidate : deletionCandidateNodeList)
+			if (candidate.bhNode == node)
+				return true;
+
+		return false;
 	}
-	
+
 	/**
 	 * 削除候補のリストを返す
 	 * @return 削除候補のリスト
 	 */
-	public Collection<BhNode> getDeletionCadidateList() {
+	public Collection<BhNodeWithUnexecutedOpe> getDeletionCadidateList() {
 		return deletionCandidateNodeList;
-	}	
+	}
+
+	/**
+	 * 削除候補のノードと削除操作のうち未完了の操作
+	 * */
+	private static class BhNodeWithUnexecutedOpe {
+
+		public final boolean modelDeletion;
+		public final boolean guiTreeDeletion;
+		public final BhNode bhNode;
+
+		public BhNodeWithUnexecutedOpe (BhNode bhNode, boolean modelDeletion, boolean guiTreeDeletion) {
+			this.bhNode = bhNode;
+			this.modelDeletion = modelDeletion;
+			this.guiTreeDeletion = guiTreeDeletion;
+		}
+
+		@Override
+		public String toString() {
+			return "modelDeletion : " + modelDeletion + "    " + "guiTreeDeletion : " + guiTreeDeletion + "    " + bhNode;
+		}
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

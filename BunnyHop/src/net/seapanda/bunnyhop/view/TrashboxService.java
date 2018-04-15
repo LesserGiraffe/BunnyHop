@@ -21,12 +21,12 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 
 /**
- * ゴミ箱操作インタフェースクラス
+ * ゴミ箱操作サービスクラス
  * @author Koike
  * */
-public class TrashboxFacade {
+public class TrashboxService {
 
-	public static TrashboxFacade INSTANCE = new TrashboxFacade();
+	public static TrashboxService INSTANCE = new TrashboxService();
 
 	private WorkspaceSet wss;	//ゴミ箱のビューにアクセスするためのワークスペースビュー.
 

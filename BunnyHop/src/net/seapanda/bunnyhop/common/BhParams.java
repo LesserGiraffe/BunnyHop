@@ -104,7 +104,6 @@ public class BhParams {
 		public static final String ATTR_NAME_ON_MOVED_TO_CHILD = "onMovedToChild";
 		public static final String ATTR_NAME_ON_CHILD_REPLACED = "onChildReplaced";
 		public static final String ATTR_NAME_ON_REPLACEABILITY_CHECKED = "onReplaceabilityChecked";
-		public static final String ATTR_NAME_JUST_BEFORE_CHILD_TO_BE_DELETED = "justBeforeChildToBeDeleted";
 		public static final String ATTR_NAME_IMITATION_NODE_ID = "imitationNodeID";
 		public static final String ATTR_NAME_CAN_CREATE_IMIT_MANUALLY = "canCreateImitManually";
 		public static final String ATTR_NAME_NODE_INPUT_CONTROL = "nodeInputControl";
@@ -133,12 +132,13 @@ public class BhParams {
 		public static final String KEY_BH_THIS = "bhThis";	//!< スクリプトの呼び出し元オブジェクト
 		public static final String KEY_BH_NODE_HANDLER = "bhNodeHandler";
 		public static final String KEY_BH_NODE_VIEW = "bhNodeView";
-		public static final String KEY_BH_MSG_TRANSPORTER = "bhMsgTransporter";
+		public static final String KEY_BH_MSG_SERVICE = "bhMsgService";
 		public static final String KEY_BH_TEXT = "bhText";	//!< TextNode のString型フィールドアクセス用キーワード
 		public static final String KEY_BH_OLD_PARENT = "bhOldParent";
 		public static final String KEY_BH_OLD_ROOT = "bhOldRoot";
 		public static final String KEY_BH_REPLACED_NEW_NODE = "bhReplacedNewNode";
 		public static final String KEY_BH_REPLACED_OLD_NODE = "bhReplacedOldNode";
+		public static final String KEY_BH_PARENT_CONNECTOR = "bhParentConnector";
 		public static final String KEY_BH_NODE_TO_DELETE = "bhNodeToDelete";
 		public static final String KEY_BH_MANUALLY_REMOVED = "bhManuallyRemoved";	//!< 手動で子ノードからワークスペースに移動したかどうかの
 		public static final String KEY_BH_NEXT_SYMBOL_NAME = "bhNextSymbolName";

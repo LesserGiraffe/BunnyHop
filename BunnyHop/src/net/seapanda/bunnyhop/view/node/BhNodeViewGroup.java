@@ -132,15 +132,6 @@ public class BhNodeViewGroup extends Group implements Showable {
 	}
 
 	/**
-	 * 引数で指定したBhNodeView を GUIツリーから取り除く<Br>
-	 * BhNodeView の木構造からは取り除かない
-	 * @param removed BhNodeView の木構造から取り除かれるBhNodeView
-	 * */
-	public void removeFromGUITree(BhNodeView removed) {
-		getChildren().remove(removed);
-	}
-
-	/**
 	 * このグループの親ノードを返す
 	 * @return このグループの親ノード
 	 * */

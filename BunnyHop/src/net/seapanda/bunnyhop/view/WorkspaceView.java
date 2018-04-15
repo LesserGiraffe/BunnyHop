@@ -133,8 +133,8 @@ public class WorkspaceView extends Tab {
 	 * @param nodeView 追加するノードビュー (nullダメ)
 	 * */
 	public void addNodeView(BhNodeView nodeView) {
+
 		assert(nodeView != null);
-		assert(rootNodeViewList.indexOf(nodeView) == -1);	//すでに登録済みでないかチェック
 		wsPane.getChildren().add(nodeView);
 		rootNodeViewList.add(nodeView);
 	}
@@ -142,10 +142,13 @@ public class WorkspaceView extends Tab {
 	/**
 	 * ノードビューを削除する
 	 * @param nodeView 削除するビュー (nullダメ)
+	 * @param saveGuiTreeRels GUIツリー上の親子関係を保持する場合true
 	 * */
-	public void removeNodeView(BhNodeView nodeView) {
+	public void removeNodeView(BhNodeView nodeView, boolean saveGuiTreeRels) {
+
 		assert(nodeView != null);
-		wsPane.getChildren().remove(nodeView);
+		if (!saveGuiTreeRels)
+			wsPane.getChildren().remove(nodeView);
 		rootNodeViewList.remove(nodeView);
 	}
 

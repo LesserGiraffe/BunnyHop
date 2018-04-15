@@ -15,16 +15,17 @@
  */
 package net.seapanda.bunnyhop.view.node;
 
-import java.util.function.Function;
-import java.util.stream.Stream;
 import java.io.IOException;
 import java.nio.file.Path;
-import javafx.scene.control.TextField;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Point2D;
@@ -53,7 +54,7 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 	 * @param isTemplate ノード選択パネルに表示されるノードであった場合true
 	 */
 	public void init(boolean isTemplate) {
-		
+
 		initialize();
 		String inputControlFileName = BhNodeViewStyle.nodeID_inputControlFileName.get(model.getID());
 		if (inputControlFileName != null) {
@@ -71,26 +72,26 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 			if (isTemplate)
 				event.consume();
 		});
-				
+
 		if (model.getImitationInfo().canCreateImitManually) {
 			imitCreateImitBtn = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
 			if (imitCreateImitBtn != null)
 				getChildren().add(imitCreateImitBtn);
-		}		
+		}
 		initStyle(viewStyle);
 		setFuncs(this::updateStyleFunc, null);
 	}
-	
+
 	private void initStyle(BhNodeViewStyle viewStyle) {
-		
+
 		textField.setTranslateX(viewStyle.paddingLeft);
 		textField.setTranslateY(viewStyle.paddingTop);
-		textField.getStyleClass().add(viewStyle.textField.cssClass);		
+		textField.getStyleClass().add(viewStyle.textField.cssClass);
 		textField.heightProperty().addListener(observable -> getAppearanceManager().updateStyle(null));
 		textField.widthProperty().addListener(observable -> getAppearanceManager().updateStyle(null));
 		textField.fontProperty().addListener(observable -> {
 			String text = textField.getText();
-			setText(text + " "); 
+			setText(text + " ");
 			setText(text);});
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_TEXT_FIELD_NODE);
 	}
@@ -103,7 +104,7 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 	public TextNode getModel() {
 		return model;
 	}
-	
+
 	/**
 	 * テキスト変更時のイベントハンドラを登録する
 	 * @param checkFormatFunc 入力された文字列の形式が正しいかどうか判断する関数 (テキスト変更時のイベントハンドラから呼び出す)
@@ -120,7 +121,7 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 			newWidth = Math.max(newWidth, minWidth);	//最低限の長さは確保する
 			newWidth += textField.getPadding().getRight() + textField.getPadding().getLeft();
 			textField.setPrefWidth(newWidth);
-			
+
 			boolean acceptable = checkFormatFunc.apply(newValue);
 			if (acceptable)
 				textField.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), false);
@@ -179,7 +180,7 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 	public void setEditable(boolean editable) {
 		textField.setEditable(editable);
 	}
-	
+
 	/**
 	 * テキストフィールドが編集可能かどうかチェックする
 	 * @return テキストフィールドが編集可能な場合 true
@@ -187,7 +188,7 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 	public boolean getEditable() {
 		return textField.editableProperty().getValue();
 	}
-	
+
 	@Override
 	public Button imitCreateButton() {
 		return imitCreateImitBtn;

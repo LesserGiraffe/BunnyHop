@@ -4,15 +4,11 @@
 	  bhNodeID="idMelodyExp"
 	  name="MelodyExp"
 	  nodeStyleID="MelodyExp.json"
-	  onChildReplaced="onChildSoundExpReplaced.js"
-	  justBeforeChildToBeDeleted="justBeforeChildSoundToBeDeleted.js">
+	  onChildReplaced="onChildSoundExpReplaced.js">
 
 	<ConnectorSection name="MelodyExpSctn">
-		<PrivateConnector 
-			bhConnectorID="idMelodyExp.prvCnctr0" 
-			name="Arg0"
-			defaultBhNodeID="idSoundLiteralVoid"
-			onReplaceabilityChecked="SoundExpCnct.js"/>
+
+		<Connector bhConnectorID="idSoundExpCnctrDefaultVoid" name="Arg0"/>
 
 		<PrivateConnector 
 			bhConnectorID="idMelodyExp.prvCnctr1"

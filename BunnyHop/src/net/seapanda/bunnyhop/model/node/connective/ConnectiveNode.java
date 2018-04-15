@@ -44,7 +44,6 @@ public class ConnectiveNode extends Imitatable {
 	private Section childSection;							//!< セクションの集合 (ノード内部に描画されるもの)
 	private ImitationInfo<ConnectiveNode> imitInfo;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
 	private final String scriptNameOnChildReplaced;	//!< 子ノード入れ替え維持に実行されるスクリプト
-	private final String scriptNameJustBeforeChildToBeDeleted;	//!< 子ノードが選択削除される直前に実行されるスクリプトの名前
 
 	/**
 	 * コンストラクタ<br>
@@ -68,7 +67,6 @@ public class ConnectiveNode extends Imitatable {
 			String scriptNameOnMovedFromChildToWS,
 			String scriptNameOnMovedToChild,
 			String scriptNameOnChildReplaced,
-			String scriptNameJustBeforeChildToBeDeleted,
 			Map<ImitationID, BhNodeID> imitID_imitNodeID,
 			boolean canCreateImitManually) {
 		super(id,
@@ -79,7 +77,6 @@ public class ConnectiveNode extends Imitatable {
 		this.childSection = childSection;
 		imitInfo = new ImitationInfo<>(imitID_imitNodeID, canCreateImitManually, scopeName);
 		this.scriptNameOnChildReplaced = scriptNameOnChildReplaced;
-		this.scriptNameJustBeforeChildToBeDeleted = scriptNameJustBeforeChildToBeDeleted;
 	}
 
 	/**
@@ -89,7 +86,6 @@ public class ConnectiveNode extends Imitatable {
 	private ConnectiveNode(ConnectiveNode org) {
 		super(org);
 		scriptNameOnChildReplaced = org.scriptNameOnChildReplaced;
-		scriptNameJustBeforeChildToBeDeleted = org.scriptNameJustBeforeChildToBeDeleted;
 	}
 
 	@Override
@@ -156,11 +152,13 @@ public class ConnectiveNode extends Imitatable {
 	 * 子ノードが入れ替わったときのスクリプトを実行する
 	 * @param oldChild 入れ替わった古いノード
 	 * @param newChild 入れ替わった新しいノード
+	 * @param parentCnctr 子が入れ替わったコネクタ
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
 	public void execScriptOnChildReplaced(
 		BhNode oldChild,
 		BhNode newChild,
+		Connector parentCnctr,
 		UserOperationCommand userOpeCmd) {
 
 		CompiledScript onChildReplaced = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnChildReplaced);
@@ -169,33 +167,10 @@ public class ConnectiveNode extends Imitatable {
 
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newChild);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldChild);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_PARENT_CONNECTOR, parentCnctr);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
 			onChildReplaced.eval(scriptScope);
-		}
-		catch (ScriptException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptNameOnChildReplaced + "\n" + e.toString() + "\n");
-		}
-	}
-
-	/**
-	 * 子ノードを選択削除する直前のスクリプトを実行する. <br>
-	 * この関数は, ユーザにより, 直接選択された削除対象ノードの親ノードに対してのみ呼ばれることを想定している.
-	 * @param childToDelete 削除対象の子ノード.
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
-	public void execScriptJustBeforeChildToBeDeleted(
-		BhNode childToDelete,
-		UserOperationCommand userOpeCmd) {
-
-		CompiledScript justBeforeChildToBeDeleted = BhScriptManager.INSTANCE.getCompiledScript(scriptNameJustBeforeChildToBeDeleted);
-		if (justBeforeChildToBeDeleted == null)
-			return;
-
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_TO_DELETE, childToDelete);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
-		try {
-			justBeforeChildToBeDeleted.eval(scriptScope);
 		}
 		catch (ScriptException e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptNameOnChildReplaced + "\n" + e.toString() + "\n");

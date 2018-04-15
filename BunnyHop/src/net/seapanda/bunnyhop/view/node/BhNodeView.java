@@ -24,7 +24,9 @@ import java.util.function.Consumer;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Polygon;
@@ -261,14 +263,9 @@ public abstract class BhNodeView extends Pane implements Showable {
 		protected void updatePolygonShape(boolean drawBody) {
 
 			nodeShape.getPoints().clear();
-			Collection<Double> vertices = createVertices(drawBody);
-			nodeShape.getPoints().addAll(vertices);
-
-			if ((!drawBody) && (viewStyle.connectorShape == ConnectorShape.CNCTR_SHAPE.CNCTR_SHAPE_NONE)) {
-				nodeShape.setVisible(false);
-			}
-			else {
-				nodeShape.setVisible(true);
+			if (drawBody || viewStyle.connectorShape != ConnectorShape.CNCTR_SHAPE.CNCTR_SHAPE_NONE) {
+				Collection<Double> vertices = createVertices(drawBody);
+				nodeShape.getPoints().addAll(vertices);
 			}
 		}
 
@@ -345,6 +342,16 @@ public abstract class BhNodeView extends Pane implements Showable {
 			BhNodeView.this.setMaxSize(0.0, 0.0);
 			if (BhNodeView.this.heightProperty().get() != wholeBodySize.y)
 				BhNodeView.this.setHeight(wholeBodySize.y);
+		}
+
+		/**
+		 * このノード以下の可視性を変更する.
+		 * */
+		public void setVisible(boolean visible) {
+
+			// ダングリング状態のノードはGUIツリー上では繋がっている.
+			// ダングリング状態のノードの可視性を変更しないために, 継承している Pane ではなく nodeShape の可視性を変更する
+			accept(view -> view.nodeShape.setVisible(visible));
 		}
 	}
 
@@ -457,8 +464,13 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 *  BhNodeView の木構造からは取り除かない
 		 */
 		public void removeFromGUITree() {
-			//この関数を呼ぶときには, BhNodeViewGroupとの親子関係は切れているので, キャストして呼ぶ
-			((BhNodeViewGroup)BhNodeView.this.getParent()).removeFromGUITree(BhNodeView.this);
+
+			Parent parent = BhNodeView.this.getParent();
+			if (parent instanceof Group)
+				((Group)parent).getChildren().remove(BhNodeView.this);
+			else if (parent instanceof Pane)
+				((Pane)parent).getChildren().remove(BhNodeView.this);
+
 		}
 
 		/**

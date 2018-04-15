@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.model.node.VoidNode;
 public class VoidNodeView extends BhNodeView {
 
 	private final VoidNode model;	//!< このビューに対応するモデル
-	
+
 	/**
 	 * コンストラクタ
 	 * @param model ビューに対応するモデル
@@ -47,7 +47,7 @@ public class VoidNodeView extends BhNodeView {
 		setFuncs(this::updateStyleFunc, null);
 		setMouseTransparent(true);
 	}
-	
+
 	/**
 	 * このビューのモデルであるBhNodeを取得する
 	 * @return このビューのモデルであるBhNode
@@ -56,12 +56,12 @@ public class VoidNodeView extends BhNodeView {
 	public VoidNode getModel() {
 		return model;
 	}
-	
+
 	/**
 	 * ノードの大きさや見た目を変える関数
 	 * */
 	private void updateStyleFunc(BhNodeViewGroup child) {
-		
+
 		boolean inner = (parent == null) ? true : parent.inner;
 		//ボディサイズ決定
 		if (!inner) {
@@ -72,7 +72,7 @@ public class VoidNodeView extends BhNodeView {
 			viewStyle.width = 0.0;
 			viewStyle.paddingRight = 0.0;
 		}
-		
+
 		boolean drawBody = inner && viewStyle.drawBody;
 		getAppearanceManager().updatePolygonShape(drawBody);
 		if (parent != null)

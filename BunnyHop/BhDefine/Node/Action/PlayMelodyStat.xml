@@ -24,9 +24,14 @@
 		<PrivateConnector
 			bhConnectorID="idPlayMelodyStat.prvCnctr1"
 			name="Arg1"
-			fixed="true"
-			initialBhNodeID="idBoolLiteral"/>
-			
+			fixed="true">
+			<Node
+				type="noView"
+				bhNodeID="idPlayMelodyStat.prvNode1"
+				name="BoolLiteral"
+				initString="true"/>
+		</PrivateConnector>
+		
 		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
 	</ConnectorSection>
 </Node>

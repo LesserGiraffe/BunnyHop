@@ -16,17 +16,18 @@
 package net.seapanda.bunnyhop.message;
 
 import java.util.Collection;
+
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.WorkspaceView;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
  * MsgTransporterが送信するデータ
- * @author K.Koike 
+ * @author K.Koike
  * */
 public class MsgData {
 
@@ -93,6 +94,19 @@ public class MsgData {
 		this.nodeSelectionViewList = null;
 	}
 
+	public MsgData(BhNode node, BhNodeView view, boolean bool) {
+		this.node = node;
+		this.nodeView = view;
+		this.doublePair = null;
+		this.strPair = null;
+		this.workspace = null;
+		this.workspaceView = null;
+		this.bool = bool;
+		this.userOpeCmd = null;
+		this.text = null;
+		this.nodeSelectionViewList = null;
+	}
+
 	public MsgData(BhNode node) {
 		this.node = node;
 		this.nodeView = null;
@@ -131,7 +145,7 @@ public class MsgData {
 		this.text = null;
 		this.nodeSelectionViewList = null;
 	}
-	
+
 	public MsgData(UserOperationCommand userOpeCmd) {
 		this.node = null;
 		this.nodeView = null;
@@ -144,7 +158,7 @@ public class MsgData {
 		this.text = null;
 		this.nodeSelectionViewList = null;
 	}
-	
+
 	public MsgData(String text) {
 		this.node = null;
 		this.nodeView = null;
@@ -157,7 +171,7 @@ public class MsgData {
 		this.text = text;
 		this.nodeSelectionViewList = null;
 	}
-	
+
 	public MsgData(Workspace workspace) {
 		this.node = null;
 		this.nodeView = null;
@@ -170,7 +184,7 @@ public class MsgData {
 		this.text = null;
 		this.nodeSelectionViewList = null;
 	}
-	
+
 	public MsgData(boolean bool, String text) {
 		this.node = null;
 		this.nodeView = null;
@@ -183,7 +197,7 @@ public class MsgData {
 		this.text = text;
 		this.nodeSelectionViewList = null;
 	}
-	
+
 	public MsgData(Collection<BhNodeSelectionView> nodeSelectionViewList) {
 		this.node = null;
 		this.nodeView = null;
@@ -196,7 +210,7 @@ public class MsgData {
 		this.text = null;
 		this.nodeSelectionViewList = nodeSelectionViewList;
 	}
-	
+
 	public MsgData(String textA, String textB) {
 		this.node = null;
 		this.nodeView = null;
@@ -206,6 +220,19 @@ public class MsgData {
 		this.workspaceView = null;
 		this.bool = false;
 		this.userOpeCmd = null;
+		this.text = null;
+		this.nodeSelectionViewList = null;
+	}
+
+	public MsgData(boolean bool, UserOperationCommand userOpeCmd) {
+		this.node = null;
+		this.nodeView = null;
+		this.doublePair = null;
+		this.strPair = null;
+		this.workspace = null;
+		this.workspaceView = null;
+		this.bool = bool;
+		this.userOpeCmd = userOpeCmd;
 		this.text = null;
 		this.nodeSelectionViewList = null;
 	}

@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+
+<Node
+	type="label"
+	bhNodeID="idSoundEmptyList"
+	name="SoundEmptyList"
+	nodeStyleID="SoundEmptyList.json"
+	nodeInputControl="Label.fxml"
+	onMovedFromChildToWS="onLiteralMovedToWS.js"
+	initString="[...]">
+</Node>

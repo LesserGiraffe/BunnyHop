@@ -17,6 +17,7 @@ package net.seapanda.bunnyhop.view.node;
 
 import java.io.IOException;
 import java.nio.file.Path;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -45,7 +46,7 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 	 * 初期化する
 	 */
 	public void init() {
-		
+
 		initialize();
 		String inputControlFileName = BhNodeViewStyle.nodeID_inputControlFileName.get(model.getID());
 		if (inputControlFileName != null) {
@@ -63,11 +64,11 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 			imitCreateImitBtn = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
 			if (imitCreateImitBtn != null)
 				getChildren().add(imitCreateImitBtn);
-		}		
+		}
 		initStyle(viewStyle);
 		setFuncs(this::updateStyleFunc, null);
 	}
-	
+
 	private void initStyle(BhNodeViewStyle viewStyle) {
 
 		label.autosize();
@@ -88,7 +89,7 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 	public TextNode getModel() {
 		return model;
 	}
-	
+
 	/**
 	 * モデルの構造を表示する
 	 * @param depth 表示インデント数
@@ -123,7 +124,7 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 	public void setText(String text) {
 		label.setText(text);
 	}
-		
+
 	@Override
 	public Button imitCreateButton() {
 		return imitCreateImitBtn;

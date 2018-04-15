@@ -1,6 +1,6 @@
 (function() {
 	
-	let newNodeSection = bhReplacedNewNode.findSymbolInDescendants('*');
+	let newNodeSection = bhParentConnector.getConnectedNode().findSymbolInDescendants('*');
 	let newNodeSectionName = null;
 	if (newNodeSection !== null)
 		newNodeSectionName = newNodeSection.getSymbolName();
@@ -15,7 +15,7 @@
 	if (newNodeSectionName === 'SoundExpSctn') {
 	
 		// 新メロディノード作成
-		let posOnWS = bhCommon.Util.getPosOnWS(bhThis);
+		let posOnWS = bhMsgService.getPosOnWS(bhThis);
 		let newMelodyExp = bhCommon.addNewNodeToWS('idMelodyExp', bhThis.getWorkspace(), posOnWS, bhNodeHandler, bhNodeTemplates, bhUserOpeCmd);
 		bhNodeHandler.exchangeNodes(nextMelodyExp, newMelodyExp, bhUserOpeCmd);
 		
@@ -29,10 +29,11 @@
 		bhNodeHandler.exchangeNodes(soundExpVoid, bhReplacedOldNode, bhUserOpeCmd);
 		bhNodeHandler.deleteNode(soundExpVoid, bhUserOpeCmd);
 	}
-	else if (bhReplacedNewNode.getSymbolName() === 'SoundLiteralVoid') {
+	else if (bhParentConnector.getConnectedNode().getSymbolName() === 'SoundLiteralVoid') {
 		if (nextMelodyExp.getSymbolName() === 'MelodyExp') {
 			bhNodeHandler.replaceChild(bhThis, nextMelodyExp, bhUserOpeCmd)
-			bhNodeHandler.deleteNode(bhThis, bhUserOpeCmd);
+			bhNodeHandler.deleteNodeIncompletely(bhThis, true, true, bhUserOpeCmd);
+			bhMsgService.setNodeVisibility(bhThis, false, bhUserOpeCmd);
 		}
 	}
 })();

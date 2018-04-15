@@ -48,7 +48,7 @@ import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.node.BhNodeCategoryList;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.TrashboxFacade;
+import net.seapanda.bunnyhop.view.TrashboxService;
 import net.seapanda.bunnyhop.view.WorkspaceView;
 
 /**
@@ -69,7 +69,7 @@ public class BunnyHop {
 	 * */
 	public void createWindow(Stage stage) {
 
-		TrashboxFacade.INSTANCE.init(workspaceSet);
+		TrashboxService.INSTANCE.init(workspaceSet);
 		VBox root;
 		try {
 			Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.FOUNDATION_FXML);

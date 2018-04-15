@@ -27,7 +27,7 @@ import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
-import net.seapanda.bunnyhop.message.MsgTransporter;
+import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
@@ -344,7 +344,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_THIS, this);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_VIEW, view);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_MSG_TRANSPORTER, MsgTransporter.INSTANCE);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, BhNodeTemplates.INSTANCE);
 	}

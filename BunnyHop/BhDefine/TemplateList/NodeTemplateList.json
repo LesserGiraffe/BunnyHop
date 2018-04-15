@@ -6,6 +6,7 @@
 			"idMoveStat",
 			"idMeasureDistanceExp",
 			"idPlayMelodyStat",
+			"idPlaySoundListStat",
 			"idSleepStat",
 			"idSayStat"]
 	},
@@ -52,7 +53,8 @@
 		"contents":[
 			"idScaleSoundLiteral",
 			"idFreqSoundLiteral",
-			"idPlayMelodyStat",]
+			"idPlayMelodyStat",
+			"idPlaySoundListStat"]
 	},
 	
 	"制御" : {
@@ -77,7 +79,8 @@
 			"idStrListDecl",
 			"idBoolVarDecl",
 			"idBoolListDecl",
-			"idSoundVarDecl"
+			"idSoundVarDecl",
+			"idSoundListDecl"
 		]
 	},
 	

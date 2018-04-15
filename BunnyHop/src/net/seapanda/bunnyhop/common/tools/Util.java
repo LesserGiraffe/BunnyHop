@@ -23,11 +23,6 @@ import java.nio.file.Paths;
 
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import net.seapanda.bunnyhop.common.Point2D;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.node.BhNode;
 
 /**
  * @author K.Koike
@@ -137,14 +132,6 @@ public class Util {
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * 引数で指定したノードのワークスペース上での位置を取得する
-	 * */
-	public static Point2D getPosOnWS(BhNode node) {
-		MsgData curPos = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, node);
-		return new Point2D(curPos.doublePair._1, curPos.doublePair._2);
 	}
 }
 

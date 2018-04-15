@@ -261,6 +261,7 @@ public class SymbolNames {
 		public static final String MOVE_STAT = "MoveStat";
 		public static final String SLEEP_STAT = "SleepStat";
 		public static final String PLAY_MELODY_STAT = "PlayMelodyStat";
+		public static final String PLAY_SOUND_LIST_STAT = "PlaySoundListStat";
 		public static final String SAY_STAT = "SayStat";
 
 		//オプション名
@@ -294,6 +295,7 @@ public class SymbolNames {
 				MOVE_STAT,
 				SLEEP_STAT,
 				PLAY_MELODY_STAT,
+				PLAY_SOUND_LIST_STAT,
 				SAY_STAT,
 				Array.STR_ARRAY_PUSH_STAT,
 				Array.STR_ARRAY_POP_STAT,
@@ -317,7 +319,17 @@ public class SymbolNames {
 				Array.BOOL_ARRAY_INSERT_STAT,
 				Array.BOOL_ARRAY_REMOVE_STAT,
 				Array.BOOL_ARRAY_APPEND_STAT,
-				Array.BOOL_ARRAY_CLEAR_STAT)
+				Array.BOOL_ARRAY_CLEAR_STAT,
+
+				Array.SOUND_ARRAY_PUSH_STAT,
+				Array.SOUND_ARRAY_POP_STAT,
+				Array.SOUND_ARRAY_INSERT_STAT,
+				Array.SOUND_ARRAY_REMOVE_STAT,
+				Array.SOUND_ARRAY_APPEND_STAT,
+				Array.SOUND_ARRAY_CLEAR_STAT,
+				Array.SOUND_ARRAY_SET_STAT
+
+					)
 			);	//!< 定義済み関数文のリスト
 
 		public static final Map<List<String>, String> PREDEF_FUNC_NAME_MAP =
@@ -343,6 +355,7 @@ public class SymbolNames {
 				put(Arrays.asList(MOVE_STAT, OPT_TURN_LEFT), CommonCodeDefinition.Funcs.TURN_LEFT);
 				put(Arrays.asList(SLEEP_STAT), CommonCodeDefinition.Funcs.SLEEP);
 				put(Arrays.asList(PLAY_MELODY_STAT), CommonCodeDefinition.Funcs.PLAY_MELODIES);
+				put(Arrays.asList(PLAY_SOUND_LIST_STAT), CommonCodeDefinition.Funcs.PLAY_MELODIES);
 				put(Arrays.asList(SAY_STAT), CommonCodeDefinition.Funcs.SAY);
 
 				put(Arrays.asList(Array.STR_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
@@ -374,6 +387,16 @@ public class SymbolNames {
 				put(Arrays.asList(Array.BOOL_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
 				put(Arrays.asList(Array.BOOL_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
 				put(Arrays.asList(Array.BOOL_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
+
+				put(Arrays.asList(Array.SOUND_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
+				put(Arrays.asList(Array.SOUND_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
+				put(Arrays.asList(Array.SOUND_ARRAY_INSERT_STAT),  CommonCodeDefinition.Funcs.ARY_INSERT);
+				put(Arrays.asList(Array.SOUND_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
+				put(Arrays.asList(Array.SOUND_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
+				put(Arrays.asList(Array.SOUND_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
+				put(Arrays.asList(Array.SOUND_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(Arrays.asList(Array.SOUND_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(Arrays.asList(Array.SOUND_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
 			}};	//!<  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
 	}
 
@@ -423,6 +446,7 @@ public class SymbolNames {
 		public static final String STR_EMPTY_LIST = VarDecl.STR_EMPTY_LIST;
 		public static final String NUM_EMPTY_LIST = VarDecl.NUM_EMPTY_LIST;
 		public static final String BOOL_EMPTY_LIST = VarDecl.BOOL_EMPTY_LIST;
+		public static final String SOUND_EMPTY_LIST = VarDecl.SOUND_EMPTY_LIST;
 		public static final String ANY_ENPTY_LIST = "AnyEmptyList";
 		public static final HashSet<String> LIST =
 			new HashSet<>(Arrays.asList(
@@ -436,6 +460,7 @@ public class SymbolNames {
 				STR_EMPTY_LIST,
 				NUM_EMPTY_LIST,
 				BOOL_EMPTY_LIST,
+				SOUND_EMPTY_LIST,
 				ANY_ENPTY_LIST,
 				MELODY_EXP_VOID));
 		public static final HashSet<String> ARRAY_TYPES =
@@ -444,6 +469,7 @@ public class SymbolNames {
 				NUM_EMPTY_LIST,
 				BOOL_EMPTY_LIST,
 				ANY_ENPTY_LIST,
+				SOUND_EMPTY_LIST,
 				MELODY_EXP_VOID));
 
 		public static class Sound {
@@ -491,6 +517,18 @@ public class SymbolNames {
 		public static final String BOOL_ARRAY_SET_STAT = "BoolArraySetStat";
 		public static final String BOOL_ARRAY_LEN_EXP = "BoolArrayLengthExp";
 
+		public static final String SOUND_ARRAY_PUSH_STAT = "SoundArrayPushStat";
+		public static final String SOUND_ARRAY_POP_STAT = "SoundArrayPopStat";
+		public static final String SOUND_ARRAY_INSERT_STAT = "SoundArrayInsertStat";
+		public static final String SOUND_ARRAY_REMOVE_STAT = "SoundArrayRemoveStat";
+		public static final String SOUND_ARRAY_APPEND_STAT = "SoundArrayAppendStat";
+		public static final String SOUND_ARRAY_CLEAR_STAT = "SoundArrayClearStat";
+		public static final String SOUND_ARRAY_GET_EXP = "SoundArrayGetExp";
+		public static final String SOUND_ARRAY_GET_LAST_EXP = "SoundArrayGetLastExp";
+		public static final String SOUND_ARRAY_SET_STAT = "SoundArraySetStat";
+		public static final String SOUND_ARRAY_LEN_EXP = "SoundArrayLengthExp";
+
+
 		public static final String ANY_ARRAY_LEN_EXP = "AnyArrayLengthExp";
 
 		public static final HashSet<String> LENGTH_EXP_LIST =
@@ -498,6 +536,7 @@ public class SymbolNames {
 				STR_ARRAY_LEN_EXP,
 				NUM_ARRAY_LEN_EXP,
 				BOOL_ARRAY_LEN_EXP,
+				SOUND_ARRAY_LEN_EXP,
 				ANY_ARRAY_LEN_EXP));
 
 		public static final HashSet<String> GET_EXP_LIST =
@@ -506,7 +545,9 @@ public class SymbolNames {
 				STR_ARRAY_GET_EXP,
 				STR_ARRAY_GET_LAST_EXP,
 				BOOL_ARRAY_GET_EXP,
-				BOOL_ARRAY_GET_LAST_EXP));
+				BOOL_ARRAY_GET_LAST_EXP,
+				SOUND_ARRAY_GET_EXP,
+				SOUND_ARRAY_GET_LAST_EXP));
 	}
 
 	public static class Undefined {
@@ -518,6 +559,9 @@ public class SymbolNames {
 				put(Array.STR_ARRAY_GET_EXP, "''");
 				put(Array.STR_ARRAY_GET_LAST_EXP, "''");
 				put(Array.BOOL_ARRAY_GET_EXP, "false");
-				put(Array.BOOL_ARRAY_GET_LAST_EXP, "false");}};	//undefinedが返った場合の代替値
+				put(Array.BOOL_ARRAY_GET_LAST_EXP, "false");
+				put(Array.SOUND_ARRAY_GET_EXP, CommonCodeDefinition.Vars.NIL_SOUND);
+				put(Array.SOUND_ARRAY_GET_LAST_EXP, CommonCodeDefinition.Vars.NIL_SOUND);
+			}};	//undefinedが返った場合の代替値
 	}
 }

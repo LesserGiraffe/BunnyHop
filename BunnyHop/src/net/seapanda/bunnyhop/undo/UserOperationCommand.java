@@ -20,9 +20,9 @@ import java.util.LinkedList;
 
 import net.seapanda.bunnyhop.common.Point2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
+import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
@@ -98,7 +98,7 @@ public class UserOperationCommand {
 	 * @param imitInfo オリジナルノードを登録するイミテーションノードが持つ ImitationInfo オブジェクト
 	 * @param original 元々登録されていたオリジナルノード
 	 */
-	public <T extends Imitatable> void pushCmdSetOriginal(ImitationInfo<T> imitInfo, T original) {
+	public <T extends Imitatable> void pushCmdOfSetOriginal(ImitationInfo<T> imitInfo, T original) {
 		subOpeList.addLast(new SetOriginalCmd<T>(imitInfo, original));
 	}
 
@@ -223,6 +223,15 @@ public class UserOperationCommand {
 	}
 
 	/**
+	 * ノードの可視性変更をコマンド化してサブ操作リストに加える
+	 * @param nodeView 可視性を変更したノード
+	 * @param visible 変更した可視性 (true -> 可視, false -> 不可視)
+	 * */
+	public void pushCmdOfSetVisible(BhNodeView nodeView, boolean visible) {
+		subOpeList.addLast(new SetVisibleCmd(nodeView, visible));
+	}
+
+	/**
 	 * 親のUserOperationCommandを構成するサブ操作
 	 */
 	interface SubOperation {
@@ -305,7 +314,7 @@ public class UserOperationCommand {
 
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
-			MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_ROOT_NODE, node, ws);
+			MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_ROOT_NODE, new MsgData(false), node, ws);
 			inverseCmd.pushCmdOfRemoveRootNode(node, ws);
 		}
 	}
@@ -348,7 +357,7 @@ public class UserOperationCommand {
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
 
-			Point2D curPos = Util.getPosOnWS(node);
+			Point2D curPos = MsgService.INSTANCE.getPosOnWS(node);
 			inverseCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
 			MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_POS_ON_WORKSPACE, new MsgData(x, y), node);
 			MsgTransporter.INSTANCE.sendMessage(BhMsg.UPDATE_ABS_POS, node);		//4分木空間での位置確定
@@ -537,6 +546,9 @@ public class UserOperationCommand {
 		}
 	}
 
+	/**
+	 * ワークスペースの削除を表すコマンド
+	 * */
 	private static class DeleteWorkspaceCmd implements SubOperation {
 
 		Workspace ws;	//!< 削除されたワークスペース
@@ -554,4 +566,38 @@ public class UserOperationCommand {
 			MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, inverseCmd), wss);
 		}
 	}
+
+	/**
+	 * BhNodeView の可視性変更を表すコマンド
+	 * */
+	private static class SetVisibleCmd implements SubOperation {
+
+		private final BhNodeView nodeView; //!< 可視性を変更したノード
+		private final boolean visible; //!< 設定した可視性
+
+		public SetVisibleCmd(BhNodeView nodeView, boolean visible) {
+			this.nodeView = nodeView;
+			this.visible = visible;
+		}
+
+		@Override
+		public void doInverseOperation(UserOperationCommand inverseCmd) {
+			nodeView.getAppearanceManager().setVisible(!visible);
+			inverseCmd.pushCmdOfSetVisible(nodeView, !visible);
+		}
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

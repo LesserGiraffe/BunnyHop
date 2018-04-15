@@ -11,7 +11,7 @@
 	
 		let staticTypeNodeID = bhCommon.getStaticTypeNodeID(anyTypeNode.getSymbolName(), bhThis.getSymbolName());
 		if (staticTypeNodeID !== null) {
-			let posOnWS = bhCommon.Util.getPosOnWS(anyTypeNode);
+			let posOnWS = bhMsgService.getPosOnWS(anyTypeNode);
 			let staticTypeNode = bhCommon.addNewNodeToWS(
 				staticTypeNodeID,
 				bhThis.getWorkspace(),

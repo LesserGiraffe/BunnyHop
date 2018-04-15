@@ -25,6 +25,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -122,9 +123,11 @@ public class ImitationReplacer implements BhModelProcessor {
 		for (ConnectiveNode parent : parentNodeList) {
 			Optional<BhNode> nodeToReplace = getNodeToReplaceOrRemove(parent, imiCnctPos);
 			nodeToReplace.ifPresent(imitToReplace -> {
+				Connector parentCnctr = imitToReplace.getParentConnector();
 				Imitatable newImit = original.findExistingOrCreateNewImit(imitToReplace, userOpeCmd);
 				BhNodeHandler.INSTANCE.replaceChildNewlyCreated(imitToReplace, newImit, userOpeCmd);
-				BhNodeHandler.INSTANCE.deleteNodeIncompletely(imitToReplace, userOpeCmd);
+				BhNodeHandler.INSTANCE.deleteNodeIncompletely(imitToReplace, true, false, userOpeCmd);
+				newImit.findParentNode().execScriptOnChildReplaced(imitToReplace, newImit, parentCnctr, userOpeCmd);
 			});
 		}
 	}
@@ -140,8 +143,10 @@ public class ImitationReplacer implements BhModelProcessor {
 			Optional<BhNode> nodeToRemove = getNodeToReplaceOrRemove(parent, imitCnctPos);
 			nodeToRemove.ifPresent(node -> {
 				if (node.getOriginalNode() == oldOriginal) {	//取り除くノードのオリジナルノードが入れ替え対象の古いノードであった場合
-					BhNodeHandler.INSTANCE.removeChild(node, userOpeCmd);
-					BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, userOpeCmd);
+					Connector parentCnctr = node.getParentConnector();
+					BhNode newNode = BhNodeHandler.INSTANCE.removeChild(node, userOpeCmd);
+					BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, false, userOpeCmd);
+					newNode.findParentNode().execScriptOnChildReplaced(node, newNode, parentCnctr, userOpeCmd);
 				}
 			});
 		}

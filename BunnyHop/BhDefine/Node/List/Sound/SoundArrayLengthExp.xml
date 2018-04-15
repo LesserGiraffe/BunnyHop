@@ -1,0 +1,27 @@
+<Node
+	type="connective"
+	bhNodeID="idSoundArrayLengthExp"
+	name="SoundArrayLengthExp"
+	nodeStyleID="SoundArrayLengthExp.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<ConnectorSection name="NumberExpSctn">
+		<Connector bhConnectorID="idSoundListCnctr" name="Array"/>
+		
+		<PrivateConnector
+			bhConnectorID="idSoundArrayLengthExp.prvCnctr0"
+			name="noSaizu"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSoundArrayLengthExp.prvNode0"
+				name="noSaizu"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="のサイズ">
+			</Node>
+		</PrivateConnector>
+		
+	</ConnectorSection>
+</Node>

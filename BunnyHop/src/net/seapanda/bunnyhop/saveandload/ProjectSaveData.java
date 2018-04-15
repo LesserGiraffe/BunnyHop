@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Point2D;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.control.WorkspaceController;
 import net.seapanda.bunnyhop.message.BhMsg;
+import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
@@ -124,7 +124,7 @@ public class ProjectSaveData implements Serializable{
 
 			RootNodeSaveData(BhNode rootNode) {
 				this.rootNode = rootNode;
-				Point2D pos = Util.getPosOnWS(rootNode);
+				Point2D pos = MsgService.INSTANCE.getPosOnWS(rootNode);
 				nodePos = new Point2D(pos.x, pos.y);
 			}
 
