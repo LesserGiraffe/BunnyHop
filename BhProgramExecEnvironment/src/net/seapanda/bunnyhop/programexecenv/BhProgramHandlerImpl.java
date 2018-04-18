@@ -82,8 +82,8 @@ public class BhProgramHandlerImpl implements BhProgramHandler {
 				try {
 					engine = (new NashornScriptEngineFactory()).getScriptEngine("--language=es6");
 					Bindings binding = engine.createBindings();
-					binding.put(BhParams.BhProgram.INOUT_MODULE_NAME, scriptIO);
-					binding.put(BhParams.BhProgram.EXEC_PATH, Util.INSTANCE.EXEC_PATH);
+					binding.put(BhParams.JsKeyword.KEY_BH_INOUT, scriptIO);
+					binding.put(BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
 					engine.setBindings(binding, ScriptContext.ENGINE_SCOPE);
 					engine.eval(srcCode);
 					Invocable invocable = (Invocable)engine;

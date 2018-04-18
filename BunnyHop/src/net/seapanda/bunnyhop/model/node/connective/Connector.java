@@ -253,6 +253,7 @@ public class Connector extends SyntaxSymbol {
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
 	}
 
 	/**

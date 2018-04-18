@@ -30,11 +30,16 @@ public class BhParams {
 	public static final int MAX_LOG_FILE_NUM = 4;	//!< ログファイルの最大個数
 
 	public static class BhProgram {
-		public static final String INOUT_MODULE_NAME = "inout";
-		public static final String EXEC_PATH = "execPath";
 		public static final String RIM_TCP_PORT_SUFFIX = "@RmiTcpPort";	//BhProgram実行環境との通信に使うRMIオブジェクトを探す際のTCPポート
 	}
 
+	/**
+	 * JavaScript コードに内部でも使うキーワード
+	 * */
+	public static class JsKeyword {
+		public static final String KEY_BH_INOUT = "bhInout";
+		public static final String KEY_BH_NODE_UTIL = "bhUtil";
+	}
 	/**
 	 * ファイルパス関連のパラメータ
 	 */

@@ -325,6 +325,7 @@ public class BhNodeTemplates {
 		Bindings scriptScope = BhScriptManager.INSTANCE.createScriptScope();
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, new UserOperationCommand());
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, INSTANCE);
+		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
 		try {
 			cs.eval(scriptScope);
 		}
