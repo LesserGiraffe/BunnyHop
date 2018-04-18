@@ -48,10 +48,10 @@ public class LogManager {
 	private boolean initLogSystem() {
 
 		Path logFilePath = genLogFilePath(0);
-		if (!Util.createDirectoryIfNotExists(Paths.get(Util.EXEC_PATH, BhParams.Path.LOG_DIR)))
+		if (!Util.INSTANCE.createDirectoryIfNotExists(Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.LOG_DIR)))
 			return false;
 
-		if (!Util.createFileIfNotExists(logFilePath))
+		if (!Util.INSTANCE.createFileIfNotExists(logFilePath))
 			return false;
 
 		try {
@@ -110,7 +110,7 @@ public class LogManager {
 		String numStr = ("0000" + fileNo);
 		numStr = numStr.substring(numStr.length() - 4, numStr.length());
 		String logFileName = BhParams.Path.LOG_FILE_NAME + numStr + ".log";
-		return Paths.get(Util.EXEC_PATH, BhParams.Path.LOG_DIR, logFileName);
+		return Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.LOG_DIR, logFileName);
 	}
 
 

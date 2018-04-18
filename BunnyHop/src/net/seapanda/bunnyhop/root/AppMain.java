@@ -53,9 +53,9 @@ public class AppMain extends Application {
 			System.exit(-1);
 
 		boolean success = BhScriptManager.INSTANCE.genCompiledCode(
-				Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.FUNCTIONS_DIR),
-				Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.TEMPLATE_LIST_DIR),
-				Paths.get(Util.EXEC_PATH, BhParams.Path.REMOTE_DIR));
+				Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.FUNCTIONS_DIR),
+				Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.TEMPLATE_LIST_DIR),
+				Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.REMOTE_DIR));
 
 		if (!success) {
 			System.exit(-1);

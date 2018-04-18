@@ -98,7 +98,7 @@ final public class VarDeclCodeGenerator {
 		varDeclInfoList.addAll(outVarDeclInfoList);
 
 		if (varDeclInfoList.size() >= 1)
-			code.append(Util.LF);
+			code.append(Util.INSTANCE.LF);
 
 		for (int i = 0; i < varDeclInfoList.size(); ++i) {
 
@@ -113,7 +113,7 @@ final public class VarDeclCodeGenerator {
 				code.append(" /*").append(varDeclInfo.comment).append("*/");
 			}
 			if (!isLastParam) {
-				code.append(Util.LF);
+				code.append(Util.INSTANCE.LF);
 			}
 		}
 
@@ -174,7 +174,7 @@ final public class VarDeclCodeGenerator {
 					.append(varDeclInfo.comment)
 					.append("*/");
 			}
-			code.append(Util.LF);
+			code.append(Util.INSTANCE.LF);
 		});
 	}
 
@@ -214,11 +214,11 @@ final public class VarDeclCodeGenerator {
 		if (initExp != null) {
 			code.append(" = (")
 				.append(initExp)
-				.append(");").append(Util.LF);
+				.append(");").append(Util.INSTANCE.LF);
 
 		}
 		else {
-			code.append(";").append(Util.LF);
+			code.append(";").append(Util.INSTANCE.LF);
 		}
 	}
 }

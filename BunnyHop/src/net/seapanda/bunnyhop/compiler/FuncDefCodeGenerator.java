@@ -83,14 +83,14 @@ public class FuncDefCodeGenerator {
 		SyntaxSymbol param = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.PARAM_DECL, "*");
 		SyntaxSymbol outParam = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.OUT_PARAM_DECL, "*");
 		Optional<Integer> outParamIdxOpt = varDeclCodeGen.genParamList(param, outParam, code, nestLevel + 1, option);
-		code.append(") {").append(Util.LF);
+		code.append(") {").append(Util.INSTANCE.LF);
 		genFuncDefInner(funcDefNode, code, nestLevel, option);
 		outParamIdxOpt.ifPresent(outParamIdx -> genOutArgCopy(code, outParamIdx, nestLevel + 1));
 
 		code.append(common.indent(nestLevel))
 			.append("}")
-			.append(Util.LF)
-			.append(Util.LF);
+			.append(Util.INSTANCE.LF)
+			.append(Util.INSTANCE.LF);
 	}
 
 	/**
@@ -116,14 +116,14 @@ public class FuncDefCodeGenerator {
 				.append(funcNameNode.getText())
 				.append("*/");
 		}
-		code.append(Util.LF);
+		code.append(Util.INSTANCE.LF);
 
 		varDeclCodeGen.genVarDeclStat(code, CommonCodeDefinition.Vars.CALL_OBJ, null, nestLevel + 2);
 		SyntaxSymbol stat = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.STAT_LIST, "*");
 		statCodeGen.genStatement(stat, code, nestLevel + 2, option);
 		code.append(common.indent(nestLevel+1))
 			.append("})();")
-			.append(Util.LF);
+			.append(Util.INSTANCE.LF);
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class FuncDefCodeGenerator {
 		code.append(common.indent(nestLevel))
 			.append(copyArgsCode)
 			.append(";")
-			.append(Util.LF);
+			.append(Util.INSTANCE.LF);
 	}
 }
 

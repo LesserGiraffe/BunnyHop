@@ -18,11 +18,12 @@ package net.seapanda.bunnyhop.model.node.connective;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
+
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
+import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -42,7 +43,7 @@ public class Subsection extends Section {
 		super(symbolName);
 		this.subsectionList.addAll(subsectionList);
 	}
-	
+
 	/**
 	 * コピーコンストラクタ
 	 * @param org コピー元オブジェクト
@@ -53,7 +54,7 @@ public class Subsection extends Section {
 
 	@Override
 	public Subsection copy(	UserOperationCommand userOpeCmd) {
-		
+
 		Subsection newSubsection = new Subsection(this);
 		subsectionList.forEach(section -> {
 			Section newSection = section.copy(userOpeCmd);
@@ -62,7 +63,7 @@ public class Subsection extends Section {
 		});
 		return newSubsection;
 	}
-	
+
 	/**
 	 * visitor に自オブジェクトを渡す
 	 * @param visitor 自オブジェクトを渡す visitorオブジェクト
@@ -79,13 +80,13 @@ public class Subsection extends Section {
 	public void introduceSubsectionTo(BhModelProcessor visitor) {
 		subsectionList.forEach(subsection -> subsection.accept(visitor));
 	}
-	
+
 	@Override
 	public void findSymbolInDescendants(int hierarchyLevel, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
-		
+
 		if (hierarchyLevel == 0) {
 			for (String symbolName : symbolNames) {
-				if (Util.equals(getSymbolName(), symbolName)) {
+				if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
 					foundSymbolList.add(this);
 				}
 			}
@@ -93,7 +94,7 @@ public class Subsection extends Section {
 				return;
 			}
 		}
-		
+
 		int childLevel = hierarchyLevel - 1;
 		for (Section subsection : subsectionList) {
 			subsection.findSymbolInDescendants(Math.max(0, childLevel), toBottom, foundSymbolList, symbolNames);
@@ -102,7 +103,7 @@ public class Subsection extends Section {
 
 	@Override
 	public BhNode findOuterEndNode() {
-		
+
 		for (int i = subsectionList.size() - 1; i >= 0; --i) {
 			BhNode outerEnd = subsectionList.get(i).findOuterEndNode();
 			if (outerEnd != null)
@@ -110,7 +111,7 @@ public class Subsection extends Section {
 		}
 		return null;
 	}
-		
+
 	/**
 	 * モデルの構造を表示する
 	 * @param depth 表示インデント数

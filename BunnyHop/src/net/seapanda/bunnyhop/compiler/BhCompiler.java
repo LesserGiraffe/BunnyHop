@@ -65,17 +65,17 @@ public class BhCompiler {
 	 */
 	public boolean init() {
 
-		Path commonCodePath = Paths.get(Util.EXEC_PATH,
+		Path commonCodePath = Paths.get(Util.INSTANCE.EXEC_PATH,
 			BhParams.Path.BH_DEF_DIR,
 			BhParams.Path.FUNCTIONS_DIR,
 			BhParams.Path.lib,
 			BhParams.Path.COMMON_CODE_JS);
-		Path remoteCommonCodePath = Paths.get(Util.EXEC_PATH,
+		Path remoteCommonCodePath = Paths.get(Util.INSTANCE.EXEC_PATH,
 			BhParams.Path.BH_DEF_DIR,
 			BhParams.Path.FUNCTIONS_DIR,
 			BhParams.Path.lib,
 			BhParams.Path.REMOTE_COMMON_CODE_JS);
-		Path localCommonCodePath = Paths.get(Util.EXEC_PATH,
+		Path localCommonCodePath = Paths.get(Util.INSTANCE.EXEC_PATH,
 			BhParams.Path.BH_DEF_DIR,
 			BhParams.Path.FUNCTIONS_DIR,
 			BhParams.Path.lib,
@@ -118,8 +118,8 @@ public class BhCompiler {
 		StringBuilder code = new StringBuilder();
 		genCode(code, execNode, compiledNodeList, option);
 
-		Util.createDirectoryIfNotExists(Paths.get(Util.EXEC_PATH, BhParams.Path.COMPILED_DIR));
-		Path appFilePath = Paths.get(Util.EXEC_PATH, BhParams.Path.COMPILED_DIR, BhParams.Path.APP_FILE_NAME_JS);
+		Util.INSTANCE.createDirectoryIfNotExists(Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.COMPILED_DIR));
+		Path appFilePath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.COMPILED_DIR, BhParams.Path.APP_FILE_NAME_JS);
 		try (BufferedWriter writer =
 			Files.newBufferedWriter(
 				appFilePath,
@@ -172,8 +172,8 @@ public class BhCompiler {
 				CommonCodeDefinition.Funcs.ADD_EVENT,
 				CommonCodeDefinition.Funcs.BH_MAIN,
 				"'" + BhProgramData.EVENT.PROGRAM_START.toString() + "'");
-		addEventCallStat += ";" + Util.LF;
-		code.append(common.indent(1)).append(addEventCallStat).append(Util.LF);
+		addEventCallStat += ";" + Util.INSTANCE.LF;
+		code.append(common.indent(1)).append(addEventCallStat).append(Util.INSTANCE.LF);
 
 	}
 

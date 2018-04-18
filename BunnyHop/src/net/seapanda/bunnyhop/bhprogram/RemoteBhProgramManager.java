@@ -426,7 +426,7 @@ public class RemoteBhProgramManager {
 		bindings.put(BhParams.JsKeyword.KEY_UNAME, uname);
 		bindings.put(BhParams.JsKeyword.KEY_PASSWORD, password);
 		bindings.put(BhParams.JsKeyword.KEY_BH_PROGRAM_FILE_PATH,
-					 Paths.get(Util.EXEC_PATH, BhParams.Path.COMPILED_DIR, BhParams.Path.APP_FILE_NAME_JS).toString());
+					 Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.COMPILED_DIR, BhParams.Path.APP_FILE_NAME_JS).toString());
 	}
 
 	/**

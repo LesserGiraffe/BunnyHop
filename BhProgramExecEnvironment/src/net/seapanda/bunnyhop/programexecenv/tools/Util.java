@@ -26,10 +26,13 @@ import java.nio.file.Paths;
  */
 public class Util {
 
-	public static final String EXEC_PATH;
-	private static final String OS_NAME = System.getProperty("os.name").toLowerCase();
+	public static final Util INSTANCE = new Util();		//!< シングルトンインスタンス
+	public final String EXEC_PATH;
+	private final String OS_NAME = System.getProperty("os.name").toLowerCase();
+	public final Platform PLATFORM = this.new Platform();
 
-	static {
+	private Util() {
+
 		boolean isModulePath = true;
 		String pathStr = System.getProperty("jdk.module.path");
 		if (pathStr == null) {
@@ -57,7 +60,7 @@ public class Util {
 	 * @param filePath 作成するファイルのパス
 	 * @return 作成に失敗した場合false. 作成しなかった場合はtrue
 	 */
-	public static boolean createFileIfNotExists(Path filePath) {
+	public boolean createFileIfNotExists(Path filePath) {
 		try {
 			if (!Files.exists(filePath))
 				Files.createFile(filePath);
@@ -74,7 +77,7 @@ public class Util {
 	 * @param dirPath 作成するファイルのパス
 	 * @return 作成に失敗した場合false. 作成しなかった場合はtrue
 	 */
-	public static boolean createDirectoryIfNotExists(Path dirPath) {
+	public boolean createDirectoryIfNotExists(Path dirPath) {
 		try {
 			if (!Files.isDirectory(dirPath))
 				Files.createDirectory(dirPath);
@@ -87,13 +90,13 @@ public class Util {
 	}
 
 
-	public static class Platform {
+	public class Platform {
 
-		boolean isWindows() {
+		public boolean isWindows() {
 			return OS_NAME.startsWith("windows");
 		}
 
-		boolean isLinux() {
+		public boolean isLinux() {
 			return OS_NAME.startsWith("linux");
 		}
 	}

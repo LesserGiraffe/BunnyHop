@@ -118,7 +118,7 @@ public class ExpCodeGenerator {
 			.append(leftExpCode)
 			.append(operatorCode)
 			.append(rightExpCode)
-			.append(";").append(Util.LF);
+			.append(";").append(Util.INSTANCE.LF);
 
 		String tmpVarResult = tmpVar;
 		if (option.handleException) {
@@ -134,7 +134,7 @@ public class ExpCodeGenerator {
 					.append(tmpVar)
 					.append(" : ")
 					.append(leftExpCode)
-					.append(";").append(Util.LF);
+					.append(";").append(Util.INSTANCE.LF);
 			}
 		}
 		return tmpVarResult;
@@ -168,7 +168,7 @@ public class ExpCodeGenerator {
 			.append(" = ")
 			.append(operatorCode)
 			.append(primaryExpCode)
-			.append(";").append(Util.LF);
+			.append(";").append(Util.INSTANCE.LF);
 
 		return tmpVar;
 	}
@@ -263,7 +263,7 @@ public class ExpCodeGenerator {
 		String[] argArray =  argList.toArray(new String[argList.size()]);
 		String funcCallCode = common.genFuncCallCode(funcName, argArray);
 		code.append(funcCallCode)
-			.append(";").append(Util.LF);
+			.append(";").append(Util.INSTANCE.LF);
 		genOutArgCopyStat(
 			code,
 			common.genPropertyAccessCode(callObjVar, CommonCodeDefinition.Properties.OUT_ARGS),
@@ -377,7 +377,7 @@ public class ExpCodeGenerator {
 				.append(" = ");
 		}
 		code.append(funcCallCode)
-			.append(";").append(Util.LF);
+			.append(";").append(Util.INSTANCE.LF);
 		genOutArgCopyStat(
 			code,
 			common.genPropertyAccessCode(callObjVar, CommonCodeDefinition.Properties.OUT_ARGS),
@@ -406,7 +406,7 @@ public class ExpCodeGenerator {
 			code.append(common.indent(nestLevel))
 				.append(outArgList.get(argIdx))
 				.append(" = ")
-				.append(outValListName).append("[").append(argIdx).append("];").append(Util.LF);
+				.append(outValListName).append("[").append(argIdx).append("];").append(Util.INSTANCE.LF);
 		}
 	}
 
@@ -474,7 +474,7 @@ public class ExpCodeGenerator {
 			.append(tmpVar)
 			.append(" = ")
 			.append(funcCallCode)
-			.append(";").append(Util.LF);
+			.append(";").append(Util.INSTANCE.LF);
 		return tmpVar;
 	}
 
@@ -501,7 +501,7 @@ public class ExpCodeGenerator {
 			.append(tmpVar)
 			.append(" = ")
 			.append(arrayExpCode)
-			.append(".length;").append(Util.LF);
+			.append(".length;").append(Util.INSTANCE.LF);
 		return tmpVar;
 	}
 
@@ -529,7 +529,7 @@ public class ExpCodeGenerator {
 				.append(varName)
 				.append(" = ")
 				.append(SymbolNames.VarDecl.INIT_VAL_MAP.get(varNode.getSymbolName()))
-				.append(";").append(Util.LF);
+				.append(";").append(Util.INSTANCE.LF);
 			return varName;
 		}
 		else {
@@ -553,7 +553,7 @@ public class ExpCodeGenerator {
 			.append(CommonCodeDefinition.Vars.CALL_OBJ)
 			.append(" = ")
 			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.GEN_CALL_OBJ))
-			.append(";").append(Util.LF);
+			.append(";").append(Util.INSTANCE.LF);
 
 		return CommonCodeDefinition.Vars.CALL_OBJ;
 	}
@@ -575,7 +575,8 @@ public class ExpCodeGenerator {
 		if (soundLiteralNode.getSymbolName().equals(SymbolNames.Literal.SOUND_LITERAL_VOID)) {
 			String soundVar = common.genVarName(soundLiteralNode);
 			String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, "0", "0");
-			code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp).append(";").append(Util.LF);
+			code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp)
+				.append(";").append(Util.INSTANCE.LF);
 			return soundVar;
 		}
 
@@ -610,7 +611,8 @@ public class ExpCodeGenerator {
 		// 音オブジェクト作成
 		String soundVar = common.genVarName(freqSoundLiteralNode);
 		String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, frequency, duration);
-		code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp).append(";").append(Util.LF);
+		code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp)
+			.append(";").append(Util.INSTANCE.LF);
 		return soundVar;
 
 	}
@@ -645,7 +647,8 @@ public class ExpCodeGenerator {
 		// 音オブジェクト作成
 		String soundVar = common.genVarName(scaleSoundLiteralNode);
 		String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, frequency+"", duration);
-		code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp).append(";").append(Util.LF);
+		code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp)
+			.append(";").append(Util.INSTANCE.LF);
 		return soundVar;
 	}
 }

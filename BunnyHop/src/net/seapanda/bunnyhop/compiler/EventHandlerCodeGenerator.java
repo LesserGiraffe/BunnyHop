@@ -138,7 +138,9 @@ public class EventHandlerCodeGenerator {
 		if (eventNode.getSymbolName().equals(SymbolNames.Event.DELAYED_START_EVENT)) {
 			TextNode delayTimeNode = (TextNode)eventNode.findSymbolInDescendants("*", "*", SymbolNames.Event.DELAY_TIME);
 			code.append(common.indent(nestLevel + 4))
-				.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.SLEEP, delayTimeNode.getText())).append(";").append(Util.LF);
+				.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.SLEEP, delayTimeNode.getText()))
+				.append(";")
+				.append(Util.INSTANCE.LF);
 		}
 
 		SyntaxSymbol stat = eventNode.findSymbolInDescendants("*", SymbolNames.Stat.STAT_LIST, "*");
@@ -153,8 +155,8 @@ public class EventHandlerCodeGenerator {
 					CommonCodeDefinition.Funcs.ADD_EVENT,
 					funcName,
 					"'" + eventType.toString() + "'");
-			addEventCallStat += ";" + Util.LF;
-			code.append(common.indent(nestLevel)).append(addEventCallStat).append(Util.LF);
+			addEventCallStat += ";" + Util.INSTANCE.LF;
+			code.append(common.indent(nestLevel)).append(addEventCallStat).append(Util.INSTANCE.LF);
 		});
 	}
 
@@ -198,23 +200,23 @@ public class EventHandlerCodeGenerator {
 		code.append(common.indent(nestLevel))
 			.append(BhCompiler.Keywords.JS._function)
 			.append(funcName)
-			.append("(){").append(Util.LF);
+			.append("(){").append(Util.INSTANCE.LF);
 
 		//try {
-		code.append(common.indent(nestLevel + 1)).append(BhCompiler.Keywords.JS._try).append("{").append(Util.LF);
+		code.append(common.indent(nestLevel + 1)).append(BhCompiler.Keywords.JS._try).append("{").append(Util.INSTANCE.LF);
 
 		// if (_tryLock(lockObj)) {
 		code.append(common.indent(nestLevel + 2))
 			.append(BhCompiler.Keywords.JS._if)
 			.append("(")
 			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.TRY_LOCK, lockVar))
-			.append(") {").append(Util.LF);
+			.append(") {").append(Util.INSTANCE.LF);
 
 		// (function() {...
 		code.append(common.indent(nestLevel + 3))
 			.append("(")
 			.append(BhCompiler.Keywords.JS._function)
-			.append("(){").append(Util.LF);
+			.append("(){").append(Util.INSTANCE.LF);
 	}
 
 	/**
@@ -229,25 +231,25 @@ public class EventHandlerCodeGenerator {
 		int nestLevel) {
 
 		// end of "(function() {..."
-		code.append(common.indent(nestLevel + 3)).append("})();").append(Util.LF);
+		code.append(common.indent(nestLevel + 3)).append("})();").append(Util.INSTANCE.LF);
 
 		// end of "if(_tryLock())"
-		code.append(common.indent(nestLevel + 2)).append("}").append(Util.LF);
+		code.append(common.indent(nestLevel + 2)).append("}").append(Util.INSTANCE.LF);
 
 		// end of "try {"
-		code.append(common.indent(nestLevel + 1)).append("}").append(Util.LF);
+		code.append(common.indent(nestLevel + 1)).append("}").append(Util.INSTANCE.LF);
 
 		// catch (e) {}
 		// fincally {...}
 		code.append(common.indent(nestLevel + 1))
-			.append(BhCompiler.Keywords.JS._catch).append("(e) {}").append(Util.LF)
+			.append(BhCompiler.Keywords.JS._catch).append("(e) {}").append(Util.INSTANCE.LF)
 			.append(common.indent(nestLevel + 1))
 			.append(BhCompiler.Keywords.JS._finally).append("{")
 			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.UNLOCK, lockVar))
-			.append(";}").append(Util.LF);
+			.append(";}").append(Util.INSTANCE.LF);
 
 		// end of "function() {..."
-		code.append(common.indent(nestLevel)).append("}").append(Util.LF);
+		code.append(common.indent(nestLevel)).append("}").append(Util.INSTANCE.LF);
 
 	}
 }

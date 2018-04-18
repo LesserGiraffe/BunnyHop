@@ -71,7 +71,7 @@ public class BhProgramHandlerImpl implements BhProgramHandler {
 	@Override
 	public boolean runScript(String fileName, BhProgramData data) {
 
-		Path scriptPath = Paths.get(Util.EXEC_PATH, BhParams.Path.SCRIPT_DIR, fileName);
+		Path scriptPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.SCRIPT_DIR, fileName);
 		boolean success = true;
 
 		try (BufferedInputStream is = new BufferedInputStream(Files.newInputStream(scriptPath, StandardOpenOption.READ));){
@@ -83,7 +83,7 @@ public class BhProgramHandlerImpl implements BhProgramHandler {
 					engine = (new NashornScriptEngineFactory()).getScriptEngine("--language=es6");
 					Bindings binding = engine.createBindings();
 					binding.put(BhParams.BhProgram.INOUT_MODULE_NAME, scriptIO);
-					binding.put(BhParams.BhProgram.EXEC_PATH, Util.EXEC_PATH);
+					binding.put(BhParams.BhProgram.EXEC_PATH, Util.INSTANCE.EXEC_PATH);
 					engine.setBindings(binding, ScriptContext.ENGINE_SCOPE);
 					engine.eval(srcCode);
 					Invocable invocable = (Invocable)engine;

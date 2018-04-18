@@ -19,7 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
-
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.TreeNode;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -39,7 +38,7 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 
 	private TreeNode<String> templateTreeRoot;
 	private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
-	
+
 	public BhNodeCategoryList(){};
 
 	/**
@@ -49,7 +48,7 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 	 * */
 	public boolean genNodeCategoryList() {
 
-		Path filePath = Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.TEMPLATE_LIST_DIR, BhParams.Path.NODE_TEMPLATE_LIST_JSON);
+		Path filePath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.TEMPLATE_LIST_DIR, BhParams.Path.NODE_TEMPLATE_LIST_JSON);
 		ScriptObjectMirror jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
 		templateTreeRoot = new TreeNode<>("root");
 		return addChildren(jsonObj, templateTreeRoot, filePath.toString());
@@ -63,10 +62,10 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 	 * @return 下位の葉ノードに対応するBhNode があった場合true
 	 * */
 	private boolean addChildren(ScriptObjectMirror jsonObj, TreeNode<String> parent, String fileName) {
-		
+
 		boolean bhNodeForLeafExists = true;
 		for(String key : jsonObj.keySet()) {
-		
+
 			Object val = jsonObj.get(key);
 			switch (key) {
 				case BhParams.NodeTemplateList.KEY_CSS_CLASS:	//cssクラスのキー
@@ -76,7 +75,7 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 					cssClass.children.add(new TreeNode<>(val.toString()));
 					parent.children.add(cssClass);
 					break;
-					
+
 				case BhParams.NodeTemplateList.KEY_CONTENTS:	//ノードIDの配列のキー
 					if (!(val instanceof ScriptObjectMirror))
 						continue;
@@ -85,7 +84,7 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 						bhNodeForLeafExists &= addBhNodeID((ScriptObjectMirror)val, contents, fileName);
 						parent.children.add(contents);
 					}	break;
-					
+
 				default:					//カテゴリ名
 					if (!(val instanceof ScriptObjectMirror))
 						continue;
@@ -130,12 +129,12 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 	public TreeNode<String> getRootNode() {
 		return templateTreeRoot;
 	}
-	
+
 	@Override
 	public void setMsgProcessor(MsgProcessor processor) {
 		msgProcessor = processor;
 	}
-	
+
 	@Override
 	public MsgData passMsg(BhMsg msg, MsgData data) {
 		return msgProcessor.processMsg(msg, data);

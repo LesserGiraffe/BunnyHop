@@ -231,7 +231,7 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 
 		double width = 0.0;
 		for (String str : strList) {
-			double strWidth = Util.calcStrWidth(str, font);
+			double strWidth = Util.INSTANCE.calcStrWidth(str, font);
 			width = Math.max(width, strWidth);
 		}
 		return width;
@@ -266,7 +266,7 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 	 * コンボボックスの幅を文字列幅に合わせる
 	 * */
 	private void fitComboBoxWidthToStr(String currentStr, Font font) {
-		double width = Util.calcStrWidth(currentStr, font);
+		double width = Util.INSTANCE.calcStrWidth(currentStr, font);
 		width += buttonCell.getInsets().getLeft() + buttonCell.getInsets().getRight();
 		width += buttonCell.getPadding().getLeft() + buttonCell.getPadding().getRight();
 		buttonCell.getListView().setPrefWidth(width);

@@ -321,7 +321,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	public SyntaxSymbol findSymbolInAncestors(String symbolName, int hierarchyLevel, boolean toTop) {
 
 		if (hierarchyLevel == 0) {
-			if (Util.equals(getSymbolName(), symbolName)) {
+			if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
 				return this;
 			}
 			if (!toTop) {

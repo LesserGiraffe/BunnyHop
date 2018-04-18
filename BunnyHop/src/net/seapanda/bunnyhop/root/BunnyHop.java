@@ -90,7 +90,7 @@ public class BunnyHop {
 		double height = primaryScreenBounds.getHeight() * BhParams.DEFAULT_APP_HEIGHT_RATE;
 		scene = new Scene(root, width, height);
 		setCSS(scene);
-		String iconPath = Paths.get(Util.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.IMAGES_DIR, BhParams.Path.BUNNY_HOP_ICON).toUri().toString();
+		String iconPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.IMAGES_DIR, BhParams.Path.BUNNY_HOP_ICON).toUri().toString();
 		stage.getIcons().add(new Image(iconPath));
 		stage.setScene(scene);
 		stage.setTitle(BhParams.APPLICATION_NAME);
@@ -185,7 +185,7 @@ public class BunnyHop {
 	 * */
 	private void setCSS(Scene scene) {
 
-		Path dirPath = Paths.get(Util.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.CSS_DIR);
+		Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.CSS_DIR);
 		Stream<Path> files = null;	//読み込むファイルパスリスト
 		try {
 			files = Files.walk(dirPath, FOLLOW_LINKS).filter(filePath -> filePath.toString().toLowerCase().endsWith(".css"));

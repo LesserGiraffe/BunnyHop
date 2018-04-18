@@ -15,14 +15,16 @@
  */
 package net.seapanda.bunnyhop.configfilereader;
 
+import static java.nio.file.FileVisitOption.*;
+
 import java.io.IOException;
-import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
+
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
@@ -32,19 +34,19 @@ import net.seapanda.bunnyhop.common.tools.Util;
  * @author Koike
  */
 public class FXMLCollector {
-	
+
 	public static final FXMLCollector INSTANCE = new FXMLCollector();
 	private static final Map<String, Path> fileName_filePath = new HashMap<>();
-	
+
 	private FXMLCollector(){}
-	
+
 	/**
 	 * FXMLファイルのファイル名とそのパスを集める
 	 * @return FXMLファイルのフォルダが見つからなかった場合 falseを返す
 	 */
 	public boolean collectFXMLFiles() {
-		
-		Path dirPath = Paths.get(Util.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.FXML_DIR);
+
+		Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.FXML_DIR);
 		Stream<Path> paths;	//読み込むファイルパスリスト
 		try {
 			paths = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.getFileName().toString().endsWith(".fxml")); //.fxmlファイルだけ収集
@@ -56,7 +58,7 @@ public class FXMLCollector {
 		paths.forEach(filePath -> fileName_filePath.put(filePath.getFileName().toString(), filePath));
 		return true;
 	}
-	
+
 	/**
 	 * FXMLファイル名からそのファイルのフルパスを取得する
 	 * @param fileName フルパスを知りたいFXMLファイル名

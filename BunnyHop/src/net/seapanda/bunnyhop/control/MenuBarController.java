@@ -195,7 +195,7 @@ public class MenuBarController {
 				}
 			}
 		}
-		return new File(Util.EXEC_PATH);
+		return new File(Util.INSTANCE.EXEC_PATH);
 	}
 
 	/**

@@ -298,7 +298,7 @@ public class Connector extends SyntaxSymbol {
 
 		if (hierarchyLevel == 0) {
 			for (String symbolName : symbolNames) {
-				if (Util.equals(getSymbolName(), symbolName)) {
+				if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
 					foundSymbolList.add(this);
 				}
 			}
@@ -314,7 +314,7 @@ public class Connector extends SyntaxSymbol {
 	public SyntaxSymbol findSymbolInAncestors(String symbolName, int hierarchyLevel, boolean toTop) {
 
 		if (hierarchyLevel == 0) {
-			if (Util.equals(getSymbolName(), symbolName)) {
+			if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
 				return this;
 			}
 			if (!toTop) {

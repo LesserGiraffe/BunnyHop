@@ -124,7 +124,7 @@ public class BhNodeTemplates {
 	private boolean genConnectorTemplate() {
 
 		//コネクタファイルパスリスト取得
-		Path dirPath = Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.CONNECTOR_DEF_DIR);
+		Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.CONNECTOR_DEF_DIR);
 		Stream<Path> files;	//読み込むファイルパスリスト
 		try {
 			files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
@@ -161,7 +161,7 @@ public class BhNodeTemplates {
 	private boolean genNodeTemplate() {
 
 		//ノードファイルパスリスト取得
-		Path dirPath = Paths.get(Util.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.NODE_DEF_DIR);
+		Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.NODE_DEF_DIR);
 		Stream<Path> files;	//読み込むファイルパスリスト
 		try {
 			files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));

@@ -111,8 +111,7 @@ public class StatCodeGenerator {
 			.append(varName)
 			.append(assignOpe)
 			.append(rightExpCode)
-			.append(";")
-			.append(Util.LF);
+			.append(";").append(Util.INSTANCE.LF);
 	}
 
 	/**
@@ -132,11 +131,11 @@ public class StatCodeGenerator {
 
 		switch (symbolName) {
 			case SymbolNames.ControlStat.BREAK_STAT:
-				code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._break).append(";").append(Util.LF);
+				code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._break).append(";").append(Util.INSTANCE.LF);
 				break;
 
 			case SymbolNames.ControlStat.CONTINUE_STAT:
-				code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._continue).append(";").append(Util.LF);
+				code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._continue).append(";").append(Util.INSTANCE.LF);
 				break;
 
 			case SymbolNames.ControlStat.IF_ELSE_STAT:
@@ -157,7 +156,7 @@ public class StatCodeGenerator {
 				break;
 
 			case SymbolNames.ControlStat.RETURN_STAT:
-				code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._return).append(";").append(Util.LF);
+				code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._return).append(";").append(Util.INSTANCE.LF);
 				break;
 
 			default:
@@ -186,14 +185,14 @@ public class StatCodeGenerator {
 			.append("(")
 			.append(condExpCode)
 			.append(") {")
-			.append(Util.LF);
+			.append(Util.INSTANCE.LF);
 
 		//then part
 		SyntaxSymbol thenStat = ifElseStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.THEN_STAT, "*");
 		genStatement(thenStat, code, nestLevel+1, option);
 		code.append(common.indent(nestLevel))
 			.append("}")
-			.append(Util.LF);
+			.append(Util.INSTANCE.LF);
 
 		//else part
 		SyntaxSymbol elseStat = ifElseStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.ELSE_STAT, "*");
@@ -201,11 +200,11 @@ public class StatCodeGenerator {
 			code.append(common.indent(nestLevel))
 				.append(BhCompiler.Keywords.JS._else)
 				.append("{")
-				.append(Util.LF);
+				.append(Util.INSTANCE.LF);
 			genStatement(elseStat, code, nestLevel+1, option);
 			code.append(common.indent(nestLevel))
 				.append("}")
-				.append(Util.LF);
+				.append(Util.INSTANCE.LF);
 		}
 	}
 
@@ -228,7 +227,7 @@ public class StatCodeGenerator {
 			.append("(")
 			.append(BhCompiler.Keywords.JS._true)
 			.append(") {")
-			.append(Util.LF);
+			.append(Util.INSTANCE.LF);
 
 		SyntaxSymbol condExp = whileStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.COND_EXP, "*");
 		String condExpCode = expCodeGen.genExpression(code, condExp, nestLevel+1, option);
@@ -237,21 +236,21 @@ public class StatCodeGenerator {
 			.append("(!")
 			.append(condExpCode)
 			.append(") {")
-			.append(Util.LF)
+			.append(Util.INSTANCE.LF)
 			.append(common.indent(nestLevel + 2))
 			.append(BhCompiler.Keywords.JS._break)
 			.append(";")
-			.append(Util.LF)
+			.append(Util.INSTANCE.LF)
 			.append(common.indent(nestLevel + 1))
 			.append("}")
-			.append(Util.LF);
+			.append(Util.INSTANCE.LF);
 
 		//loop part
 		SyntaxSymbol loopStat = whileStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.LOOP_STAT, "*");
 		genStatement(loopStat, code, nestLevel+1, option);
 		code.append(common.indent(nestLevel))
 			.append("}")
-			.append(Util.LF);
+			.append(Util.INSTANCE.LF);
 	}
 
 	/**
@@ -269,14 +268,14 @@ public class StatCodeGenerator {
 
 		code.append(common.indent(nestLevel))
 			.append("{")
-			.append(Util.LF);
+			.append(Util.INSTANCE.LF);
 		SyntaxSymbol param = compoundStatNode.findSymbolInDescendants("*", "*", SymbolNames.ControlStat.LOCAL_VAR_DECL, "*");
 		varDeclCodeGen.genVarDecls(param, code, nestLevel + 1, option);
 		SyntaxSymbol stat = compoundStatNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.STAT_LIST, "*");
 		genStatement(stat, code, nestLevel + 1, option);
 		code.append(common.indent(nestLevel))
 			.append("}")
-			.append(Util.LF);
+			.append(Util.INSTANCE.LF);
 	}
 
 	/**
@@ -304,7 +303,7 @@ public class StatCodeGenerator {
 			.append("(")
 			.append(condExpCode)
 			.append(");")
-			.append(Util.LF);
+			.append(Util.INSTANCE.LF);
 
 		//for (init; cond; update)
 		code.append(common.indent(nestLevel))
@@ -320,13 +319,13 @@ public class StatCodeGenerator {
 			.append("++")
 			.append(loopCounter)
 			.append(") {")
-			.append(Util.LF);
+			.append(Util.INSTANCE.LF);
 
 		//loop part
 		SyntaxSymbol loopStat = repeatStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.LOOP_STAT, "*");
 		genStatement(loopStat, code, nestLevel+1, option);
 		code.append(common.indent(nestLevel))
 			.append("}")
-			.append(Util.LF);
+			.append(Util.INSTANCE.LF);
 	}
 }

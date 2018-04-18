@@ -37,7 +37,7 @@ public abstract class Section extends SyntaxSymbol {
 	protected Section(String symbolName) {
 		super(symbolName);
 	}
-	
+
 	/**
 	 * コピーコンストラクタ
 	 * @param org コピー元オブジェクト
@@ -52,13 +52,13 @@ public abstract class Section extends SyntaxSymbol {
 	 * @return このノードのコピー
 	 */
 	public abstract Section copy(UserOperationCommand userOpeCmd);
-	
+
 	/**
 	 * 最後尾に繋がる外部ノードを探す
 	 * @return 最後尾に繋がる外部ノード
 	 */
 	public abstract BhNode findOuterEndNode();
-	
+
 	/**
 	 * このセクションを保持している ConnectiveNode オブジェクトをセットする
 	 * @param parentNode このセクションを保持している ConnectiveNode オブジェクト
@@ -85,7 +85,7 @@ public abstract class Section extends SyntaxSymbol {
 
 		return parentSection.findParentNode();
 	}
-	
+
 	@Override
 	public boolean isDescendantOf(SyntaxSymbol ancestor) {
 
@@ -97,23 +97,23 @@ public abstract class Section extends SyntaxSymbol {
 
 		return parentSection.isDescendantOf(ancestor);
 	}
-	
+
 	@Override
-	public SyntaxSymbol findSymbolInAncestors(String symbolName, int hierarchyLevel, boolean toTop) {		
+	public SyntaxSymbol findSymbolInAncestors(String symbolName, int hierarchyLevel, boolean toTop) {
 
 		if (hierarchyLevel == 0) {
-			if (Util.equals(getSymbolName(), symbolName)) {
+			if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
 				return this;
 			}
-			
+
 			if (!toTop) {
 				return null;
 			}
 		}
-		
+
 		if (parentNode != null)
 			return parentNode.findSymbolInAncestors(symbolName, Math.max(0, hierarchyLevel-1), toTop);
-		
+
 		return parentSection.findSymbolInAncestors(symbolName, Math.max(0, hierarchyLevel-1), toTop);
 	}
 }

@@ -15,19 +15,22 @@
  */
 package net.seapanda.bunnyhop.configfilereader;
 
+import static java.nio.file.FileVisitOption.*;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.stream.Stream;
+
 import javax.script.Bindings;
 import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
+
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import net.seapanda.bunnyhop.common.BhParams;
@@ -52,7 +55,7 @@ public class BhScriptManager {
 	public Bindings createScriptScope() {
 		return engine.createBindings();
 	}
-	
+
 	/**
 	 * Javascriptのファイルパスからコンパイル済みスクリプトを取得する
 	 * @param fileName 取得したいスクリプトのファイル名
@@ -82,7 +85,7 @@ public class BhScriptManager {
 			}
 
 			success &= paths.map(path -> {
-				
+
 				try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)){
 					CompiledScript cs = ((Compilable)engine).compile(reader);
 					scriptName_script.put(path.getFileName().toString(), cs);
@@ -98,9 +101,9 @@ public class BhScriptManager {
 				}
 				return true;
 			}).allMatch(bool -> bool);
-			
+
 		}
-		
+
 		if (scriptName_script.containsKey(BhParams.Path.COMMON_EVENT_JS)) {
 			try {
 				commonJsObj = scriptName_script.get(BhParams.Path.COMMON_EVENT_JS).eval();
@@ -109,10 +112,10 @@ public class BhScriptManager {
 				success &= false;
 			}
 		}
-		
+
 		return success;
 	}
-	
+
 	/**
 	 * 引数で指定したスクリプト名に対応するスクリプトが存在するかどうかチェックする
  	 * @param fileName スクリプト名の書いてあるファイル名
@@ -120,29 +123,29 @@ public class BhScriptManager {
 	 * @return 引数で指定したスクリプト名に対応するスクリプトが全て見つかった場合true
 	 */
 	public boolean scriptsExist(String fileName, String... scriptNames) {
-		
+
 		Stream<String> scriptNameStream = Stream.of(scriptNames);
 		return scriptNameStream.allMatch(scriptName ->{
 			boolean found = scriptName_script.get(scriptName) != null;
 			if (!found) {
 				MsgPrinter.INSTANCE.errMsgForDebug(scriptName + " が見つかりません.  file: " + fileName);
-			}	
+			}
 			return found;
 		});
 	}
-	
+
 	/**
 	 * Jsonファイルをパースしてオブジェクトにして返す
 	 * @param filePath Jsonファイルのパス
 	 * @return Jsonファイルをパースしてできたオブジェクト
 	 */
 	public ScriptObjectMirror parseJsonFile(Path filePath) {
-		
+
 		Object jsonObj = null;
 		try {
 			byte[] contents = Files.readAllBytes(filePath);
 			String jsCode = new String(contents, StandardCharsets.UTF_8);
-			jsCode = "var content = " + jsCode + ";" + Util.LF;
+			jsCode = "var content = " + jsCode + ";" + Util.INSTANCE.LF;
 			jsCode += "(function () {return content;})();";
 			CompiledScript cs = ((Compilable)engine).compile(jsCode);
 			jsonObj = cs.eval();
@@ -161,7 +164,7 @@ public class BhScriptManager {
 		}
 		return (ScriptObjectMirror)jsonObj;
 	}
-	
+
 	/**
 	 * スクリプトが共通で使うオブジェクトを返す
 	 */

@@ -235,7 +235,7 @@ public class BhNodeViewStyle {
 	public static boolean genViewStyleTemplate() {
 
 		//コネクタファイルパスリスト取得
-		Path dirPath = Paths.get(Util.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.NODE_STYLE_DEF_DIR);
+		Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.NODE_STYLE_DEF_DIR);
 		Stream<Path> paths = null; //読み込むファイルパスリスト
 		try {
 			paths = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.getFileName().toString().endsWith(".json"));

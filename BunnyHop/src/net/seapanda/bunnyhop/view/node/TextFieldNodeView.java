@@ -116,8 +116,8 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 
 		// テキストの長さに応じてTextField の長さが変わるように
 		textField.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-			double newWidth = Util.calcStrWidth(newValue + wsMargine, textField.getFont());
-			double minWidth = Util.calcStrWidth(minWidthWS, textField.getFont());
+			double newWidth = Util.INSTANCE.calcStrWidth(newValue + wsMargine, textField.getFont());
+			double minWidth = Util.INSTANCE.calcStrWidth(minWidthWS, textField.getFont());
 			newWidth = Math.max(newWidth, minWidth);	//最低限の長さは確保する
 			newWidth += textField.getPadding().getRight() + textField.getPadding().getLeft();
 			textField.setPrefWidth(newWidth);

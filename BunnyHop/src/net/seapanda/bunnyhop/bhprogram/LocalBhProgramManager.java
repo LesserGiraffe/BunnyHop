@@ -164,9 +164,9 @@ public class LocalBhProgramManager {
 
 		Process proc = null;
 		ProcessBuilder procBuilder = new ProcessBuilder(
-			Util.JAVA_PATH,
+			Util.INSTANCE.JAVA_PATH,
 			"-jar",
-			Paths.get(Util.EXEC_PATH, BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENV_JAR).toString(),
+			Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENV_JAR).toString(),
 			"true");	//localFlag == true
 		procBuilder.redirectErrorStream(true);
 

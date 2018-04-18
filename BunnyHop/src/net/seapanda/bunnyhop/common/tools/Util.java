@@ -30,13 +30,15 @@ import javafx.scene.text.Text;
  */
 public class Util {
 
-	public static final String EXEC_PATH;	//実行時jarパス
-	public static final String JAVA_PATH;
-	public static final String LF;
-	private static AtomicLong serialID = new AtomicLong();
-	private static final String OS_NAME = System.getProperty("os.name").toLowerCase();
+	public static final Util INSTANCE = new Util();		//!< シングルトンインスタンス
+	public final String EXEC_PATH;	//実行時jarパス
+	public final String JAVA_PATH;
+	public final String LF;
+	private final AtomicLong serialID = new AtomicLong();
+	private final String OS_NAME = System.getProperty("os.name").toLowerCase();
+	public final Platform PLATFORM = this.new Platform();
 
-	static {
+	private Util() {
 
 		boolean isModulePath = true;
 		String pathStr = System.getProperty("jdk.module.path");
@@ -71,7 +73,7 @@ public class Util {
 	 * @return partにwildcard がある場合, wholeがpartを含んでいればtrue. <br>
 	 * partにwildcard が無い場合, wholeとpartが一致すればtrue.
 	 */
-	public static boolean equals(String whole, String part) {
+	public boolean equals(String whole, String part) {
 
 		if (whole == null || part == null)
 			return false;
@@ -88,7 +90,7 @@ public class Util {
 	 * @param font 表示時のフォント
 	 * @return 文字列を表示したときの幅
 	 */
-	public static double calcStrWidth(String str, Font font) {
+	public double calcStrWidth(String str, Font font) {
         Text text = new Text(str);
         text.setFont(font);
 		return text.getBoundsInLocal().getWidth();
@@ -98,7 +100,7 @@ public class Util {
 	 * シリアルIDを取得する
 	 * @return シリアルID
 	 */
-	public static String genSerialID() {
+	public String genSerialID() {
 		return Long.toHexString(serialID.getAndIncrement()) + "";
 	}
 
@@ -107,7 +109,7 @@ public class Util {
 	 * @param filePath 作成するファイルのパス
 	 * @return 作成に失敗した場合false. 作成しなかった場合はtrue
 	 */
-	public static boolean createFileIfNotExists(Path filePath) {
+	public boolean createFileIfNotExists(Path filePath) {
 		try {
 			if (!Files.exists(filePath))
 				Files.createFile(filePath);
@@ -124,7 +126,7 @@ public class Util {
 	 * @param dirPath 作成するファイルのパス
 	 * @return 作成に失敗した場合false. 作成しなかった場合はtrue
 	 */
-	public static boolean createDirectoryIfNotExists(Path dirPath) {
+	public boolean createDirectoryIfNotExists(Path dirPath) {
 		try {
 			if (!Files.isDirectory(dirPath))
 				Files.createDirectory(dirPath);
@@ -136,13 +138,13 @@ public class Util {
 		return true;
 	}
 
-	public static class Platform {
+	public class Platform {
 
-		boolean isWindows() {
+		public boolean isWindows() {
 			return OS_NAME.startsWith("windows");
 		}
 
-		boolean isLinux() {
+		public boolean isLinux() {
 			return OS_NAME.startsWith("linux");
 		}
 	}

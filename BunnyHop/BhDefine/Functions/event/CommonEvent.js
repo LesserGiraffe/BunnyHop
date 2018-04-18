@@ -4,8 +4,6 @@
 	let NodeMVCBuilder = Java.type('net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder');
 	let BhNodeID = Java.type("net.seapanda.bunnyhop.model.node.BhNodeID");
 	let BhNodeState = Java.type('net.seapanda.bunnyhop.model.node.BhNode.State');
-	let Util =  Java.type("net.seapanda.bunnyhop.common.tools.Util");
-
 	let bhCommon = {};
 
 	// 入れ替わってWSに移ったノードを末尾に再接続する
@@ -181,11 +179,10 @@
 		return staticTypeNodeID;
 	}
 
-    bhCommon['appendRemovedNode'] = appendRemovedNode;
-    bhCommon['getStaticTypeNodeID'] = getStaticTypeNodeID;
-    bhCommon['addNewNodeToWS'] = addNewNodeToWS;
-    bhCommon['replaceDescendant'] = replaceDescendant;
-    bhCommon['replaceStatWithNewStat'] = replaceStatWithNewStat;
-    bhCommon['Util'] = Util;
-    return bhCommon;
+	bhCommon['appendRemovedNode'] = appendRemovedNode;
+	bhCommon['getStaticTypeNodeID'] = getStaticTypeNodeID;
+	bhCommon['addNewNodeToWS'] = addNewNodeToWS;
+	bhCommon['replaceDescendant'] = replaceDescendant;
+	bhCommon['replaceStatWithNewStat'] = replaceStatWithNewStat;
+	return bhCommon;
 })();

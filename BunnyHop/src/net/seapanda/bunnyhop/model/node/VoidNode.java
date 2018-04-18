@@ -142,7 +142,7 @@ public class VoidNode extends BhNode implements Serializable {
 
 		if (hierarchyLevel == 0)
 			for (String symbolName : symbolNames)
-				if (Util.equals(getSymbolName(), symbolName))
+				if (Util.INSTANCE.equals(getSymbolName(), symbolName))
 					foundSymbolList.add(this);
 	}
 }

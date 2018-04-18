@@ -113,7 +113,7 @@ public class ConnectorSection extends Section {
 
 		if (hierarchyLevel == 0) {
 			for (String symbolName : symbolNames) {
-				if (Util.equals(getSymbolName(), symbolName)) {
+				if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
 					foundSymbolList.add(this);
 				}
 			}
