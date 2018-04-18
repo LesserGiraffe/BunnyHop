@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -32,7 +33,7 @@ public class Util {
 	public static final String EXEC_PATH;	//実行時jarパス
 	public static final String JAVA_PATH;
 	public static final String LF;
-	private static int serialID = 0;
+	private static AtomicLong serialID = new AtomicLong();
 
 	static {
 
@@ -97,7 +98,7 @@ public class Util {
 	 * @return シリアルID
 	 */
 	public static String genSerialID() {
-		return Integer.toHexString(serialID++) + "";
+		return Long.toHexString(serialID.getAndIncrement()) + "";
 	}
 
 	/**
