@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 public class Util {
 
 	public static final String EXEC_PATH;
+	private static final String OS_NAME = System.getProperty("os.name").toLowerCase();
 
 	static {
 		boolean isModulePath = true;
@@ -83,5 +84,17 @@ public class Util {
 			return false;
 		}
 		return true;
+	}
+
+
+	public static class Platform {
+
+		boolean isWindows() {
+			return OS_NAME.startsWith("windows");
+		}
+
+		boolean isLinux() {
+			return OS_NAME.startsWith("linux");
+		}
 	}
 }

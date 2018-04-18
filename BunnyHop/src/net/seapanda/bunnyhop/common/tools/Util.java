@@ -34,6 +34,7 @@ public class Util {
 	public static final String JAVA_PATH;
 	public static final String LF;
 	private static AtomicLong serialID = new AtomicLong();
+	private static final String OS_NAME = System.getProperty("os.name").toLowerCase();
 
 	static {
 
@@ -133,6 +134,17 @@ public class Util {
 			return false;
 		}
 		return true;
+	}
+
+	public static class Platform {
+
+		boolean isWindows() {
+			return OS_NAME.startsWith("windows");
+		}
+
+		boolean isLinux() {
+			return OS_NAME.startsWith("linux");
+		}
 	}
 }
 
