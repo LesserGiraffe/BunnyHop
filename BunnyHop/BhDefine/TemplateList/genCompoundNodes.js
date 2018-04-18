@@ -52,14 +52,14 @@
 
 	//音ノードの初期値を変更して再登録
 	function setInitialSoundParams() {
-		
+
 		let newFreqSoundLiteral = genBhNode('idFreqSoundLiteral', bhUserOpeCmd);
 		let duration = newFreqSoundLiteral.findSymbolInDescendants('*', 'Duration', '*');
 		let freq = newFreqSoundLiteral.findSymbolInDescendants('*', 'Frequency', '*');
 		duration.setText('1');
 		freq.setText('500');
 		registerNodeTemplate('idFreqSoundLiteral', newFreqSoundLiteral);
-		
+
 		let newScaleSoundLiteral = genBhNode('idScaleSoundLiteral', bhUserOpeCmd);
 		duration = newScaleSoundLiteral.findSymbolInDescendants('*', 'Duration', '*');
 		duration.setText('1');
@@ -78,8 +78,8 @@
 			registerNodeTemplate(varDecls[i], varDecl);
 		}
 
-		let listDecls = ['idNumListDecl', 'idStrListDecl', 'idBoolListDecl'];
-		let listNames = ['数値リスト', '文字列リスト', '論理リスト'];
+		let listDecls = ['idNumListDecl', 'idStrListDecl', 'idBoolListDecl', 'idSoundListDecl'];
+		let listNames = ['数値リスト', '文字列リスト', '論理リスト', '音リスト'];
 		for (let i = 0; i < listDecls.length; ++i) {
 			let listDecl = genBhNode(listDecls[i], bhUserOpeCmd);
 			let listName = listDecl.findSymbolInDescendants('*', 'ListName', '*');
