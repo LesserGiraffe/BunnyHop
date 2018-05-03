@@ -120,7 +120,6 @@ public class MenuOperationController {
 		setSendHandler();
 		setRemoteLocalSelectHandler();
 		setPastableStateChangeHandler(wss);
-
 	}
 
 	/**

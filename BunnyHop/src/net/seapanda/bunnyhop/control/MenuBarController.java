@@ -223,9 +223,9 @@ public class MenuBarController {
 
 		return buttonType.map(btntype -> {
 
-			if (btntype.equals(ButtonType.YES))
+			if (btntype.equals(ButtonType.NO))
 				return true;
-			else if (btntype.equals(ButtonType.NO))
+			else if (btntype.equals(ButtonType.YES))
 				return false;
 			return null;});
 	}
