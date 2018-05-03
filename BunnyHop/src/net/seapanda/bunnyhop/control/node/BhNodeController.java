@@ -251,6 +251,7 @@ public class BhNodeController implements MsgProcessor {
 			model.getLastReplaced(),
 			true,
 			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
+		view.getAppearanceManager().updateStyle(null);
 	}
 
 	/**
