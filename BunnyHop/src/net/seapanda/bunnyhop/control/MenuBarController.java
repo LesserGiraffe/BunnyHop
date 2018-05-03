@@ -150,20 +150,25 @@ public class MenuBarController {
 				new FileChooser.ExtensionFilter("All Files", "*.*"));
 			File selectedFile = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
 			boolean success = false;
-			if (selectedFile != null)
-				success = wss.load(selectedFile, this::askIfClearOldWs);
 
-			if (success) {
+			if (selectedFile != null) {
+				success = askIfClearOldWs()
+					.map(clearWS -> {
+						boolean isLoadSuccessful = wss.load(selectedFile, clearWS);
+						if (!isLoadSuccessful) {
+							String fileName = selectedFile.getPath();
+							MsgPrinter.INSTANCE.alert(
+								Alert.AlertType.INFORMATION,
+								"開く",
+								null,
+								"ファイルを開けませんでした\n" + fileName);
+						}
+						return isLoadSuccessful;})
+					.orElse(false);
+			}
+
+			if (success)
 				currentSaveFile = selectedFile;
-			}
-			else if (selectedFile != null){
-				String fileName = selectedFile.getPath();
-				MsgPrinter.INSTANCE.alert(
-					Alert.AlertType.INFORMATION,
-					"開く",
-					null,
-					"ファイルを開けませんでした\n" + fileName);
-			}
 		});
 	}
 
@@ -203,7 +208,7 @@ public class MenuBarController {
 	 * @retval true 既存のワークスペースをすべて削除
 	 * @retval false 既存のワークスペースにロードしたワークスペースを追加
 	 */
-	private boolean askIfClearOldWs() {
+	private Optional<Boolean> askIfClearOldWs() {
 
 		String title = "ファイルのロード方法";
 		String content = "既存のワークスペースに追加する場合は" + " [" + ButtonType.YES.getText() + "].\n"
@@ -214,9 +219,15 @@ public class MenuBarController {
 			title,
 			null,
 			content,
-			ButtonType.YES, ButtonType.NO);
+			ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 
-		return buttonType.map((btntype) -> btntype.equals(ButtonType.NO)).orElse(false);
+		return buttonType.map(btntype -> {
+
+			if (btntype.equals(ButtonType.YES))
+				return true;
+			else if (btntype.equals(ButtonType.NO))
+				return false;
+			return null;});
 	}
 
 		/**

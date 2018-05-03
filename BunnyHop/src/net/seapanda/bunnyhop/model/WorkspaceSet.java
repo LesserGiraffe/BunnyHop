@@ -24,7 +24,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Supplier;
 
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.common.BhParams;
@@ -217,12 +216,12 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @param isOldWsCleared ロード方法を確認する関数
 	 * @return ロードに成功した場合true
 	 */
-	public boolean load(File loaded, Supplier<Boolean> isOldWsCleared) {
+	public boolean load(File loaded, Boolean isOldWsCleared) {
 
 		try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(loaded));){
 			ProjectSaveData loadData = (ProjectSaveData)inputStream.readObject();
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
-			if (isOldWsCleared.get())
+			if (isOldWsCleared)
 				BunnyHop.INSTANCE.deleteAllWorkspace(userOpeCmd);
 
 			loadData.load(userOpeCmd).forEach(ws -> {
