@@ -213,6 +213,7 @@ public class SymbolNames {
 				put("sub", " - ");
 				put("div", " / ");
 				put("mul", " * ");
+				put("mod", " % ");
 				put("and", " && ");
 				put("or", " || ");
 				put("eq", " === ");

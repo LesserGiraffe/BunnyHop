@@ -39,5 +39,17 @@
 			</Node>
 		</PrivateConnector>
 		
+		<PrivateConnector 
+			bhConnectorID="idModExp.prvCnctr2"
+			name="Operator"
+    		fixed="true">
+			<Node
+				type="noView"
+				bhNodeID="idModExp.prvNode2"
+				name="ModOpe"
+				initString="mod">
+			</Node>
+		</PrivateConnector>
+		
 	</ConnectorSection>
 </Node>

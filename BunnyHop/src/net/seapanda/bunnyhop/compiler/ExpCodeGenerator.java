@@ -99,13 +99,8 @@ public class ExpCodeGenerator {
 		SyntaxSymbol rightExp = binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
 		String rightExpCode = genExpression(code, rightExp, nestLevel, option);
 		String operatorCode = null;
-		if (binaryExpNode.getSymbolName().equals(SymbolNames.BinaryExp.MOD_EXP)) {
-			operatorCode = " % ";
-		}
-		else {
-			TextNode operator = (TextNode)binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.OPERATOR, "*");
-			operatorCode = SymbolNames.BinaryExp.OPERATOR_MAP.get(operator.getText());
-		}
+		TextNode operator = (TextNode)binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.OPERATOR, "*");
+		operatorCode = SymbolNames.BinaryExp.OPERATOR_MAP.get(operator.getText());
 
 		if (leftExp == null || rightExp == null)
 			return null;
