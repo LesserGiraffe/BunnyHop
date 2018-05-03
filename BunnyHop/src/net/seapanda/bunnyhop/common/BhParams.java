@@ -29,9 +29,9 @@ public class BhParams {
 	public static final double DEFAULT_WORKSPACE_HEIGHT = 200 * Rem.VAL;
 	public static final double DEFAULT_VERTICAL_DIV_POS = 0.85;	//!< ワークスペースとメッセージエリアを分けるディバイダの初期位置
 	public static final double NODE_SCALE = 0.5 * Rem.VAL;
-	public static final double ZOOM_MAGNIFICATION = 1.2;		//!< ctrl + マウスホイールや拡大, 縮小ボタンを押したときの拡大縮小倍率
-	public static final double MAX_ZOOM_LEVEL = 20;		//!< 最大拡大レベル
-	public static final double MIN_ZOOM_LEVEL = -20;	//!< 最小拡大レベル
+	public static final double ZOOM_MAGNIFICATION = 1.1;		//!< ctrl + マウスホイールや拡大, 縮小ボタンを押したときの拡大縮小倍率
+	public static final double MAX_ZOOM_LEVEL = 30;		//!< 最大拡大レベル
+	public static final double MIN_ZOOM_LEVEL = -40;	//!< 最小拡大レベル
 	public static final int INITIAL_ZOOM_LEVEL = -1;
 	public static final double REPLACED_NODE_POS = 2.0 * BhParams.NODE_SCALE;	//!< 入れ替えられたノードがワークスペースに移ったときの元の位置に対する位置 (単位rem)
 	public static final double BHNODE_SPACE_ON_SELECTION_PANEL = 2.0 * BhParams.NODE_SCALE;		//!< BhNode選択パネル上でのBhNode間のスペース
