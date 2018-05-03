@@ -152,7 +152,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	}
 
 	/**
-	 * newBhNodeとこのノードを入れ替える<br>
+	 * newBhNodeとこのノードを入れ替える
 	 * @param newNode このノードと入れ替えるノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */

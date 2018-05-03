@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
@@ -51,8 +53,8 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * */
 public class WorkspaceSet implements MsgReceptionWindow {
 
-	private final List<BhNode> readyToCopy = new ArrayList<>();	//!< コピー予定のノード
-	private final List<BhNode> readyToCut = new ArrayList<>();	//!< カット予定のノード
+	private final ObservableList<BhNode> readyToCopy = FXCollections.observableArrayList();	//!< コピー予定のノード
+	private final ObservableList<BhNode> readyToCut = FXCollections.observableArrayList();	//!< カット予定のノード
 	private final List<Workspace> workspaceList = new ArrayList<>();	//!< 全てのワークスペースのリスト
 	private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
 
@@ -79,21 +81,53 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	/**
 	 * コピー予定のBhNodeリストを追加する
 	 * @param nodeList コピー予定のBhNodeリスト
+	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
-	public void addNodeListReadyToCopy(Collection<BhNode> nodeList) {
+	public void addNodeListReadyToCopy(Collection<BhNode> nodeList, UserOperationCommand userOpeCmd) {
+
+		userOpeCmd.pushCmdOfRemoveFromList(readyToCut, readyToCut);
 		readyToCut.clear();
+
+		userOpeCmd.pushCmdOfRemoveFromList(readyToCopy, readyToCopy);
 		readyToCopy.clear();
+
 		readyToCopy.addAll(nodeList);
+		userOpeCmd.pushCmdOfAddToList(readyToCopy, nodeList);
+	}
+
+	/**
+	 * コピー予定のBhNodeリストをクリアする
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void clearNodeListReadyToCopy(UserOperationCommand userOpeCmd) {
+		userOpeCmd.pushCmdOfRemoveFromList(readyToCopy, readyToCopy);
+		readyToCopy.clear();
 	}
 
 	/**
 	 * カット予定のBhNodeリストを追加する
 	 * @param nodeList カット予定のBhNodeリスト
+	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
-	public void addNodeListReadyToCut(Collection<BhNode> nodeList) {
+	public void addNodeListReadyToCut(Collection<BhNode> nodeList, UserOperationCommand userOpeCmd) {
+
+		userOpeCmd.pushCmdOfRemoveFromList(readyToCut, readyToCut);
 		readyToCut.clear();
+
+		userOpeCmd.pushCmdOfRemoveFromList(readyToCopy, readyToCopy);
 		readyToCopy.clear();
+
 		readyToCut.addAll(nodeList);
+		userOpeCmd.pushCmdOfAddToList(readyToCut, nodeList);
+	}
+
+	/**
+	 * カット予定のBhNodeリストをクリアする
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void clearNodeListReadyToCut(UserOperationCommand userOpeCmd) {
+		userOpeCmd.pushCmdOfRemoveFromList(readyToCut, readyToCut);
+		readyToCut.clear();
 	}
 
 	/**
@@ -244,6 +278,22 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		return MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_CURRENT_WORKSPACE, this).workspace;
 	}
 
+	/**
+	 * コピー予定ノードのリストを取得する
+	 * @return コピー予定ノードのリスト
+	 * */
+	public ObservableList<BhNode> getListReadyToCopy() {
+		return readyToCopy;
+	}
+
+	/**
+	 * カット予定ノードのリストを取得する
+	 * @return カット予定ノードのリスト
+	 * */
+	public ObservableList<BhNode> getListReadyToCut() {
+		return readyToCut;
+	}
+
 	@Override
 	public void setMsgProcessor(MsgProcessor processor) {
 		msgProcessor = processor;
@@ -254,3 +304,4 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		return msgProcessor.processMsg(msg, data);
 	}
 }
+

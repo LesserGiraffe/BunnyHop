@@ -15,8 +15,11 @@
  */
 package net.seapanda.bunnyhop.undo;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 
 import net.seapanda.bunnyhop.common.Point2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -229,6 +232,24 @@ public class UserOperationCommand {
 	 * */
 	public void pushCmdOfSetVisible(BhNodeView nodeView, boolean visible) {
 		subOpeList.addLast(new SetVisibleCmd(nodeView, visible));
+	}
+
+	/**
+	 * リストへの要素の追加をコマンド化してサブ操作リストに加える
+	 * @param list 要素を追加したリスト
+	 * @param addedElems 追加された要素のリスト
+	 * */
+	public <T> void pushCmdOfAddToList(List<T> list, Collection<T> addedElems) {
+		subOpeList.addLast(new AddToListCmd<T>(list, addedElems));
+	}
+
+	/**
+	 * リストからの要素の削除をコマンド化してサブ操作リストに加える
+	 * @param list 要素を削除したリスト
+	 * @param removedElems 削除された要素のリスト
+	 * */
+	public <T> void pushCmdOfRemoveFromList(List<T> list, Collection<T> removedElems) {
+		subOpeList.addLast(new RemoveFromListCmd<T>(list, removedElems));
 	}
 
 	/**
@@ -584,6 +605,49 @@ public class UserOperationCommand {
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
 			nodeView.getAppearanceManager().setVisible(!visible);
 			inverseCmd.pushCmdOfSetVisible(nodeView, !visible);
+		}
+	}
+
+	/**
+	 * リストへの追加を表すコマンド
+	 * */
+	private static class AddToListCmd<T> implements SubOperation {
+
+		private final List<T> list;	//!< 要素を追加されたリスト
+		private final Collection<T> addedElems;	//!< 追加された要素のコレクション
+
+		public AddToListCmd(List<T> list, Collection<T> addedElems) {
+			this.list = list;
+			this.addedElems = new ArrayList<>(addedElems);
+		}
+
+		@Override
+		public void doInverseOperation(UserOperationCommand inverseCmd) {
+
+			for (Object elem : addedElems)
+				list.remove(elem);
+
+			inverseCmd.pushCmdOfRemoveFromList(list, addedElems);
+		}
+	}
+
+	/**
+	 * リストからの削除を表すコマンド
+	 * */
+	private static class RemoveFromListCmd<T> implements SubOperation {
+
+		private final List<T> list;	//!< 要素を削除されたされたリスト
+		private final Collection<T> removedElems;	//!< 削除された要素のコレクション
+
+		public RemoveFromListCmd(List<T> list, Collection<T> removedElems) {
+			this.list = list;
+			this.removedElems = new ArrayList<>(removedElems);
+		}
+
+		@Override
+		public void doInverseOperation(UserOperationCommand inverseCmd) {
+			list.addAll(removedElems);
+			inverseCmd.pushCmdOfAddToList(list, removedElems);
 		}
 	}
 }

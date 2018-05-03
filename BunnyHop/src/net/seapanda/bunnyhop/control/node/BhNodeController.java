@@ -16,9 +16,9 @@
 package net.seapanda.bunnyhop.control.node;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javafx.event.Event;
+import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Point2D;
 import net.seapanda.bunnyhop.message.BhMsg;
@@ -175,23 +175,17 @@ public class BhNodeController implements MsgProcessor {
 
 			if ((model.getState() == BhNode.State.ROOT_DANGLING) && ddInfo.currentOverlapped == null) {	//子ノード -> ワークスペース
 				toWorkspace(model.getWorkspace());
+				clearNodesToPaste();
 			}
 			else if (ddInfo.currentOverlapped != null) {	//(ワークスペース or 子ノード) -> 子ノード
 				toChildNode(ddInfo.currentOverlapped);
+				clearNodesToPaste();
 			}
 			else {	//同一ワークスペース上で移動
 				toSameWorkspace();
 			}
 
-			DelayedDeleter.INSTANCE.deleteCandidates(ddInfo.userOpeCmd);
-			deleteUnscopedNodes(model);
-			deleteUnscopedNodes(ddInfo.currentOverlapped);
-
-			//ゴミ箱に重なっていた場合, 削除
-			if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
-				TrashboxService.INSTANCE.isInTrashboxArea(mouseEvent.getSceneX(), mouseEvent.getSceneY())) {
-				BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
-			}
+			deleteNodes(mouseEvent);
 			BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
 			ddInfo.reset();
 			view.setMouseTransparent(false);	// 処理が終わったので、元に戻しておく。
@@ -280,13 +274,29 @@ public class BhNodeController implements MsgProcessor {
 
 		UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
 		topNode.accept(unscopedNodeCollector);
-		List<Connector> parentCnctrList = new ArrayList<>();
 		BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), ddInfo.userOpeCmd)
 		.forEach(oldAndNewNode -> {
 			BhNode oldNode = oldAndNewNode._1;
 			BhNode newNode = oldAndNewNode._2;
 			newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), ddInfo.userOpeCmd);
 		});
+	}
+
+	/**
+	 * 不要になったノードと使用できなくなったノードを削除する
+	 * */
+	private void deleteNodes(MouseEvent mouseEvent) {
+
+		DelayedDeleter.INSTANCE.deleteCandidates(ddInfo.userOpeCmd);
+		deleteUnscopedNodes(model);
+		deleteUnscopedNodes(ddInfo.currentOverlapped);
+
+		//ゴミ箱に重なっていた場合, 削除
+		if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
+			TrashboxService.INSTANCE.isInTrashboxArea(mouseEvent.getSceneX(), mouseEvent.getSceneY())) {
+			BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
+			clearNodesToPaste();
+		}
 	}
 
 	/**
@@ -313,6 +323,14 @@ public class BhNodeController implements MsgProcessor {
 				break;
 			}
 		}
+	}
+
+	/**
+	 * 貼り付け予定のノードのリストをクリアする
+	 * */
+	private void clearNodesToPaste() {
+		BunnyHop.INSTANCE.getWorkspaceSet().clearNodeListReadyToCopy(ddInfo.userOpeCmd);
+		BunnyHop.INSTANCE.getWorkspaceSet().clearNodeListReadyToCut(ddInfo.userOpeCmd);
 	}
 
 	/**

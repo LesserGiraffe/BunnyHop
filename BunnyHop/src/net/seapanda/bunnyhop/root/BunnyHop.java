@@ -205,11 +205,11 @@ public class BunnyHop {
 	}
 
 	/**
-	 * 現在操作対象になっているワークスペースを返す
-	 * @return 現在操作対象になっているワークスペース
+	 * ワークスペースセットを返す.
+	 * @return ワークスペースセット
 	 * */
-	public Workspace getCurrentWorkspace() {
-		return workspaceSet.getCurrentWorkspace();
+	public WorkspaceSet getWorkspaceSet() {
+		return workspaceSet;
 	}
 
 	/**

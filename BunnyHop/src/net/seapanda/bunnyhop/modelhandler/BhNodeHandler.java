@@ -207,8 +207,7 @@ public class BhNodeHandler {
 		}
 
 		deleteList.forEach(node -> {
-			BhNodeHandler.INSTANCE.deleteNode(node, userOpeCmd)
-			.ifPresent(newNode -> oldAndNewNodeList.add(new Pair<>(node, newNode)));
+			deleteNode(node, userOpeCmd).ifPresent(newNode -> oldAndNewNodeList.add(new Pair<>(node, newNode)));
 		});
 		return oldAndNewNodeList;
 	}
@@ -365,7 +364,6 @@ public class BhNodeHandler {
 			moveToWS(wsA, nodeB, posA.x, posA.y, userOpeCmd);
 			moveToWS(wsB, nodeA, posB.x, posB.y, userOpeCmd);
 		}
-
 	}
 }
 

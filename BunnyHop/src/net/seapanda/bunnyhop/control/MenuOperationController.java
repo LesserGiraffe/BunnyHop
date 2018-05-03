@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -118,6 +119,8 @@ public class MenuOperationController {
 		setDisconnectHandler();
 		setSendHandler();
 		setRemoteLocalSelectHandler();
+		setPastableStateChangeHandler(wss);
+
 	}
 
 	/**
@@ -130,7 +133,10 @@ public class MenuOperationController {
 		Workspace currentWS = wss.getCurrentWorkspace();
 			if (currentWS == null)
 				return;
-			wss.addNodeListReadyToCopy(currentWS.getSelectedNodeList());
+
+			UserOperationCommand userOpeCmd = new UserOperationCommand();
+			wss.addNodeListReadyToCopy(currentWS.getSelectedNodeList(), userOpeCmd);
+			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 		});
 	}
 
@@ -144,7 +150,10 @@ public class MenuOperationController {
 			Workspace currentWS = wss.getCurrentWorkspace();
 			if (currentWS == null)
 				return;
-			wss.addNodeListReadyToCut(currentWS.getSelectedNodeList());
+
+			UserOperationCommand userOpeCmd = new UserOperationCommand();
+			wss.addNodeListReadyToCut(currentWS.getSelectedNodeList(), userOpeCmd);
+			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 		});
 	}
 
@@ -461,7 +470,7 @@ public class MenuOperationController {
 	}
 
 	/**
-	 * リモート/セレクトを切り替えた時のボタン
+	 * リモート/セレクトを切り替えた時のイベントハンドラを登録する
 	 */
 	private void setRemoteLocalSelectHandler() {
 
@@ -479,6 +488,30 @@ public class MenuOperationController {
 				passwordTextField.setDisable(true);
 				remotLocalSelectBtn.setText("ローカル");
 			}
+		});
+	}
+
+	/**
+	 * ペーストを実行可能かどうかが変わった時のハンドラを定義する
+	 * */
+	private void setPastableStateChangeHandler(WorkspaceSet wss) {
+
+		pasteBtn.setDisable(true);
+
+		wss.getListReadyToCopy().addListener((ListChangeListener<BhNode>) change -> {
+
+			if (wss.getListReadyToCut().isEmpty() && change.getList().isEmpty())
+				pasteBtn.setDisable(true);
+			else
+				pasteBtn.setDisable(false);
+		});
+
+		wss.getListReadyToCut().addListener((ListChangeListener<BhNode>) change -> {
+
+			if (wss.getListReadyToCopy().isEmpty() && change.getList().isEmpty())
+				pasteBtn.setDisable(true);
+			else
+				pasteBtn.setDisable(false);
 		});
 	}
 

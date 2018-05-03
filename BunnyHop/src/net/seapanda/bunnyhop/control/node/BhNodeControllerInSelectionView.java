@@ -15,7 +15,7 @@
  */
 package net.seapanda.bunnyhop.control.node;
 
-import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
+import net.seapanda.bunnyhop.common.Point2D;
 import net.seapanda.bunnyhop.common.Single;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
@@ -23,15 +23,15 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
+import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
+import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
 import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
-import net.seapanda.bunnyhop.common.Point2D;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
-import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 
 /**
  * ノード選択リストにあるBhNodeのコントローラ
@@ -76,11 +76,11 @@ public class BhNodeControllerInSelectionView {
 
 		//マウスボタンを押したとき
 		view.getEventManager().setOnMousePressedHandler(mouseEvent -> {
-			
-			Workspace currentWS = BunnyHop.INSTANCE.getCurrentWorkspace();
+
+			Workspace currentWS = BunnyHop.INSTANCE.getWorkspaceSet().getCurrentWorkspace();
 			if (currentWS == null)
 				return;
-			
+
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
 			NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default);
 			BhNode newNode = model.findRootNode().copy(userOpeCmd);
@@ -105,7 +105,7 @@ public class BhNodeControllerInSelectionView {
 
 		//ドラッグ中
 		view.getEventManager().setOnMouseDraggedHandler(mouseEvent -> {
-			
+
 			if (currentView.content == null)
 				return;
 			currentView.content.getEventManager().propagateEvent(mouseEvent);
@@ -113,7 +113,7 @@ public class BhNodeControllerInSelectionView {
 
 		//ドラッグを検出(先にsetOnMouseDraggedが呼ばれ、ある程度ドラッグしたときにこれが呼ばれる)
 		view.getEventManager().setOnDragDetectedHandler(mouseEvent -> {
-			
+
 			if (currentView.content == null)
 				return;
 			currentView.content.getEventManager().propagateEvent(mouseEvent);
@@ -121,7 +121,7 @@ public class BhNodeControllerInSelectionView {
 
 		//マウスボタンを離したとき
 		view.getEventManager().setOnMouseReleasedHandler(mouseEvent -> {
-			
+
 			if (currentView.content == null)
 				return;
 			currentView.content.getEventManager().propagateEvent(mouseEvent);
