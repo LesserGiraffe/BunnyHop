@@ -162,7 +162,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			if (node.isRemovable() ||
 				node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS) {
 
-				BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, true, userOpeCmd)
+				BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, false, userOpeCmd)
 				.ifPresent(newNode -> newNode.findParentNode().execScriptOnChildReplaced(node, newNode, newNode.getParentConnector(), userOpeCmd));
 				BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, node, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
 				UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
