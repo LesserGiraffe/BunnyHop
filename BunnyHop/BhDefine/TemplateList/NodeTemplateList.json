@@ -17,13 +17,13 @@
 			"idNumLiteral", 
 			"idFourArithExp",
 			"idModExp",
-			"idNumCompExp",
-			"idNumToStrExp",
+			"idStrToNumExp",
 			"idNumRoundExp",
 			"idRandomIntExp",
 			"idAbsExp",
 			"idNegExp",
-			"idMaxMinExp"]
+			"idMaxMinExp",
+			"idMeasureDistanceExp"]
 	},
 
 	"文字列": {
@@ -35,8 +35,9 @@
 			"idPrintNumStat" ,
 			"idScanExp", 
 			"idAppendStrExp", 
-			"idStrCompExp",
-			"idStrToNumExp"]
+			"idNumToStrExp",
+			"idBoolToStrExp",
+			"idSayStat"]
 	},
 	
 	"論理": {
@@ -44,8 +45,9 @@
 		"contents":[
 			"idBoolLiteral", 
 			"idBinaryBoolExp", 
-			"idNotExp", 
-			"idBoolToStrExp"]
+			"idNotExp",
+			"idNumCompExp",
+			"idStrCompExp"]
 	},
 	
 	"音": {

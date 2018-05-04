@@ -9,5 +9,5 @@
 	"connectorHeight" : 3.5,
 	"connectorShape" : "CHAR_U",
 	"connectorBoundsRate" : 1.25,
-	"cssClass" : "voidVarType"
+	"cssClass" : "voidType"
 }
