@@ -191,6 +191,7 @@ public class SymbolNames {
 		public static final String MOD_EXP = "ModExp";
 		public static final String NUM_COMP_EXP = "NumCompExp";
 		public static final String STR_COMP_EXP = "StrCompExp";
+		public static final String BOOL_COMP_EXP = "BoolCompExp";
 		public static final String APPEND_STR_EXP = "AppendStrExp";
 		public static final String LEFT_EXP = "LeftExp";
 		public static final String RIGHT_EXP = "RightExp";
@@ -202,6 +203,7 @@ public class SymbolNames {
 				BINARY_BOOL_EXP,
 				NUM_COMP_EXP,
 				STR_COMP_EXP,
+				BOOL_COMP_EXP,
 				APPEND_STR_EXP));	//二項演算子リスト
 		public static final HashSet<String> ARITH_EXCEPTION_EXP =
 			new HashSet<>(Arrays.asList(

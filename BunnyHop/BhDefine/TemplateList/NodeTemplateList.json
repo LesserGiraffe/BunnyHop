@@ -47,7 +47,8 @@
 			"idBinaryBoolExp", 
 			"idNotExp",
 			"idNumCompExp",
-			"idStrCompExp"]
+			"idStrCompExp",
+			"idBoolCompExp"]
 	},
 	
 	"音": {
