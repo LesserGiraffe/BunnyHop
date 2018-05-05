@@ -21,7 +21,7 @@ package net.seapanda.bunnyhop.programexecenv;
  */
 public class BhParams {
 
-	public static final String APP_VERSION = "1.0.0.1";
+	public static final String APP_VERSION = "1.0.1.0";
 	public static final int MAX_QUEUE_SIZE = 2048;
 	public static final int POP_SEND_DATA_TIMEOUT = 3;	//!< BunnyHopへの送信データキューの読み出しタイムアウト(sec)
 	public static final int PUSH_SEND_DATA_TIMEOUT = 3;	//!< BunnyHopへの送信データキューの書き込みタイムアウト(sec)
