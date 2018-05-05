@@ -1,12 +1,20 @@
-	let _jThread = Java.type('java.lang.Thread');
-	let _jExecutors = Java.type('java.util.concurrent.Executors');
-	let _jLock = Java.type('java.util.concurrent.locks.ReentrantLock');
-	let _jByteOrder = Java.type('java.nio.ByteOrder');
-	let _jByteArray = Java.type('byte[]');
-	let _jFloatArray = Java.type('float[]');
+	const _jString = Java.type("java.lang.String");
+	const _jExecutors = Java.type('java.util.concurrent.Executors');
+	const _jThread = Java.type('java.lang.Thread');
+	const _jLock = Java.type('java.util.concurrent.locks.ReentrantLock');
+	const _jByteOrder = Java.type('java.nio.ByteOrder');
+	const _jByteArray = Java.type('byte[]');
+	const _jFloatArray = Java.type('float[]');
+	const _jFile = Java.type('java.io.File');
+	const _jFiles = Java.type('java.nio.file.Files');
+	const _jPaths = Java.type('java.nio.file.Paths');
+	const _jAtomicLong = Java.type('java.util.concurrent.atomic.AtomicLong');
+	const _jProcBuilder = Java.type('java.lang.ProcessBuilder');
+	const _jBufferedInputStream = Java.type('java.io.BufferedInputStream');
+	const _jStandardOpenOption = Java.type('java.nio.file.StandardOpenOption');
 
-	let _eventHandlers = {};
-	let _executor = _jExecutors.newFixedThreadPool(16);
+	const _eventHandlers = {};
+	const _executor = _jExecutors.newFixedThreadPool(16);
 
 	function _genCallObj() {
 		return {_outArgs:[]};
@@ -69,7 +77,7 @@
 	}
 
 	function _println(str) {
-		inout.println(str);
+		bhInout.println(str);
 	}
 
 	function _sleep(sec) {
@@ -83,9 +91,53 @@
 	}
 
 	function _scan(str) {
-		inout.println(str);
-		let input = inout.scan();
+		bhInout.println(str);
+		let input = bhInout.scan();
 		return (input === null) ? "" : input;
+	}
+
+	const _getSerialNo = (function () {
+		const counter = new _jAtomicLong();
+		return function() {
+			return counter.getAndIncrement();
+		}
+	})();
+
+	//==================================================================
+	//							プロセス待ち
+	//==================================================================
+	function readStream(stream) {
+		let readByte = [];
+		while(true) {
+			const rb = stream.read();
+			if (rb === -1)
+				break;
+			readByte.push(rb);
+		}
+		readByte = Java.to(readByte, "byte[]");
+		return new _jString(readByte);
+	}
+
+	function _waitProcEnd(process, errMsg, getStdinStr) {
+
+		let retStr = null;
+		try {
+			const is = process.getInputStream();
+			if (getStdinStr)
+				retStr = readStream(is);
+			else
+				while (is.read() !== -1);
+			process.waitFor();
+		}
+		catch (e) {
+			_println(errMsg + e);
+		}
+		finally {
+			process.getErrorStream().close();
+			process.getInputStream().close();
+			process.getOutputStream().close();
+		}
+		return retStr;
 	}
 
 	//==================================================================
@@ -137,33 +189,44 @@
 	//							音再生
 	//==================================================================
 
-	let _jAudioFormat = Java.type('javax.sound.sampled.AudioFormat');
-	let _jDataLine = Java.type('javax.sound.sampled.DataLine');
-	let _jSourceDataLine = Java.type('javax.sound.sampled.SourceDataLine');
-	let _jAudioSystem = Java.type('javax.sound.sampled.AudioSystem');
-	let _nilSound = _createSound(0, 0)
+	const _jAudioFormat = Java.type('javax.sound.sampled.AudioFormat');
+	const _jDataLine = Java.type('javax.sound.sampled.DataLine');
+	const _jSourceDataLine = Java.type('javax.sound.sampled.SourceDataLine');
+	const _jAudioSystem = Java.type('javax.sound.sampled.AudioSystem');
 
 	const isBigEndian = _jByteOrder.nativeOrder() === _jByteOrder.BIG_ENDIAN;
 	const bytePerSample = 2;
 	const samplingRate = 44100;		//44.1KHz
-	let amp = 16384/2;
+	const amplitude = 16384/2;
 	const wave1Hz = new _jFloatArray(samplingRate);
-	const waveBuf = new _jByteArray(samplingRate * bytePerSample);
+	const _nilSound = _createSound(0, 0);
+
 
 	(function _initMusicPlayer() {
 		for (let i = 0; i < wave1Hz.length; ++i)
 			wave1Hz[i] = Math.cos(2.0 * Math.PI * i / samplingRate);
 	})();
 
-	//波形生成
-	function _genWave(waveBuf, hz, amp) {
+	/**
+	 * 単一波長の波形を生成する
+	 * @param waveBuf 波形データの格納先
+	 * @param hz 生成する波長
+	 * @param amp 振幅
+	 * @param bufBegin 波形を格納する最初のインデックス (inclusive)
+	 * @param bufEnd bufBeginからbufEndの1つ前まで波形を格納する (exclusive)
+	 * @param samplePos 基準波形の最初の取得位置
+	 * @return 基準波形の次の取得位置
+	 * */
+	function _genOneFreqWave(waveBuf, bufBegin, bufEnd, hz, amp, samplePos) {
 
-		let samplePos = 0;
 		hz = Math.round(hz);
 		if (hz < 0 || hz > (samplingRate / 2))
 			hz = 0;
 
-		for (let i = 0; i < waveBuf.length; i += bytePerSample) {
+		if (samplePos > (wave1Hz.length - 1))
+			samplePos = 0;
+
+		for (let i = bufBegin; i < bufEnd; i += bytePerSample) {
 			const sample = Math.floor(amp * wave1Hz[samplePos]);
 			if (isBigEndian) {
 				waveBuf[i+1] = sample;
@@ -177,14 +240,65 @@
 			if (samplePos > (wave1Hz.length - 1))
 				samplePos -= wave1Hz.length - 1;
 		}
+		return samplePos;
 	}
 
-	//メロディ再生
-	function _playMelodies(melodyList, reverse) {
 
-		if (reverse)
-			melodyList = melodyList.reverse();
+	/**
+	 * 音リストからバッファに収まる分の波形を生成する. 音リストの末尾から順に波形を生成する.
+	 * @param waveBuf 波形データの格納先
+	 * @param soundList 波形を生成する音のリスト
+	 * @param vol 音量
+	 * @param samplePos 基準波形の最初の取得位置
+	 * @return 波形データの長さと基準波形の次の取得位置
+	 * */
+	function _genWave(waveBuf, soundList, vol, samplePos) {
 
+		let bufBegin = 0;
+		let waveBufRemains = waveBuf.length;
+
+		while (soundList.length !== 0 && waveBufRemains !== 0) {
+			const sound = soundList[soundList.length - 1];
+			const soundLen = Math.floor(sound.duration * samplingRate) * bytePerSample;
+
+			if (soundLen > waveBufRemains) {
+				sound.duration -= waveBufRemains / bytePerSample / samplingRate;
+				const bufEnd = bufBegin + waveBufRemains;
+				samplePos = _genOneFreqWave(waveBuf, bufBegin, bufEnd, sound.hz, sound.amp * vol, samplePos);
+				bufBegin = bufEnd;
+				waveBufRemains = 0;
+			}
+			else {
+				soundList.pop();
+				const bufEnd = bufBegin + soundLen;
+				samplePos = _genOneFreqWave(waveBuf, bufBegin, bufEnd, sound.hz, sound.amp * vol, samplePos);
+				bufBegin = bufEnd;
+				waveBufRemains -= soundLen;
+			}
+		}
+
+		return { waveLen : bufBegin,
+				  samplePos : samplePos};
+	}
+
+	/**
+	 * メロディ再生
+	 * @param soundList 再生する音のリスト
+	 * @param reverse 音リストの末尾から順に再生する場合true
+	 * */
+	function _playMelodies(soundList, reverse) {
+
+		const soundListCopy = [];
+		if (!reverse) {
+			for (let i = soundList.length - 1; i >= 0; --i)
+				soundListCopy.push(_createSound(soundList[i].hz, soundList[i].duration));
+		}
+		else {
+			for (let i = 0; i < soundList.length; ++i)
+				soundListCopy.push(_createSound(soundList[i].hz, soundList[i].duration));
+		}
+
+		const waveBuf = new _jByteArray(samplingRate * bytePerSample);
 		let format = new _jAudioFormat(
 			_jAudioFormat.Encoding.PCM_SIGNED,
 			samplingRate,
@@ -200,18 +314,12 @@
 			line = _jAudioSystem.getLine(dLineInfo);
 			line.open(format, waveBuf.length);
 			line.start();
-
-			melodyList.forEach(
-				function (sound) {
-					if (sound.duration !== 0) {
-						_genWave(waveBuf, sound.hz, amp);
-						let integer = Math.floor(sound.duration);
-						let fractional = sound.duration - integer;
-						for (let i = 0; i < integer; ++i)
-							line.write(waveBuf, 0, waveBuf.length);
-						line.write(waveBuf, 0, Math.floor(waveBuf.length * fractional));
-					}
-				});
+			let samplePos = 0;
+			while (soundListCopy.length !== 0) {
+				const ret = _genWave(waveBuf, soundListCopy, 1.0, samplePos);
+				samplePos = ret.samplePos;
+				line.write(waveBuf, 0, ret.waveLen);
+			}
 		}
 		catch (e) { _println("ERR: _playMelodies " + e); }
 		finally {
@@ -222,18 +330,72 @@
 		}
 	}
 
+	/**
+	 * wavファイル再生
+	 * @param path 再生したいファイルのパス (java.nio.file.Path オブジェクト)
+	 * */
+	function _playWavFile(path) {
+
+		let line = null;
+		let bis = null;
+		let ais = null;
+		try {
+			bis = new _jBufferedInputStream(_jFiles.newInputStream(path, _jStandardOpenOption.READ));
+			ais = _jAudioSystem.getAudioInputStream(bis);
+			const dLineInfo = new _jDataLine.Info(_jSourceDataLine.class, ais.getFormat());
+			line = _jAudioSystem.getLine(dLineInfo);
+			line.open();
+			line.start();
+			const waveBuf = new _jByteArray(line.getBufferSize());
+			let byteRead = -1;
+
+			while((byteRead = ais.read(waveBuf)) !== -1) {
+				line.write(waveBuf, 0, byteRead);
+			}
+		}
+		catch (e) { _println("ERR: _playWavFile " + e); }
+		finally {
+			if (line !== null) {
+				line.drain();
+				line.stop();
+				line.close();
+			}
+			if (ais !== null)
+				ais.close();
+
+			if (bis !== null)
+				bis.close();
+		}
+	}
+
 	// 音クラス
-	function _Sound(hz, duration) {
+	function _Sound(hz, duration, amp) {
 		this.hz = hz;
 		this.duration = duration;
+		this.amp = amp;
 	}
 
 	function _createSound(hz, duration) {
-		return new _Sound(hz, duration);
+		return new _Sound(hz, duration, amplitude);
 	}
 
 	function _pushSound(sound, soundList) {
 		soundList.push(sound);
 		return soundList;
 	}
+
+	function _sayOnLinux(word) {
+
+		word = word.replaceAll('\"', '');
+		let talkCmd = _jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhSay.sh').toAbsolutePath().toString();
+		const procBuilder = new _jProcBuilder(['sh', talkCmd, '"' + word + '"']);
+		try {
+			const process =  procBuilder.start();
+			_waitProcEnd(process, 'ERR: _say ', false);
+		}
+		catch (e) {
+			_println('ERR: _say ' + e);
+		}
+	}
+
 
