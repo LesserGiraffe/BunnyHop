@@ -32,27 +32,27 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
 	private String symbolID;	//!< コンパイル対象のSyntaxSymbolオブジェクトが持つユニークなID
 
 	/**
-	 * 引数で指定したシンボル名を持つSyntaxSymbolをhierarchyLevel(もしくはそれ以下)の階層のSyntaxSymbolから探す.<br>
-	 * @param hierarychyLevel 自分から見てこのレベルの階層もしくはそれ以下を探す.  例(0:自分(もしくはそれ以下)を探す. 1:子(もしくはそれ以下)を探す)
-	 * @param downToBottom hierarychyLevel で指定した階層のみ探す場合false. ボトムノードまで探す場合true
+	 * 引数で指定したシンボル名を持つSyntaxSymbolをgeneration(もしくはそれ以下)の世代のSyntaxSymbolから探す.<br>
+	 * @param generation 自分から見てこのレベルの世代もしくはそれ以下を探す.  例(0:自分(もしくはそれ以下)を探す. 1:子(もしくはそれ以下)を探す)
+	 * @param toTerminal generation で指定した階層のみ探す場合false. 末端ノードまで探す場合true
 	 * @param foundSymbolList 見つかったSyntaxSymbolを格納するリスト
 	 * @param symbolNames シンボル名
 	 */
 	public abstract void findSymbolInDescendants(
-		int hierarychyLevel,
-		boolean downToBottom,
+		int generation,
+		boolean toTerminal,
 		List<SyntaxSymbol> foundSymbolList,
 		String... symbolNames);
 
 	/**
-	 * 引数で指定したシンボル名を持つSyntaxSymbolをhierarychyLevel(もしくはそれ以上)の階層のSyntaxSymbolから探す.<br>
+	 * 引数で指定したシンボル名を持つSyntaxSymbolをgeneration(もしくはそれ以上)の世代のSyntaxSymbolから探す.<br>
 	 * 見つからなかった場合はnull が返る.
 	 * @param symbolName シンボル名
-	 * @param hierarchyLevel 自分から見てこのレベルの階層もしくはそれ以上を探す.  例(0:自分(もしくはそれ以上)を探す. 1:親(もしくはそれ以上)を探す)
-	 * @param upToTop hierarchyLevel で指定した階層のみ探す場合false. トップノードまで探す場合true.
+	 * @param generation 自分から見てこのレベルの世代もしくはそれ以上を探す.  例(0:自分(もしくはそれ以上)を探す. 1:親(もしくはそれ以上)を探す)
+	 * @param upToTop generation で指定した世代のみ探す場合false. トップノードまで探す場合true.
 	 * @return シンボル名を持つ SyntaxSymbol オブジェクト
 	 */
-	public abstract SyntaxSymbol findSymbolInAncestors(String symbolName, int hierarchyLevel, boolean upToTop);
+	public abstract SyntaxSymbol findSymbolInAncestors(String symbolName, int generation, boolean upToTop);
 
 	/**
 	 * 引数で指定したシンボル名を持つSyntaxSymbolを子以下のSyntaxSymbolから探す.<br>

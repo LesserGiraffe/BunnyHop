@@ -53,6 +53,7 @@ public class WorkspaceController implements MsgProcessor {
 				UserOperationCommand userOpeCmd = new UserOperationCommand();
 				BunnyHop.INSTANCE.hideTemplatePanel();
 				model.clearSelectedNodeList(userOpeCmd);
+				model.setMoveCandidateNode(null);
 				BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 			});
 	}

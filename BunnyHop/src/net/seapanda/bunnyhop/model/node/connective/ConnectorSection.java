@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.model.node.connective;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
@@ -66,7 +67,7 @@ public class ConnectorSection extends Section {
 	}
 
 	@Override
-	public ConnectorSection copy(UserOperationCommand userOpeCmd) {
+	public ConnectorSection copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
 
 		ConnectorSection newSection = new ConnectorSection(this);
 		for (int i = 0; i < cnctrList.size(); ++i) {
@@ -77,7 +78,8 @@ public class ConnectorSection extends Section {
 					cnctrInstParams.cnctrName,
 					cnctrInstParams.imitationID,
 					cnctrInstParams.imitCnctPoint,
-					newSection);
+					newSection,
+					isNodeToBeCopied);
 			newSection.cnctrList.add(newConnector);
 		}
 		return newSection;
@@ -109,9 +111,9 @@ public class ConnectorSection extends Section {
 	}
 
 	@Override
-	public void findSymbolInDescendants(int hierarchyLevel, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
+	public void findSymbolInDescendants(int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
 
-		if (hierarchyLevel == 0) {
+		if (generation == 0) {
 			for (String symbolName : symbolNames) {
 				if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
 					foundSymbolList.add(this);
@@ -122,18 +124,18 @@ public class ConnectorSection extends Section {
 			}
 		}
 
-		int childLevel = hierarchyLevel-1;
+		int childLevel = generation-1;
 		for (Connector cnctr : cnctrList) {
 			cnctr.findSymbolInDescendants(Math.max(0, childLevel), toBottom, foundSymbolList, symbolNames);
 		}
 	}
 
 	@Override
-	public BhNode findOuterEndNode() {
+	public BhNode findOuterNode(int generation) {
 
 		for (int i = cnctrList.size() - 1; i >= 0; --i) {
 			if (cnctrList.get(i).isOuter()) {
-				return cnctrList.get(i).getConnectedNode().findOuterEndNode();
+				return cnctrList.get(i).getConnectedNode().findOuterNode(Math.max(generation - 1, -1));
 			}
 		}
 		return null;

@@ -39,6 +39,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 
 	private final HashSet<BhNode> rootNodeList = new HashSet<>();	//!< ワークスペースのルートノードのリスト
 	private final HashSet<BhNode> selectedList = new HashSet<>();	//!< 選択中のノード
+	private BhNode moveCandidate = null;	//!< 移動候補のノード
 	private final String workspaceName;	//!< ワークスペース名
 	transient private WorkspaceSet workspaceSet;	//!< このワークスペースを持つワークスペースセット
 	transient private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
@@ -109,12 +110,13 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	}
 
 	/**
-	 * 選択されたノードをセットする. すでに選択されているノードは非選択にする
+	 * 選択されたノードをセットする. このワークスペースの選択済みのノードは全て非選択になる.
 	 * @param selected 新たに選択されたノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
 	public void setSelectedNode(BhNode selected, UserOperationCommand userOpeCmd) {
 
+		// 同じノードをクリックしたときにundoスタックにコマンドが積まれるのを避ける
 		if ((selectedList.size() == 1) && selectedList.contains(selected))
 			return;
 
@@ -124,17 +126,21 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 
 	/**
 	 * 選択されたノードを選択済みリストに追加する
-	 * @param added 追加されるノード
+	 * @param nodeToAdd 追加されるノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void addSelectedNode(BhNode added, UserOperationCommand userOpeCmd) {
+	public void addSelectedNode(BhNode nodeToAdd, UserOperationCommand userOpeCmd) {
+
+		if (selectedList.contains(nodeToAdd))
+			return;
+
 		MsgTransporter.INSTANCE.sendMessage(
 			BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
 			new MsgData(true, BhParams.CSS.PSEUDO_SELECTED),
-			added);
-		selectedList.add(added);
-		if (added instanceof Imitatable) {
-			List<Imitatable> imitationList = ((Imitatable)added).getImitationInfo().getImitationList();
+			nodeToAdd);
+		selectedList.add(nodeToAdd);
+		if (nodeToAdd instanceof Imitatable) {
+			List<Imitatable> imitationList = ((Imitatable)nodeToAdd).getImitationInfo().getImitationList();
 			imitationList.forEach(imitation -> {
 				MsgTransporter.INSTANCE.sendMessage(
 					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
@@ -142,7 +148,28 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 					imitation);
 			});
 		}
-		userOpeCmd.pushCmdOfAddSelectedNode(this, added);
+		userOpeCmd.pushCmdOfAddSelectedNode(this, nodeToAdd);
+	}
+
+	/**
+	 * 移動候補のノードをセットする.
+	 * @param moveCandidate 移動候補のノード
+	 * */
+	public void setMoveCandidateNode(BhNode moveCandidate) {
+
+		if (this.moveCandidate != null) {
+			MsgTransporter.INSTANCE.sendMessage(
+				BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
+				new MsgData(false, BhParams.CSS.PSEUDO_MOVE),
+				this.moveCandidate);
+		}
+		this.moveCandidate = moveCandidate;
+		if (this.moveCandidate != null) {
+			MsgTransporter.INSTANCE.sendMessage(
+				BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
+				new MsgData(true, BhParams.CSS.PSEUDO_MOVE),
+				this.moveCandidate);
+		}
 	}
 
 	/**

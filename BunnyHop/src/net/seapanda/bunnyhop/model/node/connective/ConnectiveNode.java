@@ -17,6 +17,7 @@ package net.seapanda.bunnyhop.model.node.connective;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
@@ -89,10 +90,10 @@ public class ConnectiveNode extends Imitatable {
 	}
 
 	@Override
-	public ConnectiveNode copy(UserOperationCommand userOpeCmd) {
+	public ConnectiveNode copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
 
 		ConnectiveNode newNode = new ConnectiveNode(this);
-		newNode.childSection = childSection.copy(userOpeCmd);
+		newNode.childSection = childSection.copy(userOpeCmd, isNodeToBeCopied);
 		newNode.childSection.setParent(newNode);
 		newNode.imitInfo = new ImitationInfo<>(imitInfo, userOpeCmd, newNode);
 		return newNode;
@@ -140,12 +141,16 @@ public class ConnectiveNode extends Imitatable {
 	}
 
 	@Override
-	public BhNode findOuterEndNode() {
-		BhNode outerEnd = childSection.findOuterEndNode();
-		if (outerEnd == null)
+	public BhNode findOuterNode(int generation) {
+
+		BhNode outerNode = childSection.findOuterNode(generation);
+		if (outerNode != null)
+			return outerNode;
+
+		if (generation <= 0)
 			return this;
 
-		return outerEnd;
+		return null;
 	}
 
 	/**
@@ -203,9 +208,9 @@ public class ConnectiveNode extends Imitatable {
 	}
 
 	@Override
-	public void findSymbolInDescendants(int hierarchyLevel, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
+	public void findSymbolInDescendants(int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
 
-		if (hierarchyLevel == 0) {
+		if (generation == 0) {
 			for (String symbolName : symbolNames) {
 				if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
 					foundSymbolList.add(this);
@@ -216,7 +221,7 @@ public class ConnectiveNode extends Imitatable {
 			}
 		}
 
-		childSection.findSymbolInDescendants(Math.max(0, hierarchyLevel-1), toBottom, foundSymbolList, symbolNames);
+		childSection.findSymbolInDescendants(Math.max(0, generation-1), toBottom, foundSymbolList, symbolNames);
 	}
 }
 

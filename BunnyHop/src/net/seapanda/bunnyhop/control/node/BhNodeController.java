@@ -61,14 +61,6 @@ public class BhNodeController implements MsgProcessor {
 	}
 
 	/**
-	 * 移動可能なノードであるかどうかを調べる
-	 * @return 移動可能なノードである場合 true
-	 */
-	private boolean isMovable() {
-		return model.isRemovable() || (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS);
-	}
-
-	/**
 	 * 引数で指定したノードに対応するビューにGUIイベントを伝播する
 	 * @param node イベントを伝播したいBhNodeView に対応するBhNode
 	 * @param event 伝播したいイベント
@@ -90,11 +82,8 @@ public class BhNodeController implements MsgProcessor {
 		//マウスボタン押下
 		view.getEventManager().setOnMousePressedHandler(mouseEvent -> {
 			//model.show(0);	//for debug
-			if (!isMovable()) {
+			if (!model.isMovable()) {
 				ddInfo.propagateEvent = true;
-			}
-
-			if (ddInfo.propagateEvent) {
 				propagateGUIEvent(model.findParentNode(), mouseEvent);
 				return;
 			}
@@ -102,16 +91,7 @@ public class BhNodeController implements MsgProcessor {
 			if (ddInfo.userOpeCmd == null)	//BhNode の新規追加の場合, すでにundo用コマンドオブジェクトがセットされている
 				ddInfo.userOpeCmd = new UserOperationCommand();
 
-			if (mouseEvent.isShiftDown()) {
-				if (model.isSelected())
-					model.getWorkspace().removeSelectedNode(model, ddInfo.userOpeCmd);
-				else
-					model.getWorkspace().addSelectedNode(model, ddInfo.userOpeCmd);
-			}
-			else {
-				model.getWorkspace().setSelectedNode(model, ddInfo.userOpeCmd);
-			}
-
+			selectNode(mouseEvent.isShiftDown());	//選択処理
 			javafx.geometry.Point2D mousePressedPos = view.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
 			ddInfo.mousePressedPos = new Point2D(mousePressedPos.getX(), mousePressedPos.getY());
 			ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
@@ -332,6 +312,39 @@ public class BhNodeController implements MsgProcessor {
 	private void clearNodesToPaste() {
 		BunnyHop.INSTANCE.getWorkspaceSet().clearNodeListReadyToCopy(ddInfo.userOpeCmd);
 		BunnyHop.INSTANCE.getWorkspaceSet().clearNodeListReadyToCut(ddInfo.userOpeCmd);
+	}
+
+	/**
+	 * ノードの選択処理を行う
+	 * @param isShiftDown シフトボタンが押されている場合 true
+	 * */
+	private void selectNode(boolean isShiftDown) {
+
+		if (isShiftDown) {
+			if (model.isSelected()) {
+				model.getWorkspace().removeSelectedNode(model, ddInfo.userOpeCmd);
+			}
+			else {
+				model.getWorkspace().addSelectedNode(model, ddInfo.userOpeCmd);
+			}
+		}
+		else {
+			if (model.isSelected()) {
+				// 末尾ノードまで一気に選択
+				BhNode outerNode = model.findOuterNode(-1);
+				while(true) {
+					if (outerNode == model)
+						break;
+					if (!outerNode.isSelected() && outerNode.isMovable())
+						model.getWorkspace().addSelectedNode(outerNode, ddInfo.userOpeCmd);
+					outerNode = outerNode.findParentNode();
+				}
+			}
+			else {
+				model.getWorkspace().setSelectedNode(model, ddInfo.userOpeCmd);
+			}
+		}
+		model.getWorkspace().setMoveCandidateNode(model);
 	}
 
 	/**

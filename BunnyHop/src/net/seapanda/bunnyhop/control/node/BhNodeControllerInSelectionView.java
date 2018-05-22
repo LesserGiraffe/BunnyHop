@@ -83,7 +83,7 @@ public class BhNodeControllerInSelectionView {
 
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
 			NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default);
-			BhNode newNode = model.findRootNode().copy(userOpeCmd);
+			BhNode newNode = model.findRootNode().copy(userOpeCmd, (bhNode) -> true);
 			newNode.accept(builder);	//MVC構築
 			newNode.accept(new TextImitationPrompter());
 			currentView.content = builder.getTopNodeView();

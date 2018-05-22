@@ -17,6 +17,7 @@ package net.seapanda.bunnyhop.model.node;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.function.Predicate;
 
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -56,7 +57,7 @@ public class VoidNode extends BhNode implements Serializable {
 	}
 
 	@Override
-	public VoidNode copy(UserOperationCommand userOpeCmd) {
+	public VoidNode copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
 		return new VoidNode(this);
 	}
 
@@ -133,14 +134,18 @@ public class VoidNode extends BhNode implements Serializable {
 	}
 
 	@Override
-	public BhNode findOuterEndNode() {
-		return this;
+	public BhNode findOuterNode(int gneration) {
+
+		if (gneration <= 0)
+			return this;
+
+		return null;
 	}
 
 	@Override
-	public void findSymbolInDescendants(int hierarchyLevel, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
+	public void findSymbolInDescendants(int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
 
-		if (hierarchyLevel == 0)
+		if (generation == 0)
 			for (String symbolName : symbolNames)
 				if (Util.INSTANCE.equals(getSymbolName(), symbolName))
 					foundSymbolList.add(this);

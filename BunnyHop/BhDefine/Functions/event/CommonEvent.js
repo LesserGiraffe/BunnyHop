@@ -9,7 +9,7 @@
 	// 入れ替わってWSに移ったノードを末尾に再接続する
 	function appendRemovedNode(newNode, oldNode, manuallyRemoved, bhNodeHandler, bhUserOpeCmd) {
 
-		let outerEnd = newNode.findOuterEndNode();
+		let outerEnd = newNode.findOuterNode(-1);
 		if ((outerEnd.type === "void") && outerEnd.canBeReplacedWith(oldNode) && !manuallyRemoved) {
 			bhNodeHandler.replaceChild(outerEnd, oldNode, bhUserOpeCmd);
 			bhNodeHandler.deleteNode(outerEnd, bhUserOpeCmd);
@@ -61,7 +61,7 @@
 	 * @param userOpeCmd undo/redo用コマンドオブジェクト
 	 * */
 	function replaceStatWithNewStat(oldStat, newStat, bhNodeHandler, bhUserOpeCmd) {
-	
+
 		let nextStatOfOldStat = oldStat.findSymbolInDescendants('*', 'NextStat', '*');
 		let nextStatOfNewStat = newStat.findSymbolInDescendants('*', 'NextStat', '*');
 		bhNodeHandler.exchangeNodes(nextStatOfOldStat, nextStatOfNewStat, bhUserOpeCmd);
@@ -167,11 +167,11 @@
 	 * any-Type Node と static type Node から対応する static-type Node を取得する
 	 */
 	function getStaticTypeNodeID(anyTypeNode, staticTypeNode) {
-		
+
 		let staticTypeNodeToNodeID = anyTypeToStaticTypeNode[anyTypeNode];
 		if (!staticTypeNodeToNodeID)
 			return null;
-			
+
 		let staticTypeNodeID = staticTypeNodeToNodeID[staticTypeNode];
 		if (!staticTypeNodeID)
 			return null;

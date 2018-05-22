@@ -16,6 +16,7 @@
 package net.seapanda.bunnyhop.model.node.connective;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
@@ -115,12 +116,13 @@ public class Connector extends SyntaxSymbol {
 	}
 
 	/**
-	 * このノードのコピーを作成して返す
+	 * このコネクタのコピーを作成して返す
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @param name コネクタ名
 	 * @param imitID 作成するイミテーションの識別子
 	 * @param imitCnctPoint イミテーション接続位置の識別子
 	 * @param parent 親コネクタセクション
+	 * @param isNodeToBeCopied ノードがコピーの対象かどうかを判別する関数
 	 * @return このノードのコピー
 	 */
 	public Connector copy(
@@ -128,7 +130,8 @@ public class Connector extends SyntaxSymbol {
 		String name,
 		ImitationID imitID,
 		ImitationConnectionPos imitCnctPoint,
-		ConnectorSection parent) {
+		ConnectorSection parent,
+		 Predicate<BhNode> isNodeToBeCopied) {
 
 		Connector newConnector =
 			new Connector(
@@ -137,10 +140,20 @@ public class Connector extends SyntaxSymbol {
 				imitID,
 				imitCnctPoint,
 				parent);
-		BhNode newNode = connectedNode.copy(userOpeCmd);
+
+		BhNode newNode = null;
+		if (isNodeToBeCopied.test(connectedNode)) {
+			newNode = connectedNode.copy(userOpeCmd, isNodeToBeCopied);
+		}
+		// コピー対象のノードでない場合, 初期ノードもしくはデフォルトノードを新規作成して接続する
+		else {
+			BhNodeID nodeID = initNodeID.equals(BhNodeID.NONE) ? defaultNodeID : initNodeID;
+			newNode = BhNodeTemplates.INSTANCE.genBhNode(nodeID, userOpeCmd);
+		}
 		if (newNode.getID().equals(defaultNodeID) && !defaultNodeID.equals(initNodeID))
 			newNode.setDefaultNode(true);
 		newConnector.connectNode(newNode, null);
+
 		return newConnector;
 	}
 
@@ -295,9 +308,9 @@ public class Connector extends SyntaxSymbol {
 	}
 
 	@Override
-	public void findSymbolInDescendants(int hierarchyLevel, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
+	public void findSymbolInDescendants(int generationi, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
 
-		if (hierarchyLevel == 0) {
+		if (generationi == 0) {
 			for (String symbolName : symbolNames) {
 				if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
 					foundSymbolList.add(this);
@@ -308,13 +321,13 @@ public class Connector extends SyntaxSymbol {
 			}
 		}
 
-		connectedNode.findSymbolInDescendants(Math.max(0, hierarchyLevel-1), toBottom, foundSymbolList, symbolNames);
+		connectedNode.findSymbolInDescendants(Math.max(0, generationi-1), toBottom, foundSymbolList, symbolNames);
 	}
 
 	@Override
-	public SyntaxSymbol findSymbolInAncestors(String symbolName, int hierarchyLevel, boolean toTop) {
+	public SyntaxSymbol findSymbolInAncestors(String symbolName, int generation, boolean toTop) {
 
-		if (hierarchyLevel == 0) {
+		if (generation == 0) {
 			if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
 				return this;
 			}
@@ -323,7 +336,7 @@ public class Connector extends SyntaxSymbol {
 			}
 		}
 
-		return parent.findSymbolInAncestors(symbolName, Math.max(0, hierarchyLevel-1), toTop);
+		return parent.findSymbolInAncestors(symbolName, Math.max(0, generation-1), toTop);
 	}
 
 	@Override

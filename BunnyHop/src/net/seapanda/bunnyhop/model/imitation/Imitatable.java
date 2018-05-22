@@ -79,11 +79,11 @@ public abstract class Imitatable extends BhNode {
 	 */
 	public Imitatable findExistingOrCreateNewImit(BhNode oldNode, UserOperationCommand userOpeCmd) {
 
-		BhNode outerTailOfOldNode = oldNode.findOuterEndNode();
+		BhNode outerTailOfOldNode = oldNode.findOuterNode(-1);
 		for(Imitatable imit : getImitationInfo().getImitationList()) {
 			//新しく入れ替わるノードの外部末尾ノードが最後に入れ替わったノードの外部末尾ノードと一致するイミテーションノードを入れ替えイミテーションノードとする
 			if  (imit.getLastReplaced() != null) {
-				if(!imit.isInWorkspace() && imit.getLastReplaced().findOuterEndNode() == outerTailOfOldNode) {
+				if(!imit.isInWorkspace() && imit.getLastReplaced().findOuterNode(-1) == outerTailOfOldNode) {
 					return imit;
 				}
 			}

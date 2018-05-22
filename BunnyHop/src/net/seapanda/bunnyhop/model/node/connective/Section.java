@@ -15,6 +15,8 @@
  */
 package net.seapanda.bunnyhop.model.node.connective;
 
+import java.util.function.Predicate;
+
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
@@ -49,15 +51,18 @@ public abstract class Section extends SyntaxSymbol {
 	/**
 	 * このノードのコピーを作成し返す
 	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * @param isNodeToBeCopied ノードがコピーの対象かどうか判定する関数
 	 * @return このノードのコピー
 	 */
-	public abstract Section copy(UserOperationCommand userOpeCmd);
+	public abstract Section copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied);
 
 	/**
 	 * 最後尾に繋がる外部ノードを探す
+	 * @param generation 取得する外部ノードの世代.
+	 *               例 (0: 自分, 1: 子世代の外部ノード, 2: 孫世代の外部ノード. 負の数: 末尾の外部ノードを取得する)
 	 * @return 最後尾に繋がる外部ノード
 	 */
-	public abstract BhNode findOuterEndNode();
+	public abstract BhNode findOuterNode(int generation);
 
 	/**
 	 * このセクションを保持している ConnectiveNode オブジェクトをセットする
@@ -99,9 +104,9 @@ public abstract class Section extends SyntaxSymbol {
 	}
 
 	@Override
-	public SyntaxSymbol findSymbolInAncestors(String symbolName, int hierarchyLevel, boolean toTop) {
+	public SyntaxSymbol findSymbolInAncestors(String symbolName, int generation, boolean toTop) {
 
-		if (hierarchyLevel == 0) {
+		if (generation == 0) {
 			if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
 				return this;
 			}
@@ -112,8 +117,8 @@ public abstract class Section extends SyntaxSymbol {
 		}
 
 		if (parentNode != null)
-			return parentNode.findSymbolInAncestors(symbolName, Math.max(0, hierarchyLevel-1), toTop);
+			return parentNode.findSymbolInAncestors(symbolName, Math.max(0, generation-1), toTop);
 
-		return parentSection.findSymbolInAncestors(symbolName, Math.max(0, hierarchyLevel-1), toTop);
+		return parentSection.findSymbolInAncestors(symbolName, Math.max(0, generation-1), toTop);
 	}
 }

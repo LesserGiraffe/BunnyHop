@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.model.node.connective;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
@@ -53,11 +54,11 @@ public class Subsection extends Section {
 	}
 
 	@Override
-	public Subsection copy(	UserOperationCommand userOpeCmd) {
+	public Subsection copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
 
 		Subsection newSubsection = new Subsection(this);
 		subsectionList.forEach(section -> {
-			Section newSection = section.copy(userOpeCmd);
+			Section newSection = section.copy(userOpeCmd, isNodeToBeCopied);
 			newSection.setParent(newSubsection);
 			newSubsection.subsectionList.add(newSection);
 		});
@@ -82,9 +83,9 @@ public class Subsection extends Section {
 	}
 
 	@Override
-	public void findSymbolInDescendants(int hierarchyLevel, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
+	public void findSymbolInDescendants(int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
 
-		if (hierarchyLevel == 0) {
+		if (generation == 0) {
 			for (String symbolName : symbolNames) {
 				if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
 					foundSymbolList.add(this);
@@ -95,19 +96,19 @@ public class Subsection extends Section {
 			}
 		}
 
-		int childLevel = hierarchyLevel - 1;
+		int childLevel = generation - 1;
 		for (Section subsection : subsectionList) {
 			subsection.findSymbolInDescendants(Math.max(0, childLevel), toBottom, foundSymbolList, symbolNames);
 		}
 	}
 
 	@Override
-	public BhNode findOuterEndNode() {
+	public BhNode findOuterNode(int generation) {
 
 		for (int i = subsectionList.size() - 1; i >= 0; --i) {
-			BhNode outerEnd = subsectionList.get(i).findOuterEndNode();
-			if (outerEnd != null)
-				return outerEnd;
+			BhNode outerNode = subsectionList.get(i).findOuterNode(generation);
+			if (outerNode != null)
+				return outerNode;
 		}
 		return null;
 	}

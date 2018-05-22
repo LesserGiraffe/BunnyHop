@@ -15,6 +15,8 @@
  */
 package net.seapanda.bunnyhop.model.node;
 
+import java.util.function.Predicate;
+
 import javax.script.Bindings;
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
@@ -89,17 +91,21 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	public abstract Imitatable getOriginalNode();
 
 	/**
-	 * 最後尾に繋がる外部ノードを探す
-	 * @return 最後尾に繋がる外部ノード
+	 * 外部ノードを取得する. 指定した世代に外部ノードがなかった場合, nullを返す.
+	 * @param generation 取得する外部ノードの世代.
+	 *               例 (0: 自分, 1: 子世代の外部ノード, 2: 孫世代の外部ノード. 負の数: 末尾の外部ノードを取得する)
+	 * @return 外部ノード
 	 */
-	public abstract BhNode findOuterEndNode();
+	public abstract BhNode findOuterNode(int generation);
 
 	/**
 	 * このノード以下のノードツリーのコピーを作成し返す
 	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * @param isNodeToBeCopied ノードがコピーの対象かどうかを判別する関数.
+	 *                          ただし, copyを呼んだBhNodeは判定対象にならず, 必ずコピーされる.
 	 * @return このノード以下のノードツリーのコピー
 	 */
-	public abstract BhNode copy(UserOperationCommand userOpeCmd);
+	public abstract BhNode copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied);
 
 	/**
 	 * コンストラクタ
@@ -193,6 +199,14 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 			assert workspace.containsAsRoot(this) == false;
 			return State.CHILD;
 		}
+	}
+
+	/**
+	 * 移動可能なノードであるかどうかを調べる
+	 * @return 移動可能なノードである場合 true
+	 */
+	public boolean isMovable() {
+		return isRemovable() || (getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS);
 	}
 
 	/**
@@ -318,9 +332,9 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	}
 
 	@Override
-	public SyntaxSymbol findSymbolInAncestors(String symbolName, int hierarchyLevel, boolean toTop) {
+	public SyntaxSymbol findSymbolInAncestors(String symbolName, int generation, boolean toTop) {
 
-		if (hierarchyLevel == 0) {
+		if (generation == 0) {
 			if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
 				return this;
 			}
@@ -332,7 +346,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		if (parentConnector == null)
 			return null;
 
-		return parentConnector.findSymbolInAncestors(symbolName, Math.max(0, hierarchyLevel-1), toTop);
+		return parentConnector.findSymbolInAncestors(symbolName, Math.max(0, generation-1), toTop);
 	}
 
 	/**

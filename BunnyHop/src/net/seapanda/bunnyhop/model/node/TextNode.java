@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.model.node;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
@@ -93,7 +94,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	}
 
 	@Override
-	public TextNode copy(UserOperationCommand userOpeCmd) {
+	public TextNode copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
 		TextNode newNode = new TextNode(this);
 		newNode.imitInfo = new ImitationInfo<>(imitInfo, userOpeCmd, newNode);
 		return newNode;
@@ -204,14 +205,17 @@ public class TextNode  extends Imitatable implements Serializable {
 	}
 
 	@Override
-	public BhNode findOuterEndNode() {
-		return this;
+	public BhNode findOuterNode(int generation) {
+		if (generation <= 0)
+			return this;
+
+		return null;
 	}
 
 	@Override
-	public void findSymbolInDescendants(int hierarchyLevel, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
+	public void findSymbolInDescendants(int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
 
-		if (hierarchyLevel == 0)
+		if (generation == 0)
 			for (String symbolName : symbolNames)
 				if (Util.INSTANCE.equals(getSymbolName(), symbolName))
 					foundSymbolList.add(this);

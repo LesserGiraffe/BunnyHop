@@ -2,13 +2,14 @@
 .BhNode {
     -fx-stroke: black;
 	-fx-stroke-width: 0.15em;
+	-fx-stroke-type: centered;
 }
 
 .BhNode:selected {
 	-fx-stroke: gold;
 }
 
-.BhNode-Pane:selected{
+.BhNode-Pane:move {
     -fx-effect: dropshadow( two-pass-box , #202020 , 10, 0.3, 6 , 6);
 }
 

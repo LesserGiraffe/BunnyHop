@@ -24,6 +24,8 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -150,33 +152,45 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 */
 	private void copyAndPaste(Workspace wsToPasteIn, Point2D pasteBasePos, UserOperationCommand userOpeCmd) {
 
-		for (BhNode node : readyToCopy) {
-			//ワークスペースに無いノードはコピーできない
-			if (!node.isInWorkspace())
-				continue;
+		readyToCopy.stream()
+		.filter(node -> {
 
-			//手動脱着可能なノードもしくはルートノードをコピーする
-			if (node.isRemovable() ||
-				node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS) {
+			if (node.getState() ==  BhNode.State.CHILD &&
+				node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
+				node.isRemovable() &&
+				node.isSelected() &&
+				!(node.getParentConnector().isOuter() && node.findParentNode().isSelected()))
+				return true;
 
-				BhNode pasted = node.copy(userOpeCmd);
-				pasted.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));
-				pasted.accept(new TextImitationPrompter());
-				BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, pasted, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
-				UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
-				pasted.accept(unscopedNodeCollector);
-				BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), userOpeCmd)
-				.forEach(oldAndNewNode -> {
-					BhNode oldNode = oldAndNewNode._1;
-					BhNode newNode = oldAndNewNode._2;
-					newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
-				});
+			if (node.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS && node.isSelected())
+				return true;
+			return false;
+		})
+		.collect(Collectors.toList())	//コピーしたことで, filter条件が変わらないように一旦終端操作を挟む
+		.forEach(node -> {
+			Predicate<BhNode> isNodeToBeCopied = (bhNode) -> {
+				if (!bhNode.isSelected() && bhNode.findParentNode().isSelected() && bhNode.getParentConnector().isOuter())
+					return false;
+				return true;
+			};
+			BhNode pasted = node.copy(userOpeCmd, isNodeToBeCopied);
+			pasted.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));
+			pasted.accept(new TextImitationPrompter());
+			BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, pasted, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
+			UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
+			pasted.accept(unscopedNodeCollector);
+			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), userOpeCmd)
+			.forEach(oldAndNewNode -> {
+				BhNode oldNode = oldAndNewNode._1;
+				BhNode newNode = oldAndNewNode._2;
+				newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
+			});
 
-				//コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
-				Pair<Double, Double> size = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true), node).doublePair;
-				pasteBasePos.x += size._1+ BhParams.REPLACED_NODE_POS * 2;
-			}
-		}
+			//コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
+			Pair<Double, Double> size = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true), node).doublePair;
+			pasteBasePos.x += size._1+ BhParams.REPLACED_NODE_POS * 2;
+		});
+
 	}
 
 	/**
@@ -187,33 +201,43 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 */
 	private void cutAndPaste(Workspace wsToPasteIn, Point2D pasteBasePos, UserOperationCommand userOpeCmd) {
 
-		for (BhNode node : readyToCut) {
-			//ワークスペースに無いノードはコピーできない
-			if (!node.isInWorkspace())
-				continue;
+		readyToCut.stream()
+		.filter(node -> {
 
-			//手動脱着可能なノードもしくはルートノードをカットし貼り付ける
-			if (node.isRemovable() ||
-				node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS) {
-
-				BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, false, userOpeCmd)
-				.ifPresent(newNode -> newNode.findParentNode().execScriptOnChildReplaced(node, newNode, newNode.getParentConnector(), userOpeCmd));
-				BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, node, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
-				UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
-				node.accept(unscopedNodeCollector);
-				BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), userOpeCmd)
-				.forEach(oldAndNewNode -> {
-					BhNode oldNode = oldAndNewNode._1;
-					BhNode newNode = oldAndNewNode._2;
-					newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
-				});
-				Pair<Double, Double> size = MsgTransporter.INSTANCE.sendMessage(
-					BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true), node).doublePair;
-				pasteBasePos.x += size._1+ BhParams.REPLACED_NODE_POS * 2;
+			if (node.getState() ==  BhNode.State.CHILD &&
+				node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
+				node.isRemovable() &&
+				node.isSelected()) {
+				return true;
 			}
-		}
+			if (node.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS && node.isSelected()) {
+				return true;
+			}
+
+			return false;
+		})
+		.collect(Collectors.toList())	//カットしたことで, filter条件が変わらないように一旦終端操作を挟む
+		.forEach(node -> {
+
+			BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, false, userOpeCmd)
+			.ifPresent(newNode -> newNode.findParentNode().execScriptOnChildReplaced(node, newNode, newNode.getParentConnector(), userOpeCmd));
+			BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, node, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
+			UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
+			node.accept(unscopedNodeCollector);
+			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), userOpeCmd)
+			.forEach(oldAndNewNode -> {
+				BhNode oldNode = oldAndNewNode._1;
+				BhNode newNode = oldAndNewNode._2;
+				newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
+			});
+			Pair<Double, Double> size = MsgTransporter.INSTANCE.sendMessage(
+				BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true), node).doublePair;
+			pasteBasePos.x += size._1+ BhParams.REPLACED_NODE_POS * 2;
+			DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
+		});
+
+		userOpeCmd.pushCmdOfRemoveFromList(readyToCut, readyToCut);
 		readyToCut.clear();
-		DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
 	}
 
 	public List<Workspace> getWorkspaceList() {

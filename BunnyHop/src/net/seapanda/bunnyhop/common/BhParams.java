@@ -229,6 +229,7 @@ public class BhParams {
 		public static final String PSEUDO_SELECTED = "selected";
 		public static final String PSEUDO_HIGHLIGHT_IMIT = "highlightImit";
 		public static final String PSEUDO_OVERLAPPED = "overlapped";
+		public static final String PSEUDO_MOVE = "move";
 		public static final String PSEUDO_EMPTY = "empty";
 		public static final String PSEUDO_BHNODE = "error";
 		public static final String PSEUDO_IS_EVEN = "isEven";
