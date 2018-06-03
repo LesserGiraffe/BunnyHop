@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+
+<Node
+	type="comboBox"
+	bhNodeID="idColorLiteral"
+	name="ColorLiteral"
+	nodeStyleID="ColorLiteral.json"
+	nodeInputControl="ColorLiteral.fxml"
+	onMovedFromChildToWS="onLiteralMovedToWS.js">
+</Node>
+

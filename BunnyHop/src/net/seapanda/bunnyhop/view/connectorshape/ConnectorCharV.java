@@ -37,14 +37,17 @@ public class ConnectorCharV extends ConnectorShape {
 	@Override
 	public Collection<Double> createVertices(double offsetX, double offsetY, double width, double height, CNCTR_POS pos) {
 
+		double t = 1.0 / 2.5;
 		ArrayList<Double> vertices = null;
 		if (pos == CNCTR_POS.LEFT) {
 			vertices = new ArrayList<>(Arrays.asList(
-				offsetX + width,             offsetY + height,
-				offsetX + 0.0,               offsetY + height,
 				offsetX + width,             offsetY + height / 2.0,
-				offsetX + 0.0,               offsetY + 0.0,
-				offsetX + width,             offsetY + 0.0));
+				offsetX + (1 - t) * width,   offsetY + height,
+				offsetX,                     offsetY + height,
+				offsetX + width * t,         offsetY + height / 2.0,
+				offsetX ,                    offsetY,
+				offsetX + (1 - t) * width,   offsetY,
+				offsetX + width,             offsetY + height / 2.0));
 		}
 		else if (pos == CNCTR_POS.TOP) {
 			vertices = new ArrayList<>(Arrays.asList(

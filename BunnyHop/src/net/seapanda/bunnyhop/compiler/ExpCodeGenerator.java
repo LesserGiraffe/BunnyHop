@@ -207,6 +207,9 @@ public class ExpCodeGenerator {
 			case SymbolNames.Literal.SCALE_SOUND_LITERAL:
 				return genSoundLiteralExp(code, literalNode, nestLevel, option);
 
+			case SymbolNames.Literal.COLOR_LITERAL:
+				return genColorLiteralExp(code, literalNode, nestLevel, option);
+
 			default:
 				throw new AssertionError("invalid literal " + literalNode.getSymbolName());
 		}
@@ -570,7 +573,8 @@ public class ExpCodeGenerator {
 		if (soundLiteralNode.getSymbolName().equals(SymbolNames.Literal.SOUND_LITERAL_VOID)) {
 			String soundVar = common.genVarName(soundLiteralNode);
 			String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, "0", "0");
-			code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp)
+			code.append(common.indent(nestLevel))
+				.append(BhCompiler.Keywords.JS._const).append(soundVar).append(" = ").append(rightExp)
 				.append(";").append(Util.INSTANCE.LF);
 			return soundVar;
 		}
@@ -606,7 +610,8 @@ public class ExpCodeGenerator {
 		// 音オブジェクト作成
 		String soundVar = common.genVarName(freqSoundLiteralNode);
 		String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, frequency, duration);
-		code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp)
+		code.append(common.indent(nestLevel))
+			.append(BhCompiler.Keywords.JS._const).append(soundVar).append(" = ").append(rightExp)
 			.append(";").append(Util.INSTANCE.LF);
 		return soundVar;
 
@@ -642,9 +647,34 @@ public class ExpCodeGenerator {
 		// 音オブジェクト作成
 		String soundVar = common.genVarName(scaleSoundLiteralNode);
 		String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, frequency+"", duration);
-		code.append(common.indent(nestLevel)).append(soundVar).append(" = ").append(rightExp)
+		code.append(common.indent(nestLevel))
+			.append(BhCompiler.Keywords.JS._const).append(soundVar).append(" = ").append(rightExp)
 			.append(";").append(Util.INSTANCE.LF);
 		return soundVar;
+	}
+
+	/**
+	 * 色リテラルのコードを生成する
+	 * @param code 生成したコードの格納先
+	 * @param colorLiteralNode 色リテラルノード
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 * @return 色リテラルを格納した変数.
+	 * */
+	private String genColorLiteralExp(
+		StringBuilder code,
+		SyntaxSymbol colorLiteralNode,
+		int nestLevel,
+		CompileOption option) {
+
+		String colorName = "'" + ((TextNode)colorLiteralNode).getText() + "'";
+		String colorVar = common.genVarName(colorLiteralNode);
+		String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_COLOR_FROM_NAME, colorName);
+		code.append(common.indent(nestLevel))
+			.append(BhCompiler.Keywords.JS._const).append(colorVar).append(" = ").append(rightExp)
+			.append(";").append(Util.INSTANCE.LF);
+
+		return colorVar;
 	}
 }
 

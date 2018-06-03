@@ -398,4 +398,35 @@
 		}
 	}
 
+	// 色クラス
+	function _Color(red, green, blue) {
+		this.red = red;
+		this.green = green;
+		this.blue = blue;
+	}
 
+	function _createColorFromName(colorName) {
+
+		colorName = colorName.toLowerCase();
+		switch (colorName) {
+			case 'red':
+				return new _Color(255, 0, 0);
+			case 'green':
+				return new _Color(0, 255, 0);
+			case 'blue':
+				return new _Color(0, 0, 255);
+			case 'cyan':
+				return new _Color(0, 255, 255);
+			case 'magenta':
+				return new _Color(255, 0, 255);
+			case 'yellow':
+				return new _Color(255, 255, 0);
+			case 'white':
+				return new _Color(255, 255, 255);
+			case 'black':
+				return new _Color(0,0,0);
+			default:
+				_println('ERR: _createColorFromName invalid colorName ' + colorName);
+		}
+		return null;
+	}

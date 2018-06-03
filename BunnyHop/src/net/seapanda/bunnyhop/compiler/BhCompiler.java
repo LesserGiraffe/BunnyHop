@@ -174,7 +174,6 @@ public class BhCompiler {
 				"'" + BhProgramData.EVENT.PROGRAM_START.toString() + "'");
 		addEventCallStat += ";" + Util.INSTANCE.LF;
 		code.append(common.indent(1)).append(addEventCallStat).append(Util.INSTANCE.LF);
-
 	}
 
 	/**

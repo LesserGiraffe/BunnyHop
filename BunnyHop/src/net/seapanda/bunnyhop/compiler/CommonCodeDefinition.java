@@ -51,6 +51,7 @@ public class CommonCodeDefinition {
 		public static final String FIRE_EVENT = "_fireEvent";
 		public static final String BH_MAIN = "_bhMain";
 		public static final String CREATE_SOUND = "_createSound";
+		public static final String CREATE_COLOR_FROM_NAME = "_createColorFromName";
 		public static final String PUSH_SOUND = "_pushSound";
 		public static final String IS_FINITE = "isFinite";
 	}

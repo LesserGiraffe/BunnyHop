@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 K.Koike
+g * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -444,6 +444,7 @@ public class SymbolNames {
 		public static final String BOOL_LITERAL = "BoolLiteral";
 		public static final String FREQ_SOUND_LITERAL = "FreqSoundLiteral";
 		public static final String SCALE_SOUND_LITERAL = "ScaleSoundLiteral";
+		public static final String COLOR_LITERAL = "ColorLiteral";
 		public static final String SOUND_LITERAL_VOID = "SoundLiteralVoid";
 		public static final String MELODY_EXP_VOID = "MelodyExpVoid";
 		public static final String STR_EMPTY_LIST = VarDecl.STR_EMPTY_LIST;
@@ -460,6 +461,7 @@ public class SymbolNames {
 				FREQ_SOUND_LITERAL,
 				SOUND_LITERAL_VOID,
 				SCALE_SOUND_LITERAL,
+				COLOR_LITERAL,
 				STR_EMPTY_LIST,
 				NUM_EMPTY_LIST,
 				BOOL_EMPTY_LIST,
