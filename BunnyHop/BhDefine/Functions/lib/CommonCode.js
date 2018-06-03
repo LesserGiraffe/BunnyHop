@@ -76,6 +76,15 @@
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
 
+	function _clamp(v, min, max) {
+
+		if (v < min)
+			return min;
+		else if (v > max)
+			return max;
+		return v;
+	}
+
 	function _println(str) {
 		bhInout.println(str);
 	}
@@ -176,6 +185,12 @@
 		idx = Math.floor(idx);
 		if (0 <= idx && idx < ary.length)
 			return ary[idx];
+		return dflt;
+	}
+
+	function _aryGetLast(ary, dflt) {
+		if (ary.length >= 1)
+			return ary[ary.length - 1];
 		return dflt;
 	}
 
@@ -430,3 +445,54 @@
 		}
 		return null;
 	}
+
+	function _compareColors(colorA, colorB, eq) {
+
+		const equality = (colorA.red === colorB.red) && (colorA.green === colorB.green) && (colorA.blue === colorB.blue);
+		if (eq === 'eq')
+			return equality;
+		else if (eq === 'neq')
+			return !equality;
+		else
+			_println("ERR: _compareColors invalid eq " + eq);
+
+		return null;
+	}
+
+	function _colorToStr(color) {
+
+		if (color.red === 255 && color.green === 0 && color.blue === 0)
+			return '赤';
+		else if (color.red === 0 && color.green === 255 && color.blue === 0)
+			return '緑';
+		else if (color.red === 0 && color.green === 0 && color.blue === 255)
+			return '青';
+		else if (color.red === 0 && color.green === 255 && color.blue === 255)
+			return '水色';
+		else if (color.red === 255 && color.green === 0 && color.blue === 255)
+			return '紫';
+		else if (color.red === 255 && color.green === 255 && color.blue === 0)
+			return '黄色';
+		else if (color.red === 255 && color.green === 255 && color.blue === 255)
+			return '白';
+		else if (color.red === 0 && color.green === 0 && color.blue === 0)
+			return '黒';
+
+		return '(red, green, blue) = (' + color.red + ', ' + color.green + ', ' + color.blue + ')'
+	}
+
+	function _addColor(left, right) {
+		return new _Color(
+			_clamp(left.red + right.red, 0, 255),
+			_clamp(left.green + right.green, 0, 255),
+			_clamp(left.blue + right.blue, 0, 255));
+	}
+
+	function _subColor(left, right) {
+		return new _Color(
+			_clamp(left.red - right.red, 0, 255),
+			_clamp(left.green - right.green, 0, 255),
+			_clamp(left.blue - right.blue, 0, 255));
+	}
+
+	const _nilColor = new _Color(0, 0, 0);

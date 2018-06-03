@@ -1,0 +1,27 @@
+<Node
+	type="connective"
+	bhNodeID="idColorList"
+	name="ColorList"
+	nodeStyleID="ColorList.json"
+	imitScopeName="VarScopeSctn"
+	onMovedFromChildToWS=""
+	onMovedToChild="onVarMovedToChild.js">
+
+	<ConnectorSection name="ColorListSctn">
+		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
+		
+		<PrivateConnector
+			bhConnectorID="idColorList.prvCnctr0"
+			name="ListSign"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idColorList.prvNode0"
+				name="ListSign"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="[...]">
+			</Node>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>

@@ -23,11 +23,15 @@ public class CommonCodeDefinition {
 	public static class Funcs {
 		public static final String COPY_ARGS = "_copyArgs";
 		public static final String BOOL_TO_STR = "_boolToStr";
+		public static final String COLOR_TO_STR = "_colorToStr";
 		public static final String STR_TO_NUM = "_strToNum";
 		public static final String RANDOM_INT = "_randomInt";
 		public static final String PRINTLN = "_println";
 		public static final String SLEEP = "_sleep";
 		public static final String PLAY_MELODIES = "_playMelodies";
+		public static final String COMPARE_COLORS = "_compareColors";
+		public static final String ADD_COLORS = "_addColor";
+		public static final String SUB_COLORS = "_subColor";
 		public static final String SAY = "_say";
 		public static final String SCAN = "_scan";
 		public static final String ARY_PUSH = "_aryPush";
@@ -37,6 +41,7 @@ public class CommonCodeDefinition {
 		public static final String ARY_CLEAR = "_aryClear";
 		public static final String ARY_ADD_ALL = "_aryAddAll";
 		public static final String ARY_GET = "_aryGet";
+		public static final String ARY_GET_LAST = "_aryGetLast";
 		public static final String ARY_SET = "_arySet";
 		public static final String MOVE_FORWARD = "_moveForward";
 		public static final String MOVE_BACKWARD = "_moveBackward";
@@ -62,7 +67,8 @@ public class CommonCodeDefinition {
 	}
 
 	public static class Vars {
-		public static final String CALL_OBJ = "_callObj";
-		public static final String NIL_SOUND = "_nilSound";
+		public static final String CALL_OBJ  = "_callObj";
+		public static final String NIL_SOUND  = "_nilSound";
+		public static final String NIL_COLOR = "_nilColor";
 	}
 }

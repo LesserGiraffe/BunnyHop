@@ -1,0 +1,26 @@
+<Node type="connective"
+	bhNodeID="idBinaryColorExp"
+	name="BinaryColorExp"
+	nodeStyleID="BinaryColorExp.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<ConnectorSection name="ColorExpSctn">
+		<Connector bhConnectorID="idColorExpCnctr" name="Arg0"/>
+
+		<PrivateConnector
+			bhConnectorID="idBinaryColorExp.prvCnctr0"
+			name="Option0"
+    		fixed="true">
+			<Node
+				type="comboBox"
+				bhNodeID="idBinaryColorExp.prvNode0"
+				name="StrLiteral"
+				nodeStyleID="DefaultComboBox.json"
+				nodeInputControl="AddSubOpe.fxml">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idColorExpCnctr" name="Arg1"/>
+	</ConnectorSection>
+</Node>

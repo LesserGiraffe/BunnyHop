@@ -7,7 +7,7 @@
 	onMovedToChild="">
 
 	<ConnectorSection name="StringExpSctn">
-		<Connector bhConnectorID="idStrListCnctr" name="Array"/>
+		<Connector bhConnectorID="idStrListCnctr" name="Arg0"/>
 		
 		<PrivateConnector
 			bhConnectorID="idStrArrayGetLastExp.prvCnctr0"
@@ -21,6 +21,17 @@
 				nodeInputControl="Label.fxml"
 				initString="の最後の要素">
 			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector
+			bhConnectorID="idStrArrayGetLastExp.prvCnctr1"
+			name="Arg1"
+			fixed="true">
+			<Node
+				type="noView"
+				bhNodeID="idStrArrayGetLastExp.prvNode1"
+				name="StrLiteral"
+				initString=""/>
 		</PrivateConnector>
 	</ConnectorSection>
 </Node>

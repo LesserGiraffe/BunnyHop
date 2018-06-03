@@ -28,7 +28,7 @@
 				bhCommon.replaceStatWithNewStat(anyTypeNode, staticTypeNode, bhNodeHandler, bhUserOpeCmd);
 			else
 				bhNodeHandler.exchangeNodes(anyTypeNode, staticTypeNode, bhUserOpeCmd);
-				
+
 			bhNodeHandler.deleteNode(anyTypeNode, bhUserOpeCmd);
 		}
 	}
@@ -51,7 +51,7 @@
 		
 		case 'AnyArrayGetExp':
 		case 'AnyArrayGetLastExp':
-			replaceAnyTypeNodeWithNewStaticTypeNode(anyTypeNode, ['*', 'Array', '*'], false);
+			replaceAnyTypeNodeWithNewStaticTypeNode(anyTypeNode, ['*', 'Arg0', '*'], false);
 			break;
 		
 		default:

@@ -3,7 +3,7 @@
 <Node type="connective"
 	  bhNodeID="idBoolToStrExp"
 	  name="BoolToStrExp"
-	  nodeStyleID="BoolToStrExp.json"
+	  nodeStyleID="ToStrExp.json"
 	  onMovedFromChildToWS=""
 	  onMovedToChild="">
     

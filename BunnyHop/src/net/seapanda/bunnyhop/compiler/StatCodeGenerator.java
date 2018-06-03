@@ -66,7 +66,7 @@ public class StatCodeGenerator {
 		else if (SymbolNames.ControlStat.LIST.contains(statSymbolName)) {
 			genControlStat(code, statementNode, nestLevel, option);
 		}
-		else if (SymbolNames.IgnoredStat.LIST.contains(statSymbolName)) {}
+		else if (SymbolNames.StatToBeIgnored.LIST.contains(statSymbolName)) {}
 		else {
 			return;
 		}

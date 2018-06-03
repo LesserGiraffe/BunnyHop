@@ -46,6 +46,14 @@ public class SymbolNames {
 		public static final String BOOL_LIST_DECL = "BoolListDecl";
 		public static final String BOOL_LIST = "BoolList";
 		public static final String BOOL_EMPTY_LIST = "BoolEmptyList";
+
+		public static final String COLOR_VAR_DECL = "ColorVarDecl";
+		public static final String COLOR_VAR = "ColorVar";
+		public static final String COLOR_VAR_VOID = "ColorVarVoid";
+		public static final String COLOR_LIST_DECL = "ColorListDecl";
+		public static final String COLOR_LIST = "ColorList";
+		public static final String COLOR_EMPTY_LIST = "ColorList";
+
 		public static final String SOUND_VAR_DECL = "SoundVarDecl";
 		public static final String SOUND_VAR = "SoundVar";
 		public static final String SOUND_VAR_VOID = "SoundVarVoid";
@@ -64,6 +72,8 @@ public class SymbolNames {
 				STR_LIST_DECL,
 				BOOL_VAR_DECL,
 				BOOL_LIST_DECL,
+				COLOR_VAR_DECL,
+				COLOR_LIST_DECL,
 				SOUND_VAR_DECL,
 				SOUND_LIST_DECL));
 		public static final HashSet<String> VAR_LIST =
@@ -74,6 +84,8 @@ public class SymbolNames {
 				STR_LIST,
 				BOOL_VAR,
 				BOOL_LIST,
+				COLOR_VAR,
+				COLOR_LIST,
 				SOUND_VAR,
 				SOUND_LIST));
 		public static final Map<String, String> INIT_VAL_MAP =
@@ -84,6 +96,8 @@ public class SymbolNames {
 				put(STR_LIST_DECL, "[]");
 				put(BOOL_VAR_DECL, "false");
 				put(BOOL_LIST_DECL, "[]");
+				put(COLOR_VAR_DECL, CommonCodeDefinition.Vars.NIL_COLOR);
+				put(COLOR_LIST_DECL, "[]");
 				put(SOUND_VAR_DECL, CommonCodeDefinition.Vars.NIL_SOUND);
 				put(SOUND_LIST_DECL, "[]");
 				put(NUM_VAR_VOID, "0");
@@ -93,6 +107,7 @@ public class SymbolNames {
 				put(NUM_EMPTY_LIST, "[]");
 				put(STR_EMPTY_LIST, "[]");
 				put(BOOL_EMPTY_LIST, "[]");
+				put(COLOR_EMPTY_LIST, "[]");
 				put(SOUND_EMPTY_LIST, "[]");
 			}};
 		public static final HashSet<String> VAR_VOID_LIST =
@@ -100,10 +115,12 @@ public class SymbolNames {
 				NUM_VAR_VOID,
 				STR_VAR_VOID,
 				BOOL_VAR_VOID,
+				COLOR_VAR_VOID,
 				SOUND_VAR_VOID,
 				NUM_EMPTY_LIST,
 				STR_EMPTY_LIST,
 				BOOL_EMPTY_LIST,
+				COLOR_EMPTY_LIST,
 				SOUND_EMPTY_LIST
 			));
 	}
@@ -117,7 +134,7 @@ public class SymbolNames {
 	/**
 	 * コンパイル時に無視される文
 	 * */
-	public static class IgnoredStat {
+	public static class StatToBeIgnored {
 		public static final String ANY_ASSIGN_STAT = "AnyAssignStat";
 		public static final String ANY_ARRAY_APPEND_STAT =  "AnyArrayAppendStat";
 		public static final String ANY_ARRAY_CLEAR_STAT = "AnyArrayClearStat";
@@ -128,16 +145,15 @@ public class SymbolNames {
 		public static final String ANY_ARRAY_SET_STAT = "AnyArraySetStat";
 
 
-		public static final HashSet<String> LIST =
-				new HashSet<>(Arrays.asList(
-					ANY_ASSIGN_STAT,
-					ANY_ARRAY_APPEND_STAT,
-					ANY_ARRAY_CLEAR_STAT,
-					ANY_ARRAY_INSERT_STAT,
-					ANY_ARRAY_POP_STAT,
-					ANY_ARRAY_PUSH_STAT,
-					ANY_ARRAY_REMOVE_STAT,
-					ANY_ARRAY_SET_STAT));
+		public static final HashSet<String> LIST = new HashSet<>(Arrays.asList(
+			ANY_ASSIGN_STAT,
+			ANY_ARRAY_APPEND_STAT,
+			ANY_ARRAY_CLEAR_STAT,
+			ANY_ARRAY_INSERT_STAT,
+			ANY_ARRAY_POP_STAT,
+			ANY_ARRAY_PUSH_STAT,
+			ANY_ARRAY_REMOVE_STAT,
+			ANY_ARRAY_SET_STAT));
 	}
 
 	public static class AssignStat {
@@ -146,6 +162,7 @@ public class SymbolNames {
 		public static final String NUM_ADD_ASSIGN_STAT = "NumAddAssignStat";
 		public static final String STR_ASSIGN_STAT = "StrAssignStat";
 		public static final String BOOL_ASSIGN_STAT = "BoolAssignStat";
+		public static final String COLOR_ASSIGN_STAT = "ColorAssignStat";
 		public static final String SOUND_ASSIGN_STAT = "SoundAssignStat";
 		public static final String LEFT_VAR = "LeftVar";
 		public static final HashSet<String> LIST =
@@ -154,6 +171,7 @@ public class SymbolNames {
 				NUM_ADD_ASSIGN_STAT,
 				STR_ASSIGN_STAT,
 				BOOL_ASSIGN_STAT,
+				COLOR_ASSIGN_STAT,
 				SOUND_ASSIGN_STAT));
 	}
 
@@ -252,6 +270,7 @@ public class SymbolNames {
 		public static final String NUM_TO_STR_EXP = "NumToStrExp";
 		public static final String STR_TO_NUM_EXP = "StrToNumExp";
 		public static final String BOOL_TO_STR_EXP = "BoolToStrExp";
+		public static final String COLOR_TO_STR_EXP = "ColorToStrExp";
 		public static final String SCAM_EXP = "ScanExp";
 		public static final String RAMDOM_INT_EXP = "RandomIntExp";
 		public static final String NUM_ROUND_EXP = "NumRoundExp";
@@ -259,6 +278,8 @@ public class SymbolNames {
 		public static final String MAX_MIN_EXP = "MaxMinExp";
 		public static final String MEASURE_DISTANCE_EXP = "MeasureDistanceExp";
 		public static final String MELODY_EXP = "MelodyExp";
+		public static final String COLOR_COMP_EXP = "ColorCompExp";
+		public static final String BINARY_COLOR_EXP = "BinaryColorExp";
 		public static final String PRINT_STAT = "PrintStat";
 		public static final String PRINT_NUM_STAT = "PrintNumStat";
 		public static final String MOVE_STAT = "MoveStat";
@@ -277,19 +298,35 @@ public class SymbolNames {
 		public static final String OPT_MOVE_BACKWARD = "moveBackward";
 		public static final String OPT_TURN_RIGHT = "turnRight";
 		public static final String OPT_TURN_LEFT = "turnLeft";
+		public static final String OPT_ADD = "add";
+		public static final String OPT_SUB = "sub";
 
 		public static final HashSet<String> PREDEF_FUNC_CALL_EXP_LIST =
 			new HashSet<>(Arrays.asList(
 				NUM_TO_STR_EXP,
 				STR_TO_NUM_EXP,
 				BOOL_TO_STR_EXP,
+				COLOR_TO_STR_EXP,
 				SCAM_EXP,
 				NUM_ROUND_EXP,
 				RAMDOM_INT_EXP,
 				ABS_EXP,
 				MAX_MIN_EXP,
 				MEASURE_DISTANCE_EXP,
-				MELODY_EXP));	//!< 定義済み関数式のリスト
+				MELODY_EXP,
+				COLOR_COMP_EXP,
+				BINARY_COLOR_EXP,
+
+				Array.NUM_ARRAY_GET_EXP,
+				Array.NUM_ARRAY_GET_LAST_EXP,
+				Array.STR_ARRAY_GET_EXP,
+				Array.STR_ARRAY_GET_LAST_EXP,
+				Array.BOOL_ARRAY_GET_EXP,
+				Array.BOOL_ARRAY_GET_LAST_EXP,
+				Array.COLOR_ARRAY_GET_EXP,
+				Array.COLOR_ARRAY_GET_LAST_EXP,
+				Array.SOUND_ARRAY_GET_EXP,
+				Array.SOUND_ARRAY_GET_LAST_EXP));	//!< 定義済み関数式のリスト
 
 		public static final HashSet<String> PREDEF_FUNC_CALL_STAT_LIST =
 			new HashSet<>(Arrays.asList(
@@ -324,21 +361,27 @@ public class SymbolNames {
 				Array.BOOL_ARRAY_APPEND_STAT,
 				Array.BOOL_ARRAY_CLEAR_STAT,
 
+				Array.COLOR_ARRAY_PUSH_STAT,
+				Array.COLOR_ARRAY_POP_STAT,
+				Array.COLOR_ARRAY_SET_STAT,
+				Array.COLOR_ARRAY_INSERT_STAT,
+				Array.COLOR_ARRAY_REMOVE_STAT,
+				Array.COLOR_ARRAY_APPEND_STAT,
+				Array.COLOR_ARRAY_CLEAR_STAT,
+
 				Array.SOUND_ARRAY_PUSH_STAT,
 				Array.SOUND_ARRAY_POP_STAT,
 				Array.SOUND_ARRAY_INSERT_STAT,
 				Array.SOUND_ARRAY_REMOVE_STAT,
 				Array.SOUND_ARRAY_APPEND_STAT,
 				Array.SOUND_ARRAY_CLEAR_STAT,
-				Array.SOUND_ARRAY_SET_STAT
-
-					)
-			);	//!< 定義済み関数文のリスト
+				Array.SOUND_ARRAY_SET_STAT));	//!< 定義済み関数文のリスト
 
 		public static final Map<List<String>, String> PREDEF_FUNC_NAME_MAP =
 			new HashMap<List<String>, String>() {{
 				put(Arrays.asList(NUM_TO_STR_EXP), "String");
 				put(Arrays.asList(BOOL_TO_STR_EXP), CommonCodeDefinition.Funcs.BOOL_TO_STR);
+				put(Arrays.asList(COLOR_TO_STR_EXP), CommonCodeDefinition.Funcs.COLOR_TO_STR);
 				put(Arrays.asList(STR_TO_NUM_EXP), CommonCodeDefinition.Funcs.STR_TO_NUM);
 				put(Arrays.asList(PRINT_STAT), CommonCodeDefinition.Funcs.PRINTLN);
 				put(Arrays.asList(PRINT_NUM_STAT), CommonCodeDefinition.Funcs.PRINTLN);
@@ -352,6 +395,9 @@ public class SymbolNames {
 				put(Arrays.asList(RAMDOM_INT_EXP), CommonCodeDefinition.Funcs.RANDOM_INT);
 				put(Arrays.asList(MEASURE_DISTANCE_EXP), CommonCodeDefinition.Funcs.MEASURE_DISTANCE);
 				put(Arrays.asList(MELODY_EXP), CommonCodeDefinition.Funcs.PUSH_SOUND);
+				put(Arrays.asList(COLOR_COMP_EXP), CommonCodeDefinition.Funcs.COMPARE_COLORS);
+				put(Arrays.asList(BINARY_COLOR_EXP, OPT_ADD), CommonCodeDefinition.Funcs.ADD_COLORS);
+				put(Arrays.asList(BINARY_COLOR_EXP, OPT_SUB), CommonCodeDefinition.Funcs.SUB_COLORS);
 				put(Arrays.asList(MOVE_STAT, OPT_MOVE_FORWARD), CommonCodeDefinition.Funcs.MOVE_FORWARD);
 				put(Arrays.asList(MOVE_STAT, OPT_MOVE_BACKWARD), CommonCodeDefinition.Funcs.MOVE_BACKWARD);
 				put(Arrays.asList(MOVE_STAT, OPT_TURN_RIGHT), CommonCodeDefinition.Funcs.TURN_RIGHT);
@@ -364,7 +410,7 @@ public class SymbolNames {
 				put(Arrays.asList(Array.STR_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
 				put(Arrays.asList(Array.STR_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
 				put(Arrays.asList(Array.STR_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(Arrays.asList(Array.STR_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(Arrays.asList(Array.STR_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
 				put(Arrays.asList(Array.STR_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
 				put(Arrays.asList(Array.STR_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
 				put(Arrays.asList(Array.STR_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
@@ -374,7 +420,7 @@ public class SymbolNames {
 				put(Arrays.asList(Array.NUM_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
 				put(Arrays.asList(Array.NUM_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
 				put(Arrays.asList(Array.NUM_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(Arrays.asList(Array.NUM_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(Arrays.asList(Array.NUM_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
 				put(Arrays.asList(Array.NUM_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
 				put(Arrays.asList(Array.NUM_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
 				put(Arrays.asList(Array.NUM_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
@@ -384,12 +430,22 @@ public class SymbolNames {
 				put(Arrays.asList(Array.BOOL_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
 				put(Arrays.asList(Array.BOOL_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
 				put(Arrays.asList(Array.BOOL_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(Arrays.asList(Array.BOOL_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(Arrays.asList(Array.BOOL_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
 				put(Arrays.asList(Array.BOOL_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
 				put(Arrays.asList(Array.BOOL_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
 				put(Arrays.asList(Array.BOOL_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
 				put(Arrays.asList(Array.BOOL_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
 				put(Arrays.asList(Array.BOOL_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
+
+				put(Arrays.asList(Array.COLOR_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
+				put(Arrays.asList(Array.COLOR_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
+				put(Arrays.asList(Array.COLOR_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(Arrays.asList(Array.COLOR_ARRAY_GET_LAST_EXP),  CommonCodeDefinition.Funcs.ARY_GET_LAST);
+				put(Arrays.asList(Array.COLOR_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
+				put(Arrays.asList(Array.COLOR_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
+				put(Arrays.asList(Array.COLOR_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
+				put(Arrays.asList(Array.COLOR_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
+				put(Arrays.asList(Array.COLOR_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
 
 				put(Arrays.asList(Array.SOUND_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
 				put(Arrays.asList(Array.SOUND_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
@@ -398,7 +454,7 @@ public class SymbolNames {
 				put(Arrays.asList(Array.SOUND_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
 				put(Arrays.asList(Array.SOUND_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
 				put(Arrays.asList(Array.SOUND_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(Arrays.asList(Array.SOUND_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(Arrays.asList(Array.SOUND_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
 				put(Arrays.asList(Array.SOUND_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
 			}};	//!<  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
 	}
@@ -450,6 +506,7 @@ public class SymbolNames {
 		public static final String STR_EMPTY_LIST = VarDecl.STR_EMPTY_LIST;
 		public static final String NUM_EMPTY_LIST = VarDecl.NUM_EMPTY_LIST;
 		public static final String BOOL_EMPTY_LIST = VarDecl.BOOL_EMPTY_LIST;
+		public static final String COLOR_EMPTY_LIST = VarDecl.COLOR_EMPTY_LIST;
 		public static final String SOUND_EMPTY_LIST = VarDecl.SOUND_EMPTY_LIST;
 		public static final String ANY_ENPTY_LIST = "AnyEmptyList";
 		public static final HashSet<String> LIST =
@@ -465,6 +522,7 @@ public class SymbolNames {
 				STR_EMPTY_LIST,
 				NUM_EMPTY_LIST,
 				BOOL_EMPTY_LIST,
+				COLOR_EMPTY_LIST,
 				SOUND_EMPTY_LIST,
 				ANY_ENPTY_LIST,
 				MELODY_EXP_VOID));
@@ -473,6 +531,7 @@ public class SymbolNames {
 				STR_EMPTY_LIST,
 				NUM_EMPTY_LIST,
 				BOOL_EMPTY_LIST,
+				COLOR_EMPTY_LIST,
 				ANY_ENPTY_LIST,
 				SOUND_EMPTY_LIST,
 				MELODY_EXP_VOID));
@@ -522,6 +581,17 @@ public class SymbolNames {
 		public static final String BOOL_ARRAY_SET_STAT = "BoolArraySetStat";
 		public static final String BOOL_ARRAY_LEN_EXP = "BoolArrayLengthExp";
 
+		public static final String COLOR_ARRAY_PUSH_STAT = "ColorArrayPushStat";
+		public static final String COLOR_ARRAY_POP_STAT = "ColorArrayPopStat";
+		public static final String COLOR_ARRAY_INSERT_STAT = "ColorArrayInsertStat";
+		public static final String COLOR_ARRAY_REMOVE_STAT = "ColorArrayRemoveStat";
+		public static final String COLOR_ARRAY_APPEND_STAT = "ColorArrayAppendStat";
+		public static final String COLOR_ARRAY_CLEAR_STAT = "ColorArrayClearStat";
+		public static final String COLOR_ARRAY_GET_EXP = "ColorArrayGetExp";
+		public static final String COLOR_ARRAY_GET_LAST_EXP = "ColorArrayGetLastExp";
+		public static final String COLOR_ARRAY_SET_STAT = "ColorArraySetStat";
+		public static final String COLOR_ARRAY_LEN_EXP = "ColorArrayLengthExp";
+
 		public static final String SOUND_ARRAY_PUSH_STAT = "SoundArrayPushStat";
 		public static final String SOUND_ARRAY_POP_STAT = "SoundArrayPopStat";
 		public static final String SOUND_ARRAY_INSERT_STAT = "SoundArrayInsertStat";
@@ -533,40 +603,16 @@ public class SymbolNames {
 		public static final String SOUND_ARRAY_SET_STAT = "SoundArraySetStat";
 		public static final String SOUND_ARRAY_LEN_EXP = "SoundArrayLengthExp";
 
-
 		public static final String ANY_ARRAY_LEN_EXP = "AnyArrayLengthExp";
 
 		public static final HashSet<String> LENGTH_EXP_LIST =
-			new HashSet<>(Arrays.asList(
-				STR_ARRAY_LEN_EXP,
-				NUM_ARRAY_LEN_EXP,
-				BOOL_ARRAY_LEN_EXP,
-				SOUND_ARRAY_LEN_EXP,
-				ANY_ARRAY_LEN_EXP));
-
-		public static final HashSet<String> GET_EXP_LIST =
-			new HashSet<>(Arrays.asList(NUM_ARRAY_GET_EXP,
-				NUM_ARRAY_GET_LAST_EXP,
-				STR_ARRAY_GET_EXP,
-				STR_ARRAY_GET_LAST_EXP,
-				BOOL_ARRAY_GET_EXP,
-				BOOL_ARRAY_GET_LAST_EXP,
-				SOUND_ARRAY_GET_EXP,
-				SOUND_ARRAY_GET_LAST_EXP));
+			new HashSet<>(Arrays.asList(ANY_ARRAY_LEN_EXP));
 	}
 
-	public static class Undefined {
+	public static class Identifier {
 
-		public static final Map<String, String> SUBSTITUTE_LITERAL_MAP =
-			new HashMap<String, String>() {{
-				put(Array.NUM_ARRAY_GET_EXP, "0");
-				put(Array.NUM_ARRAY_GET_LAST_EXP, "0");
-				put(Array.STR_ARRAY_GET_EXP, "''");
-				put(Array.STR_ARRAY_GET_LAST_EXP, "''");
-				put(Array.BOOL_ARRAY_GET_EXP, "false");
-				put(Array.BOOL_ARRAY_GET_LAST_EXP, "false");
-				put(Array.SOUND_ARRAY_GET_EXP, CommonCodeDefinition.Vars.NIL_SOUND);
-				put(Array.SOUND_ARRAY_GET_LAST_EXP, CommonCodeDefinition.Vars.NIL_SOUND);
-			}};	//undefinedが返った場合の代替値
+		public static final String IDENTIFIER = "Identifier";
+		public static final HashSet<String> LIST =
+				new HashSet<>(Arrays.asList(IDENTIFIER));	//!< イベントノードのリスト
 	}
 }

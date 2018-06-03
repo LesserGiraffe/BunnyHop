@@ -1,7 +1,7 @@
 <Node type="connective"
 	  bhNodeID="idBoolCompExp"
 	  name="BoolCompExp"
-	  nodeStyleID="BoolCompExp.json"
+	  nodeStyleID="CompExp.json"
 	  onMovedFromChildToWS=""
 	  onMovedToChild="">
 

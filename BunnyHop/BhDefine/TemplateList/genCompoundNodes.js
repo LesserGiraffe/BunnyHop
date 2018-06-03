@@ -69,8 +69,8 @@
 	//リストと変数名を変更して再登録
 	function setVarAndListName() {
 
-		let varDecls = ['idNumVarDecl', 'idStrVarDecl', 'idBoolVarDecl', 'idSoundVarDecl'];
-		let varNames = ['数値変数', '文字列変数', '論理変数', '音変数'];
+		let varDecls = ['idNumVarDecl', 'idStrVarDecl', 'idBoolVarDecl', 'idColorVarDecl', 'idSoundVarDecl'];
+		let varNames = ['数値変数', '文字列変数', '論理変数', '色変数', '音変数'];
 		for (let i = 0; i < varDecls.length; ++i) {
 			let varDecl = genBhNode(varDecls[i], bhUserOpeCmd);
 			let varName = varDecl.findSymbolInDescendants('*', 'VarName', '*');

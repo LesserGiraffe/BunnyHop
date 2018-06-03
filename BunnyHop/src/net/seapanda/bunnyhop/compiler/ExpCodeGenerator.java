@@ -71,11 +71,11 @@ public class ExpCodeGenerator {
 		else if (SymbolNames.PreDefFunc.PREDEF_FUNC_CALL_EXP_LIST.contains(expSymbolName)) {
 			return genPreDefFuncCallExp(code, expNode, nestLevel, option, true);
 		}
-		else if (SymbolNames.Array.GET_EXP_LIST.contains(expSymbolName)) {
-			return genArrayGetExp(code, expNode, nestLevel, option);
-		}
 		else if (SymbolNames.Array.LENGTH_EXP_LIST.contains(expSymbolName)) {
 			return genArrayLenExp(code, expNode, nestLevel, option);
+		}
+		else if (SymbolNames.Identifier.LIST.contains(expSymbolName)) {
+			return genIdentifierExp(code, expNode, nestLevel, option);
 		}
 		return null;
 	}
@@ -437,46 +437,6 @@ public class ExpCodeGenerator {
 	}
 
 	/**
-	 * 配列の要素参照式を作成する
-	 * @param code 生成したコードの格納先
-	 * @param arrayGetNode 配列参照のノード
-	 * @param nestLevel ソースコードのネストレベル
-	 * @param option コンパイルオプション
-	 * @return 式もしくは式の評価結果を格納した変数.
-	 */
-	private String genArrayGetExp(
-		StringBuilder code,
-		SyntaxSymbol arrayGetNode,
-		int nestLevel,
-		CompileOption option) {
-
-		SyntaxSymbol arrayExp = arrayGetNode.findSymbolInDescendants("*", SymbolNames.Array.ARRAY, "*");
-		String arrayExpCode = genExpression(code, arrayExp, nestLevel, option);
-		SyntaxSymbol indexExp = arrayGetNode.findSymbolInDescendants("*", SymbolNames.Array.INDEX, "*");
-		String indexExpCode;
-		if (indexExp == null) {	//最後の要素取得の場合はindexExp == null
-			indexExpCode = "(" + arrayExpCode + ".length - 1)";
-		}
-		else {
-			indexExpCode = genExpression(code, indexExp, nestLevel, option);
-		}
-		String literalWhenUndef = SymbolNames.Undefined.SUBSTITUTE_LITERAL_MAP.get(arrayGetNode.getSymbolName());	//配列取得結果がundefinedになる場合の代替値
-		String tmpVar = common.genVarName(arrayGetNode);
-
-		String funcName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(Arrays.asList(arrayGetNode.getSymbolName()));
-		String[] argArray = {arrayExpCode, indexExpCode, literalWhenUndef};
-		String funcCallCode = common.genFuncCallCode(funcName, argArray);
-
-		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._const)
-			.append(tmpVar)
-			.append(" = ")
-			.append(funcCallCode)
-			.append(";").append(Util.INSTANCE.LF);
-		return tmpVar;
-	}
-
-	/**
 	 * 配列の長さを取得するコードを作成する
 	 * @param code 生成したコードの格納先
 	 * @param arrayLenNode 配列長取得ノード
@@ -676,21 +636,24 @@ public class ExpCodeGenerator {
 
 		return colorVar;
 	}
+
+	/**
+	 * 識別子のコードを作成する
+	 * @param code 生成したコードの格納先
+	 * @param identifierNode 識別子のノード
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 * @return 識別子の文字列
+	 */
+	private String genIdentifierExp(
+		StringBuilder code,
+		SyntaxSymbol identifierNode,
+		int nestLevel,
+		CompileOption option) {
+
+		return ((TextNode)identifierNode).getText();
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

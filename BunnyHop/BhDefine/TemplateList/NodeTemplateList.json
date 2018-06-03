@@ -37,6 +37,7 @@
 			"idAppendStrExp", 
 			"idNumToStrExp",
 			"idBoolToStrExp",
+			"idColorToStrExp",
 			"idSayStat"]
 	},
 	
@@ -48,13 +49,15 @@
 			"idNotExp",
 			"idNumCompExp",
 			"idStrCompExp",
-			"idBoolCompExp"]
+			"idBoolCompExp",
+			"idColorCompExp"]
 	},
 
 	"色": {
 		"cssClass":"colorOpe",
 		"contents":[
-			"idColorLiteral"
+			"idColorLiteral",
+			"idBinaryColorExp"
 		]
 	},
 	
@@ -89,6 +92,8 @@
 			"idStrListDecl",
 			"idBoolVarDecl",
 			"idBoolListDecl",
+			"idColorVarDecl",
+			"idColorListDecl",
 			"idSoundVarDecl",
 			"idSoundListDecl"
 		]

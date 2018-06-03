@@ -7,7 +7,7 @@
 	onMovedToChild="">
 
 	<ConnectorSection name="SoundExpSctn">
-		<Connector bhConnectorID="idSoundListCnctr" name="Array"/>
+		<Connector bhConnectorID="idSoundListCnctr" name="Arg0"/>
 		
 		<PrivateConnector
 			bhConnectorID="idSoundArrayGetExp.prvCnctr0"
@@ -23,7 +23,7 @@
 			</Node>
 		</PrivateConnector>
 		
-		<Connector bhConnectorID="idNumExpCnctr" name="Index"/>
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
 		
 		<PrivateConnector
 			bhConnectorID="idSoundArrayGetExp.prvCnctr1"
@@ -38,6 +38,16 @@
 				initString="番目の要素">
 			</Node>
 		</PrivateConnector>
-		
+
+		<PrivateConnector
+			bhConnectorID="idSoundArrayGetExp.prvCnctr2"
+			name="Arg2"
+			fixed="true">
+			<Node
+				type="noView"
+				bhNodeID="idSoundArrayGetExp.prvNode2"
+				name="Identifier"
+				initString="_nilSound"/>
+		</PrivateConnector>
 	</ConnectorSection>
 </Node>

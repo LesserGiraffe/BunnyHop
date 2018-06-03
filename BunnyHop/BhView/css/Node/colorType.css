@@ -3,5 +3,5 @@
 }
 
 .colorVarType {
-	-fx-fill: linear-gradient(from 0em 0em to 0.0em 0.3em, repeat, colorTypeCol 50%, #FFFFFF 0em);
+	-fx-fill: linear-gradient(from 0em 0em to 0.0em 0.3em, repeat, colorTypeCol 50%, derive(colorTypeCol, 70%) 0em);
 }

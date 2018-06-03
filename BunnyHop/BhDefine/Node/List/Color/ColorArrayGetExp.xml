@@ -1,0 +1,53 @@
+<Node
+	type="connective"
+	bhNodeID="idColorArrayGetExp"
+	name="ColorArrayGetExp"
+	nodeStyleID="ColorArrayGetExp.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<ConnectorSection name="ColorExpSctn">
+		<Connector bhConnectorID="idColorListCnctr" name="Arg0"/>
+		
+		<PrivateConnector
+			bhConnectorID="idColorArrayGetExp.prvCnctr0"
+			name="no"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idColorArrayGetExp.prvNode0"
+				name="no"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="の">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+		
+		<PrivateConnector
+			bhConnectorID="idColorArrayGetExp.prvCnctr1"
+			name="banmeNoYoso"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idColorArrayGetExp.prvNode1"
+				name="banmeNoYoso"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="番目の要素">
+			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector
+			bhConnectorID="idColorArrayGetExp.prvCnctr2"
+			name="Arg2"
+			fixed="true">
+			<Node
+				type="noView"
+				bhNodeID="idColorArrayGetExp.prvNode2"
+				name="Identifier"
+				initString="_nilColor"/>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>

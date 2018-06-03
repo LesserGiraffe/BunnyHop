@@ -7,7 +7,7 @@
 	onMovedToChild="">
 
 	<ConnectorSection name="NumberExpSctn">
-		<Connector bhConnectorID="idNumListCnctr" name="Array"/>
+		<Connector bhConnectorID="idNumListCnctr" name="Arg0"/>
 		
 		<PrivateConnector
 			bhConnectorID="idNumArrayGetExp.prvCnctr0"
@@ -23,7 +23,7 @@
 			</Node>
 		</PrivateConnector>
 		
-		<Connector bhConnectorID="idNumExpCnctr" name="Index"/>
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
 		
 		<PrivateConnector
 			bhConnectorID="idNumArrayGetExp.prvCnctr1"
@@ -39,5 +39,15 @@
 			</Node>
 		</PrivateConnector>
 		
+		<PrivateConnector
+			bhConnectorID="idNumArrayGetExp.prvCnctr2"
+			name="Arg2"
+			fixed="true">
+			<Node
+				type="noView"
+				bhNodeID="idNumArrayGetExp.prvNode2"
+				name="NumLiteral"
+				initString="0"/>
+		</PrivateConnector>
 	</ConnectorSection>
 </Node>
