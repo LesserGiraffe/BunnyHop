@@ -1,10 +1,10 @@
 {
-
 	"動作" : {
 		"cssClass" : "action",
 		"contents":[
 			"idMoveStat",
 			"idMeasureDistanceExp",
+			"idDetectColorExp",
 			"idPlayMelodyStat",
 			"idPlaySoundListStat",
 			"idSleepStat",
@@ -57,7 +57,8 @@
 		"cssClass":"colorOpe",
 		"contents":[
 			"idColorLiteral",
-			"idBinaryColorExp"
+			"idBinaryColorExp",
+			"idDetectColorExp"
 		]
 	},
 	

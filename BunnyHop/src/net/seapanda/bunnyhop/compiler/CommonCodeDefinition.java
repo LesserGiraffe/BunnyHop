@@ -30,8 +30,9 @@ public class CommonCodeDefinition {
 		public static final String SLEEP = "_sleep";
 		public static final String PLAY_MELODIES = "_playMelodies";
 		public static final String COMPARE_COLORS = "_compareColors";
-		public static final String ADD_COLORS = "_addColor";
-		public static final String SUB_COLORS = "_subColor";
+		public static final String ADD_COLOR = "_addColor";
+		public static final String SUB_COLOR = "_subColor";
+		public static final String DETECT_COLOR = "_detectColor";
 		public static final String SAY = "_say";
 		public static final String SCAN = "_scan";
 		public static final String ARY_PUSH = "_aryPush";

@@ -280,6 +280,7 @@ public class SymbolNames {
 		public static final String MELODY_EXP = "MelodyExp";
 		public static final String COLOR_COMP_EXP = "ColorCompExp";
 		public static final String BINARY_COLOR_EXP = "BinaryColorExp";
+		public static final String DETECT_COLOR = "DetectColorExp";
 		public static final String PRINT_STAT = "PrintStat";
 		public static final String PRINT_NUM_STAT = "PrintNumStat";
 		public static final String MOVE_STAT = "MoveStat";
@@ -316,6 +317,7 @@ public class SymbolNames {
 				MELODY_EXP,
 				COLOR_COMP_EXP,
 				BINARY_COLOR_EXP,
+				DETECT_COLOR,
 
 				Array.NUM_ARRAY_GET_EXP,
 				Array.NUM_ARRAY_GET_LAST_EXP,
@@ -396,8 +398,9 @@ public class SymbolNames {
 				put(Arrays.asList(MEASURE_DISTANCE_EXP), CommonCodeDefinition.Funcs.MEASURE_DISTANCE);
 				put(Arrays.asList(MELODY_EXP), CommonCodeDefinition.Funcs.PUSH_SOUND);
 				put(Arrays.asList(COLOR_COMP_EXP), CommonCodeDefinition.Funcs.COMPARE_COLORS);
-				put(Arrays.asList(BINARY_COLOR_EXP, OPT_ADD), CommonCodeDefinition.Funcs.ADD_COLORS);
-				put(Arrays.asList(BINARY_COLOR_EXP, OPT_SUB), CommonCodeDefinition.Funcs.SUB_COLORS);
+				put(Arrays.asList(BINARY_COLOR_EXP, OPT_ADD), CommonCodeDefinition.Funcs.ADD_COLOR);
+				put(Arrays.asList(BINARY_COLOR_EXP, OPT_SUB), CommonCodeDefinition.Funcs.SUB_COLOR);
+				put(Arrays.asList(DETECT_COLOR), CommonCodeDefinition.Funcs.DETECT_COLOR);
 				put(Arrays.asList(MOVE_STAT, OPT_MOVE_FORWARD), CommonCodeDefinition.Funcs.MOVE_FORWARD);
 				put(Arrays.asList(MOVE_STAT, OPT_MOVE_BACKWARD), CommonCodeDefinition.Funcs.MOVE_BACKWARD);
 				put(Arrays.asList(MOVE_STAT, OPT_TURN_RIGHT), CommonCodeDefinition.Funcs.TURN_RIGHT);

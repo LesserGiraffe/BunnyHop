@@ -18,7 +18,9 @@ package net.seapanda.bunnyhop.model;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.message.BhMsg;
@@ -37,8 +39,8 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * */
 public class Workspace implements MsgReceptionWindow, Serializable {
 
-	private final HashSet<BhNode> rootNodeList = new HashSet<>();	//!< ワークスペースのルートノードのリスト
-	private final HashSet<BhNode> selectedList = new HashSet<>();	//!< 選択中のノード
+	private final Set<BhNode> rootNodeList = new HashSet<>();	//!< ワークスペースのルートノードのリスト
+	private final Set<BhNode> selectedList = new LinkedHashSet<>();	//!< 選択中のノード. 挿入順を保持したいのでLinkedHashSetを使う
 	private BhNode moveCandidate = null;	//!< 移動候補のノード
 	private final String workspaceName;	//!< ワークスペース名
 	transient private WorkspaceSet workspaceSet;	//!< このワークスペースを持つワークスペースセット
@@ -176,7 +178,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	 * 選択中のBhNodeのリストを返す
 	 * @return 選択中のBhNodeのリスト
 	 */
-	public HashSet<BhNode> getSelectedNodeList() {
+	public Set<BhNode> getSelectedNodeList() {
 		return selectedList;
 	}
 

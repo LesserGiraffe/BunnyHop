@@ -24,12 +24,20 @@
 
 	function _measureDistance() {
 
-		let dist = _scan('距離を入力してください (標準入力に半角で)');
-		dist = Number(dist);
-		if (!isFinite(dist))
-			dist = 0;
+		let dist = null;
+		while (true) {
+			let distStr = _scan('\n距離を入力してください (標準入力に半角数字で)');
+			if (distStr.match(/^[+-]?(\d*\.\d+|\d+\.?\d*)([eE][+-]?\d+)?$/)) {
+				dist = Number(distStr);
+			}
+			else {
+				_println('不正な入力です (' + distStr + ')');
+				continue;
+			}
+			break;
+		}
 
-		_println("距離 = " + dist);
+		_println('入力された距離 = ' + dist);
 		return dist;
 	}
 
@@ -66,5 +74,45 @@
 			_sayOnWindows(word);
 		else if (bhUtil.PLATFORM.isLinux())
 			_sayOnLinux(word);
+	}
+
+	function _detectColor() {
+
+		let color = (function () {
+			let colorID = null;
+			while (true) {
+				let colorIdStr = _scan(
+					'\n色を入力してください (標準入力に半角数字で)\n' +
+					'    0: 赤,  ' +'1: 緑,  ' +'2: 青,  ' + '3: 水色,  ' + '4: 紫,  ' + '5: 黄色,  ' + '6: 白,  ' + '7: 黒');
+
+				if (colorIdStr.match(/^\d$/))
+					colorID = Number(colorIdStr);
+				else
+					colorID = null;
+
+				switch (colorID) {
+					case 0:
+						return new _Color(255, 0, 0);
+					case 1:
+						return new _Color(0, 255, 0);
+					case 2:
+						return new _Color(0, 0, 255);
+					case 3:
+						return new _Color(0, 255, 255);
+					case 4:
+						return new _Color(255, 0, 255);
+					case 5:
+						return new _Color(255, 255, 0);
+					case 6:
+						return new _Color(255, 255, 255);
+					case 7:
+						return new _Color(0,0,0);
+					default:
+						_println('不正な入力です (' + colorIdStr + ')');
+				}
+			}
+		})();
+		_println('入力された色 = ' + _colorToStr(color));
+		return color;
 	}
 

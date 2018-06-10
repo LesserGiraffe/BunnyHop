@@ -17,9 +17,9 @@ package net.seapanda.bunnyhop.control;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -529,14 +529,14 @@ public class MenuOperationController {
 
 		//実行対象があるかどうかのチェック
 		Workspace currentWS = wss.getCurrentWorkspace();
-		HashSet<BhNode> selectedNodeList = currentWS.getSelectedNodeList();
-		if (selectedNodeList.size() != 1) {
+		Set<BhNode> selectedNodeList = currentWS.getSelectedNodeList();
+		if (selectedNodeList.isEmpty()) {
 			MsgPrinter.INSTANCE.alert(AlertType.ERROR, "実行対象の選択", null,"実行対象を一つ選択してください");
 			return Optional.empty();
 		}
 
 		// 実行対象以外を非選択に.
-		BhNode nodeToExec = selectedNodeList.toArray(new BhNode[selectedNodeList.size()])[0].findRootNode();
+		BhNode nodeToExec = selectedNodeList.iterator().next().findRootNode();
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		currentWS.clearSelectedNodeList(userOpeCmd);
 		currentWS.addSelectedNode(nodeToExec, userOpeCmd);
