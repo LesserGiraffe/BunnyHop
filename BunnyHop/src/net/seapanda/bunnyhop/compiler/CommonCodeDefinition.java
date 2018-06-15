@@ -34,6 +34,7 @@ public class CommonCodeDefinition {
 		public static final String SUB_COLOR = "_subColor";
 		public static final String DETECT_COLOR = "_detectColor";
 		public static final String SAY = "_say";
+		public static final String LIGHT_EYE = "_lightEye";
 		public static final String SCAN = "_scan";
 		public static final String ARY_PUSH = "_aryPush";
 		public static final String ARY_POP = "_aryPop";

@@ -8,7 +8,8 @@
 			"idPlayMelodyStat",
 			"idPlaySoundListStat",
 			"idSleepStat",
-			"idSayStat"]
+			"idSayStat",
+			"idLightEyeStat"]
 	},
 
 	"数値" : {
@@ -58,7 +59,8 @@
 		"contents":[
 			"idColorLiteral",
 			"idBinaryColorExp",
-			"idDetectColorExp"
+			"idDetectColorExp",
+			"idLightEyeStat"
 		]
 	},
 	

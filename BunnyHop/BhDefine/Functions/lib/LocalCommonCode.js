@@ -108,11 +108,32 @@
 					case 7:
 						return new _Color(0,0,0);
 					default:
-						_println('不正な入力です (' + colorIdStr + ')');
+						_println('_detectColor  不正な入力です (' + colorIdStr + ')');
 				}
 			}
 		})();
 		_println('入力された色 = ' + _colorToStr(color));
 		return color;
+	}
+
+	function _lightEye(eyeSel, color) {
+
+		let eye;
+		switch (eyeSel) {
+			case 'both':
+				eye = '両目';
+				break;
+			case 'right':
+				eye = '右目';
+				break;
+			case 'left':
+				eye = '左目';
+				break;
+			default:
+				_println('_lightEye  不正な入力です (' + colorIdStr + ')');
+				return;
+		}
+
+		_println(eye + 'が 「' +  _colorToStr(color) + '」 になった');
 	}
 

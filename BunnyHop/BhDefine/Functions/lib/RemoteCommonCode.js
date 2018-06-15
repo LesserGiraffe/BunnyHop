@@ -95,7 +95,6 @@
 
 		colorList = colorList.split(",");
 		return new _Color(Number(colorList[0]), Number(colorList[1]), Number(colorList[2]));
-
 	}
 
 	const _baseLineColor = _getColor();
@@ -179,6 +178,85 @@
 
 		return new _Color(255, 0, 255);
 	}
+
+	function _ioWrite(port, val) {
+		const procBuilder = new _jProcBuilder(['gpio', '-g', 'write', port+'', val+'']);
+		try {
+			const process =  procBuilder.start();
+			_waitProcEnd(process, 'ERR: ioWrite ', false);
+		}
+		catch (e) {
+			_println('ERR: ioWrite ' + e);
+		}
+	}
+
+	function _changeIoMode(port, mode) {
+		const procBuilder = new _jProcBuilder(['gpio', '-g', 'mode', port+'', mode]);
+		try {
+			const process =  procBuilder.start();
+			_waitProcEnd(process, 'ERR: _changeIoMode ', false);
+		}
+		catch (e) {
+			_println('ERR: _changeIoMode ' + e);
+		}
+	}
+
+	(function _initEyeLight() {
+
+		let ioList = ['21', '20', '16', '13', '19', '26'];
+		ioList.forEach(function (port) {_changeIoMode(port, 'out');});
+		ioList.forEach(function (port) {_ioWrite(port, '0');});
+	})();
+
+	function _lightEye(eyeSel, color) {
+
+		const rightRed = '13';
+		const rightGreen = '26';
+		const rightBlue = '19';
+		const leftRed = '16';
+		const leftGreen = '21';
+		const leftBlue = '20';
+
+		let hiList = [];
+		let loList = [];
+		if (eyeSel === 'both' || eyeSel === 'right') {
+			if (color.red === 0)
+				loList.push(rightRed);
+			else
+				hiList.push(rightRed);
+
+			if (color.green === 0)
+				loList.push(rightGreen);
+			else
+				hiList.push(rightGreen);
+
+			if(color.blue === 0)
+				loList.push(rightBlue);
+			else
+				hiList.push(rightBlue);
+		}
+		if (eyeSel === 'both' || eyeSel === 'left') {
+			if (color.red === 0)
+				loList.push(leftRed);
+			else
+				hiList.push(leftRed);
+
+			if (color.green === 0)
+				loList.push(leftGreen);
+			else
+				hiList.push(leftGreen);
+
+			if(color.blue === 0)
+				loList.push(leftBlue);
+			else
+				hiList.push(leftBlue);
+		}
+
+		hiList.forEach(function (port) {_ioWrite(port, '1');});
+		loList.forEach(function (port) {_ioWrite(port, '0');});
+	}
+
+
 
 
 

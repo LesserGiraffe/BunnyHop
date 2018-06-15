@@ -288,6 +288,7 @@ public class SymbolNames {
 		public static final String PLAY_MELODY_STAT = "PlayMelodyStat";
 		public static final String PLAY_SOUND_LIST_STAT = "PlaySoundListStat";
 		public static final String SAY_STAT = "SayStat";
+		public static final String LIGHT_EYE_STAT =  "LightEyeStat";
 
 		//オプション名
 		public static final String OPT_ROUND = "round";
@@ -339,6 +340,7 @@ public class SymbolNames {
 				PLAY_MELODY_STAT,
 				PLAY_SOUND_LIST_STAT,
 				SAY_STAT,
+				LIGHT_EYE_STAT,
 				Array.STR_ARRAY_PUSH_STAT,
 				Array.STR_ARRAY_POP_STAT,
 				Array.STR_ARRAY_SET_STAT,
@@ -409,6 +411,7 @@ public class SymbolNames {
 				put(Arrays.asList(PLAY_MELODY_STAT), CommonCodeDefinition.Funcs.PLAY_MELODIES);
 				put(Arrays.asList(PLAY_SOUND_LIST_STAT), CommonCodeDefinition.Funcs.PLAY_MELODIES);
 				put(Arrays.asList(SAY_STAT), CommonCodeDefinition.Funcs.SAY);
+				put(Arrays.asList(LIGHT_EYE_STAT), CommonCodeDefinition.Funcs.LIGHT_EYE);
 
 				put(Arrays.asList(Array.STR_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
 				put(Arrays.asList(Array.STR_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
