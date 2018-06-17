@@ -36,9 +36,7 @@
 			"idPrintNumStat" ,
 			"idScanExp", 
 			"idAppendStrExp", 
-			"idNumToStrExp",
-			"idBoolToStrExp",
-			"idColorToStrExp",
+			"idAnyToStrExp",
 			"idSayStat"]
 	},
 	

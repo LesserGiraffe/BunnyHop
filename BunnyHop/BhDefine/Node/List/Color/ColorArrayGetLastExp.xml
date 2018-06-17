@@ -30,7 +30,7 @@
 			<Node
 				type="noView"
 				bhNodeID="idColorArrayGetLastExp.prvNode1"
-				name="Identifier"
+				name="NilColor"
 				initString="_nilColor"/>
 		</PrivateConnector>
 	</ConnectorSection>

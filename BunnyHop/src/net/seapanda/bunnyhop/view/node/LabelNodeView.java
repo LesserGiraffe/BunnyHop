@@ -28,7 +28,7 @@ import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.node.TextNode;
 
 /**
- * テキストフィールドを入力フォームに持つビュー
+ * ラベルを入力フォームに持つビュー
  * @author K.Koike
  */
 public class LabelNodeView extends BhNodeView implements ImitationCreator {

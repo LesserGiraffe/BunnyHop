@@ -1,13 +1,13 @@
 <?xml version="1.0" ?>
 
 <Node type="connective"
-	  bhNodeID="idNumToStrExp"
-	  name="NumToStrExp"
+	  bhNodeID="idAnyToStrExp"
+	  name="AnyToStrExp"
 	  nodeStyleID="ToStrExp.json"
 	  onMovedFromChildToWS=""
 	  onMovedToChild="">
     
     <ConnectorSection name="StringExpSctn">
-        <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
+        <Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
     </ConnectorSection>
 </Node>

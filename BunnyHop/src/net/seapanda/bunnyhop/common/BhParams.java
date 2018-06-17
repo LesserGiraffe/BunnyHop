@@ -117,6 +117,7 @@ public class BhParams {
 		public static final String ATTR_NAME_COMBO_BOX = "comboBox";
 		public static final String ATTR_NAME_LABEL = "label";
 		public static final String ATTR_NAME_NO_VIEW = "noView";
+		public static final String ATTR_NAME_NO_CONTENT = "noContent";
 		public static final String ATTR_VALUE_VOID = "void";
 		public static final String ATTR_VALUE_TRUE = "true";
 		public static final String ATTR_VALUE_FALSE = "false";
@@ -238,6 +239,7 @@ public class BhParams {
 		public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";
 		public static final String CLASS_TEXT_FIELD_NODE = "textFieldNode";
 		public static final String CLASS_LABEL_NODE = "labelNode";
+		public static final String CLASS_NO_CONTENT_NODE = "labelNode";
 		public static final String CLASS_CONNECTIVE_NODE = "ConnectiveNode";
 		public static final String CLASS_SUFFIX_PANE = "-Pane";
 	}

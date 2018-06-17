@@ -271,6 +271,7 @@ public class SymbolNames {
 		public static final String STR_TO_NUM_EXP = "StrToNumExp";
 		public static final String BOOL_TO_STR_EXP = "BoolToStrExp";
 		public static final String COLOR_TO_STR_EXP = "ColorToStrExp";
+		public static final String ANY_TO_STR_EXP = "AnyToStrExp";
 		public static final String SCAM_EXP = "ScanExp";
 		public static final String RAMDOM_INT_EXP = "RandomIntExp";
 		public static final String NUM_ROUND_EXP = "NumRoundExp";
@@ -309,6 +310,7 @@ public class SymbolNames {
 				STR_TO_NUM_EXP,
 				BOOL_TO_STR_EXP,
 				COLOR_TO_STR_EXP,
+				ANY_TO_STR_EXP,
 				SCAM_EXP,
 				NUM_ROUND_EXP,
 				RAMDOM_INT_EXP,
@@ -387,6 +389,7 @@ public class SymbolNames {
 				put(Arrays.asList(BOOL_TO_STR_EXP), CommonCodeDefinition.Funcs.BOOL_TO_STR);
 				put(Arrays.asList(COLOR_TO_STR_EXP), CommonCodeDefinition.Funcs.COLOR_TO_STR);
 				put(Arrays.asList(STR_TO_NUM_EXP), CommonCodeDefinition.Funcs.STR_TO_NUM);
+				put(Arrays.asList(ANY_TO_STR_EXP), CommonCodeDefinition.Funcs.TO_STR);
 				put(Arrays.asList(PRINT_STAT), CommonCodeDefinition.Funcs.PRINTLN);
 				put(Arrays.asList(PRINT_NUM_STAT), CommonCodeDefinition.Funcs.PRINTLN);
 				put(Arrays.asList(SCAM_EXP), CommonCodeDefinition.Funcs.SCAN);
@@ -617,8 +620,13 @@ public class SymbolNames {
 
 	public static class Identifier {
 
-		public static final String IDENTIFIER = "Identifier";
+		public static final String NIL_COLOR = "NilColor";
+		public static final String NIL_SOUND = "NilSound";
+		public static final String ANY_EXP_VOID = "AnyExpVoid";
 		public static final HashSet<String> LIST =
-				new HashSet<>(Arrays.asList(IDENTIFIER));	//!< イベントノードのリスト
+				new HashSet<>(Arrays.asList(
+					NIL_COLOR,
+					NIL_SOUND,
+					ANY_EXP_VOID));
 	}
 }

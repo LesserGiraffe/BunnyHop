@@ -46,7 +46,7 @@
 			<Node
 				type="noView"
 				bhNodeID="idSoundArrayGetExp.prvNode2"
-				name="Identifier"
+				name="NilSound"
 				initString="_nilSound"/>
 		</PrivateConnector>
 	</ConnectorSection>

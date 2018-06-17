@@ -15,6 +15,7 @@
 
 	const _eventHandlers = {};
 	const _executor = _jExecutors.newFixedThreadPool(16);
+	const _anyObj = {};
 
 	function _genCallObj() {
 		return {_outArgs:[]};
@@ -59,10 +60,6 @@
 		}
 	}
 
-	function _boolToStr(boolVal) {
-		return (boolVal === true) ? '真' : '偽';
-	}
-
 	function _strToNum(strVal) {
 		const num = Number(strVal);
 		if (isFinite(num))
@@ -85,8 +82,8 @@
 		return v;
 	}
 
-	function _println(str) {
-		bhInout.println(str);
+	function _println(val) {
+		bhInout.println(val._toStr());
 	}
 
 	function _sleep(sec) {
@@ -459,28 +456,6 @@
 		return null;
 	}
 
-	function _colorToStr(color) {
-
-		if (color.red === 255 && color.green === 0 && color.blue === 0)
-			return '赤';
-		else if (color.red === 0 && color.green === 255 && color.blue === 0)
-			return '緑';
-		else if (color.red === 0 && color.green === 0 && color.blue === 255)
-			return '青';
-		else if (color.red === 0 && color.green === 255 && color.blue === 255)
-			return '水色';
-		else if (color.red === 255 && color.green === 0 && color.blue === 255)
-			return '紫';
-		else if (color.red === 255 && color.green === 255 && color.blue === 0)
-			return '黄色';
-		else if (color.red === 255 && color.green === 255 && color.blue === 255)
-			return '白';
-		else if (color.red === 0 && color.green === 0 && color.blue === 0)
-			return '黒';
-
-		return '(red, green, blue) = (' + color.red + ', ' + color.green + ', ' + color.blue + ')'
-	}
-
 	function _addColor(left, right) {
 		return new _Color(
 			_clamp(left.red + right.red, 0, 255),
@@ -496,3 +471,53 @@
 	}
 
 	const _nilColor = new _Color(0, 0, 0);
+
+	//==================================================================
+	//							文字列化
+	//==================================================================
+	Number.prototype._toStr = function () {
+		return this.toString();
+	}
+
+	Boolean.prototype._toStr = function () {
+		if (this == true)
+			return '真';
+		return '偽';
+	}
+
+	String.prototype._toStr = function () {
+		return this.toString();
+	}
+
+	_Sound.prototype._toStr = function () {
+		return '高さ: ' + this.hz + '[Hz],  長さ: ' + Math.round(this.duration * 1000.0) + '[ms]';
+	}
+
+	_Color.prototype._toStr = function () {
+		if (this.red === 255 && this.green === 0 && this.blue === 0)
+			return '赤';
+		else if (this.red === 0 && this.green === 255 && this.blue === 0)
+			return '緑';
+		else if (this.red === 0 && this.green === 0 && this.blue === 255)
+			return '青';
+		else if (this.red === 0 && this.green === 255 && this.blue === 255)
+			return '水色';
+		else if (this.red === 255 && this.green === 0 && this.blue === 255)
+			return '紫';
+		else if (this.red === 255 && this.green === 255 && this.blue === 0)
+			return '黄色';
+		else if (this.red === 255 && this.green === 255 && this.blue === 255)
+			return '白';
+		else if (this.red === 0 && this.green === 0 && this.blue === 0)
+			return '黒';
+
+		return '(red, green, blue) = (' + this.red + ', ' + this.green + ', ' + this.blue + ')'
+	}
+
+	function _toStr(val) {
+
+		if (val === _anyObj)
+			return '';
+		return val._toStr();
+	}
+

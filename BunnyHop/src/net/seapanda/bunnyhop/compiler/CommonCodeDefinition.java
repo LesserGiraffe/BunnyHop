@@ -24,6 +24,7 @@ public class CommonCodeDefinition {
 		public static final String COPY_ARGS = "_copyArgs";
 		public static final String BOOL_TO_STR = "_boolToStr";
 		public static final String COLOR_TO_STR = "_colorToStr";
+		public static final String TO_STR = "_toStr";
 		public static final String STR_TO_NUM = "_strToNum";
 		public static final String RANDOM_INT = "_randomInt";
 		public static final String PRINTLN = "_println";

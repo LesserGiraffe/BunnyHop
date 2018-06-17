@@ -116,9 +116,12 @@ public class NodeConstructor {
 				templateNode = genTextNode(nodeRoot, type, true);
 				break;
 			//<Node type="noView">
+			//<Node type="noContent">
 			case BhParams.BhModelDef.ATTR_NAME_NO_VIEW:
+			case BhParams.BhModelDef.ATTR_NAME_NO_CONTENT:
 				templateNode = genTextNode(nodeRoot, type, false);
 				break;
+
 			default:
 				MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ATTR_NAME_TYPE + "=" + type + " はサポートされていません.\n" + nodeRoot.getBaseURI() + "\n");
 				break;
