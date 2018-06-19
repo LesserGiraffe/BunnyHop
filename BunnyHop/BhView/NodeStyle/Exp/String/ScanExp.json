@@ -13,9 +13,32 @@
 
 	"connective" : {
 		"inner" : {
-			"space" : 2.0,
-			"arrangement" : "Row",
-			"connectorList" : ["Arg0", "woShuturyokuShiteNyuryokuWoMatsu"]
+			"arrangement" : "Column",
+			"space" : 0.0,
+			"connectorList" : ["nyuryokumojiretsu"],
+			
+			"subGroup0" : {
+				"arrangement" : "Row",
+				"space" : 1.0,
+				
+				"subGroup0" : {
+					"paddingTop": 1.0,
+					"arrangement" : "Row",
+					"connectorList" : ["nyuryokuYokyu"]
+				},
+				
+				"subGroup1" : {
+					"paddingTop": 0.0,
+					"arrangement" : "Row",
+					"connectorList" : ["Arg0"]
+				},
+
+				"subGroup2" : {
+					"paddingTop": 1.0,
+					"arrangement" : "Row",
+					"connectorList" : ["bracket"]
+				}
+			}
 		}
 	}
 }

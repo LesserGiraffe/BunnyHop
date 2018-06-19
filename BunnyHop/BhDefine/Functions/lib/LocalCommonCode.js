@@ -70,6 +70,9 @@
 
 	function _say(word) {
 
+		if (word === '')
+			return;
+
 		if (bhUtil.PLATFORM.isWindows())
 			_sayOnWindows(word);
 		else if (bhUtil.PLATFORM.isLinux())

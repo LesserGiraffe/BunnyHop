@@ -33,7 +33,6 @@
 			"idStrLiteral", 
 			"idLineFeed", 
 			"idPrintStat", 
-			"idPrintNumStat" ,
 			"idScanExp", 
 			"idAppendStrExp", 
 			"idAnyToStrExp",

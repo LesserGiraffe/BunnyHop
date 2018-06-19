@@ -3,4 +3,5 @@
 <Connector 
 	bhConnectorID="idColorExpCnctr"
 	defaultBhNodeID="idColorLiteral"
+	class="ColorClass"
 	onReplaceabilityChecked="ColorExpCnct.js"/>

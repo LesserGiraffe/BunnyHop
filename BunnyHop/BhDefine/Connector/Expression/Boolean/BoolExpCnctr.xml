@@ -3,4 +3,5 @@
 <Connector 
 	bhConnectorID="idBoolExpCnctr"
 	defaultBhNodeID="idBoolLiteral"
+	class="BoolClass"
 	onReplaceabilityChecked="BoolExpCnct.js"/>

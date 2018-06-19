@@ -96,6 +96,7 @@ public class BhParams {
 		public static final String ATTR_NAME_BHCONNECTOR_ID = "bhConnectorID";
 		public static final String ATTR_NAME_DEFAULT_BHNODE_ID = "defaultBhNodeID";
 		public static final String ATTR_NAME_INITIAL_BHNODE_ID = "initialBhNodeID";
+		public static final String ATTR_NAME_CLASS = "class";
 		public static final String ATTR_NAME_TYPE = "type";
 		public static final String ATTR_NAME_NAME = "name";
 		public static final String ATTR_NAME_FIXED = "fixed";

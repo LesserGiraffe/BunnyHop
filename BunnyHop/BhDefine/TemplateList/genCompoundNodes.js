@@ -88,10 +88,19 @@
 		}
 	}
 
+	//ScanExpのプロンプト変更
+	function setScanExpPrompt() {
+		let newScanExp = genBhNode('idScanExp', bhUserOpeCmd);
+		let prompt = newScanExp.findSymbolInDescendants('*', 'Arg0', '*');
+		prompt.setText('入力待ちです');
+		registerNodeTemplate('idScanExp', newScanExp);
+	}
+
 	addRepeatAndCountNode('idRepeatAndCount');
 	setInitialMoveSpeed();
 	setVarAndListName();
 	setInitialSoundParams();
+	setScanExpPrompt();
 })();
 
 

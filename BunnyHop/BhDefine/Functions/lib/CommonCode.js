@@ -82,8 +82,12 @@
 		return v;
 	}
 
-	function _println(val) {
-		bhInout.println(val._toStr());
+	function _println(arg) {
+
+		if (arg === _anyObj)
+			arg = '';
+
+		bhInout.println(arg._toStr());
 	}
 
 	function _sleep(sec) {

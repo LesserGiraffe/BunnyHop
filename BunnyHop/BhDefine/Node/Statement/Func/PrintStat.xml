@@ -6,7 +6,7 @@
 	onMovedToChild="onStatMovedToChild.js">
 
 	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idStrExpCnctr" name="Arg0"/>
+		<Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
 		
 		<PrivateConnector 
 			bhConnectorID="idPrintStat.prvCnctr0"

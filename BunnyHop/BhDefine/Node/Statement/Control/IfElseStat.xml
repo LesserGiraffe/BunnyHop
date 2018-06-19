@@ -49,7 +49,7 @@
 				name="Sodenakereba"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
-				initString="そうでなければ">
+				initString="そうでないとき">
 			</Node>
 		</PrivateConnector>
 		

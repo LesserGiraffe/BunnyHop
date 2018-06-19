@@ -8,7 +8,13 @@
 
 	<ConnectorSection name="MelodyExpSctn">
 
-		<Connector bhConnectorID="idSoundExpCnctrDefaultVoid" name="Arg0"/>
+		<PrivateConnector
+			bhConnectorID="idMelodyExp.prvCnctr0"
+			name="Arg0"
+			defaultBhNodeID="idSoundLiteralVoid"
+			initialBhNodeID=""
+			class="SoundClass"
+			onReplaceabilityChecked="SoundExpCnct.js"/>
 
 		<PrivateConnector 
 			bhConnectorID="idMelodyExp.prvCnctr1"

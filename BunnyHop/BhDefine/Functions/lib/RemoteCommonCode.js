@@ -70,6 +70,10 @@
 	}
 
 	function _say(word) {
+
+		if (word === '')
+			return;
+
 		_sayOnLinux(word);
 	}
 

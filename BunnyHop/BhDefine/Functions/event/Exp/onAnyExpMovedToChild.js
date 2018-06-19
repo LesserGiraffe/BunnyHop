@@ -1,7 +1,7 @@
 (function() {
 
 	let cnctr = bhThis.findSymbolInAncestors('*', 1, false);
-	let staticTypeNodeID = bhCommon.getStaticTypeNodeID(bhThis.getSymbolName(), cnctr.getID().toString());
+	let staticTypeNodeID = bhCommon.getStaticTypeNodeID(bhThis.getSymbolName(), cnctr.getClaz().toString());
 
 	if (staticTypeNodeID !== null) {
 		let posOnWS = bhMsgService.getPosOnWS(bhThis);

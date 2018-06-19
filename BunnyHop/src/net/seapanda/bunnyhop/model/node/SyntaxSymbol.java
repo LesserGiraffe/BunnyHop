@@ -29,7 +29,7 @@ import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 public abstract class SyntaxSymbol implements Showable, Serializable {
 
 	private String symbolName;	//!< 終端, 非終端記号名
-	private String symbolID;	//!< コンパイル対象のSyntaxSymbolオブジェクトが持つユニークなID
+	private final SyntaxSymbolID symbolID = SyntaxSymbolID.newID();	//!< コンパイル対象のSyntaxSymbolオブジェクトが持つユニークなID
 
 	/**
 	 * 引数で指定したシンボル名を持つSyntaxSymbolをgeneration(もしくはそれ以下)の世代のSyntaxSymbolから探す.<br>
@@ -138,18 +138,10 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
 	}
 
 	/**
-	 * シンボルIDをセットする
-	 * @param id シンボルID
-	 */
-	public void setSymbolID(String id) {
-		this.symbolID = id;
-	}
-
-	/**
 	 * シンボルIDを取得する
 	 * @return シンボルID
 	 */
-	public String getSymbolID() {
+	public SyntaxSymbolID getSymbolID() {
 		return symbolID;
 	}
 

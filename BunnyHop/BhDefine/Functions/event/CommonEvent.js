@@ -100,12 +100,11 @@
 			'BoolList'  : 'idBoolArrayGetExp',
 			'ColorList' : 'idColorArrayGetExp',
 			'SoundList' : 'idSoundArrayGetExp',
-			'idNumExpCnctr'   : 'idNumArrayGetExp',
-			'idStrExpCnctr'   : 'idStrArrayGetExp',
-			'idBoolExpCnctr'  : 'idBoolArrayGetExp',
-			'idColorExpCnctr' : 'idColorArrayGetExp',
-			'idSoundExpCnctr' : 'idSoundArrayGetExp',
-			'idSoundExpCnctrDefaultVoid' : 'idSoundArrayGetExp'
+			'NumClass'  : 'idNumArrayGetExp',
+			'StrClass'  : 'idStrArrayGetExp',
+			'BoolClass' : 'idBoolArrayGetExp',
+			'ColorClass': 'idColorArrayGetExp',
+			'SoundClass': 'idSoundArrayGetExp'
 		},
 
 		'AnyArrayGetLastExp' : {
@@ -114,12 +113,11 @@
 			'BoolList'  : 'idBoolArrayGetLastExp',
 			'ColorList' : 'idColorArrayGetLastExp',
 			'SoundList' : 'idSoundArrayGetLastExp',
-			'idNumExpCnctr'   : 'idNumArrayGetLastExp',
-			'idStrExpCnctr'   : 'idStrArrayGetLastExp',
-			'idBoolExpCnctr'  : 'idBoolArrayGetLastExp',
-			'idColorExpCnctr' : 'idColorArrayGetLastExp',
-			'idSoundExpCnctr' : 'idSoundArrayGetLastExp',
-			'idSoundExpCnctrDefaultVoid' : 'idSoundArrayGetLastExp'
+			'NumClass'  : 'idNumArrayGetLastExp',
+			'StrClass'  : 'idStrArrayGetLastExp',
+			'BoolClass' : 'idBoolArrayGetLastExp',
+			'ColorClass': 'idColorArrayGetLastExp',
+			'SoundClass': 'idSoundArrayGetLastExp'
 		},
 
 		'AnyArrayInsertStat' : {

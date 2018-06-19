@@ -55,6 +55,7 @@ public class Connector extends SyntaxSymbol {
 	private ImitationID imitID;	//!< イミテーション生成時のID
 	private ImitationConnectionPos imitCnctPoint;	//!< イミテーション生成時のタグ
 	private final String scriptNameOnReplaceabilityChecked;	//!< ノードを入れ替え可能かどうかチェックするスクリプトの名前
+	private final String claz;	//!< コネクタに付けられたクラス
 	transient protected Bindings scriptScope;
 
 	/**
@@ -71,6 +72,7 @@ public class Connector extends SyntaxSymbol {
 	 * @param id コネクタID (\<Connector\> タグの bhID)
 	 * @param defaultNodeID ノードが取り外されたときに変わりに繋がるノードのID
 	 * @param initialNodeID 最初に接続されているノードのID
+	 * @param claz コネクタに付けられたクラス
 	 * @param fixed このコネクタにつながるノードの入れ替えや取り外しができない場合true
 	 * @param scriptNameOnReplaceabilityChecked ノードを入れ替え可能かどうかチェックするスクリプトの名前
 	 * */
@@ -78,6 +80,7 @@ public class Connector extends SyntaxSymbol {
 		ConnectorID id,
 		BhNodeID defaultNodeID,
 		BhNodeID initialNodeID,
+		String claz,
 		boolean fixed,
 		String scriptNameOnReplaceabilityChecked) {
 		super("");
@@ -86,6 +89,7 @@ public class Connector extends SyntaxSymbol {
 		this.defaultNodeID = defaultNodeID;
 		this.initNodeID = initialNodeID;	// BhNodeID.NONE でも initNodeID = defaultNodeID としないこと
 		this.fixed = fixed;
+		this.claz = claz;
 	}
 
 	/**
@@ -113,6 +117,7 @@ public class Connector extends SyntaxSymbol {
 		this.imitID = imitID;
 		this.imitCnctPoint = imitCnctPoint;
 		this.parent = parent;
+		this.claz = org.claz;
 	}
 
 	/**
@@ -247,6 +252,13 @@ public class Connector extends SyntaxSymbol {
 
 	public ConnectorID getID() {
 		return id;
+	}
+
+	/**
+	 * コネクタクラスを取得する
+	 * */
+	public String getClaz() {
+		return claz;
 	}
 
 	/**

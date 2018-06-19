@@ -3,4 +3,5 @@
 <Connector 
 	bhConnectorID="idNumExpCnctr"
 	defaultBhNodeID="idNumLiteral"
+	class="NumClass"
 	onReplaceabilityChecked="NumExpCnct.js"/>

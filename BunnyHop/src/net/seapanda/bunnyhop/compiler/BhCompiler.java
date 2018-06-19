@@ -32,7 +32,6 @@ import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.modelprocessor.SyntaxSymbolIDCreator;
 
 /**
  * BhNode をコンパイルするクラス.
@@ -110,10 +109,6 @@ public class BhCompiler {
 
 		if (!isExecutable(execNode))
 			return Optional.empty();
-
-		SyntaxSymbolIDCreator idCreator = new SyntaxSymbolIDCreator();
-		execNode.accept(idCreator);
-		compiledNodeList.forEach(compiledNode -> compiledNode.accept(idCreator));
 
 		StringBuilder code = new StringBuilder();
 		genCode(code, execNode, compiledNodeList, option);

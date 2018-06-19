@@ -98,6 +98,9 @@ public class ConnectorConstructor {
 			return Optional.empty();
 		}
 
-		return Optional.of(new Connector(cnctrID, defNodeID, initNodeID, fixed, scriptNameOnReplaceabilityChecked));
+		//コネクタクラス
+		String cnctrClass = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_CLASS);
+
+		return Optional.of(new Connector(cnctrID, defNodeID, initNodeID, cnctrClass, fixed, scriptNameOnReplaceabilityChecked));
 	}
 }
