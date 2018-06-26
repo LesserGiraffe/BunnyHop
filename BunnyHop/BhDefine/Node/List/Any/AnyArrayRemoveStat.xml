@@ -3,22 +3,39 @@
 	name="AnyArrayRemoveStat"
 	nodeStyleID="AnyArrayRemoveStat.json"
 	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js">
+	onMovedToChild="onStatMovedToChild.js"
+	onChildReplaced="onChildOfAnyTypeNodeReplaced.js">
 
 	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idAnyListCnctr" name="AnyArray"/>
+		<Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
 		
 		<PrivateConnector
 			bhConnectorID="idAnyArrayRemoveStat.prvCnctr0"
-			name="noMaruBanmeWoSakujoSuru"
+			name="no"
 			fixed="true">
 			<Node
 				type="label"
 				bhNodeID="idAnyArrayRemoveStat.prvNode0"
-				name="noMaruBanmeWoSakujoSuru"
+				name="no"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
-				initString="の○番目を削除する">
+				initString="の">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+		
+		<PrivateConnector
+			bhConnectorID="idAnyArrayRemoveStat.prvCnctr1"
+			name="banmeWoSakujyoSuru"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idAnyArrayRemoveStat.prvNode1"
+				name="banmeWoSakujyoSuru"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="番目を削除する">
 			</Node>
 		</PrivateConnector>
 

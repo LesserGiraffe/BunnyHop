@@ -2,6 +2,6 @@
 
 <Connector 
 	bhConnectorID="idBoolExpCnctr"
-	defaultBhNodeID="idBoolLiteral"
+	defaultBhNodeID="idBoolLiteralExp"
 	class="BoolClass"
 	onReplaceabilityChecked="BoolExpCnct.js"/>

@@ -16,7 +16,7 @@
 				type="label"
 				bhNodeID="idColorAssignStat.prvNode0"
 				name="ni"
-				nodeStyleID="WordLabel1.json"
+				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
 				initString="に">
 			</Node>
@@ -32,7 +32,7 @@
 				type="label"
 				bhNodeID="idColorAssignStat.prvNode1"
 				name="woDainyuSuru"
-				nodeStyleID="WordLabel1.json"
+				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
 				initString="を代入する">
 			</Node>

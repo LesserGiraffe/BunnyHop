@@ -15,7 +15,7 @@
 	"数値" : {
 		"cssClass":"numOpe",
 		"contents":[
-			"idNumLiteral", 
+			"idNumLiteralExp", 
 			"idFourArithExp",
 			"idModExp",
 			"idStrToNumExp",
@@ -30,7 +30,7 @@
 	"文字列": {
 		"cssClass":"strOpe",
 		"contents":[
-			"idStrLiteral", 
+			"idStrLiteralExp", 
 			"idLineFeed", 
 			"idPrintStat", 
 			"idScanExp", 
@@ -42,7 +42,7 @@
 	"論理": {
 		"cssClass":"boolOpe",
 		"contents":[
-			"idBoolLiteral", 
+			"idBoolLiteralExp", 
 			"idBinaryBoolExp", 
 			"idNotExp",
 			"idNumCompExp",
@@ -54,7 +54,7 @@
 	"色": {
 		"cssClass":"colorOpe",
 		"contents":[
-			"idColorLiteral",
+			"idColorLiteralExp",
 			"idBinaryColorExp",
 			"idDetectColorExp",
 			"idLightEyeStat"

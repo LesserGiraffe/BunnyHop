@@ -3,8 +3,7 @@
 	bhNodeID="idSoundVar"
 	name="SoundVar"
 	nodeStyleID="SoundVar.json"
-	imitScopeName="VarScopeSctn"
-	onMovedToChild="onVarMovedToChild.js">
+	imitScopeName="VarScopeSctn">
 
 	<ConnectorSection name="SoundExpSctn">
 		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>

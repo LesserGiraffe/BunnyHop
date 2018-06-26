@@ -1,6 +1,6 @@
 {
-	"paddingTop" : 1.0,
-	"paddingBottom" : 1.0,
+	"paddingTop" : 1.5,
+	"paddingBottom" : 0.65,
 	"paddingLeft" : 5.5,
 	"paddingRight" : 1.5,
 	"connectorPos" : "Top",
@@ -15,7 +15,8 @@
 		"inner" : {
 			"arrangement" : "Row",
 			"space" : 2.0,
-			"connectorList" : ["LeftVar", "niAtaiWoDainyuSuru"],
+			"connectorList" : ["LeftVar", "ni", "RightExp", "woDainyuSuru"],
+			
 		},
 		"outer" : {
 			"connectorList" : ["NextStat"]

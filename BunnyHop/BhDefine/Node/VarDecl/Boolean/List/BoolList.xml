@@ -3,9 +3,7 @@
 	bhNodeID="idBoolList"
 	name="BoolList"
 	nodeStyleID="BoolList.json"
-	imitScopeName="VarScopeSctn"
-	onMovedFromChildToWS=""
-	onMovedToChild="onVarMovedToChild.js">
+	imitScopeName="VarScopeSctn">
 
 	<ConnectorSection name="BooleanListSctn">
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>

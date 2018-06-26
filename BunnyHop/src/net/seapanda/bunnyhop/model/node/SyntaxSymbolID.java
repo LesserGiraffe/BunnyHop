@@ -16,14 +16,13 @@
 
 package net.seapanda.bunnyhop.model.node;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * SyntaxSymbolのID
  * @author K.Koike
  * */
-public class SyntaxSymbolID implements Serializable {
+public class SyntaxSymbolID {
 
 	static private long sequentialID = 0;
 	private final String id;

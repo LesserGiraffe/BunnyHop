@@ -4,10 +4,11 @@
 	name="AnyArrayClearStat"
 	nodeStyleID="AnyArrayClearStat.json"
 	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js">
+	onMovedToChild="onStatMovedToChild.js"
+	onChildReplaced="onChildOfAnyTypeNodeReplaced.js">
 
 	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idAnyListCnctr" name="AnyArray"/>
+		<Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
 		
 		<PrivateConnector
 			bhConnectorID="idAnyArrayClearStat.prvCnctr0"

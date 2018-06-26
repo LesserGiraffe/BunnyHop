@@ -15,8 +15,12 @@
  */
 package net.seapanda.bunnyhop.model.node;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.seapanda.bunnyhop.common.Showable;
@@ -29,7 +33,7 @@ import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 public abstract class SyntaxSymbol implements Showable, Serializable {
 
 	private String symbolName;	//!< 終端, 非終端記号名
-	private final SyntaxSymbolID symbolID = SyntaxSymbolID.newID();	//!< コンパイル対象のSyntaxSymbolオブジェクトが持つユニークなID
+	private transient SyntaxSymbolID symbolID = SyntaxSymbolID.newID();	//!< コンパイル対象のSyntaxSymbolオブジェクトが持つユニークなID
 
 	/**
 	 * 引数で指定したシンボル名を持つSyntaxSymbolをgeneration(もしくはそれ以下)の世代のSyntaxSymbolから探す.<br>
@@ -107,6 +111,36 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
 	}
 
 	/**
+	 * 引数で指定したシンボルのこのシンボルに対する相対パスを取得する. <br>
+	 * 例1) A -> B -> C のとき, A.getRelativeSymbolNamePath(C) なら return [B, C] <br>
+	 * 例2) A -> B -> C のとき, C.getRelativeSymbolNamePath(A) なら return [B, A]
+	 * @param syntaxSymbol このシンボルに対する相対パスを取得するシンボル
+	 * @return 相対パス. 先祖 or 子孫でないノードを引数に指定した場合null
+	 * */
+	public String[] getRelativeSymbolNamePath(SyntaxSymbol syntaxSymbol) {
+
+		Deque<String> path = new LinkedList<>();
+		if (syntaxSymbol.isDescendantOf(this)) {
+			path.addFirst(syntaxSymbol.getSymbolName());
+			SyntaxSymbol parent = syntaxSymbol;
+			while ((parent = parent.findSymbolInAncestors("*", 1, false)) != this) {
+				path.addFirst(parent.getSymbolName());
+			}
+			return path.toArray(new String[path.size()]);
+		}
+		else if (this.isDescendantOf(syntaxSymbol)) {
+			SyntaxSymbol parent = this;
+			while ((parent = parent.findSymbolInAncestors("*", 1, false)) != syntaxSymbol) {
+				path.addLast(parent.getSymbolName());
+			}
+			path.addLast(syntaxSymbol.getSymbolName());
+			return path.toArray(new String[path.size()]);
+		}
+		return null;
+	}
+
+
+	/**
 	 * このSyntaxSymbolが引数で指定したSyntaxSymbol の子孫ノードであった場合trueを返す
 	 * @param ancestor このSyntaxSymbolが ancestor の子孫ノードであった場合 true
 	 * @return このSyntaxSymbolがancestor 以下のノードであった場合true
@@ -150,6 +184,15 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
 	 * @param visitor 走査対象を渡すvisitor
 	 * */
 	public abstract void accept(BhModelProcessor visitor);
+
+
+	/**
+	 * 独自デシリアライズ処理
+	 * */
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		symbolID = SyntaxSymbolID.newID();
+	}
 }
 
 

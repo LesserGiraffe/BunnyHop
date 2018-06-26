@@ -2,6 +2,6 @@
 
 <Connector 
 	bhConnectorID="idColorExpCnctr"
-	defaultBhNodeID="idColorLiteral"
+	defaultBhNodeID="idColorLiteralExp"
 	class="ColorClass"
 	onReplaceabilityChecked="ColorExpCnct.js"/>

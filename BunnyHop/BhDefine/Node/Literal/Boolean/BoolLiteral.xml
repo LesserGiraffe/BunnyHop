@@ -1,11 +1,25 @@
 <?xml version="1.0" ?>
 
 <Node
-	type="comboBox"
-	bhNodeID="idBoolLiteral"
-	name="BoolLiteral"
-	nodeStyleID="BoolLiteral.json"
-	nodeInputControl="BoolLiteral.fxml"
+	type="connective"
+	bhNodeID="idBoolLiteralExp"
+	name="BoolLiteralExp"
+	nodeStyleID="BoolLiteralExp.json"
 	onMovedFromChildToWS="onLiteralMovedToWS.js">
-</Node>
 
+	<ConnectorSection name="BooleanExpSctn">
+
+		<PrivateConnector
+			bhConnectorID="idBoolLiteralExp.prvCnctr0"
+			name="Literal"
+			fixed="true">
+			<Node
+				type="comboBox"
+				bhNodeID="idBoolLiteralExp.prvNode0"
+				name="BoolLiteral"
+				nodeStyleID="BoolLiteral.json"
+				nodeInputControl="BoolLiteral.fxml">
+			</Node>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>

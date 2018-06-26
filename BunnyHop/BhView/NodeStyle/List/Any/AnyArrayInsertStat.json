@@ -15,7 +15,7 @@
 		"inner" : {
 			"arrangement" : "Row",
 			"space" : 2.0,
-			"connectorList" : ["AnyArray", "noMaruBanmeNiAtaiWoSonyuSuru"]
+			"connectorList" : ["Arg0", "no", "Arg1", "banmeNi", "Arg2", "woSonyuSuru"]
 		},
 		"outer" : {
 			"connectorList" : ["NextStat"]

@@ -2,6 +2,6 @@
 
 <Connector 
 	bhConnectorID="idStrExpCnctr"
-	defaultBhNodeID="idStrLiteral"
+	defaultBhNodeID="idStrLiteralExp"
 	class="StrClass"
 	onReplaceabilityChecked="StrExpCnct.js"/>

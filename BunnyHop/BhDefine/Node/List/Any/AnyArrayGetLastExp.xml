@@ -3,11 +3,11 @@
 	bhNodeID="idAnyArrayGetLastExp"
 	name="AnyArrayGetLastExp"
 	nodeStyleID="AnyArrayGetLastExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="onAnyExpMovedToChild.js">
+	onMovedToChild="onAnyExpMovedToChild.js"
+	onChildReplaced="onChildOfAnyTypeNodeReplaced.js">
 
 	<ConnectorSection name="AnyExpSctn">
-		<Connector bhConnectorID="idAnyListCnctr" name="AnyArray"/>
+		<Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
 		
 		<PrivateConnector
 			bhConnectorID="idAnyArrayGetLastExp.prvCnctr0"
@@ -22,5 +22,6 @@
 				initString="の最後の要素">
 			</Node>
 		</PrivateConnector>
+
 	</ConnectorSection>
 </Node>

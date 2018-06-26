@@ -43,15 +43,31 @@
 			initialBhNodeID=""
 			class="StrClass"
 			onReplaceabilityChecked="StrExpCnct.js">
+
 			<Node
-				type="textField"
+				type="connective"
 				bhNodeID="idScanExp.prvNode2"
-				name="StrLiteral"
-				nodeStyleID="StrLiteral.json"
-				nodeInputControl="TextField.fxml"
-				onTextInput="ParseStr.js"
-				onMovedFromChildToWS="onLiteralMovedToWS.js"
-				initString="入力待ちです">
+				name="StrLiteralExp"
+				nodeStyleID="StrLiteralExp.json"
+				onMovedFromChildToWS="onLiteralMovedToWS.js">
+
+				<ConnectorSection name="StringExpSctn">
+
+					<PrivateConnector
+						bhConnectorID="idScanExp.prvNode2.prvCnctr0"
+						name="Literal"
+						fixed="true">
+						<Node
+							type="textField"
+							bhNodeID="idScanExp.prvNode2.prvNode0"
+							name="StrLiteral"
+							nodeStyleID="StrLiteral.json"
+							nodeInputControl="TextField.fxml"
+							onTextInput="ParseStr.js"
+							initString="入力待ちです">
+						</Node>
+					</PrivateConnector>
+				</ConnectorSection>
 			</Node>
 		</PrivateConnector>
 		

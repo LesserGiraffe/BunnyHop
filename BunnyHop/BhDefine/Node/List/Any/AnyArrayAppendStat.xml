@@ -4,14 +4,15 @@
 	name="AnyArrayAppendStat"
 	nodeStyleID="AnyArrayAppendStat.json"
 	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js">
+	onMovedToChild="onStatMovedToChild.js"
+	onChildReplaced="onChildOfAnyTypeNodeReplaced.js">
 
 	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idAnyListCnctr" name="AnyArray"/>
+		<Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
 
 		<PrivateConnector
 			bhConnectorID="idAnyArrayAppendStat.prvCnctr0"
-			name="niListNoYosoWoSubeteTsuikaSuru"
+			name="ni"
 			fixed="true">
 			<Node
 				type="label"
@@ -19,10 +20,26 @@
 				name="ni"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
-				initString="にリストの要素を全て追加する">
+				initString="に">
 			</Node>
 		</PrivateConnector>
 
+		<Connector bhConnectorID="idAnyListCnctr" name="Arg1"/>
+		
+		<PrivateConnector
+			bhConnectorID="idAnyArrayAppendStat.prvCnctr1"
+			name="noYosoWoSubeteTsuikaSuru"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idAnyArrayAppendStat.prvNode1"
+				name="noYosoWoSubeteTsuikaSuru"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="の要素を全て追加する">
+			</Node>
+		</PrivateConnector>
+		
 		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
 	</ConnectorSection>
 </Node>

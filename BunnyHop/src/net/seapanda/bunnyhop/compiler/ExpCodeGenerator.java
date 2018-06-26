@@ -68,6 +68,9 @@ public class ExpCodeGenerator {
 		else if (SymbolNames.Literal.LIST.contains(expSymbolName)) {
 			return genLiteral(code, expNode, nestLevel, option);
 		}
+		else if (SymbolNames.Literal.LITERAL_EXP_LIST.contains(expSymbolName)) {
+			return genExpression(code, expNode.findSymbolInDescendants("*", "Literal", "*"), nestLevel, option);
+		}
 		else if (SymbolNames.PreDefFunc.PREDEF_FUNC_CALL_EXP_LIST.contains(expSymbolName)) {
 			return genPreDefFuncCallExp(code, expNode, nestLevel, option, true);
 		}
@@ -195,9 +198,6 @@ public class ExpCodeGenerator {
 
 			case SymbolNames.Literal.STR_LITERAL:
 				return "('" + inputText.replaceAll("\\\\", "\\\\\\\\").replaceAll("'", "\\\\'") + "')";
-
-			case SymbolNames.Literal.LINE_FEED:
-				return "('\\n')";
 
 			case SymbolNames.Literal.BOOL_LITERAL:
 				return "(" + inputText + ")";

@@ -34,7 +34,7 @@
 		countVarName.setText('カウンター');
 
 		//カウンタ更新幅変更
-		let updateDiff = updateAssignStatNode.findSymbolInDescendants(['*', 'RightExp', '*']);
+		let updateDiff = updateAssignStatNode.findSymbolInDescendants(['*', 'RightExp', '*', '*', 'Literal', '*']);
 		updateDiff.setText('1');
 
 		registerNodeTemplate(nodeID, compoundNode);
@@ -43,8 +43,8 @@
 	//移動ノードの初期速度を変更して再登録
 	function setInitialMoveSpeed() {
 		let newMoveStat = genBhNode('idMoveStat', bhUserOpeCmd);
-		let moveSpeed = newMoveStat.findSymbolInDescendants('*', 'Arg0', '*');
-		let moveTime = newMoveStat.findSymbolInDescendants('*', 'Arg1', '*');
+		let moveSpeed = newMoveStat.findSymbolInDescendants('*', 'Arg0', '*', '*', 'Literal', '*');
+		let moveTime = newMoveStat.findSymbolInDescendants('*', 'Arg1', '*', '*', 'Literal', '*');
 		moveSpeed.setText('2');
 		moveTime.setText('1');
 		registerNodeTemplate('idMoveStat', newMoveStat);
@@ -54,14 +54,14 @@
 	function setInitialSoundParams() {
 
 		let newFreqSoundLiteral = genBhNode('idFreqSoundLiteral', bhUserOpeCmd);
-		let duration = newFreqSoundLiteral.findSymbolInDescendants('*', 'Duration', '*');
-		let freq = newFreqSoundLiteral.findSymbolInDescendants('*', 'Frequency', '*');
+		let duration = newFreqSoundLiteral.findSymbolInDescendants('*', 'Duration', '*', '*', 'Literal', '*');
+		let freq = newFreqSoundLiteral.findSymbolInDescendants('*', 'Frequency', '*', '*', 'Literal', '*');
 		duration.setText('1');
 		freq.setText('500');
 		registerNodeTemplate('idFreqSoundLiteral', newFreqSoundLiteral);
 
 		let newScaleSoundLiteral = genBhNode('idScaleSoundLiteral', bhUserOpeCmd);
-		duration = newScaleSoundLiteral.findSymbolInDescendants('*', 'Duration', '*');
+		duration = newScaleSoundLiteral.findSymbolInDescendants('*', 'Duration', '*', '*', 'Literal', '*');
 		duration.setText('1');
 		registerNodeTemplate('idScaleSoundLiteral', newScaleSoundLiteral);
 	}
@@ -88,19 +88,10 @@
 		}
 	}
 
-	//ScanExpのプロンプト変更
-	function setScanExpPrompt() {
-		let newScanExp = genBhNode('idScanExp', bhUserOpeCmd);
-		let prompt = newScanExp.findSymbolInDescendants('*', 'Arg0', '*');
-		prompt.setText('入力待ちです');
-		registerNodeTemplate('idScanExp', newScanExp);
-	}
-
 	addRepeatAndCountNode('idRepeatAndCount');
 	setInitialMoveSpeed();
 	setVarAndListName();
 	setInitialSoundParams();
-	setScanExpPrompt();
 })();
 
 

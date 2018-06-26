@@ -5,9 +5,7 @@
 	bhNodeID="idStrVar"
 	name="StrVar"
 	nodeStyleID="StrVar.json"
-	imitScopeName="VarScopeSctn"
-	onMovedFromChildToWS=""
-	onMovedToChild="onVarMovedToChild.js">
+	imitScopeName="VarScopeSctn">
 
 	<ConnectorSection name="StringExpSctn">
 		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>

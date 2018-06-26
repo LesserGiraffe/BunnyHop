@@ -3,8 +3,7 @@
 	bhNodeID="idColorVar"
 	name="ColorVar"
 	nodeStyleID="ColorVar.json"
-	imitScopeName="VarScopeSctn"
-	onMovedToChild="onVarMovedToChild.js">
+	imitScopeName="VarScopeSctn">
 
 	<ConnectorSection name="ColorExpSctn">
 		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>

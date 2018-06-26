@@ -1,13 +1,29 @@
 <?xml version="1.0" ?>
 
 <Node
-	type="textField"
-	bhNodeID="idNumLiteral"
-	name="NumLiteral"
-	nodeStyleID="NumLiteral.json"
-	nodeInputControl="TextField.fxml"
-	onTextInput="ParseNum.js"
-	onMovedFromChildToWS="onLiteralMovedToWS.js"
-    initString="0">
+	type="connective"
+	bhNodeID="idNumLiteralExp"
+	name="NumLiteralExp"
+	nodeStyleID="NumLiteralExp.json"
+	onMovedFromChildToWS="onLiteralMovedToWS.js">
+
+	<ConnectorSection name="NumberExpSctn">
+
+		<PrivateConnector
+			bhConnectorID="idNumLiteralExp.prvCnctr0"
+			name="Literal"
+			fixed="true">
+			<Node
+				type="textField"
+				bhNodeID="idNumLiteral"
+				name="NumLiteral"
+				nodeStyleID="NumLiteral.json"
+				nodeInputControl="TextField.fxml"
+				onTextInput="ParseNum.js"
+				onMovedFromChildToWS="onLiteralMovedToWS.js"
+			    initString="0">
+			</Node>
+		</PrivateConnector>
+	</ConnectorSection>
 </Node>
 

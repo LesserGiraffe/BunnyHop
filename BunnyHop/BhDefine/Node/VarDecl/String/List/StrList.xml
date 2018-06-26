@@ -3,9 +3,7 @@
 	bhNodeID="idStrList"
 	name="StrList"
 	nodeStyleID="StrList.json"
-	imitScopeName="VarScopeSctn"
-	onMovedFromChildToWS=""
-	onMovedToChild="onVarMovedToChild.js">
+	imitScopeName="VarScopeSctn">
 
 	<ConnectorSection name="StringListSctn">
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>

@@ -3,12 +3,13 @@
 	name="AnyArrayPopStat"
 	nodeStyleID="AnyArrayPopStat.json"
 	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js">
+	onMovedToChild="onStatMovedToChild.js"
+	onChildReplaced="onChildOfAnyTypeNodeReplaced.js">
 
 	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idAnyListCnctr" name="AnyArray"/>
+		<Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
 		
-		<PrivateConnector 
+		<PrivateConnector
 			bhConnectorID="idAnyArrayPopStat.prvCnctr0"
 			name="noMatsubiNoYosoWoKesu"
 			fixed="true">

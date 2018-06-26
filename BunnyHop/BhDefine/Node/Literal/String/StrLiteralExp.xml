@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+
+<Node
+	type="connective"
+	bhNodeID="idStrLiteralExp"
+	name="StrLiteralExp"
+	nodeStyleID="StrLiteralExp.json"
+	onMovedFromChildToWS="onLiteralMovedToWS.js">
+
+	<ConnectorSection name="StringExpSctn">
+
+		<PrivateConnector
+			bhConnectorID="idStrLiteralExp.prvCnctr0"
+			name="Literal"
+			fixed="true">
+			<Node
+				type="textField"
+				bhNodeID="idStrLiteralExp.prvNode0"
+				name="StrLiteral"
+				nodeStyleID="StrLiteral.json"
+				nodeInputControl="TextField.fxml"
+				onTextInput="ParseStr.js"
+				initString="テキスト">
+			</Node>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>

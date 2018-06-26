@@ -518,10 +518,15 @@ public class SymbolNames {
 		public static final String COLOR_EMPTY_LIST = VarDecl.COLOR_EMPTY_LIST;
 		public static final String SOUND_EMPTY_LIST = VarDecl.SOUND_EMPTY_LIST;
 		public static final String ANY_ENPTY_LIST = "AnyEmptyList";
+
+		public static final String STR_LITERAL_EXP = "StrLiteralExp";
+		public static final String NUM_LITERAL_EXP = "NumLiteralExp";
+		public static final String BOOL_LITERAL_EXP = "BoolLiteralExp";
+		public static final String COLOR_LITERAL_EXP = "ColorLiteralExp";
+
 		public static final HashSet<String> LIST =
 			new HashSet<>(Arrays.asList(
 				STR_LITERAL,
-				LINE_FEED,
 				NUM_LITERAL,
 				BOOL_LITERAL,
 				FREQ_SOUND_LITERAL,
@@ -535,6 +540,15 @@ public class SymbolNames {
 				SOUND_EMPTY_LIST,
 				ANY_ENPTY_LIST,
 				MELODY_EXP_VOID));
+
+		public static final HashSet<String> LITERAL_EXP_LIST =
+				new HashSet<>(Arrays.asList(
+					STR_LITERAL_EXP,
+					LINE_FEED,
+					NUM_LITERAL_EXP,
+					BOOL_LITERAL_EXP,
+					COLOR_LITERAL_EXP));
+
 		public static final HashSet<String> ARRAY_TYPES =
 			new HashSet<>(Arrays.asList(
 				STR_EMPTY_LIST,
@@ -623,10 +637,12 @@ public class SymbolNames {
 		public static final String NIL_COLOR = "NilColor";
 		public static final String NIL_SOUND = "NilSound";
 		public static final String ANY_EXP_VOID = "AnyExpVoid";
+		public static final String LINE_FEED_STR = "LineFeedStr";
 		public static final HashSet<String> LIST =
 				new HashSet<>(Arrays.asList(
 					NIL_COLOR,
 					NIL_SOUND,
-					ANY_EXP_VOID));
+					ANY_EXP_VOID,
+					LINE_FEED_STR));
 	}
 }

@@ -3,9 +3,7 @@
 	bhNodeID="idColorList"
 	name="ColorList"
 	nodeStyleID="ColorList.json"
-	imitScopeName="VarScopeSctn"
-	onMovedFromChildToWS=""
-	onMovedToChild="onVarMovedToChild.js">
+	imitScopeName="VarScopeSctn">
 
 	<ConnectorSection name="ColorListSctn">
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
