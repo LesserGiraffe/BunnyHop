@@ -159,7 +159,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 				return;
 
 			default:
-				throw new AssertionError("invalid text node type " + node.type);
+				throw new AssertionError(NodeMVCBuilder.class.getSimpleName() + " invalid text node type " + node.type);
 		}
 		if (topNodeView == null)
 			topNodeView = nodeView;

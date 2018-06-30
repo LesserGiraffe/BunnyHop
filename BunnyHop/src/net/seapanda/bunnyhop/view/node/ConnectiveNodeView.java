@@ -130,7 +130,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 			Point2D innerSize = innerGroup.getSize();
 			viewStyle.width = innerSize.x;
 			viewStyle.height = innerSize.y;
-			getAppearanceManager().updatePolygonShape(viewStyle.drawBody);
+			getAppearanceManager().updatePolygonShape();
 		}
 		else {
 			Point2D childSize = child.getSize();
@@ -141,21 +141,21 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 			else if (child == innerGroup){
 				viewStyle.width = childSize.x;
 				viewStyle.height = childSize.y;
-				getAppearanceManager().updatePolygonShape(viewStyle.drawBody);
+				getAppearanceManager().updatePolygonShape();
 			}
 		}
 
 		updateChildRelativePos();
 
 		Point2D sizeAfter = getRegionManager().getBodyAndOuterSize(true);
-		if (parent == null ||
+		if (parent.get() == null ||
 			(sizeBefore.equals(sizeAfter) && child != null)) {
 			Point2D pos = getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
 			getPositionManager().updateAbsPos(pos.x, pos.y);
 			return;
 		}
 
-		parent.updateStyle();
+		parent.get().updateStyle();
 	}
 
 	/**

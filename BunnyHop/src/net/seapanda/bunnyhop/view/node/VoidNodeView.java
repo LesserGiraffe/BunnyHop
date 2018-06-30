@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.view.node;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.VoidNode;
+import net.seapanda.bunnyhop.view.bodyshape.BodyShape.BODY_SHAPE;
 
 /**
  * VoidNode に対応するビュー
@@ -42,10 +43,26 @@ public class VoidNodeView extends BhNodeView {
 	 * 初期化する
 	 */
 	public void init() {
+
 		initialize();
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_VOID_NODE);
 		setFuncs(this::updateStyleFunc, null);
 		setMouseTransparent(true);
+
+		parent.addListener((obs, oldVal, newVal) -> {
+
+			boolean inner = (newVal == null) ? true : newVal.inner;
+			//ボディサイズ決定
+			if (!inner) {
+				viewStyle.paddingTop = 0.0;
+				viewStyle.height = 0.0;
+				viewStyle.paddingBottom = 0.0;
+				viewStyle.paddingLeft = 0.0;
+				viewStyle.width = 0.0;
+				viewStyle.paddingRight = 0.0;
+				getAppearanceManager().setBodyShape(BODY_SHAPE.BODY_SHAPE_NONE);
+			}
+		});
 	}
 
 	/**
@@ -62,21 +79,9 @@ public class VoidNodeView extends BhNodeView {
 	 * */
 	private void updateStyleFunc(BhNodeViewGroup child) {
 
-		boolean inner = (parent == null) ? true : parent.inner;
-		//ボディサイズ決定
-		if (!inner) {
-			viewStyle.paddingTop = 0.0;
-			viewStyle.height = 0.0;
-			viewStyle.paddingBottom = 0.0;
-			viewStyle.paddingLeft = 0.0;
-			viewStyle.width = 0.0;
-			viewStyle.paddingRight = 0.0;
-		}
-
-		boolean drawBody = inner && viewStyle.drawBody;
-		getAppearanceManager().updatePolygonShape(drawBody);
-		if (parent != null)
-			parent.updateStyle();
+		getAppearanceManager().updatePolygonShape();
+		if (parent.get()!= null)
+			parent.get().updateStyle();
 	}
 
 	/**

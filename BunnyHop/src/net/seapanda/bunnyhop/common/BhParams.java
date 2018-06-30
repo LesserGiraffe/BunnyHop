@@ -168,8 +168,10 @@ public class BhParams {
 		public static final String KEY_CONNECTOR_WIDTH = "connectorWidth";
 		public static final String KEY_CONNECTOR_HEIGHT = "connectorHeight";
 		public static final String KEY_CONNECTOR_SHAPE = "connectorShape";
+		public static final String KEY_NOTCH_SHAPE = "notchShape";
+		public static final String KEY_NOTCH_HEIGHT = "notchHeight";
+		public static final String KEY_NOTCH_WIDTH = "notchWidth";
 		public static final String KEY_CONNECTOR_BOUNDS_RATE = "connectorBoundsRate";
-		public static final String KEY_DRAW_BODY = "drawBody";
 		public static final String KEY_CSS_CLASS = "cssClass";
 		public static final String KEY_CONNECTIVE = "connective";
 		public static final String KEY_IMITATION = "imitation";
@@ -183,7 +185,9 @@ public class BhParams {
 		public static final String KEY_BACK_GROUND_COLOR = "backGroundColor";
 		public static final String KEY_FONT_SIZE = "fontSize";
 		public static final String KEY_FONT_FAMILY = "fontFamily";
+		public static final String KEY_BODY_SHAPE = "bodyShape";
 		public static final String KEY_CONNECTOR_POS = "connectorPos";
+		public static final String KEY_NOTCH_POS = "notchPos";
 		public static final String KEY_CONNECTOR_SHIFT = "connectorShift";
 		public static final String KEY_INNER = "inner";
 		public static final String KEY_OUTER = "outer";
@@ -208,10 +212,14 @@ public class BhParams {
 		public static final String VAL_STAR = "STAR";
 		public static final String VAL_TRAPEZOID = "TRAPEZOID";
 		public static final String VAL_TRIANGLE = "TRIANGLE";
+		public static final String VAL_ROUND_RECT = "ROUND_RECT";
 		public static final String VAL_ROW = "Row";
 		public static final String VAL_COLUMN = "Column";
 		public static final String VAL_LEFT = "Left";
+		public static final String VAL_RIGHT = "Right";
 		public static final String VAL_TOP = "Top";
+		public static final String VAL_BOTTOM = "Bottom";
+		public static final String VAL_RIGHT_TRIANGULAR_NOTCH = "RIGHT_TRIANGULAR_NOTCH";
 	}
 
 	public static class NodeTemplateList {

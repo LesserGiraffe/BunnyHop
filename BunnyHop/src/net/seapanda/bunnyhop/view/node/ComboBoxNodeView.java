@@ -164,9 +164,9 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 		viewStyle.width = comboBox.getWidth();
 		viewStyle.height = comboBox.getHeight();
 
-		getAppearanceManager().updatePolygonShape(viewStyle.drawBody);
-		if (parent != null) {
-			parent.updateStyle();
+		getAppearanceManager().updatePolygonShape();
+		if (parent.get() != null) {
+			parent.get().updateStyle();
 		}
 		else {
 			Point2D pos = getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算

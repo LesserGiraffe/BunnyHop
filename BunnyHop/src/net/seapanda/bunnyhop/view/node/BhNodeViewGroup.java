@@ -26,7 +26,6 @@ import javafx.scene.Group;
 import net.seapanda.bunnyhop.common.Point2D;
 import net.seapanda.bunnyhop.common.Showable;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 
 /**

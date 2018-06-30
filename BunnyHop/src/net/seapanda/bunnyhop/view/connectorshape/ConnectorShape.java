@@ -15,10 +15,11 @@
  */
 package net.seapanda.bunnyhop.view.connectorshape;
 
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
 
 /**
@@ -26,6 +27,27 @@ import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
  * @author K.Koike
  */
 public abstract class ConnectorShape {
+
+	private static final Map<String, CNCTR_SHAPE> shapeNameToConnectorShape =
+		new HashMap<String, CNCTR_SHAPE>() {{
+			put(BhParams.NodeStyleDef.VAL_ARROW, CNCTR_SHAPE.CNCTR_SHAPE_ARROW);
+			put(BhParams.NodeStyleDef.VAL_CHAR_T, CNCTR_SHAPE.CNCTR_SHAPE_CHAR_T);
+			put(BhParams.NodeStyleDef.VAL_CHAR_U, CNCTR_SHAPE.CNCTR_SHAPE_CHAR_U);
+			put(BhParams.NodeStyleDef.VAL_CHAR_V, CNCTR_SHAPE.CNCTR_SHAPE_CHAR_V);
+			put(BhParams.NodeStyleDef.VAL_CROSS, CNCTR_SHAPE.CNCTR_SHAPE_CROSS);
+			put(BhParams.NodeStyleDef.VAL_DIAMOND, CNCTR_SHAPE.CNCTR_SHAPE_DIAMOND);
+			put(BhParams.NodeStyleDef.VAL_HEXAGON, CNCTR_SHAPE.CNCTR_SHAPE_HEXAGON);
+			put(BhParams.NodeStyleDef.VAL_INV_PENTAGON, CNCTR_SHAPE.CNCTR_SHAPE_INV_PENTAGON);
+			put(BhParams.NodeStyleDef.VAL_INV_TRAPEZOID, CNCTR_SHAPE.CNCTR_SHAPE_INV_TRAPEZOID);
+			put(BhParams.NodeStyleDef.VAL_INV_TRIANGLE, CNCTR_SHAPE.CNCTR_SHAPE_INV_TRIANGLE);
+			put(BhParams.NodeStyleDef.VAL_NONE, CNCTR_SHAPE.CNCTR_SHAPE_NONE);
+			put(BhParams.NodeStyleDef.VAL_OCTAGON, CNCTR_SHAPE.CNCTR_SHAPE_OCTAGON);
+			put(BhParams.NodeStyleDef.VAL_PENTAGON, CNCTR_SHAPE.CNCTR_SHAPE_PENTAGON);
+			put(BhParams.NodeStyleDef.VAL_SQARE, CNCTR_SHAPE.CNCTR_SHAPE_SQUARE);
+			put(BhParams.NodeStyleDef.VAL_TRAPEZOID, CNCTR_SHAPE.CNCTR_SHAPE_TRAPEZOID);
+			put(BhParams.NodeStyleDef.VAL_TRIANGLE, CNCTR_SHAPE.CNCTR_SHAPE_TRIANGLE);
+			put(BhParams.NodeStyleDef.VAL_STAR, CNCTR_SHAPE.CNCTR_SHAPE_STAR);
+		}};
 
 	/** コネクタの頂点を算出する
 	 * @param offsetX 頂点に加算するオフセットX
@@ -35,10 +57,10 @@ public abstract class ConnectorShape {
 	 * @param pos     コネクタの位置 (Top or Left)
 	 * @return コネクタを形成する点群
 	 * */
-	public abstract Collection<Double> createVertices(double offsetX, double offsetY, double width, double height, CNCTR_POS pos);
+	public abstract List<Double> createVertices(double offsetX, double offsetY, double width, double height, CNCTR_POS pos);
 
 	/**
-	 * CNCTR_SHAPE に対応する ConnecrtorShape を取得する
+	 * type に対応する ConnecrtorShape を取得する
 	 * @param type コネクタの形を表す列挙子
 	 * @return ConnecrtorShape オブジェクト
 	 * */
@@ -62,7 +84,7 @@ public abstract class ConnectorShape {
 			case CNCTR_SHAPE_STAR : return new ConnectorStar();
 			case CNCTR_SHAPE_TRAPEZOID : return new ConnectorTrapezoid();
 			case CNCTR_SHAPE_TRIANGLE : return new ConnectorTriangle();
-			default : return new ConnectorNone();
+			default : throw new AssertionError(ConnectorShape.class.getSimpleName() + "  invalid connector shape " + type.toString());
 		}
 	}
 
@@ -87,69 +109,17 @@ public abstract class ConnectorShape {
 	}
 
 	/**
-	 * コネクタの形を表す文字列から 対応する CNCTR_SHAPE を返す
-	 * @param shapeStr コネクタの形を表す文字列
-	 * @param fileName コネクタの形が記述してあるjsonファイルの名前
+	 * コネクタ名から対応する CNCTR_SHAPE を返す
+	 * @param cnctrShapeName コネクタの形を表す文字列
+	 * @param fileName コネクタの形が記述してあるjsonファイルの名前 (null可)
 	 * @return shapeStrに対応する CNCTR_SHAPE 列挙子 (オプション)
 	 * */
-	public static CNCTR_SHAPE stringToCNCTR_SHAPE(String shapeStr, String fileName) {
+	public static CNCTR_SHAPE getConnectorTypeFromName(String cnctrShapeName, String fileName) {
 
-		CNCTR_SHAPE type = null;
-		if (shapeStr.equals(BhParams.NodeStyleDef.VAL_ARROW)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_ARROW;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_CHAR_T)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_CHAR_T;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_CHAR_U)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_CHAR_U;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_CHAR_V)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_CHAR_V;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_CROSS)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_CROSS;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_DIAMOND)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_DIAMOND;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_HEXAGON)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_HEXAGON;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_INV_PENTAGON)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_INV_PENTAGON;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_INV_TRAPEZOID)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_INV_TRAPEZOID;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_INV_TRIANGLE)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_INV_TRIANGLE;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_NONE)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_NONE;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_OCTAGON)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_OCTAGON;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_PENTAGON)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_PENTAGON;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_SQARE)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_SQUARE;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_TRAPEZOID)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_TRAPEZOID;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_TRIANGLE)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_TRIANGLE;
-		}
-		else if (shapeStr.equals(BhParams.NodeStyleDef.VAL_STAR)) {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_STAR;
-		}
-		else {
-			type = CNCTR_SHAPE.CNCTR_SHAPE_NONE;
-			MsgPrinter.INSTANCE.errMsgForDebug(BhParams.NodeStyleDef.KEY_CONNECTOR_SHAPE + " " + shapeStr + " is invalid.\n" + "\"" + fileName + "\"");
-		}
+		CNCTR_SHAPE type = shapeNameToConnectorShape.get(cnctrShapeName);
+		if (type == null)
+			throw new AssertionError(ConnectorShape.class.getSimpleName()
+					+ "  invalid connector shape name " + cnctrShapeName + " (" + fileName + ")");
 
 		return type;
 	}

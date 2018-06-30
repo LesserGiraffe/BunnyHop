@@ -17,7 +17,7 @@ package net.seapanda.bunnyhop.view.connectorshape;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 
 import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
 
@@ -36,7 +36,7 @@ public class ConnectorArrow extends ConnectorShape {
 	 * @param pos     コネクタの位置 (Top or Left)
 	 * */
 	@Override
-	public Collection<Double> createVertices(double offsetX, double offsetY, double width, double height, CNCTR_POS pos) {
+	public List<Double> createVertices(double offsetX, double offsetY, double width, double height, CNCTR_POS pos) {
 
 		ArrayList<Double> vertices = null;
 		//形制御用パラメータ

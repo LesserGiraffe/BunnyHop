@@ -9,6 +9,10 @@
 	"connectorHeight" : 3.5,
 	"connectorShape" : "CHAR_V",
 	"connectorBoundsRate" : 1.25,
+	"notchPos" : "Right",
+	"notchShape" : "TRIANGLE",
+	"notchWidth" : 1.5,
+	"notchHeight" : 1.5,
 	"cssClass" : "colorVarType",
 
 	"connective" : {

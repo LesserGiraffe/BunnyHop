@@ -9,7 +9,6 @@
 	"connectorHeight" : 3.5,
 	"connectorShape" : "INV_TRIANGLE",
 	"connectorBoundsRate" : 1.25,
-	"drawBody" : true,
 	"cssClass" : "strType",
 	
 	"connective" : {

@@ -34,6 +34,8 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
+import net.seapanda.bunnyhop.view.bodyshape.BodyShape;
+import net.seapanda.bunnyhop.view.bodyshape.BodyShape.BODY_SHAPE;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape.CNCTR_SHAPE;
 
@@ -50,13 +52,17 @@ public class BhNodeViewStyle {
 	public double paddingRight = 2.5 * BhParams.NODE_SCALE; //!< ノード右部の余白
 	public double width = 0.0; //!< ノードの余白とコネクタを除いた部分の幅
 	public double height = 0.0; //!< ノードの余白とコネクタを除いた部分の高さ
+	public BODY_SHAPE bodyShape = BODY_SHAPE.BODY_SHAPE_ROUND_RECT;
 	public CNCTR_POS connectorPos = CNCTR_POS.TOP; //!< コネクタの位置
 	public double connectorShift = 0.5 * BhParams.NODE_SCALE; //!< ノードの左上からのコネクタの位置
 	public double connectorWidth = 1.5 * BhParams.NODE_SCALE; //!< コネクタ部分の幅
 	public double connectorHeight = 1.5 * BhParams.NODE_SCALE; //!< コネクタ部分の高さ
 	public ConnectorShape.CNCTR_SHAPE connectorShape = ConnectorShape.CNCTR_SHAPE.CNCTR_SHAPE_ARROW; //!< コネクタの形
+	public NOTCH_POS notchPos = NOTCH_POS.RIGHT; //!< 切り欠きの位置
+	public double notchWidth = 1.5 * BhParams.NODE_SCALE; //!< コネクタ部分の幅
+	public double notchHeight = 1.5 * BhParams.NODE_SCALE; //!< コネクタ部分の高さ
+	public ConnectorShape.CNCTR_SHAPE notchShape =  ConnectorShape.CNCTR_SHAPE.CNCTR_SHAPE_NONE;	//!< 切り欠きの形
 	public double connectorBoundsRate = 2.0; //!< ドラッグ&ドロップ時などに適用されるコネクタの範囲
-	public boolean drawBody = true;
 	public String cssClass = "defaultNode";
 
 	Connective connective = new Connective();
@@ -131,6 +137,10 @@ public class BhNodeViewStyle {
 		LEFT, TOP
 	}
 
+	public enum NOTCH_POS {
+		RIGHT, BOTTOM
+	}
+
 	public enum CHILD_ARRANGEMENT {
 		ROW, COLUMN
 	}
@@ -138,8 +148,7 @@ public class BhNodeViewStyle {
 	/**
 	 * コンストラクタ
 	 * */
-	public BhNodeViewStyle() {
-	}
+	public BhNodeViewStyle() {}
 
 	/**
 	 * コピーコンストラクタ
@@ -154,13 +163,17 @@ public class BhNodeViewStyle {
 		this.paddingRight = org.paddingRight;
 		this.width = org.width;
 		this.height = org.height;
+		this.bodyShape = org.bodyShape;
 		this.connectorPos = org.connectorPos;
 		this.connectorShift = org.connectorShift;
 		this.connectorWidth = org.connectorWidth;
 		this.connectorHeight = org.connectorHeight;
 		this.connectorShape = org.connectorShape;
 		this.connectorBoundsRate = org.connectorBoundsRate;
-		this.drawBody = org.drawBody;
+		this.notchPos = org.notchPos;
+		this.notchWidth = org.notchWidth;
+		this.notchHeight = org.notchHeight;
+		this.notchShape = org.notchShape;
 		this.connective.outerWidth = org.connective.outerWidth;
 		this.connective.outerHeight = org.connective.outerHeight;
 		this.connective.inner.copy(org.connective.inner);
@@ -303,6 +316,15 @@ public class BhNodeViewStyle {
 		val = readValue(BhParams.NodeStyleDef.KEY_HEIGHT, Number.class, jsonObj, fileName);
 		val.ifPresent(height -> bhNodeViewStyle.height = ((Number) height).doubleValue() * BhParams.NODE_SCALE);
 
+		//bodyShape
+		val = readValue(BhParams.NodeStyleDef.KEY_BODY_SHAPE, String.class, jsonObj, fileName);
+		val.ifPresent(
+			bodyShape -> {
+				String shapeStr = (String)bodyShape;
+				BODY_SHAPE shapeType = BodyShape.getBodyTypeFromName(shapeStr, fileName);
+				bhNodeViewStyle.bodyShape = shapeType;
+			});
+
 		//connectorPos
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_POS, String.class, jsonObj, fileName);
 		val.ifPresent(connectorPos -> {
@@ -319,36 +341,65 @@ public class BhNodeViewStyle {
 
 		//connectorShift
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_SHIFT, Number.class, jsonObj, fileName);
-		val.ifPresent(connectorShift -> bhNodeViewStyle.connectorShift = ((Number) connectorShift).doubleValue()
-				* BhParams.NODE_SCALE);
+		val.ifPresent(connectorShift -> bhNodeViewStyle.connectorShift =
+			((Number) connectorShift).doubleValue() * BhParams.NODE_SCALE);
 
 		//connectorWidth
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_WIDTH, Number.class, jsonObj, fileName);
-		val.ifPresent(connectorWidth -> bhNodeViewStyle.connectorWidth = ((Number) connectorWidth).doubleValue()
-				* BhParams.NODE_SCALE);
+		val.ifPresent(connectorWidth -> bhNodeViewStyle.connectorWidth =
+			((Number) connectorWidth).doubleValue() * BhParams.NODE_SCALE);
 
 		//connectorHeight
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_HEIGHT, Number.class, jsonObj, fileName);
-		val.ifPresent(connectorHeight -> bhNodeViewStyle.connectorHeight = ((Number) connectorHeight).doubleValue()
-				* BhParams.NODE_SCALE);
+		val.ifPresent(connectorHeight -> bhNodeViewStyle.connectorHeight =
+			((Number) connectorHeight).doubleValue() * BhParams.NODE_SCALE);
 
 		//connectorShape
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_SHAPE, String.class, jsonObj, fileName);
 		val.ifPresent(
-				connectorShape -> {
-					String shapeStr = (String) connectorShape;
-					CNCTR_SHAPE shapeType = ConnectorShape.stringToCNCTR_SHAPE(shapeStr, fileName);
-					bhNodeViewStyle.connectorShape = shapeType;
-				});
+			connectorShape -> {
+				String shapeStr = (String) connectorShape;
+				CNCTR_SHAPE shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
+				bhNodeViewStyle.connectorShape = shapeType;
+			});
+
+		//notchPos
+		val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_POS, String.class, jsonObj, fileName);
+		val.ifPresent(notchPos -> {
+			String posStr = (String) notchPos;
+			if (posStr.equals(BhParams.NodeStyleDef.VAL_RIGHT)) {
+				bhNodeViewStyle.notchPos = NOTCH_POS.RIGHT;
+			} else if (posStr.equals(BhParams.NodeStyleDef.VAL_BOTTOM)) {
+				bhNodeViewStyle.notchPos = NOTCH_POS.BOTTOM;
+			} else {
+				MsgPrinter.INSTANCE.errMsgForDebug("\"" + BhParams.NodeStyleDef.KEY_NOTCH_POS + "\"" + " (" + posStr
+						+ ") " + "format is invalid.  " + "(" + fileName + ")");
+			}
+		});
+
+		//notchWidth
+		val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_WIDTH, Number.class, jsonObj, fileName);
+		val.ifPresent(notchWidth -> bhNodeViewStyle.notchWidth =
+			((Number)notchWidth).doubleValue() * BhParams.NODE_SCALE);
+
+		//notchHeight
+		val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_HEIGHT, Number.class, jsonObj, fileName);
+		val.ifPresent(notchHeight -> bhNodeViewStyle.notchHeight =
+			((Number)notchHeight).doubleValue() * BhParams.NODE_SCALE);
+
+		//notchShape
+		val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_SHAPE, String.class, jsonObj, fileName);
+		val.ifPresent(
+			notchShape -> {
+				String shapeStr = (String)notchShape;
+				CNCTR_SHAPE shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
+				bhNodeViewStyle.notchShape = shapeType;
+			});
 
 		//connectorBoundsRate
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_BOUNDS_RATE, Number.class, jsonObj, fileName);
-		val.ifPresent(connectorBoundsRate -> bhNodeViewStyle.connectorBoundsRate = ((Number) connectorBoundsRate)
-				.doubleValue());
-
-		//DrawBody
-		val = readValue(BhParams.NodeStyleDef.KEY_DRAW_BODY, Boolean.class, jsonObj, fileName);
-		val.ifPresent(drawBody -> bhNodeViewStyle.drawBody = ((Boolean) drawBody));
+		val.ifPresent(connectorBoundsRate -> bhNodeViewStyle.connectorBoundsRate =
+			((Number) connectorBoundsRate).doubleValue());
 
 		//bodyCssClass
 		val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);

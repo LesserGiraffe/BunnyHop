@@ -16,11 +16,10 @@
 package net.seapanda.bunnyhop.view.node;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -39,6 +38,8 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
+import net.seapanda.bunnyhop.view.bodyshape.BodyShape;
+import net.seapanda.bunnyhop.view.bodyshape.BodyShape.BODY_SHAPE;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape.CNCTR_SHAPE;
 import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
@@ -57,14 +58,14 @@ public abstract class BhNodeView extends Pane implements Showable {
 	final protected Polygon nodeShape = new Polygon();	//!< 描画されるポリゴン
 	final protected BhNodeViewStyle viewStyle;	//!< ノードの見た目のパラメータオブジェクト
 	final private BhNode model;
-	protected BhNodeViewGroup parent = null;	//!<このノードが子ノードとなっているConnectiveView のグループ
+	final protected SimpleObjectProperty<BhNodeViewGroup> parent = new SimpleObjectProperty<>(null);	//!<このノードが子ノードとなっているConnectiveView のグループ
 
 	final protected BhNodeViewConnector connectorPart;	//!< コネクタ部分
 	final private ViewRegionManager viewRegionManager = this.new ViewRegionManager();
 	final private ViewTreeManager viewTreeManager = this.new ViewTreeManager();
 	final private PositionManager positionManager = this.new PositionManager();
 	final private EventManager eventHandlerManager = this.new EventManager();
-	final private AppearanceManager appearanceManager = this.new AppearanceManager();
+	final private AppearanceManager appearanceManager;
 
 	/**
 	 * 初期化する
@@ -90,6 +91,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		this.viewStyle = viewStyle;
 		this.model = model;
 		connectorPart = this.new BhNodeViewConnector(viewStyle.connectorShape);
+		appearanceManager = this.new AppearanceManager(viewStyle.bodyShape, viewStyle.notchShape);
 		appearanceManager.addCssClass(viewStyle.cssClass);
 		appearanceManager.addCssClass(BhParams.CSS.CLASS_BHNODE);
 	}
@@ -171,7 +173,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 	 */
 	public class BhNodeViewConnector {
 
-		private final ConnectorShape connector;	//!< コネクタ部分の形を表すオブジェクト
+		private ConnectorShape connector;	//!< コネクタ部分の形を表すオブジェクト
 
 		/**
 		 * コンストラクタ
@@ -179,22 +181,6 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * */
 		BhNodeViewConnector(CNCTR_SHAPE shape) {
 			connector = ConnectorShape.genConnector(shape);
-		}
-
-		public Collection<Double> createVertices() {
-
-			double offsetX = 0.0;	// 頂点に加算するオフセットX
-			double offsetY = 0.0;	// 頂点に加算するオフセットY
-
-			if (viewStyle.connectorPos == CNCTR_POS.LEFT) {
-				offsetX = -viewStyle.connectorWidth;
-				offsetY = viewStyle.connectorShift;
-			}
-			else if (viewStyle.connectorPos == CNCTR_POS.TOP) {
-				offsetX = viewStyle.connectorShift;
-				offsetY = -viewStyle.connectorHeight;
-			}
-			return connector.createVertices(offsetX, offsetY, viewStyle.connectorWidth, viewStyle.connectorHeight, viewStyle.connectorPos);
 		}
 
 		/**
@@ -220,6 +206,17 @@ public abstract class BhNodeView extends Pane implements Showable {
 	public class AppearanceManager {
 
 		private Consumer<BhNodeViewGroup> updateStyleFunc;	//!< ノードの形状を更新する関数
+		private final ConnectorShape notch;	//!< 切り欠き部分の形を表すオブジェクト
+		private BodyShape body;
+
+		/**
+		 * コンストラクタ
+		 * @param notchShape 切り欠きの形の種類
+		 * */
+		public AppearanceManager(BODY_SHAPE bodyShape, CNCTR_SHAPE notchShape) {
+			notch = ConnectorShape.genConnector(notchShape);
+			body = BodyShape.genBody(bodyShape);
+		}
 
 		/**
 		 * CSSの擬似クラスの有効無効を切り替える
@@ -243,8 +240,8 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * */
 		public void toForeGround() {
 			BhNodeView.this.toFront();
-			if (parent != null)
-				parent.toForeGround();
+			if (parent.get() != null)
+				parent.get().toForeGround();
 		}
 
 		/**
@@ -260,65 +257,23 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * ノードを形作るポリゴンを更新する
 		 * @param drawBody ボディを描画する場合 true
 		 * */
-		protected void updatePolygonShape(boolean drawBody) {
+		protected void updatePolygonShape() {
 
 			nodeShape.getPoints().clear();
-			if (drawBody || viewStyle.connectorShape != ConnectorShape.CNCTR_SHAPE.CNCTR_SHAPE_NONE) {
-				Collection<Double> vertices = createVertices(drawBody);
-				nodeShape.getPoints().addAll(vertices);
-			}
-		}
-
-		/**
-		 * ノードを形作る頂点を生成する
-		 * */
-		private Collection<Double> createVertices(boolean drawBody) {
-
 			Point2D bodySize = getRegionManager().getBodySize(false);
-			double nodeWidth = bodySize.x;
-			double nodeHeight = bodySize.y;
-			ArrayList<Double> bodyVertices = null;
-
-			//本体部分の頂点位置計算
-			if (!drawBody) {
-				if (viewStyle.connectorPos == CNCTR_POS.LEFT)
-					bodyVertices = new ArrayList<>(Arrays.asList(0.0, viewStyle.connectorShift + viewStyle.connectorHeight / 2.0));
-				else if (viewStyle.connectorPos == CNCTR_POS.TOP)
-					bodyVertices = new ArrayList<>(Arrays.asList(viewStyle.connectorShift + viewStyle.connectorWidth / 2.0, 0.0));
-			}
-			else {
-
-				if (viewStyle.connectorPos == CNCTR_POS.LEFT) {
-					//ノードの形はここの値で決まる
-					bodyVertices = new ArrayList<>(Arrays.asList(
-						 0.0,                                       0.0 + 0.2 * BhParams.NODE_SCALE,
-						 0.0 + 0.2 * BhParams.NODE_SCALE,        0.0,
-						 nodeWidth - 0.2 * BhParams.NODE_SCALE,  0.0,
-						 nodeWidth,                                 0.0 + 0.2 * BhParams.NODE_SCALE,
-						 nodeWidth,                                 nodeHeight - 0.2 * BhParams.NODE_SCALE,
-						 nodeWidth - 0.2 * BhParams.NODE_SCALE,  nodeHeight,
-					 	 0.0 + 0.2 * BhParams.NODE_SCALE,        nodeHeight,
-					 	 0.0,                                       nodeHeight - 0.2 * BhParams.NODE_SCALE));
-				}
-				else if (viewStyle.connectorPos == CNCTR_POS.TOP) {
-					//ノードの形はここの値で決まる
-					bodyVertices = new ArrayList<>(Arrays.asList(
-						nodeWidth - 0.2 * BhParams.NODE_SCALE, 0.0,
-						nodeWidth,                                0.0 + 0.2 * BhParams.NODE_SCALE,
-						nodeWidth,                                nodeHeight - 0.2 * BhParams.NODE_SCALE,
-						nodeWidth - 0.2 * BhParams.NODE_SCALE, nodeHeight,
-						0.0 + 0.2 * BhParams.NODE_SCALE,       nodeHeight,
-						0.0,                                      nodeHeight - 0.2 * BhParams.NODE_SCALE,
-						0.0,                                      0.0 + 0.2 * BhParams.NODE_SCALE,
-						0.0 + 0.2 * BhParams.NODE_SCALE,       0.0));
-				}
-			}
-
-			if (bodyVertices == null)
-				bodyVertices = new ArrayList<>();
-
-			bodyVertices.addAll(connectorPart.createVertices());	//コネクタ部分の頂点位置計算
-			return bodyVertices;
+			nodeShape.getPoints().addAll(
+				body.createVertices(
+					bodySize.x,
+					bodySize.y,
+					connectorPart.connector,
+					viewStyle.connectorPos,
+					viewStyle.connectorWidth,
+					viewStyle.connectorHeight,
+					viewStyle.connectorShift,
+					notch,
+					viewStyle.notchPos,
+					viewStyle.notchWidth,
+					viewStyle.notchHeight));
 		}
 
 		/**
@@ -352,6 +307,13 @@ public abstract class BhNodeView extends Pane implements Showable {
 			// ダングリング状態のノードはGUIツリー上では繋がっている.
 			// ダングリング状態のノードの可視性を変更しないために, 継承している Pane ではなく nodeShape の可視性を変更する
 			accept(view -> view.nodeShape.setVisible(visible));
+		}
+
+		/**
+		 * ボディの形をセットする. (再描画は行わない)
+		 * */
+		public void setBodyShape(BODY_SHAPE bodyShape) {
+			body = BodyShape.genBody(bodyShape);
 		}
 	}
 
@@ -428,13 +390,12 @@ public abstract class BhNodeView extends Pane implements Showable {
 
 		private boolean isEven = true;	//!< ルートを0として、階層が偶数であった場合true.
 											//!< ただし, outerノードは親と同階層とする
-
 		/**
 		 * NodeView の親をセットする
 		 * @param parentGroup このBhNodeViewを保持するBhNodeViewGroup
 		 * */
 		public void setParentGroup(BhNodeViewGroup parentGroup) {
-			parent = parentGroup;
+			parent.setValue(parentGroup);
 		}
 
 		/**
@@ -444,10 +405,10 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * */
 		public BhNodeView getParentView() {
 
-			if (parent == null)
+			if (parent.get() == null)
 				return null;
 
-			return parent.getParentView();
+			return parent.get().getParentView();
 		}
 
 		/**
@@ -456,7 +417,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * @param newNode
 		 */
 		public void replace(BhNodeView newNode) {
-			parent.replace(BhNodeView.this, newNode);
+			parent.get().replace(BhNodeView.this, newNode);
 		}
 
 		/**
@@ -480,7 +441,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 			accept(view -> {
 				BhNodeView parentView = view.getTreeManager().getParentView();
 				if (parentView != null) {
-					if (view.parent.inner)
+					if (view.parent.get().inner)
 						view.getTreeManager().isEven = !parentView.getTreeManager().isEven;
 					else
 						view.getTreeManager().isEven = parentView.getTreeManager().isEven;

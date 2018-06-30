@@ -18,7 +18,7 @@
 			<SelectableItem fx:id="idBlue" modelText="Blue" viewText="青"/>
 			<SelectableItem fx:id="idCyan" modelText="Cyan" viewText="水色"/>
 			<SelectableItem fx:id="idMagenta" modelText="Magenta" viewText="紫"/>
-			<SelectableItem fx:id="idYellow" modelText="Yellow" viewText="黄色"/>
+			<SelectableItem fx:id="idYellow" modelText="Yellow" viewText="きいろ"/>
 			<SelectableItem fx:id="idWhite" modelText="White" viewText="白"/>
 			<SelectableItem fx:id="idBlack" modelText="Black" viewText="黒"/>
 		</FXCollections>

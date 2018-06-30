@@ -1,13 +1,17 @@
 {
-	"paddingTop" : 1.75,
-	"paddingBottom" : 1.75,
-	"paddingLeft" : 2.0,
-	"paddingRight" : 2.0,
+	"paddingTop" : 3.0,
+	"paddingBottom" : 3.0,
+	"paddingLeft" : 3.0,
+	"paddingRight" : 3.0,
 	"connectorPos" : "Left",
 	"connectorShift" : 0.0,
 	"connectorWidth" : 3.5,
 	"connectorHeight" : 3.5,
 	"connectorShape" : "CROSS",
 	"connectorBoundsRate" : 1.25,
+	"notchPos" : "Right",
+	"notchShape" : "TRIANGLE",
+	"notchWidth" : 1.5,
+	"notchHeight" : 1.5,
 	"cssClass" : "voidVarType"
 }

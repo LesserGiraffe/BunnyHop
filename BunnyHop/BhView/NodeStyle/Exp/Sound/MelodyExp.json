@@ -3,13 +3,13 @@
 	"paddingBottom" : 0.0,
 	"paddingLeft" : 0.0,
 	"paddingRight" : 0.0,
+	"bodyShape" : "NONE",
 	"connectorPos" : "Top",
 	"connectorShift" : 1.0,
 	"connectorWidth" : 3.5,
 	"connectorHeight" : 3.5,
 	"connectorShape" : "NONE",
 	"connectorBoundsRate" : 1.25,
-	"drawBody" : false,
 	"cssClass" : "soundType",
 
 	"connective" : {

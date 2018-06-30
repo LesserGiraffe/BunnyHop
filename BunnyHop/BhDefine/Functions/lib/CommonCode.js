@@ -509,7 +509,7 @@
 		else if (this.red === 255 && this.green === 0 && this.blue === 255)
 			return '紫';
 		else if (this.red === 255 && this.green === 255 && this.blue === 0)
-			return '黄色';
+			return 'きいろ';
 		else if (this.red === 255 && this.green === 255 && this.blue === 255)
 			return '白';
 		else if (this.red === 0 && this.green === 0 && this.blue === 0)
