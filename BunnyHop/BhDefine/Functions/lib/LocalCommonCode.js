@@ -115,7 +115,7 @@
 				}
 			}
 		})();
-		_println('入力された色 = ' + _colorToStr(color));
+		_println('入力された色 = ' + _toStr(color));
 		return color;
 	}
 
@@ -137,6 +137,6 @@
 				return;
 		}
 
-		_println(eye + 'が 「' +  _colorToStr(color) + '」 になった');
+		_println(eye + 'が 「' +  _toStr(color) + '」 になった');
 	}
 
