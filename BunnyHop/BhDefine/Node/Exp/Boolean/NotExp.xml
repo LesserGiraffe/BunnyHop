@@ -16,7 +16,7 @@
 				type="label"
 				bhNodeID="idNotExp.prvNode0"
 				name="dehanai"
-				nodeStyleID="WordLabel2.json"
+				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
 				initString="ではない">
 			</Node>

@@ -37,6 +37,7 @@
 #categoryTree .action {
 	-fx-background: derive(actionTypeCol, 0%);
 	-fx-border-color: black;
+	-fx-text-fill: white;
 }
 
 #categoryTree .action:hover {
@@ -70,7 +71,6 @@
 #categoryTree .boolOpe {
 	-fx-background: derive(boolTypeCol, 0% );
 	-fx-border-color: black;
-	-fx-text-fill: white;
 }
 
 #categoryTree .boolOpe:hover {
@@ -104,12 +104,12 @@
 /*--------------------control----------------------*/
 
 #categoryTree .control {
-	-fx-background: derive(controlTypeCol, 0% );
+	-fx-background: derive(controlTypeCol0, 0% );
 	-fx-border-color: black;
 }
 
 #categoryTree .control:hover {
-	-fx-background: derive(controlTypeCol, 50% );
+	-fx-background: derive(controlTypeCol1, 50% );
 }
 
 /*--------------------funcDef----------------------*/
@@ -117,6 +117,7 @@
 #categoryTree .funcDef {
 	-fx-background: derive(voidFuncTypeCol, 0% );
 	-fx-border-color: black;
+	-fx-text-fill: white;
 }
 
 #categoryTree .funcDef:hover {

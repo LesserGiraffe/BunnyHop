@@ -14,7 +14,7 @@
 				type="label"
 				bhNodeID="idPlayMelodyStat.prvNode0"
 				name="ensouSuru"
-				nodeStyleID="WordLabel1.json"
+				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
 				initString="演奏する">
 			</Node>

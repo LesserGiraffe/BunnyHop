@@ -1,5 +1,7 @@
 .actionType {
-	-fx-fill: actionTypeCol;
+	-fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, actionTypeCol 50%, derive(actionTypeCol, 40%) 0em);
 }
 
-
+.actionType:isEven {
+	-fx-fill: actionTypeCol;
+}

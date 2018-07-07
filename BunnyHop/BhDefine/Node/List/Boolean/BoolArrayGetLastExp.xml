@@ -17,7 +17,7 @@
 				type="label"
 				bhNodeID="idBoolArrayGetLastExp.prvNode0"
 				name="noSaigoNoYoso"
-				nodeStyleID="WordLabel2.json"
+				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
 				initString="の最後の要素">
 			</Node>

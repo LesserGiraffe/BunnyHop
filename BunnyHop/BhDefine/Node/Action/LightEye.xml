@@ -28,7 +28,7 @@
 				type="label"
 				bhNodeID="idLightEyeStat.prvNode1"
 				name="wo"
-				nodeStyleID="WordLabel1.json"
+				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
 				initString="を">
 			</Node>
@@ -44,7 +44,7 @@
 				type="label"
 				bhNodeID="idLightEyeStat.prvNode2"
 				name="deHikaraseru"
-				nodeStyleID="WordLabel1.json"
+				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
 				initString="で光らせる">
 			</Node>

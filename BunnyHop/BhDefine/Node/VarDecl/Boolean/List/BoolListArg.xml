@@ -16,7 +16,7 @@
 				type="label"
 				bhNodeID="idBoolListArg.prvNode0"
 				name="ListSign"
-				nodeStyleID="WordLabel2.json"
+				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
 				initString="[...]">
 			</Node>

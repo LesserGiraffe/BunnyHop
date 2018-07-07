@@ -17,7 +17,7 @@
 				type="label"
 				bhNodeID="idBoolArrayGetExp.prvNode0"
 				name="no"
-				nodeStyleID="WordLabel2.json"
+				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
 				initString="の">
 			</Node>
@@ -33,7 +33,7 @@
 				type="label"
 				bhNodeID="idBoolArrayGetExp.prvNode1"
 				name="banmeNoYoso"
-				nodeStyleID="WordLabel2.json"
+				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
 				initString="番目の要素">
 			</Node>

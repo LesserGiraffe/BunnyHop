@@ -51,6 +51,15 @@
 			"idColorCompExp"]
 	},
 
+	"音": {
+		"cssClass":"soundOpe",
+		"contents":[
+			"idScaleSoundLiteral",
+			"idFreqSoundLiteral",
+			"idPlayMelodyStat",
+			"idPlaySoundListStat"]
+	},
+	
 	"色": {
 		"cssClass":"colorOpe",
 		"contents":[
@@ -59,15 +68,6 @@
 			"idDetectColorExp",
 			"idLightEyeStat"
 		]
-	},
-	
-	"音": {
-		"cssClass":"soundOpe",
-		"contents":[
-			"idScaleSoundLiteral",
-			"idFreqSoundLiteral",
-			"idPlayMelodyStat",
-			"idPlaySoundListStat"]
 	},
 
 	"制御" : {

@@ -16,7 +16,7 @@
 				type="label"
 				bhNodeID="idBoolArrayInsertStat.prvNode0"
 				name="no"
-				nodeStyleID="WordLabel2.json"
+				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
 				initString="の">
 			</Node>
@@ -32,7 +32,7 @@
 				type="label"
 				bhNodeID="idBoolArrayInsertStat.prvNode1"
 				name="banmeNi"
-				nodeStyleID="WordLabel2.json"
+				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
 				initString="番目に">
 			</Node>
@@ -48,7 +48,7 @@
 				type="label"
 				bhNodeID="idBoolArrayInsertStat.prvNode2"
 				name="woSonyuSuru"
-				nodeStyleID="WordLabel2.json"
+				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
 				initString="を挿入する">
 			</Node>

@@ -16,7 +16,7 @@
 				type="label"
 				bhNodeID="idSayStat.prvNode0"
 				name="toIu"
-				nodeStyleID="WordLabel1.json"
+				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
 				initString="と言う">
 			</Node>

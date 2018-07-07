@@ -1,14 +1,17 @@
 .root {
-	numTypeCol: #84ff0a;
-	strTypeCol: #f6bfbc;
-	boolTypeCol: #a0522d;
-	voidFuncTypeCol: #00ffff;
-	voidTypeCol: #f5f5f5;
-	voidVarTypeCol: linear-gradient(from 0em 0em to 0.0em 0.3em, repeat, #C0C0C0 50%, #FFFFFF 0em);
-	controlTypeCol: #e0F0d0;
-	actionTypeCol: #74A5fd;
-	anyTypeCol: #F0F0F0; //linear-gradient(from 0em 0em to 0.0em 1.0em, repeat, #E0E0E0 70%, #FFFFFF 0em);
-	eventTypeCol: #c70067;
-	soundTypeCol: #ff6600;
-	colorTypeCol: #00885a;
+
+	numTypeCol: hsb(200 , 60%, 95%);
+	strTypeCol: hsb(317 , 70%, 95%);
+	boolTypeCol: hsb(125 , 70%, 95%);
+	soundTypeCol: hsb(18 , 80%, 100%);
+	colorTypeCol: hsb(240 , 80%, 95%);
+
+	controlTypeCol0: hsb(29, 15%, 100%);
+	controlTypeCol1: hsb(335, 15%, 100%);
+	voidFuncTypeCol: hsb(18, 44%, 48%);
+	actionTypeCol: hsb(165 , 100%, 43%);
+	eventTypeCol: hsb(329 , 100%, 78%);
+
+	voidTypeCol: hsb(0 , 0%, 95%);
+	anyTypeCol: hsb(0 , 0%, 85%);
 }

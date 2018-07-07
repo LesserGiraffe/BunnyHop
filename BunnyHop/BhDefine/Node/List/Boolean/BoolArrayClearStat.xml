@@ -17,7 +17,7 @@
 				type="label"
 				bhNodeID="idBoolArrayClearStat.prvNode0"
 				name="noYosoWoSubeteKesu"
-				nodeStyleID="WordLabel2.json"
+				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
 				initString="の要素を全て消す">
 			</Node>

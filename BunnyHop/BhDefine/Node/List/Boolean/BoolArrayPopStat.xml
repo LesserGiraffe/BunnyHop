@@ -16,7 +16,7 @@
 				type="label"
 				bhNodeID="idBoolArrayPopStat.prvNode0"
 				name="noMatsubiNoYosoWoKesu"
-				nodeStyleID="WordLabel2.json"
+				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
 				initString="の末尾の要素を消す">
 			</Node>

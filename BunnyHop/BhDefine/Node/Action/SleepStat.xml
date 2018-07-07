@@ -17,7 +17,7 @@
 				type="label"
 				bhNodeID="idSleepStat.prvNode0"
 				name="byoMatsu"
-				nodeStyleID="WordLabel1.json"
+				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
 				initString="秒待つ">
 			</Node>

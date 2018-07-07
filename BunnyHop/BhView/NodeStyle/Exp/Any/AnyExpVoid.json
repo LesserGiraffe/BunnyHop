@@ -9,5 +9,5 @@
 	"connectorHeight" : 3.5,
 	"connectorShape" : "STAR",
 	"connectorBoundsRate" : 1.25,
-	"cssClass" : "anyType"
+	"cssClass" : "voidType"
 }

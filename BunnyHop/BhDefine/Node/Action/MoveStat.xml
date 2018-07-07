@@ -15,7 +15,7 @@
 				type="label"
 				bhNodeID="idMoveStat.prvNode0"
 				name="hayasa"
-				nodeStyleID="WordLabel1.json"
+				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
 				initString="速さ">
 			</Node>
@@ -31,7 +31,7 @@
 				type="label"
 				bhNodeID="idMoveStat.prvNode1"
 				name="de"
-				nodeStyleID="WordLabel1.json"
+				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
 				initString="(1～10)で">
 			</Node>
@@ -47,7 +47,7 @@
 				type="label"
 				bhNodeID="idMoveStat.prvNode2"
 				name="byokan"
-				nodeStyleID="WordLabel1.json"
+				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
 				initString="秒間">
 			</Node>
@@ -74,7 +74,7 @@
 				type="label"
 				bhNodeID="idMoveStat.prvNode4"
 				name="suru"
-				nodeStyleID="WordLabel1.json"
+				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
 				initString="する">
 			</Node>

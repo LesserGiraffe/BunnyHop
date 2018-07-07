@@ -435,13 +435,14 @@ public abstract class BhNodeView extends Pane implements Showable {
 		}
 
 		/**
-		 * このノード以下の奇遇フラグを更新する
+		 * このノード以下の奇偶フラグを更新する
 		 * */
 		public void updateEvenFlg() {
 			accept(view -> {
 				BhNodeView parentView = view.getTreeManager().getParentView();
+
 				if (parentView != null) {
-					if (view.parent.get().inner)
+					if (view.parent.get().inner && !parentView.viewStyle.bodyShape.equals(BODY_SHAPE.BODY_SHAPE_NONE))
 						view.getTreeManager().isEven = !parentView.getTreeManager().isEven;
 					else
 						view.getTreeManager().isEven = parentView.getTreeManager().isEven;

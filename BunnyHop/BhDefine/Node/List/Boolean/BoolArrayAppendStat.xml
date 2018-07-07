@@ -17,7 +17,7 @@
 				type="label"
 				bhNodeID="idBoolArrayAppendStat.prvNode0"
 				name="ni"
-				nodeStyleID="WordLabel2.json"
+				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
 				initString="に">
 			</Node>
@@ -33,7 +33,7 @@
 				type="label"
 				bhNodeID="idBoolArrayAppendStat.prvNode1"
 				name="noYosoWoSubeteTsuikaSuru"
-				nodeStyleID="WordLabel2.json"
+				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
 				initString="の要素を全て追加する">
 			</Node>
