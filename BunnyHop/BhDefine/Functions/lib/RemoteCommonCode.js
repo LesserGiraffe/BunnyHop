@@ -217,8 +217,8 @@
 		const rightRed = '13';
 		const rightGreen = '26';
 		const rightBlue = '19';
-		const leftRed = '16';
-		const leftGreen = '21';
+		const leftRed = '21';
+		const leftGreen = '16';
 		const leftBlue = '20';
 
 		let hiList = [];
