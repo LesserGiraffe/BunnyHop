@@ -224,6 +224,10 @@ public class FoundationController {
 					menuBarController.fireEvent(MenuBarController.MENU_BAR.SAVE);
 				break;
 
+			case F11:
+				menuBarController.fireEvent(MenuBarController.MENU_BAR.FREE_MEMORY);
+				break;
+
 			case F12:
 				menuBarController.fireEvent(MenuBarController.MENU_BAR.SAVE_AS);
 				break;

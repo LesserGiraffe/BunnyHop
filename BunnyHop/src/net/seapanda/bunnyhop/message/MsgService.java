@@ -16,6 +16,7 @@
 package net.seapanda.bunnyhop.message;
 
 import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -46,5 +47,13 @@ public class MsgService {
 	 * */
 	public void setNodeVisibility(BhNode node, boolean visible, UserOperationCommand userOpeCmd) {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_VISIBLE, new MsgData(visible, userOpeCmd), node);
+	}
+
+	/**
+	 * undo/redo
+	 * @param wss ワークスペースセット
+	 * */
+	public void deleteUndoRedoCommand(WorkspaceSet wss) {
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.DELETE_USER_OPE_CMD, wss);
 	}
 }

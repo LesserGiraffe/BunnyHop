@@ -45,6 +45,7 @@ public enum BhMsg {
 	REDO,					//!< Redoを命令する
 	SET_USER_OPE_CMD,		//!< ユーザー操作を表すオブジェクトを登録する
 	PUSH_USER_OPE_CMD,		//!< ユーザー操作を表すオブジェクトをundoスタックに追加する
+	DELETE_USER_OPE_CMD,	//!< undo, redo の対象になっているコマンドを削除する
 	REMOVE_FROM_GUI_TREE,	//!< GUIツリー上からViewを消す
 	IMITATE_TEXT,			//!< イミテーションノードのテキストをオリジナルと一致させる
 	GET_MODEL_AND_VIEW_TEXT,//!< モデルとビューのテキストを取得する

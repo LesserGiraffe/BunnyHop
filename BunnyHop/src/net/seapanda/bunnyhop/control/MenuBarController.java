@@ -28,6 +28,7 @@ import javafx.stage.FileChooser;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
+import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 
 /**
@@ -41,6 +42,7 @@ public class MenuBarController {
 	@FXML private MenuItem saveMenu;
 	@FXML private MenuItem saveAsMenu;
 	@FXML private MenuItem aboutBunnyHop;
+	@FXML private MenuItem freeMemory;
 	private File currentSaveFile;	//!< 現在保存対象になっているファイル
 
 	/**
@@ -52,6 +54,7 @@ public class MenuBarController {
 		setSaveAsHandler(wss);
 		setSaveHandler(wss);
 		setLoadHandler(wss);
+		setFreeMemoryHandler(wss);
 		setAboutBunnyHopHandler();
 	}
 
@@ -96,6 +99,7 @@ public class MenuBarController {
 		}
 		return success;
 	}
+
 
 	/**
 	 * セーブ(上書き保存)ボタンのイベントハンドラを登録する
@@ -173,20 +177,6 @@ public class MenuBarController {
 	}
 
 	/**
-	 * BunnyHopの基本情報を表示するハンドラを登録する
-	 */
-	private void setAboutBunnyHopHandler() {
-		aboutBunnyHop.setOnAction(action -> {
-			String content = "Version: " + BhParams.APP_VERSION;
-			MsgPrinter.INSTANCE.alert(
-				Alert.AlertType.INFORMATION,
-				"BunnyHopについて",
-				null,
-				content);
-		});
-	}
-
-	/**
 	 * ファイル保存時の初期ディレクトリを返す
 	 * @return ファイル保存時の初期ディレクトリ
 	 */
@@ -230,7 +220,39 @@ public class MenuBarController {
 			return null;});
 	}
 
-		/**
+	/**
+	 * アプリケーションのメモリ解放時のハンドラをセットする
+	 * @param wss ワークスペースセット
+	 * */
+	private void setFreeMemoryHandler(WorkspaceSet wss) {
+		freeMemory.setOnAction(action -> freeMemory(wss));
+	}
+
+	/**
+	 * アプリケーションのメモリを解放する
+	 * @param wss ワークスペースセット
+	 * */
+	private void freeMemory(WorkspaceSet wss) {
+		MsgService.INSTANCE.deleteUndoRedoCommand(wss);
+		MsgPrinter.INSTANCE.msgForUser("メモリを解放しました\n");
+		System.gc();
+	}
+
+	/**
+	 * BunnyHopの基本情報を表示するハンドラを登録する
+	 */
+	private void setAboutBunnyHopHandler() {
+		aboutBunnyHop.setOnAction(action -> {
+			String content = "Version: " + BhParams.APP_VERSION;
+			MsgPrinter.INSTANCE.alert(
+				Alert.AlertType.INFORMATION,
+				"BunnyHopについて",
+				null,
+				content);
+		});
+	}
+
+	/**
 	 * ユーザメニュー操作のイベントを起こす
 	 * @param op 基本操作を表す列挙子
 	 */
@@ -245,12 +267,16 @@ public class MenuBarController {
 				saveAsMenu.fire();
 				break;
 
+			case FREE_MEMORY:
+				freeMemory.fire();
+
 			default:
 				throw new AssertionError("invalid menu bar operation " + op);
 		}
 	}
 	public enum MENU_BAR {
 		SAVE,
-		SAVE_AS
+		SAVE_AS,
+		FREE_MEMORY,
 	}
 }

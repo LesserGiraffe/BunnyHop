@@ -199,6 +199,10 @@ public class WorkspaceSetController implements MsgProcessor {
 				BunnyHop.INSTANCE.shouldSave(true);
 				break;
 
+			case DELETE_USER_OPE_CMD:
+				userOpeCmdManager.delete();
+				break;
+
 			case PUSH_USER_OPE_CMD:
 				if (data.userOpeCmd.getNumSubOpe() > 0) {
 					userOpeCmdManager.pushUndoCommand(data.userOpeCmd);
