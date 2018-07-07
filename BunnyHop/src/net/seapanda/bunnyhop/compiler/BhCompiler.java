@@ -160,13 +160,13 @@ public class BhCompiler {
 		eventHandlerCodeGen.genEventHandlers(allNodes, code, 1, option);
 		String lockVar = BhCompiler.Keywords.lockVarPrefix + CommonCodeDefinition.Funcs.BH_MAIN;
 		eventHandlerCodeGen.genHeaderSnippetOfEventCall(code, CommonCodeDefinition.Funcs.BH_MAIN, lockVar, 1);
+		varDeclCodeGen.genVarDeclStat(code, CommonCodeDefinition.Vars.CALL_OBJ, null, 5);
 		statCodeGen.genStatement(execNode, code, 5, option);
 		eventHandlerCodeGen.genFooterSnippetOfEventCall(code, lockVar, 1);
-		String addEventCallStat =
-			common.genFuncCallCode(
-				CommonCodeDefinition.Funcs.ADD_EVENT,
-				CommonCodeDefinition.Funcs.BH_MAIN,
-				"'" + BhProgramData.EVENT.PROGRAM_START.toString() + "'");
+		String addEventCallStat = common.genFuncCallCode(
+			CommonCodeDefinition.Funcs.ADD_EVENT,
+			CommonCodeDefinition.Funcs.BH_MAIN,
+			"'" + BhProgramData.EVENT.PROGRAM_START.toString() + "'");
 		addEventCallStat += ";" + Util.INSTANCE.LF;
 		code.append(common.indent(1)).append(addEventCallStat).append(Util.INSTANCE.LF);
 	}
@@ -191,7 +191,6 @@ public class BhCompiler {
 
 	public static class Keywords {
 		public static final String varPrefix = "_v";
-		public static final String callObjVarPrefix = "_callObj";
 		public static final String lockVarPrefix = "_lockObj";
 		public static final String funcPrefix = "_f";
 

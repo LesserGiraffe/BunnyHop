@@ -52,7 +52,7 @@ public class SymbolNames {
 		public static final String COLOR_VAR_VOID = "ColorVarVoid";
 		public static final String COLOR_LIST_DECL = "ColorListDecl";
 		public static final String COLOR_LIST = "ColorList";
-		public static final String COLOR_EMPTY_LIST = "ColorList";
+		public static final String COLOR_EMPTY_LIST = "ColorEmptyList";
 
 		public static final String SOUND_VAR_DECL = "SoundVarDecl";
 		public static final String SOUND_VAR = "SoundVar";
@@ -103,6 +103,7 @@ public class SymbolNames {
 				put(NUM_VAR_VOID, "0");
 				put(STR_VAR_VOID, "''");
 				put(BOOL_VAR_VOID, "false");
+				put(COLOR_VAR_VOID, CommonCodeDefinition.Vars.NIL_COLOR);
 				put(SOUND_VAR_VOID, CommonCodeDefinition.Vars.NIL_SOUND);
 				put(NUM_EMPTY_LIST, "[]");
 				put(STR_EMPTY_LIST, "[]");
