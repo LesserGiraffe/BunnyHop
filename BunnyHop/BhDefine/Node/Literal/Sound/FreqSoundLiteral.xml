@@ -35,7 +35,7 @@
 				name="HzNoOto"
 				nodeStyleID="WordLabel1.json"
 				nodeInputControl="Label.fxml"
-				initString="Hz の音">
+				initString="ヘルツの音">
 			</Node>
 		</PrivateConnector>
 	</ConnectorSection>

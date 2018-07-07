@@ -494,7 +494,7 @@
 	}
 
 	_Sound.prototype._toStr = function () {
-		return '高さ: ' + this.hz + '[Hz],  長さ: ' + Math.round(this.duration * 1000.0) + '[ms]';
+		return '高さ: ' + this.hz + '[ヘルツ],  長さ: ' + Math.round(this.duration * 1000.0) + '[ミリ秒]';
 	}
 
 	_Color.prototype._toStr = function () {
