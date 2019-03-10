@@ -19,7 +19,7 @@
 				name="ColorLiteral"
 				nodeStyleID="ColorLiteral.json"
 				nodeInputControl="ColorLiteral.fxml"
-				onTextInput="ParseStr.js">
+				onTextAcceptabilityChecked="ParseStr.js">
 			</Node>
 		</PrivateConnector>
 	</ConnectorSection>

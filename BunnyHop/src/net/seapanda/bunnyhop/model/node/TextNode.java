@@ -44,7 +44,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
 public class TextNode  extends Imitatable implements Serializable {
 
 	private String text = "";	//!< このノードの管理する文字列データ
-	private final String scriptNameOnTextInput;	//!< テキスト入力時に実行されるスクリプト
+	private final String scriptNameOnTextAcceptabilityChecked; //!< テキストが受理可能かどうか判断する際に実行されるスクリプト
 	private ImitationInfo<TextNode> imitInfo;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
 
 	/**
@@ -55,7 +55,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	 * @param type xml のtype属性
 	 * @param initString 初期文字列
 	 * @param scopeName イミテーションノードがオリジナルノードと同じスコープにいるかチェックする際の名前
-	 * @param scriptNameOnTextInput 表示文字列のパターンチェックスクリプトの名前
+	 * @param scriptNameOnTextAcceptabilityChecked 入力文字列のパターンチェックスクリプトの名前
 	 * @param scriptNameOnMovedFromChildToWS ワークスペース移動時に実行されるスクリプトの名前
 	 * @param scriptNameOnMovedToChild 子ノードとして接続されたときに実行されるスクリプトの名前
 	 * @param imitID_imitNodeID イミテーションIDとそれに対応するイミテーションノードIDのマップ
@@ -67,7 +67,7 @@ public class TextNode  extends Imitatable implements Serializable {
 			String type,
 			String initString,
 			String scopeName,
-			String scriptNameOnTextInput,
+			String scriptNameOnTextAcceptabilityChecked,
 			String scriptNameOnMovedFromChildToWS,
 			String scriptNameOnMovedToChild,
 			Map<ImitationID, BhNodeID> imitID_imitNodeID,
@@ -78,7 +78,7 @@ public class TextNode  extends Imitatable implements Serializable {
 			type,
 			scriptNameOnMovedFromChildToWS,
 			scriptNameOnMovedToChild);
-		this.scriptNameOnTextInput = scriptNameOnTextInput;
+		this.scriptNameOnTextAcceptabilityChecked = scriptNameOnTextAcceptabilityChecked;
 		imitInfo = new ImitationInfo<>(imitID_imitNodeID, canCreateImitManually, scopeName);
 		text = initString;
 	}
@@ -90,7 +90,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	private TextNode(TextNode org) {
 		super(org);
 		text = org.text;
-		scriptNameOnTextInput = org.scriptNameOnTextInput;
+		scriptNameOnTextAcceptabilityChecked = org.scriptNameOnTextAcceptabilityChecked;
 	}
 
 	@Override
@@ -133,16 +133,16 @@ public class TextNode  extends Imitatable implements Serializable {
 	 * */
 	public boolean isTextAcceptable(String text) {
 
-		CompiledScript onTextInput = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnTextInput);
-		if (onTextInput == null)
+		CompiledScript onTextAcceptabilityChecked = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnTextAcceptabilityChecked);
+		if (onTextAcceptabilityChecked == null)
 			return true;
 
 		scriptScope.put(BhParams.JsKeyword.KEY_BH_TEXT, text);
 		Object jsReturn = null;
 		try {
-			jsReturn = onTextInput.eval(scriptScope);
+			jsReturn = onTextAcceptabilityChecked.eval(scriptScope);
 		} catch (ScriptException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(TextNode.class.getSimpleName() +  ".isTextSettable   " + scriptNameOnTextInput + "\n" + e.toString() + "\n");
+			MsgPrinter.INSTANCE.errMsgForDebug(TextNode.class.getSimpleName() +  ".isTextSettable   " + scriptNameOnTextAcceptabilityChecked + "\n" + e.toString() + "\n");
 		}
 
 		if(jsReturn instanceof Boolean)

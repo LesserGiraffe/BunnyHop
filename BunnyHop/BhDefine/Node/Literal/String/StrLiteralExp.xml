@@ -19,7 +19,7 @@
 				name="StrLiteral"
 				nodeStyleID="StrLiteral.json"
 				nodeInputControl="TextField.fxml"
-				onTextInput="ParseStr.js"
+				onTextAcceptabilityChecked="ParseStr.js"
 				initString="テキスト">
 			</Node>
 		</PrivateConnector>

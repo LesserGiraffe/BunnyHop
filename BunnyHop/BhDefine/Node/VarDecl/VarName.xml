@@ -6,7 +6,7 @@
 	name="VarName"
 	nodeStyleID="Identifier.json"
 	nodeInputControl="TextField.fxml"
-	onTextInput="ParseIdentifier.js"
+	onTextAcceptabilityChecked="ParseIdentifier.js"
 	initString="変数名">
 	
 	<Imitation imitationID="imitIdVarName" imitationNodeID="idVarName"/>

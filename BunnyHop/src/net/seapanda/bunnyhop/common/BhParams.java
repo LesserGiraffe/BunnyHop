@@ -100,7 +100,7 @@ public class BhParams {
 		public static final String ATTR_NAME_TYPE = "type";
 		public static final String ATTR_NAME_NAME = "name";
 		public static final String ATTR_NAME_FIXED = "fixed";
-		public static final String ATTR_NAME_ON_INPUT_TEXT = "onTextInput";
+		public static final String ATTR_NAME_ON_TEXT_ACCEPTABILITY_CHECKED = "onTextAcceptabilityChecked";
 		public static final String ATTR_NAME_ON_MOVED_FROM_CHILD_TO_WS = "onMovedFromChildToWS";
 		public static final String ATTR_NAME_ON_MOVED_TO_CHILD = "onMovedToChild";
 		public static final String ATTR_NAME_ON_CHILD_REPLACED = "onChildReplaced";

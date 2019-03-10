@@ -261,7 +261,7 @@ public class NodeConstructor {
 		boolean allScriptsFound = BhNodeTemplates.allScriptsExist(node.getBaseURI(),
 			nodeAttrs.get().onMovedFromChildToWS,
 			nodeAttrs.get().onMovedToChild,
-			nodeAttrs.get().onTextInput);
+			nodeAttrs.get().onTextAcceptabilityChecked);
 		if (!allScriptsFound) {
 			return Optional.empty();
 		}
@@ -288,7 +288,7 @@ public class NodeConstructor {
 			type,
 			nodeAttrs.get().initString,
 			nodeAttrs.get().imitScopeName,
-			nodeAttrs.get().onTextInput,
+			nodeAttrs.get().onTextAcceptabilityChecked,
 			nodeAttrs.get().onMovedFromChildToWS,
 			nodeAttrs.get().onMovedToChild,
 			imitID_imitNodeID.get(),
