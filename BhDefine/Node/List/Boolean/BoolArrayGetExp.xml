@@ -1,0 +1,53 @@
+<Node
+	type="connective"
+	bhNodeID="idBoolArrayGetExp"
+	name="BoolArrayGetExp"
+	nodeStyleID="BoolArrayGetExp.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<ConnectorSection name="BooleanExpSctn">
+		<Connector bhConnectorID="idBoolListCnctr" name="Arg0"/>
+		
+		<PrivateConnector
+			bhConnectorID="idBoolArrayGetExp.prvCnctr0"
+			name="no"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idBoolArrayGetExp.prvNode0"
+				name="no"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="の">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+		
+		<PrivateConnector
+			bhConnectorID="idBoolArrayGetExp.prvCnctr1"
+			name="banmeNoYoso"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idBoolArrayGetExp.prvNode1"
+				name="banmeNoYoso"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="番目の要素">
+			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector
+			bhConnectorID="idBoolArrayGetExp.prvCnctr2"
+			name="Arg2"
+			fixed="true">
+			<Node
+				type="noView"
+				bhNodeID="idBoolArrayGetExp.prvNode2"
+				name="BoolLiteral"
+				initString="false"/>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>

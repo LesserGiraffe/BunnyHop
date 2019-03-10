@@ -1,0 +1,53 @@
+<Node
+	type="connective"
+	bhNodeID="idNumArrayGetExp"
+	name="NumArrayGetExp"
+	nodeStyleID="NumArrayGetExp.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<ConnectorSection name="NumberExpSctn">
+		<Connector bhConnectorID="idNumListCnctr" name="Arg0"/>
+		
+		<PrivateConnector
+			bhConnectorID="idNumArrayGetExp.prvCnctr0"
+			name="no"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idNumArrayGetExp.prvNode0"
+				name="no"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="の">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+		
+		<PrivateConnector
+			bhConnectorID="idNumArrayGetExp.prvCnctr1"
+			name="banmeNoYoso"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idNumArrayGetExp.prvNode1"
+				name="banmeNoYoso"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="番目の要素">
+			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector
+			bhConnectorID="idNumArrayGetExp.prvCnctr2"
+			name="Arg2"
+			fixed="true">
+			<Node
+				type="noView"
+				bhNodeID="idNumArrayGetExp.prvNode2"
+				name="NumLiteral"
+				initString="0"/>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>

@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+
+<Connector 
+	bhConnectorID="idStrExpCnctr"
+	defaultBhNodeID="idStrLiteralExp"
+	class="StrClass"
+	onReplaceabilityChecked="StrExpCnct.js"/>

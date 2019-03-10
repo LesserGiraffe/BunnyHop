@@ -1,0 +1,37 @@
+<Node
+	type="connective"
+	bhNodeID="idColorArrayGetLastExp"
+	name="ColorArrayGetLastExp"
+	nodeStyleID="ColorArrayGetLastExp.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<ConnectorSection name="ColorExpSctn">
+		<Connector bhConnectorID="idColorListCnctr" name="Arg0"/>
+		
+		<PrivateConnector
+			bhConnectorID="idColorArrayGetLastExp.prvCnctr0"
+			name="noSaigoNoYoso"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idColorArrayGetLastExp.prvNode0"
+				name="noSaigoNoYoso"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="の最後の要素">
+			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector
+			bhConnectorID="idColorArrayGetLastExp.prvCnctr1"
+			name="Arg1"
+			fixed="true">
+			<Node
+				type="noView"
+				bhNodeID="idColorArrayGetLastExp.prvNode1"
+				name="NilColor"
+				initString="_nilColor"/>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>

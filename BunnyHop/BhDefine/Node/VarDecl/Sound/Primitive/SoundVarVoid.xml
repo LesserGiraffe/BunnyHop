@@ -1,8 +1,0 @@
-<?xml version="1.0" ?>
-
-<Node
-	type="void"
-	bhNodeID="idSoundVarVoid"
-	name="SoundVarVoid"
-	nodeStyleID="SoundVarVoid.json">
-</Node>

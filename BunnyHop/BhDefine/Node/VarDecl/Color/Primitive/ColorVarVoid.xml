@@ -1,8 +1,0 @@
-<?xml version="1.0" ?>
-
-<Node
-	type="void"
-	bhNodeID="idColorVarVoid"
-	name="ColorVarVoid"
-	nodeStyleID="ColorVarVoid.json">
-</Node>

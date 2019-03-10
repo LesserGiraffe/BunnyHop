@@ -1,0 +1,25 @@
+{
+	"paddingTop" : 1.25,
+	"paddingBottom" : 1.25,
+	"paddingLeft" : 1.5,
+	"paddingRight" : 4.0,
+	"connectorPos" : "Left",
+	"connectorShift" : 0.0,
+	"connectorWidth" : 6.5,
+	"connectorHeight" : 6.5,
+	"connectorShape" : "CHAR_V",
+	"connectorBoundsRate" : 1.0,
+	"notchPos" : "Right",
+	"notchShape" : "TRIANGLE",
+	"notchWidth" : 1.5,
+	"notchHeight" : 1.5,
+	"cssClass" : "colorVarType",
+
+	"connective" : {
+		"inner" : {
+			"arrangement" : "Row",
+			"space" : 2.0,
+			"connectorList" : ["ListName", "ListSign"]
+		}
+	}
+}

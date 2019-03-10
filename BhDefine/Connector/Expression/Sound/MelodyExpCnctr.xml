@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+
+<Connector
+	bhConnectorID="idMelodyExpCnctr"
+	defaultBhNodeID="idMelodyExp"
+	fixed="true"
+	onReplaceabilityChecked="MelodyExpCnct.js"/>

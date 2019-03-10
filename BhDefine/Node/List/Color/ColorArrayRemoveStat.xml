@@ -1,0 +1,43 @@
+<Node type="connective"
+	bhNodeID="idColorArrayRemoveStat"
+	name="ColorArrayRemoveStat"
+	nodeStyleID="ColorArrayRemoveStat.json"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js">
+
+	<ConnectorSection name="StatSctn">
+		<Connector bhConnectorID="idColorListCnctr" name="Arg0"/>
+		
+		<PrivateConnector
+			bhConnectorID="idColorArrayRemoveStat.prvCnctr0"
+			name="no"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idColorArrayRemoveStat.prvNode0"
+				name="no"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="の">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+		
+		<PrivateConnector
+			bhConnectorID="idColorArrayRemoveStat.prvCnctr1"
+			name="banmeWoSakujyoSuru"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idColorArrayRemoveStat.prvNode1"
+				name="banmeWoSakujyoSuru"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="番目を削除する">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+	</ConnectorSection>
+</Node>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import net.seapanda.bunnyhop.view.node.*?>
+
+<ComboBox xmlns:fx="http://javafx.com/fxml">
+	<items>
+		<FXCollections fx:factory="observableArrayList">
+			<SelectableItem fx:id="idRed" modelText="Red" viewText="赤"/>
+			<SelectableItem fx:id="idGreen" modelText="Green" viewText="緑"/>
+			<SelectableItem fx:id="idBlue" modelText="Blue" viewText="青"/>
+			<SelectableItem fx:id="idCyan" modelText="Cyan" viewText="水色"/>
+			<SelectableItem fx:id="idMagenta" modelText="Magenta" viewText="紫"/>
+			<SelectableItem fx:id="idYellow" modelText="Yellow" viewText="きいろ"/>
+			<SelectableItem fx:id="idWhite" modelText="White" viewText="白"/>
+			<SelectableItem fx:id="idBlack" modelText="Black" viewText="黒"/>
+		</FXCollections>
+	</items>
+</ComboBox>

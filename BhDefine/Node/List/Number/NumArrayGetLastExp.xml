@@ -1,0 +1,37 @@
+<Node
+	type="connective"
+	bhNodeID="idNumArrayGetLastExp"
+	name="NumArrayGetLastExp"
+	nodeStyleID="NumArrayGetLastExp.json"
+	onMovedFromChildToWS=""
+	onMovedToChild="">
+
+	<ConnectorSection name="NumberExpSctn">
+		<Connector bhConnectorID="idNumListCnctr" name="Arg0"/>
+		
+		<PrivateConnector
+			bhConnectorID="idNumArrayGetLastExp.prvCnctr0"
+			name="noSaigoNoYoso"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idNumArrayGetLastExp.prvNode0"
+				name="noSaigoNoYoso"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="の最後の要素">
+			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector
+			bhConnectorID="idNumArrayGetLastExp.prvCnctr1"
+			name="Arg1"
+			fixed="true">
+			<Node
+				type="noView"
+				bhNodeID="idNumArrayGetLastExp.prvNode1"
+				name="NumLiteral"
+				initString="0"/>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>

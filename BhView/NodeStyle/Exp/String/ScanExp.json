@@ -1,0 +1,45 @@
+{
+	"paddingTop" : 1.0,
+	"paddingBottom" : 1.0,
+	"paddingLeft" : 2.5,
+	"paddingRight" : 1.5,
+	"connectorPos" : "Left",
+	"connectorShift" : 0.0,
+	"connectorWidth" : 3.5,
+	"connectorHeight" : 3.5,
+	"connectorShape" : "INV_TRIANGLE",
+	"connectorBoundsRate" : 1.25,
+	"cssClass" : "strType",
+
+	"connective" : {
+		"inner" : {
+			"arrangement" : "Column",
+			"space" : 0.0,
+			"connectorList" : ["nyuryokumojiretsu"],
+			
+			"subGroup0" : {
+				"arrangement" : "Row",
+				"space" : 1.0,
+				
+				"subGroup0" : {
+					"paddingTop": 1.0,
+					"arrangement" : "Row",
+					"connectorList" : ["nyuryokuYokyu"]
+				},
+				
+				"subGroup1" : {
+					"paddingTop": 0.0,
+					"arrangement" : "Row",
+					"connectorList" : ["Arg0"]
+				},
+
+				"subGroup2" : {
+					"paddingTop": 1.0,
+					"arrangement" : "Row",
+					"connectorList" : ["bracket"]
+				}
+			}
+		}
+	}
+}
+

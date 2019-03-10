@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+
+<Node type="connective"
+	  bhNodeID="idMelodyExp"
+	  name="MelodyExp"
+	  nodeStyleID="MelodyExp.json"
+	  onChildReplaced="onChildSoundExpReplaced.js">
+
+	<ConnectorSection name="MelodyExpSctn">
+
+		<PrivateConnector
+			bhConnectorID="idMelodyExp.prvCnctr0"
+			name="Arg0"
+			defaultBhNodeID="idSoundLiteralVoid"
+			initialBhNodeID=""
+			class="SoundClass"
+			onReplaceabilityChecked="SoundExpCnct.js"/>
+
+		<PrivateConnector 
+			bhConnectorID="idMelodyExp.prvCnctr1"
+			name="Arg1"
+			fixed="true"
+			initialBhNodeID="idMelodyExpVoid"/>
+	</ConnectorSection>
+</Node>

@@ -1,0 +1,26 @@
+<Node type="connective"
+	  bhNodeID="idBoolCompExp"
+	  name="BoolCompExp"
+	  nodeStyleID="CompExp.json"
+	  onMovedFromChildToWS=""
+	  onMovedToChild="">
+
+	<ConnectorSection name="BooleanExpSctn">
+		<Connector bhConnectorID="idBoolExpCnctr" name="LeftExp"/>
+		
+		<PrivateConnector
+			bhConnectorID="idBoolCompExp.prvCnctr0"
+			name="Operator"
+			fixed="true">
+			<Node
+				type="comboBox"
+				bhNodeID="idBoolCompExp.prvNode0"
+				name="compOpe"
+				nodeStyleID="DefaultComboBox.json"
+				nodeInputControl="EqualityCompOpe.fxml">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idBoolExpCnctr" name="RightExp"/>
+	</ConnectorSection>
+</Node>

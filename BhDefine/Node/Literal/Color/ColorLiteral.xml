@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+
+<Node
+	type="connective"
+	bhNodeID="idColorLiteralExp"
+	name="ColorLiteralExp"
+	nodeStyleID="ColorLiteralExp.json"
+	onMovedFromChildToWS="onLiteralMovedToWS.js">
+
+	<ConnectorSection name="ColorExpSctn">
+
+		<PrivateConnector
+			bhConnectorID="idColorLiteralExp.prvCnctr0"
+			name="Literal"
+			fixed="true">
+			<Node
+				type="comboBox"
+				bhNodeID="idColorLiteralExp.prvNode0"
+				name="ColorLiteral"
+				nodeStyleID="ColorLiteral.json"
+				nodeInputControl="ColorLiteral.fxml"
+				onTextAcceptabilityChecked="ParseStr.js">
+			</Node>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>
+

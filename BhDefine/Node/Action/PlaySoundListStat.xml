@@ -1,0 +1,37 @@
+<Node type="connective"
+	bhNodeID="idPlaySoundListStat"
+	name="PlaySoundListStat"
+	nodeStyleID="PlayMelodyStat.json"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js">
+
+	<ConnectorSection name="StatSctn">
+		<PrivateConnector 
+			bhConnectorID="idPlaySoundListStat.prvCnctr0"
+			name="ensouSuru"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idPlaySoundListStat.prvNode0"
+				name="ensouSuru"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="演奏する">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idSoundListCnctr" name="Arg0"/>
+		<PrivateConnector
+			bhConnectorID="idPlaySoundListStat.prvCnctr1"
+			name="Arg1"
+			fixed="true">
+			<Node
+				type="noView"
+				bhNodeID="idPlaySoundListStat.prvNode1"
+				name="BoolLiteral"
+				initString="false"/>
+		</PrivateConnector>
+			
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+	</ConnectorSection>
+</Node>

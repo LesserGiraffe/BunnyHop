@@ -1,0 +1,24 @@
+{
+	"paddingTop" : 1.0,
+	"paddingBottom" : 1.0,
+	"paddingLeft" : 1.0,
+	"paddingRight" : 1.0,
+	"connectorPos" : "Left",
+	"connectorShift" : 0.0,
+	"connectorWidth" : 0.0,
+	"connectorHeight" : 0.0,
+	"connectorShape" : "NONE",
+	"connectorBoundsRate" : 0.0,
+	"cssClass" : "strType",
+
+	"connective" : {
+		"inner" : {
+			"arrangement" : "Row",
+			"space" : 2.0,
+			"connectorList" : ["VarName", "Arg"]
+		},
+		"outer" : {
+			"connectorList" : ["NextArg"]
+		}
+	}
+}

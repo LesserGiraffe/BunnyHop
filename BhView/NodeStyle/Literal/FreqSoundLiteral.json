@@ -1,0 +1,21 @@
+{
+	"paddingTop" : 1.75,
+	"paddingBottom" : 1.75,
+	"paddingLeft" : 2.0,
+	"paddingRight" : 2.0,
+	"connectorPos" : "Left",
+	"connectorShift" : 0.0,
+	"connectorWidth" : 3.5,
+	"connectorHeight" : 3.5,
+	"connectorShape" : "CHAR_U",
+	"connectorBoundsRate" : 1.25,
+	"cssClass" : "soundType",
+    
+	"connective" : {
+		"inner" : {
+			"space" : 2.0,
+			"arrangement" : "Row",
+			"connectorList" : ["Duration", "ByoKanNo", "Frequency", "HzNoOto"]
+		}
+	}
+}

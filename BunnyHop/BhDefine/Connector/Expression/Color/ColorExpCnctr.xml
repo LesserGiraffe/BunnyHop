@@ -1,7 +1,0 @@
-<?xml version="1.0" ?>
-
-<Connector 
-	bhConnectorID="idColorExpCnctr"
-	defaultBhNodeID="idColorLiteralExp"
-	class="ColorClass"
-	onReplaceabilityChecked="ColorExpCnct.js"/>
