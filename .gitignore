@@ -1,21 +1,16 @@
-BunnyHop/Actions/open_jtalk/utf8_dic/unk.dic
-BunnyHop/Actions/open_jtalk/utf8_dic/sys.dic
-BunnyHop/Actions/open_jtalk/utf8_dic/right-id.def
-BunnyHop/Actions/open_jtalk/sjis_dic/unk.dic
-BunnyHop/Actions/open_jtalk/sjis_dic/sys.dic
-BunnyHop/Actions/open_jtalk/sjis_dic/right-id.def
-BunnyHop/Actions/open_jtalk/sjis_dic/rewrite.def
-BunnyHop/Actions/open_jtalk/sjis_dic/pos-id.def
-BunnyHop/Actions/open_jtalk/sjis_dic/matrix.bin
-BunnyHop/Actions/open_jtalk/utf8_dic/left-id.def
-BunnyHop/Actions/open_jtalk/utf8_dic/char.bin
-BunnyHop/Actions/open_jtalk/utf8_dic/COPYING
-BunnyHop/Actions/open_jtalk/open_jtalk.exe
-BunnyHop/Actions/open_jtalk/nitech_jp_atr503_m001.htsvoice
-BunnyHop/Actions/open_jtalk/utf8_dic/rewrite.def
-BunnyHop/Actions/open_jtalk/utf8_dic/pos-id.def
-BunnyHop/Actions/open_jtalk/utf8_dic/matrix.bin
-BunnyHop/Actions/open_jtalk/sjis_dic/left-id.def
-BunnyHop/Actions/open_jtalk/sjis_dic/char.bin
-BunnyHop/Actions/open_jtalk/sjis_dic/COPYING
-BunnyHop/Actions/open_jtalk/setupForDebian64.txt
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+BunnyHop
+lib
+mlib
+bin
+Actions/open_jtalk
+App/Log
+App/Compiled
+App/BhExecEnvLog
+App/Actions/open_jtalk
+App/net.seapanda.bunnyhop.jar
+App/BhProgramExecEnvironment.jar
