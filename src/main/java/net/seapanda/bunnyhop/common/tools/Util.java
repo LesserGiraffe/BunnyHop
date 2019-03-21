@@ -52,8 +52,12 @@ public class Util {
 		File jarFile = new File(pathStr);
 		Path jarPath = Paths.get(jarFile.getAbsolutePath());
 		String root = (jarPath.getRoot() == null) ? "" : jarPath.getRoot().toString();
-		EXEC_PATH = root + jarPath.subpath(0, jarPath.getNameCount() - 1).toString();
-
+		if (isModulePath) {
+			EXEC_PATH = root + jarPath.subpath(0, jarPath.getNameCount()).toString();
+		}
+		else {
+			EXEC_PATH = root + jarPath.subpath(0, jarPath.getNameCount() - 1).toString();
+		}
 		String fs = System.getProperty("file.separator");
 		LF = System.getProperty("line.separator");
 		JAVA_PATH = System.getProperty("java.home") + fs + "bin" + fs + "java";
