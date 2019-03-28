@@ -1,3 +1,3 @@
 (function() {
-	return 'SoundList' === bhReplacedNewNode.getSymbolName();
+	return 'SoundList' === String(bhReplacedNewNode.getSymbolName());
 })();

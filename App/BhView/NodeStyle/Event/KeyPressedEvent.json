@@ -18,7 +18,7 @@
 			"subGroup0" : {
 				"arrangement" : "Row",
 				"space" : 2.0,
-				"connectorList" : ["keyCodeCnctr", "gaOsaretaToki"],
+				"connectorList" : ["keyCodeCnctr", "gaOsaretaToki"]
 			},
 			"subGroup1" : {
 				"arrangement" : "Column",

@@ -1,11 +1,11 @@
 (function() {
-    
-    const section = bhReplacedNewNode.findSymbolInDescendants('*');
+
+    let section = bhReplacedNewNode.findSymbolInDescendants('*');
     let sectionName = null;
     if (section !== null) {
-        sectionName = section.getSymbolName();
+        sectionName = String(section.getSymbolName());
     }
-    
+
 	return sectionName === 'VarDeclSctn';
 })();
 

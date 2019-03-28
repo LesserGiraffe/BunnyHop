@@ -16,7 +16,6 @@
 module net.seapanda.bunnyhop {
     requires java.rmi;
     requires java.scripting;
-    requires jdk.scripting.nashorn;
     requires transitive javafx.graphics;
     requires java.desktop;
 	requires javafx.controls;
@@ -24,6 +23,7 @@ module net.seapanda.bunnyhop {
 	requires java.base;
 	requires transitive java.xml;
 	requires javafx.base;
+	requires rhino;
 
 	exports net.seapanda.bunnyhop.root;
 	exports net.seapanda.bunnyhop.model;

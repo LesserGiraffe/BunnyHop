@@ -18,9 +18,9 @@ package net.seapanda.bunnyhop.model.node.connective;
 import java.util.List;
 import java.util.function.Predicate;
 
-import javax.script.Bindings;
-import javax.script.CompiledScript;
-import javax.script.ScriptException;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.ScriptableObject;
 
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -56,7 +56,7 @@ public class Connector extends SyntaxSymbol {
 	private ImitationConnectionPos imitCnctPoint;	//!< イミテーション生成時のタグ
 	private final String scriptNameOnReplaceabilityChecked;	//!< ノードを入れ替え可能かどうかチェックするスクリプトの名前
 	private final String claz;	//!< コネクタに付けられたクラス
-	transient protected Bindings scriptScope;
+	transient protected ScriptableObject scriptScope;	//!< スクリプト実行時のスコープ
 
 	/**
 	 * visitor に次の走査対象に渡す
@@ -214,17 +214,20 @@ public class Connector extends SyntaxSymbol {
 		if (fixed)
 			return false;
 
-		CompiledScript onReplaceabilityChecked = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnReplaceabilityChecked);
+		Script onReplaceabilityChecked = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnReplaceabilityChecked);
 		if (onReplaceabilityChecked == null)
 			return false;
 
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newNode);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, connectedNode);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newNode);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, connectedNode);
 		Object replaceable;
 		try {
-			replaceable = onReplaceabilityChecked.eval(scriptScope);
-		} catch (ScriptException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(Connector.class.getSimpleName() +  ".isReplacable   " + scriptNameOnReplaceabilityChecked + "\n" + e.toString() + "\n");
+			replaceable = ContextFactory.getGlobal().call(cx -> onReplaceabilityChecked.exec(cx, scriptScope));
+		}
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				Connector.class.getSimpleName() +  ".isReplacable   " + scriptNameOnReplaceabilityChecked + "\n" +
+				e.toString() + "\n");
 			return false;
 		}
 		if (replaceable instanceof Boolean)
@@ -274,11 +277,11 @@ public class Connector extends SyntaxSymbol {
 	 */
 	public final void setScriptScope() {
 		scriptScope = BhScriptManager.INSTANCE.createScriptScope();
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_THIS, this);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_THIS, this);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
 	}
 
 	/**

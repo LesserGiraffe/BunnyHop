@@ -202,7 +202,7 @@ public class BhCompiler {
 			public static final String _break = "break";
 			public static final String _continue = "continue";
 			public static final String _let = "let ";
-			public static final String _const = "const ";
+			public static final String _const = "let ";	//Rhino に const のブロックスコープのバグがあるので実際のキーワードをletに変更
 			public static final String _function = "function ";
 			public static final String _true = "true";
 			public static final String _false = "false";

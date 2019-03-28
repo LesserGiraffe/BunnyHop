@@ -259,6 +259,8 @@ public class BhParams {
 	public static class ExternalApplication {
 
 		public static final String BH_PROGRAM_EXEC_ENV_JAR = "BhProgramExecEnvironment.jar";
+		public static final String BH_PROGRAM_EXEC_MOD_NAME = "net.seapanda.bhprogramexecenv";
+		public static final String BH_PROGRAM_EXEC_MAIN_CLASS = "net.seapanda.bunnyhop.programexecenv.BhProgramExecEnvironment";
 		public static final int REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT = 10;	//!< リモートのBhProgramExecEnvironment終了待ちのタイムアウト時間 (sec)
 		public static final int REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT_SHORT = 4;	//!< リモートのBhProgramExecEnvironment終了待ちのタイムアウト時間 (sec)
 		public static final int DEAD_PROC_END_TIMEOUT = 3;	//!< 死んでいるプロセスの終了完了待ちタイムアウト時間 (sec)

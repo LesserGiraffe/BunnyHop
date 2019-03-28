@@ -1,10 +1,10 @@
 (function() {
 
-	const newNodeName = bhReplacedNewNode.getSymbolName();
-	const section = bhReplacedNewNode.findSymbolInDescendants('*');
+	let newNodeName = bhReplacedNewNode.getSymbolName();
+	let section = bhReplacedNewNode.findSymbolInDescendants('*');
 	let sectionName = null;
 	if (section !== null) {
-		sectionName = section.getSymbolName();
+		sectionName = String(section.getSymbolName());
 	}
 
 	return sectionName === 'MelodyExpSctn';

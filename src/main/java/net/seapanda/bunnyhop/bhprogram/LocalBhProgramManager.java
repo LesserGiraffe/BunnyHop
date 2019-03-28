@@ -163,13 +163,27 @@ public class LocalBhProgramManager {
 	private Process startExecEnvProcess() {
 
 		Process proc = null;
+		/*ProcessBuilder procBuilder = new ProcessBuilder(
+			Util.INSTANCE.JAVA_PATH,
+			"--module-path",
+			("\"" + Paths.get(Util.INSTANCE.EXEC_PATH, "..", "lib").toString() +
+			Util.INSTANCE.PS +
+			Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENV_JAR).toString()) + "\"",
+			"--module",
+			BhParams.ExternalApplication.BH_PROGRAM_EXEC_MOD_NAME + "/" + BhParams.ExternalApplication.BH_PROGRAM_EXEC_MAIN_CLASS,
+			"true");	//localFlag == true
+		*/
+
 		ProcessBuilder procBuilder = new ProcessBuilder(
 			Util.INSTANCE.JAVA_PATH,
-			"-jar",
-			Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENV_JAR).toString(),
+			"-cp",
+			"\"" + Paths.get(Util.INSTANCE.EXEC_PATH, "..", "lib").toString() + Util.INSTANCE.FS  + "*" +
+			Util.INSTANCE.PS +
+			Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENV_JAR).toString() + "\"",
+			BhParams.ExternalApplication.BH_PROGRAM_EXEC_MAIN_CLASS,
 			"true");	//localFlag == true
-		procBuilder.redirectErrorStream(true);
 
+		procBuilder.redirectErrorStream(true);
 		try {
 			proc = procBuilder.start();
 		}

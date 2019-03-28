@@ -27,13 +27,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import javax.script.Bindings;
-import javax.script.CompiledScript;
-import javax.script.ScriptException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.ScriptableObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -321,15 +321,15 @@ public class BhNodeTemplates {
 	 */
 	private boolean genCompoundNodes() {
 
-		CompiledScript cs = BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.GEN_COMPOUND_NODES_JS);
-		Bindings scriptScope = BhScriptManager.INSTANCE.createScriptScope();
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, new UserOperationCommand());
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, INSTANCE);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
+		Script cs = BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.GEN_COMPOUND_NODES_JS);
+		ScriptableObject scriptScope = BhScriptManager.INSTANCE.createScriptScope();
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, new UserOperationCommand());
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, INSTANCE);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
 		try {
-			cs.eval(scriptScope);
+			ContextFactory.getGlobal().call(cx -> cs.exec(cx, scriptScope));
 		}
-		catch (ScriptException e) {
+		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug("eval " + BhParams.Path.GEN_COMPOUND_NODES_JS + "\n" + e.toString());
 			return false;
 		}

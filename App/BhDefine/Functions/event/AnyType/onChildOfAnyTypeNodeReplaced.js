@@ -35,7 +35,7 @@
 		return staticTypeNode;
 	}
 
-	const staticTypeCnctrClassList = ['NumClass', 'StrClass', 'BoolClass', 'SoundClass', 'ColorClass'];
+	let staticTypeCnctrClassList = ['NumClass', 'StrClass', 'BoolClass', 'SoundClass', 'ColorClass'];
 	if (staticTypeCnctrClassList.indexOf(bhParentConnector.getClaz()) !== -1)
 		return;
 
@@ -53,7 +53,7 @@
 	}
 
 	// any-type ノードの入れ替え
-	if (bhThis.findSymbolInDescendants('*').getSymbolName() ===  'StatSctn')
+	if (String(bhThis.findSymbolInDescendants('*').getSymbolName()) === 'StatSctn')
 		bhCommon.replaceStatWithNewStat(bhThis, staticTypeNode, bhNodeHandler, bhUserOpeCmd);
 	else
 		bhNodeHandler.exchangeNodes(bhThis, staticTypeNode, bhUserOpeCmd);

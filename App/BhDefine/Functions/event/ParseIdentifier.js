@@ -1,11 +1,12 @@
 (function() {
-
-	if (bhText.match(/[\/\*]/) != null) {
+	
+	let text = String(bhText);
+	if (text.match(/[\/\*]/) !== null) {
 		return false;
 	}
-	if (bhText.length > 64) {
+	if (text.length > 64) {
 		return false;
 	}
 	
-	return bhText !== "";
+	return text !== "";
 })();

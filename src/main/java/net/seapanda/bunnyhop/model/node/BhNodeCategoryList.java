@@ -18,7 +18,9 @@ package net.seapanda.bunnyhop.model.node;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeObject;
+
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.TreeNode;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -48,8 +50,12 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 	 * */
 	public boolean genNodeCategoryList() {
 
-		Path filePath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.TEMPLATE_LIST_DIR, BhParams.Path.NODE_TEMPLATE_LIST_JSON);
-		ScriptObjectMirror jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
+		Path filePath = Paths.get(
+			Util.INSTANCE.EXEC_PATH,
+			BhParams.Path.BH_DEF_DIR,
+			BhParams.Path.TEMPLATE_LIST_DIR,
+			BhParams.Path.NODE_TEMPLATE_LIST_JSON);
+		NativeObject jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
 		templateTreeRoot = new TreeNode<>("root");
 		return addChildren(jsonObj, templateTreeRoot, filePath.toString());
 	}
@@ -61,38 +67,39 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 	 * @param parent 子ノードを追加したいノード
 	 * @return 下位の葉ノードに対応するBhNode があった場合true
 	 * */
-	private boolean addChildren(ScriptObjectMirror jsonObj, TreeNode<String> parent, String fileName) {
+	private boolean addChildren(NativeObject jsonObj, TreeNode<String> parent, String fileName) {
 
 		boolean bhNodeForLeafExists = true;
-		for(String key : jsonObj.keySet()) {
+		for(Object key : jsonObj.keySet()) {
+
+			if (!(key instanceof String))
+				continue;
 
 			Object val = jsonObj.get(key);
-			switch (key) {
+			switch (key.toString()) {
 				case BhParams.NodeTemplateList.KEY_CSS_CLASS:	//cssクラスのキー
-					if (!(val instanceof String))
-						continue;
-					TreeNode<String> cssClass = new TreeNode<>(BhParams.NodeTemplateList.KEY_CSS_CLASS);
-					cssClass.children.add(new TreeNode<>(val.toString()));
-					parent.children.add(cssClass);
+					if (val instanceof String) {
+						TreeNode<String> cssClass = new TreeNode<>(BhParams.NodeTemplateList.KEY_CSS_CLASS);
+						cssClass.children.add(new TreeNode<>(val.toString()));
+						parent.children.add(cssClass);
+					}
 					break;
 
 				case BhParams.NodeTemplateList.KEY_CONTENTS:	//ノードIDの配列のキー
-					if (!(val instanceof ScriptObjectMirror))
-						continue;
-					if (((ScriptObjectMirror)val).isArray()) {
+					if (val instanceof NativeArray) {
 						TreeNode<String> contents = new TreeNode<>(BhParams.NodeTemplateList.KEY_CONTENTS);
-						bhNodeForLeafExists &= addBhNodeID((ScriptObjectMirror)val, contents, fileName);
+						bhNodeForLeafExists &= addBhNodeID((NativeArray)val, contents, fileName);
 						parent.children.add(contents);
-					}	break;
+					}
+					break;
 
 				default:					//カテゴリ名
-					if (!(val instanceof ScriptObjectMirror))
-						continue;
-					if (!((ScriptObjectMirror)val).isArray()) {
-						TreeNode<String> child = new TreeNode<>(key);
+					if (val instanceof NativeObject) {
+						TreeNode<String> child = new TreeNode<>(key.toString());
 						parent.children.add(child);
-						bhNodeForLeafExists &= addChildren((ScriptObjectMirror)val, child, fileName);
-					}	break;
+						bhNodeForLeafExists &= addChildren((NativeObject)val, child, fileName);
+					}
+					break;
 			}
 		}
 		return bhNodeForLeafExists;
@@ -104,11 +111,11 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 	 * @param parent IDを子ノードとして追加する親ノード
 	 * @return 各IDに対応するBhNodeがすべて見つかった場合true
 	 * */
-	private boolean addBhNodeID(ScriptObjectMirror bhNodeIDList, TreeNode<String> parent, String fileName) {
+	private boolean addBhNodeID(NativeArray bhNodeIDList, TreeNode<String> parent, String fileName) {
 
 		boolean allBhNodesExist = true;
-		for (Object bhNodeID : bhNodeIDList.values()) {
-			if (String.class.isAssignableFrom(bhNodeID.getClass())) {	// 配列内の文字列だけをBhNode の IDとみなす
+		for (Object bhNodeID : bhNodeIDList) {
+			if (bhNodeID instanceof String) {	// 配列内の文字列だけをBhNode の IDとみなす
 
 				String bhNodeIDStr = (String)bhNodeID;
 				if (BhNodeTemplates.INSTANCE.bhNodeExists(BhNodeID.createBhNodeID(bhNodeIDStr))) {	//IDに対応する BhNode がある
@@ -116,7 +123,9 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 				}
 				else {
 					allBhNodesExist &= false;
-					MsgPrinter.INSTANCE.errMsgForDebug(bhNodeIDStr + " に対応する " + BhParams.BhModelDef.ELEM_NAME_NODE + " が存在しません.\n" + "(" + fileName + ")");
+					MsgPrinter.INSTANCE.errMsgForDebug(
+						bhNodeIDStr + " に対応する " + BhParams.BhModelDef.ELEM_NAME_NODE + " が存在しません.\n" +
+						"(" + fileName + ")");
 				}
 			}
 		}

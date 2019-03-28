@@ -1,16 +1,16 @@
 (function() {
 
-	let ControllerType = Java.type('net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder.ControllerType');
-	let NodeMVCBuilder = Java.type('net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder');
-	let BhNodeID = Java.type("net.seapanda.bunnyhop.model.node.BhNodeID");
-	let BhNodeState = Java.type('net.seapanda.bunnyhop.model.node.BhNode.State');
+	let ControllerType = net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder.ControllerType;
+	let NodeMVCBuilder = net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
+	let BhNodeID = net.seapanda.bunnyhop.model.node.BhNodeID;
+	let BhNodeState = net.seapanda.bunnyhop.model.node.BhNode.State;
 	let bhCommon = {};
 
 	// 入れ替わってWSに移ったノードを末尾に再接続する
 	function appendRemovedNode(newNode, oldNode, manuallyRemoved, bhNodeHandler, bhUserOpeCmd) {
 
 		let outerEnd = newNode.findOuterNode(-1);
-		if ((outerEnd.type === "void") && outerEnd.canBeReplacedWith(oldNode) && !manuallyRemoved) {
+		if ((String(outerEnd.type) === "void") && outerEnd.canBeReplacedWith(oldNode) && !manuallyRemoved) {
 			bhNodeHandler.replaceChild(outerEnd, oldNode, bhUserOpeCmd);
 			bhNodeHandler.deleteNode(outerEnd, bhUserOpeCmd);
 	    }
@@ -56,9 +56,9 @@
 	/**
 	 * from の descendantPath の位置にあるノードを to の descendantPath の位置にあるノードに移す.
 	 * to の descendantPath の位置にあったノードは削除される.
-	 * @param to from の pathの位置にあるノードをこのノードの path の位置に移す
+	 * @param to from の descendantPathの位置にあるノードをこのノードの descendantPath の位置に移す
 	 * @param from このノードの path の位置のノードを to の位置の path の位置に移す
-	 * @param
+	 * @param descendantPath 移し元および移し先のノードのパス
 	 * @param bhNodeHandler ノード操作用オブジェクト
 	 * @param bhUserOpeCmd undo/redo用コマンドオブジェクト
 	 * */

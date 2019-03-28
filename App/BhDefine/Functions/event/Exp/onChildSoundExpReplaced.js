@@ -12,7 +12,7 @@
 		oldNodeSectionName = oldNodeSection.getSymbolName();
 
 	// 音挿入
-	if (newNodeSectionName === 'SoundExpSctn') {
+	if (String(newNodeSectionName) === 'SoundExpSctn') {
 	
 		// 新メロディノード作成
 		let posOnWS = bhMsgService.getPosOnWS(bhThis);
@@ -29,8 +29,8 @@
 		bhNodeHandler.exchangeNodes(soundExpVoid, bhReplacedOldNode, bhUserOpeCmd);
 		bhNodeHandler.deleteNode(soundExpVoid, bhUserOpeCmd);
 	}
-	else if (bhParentConnector.getConnectedNode().getSymbolName() === 'SoundLiteralVoid') {
-		if (nextMelodyExp.getSymbolName() === 'MelodyExp') {
+	else if (String(bhParentConnector.getConnectedNode().getSymbolName()) === 'SoundLiteralVoid') {
+		if (String(nextMelodyExp.getSymbolName()) === 'MelodyExp') {
 			bhNodeHandler.replaceChild(bhThis, nextMelodyExp, bhUserOpeCmd)
 			bhNodeHandler.deleteNodeIncompletely(bhThis, true, true, bhUserOpeCmd);
 			bhMsgService.setNodeVisibility(bhThis, false, bhUserOpeCmd);

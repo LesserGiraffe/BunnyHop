@@ -19,8 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import javax.script.CompiledScript;
-import javax.script.ScriptException;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.ScriptableObject;
 
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -166,19 +167,21 @@ public class ConnectiveNode extends Imitatable {
 		Connector parentCnctr,
 		UserOperationCommand userOpeCmd) {
 
-		CompiledScript onChildReplaced = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnChildReplaced);
+		Script onChildReplaced = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnChildReplaced);
 		if (onChildReplaced == null)
 			return;
 
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newChild);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldChild);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_PARENT_CONNECTOR, parentCnctr);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newChild);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldChild);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_PARENT_CONNECTOR, parentCnctr);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
-			onChildReplaced.eval(scriptScope);
+			ContextFactory.getGlobal().call(cx -> onChildReplaced.exec(cx, scriptScope));
 		}
-		catch (ScriptException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptNameOnChildReplaced + "\n" + e.toString() + "\n");
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptNameOnChildReplaced + "\n" +
+				e.toString() + "\n");
 		}
 	}
 

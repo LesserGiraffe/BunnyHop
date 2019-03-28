@@ -1,3 +1,3 @@
 (function() {
-	return bhReplacedNewNode.getSymbolName() === "StrVar";
+	return String(bhReplacedNewNode.getSymbolName()) === "StrVar";
 })();

@@ -1,3 +1,3 @@
 (function() {
-	return 'ColorList' === bhReplacedNewNode.getSymbolName();
+	return 'ColorList' === String(bhReplacedNewNode.getSymbolName());
 })();

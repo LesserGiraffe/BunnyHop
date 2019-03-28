@@ -14,3 +14,7 @@ App/BhExecEnvLog
 App/Actions/open_jtalk
 App/net.seapanda.bunnyhop.jar
 App/BhProgramExecEnvironment.jar
+.settings
+.checkstyle
+.classpath
+.project

@@ -25,17 +25,15 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.stream.Stream;
 
-import javax.script.Bindings;
-import javax.script.Compilable;
-import javax.script.CompiledScript;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.json.JsonParser;
 
-import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
 
 /**
  * Javascriptを管理するクラス
@@ -44,16 +42,19 @@ import net.seapanda.bunnyhop.common.tools.Util;
 public class BhScriptManager {
 
 	public static final BhScriptManager INSTANCE = new BhScriptManager();	//!< シングルトンインスタンス
-	private final HashMap<String, CompiledScript> scriptName_script = new HashMap<>();	//!< スクリプト名とコンパイル済みスクリプトのマップ
-	private final ScriptEngine engine = (new NashornScriptEngineFactory()).getScriptEngine("--language=es6");
+	private final HashMap<String, Script> scriptName_script = new HashMap<>();	//!< スクリプト名とコンパイル済みスクリプトのマップ
 	private Object commonJsObj;	//!< スクリプト共通で使うJavascriptオブジェクト
 
 	/**
 	 * Javascript 実行時の変数スコープを新たに作成する
 	 * @return Javascript 実行時の変数スコープ
 	 */
-	public Bindings createScriptScope() {
-		return engine.createBindings();
+	public ScriptableObject createScriptScope() {
+
+		Context cx = ContextFactory.getGlobal().enterContext();
+		ScriptableObject scope = cx.initStandardObjects();
+		Context.exit();
+		return scope;
 	}
 
 	/**
@@ -61,7 +62,7 @@ public class BhScriptManager {
 	 * @param fileName 取得したいスクリプトのファイル名
 	 * @return jsPath で指定したスクリプト
 	 * */
-	public CompiledScript getCompiledScript(String fileName) {
+	public Script getCompiledScript(String fileName) {
 		return scriptName_script.get(fileName);
 	}
 
@@ -76,7 +77,8 @@ public class BhScriptManager {
 		for (Path dirPath : dirPaths) {
 			Stream<Path> paths;	//読み込むファイルパスリスト
 			try {
-				paths = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.getFileName().toString().endsWith(".js")); //.jsファイルだけ収集
+				paths = Files.walk(dirPath, FOLLOW_LINKS)
+							 .filter(path -> path.getFileName().toString().endsWith(".js")); //.jsファイルだけ収集
 			}
 			catch (IOException e) {
 				MsgPrinter.INSTANCE.errMsgForDebug(BhParams.Path.FUNCTIONS_DIR + " directory not found " + dirPath);
@@ -84,36 +86,46 @@ public class BhScriptManager {
 				continue;
 			}
 
+			Context cx = ContextFactory.getGlobal().enterContext();
+			cx.setLanguageVersion(Context.VERSION_ES6);
+			cx.setOptimizationLevel(9);
 			success &= paths.map(path -> {
 
 				try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)){
-					CompiledScript cs = ((Compilable)engine).compile(reader);
-					scriptName_script.put(path.getFileName().toString(), cs);
+					Script script = cx.compileReader(reader, path.getFileName().toString(), 1, null);
+					scriptName_script.put(path.getFileName().toString(), script);
 				}
 				catch (IOException e) {
 					MsgPrinter.INSTANCE.errMsgForDebug(e.toString() + "  " + path.toString());
 					return false;
 				}
-				catch (ScriptException e) {
-					MsgPrinter.INSTANCE.errMsgForDebug(path.toUri() + " がコンパイルできません.");
-					MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
-					return false;
-				}
 				return true;
 			}).allMatch(bool -> bool);
-
+			Context.exit();
 		}
+
+		success &= genCommonObj();
+		return success;
+	}
+
+	/**
+	 * 各スクリプトが共通で使うオブジェクトを生成する
+	 * @return オブジェクトの作成に成功した場合true, 失敗した場合false.
+	 * */
+	private boolean genCommonObj() {
 
 		if (scriptName_script.containsKey(BhParams.Path.COMMON_EVENT_JS)) {
 			try {
-				commonJsObj = scriptName_script.get(BhParams.Path.COMMON_EVENT_JS).eval();
-			} catch (ScriptException e) {
+				commonJsObj = ContextFactory.getGlobal().call(cx -> {
+					return scriptName_script.get(BhParams.Path.COMMON_EVENT_JS).exec(cx, cx.initStandardObjects());
+				});
+			}
+			catch (Exception e) {
 				MsgPrinter.INSTANCE.errMsgForDebug("exec " + BhParams.Path.COMMON_EVENT_JS + "\n" + e.toString() + "\n");
-				success &= false;
+				return false;
 			}
 		}
-
-		return success;
+		return true;
 	}
 
 	/**
@@ -139,30 +151,29 @@ public class BhScriptManager {
 	 * @param filePath Jsonファイルのパス
 	 * @return Jsonファイルをパースしてできたオブジェクト
 	 */
-	public ScriptObjectMirror parseJsonFile(Path filePath) {
+	public NativeObject parseJsonFile(Path filePath) {
 
 		Object jsonObj = null;
 		try {
 			byte[] contents = Files.readAllBytes(filePath);
 			String jsCode = new String(contents, StandardCharsets.UTF_8);
-			jsCode = "var content = " + jsCode + ";" + Util.INSTANCE.LF;
-			jsCode += "(function () {return content;})();";
-			CompiledScript cs = ((Compilable)engine).compile(jsCode);
-			jsonObj = cs.eval();
+			Context cx = ContextFactory.getGlobal().enterContext();
+			jsonObj = (new JsonParser(cx, cx.initStandardObjects())).parseValue(jsCode);
+			Context.exit();
 		}
 		catch (IOException e) {
 			MsgPrinter.INSTANCE.errMsgForDebug("cannot read json file.  " + filePath + "\n" + e.toString() + "\n");
 			return null;
 		}
-		catch (ScriptException e) {
+		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug("cannot parse json file.  " + filePath + "\n" + e.toString() + "\n");
 			return null;
 		}
-		if (!(jsonObj instanceof ScriptObjectMirror)) {
+		if (!(jsonObj instanceof NativeObject)) {
 			MsgPrinter.INSTANCE.errMsgForDebug("cannot parse json file.  " + filePath);
 			return null;
 		}
-		return (ScriptObjectMirror)jsonObj;
+		return (NativeObject)jsonObj;
 	}
 
 	/**

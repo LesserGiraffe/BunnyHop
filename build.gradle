@@ -22,27 +22,31 @@ repositories {
 	// Use jcenter for resolving your dependencies.
 	// You can declare any Maven/Ivy/file repository here.
 	jcenter()
+	mavenCentral()
 }
 
-dependencies {}
+dependencies {
+	compile group: 'com.jcraft', name: 'jsch', version: '0.1.55'
+	compile group: 'com.jcraft', name: 'jzlib', version: '1.1.3'
+	compile group: 'org.mozilla', name: 'rhino', version: '1.7.10'
+}
 
 ext.moduleName = 'net.seapanda.bunnyhop'
 ext.mainClass = 'net.seapanda.bunnyhop.root.AppMain'
 ext.bhProgramExecModName = 'net.seapanda.bhprogramexecenv'
-ext.SYS_HOME = System.getenv('HOME')
+ext.USR_HOME = System.getProperty('user.home')
 ext.JDK_VER = 11
 ext.appDirName = 'App';
 ext.ps = File.pathSeparator
 ext.projName = 'BunnyHop'
 
-// JFXライブライの展開と配置
+// JFXライブラリの展開と配置
 task prepareJFX {
 
 	def jfxJarZipPath = "$projectDir/lib/jfx.zip"
 	def jfxModZipPath = "$projectDir/mlib/jfx.zip"
-	
+
 	doFirst {
-	
 		if (Os.isFamily(Os.FAMILY_WINDOWS)) {
 			ext.jfxLibs = [
 				'http://gluonhq.com/download/javafx-11-0-2-sdk-windows/': jfxJarZipPath,
@@ -61,7 +65,7 @@ task prepareJFX {
 				'https://gluonhq.com/download/javafx-11-0-2-jmods-mac/': jfxModZipPath
 			]
 		}
-		
+
 		for (lib in jfxLibs) {
 			if (!file(lib.value).exists()) {
 				download {
@@ -81,11 +85,11 @@ task prepareJFX {
 			from zipTree(jfxModZipPath)
 			into file("$projectDir/mlib")
 		}
-		
+
 		// 必要なファイルの配置
 		FileTree ftree = fileTree("$projectDir/lib")
 		ftree.visit {element ->
-			if (element.file.toString() ==~ /.+javafx.+[\/\\]lib[\/\\].+\.jar$/ || 
+			if (element.file.toString() ==~ /.+javafx.+[\/\\]lib[\/\\].+\.jar$/ ||
 				element.file.toString() ==~ /.+javafx.+[\/\\]lib[\/\\].+\.so$/) {
 				ant.move(todir: "$projectDir/lib") {
 					fileset(file: element.file.toString())
@@ -97,23 +101,157 @@ task prepareJFX {
 				}
 			}
 		}
-		
+
 		ftree = fileTree("$projectDir/mlib")
 		ftree.visit {element ->
 			if (element.file.toString() ==~ /.+\.jmod$/) {
 				ant.move(todir: "$projectDir/mlib") {
-            		fileset(file: element.file.toString())
+					fileset(file: element.file.toString())
 				}
 			}
 		}
 	}
 }
 
+// JSchライブラリの配置
+task prepareJSch {
+	
+	doFirst {
+		String jschModName = 'jsch'
+		String jschModJar = 'jschMod.jar'
+		String jschLibJar = null
+		String jzlibModName = 'jzlib'
+		String jzlibModJar = 'jzlibMod.jar'
+		String jzlibLibJar = null
+
+		// jzlibモジュール作成
+		if (!file("$projectDir/lib/$jzlibModJar").exists()) {
+
+			files(configurations.default).each {File file ->
+
+				if (file.name ==~ /^jzlib.+\.jar$/) {
+					ant.copy(todir: "$projectDir/lib") {
+						fileset(file: file.absolutePath)
+					}
+					jzlibLibJar = file.name
+				}
+			}
+
+			exec {
+				commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jdeps'),
+							'--generate-module-info', "$projectDir/lib", "$projectDir/lib/$jzlibLibJar")
+			}
+			exec {
+				commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/javac'),
+							'--patch-module', "$jzlibModName=$projectDir/lib/$jzlibLibJar", "$projectDir/lib/$jzlibModName/module-info.java")
+			}
+			exec {
+				commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jar'),
+							 'uf', "$projectDir/lib/$jzlibLibJar", '-C', "$projectDir/lib/$jzlibModName", 'module-info.class')
+			}
+			ant.move(tofile: "$projectDir/lib/$jzlibModJar") {
+				fileset(file: "$projectDir/lib/$jzlibLibJar")
+			}
+			ant.copy(tofile: "$projectDir/mlib/$jzlibModJar") {
+				fileset(file: "$projectDir/lib/$jzlibModJar")
+			}
+			delete "$projectDir/lib/$jzlibModName"
+		}
+
+		// jschモジュール作成
+		if (!file("$projectDir/lib/$jschModJar").exists()) {
+
+			files(configurations.default).each {File file ->
+				if (file.name ==~ /^jsch.+\.jar$/) {
+					ant.copy(todir: "$projectDir/lib") {
+						fileset(file: file.absolutePath)
+					}
+					jschLibJar = file.name
+				}
+			}
+
+			exec {
+				commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jdeps'),
+							'--module-path', "$projectDir/lib/$jzlibModJar",
+							'--add-modules', "$jzlibModName",
+							'--generate-module-info', "$projectDir/lib", "$projectDir/lib/$jschLibJar")
+			}
+			exec {
+				commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/javac'),
+							'--module-path', "$projectDir/lib/$jzlibModJar",
+							'--patch-module', "$jschModName=$projectDir/lib/$jschLibJar", "$projectDir/lib/$jschModName/module-info.java")
+			}
+			exec {
+				commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jar'),
+							 'uf', "$projectDir/lib/$jschLibJar", '-C', "$projectDir/lib/$jschModName", 'module-info.class')
+			}
+			ant.move(tofile: "$projectDir/lib/$jschModJar") {
+				fileset(file: "$projectDir/lib/$jschLibJar")
+			}
+			ant.copy(tofile: "$projectDir/mlib/$jschModJar") {
+				fileset(file: "$projectDir/lib/$jschModJar")
+			}
+			delete "$projectDir/lib/$jschModName"
+		}
+	}
+}
+
+// Rhinoライブラリの配置
+task prepareRhino {
+
+	doFirst {
+		String rhinoModName = 'rhino'
+		String rhinoModJar = 'rhinoMod.jar'
+		String rhinoLibJar = null
+		
+		// rhinoモジュール作成
+		if (!file("$projectDir/lib/$rhinoModJar").exists()) {
+
+			files(configurations.default).each {File file ->
+
+				if (file.name ==~ /^rhino.+\.jar$/) {
+					ant.copy(todir: "$projectDir/lib") {
+						fileset(file: file.absolutePath)
+					}
+					rhinoLibJar = file.name
+				}
+			}
+
+			exec {
+				commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jdeps'),
+							'--generate-module-info', "$projectDir/lib", "$projectDir/lib/$rhinoLibJar")
+			}
+			exec {
+				commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/javac'),
+							'--patch-module', "$rhinoModName=$projectDir/lib/$rhinoLibJar", "$projectDir/lib/$rhinoModName/module-info.java")
+			}
+			exec {
+				commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jar'),
+							 'uf', "$projectDir/lib/$rhinoLibJar", '-C', "$projectDir/lib/$rhinoModName", 'module-info.class')
+			}
+			ant.move(tofile: "$projectDir/lib/$rhinoModJar") {
+				fileset(file: "$projectDir/lib/$rhinoLibJar")
+			}
+			ant.copy(tofile: "$projectDir/mlib/$rhinoModJar") {
+				fileset(file: "$projectDir/lib/$rhinoModJar")
+			}
+			delete "$projectDir/lib/$rhinoModName"
+		}
+	}
+}
+
+// ライブラリの準備
+task prepareLibs {
+	dependsOn 'prepareJFX'
+	dependsOn 'prepareJSch'
+	dependsOn 'prepareRhino'
+}
+
 compileJava {
 
 	doFirst {
 		options.fork = true
-		options.forkOptions.executable = SYS_HOME + '/java/' + JDK_VER + '/jdk/bin/javac'
+		options.forkOptions.executable = USR_HOME + '/java/' + JDK_VER + '/jdk/bin/javac'
 		options.sourcepath = files("$projectDir/src/main/java")
 		options.compilerArgs = [
 			'-source', JDK_VER,
@@ -129,7 +267,7 @@ task createModJar(type:Exec) {
 
 	dependsOn 'compileJava'
 	doFirst {
-		commandLine ((SYS_HOME + '/java/' + JDK_VER +'/jdk/bin/jar'),
+		commandLine ((USR_HOME + '/java/' + JDK_VER +'/jdk/bin/jar'),
 					'--create',
 					'--file', "$projectDir/$appDirName/${moduleName}.jar",
 					'--main-class', "$mainClass",
@@ -142,7 +280,7 @@ task runApp(type: JavaExec) {
 
 	dependsOn 'createModJar'
 	doFirst {
-		executable = SYS_HOME + '/java/' + JDK_VER + '/jdk/bin/java'
+		executable = USR_HOME + '/java/' + JDK_VER + '/jdk/bin/java'
 		main = ''
 		jvmArgs = [
 			'--module-path', ("$projectDir/lib" + ps + "$projectDir/$appDirName"),
@@ -159,25 +297,25 @@ task jlink() {
 
 		def requiredModNames = new ByteArrayOutputStream()
 		exec {
-			commandLine ((SYS_HOME + '/java/' + JDK_VER + '/jdk/bin/jdeps'),
-						'--print-module-deps', 
+			commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jdeps'),
+						'--print-module-deps',
 						'--module-path', ("$projectDir/lib" + ps + "$projectDir/$appDirName"),
 						'--add-modules', "$moduleName,$bhProgramExecModName")
-						
+
 			standardOutput = requiredModNames
 		}
-		
+
 		exec {
 			delete "$projectDir/$projName"
-			commandLine ((SYS_HOME + '/java/' + JDK_VER + '/jdk/bin/jlink'),
-						'--module-path', (SYS_HOME + '/java/' +  JDK_VER + '/jdk/jmods'),
+			commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jlink'),
+						'--module-path', (USR_HOME + '/java/' +  JDK_VER + '/jdk/jmods'),
 						'--module-path', "$projectDir/mlib",
 						'--add-modules', requiredModNames.toString().trim(),
 						'--output', "$projectDir/$projName")
-			
+
 		}
 	}
-	
+
 	doLast {
 		ant.mkdir(dir:"$projectDir/$projName/$appDirName")
 		ant.copy(todir: "$projectDir/$projName/$appDirName") {
@@ -188,8 +326,8 @@ task jlink() {
 
 task runSelfContained(type:Exec) {
 	doFirst {
-		commandLine ("$projectDir/$projName/bin/java", 
-					 '-cp', ("$projectDir/$projName/lib" + ps + "$projectDir/$projName/$appDirName/${moduleName}.jar"), 
+		commandLine ("$projectDir/$projName/bin/java",
+					 '-cp', "$projectDir/$projName/$appDirName/${moduleName}.jar",
 					 mainClass)
 	}
 }

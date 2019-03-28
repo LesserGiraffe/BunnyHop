@@ -27,7 +27,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeObject;
+
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Point2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -258,13 +260,13 @@ public class BhNodeViewStyle {
 		}
 
 		boolean succes = paths.map(filePath -> {
-			ScriptObjectMirror jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
+			NativeObject jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
 			if (jsonObj == null)
 				return false;
 
 			String styleID = filePath.getFileName().toString();
-			Optional<BhNodeViewStyle> bhNodeViewStyle = genBhNodeViewStyle((ScriptObjectMirror) jsonObj,
-					filePath.toAbsolutePath().toString(), styleID);
+			Optional<BhNodeViewStyle> bhNodeViewStyle =
+				genBhNodeViewStyle(jsonObj, filePath.toAbsolutePath().toString(), styleID);
 			bhNodeViewStyle.ifPresent(viewStyle -> nodeStyleID_nodeStyleTemplate.put(viewStyle.nodeStyleID, viewStyle));
 			return bhNodeViewStyle.isPresent();
 		}).allMatch(success -> success);
@@ -280,8 +282,7 @@ public class BhNodeViewStyle {
 	 * @param fileName jsonObj が記述してある .JSON ファイルのファイル名
 	 * @return BhNodeViewStyle (オプション)
 	 * */
-	private static Optional<BhNodeViewStyle> genBhNodeViewStyle(ScriptObjectMirror jsonObj, String fileName,
-			String styleID) {
+	private static Optional<BhNodeViewStyle> genBhNodeViewStyle(NativeObject jsonObj, String fileName, String styleID) {
 
 		BhNodeViewStyle bhNodeViewStyle = new BhNodeViewStyle();
 
@@ -406,33 +407,33 @@ public class BhNodeViewStyle {
 		val.ifPresent(bodyCssClass -> bhNodeViewStyle.cssClass = (String) bodyCssClass);
 
 		//connective
-		Optional<Object> connectiveOpt = readValue(BhParams.NodeStyleDef.KEY_CONNECTIVE, ScriptObjectMirror.class,
-				jsonObj, fileName);
-		connectiveOpt.ifPresent(connective -> fillConnectiveParams(bhNodeViewStyle.connective,
-				(ScriptObjectMirror) connective, fileName));
+		Optional<Object> connectiveOpt =
+			readValue(BhParams.NodeStyleDef.KEY_CONNECTIVE, NativeObject.class, jsonObj, fileName);
+		connectiveOpt.ifPresent(
+			connective -> fillConnectiveParams(bhNodeViewStyle.connective, (NativeObject)connective, fileName));
 
 		//textField
-		Optional<Object> textFieldOpt = readValue(BhParams.NodeStyleDef.KEY_TEXT_FIELD, ScriptObjectMirror.class,
-				jsonObj, fileName);
+		Optional<Object> textFieldOpt =
+			readValue(BhParams.NodeStyleDef.KEY_TEXT_FIELD, NativeObject.class, jsonObj, fileName);
 		textFieldOpt.ifPresent(
-				textField -> fillTextFieldParams(bhNodeViewStyle.textField, (ScriptObjectMirror) textField, fileName));
+			textField -> fillTextFieldParams(bhNodeViewStyle.textField, (NativeObject) textField, fileName));
 
 		//label
-		Optional<Object> labelOpt = readValue(BhParams.NodeStyleDef.KEY_LABEL, ScriptObjectMirror.class, jsonObj,
-				fileName);
-		labelOpt.ifPresent(label -> fillLabelParams(bhNodeViewStyle.label, (ScriptObjectMirror) label, fileName));
+		Optional<Object> labelOpt =
+			readValue(BhParams.NodeStyleDef.KEY_LABEL, NativeObject.class, jsonObj, fileName);
+		labelOpt.ifPresent(label -> fillLabelParams(bhNodeViewStyle.label, (NativeObject) label, fileName));
 
 		//comboBox
-		Optional<Object> comboBoxOpt = readValue(BhParams.NodeStyleDef.KEY_COMBO_BOX, ScriptObjectMirror.class, jsonObj,
-				fileName);
+		Optional<Object> comboBoxOpt =
+			readValue(BhParams.NodeStyleDef.KEY_COMBO_BOX, NativeObject.class, jsonObj, fileName);
 		comboBoxOpt.ifPresent(
-				comboBox -> fillComboBoxParams(bhNodeViewStyle.comboBox, (ScriptObjectMirror) comboBox, fileName));
+			comboBox -> fillComboBoxParams(bhNodeViewStyle.comboBox, (NativeObject) comboBox, fileName));
 
 		//imitation
-		Optional<Object> imitationOpt = readValue(BhParams.NodeStyleDef.KEY_IMITATION, ScriptObjectMirror.class,
-				jsonObj, fileName);
+		Optional<Object> imitationOpt =
+			readValue(BhParams.NodeStyleDef.KEY_IMITATION, NativeObject.class, jsonObj, fileName);
 		imitationOpt.ifPresent(
-				imitation -> fillImitationParams(bhNodeViewStyle.imitation, (ScriptObjectMirror) imitation, fileName));
+			imitation -> fillImitationParams(bhNodeViewStyle.imitation, (NativeObject) imitation, fileName));
 
 		return Optional.of(bhNodeViewStyle);
 	}
@@ -442,17 +443,19 @@ public class BhNodeViewStyle {
 	 * @param jsonObj key = "connective" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .JSON ファイルの名前
 	 * */
-	private static void fillConnectiveParams(BhNodeViewStyle.Connective connectiveStyle, ScriptObjectMirror jsonObj,
-			String fileName) {
+	private static void fillConnectiveParams(
+		BhNodeViewStyle.Connective connectiveStyle,
+		NativeObject jsonObj,
+		String fileName) {
 		// inner
-		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_INNER, ScriptObjectMirror.class, jsonObj, fileName);
-		val.ifPresent(innerArrange -> fillArrangementParams(connectiveStyle.inner, (ScriptObjectMirror) innerArrange,
-				fileName));
+		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_INNER, NativeObject.class, jsonObj, fileName);
+		val.ifPresent(
+			innerArrange -> fillArrangementParams(connectiveStyle.inner, (NativeObject) innerArrange, fileName));
 
 		// outer
-		val = readValue(BhParams.NodeStyleDef.KEY_OUTER, ScriptObjectMirror.class, jsonObj, fileName);
-		val.ifPresent(outerArrange -> fillArrangementParams(connectiveStyle.outer, (ScriptObjectMirror) outerArrange,
-				fileName));
+		val = readValue(BhParams.NodeStyleDef.KEY_OUTER, NativeObject.class, jsonObj, fileName);
+		val.ifPresent(
+			outerArrange -> fillArrangementParams(connectiveStyle.outer, (NativeObject) outerArrange, fileName));
 
 	}
 
@@ -462,8 +465,10 @@ public class BhNodeViewStyle {
 	 * @param jsonObj key = "inner" または "outer" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .JSON ファイルの名前
 	 * */
-	private static void fillArrangementParams(BhNodeViewStyle.Arrangement arrangement, ScriptObjectMirror jsonObj,
-			String fileName) {
+	private static void fillArrangementParams(
+		BhNodeViewStyle.Arrangement arrangement,
+		NativeObject jsonObj,
+		String fileName) {
 
 		//space
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_SPACE, Number.class, jsonObj, fileName);
@@ -510,22 +515,21 @@ public class BhNodeViewStyle {
 		});
 
 		//cnctrNameList
-		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_LIST, ScriptObjectMirror.class, jsonObj, fileName);
+		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_LIST, NativeArray.class, jsonObj, fileName);
 		val.ifPresent(cnctrs -> {
-			ScriptObjectMirror cnctrList = (ScriptObjectMirror) cnctrs;
-			if (cnctrList.isArray()) {
-				cnctrList.values().forEach(cnctrName -> arrangement.cnctrNameList.add(cnctrName.toString()));
-			}
+			NativeArray cnctrList = (NativeArray)cnctrs;
+			for (Object cnctrName : cnctrList)
+				arrangement.cnctrNameList.add(cnctrName.toString());
 		});
 
 		//subGroup
 		int groupID = 0;
 		while (true) {
 			String subGroupKeyName = BhParams.NodeStyleDef.KEY_SUB_GROUP + groupID;
-			val = readValue(subGroupKeyName, ScriptObjectMirror.class, jsonObj, fileName);
+			val = readValue(subGroupKeyName, NativeObject.class, jsonObj, fileName);
 			if (val.isPresent()) {
 				Arrangement subGroup = new Arrangement();
-				fillArrangementParams(subGroup, (ScriptObjectMirror) val.get(), fileName);
+				fillArrangementParams(subGroup, (NativeObject) val.get(), fileName);
 				arrangement.subGroup.add(subGroup);
 			} else {
 				break;
@@ -540,8 +544,10 @@ public class BhNodeViewStyle {
 	 * @param jsonObj key = "imitation" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .json ファイルの名前
 	 * */
-	private static void fillImitationParams(BhNodeViewStyle.Imitation imitation, ScriptObjectMirror jsonObj,
-			String fileName) {
+	private static void fillImitationParams(
+		BhNodeViewStyle.Imitation imitation,
+		NativeObject jsonObj,
+		String fileName) {
 
 		//buttonPosX
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_BUTTON_POS_X, Number.class, jsonObj, fileName);
@@ -566,8 +572,10 @@ public class BhNodeViewStyle {
 	 * @param jsonObj key = "textField" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .json ファイルの名前
 	 * */
-	private static void fillTextFieldParams(BhNodeViewStyle.TextField textField, ScriptObjectMirror jsonObj,
-			String fileName) {
+	private static void fillTextFieldParams(
+		BhNodeViewStyle.TextField textField,
+		NativeObject jsonObj,
+		String fileName) {
 
 		//whiteSpaceMargin
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_WHITE_SPACE_MATGIN, Number.class, jsonObj, fileName);
@@ -588,7 +596,10 @@ public class BhNodeViewStyle {
 	 * @param jsonObj key = "label" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .json ファイルの名前
 	 * */
-	private static void fillLabelParams(BhNodeViewStyle.Label textField, ScriptObjectMirror jsonObj, String fileName) {
+	private static void fillLabelParams(
+		BhNodeViewStyle.Label textField,
+		NativeObject jsonObj,
+		String fileName) {
 		//cssClass
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
 		val.ifPresent(textCssClass -> textField.cssClass = (String) textCssClass);
@@ -600,8 +611,10 @@ public class BhNodeViewStyle {
 	 * @param jsonObj key = "comboBox" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .json ファイルの名前
 	 * */
-	private static void fillComboBoxParams(BhNodeViewStyle.ComboBox comboBox, ScriptObjectMirror jsonObj,
-			String fileName) {
+	private static void fillComboBoxParams(
+		BhNodeViewStyle.ComboBox comboBox,
+		NativeObject jsonObj,
+		String fileName) {
 		//cssClass
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
 		val.ifPresent(comboBoxCssClass -> comboBox.cssClass = (String) comboBoxCssClass);
@@ -610,22 +623,25 @@ public class BhNodeViewStyle {
 	/**
 	 * Json オブジェクトからエラーチェック付きで Value を読む
 	 * @param keyName keyの名前
-	 * @param valueType 想定される value の型 (String, Number, Boolean, ScriptObjectMirror, ...)
+	 * @param valueType 想定される value の型 (String, Number, Boolean, NativeObject, ...)
 	 * @param jsonObj key と value が格納されているJson オブジェクト
 	 * @param fileName jsonObj を読み取ったファイルの名前
 	 * @return JsonValue オブジェクト (オプション)
 	 * */
-	private static Optional<Object> readValue(String keyName, Class<?> valueType, ScriptObjectMirror jsonObj,
-			String fileName) {
+	private static Optional<Object> readValue(
+		String keyName,
+		Class<?> valueType,
+		NativeObject jsonObj,
+		String fileName) {
 
 		Object val = jsonObj.get(keyName);
 		if (val == null)
 			return Optional.empty();
 
 		if (!valueType.isAssignableFrom(val.getClass())) {
-			MsgPrinter.INSTANCE
-					.errMsgForDebug("The type of " + keyName + " must be " + valueType.getSimpleName() + ".  \n"
-							+ "The actual type is " + val.getClass().getSimpleName() + ". " + "(" + fileName + ")");
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				"The type of " + keyName + " must be " + valueType.getSimpleName() + ".  \n"
+				+ "The actual type is " + val.getClass().getSimpleName() + ". " + "(" + fileName + ")");
 			return Optional.empty();
 		}
 		return Optional.of(val);

@@ -1,6 +1,6 @@
 
-	const _MAX_SPEED = 10;
-	const _MIN_SPEED = 1;
+	let _MAX_SPEED = 10;
+	let _MIN_SPEED = 1;
 
 	function _moveForward(speed, time) {
 		speed = Math.min(Math.max(_MIN_SPEED, speed), _MAX_SPEED);
@@ -43,23 +43,23 @@
 
 	function _sayOnWindows(word) {
 
-		word = word.replaceAll('\"', '');
-		const wavFilePath = _jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'open_jtalk', _getSerialNo() + '.wav').toAbsolutePath();
-		const sayCmdPath = _jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhSay.cmd').toAbsolutePath();
-		let procBuilder = new _jProcBuilder([sayCmdPath.toString(), '"' + word + '"', wavFilePath.toString()]);
+		word = word.replace(/"/g, '');
+		let wavFilePath = _jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'open_jtalk', _getSerialNo() + '.wav').toAbsolutePath();
+		let sayCmdPath = _jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhSay.cmd').toAbsolutePath();
+		let procBuilder = new _jProcBuilder(sayCmdPath.toString(), '"' + word + '"', wavFilePath.toString());
 		try {
-			const process = procBuilder.start();
-			_waitProcEnd(process, 'ERR: _say ', false);
+			let process = procBuilder.start();
+			_waitProcEnd(process, 'ERR: _say0 ', false);
 		}
 		catch (e) {
-			_println('ERR: _say ' + e);
+			_println('ERR: _say1 ' + e);
 		}
 
 		_playWavFile(wavFilePath);
 
-		procBuilder = new _jProcBuilder(['cmd', '/C', 'del', '/F', wavFilePath.toString()]);
+		procBuilder = new _jProcBuilder('cmd', '/C', 'del', '/F', wavFilePath.toString());
 		try {
-			const process = procBuilder.start();
+			let process = procBuilder.start();
 			_waitProcEnd(process, 'ERR: say del ', false);
 		}
 		catch (e) {
@@ -111,7 +111,7 @@
 					case 7:
 						return new _Color(0,0,0);
 					default:
-						_println('_detectColor  不正な入力です (' + colorIdStr + ')');
+						_println('色検出 不正な入力です (' + colorIdStr + ')');
 				}
 			}
 		})();

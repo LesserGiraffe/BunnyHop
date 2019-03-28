@@ -1,3 +1,3 @@
 (function() {
-	return 'BoolList' === bhReplacedNewNode.getSymbolName();
+	return 'BoolList' === String(bhReplacedNewNode.getSymbolName());
 })();

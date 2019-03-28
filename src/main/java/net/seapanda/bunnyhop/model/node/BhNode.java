@@ -17,9 +17,9 @@ package net.seapanda.bunnyhop.model.node;
 
 import java.util.function.Predicate;
 
-import javax.script.Bindings;
-import javax.script.CompiledScript;
-import javax.script.ScriptException;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.ScriptableObject;
 
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -55,7 +55,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	public final String type;	//!< ノードのタイプ (connective, void, textField, ...)
 	private BhNode lastReplaced;	//!< 最後にこのノードと入れ替わったノード
 	private boolean isDefaultNode = false;	//!< デフォルトノードである場合true
-	transient protected Bindings scriptScope;	//!< Javascript実行時の変数スコープ
+	transient protected ScriptableObject scriptScope;	//!< Javascript実行時の変数スコープ
 	transient private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
 
 	/**
@@ -355,13 +355,13 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 */
 	public void setScriptScope(BhNodeView view) {
 		scriptScope = BhScriptManager.INSTANCE.createScriptScope();
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_THIS, this);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_VIEW, view);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, BhNodeTemplates.INSTANCE);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_THIS, this);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_VIEW, view);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, BhNodeTemplates.INSTANCE);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
 	}
 
 	/**
@@ -377,19 +377,21 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		BhNode oldReplaced,
 		UserOperationCommand userOpeCmd) {
 
-		CompiledScript onMovedToChild = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnMovedToChild);
+		Script onMovedToChild = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnMovedToChild);
 		if (onMovedToChild == null)
 			return;
 
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldReplaced);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldReplaced);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
-			onMovedToChild.eval(scriptScope);
+			ContextFactory.getGlobal().call(cx -> onMovedToChild.exec(cx, scriptScope));
 		}
-		catch (ScriptException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptNameOnMovedToChild + "\n" + e.toString() + "\n");
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptNameOnMovedToChild + "\n" +
+				e.toString() + "\n");
 		}
 	}
 
@@ -408,19 +410,22 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		Boolean manuallyRemoved,
 		UserOperationCommand userOpeCmd) {
 
-		CompiledScript onMovedFromChildToWS = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnMovedFromChildToWS);
+		Script onMovedFromChildToWS = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnMovedFromChildToWS);
 		if (onMovedFromChildToWS == null)
 			return;
 
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newReplaced);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_MANUALLY_REMOVED, manuallyRemoved);
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newReplaced);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_MANUALLY_REMOVED, manuallyRemoved);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
-			onMovedFromChildToWS.eval(scriptScope);
-		} catch (ScriptException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(BhNode.class.getSimpleName() + ".execOnMovedFromChildToWSScript   " + scriptNameOnMovedFromChildToWS + "\n" + e.toString() + "\n");
+			ContextFactory.getGlobal().call(cx -> onMovedFromChildToWS.exec(cx, scriptScope));
+		}
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				BhNode.class.getSimpleName() + ".execOnMovedFromChildToWSScript   " + scriptNameOnMovedFromChildToWS + "\n" +
+				e.toString() + "\n");
 		}
 	}
 

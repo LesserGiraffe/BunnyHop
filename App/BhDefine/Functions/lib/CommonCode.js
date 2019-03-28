@@ -1,21 +1,23 @@
-	const _jString = Java.type("java.lang.String");
-	const _jExecutors = Java.type('java.util.concurrent.Executors');
-	const _jThread = Java.type('java.lang.Thread');
-	const _jLock = Java.type('java.util.concurrent.locks.ReentrantLock');
-	const _jByteOrder = Java.type('java.nio.ByteOrder');
-	const _jByteArray = Java.type('byte[]');
-	const _jFloatArray = Java.type('float[]');
-	const _jFile = Java.type('java.io.File');
-	const _jFiles = Java.type('java.nio.file.Files');
-	const _jPaths = Java.type('java.nio.file.Paths');
-	const _jAtomicLong = Java.type('java.util.concurrent.atomic.AtomicLong');
-	const _jProcBuilder = Java.type('java.lang.ProcessBuilder');
-	const _jBufferedInputStream = Java.type('java.io.BufferedInputStream');
-	const _jStandardOpenOption = Java.type('java.nio.file.StandardOpenOption');
+	let _jString = java.lang.String;
+	let _jExecutors = java.util.concurrent.Executors;
+	let _jThread = java.lang.Thread;
+	let _jLock = java.util.concurrent.locks.ReentrantLock;
+	let _jByteOrder = java.nio.ByteOrder;
+	let _jByteType = java.lang.Byte.TYPE;
+	let _jFloatType = java.lang.Float.TYPE;
+	let _jFile = java.io.File;
+	let _jFiles = java.nio.file.Files;
+	let _jPaths = java.nio.file.Paths;
+	let _jAtomicLong = java.util.concurrent.atomic.AtomicLong;
+	let _jProcBuilder = java.lang.ProcessBuilder;
+	let _jBufferedInputStream = java.io.BufferedInputStream;
+	let _jStandardOpenOption = java.nio.file.StandardOpenOption;
+	let _jReflectArray = java.lang.reflect.Array;
+	let _jClass = java.lang.Class;
 
-	const _eventHandlers = {};
-	const _executor = _jExecutors.newFixedThreadPool(16);
-	const _anyObj = {};
+	let _eventHandlers = {};
+	let _executor = _jExecutors.newFixedThreadPool(16);
+	let _anyObj = {};
 
 	function _genCallObj() {
 		return {_outArgs:[]};
@@ -61,7 +63,7 @@
 	}
 
 	function _strToNum(strVal) {
-		const num = Number(strVal);
+		let num = Number(strVal);
 		if (isFinite(num))
 			return num;
 		return 0;
@@ -103,11 +105,11 @@
 	function _scan(str) {
 		bhInout.println(str);
 		let input = bhInout.scan();
-		return (input === null) ? "" : input;
+		return (input === null) ? "" : String(input);
 	}
 
-	const _getSerialNo = (function () {
-		const counter = new _jAtomicLong();
+	let _getSerialNo = (function () {
+		let counter = new _jAtomicLong();
 		return function() {
 			return counter.getAndIncrement();
 		}
@@ -119,20 +121,24 @@
 	function readStream(stream) {
 		let readByte = [];
 		while(true) {
-			const rb = stream.read();
+			let rb = stream.read();
 			if (rb === -1)
 				break;
 			readByte.push(rb);
 		}
-		readByte = Java.to(readByte, "byte[]");
-		return new _jString(readByte);
+
+		let byteArray = _jReflectArray.newInstance(_jByteType, readByte.length);
+		for (let i = 0; i < readByte.length; ++i)
+			byteArray[i] = bhUtil.toByte(readByte[i]);
+
+		return new _jString(byteArray);
 	}
 
 	function _waitProcEnd(process, errMsg, getStdinStr) {
 
 		let retStr = null;
 		try {
-			const is = process.getInputStream();
+			let is = process.getInputStream();
 			if (getStdinStr)
 				retStr = readStream(is);
 			else
@@ -153,7 +159,6 @@
 	//==================================================================
 	//							配列操作
 	//==================================================================
-
 	function _aryPush(ary, val) {
 		ary.push(val);
 	}
@@ -205,17 +210,16 @@
 	//							音再生
 	//==================================================================
 
-	const _jAudioFormat = Java.type('javax.sound.sampled.AudioFormat');
-	const _jDataLine = Java.type('javax.sound.sampled.DataLine');
-	const _jSourceDataLine = Java.type('javax.sound.sampled.SourceDataLine');
-	const _jAudioSystem = Java.type('javax.sound.sampled.AudioSystem');
+	let _jAudioFormat = javax.sound.sampled.AudioFormat;
+	let _jDataLine = javax.sound.sampled.DataLine;
+	let _jAudioSystem = javax.sound.sampled.AudioSystem;
 
-	const isBigEndian = _jByteOrder.nativeOrder() === _jByteOrder.BIG_ENDIAN;
-	const bytePerSample = 2;
-	const samplingRate = 44100;		//44.1KHz
-	const amplitude = 16384/2;
-	const wave1Hz = new _jFloatArray(samplingRate);
-	const _nilSound = _createSound(0, 0);
+	let isBigEndian = _jByteOrder.nativeOrder() === _jByteOrder.BIG_ENDIAN;
+	let bytePerSample = 2;
+	let samplingRate = 44100;		//44.1KHz
+	let amplitude = 16384/2;
+	let wave1Hz = _jReflectArray.newInstance(_jFloatType, samplingRate);
+	let _nilSound = _createSound(0, 0);
 
 
 	(function _initMusicPlayer() {
@@ -243,14 +247,14 @@
 			samplePos = 0;
 
 		for (let i = bufBegin; i < bufEnd; i += bytePerSample) {
-			const sample = Math.floor(amp * wave1Hz[samplePos]);
+			let sample = Math.floor(amp * wave1Hz[samplePos]);
 			if (isBigEndian) {
-				waveBuf[i+1] = sample;
-				waveBuf[i] = (sample >> 8);
+				waveBuf[i+1] = bhUtil.toByte(sample);
+				waveBuf[i] = bhUtil.toByte((sample >> 8));
 			}
 			else {
-				waveBuf[i] = sample;
-				waveBuf[i+1] = (sample >> 8);
+				waveBuf[i] = bhUtil.toByte(sample);
+				waveBuf[i+1] = bhUtil.toByte((sample >> 8));
 			}
 			samplePos += hz;
 			if (samplePos > (wave1Hz.length - 1))
@@ -274,19 +278,19 @@
 		let waveBufRemains = waveBuf.length;
 
 		while (soundList.length !== 0 && waveBufRemains !== 0) {
-			const sound = soundList[soundList.length - 1];
-			const soundLen = Math.floor(sound.duration * samplingRate) * bytePerSample;
+			let sound = soundList[soundList.length - 1];
+			let soundLen = Math.floor(sound.duration * samplingRate) * bytePerSample;
 
 			if (soundLen > waveBufRemains) {
 				sound.duration -= waveBufRemains / bytePerSample / samplingRate;
-				const bufEnd = bufBegin + waveBufRemains;
+				let bufEnd = bufBegin + waveBufRemains;
 				samplePos = _genOneFreqWave(waveBuf, bufBegin, bufEnd, sound.hz, sound.amp * vol, samplePos);
 				bufBegin = bufEnd;
 				waveBufRemains = 0;
 			}
 			else {
 				soundList.pop();
-				const bufEnd = bufBegin + soundLen;
+				let bufEnd = bufBegin + soundLen;
 				samplePos = _genOneFreqWave(waveBuf, bufBegin, bufEnd, sound.hz, sound.amp * vol, samplePos);
 				bufBegin = bufEnd;
 				waveBufRemains -= soundLen;
@@ -304,7 +308,7 @@
 	 * */
 	function _playMelodies(soundList, reverse) {
 
-		const soundListCopy = [];
+		let soundListCopy = [];
 		if (!reverse) {
 			for (let i = soundList.length - 1; i >= 0; --i)
 				soundListCopy.push(_createSound(soundList[i].hz, soundList[i].duration));
@@ -314,7 +318,7 @@
 				soundListCopy.push(_createSound(soundList[i].hz, soundList[i].duration));
 		}
 
-		const waveBuf = new _jByteArray(samplingRate * bytePerSample);
+		let waveBuf = _jReflectArray.newInstance(_jByteType, samplingRate * bytePerSample);
 		let format = new _jAudioFormat(
 			_jAudioFormat.Encoding.PCM_SIGNED,
 			samplingRate,
@@ -326,13 +330,13 @@
 
 		let line = null;
 		try {
-			let dLineInfo = new _jDataLine.Info(_jSourceDataLine.class, format);
+			let dLineInfo = new _jDataLine.Info(_jClass.forName('javax.sound.sampled.SourceDataLine'), format);
 			line = _jAudioSystem.getLine(dLineInfo);
 			line.open(format, waveBuf.length);
 			line.start();
 			let samplePos = 0;
 			while (soundListCopy.length !== 0) {
-				const ret = _genWave(waveBuf, soundListCopy, 1.0, samplePos);
+				let ret = _genWave(waveBuf, soundListCopy, 1.0, samplePos);
 				samplePos = ret.samplePos;
 				line.write(waveBuf, 0, ret.waveLen);
 			}
@@ -358,11 +362,11 @@
 		try {
 			bis = new _jBufferedInputStream(_jFiles.newInputStream(path, _jStandardOpenOption.READ));
 			ais = _jAudioSystem.getAudioInputStream(bis);
-			const dLineInfo = new _jDataLine.Info(_jSourceDataLine.class, ais.getFormat());
+			let dLineInfo = new _jDataLine.Info(_jClass.forName('javax.sound.sampled.SourceDataLine'), ais.getFormat());
 			line = _jAudioSystem.getLine(dLineInfo);
 			line.open();
 			line.start();
-			const waveBuf = new _jByteArray(line.getBufferSize());
+			let waveBuf = _jReflectArray.newInstance(_jByteType, line.getBufferSize());
 			let byteRead = -1;
 
 			while((byteRead = ais.read(waveBuf)) !== -1) {
@@ -402,11 +406,11 @@
 
 	function _sayOnLinux(word) {
 
-		word = word.replaceAll('\"', '');
-		let talkCmd = _jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhSay.sh').toAbsolutePath().toString();
-		const procBuilder = new _jProcBuilder(['sh', talkCmd, '"' + word + '"']);
+		word = word.replace(/"/g, '');
+		let talkCmd = String(_jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhSay.sh').toAbsolutePath().toString());
+		let procBuilder = new _jProcBuilder('sh', talkCmd, '"' + word + '"');
 		try {
-			const process =  procBuilder.start();
+			let process =  procBuilder.start();
 			_waitProcEnd(process, 'ERR: _say ', false);
 		}
 		catch (e) {
@@ -449,7 +453,7 @@
 
 	function _compareColors(colorA, colorB, eq) {
 
-		const equality = (colorA.red === colorB.red) && (colorA.green === colorB.green) && (colorA.blue === colorB.blue);
+		let equality = (colorA.red === colorB.red) && (colorA.green === colorB.green) && (colorA.blue === colorB.blue);
 		if (eq === 'eq')
 			return equality;
 		else if (eq === 'neq')
@@ -474,7 +478,7 @@
 			_clamp(left.blue - right.blue, 0, 255));
 	}
 
-	const _nilColor = new _Color(0, 0, 0);
+	let _nilColor = new _Color(0, 0, 0);
 
 	//==================================================================
 	//							文字列化

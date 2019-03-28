@@ -16,6 +16,6 @@
 			"arrangement" : "Row",
 			"space" : 2.0,
 			"connectorList" : ["Arg0", "noSaigoNoYoso"]
-		},
+		}
 	}
 }

@@ -1,7 +1,6 @@
 (function() {
-    
-    let name = bhReplacedNewNode.getSymbolName();
-    return 'NumList'   === name ||
+	let name = String(bhReplacedNewNode.getSymbolName());
+	return 'NumList'   === name ||
     	   'StrList'   === name ||
     	   'BoolList'  === name ||
     	   'ColorList' === name ||

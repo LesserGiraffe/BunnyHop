@@ -20,8 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import javax.script.CompiledScript;
-import javax.script.ScriptException;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.ScriptableObject;
 
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -133,16 +134,20 @@ public class TextNode  extends Imitatable implements Serializable {
 	 * */
 	public boolean isTextAcceptable(String text) {
 
-		CompiledScript onTextAcceptabilityChecked = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnTextAcceptabilityChecked);
+		Script onTextAcceptabilityChecked =
+			BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnTextAcceptabilityChecked);
 		if (onTextAcceptabilityChecked == null)
 			return true;
 
-		scriptScope.put(BhParams.JsKeyword.KEY_BH_TEXT, text);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_TEXT, text);
 		Object jsReturn = null;
 		try {
-			jsReturn = onTextAcceptabilityChecked.eval(scriptScope);
-		} catch (ScriptException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(TextNode.class.getSimpleName() +  ".isTextSettable   " + scriptNameOnTextAcceptabilityChecked + "\n" + e.toString() + "\n");
+			jsReturn = ContextFactory.getGlobal().call(cx -> onTextAcceptabilityChecked.exec(cx, scriptScope));
+		}
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				TextNode.class.getSimpleName() +  ".isTextSettable   " + scriptNameOnTextAcceptabilityChecked + "\n" +
+				e.toString() + "\n");
 		}
 
 		if(jsReturn instanceof Boolean)
@@ -213,7 +218,11 @@ public class TextNode  extends Imitatable implements Serializable {
 	}
 
 	@Override
-	public void findSymbolInDescendants(int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
+	public void findSymbolInDescendants(
+		int generation,
+		boolean toBottom,
+		List<SyntaxSymbol> foundSymbolList,
+		String... symbolNames) {
 
 		if (generation == 0)
 			for (String symbolName : symbolNames)

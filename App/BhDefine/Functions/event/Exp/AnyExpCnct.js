@@ -1,14 +1,14 @@
 (function() {
 
-	const section = bhReplacedNewNode.findSymbolInDescendants('*');
+	let section = bhReplacedNewNode.findSymbolInDescendants('*');
 	let sectionName = null;
 	if (section !== null) {
-		sectionName = section.getSymbolName();
+		sectionName = String(section.getSymbolName());
 	}
-    
-	return sectionName === 'NumberExpSctn' ||
-		   sectionName === 'StringExpSctn' ||
+
+	return sectionName === 'NumberExpSctn'  ||
+		   sectionName === 'StringExpSctn'  ||
 		   sectionName === 'BooleanExpSctn' ||
-		   sectionName === 'SoundExpSctn' ||
+		   sectionName === 'SoundExpSctn'   ||
 		   sectionName === 'ColorExpSctn';
 })();

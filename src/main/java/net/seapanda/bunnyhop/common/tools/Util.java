@@ -33,7 +33,9 @@ public class Util {
 	public static final Util INSTANCE = new Util();		//!< シングルトンインスタンス
 	public final String EXEC_PATH;	//実行時jarパス
 	public final String JAVA_PATH;
-	public final String LF;
+	public final String LF = System.getProperty("line.separator");
+	public final String PS = System.getProperty("path.separator");
+	public final String FS = System.getProperty("file.separator");
 	private final AtomicLong serialID = new AtomicLong();
 	private final String OS_NAME = System.getProperty("os.name").toLowerCase();
 	public final Platform PLATFORM = this.new Platform();
@@ -47,7 +49,7 @@ public class Util {
 			pathStr = System.getProperty("java.class.path");
 		}
 
-		String[] paths = pathStr.split(System.getProperty("path.separator"));
+		String[] paths = pathStr.split(PS);
 		pathStr = paths[paths.length - 1];
 		File jarFile = new File(pathStr);
 		Path jarPath = Paths.get(jarFile.getAbsolutePath());
@@ -58,9 +60,7 @@ public class Util {
 		else {
 			EXEC_PATH = root + jarPath.subpath(0, jarPath.getNameCount() - 1).toString();
 		}
-		String fs = System.getProperty("file.separator");
-		LF = System.getProperty("line.separator");
-		JAVA_PATH = System.getProperty("java.home") + fs + "bin" + fs + "java";
+		JAVA_PATH = System.getProperty("java.home") + FS + "bin" + FS + "java";
 	}
 
 	/**

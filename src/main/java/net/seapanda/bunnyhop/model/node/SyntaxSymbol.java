@@ -71,7 +71,8 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
 
 		List<SyntaxSymbol> foundSymbolList = new ArrayList<>();
 		findSymbolInDescendants(symbolNamePath.length, false, foundSymbolList, symbolNamePath[symbolNamePath.length - 1]);
-		String[] reverseSymbolNamePath = new String[symbolNamePath.length];	//symbolNamePath == (a,b,c)  => reverseSymbolNamePath == (b,a,thisSymbolName)
+		//symbolNamePath == (a,b,c)  => reverseSymbolNamePath == (b,a,thisSymbolName)
+		String[] reverseSymbolNamePath = new String[symbolNamePath.length];
 		for (int i = symbolNamePath.length - 2, j = 0; i >= 0; --i, ++j) {
 			reverseSymbolNamePath[j] = symbolNamePath[i];
 		}

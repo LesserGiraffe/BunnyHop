@@ -1,5 +1,5 @@
 
-	const _MOVE_CMD = {
+	let _MOVE_CMD = {
 		MOVE_FORWARD : '1',
 		MOVE_BACKWARD : '2',
 		TURN_RIGHT : '3',
@@ -8,16 +8,16 @@
 
 	function _moveAny(speed, time, cmd) {
 
-		const _MAX_SPEED = 10;
-		const _MIN_SPEED = 1;
+		let _MAX_SPEED = 10;
+		let _MIN_SPEED = 1;
 		speed = (speed - _MIN_SPEED) / (_MAX_SPEED - _MIN_SPEED);
 		speed = Math.min(Math.max(0.0, speed), 1.0);
 		time *= 1000;
 		time = Math.floor(time);
-		let moveCmd = _jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhMove').toAbsolutePath().toString();
-		const procBuilder = new _jProcBuilder([moveCmd, cmd, String(time), String(speed)]);
+		let moveCmd = String(_jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhMove').toAbsolutePath().toString());
+		let procBuilder = new _jProcBuilder(moveCmd, String(cmd), String(time), String(speed));
 		try {
-			const process = procBuilder.start();
+			let process = procBuilder.start();
 			_waitProcEnd(process, 'ERR: _move ' + cmd + ' ', false);
 		}
 		catch (e) {
@@ -43,11 +43,11 @@
 
 	function _measureDistance() {
 
-		let spiCmd = _jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhSpiRead').toAbsolutePath().toString();
-		const procBuilder = new _jProcBuilder([spiCmd, '20', '5']);
+		let spiCmd = String(_jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhSpiRead').toAbsolutePath().toString());
+		let procBuilder = new _jProcBuilder(spiCmd, '20', '5');
 		let distanceList;
 		try {
-			const process =  procBuilder.start();
+			let process =  procBuilder.start();
 			distanceList = _waitProcEnd(process, 'ERR: _measureDistance ', true);
 		}
 		catch (e) {
@@ -80,14 +80,14 @@
 	// 色センサ値を取得
 	function _getColor() {
 
-		const exposureTime = 50;	//ms
-		const retryTimes = 10;
-		let cmd = _jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhColorDetection').toAbsolutePath().toString();
-		const procBuilder = new _jProcBuilder([cmd, String(exposureTime), String(retryTimes)]);
+		let exposureTime = 50;	//ms
+		let retryTimes = 10;
+		let cmd = String(_jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhColorDetection').toAbsolutePath().toString());
+		let procBuilder = new _jProcBuilder(cmd, String(exposureTime), String(retryTimes));
 		let colorList = null;
 
 		try {
-			const process =  procBuilder.start();
+			let process =  procBuilder.start();
 			colorList = _waitProcEnd(process, 'ERR: _detectColor ', true);
 			if (process.exitValue() !== 0)
 				throw "(color snsor error)";
@@ -101,11 +101,11 @@
 		return new _Color(Number(colorList[0]), Number(colorList[1]), Number(colorList[2]));
 	}
 
-	const _baseLineColor = _getColor();
+	let _baseLineColor = _getColor();
 
 	function calcColorFeature(color) {
 
-		const calibrated = new _Color(
+		let calibrated = new _Color(
 			Math.max(color.red - _baseLineColor.red, 1),
 			Math.max(color.green - _baseLineColor.green, 1),
 			Math.max(color.blue - _baseLineColor.blue, 1));
@@ -114,8 +114,8 @@
 		let variance = (calibrated.red * calibrated.red + calibrated.green * calibrated.green + calibrated.blue * calibrated.blue) / 3.0 - ave * ave;
 		let coefOfVar = Math.sqrt(variance) / ave;
 
-		const max = Math.max(Math.max(calibrated.red, calibrated.green), calibrated.blue);
-		const min = Math.min(Math.min(calibrated.red, calibrated.green), calibrated.blue);
+		let max = Math.max(Math.max(calibrated.red, calibrated.green), calibrated.blue);
+		let min = Math.min(Math.min(calibrated.red, calibrated.green), calibrated.blue);
 		let hue;
 		if (max === min)
 			hue = 0;
@@ -137,9 +137,9 @@
 	// 色センサ値を取得し8色に分類する.
 	function _detectColor() {
 
-		const color = _getColor();
-		const blackThresh = 0.5;
-		const rateOfDetectableChange = 2;
+		let color = _getColor();
+		let blackThresh = 0.5;
+		let rateOfDetectableChange = 2;
 
 		if (color.red <= _baseLineColor.red * blackThresh &&
 			color.green <= _baseLineColor.green * blackThresh &&
@@ -153,14 +153,14 @@
 			return new _Color(255, 255, 255);
 		}
 
-		const feature = calcColorFeature(color);
-		const whiteThresh = 0.31;
-		const redYellowThresh = 12;
-		const yellowGreenThresh = 85;
-		const greenCyanThresh = 170;
-		const cyanBlueThresh = 219;
-		const blueMagentaThresh = 245;
-		const magentaRedThresh = 348;
+		let feature = calcColorFeature(color);
+		let whiteThresh = 0.31;
+		let redYellowThresh = 12;
+		let yellowGreenThresh = 85;
+		let greenCyanThresh = 170;
+		let cyanBlueThresh = 219;
+		let blueMagentaThresh = 245;
+		let magentaRedThresh = 348;
 
 		if (feature.coefOfVar <= whiteThresh)
 			return new _Color(255, 255, 255);
@@ -184,9 +184,9 @@
 	}
 
 	function _ioWrite(port, val) {
-		const procBuilder = new _jProcBuilder(['gpio', '-g', 'write', port+'', val+'']);
+		let procBuilder = new _jProcBuilder('gpio', '-g', 'write', String(port), String(val));
 		try {
-			const process =  procBuilder.start();
+			let process =  procBuilder.start();
 			_waitProcEnd(process, 'ERR: ioWrite ', false);
 		}
 		catch (e) {
@@ -195,9 +195,9 @@
 	}
 
 	function _changeIoMode(port, mode) {
-		const procBuilder = new _jProcBuilder(['gpio', '-g', 'mode', port+'', mode]);
+		let procBuilder = new _jProcBuilder('gpio', '-g', 'mode', String(port), String(mode));
 		try {
-			const process =  procBuilder.start();
+			let process =  procBuilder.start();
 			_waitProcEnd(process, 'ERR: _changeIoMode ', false);
 		}
 		catch (e) {
@@ -214,12 +214,12 @@
 
 	function _lightEye(eyeSel, color) {
 
-		const rightRed = '13';
-		const rightGreen = '26';
-		const rightBlue = '19';
-		const leftRed = '21';
-		const leftGreen = '16';
-		const leftBlue = '20';
+		let rightRed = '13';
+		let rightGreen = '26';
+		let rightBlue = '19';
+		let leftRed = '21';
+		let leftGreen = '16';
+		let leftBlue = '20';
 
 		let hiList = [];
 		let loList = [];

@@ -27,13 +27,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import javax.script.Bindings;
-import javax.script.CompiledScript;
-import javax.script.ScriptException;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.ScriptableObject;
 
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.ExclusiveSelection;
@@ -50,7 +50,7 @@ public class RemoteBhProgramManager {
 
 	public static final RemoteBhProgramManager INSTANCE = new RemoteBhProgramManager();	//!< シングルトンインスタンス
 	private final BhProgramManagerCommon common = new BhProgramManagerCommon();
-	private final Bindings bindings = BhScriptManager.INSTANCE.createScriptScope();
+	private final ScriptableObject bindings = BhScriptManager.INSTANCE.createScriptScope();
 	private String[] killCmd;
 	private AtomicReference<Boolean> programRunning = new AtomicReference<>(false);	//!< プログラム実行中ならtrue
 	private Pair<String, String> currentExecEnv = new Pair<>(null, null);	//!< 現在プログラムを実行している環境
@@ -235,19 +235,19 @@ public class RemoteBhProgramManager {
 	private Process startExecEnvProcess() {
 
 		Process process = null;
-		CompiledScript cs = BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.REMOTE_EXEC_CMD_GENERATOR_JS);
+		Script cs = BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.REMOTE_EXEC_CMD_GENERATOR_JS);
 		Object retVal = null;
 		try {
-			retVal = cs.eval(bindings);
+			retVal = ContextFactory.getGlobal().call(cx -> cs.exec(cx, bindings));
 		}
-		catch(ScriptException e) {
+		catch(Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug("failed to eval " +  BhParams.Path.REMOTE_EXEC_CMD_GENERATOR_JS + " " + e.toString());
 			return null;
 		}
 
 		String[] cmdArray = null;
-		if (retVal instanceof ScriptObjectMirror)
-			cmdArray = convertToStrArray((ScriptObjectMirror)retVal);
+		if (retVal instanceof NativeArray)
+			cmdArray = convertToStrArray((NativeArray)retVal);
 
 		if (cmdArray == null)
 			return null;
@@ -269,19 +269,19 @@ public class RemoteBhProgramManager {
 	 */
 	private String[] genKillCmd() {
 
-		CompiledScript cs = BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS);
+		Script cs = BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS);
 		Object retVal;
 		try {
-			retVal = cs.eval(bindings);
+			retVal = ContextFactory.getGlobal().call(cx -> cs.exec(cx, bindings));
 		}
-		catch(ScriptException e) {
+		catch(Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug("failed to eval" +  BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS + " " + e.toString());
 			return null;
 		}
 
 		String[] cmdArray = null;
-		if (retVal instanceof ScriptObjectMirror)
-			cmdArray = convertToStrArray((ScriptObjectMirror)retVal);
+		if (retVal instanceof NativeArray)
+			cmdArray = convertToStrArray((NativeArray)retVal);
 		return cmdArray;
 	}
 
@@ -291,19 +291,19 @@ public class RemoteBhProgramManager {
 	 */
 	private String[] genCopyCmd() {
 
-		CompiledScript cs = BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.COPY_CMD_GENERATOR_JS);
+		Script cs = BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.COPY_CMD_GENERATOR_JS);
 		Object retVal = null;
 		try {
-			retVal = cs.eval(bindings);
+			retVal = ContextFactory.getGlobal().call(cx -> cs.exec(cx, bindings));
 		}
-		catch(ScriptException e) {
+		catch(Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug("failed to eval" +  BhParams.Path.COPY_CMD_GENERATOR_JS + " " + e.toString());
 			return null;
 		}
 
 		String[] cmdArray = null;
-		if (retVal instanceof ScriptObjectMirror)
-			cmdArray = convertToStrArray((ScriptObjectMirror)retVal);
+		if (retVal instanceof NativeArray)
+			cmdArray = convertToStrArray((NativeArray)retVal);
 		return cmdArray;
 	}
 
@@ -422,33 +422,26 @@ public class RemoteBhProgramManager {
 	 */
 	private void setScriptBindings(String ipAddr, String uname, String password) {
 
-		bindings.put(BhParams.JsKeyword.KEY_IP_ADDR, ipAddr);
-		bindings.put(BhParams.JsKeyword.KEY_UNAME, uname);
-		bindings.put(BhParams.JsKeyword.KEY_PASSWORD, password);
-		bindings.put(BhParams.JsKeyword.KEY_BH_PROGRAM_FILE_PATH,
-					 Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.COMPILED_DIR, BhParams.Path.APP_FILE_NAME_JS).toString());
+		ScriptableObject.putProperty(bindings, BhParams.JsKeyword.KEY_IP_ADDR, ipAddr);
+		ScriptableObject.putProperty(bindings, BhParams.JsKeyword.KEY_UNAME, uname);
+		ScriptableObject.putProperty(bindings, BhParams.JsKeyword.KEY_PASSWORD, password);
+		ScriptableObject.putProperty(
+			bindings,
+			BhParams.JsKeyword.KEY_BH_PROGRAM_FILE_PATH,
+			Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.COMPILED_DIR, BhParams.Path.APP_FILE_NAME_JS).toString());
 	}
 
 	/**
-	 * ScriptObjectMirrorをString配列に変換する
-	 * @param scriptObj 文字列配列に変換するScriptObjectMirror
-	 * @return scriptObjを変換したString配列. scriptObjが配列でない場合nullを返す.
+	 * NativeArrayをString配列に変換する
+	 * @param scriptObj 文字列配列に変換するNativeArray
+	 * @return scriptObjを変換したString配列.
 	 */
-	private String[] convertToStrArray(ScriptObjectMirror scriptObj) {
-
-		if (!scriptObj.isArray())
-			return null;
+	private String[] convertToStrArray(NativeArray scriptObj) {
 
 		String[] cmdArray = new String[scriptObj.size()];
-		for (String key : scriptObj.keySet()) {
-			Object elem = scriptObj.get(key);
-			try {
-				int idx = Integer.parseInt(key);
-				cmdArray[idx] = elem.toString();
-			}
-			catch (NumberFormatException e) {
-			}
-		}
+		for (int i = 0; i < cmdArray.length; ++i)
+			cmdArray[i] = scriptObj.get(i).toString();
+
 		return cmdArray;
 	}
 

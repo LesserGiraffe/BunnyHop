@@ -1,6 +1,6 @@
 (function() {
 
-	let BhNodeID = Java.type("net.seapanda.bunnyhop.model.node.BhNodeID");
+	let BhNodeID = net.seapanda.bunnyhop.model.node.BhNodeID;
 
 	function registerNodeTemplate(bhNodeID, bhNode) {
 		bhNodeTemplates.registerNodeTemplate(BhNodeID.createBhNodeID(bhNodeID), bhNode);
@@ -11,7 +11,7 @@
 	}
 
 	function connect(parentNode, childNode, cnctrPath) {
-		const cnctr = parentNode.findSymbolInDescendants(cnctrPath);
+		let cnctr = parentNode.findSymbolInDescendants(cnctrPath);
 		cnctr.connectNode(childNode, bhUserOpeCmd);
 	}
 
