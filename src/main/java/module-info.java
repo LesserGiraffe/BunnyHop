@@ -24,6 +24,7 @@ module net.seapanda.bunnyhop {
 	requires transitive java.xml;
 	requires javafx.base;
 	requires rhino;
+	requires jsch;
 
 	exports net.seapanda.bunnyhop.root;
 	exports net.seapanda.bunnyhop.model;
@@ -37,6 +38,7 @@ module net.seapanda.bunnyhop {
 	exports net.seapanda.bunnyhop.common.tools;
 	exports net.seapanda.bunnyhop.message;
 	exports net.seapanda.bunnyhop.bhprogram.common;	//[java -jar BhProgramExecEnv.jar] を self contained の Javaから呼ぶために必要
+	exports net.seapanda.bunnyhop.undo;
 	opens net.seapanda.bunnyhop.view to javafx.fxml;
 	opens net.seapanda.bunnyhop.view.node to javafx.fxml;
 	opens net.seapanda.bunnyhop.control to javafx.fxml;

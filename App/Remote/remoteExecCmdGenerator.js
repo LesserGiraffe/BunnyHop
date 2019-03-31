@@ -1,5 +1,3 @@
-
 (function() {
-	return ['plink', '-ssh', ipAddr, '-l', uname, '-pw', password,
-			'bash', ('~/BunnyHop/StartBhProgramExecEnv.sh'), ipAddr];
+	return '~/BunnyHop/StartBhProgramExecEnv.sh ' + ipAddr + ' 2>&1';
 })();

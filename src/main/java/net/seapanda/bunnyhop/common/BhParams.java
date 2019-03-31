@@ -74,12 +74,13 @@ public class BhParams {
 		public static final String COMMON_CODE_JS = "CommonCode.js";
 		public static final String LOCAL_COMMON_CODE_JS = "LocalCommonCode.js";
 		public static final String REMOTE_COMMON_CODE_JS = "RemoteCommonCode.js";
-		public static final String APP_FILE_NAME_JS = "BhAppScript.js";
+		public static final String APP_FILE_NAME_JS = "BhAppScript.js";	//!< BunnyHopが作成したBhProgramのスクリプト名
 		public static final String GEN_COMPOUND_NODES_JS = "genCompoundNodes.js";
 		public static final String REMOTE_EXEC_CMD_GENERATOR_JS = "remoteExecCmdGenerator.js";	//!< リモートのBhProgram実行環境をスタートさせるコマンドを生成するスクリプト名
 		public static final String REMOTE_KILL_CMD_GENERATOR_JS = "remoteKillCmdGenerator.js";	//!< リモートのBhProgram実行環境を終わらせるコマンドを生成するスクリプト名
-		public static final String COPY_CMD_GENERATOR_JS = "copyCmdGenerator.js";	//!< リモートのBhProgram実行環境にBhProgramファイルをコピーするコマンドを生成するスクリプト名
 		public static final String BUNNY_HOP_ICON = "BunnyHop16.png";	//!< BunnyHopのアイコン画像名
+		public static final String REMOTE_BUNNYHOP_DIR = "BunnyHop";	//!< リモートのBhProgram実行環境が入ったフォルダ名
+		public static final String REMOTE_COMPILED_DIR = "Compiled";	//!< BhProgramのファイルを格納するリモート実行環境の下のフォルダ名
 	}
 
 	/**
@@ -270,6 +271,7 @@ public class BhParams {
 		public static final int MAX_REMOTE_CMD_QUEUE_SIZE = 2048;
 		public static final String RMI_TCP_PORT_SUFFIX = "@RmiTcpPort";	//BhProgram実行環境との通信に使うRMIオブジェクトを探す際のTCPポート
 		public static final String LOLCAL_HOST = "localhost";
+		public static final int SSH_PORT = 22;
 	}
 }
 
