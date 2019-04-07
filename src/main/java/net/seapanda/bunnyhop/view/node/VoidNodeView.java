@@ -46,7 +46,7 @@ public class VoidNodeView extends BhNodeView {
 
 		initialize();
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_VOID_NODE);
-		setFuncs(this::updateStyleFunc, null);
+		setFuncs(this::updateShape, null);
 		setMouseTransparent(true);
 
 		parent.addListener((obs, oldVal, newVal) -> {
@@ -75,13 +75,13 @@ public class VoidNodeView extends BhNodeView {
 	}
 
 	/**
-	 * ノードの大きさや見た目を変える関数
+	 * ノードの大きさや見た目を変える
 	 * */
-	private void updateStyleFunc(BhNodeViewGroup child) {
+	private void updateShape(BhNodeViewGroup child) {
 
 		getAppearanceManager().updatePolygonShape();
 		if (parent.get()!= null)
-			parent.get().updateStyle();
+			parent.get().rearrangeChild();
 	}
 
 	/**

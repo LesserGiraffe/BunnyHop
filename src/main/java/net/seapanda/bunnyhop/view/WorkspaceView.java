@@ -34,7 +34,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.transform.Scale;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.Workspace;
@@ -54,7 +54,7 @@ public class WorkspaceView extends Tab {
 	private @FXML Pane wsPane;	//!< 操作対象のビュー
 	private @FXML Pane wsWrapper;	//!< wsPane の親ペイン
 	private final Workspace workspace;
-	private final Point2D minPaneSize = new Point2D(0.0, 0.0);
+	private final Vec2D minPaneSize = new Vec2D(0.0, 0.0);
 	private final ArrayList<BhNodeView> rootNodeViewList = new ArrayList<>();	//このワークスペースにあるルートBhNodeViewのリスト
 	private QuadTreeManager quadTreeMngForBody;			//!< ノードの本体部分の重なり判定に使う4分木管理クラス
 	private QuadTreeManager quadTreeMngForConnector;	//!< ノードのコネクタ部分の重なり判定に使う4分木管理クラス
@@ -89,8 +89,8 @@ public class WorkspaceView extends Tab {
 		minPaneSize.y = height;
 		wsPane.setMinSize(minPaneSize.x, minPaneSize.y);	//タブの中の部分の最小サイズを決める
 		wsPane.getTransforms().add(new Scale());
-		quadTreeMngForBody = new QuadTreeManager(BhParams.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
-		quadTreeMngForConnector = new QuadTreeManager(BhParams.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
+		quadTreeMngForBody = new QuadTreeManager(BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
+		quadTreeMngForConnector = new QuadTreeManager(BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
 		drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
 
 		//拡大縮小処理
@@ -159,7 +159,7 @@ public class WorkspaceView extends Tab {
 	public void addRectangleToQTSpace(BhNodeView nodeView) {
 
 		nodeView.accept(view -> {
-			Pair<QuadTreeRectangle, QuadTreeRectangle> body_cnctr = view.getRegionManager().getRegion();
+			Pair<QuadTreeRectangle, QuadTreeRectangle> body_cnctr = view.getRegionManager().getRegions();
 			//quadTreeMngForBody.addQuadTreeObj(body_cnctr._1); // 現状ボディ部分の重なり判定は不要
 			quadTreeMngForConnector.addQuadTreeObj(body_cnctr._2);
 		});
@@ -177,8 +177,8 @@ public class WorkspaceView extends Tab {
 	 * ワークスペースの大きさを返す
 	 * @return ワークスペースの大きさ
 	 */
-	public Point2D getWorkspaceSize() {
-		return new Point2D(wsPane.getWidth(), wsPane.getHeight());
+	public Vec2D getWorkspaceSize() {
+		return new Vec2D(wsPane.getWidth(), wsPane.getHeight());
 	}
 
 	/**
@@ -195,23 +195,23 @@ public class WorkspaceView extends Tab {
 	 */
 	public void changeWorkspaceViewSize(boolean widen) {
 
-		if ((workspaceSizeLevel == BhParams.MIN_WORKSPACE_SIZE_LEVEL) && !widen)
+		if ((workspaceSizeLevel == BhParams.LnF.MIN_WORKSPACE_SIZE_LEVEL) && !widen)
 			return;
-		if ((workspaceSizeLevel == BhParams.MAX_WORKSPACE_SIZE_LEVEL) && widen)
+		if ((workspaceSizeLevel == BhParams.LnF.MAX_WORKSPACE_SIZE_LEVEL) && widen)
 			return;
 
 		workspaceSizeLevel = widen ? workspaceSizeLevel + 1 : workspaceSizeLevel - 1;
-		Point2D currentSize = quadTreeMngForBody.getQTSpaceSize();
+		Vec2D currentSize = quadTreeMngForBody.getQTSpaceSize();
 		double newWsWidth = widen ? currentSize.x * 2.0 : currentSize.x / 2.0;
 		double newWsHeight = widen ? currentSize.y * 2.0 : currentSize.y / 2.0;
 
 		wsPane.setMinSize(newWsWidth, newWsHeight);
-		quadTreeMngForBody = new QuadTreeManager(quadTreeMngForBody, BhParams.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
-		quadTreeMngForConnector = new QuadTreeManager(quadTreeMngForConnector, BhParams.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
+		quadTreeMngForBody = new QuadTreeManager(quadTreeMngForBody, BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
+		quadTreeMngForConnector = new QuadTreeManager(quadTreeMngForConnector, BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
 
 		//全ノードの位置更新
 		for (BhNodeView rootView : rootNodeViewList) {
-			Point2D pos = rootView.getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
+			Vec2D pos = rootView.getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
 			rootView.getPositionManager().updateAbsPos(pos.x, pos.y);
 		}
 		drawGridLines(newWsWidth, newWsHeight, quadTreeMngForBody.getNumPartitions());
@@ -258,10 +258,10 @@ public class WorkspaceView extends Tab {
 	 */
 	public void zoom(boolean zoomIn) {
 
-		if ((BhParams.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn)
+		if ((BhParams.LnF.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn)
 			return;
 
-		if ((BhParams.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn)
+		if ((BhParams.LnF.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn)
 			return;
 
 		Scale scale = new Scale();
@@ -269,7 +269,7 @@ public class WorkspaceView extends Tab {
 			++zoomLevel;
 		else
 			--zoomLevel;
-		double mag = Math.pow(BhParams.ZOOM_MAGNIFICATION, zoomLevel);
+		double mag = Math.pow(BhParams.LnF.ZOOM_MAGNIFICATION, zoomLevel);
 		scale.setX(mag);
 		scale.setY(mag);
 		wsPane.getTransforms().clear();
@@ -277,6 +277,13 @@ public class WorkspaceView extends Tab {
 		wsWrapper.setPrefSize(
 			wsPane.getMinWidth() * wsPane.getTransforms().get(0).getMxx(),
 			wsPane.getMinHeight() * wsPane.getTransforms().get(0).getMyy());	//スクロール時にスクロールバーの可動域が変わるようにする
+	}
+
+	/**
+	 * 複数ノードを同時に移動させるマルチノードシフタのビューをワークスペースに追加する
+	 * */
+	public void addtMultiNodeShifterView(MultiNodeShifterView multiNodeShifter) {
+		wsPane.getChildren().add(multiNodeShifter);
 	}
 }
 

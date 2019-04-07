@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
@@ -93,7 +93,7 @@ public class BhNodeController implements MsgProcessor {
 
 			selectNode(mouseEvent.isShiftDown());	//選択処理
 			javafx.geometry.Point2D mousePressedPos = view.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-			ddInfo.mousePressedPos = new Point2D(mousePressedPos.getX(), mousePressedPos.getY());
+			ddInfo.mousePressedPos = new Vec2D(mousePressedPos.getX(), mousePressedPos.getY());
 			ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
 			view.setMouseTransparent(true);
 			view.getAppearanceManager().toForeGround();
@@ -111,8 +111,7 @@ public class BhNodeController implements MsgProcessor {
 			if (ddInfo.dragging) {
 				double diffX = mouseEvent.getX() - ddInfo.mousePressedPos.x;
 				double diffY = mouseEvent.getY() - ddInfo.mousePressedPos.y;
-				Point2D newPos = view.getPositionManager().move(diffX, diffY);
-				view.getPositionManager().updateAbsPos(newPos.x, newPos.y);	//4分木空間での位置更新
+				moveNodeOnWorkspace(diffX, diffY);
 				highlightOverlappedNode();	// ドラッグ検出されていない場合、強調は行わない. 子ノードがダングリングになっていないのに、重なったノード (入れ替え対象) だけが検出されるのを防ぐ
 				TrashboxService.INSTANCE.openCloseTrashbox(mouseEvent.getSceneX(), mouseEvent.getSceneY());	//ゴミ箱開閉
 			}
@@ -197,9 +196,9 @@ public class BhNodeController implements MsgProcessor {
 			oldChildNode,
 			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
 
-		Point2D posOnWS = MsgService.INSTANCE.getPosOnWS(oldChildNode);
-		double newXPosInWs = posOnWS.x + BhParams.REPLACED_NODE_POS;
-		double newYPosInWs = posOnWS.y + BhParams.REPLACED_NODE_POS;
+		Vec2D posOnWS = MsgService.INSTANCE.getPosOnWS(oldChildNode);
+		double newXPosInWs = posOnWS.x + BhParams.LnF.REPLACED_NODE_SHIFT;
+		double newYPosInWs = posOnWS.y + BhParams.LnF.REPLACED_NODE_SHIFT;
 		BhNodeHandler.INSTANCE.moveToWS(oldChildNode.getWorkspace(), oldChildNode, newXPosInWs, newYPosInWs, ddInfo.userOpeCmd);	//重なっているノードをWSに移動
 		oldChildNode.execScriptOnMovedFromChildToWS(
 			oldParentOfReplaced,
@@ -223,7 +222,7 @@ public class BhNodeController implements MsgProcessor {
 	 **/
 	private void toWorkspace(Workspace ws) {
 
-		Point2D absPosInWS = view.getPositionManager().getPosOnWorkspace();
+		Vec2D absPosInWS = view.getPositionManager().getPosOnWorkspace();
 		BhNodeHandler.INSTANCE.moveToWS(ws, model, absPosInWS.x, absPosInWS.y, ddInfo.userOpeCmd);
 		model.execScriptOnMovedFromChildToWS(
 			ddInfo.latestParent,
@@ -231,7 +230,7 @@ public class BhNodeController implements MsgProcessor {
 			model.getLastReplaced(),
 			true,
 			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
-		view.getAppearanceManager().updateStyle(null);
+		view.getAppearanceManager().updateAppearance(null);
 	}
 
 	/**
@@ -241,7 +240,7 @@ public class BhNodeController implements MsgProcessor {
 
 		if (ddInfo.dragging && (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS))
 			ddInfo.userOpeCmd.pushCmdOfSetPosOnWorkspace(ddInfo.posOnWorkspace.x, ddInfo.posOnWorkspace.y, model);
-		view.getAppearanceManager().updateStyle(null);
+		view.getAppearanceManager().updateAppearance(null);
 	}
 
 	/**
@@ -348,6 +347,32 @@ public class BhNodeController implements MsgProcessor {
 	}
 
 	/**
+	 * ワークスペース上での位置を設定する.
+	 * @param posOnWs 設定するワークスペース上での位置
+	 * */
+	private void setPosOnWorkspace(Vec2D posOnWs) {
+
+		view.getPositionManager().setRelativePosFromParent(posOnWs.x, posOnWs.y);
+		Vec2D pos = view.getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
+		view.getPositionManager().updateAbsPos(pos.x, pos.y);
+		if (model.getWorkspace() != null)
+			MsgService.INSTANCE.updateMultiNodeShifter(model, model.getWorkspace());
+	}
+
+	/**
+	 * ワークスペース内でノードを動かす
+	 * @param distanceX x移動量
+	 * @param distanceY y移動量
+	 * */
+	private void moveNodeOnWorkspace(double distanceX, double distanceY) {
+
+		Vec2D newPos = view.getPositionManager().move(distanceX, distanceY);
+		view.getPositionManager().updateAbsPos(newPos.x, newPos.y);	//4分木空間での位置更新
+		if (model.getWorkspace() != null)
+			MsgService.INSTANCE.updateMultiNodeShifter(model, model.getWorkspace());
+	}
+
+	/**
 	 * 受信したメッセージを処理する
 	 * @param msg メッセージの種類
 	 * @param data メッセージの種類に応じて処理するデータ
@@ -356,7 +381,7 @@ public class BhNodeController implements MsgProcessor {
 	@Override
 	public MsgData processMsg(BhMsg msg, MsgData data) {
 
-		Point2D pos;
+		Vec2D pos;
 
 		switch (msg) {
 
@@ -375,15 +400,19 @@ public class BhNodeController implements MsgProcessor {
 
 			case GET_POS_ON_WORKSPACE:
 				pos = view.getPositionManager().getPosOnWorkspace();
-				return new MsgData(pos.x, pos.y);
+				return new MsgData(pos);
 
 			case SET_POS_ON_WORKSPACE:
-				view.getPositionManager().setRelativePosFromParent(data.doublePair._1, data.doublePair._2);
+				setPosOnWorkspace(data.vec2d);
 				break;
 
-			case GET_VIEW_SIZE_WITH_OUTER:
-				Point2D size = view.getRegionManager().getBodyAndOuterSize(data.bool);
-				return new MsgData(size.x, size.y);
+			case MOVE_NODE_ON_WORKSPACE:
+				moveNodeOnWorkspace(data.vec2d.x, data.vec2d.y);
+				break;
+
+			case GET_VIEW_SIZE_INCLUDING_OUTER:
+				Vec2D size = view.getRegionManager().getNodeSizeIncludingOuter(data.bool);
+				return new MsgData(size);
 
 			case UPDATE_ABS_POS:
 				pos = view.getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
@@ -393,7 +422,7 @@ public class BhNodeController implements MsgProcessor {
 			case REPLACE_NODE_VIEW:	//このコントローラの管理するノードビューを引数のノードビューと入れ替える (古いノードのGUIツリーからの削除は行わない)
 				BhNodeView newView = data.nodeView;
 				view.getTreeManager().replace(newView);	//新しいノードビューに入れ替え
-				newView.getAppearanceManager().updateStyle(null);
+				newView.getAppearanceManager().updateAppearance(null);
 				break;
 
 			case SWITCH_PSEUDO_CLASS_ACTIVATION:
@@ -427,8 +456,8 @@ public class BhNodeController implements MsgProcessor {
 	 * D&D操作で使用する一連のイベントハンドラがアクセスするデータをまとめたクラス
 	 **/
 	private class DragAndDropEventInfo {
-		Point2D mousePressedPos = null;
-		Point2D posOnWorkspace = null;
+		Vec2D mousePressedPos = null;
+		Vec2D posOnWorkspace = null;
 		BhNode currentOverlapped = null;	//現在重なっているView
 		boolean propagateEvent = false;	//!< イベントを親ノードに伝播する場合true
 		boolean dragging = false;	//!< ドラッグ中ならtrue

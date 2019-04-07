@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgService;
@@ -54,12 +54,11 @@ public class BhNodeHandler {
 	 * */
 	public void addRootNode(Workspace ws, BhNode node, double x, double y, UserOperationCommand userOpeCmd) {
 
-		Point2D curPos = MsgService.INSTANCE.getPosOnWS(node);
+		Vec2D curPos = MsgService.INSTANCE.getPosOnWS(node);
 		node.accept(new WorkspaceRegisterer(ws, userOpeCmd));							//ツリーの各ノードへのWSの登録
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);		//ワークスペース直下に追加
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);	//4分木ノード登録(重複登録はされない)
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_POS_ON_WORKSPACE, new MsgData(x, y), node);	//ワークスペース内での位置登録
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.UPDATE_ABS_POS, node);		//4分木空間での位置確定
+		MsgService.INSTANCE.setPosOnWS(node, x, y);	//ワークスペース内での位置登録
 
 		userOpeCmd.pushCmdOfAddRootNode(node, ws);
 		userOpeCmd.pushCmdOfAddQtRectangle(node, ws);
@@ -80,6 +79,9 @@ public class BhNodeHandler {
 			DelayedDeleter.INSTANCE.deleteCandidate(rootNode, userOpeCmd);
 			return newNode;
 		}
+
+		//undo時に削除前の状態のBhNodeを選択ノードとして MultiNodeShifterController に通知するためここで非選択にする
+		node.accept(new NodeDeselecter(userOpeCmd));
 
 		Workspace ws = node.getWorkspace();
 		BhNode.State nodeState = node.getState();
@@ -107,7 +109,6 @@ public class BhNodeHandler {
 
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);		 //4分木空間からの削除
 		userOpeCmd.pushCmdOfRemoveQtRectangle(node, ws);
-		node.accept(new NodeDeselecter(userOpeCmd));
 		node.accept(new WorkspaceRegisterer(null, userOpeCmd));	//ノードの登録されたWSを削除
 		node.delete(userOpeCmd);
 		return newNode;
@@ -133,6 +134,9 @@ public class BhNodeHandler {
 		if (DelayedDeleter.INSTANCE.containsInCandidateList(node.findRootNode())) {
 			return newNode;
 		}
+
+		//undo時に削除前の状態のBhNodeを選択ノードとして MultiNodeShifterController に通知するためここで非選択にする
+		node.accept(new NodeDeselecter(userOpeCmd));
 
 		Workspace ws = node.getWorkspace();
 		BhNode.State nodeState = node.getState();
@@ -162,7 +166,6 @@ public class BhNodeHandler {
 
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);		 //4分木空間からの削除
 		userOpeCmd.pushCmdOfRemoveQtRectangle(node, ws);
-		node.accept(new NodeDeselecter(userOpeCmd));
 		node.accept(new WorkspaceRegisterer(null, userOpeCmd));	//ノードに対して登録されたWSを削除
 		if (!saveModelRels)
 			node.delete(userOpeCmd);
@@ -213,7 +216,7 @@ public class BhNodeHandler {
 	}
 
 	/**
-	 * 引数で指定したBhNodeを Workspace に移動する (4分木空間への登録は行わない)
+	 * 引数で指定したBhNodeを Workspace に移動する (4分木空間への登録は行わないが、4分木空間上の位置は更新する)
 	 * @param ws BhNodeを追加したいワークスペース
 	 * @param node WS直下に追加したいノード.
 	 * @param x ワークスペース上での位置
@@ -227,10 +230,9 @@ public class BhNodeHandler {
 		else if (node.getState() == State.CHILD)
 			removeChild(node, userOpeCmd);
 
-		Point2D curPos = MsgService.INSTANCE.getPosOnWS(node);
+		Vec2D curPos = MsgService.INSTANCE.getPosOnWS(node);
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);		//ワークスペースに移動
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_POS_ON_WORKSPACE, new MsgData(x, y), node);	//ワークスペース内での位置登録
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.UPDATE_ABS_POS, node);		//4分木空間での位置確定
+		MsgService.INSTANCE.setPosOnWS(node, x, y);	//ワークスペース内での位置登録
 		userOpeCmd.pushCmdOfAddRootNode(node, ws);
 		userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
 	}
@@ -242,7 +244,7 @@ public class BhNodeHandler {
 	 * */
 	public void removeFromWS(BhNode node, UserOperationCommand userOpeCmd) {
 
-		Point2D curPos = MsgService.INSTANCE.getPosOnWS(node);
+		Vec2D curPos = MsgService.INSTANCE.getPosOnWS(node);
 		Workspace ws = node.getWorkspace();
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_ROOT_NODE, new MsgData(false), node, ws);
 		userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
@@ -337,8 +339,8 @@ public class BhNodeHandler {
 			nodeB = tmp;
 		}
 
-		Point2D posA = MsgService.INSTANCE.getPosOnWS(nodeA);
-		Point2D posB = MsgService.INSTANCE.getPosOnWS(nodeB);
+		Vec2D posA = MsgService.INSTANCE.getPosOnWS(nodeA);
+		Vec2D posB = MsgService.INSTANCE.getPosOnWS(nodeB);
 		Workspace wsA = nodeB.getWorkspace();
 		Workspace wsB = nodeB.getWorkspace();
 

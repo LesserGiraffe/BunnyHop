@@ -42,7 +42,7 @@ public class MsgPrinter {
 
 	public static final MsgPrinter INSTANCE = new MsgPrinter();	//!< シングルトンインスタンス
 	private TextArea mainMsgArea;
-	private BlockingQueue<String> queuedMsgs = new ArrayBlockingQueue<>(BhParams.MAX_MAIN_MSG_QUEUE_SIZE);
+	private BlockingQueue<String> queuedMsgs = new ArrayBlockingQueue<>(BhParams.Message.MAX_MAIN_MSG_QUEUE_SIZE);
 	private Timeline msgPrintTimer;
 
 	private MsgPrinter() {}

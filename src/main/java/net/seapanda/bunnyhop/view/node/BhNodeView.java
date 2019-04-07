@@ -31,13 +31,14 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Polygon;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.Point2D;
 import net.seapanda.bunnyhop.common.Showable;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
+import net.seapanda.bunnyhop.view.FieldPosCalculator;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShape;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShape.BODY_SHAPE;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
@@ -154,18 +155,18 @@ public abstract class BhNodeView extends Pane implements Showable {
 
 	/**
 	 * サブクラスから処理を指定する必要のある関数のオブジェクトをセットする
-	 * @param updateStyleFunc 大きさ変更時に呼ばれる関数. (必ず指定すること)
+	 * @param rearrangeNodesFunc 大きさ変更時に呼ばれる関数. (必ず指定すること)
 	 * @param updateAbsPosFunc 絶対位置更新時の関数
 	 * */
 	final protected void setFuncs(
-		Consumer<BhNodeViewGroup> updateStyleFunc,
+		Consumer<BhNodeViewGroup> rearrangeNodesFunc,
 		BiConsumer<Double, Double> updateAbsPosFunc) {
 
-		if (updateStyleFunc != null)
-			appearanceManager.setFuncUpdateStyle(updateStyleFunc);
+		if (rearrangeNodesFunc != null)
+			appearanceManager.setUpdateAppearanceFunc(rearrangeNodesFunc);
 
 		if (updateAbsPosFunc != null)
-			positionManager.setFuncUpdateAbsPos(updateAbsPosFunc);
+			positionManager.setUpdateAbsPosFunc(updateAbsPosFunc);
 	}
 
 	/**
@@ -187,7 +188,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * コネクタの大きさを返す
 		 * @return コネクタの大きさ
 		 * */
-		public Point2D getConnectorSize() {
+		public Vec2D getConnectorSize() {
 			return viewStyle.getConnectorSize();
 		}
 
@@ -205,13 +206,14 @@ public abstract class BhNodeView extends Pane implements Showable {
 	 * */
 	public class AppearanceManager {
 
-		private Consumer<BhNodeViewGroup> updateStyleFunc;	//!< ノードの形状を更新する関数
+		private Consumer<BhNodeViewGroup> updateAppearanceFunc;	//!< ノードの形状を更新する関数
 		private final ConnectorShape notch;	//!< 切り欠き部分の形を表すオブジェクト
 		private BodyShape body;
 
 		/**
 		 * コンストラクタ
-		 * @param notchShape 切り欠きの形の種類
+		 * @param bodyShape 本体の形
+		 * @param notchShape 切り欠きの形
 		 * */
 		public AppearanceManager(BODY_SHAPE bodyShape, CNCTR_SHAPE notchShape) {
 			notch = ConnectorShape.genConnector(notchShape);
@@ -260,7 +262,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		protected void updatePolygonShape() {
 
 			nodeShape.getPoints().clear();
-			Point2D bodySize = getRegionManager().getBodySize(false);
+			Vec2D bodySize = getRegionManager().getBodySize(false);
 			nodeShape.getPoints().addAll(
 				body.createVertices(
 					bodySize.x,
@@ -277,23 +279,24 @@ public abstract class BhNodeView extends Pane implements Showable {
 		}
 
 		/**
-		 * ノードの形状を更新する関数をセットする
+		 * ノードの大きさと子ノードの配置を更新する関数をセットする
 		 * */
-		public void setFuncUpdateStyle(Consumer<BhNodeViewGroup> updateStyleFunc) {
-			this.updateStyleFunc = updateStyleFunc;
+		public void setUpdateAppearanceFunc(Consumer<BhNodeViewGroup> updateAppearanceFunc) {
+			this.updateAppearanceFunc = updateAppearanceFunc;
 		}
 
 		/**
-		 * ノードの形状を更新する
+		 * ノードの大きさと子ノードの配置を更新する.
+		 * 4分木空間上の位置も更新する.
 		 * @param child 形状が変わった子ノード
 		 * */
-		public void updateStyle(BhNodeViewGroup child) {
+		public void updateAppearance(BhNodeViewGroup child) {
 
-			updateStyleFunc.accept(child);
+			updateAppearanceFunc.accept(child);
 			getTreeManager().updateEvenFlg();
 
 			//BhNoteSelectionView のBhNode配置に必要
-			Point2D wholeBodySize = getRegionManager().getBodyAndOuterSize(true);
+			Vec2D wholeBodySize = getRegionManager().getNodeSizeIncludingOuter(true);
 			BhNodeView.this.setMaxSize(0.0, 0.0);
 			if (BhNodeView.this.heightProperty().get() != wholeBodySize.y)
 				BhNodeView.this.setHeight(wholeBodySize.y);
@@ -343,7 +346,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * ボディとコネクタ部分の領域を保持するQuadTreeRectangleを返す
 		 * @return ボディとコネクタ部分の領域を保持するQuadTreeRectangleオブジェクトのペア
 		 * */
-		public Pair<QuadTreeRectangle, QuadTreeRectangle> getRegion() {
+		public Pair<QuadTreeRectangle, QuadTreeRectangle> getRegions() {
 			return new Pair<>(wholeBodyRange, connectorPartRange);
 		}
 
@@ -369,7 +372,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * @param includeCnctr コネクタ部分を含む大きさを返す場合true
 		 * @return 描画ノードの大きさ
 		 * */
-		public Point2D getBodyAndOuterSize(boolean includeCnctr) {
+		public Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
 			return viewStyle.getBodyAndOuterSize(includeCnctr);
 		}
 
@@ -378,7 +381,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * @param includeCnctr コネクタ部分を含む大きさを返す場合true
 		 * @return 描画ノードの大きさ
 		 * */
-		public Point2D getBodySize(boolean includeCnctr) {
+		public Vec2D getBodySize(boolean includeCnctr) {
 			return viewStyle.getBodySize(includeCnctr);
 		}
 	}
@@ -431,7 +434,6 @@ public abstract class BhNodeView extends Pane implements Showable {
 				((Group)parent).getChildren().remove(BhNodeView.this);
 			else if (parent instanceof Pane)
 				((Pane)parent).getChildren().remove(BhNodeView.this);
-
 		}
 
 		/**
@@ -476,20 +478,20 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * ノードの親からの相対位置を取得する
 		 * @return ノードの親からの相対位置
 		 * */
-		public final Point2D getRelativePosFromParent() {
-			return new Point2D(BhNodeView.this.getTranslateX(), BhNodeView.this.getTranslateY());
+		public final Vec2D getRelativePosFromParent() {
+			return new Vec2D(BhNodeView.this.getTranslateX(), BhNodeView.this.getTranslateY());
 		}
 
 		/**
 		 * ワークスペース上での位置を返す
 		 * @return ワークスペース上での位置
 		 * */
-		public Point2D getPosOnWorkspace() {
+		public Vec2D getPosOnWorkspace() {
 			return getRelativePos(null, BhNodeView.this);
 		}
 
 		/**
-		 * このノードの絶対位置を更新する
+		 * ノードの絶対値値を更新する (=4分木空間上での位置を更新する)
 		 * @param posX 本体部分左上のX位置
 		 * @param posY 本体部分左上のY位置
 		 * */
@@ -498,47 +500,21 @@ public abstract class BhNodeView extends Pane implements Showable {
 		}
 
 		/**
-		 * ノードをGUI上で動かす
+		 * ノードをGUI上で動かす. WS上の絶対位置(=4分木空間上の位置)は更新されない.
 		 * @param diffX X方向移動量
 		 * @param diffY Y方向移動量
 		 * @return 移動後の新しい位置
 		 */
-		public Point2D move(double diffX, double diffY) {
+		public Vec2D move(double diffX, double diffY) {
 
-			Point2D curRelPos = getRelativePosFromParent();
-			Point2D posOnWS = getPosOnWorkspace();
-			Pair<Double, Double> wsSize = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_WORKSPACE_SIZE, model.getWorkspace()).doublePair;
-			double wsWidth = wsSize._1;
-			double wsHeight = wsSize._2;
-			double newDiffX = calcNewDiff(wsWidth, posOnWS.x, diffX);
-			double newDiffY = calcNewDiff(wsHeight, posOnWS.y, diffY);
-			double newPosX = curRelPos.x + newDiffX;
-			double newPosY = curRelPos.y + newDiffY;
+			Vec2D posOnWS = getPosOnWorkspace();
+			Vec2D wsSize = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_WORKSPACE_SIZE, model.getWorkspace()).vec2d;
+			Vec2D movDistance = FieldPosCalculator.distance(new Vec2D(diffX, diffY), wsSize, posOnWS);
+			Vec2D curRelPos = getRelativePosFromParent();
+			double newPosX = curRelPos.x + movDistance.x;
+			double newPosY = curRelPos.y + movDistance.y;
 			setRelativePosFromParent(newPosX, newPosY);	//GUI上での移動
 			return getPosOnWorkspace();
-		}
-
-		/**
-		 * ワークスペースの範囲を元に新しい移動量を算出する
-		 * @param targetRange 新しい位置を計算する際に使う範囲
-		 * @param curPos 現在のWS上での位置
-		 * @param diff 移動量
-		 * @return 新しい移動量
-		 */
-		private double calcNewDiff(double targetRange, double curPos, double diff) {
-
-			boolean curPosIsInTargetRange = (0 < curPos) && (curPos < targetRange);
-			if (curPosIsInTargetRange) {
-				double newPos = curPos + diff;
-				boolean newPosIsInTargetRange = (0 < newPos) && (newPos < targetRange);
-				if (!newPosIsInTargetRange) {	//現在範囲内に居て移動後に範囲外に居る場合, 移動させない
-					if (newPos < 0)
-						return -curPos + 1.0;
-					else
-						return targetRange - curPos - 1.0;
-				}
-			}
-			return diff;
 		}
 
 		/**
@@ -548,7 +524,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * */
 		public void defaultUpdateAbsPos(double posX, double posY) {
 
-			Point2D bodySize = getRegionManager().getBodySize(false);
+			Vec2D bodySize = getRegionManager().getBodySize(false);
 			double bodyUpperLeftX = posX;
 			double bodyUpperLeftY = posY;
 			double bodyLowerRightX = posX + bodySize.x;
@@ -580,7 +556,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		/**
 		 * 絶対位置更新用関数をセットする
 		 * */
-		void setFuncUpdateAbsPos(BiConsumer<Double, Double> updateAbsPosFunc) {
+		void setUpdateAbsPosFunc(BiConsumer<Double, Double> updateAbsPosFunc) {
 			this.updateAbsPosFunc = updateAbsPosFunc;
 		}
 	}
@@ -634,9 +610,9 @@ public abstract class BhNodeView extends Pane implements Showable {
 	 * @param target 基点からの距離を測るオブジェクト
 	 * @return target - base で算出される距離
 	 * */
-	public static Point2D getRelativePos(Node base, Node target) {
+	public static Vec2D getRelativePos(Node base, Node target) {
 
-		Point2D relativePos = new Point2D(0.0, 0.0);
+		Vec2D relativePos = new Vec2D(0.0, 0.0);
 		Node parent = target;
 		while (parent != base && !BhParams.Fxml.ID_WS_PANE.equals(parent.getId())) {
 			relativePos.x += parent.getTranslateX();

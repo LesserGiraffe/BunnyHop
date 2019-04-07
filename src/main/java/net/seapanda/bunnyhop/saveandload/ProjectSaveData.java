@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.control.WorkspaceController;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgService;
@@ -75,13 +75,13 @@ public class ProjectSaveData implements Serializable{
 	private class WorkspaceSaveData implements Serializable {
 
 		private final Workspace ws;	//!< 保存するワークスペース
-		private final Point2D workspaceSize;	//!< ワークスペースのサイズ
+		private final Vec2D workspaceSize;	//!< ワークスペースのサイズ
 		private final List<RootNodeSaveData> rootNodeSaveList;
 
 		public WorkspaceSaveData(Workspace ws){
 			this.ws = ws;
-			Pair<Double, Double> wsSize = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_WORKSPACE_SIZE, ws).doublePair;
-			workspaceSize = new Point2D(wsSize._1, wsSize._2);
+			Vec2D wsSize = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_WORKSPACE_SIZE, ws).vec2d;
+			workspaceSize = new Vec2D(wsSize.x, wsSize.y);
 			rootNodeSaveList = ws.getRootNodeList().stream().map(rootNode -> {
 				return this.new RootNodeSaveData(rootNode);
 			})
@@ -107,11 +107,12 @@ public class ProjectSaveData implements Serializable{
 			WorkspaceView wsView = new WorkspaceView(ws);
 			wsView.init(workspaceSize.x, workspaceSize.y);
 			WorkspaceController wsController = new WorkspaceController(ws, wsView);
+			wsController.init();
 			ws.setMsgProcessor(wsController);
 			ws.initForLoad();
 			rootNodeSaveList.forEach(nodeSaveData -> {
-				Pair<BhNode, Point2D> rootNode_pos = nodeSaveData.getBhNodeAndPos();
-				Point2D pos = rootNode_pos._2;
+				Pair<BhNode, Vec2D> rootNode_pos = nodeSaveData.getBhNodeAndPos();
+				Vec2D pos = rootNode_pos._2;
 				BhNode rootNode = rootNode_pos._1;
 				BhNodeHandler.INSTANCE.addRootNode(ws, rootNode, pos.x, pos.y, userOpeCmd);
 			});
@@ -120,12 +121,12 @@ public class ProjectSaveData implements Serializable{
 
 		private class RootNodeSaveData implements Serializable {
 			private final BhNode rootNode;	//!<保存するルートノード
-			private final Point2D nodePos;	//!< ルートノードの位置
+			private final Vec2D nodePos;	//!< ルートノードの位置
 
 			RootNodeSaveData(BhNode rootNode) {
 				this.rootNode = rootNode;
-				Point2D pos = MsgService.INSTANCE.getPosOnWS(rootNode);
-				nodePos = new Point2D(pos.x, pos.y);
+				Vec2D pos = MsgService.INSTANCE.getPosOnWS(rootNode);
+				nodePos = new Vec2D(pos.x, pos.y);
 			}
 
 			/**
@@ -146,7 +147,7 @@ public class ProjectSaveData implements Serializable{
 			 * BhNodeとその位置を返す
 			 * @return ロードしたBhNodeとその位置のペア
 			 */
-			public Pair<BhNode, Point2D> getBhNodeAndPos() {
+			public Pair<BhNode, Vec2D> getBhNodeAndPos() {
 				return new Pair<>(rootNode, nodePos);
 			}
 		}

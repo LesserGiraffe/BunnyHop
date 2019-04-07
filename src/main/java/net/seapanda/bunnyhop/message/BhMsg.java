@@ -30,10 +30,11 @@ public enum BhMsg {
 	CHANGE_WORKSPACE_VIEW_SIZE,	//!< ワークスペースの大きさを変える
 	ADD_QT_RECTANGLE,	//!< 4文木に登録される矩形オブジェクトを追加する(このメッセージを受け取ったBhNodeController の BhNodeView以下の全てのViewの矩形を登録する)
 	REMOVE_QT_RECTANGLE, //!< 4文木に登録される矩形オブジェクトを削除する
-	SET_POS_ON_WORKSPACE,	//!< 親GUI部品からの相対位置を指定する
-	GET_POS_ON_WORKSPACE,	//!< ワークスペース上の位置を取得する
-	GET_VIEW_SIZE_WITH_OUTER,	//!< BhNodeView の外部ノード込みの大きさを取得する
-	UPDATE_ABS_POS,		//!< 絶対位置 (= workspace からの相対位置) を更新する
+	SET_POS_ON_WORKSPACE,	//!< ワークスペース上の位置を設定する. (4分木空間上の位置も更新する)
+	GET_POS_ON_WORKSPACE,	//!< ワークスペース上の位置を取得する.
+	MOVE_NODE_ON_WORKSPACE, //!< ワークスペース上のノードを動かす
+	GET_VIEW_SIZE_INCLUDING_OUTER,	//!< BhNodeView の外部ノード込みの大きさを取得する
+	UPDATE_ABS_POS,		//!< 絶対位置 (= workspace からの相対位置) を更新する. (=4分木空間上の位置を更新する)
 	BUILD_NODE_CATEGORY_LIST_VIEW,	//!< GUI画面に BhNodeカテゴリ選択画面を追加する
 	SWITCH_PSEUDO_CLASS_ACTIVATION,	//!< 擬似クラスの有効/無効を切り替える
 	ADD_NODE_SELECTION_PANELS,	//!< BhNode のテンプレートの載ったパネルを追加する
@@ -53,4 +54,6 @@ public enum BhMsg {
 	IS_IN_TRASHBOX_AREA,	//!< ゴミ箱エリアに入っているかどうかを調べる
 	OPEN_TRASHBOX,			//!< ゴミ箱を開閉する
 	SET_VISIBLE,	//!< ノードの可視性をセットする
+	UPDATE_MULTI_NODE_SHIFTER,	//!< マルチノードシフタ(複数ノード移動用マルチノードシフタ)とリンクを更新する
+	GET_NODE_BODY_RANGE, //!< BhNodeのボディのワークスペース上での範囲を取得する
 }

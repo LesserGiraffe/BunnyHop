@@ -74,7 +74,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 		if (node.getParentConnector() != null) {
 			parentStack.peekLast().addToGroup(view);
 		}
-		view.getAppearanceManager().updateStyle(null);
+		view.getAppearanceManager().updateAppearance(null);
 	}
 
 	/**

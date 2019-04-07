@@ -1,0 +1,20 @@
+.nodeShifterCircle {
+	-fx-fill: #ffff00;
+	-fx-stroke-width: 0.2em;
+	-fx-stroke: #000000;
+}
+
+.nodeShifterArrow {
+	-fx-fill: #000000;
+}
+
+.nodeShifterCircle:selected {
+	-fx-effect: dropshadow( two-pass-box , #202020 , 10, 0.3, 6 , 6);
+}
+
+.nodeShifterLink {
+	-fx-stroke-width: 0.3em;
+	-fx-stroke-dash-array: 0.8em;
+	-fx-fill: #000000;
+}
+

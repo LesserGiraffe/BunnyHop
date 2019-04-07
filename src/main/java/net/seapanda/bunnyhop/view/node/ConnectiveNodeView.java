@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
@@ -61,7 +61,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 		getChildren().add(innerGroup);
 		getChildren().add(outerGroup);
 
-		setFuncs(this::updateStyleFunc, this::updateAbsPosFunc);
+		setFuncs(this::rearrangeChildNodes, this::updateAbsPos);
 		if (model.getImitationInfo().canCreateImitManually) {
 			Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.IMIT_BUTTON_FXML);
 			try {
@@ -101,15 +101,15 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 	 * @param posX 本体部分左上のX位置
 	 * @param posY 本体部分左上のY位置
 	 * */
-	private void updateAbsPosFunc(double posX, double posY) {
+	private void updateAbsPos(double posX, double posY) {
 
 		getPositionManager().defaultUpdateAbsPos(posX, posY);
 		//内部ノード絶対位置更新
-		Point2D relativePos = innerGroup.getRelativePosFromParent();
+		Vec2D relativePos = innerGroup.getRelativePosFromParent();
 		innerGroup.updateAbsPos(posX + relativePos.x, posY + relativePos.y);
 
 		//外部ノード絶対位置更新
-		Point2D bodySize = getRegionManager().getBodySize(false);
+		Vec2D bodySize = getRegionManager().getBodySize(false);
 		if (viewStyle.connectorPos == CNCTR_POS.LEFT)	//外部ノードが右に繋がる
 			outerGroup.updateAbsPos(posX + bodySize.x, posY);
 		else										   //外部ノードが下に繋がる
@@ -117,23 +117,23 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 	}
 
 	/**
-	 * ノードの形状を更新する
-	 * @param child 形状が変わった子ノード
+	 * 子ノードの配置を更新する
+	 * @param child 大きさや位置が変わった子ノード
 	 * */
-	private void updateStyleFunc(BhNodeViewGroup child) {
+	private void rearrangeChildNodes(BhNodeViewGroup child) {
 
-		Point2D sizeBefore = getRegionManager().getBodyAndOuterSize(true);
+		Vec2D sizeBefore = getRegionManager().getNodeSizeIncludingOuter(true);
 		if (child == null) {
-			Point2D outerSize = outerGroup.getSize();
+			Vec2D outerSize = outerGroup.getSize();
 			viewStyle.connective.outerWidth = outerSize.x;
 			viewStyle.connective.outerHeight = outerSize.y;
-			Point2D innerSize = innerGroup.getSize();
+			Vec2D innerSize = innerGroup.getSize();
 			viewStyle.width = innerSize.x;
 			viewStyle.height = innerSize.y;
 			getAppearanceManager().updatePolygonShape();
 		}
 		else {
-			Point2D childSize = child.getSize();
+			Vec2D childSize = child.getSize();
 			if (child == outerGroup) {
 				viewStyle.connective.outerWidth = childSize.x;
 				viewStyle.connective.outerHeight = childSize.y;
@@ -147,15 +147,15 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 
 		updateChildRelativePos();
 
-		Point2D sizeAfter = getRegionManager().getBodyAndOuterSize(true);
+		Vec2D sizeAfter = getRegionManager().getNodeSizeIncludingOuter(true);
 		if (parent.get() == null ||
 			(sizeBefore.equals(sizeAfter) && child != null)) {
-			Point2D pos = getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
+			Vec2D pos = getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
 			getPositionManager().updateAbsPos(pos.x, pos.y);
 			return;
 		}
 
-		parent.get().updateStyle();
+		parent.get().rearrangeChild();
 	}
 
 	/**
@@ -165,7 +165,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 	private void updateChildRelativePos() {
 
 		innerGroup.setRelativePosFromParent(viewStyle.paddingLeft, viewStyle.paddingTop);
-		Point2D bodySize = getRegionManager().getBodySize(false);
+		Vec2D bodySize = getRegionManager().getBodySize(false);
 		if (viewStyle.connectorPos == CNCTR_POS.LEFT)	//外部ノードが右に繋がる
 			outerGroup.setRelativePosFromParent(bodySize.x, 0.0);
 		else										   //外部ノードが下に繋がる

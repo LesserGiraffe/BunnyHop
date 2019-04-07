@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.message;
 import java.util.Collection;
 
 import net.seapanda.bunnyhop.common.Pair;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -33,8 +34,9 @@ public class MsgData {
 
 	public final BhNode node;
 	public final BhNodeView nodeView;
-	public final Pair<Double, Double> doublePair;
+	public final Vec2D vec2d;
 	public final Pair<String, String> strPair;
+	public final Pair<Vec2D, Vec2D> vec2dPair;
 	public final Workspace workspace;
 	public final WorkspaceView workspaceView;
 	public final boolean bool;
@@ -45,8 +47,9 @@ public class MsgData {
 	public MsgData(BhNodeView view) {
 		this.node = null;
 		this.nodeView = view;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -55,11 +58,12 @@ public class MsgData {
 		this.nodeSelectionViewList = null;
 	}
 
-	public MsgData(double val1, double val2) {
+	public MsgData(Vec2D vec2d) {
 		this.node = null;
 		this.nodeView = null;
-		this.doublePair = new Pair<>(val1, val2);
+		this.vec2d = vec2d;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -71,8 +75,9 @@ public class MsgData {
 	public MsgData(Workspace workspace, WorkspaceView workspaceView, UserOperationCommand userOpeCmd) {
 		this.node = null;
 		this.nodeView = null;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = workspace;
 		this.workspaceView = workspaceView;
 		this.bool = false;
@@ -84,8 +89,9 @@ public class MsgData {
 	public MsgData(BhNode node, BhNodeView view) {
 		this.node = node;
 		this.nodeView = view;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -97,8 +103,9 @@ public class MsgData {
 	public MsgData(BhNode node, BhNodeView view, boolean bool) {
 		this.node = node;
 		this.nodeView = view;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = bool;
@@ -110,8 +117,9 @@ public class MsgData {
 	public MsgData(BhNode node) {
 		this.node = node;
 		this.nodeView = null;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -123,8 +131,9 @@ public class MsgData {
 	public MsgData(BhNodeSelectionView templatePanel) {
 		this.node = null;
 		this.nodeView = null;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -136,8 +145,9 @@ public class MsgData {
 	public MsgData(boolean bool) {
 		this.node = null;
 		this.nodeView = null;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = bool;
@@ -149,8 +159,9 @@ public class MsgData {
 	public MsgData(UserOperationCommand userOpeCmd) {
 		this.node = null;
 		this.nodeView = null;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -162,8 +173,9 @@ public class MsgData {
 	public MsgData(String text) {
 		this.node = null;
 		this.nodeView = null;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -175,8 +187,9 @@ public class MsgData {
 	public MsgData(Workspace workspace) {
 		this.node = null;
 		this.nodeView = null;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = workspace;
 		this.workspaceView = null;
 		this.bool = false;
@@ -188,8 +201,9 @@ public class MsgData {
 	public MsgData(boolean bool, String text) {
 		this.node = null;
 		this.nodeView = null;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = bool;
@@ -201,8 +215,9 @@ public class MsgData {
 	public MsgData(Collection<BhNodeSelectionView> nodeSelectionViewList) {
 		this.node = null;
 		this.nodeView = null;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -214,8 +229,9 @@ public class MsgData {
 	public MsgData(String textA, String textB) {
 		this.node = null;
 		this.nodeView = null;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = new Pair<>(textA, textB);
+		this.vec2dPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = false;
@@ -227,12 +243,27 @@ public class MsgData {
 	public MsgData(boolean bool, UserOperationCommand userOpeCmd) {
 		this.node = null;
 		this.nodeView = null;
-		this.doublePair = null;
+		this.vec2d = null;
 		this.strPair = null;
+		this.vec2dPair = null;
 		this.workspace = null;
 		this.workspaceView = null;
 		this.bool = bool;
 		this.userOpeCmd = userOpeCmd;
+		this.text = null;
+		this.nodeSelectionViewList = null;
+	}
+
+	public MsgData(Vec2D vecA, Vec2D vecB) {
+		this.node = null;
+		this.nodeView = null;
+		this.vec2d = null;
+		this.strPair = null;
+		this.vec2dPair = new Pair<Vec2D, Vec2D> (vecA, vecB);
+		this.workspace = null;
+		this.workspaceView = null;
+		this.bool = false;
+		this.userOpeCmd = null;
 		this.text = null;
 		this.nodeSelectionViewList = null;
 	}

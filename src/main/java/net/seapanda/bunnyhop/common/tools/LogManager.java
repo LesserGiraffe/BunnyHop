@@ -56,7 +56,7 @@ public class LogManager {
 
 		try {
 			//ログローテーション
-			if (Files.size(logFilePath) > BhParams.LOG_FILE_SIZE_LIMIT)
+			if (Files.size(logFilePath) > BhParams.Message.LOG_FILE_SIZE_LIMIT)
 				if (!renameLogFiles())
 					return false;
 			logOutputStream = Files.newOutputStream(logFilePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND, StandardOpenOption.WRITE);
@@ -89,11 +89,11 @@ public class LogManager {
 	private boolean renameLogFiles() {
 
 		try {
-			Path oldestLogFilePath = genLogFilePath(BhParams.MAX_LOG_FILE_NUM - 1);
+			Path oldestLogFilePath = genLogFilePath(BhParams.Message.MAX_LOG_FILE_NUM - 1);
 			if (Files.exists(oldestLogFilePath))
 				Files.delete(oldestLogFilePath);
 
-			for (int fileNo = BhParams.MAX_LOG_FILE_NUM - 2; fileNo >= 0; --fileNo) {
+			for (int fileNo = BhParams.Message.MAX_LOG_FILE_NUM - 2; fileNo >= 0; --fileNo) {
 				Path oldLogFilePath = genLogFilePath(fileNo);
 				Path newLogFilePath = genLogFilePath(fileNo + 1);
 				if (Files.exists(oldLogFilePath))

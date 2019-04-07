@@ -17,7 +17,7 @@ package net.seapanda.bunnyhop.control;
 
 import java.lang.reflect.Field;
 
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
@@ -27,6 +27,7 @@ import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.view.MultiNodeShifterView;
 import net.seapanda.bunnyhop.view.WorkspaceView;
 
 
@@ -38,6 +39,9 @@ public class WorkspaceController implements MsgProcessor {
 
 	private Workspace model; // 操作対象のモデル
 	private WorkspaceView view;
+	private MultiNodeShifterController nodeShifterController;
+
+	public WorkspaceController () {}
 
 	/**
 	 * コンストラクタ
@@ -47,8 +51,14 @@ public class WorkspaceController implements MsgProcessor {
 	public WorkspaceController(Workspace model, WorkspaceView view) {
 		this.model = model;
 		this.view = view;
+	}
 
-		this.view.setOnMousePressedEvent(
+	/**
+	 * このコントローラを初期化する
+	 * */
+	public boolean init() {
+
+		view.setOnMousePressedEvent(
 			event -> {
 				UserOperationCommand userOpeCmd = new UserOperationCommand();
 				BunnyHop.INSTANCE.hideTemplatePanel();
@@ -56,6 +66,15 @@ public class WorkspaceController implements MsgProcessor {
 				model.setMoveCandidateNode(null);
 				BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 			});
+
+		var multiNodeShifterView = new MultiNodeShifterView();
+		boolean success = multiNodeShifterView.init();
+		if (success) {
+			view.addtMultiNodeShifterView(multiNodeShifterView);
+			nodeShifterController = new MultiNodeShifterController(multiNodeShifterView, model);
+			nodeShifterController.init();
+		}
+		return success;
 	}
 
 	/**
@@ -71,11 +90,13 @@ public class WorkspaceController implements MsgProcessor {
 			case ADD_ROOT_NODE:
 				model.addRootNode(data.node);
 				view.addNodeView(data.nodeView);
+				nodeShifterController.updateMultiNodeShifter(data.node);
 				break;
 
 			case REMOVE_ROOT_NODE:
 				model.removeRootNode(data.node);
 				view.removeNodeView(data.nodeView, data.bool);
+				nodeShifterController.updateMultiNodeShifter(data.node);
 				break;
 
 			case ADD_QT_RECTANGLE:
@@ -87,16 +108,16 @@ public class WorkspaceController implements MsgProcessor {
 				break;
 
 			case SCENE_TO_WORKSPACE:
-				javafx.geometry.Point2D pos = view.sceneToWorkspace(data.doublePair._1, data.doublePair._2);
-				return new MsgData(pos.getX(), pos.getY());
+				javafx.geometry.Point2D pos = view.sceneToWorkspace(data.vec2d.x, data.vec2d.y);
+				return new MsgData(new Vec2D(pos.getX(), pos.getY()));
 
 			case ZOOM:
 				view.zoom(data.bool);
 				break;
 
 			case GET_WORKSPACE_SIZE:
-				Point2D size = view.getWorkspaceSize();
-				return new MsgData(size.x, size.y);
+				Vec2D size = view.getWorkspaceSize();
+				return new MsgData(new Vec2D(size.x, size.y));
 
 			case ADD_WORKSPACE:
 				return new MsgData(model, view, data.userOpeCmd);
@@ -104,6 +125,10 @@ public class WorkspaceController implements MsgProcessor {
 			case DELETE_WORKSPACE:
 				model.deleteNodes(model.getRootNodeList(), data.userOpeCmd);
 				return new MsgData(model, view, data.userOpeCmd);
+
+			case UPDATE_MULTI_NODE_SHIFTER:
+				nodeShifterController.updateMultiNodeShifter(data.node);
+				break;
 
 			default:
 				throw new AssertionError("receive an unknown msg " + msg);

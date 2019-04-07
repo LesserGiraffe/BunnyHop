@@ -46,14 +46,14 @@ public class BodyRoundRect extends BodyShape {
 
 		ArrayList<Double> bodyVertices = null;
 		bodyVertices = new ArrayList<>(Arrays.asList(
-			 0.0,                                     0.0 + 0.2 * BhParams.NODE_SCALE,
-			 0.0 + 0.2 * BhParams.NODE_SCALE,        0.0,
-			 bodyWidth - 0.2 * BhParams.NODE_SCALE,  0.0,
-			 bodyWidth,                                0.0 + 0.2 * BhParams.NODE_SCALE,
-			 bodyWidth,                                bodyHeight - 0.2 * BhParams.NODE_SCALE,
-			 bodyWidth - 0.2 * BhParams.NODE_SCALE,  bodyHeight,
-		 	 0.0 + 0.2 * BhParams.NODE_SCALE,        bodyHeight,
-		 	 0.0,                                      bodyHeight - 0.2 * BhParams.NODE_SCALE));
+			 0.0,                                          0.0 + 0.2 * BhParams.LnF.NODE_SCALE,
+			 0.0 + 0.2 * BhParams.LnF.NODE_SCALE,        0.0,
+			 bodyWidth - 0.2 * BhParams.LnF.NODE_SCALE,  0.0,
+			 bodyWidth,                                    0.0 + 0.2 * BhParams.LnF.NODE_SCALE,
+			 bodyWidth,                                    bodyHeight - 0.2 * BhParams.LnF.NODE_SCALE,
+			 bodyWidth - 0.2 * BhParams.LnF.NODE_SCALE,  bodyHeight,
+		 	 0.0 + 0.2 * BhParams.LnF.NODE_SCALE,        bodyHeight,
+		 	 0.0,                                          bodyHeight - 0.2 * BhParams.LnF.NODE_SCALE));
 
 		List<Double> notchVertices = createNotchVertices(notch, notchPos, notchWidth, notchHeight, bodyWidth, bodyHeight);
 		if (notchPos == BhNodeViewStyle.NOTCH_POS.RIGHT)

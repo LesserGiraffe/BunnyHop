@@ -23,28 +23,31 @@ public class BhParams {
 
 	public static final String APPLICATION_NAME = "BunnyHop";
 	public static final String APP_VERSION = "1.0.2.0";
-	public static final double DEFAULT_APP_WIDTH_RATE = 0.7; // !< 起動時の画面幅のディスプレイに対する割合
-	public static final double DEFAULT_APP_HEIGHT_RATE = 0.7; // !< 起動時の画面高さのディスプレイに対する割合
-	public static final double DEFAULT_WORKSPACE_WIDTH = 200 * Rem.VAL;
-	public static final double DEFAULT_WORKSPACE_HEIGHT = 200 * Rem.VAL;
-	public static final double DEFAULT_VERTICAL_DIV_POS = 0.85;	//!< ワークスペースとメッセージエリアを分けるディバイダの初期位置
-	public static final double NODE_SCALE = 0.5 * Rem.VAL;
-	public static final double ZOOM_MAGNIFICATION = 1.1;		//!< ctrl + マウスホイールや拡大, 縮小ボタンを押したときの拡大縮小倍率
-	public static final double MAX_ZOOM_LEVEL = 30;		//!< 最大拡大レベル
-	public static final double MIN_ZOOM_LEVEL = -40;	//!< 最小拡大レベル
-	public static final int INITIAL_ZOOM_LEVEL = -1;
-	public static final double REPLACED_NODE_POS = 2.0 * BhParams.NODE_SCALE;	//!< 入れ替えられたノードがワークスペースに移ったときの元の位置に対する位置 (単位rem)
-	public static final double BHNODE_SPACE_ON_SELECTION_PANEL = 2.0 * BhParams.NODE_SCALE;		//!< BhNode選択パネル上でのBhNode間のスペース
 	public static final int NUM_TIMES_MAX_UNDO = 128;	//!< undo 可能な最大回数
-	public static final int MAX_MAIN_MSG_AREA_CHARS = 131072;	//!< メインメッセージエリアの最大表示文字数
-	public static final int MAX_MAIN_MSG_QUEUE_SIZE = 2048;	//!< メインメッセージエリアの表示文字列バッファサイズ
-	public static final int NUM_DIV_OF_QTREE_SPACE = 4;	//!< 4分木空間の分割数 (2^numDivOfQTreeSpace)^2
-	public static final double MAX_WORKSPACE_SIZE_LEVEL = 3;		//!< ワークスペースの最大の大きさレベル
-	public static final double MIN_WORKSPACE_SIZE_LEVEL = -1;	//!< ワークスペースの最小の大きさレベル
-	public static final String INITIAL_WORKSPACE_NAME = "メイン";	//!< 最初からあるワークスペースの名前
 	public static final  int EXECUTOR_SHUTDOWN_TIMEOUT = 5;	//!< ExecutorService のシャットダウンを待つ時間 (sec)
-	public static final int MAX_LOG_FILE_NUM = 4;	//!< ログファイルの最大個数
-	public static final int LOG_FILE_SIZE_LIMIT = 1024 * 1024;	//!< ログファイル1つあたりの最大バイト数
+
+	/**
+	 * Look & Feel
+	 * */
+	public static class LnF {
+		public static final double DEFAULT_APP_WIDTH_RATE = 0.7; // !< 起動時の画面幅のディスプレイに対する割合
+		public static final double DEFAULT_APP_HEIGHT_RATE = 0.7; // !< 起動時の画面高さのディスプレイに対する割合
+		public static final double DEFAULT_WORKSPACE_WIDTH = 200 * Rem.VAL;
+		public static final double DEFAULT_WORKSPACE_HEIGHT = 200 * Rem.VAL;
+		public static final double DEFAULT_VERTICAL_DIV_POS = 0.85;	//!< ワークスペースとメッセージエリアを分けるディバイダの初期位置
+		public static final double ZOOM_MAGNIFICATION = 1.1;		//!< ctrl + マウスホイールや拡大, 縮小ボタンを押したときの拡大縮小倍率
+		public static final double MAX_ZOOM_LEVEL = 30;		//!< 最大拡大レベル
+		public static final double MIN_ZOOM_LEVEL = -40;	//!< 最小拡大レベル
+		public static final int INITIAL_ZOOM_LEVEL = -1;
+		public static final int NUM_DIV_OF_QTREE_SPACE = 4;	//!< 4分木空間の分割数 (2^numDivOfQTreeSpace)^2
+		public static final double MAX_WORKSPACE_SIZE_LEVEL = 3;		//!< ワークスペースの最大の大きさレベル
+		public static final double MIN_WORKSPACE_SIZE_LEVEL = -1;	//!< ワークスペースの最小の大きさレベル
+		public static final String INITIAL_WORKSPACE_NAME = "メイン";	//!< 最初からあるワークスペースの名前
+		public static final double NODE_SCALE = 0.5 * Rem.VAL;
+		public static final double REPLACED_NODE_SHIFT = 2.0 * BhParams.LnF.NODE_SCALE;		//!< 入れ替えられたノードがワークスペースに移ったときの元の位置に対する位置 (単位rem)
+		public static final double BHNODE_SPACE_ON_SELECTION_PANEL = 2.0 * BhParams.LnF.NODE_SCALE;		//!< BhNode選択パネル上でのBhNode間のスペース
+		public static final double NODE_SHIFTER_SIZE = Rem.VAL * 5.0;	//!< マルチノードシフタの大きさ
+	}
 
 	/**
 	 * ファイルパス関連のパラメータ
@@ -67,6 +70,7 @@ public class BhParams {
 		public static final String REMOTE_DIR = "Remote";
 		public static final String FOUNDATION_FXML = "Foundation.fxml"; //!< アプリの基底部分のビューが定義してあるfxmlファイルの名前
 		public static final String WORKSPACE_FXML = "Workspace.fxml"; // !< ワークスペース部分のビューが定義してあるfxmlファイルの名前
+		public static final String MULTI_NODE_SHIFTER_FXML = "MultiNodeShifter.fxml"; // !< マルチノードシフタのビューが定義してあるfxmlファイルの名前
 		public static final String NODE_SELECTION_PANEL_FXML = "NodeSelectionPanel.fxml";	//!< BhNodeテンプレートリスト部分のビューが定義してあるfxmlの名前
 		public static final String IMIT_BUTTON_FXML = "ImitButton.fxml";	//!< イミテーションボタンが定義してあるfxmlの名前
 		public static final String NODE_TEMPLATE_LIST_JSON = "NodeTemplateList.json";	//!< ノードテンプレートの配置情報が書かれたファイルの名前
@@ -223,6 +227,9 @@ public class BhParams {
 		public static final String VAL_RIGHT_TRIANGULAR_NOTCH = "RIGHT_TRIANGULAR_NOTCH";
 	}
 
+	/**
+	 * ノードテンプレートに関するキーワード
+	 * */
 	public static class NodeTemplateList {
 		public static final String KEY_CSS_CLASS = "cssClass";
 		public static final String KEY_CONTENTS = "contents";
@@ -252,6 +259,7 @@ public class BhParams {
 		public static final String CLASS_NO_CONTENT_NODE = "labelNode";
 		public static final String CLASS_CONNECTIVE_NODE = "ConnectiveNode";
 		public static final String CLASS_SUFFIX_PANE = "-Pane";
+		public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
 	}
 
 	/**
@@ -272,6 +280,16 @@ public class BhParams {
 		public static final String RMI_TCP_PORT_SUFFIX = "@RmiTcpPort";	//BhProgram実行環境との通信に使うRMIオブジェクトを探す際のTCPポート
 		public static final String LOLCAL_HOST = "localhost";
 		public static final int SSH_PORT = 22;
+	}
+
+	/**
+	 * BunnyHop が出力するテキストメッセージに関するパラメータ
+	 * */
+	public static class Message {
+		public static final int MAX_MAIN_MSG_AREA_CHARS = 131072;	//!< メインメッセージエリアの最大表示文字数
+		public static final int MAX_MAIN_MSG_QUEUE_SIZE = 2048;	//!< メインメッセージエリアの表示文字列バッファサイズ
+		public static final int MAX_LOG_FILE_NUM = 4;	//!< ログファイルの最大個数
+		public static final int LOG_FILE_SIZE_LIMIT = 1024 * 1024;	//!< ログファイル1つあたりの最大バイト数
 	}
 }
 

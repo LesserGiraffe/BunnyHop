@@ -60,7 +60,7 @@ public class WorkspaceSetController implements MsgProcessor {
 	public void init(WorkspaceSet wss) {
 		model = wss;
 		setEventHandlers();
-		workspaceSetViewBase.setDividerPositions(BhParams.DEFAULT_VERTICAL_DIV_POS);
+		workspaceSetViewBase.setDividerPositions(BhParams.LnF.DEFAULT_VERTICAL_DIV_POS);
 		MsgPrinter.INSTANCE.setMainMsgArea(mainMsgArea); //メインメッセージエリアの登録
 	}
 
@@ -70,8 +70,8 @@ public class WorkspaceSetController implements MsgProcessor {
 	private void setEventHandlers() {
 
 		mainMsgArea.textProperty().addListener((observable, oldVal, newVal)-> {
-			if (newVal.length() > BhParams.MAX_MAIN_MSG_AREA_CHARS) {
-				int numDeleteChars = newVal.length() - BhParams.MAX_MAIN_MSG_AREA_CHARS;
+			if (newVal.length() > BhParams.Message.MAX_MAIN_MSG_AREA_CHARS) {
+				int numDeleteChars = newVal.length() - BhParams.Message.MAX_MAIN_MSG_AREA_CHARS;
 				mainMsgArea.deleteText(0, numDeleteChars);
 			}
 			mainMsgArea.setScrollTop(Double.MAX_VALUE);
@@ -183,7 +183,7 @@ public class WorkspaceSetController implements MsgProcessor {
 				return new MsgData(getCurrentWorkspace());
 
 			case IS_IN_TRASHBOX_AREA:
-				return new MsgData(isPointInTrashBoxArea(data.doublePair._1, data.doublePair._2));
+				return new MsgData(isPointInTrashBoxArea(data.vec2d.x, data.vec2d.y));
 
 			case OPEN_TRASHBOX:
 				openTrashBox(data.bool);

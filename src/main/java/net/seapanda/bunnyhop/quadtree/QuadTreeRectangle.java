@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import net.seapanda.bunnyhop.common.Linkable;
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 
 /**
  * 4分木空間に登録される矩形オブジェクト<br>
@@ -31,8 +31,8 @@ public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
 	private int currentIdxInQuadTree = -1;  //!< 現在属している4分木ノードのインデックス
 
 
-	private Point2D upperLeftPos;	//!< 矩形の左上座標
-	private Point2D lowerRightPos;	//!< 矩形の右下座標
+	private Vec2D upperLeftPos;	//!< 矩形の左上座標
+	private Vec2D lowerRightPos;	//!< 矩形の右下座標
 	Consumer<QuadTreeRectangle> posUpdateHandler;		//!< 位置が更新されたときに呼び出すメソッド
 	Function<QuadTreeRectangle, ArrayList<QuadTreeRectangle>> searchOverlappedHandler;	//!< このオブジェクトの矩形領域に重なっているQuadTreeRectangleを探すときに呼び出すメソッド
 	private final Object drawedObj;	//!< この矩形に対応する描画対象のオブジェクト
@@ -46,8 +46,8 @@ public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
 	 * @param drawedObj この矩形に対応する描画対象のオブジェクト
 	 * */
 	public QuadTreeRectangle(double upperLeftX, double upperLeftY, double lowerRightX, double lowerRightY, Object drawedObj){
-		upperLeftPos = new Point2D(upperLeftX, upperLeftY);
-		lowerRightPos = new Point2D(lowerRightX, lowerRightY);
+		upperLeftPos = new Vec2D(upperLeftX, upperLeftY);
+		lowerRightPos = new Vec2D(lowerRightX, lowerRightY);
 		container = this;
 		this.drawedObj = drawedObj;
 	};
@@ -77,7 +77,7 @@ public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
 	 * 矩形の左上座標を返す
 	 * @return 矩形の左上座標
 	 * */
-	public Point2D getUpperLeftPos() {
+	public Vec2D getUpperLeftPos() {
 		return upperLeftPos;
 	}
 
@@ -85,7 +85,7 @@ public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
 	 * 矩形の右下座標を返す
 	 * @return 矩形の右下座標
 	 * */
-	public Point2D getLowerRightPos() {
+	public Vec2D getLowerRightPos() {
 		return lowerRightPos;
 	}
 

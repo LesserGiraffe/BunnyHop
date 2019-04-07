@@ -31,13 +31,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
+import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
@@ -137,7 +137,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @param wsToPasteIn 貼り付け先のワークスペース
 	 * @param pasteBasePos 貼り付け基準位置
 	 */
-	public void paste(Workspace wsToPasteIn, Point2D pasteBasePos) {
+	public void paste(Workspace wsToPasteIn, Vec2D pasteBasePos) {
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		copyAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
 		cutAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
@@ -150,7 +150,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @param pasteBasePos 貼り付け基準位置
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
-	private void copyAndPaste(Workspace wsToPasteIn, Point2D pasteBasePos, UserOperationCommand userOpeCmd) {
+	private void copyAndPaste(Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperationCommand userOpeCmd) {
 
 		readyToCopy.stream()
 		.filter(node -> {
@@ -187,8 +187,8 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			});
 
 			//コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
-			Pair<Double, Double> size = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true), node).doublePair;
-			pasteBasePos.x += size._1+ BhParams.REPLACED_NODE_POS * 2;
+			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
+			pasteBasePos.x += size.x+ BhParams.LnF.REPLACED_NODE_SHIFT * 2;
 		});
 
 	}
@@ -199,7 +199,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @param pasteBasePos 貼り付け基準位置
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
-	private void cutAndPaste(Workspace wsToPasteIn, Point2D pasteBasePos, UserOperationCommand userOpeCmd) {
+	private void cutAndPaste(Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperationCommand userOpeCmd) {
 
 		readyToCut.stream()
 		.filter(node -> {
@@ -225,14 +225,13 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
 			node.accept(unscopedNodeCollector);
 			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), userOpeCmd)
-			.forEach(oldAndNewNode -> {
-				BhNode oldNode = oldAndNewNode._1;
-				BhNode newNode = oldAndNewNode._2;
+			.forEach(oldAndNewNodes -> {
+				BhNode oldNode = oldAndNewNodes._1;
+				BhNode newNode = oldAndNewNodes._2;
 				newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
 			});
-			Pair<Double, Double> size = MsgTransporter.INSTANCE.sendMessage(
-				BhMsg.GET_VIEW_SIZE_WITH_OUTER, new MsgData(true), node).doublePair;
-			pasteBasePos.x += size._1+ BhParams.REPLACED_NODE_POS * 2;
+			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
+			pasteBasePos.x += size.x + BhParams.LnF.REPLACED_NODE_SHIFT * 2;
 			DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
 		});
 

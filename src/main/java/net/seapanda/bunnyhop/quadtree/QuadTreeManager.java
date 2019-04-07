@@ -17,7 +17,7 @@ package net.seapanda.bunnyhop.quadtree;
 
 import java.util.ArrayList;
 import java.util.function.Function;
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 
 /**
  * 4文木空間を持ちいた衝突を管理するクラス
@@ -120,8 +120,8 @@ public class QuadTreeManager {
 	 * 4分木空間の大きさを取得する
 	 * @return 4分木空間の大きさ
 	 * */
-	public Point2D getQTSpaceSize() {
-		return new Point2D(width, height);
+	public Vec2D getQTSpaceSize() {
+		return new Vec2D(width, height);
 	}
 
 	/**
@@ -130,8 +130,8 @@ public class QuadTreeManager {
 	 * */
 	private void registerWithQuadTree(QuadTreeRectangle quadTreeObj) {
 
-		Point2D upperLeftPos = quadTreeObj.getUpperLeftPos();
-		Point2D lowerRightPos = quadTreeObj.getLowerRightPos();
+		Vec2D upperLeftPos = quadTreeObj.getUpperLeftPos();
+		Vec2D lowerRightPos = quadTreeObj.getLowerRightPos();
 
 		int upperLeftMortonNum = getMortonNumber(upperLeftPos);
 		int lowerRightMortonNum = getMortonNumber(lowerRightPos);
@@ -168,7 +168,7 @@ public class QuadTreeManager {
 	 * @param pos モートン番号を求める位置
 	 * @rteurn モートン番号
 	 * */
-	private int getMortonNumber(Point2D pos) {
+	private int getMortonNumber(Vec2D pos) {
 
 		int adjustedX = (int)Math.min(width - 1,  Math.max(0, pos.x));
 		int adjustedY = (int)Math.min(height - 1, Math.max(0, pos.y));

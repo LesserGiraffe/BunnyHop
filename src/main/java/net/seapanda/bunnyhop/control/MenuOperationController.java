@@ -42,7 +42,7 @@ import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramManager;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.CompileOption;
@@ -169,10 +169,13 @@ public class MenuOperationController {
 				return;
 
 			javafx.geometry.Point2D pos = workspaceSetTab.localToScene(0, workspaceSetTab.getHeight() / 2.0);
-			MsgData localPos = MsgTransporter.INSTANCE.sendMessage(BhMsg.SCENE_TO_WORKSPACE, new MsgData(pos.getX(), pos.getY()), currentWS);
-			double pastePosX = localPos.doublePair._1 + BhParams.REPLACED_NODE_POS * 2;
-			double pastePosY = localPos.doublePair._2;
-			wss.paste(currentWS, new Point2D(pastePosX, pastePosY));
+			MsgData localPos = MsgTransporter.INSTANCE.sendMessage(
+				BhMsg.SCENE_TO_WORKSPACE,
+				new MsgData(new Vec2D(pos.getX(), pos.getY())),
+				currentWS);
+			double pastePosX = localPos.vec2d.x + BhParams.LnF.REPLACED_NODE_SHIFT * 2;
+			double pastePosY = localPos.vec2d.y;
+			wss.paste(currentWS, new Vec2D(pastePosX, pastePosY));
 		});
 	}
 
@@ -303,8 +306,8 @@ public class MenuOperationController {
 				UserOperationCommand userOpeCmd = new UserOperationCommand();
 				BunnyHop.INSTANCE.addNewWorkSpace(
 					wsName,
-					BhParams.DEFAULT_WORKSPACE_WIDTH,
-					BhParams.DEFAULT_WORKSPACE_HEIGHT,
+					BhParams.LnF.DEFAULT_WORKSPACE_WIDTH,
+					BhParams.LnF.DEFAULT_WORKSPACE_HEIGHT,
 					userOpeCmd);
 				BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 			});

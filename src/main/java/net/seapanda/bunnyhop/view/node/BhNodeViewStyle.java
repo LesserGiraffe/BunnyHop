@@ -31,7 +31,7 @@ import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 
 import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
@@ -48,21 +48,21 @@ import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape.CNCTR_SHAPE;
 public class BhNodeViewStyle {
 
 	public String nodeStyleID; //!< ノードスタイルに付けられたID
-	public double paddingTop = 2.5 * BhParams.NODE_SCALE; //!< ノード上部の余白
-	public double paddingBottom = 2.5 * BhParams.NODE_SCALE; //!< ノード下部の余白
-	public double paddingLeft = 2.5 * BhParams.NODE_SCALE; //!< ノード左部の余白
-	public double paddingRight = 2.5 * BhParams.NODE_SCALE; //!< ノード右部の余白
+	public double paddingTop = 2.5 * BhParams.LnF.NODE_SCALE; //!< ノード上部の余白
+	public double paddingBottom = 2.5 * BhParams.LnF.NODE_SCALE; //!< ノード下部の余白
+	public double paddingLeft = 2.5 * BhParams.LnF.NODE_SCALE; //!< ノード左部の余白
+	public double paddingRight = 2.5 * BhParams.LnF.NODE_SCALE; //!< ノード右部の余白
 	public double width = 0.0; //!< ノードの余白とコネクタを除いた部分の幅
 	public double height = 0.0; //!< ノードの余白とコネクタを除いた部分の高さ
 	public BODY_SHAPE bodyShape = BODY_SHAPE.BODY_SHAPE_ROUND_RECT;
 	public CNCTR_POS connectorPos = CNCTR_POS.TOP; //!< コネクタの位置
-	public double connectorShift = 0.5 * BhParams.NODE_SCALE; //!< ノードの左上からのコネクタの位置
-	public double connectorWidth = 1.5 * BhParams.NODE_SCALE; //!< コネクタ部分の幅
-	public double connectorHeight = 1.5 * BhParams.NODE_SCALE; //!< コネクタ部分の高さ
+	public double connectorShift = 0.5 * BhParams.LnF.NODE_SCALE; //!< ノードの左上からのコネクタの位置
+	public double connectorWidth = 1.5 * BhParams.LnF.NODE_SCALE; //!< コネクタ部分の幅
+	public double connectorHeight = 1.5 * BhParams.LnF.NODE_SCALE; //!< コネクタ部分の高さ
 	public ConnectorShape.CNCTR_SHAPE connectorShape = ConnectorShape.CNCTR_SHAPE.CNCTR_SHAPE_ARROW; //!< コネクタの形
 	public NOTCH_POS notchPos = NOTCH_POS.RIGHT; //!< 切り欠きの位置
-	public double notchWidth = 1.5 * BhParams.NODE_SCALE; //!< コネクタ部分の幅
-	public double notchHeight = 1.5 * BhParams.NODE_SCALE; //!< コネクタ部分の高さ
+	public double notchWidth = 1.5 * BhParams.LnF.NODE_SCALE; //!< コネクタ部分の幅
+	public double notchHeight = 1.5 * BhParams.LnF.NODE_SCALE; //!< コネクタ部分の高さ
 	public ConnectorShape.CNCTR_SHAPE notchShape =  ConnectorShape.CNCTR_SHAPE.CNCTR_SHAPE_NONE;	//!< 切り欠きの形
 	public double connectorBoundsRate = 2.0; //!< ドラッグ&ドロップ時などに適用されるコネクタの範囲
 	public String cssClass = "defaultNode";
@@ -77,7 +77,7 @@ public class BhNodeViewStyle {
 	}
 
 	public static class Arrangement {
-		public double space = 2.5 * BhParams.NODE_SCALE; //!< ノード内部に描画するノード同士の間隔
+		public double space = 2.5 * BhParams.LnF.NODE_SCALE; //!< ノード内部に描画するノード同士の間隔
 		public double paddingTop = 0; //!< 内部ノード上部の余白
 		public double paddingRight = 0; //!< 内部ノード右部の余白
 		public double paddingBottom = 0; //!< 内部ノード下部の余白
@@ -126,8 +126,8 @@ public class BhNodeViewStyle {
 	Imitation imitation = new Imitation();
 
 	public static class Imitation {
-		public double buttonPosX = 0.5 * BhParams.NODE_SCALE;
-		public double buttonPosY = 0.5 * BhParams.NODE_SCALE;
+		public double buttonPosX = 0.5 * BhParams.LnF.NODE_SCALE;
+		public double buttonPosY = 0.5 * BhParams.LnF.NODE_SCALE;
 		public String cssClass = "defaultImitButton";
 	}
 
@@ -196,9 +196,9 @@ public class BhNodeViewStyle {
 	 * @param includeCnctr コネクタ部分の大きさを含む場合true
 	 * @return コネクタ部分や外部ノードを含まない本体部分のサイズ
 	 * */
-	public Point2D getBodySize(boolean includeCnctr) {
+	public Vec2D getBodySize(boolean includeCnctr) {
 
-		Point2D cnctrSize = getConnectorSize();
+		Vec2D cnctrSize = getConnectorSize();
 		double bodyWidth = paddingLeft + width + paddingRight;
 		if (includeCnctr && (connectorPos == CNCTR_POS.LEFT))
 			bodyWidth += cnctrSize.x;
@@ -207,7 +207,7 @@ public class BhNodeViewStyle {
 		if (includeCnctr && (connectorPos == CNCTR_POS.TOP))
 			bodyHeight += cnctrSize.y;
 
-		return new Point2D(bodyWidth, bodyHeight);
+		return new Vec2D(bodyWidth, bodyHeight);
 	}
 
 	/**
@@ -215,9 +215,9 @@ public class BhNodeViewStyle {
 	 * @param includCnctr コネクタ部分の大きさを含む場合true
 	 * @return コネクタ部分や外部ノードを含まない本体部分のサイズ
 	 * */
-	public Point2D getBodyAndOuterSize(boolean includCnctr) {
+	public Vec2D getBodyAndOuterSize(boolean includCnctr) {
 
-		Point2D bodySize = getBodySize(includCnctr);
+		Vec2D bodySize = getBodySize(includCnctr);
 		double totalWidth = bodySize.x;
 		double totalHeight = bodySize.y;
 		if (connectorPos == CNCTR_POS.LEFT) { //外部ノードが右に接続される
@@ -227,14 +227,14 @@ public class BhNodeViewStyle {
 			totalWidth = Math.max(totalWidth, connective.outerWidth);
 			totalHeight += connective.outerHeight;
 		}
-		return new Point2D(totalWidth, totalHeight);
+		return new Vec2D(totalWidth, totalHeight);
 	}
 
 	/**
 	 * コネクタの大きさを取得する
 	 * @return コネクタの大きさ
 	 */
-	public Point2D getConnectorSize() {
+	public Vec2D getConnectorSize() {
 
 		double cnctrWidth = 0.0;
 		if (connectorShape != CNCTR_SHAPE.CNCTR_SHAPE_NONE)
@@ -244,7 +244,7 @@ public class BhNodeViewStyle {
 		if (connectorShape != CNCTR_SHAPE.CNCTR_SHAPE_NONE)
 			cnctrHeight = connectorHeight;
 
-		return new Point2D(cnctrWidth, cnctrHeight);
+		return new Vec2D(cnctrWidth, cnctrHeight);
 	}
 
 	public static boolean genViewStyleTemplate() {
@@ -291,31 +291,31 @@ public class BhNodeViewStyle {
 
 		//paddingTop
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_PADDING_TOP, Number.class, jsonObj, fileName);
-		val.ifPresent(
-				paddingTop -> bhNodeViewStyle.paddingTop = ((Number) paddingTop).doubleValue() * BhParams.NODE_SCALE);
+		val.ifPresent(paddingTop ->
+			bhNodeViewStyle.paddingTop = ((Number) paddingTop).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//paddingBottom
 		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_BOTTOM, Number.class, jsonObj, fileName);
-		val.ifPresent(paddingBottom -> bhNodeViewStyle.paddingBottom = ((Number) paddingBottom).doubleValue()
-				* BhParams.NODE_SCALE);
+		val.ifPresent(paddingBottom ->
+			bhNodeViewStyle.paddingBottom = ((Number) paddingBottom).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//paddingLeft
 		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_LEFT, Number.class, jsonObj, fileName);
-		val.ifPresent(paddingLeft -> bhNodeViewStyle.paddingLeft = ((Number) paddingLeft).doubleValue()
-				* BhParams.NODE_SCALE);
+		val.ifPresent(paddingLeft ->
+			bhNodeViewStyle.paddingLeft = ((Number) paddingLeft).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//paddingRight
 		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_RIGHT, Number.class, jsonObj, fileName);
-		val.ifPresent(paddingRight -> bhNodeViewStyle.paddingRight = ((Number) paddingRight).doubleValue()
-				* BhParams.NODE_SCALE);
+		val.ifPresent(paddingRight ->
+			bhNodeViewStyle.paddingRight = ((Number) paddingRight).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//width
 		val = readValue(BhParams.NodeStyleDef.KEY_WIDTH, Number.class, jsonObj, fileName);
-		val.ifPresent(width -> bhNodeViewStyle.width = ((Number) width).doubleValue() * BhParams.NODE_SCALE);
+		val.ifPresent(width -> bhNodeViewStyle.width = ((Number) width).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//height
 		val = readValue(BhParams.NodeStyleDef.KEY_HEIGHT, Number.class, jsonObj, fileName);
-		val.ifPresent(height -> bhNodeViewStyle.height = ((Number) height).doubleValue() * BhParams.NODE_SCALE);
+		val.ifPresent(height -> bhNodeViewStyle.height = ((Number) height).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//bodyShape
 		val = readValue(BhParams.NodeStyleDef.KEY_BODY_SHAPE, String.class, jsonObj, fileName);
@@ -342,18 +342,18 @@ public class BhNodeViewStyle {
 
 		//connectorShift
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_SHIFT, Number.class, jsonObj, fileName);
-		val.ifPresent(connectorShift -> bhNodeViewStyle.connectorShift =
-			((Number) connectorShift).doubleValue() * BhParams.NODE_SCALE);
+		val.ifPresent(connectorShift ->
+			bhNodeViewStyle.connectorShift = ((Number) connectorShift).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//connectorWidth
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_WIDTH, Number.class, jsonObj, fileName);
-		val.ifPresent(connectorWidth -> bhNodeViewStyle.connectorWidth =
-			((Number) connectorWidth).doubleValue() * BhParams.NODE_SCALE);
+		val.ifPresent(connectorWidth ->
+			bhNodeViewStyle.connectorWidth = ((Number) connectorWidth).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//connectorHeight
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_HEIGHT, Number.class, jsonObj, fileName);
-		val.ifPresent(connectorHeight -> bhNodeViewStyle.connectorHeight =
-			((Number) connectorHeight).doubleValue() * BhParams.NODE_SCALE);
+		val.ifPresent(connectorHeight ->
+			bhNodeViewStyle.connectorHeight = ((Number) connectorHeight).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//connectorShape
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_SHAPE, String.class, jsonObj, fileName);
@@ -380,13 +380,13 @@ public class BhNodeViewStyle {
 
 		//notchWidth
 		val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_WIDTH, Number.class, jsonObj, fileName);
-		val.ifPresent(notchWidth -> bhNodeViewStyle.notchWidth =
-			((Number)notchWidth).doubleValue() * BhParams.NODE_SCALE);
+		val.ifPresent(notchWidth ->
+			bhNodeViewStyle.notchWidth = ((Number)notchWidth).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//notchHeight
 		val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_HEIGHT, Number.class, jsonObj, fileName);
-		val.ifPresent(notchHeight -> bhNodeViewStyle.notchHeight =
-			((Number)notchHeight).doubleValue() * BhParams.NODE_SCALE);
+		val.ifPresent(notchHeight ->
+			bhNodeViewStyle.notchHeight = ((Number)notchHeight).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//notchShape
 		val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_SHAPE, String.class, jsonObj, fileName);
@@ -399,8 +399,8 @@ public class BhNodeViewStyle {
 
 		//connectorBoundsRate
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_BOUNDS_RATE, Number.class, jsonObj, fileName);
-		val.ifPresent(connectorBoundsRate -> bhNodeViewStyle.connectorBoundsRate =
-			((Number) connectorBoundsRate).doubleValue());
+		val.ifPresent(connectorBoundsRate ->
+			bhNodeViewStyle.connectorBoundsRate = ((Number) connectorBoundsRate).doubleValue());
 
 		//bodyCssClass
 		val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
@@ -473,31 +473,31 @@ public class BhNodeViewStyle {
 		//space
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_SPACE, Number.class, jsonObj, fileName);
 		val.ifPresent(space -> {
-			arrangement.space = ((Number) space).doubleValue() * BhParams.NODE_SCALE;
+			arrangement.space = ((Number) space).doubleValue() * BhParams.LnF.NODE_SCALE;
 		});
 
 		//paddingTop
 		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_TOP, Number.class, jsonObj, fileName);
 		val.ifPresent(paddingTop -> {
-			arrangement.paddingTop = ((Number) paddingTop).doubleValue() * BhParams.NODE_SCALE;
+			arrangement.paddingTop = ((Number) paddingTop).doubleValue() * BhParams.LnF.NODE_SCALE;
 		});
 
 		//paddingRight
 		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_RIGHT, Number.class, jsonObj, fileName);
 		val.ifPresent(paddingRight -> {
-			arrangement.paddingRight = ((Number) paddingRight).doubleValue() * BhParams.NODE_SCALE;
+			arrangement.paddingRight = ((Number) paddingRight).doubleValue() * BhParams.LnF.NODE_SCALE;
 		});
 
 		//paddingBottom
 		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_BOTTOM, Number.class, jsonObj, fileName);
 		val.ifPresent(paddingBottom -> {
-			arrangement.paddingBottom = ((Number) paddingBottom).doubleValue() * BhParams.NODE_SCALE;
+			arrangement.paddingBottom = ((Number) paddingBottom).doubleValue() * BhParams.LnF.NODE_SCALE;
 		});
 
 		//paddingLeft
 		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_LEFT, Number.class, jsonObj, fileName);
 		val.ifPresent(paddingLeft -> {
-			arrangement.paddingLeft = ((Number) paddingLeft).doubleValue() * BhParams.NODE_SCALE;
+			arrangement.paddingLeft = ((Number) paddingLeft).doubleValue() * BhParams.LnF.NODE_SCALE;
 		});
 
 		//arrangement
@@ -552,13 +552,13 @@ public class BhNodeViewStyle {
 		//buttonPosX
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_BUTTON_POS_X, Number.class, jsonObj, fileName);
 		val.ifPresent(btnPosX -> {
-			imitation.buttonPosX = ((Number) btnPosX).doubleValue() * BhParams.NODE_SCALE;
+			imitation.buttonPosX = ((Number) btnPosX).doubleValue() * BhParams.LnF.NODE_SCALE;
 		});
 
 		//buttonPosY
 		val = readValue(BhParams.NodeStyleDef.KEY_BUTTON_POS_Y, Number.class, jsonObj, fileName);
 		val.ifPresent(btnPosY -> {
-			imitation.buttonPosY = ((Number) btnPosY).doubleValue() * BhParams.NODE_SCALE;
+			imitation.buttonPosY = ((Number) btnPosY).doubleValue() * BhParams.LnF.NODE_SCALE;
 		});
 
 		//buttonCssClass

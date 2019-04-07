@@ -22,7 +22,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.node.TextNode;
@@ -66,7 +66,7 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 				getChildren().add(imitCreateImitBtn);
 		}
 		initStyle(viewStyle);
-		setFuncs(this::updateStyleFunc, null);
+		setFuncs(this::updateShape, null);
 	}
 
 	private void initStyle(BhNodeViewStyle viewStyle) {
@@ -76,8 +76,8 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 		label.setTranslateX(viewStyle.paddingLeft);
 		label.setTranslateY(viewStyle.paddingTop);
 		label.getStyleClass().add(viewStyle.label.cssClass);
-		label.heightProperty().addListener(newValue -> getAppearanceManager().updateStyle(null));
-		label.widthProperty().addListener(newValue -> getAppearanceManager().updateStyle(null));
+		label.heightProperty().addListener(newValue -> getAppearanceManager().updateAppearance(null));
+		label.widthProperty().addListener(newValue -> getAppearanceManager().updateAppearance(null));
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_LABEL_NODE);
 	}
 
@@ -101,18 +101,18 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 	}
 
 	/**
-	 * ノードの大きさや見た目を変える関数
+	 * ノードの大きさや見た目を変える
 	 * */
-	private void updateStyleFunc(BhNodeViewGroup child) {
+	private void updateShape(BhNodeViewGroup child) {
 
 		viewStyle.width = label.getWidth();
 		viewStyle.height = label.getHeight();
 		getAppearanceManager().updatePolygonShape();
 		if (parent.get() != null) {
-			parent.get().updateStyle();
+			parent.get().rearrangeChild();
 		}
 		else {
-			Point2D pos = getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
+			Vec2D pos = getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
 			getPositionManager().updateAbsPos(pos.x, pos.y);
 		}
 	}

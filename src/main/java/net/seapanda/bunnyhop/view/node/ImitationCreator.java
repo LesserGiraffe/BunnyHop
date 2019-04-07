@@ -21,7 +21,7 @@ import java.nio.file.Path;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.message.MsgService;
@@ -51,9 +51,9 @@ public interface ImitationCreator {
 	default void imitHandler(net.seapanda.bunnyhop.model.imitation.Imitatable model) {
 
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
-		Point2D pos = MsgService.INSTANCE.getPosOnWS(model);
-		double x = pos.x + BhParams.REPLACED_NODE_POS;
-		double y = pos.y + BhParams.REPLACED_NODE_POS;
+		Vec2D pos = MsgService.INSTANCE.getPosOnWS(model);
+		double x = pos.x + BhParams.LnF.REPLACED_NODE_SHIFT;
+		double y = pos.y + BhParams.LnF.REPLACED_NODE_SHIFT;
 		ImitationBuilder imitBuilder = new ImitationBuilder(userOpeCmd, true);
 		model.accept(imitBuilder);
 		BhNodeHandler.INSTANCE.addRootNode(model.getWorkspace(), imitBuilder.getTopImitation(), x, y, userOpeCmd);

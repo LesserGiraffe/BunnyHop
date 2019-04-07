@@ -83,11 +83,15 @@ public class BunnyHop {
 			return;
 		}
 
-		addNewWorkSpace(BhParams.INITIAL_WORKSPACE_NAME, BhParams.DEFAULT_WORKSPACE_HEIGHT, BhParams.DEFAULT_WORKSPACE_HEIGHT, new UserOperationCommand());
+		addNewWorkSpace(
+			BhParams.LnF.INITIAL_WORKSPACE_NAME,
+			BhParams.LnF.DEFAULT_WORKSPACE_HEIGHT,
+			BhParams.LnF.DEFAULT_WORKSPACE_HEIGHT,
+			new UserOperationCommand());
 
 		Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-		double width = primaryScreenBounds.getWidth() * BhParams.DEFAULT_APP_WIDTH_RATE;
-		double height = primaryScreenBounds.getHeight() * BhParams.DEFAULT_APP_HEIGHT_RATE;
+		double width = primaryScreenBounds.getWidth() * BhParams.LnF.DEFAULT_APP_WIDTH_RATE;
+		double height = primaryScreenBounds.getHeight() * BhParams.LnF.DEFAULT_APP_HEIGHT_RATE;
 		scene = new Scene(root, width, height);
 		setCSS(scene);
 		String iconPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.IMAGES_DIR, BhParams.Path.BUNNY_HOP_ICON).toUri().toString();
@@ -110,8 +114,8 @@ public class BunnyHop {
 
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.BUILD_NODE_CATEGORY_LIST_VIEW, nodeCategoryList);
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_NODE_SELECTION_PANELS, nodeCategoryList, workspaceSet);
-		for (int i = 0; i != BhParams.INITIAL_ZOOM_LEVEL; i += Math.abs(BhParams.INITIAL_ZOOM_LEVEL) / BhParams.INITIAL_ZOOM_LEVEL) {
-			boolean zoomIn = BhParams.INITIAL_ZOOM_LEVEL > 0;
+		for (int i = 0; i != BhParams.LnF.INITIAL_ZOOM_LEVEL; i += Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL) / BhParams.LnF.INITIAL_ZOOM_LEVEL) {
+			boolean zoomIn = BhParams.LnF.INITIAL_ZOOM_LEVEL > 0;
 			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), nodeCategoryList);
 		}
 		return true;
@@ -137,10 +141,11 @@ public class BunnyHop {
 		WorkspaceView wsView = new WorkspaceView(ws);
 		wsView.init(width, height);
 		WorkspaceController wsController = new WorkspaceController(ws, wsView);
+		wsController.init();
 		ws.setMsgProcessor(wsController);
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, userOpeCmd), workspaceSet);
-		for (int i = 0; i != BhParams.INITIAL_ZOOM_LEVEL; i += Math.abs(BhParams.INITIAL_ZOOM_LEVEL) / BhParams.INITIAL_ZOOM_LEVEL) {
-			boolean zoomIn = BhParams.INITIAL_ZOOM_LEVEL > 0;
+		for (int i = 0; i != BhParams.LnF.INITIAL_ZOOM_LEVEL; i += Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL) / BhParams.LnF.INITIAL_ZOOM_LEVEL) {
+			boolean zoomIn = BhParams.LnF.INITIAL_ZOOM_LEVEL > 0;
 			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
 		}
 	}
@@ -152,8 +157,8 @@ public class BunnyHop {
 	 */
 	public void addWorkspace(Workspace ws, UserOperationCommand userOpeCmd) {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
-		for (int i = 0; i != BhParams.INITIAL_ZOOM_LEVEL; i += Math.abs(BhParams.INITIAL_ZOOM_LEVEL) / BhParams.INITIAL_ZOOM_LEVEL) {
-			boolean zoomIn = BhParams.INITIAL_ZOOM_LEVEL > 0;
+		for (int i = 0; i != BhParams.LnF.INITIAL_ZOOM_LEVEL; i += Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL) / BhParams.LnF.INITIAL_ZOOM_LEVEL) {
+			boolean zoomIn = BhParams.LnF.INITIAL_ZOOM_LEVEL > 0;
 			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
 		}
 	}

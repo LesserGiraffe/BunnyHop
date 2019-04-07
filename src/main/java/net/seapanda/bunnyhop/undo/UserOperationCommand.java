@@ -21,7 +21,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
@@ -378,10 +378,9 @@ public class UserOperationCommand {
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
 
-			Point2D curPos = MsgService.INSTANCE.getPosOnWS(node);
+			Vec2D curPos = MsgService.INSTANCE.getPosOnWS(node);
 			inverseCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
-			MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_POS_ON_WORKSPACE, new MsgData(x, y), node);
-			MsgTransporter.INSTANCE.sendMessage(BhMsg.UPDATE_ABS_POS, node);		//4分木空間での位置確定
+			MsgService.INSTANCE.setPosOnWS(node, x, y);
 		}
 	}
 

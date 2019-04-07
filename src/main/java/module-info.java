@@ -39,6 +39,8 @@ module net.seapanda.bunnyhop {
 	exports net.seapanda.bunnyhop.message;
 	exports net.seapanda.bunnyhop.bhprogram.common;	//[java -jar BhProgramExecEnv.jar] を self contained の Javaから呼ぶために必要
 	exports net.seapanda.bunnyhop.undo;
+	exports net.seapanda.bunnyhop.view;
+	exports net.seapanda.bunnyhop.view.node;
 	opens net.seapanda.bunnyhop.view to javafx.fxml;
 	opens net.seapanda.bunnyhop.view.node to javafx.fxml;
 	opens net.seapanda.bunnyhop.control to javafx.fxml;

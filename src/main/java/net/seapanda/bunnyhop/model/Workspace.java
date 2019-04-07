@@ -27,6 +27,7 @@ import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
+import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
@@ -40,7 +41,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
 public class Workspace implements MsgReceptionWindow, Serializable {
 
 	private final Set<BhNode> rootNodeList = new HashSet<>();	//!< ワークスペースのルートノードのリスト
-	private final Set<BhNode> selectedList = new LinkedHashSet<>();	//!< 選択中のノード. 挿入順を保持したいのでLinkedHashSetを使う
+	private final Set<BhNode> selectedList = new LinkedHashSet<BhNode>();	//!< 選択中のノード. 挿入順を保持したいのでLinkedHashSetを使う
 	private BhNode moveCandidate = null;	//!< 移動候補のノード
 	private final String workspaceName;	//!< ワークスペース名
 	transient private WorkspaceSet workspaceSet;	//!< このワークスペースを持つワークスペースセット
@@ -141,6 +142,8 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 			new MsgData(true, BhParams.CSS.PSEUDO_SELECTED),
 			nodeToAdd);
 		selectedList.add(nodeToAdd);
+		MsgService.INSTANCE.updateMultiNodeShifter(nodeToAdd, this);
+
 		if (nodeToAdd instanceof Imitatable) {
 			List<Imitatable> imitationList = ((Imitatable)nodeToAdd).getImitationInfo().getImitationList();
 			imitationList.forEach(imitation -> {
@@ -175,27 +178,28 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	}
 
 	/**
-	 * 選択中のBhNodeのリストを返す
-	 * @return 選択中のBhNodeのリスト
+	 * 選択中のBhNodeのリストのコピーを返す
+	 * @return 選択中のBhNodeのリストのコピー
 	 */
 	public Set<BhNode> getSelectedNodeList() {
-		return selectedList;
+		return new LinkedHashSet<BhNode>(selectedList);
 	}
 
 	/**
 	 * 引数で指定したノードを選択済みリストから削除する
-	 * @param removed 選択済みリストから削除するBhNode
+	 * @param nodeToRemove 選択済みリストから削除するBhNode
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
-	public void removeSelectedNode(BhNode removed, UserOperationCommand userOpeCmd) {
+	public void removeSelectedNode(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
 
 		MsgTransporter.INSTANCE.sendMessage(
 			BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
 			new MsgData(false, BhParams.CSS.PSEUDO_SELECTED),
-			removed);
-		selectedList.remove(removed);
-		if (removed instanceof Imitatable) {
-			List<Imitatable> imitationList = ((Imitatable)removed).getImitationInfo().getImitationList();
+			nodeToRemove);
+		selectedList.remove(nodeToRemove);
+		MsgService.INSTANCE.updateMultiNodeShifter(nodeToRemove, this);
+		if (nodeToRemove instanceof Imitatable) {
+			List<Imitatable> imitationList = ((Imitatable)nodeToRemove).getImitationInfo().getImitationList();
 			imitationList.forEach(imitation -> {
 				MsgTransporter.INSTANCE.sendMessage(
 					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
@@ -203,7 +207,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 					imitation);
 			});
 		}
-		userOpeCmd.pushCmdOfRemoveSelectedNode(this, removed);
+		userOpeCmd.pushCmdOfRemoveSelectedNode(this, nodeToRemove);
 	}
 
 	/**

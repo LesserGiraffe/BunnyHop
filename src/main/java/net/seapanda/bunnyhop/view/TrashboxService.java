@@ -15,6 +15,7 @@
  */
 package net.seapanda.bunnyhop.view;
 
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgTransporter;
@@ -44,7 +45,7 @@ public class TrashboxService {
 
 		boolean inTrashboxArea = MsgTransporter.INSTANCE.sendMessage(
 			BhMsg.IS_IN_TRASHBOX_AREA,
-			new MsgData(sceneX, sceneY),
+			new MsgData(new Vec2D(sceneX, sceneY)),
 			wss).bool;
 
 		openCloseTrashbox(inTrashboxArea);
@@ -72,9 +73,9 @@ public class TrashboxService {
 	public boolean isInTrashboxArea(double sceneX, double sceneY) {
 
 		return MsgTransporter.INSTANCE.sendMessage(
-					BhMsg.IS_IN_TRASHBOX_AREA,
-					new MsgData(sceneX, sceneY),
-					wss).bool;
+			BhMsg.IS_IN_TRASHBOX_AREA,
+			new MsgData(new Vec2D(sceneX, sceneY)),
+			wss).bool;
 	}
 
 }

@@ -28,7 +28,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
@@ -79,7 +79,7 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 				getChildren().add(imitCreateImitBtn);
 		}
 		initStyle(viewStyle);
-		setFuncs(this::updateStyleFunc, null);
+		setFuncs(this::updateShape, null);
 	}
 
 	private void initStyle(BhNodeViewStyle viewStyle) {
@@ -87,8 +87,8 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 		textField.setTranslateX(viewStyle.paddingLeft);
 		textField.setTranslateY(viewStyle.paddingTop);
 		textField.getStyleClass().add(viewStyle.textField.cssClass);
-		textField.heightProperty().addListener(observable -> getAppearanceManager().updateStyle(null));
-		textField.widthProperty().addListener(observable -> getAppearanceManager().updateStyle(null));
+		textField.heightProperty().addListener(observable -> getAppearanceManager().updateAppearance(null));
+		textField.widthProperty().addListener(observable -> getAppearanceManager().updateAppearance(null));
 		textField.fontProperty().addListener(observable -> {
 			String text = textField.getText();
 			setText(text + " ");
@@ -149,18 +149,18 @@ public class TextFieldNodeView extends BhNodeView implements ImitationCreator {
 	}
 
 	/**
-	 * ノードの大きさや見た目を変える関数
+	 * ノードの大きさや見た目を変える
 	 * */
-	private void updateStyleFunc(BhNodeViewGroup child) {
+	private void updateShape(BhNodeViewGroup child) {
 
 		viewStyle.width = textField.getWidth();
 		viewStyle.height = textField.getHeight();
 		getAppearanceManager().updatePolygonShape();
 		if (parent.get() != null) {
-			parent.get().updateStyle();
+			parent.get().rearrangeChild();
 		}
 		else {
-			Point2D pos = getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
+			Vec2D pos = getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
 			getPositionManager().updateAbsPos(pos.x, pos.y);
 		}
 	}

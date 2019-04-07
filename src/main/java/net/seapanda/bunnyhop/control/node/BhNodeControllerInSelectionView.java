@@ -15,7 +15,7 @@
  */
 package net.seapanda.bunnyhop.control.node;
 
-import net.seapanda.bunnyhop.common.Point2D;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.Single;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
@@ -87,15 +87,18 @@ public class BhNodeControllerInSelectionView {
 			newNode.accept(builder);	//MVC構築
 			newNode.accept(new TextImitationPrompter());
 			currentView.content = builder.getTopNodeView();
-			Point2D posOnRootView = BhNodeView.getRelativePos(rootView, view);	//クリックされたテンプレートノードのルートノード上でのクリック位置
+			Vec2D posOnRootView = BhNodeView.getRelativePos(rootView, view);	//クリックされたテンプレートノードのルートノード上でのクリック位置
 			posOnRootView.x += mouseEvent.getX();
 			posOnRootView.y += mouseEvent.getY();
-			MsgData posOnWS = MsgTransporter.INSTANCE.sendMessage(BhMsg.SCENE_TO_WORKSPACE, new MsgData(mouseEvent.getSceneX(), mouseEvent.getSceneY()) ,currentWS);
+			MsgData posOnWS = MsgTransporter.INSTANCE.sendMessage(
+				BhMsg.SCENE_TO_WORKSPACE,
+				new MsgData(new Vec2D(mouseEvent.getSceneX(), mouseEvent.getSceneY())),
+				currentWS);
 			BhNodeHandler.INSTANCE.addRootNode(
 				currentWS,
 				newNode,
-				posOnWS.doublePair._1 - posOnRootView.x ,
-				posOnWS.doublePair._2- posOnRootView.y,
+				posOnWS.vec2d.x - posOnRootView.x ,
+				posOnWS.vec2d.y - posOnRootView.y,
 				userOpeCmd);
 			MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_USER_OPE_CMD, new MsgData(userOpeCmd), newNode);	//undo用コマンドセット
 			currentView.content.getEventManager().propagateEvent(mouseEvent);
