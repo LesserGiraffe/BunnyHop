@@ -18,7 +18,10 @@ package net.seapanda.bunnyhop.view;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -31,6 +34,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Polyline;
 import javafx.scene.transform.Scale;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
@@ -40,6 +44,7 @@ import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
+import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OVERLAP_OPTION;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
@@ -53,6 +58,7 @@ public class WorkspaceView extends Tab {
 	private @FXML ScrollPane wsScrollPane;	//!< 操作対象のビュー
 	private @FXML Pane wsPane;	//!< 操作対象のビュー
 	private @FXML Pane wsWrapper;	//!< wsPane の親ペイン
+	private @FXML Polyline rectSelTool;	//!< 矩形選択用ビュー
 	private final Workspace workspace;
 	private final Vec2D minPaneSize = new Vec2D(0.0, 0.0);
 	private final ArrayList<BhNodeView> rootNodeViewList = new ArrayList<>();	//このワークスペースにあるルートBhNodeViewのリスト
@@ -91,7 +97,9 @@ public class WorkspaceView extends Tab {
 		wsPane.getTransforms().add(new Scale());
 		quadTreeMngForBody = new QuadTreeManager(BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
 		quadTreeMngForConnector = new QuadTreeManager(BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
+		rectSelTool.getPoints().addAll(Stream.generate(() -> 0.0).limit(10).toArray(Double[]::new));
 		drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
+
 
 		//拡大縮小処理
 		wsScrollPane.addEventFilter(ScrollEvent.ANY, event -> {
@@ -160,17 +168,63 @@ public class WorkspaceView extends Tab {
 
 		nodeView.accept(view -> {
 			Pair<QuadTreeRectangle, QuadTreeRectangle> body_cnctr = view.getRegionManager().getRegions();
-			//quadTreeMngForBody.addQuadTreeObj(body_cnctr._1); // 現状ボディ部分の重なり判定は不要
+			quadTreeMngForBody.addQuadTreeObj(body_cnctr._1);
 			quadTreeMngForConnector.addQuadTreeObj(body_cnctr._2);
 		});
+	}
+
+	/**
+	 * 引数で指定した矩形と重なるこのワークスペース上にあるノードを探す.
+	 * @param rect この矩形と重なるノードを探す.
+	 * @param overlapWithBodyPart ノードのボディ部分と重なるノードを探す場合 true. <br>
+	 * 							   ノードのコネクタ部分と重なるノードを探す場合 false.
+	 * @param option 検索オプション
+	 * @return 引数の矩形と重なるノードのビュー
+	 * */
+	public List<BhNodeView> searchForOverlappedNodeViews(
+		QuadTreeRectangle rect,
+		boolean overlapWithBodyPart,
+		OVERLAP_OPTION option) {
+
+		if (rect == null)
+			return new ArrayList<BhNodeView>();
+
+		if (overlapWithBodyPart)
+			quadTreeMngForBody.addQuadTreeObj(rect);
+		else
+			quadTreeMngForConnector.addQuadTreeObj(rect);
+
+		rect.updatePos();
+		List<QuadTreeRectangle> overlappedRectList = rect.searchOverlappedRects(option);
+		QuadTreeManager.removeQuadTreeObj(rect);
+
+		return overlappedRectList.stream()
+				.map(rectangle -> rectangle.<BhNodeView>getRelatedObj())
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	/**
 	 * WS内でマウスが押された時の処理を登録する
 	 * @param handler WS内でマウスが押されたときの処理
 	 * */
-	public void setOnMousePressedEvent(EventHandler<? super MouseEvent> handler) {
-		wsScrollPane.setOnMousePressed(handler);
+	public void setOnMousePressedHandler(EventHandler<? super MouseEvent> handler) {
+		wsPane.setOnMousePressed(handler);
+	}
+
+	/**
+	 * WS内でマウスがドラッグされた時の処理を登録する
+	 * @param handler WS内でマウスがドラッグされたときの処理
+	 * */
+	public void setOnMouseDraggedHandler(EventHandler<? super MouseEvent> handler) {
+		wsPane.setOnMouseDragged(handler);
+	}
+
+	/**
+	 * WS内でマウスが離された時の処理を登録する
+	 * @param handler WS内でマウスが離されたときの処理
+	 * */
+	public void setOnMouseReleasedHandler(EventHandler<? super MouseEvent> handler) {
+		wsPane.setOnMouseReleased(handler);
 	}
 
 	/**
@@ -243,7 +297,7 @@ public class WorkspaceView extends Tab {
 	}
 
 	/**
-	 * 引数のローカル座標をWorkspace上での位置に変換して返す
+	 * Scene上の座標をWorkspace上の位置に変換して返す
 	 * @param x Scene座標の変換したいX位置
 	 * @param y Scene座標の変換したいY位置
 	 * @return 引数の座標のWorkspace上の位置
@@ -284,6 +338,33 @@ public class WorkspaceView extends Tab {
 	 * */
 	public void addtMultiNodeShifterView(MultiNodeShifterView multiNodeShifter) {
 		wsPane.getChildren().add(multiNodeShifter);
+	}
+
+	/**
+	 * 矩形選択ツールを表示する
+	 * @param upperLeft 表示する矩形のワークスペース上の左上の座標
+	 * @param upperLeft 表示する矩形のワークスペース上の右下の座標
+	 * */
+	public void showSelectionRectangle(Vec2D upperLeft, Vec2D lowerRight) {
+		rectSelTool.setVisible(true);
+		rectSelTool.getPoints().set(0, upperLeft.x);
+		rectSelTool.getPoints().set(1, upperLeft.y);
+		rectSelTool.getPoints().set(2, lowerRight.x);
+		rectSelTool.getPoints().set(3, upperLeft.y);
+		rectSelTool.getPoints().set(4, lowerRight.x);
+		rectSelTool.getPoints().set(5, lowerRight.y);
+		rectSelTool.getPoints().set(6, upperLeft.x);
+		rectSelTool.getPoints().set(7, lowerRight.y);
+		rectSelTool.getPoints().set(8, upperLeft.x);
+		rectSelTool.getPoints().set(9, upperLeft.y);
+		rectSelTool.toFront();
+	}
+
+	/**
+	 * 矩形選択ツールを非表示にする.
+	 * */
+	public void hideSelectionRectangle() {
+		rectSelTool.setVisible(false);
 	}
 }
 

@@ -135,6 +135,19 @@ public class Util {
 		return true;
 	}
 
+	/**
+	 * 高速平方根計算
+	 * */
+	public double fastSqrt(double x) {
+
+		double half = 0.5 * x;
+		long lnum = 0x5FE6EB50C7B537AAL - (Double.doubleToLongBits(x) >> 1);
+		double dnum = Double.longBitsToDouble(lnum);
+		dnum *= 1.5 - half * dnum * dnum;
+		return dnum * x;
+	}
+
+
 	public class Platform {
 
 		public boolean isWindows() {

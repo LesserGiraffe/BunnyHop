@@ -59,14 +59,13 @@ public class Vec2D implements Serializable {
 	}
 
 	/**
-	 * 引数で指定した数の方が現在の値より小さい場合, その数で置き換える.
+	 * 引数で指定した数の方が現在の値のより小さい場合, その数で置き換える.
 	 * 片方の要素だけ小さい場合は、その要素だけ置き換える.
 	 * */
 	public void updateIfLess(double x, double y) {
 		this.x = Math.min(this.x, x);
 		this.y = Math.min(this.y, y);
 	}
-
 
 	/**
 	 * 引数で指定した要素を現在の値に足し込む

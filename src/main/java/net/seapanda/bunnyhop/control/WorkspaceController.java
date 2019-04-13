@@ -16,6 +16,10 @@
 package net.seapanda.bunnyhop.control;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -25,10 +29,13 @@ import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
+import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
+import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OVERLAP_OPTION;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.MultiNodeShifterView;
 import net.seapanda.bunnyhop.view.WorkspaceView;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 
 /**
@@ -58,15 +65,6 @@ public class WorkspaceController implements MsgProcessor {
 	 * */
 	public boolean init() {
 
-		view.setOnMousePressedEvent(
-			event -> {
-				UserOperationCommand userOpeCmd = new UserOperationCommand();
-				BunnyHop.INSTANCE.hideTemplatePanel();
-				model.clearSelectedNodeList(userOpeCmd);
-				model.setMoveCandidateNode(null);
-				BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-			});
-
 		var multiNodeShifterView = new MultiNodeShifterView();
 		boolean success = multiNodeShifterView.init();
 		if (success) {
@@ -74,7 +72,88 @@ public class WorkspaceController implements MsgProcessor {
 			nodeShifterController = new MultiNodeShifterController(multiNodeShifterView, model);
 			nodeShifterController.init();
 		}
+		setMouseEventHandlers();
 		return success;
+	}
+
+	/**
+	 * マウスイベント関連のハンドラを登録する.
+	 * */
+	private void setMouseEventHandlers() {
+
+		Vec2D mousePressedPos = new Vec2D(0.0, 0.0);
+
+		// マウスボタン押下
+		view.setOnMousePressedHandler(
+			mouseEvent -> {
+				if (!mouseEvent.isShiftDown()) {
+					UserOperationCommand userOpeCmd = new UserOperationCommand();
+					BunnyHop.INSTANCE.hideTemplatePanel();
+					model.clearSelectedNodeList(userOpeCmd);
+					model.setMoveCandidateNode(null);
+					BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+				}
+				mousePressedPos.x = mouseEvent.getX();
+				mousePressedPos.y = mouseEvent.getY();
+				view.showSelectionRectangle(mousePressedPos, mousePressedPos);
+				mouseEvent.consume();
+			});
+
+		// マウスドラッグ
+		view.setOnMouseDraggedHandler(
+			mouseEvent -> {
+				view.showSelectionRectangle(mousePressedPos, new Vec2D(mouseEvent.getX(), mouseEvent.getY()));
+			});
+
+		// マウスボタン離し
+		view.setOnMouseReleasedHandler(
+			mouseEvent -> {
+				view.hideSelectionRectangle();
+				var selectionRange = new QuadTreeRectangle(
+					Math.min(mousePressedPos.x, mouseEvent.getX()), Math.min(mousePressedPos.y, mouseEvent.getY()),
+					Math.max(mousePressedPos.x, mouseEvent.getX()), Math.max(mousePressedPos.y, mouseEvent.getY()),
+					null);
+
+				List<BhNodeView> containedNodes =
+					view.searchForOverlappedNodeViews(selectionRange, true, OVERLAP_OPTION.CONTAIN).stream()
+					.filter(nodeView -> nodeView.getModel().isMovable() && !nodeView.getModel().isSelected())
+					.collect(Collectors.toCollection(ArrayList::new));
+
+				// 面積の大きい順にソート
+				containedNodes.sort((a, b) -> {
+					Vec2D sizeA = a.getRegionManager().getBodySize(false);
+					Vec2D sizeB = b.getRegionManager().getBodySize(false);
+					double areaA = sizeA.x * sizeA.y;
+					double areaB = sizeB.x * sizeB.y;
+
+					if (areaA < areaB)
+						return 1;
+					else if (areaA > areaB)
+						return -1;
+
+					return 0;
+				});
+
+				// 親ノードが選択候補でかつ, 親ノードのボディの領域に包含されているノードは選択対象としない.
+				LinkedList<BhNodeView> nodesToSelect = new LinkedList<>(containedNodes);
+				var userOpeCmd = new UserOperationCommand();
+				while (nodesToSelect.size() != 0) {
+					BhNodeView larger = nodesToSelect.pop();
+					model.addSelectedNode(larger.getModel(), userOpeCmd);	// ノード選択
+					var iter = nodesToSelect.iterator();
+					while (iter.hasNext()) {
+						BhNodeView smaller = iter.next();
+						// 子孫 - 先祖関係にあってかつ領域が包含関係にある -> 矩形選択の対象としない
+						if (larger.getRegionManager().overlapsWith(smaller, OVERLAP_OPTION.CONTAIN) &&
+							smaller.getModel().isDescendantOf(larger.getModel())) {
+							iter.remove();
+						}
+					}
+				}
+				BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+			});
+
+
 	}
 
 	/**

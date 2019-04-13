@@ -16,15 +16,16 @@
 package net.seapanda.bunnyhop.view.node;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -38,7 +39,8 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
-import net.seapanda.bunnyhop.view.FieldPosCalculator;
+import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OVERLAP_OPTION;
+import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShape;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShape.BODY_SHAPE;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
@@ -332,14 +334,12 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * コネクタ部分同士がこのビューに重なっているビューに対応するモデルを探す
 		 * @return コネクタ部分同士がこのビューに重なっているビューに対応するモデルのリスト
 		 * */
-		public ArrayList<BhNode> searchOverlappedModel() {
+		public List<BhNode> searchForOverlappedModels() {
 
-			ArrayList<BhNode> overlappedList = new ArrayList<>();
-			connectorPartRange.searchOverlappedRects().forEach(
-				ractangle -> {
-					overlappedList.add(ractangle.<BhNodeView>getDrawedObj().model);
-				});
-			return overlappedList;
+			List<QuadTreeRectangle> overlappedRectList = connectorPartRange.searchOverlappedRects(OVERLAP_OPTION.INTERSECT);
+			return overlappedRectList.stream()
+					.map(rectangle -> rectangle.<BhNodeView>getRelatedObj().model)
+					.collect(Collectors.toCollection(ArrayList::new));
 		}
 
 		/**
@@ -364,6 +364,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		public void removeQtRectable() {
 			accept(view -> {
 				QuadTreeManager.removeQuadTreeObj(view.getRegionManager().connectorPartRange);
+				QuadTreeManager.removeQuadTreeObj(view.getRegionManager().wholeBodyRange);
 			});
 		}
 
@@ -383,6 +384,16 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * */
 		public Vec2D getBodySize(boolean includeCnctr) {
 			return viewStyle.getBodySize(includeCnctr);
+		}
+
+		/**
+		 * このノードのボディの領域が引数のノードのボディ領域と重なっているかどうか調べる. <br>
+		 * @param view このノードとのボディ部分の重なりを調べるノード
+		 * @param option 重なり具合を判定するオプション
+		 * @return このノードのボディの領域が引数のノードのボディと重なっている場合 true.
+		 * */
+		public boolean overlapsWith(BhNodeView view, OVERLAP_OPTION option) {
+			return wholeBodyRange.overlapsWith(view.getRegionManager().wholeBodyRange, option);
 		}
 	}
 
@@ -487,7 +498,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * @return ワークスペース上での位置
 		 * */
 		public Vec2D getPosOnWorkspace() {
-			return getRelativePos(null, BhNodeView.this);
+			return ViewHelper.INSTANCE.getPosOnWorkspace(BhNodeView.this);
 		}
 
 		/**
@@ -509,7 +520,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 
 			Vec2D posOnWS = getPosOnWorkspace();
 			Vec2D wsSize = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_WORKSPACE_SIZE, model.getWorkspace()).vec2d;
-			Vec2D movDistance = FieldPosCalculator.distance(new Vec2D(diffX, diffY), wsSize, posOnWS);
+			Vec2D movDistance = ViewHelper.INSTANCE.distance(new Vec2D(diffX, diffY), wsSize, posOnWS);
 			Vec2D curRelPos = getRelativePosFromParent();
 			double newPosX = curRelPos.x + movDistance.x;
 			double newPosY = curRelPos.y + movDistance.y;
@@ -602,27 +613,6 @@ public abstract class BhNodeView extends Pane implements Showable {
 		public void propagateEvent(Event event) {
 			nodeShape.fireEvent(event);
 		}
-	}
-
-	/**
-	 * 親子関係にある2つのノードの相対距離を測る
-	 * @param base 基点となるNodeオブジェクト<br> null を入れるとtarget が居るworkspaceからの相対距離が得られる
-	 * @param target 基点からの距離を測るオブジェクト
-	 * @return target - base で算出される距離
-	 * */
-	public static Vec2D getRelativePos(Node base, Node target) {
-
-		Vec2D relativePos = new Vec2D(0.0, 0.0);
-		Node parent = target;
-		while (parent != base && !BhParams.Fxml.ID_WS_PANE.equals(parent.getId())) {
-			relativePos.x += parent.getTranslateX();
-			relativePos.y += parent.getTranslateY();
-			parent = parent.getParent();
-
-			if (parent == null)
-				break;
-		}
-		return relativePos;
 	}
 }
 

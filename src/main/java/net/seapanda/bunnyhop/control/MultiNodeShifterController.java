@@ -53,6 +53,7 @@ public class MultiNodeShifterController {
 			javafx.geometry.Point2D pos = view.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
 			mousePressedPos.x = pos.getX();
 			mousePressedPos.y = pos.getY();
+			view.toFront();
 			mouseEvent.consume();
 		});
 

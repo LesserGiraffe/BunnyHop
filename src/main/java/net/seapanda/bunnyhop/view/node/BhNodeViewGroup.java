@@ -27,6 +27,7 @@ import net.seapanda.bunnyhop.common.Showable;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
+import net.seapanda.bunnyhop.view.ViewHelper;
 
 /**
  * BhNodeView の集合を持つクラス
@@ -240,7 +241,7 @@ public class BhNodeViewGroup extends Group implements Showable {
 		updateGroupSize(childMaxLen, childSumLen);
 
 		if (sizeBefor.equals(size)) {
-			Vec2D posOnWS = BhNodeView.getRelativePos(null, this);
+			Vec2D posOnWS = ViewHelper.INSTANCE.getPosOnWorkspace(this);
 			updateAbsPos(posOnWS.x, posOnWS.y);
 			return;
 		}

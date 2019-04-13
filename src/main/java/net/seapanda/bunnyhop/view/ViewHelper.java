@@ -15,13 +15,17 @@
  */
 package net.seapanda.bunnyhop.view;
 
+import javafx.scene.Node;
+import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
 
 /**
  * 特定の領域内での移動先を計算するクラス
  * @author K.Koike
  * */
-public class FieldPosCalculator {
+public class ViewHelper {
+
+	public static final ViewHelper INSTANCE = new ViewHelper();		//!< シングルトンインスタンス
 
 	/**
 	 * 移動後のフィールド上の位置を算出する
@@ -30,7 +34,7 @@ public class FieldPosCalculator {
 	 * @param curePos 現在のフィールド上の位置
 	 * @return 移動後の新しい位置
 	 */
-	public static Vec2D newPosition(Vec2D diff, Vec2D fieldSize, Vec2D curPos) {
+	public Vec2D newPosition(Vec2D diff, Vec2D fieldSize, Vec2D curPos) {
 
 		double newDiffX = calcNewDiff(fieldSize.x, curPos.x, diff.x);
 		double newDiffY = calcNewDiff(fieldSize.y, curPos.y, diff.y);
@@ -44,7 +48,7 @@ public class FieldPosCalculator {
 	 * @param curePos 現在のフィールド上の位置
 	 * @return 移動距離
 	 */
-	public static Vec2D distance(Vec2D diff, Vec2D fieldSize, Vec2D curPos) {
+	public Vec2D distance(Vec2D diff, Vec2D fieldSize, Vec2D curPos) {
 
 		double newDiffX = calcNewDiff(fieldSize.x, curPos.x, diff.x);
 		double newDiffY = calcNewDiff(fieldSize.y, curPos.y, diff.y);
@@ -58,7 +62,7 @@ public class FieldPosCalculator {
 	 * @param diff 移動量
 	 * @return 新しい移動量
 	 */
-	private static double calcNewDiff(double targetRange, double curPos, double diff) {
+	private double calcNewDiff(double targetRange, double curPos, double diff) {
 
 		boolean curPosIsInTargetRange = (0 < curPos) && (curPos < targetRange);
 		if (curPosIsInTargetRange) {
@@ -72,5 +76,35 @@ public class FieldPosCalculator {
 			}
 		}
 		return diff;
+	}
+
+	/**
+	 * 親子関係にある2つのノードの相対距離を測る
+	 * @param base 基点となるNodeオブジェクト<br> null を入れると target が居るワークスペースからの相対距離が得られる
+	 * @param target 基点からの距離を測るオブジェクト
+	 * @return target - base で算出される距離
+	 * */
+	public Vec2D getRelativePos(Node base, Node target) {
+
+		Vec2D relativePos = new Vec2D(0.0, 0.0);
+		Node parent = target;
+		while (parent != base && !BhParams.Fxml.ID_WS_PANE.equals(parent.getId())) {
+			relativePos.x += parent.getTranslateX();
+			relativePos.y += parent.getTranslateY();
+			parent = parent.getParent();
+
+			if (parent == null)
+				break;
+		}
+		return relativePos;
+	}
+
+	/**
+	 * node のワークスペース上での位置を取得する
+	 * @param node ワークペース上での位置を計算するノード
+	 * @return node のワークスペース上での位置.
+	 * */
+	public Vec2D getPosOnWorkspace(Node node) {
+		return getRelativePos(null, node);
 	}
 }

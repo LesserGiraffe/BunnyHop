@@ -20,7 +20,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -37,12 +36,13 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
+import net.seapanda.bunnyhop.common.Rem;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * 複数ノードを同時に移動させるマルチノードシフタのビュー
@@ -76,13 +76,17 @@ public class MultiNodeShifterView extends Pane {
 
 		setVisible(false);
 		createShape();
+		setPickOnBounds(false);
 		shifterBase.setPickOnBounds(false);
 		shifterArrow.setMouseTransparent(true);
 		node_link.addListener((MapChangeListener<BhNode, Line>)(change -> {
-			if (change.getMap().size() >= 2)
+			if (change.getMap().size() >= 2) {
 				setVisible(true);
-			else
+				toFront();
+			}
+			else {
 				setVisible(false);
+			}
 		}));
 		return true;
 	}
@@ -95,14 +99,14 @@ public class MultiNodeShifterView extends Pane {
 	public void createLink(BhNode node) {
 
 		if (!node_link.containsKey(node)) {
-			var newLink = new Line(shifterCircle.getRadius(), shifterCircle.getRadius(), 0.0, 0.0);
+			var newLink = new Line(0.0, 0.0, 0.0, 0.0);
 			newLink.getStyleClass().add(BhParams.CSS.CLASS_NODE_SHIFTER_LINK);
 			newLink.setStrokeDashOffset(1.0);
 			node_link.put(node, newLink);
 			getChildren().add(newLink);
 			shifterBase.toFront();
 		}
-		updateAllLinkPositions();
+		updateShifterAndAllLinkPositions();
 	}
 
 	/**
@@ -115,7 +119,7 @@ public class MultiNodeShifterView extends Pane {
 		Line link = node_link.remove(node);
 		if (link != null) {
 			getChildren().remove(link);
-			updateAllLinkPositions();
+			updateShifterAndAllLinkPositions();
 		}
 	}
 
@@ -132,36 +136,32 @@ public class MultiNodeShifterView extends Pane {
 			Point2D newPos = parentToLocal(linkPos);
 			link.setEndX(newPos.getX());
 			link.setEndY(newPos.getY());
+			updateLinkPosForShifter(link);
 		}
 	}
 
-	private void updateAllLinkPositions() {
+	/**
+	 * シフタと全リンクの位置を更新する.
+	 * */
+	private void updateShifterAndAllLinkPositions() {
 
 		if (node_link.size() == 0)
 			return;
 
 		//マルチノードシフタの新しい位置を計算する
-		Map<BhNode, Point2D> node_nodeLinkPos = new HashMap<>();
 		double shifterX = 0.0;
 		double shifterY = 0.0;
 		for (BhNode node : node_link.keySet()) {
 			Point2D linkPos = calcLinkPosForNode(node);
 			shifterX += linkPos.getX();
 			shifterY += linkPos.getY();
-			node_nodeLinkPos.put(node, linkPos);
 		}
 		shifterX = shifterX / node_link.size() - shifterCircle.getRadius();
 		shifterY = shifterY / node_link.size() - shifterCircle.getRadius();
-		setTranslateX(shifterX);
-		setTranslateY(shifterY);
+		setPosOnWorkspace(shifterX, shifterY);
 
-		//リンクのノード側の点の位置を更新する
 		for (BhNode node : node_link.keySet()) {
-			Point2D linkPos = node_nodeLinkPos.get(node);
-			linkPos = parentToLocal(linkPos);
-			Line link = node_link.get(node);
-			link.setEndX(linkPos.getX());
-			link.setEndY(linkPos.getY());
+			updateLinkPos(node);
 		}
 	}
 
@@ -172,11 +172,38 @@ public class MultiNodeShifterView extends Pane {
 	 * */
 	private Point2D calcLinkPosForNode(BhNode node) {
 
-		final double yOffset = 10.0;
+		final double yOffset = 0.5 * Rem.VAL;
 		Pair<Vec2D, Vec2D> bodyRange = MsgService.INSTANCE.getNodeBodyRange(node);
 		double linkPosX = (bodyRange._1.x + bodyRange._2.x) / 2;
 		double linkPosY = bodyRange._1.y + yOffset;
 		return new Point2D(linkPosX, linkPosY);
+	}
+
+
+	/**
+	 * シフタ側のリンクの端点を更新する.
+	 * @param link 端点を更新するリンク
+	 * */
+	private void updateLinkPosForShifter(Line link) {
+
+		double x = link.getEndX();
+		double y = link.getEndY();
+		if (0.0 <= x && x < 1.0)
+			x = 1.0;
+		else if (-1.0 < x && x < 0.0)
+			x = -1.0;
+
+		if (0.0 <= y && y < 1.0)
+			y = 1.0;
+		else if (-1.0 < y && y < 0.0)
+			y = -1.0;
+
+		double len = Util.INSTANCE.fastSqrt(x * x + y * y);
+		double cosVal = x / len;
+		double sinVal = y / len;
+		double r = shifterCircle.getRadius();
+		link.setStartX(r * cosVal);
+		link.setStartY(r * sinVal);
 	}
 
 	/**
@@ -197,18 +224,12 @@ public class MultiNodeShifterView extends Pane {
 	 * */
 	public Vec2D move(Vec2D diff, Vec2D wsSize, boolean moveLink) {
 
-		Vec2D distance = FieldPosCalculator.distance(diff, wsSize, getPosOnWorkspace());
-		setTranslateX(getTranslateX() + distance.x);
-		setTranslateY(getTranslateY() + distance.y);
+		Vec2D distance = ViewHelper.INSTANCE.distance(diff, wsSize, getPosOnWorkspace());
+		setPosOnWorkspace(getTranslateX() + distance.x, getTranslateY() + distance.y);
 
 		if (moveLink) {
-			//リンクのノード側の点の位置を更新する
 			for (BhNode node : node_link.keySet()) {
-				Point2D linkPos = calcLinkPosForNode(node);
-				linkPos = parentToLocal(linkPos);
-				Line link = node_link.get(node);
-				link.setEndX(linkPos.getX());
-				link.setEndY(linkPos.getY());
+				updateLinkPos(node);
 			}
 		}
 
@@ -219,7 +240,15 @@ public class MultiNodeShifterView extends Pane {
 	 * マルチノードシフタのワークスペース上での位置を取得する
 	 * */
 	private Vec2D getPosOnWorkspace() {
-		return BhNodeView.getRelativePos(null, this);
+		return ViewHelper.INSTANCE.getPosOnWorkspace(this);
+	}
+
+	/**
+	 * マルチノードシフタのワークスペース上での位置を設定する
+	 * */
+	private void setPosOnWorkspace(double x, double y) {
+		setTranslateX(x);
+		setTranslateY(y);
 	}
 
 	/**
@@ -237,36 +266,36 @@ public class MultiNodeShifterView extends Pane {
 
 		var radius = BhParams.LnF.NODE_SHIFTER_SIZE / 2.0;
 		shifterCircle.setRadius(radius);
-		shifterCircle.setCenterX(radius);
-		shifterCircle.setCenterY(radius);
+		shifterCircle.setCenterX(0);
+		shifterCircle.setCenterY(0);
 
 		double l = 0.3;
 		double k = 0.42;
 		shifterArrow.getPoints().addAll(
-			      0.5 * BhParams.LnF.NODE_SHIFTER_SIZE, 0.0,
-			(1.0 - l) * BhParams.LnF.NODE_SHIFTER_SIZE, (0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE,
-			(1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE, (0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE,
-			(1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE,         k * BhParams.LnF.NODE_SHIFTER_SIZE,
-			(0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE,         k * BhParams.LnF.NODE_SHIFTER_SIZE,
-			(0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE,         l * BhParams.LnF.NODE_SHIFTER_SIZE,
-			            BhParams.LnF.NODE_SHIFTER_SIZE,       0.5 * BhParams.LnF.NODE_SHIFTER_SIZE,
-			(0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE, (1.0 - l) * BhParams.LnF.NODE_SHIFTER_SIZE,
-			(0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE, (1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE,
-			(1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE, (1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE,
-			(1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE, (0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE,
-			(1.0 - l) * BhParams.LnF.NODE_SHIFTER_SIZE, (0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE,
-			      0.5 * BhParams.LnF.NODE_SHIFTER_SIZE,             BhParams.LnF.NODE_SHIFTER_SIZE,
-			        l * BhParams.LnF.NODE_SHIFTER_SIZE, (0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE,
-			        k * BhParams.LnF.NODE_SHIFTER_SIZE, (0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE,
-			        k * BhParams.LnF.NODE_SHIFTER_SIZE, (1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE,
-			(0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE, (1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE,
-			(0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE, (1.0 - l) * BhParams.LnF.NODE_SHIFTER_SIZE,
-			0.0,                                                 0.5 * BhParams.LnF.NODE_SHIFTER_SIZE,
-			(0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE,         l * BhParams.LnF.NODE_SHIFTER_SIZE,
-			(0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE,         k * BhParams.LnF.NODE_SHIFTER_SIZE,
-			        k * BhParams.LnF.NODE_SHIFTER_SIZE,         k * BhParams.LnF.NODE_SHIFTER_SIZE,
-			        k * BhParams.LnF.NODE_SHIFTER_SIZE, (0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE,
-			        l * BhParams.LnF.NODE_SHIFTER_SIZE, (0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE);
+			      0.5 * BhParams.LnF.NODE_SHIFTER_SIZE - radius,                                           0.0 - radius,
+			(1.0 - l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			(1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			(1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,         k * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			(0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,         k * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			(0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,         l * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			            BhParams.LnF.NODE_SHIFTER_SIZE - radius,       0.5 * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			(0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (1.0 - l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			(0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			(1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			(1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			(1.0 - l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			      0.5 * BhParams.LnF.NODE_SHIFTER_SIZE - radius,             BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			        l * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			        k * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (0.5 + l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			        k * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			(0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (1.0 - k) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			(0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (1.0 - l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+													  0.0 - radius,       0.5 * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			(0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,         l * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			(0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,         k * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			        k * BhParams.LnF.NODE_SHIFTER_SIZE - radius,         k * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			        k * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius,
+			        l * BhParams.LnF.NODE_SHIFTER_SIZE - radius, (0.5 - l) * BhParams.LnF.NODE_SHIFTER_SIZE - radius);
 	}
 
 	/**
@@ -280,11 +309,13 @@ public class MultiNodeShifterView extends Pane {
 			shifterBase.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true);
 			shifterCircle.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true);
 			shifterArrow.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true);
+			node_link.values().forEach(link -> link.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true));
 		}
 		else {
 			shifterBase.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), false);
 			shifterCircle.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), false);
 			shifterArrow.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), false);
+			node_link.values().forEach(link -> link.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), false));
 		}
 	}
 

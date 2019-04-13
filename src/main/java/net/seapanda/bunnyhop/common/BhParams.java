@@ -46,7 +46,7 @@ public class BhParams {
 		public static final double NODE_SCALE = 0.5 * Rem.VAL;
 		public static final double REPLACED_NODE_SHIFT = 2.0 * BhParams.LnF.NODE_SCALE;		//!< 入れ替えられたノードがワークスペースに移ったときの元の位置に対する位置 (単位rem)
 		public static final double BHNODE_SPACE_ON_SELECTION_PANEL = 2.0 * BhParams.LnF.NODE_SCALE;		//!< BhNode選択パネル上でのBhNode間のスペース
-		public static final double NODE_SHIFTER_SIZE = Rem.VAL * 5.0;	//!< マルチノードシフタの大きさ
+		public static final double NODE_SHIFTER_SIZE = Rem.VAL * 7.0;	//!< マルチノードシフタの大きさ
 	}
 
 	/**

@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 
 <fx:root
 	xmlns:fx="http://javafx.com/fxml"
@@ -13,7 +14,13 @@
 		FitToWidth="false"
 		FitToHeight="false">
 		<Pane fx:id="wsWrapper">
-			<Pane fx:id="wsPane"/>
+			<Pane fx:id="wsPane">
+				<Polyline
+					fx:id="rectSelTool"
+					mouseTransparent="true"
+					visible="false"
+					styleClass="rectSelTool"/>
+			</Pane>
 		</Pane>
 	</ScrollPane>
 </fx:root>

@@ -15,8 +15,8 @@
  */
 package net.seapanda.bunnyhop.control.node;
 
-import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.Single;
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgTransporter;
@@ -28,6 +28,7 @@ import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
@@ -87,7 +88,7 @@ public class BhNodeControllerInSelectionView {
 			newNode.accept(builder);	//MVC構築
 			newNode.accept(new TextImitationPrompter());
 			currentView.content = builder.getTopNodeView();
-			Vec2D posOnRootView = BhNodeView.getRelativePos(rootView, view);	//クリックされたテンプレートノードのルートノード上でのクリック位置
+			Vec2D posOnRootView = ViewHelper.INSTANCE.getRelativePos(rootView, view);	//クリックされたテンプレートノードのルートノード上でのクリック位置
 			posOnRootView.x += mouseEvent.getX();
 			posOnRootView.y += mouseEvent.getY();
 			MsgData posOnWS = MsgTransporter.INSTANCE.sendMessage(

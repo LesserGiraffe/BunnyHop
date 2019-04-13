@@ -16,8 +16,11 @@
 package net.seapanda.bunnyhop.quadtree;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
+
 import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OVERLAP_OPTION;
 
 /**
  * 4文木空間を持ちいた衝突を管理するクラス
@@ -199,24 +202,25 @@ public class QuadTreeManager {
 	/**
 	 * 引数で指定したQuadTreeRectangleオブジェクトに重なるQuadTreeRectangleを4分木空間の中から見つける
 	 * @param rectangle このオブジェクトに重なっているQuadTreeRectangleオブジェクトを見つける
+	 * @param option 検索オプション
 	 * @return 引数で指定したQuadTreeRectangleオブジェクトに重なるQuadTreeRectangleオブジェクトのリスト
 	 * */
-	public ArrayList<QuadTreeRectangle> searchOverlappedRects(QuadTreeRectangle rectangle) {
+	public ArrayList<QuadTreeRectangle> searchOverlappedRects(QuadTreeRectangle rectangle, OVERLAP_OPTION option) {
 
 		int idxInQuadTree = rectangle.getIdxInQuadTree();
 		ArrayList<QuadTreeRectangle> overlappedList = new ArrayList<>();
-		searchOverlappedRects(idxInQuadTree, rectangle, overlappedList);	//子空間から探す
-		
+		searchOverlappedRects(idxInQuadTree, rectangle, option, overlappedList);	//子空間から探す
+
 		//親空間から探す
 		int nextSearchIdx = idxInQuadTree - 1;
 		while (nextSearchIdx >= 0) {
 			nextSearchIdx /= 4;
-			searchOverlappedRectsForOneSpace(nextSearchIdx, rectangle, overlappedList);
+			searchOverlappedRectsForOneSpace(nextSearchIdx, rectangle, option, overlappedList);
 			nextSearchIdx -= 1;
 		}
 		overlappedList.remove(rectangle);
-		
-		//引き数の rectangle に対して近い順にソートする
+
+		//引数の rectangle に対して近い順にソートする
 		double centerX = (rectangle.getLowerRightPos().x - rectangle.getUpperLeftPos().x) / 2 + rectangle.getUpperLeftPos().x;
 		double centerY = (rectangle.getLowerRightPos().y - rectangle.getUpperLeftPos().y) / 2 + rectangle.getUpperLeftPos().y;
 		overlappedList.sort((rectA, rectB) -> {
@@ -244,17 +248,22 @@ public class QuadTreeManager {
 	 * 引数で指定したインデックスの4分木空間とその下位空間からrectangle に重なるQuadTreeRectangleオブジェクトを見つける
 	 * @param idx この4分木空間以下の空間から rectangleに重なっているQuadTreeRectangleオブジェクトを見つける
 	 * @param rectangle このオブジェクトに重なっているQuadTreeRectangleオブジェクトを見つける
+	 * @param option 検索オプション
 	 * @param overlappedList 重なっているQuadTreeRectangleオブジェクトを格納するリスト
 	 * */
-	private void searchOverlappedRects(int idx, QuadTreeRectangle rectangle, ArrayList<QuadTreeRectangle> overlappedList) {
+	private void searchOverlappedRects(
+		int idx,
+		QuadTreeRectangle rectangle,
+		OVERLAP_OPTION option,
+		List<QuadTreeRectangle> overlappedList) {
 
-		searchOverlappedRectsForOneSpace(idx, rectangle, overlappedList);
+		searchOverlappedRectsForOneSpace(idx, rectangle, option, overlappedList);
 		int childIdx = idx * 4 + 1;
 		if (childIdx <= quadTree.size() - 1) {
-			searchOverlappedRects(childIdx, rectangle, overlappedList);
-			searchOverlappedRects(childIdx + 1, rectangle, overlappedList);
-			searchOverlappedRects(childIdx + 2, rectangle, overlappedList);
-			searchOverlappedRects(childIdx + 3, rectangle, overlappedList);
+			searchOverlappedRects(childIdx,     rectangle, option, overlappedList);
+			searchOverlappedRects(childIdx + 1, rectangle, option, overlappedList);
+			searchOverlappedRects(childIdx + 2, rectangle, option, overlappedList);
+			searchOverlappedRects(childIdx + 3, rectangle, option, overlappedList);
 		}
 	}
 
@@ -262,14 +271,19 @@ public class QuadTreeManager {
 	 * 引数で指定したインデックスの4分木空間からrectangle に重なるQuadTreeRectangleオブジェクトを見つける
 	 * @param idx この4分木空間から rectangleに重なっているQuadTreeRectangleオブジェクトを見つける
 	 * @param rectangle このオブジェクトに重なっているQuadTreeRectangleオブジェクトを見つける
+	 * @param option 検索オプション
 	 * @param overlappedList 重なっているQuadTreeRectangleオブジェクトを格納するリスト
 	 * */
-	private void searchOverlappedRectsForOneSpace(int idx, QuadTreeRectangle rectangle, ArrayList<QuadTreeRectangle> overlappedList) {
+	private void searchOverlappedRectsForOneSpace(
+		int idx,
+		QuadTreeRectangle rectangle,
+		OVERLAP_OPTION option,
+		List<QuadTreeRectangle> overlappedList) {
 
 		QuadTreeRectangle head = quadTree.get(idx);
 		QuadTreeRectangle next = head.getNext();
 		while (next != null) {
-			if(next.overlapsWith(rectangle))
+			if(rectangle.overlapsWith(next, option))
 				overlappedList.add(next);
 			next = next.getNext();
 		}
@@ -280,7 +294,7 @@ public class QuadTreeManager {
 	 * @return 登録されているBhNodeの数
 	 */
 	public int calcRegisteredNodeNum() {
-	
+
 		int numOfNode = 0;
 		for (QuadTreeRectangle head : quadTree) {
 			QuadTreeRectangle rect = head;
@@ -288,14 +302,14 @@ public class QuadTreeManager {
 				++numOfNode;
 			}
 		}
-		
+
 		QuadTreeRectangle rect = unknownSpaceListHead;
 		while ((rect = rect.getNext()) != null) {
 			++numOfNode;
 		}
 		return numOfNode;
 	}
-	
+
 	/**
 	 * 4分木空間の縦と横の分割数を返す
 	 * @return 4分木空間の縦と横の分割数

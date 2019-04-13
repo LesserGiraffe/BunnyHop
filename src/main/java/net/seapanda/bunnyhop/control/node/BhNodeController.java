@@ -15,7 +15,7 @@
  */
 package net.seapanda.bunnyhop.control.node;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
@@ -292,7 +292,7 @@ public class BhNodeController implements MsgProcessor {
 		}
 		ddInfo.currentOverlapped = null;
 
-		ArrayList<BhNode> overlappedList = view.getRegionManager().searchOverlappedModel();	//このノードとコネクタ部分が重なっている
+		List<BhNode> overlappedList = view.getRegionManager().searchForOverlappedModels();	//このノードとコネクタ部分が重なっている
 		for (BhNode overlapped : overlappedList) {
 			if (overlapped.canBeReplacedWith(model)) {	//このノードと入れ替え可能
 				MsgTransporter.INSTANCE.sendMessage(
@@ -360,7 +360,7 @@ public class BhNodeController implements MsgProcessor {
 	}
 
 	/**
-	 * ワークスペース内でノードを動かす
+	 * ワークスペース上でノードを動かす
 	 * @param distanceX x移動量
 	 * @param distanceY y移動量
 	 * */
