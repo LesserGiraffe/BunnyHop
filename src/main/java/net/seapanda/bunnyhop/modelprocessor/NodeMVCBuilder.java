@@ -39,6 +39,7 @@ import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.ConnectiveNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
 import net.seapanda.bunnyhop.view.node.NoContentNodeView;
+import net.seapanda.bunnyhop.view.node.TextAreaNodeView;
 import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
 import net.seapanda.bunnyhop.view.node.VoidNodeView;
 
@@ -123,7 +124,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 		BhNodeView nodeView = null;
 		switch (node.type) {
 			case BhParams.BhModelDef.ATTR_NAME_TEXT_FIELD:
-				TextFieldNodeView textNodeView = new TextFieldNodeView(node, viewStyle);
+				var textNodeView = new TextFieldNodeView(node, viewStyle);
 				textNodeView.init(isTemplate);
 				node.setScriptScope(textNodeView);
 				mvcConnector.connect(node, textNodeView);
@@ -131,7 +132,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 				break;
 
 			case BhParams.BhModelDef.ATTR_NAME_COMBO_BOX:
-				ComboBoxNodeView comboBoxNodeView = new ComboBoxNodeView(node, viewStyle);
+				var comboBoxNodeView = new ComboBoxNodeView(node, viewStyle);
 				comboBoxNodeView.init(isTemplate);
 				node.setScriptScope(comboBoxNodeView);
 				mvcConnector.connect(node, comboBoxNodeView);
@@ -139,15 +140,24 @@ public class NodeMVCBuilder implements BhModelProcessor {
 				break;
 
 			case BhParams.BhModelDef.ATTR_NAME_LABEL:
-				LabelNodeView labelNodeView = new LabelNodeView(node, viewStyle);
+				var labelNodeView = new LabelNodeView(node, viewStyle);
 				labelNodeView.init();
 				node.setScriptScope(labelNodeView);
 				mvcConnector.connect(node, labelNodeView);
 				nodeView = labelNodeView;
 				break;
 
+			case BhParams.BhModelDef.ATTR_NAME_TEXT_AREA:
+				var textAreaNodeView = new TextAreaNodeView(node, viewStyle);
+				textAreaNodeView.init(isTemplate);
+				node.setScriptScope(textAreaNodeView);
+				mvcConnector.connect(node, textAreaNodeView);
+				nodeView = textAreaNodeView;
+				break;
+
+
 			case BhParams.BhModelDef.ATTR_NAME_NO_CONTENT:
-				NoContentNodeView noContentNodeView = new NoContentNodeView(node, viewStyle);
+				var noContentNodeView = new NoContentNodeView(node, viewStyle);
 				noContentNodeView.init();
 				node.setScriptScope(noContentNodeView);
 				mvcConnector.connect(node, noContentNodeView);
@@ -188,6 +198,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 		public void connect(TextNode node, TextFieldNodeView view);
 		public void connect(TextNode node, LabelNodeView view);
 		public void connect(TextNode node, ComboBoxNodeView view);
+		public void connect(TextNode node, TextAreaNodeView view);
 		public void connect(TextNode node, NoContentNodeView view);
 	}
 
@@ -198,37 +209,43 @@ public class NodeMVCBuilder implements BhModelProcessor {
 
 		@Override
 		public void connect(ConnectiveNode node, ConnectiveNodeView view) {
-			ConnectiveNodeController controller = new ConnectiveNodeController(node, view);
+			var controller = new ConnectiveNodeController(node, view);
 			node.setMsgProcessor(controller);
 		}
 
 		@Override
 		public void connect(VoidNode node, VoidNodeView view) {
-			VoidNodeController controller = new VoidNodeController(node, view);
+			var controller = new VoidNodeController(node, view);
 			node.setMsgProcessor(controller);
 		}
 
 		@Override
 		public void connect(TextNode node, TextFieldNodeView view) {
-			TextFieldNodeController controller = new TextFieldNodeController(node, view);
+			var controller = new TextFieldNodeController(node, view);
 			node.setMsgProcessor(controller);
 		}
 
 		@Override
 		public void connect(TextNode node, LabelNodeView view) {
-			LabelNodeController controller = new LabelNodeController(node, view);
+			var controller = new LabelNodeController(node, view);
 			node.setMsgProcessor(controller);
 		}
 
 		@Override
 		public void connect(TextNode node, ComboBoxNodeView view) {
-			ComboBoxNodeController controller = new ComboBoxNodeController(node, view);
+			var controller = new ComboBoxNodeController(node, view);
+			node.setMsgProcessor(controller);
+		}
+
+		@Override
+		public void connect(TextNode node, TextAreaNodeView  view) {
+			var controller = new TextFieldNodeController(node, view);
 			node.setMsgProcessor(controller);
 		}
 
 		@Override
 		public void connect(TextNode node, NoContentNodeView view) {
-			NoContentNodeController controller = new NoContentNodeController(node, view);
+			var controller = new NoContentNodeController(node, view);
 			node.setMsgProcessor(controller);
 		}
 	}
@@ -270,6 +287,13 @@ public class NodeMVCBuilder implements BhModelProcessor {
 
 		@Override
 		public void connect(TextNode node, ComboBoxNodeView view) {
+			if (rootView == null)
+				rootView = view;
+			new BhNodeControllerInSelectionView(node, view, rootView);
+		}
+
+		@Override
+		public void connect(TextNode node, TextAreaNodeView view) {
 			if (rootView == null)
 				rootView = view;
 			new BhNodeControllerInSelectionView(node, view, rootView);

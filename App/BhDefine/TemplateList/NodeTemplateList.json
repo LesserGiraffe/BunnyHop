@@ -126,5 +126,10 @@
 		"cssClass":"event",
 		"contents":["idKeyPressedEvent",
 					"idDelayedStartEvent"]
+	},
+	
+	"その他" : {
+		"cssClass":"misc",
+		"contents":["idCommentPart"]
 	}
 }

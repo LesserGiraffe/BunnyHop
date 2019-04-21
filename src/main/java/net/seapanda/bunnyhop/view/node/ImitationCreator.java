@@ -17,6 +17,7 @@ package net.seapanda.bunnyhop.view.node;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -92,33 +93,30 @@ public interface ImitationCreator {
 	 * イミテーションノード作成ボタンのスタイルを指定する
 	 * @param style イミテーションノード作成ボタンのスタイル情報が格納されたオブジェクト
 	 */
-	default void setBtnStyle(BhNodeViewStyle.Imitation style) {
+	default void setBtnStyle(BhNodeViewStyle.Imitation style, Button button) {
 
-		Button imitCreateButton = imitCreateButton();
-		if (imitCreateButton != null) {
-			imitCreateButton.setTranslateX(style.buttonPosX);
-			imitCreateButton.setTranslateY(style.buttonPosY);
-			imitCreateButton.getStyleClass().add(style.cssClass);
-		}
+		button.setTranslateX(style.buttonPosX);
+		button.setTranslateY(style.buttonPosY);
+		button.getStyleClass().add(style.cssClass);
 	}
 
 	/**
 	 * FXML ファイルからイミテーション作成ボタンをロードする
 	 * @param fileName ボタンをロードするFXMLファイル名
 	 * @param buttonStyle ボタンに適用するスタイル
-	 * @return ファイルからロードしたイミテーション作成ボタン
+	 * @return ファイルからロードしたイミテーション作成ボタン (Optional)
 	 */
-	default Button loadButton(String fileName, BhNodeViewStyle.Imitation buttonStyle) {
+	default Optional<Button> loadButton(String fileName, BhNodeViewStyle.Imitation buttonStyle) {
 
-		Button imitCreateImitBtn = null;
+		Button imitCreateImitBtn = new Button();
 		Path filePath = FXMLCollector.INSTANCE.getFilePath(fileName);
 		try {
 			FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 			imitCreateImitBtn = (Button)loader.load();
-			setBtnStyle(buttonStyle);
 		} catch (IOException | ClassCastException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(ImitationCreator.class.getSimpleName() + ".loadButton\n" + e.toString());
+			MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + ".loadButton\n" + e.toString());
 		}
-		return imitCreateImitBtn;
+		setBtnStyle(buttonStyle, imitCreateImitBtn);
+		return Optional.ofNullable(imitCreateImitBtn);
 	}
 }

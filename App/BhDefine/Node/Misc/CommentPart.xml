@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+
+<Node
+	type="connective"
+	bhNodeID="idCommentPart"
+	name="CommentPart"
+	nodeStyleID="CommentPart.json"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js">
+
+	<ConnectorSection name="StatSctn">
+	
+		<PrivateConnector
+			bhConnectorID="idCommentPart.prvCnctr0"
+			name="Comment"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idCommentPart.prvNode0"
+				name="Comment"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="コメント">
+			</Node>
+		</PrivateConnector>
+	
+		<PrivateConnector
+			bhConnectorID="idCommentPart.prvCnctr1"
+			name="Setsumei"
+			fixed="true">
+			<Node
+				type="textArea"
+				bhNodeID="idCommentPart.prvNode1"
+				name="setsumei"
+				nodeStyleID="defaultTextArea.json"
+				nodeInputControl="textArea.fxml"
+				initString="説明">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+	</ConnectorSection>
+</Node>

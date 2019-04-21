@@ -32,7 +32,7 @@ import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
-import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
+import net.seapanda.bunnyhop.view.node.TextInputNodeView;
 
 /**
  * ノード選択リストにあるBhNodeのコントローラ
@@ -57,8 +57,8 @@ public class BhNodeControllerInSelectionView {
 
 		setMouseEventHandler();
 
-		if (view instanceof TextFieldNodeView) {
-			TextFieldNodeController.setTextChangeHandler((TextNode)model, (TextFieldNodeView)view);
+		if (view instanceof TextInputNodeView) {
+			TextFieldNodeController.setTextChangeHandler((TextNode)model, (TextInputNodeView)view);
 		}
 		else if (view instanceof ComboBoxNodeView) {
 			ComboBoxNodeController.setItemChangeHandler((TextNode)model, (ComboBoxNodeView)view);

@@ -12,6 +12,7 @@
 	actionTypeCol: hsb(165 , 100%, 43%);
 	eventTypeCol: hsb(329 , 100%, 78%);
 
-	voidTypeCol: hsb(0 , 0%, 95%);
-	anyTypeCol: hsb(0 , 0%, 85%);
+	voidTypeCol: hsb(0, 0%, 95%);
+	anyTypeCol: hsb(0, 0%, 85%);
+	miscTypeCol: hsb(0, 0%, 15%)
 }

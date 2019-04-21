@@ -12,7 +12,6 @@
 	"cssClass" : "numType",
     
     "textField" : {
-		"whiteSpaceMargin" : 2,
-		"minWhiteSpace" : 5
+		"minWidth": 0.0
 	}
 }

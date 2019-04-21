@@ -25,6 +25,7 @@ module net.seapanda.bunnyhop {
 	requires javafx.base;
 	requires rhino;
 	requires jsch;
+	//requires org.scenicview.scenicview;
 
 	exports net.seapanda.bunnyhop.root;
 	exports net.seapanda.bunnyhop.model;

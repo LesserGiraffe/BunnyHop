@@ -12,7 +12,6 @@
 	"cssClass" : "Identifier",
 
 	"textField" : {
-		"whiteSpaceMargin" : 2,
-		"minWhiteSpace" : 5
+		"minWidth": 4.0
 	}
 }

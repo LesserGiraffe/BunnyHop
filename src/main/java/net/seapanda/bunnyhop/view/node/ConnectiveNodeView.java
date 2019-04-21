@@ -15,16 +15,13 @@
  */
 package net.seapanda.bunnyhop.view.node;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import java.util.Optional;
 import java.util.function.Consumer;
 
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
 
@@ -36,7 +33,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 
 	private final BhNodeViewGroup innerGroup = new BhNodeViewGroup(this, true); //!< ノード内部に描画されるノードのGroup
 	private final BhNodeViewGroup outerGroup = new BhNodeViewGroup(this, false); //!< ノード外部に描画されるノードのGroup
-	private Button imitCreateImitBtn;	//!< イミテーション作成ボタン
+	private Button imitCreateBtn;	//!< イミテーション作成ボタン
 	private ConnectiveNode model;
 
 	/**
@@ -51,29 +48,25 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 
 	/**
 	 * 初期化する
-	 * @param isTemplate ノード選択パネルに表示されるノードであった場合true
 	 */
-	public void init() {
+	public boolean init() {
 
 		initialize();
 		innerGroup.buildSubGroup(viewStyle.connective.inner);
 		outerGroup.buildSubGroup(viewStyle.connective.outer);
 		getChildren().add(innerGroup);
 		getChildren().add(outerGroup);
-
 		setFuncs(this::rearrangeChildNodes, this::updateAbsPos);
-		if (model.getImitationInfo().canCreateImitManually) {
-			Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.IMIT_BUTTON_FXML);
-			try {
-				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
-				imitCreateImitBtn = (Button)loader.load();
-				setBtnStyle(viewStyle.imitation);
-				getChildren().add(imitCreateImitBtn);
-			} catch (IOException | ClassCastException e) {
-				MsgPrinter.INSTANCE.errMsgForDebug("failed to initialize " + ConnectiveNodeView.class.getSimpleName() + "\n" + e.toString());
-			}
-		}
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_CONNECTIVE_NODE);
+
+		boolean success = true;
+		if (model.getImitationInfo().canCreateImitManually) {
+			Optional<Button> btnOpt = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
+			success &= btnOpt.isPresent();
+			imitCreateBtn = btnOpt.orElse(new Button());
+			getChildren().add(imitCreateBtn);
+		}
+		return success;
 	}
 
 	/**
@@ -184,10 +177,6 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 		outerGroup.accept(visitorFunc);
 	}
 
-	/**
-	 * モデルの構造を表示する
-	 * @param depth 表示インデント数
-	 * */
 	@Override
 	public void show(int depth) {
 
@@ -203,7 +192,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 
 	@Override
 	public Button imitCreateButton() {
-		return imitCreateImitBtn;
+		return imitCreateBtn;
 	}
 }
 

@@ -113,6 +113,7 @@ public class NodeConstructor {
 			case BhParams.BhModelDef.ATTR_NAME_TEXT_FIELD:
 			case BhParams.BhModelDef.ATTR_NAME_COMBO_BOX:
 			case BhParams.BhModelDef.ATTR_NAME_LABEL:
+			case BhParams.BhModelDef.ATTR_NAME_TEXT_AREA:
 				templateNode = genTextNode(nodeRoot, type, true);
 				break;
 			//<Node type="noView">

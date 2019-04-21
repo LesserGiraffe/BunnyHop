@@ -16,6 +16,9 @@
 package net.seapanda.bunnyhop.view;
 
 import javafx.scene.Node;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextBoundsType;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
 
@@ -107,4 +110,52 @@ public class ViewHelper {
 	public Vec2D getPosOnWorkspace(Node node) {
 		return getRelativePos(null, node);
 	}
+
+	/**
+	 * 文字列を表示したときのサイズを計算する
+	 * @param str サイズを計算する文字列
+	 * @param font フォント
+	 * @param boundType 境界算出方法
+	 * @param lineSpacing 行間
+	 * */
+	public Vec2D calcStrBounds(
+		String str,
+		Font font,
+		TextBoundsType boundType,
+		double lineSpacing) {
+
+		Text text = new Text(str);
+		text.setFont(font);
+		text.setBoundsType(boundType);
+		text.setLineSpacing(lineSpacing);
+		return new Vec2D(text.getBoundsInLocal().getWidth(), text.getBoundsInLocal().getHeight());
+	}
+
+	/**
+	 * 引数で指定した文字列の表示幅を計算する
+	 * @param str 表示幅を計算する文字列
+	 * @param font 表示時のフォント
+	 * @return 文字列を表示したときの幅
+	 */
+	public double calcStrWidth(String str, Font font) {
+        Text text = new Text(str);
+        text.setFont(font);
+		return text.getBoundsInLocal().getWidth();
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

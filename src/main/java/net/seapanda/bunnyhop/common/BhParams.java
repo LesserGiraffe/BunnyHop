@@ -122,6 +122,7 @@ public class BhParams {
 		public static final String ATTR_NAME_TEXT_FIELD = "textField";
 		public static final String ATTR_NAME_COMBO_BOX = "comboBox";
 		public static final String ATTR_NAME_LABEL = "label";
+		public static final String ATTR_NAME_TEXT_AREA = "textArea";
 		public static final String ATTR_NAME_NO_VIEW = "noView";
 		public static final String ATTR_NAME_NO_CONTENT = "noContent";
 		public static final String ATTR_VALUE_VOID = "void";
@@ -176,6 +177,7 @@ public class BhParams {
 		public static final String KEY_NOTCH_SHAPE = "notchShape";
 		public static final String KEY_NOTCH_HEIGHT = "notchHeight";
 		public static final String KEY_NOTCH_WIDTH = "notchWidth";
+		public static final String KEY_GRABBER_SIZE = "grabberSize";
 		public static final String KEY_CONNECTOR_BOUNDS_RATE = "connectorBoundsRate";
 		public static final String KEY_CSS_CLASS = "cssClass";
 		public static final String KEY_CONNECTIVE = "connective";
@@ -185,8 +187,9 @@ public class BhParams {
 		public static final String KEY_TEXT_FIELD = "textField";
 		public static final String KEY_LABEL = "label";
 		public static final String KEY_COMBO_BOX = "comboBox";
-		public static final String KEY_WHITE_SPACE_MATGIN = "whiteSpaceMargin";
-		public static final String KEY_MIN_WHITE_SPACE = "minWhiteSpace";
+		public static final String KEY_TEXT_AREA = "textArea";
+		public static final String KEY_MIN_WIDTH = "minWidth";
+		public static final String KEY_MIN_HEIGHT = "minHeight";
 		public static final String KEY_BACK_GROUND_COLOR = "backGroundColor";
 		public static final String KEY_FONT_SIZE = "fontSize";
 		public static final String KEY_FONT_FAMILY = "fontFamily";
@@ -255,6 +258,7 @@ public class BhParams {
 		public static final String CLASS_VOID_NODE = "voidNode";
 		public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";
 		public static final String CLASS_TEXT_FIELD_NODE = "textFieldNode";
+		public static final String CLASS_TEXT_AREA_NODE = "textAreaNode";
 		public static final String CLASS_LABEL_NODE = "labelNode";
 		public static final String CLASS_NO_CONTENT_NODE = "labelNode";
 		public static final String CLASS_CONNECTIVE_NODE = "ConnectiveNode";

@@ -83,6 +83,8 @@ public class WorkspaceController implements MsgProcessor {
 
 		Vec2D mousePressedPos = new Vec2D(0.0, 0.0);
 
+		// WSをクリックしたときにテキストフィールドのカーソルが消えなくなるので, マウスイベントをconsumeしない.
+
 		// マウスボタン押下
 		view.setOnMousePressedHandler(
 			mouseEvent -> {
@@ -96,7 +98,6 @@ public class WorkspaceController implements MsgProcessor {
 				mousePressedPos.x = mouseEvent.getX();
 				mousePressedPos.y = mouseEvent.getY();
 				view.showSelectionRectangle(mousePressedPos, mousePressedPos);
-				mouseEvent.consume();
 			});
 
 		// マウスドラッグ
@@ -152,8 +153,6 @@ public class WorkspaceController implements MsgProcessor {
 				}
 				BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 			});
-
-
 	}
 
 	/**

@@ -10,8 +10,8 @@
 	"connectorHeight" : 0.0,
 	"connectorShape" : "NONE",
 	"connectorBoundsRate" : 0.0,
-    
-    "textField" : {
-		"minWidth": 4.0
+
+	"textArea" : {
+		"minWidth" : 4
 	}
 }

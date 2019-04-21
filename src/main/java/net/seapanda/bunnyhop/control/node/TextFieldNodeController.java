@@ -18,7 +18,9 @@ package net.seapanda.bunnyhop.control.node;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.view.node.TextAreaNodeView;
 import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
+import net.seapanda.bunnyhop.view.node.TextInputNodeView;
 
 /**
  * TextNodeとTextFieldNodeViewのコントローラ
@@ -27,9 +29,19 @@ import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
 public class TextFieldNodeController extends BhNodeController {
 
 	private final TextNode model;	//!< 管理するモデル
-	private final TextFieldNodeView view;	//!< 管理するビュー
+	private final TextInputNodeView view;	//!< 管理するビュー
 
 	public TextFieldNodeController(TextNode model, TextFieldNodeView view) {
+		super(model, view);
+		this.model = model;
+		this.view = view;
+		if (model.isImitationNode())
+			view.setEditable(false);
+		setTextChangeHandler(model, view);
+		view.setCreateImitHandler(model);
+	}
+
+	public TextFieldNodeController(TextNode model, TextAreaNodeView view) {
 		super(model, view);
 		this.model = model;
 		this.view = view;
@@ -44,7 +56,7 @@ public class TextFieldNodeController extends BhNodeController {
 	 * @param model TextNodeView に対応する model
 	 * @param view イベントハンドラを登録するview
 	 * */
-	static public void setTextChangeHandler(TextNode model, TextFieldNodeView view) {
+	static public void setTextChangeHandler(TextNode model, TextInputNodeView view) {
 
 		view.setTextChangeListener(model::isTextAcceptable);
 
@@ -61,12 +73,12 @@ public class TextFieldNodeController extends BhNodeController {
 				}
 			}
 		});
-		
+
 		String initText = model.getText();
 		view.setText(initText + " ");	//初期文字列が空文字だったときのため
-		view.setText(initText);			
+		view.setText(initText);
 	}
-	
+
 	/**
 	 * 受信したメッセージを処理する
 	 * @param msg メッセージの種類
@@ -75,7 +87,7 @@ public class TextFieldNodeController extends BhNodeController {
 	 * */
 	@Override
 	public MsgData processMsg(BhMsg msg, MsgData data) {
-	
+
 		switch (msg) {
 			case IMITATE_TEXT:
 				model.setText(data.strPair._1);
@@ -84,10 +96,10 @@ public class TextFieldNodeController extends BhNodeController {
 				view.setText(data.strPair._2);
 				view.setEditable(editable);
 				break;
-			
+
 			case GET_MODEL_AND_VIEW_TEXT:
 				return new MsgData(model.getText(), view.getText());
-				
+
 			default:
 				return super.processMsg(msg, data);
 		}

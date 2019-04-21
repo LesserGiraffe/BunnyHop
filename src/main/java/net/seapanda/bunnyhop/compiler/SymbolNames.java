@@ -144,6 +144,7 @@ public class SymbolNames {
 		public static final String ANY_ARRAY_PUSH_STAT = "AnyArrayPushStat";
 		public static final String ANY_ARRAY_REMOVE_STAT = "AnyArrayRemoveStat";
 		public static final String ANY_ARRAY_SET_STAT = "AnyArraySetStat";
+		public static final String COMMENT_PART = "CommentPart";
 
 
 		public static final HashSet<String> LIST = new HashSet<>(Arrays.asList(
@@ -154,7 +155,8 @@ public class SymbolNames {
 			ANY_ARRAY_POP_STAT,
 			ANY_ARRAY_PUSH_STAT,
 			ANY_ARRAY_REMOVE_STAT,
-			ANY_ARRAY_SET_STAT));
+			ANY_ARRAY_SET_STAT,
+			COMMENT_PART));
 	}
 
 	public static class AssignStat {

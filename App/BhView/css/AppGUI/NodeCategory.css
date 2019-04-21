@@ -159,3 +159,17 @@
 	-fx-background: derive(eventTypeCol, 50%);
 	-fx-border-color: black;
 }
+
+/*------------------- misc ---------------*/
+#categoryTree .misc {
+	-fx-background: derive(miscTypeCol, 0%);
+	-fx-border-color: black;
+	-fx-text-fill: white;
+}
+
+#categoryTree .misc:hover {
+	-fx-background: derive(miscTypeCol, 50%);
+	-fx-border-color: black;
+}
+
+

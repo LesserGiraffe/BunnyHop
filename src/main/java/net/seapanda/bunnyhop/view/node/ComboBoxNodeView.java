@@ -36,9 +36,9 @@ import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Single;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.view.ViewHelper;
 
 /**
  * コンボボックスを入力フォームに持つビュー
@@ -61,58 +61,28 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 	 * 初期化する
 	 * @param isTemplate ノード選択パネルに表示されるノードであった場合true
 	 */
-	public void init(boolean isTemplate) {
+	public boolean init(boolean isTemplate) {
 
 		initialize();
-		String inputControlFileName = BhNodeViewStyle.nodeID_inputControlFileName.get(model.getID());
-		if (inputControlFileName != null) {
-			Path filePath = FXMLCollector.INSTANCE.getFilePath(inputControlFileName);
-			try {
-				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
-				comboBox = (ComboBox<SelectableItem>)loader.load();
-			} catch (IOException | ClassCastException e) {
-				MsgPrinter.INSTANCE.errMsgForDebug("failed to initialize " + ComboBoxNodeView.class.getSimpleName() + "\n" + e.toString());
-			}
-		}
+		boolean success = loadComponent();
 		getChildren().add(comboBox);
-		comboBox.addEventFilter(MouseEvent.ANY, event -> {
-			getEventManager().propagateEvent(event);
-			if (isTemplate || dragged.content)
-				event.consume();
-
-			if (event.getEventType().equals(MouseEvent.DRAG_DETECTED))
-				dragged.content = true;
-			else if (event.getEventType().equals(MouseEvent.MOUSE_RELEASED))
-				dragged.content = false;
-		});
 
 		if (model.getImitationInfo().canCreateImitManually) {
-			imitCreateImitBtn = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
-			if (imitCreateImitBtn != null)
-				getChildren().add(imitCreateImitBtn);
+			Optional<Button> btnOpt = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
+			success &= btnOpt.isPresent();
+			imitCreateImitBtn = btnOpt.orElse(new Button());
+			getChildren().add(imitCreateImitBtn);
 		}
 		initStyle(viewStyle);
 		setFuncs(this::updateShape, null);
+		setComboBoxEventHandlers(isTemplate);
 
-		comboBox.setButtonCell(buttonCell);
-		comboBox.setOnShowing(event -> {
-			List<String> itemTextList = new ArrayList<>();
-			comboBox.getItems().forEach(item -> itemTextList.add(item.getViewText()));
-			double maxWidth = calcMaxStrWidth(itemTextList, buttonCell.fontProperty().get());
-			ScrollBar scrollBar = getVerticalScrollbar();
-			if (scrollBar != null)
-				maxWidth += scrollBar.getWidth();
-			maxWidth += buttonCell.getInsets().getLeft() + buttonCell.getInsets().getRight();
-			maxWidth += buttonCell.getPadding().getLeft() + buttonCell.getPadding().getRight();
-			buttonCell.getListView().setPrefWidth(maxWidth);
-		});
-		comboBox.setOnHidden(event->{
-			fitComboBoxWidthToStr(comboBox.getValue().getViewText(), buttonCell.getFont());
-		});
+		return success;
 	}
 
 	private void initStyle(BhNodeViewStyle viewStyle) {
 
+		comboBox.setButtonCell(buttonCell);
 		comboBox.setTranslateX(viewStyle.paddingLeft);
 		comboBox.setTranslateY(viewStyle.paddingTop);
 		comboBox.getStyleClass().add(viewStyle.comboBox.cssClass);
@@ -122,6 +92,27 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 			comboBox.setValue(comboBox.getItems().get(0));
 		}
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_COMBO_BOX_NODE);
+	}
+
+	/**
+	 * GUI部品をロードする
+	 * @return ロードに成功した場合 true. 失敗した場合 false.
+	 * */
+	private boolean loadComponent() {
+
+		String inputControlFileName = BhNodeViewStyle.nodeID_inputControlFileName.get(model.getID());
+		if (inputControlFileName != null) {
+			Path filePath = FXMLCollector.INSTANCE.getFilePath(inputControlFileName);
+			try {
+				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
+				comboBox = (ComboBox<SelectableItem>)loader.load();
+			} catch (IOException | ClassCastException e) {
+				MsgPrinter.INSTANCE.errMsgForDebug(
+					"failed to initialize " + ComboBoxNodeView.class.getSimpleName() + "\n" + e.toString());
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -232,7 +223,7 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 
 		double width = 0.0;
 		for (String str : strList) {
-			double strWidth = Util.INSTANCE.calcStrWidth(str, font);
+			double strWidth = ViewHelper.INSTANCE.calcStrWidth(str, font);
 			width = Math.max(width, strWidth);
 		}
 		return width;
@@ -241,6 +232,39 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 	@Override
 	public Button imitCreateButton() {
 		return imitCreateImitBtn;
+	}
+
+	/**
+	 * コンボボックスに関連するイベントハンドラを設定する.
+	 * */
+	private void setComboBoxEventHandlers(boolean isTemplate) {
+
+		comboBox.addEventFilter(MouseEvent.ANY, event -> {
+			getEventManager().propagateEvent(event);
+			if (isTemplate || dragged.content)
+				event.consume();
+
+			if (event.getEventType().equals(MouseEvent.DRAG_DETECTED))
+				dragged.content = true;
+			else if (event.getEventType().equals(MouseEvent.MOUSE_RELEASED))
+				dragged.content = false;
+		});
+
+		comboBox.setOnShowing(event -> {
+			List<String> itemTextList = new ArrayList<>();
+			comboBox.getItems().forEach(item -> itemTextList.add(item.getViewText()));
+			double maxWidth = calcMaxStrWidth(itemTextList, buttonCell.fontProperty().get());
+			ScrollBar scrollBar = getVerticalScrollbar();
+			if (scrollBar != null)
+				maxWidth += scrollBar.getWidth();
+			maxWidth += buttonCell.getInsets().getLeft() + buttonCell.getInsets().getRight();
+			maxWidth += buttonCell.getPadding().getLeft() + buttonCell.getPadding().getRight();
+			buttonCell.getListView().setPrefWidth(maxWidth);
+		});
+
+		comboBox.setOnHidden(event->{
+			fitComboBoxWidthToStr(comboBox.getValue().getViewText(), buttonCell.getFont());
+		});
 	}
 
 	/**
@@ -267,7 +291,7 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 	 * コンボボックスの幅を文字列幅に合わせる
 	 * */
 	private void fitComboBoxWidthToStr(String currentStr, Font font) {
-		double width = Util.INSTANCE.calcStrWidth(currentStr, font);
+		double width = ViewHelper.INSTANCE.calcStrWidth(currentStr, font);
 		width += buttonCell.getInsets().getLeft() + buttonCell.getInsets().getRight();
 		width += buttonCell.getPadding().getLeft() + buttonCell.getPadding().getRight();
 		buttonCell.getListView().setPrefWidth(width);

@@ -17,6 +17,7 @@ package net.seapanda.bunnyhop.view.node;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -45,28 +46,22 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 	/**
 	 * 初期化する
 	 */
-	public void init() {
+	public boolean init() {
 
 		initialize();
-		String inputControlFileName = BhNodeViewStyle.nodeID_inputControlFileName.get(model.getID());
-		if (inputControlFileName != null) {
-			Path filePath = FXMLCollector.INSTANCE.getFilePath(inputControlFileName);
-			try {
-				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
-				label = (Label)loader.load();
-			} catch (IOException | ClassCastException e) {
-				MsgPrinter.INSTANCE.errMsgForDebug("failed to initialize " + LabelNodeView.class.getSimpleName() + "\n" + e.toString());
-			}
-		}
+		boolean success = loadComponent();
 		getChildren().add(label);
 
 		if (model.getImitationInfo().canCreateImitManually) {
-			imitCreateImitBtn = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
-			if (imitCreateImitBtn != null)
-				getChildren().add(imitCreateImitBtn);
+			Optional<Button> btnOpt = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
+			success &= btnOpt.isPresent();
+			imitCreateImitBtn = btnOpt.orElse(new Button());
+			getChildren().add(imitCreateImitBtn);
 		}
+
 		initStyle(viewStyle);
 		setFuncs(this::updateShape, null);
+		return success;
 	}
 
 	private void initStyle(BhNodeViewStyle viewStyle) {
@@ -80,6 +75,28 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 		label.widthProperty().addListener(newValue -> getAppearanceManager().updateAppearance(null));
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_LABEL_NODE);
 	}
+
+	/**
+	 * GUI部品をロードする
+	 * @return ロードに成功した場合 true. 失敗した場合 false.
+	 * */
+	private boolean loadComponent() {
+
+		String inputControlFileName = BhNodeViewStyle.nodeID_inputControlFileName.get(model.getID());
+		if (inputControlFileName != null) {
+			Path filePath = FXMLCollector.INSTANCE.getFilePath(inputControlFileName);
+			try {
+				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
+				label = (Label)loader.load();
+			} catch (IOException | ClassCastException e) {
+				MsgPrinter.INSTANCE.errMsgForDebug(
+					"failed to initialize " + LabelNodeView.class.getSimpleName() + "\n" + e.toString());
+				return false;
+			}
+		}
+		return false;
+	}
+
 
 	/**
 	 * このビューのモデルであるBhNodeを取得する

@@ -24,8 +24,9 @@ import javafx.beans.value.ChangeListener;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
@@ -34,17 +35,13 @@ import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.ViewHelper;
 
-/**
- * テキストフィールドを入力フォームに持つビュー
- * @author K.Koike
- */
-public class TextFieldNodeView extends BhNodeView implements TextInputNodeView, ImitationCreator {
+public class TextAreaNodeView  extends BhNodeView implements TextInputNodeView, ImitationCreator {
 
-	private TextField textField = new TextField();
+	private TextArea textArea = new TextArea();
 	private final TextNode model;
 	private Button imitCreateImitBtn;	//!< イミテーション作成ボタン
 
-	public TextFieldNodeView(TextNode model, BhNodeViewStyle viewStyle) {
+	public TextAreaNodeView(TextNode model, BhNodeViewStyle viewStyle) {
 		super(viewStyle, model);
 		this.model = model;
 	}
@@ -57,9 +54,9 @@ public class TextFieldNodeView extends BhNodeView implements TextInputNodeView, 
 
 		initialize();
 		boolean success = loadComponent();
-		getChildren().add(textField);
+		getChildren().add(textArea);
 
-		textField.addEventFilter(MouseEvent.ANY, event -> {
+		textArea.addEventFilter(MouseEvent.ANY, event -> {
 			getEventManager().propagateEvent(event);
 			if (isTemplate)
 				event.consume();
@@ -79,14 +76,18 @@ public class TextFieldNodeView extends BhNodeView implements TextInputNodeView, 
 
 	private void initStyle(BhNodeViewStyle viewStyle) {
 
-		textField.setTranslateX(viewStyle.paddingLeft);
-		textField.setTranslateY(viewStyle.paddingTop);
-		textField.getStyleClass().add(viewStyle.textField.cssClass);
-		textField.heightProperty().addListener(observable -> getAppearanceManager().updateAppearance(null));
-		textField.widthProperty().addListener(observable -> getAppearanceManager().updateAppearance(null));
-		textField.setMaxWidth(USE_PREF_SIZE);
-		textField.setMinWidth(USE_PREF_SIZE);
-		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_TEXT_FIELD_NODE);
+		textArea.setTranslateX(viewStyle.paddingLeft);
+		textArea.setTranslateY(viewStyle.paddingTop);
+		textArea.getStyleClass().add(viewStyle.textArea.cssClass);
+		textArea.setWrapText(false);
+		textArea.heightProperty().addListener((observable, oldVal , newVal) ->
+			getAppearanceManager().updateAppearance(null));
+		textArea.widthProperty().addListener((observable, oldVal , newVal) ->
+			getAppearanceManager().updateAppearance(null));
+		textArea.setWrapText(false);
+		textArea.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
+		textArea.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
+		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_TEXT_AREA_NODE);
 	}
 
 	/**
@@ -96,14 +97,14 @@ public class TextFieldNodeView extends BhNodeView implements TextInputNodeView, 
 	private boolean loadComponent() {
 
 		String inputControlFileName = BhNodeViewStyle.nodeID_inputControlFileName.get(model.getID());
-		if (inputControlFileName != null) {
+		if (inputControlFileName == null) {
 			Path filePath = FXMLCollector.INSTANCE.getFilePath(inputControlFileName);
 			try {
 				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
-				textField = (TextField)loader.load();
+				textArea = (TextArea)loader.load();
 			} catch (IOException | ClassCastException e) {
 				MsgPrinter.INSTANCE.errMsgForDebug(
-					"failed to initialize " + TextFieldNodeView.class.getSimpleName() + "\n" + e.toString());
+					"failed to initialize " + TextAreaNodeView.class.getSimpleName() + "\n" + e.toString());
 				return false;
 			}
 		}
@@ -115,49 +116,67 @@ public class TextFieldNodeView extends BhNodeView implements TextInputNodeView, 
 		return model;
 	}
 
-	@Override
+	/**
+	 * テキスト変更時のイベントハンドラを登録する
+	 * @param checkFormatFunc 入力された文字列の形式が正しいかどうか判断する関数 (テキスト変更時のイベントハンドラから呼び出す)
+	 * */
 	public void setTextChangeListener(Function<String, Boolean> checkFormatFunc) {
 
-		textField.boundsInLocalProperty().addListener(
-			(observable, oldVal, newVal) -> updateTextFieldLook(checkFormatFunc));
+		textArea.boundsInLocalProperty().addListener(
+			(observable, oldVal, newVal) -> updateTextAreaLook(checkFormatFunc));
 
-		// テキストの長さに応じてTextField の長さが変わるように
-		textField.textProperty().addListener(
-			(observable, oldVal, newVal) ->	updateTextFieldLook(checkFormatFunc));
+		// テキストの長さに応じてTextArea のサイズが変わるように
+		textArea.textProperty().addListener(
+			(observable, oldVal, newVal) ->	updateTextAreaLook(checkFormatFunc));
 	}
 
 	/**
-	 * テキストフィールドの見た目を変える
+	 * テキストエリアの見た目を変える
 	 * @param checkFormatFunc テキストのフォーマットをチェックする関数
+	 * @param text このテキストに基づいてテキストエリアの見た目を変える
 	 * */
-	private void updateTextFieldLook(Function<String, Boolean> checkFormatFunc) {
+	private void updateTextAreaLook(Function<String, Boolean> checkFormatFunc) {
 
-		Text textPart = (Text)textField.lookup(".text");
-		if (textPart != null){
+		Text textPart = (Text)textArea.lookup(".text");
+		Region content = (Region)textArea.lookup(".content");
+		if (textPart != null && content != null){
 
 			// 正確な文字部分の境界を取得するため, GUI部品内部のTextの境界は使わない.
-			double newWidth = ViewHelper.INSTANCE.calcStrWidth(textPart.getText(), textPart.getFont());
-			newWidth = Math.max(newWidth, viewStyle.textField.minWidth);
-			//幅を (文字幅 + パディング) にするとキャレットの移動時に文字が左右に移動するので定数 2 を足す.
+			Vec2D textBounds = ViewHelper.INSTANCE.calcStrBounds(
+				textPart.getText(),
+				textPart.getFont(),
+				textPart.getBoundsType(),
+				textPart.getLineSpacing());
+
+			double newWidth = Math.max(textBounds.x, viewStyle.textArea.minWidth);
+			//幅を (文字幅 + パディング) にするとwrapの設定によらず文字列が折り返してしまういことがあるので定数3を足す
 			//この定数はフォントやパディングが違っても機能する.
-			newWidth += textField.getPadding().getLeft() + textField.getPadding().getRight() + 2;
-			textField.setPrefWidth(newWidth);
+			newWidth += content.getPadding().getLeft() + content.getPadding().getRight() + 3;
+			double newHeight = Math.max(textBounds.y, viewStyle.textArea.minHeight);
+			newHeight += content.getPadding().getTop() + content.getPadding().getBottom() + 2;
+			//textArea.setMaxSize(newWidth, newHeight);
+			textArea.setPrefSize(newWidth, newHeight);
+
 			boolean acceptable = checkFormatFunc.apply(textPart.getText());
 			if (acceptable)
-				textField.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), false);
+				textArea.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), false);
 			else
-				textField.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), true);
+				textArea.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), true);
 		}
 	}
 
+	/**
+	 * テキストフィールドのカーソルon/off時のイベントハンドラを登録する
+	 * @param changeFocusFunc テキストフィールドのカーソルon/off時のイベントハンドラ
+	 * */
 	public void setObservableListener(ChangeListener<? super Boolean> changeFocusFunc) {
-		textField.focusedProperty().addListener(changeFocusFunc);
+		textArea.focusedProperty().addListener(changeFocusFunc);
 	}
 
 	@Override
 	public void show(int depth) {
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<" + this.getClass().getSimpleName() + ">   " + this.hashCode());
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<content" + ">   " + textField.getText());
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<content" + ">   " + textArea.getText());
 	}
 
 	/**
@@ -165,8 +184,8 @@ public class TextFieldNodeView extends BhNodeView implements TextInputNodeView, 
 	 * */
 	private void updateShape(BhNodeViewGroup child) {
 
-		viewStyle.width = textField.getWidth();
-		viewStyle.height = textField.getHeight();
+		viewStyle.width = textArea.getWidth();
+		viewStyle.height = textArea.getHeight();
 		getAppearanceManager().updatePolygonShape();
 		if (parent.get() != null) {
 			parent.get().rearrangeChild();
@@ -179,22 +198,22 @@ public class TextFieldNodeView extends BhNodeView implements TextInputNodeView, 
 
 	@Override
 	public String getText() {
-		return textField.getText();
+		return textArea.getText();
 	}
 
 	@Override
 	public void setText(String text) {
-		textField.setText(text);
+		textArea.setText(text);
 	}
 
 	@Override
 	public void setEditable(boolean editable) {
-		textField.setEditable(editable);
+		textArea.setEditable(editable);
 	}
 
 	@Override
 	public boolean getEditable() {
-		return textField.editableProperty().getValue();
+		return textArea.editableProperty().getValue();
 	}
 
 	@Override
@@ -202,3 +221,20 @@ public class TextFieldNodeView extends BhNodeView implements TextInputNodeView, 
 		return imitCreateImitBtn;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

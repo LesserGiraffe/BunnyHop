@@ -22,9 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-
 /**
  * @author K.Koike
  */
@@ -79,18 +76,6 @@ public class Util {
 			return whole.equals(part);
 
 		return whole.contains(part.substring(0, part.indexOf('*')));
-	}
-
-	/**
-	 * 引数で指定した文字列の表示幅を計算する
-	 * @param str 表示幅を計算する文字列
-	 * @param font 表示時のフォント
-	 * @return 文字列を表示したときの幅
-	 */
-	public double calcStrWidth(String str, Font font) {
-        Text text = new Text(str);
-        text.setFont(font);
-		return text.getBoundsInLocal().getWidth();
 	}
 
 	/**

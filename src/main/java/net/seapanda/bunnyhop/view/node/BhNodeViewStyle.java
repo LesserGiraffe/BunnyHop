@@ -106,8 +106,7 @@ public class BhNodeViewStyle {
 	TextField textField = new TextField();
 
 	public static class TextField {
-		public double whiteSpaceMargin = 0; //!< 入力されたテキストの後に付くwhite space の数
-		public double minWhiteSpace = 5; //!< テキストーフィールドの最小幅 (white space 換算)
+		public double minWidth = 0 * BhParams.LnF.NODE_SCALE;
 		public String cssClass = "defaultTextField";
 	}
 
@@ -122,6 +121,15 @@ public class BhNodeViewStyle {
 	public static class ComboBox {
 		public String cssClass = "defaultComboBox";
 	}
+
+	TextArea textArea = new TextArea();
+
+	public static class TextArea {
+		public double minWidth = 4 * BhParams.LnF.NODE_SCALE;
+		public double minHeight = 3 * BhParams.LnF.NODE_SCALE;
+		public String cssClass = "defaultTextArea";
+	}
+
 
 	Imitation imitation = new Imitation();
 
@@ -181,11 +189,13 @@ public class BhNodeViewStyle {
 		this.connective.inner.copy(org.connective.inner);
 		this.connective.outer.copy(org.connective.outer);
 		this.cssClass = org.cssClass;
-		this.textField.whiteSpaceMargin = org.textField.whiteSpaceMargin;
-		this.textField.minWhiteSpace = org.textField.minWhiteSpace;
+		this.textField.minWidth = org.textField.minWidth;
 		this.textField.cssClass = org.textField.cssClass;
 		this.label.cssClass = org.label.cssClass;
 		this.comboBox.cssClass = org.comboBox.cssClass;
+		this.textArea.minWidth = org.textArea.minWidth;
+		this.textArea.minHeight = org.textArea.minHeight;
+		this.textArea.cssClass = org.textArea.cssClass;
 		this.imitation.cssClass = org.imitation.cssClass;
 		this.imitation.buttonPosX = org.imitation.buttonPosX;
 		this.imitation.buttonPosY = org.imitation.buttonPosY;
@@ -429,6 +439,12 @@ public class BhNodeViewStyle {
 		comboBoxOpt.ifPresent(
 			comboBox -> fillComboBoxParams(bhNodeViewStyle.comboBox, (NativeObject) comboBox, fileName));
 
+		//textArea
+		Optional<Object> textAreaOpt =
+			readValue(BhParams.NodeStyleDef.KEY_TEXT_AREA, NativeObject.class, jsonObj, fileName);
+		textAreaOpt.ifPresent(
+			textArea -> fillTextAreaParams(bhNodeViewStyle.textArea, (NativeObject)textArea, fileName));
+
 		//imitation
 		Optional<Object> imitationOpt =
 			readValue(BhParams.NodeStyleDef.KEY_IMITATION, NativeObject.class, jsonObj, fileName);
@@ -577,17 +593,13 @@ public class BhNodeViewStyle {
 		NativeObject jsonObj,
 		String fileName) {
 
-		//whiteSpaceMargin
-		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_WHITE_SPACE_MATGIN, Number.class, jsonObj, fileName);
-		val.ifPresent(wsMargine -> textField.whiteSpaceMargin = ((Number) wsMargine).doubleValue());
-
-		//minWhiteSpace
-		val = readValue(BhParams.NodeStyleDef.KEY_MIN_WHITE_SPACE, Number.class, jsonObj, fileName);
-		val.ifPresent(minWS -> textField.minWhiteSpace = ((Number) minWS).doubleValue());
-
 		//cssClass
-		val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
+		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
 		val.ifPresent(textCssClass -> textField.cssClass = (String) textCssClass);
+
+		//minWidth
+		val = readValue(BhParams.NodeStyleDef.KEY_MIN_WIDTH, Number.class, jsonObj, fileName);
+		val.ifPresent(minWidth -> textField.minWidth = ((Number) minWidth).doubleValue() * BhParams.LnF.NODE_SCALE);
 	}
 
 	/**
@@ -619,6 +631,32 @@ public class BhNodeViewStyle {
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
 		val.ifPresent(comboBoxCssClass -> comboBox.cssClass = (String) comboBoxCssClass);
 	}
+
+	/**
+	 * BhNodeViewStyle.TextArea を埋める
+	 * @param textArea jsonオブジェクトから読み取った内容を格納するオブジェクト
+	 * @param jsonObj key = "textArea" の value であるオブジェクト
+	 * @param fileName jsonObj が記述してある .json ファイルの名前
+	 * */
+	private static void fillTextAreaParams(
+		BhNodeViewStyle.TextArea textArea,
+		NativeObject jsonObj,
+		String fileName) {
+
+		//cssClass
+		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
+		val.ifPresent(textAreaCssClass -> textArea.cssClass = (String)textAreaCssClass);
+
+		//minWidth
+		val = readValue(BhParams.NodeStyleDef.KEY_MIN_WIDTH, Number.class, jsonObj, fileName);
+		val.ifPresent(minWidth -> textArea.minWidth = ((Number) minWidth).doubleValue() * BhParams.LnF.NODE_SCALE);
+
+		//minHeight
+		val = readValue(BhParams.NodeStyleDef.KEY_MIN_HEIGHT, Number.class, jsonObj, fileName);
+		val.ifPresent(minHeight -> textArea.minHeight = ((Number) minHeight).doubleValue() * BhParams.LnF.NODE_SCALE);
+	}
+
+
 
 	/**
 	 * Json オブジェクトからエラーチェック付きで Value を読む
