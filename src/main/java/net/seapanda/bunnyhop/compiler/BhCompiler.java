@@ -169,6 +169,7 @@ public class BhCompiler {
 			"'" + BhProgramData.EVENT.PROGRAM_START.toString() + "'");
 		addEventCallStat += ";" + Util.INSTANCE.LF;
 		code.append(common.indent(1)).append(addEventCallStat).append(Util.INSTANCE.LF);
+		genCodeForInit(code, 1, option);
 	}
 
 	/**
@@ -187,7 +188,25 @@ public class BhCompiler {
 		return true;
 	}
 
+	/**
+	 * プログラム開始前の初期化用コードを生成する
+	 * @param code 生成したコードの格納先
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 */
+	public void genCodeForInit(
+		StringBuilder code,
+		int nestLevel,
+		CompileOption option) {
 
+		// プログラム開始時刻の更新
+		code.append(common.indent(nestLevel))
+			.append(CommonCodeDefinition.Vars.PROGRAM_STARTING_TIME)
+			.append(" = ")
+			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.CURRENT_TIME_MILLS))
+			.append(";")
+			.append(Util.INSTANCE.LF);
+	}
 
 	public static class Keywords {
 		public static final String varPrefix = "_v";

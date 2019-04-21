@@ -14,10 +14,12 @@
 	let _jStandardOpenOption = java.nio.file.StandardOpenOption;
 	let _jReflectArray = java.lang.reflect.Array;
 	let _jClass = java.lang.Class;
+	let _jSystem = java.lang.System;
 
 	let _eventHandlers = {};
 	let _executor = _jExecutors.newFixedThreadPool(16);
 	let _anyObj = {};
+	let _programStartingTime = _currentTimeMillis();
 
 	function _genCallObj() {
 		return {_outArgs:[]};
@@ -106,6 +108,14 @@
 		bhInout.println(str);
 		let input = bhInout.scan();
 		return (input === null) ? "" : String(input);
+	}
+
+	function _currentTimeMillis() {
+		return _jSystem.currentTimeMillis();
+	}
+
+	function getTimeSinceProgramStarted() {
+		return _currentTimeMillis() - _programStartingTime;
 	}
 
 	let _getSerialNo = (function () {

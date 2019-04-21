@@ -215,7 +215,6 @@ final public class VarDeclCodeGenerator {
 			code.append(" = (")
 				.append(initExp)
 				.append(");").append(Util.INSTANCE.LF);
-
 		}
 		else {
 			code.append(";").append(Util.INSTANCE.LF);

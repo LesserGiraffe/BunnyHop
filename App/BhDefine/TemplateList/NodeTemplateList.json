@@ -9,7 +9,8 @@
 			"idPlaySoundListStat",
 			"idSleepStat",
 			"idSayStat",
-			"idLightEyeStat"]
+			"idLightEyeStat",
+			"idGetTimeSinceProgramStartedExp"]
 	},
 
 	"数値" : {
@@ -24,7 +25,8 @@
 			"idAbsExp",
 			"idNegExp",
 			"idMaxMinExp",
-			"idMeasureDistanceExp"]
+			"idMeasureDistanceExp",
+			"idGetTimeSinceProgramStartedExp"]
 	},
 
 	"文字列": {

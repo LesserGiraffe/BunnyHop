@@ -35,6 +35,10 @@ import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.ViewHelper;
 
+/**
+ * テキストエリアを入力フォームに持つビュー
+ * @author K.Koike
+ */
 public class TextAreaNodeView  extends BhNodeView implements TextInputNodeView, ImitationCreator {
 
 	private TextArea textArea = new TextArea();

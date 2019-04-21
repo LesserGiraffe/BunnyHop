@@ -23,7 +23,7 @@ import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
 
 /**
- * 特定の領域内での移動先を計算するクラス
+ * Viewの処理を補助する機能を定義したクラス
  * @author K.Koike
  * */
 public class ViewHelper {

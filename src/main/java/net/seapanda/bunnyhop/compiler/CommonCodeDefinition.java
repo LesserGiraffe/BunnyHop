@@ -62,6 +62,8 @@ public class CommonCodeDefinition {
 		public static final String CREATE_COLOR_FROM_NAME = "_createColorFromName";
 		public static final String PUSH_SOUND = "_pushSound";
 		public static final String IS_FINITE = "isFinite";
+		public static final String CURRENT_TIME_MILLS = "_currentTimeMillis";
+		public static final String GET_TIME_SINCE_PROGRAM_STARTED = "getTimeSinceProgramStarted";
 	}
 
 	public static class Properties {
@@ -73,5 +75,6 @@ public class CommonCodeDefinition {
 		public static final String CALL_OBJ  = "_callObj";
 		public static final String NIL_SOUND  = "_nilSound";
 		public static final String NIL_COLOR = "_nilColor";
+		public static final String PROGRAM_STARTING_TIME = "_programStartingTime";
 	}
 }
