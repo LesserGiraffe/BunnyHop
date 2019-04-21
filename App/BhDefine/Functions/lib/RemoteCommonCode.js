@@ -71,6 +71,7 @@
 
 	function _say(word) {
 
+		word = word.replace(/\r?\n/g, ' ');
 		if (word === '')
 			return;
 
