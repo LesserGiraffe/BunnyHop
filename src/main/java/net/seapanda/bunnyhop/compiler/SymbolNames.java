@@ -286,6 +286,8 @@ public class SymbolNames {
 		public static final String BINARY_COLOR_EXP = "BinaryColorExp";
 		public static final String DETECT_COLOR_EXP = "DetectColorExp";
 		public static final String GET_TIME_SINCE_PROGRAM_STARTED_EXP = "GetTimeSinceProgramStartedExp";
+		public static final String STR_CHAIN_LINK_EXP = "StrChainLinkExp";
+		public static final String STR_CHAIN_EXP = "StrChainExp";
 		public static final String PRINT_STAT = "PrintStat";
 		public static final String PRINT_NUM_STAT = "PrintNumStat";
 		public static final String MOVE_STAT = "MoveStat";
@@ -326,6 +328,8 @@ public class SymbolNames {
 				BINARY_COLOR_EXP,
 				DETECT_COLOR_EXP,
 				GET_TIME_SINCE_PROGRAM_STARTED_EXP,
+				STR_CHAIN_LINK_EXP,
+				STR_CHAIN_EXP,
 
 				Array.NUM_ARRAY_GET_EXP,
 				Array.NUM_ARRAY_GET_LAST_EXP,
@@ -412,6 +416,8 @@ public class SymbolNames {
 				put(Arrays.asList(BINARY_COLOR_EXP, OPT_SUB), CommonCodeDefinition.Funcs.SUB_COLOR);
 				put(Arrays.asList(DETECT_COLOR_EXP), CommonCodeDefinition.Funcs.DETECT_COLOR);
 				put(Arrays.asList(GET_TIME_SINCE_PROGRAM_STARTED_EXP), CommonCodeDefinition.Funcs.GET_TIME_SINCE_PROGRAM_STARTED);
+				put(Arrays.asList(STR_CHAIN_LINK_EXP), CommonCodeDefinition.Funcs.STRCAT);
+				put(Arrays.asList(STR_CHAIN_EXP), CommonCodeDefinition.Funcs.IDENTITY);
 				put(Arrays.asList(MOVE_STAT, OPT_MOVE_FORWARD), CommonCodeDefinition.Funcs.MOVE_FORWARD);
 				put(Arrays.asList(MOVE_STAT, OPT_MOVE_BACKWARD), CommonCodeDefinition.Funcs.MOVE_BACKWARD);
 				put(Arrays.asList(MOVE_STAT, OPT_TURN_RIGHT), CommonCodeDefinition.Funcs.TURN_RIGHT);
@@ -518,6 +524,7 @@ public class SymbolNames {
 		public static final String COLOR_LITERAL = "ColorLiteral";
 		public static final String SOUND_LITERAL_VOID = "SoundLiteralVoid";
 		public static final String MELODY_EXP_VOID = "MelodyExpVoid";
+		public static final String STR_CHAIN_LINK_VOID = "StrChainLinkVoid";
 		public static final String STR_EMPTY_LIST = VarDecl.STR_EMPTY_LIST;
 		public static final String NUM_EMPTY_LIST = VarDecl.NUM_EMPTY_LIST;
 		public static final String BOOL_EMPTY_LIST = VarDecl.BOOL_EMPTY_LIST;
@@ -545,15 +552,16 @@ public class SymbolNames {
 				COLOR_EMPTY_LIST,
 				SOUND_EMPTY_LIST,
 				ANY_ENPTY_LIST,
-				MELODY_EXP_VOID));
+				MELODY_EXP_VOID,
+				STR_CHAIN_LINK_VOID));
 
 		public static final HashSet<String> LITERAL_EXP_LIST =
-				new HashSet<>(Arrays.asList(
-					STR_LITERAL_EXP,
-					LINE_FEED,
-					NUM_LITERAL_EXP,
-					BOOL_LITERAL_EXP,
-					COLOR_LITERAL_EXP));
+			new HashSet<>(Arrays.asList(
+				STR_LITERAL_EXP,
+				LINE_FEED,
+				NUM_LITERAL_EXP,
+				BOOL_LITERAL_EXP,
+				COLOR_LITERAL_EXP));
 
 		public static final HashSet<String> ARRAY_TYPES =
 			new HashSet<>(Arrays.asList(
@@ -645,10 +653,10 @@ public class SymbolNames {
 		public static final String ANY_EXP_VOID = "AnyExpVoid";
 		public static final String LINE_FEED_STR = "LineFeedStr";
 		public static final HashSet<String> LIST =
-				new HashSet<>(Arrays.asList(
-					NIL_COLOR,
-					NIL_SOUND,
-					ANY_EXP_VOID,
-					LINE_FEED_STR));
+			new HashSet<>(Arrays.asList(
+				NIL_COLOR,
+				NIL_SOUND,
+				ANY_EXP_VOID,
+				LINE_FEED_STR));
 	}
 }

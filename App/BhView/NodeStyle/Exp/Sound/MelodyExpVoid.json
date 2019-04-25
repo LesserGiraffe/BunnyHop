@@ -9,14 +9,6 @@
 	"connectorHeight" : 3.5,
 	"connectorShape" : "NONE",
 	"connectorBoundsRate" : 1.25,
-	"cssClass" : "soundType",
-
-	"connective" : {
-		"inner" : {
-			"space" : 2.0,
-			"arrangement" : "Row",
-			"connectorList" : ["PrimaryExp"]
-		}
-	}
+	"cssClass" : "soundType"
 }
 

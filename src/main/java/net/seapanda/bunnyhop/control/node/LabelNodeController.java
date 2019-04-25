@@ -34,9 +34,9 @@ public class LabelNodeController extends BhNodeController {
 		this.model = model;
 		this.view = view;
 		setInitStr(model, view);
-		view.setCreateImitHandler(model);		
+		view.setCreateImitHandler(model);
 	}
-	
+
 	/**
 	 * view に初期文字列をセットする
 	 * @param model セット初期文字列を持つTextNode
@@ -47,7 +47,7 @@ public class LabelNodeController extends BhNodeController {
 		view.setText(initText + " ");	//初期文字列が空文字だったときのため
 		view.setText(initText);
 	}
-	
+
 	/**
 	 * 受信したメッセージを処理する
 	 * @param msg メッセージの種類
@@ -56,16 +56,23 @@ public class LabelNodeController extends BhNodeController {
 	 * */
 	@Override
 	public MsgData processMsg(BhMsg msg, MsgData data) {
-	
+
 		switch (msg) {
 			case IMITATE_TEXT:
 				model.setText(data.strPair._1);
 				view.setText(data.strPair._2);
 				break;
-			
+
 			case GET_MODEL_AND_VIEW_TEXT:
 				return new MsgData(model.getText(), view.getText());
-				
+
+			case SET_TEXT:
+				if (model.isTextAcceptable(data.text)) {
+					model.setText(data.text);
+					view.setText(data.text);
+				}
+				break;
+
 			default:
 				return super.processMsg(msg, data);
 		}

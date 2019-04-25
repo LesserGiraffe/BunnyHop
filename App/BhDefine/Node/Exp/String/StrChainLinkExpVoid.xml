@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<Node
+	type="noContent"
+	bhNodeID="idStrChainLinkVoid"
+	name="StrChainLinkVoid"
+	nodeStyleID="StrChainLinkExpVoid.json"
+	initString="''">
+</Node>

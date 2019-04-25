@@ -63,7 +63,9 @@ public class CommonCodeDefinition {
 		public static final String PUSH_SOUND = "_pushSound";
 		public static final String IS_FINITE = "isFinite";
 		public static final String CURRENT_TIME_MILLS = "_currentTimeMillis";
-		public static final String GET_TIME_SINCE_PROGRAM_STARTED = "getTimeSinceProgramStarted";
+		public static final String GET_TIME_SINCE_PROGRAM_STARTED = "_getTimeSinceProgramStarted";
+		public static final String STRCAT = "_strcat";
+		public static final String IDENTITY = "_identity";	//恒等写像 (実際に共通コード部には定義しない)
 	}
 
 	public static class Properties {

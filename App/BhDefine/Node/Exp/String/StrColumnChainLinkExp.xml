@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+
+<Node type="connective"
+	  bhNodeID="idStrColumnChainLinkExp"
+	  name="StrChainLinkExp"
+	  nodeStyleID="StrColumnChainLinkExp.json"
+	  onChildReplaced="onChildStrExpInChainReplaced.js">
+
+	<ConnectorSection name="StrChainLinkSctn">
+
+		<Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
+		
+		<PrivateConnector 
+			bhConnectorID="idStrColumnChainLinkExp.prvCnctr0"
+			name="StrAppendOpe"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idStrColumnChainLinkExp.prvNode0"
+				name="StrAppendOpe"
+				nodeStyleID="SignLabel.json"
+				nodeInputControl="Label.fxml"
+				initString="⊕">
+			</Node>
+		</PrivateConnector>
+		
+		<PrivateConnector
+			bhConnectorID="idStrColumnChainLinkExp.prvCnctr1"
+			name="Arg1"
+			fixed="true"
+			initialBhNodeID="idStrChainLinkVoid"/>
+
+	</ConnectorSection>
+</Node>

@@ -18,8 +18,10 @@
 
 	let _eventHandlers = {};
 	let _executor = _jExecutors.newFixedThreadPool(16);
-	let _anyObj = {};
 	let _programStartingTime = _currentTimeMillis();
+	let _anyObj = {
+		_toStr : function() {return '';}
+	};
 
 	function _genCallObj() {
 		return {_outArgs:[]};
@@ -114,7 +116,7 @@
 		return _jSystem.currentTimeMillis();
 	}
 
-	function getTimeSinceProgramStarted() {
+	function _getTimeSinceProgramStarted() {
 		return _currentTimeMillis() - _programStartingTime;
 	}
 
@@ -533,9 +535,9 @@
 	}
 
 	function _toStr(val) {
-
-		if (val === _anyObj)
-			return '';
 		return val._toStr();
 	}
 
+	function _strcat(valA, valB) {
+		return valA._toStr() + valB._toStr();
+	}

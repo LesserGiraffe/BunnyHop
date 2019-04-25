@@ -217,99 +217,6 @@
 			'SoundListSctn'   : 'idSoundArrayClearStat'
 		}
 	};
-/*
-	//any-Type Node -> static-type Node
-	let anyTypeToStaticTypeNode = {
-		'AnyAssignStat' : {
-			'NumVar'   : 'idNumAssignStat',
-			'StrVar'   : 'idStrAssignStat',
-			'BoolVar'  : 'idBoolAssignStat',
-			'ColorVar' : 'idColorAssignStat',
-			'SoundVar' : 'idSoundAssignStat'
-		},
-
-		'AnyArrayAppendStat' : {
-			'NumList'   : 'idNumArrayAppendStat',
-			'StrList'   : 'idStrArrayAppendStat',
-			'BoolList'  : 'idBoolArrayAppendStat',
-			'ColorList' : 'idColorArrayAppendStat',
-			'SoundList' : 'idSoundArrayAppendStat'
-		},
-
-		'AnyArrayClearStat' : {
-			'NumList'   : 'idNumArrayClearStat',
-			'StrList'   : 'idStrArrayClearStat',
-			'BoolList'  : 'idBoolArrayClearStat',
-			'ColorList' : 'idColorArrayClearStat',
-			'SoundList' : 'idSoundArrayClearStat'
-		},
-
-		'AnyArrayGetExp' : {
-			'NumList'   : 'idNumArrayGetExp',
-			'StrList'   : 'idStrArrayGetExp',
-			'BoolList'  : 'idBoolArrayGetExp',
-			'ColorList' : 'idColorArrayGetExp',
-			'SoundList' : 'idSoundArrayGetExp',
-			'NumClass'  : 'idNumArrayGetExp',
-			'StrClass'  : 'idStrArrayGetExp',
-			'BoolClass' : 'idBoolArrayGetExp',
-			'ColorClass': 'idColorArrayGetExp',
-			'SoundClass': 'idSoundArrayGetExp'
-		},
-
-		'AnyArrayGetLastExp' : {
-			'NumList'   : 'idNumArrayGetLastExp',
-			'StrList'   : 'idStrArrayGetLastExp',
-			'BoolList'  : 'idBoolArrayGetLastExp',
-			'ColorList' : 'idColorArrayGetLastExp',
-			'SoundList' : 'idSoundArrayGetLastExp',
-			'NumClass'  : 'idNumArrayGetLastExp',
-			'StrClass'  : 'idStrArrayGetLastExp',
-			'BoolClass' : 'idBoolArrayGetLastExp',
-			'ColorClass': 'idColorArrayGetLastExp',
-			'SoundClass': 'idSoundArrayGetLastExp'
-		},
-
-		'AnyArrayInsertStat' : {
-			'NumList'   : 'idNumArrayInsertStat',
-			'StrList'   : 'idStrArrayInsertStat',
-			'BoolList'  : 'idBoolArrayInsertStat',
-			'ColorList' : 'idColorArrayInsertStat',
-			'SoundList' : 'idSoundArrayInsertStat'
-		},
-
-		'AnyArrayPopStat' : {
-			'NumList'   : 'idNumArrayPopStat',
-			'StrList'   : 'idStrArrayPopStat',
-			'BoolList'  : 'idBoolArrayPopStat',
-			'ColorList' : 'idColorArrayPopStat',
-			'SoundList' : 'idSoundArrayPopStat'
-		},
-
-		'AnyArrayPushStat' : {
-			'NumList'   : 'idNumArrayPushStat',
-			'StrList'   : 'idStrArrayPushStat',
-			'BoolList'  : 'idBoolArrayPushStat',
-			'ColorList' : 'idColorArrayPushStat',
-			'SoundList' : 'idSoundArrayPushStat'
-		},
-
-		'AnyArrayRemoveStat' : {
-			'NumList'   : 'idNumArrayRemoveStat',
-			'StrList'   : 'idStrArrayRemoveStat',
-			'BoolList'  : 'idBoolArrayRemoveStat',
-			'ColorList' : 'idColorArrayRemoveStat',
-			'SoundList' : 'idSoundArrayRemoveStat'
-		},
-
-		'AnyArraySetStat' : {
-			'NumList'   : 'idNumArraySetStat',
-			'StrList'   : 'idStrArraySetStat',
-			'BoolList'  : 'idBoolArraySetStat',
-			'ColorList' : 'idColorArraySetStat',
-			'SoundList' : 'idSoundArraySetStat'
-		}
-	};*/
 
 	/**
 	 * any-Type のノード名と型を決定するシンボル名から対応する static-type Node のIDを取得する
@@ -326,6 +233,23 @@
 
 		return staticTypeNodeID;
 	}
+	
+	/**
+	 * static-type の式である場合 true を返す.
+	 */
+	function isStaticTypeExp(node) {
+	
+		let section = node.findSymbolInDescendants('*');
+		let sectionName = null;
+		if (section !== null)
+			sectionName = String(section.getSymbolName());
+		
+		return sectionName === 'NumberExpSctn'  ||
+			   sectionName === 'StringExpSctn'  ||
+			   sectionName === 'BooleanExpSctn' ||
+			   sectionName === 'SoundExpSctn'   ||
+			   sectionName === 'ColorExpSctn';
+	}
 
 	bhCommon['appendRemovedNode'] = appendRemovedNode;
 	bhCommon['getStaticTypeNodeID'] = getStaticTypeNodeID;
@@ -334,5 +258,6 @@
 	bhCommon['replaceStatWithNewStat'] = replaceStatWithNewStat;
 	bhCommon['moveDescendant'] = moveDescendant;
 	bhCommon['getPathOfAnyTypeChildToBeMoved'] = getPathOfAnyTypeChildToBeMoved;
+	bhCommon['isStaticTypeExp'] = isStaticTypeExp;
 	return bhCommon;
 })();

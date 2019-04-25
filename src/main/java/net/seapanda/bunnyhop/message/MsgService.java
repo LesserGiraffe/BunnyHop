@@ -111,6 +111,15 @@ public class MsgService {
 	public void setMoveNodeOnWS(BhNode node, Vec2D distance) {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.MOVE_NODE_ON_WORKSPACE, new MsgData(distance), node);
 	}
+
+	/**
+	 * ノードにテキストを設定する
+	 * @param node テキストを設定するノード
+	 * @param text 設定するテキスト
+	 * */
+	public void setText(BhNode node, String text) {
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_TEXT, new MsgData(text), node);
+	}
 }
 
 

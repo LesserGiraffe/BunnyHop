@@ -86,9 +86,9 @@ public class BhNodeViewGroup extends Group implements Showable {
 	}
 
 	/**
-	 * BhNodeView を追加する
+	 * BhNodeView を追加する. view の適切な追加先が見つからなかった場合, 失敗する.
 	 * @param view 追加するノードビュー
-	 * @return
+	 * @return 追加に成功した場合 true. 失敗した場合 false.
 	 * */
 	public boolean addNodeView(BhNodeView view) {
 
@@ -192,8 +192,8 @@ public class BhNodeViewGroup extends Group implements Showable {
 	 * */
 	public void rearrangeChild() {
 
-		Vec2D offset = calcOffset();
-		Vec2D relPos = new Vec2D(offset.x, offset.y);
+		Vec2D offset = calcOffsetOfCnctr();
+		Vec2D relPos = new Vec2D(offset.x + arrangeParams.paddingLeft, offset.y + arrangeParams.paddingTop);
 		Vec2D sizeBefor = new Vec2D(size.x, size.y);
 		Vec2D childMaxLen = new Vec2D(0.0, 0.0);
 		Vec2D childSumLen = new Vec2D(0.0, 0.0);
@@ -201,6 +201,7 @@ public class BhNodeViewGroup extends Group implements Showable {
 		size.y = 0.0;
 
 		arrangeParams.cnctrNameList.forEach(cnctrName -> {
+
 			BhNodeView childNodeView = cnctrName_NodeView.get(cnctrName);
 			if (childNodeView != null) {
 				//outer はコネクタの大きさを考慮しない
@@ -209,7 +210,7 @@ public class BhNodeViewGroup extends Group implements Showable {
 				//コネクタが上に付く
 				if (childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.TOP) {
 					childSumLen.add(childNodeSize.x, childNodeSize.y + cnctrSize.y);
-					childMaxLen.updateIfGreter(childNodeSize.x, childNodeSize.y + cnctrSize.y);
+					childMaxLen.updateIfGreter(childNodeSize.x, childNodeSize.y);
 
 					//グループの中が縦並び
 					if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.COLUMN)
@@ -218,7 +219,7 @@ public class BhNodeViewGroup extends Group implements Showable {
 				//コネクタが左に付く
 				else if (childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.LEFT) {
 					childSumLen.add(childNodeSize.x + cnctrSize.x, childNodeSize.y);
-					childMaxLen.updateIfGreter(childNodeSize.x + cnctrSize.x, childNodeSize.y);
+					childMaxLen.updateIfGreter(childNodeSize.x, childNodeSize.y);
 
 					//グループの中が横並び
 					if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.ROW)
@@ -238,7 +239,7 @@ public class BhNodeViewGroup extends Group implements Showable {
 		});
 
 		//サイズ更新
-		updateGroupSize(childMaxLen, childSumLen);
+		updateGroupSize(childMaxLen, childSumLen, offset);
 
 		if (sizeBefor.equals(size)) {
 			Vec2D posOnWS = ViewHelper.INSTANCE.getPosOnWorkspace(this);
@@ -254,21 +255,22 @@ public class BhNodeViewGroup extends Group implements Showable {
 
 	/**
 	 * グループのサイズを更新する
-	 * @param childMaxSize 子ノードの中の最大の長さ
-	 * @param childSumSize 全子ノードの合計の長さ
+	 * @param childMaxSize 子ノードの中の最大の長さ (コネクタ部分を含まない)
+	 * @param childSumSize 全子ノードの合計の長さ (コネクタ部分を含む)
+	 * @param offsetOfCnctr コネクタサイズによって決まるオフセット
 	 * */
-	private void updateGroupSize(Vec2D childMaxLen, Vec2D childSumLen) {
+	private void updateGroupSize(Vec2D childMaxLen, Vec2D childSumLen, Vec2D offsetOfCnctr) {
 
 		int numSpace = arrangeParams.cnctrNameList.size() + subGroupList.size() - 1;
 		//グループの中が縦並び
 		if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.COLUMN) {
-			size.x = arrangeParams.paddingLeft + childMaxLen.x + arrangeParams.paddingRight;
+			size.x = offsetOfCnctr.x + arrangeParams.paddingLeft + childMaxLen.x + arrangeParams.paddingRight;
 			size.y = arrangeParams.paddingTop + childSumLen.y + numSpace * arrangeParams.space + arrangeParams.paddingBottom;
 		}
 		//グループの中が横並び
 		else {
 			size.x = arrangeParams.paddingLeft + childSumLen.x + numSpace * arrangeParams.space + arrangeParams.paddingRight;
-			size.y = arrangeParams.paddingTop + childMaxLen.y + arrangeParams.paddingBottom;
+			size.y = offsetOfCnctr.y + arrangeParams.paddingTop + childMaxLen.y + arrangeParams.paddingBottom;
 		}
 	}
 
@@ -290,9 +292,9 @@ public class BhNodeViewGroup extends Group implements Showable {
 	}
 
 	/**
-	 * 子ノードとサブグループを並べる際のオフセットを計算する
+	 * コネクタサイズによって決まる子ノードとサブグループを並べる際のオフセットを計算する
 	 */
-	private Vec2D calcOffset() {
+	private Vec2D calcOffsetOfCnctr() {
 
 		double offsetX = 0.0;
 		double offsetY = 0.0;
@@ -308,16 +310,18 @@ public class BhNodeViewGroup extends Group implements Showable {
 				continue;
 
 			Vec2D cnctrSize = childNodeView.getConnectorManager().getConnectorSize();
+			// グループの中が縦並びでかつコネクタが左に付く
 			if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.COLUMN &&
-				childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.LEFT) {	//グループの中が縦並びでかつコネクタが左に付く
+				childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.LEFT) {
 				offsetX = Math.max(offsetX, cnctrSize.x);
 			}
+			// グループの中が横並びでかつコネクタが上に付く
 			else if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.ROW &&
-				 childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.TOP){	//グループの中が横並びでかつコネクタが上に付く
+				 childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.TOP){
 				offsetY = Math.max(offsetY, cnctrSize.y);
 			}
 		}
-		return new Vec2D(offsetX + arrangeParams.paddingLeft, offsetY + arrangeParams.paddingTop);
+		return new Vec2D(offsetX, offsetY);
 	}
 
 	/**

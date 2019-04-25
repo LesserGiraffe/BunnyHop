@@ -210,6 +210,14 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	}
 
 	/**
+	 * 削除済みノードであるかどうか調べる.
+	 * @return 削除済みノードである場合 true
+	 * */
+	public boolean isDeleted() {
+		return getState() == BhNode.State.DELETED;
+	}
+
+	/**
 	 * 接続されるコネクタを登録する
 	 * @param parentConnector このノードと繋がるコネクタ
 	 * */

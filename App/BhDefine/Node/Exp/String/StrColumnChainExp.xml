@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+
+<Node type="connective"
+	  bhNodeID="idStrColumnChainExp"
+	  name="StrChainExp"
+	  nodeStyleID="StrChainExp.json"
+	  onMovedFromChildToWS=""
+	  onMovedToChild="">
+
+	<ConnectorSection name="StringExpSctn">
+		<PrivateConnector
+			bhConnectorID="idStrColumnChainExp.prvCnctr0"
+			name="Arg0"
+			defaultBhNodeID="idStrColumnChainLinkExp"
+			fixed="true"/>
+	</ConnectorSection>
+</Node>

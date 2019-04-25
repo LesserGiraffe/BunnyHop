@@ -194,13 +194,12 @@ public class ExpCodeGenerator {
 
 		switch (literalNode.getSymbolName()) {
 			case SymbolNames.Literal.NUM_LITERAL:
+			case SymbolNames.Literal.BOOL_LITERAL:
+			case SymbolNames.Literal.STR_CHAIN_LINK_VOID:
 				return "(" + inputText + ")";
 
 			case SymbolNames.Literal.STR_LITERAL:
 				return "('" + inputText.replaceAll("\\\\", "\\\\\\\\").replaceAll("'", "\\\\'") + "')";
-
-			case SymbolNames.Literal.BOOL_LITERAL:
-				return "(" + inputText + ")";
 
 			case SymbolNames.Literal.SOUND_LITERAL_VOID:
 			case SymbolNames.Literal.FREQ_SOUND_LITERAL:
@@ -240,10 +239,7 @@ public class ExpCodeGenerator {
 		boolean useCallObj = !outArgList.isEmpty();
 
 		// 呼び出し元オブジェクト作成コード生成
-		String callObjVar = "";
-		if (useCallObj)
-			callObjVar = genCallObjStat(code, funcCallNode, nestLevel);
-
+		String callObjVar = useCallObj ? genCallObjStat(code, funcCallNode, nestLevel) : "";
 		String retValName = null;
 		code.append(common.indent(nestLevel));
 		if (storeRetVal) {
@@ -259,7 +255,13 @@ public class ExpCodeGenerator {
 			funcName += ".call";
 		}
 		String[] argArray =  argList.toArray(new String[argList.size()]);
-		String funcCallCode = common.genFuncCallCode(funcName, argArray);
+		String funcCallCode;
+		// 恒等写像は最初の引数を結果の変数に代入するだけ
+		if (funcName.equals(CommonCodeDefinition.Funcs.IDENTITY))
+			funcCallCode = argArray[0];
+		else
+			funcCallCode = common.genFuncCallCode(funcName, argArray);
+
 		code.append(funcCallCode)
 			.append(";").append(Util.INSTANCE.LF);
 		genOutArgCopyStat(
@@ -275,7 +277,7 @@ public class ExpCodeGenerator {
 	 * @param code 関数呼び出し式の格納先
 	 * @param funcCallNode 関数呼び出し式のノード
 	 * @param argList 引数の格納先
-	 * @param outArgList 出力引数の格納先
+	 * @param outArg 出力引数を作成する場合 true. 入力引数を作成する場合 false.
 	 * @param nestLevel ソースコードのネストレベル
 	 * @param option コンパイルオプション
 	 */
@@ -355,10 +357,7 @@ public class ExpCodeGenerator {
 
 		// 呼び出し元オブジェクト作成コード生成
 		boolean useCallObj = !outArgList.isEmpty();
-		String callObjVar = "";
-		if (useCallObj)
-			callObjVar = genCallObjStat(code, funcCallNode, nestLevel);
-
+		String callObjVar = useCallObj ? genCallObjStat(code, funcCallNode, nestLevel) : "";
 		if (useCallObj) {
 			argList.add(0, callObjVar);
 			funcName += ".call";
@@ -500,6 +499,7 @@ public class ExpCodeGenerator {
 	 * 関数の呼びだし元オブジェクトを作成する文を生成する
 	 * @param code 生成したコードの格納先
 	 * @param funcCallNode この関数呼び出しノードに対する呼び出し元オブジェクトを作成する
+	 * @param nestLevel ソースコードのネストレベル
 	 * @retrun 関数の呼びだし元オブジェクトを格納した変数名
 	 * */
 	private String genCallObjStat(

@@ -36,8 +36,8 @@
 			"idLineFeed", 
 			"idPrintStat", 
 			"idScanExp", 
-			"idAppendStrExp", 
-			"idAnyToStrExp",
+			"idStrRowChainExp",
+			"idStrColumnChainExp",
 			"idSayStat"]
 	},
 	

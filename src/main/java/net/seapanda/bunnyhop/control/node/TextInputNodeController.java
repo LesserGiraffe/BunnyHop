@@ -26,12 +26,12 @@ import net.seapanda.bunnyhop.view.node.TextInputNodeView;
  * TextNodeとTextFieldNodeViewのコントローラ
  * @author K.Koike
  */
-public class TextFieldNodeController extends BhNodeController {
+public class TextInputNodeController extends BhNodeController {
 
 	private final TextNode model;	//!< 管理するモデル
 	private final TextInputNodeView view;	//!< 管理するビュー
 
-	public TextFieldNodeController(TextNode model, TextFieldNodeView view) {
+	public TextInputNodeController(TextNode model, TextFieldNodeView view) {
 		super(model, view);
 		this.model = model;
 		this.view = view;
@@ -41,7 +41,7 @@ public class TextFieldNodeController extends BhNodeController {
 		view.setCreateImitHandler(model);
 	}
 
-	public TextFieldNodeController(TextNode model, TextAreaNodeView view) {
+	public TextInputNodeController(TextNode model, TextAreaNodeView view) {
 		super(model, view);
 		this.model = model;
 		this.view = view;
@@ -99,6 +99,13 @@ public class TextFieldNodeController extends BhNodeController {
 
 			case GET_MODEL_AND_VIEW_TEXT:
 				return new MsgData(model.getText(), view.getText());
+
+			case SET_TEXT:
+				if (model.isTextAcceptable(data.text)) {
+					model.setText(data.text);
+					view.setText(data.text);
+				}
+				break;
 
 			default:
 				return super.processMsg(msg, data);

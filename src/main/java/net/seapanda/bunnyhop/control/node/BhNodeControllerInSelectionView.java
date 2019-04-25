@@ -58,7 +58,7 @@ public class BhNodeControllerInSelectionView {
 		setMouseEventHandler();
 
 		if (view instanceof TextInputNodeView) {
-			TextFieldNodeController.setTextChangeHandler((TextNode)model, (TextInputNodeView)view);
+			TextInputNodeController.setTextChangeHandler((TextNode)model, (TextInputNodeView)view);
 		}
 		else if (view instanceof ComboBoxNodeView) {
 			ComboBoxNodeController.setItemChangeHandler((TextNode)model, (ComboBoxNodeView)view);

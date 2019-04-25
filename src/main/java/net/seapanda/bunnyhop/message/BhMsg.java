@@ -56,4 +56,5 @@ public enum BhMsg {
 	SET_VISIBLE,	//!< ノードの可視性をセットする
 	UPDATE_MULTI_NODE_SHIFTER,	//!< マルチノードシフタ(複数ノード移動用マルチノードシフタ)とリンクを更新する
 	GET_NODE_BODY_RANGE, //!< BhNodeのボディのワークスペース上での範囲を取得する
+	SET_TEXT,	//!< テキストを設定可能なノードにテキストを設定する. テキストフォーマットチェックは行われる.
 }

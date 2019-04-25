@@ -24,7 +24,7 @@ import net.seapanda.bunnyhop.control.node.ComboBoxNodeController;
 import net.seapanda.bunnyhop.control.node.ConnectiveNodeController;
 import net.seapanda.bunnyhop.control.node.LabelNodeController;
 import net.seapanda.bunnyhop.control.node.NoContentNodeController;
-import net.seapanda.bunnyhop.control.node.TextFieldNodeController;
+import net.seapanda.bunnyhop.control.node.TextInputNodeController;
 import net.seapanda.bunnyhop.control.node.VoidNodeController;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
@@ -221,7 +221,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 
 		@Override
 		public void connect(TextNode node, TextFieldNodeView view) {
-			var controller = new TextFieldNodeController(node, view);
+			var controller = new TextInputNodeController(node, view);
 			node.setMsgProcessor(controller);
 		}
 
@@ -239,7 +239,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 
 		@Override
 		public void connect(TextNode node, TextAreaNodeView  view) {
-			var controller = new TextFieldNodeController(node, view);
+			var controller = new TextInputNodeController(node, view);
 			node.setMsgProcessor(controller);
 		}
 
