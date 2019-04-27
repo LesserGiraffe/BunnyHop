@@ -1,15 +1,11 @@
 (function() {
-	
+	java.lang.System.out.println('okas');
 	let newNodeSection = bhParentConnector.getConnectedNode().findSymbolInDescendants('*');
 	let newNodeSectionName = null;
 	if (newNodeSection !== null)
-		newNodeSectionName = newNodeSection.getSymbolName();
+		newNodeSectionName = String(newNodeSection.getSymbolName());
 
 	let nextMelodyExp = bhThis.findSymbolInDescendants('*', 'Arg1', '*');
-	let oldNodeSection = bhReplacedOldNode.findSymbolInDescendants('*');
-	let oldNodeSectionName = null;
-	if (oldNodeSection !== null)
-		oldNodeSectionName = oldNodeSection.getSymbolName();
 
 	// 音挿入
 	if (String(newNodeSectionName) === 'SoundExpSctn') {

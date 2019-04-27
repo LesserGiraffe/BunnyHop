@@ -1,7 +1,9 @@
 (function() {
 
 	let cnctr = bhThis.findSymbolInAncestors('*', 1, false);
-	let staticTypeNodeID = bhCommon.getStaticTypeNodeID(bhThis.getSymbolName(), cnctr.getClaz().toString());
+	let staticTypeNodeID = bhCommon.getStaticTypeNodeID(
+		String(bhThis.getSymbolName()),
+		String(cnctr.getClaz()));
 
 	if (staticTypeNodeID !== null) {
 		let posOnWS = bhMsgService.getPosOnWS(bhThis);
@@ -14,7 +16,7 @@
 			bhUserOpeCmd);
 
 		// 子ノードの移動
-		let paths = bhCommon.getPathOfAnyTypeChildToBeMoved(bhThis.getSymbolName());
+		let paths = bhCommon.getPathOfAnyTypeChildToBeMoved(String(bhThis.getSymbolName()));
 		if (paths !== null) {
 			paths.forEach(
 				function (path) {

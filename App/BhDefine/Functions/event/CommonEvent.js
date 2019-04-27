@@ -44,11 +44,7 @@
 	 * */
 	function replaceDescendant(rootNode, descendantPath, newNode, bhNodeHandler, bhUserOpeCmd) {
 
-		//コピーし直さないと, findSymbolInDescendants(descendantPath) => findSymbolInDescendants('a,b,c') と解釈されてしまう.
-		let path = [];
-		for (let i = 0; i < descendantPath.length; ++i)
-			path[i] = descendantPath[i];
-		let oldNode = rootNode.findSymbolInDescendants(path);
+		let oldNode = rootNode.findSymbolInDescendants(descendantPath);
 		bhNodeHandler.replaceChild(oldNode, newNode, bhUserOpeCmd);
 		bhNodeHandler.deleteNode(oldNode, bhUserOpeCmd);
 	}
@@ -64,13 +60,8 @@
 	 * */
 	function moveDescendant(from, to, descendantPath, bhNodeHandler, bhUserOpeCmd) {
 
-		//コピーし直さないと, findSymbolInDescendants(descendantPath) => findSymbolInDescendants('a,b,c') と解釈されてしまう.
-		let path = [];
-		for (let i = 0; i < descendantPath.length; ++i)
-			path[i] = descendantPath[i];
-
-		let childToBeMoved = from.findSymbolInDescendants(path);
-		let oldNode = to.findSymbolInDescendants(path);
+		let childToBeMoved = from.findSymbolInDescendants(descendantPath);
+		let oldNode = to.findSymbolInDescendants(descendantPath);
 		bhNodeHandler.replaceChild(oldNode, childToBeMoved, bhUserOpeCmd);
 		bhNodeHandler.deleteNode(oldNode, bhUserOpeCmd);
 	}
