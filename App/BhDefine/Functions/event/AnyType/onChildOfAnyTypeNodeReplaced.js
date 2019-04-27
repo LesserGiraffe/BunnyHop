@@ -1,14 +1,16 @@
 (function() {
+	
+	let childNodeName = String(bhThis.getSymbolName());
 
 	function createStaticTypeNodeFromAnyTypeNode() {
 
 		let newNodeSection = bhReplacedNewNode.findSymbolInDescendants('*');
 		let newNodeSectionName = '';
 		if (newNodeSection !== null)
-			newNodeSectionName = newNodeSection.getSymbolName();
+			newNodeSectionName = String(newNodeSection.getSymbolName());
 
 		// 新ノード作成
-		let staticTypeNodeID = bhCommon.getStaticTypeNodeID(bhThis.getSymbolName(), newNodeSectionName);
+		let staticTypeNodeID = bhCommon.getStaticTypeNodeID(childNodeName, newNodeSectionName);
 		if (staticTypeNodeID === null)
 			return null;
 
@@ -26,7 +28,7 @@
 		let destPath = [];
 		for (let i = 0; i < replacedNodePath.length; ++i) {
 			if (i === replacedNodePath.length - 2)
-				destPath.push(replacedNodePath[i]);
+				destPath.push(String(replacedNodePath[i]));
 			else
 				destPath.push('*');
 		}
@@ -36,7 +38,8 @@
 	}
 
 	let staticTypeCnctrClassList = ['NumClass', 'StrClass', 'BoolClass', 'SoundClass', 'ColorClass'];
-	if (staticTypeCnctrClassList.indexOf(bhParentConnector.getClaz()) !== -1)
+	let cnctrClass = String(bhParentConnector.getClaz());
+	if (staticTypeCnctrClassList.indexOf(cnctrClass) !== -1)
 		return;
 
 	let staticTypeNode = createStaticTypeNodeFromAnyTypeNode();
@@ -44,7 +47,7 @@
 		return;
 
 	// 子ノードの移動
-	let paths = bhCommon.getPathOfAnyTypeChildToBeMoved(bhThis.getSymbolName());
+	let paths = bhCommon.getPathOfAnyTypeChildToBeMoved(childNodeName);
 	if (paths !== null) {
 		paths.forEach(
 			function (path) {
