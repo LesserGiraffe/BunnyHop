@@ -45,6 +45,7 @@ public class BhCompiler {
 	private final StatCodeGenerator statCodeGen;
 	private final EventHandlerCodeGenerator eventHandlerCodeGen;
 	private final CommonCodeGenerator common;
+	private final GlobalDataDeclCodeGenerator globalDataDeclCodeGen;
 	private String commonCode;
 	private String remoteCommonCode;
 	private String localCommonCode;
@@ -56,6 +57,7 @@ public class BhCompiler {
 		statCodeGen = new StatCodeGenerator(common, expCodeGen, varDeclCodeGen);
 		funcDefCodeGen = new FuncDefCodeGenerator(common, statCodeGen, varDeclCodeGen);
 		eventHandlerCodeGen = new EventHandlerCodeGenerator(common, statCodeGen, varDeclCodeGen);
+		globalDataDeclCodeGen = new GlobalDataDeclCodeGenerator(common, expCodeGen);
 	}
 
 	/**
@@ -156,6 +158,7 @@ public class BhCompiler {
 		else
 			code.append(remoteCommonCode);
 		varDeclCodeGen.genVarDecls(allNodes, code, 1, option);
+		globalDataDeclCodeGen.genGlobalDataDecls(allNodes, code, 1, option);
 		funcDefCodeGen.genFuncDefs(allNodes, code, 1, option);
 		eventHandlerCodeGen.genEventHandlers(allNodes, code, 1, option);
 		String lockVar = BhCompiler.Keywords.lockVarPrefix + CommonCodeDefinition.Funcs.BH_MAIN;

@@ -3,5 +3,4 @@
 <Connector
 	bhConnectorID="idMelodyExpCnctr"
 	defaultBhNodeID="idMelodyExp"
-	fixed="true"
-	onReplaceabilityChecked="MelodyExpCnct.js"/>
+	fixed="true"/>

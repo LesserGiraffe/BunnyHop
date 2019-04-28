@@ -16,6 +16,7 @@
 package net.seapanda.bunnyhop.compiler;
 
 import net.seapanda.bunnyhop.common.tools.Util;
+import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 
 /**
@@ -61,7 +62,8 @@ public class StatCodeGenerator {
 			expCodeGen.genUserDefFuncCallExp(code, statementNode, nestLevel, option, false);
 		}
 		else if (SymbolNames.PreDefFunc.PREDEF_FUNC_CALL_STAT_LIST.contains(statSymbolName)) {
-			expCodeGen.genPreDefFuncCallExp(code, statementNode, nestLevel, option, false);
+			expCodeGen.genPreDefFuncCallExp(
+				code, statementNode, nestLevel, option, false);
 		}
 		else if (SymbolNames.ControlStat.LIST.contains(statSymbolName)) {
 			genControlStat(code, statementNode, nestLevel, option);
@@ -159,6 +161,10 @@ public class StatCodeGenerator {
 				code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._return).append(";").append(Util.INSTANCE.LF);
 				break;
 
+			case SymbolNames.ControlStat.CRITICAL_SECTION_STAT:
+				genCriticalSectionStat(code, controlStatNode, nestLevel, option);
+				break;
+
 			default:
 				throw new AssertionError("invalid control stat " + symbolName);
 		}
@@ -189,7 +195,7 @@ public class StatCodeGenerator {
 
 		//then part
 		SyntaxSymbol thenStat = ifElseStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.THEN_STAT, "*");
-		genStatement(thenStat, code, nestLevel+1, option);
+		genStatement(thenStat, code, nestLevel + 1, option);
 		code.append(common.indent(nestLevel))
 			.append("}")
 			.append(Util.INSTANCE.LF);
@@ -201,7 +207,7 @@ public class StatCodeGenerator {
 				.append(BhCompiler.Keywords.JS._else)
 				.append("{")
 				.append(Util.INSTANCE.LF);
-			genStatement(elseStat, code, nestLevel+1, option);
+			genStatement(elseStat, code, nestLevel + 1, option);
 			code.append(common.indent(nestLevel))
 				.append("}")
 				.append(Util.INSTANCE.LF);
@@ -247,7 +253,7 @@ public class StatCodeGenerator {
 
 		//loop part
 		SyntaxSymbol loopStat = whileStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.LOOP_STAT, "*");
-		genStatement(loopStat, code, nestLevel+1, option);
+		genStatement(loopStat, code, nestLevel + 1, option);
 		code.append(common.indent(nestLevel))
 			.append("}")
 			.append(Util.INSTANCE.LF);
@@ -328,4 +334,51 @@ public class StatCodeGenerator {
 			.append("}")
 			.append(Util.INSTANCE.LF);
 	}
+
+	/**
+	 * クリティカルセクションのコードを生成する
+	 * @param code 生成したコードの格納先
+	 * @param criticalSctnNode クリティカルセクションのノード
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 * */
+	private void genCriticalSectionStat(
+		StringBuilder code,
+		SyntaxSymbol criticalSctnNode,
+		int nestLevel,
+		CompileOption option) {
+
+		Imitatable lockVarNode = ((Imitatable)criticalSctnNode).getOriginalNode();
+		String lockVar = common.genVarName(lockVarNode);
+
+		// lock
+		code.append(common.indent(nestLevel))
+			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.LOCK, lockVar))
+			.append(";").append(Util.INSTANCE.LF);
+
+		SyntaxSymbol exclusiveStat =
+			criticalSctnNode.findSymbolInDescendants("*", SymbolNames.ControlStat.EXCLUSIVE_STAT, "*");
+		genStatement(exclusiveStat, code, nestLevel, option);
+
+		// unlock
+		code.append(common.indent(nestLevel))
+			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.UNLOCK, lockVar))
+			.append(";").append(Util.INSTANCE.LF);
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -16,12 +16,12 @@
 module net.seapanda.bunnyhop {
     requires java.rmi;
     requires java.scripting;
-    requires transitive javafx.graphics;
+    requires javafx.graphics;
     requires java.desktop;
 	requires javafx.controls;
 	requires javafx.fxml;
 	requires java.base;
-	requires transitive java.xml;
+	requires java.xml;
 	requires javafx.base;
 	requires rhino;
 	requires jsch;

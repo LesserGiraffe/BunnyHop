@@ -134,17 +134,19 @@ final public class VarDeclCodeGenerator {
 		if (!SymbolNames.VarDecl.VAR_DECL_LIST.contains(varDeclNode.getSymbolName()))
 			return;
 
-		TextNode varIdTextNode = (TextNode)varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.VAR_NAME, "*");
-		if (varIdTextNode == null)
-			varIdTextNode = (TextNode)varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.LIST_NAME, "*");
-
+		String comment =
+			SymbolNames.VarDecl.VAR_NAME_CNCTR_LIST.stream()
+			.map(cnctrName -> (TextNode)varDeclNode.findSymbolInDescendants("*", cnctrName, "*"))
+			.filter(node -> node != null)
+			.findFirst()
+			.map(node -> node.getText()).orElse("");
 		String varName = common.genVarName(varDeclNode);
-		String comment = varIdTextNode.getText();
 		String initVal = SymbolNames.VarDecl.INIT_VAL_MAP.get(varDeclNode.getSymbolName());
 		varDeclInfoList.add(new VarDeclInfo(varName, initVal, comment));
 
-		SyntaxSymbol nextVarDecl = varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.NEXT_VAR_DECL, "*");
-		genVarDeclInfos(nextVarDecl, varDeclInfoList);
+        SyntaxSymbol nextVarDecl = varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.NEXT_VAR_DECL, "*");
+        if (nextVarDecl != null)
+        	genVarDeclInfos(nextVarDecl, varDeclInfoList);
 	}
 
 	/**

@@ -125,9 +125,11 @@
 	},
 	
 	"イベント" : {
-		"cssClass":"event",
-		"contents":["idKeyPressedEvent",
-					"idDelayedStartEvent"]
+		"cssClass":"concurrent",
+		"contents":[
+			"idKeyPressedEvent",
+			"idDelayedStartEvent",
+			"idCriticalSectionDecl"]
 	},
 	
 	"その他" : {

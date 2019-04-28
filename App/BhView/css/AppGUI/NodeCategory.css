@@ -148,15 +148,15 @@
 	-fx-border-color: black;
 }
 
-/*------------------- event ---------------*/
-#categoryTree .event {
-	-fx-background: derive(eventTypeCol, 0%);
+/*------------------- concurrent ---------------*/
+#categoryTree .concurrent {
+	-fx-background: derive(concurrentTypeCol, 0%);
 	-fx-border-color: black;
 	-fx-text-fill: white;
 }
 
-#categoryTree .event:hover {
-	-fx-background: derive(eventTypeCol, 50%);
+#categoryTree .concurrent:hover {
+	-fx-background: derive(concurrentTypeCol, 50%);
 	-fx-border-color: black;
 }
 

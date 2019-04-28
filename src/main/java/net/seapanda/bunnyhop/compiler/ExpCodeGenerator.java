@@ -221,7 +221,7 @@ public class ExpCodeGenerator {
 	 * @param nestLevel ソースコードのネストレベル
 	 * @param option コンパイルオプション
 	 * @param storeRetVal 戻り値を変数に格納するコードを出力する場合true.
-	 * @return 式もしくは式の評価結果を格納した変数. storeRetValがfalseの場合はnull.
+	 * @return 式もしくは式の評価結果を格納した変数. storeRetVal が false の場合は null.
 	 */
 	public String genPreDefFuncCallExp(
 		StringBuilder code,
@@ -235,7 +235,7 @@ public class ExpCodeGenerator {
 		genPreDefFuncArgs(code, funcCallNode, argList, false, nestLevel, option);
 		genPreDefFuncArgs(code, funcCallNode, outArgList, true, nestLevel, option);
 		argList.addAll(outArgList);
-		List<String> funcIdentifier = buildFuncIdentifier(funcCallNode);
+		FuncID funcIdentifier = buildFuncIdentifier(funcCallNode);
 		boolean useCallObj = !outArgList.isEmpty();
 
 		// 呼び出し元オブジェクト作成コード生成
@@ -305,10 +305,11 @@ public class ExpCodeGenerator {
 	}
 
 	/**
-	 * 関数特定用のリストを作成する
-	 * @return 関数特定用のリスト
+	 * 関数呼び出しノードから関数IDを作成する
+	 * @return 関数ID
 	 */
-	private List<String> buildFuncIdentifier(SyntaxSymbol funcCallNode) {
+	private FuncID buildFuncIdentifier(SyntaxSymbol funcCallNode) {
+
 		//呼び出しオプションを探す
 		int idOption = 0;
 		List<String> funcIdentifier = new ArrayList<>(Arrays.asList(funcCallNode.getSymbolName()));
@@ -323,7 +324,7 @@ public class ExpCodeGenerator {
 			}
 			++idOption;
 		}
-		return funcIdentifier;
+		return FuncID.create(funcIdentifier.toArray(new String[funcIdentifier.size()]));
 	}
 
 	/**

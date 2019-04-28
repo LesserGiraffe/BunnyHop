@@ -13,46 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package net.seapanda.bunnyhop.compiler;
 
-package net.seapanda.bunnyhop.model.node;
-
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
- * SyntaxSymbolのID
- * @author K.Koike
+ * 関数の識別子
  * */
-public class SyntaxSymbolID {
+public class FuncID {
 
-	static private long sequentialID = 0;
-	private final String id;
+	private List<String> id;
 
-	static SyntaxSymbolID newID() {
-		++sequentialID;
-		return new SyntaxSymbolID(Long.toHexString(sequentialID));
+	/**
+	 * 識別子を作成する
+	 * @param snippets IDを構成する情報
+	 * */
+	public static FuncID create(String... snippets) {
+
+		var retVal = new FuncID();
+		retVal.id = new ArrayList<String>(Arrays.asList(snippets));
+		return retVal;
 	}
 
-	private SyntaxSymbolID(String id) {
-		this.id = id;
-	}
-
-	@Override
-	public String toString() {
-		return id;
-	}
+	private FuncID() {}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null)
 			return false;
-		return (getClass() == obj.getClass()) && (id.equals(((SyntaxSymbolID)obj).id));
+		return (getClass() == obj.getClass()) && (id.equals(((FuncID)obj).id));
 	}
 
 	@Override
 	public int hashCode() {
-		int hash = 71;
-		hash = 311 * hash + Objects.hashCode(this.id);
-		return hash;
+		return id.hashCode();
 	}
-
 }

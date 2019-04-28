@@ -19,6 +19,7 @@
 	let _eventHandlers = {};
 	let _executor = _jExecutors.newFixedThreadPool(16);
 	let _programStartingTime = _currentTimeMillis();
+	let _outArgCopyLock = _genLockObj();
 	let _anyObj = {
 		_toStr : function() {return '';}
 	};
@@ -39,6 +40,10 @@
 
 	function _tryLock(lockObj) {
 		return lockObj.tryLock();
+	}
+
+	function _lock(lockObj) {
+		lockObj.lock();
 	}
 
 	function _unlock(lockObj) {

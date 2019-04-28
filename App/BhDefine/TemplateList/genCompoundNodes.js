@@ -69,22 +69,26 @@
 	//リストと変数名を変更して再登録
 	function setVarAndListName() {
 
-		let varDecls = ['idNumVarDecl', 'idStrVarDecl', 'idBoolVarDecl', 'idColorVarDecl', 'idSoundVarDecl'];
-		let varNames = ['数値変数', '文字列変数', '論理変数', '色変数', '音変数'];
-		for (let i = 0; i < varDecls.length; ++i) {
-			let varDecl = genBhNode(varDecls[i], bhUserOpeCmd);
-			let varName = varDecl.findSymbolInDescendants('*', 'VarName', '*');
-			varName.setText(varNames[i]);
-			registerNodeTemplate(varDecls[i], varDecl);
-		}
+		let renameInfoList = [
+			{node: 'idNumVarDecl',          cnctrName: 'VarName',             varName: '数値変数'},
+			{node: 'idStrVarDecl',          cnctrName: 'VarName',             varName: '文字列変数'},
+			{node: 'idBoolVarDecl',         cnctrName: 'VarName',             varName: '論理変数'},
+			{node: 'idColorVarDecl',        cnctrName: 'VarName',             varName: '色変数'},
+			{node: 'idSoundVarDecl',        cnctrName: 'VarName',             varName: '音変数'},
+			{node: 'idNumListDecl',         cnctrName: 'ListName',            varName: '数値リスト'},
+			{node: 'idStrListDecl',         cnctrName: 'ListName',            varName: '文字列リスト'},
+			{node: 'idBoolListDecl',        cnctrName: 'ListName',            varName: '論理リスト'},
+			{node: 'idColorListDecl',       cnctrName: 'ListName',            varName: '色リスト'},
+			{node: 'idSoundListDecl',       cnctrName: 'ListName',            varName: '音リスト'},
+			{node: 'idCriticalSectionDecl', cnctrName: 'CriticalSectionName', varName: '区間名'}
+		];
 
-		let listDecls = ['idNumListDecl', 'idStrListDecl', 'idBoolListDecl', 'idSoundListDecl'];
-		let listNames = ['数値リスト', '文字列リスト', '論理リスト', '音リスト'];
-		for (let i = 0; i < listDecls.length; ++i) {
-			let listDecl = genBhNode(listDecls[i], bhUserOpeCmd);
-			let listName = listDecl.findSymbolInDescendants('*', 'ListName', '*');
-			listName.setText(listNames[i]);
-			registerNodeTemplate(listDecls[i], listDecl);
+		for (let i = 0; i < renameInfoList.length; ++i) {
+			let renameInfo = renameInfoList[i];
+			let varDecl = genBhNode(renameInfo.node, bhUserOpeCmd);
+			let varName = varDecl.findSymbolInDescendants('*', renameInfo.cnctrName, '*');
+			varName.setText(renameInfo.varName);
+			registerNodeTemplate(renameInfo.node, varDecl);
 		}
 	}
 

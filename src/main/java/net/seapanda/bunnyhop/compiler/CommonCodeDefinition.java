@@ -54,6 +54,7 @@ public class CommonCodeDefinition {
 		public static final String GEN_CALL_OBJ =  "_genCallObj";
 		public static final String GEN_LOCK_OBJ = "_genLockObj";
 		public static final String TRY_LOCK = "_tryLock";
+		public static final String LOCK = "_lock";
 		public static final String UNLOCK = "_unlock";
 		public static final String ADD_EVENT = "_addEvent";
 		public static final String FIRE_EVENT = "_fireEvent";
@@ -78,5 +79,6 @@ public class CommonCodeDefinition {
 		public static final String NIL_SOUND  = "_nilSound";
 		public static final String NIL_COLOR = "_nilColor";
 		public static final String PROGRAM_STARTING_TIME = "_programStartingTime";
+		public static final String OUT_ARG_COPY_LOCK = "_outArgCopyLock";
 	}
 }

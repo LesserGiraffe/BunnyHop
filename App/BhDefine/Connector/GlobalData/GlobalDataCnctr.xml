@@ -1,0 +1,4 @@
+<Connector
+	bhConnectorID="idGlobalDataDeclCnctr"
+	defaultBhNodeID="idGlobalDataDeclVoid"
+	onReplaceabilityChecked="GlobalDataDeclCnct.js"/>

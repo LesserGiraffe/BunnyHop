@@ -1,0 +1,34 @@
+<Node type="connective"
+	  bhNodeID="idCriticalSectionDecl"
+	  name="CriticalSectionDecl"
+	  canCreateImitManually="true"
+	  nodeStyleID="CriticalSectionDecl.json"
+	  onMovedFromChildToWS="onGlobalDataDeclMovedToWS.js">
+
+	<Imitation imitationID="imitIdManual" imitationNodeID="idCriticalSectionStat"/>
+
+	<ConnectorSection name="GlobalDataDeclSctn">
+
+		<PrivateConnector
+			bhConnectorID="idCriticalSectionDecl.prvCnctr0"
+			name="haita"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idCriticalSectionDecl.prvNode0"
+				name="haita"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="排他">
+			</Node>
+		</PrivateConnector>
+
+		<Connector
+			bhConnectorID="idVarNameCnctr"
+			name="CriticalSectionName"
+			imitationID="imitIdVarName"
+			imitCnctPos="imitPosVarName"/>
+
+		<Connector bhConnectorID="idGlobalDataDeclCnctr" name="NextGlobalDataDecl"/>
+	</ConnectorSection>
+</Node>

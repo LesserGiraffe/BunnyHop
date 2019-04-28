@@ -1,0 +1,32 @@
+<Node
+	type="connective"
+	bhNodeID="idCriticalSectionStat"
+	name="CriticalSectionStat"
+	nodeStyleID="CriticalSectionStat.json">
+
+	<ConnectorSection name="StatSctn">
+		
+		<PrivateConnector
+			bhConnectorID="idCriticalSectionStat.prvCnctr0"
+			name="haita"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idCriticalSectionStat.prvNode0"
+				name="haita"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="排他">
+			</Node>
+		</PrivateConnector>
+
+		<Connector
+			bhConnectorID="idVarNameCnctr"
+			name="CriticalSectionName"
+			imitCnctPos="imitPosVarName"/>
+
+		<Connector bhConnectorID="idStatCnctr" name="ExclusiveStat"/>
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+
+	</ConnectorSection>
+</Node>

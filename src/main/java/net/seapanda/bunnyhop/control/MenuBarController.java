@@ -211,13 +211,15 @@ public class MenuBarController {
 			content,
 			ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 
-		return buttonType.map(btntype -> {
+		return buttonType.flatMap(btntype -> {
 
 			if (btntype.equals(ButtonType.NO))
-				return true;
+				return Optional.of(true);
 			else if (btntype.equals(ButtonType.YES))
-				return false;
-			return null;});
+				return Optional.of(false);
+
+			return Optional.empty();
+		});
 	}
 
 	/**

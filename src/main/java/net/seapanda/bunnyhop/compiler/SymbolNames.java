@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.compiler;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,18 +27,21 @@ import java.util.Map;
 public class SymbolNames {
 
 	public static class VarDecl {
+
 		public static final String NUM_VAR_DECL = "NumVarDecl";
 		public static final String NUM_VAR = "NumVar";
 		public static final String NUM_VAR_VOID = "NumVarVoid";
 		public static final String NUM_LIST_DECL = "NumListDecl";
 		public static final String NUM_LIST = "NumList";
 		public static final String NUM_EMPTY_LIST = "NumEmptyList";
+
 		public static final String STR_VAR_DECL = "StrVarDecl";
 		public static final String STR_VAR = "StrVar";
 		public static final String STR_VAR_VOID = "StrVarVoid";
 		public static final String STR_LIST_DECL = "StrListDecl";
 		public static final String STR_LIST = "StrList";
 		public static final String STR_EMPTY_LIST = "StrEmptyList";
+
 		public static final String BOOL_VAR_DECL = "BoolVarDecl";
 		public static final String BOOL_VAR = "BoolVar";
 		public static final String BOOL_VAR_VOID = "BoolVarVoid";
@@ -64,6 +66,7 @@ public class SymbolNames {
 		public static final String VAR_NAME = "VarName";
 		public static final String LIST_NAME = "ListName";
 		public static final String NEXT_VAR_DECL = "NextVarDecl";
+
 		public static final HashSet<String> VAR_DECL_LIST =
 			new HashSet<>(Arrays.asList(
 				NUM_VAR_DECL,
@@ -76,6 +79,7 @@ public class SymbolNames {
 				COLOR_LIST_DECL,
 				SOUND_VAR_DECL,
 				SOUND_LIST_DECL));
+
 		public static final HashSet<String> VAR_LIST =
 			new HashSet<>(Arrays.asList(
 				NUM_VAR,
@@ -88,6 +92,7 @@ public class SymbolNames {
 				COLOR_LIST,
 				SOUND_VAR,
 				SOUND_LIST));
+
 		public static final Map<String, String> INIT_VAL_MAP =
 			new HashMap<String,String>() {{
 				put(NUM_VAR_DECL, "0");
@@ -111,6 +116,7 @@ public class SymbolNames {
 				put(COLOR_EMPTY_LIST, "[]");
 				put(SOUND_EMPTY_LIST, "[]");
 			}};
+
 		public static final HashSet<String> VAR_VOID_LIST =
 			new HashSet<>(Arrays.asList(
 				NUM_VAR_VOID,
@@ -122,8 +128,12 @@ public class SymbolNames {
 				STR_EMPTY_LIST,
 				BOOL_EMPTY_LIST,
 				COLOR_EMPTY_LIST,
-				SOUND_EMPTY_LIST
-			));
+				SOUND_EMPTY_LIST));
+
+		public static final HashSet<String> VAR_NAME_CNCTR_LIST =
+			new HashSet<>(Arrays.asList(
+				VAR_NAME,
+				LIST_NAME));
 	}
 
 	public static class Stat {
@@ -193,6 +203,8 @@ public class SymbolNames {
 		public static final String CONTINUE_STAT = "ContinueStat";
 		public static final String BREAK_STAT = "BreakStat";
 		public static final String RETURN_STAT = "ReturnStat";
+		public static final String CRITICAL_SECTION_STAT = "CriticalSectionStat";
+		public static final String EXCLUSIVE_STAT = "ExclusiveStat";
 		public static final HashSet<String> LIST =
 			new HashSet<>(Arrays.asList(
 				IF_STAT,
@@ -202,7 +214,8 @@ public class SymbolNames {
 				COMPOUND_STAT,
 				CONTINUE_STAT,
 				BREAK_STAT,
-				RETURN_STAT));
+				RETURN_STAT,
+				CRITICAL_SECTION_STAT));
 	}
 
 	public static class BinaryExp {
@@ -217,6 +230,7 @@ public class SymbolNames {
 		public static final String LEFT_EXP = "LeftExp";
 		public static final String RIGHT_EXP = "RightExp";
 		public static final String OPERATOR ="Operator";
+
 		public static final HashSet<String> LIST =
 			new HashSet<>(Arrays.asList(
 				FOUR_ARITH_EXP,
@@ -226,10 +240,12 @@ public class SymbolNames {
 				STR_COMP_EXP,
 				BOOL_COMP_EXP,
 				APPEND_STR_EXP));	//二項演算子リスト
+
 		public static final HashSet<String> ARITH_EXCEPTION_EXP =
 			new HashSet<>(Arrays.asList(
 				FOUR_ARITH_EXP,
 				MOD_EXP));	//!< 算術演算例外を発生させる式のノード名
+
 		public static final Map<String, String> OPERATOR_MAP =
 			new HashMap<String,String>() {{
 				put("add", " + ");
@@ -392,91 +408,92 @@ public class SymbolNames {
 				Array.SOUND_ARRAY_CLEAR_STAT,
 				Array.SOUND_ARRAY_SET_STAT));	//!< 定義済み関数文のリスト
 
-		public static final Map<List<String>, String> PREDEF_FUNC_NAME_MAP =
-			new HashMap<List<String>, String>() {{
-				put(Arrays.asList(NUM_TO_STR_EXP), "String");
-				put(Arrays.asList(BOOL_TO_STR_EXP), CommonCodeDefinition.Funcs.BOOL_TO_STR);
-				put(Arrays.asList(COLOR_TO_STR_EXP), CommonCodeDefinition.Funcs.COLOR_TO_STR);
-				put(Arrays.asList(STR_TO_NUM_EXP), CommonCodeDefinition.Funcs.STR_TO_NUM);
-				put(Arrays.asList(ANY_TO_STR_EXP), CommonCodeDefinition.Funcs.TO_STR);
-				put(Arrays.asList(PRINT_STAT), CommonCodeDefinition.Funcs.PRINTLN);
-				put(Arrays.asList(PRINT_NUM_STAT), CommonCodeDefinition.Funcs.PRINTLN);
-				put(Arrays.asList(SCAM_EXP), CommonCodeDefinition.Funcs.SCAN);
-				put(Arrays.asList(NUM_ROUND_EXP, OPT_ROUND), "Math.round");
-				put(Arrays.asList(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
-				put(Arrays.asList(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor");
-				put(Arrays.asList(ABS_EXP), "Math.abs");
-				put(Arrays.asList(MAX_MIN_EXP, OPT_MAX), "Math.max");
-				put(Arrays.asList(MAX_MIN_EXP, OPT_MIN), "Math.min");
-				put(Arrays.asList(RAMDOM_INT_EXP), CommonCodeDefinition.Funcs.RANDOM_INT);
-				put(Arrays.asList(MEASURE_DISTANCE_EXP), CommonCodeDefinition.Funcs.MEASURE_DISTANCE);
-				put(Arrays.asList(MELODY_EXP), CommonCodeDefinition.Funcs.PUSH_SOUND);
-				put(Arrays.asList(COLOR_COMP_EXP), CommonCodeDefinition.Funcs.COMPARE_COLORS);
-				put(Arrays.asList(BINARY_COLOR_EXP, OPT_ADD), CommonCodeDefinition.Funcs.ADD_COLOR);
-				put(Arrays.asList(BINARY_COLOR_EXP, OPT_SUB), CommonCodeDefinition.Funcs.SUB_COLOR);
-				put(Arrays.asList(DETECT_COLOR_EXP), CommonCodeDefinition.Funcs.DETECT_COLOR);
-				put(Arrays.asList(GET_TIME_SINCE_PROGRAM_STARTED_EXP), CommonCodeDefinition.Funcs.GET_TIME_SINCE_PROGRAM_STARTED);
-				put(Arrays.asList(STR_CHAIN_LINK_EXP), CommonCodeDefinition.Funcs.STRCAT);
-				put(Arrays.asList(STR_CHAIN_EXP), CommonCodeDefinition.Funcs.IDENTITY);
-				put(Arrays.asList(MOVE_STAT, OPT_MOVE_FORWARD), CommonCodeDefinition.Funcs.MOVE_FORWARD);
-				put(Arrays.asList(MOVE_STAT, OPT_MOVE_BACKWARD), CommonCodeDefinition.Funcs.MOVE_BACKWARD);
-				put(Arrays.asList(MOVE_STAT, OPT_TURN_RIGHT), CommonCodeDefinition.Funcs.TURN_RIGHT);
-				put(Arrays.asList(MOVE_STAT, OPT_TURN_LEFT), CommonCodeDefinition.Funcs.TURN_LEFT);
-				put(Arrays.asList(SLEEP_STAT), CommonCodeDefinition.Funcs.SLEEP);
-				put(Arrays.asList(PLAY_MELODY_STAT), CommonCodeDefinition.Funcs.PLAY_MELODIES);
-				put(Arrays.asList(PLAY_SOUND_LIST_STAT), CommonCodeDefinition.Funcs.PLAY_MELODIES);
-				put(Arrays.asList(SAY_STAT), CommonCodeDefinition.Funcs.SAY);
-				put(Arrays.asList(LIGHT_EYE_STAT), CommonCodeDefinition.Funcs.LIGHT_EYE);
+		public static final Map<FuncID, String> PREDEF_FUNC_NAME_MAP =
+			new HashMap<FuncID, String>() {{
+				put(FuncID.create(BOOL_TO_STR_EXP), CommonCodeDefinition.Funcs.BOOL_TO_STR);
+				put(FuncID.create(COLOR_TO_STR_EXP), CommonCodeDefinition.Funcs.COLOR_TO_STR);
+				put(FuncID.create(NUM_TO_STR_EXP), "String");
+				put(FuncID.create(STR_TO_NUM_EXP), CommonCodeDefinition.Funcs.STR_TO_NUM);
+				put(FuncID.create(ANY_TO_STR_EXP), CommonCodeDefinition.Funcs.TO_STR);
+				put(FuncID.create(PRINT_STAT), CommonCodeDefinition.Funcs.PRINTLN);
+				put(FuncID.create(PRINT_NUM_STAT), CommonCodeDefinition.Funcs.PRINTLN);
+				put(FuncID.create(SCAM_EXP), CommonCodeDefinition.Funcs.SCAN);
+				put(FuncID.create(NUM_ROUND_EXP, OPT_ROUND), "Math.round");
+				put(FuncID.create(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
+				put(FuncID.create(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor");
+				put(FuncID.create(ABS_EXP), "Math.abs");
+				put(FuncID.create(MAX_MIN_EXP, OPT_MAX), "Math.max");
+				put(FuncID.create(MAX_MIN_EXP, OPT_MIN), "Math.min");
+				put(FuncID.create(RAMDOM_INT_EXP), CommonCodeDefinition.Funcs.RANDOM_INT);
+				put(FuncID.create(MEASURE_DISTANCE_EXP), CommonCodeDefinition.Funcs.MEASURE_DISTANCE);
+				put(FuncID.create(MELODY_EXP), CommonCodeDefinition.Funcs.PUSH_SOUND);
+				put(FuncID.create(COLOR_COMP_EXP), CommonCodeDefinition.Funcs.COMPARE_COLORS);
+				put(FuncID.create(BINARY_COLOR_EXP, OPT_ADD), CommonCodeDefinition.Funcs.ADD_COLOR);
+				put(FuncID.create(BINARY_COLOR_EXP, OPT_SUB), CommonCodeDefinition.Funcs.SUB_COLOR);
+				put(FuncID.create(DETECT_COLOR_EXP), CommonCodeDefinition.Funcs.DETECT_COLOR);
+				put(FuncID.create(GET_TIME_SINCE_PROGRAM_STARTED_EXP), CommonCodeDefinition.Funcs.GET_TIME_SINCE_PROGRAM_STARTED);
+				put(FuncID.create(STR_CHAIN_LINK_EXP), CommonCodeDefinition.Funcs.STRCAT);
+				put(FuncID.create(STR_CHAIN_EXP), CommonCodeDefinition.Funcs.IDENTITY);
+				put(FuncID.create(MOVE_STAT, OPT_MOVE_FORWARD), CommonCodeDefinition.Funcs.MOVE_FORWARD);
+				put(FuncID.create(MOVE_STAT, OPT_MOVE_BACKWARD), CommonCodeDefinition.Funcs.MOVE_BACKWARD);
+				put(FuncID.create(MOVE_STAT, OPT_TURN_RIGHT), CommonCodeDefinition.Funcs.TURN_RIGHT);
+				put(FuncID.create(MOVE_STAT, OPT_TURN_LEFT), CommonCodeDefinition.Funcs.TURN_LEFT);
+				put(FuncID.create(SLEEP_STAT), CommonCodeDefinition.Funcs.SLEEP);
+				put(FuncID.create(PLAY_MELODY_STAT), CommonCodeDefinition.Funcs.PLAY_MELODIES);
+				put(FuncID.create(PLAY_SOUND_LIST_STAT), CommonCodeDefinition.Funcs.PLAY_MELODIES);
+				put(FuncID.create(SAY_STAT), CommonCodeDefinition.Funcs.SAY);
+				put(FuncID.create(LIGHT_EYE_STAT), CommonCodeDefinition.Funcs.LIGHT_EYE);
+				put(FuncID.create(GlobalData.CRITICAL_SECTION_DECL), CommonCodeDefinition.Funcs.GEN_LOCK_OBJ);
 
-				put(Arrays.asList(Array.STR_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
-				put(Arrays.asList(Array.STR_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
-				put(Arrays.asList(Array.STR_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(Arrays.asList(Array.STR_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
-				put(Arrays.asList(Array.STR_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
-				put(Arrays.asList(Array.STR_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
-				put(Arrays.asList(Array.STR_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
-				put(Arrays.asList(Array.STR_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
-				put(Arrays.asList(Array.STR_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
+				put(FuncID.create(Array.STR_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
+				put(FuncID.create(Array.STR_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
+				put(FuncID.create(Array.STR_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(FuncID.create(Array.STR_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
+				put(FuncID.create(Array.STR_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
+				put(FuncID.create(Array.STR_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
+				put(FuncID.create(Array.STR_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
+				put(FuncID.create(Array.STR_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
+				put(FuncID.create(Array.STR_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
 
-				put(Arrays.asList(Array.NUM_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
-				put(Arrays.asList(Array.NUM_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
-				put(Arrays.asList(Array.NUM_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(Arrays.asList(Array.NUM_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
-				put(Arrays.asList(Array.NUM_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
-				put(Arrays.asList(Array.NUM_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
-				put(Arrays.asList(Array.NUM_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
-				put(Arrays.asList(Array.NUM_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
-				put(Arrays.asList(Array.NUM_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
+				put(FuncID.create(Array.NUM_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
+				put(FuncID.create(Array.NUM_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
+				put(FuncID.create(Array.NUM_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(FuncID.create(Array.NUM_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
+				put(FuncID.create(Array.NUM_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
+				put(FuncID.create(Array.NUM_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
+				put(FuncID.create(Array.NUM_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
+				put(FuncID.create(Array.NUM_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
+				put(FuncID.create(Array.NUM_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
 
-				put(Arrays.asList(Array.BOOL_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
-				put(Arrays.asList(Array.BOOL_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
-				put(Arrays.asList(Array.BOOL_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(Arrays.asList(Array.BOOL_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
-				put(Arrays.asList(Array.BOOL_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
-				put(Arrays.asList(Array.BOOL_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
-				put(Arrays.asList(Array.BOOL_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
-				put(Arrays.asList(Array.BOOL_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
-				put(Arrays.asList(Array.BOOL_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
+				put(FuncID.create(Array.BOOL_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
+				put(FuncID.create(Array.BOOL_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
+				put(FuncID.create(Array.BOOL_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(FuncID.create(Array.BOOL_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
+				put(FuncID.create(Array.BOOL_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
+				put(FuncID.create(Array.BOOL_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
+				put(FuncID.create(Array.BOOL_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
+				put(FuncID.create(Array.BOOL_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
+				put(FuncID.create(Array.BOOL_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
 
-				put(Arrays.asList(Array.COLOR_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
-				put(Arrays.asList(Array.COLOR_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
-				put(Arrays.asList(Array.COLOR_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(Arrays.asList(Array.COLOR_ARRAY_GET_LAST_EXP),  CommonCodeDefinition.Funcs.ARY_GET_LAST);
-				put(Arrays.asList(Array.COLOR_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
-				put(Arrays.asList(Array.COLOR_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
-				put(Arrays.asList(Array.COLOR_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
-				put(Arrays.asList(Array.COLOR_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
-				put(Arrays.asList(Array.COLOR_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
+				put(FuncID.create(Array.COLOR_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
+				put(FuncID.create(Array.COLOR_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
+				put(FuncID.create(Array.COLOR_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(FuncID.create(Array.COLOR_ARRAY_GET_LAST_EXP),  CommonCodeDefinition.Funcs.ARY_GET_LAST);
+				put(FuncID.create(Array.COLOR_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
+				put(FuncID.create(Array.COLOR_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
+				put(FuncID.create(Array.COLOR_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
+				put(FuncID.create(Array.COLOR_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
+				put(FuncID.create(Array.COLOR_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
 
-				put(Arrays.asList(Array.SOUND_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
-				put(Arrays.asList(Array.SOUND_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
-				put(Arrays.asList(Array.SOUND_ARRAY_INSERT_STAT),  CommonCodeDefinition.Funcs.ARY_INSERT);
-				put(Arrays.asList(Array.SOUND_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
-				put(Arrays.asList(Array.SOUND_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
-				put(Arrays.asList(Array.SOUND_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
-				put(Arrays.asList(Array.SOUND_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(Arrays.asList(Array.SOUND_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
-				put(Arrays.asList(Array.SOUND_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
+				put(FuncID.create(Array.SOUND_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
+				put(FuncID.create(Array.SOUND_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
+				put(FuncID.create(Array.SOUND_ARRAY_INSERT_STAT),  CommonCodeDefinition.Funcs.ARY_INSERT);
+				put(FuncID.create(Array.SOUND_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
+				put(FuncID.create(Array.SOUND_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
+				put(FuncID.create(Array.SOUND_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
+				put(FuncID.create(Array.SOUND_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
+				put(FuncID.create(Array.SOUND_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
+				put(FuncID.create(Array.SOUND_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
 			}};	//!<  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
 	}
 
@@ -646,6 +663,22 @@ public class SymbolNames {
 			new HashSet<>(Arrays.asList(ANY_ARRAY_LEN_EXP));
 	}
 
+	public static class GlobalData {
+
+		public static final String CRITICAL_SECTION_DECL = "CriticalSectionDecl";
+
+		public static final String CRITICAL_SECTION_NAME = "CriticalSectionName";
+		public static final String NEXT_GLOBAL_DATA_DECL = "NextGlobalDataDecl";
+
+		public static final HashSet<String> LIST =
+			new HashSet<>(Arrays.asList(
+				CRITICAL_SECTION_DECL ));
+
+		public static final HashSet<String> DATA_NAME_CNCTR_LIST =
+			new HashSet<>(Arrays.asList(
+				CRITICAL_SECTION_NAME));
+	}
+
 	public static class Identifier {
 
 		public static final String NIL_COLOR = "NilColor";
@@ -660,3 +693,20 @@ public class SymbolNames {
 				LINE_FEED_STR));
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
