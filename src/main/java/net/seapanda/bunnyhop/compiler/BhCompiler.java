@@ -236,6 +236,7 @@ public class BhCompiler {
 			public static final String _try = "try ";
 			public static final String _catch = "catch ";
 			public static final String _finally = "finally ";
+			public static final String _throw = "throw ";
 		}
 	}
 }

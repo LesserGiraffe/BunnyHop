@@ -347,23 +347,40 @@ public class StatCodeGenerator {
 		SyntaxSymbol criticalSctnNode,
 		int nestLevel,
 		CompileOption option) {
-
 		Imitatable lockVarNode = ((Imitatable)criticalSctnNode).getOriginalNode();
 		String lockVar = common.genVarName(lockVarNode);
 
-		// lock
+		// try {
 		code.append(common.indent(nestLevel))
+			.append(BhCompiler.Keywords.JS._try)
+			.append("{").append(Util.INSTANCE.LF);
+
+		// lock
+		code.append(common.indent(nestLevel + 1))
 			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.LOCK, lockVar))
 			.append(";").append(Util.INSTANCE.LF);
 
 		SyntaxSymbol exclusiveStat =
 			criticalSctnNode.findSymbolInDescendants("*", SymbolNames.ControlStat.EXCLUSIVE_STAT, "*");
-		genStatement(exclusiveStat, code, nestLevel, option);
+		genStatement(exclusiveStat, code, nestLevel + 1, option);
 
-		// unlock
+		// end of "try {"
 		code.append(common.indent(nestLevel))
+			.append("}").append(Util.INSTANCE.LF);
+
+		// 	catch (e) { throw e; }
+		code.append(common.indent(nestLevel))
+			.append(BhCompiler.Keywords.JS._catch)
+			.append("(e) { ")
+			.append(BhCompiler.Keywords.JS._throw)
+			.append("e; }")
+			.append(Util.INSTANCE.LF);
+
+		// fincally { _unlock(...); }
+		code.append(common.indent(nestLevel))
+		.append(BhCompiler.Keywords.JS._finally).append("{ ")
 			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.UNLOCK, lockVar))
-			.append(";").append(Util.INSTANCE.LF);
+			.append("; }").append(Util.INSTANCE.LF);
 	}
 }
 

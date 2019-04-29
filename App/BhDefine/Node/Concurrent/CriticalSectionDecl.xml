@@ -1,9 +1,10 @@
-<Node type="connective"
-	  bhNodeID="idCriticalSectionDecl"
-	  name="CriticalSectionDecl"
-	  canCreateImitManually="true"
-	  nodeStyleID="CriticalSectionDecl.json"
-	  onMovedFromChildToWS="onGlobalDataDeclMovedToWS.js">
+<Node
+	type="connective"
+	bhNodeID="idCriticalSectionDecl"
+	name="CriticalSectionDecl"
+	canCreateImitManually="true"
+	nodeStyleID="CriticalSectionDecl.json"
+	onMovedFromChildToWS="onGlobalDataDeclMovedToWS.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idCriticalSectionStat"/>
 
