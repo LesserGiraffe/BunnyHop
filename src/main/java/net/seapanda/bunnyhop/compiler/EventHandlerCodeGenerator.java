@@ -203,7 +203,9 @@ public class EventHandlerCodeGenerator {
 			.append("(){").append(Util.INSTANCE.LF);
 
 		//try {
-		code.append(common.indent(nestLevel + 1)).append(BhCompiler.Keywords.JS._try).append("{").append(Util.INSTANCE.LF);
+		code.append(common.indent(nestLevel + 1))
+			.append(BhCompiler.Keywords.JS._try)
+			.append("{").append(Util.INSTANCE.LF);
 
 		// if (_tryLock(lockObj)) {
 		code.append(common.indent(nestLevel + 2))
@@ -239,11 +241,16 @@ public class EventHandlerCodeGenerator {
 		// end of "try {"
 		code.append(common.indent(nestLevel + 1)).append("}").append(Util.INSTANCE.LF);
 
-		// catch (e) {}
+		// 	catch (e) { throw e; }
+		code.append(common.indent(nestLevel))
+			.append(BhCompiler.Keywords.JS._catch)
+			.append("(e) { ")
+			.append(BhCompiler.Keywords.JS._throw)
+			.append("e; }")
+			.append(Util.INSTANCE.LF);
+
 		// fincally {...}
 		code.append(common.indent(nestLevel + 1))
-			.append(BhCompiler.Keywords.JS._catch).append("(e) {}").append(Util.INSTANCE.LF)
-			.append(common.indent(nestLevel + 1))
 			.append(BhCompiler.Keywords.JS._finally).append("{")
 			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.UNLOCK, lockVar))
 			.append(";}").append(Util.INSTANCE.LF);

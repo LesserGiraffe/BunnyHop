@@ -18,11 +18,9 @@
 		let procBuilder = new _jProcBuilder(moveCmd, String(cmd), String(time), String(speed));
 		try {
 			let process = procBuilder.start();
-			_waitProcEnd(process, 'ERR: _move ' + cmd + ' ', false);
+			_waitProcEnd(process, false, true);
 		}
-		catch (e) {
-			_println('ERR: _move ' + cmd + ' ' + e);
-		}
+		catch (e) { throw ('_move ' + cmd + ' ' + e); }
 	}
 
 	function _moveForward(speed, time) {
@@ -48,12 +46,9 @@
 		let distanceList;
 		try {
 			let process =  procBuilder.start();
-			distanceList = _waitProcEnd(process, 'ERR: _measureDistance ', true);
+			distanceList = _waitProcEnd(process, true, true);
 		}
-		catch (e) {
-			_println('ERR: _measureDistance ' + e);
-			return 0;
-		}
+		catch (e) { throw ('_measureDistance ' + e); }
 		distanceList = distanceList.split(",")
 						.map(function (elem) { return Number(elem); })
 						.sort(function(a,b){ return (a < b ? -1 : 1); });
@@ -89,14 +84,9 @@
 
 		try {
 			let process =  procBuilder.start();
-			colorList = _waitProcEnd(process, 'ERR: _detectColor ', true);
-			if (process.exitValue() !== 0)
-				throw "(color snsor error)";
+			colorList = _waitProcEnd(process, true, true);
 		}
-		catch (e) {
-			_println('ERR: _detectColor ' + e);
-			return new _Color(0, 0, 0);
-		}
+		catch (e) { throw ('_detectColor ' + e); }
 
 		colorList = colorList.split(",");
 		return new _Color(Number(colorList[0]), Number(colorList[1]), Number(colorList[2]));
@@ -188,22 +178,18 @@
 		let procBuilder = new _jProcBuilder('gpio', '-g', 'write', String(port), String(val));
 		try {
 			let process =  procBuilder.start();
-			_waitProcEnd(process, 'ERR: ioWrite ', false);
+			_waitProcEnd(process, false, false);
 		}
-		catch (e) {
-			_println('ERR: ioWrite ' + e);
-		}
+		catch (e) { throw ('_ioWrite ' + e); }
 	}
 
 	function _changeIoMode(port, mode) {
 		let procBuilder = new _jProcBuilder('gpio', '-g', 'mode', String(port), String(mode));
 		try {
 			let process =  procBuilder.start();
-			_waitProcEnd(process, 'ERR: _changeIoMode ', false);
+			_waitProcEnd(process, false, false);
 		}
-		catch (e) {
-			_println('ERR: _changeIoMode ' + e);
-		}
+		catch (e) { throw ('_changeIoMode ' + e); }
 	}
 
 	(function _initEyeLight() {
@@ -260,16 +246,3 @@
 		hiList.forEach(function (port) {_ioWrite(port, '1');});
 		loList.forEach(function (port) {_ioWrite(port, '0');});
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-

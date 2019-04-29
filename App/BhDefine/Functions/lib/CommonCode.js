@@ -65,10 +65,23 @@
 			_eventHandlers[event].forEach(
 				function(handler) {
 					try {_executor['submit(java.util.concurrent.Callable)'](function() {handler();});}
-					catch(e) { _println("ERR: _fireEvent " + e); }
+					catch(e) { throw ('_fireEvent ' + e); }
 				}
 			);
 		}
+	}
+
+	//イベントに関連付けられたベントハンドラの名前を返す
+	function _getEventHandlerNames(event) {
+
+		let nameList = [];
+		let handlers = _eventHandlers[event];
+		if (handlers !== void 0) {
+			for (let handler of handlers) {
+				nameList.push(handler.name);
+			}
+		}
+		return nameList;
 	}
 
 	function _strToNum(strVal) {
@@ -108,7 +121,7 @@
 		try {
 			_jThread.sleep(Math.round(sec * 1000));
 		}
-		catch (e) { _println("ERR: _sleep " + e); }
+		catch (e) { throw ('_sleep ' + e); }
 	}
 
 	function _scan(str) {
@@ -151,7 +164,7 @@
 		return new _jString(byteArray);
 	}
 
-	function _waitProcEnd(process, errMsg, getStdinStr) {
+	function _waitProcEnd(process, getStdinStr, checkExitVal) {
 
 		let retStr = null;
 		try {
@@ -160,11 +173,12 @@
 				retStr = readStream(is);
 			else
 				while (is.read() !== -1);
+			
 			process.waitFor();
+			if (checkExitVal && (process.exitValue() !== 0))
+				throw '(abnormal process end)';
 		}
-		catch (e) {
-			_println(errMsg + e);
-		}
+		catch (e) { throw e; }
 		finally {
 			process.getErrorStream().close();
 			process.getInputStream().close();
@@ -358,7 +372,7 @@
 				line.write(waveBuf, 0, ret.waveLen);
 			}
 		}
-		catch (e) { _println("ERR: _playMelodies " + e); }
+		catch (e) { throw ('_playMelodies ' + e); }
 		finally {
 			if (line !== null) {
 				line.drain();
@@ -390,7 +404,7 @@
 				line.write(waveBuf, 0, byteRead);
 			}
 		}
-		catch (e) { _println("ERR: _playWavFile " + e); }
+		catch (e) { throw ('_playWavFile ' + e); }
 		finally {
 			if (line !== null) {
 				line.drain();
@@ -428,11 +442,9 @@
 		let procBuilder = new _jProcBuilder('sh', talkCmd, '"' + word + '"');
 		try {
 			let process =  procBuilder.start();
-			_waitProcEnd(process, 'ERR: _say ', false);
+			_waitProcEnd(process, false, true);
 		}
-		catch (e) {
-			_println('ERR: _say ' + e);
-		}
+		catch (e) { throw ('_sayOnLinux ' + e); }
 	}
 
 	// 色クラス
@@ -463,7 +475,7 @@
 			case 'black':
 				return new _Color(0,0,0);
 			default:
-				_println('ERR: _createColorFromName invalid colorName ' + colorName);
+				throw ('_createColorFromName invalid colorName ' + colorName);
 		}
 		return null;
 	}
@@ -476,7 +488,7 @@
 		else if (eq === 'neq')
 			return !equality;
 		else
-			_println("ERR: _compareColors invalid eq " + eq);
+			throw ('_compareColors invalid eq ' + eq);
 
 		return null;
 	}

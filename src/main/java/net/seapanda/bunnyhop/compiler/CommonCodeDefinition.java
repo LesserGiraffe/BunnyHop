@@ -58,6 +58,7 @@ public class CommonCodeDefinition {
 		public static final String UNLOCK = "_unlock";
 		public static final String ADD_EVENT = "_addEvent";
 		public static final String FIRE_EVENT = "_fireEvent";
+		public static final String GET_EVENT_HANDLER_NAMES = "_getEventHandlerNames";
 		public static final String BH_MAIN = "_bhMain";
 		public static final String CREATE_SOUND = "_createSound";
 		public static final String CREATE_COLOR_FROM_NAME = "_createColorFromName";

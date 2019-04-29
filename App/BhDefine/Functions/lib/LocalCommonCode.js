@@ -49,23 +49,17 @@
 		let procBuilder = new _jProcBuilder(sayCmdPath.toString(), '"' + word + '"', wavFilePath.toString());
 		try {
 			let process = procBuilder.start();
-			_waitProcEnd(process, 'ERR: _say0 ', false);
+			_waitProcEnd(process, false, true);
 		}
-		catch (e) {
-			_println('ERR: _say1 ' + e);
-		}
-
+		catch (e) { throw ('_sayOnWindows ' + e); }
 		_playWavFile(wavFilePath);
 
 		procBuilder = new _jProcBuilder('cmd', '/C', 'del', '/F', wavFilePath.toString());
 		try {
 			let process = procBuilder.start();
-			_waitProcEnd(process, 'ERR: say del ', false);
+			_waitProcEnd(process, false, true);
 		}
-		catch (e) {
-			_println('ERR: say del ' + e);
-		}
-
+		catch (e) { throw ('_sayOnWindows del ' + e); }
 	}
 
 	function _say(word) {

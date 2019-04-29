@@ -306,7 +306,7 @@ public class BhProgramManagerCommon {
 				new BhProgramData(
 					BhProgramData.TYPE.INPUT_EVENT,
 					BhProgramData.EVENT.PROGRAM_START,
-					CommonCodeDefinition.Funcs.FIRE_EVENT));
+					CommonCodeDefinition.Funcs.GET_EVENT_HANDLER_NAMES));
 			Future<Boolean> recvTaskFuture = recvTaskExec.submit(() -> transceiver.recv());
 			Future<Boolean> sendTaskFuture = sendTaskExec.submit(() -> transceiver.send());
 			setTransceiverAndFutures(transceiver, recvTaskFuture, sendTaskFuture);

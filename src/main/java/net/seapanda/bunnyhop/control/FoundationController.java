@@ -252,12 +252,13 @@ public class FoundationController {
 		BhProgramData.EVENT bhEvent = keyCode_keyEvent.get(event.getCode());
 		if (bhEvent != null) {
 			pressedKey.add(event.getCode());
+			var sendData = new BhProgramData(
+				BhProgramData.TYPE.INPUT_EVENT, bhEvent, CommonCodeDefinition.Funcs.GET_EVENT_HANDLER_NAMES);
+
 			if (menuOperationController.isLocalHost())
-				LocalBhProgramManager.INSTANCE.sendAsync(
-					new BhProgramData(BhProgramData.TYPE.INPUT_EVENT, bhEvent, CommonCodeDefinition.Funcs.FIRE_EVENT));
+				LocalBhProgramManager.INSTANCE.sendAsync(sendData);
 			else
-				RemoteBhProgramManager.INSTANCE.sendAsync(
-					new BhProgramData(BhProgramData.TYPE.INPUT_EVENT, bhEvent, CommonCodeDefinition.Funcs.FIRE_EVENT));
+				RemoteBhProgramManager.INSTANCE.sendAsync(sendData);
 		}
 	}
 }
