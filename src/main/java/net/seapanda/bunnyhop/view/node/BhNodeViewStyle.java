@@ -59,11 +59,11 @@ public class BhNodeViewStyle {
 	public double connectorShift = 0.5 * BhParams.LnF.NODE_SCALE; //!< ノードの左上からのコネクタの位置
 	public double connectorWidth = 1.5 * BhParams.LnF.NODE_SCALE; //!< コネクタ部分の幅
 	public double connectorHeight = 1.5 * BhParams.LnF.NODE_SCALE; //!< コネクタ部分の高さ
-	public ConnectorShape.CNCTR_SHAPE connectorShape = ConnectorShape.CNCTR_SHAPE.CNCTR_SHAPE_ARROW; //!< コネクタの形
+	public ConnectorShape.CNCTR_SHAPE connectorShape = ConnectorShape.CNCTR_SHAPE.ARROW; //!< コネクタの形
 	public NOTCH_POS notchPos = NOTCH_POS.RIGHT; //!< 切り欠きの位置
 	public double notchWidth = 1.5 * BhParams.LnF.NODE_SCALE; //!< コネクタ部分の幅
 	public double notchHeight = 1.5 * BhParams.LnF.NODE_SCALE; //!< コネクタ部分の高さ
-	public ConnectorShape.CNCTR_SHAPE notchShape =  ConnectorShape.CNCTR_SHAPE.CNCTR_SHAPE_NONE;	//!< 切り欠きの形
+	public ConnectorShape.CNCTR_SHAPE notchShape =  ConnectorShape.CNCTR_SHAPE.NONE;	//!< 切り欠きの形
 	public double connectorBoundsRate = 2.0; //!< ドラッグ&ドロップ時などに適用されるコネクタの範囲
 	public String cssClass = "defaultNode";
 
@@ -247,11 +247,11 @@ public class BhNodeViewStyle {
 	public Vec2D getConnectorSize() {
 
 		double cnctrWidth = 0.0;
-		if (connectorShape != CNCTR_SHAPE.CNCTR_SHAPE_NONE)
+		if (connectorShape != CNCTR_SHAPE.NONE)
 			cnctrWidth = connectorWidth;
 
 		double cnctrHeight = 0.0;
-		if (connectorShape != CNCTR_SHAPE.CNCTR_SHAPE_NONE)
+		if (connectorShape != CNCTR_SHAPE.NONE)
 			cnctrHeight = connectorHeight;
 
 		return new Vec2D(cnctrWidth, cnctrHeight);

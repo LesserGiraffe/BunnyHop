@@ -180,10 +180,10 @@ public abstract class BhNodeView extends Pane implements Showable {
 
 		/**
 		 * コンストラクタ
-		 * @param shape コネクタの形
+		 * @param cnctrShape コネクタの形
 		 * */
-		BhNodeViewConnector(CNCTR_SHAPE shape) {
-			connector = ConnectorShape.genConnector(shape);
+		BhNodeViewConnector(CNCTR_SHAPE cnctrShape) {
+			connector = cnctrShape.SHAPE;
 		}
 
 		/**
@@ -218,8 +218,8 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * @param notchShape 切り欠きの形
 		 * */
 		public AppearanceManager(BODY_SHAPE bodyShape, CNCTR_SHAPE notchShape) {
-			notch = ConnectorShape.genConnector(notchShape);
-			body = BodyShape.genBody(bodyShape);
+			notch = notchShape.SHAPE;
+			body = bodyShape.SHAPE;
 		}
 
 		/**
@@ -318,7 +318,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * ボディの形をセットする. (再描画は行わない)
 		 * */
 		public void setBodyShape(BODY_SHAPE bodyShape) {
-			body = BodyShape.genBody(bodyShape);
+			body = bodyShape.SHAPE;
 		}
 	}
 

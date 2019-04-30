@@ -1,29 +1,25 @@
 {
 	"paddingTop" : 1.0,
 	"paddingBottom" : 1.0,
-	"paddingLeft" : 12.5,
-	"paddingRight" : 4.0,
+	"paddingLeft" : 5.5,
+	"paddingRight" : 1.5,
 	"connectorPos" : "Top",
 	"connectorShift" : 1.0,
 	"connectorWidth" : 3.5,
 	"connectorHeight" : 3.5,
-	"connectorShape" : "INV_PENTAGON",
+	"connectorShape" : "ARROW",
 	"connectorBoundsRate" : 1.25,
 	"cssClass" : "concurrentType",
 
 	"connective" : {
 		"inner" : {
-			"space" : 2.0,
 			"arrangement" : "Row",
-			"connectorList" : ["haita", "CriticalSectionName"]
+			"space" : 2.0,
+			"connectorList" : ["Arg0", "matsu"]
 		},
+
 		"outer" : {
-			"connectorList" : ["NextGlobalDataDecl"]
+			"connectorList" : ["NextStat"]
 		}
-	},
-	
-    "imitation" : {
-		"buttonPosX" : 6.0,
-		"buttonPosY" : 1.0
 	}
 }

@@ -22,10 +22,10 @@ import java.util.List;
 import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
 
 /**
- * 菱形コネクタクラス
+ * 雷型コネクタ
  * @author K.Koike
  * */
-public class ConnectorDiamond extends ConnectorShape {
+public class ConnectorLightning extends ConnectorShape {
 
 
 	/** コネクタの頂点を算出する
@@ -38,23 +38,31 @@ public class ConnectorDiamond extends ConnectorShape {
 	public List<Double> createVertices(double offsetX, double offsetY, double width, double height, CNCTR_POS pos) {
 
 		ArrayList<Double> vertices = null;
+		double p = 2.0 / 3.0;
+		double q = 1.0 - p;
+
 		if (pos == CNCTR_POS.LEFT) {
 			vertices = new ArrayList<>(Arrays.asList(
-				offsetX + width,       offsetY + height / 2.0,
-				offsetX + width / 2.0, offsetY + height,
-				offsetX + 0.0,         offsetY + height / 2.0,
-				offsetX + width / 2.0, offsetY + 0.0,
-				offsetX + width,       offsetY + height / 2.0));
+				offsetX + width,     offsetY + height * p,
+				offsetX + width * p, offsetY + height * 0.5,
+				offsetX + width * p, offsetY + height,
+				offsetX + 0.0,       offsetY + height * p,
+				offsetX + 0.0,       offsetY + height * q,
+				offsetX + width * q, offsetY + height * 0.5,
+				offsetX + width * q, offsetY + 0.0,
+				offsetX + width,     offsetY + height * q));
 		}
 		else if (pos == CNCTR_POS.TOP) {
 			vertices = new ArrayList<>(Arrays.asList(
-				offsetX + width / 2.0, offsetY + height,
-				offsetX + 0.0,         offsetY + height / 2.0,
-				offsetX + width / 2.0, offsetY + 0.0,
-				offsetX + width,       offsetY + height / 2.0,
-				offsetX + width / 2.0, offsetY + height));
+				offsetX + width * q,   offsetY + height,
+				offsetX + width * 0.5, offsetY + height * p,
+				offsetX + 0.0,         offsetY + height * p,
+				offsetX + width * q,   offsetY + 0.0,
+				offsetX + width * p,   offsetY + 0.0,
+				offsetX + width * 0.5, offsetY + height * q,
+				offsetX + width,       offsetY + height * q,
+				offsetX + width * p,   offsetY + height));
 		}
 		return vertices;
 	}
 }
-

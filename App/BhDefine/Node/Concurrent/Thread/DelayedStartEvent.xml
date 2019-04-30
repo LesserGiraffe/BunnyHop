@@ -13,7 +13,7 @@
     		fixed="true">
 			<Node
 				type="textField"
-				bhNodeID="idFixedNumLiteral"
+				bhNodeID="idDelayedStartEvent.prvNode0"
 				name="DelayTime"
 				nodeStyleID="FixedNumLiteral.json"
 				nodeInputControl="TextField.fxml"

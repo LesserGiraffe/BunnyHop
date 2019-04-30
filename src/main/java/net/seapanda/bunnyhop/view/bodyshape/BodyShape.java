@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.view.node.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
@@ -29,15 +28,33 @@ import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.NOTCH_POS;
 
 public abstract class BodyShape {
 
-	private static final Map<String, BODY_SHAPE> shapeNameToBodyShape =
-		new HashMap<String, BODY_SHAPE>() {{
-			put(BhParams.NodeStyleDef.VAL_ROUND_RECT, BODY_SHAPE.BODY_SHAPE_ROUND_RECT);
-			put(BhParams.NodeStyleDef.VAL_NONE, BODY_SHAPE.BODY_SHAPE_NONE);
-		}};
-
+	/**
+	 * ボディの形の識別子を定義した列挙型
+	 * */
 	public enum BODY_SHAPE {
-		BODY_SHAPE_ROUND_RECT,
-		BODY_SHAPE_NONE,
+
+		BODY_SHAPE_ROUND_RECT ("ROUND_RECT", new BodyRoundRect()),
+		BODY_SHAPE_NONE ("NONE", new BodyNone());
+
+		public final String NAME;
+		public final BodyShape SHAPE;
+		private static final Map<String, BODY_SHAPE> shapeNameToBodyShape =
+			new HashMap<>() {{
+				put(BODY_SHAPE.BODY_SHAPE_ROUND_RECT.NAME, BODY_SHAPE.BODY_SHAPE_ROUND_RECT);
+				put(BODY_SHAPE.BODY_SHAPE_NONE.NAME, BODY_SHAPE.BODY_SHAPE_NONE);
+			}};
+
+		private BODY_SHAPE(String shapeName, BodyShape shape) {
+			NAME = shapeName;
+			SHAPE = shape;
+		}
+
+		/**
+		 * ボディ名からボディの識別子を取得する
+		 * */
+		public static BODY_SHAPE getByName(String name) {
+			return BODY_SHAPE.shapeNameToBodyShape.get(name);
+		}
 	}
 
 	/**
@@ -141,20 +158,6 @@ public abstract class BodyShape {
 	}
 
 	/**
-	 * type に対応する BodyShape を取得する
-	 * @param type ボディの形を表す列挙子
-	 * @return BodyShape オブジェクト
-	 * */
-	public static BodyShape genBody(BODY_SHAPE type) {
-
-		switch (type) {
-			case BODY_SHAPE_ROUND_RECT : return new BodyRoundRect();
-			case BODY_SHAPE_NONE : return new BodyNone();
-			default : throw new AssertionError(BodyShape.class.getSimpleName() + "  invalid body shape " + type.toString());
-		}
-	}
-
-	/**
 	 * ボディ名から対応する BODY_SHAPE を返す
 	 * @param bodyShapeName ボディの形を表す文字列
 	 * @param fileName ボディの形が記述してあるjsonファイルの名前 (null可)
@@ -162,7 +165,7 @@ public abstract class BodyShape {
 	 * */
 	public static BODY_SHAPE getBodyTypeFromName(String bodyShapeName, String fileName) {
 
-		BODY_SHAPE type = shapeNameToBodyShape.get(bodyShapeName);
+		BODY_SHAPE type = BODY_SHAPE.getByName(bodyShapeName);
 		if (type == null)
 			throw new AssertionError(ConnectorShape.class.getSimpleName()
 					+ "  invalid body shape name " + bodyShapeName + " (" + fileName + ")");

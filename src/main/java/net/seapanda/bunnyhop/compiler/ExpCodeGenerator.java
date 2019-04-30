@@ -77,7 +77,7 @@ public class ExpCodeGenerator {
 		else if (SymbolNames.Array.LENGTH_EXP_LIST.contains(expSymbolName)) {
 			return genArrayLenExp(code, expNode, nestLevel, option);
 		}
-		else if (SymbolNames.Identifier.LIST.contains(expSymbolName)) {
+		else if (SymbolNames.ConstantValue.LIST.contains(expSymbolName)) {
 			return genIdentifierExp(code, expNode, nestLevel, option);
 		}
 		return null;

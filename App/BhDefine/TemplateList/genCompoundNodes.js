@@ -80,7 +80,8 @@
 			{node: 'idBoolListDecl',        cnctrName: 'ListName',            varName: '論理リスト'},
 			{node: 'idColorListDecl',       cnctrName: 'ListName',            varName: '色リスト'},
 			{node: 'idSoundListDecl',       cnctrName: 'ListName',            varName: '音リスト'},
-			{node: 'idCriticalSectionDecl', cnctrName: 'CriticalSectionName', varName: '区間名'}
+			{node: 'idCriticalSectionDecl', cnctrName: 'CriticalSectionName', varName: '区間名'},
+			{node: 'idReusableBarrierDecl', cnctrName: 'ReusableBarrierName', varName: '場所名'}
 		];
 
 		for (let i = 0; i < renameInfoList.length; ++i) {

@@ -22,7 +22,7 @@ import java.util.List;
 import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
 
 /**
- *逆三角形コネクタクラス
+ * 逆三角形コネクタクラス
  * @author K.Koike
  * */
 public class ConnectorInvTriangle extends ConnectorShape {

@@ -1,0 +1,8 @@
+<Node
+	type="noContent"
+	bhNodeID="idReusableBarrierVarVoid" 
+	name="ReusableBarrierVarVoid" 
+	nodeStyleID="ReusableBarrierVarVoid.json"
+	initString="_noWaitBarrier"
+	onMovedFromChildToWS="onLiteralMovedToWS.js">
+</Node>

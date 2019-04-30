@@ -50,7 +50,7 @@ final public class VarDeclCodeGenerator {
 
 		List<VarDeclCodeGenerator.VarDeclInfo> varDeclInfoList = new ArrayList<>();
 		nodeListToCompile.forEach(node -> {
-			if (SymbolNames.VarDecl.VAR_DECL_LIST.contains(node.getSymbolName())) {
+			if (SymbolNames.VarDecl.LIST.contains(node.getSymbolName())) {
 				genVarDeclInfos(node, varDeclInfoList);
 			}
 		});
@@ -131,7 +131,7 @@ final public class VarDeclCodeGenerator {
 	 */
 	private void genVarDeclInfos(SyntaxSymbol varDeclNode, List<VarDeclInfo> varDeclInfoList) {
 
-		if (!SymbolNames.VarDecl.VAR_DECL_LIST.contains(varDeclNode.getSymbolName()))
+		if (!SymbolNames.VarDecl.LIST.contains(varDeclNode.getSymbolName()))
 			return;
 
 		String comment =

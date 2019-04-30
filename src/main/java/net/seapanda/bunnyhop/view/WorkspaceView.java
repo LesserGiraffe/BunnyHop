@@ -93,7 +93,9 @@ public class WorkspaceView extends Tab {
 
 		minPaneSize.x = width;
 		minPaneSize.y = height;
-		wsPane.setMinSize(minPaneSize.x, minPaneSize.y);	//タブの中の部分の最小サイズを決める
+		//タブの中の部分のサイズを決める. スクロールバーが表示されなくなるので setPrefSize() は使わない.
+		wsPane.setMinSize(minPaneSize.x, minPaneSize.y);
+		wsPane.setMaxSize(minPaneSize.x, minPaneSize.y);
 		wsPane.getTransforms().add(new Scale());
 		quadTreeMngForBody = new QuadTreeManager(BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
 		quadTreeMngForConnector = new QuadTreeManager(BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
@@ -260,6 +262,7 @@ public class WorkspaceView extends Tab {
 		double newWsHeight = widen ? currentSize.y * 2.0 : currentSize.y / 2.0;
 
 		wsPane.setMinSize(newWsWidth, newWsHeight);
+		wsPane.setMaxSize(newWsWidth, newWsHeight);
 		quadTreeMngForBody = new QuadTreeManager(quadTreeMngForBody, BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
 		quadTreeMngForConnector = new QuadTreeManager(quadTreeMngForConnector, BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
 
@@ -343,7 +346,7 @@ public class WorkspaceView extends Tab {
 	/**
 	 * 矩形選択ツールを表示する
 	 * @param upperLeft 表示する矩形のワークスペース上の左上の座標
-	 * @param upperLeft 表示する矩形のワークスペース上の右下の座標
+	 * @param lowerRight 表示する矩形のワークスペース上の右下の座標
 	 * */
 	public void showSelectionRectangle(Vec2D upperLeft, Vec2D lowerRight) {
 		rectSelTool.setVisible(true);

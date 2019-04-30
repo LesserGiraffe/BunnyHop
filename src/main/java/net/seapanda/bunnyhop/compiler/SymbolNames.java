@@ -63,11 +63,12 @@ public class SymbolNames {
 		public static final String SOUND_LIST = "SoundList";
 		public static final String SOUND_EMPTY_LIST = "SoundEmptyList";
 
+		public static final String REUSABLE_BARRIER_VAR = "ReusableBarrierVar";
 		public static final String VAR_NAME = "VarName";
 		public static final String LIST_NAME = "ListName";
 		public static final String NEXT_VAR_DECL = "NextVarDecl";
 
-		public static final HashSet<String> VAR_DECL_LIST =
+		public static final HashSet<String> LIST =
 			new HashSet<>(Arrays.asList(
 				NUM_VAR_DECL,
 				NUM_LIST_DECL,
@@ -91,7 +92,8 @@ public class SymbolNames {
 				COLOR_VAR,
 				COLOR_LIST,
 				SOUND_VAR,
-				SOUND_LIST));
+				SOUND_LIST,
+				REUSABLE_BARRIER_VAR));
 
 		public static final Map<String, String> INIT_VAL_MAP =
 			new HashMap<String,String>() {{
@@ -157,16 +159,17 @@ public class SymbolNames {
 		public static final String COMMENT_PART = "CommentPart";
 
 
-		public static final HashSet<String> LIST = new HashSet<>(Arrays.asList(
-			ANY_ASSIGN_STAT,
-			ANY_ARRAY_APPEND_STAT,
-			ANY_ARRAY_CLEAR_STAT,
-			ANY_ARRAY_INSERT_STAT,
-			ANY_ARRAY_POP_STAT,
-			ANY_ARRAY_PUSH_STAT,
-			ANY_ARRAY_REMOVE_STAT,
-			ANY_ARRAY_SET_STAT,
-			COMMENT_PART));
+		public static final HashSet<String> LIST =
+			new HashSet<>(Arrays.asList(
+				ANY_ASSIGN_STAT,
+				ANY_ARRAY_APPEND_STAT,
+				ANY_ARRAY_CLEAR_STAT,
+				ANY_ARRAY_INSERT_STAT,
+				ANY_ARRAY_POP_STAT,
+				ANY_ARRAY_PUSH_STAT,
+				ANY_ARRAY_REMOVE_STAT,
+				ANY_ARRAY_SET_STAT,
+				COMMENT_PART));
 	}
 
 	public static class AssignStat {
@@ -304,6 +307,7 @@ public class SymbolNames {
 		public static final String GET_TIME_SINCE_PROGRAM_STARTED_EXP = "GetTimeSinceProgramStartedExp";
 		public static final String STR_CHAIN_LINK_EXP = "StrChainLinkExp";
 		public static final String STR_CHAIN_EXP = "StrChainExp";
+		public static final String GET_NUMBER_WAITING_EXP = "GetNumberWaitingExp";
 		public static final String PRINT_STAT = "PrintStat";
 		public static final String PRINT_NUM_STAT = "PrintNumStat";
 		public static final String MOVE_STAT = "MoveStat";
@@ -311,7 +315,8 @@ public class SymbolNames {
 		public static final String PLAY_MELODY_STAT = "PlayMelodyStat";
 		public static final String PLAY_SOUND_LIST_STAT = "PlaySoundListStat";
 		public static final String SAY_STAT = "SayStat";
-		public static final String LIGHT_EYE_STAT =  "LightEyeStat";
+		public static final String LIGHT_EYE_STAT = "LightEyeStat";
+		public static final String AWAIT_STAT = "AwaitStat";
 
 		//オプション名
 		public static final String OPT_ROUND = "round";
@@ -346,6 +351,7 @@ public class SymbolNames {
 				GET_TIME_SINCE_PROGRAM_STARTED_EXP,
 				STR_CHAIN_LINK_EXP,
 				STR_CHAIN_EXP,
+				GET_NUMBER_WAITING_EXP,
 
 				Array.NUM_ARRAY_GET_EXP,
 				Array.NUM_ARRAY_GET_LAST_EXP,
@@ -368,6 +374,8 @@ public class SymbolNames {
 				PLAY_SOUND_LIST_STAT,
 				SAY_STAT,
 				LIGHT_EYE_STAT,
+				AWAIT_STAT,
+
 				Array.STR_ARRAY_PUSH_STAT,
 				Array.STR_ARRAY_POP_STAT,
 				Array.STR_ARRAY_SET_STAT,
@@ -417,6 +425,7 @@ public class SymbolNames {
 				put(FuncID.create(ANY_TO_STR_EXP), CommonCodeDefinition.Funcs.TO_STR);
 				put(FuncID.create(PRINT_STAT), CommonCodeDefinition.Funcs.PRINTLN);
 				put(FuncID.create(PRINT_NUM_STAT), CommonCodeDefinition.Funcs.PRINTLN);
+				put(FuncID.create(AWAIT_STAT), CommonCodeDefinition.Funcs.AWAIT);
 				put(FuncID.create(SCAM_EXP), CommonCodeDefinition.Funcs.SCAN);
 				put(FuncID.create(NUM_ROUND_EXP, OPT_ROUND), "Math.round");
 				put(FuncID.create(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
@@ -434,6 +443,7 @@ public class SymbolNames {
 				put(FuncID.create(GET_TIME_SINCE_PROGRAM_STARTED_EXP), CommonCodeDefinition.Funcs.GET_TIME_SINCE_PROGRAM_STARTED);
 				put(FuncID.create(STR_CHAIN_LINK_EXP), CommonCodeDefinition.Funcs.STRCAT);
 				put(FuncID.create(STR_CHAIN_EXP), CommonCodeDefinition.Funcs.IDENTITY);
+				put(FuncID.create(GET_NUMBER_WAITING_EXP), CommonCodeDefinition.Funcs.GET_NUMBER_WAITING);
 				put(FuncID.create(MOVE_STAT, OPT_MOVE_FORWARD), CommonCodeDefinition.Funcs.MOVE_FORWARD);
 				put(FuncID.create(MOVE_STAT, OPT_MOVE_BACKWARD), CommonCodeDefinition.Funcs.MOVE_BACKWARD);
 				put(FuncID.create(MOVE_STAT, OPT_TURN_RIGHT), CommonCodeDefinition.Funcs.TURN_RIGHT);
@@ -444,6 +454,7 @@ public class SymbolNames {
 				put(FuncID.create(SAY_STAT), CommonCodeDefinition.Funcs.SAY);
 				put(FuncID.create(LIGHT_EYE_STAT), CommonCodeDefinition.Funcs.LIGHT_EYE);
 				put(FuncID.create(GlobalData.CRITICAL_SECTION_DECL), CommonCodeDefinition.Funcs.GEN_LOCK_OBJ);
+				put(FuncID.create(GlobalData.REUSABLE_BARRIER_DECL), CommonCodeDefinition.Funcs.GEN_REUSABLE_BARRIER);
 
 				put(FuncID.create(Array.STR_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
 				put(FuncID.create(Array.STR_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
@@ -666,31 +677,37 @@ public class SymbolNames {
 	public static class GlobalData {
 
 		public static final String CRITICAL_SECTION_DECL = "CriticalSectionDecl";
+		public static final String REUSABLE_BARRIER_DECL = "ReusableBarrierDecl";
 
 		public static final String CRITICAL_SECTION_NAME = "CriticalSectionName";
+		public static final String REUSABLE_BARRIER_NAME = "ReusableBarrierName";
 		public static final String NEXT_GLOBAL_DATA_DECL = "NextGlobalDataDecl";
 
 		public static final HashSet<String> LIST =
 			new HashSet<>(Arrays.asList(
-				CRITICAL_SECTION_DECL ));
+				CRITICAL_SECTION_DECL,
+				REUSABLE_BARRIER_DECL));
 
 		public static final HashSet<String> DATA_NAME_CNCTR_LIST =
 			new HashSet<>(Arrays.asList(
-				CRITICAL_SECTION_NAME));
+				CRITICAL_SECTION_NAME,
+				REUSABLE_BARRIER_NAME));
 	}
 
-	public static class Identifier {
+	public static class ConstantValue {
 
 		public static final String NIL_COLOR = "NilColor";
 		public static final String NIL_SOUND = "NilSound";
 		public static final String ANY_EXP_VOID = "AnyExpVoid";
 		public static final String LINE_FEED_STR = "LineFeedStr";
+		public static final String REUSABLE_BARRIER_VAR_VOID = "ReusableBarrierVarVoid";
 		public static final HashSet<String> LIST =
 			new HashSet<>(Arrays.asList(
 				NIL_COLOR,
 				NIL_SOUND,
 				ANY_EXP_VOID,
-				LINE_FEED_STR));
+				LINE_FEED_STR,
+				REUSABLE_BARRIER_VAR_VOID));
 	}
 }
 

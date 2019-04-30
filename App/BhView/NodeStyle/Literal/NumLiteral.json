@@ -12,6 +12,6 @@
 	"connectorBoundsRate" : 0.0,
     
     "textField" : {
-		"minWidth": 0.0
+		"minWidth": 3.0
 	}
 }

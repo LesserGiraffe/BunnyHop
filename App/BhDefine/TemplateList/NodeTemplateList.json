@@ -129,7 +129,10 @@
 		"contents":[
 			"idKeyPressedEvent",
 			"idDelayedStartEvent",
-			"idCriticalSectionDecl"]
+			"idCriticalSectionDecl",
+			"idReusableBarrierDecl",
+			"idAwaitStat",
+			"idGetNumberWaitingExp"]
 	},
 	
 	"その他" : {

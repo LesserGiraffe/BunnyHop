@@ -20,7 +20,7 @@
 				name="haita"
 				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
-				initString="排他">
+				initString="排他区間">
 			</Node>
 		</PrivateConnector>
 

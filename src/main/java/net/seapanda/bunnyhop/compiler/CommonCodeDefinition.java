@@ -53,6 +53,9 @@ public class CommonCodeDefinition {
 		public static final String MEASURE_DISTANCE = "_measureDistance";
 		public static final String GEN_CALL_OBJ =  "_genCallObj";
 		public static final String GEN_LOCK_OBJ = "_genLockObj";
+		public static final String GEN_REUSABLE_BARRIER = "_genReusableBarrier";
+		public static final String AWAIT = "_awit";
+		public static final String GET_NUMBER_WAITING = "_getNumberWaiting";
 		public static final String TRY_LOCK = "_tryLock";
 		public static final String LOCK = "_lock";
 		public static final String UNLOCK = "_unlock";
@@ -80,6 +83,5 @@ public class CommonCodeDefinition {
 		public static final String NIL_SOUND  = "_nilSound";
 		public static final String NIL_COLOR = "_nilColor";
 		public static final String PROGRAM_STARTING_TIME = "_programStartingTime";
-		public static final String OUT_ARG_COPY_LOCK = "_outArgCopyLock";
 	}
 }

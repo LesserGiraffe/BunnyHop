@@ -15,11 +15,12 @@
 	let _jReflectArray = java.lang.reflect.Array;
 	let _jClass = java.lang.Class;
 	let _jSystem = java.lang.System;
+	let _jCyclicBarrier = java.util.concurrent.CyclicBarrier;
 
 	let _eventHandlers = {};
 	let _executor = _jExecutors.newFixedThreadPool(16);
 	let _programStartingTime = _currentTimeMillis();
-	let _outArgCopyLock = _genLockObj();
+	let _noWaitBarrier = _genReusableBarrier(1);
 	let _anyObj = {
 		_toStr : function() {return '';}
 	};
@@ -48,6 +49,21 @@
 
 	function _unlock(lockObj) {
 		lockObj.unlock();
+	}
+	
+	function _genReusableBarrier(parties) {
+		return new _jCyclicBarrier(parties);
+	}
+	
+	function _awit(barrier) {
+		try {
+			barrier.await();
+		}
+		catch(e) {throw e}
+	}
+	
+	function _getNumberWaiting(barrier) {
+		return barrier.getNumberWaiting();
 	}
 
 	//イベント名とイベントハンドラを登録

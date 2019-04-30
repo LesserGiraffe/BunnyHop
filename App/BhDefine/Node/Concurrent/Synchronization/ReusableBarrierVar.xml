@@ -1,0 +1,28 @@
+<Node
+	type="connective"
+	bhNodeID="idReusableBarrierVar"
+	name="ReusableBarrierVar"
+	nodeStyleID="ReusableBarrierVar.json">
+
+	<ConnectorSection name="ReusableBarrierExpSctn">
+		
+		<PrivateConnector
+			bhConnectorID="idReusableBarrierVar.prvCnctr0"
+			name="machiawase"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idReusableBarrierVar.prvNode0"
+				name="machiawase"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="待ち合わせ場所">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector
+			bhConnectorID="idVarNameCnctr"
+			name="ReusableBarrierName"
+			imitCnctPos="imitPosVarName"/>
+	</ConnectorSection>
+</Node>
