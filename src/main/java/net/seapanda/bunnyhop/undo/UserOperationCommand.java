@@ -16,6 +16,7 @@
 package net.seapanda.bunnyhop.undo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -250,6 +251,15 @@ public class UserOperationCommand {
 	 * */
 	public <T> void pushCmdOfRemoveFromList(List<T> list, Collection<T> removedElems) {
 		subOpeList.addLast(new RemoveFromListCmd<T>(list, removedElems));
+	}
+
+	/**
+	 * リストからの要素の削除をコマンド化してサブ操作リストに加える
+	 * @param list 要素を削除したリスト
+	 * @param removedElem 削除された要素
+	 * */
+	public <T> void pushCmdOfRemoveFromList(List<T> list, T removedElem) {
+		subOpeList.addLast(new RemoveFromListCmd<T>(list, removedElem));
 	}
 
 	/**
@@ -637,6 +647,12 @@ public class UserOperationCommand {
 
 		private final List<T> list;	//!< 要素を削除されたされたリスト
 		private final Collection<T> removedElems;	//!< 削除された要素のコレクション
+
+
+		public RemoveFromListCmd(List<T> list, T removedElem) {
+			this.list = list;
+			this.removedElems = new ArrayList<>(Arrays.asList(removedElem));
+		}
 
 		public RemoveFromListCmd(List<T> list, Collection<T> removedElems) {
 			this.list = list;

@@ -197,6 +197,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 			new MsgData(false, BhParams.CSS.PSEUDO_SELECTED),
 			nodeToRemove);
 		selectedList.remove(nodeToRemove);
+		MsgService.INSTANCE.removeNodeToPaste(nodeToRemove, userOpeCmd);
 		MsgService.INSTANCE.updateMultiNodeShifter(nodeToRemove, this);
 		if (nodeToRemove instanceof Imitatable) {
 			List<Imitatable> imitationList = ((Imitatable)nodeToRemove).getImitationInfo().getImitationList();

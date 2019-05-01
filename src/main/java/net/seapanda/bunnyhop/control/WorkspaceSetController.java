@@ -99,12 +99,6 @@ public class WorkspaceSetController implements MsgProcessor {
 					selectionVeiw.setMaxHeight(newValue.doubleValue() - selectionVeiw.getTranslateY());
 				});
 		});
-
-//		//ワークスペースセットの大きさ変更時にテキストエリアとワークスペースセットの大きさを更新する
-//		workspaceSetViewBase.heightProperty().addListener((obs, old, newVal) -> {
-//			workspaceSetStackPane.setPrefHeight(0.9 * newVal.doubleValue());
-//			bottomMsgArea.setPrefHeight(0.1 * newVal.doubleValue());
-//		});
 	}
 
 	/**
@@ -210,6 +204,10 @@ public class WorkspaceSetController implements MsgProcessor {
 				}
 				break;
 
+			case REMOVE_NODE_TO_PASTE:
+				model.removeNodeFromRedyToCopyList(data.node, data.userOpeCmd);
+				model.removeNodeFromRedyToCutList(data.node, data.userOpeCmd);
+				break;
 
 			default:
 				throw new AssertionError("received an unknown msg " + msg);

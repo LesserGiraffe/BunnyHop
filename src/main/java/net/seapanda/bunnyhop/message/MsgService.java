@@ -30,9 +30,13 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
 public class MsgService {
 
 	public static final MsgService INSTANCE = new MsgService();	//!< シングルトンインスタンス
+	private WorkspaceSet wss;
 
 	private MsgService() {}
 
+	public void setWorkspaceSet(WorkspaceSet wss) {
+		this.wss = wss;
+	}
 
 	/**
 	 * 引数で指定したノードのワークスペース上での位置を取得する
@@ -119,6 +123,15 @@ public class MsgService {
 	 * */
 	public void setText(BhNode node, String text) {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_TEXT, new MsgData(text), node);
+	}
+
+	/**
+	 * 貼り付け候補のノードのリストから引数で指定したノードを取り除く.
+	 * @param nodeToRemove 取り除くノード
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void removeNodeToPaste(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_NODE_TO_PASTE, new MsgData(nodeToRemove, userOpeCmd), wss);
 	}
 }
 

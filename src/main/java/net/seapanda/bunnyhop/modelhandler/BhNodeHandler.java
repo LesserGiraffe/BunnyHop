@@ -29,7 +29,7 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.State;
-import net.seapanda.bunnyhop.modelprocessor.NodeDeselecter;
+import net.seapanda.bunnyhop.modelprocessor.NodeDeselector;
 import net.seapanda.bunnyhop.modelprocessor.WorkspaceRegisterer;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
@@ -81,7 +81,7 @@ public class BhNodeHandler {
 		}
 
 		//undo時に削除前の状態のBhNodeを選択ノードとして MultiNodeShifterController に通知するためここで非選択にする
-		node.accept(new NodeDeselecter(userOpeCmd));
+		NodeDeselector.deselect(node, userOpeCmd);
 
 		Workspace ws = node.getWorkspace();
 		BhNode.State nodeState = node.getState();
@@ -136,7 +136,7 @@ public class BhNodeHandler {
 		}
 
 		//undo時に削除前の状態のBhNodeを選択ノードとして MultiNodeShifterController に通知するためここで非選択にする
-		node.accept(new NodeDeselecter(userOpeCmd));
+		NodeDeselector.deselect(node, userOpeCmd);
 
 		Workspace ws = node.getWorkspace();
 		BhNode.State nodeState = node.getState();

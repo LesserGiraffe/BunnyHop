@@ -43,6 +43,7 @@ import net.seapanda.bunnyhop.control.FoundationController;
 import net.seapanda.bunnyhop.control.WorkspaceController;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
+import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
@@ -62,6 +63,11 @@ public class BunnyHop {
 	public static final BunnyHop INSTANCE  = new BunnyHop();
 	private boolean shoudlSave = false;	//!< 終了時の保存が必要かどうかのフラグ
 	private Scene scene;
+
+
+	private BunnyHop() {
+		MsgService.INSTANCE.setWorkspaceSet(workspaceSet);
+	}
 
 	/**
 	 * メインウィンドウを作成する
@@ -210,11 +216,10 @@ public class BunnyHop {
 	}
 
 	/**
-	 * ワークスペースセットを返す.
-	 * @return ワークスペースセット
+	 * 現在操作対象のワークスペースを取得する
 	 * */
-	public WorkspaceSet getWorkspaceSet() {
-		return workspaceSet;
+	public Workspace getCurrentWorkspace() {
+		return workspaceSet.getCurrentWorkspace();
 	}
 
 	/**

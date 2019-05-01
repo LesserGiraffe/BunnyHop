@@ -267,6 +267,20 @@ public class MsgData {
 		this.text = null;
 		this.nodeSelectionViewList = null;
 	}
+
+	public MsgData(BhNode node, UserOperationCommand userOpeCmd) {
+		this.node = node;
+		this.nodeView = null;
+		this.vec2d = null;
+		this.strPair = null;
+		this.vec2dPair = null;
+		this.workspace = null;
+		this.workspaceView = null;
+		this.bool = false;
+		this.userOpeCmd = userOpeCmd;
+		this.text = null;
+		this.nodeSelectionViewList = null;
+	}
 }
 
 

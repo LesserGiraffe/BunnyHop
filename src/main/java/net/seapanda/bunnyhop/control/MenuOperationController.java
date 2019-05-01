@@ -134,7 +134,7 @@ public class MenuOperationController {
 				return;
 
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
-			wss.addNodeListReadyToCopy(currentWS.getSelectedNodeList(), userOpeCmd);
+			wss.addNodesToReadyToCopyList(currentWS.getSelectedNodeList(), userOpeCmd);
 			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 		});
 	}
@@ -151,7 +151,7 @@ public class MenuOperationController {
 				return;
 
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
-			wss.addNodeListReadyToCut(currentWS.getSelectedNodeList(), userOpeCmd);
+			wss.addNodesToReadyToCutList(currentWS.getSelectedNodeList(), userOpeCmd);
 			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 		});
 	}
@@ -502,6 +502,8 @@ public class MenuOperationController {
 
 		wss.getListReadyToCopy().addListener((ListChangeListener<BhNode>) change -> {
 
+			System.out.println((wss.getListReadyToCut().isEmpty() && change.getList().isEmpty()) + " kka");
+
 			if (wss.getListReadyToCut().isEmpty() && change.getList().isEmpty())
 				pasteBtn.setDisable(true);
 			else
@@ -509,6 +511,8 @@ public class MenuOperationController {
 		});
 
 		wss.getListReadyToCut().addListener((ListChangeListener<BhNode>) change -> {
+
+			System.out.println((wss.getListReadyToCopy().isEmpty() && change.getList().isEmpty()) + " ppk");
 
 			if (wss.getListReadyToCopy().isEmpty() && change.getList().isEmpty())
 				pasteBtn.setDisable(true);

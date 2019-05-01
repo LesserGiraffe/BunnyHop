@@ -15,40 +15,50 @@
  */
 package net.seapanda.bunnyhop.modelprocessor;
 
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
- * ノードツリーの全ノードを非選択にする
+ * ノードツリーの全ノードを非選択にするクラス
  * @author K.Koike
  */
-public class NodeDeselecter implements BhModelProcessor {
+public class NodeDeselector implements BhModelProcessor {
 
 	private final UserOperationCommand userOpeCmd;
-	
+
+	/**
+	 * 引数で指定したノード以下のノードを非選択にする.
+	 * @param node このノード以下のノードを非選択にする.
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public static void deselect(BhNode node, UserOperationCommand userOpeCmd) {
+		node.accept(new NodeDeselector(userOpeCmd));
+	}
+
 	/**
 	 * コンストラクタ
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
-	public NodeDeselecter(UserOperationCommand userOpeCmd) {
+	private NodeDeselector(UserOperationCommand userOpeCmd) {
 		this.userOpeCmd = userOpeCmd;
 	}
-	
+
 	@Override
 	public void visit(ConnectiveNode node) {
 		if (node.isSelected())
 			node.getWorkspace().removeSelectedNode(node, userOpeCmd);
 		node.introduceSectionsTo(this);
 	}
-	
+
 	@Override
 	public void visit(VoidNode node) {
 		if (node.isSelected())
 			node.getWorkspace().removeSelectedNode(node, userOpeCmd);
 	}
-	
+
 	@Override
 	public void visit(TextNode node) {
 		if (node.isSelected())

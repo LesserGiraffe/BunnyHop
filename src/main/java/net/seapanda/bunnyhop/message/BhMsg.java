@@ -57,4 +57,5 @@ public enum BhMsg {
 	UPDATE_MULTI_NODE_SHIFTER,	//!< マルチノードシフタ(複数ノード移動用マルチノードシフタ)とリンクを更新する
 	GET_NODE_BODY_RANGE, //!< BhNodeのボディのワークスペース上での範囲を取得する
 	SET_TEXT,	//!< テキストを設定可能なノードにテキストを設定する. テキストフォーマットチェックは行われる.
+	REMOVE_NODE_TO_PASTE,	//!< 貼り付け予定のノードを貼り付け候補から取り除く
 }

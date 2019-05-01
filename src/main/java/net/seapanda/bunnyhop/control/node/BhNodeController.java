@@ -155,11 +155,9 @@ public class BhNodeController implements MsgProcessor {
 
 			if ((model.getState() == BhNode.State.ROOT_DANGLING) && ddInfo.currentOverlapped == null) {	//子ノード -> ワークスペース
 				toWorkspace(model.getWorkspace());
-				clearNodesToPaste();
 			}
-			else if (ddInfo.currentOverlapped != null) {	//(ワークスペース or 子ノード) -> 子ノード
+			else if (ddInfo.currentOverlapped != null) {	// (ワークスペース or 子ノード) -> 子ノード
 				toChildNode(ddInfo.currentOverlapped);
-				clearNodesToPaste();
 			}
 			else {	//同一ワークスペース上で移動
 				toSameWorkspace();
@@ -275,7 +273,6 @@ public class BhNodeController implements MsgProcessor {
 		if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
 			TrashboxService.INSTANCE.isInTrashboxArea(mouseEvent.getSceneX(), mouseEvent.getSceneY())) {
 			BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
-			clearNodesToPaste();
 		}
 	}
 
@@ -303,14 +300,6 @@ public class BhNodeController implements MsgProcessor {
 				break;
 			}
 		}
-	}
-
-	/**
-	 * 貼り付け予定のノードのリストをクリアする
-	 * */
-	private void clearNodesToPaste() {
-		BunnyHop.INSTANCE.getWorkspaceSet().clearNodeListReadyToCopy(ddInfo.userOpeCmd);
-		BunnyHop.INSTANCE.getWorkspaceSet().clearNodeListReadyToCut(ddInfo.userOpeCmd);
 	}
 
 	/**

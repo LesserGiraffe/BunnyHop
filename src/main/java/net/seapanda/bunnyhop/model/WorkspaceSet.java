@@ -86,14 +86,10 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @param nodeList コピー予定のBhNodeリスト
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
-	public void addNodeListReadyToCopy(Collection<BhNode> nodeList, UserOperationCommand userOpeCmd) {
+	public void addNodesToReadyToCopyList(Collection<BhNode> nodeList, UserOperationCommand userOpeCmd) {
 
-		userOpeCmd.pushCmdOfRemoveFromList(readyToCut, readyToCut);
-		readyToCut.clear();
-
-		userOpeCmd.pushCmdOfRemoveFromList(readyToCopy, readyToCopy);
-		readyToCopy.clear();
-
+		clearReadyToCutList(userOpeCmd);
+		clearReadyToCopyList(userOpeCmd);
 		readyToCopy.addAll(nodeList);
 		userOpeCmd.pushCmdOfAddToList(readyToCopy, nodeList);
 	}
@@ -102,9 +98,22 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * コピー予定のBhNodeリストをクリアする
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void clearNodeListReadyToCopy(UserOperationCommand userOpeCmd) {
+	public void clearReadyToCopyList(UserOperationCommand userOpeCmd) {
 		userOpeCmd.pushCmdOfRemoveFromList(readyToCopy, readyToCopy);
 		readyToCopy.clear();
+	}
+
+	/**
+	 * コピー予定のノードリストからノードを取り除く
+	 * @param nodeToRemove 取り除くノード
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void removeNodeFromRedyToCopyList(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
+
+		if (readyToCopy.contains(nodeToRemove)) {
+			userOpeCmd.pushCmdOfRemoveFromList(readyToCopy, nodeToRemove);
+			readyToCopy.remove(nodeToRemove);
+		}
 	}
 
 	/**
@@ -112,14 +121,10 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @param nodeList カット予定のBhNodeリスト
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
-	public void addNodeListReadyToCut(Collection<BhNode> nodeList, UserOperationCommand userOpeCmd) {
+	public void addNodesToReadyToCutList(Collection<BhNode> nodeList, UserOperationCommand userOpeCmd) {
 
-		userOpeCmd.pushCmdOfRemoveFromList(readyToCut, readyToCut);
-		readyToCut.clear();
-
-		userOpeCmd.pushCmdOfRemoveFromList(readyToCopy, readyToCopy);
-		readyToCopy.clear();
-
+		clearReadyToCutList(userOpeCmd);
+		clearReadyToCopyList(userOpeCmd);
 		readyToCut.addAll(nodeList);
 		userOpeCmd.pushCmdOfAddToList(readyToCut, nodeList);
 	}
@@ -128,9 +133,22 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * カット予定のBhNodeリストをクリアする
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void clearNodeListReadyToCut(UserOperationCommand userOpeCmd) {
+	public void clearReadyToCutList(UserOperationCommand userOpeCmd) {
 		userOpeCmd.pushCmdOfRemoveFromList(readyToCut, readyToCut);
 		readyToCut.clear();
+	}
+
+	/**
+	 * カット予定のノードリストからノードを取り除く
+	 * @param nodeToRemove 取り除くノード
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void removeNodeFromRedyToCutList(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
+
+		if (readyToCut.contains(nodeToRemove)) {
+			userOpeCmd.pushCmdOfRemoveFromList(readyToCut, nodeToRemove);
+			readyToCut.remove(nodeToRemove);
+		}
 	}
 
 	/**
@@ -174,11 +192,11 @@ public class WorkspaceSet implements MsgReceptionWindow {
 					return false;
 				return true;
 			};
-			BhNode pasted = node.copy(userOpeCmd, isNodeToBeCopied);
-			NodeMVCBuilder.build(pasted);
-			TextImitationPrompter.prompt(pasted);
-			BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, pasted, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
-			List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(pasted);
+			BhNode nodeToPaste = node.copy(userOpeCmd, isNodeToBeCopied);
+			NodeMVCBuilder.build(nodeToPaste);
+			TextImitationPrompter.prompt(nodeToPaste);
+			BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, nodeToPaste, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
+			List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(nodeToPaste);
 			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodes, userOpeCmd)
 			.forEach(oldAndNewNode -> {
 				BhNode oldNode = oldAndNewNode._1;
@@ -190,7 +208,6 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
 			pasteBasePos.x += size.x+ BhParams.LnF.REPLACED_NODE_SHIFT * 2;
 		});
-
 	}
 
 	/**
@@ -200,6 +217,9 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
 	private void cutAndPaste(Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperationCommand userOpeCmd) {
+
+		if (readyToCut.isEmpty())
+			return;
 
 		readyToCut.stream()
 		.filter(node -> {

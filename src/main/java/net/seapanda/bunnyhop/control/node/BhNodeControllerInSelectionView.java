@@ -78,7 +78,7 @@ public class BhNodeControllerInSelectionView {
 		//マウスボタンを押したとき
 		view.getEventManager().setOnMousePressedHandler(mouseEvent -> {
 
-			Workspace currentWS = BunnyHop.INSTANCE.getWorkspaceSet().getCurrentWorkspace();
+			Workspace currentWS = BunnyHop.INSTANCE.getCurrentWorkspace();
 			if (currentWS == null)
 				return;
 
