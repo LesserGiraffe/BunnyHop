@@ -16,6 +16,7 @@
 package net.seapanda.bunnyhop.modelprocessor;
 
 import net.seapanda.bunnyhop.model.Workspace;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
@@ -25,26 +26,47 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * ノードに対してワークスペースをセットする
  * @author K.Koike
  */
-public class WorkspaceRegisterer implements BhModelProcessor{
-	
+public class WorkspaceRegisterer implements BhModelProcessor {
+
 	private final Workspace ws;	//!< 登録されるワークスペース
 	private final UserOperationCommand userOpeCmd;
-	
+
 	/**
-	 * @param ws 登録されるワークスペース<br> nullを指定するとノードと所属しているワークスペースの関連が無くなる
+	 * 引数で指定したノード以下のノードに引数で指定したワークスペースを登録する
+	 * @param node このノード以下にワークスペースを登録する
+	 * @param ws 登録するワークスペース
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public static void register(BhNode node, Workspace ws, UserOperationCommand userOpeCmd) {
+		var registerer = new WorkspaceRegisterer(ws, userOpeCmd);
+		node.accept(registerer);
+	}
+
+	/**
+	 * 引数で指定したノード以下のノードのワークスペースの登録を解除する
+	 * @param node このノード以下のノードのワークスペースの登録を解除する
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public static void deregister(BhNode node, UserOperationCommand userOpeCmd) {
+		var registerer = new WorkspaceRegisterer(null, userOpeCmd);
+		node.accept(registerer);
+	}
+
+	/**
+	 * @param ws 登録されるワークスペース
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
-	public WorkspaceRegisterer(Workspace ws, UserOperationCommand userOpeCmd) {
+	private WorkspaceRegisterer(Workspace ws, UserOperationCommand userOpeCmd) {
 		this.ws = ws;
 		this.userOpeCmd = userOpeCmd;
 	}
-	
+
 	@Override
 	public void visit(ConnectiveNode node) {
 		node.setWorkspace(ws, userOpeCmd);
 		node.introduceSectionsTo(this);
 	}
-	
+
 	@Override
 	public void visit(VoidNode node) {
 		node.setWorkspace(ws, userOpeCmd);

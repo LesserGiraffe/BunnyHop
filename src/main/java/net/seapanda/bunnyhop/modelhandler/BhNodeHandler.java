@@ -55,7 +55,7 @@ public class BhNodeHandler {
 	public void addRootNode(Workspace ws, BhNode node, double x, double y, UserOperationCommand userOpeCmd) {
 
 		Vec2D curPos = MsgService.INSTANCE.getPosOnWS(node);
-		node.accept(new WorkspaceRegisterer(ws, userOpeCmd));							//ツリーの各ノードへのWSの登録
+		WorkspaceRegisterer.register(node, ws, userOpeCmd);	//ツリーの各ノードへのWSの登録
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);		//ワークスペース直下に追加
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);	//4分木ノード登録(重複登録はされない)
 		MsgService.INSTANCE.setPosOnWS(node, x, y);	//ワークスペース内での位置登録
@@ -109,7 +109,7 @@ public class BhNodeHandler {
 
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);		 //4分木空間からの削除
 		userOpeCmd.pushCmdOfRemoveQtRectangle(node, ws);
-		node.accept(new WorkspaceRegisterer(null, userOpeCmd));	//ノードの登録されたWSを削除
+		WorkspaceRegisterer.deregister(node, userOpeCmd);
 		node.delete(userOpeCmd);
 		return newNode;
 	}
@@ -166,7 +166,8 @@ public class BhNodeHandler {
 
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);		 //4分木空間からの削除
 		userOpeCmd.pushCmdOfRemoveQtRectangle(node, ws);
-		node.accept(new WorkspaceRegisterer(null, userOpeCmd));	//ノードに対して登録されたWSを削除
+		WorkspaceRegisterer.deregister(node, userOpeCmd); //ノードに対して登録されたWSを削除
+
 		if (!saveModelRels)
 			node.delete(userOpeCmd);
 		DelayedDeleter.INSTANCE.addDeletionCandidate(node, saveModelRels, saveGuiTreeRels);
@@ -262,7 +263,8 @@ public class BhNodeHandler {
 		Workspace ws = childToRemove.getWorkspace();
 		BhNode newNode = childToRemove.remove(userOpeCmd);
 		//子ノードを取り除いた結果, 新しくできたノードを4分木空間に登録し, ビューツリーにつなぐ
-		newNode.accept(new WorkspaceRegisterer(ws, userOpeCmd));					//ツリーの各ノードへのWSの登録
+		WorkspaceRegisterer.register(newNode, ws, userOpeCmd);	//ツリーの各ノードへのWSの登録
+
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, newNode, ws);
 		BhNodeView newNodeView = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW, newNode).nodeView;
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), childToRemove);	//ここで4分木空間上での位置も更新される
@@ -302,7 +304,7 @@ public class BhNodeHandler {
 
 		//新しいノードを4分木空間に登録し, ビューツリーにつなぐ
 		Workspace ws = oldChildNode.getWorkspace();
-		newNode.accept(new WorkspaceRegisterer(ws, userOpeCmd));					//ツリーの各ノードへのWSの登録
+		WorkspaceRegisterer.register(newNode, ws, userOpeCmd);	//ツリーの各ノードへのWSの登録
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, newNode, ws);
 		BhNodeView newNodeView = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW, newNode).nodeView;
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), oldChildNode);	//ここで4分木空間上での位置も更新される
