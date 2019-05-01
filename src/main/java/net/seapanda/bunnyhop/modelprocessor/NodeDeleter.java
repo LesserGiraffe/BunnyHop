@@ -15,6 +15,7 @@
  */
 package net.seapanda.bunnyhop.modelprocessor;
 
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
@@ -29,10 +30,19 @@ public class NodeDeleter implements BhModelProcessor {
 	UserOperationCommand userOpeCmd;	//!< undo用コマンドオブジェクト
 
 	/**
+	 * 引数で指定したノード以下のノードを削除する
+	 * @param node このノード以下のノードを削除する.
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public static void delete(BhNode node, UserOperationCommand userOpeCmd) {
+		node.accept(new NodeDeleter(userOpeCmd));
+	}
+
+	/**
 	 * コンストラクタ
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
-	public NodeDeleter(UserOperationCommand userOpeCmd) {
+	private NodeDeleter(UserOperationCommand userOpeCmd) {
 		this.userOpeCmd = userOpeCmd;
 	}
 

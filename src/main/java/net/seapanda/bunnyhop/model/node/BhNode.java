@@ -154,7 +154,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
 	public void delete(UserOperationCommand userOpeCmd) {
-		accept(new NodeDeleter(userOpeCmd));
+		NodeDeleter.delete(this, userOpeCmd);
 	}
 
 	/**
