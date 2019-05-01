@@ -93,7 +93,7 @@ public class ProjectSaveData implements Serializable{
 		 * @param userOpeCmd undo用コマンドオブジェクト
 		 */
 		public void initBhNodes() {
-			rootNodeSaveList.forEach(nodeSaveData -> nodeSaveData.createMVC());
+			rootNodeSaveList.forEach(nodeSaveData -> nodeSaveData.buildMVC());
 			rootNodeSaveList.forEach(nodeSaveData -> nodeSaveData.imitOriginalNode());
 		}
 
@@ -130,10 +130,10 @@ public class ProjectSaveData implements Serializable{
 			}
 
 			/**
-			 * MVC構築する
+			 * MVCを構築する
 			 */
-			public void createMVC() {
-				rootNode.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));	//MVC構築
+			public void buildMVC() {
+				NodeMVCBuilder.build(rootNode);
 			}
 
 			/**

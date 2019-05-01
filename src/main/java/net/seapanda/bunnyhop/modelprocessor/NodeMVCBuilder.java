@@ -55,10 +55,30 @@ public class NodeMVCBuilder implements BhModelProcessor {
 	private final boolean isTemplate;
 
 	/**
+	 * 引数で指定したノード以下のノードに対し, MVC関係を構築する. (ワークスペースに追加するノード用)
+	 * @return 引数で指定したノードに対応する BhNodeView.
+	 * */
+	public static BhNodeView build(BhNode node) {
+		var builder = new NodeMVCBuilder(ControllerType.Default);
+		node.accept(builder);
+		return builder.topNodeView;
+	}
+
+	/**
+	 * 引数で指定したノード以下のノードに対し, MVC関係を構築する. (ノード選択ビューに追加するノード用)
+	 * @return 引数で指定したノードに対応する BhNodeView.
+	 * */
+	public static BhNodeView buildTemplate(BhNode node) {
+		var builder = new NodeMVCBuilder(ControllerType.Template);
+		node.accept(builder);
+		return builder.topNodeView;
+	}
+
+	/**
 	 * コンストラクタ
 	 * @param type Controller の種類 (ワークスペースのノード用かノードセレクタ用)
 	 * */
-	public NodeMVCBuilder(ControllerType type) {
+	private NodeMVCBuilder(ControllerType type) {
 
 		if (type == ControllerType.Default) {
 			mvcConnector = new DefaultConnector();
@@ -155,7 +175,6 @@ public class NodeMVCBuilder implements BhModelProcessor {
 				nodeView = textAreaNodeView;
 				break;
 
-
 			case BhParams.BhModelDef.ATTR_NAME_NO_CONTENT:
 				var noContentNodeView = new NoContentNodeView(node, viewStyle);
 				noContentNodeView.init();
@@ -181,14 +200,6 @@ public class NodeMVCBuilder implements BhModelProcessor {
 	public void visit(Connector connector) {
 		connector.setScriptScope();
 		connector.introduceConnectedNodeTo(this);
-	}
-
-	/**
-	 * 構築したMVCのトップノードのBhNodeView を返す
-	 * @return 構築したMVCのトップノードのBhNodeView
-	 * */
-	public BhNodeView getTopNodeView() {
-		return topNodeView;
 	}
 
 	private interface MVCConnector {

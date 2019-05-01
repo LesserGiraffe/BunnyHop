@@ -33,6 +33,7 @@ import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * BhNode のカテゴリ選択画面のView
@@ -128,10 +129,9 @@ public class BhNodeCategoryListView {
 		}
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		BhNode node = BhNodeTemplates.INSTANCE.genBhNode(bhNodeID, userOpeCmd);
-		NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Template);
-		node.accept(builder);	//MVC構築
+		BhNodeView nodeView = NodeMVCBuilder.buildTemplate(node);	//MVC構築
 		TextImitationPrompter.prompt(node);
-		category_selectionView.get(category).addBhNodeView(builder.getTopNodeView());	//BhNode テンプレートリストパネルにBhNodeテンプレートを追加
+		category_selectionView.get(category).addBhNodeView(nodeView);	//BhNode テンプレートリストパネルにBhNodeテンプレートを追加
 	}
 
 	/**

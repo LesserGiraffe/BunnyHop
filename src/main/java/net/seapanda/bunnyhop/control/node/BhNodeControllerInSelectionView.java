@@ -83,11 +83,10 @@ public class BhNodeControllerInSelectionView {
 				return;
 
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
-			NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default);
 			BhNode newNode = model.findRootNode().copy(userOpeCmd, (bhNode) -> true);
-			newNode.accept(builder);	//MVC構築
+			BhNodeView nodeView = NodeMVCBuilder.build(newNode); //MVC構築
 			TextImitationPrompter.prompt(newNode);
-			currentView.content = builder.getTopNodeView();
+			currentView.content = nodeView;
 			Vec2D posOnRootView = ViewHelper.INSTANCE.getRelativePos(rootView, view);	//クリックされたテンプレートノードのルートノード上でのクリック位置
 			posOnRootView.x += mouseEvent.getX();
 			posOnRootView.y += mouseEvent.getY();

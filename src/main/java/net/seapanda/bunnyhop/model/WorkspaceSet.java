@@ -175,7 +175,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 				return true;
 			};
 			BhNode pasted = node.copy(userOpeCmd, isNodeToBeCopied);
-			pasted.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));
+			NodeMVCBuilder.build(pasted);
 			TextImitationPrompter.prompt(pasted);
 			BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, pasted, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
 			List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(pasted);
