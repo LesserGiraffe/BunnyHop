@@ -36,14 +36,24 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
 public class ImitationReplacer implements BhModelProcessor {
 
 	UserOperationCommand userOpeCmd;	//!< undo用コマンドオブジェクト
-	BhNode oldOriginal;	//!< 入れ替え対象の古いオリジナルノード (このノードのイミテーションノードのみ入れ替え対象となる)
+	BhNode oldOriginal;	//!< イミテーションノードが置き換わるオリジナルノード
+
+	/**
+	 * oldOriginal のイミテーションノードを newOriginal のイミテーションノードで置き換える.
+	 * @param newOriginal このノードのイミテーションノードで oldOriginal の
+	 * @param oldOriginal このノードのイミテーションノードを入れ替える.
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public static void replace(BhNode newOriginal, BhNode oldOriginal, UserOperationCommand userOpeCmd) {
+		newOriginal.accept(new ImitationReplacer(oldOriginal, userOpeCmd));
+	}
 
 	/**
 	 * コンストラクタ
+	 * @param oldOriginal このノードのイミテーションノードを入れ替える.
 	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @param oldOriginal 入れ替え対象の古いオリジナルノード (このノードのイミテーションノードのみ入れ替え対象となる)
 	 */
-	public ImitationReplacer(UserOperationCommand userOpeCmd, BhNode oldOriginal) {
+	public ImitationReplacer(BhNode oldOriginal, UserOperationCommand userOpeCmd) {
 		this.userOpeCmd = userOpeCmd;
 		this.oldOriginal = oldOriginal;
 	}
@@ -142,7 +152,8 @@ public class ImitationReplacer implements BhModelProcessor {
 		for (ConnectiveNode parent : parentNodeList) {
 			Optional<BhNode> nodeToRemove = getNodeToReplaceOrRemove(parent, imitCnctPos);
 			nodeToRemove.ifPresent(node -> {
-				if (node.getOriginalNode() == oldOriginal) {	//取り除くノードのオリジナルノードが入れ替え対象の古いノードであった場合
+				//取り除くノードのオリジナルノードが入れ替え対象の古いノードであった場合
+				if (node.getOriginalNode() == oldOriginal) {
 					Connector parentCnctr = node.getParentConnector();
 					BhNode newNode = BhNodeHandler.INSTANCE.removeChild(node, userOpeCmd);
 					BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, false, userOpeCmd);

@@ -166,7 +166,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 
 		setLastReplaced(newNode, userOpeCmd);
 		parentConnector.connectNode(newNode, userOpeCmd);	//model 更新
-		newNode.accept(new ImitationReplacer(userOpeCmd, this));
+		ImitationReplacer.replace(newNode, this, userOpeCmd);
 	}
 
 	/**
