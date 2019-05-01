@@ -130,7 +130,7 @@ public class BhNodeCategoryListView {
 		BhNode node = BhNodeTemplates.INSTANCE.genBhNode(bhNodeID, userOpeCmd);
 		NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Template);
 		node.accept(builder);	//MVC構築
-		node.accept(new TextImitationPrompter());
+		TextImitationPrompter.prompt(node);
 		category_selectionView.get(category).addBhNodeView(builder.getTopNodeView());	//BhNode テンプレートリストパネルにBhNodeテンプレートを追加
 	}
 

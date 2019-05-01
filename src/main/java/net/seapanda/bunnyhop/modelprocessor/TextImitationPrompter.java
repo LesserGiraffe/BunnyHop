@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.modelprocessor;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgTransporter;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 
 /**
@@ -25,12 +26,19 @@ import net.seapanda.bunnyhop.model.node.TextNode;
  * @author K.Koike
  */
 public class TextImitationPrompter implements BhModelProcessor {
-	
-	public TextImitationPrompter() {}
-	
+
+	/**
+	 * 引数で指定したノード以下のイミテーションテキストノードにオリジナルノードのテキストを真似させる.
+	 * */
+	public static void prompt(BhNode node) {
+		node.accept(new TextImitationPrompter());
+	}
+
+	private TextImitationPrompter() {}
+
 	@Override
 	public void visit(TextNode node) {
-		
+
 		if(node.getOriginalNode() != null) {
 			MsgData mvText = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_MODEL_AND_VIEW_TEXT, node.getOriginalNode());
 			MsgTransporter.INSTANCE.sendMessage(BhMsg.IMITATE_TEXT, new MsgData(mvText.strPair._1, mvText.strPair._2), node);

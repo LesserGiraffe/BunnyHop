@@ -94,7 +94,7 @@ public class ProjectSaveData implements Serializable{
 		 */
 		public void initBhNodes() {
 			rootNodeSaveList.forEach(nodeSaveData -> nodeSaveData.createMVC());
-			rootNodeSaveList.forEach(nodeSaveData -> nodeSaveData.imitOrgNode());
+			rootNodeSaveList.forEach(nodeSaveData -> nodeSaveData.imitOriginalNode());
 		}
 
 		/**
@@ -139,8 +139,8 @@ public class ProjectSaveData implements Serializable{
 			/**
 			 * イミテーションノードにオリジナルノードを模倣させる.
 			 */
-			public void imitOrgNode() {
-				rootNode.accept(new TextImitationPrompter());
+			public void imitOriginalNode() {
+				TextImitationPrompter.prompt(rootNode);
 			}
 
 			/**

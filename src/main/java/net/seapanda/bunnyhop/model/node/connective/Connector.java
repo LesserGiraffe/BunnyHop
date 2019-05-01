@@ -247,7 +247,7 @@ public class Connector extends SyntaxSymbol {
 
 		BhNode newNode = BhNodeTemplates.INSTANCE.genBhNode(defaultNodeID, userOpeCmd);	//デフォルトノードを作成
 		newNode.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));	//MVC構築
-		newNode.accept(new TextImitationPrompter());
+		TextImitationPrompter.prompt(newNode);
 		newNode.setDefaultNode(true);
 		connectedNode.replacedWith(newNode, userOpeCmd);
 		return newNode;

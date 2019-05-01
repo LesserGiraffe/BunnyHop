@@ -24,26 +24,26 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-	
+
 /**
  * イミテーションノードツリーを作成する
  * @author K.Koike
  */
 public class ImitationBuilder implements BhModelProcessor {
-	
+
 	final private Deque<Imitatable> parentImitStack = new LinkedList<>();	//!< 現在処理中のBhNode の親がトップにくるスタック
 	UserOperationCommand userOpeCmd;	//!< undo用コマンドオブジェクト
 	boolean isManualCreation = false;	//!< トップノードのイミテーションを手動作成する場合true
-		
+
 	public ImitationBuilder(UserOperationCommand userOpeCmd) {
 		this.userOpeCmd = userOpeCmd;
 	}
-	
+
 	public ImitationBuilder(UserOperationCommand userOpeCmd, boolean isManualCreation) {
 		this.userOpeCmd = userOpeCmd;
 		this.isManualCreation = isManualCreation;
-	}	
-	
+	}
+
 	/**
 	 * 作成したイミテーションノードツリーのトップノードを取得する
 	 * @return 作成したイミテーションノードツリーのトップノード
@@ -57,7 +57,7 @@ public class ImitationBuilder implements BhModelProcessor {
 	 */
 	@Override
 	public void visit(ConnectiveNode node) {
-		
+
 		ImitationID imitID = null;
 		if (isManualCreation) {
 			imitID = ImitationID.MANUAL;
@@ -66,16 +66,16 @@ public class ImitationBuilder implements BhModelProcessor {
 		else if (node.getParentConnector() != null) {
 			imitID = node.getParentConnector().findImitationID();
 		}
-		
+
 		if (!node.getImitationInfo().imitationNodeExists(imitID))
 			return;
-		
+
 		if (parentImitStack.isEmpty()) {
 			ConnectiveNode newImit = node.createImitNode(userOpeCmd, imitID);
 			parentImitStack.addLast(newImit);
 			node.introduceSectionsTo(this);
 			newImit.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));
-			newImit.accept(new TextImitationPrompter());
+			TextImitationPrompter.prompt(newImit);
 		}
 		else {
 			Imitatable parentImit = parentImitStack.peekLast();
@@ -92,10 +92,10 @@ public class ImitationBuilder implements BhModelProcessor {
 			}
 		}
 	}
-	
+
 	@Override
 	public void visit(TextNode node) {
-		
+
 		ImitationID imitID = null;
 		if (isManualCreation) {
 			imitID = ImitationID.MANUAL;
@@ -104,15 +104,15 @@ public class ImitationBuilder implements BhModelProcessor {
 		else if (node.getParentConnector() != null) {
 			imitID = node.getParentConnector().findImitationID();
 		}
-		
+
 		if (!node.getImitationInfo().imitationNodeExists(imitID))
 			return;
-		
+
 		if (parentImitStack.isEmpty()) {
 			TextNode newImit = node.createImitNode(userOpeCmd, imitID);
 			parentImitStack.addLast(newImit);
 			newImit.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));
-			newImit.accept(new TextImitationPrompter());
+			TextImitationPrompter.prompt(newImit);
 		}
 		else {
 			Imitatable parentImit = parentImitStack.peekLast();
@@ -123,7 +123,7 @@ public class ImitationBuilder implements BhModelProcessor {
 			if (oldImit != null) {
 				TextNode newImit = node.createImitNode(userOpeCmd, imitID);
 				oldImit.replacedWith(newImit, userOpeCmd);
-			}			
+			}
 		}
 	}
 }

@@ -86,7 +86,7 @@ public class BhNodeControllerInSelectionView {
 			NodeMVCBuilder builder = new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default);
 			BhNode newNode = model.findRootNode().copy(userOpeCmd, (bhNode) -> true);
 			newNode.accept(builder);	//MVC構築
-			newNode.accept(new TextImitationPrompter());
+			TextImitationPrompter.prompt(newNode);
 			currentView.content = builder.getTopNodeView();
 			Vec2D posOnRootView = ViewHelper.INSTANCE.getRelativePos(rootView, view);	//クリックされたテンプレートノードのルートノード上でのクリック位置
 			posOnRootView.x += mouseEvent.getX();
