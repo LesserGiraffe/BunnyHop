@@ -107,9 +107,7 @@ public class ImitationReplacer implements BhModelProcessor {
 	 */
 	private Optional<BhNode> getNodeToReplaceOrRemove(ConnectiveNode imitParent, ImitationConnectionPos imitCnctPos) {
 
-		ConnectiveChildFinder finder = new ConnectiveChildFinder(imitCnctPos);
-		imitParent.accept(finder);
-		BhNode connectedNode = finder.getFoundNode();	//すでにイミテーションにつながっているノード
+		BhNode connectedNode = ImitTaggedChildFinder.find(imitParent, imitCnctPos);	//すでにイミテーションにつながっているノード
 		if (connectedNode == null)
 			return Optional.empty();
 

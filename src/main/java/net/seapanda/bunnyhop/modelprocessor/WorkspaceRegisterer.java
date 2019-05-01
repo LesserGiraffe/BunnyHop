@@ -33,7 +33,7 @@ public class WorkspaceRegisterer implements BhModelProcessor {
 
 	/**
 	 * 引数で指定したノード以下のノードに引数で指定したワークスペースを登録する
-	 * @param node このノード以下にワークスペースを登録する
+	 * @param node これ以下のノードにワークスペースを登録する
 	 * @param ws 登録するワークスペース
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
