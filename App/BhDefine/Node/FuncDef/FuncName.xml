@@ -6,7 +6,7 @@
 	name="FuncName"
 	nodeStyleID="Identifier.json"
 	nodeInputControl="TextField.fxml"
-	onTextAcceptabilityChecked="ParseIdentifier.js"
+	onTextAcceptabilityChecked="CheckIdentifierFormat.js"
     initString="機能名">
 
     <Imitation imitationID="imitIdFuncName" imitationNodeID="idFuncName"/>

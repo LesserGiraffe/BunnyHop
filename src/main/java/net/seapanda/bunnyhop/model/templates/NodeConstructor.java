@@ -289,6 +289,7 @@ public class NodeConstructor {
 			type,
 			nodeAttrs.get().initString,
 			nodeAttrs.get().imitScopeName,
+			nodeAttrs.get().textFormatter,
 			nodeAttrs.get().onTextAcceptabilityChecked,
 			nodeAttrs.get().onMovedFromChildToWS,
 			nodeAttrs.get().onMovedToChild,

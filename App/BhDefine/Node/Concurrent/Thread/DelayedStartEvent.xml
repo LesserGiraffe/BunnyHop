@@ -17,8 +17,9 @@
 				name="DelayTime"
 				nodeStyleID="FixedNumLiteral.json"
 				nodeInputControl="TextField.fxml"
-				onTextAcceptabilityChecked="ParseNum.js"
-			    initString="1">
+				textFormatter="FullWidthToHalfWidth.js"
+				onTextAcceptabilityChecked="CheckNumFormat.js"
+				initString="1">
 			</Node>
 		</PrivateConnector>
 		

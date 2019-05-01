@@ -19,8 +19,8 @@
 				name="NumLiteral"
 				nodeStyleID="NumLiteral.json"
 				nodeInputControl="TextField.fxml"
-				onTextAcceptabilityChecked="ParseNum.js"
-				onTextFormatted="FormatNumberStr.js"
+				textFormatter="FullWidthToHalfWidth.js"
+				onTextAcceptabilityChecked="CheckNumFormat.js"
 				onMovedFromChildToWS="onLiteralMovedToWS.js"
 			    initString="0">
 			</Node>

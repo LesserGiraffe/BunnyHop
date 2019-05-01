@@ -20,11 +20,11 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.Function;
 
-import javafx.beans.value.ChangeListener;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
@@ -39,14 +39,14 @@ import net.seapanda.bunnyhop.view.ViewHelper;
  * テキストエリアを入力フォームに持つビュー
  * @author K.Koike
  */
-public class TextAreaNodeView  extends BhNodeView implements TextInputNodeView, ImitationCreator {
+public class TextAreaNodeView  extends TextInputNodeView implements ImitationCreator {
 
 	private TextArea textArea = new TextArea();
 	private final TextNode model;
 	private Button imitCreateImitBtn;	//!< イミテーション作成ボタン
 
 	public TextAreaNodeView(TextNode model, BhNodeViewStyle viewStyle) {
-		super(viewStyle, model);
+		super(model, viewStyle);
 		this.model = model;
 	}
 
@@ -169,14 +169,6 @@ public class TextAreaNodeView  extends BhNodeView implements TextInputNodeView, 
 		}
 	}
 
-	/**
-	 * テキストフィールドのカーソルon/off時のイベントハンドラを登録する
-	 * @param changeFocusFunc テキストフィールドのカーソルon/off時のイベントハンドラ
-	 * */
-	public void setObservableListener(ChangeListener<? super Boolean> changeFocusFunc) {
-		textArea.focusedProperty().addListener(changeFocusFunc);
-	}
-
 	@Override
 	public void show(int depth) {
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<" + this.getClass().getSimpleName() + ">   " + this.hashCode());
@@ -201,23 +193,8 @@ public class TextAreaNodeView  extends BhNodeView implements TextInputNodeView, 
 	}
 
 	@Override
-	public String getText() {
-		return textArea.getText();
-	}
-
-	@Override
-	public void setText(String text) {
-		textArea.setText(text);
-	}
-
-	@Override
-	public void setEditable(boolean editable) {
-		textArea.setEditable(editable);
-	}
-
-	@Override
-	public boolean getEditable() {
-		return textArea.editableProperty().getValue();
+	protected TextInputControl getTextInputControl() {
+		return textArea;
 	}
 
 	@Override
@@ -225,12 +202,6 @@ public class TextAreaNodeView  extends BhNodeView implements TextInputNodeView, 
 		return imitCreateImitBtn;
 	}
 }
-
-
-
-
-
-
 
 
 

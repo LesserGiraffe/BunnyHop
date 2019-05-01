@@ -20,11 +20,11 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.Function;
 
-import javafx.beans.value.ChangeListener;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.BhParams;
@@ -38,14 +38,14 @@ import net.seapanda.bunnyhop.view.ViewHelper;
  * テキストフィールドを入力フォームに持つビュー
  * @author K.Koike
  */
-public class TextFieldNodeView extends BhNodeView implements TextInputNodeView, ImitationCreator {
+public class TextFieldNodeView extends TextInputNodeView implements ImitationCreator {
 
 	private TextField textField = new TextField();
 	private final TextNode model;
 	private Button imitCreateImitBtn;	//!< イミテーション作成ボタン
 
 	public TextFieldNodeView(TextNode model, BhNodeViewStyle viewStyle) {
-		super(viewStyle, model);
+		super(model, viewStyle);
 		this.model = model;
 	}
 
@@ -71,7 +71,6 @@ public class TextFieldNodeView extends BhNodeView implements TextInputNodeView, 
 			imitCreateImitBtn = btnOpt.orElse(new Button());
 			getChildren().add(imitCreateImitBtn);
 		}
-
 		initStyle(viewStyle);
 		setFuncs(this::updateShape, null);
 		return success;
@@ -150,10 +149,6 @@ public class TextFieldNodeView extends BhNodeView implements TextInputNodeView, 
 		}
 	}
 
-	public void setObservableListener(ChangeListener<? super Boolean> changeFocusFunc) {
-		textField.focusedProperty().addListener(changeFocusFunc);
-	}
-
 	@Override
 	public void show(int depth) {
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<" + this.getClass().getSimpleName() + ">   " + this.hashCode());
@@ -178,23 +173,8 @@ public class TextFieldNodeView extends BhNodeView implements TextInputNodeView, 
 	}
 
 	@Override
-	public String getText() {
-		return textField.getText();
-	}
-
-	@Override
-	public void setText(String text) {
-		textField.setText(text);
-	}
-
-	@Override
-	public void setEditable(boolean editable) {
-		textField.setEditable(editable);
-	}
-
-	@Override
-	public boolean getEditable() {
-		return textField.editableProperty().getValue();
+	protected TextInputControl getTextInputControl() {
+		return textField;
 	}
 
 	@Override
@@ -202,3 +182,15 @@ public class TextFieldNodeView extends BhNodeView implements TextInputNodeView, 
 		return imitCreateImitBtn;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+

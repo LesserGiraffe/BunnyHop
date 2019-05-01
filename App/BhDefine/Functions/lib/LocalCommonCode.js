@@ -26,7 +26,8 @@
 
 		let dist = null;
 		while (true) {
-			let distStr = _scan('\n距離を入力してください (標準入力に半角数字で)');
+			let distStr = _scan('\n距離を入力してください (標準入力に数字で)');
+			distStr = _fullWidthToHalf(distStr);
 			if (distStr.match(/^[+-]?(\d*\.\d+|\d+\.?\d*)([eE][+-]?\d+)?$/)) {
 				dist = Number(distStr);
 			}
@@ -80,9 +81,10 @@
 			let colorID = null;
 			while (true) {
 				let colorIdStr = _scan(
-					'\n色を入力してください (標準入力に半角数字で)\n' +
+					'\n色を入力してください (標準入力に数字で)\n' +
 					'    0: 赤,  ' +'1: 緑,  ' +'2: 青,  ' + '3: 水色,  ' + '4: 紫,  ' + '5: きいろ,  ' + '6: 白,  ' + '7: 黒');
-
+				
+				colorIdStr = _fullWidthToHalf(colorIdStr);
 				if (colorIdStr.match(/^\d$/))
 					colorID = Number(colorIdStr);
 				else

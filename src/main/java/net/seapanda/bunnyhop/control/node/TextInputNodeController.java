@@ -37,7 +37,7 @@ public class TextInputNodeController extends BhNodeController {
 		this.view = view;
 		if (model.isImitationNode())
 			view.setEditable(false);
-		setTextChangeHandler(model, view);
+		setTextChangeHandlers(model, view);
 		view.setCreateImitHandler(model);
 	}
 
@@ -47,7 +47,7 @@ public class TextInputNodeController extends BhNodeController {
 		this.view = view;
 		if (model.isImitationNode())
 			view.setEditable(false);
-		setTextChangeHandler(model, view);
+		setTextChangeHandlers(model, view);
 		view.setCreateImitHandler(model);
 	}
 
@@ -56,8 +56,9 @@ public class TextInputNodeController extends BhNodeController {
 	 * @param model TextNodeView に対応する model
 	 * @param view イベントハンドラを登録するview
 	 * */
-	static public void setTextChangeHandler(TextNode model, TextInputNodeView view) {
+	static public void setTextChangeHandlers(TextNode model, TextInputNodeView view) {
 
+		view.setTextFormatHandler(model::formatText);
 		view.setTextChangeListener(model::isTextAcceptable);
 
 		view.setObservableListener((observable, oldValue, newValue) -> {

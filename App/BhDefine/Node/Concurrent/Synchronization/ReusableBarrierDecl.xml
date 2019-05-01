@@ -54,8 +54,9 @@
 				name="NumLiteral"
 				nodeStyleID="FixedNumLiteral.json"
 				nodeInputControl="TextField.fxml"
-				onTextAcceptabilityChecked="ParsePositiveInt.js"
-			    initString="2">
+				textFormatter="FullWidthToHalfWidth.js"
+				onTextAcceptabilityChecked="CheckPositiveIntFormat.js"
+				initString="2">
 			</Node>
 		</PrivateConnector>
 

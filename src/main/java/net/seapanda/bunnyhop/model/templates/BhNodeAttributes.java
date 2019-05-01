@@ -36,6 +36,7 @@ public class BhNodeAttributes {
 	public String onMovedFromChildToWS;
 	public String onMovedToChild;
 	public String onTextAcceptabilityChecked;
+	public String textFormatter;
 	public String imitScopeName;
 	public String initString;
 	public String nodeInputControlFileName;
@@ -76,6 +77,9 @@ public class BhNodeAttributes {
 
 		//onTextAcceptabilityChecked
 		nodeAttrs.onTextAcceptabilityChecked = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_TEXT_ACCEPTABILITY_CHECKED);
+
+		//textFormatter
+		nodeAttrs.textFormatter = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_TEXT_FORMATTER);
 
 		//imitScopeName
 		nodeAttrs.imitScopeName = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMIT_SCOPE_NAME);

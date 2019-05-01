@@ -21,10 +21,12 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
 import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
@@ -45,6 +47,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
 public class TextNode  extends Imitatable implements Serializable {
 
 	private String text = "";	//!< このノードの管理する文字列データ
+	private final String scriptNameOfTextFormatter;	//!< テキストを整形するスクリプト
 	private final String scriptNameOnTextAcceptabilityChecked; //!< テキストが受理可能かどうか判断する際に実行されるスクリプト
 	private ImitationInfo<TextNode> imitInfo;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
 
@@ -56,6 +59,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	 * @param type xml のtype属性
 	 * @param initString 初期文字列
 	 * @param scopeName イミテーションノードがオリジナルノードと同じスコープにいるかチェックする際の名前
+	 * @param scriptNameOfTextFormatter テキストを整形するスクリプトの名前
 	 * @param scriptNameOnTextAcceptabilityChecked 入力文字列のパターンチェックスクリプトの名前
 	 * @param scriptNameOnMovedFromChildToWS ワークスペース移動時に実行されるスクリプトの名前
 	 * @param scriptNameOnMovedToChild 子ノードとして接続されたときに実行されるスクリプトの名前
@@ -68,6 +72,7 @@ public class TextNode  extends Imitatable implements Serializable {
 			String type,
 			String initString,
 			String scopeName,
+			String scriptNameOfTextFormatter,
 			String scriptNameOnTextAcceptabilityChecked,
 			String scriptNameOnMovedFromChildToWS,
 			String scriptNameOnMovedToChild,
@@ -80,6 +85,7 @@ public class TextNode  extends Imitatable implements Serializable {
 			scriptNameOnMovedFromChildToWS,
 			scriptNameOnMovedToChild);
 		this.scriptNameOnTextAcceptabilityChecked = scriptNameOnTextAcceptabilityChecked;
+		this.scriptNameOfTextFormatter = scriptNameOfTextFormatter;
 		imitInfo = new ImitationInfo<>(imitID_imitNodeID, canCreateImitManually, scopeName);
 		text = initString;
 	}
@@ -92,6 +98,7 @@ public class TextNode  extends Imitatable implements Serializable {
 		super(org);
 		text = org.text;
 		scriptNameOnTextAcceptabilityChecked = org.scriptNameOnTextAcceptabilityChecked;
+		scriptNameOfTextFormatter = org.scriptNameOfTextFormatter;
 	}
 
 	@Override
@@ -146,7 +153,7 @@ public class TextNode  extends Imitatable implements Serializable {
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				TextNode.class.getSimpleName() +  ".isTextSettable   " + scriptNameOnTextAcceptabilityChecked + "\n" +
+				TextNode.class.getSimpleName() +  "::isTextAcceptable   " + scriptNameOnTextAcceptabilityChecked + "\n" +
 				e.toString() + "\n");
 		}
 
@@ -154,6 +161,36 @@ public class TextNode  extends Imitatable implements Serializable {
 			return (Boolean)jsReturn;
 
 		return false;
+	}
+
+	/**
+	 * 入力されたテキストを整形して返す.
+	 * @param text 整形対象の全文字列
+	 * @param addedText 前回整形したテキストから新たに追加された文字列
+	 * @return _1 -> テキスト全体を整形した場合 true. 追加分だけ整形した場合 false. <br>
+	 *          _2 -> 整形したテキスト
+	 * */
+	public Pair<Boolean, String> formatText(String text, String addedText) {
+
+		Script textFormatter = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOfTextFormatter);
+		if (textFormatter == null)
+			return new Pair<Boolean, String>(false, addedText);
+
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_TEXT, text);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_ADDED_TEXT, addedText);
+		try {
+			NativeObject jsObj = (NativeObject)ContextFactory.getGlobal().call(	cx -> textFormatter.exec(cx, scriptScope));
+			Boolean isEntireTextFormatted = (Boolean)jsObj.get(BhParams.JsKeyword.KEY_BH_IS_ENTIRE_TEXT_FORMATTED);
+			String formattedText = (String)jsObj.get(BhParams.JsKeyword.KEY_BH_FORMATTED_TEXT);
+			return new Pair<Boolean, String>(isEntireTextFormatted, formattedText);
+		}
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				TextNode.class.getSimpleName() +  "::getFormattedText   " + scriptNameOfTextFormatter + "\n" +
+				e.toString() + "\n");
+		}
+
+		return new Pair<Boolean, String>(false, addedText);
 	}
 
 	/**

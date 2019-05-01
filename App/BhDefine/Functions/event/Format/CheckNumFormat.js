@@ -2,7 +2,8 @@
 
 	try {
 		java.lang.Double.parseDouble(bhText);
-		return true;
+		let lastChar = bhText.slice(-1);
+		return (lastChar !== 'd' && lastChar !== 'D' && lastChar !== 'f' && lastChar !== 'F');
 	}
 	catch(e){}
 

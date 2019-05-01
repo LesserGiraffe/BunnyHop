@@ -106,6 +106,7 @@ public class BhParams {
 		public static final String ATTR_NAME_NAME = "name";
 		public static final String ATTR_NAME_FIXED = "fixed";
 		public static final String ATTR_NAME_ON_TEXT_ACCEPTABILITY_CHECKED = "onTextAcceptabilityChecked";
+		public static final String ATTR_NAME_TEXT_FORMATTER = "textFormatter";
 		public static final String ATTR_NAME_ON_MOVED_FROM_CHILD_TO_WS = "onMovedFromChildToWS";
 		public static final String ATTR_NAME_ON_MOVED_TO_CHILD = "onMovedToChild";
 		public static final String ATTR_NAME_ON_CHILD_REPLACED = "onChildReplaced";
@@ -142,6 +143,7 @@ public class BhParams {
 		public static final String KEY_BH_NODE_VIEW = "bhNodeView";
 		public static final String KEY_BH_MSG_SERVICE = "bhMsgService";
 		public static final String KEY_BH_TEXT = "bhText";	//!< TextNode のString型フィールドアクセス用キーワード
+		public static final String KEY_BH_ADDED_TEXT = "bhAddedText";
 		public static final String KEY_BH_OLD_PARENT = "bhOldParent";
 		public static final String KEY_BH_OLD_ROOT = "bhOldRoot";
 		public static final String KEY_BH_REPLACED_NEW_NODE = "bhReplacedNewNode";
@@ -158,6 +160,8 @@ public class BhParams {
 		public static final String KEY_UNAME = "uname";
 		public static final String KEY_PASSWORD = "password";
 		public static final String KEY_BH_PROGRAM_FILE_PATH = "bhProgramFilePath";
+		public static final String KEY_BH_IS_ENTIRE_TEXT_FORMATTED = "bhIsEntireTextFormatted";
+		public static final String KEY_BH_FORMATTED_TEXT = "bhFormattedText";
 	}
 
 	/**

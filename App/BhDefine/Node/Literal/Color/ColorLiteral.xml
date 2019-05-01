@@ -18,8 +18,7 @@
 				bhNodeID="idColorLiteralExp.prvNode0"
 				name="ColorLiteral"
 				nodeStyleID="ColorLiteral.json"
-				nodeInputControl="ColorLiteral.fxml"
-				onTextAcceptabilityChecked="ParseStr.js">
+				nodeInputControl="ColorLiteral.fxml">
 			</Node>
 		</PrivateConnector>
 	</ConnectorSection>
