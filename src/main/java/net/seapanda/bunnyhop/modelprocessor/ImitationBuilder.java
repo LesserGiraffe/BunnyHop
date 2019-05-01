@@ -26,30 +26,42 @@ import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
- * イミテーションノードツリーを作成する
+ * イミテーションノードツリーを作成するクラス
  * @author K.Koike
  */
 public class ImitationBuilder implements BhModelProcessor {
 
-	final private Deque<Imitatable> parentImitStack = new LinkedList<>();	//!< 現在処理中のBhNode の親がトップにくるスタック
+	private final Deque<Imitatable> parentImitStack = new LinkedList<>();	//!< 現在処理中のBhNode の親がトップにくるスタック
 	UserOperationCommand userOpeCmd;	//!< undo用コマンドオブジェクト
-	boolean isManualCreation = false;	//!< トップノードのイミテーションを手動作成する場合true
+	private boolean isManualCreation;	//!< トップノードのイミテーションを手動作成する場合true
 
-	public ImitationBuilder(UserOperationCommand userOpeCmd) {
-		this.userOpeCmd = userOpeCmd;
-	}
-
-	public ImitationBuilder(UserOperationCommand userOpeCmd, boolean isManualCreation) {
-		this.userOpeCmd = userOpeCmd;
-		this.isManualCreation = isManualCreation;
+	/**
+	 * ノードを付け変えた結果, 自動的に作成されるイミテーションノードを作る
+	 * @param node イミテーションを作成するオリジナルノード
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * @return 作成したイミテーションノードツリーのトップノード
+	 * */
+	public static Imitatable buildForAutoCreation(BhNode node, UserOperationCommand userOpeCmd) {
+		var builder = new ImitationBuilder(userOpeCmd, false);
+		node.accept(builder);
+		return builder.parentImitStack.peekLast();
 	}
 
 	/**
-	 * 作成したイミテーションノードツリーのトップノードを取得する
+	 * イミテーション作成操作を手動で行った結果できるイミテーションノードを作る
+	 * @param node イミテーションを作成するオリジナルノード
+	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @return 作成したイミテーションノードツリーのトップノード
-	 */
-	public Imitatable getTopImitation() {
-		return parentImitStack.peekLast();
+	 * */
+	public static Imitatable buildForManualCreation(BhNode node, UserOperationCommand userOpeCmd) {
+		var builder = new ImitationBuilder(userOpeCmd, true);
+		node.accept(builder);
+		return builder.parentImitStack.peekLast();
+	}
+
+	private ImitationBuilder(UserOperationCommand userOpeCmd, boolean isManualCreation) {
+		this.userOpeCmd = userOpeCmd;
+		this.isManualCreation = isManualCreation;
 	}
 
 	/**

@@ -88,10 +88,7 @@ public abstract class Imitatable extends BhNode {
 				}
 			}
 		}
-
-		ImitationBuilder imitBuilder = new ImitationBuilder(userOpeCmd);
-		accept(imitBuilder);
-		return imitBuilder.getTopImitation();
+		return ImitationBuilder.buildForAutoCreation(this, userOpeCmd);
 	}
 
 	/**

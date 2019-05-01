@@ -26,6 +26,7 @@ import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
@@ -55,9 +56,8 @@ public interface ImitationCreator {
 		Vec2D pos = MsgService.INSTANCE.getPosOnWS(model);
 		double x = pos.x + BhParams.LnF.REPLACED_NODE_SHIFT;
 		double y = pos.y + BhParams.LnF.REPLACED_NODE_SHIFT;
-		ImitationBuilder imitBuilder = new ImitationBuilder(userOpeCmd, true);
-		model.accept(imitBuilder);
-		BhNodeHandler.INSTANCE.addRootNode(model.getWorkspace(), imitBuilder.getTopImitation(), x, y, userOpeCmd);
+		Imitatable imitNode = ImitationBuilder.buildForManualCreation(model, userOpeCmd);
+		BhNodeHandler.INSTANCE.addRootNode(model.getWorkspace(), imitNode, x, y, userOpeCmd);
 		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 	}
 

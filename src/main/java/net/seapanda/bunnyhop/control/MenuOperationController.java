@@ -501,9 +501,6 @@ public class MenuOperationController {
 		pasteBtn.setDisable(true);
 
 		wss.getListReadyToCopy().addListener((ListChangeListener<BhNode>) change -> {
-
-			System.out.println((wss.getListReadyToCut().isEmpty() && change.getList().isEmpty()) + " kka");
-
 			if (wss.getListReadyToCut().isEmpty() && change.getList().isEmpty())
 				pasteBtn.setDisable(true);
 			else
@@ -511,9 +508,6 @@ public class MenuOperationController {
 		});
 
 		wss.getListReadyToCut().addListener((ListChangeListener<BhNode>) change -> {
-
-			System.out.println((wss.getListReadyToCopy().isEmpty() && change.getList().isEmpty()) + " ppk");
-
 			if (wss.getListReadyToCopy().isEmpty() && change.getList().isEmpty())
 				pasteBtn.setDisable(true);
 			else
