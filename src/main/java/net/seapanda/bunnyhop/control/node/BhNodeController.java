@@ -27,6 +27,7 @@ import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
+import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
@@ -252,9 +253,8 @@ public class BhNodeController implements MsgProcessor {
 		if (topNode == null)
 			return;
 
-		UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
-		topNode.accept(unscopedNodeCollector);
-		BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), ddInfo.userOpeCmd)
+		List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(topNode);
+		BhNodeHandler.INSTANCE.deleteNodes(unscopedNodes, ddInfo.userOpeCmd)
 		.forEach(oldAndNewNode -> {
 			BhNode oldNode = oldAndNewNode._1;
 			BhNode newNode = oldAndNewNode._2;

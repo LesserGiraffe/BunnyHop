@@ -39,6 +39,7 @@ import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
+import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
@@ -177,9 +178,8 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			pasted.accept(new NodeMVCBuilder(NodeMVCBuilder.ControllerType.Default));
 			pasted.accept(new TextImitationPrompter());
 			BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, pasted, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
-			UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
-			pasted.accept(unscopedNodeCollector);
-			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), userOpeCmd)
+			List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(pasted);
+			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodes, userOpeCmd)
 			.forEach(oldAndNewNode -> {
 				BhNode oldNode = oldAndNewNode._1;
 				BhNode newNode = oldAndNewNode._2;
@@ -222,9 +222,8 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, false, userOpeCmd)
 			.ifPresent(newNode -> newNode.findParentNode().execScriptOnChildReplaced(node, newNode, newNode.getParentConnector(), userOpeCmd));
 			BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, node, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
-			UnscopedNodeCollector unscopedNodeCollector = new UnscopedNodeCollector();
-			node.accept(unscopedNodeCollector);
-			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodeCollector.getUnscopedNodeList(), userOpeCmd)
+			List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(node);
+			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodes, userOpeCmd)
 			.forEach(oldAndNewNodes -> {
 				BhNode oldNode = oldAndNewNodes._1;
 				BhNode newNode = oldAndNewNodes._2;

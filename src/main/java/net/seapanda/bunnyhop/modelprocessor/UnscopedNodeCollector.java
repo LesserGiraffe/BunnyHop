@@ -17,7 +17,9 @@ package net.seapanda.bunnyhop.modelprocessor;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 
@@ -28,38 +30,43 @@ import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 public class UnscopedNodeCollector implements BhModelProcessor {
 
 	private final List<Imitatable> unscopedNodeList = new ArrayList<>();	//!< オリジナルノードと同じスコープに居ないイミテーションノードのリスト
-	
+
 	/**
-	 * オリジナルノードと同じスコープに居ないイミテーションノードのリストを返す
-	 * @return オリジナルノードと同じスコープに居ないイミテーションノードのリスト
-	 */
-	public List<Imitatable> getUnscopedNodeList() {
-		return unscopedNodeList;
+	 * スコープ外のノードを集める
+	 * @param node このノード以下にあるスコープ外のノードを探して集める.
+	 * */
+	public static List<Imitatable> collect(BhNode node) {
+
+		var collector = new UnscopedNodeCollector();
+		node.accept(collector);
+		return collector.unscopedNodeList;
 	}
-	
+
+	private UnscopedNodeCollector() {}
+
 	@Override
-	public void visit(ConnectiveNode node) {		
-		
+	public void visit(ConnectiveNode node) {
+
 		node.introduceSectionsTo(this);
 		node.getImitationInfo().getImitationList().forEach(
 			imitNode -> {
 				if (imitNode.isUnscoped())
 					unscopedNodeList.add(imitNode);
 		});
-		
+
 		if (node.isUnscoped())
 			unscopedNodeList.add(node);
 	}
-	
+
 	@Override
 	public void visit(TextNode node) {
-		
+
 		node.getImitationInfo().getImitationList().forEach(
 			imitNode -> {
 				if (imitNode.isUnscoped())
 					unscopedNodeList.add(imitNode);
 		});
-			
+
 		if (node.isUnscoped())
 			unscopedNodeList.add(node);
 	}
