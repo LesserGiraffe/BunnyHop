@@ -76,9 +76,9 @@ public class ConnectorConstructor {
 		boolean fixed = fixedStr.equals(BhParams.BhModelDef.ATTR_VALUE_TRUE);
 
 		//初期接続ノードID
-		BhNodeID initNodeID = BhNodeID.createBhNodeID(cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID));
+		BhNodeID initNodeID = BhNodeID.create(cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID));
 		//デフォルトノードID
-		BhNodeID defNodeID = BhNodeID.createBhNodeID(cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_DEFAULT_BHNODE_ID));
+		BhNodeID defNodeID = BhNodeID.create(cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_DEFAULT_BHNODE_ID));
 		boolean hasFixedInitNode = fixed && !initNodeID.equals(BhNodeID.NONE);
 		if (hasFixedInitNode) {	//初期ノードが固定ノードである => 初期ノードがデフォルトノードとなる
 			defNodeID = initNodeID;

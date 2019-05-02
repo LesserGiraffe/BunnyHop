@@ -1,6 +1,5 @@
 (function() {
 
-	let ControllerType = net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder.ControllerType;
 	let NodeMVCBuilder = net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 	let BhNodeID = net.seapanda.bunnyhop.model.node.BhNodeID;
 	let BhNodeState = net.seapanda.bunnyhop.model.node.BhNode.State;
@@ -27,9 +26,8 @@
 	 * */
 	function addNewNodeToWS(bhNodeID, workspace, pos, bhNodeHandler, bhNodeTemplates, bhUserOpeCmd) {
 
-		let nodeMVCBuilder = new NodeMVCBuilder(ControllerType.Default);
-		let newNode = bhNodeTemplates.genBhNode(BhNodeID.createBhNodeID(bhNodeID), bhUserOpeCmd);
-		newNode.accept(nodeMVCBuilder);
+		let newNode = bhNodeTemplates.genBhNode(BhNodeID.create(bhNodeID), bhUserOpeCmd);
+		NodeMVCBuilder.build(newNode);
 		bhNodeHandler.addRootNode(workspace, newNode, pos.x, pos.y, bhUserOpeCmd);
 		return newNode;
 	}

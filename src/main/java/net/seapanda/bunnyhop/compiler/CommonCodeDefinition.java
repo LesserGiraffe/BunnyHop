@@ -70,6 +70,7 @@ public class CommonCodeDefinition {
 		public static final String CURRENT_TIME_MILLS = "_currentTimeMillis";
 		public static final String GET_TIME_SINCE_PROGRAM_STARTED = "_getTimeSinceProgramStarted";
 		public static final String STRCAT = "_strcat";
+		public static final String LIST_TO_STR = "_listToStr";
 		public static final String IDENTITY = "_identity";	//恒等写像 (実際に共通コード部には定義しない)
 	}
 

@@ -40,7 +40,7 @@ public class BhNodeID implements Serializable {
 	 * @param id 識別子名
 	 * @return BhノードID
 	 */
-	public static BhNodeID createBhNodeID(String id) {
+	public static BhNodeID create(String id) {
 		return new BhNodeID(id == null ? "" : id);
 	}
 

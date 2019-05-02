@@ -16,6 +16,7 @@
 	let _jClass = java.lang.Class;
 	let _jSystem = java.lang.System;
 	let _jCyclicBarrier = java.util.concurrent.CyclicBarrier;
+	let _jStringBuilder = java.lang.StringBuilder;
 
 	let _eventHandlers = {};
 	let _executor = _jExecutors.newFixedThreadPool(16);
@@ -64,6 +65,17 @@
 	
 	function _getNumberWaiting(barrier) {
 		return barrier.getNumberWaiting();
+	}
+	
+	function _listToStr(list, listName) {
+	
+		let strBuilder = new _jStringBuilder();
+		for (let i = 0; i < list.length; ++i) {
+			strBuilder
+			.append(listName)
+			.append(_jString.format('[%.0f] = %s\n', i, list[i]._toStr()));
+		}
+		return String(strBuilder);
 	}
 
 	function _fullWidthToHalf(str) {

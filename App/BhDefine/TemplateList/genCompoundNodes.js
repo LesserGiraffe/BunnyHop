@@ -3,11 +3,11 @@
 	let BhNodeID = net.seapanda.bunnyhop.model.node.BhNodeID;
 
 	function registerNodeTemplate(bhNodeID, bhNode) {
-		bhNodeTemplates.registerNodeTemplate(BhNodeID.createBhNodeID(bhNodeID), bhNode);
+		bhNodeTemplates.registerNodeTemplate(BhNodeID.create(bhNodeID), bhNode);
 	}
 
 	function genBhNode(bhNodeID, bhUserOpeCmd) {
-		return bhNodeTemplates.genBhNode(BhNodeID.createBhNodeID(bhNodeID), bhUserOpeCmd);
+		return bhNodeTemplates.genBhNode(BhNodeID.create(bhNodeID), bhUserOpeCmd);
 	}
 
 	function connect(parentNode, childNode, cnctrPath) {

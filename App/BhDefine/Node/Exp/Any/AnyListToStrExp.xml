@@ -1,0 +1,22 @@
+<Node
+	type="connective"
+	bhNodeID="idAnyListToStrExp"
+	name="AnyListToStrExp"
+	nodeStyleID="AnyListToStrExp.json">
+
+	<ConnectorSection name="StringExpSctn">
+		<Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
+
+		<PrivateConnector
+			bhConnectorID="idAnyListToStrExp.prvCnctr0"
+			name="Arg1"
+			fixed="true">
+			<Node
+				type="noContent"
+				bhNodeID="idAnyListToStrExp.prvNode0"
+				name="StrLiteral"
+				initString="">
+			</Node>
+		</PrivateConnector>
+	</ConnectorSection>
+</Node>

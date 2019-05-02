@@ -118,7 +118,7 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 			if (bhNodeID instanceof String) {	// 配列内の文字列だけをBhNode の IDとみなす
 
 				String bhNodeIDStr = (String)bhNodeID;
-				if (BhNodeTemplates.INSTANCE.bhNodeExists(BhNodeID.createBhNodeID(bhNodeIDStr))) {	//IDに対応する BhNode がある
+				if (BhNodeTemplates.INSTANCE.bhNodeExists(BhNodeID.create(bhNodeIDStr))) {	//IDに対応する BhNode がある
 					parent.children.add(new TreeNode<>(bhNodeIDStr));
 				}
 				else {

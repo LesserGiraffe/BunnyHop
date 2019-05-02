@@ -112,6 +112,7 @@ public class BhCompiler {
 		if (!isExecutable(execNode))
 			return Optional.empty();
 
+		Preprocessor.process(new ArrayList<BhNode>(compiledNodeList) {{add(execNode);}});
 		StringBuilder code = new StringBuilder();
 		genCode(code, execNode, compiledNodeList, option);
 

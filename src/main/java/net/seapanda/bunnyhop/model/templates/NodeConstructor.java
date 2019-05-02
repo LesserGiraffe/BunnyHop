@@ -153,7 +153,7 @@ public class NodeConstructor {
 				continue;
 			}
 
-			BhNodeID imitNodeID = BhNodeID.createBhNodeID(imitTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID));
+			BhNodeID imitNodeID = BhNodeID.create(imitTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID));
 			if (imitNodeID.equals(BhNodeID.NONE)) {
 				MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ELEM_NAME_IMITATION + " タグには, "
 					+ BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID + " 属性を記述してください. " + node.getBaseURI());

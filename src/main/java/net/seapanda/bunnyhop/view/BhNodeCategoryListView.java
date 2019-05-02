@@ -93,7 +93,7 @@ public class BhNodeCategoryListView {
 
 				case BhParams.NodeTemplateList.KEY_CONTENTS:
 					child.children.forEach(bhNodeID -> {
-						addBhNodeToSelectionView(parentItem.getValue(), BhNodeID.createBhNodeID(bhNodeID.content));
+						addBhNodeToSelectionView(parentItem.getValue(), BhNodeID.create(bhNodeID.content));
 					});	break;
 
 				default:

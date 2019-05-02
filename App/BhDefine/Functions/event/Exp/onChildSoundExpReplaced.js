@@ -1,5 +1,4 @@
 (function() {
-	java.lang.System.out.println('okas');
 	let newNodeSection = bhParentConnector.getConnectedNode().findSymbolInDescendants('*');
 	let newNodeSectionName = null;
 	if (newNodeSection !== null)

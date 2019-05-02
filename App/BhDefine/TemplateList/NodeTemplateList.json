@@ -38,7 +38,8 @@
 			"idScanExp", 
 			"idStrRowChainExp",
 			"idStrColumnChainExp",
-			"idSayStat"]
+			"idSayStat",
+			"idAnyListToStrExp"]
 	},
 	
 	"論理": {
@@ -116,7 +117,8 @@
 			"idAnyArrayRemoveStat",
 			"idAnyArraySetStat",
 			"idAnyArrayAppendStat",
-			"idAnyArrayClearStat"]
+			"idAnyArrayClearStat",
+			"idAnyListToStrExp"]
 	},
 	
 	"機能作成" : {

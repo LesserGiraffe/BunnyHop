@@ -53,7 +53,7 @@ public class BhNodeAttributes {
 		BhNodeAttributes nodeAttrs = new BhNodeAttributes();
 
 		//bhNodeID
-		nodeAttrs.bhNodeID = BhNodeID.createBhNodeID(node.getAttribute(BhParams.BhModelDef.ATTR_NAME_BHNODE_ID));
+		nodeAttrs.bhNodeID = BhNodeID.create(node.getAttribute(BhParams.BhModelDef.ATTR_NAME_BHNODE_ID));
 		if (nodeAttrs.bhNodeID.equals(BhNodeID.NONE)) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
 				"<" + BhParams.BhModelDef.ELEM_NAME_NODE + ">" + " タグには "

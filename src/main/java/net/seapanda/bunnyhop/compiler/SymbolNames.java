@@ -308,6 +308,7 @@ public class SymbolNames {
 		public static final String STR_CHAIN_LINK_EXP = "StrChainLinkExp";
 		public static final String STR_CHAIN_EXP = "StrChainExp";
 		public static final String GET_NUMBER_WAITING_EXP = "GetNumberWaitingExp";
+		public static final String ANY_LIST_TO_STR_EXP = "AnyListToStrExp";
 		public static final String PRINT_STAT = "PrintStat";
 		public static final String PRINT_NUM_STAT = "PrintNumStat";
 		public static final String MOVE_STAT = "MoveStat";
@@ -352,6 +353,7 @@ public class SymbolNames {
 				STR_CHAIN_LINK_EXP,
 				STR_CHAIN_EXP,
 				GET_NUMBER_WAITING_EXP,
+				ANY_LIST_TO_STR_EXP,
 
 				Array.NUM_ARRAY_GET_EXP,
 				Array.NUM_ARRAY_GET_LAST_EXP,
@@ -444,6 +446,7 @@ public class SymbolNames {
 				put(FuncID.create(STR_CHAIN_LINK_EXP), CommonCodeDefinition.Funcs.STRCAT);
 				put(FuncID.create(STR_CHAIN_EXP), CommonCodeDefinition.Funcs.IDENTITY);
 				put(FuncID.create(GET_NUMBER_WAITING_EXP), CommonCodeDefinition.Funcs.GET_NUMBER_WAITING);
+				put(FuncID.create(ANY_LIST_TO_STR_EXP), CommonCodeDefinition.Funcs.LIST_TO_STR);
 				put(FuncID.create(MOVE_STAT, OPT_MOVE_FORWARD), CommonCodeDefinition.Funcs.MOVE_FORWARD);
 				put(FuncID.create(MOVE_STAT, OPT_MOVE_BACKWARD), CommonCodeDefinition.Funcs.MOVE_BACKWARD);
 				put(FuncID.create(MOVE_STAT, OPT_TURN_RIGHT), CommonCodeDefinition.Funcs.TURN_RIGHT);
