@@ -33,6 +33,7 @@ import net.seapanda.bunnyhop.model.imitation.ImitationInfo;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -51,35 +52,20 @@ public class ConnectiveNode extends Imitatable {
 	/**
 	 * コンストラクタ<br>
 	 * ノード内部・外部とは描画位置のこと
-	 * @param id ノードID (\<Node\> タグの bhID)
-	 * @param name ノード名 (\<Node\> タグの name)
 	 * @param childSection 子セクション
-	 * @param scopeName イミテーションノードがオリジナルノードと同じスコープにいるかチェックする際の名前
-	 * @param scriptNameOnMovedFromChildToWS ワークスペース移動時に実行されるスクリプトの名前
-	 * @param scriptNameOnMovedToChild 子ノードとして接続されたときに実行されるスクリプトの名前
-	 * @param scriptNameOnChildReplaced 子ノードが入れ替わったときに実行されるスクリプトの名前
-	 * @param scriptNameJustBeforeChildToBeDeleted 子ノードが選択削除される直前に実行されるスクリプトの名前
 	 * @param imitID_imitNodeID イミテーションタグとそれに対応するイミテーションノードIDのマップ
-	 * @param canCreateImitManually このノードがイミテーション作成機能を持つ場合true
+	 * @param attributes ノードの設定情報
 	 * */
 	public ConnectiveNode(
-			BhNodeID id,
-			String name,
 			Section childSection,
-			String scopeName,
-			String scriptNameOnMovedFromChildToWS,
-			String scriptNameOnMovedToChild,
-			String scriptNameOnChildReplaced,
 			Map<ImitationID, BhNodeID> imitID_imitNodeID,
-			boolean canCreateImitManually) {
-		super(id,
-			name,
-			BhParams.BhModelDef.ATTR_VALUE_CONNECTIVE,
-			scriptNameOnMovedFromChildToWS,
-			scriptNameOnMovedToChild);
+			BhNodeAttributes attributes) {
+
+		super(BhParams.BhModelDef.ATTR_VALUE_CONNECTIVE, attributes);
 		this.childSection = childSection;
-		imitInfo = new ImitationInfo<>(imitID_imitNodeID, canCreateImitManually, scopeName);
-		this.scriptNameOnChildReplaced = scriptNameOnChildReplaced;
+		imitInfo = new ImitationInfo<>(
+			imitID_imitNodeID, attributes.getCanCreateImitManually(), attributes.getImitScopeName());
+		scriptNameOnChildReplaced = attributes.getOnChildReplaced();
 	}
 
 	/**

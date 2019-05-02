@@ -185,7 +185,7 @@ public class NodeConstructor {
 	 */
 	private Optional<ConnectiveNode> genConnectiveNode(Element node) {
 
-		String onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CHILD_REPLACED);
+		//String onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CHILD_REPLACED);
 		Optional<BhNodeAttributes> nodeAttrs = BhNodeAttributes.readBhNodeAttriButes(node);
 		if (!nodeAttrs.isPresent()) {
 			return Optional.empty();
@@ -205,32 +205,21 @@ public class NodeConstructor {
 		}
 
 		//実行時スクリプトチェック
-		boolean allScriptsFound =
-			BhNodeTemplates.allScriptsExist(
-				node.getBaseURI(),
-				nodeAttrs.get().onMovedFromChildToWS,
-				nodeAttrs.get().onMovedToChild,
-				onChildReplaced);
-		if (!allScriptsFound) {
+		boolean allScriptsFound = BhNodeTemplates.allScriptsExist(
+			node.getBaseURI(),
+			nodeAttrs.get().getOnMovedFromChildToWS(),
+			nodeAttrs.get().getOnMovedToChild(),
+			nodeAttrs.get().getOnChildReplaced());
+		if (!allScriptsFound)
 			return Optional.empty();
-		}
 
-		BhNodeID orgNodeID = nodeAttrs.get().bhNodeID;
-		Optional<Map<ImitationID, BhNodeID>> imitID_imitNodeID = genImitIDAndNodePair(node, orgNodeID, nodeAttrs.get().canCreateImitManually);
-		if (!imitID_imitNodeID.isPresent()) {
+		BhNodeID orgNodeID = nodeAttrs.get().getBhNodeID();
+		Optional<Map<ImitationID, BhNodeID>> imitID_imitNodeID =
+			genImitIDAndNodePair(node, orgNodeID, nodeAttrs.get().getCanCreateImitManually());
+		if (!imitID_imitNodeID.isPresent())
 			return Optional.empty();
-		}
 
-		return Optional.of(new ConnectiveNode(
-			nodeAttrs.get().bhNodeID,
-			nodeAttrs.get().name,
-			childSection.get().get(0),
-			nodeAttrs.get().imitScopeName,
-			nodeAttrs.get().onMovedFromChildToWS,
-			nodeAttrs.get().onMovedToChild,
-			onChildReplaced,
-			imitID_imitNodeID.get(),
-			nodeAttrs.get().canCreateImitManually));
+		return Optional.of(new ConnectiveNode(childSection.get().get(0), imitID_imitNodeID.get(), nodeAttrs.get()));
 	}
 
 	/**
@@ -240,8 +229,8 @@ public class NodeConstructor {
 	 */
 	private Optional<VoidNode> genVoidNode(Element node) {
 
-		Optional<BhNodeAttributes> nodeAttrsOpt = BhNodeAttributes.readBhNodeAttriButes(node);
-		return nodeAttrsOpt.map(nodeAttr -> new VoidNode(nodeAttrsOpt.get().bhNodeID, nodeAttrsOpt.get().name));
+		Optional<BhNodeAttributes> nodeAttrs = BhNodeAttributes.readBhNodeAttriButes(node);
+		return nodeAttrs.map(attrs -> new VoidNode(attrs));
 	}
 
 	/**
@@ -260,14 +249,15 @@ public class NodeConstructor {
 
 		//実行時スクリプトチェック
 		boolean allScriptsFound = BhNodeTemplates.allScriptsExist(node.getBaseURI(),
-			nodeAttrs.get().onMovedFromChildToWS,
-			nodeAttrs.get().onMovedToChild,
-			nodeAttrs.get().onTextAcceptabilityChecked);
+			nodeAttrs.get().getOnMovedFromChildToWS(),
+			nodeAttrs.get().getOnMovedToChild(),
+			nodeAttrs.get().getOnTextAcceptabilityChecked(),
+			nodeAttrs.get().getTextFormatter());
 		if (!allScriptsFound) {
 			return Optional.empty();
 		}
 
-		if (checkViewComponent && nodeAttrs.get().nodeInputControlFileName.isEmpty()) {
+		if (checkViewComponent && nodeAttrs.get().getNodeInputControlFileName().isEmpty()) {
 			MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ATTR_NAME_TYPE + " 属性が " + type + " の "
 				+ "<" + BhParams.BhModelDef.ELEM_NAME_NODE + "> タグは "
 				+ BhParams.BhModelDef.ATTR_NAME_NODE_INPUT_CONTROL + " 属性でGUI入力部品のfxmlファイルを指定しなければなりません.\n"
@@ -275,26 +265,16 @@ public class NodeConstructor {
 			return Optional.empty();
 		}
 		else {
-			BhNodeViewStyle.nodeID_inputControlFileName.put(nodeAttrs.get().bhNodeID, nodeAttrs.get().nodeInputControlFileName);
+			BhNodeViewStyle.nodeID_inputControlFileName.put(
+				nodeAttrs.get().getBhNodeID(), nodeAttrs.get().getNodeInputControlFileName());
 		}
 
-		Optional<Map<ImitationID, BhNodeID>> imitID_imitNodeID = genImitIDAndNodePair(node, nodeAttrs.get().bhNodeID, nodeAttrs.get().canCreateImitManually);
-		if (!imitID_imitNodeID.isPresent()) {
+		Optional<Map<ImitationID, BhNodeID>> imitID_imitNodeID =
+			genImitIDAndNodePair(node, nodeAttrs.get().getBhNodeID(), nodeAttrs.get().getCanCreateImitManually());
+		if (!imitID_imitNodeID.isPresent())
 			return Optional.empty();
-		}
 
-		return Optional.of(new TextNode(
-			nodeAttrs.get().bhNodeID,
-			nodeAttrs.get().name,
-			type,
-			nodeAttrs.get().initString,
-			nodeAttrs.get().imitScopeName,
-			nodeAttrs.get().textFormatter,
-			nodeAttrs.get().onTextAcceptabilityChecked,
-			nodeAttrs.get().onMovedFromChildToWS,
-			nodeAttrs.get().onMovedToChild,
-			imitID_imitNodeID.get(),
-			nodeAttrs.get().canCreateImitManually));
+		return Optional.of(new TextNode(type, imitID_imitNodeID.get(), nodeAttrs.get()));
 	}
 
 	/**

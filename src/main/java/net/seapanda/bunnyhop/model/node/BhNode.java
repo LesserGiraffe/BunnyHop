@@ -34,6 +34,7 @@ import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
+import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelprocessor.ImitationReplacer;
@@ -110,23 +111,15 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 
 	/**
 	 * コンストラクタ
-	 * @param bhID ノードID (\<Node\> タグの bhID)
-	 * @param symbolName 終端, 非終端記号名 (\<Node\> タグの name)
 	 * @param type xml のtype属性
-	 * @param scriptNameOnMovedFromChildToWS 子ノードからワークスペースに移されたときに実行されるスクリプトの名前
-	 * @param scriptNameOnMovedToChild ワークスペースもしくは, 子ノードから子ノードに移されたときに実行されるスクリプトの名前
+	 * @param attrbute ノードの設定情報
 	 * */
-	protected BhNode(
-		BhNodeID bhID,
-		String symbolName,
-		String type,
-		String scriptNameOnMovedFromChildToWS,
-		String scriptNameOnMovedToChild) {
-		super(symbolName);
-		this.bhID = bhID;
+	protected BhNode(	String type, BhNodeAttributes attributes) {
+		super(attributes.getName());
+		this.bhID = attributes.getBhNodeID();
 		this.type = type;
-		this.scriptNameOnMovedFromChildToWS = scriptNameOnMovedFromChildToWS;
-		this.scriptNameOnMovedToChild = scriptNameOnMovedToChild;
+		this.scriptNameOnMovedFromChildToWS = attributes.getOnMovedFromChildToWS();
+		this.scriptNameOnMovedToChild = attributes.getOnMovedToChild();
 	}
 
 	/**

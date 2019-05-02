@@ -23,6 +23,7 @@ import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -35,19 +36,11 @@ public class VoidNode extends BhNode implements Serializable {
 	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
 
 	/**
-	 * コンストラクタ<br>
-	 * ノード内部・外部とは描画位置のこと
-	 * @param bhID ノードID (\<Node\> タグの bhID)
-	 * @param symbolName  終端, 非終端記号名
+	 * コンストラクタ
+	 * @param attributes ノードの設定情報
 	 * */
-	public VoidNode(
-		BhNodeID bhID,
-		String symbolName) {
-		super(bhID,
-			symbolName,
-			BhParams.BhModelDef.ATTR_VALUE_VOID,
-			"",
-			"");
+	public VoidNode(BhNodeAttributes attributes) {
+		super(BhParams.BhModelDef.ATTR_VALUE_VOID, attributes);
 	}
 
 	/**

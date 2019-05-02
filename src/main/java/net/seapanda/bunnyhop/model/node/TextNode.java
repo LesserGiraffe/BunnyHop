@@ -36,6 +36,7 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.imitation.ImitationID;
 import net.seapanda.bunnyhop.model.imitation.ImitationInfo;
+import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -55,40 +56,21 @@ public class TextNode  extends Imitatable implements Serializable {
 	/**
 	 * コンストラクタ<br>
 	 * ノード内部・外部とは描画位置のこと
-	 * @param bhID ノードID (\<Node\> タグの bhID)
-	 * @param symbolName  終端, 非終端記号名
 	 * @param type xml のtype属性
-	 * @param initString 初期文字列
-	 * @param scopeName イミテーションノードがオリジナルノードと同じスコープにいるかチェックする際の名前
-	 * @param scriptNameOfTextFormatter テキストを整形するスクリプトの名前
-	 * @param scriptNameOnTextAcceptabilityChecked 入力文字列のパターンチェックスクリプトの名前
-	 * @param scriptNameOnMovedFromChildToWS ワークスペース移動時に実行されるスクリプトの名前
-	 * @param scriptNameOnMovedToChild 子ノードとして接続されたときに実行されるスクリプトの名前
 	 * @param imitID_imitNodeID イミテーションIDとそれに対応するイミテーションノードIDのマップ
-	 * @param canCreateImitManually このノードがイミテーション作成機能を持つ場合true
+	 * @param attributes ノードの設定情報
 	 * */
 	public TextNode(
-			BhNodeID bhID,
-			String symbolName,
-			String type,
-			String initString,
-			String scopeName,
-			String scriptNameOfTextFormatter,
-			String scriptNameOnTextAcceptabilityChecked,
-			String scriptNameOnMovedFromChildToWS,
-			String scriptNameOnMovedToChild,
-			Map<ImitationID, BhNodeID> imitID_imitNodeID,
-			boolean canCreateImitManually) {
-		super(
-			bhID,
-			symbolName,
-			type,
-			scriptNameOnMovedFromChildToWS,
-			scriptNameOnMovedToChild);
-		this.scriptNameOnTextAcceptabilityChecked = scriptNameOnTextAcceptabilityChecked;
-		this.scriptNameOfTextFormatter = scriptNameOfTextFormatter;
-		imitInfo = new ImitationInfo<>(imitID_imitNodeID, canCreateImitManually, scopeName);
-		text = initString;
+		String type,
+		Map<ImitationID, BhNodeID> imitID_imitNodeID,
+		BhNodeAttributes attributes) {
+
+		super(type, attributes);
+		scriptNameOnTextAcceptabilityChecked = attributes.getOnTextAcceptabilityChecked();
+		scriptNameOfTextFormatter = attributes.getTextFormatter();
+		imitInfo = new ImitationInfo<>(
+			imitID_imitNodeID, attributes.getCanCreateImitManually(), attributes.getImitScopeName());
+		text = attributes.getIinitString();
 	}
 
 	/**

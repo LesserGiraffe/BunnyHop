@@ -30,17 +30,20 @@ import net.seapanda.bunnyhop.view.node.BhNodeViewStyle;
  */
 public class BhNodeAttributes {
 
-	public BhNodeID bhNodeID;
-	public String name;
-	public String nodeStyleID;
-	public String onMovedFromChildToWS;
-	public String onMovedToChild;
-	public String onTextAcceptabilityChecked;
-	public String textFormatter;
-	public String imitScopeName;
-	public String initString;
-	public String nodeInputControlFileName;
-	public boolean canCreateImitManually;
+	private BhNodeID bhNodeID;
+	private String name;
+	private String nodeStyleID;
+	private String onMovedFromChildToWS;
+	private String onMovedToChild;
+	private String onTextAcceptabilityChecked;
+	private String onDeletionCmdReceived;
+	private String onCutAndPasteCmdReceived;
+	private String onChildReplaced;
+	private String textFormatter;
+	private String imitScopeName;
+	private String initString;
+	private String nodeInputControlFileName;
+	private boolean canCreateImitManually;
 
 	private BhNodeAttributes(){}
 
@@ -81,6 +84,15 @@ public class BhNodeAttributes {
 		//textFormatter
 		nodeAttrs.textFormatter = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_TEXT_FORMATTER);
 
+		//onDeletionCmdReceived
+		nodeAttrs.onDeletionCmdReceived = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_DELETION_CMD_RECEIVED);
+
+		//onCutAndPasteCmdReceived
+		nodeAttrs.onCutAndPasteCmdReceived = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CUT_AND_PASTE_CMD_RECEIVED);
+
+		//onChildReplaced
+		nodeAttrs.onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CHILD_REPLACED);
+
 		//imitScopeName
 		nodeAttrs.imitScopeName = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMIT_SCOPE_NAME);
 
@@ -107,4 +119,79 @@ public class BhNodeAttributes {
 		return Optional.of(nodeAttrs);
 	}
 
+	public BhNodeID getBhNodeID() {
+		return bhNodeID;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getNodeStyleID() {
+		return nodeStyleID;
+	}
+
+	public String getOnMovedFromChildToWS() {
+		return onMovedFromChildToWS;
+	}
+
+	public String getOnMovedToChild() {
+		return onMovedToChild;
+	}
+
+	public String getOnTextAcceptabilityChecked() {
+		return onTextAcceptabilityChecked;
+	}
+
+	public String getOnDeletionCmdReceived() {
+		return onDeletionCmdReceived;
+	}
+
+	public String getOnCutAndPasteCmdReceived() {
+		return onCutAndPasteCmdReceived;
+	}
+
+	public String getOnChildReplaced() {
+		return onChildReplaced;
+	}
+
+	public String getTextFormatter() {
+		return textFormatter;
+	}
+
+	public String getImitScopeName() {
+		return imitScopeName;
+	}
+
+	public String getIinitString() {
+		return initString;
+	}
+
+	public String getNodeInputControlFileName() {
+		return nodeInputControlFileName;
+	}
+
+	public boolean getCanCreateImitManually() {
+		return canCreateImitManually;
+	}
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

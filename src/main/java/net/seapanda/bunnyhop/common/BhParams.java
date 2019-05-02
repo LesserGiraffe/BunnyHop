@@ -111,6 +111,8 @@ public class BhParams {
 		public static final String ATTR_NAME_ON_MOVED_FROM_CHILD_TO_WS = "onMovedFromChildToWS";
 		public static final String ATTR_NAME_ON_MOVED_TO_CHILD = "onMovedToChild";
 		public static final String ATTR_NAME_ON_CHILD_REPLACED = "onChildReplaced";
+		public static final String ATTR_NAME_ON_DELETION_CMD_RECEIVED = "onDeletionCmdReceived";
+		public static final String ATTR_NAME_ON_CUT_AND_PASTE_CMD_RECEIVED = "onCutAndPasteCmdReceived";
 		public static final String ATTR_NAME_ON_REPLACEABILITY_CHECKED = "onReplaceabilityChecked";
 		public static final String ATTR_NAME_IMITATION_NODE_ID = "imitationNodeID";
 		public static final String ATTR_NAME_CAN_CREATE_IMIT_MANUALLY = "canCreateImitManually";
