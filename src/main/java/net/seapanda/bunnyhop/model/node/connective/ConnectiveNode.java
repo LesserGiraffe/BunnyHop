@@ -43,6 +43,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * */
 public class ConnectiveNode extends Imitatable {
 
+	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
 	private Section childSection;							//!< セクションの集合 (ノード内部に描画されるもの)
 	private ImitationInfo<ConnectiveNode> imitInfo;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
 	private final String scriptNameOnChildReplaced;	//!< 子ノード入れ替え維持に実行されるスクリプト

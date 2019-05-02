@@ -18,12 +18,15 @@ package net.seapanda.bunnyhop.model.node.connective;
 import java.io.Serializable;
 import java.util.Objects;
 
+import net.seapanda.bunnyhop.common.BhParams;
+
 /**
  * コネクタID
  * @author K.Koike
  */
 public class ConnectorID implements Serializable {
 
+	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
 	public static final ConnectorID NONE = new ConnectorID("");	//!< コネクタIDが存在しないことを表す
 	String id;
 

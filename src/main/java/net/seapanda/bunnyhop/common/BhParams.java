@@ -23,6 +23,7 @@ public class BhParams {
 
 	public static final String APPLICATION_NAME = "BunnyHop";
 	public static final String APP_VERSION = "1.0.2.0";
+	public static final long SERIAL_VERSION_UID = 1020L;
 	public static final int NUM_TIMES_MAX_UNDO = 128;	//!< undo 可能な最大回数
 	public static final  int EXECUTOR_SHUTDOWN_TIMEOUT = 5;	//!< ExecutorService のシャットダウンを待つ時間 (sec)
 

@@ -15,6 +15,7 @@
  */
 package net.seapanda.bunnyhop.model.imitation;
 
+import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
@@ -26,6 +27,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  */
 public abstract class Imitatable extends BhNode {
 
+	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
 	public Imitatable(
 		BhNodeID bhID,
 		String symbolName,

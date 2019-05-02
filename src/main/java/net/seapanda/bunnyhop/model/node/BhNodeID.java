@@ -18,12 +18,15 @@ package net.seapanda.bunnyhop.model.node;
 import java.io.Serializable;
 import java.util.Objects;
 
+import net.seapanda.bunnyhop.common.BhParams;
+
 /**
  * BhノードID
  * @author K.Koike
  */
 public class BhNodeID implements Serializable {
 
+	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
 	public static final BhNodeID NONE = new BhNodeID("");	//!< BhNodeIDが存在しないことを表す
 	String id;
 

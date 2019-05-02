@@ -47,6 +47,7 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
  */
 public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow {
 
+	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
 	private final BhNodeID bhID; //!< ノードID (\<Node\> タグの bhID)
 	protected Connector parentConnector;	//!< このノードを繋いでいるコネクタ
 	protected Workspace workspace;	//!< このノードがあるWorkSpace.

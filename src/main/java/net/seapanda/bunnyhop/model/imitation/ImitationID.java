@@ -17,6 +17,7 @@ package net.seapanda.bunnyhop.model.imitation;
 
 import java.io.Serializable;
 import java.util.Objects;
+
 import net.seapanda.bunnyhop.common.BhParams;
 
 /**
@@ -24,7 +25,8 @@ import net.seapanda.bunnyhop.common.BhParams;
  * @author K.Koike
  */
 public class ImitationID implements Serializable {
-	
+
+	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
 	public static final ImitationID NONE = new ImitationID("");	//!< イミテーションIDが存在しないことを表す
 	public static final ImitationID MANUAL = new ImitationID(BhParams.BhModelDef.ATTR_VALUE_IMIT_ID_MANUAL);	//!< イミテーション手動作成時のID
 	private final String id;
@@ -33,10 +35,10 @@ public class ImitationID implements Serializable {
 	 * コンストラクタ
 	 * @param id 識別子名
 	 */
-	private ImitationID(String id) {	
+	private ImitationID(String id) {
 		this.id = id;
 	}
-	
+
 	/**
 	 * イミテーションIDを作成する
 	 * @param id 識別子名
@@ -45,12 +47,12 @@ public class ImitationID implements Serializable {
 	public static ImitationID createImitID(String id) {
 		return new ImitationID(id == null ? "" : id);
 	}
-	
+
 	@Override
 	public String toString() {
 		return id;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null)

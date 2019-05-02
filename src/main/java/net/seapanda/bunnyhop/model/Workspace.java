@@ -40,6 +40,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * */
 public class Workspace implements MsgReceptionWindow, Serializable {
 
+	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
 	private final Set<BhNode> rootNodeList = new HashSet<>();	//!< ワークスペースのルートノードのリスト
 	private final Set<BhNode> selectedList = new LinkedHashSet<BhNode>();	//!< 選択中のノード. 挿入順を保持したいのでLinkedHashSetを使う
 	private BhNode moveCandidate = null;	//!< 移動候補のノード
@@ -234,7 +235,6 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 			BhNode newNode = oldAndNewNode._2;
 			newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
 		});
-
 	}
 
 	/**

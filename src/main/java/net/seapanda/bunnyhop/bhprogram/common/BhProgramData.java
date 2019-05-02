@@ -17,12 +17,15 @@ package net.seapanda.bunnyhop.bhprogram.common;
 
 import java.io.Serializable;
 
+import net.seapanda.bunnyhop.common.BhParams;
+
 /**
  * BunnyHopとスクリプトの実行環境間で送受信されるデータ
  * @author K.Koike
  */
 public class BhProgramData implements Serializable {
 
+	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
 	public final TYPE type;
 	public final String str;
 	public final EVENT event;

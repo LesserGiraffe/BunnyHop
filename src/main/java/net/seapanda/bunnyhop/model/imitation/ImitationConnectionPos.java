@@ -18,15 +18,18 @@ package net.seapanda.bunnyhop.model.imitation;
 import java.io.Serializable;
 import java.util.Objects;
 
+import net.seapanda.bunnyhop.common.BhParams;
+
 /**
  * イミテーションの接続先の識別子
  * @author K.Koike
  */
 public class ImitationConnectionPos implements Serializable {
-	
+
+	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
 	public static final ImitationConnectionPos NONE = new ImitationConnectionPos("");	//!< イミテーション接続位置が存在しないことを表す
 	private final String pos;
-		
+
 	/**
 	 * コンストラクタ
 	 * @param point 接続先名
@@ -34,7 +37,7 @@ public class ImitationConnectionPos implements Serializable {
 	private ImitationConnectionPos(String point) {
 		this.pos = point;
 	}
-	
+
 	/**
 	 * イミテーション接続位置の識別子を作成する
 	 * @param point イミテーション接続位置名
@@ -48,7 +51,7 @@ public class ImitationConnectionPos implements Serializable {
 	public String toString() {
 		return pos;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null)

@@ -32,6 +32,8 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * */
 public class VoidNode extends BhNode implements Serializable {
 
+	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+
 	/**
 	 * コンストラクタ<br>
 	 * ノード内部・外部とは描画位置のこと

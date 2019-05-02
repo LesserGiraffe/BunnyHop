@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.control.WorkspaceController;
@@ -41,6 +42,7 @@ import net.seapanda.bunnyhop.view.WorkspaceView;
  */
 public class ProjectSaveData implements Serializable{
 
+	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
 	private final List<WorkspaceSaveData> workspaceSaveList;
 
 	/**
@@ -74,6 +76,7 @@ public class ProjectSaveData implements Serializable{
 	 */
 	private class WorkspaceSaveData implements Serializable {
 
+		private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
 		private final Workspace ws;	//!< 保存するワークスペース
 		private final Vec2D workspaceSize;	//!< ワークスペースのサイズ
 		private final List<RootNodeSaveData> rootNodeSaveList;
@@ -120,6 +123,8 @@ public class ProjectSaveData implements Serializable{
 		}
 
 		private class RootNodeSaveData implements Serializable {
+
+			private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
 			private final BhNode rootNode;	//!<保存するルートノード
 			private final Vec2D nodePos;	//!< ルートノードの位置
 
