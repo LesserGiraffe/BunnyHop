@@ -15,7 +15,9 @@
  */
 package net.seapanda.bunnyhop.root;
 
+import java.awt.SplashScreen;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -80,6 +82,8 @@ public class AppMain extends Application {
 
 		if (!RemoteBhProgramManager.INSTANCE.init())
 			System.exit(-1);
+
+		Optional.ofNullable(SplashScreen.getSplashScreen()).ifPresent(SplashScreen::close);
 	}
 
 	/**

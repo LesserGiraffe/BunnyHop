@@ -58,6 +58,7 @@ public class WorkspaceSetController implements MsgProcessor {
 	 * @param wss ワークスペースセットのモデル
 	 */
 	public void init(WorkspaceSet wss) {
+
 		model = wss;
 		setEventHandlers();
 		workspaceSetViewBase.setDividerPositions(BhParams.LnF.DEFAULT_VERTICAL_DIV_POS);

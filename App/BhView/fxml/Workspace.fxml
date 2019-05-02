@@ -15,7 +15,7 @@
 		FitToHeight="false">
 		<Pane fx:id="wsWrapper">
 			<Pane fx:id="wsPane">
-				<Polyline
+				<Polygon
 					fx:id="rectSelTool"
 					mouseTransparent="true"
 					visible="false"

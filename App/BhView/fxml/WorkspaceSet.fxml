@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 <?import net.seapanda.bunnyhop.common.*?>
+<?javafx.scene.control.TabPane.TabDragPolicy?>
 
 <SplitPane
 	xmlns:fx="http://javafx.com/fxml"
@@ -14,7 +15,7 @@
 		<Rem fx:id="trashBoxHeight" rem="8.9"/>
 	</fx:define>
 	<StackPane fx:id="workspaceSetStackPane">
-		<TabPane fx:id="workspaceSetTab" tabClosingPolicy="ALL_TABS"/>
+		<TabPane fx:id="workspaceSetTab" tabClosingPolicy="ALL_TABS" tabDragPolicy="REORDER"/>
 		<ImageView fx:id="closedTrashboxIV" StackPane.Alignment="BOTTOM_RIGHT" PickOnBounds="true" MouseTransparent="true">
 			<Image url="@../images/closedTrashbox.png" requestedWidth="$trashBoxWidth.rem" requestedHeight="$trashBoxHeight.rem"/>
 		</ImageView>

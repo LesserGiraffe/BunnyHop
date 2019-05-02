@@ -312,7 +312,6 @@ task jlink() {
 						'--module-path', "$projectDir/mlib",
 						'--add-modules', requiredModNames.toString().trim(),
 						'--output', "$projectDir/$projName")
-
 		}
 	}
 
@@ -327,6 +326,7 @@ task jlink() {
 task runSelfContained(type:Exec) {
 	doFirst {
 		commandLine ("$projectDir/$projName/bin/java",
+					 ('-splash:' + "$projectDir/$projName/$appDirName/BhView/images/slpash.png"),
 					 '-cp', "$projectDir/$projName/$appDirName/${moduleName}.jar",
 					 mainClass)
 	}

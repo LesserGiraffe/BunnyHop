@@ -3,9 +3,10 @@
 }
 
 .rectSelTool {
-	-fx-stroke-width: 0.3em;
+	-fx-stroke-width: 0.25em;
 	-fx-stroke-dash-array: 0.8em 1.2em;
-	-fx-stroke: rgba(255, 0, 0);
+	-fx-stroke: rgb(100, 150, 255);
+	-fx-fill: rgba(255, 252, 107, 0.5);
 }
 
 

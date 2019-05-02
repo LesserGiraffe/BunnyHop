@@ -34,7 +34,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Polyline;
+import javafx.scene.shape.Polygon;
 import javafx.scene.transform.Scale;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
@@ -58,7 +58,7 @@ public class WorkspaceView extends Tab {
 	private @FXML ScrollPane wsScrollPane;	//!< 操作対象のビュー
 	private @FXML Pane wsPane;	//!< 操作対象のビュー
 	private @FXML Pane wsWrapper;	//!< wsPane の親ペイン
-	private @FXML Polyline rectSelTool;	//!< 矩形選択用ビュー
+	private @FXML Polygon rectSelTool;	//!< 矩形選択用ビュー
 	private final Workspace workspace;
 	private final Vec2D minPaneSize = new Vec2D(0.0, 0.0);
 	private final ArrayList<BhNodeView> rootNodeViewList = new ArrayList<>();	//このワークスペースにあるルートBhNodeViewのリスト
@@ -99,7 +99,7 @@ public class WorkspaceView extends Tab {
 		wsPane.getTransforms().add(new Scale());
 		quadTreeMngForBody = new QuadTreeManager(BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
 		quadTreeMngForConnector = new QuadTreeManager(BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
-		rectSelTool.getPoints().addAll(Stream.generate(() -> 0.0).limit(10).toArray(Double[]::new));
+		rectSelTool.getPoints().addAll(Stream.generate(() -> 0.0).limit(8).toArray(Double[]::new));
 		drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
 
 
@@ -358,8 +358,8 @@ public class WorkspaceView extends Tab {
 		rectSelTool.getPoints().set(5, lowerRight.y);
 		rectSelTool.getPoints().set(6, upperLeft.x);
 		rectSelTool.getPoints().set(7, lowerRight.y);
-		rectSelTool.getPoints().set(8, upperLeft.x);
-		rectSelTool.getPoints().set(9, upperLeft.y);
+		//rectSelTool.getPoints().set(8, upperLeft.x);
+		//rectSelTool.getPoints().set(9, upperLeft.y);
 		rectSelTool.toFront();
 	}
 
