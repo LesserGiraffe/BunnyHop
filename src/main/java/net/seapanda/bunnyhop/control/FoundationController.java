@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 
 import javafx.event.EventTarget;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
@@ -133,50 +133,39 @@ public class FoundationController {
 
 		Consumer<KeyEvent> forwardEvent = (event) -> {
 			foundationVBox.fireEvent(
-					new KeyEvent(
-						foundationVBox,
-						foundationVBox,
-						event.getEventType(),
-						event.getCharacter(),
-						event.getText(),
-						event.getCode(),
-						event.isShiftDown(),
-						event.isControlDown(),
-						event.isAltDown(),
-						event.isMetaDown()));
+				new KeyEvent(
+					foundationVBox,
+					foundationVBox,
+					event.getEventType(),
+					event.getCharacter(),
+					event.getText(),
+					event.getCode(),
+					event.isShiftDown(),
+					event.isControlDown(),
+					event.isAltDown(),
+					event.isMetaDown()));
 
 		};
 
 		foundationVBox.addEventFilter(KeyEvent.ANY, (event) -> {
 
-			switch (event.getCode()) {
-				case UP:
-				case DOWN:
-				case RIGHT:
-				case LEFT:
-					EventTarget target = event.getTarget();
-					// タブペインが矢印キーで切り替わらないようにする
-					if (target == workspaceSetController.getTabPane()) {
-						event.consume();
-						forwardEvent.accept(event);
-					}
-					// スクロールペインが矢印キーでスクロールしないようにする。
-					if (target instanceof ScrollPane) {
-						if (((ScrollPane)target).getId().equals(BhParams.Fxml.ID_WS_SCROLL_PANE)) {
-							event.consume();
-							forwardEvent.accept(event);
-						}
-					}
-					break;
-
-				case SPACE:
-					if (event.getTarget() instanceof Button) {
-						event.consume();
-						forwardEvent.accept(event);
-					}
-
-				default:
-					break;
+			EventTarget target = event.getTarget();
+			// タブペインが矢印キーで切り替わらないようにする
+			if (target == workspaceSetController.getTabPane()) {
+				event.consume();
+				forwardEvent.accept(event);
+			}
+			// スクロールペインが矢印やスペースキーでスクロールしないようにする。
+			if (target instanceof ScrollPane) {
+				if (((ScrollPane)target).getId().equals(BhParams.Fxml.ID_WS_SCROLL_PANE)) {
+					event.consume();
+					forwardEvent.accept(event);
+				}
+			}
+			// ボタンが矢印やスぺーキーイベントを受け付けないようにする
+			if (event.getTarget() instanceof ButtonBase) {
+				event.consume();
+				forwardEvent.accept(event);
 			}
 		});
 
