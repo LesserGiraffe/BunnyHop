@@ -282,11 +282,23 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	}
 
 	/**
-	 * このBhNodeがデフォルトノードの場合true を返す
-	 * @return このBhNodeがデフォルトノードの場合true
+	 * このノードがデフォルトノードかどうか調べる
+	 * @return このノードがデフォルトノードの場合true
 	 */
 	public boolean isDefaultNode() {
 		return isDefaultNode;
+	}
+
+	/**
+	 * このノードが外部ノードかどうか調べる.
+	 * @retrun このノードが外部ノードの場合 true
+	 * */
+	public boolean isOuter() {
+
+		if (parentConnector == null)
+			return false;
+
+		return parentConnector.isOuter();
 	}
 
 	/**

@@ -174,24 +174,22 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		readyToCopy.stream()
 		.filter(node -> {
 
-			if (node.getState() ==  BhNode.State.CHILD &&
-				node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
-				node.isRemovable() &&
-				node.isSelected() &&
-				!(node.getParentConnector().isOuter() && node.findParentNode().isSelected()))
-				return true;
+			boolean canCopy =
+				(node.getState() == BhNode.State.CHILD &&
+				node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS) ||
+				node.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
 
-			if (node.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS && node.isSelected())
-				return true;
+			if (canCopy) {
+				// node が外部ノードでかつ, その親ノードがコピー対象に含まれている
+				// -> 親ノードと一緒にコピーするので個別にはコピーしない.
+				return !(node.isOuter() && readyToCopy.contains(node.findParentNode()));
+			}
 			return false;
 		})
 		.collect(Collectors.toList())	//コピーしたことで, filter条件が変わらないように一旦終端操作を挟む
 		.forEach(node -> {
-			Predicate<BhNode> isNodeToBeCopied = (bhNode) -> {
-				if (!bhNode.isSelected() && bhNode.findParentNode().isSelected() && bhNode.getParentConnector().isOuter())
-					return false;
-				return true;
-			};
+			// 外部ノードでかつコピー対象に含まれていない -> コピーしない
+			Predicate<BhNode> isNodeToBeCopied = bhNode -> !(bhNode.isOuter() && !readyToCopy.contains(bhNode));
 			BhNode nodeToPaste = node.copy(userOpeCmd, isNodeToBeCopied);
 			NodeMVCBuilder.build(nodeToPaste);
 			TextImitationPrompter.prompt(nodeToPaste);

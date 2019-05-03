@@ -15,6 +15,7 @@
  */
 package net.seapanda.bunnyhop.modelprocessor;
 
+import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.VoidNode;
@@ -53,6 +54,8 @@ public class NodeDeleter implements BhModelProcessor {
 	@Override
 	public void visit(ConnectiveNode node) {
 
+		MsgService.INSTANCE.removeNodeToPaste(node, userOpeCmd);
+
 		//このノードがイミテーションノードだった場合, オリジナルにイミテーションが消えたことを伝える
 		if (node.isImitationNode())
 			node.getOriginalNode().disconnectOrgImitRelation(node, userOpeCmd);
@@ -62,10 +65,14 @@ public class NodeDeleter implements BhModelProcessor {
 	}
 
 	@Override
-	public void visit(VoidNode node) {	}
+	public void visit(VoidNode node) {
+		MsgService.INSTANCE.removeNodeToPaste(node, userOpeCmd);
+	}
 
 	@Override
 	public void visit(TextNode node) {
+
+		MsgService.INSTANCE.removeNodeToPaste(node, userOpeCmd);
 
 		//このノードがイミテーションノードだった場合, オリジナルにイミテーションが消えたことを伝える
 		if (node.isImitationNode())
