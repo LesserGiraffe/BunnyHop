@@ -188,8 +188,10 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		})
 		.collect(Collectors.toList())	//コピーしたことで, filter条件が変わらないように一旦終端操作を挟む
 		.forEach(node -> {
-			// 外部ノードでかつコピー対象に含まれていない -> コピーしない
-			Predicate<BhNode> isNodeToBeCopied = bhNode -> !(bhNode.isOuter() && !readyToCopy.contains(bhNode));
+			// 外部ノードでかつ, コピー対象に含まれていないでかつ, 親はコピー対象 -> コピーしない
+			Predicate<BhNode> isNodeToBeCopied = bhNode -> {
+				return !(bhNode.isOuter() && !readyToCopy.contains(bhNode) && readyToCopy.contains(bhNode.findParentNode()));
+			};
 			BhNode nodeToPaste = node.copy(userOpeCmd, isNodeToBeCopied);
 			NodeMVCBuilder.build(nodeToPaste);
 			TextImitationPrompter.prompt(nodeToPaste);
