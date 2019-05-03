@@ -20,7 +20,7 @@
 				name="machiawase"
 				nodeStyleID="WordLabel2.json"
 				nodeInputControl="Label.fxml"
-				initString="待ち合わせ場所">
+				initString="同期地点">
 			</Node>
 		</PrivateConnector>
 

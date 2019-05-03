@@ -17,6 +17,7 @@
 	let _jSystem = java.lang.System;
 	let _jCyclicBarrier = java.util.concurrent.CyclicBarrier;
 	let _jStringBuilder = java.lang.StringBuilder;
+	let _jIllegalMonitorStateException = java.lang.IllegalMonitorStateException;
 
 	let _eventHandlers = {};
 	let _executor = _jExecutors.newFixedThreadPool(16);
