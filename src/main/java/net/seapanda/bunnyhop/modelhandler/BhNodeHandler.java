@@ -74,9 +74,10 @@ public class BhNodeHandler {
 	public Optional<BhNode> deleteNode(BhNode node, UserOperationCommand userOpeCmd) {
 
 		Optional<BhNode> newNode = Optional.empty();
-		BhNode rootNode = node.findRootNode();
-		if (DelayedDeleter.INSTANCE.containsInCandidateList(rootNode)) {
-			DelayedDeleter.INSTANCE.deleteCandidate(rootNode, userOpeCmd);
+		//BhNode rootNode = node.findRootNode(); -> 削除対象のノードのルートが遅延削除候補かを見ていた.
+		//カット時のスコープ外ノードの削除に失敗する場合があるため, 削除対象が遅延削除候補かどうかを見る様に修正.
+		if (DelayedDeleter.INSTANCE.containsInCandidateList(node)) {
+			DelayedDeleter.INSTANCE.deleteCandidate(node, userOpeCmd);
 			return newNode;
 		}
 
