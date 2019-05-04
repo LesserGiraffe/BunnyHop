@@ -15,7 +15,13 @@
  */
 package net.seapanda.bunnyhop.model.imitation;
 
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.ScriptableObject;
+
 import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
@@ -28,9 +34,12 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
 public abstract class Imitatable extends BhNode {
 
 	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+	/** オリジナルノードとのつながりが切れた際のイミテーションノードの削除直前に呼ばれるスクリプトの名前 */
+	private final String scriptNameOnImitDeletionOrdered;
 
 	public Imitatable(String type, BhNodeAttributes attributes) {
 		super(type, attributes);
+		scriptNameOnImitDeletionOrdered = attributes.getOnImitDeletionOrdered();
 	}
 
 	/**
@@ -39,6 +48,7 @@ public abstract class Imitatable extends BhNode {
 	 */
 	public Imitatable(Imitatable org) {
 		super(org);
+		scriptNameOnImitDeletionOrdered = org.scriptNameOnImitDeletionOrdered;
 	}
 
 	/**
@@ -159,5 +169,26 @@ public abstract class Imitatable extends BhNode {
 		while(false);
 
 		return parentConnector.isConnectedNodeReplaceableWith(node);
+	}
+
+	/**
+	 * オリジナルノードとのつながりが切れた際に, イミテーションノードを削除する直前に呼ばれるイベント処理を実行する.
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void execScriptOnImitDeletionOrdered(UserOperationCommand userOpeCmd) {
+
+		Script onImitDeletionOrdered = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnImitDeletionOrdered);
+		if (onImitDeletionOrdered == null)
+			return;
+
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+		try {
+			ContextFactory.getGlobal().call(cx -> onImitDeletionOrdered.exec(cx, scriptScope));
+		}
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				Imitatable.class.getSimpleName() + ".execScriptOnImitDeletionOrdered   " + scriptNameOnImitDeletionOrdered + "\n" +
+				e.toString() + "\n");
+		}
 	}
 }

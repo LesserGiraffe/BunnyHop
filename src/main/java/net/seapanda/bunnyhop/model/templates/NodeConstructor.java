@@ -211,7 +211,8 @@ public class NodeConstructor {
 			nodeAttrs.get().getOnMovedToChild(),
 			nodeAttrs.get().getOnChildReplaced(),
 			nodeAttrs.get().getOnDeletionCmdReceived(),
-			nodeAttrs.get().getOnCutAndPasteCmdReceived());
+			nodeAttrs.get().getOnCutAndPasteCmdReceived(),
+			nodeAttrs.get().getOnImitDeletionOrdered());
 		if (!allScriptsFound)
 			return Optional.empty();
 
@@ -256,7 +257,8 @@ public class NodeConstructor {
 			nodeAttrs.get().getOnTextAcceptabilityChecked(),
 			nodeAttrs.get().getTextFormatter(),
 			nodeAttrs.get().getOnDeletionCmdReceived(),
-			nodeAttrs.get().getOnCutAndPasteCmdReceived());
+			nodeAttrs.get().getOnCutAndPasteCmdReceived(),
+			nodeAttrs.get().getOnImitDeletionOrdered());
 		if (!allScriptsFound) {
 			return Optional.empty();
 		}

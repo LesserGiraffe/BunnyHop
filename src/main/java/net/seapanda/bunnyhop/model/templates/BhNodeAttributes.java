@@ -39,6 +39,7 @@ public class BhNodeAttributes {
 	private String onDeletionCmdReceived;
 	private String onCutAndPasteCmdReceived;
 	private String onChildReplaced;
+	private String onImitDeletionOrdered;
 	private String textFormatter;
 	private String imitScopeName;
 	private String initString;
@@ -98,6 +99,9 @@ public class BhNodeAttributes {
 
 		//onCutAndPasteCmdReceived
 		nodeAttrs.onCutAndPasteCmdReceived = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CUT_AND_PASTE_CMD_RECEIVED);
+
+		//onImitDeletionOrdered
+		nodeAttrs.onImitDeletionOrdered = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_IMIT_DELETION_ORDERED);
 
 		//imitScopeName
 		nodeAttrs.imitScopeName = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMIT_SCOPE_NAME);
@@ -159,6 +163,10 @@ public class BhNodeAttributes {
 
 	public String getOnChildReplaced() {
 		return onChildReplaced;
+	}
+
+	public String getOnImitDeletionOrdered() {
+		return onImitDeletionOrdered;
 	}
 
 	public String getTextFormatter() {

@@ -16,12 +16,15 @@
 
 	// 移動させる外部ノードを探す
 	let nodeToReconnect = bhThis.findOuterNode(1);
+	if (nodeToReconnect === null)
+		return;
+
 	let outersNotToReconnect = ['VarDeclVoid', 'GlobalDataDeclVoid', 'VoidStat'];
 	let isOuterNotToReconnect = outersNotToReconnect.some(nodeName => nodeName === String(nodeToReconnect.getSymbolName()));
 	if (isOuterNotToReconnect)
 		return;
 
-	if (nodeToReconnect === null || bhCandidateNodeList.contains(nodeToReconnect))
+	if (bhCandidateNodeList.contains(nodeToReconnect))
 		return;
 
 	let nodeToReplace = findNodeToBeReplaced(nodeToReconnect, bhThis);

@@ -27,7 +27,6 @@ import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.model.Workspace;
-import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
@@ -206,7 +205,7 @@ public class WorkspaceController implements MsgProcessor {
 				return new MsgData(model, view, data.userOpeCmd);
 
 			case DELETE_WORKSPACE:
-				deleteWorkspace(data.userOpeCmd);
+				BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), data.userOpeCmd);
 				return new MsgData(model, view, data.userOpeCmd);
 
 			case UPDATE_MULTI_NODE_SHIFTER:
@@ -219,25 +218,6 @@ public class WorkspaceController implements MsgProcessor {
 
 		return null;
 	};
-
-	/**
-	 * ワークスペースを削除する
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
-	private void deleteWorkspace(UserOperationCommand userOpeCmd) {
-
-		model.getRootNodeList().forEach(node -> {
-
-			var nodesToDelete = new ArrayList<BhNode>() {{add(node);}};
-			BhNode nodeToDelete = node.findOuterNode(-1);
-			while (nodeToDelete != node) {
-				nodesToDelete.add(nodeToDelete);
-				nodeToDelete = nodeToDelete.findParentNode();
-			}
-			node.execScriptOnDeletionCmdReceived(nodesToDelete, userOpeCmd);
-		});
-		BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), userOpeCmd);
-	}
 
 	//デバッグ用
 	private void printDebugInfo() {

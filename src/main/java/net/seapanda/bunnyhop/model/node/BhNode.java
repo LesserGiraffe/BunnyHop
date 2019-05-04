@@ -454,7 +454,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	}
 
 	/**
-	 * ユーザー操作により, このノードが削除される直前の操作を行う
+	 * 選択削除により, このノードが削除される直前に呼ばれるイベント処理を実行する.
+	 * ゴミ箱による削除や, ワークスペースの削除によるノードの削除時には呼ばない.
 	 * @param nodesToDelete このノードとともに削除される予定のノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
@@ -477,7 +478,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	}
 
 	/**
-	 * ユーザー操作により, このノードがカット&ペーストされる直前の操作を行う
+	 * ユーザー操作により, このノードがカット&ペーストされる直前に呼ばれるイベント処理を実行する.
 	 * @param nodesToDelete このノードとともに削除される予定のノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */

@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -156,11 +155,9 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 	 */
 	public void deleteAllImitations(UserOperationCommand userOpeCmd) {
 
-		// イミテーション削除時は常にイベントスクリプトを呼ぶ.
 		for (var nodeToDelete : imitNodeList) {
 			if (nodeToDelete.isInWorkspace()) {
-				nodeToDelete.execScriptOnDeletionCmdReceived(
-					new ArrayList<BhNode>() {{add(nodeToDelete);}}, userOpeCmd);
+				nodeToDelete.execScriptOnImitDeletionOrdered(userOpeCmd);
 			}
 		}
 
