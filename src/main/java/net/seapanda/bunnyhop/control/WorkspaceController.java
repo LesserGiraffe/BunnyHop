@@ -28,6 +28,7 @@ import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
@@ -235,6 +236,7 @@ public class WorkspaceController implements MsgProcessor {
 			}
 			node.execScriptOnDeletionCmdReceived(nodesToDelete, userOpeCmd);
 		});
+		BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), userOpeCmd);
 	}
 
 	//デバッグ用
