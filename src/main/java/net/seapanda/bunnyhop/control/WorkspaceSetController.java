@@ -22,6 +22,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TabPane.TabDragPolicy;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -92,13 +93,18 @@ public class WorkspaceSetController implements MsgProcessor {
 	private void setResizeEventHandlers() {
 
 		//ワークスペースセットの大きさ変更時にノード選択ビューの高さを再計算する
-        workspaceSetTab.heightProperty().addListener(
-            (observable, oldValue, newValue) -> {
+		workspaceSetTab.heightProperty().addListener(
+			(observable, oldValue, newValue) -> {
 				bhNodeSelectionViewList.forEach(
 				//タブの大きさ分Y方向に移動するので, その分ノード選択ビューの高さを小さくする
 				selectionVeiw -> {
 					selectionVeiw.setMaxHeight(newValue.doubleValue() - selectionVeiw.getTranslateY());
 				});
+		});
+
+		// タブクローズイベントで TabDragPolicy.FIXED にするので, クリック時に再度 REORDER に変更する必要がある
+		workspaceSetTab.setOnMousePressed(event -> {
+			workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
 		});
 	}
 
@@ -161,6 +167,8 @@ public class WorkspaceSetController implements MsgProcessor {
 				model.addWorkspace(data.workspace);
 				workspaceSetTab.getTabs().add(data.workspaceView);
 				workspaceSetTab.getSelectionModel().select(data.workspaceView);
+				// ここで REORDER にしないと, undo でタブを戻した時, タブドラッグ時に例外が発生する
+				workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
 				data.userOpeCmd.pushCmdOfAddWorkspace(data.workspace, data.workspaceView, model);
 				break;
 

@@ -30,6 +30,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane.TabDragPolicy;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
@@ -135,6 +136,9 @@ public class WorkspaceView extends Tab {
 				null,
 				"「" + this.getText() + "」 を削除します.");
 
+			// このイベントハンドラを抜けるとき, TabDragPolicy.FIXED にしないと
+			// タブ消しをキャンセルした後, そのタブが使えなくなる.
+			getTabPane().setTabDragPolicy(TabDragPolicy.FIXED);
 			buttonType.ifPresent(btnType -> {
 				if (!btnType.equals(ButtonType.OK))
 					event.consume();
