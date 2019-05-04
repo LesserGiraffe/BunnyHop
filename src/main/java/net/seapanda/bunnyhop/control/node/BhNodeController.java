@@ -278,7 +278,14 @@ public class BhNodeController implements MsgProcessor {
 		//ゴミ箱に重なっていた場合, 削除
 		if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
 			TrashboxService.INSTANCE.isInTrashboxArea(mouseEvent.getSceneX(), mouseEvent.getSceneY())) {
-			model.execScriptOnDeletionCmdReceived(new ArrayList<BhNode>() {{add(model);}}, ddInfo.userOpeCmd);
+
+			var nodesToDelete = new ArrayList<BhNode>() {{add(model);}};
+			BhNode nodeToDelete = model.findOuterNode(-1);
+			while (nodeToDelete != model) {
+				nodesToDelete.add(nodeToDelete);
+				nodeToDelete = nodeToDelete.findParentNode();
+			}
+			model.execScriptOnDeletionCmdReceived(nodesToDelete, ddInfo.userOpeCmd);
 			BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
 		}
 	}
