@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -172,14 +171,19 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 */
 	private void copyAndPaste(Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperationCommand userOpeCmd) {
 
-		readyToCopy.stream()
-		.filter(node -> canCopyOrCut(node, readyToCopy))
-		.collect(Collectors.toList())	//コピーしたことで, filter条件が変わらないように一旦終端操作を挟む
-		.forEach(node -> {
-			// 外部ノードでかつ, コピー対象に含まれていないでかつ, 親はコピー対象 -> コピーしない
-			Predicate<BhNode> isNodeToBeCopied = bhNode -> {
-				return !(bhNode.isOuter() && !readyToCopy.contains(bhNode) && readyToCopy.contains(bhNode.findParentNode()));
-			};
+		var nodesToPaste = new ArrayList<BhNode>();
+		for (var node : readyToCopy)
+			if (canCopyOrCut(node, readyToCopy))
+				nodesToPaste.add(node);
+
+		// 外部ノードでかつ, コピー対象に含まれていないでかつ, 親はコピー対象 -> コピーしない
+		Predicate<BhNode> isNodeToBeCopied = bhNode -> {
+			return !(bhNode.isOuter() && !readyToCopy.contains(bhNode) && readyToCopy.contains(bhNode.findParentNode()));
+		};
+
+		// 貼り付け処理
+		var pastedNodes = new ArrayList<BhNode>();
+		for (var node : nodesToPaste) {
 			BhNode nodeToPaste = node.copy(userOpeCmd, isNodeToBeCopied);
 			NodeMVCBuilder.build(nodeToPaste);
 			TextImitationPrompter.prompt(nodeToPaste);
@@ -189,18 +193,25 @@ public class WorkspaceSet implements MsgReceptionWindow {
 				pasteBasePos.x,
 				pasteBasePos.y + pastePosOffsetCount * BhParams.LnF.REPLACED_NODE_SHIFT * 2,
 				userOpeCmd);
-			List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(nodeToPaste);
+			pastedNodes.add(nodeToPaste);
+
+			//コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
+			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
+			pasteBasePos.x += size.x+ BhParams.LnF.REPLACED_NODE_SHIFT * 2;
+		}
+
+		// スコープ外ノードの削除
+		for (var node : pastedNodes) {
+			List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(node);
+			unscopedNodes.forEach(imit -> imit.execScriptOnImitDeletionOrdered(userOpeCmd));
 			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodes, userOpeCmd)
 			.forEach(oldAndNewNode -> {
 				BhNode oldNode = oldAndNewNode._1;
 				BhNode newNode = oldAndNewNode._2;
 				newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
 			});
+		}
 
-			//コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
-			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
-			pasteBasePos.x += size.x+ BhParams.LnF.REPLACED_NODE_SHIFT * 2;
-		});
 		pastePosOffsetCount = (pastePosOffsetCount > 2) ? -2 : ++pastePosOffsetCount;
 	}
 
@@ -219,10 +230,13 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		readyToCut.stream().forEach(
 			node -> node.execScriptOnCutAndPasteCmdReceived(new ArrayList<BhNode>(readyToCut), userOpeCmd));
 
-		readyToCut.stream()
-		.filter(node -> canCopyOrCut(node, readyToCut))
-		.collect(Collectors.toList())	//カットしたことで, filter条件が変わらないように一旦終端操作を挟む
-		.forEach(node -> {
+		var nodesToPaste = new ArrayList<BhNode>();
+		for (var node : readyToCut)
+			if (canCopyOrCut(node, readyToCut))
+				nodesToPaste.add(node);
+
+		// 貼り付け処理
+		for (var node : nodesToPaste) {
 			BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, false, userOpeCmd)
 			.ifPresent(newNode -> newNode.findParentNode().execScriptOnChildReplaced(node, newNode, newNode.getParentConnector(), userOpeCmd));
 			BhNodeHandler.INSTANCE.addRootNode(
@@ -231,17 +245,22 @@ public class WorkspaceSet implements MsgReceptionWindow {
 				pasteBasePos.x,
 				pasteBasePos.y + pastePosOffsetCount * BhParams.LnF.REPLACED_NODE_SHIFT * 2,
 				userOpeCmd);
+			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
+			pasteBasePos.x += size.x + BhParams.LnF.REPLACED_NODE_SHIFT * 2;
+			DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
+		}
+
+		// スコープ外ノードの削除
+		for (var node : nodesToPaste) {
 			List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(node);
+			unscopedNodes.forEach(imit -> imit.execScriptOnImitDeletionOrdered(userOpeCmd));
 			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodes, userOpeCmd)
 			.forEach(oldAndNewNodes -> {
 				BhNode oldNode = oldAndNewNodes._1;
 				BhNode newNode = oldAndNewNodes._2;
 				newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
 			});
-			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
-			pasteBasePos.x += size.x + BhParams.LnF.REPLACED_NODE_SHIFT * 2;
-			DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
-		});
+		}
 
 		pastePosOffsetCount = (pastePosOffsetCount > 2) ? -2 : ++pastePosOffsetCount;
 		userOpeCmd.pushCmdOfRemoveFromList(readyToCut, readyToCut);

@@ -12,12 +12,11 @@
 	if (isOuterNotToReconnect)
 		return;
 
-	java.lang.System.out.println(bhThis.getSymbolName());
-
-
 	let posOnWS = bhMsgService.getPosOnWS(nodeToReconnect);
 	bhNodeHandler.moveToWS(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, bhUserOpeCmd);
-	bhNodeHandler.exchangeNodes(nodeToReconnect, bhThis, bhUserOpeCmd);
+	if (bhThis.findParentNode() !== null)
+		bhNodeHandler.exchangeNodes(nodeToReconnect, bhThis, bhUserOpeCmd);
+
 	let unscopedNodes = UnscopedNodeCollector.collect(nodeToReconnect);
 	bhNodeHandler.deleteNodes(unscopedNodes, bhUserOpeCmd);
 })();

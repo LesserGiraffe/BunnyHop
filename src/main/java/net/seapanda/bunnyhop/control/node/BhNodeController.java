@@ -259,6 +259,7 @@ public class BhNodeController implements MsgProcessor {
 			return;
 
 		List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(topNode);
+		unscopedNodes.forEach(imit -> imit.execScriptOnImitDeletionOrdered(ddInfo.userOpeCmd));
 		BhNodeHandler.INSTANCE.deleteNodes(unscopedNodes, ddInfo.userOpeCmd)
 		.forEach(oldAndNewNode -> {
 			BhNode oldNode = oldAndNewNode._1;
