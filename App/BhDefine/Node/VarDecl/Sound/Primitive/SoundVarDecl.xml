@@ -1,9 +1,11 @@
 <Node type="connective"
-	  bhNodeID="idSoundVarDecl"
-	  name="SoundVarDecl"
-      canCreateImitManually="true"
-	  nodeStyleID="SoundVarDecl.json"
-	  onMovedFromChildToWS="onVarDeclMovedToWS.js">
+	bhNodeID="idSoundVarDecl"
+	name="SoundVarDecl"
+	canCreateImitManually="true"
+	nodeStyleID="SoundVarDecl.json"
+	onMovedFromChildToWS="onVarDeclMovedToWS.js"
+	onDeletionCmdReceived="reconnectOuter.js"
+	onCutAndPasteCmdReceived="reconnectOuter.js">
 
     <Imitation imitationID="imitIdManual" imitationNodeID="idSoundVar"/>
     <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idSoundArg"/>

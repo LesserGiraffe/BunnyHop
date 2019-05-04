@@ -3,7 +3,9 @@
 	name="SoundAssignStat"
 	nodeStyleID="SoundAssignStat.json"
 	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js">
+	onMovedToChild="onStatMovedToChild.js"
+	onDeletionCmdReceived="reconnectOuter.js"
+	onCutAndPasteCmdReceived="reconnectOuter.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idSoundVarCnctr" name="LeftVar"/>

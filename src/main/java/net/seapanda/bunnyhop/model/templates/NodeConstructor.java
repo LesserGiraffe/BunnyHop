@@ -209,7 +209,9 @@ public class NodeConstructor {
 			node.getBaseURI(),
 			nodeAttrs.get().getOnMovedFromChildToWS(),
 			nodeAttrs.get().getOnMovedToChild(),
-			nodeAttrs.get().getOnChildReplaced());
+			nodeAttrs.get().getOnChildReplaced(),
+			nodeAttrs.get().getOnDeletionCmdReceived(),
+			nodeAttrs.get().getOnCutAndPasteCmdReceived());
 		if (!allScriptsFound)
 			return Optional.empty();
 
@@ -252,7 +254,9 @@ public class NodeConstructor {
 			nodeAttrs.get().getOnMovedFromChildToWS(),
 			nodeAttrs.get().getOnMovedToChild(),
 			nodeAttrs.get().getOnTextAcceptabilityChecked(),
-			nodeAttrs.get().getTextFormatter());
+			nodeAttrs.get().getTextFormatter(),
+			nodeAttrs.get().getOnDeletionCmdReceived(),
+			nodeAttrs.get().getOnCutAndPasteCmdReceived());
 		if (!allScriptsFound) {
 			return Optional.empty();
 		}

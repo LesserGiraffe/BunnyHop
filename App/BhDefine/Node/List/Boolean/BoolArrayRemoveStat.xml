@@ -3,7 +3,9 @@
 	name="BoolArrayRemoveStat"
 	nodeStyleID="BoolArrayRemoveStat.json"
 	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js">
+	onMovedToChild="onStatMovedToChild.js"
+	onDeletionCmdReceived="reconnectOuter.js"
+	onCutAndPasteCmdReceived="reconnectOuter.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idBoolListCnctr" name="Arg0"/>

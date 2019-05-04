@@ -159,6 +159,7 @@ public class BhParams {
 		public static final String KEY_BH_COMMON = "bhCommon";
 		public static final String KEY_BH_NODE_TEMPLATES = "bhNodeTemplates";
 		public static final String KEY_BH_NODE_UTIL = "bhUtil";
+		public static final String KEY_BH_CANDIDATE_NODE_LIST = "bhCandidateNodeList";
 		public static final String KEY_IP_ADDR = "ipAddr";
 		public static final String KEY_UNAME = "uname";
 		public static final String KEY_PASSWORD = "password";

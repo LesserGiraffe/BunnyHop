@@ -15,6 +15,7 @@
  */
 package net.seapanda.bunnyhop.control.node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.event.Event;
@@ -163,7 +164,7 @@ public class BhNodeController implements MsgProcessor {
 				toSameWorkspace();
 			}
 
-			deleteNodes(mouseEvent);
+			deleteUnnecessaryNodes(mouseEvent);
 			BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
 			ddInfo.reset();
 			view.setMouseTransparent(false);	// 処理が終わったので、元に戻しておく。
@@ -189,25 +190,31 @@ public class BhNodeController implements MsgProcessor {
 		ConnectiveNode oldParentOfReplaced = oldChildNode.findParentNode();	//入れ替えられるノードの親ノード
 		BhNode oldRootOfReplaced = oldChildNode.findRootNode();	//入れ替えられるノードのルートノード
 		BhNodeHandler.INSTANCE.replaceChild(oldChildNode, model, ddInfo.userOpeCmd);	//重なっているノードをこのノードと入れ替え
+		//接続変更時のスクリプト実行
 		model.execScriptOnMovedToChild(
 			ddInfo.latestParent,
 			ddInfo.latestRoot,
 			oldChildNode,
-			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
+			ddInfo.userOpeCmd);
 
 		Vec2D posOnWS = MsgService.INSTANCE.getPosOnWS(oldChildNode);
 		double newXPosInWs = posOnWS.x + BhParams.LnF.REPLACED_NODE_SHIFT;
 		double newYPosInWs = posOnWS.y + BhParams.LnF.REPLACED_NODE_SHIFT;
-		BhNodeHandler.INSTANCE.moveToWS(oldChildNode.getWorkspace(), oldChildNode, newXPosInWs, newYPosInWs, ddInfo.userOpeCmd);	//重なっているノードをWSに移動
+		//重なっているノードをWSに移動
+		BhNodeHandler.INSTANCE.moveToWS(oldChildNode.getWorkspace(), oldChildNode, newXPosInWs, newYPosInWs, ddInfo.userOpeCmd);
+		//接続変更時のスクリプト実行
 		oldChildNode.execScriptOnMovedFromChildToWS(
 			oldParentOfReplaced,
 			oldRootOfReplaced,
 			model,
 			false,
-			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
+			ddInfo.userOpeCmd);
 
 		// 子ノード入れ替え時のスクリプト実行
 		parentNode.execScriptOnChildReplaced(oldChildNode, model, parentCnctr, ddInfo.userOpeCmd);
+
+		deleteUnscopedNodes(model);
+		deleteUnscopedNodes(ddInfo.currentOverlapped);
 
 		//VoidNodeは消す
 		if (oldChildNode instanceof VoidNode &&
@@ -230,6 +237,7 @@ public class BhNodeController implements MsgProcessor {
 			true,
 			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
 		view.getAppearanceManager().updateAppearance(null);
+		deleteUnscopedNodes(model);
 	}
 
 	/**
@@ -261,17 +269,16 @@ public class BhNodeController implements MsgProcessor {
 	}
 
 	/**
-	 * 不要になったノードと使用できなくなったノードを削除する
+	 * 不要になったノードを削除する
 	 * */
-	private void deleteNodes(MouseEvent mouseEvent) {
+	private void deleteUnnecessaryNodes(MouseEvent mouseEvent) {
 
 		DelayedDeleter.INSTANCE.deleteCandidates(ddInfo.userOpeCmd);
-		deleteUnscopedNodes(model);
-		deleteUnscopedNodes(ddInfo.currentOverlapped);
 
 		//ゴミ箱に重なっていた場合, 削除
 		if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
 			TrashboxService.INSTANCE.isInTrashboxArea(mouseEvent.getSceneX(), mouseEvent.getSceneY())) {
+			model.execScriptOnDeletionCmdReceived(new ArrayList<BhNode>() {{add(model);}}, ddInfo.userOpeCmd);
 			BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
 		}
 	}

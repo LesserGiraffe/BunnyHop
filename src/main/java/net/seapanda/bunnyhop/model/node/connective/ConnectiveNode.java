@@ -131,11 +131,14 @@ public class ConnectiveNode extends Imitatable {
 	@Override
 	public BhNode findOuterNode(int generation) {
 
+		if (generation == 0)
+			return this;
+
 		BhNode outerNode = childSection.findOuterNode(generation);
 		if (outerNode != null)
 			return outerNode;
 
-		if (generation <= 0)
+		if (generation < 0)
 			return this;
 
 		return null;

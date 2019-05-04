@@ -103,7 +103,6 @@ public class BhScriptManager {
 			}).allMatch(bool -> bool);
 			Context.exit();
 		}
-
 		success &= genCommonObj();
 		return success;
 	}

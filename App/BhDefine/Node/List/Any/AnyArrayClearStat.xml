@@ -5,7 +5,9 @@
 	nodeStyleID="AnyArrayClearStat.json"
 	onMovedFromChildToWS="onStatMovedToWS.js"
 	onMovedToChild="onStatMovedToChild.js"
-	onChildReplaced="onChildOfAnyTypeNodeReplaced.js">
+	onChildReplaced="onChildOfAnyTypeNodeReplaced.js"
+	onDeletionCmdReceived="reconnectOuter.js"
+	onCutAndPasteCmdReceived="reconnectOuter.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>

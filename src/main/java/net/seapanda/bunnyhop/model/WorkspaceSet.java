@@ -60,6 +60,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	private final ObservableList<BhNode> readyToCut = FXCollections.observableArrayList();	//!< カット予定のノード
 	private final List<Workspace> workspaceList = new ArrayList<>();	//!< 全てのワークスペースのリスト
 	private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
+	private int pastePosOffsetCount = -2; //!< ノードの貼り付け位置をずらすためのカウンタ
 
 	public WorkspaceSet() {}
 
@@ -172,20 +173,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	private void copyAndPaste(Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperationCommand userOpeCmd) {
 
 		readyToCopy.stream()
-		.filter(node -> {
-
-			boolean canCopy =
-				(node.getState() == BhNode.State.CHILD &&
-				node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS) ||
-				node.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
-
-			if (canCopy) {
-				// node が外部ノードでかつ, その親ノードがコピー対象に含まれている
-				// -> 親ノードと一緒にコピーするので個別にはコピーしない.
-				return !(node.isOuter() && readyToCopy.contains(node.findParentNode()));
-			}
-			return false;
-		})
+		.filter(node -> canCopyOrCut(node, readyToCopy))
 		.collect(Collectors.toList())	//コピーしたことで, filter条件が変わらないように一旦終端操作を挟む
 		.forEach(node -> {
 			// 外部ノードでかつ, コピー対象に含まれていないでかつ, 親はコピー対象 -> コピーしない
@@ -195,7 +183,12 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			BhNode nodeToPaste = node.copy(userOpeCmd, isNodeToBeCopied);
 			NodeMVCBuilder.build(nodeToPaste);
 			TextImitationPrompter.prompt(nodeToPaste);
-			BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, nodeToPaste, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
+			BhNodeHandler.INSTANCE.addRootNode(
+				wsToPasteIn,
+				nodeToPaste,
+				pasteBasePos.x,
+				pasteBasePos.y + pastePosOffsetCount * BhParams.LnF.REPLACED_NODE_SHIFT * 2,
+				userOpeCmd);
 			List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(nodeToPaste);
 			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodes, userOpeCmd)
 			.forEach(oldAndNewNode -> {
@@ -208,6 +201,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
 			pasteBasePos.x += size.x+ BhParams.LnF.REPLACED_NODE_SHIFT * 2;
 		});
+		pastePosOffsetCount = (pastePosOffsetCount > 2) ? -2 : ++pastePosOffsetCount;
 	}
 
 	/**
@@ -221,27 +215,22 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		if (readyToCut.isEmpty())
 			return;
 
+		// カット前スクリプト実行
+		readyToCut.stream().forEach(
+			node -> node.execScriptOnCutAndPasteCmdReceived(new ArrayList<BhNode>(readyToCut), userOpeCmd));
+
 		readyToCut.stream()
-		.filter(node -> {
-
-			if (node.getState() ==  BhNode.State.CHILD &&
-				node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
-				node.isRemovable() &&
-				node.isSelected()) {
-				return true;
-			}
-			if (node.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS && node.isSelected()) {
-				return true;
-			}
-
-			return false;
-		})
+		.filter(node -> canCopyOrCut(node, readyToCut))
 		.collect(Collectors.toList())	//カットしたことで, filter条件が変わらないように一旦終端操作を挟む
 		.forEach(node -> {
-
 			BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, false, userOpeCmd)
 			.ifPresent(newNode -> newNode.findParentNode().execScriptOnChildReplaced(node, newNode, newNode.getParentConnector(), userOpeCmd));
-			BhNodeHandler.INSTANCE.addRootNode(wsToPasteIn, node, pasteBasePos.x, pasteBasePos.y, userOpeCmd);
+			BhNodeHandler.INSTANCE.addRootNode(
+				wsToPasteIn,
+				node,
+				pasteBasePos.x,
+				pasteBasePos.y + pastePosOffsetCount * BhParams.LnF.REPLACED_NODE_SHIFT * 2,
+				userOpeCmd);
 			List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(node);
 			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodes, userOpeCmd)
 			.forEach(oldAndNewNodes -> {
@@ -254,8 +243,30 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
 		});
 
+		pastePosOffsetCount = (pastePosOffsetCount > 2) ? -2 : ++pastePosOffsetCount;
 		userOpeCmd.pushCmdOfRemoveFromList(readyToCut, readyToCut);
 		readyToCut.clear();
+	}
+
+	/**
+	 * コピーもしくはカットの対象になるかどうか判定する
+	 * @param node 判定対象のノード
+	 * @param candidates カットもしくはコピーの候補ノードのリスト
+	 * @return コピーもしくはカットの対象になる場合 true
+	 * */
+	private boolean canCopyOrCut(BhNode node, List<BhNode> candidates) {
+
+		boolean canCopyOrCut =
+			(node.getState() == BhNode.State.CHILD &&
+			node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS) ||
+			node.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
+
+		if (canCopyOrCut) {
+			// node が外部ノードでかつ, その親ノードがコピー or カット対象に含まれている
+			// -> 親ノードと一緒にコピー or カットするので個別にはコピー or カットしない.
+			return !(node.isOuter() && candidates.contains(node.findParentNode()));
+		}
+		return false;
 	}
 
 	public List<Workspace> getWorkspaceList() {

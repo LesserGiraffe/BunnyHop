@@ -4,7 +4,9 @@
 	name="CriticalSectionDecl"
 	canCreateImitManually="true"
 	nodeStyleID="CriticalSectionDecl.json"
-	onMovedFromChildToWS="onGlobalDataDeclMovedToWS.js">
+	onMovedFromChildToWS="onGlobalDataDeclMovedToWS.js"
+	onDeletionCmdReceived="reconnectOuter.js"
+	onCutAndPasteCmdReceived="reconnectOuter.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idCriticalSectionStat"/>
 

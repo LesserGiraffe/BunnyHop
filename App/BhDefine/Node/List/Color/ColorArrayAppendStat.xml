@@ -4,7 +4,9 @@
 	name="ColorArrayAppendStat"
 	nodeStyleID="ColorArrayAppendStat.json"
 	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js">
+	onMovedToChild="onStatMovedToChild.js"
+	onDeletionCmdReceived="reconnectOuter.js"
+	onCutAndPasteCmdReceived="reconnectOuter.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idColorListCnctr" name="Arg0"/>

@@ -15,6 +15,7 @@
  */
 package net.seapanda.bunnyhop.model.node;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import org.mozilla.javascript.ContextFactory;
@@ -54,6 +55,11 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	protected Workspace workspace;	//!< このノードがあるWorkSpace.
 	private final String scriptNameOnMovedFromChildToWS;	//子ノードからワークスペースに移されたときに実行されるスクリプトの名前
 	private final String scriptNameOnMovedToChild;	//!< ワークスペースもしくは, 子ノードから子ノードに移されたときに実行されるスクリプトの名前
+	private final String scriptNameOnDeletionCmdReceived;	//!< ユーザー操作により, このノードが削除候補になったときに実行されるスクリプト名
+	private final String scriptNameOnCutAndPasteCmdReceived;	//!< ユーザー操作により, このノードがカット&ペーストされるときに実行されるスクリプト名
+
+
+
 	public final String type;	//!< ノードのタイプ (connective, void, textField, ...)
 	private BhNode lastReplaced;	//!< 最後にこのノードと入れ替わったノード
 	private boolean isDefaultNode = false;	//!< デフォルトノードである場合true
@@ -93,9 +99,9 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	public abstract Imitatable getOriginalNode();
 
 	/**
-	 * 外部ノードを取得する. 指定した世代に外部ノードがなかった場合, nullを返す.
+	 * 外部ノードを取得する. 指定した世代にあたる外部ノードがなかった場合, nullを返す.
 	 * @param generation 取得する外部ノードの世代.
-	 *               例 (0: 自分, 1: 子世代の外部ノード, 2: 孫世代の外部ノード. 負の数: 末尾の外部ノードを取得する)
+	 *               例 (0: 自分, 1: 子世代にあたる外部ノード, 2: 孫世代にあたる外部ノード. 負の数: 末尾の外部ノードを取得する)
 	 * @return 外部ノード
 	 */
 	public abstract BhNode findOuterNode(int generation);
@@ -120,6 +126,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		this.type = type;
 		this.scriptNameOnMovedFromChildToWS = attributes.getOnMovedFromChildToWS();
 		this.scriptNameOnMovedToChild = attributes.getOnMovedToChild();
+		this.scriptNameOnDeletionCmdReceived = attributes.getOnDeletionCmdReceived();
+		this.scriptNameOnCutAndPasteCmdReceived = attributes.getOnCutAndPasteCmdReceived();
 	}
 
 	/**
@@ -133,6 +141,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		workspace = null;
 		scriptNameOnMovedFromChildToWS = org.scriptNameOnMovedFromChildToWS;
 		scriptNameOnMovedToChild = org.scriptNameOnMovedToChild;
+		scriptNameOnDeletionCmdReceived = org.scriptNameOnDeletionCmdReceived;
+		scriptNameOnCutAndPasteCmdReceived = org.scriptNameOnCutAndPasteCmdReceived;
 		type = org.type;
 		lastReplaced = null;
 		scriptScope = null;
@@ -440,6 +450,52 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 			MsgPrinter.INSTANCE.errMsgForDebug(
 				BhNode.class.getSimpleName() + ".execOnMovedFromChildToWSScript   " + scriptNameOnMovedFromChildToWS + "\n" +
 				e.toString() + "\n");
+		}
+	}
+
+	/**
+	 * ユーザー操作により, このノードが削除される直前の操作を行う
+	 * @param nodesToDelete このノードとともに削除される予定のノード
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void execScriptOnDeletionCmdReceived(List<BhNode> nodesToDelete, UserOperationCommand userOpeCmd) {
+
+		Script onDeletionCmdReceived = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnDeletionCmdReceived);
+		if (onDeletionCmdReceived == null)
+			return;
+
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToDelete);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+		try {
+			ContextFactory.getGlobal().call(cx -> onDeletionCmdReceived.exec(cx, scriptScope));
+		}
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				BhNode.class.getSimpleName() + ".execScriptOnDeletionCmdReceived   " + scriptNameOnDeletionCmdReceived + "\n" +
+				e.toString() + "\n");
+		}
+	}
+
+	/**
+	 * ユーザー操作により, このノードがカット&ペーストされる直前の操作を行う
+	 * @param nodesToDelete このノードとともに削除される予定のノード
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void execScriptOnCutAndPasteCmdReceived(List<BhNode> nodesToDelete, UserOperationCommand userOpeCmd) {
+
+		Script onCutAndPasteCmdReceived = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnCutAndPasteCmdReceived);
+		if (onCutAndPasteCmdReceived == null)
+			return;
+
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToDelete);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+		try {
+			ContextFactory.getGlobal().call(cx -> onCutAndPasteCmdReceived.exec(cx, scriptScope));
+		}
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				BhNode.class.getSimpleName() + ".execScriptOnCutAndPasteCmdReceived   "
+				+ scriptNameOnCutAndPasteCmdReceived + "\n" + e.toString() + "\n");
 		}
 	}
 

@@ -4,7 +4,8 @@
 	canCreateImitManually="true"
 	nodeStyleID="NumListDecl.json"
 	onMovedFromChildToWS="onVarDeclMovedToWS.js"
-	onMovedToChild="">
+	onDeletionCmdReceived="reconnectOuter.js"
+	onCutAndPasteCmdReceived="reconnectOuter.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idNumList"/>
 	<Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idNumListArg"/>

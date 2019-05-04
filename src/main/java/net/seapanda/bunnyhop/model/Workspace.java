@@ -31,7 +31,6 @@ import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -220,20 +219,6 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 		for (BhNode node : nodesToDeselect) {
 			removeSelectedNode(node, userOpeCmd);
 		}
-	}
-
-	/**
-	 * 引数で指定したノードを消去する
-	 * @param nodesToDelete 消されるノードのリスト
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 */
-	public void deleteNodes(Collection<BhNode> nodesToDelete, UserOperationCommand userOpeCmd) {
-		BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd)
-		.forEach(oldAndNewNode -> {
-			BhNode oldNode = oldAndNewNode._1;
-			BhNode newNode = oldAndNewNode._2;
-			newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
-		});
 	}
 
 	/**

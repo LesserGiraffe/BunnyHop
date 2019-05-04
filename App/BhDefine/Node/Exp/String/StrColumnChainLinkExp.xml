@@ -20,7 +20,7 @@
 				name="StrAppendOpe"
 				nodeStyleID="SignLabel.json"
 				nodeInputControl="Label.fxml"
-				initString="⊕">
+				initString="＋">
 			</Node>
 		</PrivateConnector>
 		

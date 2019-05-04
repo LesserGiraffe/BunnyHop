@@ -27,6 +27,8 @@ import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.model.Workspace;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
@@ -121,19 +123,7 @@ public class WorkspaceController implements MsgProcessor {
 					.collect(Collectors.toCollection(ArrayList::new));
 
 				// 面積の大きい順にソート
-				containedNodes.sort((a, b) -> {
-					Vec2D sizeA = a.getRegionManager().getBodySize(false);
-					Vec2D sizeB = b.getRegionManager().getBodySize(false);
-					double areaA = sizeA.x * sizeA.y;
-					double areaB = sizeB.x * sizeB.y;
-
-					if (areaA < areaB)
-						return 1;
-					else if (areaA > areaB)
-						return -1;
-
-					return 0;
-				});
+				containedNodes.sort(this::compareViewSize);
 
 				// 親ノードが選択候補でかつ, 親ノードのボディの領域に包含されているノードは選択対象としない.
 				LinkedList<BhNodeView> nodesToSelect = new LinkedList<>(containedNodes);
@@ -153,6 +143,21 @@ public class WorkspaceController implements MsgProcessor {
 				}
 				BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 			});
+	}
+
+	private int compareViewSize(BhNodeView viewA, BhNodeView viewB) {
+
+		Vec2D sizeA = viewA.getRegionManager().getBodySize(false);
+		double areaA = sizeA.x * sizeA.y;
+		Vec2D sizeB = viewB.getRegionManager().getBodySize(false);
+		double areaB = sizeB.x * sizeB.y;
+
+		if (areaA < areaB)
+			return 1;
+		else if (areaA > areaB)
+			return -1;
+
+		return 0;
 	}
 
 	/**
@@ -201,7 +206,9 @@ public class WorkspaceController implements MsgProcessor {
 				return new MsgData(model, view, data.userOpeCmd);
 
 			case DELETE_WORKSPACE:
-				model.deleteNodes(model.getRootNodeList(), data.userOpeCmd);
+				model.getRootNodeList().forEach(
+					node -> node.execScriptOnDeletionCmdReceived(new ArrayList<BhNode>(){{add(node);}}, data.userOpeCmd));
+				BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), data.userOpeCmd);
 				return new MsgData(model, view, data.userOpeCmd);
 
 			case UPDATE_MULTI_NODE_SHIFTER:

@@ -101,7 +101,12 @@ public class WorkspaceView extends Tab {
 		quadTreeMngForConnector = new QuadTreeManager(BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
 		rectSelTool.getPoints().addAll(Stream.generate(() -> 0.0).limit(8).toArray(Double[]::new));
 		drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
+		setEventHandlers();
+		setText(workspace.getWorkspaceName());
+		return true;
+	}
 
+	private void setEventHandlers() {
 
 		//拡大縮小処理
 		wsScrollPane.addEventFilter(ScrollEvent.ANY, event -> {
@@ -120,22 +125,21 @@ public class WorkspaceView extends Tab {
 
 		setOnCloseRequest(event -> {
 
-			if (workspace.getRootNodeList().isEmpty())	//空のワークスペース削除時は警告なし
+			//空のワークスペース削除時は警告なし
+			if (workspace.getRootNodeList().isEmpty())
 				return;
 
 			Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
 				Alert.AlertType.CONFIRMATION,
 				"ワークスペースの削除",
 				null,
-				"ワークスペースを削除します.");
+				"「" + this.getText() + "」 を削除します.");
 
 			buttonType.ifPresent(btnType -> {
 				if (!btnType.equals(ButtonType.OK))
 					event.consume();
 			});
 		});
-		setText(workspace.getWorkspaceName());
-		return true;
 	}
 
 	/**
@@ -358,8 +362,6 @@ public class WorkspaceView extends Tab {
 		rectSelTool.getPoints().set(5, lowerRight.y);
 		rectSelTool.getPoints().set(6, upperLeft.x);
 		rectSelTool.getPoints().set(7, lowerRight.y);
-		//rectSelTool.getPoints().set(8, upperLeft.x);
-		//rectSelTool.getPoints().set(9, upperLeft.y);
 		rectSelTool.toFront();
 	}
 

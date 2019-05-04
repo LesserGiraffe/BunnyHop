@@ -1,9 +1,11 @@
 <Node type="connective"
-	  bhNodeID="idVoidFuncCall"
-	  name="VoidFuncCall"
-	  nodeStyleID="VoidFuncCall.json"
-	  onMovedFromChildToWS="onStatMovedToWS.js"
-	  onMovedToChild="onStatMovedToChild.js">
+	bhNodeID="idVoidFuncCall"
+	name="VoidFuncCall"
+	nodeStyleID="VoidFuncCall.json"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js"
+	onDeletionCmdReceived="reconnectOuter.js"
+	onCutAndPasteCmdReceived="reconnectOuter.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idFuncNameCnctr" name="FuncName" imitCnctPos="imitPosFuncName"/>

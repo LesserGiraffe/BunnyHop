@@ -17,8 +17,8 @@
 		bhNodeHandler.exchangeNodes(nextStrChainLinkExp, newStrChainLinkExp, bhUserOpeCmd);
 		
 		// 演算子の表示を変える
-		let opeLabel = newStrChainLinkExp.findSymbolInDescendants('*', '*', 'StrAppendOpe');
-		bhMsgService.setText(opeLabel, '＋');
+		//let opeLabel = newStrChainLinkExp.findSymbolInDescendants('*', '*', 'StrAppendOpe');
+		//bhMsgService.setText(opeLabel, '＋');
 		
 		// 新ノードの末尾に旧ノードを追加
 		let newStrChainLinkExpNext = newStrChainLinkExp.findSymbolInDescendants('*', 'Arg1', '*');
@@ -41,11 +41,11 @@
 			bhMsgService.setNodeVisibility(bhThis, false, bhUserOpeCmd);
 			
 			// 演算子の表示を変える
-			let strChainExp = nextStrChainLinkExp.findSymbolInAncestors('StrChainExp', 3, false);
-			if (strChainExp != null) {
-				let opeLabel = nextStrChainLinkExp.findSymbolInDescendants('*', '*', 'StrAppendOpe');
-				bhMsgService.setText(opeLabel, '⊕');
-			}
+			//let strChainExp = nextStrChainLinkExp.findSymbolInAncestors('StrChainExp', 3, false);
+			//if (strChainExp != null) {
+			//	let opeLabel = nextStrChainLinkExp.findSymbolInDescendants('*', '*', 'StrAppendOpe');
+			//	bhMsgService.setText(opeLabel, '⊕');
+			//}
 		}
 	}
 })();

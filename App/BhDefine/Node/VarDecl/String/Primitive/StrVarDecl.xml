@@ -1,10 +1,11 @@
 <Node type="connective"
-	  bhNodeID="idStrVarDecl"
-	  name="StrVarDecl"
-      canCreateImitManually="true"
-	  nodeStyleID="StrVarDecl.json"
-	  onMovedFromChildToWS="onVarDeclMovedToWS.js"
-	  onMovedToChild="">
+	bhNodeID="idStrVarDecl"
+	name="StrVarDecl"
+	canCreateImitManually="true"
+	nodeStyleID="StrVarDecl.json"
+	onMovedFromChildToWS="onVarDeclMovedToWS.js"
+	onDeletionCmdReceived="reconnectOuter.js"
+	onCutAndPasteCmdReceived="reconnectOuter.js">
 
     <Imitation imitationID="imitIdManual" imitationNodeID="idStrVar"/>
     <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idStrArg"/>

@@ -52,6 +52,7 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.BhNodeCategoryListView;
@@ -191,7 +192,14 @@ public class MenuOperationController {
 				return;
 
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
-			currentWS.deleteNodes(currentWS.getSelectedNodeList(), userOpeCmd);
+			var nodesToDelete = new ArrayList<BhNode>(currentWS.getSelectedNodeList());
+			nodesToDelete.forEach(node -> node.execScriptOnDeletionCmdReceived(nodesToDelete, userOpeCmd));
+			BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd)
+			.forEach(oldAndNewNode -> {
+				BhNode oldNode = oldAndNewNode._1;
+				BhNode newNode = oldAndNewNode._2;
+				newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
+			});
 			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 		});
 	}

@@ -4,7 +4,8 @@
 	canCreateImitManually="true"
 	nodeStyleID="BoolListDecl.json"
 	onMovedFromChildToWS="onVarDeclMovedToWS.js"
-	onMovedToChild="">
+	onDeletionCmdReceived="reconnectOuter.js"
+	onCutAndPasteCmdReceived="reconnectOuter.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idBoolList"/>
 	<Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idBoolListArg"/>

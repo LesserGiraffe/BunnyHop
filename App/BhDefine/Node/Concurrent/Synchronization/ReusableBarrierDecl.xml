@@ -4,7 +4,9 @@
 	name="ReusableBarrierDecl"
 	canCreateImitManually="true"
 	nodeStyleID="ReusableBarrierDecl.json"
-	onMovedFromChildToWS="onGlobalDataDeclMovedToWS.js">
+	onMovedFromChildToWS="onGlobalDataDeclMovedToWS.js"
+	onDeletionCmdReceived="reconnectOuter.js"
+	onCutAndPasteCmdReceived="reconnectOuter.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idReusableBarrierVar"/>
 

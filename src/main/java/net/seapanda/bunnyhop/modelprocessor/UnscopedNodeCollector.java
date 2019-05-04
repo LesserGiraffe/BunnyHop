@@ -32,8 +32,9 @@ public class UnscopedNodeCollector implements BhModelProcessor {
 	private final List<Imitatable> unscopedNodeList = new ArrayList<>();	//!< オリジナルノードと同じスコープに居ないイミテーションノードのリスト
 
 	/**
-	 * スコープ外のノードを集める
-	 * @param node このノード以下にあるスコープ外のノードを探して集める.
+	 * 以下の2種類のスコープ外ノードを集める
+	 *   ・引数のノード以下にあるスコープ外イミテーションノード
+	 *   ・引数のノード以下にあるオリジナルノードのスコープ外イミテーションノード
 	 * */
 	public static List<Imitatable> collect(BhNode node) {
 

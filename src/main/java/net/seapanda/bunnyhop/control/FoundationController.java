@@ -144,7 +144,6 @@ public class FoundationController {
 					event.isControlDown(),
 					event.isAltDown(),
 					event.isMetaDown()));
-
 		};
 
 		foundationVBox.addEventFilter(KeyEvent.ANY, (event) -> {

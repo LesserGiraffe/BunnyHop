@@ -93,6 +93,12 @@ public class BhNodeAttributes {
 		//onChildReplaced
 		nodeAttrs.onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CHILD_REPLACED);
 
+		//onDeletionCmdReceived
+		nodeAttrs.onDeletionCmdReceived = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_DELETION_CMD_RECEIVED);
+
+		//onCutAndPasteCmdReceived
+		nodeAttrs.onCutAndPasteCmdReceived = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CUT_AND_PASTE_CMD_RECEIVED);
+
 		//imitScopeName
 		nodeAttrs.imitScopeName = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMIT_SCOPE_NAME);
 

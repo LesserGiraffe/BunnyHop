@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -154,6 +155,15 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
 	public void deleteAllImitations(UserOperationCommand userOpeCmd) {
+
+		// イミテーション削除時は常にイベントスクリプトを呼ぶ.
+		for (var nodeToDelete : imitNodeList) {
+			if (nodeToDelete.isInWorkspace()) {
+				nodeToDelete.execScriptOnDeletionCmdReceived(
+					new ArrayList<BhNode>() {{add(nodeToDelete);}}, userOpeCmd);
+			}
+		}
+
 		while (!imitNodeList.isEmpty()) {	//重複削除を避けるため, while で空になるまで消す
 
 			Imitatable nodeToDelete = imitNodeList.get(0);
@@ -168,6 +178,12 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 						newNode,
 						newNode.getParentConnector(),
 						userOpeCmd));
+				// 削除したイミテーションノードをもとに, スコープ外ノードを集めて消す必要はない.
+				// なぜなら, そのイミテーションが別のオリジナルノードを子孫ノードとして持っていたとしても,
+				// 上の BhNodeHandler.INSTANCE.deleteNode(...) の先で, オリジナルが消えたことによるイミテーションの削除が行われるから.
+				// つまり, 子孫ノードであるオリジナルノードのスコープ外イミテーションノードは, イミテーション削除の処理により消える.
+				// 加えて, スコープ外ノードを集めて消して, 消したノードの親に対して execScriptOnChildReplaced(...) を呼ぶと,
+				// イミテーション削除時にも呼んでいるので, 重複して execScriptOnChildReplaced(...) を呼び出してしまう.
 			}
 		}
 	}
