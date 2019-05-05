@@ -3,7 +3,7 @@
 	bhNodeID="idSoundList"
 	name="SoundList"
 	nodeStyleID="SoundList.json"
-	imitScopeName="VarScopeSctn">
+	scopeChecker="checkVarScope.js">
 
 	<ConnectorSection name="SoundListSctn">
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>

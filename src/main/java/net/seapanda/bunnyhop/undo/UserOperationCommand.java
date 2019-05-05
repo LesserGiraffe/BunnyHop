@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
 
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -236,29 +235,48 @@ public class UserOperationCommand {
 	}
 
 	/**
-	 * リストへの要素の追加をコマンド化してサブ操作リストに加える
-	 * @param list 要素を追加したリスト
-	 * @param addedElems 追加された要素のリスト
+	 * ノードのスコープ外設定をコマンド化してサブ操作リストに加える
+	 * @param nodeView スコープ外設定を変更したノード
+	 * @param setVal 設定した状態
+	 * @param prevVal 前の状態
 	 * */
-	public <T> void pushCmdOfAddToList(List<T> list, Collection<T> addedElems) {
+	public void pushCmdOfSetUnscoped(BhNodeView nodeView, boolean setVal, boolean prevVal) {
+		subOpeList.addLast(new SetUnscopedCmd(nodeView, setVal, prevVal));
+	}
+
+	/**
+	 * コレクションへの要素の追加をコマンド化してサブ操作リストに加える
+	 * @param list 要素を追加したコレクション
+	 * @param addedElems 追加された要素のコレクション
+	 * */
+	public <T> void pushCmdOfAddToList(Collection<T> list, Collection<T> addedElems) {
 		subOpeList.addLast(new AddToListCmd<T>(list, addedElems));
 	}
 
 	/**
-	 * リストからの要素の削除をコマンド化してサブ操作リストに加える
-	 * @param list 要素を削除したリスト
-	 * @param removedElems 削除された要素のリスト
+	 * コレクションへの要素の追加をコマンド化してサブ操作リストに加える
+	 * @param list 要素を追加したコレクション
+	 * @param addedElems 追加された要素
 	 * */
-	public <T> void pushCmdOfRemoveFromList(List<T> list, Collection<T> removedElems) {
+	public <T> void pushCmdOfAddToList(Collection<T> list, T addedElems) {
+		subOpeList.addLast(new AddToListCmd<T>(list, addedElems));
+	}
+
+	/**
+	 * コレクションからの要素の削除をコマンド化してサブ操作リストに加える
+	 * @param list 要素を削除したコレクション
+	 * @param removedElems 削除された要素のコレクション
+	 * */
+	public <T> void pushCmdOfRemoveFromList(Collection<T> list, Collection<T> removedElems) {
 		subOpeList.addLast(new RemoveFromListCmd<T>(list, removedElems));
 	}
 
 	/**
-	 * リストからの要素の削除をコマンド化してサブ操作リストに加える
-	 * @param list 要素を削除したリスト
+	 * コレクションからの要素の削除をコマンド化してサブ操作リストに加える
+	 * @param list 要素を削除したコレクション
 	 * @param removedElem 削除された要素
 	 * */
-	public <T> void pushCmdOfRemoveFromList(List<T> list, T removedElem) {
+	public <T> void pushCmdOfRemoveFromList(Collection<T> list, T removedElem) {
 		subOpeList.addLast(new RemoveFromListCmd<T>(list, removedElem));
 	}
 
@@ -618,16 +636,43 @@ public class UserOperationCommand {
 	}
 
 	/**
-	 * リストへの追加を表すコマンド
+	 * BhNodeView のスコープ外設定の変更を表すコマンド
+	 * */
+	private static class SetUnscopedCmd implements SubOperation {
+
+		private final BhNodeView nodeView; //!< スコープ外設定を変更したノード
+		private final boolean setVal; //!< 設定した状態
+		private final boolean prevVal;	//!< 以前の状態
+
+		public SetUnscopedCmd(BhNodeView nodeView, boolean setVal, boolean prevVal) {
+			this.nodeView = nodeView;
+			this.setVal = setVal;
+			this.prevVal = prevVal;
+		}
+
+		@Override
+		public void doInverseOperation(UserOperationCommand inverseCmd) {
+			nodeView.getAppearanceManager().setUnscoped(prevVal);
+			inverseCmd.pushCmdOfSetUnscoped(nodeView, prevVal, setVal);
+		}
+	}
+
+	/**
+	 * コレクションへの追加を表すコマンド
 	 * */
 	private static class AddToListCmd<T> implements SubOperation {
 
-		private final List<T> list;	//!< 要素を追加されたリスト
+		private final Collection<T> list;	//!< 要素を追加されたコレクション
 		private final Collection<T> addedElems;	//!< 追加された要素のコレクション
 
-		public AddToListCmd(List<T> list, Collection<T> addedElems) {
+		public AddToListCmd(Collection<T> list, Collection<T> addedElems) {
 			this.list = list;
 			this.addedElems = new ArrayList<>(addedElems);
+		}
+
+		public AddToListCmd(Collection<T> list, T addedElem) {
+			this.list = list;
+			this.addedElems = new ArrayList<>(Arrays.asList(addedElem));
 		}
 
 		@Override
@@ -641,20 +686,20 @@ public class UserOperationCommand {
 	}
 
 	/**
-	 * リストからの削除を表すコマンド
+	 * コレクションからの削除を表すコマンド
 	 * */
 	private static class RemoveFromListCmd<T> implements SubOperation {
 
-		private final List<T> list;	//!< 要素を削除されたされたリスト
+		private final Collection<T> list;	//!< 要素を削除されたされたコレクション
 		private final Collection<T> removedElems;	//!< 削除された要素のコレクション
 
 
-		public RemoveFromListCmd(List<T> list, T removedElem) {
+		public RemoveFromListCmd(Collection<T> list, T removedElem) {
 			this.list = list;
 			this.removedElems = new ArrayList<>(Arrays.asList(removedElem));
 		}
 
-		public RemoveFromListCmd(List<T> list, Collection<T> removedElems) {
+		public RemoveFromListCmd(Collection<T> list, Collection<T> removedElems) {
 			this.list = list;
 			this.removedElems = new ArrayList<>(removedElems);
 		}

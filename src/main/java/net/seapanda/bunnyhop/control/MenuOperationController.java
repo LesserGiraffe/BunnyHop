@@ -28,8 +28,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -53,6 +55,7 @@ import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
+import net.seapanda.bunnyhop.modelhandler.UnscopedNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.BhNodeCategoryListView;
@@ -200,6 +203,8 @@ public class MenuOperationController {
 				BhNode newNode = oldAndNewNode._2;
 				newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
 			});
+			UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
+			UnscopedNodeManager.INSTANCE.unmanageScopedNodes(userOpeCmd);
 			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 		});
 	}
@@ -355,7 +360,7 @@ public class MenuOperationController {
 
 			futureOpt.ifPresent(future -> {
 				preparingForExecution.set(true);
-				waitTaskExec.submit(() ->{
+				waitTaskExec.submit(() -> {
 					try { future.get(); }
 					catch(InterruptedException | ExecutionException e){}
 					preparingForExecution.set(false);
@@ -536,17 +541,23 @@ public class MenuOperationController {
 	 */
 	private Optional<Pair<List<BhNode>, BhNode>> prepareForCompilation(WorkspaceSet wss) {
 
+		UserOperationCommand userOpeCmd = new UserOperationCommand();
+		if (!deleteUnsopedNodes(userOpeCmd)) {
+			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+			return Optional.empty();
+		}
+
 		//実行対象があるかどうかのチェック
 		Workspace currentWS = wss.getCurrentWorkspace();
 		Set<BhNode> selectedNodeList = currentWS.getSelectedNodeList();
 		if (selectedNodeList.isEmpty()) {
 			MsgPrinter.INSTANCE.alert(AlertType.ERROR, "実行対象の選択", null,"実行対象を一つ選択してください");
+			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 			return Optional.empty();
 		}
 
 		// 実行対象以外を非選択に.
 		BhNode nodeToExec = selectedNodeList.iterator().next().findRootNode();
-		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		currentWS.clearSelectedNodeList(userOpeCmd);
 		currentWS.addSelectedNode(nodeToExec, userOpeCmd);
 		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
@@ -560,6 +571,38 @@ public class MenuOperationController {
 		});
 		nodesToCompile.remove(nodeToExec);
 		return Optional.of(new Pair<>(nodesToCompile, nodeToExec));
+	}
+
+	/**
+	 * スコープ外ノードを削除する.
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * @return 全てのスコープ外ノードが無くなった場合 true.
+	 * */
+	public boolean deleteUnsopedNodes(UserOperationCommand userOpeCmd) {
+
+		if (!UnscopedNodeManager.INSTANCE.hasUnscopedNodes())
+			return true;
+
+		Optional<ButtonType> btnType = MsgPrinter.INSTANCE.alert(
+			Alert.AlertType.CONFIRMATION,
+			"スコープ外ノードの削除",
+			null,
+			"スコープ外ノードを削除してもよろしいですか?\n「いいえ」を選択した場合、実行を中止します",
+			ButtonType.NO,
+			ButtonType.YES);
+
+		if (!btnType.isPresent())
+			return false;
+
+		return btnType
+			.map(type -> {
+				if (type.equals(ButtonType.YES)) {
+					UnscopedNodeManager.INSTANCE.deleteUnscopedNodes(userOpeCmd);
+					return true;
+				}
+				return false;
+			})
+			.orElse(false);
 	}
 
 	/**

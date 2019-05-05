@@ -57,7 +57,7 @@ public class TextFieldNodeView extends TextInputNodeView implements ImitationCre
 
 		initialize();
 		boolean success = loadComponent();
-		getChildren().add(textField);
+		getTreeManager().addChild(textField);
 
 		textField.addEventFilter(MouseEvent.ANY, event -> {
 			getEventManager().propagateEvent(event);
@@ -69,7 +69,7 @@ public class TextFieldNodeView extends TextInputNodeView implements ImitationCre
 			Optional<Button> btnOpt = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
 			success &= btnOpt.isPresent();
 			imitCreateImitBtn = btnOpt.orElse(new Button());
-			getChildren().add(imitCreateImitBtn);
+			getTreeManager().addChild(imitCreateImitBtn);
 		}
 		initStyle(viewStyle);
 		setFuncs(this::updateShape, null);

@@ -41,7 +41,7 @@ public class BhNodeAttributes {
 	private String onChildReplaced;
 	private String onImitDeletionOrdered;
 	private String textFormatter;
-	private String imitScopeName;
+	private String scopeChecker;
 	private String initString;
 	private String nodeInputControlFileName;
 	private boolean canCreateImitManually;
@@ -103,8 +103,8 @@ public class BhNodeAttributes {
 		//onImitDeletionOrdered
 		nodeAttrs.onImitDeletionOrdered = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_IMIT_DELETION_ORDERED);
 
-		//imitScopeName
-		nodeAttrs.imitScopeName = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMIT_SCOPE_NAME);
+		//scopeChecker
+		nodeAttrs.scopeChecker = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_SCOPE_CHEKER);
 
 		//initString
 		nodeAttrs.initString = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_INIT_STRING);
@@ -173,8 +173,8 @@ public class BhNodeAttributes {
 		return textFormatter;
 	}
 
-	public String getImitScopeName() {
-		return imitScopeName;
+	public String getScopeChecker() {
+		return scopeChecker;
 	}
 
 	public String getIinitString() {

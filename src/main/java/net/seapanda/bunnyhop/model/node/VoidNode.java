@@ -106,26 +106,6 @@ public class VoidNode extends BhNode implements Serializable {
 		if (node.isDescendantOf(this) || this.isDescendantOf(node))	//同じtree に含まれている場合置き換え不可
 			return false;
 
-		do {
-			if (!(node instanceof Imitatable))
-				break;
-
-			Imitatable imitNode = (Imitatable)node;
-			if (!imitNode.isImitationNode())
-				break;
-
-			if (imitNode.getImitationInfo().scopeName.isEmpty())
-				break;
-
-			SyntaxSymbol scope = imitNode.getOriginalNode().findSymbolInAncestors(imitNode.getImitationInfo().scopeName, 1, true);
-			if (scope == null)	//可視範囲制限なし
-				break;
-
-			if (!this.isDescendantOf(scope))
-				return false;
-		}
-		while(false);
-
 		return parentConnector.isConnectedNodeReplaceableWith(node);
 	}
 

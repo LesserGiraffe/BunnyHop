@@ -46,7 +46,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
 public class ConnectiveNode extends Imitatable {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	private Section childSection;							//!< セクションの集合 (ノード内部に描画されるもの)
+	private Section childSection;						//!< セクションの集合 (ノード内部に描画されるもの)
 	private ImitationInfo<ConnectiveNode> imitInfo;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
 	private final String scriptNameOnChildReplaced;	//!< 子ノード入れ替え維持に実行されるスクリプト
 
@@ -64,8 +64,7 @@ public class ConnectiveNode extends Imitatable {
 
 		super(BhParams.BhModelDef.ATTR_VALUE_CONNECTIVE, attributes);
 		this.childSection = childSection;
-		imitInfo = new ImitationInfo<>(
-			imitID_imitNodeID, attributes.getCanCreateImitManually(), attributes.getImitScopeName());
+		imitInfo = new ImitationInfo<>(imitID_imitNodeID, attributes.getCanCreateImitManually());
 		scriptNameOnChildReplaced = attributes.getOnChildReplaced();
 	}
 
@@ -193,7 +192,6 @@ public class ConnectiveNode extends Imitatable {
 
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<ConnectiveNode" + "  bhID=" + getID()  + "  parent=" + parentHashCode + "  > " + this.hashCode());
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "scopeName " + imitInfo.scopeName + "> ");
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
 		imitInfo.getImitationList().forEach(imit -> {
 			MsgPrinter.INSTANCE.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());

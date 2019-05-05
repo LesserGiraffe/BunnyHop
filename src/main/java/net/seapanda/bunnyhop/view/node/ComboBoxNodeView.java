@@ -65,13 +65,13 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 
 		initialize();
 		boolean success = loadComponent();
-		getChildren().add(comboBox);
+		getTreeManager().addChild(comboBox);
 
 		if (model.getImitationInfo().canCreateImitManually) {
 			Optional<Button> btnOpt = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
 			success &= btnOpt.isPresent();
 			imitCreateImitBtn = btnOpt.orElse(new Button());
-			getChildren().add(imitCreateImitBtn);
+			getTreeManager().addChild(imitCreateImitBtn);
 		}
 		initStyle(viewStyle);
 		setFuncs(this::updateShape, null);

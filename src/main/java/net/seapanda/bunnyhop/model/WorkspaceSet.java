@@ -38,13 +38,12 @@ import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
+import net.seapanda.bunnyhop.modelhandler.UnscopedNodeManager;
 import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
-import net.seapanda.bunnyhop.modelprocessor.UnscopedNodeCollector;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.saveandload.ProjectSaveData;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -157,9 +156,12 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @param pasteBasePos 貼り付け基準位置
 	 */
 	public void paste(Workspace wsToPasteIn, Vec2D pasteBasePos) {
+
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		copyAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
 		cutAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
+		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
+		UnscopedNodeManager.INSTANCE.unmanageScopedNodes(userOpeCmd);
 		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 	}
 
@@ -199,19 +201,6 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
 			pasteBasePos.x += size.x+ BhParams.LnF.REPLACED_NODE_SHIFT * 2;
 		}
-
-		// スコープ外ノードの削除
-		for (var node : pastedNodes) {
-			List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(node);
-			unscopedNodes.forEach(imit -> imit.execScriptOnImitDeletionOrdered(userOpeCmd));
-			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodes, userOpeCmd)
-			.forEach(oldAndNewNode -> {
-				BhNode oldNode = oldAndNewNode._1;
-				BhNode newNode = oldAndNewNode._2;
-				newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
-			});
-		}
-
 		pastePosOffsetCount = (pastePosOffsetCount > 2) ? -2 : ++pastePosOffsetCount;
 	}
 
@@ -248,18 +237,6 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
 			pasteBasePos.x += size.x + BhParams.LnF.REPLACED_NODE_SHIFT * 2;
 			DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
-		}
-
-		// スコープ外ノードの削除
-		for (var node : nodesToPaste) {
-			List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(node);
-			unscopedNodes.forEach(imit -> imit.execScriptOnImitDeletionOrdered(userOpeCmd));
-			BhNodeHandler.INSTANCE.deleteNodes(unscopedNodes, userOpeCmd)
-			.forEach(oldAndNewNodes -> {
-				BhNode oldNode = oldAndNewNodes._1;
-				BhNode newNode = oldAndNewNodes._2;
-				newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
-			});
 		}
 
 		pastePosOffsetCount = (pastePosOffsetCount > 2) ? -2 : ++pastePosOffsetCount;

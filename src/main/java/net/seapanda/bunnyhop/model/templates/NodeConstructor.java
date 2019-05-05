@@ -212,7 +212,8 @@ public class NodeConstructor {
 			nodeAttrs.get().getOnChildReplaced(),
 			nodeAttrs.get().getOnDeletionCmdReceived(),
 			nodeAttrs.get().getOnCutAndPasteCmdReceived(),
-			nodeAttrs.get().getOnImitDeletionOrdered());
+			nodeAttrs.get().getOnImitDeletionOrdered(),
+			nodeAttrs.get().getScopeChecker());
 		if (!allScriptsFound)
 			return Optional.empty();
 
@@ -255,10 +256,11 @@ public class NodeConstructor {
 			nodeAttrs.get().getOnMovedFromChildToWS(),
 			nodeAttrs.get().getOnMovedToChild(),
 			nodeAttrs.get().getOnTextAcceptabilityChecked(),
-			nodeAttrs.get().getTextFormatter(),
 			nodeAttrs.get().getOnDeletionCmdReceived(),
 			nodeAttrs.get().getOnCutAndPasteCmdReceived(),
-			nodeAttrs.get().getOnImitDeletionOrdered());
+			nodeAttrs.get().getOnImitDeletionOrdered(),
+			nodeAttrs.get().getTextFormatter(),
+			nodeAttrs.get().getScopeChecker());
 		if (!allScriptsFound) {
 			return Optional.empty();
 		}

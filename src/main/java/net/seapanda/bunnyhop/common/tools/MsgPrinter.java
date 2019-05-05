@@ -137,10 +137,10 @@ public class MsgPrinter {
 	/**
 	 * アラーウィンドウでメッセージを出力する
 	 * @param type アラートの種類
-	 * @param title アラートウィンドウのタイトル
-	 * @param header アラートウィンドウのヘッダ
-	 * @param content アラートウィンドウの本文
-	 * @param buttonTypes 表示するボタン
+	 * @param title アラートウィンドウのタイトル (null可)
+	 * @param header アラートウィンドウのヘッダ (null可)
+	 * @param content アラートウィンドウの本文 (null可)
+	 * @param buttonTypes 表示するボタン (null可)
 	 * @return メッセージに対して選択されたボタン
 	 */
 	public Optional<ButtonType> alert(

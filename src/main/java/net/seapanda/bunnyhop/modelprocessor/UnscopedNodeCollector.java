@@ -49,11 +49,10 @@ public class UnscopedNodeCollector implements BhModelProcessor {
 	public void visit(ConnectiveNode node) {
 
 		node.introduceSectionsTo(this);
-		node.getImitationInfo().getImitationList().forEach(
-			imitNode -> {
-				if (imitNode.isUnscoped())
-					unscopedNodeList.add(imitNode);
-		});
+		for (Imitatable imitNode : node.getImitationInfo().getImitationList()) {
+			if (imitNode.isUnscoped())
+				unscopedNodeList.add(imitNode);
+		}
 
 		if (node.isUnscoped())
 			unscopedNodeList.add(node);
@@ -62,11 +61,10 @@ public class UnscopedNodeCollector implements BhModelProcessor {
 	@Override
 	public void visit(TextNode node) {
 
-		node.getImitationInfo().getImitationList().forEach(
-			imitNode -> {
-				if (imitNode.isUnscoped())
-					unscopedNodeList.add(imitNode);
-		});
+		for (Imitatable imitNode : node.getImitationInfo().getImitationList()) {
+			if (imitNode.isUnscoped())
+				unscopedNodeList.add(imitNode);
+		}
 
 		if (node.isUnscoped())
 			unscopedNodeList.add(node);

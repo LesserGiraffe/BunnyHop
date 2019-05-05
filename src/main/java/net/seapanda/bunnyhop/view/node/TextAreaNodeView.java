@@ -70,7 +70,7 @@ public class TextAreaNodeView  extends TextInputNodeView implements ImitationCre
 			Optional<Button> btnOpt = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
 			success &= btnOpt.isPresent();
 			imitCreateImitBtn = btnOpt.orElse(new Button());
-			getChildren().add(imitCreateImitBtn);
+			getTreeManager().addChild(imitCreateImitBtn);
 		}
 
 		initStyle(viewStyle);

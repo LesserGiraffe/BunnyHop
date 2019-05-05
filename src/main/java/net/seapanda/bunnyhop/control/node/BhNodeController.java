@@ -27,14 +27,13 @@ import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
-import net.seapanda.bunnyhop.modelprocessor.UnscopedNodeCollector;
+import net.seapanda.bunnyhop.modelhandler.UnscopedNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.TrashboxService;
@@ -49,6 +48,7 @@ public class BhNodeController implements MsgProcessor {
 	private final BhNode model;
 	private final BhNodeView view;
 	private final DragAndDropEventInfo ddInfo = this.new DragAndDropEventInfo();
+	private final MsgProcessor msgProcessor = this.new MsgProcessor();
 
 	/**
 	 * コンストラクタ
@@ -165,6 +165,8 @@ public class BhNodeController implements MsgProcessor {
 
 			deleteUnnecessaryNodes(mouseEvent);
 			BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
+			UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(ddInfo.userOpeCmd);
+			UnscopedNodeManager.INSTANCE.unmanageScopedNodes(ddInfo.userOpeCmd);
 			ddInfo.reset();
 			view.setMouseTransparent(false);	// 処理が終わったので、元に戻しておく。
 			TrashboxService.INSTANCE.openCloseTrashbox(false);
@@ -212,9 +214,6 @@ public class BhNodeController implements MsgProcessor {
 		// 子ノード入れ替え時のスクリプト実行
 		parentNode.execScriptOnChildReplaced(oldChildNode, model, parentCnctr, ddInfo.userOpeCmd);
 
-		deleteUnscopedNodes(model);
-		deleteUnscopedNodes(ddInfo.currentOverlapped);
-
 		//VoidNodeは消す
 		if (oldChildNode instanceof VoidNode &&
 			oldChildNode.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS)
@@ -236,7 +235,6 @@ public class BhNodeController implements MsgProcessor {
 			true,
 			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
 		view.getAppearanceManager().updateAppearance(null);
-		deleteUnscopedNodes(model);
 	}
 
 	/**
@@ -247,25 +245,6 @@ public class BhNodeController implements MsgProcessor {
 		if (ddInfo.dragging && (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS))
 			ddInfo.userOpeCmd.pushCmdOfSetPosOnWorkspace(ddInfo.posOnWorkspace.x, ddInfo.posOnWorkspace.y, model);
 		view.getAppearanceManager().updateAppearance(null);
-	}
-
-	/**
-	 * スコープ外のノードを削除する
-	 * @param topNode このノード以下のスコープ外のノードを削除する. null OK.
-	 */
-	private void deleteUnscopedNodes(BhNode topNode) {
-
-		if (topNode == null)
-			return;
-
-		List<Imitatable> unscopedNodes = UnscopedNodeCollector.collect(topNode);
-		unscopedNodes.forEach(imit -> imit.execScriptOnImitDeletionOrdered(ddInfo.userOpeCmd));
-		BhNodeHandler.INSTANCE.deleteNodes(unscopedNodes, ddInfo.userOpeCmd)
-		.forEach(oldAndNewNode -> {
-			BhNode oldNode = oldAndNewNode._1;
-			BhNode newNode = oldAndNewNode._2;
-			newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), ddInfo.userOpeCmd);
-		});
 	}
 
 	/**
@@ -342,19 +321,6 @@ public class BhNodeController implements MsgProcessor {
 	}
 
 	/**
-	 * ワークスペース上での位置を設定する.
-	 * @param posOnWs 設定するワークスペース上での位置
-	 * */
-	private void setPosOnWorkspace(Vec2D posOnWs) {
-
-		view.getPositionManager().setRelativePosFromParent(posOnWs.x, posOnWs.y);
-		Vec2D pos = view.getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
-		view.getPositionManager().updateAbsPos(pos.x, pos.y);
-		if (model.getWorkspace() != null)
-			MsgService.INSTANCE.updateMultiNodeShifter(model, model.getWorkspace());
-	}
-
-	/**
 	 * ワークスペース上でノードを動かす
 	 * @param distanceX x移動量
 	 * @param distanceY y移動量
@@ -367,84 +333,9 @@ public class BhNodeController implements MsgProcessor {
 			MsgService.INSTANCE.updateMultiNodeShifter(model, model.getWorkspace());
 	}
 
-	/**
-	 * 受信したメッセージを処理する
-	 * @param msg メッセージの種類
-	 * @param data メッセージの種類に応じて処理するデータ
-	 * @return メッセージを処理した結果返すデータ
-	 * */
 	@Override
 	public MsgData processMsg(BhMsg msg, MsgData data) {
-
-		Vec2D pos;
-
-		switch (msg) {
-
-			case ADD_ROOT_NODE: // model がWorkSpace のルートノードとして登録された
-				return  new MsgData(model, view);
-
-			case REMOVE_ROOT_NODE:
-				return  new MsgData(model, view, data.bool);
-
-			case ADD_QT_RECTANGLE:
-				return new MsgData(view);
-
-			case REMOVE_QT_RECTANGLE:
-				view.getRegionManager().removeQtRectable();
-				break;
-
-			case GET_POS_ON_WORKSPACE:
-				pos = view.getPositionManager().getPosOnWorkspace();
-				return new MsgData(pos);
-
-			case SET_POS_ON_WORKSPACE:
-				setPosOnWorkspace(data.vec2d);
-				break;
-
-			case MOVE_NODE_ON_WORKSPACE:
-				moveNodeOnWorkspace(data.vec2d.x, data.vec2d.y);
-				break;
-
-			case GET_VIEW_SIZE_INCLUDING_OUTER:
-				Vec2D size = view.getRegionManager().getNodeSizeIncludingOuter(data.bool);
-				return new MsgData(size);
-
-			case UPDATE_ABS_POS:
-				pos = view.getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
-				view.getPositionManager().updateAbsPos(pos.x, pos.y);
-				break;
-
-			case REPLACE_NODE_VIEW:	//このコントローラの管理するノードビューを引数のノードビューと入れ替える (古いノードのGUIツリーからの削除は行わない)
-				BhNodeView newView = data.nodeView;
-				view.getTreeManager().replace(newView);	//新しいノードビューに入れ替え
-				newView.getAppearanceManager().updateAppearance(null);
-				break;
-
-			case SWITCH_PSEUDO_CLASS_ACTIVATION:
-				view.getAppearanceManager().switchPseudoClassActivation(data.bool, data.text);
-				break;
-
-			case GET_VIEW:
-				return new MsgData(view);
-
-			case SET_USER_OPE_CMD:
-				ddInfo.userOpeCmd = data.userOpeCmd;
-				break;
-
-			case REMOVE_FROM_GUI_TREE:
-				view.getTreeManager().removeFromGUITree();
-				break;
-
-			case SET_VISIBLE:
-				view.getAppearanceManager().setVisible(data.bool);
-				data.userOpeCmd.pushCmdOfSetVisible(view, data.bool);
-				break;
-
-			default:
-				throw new AssertionError("receive an unknown msg " + msg);
-		}
-
-		return null;
+		return msgProcessor.processMsg(msg, data);
 	}
 
 	/**
@@ -472,6 +363,114 @@ public class BhNodeController implements MsgProcessor {
 			latestParent = null;
 			latestRoot = null;
 			userOpeCmd = null;
+		}
+	}
+
+	/**
+	 * BhNode 宛てに送られたメッセージを処理するクラス.
+	 * */
+	private class MsgProcessor {
+
+		/**
+		 * 受信したメッセージを処理する
+		 * @param msg メッセージの種類
+		 * @param data メッセージの種類に応じて処理するデータ
+		 * @return メッセージを処理した結果返すデータ
+		 * */
+		public MsgData processMsg(BhMsg msg, MsgData data) {
+
+			switch (msg) {
+
+				case ADD_ROOT_NODE: // model がWorkSpace のルートノードとして登録された
+					return  new MsgData(model, view);
+
+				case REMOVE_ROOT_NODE:
+					return  new MsgData(model, view, data.bool);
+
+				case ADD_QT_RECTANGLE:
+					return new MsgData(view);
+
+				case REMOVE_QT_RECTANGLE:
+					view.getRegionManager().removeQtRectable();
+					break;
+
+				case GET_POS_ON_WORKSPACE:
+					var pos = view.getPositionManager().getPosOnWorkspace();
+					return new MsgData(pos);
+
+				case SET_POS_ON_WORKSPACE:
+					setPosOnWorkspace(data.vec2d);
+					break;
+
+				case MOVE_NODE_ON_WORKSPACE:
+					moveNodeOnWorkspace(data.vec2d.x, data.vec2d.y);
+					break;
+
+				case GET_VIEW_SIZE_INCLUDING_OUTER:
+					Vec2D size = view.getRegionManager().getNodeSizeIncludingOuter(data.bool);
+					return new MsgData(size);
+
+				case UPDATE_ABS_POS:
+					Vec2D posOnWs = view.getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
+					view.getPositionManager().updateAbsPos(posOnWs.x, posOnWs.y);
+					break;
+
+				case REPLACE_NODE_VIEW:
+					replaceNodeView(data.nodeView);
+					break;
+
+				case SWITCH_PSEUDO_CLASS_ACTIVATION:
+					view.getAppearanceManager().switchPseudoClassActivation(data.bool, data.text);
+					break;
+
+				case GET_VIEW:
+					return new MsgData(view);
+
+				case SET_USER_OPE_CMD:
+					ddInfo.userOpeCmd = data.userOpeCmd;
+					break;
+
+				case REMOVE_FROM_GUI_TREE:
+					view.getTreeManager().removeFromGUITree();
+					break;
+
+				case SET_VISIBLE:
+					view.getAppearanceManager().setVisible(data.bool);
+					data.userOpeCmd.pushCmdOfSetVisible(view, data.bool);
+					break;
+
+				case SET_UNSCOPED_NODE_WARNING:
+					data.userOpeCmd.pushCmdOfSetUnscoped(view, data.bool, view.getAppearanceManager().getUnscoped());
+					view.getAppearanceManager().setUnscoped(data.bool);
+					break;
+
+				default:
+					throw new AssertionError("receive an unknown msg " + msg);
+			}
+
+			return null;
+		}
+
+		/**
+		 * ワークスペース上での位置を設定する.
+		 * @param posOnWs 設定するワークスペース上での位置
+		 * */
+		private void setPosOnWorkspace(Vec2D posOnWs) {
+
+			view.getPositionManager().setRelativePosFromParent(posOnWs.x, posOnWs.y);
+			Vec2D pos = view.getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
+			view.getPositionManager().updateAbsPos(pos.x, pos.y);
+			if (model.getWorkspace() != null)
+				MsgService.INSTANCE.updateMultiNodeShifter(model, model.getWorkspace());
+		}
+
+		/**
+		 * このコントローラの管理するノードビューを引数のノードビューと入れ替える.<br>
+		 * 古いノードのGUIツリーからの削除は行わない.
+		 * */
+		private void replaceNodeView(BhNodeView newNodeView) {
+			view.getTreeManager().replace(newNodeView);	//新しいノードビューに入れ替え
+			newNodeView.getAppearanceManager().updateAppearance(null);
 		}
 	}
 }

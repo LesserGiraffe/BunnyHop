@@ -24,7 +24,6 @@ import net.seapanda.bunnyhop.common.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -36,11 +35,13 @@ public abstract class Imitatable extends BhNode {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	/** オリジナルノードとのつながりが切れた際のイミテーションノードの削除直前に呼ばれるスクリプトの名前 */
-	private final String scriptNameOnImitDeletionOrdered;
+	private final String scriptNameOnImitDeletionOrdered; //!<
+	private final String scriptNameOfScopeChecker; //!< イミテーションノードがスコープ内かどうかをチェックするスクリプトの名前
 
 	public Imitatable(String type, BhNodeAttributes attributes) {
 		super(type, attributes);
 		scriptNameOnImitDeletionOrdered = attributes.getOnImitDeletionOrdered();
+		scriptNameOfScopeChecker = attributes.getScopeChecker();
 	}
 
 	/**
@@ -50,6 +51,7 @@ public abstract class Imitatable extends BhNode {
 	public Imitatable(Imitatable org) {
 		super(org);
 		scriptNameOnImitDeletionOrdered = org.scriptNameOnImitDeletionOrdered;
+		scriptNameOfScopeChecker = org.scriptNameOfScopeChecker;
 	}
 
 	/**
@@ -96,24 +98,28 @@ public abstract class Imitatable extends BhNode {
 	}
 
 	/**
-	 * オリジナルノードと同じスコープにいるかチェックする
-	 * @return スコープが定義してあるノードでかつ, オリジナルノードと同じスコープに居ないイミテーションノードである場合trueを返す
+	 * オリジナルノードと同じスコープにいるかチェックする. <br>
+	 * スコープが無いノードの場合 -> スコープ内 <br>
+	 * スコープがあるときこのノードが, <br>
+	 * &nbsp;&nbsp; ROOT_DANGLING -> スコープ外 <br>
+	 * &nbsp;&nbsp; ROOT_DIRECTLY_UNDER_WS -> オリジナルノードも ROOT_DIRECTLY_UNDER_WS ならスコープ内 <br>
+	 * &nbsp;&nbsp; CHILD -> オリジナルノードと同じ同じスコープにいればスコープ内 <br>
+	 * &nbsp;&nbsp; DELETED -> スコープ内
+	 *
+	 * @return スコープ外なら true. スコープ内なら false.
 	 */
 	public boolean isUnscoped() {
 
-		if (getState() == BhNode.State.DELETED)
+		if (!isImitationNode() || !hasScope())
+			return false;
+
+		if (getState() == BhNode.State.ROOT_DANGLING)
 			return true;
 
-		if (!isImitationNode() ||
-			getImitationInfo().scopeName.isEmpty() ||
-			getState() != BhNode.State.CHILD)	//トップノードはスコープ判定対象外
+		if (getState() == BhNode.State.DELETED)
 			return false;
 
-		SyntaxSymbol scope = getOriginalNode().findSymbolInAncestors(getImitationInfo().scopeName, 1, true);
-		if (scope == null)	// スコープが見つからない場合, 可視範囲制限は無いものとする. => global scope
-			return false;
-
-		return !this.isDescendantOf(scope);
+		return !isScoped();
 	}
 
 	/**
@@ -149,26 +155,6 @@ public abstract class Imitatable extends BhNode {
 		if (node.isDescendantOf(this) || this.isDescendantOf(node))	//同じtree に含まれている場合置き換え不可
 			return false;
 
-		do {
-			if (!(node instanceof Imitatable))
-				break;
-
-			Imitatable imitNode = (Imitatable)node;
-			if (!imitNode.isImitationNode())
-				break;
-
-			if (imitNode.getImitationInfo().scopeName.isEmpty())
-				break;
-
-			SyntaxSymbol scope = imitNode.getOriginalNode().findSymbolInAncestors(imitNode.getImitationInfo().scopeName, 1, true);
-			if (scope == null)	//可視範囲制限なし
-				break;
-
-			if (!this.isDescendantOf(scope))
-				return false;
-		}
-		while(false);
-
 		return parentConnector.isConnectedNodeReplaceableWith(node);
 	}
 
@@ -192,4 +178,42 @@ public abstract class Imitatable extends BhNode {
 				e.toString() + "\n");
 		}
 	}
+
+	/**
+	 * このノードがスコープ内ノードかどうか調べる.
+	 * @return スコープ内ノードである場合 true.
+	 * */
+	private boolean isScoped() {
+
+		Script scopeChecker = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOfScopeChecker);
+		if (scopeChecker == null) {
+			if (hasScope()) {
+				throw new AssertionError(this.getClass().getSimpleName() + ".isInScope  (scope check script not found)");
+			}
+			else {
+				return true;
+			}
+		}
+
+		Object isInScope = null;
+		try {
+			isInScope = ContextFactory.getGlobal().call(cx -> scopeChecker.exec(cx, scriptScope));
+		}
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				Imitatable.class.getSimpleName() + ".isInScope   " + scriptNameOfScopeChecker + "\n" +
+				e.toString() + "\n");
+		}
+
+		if (isInScope instanceof Boolean)
+			return (Boolean)isInScope;
+
+		throw new AssertionError(this.getClass().getSimpleName() + ".isInScope  (Scope checker must return a boolean value.)");
+	}
+
+	private boolean hasScope() {
+		return !scriptNameOfScopeChecker.isEmpty();
+	}
 }
+
+

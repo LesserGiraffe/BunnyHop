@@ -69,8 +69,7 @@ public class TextNode  extends Imitatable implements Serializable {
 		super(type, attributes);
 		scriptNameOnTextAcceptabilityChecked = attributes.getOnTextAcceptabilityChecked();
 		scriptNameOfTextFormatter = attributes.getTextFormatter();
-		imitInfo = new ImitationInfo<>(
-			imitID_imitNodeID, attributes.getCanCreateImitManually(), attributes.getImitScopeName());
+		imitInfo = new ImitationInfo<>(imitID_imitNodeID, attributes.getCanCreateImitManually());
 		text = attributes.getIinitString();
 	}
 
@@ -204,7 +203,6 @@ public class TextNode  extends Imitatable implements Serializable {
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<TextNode" + "string=" + text + "  bhID=" + getID() + "  parent="+ parentHash + "> " + this.hashCode());
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "ws " + workspace + "> ");
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "scopeName " + imitInfo.scopeName + "> ");
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
 		imitInfo.getImitationList().forEach(imit -> {
 			MsgPrinter.INSTANCE.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());

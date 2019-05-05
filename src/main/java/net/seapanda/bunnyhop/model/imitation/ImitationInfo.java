@@ -33,10 +33,9 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	public final boolean canCreateImitManually;	//!< このオブジェクトを持つノードがイミテーションノードの手動作成機能を持つ場合 true
-	private final List<T> imitNodeList;					//!< このオブジェクトを持つノードから作成されたイミテーションノードの集合
-	private T orgNode;									//!< このオブジェクトを持つノードがイミテーションノードの場合、そのオリジナルノードを保持する
+	private final List<T> imitNodeList;	//!< このオブジェクトを持つノードから作成されたイミテーションノードの集合
+	private T orgNode;	//!< このオブジェクトを持つノードがイミテーションノードの場合、そのオリジナルノードを保持する
 	private final Map<ImitationID, BhNodeID> imitID_imitNodeID;	//!< イミテーションタグとそれに対応するイミテーションノードIDのマップ
-	public final String scopeName;	//!< オリジナルノードと同じスコープにいるかチェックする際の名前
 
 	/**
 	 * コンストラクタ
@@ -46,13 +45,12 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 	 **/
 	public ImitationInfo(
 		Map<ImitationID, BhNodeID> imitID_imitNodeID,
-		boolean canCreateImitManually,
-		String scopeName) {
+		boolean canCreateImitManually) {
+
 		this.imitID_imitNodeID = imitID_imitNodeID;
 		imitNodeList = new ArrayList<>();
 		orgNode = null;
 		this.canCreateImitManually = canCreateImitManually;
-		this.scopeName = scopeName;
 	}
 
 	/**
@@ -62,11 +60,11 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 	 * @param owner このオブジェクトを持つノード
 	 **/
 	public ImitationInfo(ImitationInfo<T> org, UserOperationCommand userOpeCmd, T owner) {
+
 		imitID_imitNodeID = org.imitID_imitNodeID;
 		canCreateImitManually = org.canCreateImitManually;
 		imitNodeList = new ArrayList<>();	//元ノードをコピーしても、イミテーションノードとのつながりは無いようにする
 		orgNode = null;
-		scopeName = org.scopeName;
 		if (org.isImitationNode()) {
 			//イミテーションをコピーした場合, コピー元と同じオリジナルノードのイミテーションノードとする
 			T original = org.getOriginal();
@@ -175,12 +173,6 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 						newNode,
 						newNode.getParentConnector(),
 						userOpeCmd));
-				// 削除したイミテーションノードをもとに, スコープ外ノードを集めて消す必要はない.
-				// なぜなら, そのイミテーションが別のオリジナルノードを子孫ノードとして持っていたとしても,
-				// 上の BhNodeHandler.INSTANCE.deleteNode(...) の先で, オリジナルが消えたことによるイミテーションの削除が行われるから.
-				// つまり, 子孫ノードであるオリジナルノードのスコープ外イミテーションノードは, イミテーション削除の処理により消える.
-				// 加えて, スコープ外ノードを集めて消して, 消したノードの親に対して execScriptOnChildReplaced(...) を呼ぶと,
-				// イミテーション削除時にも呼んでいるので, 重複して execScriptOnChildReplaced(...) を呼び出してしまう.
 			}
 		}
 	}

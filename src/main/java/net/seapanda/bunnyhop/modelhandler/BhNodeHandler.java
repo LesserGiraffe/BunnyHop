@@ -63,6 +63,8 @@ public class BhNodeHandler {
 		userOpeCmd.pushCmdOfAddRootNode(node, ws);
 		userOpeCmd.pushCmdOfAddQtRectangle(node, ws);
 		userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
+		UnscopedNodeManager.INSTANCE.collect(node, userOpeCmd);
+		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
 	}
 
 	/**
@@ -74,8 +76,6 @@ public class BhNodeHandler {
 	public Optional<BhNode> deleteNode(BhNode node, UserOperationCommand userOpeCmd) {
 
 		Optional<BhNode> newNode = Optional.empty();
-		//BhNode rootNode = node.findRootNode(); -> 削除対象のノードのルートが遅延削除候補かを見ていた.
-		//カット時のスコープ外ノードの削除に失敗する場合があるため, 削除対象が遅延削除候補かどうかを見る様に修正.
 		if (DelayedDeleter.INSTANCE.containsInCandidateList(node)) {
 			DelayedDeleter.INSTANCE.deleteCandidate(node, userOpeCmd);
 			return newNode;
@@ -237,6 +237,8 @@ public class BhNodeHandler {
 		MsgService.INSTANCE.setPosOnWS(node, x, y);	//ワークスペース内での位置登録
 		userOpeCmd.pushCmdOfAddRootNode(node, ws);
 		userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
+		UnscopedNodeManager.INSTANCE.collect(node, userOpeCmd);
+		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
 	}
 
 	/**
@@ -251,6 +253,8 @@ public class BhNodeHandler {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_ROOT_NODE, new MsgData(false), node, ws);
 		userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
 		userOpeCmd.pushCmdOfRemoveRootNode(node, ws);
+		UnscopedNodeManager.INSTANCE.collect(node, userOpeCmd);
+		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
 	}
 
 	/**
@@ -271,6 +275,8 @@ public class BhNodeHandler {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), childToRemove);	//ここで4分木空間上での位置も更新される
 		userOpeCmd.pushCmdOfAddQtRectangle(newNode, ws);
 		userOpeCmd.pushCmdOfReplaceNodeView(childToRemove, newNode);
+		UnscopedNodeManager.INSTANCE.collect(childToRemove, userOpeCmd);
+		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
 		return newNode;
 	}
 
@@ -293,6 +299,9 @@ public class BhNodeHandler {
 		userOpeCmd.pushCmdOfReplaceNodeView(oldChildNode, newNode);
 
 		oldChildNode.replacedWith(newNode, userOpeCmd);	//イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
+		UnscopedNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);
+		UnscopedNodeManager.INSTANCE.collect(newNode, userOpeCmd);
+		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
 	}
 
 	/**
@@ -313,6 +322,9 @@ public class BhNodeHandler {
 		userOpeCmd.pushCmdOfReplaceNodeView(oldChildNode, newNode);
 
 		oldChildNode.replacedWith(newNode, userOpeCmd);	//イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
+		UnscopedNodeManager.INSTANCE.collect(newNode, userOpeCmd);
+		UnscopedNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);
+		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
 	}
 
 	/**

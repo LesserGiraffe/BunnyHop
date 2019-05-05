@@ -112,6 +112,7 @@ public class BhParams {
 		public static final String ATTR_NAME_ON_CUT_AND_PASTE_CMD_RECEIVED = "onCutAndPasteCmdReceived";
 		public static final String ATTR_NAME_ON_REPLACEABILITY_CHECKED = "onReplaceabilityChecked";
 		public static final String ATTR_NAME_ON_IMIT_DELETION_ORDERED = "onImitDeletionOrdered";
+		public static final String ATTR_NAME_ON_SCOPE_CHEKER = "scopeChecker";
 		public static final String ATTR_NAME_IMITATION_NODE_ID = "imitationNodeID";
 		public static final String ATTR_NAME_CAN_CREATE_IMIT_MANUALLY = "canCreateImitManually";
 		public static final String ATTR_NAME_NODE_INPUT_CONTROL = "nodeInputControl";
@@ -251,7 +252,7 @@ public class BhParams {
 		public static final String CLASS_NO_CONTENT_NODE = "labelNode";
 		public static final String CLASS_CONNECTIVE_NODE = "ConnectiveNode";
 		public static final String CLASS_SUFFIX_PANE = "-Pane";
-		public static final String CLASS_SUFFIX_UNSCOPED = "Unscoped";
+		public static final String CLASS_SUFFIX_UNSCOPED = "-Unscoped";
 		public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
 	}
 

@@ -54,8 +54,8 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 		initialize();
 		innerGroup.buildSubGroup(viewStyle.connective.inner);
 		outerGroup.buildSubGroup(viewStyle.connective.outer);
-		getChildren().add(innerGroup);
-		getChildren().add(outerGroup);
+		getTreeManager().addChild(innerGroup);
+		getTreeManager().addChild(outerGroup);
 		setFuncs(this::rearrangeChildNodes, this::updateAbsPos);
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_CONNECTIVE_NODE);
 
@@ -64,7 +64,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 			Optional<Button> btnOpt = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
 			success &= btnOpt.isPresent();
 			imitCreateBtn = btnOpt.orElse(new Button());
-			getChildren().add(imitCreateBtn);
+			getTreeManager().addChild(imitCreateBtn);
 		}
 		return success;
 	}

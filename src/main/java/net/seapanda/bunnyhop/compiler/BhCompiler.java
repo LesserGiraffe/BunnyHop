@@ -99,22 +99,22 @@ public class BhCompiler {
 	/**
 	 * ワークスペース中のノードをコンパイルし, 作成されたファイルのパスを返す
 	 * @param execNode 実行するノード
-	 * @param compiledNodeList コンパイル対象のノードリスト (execNodeは含まない)
+	 * @param nodesToCompile コンパイル対象のノードリスト (execNodeは含まない)
 	 * @param option コンパイルオプション
 	 * @return コンパイルした結果作成されたファイルのパス(コンパイルできた場合). <br>
 	 *          コンパイルできなかった場合はOptional.empty
 	 */
 	public Optional<Path> compile(
 		BhNode execNode,
-		List<BhNode> compiledNodeList,
+		List<BhNode> nodesToCompile,
 		CompileOption option) {
 
 		if (!isExecutable(execNode))
 			return Optional.empty();
 
-		Preprocessor.process(new ArrayList<BhNode>(compiledNodeList) {{add(execNode);}});
+		Preprocessor.process(new ArrayList<BhNode>(nodesToCompile) {{add(execNode);}});
 		StringBuilder code = new StringBuilder();
-		genCode(code, execNode, compiledNodeList, option);
+		genCode(code, execNode, nodesToCompile, option);
 
 		Util.INSTANCE.createDirectoryIfNotExists(Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.COMPILED_DIR));
 		Path appFilePath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.COMPILED_DIR, BhParams.Path.APP_FILE_NAME_JS);
