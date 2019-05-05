@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * */
 public class Subsection extends Section {
 
-	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	List<Section> subsectionList = new ArrayList<>();	//!< サブグループリスト
 
 	/**

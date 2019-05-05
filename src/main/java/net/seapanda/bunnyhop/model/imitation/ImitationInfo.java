@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.VersionInfo;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -31,7 +31,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  */
 public class ImitationInfo<T extends Imitatable> implements Serializable {
 
-	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	public final boolean canCreateImitManually;	//!< このオブジェクトを持つノードがイミテーションノードの手動作成機能を持つ場合 true
 	private final List<T> imitNodeList;					//!< このオブジェクトを持つノードから作成されたイミテーションノードの集合
 	private T orgNode;									//!< このオブジェクトを持つノードがイミテーションノードの場合、そのオリジナルノードを保持する

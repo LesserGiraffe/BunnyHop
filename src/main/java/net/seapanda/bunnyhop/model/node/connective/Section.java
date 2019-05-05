@@ -17,7 +17,7 @@ package net.seapanda.bunnyhop.model.node.connective;
 
 import java.util.function.Predicate;
 
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
@@ -29,7 +29,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  */
 public abstract class Section extends SyntaxSymbol {
 
-	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	//どちらか一方のみのフィールドが親オブジェクトを持つ
 	protected ConnectiveNode parentNode;	//!< このセクションを保持している ConnectiveNode オブジェクト
 	protected Subsection parentSection;	//!< このセクションを保持している Subsection オブジェクト

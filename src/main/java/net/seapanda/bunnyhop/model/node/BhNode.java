@@ -23,6 +23,7 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
 import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
@@ -49,7 +50,7 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
  */
 public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow {
 
-	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	private final BhNodeID bhID; //!< ノードID (\<Node\> タグの bhID)
 	protected Connector parentConnector;	//!< このノードを繋いでいるコネクタ
 	protected Workspace workspace;	//!< このノードがあるWorkSpace.

@@ -25,7 +25,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.MsgService;
@@ -245,7 +245,7 @@ public class MenuBarController {
 	 */
 	private void setAboutBunnyHopHandler() {
 		aboutBunnyHop.setOnAction(action -> {
-			String content = "Version: " + BhParams.APP_VERSION;
+			String content = "Version: " + VersionInfo.APP_VERSION;
 			MsgPrinter.INSTANCE.alert(
 				Alert.AlertType.INFORMATION,
 				"BunnyHopについて",

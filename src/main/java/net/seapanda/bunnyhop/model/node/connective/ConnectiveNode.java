@@ -24,6 +24,7 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
 import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
@@ -44,7 +45,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * */
 public class ConnectiveNode extends Imitatable {
 
-	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	private Section childSection;							//!< セクションの集合 (ノード内部に描画されるもの)
 	private ImitationInfo<ConnectiveNode> imitInfo;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
 	private final String scriptNameOnChildReplaced;	//!< 子ノード入れ替え維持に実行されるスクリプト

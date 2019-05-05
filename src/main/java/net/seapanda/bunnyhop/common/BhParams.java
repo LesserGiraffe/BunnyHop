@@ -21,10 +21,7 @@ package net.seapanda.bunnyhop.common;
  */
 public class BhParams {
 
-	public static final String APPLICATION_NAME = "BunnyHop";
-	public static final String APP_VERSION = "1.0.2.0";
-	public static final long SERIAL_VERSION_UID = 1020L;
-	public static final int NUM_TIMES_MAX_UNDO = 128;	//!< undo 可能な最大回数
+	public static final String APPLICATION_NAME = "BunnyHop";	public static final int NUM_TIMES_MAX_UNDO = 128;	//!< undo 可能な最大回数
 	public static final  int EXECUTOR_SHUTDOWN_TIMEOUT = 5;	//!< ExecutorService のシャットダウンを待つ時間 (sec)
 
 	/**
@@ -254,6 +251,7 @@ public class BhParams {
 		public static final String CLASS_NO_CONTENT_NODE = "labelNode";
 		public static final String CLASS_CONNECTIVE_NODE = "ConnectiveNode";
 		public static final String CLASS_SUFFIX_PANE = "-Pane";
+		public static final String CLASS_SUFFIX_UNSCOPED = "Unscoped";
 		public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
 	}
 

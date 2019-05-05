@@ -23,8 +23,8 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Showable;
+import net.seapanda.bunnyhop.common.VersionInfo;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 
 /**
@@ -33,7 +33,7 @@ import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
  * */
 public abstract class SyntaxSymbol implements Showable, Serializable {
 
-	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	private String symbolName;	//!< 終端, 非終端記号名
 	private transient SyntaxSymbolID symbolID = SyntaxSymbolID.newID();	//!< コンパイル対象のSyntaxSymbolオブジェクトが持つユニークなID
 

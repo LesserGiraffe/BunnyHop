@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.model.imitation;
 import java.io.Serializable;
 import java.util.Objects;
 
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.VersionInfo;
 
 /**
  * イミテーションの接続先の識別子
@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.common.BhParams;
  */
 public class ImitationConnectionPos implements Serializable {
 
-	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	public static final ImitationConnectionPos NONE = new ImitationConnectionPos("");	//!< イミテーション接続位置が存在しないことを表す
 	private final String pos;
 

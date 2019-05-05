@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
@@ -33,7 +34,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * */
 public class VoidNode extends BhNode implements Serializable {
 
-	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 
 	/**
 	 * コンストラクタ

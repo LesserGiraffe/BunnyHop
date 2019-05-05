@@ -22,7 +22,7 @@ import java.io.Serializable;
  */
 public class Vec2D implements Serializable {
 
-	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	public double x;
 	public double y;
 

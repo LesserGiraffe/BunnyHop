@@ -20,15 +20,13 @@ import java.io.Serializable;
 import java.net.Socket;
 import java.rmi.server.RMIClientSocketFactory;
 
-import net.seapanda.bunnyhop.common.BhParams;
-
 /**
  * リモート通信用のソケットを作成するファクトリ
  * @author K.Koike
  */
 public class RemoteClientSocketFactory implements RMIClientSocketFactory, Serializable {
 
-	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 1L;
 	private int id;	//!< 同一性確認のためのID
 
 	/**

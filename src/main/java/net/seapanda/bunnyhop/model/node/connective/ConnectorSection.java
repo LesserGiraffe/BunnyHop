@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.imitation.ImitationConnectionPos;
@@ -36,7 +36,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * */
 public class ConnectorSection extends Section {
 
-	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	private final List<Connector> cnctrList; //!< コネクタリスト
 	private final List<ConnectorSection.CnctrInstantiationParams> cnctrInstantiationParamsList;	//!< コネクタ生成時のパラメータ
 
@@ -165,7 +165,7 @@ public class ConnectorSection extends Section {
 	 */
 	public static class CnctrInstantiationParams implements Serializable{
 
-		private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+		private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 		public final String cnctrName;	//!< コネクタ名
 		public final ImitationID imitationID;	//!< 作成するイミテーションの識別子
 		public final ImitationConnectionPos imitCnctPoint;	//!< イミテーション接続位置

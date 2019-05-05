@@ -21,15 +21,13 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.rmi.server.RMIClientSocketFactory;
 
-import net.seapanda.bunnyhop.common.BhParams;
-
 /**
  * ローカルのアクセスのみ許すソケットを作成するファクトリ
  * @author K.Koike
  */
 public class LocalClientSocketFactory implements RMIClientSocketFactory, Serializable {
 
-	private static final long serialVersionUID = BhParams.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 1L;
 	private int id;	//!< 同一性確認のためのID
 
 	/**
