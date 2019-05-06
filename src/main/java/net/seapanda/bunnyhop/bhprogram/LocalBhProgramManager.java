@@ -161,14 +161,14 @@ public class LocalBhProgramManager {
 	 * @return スタートしたプロセスのオブジェクト. スタートに失敗した場合null.
 	 */
 	private Process startExecEnvProcess() {
-
+		// ""でパスを囲まない
 		Process proc = null;
 		ProcessBuilder procBuilder = new ProcessBuilder(
 			Util.INSTANCE.JAVA_PATH,
 			"-cp",
-			"\"" + Paths.get(Util.INSTANCE.EXEC_PATH, "..", "lib").toString() + Util.INSTANCE.FS  + "*" +
+			Paths.get(Util.INSTANCE.EXEC_PATH, "..", "lib").toString() + Util.INSTANCE.FS  + "*" +
 			Util.INSTANCE.PS +
-			Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENV_JAR).toString() + "\"",
+			Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENV_JAR).toString(),
 			BhParams.ExternalApplication.BH_PROGRAM_EXEC_MAIN_CLASS,
 			"true");	//localFlag == true
 
