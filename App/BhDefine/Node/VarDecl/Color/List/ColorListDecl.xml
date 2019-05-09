@@ -4,8 +4,8 @@
 	canCreateImitManually="true"
 	nodeStyleID="ColorListDecl.json"
 	onMovedFromChildToWS="onVarDeclMovedToWS.js"
-	onDeletionCmdReceived="reconnectOuter.js"
-	onCutAndPasteCmdReceived="reconnectOuter.js">
+	onSelectiveDeletionRequested="reconnectOuter.js"
+	onCutRequested="reconnectOuter.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idColorList"/>
 	<Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idColorListArg"/>

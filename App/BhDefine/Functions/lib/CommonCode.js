@@ -70,6 +70,9 @@
 	
 	function _listToStr(list, listName) {
 	
+		if (list.length === 0)
+			return listName + ' = 空リスト';
+	
 		let strBuilder = new _jStringBuilder();
 		for (let i = 0; i < list.length; ++i) {
 			strBuilder

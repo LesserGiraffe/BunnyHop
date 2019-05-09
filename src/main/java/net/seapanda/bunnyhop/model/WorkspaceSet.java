@@ -217,7 +217,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 
 		// カット前スクリプト実行
 		readyToCut.stream().forEach(
-			node -> node.execScriptOnCutAndPasteCmdReceived(new ArrayList<BhNode>(readyToCut), userOpeCmd));
+			node -> node.execScriptOnCutRequested(new ArrayList<BhNode>(readyToCut), userOpeCmd));
 
 		var nodesToPaste = new ArrayList<BhNode>();
 		for (var node : readyToCut)

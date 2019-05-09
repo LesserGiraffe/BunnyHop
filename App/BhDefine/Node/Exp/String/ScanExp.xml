@@ -42,7 +42,7 @@
 			defaultBhNodeID="idScanExp.prvNode2"
 			initialBhNodeID=""
 			class="StrClass"
-			onReplaceabilityChecked="StrExpCnct.js">
+			replaceabilityChecker="StrExpCnct.js">
 
 			<Node
 				type="connective"
@@ -63,7 +63,7 @@
 							name="StrLiteral"
 							nodeStyleID="StrLiteral.json"
 							nodeInputControl="TextField.fxml"
-							onTextAcceptabilityChecked="CheckTextFormat.js"
+							textAcceptabilityChecker="CheckTextFormat.js"
 							initString="入力待ちです">
 						</Node>
 					</PrivateConnector>

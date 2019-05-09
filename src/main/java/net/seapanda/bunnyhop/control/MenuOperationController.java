@@ -196,7 +196,7 @@ public class MenuOperationController {
 
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
 			var nodesToDelete = new ArrayList<BhNode>(currentWS.getSelectedNodeList());
-			nodesToDelete.forEach(node -> node.execScriptOnDeletionCmdReceived(nodesToDelete, userOpeCmd));
+			nodesToDelete.forEach(node -> node.execScriptOnSelectiveDeletionRequested(nodesToDelete, userOpeCmd));
 			BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd)
 			.forEach(oldAndNewNode -> {
 				BhNode oldNode = oldAndNewNode._1;

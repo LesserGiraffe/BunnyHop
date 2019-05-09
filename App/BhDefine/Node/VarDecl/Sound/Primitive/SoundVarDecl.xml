@@ -4,8 +4,8 @@
 	canCreateImitManually="true"
 	nodeStyleID="SoundVarDecl.json"
 	onMovedFromChildToWS="onVarDeclMovedToWS.js"
-	onDeletionCmdReceived="reconnectOuter.js"
-	onCutAndPasteCmdReceived="reconnectOuter.js">
+	onSelectiveDeletionRequested="reconnectOuter.js"
+	onCutRequested="reconnectOuter.js">
 
     <Imitation imitationID="imitIdManual" imitationNodeID="idSoundVar"/>
     <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idSoundArg"/>

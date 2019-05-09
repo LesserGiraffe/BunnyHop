@@ -4,4 +4,4 @@
 	bhConnectorID="idStrExpCnctr"
 	defaultBhNodeID="idStrLiteralExp"
 	class="StrClass"
-	onReplaceabilityChecked="StrExpCnct.js"/>
+	replaceabilityChecker="StrExpCnct.js"/>

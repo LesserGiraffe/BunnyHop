@@ -93,14 +93,14 @@ public class ConnectorConstructor {
 		}
 
 		//ノード入れ替え時の実行スクリプト
-		String scriptNameOnReplaceabilityChecked = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_REPLACEABILITY_CHECKED);
-		if (!BhNodeTemplates.allScriptsExist(cnctrRoot.getBaseURI(), scriptNameOnReplaceabilityChecked)) {
+		String scriptNameOfReplaceabilityChecker = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_REPLACEABILITY_CHECKER);
+		if (!BhNodeTemplates.allScriptsExist(cnctrRoot.getBaseURI(), scriptNameOfReplaceabilityChecker)) {
 			return Optional.empty();
 		}
 
 		//コネクタクラス
 		String cnctrClass = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_CLASS);
 
-		return Optional.of(new Connector(cnctrID, defNodeID, initNodeID, cnctrClass, fixed, scriptNameOnReplaceabilityChecked));
+		return Optional.of(new Connector(cnctrID, defNodeID, initNodeID, cnctrClass, fixed, scriptNameOfReplaceabilityChecker));
 	}
 }

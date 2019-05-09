@@ -56,7 +56,7 @@ public class Connector extends SyntaxSymbol {
 	private boolean outer = false;	//!< 外部描画ノードを接続するコネクタの場合true
 	private ImitationID imitID;	//!< イミテーション生成時のID
 	private ImitationConnectionPos imitCnctPoint;	//!< イミテーション生成時のタグ
-	private final String scriptNameOnReplaceabilityChecked;	//!< ノードを入れ替え可能かどうかチェックするスクリプトの名前
+	private final String scriptNameOfReplaceabilityChecker;	//!< ノードを入れ替え可能かどうかチェックするスクリプトの名前
 	private final String claz;	//!< コネクタに付けられたクラス
 	transient protected ScriptableObject scriptScope;	//!< スクリプト実行時のスコープ
 
@@ -76,7 +76,7 @@ public class Connector extends SyntaxSymbol {
 	 * @param initialNodeID 最初に接続されているノードのID
 	 * @param claz コネクタに付けられたクラス
 	 * @param fixed このコネクタにつながるノードの入れ替えや取り外しができない場合true
-	 * @param scriptNameOnReplaceabilityChecked ノードを入れ替え可能かどうかチェックするスクリプトの名前
+	 * @param scriptNameOfReplaceabilityChecker ノードを入れ替え可能かどうかチェックするスクリプトの名前
 	 * */
 	public Connector(
 		ConnectorID id,
@@ -84,10 +84,10 @@ public class Connector extends SyntaxSymbol {
 		BhNodeID initialNodeID,
 		String claz,
 		boolean fixed,
-		String scriptNameOnReplaceabilityChecked) {
+		String scriptNameOfReplaceabilityChecker) {
 		super("");
 		this.id = id;
-		this.scriptNameOnReplaceabilityChecked = scriptNameOnReplaceabilityChecked;
+		this.scriptNameOfReplaceabilityChecker = scriptNameOfReplaceabilityChecker;
 		this.defaultNodeID = defaultNodeID;
 		this.initNodeID = initialNodeID;	// BhNodeID.NONE でも initNodeID = defaultNodeID としないこと
 		this.fixed = fixed;
@@ -114,7 +114,7 @@ public class Connector extends SyntaxSymbol {
 		id = org.id;
 		defaultNodeID = org.defaultNodeID;
 		initNodeID = org.initNodeID;
-		scriptNameOnReplaceabilityChecked = org.scriptNameOnReplaceabilityChecked;
+		scriptNameOfReplaceabilityChecker = org.scriptNameOfReplaceabilityChecker;
 		fixed = org.fixed;
 		this.imitID = imitID;
 		this.imitCnctPoint = imitCnctPoint;
@@ -216,19 +216,19 @@ public class Connector extends SyntaxSymbol {
 		if (fixed)
 			return false;
 
-		Script onReplaceabilityChecked = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnReplaceabilityChecked);
-		if (onReplaceabilityChecked == null)
+		Script replaceabilityChecker = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOfReplaceabilityChecker);
+		if (replaceabilityChecker == null)
 			return false;
 
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newNode);
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, connectedNode);
 		Object replaceable;
 		try {
-			replaceable = ContextFactory.getGlobal().call(cx -> onReplaceabilityChecked.exec(cx, scriptScope));
+			replaceable = ContextFactory.getGlobal().call(cx -> replaceabilityChecker.exec(cx, scriptScope));
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				Connector.class.getSimpleName() +  ".isReplacable   " + scriptNameOnReplaceabilityChecked + "\n" +
+				Connector.class.getSimpleName() +  ".isReplacable   " + scriptNameOfReplaceabilityChecker + "\n" +
 				e.toString() + "\n");
 			return false;
 		}

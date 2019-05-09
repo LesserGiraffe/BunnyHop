@@ -185,7 +185,6 @@ public class NodeConstructor {
 	 */
 	private Optional<ConnectiveNode> genConnectiveNode(Element node) {
 
-		//String onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CHILD_REPLACED);
 		Optional<BhNodeAttributes> nodeAttrs = BhNodeAttributes.readBhNodeAttriButes(node);
 		if (!nodeAttrs.isPresent()) {
 			return Optional.empty();
@@ -210,9 +209,9 @@ public class NodeConstructor {
 			nodeAttrs.get().getOnMovedFromChildToWS(),
 			nodeAttrs.get().getOnMovedToChild(),
 			nodeAttrs.get().getOnChildReplaced(),
-			nodeAttrs.get().getOnDeletionCmdReceived(),
-			nodeAttrs.get().getOnCutAndPasteCmdReceived(),
-			nodeAttrs.get().getOnImitDeletionOrdered(),
+			nodeAttrs.get().getOnSelectiveDeletionRequested(),
+			nodeAttrs.get().getOnCutRequested(),
+			nodeAttrs.get().getOnImitDeletionRequested(),
 			nodeAttrs.get().getScopeChecker());
 		if (!allScriptsFound)
 			return Optional.empty();
@@ -255,10 +254,10 @@ public class NodeConstructor {
 		boolean allScriptsFound = BhNodeTemplates.allScriptsExist(node.getBaseURI(),
 			nodeAttrs.get().getOnMovedFromChildToWS(),
 			nodeAttrs.get().getOnMovedToChild(),
-			nodeAttrs.get().getOnTextAcceptabilityChecked(),
-			nodeAttrs.get().getOnDeletionCmdReceived(),
-			nodeAttrs.get().getOnCutAndPasteCmdReceived(),
-			nodeAttrs.get().getOnImitDeletionOrdered(),
+			nodeAttrs.get().getOnTextAcceptabilityChecker(),
+			nodeAttrs.get().getOnSelectiveDeletionRequested(),
+			nodeAttrs.get().getOnCutRequested(),
+			nodeAttrs.get().getOnImitDeletionRequested(),
 			nodeAttrs.get().getTextFormatter(),
 			nodeAttrs.get().getScopeChecker());
 		if (!allScriptsFound) {

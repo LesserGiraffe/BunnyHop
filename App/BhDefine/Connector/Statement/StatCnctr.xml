@@ -3,4 +3,4 @@
 <Connector 
 	bhConnectorID="idStatCnctr"
 	defaultBhNodeID="idVoidStat"
-    onReplaceabilityChecked="StatCnct.js"/>
+    replaceabilityChecker="StatCnct.js"/>

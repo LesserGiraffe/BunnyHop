@@ -6,8 +6,8 @@
 	onMovedFromChildToWS="onStatMovedToWS.js"
 	onMovedToChild="onStatMovedToChild.js"
 	onChildReplaced="onChildOfAnyTypeNodeReplaced.js"
-	onDeletionCmdReceived="reconnectOuter.js"
-	onCutAndPasteCmdReceived="reconnectOuter.js">
+	onSelectiveDeletionRequested="reconnectOuter.js"
+	onCutRequested="reconnectOuter.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>

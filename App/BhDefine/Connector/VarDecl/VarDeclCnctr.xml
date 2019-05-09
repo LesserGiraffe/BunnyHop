@@ -3,4 +3,4 @@
 <Connector 
 	bhConnectorID="idVarDeclCnctr"
 	defaultBhNodeID="idVarDeclVoid"
-    onReplaceabilityChecked="VarDeclCnct.js"/>
+    replaceabilityChecker="VarDeclCnct.js"/>

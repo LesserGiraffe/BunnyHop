@@ -51,7 +51,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	private String text = "";	//!< このノードの管理する文字列データ
 	private final String scriptNameOfTextFormatter;	//!< テキストを整形するスクリプト
-	private final String scriptNameOnTextAcceptabilityChecked; //!< テキストが受理可能かどうか判断する際に実行されるスクリプト
+	private final String scriptNameOnTextAcceptabilityChecker; //!< テキストが受理可能かどうか判断する際に実行されるスクリプト
 	private ImitationInfo<TextNode> imitInfo;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
 
 	/**
@@ -67,7 +67,7 @@ public class TextNode  extends Imitatable implements Serializable {
 		BhNodeAttributes attributes) {
 
 		super(type, attributes);
-		scriptNameOnTextAcceptabilityChecked = attributes.getOnTextAcceptabilityChecked();
+		scriptNameOnTextAcceptabilityChecker = attributes.getOnTextAcceptabilityChecker();
 		scriptNameOfTextFormatter = attributes.getTextFormatter();
 		imitInfo = new ImitationInfo<>(imitID_imitNodeID, attributes.getCanCreateImitManually());
 		text = attributes.getIinitString();
@@ -80,7 +80,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	private TextNode(TextNode org) {
 		super(org);
 		text = org.text;
-		scriptNameOnTextAcceptabilityChecked = org.scriptNameOnTextAcceptabilityChecked;
+		scriptNameOnTextAcceptabilityChecker = org.scriptNameOnTextAcceptabilityChecker;
 		scriptNameOfTextFormatter = org.scriptNameOfTextFormatter;
 	}
 
@@ -125,7 +125,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	public boolean isTextAcceptable(String text) {
 
 		Script onTextAcceptabilityChecked =
-			BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnTextAcceptabilityChecked);
+			BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnTextAcceptabilityChecker);
 		if (onTextAcceptabilityChecked == null)
 			return true;
 
@@ -136,7 +136,7 @@ public class TextNode  extends Imitatable implements Serializable {
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				TextNode.class.getSimpleName() +  "::isTextAcceptable   " + scriptNameOnTextAcceptabilityChecked + "\n" +
+				TextNode.class.getSimpleName() +  "::isTextAcceptable   " + scriptNameOnTextAcceptabilityChecker + "\n" +
 				e.toString() + "\n");
 		}
 

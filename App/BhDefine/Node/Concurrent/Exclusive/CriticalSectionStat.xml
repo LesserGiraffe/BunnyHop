@@ -5,9 +5,9 @@
 	nodeStyleID="CriticalSectionStat.json"
 	onMovedFromChildToWS="onStatMovedToWS.js"
 	onMovedToChild="onStatMovedToChild.js"
-	onDeletionCmdReceived="reconnectOuter.js"
-	onCutAndPasteCmdReceived="reconnectOuter.js"
-	onImitDeletionOrdered="reconnectOuterForImit.js">
+	onSelectiveDeletionRequested="reconnectOuter.js"
+	onCutRequested="reconnectOuter.js"
+	onImitDeletionRequested="reconnectOuterForImit.js">
 
 	<ConnectorSection name="StatSctn">
 		

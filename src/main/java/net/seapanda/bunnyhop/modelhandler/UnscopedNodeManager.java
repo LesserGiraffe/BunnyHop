@@ -88,7 +88,7 @@ public class UnscopedNodeManager {
 			.filter(node -> (node.isUnscoped()))
 			.collect(Collectors.toCollection(ArrayList::new));
 
-		nodesToDelete.forEach(imit -> imit.execScriptOnImitDeletionOrdered(userOpeCmd));
+		nodesToDelete.forEach(imit -> imit.execScriptOnImitDeletionRequested(userOpeCmd));
 		BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd)
 		.forEach(oldAndNewNode -> {
 			BhNode oldNode = oldAndNewNode._1;

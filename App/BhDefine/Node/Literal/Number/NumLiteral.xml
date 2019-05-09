@@ -20,7 +20,7 @@
 				nodeStyleID="NumLiteral.json"
 				nodeInputControl="TextField.fxml"
 				textFormatter="FullWidthToHalfWidth.js"
-				onTextAcceptabilityChecked="CheckNumFormat.js"
+				textAcceptabilityChecker="CheckNumFormat.js"
 				onMovedFromChildToWS="onLiteralMovedToWS.js"
 			    initString="0">
 			</Node>

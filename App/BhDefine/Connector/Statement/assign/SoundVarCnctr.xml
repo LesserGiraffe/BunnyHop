@@ -3,5 +3,5 @@
 <Connector 
 	bhConnectorID="idSoundVarCnctr"
 	defaultBhNodeID="idSoundVarVoid"
-	onReplaceabilityChecked="SoundVarCnct.js"/>
+	replaceabilityChecker="SoundVarCnct.js"/>
 

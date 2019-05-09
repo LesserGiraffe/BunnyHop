@@ -18,7 +18,7 @@
 				nodeStyleID="FixedNumLiteral.json"
 				nodeInputControl="TextField.fxml"
 				textFormatter="FullWidthToHalfWidth.js"
-				onTextAcceptabilityChecked="CheckNumFormat.js"
+				textAcceptabilityChecker="CheckNumFormat.js"
 				initString="1">
 			</Node>
 		</PrivateConnector>

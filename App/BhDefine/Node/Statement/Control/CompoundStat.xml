@@ -4,8 +4,8 @@
 	nodeStyleID="CompoundStat.json"
 	onMovedFromChildToWS="onStatMovedToWS.js"
 	onMovedToChild="onStatMovedToChild.js"
-	onDeletionCmdReceived="reconnectOuter.js"
-	onCutAndPasteCmdReceived="reconnectOuter.js">
+	onSelectiveDeletionRequested="reconnectOuter.js"
+	onCutRequested="reconnectOuter.js">
 
 	<Section name="StatSctn">
 		<ConnectorSection name="VarScopeSctn">

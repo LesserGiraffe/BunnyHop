@@ -5,8 +5,8 @@
 	canCreateImitManually="true"
 	nodeStyleID="ReusableBarrierDecl.json"
 	onMovedFromChildToWS="onGlobalDataDeclMovedToWS.js"
-	onDeletionCmdReceived="reconnectOuter.js"
-	onCutAndPasteCmdReceived="reconnectOuter.js">
+	onSelectiveDeletionRequested="reconnectOuter.js"
+	onCutRequested="reconnectOuter.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idReusableBarrierVar"/>
 
@@ -57,7 +57,7 @@
 				nodeStyleID="FixedNumLiteral.json"
 				nodeInputControl="TextField.fxml"
 				textFormatter="FullWidthToHalfWidth.js"
-				onTextAcceptabilityChecked="CheckPositiveIntFormat.js"
+				textAcceptabilityChecker="CheckPositiveIntFormat.js"
 				initString="2">
 			</Node>
 		</PrivateConnector>

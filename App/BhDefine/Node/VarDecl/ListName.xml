@@ -6,7 +6,7 @@
 	name="ListName"
 	nodeStyleID="Identifier.json"
 	nodeInputControl="TextField.fxml"
-	onTextAcceptabilityChecked="CheckIdentifierFormat.js"
+	textAcceptabilityChecker="CheckIdentifierFormat.js"
 	initString="リスト名">
 	
 	<Imitation imitationID="imitIdListName" imitationNodeID="idListName"/>

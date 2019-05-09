@@ -4,4 +4,4 @@
 	bhConnectorID="idNumExpCnctr"
 	defaultBhNodeID="idNumLiteralExp"
 	class="NumClass"
-	onReplaceabilityChecked="NumExpCnct.js"/>
+	replaceabilityChecker="NumExpCnct.js"/>

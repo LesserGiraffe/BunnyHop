@@ -1,4 +1,4 @@
 <Connector 
 	bhConnectorID="idReusableBarrierVarCnctr"
 	defaultBhNodeID="idReusableBarrierVarVoid"
-	onReplaceabilityChecked="ReusableBarrierVarCnct.js"/>
+	replaceabilityChecker="ReusableBarrierVarCnct.js"/>

@@ -6,7 +6,7 @@
 	name="VarName"
 	nodeStyleID="Identifier.json"
 	nodeInputControl="TextField.fxml"
-	onTextAcceptabilityChecked="CheckIdentifierFormat.js"
+	textAcceptabilityChecker="CheckIdentifierFormat.js"
 	initString="変数名">
 	
 	<Imitation imitationID="imitIdVarName" imitationNodeID="idVarName"/>

@@ -35,11 +35,11 @@ public class BhNodeAttributes {
 	private String nodeStyleID;
 	private String onMovedFromChildToWS;
 	private String onMovedToChild;
-	private String onTextAcceptabilityChecked;
-	private String onDeletionCmdReceived;
-	private String onCutAndPasteCmdReceived;
+	private String textAcceptabilityChecker;
+	private String onSelectiveDeletionRequested;
+	private String onCutRequested;
 	private String onChildReplaced;
-	private String onImitDeletionOrdered;
+	private String onImitDeletionRequested;
 	private String textFormatter;
 	private String scopeChecker;
 	private String initString;
@@ -80,28 +80,25 @@ public class BhNodeAttributes {
 		nodeAttrs.onMovedToChild = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_MOVED_TO_CHILD);
 
 		//onTextAcceptabilityChecked
-		nodeAttrs.onTextAcceptabilityChecked = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_TEXT_ACCEPTABILITY_CHECKED);
+		nodeAttrs.textAcceptabilityChecker = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_TEXT_ACCEPTABILITY_CHECKER);
 
 		//textFormatter
 		nodeAttrs.textFormatter = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_TEXT_FORMATTER);
 
-		//onDeletionCmdReceived
-		nodeAttrs.onDeletionCmdReceived = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_DELETION_CMD_RECEIVED);
+		//onSelectiveDeletionCmdReceived
+		nodeAttrs.onSelectiveDeletionRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_SELECTIVE_DELETION_REQUESTED);
 
 		//onCutAndPasteCmdReceived
-		nodeAttrs.onCutAndPasteCmdReceived = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CUT_AND_PASTE_CMD_RECEIVED);
+		nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CUT_REQUESTED);
 
 		//onChildReplaced
 		nodeAttrs.onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CHILD_REPLACED);
 
-		//onDeletionCmdReceived
-		nodeAttrs.onDeletionCmdReceived = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_DELETION_CMD_RECEIVED);
+		//onCutRequested
+		nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CUT_REQUESTED);
 
-		//onCutAndPasteCmdReceived
-		nodeAttrs.onCutAndPasteCmdReceived = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CUT_AND_PASTE_CMD_RECEIVED);
-
-		//onImitDeletionOrdered
-		nodeAttrs.onImitDeletionOrdered = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_IMIT_DELETION_ORDERED);
+		//onImitDeletionRequested
+		nodeAttrs.onImitDeletionRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_IMIT_DELETION_REQUESWTED);
 
 		//scopeChecker
 		nodeAttrs.scopeChecker = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_SCOPE_CHEKER);
@@ -149,24 +146,24 @@ public class BhNodeAttributes {
 		return onMovedToChild;
 	}
 
-	public String getOnTextAcceptabilityChecked() {
-		return onTextAcceptabilityChecked;
+	public String getOnTextAcceptabilityChecker() {
+		return textAcceptabilityChecker;
 	}
 
-	public String getOnDeletionCmdReceived() {
-		return onDeletionCmdReceived;
+	public String getOnSelectiveDeletionRequested() {
+		return onSelectiveDeletionRequested;
 	}
 
-	public String getOnCutAndPasteCmdReceived() {
-		return onCutAndPasteCmdReceived;
+	public String getOnCutRequested() {
+		return onCutRequested;
 	}
 
 	public String getOnChildReplaced() {
 		return onChildReplaced;
 	}
 
-	public String getOnImitDeletionOrdered() {
-		return onImitDeletionOrdered;
+	public String getOnImitDeletionRequested() {
+		return onImitDeletionRequested;
 	}
 
 	public String getTextFormatter() {

@@ -3,4 +3,4 @@
 <Connector 
 	bhConnectorID="idStrListCnctr"
 	defaultBhNodeID="idStrEmptyList"
-	onReplaceabilityChecked="StrListCnct.js"/>
+	replaceabilityChecker="StrListCnct.js"/>

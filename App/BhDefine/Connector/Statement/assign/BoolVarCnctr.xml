@@ -3,5 +3,5 @@
 <Connector 
 	bhConnectorID="idBoolVarCnctr"
 	defaultBhNodeID="idBoolVarVoid"
-	onReplaceabilityChecked="BoolVarCnct.js"/>
+	replaceabilityChecker="BoolVarCnct.js"/>
 

@@ -56,8 +56,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	protected Workspace workspace;	//!< このノードがあるWorkSpace.
 	private final String scriptNameOnMovedFromChildToWS;	//子ノードからワークスペースに移されたときに実行されるスクリプトの名前
 	private final String scriptNameOnMovedToChild;	//!< ワークスペースもしくは, 子ノードから子ノードに移されたときに実行されるスクリプトの名前
-	private final String scriptNameOnDeletionCmdReceived;	//!< ユーザー操作により, このノードが削除候補になったときに実行されるスクリプト名
-	private final String scriptNameOnCutAndPasteCmdReceived;	//!< ユーザー操作により, このノードがカット&ペーストされるときに実行されるスクリプト名
+	private final String scriptNameOnSelectiveDeletionRequested;	//!< ユーザー操作により, このノードが削除候補になったときに実行されるスクリプト名
+	private final String scriptNameOnCutRequested;	//!< ユーザー操作により, このノードがカット&ペーストされるときに実行されるスクリプト名
 
 
 
@@ -127,8 +127,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		this.type = type;
 		this.scriptNameOnMovedFromChildToWS = attributes.getOnMovedFromChildToWS();
 		this.scriptNameOnMovedToChild = attributes.getOnMovedToChild();
-		this.scriptNameOnDeletionCmdReceived = attributes.getOnDeletionCmdReceived();
-		this.scriptNameOnCutAndPasteCmdReceived = attributes.getOnCutAndPasteCmdReceived();
+		this.scriptNameOnSelectiveDeletionRequested = attributes.getOnSelectiveDeletionRequested();
+		this.scriptNameOnCutRequested = attributes.getOnCutRequested();
 	}
 
 	/**
@@ -142,8 +142,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		workspace = null;
 		scriptNameOnMovedFromChildToWS = org.scriptNameOnMovedFromChildToWS;
 		scriptNameOnMovedToChild = org.scriptNameOnMovedToChild;
-		scriptNameOnDeletionCmdReceived = org.scriptNameOnDeletionCmdReceived;
-		scriptNameOnCutAndPasteCmdReceived = org.scriptNameOnCutAndPasteCmdReceived;
+		scriptNameOnSelectiveDeletionRequested = org.scriptNameOnSelectiveDeletionRequested;
+		scriptNameOnCutRequested = org.scriptNameOnCutRequested;
 		type = org.type;
 		lastReplaced = null;
 		scriptScope = null;
@@ -460,20 +460,21 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * @param nodesToDelete このノードとともに削除される予定のノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void execScriptOnDeletionCmdReceived(List<BhNode> nodesToDelete, UserOperationCommand userOpeCmd) {
+	public void execScriptOnSelectiveDeletionRequested(
+		List<BhNode> nodesToDelete, UserOperationCommand userOpeCmd) {
 
-		Script onDeletionCmdReceived = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnDeletionCmdReceived);
-		if (onDeletionCmdReceived == null)
+		Script onDeletionRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnSelectiveDeletionRequested);
+		if (onDeletionRequested == null)
 			return;
 
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToDelete);
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
-			ContextFactory.getGlobal().call(cx -> onDeletionCmdReceived.exec(cx, scriptScope));
+			ContextFactory.getGlobal().call(cx -> onDeletionRequested.exec(cx, scriptScope));
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() + ".execScriptOnDeletionCmdReceived   " + scriptNameOnDeletionCmdReceived + "\n" +
+				BhNode.class.getSimpleName() + ".execScriptOnDeletionCmdReceived   " + scriptNameOnSelectiveDeletionRequested + "\n" +
 				e.toString() + "\n");
 		}
 	}
@@ -483,21 +484,21 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * @param nodesToDelete このノードとともに削除される予定のノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void execScriptOnCutAndPasteCmdReceived(List<BhNode> nodesToDelete, UserOperationCommand userOpeCmd) {
+	public void execScriptOnCutRequested(List<BhNode> nodesToDelete, UserOperationCommand userOpeCmd) {
 
-		Script onCutAndPasteCmdReceived = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnCutAndPasteCmdReceived);
-		if (onCutAndPasteCmdReceived == null)
+		Script onCutRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnCutRequested);
+		if (onCutRequested == null)
 			return;
 
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToDelete);
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
-			ContextFactory.getGlobal().call(cx -> onCutAndPasteCmdReceived.exec(cx, scriptScope));
+			ContextFactory.getGlobal().call(cx -> onCutRequested.exec(cx, scriptScope));
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
 				BhNode.class.getSimpleName() + ".execScriptOnCutAndPasteCmdReceived   "
-				+ scriptNameOnCutAndPasteCmdReceived + "\n" + e.toString() + "\n");
+				+ scriptNameOnCutRequested + "\n" + e.toString() + "\n");
 		}
 	}
 

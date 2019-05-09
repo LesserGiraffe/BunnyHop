@@ -14,7 +14,7 @@
 			defaultBhNodeID="idSoundLiteralVoid"
 			initialBhNodeID=""
 			class="SoundClass"
-			onReplaceabilityChecked="SoundExpCnct.js"/>
+			replaceabilityChecker="SoundExpCnct.js"/>
 
 		<PrivateConnector 
 			bhConnectorID="idMelodyExp.prvCnctr1"

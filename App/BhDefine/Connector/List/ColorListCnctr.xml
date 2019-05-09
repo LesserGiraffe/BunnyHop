@@ -3,4 +3,4 @@
 <Connector 
 	bhConnectorID="idColorListCnctr"
 	defaultBhNodeID="idColorEmptyList"
-	onReplaceabilityChecked="ColorListCnct.js"/>
+	replaceabilityChecker="ColorListCnct.js"/>

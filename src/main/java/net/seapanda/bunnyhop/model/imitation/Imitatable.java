@@ -35,12 +35,12 @@ public abstract class Imitatable extends BhNode {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	/** オリジナルノードとのつながりが切れた際のイミテーションノードの削除直前に呼ばれるスクリプトの名前 */
-	private final String scriptNameOnImitDeletionOrdered; //!<
+	private final String scriptNameOnImitDeletionRequested; //!<
 	private final String scriptNameOfScopeChecker; //!< イミテーションノードがスコープ内かどうかをチェックするスクリプトの名前
 
 	public Imitatable(String type, BhNodeAttributes attributes) {
 		super(type, attributes);
-		scriptNameOnImitDeletionOrdered = attributes.getOnImitDeletionOrdered();
+		scriptNameOnImitDeletionRequested = attributes.getOnImitDeletionRequested();
 		scriptNameOfScopeChecker = attributes.getScopeChecker();
 	}
 
@@ -50,7 +50,7 @@ public abstract class Imitatable extends BhNode {
 	 */
 	public Imitatable(Imitatable org) {
 		super(org);
-		scriptNameOnImitDeletionOrdered = org.scriptNameOnImitDeletionOrdered;
+		scriptNameOnImitDeletionRequested = org.scriptNameOnImitDeletionRequested;
 		scriptNameOfScopeChecker = org.scriptNameOfScopeChecker;
 	}
 
@@ -162,20 +162,20 @@ public abstract class Imitatable extends BhNode {
 	 * オリジナルノードとのつながりが切れた際に, イミテーションノードを削除する直前に呼ばれるイベント処理を実行する.
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void execScriptOnImitDeletionOrdered(UserOperationCommand userOpeCmd) {
+	public void execScriptOnImitDeletionRequested(UserOperationCommand userOpeCmd) {
 
-		Script onImitDeletionOrdered = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnImitDeletionOrdered);
-		if (onImitDeletionOrdered == null)
+		Script onImitDeletionRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnImitDeletionRequested);
+		if (onImitDeletionRequested == null)
 			return;
 
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
-			ContextFactory.getGlobal().call(cx -> onImitDeletionOrdered.exec(cx, scriptScope));
+			ContextFactory.getGlobal().call(cx -> onImitDeletionRequested.exec(cx, scriptScope));
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				Imitatable.class.getSimpleName() + ".execScriptOnImitDeletionOrdered   " + scriptNameOnImitDeletionOrdered + "\n" +
-				e.toString() + "\n");
+				Imitatable.class.getSimpleName() + ".execScriptOnImitDeletionRequested   " +
+				scriptNameOnImitDeletionRequested + "\n" + e.toString() + "\n");
 		}
 	}
 

@@ -3,4 +3,4 @@
 <Connector 
 	bhConnectorID="idBoolListCnctr"
 	defaultBhNodeID="idBoolEmptyList"
-	onReplaceabilityChecked="BoolListCnct.js"/>
+	replaceabilityChecker="BoolListCnct.js"/>

@@ -5,8 +5,8 @@
 	nodeStyleID="SoundArrayClearStat.json"
 	onMovedFromChildToWS="onStatMovedToWS.js"
 	onMovedToChild="onStatMovedToChild.js"
-	onDeletionCmdReceived="reconnectOuter.js"
-	onCutAndPasteCmdReceived="reconnectOuter.js">
+	onSelectiveDeletionRequested="reconnectOuter.js"
+	onCutRequested="reconnectOuter.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idSoundListCnctr" name="Arg0"/>

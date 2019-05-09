@@ -4,4 +4,4 @@
 	bhConnectorID="idSoundExpCnctr"
 	defaultBhNodeID="idFreqSoundLiteral"
 	class="SoundClass"
-	onReplaceabilityChecked="SoundExpCnct.js"/>
+	replaceabilityChecker="SoundExpCnct.js"/>

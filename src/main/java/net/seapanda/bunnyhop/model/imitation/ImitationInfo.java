@@ -155,7 +155,7 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 
 		for (var nodeToDelete : imitNodeList) {
 			if (nodeToDelete.isInWorkspace()) {
-				nodeToDelete.execScriptOnImitDeletionOrdered(userOpeCmd);
+				nodeToDelete.execScriptOnImitDeletionRequested(userOpeCmd);
 			}
 		}
 
