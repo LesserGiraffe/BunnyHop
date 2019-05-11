@@ -15,6 +15,7 @@
  */
 package net.seapanda.bunnyhop.control.node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.event.Event;
@@ -28,6 +29,7 @@ import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.CauseOfDletion;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
@@ -257,6 +259,8 @@ public class BhNodeController implements MsgProcessor {
 		//ゴミ箱に重なっていた場合, 削除
 		if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
 			TrashboxService.INSTANCE.isInTrashboxArea(mouseEvent.getSceneX(), mouseEvent.getSceneY())) {
+			model.execScriptOnDeletionRequested(
+				new ArrayList<BhNode>() {{add(model);}}, CauseOfDletion.TRASH_BOX, ddInfo.userOpeCmd);
 			BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
 		}
 	}

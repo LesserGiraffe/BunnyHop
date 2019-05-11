@@ -209,9 +209,8 @@ public class NodeConstructor {
 			nodeAttrs.get().getOnMovedFromChildToWS(),
 			nodeAttrs.get().getOnMovedToChild(),
 			nodeAttrs.get().getOnChildReplaced(),
-			nodeAttrs.get().getOnSelectiveDeletionRequested(),
+			nodeAttrs.get().getOnDeletionRequested(),
 			nodeAttrs.get().getOnCutRequested(),
-			nodeAttrs.get().getOnImitDeletionRequested(),
 			nodeAttrs.get().getSyntaxErrorChecker());
 		if (!allScriptsFound)
 			return Optional.empty();
@@ -255,9 +254,8 @@ public class NodeConstructor {
 			nodeAttrs.get().getOnMovedFromChildToWS(),
 			nodeAttrs.get().getOnMovedToChild(),
 			nodeAttrs.get().getOnTextAcceptabilityChecker(),
-			nodeAttrs.get().getOnSelectiveDeletionRequested(),
+			nodeAttrs.get().getOnDeletionRequested(),
 			nodeAttrs.get().getOnCutRequested(),
-			nodeAttrs.get().getOnImitDeletionRequested(),
 			nodeAttrs.get().getTextFormatter(),
 			nodeAttrs.get().getSyntaxErrorChecker());
 		if (!allScriptsFound) {

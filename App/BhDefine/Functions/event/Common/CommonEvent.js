@@ -78,6 +78,57 @@
 		bhNodeHandler.exchangeNodes(nextStatOfOldStat, nextStatOfNewStat, bhUserOpeCmd);
 		bhNodeHandler.exchangeNodes(oldStat, newStat, bhUserOpeCmd);
 	}
+	
+	/**
+	 * node の外部ノードが cut か delete の対象でない場合, 適切な位置に再接続する
+	 * @param node このノードの外部ノードが cut か delete の対象でない場合, それを繋ぎ換える
+	 * @param cadidates cut か delete の対象ノードのリスト
+	 * @param userOpeCmd undo/redo用コマンドオブジェクト
+	 */
+	function reconnectOuter(node, candidates, bhMsgService, bhNodeHandler, userOpeCmd) {
+	
+		// 移動させる外部ノードを探す
+		let nodeToReconnect = node.findOuterNode(1);
+		if (nodeToReconnect === null)
+			return;
+		
+		// 繋ぎ換える必要がないノード
+		let outersNotToReconnect = ['VarDeclVoid', 'GlobalDataDeclVoid', 'VoidStat'];
+		let isOuterNotToReconnect = outersNotToReconnect.some(nodeName => nodeName === String(nodeToReconnect.getSymbolName()));
+		if (isOuterNotToReconnect)
+			return;
+		
+		if (candidates.contains(nodeToReconnect))
+			return;
+		
+		let nodeToReplace = findNodeToBeReplaced(nodeToReconnect, node, candidates);
+		
+		// 接続先が無い場合は, ワークスペースへ
+		if (nodeToReplace == null) {
+			let posOnWS = bhMsgService.getPosOnWS(nodeToReconnect);
+			bhNodeHandler.moveToWS(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpeCmd);
+		}
+		else {
+			let posOnWS = bhMsgService.getPosOnWS(nodeToReconnect);
+			bhNodeHandler.moveToWS(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpeCmd);
+			bhNodeHandler.exchangeNodes(nodeToReconnect, nodeToReplace, userOpeCmd);
+		}
+	}
+
+	/*
+	 * 外部ノードの接続先ノードを探す
+	 */
+	function findNodeToBeReplaced(nodeToReconnect, nodeToCheckReplaceability, candidates) {
+
+		let parent = nodeToCheckReplaceability.findParentNode();
+		if (parent == null)
+			return null;
+
+		if (candidates.contains(parent))
+			return findNodeToBeReplaced(nodeToReconnect, parent, candidates);
+
+		return nodeToCheckReplaceability;
+	}
 
 	//  any-typeノードと入れ替えるべき子ノードのパスのマップ
 	let anyTypeToPathOfChildToBeMoved = {
@@ -248,5 +299,6 @@
 	bhCommon['moveDescendant'] = moveDescendant;
 	bhCommon['getPathOfAnyTypeChildToBeMoved'] = getPathOfAnyTypeChildToBeMoved;
 	bhCommon['isStaticTypeExp'] = isStaticTypeExp;
+	bhCommon['reconnectOuter'] = reconnectOuter;
 	return bhCommon;
 })();

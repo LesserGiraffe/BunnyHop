@@ -17,6 +17,7 @@ package net.seapanda.bunnyhop.model.imitation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -105,7 +106,7 @@ public class ImitationManager<T extends Imitatable> implements Serializable {
 	 * イミテーションノードリストを取得する
 	 * @return イミテーションノードリスト
 	 */
-	public List<T> getImitationList() {
+	public Collection<T> getImitationList() {
 		return Collections.unmodifiableList(imitNodeList);
 	}
 
@@ -122,12 +123,6 @@ public class ImitationManager<T extends Imitatable> implements Serializable {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
 	public void deleteAllImitations(UserOperationCommand userOpeCmd) {
-
-		for (var nodeToDelete : imitNodeList) {
-			if (nodeToDelete.isInWorkspace()) {
-				nodeToDelete.execScriptOnImitDeletionRequested(userOpeCmd);
-			}
-		}
 
 		while (!imitNodeList.isEmpty()) {	//重複削除を避けるため, while で空になるまで消す
 

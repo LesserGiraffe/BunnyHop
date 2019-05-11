@@ -110,7 +110,7 @@ public class BhParams {
 		public static final String ATTR_NAME_ON_MOVED_FROM_CHILD_TO_WS = "onMovedFromChildToWS";
 		public static final String ATTR_NAME_ON_MOVED_TO_CHILD = "onMovedToChild";
 		public static final String ATTR_NAME_ON_CHILD_REPLACED = "onChildReplaced";
-		public static final String ATTR_NAME_ON_SELECTIVE_DELETION_REQUESTED = "onSelectiveDeletionRequested";
+		public static final String ATTR_NAME_ON_DELETION_REQUESTED = "onDeletionRequested";
 		public static final String ATTR_NAME_ON_CUT_REQUESTED = "onCutRequested";
 		public static final String ATTR_NAME_ON_IMIT_DELETION_REQUESWTED = "onImitDeletionRequested";
 		public static final String ATTR_NAME_IMITATION_NODE_ID = "imitationNodeID";
@@ -159,6 +159,7 @@ public class BhParams {
 		public static final String KEY_BH_NODE_TEMPLATES = "bhNodeTemplates";
 		public static final String KEY_BH_NODE_UTIL = "bhUtil";
 		public static final String KEY_BH_CANDIDATE_NODE_LIST = "bhCandidateNodeList";
+		public static final String KEY_BH_CAUSE_OF_DELETION = "bhCauseOfDeletion";
 		public static final String KEY_IP_ADDR = "ipAddr";
 		public static final String KEY_UNAME = "uname";
 		public static final String KEY_PASSWORD = "password";

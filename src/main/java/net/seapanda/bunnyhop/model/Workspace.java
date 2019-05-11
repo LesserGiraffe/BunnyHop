@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import net.seapanda.bunnyhop.common.BhParams;
@@ -111,7 +110,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	 * @return ワークスペース内のルートBhNode の集合
 	 * */
 	public Collection<BhNode> getRootNodeList() {
-		return rootNodeList;
+		return Collections.unmodifiableSet(rootNodeList);
 	}
 
 	/**
@@ -147,7 +146,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 		MsgService.INSTANCE.updateMultiNodeShifter(nodeToAdd, this);
 
 		if (nodeToAdd instanceof Imitatable) {
-			List<Imitatable> imitationList = ((Imitatable)nodeToAdd).getImitationManager().getImitationList();
+			Collection<Imitatable> imitationList = ((Imitatable)nodeToAdd).getImitationManager().getImitationList();
 			imitationList.forEach(imitation -> {
 				MsgTransporter.INSTANCE.sendMessage(
 					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
@@ -201,7 +200,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 		selectedList.remove(nodeToRemove);
 		MsgService.INSTANCE.updateMultiNodeShifter(nodeToRemove, this);
 		if (nodeToRemove instanceof Imitatable) {
-			List<Imitatable> imitationList = ((Imitatable)nodeToRemove).getImitationManager().getImitationList();
+			Collection<Imitatable> imitationList = ((Imitatable)nodeToRemove).getImitationManager().getImitationList();
 			imitationList.forEach(imitation -> {
 				MsgTransporter.INSTANCE.sendMessage(
 					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,

@@ -15,6 +15,7 @@
  */
 package net.seapanda.bunnyhop.model.node;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -56,7 +57,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	protected Workspace workspace;	//!< このノードがあるWorkSpace.
 	private final String scriptNameOnMovedFromChildToWS;	//子ノードからワークスペースに移されたときに実行されるスクリプトの名前
 	private final String scriptNameOnMovedToChild;	//!< ワークスペースもしくは, 子ノードから子ノードに移されたときに実行されるスクリプトの名前
-	private final String scriptNameOnSelectiveDeletionRequested;	//!< ユーザー操作により, このノードが削除候補になったときに実行されるスクリプト名
+	private final String scriptNameOnDeletionRequested;	//!< ユーザー操作により, このノードが削除候補になったときに実行されるスクリプト名
 	private final String scriptNameOnCutRequested;	//!< ユーザー操作により, このノードがカット&ペーストされるときに実行されるスクリプト名
 	private final String scriptNameOfSyntaxErrorChecker; //!< イミテーションノードがスコープ内かどうかをチェックするスクリプトの名前
 
@@ -126,7 +127,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		this.type = type;
 		this.scriptNameOnMovedFromChildToWS = attributes.getOnMovedFromChildToWS();
 		this.scriptNameOnMovedToChild = attributes.getOnMovedToChild();
-		this.scriptNameOnSelectiveDeletionRequested = attributes.getOnSelectiveDeletionRequested();
+		this.scriptNameOnDeletionRequested = attributes.getOnDeletionRequested();
 		this.scriptNameOnCutRequested = attributes.getOnCutRequested();
 		this.scriptNameOfSyntaxErrorChecker = attributes.getSyntaxErrorChecker();
 	}
@@ -142,7 +143,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		workspace = null;
 		scriptNameOnMovedFromChildToWS = org.scriptNameOnMovedFromChildToWS;
 		scriptNameOnMovedToChild = org.scriptNameOnMovedToChild;
-		scriptNameOnSelectiveDeletionRequested = org.scriptNameOnSelectiveDeletionRequested;
+		scriptNameOnDeletionRequested = org.scriptNameOnDeletionRequested;
 		scriptNameOnCutRequested = org.scriptNameOnCutRequested;
 		scriptNameOfSyntaxErrorChecker = org.scriptNameOfSyntaxErrorChecker;
 		type = org.type;
@@ -483,23 +484,25 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * 選択削除により, このノードが削除される直前に呼ばれるイベント処理を実行する.
 	 * ゴミ箱による削除や, ワークスペースの削除によるノードの削除時には呼ばない.
 	 * @param nodesToDelete このノードとともに削除される予定のノード
+	 * @param causeOfDeletion 削除原因
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void execScriptOnSelectiveDeletionRequested(
-		List<BhNode> nodesToDelete, UserOperationCommand userOpeCmd) {
+	public void execScriptOnDeletionRequested(
+		Collection<? extends BhNode> nodesToDelete, CauseOfDletion causeOfDeletion, UserOperationCommand userOpeCmd) {
 
-		Script onDeletionRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnSelectiveDeletionRequested);
+		Script onDeletionRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnDeletionRequested);
 		if (onDeletionRequested == null)
 			return;
 
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToDelete);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CAUSE_OF_DELETION, causeOfDeletion);
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
 			ContextFactory.getGlobal().call(cx -> onDeletionRequested.exec(cx, scriptScope));
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() + ".execScriptOnDeletionCmdReceived   " + scriptNameOnSelectiveDeletionRequested + "\n" +
+				BhNode.class.getSimpleName() + ".execScriptOnDeletionCmdReceived   " + scriptNameOnDeletionRequested + "\n" +
 				e.toString() + "\n");
 		}
 	}

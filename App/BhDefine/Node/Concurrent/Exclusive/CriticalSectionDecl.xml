@@ -5,7 +5,7 @@
 	canCreateImitManually="true"
 	nodeStyleID="CriticalSectionDecl.json"
 	onMovedFromChildToWS="onGlobalDataDeclMovedToWS.js"
-	onSelectiveDeletionRequested="reconnectOuter.js"
+	onDeletionRequested="onDeletionRequested.js"
 	onCutRequested="reconnectOuter.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idCriticalSectionStat"/>

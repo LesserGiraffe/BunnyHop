@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.CauseOfDletion;
 import net.seapanda.bunnyhop.modelprocessor.SyntaxErrorNodeCollector;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -85,7 +86,10 @@ public class SyntaxErrorNodeManager {
 		var nodesToDelete =
 			errorNodeList.stream()
 			.filter(node -> (node.hasSyntaxError()))
-			.collect(Collectors.toCollection(ArrayList::new));
+			.collect(Collectors.toCollection(HashSet::new));
+
+		nodesToDelete.forEach(node ->
+			node.execScriptOnDeletionRequested(nodesToDelete, CauseOfDletion.SYNTAX_ERROR, userOpeCmd));
 
 		BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd)
 		.forEach(oldAndNewNode -> {

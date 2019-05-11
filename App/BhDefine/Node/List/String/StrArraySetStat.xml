@@ -5,7 +5,7 @@
 	nodeStyleID="StrArraySetStat.json"
 	onMovedFromChildToWS="onStatMovedToWS.js"
 	onMovedToChild="onStatMovedToChild.js"
-	onSelectiveDeletionRequested="reconnectOuter.js"
+	onDeletionRequested="onDeletionRequested.js"
 	onCutRequested="reconnectOuter.js">
 
 	<ConnectorSection name="StatSctn">

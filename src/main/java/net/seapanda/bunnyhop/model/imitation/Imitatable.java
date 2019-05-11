@@ -15,18 +15,13 @@
  */
 package net.seapanda.bunnyhop.model.imitation;
 
+import java.util.Collection;
 import java.util.Map;
 
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.ScriptableObject;
-
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.VersionInfo;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
+import net.seapanda.bunnyhop.model.node.CauseOfDletion;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -38,14 +33,12 @@ public abstract class Imitatable extends BhNode {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	/** オリジナルノードとのつながりが切れた際のイミテーションノードの削除直前に呼ばれるスクリプトの名前 */
-	private final String scriptNameOnImitDeletionRequested;
 	public final boolean canCreateImitManually;	//!< このオブジェクトを持つノードがイミテーションノードの手動作成機能を持つ場合 true
 	private final Map<ImitationID, BhNodeID> imitID_imitNodeID;	//!< イミテーションタグとそれに対応するイミテーションノードIDのマップ
 
 	public Imitatable(String type, BhNodeAttributes attributes, Map<ImitationID, BhNodeID> imitID_imitNodeID) {
 
 		super(type, attributes);
-		this.scriptNameOnImitDeletionRequested = attributes.getOnImitDeletionRequested();
 		this.canCreateImitManually = attributes.getCanCreateImitManually();
 		this.imitID_imitNodeID = imitID_imitNodeID;
 	}
@@ -56,7 +49,6 @@ public abstract class Imitatable extends BhNode {
 	 */
 	public Imitatable(Imitatable org) {
 		super(org);
-		scriptNameOnImitDeletionRequested = org.scriptNameOnImitDeletionRequested;
 		imitID_imitNodeID = org.imitID_imitNodeID;
 		canCreateImitManually = org.canCreateImitManually;
 	}
@@ -134,6 +126,19 @@ public abstract class Imitatable extends BhNode {
 		return imitNodeID;
 	}
 
+	/**
+	 * イミテーションノード削除前のイベント処理を実行する
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void execScriptOfImitDeletion(UserOperationCommand userOpeCmd) {
+
+		Collection<? extends BhNode> imitationList = getImitationManager().getImitationList();
+		imitationList.forEach(node -> {
+			node.execScriptOnDeletionRequested(
+				imitationList, CauseOfDletion.INFLUENCE_OF_ORIGINAL_DELETION, userOpeCmd);
+		});
+	}
+
 	@Override
 	public boolean isRemovable() {
 		if (parentConnector == null)
@@ -158,27 +163,6 @@ public abstract class Imitatable extends BhNode {
 			return false;
 
 		return parentConnector.isConnectedNodeReplaceableWith(node);
-	}
-
-	/**
-	 * オリジナルノードとのつながりが切れた際に, イミテーションノードを削除する直前に呼ばれるイベント処理を実行する.
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
-	public void execScriptOnImitDeletionRequested(UserOperationCommand userOpeCmd) {
-
-		Script onImitDeletionRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnImitDeletionRequested);
-		if (onImitDeletionRequested == null)
-			return;
-
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
-		try {
-			ContextFactory.getGlobal().call(cx -> onImitDeletionRequested.exec(cx, scriptScope));
-		}
-		catch (Exception e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				Imitatable.class.getSimpleName() + ".execScriptOnImitDeletionRequested   " +
-				scriptNameOnImitDeletionRequested + "\n" + e.toString() + "\n");
-		}
 	}
 }
 

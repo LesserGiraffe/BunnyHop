@@ -17,6 +17,7 @@ package net.seapanda.bunnyhop.control;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,8 @@ import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.model.Workspace;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.CauseOfDletion;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
@@ -213,8 +216,7 @@ public class WorkspaceController implements MsgProcessor {
 				return new MsgData(model, view, data.userOpeCmd);
 
 			case DELETE_WORKSPACE:
-				BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), data.userOpeCmd);
-				return new MsgData(model, view, data.userOpeCmd);
+				return deleteWorkspace(data);
 
 			case UPDATE_MULTI_NODE_SHIFTER:
 				nodeShifterController.updateMultiNodeShifter(data.node);
@@ -226,6 +228,15 @@ public class WorkspaceController implements MsgProcessor {
 
 		return null;
 	};
+
+	private MsgData deleteWorkspace(MsgData data) {
+
+		Collection<BhNode> rootNodes = model.getRootNodeList();
+		rootNodes.forEach(node ->
+			node.execScriptOnDeletionRequested(rootNodes, CauseOfDletion.WORKSPACE_DELETION, data.userOpeCmd));
+		BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), data.userOpeCmd);
+		return new MsgData(model, view, data.userOpeCmd);
+	}
 
 	//デバッグ用
 	private void printDebugInfo() {

@@ -6,7 +6,7 @@
 	onMovedFromChildToWS="onStatMovedToWS.js"
 	onMovedToChild="onStatMovedToChild.js"
 	onChildReplaced="onChildOfAnyTypeNodeReplaced.js"
-	onSelectiveDeletionRequested="reconnectOuter.js"
+	onDeletionRequested="onDeletionRequested.js"
 	onCutRequested="reconnectOuter.js">
 
 	<ConnectorSection name="StatSctn">

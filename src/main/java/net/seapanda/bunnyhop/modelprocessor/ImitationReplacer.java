@@ -15,7 +15,7 @@
  */
 package net.seapanda.bunnyhop.modelprocessor;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
@@ -124,7 +124,7 @@ public class ImitationReplacer implements BhModelProcessor {
 	 * @param imiCnctPos このイミテーション位置が指定されたコネクタにつながるノードを入れ替える
 	 */
 	private void replaceConnectiveChild(
-		List<ConnectiveNode> parentNodeList,
+		Collection<ConnectiveNode> parentNodeList,
 		Imitatable original,
 		ImitationConnectionPos imiCnctPos) {
 
@@ -145,7 +145,7 @@ public class ImitationReplacer implements BhModelProcessor {
 	 * @param parentNodeList 子ノードを削除するConnecitveノードのリスト
 	 * @param imitCnctPos このイミテーション接続位置が指定されたコネクタにつながるノードを削除する
 	 */
-	private void removeConnectiveChild(List<ConnectiveNode> parentNodeList, ImitationConnectionPos imitCnctPos) {
+	private void removeConnectiveChild(Collection<ConnectiveNode> parentNodeList, ImitationConnectionPos imitCnctPos) {
 
 		for (ConnectiveNode parent : parentNodeList) {
 			Optional<BhNode> nodeToRemove = getNodeToReplaceOrRemove(parent, imitCnctPos);

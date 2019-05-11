@@ -36,10 +36,9 @@ public class BhNodeAttributes {
 	private String onMovedFromChildToWS;
 	private String onMovedToChild;
 	private String textAcceptabilityChecker;
-	private String onSelectiveDeletionRequested;
+	private String onDeletionRequested;
 	private String onCutRequested;
 	private String onChildReplaced;
-	private String onImitDeletionRequested;
 	private String textFormatter;
 	private String syntaxErrorChecker;
 	private String initString;
@@ -85,8 +84,8 @@ public class BhNodeAttributes {
 		//textFormatter
 		nodeAttrs.textFormatter = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_TEXT_FORMATTER);
 
-		//onSelectiveDeletionCmdReceived
-		nodeAttrs.onSelectiveDeletionRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_SELECTIVE_DELETION_REQUESTED);
+		//onDeletionCmdReceived
+		nodeAttrs.onDeletionRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_DELETION_REQUESTED);
 
 		//onCutAndPasteCmdReceived
 		nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CUT_REQUESTED);
@@ -96,9 +95,6 @@ public class BhNodeAttributes {
 
 		//onCutRequested
 		nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CUT_REQUESTED);
-
-		//onImitDeletionRequested
-		nodeAttrs.onImitDeletionRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_IMIT_DELETION_REQUESWTED);
 
 		//syntaxErrorChecker
 		nodeAttrs.syntaxErrorChecker = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_SYNTAX_ERROR_CHECKER);
@@ -150,8 +146,8 @@ public class BhNodeAttributes {
 		return textAcceptabilityChecker;
 	}
 
-	public String getOnSelectiveDeletionRequested() {
-		return onSelectiveDeletionRequested;
+	public String getOnDeletionRequested() {
+		return onDeletionRequested;
 	}
 
 	public String getOnCutRequested() {
@@ -160,10 +156,6 @@ public class BhNodeAttributes {
 
 	public String getOnChildReplaced() {
 		return onChildReplaced;
-	}
-
-	public String getOnImitDeletionRequested() {
-		return onImitDeletionRequested;
 	}
 
 	public String getTextFormatter() {

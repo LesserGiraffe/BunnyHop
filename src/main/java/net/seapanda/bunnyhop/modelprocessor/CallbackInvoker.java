@@ -90,6 +90,10 @@ public class CallbackInvoker implements BhModelProcessor {
 
 		private final Map<BhNodeID, Consumer<BhNode>> nodeIdToCallback = new HashMap<>();
 		private final Map<String, Consumer<SyntaxSymbol>> symbolNameToCallback = new HashMap<>();
+		private boolean allNodes = false;
+		private Consumer<BhNode> callBackForAllNodes;
+
+		private Callbacks() {}
 
 		public static Callbacks create() {
 			return new Callbacks();
@@ -111,7 +115,19 @@ public class CallbackInvoker implements BhModelProcessor {
 			return this;
 		}
 
+		/**
+		 * 全ノードに対して呼ぶコールバック関数を登録する
+		 * */
+		public Callbacks setForAllNodes(Consumer<BhNode> callback) {
+			allNodes = true;
+			callBackForAllNodes = callback;
+			return this;
+		}
+
 		void call(BhNode node) {
+
+			if (allNodes)
+				callBackForAllNodes.accept(node);
 
 			Optional.ofNullable(nodeIdToCallback.get(node.getID()))
 			.ifPresent(callback -> callback.accept(node));

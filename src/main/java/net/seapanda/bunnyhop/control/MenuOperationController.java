@@ -16,7 +16,6 @@
 package net.seapanda.bunnyhop.control;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -50,6 +49,7 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.CauseOfDletion;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelhandler.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
@@ -191,8 +191,9 @@ public class MenuOperationController {
 				return;
 
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
-			var nodesToDelete = new ArrayList<BhNode>(currentWS.getSelectedNodeList());
-			nodesToDelete.forEach(node -> node.execScriptOnSelectiveDeletionRequested(nodesToDelete, userOpeCmd));
+			var nodesToDelete = currentWS.getSelectedNodeList();
+			nodesToDelete.forEach(node ->
+				node.execScriptOnDeletionRequested(nodesToDelete, CauseOfDletion.SELECTED_FOR_DELETION ,userOpeCmd));
 			BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd)
 			.forEach(oldAndNewNode -> {
 				BhNode oldNode = oldAndNewNode._1;
