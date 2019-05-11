@@ -113,6 +113,7 @@
 			bhNodeHandler.moveToWS(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpeCmd);
 			bhNodeHandler.exchangeNodes(nodeToReconnect, nodeToReplace, userOpeCmd);
 		}
+		return;
 	}
 
 	/*

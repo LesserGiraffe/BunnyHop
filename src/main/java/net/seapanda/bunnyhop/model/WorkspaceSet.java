@@ -23,9 +23,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -176,7 +178,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 
 		var nodesToPaste = new ArrayList<BhNode>();
 		for (var node : readyToCopy)
-			if (canCopyOrCut(node, readyToCopy))
+			if (canCopyOrCut(node))
 				nodesToPaste.add(node);
 
 		// 外部ノードでかつ, コピー対象に含まれていないでかつ, 親はコピー対象 -> コピーしない
@@ -216,14 +218,14 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		if (readyToCut.isEmpty())
 			return;
 
-		// カット前スクリプト実行
-		readyToCut.stream().forEach(
-			node -> node.execScriptOnCutRequested(new ArrayList<BhNode>(readyToCut), userOpeCmd));
+		Collection<BhNode> candidates = readyToCut.stream()
+			.filter(this::canCopyOrCut).collect(Collectors.toCollection(HashSet::new));
 
-		var nodesToPaste = new ArrayList<BhNode>();
-		for (var node : readyToCut)
-			if (canCopyOrCut(node, readyToCut))
-				nodesToPaste.add(node);
+		Collection<BhNode> nodesToPaste = candidates.stream()
+			.filter(node -> {
+				return node.execScriptOnCutRequested(candidates, userOpeCmd);
+			})
+			.collect(Collectors.toCollection(ArrayList::new));
 
 		// 貼り付け処理
 		for (var node : nodesToPaste) {
@@ -251,22 +253,14 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	/**
 	 * コピーもしくはカットの対象になるかどうか判定する
 	 * @param node 判定対象のノード
-	 * @param candidates カットもしくはコピーの候補ノードのリスト
 	 * @return コピーもしくはカットの対象になる場合 true
 	 * */
-	private boolean canCopyOrCut(BhNode node, List<BhNode> candidates) {
+	private boolean canCopyOrCut(BhNode node) {
 
-		boolean canCopyOrCut =
+		return
 			(node.getState() == BhNode.State.CHILD &&
 			node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS) ||
 			node.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
-
-		if (canCopyOrCut) {
-			// node が外部ノードでかつ, その親ノードがコピー or カット対象に含まれている
-			// -> 親ノードと一緒にコピー or カットするので個別にはコピー or カットしない.
-			return !(node.isOuter() && candidates.contains(node.findParentNode()));
-		}
-		return false;
 	}
 
 	public List<Workspace> getWorkspaceList() {

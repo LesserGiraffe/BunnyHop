@@ -16,7 +16,6 @@
 package net.seapanda.bunnyhop.model.node;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Predicate;
 
 import org.mozilla.javascript.ContextFactory;
@@ -509,25 +508,34 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 
 	/**
 	 * ユーザー操作により, このノードがカット&ペーストされる直前に呼ばれるイベント処理を実行する.
-	 * @param nodesToDelete このノードとともに削除される予定のノード
+	 * @param nodesToCut このノードとともに削除される予定のノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * @return カットをキャンセルする場合 false.  続行する場合 true.
 	 * */
-	public void execScriptOnCutRequested(List<BhNode> nodesToDelete, UserOperationCommand userOpeCmd) {
+	public boolean execScriptOnCutRequested(Collection<BhNode> nodesToCut, UserOperationCommand userOpeCmd) {
 
 		Script onCutRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnCutRequested);
 		if (onCutRequested == null)
-			return;
+			return true;
 
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToDelete);
+		Object continueCut = null;
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCut);
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
-			ContextFactory.getGlobal().call(cx -> onCutRequested.exec(cx, scriptScope));
+			continueCut = ContextFactory.getGlobal().call(cx -> onCutRequested.exec(cx, scriptScope));
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() + ".execScriptOnCutAndPasteCmdReceived   "
+				BhNode.class.getSimpleName() + "::execScriptOnCutRequested   "
 				+ scriptNameOnCutRequested + "\n" + e.toString() + "\n");
 		}
+
+		if (continueCut instanceof Boolean)
+			return (Boolean)continueCut;
+
+		throw new AssertionError(
+			this.getClass().getSimpleName()
+			+ "::execScriptOnCutRequested  (" + scriptNameOnCutRequested + " must return a boolean value.)");
 	}
 
 	/**
@@ -553,7 +561,9 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		if (hasError instanceof Boolean)
 			return (Boolean)hasError;
 
-		throw new AssertionError(this.getClass().getSimpleName() + "::hasSyntaxError  (Syntax error checker must return a boolean value.)");
+		throw new AssertionError(
+			this.getClass().getSimpleName()
+			+ "::hasSyntaxError  (" + scriptNameOfSyntaxErrorChecker + " must return a boolean value.)");
 	}
 
 	@Override

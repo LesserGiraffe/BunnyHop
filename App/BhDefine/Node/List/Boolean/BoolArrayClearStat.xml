@@ -6,7 +6,7 @@
 	onMovedFromChildToWS="onStatMovedToWS.js"
 	onMovedToChild="onStatMovedToChild.js"
 	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="reconnectOuter.js">
+	onCutRequested="onCutRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idBoolListCnctr" name="Arg0"/>

@@ -5,7 +5,7 @@
 	nodeStyleID="NumVarDecl.json"
 	onMovedFromChildToWS="onVarDeclMovedToWS.js"
 	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="reconnectOuter.js">
+	onCutRequested="onCutRequested.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idNumVar"/>
 	<Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idNumArg"/>

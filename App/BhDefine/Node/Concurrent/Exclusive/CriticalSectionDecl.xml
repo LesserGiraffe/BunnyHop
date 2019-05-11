@@ -6,7 +6,7 @@
 	nodeStyleID="CriticalSectionDecl.json"
 	onMovedFromChildToWS="onGlobalDataDeclMovedToWS.js"
 	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="reconnectOuter.js">
+	onCutRequested="onCutRequested.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idCriticalSectionStat"/>
 
