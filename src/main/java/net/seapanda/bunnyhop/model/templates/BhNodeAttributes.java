@@ -41,7 +41,7 @@ public class BhNodeAttributes {
 	private String onChildReplaced;
 	private String onImitDeletionRequested;
 	private String textFormatter;
-	private String scopeChecker;
+	private String syntaxErrorChecker;
 	private String initString;
 	private String nodeInputControlFileName;
 	private boolean canCreateImitManually;
@@ -100,8 +100,8 @@ public class BhNodeAttributes {
 		//onImitDeletionRequested
 		nodeAttrs.onImitDeletionRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_IMIT_DELETION_REQUESWTED);
 
-		//scopeChecker
-		nodeAttrs.scopeChecker = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_SCOPE_CHEKER);
+		//syntaxErrorChecker
+		nodeAttrs.syntaxErrorChecker = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_SYNTAX_ERROR_CHECKER);
 
 		//initString
 		nodeAttrs.initString = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_INIT_STRING);
@@ -170,8 +170,8 @@ public class BhNodeAttributes {
 		return textFormatter;
 	}
 
-	public String getScopeChecker() {
-		return scopeChecker;
+	public String getSyntaxErrorChecker() {
+		return syntaxErrorChecker;
 	}
 
 	public String getIinitString() {

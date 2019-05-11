@@ -52,7 +52,7 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 		boolean success = loadComponent();
 		getTreeManager().addChild(label);
 
-		if (model.getImitationInfo().canCreateImitManually) {
+		if (model.canCreateImitManually) {
 			Optional<Button> btnOpt = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
 			success &= btnOpt.isPresent();
 			imitCreateImitBtn = btnOpt.orElse(new Button());

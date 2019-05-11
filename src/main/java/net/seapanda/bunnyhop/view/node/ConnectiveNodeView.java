@@ -60,7 +60,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_CONNECTIVE_NODE);
 
 		boolean success = true;
-		if (model.getImitationInfo().canCreateImitManually) {
+		if (model.canCreateImitManually) {
 			Optional<Button> btnOpt = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
 			success &= btnOpt.isPresent();
 			imitCreateBtn = btnOpt.orElse(new Button());

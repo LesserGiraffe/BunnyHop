@@ -3,7 +3,7 @@
 	bhNodeID="idStrList"
 	name="StrList"
 	nodeStyleID="StrList.json"
-	scopeChecker="checkVarScope.js">
+	syntaxErrorChecker="checkVarScope.js">
 
 	<ConnectorSection name="StringListSctn">
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>

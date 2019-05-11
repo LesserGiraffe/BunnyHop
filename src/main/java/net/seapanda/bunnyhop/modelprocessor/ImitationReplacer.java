@@ -67,13 +67,13 @@ public class ImitationReplacer implements BhModelProcessor {
 		ImitationID imitID = newOriginal.getParentConnector().findImitationID();
 		ImitationConnectionPos imitCnctPos = newOriginal.getParentConnector().getImitCnctPoint();
 		//子オリジナルノードに対応するイミテーションがある場合
-		if (newOriginal.getImitationInfo().imitationNodeExists(imitID)) {
+		if (newOriginal.imitationNodeExists(imitID)) {
 			//オリジナルの親ノードが持つイミテーションの数だけ, 新たにイミテーションを作成して繋ぐ(入れ替える)
-			replaceConnectiveChild(newOriginal.findParentNode().getImitationInfo().getImitationList(), newOriginal, imitCnctPos);
+			replaceConnectiveChild(newOriginal.findParentNode().getImitationManager().getImitationList(), newOriginal, imitCnctPos);
 		}
 		else {
 			//オリジナルの親ノードが持つイミテーションの数だけ, その子ノードを削除
-			removeConnectiveChild(newOriginal.findParentNode().getImitationInfo().getImitationList(), imitCnctPos);
+			removeConnectiveChild(newOriginal.findParentNode().getImitationManager().getImitationList(), imitCnctPos);
 		}
 	}
 
@@ -83,20 +83,20 @@ public class ImitationReplacer implements BhModelProcessor {
 		ImitationID imitID = newOriginal.getParentConnector().findImitationID();
 		ImitationConnectionPos imitCnctPos = newOriginal.getParentConnector().getImitCnctPoint();
 		//子オリジナルノードに対応するイミテーションがある場合
-		if (newOriginal.getImitationInfo().imitationNodeExists(imitID)) {
+		if (newOriginal.imitationNodeExists(imitID)) {
 			//オリジナルの親ノードが持つイミテーションの数だけ, 新たにイミテーションを作成して繋ぐ(入れ替える)
-			replaceConnectiveChild(newOriginal.findParentNode().getImitationInfo().getImitationList(), newOriginal, imitCnctPos);
+			replaceConnectiveChild(newOriginal.findParentNode().getImitationManager().getImitationList(), newOriginal, imitCnctPos);
 		}
 		else {
 			//オリジナルの親ノードが持つイミテーションの数だけ, その子ノードを削除
-			removeConnectiveChild(newOriginal.findParentNode().getImitationInfo().getImitationList(), imitCnctPos);
+			removeConnectiveChild(newOriginal.findParentNode().getImitationManager().getImitationList(), imitCnctPos);
 		}
 	}
 
 	@Override
 	public void  visit(VoidNode newOriginal) {
 		ImitationConnectionPos imitCnctPos = newOriginal.getParentConnector().getImitCnctPoint();
-		removeConnectiveChild(newOriginal.findParentNode().getImitationInfo().getImitationList(), imitCnctPos);
+		removeConnectiveChild(newOriginal.findParentNode().getImitationManager().getImitationList(), imitCnctPos);
 	}
 
 	/**

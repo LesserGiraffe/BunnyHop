@@ -106,7 +106,7 @@ public class BhParams {
 		public static final String ATTR_NAME_TEXT_FORMATTER = "textFormatter";
 		public static final String ATTR_NAME_TEXT_ACCEPTABILITY_CHECKER = "textAcceptabilityChecker";
 		public static final String ATTR_NAME_REPLACEABILITY_CHECKER = "replaceabilityChecker";
-		public static final String ATTR_NAME_ON_SCOPE_CHEKER = "scopeChecker";
+		public static final String ATTR_NAME_ON_SYNTAX_ERROR_CHECKER = "syntaxErrorChecker";
 		public static final String ATTR_NAME_ON_MOVED_FROM_CHILD_TO_WS = "onMovedFromChildToWS";
 		public static final String ATTR_NAME_ON_MOVED_TO_CHILD = "onMovedToChild";
 		public static final String ATTR_NAME_ON_CHILD_REPLACED = "onChildReplaced";
@@ -252,7 +252,7 @@ public class BhParams {
 		public static final String CLASS_NO_CONTENT_NODE = "labelNode";
 		public static final String CLASS_CONNECTIVE_NODE = "ConnectiveNode";
 		public static final String CLASS_SUFFIX_PANE = "-Pane";
-		public static final String CLASS_SUFFIX_UNSCOPED = "-Unscoped";
+		public static final String CLASS_SUFFIX_SYNTAX_ERROR = "-SyntaxError";
 		public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
 	}
 

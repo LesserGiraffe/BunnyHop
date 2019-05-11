@@ -212,7 +212,7 @@ public class NodeConstructor {
 			nodeAttrs.get().getOnSelectiveDeletionRequested(),
 			nodeAttrs.get().getOnCutRequested(),
 			nodeAttrs.get().getOnImitDeletionRequested(),
-			nodeAttrs.get().getScopeChecker());
+			nodeAttrs.get().getSyntaxErrorChecker());
 		if (!allScriptsFound)
 			return Optional.empty();
 
@@ -259,7 +259,7 @@ public class NodeConstructor {
 			nodeAttrs.get().getOnCutRequested(),
 			nodeAttrs.get().getOnImitDeletionRequested(),
 			nodeAttrs.get().getTextFormatter(),
-			nodeAttrs.get().getScopeChecker());
+			nodeAttrs.get().getSyntaxErrorChecker());
 		if (!allScriptsFound) {
 			return Optional.empty();
 		}

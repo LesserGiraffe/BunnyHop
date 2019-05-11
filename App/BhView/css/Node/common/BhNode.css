@@ -24,7 +24,7 @@
 	-fx-stroke: magenta;
 }
 
-.BhNode-Unscoped {
+.BhNode-SyntaxError {
 	-fx-stroke-width: 0.30em;
 	-fx-stroke: red;
 }

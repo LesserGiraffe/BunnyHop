@@ -160,6 +160,14 @@ public class WorkspaceController implements MsgProcessor {
 	}
 
 	/**
+	 * ノード
+	 * @param candidates 矩形選択される候補ノード
+	 * */
+	private void selectNodes(List<BhNodeView> candidates) {
+
+	}
+
+	/**
 	 * メッセージ受信
 	 * @param msg メッセージの種類
 	 * @param data メッセージの種類に応じて処理するもの

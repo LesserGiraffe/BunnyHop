@@ -61,7 +61,7 @@ import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
 public abstract class BhNodeView extends Pane implements Showable {
 
 	final protected Polygon nodeShape = new Polygon();	//!< 描画されるポリゴン
-	final protected Line unscopedNodeMark = new Line(0.0, 0.0, 0.0, 0.0);	//!< スコープ外ノードであることを示す印
+	final protected Line syntaxErrorMark = new Line(0.0, 0.0, 0.0, 0.0);	//!< 構文エラーノードであることを示す印
 	final protected BhNodeViewStyle viewStyle;	//!< ノードの見た目のパラメータオブジェクト
 	final private BhNode model;
 	final protected SimpleObjectProperty<BhNodeViewGroup> parent = new SimpleObjectProperty<>(null);	//!<このノードが子ノードとなっているConnectiveView のグループ
@@ -78,9 +78,9 @@ public abstract class BhNodeView extends Pane implements Showable {
 	 */
 	protected void initialize() {
 		getTreeManager().addChild(nodeShape);
-		getTreeManager().addChild(unscopedNodeMark);
-		unscopedNodeMark.setVisible(false);
-		unscopedNodeMark.setMouseTransparent(true);
+		getTreeManager().addChild(syntaxErrorMark);
+		syntaxErrorMark.setVisible(false);
+		syntaxErrorMark.setMouseTransparent(true);
 		appearanceManager.addCssClass(viewStyle.cssClass);
 		appearanceManager.addCssClass(BhParams.CSS.CLASS_BHNODE);
 	}
@@ -261,7 +261,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		public void addCssClass(String cssClassName) {
 			nodeShape.getStyleClass().add(cssClassName);
 			BhNodeView.this.getStyleClass().add(cssClassName + BhParams.CSS.CLASS_SUFFIX_PANE);
-			BhNodeView.this.unscopedNodeMark.getStyleClass().add(cssClassName + BhParams.CSS.CLASS_SUFFIX_UNSCOPED);
+			BhNodeView.this.syntaxErrorMark.getStyleClass().add(cssClassName + BhParams.CSS.CLASS_SUFFIX_SYNTAX_ERROR);
 		}
 
 		/**
@@ -285,8 +285,8 @@ public abstract class BhNodeView extends Pane implements Showable {
 					viewStyle.notchPos,
 					viewStyle.notchWidth,
 					viewStyle.notchHeight));
-			unscopedNodeMark.setEndX(bodySize.x);
-			unscopedNodeMark.setEndY(bodySize.y);
+			syntaxErrorMark.setEndX(bodySize.x);
+			syntaxErrorMark.setEndY(bodySize.y);
 		}
 
 		/**
@@ -331,19 +331,19 @@ public abstract class BhNodeView extends Pane implements Showable {
 		}
 
 		/**
-		 * スコープ外ノードの表示の有効/無効を切り替える
-		 * @param unscoped スコープ外ノードの表示を有効にする場合 true. 無効にする場合 false.
+		 * 構文エラー表示の有効/無効を切り替える
+		 * @param hasError 構文エラー表示を有効にする場合 true. 無効にする場合 false.
 		 * */
-		public void setUnscoped(boolean unscoped) {
-			BhNodeView.this.unscopedNodeMark.setVisible(unscoped);
+		public void setSytaxError(boolean hasError) {
+			BhNodeView.this.syntaxErrorMark.setVisible(hasError);
 		}
 
 		/**
-		 * スコープ外表示の状態を返す
-		 * @return スコープ外表示されている場合 true.
+		 * 構文エラー表示の状態を返す
+		 * @return 構文エラー表示されている場合 true.
 		 * */
-		public boolean getUnscoped() {
-			return BhNodeView.this.unscopedNodeMark.isVisible();
+		public boolean getSyntaxError() {
+			return BhNodeView.this.syntaxErrorMark.isVisible();
 		}
 	}
 
@@ -498,7 +498,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * */
 		public void addChild(Node child) {
 			BhNodeView.this.getChildren().add(child);
-			BhNodeView.this.unscopedNodeMark.toFront();
+			BhNodeView.this.syntaxErrorMark.toFront();
 		}
 	}
 

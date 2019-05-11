@@ -17,25 +17,22 @@ package net.seapanda.bunnyhop.model.imitation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import net.seapanda.bunnyhop.common.VersionInfo;
-import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
- * イミテーションノードの情報を管理するクラス
+ * イミテーションノードとオリジナルノードを保持するクラス
  * @author K.Koike
  */
-public class ImitationInfo<T extends Imitatable> implements Serializable {
+public class ImitationManager<T extends Imitatable> implements Serializable {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	public final boolean canCreateImitManually;	//!< このオブジェクトを持つノードがイミテーションノードの手動作成機能を持つ場合 true
 	private final List<T> imitNodeList;	//!< このオブジェクトを持つノードから作成されたイミテーションノードの集合
 	private T orgNode;	//!< このオブジェクトを持つノードがイミテーションノードの場合、そのオリジナルノードを保持する
-	private final Map<ImitationID, BhNodeID> imitID_imitNodeID;	//!< イミテーションタグとそれに対応するイミテーションノードIDのマップ
 
 	/**
 	 * コンストラクタ
@@ -43,14 +40,9 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 	 * @param canCreateImitManually イミテーションノードの手動作成機能の有無
 	 * @param scopeName オリジナルノードと同じスコープにいるかチェックする際の名前
 	 **/
-	public ImitationInfo(
-		Map<ImitationID, BhNodeID> imitID_imitNodeID,
-		boolean canCreateImitManually) {
-
-		this.imitID_imitNodeID = imitID_imitNodeID;
+	public ImitationManager() {
 		imitNodeList = new ArrayList<>();
 		orgNode = null;
-		this.canCreateImitManually = canCreateImitManually;
 	}
 
 	/**
@@ -59,16 +51,14 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @param owner このオブジェクトを持つノード
 	 **/
-	public ImitationInfo(ImitationInfo<T> org, UserOperationCommand userOpeCmd, T owner) {
+	public ImitationManager(ImitationManager<T> org, UserOperationCommand userOpeCmd, T owner) {
 
-		imitID_imitNodeID = org.imitID_imitNodeID;
-		canCreateImitManually = org.canCreateImitManually;
 		imitNodeList = new ArrayList<>();	//元ノードをコピーしても、イミテーションノードとのつながりは無いようにする
 		orgNode = null;
 		if (org.isImitationNode()) {
 			//イミテーションをコピーした場合, コピー元と同じオリジナルノードのイミテーションノードとする
 			T original = org.getOriginal();
-			original.getImitationInfo().addImitation(owner, userOpeCmd);
+			original.getImitationManager().addImitation(owner, userOpeCmd);
 			setOriginal(original, userOpeCmd);
 		}
 	}
@@ -116,34 +106,14 @@ public class ImitationInfo<T extends Imitatable> implements Serializable {
 	 * @return イミテーションノードリスト
 	 */
 	public List<T> getImitationList() {
-		return imitNodeList;
-	}
-
-	/**
-	 * 引数で指定したイミテーションIDに対応するイミテーションノードIDがある場合true を返す
-	 * @param imitID このイミテーションIDに対応するイミテーションノードIDがあるか調べる
-	 * @return イミテーションノードIDが指定してある場合true
-	 */
-	public boolean imitationNodeExists(ImitationID imitID) {
-		return imitID_imitNodeID.containsKey(imitID);
-	}
-
-	/**
-	 * 引数で指定したイミテーションタグに対応するイミテーションノードIDを返す
-	 * @param imitID このイミテーションIDに対応するイミテーションノードIDを返す
-	 * @return 引数で指定したコネクタ名に対応するイミテーションノードID
-	 */
-	public BhNodeID getImitationNodeID(ImitationID imitID) {
-		BhNodeID imitNodeID = imitID_imitNodeID.get(imitID);
-		assert imitID != null;
-		return imitNodeID;
+		return Collections.unmodifiableList(imitNodeList);
 	}
 
 	/**
 	 * イミテーションノードである場合 trueを返す
 	 * @return イミテーションノードである場合 true
 	 */
-	public boolean isImitationNode() {
+	private boolean isImitationNode() {
 		return orgNode != null;
 	}
 

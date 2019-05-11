@@ -36,7 +36,7 @@ import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.imitation.ImitationID;
-import net.seapanda.bunnyhop.model.imitation.ImitationInfo;
+import net.seapanda.bunnyhop.model.imitation.ImitationManager;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
@@ -52,7 +52,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	private String text = "";	//!< このノードの管理する文字列データ
 	private final String scriptNameOfTextFormatter;	//!< テキストを整形するスクリプト
 	private final String scriptNameOnTextAcceptabilityChecker; //!< テキストが受理可能かどうか判断する際に実行されるスクリプト
-	private ImitationInfo<TextNode> imitInfo;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
+	private ImitationManager<TextNode> imitManager;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
 
 	/**
 	 * コンストラクタ<br>
@@ -66,10 +66,10 @@ public class TextNode  extends Imitatable implements Serializable {
 		Map<ImitationID, BhNodeID> imitID_imitNodeID,
 		BhNodeAttributes attributes) {
 
-		super(type, attributes);
+		super(type, attributes, imitID_imitNodeID);
 		scriptNameOnTextAcceptabilityChecker = attributes.getOnTextAcceptabilityChecker();
 		scriptNameOfTextFormatter = attributes.getTextFormatter();
-		imitInfo = new ImitationInfo<>(imitID_imitNodeID, attributes.getCanCreateImitManually());
+		imitManager = new ImitationManager<>();
 		text = attributes.getIinitString();
 	}
 
@@ -87,7 +87,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	@Override
 	public TextNode copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
 		TextNode newNode = new TextNode(this);
-		newNode.imitInfo = new ImitationInfo<>(imitInfo, userOpeCmd, newNode);
+		newNode.imitManager = new ImitationManager<>(imitManager, userOpeCmd, newNode);
 		return newNode;
 	}
 
@@ -181,7 +181,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	 */
 	public void getImitNodesToImitateContents() {
 		MsgData mvText = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_MODEL_AND_VIEW_TEXT, this);
-		imitInfo.getImitationList().forEach(
+		imitManager.getImitationList().forEach(
 			imit -> MsgTransporter.INSTANCE.sendMessage(BhMsg.IMITATE_TEXT, new MsgData(mvText.strPair._1, mvText.strPair._2), imit));
 	}
 
@@ -204,7 +204,7 @@ public class TextNode  extends Imitatable implements Serializable {
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "ws " + workspace + "> ");
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
-		imitInfo.getImitationList().forEach(imit -> {
+		imitManager.getImitationList().forEach(imit -> {
 			MsgPrinter.INSTANCE.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());
 		});
 
@@ -214,18 +214,18 @@ public class TextNode  extends Imitatable implements Serializable {
 	public TextNode createImitNode(UserOperationCommand userOpeCmd, ImitationID imitID) {
 
 		//イミテーションノード作成
-		BhNode imitationNode = BhNodeTemplates.INSTANCE.genBhNode(imitInfo.getImitationNodeID(imitID), userOpeCmd);
+		BhNode imitationNode = BhNodeTemplates.INSTANCE.genBhNode(getImitationNodeID(imitID), userOpeCmd);
 
 		//オリジナルとイミテーションの関連付け
 		TextNode textImit = (TextNode)imitationNode; //ノードテンプレート作成時に整合性チェックしているのでキャストに問題はない
-		imitInfo.addImitation(textImit, userOpeCmd);
-		textImit.getImitationInfo().setOriginal(this, userOpeCmd);
+		imitManager.addImitation(textImit, userOpeCmd);
+		textImit.getImitationManager().setOriginal(this, userOpeCmd);
 		return textImit;
 	}
 
 	@Override
-	public ImitationInfo<TextNode> getImitationInfo() {
-		return imitInfo;
+	public ImitationManager<TextNode> getImitationManager() {
+		return imitManager;
 	}
 
 	@Override
@@ -251,7 +251,7 @@ public class TextNode  extends Imitatable implements Serializable {
 
 	@Override
 	public TextNode getOriginalNode() {
-		return imitInfo.getOriginal();
+		return imitManager.getOriginal();
 	}
 }
 

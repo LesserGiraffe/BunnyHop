@@ -5,7 +5,7 @@
 	bhNodeID="idNumVar"
 	name="NumVar"
 	nodeStyleID="NumVar.json"
-	scopeChecker="checkVarScope.js">
+	syntaxErrorChecker="checkVarScope.js">
     
   	<ConnectorSection name="NumberExpSctn">
 		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>

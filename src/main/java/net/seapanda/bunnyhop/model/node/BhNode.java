@@ -58,8 +58,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	private final String scriptNameOnMovedToChild;	//!< ワークスペースもしくは, 子ノードから子ノードに移されたときに実行されるスクリプトの名前
 	private final String scriptNameOnSelectiveDeletionRequested;	//!< ユーザー操作により, このノードが削除候補になったときに実行されるスクリプト名
 	private final String scriptNameOnCutRequested;	//!< ユーザー操作により, このノードがカット&ペーストされるときに実行されるスクリプト名
-
-
+	private final String scriptNameOfSyntaxErrorChecker; //!< イミテーションノードがスコープ内かどうかをチェックするスクリプトの名前
 
 	public final String type;	//!< ノードのタイプ (connective, void, textField, ...)
 	private BhNode lastReplaced;	//!< 最後にこのノードと入れ替わったノード
@@ -129,6 +128,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		this.scriptNameOnMovedToChild = attributes.getOnMovedToChild();
 		this.scriptNameOnSelectiveDeletionRequested = attributes.getOnSelectiveDeletionRequested();
 		this.scriptNameOnCutRequested = attributes.getOnCutRequested();
+		this.scriptNameOfSyntaxErrorChecker = attributes.getSyntaxErrorChecker();
 	}
 
 	/**
@@ -144,6 +144,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		scriptNameOnMovedToChild = org.scriptNameOnMovedToChild;
 		scriptNameOnSelectiveDeletionRequested = org.scriptNameOnSelectiveDeletionRequested;
 		scriptNameOnCutRequested = org.scriptNameOnCutRequested;
+		scriptNameOfSyntaxErrorChecker = org.scriptNameOfSyntaxErrorChecker;
 		type = org.type;
 		lastReplaced = null;
 		scriptScope = null;
@@ -220,6 +221,30 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * */
 	public boolean isDeleted() {
 		return getState() == BhNode.State.DELETED;
+	}
+
+	/**
+	 * 子ノードであるかどうか調べる.
+	 * @return 子ノードである場合 true
+	 * */
+	public boolean isChild() {
+		return getState() == BhNode.State.CHILD;
+	}
+
+	/**
+	 * ワークスペース直下のルートノードかどうか調べる.
+	 * @return ワークスペース直下のルートノードである場合 true
+	 * */
+	public boolean isRootDirectolyUnderWs() {
+		return getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
+	}
+
+	/**
+	 * ダングリング状態のルートノードかどうか調べる
+	 * @return ダングリング状態のルートノードである場合 true
+	 * */
+	public boolean isRootDangling() {
+		return getState() == BhNode.State.ROOT_DANGLING;
 	}
 
 	/**
@@ -500,6 +525,32 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 				BhNode.class.getSimpleName() + ".execScriptOnCutAndPasteCmdReceived   "
 				+ scriptNameOnCutRequested + "\n" + e.toString() + "\n");
 		}
+	}
+
+	/**
+	 * このノードに文法エラーがあるかどうか調べる.
+	 * @return 文法エラーがある場合 true.  無い場合 false.
+	 */
+	public boolean hasSyntaxError() {
+
+		Script syntaxErrorChecker = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOfSyntaxErrorChecker);
+		if (syntaxErrorChecker == null)
+			return false;
+
+		Object hasError = null;
+		try {
+			hasError = ContextFactory.getGlobal().call(cx -> syntaxErrorChecker.exec(cx, scriptScope));
+		}
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				Imitatable.class.getSimpleName() + "::hasSyntaxError   " + scriptNameOfSyntaxErrorChecker + "\n" +
+				e.toString() + "\n");
+		}
+
+		if (hasError instanceof Boolean)
+			return (Boolean)hasError;
+
+		throw new AssertionError(this.getClass().getSimpleName() + "::hasSyntaxError  (Syntax error checker must return a boolean value.)");
 	}
 
 	@Override

@@ -67,13 +67,13 @@ public class MsgService {
 	}
 
 	/**
-	 * ノードのスコープ外警告表示を変更する
+	 * ノードの構文エラー表示を変更する
 	 * @param node 警告表示を変更するノード
 	 * @param show 警告を表示する場合 true. 隠す場合 false.
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void setUnscopedNodeWarning(BhNode node, boolean show, UserOperationCommand userOpeCmd) {
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_UNSCOPED_NODE_WARNING, new MsgData(show, userOpeCmd), node);
+	public void setSyntaxErrorIndicator(BhNode node, boolean show, UserOperationCommand userOpeCmd) {
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_SYNTAX_ERRPR_INDICATOR, new MsgData(show, userOpeCmd), node);
 	}
 
 	/**

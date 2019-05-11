@@ -54,7 +54,7 @@ public enum BhMsg {
 	IS_IN_TRASHBOX_AREA,	//!< ゴミ箱エリアに入っているかどうかを調べる
 	OPEN_TRASHBOX,			//!< ゴミ箱を開閉する
 	SET_VISIBLE,	//!< ノードの可視性をセットする
-	SET_UNSCOPED_NODE_WARNING,	//!< ノードのスコープ外警告表示を変更する
+	SET_SYNTAX_ERRPR_INDICATOR,	//!< ノードの構文エラー警告表示を変更する
 	UPDATE_MULTI_NODE_SHIFTER,	//!< マルチノードシフタ(複数ノード移動用マルチノードシフタ)とリンクを更新する
 	GET_NODE_BODY_RANGE, //!< BhNodeのボディのワークスペース上での範囲を取得する
 	SET_TEXT,	//!< テキストを設定可能なノードにテキストを設定する. テキストフォーマットチェックは行われる.

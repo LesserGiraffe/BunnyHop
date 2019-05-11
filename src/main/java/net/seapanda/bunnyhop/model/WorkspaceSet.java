@@ -24,6 +24,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import javafx.collections.FXCollections;
@@ -41,7 +42,7 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
-import net.seapanda.bunnyhop.modelhandler.UnscopedNodeManager;
+import net.seapanda.bunnyhop.modelhandler.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.root.BunnyHop;
@@ -160,8 +161,8 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		copyAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
 		cutAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
-		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
-		UnscopedNodeManager.INSTANCE.unmanageScopedNodes(userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
 		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 	}
 
@@ -226,8 +227,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 
 		// 貼り付け処理
 		for (var node : nodesToPaste) {
-			BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, false, userOpeCmd)
-			.ifPresent(newNode -> newNode.findParentNode().execScriptOnChildReplaced(node, newNode, newNode.getParentConnector(), userOpeCmd));
+			Optional<BhNode> newChild = BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, false, userOpeCmd);
 			BhNodeHandler.INSTANCE.addRootNode(
 				wsToPasteIn,
 				node,
@@ -237,6 +237,10 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
 			pasteBasePos.x += size.x + BhParams.LnF.REPLACED_NODE_SHIFT * 2;
 			DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
+			newChild.ifPresent(child -> {
+				node.execScriptOnMovedFromChildToWS(child.findParentNode(), child.findRootNode(), child, true, userOpeCmd);
+				child.findParentNode().execScriptOnChildReplaced(node, child, child.getParentConnector(), userOpeCmd);
+			});
 		}
 
 		pastePosOffsetCount = (pastePosOffsetCount > 2) ? -2 : ++pastePosOffsetCount;

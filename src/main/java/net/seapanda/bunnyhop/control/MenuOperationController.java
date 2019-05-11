@@ -19,7 +19,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,10 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -43,10 +39,10 @@ import net.seapanda.bunnyhop.bhprogram.LocalBhProgramManager;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramManager;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
+import net.seapanda.bunnyhop.compiler.CompileNodesArranger;
 import net.seapanda.bunnyhop.compiler.CompileOption;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
@@ -55,7 +51,7 @@ import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
-import net.seapanda.bunnyhop.modelhandler.UnscopedNodeManager;
+import net.seapanda.bunnyhop.modelhandler.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.BhNodeCategoryListView;
@@ -203,8 +199,8 @@ public class MenuOperationController {
 				BhNode newNode = oldAndNewNode._2;
 				newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
 			});
-			UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
-			UnscopedNodeManager.INSTANCE.unmanageScopedNodes(userOpeCmd);
+			SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
+			SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
 			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 		});
 	}
@@ -340,23 +336,18 @@ public class MenuOperationController {
 				return;
 			}
 
-			Optional<Pair<List<BhNode>, BhNode>> nodesToCompile_nodeToExecOpt = prepareForCompilation(wss);
-			Optional<Future<Boolean>> futureOpt = nodesToCompile_nodeToExecOpt.flatMap(nodesToCompile_nodeToExec -> {
-				//コンパイル
-				CompileOption option = new CompileOption(isLocalHost(), true, true, true);
-				List<BhNode> nodesToCompile = nodesToCompile_nodeToExec._1;
-				BhNode nodeToExec = nodesToCompile_nodeToExec._2;
-				Optional<Path> execFilePath = BhCompiler.INSTANCE.compile(nodeToExec, nodesToCompile, option);
-				return execFilePath.flatMap(filePath -> {
-					if (isLocalHost()) {
-						return LocalBhProgramManager.INSTANCE.executeAsync(filePath, BhParams.ExternalApplication.LOLCAL_HOST);
-					}
-					else {
-						return RemoteBhProgramManager.INSTANCE.executeAsync(
-							filePath, ipAddrTextField.getText(), unameTextField.getText(), passwordTextField.getText());
-					}
+			var userOpeCmd = new UserOperationCommand();
+			var nodesToCompile_nodeToExecOpt = CompileNodesArranger.arrange(wss, userOpeCmd);
+			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+
+			Optional<Future<Boolean>> futureOpt = nodesToCompile_nodeToExecOpt.flatMap(
+				nodesToCompile_nodeToExec -> {
+					CompileOption option = new CompileOption(isLocalHost(), true, true, true);
+					List<BhNode> nodesToCompile = nodesToCompile_nodeToExec._1;
+					BhNode nodeToExec = nodesToCompile_nodeToExec._2;
+					Optional<Path> execFilePath = BhCompiler.INSTANCE.compile(nodeToExec, nodesToCompile, option);
+					return execFilePath.flatMap(this::startProgram);
 				});
-			});
 
 			futureOpt.ifPresent(future -> {
 				preparingForExecution.set(true);
@@ -367,6 +358,21 @@ public class MenuOperationController {
 				});
 			});
 		});
+	}
+
+	/**
+	 * コンパイルしたプログラムを実行する
+	 * @param filePath 実行するプログラムのファイルパス
+	 * @return プログラム起動タスクの Fiture オブジェクト
+	 * */
+	private Optional<Future<Boolean>> startProgram(Path filePath) {
+
+		if (isLocalHost()) {
+			return LocalBhProgramManager.INSTANCE.executeAsync(filePath, BhParams.ExternalApplication.LOLCAL_HOST);
+		}
+
+		return RemoteBhProgramManager.INSTANCE.executeAsync(
+			filePath, ipAddrTextField.getText(), unameTextField.getText(), passwordTextField.getText());
 	}
 
 	/**
@@ -533,76 +539,6 @@ public class MenuOperationController {
 	 */
 	public boolean isLocalHost() {
 		return !remotLocalSelectBtn.isSelected();
-	}
-
-	/**
-	 * コンパイル前の準備をする
-	 * @return コンパイル対象ノードと実行対象ノードのペア
-	 */
-	private Optional<Pair<List<BhNode>, BhNode>> prepareForCompilation(WorkspaceSet wss) {
-
-		UserOperationCommand userOpeCmd = new UserOperationCommand();
-		if (!deleteUnsopedNodes(userOpeCmd)) {
-			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-			return Optional.empty();
-		}
-
-		//実行対象があるかどうかのチェック
-		Workspace currentWS = wss.getCurrentWorkspace();
-		Set<BhNode> selectedNodeList = currentWS.getSelectedNodeList();
-		if (selectedNodeList.isEmpty()) {
-			MsgPrinter.INSTANCE.alert(AlertType.ERROR, "実行対象の選択", null,"実行対象を一つ選択してください");
-			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-			return Optional.empty();
-		}
-
-		// 実行対象以外を非選択に.
-		BhNode nodeToExec = selectedNodeList.iterator().next().findRootNode();
-		currentWS.clearSelectedNodeList(userOpeCmd);
-		currentWS.addSelectedNode(nodeToExec, userOpeCmd);
-		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-
-		//コンパイル対象ノードを集める
-		List<BhNode> nodesToCompile = new ArrayList<>();
-		wss.getWorkspaceList().forEach(ws -> {
-			ws.getRootNodeList().forEach(node -> {
-				nodesToCompile.add(node);
-			});
-		});
-		nodesToCompile.remove(nodeToExec);
-		return Optional.of(new Pair<>(nodesToCompile, nodeToExec));
-	}
-
-	/**
-	 * スコープ外ノードを削除する.
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @return 全てのスコープ外ノードが無くなった場合 true.
-	 * */
-	public boolean deleteUnsopedNodes(UserOperationCommand userOpeCmd) {
-
-		if (!UnscopedNodeManager.INSTANCE.hasUnscopedNodes())
-			return true;
-
-		Optional<ButtonType> btnType = MsgPrinter.INSTANCE.alert(
-			Alert.AlertType.CONFIRMATION,
-			"スコープ外ノードの削除",
-			null,
-			"スコープ外ノードを削除してもよろしいですか?\n「いいえ」を選択した場合、実行を中止します",
-			ButtonType.NO,
-			ButtonType.YES);
-
-		if (!btnType.isPresent())
-			return false;
-
-		return btnType
-			.map(type -> {
-				if (type.equals(ButtonType.YES)) {
-					UnscopedNodeManager.INSTANCE.deleteUnscopedNodes(userOpeCmd);
-					return true;
-				}
-				return false;
-			})
-			.orElse(false);
 	}
 
 	/**

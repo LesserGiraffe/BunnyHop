@@ -107,10 +107,7 @@ public class BhCompiler {
 	public Optional<Path> compile(
 		BhNode execNode,
 		List<BhNode> nodesToCompile,
-		CompileOption option) {
-
-		if (!isExecutable(execNode))
-			return Optional.empty();
+		CompileOption option) {;
 
 		Preprocessor.process(new ArrayList<BhNode>(nodesToCompile) {{add(execNode);}});
 		StringBuilder code = new StringBuilder();
@@ -174,22 +171,6 @@ public class BhCompiler {
 		addEventCallStat += ";" + Util.INSTANCE.LF;
 		code.append(common.indent(1)).append(addEventCallStat).append(Util.INSTANCE.LF);
 		genCodeForInit(code, 1, option);
-	}
-
-	/**
-	 * 引数で指定したノードが実行可能なノードかどうか判断する.
-	 */
-	private boolean isExecutable(BhNode node) {
-
-		if (node.getState() != BhNode.State.ROOT_DIRECTLY_UNDER_WS) {
-			MsgPrinter.INSTANCE.alert(
-				Alert.AlertType.ERROR,
-				"実行ノードエラー",
-				null,
-				"処理の途中からは実行できません.");
-			return false;
-		}
-		return true;
 	}
 
 	/**

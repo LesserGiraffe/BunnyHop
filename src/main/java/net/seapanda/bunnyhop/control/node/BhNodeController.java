@@ -33,7 +33,7 @@ import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
-import net.seapanda.bunnyhop.modelhandler.UnscopedNodeManager;
+import net.seapanda.bunnyhop.modelhandler.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.TrashboxService;
@@ -165,8 +165,8 @@ public class BhNodeController implements MsgProcessor {
 
 			deleteUnnecessaryNodes(mouseEvent);
 			BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
-			UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(ddInfo.userOpeCmd);
-			UnscopedNodeManager.INSTANCE.unmanageScopedNodes(ddInfo.userOpeCmd);
+			SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(ddInfo.userOpeCmd);
+			SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(ddInfo.userOpeCmd);
 			ddInfo.reset();
 			view.setMouseTransparent(false);	// 処理が終わったので、元に戻しておく。
 			TrashboxService.INSTANCE.openCloseTrashbox(false);
@@ -439,9 +439,9 @@ public class BhNodeController implements MsgProcessor {
 					data.userOpeCmd.pushCmdOfSetVisible(view, data.bool);
 					break;
 
-				case SET_UNSCOPED_NODE_WARNING:
-					data.userOpeCmd.pushCmdOfSetUnscoped(view, data.bool, view.getAppearanceManager().getUnscoped());
-					view.getAppearanceManager().setUnscoped(data.bool);
+				case SET_SYNTAX_ERRPR_INDICATOR:
+					data.userOpeCmd.pushCmdOfSetSyntaxError(view, data.bool, view.getAppearanceManager().getSyntaxError());
+					view.getAppearanceManager().setSytaxError(data.bool);
 					break;
 
 				default:

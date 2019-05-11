@@ -8,6 +8,7 @@
 	nodeInputControl="Label.fxml"
 	initString="繰り返しを抜ける"
 	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js">
+	onMovedToChild="onStatMovedToChild.js"
+	syntaxErrorChecker="breakAndContinueChecker.js">
 </Node>
 

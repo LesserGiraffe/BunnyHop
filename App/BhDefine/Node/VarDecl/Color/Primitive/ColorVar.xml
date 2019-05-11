@@ -3,7 +3,7 @@
 	bhNodeID="idColorVar"
 	name="ColorVar"
 	nodeStyleID="ColorVar.json"
-	scopeChecker="checkVarScope.js">
+	syntaxErrorChecker="checkVarScope.js">
 
 	<ConnectorSection name="ColorExpSctn">
 		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>

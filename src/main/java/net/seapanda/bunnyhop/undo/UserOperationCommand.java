@@ -30,7 +30,7 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
-import net.seapanda.bunnyhop.model.imitation.ImitationInfo;
+import net.seapanda.bunnyhop.model.imitation.ImitationManager;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.view.WorkspaceView;
@@ -81,7 +81,7 @@ public class UserOperationCommand {
 	 * @param imitInfo イミテーションノードを追加したイミテーションノードリストを持つオブジェクト
 	 * @param imit 追加したイミテーションノード
 	 */
-	public <T extends Imitatable> void pushCmdOfAddImitation(ImitationInfo<T> imitInfo, T imit) {
+	public <T extends Imitatable> void pushCmdOfAddImitation(ImitationManager<T> imitInfo, T imit) {
 		subOpeList.addLast(new AddImitationCmd<T>(imitInfo, imit));
 	}
 
@@ -91,7 +91,7 @@ public class UserOperationCommand {
 	 * @param imitInfo イミテーションノードを削除したイミテーションノードリストを持つオブジェクト
 	 * @param imit 削除したイミテーションノード
 	 */
-	public <T extends Imitatable> void pushCmdOfRemoveImitation(ImitationInfo<T> imitInfo, T imit) {
+	public <T extends Imitatable> void pushCmdOfRemoveImitation(ImitationManager<T> imitInfo, T imit) {
 		subOpeList.addLast(new RemoveImitationCmd<T>(imitInfo, imit));
 	}
 
@@ -101,7 +101,7 @@ public class UserOperationCommand {
 	 * @param imitInfo オリジナルノードを登録するイミテーションノードが持つ ImitationInfo オブジェクト
 	 * @param original 元々登録されていたオリジナルノード
 	 */
-	public <T extends Imitatable> void pushCmdOfSetOriginal(ImitationInfo<T> imitInfo, T original) {
+	public <T extends Imitatable> void pushCmdOfSetOriginal(ImitationManager<T> imitInfo, T original) {
 		subOpeList.addLast(new SetOriginalCmd<T>(imitInfo, original));
 	}
 
@@ -235,13 +235,13 @@ public class UserOperationCommand {
 	}
 
 	/**
-	 * ノードのスコープ外設定をコマンド化してサブ操作リストに加える
-	 * @param nodeView スコープ外設定を変更したノード
+	 * ノードの構文エラー設定をコマンド化してサブ操作リストに加える
+	 * @param nodeView ノードの構文エラー設定を変更したノード
 	 * @param setVal 設定した状態
 	 * @param prevVal 前の状態
 	 * */
-	public void pushCmdOfSetUnscoped(BhNodeView nodeView, boolean setVal, boolean prevVal) {
-		subOpeList.addLast(new SetUnscopedCmd(nodeView, setVal, prevVal));
+	public void pushCmdOfSetSyntaxError(BhNodeView nodeView, boolean setVal, boolean prevVal) {
+		subOpeList.addLast(new SetSyntaxErrorCmd(nodeView, setVal, prevVal));
 	}
 
 	/**
@@ -296,10 +296,10 @@ public class UserOperationCommand {
 	 */
 	private static class AddImitationCmd<T extends Imitatable> implements SubOperation {
 
-		private final ImitationInfo<T> imitInfo;	//!< イミテーションノードを追加したイミテーションノードリストを持つオブジェクト
+		private final ImitationManager<T> imitInfo;	//!< イミテーションノードを追加したイミテーションノードリストを持つオブジェクト
 		private final T imit;	//!< リストに追加されたイミテーション
 
-		public AddImitationCmd(ImitationInfo<T> imitInfo, T imit) {
+		public AddImitationCmd(ImitationManager<T> imitInfo, T imit) {
 			this.imitInfo = imitInfo;
 			this.imit = imit;
 		}
@@ -315,10 +315,10 @@ public class UserOperationCommand {
 	 */
 	private static class RemoveImitationCmd<T extends Imitatable> implements SubOperation {
 
-		private final ImitationInfo<T> imitInfo;	//!< イミテーションノードを削除したイミテーションノードリストを持つオブジェクト
+		private final ImitationManager<T> imitInfo;	//!< イミテーションノードを削除したイミテーションノードリストを持つオブジェクト
 		private final T imit;	//!< リストから削除されたイミテーション
 
-		public RemoveImitationCmd(ImitationInfo<T> imitInfo, T imit) {
+		public RemoveImitationCmd(ImitationManager<T> imitInfo, T imit) {
 			this.imitInfo = imitInfo;
 			this.imit = imit;
 		}
@@ -334,10 +334,10 @@ public class UserOperationCommand {
 	 */
 	private static class SetOriginalCmd<T extends Imitatable> implements SubOperation {
 
-		private final ImitationInfo<T> imitInfo;	//!< オリジナルノードを登録するイミテーションノードが持つ ImitationInfo オブジェクト
+		private final ImitationManager<T> imitInfo;	//!< オリジナルノードを登録するイミテーションノードが持つ ImitationInfo オブジェクト
 		private final T original;	//!< 元々登録されていたオリジナルノード
 
-		public SetOriginalCmd(ImitationInfo<T> imitInfo, T original) {
+		public SetOriginalCmd(ImitationManager<T> imitInfo, T original) {
 			this.imitInfo = imitInfo;
 			this.original = original;
 		}
@@ -636,15 +636,15 @@ public class UserOperationCommand {
 	}
 
 	/**
-	 * BhNodeView のスコープ外設定の変更を表すコマンド
+	 * BhNodeView の構文エラー表示の変更を表すコマンド
 	 * */
-	private static class SetUnscopedCmd implements SubOperation {
+	private static class SetSyntaxErrorCmd implements SubOperation {
 
-		private final BhNodeView nodeView; //!< スコープ外設定を変更したノード
+		private final BhNodeView nodeView; //!< ノードの構文エラー設定を変更したノード
 		private final boolean setVal; //!< 設定した状態
 		private final boolean prevVal;	//!< 以前の状態
 
-		public SetUnscopedCmd(BhNodeView nodeView, boolean setVal, boolean prevVal) {
+		public SetSyntaxErrorCmd(BhNodeView nodeView, boolean setVal, boolean prevVal) {
 			this.nodeView = nodeView;
 			this.setVal = setVal;
 			this.prevVal = prevVal;
@@ -652,8 +652,8 @@ public class UserOperationCommand {
 
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
-			nodeView.getAppearanceManager().setUnscoped(prevVal);
-			inverseCmd.pushCmdOfSetUnscoped(nodeView, prevVal, setVal);
+			nodeView.getAppearanceManager().setSytaxError(prevVal);
+			inverseCmd.pushCmdOfSetSyntaxError(nodeView, prevVal, setVal);
 		}
 	}
 

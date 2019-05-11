@@ -15,6 +15,8 @@
  */
 package net.seapanda.bunnyhop.model.imitation;
 
+import java.util.Map;
+
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
@@ -24,6 +26,7 @@ import net.seapanda.bunnyhop.common.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -35,13 +38,16 @@ public abstract class Imitatable extends BhNode {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	/** オリジナルノードとのつながりが切れた際のイミテーションノードの削除直前に呼ばれるスクリプトの名前 */
-	private final String scriptNameOnImitDeletionRequested; //!<
-	private final String scriptNameOfScopeChecker; //!< イミテーションノードがスコープ内かどうかをチェックするスクリプトの名前
+	private final String scriptNameOnImitDeletionRequested;
+	public final boolean canCreateImitManually;	//!< このオブジェクトを持つノードがイミテーションノードの手動作成機能を持つ場合 true
+	private final Map<ImitationID, BhNodeID> imitID_imitNodeID;	//!< イミテーションタグとそれに対応するイミテーションノードIDのマップ
 
-	public Imitatable(String type, BhNodeAttributes attributes) {
+	public Imitatable(String type, BhNodeAttributes attributes, Map<ImitationID, BhNodeID> imitID_imitNodeID) {
+
 		super(type, attributes);
-		scriptNameOnImitDeletionRequested = attributes.getOnImitDeletionRequested();
-		scriptNameOfScopeChecker = attributes.getScopeChecker();
+		this.scriptNameOnImitDeletionRequested = attributes.getOnImitDeletionRequested();
+		this.canCreateImitManually = attributes.getCanCreateImitManually();
+		this.imitID_imitNodeID = imitID_imitNodeID;
 	}
 
 	/**
@@ -51,7 +57,8 @@ public abstract class Imitatable extends BhNode {
 	public Imitatable(Imitatable org) {
 		super(org);
 		scriptNameOnImitDeletionRequested = org.scriptNameOnImitDeletionRequested;
-		scriptNameOfScopeChecker = org.scriptNameOfScopeChecker;
+		imitID_imitNodeID = org.imitID_imitNodeID;
+		canCreateImitManually = org.canCreateImitManually;
 	}
 
 	/**
@@ -67,14 +74,14 @@ public abstract class Imitatable extends BhNode {
 	 * @return イミテーションノードであった場合true を返す
 	 */
 	public boolean isImitationNode() {
-		return getImitationInfo().isImitationNode();
+		return getImitationManager().getOriginal() != null;
 	}
 
 	/**
-	 * イミテーションノード情報を格納するオブジェクトを返す
-	 * @return イミテーション情報
+	 * イミテーションノード管理オブジェクトを取得する
+	 * @return イミテーションノード管理オブジェクト
 	 */
-	public abstract <T extends Imitatable> ImitationInfo<T> getImitationInfo();
+	public abstract <T extends Imitatable> ImitationManager<T> getImitationManager();
 
 	/**
 	 * 入れ替え用の既存のイミテーションノードを探す. <br>
@@ -86,7 +93,7 @@ public abstract class Imitatable extends BhNode {
 	public Imitatable findExistingOrCreateNewImit(BhNode oldNode, UserOperationCommand userOpeCmd) {
 
 		BhNode outerTailOfOldNode = oldNode.findOuterNode(-1);
-		for(Imitatable imit : getImitationInfo().getImitationList()) {
+		for(Imitatable imit : getImitationManager().getImitationList()) {
 			//新しく入れ替わるノードの外部末尾ノードが最後に入れ替わったノードの外部末尾ノードと一致するイミテーションノードを入れ替えイミテーションノードとする
 			if  (imit.getLastReplaced() != null) {
 				if(!imit.isInWorkspace() && imit.getLastReplaced().findOuterNode(-1) == outerTailOfOldNode) {
@@ -98,38 +105,33 @@ public abstract class Imitatable extends BhNode {
 	}
 
 	/**
-	 * オリジナルノードと同じスコープにいるかチェックする. <br>
-	 * スコープが無いノードの場合 -> スコープ内 <br>
-	 * スコープがあるときこのノードが, <br>
-	 * &nbsp;&nbsp; ROOT_DANGLING -> スコープ外 <br>
-	 * &nbsp;&nbsp; ROOT_DIRECTLY_UNDER_WS -> オリジナルノードも ROOT_DIRECTLY_UNDER_WS ならスコープ内 <br>
-	 * &nbsp;&nbsp; CHILD -> オリジナルノードと同じ同じスコープにいればスコープ内 <br>
-	 * &nbsp;&nbsp; DELETED -> スコープ内
-	 *
-	 * @return スコープ外なら true. スコープ内なら false.
-	 */
-	public boolean isUnscoped() {
-
-		if (!isImitationNode() || !hasScope())
-			return false;
-
-		if (getState() == BhNode.State.ROOT_DANGLING)
-			return true;
-
-		if (getState() == BhNode.State.DELETED)
-			return false;
-
-		return !isScoped();
-	}
-
-	/**
 	 * オリジナル - イミテーションの関係を削除する
 	 * @param toDelete 削除するイミテーションノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
 	public void disconnectOrgImitRelation(Imitatable toDelete, UserOperationCommand userOpeCmd) {
-		getImitationInfo().removeImitation(toDelete, userOpeCmd);
-		toDelete.getImitationInfo().setOriginal(null, userOpeCmd);
+		getImitationManager().removeImitation(toDelete, userOpeCmd);
+		toDelete.getImitationManager().setOriginal(null, userOpeCmd);
+	}
+
+	/**
+	 * 引数で指定したイミテーションIDに対応するイミテーションノードIDがある場合true を返す
+	 * @param imitID このイミテーションIDに対応するイミテーションノードIDがあるか調べる
+	 * @return イミテーションノードIDが指定してある場合true
+	 */
+	public boolean imitationNodeExists(ImitationID imitID) {
+		return imitID_imitNodeID.containsKey(imitID);
+	}
+
+	/**
+	 * 引数で指定したイミテーションタグに対応するイミテーションノードIDを返す
+	 * @param imitID このイミテーションIDに対応するイミテーションノードIDを返す
+	 * @return 引数で指定したコネクタ名に対応するイミテーションノードID
+	 */
+	public BhNodeID getImitationNodeID(ImitationID imitID) {
+		BhNodeID imitNodeID = imitID_imitNodeID.get(imitID);
+		assert imitID != null;
+		return imitNodeID;
 	}
 
 	@Override
@@ -177,42 +179,6 @@ public abstract class Imitatable extends BhNode {
 				Imitatable.class.getSimpleName() + ".execScriptOnImitDeletionRequested   " +
 				scriptNameOnImitDeletionRequested + "\n" + e.toString() + "\n");
 		}
-	}
-
-	/**
-	 * このノードがスコープ内ノードかどうか調べる.
-	 * @return スコープ内ノードである場合 true.
-	 * */
-	private boolean isScoped() {
-
-		Script scopeChecker = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOfScopeChecker);
-		if (scopeChecker == null) {
-			if (hasScope()) {
-				throw new AssertionError(this.getClass().getSimpleName() + ".isInScope  (scope check script not found)");
-			}
-			else {
-				return true;
-			}
-		}
-
-		Object isInScope = null;
-		try {
-			isInScope = ContextFactory.getGlobal().call(cx -> scopeChecker.exec(cx, scriptScope));
-		}
-		catch (Exception e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				Imitatable.class.getSimpleName() + ".isInScope   " + scriptNameOfScopeChecker + "\n" +
-				e.toString() + "\n");
-		}
-
-		if (isInScope instanceof Boolean)
-			return (Boolean)isInScope;
-
-		throw new AssertionError(this.getClass().getSimpleName() + ".isInScope  (Scope checker must return a boolean value.)");
-	}
-
-	private boolean hasScope() {
-		return !scriptNameOfScopeChecker.isEmpty();
 	}
 }
 

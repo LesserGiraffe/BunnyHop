@@ -79,7 +79,7 @@ public class ImitationBuilder implements BhModelProcessor {
 			imitID = node.getParentConnector().findImitationID();
 		}
 
-		if (!node.getImitationInfo().imitationNodeExists(imitID))
+		if (!node.imitationNodeExists(imitID))
 			return;
 
 		if (parentImitStack.isEmpty()) {
@@ -115,7 +115,7 @@ public class ImitationBuilder implements BhModelProcessor {
 			imitID = node.getParentConnector().findImitationID();
 		}
 
-		if (!node.getImitationInfo().imitationNodeExists(imitID))
+		if (!node.imitationNodeExists(imitID))
 			return;
 
 		if (parentImitStack.isEmpty()) {

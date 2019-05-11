@@ -3,7 +3,7 @@
 	bhNodeID="idBoolList"
 	name="BoolList"
 	nodeStyleID="BoolList.json"
-	scopeChecker="checkVarScope.js">
+	syntaxErrorChecker="checkVarScope.js">
 
 	<ConnectorSection name="BooleanListSctn">
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>

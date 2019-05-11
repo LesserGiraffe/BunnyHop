@@ -5,7 +5,7 @@
 	bhNodeID="idBoolVar"
 	name="BoolVar"
 	nodeStyleID="BoolVar.json"
-	scopeChecker="checkVarScope.js">
+	syntaxErrorChecker="checkVarScope.js">
 
 	<ConnectorSection name="BooleanExpSctn">
 		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>

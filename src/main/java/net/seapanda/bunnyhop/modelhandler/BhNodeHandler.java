@@ -63,8 +63,8 @@ public class BhNodeHandler {
 		userOpeCmd.pushCmdOfAddRootNode(node, ws);
 		userOpeCmd.pushCmdOfAddQtRectangle(node, ws);
 		userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
-		UnscopedNodeManager.INSTANCE.collect(node, userOpeCmd);
-		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.collect(node, userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 	}
 
 	/**
@@ -237,8 +237,8 @@ public class BhNodeHandler {
 		MsgService.INSTANCE.setPosOnWS(node, x, y);	//ワークスペース内での位置登録
 		userOpeCmd.pushCmdOfAddRootNode(node, ws);
 		userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
-		UnscopedNodeManager.INSTANCE.collect(node, userOpeCmd);
-		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.collect(node, userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 	}
 
 	/**
@@ -253,8 +253,8 @@ public class BhNodeHandler {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_ROOT_NODE, new MsgData(false), node, ws);
 		userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
 		userOpeCmd.pushCmdOfRemoveRootNode(node, ws);
-		UnscopedNodeManager.INSTANCE.collect(node, userOpeCmd);
-		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.collect(node, userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 	}
 
 	/**
@@ -275,8 +275,8 @@ public class BhNodeHandler {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), childToRemove);	//ここで4分木空間上での位置も更新される
 		userOpeCmd.pushCmdOfAddQtRectangle(newNode, ws);
 		userOpeCmd.pushCmdOfReplaceNodeView(childToRemove, newNode);
-		UnscopedNodeManager.INSTANCE.collect(childToRemove, userOpeCmd);
-		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.collect(childToRemove, userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 		return newNode;
 	}
 
@@ -299,9 +299,9 @@ public class BhNodeHandler {
 		userOpeCmd.pushCmdOfReplaceNodeView(oldChildNode, newNode);
 
 		oldChildNode.replacedWith(newNode, userOpeCmd);	//イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
-		UnscopedNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);
-		UnscopedNodeManager.INSTANCE.collect(newNode, userOpeCmd);
-		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.collect(newNode, userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 	}
 
 	/**
@@ -322,9 +322,9 @@ public class BhNodeHandler {
 		userOpeCmd.pushCmdOfReplaceNodeView(oldChildNode, newNode);
 
 		oldChildNode.replacedWith(newNode, userOpeCmd);	//イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
-		UnscopedNodeManager.INSTANCE.collect(newNode, userOpeCmd);
-		UnscopedNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);
-		UnscopedNodeManager.INSTANCE.updateUnscopedNodeWarning(userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.collect(newNode, userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);
+		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 	}
 
 	/**
