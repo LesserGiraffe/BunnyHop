@@ -1,9 +1,6 @@
 (function() {
 	// true -> スコープ外, false -> スコープ内
-
-	if (bhThis.isDeleted())
-		return false;
-
+	
 	// オリジナルノードのルートノードが VarDecl ならオリジナルノードはグローバル宣言されている
 	let rootOfOriginal = bhThis.getOriginalNode().findRootNode();
 	let varDeclSctnInRoot = rootOfOriginal.findSymbolInDescendants('VarDeclSctn');

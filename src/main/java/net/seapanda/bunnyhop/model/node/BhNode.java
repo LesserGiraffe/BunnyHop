@@ -190,16 +190,17 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 
 	/**
 	 * ノードの状態を取得する
+	 * @retval State.DELETED 削除済みノード. 子ノードでも削除されていればこの値が返る.
 	 * @retval State.ROOT_DANGLING ルートノードであるがワークスペースには属していない
 	 * @retval State.ROOT_DIRECTLY_UNDER_WS ワークスペースに属しているルートノード
 	 * @retval State.CHILD 子ノード. ワークスペースに属していてもいなくても子ノードならばこの値が返る
 	 */
 	public State getState() {
 
-		if(parentConnector == null) {
-			if (workspace == null)
-				return State.DELETED;
-
+		if (workspace == null) {
+			return State.DELETED;
+		}
+		else if(parentConnector == null) {
 			if(workspace.containsAsRoot(this))
 				return State.ROOT_DIRECTLY_UNDER_WS;
 			else
@@ -610,6 +611,9 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * @return 文法エラーがある場合 true.  無い場合 false.
 	 */
 	public boolean hasSyntaxError() {
+
+		if (getState() == BhNode.State.DELETED)
+			return false;
 
 		Script syntaxErrorChecker = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOfSyntaxErrorChecker);
 		if (syntaxErrorChecker == null)

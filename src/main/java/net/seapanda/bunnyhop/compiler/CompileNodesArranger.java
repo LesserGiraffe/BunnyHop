@@ -104,6 +104,7 @@ public class CompileNodesArranger {
 		return btnType
 			.map(type -> {
 				if (type.equals(ButtonType.YES)) {
+					SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
 					SyntaxErrorNodeManager.INSTANCE.deleteErrorNodes(userOpeCmd);
 					return true;
 				}
