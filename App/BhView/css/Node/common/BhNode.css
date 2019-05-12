@@ -2,7 +2,7 @@
 .BhNode {
 	-fx-stroke: black;
 	-fx-stroke-width: 0.15em;
-	-fx-stroke-type: centered;
+	-fx-stroke-type: inside;
 }
 
 .BhNode:selected {
