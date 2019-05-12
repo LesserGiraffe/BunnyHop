@@ -3,7 +3,7 @@
 	bhNodeID="idColorList"
 	name="ColorList"
 	nodeStyleID="ColorList.json"
-	syntaxErrorChecker="checkVarScope.js">
+	syntaxErrorChecker="isOutOfScope.js">
 
 	<ConnectorSection name="ColorListSctn">
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>

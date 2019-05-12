@@ -5,7 +5,7 @@
 	bhNodeID="idNumList"
 	name="NumList"
 	nodeStyleID="NumList.json"
-	syntaxErrorChecker="checkVarScope.js">
+	syntaxErrorChecker="isOutOfScope.js">
 
 	<ConnectorSection name="NumberListSctn">
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>

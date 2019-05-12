@@ -1,13 +1,17 @@
 (function() {
 	// true -> スコープ外, false -> スコープ内
 	
+	let original = bhThis.getOriginalNode();
+	if (original === null)
+		return true;
+	
 	// オリジナルノードのルートノードが VarDecl ならオリジナルノードはグローバル宣言されている
-	let rootOfOriginal = bhThis.getOriginalNode().findRootNode();
+	let rootOfOriginal = original.findRootNode();
 	let varDeclSctnInRoot = rootOfOriginal.findSymbolInDescendants('VarDeclSctn');
 	if (varDeclSctnInRoot !== null)
 		return false;
 	
-	let scope = bhThis.getOriginalNode().findSymbolInAncestors('VarScopeSctn', 1, true);
+	let scope = original.findSymbolInAncestors('VarScopeSctn', 1, true);
 	if (scope === null)
 		return true;
 
