@@ -5,7 +5,8 @@
 	nodeStyleID="StrListDecl.json"
 	onMovedFromChildToWS="onVarDeclMovedToWS.js"
 	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js">
+	onCutRequested="onCutRequested.js"
+	onCopyRequested="onCopyRequested.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idStrList"/>
 	<Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idStrListArg"/>

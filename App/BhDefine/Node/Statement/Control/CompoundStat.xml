@@ -5,7 +5,8 @@
 	onMovedFromChildToWS="onStatMovedToWS.js"
 	onMovedToChild="onStatMovedToChild.js"
 	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js">
+	onCutRequested="onCutRequested.js"
+	onCopyRequested="onCopyRequested.js">
 
 	<Section name="StatSctn">
 		<ConnectorSection name="VarScopeSctn">

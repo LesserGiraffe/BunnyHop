@@ -7,8 +7,10 @@
 	nodeStyleID="ContinueStat.json"
 	nodeInputControl="Label.fxml"
 	initString="繰り返しの初めに戻る"
+	syntaxErrorChecker="breakAndContinueChecker.js"
 	onMovedFromChildToWS="onStatMovedToWS.js"
 	onMovedToChild="onStatMovedToChild.js"
-	syntaxErrorChecker="breakAndContinueChecker.js">
+	onCutRequested="onCutRequested.js"
+	onCopyRequested="onCopyRequested.js">
 </Node>
 

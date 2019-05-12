@@ -5,7 +5,8 @@
 	nodeStyleID="ColorVarDecl.json"
 	onMovedFromChildToWS="onVarDeclMovedToWS.js"
 	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js">
+	onCutRequested="onCutRequested.js"
+	onCopyRequested="onCopyRequested.js">
 
     <Imitation imitationID="imitIdManual" imitationNodeID="idColorVar"/>
     <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idColorArg"/>

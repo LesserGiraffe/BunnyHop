@@ -42,7 +42,7 @@ public class BhParams {
 		public static final double MIN_WORKSPACE_SIZE_LEVEL = -1;	//!< ワークスペースの最小の大きさレベル
 		public static final String INITIAL_WORKSPACE_NAME = "メイン";	//!< 最初からあるワークスペースの名前
 		public static final double NODE_SCALE = 0.5 * Rem.VAL;
-		public static final double REPLACED_NODE_SHIFT = 2.0 * BhParams.LnF.NODE_SCALE;		//!< 入れ替えられたノードがワークスペースに移ったときの元の位置に対する位置 (単位rem)
+		public static final double REPLACED_NODE_SHIFT = 2.5 * BhParams.LnF.NODE_SCALE;		//!< 入れ替えられたノードがワークスペースに移ったときの元の位置に対する位置 (単位rem)
 		public static final double BHNODE_SPACE_ON_SELECTION_PANEL = 2.0 * BhParams.LnF.NODE_SCALE;		//!< BhNode選択パネル上でのBhNode間のスペース
 		public static final double NODE_SHIFTER_SIZE = Rem.VAL * 7.0;	//!< マルチノードシフタの大きさ
 	}
@@ -112,7 +112,7 @@ public class BhParams {
 		public static final String ATTR_NAME_ON_CHILD_REPLACED = "onChildReplaced";
 		public static final String ATTR_NAME_ON_DELETION_REQUESTED = "onDeletionRequested";
 		public static final String ATTR_NAME_ON_CUT_REQUESTED = "onCutRequested";
-		public static final String ATTR_NAME_ON_IMIT_DELETION_REQUESWTED = "onImitDeletionRequested";
+		public static final String ATTR_NAME_ON_COPY_REQUESTED = "onCopyRequested";
 		public static final String ATTR_NAME_IMITATION_NODE_ID = "imitationNodeID";
 		public static final String ATTR_NAME_CAN_CREATE_IMIT_MANUALLY = "canCreateImitManually";
 		public static final String ATTR_NAME_NODE_INPUT_CONTROL = "nodeInputControl";

@@ -67,7 +67,7 @@ public class TextNode  extends Imitatable implements Serializable {
 		BhNodeAttributes attributes) {
 
 		super(type, attributes, imitID_imitNodeID);
-		scriptNameOnTextAcceptabilityChecker = attributes.getOnTextAcceptabilityChecker();
+		scriptNameOnTextAcceptabilityChecker = attributes.getTextAcceptabilityChecker();
 		scriptNameOfTextFormatter = attributes.getTextFormatter();
 		imitManager = new ImitationManager<>();
 		text = attributes.getIinitString();

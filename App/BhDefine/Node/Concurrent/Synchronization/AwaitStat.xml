@@ -5,7 +5,8 @@
 	onMovedFromChildToWS="onStatMovedToWS.js"
 	onMovedToChild="onStatMovedToChild.js"
 	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js">
+	onCutRequested="onCutRequested.js"
+	onCopyRequested="onCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idReusableBarrierVarCnctr" name="Arg0"/>

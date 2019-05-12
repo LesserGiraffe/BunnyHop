@@ -38,6 +38,7 @@ public class BhNodeAttributes {
 	private String textAcceptabilityChecker;
 	private String onDeletionRequested;
 	private String onCutRequested;
+	private String onCopyRequested;
 	private String onChildReplaced;
 	private String textFormatter;
 	private String syntaxErrorChecker;
@@ -84,11 +85,14 @@ public class BhNodeAttributes {
 		//textFormatter
 		nodeAttrs.textFormatter = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_TEXT_FORMATTER);
 
-		//onDeletionCmdReceived
+		//onDeletionRequested
 		nodeAttrs.onDeletionRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_DELETION_REQUESTED);
 
-		//onCutAndPasteCmdReceived
+		//onCutRequested
 		nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CUT_REQUESTED);
+
+		//onCopyRequested
+		nodeAttrs.onCopyRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_COPY_REQUESTED);
 
 		//onChildReplaced
 		nodeAttrs.onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CHILD_REPLACED);
@@ -142,7 +146,7 @@ public class BhNodeAttributes {
 		return onMovedToChild;
 	}
 
-	public String getOnTextAcceptabilityChecker() {
+	public String getTextAcceptabilityChecker() {
 		return textAcceptabilityChecker;
 	}
 
@@ -152,6 +156,10 @@ public class BhNodeAttributes {
 
 	public String getOnCutRequested() {
 		return onCutRequested;
+	}
+
+	public String getOnCopyRequested() {
+		return onCopyRequested;
 	}
 
 	public String getOnChildReplaced() {

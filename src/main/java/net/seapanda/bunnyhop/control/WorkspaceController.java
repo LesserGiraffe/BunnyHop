@@ -127,22 +127,8 @@ public class WorkspaceController implements MsgProcessor {
 				// 面積の大きい順にソート
 				containedNodes.sort(this::compareViewSize);
 
-				// 親ノードが選択候補でかつ, 親ノードのボディの領域に包含されているノードは選択対象としない.
-				LinkedList<BhNodeView> nodesToSelect = new LinkedList<>(containedNodes);
 				var userOpeCmd = new UserOperationCommand();
-				while (nodesToSelect.size() != 0) {
-					BhNodeView larger = nodesToSelect.pop();
-					model.addSelectedNode(larger.getModel(), userOpeCmd);	// ノード選択
-					var iter = nodesToSelect.iterator();
-					while (iter.hasNext()) {
-						BhNodeView smaller = iter.next();
-						// 子孫 - 先祖関係にあってかつ領域が包含関係にある -> 矩形選択の対象としない
-						if (larger.getRegionManager().overlapsWith(smaller, OVERLAP_OPTION.CONTAIN) &&
-							smaller.getModel().isDescendantOf(larger.getModel())) {
-							iter.remove();
-						}
-					}
-				}
+				selectNodes(containedNodes, userOpeCmd);
 				BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 			});
 	}
@@ -163,11 +149,27 @@ public class WorkspaceController implements MsgProcessor {
 	}
 
 	/**
-	 * ノード
+	 * 矩形選択するノードを選び出す
 	 * @param candidates 矩形選択される候補ノード
+	 * @param userOpeCmd undo 用コマンドオブジェクト
 	 * */
-	private void selectNodes(List<BhNodeView> candidates) {
+	private void selectNodes(List<BhNodeView> candidates, UserOperationCommand userOpeCmd) {
 
+		// 親ノードが選択候補でかつ, 親ノードのボディの領域に包含されているノードは選択対象としない.
+		LinkedList<BhNodeView> nodesToSelect = new LinkedList<>(candidates);
+		while (nodesToSelect.size() != 0) {
+			BhNodeView larger = nodesToSelect.pop();
+			model.addSelectedNode(larger.getModel(), userOpeCmd);	// ノード選択
+			var iter = nodesToSelect.iterator();
+			while (iter.hasNext()) {
+				BhNodeView smaller = iter.next();
+				// 子孫 - 先祖関係にあってかつ領域が包含関係にある -> 矩形選択の対象としない
+				if (larger.getRegionManager().overlapsWith(smaller, OVERLAP_OPTION.CONTAIN) &&
+					smaller.getModel().isDescendantOf(larger.getModel())) {
+					iter.remove();
+				}
+			}
+		}
 	}
 
 	/**

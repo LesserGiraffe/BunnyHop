@@ -168,7 +168,7 @@ public class MenuOperationController {
 			if (currentWS == null)
 				return;
 
-			javafx.geometry.Point2D pos = workspaceSetTab.localToScene(0, workspaceSetTab.getHeight() / 2.0);
+			javafx.geometry.Point2D pos = workspaceSetTab.localToScene(0, workspaceSetTab.getHeight() / 3.0);
 			MsgData localPos = MsgTransporter.INSTANCE.sendMessage(
 				BhMsg.SCENE_TO_WORKSPACE,
 				new MsgData(new Vec2D(pos.getX(), pos.getY())),

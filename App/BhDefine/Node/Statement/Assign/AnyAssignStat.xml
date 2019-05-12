@@ -6,7 +6,8 @@
 	onMovedToChild="onStatMovedToChild.js"
 	onChildReplaced="onChildOfAnyTypeNodeReplaced.js"
 	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js">
+	onCutRequested="onCutRequested.js"
+	onCopyRequested="onCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idAnyVarCnctr" name="LeftVar"/>

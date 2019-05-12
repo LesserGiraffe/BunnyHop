@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.function.Predicate;
 
 import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -58,6 +59,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	private final String scriptNameOnMovedToChild;	//!< ワークスペースもしくは, 子ノードから子ノードに移されたときに実行されるスクリプトの名前
 	private final String scriptNameOnDeletionRequested;	//!< ユーザー操作により, このノードが削除候補になったときに実行されるスクリプト名
 	private final String scriptNameOnCutRequested;	//!< ユーザー操作により, このノードがカット&ペーストされるときに実行されるスクリプト名
+	private final String scriptNameOnCopyRequested;	//!< ユーザー操作により, このノードがコピー&ペーストされるときに実行されるスクリプト名
 	private final String scriptNameOfSyntaxErrorChecker; //!< イミテーションノードがスコープ内かどうかをチェックするスクリプトの名前
 
 	public final String type;	//!< ノードのタイプ (connective, void, textField, ...)
@@ -128,6 +130,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		this.scriptNameOnMovedToChild = attributes.getOnMovedToChild();
 		this.scriptNameOnDeletionRequested = attributes.getOnDeletionRequested();
 		this.scriptNameOnCutRequested = attributes.getOnCutRequested();
+		this.scriptNameOnCopyRequested = attributes.getOnCopyRequested();
 		this.scriptNameOfSyntaxErrorChecker = attributes.getSyntaxErrorChecker();
 	}
 
@@ -144,6 +147,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		scriptNameOnMovedToChild = org.scriptNameOnMovedToChild;
 		scriptNameOnDeletionRequested = org.scriptNameOnDeletionRequested;
 		scriptNameOnCutRequested = org.scriptNameOnCutRequested;
+		scriptNameOnCopyRequested = org.scriptNameOnCopyRequested;
 		scriptNameOfSyntaxErrorChecker = org.scriptNameOfSyntaxErrorChecker;
 		type = org.type;
 		lastReplaced = null;
@@ -508,11 +512,12 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 
 	/**
 	 * ユーザー操作により, このノードがカット&ペーストされる直前に呼ばれるイベント処理を実行する.
-	 * @param nodesToCut このノードとともに削除される予定のノード
+	 * @param nodesToCut このノードとともにカットされる予定のノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @return カットをキャンセルする場合 false.  続行する場合 true.
 	 * */
-	public boolean execScriptOnCutRequested(Collection<BhNode> nodesToCut, UserOperationCommand userOpeCmd) {
+	public boolean execScriptOnCutRequested(
+		Collection<? extends BhNode> nodesToCut, UserOperationCommand userOpeCmd) {
 
 		Script onCutRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnCutRequested);
 		if (onCutRequested == null)
@@ -536,6 +541,68 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		throw new AssertionError(
 			this.getClass().getSimpleName()
 			+ "::execScriptOnCutRequested  (" + scriptNameOnCutRequested + " must return a boolean value.)");
+	}
+
+	/**
+	 * ノードごとに設定されたコピーを行う.
+	 * @param nodesToCopy このノードとともにコピーされるノード
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * @return 作成したコピーノード.  コピーノードを作らなかった場合 null.
+	 * */
+	public BhNode genCopyNode(
+		Collection<? extends BhNode> nodesToCopy, UserOperationCommand userOpeCmd) {
+
+		Script onCopyRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnCopyRequested);
+		if (onCopyRequested == null)
+			return copy(userOpeCmd, node -> true);
+
+		Object ret = null;
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCopy);
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+		try {
+			ret = ContextFactory.getGlobal().call(cx -> onCopyRequested.exec(cx, scriptScope));
+		}
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				BhNode.class.getSimpleName() + "::execScriptOnCopyRequested   "
+				+ scriptNameOnCopyRequested + "\n" + e.toString() + "\n");
+		}
+
+		if (ret == null)
+			return null;
+
+		if (ret instanceof Function) {
+			Function copyCheckFunc = (Function)ret;
+			return copy(userOpeCmd, genCopyCheckFunc(copyCheckFunc));
+		}
+
+		throw new AssertionError(
+			this.getClass().getSimpleName()
+			+ "::execScriptOnCopyRequested  (" + scriptNameOnCopyRequested
+			+ " must return null or a function that returns a boolean value.)");
+	}
+
+	/**
+	 * コピー判定関数を作成する.
+	 * @param copyCheckFunc 作成するコピー判定関数が呼び出す Javascript の関数
+	 * @return コピー判定関数
+	 * */
+	private Predicate<BhNode> genCopyCheckFunc(Function copyCheckFunc) {
+
+		Predicate<BhNode> isNodeToCopy = node -> {
+
+			Object retVal = ContextFactory.getGlobal().call(
+				cx -> ((Function)copyCheckFunc).call(cx, scriptScope, scriptScope, new Object[] {node}));
+
+			if (!(retVal instanceof Boolean)) {
+				MsgPrinter.INSTANCE.errMsgForDebug(
+					scriptNameOnCopyRequested + " must return null or a function that returns a boolean value.");
+				throw new ClassCastException(
+					scriptNameOnCopyRequested + " must return null or a function that returns a boolean value.");
+			}
+			return (boolean)retVal;
+		};
+		return isNodeToCopy;
 	}
 
 	/**

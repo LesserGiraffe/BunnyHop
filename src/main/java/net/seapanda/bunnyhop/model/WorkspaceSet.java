@@ -33,6 +33,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
@@ -176,10 +177,13 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 */
 	private void copyAndPaste(Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperationCommand userOpeCmd) {
 
-		var nodesToPaste = new ArrayList<BhNode>();
-		for (var node : readyToCopy)
-			if (canCopyOrCut(node))
-				nodesToPaste.add(node);
+		Collection<BhNode> candidates = readyToCopy.stream()
+			.filter(this::canCopyOrCut).collect(Collectors.toCollection(HashSet::new));
+
+		Collection<Pair<BhNode, BhNode>> orgs_copies = candidates.stream()
+			.map(node -> new Pair<BhNode, BhNode>(node, node.genCopyNode(candidates, userOpeCmd)))
+			.filter(org_copy -> org_copy._2 != null)
+			.collect(Collectors.toCollection(ArrayList::new));
 
 		// 外部ノードでかつ, コピー対象に含まれていないでかつ, 親はコピー対象 -> コピーしない
 		Predicate<BhNode> isNodeToBeCopied = bhNode -> {
@@ -187,21 +191,19 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		};
 
 		// 貼り付け処理
-		var pastedNodes = new ArrayList<BhNode>();
-		for (var node : nodesToPaste) {
-			BhNode nodeToPaste = node.copy(userOpeCmd, isNodeToBeCopied);
-			NodeMVCBuilder.build(nodeToPaste);
-			TextImitationPrompter.prompt(nodeToPaste);
+		for (var org_copy : orgs_copies) {
+			BhNode copy = org_copy._2;
+			NodeMVCBuilder.build(copy);
+			TextImitationPrompter.prompt(copy);
 			BhNodeHandler.INSTANCE.addRootNode(
 				wsToPasteIn,
-				nodeToPaste,
+				copy,
 				pasteBasePos.x,
 				pasteBasePos.y + pastePosOffsetCount * BhParams.LnF.REPLACED_NODE_SHIFT * 2,
 				userOpeCmd);
-			pastedNodes.add(nodeToPaste);
 
 			//コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
-			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
+			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(org_copy._1);
 			pasteBasePos.x += size.x+ BhParams.LnF.REPLACED_NODE_SHIFT * 2;
 		}
 		pastePosOffsetCount = (pastePosOffsetCount > 2) ? -2 : ++pastePosOffsetCount;
@@ -222,9 +224,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			.filter(this::canCopyOrCut).collect(Collectors.toCollection(HashSet::new));
 
 		Collection<BhNode> nodesToPaste = candidates.stream()
-			.filter(node -> {
-				return node.execScriptOnCutRequested(candidates, userOpeCmd);
-			})
+			.filter(node -> node.execScriptOnCutRequested(candidates, userOpeCmd))
 			.collect(Collectors.toCollection(ArrayList::new));
 
 		// 貼り付け処理

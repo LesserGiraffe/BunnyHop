@@ -5,7 +5,8 @@
 	nodeStyleID="BoolVarDecl.json"
 	onMovedFromChildToWS="onVarDeclMovedToWS.js"
 	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js">
+	onCutRequested="onCutRequested.js"
+	onCopyRequested="onCopyRequested.js">
 
     <Imitation imitationID="imitIdManual" imitationNodeID="idBoolVar"/>
     <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idBoolArg"/>

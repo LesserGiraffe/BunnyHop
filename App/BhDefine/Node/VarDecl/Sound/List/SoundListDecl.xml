@@ -5,7 +5,8 @@
 	nodeStyleID="SoundListDecl.json"
 	onMovedFromChildToWS="onVarDeclMovedToWS.js"
 	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js">
+	onCutRequested="onCutRequested.js"
+	onCopyRequested="onCopyRequested.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idSoundList"/>
 	<Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idSoundListArg"/>
