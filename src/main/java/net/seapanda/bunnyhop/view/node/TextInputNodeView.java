@@ -25,6 +25,7 @@ import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.TextInputControl;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 
 public abstract class TextInputNodeView extends BhNodeView {
 

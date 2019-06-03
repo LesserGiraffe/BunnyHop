@@ -16,7 +16,10 @@
 package net.seapanda.bunnyhop.view.node;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -47,7 +50,10 @@ import net.seapanda.bunnyhop.view.bodyshape.BodyShape;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShape.BODY_SHAPE;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape.CNCTR_SHAPE;
-import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
+import net.seapanda.bunnyhop.viewprocessor.CallbackInvoker;
+import net.seapanda.bunnyhop.viewprocessor.NodeViewComponent;
 
 /**
  * ノードのビュークラス <br>
@@ -58,10 +64,16 @@ import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
  * ノードのシェイプを持つペインを継承している
  * @author K.Koike
  * */
-public abstract class BhNodeView extends Pane implements Showable {
+public abstract class BhNodeView extends Pane implements NodeViewComponent, Showable {
+
+	final double SYNTAX_ERR_MARK_VIEW_ORDER = -1e8;
+	final double FRONT_VIEW_ORDER_OFFSET = -2e8;
+	final double CHILD_VIEW_ORDER_OFFSET_FROM_PARENT = -20.0;
+	final double SHADOW_GROUP_VIEW_ORDER_OFFSET = 10.0;
 
 	final protected Polygon nodeShape = new Polygon();	//!< 描画されるポリゴン
-	final protected Line syntaxErrorMark = new Line(0.0, 0.0, 0.0, 0.0);	//!< 構文エラーノードであることを示す印
+	final protected Polygon shadowShape = new Polygon();	//!< 影描画用ポリゴン
+	final protected SyntaxErrorMark syntaxErrorMark = this.new SyntaxErrorMark(0.0, 0.0, 0.0, 0.0);	//!< 構文エラーノードであることを示す印
 	final protected BhNodeViewStyle viewStyle;	//!< ノードの見た目のパラメータオブジェクト
 	final private BhNode model;
 	final protected SimpleObjectProperty<BhNodeViewGroup> parent = new SimpleObjectProperty<>(null);	//!<このノードが子ノードとなっているConnectiveView のグループ
@@ -77,10 +89,10 @@ public abstract class BhNodeView extends Pane implements Showable {
 	 * 初期化する
 	 */
 	protected void initialize() {
+
+		shadowShape.setVisible(false);
+		shadowShape.setMouseTransparent(true);
 		getTreeManager().addChild(nodeShape);
-		getTreeManager().addChild(syntaxErrorMark);
-		syntaxErrorMark.setVisible(false);
-		syntaxErrorMark.setMouseTransparent(true);
 		appearanceManager.addCssClass(viewStyle.cssClass);
 		appearanceManager.addCssClass(BhParams.CSS.CLASS_BHNODE);
 	}
@@ -103,14 +115,6 @@ public abstract class BhNodeView extends Pane implements Showable {
 		this.model = model;
 		connectorPart = this.new BhNodeViewConnector(viewStyle.connectorShape);
 		appearanceManager = this.new AppearanceManager(viewStyle.bodyShape, viewStyle.notchShape);
-	}
-
-	/**
-	 * BhNodeView を引数にとる関数オブジェクトを実行する<br>
-	 * @param visitorFunc BhNodeView を引数にとり処理するオブジェクト
-	 * */
-	public void accept(Consumer<BhNodeView> visitorFunc) {
-		visitorFunc.accept(this);
 	}
 
 	/**
@@ -178,6 +182,18 @@ public abstract class BhNodeView extends Pane implements Showable {
 	}
 
 	/**
+	 * このノードビューからルートノードビューに向けて順番に func を適用する.
+	 * @param func ノードの対して適用する関数
+	 * */
+	public void invokeToRoot(Consumer<BhNodeView> func) {
+		BhNodeView view = this;
+		while (view != null) {
+			func.accept(view);
+			view = view.getTreeManager().getParentView();
+		}
+	}
+
+	/**
 	 * BhNodeのコネクタに関する処理をするクラス
 	 */
 	public class BhNodeViewConnector {
@@ -217,6 +233,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		private Consumer<BhNodeViewGroup> updateAppearanceFunc;	//!< ノードの形状を更新する関数
 		private final ConnectorShape notch;	//!< 切り欠き部分の形を表すオブジェクト
 		private BodyShape body;
+		private boolean isShadowRoot = false;	//!< 影が描画されるノードビュー群のルートノードである場合 true
 
 		/**
 		 * コンストラクタ
@@ -246,15 +263,6 @@ public abstract class BhNodeView extends Pane implements Showable {
 		}
 
 		/**
-		 * 最前面に移動する
-		 * */
-		public void toForeGround() {
-			BhNodeView.this.toFront();
-			if (parent.get() != null)
-				parent.get().toForeGround();
-		}
-
-		/**
 		 * cssクラス名を追加する
 		 * @param cssClassName cssクラス名
 		 * */
@@ -270,9 +278,8 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * */
 		protected void updatePolygonShape() {
 
-			nodeShape.getPoints().clear();
 			Vec2D bodySize = getRegionManager().getBodySize(false);
-			nodeShape.getPoints().addAll(
+			nodeShape.getPoints().setAll(
 				body.createVertices(
 					bodySize.x,
 					bodySize.y,
@@ -285,6 +292,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 					viewStyle.notchPos,
 					viewStyle.notchWidth,
 					viewStyle.notchHeight));
+			shadowShape.getPoints().setAll(nodeShape.getPoints());
 			syntaxErrorMark.setEndX(bodySize.x);
 			syntaxErrorMark.setEndY(bodySize.y);
 		}
@@ -297,13 +305,14 @@ public abstract class BhNodeView extends Pane implements Showable {
 		}
 
 		/**
-		 * ノードの大きさと子ノードの配置を更新する.
+		 * ノードの大きさと子ノードの配置を更新する.<br>
 		 * 4分木空間上の位置も更新する.
-		 * @param child 形状が変わった子ノード
+		 * @param child 形状が変わった子ノードを含むグループ. このノード自体の形状が変わった場合 null を指定する.
 		 * */
 		public void updateAppearance(BhNodeViewGroup child) {
 
-			updateAppearanceFunc.accept(child);
+			if (updateAppearanceFunc != null)
+				updateAppearanceFunc.accept(child);
 			getTreeManager().updateEvenFlg();
 
 			//BhNoteSelectionView のBhNode配置に必要
@@ -317,10 +326,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * このノード以下の可視性を変更する.
 		 * */
 		public void setVisible(boolean visible) {
-
-			// ダングリング状態のノードはGUIツリー上では繋がっている.
-			// ダングリング状態のノードの可視性を変更しないために, 継承している Pane ではなく nodeShape の可視性を変更する
-			accept(view -> view.nodeShape.setVisible(visible));
+			CallbackInvoker.invoke(view -> view.nodeShape.setVisible(visible), BhNodeView.this);
 		}
 
 		/**
@@ -344,6 +350,43 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * */
 		public boolean getSyntaxError() {
 			return BhNodeView.this.syntaxErrorMark.isVisible();
+		}
+
+		/**
+		 * ノードビューの選択表示の有効/無効を切り替える
+		 * @param enable 選択表示を有効化する場合 true
+		 * */
+		public void select(boolean enable) {
+			switchPseudoClassActivation(enable, BhParams.CSS.PSEUDO_SELECTED);
+		}
+
+		/**
+		 * このノードを起点とする影の表示/非表示を切り替える.
+		 * @param enable 影を表示する場合 true
+		 * */
+		public void showShadow(boolean enable) {
+
+			// 同一ツリーにある描画済みの影を消す
+			if (enable) {
+				CallbackInvoker.invoke(
+					nodeView -> {
+						nodeView.shadowShape.setVisible(false);
+						nodeView.getAppearanceManager().isShadowRoot = false;
+					},
+					getTreeManager().getRootView());
+			}
+
+			isShadowRoot = enable;
+			CallbackInvoker.invokeForOuters(nodeView -> nodeView.shadowShape.setVisible(enable), BhNodeView.this);
+			getPositionManager().updateShadowZPos();
+		}
+
+		/**
+		 * このノードが影が描画されるノード群のルートかどうかを返す.
+		 * @return このノードが影が描画されるノード群のルートである場合 true.
+		 * */
+		public boolean isShadowRoot() {
+			return isShadowRoot;
 		}
 	}
 
@@ -375,22 +418,61 @@ public abstract class BhNodeView extends Pane implements Showable {
 			return new Pair<>(wholeBodyRange, connectorPartRange);
 		}
 
-		public void updateBodyPos(double upperLeftX, double upperLeftY, double lowerRightX, double lowerRightY) {
+		private void updateBodyPos(double upperLeftX, double upperLeftY, double lowerRightX, double lowerRightY) {
 			wholeBodyRange.updatePos(upperLeftX, upperLeftY, lowerRightX, lowerRightY);
 		}
 
-		public void updateConnectorPos(double upperLeftX, double upperLeftY, double lowerRightX, double lowerRightY) {
+		private void updateConnectorPos(double upperLeftX, double upperLeftY, double lowerRightX, double lowerRightY) {
 			connectorPartRange.updatePos(upperLeftX, upperLeftY, lowerRightX, lowerRightY);
+		}
+
+		/**
+		 * 4分木空間上での位置を更新する.
+		 * @param posX 本体部分左上のX位置
+		 * @param posY 本体部分左上のY位置
+		 * */
+		public void updatePosOnQTSpace(double posX, double posY) {
+
+			Vec2D bodySize = getRegionManager().getBodySize(false);
+			double bodyUpperLeftX = posX;
+			double bodyUpperLeftY = posY;
+			double bodyLowerRightX = posX + bodySize.x;
+			double bodyLowerRightY = posY + bodySize.y;
+			double cnctrUpperLeftX = 0.0;
+			double cnctrUpperLeftY = 0.0;
+			double cnctrLowerRightX = 0.0;
+			double cnctrLowerRightY = 0.0;
+
+			double boundsWidth = viewStyle.connectorWidth * viewStyle.connectorBoundsRate;
+			double boundsHeight = viewStyle.connectorHeight * viewStyle.connectorBoundsRate;
+
+			if (viewStyle.connectorPos == CNCTR_POS.LEFT) {
+				cnctrUpperLeftX = posX - (boundsWidth + viewStyle.connectorWidth) / 2.0;
+				cnctrUpperLeftY = posY - (boundsHeight - viewStyle.connectorHeight) / 2.0 + viewStyle.connectorShift;
+				cnctrLowerRightX = cnctrUpperLeftX + boundsWidth;
+				cnctrLowerRightY = cnctrUpperLeftY + boundsHeight;
+			}
+			else if (viewStyle.connectorPos == CNCTR_POS.TOP) {
+				cnctrUpperLeftX = posX - (boundsWidth - viewStyle.connectorWidth) / 2.0 + viewStyle.connectorShift;
+				cnctrUpperLeftY = posY - (boundsHeight + viewStyle.connectorHeight) / 2.0;
+				cnctrLowerRightX = cnctrUpperLeftX + boundsWidth;
+				cnctrLowerRightY = cnctrUpperLeftY + boundsHeight;
+			}
+			updateBodyPos(bodyUpperLeftX, bodyUpperLeftY, bodyLowerRightX, bodyLowerRightY);
+			updateConnectorPos(cnctrUpperLeftX, cnctrUpperLeftY, cnctrLowerRightX, cnctrLowerRightY);
 		}
 
 		/**
 		 * 4分木空間からこのView以下の領域判定オブジェクトを消す
 		 */
 		public void removeQtRectable() {
-			accept(view -> {
-				QuadTreeManager.removeQuadTreeObj(view.getRegionManager().connectorPartRange);
-				QuadTreeManager.removeQuadTreeObj(view.getRegionManager().wholeBodyRange);
-			});
+
+			CallbackInvoker.invoke(
+				view -> {
+					QuadTreeManager.removeQuadTreeObj(view.getRegionManager().connectorPartRange);
+					QuadTreeManager.removeQuadTreeObj(view.getRegionManager().wholeBodyRange);
+				},
+				BhNodeView.this);
 		}
 
 		/**
@@ -460,36 +542,140 @@ public abstract class BhNodeView extends Pane implements Showable {
 		}
 
 		/**
-		 * このBhNodeView をGUIツリーから取り除く
-		 *  BhNodeView の木構造からは取り除かない
+		 * これ以下のノードビューをGUIツリーから取り除く
+		 * BhNodeViewGroup の木構造からは取り除かない
 		 */
 		public void removeFromGUITree() {
 
-			Parent parent = BhNodeView.this.getParent();
+			CallbackInvoker.invoke(
+				nodeView -> {
+
+					// JDK-8205092 対策. viewOrder を使うとノード削除後に NullPointerException が発生するのを防ぐ.
+					nodeView.setMouseTransparent(true);
+
+					Parent parent = nodeView.getParent();
+					if (parent instanceof Group) {
+						var group = (Group)parent;
+						group.getChildren().remove(nodeView);
+						group.getChildren().remove(nodeView.syntaxErrorMark);
+					}
+					else if (parent instanceof Pane) {
+						var pane = (Pane)parent;
+						pane.getChildren().remove(nodeView);
+						pane.getChildren().remove(nodeView.syntaxErrorMark);
+					}
+
+					nodeView.shadowShape.setVisible(false);
+					Node shadowGroup = nodeView.shadowShape.getParent();
+					if (shadowGroup instanceof Group)
+						((Group)shadowGroup).getChildren().remove(nodeView.shadowShape);
+				},
+				BhNodeView.this);
+		}
+
+		/**
+		 * これ以下のノードビューを引数で指定したGUIコンポーネントの子として追加する. <br>
+		 * parent が Group か Pane のサブクラスでない場合, 追加しない.
+		 * @param parent 親となるGUIコンポーネント. (null可)
+		 * */
+		public void addToGUITree(Parent parent) {
+
+			if (!(parent instanceof Group) && !(parent instanceof Pane))
+				return;
+
+			var nodes = new ArrayList<Node>();
+			var shadowShapes = new ArrayList<Node>();
+			CallbackInvoker.invoke(
+				nodeView -> {
+					nodes.add(nodeView);
+					nodes.add(nodeView.syntaxErrorMark);
+					shadowShapes.add(nodeView.shadowShape);
+					nodeView.shadowShape.setVisible(false);
+				},
+				BhNodeView.this);
+
+			// 同一ツリー内の子ノードのから子ノードへの移動の場合などに
+			// 子要素重複追加エラーが発生するので, 重複ノードを取り除く
+			ArrayList<Node> nodesToAdd = filterOutDuplicatedNodes(parent, nodes);
+
+			// JDK-8205092 対策
+			nodesToAdd.forEach(node -> {
+				if (!(node instanceof VoidNodeView) &&
+					!(node instanceof NoContentNodeView) &&
+					!(node instanceof SyntaxErrorMark))
+					// マウスイベント有効化
+					node.setMouseTransparent(false);
+			});
+
 			if (parent instanceof Group)
-				((Group)parent).getChildren().remove(BhNodeView.this);
+				((Group)parent).getChildren().addAll(nodesToAdd);
 			else if (parent instanceof Pane)
-				((Pane)parent).getChildren().remove(BhNodeView.this);
+				((Pane)parent).getChildren().addAll(nodesToAdd);
+
+			addShadowShapes(parent, shadowShapes);
+			getPositionManager().updateZPos();
+		}
+
+		/**
+		 * parent の子要素と重複するノードを nodes から除外したノードリストを作って返す.
+		 * @param parent これの子ノードと重複する要素を調べる
+		 * @param nodes 重複する要素を調べるノードリスト
+		 * @return nodes から parent の子と重複する要素を取り除いたリスト
+		 * */
+		private ArrayList<Node> filterOutDuplicatedNodes(Parent parent, Collection<Node> nodes) {
+
+			Set<Node> childNodes = new HashSet<>(parent.getChildrenUnmodifiable());
+			ArrayList<Node> nodesToAdd = nodes.stream()
+			.filter(node -> !childNodes.contains(node))
+			.collect(Collectors.toCollection(ArrayList::new));
+			return nodesToAdd;
+		}
+
+		/**
+		 * 影描画用ポリゴンを影描画用領域に追加し, 影描画を更新する.
+		 * @param parent 影描画用領域の親ノード
+		 * @param shadowShapes 追加する影ポリゴン
+		 * */
+		private void addShadowShapes(Parent parent, Collection<Node> shadowShapes) {
+
+			Node shadowShapeContainer = parent.lookup("#"+BhParams.Fxml.ID_NODE_VIEW_SHADOW_PANE);
+			if (shadowShapeContainer instanceof Group) {
+				Group shadowGroup = (Group)shadowShapeContainer;
+				Set<Node> childShapes = new HashSet<>(shadowGroup.getChildren());
+				ArrayList<Node> shadowShapesToAdd = shadowShapes.stream()
+				.filter(shape -> !childShapes.contains(shape))
+				.collect(Collectors.toCollection(ArrayList::new));
+				shadowGroup.getChildren().addAll(shadowShapesToAdd);
+			}
+
+			// 影描画更新
+			invokeToRoot(nodeView -> {
+				if(nodeView.getAppearanceManager().isShadowRoot())
+					nodeView.getAppearanceManager().showShadow(true);
+			});
 		}
 
 		/**
 		 * このノード以下の奇偶フラグを更新する
 		 * */
 		public void updateEvenFlg() {
-			accept(view -> {
-				BhNodeView parentView = view.getTreeManager().getParentView();
 
-				if (parentView != null) {
-					if (view.parent.get().inner && !parentView.viewStyle.bodyShape.equals(BODY_SHAPE.BODY_SHAPE_NONE))
-						view.getTreeManager().isEven = !parentView.getTreeManager().isEven;
-					else
-						view.getTreeManager().isEven = parentView.getTreeManager().isEven;
-				}
-				else {
-					view.getTreeManager().isEven = true;	//ルートはeven
-				}
-				view.getAppearanceManager().switchPseudoClassActivation(view.getTreeManager().isEven, BhParams.CSS.PSEUDO_IS_EVEN);
-			});
+			CallbackInvoker.invoke(
+				view -> {
+					BhNodeView parentView = view.getTreeManager().getParentView();
+
+					if (parentView != null) {
+						if (view.parent.get().inner && !parentView.viewStyle.bodyShape.equals(BODY_SHAPE.BODY_SHAPE_NONE))
+							view.getTreeManager().isEven = !parentView.getTreeManager().isEven;
+						else
+							view.getTreeManager().isEven = parentView.getTreeManager().isEven;
+					}
+					else {
+						view.getTreeManager().isEven = true;	//ルートはeven
+					}
+					view.getAppearanceManager().switchPseudoClassActivation(view.getTreeManager().isEven, BhParams.CSS.PSEUDO_IS_EVEN);
+				},
+				BhNodeView.this);
 		}
 
 		/**
@@ -498,7 +684,18 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * */
 		public void addChild(Node child) {
 			BhNodeView.this.getChildren().add(child);
-			BhNodeView.this.syntaxErrorMark.toFront();
+		}
+
+		/**
+		 * このノードビューのルートノードビューを返す
+		 * */
+		public BhNodeView getRootView() {
+
+			BhNodeView parent = getParentView();
+			if (parent == null)
+				return BhNodeView.this;
+
+			return parent.getTreeManager().getRootView();
 		}
 	}
 
@@ -507,7 +704,8 @@ public abstract class BhNodeView extends Pane implements Showable {
 	 * */
 	public class PositionManager {
 
-		private BiConsumer<Double, Double> updateAbsPosFunc = this::defaultUpdateAbsPos;
+		private BiConsumer<Double, Double> updateAbsPosFunc;
+		private final Vec2D relativePos = new Vec2D(0.0, 0.0);
 
 		/**
 		 * ノードの親からの相対位置を指定する
@@ -515,8 +713,8 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * @param posY 親ノードからの相対位置 Y
 		 * */
 		public final void setRelativePosFromParent(double posX, double posY) {
-			BhNodeView.this.setTranslateX(posX);
-			BhNodeView.this.setTranslateY(posY);
+			relativePos.x = posX;
+			relativePos.y = posY;
 		}
 
 		/**
@@ -524,7 +722,7 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * @return ノードの親からの相対位置
 		 * */
 		public final Vec2D getRelativePosFromParent() {
-			return new Vec2D(BhNodeView.this.getTranslateX(), BhNodeView.this.getTranslateY());
+			return new Vec2D(relativePos.x, relativePos.y);
 		}
 
 		/**
@@ -532,70 +730,79 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * @return ワークスペース上での位置
 		 * */
 		public Vec2D getPosOnWorkspace() {
-			return ViewHelper.INSTANCE.getPosOnWorkspace(BhNodeView.this);
+			return new Vec2D(BhNodeView.this.getTranslateX(), BhNodeView.this.getTranslateY());
 		}
 
 		/**
-		 * ノードの絶対値値を更新する (=4分木空間上での位置を更新する)
-		 * @param posX 本体部分左上のX位置
-		 * @param posY 本体部分左上のY位置
+		 * ワークスペース上での位置を設定する.
+		 * */
+		private void setPosOnWorkspace(double posX, double posY) {
+
+			BhNodeView.this.setTranslateX(posX);
+			BhNodeView.this.setTranslateY(posY);
+			BhNodeView.this.syntaxErrorMark.setTranslateX(posX);
+			BhNodeView.this.syntaxErrorMark.setTranslateY(posY);
+			BhNodeView.this.shadowShape.setTranslateX(posX);
+			BhNodeView.this.shadowShape.setTranslateY(posY);
+		}
+
+		/**
+		 * ノードの絶対位置を更新する. <br>
+		 * ワークスペース上での位置と4分木空間上での位置を更新する.
+		 * @param posX 本体部分左上のワークスペース上でのX位置
+		 * @param posY 本体部分左上のワークスペース上でのY位置
 		 * */
 		public void updateAbsPos(double posX, double posY) {
-			updateAbsPosFunc.accept(posX, posY);
+
+			viewRegionManager.updatePosOnQTSpace(posX, posY);
+			setPosOnWorkspace(posX, posY);
+			if (updateAbsPosFunc != null)
+				updateAbsPosFunc.accept(posX, posY);
 		}
 
 		/**
-		 * ノードをGUI上で動かす. WS上の絶対位置(=4分木空間上の位置)は更新されない.
+		 * このノード以下のノードのZ位置を更新する
+		 * */
+		public void updateZPos() {
+
+			CallbackInvoker.invoke(
+				nodeView -> {
+					nodeView.syntaxErrorMark.setViewOrder(SYNTAX_ERR_MARK_VIEW_ORDER);
+					Parent parent = nodeView.getTreeManager().getParentView();
+					if (parent == null) {
+						nodeView.setViewOrder(0.0);
+						nodeView.getPositionManager().updateShadowZPos();
+						return;
+					}
+					double viewOrder = parent.getViewOrder() + CHILD_VIEW_ORDER_OFFSET_FROM_PARENT;
+					nodeView.setViewOrder(viewOrder);
+					nodeView.getPositionManager().updateShadowZPos();
+				},
+				BhNodeView.this);
+		}
+
+		/**
+		 * このノードが影を描画するノード群のルートノードである場合, 影描画用領域のZ位置を更新する
+		 * */
+		private void updateShadowZPos() {
+
+			Parent shadowGroup = shadowShape.getParent();
+			if (shadowGroup instanceof Group && getAppearanceManager().isShadowRoot()) {
+				((Group)shadowGroup).setViewOrder(getViewOrder() + SHADOW_GROUP_VIEW_ORDER_OFFSET);
+			}
+		}
+
+		/**
+		 * ノードをGUI上で動かす. WS上の絶対位置(=4分木空間上の位置)も更新する
 		 * @param diffX X方向移動量
 		 * @param diffY Y方向移動量
-		 * @return 移動後の新しい位置
 		 */
-		public Vec2D move(double diffX, double diffY) {
+		public void move(double diffX, double diffY) {
 
 			Vec2D posOnWS = getPosOnWorkspace();
 			Vec2D wsSize = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_WORKSPACE_SIZE, model.getWorkspace()).vec2d;
-			Vec2D movDistance = ViewHelper.INSTANCE.distance(new Vec2D(diffX, diffY), wsSize, posOnWS);
-			Vec2D curRelPos = getRelativePosFromParent();
-			double newPosX = curRelPos.x + movDistance.x;
-			double newPosY = curRelPos.y + movDistance.y;
-			setRelativePosFromParent(newPosX, newPosY);	//GUI上での移動
-			return getPosOnWorkspace();
-		}
-
-		/**
-		 * このノードの絶対位置を更新する
-		 * @param posX 本体部分左上のX位置
-		 * @param posY 本体部分左上のY位置
-		 * */
-		public void defaultUpdateAbsPos(double posX, double posY) {
-
-			Vec2D bodySize = getRegionManager().getBodySize(false);
-			double bodyUpperLeftX = posX;
-			double bodyUpperLeftY = posY;
-			double bodyLowerRightX = posX + bodySize.x;
-			double bodyLowerRightY = posY + bodySize.y;
-			double cnctrUpperLeftX = 0.0;
-			double cnctrUpperLeftY = 0.0;
-			double cnctrLowerRightX = 0.0;
-			double cnctrLowerRightY = 0.0;
-
-			double boundsWidth = viewStyle.connectorWidth * viewStyle.connectorBoundsRate;
-			double boundsHeight = viewStyle.connectorHeight * viewStyle.connectorBoundsRate;
-
-			if (viewStyle.connectorPos == CNCTR_POS.LEFT) {
-				cnctrUpperLeftX = posX - (boundsWidth + viewStyle.connectorWidth) / 2.0;
-				cnctrUpperLeftY = posY - (boundsHeight - viewStyle.connectorHeight) / 2.0 + viewStyle.connectorShift;
-				cnctrLowerRightX = cnctrUpperLeftX + boundsWidth;
-				cnctrLowerRightY = cnctrUpperLeftY + boundsHeight;
-			}
-			else if (viewStyle.connectorPos == CNCTR_POS.TOP) {
-				cnctrUpperLeftX = posX - (boundsWidth - viewStyle.connectorWidth) / 2.0 + viewStyle.connectorShift;
-				cnctrUpperLeftY = posY - (boundsHeight + viewStyle.connectorHeight) / 2.0;
-				cnctrLowerRightX = cnctrUpperLeftX + boundsWidth;
-				cnctrLowerRightY = cnctrUpperLeftY + boundsHeight;
-			}
-			viewRegionManager.updateBodyPos(bodyUpperLeftX, bodyUpperLeftY, bodyLowerRightX, bodyLowerRightY);
-			viewRegionManager.updateConnectorPos(cnctrUpperLeftX, cnctrUpperLeftY, cnctrLowerRightX, cnctrLowerRightY);
+			Vec2D newPos = ViewHelper.INSTANCE.newPosition(new Vec2D(diffX, diffY), wsSize, posOnWS);
+			updateAbsPos(newPos.x, newPos.y);
 		}
 
 		/**
@@ -603,6 +810,31 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * */
 		void setUpdateAbsPosFunc(BiConsumer<Double, Double> updateAbsPosFunc) {
 			this.updateAbsPosFunc = updateAbsPosFunc;
+		}
+
+		/**
+		 * Z位置を最前面か本来の位置にする.
+		 * @param enable 最前面に移動する場合 true. 本来の位置に移動する場合 false.
+		 * */
+		public void toFront(boolean enable) {
+
+			if (enable) {
+				Parent parent = getParent();
+				if (parent != null)
+					parent.toFront();
+
+				CallbackInvoker.invoke(
+					nodeView -> {
+						nodeView.setViewOrder(nodeView.getViewOrder() + FRONT_VIEW_ORDER_OFFSET);
+						nodeView.getPositionManager().updateShadowZPos();
+						nodeView.syntaxErrorMark.setViewOrder(
+							nodeView.syntaxErrorMark.getViewOrder() + FRONT_VIEW_ORDER_OFFSET);
+					},
+					BhNodeView.this);
+			}
+			else {
+				updateZPos();
+			}
 		}
 	}
 
@@ -646,6 +878,16 @@ public abstract class BhNodeView extends Pane implements Showable {
 		 * */
 		public void propagateEvent(Event event) {
 			nodeShape.fireEvent(event);
+		}
+	}
+
+	private class SyntaxErrorMark extends Line {
+
+		SyntaxErrorMark(double startX, double startY, double endX, double endY) {
+			super(startX, startY, endX, endY);
+			this.setVisible(false);
+			this.setMouseTransparent(true);
+			this.setViewOrder(SYNTAX_ERR_MARK_VIEW_ORDER);
 		}
 	}
 }

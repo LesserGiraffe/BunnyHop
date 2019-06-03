@@ -15,6 +15,7 @@
  */
 package net.seapanda.bunnyhop.control.node;
 
+import javafx.geometry.Point2D;
 import net.seapanda.bunnyhop.common.Single;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.BhMsg;
@@ -28,7 +29,6 @@ import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
@@ -87,7 +87,7 @@ public class BhNodeControllerInSelectionView {
 			BhNodeView nodeView = NodeMVCBuilder.build(newNode); //MVC構築
 			TextImitationPrompter.prompt(newNode);
 			currentView.content = nodeView;
-			Vec2D posOnRootView = ViewHelper.INSTANCE.getRelativePos(rootView, view);	//クリックされたテンプレートノードのルートノード上でのクリック位置
+			Vec2D posOnRootView = calcRelativePosFromRoot();	//クリックされたテンプレートノードのルートノード上でのクリック位置
 			posOnRootView.x += mouseEvent.getX();
 			posOnRootView.y += mouseEvent.getY();
 			MsgData posOnWS = MsgTransporter.INSTANCE.sendMessage(
@@ -130,6 +130,16 @@ public class BhNodeControllerInSelectionView {
 			currentView.content.getEventManager().propagateEvent(mouseEvent);
 			currentView.content = null;
 		});
+	}
+
+	/**
+	 * view の rootView からの相対位置を求める
+	 * */
+	private Vec2D calcRelativePosFromRoot() {
+
+		Point2D pos = view.localToScene(0.0, 0.0);
+		Point2D posFromRoot = rootView.sceneToLocal(pos);
+		return new Vec2D(posFromRoot.getX(), posFromRoot.getY());
 	}
 }
 

@@ -64,7 +64,7 @@ public class WorkspaceRegisterer implements BhModelProcessor {
 	@Override
 	public void visit(ConnectiveNode node) {
 		node.setWorkspace(ws, userOpeCmd);
-		node.introduceSectionsTo(this);
+		node.sendToSections(this);
 	}
 
 	@Override

@@ -33,7 +33,7 @@ public interface BhModelProcessor {
 	 * @param node 自オブジェクトを渡してもらう ConnectiveNode オブジェクト
 	 * */
 	default public void visit(ConnectiveNode node) {
-		node.introduceSectionsTo(this);
+		node.sendToSections(this);
 	}
 
 	/**
@@ -53,7 +53,7 @@ public interface BhModelProcessor {
 	 * @param section 自オブジェクトを渡してもらう section オブジェクト
 	 * */
 	default public void visit(Subsection section) {
-		section.introduceSubsectionTo(this);
+		section.sendToSubsections(this);
 	}
 
 	/**
@@ -61,7 +61,7 @@ public interface BhModelProcessor {
 	 * @param connectorGroup 自オブジェクトを渡してもらう ConnectorGroup オブジェクト
 	 * */
 	default public void visit(ConnectorSection connectorGroup) {
-		connectorGroup.introduceConnectorsTo(this);
+		connectorGroup.sendToConnectors(this);
 	}
 
 	/**
@@ -69,6 +69,6 @@ public interface BhModelProcessor {
 	 * @param connector 自オブジェクトを渡してもらう FixedConnector オブジェクト
 	 * */
 	default public void visit(Connector connector) {
-		connector.introduceConnectedNodeTo(this);
+		connector.sendToConnectedNode(this);
 	}
 }

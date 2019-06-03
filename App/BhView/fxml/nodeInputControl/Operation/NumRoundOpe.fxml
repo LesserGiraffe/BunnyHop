@@ -8,7 +8,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
-<?import net.seapanda.bunnyhop.view.node.*?>
+<?import net.seapanda.bunnyhop.view.node.part.*?>
 
 <ComboBox xmlns:fx="http://javafx.com/fxml">
 	<items>

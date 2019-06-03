@@ -34,7 +34,6 @@ import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
-import net.seapanda.bunnyhop.view.node.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.ConnectiveNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
@@ -42,6 +41,7 @@ import net.seapanda.bunnyhop.view.node.NoContentNodeView;
 import net.seapanda.bunnyhop.view.node.TextAreaNodeView;
 import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
 import net.seapanda.bunnyhop.view.node.VoidNodeView;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 
 /**
  * ノードのMVC関係を構築するクラス
@@ -114,7 +114,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 			topNodeView = connectiveNodeView;
 
 		parentStack.addLast(connectiveNodeView);
-		node.introduceSectionsTo(this);
+		node.sendToSections(this);
 		parentStack.removeLast();
 		addChildView(node, connectiveNodeView);
 	}
@@ -199,7 +199,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 	@Override
 	public void visit(Connector connector) {
 		connector.setScriptScope();
-		connector.introduceConnectedNodeTo(this);
+		connector.sendToConnectedNode(this);
 	}
 
 	private interface MVCConnector {

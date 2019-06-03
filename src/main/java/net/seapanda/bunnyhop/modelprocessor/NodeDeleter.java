@@ -60,7 +60,7 @@ public class NodeDeleter implements BhModelProcessor {
 		if (node.isImitationNode())
 			node.getOriginalNode().disconnectOrgImitRelation(node, userOpeCmd);
 
-		node.introduceSectionsTo(this);
+		node.sendToSections(this);
 		node.getImitationManager().deleteAllImitations(userOpeCmd);	//オリジナルが消えた場合, イミテーションも消える
 	}
 

@@ -55,7 +55,7 @@ public class CallbackInvoker implements BhModelProcessor {
 	@Override
 	public void visit(ConnectiveNode node) {
 		callbacks.call(node);
-		node.introduceSectionsTo(this);
+		node.sendToSections(this);
 	}
 
 	@Override
@@ -71,19 +71,19 @@ public class CallbackInvoker implements BhModelProcessor {
 	@Override
 	public void visit(Subsection section) {
 		callbacks.call(section);
-		section.introduceSubsectionTo(this);
+		section.sendToSubsections(this);
 	}
 
 	@Override
 	public void visit(ConnectorSection connectorGroup) {
 		callbacks.call(connectorGroup);
-		connectorGroup.introduceConnectorsTo(this);
+		connectorGroup.sendToConnectors(this);
 	}
 
 	@Override
 	public void visit(Connector connector) {
 		callbacks.call(connector);
-		connector.introduceConnectedNodeTo(this);
+		connector.sendToConnectedNode(this);
 	}
 
 	public static class Callbacks {

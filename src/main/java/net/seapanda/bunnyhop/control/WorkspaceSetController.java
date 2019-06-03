@@ -119,8 +119,8 @@ public class WorkspaceSetController implements MsgProcessor {
 
 		//タブの高さ分移動したときもノード選択ビューの高さを再計算する
 		nodeSelectionView.translateYProperty().addListener((observable, oldValue, newValue) -> {
-				nodeSelectionView.setMaxHeight(workspaceSetTab.getHeight() - newValue.doubleValue());
-			});
+			nodeSelectionView.setMaxHeight(workspaceSetTab.getHeight() - newValue.doubleValue());
+		});
 	}
 
 	/**

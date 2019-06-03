@@ -20,20 +20,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Consumer;
 
-import javafx.scene.Group;
 import net.seapanda.bunnyhop.common.Showable;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
-import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import net.seapanda.bunnyhop.viewprocessor.NodeViewComponent;
+import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 
 /**
  * BhNodeView の集合を持つクラス
  * @author K.Koike
  * */
-public class BhNodeViewGroup extends Group implements Showable {
+public class BhNodeViewGroup implements NodeViewComponent, Showable {
 
 	private final List<BhNodeViewGroup> subGroupList = new ArrayList<>();	//!< group が子に持つ BhNodeView のリスト
 	private ConnectiveNodeView parentView;	//!<このグループを持つConnectiveNode
@@ -42,6 +42,7 @@ public class BhNodeViewGroup extends Group implements Showable {
 	private BhNodeViewStyle.Arrangement arrangeParams; //!< ノード配置パラメータ
 	private final Map<String, BhNodeView> cnctrName_NodeView = new HashMap<>();	//!< コネクタ名とそのコネクタにつながるBhNodeView
 	private final Vec2D size = new Vec2D(0.0, 0.0);
+	private final Vec2D relativePos = new Vec2D(0.0, 0.0);
 
 	/**
 	 * コンストラクタ
@@ -81,7 +82,6 @@ public class BhNodeViewGroup extends Group implements Showable {
 			BhNodeViewGroup subGroup = new BhNodeViewGroup(this, inner);
 			subGroup.buildSubGroup(subGroupParams);
 			subGroupList.add(subGroup);
-			getChildren().add(subGroup);
 		});
 	}
 
@@ -97,7 +97,6 @@ public class BhNodeViewGroup extends Group implements Showable {
 			String cnctrName = cnctr.getSymbolName();
 			if (cnctrName_NodeView.containsKey(cnctrName)) {	// このグループ内に追加すべき場所が見つかった
 				cnctrName_NodeView.put(cnctrName, view);
-				getChildren().add(view);
 				view.getTreeManager().setParentGroup(this);
 				cnctr.setOuterFlag(!inner);
 				return true;
@@ -123,10 +122,9 @@ public class BhNodeViewGroup extends Group implements Showable {
 		for (Entry<String, BhNodeView> entrySet : cnctrName_NodeView.entrySet()) {
 			if (entrySet.getValue().equals(oldNodeView)) {
 				entrySet.setValue(newNodeView);
-				getChildren().remove(newNodeView);
-				getChildren().add(0, newNodeView);
-				newNodeView.getTreeManager().setParentGroup(this);	//親をセット
-				oldNodeView.getTreeManager().setParentGroup(null);	//親を削除
+                newNodeView.getTreeManager().setParentGroup(this);    //親をセット
+                oldNodeView.getTreeManager().setParentGroup(null);    //親を削除
+				newNodeView.getTreeManager().addToGUITree(oldNodeView.getParent());
 				return;
 			}
 		}
@@ -149,7 +147,7 @@ public class BhNodeViewGroup extends Group implements Showable {
 	 * @return 親ノードまたは親グループからの相対位置
 	 */
 	public Vec2D getRelativePosFromParent() {
-		return new Vec2D(getTranslateX(), getTranslateY());
+		return new Vec2D(relativePos.x, relativePos.y);
 	}
 
 	/**
@@ -158,8 +156,8 @@ public class BhNodeViewGroup extends Group implements Showable {
 	 * @param posY 親ノードまたは親グループからのY相対位置
 	 */
 	public void setRelativePosFromParent(double posX, double posY) {
-		setTranslateX(posX);
-		setTranslateY(posY);
+		relativePos.x = posX;
+		relativePos.y = posY;
 	}
 
 	public Vec2D getSize() {
@@ -193,12 +191,34 @@ public class BhNodeViewGroup extends Group implements Showable {
 	public void rearrangeChild() {
 
 		Vec2D offset = calcOffsetOfCnctr();
-		Vec2D relPos = new Vec2D(offset.x + arrangeParams.paddingLeft, offset.y + arrangeParams.paddingTop);
+		Vec2D childRelPos = new Vec2D(offset.x + arrangeParams.paddingLeft, offset.y + arrangeParams.paddingTop);
 		Vec2D sizeBefor = new Vec2D(size.x, size.y);
 		Vec2D childMaxLen = new Vec2D(0.0, 0.0);
 		Vec2D childSumLen = new Vec2D(0.0, 0.0);
-		size.x = 0.0;
-		size.y = 0.0;
+
+		updateChildNodeRelPos(childRelPos, childMaxLen, childSumLen);
+		updateChildGroupRelPos(childRelPos, childMaxLen, childSumLen);
+		updateGroupSize(childMaxLen, childSumLen, offset);
+
+		if (sizeBefor.equals(size)) {
+			Vec2D posOnWS = getPosOnWorkspace();
+			updateAbsPos(posOnWS.x, posOnWS.y);
+			return;
+		}
+
+		if (parentView != null)
+			parentView.getAppearanceManager().updateAppearance(this);
+		else
+			parentGroup.rearrangeChild();
+	}
+
+	/**
+	 * 子ノードの相対位置を更新する
+	 * @param childRelPos 最初の子ノードの親からの相対位置. 次の子要素を置くべき相対位置で上書きされる.
+	 * @param childMaxLen 子ノードの最大幅と高さが格納される.
+	 * @param childSumLen 子ノードと幅の合計と高さの合計が格納される.
+	 * */
+	private void updateChildNodeRelPos(Vec2D childRelPos, Vec2D childMaxLen, Vec2D childSumLen) {
 
 		arrangeParams.cnctrNameList.forEach(cnctrName -> {
 
@@ -214,7 +234,7 @@ public class BhNodeViewGroup extends Group implements Showable {
 
 					//グループの中が縦並び
 					if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.COLUMN)
-						relPos.add(0, cnctrSize.y);
+						childRelPos.add(0, cnctrSize.y);
 				}
 				//コネクタが左に付く
 				else if (childNodeView.getConnectorManager().getConnectorPos() == BhNodeViewStyle.CNCTR_POS.LEFT) {
@@ -223,38 +243,52 @@ public class BhNodeViewGroup extends Group implements Showable {
 
 					//グループの中が横並び
 					if (arrangeParams.arrangement == BhNodeViewStyle.CHILD_ARRANGEMENT.ROW)
-						relPos.add(cnctrSize.x, 0);
+						childRelPos.add(cnctrSize.x, 0);
 				}
-				childNodeView.getPositionManager().setRelativePosFromParent(relPos.x, relPos.y);
-				updateChildRelativePos(relPos, childNodeSize);
+				childNodeView.getPositionManager().setRelativePosFromParent(childRelPos.x, childRelPos.y);
+				updateChildRelativePos(childRelPos, childNodeSize);
 			}
 		});
-
-		subGroupList.forEach(subGroup -> {
-			subGroup.setRelativePosFromParent(relPos.x, relPos.y);
-			Vec2D subGroupSize = subGroup.getSize();
-			updateChildRelativePos(relPos, subGroupSize);
-			childMaxLen.updateIfGreter(subGroupSize);
-			childSumLen.add(subGroupSize);
-		});
-
-		//サイズ更新
-		updateGroupSize(childMaxLen, childSumLen, offset);
-
-		if (sizeBefor.equals(size)) {
-			Vec2D posOnWS = ViewHelper.INSTANCE.getPosOnWorkspace(this);
-			updateAbsPos(posOnWS.x, posOnWS.y);
-			return;
-		}
-
-		if (parentView != null)
-			parentView.getAppearanceManager().updateAppearance(this);
-		else
-			parentGroup.rearrangeChild();
 	}
 
 	/**
-	 * グループのサイズを更新する
+	 * 子グループの相対位置を更新する
+	 * @param childRelPos 最初の子グループの親からの相対位置. 次の子要素を置くべき相対位置で上書きされる.
+	 * @param childMaxLen 子グループの最大幅と高さが格納される.
+	 * @param childSumLen 子グループと幅の合計と高さの合計が格納される.
+	 * */
+	private void updateChildGroupRelPos(Vec2D childRelPos, Vec2D childMaxLen, Vec2D childSumLen) {
+
+		subGroupList.forEach(subGroup -> {
+			subGroup.setRelativePosFromParent(childRelPos.x, childRelPos.y);
+			Vec2D subGroupSize = subGroup.getSize();
+			updateChildRelativePos(childRelPos, subGroupSize);
+			childMaxLen.updateIfGreter(subGroupSize);
+			childSumLen.add(subGroupSize);
+		});
+	}
+
+	/**
+	 * このグループのワークスペース上での位置を計算する.
+	 * @return このグループのワークスペース上での位置
+	 * */
+	private Vec2D getPosOnWorkspace() {
+
+		Vec2D pos = null;
+		if (parentGroup != null) {
+			pos = parentGroup.getPosOnWorkspace();
+		}
+		else {
+			pos = parentView.getPositionManager().getPosOnWorkspace();
+		}
+
+		pos.x += relativePos.x;
+		pos.y += relativePos.y;
+		return pos;
+	}
+
+	/**
+	 * このグループのサイズを更新する
 	 * @param childMaxSize 子ノードの中の最大の長さ (コネクタ部分を含まない)
 	 * @param childSumSize 全子ノードの合計の長さ (コネクタ部分を含む)
 	 * @param offsetOfCnctr コネクタサイズによって決まるオフセット
@@ -325,27 +359,27 @@ public class BhNodeViewGroup extends Group implements Showable {
 	}
 
 	/**
-	 * BhNodeView を引数にとる関数オブジェクトを子ノードに渡す<br>
-	 * @param visitorFunc BhNodeView を引数にとり処理するオブジェクト
+	 * visitor をサブグループに渡す
+	 * @param visitor サブグループに渡す visitor
 	 * */
-	public void accept(Consumer<BhNodeView> visitorFunc) {
-
-		arrangeParams.cnctrNameList.forEach(cnctrName -> {
-			BhNodeView childNodeView =  cnctrName_NodeView.get(cnctrName);
-			if (childNodeView != null)
-				childNodeView.accept(visitorFunc);
-		});
-		subGroupList.forEach(subGroup -> subGroup.accept(visitorFunc));
+	public void sendToSubGroupList(NodeViewProcessor visitor) {
+		subGroupList.forEach(group -> group.accept(visitor));
 	}
 
-	public void toForeGround() {
+	/**
+	 * visitor を子ノードビューに渡す
+	 * @param visitor 子ノードビューに渡す visitor
+	 * */
+	public void sendToChildNode(NodeViewProcessor visitor) {
+		cnctrName_NodeView.values().forEach(child -> {
+			if (child != null)
+				child.accept(visitor);
+		});
+	}
 
-		toFront();
-		if (parentGroup != null)
-			parentGroup.toForeGround();
-
-		if (parentView != null)
-			parentView.getAppearanceManager().toForeGround();
+	@Override
+	public void accept(NodeViewProcessor visitor) {
+		visitor.visit(this);
 	}
 
 	@Override

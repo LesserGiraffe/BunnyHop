@@ -50,7 +50,7 @@ public class NodeDeselector implements BhModelProcessor {
 	public void visit(ConnectiveNode node) {
 		if (node.isSelected())
 			node.getWorkspace().removeSelectedNode(node, userOpeCmd);
-		node.introduceSectionsTo(this);
+		node.sendToSections(this);
 	}
 
 	@Override

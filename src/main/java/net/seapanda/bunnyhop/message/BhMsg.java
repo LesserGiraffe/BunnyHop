@@ -59,4 +59,5 @@ public enum BhMsg {
 	GET_NODE_BODY_RANGE, //!< BhNodeのボディのワークスペース上での範囲を取得する
 	SET_TEXT,	//!< テキストを設定可能なノードにテキストを設定する. テキストフォーマットチェックは行われる.
 	REMOVE_NODE_TO_PASTE,	//!< 貼り付け予定のノードを貼り付け候補から取り除く
+	SELECT_NODE_VIEW,	//!< ノードビューの選択表示の有効/無効状態を切り替える
 }

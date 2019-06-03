@@ -39,6 +39,7 @@ import net.seapanda.bunnyhop.modelhandler.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.TrashboxService;
+import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
@@ -91,15 +92,17 @@ public class BhNodeController implements MsgProcessor {
 				return;
 			}
 
-			if (ddInfo.userOpeCmd == null)	//BhNode の新規追加の場合, すでにundo用コマンドオブジェクトがセットされている
+			//BhNode の新規追加の場合, すでにundo用コマンドオブジェクトがセットされている
+			if (ddInfo.userOpeCmd == null)
 				ddInfo.userOpeCmd = new UserOperationCommand();
 
+			ViewHelper.INSTANCE.shiftShadow(view);
+			view.getPositionManager().toFront(true);
 			selectNode(mouseEvent.isShiftDown());	//選択処理
 			javafx.geometry.Point2D mousePressedPos = view.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
 			ddInfo.mousePressedPos = new Vec2D(mousePressedPos.getX(), mousePressedPos.getY());
 			ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
 			view.setMouseTransparent(true);
-			view.getAppearanceManager().toForeGround();
 			mouseEvent.consume();
 		});
 
@@ -165,10 +168,11 @@ public class BhNodeController implements MsgProcessor {
 				toSameWorkspace();
 			}
 
+			view.getPositionManager().toFront(false);
 			deleteUnnecessaryNodes(mouseEvent);
-			BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
 			SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(ddInfo.userOpeCmd);
 			SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(ddInfo.userOpeCmd);
+			BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
 			ddInfo.reset();
 			view.setMouseTransparent(false);	// 処理が終わったので、元に戻しておく。
 			TrashboxService.INSTANCE.openCloseTrashbox(false);
@@ -321,7 +325,6 @@ public class BhNodeController implements MsgProcessor {
 				model.getWorkspace().setSelectedNode(model, ddInfo.userOpeCmd);
 			}
 		}
-		model.getWorkspace().setMoveCandidateNode(model);
 	}
 
 	/**
@@ -331,8 +334,7 @@ public class BhNodeController implements MsgProcessor {
 	 * */
 	private void moveNodeOnWorkspace(double distanceX, double distanceY) {
 
-		Vec2D newPos = view.getPositionManager().move(distanceX, distanceY);
-		view.getPositionManager().updateAbsPos(newPos.x, newPos.y);	//4分木空間での位置更新
+		view.getPositionManager().move(distanceX, distanceY);
 		if (model.getWorkspace() != null)
 			MsgService.INSTANCE.updateMultiNodeShifter(model, model.getWorkspace());
 	}
@@ -389,7 +391,7 @@ public class BhNodeController implements MsgProcessor {
 					return  new MsgData(model, view);
 
 				case REMOVE_ROOT_NODE:
-					return  new MsgData(model, view, data.bool);
+					return  new MsgData(model, view);
 
 				case ADD_QT_RECTANGLE:
 					return new MsgData(view);
@@ -448,6 +450,10 @@ public class BhNodeController implements MsgProcessor {
 					view.getAppearanceManager().setSytaxError(data.bool);
 					break;
 
+				case SELECT_NODE_VIEW:
+					view.getAppearanceManager().select(data.bool);
+					break;
+
 				default:
 					throw new AssertionError("receive an unknown msg " + msg);
 			}
@@ -461,9 +467,7 @@ public class BhNodeController implements MsgProcessor {
 		 * */
 		private void setPosOnWorkspace(Vec2D posOnWs) {
 
-			view.getPositionManager().setRelativePosFromParent(posOnWs.x, posOnWs.y);
-			Vec2D pos = view.getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
-			view.getPositionManager().updateAbsPos(pos.x, pos.y);
+			view.getPositionManager().updateAbsPos(posOnWs.x, posOnWs.y);
 			if (model.getWorkspace() != null)
 				MsgService.INSTANCE.updateMultiNodeShifter(model, model.getWorkspace());
 		}
@@ -473,6 +477,7 @@ public class BhNodeController implements MsgProcessor {
 		 * 古いノードのGUIツリーからの削除は行わない.
 		 * */
 		private void replaceNodeView(BhNodeView newNodeView) {
+
 			view.getTreeManager().replace(newNodeView);	//新しいノードビューに入れ替え
 			newNodeView.getAppearanceManager().updateAppearance(null);
 		}

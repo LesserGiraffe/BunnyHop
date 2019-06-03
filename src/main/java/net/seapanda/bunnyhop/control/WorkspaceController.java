@@ -38,6 +38,7 @@ import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OVERLAP_OPTION;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.MultiNodeShifterView;
+import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.WorkspaceView;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
@@ -96,9 +97,9 @@ public class WorkspaceController implements MsgProcessor {
 					UserOperationCommand userOpeCmd = new UserOperationCommand();
 					BunnyHop.INSTANCE.hideTemplatePanel();
 					model.clearSelectedNodeList(userOpeCmd);
-					model.setMoveCandidateNode(null);
 					BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 				}
+				ViewHelper.INSTANCE.deleteShadow(model);
 				mousePressedPos.x = mouseEvent.getX();
 				mousePressedPos.y = mouseEvent.getY();
 				view.showSelectionRectangle(mousePressedPos, mousePressedPos);
@@ -190,7 +191,7 @@ public class WorkspaceController implements MsgProcessor {
 
 			case REMOVE_ROOT_NODE:
 				model.removeRootNode(data.node);
-				view.removeNodeView(data.nodeView, data.bool);
+				view.removeNodeView(data.nodeView);
 				nodeShifterController.updateMultiNodeShifter(data.node);
 				break;
 

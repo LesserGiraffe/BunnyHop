@@ -69,7 +69,7 @@ public class MultiNodeShifterController {
 			}
 			else {
 				Vec2D distance = view.move(new Vec2D(diffX, diffY), wsSize, false);
-				view.getLinkedNodeList().forEach(node -> MsgService.INSTANCE.setMoveNodeOnWS(node, distance));
+				view.getLinkedNodeList().forEach(node -> MsgService.INSTANCE.moveNodeOnWS(node, distance));
 			}
 			mouseEvent.consume();
 		});

@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.Map;
 
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
-import net.seapanda.bunnyhop.view.node.BhNodeViewStyle;
-import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
-import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.NOTCH_POS;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.NOTCH_POS;
 
 public abstract class BodyShape {
 

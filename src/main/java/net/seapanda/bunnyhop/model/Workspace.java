@@ -22,15 +22,12 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.VersionInfo;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
 import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -138,44 +135,11 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 		if (selectedList.contains(nodeToAdd))
 			return;
 
-		MsgTransporter.INSTANCE.sendMessage(
-			BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-			new MsgData(true, BhParams.CSS.PSEUDO_SELECTED),
-			nodeToAdd);
 		selectedList.add(nodeToAdd);
+		MsgService.INSTANCE.selectNodeView(nodeToAdd, true);
 		MsgService.INSTANCE.updateMultiNodeShifter(nodeToAdd, this);
-
-		if (nodeToAdd instanceof Imitatable) {
-			Collection<Imitatable> imitationList = ((Imitatable)nodeToAdd).getImitationManager().getImitationList();
-			imitationList.forEach(imitation -> {
-				MsgTransporter.INSTANCE.sendMessage(
-					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-					new MsgData(true, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT),
-					imitation);
-			});
-		}
+		MsgService.INSTANCE.highlightImit(nodeToAdd, true);
 		userOpeCmd.pushCmdOfAddSelectedNode(this, nodeToAdd);
-	}
-
-	/**
-	 * 移動候補のノードをセットする.
-	 * @param moveCandidate 移動候補のノード
-	 * */
-	public void setMoveCandidateNode(BhNode moveCandidate) {
-
-		if (this.moveCandidate != null) {
-			MsgTransporter.INSTANCE.sendMessage(
-				BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-				new MsgData(false, BhParams.CSS.PSEUDO_MOVE),
-				this.moveCandidate);
-		}
-		this.moveCandidate = moveCandidate;
-		if (this.moveCandidate != null) {
-			MsgTransporter.INSTANCE.sendMessage(
-				BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-				new MsgData(true, BhParams.CSS.PSEUDO_MOVE),
-				this.moveCandidate);
-		}
 	}
 
 	/**
@@ -193,22 +157,13 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	 */
 	public void removeSelectedNode(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
 
-		MsgTransporter.INSTANCE.sendMessage(
-			BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-			new MsgData(false, BhParams.CSS.PSEUDO_SELECTED),
-			nodeToRemove);
-		selectedList.remove(nodeToRemove);
-		MsgService.INSTANCE.updateMultiNodeShifter(nodeToRemove, this);
+		if (!selectedList.contains(nodeToRemove))
+			return;
 
-		if (nodeToRemove instanceof Imitatable) {
-			Collection<Imitatable> imitationList = ((Imitatable)nodeToRemove).getImitationManager().getImitationList();
-			imitationList.forEach(imitation -> {
-				MsgTransporter.INSTANCE.sendMessage(
-					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-					new MsgData(false, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT),
-					imitation);
-			});
-		}
+		selectedList.remove(nodeToRemove);
+		MsgService.INSTANCE.selectNodeView(nodeToRemove, false);
+		MsgService.INSTANCE.updateMultiNodeShifter(nodeToRemove, this);
+		MsgService.INSTANCE.highlightImit(nodeToRemove, false);
 		userOpeCmd.pushCmdOfRemoveSelectedNode(this, nodeToRemove);
 	}
 

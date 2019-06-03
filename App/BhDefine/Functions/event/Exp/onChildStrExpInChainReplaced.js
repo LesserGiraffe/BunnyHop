@@ -37,9 +37,8 @@
 	else if (String(bhReplacedNewNode.getSymbolName()) === 'AnyExpVoid') {
 		if (String(nextStrChainLinkExp.getSymbolName()) === 'StrChainLinkExp') {
 			bhNodeHandler.replaceChild(bhThis, nextStrChainLinkExp, bhUserOpeCmd)
-			bhNodeHandler.deleteNodeIncompletely(bhThis, true, true, bhUserOpeCmd);
-			bhMsgService.setNodeVisibility(bhThis, false, bhUserOpeCmd);
-			
+			bhNodeHandler.deleteNodeIncompletely(bhThis, true, bhUserOpeCmd);
+
 			// 演算子の表示を変える
 			//let strChainExp = nextStrChainLinkExp.findSymbolInAncestors('StrChainExp', 3, false);
 			//if (strChainExp != null) {

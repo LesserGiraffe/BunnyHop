@@ -49,7 +49,7 @@ public class SyntaxErrorNodeCollector implements BhModelProcessor {
 	@Override
 	public void visit(ConnectiveNode node) {
 
-		node.introduceSectionsTo(this);
+		node.sendToSections(this);
 		for (Imitatable imitNode : node.getImitationManager().getImitationList()) {
 			if (imitNode.hasSyntaxError())
 				errorNodeList.add(imitNode);

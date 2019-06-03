@@ -27,6 +27,9 @@ import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.part.ImitationCreator;
+import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 
 /**
  * ラベルを入力フォームに持つビュー
@@ -146,4 +149,23 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 	public Button imitCreateButton() {
 		return imitCreateImitBtn;
 	}
+
+	@Override
+	public void accept(NodeViewProcessor visitor) {
+		visitor.visit(this);
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

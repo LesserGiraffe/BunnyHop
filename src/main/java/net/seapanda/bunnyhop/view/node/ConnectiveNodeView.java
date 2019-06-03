@@ -16,14 +16,16 @@
 package net.seapanda.bunnyhop.view.node;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import javafx.scene.control.Button;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
-import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
+import net.seapanda.bunnyhop.view.node.part.ImitationCreator;
+import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 
 /**
  * ConnectiveNode に対応するビュークラス
@@ -54,8 +56,6 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 		initialize();
 		innerGroup.buildSubGroup(viewStyle.connective.inner);
 		outerGroup.buildSubGroup(viewStyle.connective.outer);
-		getTreeManager().addChild(innerGroup);
-		getTreeManager().addChild(outerGroup);
 		setFuncs(this::rearrangeChildNodes, this::updateAbsPos);
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_CONNECTIVE_NODE);
 
@@ -96,7 +96,6 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 	 * */
 	private void updateAbsPos(double posX, double posY) {
 
-		getPositionManager().defaultUpdateAbsPos(posX, posY);
 		//内部ノード絶対位置更新
 		Vec2D relativePos = innerGroup.getRelativePosFromParent();
 		innerGroup.updateAbsPos(posX + relativePos.x, posY + relativePos.y);
@@ -166,15 +165,24 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 	}
 
 	/**
-	 * BhNodeView を引数にとる関数オブジェクトを実行する<br>
-	 * 子ノードがある場合は、子ノードに関数オブジェクトを渡す
-	 * @param visitorFunc BhNodeView を引数にとり処理するオブジェクト
+	 * visitor を内部ノードを管理するグループに渡す
+	 * @param visitor 内部ノードを管理するグループに渡す visitor
 	 * */
+	public void sendToInnerGroup(NodeViewProcessor visitor) {
+		innerGroup.accept(visitor);
+	}
+
+	/**
+	 * visitor を外部ノードを管理するグループに渡す
+	 * @param visitor 外部ノードを管理するグループに渡す visitor
+	 * */
+	public void sendToOuterGroup(NodeViewProcessor visitor) {
+		outerGroup.accept(visitor);
+	}
+
 	@Override
-	public void accept(Consumer<BhNodeView> visitorFunc) {
-		visitorFunc.accept(this);
-		innerGroup.accept(visitorFunc);
-		outerGroup.accept(visitorFunc);
+	public void accept(NodeViewProcessor visitor) {
+		visitor.visit(this);
 	}
 
 	@Override

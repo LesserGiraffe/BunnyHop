@@ -22,10 +22,7 @@ import java.util.Optional;
 
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
@@ -34,7 +31,6 @@ import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
 import net.seapanda.bunnyhop.modelprocessor.NodeDeselector;
 import net.seapanda.bunnyhop.modelprocessor.WorkspaceRegisterer;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * BhNodeの追加, 移動, 入れ替え, 削除用関数を提供するクラス
@@ -58,13 +54,11 @@ public class BhNodeHandler {
 
 		Vec2D curPos = MsgService.INSTANCE.getPosOnWS(node);
 		WorkspaceRegisterer.register(node, ws, userOpeCmd);	//ツリーの各ノードへのWSの登録
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);		//ワークスペース直下に追加
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);	//4分木ノード登録(重複登録はされない)
+		MsgService.INSTANCE.addRootNode(node, ws, userOpeCmd);	//ワークスペース直下に追加
+		MsgService.INSTANCE.addQTRectangle(node, ws, userOpeCmd);	//4分木ノード登録(重複登録はされない)
 		MsgService.INSTANCE.setPosOnWS(node, x, y);	//ワークスペース内での位置登録
-
-		userOpeCmd.pushCmdOfAddRootNode(node, ws);
-		userOpeCmd.pushCmdOfAddQtRectangle(node, ws);
 		userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
+
 		SyntaxErrorNodeManager.INSTANCE.collect(node, userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 	}
@@ -87,14 +81,12 @@ public class BhNodeHandler {
 	 * 引数で指定したノードは遅延削除リストに入る.
 	 * @param node 仮削除するノード
 	 * @param saveModelRels 親子関係を除くモデル間の関係(イミテーション -オリジナルの関係等) を保存する場合true
-	 * @param saveGuiTreeRels GUIツリーの親子関係を保存する場合true
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @return 削除したノードと入れ替わる子ノードが作成された場合, そのノードを返す
 	 */
 	public Optional<BhNode> deleteNodeIncompletely(
 		BhNode node,
 		boolean saveModelRels,
-		boolean saveGuiTreeRels,
 		UserOperationCommand userOpeCmd) {
 
 		Optional<BhNode> newNode = Optional.empty();
@@ -104,24 +96,19 @@ public class BhNodeHandler {
 
 		//undo時に削除前の状態のBhNodeを選択ノードとして MultiNodeShifterController に通知するためここで非選択にする
 		NodeDeselector.deselect(node, userOpeCmd);
-
-		Workspace ws = node.getWorkspace();
 		BhNode.State nodeState = node.getState();
 		switch(nodeState) {
 			case CHILD:
 				newNode = Optional.of(removeChild(node, userOpeCmd));
-				if (!saveGuiTreeRels)
-					MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, node);	//GUIツリー上から削除
+				MsgService.INSTANCE.removeFromGUITree(node);
 				break;
 
 			case ROOT_DANGLING:
-				if (!saveGuiTreeRels)
-					MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, node);	//GUIツリー上から削除
+				MsgService.INSTANCE.removeFromGUITree(node);	//GUIツリー上から削除
 				break;
 
 			case ROOT_DIRECTLY_UNDER_WS:
-				MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_ROOT_NODE, new MsgData(saveGuiTreeRels), node, ws);	 //WS直下から削除
-				userOpeCmd.pushCmdOfRemoveRootNode(node, ws);
+				MsgService.INSTANCE.removeRootNode(node, userOpeCmd);	//WS直下から削除
 				break;
 
 			case DELETED:
@@ -131,13 +118,12 @@ public class BhNodeHandler {
 				throw new AssertionError("invalid node state " + nodeState);
 		}
 
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);		 //4分木空間からの削除
-		userOpeCmd.pushCmdOfRemoveQtRectangle(node, ws);
+		MsgService.INSTANCE.removeQTRectablge(node, userOpeCmd);	//4分木空間からの削除
 		WorkspaceRegisterer.deregister(node, userOpeCmd); //ノードに対して登録されたWSを削除
 
 		if (!saveModelRels)
 			node.delete(userOpeCmd);
-		DelayedDeleter.INSTANCE.addDeletionCandidate(node, saveModelRels, saveGuiTreeRels);
+		DelayedDeleter.INSTANCE.addDeletionCandidate(node, saveModelRels);
 		return newNode;
 	}
 
@@ -210,22 +196,19 @@ public class BhNodeHandler {
 
 		//undo時に削除前の状態のBhNodeを選択ノードとして MultiNodeShifterController に通知するためここで非選択にする
 		NodeDeselector.deselect(node, userOpeCmd);
-
-		Workspace ws = node.getWorkspace();
 		BhNode.State nodeState = node.getState();
 		switch(nodeState) {
 			case CHILD:
 				newNode = Optional.of(removeChild(node, userOpeCmd));
-				MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, node);	//GUIツリー上から削除
+				MsgService.INSTANCE.removeFromGUITree(node);	//GUIツリー上から削除
 				break;
 
 			case ROOT_DANGLING:
-				MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, node);	//GUIツリー上から削除
+				MsgService.INSTANCE.removeFromGUITree(node);	//GUIツリー上から削除
 				break;
 
 			case ROOT_DIRECTLY_UNDER_WS:
-				MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_ROOT_NODE, new MsgData(false), node, ws);	 //WS直下から削除
-				userOpeCmd.pushCmdOfRemoveRootNode(node, ws);
+				MsgService.INSTANCE.removeRootNode(node, userOpeCmd);	//WS直下から削除
 				break;
 
 			case DELETED:
@@ -235,8 +218,7 @@ public class BhNodeHandler {
 				throw new AssertionError("invalid node state " + nodeState);
 		}
 
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);		 //4分木空間からの削除
-		userOpeCmd.pushCmdOfRemoveQtRectangle(node, ws);
+		MsgService.INSTANCE.removeQTRectablge(node, userOpeCmd);	//4分木空間からの削除
 		WorkspaceRegisterer.deregister(node, userOpeCmd);
 		node.delete(userOpeCmd);
 		return newNode;
@@ -273,10 +255,10 @@ public class BhNodeHandler {
 			removeChild(node, userOpeCmd);
 
 		Vec2D curPos = MsgService.INSTANCE.getPosOnWS(node);
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);		//ワークスペースに移動
+		MsgService.INSTANCE.addRootNode(node, ws, userOpeCmd);	//ワークスペースに移動
 		MsgService.INSTANCE.setPosOnWS(node, x, y);	//ワークスペース内での位置登録
-		userOpeCmd.pushCmdOfAddRootNode(node, ws);
 		userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
+
 		SyntaxErrorNodeManager.INSTANCE.collect(node, userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 	}
@@ -289,10 +271,9 @@ public class BhNodeHandler {
 	public void removeFromWS(BhNode node, UserOperationCommand userOpeCmd) {
 
 		Vec2D curPos = MsgService.INSTANCE.getPosOnWS(node);
-		Workspace ws = node.getWorkspace();
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_ROOT_NODE, new MsgData(false), node, ws);
 		userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
-		userOpeCmd.pushCmdOfRemoveRootNode(node, ws);
+		MsgService.INSTANCE.removeRootNode(node, userOpeCmd);
+
 		SyntaxErrorNodeManager.INSTANCE.collect(node, userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 	}
@@ -307,14 +288,12 @@ public class BhNodeHandler {
 
 		Workspace ws = childToRemove.getWorkspace();
 		BhNode newNode = childToRemove.remove(userOpeCmd);
-		//子ノードを取り除いた結果, 新しくできたノードを4分木空間に登録し, ビューツリーにつなぐ
-		WorkspaceRegisterer.register(newNode, ws, userOpeCmd);	//ツリーの各ノードへのWSの登録
 
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, newNode, ws);
-		BhNodeView newNodeView = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW, newNode).nodeView;
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), childToRemove);	//ここで4分木空間上での位置も更新される
-		userOpeCmd.pushCmdOfAddQtRectangle(newNode, ws);
-		userOpeCmd.pushCmdOfReplaceNodeView(childToRemove, newNode);
+		//子ノードを取り除いた結果新しくできたノードを, 4分木空間に登録し, ビューツリーにつなぐ
+		WorkspaceRegisterer.register(newNode, ws, userOpeCmd);	//ツリーの各ノードへのWSの登録
+		MsgService.INSTANCE.addQTRectangle(newNode, ws, userOpeCmd);
+		MsgService.INSTANCE.replaceChildNodeView(childToRemove, newNode, userOpeCmd);
+
 		SyntaxErrorNodeManager.INSTANCE.collect(childToRemove, userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 		return newNode;
@@ -334,11 +313,9 @@ public class BhNodeHandler {
 			removeChild(newNode, userOpeCmd);
 
 		//新しいノードをビューツリーにつないで, 4分木空間内の位置を更新する
-		BhNodeView newNodeView = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW, newNode).nodeView;
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), oldChildNode);
-		userOpeCmd.pushCmdOfReplaceNodeView(oldChildNode, newNode);
-
-		oldChildNode.replacedWith(newNode, userOpeCmd);	//イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
+		MsgService.INSTANCE.replaceChildNodeView(oldChildNode, newNode, userOpeCmd);
+		//イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
+		oldChildNode.replacedWith(newNode, userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.collect(newNode, userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
@@ -354,14 +331,11 @@ public class BhNodeHandler {
 
 		//新しいノードを4分木空間に登録し, ビューツリーにつなぐ
 		Workspace ws = oldChildNode.getWorkspace();
-		WorkspaceRegisterer.register(newNode, ws, userOpeCmd);	//ツリーの各ノードへのWSの登録
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, newNode, ws);
-		BhNodeView newNodeView = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW, newNode).nodeView;
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), oldChildNode);	//ここで4分木空間上での位置も更新される
-		userOpeCmd.pushCmdOfAddQtRectangle(newNode, ws);
-		userOpeCmd.pushCmdOfReplaceNodeView(oldChildNode, newNode);
-
+		WorkspaceRegisterer.register(newNode, ws, userOpeCmd);    //ツリーの各ノードへのWSの登録
+		MsgService.INSTANCE.addQTRectangle(newNode, ws, userOpeCmd);
+		MsgService.INSTANCE.replaceChildNodeView(oldChildNode, newNode, userOpeCmd);
 		oldChildNode.replacedWith(newNode, userOpeCmd);	//イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
+
 		SyntaxErrorNodeManager.INSTANCE.collect(newNode, userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);

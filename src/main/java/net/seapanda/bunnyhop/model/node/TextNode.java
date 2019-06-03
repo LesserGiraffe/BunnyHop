@@ -91,10 +91,6 @@ public class TextNode  extends Imitatable implements Serializable {
 		return newNode;
 	}
 
-	/**
-	 * BhModelProcessor に自オブジェクトを渡す
-	 * @param processor 自オブジェクトを渡す BhModelProcessorオブジェクト
-	 * */
 	@Override
 	public void accept(BhModelProcessor processor) {
 		processor.visit(this);

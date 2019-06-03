@@ -134,7 +134,7 @@ public class ImitationReplacer implements BhModelProcessor {
 				Connector parentCnctr = imitToReplace.getParentConnector();
 				Imitatable newImit = original.findExistingOrCreateNewImit(imitToReplace, userOpeCmd);
 				BhNodeHandler.INSTANCE.replaceChildNewlyCreated(imitToReplace, newImit, userOpeCmd);
-				BhNodeHandler.INSTANCE.deleteNodeIncompletely(imitToReplace, true, false, userOpeCmd);
+				BhNodeHandler.INSTANCE.deleteNodeIncompletely(imitToReplace, true, userOpeCmd);
 				newImit.findParentNode().execScriptOnChildReplaced(imitToReplace, newImit, parentCnctr, userOpeCmd);
 			});
 		}
@@ -154,7 +154,7 @@ public class ImitationReplacer implements BhModelProcessor {
 				if (node.getOriginalNode() == oldOriginal) {
 					Connector parentCnctr = node.getParentConnector();
 					BhNode newNode = BhNodeHandler.INSTANCE.removeChild(node, userOpeCmd);
-					BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, false, userOpeCmd);
+					BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, userOpeCmd);
 					newNode.findParentNode().execScriptOnChildReplaced(node, newNode, parentCnctr, userOpeCmd);
 				}
 			});

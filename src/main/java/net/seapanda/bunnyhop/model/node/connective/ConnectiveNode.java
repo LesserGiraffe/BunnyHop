@@ -87,10 +87,6 @@ public class ConnectiveNode extends Imitatable {
 		return newNode;
 	}
 
-	/**
-	 * BhModelProcessor に自オブジェクトを渡す
-	 * @param processor 自オブジェクトを渡す BhModelProcessorオブジェクト
-	 * */
 	@Override
 	public void accept(BhModelProcessor processor) {
 		processor.visit(this);
@@ -100,7 +96,7 @@ public class ConnectiveNode extends Imitatable {
 	 * BhModelProcessor を子Section に渡す
 	 * @param processor 子Section に渡す BhModelProcessor
 	 * */
-	public void introduceSectionsTo(BhModelProcessor processor) {
+	public void sendToSections(BhModelProcessor processor) {
 		childSection.accept(processor);
 	}
 

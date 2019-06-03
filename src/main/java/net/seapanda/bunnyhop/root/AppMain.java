@@ -31,7 +31,7 @@ import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
-import net.seapanda.bunnyhop.view.node.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 
 /**
  * メインクラス
@@ -76,7 +76,6 @@ public class AppMain extends Application {
 		BunnyHop.INSTANCE.createWindow(stage);
 		if (!BunnyHop.INSTANCE.genNodeCategoryList())
 			System.exit(-1);
-
 		if (!LocalBhProgramManager.INSTANCE.init())
 			System.exit(-1);
 

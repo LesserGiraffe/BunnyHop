@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.view.node;
+package net.seapanda.bunnyhop.view.node.part;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -33,6 +33,7 @@ import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.Imitation;
 
 /**
  *イミテーション作成機能を持つノードビューであることを示すインタフェース

@@ -22,7 +22,7 @@ import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
-import net.seapanda.bunnyhop.view.node.SelectableItem;
+import net.seapanda.bunnyhop.view.node.part.SelectableItem;
 
 /**
  * TextNode と ComboBoxNodeView のコントローラ

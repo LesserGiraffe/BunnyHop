@@ -67,10 +67,6 @@ public class Subsection extends Section {
 		return newSubsection;
 	}
 
-	/**
-	 * visitor に自オブジェクトを渡す
-	 * @param visitor 自オブジェクトを渡す visitorオブジェクト
-	 * */
 	@Override
 	public void accept(BhModelProcessor visitor) {
 		visitor.visit(this);
@@ -80,7 +76,7 @@ public class Subsection extends Section {
 	 * visitor をこのセクションの下のサブセクションに渡す
 	 * @param visitor サブグループに渡す visitor
 	 * */
-	public void introduceSubsectionTo(BhModelProcessor visitor) {
+	public void sendToSubsections(BhModelProcessor visitor) {
 		subsectionList.forEach(subsection -> subsection.accept(visitor));
 	}
 

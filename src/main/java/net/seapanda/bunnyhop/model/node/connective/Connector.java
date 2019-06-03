@@ -60,10 +60,6 @@ public class Connector extends SyntaxSymbol {
 	private final String claz;	//!< コネクタに付けられたクラス
 	transient protected ScriptableObject scriptScope;	//!< スクリプト実行時のスコープ
 
-	/**
-	 * visitor に次の走査対象に渡す
-	 * @param visitor 走査対象を渡すvisitor
-	 * */
 	@Override
 	 public void accept(BhModelProcessor visitor) {
 		visitor.visit(this);
@@ -168,7 +164,7 @@ public class Connector extends SyntaxSymbol {
 	 * BhModelProcessor を connectedNode に渡す
 	 * @param processor connectedNode に渡す BhModelProcessor
 	 * */
-	public void introduceConnectedNodeTo(BhModelProcessor processor) {
+	public void sendToConnectedNode(BhModelProcessor processor) {
 		connectedNode.accept(processor);
 	}
 

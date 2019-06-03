@@ -15,12 +15,20 @@
  */
 package net.seapanda.bunnyhop.view;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.WeakHashMap;
+
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.model.Workspace;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * Viewの処理を補助する機能を定義したクラス
@@ -29,6 +37,7 @@ import net.seapanda.bunnyhop.common.Vec2D;
 public class ViewHelper {
 
 	public static final ViewHelper INSTANCE = new ViewHelper();		//!< シングルトンインスタンス
+	public final Set<BhNodeView> shadowNodes = Collections.newSetFromMap(new WeakHashMap<BhNodeView, Boolean>());	//!< 影付きノードリスト
 
 	/**
 	 * 移動後のフィールド上の位置を算出する
@@ -48,7 +57,7 @@ public class ViewHelper {
 	 * 移動時のフィールド上の移動距離を算出する
 	 * @param diff 移動量
 	 * @param fieldSize フィールドサイズ
-	 * @param curePos 現在のフィールド上の位置
+	 * @param curPos 現在のフィールド上の位置
 	 * @return 移動距離
 	 */
 	public Vec2D distance(Vec2D diff, Vec2D fieldSize, Vec2D curPos) {
@@ -82,33 +91,23 @@ public class ViewHelper {
 	}
 
 	/**
-	 * 親子関係にある2つのノードの相対距離を測る
-	 * @param base 基点となるNodeオブジェクト<br> null を入れると target が居るワークスペースからの相対距離が得られる
-	 * @param target 基点からの距離を測るオブジェクト
-	 * @return target - base で算出される距離
-	 * */
-	public Vec2D getRelativePos(Node base, Node target) {
-
-		Vec2D relativePos = new Vec2D(0.0, 0.0);
-		Node parent = target;
-		while (parent != base && !BhParams.Fxml.ID_WS_PANE.equals(parent.getId())) {
-			relativePos.x += parent.getTranslateX();
-			relativePos.y += parent.getTranslateY();
-			parent = parent.getParent();
-
-			if (parent == null)
-				break;
-		}
-		return relativePos;
-	}
-
-	/**
 	 * node のワークスペース上での位置を取得する
 	 * @param node ワークペース上での位置を計算するノード
 	 * @return node のワークスペース上での位置.
 	 * */
 	public Vec2D getPosOnWorkspace(Node node) {
-		return getRelativePos(null, node);
+
+		Parent parent = node.getParent();
+		while (parent != null && !BhParams.Fxml.ID_WS_PANE.equals(parent.getId()))
+			parent = parent.getParent();
+
+		if (parent != null) {
+			Point2D posOnScene = node.localToScene(0.0, 0.0);
+			Point2D posOnWorkspace = parent.sceneToLocal(posOnScene);
+			return new Vec2D(posOnWorkspace.getX(), posOnWorkspace.getY());
+		}
+
+		return new Vec2D(0.0, 0.0);
 	}
 
 	/**
@@ -141,6 +140,43 @@ public class ViewHelper {
         Text text = new Text(str);
         text.setFont(font);
 		return text.getBoundsInLocal().getWidth();
+	}
+
+	/**
+	 * ノードビューに付く影を移し替える. <br>
+	 * nodeToPutShadowOn に影を付ける.点ける
+	 * nodeToPutShadowOn と同じワークスペースに既に影の付いたノードがあった場合, そのノードの影は消える.
+	 * @param nodeToPutShadowOn 新たに影を付けるノード.
+	 * */
+	public void shiftShadow(BhNodeView nodeToPutShadowOn) {
+
+		shadowNodes.removeIf(
+			nodeView -> {
+				if (nodeView.getModel().getWorkspace() == nodeToPutShadowOn.getModel().getWorkspace() ||
+					nodeView.getModel().isDeleted()) {
+					nodeView.getAppearanceManager().showShadow(false);
+					return true;
+				}
+				return false;
+			});
+		nodeToPutShadowOn.getAppearanceManager().showShadow(true);
+		shadowNodes.add(nodeToPutShadowOn);
+	}
+
+	/**
+	 * ワークスペースに描画されているノードビューの影を返す
+	 * @param ws このワークスペースに描画されている影を消す
+	 * */
+	public void deleteShadow(Workspace ws) {
+
+		shadowNodes.removeIf(
+			nodeView -> {
+				if (nodeView.getModel().getWorkspace() == ws || nodeView.getModel().isDeleted()) {
+					nodeView.getAppearanceManager().showShadow(false);
+					return true;
+				}
+				return false;
+			});
 	}
 }
 

@@ -100,20 +100,6 @@ public class MsgData {
 		this.nodeSelectionViewList = null;
 	}
 
-	public MsgData(BhNode node, BhNodeView view, boolean bool) {
-		this.node = node;
-		this.nodeView = view;
-		this.vec2d = null;
-		this.strPair = null;
-		this.vec2dPair = null;
-		this.workspace = null;
-		this.workspaceView = null;
-		this.bool = bool;
-		this.userOpeCmd = null;
-		this.text = null;
-		this.nodeSelectionViewList = null;
-	}
-
 	public MsgData(BhNode node) {
 		this.node = node;
 		this.nodeView = null;

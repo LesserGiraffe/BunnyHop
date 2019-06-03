@@ -51,6 +51,7 @@ import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.CauseOfDletion;
 import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
+import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
 import net.seapanda.bunnyhop.modelhandler.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -200,6 +201,7 @@ public class MenuOperationController {
 				BhNode newNode = oldAndNewNode._2;
 				newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
 			});
+			DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
 			SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 			SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
 			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);

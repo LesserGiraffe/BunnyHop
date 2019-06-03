@@ -86,7 +86,7 @@ public class BhNodeTemplates {
 			MsgPrinter.INSTANCE.errMsgForDebug(BhNodeTemplates.class.getSimpleName() +  ".genBhNode template not found" + id);
 		}
 		else {
-			newNode = newNode.copy(userOpeCmd, (bhNode) -> true);
+			newNode = newNode.copy(userOpeCmd, bhNode -> true);
 		}
 		return newNode;
 	}

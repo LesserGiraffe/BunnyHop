@@ -42,7 +42,9 @@ module net.seapanda.bunnyhop {
 	exports net.seapanda.bunnyhop.undo;
 	exports net.seapanda.bunnyhop.view;
 	exports net.seapanda.bunnyhop.view.node;
+	exports net.seapanda.bunnyhop.view.node.part;
 	opens net.seapanda.bunnyhop.view to javafx.fxml;
 	opens net.seapanda.bunnyhop.view.node to javafx.fxml;
+	opens net.seapanda.bunnyhop.view.node.part to javafx.fxml;
 	opens net.seapanda.bunnyhop.control to javafx.fxml;
 }

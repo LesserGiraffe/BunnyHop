@@ -45,7 +45,7 @@ import net.seapanda.bunnyhop.model.node.connective.ConnectorID;
 import net.seapanda.bunnyhop.model.node.connective.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.connective.Section;
 import net.seapanda.bunnyhop.model.node.connective.Subsection;
-import net.seapanda.bunnyhop.view.node.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 
 /**
  * \<Node\> タグ以下の情報からBhNodeを作成する

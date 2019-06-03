@@ -94,7 +94,8 @@ public class BhNodeCategoryListView {
 				case BhParams.NodeTemplateList.KEY_CONTENTS:
 					child.children.forEach(bhNodeID -> {
 						addBhNodeToSelectionView(parentItem.getValue(), BhNodeID.create(bhNodeID.content));
-					});	break;
+					});
+					break;
 
 				default:
 					BhNodeCategory category = new BhNodeCategory(child.content);

@@ -62,10 +62,6 @@ public class VoidNode extends BhNode implements Serializable {
 		return null;
 	}
 
-	/**
-	 * BhModelProcessor に自オブジェクトを渡す
-	 * @param processor 自オブジェクトを渡す BhModelProcessorオブジェクト
-	 * */
 	@Override
 	public void accept(BhModelProcessor processor) {
 		processor.visit(this);

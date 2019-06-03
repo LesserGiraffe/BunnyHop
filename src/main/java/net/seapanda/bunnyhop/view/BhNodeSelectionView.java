@@ -20,6 +20,7 @@ import java.nio.file.Path;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
@@ -36,7 +37,7 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
  * */
 public class BhNodeSelectionView extends ScrollPane {
 
-	@FXML Pane nodeSelectionPanel;	//VBoxにしない
+	@FXML Pane nodeSelectionPanel;	//FXML で Pane 以外使わないこと
 	@FXML Pane nodeSelectionPanelWrapper;
 	@FXML ScrollPane nodeSelectionPanelBase;
 	private int zoomLevel = 0;
@@ -85,7 +86,7 @@ public class BhNodeSelectionView extends ScrollPane {
 	 * */
 	public void addBhNodeView(BhNodeView view) {
 
-		nodeSelectionPanel.getChildren().add(view);
+		view.getTreeManager().addToGUITree(nodeSelectionPanel);
 		view.heightProperty().addListener((observable, oldVal, newVal) -> {
 			nodeHeightHasChanged = true;
 		});
@@ -126,22 +127,33 @@ public class BhNodeSelectionView extends ScrollPane {
 
 		double panelWidth = 0.0;
 		double panelHeight = 0.0;
-		double offset = 0.0;
+		double offset = nodeSelectionPanel.getPadding().getTop();
+		final double leftPadding = nodeSelectionPanel.getPadding().getLeft();
+		final double rightPadding = nodeSelectionPanel.getPadding().getRight();
+		final double topPadding = nodeSelectionPanel.getPadding().getTop();
+		final double bottomPadding = nodeSelectionPanel.getPadding().getBottom();
+
 
 		for (int i = 0; i < nodeSelectionPanel.getChildren().size(); ++i) {
-			BhNodeView nodeToShift = (BhNodeView)nodeSelectionPanel.getChildren().get(i);
+
+			Node node = nodeSelectionPanel.getChildren().get(i);
+			if (!(node instanceof BhNodeView))
+				continue;
+
+			BhNodeView nodeToShift = (BhNodeView)node;
+			if (nodeToShift.getTreeManager().getParentView() != null)
+				continue;
+
 			Vec2D wholeBodySize = nodeToShift.getRegionManager().getNodeSizeIncludingOuter(true);
 			Vec2D bodySize = nodeToShift.getRegionManager().getNodeSizeIncludingOuter(false);
 			double upperCnctrHeight = wholeBodySize.y - bodySize.y;
-			nodeToShift.setTranslateY(offset + upperCnctrHeight);
+			nodeToShift.getPositionManager().updateAbsPos(leftPadding, offset + upperCnctrHeight);
 			offset += wholeBodySize.y + BhParams.LnF.BHNODE_SPACE_ON_SELECTION_PANEL;
 			panelWidth = Math.max(panelWidth, wholeBodySize.x);
 		}
 
-		panelHeight = (offset - BhParams.LnF.BHNODE_SPACE_ON_SELECTION_PANEL)
-					+ nodeSelectionPanel.getPadding().getTop()
-					+ nodeSelectionPanel.getPadding().getBottom();
-		panelWidth += nodeSelectionPanel.getPadding().getRight() + nodeSelectionPanel.getPadding().getLeft();
+		panelHeight = (offset - BhParams.LnF.BHNODE_SPACE_ON_SELECTION_PANEL) + topPadding + bottomPadding;
+		panelWidth += rightPadding + leftPadding;
 		nodeSelectionPanel.setMinSize(panelWidth, panelHeight);
 		nodeHeightHasChanged = false;
 		adjustWrapperSize(panelWidth, panelHeight);	//バインディングではなく, ここでこのメソッドを呼ばないとスクロールバーの稼働域が変わらない

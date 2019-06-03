@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 package net.seapanda.bunnyhop.message;
+import java.util.Collection;
+
+import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
+import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -122,7 +126,7 @@ public class MsgService {
 	 * @param node 動かすノード
 	 * @param distance 移動距離
 	 * */
-	public void setMoveNodeOnWS(BhNode node, Vec2D distance) {
+	public void moveNodeOnWS(BhNode node, Vec2D distance) {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.MOVE_NODE_ON_WORKSPACE, new MsgData(distance), node);
 	}
 
@@ -143,7 +147,119 @@ public class MsgService {
 	public void removeNodeToPaste(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_NODE_TO_PASTE, new MsgData(nodeToRemove, userOpeCmd), wss);
 	}
+
+	/**
+	 * ノードビューを入れ替える.
+	 * @param oldNode 入れ替えられる古いノードビューの BhNode
+	 * @param newNode 入れ替えられる新しいノードビューの BhNode
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void replaceChildNodeView(BhNode oldNode, BhNode newNode, UserOperationCommand userOpeCmd) {
+
+		BhNodeView newNodeView = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW, newNode).nodeView;
+		boolean hasParent = newNodeView.getParent() != null;
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), oldNode);
+		userOpeCmd.pushCmdOfReplaceNodeView(oldNode, newNode, hasParent);
+	}
+
+	/**
+	 * ノードビューをGUIツリーから取り除く
+	 * @param node このノードのノードビューをGUIツリーから取り除く
+	 * */
+	public void removeFromGUITree(BhNode node) {
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, node);
+	}
+
+	/**
+	 * 4分木空間にノードの領域を登録する
+	 * @param node このノードの領域をワークスペースの4分木空間に登録する
+	 * @param ws このワークスペースが持つ4分木空間にノードの領域を登録する
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void addQTRectangle(BhNode node, Workspace ws, UserOperationCommand userOpeCmd) {
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);	//4分木ノード登録(重複登録はされない)
+		userOpeCmd.pushCmdOfAddQtRectangle(node, ws);
+	}
+
+	/**
+	 * 4分木空間からノードの領域を削除する
+	 * @param node このノードの領域をワークスペースの4分木空間から削除する
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void removeQTRectablge(BhNode node, UserOperationCommand userOpeCmd) {
+
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);
+		userOpeCmd.pushCmdOfRemoveQtRectangle(node, node.getWorkspace());
+	}
+
+	/**
+	 * ワークスペースにルートノードを追加する
+	 * @param rootNode 追加するルートノード
+	 * @param ws rootNode を追加するワークスペース
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void addRootNode(BhNode rootNode, Workspace ws, UserOperationCommand userOpeCmd) {
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_ROOT_NODE, rootNode, ws);
+		userOpeCmd.pushCmdOfAddRootNode(rootNode, ws);
+	}
+
+	/**
+	 * ワークスペースからルートノードを削除する
+	 * @param rootNode 削除するルートノード
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * */
+	public void removeRootNode(BhNode rootNode, UserOperationCommand userOpeCmd) {
+		Workspace ws = rootNode.getWorkspace();
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_ROOT_NODE, rootNode, ws);
+		userOpeCmd.pushCmdOfRemoveRootNode(rootNode, ws);
+	}
+
+	/**
+	 * ノードビューの選択表示を切り替える
+	 * @param node このノードのノードビューの選択表示を切り替える
+	 * @param enable 選択表示を有効にする場合 true. 無効にする場合 false.
+	 * */
+	public void selectNodeView(BhNode node, boolean enable) {
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.SELECT_NODE_VIEW, new MsgData(enable), node);
+	}
+
+
+	/**
+	 * orgNode のイミテーションノードの強調表示を切り替える
+	 * @param orgNode このノードのイミテーションノードの強調表示を切り替える
+	 * @param enable 強調表示を有効にする場合 true.  無効にする場合 false.
+	 * */
+	public void highlightImit(BhNode orgNode, boolean enable) {
+
+		if (orgNode instanceof Imitatable) {
+			Collection<Imitatable> imitationList = ((Imitatable)orgNode).getImitationManager().getImitationList();
+			imitationList.forEach(imitation -> {
+				MsgTransporter.INSTANCE.sendMessage(
+					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
+					new MsgData(enable, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT),
+					imitation);
+			});
+		}
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

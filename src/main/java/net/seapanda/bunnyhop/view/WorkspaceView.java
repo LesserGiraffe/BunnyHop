@@ -18,7 +18,9 @@ package net.seapanda.bunnyhop.view;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,6 +28,7 @@ import java.util.stream.Stream;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Group;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
@@ -49,6 +52,7 @@ import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OVERLAP_OPTION;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.viewprocessor.CallbackInvoker;
 
 /**
  * ワークスペースを表すビュー (タブの中の描画物に対応)
@@ -62,7 +66,8 @@ public class WorkspaceView extends Tab {
 	private @FXML Polygon rectSelTool;	//!< 矩形選択用ビュー
 	private final Workspace workspace;
 	private final Vec2D minPaneSize = new Vec2D(0.0, 0.0);
-	private final ArrayList<BhNodeView> rootNodeViewList = new ArrayList<>();	//このワークスペースにあるルートBhNodeViewのリスト
+	/** このワークスペースにあるルートノードビューとルートノード以下のノードを持つGorupオブジェクトのマップ */
+	private final Map<BhNodeView, Group> rootNodeToGroup = new HashMap<>();
 	private QuadTreeManager quadTreeMngForBody;			//!< ノードの本体部分の重なり判定に使う4分木管理クラス
 	private QuadTreeManager quadTreeMngForConnector;	//!< ノードのコネクタ部分の重なり判定に使う4分木管理クラス
 	int zoomLevel = 0;	//!< ワークスペースの拡大/縮小の段階
@@ -148,26 +153,35 @@ public class WorkspaceView extends Tab {
 
 	/**
 	 * ノードビューを追加する
-	 * @param nodeView 追加するノードビュー (nullダメ)
+	 * @param nodeView 追加するノードビュー
 	 * */
 	public void addNodeView(BhNodeView nodeView) {
 
-		assert(nodeView != null);
-		wsPane.getChildren().add(nodeView);
-		rootNodeViewList.add(nodeView);
+		if (rootNodeToGroup.containsKey(nodeView))
+			return;
+
+		var group = new Group();
+		var shadowGroup = new Group();
+		shadowGroup.setId(BhParams.Fxml.ID_NODE_VIEW_SHADOW_PANE);
+		group.getChildren().add(shadowGroup);
+		nodeView.getTreeManager().addToGUITree(group);
+		wsPane.getChildren().add(group);
+		rootNodeToGroup.put(nodeView, group);
 	}
 
 	/**
 	 * ノードビューを削除する
-	 * @param nodeView 削除するビュー (nullダメ)
-	 * @param saveGuiTreeRels GUIツリー上の親子関係を保持する場合true
+	 * @param nodeView 削除するビュー
 	 * */
-	public void removeNodeView(BhNodeView nodeView, boolean saveGuiTreeRels) {
+	public void removeNodeView(BhNodeView nodeView) {
 
-		assert(nodeView != null);
-		if (!saveGuiTreeRels)
-			wsPane.getChildren().remove(nodeView);
-		rootNodeViewList.remove(nodeView);
+		if (!rootNodeToGroup.containsKey(nodeView))
+			return;
+
+		Group group = rootNodeToGroup.get(nodeView);
+		nodeView.getTreeManager().removeFromGUITree();
+		wsPane.getChildren().remove(group);
+		rootNodeToGroup.remove(nodeView);
 	}
 
 	/**
@@ -176,11 +190,13 @@ public class WorkspaceView extends Tab {
 	 * */
 	public void addRectangleToQTSpace(BhNodeView nodeView) {
 
-		nodeView.accept(view -> {
-			Pair<QuadTreeRectangle, QuadTreeRectangle> body_cnctr = view.getRegionManager().getRegions();
-			quadTreeMngForBody.addQuadTreeObj(body_cnctr._1);
-			quadTreeMngForConnector.addQuadTreeObj(body_cnctr._2);
-		});
+		CallbackInvoker.invoke(
+			view -> {
+				Pair<QuadTreeRectangle, QuadTreeRectangle> body_cnctr = view.getRegionManager().getRegions();
+				quadTreeMngForBody.addQuadTreeObj(body_cnctr._1);
+				quadTreeMngForConnector.addQuadTreeObj(body_cnctr._2);
+			},
+			nodeView);
 	}
 
 	/**
@@ -275,7 +291,7 @@ public class WorkspaceView extends Tab {
 		quadTreeMngForConnector = new QuadTreeManager(quadTreeMngForConnector, BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
 
 		//全ノードの位置更新
-		for (BhNodeView rootView : rootNodeViewList) {
+		for (BhNodeView rootView : rootNodeToGroup.keySet()) {
 			Vec2D pos = rootView.getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
 			rootView.getPositionManager().updateAbsPos(pos.x, pos.y);
 		}
@@ -376,6 +392,18 @@ public class WorkspaceView extends Tab {
 		rectSelTool.setVisible(false);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -87,10 +87,6 @@ public class ConnectorSection extends Section {
 		return newSection;
 	}
 
-	/**
-	 * visitor に自オブジェクトを渡す
-	 * @param visitor 自オブジェクトを渡す visitorオブジェクト
-	 * */
 	@Override
 	public void accept(BhModelProcessor visitor) {
 		visitor.visit(this);
@@ -100,7 +96,7 @@ public class ConnectorSection extends Section {
 	 * visitor をコネクタに渡す
 	 * @param visitor コネクタに渡す visitor
 	 * */
-	public void introduceConnectorsTo(BhModelProcessor visitor) {
+	public void sendToConnectors(BhModelProcessor visitor) {
 		cnctrList.forEach(connector -> connector.accept(visitor));
 	}
 

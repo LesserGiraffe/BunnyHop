@@ -39,6 +39,10 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.part.ImitationCreator;
+import net.seapanda.bunnyhop.view.node.part.SelectableItem;
+import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 
 /**
  * コンボボックスを入力フォームに持つビュー
@@ -296,4 +300,20 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 		width += buttonCell.getPadding().getLeft() + buttonCell.getPadding().getRight();
 		buttonCell.getListView().setPrefWidth(width);
 	}
+
+	@Override
+	public void accept(NodeViewProcessor visitor) {
+		visitor.visit(this);
+	}
 }
+
+
+
+
+
+
+
+
+
+
+

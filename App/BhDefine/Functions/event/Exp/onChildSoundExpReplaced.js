@@ -27,8 +27,7 @@
 	else if (String(bhParentConnector.getConnectedNode().getSymbolName()) === 'SoundLiteralVoid') {
 		if (String(nextMelodyExp.getSymbolName()) === 'MelodyExp') {
 			bhNodeHandler.replaceChild(bhThis, nextMelodyExp, bhUserOpeCmd)
-			bhNodeHandler.deleteNodeIncompletely(bhThis, true, true, bhUserOpeCmd);
-			bhMsgService.setNodeVisibility(bhThis, false, bhUserOpeCmd);
+			bhNodeHandler.deleteNodeIncompletely(bhThis, true, bhUserOpeCmd);
 		}
 	}
 })();

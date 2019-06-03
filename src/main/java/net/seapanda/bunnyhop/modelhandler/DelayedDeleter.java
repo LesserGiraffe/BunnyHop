@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -40,14 +38,12 @@ public class DelayedDeleter {
 	 * 登録するリストは, 4分木空間, ワークスペースからの削除とモデルの親子関係の削除が済んでいること
 	 * @param candidate 削除候補のノード
 	 * @param unexecutedModelDeletion モデル間の関係 (親子関係除く) の削除を行っていない場合true
-	 * @param unexecutedGuiTreeDeletion ビュー間の関係の削除を行っていない場合true
 	 */
 	public void addDeletionCandidate(
 		BhNode candidate,
-		boolean unexecutedModelDeletion,
-		boolean unexecutedGuiTreeDeletion) {
+		boolean unexecutedModelDeletion) {
 		deletionCandidateNodeList.add(
-			new BhNodeWithUnexecutedOpe(candidate, unexecutedModelDeletion, unexecutedGuiTreeDeletion));
+			new BhNodeWithUnexecutedOpe(candidate, unexecutedModelDeletion));
 	}
 
 	/**
@@ -67,9 +63,6 @@ public class DelayedDeleter {
 				if (!candidate.bhNode.isInWorkspace()) {
 					if (candidate.modelDeletion)
 						candidate.bhNode.delete(userOpeCmd);
-
-					if (candidate.guiTreeDeletion)
-						MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, candidate.bhNode);
 				}
 				break;
 			}
@@ -91,9 +84,6 @@ public class DelayedDeleter {
 				if (!candidate.bhNode.isInWorkspace()) {
 					if (candidate.modelDeletion)
 						candidate.bhNode.delete(userOpeCmd);
-
-					if (candidate.guiTreeDeletion)
-						MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, candidate.bhNode);
 				}
 			});
 		deletionCandidateNodeList.clear();
@@ -127,18 +117,16 @@ public class DelayedDeleter {
 	private static class BhNodeWithUnexecutedOpe {
 
 		public final boolean modelDeletion;
-		public final boolean guiTreeDeletion;
 		public final BhNode bhNode;
 
-		public BhNodeWithUnexecutedOpe (BhNode bhNode, boolean modelDeletion, boolean guiTreeDeletion) {
+		public BhNodeWithUnexecutedOpe (BhNode bhNode, boolean modelDeletion) {
 			this.bhNode = bhNode;
 			this.modelDeletion = modelDeletion;
-			this.guiTreeDeletion = guiTreeDeletion;
 		}
 
 		@Override
 		public String toString() {
-			return "modelDeletion : " + modelDeletion + "    " + "guiTreeDeletion : " + guiTreeDeletion + "    " + bhNode;
+			return "modelDeletion : " + modelDeletion + "  " + bhNode;
 		}
 	}
 }

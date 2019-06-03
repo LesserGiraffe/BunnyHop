@@ -183,8 +183,8 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
 	}
 
 	/**
-	 * visitor に次の走査対象に渡す
-	 * @param visitor 走査対象を渡すvisitor
+	 * visitor に自オブジェクトを渡す
+	 * @param visitor 自オブジェクトを渡すvisitor
 	 * */
 	public abstract void accept(BhModelProcessor visitor);
 

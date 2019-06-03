@@ -19,6 +19,8 @@ import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShape.BODY_SHAPE;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 
 /**
  * 内部に何も表示しないノードビュー
@@ -81,6 +83,11 @@ public class NoContentNodeView extends BhNodeView {
 		getAppearanceManager().updatePolygonShape();
 		if (parent.get() != null)
 			parent.get().rearrangeChild();
+	}
+
+	@Override
+	public void accept(NodeViewProcessor visitor) {
+		visitor.visit(this);
 	}
 
 	/**

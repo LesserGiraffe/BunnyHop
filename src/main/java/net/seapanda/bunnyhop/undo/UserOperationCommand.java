@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import javafx.scene.Parent;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
@@ -155,9 +156,10 @@ public class UserOperationCommand {
 	 BhNodeView の入れ替えをコマンド化してサブ操作リストに加える
 	 * @param oldNode 入れ替え前の古いView に対応するBhNode
 	 * @param newNode 入れ替え後の新しいView に対応するBhNode
+	 * @param newNodeHasParent 入れ替え前の newNode が親GUIコンポーネントを持っていた場合 true
 	 */
-	public void pushCmdOfReplaceNodeView(BhNode oldNode, BhNode newNode) {
-		subOpeList.addLast(new ReplaceNodeViewCmd(oldNode, newNode));
+	public void pushCmdOfReplaceNodeView(BhNode oldNode, BhNode newNode, boolean newNodeHasParent) {
+		subOpeList.addLast(new ReplaceNodeViewCmd(oldNode, newNode, newNodeHasParent));
 	}
 
 	/**
@@ -281,6 +283,23 @@ public class UserOperationCommand {
 	}
 
 	/**
+	 * GUIツリーへのノードビューの追加をコマンド化してサブ操作リストに加える.
+	 * @param view GUIツリーに登録したノードビュー
+	 * */
+	public void pushCmdOfAddToGUITree(BhNodeView view) {
+		subOpeList.addLast(new AddToGUITreeCmd(view));
+	}
+
+	/**
+	 * GUIツリーへのノードビューの削除をコマンド化してサブ操作リストに加える.
+	 * @param view GUIツリーに登録したノードビュー
+	 * @param parent view を削除したGUIコンポーネント
+	 * */
+	public void pushCmdOfRemoveFromGUITree(BhNodeView view, Parent parent) {
+		subOpeList.addLast(new RemoveFromGUITreeCmd(view, parent));
+	}
+
+	/**
 	 * 親のUserOperationCommandを構成するサブ操作
 	 */
 	interface SubOperation {
@@ -363,8 +382,7 @@ public class UserOperationCommand {
 
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
-			MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_ROOT_NODE, new MsgData(false), node, ws);
-			inverseCmd.pushCmdOfRemoveRootNode(node, ws);
+			MsgService.INSTANCE.removeRootNode(node, inverseCmd);
 		}
 	}
 
@@ -448,10 +466,8 @@ public class UserOperationCommand {
 
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
-
-			MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);
+			MsgService.INSTANCE.addQTRectangle(node, ws, inverseCmd);
 			MsgTransporter.INSTANCE.sendMessage(BhMsg.UPDATE_ABS_POS, node);		//4分木空間での位置確定
-			inverseCmd.pushCmdOfAddQtRectangle(node, ws);
 		}
 	}
 
@@ -462,19 +478,23 @@ public class UserOperationCommand {
 
 		private final BhNode oldNode;	//!< 入れ替え前の古いView に対応するBhNode
 		private final BhNode newNode;	//!< 入れ替え後の新しいView に対応するBhNode
+		private final boolean newNodeHasParent;	//!< 入れ替え前に newNode が親GUIコンポーネントを持っていた場合 true.
 
-		public ReplaceNodeViewCmd(BhNode oldNode, BhNode newNode) {
+		public ReplaceNodeViewCmd(BhNode oldNode, BhNode newNode, boolean newNodeHasParent) {
 			this.oldNode = oldNode;
 			this.newNode = newNode;
+			this.newNodeHasParent = newNodeHasParent;
 		}
 
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
 
-			BhNodeView oldNodeView = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW, oldNode).nodeView;
-			MsgTransporter.INSTANCE.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(oldNodeView), newNode);	//元々付いていた古いViewに付け替える
-			MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_FROM_GUI_TREE, newNode);
-			inverseCmd.pushCmdOfReplaceNodeView(newNode, oldNode);	//逆操作なので, 入れ替え後のノードがoldNode となる
+			//元々付いていた古いViewに付け替える
+			MsgService.INSTANCE.replaceChildNodeView(newNode, oldNode, inverseCmd);
+
+			// 入れ替え前に newNode の親がなかった場合GUIツリーから消す.
+			if (!newNodeHasParent)
+				MsgService.INSTANCE.removeFromGUITree(newNode);
 		}
 	}
 
@@ -708,6 +728,45 @@ public class UserOperationCommand {
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
 			list.addAll(removedElems);
 			inverseCmd.pushCmdOfAddToList(list, removedElems);
+		}
+	}
+
+	/**
+	 * ノードのGUIツリーへの追加を表すコマンド
+	 * */
+	private static class AddToGUITreeCmd implements SubOperation {
+
+		private final BhNodeView view;	//!< GUIツリーに登録したノードビュー
+
+		public AddToGUITreeCmd(BhNodeView view) {
+			this.view = view;
+		}
+
+		@Override
+		public void doInverseOperation(UserOperationCommand inverseCmd) {
+			Parent parent = view.getParent();
+			view.getTreeManager().removeFromGUITree();
+			inverseCmd.pushCmdOfRemoveFromGUITree(view, parent);
+		}
+	}
+
+	/**
+	 * ノードのGUIツリーからの削除を表すコマンド
+	 * */
+	private static class RemoveFromGUITreeCmd implements SubOperation {
+
+		private final BhNodeView view;	//!< GUIツリーから削除したノードビュー
+		private final Parent parent;	//!< view を削除したGUIコンポーネント
+
+		public RemoveFromGUITreeCmd(BhNodeView view, Parent parent) {
+			this.view = view;
+			this.parent = parent;
+		}
+
+		@Override
+		public void doInverseOperation(UserOperationCommand inverseCmd) {
+			view.getTreeManager().addToGUITree(parent);
+			inverseCmd.pushCmdOfAddToGUITree(view);
 		}
 	}
 }

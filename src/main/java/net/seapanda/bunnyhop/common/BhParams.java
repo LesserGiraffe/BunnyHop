@@ -234,13 +234,13 @@ public class BhParams {
 	public static class Fxml {
 		public static final String ID_WS_PANE = "wsPane";
 		public static final String ID_WS_SCROLL_PANE = "wsScrollPane";
+		public static final String ID_NODE_VIEW_SHADOW_PANE = "nodeViewShadowPane";
 	}
 
 	public static class CSS {
 		public static final String PSEUDO_SELECTED = "selected";
 		public static final String PSEUDO_HIGHLIGHT_IMIT = "highlightImit";
 		public static final String PSEUDO_OVERLAPPED = "overlapped";
-		public static final String PSEUDO_MOVE = "move";
 		public static final String PSEUDO_EMPTY = "empty";
 		public static final String PSEUDO_BHNODE = "error";
 		public static final String PSEUDO_IS_EVEN = "isEven";

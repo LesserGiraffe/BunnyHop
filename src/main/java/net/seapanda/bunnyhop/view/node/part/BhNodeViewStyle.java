@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.view.node;
+package net.seapanda.bunnyhop.view.node.part;
 
 import static java.nio.file.FileVisitOption.*;
 
@@ -67,7 +67,7 @@ public class BhNodeViewStyle {
 	public double connectorBoundsRate = 2.0; //!< ドラッグ&ドロップ時などに適用されるコネクタの範囲
 	public String cssClass = "defaultNode";
 
-	Connective connective = new Connective();
+	public Connective connective = new Connective();
 
 	public static class Connective {
 		public double outerWidth = 0.0; //!< 外部描画される部分の幅
@@ -103,26 +103,26 @@ public class BhNodeViewStyle {
 		}
 	}
 
-	TextField textField = new TextField();
+	public TextField textField = new TextField();
 
 	public static class TextField {
 		public double minWidth = 0 * BhParams.LnF.NODE_SCALE;
 		public String cssClass = "defaultTextField";
 	}
 
-	Label label = new Label();
+	public Label label = new Label();
 
 	public static class Label {
 		public String cssClass = "defaultLabel";
 	}
 
-	ComboBox comboBox = new ComboBox();
+	public ComboBox comboBox = new ComboBox();
 
 	public static class ComboBox {
 		public String cssClass = "defaultComboBox";
 	}
 
-	TextArea textArea = new TextArea();
+	public TextArea textArea = new TextArea();
 
 	public static class TextArea {
 		public double minWidth = 4 * BhParams.LnF.NODE_SCALE;
@@ -131,7 +131,7 @@ public class BhNodeViewStyle {
 	}
 
 
-	Imitation imitation = new Imitation();
+	public Imitation imitation = new Imitation();
 
 	public static class Imitation {
 		public double buttonPosX = 0.5 * BhParams.LnF.NODE_SCALE;

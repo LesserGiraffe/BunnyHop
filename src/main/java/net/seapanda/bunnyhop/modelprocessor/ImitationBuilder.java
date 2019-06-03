@@ -85,7 +85,7 @@ public class ImitationBuilder implements BhModelProcessor {
 		if (parentImitStack.isEmpty()) {
 			ConnectiveNode newImit = node.createImitNode(userOpeCmd, imitID);
 			parentImitStack.addLast(newImit);
-			node.introduceSectionsTo(this);
+			node.sendToSections(this);
 			NodeMVCBuilder.build(newImit);
 			TextImitationPrompter.prompt(newImit);
 		}
@@ -97,7 +97,7 @@ public class ImitationBuilder implements BhModelProcessor {
 				ConnectiveNode newImit = node.createImitNode(userOpeCmd, imitID);
 				oldImit.replacedWith(newImit, userOpeCmd);
 				parentImitStack.addLast(newImit);
-				node.introduceSectionsTo(this);
+				node.sendToSections(this);
 				parentImitStack.removeLast();
 			}
 		}

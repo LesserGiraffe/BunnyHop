@@ -19,6 +19,8 @@ import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShape.BODY_SHAPE;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 
 /**
  * VoidNode に対応するビュー
@@ -84,6 +86,11 @@ public class VoidNodeView extends BhNodeView {
 			parent.get().rearrangeChild();
 	}
 
+	@Override
+	public void accept(NodeViewProcessor visitor) {
+		visitor.visit(this);
+	}
+
 	/**
 	 * モデルの構造を表示する
 	 * @param depth 表示インデント数
@@ -93,5 +100,21 @@ public class VoidNodeView extends BhNodeView {
 		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<VoidNodeView" + ">   " + this.hashCode());
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

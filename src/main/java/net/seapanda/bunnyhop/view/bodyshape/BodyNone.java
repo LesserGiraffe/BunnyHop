@@ -22,8 +22,8 @@ import java.util.List;
 
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorNone;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
-import net.seapanda.bunnyhop.view.node.BhNodeViewStyle;
-import net.seapanda.bunnyhop.view.node.BhNodeViewStyle.CNCTR_POS;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
 
 /**
  * 描画しないボディ

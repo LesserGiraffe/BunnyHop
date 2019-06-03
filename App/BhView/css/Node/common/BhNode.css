@@ -9,10 +9,6 @@
 	-fx-stroke: gold;
 }
 
-.BhNode-Pane:move {
-	-fx-effect: dropshadow( two-pass-box , #202020 , 10, 0.3, 6 , 6);
-}
-
 .BhNode:highlightImit {
 	-fx-stroke: gold;
 	-fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
@@ -28,3 +24,8 @@
 	-fx-stroke-width: 0.30em;
 	-fx-stroke: red;
 }
+
+#nodeViewShadowPane {
+	-fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
+}
+

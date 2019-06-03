@@ -164,6 +164,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		copyAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
 		cutAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
+		DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
 		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
@@ -229,7 +230,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 
 		// 貼り付け処理
 		for (var node : nodesToPaste) {
-			Optional<BhNode> newChild = BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, false, userOpeCmd);
+			Optional<BhNode> newChild = BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, userOpeCmd);
 			BhNodeHandler.INSTANCE.addRootNode(
 				wsToPasteIn,
 				node,

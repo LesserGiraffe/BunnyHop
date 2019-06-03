@@ -52,21 +52,21 @@ public class ImitTaggedChildFinder implements BhModelProcessor {
 
 	@Override
 	public void visit(ConnectiveNode node) {
-		node.introduceSectionsTo(this);
+		node.sendToSections(this);
 	}
 
 	@Override
 	public void visit(Subsection section) {
 		if (found)
 			return;
-		section.introduceSubsectionTo(this);
+		section.sendToSubsections(this);
 	}
 
 	@Override
 	public void visit(ConnectorSection connectorGroup) {
 		if (found)
 			return;
-		connectorGroup.introduceConnectorsTo(this);
+		connectorGroup.sendToConnectors(this);
 	}
 
 	@Override
