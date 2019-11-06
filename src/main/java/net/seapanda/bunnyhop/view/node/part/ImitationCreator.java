@@ -21,19 +21,19 @@ import java.util.Optional;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
+import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
+import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.Imitation;
 
 /**
  *イミテーション作成機能を持つノードビューであることを示すインタフェース
@@ -44,14 +44,14 @@ public interface ImitationCreator {
 	/**
 	 *イミテーションノード作成時にクリックするボタンを返す
 	 * @return イミテーションノード作成時にクリックするボタン
-	 * */
-	public Button imitCreateButton();
+	 */
+	Button imitCreateButton();
 
 	/**
 	 * このクラス以外からの呼び出し禁止
 	 * @param model 作成するイミテーションのオリジナルノード
 	 */
-	default void imitHandler(net.seapanda.bunnyhop.model.imitation.Imitatable model) {
+	private void imitHandler(Imitatable model) {
 
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		Vec2D pos = MsgService.INSTANCE.getPosOnWS(model);
@@ -69,10 +69,17 @@ public interface ImitationCreator {
 	default void setCreateImitHandler(TextNode model) {
 
 		if (imitCreateButton() != null) {
-			imitCreateButton().setOnAction(event -> {
-				imitHandler(model);
-				event.consume();
-			});
+			imitCreateButton().setOnAction(
+				event -> {
+					ModelExclusiveControl.INSTANCE.lockForModification();
+					try {
+						imitHandler(model);
+						event.consume();
+					}
+					finally {
+						ModelExclusiveControl.INSTANCE.unlockForModification();
+					}
+				});
 		}
 	}
 
@@ -83,10 +90,17 @@ public interface ImitationCreator {
 	default void setCreateImitHandler(ConnectiveNode model) {
 
 		if (imitCreateButton() != null) {
-			imitCreateButton().setOnAction((event) -> {
-				imitHandler(model);
-				event.consume();
-			});
+			imitCreateButton().setOnAction(
+				event -> {
+					ModelExclusiveControl.INSTANCE.lockForModification();
+					try {
+						imitHandler(model);
+						event.consume();
+					}
+					finally {
+						ModelExclusiveControl.INSTANCE.unlockForModification();
+					}
+				});
 		}
 	}
 
@@ -94,7 +108,7 @@ public interface ImitationCreator {
 	 * イミテーションノード作成ボタンのスタイルを指定する
 	 * @param style イミテーションノード作成ボタンのスタイル情報が格納されたオブジェクト
 	 */
-	default void setBtnStyle(BhNodeViewStyle.Imitation style, Button button) {
+	private void setBtnStyle(BhNodeViewStyle.Imitation style, Button button) {
 
 		button.setTranslateX(style.buttonPosX);
 		button.setTranslateY(style.buttonPosY);
@@ -121,3 +135,21 @@ public interface ImitationCreator {
 		return Optional.ofNullable(imitCreateImitBtn);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

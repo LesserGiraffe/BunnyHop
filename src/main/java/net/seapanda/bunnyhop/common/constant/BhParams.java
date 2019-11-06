@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.common;
+package net.seapanda.bunnyhop.common.constant;
 
 /**
  * パラメータ一式をまとめたクラス
@@ -62,6 +62,8 @@ public class BhParams {
 		public static final String TEMPLATE_LIST_DIR = "TemplateList";	//ノードテンプレートの配置情報が書かれたファイルがあるフォルダ名
 		public static final String IMAGES_DIR = "IMAGES";	//!< アイコンなどの画像があるフォルダ名
 		public static final String LOG_DIR = "Log";
+		public static final String MESSAGE_DIR = "Message";	//!< メッセージ定義ファイルがあるフォルダ名
+		public static final String DEFAULT_MESSAGE_FILE_NAME = "message";	//!< デフォルトメッセージプロパティファイル名
 		public static final String LOG_FILE_NAME = "msg";
 		public static final String lib = "lib";
 		public static final String COMPILED_DIR = "Compiled";
@@ -122,12 +124,12 @@ public class BhParams {
 		public static final String ATTR_NAME_IMIT_SCOPE_NAME = "imitScopeName";
 		public static final String ATTR_NAME_VALUE = "value";
 		public static final String ATTR_VALUE_CONNECTIVE = "connective";
-		public static final String ATTR_NAME_TEXT_FIELD = "textField";
-		public static final String ATTR_NAME_COMBO_BOX = "comboBox";
-		public static final String ATTR_NAME_LABEL = "label";
-		public static final String ATTR_NAME_TEXT_AREA = "textArea";
-		public static final String ATTR_NAME_NO_VIEW = "noView";
-		public static final String ATTR_NAME_NO_CONTENT = "noContent";
+		public static final String ATTR_VALUE_TEXT_FIELD = "textField";
+		public static final String ATTR_VALUE_COMBO_BOX = "comboBox";
+		public static final String ATTR_VALUE_LABEL = "label";
+		public static final String ATTR_VALUE_TEXT_AREA = "textArea";
+		public static final String ATTR_VALUE_NO_VIEW = "noView";
+		public static final String ATTR_VALUE_NO_CONTENT = "noContent";
 		public static final String ATTR_VALUE_VOID = "void";
 		public static final String ATTR_VALUE_TRUE = "true";
 		public static final String ATTR_VALUE_FALSE = "false";
@@ -160,6 +162,7 @@ public class BhParams {
 		public static final String KEY_BH_NODE_UTIL = "bhUtil";
 		public static final String KEY_BH_CANDIDATE_NODE_LIST = "bhCandidateNodeList";
 		public static final String KEY_BH_CAUSE_OF_DELETION = "bhCauseOfDeletion";
+		public static final String KEY_BH_LIST_OF_NODES_TO_COMPILE = "bhListOfNodesToCompile";
 		public static final String KEY_IP_ADDR = "ipAddr";
 		public static final String KEY_UNAME = "uname";
 		public static final String KEY_PASSWORD = "password";

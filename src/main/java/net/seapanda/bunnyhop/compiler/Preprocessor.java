@@ -15,13 +15,12 @@
  */
 package net.seapanda.bunnyhop.compiler;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
@@ -32,26 +31,20 @@ import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
  */
 public class Preprocessor {
 
-	private class PreprocessedNodeIDs {
-		public static final String ID_ANY_LIST_TO_STR_EXP = "idAnyListToStrExp";
-	}
-
-	private  Map<BhNodeID, Consumer<BhNode>> PREPROCESSED_NODE_ID_MAP =
+	private static final Map<String, Consumer<SyntaxSymbol>> NODE_NAME_TO_PREPROCESSOR_FUNC =
 		new HashMap<>() {{
-			put(BhNodeID.create(PreprocessedNodeIDs.ID_ANY_LIST_TO_STR_EXP), (v) -> procAnyListToStrExp(v));
+			put(SymbolNames.PreDefFunc.ANY_LIST_TO_STR_EXP, Preprocessor::procAnyListToStrExp);
 		}};
 
 	/**
 	 * コンパイル前の処理を行う.
 	 * @param nodesToPreprocess 処理するノードのリスト
 	 * */
-	static public void process(List<BhNode> nodesToPreprocess) {
-
-		var preprocessor = new Preprocessor();
+	public static void process(Collection<BhNode> nodesToPreprocess) {
 
 		// コールバック登録
-		CallbackInvoker.Callbacks callbacks = CallbackInvoker.Callbacks.create();
-		preprocessor.PREPROCESSED_NODE_ID_MAP.entrySet().forEach(
+		CallbackInvoker.CallbackRegistry callbacks = CallbackInvoker.newCallbackRegistry();
+		NODE_NAME_TO_PREPROCESSOR_FUNC.entrySet().forEach(
 			nodeIdAndFunc -> callbacks.set(nodeIdAndFunc.getKey(), nodeIdAndFunc.getValue()));
 
 		// コールバック呼び出し
@@ -63,7 +56,7 @@ public class Preprocessor {
 	 * AnyListToStrExp ノードの前処理を行う
 	 * @param node AnyListToStrExp ノード
 	 * */
-	private void procAnyListToStrExp(BhNode node) {
+	private static void procAnyListToStrExp(SyntaxSymbol node) {
 
 		SyntaxSymbol listNode = node.findSymbolInDescendants("*", "Arg0", "*");
 		SyntaxSymbol listNameNode = listNode.findSymbolInDescendants("*", SymbolNames.VarDecl.LIST_NAME ,"*");

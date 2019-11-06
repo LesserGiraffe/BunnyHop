@@ -18,8 +18,8 @@ package net.seapanda.bunnyhop.model.imitation;
 import java.io.Serializable;
 import java.util.Objects;
 
-import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.VersionInfo;
+import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
  * 作成するイミテーションを識別するためのID

@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.model.node;
  * ノードの削除原因
  * @author K.Koike
  * */
-public enum CauseOfDletion {
+public enum CauseOfDeletion {
 
 	/**
 	 * イミテーションがオリジナルノードの削除の影響を受けた.
@@ -31,7 +31,7 @@ public enum CauseOfDletion {
 	SELECTED_FOR_DELETION,	//!< 選択削除の対象になった
 	WORKSPACE_DELETION;	//!< ワークスペースの削除
 
-	public boolean eq(CauseOfDletion cause) {
+	public boolean eq(CauseOfDeletion cause) {
 		return cause == this;
 	}
 }

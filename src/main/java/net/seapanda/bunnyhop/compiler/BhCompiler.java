@@ -22,13 +22,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
@@ -51,6 +50,7 @@ public class BhCompiler {
 	private String localCommonCode;
 
 	private BhCompiler(){
+
 		common = new CommonCodeGenerator();
 		varDeclCodeGen = new VarDeclCodeGenerator(common);
 		ExpCodeGenerator expCodeGen = new ExpCodeGenerator(common, varDeclCodeGen);
@@ -99,17 +99,15 @@ public class BhCompiler {
 	/**
 	 * ワークスペース中のノードをコンパイルし, 作成されたファイルのパスを返す
 	 * @param execNode 実行するノード
-	 * @param nodesToCompile コンパイル対象のノードリスト (execNodeは含まない)
+	 * @param nodesToCompile コンパイル対象のノードリスト (execNode を含む)
 	 * @param option コンパイルオプション
 	 * @return コンパイルした結果作成されたファイルのパス(コンパイルできた場合). <br>
 	 *          コンパイルできなかった場合はOptional.empty
 	 */
 	public Optional<Path> compile(
-		BhNode execNode,
-		List<BhNode> nodesToCompile,
-		CompileOption option) {;
+		BhNode execNode, Collection<BhNode> nodesToCompile, CompileOption option) {
 
-		Preprocessor.process(new ArrayList<BhNode>(nodesToCompile) {{add(execNode);}});
+		Preprocessor.process(nodesToCompile);
 		StringBuilder code = new StringBuilder();
 		genCode(code, execNode, nodesToCompile, option);
 
@@ -140,25 +138,21 @@ public class BhCompiler {
 	 * プログラム全体のコードを生成する.
 	 * @param code 生成したソースコードの格納先
 	 * @param execNode 実行するノード
-	 * @param nodeListToCompile コンパイル対象のノードリスト (execNodeは含まない)
+	 * @param nodeListToCompile コンパイル対象のノードリスト (execNode を含む)
 	 * @param option コンパイルオプション
 	 */
 	private void genCode(
-		StringBuilder code,
-		BhNode execNode,
-		List<BhNode> nodeListToCompile,
-		CompileOption option) {
+		StringBuilder code, BhNode execNode, Collection<BhNode> nodeListToCompile, CompileOption option) {
 
-		List<BhNode> allNodes = new ArrayList<BhNode>(nodeListToCompile) {{add(execNode);}};
 		code.append(commonCode);
 		if (option.local)
 			code.append(localCommonCode);
 		else
 			code.append(remoteCommonCode);
-		varDeclCodeGen.genVarDecls(allNodes, code, 1, option);
-		globalDataDeclCodeGen.genGlobalDataDecls(allNodes, code, 1, option);
-		funcDefCodeGen.genFuncDefs(allNodes, code, 1, option);
-		eventHandlerCodeGen.genEventHandlers(allNodes, code, 1, option);
+		varDeclCodeGen.genVarDecls(nodeListToCompile, code, 1, option);
+		globalDataDeclCodeGen.genGlobalDataDecls(nodeListToCompile, code, 1, option);
+		funcDefCodeGen.genFuncDefs(nodeListToCompile, code, 1, option);
+		eventHandlerCodeGen.genEventHandlers(nodeListToCompile, code, 1, option);
 		String lockVar = BhCompiler.Keywords.lockVarPrefix + CommonCodeDefinition.Funcs.BH_MAIN;
 		eventHandlerCodeGen.genHeaderSnippetOfEventCall(code, CommonCodeDefinition.Funcs.BH_MAIN, lockVar, 1);
 		varDeclCodeGen.genVarDeclStat(code, CommonCodeDefinition.Vars.CALL_OBJ, null, 5);
@@ -180,10 +174,7 @@ public class BhCompiler {
 	 * @param option コンパイルオプション
 	 */
 	public void genCodeForInit(
-		StringBuilder code,
-		int nestLevel,
-		CompileOption option) {
-
+		StringBuilder code, int nestLevel, CompileOption option) {
 		// プログラム開始時刻の更新
 		code.append(common.indent(nestLevel))
 			.append(CommonCodeDefinition.Vars.PROGRAM_STARTING_TIME)

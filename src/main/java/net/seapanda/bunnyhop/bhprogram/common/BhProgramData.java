@@ -28,12 +28,14 @@ public class BhProgramData implements Serializable {
 	public final String str;
 	public final EVENT event;
 	public final String funcNameToCall;
+	public final BhProgramException exception;
 
 	public BhProgramData(TYPE type, String str) {
 		this.type = type;
 		this.str = str;
 		this.event = null;
 		this.funcNameToCall = null;
+		this.exception = null;
 	}
 
 	public BhProgramData(TYPE type, EVENT event, String funcNameToCall) {
@@ -41,6 +43,16 @@ public class BhProgramData implements Serializable {
 		this.str = null;
 		this.event = event;
 		this.funcNameToCall = funcNameToCall;
+		this.exception = null;
+	}
+
+	public BhProgramData(BhProgramException exception) {
+
+		this.type = TYPE.OUTPUT_EXCEPTION;
+		this.str = null;
+		this.event = null;
+		this.funcNameToCall = null;
+		this.exception = exception;
 	}
 
 	/**
@@ -50,6 +62,7 @@ public class BhProgramData implements Serializable {
 		OUTPUT_STR,	//!< BhProgramからの出力文字列
 		INPUT_STR, //!< BhProgram への入力文字列
 		INPUT_EVENT, //!<BhProgram への入力イベント
+		OUTPUT_EXCEPTION, //!< BhProgram からの例外
 	}
 
 	public enum EVENT {

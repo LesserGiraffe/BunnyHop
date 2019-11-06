@@ -1,0 +1,21 @@
+{
+	"paddingTop" : 1.0,
+	"paddingBottom" : 1.0,
+	"paddingLeft" : 5.5,
+	"paddingRight" : 1.5,
+	"connectorPos" : "Top",
+	"connectorShift" : 0.0,
+	"connectorWidth" : 0.0,
+	"connectorHeight" : 0.0,
+	"connectorShape" : "NONE",
+	"connectorBoundsRate" : 1.25,
+	"cssClass" : "errorType",
+
+	"connective" : {
+		"inner" : {
+			"arrangement" : "Column",
+			"space" : 1.5,
+			"connectorList" : ["Error", "ErrorDetails"]
+		}
+	}
+}

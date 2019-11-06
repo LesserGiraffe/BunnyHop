@@ -32,7 +32,7 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.json.JsonParser;
 
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 
 /**

@@ -20,13 +20,15 @@ import net.seapanda.bunnyhop.common.Single;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
+import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
+import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
+import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
@@ -43,7 +45,7 @@ public class BhNodeControllerInSelectionView {
 	private final BhNode model;
 	private final BhNodeView view;	//!< テンプレートリストのビュー
 	private final BhNodeView rootView;	//!< 上のview ルートとなるview
-
+	private final Single<BhNodeView> currentView = new Single<>();	//!< 現在、テンプレートのBhNodeView 上で発生したマウスイベントを送っているワークスペース上の view
 	/**
 	 * コンストラクタ
 	 * @param model 管理するモデル
@@ -54,8 +56,7 @@ public class BhNodeControllerInSelectionView {
 		this.model = model;
 		this.view = view;
 		this.rootView = rootView;
-
-		setMouseEventHandler();
+		setEventHandlers();
 
 		if (view instanceof TextInputNodeView) {
 			TextInputNodeController.setTextChangeHandlers((TextNode)model, (TextInputNodeView)view);
@@ -69,67 +70,106 @@ public class BhNodeControllerInSelectionView {
 	}
 
 	/**
-	 * View が操作されたときのイベントハンドラをセットする
-	 * */
-	private void setMouseEventHandler() {
+	 * 各種イベントハンドラをセットする
+	 */
+	private void setEventHandlers() {
 
-		Single<BhNodeView> currentView = new Single<>();	//現在、テンプレートのBhNodeView 上に発生したてマウスイベントを送っているワークスペース上の view
+		setOnMousePressed();
+		setOnMouseDragged();
+		setOnDeagDetected();
+		setOnMouseReleased();
+	}
 
-		//マウスボタンを押したとき
-		view.getEventManager().setOnMousePressedHandler(mouseEvent -> {
+	/**
+	 * マウスボタン押下時のイベントハンドラを登録する
+	 */
+	private void setOnMousePressed() {
 
-			Workspace currentWS = BunnyHop.INSTANCE.getCurrentWorkspace();
-			if (currentWS == null)
-				return;
+		view.getEventManager().setOnMousePressed(
+			mouseEvent -> {
+				ModelExclusiveControl.INSTANCE.lockForModification();
+				try {
+					Workspace currentWS = BunnyHop.INSTANCE.getCurrentWorkspace();
+					if (currentWS == null)
+						return;
 
-			UserOperationCommand userOpeCmd = new UserOperationCommand();
-			BhNode newNode = model.findRootNode().copy(userOpeCmd, (bhNode) -> true);
-			BhNodeView nodeView = NodeMVCBuilder.build(newNode); //MVC構築
-			TextImitationPrompter.prompt(newNode);
-			currentView.content = nodeView;
-			Vec2D posOnRootView = calcRelativePosFromRoot();	//クリックされたテンプレートノードのルートノード上でのクリック位置
-			posOnRootView.x += mouseEvent.getX();
-			posOnRootView.y += mouseEvent.getY();
-			MsgData posOnWS = MsgTransporter.INSTANCE.sendMessage(
-				BhMsg.SCENE_TO_WORKSPACE,
-				new MsgData(new Vec2D(mouseEvent.getSceneX(), mouseEvent.getSceneY())),
-				currentWS);
-			BhNodeHandler.INSTANCE.addRootNode(
-				currentWS,
-				newNode,
-				posOnWS.vec2d.x - posOnRootView.x ,
-				posOnWS.vec2d.y - posOnRootView.y,
-				userOpeCmd);
-			MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_USER_OPE_CMD, new MsgData(userOpeCmd), newNode);	//undo用コマンドセット
-			currentView.content.getEventManager().propagateEvent(mouseEvent);
-			BunnyHop.INSTANCE.hideTemplatePanel();
-			mouseEvent.consume();
-		});
+					UserOperationCommand userOpeCmd = new UserOperationCommand();
+					BhNode newNode = model.findRootNode().copy(userOpeCmd, (bhNode) -> true);
+					BhNodeView nodeView = NodeMVCBuilder.build(newNode); //MVC構築
+					TextImitationPrompter.prompt(newNode);
+					currentView.content = nodeView;
+					Vec2D posOnRootView = calcRelativePosFromRoot();	//クリックされたテンプレートノードのルートノード上でのクリック位置
+					posOnRootView.x += mouseEvent.getX();
+					posOnRootView.y += mouseEvent.getY();
+					Vec2D posOnWS = MsgService.INSTANCE.sceneToWorkspace(
+						mouseEvent.getSceneX(), mouseEvent.getSceneY(), currentWS);
+					BhNodeHandler.INSTANCE.addRootNode(
+						currentWS,
+						newNode,
+						posOnWS.x - posOnRootView.x ,
+						posOnWS.y - posOnRootView.y,
+						userOpeCmd);
+					MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_USER_OPE_CMD, new MsgData(userOpeCmd), newNode);	//undo用コマンドセット
+					currentView.content.getEventManager().propagateEvent(mouseEvent);
+					BunnyHop.INSTANCE.hideTemplatePanel();
+					mouseEvent.consume();
+				}
+				finally {
+					ModelExclusiveControl.INSTANCE.unlockForModification();
+				}
+			});
+	}
 
-		//ドラッグ中
-		view.getEventManager().setOnMouseDraggedHandler(mouseEvent -> {
+	/**
+	 * マウスドラッグ時のイベントハンドラを登録する
+	 */
+	private void setOnMouseDragged() {
 
-			if (currentView.content == null)
-				return;
-			currentView.content.getEventManager().propagateEvent(mouseEvent);
-		});
+		view.getEventManager().setOnMouseDragged(
+			mouseEvent -> {
+				if (currentView.content == null)
+					return;
+				currentView.content.getEventManager().propagateEvent(mouseEvent);
+			});
+	}
 
-		//ドラッグを検出(先にsetOnMouseDraggedが呼ばれ、ある程度ドラッグしたときにこれが呼ばれる)
-		view.getEventManager().setOnDragDetectedHandler(mouseEvent -> {
+	/**
+	 * マウスドラッグ検出検出時のイベントハンドラを登録する
+	 */
+	private void setOnDeagDetected() {
 
-			if (currentView.content == null)
-				return;
-			currentView.content.getEventManager().propagateEvent(mouseEvent);
-		});
+		view.getEventManager().setOnDragDetected(
+			mouseEvent -> {
+				ModelExclusiveControl.INSTANCE.lockForModification();
+				try {
+					if (currentView.content == null)
+						return;
+					currentView.content.getEventManager().propagateEvent(mouseEvent);
+				}
+				finally {
+					ModelExclusiveControl.INSTANCE.unlockForModification();
+				}
+			});
+	}
 
-		//マウスボタンを離したとき
-		view.getEventManager().setOnMouseReleasedHandler(mouseEvent -> {
+	/**
+	 * マウスボタンを離したときのイベントハンドラを登録する
+	 */
+	private void setOnMouseReleased() {
 
-			if (currentView.content == null)
-				return;
-			currentView.content.getEventManager().propagateEvent(mouseEvent);
-			currentView.content = null;
-		});
+		view.getEventManager().setOnMouseReleased(
+			mouseEvent -> {
+				ModelExclusiveControl.INSTANCE.lockForModification();
+				try {
+					if (currentView.content == null)
+						return;
+					currentView.content.getEventManager().propagateEvent(mouseEvent);
+					currentView.content = null;
+				}
+				finally {
+					ModelExclusiveControl.INSTANCE.unlockForModification();
+				}
+			});
 	}
 
 	/**

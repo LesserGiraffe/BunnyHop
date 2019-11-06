@@ -116,7 +116,7 @@
 		return;
 	}
 
-	/*
+	/**
 	 * 外部ノードの接続先ノードを探す
 	 */
 	function findNodeToBeReplaced(nodeToReconnect, nodeToCheckReplaceability, candidates) {
@@ -143,7 +143,7 @@
 	 * any-typeノードの入れ替えるべき子ノードのパスを取得する
 	 * @param nodeName any-typeノード名
 	 * @return 入れ替えるべき子ノードのパスのリスト. 見つからない場合null
-	 * */
+	 */
 	function getPathOfAnyTypeChildToBeMoved(nodeName) {
 		let path = anyTypeToPathOfChildToBeMoved[nodeName];
 		if (!path)

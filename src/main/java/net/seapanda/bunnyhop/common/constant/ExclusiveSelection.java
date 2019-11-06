@@ -1,4 +1,4 @@
-package net.seapanda.bunnyhop.common;
+package net.seapanda.bunnyhop.common.constant;
 
 /**
  * 排他的な選択しの列挙

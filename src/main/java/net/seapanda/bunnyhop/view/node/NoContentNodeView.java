@@ -15,7 +15,7 @@
  */
 package net.seapanda.bunnyhop.view.node;
 
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShape.BODY_SHAPE;

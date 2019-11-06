@@ -18,12 +18,11 @@ package net.seapanda.bunnyhop.bhprogram;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 
@@ -50,7 +49,7 @@ public class LocalBhProgramManager {
 	 * @param ipAddr BhProgramを実行するマシンのIPアドレス
 	 * @return BhProgram実行タスクのFutureオブジェクト
 	 */
-	public Optional<Future<Boolean>> executeAsync(Path filePath, String ipAddr) {
+	public Future<Boolean> executeAsync(Path filePath, String ipAddr) {
 		return common.executeAsync(() -> execute(filePath, ipAddr));
 	}
 
@@ -95,13 +94,13 @@ public class LocalBhProgramManager {
 
 	/**
 	 * 現在実行中のBhProgramExecEnvironment を強制終了する
-	 * @return BhProgram強制終了タスクのFutureオブジェクト. タスクを実行しなかった場合null.
+	 * @return BhProgram強制終了タスクのFutureオブジェクト.
 	 */
-	public Optional<Future<Boolean>> terminateAsync() {
+	public Future<Boolean> terminateAsync() {
 
 		if (!programRunning.get()) {
 			MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了済み (local) !!\n");
-			return Optional.empty();
+			return common.terminateAsync(() -> false);
 		}
 
 		return common.terminateAsync(() -> terminate());
@@ -135,7 +134,7 @@ public class LocalBhProgramManager {
 	 * BhProgram の実行環境と通信を行うようにする
 	 * @return 接続タスクのFutureオブジェクト. タスクを実行しなかった場合null.
 	 */
-	public Optional<Future<Boolean>> connectAsync() {
+	public Future<Boolean> connectAsync() {
 		return common.connectAsync();
 	}
 
@@ -143,7 +142,7 @@ public class LocalBhProgramManager {
 	 * BhProgram の実行環境と通信を行わないようにする
 	 * @return 切断タスクのFutureオブジェクト. タスクを実行しなかった場合null.
 	 */
-	public Optional<Future<Boolean>> disconnectAsync() {
+	public Future<Boolean> disconnectAsync() {
 		return common.disconnectAsync();
 	}
 

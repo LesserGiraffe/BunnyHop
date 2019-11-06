@@ -15,7 +15,7 @@
  */
 package net.seapanda.bunnyhop.compiler;
 
-import java.util.List;
+import java.util.Collection;
 
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
@@ -43,7 +43,7 @@ public class GlobalDataDeclCodeGenerator {
 	 * @param option コンパイルオプション
 	 */
 	public void genGlobalDataDecls(
-		List<? extends SyntaxSymbol> nodeListToCompile,
+		Collection<? extends SyntaxSymbol> nodeListToCompile,
 		StringBuilder code,
 		int nestLevel,
 		CompileOption option) {

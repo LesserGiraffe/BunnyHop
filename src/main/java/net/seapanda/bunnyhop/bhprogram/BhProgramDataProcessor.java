@@ -15,29 +15,30 @@
  */
 package net.seapanda.bunnyhop.bhprogram;
 
-import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import net.seapanda.bunnyhop.common.BhParams;
+
+import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 
 /**
- * リモート環境から受信したコマンドを処理する
+ * BhProgram の実行環境が送信したしたコマンドを処理するクラス
  * @author K.koike
  */
-public class RemoteCmdProcessor {
+public class BhProgramDataProcessor {
 
 	private final BlockingQueue<BhProgramData> recvDataList = new ArrayBlockingQueue<>(BhParams.ExternalApplication.MAX_REMOTE_CMD_QUEUE_SIZE);
 	private final ExecutorService remoteCmdExec = Executors.newSingleThreadExecutor();	//!< コマンド受信用
-		
-	public void init() {
+
+	void init() {
 		remoteCmdExec.submit(() -> {
-			
+
 			while (true) {
-				
+
 				BhProgramData data = null;
 				try {
 					data = recvDataList.poll(BhParams.ExternalApplication.POP_RECV_DATA_TIMEOUT, TimeUnit.SECONDS);
@@ -45,48 +46,55 @@ public class RemoteCmdProcessor {
 				catch(InterruptedException e) {
 					break;
 				}
-							
+
 				if (data != null)
-					processRemoteData(data);
+					process(data);
 			}
 		});
 	}
-	
+
 	/**
-	 * リモート環境から受信したデータを処理する
+	 * BhProgram の実行環境が送信したコマンドを処理する
 	 * @param data リモート環境から受信したデータ. nullは駄目.
 	 */
-	private void processRemoteData(BhProgramData data) {
-		
+	private void process(BhProgramData data) {
+
 		switch(data.type) {
 			case OUTPUT_STR:
 				MsgPrinter.INSTANCE.msgForUser(data.str + "\n");
 				break;
+
+			case OUTPUT_EXCEPTION:
+				MsgPrinter.INSTANCE.msgForUser(data.exception.getBhNodeInstanceID() + " : err node id \n");
+				MsgPrinter.INSTANCE.msgForUser(data.exception.getMessage() + "\n");
+				data.exception.getCallStack().forEach(s -> MsgPrinter.INSTANCE.msgForUser(s.toString() + "\n"));
+				break;
+
 			default:
 		}
 	}
-	
+
 	/**
-	 * 処理対象のリモートデータを追加する
-	 * @param data 処理対象のリモートデータ
+	 * 処理対象のデータを追加する
+	 * @param data 処理対象のデータ
 	 */
-	public void addRemoteData(BhProgramData data) throws InterruptedException {
+	public void add(BhProgramData data) throws InterruptedException {
 		recvDataList.put(data);
 	}
-	
+
 	/**
-	 * 処理対象のリモートデータを全て削除する
+	 * 現在追加されている処理対象のデータを全て削除する
 	 */
-	public void clearRemoteDataList() {
+	public void clearAllData() {
 		recvDataList.clear();
 	}
-	
+
 	/**
 	 * このオブジェクトの終了処理を行う
 	 * @return 終了処理が成功した場合true
 	 */
 	public boolean end() {
-		
+
 		boolean success = false;
 		remoteCmdExec.shutdownNow();
 		try {

@@ -15,8 +15,6 @@
  */
 package net.seapanda.bunnyhop.model.node;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -24,7 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.seapanda.bunnyhop.common.Showable;
-import net.seapanda.bunnyhop.common.VersionInfo;
+import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 
 /**
@@ -34,8 +32,8 @@ import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 public abstract class SyntaxSymbol implements Showable, Serializable {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	private String symbolName;	//!< 終端, 非終端記号名
-	private transient SyntaxSymbolID symbolID = SyntaxSymbolID.newID();	//!< コンパイル対象のSyntaxSymbolオブジェクトが持つユニークなID
+	private final String symbolName;	//!< 終端, 非終端記号名
+	private SyntaxSymbolID symbolID = SyntaxSymbolID.newID();	//!< SyntaxSymbolオブジェクトが持つID
 
 	/**
 	 * 引数で指定したシンボル名を持つSyntaxSymbolをgeneration(もしくはそれ以下)の世代のSyntaxSymbolから探す.<br>
@@ -183,19 +181,19 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
 	}
 
 	/**
+	 * シンボルIDを新しくする
+	 * @return 新しく割り振られたシンボルID
+	 */
+	public SyntaxSymbolID renewSymbolID() {
+		symbolID = SyntaxSymbolID.newID();
+		return symbolID;
+	}
+
+	/**
 	 * visitor に自オブジェクトを渡す
 	 * @param visitor 自オブジェクトを渡すvisitor
 	 * */
 	public abstract void accept(BhModelProcessor visitor);
-
-
-	/**
-	 * 独自デシリアライズ処理
-	 * */
-	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
-		stream.defaultReadObject();
-		symbolID = SyntaxSymbolID.newID();
-	}
 }
 
 

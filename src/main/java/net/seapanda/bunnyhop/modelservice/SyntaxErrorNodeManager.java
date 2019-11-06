@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.modelhandler;
+package net.seapanda.bunnyhop.modelservice;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.CauseOfDletion;
+import net.seapanda.bunnyhop.model.node.CauseOfDeletion;
 import net.seapanda.bunnyhop.modelprocessor.SyntaxErrorNodeCollector;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -41,7 +41,7 @@ public class SyntaxErrorNodeManager {
 	/**
 	 * 以下の2種類の構文エラーノードを管理対象に入れる
 	 *   ・引数のノード以下にある構文エラーノード
-	 *   ・引数のノード以下にあるオリジナルノードが持つイミテーションで構文エラーを起こしているノード
+	 *   ・引数のノード以下にあるオリジナルノードが持つ構文エラーを起こしているイミテーションノード
 	 * */
 	public void collect(BhNode node, UserOperationCommand userOpeCmd) {
 
@@ -89,7 +89,7 @@ public class SyntaxErrorNodeManager {
 			.collect(Collectors.toCollection(HashSet::new));
 
 		nodesToDelete.forEach(node ->
-			node.execScriptOnDeletionRequested(nodesToDelete, CauseOfDletion.SYNTAX_ERROR, userOpeCmd));
+			node.execScriptOnDeletionRequested(nodesToDelete, CauseOfDeletion.SYNTAX_ERROR, userOpeCmd));
 
 		BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd)
 		.forEach(oldAndNewNode -> {

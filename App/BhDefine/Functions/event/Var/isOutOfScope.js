@@ -1,7 +1,7 @@
 (function() {
 	// true -> スコープ外, false -> スコープ内
 	
-	let original = bhThis.getOriginalNode();
+	let original = bhThis.getOriginal();
 	if (original === null)
 		return true;
 	

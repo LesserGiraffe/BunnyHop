@@ -23,16 +23,16 @@ import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
-import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.VersionInfo;
+import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.imitation.ImitationBase;
 import net.seapanda.bunnyhop.model.imitation.ImitationID;
-import net.seapanda.bunnyhop.model.imitation.ImitationManager;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
+import net.seapanda.bunnyhop.model.node.BhNodeViewType;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
@@ -43,28 +43,26 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * 子ノードと接続されるノード
  * @author K.Koike
  * */
-public class ConnectiveNode extends Imitatable {
+public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	private Section childSection;						//!< セクションの集合 (ノード内部に描画されるもの)
-	private ImitationManager<ConnectiveNode> imitManager;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
 	private final String scriptNameOnChildReplaced;	//!< 子ノード入れ替え維持に実行されるスクリプト
 
 	/**
 	 * コンストラクタ<br>
 	 * ノード内部・外部とは描画位置のこと
 	 * @param childSection 子セクション
-	 * @param imitID_imitNodeID イミテーションタグとそれに対応するイミテーションノードIDのマップ
+	 * @param imitIdToImitNodeID イミテーションタグとそれに対応するイミテーションノードIDのマップ
 	 * @param attributes ノードの設定情報
 	 * */
 	public ConnectiveNode(
-			Section childSection,
-			Map<ImitationID, BhNodeID> imitID_imitNodeID,
-			BhNodeAttributes attributes) {
+		Section childSection,
+		Map<ImitationID, BhNodeID> imitIdToImitNodeID,
+		BhNodeAttributes attributes) {
 
-		super(BhParams.BhModelDef.ATTR_VALUE_CONNECTIVE, attributes, imitID_imitNodeID);
+		super(BhNodeViewType.CONNECTIVE, attributes, imitIdToImitNodeID);
 		this.childSection = childSection;
-		imitManager = new ImitationManager<>();
 		scriptNameOnChildReplaced = attributes.getOnChildReplaced();
 	}
 
@@ -72,18 +70,18 @@ public class ConnectiveNode extends Imitatable {
 	 * コピーコンストラクタ
 	 * @param org コピー元オブジェクト
 	 */
-	private ConnectiveNode(ConnectiveNode org) {
-		super(org);
+	private ConnectiveNode(ConnectiveNode org, UserOperationCommand userOpeCmd) {
+
+		super(org, userOpeCmd);
 		scriptNameOnChildReplaced = org.scriptNameOnChildReplaced;
 	}
 
 	@Override
 	public ConnectiveNode copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
 
-		ConnectiveNode newNode = new ConnectiveNode(this);
+		ConnectiveNode newNode = new ConnectiveNode(this, userOpeCmd);
 		newNode.childSection = childSection.copy(userOpeCmd, isNodeToBeCopied);
 		newNode.childSection.setParent(newNode);
-		newNode.imitManager = new ImitationManager<>(imitManager, userOpeCmd, newNode);
 		return newNode;
 	}
 
@@ -95,33 +93,9 @@ public class ConnectiveNode extends Imitatable {
 	/**
 	 * BhModelProcessor を子Section に渡す
 	 * @param processor 子Section に渡す BhModelProcessor
-	 * */
+	 */
 	public void sendToSections(BhModelProcessor processor) {
 		childSection.accept(processor);
-	}
-
-
-	@Override
-	public ConnectiveNode createImitNode(UserOperationCommand userOpeCmd, ImitationID imitID) {
-
-		//イミテーションノード作成
-		BhNode imitationNode = BhNodeTemplates.INSTANCE.genBhNode(getImitationNodeID(imitID), userOpeCmd);
-
-		//オリジナルとイミテーションの関連付け
-		ConnectiveNode connectiveImit = (ConnectiveNode)imitationNode; //ノードテンプレート作成時に整合性チェックしているのでキャストに問題はない
-		imitManager.addImitation(connectiveImit, userOpeCmd);
-		connectiveImit.imitManager.setOriginal(this, userOpeCmd);
-		return connectiveImit;
-	}
-
-	@Override
-	public ImitationManager<ConnectiveNode> getImitationManager() {
-		return imitManager;
-	}
-
-	@Override
-	public ConnectiveNode getOriginalNode() {
-		return imitManager.getOriginal();
 	}
 
 	@Override
@@ -171,30 +145,6 @@ public class ConnectiveNode extends Imitatable {
 		}
 	}
 
-	/**
-	 * モデルの構造を表示する
-	 * @param depth 表示インデント数
-	 * */
-	@Override
-	public void show(int depth) {
-
-		String parentHashCode = "null";
-		if (parentConnector != null)
-			parentHashCode = parentConnector.hashCode() + "";
-
-		String lastReplacedHash = "";
-		if (getLastReplaced() != null)
-			lastReplacedHash =  getLastReplaced().hashCode() + "";
-
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<ConnectiveNode" + "  bhID=" + getID()  + "  parent=" + parentHashCode + "  > " + this.hashCode());
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
-		imitManager.getImitationList().forEach(imit -> {
-			MsgPrinter.INSTANCE.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());
-		});
-		childSection.show(depth + 1);
-	}
-
 	@Override
 	public void findSymbolInDescendants(int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
 
@@ -210,6 +160,47 @@ public class ConnectiveNode extends Imitatable {
 		}
 
 		childSection.findSymbolInDescendants(Math.max(0, generation-1), toBottom, foundSymbolList, symbolNames);
+	}
+
+	@Override
+	public ConnectiveNode createImitNode(ImitationID imitID, UserOperationCommand userOpeCmd) {
+
+		//イミテーションノード作成
+		BhNode imitationNode = BhNodeTemplates.INSTANCE.genBhNode(getImitationNodeID(imitID), userOpeCmd);
+
+		if (!(imitationNode instanceof ConnectiveNode))
+			throw new AssertionError("imitation node type inconsistency");
+
+		//オリジナルとイミテーションの関連付け
+		ConnectiveNode connectiveImit = (ConnectiveNode)imitationNode;
+		addImitation(connectiveImit, userOpeCmd);
+		connectiveImit.setOriginal(this, userOpeCmd);
+		return connectiveImit;
+	}
+
+	@Override
+	protected ConnectiveNode self() {
+		return this;
+	}
+
+	@Override
+	public void show(int depth) {
+
+		String parentHashCode = "null";
+		if (parentConnector != null)
+			parentHashCode = parentConnector.hashCode() + "";
+
+		String lastReplacedHash = "";
+		if (getLastReplaced() != null)
+			lastReplacedHash =  getLastReplaced().hashCode() + "";
+
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<ConnectiveNode" + "  bhID=" + getID()  + "  parent=" + parentHashCode + "  > " + this.hashCode());
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
+		getImitationList().forEach(imit -> {
+			MsgPrinter.INSTANCE.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());
+		});
+		childSection.show(depth + 1);
 	}
 }
 

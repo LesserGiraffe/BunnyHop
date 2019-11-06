@@ -15,20 +15,19 @@
  */
 package net.seapanda.bunnyhop.compiler;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import net.seapanda.bunnyhop.model.NodeGraphSnapshot;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.modelhandler.SyntaxErrorNodeManager;
+import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -36,19 +35,20 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * コンパイル対象のノードを準備するクラス
  * @author K.Koike
  * */
-public class CompileNodesArranger {
+public class CompileNodeCollector {
 
-	private CompileNodesArranger() {}
+	private CompileNodeCollector() {}
 
 	/**
 	 * コンパイル対象のノードを準備する.
+	 * 返されるノードは, ワークスペースに存在するノードのディープコピー.
 	 * @param wss このワークスペースセットからコンパイル対象ノードを集める.
 	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @return コンパイル対象ノードと実行対象ノードのペア
+	 * @return wss に存在する全ノードのスナップショットと実行ノードのペア
 	 * */
-	public static Optional<Pair<List<BhNode>, BhNode>> arrange(WorkspaceSet wss, UserOperationCommand userOpeCmd) {
-		return new CompileNodesArranger().collectNodesToCompile(wss, userOpeCmd);
-
+	public static Optional<Pair<NodeGraphSnapshot, BhNode>> collect(
+		WorkspaceSet wss, UserOperationCommand userOpeCmd) {
+		return new CompileNodeCollector().collectNodesToCompile(wss, userOpeCmd);
 	}
 
 	/**
@@ -57,27 +57,20 @@ public class CompileNodesArranger {
 	 * @param userOpeCmd undo用コマンドオブジェクト.
 	 * @return コンパイル対象ノードと実行対象ノードのペア
 	 */
-	private Optional<Pair<List<BhNode>, BhNode>> collectNodesToCompile(
+	private Optional<Pair<NodeGraphSnapshot, BhNode>> collectNodesToCompile(
 		WorkspaceSet wss, UserOperationCommand userOpeCmd) {
 
 		if (!deleteSyntaxErrorNodes(userOpeCmd)) {
 			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 			return Optional.empty();
 		}
+		Optional<BhNode> nodeToExecOpt = findNodeToExecute(wss.getCurrentWorkspace(), userOpeCmd);
 
-		Optional<BhNode> nodeToExec = findNodeToExecute(wss.getCurrentWorkspace(), userOpeCmd);
-		if (nodeToExec.isEmpty())
-			return Optional.empty();
-
-		//コンパイル対象ノードを集める
-		var nodesToCompile = new ArrayList<BhNode>();
-		wss.getWorkspaceList().forEach(ws -> {
-			ws.getRootNodeList().forEach(node -> {
-				nodesToCompile.add(node);
-			});
+		return nodeToExecOpt.map(nodeToExec -> {
+			var snapshot = new NodeGraphSnapshot(wss);
+			BhNode copyOfNodeToExec = getCopyOfExecNode(snapshot, nodeToExec);
+			return new Pair<>(snapshot, copyOfNodeToExec);
 		});
-		nodesToCompile.remove(nodeToExec.get());
-		return Optional.of(new Pair<>(nodesToCompile, nodeToExec.get()));
 	}
 
 	/**
@@ -117,22 +110,42 @@ public class CompileNodesArranger {
 	 * 実行対象のノードを探す
 	 * @param ws このワークスペースに実行対象があるかどうかチェックする.
 	 * @param userOpeCmd undo用コマンドオブジェクト.
-	 * @return
-	 * */
+	 * @return 実行対象のノード
+	 */
 	private Optional<BhNode> findNodeToExecute(Workspace ws, UserOperationCommand userOpeCmd) {
 
-		Set<BhNode> selectedNodeList = ws.getSelectedNodeList();
+		if (ws == null)
+			return Optional.empty();
+
+		List<BhNode> selectedNodeList = ws.getSelectedNodeList();
 		if (selectedNodeList.isEmpty()) {
 			MsgPrinter.INSTANCE.alert(AlertType.ERROR, "実行対象の選択", null,"実行対象を一つ選択してください");
 			return Optional.empty();
 		}
 
 		// 実行対象以外を非選択に.
-		BhNode nodeToExec = selectedNodeList.iterator().next().findRootNode();
+		BhNode nodeToExec = selectedNodeList.get(0).findRootNode();
 		ws.clearSelectedNodeList(userOpeCmd);
 		ws.addSelectedNode(nodeToExec, userOpeCmd);
 		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 		return Optional.of(nodeToExec);
+	}
+
+	/**
+	 * ノード構造のスナップショットと実行ノードのコピーを取得する.
+	 * @return
+	 */
+	private BhNode getCopyOfExecNode(
+		NodeGraphSnapshot snapshot, BhNode nodeToExec) {
+
+		BhNode copyOfNodeToExec = snapshot.getMapOfSymbolIdToNode().get(nodeToExec.getSymbolID());
+		if (copyOfNodeToExec == null) {
+			String msg = "not found the copy of the BhNode to execute in the snapshot";
+			MsgPrinter.INSTANCE.msgForDebug(getClass().getSimpleName() + "  " + msg);
+			throw new AssertionError(msg);
+		}
+
+		return copyOfNodeToExec;
 	}
 }
 

@@ -15,14 +15,13 @@
  */
 package net.seapanda.bunnyhop.control;
 
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.message.BhMsg;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.view.MultiNodeShifterView;
+import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
 
 /**
  * 複数ノードを同時に移動させるマルチノードシフタのコントローラ
@@ -46,8 +45,18 @@ public class MultiNodeShifterController {
 	public void init() {
 
 		Vec2D mousePressedPos = new Vec2D(0.0, 0.0);
+		setOnMousePressedHandler(mousePressedPos);
+		setOnMouseDraggedHandler(mousePressedPos);
+		setOnMouseReleasedHandler(mousePressedPos);
+	}
 
-		// マウスボタン押下
+
+	/**
+	 * マウスボタン押下時のイベントハンドラを登録する
+	 * @param mousePressedPos マウスボタン押下時のカーソル位置の格納先
+	 */
+	private void setOnMousePressedHandler(Vec2D mousePressedPos) {
+
 		view.setOnMousePressedHandler(mouseEvent -> {
 			view.switchPseudoClassActivation(true, BhParams.CSS.PSEUDO_SELECTED);
 			javafx.geometry.Point2D pos = view.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
@@ -56,13 +65,19 @@ public class MultiNodeShifterController {
 			view.toFront();
 			mouseEvent.consume();
 		});
+	}
 
-		// ドラッグ中
+	/**
+	 * マウスドラッグ時のイベントハンドラを登録する
+	 * @param mousePressedPos マウスボタン押下時のカーソル位置
+	 */
+	private void setOnMouseDraggedHandler(Vec2D mousePressedPos) {
+
 		view.setOnMouseDraggedHandler(mouseEvent -> {
 
 			double diffX = mouseEvent.getX() - mousePressedPos.x;
 			double diffY = mouseEvent.getY() - mousePressedPos.y;
-			Vec2D wsSize = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_WORKSPACE_SIZE, ws).vec2d;
+			Vec2D wsSize = ViewHelper.INSTANCE.getWorkspaceView(view).getWorkspaceSize();
 
 			if (mouseEvent.isShiftDown()) {
 				view.move(new Vec2D(diffX, diffY), wsSize, true);
@@ -73,8 +88,14 @@ public class MultiNodeShifterController {
 			}
 			mouseEvent.consume();
 		});
+	}
 
-		// マウスボタン離し
+	/**
+	 * マウスボタンを離したときのイベントハンドラを登録する
+	 * @param mousePressedPos マウスボタンを押下時のカーソル位置
+	 */
+	private void setOnMouseReleasedHandler(Vec2D mousePressedPos) {
+
 		view.setOnMouseReleasedHandler(mouseEvent -> {
 			view.switchPseudoClassActivation(false, BhParams.CSS.PSEUDO_SELECTED);
 			mouseEvent.consume();

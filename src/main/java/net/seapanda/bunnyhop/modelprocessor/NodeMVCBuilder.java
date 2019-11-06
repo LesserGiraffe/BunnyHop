@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.modelprocessor;
 import java.util.Deque;
 import java.util.LinkedList;
 
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.control.node.BhNodeControllerInSelectionView;
 import net.seapanda.bunnyhop.control.node.ComboBoxNodeController;
 import net.seapanda.bunnyhop.control.node.ConnectiveNodeController;
@@ -142,8 +141,8 @@ public class NodeMVCBuilder implements BhModelProcessor {
 
 		BhNodeViewStyle viewStyle = BhNodeViewStyle.getNodeViewStyleFromNodeID(node.getID());
 		BhNodeView nodeView = null;
-		switch (node.type) {
-			case BhParams.BhModelDef.ATTR_NAME_TEXT_FIELD:
+		switch (node.getType()) {
+			case TEXT_FIELD:
 				var textNodeView = new TextFieldNodeView(node, viewStyle);
 				textNodeView.init(isTemplate);
 				node.setScriptScope(textNodeView);
@@ -151,7 +150,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 				nodeView = textNodeView;
 				break;
 
-			case BhParams.BhModelDef.ATTR_NAME_COMBO_BOX:
+			case COMBO_BOX:
 				var comboBoxNodeView = new ComboBoxNodeView(node, viewStyle);
 				comboBoxNodeView.init(isTemplate);
 				node.setScriptScope(comboBoxNodeView);
@@ -159,7 +158,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 				nodeView = comboBoxNodeView;
 				break;
 
-			case BhParams.BhModelDef.ATTR_NAME_LABEL:
+			case LABEL:
 				var labelNodeView = new LabelNodeView(node, viewStyle);
 				labelNodeView.init();
 				node.setScriptScope(labelNodeView);
@@ -167,7 +166,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 				nodeView = labelNodeView;
 				break;
 
-			case BhParams.BhModelDef.ATTR_NAME_TEXT_AREA:
+			case TEXT_AREA:
 				var textAreaNodeView = new TextAreaNodeView(node, viewStyle);
 				textAreaNodeView.init(isTemplate);
 				node.setScriptScope(textAreaNodeView);
@@ -175,7 +174,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 				nodeView = textAreaNodeView;
 				break;
 
-			case BhParams.BhModelDef.ATTR_NAME_NO_CONTENT:
+			case NO_CONTENT:
 				var noContentNodeView = new NoContentNodeView(node, viewStyle);
 				noContentNodeView.init();
 				node.setScriptScope(noContentNodeView);
@@ -183,12 +182,12 @@ public class NodeMVCBuilder implements BhModelProcessor {
 				nodeView = noContentNodeView;
 				break;
 
-			case BhParams.BhModelDef.ATTR_NAME_NO_VIEW:
+			case NO_VIEW:
 				node.setMsgProcessor((BhMsg msg, MsgData data) -> null);
 				return;
 
 			default:
-				throw new AssertionError(NodeMVCBuilder.class.getSimpleName() + " invalid text node type " + node.type);
+				throw new AssertionError(NodeMVCBuilder.class.getSimpleName() + " invalid text node type " + node.getType());
 		}
 		if (topNodeView == null)
 			topNodeView = nodeView;

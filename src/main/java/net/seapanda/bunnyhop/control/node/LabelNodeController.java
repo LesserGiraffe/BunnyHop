@@ -63,15 +63,8 @@ public class LabelNodeController extends BhNodeController {
 				view.setText(data.strPair._2);
 				break;
 
-			case GET_MODEL_AND_VIEW_TEXT:
-				return new MsgData(model.getText(), view.getText());
-
-			case SET_TEXT:
-				if (model.isTextAcceptable(data.text)) {
-					model.setText(data.text);
-					view.setText(data.text);
-				}
-				break;
+			case GET_VIEW_TEXT:
+				return new MsgData(view.getText());
 
 			default:
 				return super.processMsg(msg, data);

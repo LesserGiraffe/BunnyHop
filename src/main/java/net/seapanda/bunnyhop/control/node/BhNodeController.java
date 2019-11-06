@@ -20,22 +20,22 @@ import java.util.List;
 
 import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.CauseOfDletion;
+import net.seapanda.bunnyhop.model.node.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
-import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
-import net.seapanda.bunnyhop.modelhandler.SyntaxErrorNodeManager;
+import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
+import net.seapanda.bunnyhop.modelservice.DelayedDeleter;
+import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
+import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.TrashboxService;
@@ -61,7 +61,7 @@ public class BhNodeController implements MsgProcessor {
 	protected BhNodeController(BhNode model, BhNodeView view) {
 		this.model = model;
 		this.view = view;
-		setMouseEventHandlers();
+		setEventHandlers();
 	}
 
 	/**
@@ -73,111 +73,155 @@ public class BhNodeController implements MsgProcessor {
 
 		if (node == null)
 			return;
-		BhNodeView nodeView = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW, node).nodeView;
+		BhNodeView nodeView = MsgService.INSTANCE.getBhNodeView(node);
 		nodeView.getEventManager().propagateEvent(event);
 		event.consume();
 	}
 
 	/**
-	 * View が走査されたときのイベントハンドラをセットする
-	 * */
-	private void setMouseEventHandlers() {
+	 * 各種イベントハンドラをセットする
+	 */
+	private void setEventHandlers() {
 
-		//マウスボタン押下
-		view.getEventManager().setOnMousePressedHandler(mouseEvent -> {
-			//model.show(0);	//for debug
-			if (!model.isMovable()) {
-				ddInfo.propagateEvent = true;
-				propagateGUIEvent(model.findParentNode(), mouseEvent);
-				return;
-			}
+		setOnMousePressed();
+		setOnMouseDragged();
+		setOnDeagDetected();
+		setOnMouseReleased();
+	}
 
-			//BhNode の新規追加の場合, すでにundo用コマンドオブジェクトがセットされている
-			if (ddInfo.userOpeCmd == null)
-				ddInfo.userOpeCmd = new UserOperationCommand();
+	/**
+	 * マウスボタン押下時のイベントハンドラを登録する
+	 */
+	private void setOnMousePressed() {
 
-			ViewHelper.INSTANCE.shiftShadow(view);
-			view.getPositionManager().toFront(true);
-			selectNode(mouseEvent.isShiftDown());	//選択処理
-			javafx.geometry.Point2D mousePressedPos = view.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-			ddInfo.mousePressedPos = new Vec2D(mousePressedPos.getX(), mousePressedPos.getY());
-			ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
-			view.setMouseTransparent(true);
-			mouseEvent.consume();
-		});
+		view.getEventManager().setOnMousePressed(
+			mouseEvent -> {
+				ModelExclusiveControl.INSTANCE.lockForModification();
+				try {
+					//model.show(0);	//for debug
+					if (!model.isMovable()) {
+						ddInfo.propagateEvent = true;
+						propagateGUIEvent(model.findParentNode(), mouseEvent);
+						return;
+					}
 
-		//ドラッグ中
-		view.getEventManager().setOnMouseDraggedHandler(mouseEvent -> {
+					//BhNode の新規追加の場合, すでにundo用コマンドオブジェクトがセットされている
+					if (ddInfo.userOpeCmd == null)
+						ddInfo.userOpeCmd = new UserOperationCommand();
 
-			if (ddInfo.propagateEvent) {
-				propagateGUIEvent(model.findParentNode(), mouseEvent);
-				return;
-			}
+					ViewHelper.INSTANCE.drawShadow(view);
+					view.getPositionManager().toFront(true);
+					selectNode(mouseEvent.isShiftDown());	//選択処理
+					javafx.geometry.Point2D mousePressedPos = view.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+					ddInfo.mousePressedPos = new Vec2D(mousePressedPos.getX(), mousePressedPos.getY());
+					ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
+					view.setMouseTransparent(true);
+					mouseEvent.consume();
+				}
+				finally {
+					ModelExclusiveControl.INSTANCE.unlockForModification();
+				}
+			});
+	}
 
-			if (ddInfo.dragging) {
-				double diffX = mouseEvent.getX() - ddInfo.mousePressedPos.x;
-				double diffY = mouseEvent.getY() - ddInfo.mousePressedPos.y;
-				moveNodeOnWorkspace(diffX, diffY);
-				highlightOverlappedNode();	// ドラッグ検出されていない場合、強調は行わない. 子ノードがダングリングになっていないのに、重なったノード (入れ替え対象) だけが検出されるのを防ぐ
-				TrashboxService.INSTANCE.openCloseTrashbox(mouseEvent.getSceneX(), mouseEvent.getSceneY());	//ゴミ箱開閉
-			}
-			mouseEvent.consume();
-		});
+	/**
+	 * マウスドラッグ時のイベントハンドラを登録する
+	 */
+	private void setOnMouseDragged() {
 
-		//ドラッグを検出 (先にsetOnMouseDraggedが呼ばれ、ある程度ドラッグしたときにこれが呼ばれる)
-		view.getEventManager().setOnDragDetectedHandler(mouseEvent -> {
+		view.getEventManager().setOnMouseDragged(
+			mouseEvent -> {
+				if (ddInfo.propagateEvent) {
+					propagateGUIEvent(model.findParentNode(), mouseEvent);
+					return;
+				}
 
-			if (ddInfo.propagateEvent) {
-				propagateGUIEvent(model.findParentNode(), mouseEvent);
-				return;
-			}
+				if (ddInfo.dragging) {
+					double diffX = mouseEvent.getX() - ddInfo.mousePressedPos.x;
+					double diffY = mouseEvent.getY() - ddInfo.mousePressedPos.y;
+					moveNodeOnWorkspace(diffX, diffY);
+					// ドラッグ検出されていない場合、強調は行わない. 子ノードがダングリングになっていないのに、重なったノード (入れ替え対象) だけが検出されるのを防ぐ
+					highlightOverlappedNode();
+					TrashboxService.INSTANCE.openCloseTrashbox(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+				}
+				mouseEvent.consume();
+			});
+	}
 
-			ddInfo.dragging = true;
-			if(model.isRemovable()) {	//子ノードでかつ取り外し可能 -> 親ノードから切り離し, ダングリング状態へ
-				ddInfo.latestParent = model.findParentNode();
-				ddInfo.latestRoot = model.findRootNode();
-				BhNode newNode = BhNodeHandler.INSTANCE.removeChild(model, ddInfo.userOpeCmd);
-				ddInfo.latestParent.execScriptOnChildReplaced(model, newNode, newNode.getParentConnector(), ddInfo.userOpeCmd);
-			}
-			mouseEvent.consume();
-		});
+	/**
+	 * マウスドラッグ検出検出時のイベントハンドラを登録する
+	 */
+	private void setOnDeagDetected() {
 
-        //マウスボタン離し
-		view.getEventManager().setOnMouseReleasedHandler(mouseEvent -> {
+		// 先にsetOnMouseDraggedが呼ばれ、ある程度ドラッグしたときにこれが呼ばれる)
+		view.getEventManager().setOnDragDetected(
+			mouseEvent -> {
+				ModelExclusiveControl.INSTANCE.lockForModification();
+				try {
+					if (ddInfo.propagateEvent) {
+						propagateGUIEvent(model.findParentNode(), mouseEvent);
+						return;
+					}
 
-			if (ddInfo.propagateEvent) {
-				propagateGUIEvent(model.findParentNode(), mouseEvent);
-				ddInfo.propagateEvent = false;
-				return;
-			}
+					ddInfo.dragging = true;
+					if(model.isRemovable()) {	//子ノードでかつ取り外し可能 -> 親ノードから切り離し, ダングリング状態へ
+						ddInfo.latestParent = model.findParentNode();
+						ddInfo.latestRoot = model.findRootNode();
+						BhNode newNode = BhNodeHandler.INSTANCE.removeChild(model, ddInfo.userOpeCmd);
+						ddInfo.latestParent.execScriptOnChildReplaced(model, newNode, newNode.getParentConnector(), ddInfo.userOpeCmd);
+					}
+					mouseEvent.consume();
+				}
+				finally {
+					ModelExclusiveControl.INSTANCE.unlockForModification();
+				}
+			});
+	}
 
-			if (ddInfo.currentOverlapped != null) {
-				MsgTransporter.INSTANCE.sendMessage(
-					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-					new MsgData(false, BhParams.CSS.PSEUDO_OVERLAPPED),
-					ddInfo.currentOverlapped);
-			}
+	/**
+	 * マウスボタンを離したときのイベントハンドラを登録する
+	 */
+	private void setOnMouseReleased() {
 
-			if ((model.getState() == BhNode.State.ROOT_DANGLING) && ddInfo.currentOverlapped == null) {	//子ノード -> ワークスペース
-				toWorkspace(model.getWorkspace());
-			}
-			else if (ddInfo.currentOverlapped != null) {	// (ワークスペース or 子ノード) -> 子ノード
-				toChildNode(ddInfo.currentOverlapped);
-			}
-			else {	//同一ワークスペース上で移動
-				toSameWorkspace();
-			}
+		view.getEventManager().setOnMouseReleased(
+			mouseEvent -> {
+				ModelExclusiveControl.INSTANCE.lockForModification();
+				try {
+					if (ddInfo.propagateEvent) {
+						propagateGUIEvent(model.findParentNode(), mouseEvent);
+						ddInfo.propagateEvent = false;
+						return;
+					}
 
-			view.getPositionManager().toFront(false);
-			deleteUnnecessaryNodes(mouseEvent);
-			SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(ddInfo.userOpeCmd);
-			SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(ddInfo.userOpeCmd);
-			BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
-			ddInfo.reset();
-			view.setMouseTransparent(false);	// 処理が終わったので、元に戻しておく。
-			TrashboxService.INSTANCE.openCloseTrashbox(false);
-			mouseEvent.consume();
-		});
+					if (ddInfo.currentOverlapped != null) {
+						MsgService.INSTANCE.switchPseudoClassActivation(
+							ddInfo.currentOverlapped, BhParams.CSS.PSEUDO_OVERLAPPED, false);
+					}
+
+					if ((model.getState() == BhNode.State.ROOT_DANGLING) && ddInfo.currentOverlapped == null) {	//子ノード -> ワークスペース
+						toWorkspace(model.getWorkspace());
+					}
+					else if (ddInfo.currentOverlapped != null) {	// (ワークスペース or 子ノード) -> 子ノード
+						toChildNode(ddInfo.currentOverlapped);
+					}
+					else {	//同一ワークスペース上で移動
+						toSameWorkspace();
+					}
+
+					view.getPositionManager().toFront(false);
+					deleteUnnecessaryNodes(mouseEvent);
+					SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(ddInfo.userOpeCmd);
+					SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(ddInfo.userOpeCmd);
+					BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
+					ddInfo.reset();
+					view.setMouseTransparent(false);	// 処理が終わったので、元に戻しておく。
+					TrashboxService.INSTANCE.openCloseTrashbox(false);
+					mouseEvent.consume();
+				}
+				finally {
+					ModelExclusiveControl.INSTANCE.unlockForModification();
+				}
+			});
 	}
 
 	/**
@@ -264,7 +308,7 @@ public class BhNodeController implements MsgProcessor {
 		if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
 			TrashboxService.INSTANCE.isInTrashboxArea(mouseEvent.getSceneX(), mouseEvent.getSceneY())) {
 			model.execScriptOnDeletionRequested(
-				new ArrayList<BhNode>() {{add(model);}}, CauseOfDletion.TRASH_BOX, ddInfo.userOpeCmd);
+				new ArrayList<BhNode>() {{add(model);}}, CauseOfDeletion.TRASH_BOX, ddInfo.userOpeCmd);
 			BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
 		}
 	}
@@ -275,20 +319,18 @@ public class BhNodeController implements MsgProcessor {
 	private void highlightOverlappedNode() {
 
 		if (ddInfo.currentOverlapped != null) {
-			MsgTransporter.INSTANCE.sendMessage(
-				BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-				new MsgData(false, BhParams.CSS.PSEUDO_OVERLAPPED), //前回重なっていたものをライトオフ
-				ddInfo.currentOverlapped);
+			//前回重なっていたものをライトオフ
+			MsgService.INSTANCE.switchPseudoClassActivation(
+				ddInfo.currentOverlapped, BhParams.CSS.PSEUDO_OVERLAPPED, false);
 		}
 		ddInfo.currentOverlapped = null;
 
 		List<BhNode> overlappedList = view.getRegionManager().searchForOverlappedModels();	//このノードとコネクタ部分が重なっている
 		for (BhNode overlapped : overlappedList) {
 			if (overlapped.canBeReplacedWith(model)) {	//このノードと入れ替え可能
-				MsgTransporter.INSTANCE.sendMessage(
-					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-					new MsgData(true, BhParams.CSS.PSEUDO_OVERLAPPED),
-					overlapped);	//今回重なっているものをライトオン
+				//今回重なっているものをライトオン
+				MsgService.INSTANCE.switchPseudoClassActivation(
+					overlapped, BhParams.CSS.PSEUDO_OVERLAPPED, true);
 				ddInfo.currentOverlapped = overlapped;
 				break;
 			}
@@ -418,7 +460,7 @@ public class BhNodeController implements MsgProcessor {
 
 				case UPDATE_ABS_POS:
 					Vec2D posOnWs = view.getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
-					view.getPositionManager().updateAbsPos(posOnWs.x, posOnWs.y);
+					view.getPositionManager().setPosOnWorkspace(posOnWs.x, posOnWs.y);
 					break;
 
 				case REPLACE_NODE_VIEW:
@@ -455,7 +497,7 @@ public class BhNodeController implements MsgProcessor {
 					break;
 
 				default:
-					throw new AssertionError("receive an unknown msg " + msg);
+					throw new IllegalStateException("receive an unknown msg " + msg);
 			}
 
 			return null;
@@ -467,7 +509,7 @@ public class BhNodeController implements MsgProcessor {
 		 * */
 		private void setPosOnWorkspace(Vec2D posOnWs) {
 
-			view.getPositionManager().updateAbsPos(posOnWs.x, posOnWs.y);
+			view.getPositionManager().setPosOnWorkspace(posOnWs.x, posOnWs.y);
 			if (model.getWorkspace() != null)
 				MsgService.INSTANCE.updateMultiNodeShifter(model, model.getWorkspace());
 		}

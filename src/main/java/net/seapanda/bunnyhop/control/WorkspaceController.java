@@ -29,18 +29,19 @@ import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.CauseOfDletion;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
-import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
+import net.seapanda.bunnyhop.model.node.CauseOfDeletion;
+import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
+import net.seapanda.bunnyhop.modelservice.DelayedDeleter;
+import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OVERLAP_OPTION;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.MultiNodeShifterView;
 import net.seapanda.bunnyhop.view.ViewHelper;
-import net.seapanda.bunnyhop.view.WorkspaceView;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
+import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 
 /**
@@ -83,15 +84,23 @@ public class WorkspaceController implements MsgProcessor {
 
 	/**
 	 * マウスイベント関連のハンドラを登録する.
-	 * */
+	 */
 	private void setMouseEventHandlers() {
 
 		Vec2D mousePressedPos = new Vec2D(0.0, 0.0);
+		setOnMousePressedHandler(mousePressedPos);
+		setOnMouseDraggedHandler(mousePressedPos);
+		setOnMouseReleasedHandler(mousePressedPos);
+	}
+
+	/**
+	 * マウスボタン押下時のイベントハンドラを登録する
+	 * @param mousePressedPos マウスボタン押下時のカーソル位置の格納先
+	 */
+	private void setOnMousePressedHandler(Vec2D mousePressedPos) {
 
 		// WSをクリックしたときにテキストフィールドのカーソルが消えなくなるので, マウスイベントをconsumeしない.
-
-		// マウスボタン押下
-		view.setOnMousePressedHandler(
+		view.setOnMousePressed(
 			mouseEvent -> {
 				if (!mouseEvent.isShiftDown()) {
 					UserOperationCommand userOpeCmd = new UserOperationCommand();
@@ -104,15 +113,27 @@ public class WorkspaceController implements MsgProcessor {
 				mousePressedPos.y = mouseEvent.getY();
 				view.showSelectionRectangle(mousePressedPos, mousePressedPos);
 			});
+	}
 
-		// マウスドラッグ
-		view.setOnMouseDraggedHandler(
+	/**
+	 * マウスドラッグ時のイベントハンドラを登録する
+	 * @param mousePressedPos マウスボタン押下時のカーソル位置
+	 */
+	private void setOnMouseDraggedHandler(Vec2D mousePressedPos) {
+
+		view.setOnMouseDragged(
 			mouseEvent -> {
 				view.showSelectionRectangle(mousePressedPos, new Vec2D(mouseEvent.getX(), mouseEvent.getY()));
 			});
+	}
 
-		// マウスボタン離し
-		view.setOnMouseReleasedHandler(
+	/**
+	 * マウスボタンを離したときのイベントハンドラを登録する
+	 * @param mousePressedPos マウスボタンを押下時のカーソル位置
+	 */
+	private void setOnMouseReleasedHandler(Vec2D mousePressedPos) {
+
+		view.setOnMouseReleased(
 			mouseEvent -> {
 				view.hideSelectionRectangle();
 				var selectionRange = new QuadTreeRectangle(
@@ -128,9 +149,15 @@ public class WorkspaceController implements MsgProcessor {
 				// 面積の大きい順にソート
 				containedNodes.sort(this::compareViewSize);
 
-				var userOpeCmd = new UserOperationCommand();
-				selectNodes(containedNodes, userOpeCmd);
-				BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+				ModelExclusiveControl.INSTANCE.lockForModification();
+				try {
+					var userOpeCmd = new UserOperationCommand();
+					selectNodes(containedNodes, userOpeCmd);
+					BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+				}
+				finally {
+					ModelExclusiveControl.INSTANCE.unlockForModification();
+				}
 			});
 	}
 
@@ -225,6 +252,10 @@ public class WorkspaceController implements MsgProcessor {
 				nodeShifterController.updateMultiNodeShifter(data.node);
 				break;
 
+			case LOOK_AT_NODE_VIEW:
+				view.lookAt(data.nodeView);
+				break;
+
 			default:
 				throw new AssertionError("receive an unknown msg " + msg);
 		}
@@ -236,7 +267,7 @@ public class WorkspaceController implements MsgProcessor {
 
 		Collection<BhNode> rootNodes = model.getRootNodeList();
 		rootNodes.forEach(node ->
-			node.execScriptOnDeletionRequested(rootNodes, CauseOfDletion.WORKSPACE_DELETION, data.userOpeCmd));
+			node.execScriptOnDeletionRequested(rootNodes, CauseOfDeletion.WORKSPACE_DELETION, data.userOpeCmd));
 		BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), data.userOpeCmd);
 		return new MsgData(model, view, data.userOpeCmd);
 	}

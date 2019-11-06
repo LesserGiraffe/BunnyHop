@@ -30,12 +30,11 @@ import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
-import net.seapanda.bunnyhop.model.imitation.ImitationManager;
+import net.seapanda.bunnyhop.model.imitation.ImitationBase;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
-import net.seapanda.bunnyhop.view.WorkspaceView;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
  * undo/redo 用コマンドクラス
@@ -78,41 +77,37 @@ public class UserOperationCommand {
 
 	/**
 	 * イミテーションノードリストへの追加をコマンド化してサブ操作リストに加える
-	 * @param <T> ImitationCreator を継承しているクラスの型パラメータ
-	 * @param imitInfo イミテーションノードを追加したイミテーションノードリストを持つオブジェクト
 	 * @param imit 追加したイミテーションノード
+	 * @param org imit のオリジナルノード
 	 */
-	public <T extends Imitatable> void pushCmdOfAddImitation(ImitationManager<T> imitInfo, T imit) {
-		subOpeList.addLast(new AddImitationCmd<T>(imitInfo, imit));
+	public <T extends ImitationBase<T>> void pushCmdOfAddImitation(T imit, T org) {
+		subOpeList.addLast(new AddImitationCmd<T>(imit, org));
 	}
 
 	/**
 	 * イミテーションノードリストからの削除をコマンド化してサブ操作リストに加える
-	 * @param <T> ImitationCreator を継承しているクラスの型パラメータ
-	 * @param imitInfo イミテーションノードを削除したイミテーションノードリストを持つオブジェクト
 	 * @param imit 削除したイミテーションノード
+	 * @param org imit を保持していたオリジナルノード
 	 */
-	public <T extends Imitatable> void pushCmdOfRemoveImitation(ImitationManager<T> imitInfo, T imit) {
-		subOpeList.addLast(new RemoveImitationCmd<T>(imitInfo, imit));
+	public <T extends ImitationBase<T>> void pushCmdOfRemoveImitation(T imit, T org) {
+		subOpeList.addLast(new RemoveImitationCmd<T>(imit, org));
 	}
 
 	/**
 	 * イミテーションのオリジナルノード登録操作をコマンド化してサブ操作リストに加える
-	 * @param <T> ImitationCreator を継承しているクラスの型パラメータ
-	 * @param imitInfo オリジナルノードを登録するイミテーションノードが持つ ImitationInfo オブジェクト
-	 * @param original 元々登録されていたオリジナルノード
+	 * @param imit 新しくオリジナルノードがセットされたイミテーション
+	 * @param oldOrg imit に元々登録されていたオリジナルノード
 	 */
-	public <T extends Imitatable> void pushCmdOfSetOriginal(ImitationManager<T> imitInfo, T original) {
-		subOpeList.addLast(new SetOriginalCmd<T>(imitInfo, original));
+	public <T extends ImitationBase<T>> void pushCmdOfSetOriginal(T imit, T oldOrg) {
+		subOpeList.addLast(new SetOriginalCmd<T>(imit, oldOrg));
 	}
 
 	/**
 	 * ワークスペース直下へのルートノードの追加をコマンド化してサブ操作リストに加える
 	 * @param node ワークスペース直下に追加したルートノード
-	 * @param ws ルートノードを追加したワークスペース
 	 */
-	public void pushCmdOfAddRootNode(BhNode node, Workspace ws) {
-		subOpeList.addLast(new AddRootNodeCmd(node, ws));
+	public void pushCmdOfAddRootNode(BhNode node) {
+		subOpeList.addLast(new AddRootNodeCmd(node));
 	}
 
 	/**
@@ -311,59 +306,59 @@ public class UserOperationCommand {
 	}
 
 	/**
-	 * イミテーションノードリストへの追加を表すコマンド
+	 * イミテーションノードの追加を表すコマンド
 	 */
-	private static class AddImitationCmd<T extends Imitatable> implements SubOperation {
+	private static class AddImitationCmd<T extends ImitationBase<T>> implements SubOperation {
 
-		private final ImitationManager<T> imitInfo;	//!< イミテーションノードを追加したイミテーションノードリストを持つオブジェクト
 		private final T imit;	//!< リストに追加されたイミテーション
+		private final T org;	//!< imit のオリジナルノード
 
-		public AddImitationCmd(ImitationManager<T> imitInfo, T imit) {
-			this.imitInfo = imitInfo;
+		public AddImitationCmd(T imit, T org) {
 			this.imit = imit;
+			this.org = org;
 		}
 
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
-			imitInfo.removeImitation(imit, inverseCmd);
+			org.removeImitation(imit, inverseCmd);
 		}
 	}
 
 	/**
-	 * イミテーションノードリストからの削除を表すコマンド
+	 * イミテーションノードの削除を表すコマンド
 	 */
-	private static class RemoveImitationCmd<T extends Imitatable> implements SubOperation {
+	private static class RemoveImitationCmd<T extends ImitationBase<T>> implements SubOperation {
 
-		private final ImitationManager<T> imitInfo;	//!< イミテーションノードを削除したイミテーションノードリストを持つオブジェクト
 		private final T imit;	//!< リストから削除されたイミテーション
+		private final T org;	//!< 削除されたイミテーションをオリジナルノード
 
-		public RemoveImitationCmd(ImitationManager<T> imitInfo, T imit) {
-			this.imitInfo = imitInfo;
+		public RemoveImitationCmd(T imit, T org) {
 			this.imit = imit;
+			this.org = org;
 		}
 
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
-			imitInfo.addImitation(imit, inverseCmd);
+			org.addImitation(imit, inverseCmd);
 		}
 	}
 
 	/**
-	 * イミテーションノードにそのオリジナルノードを登録する操作を表すコマンド
+	 * イミテーションノードに対するオリジナルノードの登録を表すコマンド
 	 */
-	private static class SetOriginalCmd<T extends Imitatable> implements SubOperation {
+	private static class SetOriginalCmd<T extends ImitationBase<T>> implements SubOperation {
 
-		private final ImitationManager<T> imitInfo;	//!< オリジナルノードを登録するイミテーションノードが持つ ImitationInfo オブジェクト
-		private final T original;	//!< 元々登録されていたオリジナルノード
+		private final T imit;	//!< 新しくオリジナルノードがセットされたイミテーション
+		private final T oldOrg;	//!< imit に元々登録されていたオリジナルノード
 
-		public SetOriginalCmd(ImitationManager<T> imitInfo, T original) {
-			this.imitInfo = imitInfo;
-			this.original = original;
+		public SetOriginalCmd(T imit, T oldOrg) {
+			this.imit = imit;
+			this.oldOrg = oldOrg;
 		}
 
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
-			imitInfo.setOriginal(original, inverseCmd);	//元々登録されていたオリジナルノードをセットする
+			imit.setOriginal(oldOrg, inverseCmd);	//元々登録されていたオリジナルノードをセットする
 		}
 	}
 
@@ -373,11 +368,9 @@ public class UserOperationCommand {
 	private static class AddRootNodeCmd implements SubOperation {
 
 		private final BhNode node;	//!< ワークスペース直下に追加したノード
-		private final Workspace ws;	//!< ノードを追加したワークスペース
 
-		public AddRootNodeCmd(BhNode node, Workspace ws) {
+		public AddRootNodeCmd(BhNode node) {
 			this.node = node;
-			this.ws = ws;
 		}
 
 		@Override
@@ -402,7 +395,7 @@ public class UserOperationCommand {
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
 			MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);
-			inverseCmd.pushCmdOfAddRootNode(node, ws);
+			inverseCmd.pushCmdOfAddRootNode(node);
 		}
 	}
 
@@ -556,7 +549,7 @@ public class UserOperationCommand {
 	}
 
 	/**
-	 * 選択ノードリストへのBhNode の追加を表すコマンド
+	 * 選択ノードリストへの BhNode の追加を表すコマンド
 	 */
 	private static class AddSelectedNodeCmd implements SubOperation {
 
@@ -575,7 +568,7 @@ public class UserOperationCommand {
 	}
 
 	/**
-	 * 選択ノードリストへのBhNode の追加を表すコマンド
+	 * 選択ノードリストからの BhNode の削除を表すコマンド
 	 */
 	private static class RemoveSelectedNodeCmd implements SubOperation {
 

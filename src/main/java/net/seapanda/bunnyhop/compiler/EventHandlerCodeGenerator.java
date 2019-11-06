@@ -15,8 +15,8 @@
  */
 package net.seapanda.bunnyhop.compiler;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -101,7 +101,7 @@ public class EventHandlerCodeGenerator {
 	 * @param option コンパイルオプション
 	 */
 	public void genEventHandlers(
-		List<? extends SyntaxSymbol> compiledNodeList,
+		Collection<? extends SyntaxSymbol> compiledNodeList,
 		StringBuilder code,
 		int nestLevel,
 		CompileOption option) {

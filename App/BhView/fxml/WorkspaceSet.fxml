@@ -3,8 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.*?>
-<?javafx.scene.control.TabPane.TabDragPolicy?>
+<?import net.seapanda.bunnyhop.common.constant.*?>
+<?import javafx.scene.control.TabPane.TabDragPolicy?>
 
 <SplitPane
 	xmlns:fx="http://javafx.com/fxml"

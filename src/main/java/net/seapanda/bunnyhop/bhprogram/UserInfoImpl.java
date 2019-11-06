@@ -21,7 +21,8 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 
 /**
  * SSH接続時に必要な情報を返す機能を持つクラス
- * */
+ * @author K.Koike
+ */
 public class UserInfoImpl implements UserInfo {
 
 	private final String uname;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.view;
+package net.seapanda.bunnyhop.view.workspace;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -34,15 +34,16 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.Rem;
 import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.Rem;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.view.ViewHelper;
 
 /**
  * 複数ノードを同時に移動させるマルチノードシフタのビュー

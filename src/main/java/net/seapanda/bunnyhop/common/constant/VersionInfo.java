@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.common;
+package net.seapanda.bunnyhop.common.constant;
 
-import javafx.scene.text.Font;
 
 /**
  * @author K.Koike
  */
-public class Rem {
+public class VersionInfo {
 
-	public static final double VAL = Font.getDefault().getSize();
-	
-	private double remVal = VAL;
-	public void setRem(double val) {
-		remVal = Rem.VAL *  val;
-	}
-	public double getRem() {
-		return remVal; 
-	}
+	public static final int MAJOR = 1;
+	public static final int MINOR = 3;
+	public static final int PATCH = 0;
+	public static final String APP_VERSION = MAJOR + "." + MINOR + "." + PATCH;
+	public static final long SERIAL_VERSION_UID = 130L;
 }

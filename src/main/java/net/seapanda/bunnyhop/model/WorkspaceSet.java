@@ -23,31 +23,37 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
 import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
-import net.seapanda.bunnyhop.modelhandler.DelayedDeleter;
-import net.seapanda.bunnyhop.modelhandler.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
+import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
+import net.seapanda.bunnyhop.modelservice.DelayedDeleter;
+import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
+import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.saveandload.ProjectSaveData;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -63,16 +69,47 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	private final List<Workspace> workspaceList = new ArrayList<>();	//!< 全てのワークスペースのリスト
 	private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
 	private int pastePosOffsetCount = -2; //!< ノードの貼り付け位置をずらすためのカウンタ
+	private Workspace currentWorkspace;
 
-	public WorkspaceSet() {}
+	/** コピー予定ノードのリストに変化がった時のイベントハンドラと呼び出しスレッドのフラグのマップ */
+	private final Map<ListChangeListener<? super BhNode>, Boolean> onCopyNodeListChangedToThreadFlag = new HashMap<>();
+
+	/** カット予定ノードのリストに変化がった時のイベントハンドラと呼び出しスレッドのフラグのマップ */
+	private final Map<ListChangeListener<? super BhNode>, Boolean> onCutNodeListChangedToThreadFlag = new HashMap<>();
+
+	/** 選択ノードリストに変化があった時に呼び出すイベントハンドラのリストと呼び出しスレッドのフラグのマップ <br>
+	 * イベントハンドラの第1引数 : 変化のあった選択ノードリストを保持するワークスペース <br>
+	 * イベントハンドラの第2引数 : 変化のあった選択ノード <br>
+	 * 呼び出しスレッドのフラグ : true ならUIスレッドで呼び出すことを保証する
+	 */
+	private final Map<BiConsumer<? super Workspace, ? super Collection<? super BhNode>>, Boolean> onSelectedNodeListChangedToThreadFlag = new HashMap<>();
+
+	/** 操作対象のワークスペースが切り替わった時に呼び出すイベントハンドラのリストと呼び出しスレッドのフラグのマップ
+	 * 	<pre>
+	 *      第1引数 : 前の操作対象のワークスペース
+	 *      第2引数 : 新しい操作対象のワークスペース
+	 *  </pre>
+	 */
+	private final Map<BiConsumer<? super Workspace, ? super Workspace>, Boolean> onCurrentWorkspaceChangedToThreadFlag = new HashMap<>();
+
+	public WorkspaceSet() {
+
+		readyToCopy.addListener((Change<? extends BhNode> change) ->
+			callNodeListChangedEventHandlers(change, onCopyNodeListChangedToThreadFlag));
+
+		readyToCut.addListener((Change<? extends BhNode> change) ->
+			callNodeListChangedEventHandlers(change, onCutNodeListChangedToThreadFlag));
+	}
 
 	/**
 	 * ワークスペースを追加する
 	 * @param workspace 追加されるワークスペース
 	 * */
 	public void addWorkspace(Workspace workspace) {
+
 		workspaceList.add(workspace);
 		workspace.setWorkspaceSet(this);
+		workspace.addOnSelectedNodeListChanged(this::callSelectedNodeListChangedEventHandlers, false);
 	}
 
 	/**
@@ -80,8 +117,10 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @param workspace 取り除かれるワークスペース
 	 */
 	public void removeWorkspace(Workspace workspace) {
+
 		workspaceList.remove(workspace);
 		workspace.setWorkspaceSet(null);
+		workspace.removeOnSelectedNodeListChanged(this::callSelectedNodeListChangedEventHandlers);
 	}
 
 	/**
@@ -89,10 +128,11 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @param nodeList コピー予定のBhNodeリスト
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
-	public void addNodesToReadyToCopyList(Collection<BhNode> nodeList, UserOperationCommand userOpeCmd) {
+	public void addNodesToCopyList(
+		Collection<BhNode> nodeList, UserOperationCommand userOpeCmd) {
 
-		clearReadyToCutList(userOpeCmd);
-		clearReadyToCopyList(userOpeCmd);
+		clearCutList(userOpeCmd);
+		clearCopyList(userOpeCmd);
 		readyToCopy.addAll(nodeList);
 		userOpeCmd.pushCmdOfAddToList(readyToCopy, nodeList);
 	}
@@ -101,7 +141,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * コピー予定のBhNodeリストをクリアする
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void clearReadyToCopyList(UserOperationCommand userOpeCmd) {
+	public void clearCopyList(UserOperationCommand userOpeCmd) {
 		userOpeCmd.pushCmdOfRemoveFromList(readyToCopy, readyToCopy);
 		readyToCopy.clear();
 	}
@@ -111,7 +151,8 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @param nodeToRemove 取り除くノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void removeNodeFromRedyToCopyList(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
+	public void removeNodeFromCopyList(
+		BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
 
 		if (readyToCopy.contains(nodeToRemove)) {
 			userOpeCmd.pushCmdOfRemoveFromList(readyToCopy, nodeToRemove);
@@ -124,10 +165,11 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @param nodeList カット予定のBhNodeリスト
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
-	public void addNodesToReadyToCutList(Collection<BhNode> nodeList, UserOperationCommand userOpeCmd) {
+	public void addNodesToCutList(
+		Collection<BhNode> nodeList, UserOperationCommand userOpeCmd) {
 
-		clearReadyToCutList(userOpeCmd);
-		clearReadyToCopyList(userOpeCmd);
+		clearCutList(userOpeCmd);
+		clearCopyList(userOpeCmd);
 		readyToCut.addAll(nodeList);
 		userOpeCmd.pushCmdOfAddToList(readyToCut, nodeList);
 	}
@@ -136,7 +178,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * カット予定のBhNodeリストをクリアする
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void clearReadyToCutList(UserOperationCommand userOpeCmd) {
+	public void clearCutList(UserOperationCommand userOpeCmd) {
 		userOpeCmd.pushCmdOfRemoveFromList(readyToCut, readyToCut);
 		readyToCut.clear();
 	}
@@ -146,7 +188,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @param nodeToRemove 取り除くノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void removeNodeFromRedyToCutList(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
+	public void removeNodeFromCutList(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
 
 		if (readyToCut.contains(nodeToRemove)) {
 			userOpeCmd.pushCmdOfRemoveFromList(readyToCut, nodeToRemove);
@@ -185,11 +227,6 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			.map(node -> new Pair<BhNode, BhNode>(node, node.genCopyNode(candidates, userOpeCmd)))
 			.filter(org_copy -> org_copy._2 != null)
 			.collect(Collectors.toCollection(ArrayList::new));
-
-		// 外部ノードでかつ, コピー対象に含まれていないでかつ, 親はコピー対象 -> コピーしない
-		Predicate<BhNode> isNodeToBeCopied = bhNode -> {
-			return !(bhNode.isOuter() && !readyToCopy.contains(bhNode) && readyToCopy.contains(bhNode.findParentNode()));
-		};
 
 		// 貼り付け処理
 		for (var org_copy : orgs_copies) {
@@ -264,8 +301,31 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			node.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
 	}
 
+	/**
+	 * 現在保持しているワークスペース一覧を返す
+	 * @return 現在保持しているワークスペース一覧
+	 */
 	public List<Workspace> getWorkspaceList() {
-		return workspaceList;
+		return Collections.unmodifiableList(workspaceList);
+	}
+
+	/**
+	 * 現在操作対象のワークスペースを設定す
+	 * @param ws 現在操作対象のワークスペース
+	 */
+	public void setCurrentWorkspace(Workspace ws) {
+
+		Workspace old = currentWorkspace;
+		currentWorkspace = ws;
+		callCurrentWorkspaceChangedEventHandlers(old, currentWorkspace);
+	}
+
+	/**
+	 * 現在操作対象のワークスペースを取得する
+	 * @return 現在操作対象のワークスペース. 存在しない場合は null.
+	 */
+	public Workspace getCurrentWorkspace() {
+		return currentWorkspace;
 	}
 
 	/**
@@ -274,6 +334,8 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 * @return セーブに成功した場合true
 	 */
 	public boolean save(File fileToSave) {
+
+		ModelExclusiveControl.INSTANCE.lockForRead();
 		ProjectSaveData saveData = new ProjectSaveData(workspaceList);
 
 		try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(fileToSave));){
@@ -290,6 +352,9 @@ public class WorkspaceSet implements MsgReceptionWindow {
 				fileToSave.getPath() + "\n" + e.toString());
 			return false;
 		}
+		finally {
+			ModelExclusiveControl.INSTANCE.unlockForRead();
+		}
 	}
 
 	/**
@@ -300,6 +365,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 	 */
 	public boolean load(File loaded, Boolean isOldWsCleared) {
 
+		ModelExclusiveControl.INSTANCE.lockForRead();
 		try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(loaded));){
 			ProjectSaveData loadData = (ProjectSaveData)inputStream.readObject();
 			UserOperationCommand userOpeCmd = new UserOperationCommand();
@@ -316,30 +382,119 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			MsgPrinter.INSTANCE.errMsgForDebug(WorkspaceSet.class.getSimpleName() + ".load\n" + e.toString());
 			return false;
 		}
+		finally {
+			ModelExclusiveControl.INSTANCE.unlockForRead();
+		}
 	}
 
 	/**
-	 * 現在操作対象のワークスペースを取得する
-	 * @return 現在操作対象のワークスペース
+	 * コピー予定ノードのリストをが空かどうか調べる
+	 * @return コピー予定ノードのリストをが空なら true
+	 * */
+	public boolean isCopyListEmpty() {
+		return readyToCopy.isEmpty();
+	}
+
+	/**
+	 * カット予定ノードのリストをが空かどうか調べる
+	 * @return カット予定ノードのリストをが空なら true
+	 * */
+	public boolean isCutListEmpty() {
+		return readyToCut.isEmpty();
+	}
+
+	/**
+	 * コピー予定のノードが変化したときのイベントハンドラを追加する
+	 * @param handler 登録するイベントハンドラ
+	 * @param invokeOnUiThread UIスレッド上で呼び出す場合 true
 	 */
-	public Workspace getCurrentWorkspace() {
-		return MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_CURRENT_WORKSPACE, this).workspace;
+	public void addOnCopyListChanged(ListChangeListener<? super BhNode> handler, boolean invokeOnUiThread) {
+		onCopyNodeListChangedToThreadFlag.put(handler, invokeOnUiThread);
 	}
 
 	/**
-	 * コピー予定ノードのリストを取得する
-	 * @return コピー予定ノードのリスト
-	 * */
-	public ObservableList<BhNode> getListReadyToCopy() {
-		return readyToCopy;
+	 * カット予定のノードが変化したときのイベントハンドラを追加する
+	 * @param handler 登録するイベントハンドラ
+	 * @param invokeOnUiThread UIスレッド上で呼び出す場合 true
+	 */
+	public void addOnCutListChanged(ListChangeListener<? super BhNode> handler, boolean invokeOnUiThread) {
+		onCutNodeListChangedToThreadFlag.put(handler, invokeOnUiThread);
 	}
 
 	/**
-	 * カット予定ノードのリストを取得する
-	 * @return カット予定ノードのリスト
-	 * */
-	public ObservableList<BhNode> getListReadyToCut() {
-		return readyToCut;
+	 * 選択ノードリストに変化があった時のイベントハンドラを登録する.
+	 * @param handler 登録するイベントハンドラ
+	 * <pre>
+	 *     handler 第1引数 : 変化のあった選択ノードリストを保持するワークスペース
+	 *     handler 第2引数 : 変化のあった選択ノード
+	 * </pre>
+	 * @param invokeOnUiThread UIスレッド上で呼び出す場合 true
+	 */
+	public void addOnSelectedNodeListChanged(
+		BiConsumer<? super Workspace, ? super Collection<? super BhNode>> handler, boolean invokeOnUiThread) {
+		onSelectedNodeListChangedToThreadFlag.put(handler, invokeOnUiThread);
+	}
+
+	/**
+	 * 操作対象のワークスペースが変わった時のイベントハンドラを登録する
+	 * @param handler 登録するイベントハンドラ
+	 * <pre>
+	 *     handler 第1引数 : 前の操作対象のワークスペース
+	 *     handler 第2引数 : 新しい操作対象のワークスペース
+	 * </pre>
+	 * @param invokeOnUiThread UIスレッド上で呼び出す場合 true
+	 */
+	public void addOnCurrentWorkspaceChanged(
+		BiConsumer<? super Workspace, ? super Workspace> handler, boolean invokeOnUiThread) {
+		onCurrentWorkspaceChangedToThreadFlag.put(handler, invokeOnUiThread);
+	}
+
+	/**
+	 * ノードリストに変化があった時のイベントハンドラを呼ぶ
+	 * @param change リストの変化を表すオブジェクト
+	 * @param onNodeListChangedToThreadFlag リスト変化時のイベントハンドラと呼び出しスレッドのフラグ
+	 */
+	private void callNodeListChangedEventHandlers(
+		Change<? extends BhNode> change,
+		Map<ListChangeListener<? super BhNode>, Boolean> onNodeListChangedToThreadFlag) {
+
+		onNodeListChangedToThreadFlag.forEach((handler, invokeOnUiThread) -> {
+			if (invokeOnUiThread && !Platform.isFxApplicationThread())
+				Platform.runLater(() -> handler.onChanged(change));
+			else
+				handler.onChanged(change);
+		});
+	}
+
+	/**
+	 * 選択ノードリストに変化があった時のイベントハンドラを呼ぶ
+	 * @param ws 変化があった選択ノードリストを保持するワークスペース
+	 * @param selectedNodeList 変化があった選択ノードリスト
+	 */
+	private void callSelectedNodeListChangedEventHandlers(
+		Workspace ws, Collection<? super BhNode> selectedNodeList) {
+
+		onSelectedNodeListChangedToThreadFlag.forEach((handler, invokeOnUiThread) -> {
+			if (invokeOnUiThread && !Platform.isFxApplicationThread())
+				Platform.runLater(() -> handler.accept(ws, selectedNodeList));
+			else
+				handler.accept(ws, selectedNodeList);
+		});
+	}
+
+	/**
+	 * 操作対象のワークスペースが変わった時のイベントハンドラを呼ぶ
+	 * @param oldWs 前の操作対象のワークスペース
+	 * @param newWs 新しい操作対象のワークスペース
+	 */
+	private void callCurrentWorkspaceChangedEventHandlers(Workspace oldWs, Workspace newWs) {
+
+		onCurrentWorkspaceChangedToThreadFlag.forEach((handler, invokeOnUiThread) -> {
+			if (invokeOnUiThread && !Platform.isFxApplicationThread())
+				Platform.runLater(() -> handler.accept(oldWs, newWs));
+			else
+				handler.accept(oldWs, newWs);
+		});
 	}
 
 	@Override
@@ -352,4 +507,22 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		return msgProcessor.processMsg(msg, data);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
+import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -69,11 +69,11 @@ public class ImitationReplacer implements BhModelProcessor {
 		//子オリジナルノードに対応するイミテーションがある場合
 		if (newOriginal.imitationNodeExists(imitID)) {
 			//オリジナルの親ノードが持つイミテーションの数だけ, 新たにイミテーションを作成して繋ぐ(入れ替える)
-			replaceConnectiveChild(newOriginal.findParentNode().getImitationManager().getImitationList(), newOriginal, imitCnctPos);
+			replaceConnectiveChild(newOriginal.findParentNode().getImitationList(), newOriginal, imitCnctPos);
 		}
 		else {
 			//オリジナルの親ノードが持つイミテーションの数だけ, その子ノードを削除
-			removeConnectiveChild(newOriginal.findParentNode().getImitationManager().getImitationList(), imitCnctPos);
+			removeConnectiveChild(newOriginal.findParentNode().getImitationList(), imitCnctPos);
 		}
 	}
 
@@ -85,27 +85,28 @@ public class ImitationReplacer implements BhModelProcessor {
 		//子オリジナルノードに対応するイミテーションがある場合
 		if (newOriginal.imitationNodeExists(imitID)) {
 			//オリジナルの親ノードが持つイミテーションの数だけ, 新たにイミテーションを作成して繋ぐ(入れ替える)
-			replaceConnectiveChild(newOriginal.findParentNode().getImitationManager().getImitationList(), newOriginal, imitCnctPos);
+			replaceConnectiveChild(newOriginal.findParentNode().getImitationList(), newOriginal, imitCnctPos);
 		}
 		else {
 			//オリジナルの親ノードが持つイミテーションの数だけ, その子ノードを削除
-			removeConnectiveChild(newOriginal.findParentNode().getImitationManager().getImitationList(), imitCnctPos);
+			removeConnectiveChild(newOriginal.findParentNode().getImitationList(), imitCnctPos);
 		}
 	}
 
 	@Override
 	public void  visit(VoidNode newOriginal) {
 		ImitationConnectionPos imitCnctPos = newOriginal.getParentConnector().getImitCnctPoint();
-		removeConnectiveChild(newOriginal.findParentNode().getImitationManager().getImitationList(), imitCnctPos);
+		removeConnectiveChild(newOriginal.findParentNode().getImitationList(), imitCnctPos);
 	}
 
 	/**
-	 * imitParentが持つコネクタのイミテーションタグがimitTagと一致した場合そのノードを返す
-	 * @param imitParent imitTagの位置に入れ替えもしくはremove対象になるイミテーションノードを持っているか探すノード
-	 * @param imitCnctPos このイミテーションタグを指定されたコネクタがimitParentにあった場合, そのコネクタに接続されたノードを返す
-	 * @return 入れ替えもしくは削除対象になるノード. 見つからなかった場合 Optional.emptyを返す
+	 * imitParentが持つコネクタのイミテーションタグが imitTag と一致した場合そのノードを返す
+	 * @param imitParent imitTag の位置に入れ替えもしくは remove 対象になるイミテーションノードを持っているか探すノード
+	 * @param imitCnctPos このイミテーションタグを指定されたコネクタが imitParent にあった場合, そのコネクタに接続されたノードを返す
+	 * @return 入れ替えもしくは削除対象になるノード. 見つからなかった場合 Optional.emptyを返す.
 	 */
-	private Optional<BhNode> getNodeToReplaceOrRemove(ConnectiveNode imitParent, ImitationConnectionPos imitCnctPos) {
+	private Optional<BhNode> getNodeToReplaceOrRemove(
+		ConnectiveNode imitParent, ImitationConnectionPos imitCnctPos) {
 
 		BhNode connectedNode = ImitTaggedChildFinder.find(imitParent, imitCnctPos);	//すでにイミテーションにつながっているノード
 		if (connectedNode == null)
@@ -119,7 +120,7 @@ public class ImitationReplacer implements BhModelProcessor {
 
 	/**
 	 * ConnectiveNode の子を入れ替える
-	 * @param parentNodeList 子ノードを入れ替えるConnecitveNodeのリスト
+	 * @param parentNodeList 子ノードを入れ替える ConnecitveNode のリスト
 	 * @param original このノードのイミテーションで子ノードを置き換える
 	 * @param imiCnctPos このイミテーション位置が指定されたコネクタにつながるノードを入れ替える
 	 */
@@ -145,13 +146,14 @@ public class ImitationReplacer implements BhModelProcessor {
 	 * @param parentNodeList 子ノードを削除するConnecitveノードのリスト
 	 * @param imitCnctPos このイミテーション接続位置が指定されたコネクタにつながるノードを削除する
 	 */
-	private void removeConnectiveChild(Collection<ConnectiveNode> parentNodeList, ImitationConnectionPos imitCnctPos) {
+	private void removeConnectiveChild(
+		Collection<ConnectiveNode> parentNodeList, ImitationConnectionPos imitCnctPos) {
 
 		for (ConnectiveNode parent : parentNodeList) {
 			Optional<BhNode> nodeToRemove = getNodeToReplaceOrRemove(parent, imitCnctPos);
 			nodeToRemove.ifPresent(node -> {
 				//取り除くノードのオリジナルノードが入れ替え対象の古いノードであった場合
-				if (node.getOriginalNode() == oldOriginal) {
+				if (node.getOriginal() == oldOriginal) {
 					Connector parentCnctr = node.getParentConnector();
 					BhNode newNode = BhNodeHandler.INSTANCE.removeChild(node, userOpeCmd);
 					BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, userOpeCmd);

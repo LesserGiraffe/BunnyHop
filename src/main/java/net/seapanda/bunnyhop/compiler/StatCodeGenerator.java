@@ -16,7 +16,7 @@
 package net.seapanda.bunnyhop.compiler;
 
 import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 
 /**
@@ -62,8 +62,7 @@ public class StatCodeGenerator {
 			expCodeGen.genUserDefFuncCallExp(code, statementNode, nestLevel, option, false);
 		}
 		else if (SymbolNames.PreDefFunc.PREDEF_FUNC_CALL_STAT_LIST.contains(statSymbolName)) {
-			expCodeGen.genPreDefFuncCallExp(
-				code, statementNode, nestLevel, option, false);
+			expCodeGen.genPreDefFuncCallExp(code, statementNode, nestLevel, option, false);
 		}
 		else if (SymbolNames.ControlStat.LIST.contains(statSymbolName)) {
 			genControlStat(code, statementNode, nestLevel, option);
@@ -347,7 +346,7 @@ public class StatCodeGenerator {
 		SyntaxSymbol criticalSctnNode,
 		int nestLevel,
 		CompileOption option) {
-		Imitatable lockVarNode = ((Imitatable)criticalSctnNode).getOriginalNode();
+		BhNode lockVarNode = ((BhNode)criticalSctnNode).getOriginal();
 		String lockVar = common.genVarName(lockVarNode);
 
 		// try {

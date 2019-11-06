@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.control.node;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.view.node.TextAreaNodeView;
 import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
 import net.seapanda.bunnyhop.view.node.TextInputNodeView;
@@ -32,6 +33,7 @@ public class TextInputNodeController extends BhNodeController {
 	private final TextInputNodeView view;	//!< 管理するビュー
 
 	public TextInputNodeController(TextNode model, TextFieldNodeView view) {
+
 		super(model, view);
 		this.model = model;
 		this.view = view;
@@ -42,6 +44,7 @@ public class TextInputNodeController extends BhNodeController {
 	}
 
 	public TextInputNodeController(TextNode model, TextAreaNodeView view) {
+
 		super(model, view);
 		this.model = model;
 		this.view = view;
@@ -61,19 +64,26 @@ public class TextInputNodeController extends BhNodeController {
 		view.setTextFormatHandler(model::formatText);
 		view.setTextChangeListener(model::isTextAcceptable);
 
-		view.setObservableListener((observable, oldValue, newValue) -> {
-			if (!newValue) {	//テキストフィールドからカーソルが外れたとき
-				String currentGUIText = view.getText();
-				boolean isValidFormat = model.isTextAcceptable(view.getText());
-				if (isValidFormat) {	//正しいフォーマットの文字列が入力されていた場合
-					model.setText(currentGUIText);	//model の文字列をTextField のものに変更する
-					model.getImitNodesToImitateContents();
+		view.setObservableListener(
+			(observable, oldValue, newValue) -> {
+				ModelExclusiveControl.INSTANCE.lockForModification();
+				try {
+					if (!newValue) {	//テキストフィールドからカーソルが外れたとき
+						String currentGUIText = view.getText();
+						boolean isValidFormat = model.isTextAcceptable(view.getText());
+						if (isValidFormat) {	//正しいフォーマットの文字列が入力されていた場合
+							model.setText(currentGUIText);	//model の文字列をTextField のものに変更する
+							model.getImitNodesToImitateContents();
+						}
+						else {
+							view.setText(model.getText());	//view の文字列を変更前の文字列に戻す
+						}
+					}
 				}
-				else {
-					view.setText(model.getText());	//view の文字列を変更前の文字列に戻す
+				finally {
+					ModelExclusiveControl.INSTANCE.unlockForModification();
 				}
-			}
-		});
+			});
 
 		String initText = model.getText();
 		view.setText(initText + " ");	//初期文字列が空文字だったときのため
@@ -98,15 +108,8 @@ public class TextInputNodeController extends BhNodeController {
 				view.setEditable(editable);
 				break;
 
-			case GET_MODEL_AND_VIEW_TEXT:
-				return new MsgData(model.getText(), view.getText());
-
-			case SET_TEXT:
-				if (model.isTextAcceptable(data.text)) {
-					model.setText(data.text);
-					view.setText(data.text);
-				}
-				break;
+			case GET_VIEW_TEXT:
+				return new MsgData(view.getText());
 
 			default:
 				return super.processMsg(msg, data);

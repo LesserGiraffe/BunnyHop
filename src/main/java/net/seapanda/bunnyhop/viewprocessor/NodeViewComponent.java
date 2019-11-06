@@ -16,7 +16,8 @@
 package net.seapanda.bunnyhop.viewprocessor;
 
 /**
- *
+ * NodeView を構成する部品が共通で持つ機能のインタフェース
+ * @author K.Koike
  * */
 public interface NodeViewComponent {
 

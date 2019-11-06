@@ -32,7 +32,7 @@ import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramManager;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramManager;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.compiler.CommonCodeDefinition;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.node.BhNodeCategoryList;

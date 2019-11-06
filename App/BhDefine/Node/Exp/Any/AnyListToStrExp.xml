@@ -12,7 +12,7 @@
 			name="Arg1"
 			fixed="true">
 			<Node
-				type="noContent"
+				type="noView"
 				bhNodeID="idAnyListToStrExp.prvNode0"
 				name="StrLiteral"
 				initString="">

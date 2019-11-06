@@ -26,6 +26,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -37,7 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramHandler;
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.compiler.CommonCodeDefinition;
 
@@ -45,20 +46,20 @@ import net.seapanda.bunnyhop.compiler.CommonCodeDefinition;
  * BhProgramの実行環境を操作するクラスが共通で持つ機能と変数をまとめたクラス
  * @author K.Koike
  */
-public class BhProgramManagerCommon {
+class BhProgramManagerCommon {
 
 	public final ExecutorService runBhProgramExec = Executors.newSingleThreadExecutor();	//!< BhProgram実行用
 	public final ExecutorService connectTaskExec = Executors.newSingleThreadExecutor();	//!< 接続, 切断処理用
 	public final ExecutorService recvTaskExec = Executors.newSingleThreadExecutor();	//!< コマンド受信用
 	public final ExecutorService sendTaskExec = Executors.newSingleThreadExecutor();	//!< コマンド送信用
 	public final ExecutorService terminationExec = Executors.newSingleThreadExecutor();	//!< プロセス終了用
-	public final RemoteCmdProcessor cmdProcessor = new RemoteCmdProcessor();	//!< BhProgramの実行環境から受信したデータを処理するオブジェクト
+	public final BhProgramDataProcessor dataProcessor = new BhProgramDataProcessor();	//!< BhProgramの実行環境から受信したデータを処理するオブジェクト
 	private final AtomicReference<TransceiverAndFutureSet> transceiverAndFutureRef = new AtomicReference<>();
 
 	public BhProgramManagerCommon(){}
 
-	public boolean init() {
-		cmdProcessor.init();
+	boolean init() {
+		dataProcessor.init();
 		return true;
 	}
 
@@ -69,7 +70,7 @@ public class BhProgramManagerCommon {
 	 * @param name オブジェクトバインド時の名前
 	 * @return Remoteオブジェクト
 	 */
-	public Remote findRemoteObj(String ipAddr, int port, String name)
+	Remote findRemoteObj(String ipAddr, int port, String name)
 		throws MalformedURLException, NotBoundException, RemoteException {
 
 		return Naming.lookup("rmi://" + ipAddr + ":"+ port + "/" + name);
@@ -80,8 +81,8 @@ public class BhProgramManagerCommon {
 	 * @param execFunc BhProgram実行関数
 	 * @return BhProgram実行タスクのFutureオブジェクト
 	 */
-	public Optional<Future<Boolean>> executeAsync(Callable<Boolean> execFunc) {
-		return Optional.ofNullable(runBhProgramExec.submit(execFunc));
+	Future<Boolean> executeAsync(Callable<Boolean> execFunc) {
+		return runBhProgramExec.submit(execFunc);
 	}
 
 	/**
@@ -89,39 +90,38 @@ public class BhProgramManagerCommon {
 	 * @param terminationFunc BhProgram終了関数
 	 * @return BhProgram終了タスクのFutureオブジェクト
 	 */
-	public Optional<Future<Boolean>> terminateAsync(Callable<Boolean> terminationFunc) {
-		return Optional.ofNullable(terminationExec.submit(terminationFunc));
+	Future<Boolean> terminateAsync(Callable<Boolean> terminationFunc) {
+		return terminationExec.submit(terminationFunc);
 	}
 
 	/**
 	 * BhProgram の実行環境と通信を行うようにする
 	 * @return 接続タスクのFutureオブジェクト
 	 */
-	public Optional<Future<Boolean>> connectAsync() {
+	Future<Boolean> connectAsync() {
 
 		Optional<BhProgramTransceiver> transceiver = getTransceiver();
-		if (!transceiver.isPresent())
+		if (!transceiver.isPresent()) {
 			MsgPrinter.INSTANCE.errMsgForUser("!! 接続失敗 (プログラム未実行) !!\n");
+			return connectTaskExec.submit(() -> false);
+		}
 
-		return transceiver.map(trans -> {
-			return connectTaskExec.submit(() -> {return trans.connect();});
-		});
+		return connectTaskExec.submit(() -> transceiver.get().connect());
 	}
 
 	/**
 	 * BhProgram の実行環境と通信を行わないようにする
 	 * @return 切断タスクのFutureオブジェクト
 	 */
-	public Optional<Future<Boolean>> disconnectAsync() {
+	Future<Boolean> disconnectAsync() {
 
 		Optional<BhProgramTransceiver> transceiver = getTransceiver();
-		if (!transceiver.isPresent())
+		if (!transceiver.isPresent()) {
 			MsgPrinter.INSTANCE.errMsgForUser("!! 切断失敗 (プログラム未実行) !!\n");
+			return connectTaskExec.submit(() -> false);
+		}
 
-
-		return transceiver.map(trans -> {
-			return connectTaskExec.submit(() -> {return trans.disconnect();});
-		});
+		return connectTaskExec.submit(() -> transceiver.get().disconnect());
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class BhProgramManagerCommon {
 	 * @param data 送信データ
 	 * @return エラーコード
 	 */
-	public BhProgramExecEnvError sendAsync(BhProgramData data) {
+	BhProgramExecEnvError sendAsync(BhProgramData data) {
 
 		return getTransceiver()
 		.map(transceiver -> transceiver.addSendDataList(data))
@@ -143,7 +143,7 @@ public class BhProgramManagerCommon {
 	 * @param timeout 終了待ちタイムアウト時間 (sec)
 	 * @return プロセスを正常に終了できた場合true.
 	 */
-	public boolean waitForProcessEnd(Process process, boolean destroy, int timeout) {
+	boolean waitForProcessEnd(Process process, boolean destroy, int timeout) {
 
 		boolean success = true;
 
@@ -195,7 +195,7 @@ public class BhProgramManagerCommon {
 	 * このオブジェクトの終了処理をする
 	 * @return 終了処理が正常に完了した場合true
 	 */
-	public boolean end() {
+	boolean end() {
 
 		boolean success = true;
 		runBhProgramExec.shutdownNow();
@@ -203,7 +203,7 @@ public class BhProgramManagerCommon {
 		recvTaskExec.shutdownNow();
 		sendTaskExec.shutdownNow();
 		terminationExec.shutdownNow();
-		success &= cmdProcessor.end();
+		success &= dataProcessor.end();
 
 		try {
 			success &= runBhProgramExec.awaitTermination(BhParams.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
@@ -229,9 +229,9 @@ public class BhProgramManagerCommon {
 		Future<Boolean> recvTaskFuture,
 		Future<Boolean> sendTaskFuture) {
 
-		assert transceiver != null;
-		assert recvTaskFuture != null;
-		assert sendTaskFuture != null;
+		Objects.requireNonNull(transceiver);
+		Objects.requireNonNull(recvTaskFuture);
+		Objects.requireNonNull(sendTaskFuture);
 		transceiverAndFutureRef.set(new TransceiverAndFutureSet(transceiver, recvTaskFuture, sendTaskFuture));
 	}
 
@@ -240,7 +240,7 @@ public class BhProgramManagerCommon {
 	 * haltTransceiver関数が正常終了した場合, 新しくTransceiverAndFutureSetオブジェクトをセットするまでこの関数はemptyを返す.
 	 * @return BhProgramと通信をするオブジェクト.
 	 */
-	public Optional<BhProgramTransceiver> getTransceiver() {
+	Optional<BhProgramTransceiver> getTransceiver() {
 
 		if (transceiverAndFutureRef.get() == null)
 			return Optional.empty();
@@ -252,7 +252,7 @@ public class BhProgramManagerCommon {
 	 * BhProgramTransceiverの処理を終了する.<br>
 	 * @return 終了処理が成功した場合true. トランシーバが登録されていない場合もtrueを返す.
 	 */
-	public boolean haltTransceiver() {
+	boolean haltTransceiver() {
 
 		if (transceiverAndFutureRef.get() == null)
 			return true;
@@ -260,7 +260,7 @@ public class BhProgramManagerCommon {
 		boolean success = true;
 		transceiverAndFutureRef.get().transceiver.disconnect();
 		transceiverAndFutureRef.get().transceiver.clearSendDataList();
-		cmdProcessor.clearRemoteDataList();
+		dataProcessor.clearAllData();
 
 		boolean res = transceiverAndFutureRef.get().recvTaskFuture.cancel(true);	//タスクの終了を待たなくてよい. 新しく起動したプロセスと, 古いトランシーバが通信をしてしまうことはない.
 		success &= res;
@@ -287,7 +287,7 @@ public class BhProgramManagerCommon {
 	 * @param is BhProgram実行環境からの出力を受け取るためのInputStream
 	 * @return 正常にBhProgramを開始できた場合true
 	 */
-	public boolean runBhProgram(String fileName, String ipAddr, InputStream is) {
+	boolean runBhProgram(String fileName, String ipAddr, InputStream is) {
 
 		MsgPrinter.INSTANCE.msgForUser("-- 通信準備中 --\n");
 		boolean success = true;
@@ -299,7 +299,7 @@ public class BhProgramManagerCommon {
 					BhParams.ExternalApplication.TCP_PORT_READ_TIMEOUT);
 			int port = Integer.parseInt(portStr);
 			BhProgramHandler programHandler = (BhProgramHandler)findRemoteObj(ipAddr, port, BhProgramHandler.class.getSimpleName());	//リモートオブジェクト取得
-			BhProgramTransceiver transceiver = new BhProgramTransceiver(cmdProcessor, programHandler);
+			BhProgramTransceiver transceiver = new BhProgramTransceiver(dataProcessor, programHandler);
 			success &= transceiver.connect();
 			success &= programHandler.runScript(
 				fileName,

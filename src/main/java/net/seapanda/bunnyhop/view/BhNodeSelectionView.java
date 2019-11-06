@@ -25,8 +25,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.transform.Scale;
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
@@ -147,7 +147,7 @@ public class BhNodeSelectionView extends ScrollPane {
 			Vec2D wholeBodySize = nodeToShift.getRegionManager().getNodeSizeIncludingOuter(true);
 			Vec2D bodySize = nodeToShift.getRegionManager().getNodeSizeIncludingOuter(false);
 			double upperCnctrHeight = wholeBodySize.y - bodySize.y;
-			nodeToShift.getPositionManager().updateAbsPos(leftPadding, offset + upperCnctrHeight);
+			nodeToShift.getPositionManager().setPosOnWorkspace(leftPadding, offset + upperCnctrHeight);
 			offset += wholeBodySize.y + BhParams.LnF.BHNODE_SPACE_ON_SELECTION_PANEL;
 			panelWidth = Math.max(panelWidth, wholeBodySize.x);
 		}

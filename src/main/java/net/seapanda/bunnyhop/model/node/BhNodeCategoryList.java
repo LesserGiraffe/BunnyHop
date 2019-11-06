@@ -21,8 +21,8 @@ import java.nio.file.Paths;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.TreeNode;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;

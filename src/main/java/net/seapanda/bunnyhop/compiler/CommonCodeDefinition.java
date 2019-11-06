@@ -72,6 +72,9 @@ public class CommonCodeDefinition {
 		public static final String STRCAT = "_strcat";
 		public static final String LIST_TO_STR = "_listToStr";
 		public static final String IDENTITY = "_identity";	//恒等写像 (実際に共通コード部には定義しない)
+		public static final String PUSH_FUNC_CALL_INFO = "_pushFuncCallInfo";
+		public static final String POP_FUNC_CALL_INFO = "_popFuncCallInfo";
+		public static final String SET_EXCEPTION_NODE_INFO = "_setExceptionNodeInfo";
 	}
 
 	public static class Properties {

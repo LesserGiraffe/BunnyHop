@@ -22,8 +22,8 @@ import java.util.Optional;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.node.TextNode;
@@ -133,7 +133,7 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 		}
 		else {
 			Vec2D pos = getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
-			getPositionManager().updateAbsPos(pos.x, pos.y);
+			getPositionManager().setPosOnWorkspace(pos.x, pos.y);
 		}
 	}
 

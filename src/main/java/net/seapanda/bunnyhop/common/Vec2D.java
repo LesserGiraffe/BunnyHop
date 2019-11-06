@@ -17,6 +17,8 @@ package net.seapanda.bunnyhop.common;
 
 import java.io.Serializable;
 
+import net.seapanda.bunnyhop.common.constant.VersionInfo;
+
 /**
  * @author K.Koike
  */
@@ -99,5 +101,10 @@ public class Vec2D implements Serializable {
 		hash = 67 * hash + (int) (Double.doubleToLongBits(this.x) ^ (Double.doubleToLongBits(this.x) >>> 32));
 		hash = 67 * hash + (int) (Double.doubleToLongBits(this.y) ^ (Double.doubleToLongBits(this.y) >>> 32));
 		return hash;
+	}
+
+	@Override
+	public String toString() {
+		return "x : " + x + " , " + "y : " + y;
 	}
 }

@@ -35,7 +35,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
@@ -50,7 +50,7 @@ import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.node.BhNodeCategoryList;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.TrashboxService;
-import net.seapanda.bunnyhop.view.WorkspaceView;
+import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
  * アプリケーションの初期化およびワークスペースへのアクセスを行うクラス
@@ -63,7 +63,6 @@ public class BunnyHop {
 	public static final BunnyHop INSTANCE  = new BunnyHop();
 	private boolean shoudlSave = false;	//!< 終了時の保存が必要かどうかのフラグ
 	private Scene scene;
-
 
 	private BunnyHop() {
 		MsgService.INSTANCE.setWorkspaceSet(workspaceSet);
@@ -128,8 +127,8 @@ public class BunnyHop {
 	}
 
 	/**
-	 * 現在表示中のパネルを隠す
-	 * */
+	 * 現在表示中のノードテンプレートパネルを隠す
+	 */
 	public void hideTemplatePanel() {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.HIDE_NODE_SELECTION_PANEL, nodeCategoryList);
 	}
@@ -167,6 +166,14 @@ public class BunnyHop {
 			boolean zoomIn = BhParams.LnF.INITIAL_ZOOM_LEVEL > 0;
 			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
 		}
+	}
+
+	/**
+	 * 現在操作対象のワークスペースを取得する.
+	 * @return 現在操作対象のワークスペース. 存在しない場合は null.
+	 */
+	public Workspace getCurrentWorkspace() {
+		return workspaceSet.getCurrentWorkspace();
 	}
 
 	/**
@@ -216,13 +223,6 @@ public class BunnyHop {
 	}
 
 	/**
-	 * 現在操作対象のワークスペースを取得する
-	 * */
-	public Workspace getCurrentWorkspace() {
-		return workspaceSet.getCurrentWorkspace();
-	}
-
-	/**
 	 * undo 用コマンドオブジェクトをundoスタックに積む
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 */
@@ -246,12 +246,14 @@ public class BunnyHop {
 			"保存しますか",
 			ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 
-		return buttonType.map((btnType) -> {
-			if (btnType.equals(ButtonType.YES))
-				return foundationController.getMenuBarController().save(workspaceSet);
+		return buttonType
+			.map(btnType -> {
+					if (btnType.equals(ButtonType.YES))
+						return foundationController.getMenuBarController().save(workspaceSet);
 
-			return btnType.equals(ButtonType.NO);
-		}).orElse(false);
+					return btnType.equals(ButtonType.NO);
+				})
+			.orElse(false);
 	}
 
 	/**
@@ -270,6 +272,18 @@ public class BunnyHop {
 		return new ArrayList<>(scene.getStylesheets());
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

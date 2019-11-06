@@ -58,10 +58,10 @@ public class NodeDeleter implements BhModelProcessor {
 
 		//このノードがイミテーションノードだった場合, オリジナルにイミテーションが消えたことを伝える
 		if (node.isImitationNode())
-			node.getOriginalNode().disconnectOrgImitRelation(node, userOpeCmd);
+			node.getOriginal().disconnectOrgImitRelation(node, userOpeCmd);
 
 		node.sendToSections(this);
-		node.getImitationManager().deleteAllImitations(userOpeCmd);	//オリジナルが消えた場合, イミテーションも消える
+		node.deleteAllImitations(userOpeCmd);	//オリジナルが消えた場合, イミテーションも消える
 	}
 
 	@Override
@@ -76,8 +76,8 @@ public class NodeDeleter implements BhModelProcessor {
 
 		//このノードがイミテーションノードだった場合, オリジナルにイミテーションが消えたことを伝える
 		if (node.isImitationNode())
-			node.getOriginalNode().disconnectOrgImitRelation(node, userOpeCmd);
+			node.getOriginal().disconnectOrgImitRelation(node, userOpeCmd);
 
-		node.getImitationManager().deleteAllImitations(userOpeCmd);	//オリジナルが消えた場合, イミテーションも消える
+		node.deleteAllImitations(userOpeCmd);	//オリジナルが消えた場合, イミテーションも消える
 	}
 }

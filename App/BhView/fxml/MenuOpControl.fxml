@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.*?>
+<?import net.seapanda.bunnyhop.common.constant.*?>
 
 <VBox
 	xmlns:fx="http://javafx.com/fxml"
@@ -25,6 +25,7 @@
 		<Button text="カット" fx:id="cutBtn" styleClass="menuOpFlatButtons"/>
 		<Button text="貼り付け" fx:id="pasteBtn" styleClass="menuOpFlatButtons"/>
 		<Button text="消去" fx:id="deleteBtn" styleClass="menuOpFlatButtons"/>
+		<Button text="ジャンプ" fx:id="jumpBtn" styleClass="menuOpFlatButtons"/>
 		<Separator fx:id="menuOpSeparator0" orientation="VERTICAL" styleClass="menuSeparator"/>
 		<Button fx:id="undoBtn" styleClass="menuOpFlatButtons"> <!-- 元に戻す -->
 			<graphic>
@@ -88,11 +89,10 @@
 					<Image url="@../images/stop.png" smooth="true" requestedWidth="$stopSize.rem" requestedHeight="$stopSize.rem"/>
 				</ImageView>
 			</graphic>
-		</Button>
+		</Button> <!-- 停止 -->
 		
 		<Button text="接続" fx:id="connectBtn" styleClass="menuOpFlatButtons"/>
 		<Button text="切断" fx:id="disconnectBtn" styleClass="menuOpFlatButtons"/>
-		
 		<Separator fx:id="menuOpSeparator4" orientation="VERTICAL" styleClass="menuOpeSeparator"/>
 	</FlowPane>
 	

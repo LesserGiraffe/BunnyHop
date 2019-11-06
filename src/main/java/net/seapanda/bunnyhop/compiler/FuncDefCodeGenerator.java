@@ -15,7 +15,7 @@
  */
 package net.seapanda.bunnyhop.compiler;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 import net.seapanda.bunnyhop.common.tools.Util;
@@ -49,7 +49,7 @@ public class FuncDefCodeGenerator {
 	 * @param option コンパイルオプション
 	 */
 	public void genFuncDefs(
-		List<? extends SyntaxSymbol> compiledNodeList,
+		Collection<? extends SyntaxSymbol> compiledNodeList,
 		StringBuilder code,
 		int nestLevel,
 		CompileOption option) {

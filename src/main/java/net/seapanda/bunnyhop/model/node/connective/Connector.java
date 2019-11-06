@@ -22,8 +22,8 @@ import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
-import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.VersionInfo;
+import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
@@ -34,10 +34,10 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
+import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -274,6 +274,7 @@ public class Connector extends SyntaxSymbol {
 	 * スクリプト実行時のスコープ変数を登録する
 	 */
 	public final void setScriptScope() {
+
 		scriptScope = BhScriptManager.INSTANCE.createScriptScope();
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_THIS, this);
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);

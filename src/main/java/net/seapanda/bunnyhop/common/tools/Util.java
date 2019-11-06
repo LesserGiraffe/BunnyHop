@@ -122,7 +122,7 @@ public class Util {
 
 	/**
 	 * 高速平方根計算
-	 * */
+	 */
 	public double fastSqrt(double x) {
 
 		double half = 0.5 * x;
@@ -132,6 +132,13 @@ public class Util {
 		return dnum * x;
 	}
 
+	/**
+	 * val を min から max までの間に切り詰める. <br>
+	 * 即ち, val が min 以下の場合 min を返し, max 以上の場合 max を返す.
+	 */
+	public double clamp(double val, double min, double max) {
+	    return Math.max(min, Math.min(max, val));
+	}
 
 	public class Platform {
 

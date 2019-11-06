@@ -21,6 +21,7 @@ import java.util.Optional;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.part.SelectableItem;
 
@@ -48,19 +49,26 @@ public class ComboBoxNodeController extends BhNodeController {
 	 */
 	public static void setItemChangeHandler(TextNode model, ComboBoxNodeView view) {
 
-		view.setTextChangeListener((observable, oldVal, newVal) -> {
-			if (Objects.equals(newVal.getModelText(), model.getText())) {
-				return;
-			}
+		view.setTextChangeListener(
+			(observable, oldVal, newVal) -> {
+				ModelExclusiveControl.INSTANCE.lockForModification();
+				try {
+					if (Objects.equals(newVal.getModelText(), model.getText())) {
+						return;
+					}
 
-			if (model.isTextAcceptable(newVal.getModelText())) {
-				model.setText(newVal.getModelText());	//model の文字列をComboBox の選択アイテムに対応したものにする
-				model.getImitNodesToImitateContents();	//イミテーションのテキストを変える (イミテーションの View がtextFieldの場合のみ有効)
-			}
-			else {
-				view.setItem(oldVal);
-			}
-		});
+					if (model.isTextAcceptable(newVal.getModelText())) {
+						model.setText(newVal.getModelText());	//model の文字列をComboBox の選択アイテムに対応したものにする
+						model.getImitNodesToImitateContents();	//イミテーションのテキストを変える (イミテーションの View がtextFieldの場合のみ有効)
+					}
+					else {
+						view.setItem(oldVal);
+					}
+				}
+				finally {
+					ModelExclusiveControl.INSTANCE.unlockForModification();
+				}
+			});
 
 		Optional<SelectableItem> optItem = view.getItemByModelText(model.getText());
 		optItem.ifPresent(item -> view.setItem(item));
@@ -78,11 +86,35 @@ public class ComboBoxNodeController extends BhNodeController {
 	public MsgData processMsg(BhMsg msg, MsgData data) {
 
 		switch (msg) {
-			case GET_MODEL_AND_VIEW_TEXT:
-				return new MsgData(model.getText(), view.getItem().getViewText());
+			case GET_VIEW_TEXT:
+				return new MsgData(view.getItem().getViewText());
 
 			default:
 				return super.processMsg(msg, data);
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

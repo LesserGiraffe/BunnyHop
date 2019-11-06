@@ -23,8 +23,8 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
-import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.VersionInfo;
+import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
@@ -34,14 +34,13 @@ import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.Workspace;
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
 import net.seapanda.bunnyhop.modelprocessor.ImitationReplacer;
 import net.seapanda.bunnyhop.modelprocessor.NodeDeleter;
+import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
@@ -55,14 +54,14 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	private final BhNodeID bhID; //!< ノードID (\<Node\> タグの bhID)
 	protected Connector parentConnector;	//!< このノードを繋いでいるコネクタ
 	protected Workspace workspace;	//!< このノードがあるWorkSpace.
-	private final String scriptNameOnMovedFromChildToWS;	//子ノードからワークスペースに移されたときに実行されるスクリプトの名前
-	private final String scriptNameOnMovedToChild;	//!< ワークスペースもしくは, 子ノードから子ノードに移されたときに実行されるスクリプトの名前
+	private final String scriptNameOnMovedFromChildToWS;	//子ノードからワークスペースに移されたときに実行されるスクリプト名
+	private final String scriptNameOnMovedToChild;	//!< ワークスペースもしくは, 子ノードから子ノードに移されたときに実行されるスクリプト名
 	private final String scriptNameOnDeletionRequested;	//!< ユーザー操作により, このノードが削除候補になったときに実行されるスクリプト名
 	private final String scriptNameOnCutRequested;	//!< ユーザー操作により, このノードがカット&ペーストされるときに実行されるスクリプト名
 	private final String scriptNameOnCopyRequested;	//!< ユーザー操作により, このノードがコピー&ペーストされるときに実行されるスクリプト名
-	private final String scriptNameOfSyntaxErrorChecker; //!< イミテーションノードがスコープ内かどうかをチェックするスクリプトの名前
+	private final String scriptNameOfSyntaxErrorChecker; //!< イミテーションノードがスコープ内かどうかをチェックするスクリプト名
 
-	public final String type;	//!< ノードのタイプ (connective, void, textField, ...)
+	private final BhNodeViewType type;	//!< ノードのタイプ (connective, void, textField, ...)
 	private BhNode lastReplaced;	//!< 最後にこのノードと入れ替わったノード
 	private boolean isDefaultNode = false;	//!< デフォルトノードである場合true
 	transient protected ScriptableObject scriptScope;	//!< Javascript実行時の変数スコープ
@@ -98,7 +97,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * イミテーションノードで無かった場合 null を返す
 	 * @return このノードのオリジナルノード. このノードがイミテーションノードで無い場合は null を返す
 	 */
-	public abstract Imitatable getOriginalNode();
+	public abstract BhNode getOriginal();
 
 	/**
 	 * 外部ノードを取得する. 指定した世代にあたる外部ノードがなかった場合, nullを返す.
@@ -122,7 +121,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * @param type xml のtype属性
 	 * @param attrbute ノードの設定情報
 	 * */
-	protected BhNode(	String type, BhNodeAttributes attributes) {
+	protected BhNode(BhNodeViewType type, BhNodeAttributes attributes) {
+
 		super(attributes.getName());
 		this.bhID = attributes.getBhNodeID();
 		this.type = type;
@@ -139,6 +139,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * @param org コピー元オブジェクト
 	 */
 	protected BhNode(BhNode org) {
+
 		super(org);
 		bhID = org.bhID;
 		parentConnector = null;
@@ -210,6 +211,14 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 			assert workspace.containsAsRoot(this) == false;
 			return State.CHILD;
 		}
+	}
+
+	/**
+	 * このノードのタイプを返す
+	 * @return このノードのタイプ
+	 */
+	public BhNodeViewType getType() {
+		return type;
 	}
 
 	/**
@@ -492,7 +501,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
 	public void execScriptOnDeletionRequested(
-		Collection<? extends BhNode> nodesToDelete, CauseOfDletion causeOfDeletion, UserOperationCommand userOpeCmd) {
+		Collection<? extends BhNode> nodesToDelete, CauseOfDeletion causeOfDeletion, UserOperationCommand userOpeCmd) {
 
 		Script onDeletionRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnDeletionRequested);
 		if (onDeletionRequested == null)
@@ -524,11 +533,11 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		if (onCutRequested == null)
 			return true;
 
-		Object continueCut = null;
+		Object doCut = null;
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCut);
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
-			continueCut = ContextFactory.getGlobal().call(cx -> onCutRequested.exec(cx, scriptScope));
+			doCut = ContextFactory.getGlobal().call(cx -> onCutRequested.exec(cx, scriptScope));
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
@@ -536,8 +545,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 				+ scriptNameOnCutRequested + "\n" + e.toString() + "\n");
 		}
 
-		if (continueCut instanceof Boolean)
-			return (Boolean)continueCut;
+		if (doCut instanceof Boolean)
+			return (Boolean)doCut;
 
 		throw new AssertionError(
 			this.getClass().getSimpleName()
@@ -625,7 +634,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				Imitatable.class.getSimpleName() + "::hasSyntaxError   " + scriptNameOfSyntaxErrorChecker + "\n" +
+				this.getClass().getSimpleName() + "::hasSyntaxError   " + scriptNameOfSyntaxErrorChecker + "\n" +
 				e.toString() + "\n");
 		}
 

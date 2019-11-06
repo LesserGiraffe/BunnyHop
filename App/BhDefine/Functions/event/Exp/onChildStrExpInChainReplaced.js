@@ -1,5 +1,4 @@
 (function() {
-	let _jBhNode = net.seapanda.bunnyhop.model.node.BhNode;
 	let nextStrChainLinkExp = bhThis.findSymbolInDescendants('*', 'Arg1', '*');
 
 	// 文字列挿入
@@ -15,11 +14,7 @@
 			bhNodeTemplates,
 			bhUserOpeCmd);
 		bhNodeHandler.exchangeNodes(nextStrChainLinkExp, newStrChainLinkExp, bhUserOpeCmd);
-		
-		// 演算子の表示を変える
-		//let opeLabel = newStrChainLinkExp.findSymbolInDescendants('*', '*', 'StrAppendOpe');
-		//bhMsgService.setText(opeLabel, '＋');
-		
+
 		// 新ノードの末尾に旧ノードを追加
 		let newStrChainLinkExpNext = newStrChainLinkExp.findSymbolInDescendants('*', 'Arg1', '*');
 		bhNodeHandler.exchangeNodes(newStrChainLinkExpNext, nextStrChainLinkExp, bhUserOpeCmd);
@@ -38,13 +33,6 @@
 		if (String(nextStrChainLinkExp.getSymbolName()) === 'StrChainLinkExp') {
 			bhNodeHandler.replaceChild(bhThis, nextStrChainLinkExp, bhUserOpeCmd)
 			bhNodeHandler.deleteNodeIncompletely(bhThis, true, bhUserOpeCmd);
-
-			// 演算子の表示を変える
-			//let strChainExp = nextStrChainLinkExp.findSymbolInAncestors('StrChainExp', 3, false);
-			//if (strChainExp != null) {
-			//	let opeLabel = nextStrChainLinkExp.findSymbolInDescendants('*', '*', 'StrAppendOpe');
-			//	bhMsgService.setText(opeLabel, '⊕');
-			//}
 		}
 	}
 })();

@@ -25,10 +25,12 @@ import javafx.scene.Parent;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
+import net.seapanda.bunnyhop.view.workspace.WorkspaceViewPane;
 
 /**
  * Viewの処理を補助する機能を定義したクラス
@@ -94,7 +96,7 @@ public class ViewHelper {
 	 * node のワークスペース上での位置を取得する
 	 * @param node ワークペース上での位置を計算するノード
 	 * @return node のワークスペース上での位置.
-	 * */
+	 */
 	public Vec2D getPosOnWorkspace(Node node) {
 
 		Parent parent = node.getParent();
@@ -111,17 +113,30 @@ public class ViewHelper {
 	}
 
 	/**
+	 * node が属するワークスペースビューを取得する
+	 * @return node が属するワークスペースビュー. <br>
+	 *          どのワークスペースビューにも属していない場合は null.
+	 */
+	public WorkspaceView getWorkspaceView(Node node) {
+
+		Parent parent = node.getParent();
+		while (parent != null && !BhParams.Fxml.ID_WS_PANE.equals(parent.getId()))
+			parent = parent.getParent();
+
+		if (parent != null)
+			return ((WorkspaceViewPane)parent).getHolder();
+
+		return null;
+	}
+
+	/**
 	 * 文字列を表示したときのサイズを計算する
 	 * @param str サイズを計算する文字列
 	 * @param font フォント
 	 * @param boundType 境界算出方法
 	 * @param lineSpacing 行間
-	 * */
-	public Vec2D calcStrBounds(
-		String str,
-		Font font,
-		TextBoundsType boundType,
-		double lineSpacing) {
+	 */
+	public Vec2D calcStrBounds(String str, Font font, TextBoundsType boundType, double lineSpacing) {
 
 		Text text = new Text(str);
 		text.setFont(font);
@@ -143,12 +158,11 @@ public class ViewHelper {
 	}
 
 	/**
-	 * ノードビューに付く影を移し替える. <br>
-	 * nodeToPutShadowOn に影を付ける.点ける
-	 * nodeToPutShadowOn と同じワークスペースに既に影の付いたノードがあった場合, そのノードの影は消える.
+	 * 引数で指定したノードビューに影を付ける. <br>
+	 * ただし, 影を付けるノードと同じワークスペースに既に影の付いたノードがあった場合, そのノードの影は消える.
 	 * @param nodeToPutShadowOn 新たに影を付けるノード.
 	 * */
-	public void shiftShadow(BhNodeView nodeToPutShadowOn) {
+	public void drawShadow(BhNodeView nodeToPutShadowOn) {
 
 		shadowNodes.removeIf(
 			nodeView -> {
@@ -164,7 +178,7 @@ public class ViewHelper {
 	}
 
 	/**
-	 * ワークスペースに描画されているノードビューの影を返す
+	 * ワークスペースに描画されているノードビューの影を消す
 	 * @param ws このワークスペースに描画されている影を消す
 	 * */
 	public void deleteShadow(Workspace ws) {

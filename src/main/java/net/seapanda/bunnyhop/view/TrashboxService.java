@@ -27,9 +27,11 @@ import net.seapanda.bunnyhop.model.WorkspaceSet;
  * */
 public class TrashboxService {
 
-	public static TrashboxService INSTANCE = new TrashboxService();
+	public static final TrashboxService INSTANCE = new TrashboxService();
 
 	private WorkspaceSet wss;	//ゴミ箱のビューにアクセスするためのワークスペースビュー.
+
+	private TrashboxService() {}
 
 	public void init(WorkspaceSet wss) {
 		this.wss = wss;

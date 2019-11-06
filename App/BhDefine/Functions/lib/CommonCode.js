@@ -256,10 +256,32 @@
 	}
 
 	//==================================================================
+	//							実行時情報
+	//==================================================================
+	function _pushFuncCallInfo(funcCallNodeID) {
+		let id = bhRuntimeInfo.newNodeInstanceID(funcCallNodeID);
+		bhRuntimeInfo.pushFuncCallInfo(id);
+	}
+
+	function _popFuncCallInfo() {
+		bhRuntimeInfo.popFuncCallInfo();
+	}
+
+	function _newException(msg) {
+		return bhRuntimeInfo.newException(msg);
+	}
+
+	function _setExceptionNodeInfo(symbolID) {
+		let id = bhRuntimeInfo.newNodeInstanceID(symbolID);
+		bhRuntimeInfo.setExceptionNodeInfo(id);
+	}
+
+	//==================================================================
 	//							配列操作
 	//==================================================================
 	function _aryPush(ary, val) {
 		ary.push(val);
+		//throw _newException('push err');
 	}
 
 	function _aryPop(ary) {

@@ -45,9 +45,9 @@ public abstract class TextInputNodeView extends BhNodeView {
 	public abstract void setTextChangeListener(Function<String, Boolean> checkFormatFunc);
 
 	/**
-	 * テキストフィールドのカーソルon/off時のイベントハンドラを登録する
+	 * テキストフィールドのカーソル on/off 時のイベントハンドラを登録する
 	 * @param changeFocusFunc テキストフィールドのカーソルon/off時のイベントハンドラ
-	 * */
+	 */
 	public final void setObservableListener(ChangeListener<? super Boolean> changeFocusFunc) {
 		getTextInputControl().focusedProperty().addListener(changeFocusFunc);
 	}
@@ -60,11 +60,10 @@ public abstract class TextInputNodeView extends BhNodeView {
 	 * formatterFunc の戻り値 <br>
 	 * &nbsp;&nbsp; _1 -> テキスト全体を整形した場合 true. 追加分だけ整形した場合 false.<br>
 	 * &nbsp;&nbsp; _2 -> 整形したテキスト
-	 * */
+	 */
 	public final void setTextFormatHandler(BiFunction<String, String, Pair<Boolean, String>> formatterFunc) {
 
 		TextInputControl control = getTextInputControl();
-
 		UnaryOperator<Change> filter = change -> {
 
 			Pair<Boolean, String> result = formatterFunc.apply(change.getControlNewText(), change.getText());
@@ -81,14 +80,14 @@ public abstract class TextInputNodeView extends BhNodeView {
 
 	/**
 	 * View に表示されたテキストを取得する
-	 * */
+	 */
 	public final String getText() {
 		return getTextInputControl().getText();
 	}
 
 	/**
 	 * View に表示するテキストを設定する
-	 * */
+	 */
 	public final void setText(String text) {
 		getTextInputControl().setText(text);
 	}

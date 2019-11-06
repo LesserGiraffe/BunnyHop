@@ -36,9 +36,9 @@ import com.jcraft.jsch.UserInfo;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
-import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.BhParams.ExternalApplication;
-import net.seapanda.bunnyhop.common.ExclusiveSelection;
+import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams.ExternalApplication;
+import net.seapanda.bunnyhop.common.constant.ExclusiveSelection;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 
@@ -50,7 +50,7 @@ public class RemoteBhProgramManager {
 
 	public static final RemoteBhProgramManager INSTANCE = new RemoteBhProgramManager();	//!< シングルトンインスタンス
 	private final BhProgramManagerCommon common = new BhProgramManagerCommon();
-	private UserInfoImpl userInfo;	//現在プログラムを実行している環境
+	private UserInfoImpl userInfo;
 	private AtomicReference<Boolean> programRunning = new AtomicReference<>(false);	//!< プログラム実行中ならtrue
 	private AtomicReference<Boolean> fileCopyIsCancelled = new AtomicReference<>(true);	//!< ファイルがコピー中の場合true
 
@@ -75,7 +75,7 @@ public class RemoteBhProgramManager {
 	 * @param password BhProgramを実行するマシンにログインする際のパスワード
 	 * @return BhProgram実行開始の完了待ちオブジェクト
 	 */
-	public Optional<Future<Boolean>> executeAsync(Path filePath, String ipAddr, String uname, String password) {
+	public Future<Boolean> executeAsync(Path filePath, String ipAddr, String uname, String password) {
 
 		boolean _terminate = true;
 		if (userInfo != null && !userInfo.isSameAccessPoint(ipAddr, uname)) {
@@ -84,7 +84,7 @@ public class RemoteBhProgramManager {
 					_terminate = false;	//実行環境が現在のものと違ってかつ, プログラムを止めないが選択された場合
 					break;
 				case CANCEL:
-					return Optional.empty();
+					return common.executeAsync(() -> false);
 				default:
 					break;
 			}
@@ -122,12 +122,7 @@ public class RemoteBhProgramManager {
 		MsgPrinter.INSTANCE.msgForUser("-- プログラム実行準備中 (remote) --\n");
 		try {
 			String destPath = BhParams.Path.REMOTE_BUNNYHOP_DIR + "/" + BhParams.Path.REMOTE_COMPILED_DIR + "/" + BhParams.Path.APP_FILE_NAME_JS;
-			success = copyFile(
-				ipAddr,
-				uname,
-				password,
-				filePath.toString(),
-				destPath);
+			success = copyFile(ipAddr, uname, password, filePath.toString(), destPath);
 			if (!success)
 				throw new Exception();
 
@@ -160,16 +155,15 @@ public class RemoteBhProgramManager {
 	 * 現在実行中のBhProgramExecEnvironment を強制終了する
 	 * @return 強制終了タスクの結果. タスクを実行しなかった場合 Optional.empty.
 	 */
-	public Optional<Future<Boolean>> terminateAsync() {
+	public Future<Boolean> terminateAsync() {
 
 		fileCopyIsCancelled.set(true);
 		if (!programRunning.get()) {
 			MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了済み (remote) !!\n");
-			return Optional.empty();
+			return common.terminateAsync(() -> false);
 		}
-		return common.terminateAsync(() -> {
-			return terminate(BhParams.ExternalApplication.REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT);
-		});
+		return common.terminateAsync(
+			() -> terminate(BhParams.ExternalApplication.REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT));
 	}
 
 	/**
@@ -218,7 +212,7 @@ public class RemoteBhProgramManager {
 	 * BhProgram の実行環境と通信を行うようにする
 	 * @return 接続タスクのFutureオブジェクト. タスクを実行しなかった場合null.
 	 */
-	public Optional<Future<Boolean>> connectAsync() {
+	public Future<Boolean> connectAsync() {
 		return common.connectAsync();
 	}
 
@@ -226,7 +220,7 @@ public class RemoteBhProgramManager {
 	 * BhProgram の実行環境と通信を行わないようにする
 	 * @return 切断タスクのFutureオブジェクト. タスクを実行しなかった場合null.
 	 */
-	public Optional<Future<Boolean>> disconnectAsync() {
+	public Future<Boolean> disconnectAsync() {
 		return common.disconnectAsync();
 	}
 
@@ -368,11 +362,7 @@ public class RemoteBhProgramManager {
 			ChannelSftp channel = (ChannelSftp)session.openChannel("sftp");
 			channel.connect();
 			SftpProgressMonitorImpl monitor = new SftpProgressMonitorImpl(fileCopyIsCancelled);
-			channel.put(
-				srcPath,
-				destPath,
-				monitor,
-				ChannelSftp.OVERWRITE);
+			channel.put(srcPath, destPath, monitor, ChannelSftp.OVERWRITE);
 
 			if (monitor.isFileCopyCancelled())
 				throw new Exception("file transfer has been cancelled");

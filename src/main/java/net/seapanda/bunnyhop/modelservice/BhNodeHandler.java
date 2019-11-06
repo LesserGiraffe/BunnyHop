@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.modelhandler;
+package net.seapanda.bunnyhop.modelservice;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -172,7 +172,7 @@ public class BhNodeHandler {
 				}
 
 				//削除候補のオリジナルノードが別の削除候補子孫ノードである -> イミテーションは直接削除せず, オリジナルの先祖だけ削除する.
-				BhNode orgNode = candidateForDeletion.getOriginalNode();
+				BhNode orgNode = candidateForDeletion.getOriginal();
 				if (orgNode != null) {
 					if (orgNode.isDescendantOf(compared)) {
 						canDelete = false;
@@ -186,7 +186,7 @@ public class BhNodeHandler {
 		return deleteList;
 	}
 
-	public Optional<BhNode> delete(BhNode node, UserOperationCommand userOpeCmd) {
+	private Optional<BhNode> delete(BhNode node, UserOperationCommand userOpeCmd) {
 
 		Optional<BhNode> newNode = Optional.empty();
 		if (DelayedDeleter.INSTANCE.containsInCandidateList(node)) {
@@ -231,11 +231,11 @@ public class BhNodeHandler {
 	 * */
 	private void execScriptOfImitDeletion(BhNode topNode, UserOperationCommand userOpeCmd) {
 
-		var callbacks = CallbackInvoker.Callbacks.create().setForAllNodes(node -> {
-			if (node instanceof Imitatable) {
-				((Imitatable) node).execScriptOfImitDeletion(userOpeCmd);
-			}
-		});
+		var callbacks = CallbackInvoker.newCallbackRegistry().setForAllNodes(
+			node -> {
+				if (node instanceof Imitatable)
+					((Imitatable)node).execScriptOnImitDeleting(userOpeCmd);
+			});
 		CallbackInvoker.invoke(callbacks, topNode);
 	}
 

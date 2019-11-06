@@ -39,8 +39,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
@@ -260,8 +260,8 @@ public class BhNodeTemplates {
 			boolean isSameType = orgNodeOpt.get().getClass() == imitNodeOpt.get().getClass();
 			if (!isSameType) {
 				MsgPrinter.INSTANCE.errMsgForDebug(
-					BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + orgNodeOpt.get().type + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " は "
-				  + BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + imitNodeOpt.get().type + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " を "
+					BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + orgNodeOpt.get().getType() + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " は "
+				  + BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + imitNodeOpt.get().getType() + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " を "
 				  + BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID + " に指定できません. \n"
 				  + "org: " + orgID_imitID._1 + "    imit: " + orgID_imitID._2);
 			}

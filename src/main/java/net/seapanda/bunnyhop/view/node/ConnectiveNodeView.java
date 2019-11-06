@@ -18,8 +18,8 @@ package net.seapanda.bunnyhop.view.node;
 import java.util.Optional;
 
 import javafx.scene.control.Button;
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
@@ -110,7 +110,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 
 	/**
 	 * 子ノードの配置を更新する
-	 * @param child 大きさや位置が変わった子ノード
+	 * @param child 大きさや位置が変わった子ノードを含むグループ
 	 * */
 	private void rearrangeChildNodes(BhNodeViewGroup child) {
 
@@ -143,7 +143,7 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 		if (parent.get() == null ||
 			(sizeBefore.equals(sizeAfter) && child != null)) {
 			Vec2D pos = getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
-			getPositionManager().updateAbsPos(pos.x, pos.y);
+			getPositionManager().setPosOnWorkspace(pos.x, pos.y);
 			return;
 		}
 

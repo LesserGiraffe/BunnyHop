@@ -16,6 +16,7 @@
 package net.seapanda.bunnyhop.compiler;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,7 +44,7 @@ final public class VarDeclCodeGenerator {
 	 * @param option コンパイルオプション
 	 */
 	public void genVarDecls(
-		List<? extends SyntaxSymbol> nodeListToCompile,
+		Collection<? extends SyntaxSymbol> nodeListToCompile,
 		StringBuilder code,
 		int nestLevel,
 		CompileOption option) {

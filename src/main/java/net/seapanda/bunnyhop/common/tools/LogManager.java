@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 
 /**
  * ログ出力クラス
@@ -71,7 +71,7 @@ public class LogManager {
 	 * ログファイルにメッセージを書き込む
 	 * @param msg ログファイルに書き込むメッセージ
 	 */
-	public void writeMsgToLogFile(String msg) {
+	synchronized void writeMsgToLogFile(String msg) {
 
 		try {
 			if (logOutputStream != null) {
@@ -117,7 +117,7 @@ public class LogManager {
 	/**
 	 * 終了処理をする
 	 */
-	public void end() {
+	void end() {
 		try {
 			if (logOutputStream != null)
 				logOutputStream.close();

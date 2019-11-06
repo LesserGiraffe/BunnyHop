@@ -20,15 +20,15 @@ package net.seapanda.bunnyhop.message;
  * @author K.Koike
  */
 public interface MsgReceptionWindow {
-	
+
 	/**
 	 * MsgProcessorを登録する
 	 * @param processor メッセージを処理するオブジェクト
 	 */
 	public void setMsgProcessor(MsgProcessor processor);
-	
+
 	/**
-	 * 引数で指定したメッセージをMsgProcessorに渡して, 処理結果を返す
+	 * 引数で指定したメッセージをMsgProcessorに渡して処理結果を返す
 	 * @param msg 処理するメッセージ
 	 * @param data 処理するデータ
 	 * @return 処理結果

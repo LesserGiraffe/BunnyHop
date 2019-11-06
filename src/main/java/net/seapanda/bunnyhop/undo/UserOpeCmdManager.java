@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.undo;
 import java.util.Deque;
 import java.util.LinkedList;
 
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 
 /**
  * undo/redo時に UserOperationCommand クラスを操作するクラス

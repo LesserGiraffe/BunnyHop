@@ -15,9 +15,7 @@
  */
 package net.seapanda.bunnyhop.modelprocessor;
 
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgTransporter;
+import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 
@@ -39,9 +37,10 @@ public class TextImitationPrompter implements BhModelProcessor {
 	@Override
 	public void visit(TextNode node) {
 
-		if(node.getOriginalNode() != null) {
-			MsgData mvText = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_MODEL_AND_VIEW_TEXT, node.getOriginalNode());
-			MsgTransporter.INSTANCE.sendMessage(BhMsg.IMITATE_TEXT, new MsgData(mvText.strPair._1, mvText.strPair._2), node);
+		if(node.isImitationNode()) {
+			TextNode original = node.getOriginal();
+			String viewText = MsgService.INSTANCE.getViewText(original);
+			MsgService.INSTANCE.imitateText(node, original.getText(), viewText);
 		}
 	}
 }

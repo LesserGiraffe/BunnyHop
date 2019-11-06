@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
+<?import net.seapanda.bunnyhop.view.workspace.*?>
 
 <fx:root
 	xmlns:fx="http://javafx.com/fxml"
@@ -14,13 +15,17 @@
 		FitToWidth="false"
 		FitToHeight="false">
 		<Pane fx:id="wsWrapper">
-			<Pane fx:id="wsPane">
+			<WorkspaceViewPane fx:id="wsPane">
 				<Polygon
 					fx:id="rectSelTool"
 					mouseTransparent="true"
 					visible="false"
 					styleClass="rectSelTool"/>
-			</Pane>
+			</WorkspaceViewPane>
+			
+			<WorkspaceViewPane
+				fx:id="errInfoPane"
+				mouseTransparent="true"/>
 		</Pane>
 	</ScrollPane>
 </fx:root>

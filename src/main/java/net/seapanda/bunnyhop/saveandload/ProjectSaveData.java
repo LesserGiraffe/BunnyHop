@@ -23,18 +23,18 @@ import java.util.stream.Collectors;
 
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.VersionInfo;
+import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.control.WorkspaceController;
-import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.modelhandler.BhNodeHandler;
+import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
+import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
 import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
+import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.WorkspaceView;
+import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
  * 全ワークスペースの保存に必要なデータを保持するクラス
@@ -83,7 +83,7 @@ public class ProjectSaveData implements Serializable{
 
 		public WorkspaceSaveData(Workspace ws){
 			this.ws = ws;
-			Vec2D wsSize = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_WORKSPACE_SIZE, ws).vec2d;
+			Vec2D wsSize = MsgService.INSTANCE.getWorkspaceSize(ws);
 			workspaceSize = new Vec2D(wsSize.x, wsSize.y);
 			rootNodeSaveList = ws.getRootNodeList().stream().map(rootNode -> {
 				return this.new RootNodeSaveData(rootNode);
@@ -96,8 +96,10 @@ public class ProjectSaveData implements Serializable{
 		 * @param userOpeCmd undo用コマンドオブジェクト
 		 */
 		public void initBhNodes() {
-			rootNodeSaveList.forEach(nodeSaveData -> nodeSaveData.buildMVC());
-			rootNodeSaveList.forEach(nodeSaveData -> nodeSaveData.imitOriginalNode());
+
+			rootNodeSaveList.forEach(rootNodeSaveData -> rootNodeSaveData.buildMVC());
+			rootNodeSaveList.forEach(rootNodeSaveData -> rootNodeSaveData.imitOriginalNode());
+			rootNodeSaveList.forEach(rootNodeSaveData -> rootNodeSaveData.giveNewSymbolID());
 		}
 
 		/**
@@ -149,6 +151,16 @@ public class ProjectSaveData implements Serializable{
 			}
 
 			/**
+			 * このオブジェクトが保持するルートノード以下の全ての SyntaxSymbol の SymbolID を新しいものにする
+			 */
+			public void giveNewSymbolID() {
+
+				var callbacks = CallbackInvoker.newCallbackRegistry()
+					.setForAllSyntaxSymbols(SyntaxSymbol::renewSymbolID);
+				CallbackInvoker.invoke(callbacks, rootNode);
+			}
+
+			/**
 			 * BhNodeとその位置を返す
 			 * @return ロードしたBhNodeとその位置のペア
 			 */
@@ -158,3 +170,23 @@ public class ProjectSaveData implements Serializable{
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -25,11 +25,12 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
-import net.seapanda.bunnyhop.common.VersionInfo;
+import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
+import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 
 /**
  * メニューバーのコントローラクラス
@@ -83,6 +84,21 @@ public class MenuBarController {
 				"保存すべきワークスペースがありません");
 			return false;
 		}
+
+		Optional<File> selectedFileOpt = getFileToSave();
+		boolean success = selectedFileOpt.map(selectedFile -> wss.save(selectedFile)).orElse(false);
+		if (success)
+			currentSaveFile = selectedFileOpt.get();
+
+		return success;
+	}
+
+	/**
+	 * セーブ先のファイルを取得する
+	 * @return セーブ先のファイル
+	 */
+	private Optional<File> getFileToSave() {
+
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("名前を付けて保存");
 		fileChooser.setInitialDirectory(getInitDir());
@@ -90,16 +106,8 @@ public class MenuBarController {
 			new FileChooser.ExtensionFilter("BunnyHop Files", "*.bnh"),
 			new FileChooser.ExtensionFilter("All Files", "*.*"));
 		File selectedFile = fileChooser.showSaveDialog(menuBar.getScene().getWindow());
-		boolean success = false;
-		if (selectedFile != null) {
-			success = wss.save(selectedFile);
-		}
-		if (success) {
-			currentSaveFile = selectedFile;
-		}
-		return success;
+		return Optional.ofNullable(selectedFile);
 	}
-
 
 	/**
 	 * セーブ(上書き保存)ボタンのイベントハンドラを登録する
@@ -158,16 +166,17 @@ public class MenuBarController {
 			if (selectedFile != null) {
 				success = askIfClearOldWs()
 					.map(clearWS -> {
-						boolean isLoadSuccessful = wss.load(selectedFile, clearWS);
-						if (!isLoadSuccessful) {
-							String fileName = selectedFile.getPath();
-							MsgPrinter.INSTANCE.alert(
-								Alert.AlertType.INFORMATION,
-								"開く",
-								null,
-								"ファイルを開けませんでした\n" + fileName);
-						}
-						return isLoadSuccessful;})
+							boolean isLoadSuccessful = wss.load(selectedFile, clearWS);
+							if (!isLoadSuccessful) {
+								String fileName = selectedFile.getPath();
+								MsgPrinter.INSTANCE.alert(
+									Alert.AlertType.INFORMATION,
+									"開く",
+									null,
+									"ファイルを開けませんでした\n" + fileName);
+							}
+							return isLoadSuccessful;
+						})
 					.orElse(false);
 			}
 
@@ -227,7 +236,16 @@ public class MenuBarController {
 	 * @param wss ワークスペースセット
 	 * */
 	private void setFreeMemoryHandler(WorkspaceSet wss) {
-		freeMemory.setOnAction(action -> freeMemory(wss));
+
+		freeMemory.setOnAction(action -> {
+			ModelExclusiveControl.INSTANCE.lockForModification();
+			try {
+				freeMemory(wss);
+			}
+			finally {
+				ModelExclusiveControl.INSTANCE.unlockForModification();
+			}
+		});
 	}
 
 	/**
@@ -276,6 +294,7 @@ public class MenuBarController {
 				throw new AssertionError("invalid menu bar operation " + op);
 		}
 	}
+
 	public enum MENU_BAR {
 		SAVE,
 		SAVE_AS,

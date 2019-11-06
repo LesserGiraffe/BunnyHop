@@ -23,8 +23,8 @@ import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.BhNodeSelectionView;
-import net.seapanda.bunnyhop.view.WorkspaceView;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
  * MsgTransporterが送信するデータ
@@ -43,6 +43,20 @@ public class MsgData {
 	public final UserOperationCommand userOpeCmd;
 	public final String text;
 	public final Collection<BhNodeSelectionView> nodeSelectionViewList;
+
+	public MsgData() {
+		this.node = null;
+		this.nodeView = null;
+		this.vec2d = null;
+		this.strPair = null;
+		this.vec2dPair = null;
+		this.workspace = null;
+		this.workspaceView = null;
+		this.bool = false;
+		this.userOpeCmd = null;
+		this.text = null;
+		this.nodeSelectionViewList = null;
+	}
 
 	public MsgData(BhNodeView view) {
 		this.node = null;
@@ -268,6 +282,28 @@ public class MsgData {
 		this.nodeSelectionViewList = null;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

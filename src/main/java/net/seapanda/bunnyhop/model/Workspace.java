@@ -16,13 +16,20 @@
 package net.seapanda.bunnyhop.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
-import net.seapanda.bunnyhop.common.VersionInfo;
+import javafx.application.Platform;
+import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
@@ -40,8 +47,17 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	private final Set<BhNode> rootNodeList = new HashSet<>();	//!< ワークスペースのルートノードのリスト
 	private final Set<BhNode> selectedList = new LinkedHashSet<BhNode>();	//!< 選択中のノード. 挿入順を保持したいのでLinkedHashSetを使う
-	private BhNode moveCandidate = null;	//!< 移動候補のノード
 	private final String workspaceName;	//!< ワークスペース名
+
+	/** 選択ノードリストに変化があった時に呼び出すイベントハンドラのリストと呼び出しスレッドのフラグのマップ
+	 * <pre>
+	 *     イベントハンドラの第1引数 : 変化のあった選択ノードリストを保持するワークスペース
+	 *     イベントハンドラの第2引数 : 変化のあった選択ノード
+	 * </pre>
+	 * 呼び出しスレッドのフラグ : true ならUIスレッドで呼び出すことを保証する
+	 */
+	private transient Map<BiConsumer<? super Workspace, ? super Collection<? super BhNode>>, Boolean> onSelectedNodeListChangedToThreadFlag = new HashMap<>();
+
 	transient private WorkspaceSet workspaceSet;	//!< このワークスペースを持つワークスペースセット
 	transient private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
 
@@ -91,6 +107,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	public void initForLoad() {
 		rootNodeList.clear();
 		selectedList.clear();
+		onSelectedNodeListChangedToThreadFlag = new HashMap<>();
 	}
 
 	/**
@@ -105,7 +122,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	/**
 	 * ワークスペース内のルートBhNode の集合を返す
 	 * @return ワークスペース内のルートBhNode の集合
-	 * */
+	 */
 	public Collection<BhNode> getRootNodeList() {
 		return Collections.unmodifiableSet(rootNodeList);
 	}
@@ -114,7 +131,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	 * 選択されたノードをセットする. このワークスペースの選択済みのノードは全て非選択になる.
 	 * @param selected 新たに選択されたノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
+	 */
 	public void setSelectedNode(BhNode selected, UserOperationCommand userOpeCmd) {
 
 		// 同じノードをクリックしたときにundoスタックにコマンドが積まれるのを避ける
@@ -129,7 +146,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	 * 選択されたノードを選択済みリストに追加する
 	 * @param nodeToAdd 追加されるノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
+	 */
 	public void addSelectedNode(BhNode nodeToAdd, UserOperationCommand userOpeCmd) {
 
 		if (selectedList.contains(nodeToAdd))
@@ -138,16 +155,17 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 		selectedList.add(nodeToAdd);
 		MsgService.INSTANCE.selectNodeView(nodeToAdd, true);
 		MsgService.INSTANCE.updateMultiNodeShifter(nodeToAdd, this);
-		MsgService.INSTANCE.highlightImit(nodeToAdd, true);
+		MsgService.INSTANCE.switchPseudoClassActivation(nodeToAdd, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT, true);
+		onSelectedNodeListChangedToThreadFlag.forEach(this::invokeOnSelectedNodeChanged);
 		userOpeCmd.pushCmdOfAddSelectedNode(this, nodeToAdd);
 	}
 
 	/**
-	 * 選択中のBhNodeのリストのコピーを返す
+	 * 選択中のBhNodeのリストを返す
 	 * @return 選択中のBhNodeのリスト
 	 */
-	public Set<BhNode> getSelectedNodeList() {
-		return Collections.unmodifiableSet(selectedList);
+	public List<BhNode> getSelectedNodeList() {
+		return Collections.unmodifiableList(new ArrayList<>(selectedList));
 	}
 
 	/**
@@ -163,8 +181,21 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 		selectedList.remove(nodeToRemove);
 		MsgService.INSTANCE.selectNodeView(nodeToRemove, false);
 		MsgService.INSTANCE.updateMultiNodeShifter(nodeToRemove, this);
-		MsgService.INSTANCE.highlightImit(nodeToRemove, false);
+		MsgService.INSTANCE.switchPseudoClassActivation(nodeToRemove, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT, false);
+		onSelectedNodeListChangedToThreadFlag.forEach(this::invokeOnSelectedNodeChanged);
 		userOpeCmd.pushCmdOfRemoveSelectedNode(this, nodeToRemove);
+	}
+
+	/**
+	 * 選択変更時のイベントハンドラを呼び出す
+	 */
+	private void invokeOnSelectedNodeChanged(
+		BiConsumer<? super Workspace, ? super Collection<? super BhNode>> handler, boolean invokeOnUiThread) {
+
+		if (invokeOnUiThread && !Platform.isFxApplicationThread())
+			Platform.runLater(() -> handler.accept(this, getSelectedNodeList()));
+		else
+			handler.accept(this, getSelectedNodeList());
 	}
 
 	/**
@@ -172,6 +203,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
 	public void clearSelectedNodeList(UserOperationCommand userOpeCmd) {
+
 		BhNode[] nodesToDeselect = selectedList.toArray(new BhNode[selectedList.size()]);
 		for (BhNode node : nodesToDeselect) {
 			removeSelectedNode(node, userOpeCmd);
@@ -182,8 +214,29 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 	 * ワークスペース名を取得する
 	 * @return ワークスペース名
 	 */
-	public String getWorkspaceName() {
+	public String getName() {
 		return workspaceName;
+	}
+
+	/**
+	 * 選択ノードリストに変化があった時のイベントハンドラを登録する. <br>
+	 * イベントハンドラの第1引数 : 変化のあった選択ノードリストを保持するワークスペース <br>
+	 * イベントハンドラの第2引数 : 変化のあった選択ノード
+	 * @param handler 登録するイベントハンドラ
+	 * @param invokeOnUiThread UIスレッド上で呼び出す場合 true
+	 */
+	public void addOnSelectedNodeListChanged(
+		BiConsumer<? super Workspace, ? super Collection<? super BhNode>> handler, boolean invokeOnUiThread) {
+		onSelectedNodeListChangedToThreadFlag.put(handler, invokeOnUiThread);
+	}
+
+	/**
+	 * 選択ノードリストに変化があった時のイベントハンドラを削除する.
+	 * @param handler 削除するイベントハンドラ
+	 */
+	public void removeOnSelectedNodeListChanged(
+		BiConsumer<? super Workspace, ? super Collection<? super BhNode>> handler) {
+		onSelectedNodeListChangedToThreadFlag.remove(handler);
 	}
 
 	@Override

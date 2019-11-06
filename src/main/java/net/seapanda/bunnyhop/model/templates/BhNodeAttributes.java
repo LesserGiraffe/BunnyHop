@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import org.w3c.dom.Element;
 
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;

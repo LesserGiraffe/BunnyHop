@@ -14,5 +14,6 @@
 
 	voidTypeCol: hsb(0, 0%, 95%);
 	anyTypeCol: hsb(0, 0%, 85%);
-	miscTypeCol: hsb(0, 0%, 15%)
+	miscTypeCol: hsb(0, 0%, 15%);
+	errorTypeCol: hsb(60, 100%, 100%);
 }

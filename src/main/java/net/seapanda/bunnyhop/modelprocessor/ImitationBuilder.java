@@ -83,7 +83,7 @@ public class ImitationBuilder implements BhModelProcessor {
 			return;
 
 		if (parentImitStack.isEmpty()) {
-			ConnectiveNode newImit = node.createImitNode(userOpeCmd, imitID);
+			ConnectiveNode newImit = node.createImitNode(imitID, userOpeCmd);
 			parentImitStack.addLast(newImit);
 			node.sendToSections(this);
 			NodeMVCBuilder.build(newImit);
@@ -94,7 +94,7 @@ public class ImitationBuilder implements BhModelProcessor {
 			//接続先を探す
 			BhNode oldImit = ImitTaggedChildFinder.find(parentImit, node.getParentConnector().getImitCnctPoint());
 			if (oldImit != null) {
-				ConnectiveNode newImit = node.createImitNode(userOpeCmd, imitID);
+				ConnectiveNode newImit = node.createImitNode(imitID, userOpeCmd);
 				oldImit.replacedWith(newImit, userOpeCmd);
 				parentImitStack.addLast(newImit);
 				node.sendToSections(this);
@@ -119,7 +119,7 @@ public class ImitationBuilder implements BhModelProcessor {
 			return;
 
 		if (parentImitStack.isEmpty()) {
-			TextNode newImit = node.createImitNode(userOpeCmd, imitID);
+			TextNode newImit = node.createImitNode(imitID, userOpeCmd);
 			parentImitStack.addLast(newImit);
 			NodeMVCBuilder.build(newImit);
 			TextImitationPrompter.prompt(newImit);
@@ -129,7 +129,7 @@ public class ImitationBuilder implements BhModelProcessor {
 			//接続先を探す
 			BhNode oldImit = ImitTaggedChildFinder.find(parentImit, node.getParentConnector().getImitCnctPoint());
 			if (oldImit != null) {
-				TextNode newImit = node.createImitNode(userOpeCmd, imitID);
+				TextNode newImit = node.createImitNode(imitID, userOpeCmd);
 				oldImit.replacedWith(newImit, userOpeCmd);
 			}
 		}

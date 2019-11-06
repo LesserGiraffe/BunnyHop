@@ -32,9 +32,9 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Single;
 import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.node.TextNode;
@@ -166,7 +166,7 @@ public class ComboBoxNodeView extends BhNodeView implements ImitationCreator {
 		}
 		else {
 			Vec2D pos = getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
-			getPositionManager().updateAbsPos(pos.x, pos.y);
+			getPositionManager().setPosOnWorkspace(pos.x, pos.y);
 		}
 	}
 

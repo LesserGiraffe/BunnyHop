@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramHandler;
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 
 /**
@@ -37,14 +37,14 @@ public class BhProgramTransceiver {
 	private final BlockingQueue<BhProgramData> sendDataList = new ArrayBlockingQueue<>(BhParams.ExternalApplication.MAX_REMOTE_CMD_QUEUE_SIZE);
 	private final BhProgramHandler programHandler;	//!< BhProgramの実行環境と通信する用のRMIオブジェクト
 													// BhProgramHandlerは特定のプロセスと紐付いており, RMI Serverが同じTCPポートでも新しく起動したプロセスと通信することはない.
-	private final RemoteCmdProcessor cmdProcessor;	//!< BhProgramの実行環境から受信したデータを処理するオブジェクト
+	private final BhProgramDataProcessor cmdProcessor;	//!< BhProgramの実行環境から受信したデータを処理するオブジェクト
 
 	/**
 	 * コンストラクタ
 	 * @param cmdProcessor BhProgramの実行環境から受信したデータを処理するオブジェクト
-	 * @param programHandler BhProgramの実行環境から受信したデータを処理するオブジェクト
+	 * @param programHandler BスクリプトとBunnyHop間でデータを送受信するオブジェクト
 	 */
-	public BhProgramTransceiver (RemoteCmdProcessor cmdProcessor, BhProgramHandler programHandler) {
+	public BhProgramTransceiver (BhProgramDataProcessor cmdProcessor, BhProgramHandler programHandler) {
 		this.programHandler = programHandler;
 		this.cmdProcessor = cmdProcessor;
 	}
@@ -81,7 +81,8 @@ public class BhProgramTransceiver {
 			try {
 				programHandler.disconnect();
 			}
-			catch(RemoteException e) {	//接続中にBhProgramExecEnvironmentをkillした場合, ここで抜ける
+			//接続中にBhProgramExecEnvironmentをkillした場合, ここで抜ける
+			catch(RemoteException e) {
 				MsgPrinter.INSTANCE.errMsgForUser("!! 切断失敗 !!\n");
 				MsgPrinter.INSTANCE.errMsgForDebug("failed to disconnect " + e.toString());
 				return false;
@@ -113,14 +114,15 @@ public class BhProgramTransceiver {
 			try {
 				BhProgramData data = programHandler.recvDataFromScript();
 				if (data != null)
-					cmdProcessor.addRemoteData(data);
+					cmdProcessor.add(data);
 			}
 			catch(RemoteException | InterruptedException e) {	//子プロセスをkillした場合, RemoteExceptionで抜ける.
 				break;
 			}
 
-			if (Thread.currentThread().isInterrupted())
+			if (Thread.currentThread().isInterrupted()) {
 				break;
+			}
 		}
 		return true;
 	}

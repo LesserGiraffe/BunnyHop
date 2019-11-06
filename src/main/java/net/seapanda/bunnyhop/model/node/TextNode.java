@@ -15,7 +15,6 @@
  */
 package net.seapanda.bunnyhop.model.node;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -25,18 +24,15 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.VersionInfo;
+import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
+import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.model.imitation.ImitationBase;
 import net.seapanda.bunnyhop.model.imitation.ImitationID;
-import net.seapanda.bunnyhop.model.imitation.ImitationManager;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
@@ -46,30 +42,28 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * 文字情報を持つ終端BhNode
  * @author K.Koike
  */
-public class TextNode  extends Imitatable implements Serializable {
+public class TextNode  extends ImitationBase<TextNode> {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	private String text = "";	//!< このノードの管理する文字列データ
 	private final String scriptNameOfTextFormatter;	//!< テキストを整形するスクリプト
 	private final String scriptNameOnTextAcceptabilityChecker; //!< テキストが受理可能かどうか判断する際に実行されるスクリプト
-	private ImitationManager<TextNode> imitManager;	//!< イミテーションノードに関連する情報がまとめられたオブジェクト
 
 	/**
 	 * コンストラクタ<br>
 	 * ノード内部・外部とは描画位置のこと
-	 * @param type xml のtype属性
-	 * @param imitID_imitNodeID イミテーションIDとそれに対応するイミテーションノードIDのマップ
+	 * @param type 関連する BhNodeView の種類
+	 * @param imitIdToImitNodeID イミテーションIDとそれに対応するイミテーションノードIDのマップ
 	 * @param attributes ノードの設定情報
 	 * */
 	public TextNode(
-		String type,
-		Map<ImitationID, BhNodeID> imitID_imitNodeID,
+		BhNodeViewType type,
+		Map<ImitationID, BhNodeID> imitIdToImitNodeID,
 		BhNodeAttributes attributes) {
 
-		super(type, attributes, imitID_imitNodeID);
+		super(type, attributes, imitIdToImitNodeID);
 		scriptNameOnTextAcceptabilityChecker = attributes.getTextAcceptabilityChecker();
 		scriptNameOfTextFormatter = attributes.getTextFormatter();
-		imitManager = new ImitationManager<>();
 		text = attributes.getIinitString();
 	}
 
@@ -77,8 +71,9 @@ public class TextNode  extends Imitatable implements Serializable {
 	 * コピーコンストラクタ
 	 * @param org コピー元オブジェクト
 	 */
-	private TextNode(TextNode org) {
-		super(org);
+	private TextNode(TextNode org, UserOperationCommand userOpeCmd) {
+
+		super(org, userOpeCmd);
 		text = org.text;
 		scriptNameOnTextAcceptabilityChecker = org.scriptNameOnTextAcceptabilityChecker;
 		scriptNameOfTextFormatter = org.scriptNameOfTextFormatter;
@@ -86,8 +81,8 @@ public class TextNode  extends Imitatable implements Serializable {
 
 	@Override
 	public TextNode copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
-		TextNode newNode = new TextNode(this);
-		newNode.imitManager = new ImitationManager<>(imitManager, userOpeCmd, newNode);
+
+		TextNode newNode = new TextNode(this, userOpeCmd);
 		return newNode;
 	}
 
@@ -107,7 +102,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	/**
 	 * 引数の文字列をセットする
 	 * @param text セットする文字列
-	 * */
+	 */
 	public void setText(String text) {
 		this.text = text;
 	}
@@ -117,7 +112,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	 * 引数の文字列がセット可能かどうか判断する
 	 * @param text セット可能かどうか判断する文字列
 	 * @return 引数の文字列がセット可能だった
-	 * */
+	 */
 	public boolean isTextAcceptable(String text) {
 
 		Script onTextAcceptabilityChecked =
@@ -148,7 +143,7 @@ public class TextNode  extends Imitatable implements Serializable {
 	 * @param addedText 前回整形したテキストから新たに追加された文字列
 	 * @return _1 -> テキスト全体を整形した場合 true. 追加分だけ整形した場合 false. <br>
 	 *          _2 -> 整形したテキスト
-	 * */
+	 */
 	public Pair<Boolean, String> formatText(String text, String addedText) {
 
 		Script textFormatter = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOfTextFormatter);
@@ -176,52 +171,9 @@ public class TextNode  extends Imitatable implements Serializable {
 	 * イミテーションノードにこのノードを模倣させる
 	 */
 	public void getImitNodesToImitateContents() {
-		MsgData mvText = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_MODEL_AND_VIEW_TEXT, this);
-		imitManager.getImitationList().forEach(
-			imit -> MsgTransporter.INSTANCE.sendMessage(BhMsg.IMITATE_TEXT, new MsgData(mvText.strPair._1, mvText.strPair._2), imit));
-	}
 
-	/**
-	 * モデルの構造を表示する
-	 * @param depth 表示インデント数
-	 * */
-	@Override
-	public void show(int depth) {
-
-		String parentHash = "";
-		if (parentConnector != null)
-			parentHash = parentConnector.hashCode() + "";
-
-		String lastReplacedHash = "";
-		if (getLastReplaced() != null)
-			lastReplacedHash =  getLastReplaced().hashCode() + "";
-
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<TextNode" + "string=" + text + "  bhID=" + getID() + "  parent="+ parentHash + "> " + this.hashCode());
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "ws " + workspace + "> ");
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
-		imitManager.getImitationList().forEach(imit -> {
-			MsgPrinter.INSTANCE.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());
-		});
-
-	}
-
-	@Override
-	public TextNode createImitNode(UserOperationCommand userOpeCmd, ImitationID imitID) {
-
-		//イミテーションノード作成
-		BhNode imitationNode = BhNodeTemplates.INSTANCE.genBhNode(getImitationNodeID(imitID), userOpeCmd);
-
-		//オリジナルとイミテーションの関連付け
-		TextNode textImit = (TextNode)imitationNode; //ノードテンプレート作成時に整合性チェックしているのでキャストに問題はない
-		imitManager.addImitation(textImit, userOpeCmd);
-		textImit.getImitationManager().setOriginal(this, userOpeCmd);
-		return textImit;
-	}
-
-	@Override
-	public ImitationManager<TextNode> getImitationManager() {
-		return imitManager;
+		String viewText = MsgService.INSTANCE.getViewText(this);
+		getImitationList().forEach(imit -> MsgService.INSTANCE.imitateText(imit, text, viewText));
 	}
 
 	@Override
@@ -246,8 +198,45 @@ public class TextNode  extends Imitatable implements Serializable {
 	}
 
 	@Override
-	public TextNode getOriginalNode() {
-		return imitManager.getOriginal();
+	public TextNode createImitNode(ImitationID imitID, UserOperationCommand userOpeCmd) {
+
+		//イミテーションノード作成
+		BhNode imitationNode = BhNodeTemplates.INSTANCE.genBhNode(getImitationNodeID(imitID), userOpeCmd);
+
+		if (!(imitationNode instanceof TextNode))
+			throw new AssertionError("imitation node type inconsistency");
+
+		//オリジナルとイミテーションの関連付け
+		TextNode textImit = (TextNode)imitationNode;
+		addImitation(textImit, userOpeCmd);
+		textImit.setOriginal(this, userOpeCmd);
+		return textImit;
+	}
+
+	@Override
+	protected TextNode self() {
+		return this;
+	}
+
+	@Override
+	public void show(int depth) {
+
+		String parentHash = "";
+		if (parentConnector != null)
+			parentHash = parentConnector.hashCode() + "";
+
+		String lastReplacedHash = "";
+		if (getLastReplaced() != null)
+			lastReplacedHash =  getLastReplaced().hashCode() + "";
+
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<TextNode" + "string=" + text + "  bhID=" + getID() + "  parent="+ parentHash + "> " + this.hashCode());
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "ws " + workspace + "> ");
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
+		getImitationList().forEach(imit -> {
+			MsgPrinter.INSTANCE.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());
+		});
+
 	}
 }
 

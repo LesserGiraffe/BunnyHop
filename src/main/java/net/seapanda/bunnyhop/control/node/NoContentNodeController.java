@@ -31,8 +31,8 @@ public class NoContentNodeController  extends BhNodeController {
 				model.setText(data.strPair._1);
 				break;
 
-			case GET_MODEL_AND_VIEW_TEXT:
-				return new MsgData(model.getText(), null);
+			case GET_VIEW_TEXT:
+				return new MsgData();
 
 			default:
 				return super.processMsg(msg, data);

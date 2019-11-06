@@ -31,7 +31,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.util.Duration;
-import net.seapanda.bunnyhop.common.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.root.BunnyHop;
 
 /**
@@ -95,7 +95,7 @@ public class MsgPrinter {
 	}
 
 	/**
-	 * BHユーザ向けにメッセージを出力する
+	 * アプリケーションユーザ向けにメッセージを出力する
 	 */
 	public void msgForUser(String msg) {
 
@@ -113,7 +113,7 @@ public class MsgPrinter {
 	}
 
 	/**
-	 * BHユーザ向けにメッセージを出力する
+	 * アプリケーションユーザ向けにメッセージを出力する
 	 */
 	public void msgForUser(List<Character> charCodeList) {
 
@@ -128,7 +128,7 @@ public class MsgPrinter {
 	}
 
 	/**
-	 * BHユーザ向けにエラーメッセージを出力する
+	 * アプリケーションユーザ向けにエラーメッセージを出力する
 	 */
 	public void errMsgForUser(String msg) {
 		msgForUser(msg);

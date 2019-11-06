@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.view;
+package net.seapanda.bunnyhop.view.workspace;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -25,6 +25,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javafx.collections.ListChangeListener;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -40,10 +42,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.transform.Scale;
-import net.seapanda.bunnyhop.common.BhParams;
+import javafx.scene.transform.Transform;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
@@ -51,6 +55,7 @@ import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OVERLAP_OPTION;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.viewprocessor.CallbackInvoker;
 
@@ -61,7 +66,8 @@ import net.seapanda.bunnyhop.viewprocessor.CallbackInvoker;
 public class WorkspaceView extends Tab {
 
 	private @FXML ScrollPane wsScrollPane;	//!< 操作対象のビュー
-	private @FXML Pane wsPane;	//!< 操作対象のビュー
+	private @FXML WorkspaceViewPane wsPane;	//!< BhNodeを保持するペイン
+	private @FXML WorkspaceViewPane errInfoPane;	//!< エラー情報表示用
 	private @FXML Pane wsWrapper;	//!< wsPane の親ペイン
 	private @FXML Polygon rectSelTool;	//!< 矩形選択用ビュー
 	private final Workspace workspace;
@@ -72,6 +78,7 @@ public class WorkspaceView extends Tab {
 	private QuadTreeManager quadTreeMngForConnector;	//!< ノードのコネクタ部分の重なり判定に使う4分木管理クラス
 	int zoomLevel = 0;	//!< ワークスペースの拡大/縮小の段階
 	int workspaceSizeLevel = 0;	//!< ワークスペースの大きさの段階
+
 
 	public WorkspaceView(Workspace workspace) {
 		this.workspace = workspace;
@@ -97,9 +104,12 @@ public class WorkspaceView extends Tab {
 			return false;
 		}
 
+		setErrInfoPaneListener();
 		minPaneSize.x = width;
 		minPaneSize.y = height;
 		//タブの中の部分のサイズを決める. スクロールバーが表示されなくなるので setPrefSize() は使わない.
+		errInfoPane.setHolder(this);
+		wsPane.setHolder(this);
 		wsPane.setMinSize(minPaneSize.x, minPaneSize.y);
 		wsPane.setMaxSize(minPaneSize.x, minPaneSize.y);
 		wsPane.getTransforms().add(new Scale());
@@ -108,53 +118,87 @@ public class WorkspaceView extends Tab {
 		rectSelTool.getPoints().addAll(Stream.generate(() -> 0.0).limit(8).toArray(Double[]::new));
 		drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
 		setEventHandlers();
-		setText(workspace.getWorkspaceName());
+		setText(workspace.getName());
 		return true;
 	}
 
 	private void setEventHandlers() {
 
-		//拡大縮小処理
-		wsScrollPane.addEventFilter(ScrollEvent.ANY, event -> {
-			if (event.isControlDown()) {
+		wsScrollPane.addEventFilter(ScrollEvent.ANY, this::onScroll);
+		setOnCloseRequest(this::onCloseRequest);
+		setOnClosed(this::onClosed);
+	}
+
+	/**
+	 * スクロール時の処理
+	 */
+	private void onScroll(ScrollEvent event) {
+
+		if (event.isControlDown()) {
+			event.consume();
+			boolean zoomIn = event.getDeltaY() >= 0;
+			zoom(zoomIn);
+		}
+	}
+
+	/**
+	 * ワークスペース削除命令を受けた時の処理
+	 */
+	private void onCloseRequest(Event event) {
+
+		//空のワークスペース削除時は警告なし
+		if (workspace.getRootNodeList().isEmpty())
+			return;
+
+		Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
+			Alert.AlertType.CONFIRMATION,
+			"ワークスペースの削除",
+			null,
+			"「" + this.getText() + "」 を削除します.");
+
+		// このイベントハンドラを抜けるとき, TabDragPolicy.FIXED にしないと
+		// タブ消しをキャンセルした後, そのタブが使えなくなる.
+		getTabPane().setTabDragPolicy(TabDragPolicy.FIXED);
+		buttonType.ifPresent(btnType -> {
+			if (!btnType.equals(ButtonType.OK))
 				event.consume();
-				boolean zoomIn = event.getDeltaY() >= 0;
-				zoom(zoomIn);
-			}
 		});
+	}
 
-		setOnClosed(event -> {
-			UserOperationCommand userOpeCmd = new UserOperationCommand();
-			BunnyHop.INSTANCE.deleteWorkspace(workspace, userOpeCmd);
-			BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-		});
+	/**
+	 * ワークスペース削除時の処理
+	 */
+	private void onClosed(Event event) {
 
-		setOnCloseRequest(event -> {
+		UserOperationCommand userOpeCmd = new UserOperationCommand();
+		BunnyHop.INSTANCE.deleteWorkspace(workspace, userOpeCmd);
+		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+	}
 
-			//空のワークスペース削除時は警告なし
-			if (workspace.getRootNodeList().isEmpty())
-				return;
+	private void setErrInfoPaneListener() {
 
-			Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
-				Alert.AlertType.CONFIRMATION,
-				"ワークスペースの削除",
-				null,
-				"「" + this.getText() + "」 を削除します.");
-
-			// このイベントハンドラを抜けるとき, TabDragPolicy.FIXED にしないと
-			// タブ消しをキャンセルした後, そのタブが使えなくなる.
-			getTabPane().setTabDragPolicy(TabDragPolicy.FIXED);
-			buttonType.ifPresent(btnType -> {
-				if (!btnType.equals(ButtonType.OK))
-					event.consume();
-			});
+		wsPane.prefWidthProperty().addListener(
+			(observable, oldVal, newVal) -> errInfoPane.setPrefWidth(newVal.doubleValue()));
+		wsPane.prefHeightProperty().addListener(
+			(observable, oldVal, newVal) -> errInfoPane.setPrefHeight(newVal.doubleValue()));
+		wsPane.maxWidthProperty().addListener(
+			(observable, oldVal, newVal) -> errInfoPane.setMaxWidth(newVal.doubleValue()));
+		wsPane.maxHeightProperty().addListener(
+			(observable, oldVal, newVal) -> errInfoPane.setMaxHeight(newVal.doubleValue()));
+		wsPane.minWidthProperty().addListener(
+			(observable, oldVal, newVal) -> errInfoPane.setMinWidth(newVal.doubleValue()));
+		wsPane.minHeightProperty().addListener(
+			(observable, oldVal, newVal) -> errInfoPane.setMinHeight(newVal.doubleValue()));
+		wsPane.getTransforms().addListener((ListChangeListener.Change<? extends Transform> change) -> {
+			errInfoPane.getTransforms().clear();
+			change.getList().forEach(errInfoPane.getTransforms()::add);
 		});
 	}
 
 	/**
 	 * ノードビューを追加する
 	 * @param nodeView 追加するノードビュー
-	 * */
+	 */
 	public void addNodeView(BhNodeView nodeView) {
 
 		if (rootNodeToGroup.containsKey(nodeView))
@@ -172,7 +216,7 @@ public class WorkspaceView extends Tab {
 	/**
 	 * ノードビューを削除する
 	 * @param nodeView 削除するビュー
-	 * */
+	 */
 	public void removeNodeView(BhNodeView nodeView) {
 
 		if (!rootNodeToGroup.containsKey(nodeView))
@@ -187,7 +231,7 @@ public class WorkspaceView extends Tab {
 	/**
 	 * 4分木空間に矩形を登録する
 	 * @param nodeView 登録する矩形を持つBhNodeViewオブジェクト
-	 * */
+	 */
 	public void addRectangleToQTSpace(BhNodeView nodeView) {
 
 		CallbackInvoker.invoke(
@@ -208,9 +252,7 @@ public class WorkspaceView extends Tab {
 	 * @return 引数の矩形と重なるノードのビュー
 	 * */
 	public List<BhNodeView> searchForOverlappedNodeViews(
-		QuadTreeRectangle rect,
-		boolean overlapWithBodyPart,
-		OVERLAP_OPTION option) {
+		QuadTreeRectangle rect, boolean overlapWithBodyPart, OVERLAP_OPTION option) {
 
 		if (rect == null)
 			return new ArrayList<BhNodeView>();
@@ -233,7 +275,7 @@ public class WorkspaceView extends Tab {
 	 * WS内でマウスが押された時の処理を登録する
 	 * @param handler WS内でマウスが押されたときの処理
 	 * */
-	public void setOnMousePressedHandler(EventHandler<? super MouseEvent> handler) {
+	public void setOnMousePressed(EventHandler<? super MouseEvent> handler) {
 		wsPane.setOnMousePressed(handler);
 	}
 
@@ -241,7 +283,7 @@ public class WorkspaceView extends Tab {
 	 * WS内でマウスがドラッグされた時の処理を登録する
 	 * @param handler WS内でマウスがドラッグされたときの処理
 	 * */
-	public void setOnMouseDraggedHandler(EventHandler<? super MouseEvent> handler) {
+	public void setOnMouseDragged(EventHandler<? super MouseEvent> handler) {
 		wsPane.setOnMouseDragged(handler);
 	}
 
@@ -249,7 +291,7 @@ public class WorkspaceView extends Tab {
 	 * WS内でマウスが離された時の処理を登録する
 	 * @param handler WS内でマウスが離されたときの処理
 	 * */
-	public void setOnMouseReleasedHandler(EventHandler<? super MouseEvent> handler) {
+	public void setOnMouseReleased(EventHandler<? super MouseEvent> handler) {
 		wsPane.setOnMouseReleased(handler);
 	}
 
@@ -293,12 +335,10 @@ public class WorkspaceView extends Tab {
 		//全ノードの位置更新
 		for (BhNodeView rootView : rootNodeToGroup.keySet()) {
 			Vec2D pos = rootView.getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
-			rootView.getPositionManager().updateAbsPos(pos.x, pos.y);
+			rootView.getPositionManager().setPosOnWorkspace(pos.x, pos.y);
 		}
 		drawGridLines(newWsWidth, newWsHeight, quadTreeMngForBody.getNumPartitions());
-		wsWrapper.setPrefSize(
-			wsPane.getMinWidth() * wsPane.getTransforms().get(0).getMxx(),
-			wsPane.getMinHeight() * wsPane.getTransforms().get(0).getMyy());	//スクロールバーの可動域が変わるようにする
+		recalculateScrollableRange();
 	}
 
 	//デバッグ用
@@ -355,9 +395,47 @@ public class WorkspaceView extends Tab {
 		scale.setY(mag);
 		wsPane.getTransforms().clear();
 		wsPane.getTransforms().add(scale);
-		wsWrapper.setPrefSize(
-			wsPane.getMinWidth() * wsPane.getTransforms().get(0).getMxx(),
-			wsPane.getMinHeight() * wsPane.getTransforms().get(0).getMyy());	//スクロール時にスクロールバーの可動域が変わるようにする
+		recalculateScrollableRange();
+	}
+
+	/**
+	 * スクロール可能な範囲を再計算する
+	 */
+	private void recalculateScrollableRange() {
+
+		double magX = wsPane.getTransforms().get(0).getMxx();
+		double magY = wsPane.getTransforms().get(0).getMyy();
+
+		// 全ノードの内の右端の最大の位置と下端の最大の位置
+		Vec2D maxRightAndBottomPosOfNodes = rootNodeToGroup.keySet().stream()
+			.map(nodeView -> {
+				Vec2D nodeSize = nodeView.getRegionManager().getNodeSizeIncludingOuter(false);
+				Vec2D nodePos = nodeView.getPositionManager().getPosOnWorkspace();
+				return new Vec2D(
+					magX * (nodePos.x + nodeSize.x) + BhParams.LnF.NODE_SCALE * 20,
+					magY * (nodePos.y + nodeSize.y) + BhParams.LnF.NODE_SCALE * 20);
+			})
+			.reduce(
+				new Vec2D(0.0, 0.0),
+				(accum, pos) -> new Vec2D(Math.max(accum.x, pos.x), Math.max(accum.y, pos.y)));
+
+		Vec2D zoomedWsPaneSize = new Vec2D(wsPane.getMinWidth() * magX, wsPane.getMinHeight() * magY);
+		double scrollableHorizontalRange = Math.max(maxRightAndBottomPosOfNodes.x, zoomedWsPaneSize.x);
+		double scrollableVerticalRange = Math.max(maxRightAndBottomPosOfNodes.y, zoomedWsPaneSize.y);
+		wsWrapper.setPrefSize(scrollableHorizontalRange, scrollableVerticalRange);
+
+	}
+
+	/**
+	 * ワークスペース上での node の右下の位置を取得する
+	 * @param node 右下の位置を取得するノードビュー
+	 * @param includeOuter 外部ノード
+	 */
+	public Vec2D getLowerRightPosOnWorkspace(BhNodeView node) {
+
+		Vec2D nodeSize = node.getRegionManager().getNodeSizeIncludingOuter(false);
+		Vec2D nodePos = node.getPositionManager().getPosOnWorkspace();
+		return new Vec2D(nodePos.x + nodeSize.x, nodePos.y + nodeSize.y);
 	}
 
 	/**
@@ -373,6 +451,7 @@ public class WorkspaceView extends Tab {
 	 * @param lowerRight 表示する矩形のワークスペース上の右下の座標
 	 * */
 	public void showSelectionRectangle(Vec2D upperLeft, Vec2D lowerRight) {
+
 		rectSelTool.setVisible(true);
 		rectSelTool.getPoints().set(0, upperLeft.x);
 		rectSelTool.getPoints().set(1, upperLeft.y);
@@ -390,6 +469,50 @@ public class WorkspaceView extends Tab {
 	 * */
 	public void hideSelectionRectangle() {
 		rectSelTool.setVisible(false);
+	}
+
+	/**
+	 * 引数で指定したノードビューが中央に表示されるようにスクロールする.
+	 * このワークスペースビューに存在しないノードビューを指定した場合は, なにもしない.
+	 * @param nodeView 中央に表示するノードビュー
+	 */
+	public void lookAt(BhNodeView nodeView) {
+
+		WorkspaceView wsView = ViewHelper.INSTANCE.getWorkspaceView(nodeView);
+		if (!this.equals(wsView))
+			return;
+
+		getTabPane().getSelectionModel().select(this);
+
+		var zoomedWsSize = new Vec2D(wsWrapper.getPrefWidth(), wsWrapper.getPrefHeight());
+		var scrollPaneUpperLeftCenterPos = new Vec2D(wsScrollPane.getWidth() * 0.5, wsScrollPane.getHeight() * 0.5);
+		var scrollPaneLowerRightCenterPos = new Vec2D(
+			zoomedWsSize.x - scrollPaneUpperLeftCenterPos.x,
+			zoomedWsSize.y - scrollPaneUpperLeftCenterPos.y);
+		var scrollableRange = new Vec2D(
+			Math.max(1.0, scrollPaneLowerRightCenterPos.x - scrollPaneUpperLeftCenterPos.x),
+			Math.max(1.0, scrollPaneLowerRightCenterPos.y - scrollPaneUpperLeftCenterPos.y));
+		var nodeViewCenterPos = getCenterPosOnZoomedWorkspace(nodeView);
+		var scrollBarPos = new Vec2D(
+			(nodeViewCenterPos.x - scrollPaneUpperLeftCenterPos.x) / scrollableRange.x,
+			(nodeViewCenterPos.y - scrollPaneUpperLeftCenterPos.y) / scrollableRange.y);
+
+		scrollBarPos.x = scrollBarPos.x * (wsScrollPane.getHmax() - wsScrollPane.getHmin()) + wsScrollPane.getHmin();
+		scrollBarPos.y = scrollBarPos.y * (wsScrollPane.getVmax() - wsScrollPane.getVmin()) + wsScrollPane.getVmin();
+		wsScrollPane.setHvalue(Util.INSTANCE.clamp(scrollBarPos.x, wsScrollPane.getHmin(), wsScrollPane.getHmax()));
+		wsScrollPane.setVvalue(Util.INSTANCE.clamp(scrollBarPos.y, wsScrollPane.getVmin(), wsScrollPane.getVmax()));
+	}
+
+	/**
+	 * ズームしたワークスペース上でのノードビューの中心位置を返す.
+	 */
+	private Vec2D getCenterPosOnZoomedWorkspace(BhNodeView nodeView) {
+
+		double magX = wsPane.getTransforms().get(0).getMxx();
+		double magY = wsPane.getTransforms().get(0).getMyy();
+		Vec2D nodeSize = nodeView.getRegionManager().getBodySize(false);
+		Vec2D nodePos = nodeView.getPositionManager().getPosOnWorkspace();
+		return new Vec2D(magX * (nodePos.x + nodeSize.x * 0.5), magY * (nodePos.y + nodeSize.y * 0.5));
 	}
 }
 

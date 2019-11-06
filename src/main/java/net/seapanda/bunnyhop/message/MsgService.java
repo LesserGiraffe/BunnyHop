@@ -16,13 +16,14 @@
 package net.seapanda.bunnyhop.message;
 import java.util.Collection;
 
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
@@ -103,7 +104,7 @@ public class MsgService {
 	 * */
 	public Pair<Vec2D, Vec2D> getNodeBodyRange(BhNode node) {
 
-		BhNodeView nodeView = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW, node).nodeView;
+		BhNodeView nodeView = getBhNodeView(node);
 		QuadTreeRectangle bodyRange = nodeView.getRegionManager().getRegions()._1;
 		return new Pair<Vec2D, Vec2D>(bodyRange.getUpperLeftPos(), bodyRange.getLowerRightPos());
 	}
@@ -114,10 +115,9 @@ public class MsgService {
 	 * @return 外部ノードを含んだノードのサイズ
 	 * */
 	public Vec2D getViewSizeIncludingOuter(BhNode node) {
+
 		MsgData msgData = MsgTransporter.INSTANCE.sendMessage(
-			BhMsg.GET_VIEW_SIZE_INCLUDING_OUTER,
-			new MsgData(true),
-			node);
+			BhMsg.GET_VIEW_SIZE_INCLUDING_OUTER, new MsgData(true), node);
 		return msgData.vec2d;
 	}
 
@@ -128,15 +128,6 @@ public class MsgService {
 	 * */
 	public void moveNodeOnWS(BhNode node, Vec2D distance) {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.MOVE_NODE_ON_WORKSPACE, new MsgData(distance), node);
-	}
-
-	/**
-	 * ノードにテキストを設定する
-	 * @param node テキストを設定するノード
-	 * @param text 設定するテキスト
-	 * */
-	public void setText(BhNode node, String text) {
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_TEXT, new MsgData(text), node);
 	}
 
 	/**
@@ -156,7 +147,7 @@ public class MsgService {
 	 * */
 	public void replaceChildNodeView(BhNode oldNode, BhNode newNode, UserOperationCommand userOpeCmd) {
 
-		BhNodeView newNodeView = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW, newNode).nodeView;
+		BhNodeView newNodeView = getBhNodeView(newNode);
 		boolean hasParent = newNodeView.getParent() != null;
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), oldNode);
 		userOpeCmd.pushCmdOfReplaceNodeView(oldNode, newNode, hasParent);
@@ -177,6 +168,7 @@ public class MsgService {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
 	public void addQTRectangle(BhNode node, Workspace ws, UserOperationCommand userOpeCmd) {
+
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);	//4分木ノード登録(重複登録はされない)
 		userOpeCmd.pushCmdOfAddQtRectangle(node, ws);
 	}
@@ -199,8 +191,9 @@ public class MsgService {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
 	public void addRootNode(BhNode rootNode, Workspace ws, UserOperationCommand userOpeCmd) {
+
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_ROOT_NODE, rootNode, ws);
-		userOpeCmd.pushCmdOfAddRootNode(rootNode, ws);
+		userOpeCmd.pushCmdOfAddRootNode(rootNode);
 	}
 
 	/**
@@ -209,6 +202,7 @@ public class MsgService {
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
 	public void removeRootNode(BhNode rootNode, UserOperationCommand userOpeCmd) {
+
 		Workspace ws = rootNode.getWorkspace();
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_ROOT_NODE, rootNode, ws);
 		userOpeCmd.pushCmdOfRemoveRootNode(rootNode, ws);
@@ -229,17 +223,89 @@ public class MsgService {
 	 * @param orgNode このノードのイミテーションノードの強調表示を切り替える
 	 * @param enable 強調表示を有効にする場合 true.  無効にする場合 false.
 	 * */
-	public void highlightImit(BhNode orgNode, boolean enable) {
+	public void hilightImit(BhNode orgNode, boolean enable) {
 
 		if (orgNode instanceof Imitatable) {
-			Collection<Imitatable> imitationList = ((Imitatable)orgNode).getImitationManager().getImitationList();
-			imitationList.forEach(imitation -> {
-				MsgTransporter.INSTANCE.sendMessage(
-					BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-					new MsgData(enable, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT),
-					imitation);
-			});
+			Collection<? extends Imitatable> imitationList = ((Imitatable)orgNode).getImitationList();
+			imitationList.forEach(
+				imitation -> switchPseudoClassActivation(imitation, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT, enable));
 		}
+	}
+
+	/**
+	 * orgNode の外見に適用されるの疑似クラスの有効/無効を切り替える
+	 * @param node 疑似クラスの有効/無効を切り替えるノード
+	 * @param pseudoClassName 有効/無効を切り替える疑似クラス
+	 * @param enable 疑似クラスを有効にする場合 true.  無効にする場合 false.
+	 * */
+	public void switchPseudoClassActivation(BhNode node, String pseudoClassName, boolean enable) {
+
+		MsgTransporter.INSTANCE.sendMessage(
+			BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
+			new MsgData(enable, pseudoClassName),
+			node);
+	}
+
+	/**
+	 * 引数で指定したワークスペースの描画サイズを取得する
+	 * @param ws このワークスペースの描画サイズを取得する
+	 * @return 引数で指定したワークスペースの描画サイズ
+	 */
+	public Vec2D getWorkspaceSize(Workspace ws) {
+		return MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_WORKSPACE_SIZE, ws).vec2d;
+	}
+
+	/**
+	 * 引数で指定した TextNode のビューのテキストを取得する
+	 * @param node ビューのテキストを取得するノード
+	 * @param node に対応するビューのテキスト
+	 */
+	public String getViewText(TextNode node) {
+		return MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW_TEXT, node).text;
+	}
+
+	/**
+	 * テキストノードとそのビューにテキストを模倣させる
+	 * @param node このノードにテキストを模倣させる
+	 * @param modelText モデルに模倣させるテキスト
+	 * @param viewText ビューに模倣させるテキスト
+	 */
+	public void imitateText(TextNode node, String modelText, String viewText) {
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.IMITATE_TEXT, new MsgData(modelText, viewText), node);
+	}
+
+	/**
+	 * Scene 上の位置を引数で指定したワークスペース上の位置に変換する
+	 * @param scenePosX Scene 上の X 位置
+	 * @param scenePosY Scene 上の Y 位置
+	 * @param ws scenePosX と scenePosY をこのワークスペース上の位置に変換する
+	 * @return scenePosX と scenePosY のワークスペース上の位置
+	 */
+	public Vec2D sceneToWorkspace(double scenePosX, double scenePosY, Workspace ws) {
+
+		return MsgTransporter.INSTANCE.sendMessage(
+			BhMsg.SCENE_TO_WORKSPACE,
+			new MsgData(new Vec2D(scenePosX, scenePosY)),
+			ws).vec2d;
+	}
+
+	/**
+	 * 引数で指定した BhNode に対応する BhNodeView を取得する
+	 * @param node このノードに対応するビューを取得する
+	 * @return node に対応する BhNodeView
+	 */
+	public BhNodeView getBhNodeView(BhNode node) {
+		return MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW, node).nodeView;
+	}
+
+	/**
+	 * 引数で指定したノードをワークスペース中央に表示する
+	 * @param node 中央に表示するノード
+	 */
+	public void lookAt(BhNode node) {
+
+		BhNodeView nodeView = getBhNodeView(node);
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.LOOK_AT_NODE_VIEW, new MsgData(nodeView), node.getWorkspace());
 	}
 }
 

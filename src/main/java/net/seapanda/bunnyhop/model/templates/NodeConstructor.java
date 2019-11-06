@@ -30,13 +30,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import net.seapanda.bunnyhop.common.BhParams;
 import net.seapanda.bunnyhop.common.Pair;
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.imitation.ImitationConnectionPos;
 import net.seapanda.bunnyhop.model.imitation.ImitationID;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
+import net.seapanda.bunnyhop.model.node.BhNodeViewType;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
@@ -94,37 +95,39 @@ public class NodeConstructor {
 	public Optional<? extends BhNode> genTemplate(Element nodeRoot) {
 
 		Optional<? extends BhNode> templateNode = Optional.empty();
-		String type = nodeRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_TYPE);
+		String typeName = nodeRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_TYPE);
+		BhNodeViewType type = BhNodeViewType.toType(typeName);
 
 		switch (type) {
 			//<Node type="connective">
-			case BhParams.BhModelDef.ATTR_VALUE_CONNECTIVE:
+			case CONNECTIVE:
 				templateNode = genConnectiveNode(nodeRoot);
 				break;
 
 			//<Node type="void">
-			case BhParams.BhModelDef.ATTR_VALUE_VOID:
+			case VOID:
 				templateNode = genVoidNode(nodeRoot);
 				break;
 
 			//<Node type="textField">
 			//<Node type="comboBox">
 			//<Node type="label">
-			case BhParams.BhModelDef.ATTR_NAME_TEXT_FIELD:
-			case BhParams.BhModelDef.ATTR_NAME_COMBO_BOX:
-			case BhParams.BhModelDef.ATTR_NAME_LABEL:
-			case BhParams.BhModelDef.ATTR_NAME_TEXT_AREA:
+			case TEXT_FIELD:
+			case COMBO_BOX:
+			case LABEL:
+			case TEXT_AREA:
 				templateNode = genTextNode(nodeRoot, type, true);
 				break;
 			//<Node type="noView">
 			//<Node type="noContent">
-			case BhParams.BhModelDef.ATTR_NAME_NO_VIEW:
-			case BhParams.BhModelDef.ATTR_NAME_NO_CONTENT:
+			case NO_VIEW:
+			case NO_CONTENT:
 				templateNode = genTextNode(nodeRoot, type, false);
 				break;
 
 			default:
-				MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ATTR_NAME_TYPE + "=" + type + " はサポートされていません.\n" + nodeRoot.getBaseURI() + "\n");
+				MsgPrinter.INSTANCE.errMsgForDebug(
+					BhParams.BhModelDef.ATTR_NAME_TYPE + "=" + type + " はサポートされていません.\n" + nodeRoot.getBaseURI() + "\n");
 				break;
 		}
 		return templateNode;
@@ -239,11 +242,11 @@ public class NodeConstructor {
 	/**
 	 * テキストフィールドを持つノードを構築する
 	 * @param node \<Node\> タグを表すオブジェクト
-	 * @param type テキストノードに関連するGUIの種類
+	 * @param type 関連する BhNodeView の種類
 	 * @param checkViewComponent GUI部品の有無をチェックする場合true
 	 * @return TextFieldオブジェクト (Option)
 	 */
-	private Optional<TextNode> genTextNode(Element node, String type, boolean checkViewComponent) {
+	private Optional<TextNode> genTextNode(Element node, BhNodeViewType type, boolean checkViewComponent) {
 
 		Optional<BhNodeAttributes> nodeAttrs = BhNodeAttributes.readBhNodeAttriButes(node);
 		if (!nodeAttrs.isPresent()) {

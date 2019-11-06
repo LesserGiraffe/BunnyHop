@@ -19,11 +19,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.function.Predicate;
 
-import net.seapanda.bunnyhop.common.BhParams;
-import net.seapanda.bunnyhop.common.VersionInfo;
+import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -41,7 +39,7 @@ public class VoidNode extends BhNode implements Serializable {
 	 * @param attributes ノードの設定情報
 	 * */
 	public VoidNode(BhNodeAttributes attributes) {
-		super(BhParams.BhModelDef.ATTR_VALUE_VOID, attributes);
+		super(BhNodeViewType.VOID, attributes);
 	}
 
 	/**
@@ -58,7 +56,7 @@ public class VoidNode extends BhNode implements Serializable {
 	}
 
 	@Override
-	public Imitatable getOriginalNode() {
+	public BhNode getOriginal() {
 		return null;
 	}
 

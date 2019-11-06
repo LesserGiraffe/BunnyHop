@@ -16,20 +16,25 @@
 
 package net.seapanda.bunnyhop.model.node;
 
+import java.io.Serializable;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
+
+import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
  * SyntaxSymbolのID
  * @author K.Koike
  * */
-public class SyntaxSymbolID {
+public class SyntaxSymbolID implements Serializable {
 
-	static private long sequentialID = 0;
+	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
+	static private AtomicLong sequentialID = new AtomicLong(0);
 	private final String id;
 
 	static SyntaxSymbolID newID() {
-		++sequentialID;
-		return new SyntaxSymbolID(Long.toHexString(sequentialID));
+		long id = sequentialID.addAndGet(1);
+		return new SyntaxSymbolID(Long.toHexString(id));
 	}
 
 	private SyntaxSymbolID(String id) {
@@ -54,5 +59,4 @@ public class SyntaxSymbolID {
 		hash = 311 * hash + Objects.hashCode(this.id);
 		return hash;
 	}
-
 }

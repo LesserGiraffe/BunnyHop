@@ -175,7 +175,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
 			BhNodeView childNodeView = cnctrName_NodeView.get(cnctrName);
 			if (childNodeView != null) {
 				Vec2D relativePos = childNodeView.getPositionManager().getRelativePosFromParent();
-				childNodeView.getPositionManager().updateAbsPos(posX + relativePos.x, posY + relativePos.y);
+				childNodeView.getPositionManager().setPosOnWorkspace(posX + relativePos.x, posY + relativePos.y);
 			}
 		});
 
