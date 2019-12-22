@@ -65,9 +65,10 @@ public class BhProgramDataProcessor {
 				break;
 
 			case OUTPUT_EXCEPTION:
-				MsgPrinter.INSTANCE.msgForUser(data.exception.getBhNodeInstanceID() + " : err node id \n");
 				MsgPrinter.INSTANCE.msgForUser(data.exception.getMessage() + "\n");
-				data.exception.getCallStack().forEach(s -> MsgPrinter.INSTANCE.msgForUser(s.toString() + "\n"));
+				var iter = data.exception.getCallStack().descendingIterator();
+				while (iter.hasNext())
+					MsgPrinter.INSTANCE.msgForUser("	" + iter.next().toString() + "\n");
 				break;
 
 			default:

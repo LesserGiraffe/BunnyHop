@@ -54,4 +54,9 @@ public enum BhNodeViewType {
 	public String getName() {
 		return typeName;
 	}
+
+	@Override
+	public String toString() {
+		return typeName;
+	}
 }

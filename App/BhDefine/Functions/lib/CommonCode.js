@@ -27,14 +27,14 @@
 		_toStr : function() {return '';}
 	};
 
-	function _genCallObj() {
-		return {_outArgs:[]};
+	function _initThisObj() {
+		this._outVals = [];
+		this._additionalErrorMsgs = [];
+		this._callStack = [];
 	}
 
-	function _copyArgs(dest, args, beginIdx) {
-		dest.length = 0;
-		for (let i = beginIdx; i < args.length; ++i)
-			dest.push(args[i]);
+	function _genCallObj() {
+		return {_outArgs:[]};
 	}
 
 	function _genLockObj() {
@@ -52,27 +52,33 @@
 	function _unlock(lockObj) {
 		lockObj.unlock();
 	}
-	
+
 	function _genReusableBarrier(parties) {
 		return new _jCyclicBarrier(parties);
 	}
-	
+
 	function _awit(barrier) {
+
+		let success = false;
 		try {
 			barrier.await();
+			success = true;
 		}
-		catch(e) {throw e}
+		finally {
+			if (!success)
+				_addExceptionMsg.call(this, '_sayOnWindows()');
+		}
 	}
-	
+
 	function _getNumberWaiting(barrier) {
 		return barrier.getNumberWaiting();
 	}
-	
+
 	function _listToStr(list, listName) {
-	
+
 		if (list.length === 0)
 			return listName + ' = 空リスト';
-	
+
 		let strBuilder = new _jStringBuilder();
 		for (let i = 0; i < list.length; ++i) {
 			strBuilder
@@ -127,18 +133,6 @@
 		_eventHandlers[event].push(eventHandler);
 	}
 
-	//イベントに応じたイベントハンドラを呼ぶ
-	function _fireEvent(event) {
-		if (_eventHandlers[event] !== void 0) {
-			_eventHandlers[event].forEach(
-				function(handler) {
-					try {_executor['submit(java.util.concurrent.Callable)'](function() {handler();});}
-					catch(e) { throw ('_fireEvent ' + e); }
-				}
-			);
-		}
-	}
-
 	//イベントに関連付けられたベントハンドラの名前を返す
 	function _getEventHandlerNames(event) {
 
@@ -186,15 +180,21 @@
 
 		if (sec <= 0)
 			return;
+		
+		let success = false;
 		try {
 			_jThread.sleep(Math.round(sec * 1000));
+			success = true;
 		}
-		catch (e) { throw ('_sleep ' + e); }
+		finally {
+			if (!success)
+				_addExceptionMsg.call(this, '_sleep()');
+		}
 	}
 
 	function _scan(str) {
 		bhInout.println(str);
-		let input = bhInout.scan();
+		let input = bhInout.scanln();
 		return (input === null) ? "" : String(input);
 	}
 
@@ -214,6 +214,19 @@
 	})();
 
 	//==================================================================
+	//							test
+	//==================================================================
+	function _outArgTest(in0, in1, in2, out0, out1, out2) {
+		out0 += in0;
+		out1 += in1;
+		out2 += in2;
+		this._outVals[0] = out0;
+		this._outVals[1] = out1;
+		this._outVals[2] = out2;
+		return in0 + in1 + in2;
+	}
+
+	//==================================================================
 	//							プロセス待ち
 	//==================================================================
 	function readStream(stream) {
@@ -227,7 +240,7 @@
 
 		let byteArray = _jReflectArray.newInstance(_jByteType, readByte.length);
 		for (let i = 0; i < readByte.length; ++i)
-			byteArray[i] = bhUtil.toByte(readByte[i]);
+			byteArray[i] = bhScriptHelper.toByte(readByte[i]);
 
 		return new _jString(byteArray);
 	}
@@ -241,12 +254,11 @@
 				retStr = readStream(is);
 			else
 				while (is.read() !== -1);
-			
+
 			process.waitFor();
 			if (checkExitVal && (process.exitValue() !== 0))
-				throw '(abnormal process end)';
+				throw 'abnormal process end';
 		}
-		catch (e) { throw e; }
 		finally {
 			process.getErrorStream().close();
 			process.getInputStream().close();
@@ -256,24 +268,14 @@
 	}
 
 	//==================================================================
-	//							実行時情報
+	//							例外処理
 	//==================================================================
-	function _pushFuncCallInfo(funcCallNodeID) {
-		let id = bhRuntimeInfo.newNodeInstanceID(funcCallNodeID);
-		bhRuntimeInfo.pushFuncCallInfo(id);
+	function _addExceptionMsg(msg) {
+		this._additionalErrorMsgs.push(String(msg));
 	}
 
-	function _popFuncCallInfo() {
-		bhRuntimeInfo.popFuncCallInfo();
-	}
-
-	function _newException(msg) {
-		return bhRuntimeInfo.newException(msg);
-	}
-
-	function _setExceptionNodeInfo(symbolID) {
-		let id = bhRuntimeInfo.newNodeInstanceID(symbolID);
-		bhRuntimeInfo.setExceptionNodeInfo(id);
+	function _newBhProgramExceptioin(msg) {
+		return bhScriptHelper.newBhProgramException(this._callStack, msg);
 	}
 
 	//==================================================================
@@ -281,7 +283,6 @@
 	//==================================================================
 	function _aryPush(ary, val) {
 		ary.push(val);
-		//throw _newException('push err');
 	}
 
 	function _aryPop(ary) {
@@ -370,12 +371,12 @@
 		for (let i = bufBegin; i < bufEnd; i += bytePerSample) {
 			let sample = Math.floor(amp * wave1Hz[samplePos]);
 			if (isBigEndian) {
-				waveBuf[i+1] = bhUtil.toByte(sample);
-				waveBuf[i] = bhUtil.toByte((sample >> 8));
+				waveBuf[i+1] = bhScriptHelper.toByte(sample);
+				waveBuf[i] = bhScriptHelper.toByte((sample >> 8));
 			}
 			else {
-				waveBuf[i] = bhUtil.toByte(sample);
-				waveBuf[i+1] = bhUtil.toByte((sample >> 8));
+				waveBuf[i] = bhScriptHelper.toByte(sample);
+				waveBuf[i+1] = bhScriptHelper.toByte((sample >> 8));
 			}
 			samplePos += hz;
 			if (samplePos > (wave1Hz.length - 1))
@@ -450,6 +451,7 @@
 			isBigEndian);
 
 		let line = null;
+		let success = false;
 		try {
 			let dLineInfo = new _jDataLine.Info(_jClass.forName('javax.sound.sampled.SourceDataLine'), format);
 			line = _jAudioSystem.getLine(dLineInfo);
@@ -461,9 +463,12 @@
 				samplePos = ret.samplePos;
 				line.write(waveBuf, 0, ret.waveLen);
 			}
+			success = true;
 		}
-		catch (e) { throw ('_playMelodies ' + e); }
 		finally {
+			if (!success)
+				_addExceptionMsg.call(this, '_playMelodies()');
+
 			if (line !== null) {
 				line.drain();
 				line.close();
@@ -480,6 +485,7 @@
 		let line = null;
 		let bis = null;
 		let ais = null;
+		let success = false;
 		try {
 			bis = new _jBufferedInputStream(_jFiles.newInputStream(path, _jStandardOpenOption.READ));
 			ais = _jAudioSystem.getAudioInputStream(bis);
@@ -493,9 +499,12 @@
 			while((byteRead = ais.read(waveBuf)) !== -1) {
 				line.write(waveBuf, 0, byteRead);
 			}
+			success = true;
 		}
-		catch (e) { throw ('_playWavFile ' + e); }
 		finally {
+			if (!success)
+				_addExceptionMsg.call(this, '_playWavFile()');
+
 			if (line !== null) {
 				line.drain();
 				line.stop();
@@ -528,13 +537,18 @@
 	function _sayOnLinux(word) {
 
 		word = word.replace(/"/g, '');
-		let talkCmd = String(_jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhSay.sh').toAbsolutePath().toString());
+		let talkCmd = String(_jPaths.get(bhScriptHelper.getExecPath(), 'Actions', 'bhSay.sh').toAbsolutePath().toString());
 		let procBuilder = new _jProcBuilder('sh', talkCmd, '"' + word + '"');
+		let success = false;
 		try {
 			let process =  procBuilder.start();
 			_waitProcEnd(process, false, true);
+			success = true;
 		}
-		catch (e) { throw ('_sayOnLinux ' + e); }
+		finally {
+			if (!success)
+				_addExceptionMsg.call(this, '_sayOnLinux()');
+		}
 	}
 
 	// 色クラス
@@ -565,7 +579,7 @@
 			case 'black':
 				return new _Color(0,0,0);
 			default:
-				throw ('_createColorFromName invalid colorName ' + colorName);
+				_throw ('_createColorFromName invalid colorName ' + colorName);
 		}
 		return null;
 	}
@@ -578,7 +592,7 @@
 		else if (eq === 'neq')
 			return !equality;
 		else
-			throw ('_compareColors invalid eq ' + eq);
+			throw ('_compareColors invalid eq (' + eq + ')');
 
 		return null;
 	}

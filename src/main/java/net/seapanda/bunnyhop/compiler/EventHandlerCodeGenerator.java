@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.node.TextNode;
 
@@ -126,21 +125,17 @@ public class EventHandlerCodeGenerator {
 		int nestLevel,
 		CompileOption option) {
 
-		String lockVar = BhCompiler.Keywords.lockVarPrefix + eventNode.getSymbolID();
+		String lockVar = Keywords.Prefix.lockVarPrefix + eventNode.getSymbolID();
 		String funcName = common.genFuncName(eventNode);
-
 		genHeaderSnippetOfEventCall(code, funcName, lockVar, nestLevel);
-
-		// let _callObj;
-		varDeclCodeGen.genVarDeclStat(code, CommonCodeDefinition.Vars.CALL_OBJ, null, nestLevel + 4);
 
 		// _sleep(...)
 		if (eventNode.getSymbolName().equals(SymbolNames.Event.DELAYED_START_EVENT)) {
 			TextNode delayTimeNode = (TextNode)eventNode.findSymbolInDescendants("*", "*", SymbolNames.Event.DELAY_TIME);
 			code.append(common.indent(nestLevel + 4))
-				.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.SLEEP, delayTimeNode.getText()))
+				.append(common.genFuncCallCode(ScriptIdentifiers.Funcs.SLEEP, delayTimeNode.getText()))
 				.append(";")
-				.append(Util.INSTANCE.LF);
+				.append(Keywords.newLine);
 		}
 
 		SyntaxSymbol stat = eventNode.findSymbolInDescendants("*", SymbolNames.Stat.STAT_LIST, "*");
@@ -152,11 +147,11 @@ public class EventHandlerCodeGenerator {
 		getEventType(eventNode).ifPresent(eventType -> {
 			String addEventCallStat =
 				common.genFuncCallCode(
-					CommonCodeDefinition.Funcs.ADD_EVENT,
+					ScriptIdentifiers.Funcs.ADD_EVENT,
 					funcName,
 					"'" + eventType.toString() + "'");
-			addEventCallStat += ";" + Util.INSTANCE.LF;
-			code.append(common.indent(nestLevel)).append(addEventCallStat).append(Util.INSTANCE.LF);
+			addEventCallStat += ";" + Keywords.newLine;
+			code.append(common.indent(nestLevel)).append(addEventCallStat).append(Keywords.newLine);
 		});
 	}
 
@@ -194,31 +189,34 @@ public class EventHandlerCodeGenerator {
 		int nestLevel) {
 
 		// let lockVar = new _genLockObj();
-		varDeclCodeGen.genVarDeclStat(code, lockVar, CommonCodeDefinition.Funcs.GEN_LOCK_OBJ + "()", nestLevel);
+		varDeclCodeGen.genVarDeclStat(code, lockVar, ScriptIdentifiers.Funcs.GEN_LOCK_OBJ + "()", nestLevel);
 
-		// function() {...
+		// function funcName() {...
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._function)
+			.append(Keywords.JS._function_)
 			.append(funcName)
-			.append("(){").append(Util.INSTANCE.LF);
+			.append("(){").append(Keywords.newLine);
 
 		// if (_tryLock(lockObj)) {
 		code.append(common.indent(nestLevel + 1))
-			.append(BhCompiler.Keywords.JS._if)
+			.append(Keywords.JS._if_)
 			.append("(")
-			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.TRY_LOCK, lockVar))
-			.append(") {").append(Util.INSTANCE.LF);
+			.append(common.genFuncCallCode(ScriptIdentifiers.Funcs.TRY_LOCK, lockVar))
+			.append(") {").append(Keywords.newLine);
 
 		//try {
 		code.append(common.indent(nestLevel + 2))
-			.append(BhCompiler.Keywords.JS._try)
-			.append("{").append(Util.INSTANCE.LF);
+			.append(Keywords.JS._try_)
+			.append("{").append(Keywords.newLine);
 
-		// (function() {...
+		// _end : {...
 		code.append(common.indent(nestLevel + 3))
-			.append("(")
-			.append(BhCompiler.Keywords.JS._function)
-			.append("(){").append(Util.INSTANCE.LF);
+			.append(ScriptIdentifiers.Label.end).append(" : {").append(Keywords.newLine);
+
+		// _initThisObj.call(this);
+		code.append(common.indent(nestLevel + 4))
+			.append(common.genFuncPrototypeCallCode(ScriptIdentifiers.Funcs.INIT_THIS_OBJ, Keywords.JS._this))
+			.append(";").append(Keywords.newLine);
 	}
 
 	/**
@@ -232,32 +230,27 @@ public class EventHandlerCodeGenerator {
 		String lockVar,
 		int nestLevel) {
 
-		// end of "(function() {..."
-		code.append(common.indent(nestLevel + 3)).append("})();").append(Util.INSTANCE.LF);
+		// end of "_end : {..."
+		code.append(common.indent(nestLevel + 3)).append("}").append(Keywords.newLine);
 
 		// end of "try {"
-		code.append(common.indent(nestLevel + 2)).append("}").append(Util.INSTANCE.LF);
+		code.append(common.indent(nestLevel + 2)).append("}").append(Keywords.newLine);
 
-		// 	catch (e) { throw e; }
+		// finally {
+		//     _unlock(...);
+		// }
 		code.append(common.indent(nestLevel + 2))
-			.append(BhCompiler.Keywords.JS._catch)
-			.append("(e) { ")
-			.append(BhCompiler.Keywords.JS._throw)
-			.append("e; }")
-			.append(Util.INSTANCE.LF);
-
-		// finally { _unlock(...); }
-		code.append(common.indent(nestLevel + 2))
-			.append(BhCompiler.Keywords.JS._finally).append("{")
-			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.UNLOCK, lockVar))
-			.append(";}").append(Util.INSTANCE.LF);
+			.append(Keywords.JS._finally_).append("{").append(Keywords.newLine)
+			.append(common.indent(nestLevel + 3))
+			.append(common.genFuncCallCode(ScriptIdentifiers.Funcs.UNLOCK, lockVar))
+			.append(";").append(Keywords.newLine)
+			.append(common.indent(nestLevel + 2)).append("}").append(Keywords.newLine);
 
 		// end of "if(_tryLock())"
-		code.append(common.indent(nestLevel + 1)).append("}").append(Util.INSTANCE.LF);
+		code.append(common.indent(nestLevel + 1)).append("}").append(Keywords.newLine);
 
-		// end of "function() {..."
-		code.append(common.indent(nestLevel)).append("}").append(Util.INSTANCE.LF);
-
+		// end of "function funcName() {..."
+		code.append(common.indent(nestLevel)).append("}").append(Keywords.newLine);
 	}
 }
 

@@ -153,17 +153,16 @@ public class BhCompiler {
 		globalDataDeclCodeGen.genGlobalDataDecls(nodeListToCompile, code, 1, option);
 		funcDefCodeGen.genFuncDefs(nodeListToCompile, code, 1, option);
 		eventHandlerCodeGen.genEventHandlers(nodeListToCompile, code, 1, option);
-		String lockVar = BhCompiler.Keywords.lockVarPrefix + CommonCodeDefinition.Funcs.BH_MAIN;
-		eventHandlerCodeGen.genHeaderSnippetOfEventCall(code, CommonCodeDefinition.Funcs.BH_MAIN, lockVar, 1);
-		varDeclCodeGen.genVarDeclStat(code, CommonCodeDefinition.Vars.CALL_OBJ, null, 5);
+		String lockVar = Keywords.Prefix.lockVarPrefix + ScriptIdentifiers.Funcs.BH_MAIN;
+		eventHandlerCodeGen.genHeaderSnippetOfEventCall(code, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 1);
 		statCodeGen.genStatement(execNode, code, 5, option);
 		eventHandlerCodeGen.genFooterSnippetOfEventCall(code, lockVar, 1);
 		String addEventCallStat = common.genFuncCallCode(
-			CommonCodeDefinition.Funcs.ADD_EVENT,
-			CommonCodeDefinition.Funcs.BH_MAIN,
+			ScriptIdentifiers.Funcs.ADD_EVENT,
+			ScriptIdentifiers.Funcs.BH_MAIN,
 			"'" + BhProgramData.EVENT.PROGRAM_START.toString() + "'");
-		addEventCallStat += ";" + Util.INSTANCE.LF;
-		code.append(common.indent(1)).append(addEventCallStat).append(Util.INSTANCE.LF);
+		addEventCallStat += ";" + Keywords.newLine;
+		code.append(common.indent(1)).append(addEventCallStat).append(Keywords.newLine);
 		genCodeForInit(code, 1, option);
 	}
 
@@ -177,40 +176,11 @@ public class BhCompiler {
 		StringBuilder code, int nestLevel, CompileOption option) {
 		// プログラム開始時刻の更新
 		code.append(common.indent(nestLevel))
-			.append(CommonCodeDefinition.Vars.PROGRAM_STARTING_TIME)
+			.append(ScriptIdentifiers.Vars.PROGRAM_STARTING_TIME)
 			.append(" = ")
-			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.CURRENT_TIME_MILLS))
+			.append(common.genFuncCallCode(ScriptIdentifiers.Funcs.CURRENT_TIME_MILLS))
 			.append(";")
-			.append(Util.INSTANCE.LF);
-	}
-
-	public static class Keywords {
-		public static final String varPrefix = "_v";
-		public static final String lockVarPrefix = "_lockObj";
-		public static final String funcPrefix = "_f";
-
-		public static class JS {
-			public static final String _if = "if ";
-			public static final String _else = "else ";
-			public static final String _while = "while ";
-			public static final String _for = "for ";
-			public static final String _break = "break";
-			public static final String _continue = "continue";
-			public static final String _let = "let ";
-			public static final String _const = "let ";	//Rhino に const のブロックスコープのバグがあるので実際のキーワードをletに変更
-			public static final String _function = "function ";
-			public static final String _true = "true";
-			public static final String _false = "false";
-			public static final String _undefined = "undefined";
-			public static final String _arguments = "arguments";
-			public static final String _return = "return";
-			public static final String _new = "new ";
-			public static final String _this = "this";
-			public static final String _try = "try ";
-			public static final String _catch = "catch ";
-			public static final String _finally = "finally ";
-			public static final String _throw = "throw ";
-		}
+			.append(Keywords.newLine);
 	}
 }
 

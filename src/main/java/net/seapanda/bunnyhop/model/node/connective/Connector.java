@@ -16,6 +16,7 @@
 package net.seapanda.bunnyhop.model.node.connective;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import org.mozilla.javascript.ContextFactory;
@@ -170,12 +171,12 @@ public class Connector extends SyntaxSymbol {
 
 	/**
 	 * ノードを接続する
-	 * @param node 接続されるノード<br> null はダメ
+	 * @param node 接続されるノード.  null 不可.
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
 	public final void connectNode(BhNode node, UserOperationCommand userOpeCmd) {
 
-		assert node != null;	//null接続はダメ
+		Objects.requireNonNull(node);
 
 		if (userOpeCmd != null)
 			userOpeCmd.pushCmdOfConnectNode(connectedNode, this);

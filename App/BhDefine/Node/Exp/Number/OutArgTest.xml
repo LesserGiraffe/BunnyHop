@@ -1,0 +1,30 @@
+<Node type="connective"
+	bhNodeID="idOutArgTestExp"
+	name="OutArgTestExp"
+	nodeStyleID="OutArgTestExp.json">
+
+	<ConnectorSection name="NumberExpSctn">
+
+		<PrivateConnector
+			bhConnectorID="idOutArgTestExp.prvCnctr0"
+			name="OutArgTest"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idOutArgTestExp.prvNode0"
+				name="OutArgTest"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="OutArgTest">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg2"/>
+		<Connector bhConnectorID="idNumVarCnctr" name="OutArg0"/>
+		<Connector bhConnectorID="idNumVarCnctr" name="OutArg1"/>
+		<Connector bhConnectorID="idNumVarCnctr" name="OutArg2"/>
+
+	</ConnectorSection>
+</Node>

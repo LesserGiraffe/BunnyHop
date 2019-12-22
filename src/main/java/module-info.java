@@ -25,7 +25,6 @@ module net.seapanda.bunnyhop {
 	requires rhino;
 	requires jsch;
 	requires org.apache.commons.lang3;
-	requires com.google.common;
 	//requires org.scenicview.scenicview;
 
 	exports net.seapanda.bunnyhop.root;

@@ -15,7 +15,6 @@
  */
 package net.seapanda.bunnyhop.compiler;
 
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 
@@ -112,7 +111,7 @@ public class StatCodeGenerator {
 			.append(varName)
 			.append(assignOpe)
 			.append(rightExpCode)
-			.append(";").append(Util.INSTANCE.LF);
+			.append(";").append(Keywords.newLine);
 	}
 
 	/**
@@ -132,11 +131,13 @@ public class StatCodeGenerator {
 
 		switch (symbolName) {
 			case SymbolNames.ControlStat.BREAK_STAT:
-				code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._break).append(";").append(Util.INSTANCE.LF);
+				code.append(common.indent(nestLevel)).append(Keywords.JS._break).append(";")
+					.append(Keywords.newLine);
 				break;
 
 			case SymbolNames.ControlStat.CONTINUE_STAT:
-				code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._continue).append(";").append(Util.INSTANCE.LF);
+				code.append(common.indent(nestLevel)).append(Keywords.JS._continue).append(";")
+					.append(Keywords.newLine);
 				break;
 
 			case SymbolNames.ControlStat.IF_ELSE_STAT:
@@ -157,7 +158,8 @@ public class StatCodeGenerator {
 				break;
 
 			case SymbolNames.ControlStat.RETURN_STAT:
-				code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._return).append(";").append(Util.INSTANCE.LF);
+				code.append(common.indent(nestLevel))
+					.append(Keywords.JS._break_).append(ScriptIdentifiers.Label.end).append(";").append(Keywords.newLine);
 				break;
 
 			case SymbolNames.ControlStat.CRITICAL_SECTION_STAT:
@@ -186,30 +188,28 @@ public class StatCodeGenerator {
 		SyntaxSymbol condExp = ifElseStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.COND_EXP, "*");
 		String condExpCode = expCodeGen.genExpression(code, condExp, nestLevel, option);
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._if)
+			.append(Keywords.JS._if_)
 			.append("(")
 			.append(condExpCode)
 			.append(") {")
-			.append(Util.INSTANCE.LF);
+			.append(Keywords.newLine);
 
 		//then part
 		SyntaxSymbol thenStat = ifElseStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.THEN_STAT, "*");
 		genStatement(thenStat, code, nestLevel + 1, option);
 		code.append(common.indent(nestLevel))
 			.append("}")
-			.append(Util.INSTANCE.LF);
+			.append(Keywords.newLine);
 
 		//else part
 		SyntaxSymbol elseStat = ifElseStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.ELSE_STAT, "*");
 		if (elseStat != null) {
 			code.append(common.indent(nestLevel))
-				.append(BhCompiler.Keywords.JS._else)
-				.append("{")
-				.append(Util.INSTANCE.LF);
+				.append(Keywords.JS._else_)
+				.append("{").append(Keywords.newLine);
 			genStatement(elseStat, code, nestLevel + 1, option);
 			code.append(common.indent(nestLevel))
-				.append("}")
-				.append(Util.INSTANCE.LF);
+				.append("}").append(Keywords.newLine);
 		}
 	}
 
@@ -228,34 +228,28 @@ public class StatCodeGenerator {
 
 		//conditional part
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._while)
+			.append(Keywords.JS._while_)
 			.append("(")
-			.append(BhCompiler.Keywords.JS._true)
-			.append(") {")
-			.append(Util.INSTANCE.LF);
+			.append(Keywords.JS._true)
+			.append(") {").append(Keywords.newLine);
 
 		SyntaxSymbol condExp = whileStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.COND_EXP, "*");
 		String condExpCode = expCodeGen.genExpression(code, condExp, nestLevel+1, option);
 		code.append(common.indent(nestLevel + 1))
-			.append(BhCompiler.Keywords.JS._if)
+			.append(Keywords.JS._if_)
 			.append("(!")
 			.append(condExpCode)
-			.append(") {")
-			.append(Util.INSTANCE.LF)
+			.append(") {").append(Keywords.newLine)
 			.append(common.indent(nestLevel + 2))
-			.append(BhCompiler.Keywords.JS._break)
-			.append(";")
-			.append(Util.INSTANCE.LF)
+			.append(Keywords.JS._break).append(";").append(Keywords.newLine)
 			.append(common.indent(nestLevel + 1))
-			.append("}")
-			.append(Util.INSTANCE.LF);
+			.append("}").append(Keywords.newLine);
 
 		//loop part
 		SyntaxSymbol loopStat = whileStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.LOOP_STAT, "*");
 		genStatement(loopStat, code, nestLevel + 1, option);
 		code.append(common.indent(nestLevel))
-			.append("}")
-			.append(Util.INSTANCE.LF);
+			.append("}").append(Keywords.newLine);
 	}
 
 	/**
@@ -272,15 +266,13 @@ public class StatCodeGenerator {
 		CompileOption option) {
 
 		code.append(common.indent(nestLevel))
-			.append("{")
-			.append(Util.INSTANCE.LF);
+			.append("{").append(Keywords.newLine);
 		SyntaxSymbol param = compoundStatNode.findSymbolInDescendants("*", "*", SymbolNames.ControlStat.LOCAL_VAR_DECL, "*");
 		varDeclCodeGen.genVarDecls(param, code, nestLevel + 1, option);
 		SyntaxSymbol stat = compoundStatNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.STAT_LIST, "*");
 		genStatement(stat, code, nestLevel + 1, option);
 		code.append(common.indent(nestLevel))
-			.append("}")
-			.append(Util.INSTANCE.LF);
+			.append("}").append(Keywords.newLine);
 	}
 
 	/**
@@ -301,20 +293,19 @@ public class StatCodeGenerator {
 		String loopCounter = common.genVarName(repeatStatNode);
 		String numRepetitionVar = "_" + loopCounter;
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._const)
+			.append(Keywords.JS._const_)
 			.append(numRepetitionVar)
 			.append(" = ")
 			.append("Math.floor")
 			.append("(")
 			.append(condExpCode)
-			.append(");")
-			.append(Util.INSTANCE.LF);
+			.append(");").append(Keywords.newLine);
 
 		//for (init; cond; update)
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._for)
+			.append(Keywords.JS._for_)
 			.append("(")
-			.append(BhCompiler.Keywords.JS._let)
+			.append(Keywords.JS._let_)
 			.append(loopCounter)
 			.append(" = 0; ")
 			.append(loopCounter)
@@ -323,15 +314,13 @@ public class StatCodeGenerator {
 			.append("; ")
 			.append("++")
 			.append(loopCounter)
-			.append(") {")
-			.append(Util.INSTANCE.LF);
+			.append(") {").append(Keywords.newLine);
 
 		//loop part
 		SyntaxSymbol loopStat = repeatStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.LOOP_STAT, "*");
 		genStatement(loopStat, code, nestLevel+1, option);
 		code.append(common.indent(nestLevel))
-			.append("}")
-			.append(Util.INSTANCE.LF);
+			.append("}").append(Keywords.newLine);
 	}
 
 	/**
@@ -351,13 +340,13 @@ public class StatCodeGenerator {
 
 		// try {
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._try)
-			.append("{").append(Util.INSTANCE.LF);
+			.append(Keywords.JS._try_)
+			.append("{").append(Keywords.newLine);
 
 		// lock
 		code.append(common.indent(nestLevel + 1))
-			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.LOCK, lockVar))
-			.append(";").append(Util.INSTANCE.LF);
+			.append(common.genFuncCallCode(ScriptIdentifiers.Funcs.LOCK, lockVar))
+			.append(";").append(Keywords.newLine);
 
 		SyntaxSymbol exclusiveStat =
 			criticalSctnNode.findSymbolInDescendants("*", SymbolNames.ControlStat.EXCLUSIVE_STAT, "*");
@@ -365,21 +354,20 @@ public class StatCodeGenerator {
 
 		// end of "try {"
 		code.append(common.indent(nestLevel))
-			.append("}").append(Util.INSTANCE.LF);
+			.append("}").append(Keywords.newLine);
 
 		// 	catch (e) { throw e; }
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._catch)
+			.append(Keywords.JS._catch_)
 			.append("(e) { ")
-			.append(BhCompiler.Keywords.JS._throw)
-			.append("e; }")
-			.append(Util.INSTANCE.LF);
+			.append(Keywords.JS._throw_)
+			.append("e; }").append(Keywords.newLine);
 
 		// fincally { _unlock(...); }
 		code.append(common.indent(nestLevel))
-		.append(BhCompiler.Keywords.JS._finally).append("{ ")
-			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.UNLOCK, lockVar))
-			.append("; }").append(Util.INSTANCE.LF);
+		.append(Keywords.JS._finally_).append("{ ")
+			.append(common.genFuncCallCode(ScriptIdentifiers.Funcs.UNLOCK, lockVar))
+			.append("; }").append(Keywords.newLine);
 	}
 }
 

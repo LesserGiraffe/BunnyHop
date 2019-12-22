@@ -103,15 +103,15 @@ public class SymbolNames {
 				put(STR_LIST_DECL, "[]");
 				put(BOOL_VAR_DECL, "false");
 				put(BOOL_LIST_DECL, "[]");
-				put(COLOR_VAR_DECL, CommonCodeDefinition.Vars.NIL_COLOR);
+				put(COLOR_VAR_DECL, ScriptIdentifiers.Vars.NIL_COLOR);
 				put(COLOR_LIST_DECL, "[]");
-				put(SOUND_VAR_DECL, CommonCodeDefinition.Vars.NIL_SOUND);
+				put(SOUND_VAR_DECL, ScriptIdentifiers.Vars.NIL_SOUND);
 				put(SOUND_LIST_DECL, "[]");
 				put(NUM_VAR_VOID, "0");
 				put(STR_VAR_VOID, "''");
 				put(BOOL_VAR_VOID, "false");
-				put(COLOR_VAR_VOID, CommonCodeDefinition.Vars.NIL_COLOR);
-				put(SOUND_VAR_VOID, CommonCodeDefinition.Vars.NIL_SOUND);
+				put(COLOR_VAR_VOID, ScriptIdentifiers.Vars.NIL_COLOR);
+				put(SOUND_VAR_VOID, ScriptIdentifiers.Vars.NIL_SOUND);
 				put(NUM_EMPTY_LIST, "[]");
 				put(STR_EMPTY_LIST, "[]");
 				put(BOOL_EMPTY_LIST, "[]");
@@ -309,6 +309,7 @@ public class SymbolNames {
 		public static final String STR_CHAIN_EXP = "StrChainExp";
 		public static final String GET_NUMBER_WAITING_EXP = "GetNumberWaitingExp";
 		public static final String ANY_LIST_TO_STR_EXP = "AnyListToStrExp";
+		public static final String OUT_ARG_TEST_EXP = "OutArgTestExp";
 		public static final String PRINT_STAT = "PrintStat";
 		public static final String PRINT_NUM_STAT = "PrintNumStat";
 		public static final String MOVE_STAT = "MoveStat";
@@ -354,6 +355,7 @@ public class SymbolNames {
 				STR_CHAIN_EXP,
 				GET_NUMBER_WAITING_EXP,
 				ANY_LIST_TO_STR_EXP,
+				OUT_ARG_TEST_EXP,
 
 				Array.NUM_ARRAY_GET_EXP,
 				Array.NUM_ARRAY_GET_LAST_EXP,
@@ -420,94 +422,95 @@ public class SymbolNames {
 
 		public static final Map<FuncID, String> PREDEF_FUNC_NAME_MAP =
 			new HashMap<FuncID, String>() {{
-				put(FuncID.create(BOOL_TO_STR_EXP), CommonCodeDefinition.Funcs.BOOL_TO_STR);
-				put(FuncID.create(COLOR_TO_STR_EXP), CommonCodeDefinition.Funcs.COLOR_TO_STR);
+				put(FuncID.create(BOOL_TO_STR_EXP), ScriptIdentifiers.Funcs.BOOL_TO_STR);
+				put(FuncID.create(COLOR_TO_STR_EXP), ScriptIdentifiers.Funcs.COLOR_TO_STR);
 				put(FuncID.create(NUM_TO_STR_EXP), "String");
-				put(FuncID.create(STR_TO_NUM_EXP), CommonCodeDefinition.Funcs.STR_TO_NUM);
-				put(FuncID.create(ANY_TO_STR_EXP), CommonCodeDefinition.Funcs.TO_STR);
-				put(FuncID.create(PRINT_STAT), CommonCodeDefinition.Funcs.PRINTLN);
-				put(FuncID.create(PRINT_NUM_STAT), CommonCodeDefinition.Funcs.PRINTLN);
-				put(FuncID.create(AWAIT_STAT), CommonCodeDefinition.Funcs.AWAIT);
-				put(FuncID.create(SCAM_EXP), CommonCodeDefinition.Funcs.SCAN);
+				put(FuncID.create(STR_TO_NUM_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
+				put(FuncID.create(ANY_TO_STR_EXP), ScriptIdentifiers.Funcs.TO_STR);
+				put(FuncID.create(PRINT_STAT), ScriptIdentifiers.Funcs.PRINTLN);
+				put(FuncID.create(PRINT_NUM_STAT), ScriptIdentifiers.Funcs.PRINTLN);
+				put(FuncID.create(AWAIT_STAT), ScriptIdentifiers.Funcs.AWAIT);
+				put(FuncID.create(SCAM_EXP), ScriptIdentifiers.Funcs.SCAN);
 				put(FuncID.create(NUM_ROUND_EXP, OPT_ROUND), "Math.round");
 				put(FuncID.create(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
 				put(FuncID.create(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor");
 				put(FuncID.create(ABS_EXP), "Math.abs");
 				put(FuncID.create(MAX_MIN_EXP, OPT_MAX), "Math.max");
 				put(FuncID.create(MAX_MIN_EXP, OPT_MIN), "Math.min");
-				put(FuncID.create(RAMDOM_INT_EXP), CommonCodeDefinition.Funcs.RANDOM_INT);
-				put(FuncID.create(MEASURE_DISTANCE_EXP), CommonCodeDefinition.Funcs.MEASURE_DISTANCE);
-				put(FuncID.create(MELODY_EXP), CommonCodeDefinition.Funcs.PUSH_SOUND);
-				put(FuncID.create(COLOR_COMP_EXP), CommonCodeDefinition.Funcs.COMPARE_COLORS);
-				put(FuncID.create(BINARY_COLOR_EXP, OPT_ADD), CommonCodeDefinition.Funcs.ADD_COLOR);
-				put(FuncID.create(BINARY_COLOR_EXP, OPT_SUB), CommonCodeDefinition.Funcs.SUB_COLOR);
-				put(FuncID.create(DETECT_COLOR_EXP), CommonCodeDefinition.Funcs.DETECT_COLOR);
-				put(FuncID.create(GET_TIME_SINCE_PROGRAM_STARTED_EXP), CommonCodeDefinition.Funcs.GET_TIME_SINCE_PROGRAM_STARTED);
-				put(FuncID.create(STR_CHAIN_LINK_EXP), CommonCodeDefinition.Funcs.STRCAT);
-				put(FuncID.create(STR_CHAIN_EXP), CommonCodeDefinition.Funcs.IDENTITY);
-				put(FuncID.create(GET_NUMBER_WAITING_EXP), CommonCodeDefinition.Funcs.GET_NUMBER_WAITING);
-				put(FuncID.create(ANY_LIST_TO_STR_EXP), CommonCodeDefinition.Funcs.LIST_TO_STR);
-				put(FuncID.create(MOVE_STAT, OPT_MOVE_FORWARD), CommonCodeDefinition.Funcs.MOVE_FORWARD);
-				put(FuncID.create(MOVE_STAT, OPT_MOVE_BACKWARD), CommonCodeDefinition.Funcs.MOVE_BACKWARD);
-				put(FuncID.create(MOVE_STAT, OPT_TURN_RIGHT), CommonCodeDefinition.Funcs.TURN_RIGHT);
-				put(FuncID.create(MOVE_STAT, OPT_TURN_LEFT), CommonCodeDefinition.Funcs.TURN_LEFT);
-				put(FuncID.create(SLEEP_STAT), CommonCodeDefinition.Funcs.SLEEP);
-				put(FuncID.create(PLAY_MELODY_STAT), CommonCodeDefinition.Funcs.PLAY_MELODIES);
-				put(FuncID.create(PLAY_SOUND_LIST_STAT), CommonCodeDefinition.Funcs.PLAY_MELODIES);
-				put(FuncID.create(SAY_STAT), CommonCodeDefinition.Funcs.SAY);
-				put(FuncID.create(LIGHT_EYE_STAT), CommonCodeDefinition.Funcs.LIGHT_EYE);
-				put(FuncID.create(GlobalData.CRITICAL_SECTION_DECL), CommonCodeDefinition.Funcs.GEN_LOCK_OBJ);
-				put(FuncID.create(GlobalData.REUSABLE_BARRIER_DECL), CommonCodeDefinition.Funcs.GEN_REUSABLE_BARRIER);
+				put(FuncID.create(RAMDOM_INT_EXP), ScriptIdentifiers.Funcs.RANDOM_INT);
+				put(FuncID.create(MEASURE_DISTANCE_EXP), ScriptIdentifiers.Funcs.MEASURE_DISTANCE);
+				put(FuncID.create(MELODY_EXP), ScriptIdentifiers.Funcs.PUSH_SOUND);
+				put(FuncID.create(COLOR_COMP_EXP), ScriptIdentifiers.Funcs.COMPARE_COLORS);
+				put(FuncID.create(BINARY_COLOR_EXP, OPT_ADD), ScriptIdentifiers.Funcs.ADD_COLOR);
+				put(FuncID.create(BINARY_COLOR_EXP, OPT_SUB), ScriptIdentifiers.Funcs.SUB_COLOR);
+				put(FuncID.create(DETECT_COLOR_EXP), ScriptIdentifiers.Funcs.DETECT_COLOR);
+				put(FuncID.create(GET_TIME_SINCE_PROGRAM_STARTED_EXP), ScriptIdentifiers.Funcs.GET_TIME_SINCE_PROGRAM_STARTED);
+				put(FuncID.create(STR_CHAIN_LINK_EXP), ScriptIdentifiers.Funcs.STRCAT);
+				put(FuncID.create(STR_CHAIN_EXP), ScriptIdentifiers.Funcs.IDENTITY);
+				put(FuncID.create(GET_NUMBER_WAITING_EXP), ScriptIdentifiers.Funcs.GET_NUMBER_WAITING);
+				put(FuncID.create(ANY_LIST_TO_STR_EXP), ScriptIdentifiers.Funcs.LIST_TO_STR);
+				put(FuncID.create(OUT_ARG_TEST_EXP), ScriptIdentifiers.Funcs.OUT_ARG_TEST);
+				put(FuncID.create(MOVE_STAT, OPT_MOVE_FORWARD), ScriptIdentifiers.Funcs.MOVE_FORWARD);
+				put(FuncID.create(MOVE_STAT, OPT_MOVE_BACKWARD), ScriptIdentifiers.Funcs.MOVE_BACKWARD);
+				put(FuncID.create(MOVE_STAT, OPT_TURN_RIGHT), ScriptIdentifiers.Funcs.TURN_RIGHT);
+				put(FuncID.create(MOVE_STAT, OPT_TURN_LEFT), ScriptIdentifiers.Funcs.TURN_LEFT);
+				put(FuncID.create(SLEEP_STAT), ScriptIdentifiers.Funcs.SLEEP);
+				put(FuncID.create(PLAY_MELODY_STAT), ScriptIdentifiers.Funcs.PLAY_MELODIES);
+				put(FuncID.create(PLAY_SOUND_LIST_STAT), ScriptIdentifiers.Funcs.PLAY_MELODIES);
+				put(FuncID.create(SAY_STAT), ScriptIdentifiers.Funcs.SAY);
+				put(FuncID.create(LIGHT_EYE_STAT), ScriptIdentifiers.Funcs.LIGHT_EYE);
+				put(FuncID.create(GlobalData.CRITICAL_SECTION_DECL), ScriptIdentifiers.Funcs.GEN_LOCK_OBJ);
+				put(FuncID.create(GlobalData.REUSABLE_BARRIER_DECL), ScriptIdentifiers.Funcs.GEN_REUSABLE_BARRIER);
 
-				put(FuncID.create(Array.STR_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
-				put(FuncID.create(Array.STR_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
-				put(FuncID.create(Array.STR_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(FuncID.create(Array.STR_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
-				put(FuncID.create(Array.STR_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
-				put(FuncID.create(Array.STR_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
-				put(FuncID.create(Array.STR_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
-				put(FuncID.create(Array.STR_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
-				put(FuncID.create(Array.STR_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
+				put(FuncID.create(Array.STR_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
+				put(FuncID.create(Array.STR_ARRAY_POP_STAT), ScriptIdentifiers.Funcs.ARY_POP);
+				put(FuncID.create(Array.STR_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
+				put(FuncID.create(Array.STR_ARRAY_GET_LAST_EXP), ScriptIdentifiers.Funcs.ARY_GET_LAST);
+				put(FuncID.create(Array.STR_ARRAY_SET_STAT), ScriptIdentifiers.Funcs.ARY_SET);
+				put(FuncID.create(Array.STR_ARRAY_INSERT_STAT), ScriptIdentifiers.Funcs.ARY_INSERT);
+				put(FuncID.create(Array.STR_ARRAY_REMOVE_STAT), ScriptIdentifiers.Funcs.ARY_REMOVE);
+				put(FuncID.create(Array.STR_ARRAY_APPEND_STAT), ScriptIdentifiers.Funcs.ARY_ADD_ALL);
+				put(FuncID.create(Array.STR_ARRAY_CLEAR_STAT), ScriptIdentifiers.Funcs.ARY_CLEAR);
 
-				put(FuncID.create(Array.NUM_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
-				put(FuncID.create(Array.NUM_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
-				put(FuncID.create(Array.NUM_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(FuncID.create(Array.NUM_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
-				put(FuncID.create(Array.NUM_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
-				put(FuncID.create(Array.NUM_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
-				put(FuncID.create(Array.NUM_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
-				put(FuncID.create(Array.NUM_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
-				put(FuncID.create(Array.NUM_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
+				put(FuncID.create(Array.NUM_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
+				put(FuncID.create(Array.NUM_ARRAY_POP_STAT), ScriptIdentifiers.Funcs.ARY_POP);
+				put(FuncID.create(Array.NUM_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
+				put(FuncID.create(Array.NUM_ARRAY_GET_LAST_EXP), ScriptIdentifiers.Funcs.ARY_GET_LAST);
+				put(FuncID.create(Array.NUM_ARRAY_SET_STAT), ScriptIdentifiers.Funcs.ARY_SET);
+				put(FuncID.create(Array.NUM_ARRAY_INSERT_STAT), ScriptIdentifiers.Funcs.ARY_INSERT);
+				put(FuncID.create(Array.NUM_ARRAY_REMOVE_STAT), ScriptIdentifiers.Funcs.ARY_REMOVE);
+				put(FuncID.create(Array.NUM_ARRAY_APPEND_STAT), ScriptIdentifiers.Funcs.ARY_ADD_ALL);
+				put(FuncID.create(Array.NUM_ARRAY_CLEAR_STAT), ScriptIdentifiers.Funcs.ARY_CLEAR);
 
-				put(FuncID.create(Array.BOOL_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
-				put(FuncID.create(Array.BOOL_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
-				put(FuncID.create(Array.BOOL_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(FuncID.create(Array.BOOL_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
-				put(FuncID.create(Array.BOOL_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
-				put(FuncID.create(Array.BOOL_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
-				put(FuncID.create(Array.BOOL_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
-				put(FuncID.create(Array.BOOL_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
-				put(FuncID.create(Array.BOOL_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
+				put(FuncID.create(Array.BOOL_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
+				put(FuncID.create(Array.BOOL_ARRAY_POP_STAT), ScriptIdentifiers.Funcs.ARY_POP);
+				put(FuncID.create(Array.BOOL_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
+				put(FuncID.create(Array.BOOL_ARRAY_GET_LAST_EXP), ScriptIdentifiers.Funcs.ARY_GET_LAST);
+				put(FuncID.create(Array.BOOL_ARRAY_SET_STAT), ScriptIdentifiers.Funcs.ARY_SET);
+				put(FuncID.create(Array.BOOL_ARRAY_INSERT_STAT), ScriptIdentifiers.Funcs.ARY_INSERT);
+				put(FuncID.create(Array.BOOL_ARRAY_REMOVE_STAT), ScriptIdentifiers.Funcs.ARY_REMOVE);
+				put(FuncID.create(Array.BOOL_ARRAY_APPEND_STAT), ScriptIdentifiers.Funcs.ARY_ADD_ALL);
+				put(FuncID.create(Array.BOOL_ARRAY_CLEAR_STAT), ScriptIdentifiers.Funcs.ARY_CLEAR);
 
-				put(FuncID.create(Array.COLOR_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
-				put(FuncID.create(Array.COLOR_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
-				put(FuncID.create(Array.COLOR_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(FuncID.create(Array.COLOR_ARRAY_GET_LAST_EXP),  CommonCodeDefinition.Funcs.ARY_GET_LAST);
-				put(FuncID.create(Array.COLOR_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
-				put(FuncID.create(Array.COLOR_ARRAY_INSERT_STAT), CommonCodeDefinition.Funcs.ARY_INSERT);
-				put(FuncID.create(Array.COLOR_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
-				put(FuncID.create(Array.COLOR_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
-				put(FuncID.create(Array.COLOR_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
+				put(FuncID.create(Array.COLOR_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
+				put(FuncID.create(Array.COLOR_ARRAY_POP_STAT), ScriptIdentifiers.Funcs.ARY_POP);
+				put(FuncID.create(Array.COLOR_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
+				put(FuncID.create(Array.COLOR_ARRAY_GET_LAST_EXP),  ScriptIdentifiers.Funcs.ARY_GET_LAST);
+				put(FuncID.create(Array.COLOR_ARRAY_SET_STAT), ScriptIdentifiers.Funcs.ARY_SET);
+				put(FuncID.create(Array.COLOR_ARRAY_INSERT_STAT), ScriptIdentifiers.Funcs.ARY_INSERT);
+				put(FuncID.create(Array.COLOR_ARRAY_REMOVE_STAT), ScriptIdentifiers.Funcs.ARY_REMOVE);
+				put(FuncID.create(Array.COLOR_ARRAY_APPEND_STAT), ScriptIdentifiers.Funcs.ARY_ADD_ALL);
+				put(FuncID.create(Array.COLOR_ARRAY_CLEAR_STAT), ScriptIdentifiers.Funcs.ARY_CLEAR);
 
-				put(FuncID.create(Array.SOUND_ARRAY_PUSH_STAT), CommonCodeDefinition.Funcs.ARY_PUSH);
-				put(FuncID.create(Array.SOUND_ARRAY_POP_STAT), CommonCodeDefinition.Funcs.ARY_POP);
-				put(FuncID.create(Array.SOUND_ARRAY_INSERT_STAT),  CommonCodeDefinition.Funcs.ARY_INSERT);
-				put(FuncID.create(Array.SOUND_ARRAY_REMOVE_STAT), CommonCodeDefinition.Funcs.ARY_REMOVE);
-				put(FuncID.create(Array.SOUND_ARRAY_APPEND_STAT), CommonCodeDefinition.Funcs.ARY_ADD_ALL);
-				put(FuncID.create(Array.SOUND_ARRAY_CLEAR_STAT), CommonCodeDefinition.Funcs.ARY_CLEAR);
-				put(FuncID.create(Array.SOUND_ARRAY_GET_EXP), CommonCodeDefinition.Funcs.ARY_GET);
-				put(FuncID.create(Array.SOUND_ARRAY_GET_LAST_EXP), CommonCodeDefinition.Funcs.ARY_GET_LAST);
-				put(FuncID.create(Array.SOUND_ARRAY_SET_STAT), CommonCodeDefinition.Funcs.ARY_SET);
+				put(FuncID.create(Array.SOUND_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
+				put(FuncID.create(Array.SOUND_ARRAY_POP_STAT), ScriptIdentifiers.Funcs.ARY_POP);
+				put(FuncID.create(Array.SOUND_ARRAY_INSERT_STAT),  ScriptIdentifiers.Funcs.ARY_INSERT);
+				put(FuncID.create(Array.SOUND_ARRAY_REMOVE_STAT), ScriptIdentifiers.Funcs.ARY_REMOVE);
+				put(FuncID.create(Array.SOUND_ARRAY_APPEND_STAT), ScriptIdentifiers.Funcs.ARY_ADD_ALL);
+				put(FuncID.create(Array.SOUND_ARRAY_CLEAR_STAT), ScriptIdentifiers.Funcs.ARY_CLEAR);
+				put(FuncID.create(Array.SOUND_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
+				put(FuncID.create(Array.SOUND_ARRAY_GET_LAST_EXP), ScriptIdentifiers.Funcs.ARY_GET_LAST);
+				put(FuncID.create(Array.SOUND_ARRAY_SET_STAT), ScriptIdentifiers.Funcs.ARY_SET);
 			}};	//!<  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
 	}
 

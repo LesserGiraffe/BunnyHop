@@ -54,6 +54,10 @@ ext.projName = 'BunnyHop'
 ext.jfxLib = 'jfxLib'
 ext.jfxMlib = 'jfxMlib'
 
+ext.bhProgramExecEnvJarName = 'BhProgramExecEnvironment.jar'
+ext.bhProgramExecEnvMainClass = 'net.seapanda.bunnyhop.programexecenv.BhProgramExecEnvironment'
+ext.bhProgramName = 'BhAppScript.js'
+
 // JFXライブラリの展開と配置
 task prepareJFX {
 
@@ -287,3 +291,17 @@ task runSelfContained(type:Exec) {
 	}
 }
 
+task runBhProgram(type: JavaExec) {
+
+	doFirst {
+		standardInput = System.in;
+		executable = USR_HOME + '/java/' + JDK_VER + '/jdk/bin/java'
+		main = ''
+		jvmArgs = [
+			'-cp', ("$projectDir/mlib/*" + ps + "$projectDir/$appDirName/$bhProgramExecEnvJarName"),
+			"$bhProgramExecEnvMainClass",
+			'-run', "$bhProgramName"
+		]
+		classpath = files()
+	}
+}

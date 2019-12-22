@@ -16,47 +16,54 @@
 package net.seapanda.bunnyhop.bhprogram.common;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
 
 /**
- * BhProgam 実行時に発生した例外を表すクラス
- * */
+ * BhProgam 実行時に発生した例外情報を保持するクラス
+ */
 public class BhProgramException extends RuntimeException implements Serializable {
 
-	private final BhNodeInstanceID id;
 	private final Deque<BhNodeInstanceID> callStack;
+	private final String scriptEngineMsg;
 
 	/**
 	 * コンストラクタ
-	 * @param id 例外を起こしたノードのID
 	 * @param callStack 例外が発生した時のコールスタック
 	 * @param msg 例外メッセージ
-	 * */
-	public BhProgramException(
-		BhNodeInstanceID id, Deque<BhNodeInstanceID> callStack, String msg) {
-		super(msg);
-		this.id = id;
-		this.callStack = new LinkedList<>(callStack);
-	}
+	 */
+	public BhProgramException(Collection<BhNodeInstanceID> callStack, String msg) {
 
-	public BhProgramException(String msg) {
 		super(msg);
-		this.id = BhNodeInstanceID.NONE;
-		this.callStack = new LinkedList<BhNodeInstanceID>();
+		this.callStack = new LinkedList<>(callStack);
+		scriptEngineMsg = "";
 	}
 
 	/**
-	 * 例外が起こったノードのIDを取得する
-	 * */
-	public BhNodeInstanceID getBhNodeInstanceID() {
-		return id;
+	 * コンストラクタ
+	 * @param callStack 例外が発生した時のコールスタック
+	 * @param msg 例外メッセージ
+	 * @param scriptEngineMsg BhProgram の実行エンジンから返されたエラーメッセージ
+	 */
+	public BhProgramException(Collection<BhNodeInstanceID> callStack, String msg, String scriptEngineMsg) {
+
+		super(msg);
+		this.callStack = new LinkedList<>(callStack);
+		this.scriptEngineMsg = scriptEngineMsg;
+	}
+
+	/**
+	 * BhProgram の実行エンジンから返されたエラーメッセージを取得する
+	 */
+	public String getScriptEngineMsg() {
+		return scriptEngineMsg;
 	}
 
 	/**
 	 * 例外が発生した時のコールスタックを取得する
-	 * */
-	public final Deque<BhNodeInstanceID> getCallStack() {
+	 */
+	public Deque<BhNodeInstanceID> getCallStack() {
 		return new LinkedList<>(callStack);
 	}
 }

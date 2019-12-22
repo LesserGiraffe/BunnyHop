@@ -18,9 +18,8 @@ package net.seapanda.bunnyhop.compiler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.node.TextNode;
 
@@ -83,9 +82,9 @@ final public class VarDeclCodeGenerator {
 	 * @param code 生成したコードの格納先
 	 * @param nestLevel ソースコードのネストレベル
 	 * @param option コンパイルオプション
-	 * @return 出力引数のインデックス. emptyの場合は出力引数なし.
+	 * @return 出力仮引数名のリスト
 	 */
-	public Optional<Integer> genParamList(
+	public List<String> genParamList(
 		SyntaxSymbol paramNode,
 		SyntaxSymbol outParamNode,
 		StringBuilder code,
@@ -99,7 +98,7 @@ final public class VarDeclCodeGenerator {
 		varDeclInfoList.addAll(outVarDeclInfoList);
 
 		if (varDeclInfoList.size() >= 1)
-			code.append(Util.INSTANCE.LF);
+			code.append(Keywords.newLine);
 
 		for (int i = 0; i < varDeclInfoList.size(); ++i) {
 
@@ -114,14 +113,12 @@ final public class VarDeclCodeGenerator {
 				code.append(" /*").append(varDeclInfo.comment).append("*/");
 			}
 			if (!isLastParam) {
-				code.append(Util.INSTANCE.LF);
+				code.append(Keywords.newLine);
 			}
 		}
 
-		if (outVarDeclInfoList.isEmpty())
-			return Optional.empty();
-
-		return Optional.of(varDeclInfoList.size() - outVarDeclInfoList.size());
+		return outVarDeclInfoList.stream()
+			.map(info -> info.varName).collect(Collectors.toCollection(ArrayList::new));
 	}
 
 
@@ -166,7 +163,7 @@ final public class VarDeclCodeGenerator {
 		varDeclInfoList.forEach(varDeclInfo -> {
 
 			code.append(common.indent(nestLevel))
-				.append(BhCompiler.Keywords.JS._let)
+				.append(Keywords.JS._let_)
 				.append(varDeclInfo.varName)
 				.append(" = ")
 				.append(varDeclInfo.initVal)
@@ -177,7 +174,7 @@ final public class VarDeclCodeGenerator {
 					.append(varDeclInfo.comment)
 					.append("*/");
 			}
-			code.append(Util.INSTANCE.LF);
+			code.append(Keywords.newLine);
 		});
 	}
 
@@ -211,16 +208,16 @@ final public class VarDeclCodeGenerator {
 		int nestLevel) {
 
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._let)
+			.append(Keywords.JS._let_)
 			.append(varName);
 
 		if (initExp != null) {
 			code.append(" = (")
 				.append(initExp)
-				.append(");").append(Util.INSTANCE.LF);
+				.append(");").append(Keywords.newLine);
 		}
 		else {
-			code.append(";").append(Util.INSTANCE.LF);
+			code.append(";").append(Keywords.newLine);
 		}
 	}
 }

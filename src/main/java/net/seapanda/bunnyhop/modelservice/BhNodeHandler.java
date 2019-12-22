@@ -255,6 +255,7 @@ public class BhNodeHandler {
 			removeChild(node, userOpeCmd);
 
 		Vec2D curPos = MsgService.INSTANCE.getPosOnWS(node);
+		WorkspaceRegisterer.register(node, ws, userOpeCmd);
 		MsgService.INSTANCE.addRootNode(node, ws, userOpeCmd);	//ワークスペースに移動
 		MsgService.INSTANCE.setPosOnWS(node, x, y);	//ワークスペース内での位置登録
 		userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
@@ -312,10 +313,12 @@ public class BhNodeHandler {
 		else if (newNode.getState() == State.CHILD)
 			removeChild(newNode, userOpeCmd);
 
+		WorkspaceRegisterer.register(newNode, oldChildNode.getWorkspace(), userOpeCmd);
 		//新しいノードをビューツリーにつないで, 4分木空間内の位置を更新する
 		MsgService.INSTANCE.replaceChildNodeView(oldChildNode, newNode, userOpeCmd);
 		//イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
 		oldChildNode.replacedWith(newNode, userOpeCmd);
+
 		SyntaxErrorNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.collect(newNode, userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);

@@ -33,7 +33,7 @@ import net.seapanda.bunnyhop.bhprogram.LocalBhProgramManager;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramManager;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.common.constant.BhParams;
-import net.seapanda.bunnyhop.compiler.CommonCodeDefinition;
+import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.node.BhNodeCategoryList;
 
@@ -240,8 +240,7 @@ public class FoundationController {
 		BhProgramData.EVENT bhEvent = keyCode_keyEvent.get(event.getCode());
 		if (bhEvent != null) {
 			pressedKey.add(event.getCode());
-			var sendData = new BhProgramData(
-				BhProgramData.TYPE.INPUT_EVENT, bhEvent, CommonCodeDefinition.Funcs.GET_EVENT_HANDLER_NAMES);
+			var sendData = new BhProgramData(bhEvent, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
 
 			if (menuOperationController.isLocalHost())
 				LocalBhProgramManager.INSTANCE.sendAsync(sendData);

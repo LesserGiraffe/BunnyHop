@@ -45,22 +45,32 @@
 	function _sayOnWindows(word) {
 
 		word = word.replace(/"/g, '');
-		let wavFilePath = _jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'open_jtalk', _getSerialNo() + '.wav').toAbsolutePath();
-		let sayCmdPath = _jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhSay.cmd').toAbsolutePath();
+		let wavFilePath = _jPaths.get(bhScriptHelper.getExecPath(), 'Actions', 'open_jtalk', _getSerialNo() + '.wav').toAbsolutePath();
+		let sayCmdPath = _jPaths.get(bhScriptHelper.getExecPath(), 'Actions', 'bhSay.cmd').toAbsolutePath();
 		let procBuilder = new _jProcBuilder(sayCmdPath.toString(), '"' + word + '"', wavFilePath.toString());
+		let success = false;
 		try {
 			let process = procBuilder.start();
 			_waitProcEnd(process, false, true);
+			_playWavFile.call(this, wavFilePath);
+			success = true;
 		}
-		catch (e) { throw ('_sayOnWindows ' + e); }
-		_playWavFile(wavFilePath);
+		finally {
+			if (!success)
+				_addExceptionMsg.call(this, '_sayOnWindows()');
+		}
 
 		procBuilder = new _jProcBuilder('cmd', '/C', 'del', '/F', wavFilePath.toString());
+		success = false;
 		try {
 			let process = procBuilder.start();
 			_waitProcEnd(process, false, true);
+			success = true;
 		}
-		catch (e) { throw ('_sayOnWindows del ' + e); }
+		finally {
+			if (!success)
+				_addExceptionMsg.call(this, '_sayOnWindows() del');
+		}
 	}
 
 	function _say(word) {
@@ -69,10 +79,10 @@
 		if (word === '')
 			return;
 
-		if (bhUtil.PLATFORM.isWindows())
-			_sayOnWindows(word);
-		else if (bhUtil.PLATFORM.isLinux())
-			_sayOnLinux(word);
+		if (bhScriptHelper.PLATFORM.isWindows())
+			_sayOnWindows.call(this, word);
+		else if (bhScriptHelper.PLATFORM.isLinux())
+			_sayOnLinux.call(this, word);
 	}
 
 	function _detectColor() {
@@ -83,7 +93,7 @@
 				let colorIdStr = _scan(
 					'\n色を入力してください (標準入力に数字で)\n' +
 					'    0: 赤,  ' +'1: 緑,  ' +'2: 青,  ' + '3: 水色,  ' + '4: 紫,  ' + '5: きいろ,  ' + '6: 白,  ' + '7: 黒');
-				
+
 				colorIdStr = _fullWidthToHalf(colorIdStr);
 				if (colorIdStr.match(/^\d$/))
 					colorID = Number(colorIdStr);

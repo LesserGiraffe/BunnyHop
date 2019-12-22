@@ -16,9 +16,8 @@
 package net.seapanda.bunnyhop.compiler;
 
 import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.node.TextNode;
 
@@ -76,21 +75,23 @@ public class FuncDefCodeGenerator {
 
 		String funcName = common.genFuncName(funcDefNode);
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._function)
+			.append(Keywords.JS._function_)
 			.append(funcName)
 			.append("(");
 
+		if (option.withComments) {
+			TextNode funcNameNode = ((TextNode)funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.FUNC_NAME, "*"));
+			code.append(" /*").append(funcNameNode.getText()).append("*/");
+		}
+
 		SyntaxSymbol param = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.PARAM_DECL, "*");
 		SyntaxSymbol outParam = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.OUT_PARAM_DECL, "*");
-		Optional<Integer> outParamIdxOpt = varDeclCodeGen.genParamList(param, outParam, code, nestLevel + 1, option);
-		code.append(") {").append(Util.INSTANCE.LF);
-		genFuncDefInner(funcDefNode, code, nestLevel, option);
-		outParamIdxOpt.ifPresent(outParamIdx -> genOutArgCopy(code, outParamIdx, nestLevel + 1));
-
+		List<String> outArgs = varDeclCodeGen.genParamList(param, outParam, code, nestLevel + 1, option);
+		code.append(") {").append(Keywords.newLine);
+		genFuncDefInner(funcDefNode, code, nestLevel + 1, option);
+		genOutArgCopy(code, outArgs, nestLevel + 1);
 		code.append(common.indent(nestLevel))
-			.append("}")
-			.append(Util.INSTANCE.LF)
-			.append(Util.INSTANCE.LF);
+			.append("}").append(Keywords.newLine).append(Keywords.newLine);
 	}
 
 	/**
@@ -106,44 +107,32 @@ public class FuncDefCodeGenerator {
 		int nestLevel,
 		CompileOption option) {
 
-		code.append(common.indent(nestLevel + 1))
-			.append("(")
-			.append(BhCompiler.Keywords.JS._function)
-			.append("(){");
-		if (option.withComments) {
-			TextNode funcNameNode = ((TextNode)funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.FUNC_NAME, "*"));
-			code.append("/*")
-				.append(funcNameNode.getText())
-				.append("*/");
-		}
-		code.append(Util.INSTANCE.LF);
+		// _end : {
+		code.append(common.indent(nestLevel))
+			.append(ScriptIdentifiers.Label.end).append(" : {").append(Keywords.newLine);
 
-		varDeclCodeGen.genVarDeclStat(code, CommonCodeDefinition.Vars.CALL_OBJ, null, nestLevel + 2);
 		SyntaxSymbol stat = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.STAT_LIST, "*");
-		statCodeGen.genStatement(stat, code, nestLevel + 2, option);
-		code.append(common.indent(nestLevel+1))
-			.append("})();")
-			.append(Util.INSTANCE.LF);
+		statCodeGen.genStatement(stat, code, nestLevel + 1, option);
+		code.append(common.indent(nestLevel))
+			.append("}").append(Keywords.newLine);
 	}
 
 	/**
 	 * 出力引数のコピーコードを作成する
 	 * @param code 生成したコードの格納先
-	 * @param outParamIdx 出力引数の先頭インデックス
+	 * @param outArgs 出力引数名のリスト
 	 * @param nestLevel ソースコードのネストレベル
 	 */
-	private void genOutArgCopy(StringBuilder code, int outParamIdx, int nestLevel) {
+	private void genOutArgCopy(StringBuilder code, List<String> outArgs, int nestLevel) {
 
-		String copyArgsFuncName = CommonCodeDefinition.Funcs.COPY_ARGS;
-		String copyArgsCode = common.genFuncCallCode(
-			copyArgsFuncName,
-			common.genPropertyAccessCode(BhCompiler.Keywords.JS._this, CommonCodeDefinition.Properties.OUT_ARGS),
-			BhCompiler.Keywords.JS._arguments,
-			outParamIdx + "");
-		code.append(common.indent(nestLevel))
-			.append(copyArgsCode)
-			.append(";")
-			.append(Util.INSTANCE.LF);
+		String outValListName =
+			common.genPropertyAccessCode(Keywords.JS._this, ScriptIdentifiers.Properties.OUT_VALS);
+		for (int i = 0; i < outArgs.size(); ++i) {
+			code.append(common.indent(nestLevel))
+				.append(outValListName).append("[").append(i).append("]")
+				.append(" = ")
+				.append(outArgs.get(i)).append(";").append(Keywords.newLine);
+		}
 	}
 }
 

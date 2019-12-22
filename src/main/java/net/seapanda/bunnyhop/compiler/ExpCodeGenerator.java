@@ -17,9 +17,9 @@ package net.seapanda.bunnyhop.compiler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.node.TextNode;
@@ -110,29 +110,29 @@ public class ExpCodeGenerator {
 
 		String tmpVar = common.genVarName(binaryExpNode);
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._const)
+			.append(Keywords.JS._const_)
 			.append(tmpVar)
 			.append(" = ")
 			.append(leftExpCode)
 			.append(operatorCode)
 			.append(rightExpCode)
-			.append(";").append(Util.INSTANCE.LF);
+			.append(";").append(Keywords.newLine);
 
 		String tmpVarResult = tmpVar;
 		if (option.keepRealNumber) {
 			if (SymbolNames.BinaryExp.ARITH_EXCEPTION_EXP.contains(binaryExpNode.getSymbolName())) {
 				tmpVarResult = "_" + tmpVar;
 				code.append(common.indent(nestLevel))
-					.append(BhCompiler.Keywords.JS._const)
+					.append(Keywords.JS._const_)
 					.append(tmpVarResult)
 					.append(" = ")
 					.append("(")
-					.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.IS_FINITE, tmpVar))
+					.append(common.genFuncCallCode(ScriptIdentifiers.JsFuncs.IS_FINITE, tmpVar))
 					.append(") ? ")
 					.append(tmpVar)
 					.append(" : ")
 					.append(leftExpCode)
-					.append(";").append(Util.INSTANCE.LF);
+					.append(";").append(Keywords.newLine);
 			}
 		}
 		return tmpVarResult;
@@ -161,12 +161,12 @@ public class ExpCodeGenerator {
 
 		String tmpVar = common.genVarName(unaryExpNode);
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._const)
+			.append(Keywords.JS._const_)
 			.append(tmpVar)
 			.append(" = ")
 			.append(operatorCode)
 			.append(primaryExpCode)
-			.append(";").append(Util.INSTANCE.LF);
+			.append(";").append(Keywords.newLine);
 
 		return tmpVar;
 	}
@@ -199,7 +199,7 @@ public class ExpCodeGenerator {
 				return "(" + inputText + ")";
 
 			case SymbolNames.Literal.STR_LITERAL:
-				return "('" + inputText.replaceAll("\\\\", "\\\\\\\\").replaceAll("'", "\\\\'") + "')";
+				return "(" + common.toJsString(inputText) + ")";
 
 			case SymbolNames.Literal.SOUND_LITERAL_VOID:
 			case SymbolNames.Literal.FREQ_SOUND_LITERAL:
@@ -230,58 +230,45 @@ public class ExpCodeGenerator {
 		CompileOption option,
 		boolean storeRetVal) {
 
-		List<String> argList = new ArrayList<>();
-		List<String> outArgList = new ArrayList<>();
-		genPreDefFuncArgs(code, funcCallNode, argList, false, nestLevel, option);
-		genPreDefFuncArgs(code, funcCallNode, outArgList, true, nestLevel, option);
+		List<String> argList = genPreDefFuncArgs(code, funcCallNode, false, nestLevel, option);
+		List<String> outArgList = genPreDefFuncArgs(code, funcCallNode, true, nestLevel, option);
 		argList.addAll(outArgList);
 		FuncID funcIdentifier = createFuncID(funcCallNode);
-		boolean useCallObj = !outArgList.isEmpty();
+		String funcName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(funcIdentifier);
 
 		String retValName = null;
 		if (storeRetVal) {
 			retValName = common.genVarName(funcCallNode);
 			code.append(common.indent(nestLevel))
-				.append(BhCompiler.Keywords.JS._const).append(retValName).append(";").append(Util.INSTANCE.LF);
+				.append(Keywords.JS._const_).append(retValName).append(";").append(Keywords.newLine);
 		}
 
-		// 例外ノード情報追加用 try 節
-		if (option.traceException)
-			code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._try).append("{").append(Util.INSTANCE.LF);
+		// コールスタック push
+		if (option.isDebug)
+			code.append(common.indent(nestLevel))
+				.append(common.genPushToCallStackCode(funcCallNode)).append(";").append(Keywords.newLine);
 
-		// 呼び出し元オブジェクト作成コード生成
-		String callObjVar = useCallObj ? genCallObjStat(code, funcCallNode, nestLevel + 1) : "";
-		code.append(common.indent(nestLevel + 1));
-
-		String funcName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(funcIdentifier);
-		if (useCallObj) {
-			argList.add(0, callObjVar);
-			funcName += ".call";
-		}
-		String[] argArray =  argList.toArray(new String[argList.size()]);
+		String[] argArray = argList.toArray(new String[argList.size()]);
 		String funcCallCode;
 		// 恒等写像は最初の引数を結果の変数に代入するだけ
-		if (funcName.equals(CommonCodeDefinition.Funcs.IDENTITY))
+		if (funcName.equals(ScriptIdentifiers.Funcs.IDENTITY))
 			funcCallCode = argArray[0];
 		else
-			funcCallCode = common.genFuncCallCode(funcName, argArray);
+			funcCallCode = common.genFuncPrototypeCallCode(funcName, Keywords.JS._this, argArray);
 
-		if (storeRetVal) {
+		code.append(common.indent(nestLevel));
+		if (storeRetVal)
 			code.append(retValName).append(" = ");
-		}
-		code.append(funcCallCode)
-			.append(";").append(Util.INSTANCE.LF);
-		genOutArgCopyStat(
-			code,
-			common.genPropertyAccessCode(callObjVar, CommonCodeDefinition.Properties.OUT_ARGS),
-			outArgList,
-			nestLevel + 1);
 
-		// 例外ノード情報追加用 catch 節
-		if (option.traceException) {
-			code.append(common.indent(nestLevel)).append("}").append(Util.INSTANCE.LF);
-			genCatchClauseOfExceptionFromPreDefFunc(code, funcCallNode, nestLevel);
-		}
+		code.append(funcCallCode).append(";").append(Keywords.newLine);
+		String outValList = common.genPropertyAccessCode(Keywords.JS._this, ScriptIdentifiers.Properties.OUT_VALS);
+		genOutArgCopyStat(code, outValList, outArgList, nestLevel);
+
+		// コールスタック pop
+		if (option.isDebug)
+			code.append(common.indent(nestLevel))
+				.append(common.genPopFromCallStackCode()).append(";").append(Keywords.newLine);
+
 		return retValName;
 	}
 
@@ -289,19 +276,19 @@ public class ExpCodeGenerator {
 	 * 定義済み関数の実引数部分を作成する
 	 * @param code 関数呼び出し式の格納先
 	 * @param funcCallNode 関数呼び出し式のノード
-	 * @param argList 引数の格納先
 	 * @param outArg 出力引数を作成する場合 true. 入力引数を作成する場合 false.
 	 * @param nestLevel ソースコードのネストレベル
 	 * @param option コンパイルオプション
+	 * @return 実引数を格納したリスト
 	 */
-	private void genPreDefFuncArgs(
+	private List<String> genPreDefFuncArgs(
 		StringBuilder code,
 		SyntaxSymbol funcCallNode,
-		List<String> argList,
 		boolean outArg,
 		int nestLevel,
 		CompileOption option) {
 
+		var argList = new ArrayList<String>();
 		int idArg = 0;
 		while (true) {
 			String argCnctrName = (outArg ? SymbolNames.PreDefFunc.OUT_ARG : SymbolNames.PreDefFunc.ARG) + idArg;
@@ -315,6 +302,7 @@ public class ExpCodeGenerator {
 				argList.add(genExpression(code, argExp, nestLevel, option));
 			++idArg;
 		}
+		return argList;
 	}
 
 	/**
@@ -341,33 +329,13 @@ public class ExpCodeGenerator {
 	}
 
 	/**
-	 * 定義済み関数から投げられた例外を処理する catch 節を生成する
-	 * @param code 生成したコードの格納先
-	 * @param funcCallNode この関数呼び出しノードの catch 節を生成する
-	 * @param nestLevel ソースコードのネストレベル
-	 * */
-	private void genCatchClauseOfExceptionFromPreDefFunc(
-		StringBuilder code, SyntaxSymbol funcCallNode, int nestLevel) {
-
-		String stat = common.genFuncCallCode(
-		CommonCodeDefinition.Funcs.SET_EXCEPTION_NODE_INFO, "'" + funcCallNode.getSymbolID() + "'");
-		code.append(common.indent(nestLevel))
-			.append("catch (e) {").append(Util.INSTANCE.LF)
-			.append(common.indent(nestLevel + 1))
-			.append(stat).append(";").append(Util.INSTANCE.LF)
-			.append(common.indent(nestLevel + 1))
-			.append(BhCompiler.Keywords.JS._throw).append("e;").append(Util.INSTANCE.LF)
-			.append(common.indent(nestLevel)).append("}").append(Util.INSTANCE.LF);
-	}
-
-	/**
 	 * ユーザー定義関数の呼び出し式を生成する
 	 * @param code 生成したコードの格納先
 	 * @param funcCallNode 関数呼び出しのノード
 	 * @param nestLevel ソースコードのネストレベル
 	 * @param option コンパイルオプション
 	 * @param storeRetVal 戻り値を変数に格納するコードを出力する場合true.
-	 * @return 式もしくは式の評価結果を格納した変数. storeRetValがfalseの場合はnull.
+	 * @return 式もしくは式の評価結果を格納した変数. storeRetVal が false の場合は null.
 	 */
 	public String genUserDefFuncCallExp(
 		StringBuilder code,
@@ -379,55 +347,38 @@ public class ExpCodeGenerator {
 		String funcName = common.genFuncName(((BhNode)funcCallNode).getOriginal());
 		SyntaxSymbol arg = funcCallNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.ARG, "*");
 		SyntaxSymbol outArg = funcCallNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.OUT_ARG, "*");
-		String argArray[];
-		List<String> argList = new ArrayList<>();
-		List<String> outArgList = new ArrayList<>();
-
-		if (!arg.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID))
-			genArgList(code, arg, argList, false, nestLevel, option);
-
-		if (!outArg.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID))
-			genArgList(code, outArg, outArgList, true, nestLevel, option);
+		List<String> argList = genArgList(code, arg, false, nestLevel, option);
+		List<String> outArgList = genArgList(code, outArg, true, nestLevel, option);
 
 		String retValName = null;
 		if (storeRetVal) {
 			retValName = common.genVarName(funcCallNode);
 			code.append(common.indent(nestLevel))
-				.append(BhCompiler.Keywords.JS._const).append(retValName).append(";").append(Util.INSTANCE.LF);
+				.append(Keywords.JS._const_).append(retValName).append(";").append(Keywords.newLine);
 		}
 
-		// コールスタック処理用 try 節
-		if (option.traceException)
-			code.append(common.indent(nestLevel)).append(BhCompiler.Keywords.JS._try).append("{").append(Util.INSTANCE.LF);
+		// コールスタック push
+		if (option.isDebug)
+			code.append(common.indent(nestLevel))
+				.append(common.genPushToCallStackCode(funcCallNode)).append(";").append(Keywords.newLine);
 
-		// 呼び出し元オブジェクト作成コード生成
-		boolean useCallObj = !outArgList.isEmpty();
-		String callObjVar = useCallObj ? genCallObjStat(code, funcCallNode, nestLevel + 1) : "";
-		if (useCallObj) {
-			argList.add(0, callObjVar);
-			funcName += ".call";
-		}
 		argList.addAll(outArgList);
-		argArray = argList.toArray(new String[argList.size()]);
-		String funcCallCode = common.genFuncCallCode(funcName, argArray);
+		String[] argArray = argList.toArray(new String[argList.size()]);
+		String funcCallCode = common.genFuncPrototypeCallCode(funcName, Keywords.JS._this, argArray);
 
-		code.append(common.indent(nestLevel + 1));
-		if (storeRetVal) {
+		code.append(common.indent(nestLevel));
+		if (storeRetVal)
 			code.append(retValName).append(" = ");
-		}
-		code.append(funcCallCode)
-			.append(";").append(Util.INSTANCE.LF);
-		genOutArgCopyStat(
-			code,
-			common.genPropertyAccessCode(callObjVar, CommonCodeDefinition.Properties.OUT_ARGS),
-			outArgList,
-			nestLevel + 1);
 
-		// コールスタック処理用 catch 節
-		if (option.traceException) {
-			code.append(common.indent(nestLevel)).append("}").append(Util.INSTANCE.LF);
-			genCatchClauseOfExceptionFromUserDefFunc(code, funcCallNode, nestLevel);
-		}
+		code.append(funcCallCode).append(";").append(Keywords.newLine);
+		String outValList = common.genPropertyAccessCode(Keywords.JS._this, ScriptIdentifiers.Properties.OUT_VALS);
+		genOutArgCopyStat(code, outValList, outArgList, nestLevel);
+
+		// コールスタック pop
+		if (option.isDebug)
+			code.append(common.indent(nestLevel))
+				.append(common.genPopFromCallStackCode()).append(";").append(Keywords.newLine);
+
 		return retValName;
 	}
 
@@ -450,7 +401,7 @@ public class ExpCodeGenerator {
 			code.append(common.indent(nestLevel))
 				.append(outArgList.get(argIdx))
 				.append(" = ")
-				.append(outValListName).append("[").append(argIdx).append("];").append(Util.INSTANCE.LF);
+				.append(outValListName).append("[").append(argIdx).append("];").append(Keywords.newLine);
 		}
 	}
 
@@ -458,28 +409,34 @@ public class ExpCodeGenerator {
 	 * ユーザ定義関数の引数リストを作成する
 	 * @param code 生成したコードの格納先
 	 * @param argNode 引数ノード
-	 * @param argList 引数の格納先
 	 * @param outArg 出力引数だった場合true
 	 * @param nestLevel ソースコードのネストレベル
 	 * @param option コンパイルオプション
+	 * @return 実引数を格納したリスト
 	 */
-	private void genArgList(
+	private LinkedList<String> genArgList(
 		StringBuilder code,
 		SyntaxSymbol argNode,
-		List<String> argList,
 		boolean outArg,
 		int nestLevel,
 		CompileOption option) {
 
-		SyntaxSymbol argument = argNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.ARG, "*");
-		if (outArg)
-			argList.add(genOutArg(code, argument, nestLevel, option));
-		else
-			argList.add(genExpression(code, argument, nestLevel, option));
-
+		LinkedList<String> argList;
 		SyntaxSymbol nextArg = argNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.NEXT_ARG, "*");
-		if (!nextArg.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID))
-			genArgList(code, nextArg, argList, outArg, nestLevel, option);
+		if (nextArg != null && !nextArg.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID))
+			argList = genArgList(code, nextArg, outArg, nestLevel, option);
+		else
+			argList = new LinkedList<>();
+
+		SyntaxSymbol argument = argNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.ARG, "*");
+		if (argument != null) {
+			if (outArg)
+				argList.addFirst(genOutArg(code, argument, nestLevel, option));
+			else
+				argList.addFirst(genExpression(code, argument, nestLevel, option));
+		}
+
+		return argList;
 	}
 
 	/**
@@ -501,11 +458,11 @@ public class ExpCodeGenerator {
 
 		String tmpVar = common.genVarName(arrayLenNode);
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._const)
+			.append(Keywords.JS._const_)
 			.append(tmpVar)
 			.append(" = ")
 			.append(arrayExpCode)
-			.append(".length;").append(Util.INSTANCE.LF);
+			.append(".length;").append(Keywords.newLine);
 		return tmpVar;
 	}
 
@@ -526,61 +483,19 @@ public class ExpCodeGenerator {
 		if (SymbolNames.VarDecl.VAR_LIST.contains(varNode.getSymbolName())) {
 			return genExpression(code, varNode, nestLevel, option);
 		}
-		else if (SymbolNames.VarDecl.VAR_VOID_LIST.contains(varNode.getSymbolName())){	//出力引数に変数指定がなかった場合
+		//出力引数に変数指定がなかった場合
+		else if (SymbolNames.VarDecl.VAR_VOID_LIST.contains(varNode.getSymbolName())){
 			String varName = common.genVarName(varNode);
 			code.append(common.indent(nestLevel))
-				.append(BhCompiler.Keywords.JS._let)
+				.append(Keywords.JS._let_)
 				.append(varName)
 				.append(" = ")
 				.append(SymbolNames.VarDecl.INIT_VAL_MAP.get(varNode.getSymbolName()))
-				.append(";").append(Util.INSTANCE.LF);
+				.append(";").append(Keywords.newLine);
 			return varName;
 		}
-		else {
-			assert false;
-		}
-		return "";
-	}
 
-	/**
-	 * 関数の呼びだし元オブジェクトを作成する文を生成する
-	 * @param code 生成したコードの格納先
-	 * @param funcCallNode この関数呼び出しノードに対する呼び出し元オブジェクトを作成する
-	 * @param nestLevel ソースコードのネストレベル
-	 * @retrun 関数の呼びだし元オブジェクトを格納した変数名
-	 * */
-	private String genCallObjStat(
-		StringBuilder code,
-		SyntaxSymbol funcCallNode,
-		int nestLevel) {
-
-		code.append(common.indent(nestLevel))
-			.append(CommonCodeDefinition.Vars.CALL_OBJ)
-			.append(" = ")
-			.append(common.genFuncCallCode(CommonCodeDefinition.Funcs.GEN_CALL_OBJ))
-			.append(";").append(Util.INSTANCE.LF);
-
-		return CommonCodeDefinition.Vars.CALL_OBJ;
-	}
-
-	/**
-	 * ユーザー定義関数から投げられた例外を処理する catch 節を生成する
-	 * @param code 生成したコードの格納先
-	 * @param funcCallNode この関数呼び出しノードの catch 節を生成する
-	 * @param nestLevel ソースコードのネストレベル
-	 * */
-	private void genCatchClauseOfExceptionFromUserDefFunc(
-		StringBuilder code, SyntaxSymbol funcCallNode, int nestLevel) {
-
-		String stat = common.genFuncCallCode(
-		CommonCodeDefinition.Funcs.PUSH_FUNC_CALL_INFO, "'" + funcCallNode.getSymbolID() + "'");
-		code.append(common.indent(nestLevel))
-			.append("catch (e) {").append(Util.INSTANCE.LF)
-			.append(common.indent(nestLevel + 1))
-			.append(stat).append(";").append(Util.INSTANCE.LF)
-			.append(common.indent(nestLevel + 1))
-			.append(BhCompiler.Keywords.JS._throw).append("e;").append(Util.INSTANCE.LF)
-			.append(common.indent(nestLevel)).append("}").append(Util.INSTANCE.LF);
+		throw new IllegalStateException(getClass().getSimpleName() + ".genOutArg");
 	}
 
 	/**
@@ -599,10 +514,10 @@ public class ExpCodeGenerator {
 
 		if (soundLiteralNode.getSymbolName().equals(SymbolNames.Literal.SOUND_LITERAL_VOID)) {
 			String soundVar = common.genVarName(soundLiteralNode);
-			String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, "0", "0");
+			String rightExp = common.genFuncCallCode(ScriptIdentifiers.Funcs.CREATE_SOUND, "0", "0");
 			code.append(common.indent(nestLevel))
-				.append(BhCompiler.Keywords.JS._const).append(soundVar).append(" = ").append(rightExp)
-				.append(";").append(Util.INSTANCE.LF);
+				.append(Keywords.JS._const_).append(soundVar).append(" = ").append(rightExp)
+				.append(";").append(Keywords.newLine);
 			return soundVar;
 		}
 
@@ -636,10 +551,10 @@ public class ExpCodeGenerator {
 
 		// 音オブジェクト作成
 		String soundVar = common.genVarName(freqSoundLiteralNode);
-		String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, frequency, duration);
+		String rightExp = common.genFuncCallCode(ScriptIdentifiers.Funcs.CREATE_SOUND, frequency, duration);
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._const).append(soundVar).append(" = ").append(rightExp)
-			.append(";").append(Util.INSTANCE.LF);
+			.append(Keywords.JS._const_).append(soundVar).append(" = ").append(rightExp)
+			.append(";").append(Keywords.newLine);
 		return soundVar;
 
 	}
@@ -673,10 +588,10 @@ public class ExpCodeGenerator {
 
 		// 音オブジェクト作成
 		String soundVar = common.genVarName(scaleSoundLiteralNode);
-		String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_SOUND, frequency+"", duration);
+		String rightExp = common.genFuncCallCode(ScriptIdentifiers.Funcs.CREATE_SOUND, frequency+"", duration);
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._const).append(soundVar).append(" = ").append(rightExp)
-			.append(";").append(Util.INSTANCE.LF);
+			.append(Keywords.JS._const_).append(soundVar).append(" = ").append(rightExp)
+			.append(";").append(Keywords.newLine);
 		return soundVar;
 	}
 
@@ -696,10 +611,10 @@ public class ExpCodeGenerator {
 
 		String colorName = "'" + ((TextNode)colorLiteralNode).getText() + "'";
 		String colorVar = common.genVarName(colorLiteralNode);
-		String rightExp = common.genFuncCallCode(CommonCodeDefinition.Funcs.CREATE_COLOR_FROM_NAME, colorName);
+		String rightExp = common.genFuncCallCode(ScriptIdentifiers.Funcs.CREATE_COLOR_FROM_NAME, colorName);
 		code.append(common.indent(nestLevel))
-			.append(BhCompiler.Keywords.JS._const).append(colorVar).append(" = ").append(rightExp)
-			.append(";").append(Util.INSTANCE.LF);
+			.append(Keywords.JS._const_).append(colorVar).append(" = ").append(rightExp)
+			.append(";").append(Keywords.newLine);
 
 		return colorVar;
 	}

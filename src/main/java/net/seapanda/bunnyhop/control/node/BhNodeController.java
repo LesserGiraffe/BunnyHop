@@ -243,23 +243,17 @@ public class BhNodeController implements MsgProcessor {
 		BhNodeHandler.INSTANCE.replaceChild(oldChildNode, model, ddInfo.userOpeCmd);	//重なっているノードをこのノードと入れ替え
 		//接続変更時のスクリプト実行
 		model.execScriptOnMovedToChild(
-			ddInfo.latestParent,
-			ddInfo.latestRoot,
-			oldChildNode,
-			ddInfo.userOpeCmd);
+			ddInfo.latestParent, ddInfo.latestRoot, oldChildNode, ddInfo.userOpeCmd);
 
 		Vec2D posOnWS = MsgService.INSTANCE.getPosOnWS(oldChildNode);
 		double newXPosInWs = posOnWS.x + BhParams.LnF.REPLACED_NODE_SHIFT;
 		double newYPosInWs = posOnWS.y + BhParams.LnF.REPLACED_NODE_SHIFT;
 		//重なっているノードをWSに移動
-		BhNodeHandler.INSTANCE.moveToWS(oldChildNode.getWorkspace(), oldChildNode, newXPosInWs, newYPosInWs, ddInfo.userOpeCmd);
+		BhNodeHandler.INSTANCE.moveToWS(
+			oldChildNode.getWorkspace(), oldChildNode, newXPosInWs, newYPosInWs, ddInfo.userOpeCmd);
 		//接続変更時のスクリプト実行
 		oldChildNode.execScriptOnMovedFromChildToWS(
-			oldParentOfReplaced,
-			oldRootOfReplaced,
-			model,
-			false,
-			ddInfo.userOpeCmd);
+			oldParentOfReplaced, oldRootOfReplaced, model, false, ddInfo.userOpeCmd);
 
 		// 子ノード入れ替え時のスクリプト実行
 		parentNode.execScriptOnChildReplaced(oldChildNode, model, parentCnctr, ddInfo.userOpeCmd);
@@ -299,7 +293,7 @@ public class BhNodeController implements MsgProcessor {
 
 	/**
 	 * 不要になったノードを削除する
-	 * */
+	 */
 	private void deleteUnnecessaryNodes(MouseEvent mouseEvent) {
 
 		DelayedDeleter.INSTANCE.deleteCandidates(ddInfo.userOpeCmd);

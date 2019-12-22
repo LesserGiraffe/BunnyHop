@@ -27,22 +27,24 @@ public class BhProgramData implements Serializable {
 	public final TYPE type;
 	public final String str;
 	public final EVENT event;
-	public final String funcNameToCall;
+	public final String eventHandlerResolver;
 	public final BhProgramException exception;
 
 	public BhProgramData(TYPE type, String str) {
+
 		this.type = type;
 		this.str = str;
 		this.event = null;
-		this.funcNameToCall = null;
+		this.eventHandlerResolver = null;
 		this.exception = null;
 	}
 
-	public BhProgramData(TYPE type, EVENT event, String funcNameToCall) {
-		this.type = type;
+	public BhProgramData(EVENT event, String eventHandlerResolver) {
+
+		this.type = TYPE.INPUT_EVENT;
 		this.str = null;
 		this.event = event;
-		this.funcNameToCall = funcNameToCall;
+		this.eventHandlerResolver = eventHandlerResolver;
 		this.exception = null;
 	}
 
@@ -51,7 +53,7 @@ public class BhProgramData implements Serializable {
 		this.type = TYPE.OUTPUT_EXCEPTION;
 		this.str = null;
 		this.event = null;
-		this.funcNameToCall = null;
+		this.eventHandlerResolver = null;
 		this.exception = exception;
 	}
 

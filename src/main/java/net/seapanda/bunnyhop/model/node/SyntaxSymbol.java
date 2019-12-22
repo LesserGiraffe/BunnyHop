@@ -49,21 +49,19 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
 		String... symbolNames);
 
 	/**
-	 * 引数で指定したシンボル名を持つSyntaxSymbolをgeneration(もしくはそれ以上)の世代のSyntaxSymbolから探す.<br>
-	 * 見つからなかった場合はnull が返る.
+	 * 引数で指定したシンボル名を持つ SyntaxSymbol を generation(もしくはそれ以上)の世代の SyntaxSymbol から探す.
 	 * @param symbolName シンボル名
 	 * @param generation 自分から見てこのレベルの世代もしくはそれ以上を探す.  例(0:自分(もしくはそれ以上)を探す. 1:親(もしくはそれ以上)を探す)
 	 * @param upToTop generation で指定した世代のみ探す場合false. トップノードまで探す場合true.
-	 * @return シンボル名を持つ SyntaxSymbol オブジェクト
+	 * @return シンボル名を持つ SyntaxSymbol オブジェクト. 見つからなかった場合は null.
 	 */
 	public abstract SyntaxSymbol findSymbolInAncestors(String symbolName, int generation, boolean upToTop);
 
 	/**
-	 * 引数で指定したシンボル名を持つSyntaxSymbolを子以下のSyntaxSymbolから探す.<br>
-	 * 見つからなかった場合はnull が返る.
+	 * 引数で指定したシンボル名を持つSyntaxSymbolを子以下のSyntaxSymbolから探す.
 	 * @param symbolNamePath 子孫ノードのパスに, この名前のリストのとおりに繋がっているパスがある場合, リストの最後の名前のノードを返す.<br>
 	 *						  symbolName[0] == childName, symbolName[1] == grandsonName
-	 * @return 最後のシンボル名を持つ SyntaxSymbol オブジェクト
+	 * @return 引数の最後のシンボル名を持つ SyntaxSymbol オブジェクト.  見つからなかった場合は null.
 	 */
 	public SyntaxSymbol findSymbolInDescendants(String... symbolNamePath) {
 
@@ -86,11 +84,10 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
 	}
 
 	/**
-	 * 引数で指定したシンボル名を持つSyntaxSymbolを親以上のSyntaxSymbolから探す.<br>
-	 * 見つからなかった場合はnull が返る.
+	 * 引数で指定したシンボル名を持つSyntaxSymbolを親以上のSyntaxSymbolから探す.
 	 * @param symbolNamePath 先祖ノードがこの名前のリストのとおりにつながっているとき, リストの最後の名前のノードを返す.<br>
 	 *						  symbolName[0] == parentName, symbolName[1] == grandParentName
-	 * @return 最後のシンボル名を持つ SyntaxSymbol オブジェクト
+	 * @return 引数の最後のシンボル名を持つ SyntaxSymbol オブジェクト. 見つからなかった場合は null.
 	 */
 	public SyntaxSymbol findSymbolInAncestors(String... symbolNamePath) {
 
@@ -116,7 +113,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
 	 * 例1) A -> B -> C のとき, A.getRelativeSymbolNamePath(C) なら return [B, C] <br>
 	 * 例2) A -> B -> C のとき, C.getRelativeSymbolNamePath(A) なら return [B, A]
 	 * @param syntaxSymbol このシンボルに対する相対パスを取得するシンボル
-	 * @return 相対パス. 先祖 or 子孫でないノードを引数に指定した場合null
+	 * @return 相対パス. 先祖 or 子孫でないノードを引数に指定した場合 null
 	 * */
 	public String[] getRelativeSymbolNamePath(SyntaxSymbol syntaxSymbol) {
 

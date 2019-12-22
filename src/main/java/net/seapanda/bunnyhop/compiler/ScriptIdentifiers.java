@@ -16,12 +16,11 @@
 package net.seapanda.bunnyhop.compiler;
 
 /**
- * 共通コード部分に定義した変数や関数名
- * */
-public class CommonCodeDefinition {
+ * 変数, 関数, プロパティ等の定義
+ */
+public class ScriptIdentifiers {
 
 	public static class Funcs {
-		public static final String COPY_ARGS = "_copyArgs";
 		public static final String BOOL_TO_STR = "_boolToStr";
 		public static final String COLOR_TO_STR = "_colorToStr";
 		public static final String TO_STR = "_toStr";
@@ -60,32 +59,43 @@ public class CommonCodeDefinition {
 		public static final String LOCK = "_lock";
 		public static final String UNLOCK = "_unlock";
 		public static final String ADD_EVENT = "_addEvent";
-		public static final String FIRE_EVENT = "_fireEvent";
 		public static final String GET_EVENT_HANDLER_NAMES = "_getEventHandlerNames";
 		public static final String BH_MAIN = "_bhMain";
 		public static final String CREATE_SOUND = "_createSound";
 		public static final String CREATE_COLOR_FROM_NAME = "_createColorFromName";
 		public static final String PUSH_SOUND = "_pushSound";
-		public static final String IS_FINITE = "isFinite";
 		public static final String CURRENT_TIME_MILLS = "_currentTimeMillis";
 		public static final String GET_TIME_SINCE_PROGRAM_STARTED = "_getTimeSinceProgramStarted";
 		public static final String STRCAT = "_strcat";
 		public static final String LIST_TO_STR = "_listToStr";
 		public static final String IDENTITY = "_identity";	//恒等写像 (実際に共通コード部には定義しない)
-		public static final String PUSH_FUNC_CALL_INFO = "_pushFuncCallInfo";
-		public static final String POP_FUNC_CALL_INFO = "_popFuncCallInfo";
 		public static final String SET_EXCEPTION_NODE_INFO = "_setExceptionNodeInfo";
+		public static final String NEW_BH_PROGRAM_EXCEPTION = "_newBhProgramExceptioin";
+		public static final String INIT_THIS_OBJ = "_initThisObj";
+		public static final String OUT_ARG_TEST = "_outArgTest";
 	}
 
-	public static class Properties {
-		public static final String OUT_ARGS = "_outArgs";
+	public static class JsFuncs {
+		public static final String IS_FINITE = "isFinite";
+		public static final String PUSH = "push";
+		public static final String POP = "pop";
+		public static final String CALL = "call";
+	}
 
+
+	public static class Properties {
+		public static final String OUT_VALS = "_outVals";
+		public static final String HAS_BH_EXCEPTION = "_hasBhException";
+		public static final String CALL_STACK = "_callStack";
 	}
 
 	public static class Vars {
-		public static final String CALL_OBJ  = "_callObj";
 		public static final String NIL_SOUND  = "_nilSound";
 		public static final String NIL_COLOR = "_nilColor";
 		public static final String PROGRAM_STARTING_TIME = "_programStartingTime";
+	}
+
+	public static class Label {
+		public static final String end = "_end";
 	}
 }

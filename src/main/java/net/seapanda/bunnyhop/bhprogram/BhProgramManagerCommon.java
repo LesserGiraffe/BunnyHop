@@ -40,7 +40,7 @@ import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramHandler;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.compiler.CommonCodeDefinition;
+import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 
 /**
  * BhProgramの実行環境を操作するクラスが共通で持つ機能と変数をまとめたクラス
@@ -304,9 +304,7 @@ class BhProgramManagerCommon {
 			success &= programHandler.runScript(
 				fileName,
 				new BhProgramData(
-					BhProgramData.TYPE.INPUT_EVENT,
-					BhProgramData.EVENT.PROGRAM_START,
-					CommonCodeDefinition.Funcs.GET_EVENT_HANDLER_NAMES));
+					BhProgramData.EVENT.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES));
 			Future<Boolean> recvTaskFuture = recvTaskExec.submit(() -> transceiver.recv());
 			Future<Boolean> sendTaskFuture = sendTaskExec.submit(() -> transceiver.send());
 			setTransceiverAndFutures(transceiver, recvTaskFuture, sendTaskFuture);

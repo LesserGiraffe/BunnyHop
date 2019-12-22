@@ -17,7 +17,6 @@ package net.seapanda.bunnyhop.compiler;
 
 import java.util.Collection;
 
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.node.TextNode;
 
@@ -80,7 +79,7 @@ public class GlobalDataDeclCodeGenerator {
 				code.append(common.indent(nestLevel))
 					.append(" /*")
 					.append(comment)
-					.append("*/").append(Util.INSTANCE.LF);
+					.append("*/").append(Keywords.newLine);
 			});
 		}
 
@@ -91,7 +90,7 @@ public class GlobalDataDeclCodeGenerator {
 				.append(thisVarName)
 				.append(" = ")
 				.append(varName)
-				.append(";").append(Util.INSTANCE.LF);
+				.append(";").append(Keywords.newLine);
 		}
 
         SyntaxSymbol nextGlobalDataDecl =

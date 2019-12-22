@@ -30,7 +30,6 @@ public class Util {
 	public static final Util INSTANCE = new Util();		//!< シングルトンインスタンス
 	public final String EXEC_PATH;	//実行時jarパス
 	public final String JAVA_PATH;
-	public final String LF = System.getProperty("line.separator");
 	public final String PS = System.getProperty("path.separator");
 	public final String FS = System.getProperty("file.separator");
 	private final AtomicLong serialID = new AtomicLong();

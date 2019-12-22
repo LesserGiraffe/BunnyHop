@@ -14,13 +14,18 @@
 		speed = Math.min(Math.max(0.0, speed), 1.0);
 		time *= 1000;
 		time = Math.floor(time);
-		let moveCmd = String(_jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhMove').toAbsolutePath().toString());
+		let moveCmd = String(_jPaths.get(bhScriptHelper.getExecPath(), 'Actions', 'bhMove').toAbsolutePath().toString());
 		let procBuilder = new _jProcBuilder(moveCmd, String(cmd), String(time), String(speed));
+		let success = false;
 		try {
 			let process = procBuilder.start();
 			_waitProcEnd(process, false, true);
+			success = true;
 		}
-		catch (e) { throw ('_move ' + cmd + ' ' + e); }
+		finally {
+			if (!success)
+				_addExceptionMsg.call(this, '_moveAny()  ' + cmd);
+		}
 	}
 
 	function _moveForward(speed, time) {
@@ -41,14 +46,19 @@
 
 	function _measureDistance() {
 
-		let spiCmd = String(_jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhSpiRead').toAbsolutePath().toString());
+		let spiCmd = String(_jPaths.get(bhScriptHelper.getExecPath(), 'Actions', 'bhSpiRead').toAbsolutePath().toString());
 		let procBuilder = new _jProcBuilder(spiCmd, '20', '5');
 		let distanceList;
+		let success = false;
 		try {
 			let process =  procBuilder.start();
 			distanceList = _waitProcEnd(process, true, true);
+			success = true;
 		}
-		catch (e) { throw ('_measureDistance ' + e); }
+		finally {
+			if (!success)
+				_addExceptionMsg.call(this, '_measureDistance()');
+		}
 		distanceList = distanceList.split(",")
 						.map(function (elem) { return Number(elem); })
 						.sort(function(a,b){ return (a < b ? -1 : 1); });
@@ -70,7 +80,7 @@
 		if (word === '')
 			return;
 
-		_sayOnLinux(word);
+		_sayOnLinux.call(this, word);
 	}
 
 	// 色センサ値を取得
@@ -78,15 +88,20 @@
 
 		let exposureTime = 50;	//ms
 		let retryTimes = 10;
-		let cmd = String(_jPaths.get(bhUtil.EXEC_PATH, 'Actions', 'bhColorDetection').toAbsolutePath().toString());
+		let cmd = String(_jPaths.get(bhScriptHelper.getExecPath(), 'Actions', 'bhColorDetection').toAbsolutePath().toString());
 		let procBuilder = new _jProcBuilder(cmd, String(exposureTime), String(retryTimes));
 		let colorList = null;
-
+		let success = false;
+		
 		try {
 			let process =  procBuilder.start();
 			colorList = _waitProcEnd(process, true, true);
+			success = true;
 		}
-		catch (e) { throw ('_detectColor ' + e); }
+		finally {
+			if (!success)
+				_addExceptionMsg.call(this, '_detectColor()');
+		}
 
 		colorList = colorList.split(",");
 		return new _Color(Number(colorList[0]), Number(colorList[1]), Number(colorList[2]));
@@ -175,21 +190,33 @@
 	}
 
 	function _ioWrite(port, val) {
+		
 		let procBuilder = new _jProcBuilder('gpio', '-g', 'write', String(port), String(val));
+		let success = false;
 		try {
 			let process =  procBuilder.start();
 			_waitProcEnd(process, false, false);
+			success = true;
 		}
-		catch (e) { throw ('_ioWrite ' + e); }
+		finally {
+			if (!success)
+				_addExceptionMsg.call(this, '_ioWrite()');
+		}
 	}
 
 	function _changeIoMode(port, mode) {
+		
 		let procBuilder = new _jProcBuilder('gpio', '-g', 'mode', String(port), String(mode));
+		let success = false;
 		try {
 			let process =  procBuilder.start();
 			_waitProcEnd(process, false, false);
+			success = true;
 		}
-		catch (e) { throw ('_changeIoMode ' + e); }
+		finally {
+			if (!success)
+				_addExceptionMsg.call(this, '_changeIoMode()');
+		}
 	}
 
 	(function _initEyeLight() {

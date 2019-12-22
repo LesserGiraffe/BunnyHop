@@ -29,16 +29,16 @@ public class CommonCodeGenerator {
 	 * @return 変数名
 	 */
 	public String genVarName(SyntaxSymbol varDecl) {
-		return BhCompiler.Keywords.varPrefix + varDecl.getSymbolID();
+		return Keywords.Prefix.varPrefix + varDecl.getSymbolID();
 	}
 
 	/**
 	 * 関数定義から関数名を生成する
-	 * @param funcDef
+	 * @param funcDef 関数定義シンボル
 	 * @return 関数名
 	 */
 	public String genFuncName(SyntaxSymbol funcDef) {
-		return BhCompiler.Keywords.funcPrefix + funcDef.getSymbolID();
+		return Keywords.Prefix.funcPrefix + funcDef.getSymbolID();
 	}
 
 	/**
@@ -67,6 +67,23 @@ public class CommonCodeGenerator {
 	}
 
 	/**
+	 * 関数呼び出しのコードを作成する. funcName.call(thisObj, args)
+	 * @param funcName 関数名
+	 * @param argNames 引数名のリスト
+	 * @return 関数呼び出しのコード
+	 */
+	public String genFuncPrototypeCallCode(String funcName, String thisObj, String... args) {
+
+		String[] argList = new String[args.length + 1];
+		argList[0] = thisObj;
+		for (int i = 0; i < args.length; ++i)
+			argList[i + 1] = args[i];
+
+		String funcCall = genPropertyAccessCode(funcName, ScriptIdentifiers.JsFuncs.CALL);
+		return genFuncCallCode(funcCall, argList);
+	}
+
+	/**
 	 * プロパティアクセス式を作成する
 	 * @param root プロパティのルート
 	 * @param properties root の下に続くプロパティ名のリスト
@@ -79,6 +96,34 @@ public class CommonCodeGenerator {
 			code.append(".").append(prop);
 
 		return code.toString();
+	}
+
+	/**
+	 * コールスタックに関数呼び出しノードのシンボル ID を追加するコードを作成する
+	 * @param funcCallNode 関数呼び出しノード
+	 */
+	public String genPushToCallStackCode(SyntaxSymbol funcCallNode) {
+
+		var funcName = genPropertyAccessCode(
+			Keywords.JS._this, ScriptIdentifiers.Properties.CALL_STACK, ScriptIdentifiers.JsFuncs.PUSH);
+		return genFuncCallCode(funcName, toJsString(funcCallNode.getSymbolID().toString()));
+	}
+
+	/**
+	 * コールスタックから関数呼び出しノードのシンボル ID を削除するコードを作成する
+	 */
+	public String genPopFromCallStackCode() {
+
+		var funcName = genPropertyAccessCode(
+			Keywords.JS._this, ScriptIdentifiers.Properties.CALL_STACK, ScriptIdentifiers.JsFuncs.POP);
+		return genFuncCallCode(funcName);
+	}
+
+	/**
+	 * 引数で指定した文字列を Javascript の文字列リテラル表現に変換する
+	 */
+	public String toJsString(String str) {
+		return "'" + str.replaceAll("\\\\", "\\\\\\\\").replaceAll("'", "\\\\'") + "'";
 	}
 
 	public String indent(int depth) {
