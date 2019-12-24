@@ -6,8 +6,6 @@
 	if (section !== null) {
 		sectionName = String(section.getSymbolName());
 	}
-	
-	java.lang.System.out.println
 
 	return sectionName === 'StatSctn' ||
 		   newNodeName === 'BreakStat'||

@@ -6,8 +6,8 @@
 	  nodeStyleID="ToStrExp.json"
 	  onMovedFromChildToWS=""
 	  onMovedToChild="">
-    
-    <ConnectorSection name="StringExpSctn">
-        <Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
+
+	<ConnectorSection name="StringExpSctn">
+		<Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
     </ConnectorSection>
 </Node>

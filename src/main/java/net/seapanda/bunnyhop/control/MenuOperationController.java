@@ -218,15 +218,18 @@ public class MenuOperationController {
 						return;
 
 					UserOperationCommand userOpeCmd = new UserOperationCommand();
+
 					var nodesToDelete = currentWS.getSelectedNodeList();
 					nodesToDelete.forEach(node ->
 						node.execScriptOnDeletionRequested(nodesToDelete, CauseOfDeletion.SELECTED_FOR_DELETION ,userOpeCmd));
+
 					BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd)
 					.forEach(oldAndNewNode -> {
 						BhNode oldNode = oldAndNewNode._1;
 						BhNode newNode = oldAndNewNode._2;
 						newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
 					});
+
 					DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
 					SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 					SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);

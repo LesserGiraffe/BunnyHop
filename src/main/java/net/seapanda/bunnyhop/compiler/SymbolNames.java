@@ -289,10 +289,7 @@ public class SymbolNames {
 		public static final String OPTION = "Option";
 
 		//ノード名
-		public static final String NUM_TO_STR_EXP = "NumToStrExp";
 		public static final String STR_TO_NUM_EXP = "StrToNumExp";
-		public static final String BOOL_TO_STR_EXP = "BoolToStrExp";
-		public static final String COLOR_TO_STR_EXP = "ColorToStrExp";
 		public static final String ANY_TO_STR_EXP = "AnyToStrExp";
 		public static final String SCAM_EXP = "ScanExp";
 		public static final String RAMDOM_INT_EXP = "RandomIntExp";
@@ -311,7 +308,6 @@ public class SymbolNames {
 		public static final String ANY_LIST_TO_STR_EXP = "AnyListToStrExp";
 		public static final String OUT_ARG_TEST_EXP = "OutArgTestExp";
 		public static final String PRINT_STAT = "PrintStat";
-		public static final String PRINT_NUM_STAT = "PrintNumStat";
 		public static final String MOVE_STAT = "MoveStat";
 		public static final String SLEEP_STAT = "SleepStat";
 		public static final String PLAY_MELODY_STAT = "PlayMelodyStat";
@@ -335,10 +331,7 @@ public class SymbolNames {
 
 		public static final HashSet<String> PREDEF_FUNC_CALL_EXP_LIST =
 			new HashSet<>(Arrays.asList(
-				NUM_TO_STR_EXP,
 				STR_TO_NUM_EXP,
-				BOOL_TO_STR_EXP,
-				COLOR_TO_STR_EXP,
 				ANY_TO_STR_EXP,
 				SCAM_EXP,
 				NUM_ROUND_EXP,
@@ -371,7 +364,6 @@ public class SymbolNames {
 		public static final HashSet<String> PREDEF_FUNC_CALL_STAT_LIST =
 			new HashSet<>(Arrays.asList(
 				PRINT_STAT,
-				PRINT_NUM_STAT,
 				MOVE_STAT,
 				SLEEP_STAT,
 				PLAY_MELODY_STAT,
@@ -422,13 +414,9 @@ public class SymbolNames {
 
 		public static final Map<FuncID, String> PREDEF_FUNC_NAME_MAP =
 			new HashMap<FuncID, String>() {{
-				put(FuncID.create(BOOL_TO_STR_EXP), ScriptIdentifiers.Funcs.BOOL_TO_STR);
-				put(FuncID.create(COLOR_TO_STR_EXP), ScriptIdentifiers.Funcs.COLOR_TO_STR);
-				put(FuncID.create(NUM_TO_STR_EXP), "String");
 				put(FuncID.create(STR_TO_NUM_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
 				put(FuncID.create(ANY_TO_STR_EXP), ScriptIdentifiers.Funcs.TO_STR);
 				put(FuncID.create(PRINT_STAT), ScriptIdentifiers.Funcs.PRINTLN);
-				put(FuncID.create(PRINT_NUM_STAT), ScriptIdentifiers.Funcs.PRINTLN);
 				put(FuncID.create(AWAIT_STAT), ScriptIdentifiers.Funcs.AWAIT);
 				put(FuncID.create(SCAM_EXP), ScriptIdentifiers.Funcs.SCAN);
 				put(FuncID.create(NUM_ROUND_EXP, OPT_ROUND), "Math.round");

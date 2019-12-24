@@ -93,10 +93,10 @@ public class GlobalDataDeclCodeGenerator {
 				.append(";").append(Keywords.newLine);
 		}
 
-        SyntaxSymbol nextGlobalDataDecl =
-        	globalDataDeclNode.findSymbolInDescendants("*", SymbolNames.GlobalData.NEXT_GLOBAL_DATA_DECL, "*");
-        if (nextGlobalDataDecl != null)
-        	genGlobalDataDecls(nextGlobalDataDecl, code, nestLevel, option);
+		SyntaxSymbol nextGlobalDataDecl =
+			globalDataDeclNode.findSymbolInDescendants("*", SymbolNames.GlobalData.NEXT_GLOBAL_DATA_DECL, "*");
+		if (nextGlobalDataDecl != null)
+			genGlobalDataDecls(nextGlobalDataDecl, code, nestLevel, option);
 	}
 }
 

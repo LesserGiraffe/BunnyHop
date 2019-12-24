@@ -1,9 +1,7 @@
 <Node type="connective"
 	bhNodeID="idMaxMinExp"
 	name="MaxMinExp"
-	nodeStyleID="MaxMinExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="MaxMinExp.json">
 
 	<ConnectorSection name="NumberExpSctn">
 
@@ -51,6 +49,5 @@
 				nodeInputControl="MaxMinOpe.fxml">
 			</Node>
 		</PrivateConnector>
-		
 	</ConnectorSection>
 </Node>

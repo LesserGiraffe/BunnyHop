@@ -356,13 +356,6 @@ public class StatCodeGenerator {
 		code.append(common.indent(nestLevel))
 			.append("}").append(Keywords.newLine);
 
-		// 	catch (e) { throw e; }
-		code.append(common.indent(nestLevel))
-			.append(Keywords.JS._catch_)
-			.append("(e) { ")
-			.append(Keywords.JS._throw_)
-			.append("e; }").append(Keywords.newLine);
-
 		// fincally { _unlock(...); }
 		code.append(common.indent(nestLevel))
 		.append(Keywords.JS._finally_).append("{ ")

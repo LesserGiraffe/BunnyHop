@@ -86,7 +86,7 @@
 	 * @param userOpeCmd undo/redo用コマンドオブジェクト
 	 */
 	function reconnectOuter(node, candidates, bhMsgService, bhNodeHandler, userOpeCmd) {
-	
+
 		// 移動させる外部ノードを探す
 		let nodeToReconnect = node.findOuterNode(1);
 		if (nodeToReconnect === null)
@@ -97,14 +97,14 @@
 		let isOuterNotToReconnect = outersNotToReconnect.some(nodeName => nodeName === String(nodeToReconnect.getSymbolName()));
 		if (isOuterNotToReconnect)
 			return;
-		
+
 		if (candidates.contains(nodeToReconnect))
 			return;
 		
 		let nodeToReplace = findNodeToBeReplaced(nodeToReconnect, node, candidates);
 		
 		// 接続先が無い場合は, ワークスペースへ
-		if (nodeToReplace == null) {
+		if (nodeToReplace === null) {
 			let posOnWS = bhMsgService.getPosOnWS(nodeToReconnect);
 			bhNodeHandler.moveToWS(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpeCmd);
 		}
@@ -122,7 +122,7 @@
 	function findNodeToBeReplaced(nodeToReconnect, nodeToCheckReplaceability, candidates) {
 
 		let parent = nodeToCheckReplaceability.findParentNode();
-		if (parent == null)
+		if (parent === null)
 			return null;
 
 		if (candidates.contains(parent))

@@ -24,14 +24,10 @@ public enum CauseOfDeletion {
 	/**
 	 * イミテーションがオリジナルノードの削除の影響を受けた.
 	 * オリジナルノードが削除される際は, 必ず原因を INFLUENCE_OF_ORIGINAL_DELETION として削除イベント処理を呼ぶ.
-	 * */
+	 */
 	INFLUENCE_OF_ORIGINAL_DELETION,
 	TRASH_BOX,	//!< ゴミ箱に
 	SYNTAX_ERROR,	//!< 構文エラーノードの削除
 	SELECTED_FOR_DELETION,	//!< 選択削除の対象になった
 	WORKSPACE_DELETION;	//!< ワークスペースの削除
-
-	public boolean eq(CauseOfDeletion cause) {
-		return cause == this;
-	}
 }

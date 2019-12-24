@@ -21,8 +21,6 @@ package net.seapanda.bunnyhop.compiler;
 public class ScriptIdentifiers {
 
 	public static class Funcs {
-		public static final String BOOL_TO_STR = "_boolToStr";
-		public static final String COLOR_TO_STR = "_colorToStr";
 		public static final String TO_STR = "_toStr";
 		public static final String STR_TO_NUM = "_strToNum";
 		public static final String RANDOM_INT = "_randomInt";
@@ -50,10 +48,9 @@ public class ScriptIdentifiers {
 		public static final String TURN_RIGHT = "_turnRight";
 		public static final String TURN_LEFT = "_turnLeft";
 		public static final String MEASURE_DISTANCE = "_measureDistance";
-		public static final String GEN_CALL_OBJ =  "_genCallObj";
 		public static final String GEN_LOCK_OBJ = "_genLockObj";
 		public static final String GEN_REUSABLE_BARRIER = "_genReusableBarrier";
-		public static final String AWAIT = "_awit";
+		public static final String AWAIT = "_await";
 		public static final String GET_NUMBER_WAITING = "_getNumberWaiting";
 		public static final String TRY_LOCK = "_tryLock";
 		public static final String LOCK = "_lock";

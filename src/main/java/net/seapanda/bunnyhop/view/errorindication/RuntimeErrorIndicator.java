@@ -34,7 +34,6 @@ class RuntimeErrorIndicator {
 	 * @param nodeIdToNodeView エラー表示を追加するビューの一覧
 	 */
 	public void RuntimeErrorIndicator(BhProgramException exception, Map<BhNodeID, BhNodeView> nodeIdToNodeView) {
-		System.out.println();
 	}
 
 	/**

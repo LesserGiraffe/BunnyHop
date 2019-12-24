@@ -2,9 +2,7 @@
 	type="connective"
 	bhNodeID="idAbsExp"
 	name="AbsExp"
-	nodeStyleID="AbsExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="AbsExp.json">
 
 	<ConnectorSection name="NumberExpSctn">
 		<Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>

@@ -57,7 +57,7 @@
 		return new _jCyclicBarrier(parties);
 	}
 
-	function _awit(barrier) {
+	function _await(barrier) {
 
 		let success = false;
 		try {

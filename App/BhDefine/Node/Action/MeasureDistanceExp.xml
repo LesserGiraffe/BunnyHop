@@ -2,9 +2,7 @@
 	type="connective"
 	bhNodeID="idMeasureDistanceExp"
 	name="MeasureDistanceExp"
-	nodeStyleID="MeasureDistanceExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="MeasureDistanceExp.json">
 
 	<ConnectorSection name="NumberExpSctn">
 		<PrivateConnector

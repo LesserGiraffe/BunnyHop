@@ -149,8 +149,11 @@ public class BhCompiler {
 			code.append(localCommonCode);
 		else
 			code.append(remoteCommonCode);
+
+		genCodeForIdentifierDef(code, 1, option);
 		varDeclCodeGen.genVarDecls(nodeListToCompile, code, 1, option);
 		globalDataDeclCodeGen.genGlobalDataDecls(nodeListToCompile, code, 1, option);
+		code.append(Keywords.newLine);
 		funcDefCodeGen.genFuncDefs(nodeListToCompile, code, 1, option);
 		eventHandlerCodeGen.genEventHandlers(nodeListToCompile, code, 1, option);
 		String lockVar = Keywords.Prefix.lockVarPrefix + ScriptIdentifiers.Funcs.BH_MAIN;
@@ -163,7 +166,20 @@ public class BhCompiler {
 			"'" + BhProgramData.EVENT.PROGRAM_START.toString() + "'");
 		addEventCallStat += ";" + Keywords.newLine;
 		code.append(common.indent(1)).append(addEventCallStat).append(Keywords.newLine);
-		genCodeForInit(code, 1, option);
+		genCodeForProgramStart(code, 1, option);
+	}
+
+	/**
+	 * 識別子定義の前の準備を行うコードを生成する
+	 * @param code 生成したコードの格納先
+	 * @param nestLevel ソースコードのネストレベル
+	 * @param option コンパイルオプション
+	 */
+	private void genCodeForIdentifierDef(StringBuilder code, int nestLevel, CompileOption option) {
+
+		code.append(common.indent(nestLevel))
+			.append(common.genFuncPrototypeCallCode(ScriptIdentifiers.Funcs.INIT_THIS_OBJ, Keywords.JS._this))
+			.append(";").append(Keywords.newLine);
 	}
 
 	/**
@@ -172,15 +188,14 @@ public class BhCompiler {
 	 * @param nestLevel ソースコードのネストレベル
 	 * @param option コンパイルオプション
 	 */
-	public void genCodeForInit(
-		StringBuilder code, int nestLevel, CompileOption option) {
+	private void genCodeForProgramStart(StringBuilder code, int nestLevel, CompileOption option) {
+
 		// プログラム開始時刻の更新
 		code.append(common.indent(nestLevel))
 			.append(ScriptIdentifiers.Vars.PROGRAM_STARTING_TIME)
 			.append(" = ")
 			.append(common.genFuncCallCode(ScriptIdentifiers.Funcs.CURRENT_TIME_MILLS))
-			.append(";")
-			.append(Keywords.newLine);
+			.append(";").append(Keywords.newLine);
 	}
 }
 
