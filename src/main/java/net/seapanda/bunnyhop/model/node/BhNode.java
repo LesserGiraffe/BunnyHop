@@ -39,7 +39,6 @@ import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.ImitationReplacer;
-import net.seapanda.bunnyhop.modelprocessor.NodeDeleter;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
@@ -108,7 +107,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	public abstract BhNode findOuterNode(int generation);
 
 	/**
-	 * このノード以下のノードツリーのコピーを作成し返す
+	 * このノード以下のノードツリーのコピーを作成する.
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @param isNodeToBeCopied ノードがコピーの対象かどうかを判別する関数.
 	 *                          ただし, copyを呼んだBhNodeは判定対象にならず, 必ずコピーされる.
@@ -161,14 +160,6 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	}
 
 	/**
-	 * ノードをワークスペース上から削除する
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 */
-	public void delete(UserOperationCommand userOpeCmd) {
-		NodeDeleter.delete(this, userOpeCmd);
-	}
-
-	/**
 	 * newBhNodeとこのノードを入れ替える
 	 * @param newNode このノードと入れ替えるノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
@@ -208,7 +199,9 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 				return State.ROOT_DANGLING;
 		}
 		else {
-			assert workspace.containsAsRoot(this) == false;
+			if (workspace.containsAsRoot(this))
+				throw new AssertionError("A child node is contained in a workspace as a root node.");
+
 			return State.CHILD;
 		}
 	}
@@ -488,44 +481,62 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() + ".execOnMovedFromChildToWSScript   " + scriptNameOnMovedFromChildToWS + "\n" +
-				e.toString() + "\n");
+				BhNode.class.getSimpleName() + ".execOnMovedFromChildToWSScript   " + scriptNameOnMovedFromChildToWS
+				+ "\n" + e.toString() + "\n");
 		}
 	}
 
 	/**
-	 * 選択削除により, このノードが削除される直前に呼ばれるイベント処理を実行する.
-	 * ゴミ箱による削除や, ワークスペースの削除によるノードの削除時には呼ばない.
-	 * @param nodesToDelete このノードとともに削除される予定のノード
-	 * @param causeOfDeletion 削除原因
+	 * このノードの削除前に呼ばれるイベント処理を実行する.
+	 *
+	 * <pre>
+	 * この関数を呼び出す対象となるノードを削除原因ごとに記す.
+	 *   INFLUENCE_OF_ORIGINAL_DELETION -> オリジナルノード削除後に残っているすべてのイミテーションノード
+	 *   TRASH_BOX -> ゴミ箱の上に D&D されたノード
+	 *   SYNTAX_ERROR -> 構文エラーを起こしているノード
+	 *   SELECTED_FOR_DELETION ->	削除対象として選択されているノード
+	 *   WORKSPACE_DELETION -> 削除されるワークスペースにあるルートノード
+	 * </pre>
+	 * @param nodesToDelete このノードと共に削除される予定のノード.
+	 * @param isDirectlySpecified 直接削除指定されている場合 true
 	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
-	public void execScriptOnDeletionRequested(
-		Collection<? extends BhNode> nodesToDelete, CauseOfDeletion causeOfDeletion, UserOperationCommand userOpeCmd) {
+	 * @return 削除をキャンセルする場合 false. 続行する場合 true.
+	 */
+	public boolean execScriptOnDeletionRequested(
+		Collection<? extends BhNode> nodesToDelete,
+		CauseOfDeletion causeOfDeletion,
+		UserOperationCommand userOpeCmd) {
 
 		Script onDeletionRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnDeletionRequested);
 		if (onDeletionRequested == null)
-			return;
+			return true;
 
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToDelete);
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CAUSE_OF_DELETION, causeOfDeletion);
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+		Object doDeletion = null;
 		try {
-			ContextFactory.getGlobal().call(cx -> onDeletionRequested.exec(cx, scriptScope));
-		}
-		catch (Exception e) {
+			doDeletion = ContextFactory.getGlobal().call(cx -> onDeletionRequested.exec(cx, scriptScope));
+		} catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() + ".execScriptOnDeletionCmdReceived   " + scriptNameOnDeletionRequested + "\n" +
-				e.toString() + "\n");
+				BhNode.class.getSimpleName() + ".execScriptOnDeletionCmdReceived   " + scriptNameOnDeletionRequested
+				+ "\n" + e.toString() + "\n");
 		}
+
+		if (doDeletion instanceof Boolean)
+			return (Boolean)doDeletion;
+
+		throw new AssertionError(
+			this.getClass().getSimpleName()
+			+ "::execScriptOnDeletionRequested  (" + scriptNameOnDeletionRequested + " must return a boolean value.)");
 	}
 
 	/**
-	 * ユーザー操作により, このノードがカット&ペーストされる直前に呼ばれるイベント処理を実行する.
+	 * ユーザー操作により, このノードがカット & ペーストされる直前に呼ばれるイベント処理を実行する.
 	 * @param nodesToCut このノードとともにカットされる予定のノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @return カットをキャンセルする場合 false.  続行する場合 true.
-	 * */
+	 */
 	public boolean execScriptOnCutRequested(
 		Collection<? extends BhNode> nodesToCut, UserOperationCommand userOpeCmd) {
 
@@ -558,7 +569,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * @param nodesToCopy このノードとともにコピーされるノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @return 作成したコピーノード.  コピーノードを作らなかった場合 null.
-	 * */
+	 */
 	public BhNode genCopyNode(
 		Collection<? extends BhNode> nodesToCopy, UserOperationCommand userOpeCmd) {
 
@@ -596,7 +607,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * コピー判定関数を作成する.
 	 * @param copyCheckFunc 作成するコピー判定関数が呼び出す Javascript の関数
 	 * @return コピー判定関数
-	 * */
+	 */
 	private Predicate<BhNode> genCopyCheckFunc(Function copyCheckFunc) {
 
 		Predicate<BhNode> isNodeToCopy = node -> {

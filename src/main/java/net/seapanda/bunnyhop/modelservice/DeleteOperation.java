@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.node;
+package net.seapanda.bunnyhop.modelservice;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * ノードの削除原因
+ * ノードを削除する際に実行する操作
  * @author K.Koike
  */
-public enum CauseOfDeletion {
+public enum DeleteOperation {
+	/** イミテーションノードをオリジナルノードのイミテーションリストから取り除く */
+	REMOVE_FROM_IMIT_LIST;
 
-	INFLUENCE_OF_ORIGINAL_DELETION,	//!< オリジナルノードが削除された
-	TRASH_BOX,	//!< ゴミ箱に入れられた
-	SYNTAX_ERROR,	//!< 構文エラーノードの削除
-	SELECTED_FOR_DELETION,	//!< 選択削除の対象になった
-	WORKSPACE_DELETION;	//!< ワークスペースの削除
+	public static Set<DeleteOperation> getSet() {
+		return new HashSet<DeleteOperation>(Arrays.asList(DeleteOperation.values()));
+	}
 }

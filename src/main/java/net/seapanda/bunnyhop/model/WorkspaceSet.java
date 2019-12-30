@@ -53,6 +53,7 @@ import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.modelservice.DelayedDeleter;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
+import net.seapanda.bunnyhop.modelservice.DeleteOperation;
 import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.saveandload.ProjectSaveData;
@@ -206,7 +207,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 		UserOperationCommand userOpeCmd = new UserOperationCommand();
 		copyAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
 		cutAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
-		DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
+		DelayedDeleter.INSTANCE.deleteAll(userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
 		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
@@ -267,7 +268,8 @@ public class WorkspaceSet implements MsgReceptionWindow {
 
 		// 貼り付け処理
 		for (var node : nodesToPaste) {
-			Optional<BhNode> newChild = BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, userOpeCmd);
+			Optional<BhNode> newChild = BhNodeHandler.INSTANCE.deleteNodeWithDelay(
+				node, userOpeCmd, DeleteOperation.REMOVE_FROM_IMIT_LIST);
 			BhNodeHandler.INSTANCE.addRootNode(
 				wsToPasteIn,
 				node,
@@ -276,9 +278,10 @@ public class WorkspaceSet implements MsgReceptionWindow {
 				userOpeCmd);
 			Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
 			pasteBasePos.x += size.x + BhParams.LnF.REPLACED_NODE_SHIFT * 2;
-			DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
+			DelayedDeleter.INSTANCE.deleteAll(userOpeCmd);
 			newChild.ifPresent(child -> {
-				node.execScriptOnMovedFromChildToWS(child.findParentNode(), child.findRootNode(), child, true, userOpeCmd);
+				node.execScriptOnMovedFromChildToWS(
+					child.findParentNode(), child.findRootNode(), child, true, userOpeCmd);
 				child.findParentNode().execScriptOnChildReplaced(node, child, child.getParentConnector(), userOpeCmd);
 			});
 		}

@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import javafx.application.Platform;
-import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
@@ -155,7 +154,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 		selectedList.add(nodeToAdd);
 		MsgService.INSTANCE.selectNodeView(nodeToAdd, true);
 		MsgService.INSTANCE.updateMultiNodeShifter(nodeToAdd, this);
-		MsgService.INSTANCE.switchPseudoClassActivation(nodeToAdd, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT, true);
+		MsgService.INSTANCE.hilightImit(nodeToAdd, true);
 		onSelectedNodeListChangedToThreadFlag.forEach(this::invokeOnSelectedNodeChanged);
 		userOpeCmd.pushCmdOfAddSelectedNode(this, nodeToAdd);
 	}
@@ -181,7 +180,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
 		selectedList.remove(nodeToRemove);
 		MsgService.INSTANCE.selectNodeView(nodeToRemove, false);
 		MsgService.INSTANCE.updateMultiNodeShifter(nodeToRemove, this);
-		MsgService.INSTANCE.switchPseudoClassActivation(nodeToRemove, BhParams.CSS.PSEUDO_HIGHLIGHT_IMIT, false);
+		MsgService.INSTANCE.hilightImit(nodeToRemove, false);
 		onSelectedNodeListChangedToThreadFlag.forEach(this::invokeOnSelectedNodeChanged);
 		userOpeCmd.pushCmdOfRemoveSelectedNode(this, nodeToRemove);
 	}

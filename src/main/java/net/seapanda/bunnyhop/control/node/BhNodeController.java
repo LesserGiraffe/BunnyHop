@@ -168,7 +168,8 @@ public class BhNodeController implements MsgProcessor {
 						ddInfo.latestParent = model.findParentNode();
 						ddInfo.latestRoot = model.findRootNode();
 						BhNode newNode = BhNodeHandler.INSTANCE.removeChild(model, ddInfo.userOpeCmd);
-						ddInfo.latestParent.execScriptOnChildReplaced(model, newNode, newNode.getParentConnector(), ddInfo.userOpeCmd);
+						ddInfo.latestParent.execScriptOnChildReplaced(
+							model, newNode, newNode.getParentConnector(), ddInfo.userOpeCmd);
 					}
 					mouseEvent.consume();
 				}
@@ -296,7 +297,7 @@ public class BhNodeController implements MsgProcessor {
 	 */
 	private void deleteUnnecessaryNodes(MouseEvent mouseEvent) {
 
-		DelayedDeleter.INSTANCE.deleteCandidates(ddInfo.userOpeCmd);
+		DelayedDeleter.INSTANCE.deleteAll(ddInfo.userOpeCmd);
 
 		//ゴミ箱に重なっていた場合, 削除
 		if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
@@ -319,7 +320,7 @@ public class BhNodeController implements MsgProcessor {
 		}
 		ddInfo.currentOverlapped = null;
 
-		List<BhNode> overlappedList = view.getRegionManager().searchForOverlappedModels();	//このノードとコネクタ部分が重なっている
+		List<BhNode> overlappedList = view.getRegionManager().searchForOverlappedModels();
 		for (BhNode overlapped : overlappedList) {
 			if (overlapped.canBeReplacedWith(model)) {	//このノードと入れ替え可能
 				//今回重なっているものをライトオン

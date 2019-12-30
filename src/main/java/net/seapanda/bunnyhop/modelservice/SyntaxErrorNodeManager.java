@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.CauseOfDeletion;
@@ -85,18 +86,20 @@ public class SyntaxErrorNodeManager {
 
 		var nodesToDelete =
 			errorNodeList.stream()
-			.filter(node -> (node.hasSyntaxError()))
+			.filter(node -> node.hasSyntaxError())
 			.collect(Collectors.toCollection(HashSet::new));
 
-		nodesToDelete.forEach(node ->
-			node.execScriptOnDeletionRequested(nodesToDelete, CauseOfDeletion.SYNTAX_ERROR, userOpeCmd));
+		nodesToDelete.forEach(
+			node -> node.execScriptOnDeletionRequested(nodesToDelete, CauseOfDeletion.SYNTAX_ERROR, userOpeCmd));
 
-		BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd)
-		.forEach(oldAndNewNode -> {
+		List<Pair<BhNode, BhNode>> oldAndNewNodeList =
+			BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
+		for (var oldAndNewNode : oldAndNewNodeList) {
 			BhNode oldNode = oldAndNewNode._1;
 			BhNode newNode = oldAndNewNode._2;
-			newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
-		});
+			newNode.findParentNode().execScriptOnChildReplaced(
+				oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
+		}
 
 		errorNodeList.removeAll(nodesToDelete);
 		userOpeCmd.pushCmdOfRemoveFromList(errorNodeList, nodesToDelete);

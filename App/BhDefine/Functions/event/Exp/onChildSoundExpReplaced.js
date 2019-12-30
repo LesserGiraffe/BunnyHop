@@ -24,10 +24,12 @@
 		bhNodeHandler.exchangeNodes(soundExpVoid, bhReplacedOldNode, bhUserOpeCmd);
 		bhNodeHandler.deleteNode(soundExpVoid, bhUserOpeCmd);
 	}
+	// 音削除
 	else if (String(bhParentConnector.getConnectedNode().getSymbolName()) === 'SoundLiteralVoid') {
 		if (String(nextMelodyExp.getSymbolName()) === 'MelodyExp') {
-			bhNodeHandler.replaceChild(bhThis, nextMelodyExp, bhUserOpeCmd)
-			bhNodeHandler.deleteNodeIncompletely(bhThis, true, bhUserOpeCmd);
+			bhNodeHandler.replaceChild(bhThis, nextMelodyExp, bhUserOpeCmd);
+			let OperationInDeletion = net.seapanda.bunnyhop.modelservice.OperationInDeletion;
+			bhNodeHandler.deleteNodeWithDelay(bhThis, bhUserOpeCmd, OperationInDeletion.REMOVE_FROM_IMIT_LIST);
 		}
 	}
 })();

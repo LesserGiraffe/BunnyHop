@@ -161,6 +161,7 @@ public class BhParams {
 		public static final String KEY_BH_NODE_TEMPLATES = "bhNodeTemplates";
 		public static final String KEY_BH_NODE_UTIL = "bhUtil";
 		public static final String KEY_BH_CANDIDATE_NODE_LIST = "bhCandidateNodeList";
+		public static final String KEY_BH_NODES_TO_DELETE = "bhNodesToDelete";
 		public static final String KEY_BH_CAUSE_OF_DELETION = "bhCauseOfDeletion";
 		public static final String KEY_BH_LIST_OF_NODES_TO_COMPILE = "bhListOfNodesToCompile";
 		public static final String KEY_IP_ADDR = "ipAddr";

@@ -27,6 +27,7 @@ import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
+import net.seapanda.bunnyhop.modelservice.DeleteOperation;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -135,7 +136,8 @@ public class ImitationReplacer implements BhModelProcessor {
 				Connector parentCnctr = imitToReplace.getParentConnector();
 				Imitatable newImit = original.findExistingOrCreateNewImit(imitToReplace, userOpeCmd);
 				BhNodeHandler.INSTANCE.replaceChildNewlyCreated(imitToReplace, newImit, userOpeCmd);
-				BhNodeHandler.INSTANCE.deleteNodeIncompletely(imitToReplace, true, userOpeCmd);
+				BhNodeHandler.INSTANCE.deleteNodeWithDelay(
+					imitToReplace, userOpeCmd, DeleteOperation.REMOVE_FROM_IMIT_LIST);
 				newImit.findParentNode().execScriptOnChildReplaced(imitToReplace, newImit, parentCnctr, userOpeCmd);
 			});
 		}
@@ -156,7 +158,8 @@ public class ImitationReplacer implements BhModelProcessor {
 				if (node.getOriginal() == oldOriginal) {
 					Connector parentCnctr = node.getParentConnector();
 					BhNode newNode = BhNodeHandler.INSTANCE.removeChild(node, userOpeCmd);
-					BhNodeHandler.INSTANCE.deleteNodeIncompletely(node, true, userOpeCmd);
+					BhNodeHandler.INSTANCE.deleteNodeWithDelay(
+						node, userOpeCmd, DeleteOperation.REMOVE_FROM_IMIT_LIST);
 					newNode.findParentNode().execScriptOnChildReplaced(node, newNode, parentCnctr, userOpeCmd);
 				}
 			});

@@ -16,9 +16,13 @@
 package net.seapanda.bunnyhop.modelservice;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
@@ -27,8 +31,11 @@ import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.State;
-import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
+import net.seapanda.bunnyhop.model.node.CauseOfDeletion;
+import net.seapanda.bunnyhop.modelprocessor.ImitationFinder;
+import net.seapanda.bunnyhop.modelprocessor.ImitationRemover;
 import net.seapanda.bunnyhop.modelprocessor.NodeDeselector;
+import net.seapanda.bunnyhop.modelprocessor.PasteCanceler;
 import net.seapanda.bunnyhop.modelprocessor.WorkspaceRegisterer;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -71,31 +78,99 @@ public class BhNodeHandler {
 	 * */
 	public Optional<BhNode> deleteNode(BhNode node, UserOperationCommand userOpeCmd) {
 
-		execScriptOfImitDeletion(node, userOpeCmd);
-		return delete(node, userOpeCmd);
+		if (!isNodeToDelete(node))
+			return Optional.empty();
+
+		Set<Imitatable> imitations = new HashSet<>();
+		imitations.addAll(ImitationFinder.find(node));
+		Optional<BhNode> newNode = delete(node, DeleteOperation.getSet(), userOpeCmd);
+		deleteImitations(imitations, userOpeCmd);
+		return newNode;
 	}
 
 	/**
-	 * 引数で指定したBhNodeを削除する <br>
-	 * BhNodeの親子関係, ワークスペースへの登録情報, 4分木空間への登録情報は消える.<br>
-	 * 引数で指定したノードは遅延削除リストに入る.
-	 * @param node 仮削除するノード
-	 * @param saveModelRels 親子関係を除くモデル間の関係(イミテーション -オリジナルの関係等) を保存する場合true
+	 * 引数で指定したノードを全て削除する
+	 * @param nodeListToDelete 削除するノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * @return 削除したノードと入れ替わる子ノードが作成された場合, 削除された古いノードと新しく作成されたノードのペアのリストを返す
+	 */
+	public List<Pair<BhNode, BhNode>> deleteNodes(
+		Collection<? extends BhNode> nodeListToDelete, UserOperationCommand userOpeCmd) {
+
+		Collection<? extends BhNode> nodesToDelete = nodeListToDelete.stream()
+		.filter(this::isNodeToDelete)
+		.collect(Collectors.toCollection(ArrayList::new));
+
+		if (nodesToDelete.isEmpty())
+			return new ArrayList<>();
+
+		Set<Imitatable> imitations = new HashSet<>();
+		nodesToDelete.forEach(node -> imitations.addAll(ImitationFinder.find(node)));
+		List<Pair<BhNode, BhNode>> oldAndNewNodeList = new ArrayList<>();
+		Set<DeleteOperation> allOperations = DeleteOperation.getSet();
+		for (BhNode node : nodesToDelete) {
+			if (isNodeToDelete(node)) {
+				Optional<BhNode> newNodeOpt = delete(node, allOperations, userOpeCmd);
+				newNodeOpt.ifPresent(newNode -> oldAndNewNodeList.add(new Pair<>(node, newNode)));
+			}
+		}
+
+		deleteImitations(imitations, userOpeCmd);
+		return oldAndNewNodeList;
+	}
+
+	/**
+	 * 引数で指定した BhNode を遅延削除する.
+	 * <p>引数で指定したノードは遅延削除リストに入る.
+	 * この関数で削除したノードは, {@code DelayedDeleter.deleteCandidate}
+	 * もしくは {@code DelayedDeleter.deleteCandidates} を呼び出すと完全に削除される.
+	 * @param node 仮削除するノード
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * @param operationsWithDelay {@code DelayedDeleter} による削除時に実行する削除操作
 	 * @return 削除したノードと入れ替わる子ノードが作成された場合, そのノードを返す
 	 */
-	public Optional<BhNode> deleteNodeIncompletely(
-		BhNode node,
-		boolean saveModelRels,
-		UserOperationCommand userOpeCmd) {
+	public Optional<BhNode> deleteNodeWithDelay(
+		BhNode node, UserOperationCommand userOpeCmd, DeleteOperation... operationsWithDelay) {
 
-		Optional<BhNode> newNode = Optional.empty();
-		if (DelayedDeleter.INSTANCE.containsInCandidateList(node.findRootNode())) {
-			return newNode;
-		}
+		if (!isNodeToDelete(node))
+			return Optional.empty();
+
+		List<DeleteOperation> opeListWithDelay = Arrays.asList(operationsWithDelay);
+		Set<DeleteOperation> opeListWithoutDelay = DeleteOperation.getSet();
+		opeListWithoutDelay.removeAll(opeListWithDelay);
+		Optional<BhNode> newNode = delete(node, opeListWithoutDelay, userOpeCmd);
+		DelayedDeleter.INSTANCE.addDeletionCandidate(node, opeListWithDelay);
+		return newNode;
+	}
+
+	/**
+	 * 引数で指定したノードの削除操作を実行する.
+	 * @param node 削除するノード
+	 * @param optionalOperations 追加で行う削除操作
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * @return 削除された {@code node} と入れ替わるために作成されたノード. ({@code node} が子ノードの時のみ存在)
+	 */
+	private Optional<BhNode> delete(
+		BhNode node, Set<DeleteOperation> optionalOperations, UserOperationCommand userOpeCmd) {
 
 		//undo時に削除前の状態のBhNodeを選択ノードとして MultiNodeShifterController に通知するためここで非選択にする
 		NodeDeselector.deselect(node, userOpeCmd);
+		Optional<BhNode> newNode = removeDependingOnState(node, userOpeCmd);
+		MsgService.INSTANCE.removeQTRectablge(node, userOpeCmd);	//4分木空間からの削除
+		WorkspaceRegisterer.deregister(node, userOpeCmd);
+		PasteCanceler.cancel(node, userOpeCmd);
+		if (optionalOperations.contains(DeleteOperation.REMOVE_FROM_IMIT_LIST))
+			ImitationRemover.remove(node, userOpeCmd);
+
+		return newNode;
+	}
+
+	/**
+	 * ノードのステートごとの削除処理を行う
+	 */
+	private Optional<BhNode> removeDependingOnState(BhNode node, UserOperationCommand userOpeCmd) {
+
+		Optional<BhNode> newNode = Optional.empty();
 		BhNode.State nodeState = node.getState();
 		switch(nodeState) {
 			case CHILD:
@@ -117,126 +192,37 @@ public class BhNodeHandler {
 			default:
 				throw new AssertionError("invalid node state " + nodeState);
 		}
-
-		MsgService.INSTANCE.removeQTRectablge(node, userOpeCmd);	//4分木空間からの削除
-		WorkspaceRegisterer.deregister(node, userOpeCmd); //ノードに対して登録されたWSを削除
-
-		if (!saveModelRels)
-			node.delete(userOpeCmd);
-		DelayedDeleter.INSTANCE.addDeletionCandidate(node, saveModelRels);
 		return newNode;
 	}
 
+	private void deleteImitations(Set<Imitatable> imitations, UserOperationCommand userOpeCmd) {
+
+		Set<Imitatable> imitToDelete = imitations.stream()
+		.filter(this::isNodeToDelete)
+		.collect(Collectors.toSet());
+
+		if (imitToDelete.isEmpty())
+			return;
+
+		imitToDelete.forEach(imit -> imit.execScriptOnDeletionRequested(
+			imitToDelete, CauseOfDeletion.INFLUENCE_OF_ORIGINAL_DELETION, userOpeCmd));
+
+		List<Pair<BhNode, BhNode>> oldAndNewNodeList = deleteNodes(imitToDelete, userOpeCmd);
+		for (var oldAndNewNode : oldAndNewNodeList) {
+			BhNode oldNode = oldAndNewNode._1;
+			BhNode newNode = oldAndNewNode._2;
+			newNode.findParentNode().execScriptOnChildReplaced(
+				oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
+		}
+	}
+
 	/**
-	 * 引数で指定したノードを全て削除する
-	 * @param nodeListToDelete 削除するノード
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @return 削除したノードと入れ替わる子ノードが作成された場合, 削除された古いノードと新しく作成されたノードのペアのリストを返す
+	 * 削除対象のノードかどうかを調べる
+	 * @param node 削除対象かどうか調べるノード
+	 * @return 削除対象のノードである場合 true
 	 */
-	public List<Pair<BhNode, BhNode>> deleteNodes(
-		Collection<? extends BhNode> nodeListToDelete, UserOperationCommand userOpeCmd) {
-
-		List<BhNode> deleteList = selectNodesToDelete(nodeListToDelete);
-
-		for (BhNode node : deleteList)
-			execScriptOfImitDeletion(node, userOpeCmd);
-
-		List<Pair<BhNode, BhNode>> oldAndNewNodeList = new ArrayList<>();
-		for (BhNode node : deleteList)
-			delete(node, userOpeCmd).ifPresent(newNode -> oldAndNewNodeList.add(new Pair<>(node, newNode)));
-
-		return oldAndNewNodeList;
-	}
-
-	/**
-	 * 直接削除処理を呼ぶノードを選択する. <br>
-	 * 削除するノードを選択するのではなく, 直接削除処理を呼ぶノードを選択する. <br>
-	 * このノードが返すノードを削除すれば, 削除候補のノードは全て消える.
-	 * @param nodeListToDelete 削除対象ノードのリスト
-	 * @return 削除処理を直接呼ぶノードのリスト
-	 * */
-	private List<BhNode> selectNodesToDelete(Collection<? extends BhNode> nodeListToDelete) {
-
-		List<BhNode> deleteList = new ArrayList<>();
-		for (BhNode candidateForDeletion : nodeListToDelete) {
-			boolean canDelete = true;
-			for (BhNode compared : nodeListToDelete) {
-				//自分自身とは比較しない
-				if (candidateForDeletion == compared)
-					continue;
-
-				//削除候補が別の削除候補の子孫ノードである -> 削除候補の先祖だけ削除する.
-				if (candidateForDeletion.isDescendantOf(compared)) {
-					canDelete = false;
-					break;
-				}
-
-				//削除候補のオリジナルノードが別の削除候補子孫ノードである -> イミテーションは直接削除せず, オリジナルの先祖だけ削除する.
-				BhNode orgNode = candidateForDeletion.getOriginal();
-				if (orgNode != null) {
-					if (orgNode.isDescendantOf(compared)) {
-						canDelete = false;
-						break;
-					}
-				}
-			}
-			if (canDelete)
-				deleteList.add(candidateForDeletion);
-		}
-		return deleteList;
-	}
-
-	private Optional<BhNode> delete(BhNode node, UserOperationCommand userOpeCmd) {
-
-		Optional<BhNode> newNode = Optional.empty();
-		if (DelayedDeleter.INSTANCE.containsInCandidateList(node)) {
-			DelayedDeleter.INSTANCE.deleteCandidate(node, userOpeCmd);
-			return newNode;
-		}
-
-		//undo時に削除前の状態のBhNodeを選択ノードとして MultiNodeShifterController に通知するためここで非選択にする
-		NodeDeselector.deselect(node, userOpeCmd);
-		BhNode.State nodeState = node.getState();
-		switch(nodeState) {
-			case CHILD:
-				newNode = Optional.of(removeChild(node, userOpeCmd));
-				MsgService.INSTANCE.removeFromGUITree(node);	//GUIツリー上から削除
-				break;
-
-			case ROOT_DANGLING:
-				MsgService.INSTANCE.removeFromGUITree(node);	//GUIツリー上から削除
-				break;
-
-			case ROOT_DIRECTLY_UNDER_WS:
-				MsgService.INSTANCE.removeRootNode(node, userOpeCmd);	//WS直下から削除
-				break;
-
-			case DELETED:
-				return newNode;
-
-			default:
-				throw new AssertionError("invalid node state " + nodeState);
-		}
-
-		MsgService.INSTANCE.removeQTRectablge(node, userOpeCmd);	//4分木空間からの削除
-		WorkspaceRegisterer.deregister(node, userOpeCmd);
-		node.delete(userOpeCmd);
-		return newNode;
-	}
-
-	/**
-	 * イミテーションノード削除前のイベント処理を実行する
-	 * @param topNode このノード以下のオリジナルノードが持つイミテーションノードの削除前イベント処理を実行する
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
-	private void execScriptOfImitDeletion(BhNode topNode, UserOperationCommand userOpeCmd) {
-
-		var callbacks = CallbackInvoker.newCallbackRegistry().setForAllNodes(
-			node -> {
-				if (node instanceof Imitatable)
-					((Imitatable)node).execScriptOnImitDeleting(userOpeCmd);
-			});
-		CallbackInvoker.invoke(callbacks, topNode);
+	private boolean isNodeToDelete(BhNode node) {
+		return !DelayedDeleter.INSTANCE.containsInCandidateList(node) && node.getState() != State.DELETED;
 	}
 
 	/**

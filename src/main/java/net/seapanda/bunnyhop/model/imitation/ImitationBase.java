@@ -26,10 +26,8 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNodeID;
 import net.seapanda.bunnyhop.model.node.BhNodeViewType;
-import net.seapanda.bunnyhop.model.node.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
-import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -183,37 +181,6 @@ public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatab
 		BhNodeID imitNodeID = imitIdToImitNodeID.get(imitID);
 		Objects.requireNonNull(imitID);
 		return imitNodeID;
-	}
-
-	@Override
-	public void deleteAllImitations(UserOperationCommand userOpeCmd) {
-
-		while (!imitNodeList.isEmpty()) {	//重複削除を避けるため, while で空になるまで消す
-
-			T nodeToDelete = imitNodeList.get(0);
-			//WSに居ない場合は, 削除予定のノードなので, オリジナル-イミテーションの関係だけ消しておく.
-			if (!nodeToDelete.isInWorkspace()) {
-				nodeToDelete.getOriginal().disconnectOrgImitRelation(nodeToDelete, userOpeCmd);
-			}
-			else {
-				BhNodeHandler.INSTANCE.deleteNode(nodeToDelete, userOpeCmd)
-				.ifPresent(
-					newNode -> newNode.findParentNode().execScriptOnChildReplaced(
-						nodeToDelete,
-						newNode,
-						newNode.getParentConnector(),
-						userOpeCmd));
-			}
-		}
-	}
-
-	@Override
-	public void execScriptOnImitDeleting(UserOperationCommand userOpeCmd) {
-
-		imitNodeList.forEach(node -> {
-			node.execScriptOnDeletionRequested(
-				getImitationList(), CauseOfDeletion.INFLUENCE_OF_ORIGINAL_DELETION, userOpeCmd);
-		});
 	}
 
 	@Override

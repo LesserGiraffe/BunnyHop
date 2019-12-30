@@ -16,12 +16,15 @@
 package net.seapanda.bunnyhop.control;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -219,18 +222,22 @@ public class MenuOperationController {
 
 					UserOperationCommand userOpeCmd = new UserOperationCommand();
 
-					var nodesToDelete = currentWS.getSelectedNodeList();
-					nodesToDelete.forEach(node ->
-						node.execScriptOnDeletionRequested(nodesToDelete, CauseOfDeletion.SELECTED_FOR_DELETION ,userOpeCmd));
+					var candidates = currentWS.getSelectedNodeList();
+					var nodesToDelete = candidates.stream()
+						.filter(node -> node.execScriptOnDeletionRequested(
+							candidates, CauseOfDeletion.SELECTED_FOR_DELETION, userOpeCmd))
+						.collect(Collectors.toCollection(ArrayList::new));
 
-					BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd)
-					.forEach(oldAndNewNode -> {
+					List<Pair<BhNode, BhNode>> oldAndNewNodeList =
+						BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
+					for (var oldAndNewNode : oldAndNewNodeList) {
 						BhNode oldNode = oldAndNewNode._1;
 						BhNode newNode = oldAndNewNode._2;
-						newNode.findParentNode().execScriptOnChildReplaced(oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
-					});
+						newNode.findParentNode().execScriptOnChildReplaced(
+							oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
+					}
 
-					DelayedDeleter.INSTANCE.deleteCandidates(userOpeCmd);
+					DelayedDeleter.INSTANCE.deleteAll(userOpeCmd);
 					SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
 					SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
 					BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);

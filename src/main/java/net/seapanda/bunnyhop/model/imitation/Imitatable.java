@@ -67,18 +67,6 @@ public abstract class Imitatable extends BhNode {
 	public abstract BhNodeID getImitationNodeID(ImitationID imitID);
 
 	/**
-	 * 全てのイミテーションノードを消す
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 */
-	public abstract void deleteAllImitations(UserOperationCommand userOpeCmd);
-
-	/**
-	 * イミテーションノード削除前のイベント処理を実行する
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 */
-	public abstract void execScriptOnImitDeleting(UserOperationCommand userOpeCmd);
-
-	/**
 	 * イミテーションノードリストを取得する
 	 * @return イミテーションノードリスト
 	 */

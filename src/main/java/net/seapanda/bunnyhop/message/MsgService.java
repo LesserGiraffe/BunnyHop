@@ -135,7 +135,7 @@ public class MsgService {
 	 * @param nodeToRemove 取り除くノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void removeNodeToPaste(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
+	public void removeFromPasteList(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_NODE_TO_PASTE, new MsgData(nodeToRemove, userOpeCmd), wss);
 	}
 
@@ -217,7 +217,6 @@ public class MsgService {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.SELECT_NODE_VIEW, new MsgData(enable), node);
 	}
 
-
 	/**
 	 * orgNode のイミテーションノードの強調表示を切り替える
 	 * @param orgNode このノードのイミテーションノードの強調表示を切り替える
@@ -241,9 +240,7 @@ public class MsgService {
 	public void switchPseudoClassActivation(BhNode node, String pseudoClassName, boolean enable) {
 
 		MsgTransporter.INSTANCE.sendMessage(
-			BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION,
-			new MsgData(enable, pseudoClassName),
-			node);
+			BhMsg.SWITCH_PSEUDO_CLASS_ACTIVATION, new MsgData(enable, pseudoClassName), node);
 	}
 
 	/**

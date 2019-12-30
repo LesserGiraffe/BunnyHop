@@ -31,8 +31,9 @@
 	// 文字列取り外し
 	else if (String(bhReplacedNewNode.getSymbolName()) === 'AnyExpVoid') {
 		if (String(nextStrChainLinkExp.getSymbolName()) === 'StrChainLinkExp') {
-			bhNodeHandler.replaceChild(bhThis, nextStrChainLinkExp, bhUserOpeCmd)
-			bhNodeHandler.deleteNodeIncompletely(bhThis, true, bhUserOpeCmd);
+			bhNodeHandler.replaceChild(bhThis, nextStrChainLinkExp, bhUserOpeCmd);
+			let OperationInDeletion = net.seapanda.bunnyhop.modelservice.OperationInDeletion;
+			bhNodeHandler.deleteNodeWithDelay(bhThis, bhUserOpeCmd, OperationInDeletion.REMOVE_FROM_IMIT_LIST);
 		}
 	}
 })();
