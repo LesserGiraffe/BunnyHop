@@ -280,6 +280,7 @@ task jlink() {
 			fileset(dir: "$projectDir/$appDirName")
 		}
 		delete fileTree("$projectDir/$projName/$appDirName/Log"){}
+		delete fileTree("$projectDir/$projName/$appDirName/BhExecEnvLog"){}
 		delete fileTree("$projectDir/$projName/$appDirName/Compiled"){}
 	}
 }
