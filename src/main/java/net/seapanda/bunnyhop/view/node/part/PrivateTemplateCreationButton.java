@@ -28,6 +28,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
+import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 
@@ -103,7 +104,8 @@ public final class PrivateTemplateCreationButton extends Button {
 	private static void createPrivateTemplate(BhNode node) {
 
 		var userOpeCmd = new UserOperationCommand();
-		BhNodeSelectionService.INSTANCE.deleteAllNodes(BhParams.NodeTemplate.PRIVATE_NODE_TEMPLATE, userOpeCmd);
+		BhNodeSelectionService.INSTANCE.deleteAllNodes(
+			BhParams.NodeTemplate.PRIVATE_NODE_TEMPLATE, userOpeCmd);
 		node.genPrivateTemplateNodes(userOpeCmd)
 			.forEach(templateNode -> {
 				NodeMVCBuilder.buildTemplate(templateNode);
@@ -111,5 +113,6 @@ public final class PrivateTemplateCreationButton extends Button {
 				BhNodeSelectionService.INSTANCE.addTemplateNode(
 					BhParams.NodeTemplate.PRIVATE_NODE_TEMPLATE, templateNode, userOpeCmd);
 			});
+		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 	}
 }

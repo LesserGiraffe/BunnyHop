@@ -122,6 +122,13 @@ public final class BhNodeSelectionView extends ScrollPane {
 			view.getTreeManager().removeFromGUITree();
 			rootNodeList.remove(view);
 		}
+
+		Long numNodes = rootNodeList.stream()
+			.filter(root -> !root.getModel().getSymbolName().equals(BhParams.NodeTemplate.SELECTION_VIEW_SPACE))
+			.count();
+
+		if (numNodes == 0 && BhNodeSelectionService.INSTANCE.isShowed(categoryName))
+			BhNodeSelectionService.INSTANCE.hideAll();
 	}
 
 	/**

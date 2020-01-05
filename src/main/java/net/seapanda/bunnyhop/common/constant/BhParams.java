@@ -234,6 +234,8 @@ public class BhParams {
 		public static final String KEY_CONTENTS = "contents";
 		/** ノード固有のノード選択ビューのカテゴリ名 */
 		public static final String PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
+		/** ノード選択ビューのスペースを表すノードの名前 */
+		public static final String SELECTION_VIEW_SPACE = "SelectionViewSpace";
 	}
 
 	/**
