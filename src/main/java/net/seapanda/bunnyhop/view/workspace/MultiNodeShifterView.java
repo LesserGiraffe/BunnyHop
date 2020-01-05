@@ -44,6 +44,7 @@ import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.view.ViewInitializationException;
 
 /**
  * 複数ノードを同時に移動させるマルチノードシフタのビュー
@@ -58,9 +59,7 @@ public class MultiNodeShifterView extends Pane {
 	@FXML private Polygon shifterArrow;
 
 
-	public MultiNodeShifterView() {}
-
-	public boolean init() {
+	public MultiNodeShifterView() throws ViewInitializationException {
 
 		try {
 			Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.MULTI_NODE_SHIFTER_FXML);
@@ -70,9 +69,8 @@ public class MultiNodeShifterView extends Pane {
 			loader.load();
 		}
 		catch (IOException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				"failed to initizlize " + MultiNodeShifterView.class.getSimpleName() + "\n" + e.toString());
-			return false;
+			MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + "\n" + e.toString());
+			throw new ViewInitializationException("Failed to initialize  " + getClass().getSimpleName());
 		}
 
 		setVisible(false);
@@ -89,7 +87,6 @@ public class MultiNodeShifterView extends Pane {
 				setVisible(false);
 			}
 		}));
-		return true;
 	}
 
 	/**

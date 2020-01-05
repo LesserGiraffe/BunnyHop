@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model;
+package net.seapanda.bunnyhop.model.workspace;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,8 +52,8 @@ import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.modelservice.DelayedDeleter;
-import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.modelservice.DeleteOperation;
+import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.saveandload.ProjectSaveData;
@@ -263,7 +263,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			.filter(this::canCopyOrCut).collect(Collectors.toCollection(HashSet::new));
 
 		Collection<BhNode> nodesToPaste = candidates.stream()
-			.filter(node -> node.execScriptOnCutRequested(candidates, userOpeCmd))
+			.filter(node -> node.getEventDispatcher().dispatchOnCutRequested(candidates, userOpeCmd))
 			.collect(Collectors.toCollection(ArrayList::new));
 
 		// 貼り付け処理
@@ -280,7 +280,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
 			pasteBasePos.x += size.x + BhParams.LnF.REPLACED_NODE_SHIFT * 2;
 			DelayedDeleter.INSTANCE.deleteAll(userOpeCmd);
 			newChild.ifPresent(child -> {
-				node.execScriptOnMovedFromChildToWS(
+				node.getEventDispatcher().dispatchOnMovedFromChildToWS(
 					child.findParentNode(), child.findRootNode(), child, true, userOpeCmd);
 				child.findParentNode().execScriptOnChildReplaced(node, child, child.getParentConnector(), userOpeCmd);
 			});

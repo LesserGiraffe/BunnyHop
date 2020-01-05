@@ -1,8 +1,11 @@
 (function() {
 
 	try {
-		java.lang.Double.parseDouble(bhText);
+		let dnum = java.lang.Double.parseDouble(bhText);
 		let lastChar = bhText.slice(-1);
+		if (!java.lang.Double.isFinite(dnum))
+			return false;
+
 		return (lastChar !== 'd' && lastChar !== 'D' && lastChar !== 'f' && lastChar !== 'F');
 	}
 	catch(e){}
@@ -16,7 +19,6 @@
 			catch(e){}
 		}
 	}
-	
 	return false;
 })();
 

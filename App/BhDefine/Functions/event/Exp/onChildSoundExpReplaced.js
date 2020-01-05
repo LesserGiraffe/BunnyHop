@@ -28,7 +28,7 @@
 	else if (String(bhParentConnector.getConnectedNode().getSymbolName()) === 'SoundLiteralVoid') {
 		if (String(nextMelodyExp.getSymbolName()) === 'MelodyExp') {
 			bhNodeHandler.replaceChild(bhThis, nextMelodyExp, bhUserOpeCmd);
-			let OperationInDeletion = net.seapanda.bunnyhop.modelservice.OperationInDeletion;
+			let OperationInDeletion = net.seapanda.bunnyhop.modelservice.DeleteOperation;
 			bhNodeHandler.deleteNodeWithDelay(bhThis, bhUserOpeCmd, OperationInDeletion.REMOVE_FROM_IMIT_LIST);
 		}
 	}

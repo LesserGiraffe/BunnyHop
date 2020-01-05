@@ -49,7 +49,7 @@ import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
-import net.seapanda.bunnyhop.model.Workspace;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OVERLAP_OPTION;
@@ -211,6 +211,7 @@ public class WorkspaceView extends Tab {
 		nodeView.getTreeManager().addToGUITree(group);
 		wsPane.getChildren().add(group);
 		rootNodeToGroup.put(nodeView, group);
+		nodeView.getAppearanceManager().arrangeAndResize();
 	}
 
 	/**
@@ -240,7 +241,8 @@ public class WorkspaceView extends Tab {
 				quadTreeMngForBody.addQuadTreeObj(body_cnctr._1);
 				quadTreeMngForConnector.addQuadTreeObj(body_cnctr._2);
 			},
-			nodeView);
+			nodeView,
+			false);
 	}
 
 	/**

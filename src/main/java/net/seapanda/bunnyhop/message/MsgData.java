@@ -15,15 +15,13 @@
  */
 package net.seapanda.bunnyhop.message;
 
-import java.util.Collection;
-
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
@@ -42,7 +40,7 @@ public class MsgData {
 	public final boolean bool;
 	public final UserOperationCommand userOpeCmd;
 	public final String text;
-	public final Collection<BhNodeSelectionView> nodeSelectionViewList;
+	public final BhNodeSelectionView nodeSelectionView;
 
 	public MsgData() {
 		this.node = null;
@@ -55,7 +53,7 @@ public class MsgData {
 		this.bool = false;
 		this.userOpeCmd = null;
 		this.text = null;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
 	public MsgData(BhNodeView view) {
@@ -69,7 +67,7 @@ public class MsgData {
 		this.bool = false;
 		this.userOpeCmd = null;
 		this.text = null;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
 	public MsgData(Vec2D vec2d) {
@@ -83,7 +81,7 @@ public class MsgData {
 		this.bool = false;
 		this.userOpeCmd = null;
 		this.text = null;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
 	public MsgData(Workspace workspace, WorkspaceView workspaceView, UserOperationCommand userOpeCmd) {
@@ -97,7 +95,7 @@ public class MsgData {
 		this.bool = false;
 		this.userOpeCmd = userOpeCmd;
 		this.text = null;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
 	public MsgData(BhNode node, BhNodeView view) {
@@ -111,7 +109,7 @@ public class MsgData {
 		this.bool = false;
 		this.userOpeCmd = null;
 		this.text = null;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
 	public MsgData(BhNode node) {
@@ -125,22 +123,9 @@ public class MsgData {
 		this.bool = false;
 		this.userOpeCmd = null;
 		this.text = null;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
-	public MsgData(BhNodeSelectionView templatePanel) {
-		this.node = null;
-		this.nodeView = null;
-		this.vec2d = null;
-		this.strPair = null;
-		this.vec2dPair = null;
-		this.workspace = null;
-		this.workspaceView = null;
-		this.bool = false;
-		this.userOpeCmd = null;
-		this.text = null;
-		this.nodeSelectionViewList = null;
-	}
 
 	public MsgData(boolean bool) {
 		this.node = null;
@@ -153,7 +138,7 @@ public class MsgData {
 		this.bool = bool;
 		this.userOpeCmd = null;
 		this.text = null;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
 	public MsgData(UserOperationCommand userOpeCmd) {
@@ -167,7 +152,7 @@ public class MsgData {
 		this.bool = false;
 		this.userOpeCmd = userOpeCmd;
 		this.text = null;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
 	public MsgData(String text) {
@@ -181,7 +166,7 @@ public class MsgData {
 		this.bool = false;
 		this.userOpeCmd = null;
 		this.text = text;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
 	public MsgData(Workspace workspace) {
@@ -195,7 +180,7 @@ public class MsgData {
 		this.bool = false;
 		this.userOpeCmd = null;
 		this.text = null;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
 	public MsgData(boolean bool, String text) {
@@ -209,10 +194,10 @@ public class MsgData {
 		this.bool = bool;
 		this.userOpeCmd = null;
 		this.text = text;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
-	public MsgData(Collection<BhNodeSelectionView> nodeSelectionViewList) {
+	public MsgData(BhNodeSelectionView nodeSelectionView) {
 		this.node = null;
 		this.nodeView = null;
 		this.vec2d = null;
@@ -223,7 +208,7 @@ public class MsgData {
 		this.bool = false;
 		this.userOpeCmd = null;
 		this.text = null;
-		this.nodeSelectionViewList = nodeSelectionViewList;
+		this.nodeSelectionView = nodeSelectionView;
 	}
 
 	public MsgData(String textA, String textB) {
@@ -237,7 +222,7 @@ public class MsgData {
 		this.bool = false;
 		this.userOpeCmd = null;
 		this.text = null;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
 	public MsgData(boolean bool, UserOperationCommand userOpeCmd) {
@@ -251,7 +236,7 @@ public class MsgData {
 		this.bool = bool;
 		this.userOpeCmd = userOpeCmd;
 		this.text = null;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
 	public MsgData(Vec2D vecA, Vec2D vecB) {
@@ -265,7 +250,7 @@ public class MsgData {
 		this.bool = false;
 		this.userOpeCmd = null;
 		this.text = null;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 
 	public MsgData(BhNode node, UserOperationCommand userOpeCmd) {
@@ -279,7 +264,7 @@ public class MsgData {
 		this.bool = false;
 		this.userOpeCmd = userOpeCmd;
 		this.text = null;
-		this.nodeSelectionViewList = null;
+		this.nodeSelectionView = null;
 	}
 }
 

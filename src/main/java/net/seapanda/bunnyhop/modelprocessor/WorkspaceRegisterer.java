@@ -15,11 +15,11 @@
  */
 package net.seapanda.bunnyhop.modelprocessor;
 
-import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**

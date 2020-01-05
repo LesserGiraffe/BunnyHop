@@ -24,10 +24,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.State;
-import net.seapanda.bunnyhop.model.node.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
 import net.seapanda.bunnyhop.modelprocessor.ImitationFinder;
 import net.seapanda.bunnyhop.modelprocessor.ImitationRemover;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -66,7 +66,7 @@ public class DelayedDeleter {
 		if (candidateToOpeList.containsKey(node)) {
 			// ワークスペースにあるノードは削除をキャンセルされたものとみなす
 			if (!node.isInWorkspace()) {
-				imitations.addAll(ImitationFinder.find(node, userOpeCmd));
+				imitations.addAll(ImitationFinder.find(node));
 				candidateToOpeList.get(node).forEach(ope -> delete(node, ope, userOpeCmd));
 			}
 		}
@@ -117,7 +117,7 @@ public class DelayedDeleter {
 		if (imitToDelete.isEmpty())
 			return;
 
-		imitToDelete.forEach(imit -> imit.execScriptOnDeletionRequested(
+		imitToDelete.forEach(imit -> imit.getEventDispatcher().dispatchOnDeletionRequested(
 			imitToDelete, CauseOfDeletion.INFLUENCE_OF_ORIGINAL_DELETION, userOpeCmd));
 
 		List<Pair<BhNode, BhNode>> oldAndNewNodeList =

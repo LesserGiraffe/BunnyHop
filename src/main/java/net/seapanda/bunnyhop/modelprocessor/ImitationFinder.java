@@ -18,10 +18,10 @@ package net.seapanda.bunnyhop.modelprocessor;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
 
 /**
  * 走査したノードが保持するイミテーションノードを集めるクラス.

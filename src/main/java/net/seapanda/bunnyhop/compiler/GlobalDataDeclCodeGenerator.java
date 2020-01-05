@@ -17,8 +17,8 @@ package net.seapanda.bunnyhop.compiler;
 
 import java.util.Collection;
 
-import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
 
 /**
  * グローバルデータを定義するコードを生成するクラス

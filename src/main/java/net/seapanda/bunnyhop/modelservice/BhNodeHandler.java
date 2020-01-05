@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.model.Workspace;
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.State;
-import net.seapanda.bunnyhop.model.node.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelprocessor.ImitationFinder;
 import net.seapanda.bunnyhop.modelprocessor.ImitationRemover;
 import net.seapanda.bunnyhop.modelprocessor.NodeDeselector;
@@ -90,7 +90,7 @@ public class BhNodeHandler {
 
 	/**
 	 * 引数で指定したノードを全て削除する
-	 * @param nodeListToDelete 削除するノード
+	 * @param nodeListToDelete 削除するノード.
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @return 削除したノードと入れ替わる子ノードが作成された場合, 削除された古いノードと新しく作成されたノードのペアのリストを返す
 	 */
@@ -204,7 +204,7 @@ public class BhNodeHandler {
 		if (imitToDelete.isEmpty())
 			return;
 
-		imitToDelete.forEach(imit -> imit.execScriptOnDeletionRequested(
+		imitToDelete.forEach(imit -> imit.getEventDispatcher().dispatchOnDeletionRequested(
 			imitToDelete, CauseOfDeletion.INFLUENCE_OF_ORIGINAL_DELETION, userOpeCmd));
 
 		List<Pair<BhNode, BhNode>> oldAndNewNodeList = deleteNodes(imitToDelete, userOpeCmd);
@@ -303,7 +303,7 @@ public class BhNodeHandler {
 		//新しいノードをビューツリーにつないで, 4分木空間内の位置を更新する
 		MsgService.INSTANCE.replaceChildNodeView(oldChildNode, newNode, userOpeCmd);
 		//イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
-		oldChildNode.replacedWith(newNode, userOpeCmd);
+		oldChildNode.replace(newNode, userOpeCmd);
 
 		SyntaxErrorNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.collect(newNode, userOpeCmd);
@@ -323,7 +323,7 @@ public class BhNodeHandler {
 		WorkspaceRegisterer.register(newNode, ws, userOpeCmd);    //ツリーの各ノードへのWSの登録
 		MsgService.INSTANCE.addQTRectangle(newNode, ws, userOpeCmd);
 		MsgService.INSTANCE.replaceChildNodeView(oldChildNode, newNode, userOpeCmd);
-		oldChildNode.replacedWith(newNode, userOpeCmd);	//イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
+		oldChildNode.replace(newNode, userOpeCmd);	//イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
 
 		SyntaxErrorNodeManager.INSTANCE.collect(newNode, userOpeCmd);
 		SyntaxErrorNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);

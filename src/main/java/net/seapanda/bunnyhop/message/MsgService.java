@@ -19,14 +19,15 @@ import java.util.Collection;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhParams;
-import net.seapanda.bunnyhop.model.Workspace;
-import net.seapanda.bunnyhop.model.WorkspaceSet;
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 
 /**
  * メッセージ送信を伴う処理のサービスクラス
@@ -35,13 +36,7 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
 public class MsgService {
 
 	public static final MsgService INSTANCE = new MsgService();	//!< シングルトンインスタンス
-	private WorkspaceSet wss;
-
 	private MsgService() {}
-
-	public void setWorkspaceSet(WorkspaceSet wss) {
-		this.wss = wss;
-	}
 
 	/**
 	 * 引数で指定したノードのワークスペース上での位置を取得する
@@ -133,10 +128,13 @@ public class MsgService {
 	/**
 	 * 貼り付け候補のノードのリストから引数で指定したノードを取り除く.
 	 * @param nodeToRemove 取り除くノード
+	 * @param wss 貼り付けノードの管理をしているワークスペースセット
 	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
-	public void removeFromPasteList(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_NODE_TO_PASTE, new MsgData(nodeToRemove, userOpeCmd), wss);
+	 */
+	public void removeFromPasteList(
+		BhNode nodeToRemove, WorkspaceSet wss,  UserOperationCommand userOpeCmd) {
+		MsgTransporter.INSTANCE.sendMessage(
+			BhMsg.REMOVE_NODE_TO_PASTE, new MsgData(nodeToRemove, userOpeCmd), wss);
 	}
 
 	/**
@@ -303,6 +301,24 @@ public class MsgService {
 
 		BhNodeView nodeView = getBhNodeView(node);
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.LOOK_AT_NODE_VIEW, new MsgData(nodeView), node.getWorkspace());
+	}
+
+	/**
+	 * ノード選択ビューをワークスペースセットに追加する.
+	 * @param wss ノード選択ビューを追加するワークスペースセット
+	 * @param view {@code wss} に追加するノード選択ビュー
+	 */
+	public void addNodeSelectionView(WorkspaceSet wss, BhNodeSelectionView view) {
+		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_NODE_SELECTION_PANEL, new MsgData(view), wss);
+	}
+
+	/**
+	 * 引数で指定したノードがテンプレートノードかどうかを調べる.
+	 * @param node テンプレートノードかどうかを調べるノード
+	 * @return {@code node} がテンプレートノードである場合 true
+	 */
+	public boolean isTemplateNode(BhNode node) {
+		return MsgTransporter.INSTANCE.sendMessage(BhMsg.IS_TEMPLATE_NODE, node).bool;
 	}
 }
 

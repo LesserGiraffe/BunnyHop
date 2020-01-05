@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
-import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
 
 /**
  * イベントハンドラのコード生成を行うクラス

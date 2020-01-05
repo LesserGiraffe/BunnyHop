@@ -1,7 +1,7 @@
 
 #nodeSelectionPanel {
 	-fx-background-color: transparent;
-	-fx-padding: 3em 3em 3em 3em;
+	-fx-padding: 3em 3em 3em 4em;
 }
 
 #nodeSelectionPanelBase {

@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.control;
-
-import java.util.ArrayList;
-import java.util.List;
+package net.seapanda.bunnyhop.control.workspace;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -32,12 +30,12 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.model.Workspace;
-import net.seapanda.bunnyhop.model.WorkspaceSet;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOpeCmdManager;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.BhNodeSelectionView;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
@@ -53,7 +51,6 @@ public class WorkspaceSetController implements MsgProcessor {
 	@FXML private TextArea mainMsgArea;
 	@FXML private ImageView openedTrashboxIV;
 	@FXML private ImageView closedTrashboxIV;
-	private final List<BhNodeSelectionView> bhNodeSelectionViewList = new ArrayList<>();
 	private final UserOpeCmdManager userOpeCmdManager = new UserOpeCmdManager();
 
 	/**
@@ -95,14 +92,22 @@ public class WorkspaceSetController implements MsgProcessor {
 
 		//ワークスペースセットの大きさ変更時にノード選択ビューの高さを再計算する
 		workspaceSetTab.heightProperty().addListener(
-			(observable, oldValue, newValue) -> {
-				bhNodeSelectionViewList.forEach(
-					//タブの大きさ分Y方向に移動するので, その分ノード選択ビューの高さを小さくする
-					selectionVeiw -> selectionVeiw.setMaxHeight(newValue.doubleValue() - selectionVeiw.getTranslateY()));
-			});
+			(observable, oldValue, newValue) -> resizeNodeSelectionViewHeight(newValue.doubleValue()));
 
 		// タブクローズイベントで TabDragPolicy.FIXED にするので, クリック時に再度 REORDER に変更する必要がある
 		workspaceSetTab.setOnMousePressed(event -> 	workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER));
+	}
+
+	/**
+	 * タブペインの高さに合わせてノード選択ビューの高さを変更する
+	 * @param tabViewHeight タブペインの高さ
+	 */
+	private void resizeNodeSelectionViewHeight(double tabViewHeight) {
+
+		for (Node node : workspaceSetStackPane.getChildren()) {
+			if (node instanceof BhNodeSelectionView)
+				((BhNodeSelectionView)node).setMaxHeight(tabViewHeight - node.getTranslateY());
+		}
 	}
 
 	/**
@@ -124,8 +129,6 @@ public class WorkspaceSetController implements MsgProcessor {
 		});
 	}
 
-	//private void
-
 	/**
 	 * ノード選択ビューを追加する
 	 * @param nodeSelectionView 表示するノードテンプレート
@@ -134,7 +137,6 @@ public class WorkspaceSetController implements MsgProcessor {
 
 		workspaceSetStackPane.getChildren().add(nodeSelectionView);
 		nodeSelectionView.toFront();
-		bhNodeSelectionViewList.add(nodeSelectionView);
 
 		//タブの高さ分移動したときもノード選択ビューの高さを再計算する
 		nodeSelectionView.translateYProperty().addListener((observable, oldValue, newValue) -> {
@@ -190,8 +192,8 @@ public class WorkspaceSetController implements MsgProcessor {
 				deleteWorkspace(data.workspace, data.workspaceView, data.userOpeCmd);
 				break;
 
-			case ADD_NODE_SELECTION_PANELS:
-				data.nodeSelectionViewList.forEach(this::addNodeSelectionView);
+			case ADD_NODE_SELECTION_PANEL:
+				addNodeSelectionView(data.nodeSelectionView);
 				break;
 
 			case GET_CURRENT_WORKSPACE:

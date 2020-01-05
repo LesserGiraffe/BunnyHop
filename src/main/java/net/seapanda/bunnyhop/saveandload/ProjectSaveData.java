@@ -19,21 +19,26 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
-import net.seapanda.bunnyhop.control.WorkspaceController;
+import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import net.seapanda.bunnyhop.control.workspace.WorkspaceController;
 import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
 import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
+import net.seapanda.bunnyhop.modelprocessor.TemplateImitationCollector;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.view.ViewInitializationException;
+import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
@@ -50,11 +55,19 @@ public class ProjectSaveData implements Serializable{
 	 * @param workspaceList 保存するワークスペースのリスト
 	 */
 	public ProjectSaveData(Collection<Workspace> workspaceList) {
-		workspaceSaveList = workspaceList.stream().map(workspace -> {
-			WorkspaceSaveData wsSaveData = this.new WorkspaceSaveData(workspace);
-			return wsSaveData;
-		})
+
+		var imitToDelete = workspaceList.stream()
+		.flatMap(ws -> ws.getRootNodeList().stream())
+		.flatMap(rootNode -> TemplateImitationCollector.collect(rootNode).stream())
 		.collect(Collectors.toCollection(ArrayList::new));
+		BhNodeHandler.INSTANCE.deleteNodes(imitToDelete, new UserOperationCommand());
+
+		workspaceSaveList = workspaceList.stream()
+			.map(workspace -> {
+				WorkspaceSaveData wsSaveData = this.new WorkspaceSaveData(workspace);
+				return wsSaveData;
+			})
+			.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	/**
@@ -65,10 +78,10 @@ public class ProjectSaveData implements Serializable{
 	public List<Workspace> load(UserOperationCommand userOpeCmd) {
 
 		workspaceSaveList.forEach(wsSaveData -> wsSaveData.initBhNodes());
-		return workspaceSaveList.stream().map(wsSaveData -> {
-			return wsSaveData.load(userOpeCmd);
-		})
-		.collect(Collectors.toCollection(ArrayList::new));
+		return workspaceSaveList.stream()
+				.map(wsSaveData -> wsSaveData.load(userOpeCmd).orElse(null))
+				.filter(ws -> ws != null)
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	/**
@@ -85,10 +98,9 @@ public class ProjectSaveData implements Serializable{
 			this.ws = ws;
 			Vec2D wsSize = MsgService.INSTANCE.getWorkspaceSize(ws);
 			workspaceSize = new Vec2D(wsSize.x, wsSize.y);
-			rootNodeSaveList = ws.getRootNodeList().stream().map(rootNode -> {
-				return this.new RootNodeSaveData(rootNode);
-			})
-			.collect(Collectors.toCollection(ArrayList::new));
+			rootNodeSaveList = ws.getRootNodeList().stream()
+				.map(rootNode -> this.new RootNodeSaveData(rootNode))
+				.collect(Collectors.toCollection(ArrayList::new));
 		}
 
 		/**
@@ -105,14 +117,21 @@ public class ProjectSaveData implements Serializable{
 		/**
 		 * ワークスペースをワークスペースセットに追加できる状態にして返す
 		 * @param userOpeCmd undo用コマンドオブジェクト
-		 * @return ロードしたワークスペース
+		 * @return ロードしたワークスペース. 失敗した場合 empty.
 		 */
-		public Workspace load(UserOperationCommand userOpeCmd) {
+		public Optional<Workspace> load(UserOperationCommand userOpeCmd) {
 
 			WorkspaceView wsView = new WorkspaceView(ws);
 			wsView.init(workspaceSize.x, workspaceSize.y);
-			WorkspaceController wsController = new WorkspaceController(ws, wsView);
-			wsController.init();
+
+			WorkspaceController wsController;
+			try {
+				wsController = new WorkspaceController(ws, wsView, new MultiNodeShifterView());
+			}
+			catch (ViewInitializationException e) {
+				MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + ".load\n" + e);
+				return Optional.empty();
+			}
 			ws.setMsgProcessor(wsController);
 			ws.initForLoad();
 			rootNodeSaveList.forEach(nodeSaveData -> {
@@ -121,7 +140,7 @@ public class ProjectSaveData implements Serializable{
 				BhNode rootNode = rootNode_pos._1;
 				BhNodeHandler.INSTANCE.addRootNode(ws, rootNode, pos.x, pos.y, userOpeCmd);
 			});
-			return ws;
+			return Optional.of(ws);
 		}
 
 		private class RootNodeSaveData implements Serializable {

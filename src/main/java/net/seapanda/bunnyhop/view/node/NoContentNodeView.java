@@ -15,11 +15,13 @@
  */
 package net.seapanda.bunnyhop.view.node;
 
+import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShape.BODY_SHAPE;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
 import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 
 /**
@@ -38,32 +40,8 @@ public class NoContentNodeView extends BhNodeView {
 
 		super(viewStyle, model);
 		this.model = model;
-	}
-
-	/**
-	 * 初期化する
-	 */
-	public void init() {
-
-		initialize();
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_NO_CONTENT_NODE);
-		setFuncs(this::updateShape, null);
 		setMouseTransparent(true);
-
-		parent.addListener((obs, oldVal, newVal) -> {
-
-			boolean inner = (newVal == null) ? true : newVal.inner;
-			//ボディサイズ決定
-			if (!inner) {
-				viewStyle.paddingTop = 0.0;
-				viewStyle.height = 0.0;
-				viewStyle.paddingBottom = 0.0;
-				viewStyle.paddingLeft = 0.0;
-				viewStyle.width = 0.0;
-				viewStyle.paddingRight = 0.0;
-				getAppearanceManager().setBodyShape(BODY_SHAPE.BODY_SHAPE_NONE);
-			}
-		});
 	}
 
 	/**
@@ -75,14 +53,49 @@ public class NoContentNodeView extends BhNodeView {
 		return model;
 	}
 
-	/**
-	 * ノードの大きさや見た目を変える
-	 * */
-	private void updateShape(BhNodeViewGroup child) {
+	@Override
+	protected void arrangeAndResize() {
+
+		boolean inner = (parent == null) ? true : parent.inner;
+		if (inner)
+			getAppearanceManager().setBodyShape(viewStyle.bodyShape);
+		else
+			getAppearanceManager().setBodyShape(BODY_SHAPE.BODY_SHAPE_NONE);
 
 		getAppearanceManager().updatePolygonShape();
-		if (parent.get() != null)
-			parent.get().rearrangeChild();
+	}
+
+	@Override
+	protected Vec2D getBodySize(boolean includeCnctr) {
+
+		double paddingLeft = 0.0;
+		double paddingRight = 0.0;
+		double paddingTop = 0.0;
+		double paddingBottom = 0.0;
+
+		boolean inner = (parent == null) ? true : parent.inner;
+		if (inner) {
+			paddingLeft = viewStyle.paddingLeft;
+			paddingRight = viewStyle.paddingRight;
+			paddingTop = viewStyle.paddingTop;
+			paddingBottom = viewStyle.paddingBottom;
+		}
+
+		Vec2D cnctrSize = viewStyle.getConnectorSize();
+		double bodyWidth = paddingLeft + paddingRight;
+		if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.LEFT))
+			bodyWidth += cnctrSize.x;
+
+		double bodyHeight = paddingTop + paddingBottom;
+		if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.TOP))
+			bodyHeight += cnctrSize.y;
+
+		return new Vec2D(bodyWidth, bodyHeight);
+	}
+
+	@Override
+	protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
+		return getBodySize(includeCnctr);
 	}
 
 	@Override

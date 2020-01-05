@@ -33,19 +33,19 @@ import org.w3c.dom.NodeList;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.model.imitation.ImitationConnectionPos;
-import net.seapanda.bunnyhop.model.imitation.ImitationID;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.BhNodeID;
-import net.seapanda.bunnyhop.model.node.BhNodeViewType;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.VoidNode;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.model.node.connective.ConnectorID;
 import net.seapanda.bunnyhop.model.node.connective.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.connective.Section;
 import net.seapanda.bunnyhop.model.node.connective.Subsection;
+import net.seapanda.bunnyhop.model.node.imitation.ImitationConnectionPos;
+import net.seapanda.bunnyhop.model.node.imitation.ImitationID;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 
 /**
@@ -148,7 +148,7 @@ public class NodeConstructor {
 
 		for (Element imitTag : imitTagList) {
 
-			ImitationID imitationID = ImitationID.createImitID(imitTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMITATION_ID));
+			ImitationID imitationID = ImitationID.create(imitTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMITATION_ID));
 			if (imitationID.equals(ImitationID.NONE)) {
 				MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ELEM_NAME_IMITATION + " タグには, "
 					+ BhParams.BhModelDef.ATTR_NAME_IMITATION_ID + " 属性を記述してください. " + node.getBaseURI());
@@ -215,17 +215,18 @@ public class NodeConstructor {
 			nodeAttrs.get().getOnDeletionRequested(),
 			nodeAttrs.get().getOnCutRequested(),
 			nodeAttrs.get().getOnCopyRequested(),
-			nodeAttrs.get().getSyntaxErrorChecker());
+			nodeAttrs.get().getSyntaxErrorChecker(),
+			nodeAttrs.get().getOnPrivateTemplateCreating());
 		if (!allScriptsFound)
 			return Optional.empty();
 
 		BhNodeID orgNodeID = nodeAttrs.get().getBhNodeID();
-		Optional<Map<ImitationID, BhNodeID>> imitID_imitNodeID =
+		Optional<Map<ImitationID, BhNodeID>> imitIdToImitNodeID =
 			genImitIDAndNodePair(node, orgNodeID, nodeAttrs.get().getCanCreateImitManually());
-		if (!imitID_imitNodeID.isPresent())
+		if (!imitIdToImitNodeID.isPresent())
 			return Optional.empty();
 
-		return Optional.of(new ConnectiveNode(childSection.get().get(0), imitID_imitNodeID.get(), nodeAttrs.get()));
+		return Optional.of(new ConnectiveNode(childSection.get().get(0), imitIdToImitNodeID.get(), nodeAttrs.get()));
 	}
 
 	/**
@@ -262,7 +263,8 @@ public class NodeConstructor {
 			nodeAttrs.get().getOnCutRequested(),
 			nodeAttrs.get().getOnCopyRequested(),
 			nodeAttrs.get().getTextFormatter(),
-			nodeAttrs.get().getSyntaxErrorChecker());
+			nodeAttrs.get().getSyntaxErrorChecker(),
+			nodeAttrs.get().getOnPrivateTemplateCreating());
 		if (!allScriptsFound) {
 			return Optional.empty();
 		}
@@ -275,7 +277,7 @@ public class NodeConstructor {
 			return Optional.empty();
 		}
 		else {
-			BhNodeViewStyle.nodeID_inputControlFileName.put(
+			BhNodeViewStyle.nodeIdToInputControlFileName.put(
 				nodeAttrs.get().getBhNodeID(), nodeAttrs.get().getNodeInputControlFileName());
 		}
 
@@ -372,19 +374,15 @@ public class NodeConstructor {
 		}
 
 		for (Element connectorTag : privateCnctrTags) {
-			Optional<Pair<Connector, ConnectorSection.CnctrInstantiationParams>> cnctr_instParams = genPrivateConnector(connectorTag);
-			if (!cnctr_instParams.isPresent()) {
+			Optional<Pair<Connector, ConnectorSection.CnctrInstantiationParams>> cnctrAndInstParams = genPrivateConnector(connectorTag);
+			if (!cnctrAndInstParams.isPresent()) {
 				return Optional.empty();
 			}
-			cnctrList.add(cnctr_instParams.get()._1);
-			cnctrInstantiationParamsList.add(cnctr_instParams.get()._2);
+			cnctrList.add(cnctrAndInstParams.get()._1);
+			cnctrInstantiationParamsList.add(cnctrAndInstParams.get()._2);
 		}
 
-		return Optional.of(
-			new ConnectorSection(
-				sectionName,
-				cnctrList,
-				cnctrInstantiationParamsList));
+		return Optional.of(new ConnectorSection(sectionName, cnctrList, cnctrInstantiationParamsList));
 	}
 
 	/**
@@ -405,10 +403,7 @@ public class NodeConstructor {
 		if (!connectorOpt.isPresent())
 			MsgPrinter.INSTANCE.errMsgForDebug(connectorID + " に対応するコネクタ定義が見つかりません.  " + connectorTag.getBaseURI());
 
-		return connectorOpt.map(connector -> {
-			ConnectorSection.CnctrInstantiationParams cnctrInstParams = genConnectorInstParams(connectorTag);
-			return new Pair<>(connector, cnctrInstParams);
-		});
+		return connectorOpt.map(connector -> new Pair<>(connector, genConnectorInstParams(connectorTag)));
 	}
 
 	/**
@@ -425,32 +420,21 @@ public class NodeConstructor {
 			return Optional.empty();
 		}
 
-		Optional<? extends BhNode> privateNodeOpt = Optional.empty();
+		//プライベートノードがある
 		if (privateNodeTagList.size() == 1) {
-			privateNodeOpt = genPirvateNode(privateNodeTagList.get(0));	//プライベートノード作成
-		}
-		else if (privateNodeTagList.size() == 0) {
-			Optional<Connector> privateCnctrOpt = (new ConnectorConstructor()).genTemplate(connectorTag);
-			return privateCnctrOpt.map(privateCnctr -> {
-				registerCnctrTemplate.accept(privateCnctr.getID(), privateCnctr); //コネクタテンプレートリストに登録
-				ConnectorSection.CnctrInstantiationParams cnctrInstParams = genConnectorInstParams(connectorTag);
-				return Optional.of(new Pair<>(privateCnctr, cnctrInstParams));
-			}).orElse(null);
+			Optional<? extends BhNode> privateNode = genPirvateNode(privateNodeTagList.get(0));
+			if (privateNode.isPresent() &&
+				!connectorTag.hasAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID))
+				connectorTag.setAttribute(
+					BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID, privateNode.get().getID().toString());
 		}
 
-		// プライベートコネクタ作成
-		return privateNodeOpt.map(privateNode -> {
-
-			if (!connectorTag.hasAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID))
-				connectorTag.setAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID, privateNode.getID().toString());
-			ConnectorConstructor constructor = new ConnectorConstructor();
-			Optional<Connector> privateCnctrOpt = constructor.genTemplate(connectorTag);
-			return privateCnctrOpt.map(privateCnctr -> {
-				registerCnctrTemplate.accept(privateCnctr.getID(), privateCnctr); //コネクタテンプレートリストに登録
-				ConnectorSection.CnctrInstantiationParams cnctrInstParams = genConnectorInstParams(connectorTag);
-				return new Pair<>(privateCnctr, cnctrInstParams);
-			}).orElse(null);
-		});
+		Optional<Connector> privateCnctrOpt = new ConnectorConstructor().genTemplate(connectorTag);
+		//コネクタテンプレートリストに登録
+		privateCnctrOpt.ifPresent(
+			privateCnctr -> registerCnctrTemplate.accept(privateCnctr.getID(), privateCnctr));
+		return privateCnctrOpt.map(
+			privateCnctr -> new Pair<>(privateCnctr, genConnectorInstParams(connectorTag)));
 	}
 
 	/**
@@ -465,7 +449,7 @@ public class NodeConstructor {
 		String name = connectorTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_NAME);
 		return new ConnectorSection.CnctrInstantiationParams(
 			name,
-			ImitationID.createImitID(imitationID),
+			ImitationID.create(imitationID),
 			ImitationConnectionPos.createImitCnctPoint(imitCnctPoint));
 	}
 
@@ -489,9 +473,7 @@ public class NodeConstructor {
 				"プライベートノード(<" +  BhParams.BhModelDef.ELEM_NAME_PRIVATE_CONNECTOR + "> タグの下に定義されたノード) エラー.\n"
 				+ nodeTag.getBaseURI());
 
-		privateNodeOpt.ifPresent(privateNode -> {
-			registerNodeTemplate.accept(privateNode.getID(), privateNode);
-		});
+		privateNodeOpt.ifPresent(privateNode -> registerNodeTemplate.accept(privateNode.getID(), privateNode));
 		return privateNodeOpt;
 	}
 }

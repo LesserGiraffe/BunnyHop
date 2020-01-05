@@ -16,7 +16,7 @@
 package net.seapanda.bunnyhop.compiler;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
 
 /**
  * 文のコード生成を行うクラス

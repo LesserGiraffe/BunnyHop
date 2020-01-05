@@ -73,8 +73,7 @@ public class AppMain extends Application {
 		if (!success)
 			System.exit(-1);
 
-		BunnyHop.INSTANCE.createWindow(stage);
-		if (!BunnyHop.INSTANCE.genNodeCategoryList())
+		if (!BunnyHop.INSTANCE.createWindow(stage))
 			System.exit(-1);
 		if (!LocalBhProgramManager.INSTANCE.init())
 			System.exit(-1);

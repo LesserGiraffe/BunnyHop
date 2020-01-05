@@ -45,7 +45,7 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.BhNodeID;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.model.node.connective.ConnectorID;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -53,7 +53,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
 /**
  * ノード生成時のテンプレートを保持するクラス
  * @author K.Koike
- * */
+ */
 public class BhNodeTemplates {
 
 	public static final BhNodeTemplates INSTANCE = new BhNodeTemplates(); //!< シングルトンインスタンス
@@ -135,23 +135,36 @@ public class BhNodeTemplates {
 		}
 
 		//コネクタ設定ファイル読み込み
-		boolean success = files.map(file -> {
-				try {
-					DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
-					DocumentBuilder builder = dbfactory.newDocumentBuilder();
-					Document doc = builder.parse(file.toFile());
-					Optional<? extends Connector> templateConnector = new ConnectorConstructor().genTemplate(doc);
-					templateConnector.ifPresent(connector -> registerCnctrTemplate(connector.getID(), connector));	//テンプレート格納ハッシュに格納
-					return templateConnector.isPresent();
-				}
-				catch (IOException | ParserConfigurationException | SAXException e) {
-					MsgPrinter.INSTANCE.errMsgForDebug("ConnectorTemplates genTemplate \n" + e.toString() + "\n" +  file);
-					return false;
-				}
-			}).allMatch(successful -> successful) ;
+		boolean success = files
+			.map(file -> {
+				Optional<? extends Connector> connectorOpt = genConnectorFromFile(file);
+				connectorOpt.ifPresent(connector -> registerCnctrTemplate(connector.getID(), connector));
+				return connectorOpt.isPresent();
+			})
+			.allMatch(Boolean::valueOf);
 
 		files.close();
 		return success;
+	}
+
+	/**
+	 * ファイルからコネクタを作成する.
+	 * @param file コネクタが定義されたファイル
+	 * @return {@code file} から作成したコネクタ
+	 */
+	private Optional<? extends Connector> genConnectorFromFile(Path file) {
+
+		try {
+			DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = dbfactory.newDocumentBuilder();
+			Document doc = builder.parse(file.toFile());
+			Optional<? extends Connector> templateConnector = new ConnectorConstructor().genTemplate(doc);
+			return templateConnector;
+		}
+		catch (IOException | ParserConfigurationException | SAXException e) {
+			MsgPrinter.INSTANCE.errMsgForDebug("ConnectorTemplates genTemplate \n" + e.toString() + "\n" +  file);
+			return Optional.empty();
+		}
 	}
 
 	/**
@@ -172,29 +185,42 @@ public class BhNodeTemplates {
 		}
 
 		//ノード設定ファイル読み込み
-		boolean success = !files.map(file -> {
-				try {
-					DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
-					DocumentBuilder builder = dbfactory.newDocumentBuilder();
-					Document doc = builder.parse(file.toFile());
-					Optional<? extends BhNode> templateNode =
-						new NodeConstructor(
-							this::registerNodeTemplate,
-							this::registerCnctrTemplate,
-							this::registerOrgNodeIdAndImitNodeID,
-							this::getCnctrTemplate)
-							.genTemplate(doc);
-					templateNode.ifPresent(node -> nodeID_nodeTemplate.put(node.getID(), node));
-					return templateNode.isPresent();
-				}
-				catch (IOException | ParserConfigurationException | SAXException e) {
-					MsgPrinter.INSTANCE.errMsgForDebug("NodeTemplates genTemplate \n" + e.toString() + "\n" +  file);
-					return false;
-				}
-			}).anyMatch(isSuccessful -> !isSuccessful);
+		boolean success = files
+			.map(file -> {
+				Optional<? extends BhNode> nodeOpt = genNodeFromFile(file);
+				nodeOpt.ifPresent(node -> nodeID_nodeTemplate.put(node.getID(), node));
+				return nodeOpt.isPresent();
+			})
+			.allMatch(Boolean::valueOf);
 		files.close();
 		success &= checkImitationConsistency(orgNodeID_imitNodeID);
 		return success;
+	}
+
+	/**
+	 * ファイルからノードを作成する.
+	 * @param file ノードが定義されたファイル
+	 * @return {@code file} から作成したノード
+	 */
+	private Optional<? extends BhNode> genNodeFromFile(Path file) {
+
+		try {
+			DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = dbfactory.newDocumentBuilder();
+			Document doc = builder.parse(file.toFile());
+			Optional<? extends BhNode> templateNode =
+				new NodeConstructor(
+					this::registerNodeTemplate,
+					this::registerCnctrTemplate,
+					this::registerOrgNodeIdAndImitNodeID,
+					this::getCnctrTemplate)
+					.genTemplate(doc);
+			return templateNode;
+		}
+		catch (IOException | ParserConfigurationException | SAXException e) {
+			MsgPrinter.INSTANCE.errMsgForDebug("NodeTemplates genTemplate \n" + e.toString() + "\n" +  file);
+			return Optional.empty();
+		}
 	}
 
 	/**
@@ -204,7 +230,8 @@ public class BhNodeTemplates {
 	private boolean registerDefaultNodeWithConnector() {
 
 		//コネクタに最初につながっているノード(defaultNode) をコネクタに登録する
-		boolean success = cnctrID_cntrTemplate.values().stream().map(connector -> {
+		boolean success = cnctrID_cntrTemplate.values().stream()
+			.map(connector -> {
 				BhNodeID defNodeID = connector.defaultNodeID;
 				Optional<BhNode> defNode = getBhNodeTemplate(defNodeID);
 				BhNodeID initNodeID = connector.initNodeID;
@@ -231,7 +258,8 @@ public class BhNodeTemplates {
 					connector.connectNode(initNode.get(), null);
 					return true;
 				}
-			}).allMatch(bool -> bool);
+			})
+			.allMatch(Boolean::valueOf);
 
 		return success;
 	}
@@ -243,30 +271,32 @@ public class BhNodeTemplates {
 	 */
 	private boolean checkImitationConsistency(List<Pair<BhNodeID, BhNodeID>> orgNodeID_imitNodeID) {
 
-		boolean hasConsistency = orgNodeID_imitNodeID.stream().allMatch(orgID_imitID -> {
+		boolean hasConsistency = orgNodeID_imitNodeID.stream()
+			.map(orgID_imitID -> {
 
-			//イミテーションノードの存在チェック
-			if (!bhNodeExists(orgID_imitID._2)) {
-				MsgPrinter.INSTANCE.errMsgForDebug(
-					"\"" + orgID_imitID._2 + "\"" + " を "
-					+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " に持つ "
-					+ BhParams.BhModelDef.ELEM_NAME_NODE + " が見つかりません. " + "(" + orgID_imitID._1 + ")");
-				return false;
-			}
+				//イミテーションノードの存在チェック
+				if (!bhNodeExists(orgID_imitID._2)) {
+					MsgPrinter.INSTANCE.errMsgForDebug(
+						"\"" + orgID_imitID._2 + "\"" + " を "
+						+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " に持つ "
+						+ BhParams.BhModelDef.ELEM_NAME_NODE + " が見つかりません. " + "(" + orgID_imitID._1 + ")");
+					return false;
+				}
 
-			//オリジナルノードとイミテーションノードの型一致チェック
-			Optional<BhNode> orgNodeOpt = getBhNodeTemplate(orgID_imitID._1);
-			Optional<BhNode> imitNodeOpt = getBhNodeTemplate(orgID_imitID._2);
-			boolean isSameType = orgNodeOpt.get().getClass() == imitNodeOpt.get().getClass();
-			if (!isSameType) {
-				MsgPrinter.INSTANCE.errMsgForDebug(
-					BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + orgNodeOpt.get().getType() + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " は "
-				  + BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + imitNodeOpt.get().getType() + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " を "
-				  + BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID + " に指定できません. \n"
-				  + "org: " + orgID_imitID._1 + "    imit: " + orgID_imitID._2);
-			}
-			return isSameType;
-		});
+				//オリジナルノードとイミテーションノードの型一致チェック
+				Optional<BhNode> orgNodeOpt = getBhNodeTemplate(orgID_imitID._1);
+				Optional<BhNode> imitNodeOpt = getBhNodeTemplate(orgID_imitID._2);
+				boolean isSameType = orgNodeOpt.get().getClass() == imitNodeOpt.get().getClass();
+				if (!isSameType) {
+					MsgPrinter.INSTANCE.errMsgForDebug(
+						BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + orgNodeOpt.get().getType() + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " は "
+					  + BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + imitNodeOpt.get().getType() + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " を "
+					  + BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID + " に指定できません. \n"
+					  + "org: " + orgID_imitID._1 + "    imit: " + orgID_imitID._2);
+				}
+				return isSameType;
+			})
+			.allMatch(Boolean::valueOf);
 		return hasConsistency;
 	}
 

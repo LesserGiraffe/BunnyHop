@@ -13,32 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package net.seapanda.bunnyhop.model.node;
+package net.seapanda.bunnyhop.model.node.attribute;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
 
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
- * SyntaxSymbolのID
+ * BhノードID
  * @author K.Koike
- * */
-public class SyntaxSymbolID implements Serializable {
+ */
+public class BhNodeID implements Serializable {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	static private AtomicLong sequentialID = new AtomicLong(0);
-	private final String id;
+	public static final BhNodeID NONE = new BhNodeID("");	//!< BhNodeIDが存在しないことを表す
+	String id;
 
-	static SyntaxSymbolID newID() {
-		long id = sequentialID.addAndGet(1);
-		return new SyntaxSymbolID(Long.toHexString(id));
+	/**
+	 * コンストラクタ
+	 * @param id 識別子名
+	 */
+	private BhNodeID(String id) {
+		this.id = id;
 	}
 
-	private SyntaxSymbolID(String id) {
-		this.id = id;
+	/**
+	 * BhノードIDを作成する
+	 * @param id 識別子名
+	 * @return BhノードID
+	 */
+	public static BhNodeID create(String id) {
+		return new BhNodeID(id == null ? "" : id);
 	}
 
 	@Override
@@ -50,13 +56,13 @@ public class SyntaxSymbolID implements Serializable {
 	public boolean equals(Object obj) {
 		if (obj == null)
 			return false;
-		return (getClass() == obj.getClass()) && (id.equals(((SyntaxSymbolID)obj).id));
+		return (getClass() == obj.getClass()) && (id.equals(((BhNodeID)obj).id));
 	}
 
 	@Override
 	public int hashCode() {
-		int hash = 71;
-		hash = 311 * hash + Objects.hashCode(this.id);
+		int hash = 5;
+		hash = 11 * hash + Objects.hashCode(this.id);
 		return hash;
 	}
 }

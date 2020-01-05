@@ -1,6 +1,6 @@
 (function() {
 
-	let BhNodeID = net.seapanda.bunnyhop.model.node.BhNodeID;
+	let BhNodeID = net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
 
 	function registerNodeTemplate(bhNodeID, bhNode) {
 		bhNodeTemplates.registerNodeTemplate(BhNodeID.create(bhNodeID), bhNode);

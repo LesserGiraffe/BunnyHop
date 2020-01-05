@@ -2,9 +2,7 @@
 	type="connective"
 	bhNodeID="idGetNumberWaitingExp"
 	name="GetNumberWaitingExp"
-	nodeStyleID="GetNumberWaitingExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="GetNumberWaitingExp.json">
 
 	<ConnectorSection name="NumberExpSctn">
 		<Connector bhConnectorID="idReusableBarrierVarCnctr" name="Arg0"/>

@@ -35,7 +35,7 @@ import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
-import net.seapanda.bunnyhop.model.node.BhNodeID;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShape;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShape.BODY_SHAPE;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
@@ -52,8 +52,6 @@ public class BhNodeViewStyle {
 	public double paddingBottom = 2.5 * BhParams.LnF.NODE_SCALE; //!< ノード下部の余白
 	public double paddingLeft = 2.5 * BhParams.LnF.NODE_SCALE; //!< ノード左部の余白
 	public double paddingRight = 2.5 * BhParams.LnF.NODE_SCALE; //!< ノード右部の余白
-	public double width = 0.0; //!< ノードの余白とコネクタを除いた部分の幅
-	public double height = 0.0; //!< ノードの余白とコネクタを除いた部分の高さ
 	public BODY_SHAPE bodyShape = BODY_SHAPE.BODY_SHAPE_ROUND_RECT;
 	public CNCTR_POS connectorPos = CNCTR_POS.TOP; //!< コネクタの位置
 	public double connectorShift = 0.5 * BhParams.LnF.NODE_SCALE; //!< ノードの左上からのコネクタの位置
@@ -70,8 +68,6 @@ public class BhNodeViewStyle {
 	public Connective connective = new Connective();
 
 	public static class Connective {
-		public double outerWidth = 0.0; //!< 外部描画される部分の幅
-		public double outerHeight = 0.0; //!< 外部描画される部分の高さ
 		public Arrangement inner = new Arrangement();
 		public Arrangement outer = new Arrangement();
 	}
@@ -131,17 +127,25 @@ public class BhNodeViewStyle {
 	}
 
 
-	public Imitation imitation = new Imitation();
+	public Button imitation = new Button("defaultImitButton");
+	public Button privatTemplate = new Button("defaultPrivateTemplateButton");
 
-	public static class Imitation {
+	public static class Button {
 		public double buttonPosX = 0.5 * BhParams.LnF.NODE_SCALE;
 		public double buttonPosY = 0.5 * BhParams.LnF.NODE_SCALE;
 		public String cssClass = "defaultImitButton";
+
+		public Button(String cssClass) {
+			this.cssClass = cssClass;
+		}
 	}
 
-	private static final HashMap<String, BhNodeViewStyle> nodeStyleID_nodeStyleTemplate = new HashMap<>(); //!< ノードスタイルのテンプレートを格納するハッシュ. JSON ファイルの nodeStyleID がキー
-	private static final HashMap<BhNodeID, String> nodeID_nodeStyleID = new HashMap<>(); //!< ノードIDとノードスタイルのペアを格納するハッシュ
-	public static final HashMap<BhNodeID, String> nodeID_inputControlFileName = new HashMap<>(); //!< ノードIDとBhNodeの入力GUI部品のfxmlファイル名のペアを格納するハッシュ
+	/** ノードスタイルのテンプレートを格納するハッシュ. JSON ファイルの nodeStyleID がキー */
+	private static final HashMap<String, BhNodeViewStyle> nodeStyleIDToNodeStyleTemplate = new HashMap<>();
+	/** ノードIDとノードスタイルのペアを格納するハッシュ */
+	private static final HashMap<BhNodeID, String> nodeIdToNodeStyleID = new HashMap<>();
+	/** ノードIDと BhNode の入力 GUI 部品の fxml ファイル名のペアを格納するハッシュ */
+	public static final HashMap<BhNodeID, String> nodeIdToInputControlFileName = new HashMap<>();
 
 	public enum CNCTR_POS {
 		LEFT, TOP
@@ -171,8 +175,6 @@ public class BhNodeViewStyle {
 		this.paddingBottom = org.paddingBottom;
 		this.paddingLeft = org.paddingLeft;
 		this.paddingRight = org.paddingRight;
-		this.width = org.width;
-		this.height = org.height;
 		this.bodyShape = org.bodyShape;
 		this.connectorPos = org.connectorPos;
 		this.connectorShift = org.connectorShift;
@@ -184,8 +186,6 @@ public class BhNodeViewStyle {
 		this.notchWidth = org.notchWidth;
 		this.notchHeight = org.notchHeight;
 		this.notchShape = org.notchShape;
-		this.connective.outerWidth = org.connective.outerWidth;
-		this.connective.outerHeight = org.connective.outerHeight;
 		this.connective.inner.copy(org.connective.inner);
 		this.connective.outer.copy(org.connective.outer);
 		this.cssClass = org.cssClass;
@@ -199,45 +199,9 @@ public class BhNodeViewStyle {
 		this.imitation.cssClass = org.imitation.cssClass;
 		this.imitation.buttonPosX = org.imitation.buttonPosX;
 		this.imitation.buttonPosY = org.imitation.buttonPosY;
-	}
-
-	/**
-	 * 外部ノードを含まない本体部分のサイズを取得する
-	 * @param includeCnctr コネクタ部分の大きさを含む場合true
-	 * @return コネクタ部分や外部ノードを含まない本体部分のサイズ
-	 * */
-	public Vec2D getBodySize(boolean includeCnctr) {
-
-		Vec2D cnctrSize = getConnectorSize();
-		double bodyWidth = paddingLeft + width + paddingRight;
-		if (includeCnctr && (connectorPos == CNCTR_POS.LEFT))
-			bodyWidth += cnctrSize.x;
-
-		double bodyHeight = paddingTop + height + paddingBottom;
-		if (includeCnctr && (connectorPos == CNCTR_POS.TOP))
-			bodyHeight += cnctrSize.y;
-
-		return new Vec2D(bodyWidth, bodyHeight);
-	}
-
-	/**
-	 * 外部ノードを含む本体部分のサイズを取得する
-	 * @param includCnctr コネクタ部分の大きさを含む場合true
-	 * @return コネクタ部分や外部ノードを含まない本体部分のサイズ
-	 * */
-	public Vec2D getBodyAndOuterSize(boolean includCnctr) {
-
-		Vec2D bodySize = getBodySize(includCnctr);
-		double totalWidth = bodySize.x;
-		double totalHeight = bodySize.y;
-		if (connectorPos == CNCTR_POS.LEFT) { //外部ノードが右に接続される
-			totalWidth += connective.outerWidth;
-			totalHeight = Math.max(totalHeight, connective.outerHeight);
-		} else { //外部ノードが下に接続される
-			totalWidth = Math.max(totalWidth, connective.outerWidth);
-			totalHeight += connective.outerHeight;
-		}
-		return new Vec2D(totalWidth, totalHeight);
+		this.privatTemplate.cssClass = org.privatTemplate.cssClass;
+		this.privatTemplate.buttonPosX = org.privatTemplate.buttonPosX;
+		this.privatTemplate.buttonPosY = org.privatTemplate.buttonPosY;
 	}
 
 	/**
@@ -259,7 +223,6 @@ public class BhNodeViewStyle {
 
 	public static boolean genViewStyleTemplate() {
 
-		//コネクタファイルパスリスト取得
 		Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.NODE_STYLE_DEF_DIR);
 		Stream<Path> paths = null; //読み込むファイルパスリスト
 		try {
@@ -269,21 +232,29 @@ public class BhNodeViewStyle {
 			return false;
 		}
 
-		boolean succes = paths.map(filePath -> {
-			NativeObject jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
-			if (jsonObj == null)
-				return false;
-
-			String styleID = filePath.getFileName().toString();
-			Optional<BhNodeViewStyle> bhNodeViewStyle =
-				genBhNodeViewStyle(jsonObj, filePath.toAbsolutePath().toString(), styleID);
-			bhNodeViewStyle.ifPresent(viewStyle -> nodeStyleID_nodeStyleTemplate.put(viewStyle.nodeStyleID, viewStyle));
-			return bhNodeViewStyle.isPresent();
-		}).allMatch(success -> success);
-
-		nodeStyleID_nodeStyleTemplate.put(BhParams.BhModelDef.ATTR_VALUE_DEFAULT_NODE_STYLE_ID, new BhNodeViewStyle());
+		boolean succes = paths.map(filePath -> registerNodeStyle(filePath)).allMatch(Boolean::valueOf);
+		nodeStyleIDToNodeStyleTemplate.put(
+			BhParams.BhModelDef.ATTR_VALUE_DEFAULT_NODE_STYLE_ID, new BhNodeViewStyle());
 		paths.close();
 		return succes;
+	}
+
+	/**
+	 * 引数で指定したファイルからノードスタイルを読み取ってレジストリに格納する.
+	 * @param filePath ノードスタイルファイルのパス
+	 * @return 成功した場合 true.
+	 */
+	private static Boolean registerNodeStyle(Path filePath) {
+
+		Optional<NativeObject> jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
+		if (jsonObj.isEmpty())
+			return false;
+
+		String styleID = filePath.getFileName().toString();
+		Optional<BhNodeViewStyle> bhNodeViewStyle =
+			genBhNodeViewStyle(jsonObj.get(), filePath.toAbsolutePath().toString(), styleID);
+		bhNodeViewStyle.ifPresent(viewStyle -> nodeStyleIDToNodeStyleTemplate.put(viewStyle.nodeStyleID, viewStyle));
+		return bhNodeViewStyle.isPresent();
 	}
 
 	/**
@@ -318,14 +289,6 @@ public class BhNodeViewStyle {
 		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_RIGHT, Number.class, jsonObj, fileName);
 		val.ifPresent(paddingRight ->
 			bhNodeViewStyle.paddingRight = ((Number) paddingRight).doubleValue() * BhParams.LnF.NODE_SCALE);
-
-		//width
-		val = readValue(BhParams.NodeStyleDef.KEY_WIDTH, Number.class, jsonObj, fileName);
-		val.ifPresent(width -> bhNodeViewStyle.width = ((Number) width).doubleValue() * BhParams.LnF.NODE_SCALE);
-
-		//height
-		val = readValue(BhParams.NodeStyleDef.KEY_HEIGHT, Number.class, jsonObj, fileName);
-		val.ifPresent(height -> bhNodeViewStyle.height = ((Number) height).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//bodyShape
 		val = readValue(BhParams.NodeStyleDef.KEY_BODY_SHAPE, String.class, jsonObj, fileName);
@@ -449,7 +412,13 @@ public class BhNodeViewStyle {
 		Optional<Object> imitationOpt =
 			readValue(BhParams.NodeStyleDef.KEY_IMITATION, NativeObject.class, jsonObj, fileName);
 		imitationOpt.ifPresent(
-			imitation -> fillImitationParams(bhNodeViewStyle.imitation, (NativeObject) imitation, fileName));
+			imitation -> fillButtonParams(bhNodeViewStyle.imitation, (NativeObject)imitation, fileName));
+
+		//privateTemplate
+		Optional<Object> privateTemplateOpt =
+			readValue(BhParams.NodeStyleDef.KEY_PRIVATE_TEMPLATE, NativeObject.class, jsonObj, fileName);
+		privateTemplateOpt.ifPresent(privateTemplate ->
+			fillButtonParams(bhNodeViewStyle.privatTemplate, (NativeObject)privateTemplate, fileName));
 
 		return Optional.of(bhNodeViewStyle);
 	}
@@ -556,30 +525,30 @@ public class BhNodeViewStyle {
 
 	/**
 	 * BhNodeViewStyle.Imitaion を埋める
-	 * @param imitation jsonObj の情報を格納するオブジェクト
-	 * @param jsonObj key = "imitation" の value であるオブジェクト
+	 * @param button jsonObj の情報を格納するオブジェクト
+	 * @param jsonObj ボタンのパラメータが格納されたオブジェクト
 	 * @param fileName jsonObj が記述してある .json ファイルの名前
 	 * */
-	private static void fillImitationParams(
-		BhNodeViewStyle.Imitation imitation,
+	private static void fillButtonParams(
+		BhNodeViewStyle.Button button,
 		NativeObject jsonObj,
 		String fileName) {
 
 		//buttonPosX
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_BUTTON_POS_X, Number.class, jsonObj, fileName);
 		val.ifPresent(btnPosX -> {
-			imitation.buttonPosX = ((Number) btnPosX).doubleValue() * BhParams.LnF.NODE_SCALE;
+			button.buttonPosX = ((Number) btnPosX).doubleValue() * BhParams.LnF.NODE_SCALE;
 		});
 
 		//buttonPosY
 		val = readValue(BhParams.NodeStyleDef.KEY_BUTTON_POS_Y, Number.class, jsonObj, fileName);
 		val.ifPresent(btnPosY -> {
-			imitation.buttonPosY = ((Number) btnPosY).doubleValue() * BhParams.LnF.NODE_SCALE;
+			button.buttonPosY = ((Number) btnPosY).doubleValue() * BhParams.LnF.NODE_SCALE;
 		});
 
 		//buttonCssClass
 		val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
-		val.ifPresent(buttonCssClass -> imitation.cssClass = (String) buttonCssClass);
+		val.ifPresent(buttonCssClass -> button.cssClass = (String) buttonCssClass);
 	}
 
 	/**
@@ -691,7 +660,7 @@ public class BhNodeViewStyle {
 	 * @param nodeStyleID ノードスタイルID (nodeStyleID属性)
 	 * */
 	public static void putNodeID_NodeStyleID(BhNodeID nodeID, String nodeStyleID) {
-		nodeID_nodeStyleID.put(nodeID, nodeStyleID);
+		nodeIdToNodeStyleID.put(nodeID, nodeStyleID);
 	}
 
 	/**
@@ -701,25 +670,27 @@ public class BhNodeViewStyle {
 	 * */
 	public static BhNodeViewStyle getNodeViewStyleFromNodeID(BhNodeID nodeID) {
 
-		String nodeStyleID = nodeID_nodeStyleID.get(nodeID);
-		BhNodeViewStyle nodeStyle = nodeStyleID_nodeStyleTemplate.get(nodeStyleID);
+		String nodeStyleID = nodeIdToNodeStyleID.get(nodeID);
+		BhNodeViewStyle nodeStyle = nodeStyleIDToNodeStyleTemplate.get(nodeStyleID);
 		return new BhNodeViewStyle(nodeStyle);
 	}
 
 	/**
 	 * 登録された全てのBhNodeIDに対してノードスタイルのテンプレートが存在するかどうかチェック
 	 * @return 登録された全てのBhNodeIDに対してノードスタイルのテンプレートが存在する場合 true
-	 * */
+	 */
 	public static boolean checkNodeIdAndNodeTemplate() {
 
-		return nodeID_nodeStyleID.values().stream().allMatch(nodeStyleID -> {
-			if (!nodeStyleID_nodeStyleTemplate.containsKey(nodeStyleID)) {
-				MsgPrinter.INSTANCE.errMsgForDebug(
-						"A node style file " + "(" + nodeStyleID + ")" + " is not found among *.json files");
-				return false;
-			} else {
-				return true;
-			}
-		});
+		return nodeIdToNodeStyleID.values().stream()
+			.map(nodeStyleID -> {
+				if (!nodeStyleIDToNodeStyleTemplate.containsKey(nodeStyleID)) {
+					MsgPrinter.INSTANCE.errMsgForDebug(
+							"A node style file " + "(" + nodeStyleID + ")" + " is not found among *.json files");
+					return false;
+				} else {
+					return true;
+				}
+			})
+			.allMatch(Boolean::valueOf);
 	}
 }

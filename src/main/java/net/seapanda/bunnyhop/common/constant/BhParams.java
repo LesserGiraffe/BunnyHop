@@ -73,6 +73,7 @@ public class BhParams {
 		public static final String MULTI_NODE_SHIFTER_FXML = "MultiNodeShifter.fxml"; // !< マルチノードシフタのビューが定義してあるfxmlファイルの名前
 		public static final String NODE_SELECTION_PANEL_FXML = "NodeSelectionPanel.fxml";	//!< BhNodeテンプレートリスト部分のビューが定義してあるfxmlの名前
 		public static final String IMIT_BUTTON_FXML = "ImitButton.fxml";	//!< イミテーションボタンが定義してあるfxmlの名前
+		public static final String PRIVATE_TEMPLATE_BUTTON_FXML = "PrivateTemplateButton.fxml";	//!< プライベートテンプレートボタンが定義してあるfxmlの名前
 		public static final String NODE_TEMPLATE_LIST_JSON = "NodeTemplateList.json";	//!< ノードテンプレートの配置情報が書かれたファイルの名前
 		public static final String COMMON_EVENT_JS = "CommonEvent.js";
 		public static final String COMMON_CODE_JS = "CommonCode.js";
@@ -108,13 +109,14 @@ public class BhParams {
 		public static final String ATTR_NAME_TEXT_FORMATTER = "textFormatter";
 		public static final String ATTR_NAME_TEXT_ACCEPTABILITY_CHECKER = "textAcceptabilityChecker";
 		public static final String ATTR_NAME_REPLACEABILITY_CHECKER = "replaceabilityChecker";
-		public static final String ATTR_NAME_ON_SYNTAX_ERROR_CHECKER = "syntaxErrorChecker";
+		public static final String ATTR_NAME_SYNTAX_ERROR_CHECKER = "syntaxErrorChecker";
 		public static final String ATTR_NAME_ON_MOVED_FROM_CHILD_TO_WS = "onMovedFromChildToWS";
 		public static final String ATTR_NAME_ON_MOVED_TO_CHILD = "onMovedToChild";
 		public static final String ATTR_NAME_ON_CHILD_REPLACED = "onChildReplaced";
 		public static final String ATTR_NAME_ON_DELETION_REQUESTED = "onDeletionRequested";
 		public static final String ATTR_NAME_ON_CUT_REQUESTED = "onCutRequested";
 		public static final String ATTR_NAME_ON_COPY_REQUESTED = "onCopyRequested";
+		public static final String ATTR_NAME_ON_PRIFVATE_TEMPLATE_CREATING = "onPrivateTemplateCreating";
 		public static final String ATTR_NAME_IMITATION_NODE_ID = "imitationNodeID";
 		public static final String ATTR_NAME_CAN_CREATE_IMIT_MANUALLY = "canCreateImitManually";
 		public static final String ATTR_NAME_NODE_INPUT_CONTROL = "nodeInputControl";
@@ -144,7 +146,6 @@ public class BhParams {
 	public static class JsKeyword {
 		public static final String KEY_BH_THIS = "bhThis";	//!< スクリプトの呼び出し元オブジェクト
 		public static final String KEY_BH_NODE_HANDLER = "bhNodeHandler";
-		public static final String KEY_BH_NODE_VIEW = "bhNodeView";
 		public static final String KEY_BH_MSG_SERVICE = "bhMsgService";
 		public static final String KEY_BH_TEXT = "bhText";	//!< TextNode のString型フィールドアクセス用キーワード
 		public static final String KEY_BH_ADDED_TEXT = "bhAddedText";
@@ -194,6 +195,7 @@ public class BhParams {
 		public static final String KEY_CSS_CLASS = "cssClass";
 		public static final String KEY_CONNECTIVE = "connective";
 		public static final String KEY_IMITATION = "imitation";
+		public static final String KEY_PRIVATE_TEMPLATE = "privateTemplate";
 		public static final String KEY_BUTTON_POS_X = "buttonPosX";
 		public static final String KEY_BUTTON_POS_Y ="buttonPosY";
 		public static final String KEY_TEXT_FIELD = "textField";
@@ -226,15 +228,17 @@ public class BhParams {
 
 	/**
 	 * ノードテンプレートに関するキーワード
-	 * */
-	public static class NodeTemplateList {
+	 */
+	public static class NodeTemplate {
 		public static final String KEY_CSS_CLASS = "cssClass";
 		public static final String KEY_CONTENTS = "contents";
+		/** ノード固有のノード選択ビューのカテゴリ名 */
+		public static final String PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
 	}
 
 	/**
 	 * FXMLファイル内のキーワード
-	 * */
+	 */
 	public static class Fxml {
 		public static final String ID_WS_PANE = "wsPane";
 		public static final String ID_WS_SCROLL_PANE = "wsScrollPane";
@@ -259,6 +263,7 @@ public class BhParams {
 		public static final String CLASS_SUFFIX_PANE = "-Pane";
 		public static final String CLASS_SUFFIX_SYNTAX_ERROR = "-SyntaxError";
 		public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
+		public static final String CLASS_PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
 	}
 
 	/**
@@ -283,7 +288,7 @@ public class BhParams {
 
 	/**
 	 * BunnyHop が出力するテキストメッセージに関するパラメータ
-	 * */
+	 */
 	public static class Message {
 		public static final int MAX_MAIN_MSG_AREA_CHARS = 131072;	//!< メインメッセージエリアの最大表示文字数
 		public static final int MAX_MAIN_MSG_QUEUE_SIZE = 2048;	//!< メインメッセージエリアの表示文字列バッファサイズ

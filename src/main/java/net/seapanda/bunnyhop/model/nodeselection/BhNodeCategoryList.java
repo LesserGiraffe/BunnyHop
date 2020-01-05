@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.node;
+package net.seapanda.bunnyhop.model.nodeselection;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Optional;
 
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
@@ -24,40 +24,44 @@ import org.mozilla.javascript.NativeObject;
 import net.seapanda.bunnyhop.common.TreeNode;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 
 /**
- * BhNode のカテゴリ一覧を表示している部分のmodel
+ * ノードのカテゴリ一覧を表示している部分のモデル
  * @author K.Koike
- * */
+ */
 public class BhNodeCategoryList implements MsgReceptionWindow {
 
 	private TreeNode<String> templateTreeRoot;
 	private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
 
-	public BhNodeCategoryList(){};
+	private BhNodeCategoryList() {};
 
 	/**
-	 * ノードテンプレートの配置情報が記されたファイルを読み込み
-	 * テンプレートリストを作成する
-	 * @return テンプレートの作成に成功した場合true
-	 * */
-	public boolean genNodeCategoryList() {
+	 * ノードカテゴリとテンプレートノードの配置情報が記されたファイルを読み込みテンプレートリストを作成する
+	 * @param ノードカテゴリとテンプレートノードの配置情報が記されたファイルのパス
+	 * @return
+	 */
+	public static Optional<BhNodeCategoryList> create(Path filePath) {
 
-		Path filePath = Paths.get(
-			Util.INSTANCE.EXEC_PATH,
-			BhParams.Path.BH_DEF_DIR,
-			BhParams.Path.TEMPLATE_LIST_DIR,
-			BhParams.Path.NODE_TEMPLATE_LIST_JSON);
-		NativeObject jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
-		templateTreeRoot = new TreeNode<>("root");
-		return addChildren(jsonObj, templateTreeRoot, filePath.toString());
+		Optional<NativeObject> jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
+		if (jsonObj.isEmpty())
+			return Optional.empty();
+
+		var newObj = new BhNodeCategoryList();
+
+		newObj.templateTreeRoot = new TreeNode<>("root");
+		boolean success = newObj.addChildren(jsonObj.get(), newObj.templateTreeRoot, filePath.toString());
+		if (success)
+			return Optional.of(newObj);
+
+		return Optional.empty();
 	}
 
 	/**
@@ -77,17 +81,17 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 
 			Object val = jsonObj.get(key);
 			switch (key.toString()) {
-				case BhParams.NodeTemplateList.KEY_CSS_CLASS:	//cssクラスのキー
+				case BhParams.NodeTemplate.KEY_CSS_CLASS:	//cssクラスのキー
 					if (val instanceof String) {
-						TreeNode<String> cssClass = new TreeNode<>(BhParams.NodeTemplateList.KEY_CSS_CLASS);
+						TreeNode<String> cssClass = new TreeNode<>(BhParams.NodeTemplate.KEY_CSS_CLASS);
 						cssClass.children.add(new TreeNode<>(val.toString()));
 						parent.children.add(cssClass);
 					}
 					break;
 
-				case BhParams.NodeTemplateList.KEY_CONTENTS:	//ノードIDの配列のキー
+				case BhParams.NodeTemplate.KEY_CONTENTS:	//ノードIDの配列のキー
 					if (val instanceof NativeArray) {
-						TreeNode<String> contents = new TreeNode<>(BhParams.NodeTemplateList.KEY_CONTENTS);
+						TreeNode<String> contents = new TreeNode<>(BhParams.NodeTemplate.KEY_CONTENTS);
 						bhNodeForLeafExists &= addBhNodeID((NativeArray)val, contents, fileName);
 						parent.children.add(contents);
 					}
@@ -131,10 +135,11 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 		}
 		return allBhNodesExist;
 	}
+
 	/**
 	 * BhNode選択リストのルートノードを返す
 	 * @return BhNode選択リストのルートノード
-	 **/
+	 */
 	public TreeNode<String> getRootNode() {
 		return templateTreeRoot;
 	}

@@ -125,12 +125,12 @@ public abstract class BodyShape {
 	 * @param コネクタ部分の頂点リスト
 	 * */
 	protected List<Double> createNotchVertices(
-			ConnectorShape notch,
-			BhNodeViewStyle.NOTCH_POS notchPos,
-			double notchWidth,
-			double notchHeight,
-			double bodyWidth,
-			double bodyHeight) {
+		ConnectorShape notch,
+		BhNodeViewStyle.NOTCH_POS notchPos,
+		double notchWidth,
+		double notchHeight,
+		double bodyWidth,
+		double bodyHeight) {
 
 		double offsetX = 0.0;
 		double offsetY = 0.0;

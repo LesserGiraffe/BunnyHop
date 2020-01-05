@@ -40,16 +40,17 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.control.FoundationController;
-import net.seapanda.bunnyhop.control.WorkspaceController;
+import net.seapanda.bunnyhop.control.workspace.WorkspaceController;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.Workspace;
-import net.seapanda.bunnyhop.model.WorkspaceSet;
-import net.seapanda.bunnyhop.model.node.BhNodeCategoryList;
+import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.TrashboxService;
+import net.seapanda.bunnyhop.view.ViewInitializationException;
+import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
@@ -58,34 +59,39 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 public class BunnyHop {
 
 	private final WorkspaceSet workspaceSet = new WorkspaceSet();	//!<  ワークスペースの集合
-	private final BhNodeCategoryList nodeCategoryList = new BhNodeCategoryList();	//!< BhNode 選択用画面のモデル
+	private BhNodeCategoryList nodeCategoryList;	//!< BhNode 選択用画面のモデル
 	private FoundationController foundationController;
 	public static final BunnyHop INSTANCE  = new BunnyHop();
 	private boolean shoudlSave = false;	//!< 終了時の保存が必要かどうかのフラグ
 	private Scene scene;
 
-	private BunnyHop() {
-		MsgService.INSTANCE.setWorkspaceSet(workspaceSet);
-	}
+	private BunnyHop() {}
 
 	/**
 	 * メインウィンドウを作成する
 	 * @param stage JavaFx startメソッドのstage
-	 * */
-	public void createWindow(Stage stage) {
+	 */
+	public boolean createWindow(Stage stage) {
 
 		TrashboxService.INSTANCE.init(workspaceSet);
+		nodeCategoryList = genNodeCategoryList().orElse(null);
+		if (nodeCategoryList == null)
+			return false;
+
 		VBox root;
 		try {
 			Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.FOUNDATION_FXML);
 			FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
 			root = loader.load();
 			foundationController = loader.getController();
-			foundationController.init(workspaceSet, nodeCategoryList);
+			boolean success = foundationController.init(workspaceSet, nodeCategoryList);
+			if (!success)
+				return false;
 		}
 		catch (IOException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug("failed to load fxml " + BhParams.Path.FOUNDATION_FXML + "\n" + e.toString() + "\n");
-			return;
+			MsgPrinter.INSTANCE.errMsgForDebug("failed to load fxml " + BhParams.Path.FOUNDATION_FXML + "\n" +
+			e.toString() + "\n");
+			return false;
 		}
 
 		addNewWorkSpace(
@@ -99,38 +105,38 @@ public class BunnyHop {
 		double height = primaryScreenBounds.getHeight() * BhParams.LnF.DEFAULT_APP_HEIGHT_RATE;
 		scene = new Scene(root, width, height);
 		setCSS(scene);
-		String iconPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.IMAGES_DIR, BhParams.Path.BUNNY_HOP_ICON).toUri().toString();
-		stage.getIcons().add(new Image(iconPath));
-		stage.setScene(scene);
-		stage.setTitle(BhParams.APPLICATION_NAME);
-		stage.show();
+		initStage(stage, scene);
 		//ScenicView.show(scene);
-	}
-
-	/**
-	 * BhNode カテゴリリストと, ノード選択パネルを作成する
-	 * @return カテゴリリストと, ノード選択パネルの作成に成功した場合 true
-	 */
-	public boolean genNodeCategoryList() {
-
-		boolean success = nodeCategoryList.genNodeCategoryList();
-		if (!success)
-			return false;
-
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.BUILD_NODE_CATEGORY_LIST_VIEW, nodeCategoryList);
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_NODE_SELECTION_PANELS, nodeCategoryList, workspaceSet);
-		for (int i = 0; i != BhParams.LnF.INITIAL_ZOOM_LEVEL; i += Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL) / BhParams.LnF.INITIAL_ZOOM_LEVEL) {
-			boolean zoomIn = BhParams.LnF.INITIAL_ZOOM_LEVEL > 0;
-			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), nodeCategoryList);
-		}
 		return true;
 	}
 
 	/**
-	 * 現在表示中のノードテンプレートパネルを隠す
+	 * 引数で指定したステージを初期化する
+	 * @param stage 初期化するステージ
+	 * @param scene ステージに登録するシーン
 	 */
-	public void hideTemplatePanel() {
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.HIDE_NODE_SELECTION_PANEL, nodeCategoryList);
+	private void initStage(Stage stage, Scene scene) {
+
+		String iconPath = Paths.get(
+			Util.INSTANCE.EXEC_PATH,
+			BhParams.Path.VIEW_DIR,
+			BhParams.Path.IMAGES_DIR,
+			BhParams.Path.BUNNY_HOP_ICON).toUri().toString();
+		stage.getIcons().add(new Image(iconPath));
+		stage.setScene(scene);
+		stage.setTitle(BhParams.APPLICATION_NAME);
+		stage.show();
+	}
+
+	private Optional<BhNodeCategoryList> genNodeCategoryList() {
+
+		Path filePath = Paths.get(
+			Util.INSTANCE.EXEC_PATH,
+			BhParams.Path.BH_DEF_DIR,
+			BhParams.Path.TEMPLATE_LIST_DIR,
+			BhParams.Path.NODE_TEMPLATE_LIST_JSON);
+
+		return BhNodeCategoryList.create(filePath);
 	}
 
 	/**
@@ -145,11 +151,17 @@ public class BunnyHop {
 		Workspace ws = new Workspace(workspaceName);
 		WorkspaceView wsView = new WorkspaceView(ws);
 		wsView.init(width, height);
-		WorkspaceController wsController = new WorkspaceController(ws, wsView);
-		wsController.init();
+		WorkspaceController wsController;
+		try {
+			wsController = new WorkspaceController(ws, wsView, new MultiNodeShifterView());
+		}
+		catch (ViewInitializationException e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + ".addNewWorkspace\n" + e);
+			return;
+		}
 		ws.setMsgProcessor(wsController);
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, userOpeCmd), workspaceSet);
-		for (int i = 0; i != BhParams.LnF.INITIAL_ZOOM_LEVEL; i += Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL) / BhParams.LnF.INITIAL_ZOOM_LEVEL) {
+		for (int i = 0; i < Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL); ++i) {
 			boolean zoomIn = BhParams.LnF.INITIAL_ZOOM_LEVEL > 0;
 			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
 		}
@@ -162,7 +174,7 @@ public class BunnyHop {
 	 */
 	public void addWorkspace(Workspace ws, UserOperationCommand userOpeCmd) {
 		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
-		for (int i = 0; i != BhParams.LnF.INITIAL_ZOOM_LEVEL; i += Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL) / BhParams.LnF.INITIAL_ZOOM_LEVEL) {
+		for (int i = 0; i < Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL); ++i) {
 			boolean zoomIn = BhParams.LnF.INITIAL_ZOOM_LEVEL > 0;
 			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
 		}
@@ -174,6 +186,14 @@ public class BunnyHop {
 	 */
 	public Workspace getCurrentWorkspace() {
 		return workspaceSet.getCurrentWorkspace();
+	}
+
+	/**
+	 * アプリケーションのワークスペースセットを返す.
+	 * @return アプリケーションのワークスペースセット
+	 */
+	public WorkspaceSet getWorkspaceSet() {
+		return workspaceSet;
 	}
 
 	/**
@@ -199,8 +219,8 @@ public class BunnyHop {
 
 	/**
 	 * CSS ファイルを読み込む
-	 * @param scene cssの適用先シーングラフ
-	 * */
+	 * @param scene css の適用先シーングラフ
+	 */
 	private void setCSS(Scene scene) {
 
 		Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.CSS_DIR);

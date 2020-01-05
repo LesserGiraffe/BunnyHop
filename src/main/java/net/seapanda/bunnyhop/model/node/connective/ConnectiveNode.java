@@ -17,6 +17,7 @@ package net.seapanda.bunnyhop.model.node.connective;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.mozilla.javascript.ContextFactory;
@@ -28,12 +29,13 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
-import net.seapanda.bunnyhop.model.imitation.ImitationBase;
-import net.seapanda.bunnyhop.model.imitation.ImitationID;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.BhNodeID;
-import net.seapanda.bunnyhop.model.node.BhNodeViewType;
-import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
+import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
+import net.seapanda.bunnyhop.model.node.imitation.ImitationBase;
+import net.seapanda.bunnyhop.model.node.imitation.ImitationID;
+import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
@@ -47,7 +49,6 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	private Section childSection;						//!< セクションの集合 (ノード内部に描画されるもの)
-	private final String scriptNameOnChildReplaced;	//!< 子ノード入れ替え維持に実行されるスクリプト
 
 	/**
 	 * コンストラクタ<br>
@@ -63,7 +64,7 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
 
 		super(BhNodeViewType.CONNECTIVE, attributes, imitIdToImitNodeID);
 		this.childSection = childSection;
-		scriptNameOnChildReplaced = attributes.getOnChildReplaced();
+		registerScriptName(BhNodeEvent.ON_CHILD_REPLACED, attributes.getOnChildReplaced());
 	}
 
 	/**
@@ -71,9 +72,7 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
 	 * @param org コピー元オブジェクト
 	 */
 	private ConnectiveNode(ConnectiveNode org, UserOperationCommand userOpeCmd) {
-
 		super(org, userOpeCmd);
-		scriptNameOnChildReplaced = org.scriptNameOnChildReplaced;
 	}
 
 	@Override
@@ -127,10 +126,12 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
 		Connector parentCnctr,
 		UserOperationCommand userOpeCmd) {
 
-		Script onChildReplaced = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnChildReplaced);
+		Optional<String> scriptName = getScriptName(BhNodeEvent.ON_CHILD_REPLACED);
+		Script onChildReplaced = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
 		if (onChildReplaced == null)
 			return;
 
+		ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newChild);
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldChild);
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_PARENT_CONNECTOR, parentCnctr);
@@ -140,13 +141,17 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptNameOnChildReplaced + "\n" +
+				BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptName.get() + "\n" +
 				e.toString() + "\n");
 		}
 	}
 
 	@Override
-	public void findSymbolInDescendants(int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
+	public void findSymbolInDescendants(
+		int generation,
+		boolean toBottom,
+		List<SyntaxSymbol> foundSymbolList,
+		String... symbolNames) {
 
 		if (generation == 0) {
 			for (String symbolName : symbolNames) {

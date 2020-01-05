@@ -279,6 +279,8 @@ task jlink() {
 		ant.copy(todir: "$projectDir/$projName/$appDirName") {
 			fileset(dir: "$projectDir/$appDirName")
 		}
+		delete fileTree("$projectDir/$projName/$appDirName/Log"){}
+		delete fileTree("$projectDir/$projName/$appDirName/Compiled"){}
 	}
 }
 

@@ -30,11 +30,14 @@ module net.seapanda.bunnyhop {
 	exports net.seapanda.bunnyhop.root;
 	exports net.seapanda.bunnyhop.model;
 	exports net.seapanda.bunnyhop.model.node;
+	exports net.seapanda.bunnyhop.model.node.attribute;
 	exports net.seapanda.bunnyhop.model.node.connective;
+	exports net.seapanda.bunnyhop.model.node.event;
+	exports net.seapanda.bunnyhop.model.node.imitation;
 	exports net.seapanda.bunnyhop.model.templates;
 	exports net.seapanda.bunnyhop.modelservice;
 	exports net.seapanda.bunnyhop.modelprocessor;
-	exports net.seapanda.bunnyhop.model.imitation;
+	exports net.seapanda.bunnyhop.model.syntaxsynbol;
 	exports net.seapanda.bunnyhop.common;
 	exports net.seapanda.bunnyhop.common.tools;
 	exports net.seapanda.bunnyhop.common.constant;
@@ -45,5 +48,8 @@ module net.seapanda.bunnyhop {
 	exports net.seapanda.bunnyhop.view.node.part;
 	opens net.seapanda.bunnyhop.view to javafx.fxml;
 	opens net.seapanda.bunnyhop.view.workspace to javafx.fxml;
+	opens net.seapanda.bunnyhop.view.nodeselection to javafx.fxml;
 	opens net.seapanda.bunnyhop.control to javafx.fxml;
+	opens net.seapanda.bunnyhop.control.workspace to javafx.fxml;
+	opens net.seapanda.bunnyhop.control.nodeselection to javafx.fxml;
 }

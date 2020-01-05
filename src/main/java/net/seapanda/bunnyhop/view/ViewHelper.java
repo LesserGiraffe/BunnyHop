@@ -27,7 +27,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhParams;
-import net.seapanda.bunnyhop.model.Workspace;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceViewPane;

@@ -23,10 +23,10 @@ import java.util.function.Predicate;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.model.imitation.ImitationConnectionPos;
-import net.seapanda.bunnyhop.model.imitation.ImitationID;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.imitation.ImitationConnectionPos;
+import net.seapanda.bunnyhop.model.node.imitation.ImitationID;
+import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 

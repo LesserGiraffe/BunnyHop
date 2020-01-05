@@ -29,8 +29,9 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.model.WorkspaceSet;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 
 /**
  * メニューバーのコントローラクラス
@@ -85,6 +86,7 @@ public class MenuBarController {
 			return false;
 		}
 
+		BhNodeSelectionService.INSTANCE.hideAll();
 		Optional<File> selectedFileOpt = getFileToSave();
 		boolean success = selectedFileOpt.map(selectedFile -> wss.save(selectedFile)).orElse(false);
 		if (success)
@@ -140,6 +142,7 @@ public class MenuBarController {
 			fileExists = currentSaveFile.exists();
 
 		if (fileExists) {
+			BhNodeSelectionService.INSTANCE.hideAll();
 			return wss.save(currentSaveFile);
 		}
 		else {

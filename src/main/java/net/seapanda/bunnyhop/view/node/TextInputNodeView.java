@@ -17,7 +17,6 @@ package net.seapanda.bunnyhop.view.node;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.UnaryOperator;
 
 import javafx.beans.value.ChangeListener;
 import javafx.scene.control.TextFormatter;
@@ -48,7 +47,7 @@ public abstract class TextInputNodeView extends BhNodeView {
 	 * テキストフィールドのカーソル on/off 時のイベントハンドラを登録する
 	 * @param changeFocusFunc テキストフィールドのカーソルon/off時のイベントハンドラ
 	 */
-	public final void setObservableListener(ChangeListener<? super Boolean> changeFocusFunc) {
+	public final void addFocusListener(ChangeListener<? super Boolean> changeFocusFunc) {
 		getTextInputControl().focusedProperty().addListener(changeFocusFunc);
 	}
 
@@ -64,18 +63,27 @@ public abstract class TextInputNodeView extends BhNodeView {
 	public final void setTextFormatHandler(BiFunction<String, String, Pair<Boolean, String>> formatterFunc) {
 
 		TextInputControl control = getTextInputControl();
-		UnaryOperator<Change> filter = change -> {
+		control.setTextFormatter(
+			new TextFormatter<Object>(change -> setFormattedText(formatterFunc, control.getLength(), change)));
+	}
 
-			Pair<Boolean, String> result = formatterFunc.apply(change.getControlNewText(), change.getText());
-			boolean isEntireTextFormatted = result._1;
-			String formattedText = result._2;
-			if (isEntireTextFormatted)
-				change.setRange(0, control.getLength());
+	/**
+	 * フォーマットされたテキストを {@code Change} オブジェクトにセットする
+	 * @param formatter テキストをフォーマットする関数
+	 * @param textLen {@code change} オブジェクトに対応するコントロールの現在のテキスト長
+	 * @param change テキスト入力コンポーネントの変更を表すオブジェクト
+	 */
+	private Change setFormattedText(
+		BiFunction<String, String, Pair<Boolean, String>> formatter, int textLen, Change change) {
 
-			change.setText(formattedText);
-		    return change;
-		};
-		control.setTextFormatter(new TextFormatter<Object>(filter));
+		Pair<Boolean, String> result = formatter.apply(change.getControlNewText(), change.getText());
+		boolean isEntireTextFormatted = result._1;
+		String formattedText = result._2;
+		if (isEntireTextFormatted)
+			change.setRange(0, textLen);
+
+		change.setText(formattedText);
+		return change;
 	}
 
 	/**
@@ -96,7 +104,7 @@ public abstract class TextInputNodeView extends BhNodeView {
 	/**
 	 * テキストフィールドが編集可能かどうかをセットする
 	 * @param editable テキストフィールドが編集可能なときtrue
-	 * */
+	 */
 	public final void setEditable(boolean editable) {
 		getTextInputControl().setEditable(editable);
 	}
@@ -104,7 +112,7 @@ public abstract class TextInputNodeView extends BhNodeView {
 	/**
 	 * テキストフィールドが編集可能かどうかチェックする
 	 * @return テキストフィールドが編集可能な場合 true
-	 * */
+	 */
 	public final boolean getEditable() {
 		return getTextInputControl().editableProperty().getValue();
 	}

@@ -6,7 +6,7 @@
 <ScrollPane
 	xmlns:fx="http://javafx.com/fxml"
 	fx:id="nodeCategoryListViewBase"
-	fx:controller="net.seapanda.bunnyhop.control.BhNodeCategoryListController"
+	fx:controller="net.seapanda.bunnyhop.control.nodeselection.BhNodeCategoryListController"
 	HbarPolicy="AS_NEEDED"
 	VbarPolicy="AS_NEEDED"
 	FitToWidth="true"

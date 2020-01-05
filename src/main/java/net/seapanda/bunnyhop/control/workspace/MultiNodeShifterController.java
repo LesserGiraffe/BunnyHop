@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.control;
+package net.seapanda.bunnyhop.control.workspace;
 
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
 
@@ -38,18 +38,14 @@ public class MultiNodeShifterController {
 	 * @param ws view があるワークスペース
 	 * */
 	public MultiNodeShifterController(MultiNodeShifterView view, Workspace ws) {
+
 		this.view = view;
 		this.ws = ws;
-	}
-
-	public void init() {
-
 		Vec2D mousePressedPos = new Vec2D(0.0, 0.0);
 		setOnMousePressedHandler(mousePressedPos);
 		setOnMouseDraggedHandler(mousePressedPos);
 		setOnMouseReleasedHandler(mousePressedPos);
 	}
-
 
 	/**
 	 * マウスボタン押下時のイベントハンドラを登録する

@@ -31,17 +31,6 @@ public class ConnectiveNodeController extends BhNodeController {
 	 * */
 	public ConnectiveNodeController(ConnectiveNode model, ConnectiveNodeView view) {
 		super(model, view);
-		view.setCreateImitHandler(model);
 	}
 }
-
-
-
-
-
-
-
-
-
-
 

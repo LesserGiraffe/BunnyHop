@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 package net.seapanda.bunnyhop.modelprocessor;
-import net.seapanda.bunnyhop.model.imitation.ImitationConnectionPos;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.model.node.connective.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.connective.Subsection;
+import net.seapanda.bunnyhop.model.node.imitation.ImitationConnectionPos;
 
 /**
  * イミテーションタグを指定し, そこに接続されているBhNode を見つけるクラス

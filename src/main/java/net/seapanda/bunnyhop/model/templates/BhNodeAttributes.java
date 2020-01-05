@@ -21,7 +21,7 @@ import org.w3c.dom.Element;
 
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.model.node.BhNodeID;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 
 /**
@@ -40,6 +40,7 @@ public class BhNodeAttributes {
 	private String onCutRequested;
 	private String onCopyRequested;
 	private String onChildReplaced;
+	private String onPrivateTemplateCreating;
 	private String textFormatter;
 	private String syntaxErrorChecker;
 	private String initString;
@@ -100,8 +101,11 @@ public class BhNodeAttributes {
 		//onCutRequested
 		nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CUT_REQUESTED);
 
+		//onPrivateTemplateCreating
+		nodeAttrs.onPrivateTemplateCreating = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_PRIFVATE_TEMPLATE_CREATING);
+
 		//syntaxErrorChecker
-		nodeAttrs.syntaxErrorChecker = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_SYNTAX_ERROR_CHECKER);
+		nodeAttrs.syntaxErrorChecker = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_SYNTAX_ERROR_CHECKER);
 
 		//initString
 		nodeAttrs.initString = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_INIT_STRING);
@@ -164,6 +168,10 @@ public class BhNodeAttributes {
 
 	public String getOnChildReplaced() {
 		return onChildReplaced;
+	}
+
+	public String getOnPrivateTemplateCreating() {
+		return onPrivateTemplateCreating;
 	}
 
 	public String getTextFormatter() {

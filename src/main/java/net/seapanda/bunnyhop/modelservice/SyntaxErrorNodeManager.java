@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.modelprocessor.SyntaxErrorNodeCollector;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -41,10 +41,16 @@ public class SyntaxErrorNodeManager {
 
 	/**
 	 * 以下の2種類の構文エラーノードを管理対象に入れる
+	 *
+	 * <pre>
 	 *   ・引数のノード以下にある構文エラーノード
 	 *   ・引数のノード以下にあるオリジナルノードが持つ構文エラーを起こしているイミテーションノード
+	 *</pre>
 	 * */
 	public void collect(BhNode node, UserOperationCommand userOpeCmd) {
+
+		if (MsgService.INSTANCE.isTemplateNode(node))
+			return;
 
 		List<BhNode> errorNodes = SyntaxErrorNodeCollector.collect(node);
 		errorNodes.forEach(errorNode -> {
@@ -89,8 +95,8 @@ public class SyntaxErrorNodeManager {
 			.filter(node -> node.hasSyntaxError())
 			.collect(Collectors.toCollection(HashSet::new));
 
-		nodesToDelete.forEach(
-			node -> node.execScriptOnDeletionRequested(nodesToDelete, CauseOfDeletion.SYNTAX_ERROR, userOpeCmd));
+		nodesToDelete.forEach(node -> node.getEventDispatcher().dispatchOnDeletionRequested(
+			nodesToDelete, CauseOfDeletion.SYNTAX_ERROR, userOpeCmd));
 
 		List<Pair<BhNode, BhNode>> oldAndNewNodeList =
 			BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);

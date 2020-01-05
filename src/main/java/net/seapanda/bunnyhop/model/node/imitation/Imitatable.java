@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.imitation;
+package net.seapanda.bunnyhop.model.node.imitation;
 
 import java.util.Collection;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.BhNodeID;
-import net.seapanda.bunnyhop.model.node.BhNodeViewType;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 

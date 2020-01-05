@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.node;
+package net.seapanda.bunnyhop.model.node.attribute;
 
 import net.seapanda.bunnyhop.common.constant.BhParams;
 

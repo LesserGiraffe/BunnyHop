@@ -36,7 +36,7 @@
 				bhNodeID="idCommentPart.prvNode1"
 				name="setsumei"
 				nodeStyleID="defaultTextArea.json"
-				nodeInputControl="textArea.fxml"
+				nodeInputControl="TextArea.fxml"
 				initString="説明">
 			</Node>
 		</PrivateConnector>

@@ -13,40 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.imitation;
+
+package net.seapanda.bunnyhop.model.syntaxsynbol;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
-import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
- * 作成するイミテーションを識別するためのID
+ * SyntaxSymbolのID
  * @author K.Koike
- */
-public class ImitationID implements Serializable {
+ * */
+public class SyntaxSymbolID implements Serializable {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	public static final ImitationID NONE = new ImitationID("");	//!< イミテーションIDが存在しないことを表す
-	public static final ImitationID MANUAL = new ImitationID(BhParams.BhModelDef.ATTR_VALUE_IMIT_ID_MANUAL);	//!< イミテーション手動作成時のID
+	static private AtomicLong sequentialID = new AtomicLong(0);
 	private final String id;
 
-	/**
-	 * コンストラクタ
-	 * @param id 識別子名
-	 */
-	private ImitationID(String id) {
-		this.id = id;
+	static SyntaxSymbolID newID() {
+		long id = sequentialID.addAndGet(1);
+		return new SyntaxSymbolID(Long.toHexString(id));
 	}
 
-	/**
-	 * イミテーションIDを作成する
-	 * @param id 識別子名
-	 * @return イミテーションID
-	 */
-	public static ImitationID createImitID(String id) {
-		return new ImitationID(id == null ? "" : id);
+	private SyntaxSymbolID(String id) {
+		this.id = id;
 	}
 
 	@Override
@@ -58,13 +50,13 @@ public class ImitationID implements Serializable {
 	public boolean equals(Object obj) {
 		if (obj == null)
 			return false;
-		return (getClass() == obj.getClass()) && (id.equals(((ImitationID)obj).id));
+		return (getClass() == obj.getClass()) && (id.equals(((SyntaxSymbolID)obj).id));
 	}
 
 	@Override
 	public int hashCode() {
-		int hash = 7;
-		hash = 59 * hash + Objects.hashCode(this.id);
+		int hash = 71;
+		hash = 311 * hash + Objects.hashCode(this.id);
 		return hash;
 	}
 }

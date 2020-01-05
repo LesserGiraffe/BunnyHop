@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.control;
+package net.seapanda.bunnyhop.control.workspace;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -27,9 +27,9 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.modelservice.DelayedDeleter;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
@@ -40,6 +40,7 @@ import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
@@ -50,7 +51,7 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
  */
 public class WorkspaceController implements MsgProcessor {
 
-	private Workspace model; // 操作対象のモデル
+	private Workspace model;
 	private WorkspaceView view;
 	private MultiNodeShifterController nodeShifterController;
 
@@ -58,28 +59,17 @@ public class WorkspaceController implements MsgProcessor {
 
 	/**
 	 * コンストラクタ
-	 * @param model コントローラが操作するモデル
-	 * @param view コントローラが操作するビュー
+	 * @param model 操作対象のモデル
+	 * @param view 操作対象のするビュー
+	 * @param nodeShifterView 操作対象のノードシフタビュー
 	 */
-	public WorkspaceController(Workspace model, WorkspaceView view) {
+	public WorkspaceController(Workspace model, WorkspaceView view, MultiNodeShifterView nodeShifterView) {
+
 		this.model = model;
 		this.view = view;
-	}
-
-	/**
-	 * このコントローラを初期化する
-	 * */
-	public boolean init() {
-
-		var multiNodeShifterView = new MultiNodeShifterView();
-		boolean success = multiNodeShifterView.init();
-		if (success) {
-			view.addtMultiNodeShifterView(multiNodeShifterView);
-			nodeShifterController = new MultiNodeShifterController(multiNodeShifterView, model);
-			nodeShifterController.init();
-		}
+		view.addtMultiNodeShifterView(nodeShifterView);
+		nodeShifterController = new MultiNodeShifterController(nodeShifterView, model);
 		setMouseEventHandlers();
-		return success;
 	}
 
 	/**
@@ -104,7 +94,7 @@ public class WorkspaceController implements MsgProcessor {
 			mouseEvent -> {
 				if (!mouseEvent.isShiftDown()) {
 					UserOperationCommand userOpeCmd = new UserOperationCommand();
-					BunnyHop.INSTANCE.hideTemplatePanel();
+					BhNodeSelectionService.INSTANCE.hideAll();
 					model.clearSelectedNodeList(userOpeCmd);
 					BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 				}
@@ -266,8 +256,8 @@ public class WorkspaceController implements MsgProcessor {
 	private MsgData deleteWorkspace(MsgData data) {
 
 		Collection<BhNode> rootNodes = model.getRootNodeList();
-		rootNodes.forEach(node ->
-			node.execScriptOnDeletionRequested(rootNodes, CauseOfDeletion.WORKSPACE_DELETION, data.userOpeCmd));
+		rootNodes.forEach(node -> node.getEventDispatcher().dispatchOnDeletionRequested(
+			rootNodes, CauseOfDeletion.WORKSPACE_DELETION, data.userOpeCmd));
 		BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), data.userOpeCmd);
 		return new MsgData(model, view, data.userOpeCmd);
 	}

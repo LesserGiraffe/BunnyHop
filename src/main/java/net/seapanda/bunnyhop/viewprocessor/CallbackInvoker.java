@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.viewprocessor;
 import java.util.function.Consumer;
 
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeViewGroup;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.ConnectiveNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
@@ -32,40 +33,90 @@ import net.seapanda.bunnyhop.view.node.VoidNodeView;
  * */
 public class CallbackInvoker implements NodeViewProcessor {
 
-	private final boolean visitOnlyOuter;	//!< 外部ノードのみ巡る場合 true
 	private final Consumer<BhNodeView> callback;
+	private final Consumer<BhNodeViewGroup> callbackForGroup;
+	/** 外部ノードのみ巡る場合 true */
+	private final boolean visitOnlyOuter;
+	/** 子要素を走査してからコールバック関数を呼ぶ場合 true */
+	private final boolean callAfterSearch;
 
-	private CallbackInvoker(boolean visitOnlyOuter, Consumer<BhNodeView> callback) {
-		this.visitOnlyOuter = visitOnlyOuter;
+	private CallbackInvoker(
+		Consumer<BhNodeView> callback,
+		Consumer<BhNodeViewGroup> callbackForGroup,
+		boolean visitOnlyOuter,
+		boolean callAfterSearch) {
+
 		this.callback = callback;
+		this.callbackForGroup = callbackForGroup;
+		this.visitOnlyOuter = visitOnlyOuter;
+		this.callAfterSearch = callAfterSearch;
 	}
 
 	/**
 	 * コールバック関数を呼び出す.
 	 * @param callback 呼び出すコールバック関数
 	 * @param nodeView これ以下のノードビューに対して, callback を呼び出す
-	 * */
-	public static void invoke(Consumer<BhNodeView> callback, BhNodeView nodeView) {
-		nodeView.accept(new CallbackInvoker(false, callback));
+	 * @param callAfterSearch 子要素を走査してから {@code callback} を呼ぶ場合 true.
+	 */
+	public static void invoke(
+		Consumer<BhNodeView> callback, BhNodeView nodeView, boolean callAfterSearch) {
+		nodeView.accept(new CallbackInvoker(callback, g->{}, false, callAfterSearch));
 	}
 
 	/**
 	 * 外部ノードのみを経由しつつコールバック関数を呼び出す.
 	 * @param callback 呼び出すコールバック関数
 	 * @param nodeView このノードから外部ノードのみを経由しながらコールバック関数を呼び出す.
-	 * */
-	public static void invokeForOuters(Consumer<BhNodeView> callback, BhNodeView nodeView) {
-		nodeView.accept(new CallbackInvoker(true, callback));
+	 * @param callAfterSearch 子要素を走査してから {@code callback} を呼ぶ場合 true.
+	 */
+	public static void invokeForOuters(
+		Consumer<BhNodeView> callback, BhNodeView nodeView, boolean callAfterSearch) {
+		nodeView.accept(new CallbackInvoker(callback, g->{}, true, callAfterSearch));
+	}
+
+	/**
+	 * コールバック関数を呼び出す.
+	 * @param callbackForNode ノードビューに対して呼び出すコールバック関数
+	 * @param callbackForGroup ノードビューグループ呼び出すコールバック関数
+	 * @param nodeView これ以下のノードビューに対して, callback を呼び出す
+	 * @param callAfterSearch 子要素を走査してから {@code callback} を呼ぶ場合 true.
+	 */
+	public static void invoke(
+		Consumer<BhNodeView> callbackForNode,
+		Consumer<BhNodeViewGroup> callbackForGroup,
+		BhNodeView nodeView,
+		boolean callAfterSearch) {
+
+		nodeView.accept(new CallbackInvoker(callbackForNode, callbackForGroup, false, callAfterSearch));
+	}
+
+	@Override
+	public void visit(BhNodeViewGroup group) {
+
+
+		if (!callAfterSearch)
+			callbackForGroup.accept(group);
+
+		group.sendToChildNode(this);
+		group.sendToSubGroupList(this);
+
+		if (callAfterSearch)
+			callbackForGroup.accept(group);
 	}
 
 	@Override
 	public void visit(ConnectiveNodeView view) {
 
-		callback.accept(view);
+		if (!callAfterSearch)
+			callback.accept(view);
+
 		if (!visitOnlyOuter)
 			view.sendToInnerGroup(this);
 
 		view.sendToOuterGroup(this);
+
+		if (callAfterSearch)
+			callback.accept(view);
 	}
 
 	@Override

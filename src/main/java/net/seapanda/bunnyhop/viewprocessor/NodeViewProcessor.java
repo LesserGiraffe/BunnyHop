@@ -33,7 +33,7 @@ public interface NodeViewProcessor {
 	/**
 	 * BhNodeViewGroup を処理する.
 	 * @param group 処理する BhNodeViewGroup
-	 * */
+	 */
 	default public void visit(BhNodeViewGroup group) {
 		group.sendToChildNode(this);
 		group.sendToSubGroupList(this);

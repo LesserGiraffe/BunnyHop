@@ -13,38 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.node;
+package net.seapanda.bunnyhop.model.node.imitation;
 
 import java.io.Serializable;
 import java.util.Objects;
 
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
- * BhノードID
+ * 作成するイミテーションを識別するためのID
  * @author K.Koike
  */
-public class BhNodeID implements Serializable {
+public class ImitationID implements Serializable {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	public static final BhNodeID NONE = new BhNodeID("");	//!< BhNodeIDが存在しないことを表す
-	String id;
+	public static final ImitationID NONE = new ImitationID("");	//!< イミテーションIDが存在しないことを表す
+	public static final ImitationID MANUAL = new ImitationID(BhParams.BhModelDef.ATTR_VALUE_IMIT_ID_MANUAL);	//!< イミテーション手動作成時のID
+	private final String id;
 
 	/**
 	 * コンストラクタ
 	 * @param id 識別子名
 	 */
-	private BhNodeID(String id) {
+	private ImitationID(String id) {
 		this.id = id;
 	}
 
 	/**
-	 * BhノードIDを作成する
+	 * イミテーションIDを作成する
 	 * @param id 識別子名
-	 * @return BhノードID
+	 * @return イミテーションID
 	 */
-	public static BhNodeID create(String id) {
-		return new BhNodeID(id == null ? "" : id);
+	public static ImitationID create(String id) {
+		return new ImitationID(id == null ? "" : id);
 	}
 
 	@Override
@@ -56,13 +58,13 @@ public class BhNodeID implements Serializable {
 	public boolean equals(Object obj) {
 		if (obj == null)
 			return false;
-		return (getClass() == obj.getClass()) && (id.equals(((BhNodeID)obj).id));
+		return (getClass() == obj.getClass()) && (id.equals(((ImitationID)obj).id));
 	}
 
 	@Override
 	public int hashCode() {
-		int hash = 5;
-		hash = 11 * hash + Objects.hashCode(this.id);
+		int hash = 7;
+		hash = 59 * hash + Objects.hashCode(this.id);
 		return hash;
 	}
 }

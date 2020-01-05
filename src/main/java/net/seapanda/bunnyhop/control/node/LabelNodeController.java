@@ -34,7 +34,6 @@ public class LabelNodeController extends BhNodeController {
 		this.model = model;
 		this.view = view;
 		setInitStr(model, view);
-		view.setCreateImitHandler(model);
 	}
 
 	/**
@@ -43,6 +42,7 @@ public class LabelNodeController extends BhNodeController {
 	 * @param view 初期文字列をセットするLabelNodeView
 	 */
 	public static void setInitStr(TextNode model, LabelNodeView view) {
+
 		String initText = model.getText();
 		view.setText(initText + " ");	//初期文字列が空文字だったときのため
 		view.setText(initText);
@@ -59,8 +59,7 @@ public class LabelNodeController extends BhNodeController {
 
 		switch (msg) {
 			case IMITATE_TEXT:
-				model.setText(data.strPair._1);
-				view.setText(data.strPair._2);
+				setText(model, view, data.strPair._1, data.strPair._2);
 				break;
 
 			case GET_VIEW_TEXT:
@@ -70,5 +69,18 @@ public class LabelNodeController extends BhNodeController {
 				return super.processMsg(msg, data);
 		}
 		return null;
+	}
+
+	/**
+	 * テキストノードとそのビューにテキストをセットする
+	 * @param model テキストをセットするノード
+	 * @param view テキストをセットするビュー
+	 * @param modelText {@code model} にセットする文字列
+	 * @param viewText {@code view} にセットする文字列
+	 */
+	public static void setText(TextNode model, LabelNodeView view, String modelText, String viewText) {
+
+		model.setText(modelText);
+		view.setText(viewText);
 	}
 }

@@ -15,58 +15,61 @@
  */
 package net.seapanda.bunnyhop.view.node;
 
-import java.util.Optional;
-
-import javafx.scene.control.Button;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
-import net.seapanda.bunnyhop.view.node.part.ImitationCreator;
+import net.seapanda.bunnyhop.view.node.part.ImitationCreationButton;
+import net.seapanda.bunnyhop.view.node.part.PrivateTemplateCreationButton;
 import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 
 /**
  * ConnectiveNode に対応するビュークラス
  * @author K.Koike
- * */
-public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
+ */
+public final class ConnectiveNodeView extends BhNodeView{
 
 	private final BhNodeViewGroup innerGroup = new BhNodeViewGroup(this, true); //!< ノード内部に描画されるノードのGroup
 	private final BhNodeViewGroup outerGroup = new BhNodeViewGroup(this, false); //!< ノード外部に描画されるノードのGroup
-	private Button imitCreateBtn;	//!< イミテーション作成ボタン
 	private ConnectiveNode model;
 
 	/**
 	 * コンストラクタ
-	 * @param model ビューが表すモデル
-	 * @param viewStyle ノードの見た目を決めるパラメータオブジェクト
-	 * */
-	public ConnectiveNodeView(ConnectiveNode model, BhNodeViewStyle viewStyle) {
+	 * @param model このノードビューに対応するノード
+	 * @param viewStyle このノードビューのスタイル
+	 * @throws ViewInitializationException ノードビューの初期化に失敗
+	 */
+	public ConnectiveNodeView(ConnectiveNode model, BhNodeViewStyle viewStyle)
+		throws ViewInitializationException {
+
 		super(viewStyle, model);
 		this.model = model;
+		init();
 	}
 
-	/**
-	 * 初期化する
-	 */
-	public boolean init() {
+	private void init() throws ViewInitializationException {
 
-		initialize();
 		innerGroup.buildSubGroup(viewStyle.connective.inner);
 		outerGroup.buildSubGroup(viewStyle.connective.outer);
-		setFuncs(this::rearrangeChildNodes, this::updateAbsPos);
+		getPositionManager().setOnAbsPosUpdated(this::updateAbsPos);
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_CONNECTIVE_NODE);
 
-		boolean success = true;
 		if (model.canCreateImitManually) {
-			Optional<Button> btnOpt = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
-			success &= btnOpt.isPresent();
-			imitCreateBtn = btnOpt.orElse(new Button());
-			getTreeManager().addChild(imitCreateBtn);
+			var imitButtonOpt = ImitationCreationButton.create(model, viewStyle.imitation);
+			var imitButton = imitButtonOpt.orElseThrow(() -> new ViewInitializationException(
+				getClass().getSimpleName() + "  failed To load the Imitation Creation Button of this view."));
+			getTreeManager().addChild(imitButton);
 		}
-		return success;
+
+		if (model.hasPrivateTemplateNodes()) {
+			var privateTemplateBtnOpt = PrivateTemplateCreationButton.create(model, viewStyle.privatTemplate);
+			var privateTemplateBtn = privateTemplateBtnOpt.orElseThrow(() -> new ViewInitializationException(
+				getClass().getSimpleName() + "  failed To load the Private Template Button of this view."));
+			getTreeManager().addChild(privateTemplateBtn);
+		}
 	}
 
 	/**
@@ -90,10 +93,10 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 	}
 
 	/**
-	 * このノードの絶対位置を更新する関数
-	 * @param posX 本体部分左上のX位置
-	 * @param posY 本体部分左上のY位置
-	 * */
+	 * このノード以下のグループの絶対位置を更新する
+	 * @param posX ノードの絶対位置 X
+	 * @param posY ノードの絶対位置 Y
+	 */
 	private void updateAbsPos(double posX, double posY) {
 
 		//内部ノード絶対位置更新
@@ -102,58 +105,63 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 
 		//外部ノード絶対位置更新
 		Vec2D bodySize = getRegionManager().getBodySize(false);
-		if (viewStyle.connectorPos == CNCTR_POS.LEFT)	//外部ノードが右に繋がる
+		//外部ノードが右に繋がる
+		if (viewStyle.connectorPos == CNCTR_POS.LEFT)
 			outerGroup.updateAbsPos(posX + bodySize.x, posY);
-		else										   //外部ノードが下に繋がる
+		 //外部ノードが下に繋がる
+		else
 			outerGroup.updateAbsPos(posX, posY + bodySize.y);
 	}
 
-	/**
-	 * 子ノードの配置を更新する
-	 * @param child 大きさや位置が変わった子ノードを含むグループ
-	 * */
-	private void rearrangeChildNodes(BhNodeViewGroup child) {
+	@Override
+	protected void arrangeAndResize() {
 
-		Vec2D sizeBefore = getRegionManager().getNodeSizeIncludingOuter(true);
-		if (child == null) {
-			Vec2D outerSize = outerGroup.getSize();
-			viewStyle.connective.outerWidth = outerSize.x;
-			viewStyle.connective.outerHeight = outerSize.y;
-			Vec2D innerSize = innerGroup.getSize();
-			viewStyle.width = innerSize.x;
-			viewStyle.height = innerSize.y;
-			getAppearanceManager().updatePolygonShape();
-		}
-		else {
-			Vec2D childSize = child.getSize();
-			if (child == outerGroup) {
-				viewStyle.connective.outerWidth = childSize.x;
-				viewStyle.connective.outerHeight = childSize.y;
-			}
-			else if (child == innerGroup){
-				viewStyle.width = childSize.x;
-				viewStyle.height = childSize.y;
-				getAppearanceManager().updatePolygonShape();
-			}
-		}
-
+		getAppearanceManager().updatePolygonShape();
 		updateChildRelativePos();
+	}
 
-		Vec2D sizeAfter = getRegionManager().getNodeSizeIncludingOuter(true);
-		if (parent.get() == null ||
-			(sizeBefore.equals(sizeAfter) && child != null)) {
-			Vec2D pos = getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
-			getPositionManager().setPosOnWorkspace(pos.x, pos.y);
-			return;
+	@Override
+	protected Vec2D getBodySize(boolean includeCnctr) {
+
+		Vec2D innerSize = innerGroup.getSize();
+		Vec2D cnctrSize = viewStyle.getConnectorSize();
+
+		double bodyWidth = viewStyle.paddingLeft + innerSize.x + viewStyle.paddingRight;
+		if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.LEFT))
+			bodyWidth += cnctrSize.x;
+
+		double bodyHeight = viewStyle.paddingTop + innerSize.y + viewStyle.paddingBottom;
+		if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.TOP))
+			bodyHeight += cnctrSize.y;
+
+		return new Vec2D(bodyWidth, bodyHeight);
+	}
+
+	@Override
+	protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
+
+		Vec2D bodySize = getBodySize(includeCnctr);
+		Vec2D outerSize = outerGroup.getSize();
+		double totalWidth = bodySize.x;
+		double totalHeight = bodySize.y;
+
+		//外部ノードが右に接続される
+		if (viewStyle.connectorPos == CNCTR_POS.LEFT) {
+			totalWidth += outerSize.x;
+			totalHeight = Math.max(totalHeight, outerSize.y);
+		}
+		//外部ノードが下に接続される
+		else {
+			totalWidth = Math.max(totalWidth, outerSize.x);
+			totalHeight += outerSize.y;
 		}
 
-		parent.get().rearrangeChild();
+		return new Vec2D(totalWidth, totalHeight);
 	}
 
 	/**
 	 * ノードの親からの相対位置を指定する
-	 * @param innerSizeList 内部描画ノードの大きさが格納された配列
-	 * */
+	 */
 	private void updateChildRelativePos() {
 
 		innerGroup.setRelativePosFromParent(viewStyle.paddingLeft, viewStyle.paddingTop);
@@ -196,11 +204,6 @@ public class ConnectiveNodeView extends BhNodeView implements ImitationCreator{
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.msgForDebug("connectiveNodeView show exception " + e);
 		}
-	}
-
-	@Override
-	public Button imitCreateButton() {
-		return imitCreateBtn;
 	}
 }
 

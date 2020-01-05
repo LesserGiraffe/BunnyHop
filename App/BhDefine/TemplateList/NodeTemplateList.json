@@ -101,26 +101,7 @@
 			"idSoundListDecl"
 		]
 	},
-	
-	"変数・リスト操作": {
-		"cssClass":"varAndListOpe",
-		"contents":[
-			"idAnyAssignStat",
-			"idNumAddAssignStat",
-			"idSelectionViewSpace",
-			"idAnyArrayPushStat", 
-			"idAnyArrayGetExp",
-			"idAnyArrayGetLastExp",
-			"idAnyArrayLengthExp",
-			"idAnyArrayPopStat",
-			"idAnyArrayInsertStat",
-			"idAnyArrayRemoveStat",
-			"idAnyArraySetStat",
-			"idAnyArrayAppendStat",
-			"idAnyArrayClearStat",
-			"idAnyListToStrExp"]
-	},
-	
+
 	"機能作成" : {
 		"cssClass":"funcDef",
 		"contents":["idVoidFuncDef", "idReturnStat"]
@@ -132,9 +113,7 @@
 			"idKeyPressedEvent",
 			"idDelayedStartEvent",
 			"idCriticalSectionDecl",
-			"idReusableBarrierDecl",
-			"idAwaitStat",
-			"idGetNumberWaitingExp"]
+			"idReusableBarrierDecl"]
 	},
 	
 	"その他" : {

@@ -18,8 +18,8 @@ package net.seapanda.bunnyhop.compiler;
 import java.util.Collection;
 import java.util.List;
 
-import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
 
 /**
  * 関数定義のコード生成を行うクラス

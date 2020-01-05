@@ -27,8 +27,9 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.BhNodeViewType;
-import net.seapanda.bunnyhop.model.node.SyntaxSymbolID;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
+import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbolID;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 

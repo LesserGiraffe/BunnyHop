@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.imitation;
+package net.seapanda.bunnyhop.model.node.imitation;
 
 import java.io.Serializable;
 import java.util.Objects;

@@ -32,7 +32,7 @@
 	else if (String(bhReplacedNewNode.getSymbolName()) === 'AnyExpVoid') {
 		if (String(nextStrChainLinkExp.getSymbolName()) === 'StrChainLinkExp') {
 			bhNodeHandler.replaceChild(bhThis, nextStrChainLinkExp, bhUserOpeCmd);
-			let OperationInDeletion = net.seapanda.bunnyhop.modelservice.OperationInDeletion;
+			let OperationInDeletion = net.seapanda.bunnyhop.modelservice.DeleteOperation;
 			bhNodeHandler.deleteNodeWithDelay(bhThis, bhUserOpeCmd, OperationInDeletion.REMOVE_FROM_IMIT_LIST);
 		}
 	}

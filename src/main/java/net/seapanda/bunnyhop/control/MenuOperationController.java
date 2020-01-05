@@ -50,17 +50,18 @@ import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.NodeGraphSnapshot;
-import net.seapanda.bunnyhop.model.Workspace;
-import net.seapanda.bunnyhop.model.WorkspaceSet;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.modelprocessor.TemplateImitationCollector;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.modelservice.DelayedDeleter;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.BhNodeCategoryListView;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 
 /**
  * 画面上部のボタンのコントローラクラス
@@ -103,12 +104,8 @@ public class MenuOperationController {
 	 * イベントハンドラをセットする
 	 * @param wss ワークスペースセット
 	 * @param workspaceSetTab ワークスペース表示用のタブペイン
-	 * @param bhNodeCategoryListView ノードカテゴリ選択ビュー
 	 */
-	public void init(
-		WorkspaceSet wss,
-		TabPane workspaceSetTab,
-		BhNodeCategoryListView bhNodeCategoryListView) {
+	public void init(WorkspaceSet wss, TabPane workspaceSetTab) {
 
 		setCutHandler(wss);	//カット
 		setCopyHandler(wss);	//コピー
@@ -117,8 +114,8 @@ public class MenuOperationController {
 		setJumpHandler(wss);	//ジャンプ
 		setUndoHandler(wss);	//アンドゥ
 		setRedoHandler(wss);	//リドゥ
-		setZoomInHandler(wss, bhNodeCategoryListView);	//ズームイン
-		setZoomOutHandler(wss, bhNodeCategoryListView);	//ズームアウト
+		setZoomInHandler(wss);	//ズームイン
+		setZoomOutHandler(wss);	//ズームアウト
 		setWidenHandler(wss);	//ワークスペースの範囲拡大
 		setNarrowHandler(wss);	//ワークスペースの範囲縮小
 		setAddWorkspaceHandler(wss);//ワークスペース追加
@@ -224,7 +221,7 @@ public class MenuOperationController {
 
 					var candidates = currentWS.getSelectedNodeList();
 					var nodesToDelete = candidates.stream()
-						.filter(node -> node.execScriptOnDeletionRequested(
+						.filter(node -> node.getEventDispatcher().dispatchOnDeletionRequested(
 							candidates, CauseOfDeletion.SELECTED_FOR_DELETION, userOpeCmd))
 						.collect(Collectors.toCollection(ArrayList::new));
 
@@ -313,12 +310,12 @@ public class MenuOperationController {
 	 * @param wss イベント発生時に操作するワークスペースセット
 	 * @param bhNodeCategoryListView ノードカテゴリ選択ビュー
 	 */
-	private void setZoomInHandler(WorkspaceSet wss, BhNodeCategoryListView bhNodeCategoryListView) {
+	private void setZoomInHandler(WorkspaceSet wss) {
 
 		zoomInBtn.setOnAction(action -> {
 
-			if (bhNodeCategoryListView.isAnyShowed()) {
-				bhNodeCategoryListView.zoomAll(true);
+			if (BhNodeSelectionService.INSTANCE.isAnyShowed()) {
+				BhNodeSelectionService.INSTANCE.zoomAll(true);
 				return;
 			}
 
@@ -332,14 +329,13 @@ public class MenuOperationController {
 	/**
 	 * ズームインボタン押下時のイベントハンドラを登録する
 	 * @param wss イベント発生時に操作するワークスペースセット
-	 * @param bhNodeCategoryListView ノードカテゴリ選択ビュー
 	 */
-	private void setZoomOutHandler(WorkspaceSet wss, BhNodeCategoryListView bhNodeCategoryListView) {
+	private void setZoomOutHandler(WorkspaceSet wss) {
 
 		zoomOutBtn.setOnAction(action -> {
 
-			if (bhNodeCategoryListView.isAnyShowed()) {
-				bhNodeCategoryListView.zoomAll(false);
+			if (BhNodeSelectionService.INSTANCE.isAnyShowed()) {
+				BhNodeSelectionService.INSTANCE.zoomAll(false);
 				return;
 			}
 
@@ -426,7 +422,13 @@ public class MenuOperationController {
 						MsgPrinter.INSTANCE.errMsgForUser("!! 実行準備中 !!\n");
 						return;
 					}
+					BhNodeSelectionService.INSTANCE.hideAll();
 					var userOpeCmd = new UserOperationCommand();
+					var imitToDelete = wss.getWorkspaceList().stream()
+						.flatMap(ws -> ws.getRootNodeList().stream())
+						.flatMap(rootNode -> TemplateImitationCollector.collect(rootNode).stream())
+						.collect(Collectors.toCollection(ArrayList::new));
+					BhNodeHandler.INSTANCE.deleteNodes(imitToDelete, new UserOperationCommand());
 					snapshotAndNodeToExecOpt = CompileNodeCollector.collect(wss, userOpeCmd);
 					BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
 				}

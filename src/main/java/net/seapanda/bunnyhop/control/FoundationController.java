@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import javafx.event.EventTarget;
 import javafx.fxml.FXML;
@@ -34,8 +33,11 @@ import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramManager;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
-import net.seapanda.bunnyhop.model.WorkspaceSet;
-import net.seapanda.bunnyhop.model.node.BhNodeCategoryList;
+import net.seapanda.bunnyhop.control.nodeselection.BhNodeCategoryListController;
+import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
+import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 
 /**
  * GUIの基底部分のコントローラ
@@ -107,19 +109,21 @@ public class FoundationController {
 	 * @param wss ワークスペースセットのモデル
 	 * @param nodeCategoryList ノードカテゴリリストのモデル
 	 */
-	public void init(WorkspaceSet wss, BhNodeCategoryList nodeCategoryList) {
+	public boolean init(WorkspaceSet wss, BhNodeCategoryList nodeCategoryList) {
 
 		workspaceSetController.init(wss);
-		nodeCategoryListController.init(nodeCategoryList);
-		menuOperationController.init(
-			wss,
-			workspaceSetController.getTabPane(),
-			nodeCategoryListController.getView());
-		menuBarController.init(wss);
+		boolean success = nodeCategoryListController.init(nodeCategoryList);
+		if (!success)
+			return false;
 
+		menuOperationController.init(wss, workspaceSetController.getTabPane());
+		menuBarController.init(wss);
 		wss.setMsgProcessor(workspaceSetController);
+		nodeCategoryListController.getView().getSelectionViewList().forEach(
+			view -> MsgService.INSTANCE.addNodeSelectionView(wss, view));
 		nodeCategoryList.setMsgProcessor(nodeCategoryListController);
 		setKeyEvents();
+		return true;
 	}
 
 	public MenuBarController getMenuBarController() {
@@ -131,40 +135,10 @@ public class FoundationController {
 	 */
 	private void setKeyEvents() {
 
-		Consumer<KeyEvent> forwardEvent = (event) -> {
-			foundationVBox.fireEvent(
-				new KeyEvent(
-					foundationVBox,
-					foundationVBox,
-					event.getEventType(),
-					event.getCharacter(),
-					event.getText(),
-					event.getCode(),
-					event.isShiftDown(),
-					event.isControlDown(),
-					event.isAltDown(),
-					event.isMetaDown()));
-		};
-
-		foundationVBox.addEventFilter(KeyEvent.ANY, (event) -> {
-
-			EventTarget target = event.getTarget();
-			// タブペインが矢印キーで切り替わらないようにする
-			if (target == workspaceSetController.getTabPane()) {
+		foundationVBox.addEventFilter(KeyEvent.ANY, event -> {
+			if (isKeyEventToForward(event)) {
 				event.consume();
-				forwardEvent.accept(event);
-			}
-			// スクロールペインが矢印やスペースキーでスクロールしないようにする。
-			if (target instanceof ScrollPane) {
-				if (((ScrollPane)target).getId().equals(BhParams.Fxml.ID_WS_SCROLL_PANE)) {
-					event.consume();
-					forwardEvent.accept(event);
-				}
-			}
-			// ボタンが矢印やスぺーキーイベントを受け付けないようにする
-			if (event.getTarget() instanceof ButtonBase) {
-				event.consume();
-				forwardEvent.accept(event);
+				forwardKeyEvent(event);
 			}
 		});
 
@@ -178,8 +152,47 @@ public class FoundationController {
 	}
 
 	/**
+	 * 基底ペインに転送すべきキーイベントかどうかを判断する.
+	 */
+	private boolean isKeyEventToForward(KeyEvent event) {
+
+		EventTarget target = event.getTarget();
+		// タブペインが矢印キーで切り替わらないようにする
+		if (target == workspaceSetController.getTabPane())
+			return true;
+
+		// スクロールペインが矢印やスペースキーでスクロールしないようにする。
+		if (target instanceof ScrollPane)
+			if (((ScrollPane)target).getId().equals(BhParams.Fxml.ID_WS_SCROLL_PANE))
+				return true;
+
+		// ボタンが矢印やスぺーキーイベントを受け付けないようにする
+		if (event.getTarget() instanceof ButtonBase)
+			return true;
+
+		return false;
+	}
+
+	/** 引数で指定したイベントを基底ペインに転送する */
+	private void forwardKeyEvent(KeyEvent event) {
+
+		foundationVBox.fireEvent(
+			new KeyEvent(
+				foundationVBox,
+				foundationVBox,
+				event.getEventType(),
+				event.getCharacter(),
+				event.getText(),
+				event.getCode(),
+				event.isShiftDown(),
+				event.isControlDown(),
+				event.isAltDown(),
+				event.isMetaDown()));
+	}
+
+	/**
 	 * BunnyHop操作のためのイベントを発行する
-	 * */
+	 */
 	private void fireBhOpEvent(KeyEvent event) {
 		switch (event.getCode()) {
 			case C:

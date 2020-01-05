@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.mozilla.javascript.Context;
@@ -38,11 +39,11 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 /**
  * Javascriptを管理するクラス
  * @author K.Koike
- * */
+ */
 public class BhScriptManager {
 
 	public static final BhScriptManager INSTANCE = new BhScriptManager();	//!< シングルトンインスタンス
-	private final HashMap<String, Script> scriptName_script = new HashMap<>();	//!< スクリプト名とコンパイル済みスクリプトのマップ
+	private final HashMap<String, Script> scriptNameToScript = new HashMap<>();	//!< スクリプト名とコンパイル済みスクリプトのマップ
 	private Object commonJsObj;	//!< スクリプト共通で使うJavascriptオブジェクト
 
 	/**
@@ -59,18 +60,22 @@ public class BhScriptManager {
 
 	/**
 	 * Javascriptのファイルパスからコンパイル済みスクリプトを取得する
-	 * @param fileName 取得したいスクリプトのファイル名
-	 * @return jsPath で指定したスクリプト
+	 * @param fileName 取得したいスクリプトのファイル名. null 許可.
+	 * @return {@code fileName} で指定した名前のスクリプト. fileName が null の場合は, null.
 	 * */
 	public Script getCompiledScript(String fileName) {
-		return scriptName_script.get(fileName);
+
+		if (fileName == null)
+			return null;
+
+		return scriptNameToScript.get(fileName);
 	}
 
 	/**
 	 * Javascriptファイルを読み込み、コンパイルする
 	 * @param dirPaths このフォルダの下にある.jsファイルをコンパイルする
 	 * @return ひとつでもコンパイル不能なJSファイルがあった場合 false を返す
-	 * */
+	 */
 	public boolean genCompiledCode(Path... dirPaths) {
 
 		boolean success = true;
@@ -89,18 +94,19 @@ public class BhScriptManager {
 			Context cx = ContextFactory.getGlobal().enterContext();
 			cx.setLanguageVersion(Context.VERSION_ES6);
 			cx.setOptimizationLevel(9);
-			success &= paths.map(path -> {
-
-				try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)){
-					Script script = cx.compileReader(reader, path.getFileName().toString(), 1, null);
-					scriptName_script.put(path.getFileName().toString(), script);
-				}
-				catch (IOException e) {
-					MsgPrinter.INSTANCE.errMsgForDebug(e.toString() + "  " + path.toString());
-					return false;
-				}
-				return true;
-			}).allMatch(bool -> bool);
+			success &= paths
+				.map(path -> {
+					try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)){
+						Script script = cx.compileReader(reader, path.getFileName().toString(), 1, null);
+						scriptNameToScript.put(path.getFileName().toString(), script);
+					}
+					catch (IOException e) {
+						MsgPrinter.INSTANCE.errMsgForDebug(e.toString() + "  " + path.toString());
+						return false;
+					}
+					return true;
+				})
+				.allMatch(Boolean::valueOf);
 			Context.exit();
 		}
 		success &= genCommonObj();
@@ -113,10 +119,10 @@ public class BhScriptManager {
 	 * */
 	private boolean genCommonObj() {
 
-		if (scriptName_script.containsKey(BhParams.Path.COMMON_EVENT_JS)) {
+		if (scriptNameToScript.containsKey(BhParams.Path.COMMON_EVENT_JS)) {
 			try {
 				commonJsObj = ContextFactory.getGlobal().call(cx -> {
-					return scriptName_script.get(BhParams.Path.COMMON_EVENT_JS).exec(cx, cx.initStandardObjects());
+					return scriptNameToScript.get(BhParams.Path.COMMON_EVENT_JS).exec(cx, cx.initStandardObjects());
 				});
 			}
 			catch (Exception e) {
@@ -136,21 +142,23 @@ public class BhScriptManager {
 	public boolean scriptsExist(String fileName, String... scriptNames) {
 
 		Stream<String> scriptNameStream = Stream.of(scriptNames);
-		return scriptNameStream.allMatch(scriptName ->{
-			boolean found = scriptName_script.get(scriptName) != null;
-			if (!found) {
-				MsgPrinter.INSTANCE.errMsgForDebug(scriptName + " が見つかりません.  file: " + fileName);
-			}
-			return found;
-		});
+		return scriptNameStream
+			.map(scriptName ->{
+				boolean found = scriptNameToScript.get(scriptName) != null;
+				if (!found) {
+					MsgPrinter.INSTANCE.errMsgForDebug(scriptName + " が見つかりません.  file: " + fileName);
+				}
+				return found;
+			})
+			.allMatch(Boolean::valueOf);
 	}
 
 	/**
 	 * Jsonファイルをパースしてオブジェクトにして返す
 	 * @param filePath Jsonファイルのパス
-	 * @return Jsonファイルをパースしてできたオブジェクト
+	 * @return Jsonファイルをパースしてできたオブジェクト. 失敗した場合 empty.
 	 */
-	public NativeObject parseJsonFile(Path filePath) {
+	public Optional<NativeObject> parseJsonFile(Path filePath) {
 
 		Object jsonObj = null;
 		try {
@@ -162,17 +170,17 @@ public class BhScriptManager {
 		}
 		catch (IOException e) {
 			MsgPrinter.INSTANCE.errMsgForDebug("cannot read json file.  " + filePath + "\n" + e.toString() + "\n");
-			return null;
+			return Optional.empty();
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug("cannot parse json file.  " + filePath + "\n" + e.toString() + "\n");
-			return null;
+			return Optional.empty();
 		}
 		if (!(jsonObj instanceof NativeObject)) {
 			MsgPrinter.INSTANCE.errMsgForDebug("cannot parse json file.  " + filePath);
-			return null;
+			return Optional.empty();
 		}
-		return (NativeObject)jsonObj;
+		return Optional.of((NativeObject)jsonObj);
 	}
 
 	/**

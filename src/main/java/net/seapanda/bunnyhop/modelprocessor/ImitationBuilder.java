@@ -18,11 +18,11 @@ package net.seapanda.bunnyhop.modelprocessor;
 import java.util.Deque;
 import java.util.LinkedList;
 
-import net.seapanda.bunnyhop.model.imitation.Imitatable;
-import net.seapanda.bunnyhop.model.imitation.ImitationID;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.node.imitation.ImitationID;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -33,35 +33,46 @@ public class ImitationBuilder implements BhModelProcessor {
 
 	private final Deque<Imitatable> parentImitStack = new LinkedList<>();	//!< 現在処理中のBhNode の親がトップにくるスタック
 	UserOperationCommand userOpeCmd;	//!< undo用コマンドオブジェクト
-	private boolean isManualCreation;	//!< トップノードのイミテーションを手動作成する場合true
+	//private boolean isManualCreation;	//!< トップノードのイミテーションを手動作成する場合true
+	private final boolean buildMVC;
+	private ImitationID imitationID = ImitationID.NONE;
 
 	/**
-	 * ノードを付け変えた結果, 自動的に作成されるイミテーションノードを作る
+	 * {@code node} の先祖のコネクタに定義されたイミテーション ID を元にイミテーションノードを作成する.
 	 * @param node イミテーションを作成するオリジナルノード
+	 * @param buildMVC イミテーションノードの MVC 関係を構築する場合 true.
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @return 作成したイミテーションノードツリーのトップノード
 	 * */
-	public static Imitatable buildForAutoCreation(BhNode node, UserOperationCommand userOpeCmd) {
-		var builder = new ImitationBuilder(userOpeCmd, false);
+	public static Imitatable buildReferingAncestor(
+		Imitatable node, boolean buildMVC, UserOperationCommand userOpeCmd) {
+
+		var builder = new ImitationBuilder(ImitationID.NONE, buildMVC, userOpeCmd);
 		node.accept(builder);
 		return builder.parentImitStack.peekLast();
 	}
 
 	/**
-	 * イミテーション作成操作を手動で行った結果できるイミテーションノードを作る
+	 * {@code node} の {@code imitID} に対応するイミテーションノードを作成する.
 	 * @param node イミテーションを作成するオリジナルノード
+	 * @param imitID 作成するイミテーションのID.  {@code node} に対して, このイミテーション ID が定義されていること.
+	 * @param buildMVC イミテーションノードの MVC 関係を構築する場合 true.
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @return 作成したイミテーションノードツリーのトップノード
-	 * */
-	public static Imitatable buildForManualCreation(BhNode node, UserOperationCommand userOpeCmd) {
-		var builder = new ImitationBuilder(userOpeCmd, true);
+	 */
+	public static Imitatable build(
+		Imitatable node, ImitationID imitID, boolean buildMVC, UserOperationCommand userOpeCmd) {
+
+		var builder = new ImitationBuilder(imitID, buildMVC, userOpeCmd);
 		node.accept(builder);
 		return builder.parentImitStack.peekLast();
 	}
 
-	private ImitationBuilder(UserOperationCommand userOpeCmd, boolean isManualCreation) {
+	private ImitationBuilder(ImitationID imitID, boolean buildMVC, UserOperationCommand userOpeCmd) {
+
+		this.imitationID = imitID;
+		this.buildMVC = buildMVC;
 		this.userOpeCmd = userOpeCmd;
-		this.isManualCreation = isManualCreation;
 	}
 
 	/**
@@ -70,10 +81,10 @@ public class ImitationBuilder implements BhModelProcessor {
 	@Override
 	public void visit(ConnectiveNode node) {
 
-		ImitationID imitID = null;
-		if (isManualCreation) {
-			imitID = ImitationID.MANUAL;
-			isManualCreation = false;
+		ImitationID imitID = ImitationID.NONE;
+		if (!imitationID.equals(ImitationID.NONE)) {
+			imitID = imitationID;
+			imitationID = ImitationID.NONE;
 		}
 		else if (node.getParentConnector() != null) {
 			imitID = node.getParentConnector().findImitationID();
@@ -86,8 +97,10 @@ public class ImitationBuilder implements BhModelProcessor {
 			ConnectiveNode newImit = node.createImitNode(imitID, userOpeCmd);
 			parentImitStack.addLast(newImit);
 			node.sendToSections(this);
-			NodeMVCBuilder.build(newImit);
-			TextImitationPrompter.prompt(newImit);
+			if (buildMVC) {
+				NodeMVCBuilder.build(newImit);
+				TextImitationPrompter.prompt(newImit);
+			}
 		}
 		else {
 			Imitatable parentImit = parentImitStack.peekLast();
@@ -95,7 +108,7 @@ public class ImitationBuilder implements BhModelProcessor {
 			BhNode oldImit = ImitTaggedChildFinder.find(parentImit, node.getParentConnector().getImitCnctPoint());
 			if (oldImit != null) {
 				ConnectiveNode newImit = node.createImitNode(imitID, userOpeCmd);
-				oldImit.replacedWith(newImit, userOpeCmd);
+				oldImit.replace(newImit, userOpeCmd);
 				parentImitStack.addLast(newImit);
 				node.sendToSections(this);
 				parentImitStack.removeLast();
@@ -106,10 +119,10 @@ public class ImitationBuilder implements BhModelProcessor {
 	@Override
 	public void visit(TextNode node) {
 
-		ImitationID imitID = null;
-		if (isManualCreation) {
-			imitID = ImitationID.MANUAL;
-			isManualCreation = false;
+		ImitationID imitID = ImitationID.NONE;
+		if (!imitationID.equals(ImitationID.NONE)) {
+			imitID = imitationID;
+			imitationID = ImitationID.NONE;
 		}
 		else if (node.getParentConnector() != null) {
 			imitID = node.getParentConnector().findImitationID();
@@ -121,8 +134,10 @@ public class ImitationBuilder implements BhModelProcessor {
 		if (parentImitStack.isEmpty()) {
 			TextNode newImit = node.createImitNode(imitID, userOpeCmd);
 			parentImitStack.addLast(newImit);
-			NodeMVCBuilder.build(newImit);
-			TextImitationPrompter.prompt(newImit);
+			if (buildMVC) {
+				NodeMVCBuilder.build(newImit);
+				TextImitationPrompter.prompt(newImit);
+			}
 		}
 		else {
 			Imitatable parentImit = parentImitStack.peekLast();
@@ -130,7 +145,7 @@ public class ImitationBuilder implements BhModelProcessor {
 			BhNode oldImit = ImitTaggedChildFinder.find(parentImit, node.getParentConnector().getImitCnctPoint());
 			if (oldImit != null) {
 				TextNode newImit = node.createImitNode(imitID, userOpeCmd);
-				oldImit.replacedWith(newImit, userOpeCmd);
+				oldImit.replace(newImit, userOpeCmd);
 			}
 		}
 	}

@@ -1,10 +1,8 @@
 <Node type="connective"
 	bhNodeID="idVoidFuncDef"
 	name="VoidFuncDef"
-	canCreateImitManually="true"
 	nodeStyleID="VoidFuncDef.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	onPrivateTemplateCreating="CreateImitIdManualPrivateTemplate.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idVoidFuncCall"/>
 

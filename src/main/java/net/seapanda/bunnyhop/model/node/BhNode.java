@@ -15,8 +15,13 @@
  */
 package net.seapanda.bunnyhop.model.node;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
@@ -32,16 +37,17 @@ import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
-import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.model.Workspace;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
+import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
+import net.seapanda.bunnyhop.model.node.event.BhNodeEventDispatcher;
+import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
-import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelprocessor.ImitationReplacer;
-import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * ノードの基底クラス
@@ -53,17 +59,13 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	private final BhNodeID bhID; //!< ノードID (\<Node\> タグの bhID)
 	protected Connector parentConnector;	//!< このノードを繋いでいるコネクタ
 	protected Workspace workspace;	//!< このノードがあるWorkSpace.
-	private final String scriptNameOnMovedFromChildToWS;	//子ノードからワークスペースに移されたときに実行されるスクリプト名
-	private final String scriptNameOnMovedToChild;	//!< ワークスペースもしくは, 子ノードから子ノードに移されたときに実行されるスクリプト名
-	private final String scriptNameOnDeletionRequested;	//!< ユーザー操作により, このノードが削除候補になったときに実行されるスクリプト名
-	private final String scriptNameOnCutRequested;	//!< ユーザー操作により, このノードがカット&ペーストされるときに実行されるスクリプト名
-	private final String scriptNameOnCopyRequested;	//!< ユーザー操作により, このノードがコピー&ペーストされるときに実行されるスクリプト名
-	private final String scriptNameOfSyntaxErrorChecker; //!< イミテーションノードがスコープ内かどうかをチェックするスクリプト名
+	private Map<BhNodeEvent, String> eventToScriptName = new HashMap<>();
+	private BhNodeEventDispatcher dispatcher = new BhNodeEventDispatcher(this);
+
 
 	private final BhNodeViewType type;	//!< ノードのタイプ (connective, void, textField, ...)
 	private BhNode lastReplaced;	//!< 最後にこのノードと入れ替わったノード
 	private boolean isDefaultNode = false;	//!< デフォルトノードである場合true
-	transient protected ScriptableObject scriptScope;	//!< Javascript実行時の変数スコープ
 	transient private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
 
 	/**
@@ -125,12 +127,14 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		super(attributes.getName());
 		this.bhID = attributes.getBhNodeID();
 		this.type = type;
-		this.scriptNameOnMovedFromChildToWS = attributes.getOnMovedFromChildToWS();
-		this.scriptNameOnMovedToChild = attributes.getOnMovedToChild();
-		this.scriptNameOnDeletionRequested = attributes.getOnDeletionRequested();
-		this.scriptNameOnCutRequested = attributes.getOnCutRequested();
-		this.scriptNameOnCopyRequested = attributes.getOnCopyRequested();
-		this.scriptNameOfSyntaxErrorChecker = attributes.getSyntaxErrorChecker();
+
+		registerScriptName(BhNodeEvent.ON_MOVED_FROM_CHILD_TO_WS, attributes.getOnMovedFromChildToWS());
+		registerScriptName(BhNodeEvent.ON_MOVED_TO_CHILD, attributes.getOnMovedToChild());
+		registerScriptName(BhNodeEvent.ON_DELETION_REQUESTED, attributes.getOnDeletionRequested());
+		registerScriptName(BhNodeEvent.ON_CUT_REQUESTED, attributes.getOnCutRequested());
+		registerScriptName(BhNodeEvent.ON_COPY_REQUESTED, attributes.getOnCopyRequested());
+		registerScriptName(BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING, attributes.getOnPrivateTemplateCreating());
+		registerScriptName(BhNodeEvent.ON_SYNTAX_ERROR_CHECKING, attributes.getSyntaxErrorChecker());
 	}
 
 	/**
@@ -143,16 +147,11 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		bhID = org.bhID;
 		parentConnector = null;
 		workspace = null;
-		scriptNameOnMovedFromChildToWS = org.scriptNameOnMovedFromChildToWS;
-		scriptNameOnMovedToChild = org.scriptNameOnMovedToChild;
-		scriptNameOnDeletionRequested = org.scriptNameOnDeletionRequested;
-		scriptNameOnCutRequested = org.scriptNameOnCutRequested;
-		scriptNameOnCopyRequested = org.scriptNameOnCopyRequested;
-		scriptNameOfSyntaxErrorChecker = org.scriptNameOfSyntaxErrorChecker;
+		eventToScriptName = new HashMap<>(org.eventToScriptName);
 		type = org.type;
 		lastReplaced = null;
-		scriptScope = null;
 		isDefaultNode = org.isDefaultNode;
+
 	}
 
 	public BhNodeID getID() {
@@ -160,11 +159,11 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	}
 
 	/**
-	 * newBhNodeとこのノードを入れ替える
+	 * {@code newBhNode} とこのノードを入れ替える
 	 * @param newNode このノードと入れ替えるノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * */
-	public void replacedWith(BhNode newNode, UserOperationCommand userOpeCmd) {
+	public void replace(BhNode newNode, UserOperationCommand userOpeCmd) {
 
 		setLastReplaced(newNode, userOpeCmd);
 		parentConnector.connectNode(newNode, userOpeCmd);	//model 更新
@@ -225,7 +224,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	/**
 	 * 削除済みノードであるかどうか調べる.
 	 * @return 削除済みノードである場合 true
-	 * */
+	 */
 	public boolean isDeleted() {
 		return getState() == BhNode.State.DELETED;
 	}
@@ -233,7 +232,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	/**
 	 * 子ノードであるかどうか調べる.
 	 * @return 子ノードである場合 true
-	 * */
+	 */
 	public boolean isChild() {
 		return getState() == BhNode.State.CHILD;
 	}
@@ -241,7 +240,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	/**
 	 * ワークスペース直下のルートノードかどうか調べる.
 	 * @return ワークスペース直下のルートノードである場合 true
-	 * */
+	 */
 	public boolean isRootDirectolyUnderWs() {
 		return getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
 	}
@@ -249,15 +248,23 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	/**
 	 * ダングリング状態のルートノードかどうか調べる
 	 * @return ダングリング状態のルートノードである場合 true
-	 * */
+	 */
 	public boolean isRootDangling() {
 		return getState() == BhNode.State.ROOT_DANGLING;
 	}
 
 	/**
+	 * このノード固有のテンプレートノードがあるかどうか調べる.
+	 * @return このノード固有のテンプレートノードがある場合 true
+	 */
+	public boolean hasPrivateTemplateNodes() {
+		return getScriptName(BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING).isPresent();
+	}
+
+	/**
 	 * 接続されるコネクタを登録する
 	 * @param parentConnector このノードと繋がるコネクタ
-	 * */
+	 */
 	public void setParentConnector(Connector parentConnector) {
 		this.parentConnector = parentConnector;
 	}
@@ -407,177 +414,50 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	}
 
 	/**
-	 * スクリプト実行時のスコープ変数を登録する
-	 * @param view スクリプト実行時のスコープとして登録するBhNodeView
+	 * 引数で指定したイベント名に対応するスクリプト名を返す
 	 */
-	public void setScriptScope(BhNodeView view) {
-		scriptScope = BhScriptManager.INSTANCE.createScriptScope();
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_THIS, this);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_VIEW, view);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, BhNodeTemplates.INSTANCE);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
+	public Optional<String> getScriptName(BhNodeEvent event) {
+		return Optional.ofNullable(eventToScriptName.get(event));
 	}
 
 	/**
-	 * 子ノードに移ったときのスクリプトを実行する
-	 * @param oldParent 移る前に接続されていた親. ワークスペースから子ノードに移動したときはnull.
-	 * @param oldRoot 移る前に所属していたノードツリーのルートノード. ワークスペースから子ノードに移動したときは, このオブジェクト.
-	 * @param oldReplaced 元々子ノードとしてつながっていたノード
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
-	public void execScriptOnMovedToChild(
-		ConnectiveNode oldParent,
-		BhNode oldRoot,
-		BhNode oldReplaced,
-		UserOperationCommand userOpeCmd) {
+	 * このノードに関連するスクリプト名をイベントとともに登録する.
+	 * @param event スクリプトに対応するイベント
+	 * @param scriptName 登録するスクリプト名.  null もしくは空文字の場合は登録しない.
+	 */
+	protected void registerScriptName(BhNodeEvent event, String scriptName) {
 
-		Script onMovedToChild = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnMovedToChild);
-		if (onMovedToChild == null)
+		if (scriptName == null || scriptName.isEmpty())
 			return;
 
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldReplaced);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
-		try {
-			ContextFactory.getGlobal().call(cx -> onMovedToChild.exec(cx, scriptScope));
-		}
-		catch (Exception e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() +  ".execOnMovedToChildScript   " + scriptNameOnMovedToChild + "\n" +
-				e.toString() + "\n");
-		}
+		eventToScriptName.put(event, scriptName);
 	}
 
 	/**
-	 * 子ノードからワークスペースに移ったときのスクリプトを実行する
-	 * @param oldParent 移る前に接続されていた親
-	 * @param oldRoot 移る前に所属していたルートノード
-	 * @param newReplaced WSに移る際, このノードの替わりにつながったノード
-	 * @param manuallyRemoved D&Dで子ノードからワークスペースに移された場合true
-	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * このノードに登録されたイベント処理を実行するオブジェクトを返す.
+	 * @return このノードに登録されたイベント処理を実行するオブジェクト
 	 */
-	public void execScriptOnMovedFromChildToWS(
-		ConnectiveNode oldParent,
-		BhNode oldRoot,
-		BhNode newReplaced,
-		Boolean manuallyRemoved,
-		UserOperationCommand userOpeCmd) {
-
-		Script onMovedFromChildToWS = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnMovedFromChildToWS);
-		if (onMovedFromChildToWS == null)
-			return;
-
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newReplaced);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_MANUALLY_REMOVED, manuallyRemoved);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
-		try {
-			ContextFactory.getGlobal().call(cx -> onMovedFromChildToWS.exec(cx, scriptScope));
-		}
-		catch (Exception e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() + ".execOnMovedFromChildToWSScript   " + scriptNameOnMovedFromChildToWS
-				+ "\n" + e.toString() + "\n");
-		}
+	public BhNodeEventDispatcher getEventDispatcher() {
+		return dispatcher;
 	}
 
 	/**
-	 * このノードの削除前に呼ばれるイベント処理を実行する.
+	 * このノードをコピーする.
 	 *
-	 * <pre>
-	 * この関数を呼び出す対象となるノードを削除原因ごとに記す.
-	 *   INFLUENCE_OF_ORIGINAL_DELETION -> オリジナルノード削除後に残っているすべてのイミテーションノード
-	 *   TRASH_BOX -> ゴミ箱の上に D&D されたノード
-	 *   SYNTAX_ERROR -> 構文エラーを起こしているノード
-	 *   SELECTED_FOR_DELETION ->	削除対象として選択されているノード
-	 *   WORKSPACE_DELETION -> 削除されるワークスペースにあるルートノード
-	 * </pre>
-	 * @param nodesToDelete このノードと共に削除される予定のノード.
-	 * @param isDirectlySpecified 直接削除指定されている場合 true
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @return 削除をキャンセルする場合 false. 続行する場合 true.
-	 */
-	public boolean execScriptOnDeletionRequested(
-		Collection<? extends BhNode> nodesToDelete,
-		CauseOfDeletion causeOfDeletion,
-		UserOperationCommand userOpeCmd) {
-
-		Script onDeletionRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnDeletionRequested);
-		if (onDeletionRequested == null)
-			return true;
-
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToDelete);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CAUSE_OF_DELETION, causeOfDeletion);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
-		Object doDeletion = null;
-		try {
-			doDeletion = ContextFactory.getGlobal().call(cx -> onDeletionRequested.exec(cx, scriptScope));
-		} catch (Exception e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() + ".execScriptOnDeletionCmdReceived   " + scriptNameOnDeletionRequested
-				+ "\n" + e.toString() + "\n");
-		}
-
-		if (doDeletion instanceof Boolean)
-			return (Boolean)doDeletion;
-
-		throw new AssertionError(
-			this.getClass().getSimpleName()
-			+ "::execScriptOnDeletionRequested  (" + scriptNameOnDeletionRequested + " must return a boolean value.)");
-	}
-
-	/**
-	 * ユーザー操作により, このノードがカット & ペーストされる直前に呼ばれるイベント処理を実行する.
-	 * @param nodesToCut このノードとともにカットされる予定のノード
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @return カットをキャンセルする場合 false.  続行する場合 true.
-	 */
-	public boolean execScriptOnCutRequested(
-		Collection<? extends BhNode> nodesToCut, UserOperationCommand userOpeCmd) {
-
-		Script onCutRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnCutRequested);
-		if (onCutRequested == null)
-			return true;
-
-		Object doCut = null;
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCut);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
-		try {
-			doCut = ContextFactory.getGlobal().call(cx -> onCutRequested.exec(cx, scriptScope));
-		}
-		catch (Exception e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() + "::execScriptOnCutRequested   "
-				+ scriptNameOnCutRequested + "\n" + e.toString() + "\n");
-		}
-
-		if (doCut instanceof Boolean)
-			return (Boolean)doCut;
-
-		throw new AssertionError(
-			this.getClass().getSimpleName()
-			+ "::execScriptOnCutRequested  (" + scriptNameOnCutRequested + " must return a boolean value.)");
-	}
-
-	/**
-	 * ノードごとに設定されたコピーを行う.
+	 * <p> 返されるノードの MVC は構築されていない.
 	 * @param nodesToCopy このノードとともにコピーされるノード
 	 * @param userOpeCmd undo用コマンドオブジェクト
 	 * @return 作成したコピーノード.  コピーノードを作らなかった場合 null.
 	 */
-	public BhNode genCopyNode(
-		Collection<? extends BhNode> nodesToCopy, UserOperationCommand userOpeCmd) {
+	public BhNode genCopyNode(Collection<? extends BhNode> nodesToCopy, UserOperationCommand userOpeCmd) {
 
-		Script onCopyRequested = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOnCopyRequested);
+		Optional<String> scriptName = getScriptName(BhNodeEvent.ON_COPY_REQUESTED);
+		Script onCopyRequested = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
 		if (onCopyRequested == null)
 			return copy(userOpeCmd, node -> true);
 
 		Object ret = null;
+		ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCopy);
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
 		try {
@@ -585,8 +465,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() + "::execScriptOnCopyRequested   "
-				+ scriptNameOnCopyRequested + "\n" + e.toString() + "\n");
+				BhNode.class.getSimpleName() + ".genCopyNode   " + scriptName.get() + "\n" + e.toString() + "\n");
 		}
 
 		if (ret == null)
@@ -594,36 +473,75 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 
 		if (ret instanceof Function) {
 			Function copyCheckFunc = (Function)ret;
-			return copy(userOpeCmd, genCopyCheckFunc(copyCheckFunc));
+			return copy(userOpeCmd, genCopyCheckFunc(copyCheckFunc, scriptName.get()));
 		}
 
 		throw new AssertionError(
-			this.getClass().getSimpleName()
-			+ "::execScriptOnCopyRequested  (" + scriptNameOnCopyRequested
+			this.getClass().getSimpleName() + ".genCopyNode  (" + scriptName.get()
 			+ " must return null or a function that returns a boolean value.)");
 	}
 
 	/**
 	 * コピー判定関数を作成する.
 	 * @param copyCheckFunc 作成するコピー判定関数が呼び出す Javascript の関数
+	 * @param scriptName copyCheckFunc を返したスクリプトの名前
 	 * @return コピー判定関数
 	 */
-	private Predicate<BhNode> genCopyCheckFunc(Function copyCheckFunc) {
+	private Predicate<BhNode> genCopyCheckFunc(Function copyCheckFunc, String scriptName) {
 
 		Predicate<BhNode> isNodeToCopy = node -> {
 
+			ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
 			Object retVal = ContextFactory.getGlobal().call(
 				cx -> ((Function)copyCheckFunc).call(cx, scriptScope, scriptScope, new Object[] {node}));
 
 			if (!(retVal instanceof Boolean)) {
-				MsgPrinter.INSTANCE.errMsgForDebug(
-					scriptNameOnCopyRequested + " must return null or a function that returns a boolean value.");
-				throw new ClassCastException(
-					scriptNameOnCopyRequested + " must return null or a function that returns a boolean value.");
+				String msg = scriptName + " must return null or a function that returns a boolean value.";
+				MsgPrinter.INSTANCE.errMsgForDebug(msg);
+				throw new ClassCastException();
 			}
 			return (boolean)retVal;
 		};
 		return isNodeToCopy;
+	}
+
+	/**
+	 * このノード固有のテンプレートノードを作成する.
+	 *
+	 * <p> 返されるノードの MVC は構築されていない.
+	 * @param userOpeCmd undo用コマンドオブジェクト
+	 * @return このノード固有のテンプレートノードのリスト. 固有のテンプレートノードを持たない場合, 空のリストを返す.
+	 */
+	public Collection<BhNode> genPrivateTemplateNodes(UserOperationCommand userOpeCmd) {
+
+		Optional<String> scriptName = getScriptName(BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING);
+		Script privateTemplateCreator = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+		if (privateTemplateCreator == null)
+			return new ArrayList<>();
+
+		Object privateTemplateNodes = null;
+		ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
+		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+		try {
+			privateTemplateNodes =
+				ContextFactory.getGlobal().call(cx -> privateTemplateCreator.exec(cx, scriptScope));
+		}
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				this.getClass().getSimpleName() + ".genPrivateTemplateNodes   " + scriptName.get() + "\n" +
+				e.toString() + "\n");
+		}
+
+		if (privateTemplateNodes instanceof Collection<?>) {
+			return ((Collection<?>)privateTemplateNodes).stream()
+					.filter(elem -> elem instanceof BhNode)
+					.map(elem -> (BhNode)elem)
+					.collect(Collectors.toCollection(ArrayList::new));
+		}
+
+		throw new AssertionError(
+			this.getClass().getSimpleName()
+			+ ".genPrivateTemplateNodes  (" + scriptName.get() + " must return a collection of BhNode.)");
 	}
 
 	/**
@@ -635,17 +553,19 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		if (getState() == BhNode.State.DELETED)
 			return false;
 
-		Script syntaxErrorChecker = BhScriptManager.INSTANCE.getCompiledScript(scriptNameOfSyntaxErrorChecker);
+		Optional<String> scriptName = getScriptName(BhNodeEvent.ON_SYNTAX_ERROR_CHECKING);
+		Script syntaxErrorChecker = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
 		if (syntaxErrorChecker == null)
 			return false;
 
 		Object hasError = null;
+		ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
 		try {
 			hasError = ContextFactory.getGlobal().call(cx -> syntaxErrorChecker.exec(cx, scriptScope));
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				this.getClass().getSimpleName() + "::hasSyntaxError   " + scriptNameOfSyntaxErrorChecker + "\n" +
+				this.getClass().getSimpleName() + ".hasSyntaxError   " + scriptName.get() + "\n" +
 				e.toString() + "\n");
 		}
 
@@ -654,7 +574,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 
 		throw new AssertionError(
 			this.getClass().getSimpleName()
-			+ "::hasSyntaxError  (" + scriptNameOfSyntaxErrorChecker + " must return a boolean value.)");
+			+ ".hasSyntaxError  (" + scriptName.get() + " must return a boolean value.)");
 	}
 
 	@Override

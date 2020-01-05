@@ -13,23 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.control;
+package net.seapanda.bunnyhop.control.nodeselection;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
 import net.seapanda.bunnyhop.common.constant.Rem;
+import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.model.node.BhNodeCategoryList;
-import net.seapanda.bunnyhop.view.BhNodeCategoryListView;
+import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
+import net.seapanda.bunnyhop.view.ViewInitializationException;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryListView;
 
 /**
- * BhNode のカテゴリ選択画面のController
+ * BhNode のカテゴリ選択画面のコントローラ
  * @author K.Koike
- * */
+ */
 public class BhNodeCategoryListController implements MsgProcessor {
 
 	@FXML private ScrollPane nodeCategoryListViewBase;
@@ -38,23 +40,24 @@ public class BhNodeCategoryListController implements MsgProcessor {
 	private BhNodeCategoryListView view;
 
 	/**
-	 * モデルとイベントハンドラの登録を行う
+	 * コントローラとビューの初期化を行う.
 	 * @param categoryList ノードカテゴリリストのモデル
 	 */
-	public void init(BhNodeCategoryList categoryList) {
+	public boolean init(BhNodeCategoryList categoryList) {
+
 		model = categoryList;
-		view = new BhNodeCategoryListView(categoryTree);
+		try {
+			view = new BhNodeCategoryListView(categoryTree, model);
+		}
+		catch(ViewInitializationException e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + ".init\n" + e);
+			return false;
+		}
 		nodeCategoryListViewBase.setMinWidth(Region.USE_PREF_SIZE);
 		nodeCategoryListViewBase.widthProperty().addListener(
 			(obs, oldVal, newVal) -> nodeCategoryListViewBase.setMinWidth(Rem.VAL * 3));
-	}
 
-	/**
-	 * カテゴリリスト部分の基底GUI部品を返す
-	 * @return カテゴリリスト部分の基底GUI部品
-	 */
-	public ScrollPane getCategoryListViewBase() {
-		return nodeCategoryListViewBase;
+		return true;
 	}
 
 	/**
@@ -67,25 +70,6 @@ public class BhNodeCategoryListController implements MsgProcessor {
 
 	@Override
 	public MsgData processMsg(BhMsg msg, MsgData data) {
-		switch (msg) {
-		case BUILD_NODE_CATEGORY_LIST_VIEW:
-			view.buildCategoryList(model.getRootNode());
-			break;
-
-		case ADD_NODE_SELECTION_PANELS:
-			return new MsgData(view.getSelectionViewList());
-
-		case HIDE_NODE_SELECTION_PANEL:
-			view.hideAll();
-			break;
-
-		case ZOOM:
-			view.zoomAll(data.bool);
-			break;
-
-		default :
-			throw new AssertionError("receive an unknown msg " + msg);
-		}
-		return null;
+		throw new AssertionError("receive an unknown msg " + msg);
 	}
 }

@@ -9,7 +9,7 @@
 <SplitPane
 	xmlns:fx="http://javafx.com/fxml"
 	fx:id="workspaceSetViewBase"
-	fx:controller="net.seapanda.bunnyhop.control.WorkspaceSetController">
+	fx:controller="net.seapanda.bunnyhop.control.workspace.WorkspaceSetController">
 	<fx:define>
 		<Rem fx:id="trashBoxWidth" rem="5"/>
 		<Rem fx:id="trashBoxHeight" rem="8.9"/>

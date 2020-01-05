@@ -34,7 +34,7 @@
 				bhNodeID="idRuntimeErrorIndicator.prvNode1"
 				name="ErrorDetails"
 				nodeStyleID="defaultTextArea.json"
-				nodeInputControl="textArea.fxml"
+				nodeInputControl="TextArea.fxml"
 				initString="">
 			</Node>
 		</PrivateConnector>

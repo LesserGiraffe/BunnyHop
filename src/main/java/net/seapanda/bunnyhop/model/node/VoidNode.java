@@ -22,6 +22,8 @@ import java.util.function.Predicate;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
+import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;

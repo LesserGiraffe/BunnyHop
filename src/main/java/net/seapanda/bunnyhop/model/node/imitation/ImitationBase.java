@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.imitation;
+package net.seapanda.bunnyhop.model.node.imitation;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,8 +24,8 @@ import java.util.Objects;
 
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.BhNodeID;
-import net.seapanda.bunnyhop.model.node.BhNodeViewType;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -61,6 +61,7 @@ public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatab
 		Map<ImitationID, BhNodeID> imitIdToImitNodeID) {
 
 		super(type, attributes);
+
 		this.canCreateImitManually = attributes.getCanCreateImitManually();
 		this.imitIdToImitNodeID = imitIdToImitNodeID;
 		imitNodeList = new ArrayList<>();
@@ -166,7 +167,7 @@ public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatab
 				}
 			}
 		}
-		return ImitationBuilder.buildForAutoCreation(this, userOpeCmd);
+		return ImitationBuilder.buildReferingAncestor(this, true, userOpeCmd);
 	}
 
 	@Override

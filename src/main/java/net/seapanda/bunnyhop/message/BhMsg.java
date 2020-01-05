@@ -35,10 +35,8 @@ public enum BhMsg {
 	MOVE_NODE_ON_WORKSPACE, //!< ワークスペース上のノードを動かす
 	GET_VIEW_SIZE_INCLUDING_OUTER, //!< BhNodeView の外部ノード込みの大きさを取得する
 	UPDATE_ABS_POS, //!< 絶対位置 (= workspace からの相対位置) を更新する. (=4分木空間上の位置を更新する)
-	BUILD_NODE_CATEGORY_LIST_VIEW, //!< GUI画面に BhNodeカテゴリ選択画面を追加する
 	SWITCH_PSEUDO_CLASS_ACTIVATION, //!< 擬似クラスの有効/無効を切り替える
-	ADD_NODE_SELECTION_PANELS, //!< BhNode のテンプレートの載ったパネルを追加する
-	HIDE_NODE_SELECTION_PANEL, //!< BhNode のテンプレートの載ったパネルを非表示にする
+	ADD_NODE_SELECTION_PANEL, //!< ノード選択ビューを追加する
 	SCENE_TO_WORKSPACE, //!< Scene 上での位置をワークスペース上での位置に直す
 	GET_WORKSPACE_SIZE, //!< ワークスペースのサイズを取得する
 	GET_VIEW, //!< ビューを取得する
@@ -60,4 +58,5 @@ public enum BhMsg {
 	REMOVE_NODE_TO_PASTE, //!< 貼り付け予定のノードを貼り付け候補から取り除く
 	SELECT_NODE_VIEW, //!< ノードビューの選択表示の有効/無効状態を切り替える
 	LOOK_AT_NODE_VIEW, //!< 特定のノードビューをワークスぺ^ス中央に表示する
+	IS_TEMPLATE_NODE, //!< テンプレートノードかどうかを調べる
 }

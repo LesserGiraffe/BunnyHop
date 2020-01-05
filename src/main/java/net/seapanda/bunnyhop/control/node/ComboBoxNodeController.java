@@ -38,7 +38,6 @@ public class ComboBoxNodeController extends BhNodeController {
 		super(model, view);
 		this.model = model;
 		this.view = view;
-		view.setCreateImitHandler(model);
 		setItemChangeHandler(model, view);
 	}
 
@@ -50,25 +49,7 @@ public class ComboBoxNodeController extends BhNodeController {
 	public static void setItemChangeHandler(TextNode model, ComboBoxNodeView view) {
 
 		view.setTextChangeListener(
-			(observable, oldVal, newVal) -> {
-				ModelExclusiveControl.INSTANCE.lockForModification();
-				try {
-					if (Objects.equals(newVal.getModelText(), model.getText())) {
-						return;
-					}
-
-					if (model.isTextAcceptable(newVal.getModelText())) {
-						model.setText(newVal.getModelText());	//model の文字列をComboBox の選択アイテムに対応したものにする
-						model.getImitNodesToImitateContents();	//イミテーションのテキストを変える (イミテーションの View がtextFieldの場合のみ有効)
-					}
-					else {
-						view.setItem(oldVal);
-					}
-				}
-				finally {
-					ModelExclusiveControl.INSTANCE.unlockForModification();
-				}
-			});
+			(observable, oldVal, newVal) -> checkAndSetContent(model, view, oldVal, newVal));
 
 		Optional<SelectableItem> optItem = view.getItemByModelText(model.getText());
 		optItem.ifPresent(item -> view.setItem(item));
@@ -77,11 +58,37 @@ public class ComboBoxNodeController extends BhNodeController {
 	}
 
 	/**
+	 * 新しく選択されたコンボボックスのアイテムが適切かどうかを調べて, 適切ならビューとモデルに設定する.
+	 */
+	private static void checkAndSetContent(
+		TextNode model, ComboBoxNodeView view, SelectableItem oldItem, SelectableItem newItem) {
+
+		if (Objects.equals(newItem.getModelText(), model.getText()))
+			return;
+
+		ModelExclusiveControl.INSTANCE.lockForModification();
+		try {
+
+			if (model.isTextAcceptable(newItem.getModelText())) {
+				// model の文字列を ComboBox の選択アイテムに対応したものにする
+				model.setText(newItem.getModelText());
+				model.getImitNodesToImitateContents();
+			}
+			else {
+				view.setItem(oldItem);
+			}
+		}
+		finally {
+			ModelExclusiveControl.INSTANCE.unlockForModification();
+		}
+	}
+
+	/**
 	 * 受信したメッセージを処理する
 	 * @param msg メッセージの種類
 	 * @param data メッセージの種類に応じて処理するデータ
 	 * @return メッセージを処理した結果返すデータ
-	 * */
+	 */
 	@Override
 	public MsgData processMsg(BhMsg msg, MsgData data) {
 

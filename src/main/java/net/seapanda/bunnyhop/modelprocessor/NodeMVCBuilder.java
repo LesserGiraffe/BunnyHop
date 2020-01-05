@@ -17,7 +17,9 @@ package net.seapanda.bunnyhop.modelprocessor;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Optional;
 
+import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.control.node.BhNodeControllerInSelectionView;
 import net.seapanda.bunnyhop.control.node.ComboBoxNodeController;
 import net.seapanda.bunnyhop.control.node.ConnectiveNodeController;
@@ -32,6 +34,7 @@ import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
+import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.ConnectiveNodeView;
@@ -51,7 +54,6 @@ public class NodeMVCBuilder implements BhModelProcessor {
 	private BhNodeView topNodeView;	//!< MVCを構築したBhNodeツリーのトップノードのビュー
 	private final Deque<ConnectiveNodeView> parentStack = new LinkedList<>();	//!< 子ノードの追加先のビュー
 	private MVCConnector mvcConnector;
-	private final boolean isTemplate;
 
 	/**
 	 * 引数で指定したノード以下のノードに対し, MVC関係を構築する. (ワークスペースに追加するノード用)
@@ -68,6 +70,7 @@ public class NodeMVCBuilder implements BhModelProcessor {
 	 * @return 引数で指定したノードに対応する BhNodeView.
 	 * */
 	public static BhNodeView buildTemplate(BhNode node) {
+
 		var builder = new NodeMVCBuilder(ControllerType.Template);
 		node.accept(builder);
 		return builder.topNodeView;
@@ -85,7 +88,6 @@ public class NodeMVCBuilder implements BhModelProcessor {
 		else if (type == ControllerType.Template) {
 			mvcConnector = new TemplateConnector();
 		}
-		isTemplate = type == ControllerType.Template;
 	}
 
 
@@ -94,7 +96,6 @@ public class NodeMVCBuilder implements BhModelProcessor {
 		if (node.getParentConnector() != null) {
 			parentStack.peekLast().addToGroup(view);
 		}
-		view.getAppearanceManager().updateAppearance(null);
 	}
 
 	/**
@@ -105,9 +106,15 @@ public class NodeMVCBuilder implements BhModelProcessor {
 	public void visit(ConnectiveNode node) {
 
 		BhNodeViewStyle viewStyle = BhNodeViewStyle.getNodeViewStyleFromNodeID(node.getID());
-		ConnectiveNodeView connectiveNodeView = new ConnectiveNodeView(node, viewStyle);
-		connectiveNodeView.init();
-		node.setScriptScope(connectiveNodeView);
+		ConnectiveNodeView connectiveNodeView = null;
+		try {
+			connectiveNodeView = new ConnectiveNodeView(node, viewStyle);
+		}
+		catch (ViewInitializationException e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + "\n" + e);
+			return;
+		}
+
 		mvcConnector.connect(node, connectiveNodeView);
 		if (topNodeView == null)
 			topNodeView = connectiveNodeView;
@@ -127,11 +134,9 @@ public class NodeMVCBuilder implements BhModelProcessor {
 
 		BhNodeViewStyle viewStyle = BhNodeViewStyle.getNodeViewStyleFromNodeID(node.getID());
 		VoidNodeView voidNodeView = new VoidNodeView(node, viewStyle);
-		voidNodeView.init();
 		if (topNodeView == null)
 			topNodeView = voidNodeView;
 
-		node.setScriptScope(voidNodeView);
 		mvcConnector.connect(node, voidNodeView);
 		addChildView(node, voidNodeView);
 	}
@@ -141,58 +146,67 @@ public class NodeMVCBuilder implements BhModelProcessor {
 
 		BhNodeViewStyle viewStyle = BhNodeViewStyle.getNodeViewStyleFromNodeID(node.getID());
 		BhNodeView nodeView = null;
-		switch (node.getType()) {
-			case TEXT_FIELD:
-				var textNodeView = new TextFieldNodeView(node, viewStyle);
-				textNodeView.init(isTemplate);
-				node.setScriptScope(textNodeView);
-				mvcConnector.connect(node, textNodeView);
-				nodeView = textNodeView;
-				break;
 
-			case COMBO_BOX:
-				var comboBoxNodeView = new ComboBoxNodeView(node, viewStyle);
-				comboBoxNodeView.init(isTemplate);
-				node.setScriptScope(comboBoxNodeView);
-				mvcConnector.connect(node, comboBoxNodeView);
-				nodeView = comboBoxNodeView;
-				break;
-
-			case LABEL:
-				var labelNodeView = new LabelNodeView(node, viewStyle);
-				labelNodeView.init();
-				node.setScriptScope(labelNodeView);
-				mvcConnector.connect(node, labelNodeView);
-				nodeView = labelNodeView;
-				break;
-
-			case TEXT_AREA:
-				var textAreaNodeView = new TextAreaNodeView(node, viewStyle);
-				textAreaNodeView.init(isTemplate);
-				node.setScriptScope(textAreaNodeView);
-				mvcConnector.connect(node, textAreaNodeView);
-				nodeView = textAreaNodeView;
-				break;
-
-			case NO_CONTENT:
-				var noContentNodeView = new NoContentNodeView(node, viewStyle);
-				noContentNodeView.init();
-				node.setScriptScope(noContentNodeView);
-				mvcConnector.connect(node, noContentNodeView);
-				nodeView = noContentNodeView;
-				break;
-
-			case NO_VIEW:
-				node.setMsgProcessor((BhMsg msg, MsgData data) -> null);
+		try {
+			Optional<BhNodeView> nodeViewOpt = createViewForTextNode(node, viewStyle);
+			if (!nodeViewOpt.isPresent())
 				return;
 
-			default:
-				throw new AssertionError(NodeMVCBuilder.class.getSimpleName() + " invalid text node type " + node.getType());
+			nodeView = nodeViewOpt.get();
 		}
+		catch (ViewInitializationException e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + "\n" + e);
+			return;
+		}
+
 		if (topNodeView == null)
 			topNodeView = nodeView;
 
 		addChildView(node, nodeView);
+	}
+
+	/**
+	 * 引数で指定したテキストノードに応じたノードビューを作成する.
+	 * @param node このノードに対応するノードビューを作成する
+	 * @param viewStyle ノードビューに適用するスタイル
+	 * @return {@code node} に対応するノードビュー
+	 */
+	private Optional<BhNodeView> createViewForTextNode(TextNode node, BhNodeViewStyle viewStyle)
+		throws ViewInitializationException {
+
+		switch (node.getType()) {
+			case TEXT_FIELD:
+				var textNodeView = new TextFieldNodeView(node, viewStyle);
+				mvcConnector.connect(node, textNodeView);
+				return Optional.of(textNodeView);
+
+			case COMBO_BOX:
+				var comboBoxNodeView = new ComboBoxNodeView(node, viewStyle);
+				mvcConnector.connect(node, comboBoxNodeView);
+				return Optional.of(comboBoxNodeView);
+
+			case LABEL:
+				var labelNodeView = new LabelNodeView(node, viewStyle);
+				mvcConnector.connect(node, labelNodeView);
+				return Optional.of(labelNodeView);
+
+			case TEXT_AREA:
+				var textAreaNodeView = new TextAreaNodeView(node, viewStyle);
+				mvcConnector.connect(node, textAreaNodeView);
+				return Optional.of(textAreaNodeView);
+
+			case NO_CONTENT:
+				var noContentNodeView = new NoContentNodeView(node, viewStyle);
+				mvcConnector.connect(node, noContentNodeView);
+				return Optional.of(noContentNodeView);
+
+			case NO_VIEW:
+				node.setMsgProcessor((BhMsg msg, MsgData data) -> null);
+				return Optional.empty();
+
+			default:
+				throw new AssertionError(NodeMVCBuilder.class.getSimpleName() + " invalid text node type " + node.getType());
+		}
 	}
 
 	@Override
@@ -271,49 +285,56 @@ public class NodeMVCBuilder implements BhModelProcessor {
 		public void connect(ConnectiveNode node, ConnectiveNodeView view) {
 			if (rootView == null)
 				rootView = view;
-			new BhNodeControllerInSelectionView(node, view, rootView);
+			var control = new BhNodeControllerInSelectionView(node, view, rootView);
+			node.setMsgProcessor(control);
 		}
 
 		@Override
 		public void connect(VoidNode node, VoidNodeView view) {
 			if (rootView == null)
 				rootView = view;
-			new BhNodeControllerInSelectionView(node, view, rootView);
+			var control = new BhNodeControllerInSelectionView(node, view, rootView);
+			node.setMsgProcessor(control);
 		}
 
 		@Override
 		public void connect(TextNode node, TextFieldNodeView view) {
 			if (rootView == null)
 				rootView = view;
-			new BhNodeControllerInSelectionView(node, view, rootView);
+			var control = new BhNodeControllerInSelectionView(node, view, rootView);
+			node.setMsgProcessor(control);
 		}
 
 		@Override
 		public void connect(TextNode node, LabelNodeView view) {
 			if (rootView == null)
 				rootView = view;
-			new BhNodeControllerInSelectionView(node, view, rootView);
+			var control = new BhNodeControllerInSelectionView(node, view, rootView);
+			node.setMsgProcessor(control);
 		}
 
 		@Override
 		public void connect(TextNode node, ComboBoxNodeView view) {
 			if (rootView == null)
 				rootView = view;
-			new BhNodeControllerInSelectionView(node, view, rootView);
+			var control = new BhNodeControllerInSelectionView(node, view, rootView);
+			node.setMsgProcessor(control);
 		}
 
 		@Override
 		public void connect(TextNode node, TextAreaNodeView view) {
 			if (rootView == null)
 				rootView = view;
-			new BhNodeControllerInSelectionView(node, view, rootView);
+			var control = new BhNodeControllerInSelectionView(node, view, rootView);
+			node.setMsgProcessor(control);
 		}
 
 		@Override
 		public void connect(TextNode node, NoContentNodeView view) {
 			if (rootView == null)
 				rootView = view;
-			new BhNodeControllerInSelectionView(node, view, rootView);
+			var control = new BhNodeControllerInSelectionView(node, view, rootView);
+			node.setMsgProcessor(control);
 		}
 	}
 

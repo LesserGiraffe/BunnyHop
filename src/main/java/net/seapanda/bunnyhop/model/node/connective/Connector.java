@@ -29,11 +29,11 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.model.imitation.ImitationConnectionPos;
-import net.seapanda.bunnyhop.model.imitation.ImitationID;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.BhNodeID;
-import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
+import net.seapanda.bunnyhop.model.node.imitation.ImitationConnectionPos;
+import net.seapanda.bunnyhop.model.node.imitation.ImitationID;
+import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
@@ -248,7 +248,7 @@ public class Connector extends SyntaxSymbol {
 		NodeMVCBuilder.build(newNode); //MVC構築
 		TextImitationPrompter.prompt(newNode);
 		newNode.setDefaultNode(true);
-		connectedNode.replacedWith(newNode, userOpeCmd);
+		connectedNode.replace(newNode, userOpeCmd);
 		return newNode;
 	}
 

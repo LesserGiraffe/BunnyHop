@@ -20,11 +20,12 @@ import net.seapanda.bunnyhop.common.Single;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
+import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
@@ -35,12 +36,13 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
 import net.seapanda.bunnyhop.view.node.TextInputNodeView;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 
 /**
- * ノード選択リストにあるBhNodeのコントローラ
+ * ノード選択リストにあるノードのコントローラ
  * @author K.Koike
  * */
-public class BhNodeControllerInSelectionView {
+public class BhNodeControllerInSelectionView implements MsgProcessor {
 
 	private final BhNode model;
 	private final BhNodeView view;	//!< テンプレートリストのビュー
@@ -59,7 +61,11 @@ public class BhNodeControllerInSelectionView {
 		setEventHandlers();
 
 		if (view instanceof TextInputNodeView) {
-			TextInputNodeController.setTextChangeHandlers((TextNode)model, (TextInputNodeView)view);
+			var textNode = (TextNode)model;
+			var textInputView = (TextInputNodeView)view;
+			TextInputNodeController.setTextChangeHandlers(textNode, textInputView);
+			if (textNode.isImitationNode())
+				textInputView.setEditable(false);
 		}
 		else if (view instanceof ComboBoxNodeView) {
 			ComboBoxNodeController.setItemChangeHandler((TextNode)model, (ComboBoxNodeView)view);
@@ -111,7 +117,7 @@ public class BhNodeControllerInSelectionView {
 						userOpeCmd);
 					MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_USER_OPE_CMD, new MsgData(userOpeCmd), newNode);	//undo用コマンドセット
 					currentView.content.getEventManager().propagateEvent(mouseEvent);
-					BunnyHop.INSTANCE.hideTemplatePanel();
+					BhNodeSelectionService.INSTANCE.hideAll();
 					mouseEvent.consume();
 				}
 				finally {
@@ -180,6 +186,81 @@ public class BhNodeControllerInSelectionView {
 		Point2D pos = view.localToScene(0.0, 0.0);
 		Point2D posFromRoot = rootView.sceneToLocal(pos);
 		return new Vec2D(posFromRoot.getX(), posFromRoot.getY());
+	}
+
+
+	/**
+	 * 受信したメッセージを処理する
+	 * @param msg メッセージの種類
+	 * @param data メッセージの種類に応じて処理するデータ
+	 * @return メッセージを処理した結果返すデータ
+	 */
+	@Override
+	public MsgData processMsg(BhMsg msg, MsgData data) {
+
+		switch (msg) {
+
+			case ADD_ROOT_NODE: // model がWorkSpace のルートノードとして登録された
+				return  new MsgData(model, view);
+
+			case REMOVE_ROOT_NODE:
+				return  new MsgData(model, view);
+
+			case GET_POS_ON_WORKSPACE:
+				var pos = view.getPositionManager().getPosOnWorkspace();
+				return new MsgData(pos);
+
+			case REPLACE_NODE_VIEW:
+				view.getTreeManager().replace(data.nodeView);
+				break;
+
+			case SWITCH_PSEUDO_CLASS_ACTIVATION:
+				view.getAppearanceManager().switchPseudoClassActivation(data.bool, data.text);
+				break;
+
+			case GET_VIEW:
+				return new MsgData(view);
+
+			case REMOVE_FROM_GUI_TREE:
+				view.getTreeManager().removeFromGUITree();
+				break;
+
+			case SET_VISIBLE:
+				view.getAppearanceManager().setVisible(data.bool);
+				data.userOpeCmd.pushCmdOfSetVisible(view, data.bool);
+				break;
+
+			case IMITATE_TEXT:
+				setText(data.strPair._1, data.strPair._2);
+				break;
+
+			case GET_VIEW_TEXT:
+				if (view instanceof TextInputNodeView)
+					return new MsgData(((TextInputNodeView)view).getText());
+				else if (view instanceof LabelNodeView)
+					return new MsgData(((LabelNodeView)view).getText());
+
+			case IS_TEMPLATE_NODE:
+				return new MsgData(true);
+
+			default:
+				// do nothing
+		}
+		return null;
+	}
+
+	private void setText(String modelText, String viewText) {
+
+		if (model instanceof TextNode) {
+			if (view instanceof TextInputNodeView) {
+				TextInputNodeController.setText(
+						(TextNode)model, (TextInputNodeView)view, modelText, viewText);
+			}
+			else if (view instanceof LabelNodeView) {
+				LabelNodeController.setText(
+					(TextNode)model, (LabelNodeView)view, modelText, viewText);
+			}
+		}
 	}
 }
 

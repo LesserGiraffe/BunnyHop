@@ -15,91 +15,77 @@
  */
 package net.seapanda.bunnyhop.view.node;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Optional;
-
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
-import net.seapanda.bunnyhop.view.node.part.ImitationCreator;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
+import net.seapanda.bunnyhop.view.node.part.ComponentLoader;
+import net.seapanda.bunnyhop.view.node.part.ImitationCreationButton;
+import net.seapanda.bunnyhop.view.node.part.PrivateTemplateCreationButton;
 import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 
 /**
  * ラベルを入力フォームに持つビュー
  * @author K.Koike
  */
-public class LabelNodeView extends BhNodeView implements ImitationCreator {
+public final class LabelNodeView extends BhNodeView {
 
 	private Label label = new Label();
 	private final TextNode model;
-	private Button imitCreateImitBtn;	//!< イミテーション作成ボタン
-
-	public LabelNodeView(TextNode model, BhNodeViewStyle viewStyle) {
-		super(viewStyle, model);
-		this.model = model;
-	}
 
 	/**
-	 * 初期化する
+	 * コンストラクタ
+	 * @param model このノードビューに対応するノード
+	 * @param viewStyle このノードビューのスタイル
+	 * @throws ViewInitializationException ノードビューの初期化に失敗
 	 */
-	public boolean init() {
+	public LabelNodeView(TextNode model, BhNodeViewStyle viewStyle)
+		throws ViewInitializationException {
 
-		initialize();
-		boolean success = loadComponent();
+		super(viewStyle, model);
+		this.model = model;
+		init();
+	}
+
+	private void init() throws ViewInitializationException {
+
+		var labelOpt = ComponentLoader.<Label>loadComponent(model.getID());
+		label = labelOpt.orElseThrow(() -> new ViewInitializationException(
+			getClass().getSimpleName() + "  failed To load the Label of this view."));
 		getTreeManager().addChild(label);
 
 		if (model.canCreateImitManually) {
-			Optional<Button> btnOpt = loadButton(BhParams.Path.IMIT_BUTTON_FXML, viewStyle.imitation);
-			success &= btnOpt.isPresent();
-			imitCreateImitBtn = btnOpt.orElse(new Button());
-			getTreeManager().addChild(imitCreateImitBtn);
+			var imitButtonOpt = ImitationCreationButton.create(model, viewStyle.imitation);
+			var imitButton = imitButtonOpt.orElseThrow(() -> new ViewInitializationException(
+				getClass().getSimpleName() + "  failed To load the Imitation Creation Button of this view."));
+			getTreeManager().addChild(imitButton);
 		}
 
-		initStyle(viewStyle);
-		setFuncs(this::updateShape, null);
-		return success;
+		if (model.hasPrivateTemplateNodes()) {
+			var privateTemplateBtnOpt = PrivateTemplateCreationButton.create(model, viewStyle.privatTemplate);
+			var privateTemplateBtn = privateTemplateBtnOpt.orElseThrow(() -> new ViewInitializationException(
+				getClass().getSimpleName() + "  failed To load the Private Template Button of this view."));
+			getTreeManager().addChild(privateTemplateBtn);
+		}
+
+		initStyle();
 	}
 
-	private void initStyle(BhNodeViewStyle viewStyle) {
+	private void initStyle() {
 
 		label.autosize();
 		label.setMouseTransparent(true);
 		label.setTranslateX(viewStyle.paddingLeft);
 		label.setTranslateY(viewStyle.paddingTop);
 		label.getStyleClass().add(viewStyle.label.cssClass);
-		label.heightProperty().addListener(newValue -> getAppearanceManager().updateAppearance(null));
-		label.widthProperty().addListener(newValue -> getAppearanceManager().updateAppearance(null));
+		label.heightProperty().addListener(newValue -> notifySizeChange());
+		label.widthProperty().addListener(newValue -> notifySizeChange());
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_LABEL_NODE);
 	}
-
-	/**
-	 * GUI部品をロードする
-	 * @return ロードに成功した場合 true. 失敗した場合 false.
-	 * */
-	private boolean loadComponent() {
-
-		String inputControlFileName = BhNodeViewStyle.nodeID_inputControlFileName.get(model.getID());
-		if (inputControlFileName != null) {
-			Path filePath = FXMLCollector.INSTANCE.getFilePath(inputControlFileName);
-			try {
-				FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
-				label = (Label)loader.load();
-			} catch (IOException | ClassCastException e) {
-				MsgPrinter.INSTANCE.errMsgForDebug(
-					"failed to initialize " + LabelNodeView.class.getSimpleName() + "\n" + e.toString());
-				return false;
-			}
-		}
-		return false;
-	}
-
 
 	/**
 	 * このビューのモデルであるBhNodeを取得する
@@ -116,25 +102,34 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 	 * */
 	@Override
 	public void show(int depth) {
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<LabelView" + ">   " + this.hashCode());
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<content" + ">   " + label.getText());
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<LabelView>   " + this.hashCode());
+		MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<content>   " + label.getText());
 	}
 
-	/**
-	 * ノードの大きさや見た目を変える
-	 * */
-	private void updateShape(BhNodeViewGroup child) {
-
-		viewStyle.width = label.getWidth();
-		viewStyle.height = label.getHeight();
+	@Override
+	protected void arrangeAndResize() {
 		getAppearanceManager().updatePolygonShape();
-		if (parent.get() != null) {
-			parent.get().rearrangeChild();
-		}
-		else {
-			Vec2D pos = getPositionManager().getPosOnWorkspace();	//workspace からの相対位置を計算
-			getPositionManager().setPosOnWorkspace(pos.x, pos.y);
-		}
+	}
+
+	@Override
+	protected Vec2D getBodySize(boolean includeCnctr) {
+
+		Vec2D cnctrSize = viewStyle.getConnectorSize();
+
+		double bodyWidth = viewStyle.paddingLeft + label.getWidth() + viewStyle.paddingRight;
+		if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.LEFT))
+			bodyWidth += cnctrSize.x;
+
+		double bodyHeight = viewStyle.paddingTop + label.getHeight() + viewStyle.paddingBottom;
+		if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.TOP))
+			bodyHeight += cnctrSize.y;
+
+		return new Vec2D(bodyWidth, bodyHeight);
+	}
+
+	@Override
+	protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
+		return getBodySize(includeCnctr);
 	}
 
 	public String getText() {
@@ -143,11 +138,6 @@ public class LabelNodeView extends BhNodeView implements ImitationCreator {
 
 	public void setText(String text) {
 		label.setText(text);
-	}
-
-	@Override
-	public Button imitCreateButton() {
-		return imitCreateImitBtn;
 	}
 
 	@Override

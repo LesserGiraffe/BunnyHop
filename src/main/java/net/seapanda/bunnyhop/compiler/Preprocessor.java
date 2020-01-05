@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
 
 /**

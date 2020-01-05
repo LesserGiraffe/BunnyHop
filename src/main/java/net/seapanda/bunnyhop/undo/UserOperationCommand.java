@@ -28,11 +28,11 @@ import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
-import net.seapanda.bunnyhop.model.Workspace;
-import net.seapanda.bunnyhop.model.WorkspaceSet;
-import net.seapanda.bunnyhop.model.imitation.ImitationBase;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
+import net.seapanda.bunnyhop.model.node.imitation.ImitationBase;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
@@ -665,7 +665,7 @@ public class UserOperationCommand {
 
 		@Override
 		public void doInverseOperation(UserOperationCommand inverseCmd) {
-			nodeView.getAppearanceManager().setSytaxError(prevVal);
+			nodeView.getAppearanceManager().setSytaxErrorVisibility(prevVal);
 			inverseCmd.pushCmdOfSetSyntaxError(nodeView, prevVal, setVal);
 		}
 	}

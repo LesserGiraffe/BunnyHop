@@ -26,12 +26,12 @@ import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.model.Workspace;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
+import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.modelservice.DelayedDeleter;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
@@ -243,7 +243,7 @@ public class BhNodeController implements MsgProcessor {
 		BhNode oldRootOfReplaced = oldChildNode.findRootNode();	//入れ替えられるノードのルートノード
 		BhNodeHandler.INSTANCE.replaceChild(oldChildNode, model, ddInfo.userOpeCmd);	//重なっているノードをこのノードと入れ替え
 		//接続変更時のスクリプト実行
-		model.execScriptOnMovedToChild(
+		model.getEventDispatcher().dispatchOnMovedToChild(
 			ddInfo.latestParent, ddInfo.latestRoot, oldChildNode, ddInfo.userOpeCmd);
 
 		Vec2D posOnWS = MsgService.INSTANCE.getPosOnWS(oldChildNode);
@@ -253,7 +253,7 @@ public class BhNodeController implements MsgProcessor {
 		BhNodeHandler.INSTANCE.moveToWS(
 			oldChildNode.getWorkspace(), oldChildNode, newXPosInWs, newYPosInWs, ddInfo.userOpeCmd);
 		//接続変更時のスクリプト実行
-		oldChildNode.execScriptOnMovedFromChildToWS(
+		oldChildNode.getEventDispatcher().dispatchOnMovedFromChildToWS(
 			oldParentOfReplaced, oldRootOfReplaced, model, false, ddInfo.userOpeCmd);
 
 		// 子ノード入れ替え時のスクリプト実行
@@ -273,13 +273,13 @@ public class BhNodeController implements MsgProcessor {
 
 		Vec2D absPosInWS = view.getPositionManager().getPosOnWorkspace();
 		BhNodeHandler.INSTANCE.moveToWS(ws, model, absPosInWS.x, absPosInWS.y, ddInfo.userOpeCmd);
-		model.execScriptOnMovedFromChildToWS(
+		model.getEventDispatcher().dispatchOnMovedFromChildToWS(
 			ddInfo.latestParent,
 			ddInfo.latestRoot,
 			model.getLastReplaced(),
 			true,
 			ddInfo.userOpeCmd);	//接続変更時のスクリプト実行
-		view.getAppearanceManager().updateAppearance(null);
+		view.getAppearanceManager().arrangeAndResize();
 	}
 
 	/**
@@ -289,7 +289,7 @@ public class BhNodeController implements MsgProcessor {
 
 		if (ddInfo.dragging && (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS))
 			ddInfo.userOpeCmd.pushCmdOfSetPosOnWorkspace(ddInfo.posOnWorkspace.x, ddInfo.posOnWorkspace.y, model);
-		view.getAppearanceManager().updateAppearance(null);
+		view.getAppearanceManager().arrangeAndResize();
 	}
 
 	/**
@@ -302,7 +302,7 @@ public class BhNodeController implements MsgProcessor {
 		//ゴミ箱に重なっていた場合, 削除
 		if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
 			TrashboxService.INSTANCE.isInTrashboxArea(mouseEvent.getSceneX(), mouseEvent.getSceneY())) {
-			model.execScriptOnDeletionRequested(
+			model.getEventDispatcher().dispatchOnDeletionRequested(
 				new ArrayList<BhNode>() {{add(model);}}, CauseOfDeletion.TRASH_BOX, ddInfo.userOpeCmd);
 			BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
 		}
@@ -459,7 +459,7 @@ public class BhNodeController implements MsgProcessor {
 					break;
 
 				case REPLACE_NODE_VIEW:
-					replaceNodeView(data.nodeView);
+					view.getTreeManager().replace(data.nodeView);	//新しいノードビューに入れ替え
 					break;
 
 				case SWITCH_PSEUDO_CLASS_ACTIVATION:
@@ -483,13 +483,16 @@ public class BhNodeController implements MsgProcessor {
 					break;
 
 				case SET_SYNTAX_ERRPR_INDICATOR:
-					data.userOpeCmd.pushCmdOfSetSyntaxError(view, data.bool, view.getAppearanceManager().getSyntaxError());
-					view.getAppearanceManager().setSytaxError(data.bool);
+					data.userOpeCmd.pushCmdOfSetSyntaxError(view, data.bool, view.getAppearanceManager().isSyntaxErrorVisible());
+					view.getAppearanceManager().setSytaxErrorVisibility(data.bool);
 					break;
 
 				case SELECT_NODE_VIEW:
 					view.getAppearanceManager().select(data.bool);
 					break;
+
+				case IS_TEMPLATE_NODE:
+					return new MsgData(false);
 
 				default:
 					throw new IllegalStateException("receive an unknown msg " + msg);
@@ -507,16 +510,6 @@ public class BhNodeController implements MsgProcessor {
 			view.getPositionManager().setPosOnWorkspace(posOnWs.x, posOnWs.y);
 			if (model.getWorkspace() != null)
 				MsgService.INSTANCE.updateMultiNodeShifter(model, model.getWorkspace());
-		}
-
-		/**
-		 * このコントローラの管理するノードビューを引数のノードビューと入れ替える.<br>
-		 * 古いノードのGUIツリーからの削除は行わない.
-		 * */
-		private void replaceNodeView(BhNodeView newNodeView) {
-
-			view.getTreeManager().replace(newNodeView);	//新しいノードビューに入れ替え
-			newNodeView.getAppearanceManager().updateAppearance(null);
 		}
 	}
 }

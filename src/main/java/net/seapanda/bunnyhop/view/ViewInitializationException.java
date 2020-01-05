@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.node;
+package net.seapanda.bunnyhop.view;
 
 /**
- * ノードの削除原因
+ * ビューの初期化に失敗したことを表す例外
  * @author K.Koike
  */
-public enum CauseOfDeletion {
+public class ViewInitializationException extends Exception {
 
-	INFLUENCE_OF_ORIGINAL_DELETION,	//!< オリジナルノードが削除された
-	TRASH_BOX,	//!< ゴミ箱に入れられた
-	SYNTAX_ERROR,	//!< 構文エラーノードの削除
-	SELECTED_FOR_DELETION,	//!< 選択削除の対象になった
-	WORKSPACE_DELETION;	//!< ワークスペースの削除
+	public ViewInitializationException(String msg) {
+		super(msg);
+	}
 }

@@ -1,8 +1,10 @@
 (function() {
 
 	let NodeMVCBuilder = net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
-	let BhNodeID = net.seapanda.bunnyhop.model.node.BhNodeID;
+	let BhNodeID = net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
 	let BhNodeState = net.seapanda.bunnyhop.model.node.BhNode.State;
+	let ImitationBuilder = net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
+	let ImitationID = net.seapanda.bunnyhop.model.node.imitation.ImitationID;
 	let bhCommon = {};
 
 	// 入れ替わってWSに移ったノードを末尾に再接続する
@@ -291,6 +293,26 @@
 			   sectionName === 'SoundExpSctn'   ||
 			   sectionName === 'ColorExpSctn';
 	}
+	
+	/**
+	 * イミテーションノードを作成する
+	 * @param node イミテーションノードを作成するオリジナルノード
+	 * @param imitID 作成するイミテーションノードの ID (文字列)
+	 * @param userOpeCmd undo/redo用コマンドオブジェクト
+	 * @return node のイミテーションノード
+	 */
+	function buildImitation(node, imitID, userOpeCmd) {
+		return ImitationBuilder.build(node, ImitationID.create(imitID), false, userOpeCmd);
+	}
+	
+	/** BhNode を新規作成する
+	 * @param nodeID 作成するノードのID
+	 * @param bhNodeTemplates ノードテンプレート管理オブジェクト
+	 * @param bhUserOpeCmd ndo/redo用コマンドオブジェクト
+	 */
+	function genBhNode(bhNodeID, bhNodeTemplates, bhUserOpeCmd) {
+		return bhNodeTemplates.genBhNode(BhNodeID.create(bhNodeID), bhUserOpeCmd);
+	}
 
 	bhCommon['appendRemovedNode'] = appendRemovedNode;
 	bhCommon['getStaticTypeNodeID'] = getStaticTypeNodeID;
@@ -301,5 +323,7 @@
 	bhCommon['getPathOfAnyTypeChildToBeMoved'] = getPathOfAnyTypeChildToBeMoved;
 	bhCommon['isStaticTypeExp'] = isStaticTypeExp;
 	bhCommon['reconnectOuter'] = reconnectOuter;
+	bhCommon['buildImitation'] = buildImitation;
+	bhCommon['genBhNode'] = genBhNode;
 	return bhCommon;
 })();
