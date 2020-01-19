@@ -20,10 +20,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.transform.Scale;
@@ -77,6 +79,16 @@ public final class BhNodeSelectionView extends ScrollPane {
 		addEventFilter(ScrollEvent.ANY, event -> zoomAll(event));
 		getStyleClass().add(cssClass);
 		nodeSelectionPanel.getStyleClass().add(cssClass);
+		nodeSelectionPanelWrapper.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
+		nodeSelectionPanelWrapper.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
+
+		if (nodeSelectionPanelBase.getScene() != null) {
+			var wsSetTab = nodeSelectionPanelBase.getScene().lookup("#" + BhParams.Fxml.ID_WORKSPACE_SET_TAB);
+			if (wsSetTab != null) {
+				((TabPane)wsSetTab).widthProperty().addListener((oldval, newval, obs) ->{
+				Math.min(nodeSelectionPanelBase.getMaxWidth(), ((TabPane)wsSetTab).getWidth() * 0.5);});
+			}
+		}
 	}
 
 	/**
@@ -94,7 +106,7 @@ public final class BhNodeSelectionView extends ScrollPane {
 	 */
 	private void zoomAll(ScrollEvent event) {
 
-		if (event.isControlDown()) {
+		if (event.isControlDown() && event.getDeltaY() != 0) {
 			event.consume();
 			boolean zoomIn = event.getDeltaY() >= 0;
 			BhNodeSelectionService.INSTANCE.zoomAll(zoomIn);
@@ -108,9 +120,16 @@ public final class BhNodeSelectionView extends ScrollPane {
 	public void addNodeView(BhNodeView view) {
 
 		view.getTreeManager().addToGUITree(nodeSelectionPanel);
-		view.getEventManager().addOnNodeSizesInTreeChanged(nodeView -> arrange());
+		view.getEventManager().addOnNodeSizesInTreeChanged(nodeView -> {
+			if (isVisible())
+				arrange();
+		});
 		rootNodeList.add(view);
 		view.getAppearanceManager().arrangeAndResize();
+		visibleProperty().addListener((observable, oldVal, newVal) -> {
+			if (newVal)
+				arrange();
+		});
 	}
 
 	/**
@@ -159,7 +178,7 @@ public final class BhNodeSelectionView extends ScrollPane {
 	/**
 	 * 表示するノードを並べる
 	 */
-	private void arrange() {
+	public void arrange() {
 
 		double panelWidth = 0.0;
 		double panelHeight = 0.0;
@@ -191,25 +210,29 @@ public final class BhNodeSelectionView extends ScrollPane {
 		panelWidth += rightPadding + leftPadding;
 		nodeSelectionPanel.setMinSize(panelWidth, panelHeight);
 		//バインディングではなく, ここでこのメソッドを呼ばないとスクロールバーの稼働域が変わらない
-		adjustWrapperSize(panelWidth, panelHeight);
+		adjustWrapperSize(panelWidth, panelHeight);		
 	}
-
+	
 	/**
 	 * スクロールバーの可動域が変わるようにノード選択パネルのラッパーのサイズを変更する
 	 * @param panelWidth ノード選択パネルの幅
 	 * @param panelHeight ノード選択パネルの高さ
 	 */
 	private void adjustWrapperSize(double panelWidth, double panelHeight) {
-
+       
 		double wrapperSizeX = panelWidth * nodeSelectionPanel.getTransforms().get(0).getMxx();
 		double wrapperSizeY = panelHeight * nodeSelectionPanel.getTransforms().get(0).getMyy();
-		nodeSelectionPanelWrapper.setMinSize(wrapperSizeX, wrapperSizeY);	//スクロール時にスクロールバーの可動域が変わるようにする
-		nodeSelectionPanelWrapper.setMaxSize(wrapperSizeX, wrapperSizeY);
+		nodeSelectionPanelWrapper.setPrefSize(wrapperSizeX, wrapperSizeY);	//スクロール時にスクロールバーの可動域が変わるようにする
 		double maxWidth = wrapperSizeX + nodeSelectionPanelBase.getPadding().getLeft() + nodeSelectionPanelBase.getPadding().getRight();
-		if (nodeSelectionPanelBase.getScene() != null)
-			maxWidth = Math.min(maxWidth, nodeSelectionPanelBase.getScene().getWidth() * 0.5);
+		if (nodeSelectionPanelBase.getScene() != null) {
+			var wsSetTab = nodeSelectionPanelBase.getScene().lookup("#" + BhParams.Fxml.ID_WORKSPACE_SET_TAB);
+			if (wsSetTab != null) {
+				maxWidth = Math.min(maxWidth, ((TabPane)wsSetTab).getWidth() * 0.5);
+			}
+		}
 		nodeSelectionPanelBase.setMaxWidth(maxWidth);
-		nodeSelectionPanelBase.requestLayout();
+		// 選択ビューの幅を設定後にレイアウトしないと適切な幅で表示されない
+		Platform.runLater(nodeSelectionPanelBase::requestLayout);
 	}
 }
 

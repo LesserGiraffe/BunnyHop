@@ -1,3 +1,7 @@
 .miscType {
+	-fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, miscTypeCol 50%, derive(boolTypeCol, 50%) 0em);
+}
+
+.miscType:isEven {
 	-fx-fill: miscTypeCol;
 }

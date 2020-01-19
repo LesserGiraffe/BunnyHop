@@ -69,8 +69,8 @@
 			"idColorLiteralExp",
 			"idBinaryColorExp",
 			"idDetectColorExp",
-			"idLightEyeStat"
-		]
+			"idLightEyeStat"]
+		
 	},
 
 	"制御" : {

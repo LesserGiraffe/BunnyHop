@@ -244,6 +244,7 @@ public class BhParams {
 	public static class Fxml {
 		public static final String ID_WS_PANE = "wsPane";
 		public static final String ID_WS_SCROLL_PANE = "wsScrollPane";
+		public static final String ID_WORKSPACE_SET_TAB = "workspaceSetTab";
 		public static final String ID_NODE_VIEW_SHADOW_PANE = "nodeViewShadowPane";
 	}
 

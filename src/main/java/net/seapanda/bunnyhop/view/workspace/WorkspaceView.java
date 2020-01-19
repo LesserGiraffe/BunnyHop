@@ -133,8 +133,8 @@ public class WorkspaceView extends Tab {
 	 * スクロール時の処理
 	 */
 	private void onScroll(ScrollEvent event) {
-
-		if (event.isControlDown()) {
+		
+		if (event.isControlDown() && event.getDeltaY() != 0) {
 			event.consume();
 			boolean zoomIn = event.getDeltaY() >= 0;
 			zoom(zoomIn);
@@ -383,7 +383,7 @@ public class WorkspaceView extends Tab {
 
 		if ((BhParams.LnF.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn)
 			return;
-
+		
 		if ((BhParams.LnF.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn)
 			return;
 

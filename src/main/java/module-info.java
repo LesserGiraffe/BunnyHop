@@ -16,9 +16,9 @@
 module net.seapanda.bunnyhop {
 	requires java.xml;
 	requires java.rmi;
-    requires java.scripting;
-    requires java.desktop;
-    requires transitive javafx.graphics;
+	requires java.scripting;
+	requires java.desktop;
+	requires transitive javafx.graphics;
 	requires transitive javafx.controls;
 	requires javafx.fxml;
 	requires transitive javafx.base;
