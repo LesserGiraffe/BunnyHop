@@ -83,146 +83,148 @@ public class BhNodeController implements MsgProcessor {
 	 */
 	private void setEventHandlers() {
 
-		setOnMousePressed();
-		setOnMouseDragged();
-		setOnDeagDetected();
-		setOnMouseReleased();
+		view.getEventManager().setOnMousePressed(this::onMousePressed);
+		view.getEventManager().setOnMouseDragged(this::onMouseDragged);
+		view.getEventManager().setOnDragDetected(this::onMouseDragDetected);
+		view.getEventManager().setOnMouseReleased(this::onMouseReleased);
 	}
 
 	/**
-	 * マウスボタン押下時のイベントハンドラを登録する
+	 * マウスボタン押下時の処理
 	 */
-	private void setOnMousePressed() {
+	private void  onMousePressed(MouseEvent event) {
 
-		view.getEventManager().setOnMousePressed(
-			mouseEvent -> {
-				ModelExclusiveControl.INSTANCE.lockForModification();
-				try {
-					//model.show(0);	//for debug
-					if (!model.isMovable()) {
-						ddInfo.propagateEvent = true;
-						propagateGUIEvent(model.findParentNode(), mouseEvent);
-						return;
-					}
+		ModelExclusiveControl.INSTANCE.lockForModification();
+		try {
+			//model.show(0);	//for debug
+			if (!model.isMovable()) {
+				ddInfo.propagateEvent = true;
+				propagateGUIEvent(model.findParentNode(), event);
+				return;
+			}
 
-					//BhNode の新規追加の場合, すでにundo用コマンドオブジェクトがセットされている
-					if (ddInfo.userOpeCmd == null)
-						ddInfo.userOpeCmd = new UserOperationCommand();
+			//BhNode の新規追加の場合, すでにundo用コマンドオブジェクトがセットされている
+			if (ddInfo.userOpeCmd == null)
+				ddInfo.userOpeCmd = new UserOperationCommand();
 
-					ViewHelper.INSTANCE.drawShadow(view);
-					view.getPositionManager().toFront(true);
-					selectNode(mouseEvent.isShiftDown());	//選択処理
-					javafx.geometry.Point2D mousePressedPos = view.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-					ddInfo.mousePressedPos = new Vec2D(mousePressedPos.getX(), mousePressedPos.getY());
-					ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
-					view.setMouseTransparent(true);
-					mouseEvent.consume();
-				}
-				finally {
-					ModelExclusiveControl.INSTANCE.unlockForModification();
-				}
-			});
+			ViewHelper.INSTANCE.drawShadow(view);
+			view.getPositionManager().toFront(true);
+			selectNode(event.isShiftDown());	//選択処理
+			javafx.geometry.Point2D mousePressedPos = view.sceneToLocal(event.getSceneX(), event.getSceneY());
+			ddInfo.mousePressedPos = new Vec2D(mousePressedPos.getX(), mousePressedPos.getY());
+			ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
+			view.setMouseTransparent(true);
+			event.consume();
+		}
+		finally {
+			ModelExclusiveControl.INSTANCE.unlockForModification();
+		}
 	}
 
 	/**
-	 * マウスドラッグ時のイベントハンドラを登録する
+	 * マウスドラッグ時の処理
 	 */
-	private void setOnMouseDragged() {
+	private void onMouseDragged(MouseEvent event) {
 
-		view.getEventManager().setOnMouseDragged(
-			mouseEvent -> {
-				if (ddInfo.propagateEvent) {
-					propagateGUIEvent(model.findParentNode(), mouseEvent);
-					return;
-				}
+		if (ddInfo.propagateEvent) {
+			propagateGUIEvent(model.findParentNode(), event);
+			return;
+		}
 
-				if (ddInfo.dragging) {
-					double diffX = mouseEvent.getX() - ddInfo.mousePressedPos.x;
-					double diffY = mouseEvent.getY() - ddInfo.mousePressedPos.y;
-					moveNodeOnWorkspace(diffX, diffY);
-					// ドラッグ検出されていない場合、強調は行わない. 子ノードがダングリングになっていないのに、重なったノード (入れ替え対象) だけが検出されるのを防ぐ
-					highlightOverlappedNode();
-					TrashboxService.INSTANCE.openCloseTrashbox(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-				}
+		if (event.isShiftDown()) {
+			event.setDragDetect(false);
+			event.consume();
+			return;
+		}
+
+		if (ddInfo.dragging) {
+			double diffX = event.getX() - ddInfo.mousePressedPos.x;
+			double diffY = event.getY() - ddInfo.mousePressedPos.y;
+			moveNodeOnWorkspace(diffX, diffY);
+			// ドラッグ検出されていない場合、強調は行わない. 子ノードがダングリングになっていないのに、重なったノード (入れ替え対象) だけが検出されるのを防ぐ
+			highlightOverlappedNode();
+			TrashboxService.INSTANCE.openCloseTrashbox(event.getSceneX(), event.getSceneY());
+		}
+		event.consume();
+	}
+
+	/**
+	 * マウスドラッグを検出した時の処理.
+	 * 先に {@code onMouseDragged} が呼ばれ, ある程度ドラッグしたときにこれが呼ばれる.
+	 */
+	private void onMouseDragDetected(MouseEvent mouseEvent) {
+
+		ModelExclusiveControl.INSTANCE.lockForModification();
+		try {
+			if (ddInfo.propagateEvent) {
+				propagateGUIEvent(model.findParentNode(), mouseEvent);
+				return;
+			}
+
+			if (mouseEvent.isShiftDown()) {
 				mouseEvent.consume();
-			});
+				return;
+			}
+
+			ddInfo.dragging = true;
+			//子ノードでかつ取り外し可能 -> 親ノードから切り離し, ダングリング状態へ
+			if(model.isRemovable()) {
+				ddInfo.latestParent = model.findParentNode();
+				ddInfo.latestRoot = model.findRootNode();
+				BhNode newNode = BhNodeHandler.INSTANCE.removeChild(model, ddInfo.userOpeCmd);
+				ddInfo.latestParent.execScriptOnChildReplaced(
+					model, newNode, newNode.getParentConnector(), ddInfo.userOpeCmd);
+			}
+			mouseEvent.consume();
+		}
+		finally {
+			ModelExclusiveControl.INSTANCE.unlockForModification();
+		}
 	}
 
 	/**
-	 * マウスドラッグ検出検出時のイベントハンドラを登録する
+	 * マウスボタンを離したときの処理
 	 */
-	private void setOnDeagDetected() {
+	private void onMouseReleased(MouseEvent mouseEvent) {
 
-		// 先にsetOnMouseDraggedが呼ばれ、ある程度ドラッグしたときにこれが呼ばれる)
-		view.getEventManager().setOnDragDetected(
-			mouseEvent -> {
-				ModelExclusiveControl.INSTANCE.lockForModification();
-				try {
-					if (ddInfo.propagateEvent) {
-						propagateGUIEvent(model.findParentNode(), mouseEvent);
-						return;
-					}
+		ModelExclusiveControl.INSTANCE.lockForModification();
+		try {
+			if (ddInfo.propagateEvent) {
+				propagateGUIEvent(model.findParentNode(), mouseEvent);
+				ddInfo.propagateEvent = false;
+				return;
+			}
 
-					ddInfo.dragging = true;
-					if(model.isRemovable()) {	//子ノードでかつ取り外し可能 -> 親ノードから切り離し, ダングリング状態へ
-						ddInfo.latestParent = model.findParentNode();
-						ddInfo.latestRoot = model.findRootNode();
-						BhNode newNode = BhNodeHandler.INSTANCE.removeChild(model, ddInfo.userOpeCmd);
-						ddInfo.latestParent.execScriptOnChildReplaced(
-							model, newNode, newNode.getParentConnector(), ddInfo.userOpeCmd);
-					}
-					mouseEvent.consume();
-				}
-				finally {
-					ModelExclusiveControl.INSTANCE.unlockForModification();
-				}
-			});
-	}
+			if (ddInfo.currentOverlapped != null)
+				MsgService.INSTANCE.switchPseudoClassActivation(
+					ddInfo.currentOverlapped, BhParams.CSS.PSEUDO_OVERLAPPED, false);
 
-	/**
-	 * マウスボタンを離したときのイベントハンドラを登録する
-	 */
-	private void setOnMouseReleased() {
+			//子ノード -> ワークスペース
+			if ((model.getState() == BhNode.State.ROOT_DANGLING) && ddInfo.currentOverlapped == null) {
+				toWorkspace(model.getWorkspace());
+			}
+			// (ワークスペース or 子ノード) -> 子ノード
+			else if (ddInfo.currentOverlapped != null) {
+				toChildNode(ddInfo.currentOverlapped);
+			}
+			//同一ワークスペース上で移動
+			else {
+				toSameWorkspace();
+			}
 
-		view.getEventManager().setOnMouseReleased(
-			mouseEvent -> {
-				ModelExclusiveControl.INSTANCE.lockForModification();
-				try {
-					if (ddInfo.propagateEvent) {
-						propagateGUIEvent(model.findParentNode(), mouseEvent);
-						ddInfo.propagateEvent = false;
-						return;
-					}
-
-					if (ddInfo.currentOverlapped != null) {
-						MsgService.INSTANCE.switchPseudoClassActivation(
-							ddInfo.currentOverlapped, BhParams.CSS.PSEUDO_OVERLAPPED, false);
-					}
-
-					if ((model.getState() == BhNode.State.ROOT_DANGLING) && ddInfo.currentOverlapped == null) {	//子ノード -> ワークスペース
-						toWorkspace(model.getWorkspace());
-					}
-					else if (ddInfo.currentOverlapped != null) {	// (ワークスペース or 子ノード) -> 子ノード
-						toChildNode(ddInfo.currentOverlapped);
-					}
-					else {	//同一ワークスペース上で移動
-						toSameWorkspace();
-					}
-
-					view.getPositionManager().toFront(false);
-					deleteUnnecessaryNodes(mouseEvent);
-					SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(ddInfo.userOpeCmd);
-					SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(ddInfo.userOpeCmd);
-					BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
-					ddInfo.reset();
-					view.setMouseTransparent(false);	// 処理が終わったので、元に戻しておく。
-					TrashboxService.INSTANCE.openCloseTrashbox(false);
-					mouseEvent.consume();
-				}
-				finally {
-					ModelExclusiveControl.INSTANCE.unlockForModification();
-				}
-			});
+			view.getPositionManager().toFront(false);
+			deleteUnnecessaryNodes(mouseEvent);
+			SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(ddInfo.userOpeCmd);
+			SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(ddInfo.userOpeCmd);
+			BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
+			ddInfo.reset();
+			view.setMouseTransparent(false);	// 処理が終わったので、元に戻しておく。
+			TrashboxService.INSTANCE.openCloseTrashbox(false);
+			mouseEvent.consume();
+		}
+		finally {
+			ModelExclusiveControl.INSTANCE.unlockForModification();
+		}
 	}
 
 	/**
@@ -236,7 +238,7 @@ public class BhNodeController implements MsgProcessor {
 		Connector parentCnctr = oldChildNode.getParentConnector();
 
 		//ワークスペースから移動する場合
-		if(fromWS)
+		if (fromWS)
 			ddInfo.userOpeCmd.pushCmdOfSetPosOnWorkspace(ddInfo.posOnWorkspace.x, ddInfo.posOnWorkspace.y, model);
 
 		ConnectiveNode oldParentOfReplaced = oldChildNode.findParentNode();	//入れ替えられるノードの親ノード
@@ -333,9 +335,9 @@ public class BhNodeController implements MsgProcessor {
 	}
 
 	/**
-	 * ノードの選択処理を行う
+	 * ノードの選択処理を行う.
 	 * @param isShiftDown シフトボタンが押されている場合 true
-	 * */
+	 */
 	private void selectNode(boolean isShiftDown) {
 
 		if (isShiftDown) {
@@ -365,7 +367,7 @@ public class BhNodeController implements MsgProcessor {
 	}
 
 	/**
-	 * ワークスペース上でノードを動かす
+	 * ワークスペース上でノードを動かす.
 	 * @param distanceX x移動量
 	 * @param distanceY y移動量
 	 * */
@@ -382,8 +384,8 @@ public class BhNodeController implements MsgProcessor {
 	}
 
 	/**
-	 * D&D操作で使用する一連のイベントハンドラがアクセスするデータをまとめたクラス
-	 **/
+	 * D&D 操作で使用する一連のイベントハンドラがアクセスするデータをまとめたクラス.
+	 */
 	private class DragAndDropEventInfo {
 		Vec2D mousePressedPos = null;
 		Vec2D posOnWorkspace = null;
@@ -411,7 +413,7 @@ public class BhNodeController implements MsgProcessor {
 
 	/**
 	 * BhNode 宛てに送られたメッセージを処理するクラス.
-	 * */
+	 */
 	private class MsgProcessor {
 
 		/**
@@ -504,7 +506,7 @@ public class BhNodeController implements MsgProcessor {
 		/**
 		 * ワークスペース上での位置を設定する.
 		 * @param posOnWs 設定するワークスペース上での位置
-		 * */
+		 */
 		private void setPosOnWorkspace(Vec2D posOnWs) {
 
 			view.getPositionManager().setPosOnWorkspace(posOnWs.x, posOnWs.y);
