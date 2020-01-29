@@ -22,8 +22,8 @@ package net.seapanda.bunnyhop.common.constant;
 public class VersionInfo {
 
 	public static final int MAJOR = 1;
-	public static final int MINOR = 3;
+	public static final int MINOR = 4;
 	public static final int PATCH = 0;
 	public static final String APP_VERSION = MAJOR + "." + MINOR + "." + PATCH;
-	public static final long SERIAL_VERSION_UID = 130L;
+	public static final long SERIAL_VERSION_UID = 140L;
 }
