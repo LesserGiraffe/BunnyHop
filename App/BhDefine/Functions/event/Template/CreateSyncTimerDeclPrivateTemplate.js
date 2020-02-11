@@ -1,6 +1,6 @@
 let imitIdManual = 'imitIdManual';
 
-function genReusableBarrierDeclTemplateNode(nodeID) {
+function genSyncTimerDeclTemplateNode(nodeID) {
 
 	let timer = bhCommon.buildImitation(bhThis, imitIdManual, bhUserOpeCmd);
 	let templateNode = bhCommon.genBhNode(nodeID, bhNodeTemplates, bhUserOpeCmd);
@@ -11,14 +11,12 @@ function genReusableBarrierDeclTemplateNode(nodeID) {
 
 (function() {
 
-	let imit = bhCommon.buildImitation(bhThis, imitIdManual, bhUserOpeCmd);
 	return [
-		imit,
-		genReusableBarrierDeclTemplateNode('idSyncTimerCountdownStat'),
-		genReusableBarrierDeclTemplateNode('idSyncTimerAwaitStat'),
-		genReusableBarrierDeclTemplateNode('idSyncTimerAwaitWithTimeoutStat'),
-		genReusableBarrierDeclTemplateNode('idSyncTimerCountdownAndAwaitStat'),
-		genReusableBarrierDeclTemplateNode('idSyncTimerCountdownAndAwaitWithTimeoutStat'),
-		genReusableBarrierDeclTemplateNode('idResetSyncTimerStat'),
-		genReusableBarrierDeclTemplateNode('idGetSyncTimerCountExp')];
+		genSyncTimerDeclTemplateNode('idSyncTimerCountdownStat'),
+		genSyncTimerDeclTemplateNode('idSyncTimerAwaitStat'),
+		genSyncTimerDeclTemplateNode('idSyncTimerAwaitWithTimeoutStat'),
+		genSyncTimerDeclTemplateNode('idSyncTimerCountdownAndAwaitStat'),
+		genSyncTimerDeclTemplateNode('idSyncTimerCountdownAndAwaitWithTimeoutStat'),
+		genSyncTimerDeclTemplateNode('idResetSyncTimerStat'),
+		genSyncTimerDeclTemplateNode('idGetSyncTimerCountExp')];
 })();

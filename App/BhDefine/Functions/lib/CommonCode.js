@@ -23,7 +23,6 @@
 	let _eventHandlers = {};
 	let _executor = _jExecutors.newFixedThreadPool(16);
 	let _programStartingTime = _currentTimeMillis();
-	let _noWaitBarrier = _genReusableBarrier(1);
 	let _nilSyncTimer = _genSyncTimer(0, true);
 	let _anyObj = {
 		_toStr : function() {return '';}
@@ -53,27 +52,6 @@
 
 	function _unlock(lockObj) {
 		lockObj.unlock();
-	}
-
-	function _genReusableBarrier(parties) {
-		return new _jCyclicBarrier(parties);
-	}
-	
-	function _await(barrier) {
-
-		let success = false;
-		try {
-			barrier.await();
-			success = true;
-		}
-		finally {
-			if (!success)
-				_addExceptionMsg.call(this, '_await()');
-		}
-	}
-
-	function _getNumberWaiting(barrier) {
-		return barrier.getNumberWaiting();
 	}
 
 	function _listToStr(list, listName) {
