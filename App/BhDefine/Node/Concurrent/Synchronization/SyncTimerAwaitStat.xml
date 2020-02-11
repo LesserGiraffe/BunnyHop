@@ -1,0 +1,30 @@
+<Node type="connective"
+	bhNodeID="idSyncTimerAwaitStat"
+	name="SyncTimerAwaitStat"
+	nodeStyleID="SyncTimerAwaitStat.json"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js"
+	onDeletionRequested="onDeletionRequested.js"
+	onCutRequested="onCutRequested.js"
+	onCopyRequested="onCopyRequested.js">
+
+	<ConnectorSection name="StatSctn">
+		<Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
+
+		<PrivateConnector
+			bhConnectorID="idSyncTimerAwaitStat.prvCnctr0"
+			name="matsu"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSyncTimerAwaitStat.prvNode0"
+				name="matsu"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="のカウントが 0 になるまで待つ">
+			</Node>
+		</PrivateConnector>
+		
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+	</ConnectorSection>
+</Node>

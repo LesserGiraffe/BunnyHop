@@ -59,7 +59,8 @@ public abstract class ConnectorShape {
 		STAR ("STAR", new ConnectorStar()),
 		TRAPEZOID ("TRAPEZOID", new ConnectorTrapezoid()),
 		TRIANGLE ("TRIANGLE", new ConnectorTriangle()),
-		LIGHTNING ("LIGHTNING", new ConnectorLightning());
+		LIGHTNING ("LIGHTNING", new ConnectorLightning()),
+		SANDGLASS ("SANDGLASS", new ConnectorSandglass());
 
 		public final String NAME;
 		public final ConnectorShape SHAPE;
@@ -83,6 +84,7 @@ public abstract class ConnectorShape {
 				put(CNCTR_SHAPE.TRAPEZOID.NAME, CNCTR_SHAPE.TRAPEZOID);
 				put(CNCTR_SHAPE.TRIANGLE.NAME,  CNCTR_SHAPE.TRIANGLE);
 				put(CNCTR_SHAPE.LIGHTNING.NAME,  CNCTR_SHAPE.LIGHTNING);
+				put(CNCTR_SHAPE.SANDGLASS.NAME,  CNCTR_SHAPE.SANDGLASS);
 			}};
 
 		private CNCTR_SHAPE(String shapeName, ConnectorShape shape) {

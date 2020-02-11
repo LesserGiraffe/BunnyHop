@@ -1,0 +1,25 @@
+<Node
+	type="connective"
+	bhNodeID="idGetSyncTimerCountExp"
+	name="GetSyncTimerCountExp"
+	nodeStyleID="GetSyncTimerCountExp.json">
+
+	<ConnectorSection name="NumberExpSctn">
+		<Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
+		
+		<PrivateConnector 
+			bhConnectorID="idGetSyncTimerCountExp.prvCnctr0"
+			name="count"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idGetSyncTimerCountExp.prvNode0"
+				name="count"
+				nodeStyleID="WordLabel1.json"
+				nodeInputControl="Label.fxml"
+				initString="の現在のカウント">
+			</Node>
+		</PrivateConnector>
+		
+	</ConnectorSection>
+</Node>

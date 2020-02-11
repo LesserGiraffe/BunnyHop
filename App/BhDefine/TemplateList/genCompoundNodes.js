@@ -81,7 +81,8 @@
 			{node: 'idColorListDecl',       cnctrName: 'ListName',            varName: '色リスト'},
 			{node: 'idSoundListDecl',       cnctrName: 'ListName',            varName: '音リスト'},
 			{node: 'idCriticalSectionDecl', cnctrName: 'CriticalSectionName', varName: '区間名'},
-			{node: 'idReusableBarrierDecl', cnctrName: 'ReusableBarrierName', varName: '地点名'}
+			{node: 'idReusableBarrierDecl', cnctrName: 'ReusableBarrierName', varName: '地点名'},
+			{node: 'idSyncTimerDecl',       cnctrName: 'SyncTimerName',       varName: 'タイマー名'}
 		];
 
 		for (let i = 0; i < renameInfoList.length; ++i) {

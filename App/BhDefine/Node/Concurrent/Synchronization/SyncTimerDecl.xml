@@ -1,0 +1,95 @@
+<Node
+	type="connective"
+	bhNodeID="idSyncTimerDecl"
+	name="SyncTimerDecl"
+	nodeStyleID="SyncTimerDecl.json"
+	onPrivateTemplateCreating="CreateSyncTimerDeclPrivateTemplate.js"
+	onMovedFromChildToWS="onGlobalDataDeclMovedToWS.js"
+	onDeletionRequested="onDeletionRequested.js"
+	onCutRequested="onCutRequested.js"
+	onCopyRequested="onCopyRequested.js">
+
+	<Imitation imitationID="imitIdManual" imitationNodeID="idSyncTimerVar"/>
+
+	<ConnectorSection name="GlobalDataDeclSctn">
+
+		<PrivateConnector
+			bhConnectorID="idSyncTimerDecl.prvCnctr0"
+			name="SyncTimer"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSyncTimerDecl.prvNode0"
+				name="SyncTimer"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="処理待ちタイマー">
+			</Node>
+		</PrivateConnector>
+
+		<Connector
+			bhConnectorID="idVarNameCnctr"
+			name="SyncTimerName"
+			imitationID="imitIdVarName"
+			imitCnctPos="imitPosVarName"/>
+
+		<PrivateConnector
+			bhConnectorID="idSyncTimerDecl.prvCnctr1"
+			name="autoReset"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSyncTimerDecl.prvNode1"
+				name="autoReset"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="自動リセット">
+			</Node>
+		</PrivateConnector>
+
+		<PrivateConnector
+			bhConnectorID="idSyncTimerDecl.prvCnctr2"
+			name="Arg1"
+    		fixed="true">
+			<Node
+				type="comboBox"
+				bhNodeID="idSyncTimerDecl.prvNode2"
+				name="BoolLiteral"
+				nodeStyleID="WordComboBox.json"
+				nodeInputControl="DoOrDonot.fxml">
+			</Node>
+		</PrivateConnector>
+
+		<PrivateConnector
+			bhConnectorID="idSyncTimerDecl.prvCnctr3"
+			name="initCount"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSyncTimerDecl.prvNode3"
+				name="initCount"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="タイマーの初期値">
+			</Node>
+		</PrivateConnector>
+
+		<PrivateConnector
+			bhConnectorID="idSyncTimerDecl.prvCnctr4"
+			name="Arg0"
+    		fixed="true">
+			<Node
+				type="textField"
+				bhNodeID="idSyncTimerDecl.prvNode4"
+				name="NumLiteral"
+				nodeStyleID="FixedNumLiteral.json"
+				nodeInputControl="TextField.fxml"
+				textFormatter="FullWidthToHalfWidth.js"
+				textAcceptabilityChecker="CheckSyncTimerCount.js"
+				initString="1">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idGlobalDataDeclCnctr" name="NextGlobalDataDecl"/>
+	</ConnectorSection>
+</Node>

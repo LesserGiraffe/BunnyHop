@@ -1,0 +1,60 @@
+<Node type="connective"
+	bhNodeID="idSyncTimerAwaitWithTimeoutStat"
+	name="SyncTimerAwaitWithTimeoutStat"
+	nodeStyleID="SyncTimerAwaitWithTimeoutStat.json"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js"
+	onDeletionRequested="onDeletionRequested.js"
+	onCutRequested="onCutRequested.js"
+	onCopyRequested="onCopyRequested.js">
+
+	<ConnectorSection name="StatSctn">
+		<Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
+
+		<PrivateConnector
+			bhConnectorID="idSyncTimerAwaitWithTimeoutStat.prvCnctr0"
+			name="zeroNiNarumade"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSyncTimerAwaitWithTimeoutStat.prvNode0"
+				name="zeroNiNarumade"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="のカウントが 0 になるまで">
+			</Node>
+		</PrivateConnector>
+
+		<PrivateConnector
+			bhConnectorID="idSyncTimerAwaitWithTimeoutStat.prvCnctr1"
+			name="saidai"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSyncTimerAwaitWithTimeoutStat.prvNode1"
+				name="saidai"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="最大">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+
+		<PrivateConnector 
+			bhConnectorID="idSyncTimerAwaitWithTimeoutStat.prvCnctr2"
+			name="matsu"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSyncTimerAwaitWithTimeoutStat.prvNode2"
+				name="matsu"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="秒間待つ">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+	</ConnectorSection>
+</Node>

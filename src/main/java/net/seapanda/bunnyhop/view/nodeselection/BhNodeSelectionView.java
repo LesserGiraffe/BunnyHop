@@ -74,7 +74,6 @@ public final class BhNodeSelectionView extends ScrollPane {
 				"failed to initialize "  + BhNodeSelectionView.class.getSimpleName());
 		}
 
-		nodeSelectionPanelBase.setOnMouseClicked(event -> BhNodeSelectionService.INSTANCE.hideAll());
 		nodeSelectionPanel.getTransforms().add(new Scale());
 		addEventFilter(ScrollEvent.ANY, event -> zoomAll(event));
 		getStyleClass().add(cssClass);
@@ -210,16 +209,16 @@ public final class BhNodeSelectionView extends ScrollPane {
 		panelWidth += rightPadding + leftPadding;
 		nodeSelectionPanel.setMinSize(panelWidth, panelHeight);
 		//バインディングではなく, ここでこのメソッドを呼ばないとスクロールバーの稼働域が変わらない
-		adjustWrapperSize(panelWidth, panelHeight);		
+		adjustWrapperSize(panelWidth, panelHeight);
 	}
-	
+
 	/**
 	 * スクロールバーの可動域が変わるようにノード選択パネルのラッパーのサイズを変更する
 	 * @param panelWidth ノード選択パネルの幅
 	 * @param panelHeight ノード選択パネルの高さ
 	 */
 	private void adjustWrapperSize(double panelWidth, double panelHeight) {
-       
+
 		double wrapperSizeX = panelWidth * nodeSelectionPanel.getTransforms().get(0).getMxx();
 		double wrapperSizeY = panelHeight * nodeSelectionPanel.getTransforms().get(0).getMyy();
 		nodeSelectionPanelWrapper.setPrefSize(wrapperSizeX, wrapperSizeY);	//スクロール時にスクロールバーの可動域が変わるようにする

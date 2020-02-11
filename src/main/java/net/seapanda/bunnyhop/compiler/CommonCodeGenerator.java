@@ -88,7 +88,7 @@ public class CommonCodeGenerator {
 	 * @param root プロパティのルート
 	 * @param properties root の下に続くプロパティ名のリスト
 	 * @return プロパティアクセス式
-	 * */
+	 */
 	public String genPropertyAccessCode(String root, String... properties) {
 
 		StringBuilder code = new StringBuilder(root);

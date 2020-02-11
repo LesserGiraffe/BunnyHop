@@ -1,0 +1,46 @@
+<Node type="connective"
+	bhNodeID="idResetSyncTimerStat"
+	name="ResetSyncTimerStat"
+	nodeStyleID="ResetSyncTimerStat.json"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js"
+	onDeletionRequested="onDeletionRequested.js"
+	onCutRequested="onCutRequested.js"
+	onCopyRequested="onCopyRequested.js">
+
+	<ConnectorSection name="StatSctn">
+		<Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
+
+		<PrivateConnector
+			bhConnectorID="idResetSyncTimerStat.prvCnctr0"
+			name="count"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idResetSyncTimerStat.prvNode0"
+				name="count"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="のカウントを">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+
+		<PrivateConnector 
+			bhConnectorID="idResetSyncTimerStat.prvCnctr1"
+			name="reset"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idResetSyncTimerStat.prvNode1"
+				name="reset"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="でリセットする">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+	</ConnectorSection>
+</Node>

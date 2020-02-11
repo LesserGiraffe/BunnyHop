@@ -305,6 +305,7 @@ public class SymbolNames {
 		public static final String STR_CHAIN_LINK_EXP = "StrChainLinkExp";
 		public static final String STR_CHAIN_EXP = "StrChainExp";
 		public static final String GET_NUMBER_WAITING_EXP = "GetNumberWaitingExp";
+		public static final String GET_SYNC_TIMER_COUNT_EXP = "GetSyncTimerCountExp";
 		public static final String ANY_LIST_TO_STR_EXP = "AnyListToStrExp";
 		public static final String OUT_ARG_TEST_EXP = "OutArgTestExp";
 		public static final String PRINT_STAT = "PrintStat";
@@ -314,6 +315,12 @@ public class SymbolNames {
 		public static final String PLAY_SOUND_LIST_STAT = "PlaySoundListStat";
 		public static final String SAY_STAT = "SayStat";
 		public static final String LIGHT_EYE_STAT = "LightEyeStat";
+		public static final String SYNC_TIMER_AWAIT_WITH_TIMEOUT_STAT = "SyncTimerAwaitWithTimeoutStat";
+		public static final String SYNC_TIMER_COUNTDOWN_AND_AWAIT_STAT = "SyncTimerCountdownAndAwaitStat";
+		public static final String SYNC_TIMER_COUNTDOWN_AND_AWAIT_WITH_TIMEOUT_STAT = "SyncTimerCountdownAndAwaitWithTimeoutStat";
+		public static final String SYNC_TIMER_AWAIT_STAT = "SyncTimerAwaitStat";
+		public static final String RESET_SYNC_TIMER_STAT = "ResetSyncTimerStat";
+		public static final String SYNC_TIMER_COUNTDOWN_STAT = "SyncTimerCountdownStat";
 		public static final String AWAIT_STAT = "AwaitStat";
 
 		//オプション名
@@ -347,6 +354,7 @@ public class SymbolNames {
 				STR_CHAIN_LINK_EXP,
 				STR_CHAIN_EXP,
 				GET_NUMBER_WAITING_EXP,
+				GET_SYNC_TIMER_COUNT_EXP,
 				ANY_LIST_TO_STR_EXP,
 				OUT_ARG_TEST_EXP,
 
@@ -370,6 +378,12 @@ public class SymbolNames {
 				PLAY_SOUND_LIST_STAT,
 				SAY_STAT,
 				LIGHT_EYE_STAT,
+				SYNC_TIMER_AWAIT_STAT,
+				SYNC_TIMER_AWAIT_WITH_TIMEOUT_STAT,
+				SYNC_TIMER_COUNTDOWN_AND_AWAIT_STAT,
+				SYNC_TIMER_COUNTDOWN_AND_AWAIT_WITH_TIMEOUT_STAT,
+				RESET_SYNC_TIMER_STAT,
+				SYNC_TIMER_COUNTDOWN_STAT,
 				AWAIT_STAT,
 
 				Array.STR_ARRAY_PUSH_STAT,
@@ -418,6 +432,12 @@ public class SymbolNames {
 				put(FuncID.create(ANY_TO_STR_EXP), ScriptIdentifiers.Funcs.TO_STR);
 				put(FuncID.create(PRINT_STAT), ScriptIdentifiers.Funcs.PRINTLN);
 				put(FuncID.create(AWAIT_STAT), ScriptIdentifiers.Funcs.AWAIT);
+				put(FuncID.create(SYNC_TIMER_AWAIT_STAT), ScriptIdentifiers.Funcs.SYNC_TIMER_AWAIT);
+				put(FuncID.create(SYNC_TIMER_AWAIT_WITH_TIMEOUT_STAT), ScriptIdentifiers.Funcs.SYNC_TIMER_AWAIT);
+				put(FuncID.create(SYNC_TIMER_COUNTDOWN_AND_AWAIT_STAT), ScriptIdentifiers.Funcs.SYNC_TIMER_COUNTDOWN_AND_AWAIT);
+				put(FuncID.create(SYNC_TIMER_COUNTDOWN_AND_AWAIT_WITH_TIMEOUT_STAT), ScriptIdentifiers.Funcs.SYNC_TIMER_COUNTDOWN_AND_AWAIT);
+				put(FuncID.create(RESET_SYNC_TIMER_STAT), ScriptIdentifiers.Funcs.RESET_SYNC_TIMER);
+				put(FuncID.create(SYNC_TIMER_COUNTDOWN_STAT), ScriptIdentifiers.Funcs.SYNC_TIMER_COUNTDOWN);
 				put(FuncID.create(SCAM_EXP), ScriptIdentifiers.Funcs.SCAN);
 				put(FuncID.create(NUM_ROUND_EXP, OPT_ROUND), "Math.round");
 				put(FuncID.create(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
@@ -436,6 +456,7 @@ public class SymbolNames {
 				put(FuncID.create(STR_CHAIN_LINK_EXP), ScriptIdentifiers.Funcs.STRCAT);
 				put(FuncID.create(STR_CHAIN_EXP), ScriptIdentifiers.Funcs.IDENTITY);
 				put(FuncID.create(GET_NUMBER_WAITING_EXP), ScriptIdentifiers.Funcs.GET_NUMBER_WAITING);
+				put(FuncID.create(GET_SYNC_TIMER_COUNT_EXP), ScriptIdentifiers.Funcs.GET_SYNC_TIMER_COUNT);
 				put(FuncID.create(ANY_LIST_TO_STR_EXP), ScriptIdentifiers.Funcs.LIST_TO_STR);
 				put(FuncID.create(OUT_ARG_TEST_EXP), ScriptIdentifiers.Funcs.OUT_ARG_TEST);
 				put(FuncID.create(MOVE_STAT, OPT_MOVE_FORWARD), ScriptIdentifiers.Funcs.MOVE_FORWARD);
@@ -449,6 +470,7 @@ public class SymbolNames {
 				put(FuncID.create(LIGHT_EYE_STAT), ScriptIdentifiers.Funcs.LIGHT_EYE);
 				put(FuncID.create(GlobalData.CRITICAL_SECTION_DECL), ScriptIdentifiers.Funcs.GEN_LOCK_OBJ);
 				put(FuncID.create(GlobalData.REUSABLE_BARRIER_DECL), ScriptIdentifiers.Funcs.GEN_REUSABLE_BARRIER);
+				put(FuncID.create(GlobalData.SYNC_TIMER_DECL), ScriptIdentifiers.Funcs.GEN_SYNC_TIMER);
 
 				put(FuncID.create(Array.STR_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
 				put(FuncID.create(Array.STR_ARRAY_POP_STAT), ScriptIdentifiers.Funcs.ARY_POP);
@@ -672,20 +694,30 @@ public class SymbolNames {
 
 		public static final String CRITICAL_SECTION_DECL = "CriticalSectionDecl";
 		public static final String REUSABLE_BARRIER_DECL = "ReusableBarrierDecl";
+		public static final String SYNC_TIMER_DECL = "SyncTimerDecl";
+		public static final String SYNC_TIMER_VAR = "SyncTimerVar";
 
 		public static final String CRITICAL_SECTION_NAME = "CriticalSectionName";
 		public static final String REUSABLE_BARRIER_NAME = "ReusableBarrierName";
+		public static final String SYNC_TIMER_NAME = "SyncTimerName";
 		public static final String NEXT_GLOBAL_DATA_DECL = "NextGlobalDataDecl";
 
 		public static final HashSet<String> LIST =
 			new HashSet<>(Arrays.asList(
 				CRITICAL_SECTION_DECL,
-				REUSABLE_BARRIER_DECL));
+				REUSABLE_BARRIER_DECL,
+				SYNC_TIMER_DECL,
+				NEXT_GLOBAL_DATA_DECL));
+
+		public static final HashSet<String> VAR_LIST =
+			new HashSet<>(Arrays.asList(
+				SYNC_TIMER_VAR));
 
 		public static final HashSet<String> DATA_NAME_CNCTR_LIST =
 			new HashSet<>(Arrays.asList(
 				CRITICAL_SECTION_NAME,
-				REUSABLE_BARRIER_NAME));
+				REUSABLE_BARRIER_NAME,
+				SYNC_TIMER_NAME));
 	}
 
 	public static class ConstantValue {
@@ -695,13 +727,15 @@ public class SymbolNames {
 		public static final String ANY_EXP_VOID = "AnyExpVoid";
 		public static final String LINE_FEED_STR = "LineFeedStr";
 		public static final String REUSABLE_BARRIER_VAR_VOID = "ReusableBarrierVarVoid";
+		public static final String SYNC_TIMER_VAR_VOID = "SyncTimerVarVoid";
 		public static final HashSet<String> LIST =
 			new HashSet<>(Arrays.asList(
 				NIL_COLOR,
 				NIL_SOUND,
 				ANY_EXP_VOID,
 				LINE_FEED_STR,
-				REUSABLE_BARRIER_VAR_VOID));
+				REUSABLE_BARRIER_VAR_VOID,
+				SYNC_TIMER_VAR_VOID));
 	}
 }
 

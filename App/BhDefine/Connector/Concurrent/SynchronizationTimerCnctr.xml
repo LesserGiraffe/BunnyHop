@@ -1,0 +1,4 @@
+<Connector 
+	bhConnectorID="idSyncTimerVarCnctr"
+	defaultBhNodeID="idSyncTimerVarVoid"
+	replaceabilityChecker="SyncTimerVarCnct.js"/>

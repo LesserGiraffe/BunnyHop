@@ -61,7 +61,8 @@ public class ExpCodeGenerator {
 		else if (SymbolNames.UnaryExp.LIST.contains(expSymbolName)) {
 			return genUnaryExp(code, expNode, nestLevel, option);
 		}
-		else if (SymbolNames.VarDecl.VAR_LIST.contains(expSymbolName)) {
+		else if (SymbolNames.VarDecl.VAR_LIST.contains(expSymbolName) ||
+				  SymbolNames.GlobalData.VAR_LIST.contains(expSymbolName)) {
 			var varNode = (BhNode)expNode;
 			return common.genVarName(varNode.getOriginal());
 		}

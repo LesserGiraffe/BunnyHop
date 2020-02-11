@@ -1,0 +1,44 @@
+<Node type="connective"
+	bhNodeID="idSyncTimerCountdownAndAwaitStat"
+	name="SyncTimerCountdownAndAwaitStat"
+	nodeStyleID="SyncTimerCountdownAndAwaitStat.json"
+	onMovedFromChildToWS="onStatMovedToWS.js"
+	onMovedToChild="onStatMovedToChild.js"
+	onDeletionRequested="onDeletionRequested.js"
+	onCutRequested="onCutRequested.js"
+	onCopyRequested="onCopyRequested.js">
+
+	<ConnectorSection name="StatSctn">
+		<Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
+
+		<PrivateConnector
+			bhConnectorID="idSyncTimerCountdownAndAwaitStat.prvCnctr0"
+			name="countdown"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSyncTimerCountdownAndAwaitStat.prvNode0"
+				name="countdown"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="のカウントを 1 減らしてから">
+			</Node>
+		</PrivateConnector>
+
+		<PrivateConnector
+			bhConnectorID="idSyncTimerCountdownAndAwaitStat.prvCnctr1"
+			name="matsu"
+			fixed="true">
+			<Node
+				type="label"
+				bhNodeID="idSyncTimerCountdownAndAwaitStat.prvNode1"
+				name="matsu"
+				nodeStyleID="WordLabel2.json"
+				nodeInputControl="Label.fxml"
+				initString="カウントが 0 になるまで待つ">
+			</Node>
+		</PrivateConnector>
+
+		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+	</ConnectorSection>
+</Node>

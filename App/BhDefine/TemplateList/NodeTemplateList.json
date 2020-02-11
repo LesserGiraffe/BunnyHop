@@ -113,7 +113,8 @@
 			"idKeyPressedEvent",
 			"idDelayedStartEvent",
 			"idCriticalSectionDecl",
-			"idReusableBarrierDecl"]
+			"idReusableBarrierDecl",
+			"idSyncTimerDecl"]
 	},
 	
 	"その他" : {

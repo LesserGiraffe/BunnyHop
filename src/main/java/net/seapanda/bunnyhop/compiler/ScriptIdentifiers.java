@@ -49,9 +49,17 @@ public class ScriptIdentifiers {
 		public static final String TURN_LEFT = "_turnLeft";
 		public static final String MEASURE_DISTANCE = "_measureDistance";
 		public static final String GEN_LOCK_OBJ = "_genLockObj";
+		public static final String GEN_SYNC_TIMER = "_genSyncTimer";
+		public static final String SYNC_TIMER_COUNTDOWN = "_syncTimerCountdown";
+		public static final String SYNC_TIMER_AWAIT = "_syncTimerAwait";
+		public static final String SYNC_TIMER_COUNTDOWN_AND_AWAIT = "_syncTimerCountdownAndAwait";
+		public static final String RESET_SYNC_TIMER = "_resetSyncTimer";
+		public static final String GET_SYNC_TIMER_COUNT = "_getSyncTimerCount";
+
 		public static final String GEN_REUSABLE_BARRIER = "_genReusableBarrier";
 		public static final String AWAIT = "_await";
 		public static final String GET_NUMBER_WAITING = "_getNumberWaiting";
+
 		public static final String TRY_LOCK = "_tryLock";
 		public static final String LOCK = "_lock";
 		public static final String UNLOCK = "_unlock";

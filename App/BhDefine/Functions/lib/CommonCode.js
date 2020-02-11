@@ -17,12 +17,14 @@
 	let _jSystem = java.lang.System;
 	let _jCyclicBarrier = java.util.concurrent.CyclicBarrier;
 	let _jStringBuilder = java.lang.StringBuilder;
-	let _jIllegalMonitorStateException = java.lang.IllegalMonitorStateException;
+	let _jSynchronizingTimer = net.seapanda.bunnyhop.programexecenv.lib.SynchronizingTimer;
+	let _jTimeUnit = java.util.concurrent.TimeUnit;
 
 	let _eventHandlers = {};
 	let _executor = _jExecutors.newFixedThreadPool(16);
 	let _programStartingTime = _currentTimeMillis();
 	let _noWaitBarrier = _genReusableBarrier(1);
+	let _nilSyncTimer = _genSyncTimer(0, true);
 	let _anyObj = {
 		_toStr : function() {return '';}
 	};
@@ -56,7 +58,7 @@
 	function _genReusableBarrier(parties) {
 		return new _jCyclicBarrier(parties);
 	}
-
+	
 	function _await(barrier) {
 
 		let success = false;
@@ -66,7 +68,7 @@
 		}
 		finally {
 			if (!success)
-				_addExceptionMsg.call(this, '_sayOnWindows()');
+				_addExceptionMsg.call(this, '_await()');
 		}
 	}
 
@@ -662,3 +664,84 @@
 	function _strcat(valA, valB) {
 		return valA._toStr() + valB._toStr();
 	}
+
+	//==================================================================
+	//							同期/排他
+	//==================================================================
+	function _genSyncTimer(count, autoReset) {
+
+		if (count < 0 || count > 65535)
+			throw _newBhProgramExceptioin.call(
+				this, 'タイマーの初期値は 0 以上 65535 以下でなければなりません.  (' + count + ')');
+	
+		return new _jSynchronizingTimer(count, autoReset);
+	}
+
+	function _syncTimerCountdown(timer) {
+
+		if (timer === _nilSyncTimer)
+			return;
+
+		timer.countdown();
+	}
+
+	/**
+	 * カウントダウンしてタイマーが 0 になるのを待つ
+	 * @param timer 同期タイマーオブジェクト
+	 * @param timeout タイムアウト値.  null or undefined の場合は, タイムアウトしない.
+	 */
+	function _syncTimerCountdownAndAwait(timer, timeout) {
+
+		if (timer === _nilSyncTimer)
+			return;
+
+		if (timeout === (void 0) || timeout === null) {
+			timer.countdownAndAwait();
+		}
+		else {
+			// sec -> us
+			timeout = timeout * 1000 * 1000;
+			timer.countdownAndAwait(timeout, _jTimeUnit.MICROSECONDS);
+		}
+	}
+
+	/**
+	 * タイマーが 0 になるのを待つ
+	 * @param timer 同期タイマーオブジェクト
+	 * @param timeout タイムアウト値.  null or undefined の場合は, タイムアウトしない.
+	 */
+	function _syncTimerAwait(timer, timeout) {
+
+		if (timer === _nilSyncTimer)
+			return;
+
+		if (timeout === (void 0) || timeout === null) {
+			timer.await();
+		}
+		else {
+			// sec -> us
+			timeout = timeout * 1000 * 1000;
+			timer.await(timeout, _jTimeUnit.MICROSECONDS);
+		}
+	}
+
+	function _resetSyncTimer(timer, count) {
+	
+		if (timer === _nilSyncTimer)
+			return;
+
+		if (count < 0 || count > 65535)
+			throw _newBhProgramExceptioin.call(
+				this, 'リセット値は 0 以上 65535 以下でなければなりません.  (' + count + ')');
+		
+		timer.reset(count);
+	}
+
+	function _getSyncTimerCount(timer) {
+		
+		if (timer === _nilSyncTimer)
+			return 0;
+
+		return timer.getCount();
+	}
+
