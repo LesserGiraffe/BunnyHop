@@ -559,7 +559,7 @@
 			case 'black':
 				return new _Color(0,0,0);
 			default:
-				_throw ('_createColorFromName invalid colorName ' + colorName);
+				throw ('_createColorFromName invalid colorName ' + colorName);
 		}
 		return null;
 	}

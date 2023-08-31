@@ -1,9 +1,10 @@
 <?xml version="1.0" ?>
 
 <Node
-	type="void"
+	type="noContent"
 	bhNodeID="idAnyVarVoid"
 	name="AnyVarVoid"
-	nodeStyleID="AnyVarVoid.json">
+	nodeStyleID="AnyVarVoid.json"
+	onMovedFromChildToWS="DeleteNode.js">
 </Node>
 

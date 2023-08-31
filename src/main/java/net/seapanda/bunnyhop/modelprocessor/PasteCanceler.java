@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.modelprocessor;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -53,11 +52,6 @@ public class PasteCanceler implements BhModelProcessor {
 
 		MsgService.INSTANCE.removeFromPasteList(node, BunnyHop.INSTANCE.getWorkspaceSet(), userOpeCmd);
 		node.sendToSections(this);
-	}
-
-	@Override
-	public void visit(VoidNode node) {
-		MsgService.INSTANCE.removeFromPasteList(node, BunnyHop.INSTANCE.getWorkspaceSet(), userOpeCmd);
 	}
 
 	@Override

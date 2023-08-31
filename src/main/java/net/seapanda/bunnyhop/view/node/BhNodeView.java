@@ -593,7 +593,6 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
 			// JDK-8205092 対策
 			nodesToAdd.stream()
 			.filter(node ->
-				!(node instanceof VoidNodeView) &&
 				!(node instanceof NoContentNodeView) &&
 				!(node instanceof SyntaxErrorMark))
 			.forEach(node -> node.setMouseTransparent(false));

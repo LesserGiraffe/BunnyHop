@@ -25,7 +25,6 @@ import net.seapanda.bunnyhop.view.node.LabelNodeView;
 import net.seapanda.bunnyhop.view.node.NoContentNodeView;
 import net.seapanda.bunnyhop.view.node.TextAreaNodeView;
 import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
-import net.seapanda.bunnyhop.view.node.VoidNodeView;
 
 /**
  * 登録されたコールバック関数を呼び出す Visitor クラス
@@ -141,11 +140,6 @@ public class CallbackInvoker implements NodeViewProcessor {
 
 	@Override
 	public void visit(NoContentNodeView view) {
-		callback.accept(view);
-	}
-
-	@Override
-	public void visit(VoidNodeView view) {
 		callback.accept(view);
 	}
 }

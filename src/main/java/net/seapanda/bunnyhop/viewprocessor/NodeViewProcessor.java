@@ -22,7 +22,6 @@ import net.seapanda.bunnyhop.view.node.LabelNodeView;
 import net.seapanda.bunnyhop.view.node.NoContentNodeView;
 import net.seapanda.bunnyhop.view.node.TextAreaNodeView;
 import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
-import net.seapanda.bunnyhop.view.node.VoidNodeView;
 
 /**
  * BhNode の View を巡る Visitor クラスのインタフェース
@@ -77,12 +76,6 @@ public interface NodeViewProcessor {
 	 * @param view 処理する NoContentNodeView
 	 * */
 	default public void visit(NoContentNodeView view) {}
-
-	/**
-	 * VoidNodeView を処理する
-	 * @param view 処理する VoidNodeView
-	 * */
-	default public void visit(VoidNodeView view) {}
 }
 
 

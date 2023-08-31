@@ -23,7 +23,7 @@ public class VersionInfo {
 
 	public static final int MAJOR = 1;
 	public static final int MINOR = 4;
-	public static final int PATCH = 0;
+	public static final int PATCH = 2;
 	public static final String APP_VERSION = MAJOR + "." + MINOR + "." + PATCH;
-	public static final long SERIAL_VERSION_UID = 140L;
+	public static final long SERIAL_VERSION_UID = 142L;
 }

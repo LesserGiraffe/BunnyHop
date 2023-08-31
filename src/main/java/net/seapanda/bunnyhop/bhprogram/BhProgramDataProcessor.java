@@ -66,6 +66,7 @@ public class BhProgramDataProcessor {
 
 			case OUTPUT_EXCEPTION:
 				MsgPrinter.INSTANCE.msgForUser(data.exception.getMessage() + "\n");
+				// MsgPrinter.INSTANCE.msgForUser(data.exception.getScriptEngineMsg() + "\n");
 				var iter = data.exception.getCallStack().descendingIterator();
 				while (iter.hasNext())
 					MsgPrinter.INSTANCE.msgForUser("	" + iter.next().toString() + "\n");

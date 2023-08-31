@@ -67,8 +67,8 @@ public class AppMain extends Application {
 			System.exit(-1);
 		}
 
-		success = BhNodeTemplates.INSTANCE.genTemplate();
-		success &= BhNodeViewStyle.genViewStyleTemplate();
+		success = BhNodeViewStyle.genViewStyleTemplate();
+		success &= BhNodeTemplates.INSTANCE.genTemplate();
 		success &= BhNodeViewStyle.checkNodeIdAndNodeTemplate();
 		if (!success)
 			System.exit(-1);

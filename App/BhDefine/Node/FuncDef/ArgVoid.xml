@@ -1,8 +1,9 @@
 <?xml version="1.0" ?>
 
 <Node
-	type="void" 
+	type="noContent"
 	bhNodeID="idArgVoid" 
 	name="ArgVoid" 
-	nodeStyleID="ArgVoid.json">
+	nodeStyleID="ArgVoid.json"
+	initString="">
 </Node>

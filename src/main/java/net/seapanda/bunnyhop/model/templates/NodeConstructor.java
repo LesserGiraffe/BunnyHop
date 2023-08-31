@@ -35,7 +35,6 @@ import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
@@ -79,7 +78,8 @@ public class NodeConstructor {
 	public Optional<? extends BhNode> genTemplate(Document doc) {
 
 		if (!doc.getFirstChild().getNodeName().equals(BhParams.BhModelDef.ELEM_NAME_NODE)) {
-			MsgPrinter.INSTANCE.errMsgForDebug("ノード定義のルート要素は " + BhParams.BhModelDef.ELEM_NAME_NODE + " で始めてください.  " + doc.getBaseURI());
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				"ノード定義のルート要素は " + BhParams.BhModelDef.ELEM_NAME_NODE + " で始めてください.  " + doc.getBaseURI());
 			return Optional.empty();
 		}
 
@@ -102,11 +102,6 @@ public class NodeConstructor {
 			//<Node type="connective">
 			case CONNECTIVE:
 				templateNode = genConnectiveNode(nodeRoot);
-				break;
-
-			//<Node type="void">
-			case VOID:
-				templateNode = genVoidNode(nodeRoot);
 				break;
 
 			//<Node type="textField">
@@ -143,42 +138,45 @@ public class NodeConstructor {
 	private Optional<Map<ImitationID, BhNodeID>> genImitIDAndNodePair(Element node, BhNodeID orgNodeID, boolean canCreateImitManually) {
 
 		boolean success = true;
-		Map<ImitationID, BhNodeID> imitID_imitNodeID = new HashMap<>();
+		Map<ImitationID, BhNodeID> imitIdToImitNodeId = new HashMap<>();
 		List<Element> imitTagList = BhNodeTemplates.getElementsByTagNameFromChild(node, BhParams.BhModelDef.ELEM_NAME_IMITATION);
 
 		for (Element imitTag : imitTagList) {
-
 			ImitationID imitationID = ImitationID.create(imitTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMITATION_ID));
 			if (imitationID.equals(ImitationID.NONE)) {
-				MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ELEM_NAME_IMITATION + " タグには, "
-					+ BhParams.BhModelDef.ATTR_NAME_IMITATION_ID + " 属性を記述してください. " + node.getBaseURI());
+				MsgPrinter.INSTANCE.errMsgForDebug(
+					BhParams.BhModelDef.ELEM_NAME_IMITATION + " タグには, " +
+					BhParams.BhModelDef.ATTR_NAME_IMITATION_ID + " 属性を記述してください. " + node.getBaseURI());
 				success &= false;
 				continue;
 			}
 
 			BhNodeID imitNodeID = BhNodeID.create(imitTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID));
 			if (imitNodeID.equals(BhNodeID.NONE)) {
-				MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ELEM_NAME_IMITATION + " タグには, "
-					+ BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID + " 属性を記述してください. " + node.getBaseURI());
+				MsgPrinter.INSTANCE.errMsgForDebug(
+					BhParams.BhModelDef.ELEM_NAME_IMITATION + " タグには, " +
+					BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID + " 属性を記述してください. " + node.getBaseURI());
 				success &= false;
 				continue;
 			}
-			imitID_imitNodeID.put(imitationID, imitNodeID);
+			imitIdToImitNodeId.put(imitationID, imitNodeID);
 			registerOrgNodeIdAndImitNodeID.accept(orgNodeID, imitNodeID);
 		}
 
-		if (canCreateImitManually && (imitID_imitNodeID.get(ImitationID.MANUAL) == null)) {
-			MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ATTR_NAME_CAN_CREATE_IMIT_MANUALLY + " 属性が " + BhParams.BhModelDef.ATTR_VALUE_TRUE + " のとき "
-				+ BhParams.BhModelDef.ATTR_NAME_IMITATION_ID + " 属性に "
-				+ BhParams.BhModelDef.ATTR_VALUE_IMIT_ID_MANUAL + " を指定した"
-				+ BhParams.BhModelDef.ELEM_NAME_IMITATION + " タグを作る必要があります. " + node.getBaseURI());
+		if (canCreateImitManually && (imitIdToImitNodeId.get(ImitationID.MANUAL) == null)) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				BhParams.BhModelDef.ATTR_NAME_CAN_CREATE_IMIT_MANUALLY + " 属性が " + 
+				BhParams.BhModelDef.ATTR_VALUE_TRUE + " のとき " +
+				BhParams.BhModelDef.ATTR_NAME_IMITATION_ID + " 属性に " +
+				BhParams.BhModelDef.ATTR_VALUE_IMIT_ID_MANUAL + " を指定した" +
+				BhParams.BhModelDef.ELEM_NAME_IMITATION + " タグを作る必要があります. " + node.getBaseURI());
 			success &= false;
 		}
 		if (!success) {
 			return Optional.empty();
 		}
 
-		return Optional.of(imitID_imitNodeID);
+		return Optional.of(imitIdToImitNodeId);
 	}
 
 	/**
@@ -230,17 +228,6 @@ public class NodeConstructor {
 	}
 
 	/**
-	 * voidノード(何も繋がっていないことを表すノード)を構築する
-	 * @param node \<Node\> タグを表すオブジェクト
-	 * @return VoidNodeオブジェクト(Option)
-	 */
-	private Optional<VoidNode> genVoidNode(Element node) {
-
-		Optional<BhNodeAttributes> nodeAttrs = BhNodeAttributes.readBhNodeAttriButes(node);
-		return nodeAttrs.map(attrs -> new VoidNode(attrs));
-	}
-
-	/**
 	 * テキストフィールドを持つノードを構築する
 	 * @param node \<Node\> タグを表すオブジェクト
 	 * @param type 関連する BhNodeView の種類
@@ -270,10 +257,12 @@ public class NodeConstructor {
 		}
 
 		if (checkViewComponent && nodeAttrs.get().getNodeInputControlFileName().isEmpty()) {
-			MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ATTR_NAME_TYPE + " 属性が " + type + " の "
-				+ "<" + BhParams.BhModelDef.ELEM_NAME_NODE + "> タグは "
-				+ BhParams.BhModelDef.ATTR_NAME_NODE_INPUT_CONTROL + " 属性でGUI入力部品のfxmlファイルを指定しなければなりません.\n"
-				+ node.getBaseURI() + "\n");
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				BhParams.BhModelDef.ATTR_NAME_TYPE + " 属性が " + type + " の " +
+				"<" + BhParams.BhModelDef.ELEM_NAME_NODE + "> タグは " +
+				BhParams.BhModelDef.ATTR_NAME_NODE_INPUT_CONTROL + 
+				" 属性でGUI入力部品のfxmlファイルを指定しなければなりません.\n" +
+				node.getBaseURI() + "\n");
 			return Optional.empty();
 		}
 		else {
@@ -281,12 +270,12 @@ public class NodeConstructor {
 				nodeAttrs.get().getBhNodeID(), nodeAttrs.get().getNodeInputControlFileName());
 		}
 
-		Optional<Map<ImitationID, BhNodeID>> imitID_imitNodeID =
+		Optional<Map<ImitationID, BhNodeID>> imitIdToImitNodeId =
 			genImitIDAndNodePair(node, nodeAttrs.get().getBhNodeID(), nodeAttrs.get().getCanCreateImitManually());
-		if (!imitID_imitNodeID.isPresent())
+		if (!imitIdToImitNodeId.isPresent())
 			return Optional.empty();
 
-		return Optional.of(new TextNode(type, imitID_imitNodeID.get(), nodeAttrs.get()));
+		return Optional.of(new TextNode(type, imitIdToImitNodeId.get(), nodeAttrs.get()));
 	}
 
 	/**
@@ -415,8 +404,9 @@ public class NodeConstructor {
 
 		List<Element> privateNodeTagList = BhNodeTemplates.getElementsByTagNameFromChild(connectorTag, BhParams.BhModelDef.ELEM_NAME_NODE);
 		if (privateNodeTagList.size() >= 2) {
-			MsgPrinter.INSTANCE.errMsgForDebug("<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + "タグの下に2つ以上"
-											 +" <" + BhParams.BhModelDef.ELEM_NAME_NODE +"> タグを定義できません.\n" + connectorTag.getBaseURI());
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				"<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + "タグの下に2つ以上" +
+				" <" + BhParams.BhModelDef.ELEM_NAME_NODE +"> タグを定義できません.\n" + connectorTag.getBaseURI());
 			return Optional.empty();
 		}
 

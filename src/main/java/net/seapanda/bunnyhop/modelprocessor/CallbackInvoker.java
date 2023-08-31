@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
@@ -64,11 +63,6 @@ public class CallbackInvoker implements BhModelProcessor {
 	public void visit(ConnectiveNode node) {
 		callbackRegistry.call(node);
 		node.sendToSections(this);
-	}
-
-	@Override
-	public void visit(VoidNode node) {
-		callbackRegistry.call(node);
 	}
 
 	@Override

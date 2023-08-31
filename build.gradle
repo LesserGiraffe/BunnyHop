@@ -45,7 +45,7 @@ ext.moduleName = 'net.seapanda.bunnyhop'
 ext.mainClass = 'net.seapanda.bunnyhop.root.AppMain'
 ext.bhProgramExecModName = 'net.seapanda.bhprogramexecenv'
 ext.USR_HOME = System.getProperty('user.home')
-ext.JDK_VER = 11
+ext.JDK_VER = 17
 ext.appDirName = 'App';
 ext.ps = File.pathSeparator
 ext.fs = File.separator
@@ -153,9 +153,9 @@ def createModFromJar(libFilePath) {
 		}
 		
 		// [writing to PATH/モジュール名/module-info.java] と出力される行からモジュール名を抜き出す
-		def line = (output.toString() =~ /^.+module-info.java/)[0]
+		def line = (output.toString() =~ /.+module-info.java/)[0]
 		def modName = line.split(Pattern.quote(fs))[-2]
-		
+
 		exec {
 			commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/javac'),
 						'--patch-module', "$modName=$libFilePath",
@@ -175,7 +175,7 @@ def createModFromJar(libFilePath) {
 }
 
 task copyDependencies(type: Copy) {
-
+	
 	from configurations.default
 	into 'lib'
 	
@@ -202,7 +202,7 @@ task prepareLibs {
 }
 
 compileJava {
-
+	
 	doFirst {
 		options.fork = true
 		options.forkOptions.executable = USR_HOME + '/java/' + JDK_VER + '/jdk/bin/javac'
@@ -307,3 +307,4 @@ task runBhProgram(type: JavaExec) {
 		classpath = files()
 	}
 }
+

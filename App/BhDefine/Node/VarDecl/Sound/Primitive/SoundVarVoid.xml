@@ -1,8 +1,9 @@
 <?xml version="1.0" ?>
 
 <Node
-	type="void"
+	type="noContent"
 	bhNodeID="idSoundVarVoid"
 	name="SoundVarVoid"
-	nodeStyleID="SoundVarVoid.json">
+	nodeStyleID="SoundVarVoid.json"
+	onMovedFromChildToWS="DeleteNode.js">
 </Node>

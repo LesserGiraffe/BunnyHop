@@ -20,7 +20,6 @@ import java.util.Optional;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
@@ -92,12 +91,6 @@ public class ImitationReplacer implements BhModelProcessor {
 			//オリジナルの親ノードが持つイミテーションの数だけ, その子ノードを削除
 			removeConnectiveChild(newOriginal.findParentNode().getImitationList(), imitCnctPos);
 		}
-	}
-
-	@Override
-	public void  visit(VoidNode newOriginal) {
-		ImitationConnectionPos imitCnctPos = newOriginal.getParentConnector().getImitCnctPoint();
-		removeConnectiveChild(newOriginal.findParentNode().getImitationList(), imitCnctPos);
 	}
 
 	/**

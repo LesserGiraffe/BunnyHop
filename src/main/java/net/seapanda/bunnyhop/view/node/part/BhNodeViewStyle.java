@@ -140,7 +140,7 @@ public class BhNodeViewStyle {
 		}
 	}
 
-	/** ノードスタイルのテンプレートを格納するハッシュ. JSON ファイルの nodeStyleID がキー */
+	/** ノードスタイルのテンプレートを格納するハッシュ. xml ファイルの nodeStyleID がキー */
 	private static final HashMap<String, BhNodeViewStyle> nodeStyleIDToNodeStyleTemplate = new HashMap<>();
 	/** ノードIDとノードスタイルのペアを格納するハッシュ */
 	private static final HashMap<BhNodeID, String> nodeIdToNodeStyleID = new HashMap<>();
@@ -161,13 +161,13 @@ public class BhNodeViewStyle {
 
 	/**
 	 * コンストラクタ
-	 * */
+	 */
 	public BhNodeViewStyle() {}
 
 	/**
 	 * コピーコンストラクタ
 	 * @param org コピー元
-	 * */
+	 */
 	private BhNodeViewStyle(BhNodeViewStyle org) {
 
 		this.nodeStyleID = org.nodeStyleID;
@@ -262,7 +262,7 @@ public class BhNodeViewStyle {
 	 * @param jsonObj .JSON ファイルを読み込んで作ったトップレベルオブジェクト
 	 * @param fileName jsonObj が記述してある .JSON ファイルのファイル名
 	 * @return BhNodeViewStyle (オプション)
-	 * */
+	 */
 	private static Optional<BhNodeViewStyle> genBhNodeViewStyle(NativeObject jsonObj, String fileName, String styleID) {
 
 		BhNodeViewStyle bhNodeViewStyle = new BhNodeViewStyle();
@@ -427,7 +427,7 @@ public class BhNodeViewStyle {
 	 * BhNodeViewStyle.Connective にスタイル情報を格納する
 	 * @param jsonObj key = "connective" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .JSON ファイルの名前
-	 * */
+	 */
 	private static void fillConnectiveParams(
 		BhNodeViewStyle.Connective connectiveStyle,
 		NativeObject jsonObj,
@@ -449,7 +449,7 @@ public class BhNodeViewStyle {
 	 * @param arrangement 並べ方に関するパラメータの格納先
 	 * @param jsonObj key = "inner" または "outer" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .JSON ファイルの名前
-	 * */
+	 */
 	private static void fillArrangementParams(
 		BhNodeViewStyle.Arrangement arrangement,
 		NativeObject jsonObj,
@@ -528,7 +528,7 @@ public class BhNodeViewStyle {
 	 * @param button jsonObj の情報を格納するオブジェクト
 	 * @param jsonObj ボタンのパラメータが格納されたオブジェクト
 	 * @param fileName jsonObj が記述してある .json ファイルの名前
-	 * */
+	 */
 	private static void fillButtonParams(
 		BhNodeViewStyle.Button button,
 		NativeObject jsonObj,
@@ -556,7 +556,7 @@ public class BhNodeViewStyle {
 	 * @param textField jsonオブジェクトから読み取った内容を格納するオブジェクト
 	 * @param jsonObj key = "textField" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .json ファイルの名前
-	 * */
+	 */
 	private static void fillTextFieldParams(
 		BhNodeViewStyle.TextField textField,
 		NativeObject jsonObj,
@@ -576,7 +576,7 @@ public class BhNodeViewStyle {
 	 * @param label jsonオブジェクトから読み取った内容を格納するオブジェクト
 	 * @param jsonObj key = "label" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .json ファイルの名前
-	 * */
+	 */
 	private static void fillLabelParams(
 		BhNodeViewStyle.Label textField,
 		NativeObject jsonObj,
@@ -591,7 +591,7 @@ public class BhNodeViewStyle {
 	 * @param comboBox jsonオブジェクトから読み取った内容を格納するオブジェクト
 	 * @param jsonObj key = "comboBox" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .json ファイルの名前
-	 * */
+	 */
 	private static void fillComboBoxParams(
 		BhNodeViewStyle.ComboBox comboBox,
 		NativeObject jsonObj,
@@ -606,7 +606,7 @@ public class BhNodeViewStyle {
 	 * @param textArea jsonオブジェクトから読み取った内容を格納するオブジェクト
 	 * @param jsonObj key = "textArea" の value であるオブジェクト
 	 * @param fileName jsonObj が記述してある .json ファイルの名前
-	 * */
+	 */
 	private static void fillTextAreaParams(
 		BhNodeViewStyle.TextArea textArea,
 		NativeObject jsonObj,
@@ -634,7 +634,7 @@ public class BhNodeViewStyle {
 	 * @param jsonObj key と value が格納されているJson オブジェクト
 	 * @param fileName jsonObj を読み取ったファイルの名前
 	 * @return JsonValue オブジェクト (オプション)
-	 * */
+	 */
 	private static Optional<Object> readValue(
 		String keyName,
 		Class<?> valueType,
@@ -658,7 +658,7 @@ public class BhNodeViewStyle {
 	 * ノードIDとノードスタイルID のペアを登録する
 	 * @param nodeID ノードID (bhNodeID属性)
 	 * @param nodeStyleID ノードスタイルID (nodeStyleID属性)
-	 * */
+	 */
 	public static void putNodeID_NodeStyleID(BhNodeID nodeID, String nodeStyleID) {
 		nodeIdToNodeStyleID.put(nodeID, nodeStyleID);
 	}
@@ -667,7 +667,7 @@ public class BhNodeViewStyle {
 	 * ノードID から ノードスタイルオブジェクトを取得する
 	 * @param nodeID ノードID (bhNodeID属性)
 	 * @return ノードスタイルオブジェクト
-	 * */
+	 */
 	public static BhNodeViewStyle getNodeViewStyleFromNodeID(BhNodeID nodeID) {
 
 		String nodeStyleID = nodeIdToNodeStyleID.get(nodeID);
@@ -685,7 +685,7 @@ public class BhNodeViewStyle {
 			.map(nodeStyleID -> {
 				if (!nodeStyleIDToNodeStyleTemplate.containsKey(nodeStyleID)) {
 					MsgPrinter.INSTANCE.errMsgForDebug(
-							"A node style file " + "(" + nodeStyleID + ")" + " is not found among *.json files");
+						"A node style file " + "(" + nodeStyleID + ")" + " is not found among *.json files");
 					return false;
 				} else {
 					return true;

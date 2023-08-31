@@ -77,7 +77,7 @@ public class BhNodeHandler {
 	 * @return 削除したノードと入れ替わる子ノードが作成された場合, そのノードを返す
 	 * */
 	public Optional<BhNode> deleteNode(BhNode node, UserOperationCommand userOpeCmd) {
-
+		
 		if (!isNodeToDelete(node))
 			return Optional.empty();
 

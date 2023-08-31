@@ -27,7 +27,6 @@ import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
@@ -260,11 +259,6 @@ public class BhNodeController implements MsgProcessor {
 
 		// 子ノード入れ替え時のスクリプト実行
 		parentNode.execScriptOnChildReplaced(oldChildNode, model, parentCnctr, ddInfo.userOpeCmd);
-
-		//VoidNodeは消す
-		if (oldChildNode instanceof VoidNode &&
-			oldChildNode.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS)
-			BhNodeHandler.INSTANCE.deleteNode(oldChildNode, ddInfo.userOpeCmd);
 	}
 
 	/**

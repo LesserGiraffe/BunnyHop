@@ -11,7 +11,7 @@
 	function appendRemovedNode(newNode, oldNode, manuallyRemoved, bhNodeHandler, bhUserOpeCmd) {
 
 		let outerEnd = newNode.findOuterNode(-1);
-		if ((String(outerEnd.type) === "void") && outerEnd.canBeReplacedWith(oldNode) && !manuallyRemoved) {
+		if (outerEnd.canBeReplacedWith(oldNode) && !manuallyRemoved) {
 			bhNodeHandler.replaceChild(outerEnd, oldNode, bhUserOpeCmd);
 			bhNodeHandler.deleteNode(outerEnd, bhUserOpeCmd);
 	    }

@@ -20,7 +20,6 @@ import java.util.List;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
 
@@ -66,13 +65,6 @@ public class SyntaxErrorNodeCollector implements BhModelProcessor {
 			if (imitNode.hasSyntaxError())
 				errorNodeList.add(imitNode);
 		}
-
-		if (node.hasSyntaxError())
-			errorNodeList.add(node);
-	}
-
-	@Override
-	public void visit(VoidNode node) {
 
 		if (node.hasSyntaxError())
 			errorNodeList.add(node);

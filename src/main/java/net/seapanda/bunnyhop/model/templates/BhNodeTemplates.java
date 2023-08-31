@@ -83,7 +83,8 @@ public class BhNodeTemplates {
 
 		BhNode newNode = nodeID_nodeTemplate.get(id);
 		if (newNode == null) {
-			MsgPrinter.INSTANCE.errMsgForDebug(BhNodeTemplates.class.getSimpleName() +  ".genBhNode template not found" + id);
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				BhNodeTemplates.class.getSimpleName() +  ".genBhNode template not found" + id);
 		}
 		else {
 			newNode = newNode.copy(userOpeCmd, bhNode -> true);
@@ -289,10 +290,12 @@ public class BhNodeTemplates {
 				boolean isSameType = orgNodeOpt.get().getClass() == imitNodeOpt.get().getClass();
 				if (!isSameType) {
 					MsgPrinter.INSTANCE.errMsgForDebug(
-						BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + orgNodeOpt.get().getType() + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " は "
-					  + BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + imitNodeOpt.get().getType() + " の " + BhParams.BhModelDef.ELEM_NAME_NODE + " を "
-					  + BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID + " に指定できません. \n"
-					  + "org: " + orgID_imitID._1 + "    imit: " + orgID_imitID._2);
+						BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + orgNodeOpt.get().getType() + " の " + 
+						BhParams.BhModelDef.ELEM_NAME_NODE + " は " +
+						BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + imitNodeOpt.get().getType() + " の " + 
+						BhParams.BhModelDef.ELEM_NAME_NODE + " を " +
+						BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID + " に指定できません. \n" +
+						"org: " + orgID_imitID._1 + "    imit: " + orgID_imitID._2);
 				}
 				return isSameType;
 			})

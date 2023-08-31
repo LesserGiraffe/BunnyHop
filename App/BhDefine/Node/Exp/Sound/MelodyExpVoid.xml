@@ -1,7 +1,8 @@
 <?xml version="1.0" ?>
 <Node
-	type="void"
+	type="noContent"
 	bhNodeID="idMelodyExpVoid"
 	name="MelodyExpVoid"
-	nodeStyleID="MelodyExpVoid.json">
+	nodeStyleID="MelodyExpVoid.json"
+	initString="">
 </Node>

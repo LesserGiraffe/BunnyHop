@@ -26,12 +26,10 @@ import net.seapanda.bunnyhop.control.node.ConnectiveNodeController;
 import net.seapanda.bunnyhop.control.node.LabelNodeController;
 import net.seapanda.bunnyhop.control.node.NoContentNodeController;
 import net.seapanda.bunnyhop.control.node.TextInputNodeController;
-import net.seapanda.bunnyhop.control.node.VoidNodeController;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.VoidNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
@@ -42,7 +40,6 @@ import net.seapanda.bunnyhop.view.node.LabelNodeView;
 import net.seapanda.bunnyhop.view.node.NoContentNodeView;
 import net.seapanda.bunnyhop.view.node.TextAreaNodeView;
 import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
-import net.seapanda.bunnyhop.view.node.VoidNodeView;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 
 /**
@@ -125,22 +122,6 @@ public class NodeMVCBuilder implements BhModelProcessor {
 		addChildView(node, connectiveNodeView);
 	}
 
-	/**
-	 * node のビューとコントロールを作成しMVCとして結びつける
-	 * @param node ビューとコントロールを結びつけるノード
-	 * */
-	@Override
-	public void visit(VoidNode node) {
-
-		BhNodeViewStyle viewStyle = BhNodeViewStyle.getNodeViewStyleFromNodeID(node.getID());
-		VoidNodeView voidNodeView = new VoidNodeView(node, viewStyle);
-		if (topNodeView == null)
-			topNodeView = voidNodeView;
-
-		mvcConnector.connect(node, voidNodeView);
-		addChildView(node, voidNodeView);
-	}
-
 	@Override
 	public void visit(TextNode node) {
 
@@ -218,7 +199,6 @@ public class NodeMVCBuilder implements BhModelProcessor {
 	private interface MVCConnector {
 
 		public void connect(ConnectiveNode node, ConnectiveNodeView view);
-		public void connect(VoidNode node, VoidNodeView view);
 		public void connect(TextNode node, TextFieldNodeView view);
 		public void connect(TextNode node, LabelNodeView view);
 		public void connect(TextNode node, ComboBoxNodeView view);
@@ -234,12 +214,6 @@ public class NodeMVCBuilder implements BhModelProcessor {
 		@Override
 		public void connect(ConnectiveNode node, ConnectiveNodeView view) {
 			var controller = new ConnectiveNodeController(node, view);
-			node.setMsgProcessor(controller);
-		}
-
-		@Override
-		public void connect(VoidNode node, VoidNodeView view) {
-			var controller = new VoidNodeController(node, view);
 			node.setMsgProcessor(controller);
 		}
 
@@ -283,14 +257,6 @@ public class NodeMVCBuilder implements BhModelProcessor {
 
 		@Override
 		public void connect(ConnectiveNode node, ConnectiveNodeView view) {
-			if (rootView == null)
-				rootView = view;
-			var control = new BhNodeControllerInSelectionView(node, view, rootView);
-			node.setMsgProcessor(control);
-		}
-
-		@Override
-		public void connect(VoidNode node, VoidNodeView view) {
 			if (rootView == null)
 				rootView = view;
 			var control = new BhNodeControllerInSelectionView(node, view, rootView);
