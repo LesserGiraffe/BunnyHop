@@ -11,11 +11,10 @@
 			name="SyncTimer"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idSyncTimerVar.prvNode0"
 				name="SyncTimer"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="処理待ちタイマー">
 			</Node>
 		</PrivateConnector>

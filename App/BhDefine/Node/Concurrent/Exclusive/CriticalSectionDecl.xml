@@ -4,10 +4,10 @@
 	name="CriticalSectionDecl"
 	nodeStyleID="CriticalSectionDecl.json"
 	onPrivateTemplateCreating="CreateImitIdManualPrivateTemplate.js"
-	onMovedFromChildToWS="onGlobalDataDeclMovedToWS.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idCriticalSectionStat"/>
 
@@ -18,11 +18,10 @@
 			name="haita"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idCriticalSectionDecl.prvNode0"
 				name="haita"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="排他区間">
 			</Node>
 		</PrivateConnector>

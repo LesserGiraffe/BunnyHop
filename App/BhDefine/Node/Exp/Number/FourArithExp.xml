@@ -1,9 +1,8 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idFourArithExp"
 	name="FourArithExp"
-	nodeStyleID="FourArithExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="FourArithExp.json">
 
 	<ConnectorSection name="NumberExpSctn">
 		<Connector bhConnectorID="idNumExpCnctr" name="LeftExp"/>
@@ -13,11 +12,11 @@
 			name="Operator"
     		fixed="true">
 			<Node
-				type="comboBox"
+				type="text"
 				bhNodeID="idFourArithExp.prvNode0"
 				name="FourArithOpe"
 				nodeStyleID="DefaultComboBox.json"
-				nodeInputControl="FourArithOpe.fxml">
+				onViewContentsCreating="CreateFourArithOps.js">
 			</Node>
 		</PrivateConnector>
 		

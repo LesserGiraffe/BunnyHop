@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -39,7 +40,6 @@ import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
-import net.seapanda.bunnyhop.view.node.part.ComponentLoader;
 import net.seapanda.bunnyhop.view.node.part.ImitationCreationButton;
 import net.seapanda.bunnyhop.view.node.part.PrivateTemplateCreationButton;
 import net.seapanda.bunnyhop.view.node.part.SelectableItem;
@@ -64,7 +64,7 @@ public final class ComboBoxNodeView extends BhNodeView {
 	 * @throws ViewInitializationException ノードビューの初期化に失敗
 	 */
 	public ComboBoxNodeView(TextNode model, BhNodeViewStyle viewStyle)
-		throws ViewInitializationException {
+			throws ViewInitializationException {
 
 		super(viewStyle, model);
 		this.model = model;
@@ -73,22 +73,26 @@ public final class ComboBoxNodeView extends BhNodeView {
 
 	private void init() throws ViewInitializationException {
 
-		var comboBoxOpt = ComponentLoader.<ComboBox<SelectableItem>>loadComponent(model.getID());
-		comboBox = comboBoxOpt.orElseThrow(() -> new ViewInitializationException(
-			getClass().getSimpleName() + "  failed To load the ComboBox of this view."));
+		var contents = model.<List<?>>getViewContents().stream()
+			.map(item -> (SelectableItem)item).toList();
+		comboBox.setItems(FXCollections.observableArrayList(contents));
 		getTreeManager().addChild(comboBox);
 
 		if (model.canCreateImitManually) {
-			var imitButtonOpt = ImitationCreationButton.create(model, viewStyle.imitation);
-			var imitButton = imitButtonOpt.orElseThrow(() -> new ViewInitializationException(
-				getClass().getSimpleName() + "  failed To load the Imitation Creation Button of this view."));
+			ImitationCreationButton imitButton = 
+				ImitationCreationButton.create(model, viewStyle.imitation)
+				.orElseThrow(() -> new ViewInitializationException(
+					getClass().getSimpleName() +
+					"  failed To load the Imitation Creation Button of this view."));
 			getTreeManager().addChild(imitButton);
 		}
 
 		if (model.hasPrivateTemplateNodes()) {
-			var privateTemplateBtnOpt = PrivateTemplateCreationButton.create(model, viewStyle.privatTemplate);
-			var privateTemplateBtn = privateTemplateBtnOpt.orElseThrow(() -> new ViewInitializationException(
-				getClass().getSimpleName() + "  failed To load the Private Template Button of this view."));
+			PrivateTemplateCreationButton privateTemplateBtn = 
+				PrivateTemplateCreationButton.create(model, viewStyle.privatTemplate)
+				.orElseThrow(() -> new ViewInitializationException(
+					getClass().getSimpleName() +
+					"  failed To load the Private Template Button of this view."));
 			getTreeManager().addChild(privateTemplateBtn);
 		}
 
@@ -137,8 +141,7 @@ public final class ComboBoxNodeView extends BhNodeView {
 		try {
 			MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<TextNodeView" + ">   " + this.hashCode());
 			MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<content" + ">   " + comboBox.getValue());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			MsgPrinter.INSTANCE.msgForDebug("TextNodeView show exception " + e);
 		}
 	}
@@ -178,9 +181,9 @@ public final class ComboBoxNodeView extends BhNodeView {
 	}
 
 	/**
-	 * 引数で指定したモデルテキストを持つアイテムを取得する
-	 * @param modelText このテキストをモデルテキストとして持つコンボボックスのアイテムを見つける
-	 * @return 引数で指定したモデルテキストを持つアイテム
+	 * 引数で指定した文字列を modelText として持つ SelectableItem を取得する
+	 * @param modelText このテキストを modelText として持つ SelectableItem を見つける
+	 * @return 引数で指定した文字列を modelText として持つ SelectableItem
 	 */
 	public Optional<SelectableItem> getItemByModelText(String modelText) {
 
@@ -207,7 +210,7 @@ public final class ComboBoxNodeView extends BhNodeView {
 		ScrollBar result = null;
 		for (Node node : buttonCell.getListView().lookupAll(".scroll-bar")) {
 			if (node instanceof ScrollBar) {
-				ScrollBar bar = (ScrollBar)node;
+				ScrollBar bar = (ScrollBar) node;
 				if (bar.getOrientation().equals(Orientation.VERTICAL)) {
 					result = bar;
 				}
@@ -238,9 +241,9 @@ public final class ComboBoxNodeView extends BhNodeView {
 	private void setComboBoxEventHandlers() {
 
 		comboBox.addEventFilter(Event.ANY, this::propagateEvent);
-		comboBox.setOnShowing(event -> 	fitComboBoxWidthToListWidth());
-		comboBox.setOnHidden(
-			event-> fitComboBoxWidthToContentWidth(comboBox.getValue().getViewText(), buttonCell.getFont()));
+		comboBox.setOnShowing(event -> fitComboBoxWidthToListWidth());
+		comboBox.setOnHidden(event -> 
+			fitComboBoxWidthToContentWidth(comboBox.getValue().getViewText(), buttonCell.getFont()));
 	}
 
 	private void propagateEvent(Event event) {
@@ -293,7 +296,9 @@ public final class ComboBoxNodeView extends BhNodeView {
 	public class ComboBoxNodeListCell extends ListCell<SelectableItem> {
 
 		SelectableItem item;
-		public ComboBoxNodeListCell() {}
+
+		public ComboBoxNodeListCell() {
+		}
 
 		@Override
 		protected void updateItem(SelectableItem item, boolean empty) {
@@ -307,14 +312,3 @@ public final class ComboBoxNodeView extends BhNodeView {
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-

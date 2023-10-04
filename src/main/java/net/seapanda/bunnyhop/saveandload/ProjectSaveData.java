@@ -29,7 +29,7 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceController;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
 import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;

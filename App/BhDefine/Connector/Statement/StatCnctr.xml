@@ -1,6 +1,4 @@
-<?xml version="1.0" ?>
-
 <Connector 
 	bhConnectorID="idStatCnctr"
 	defaultBhNodeID="idVoidStat"
-    replaceabilityChecker="StatCnct.js"/>
+    onConnectabilityChecking="StatCnct.js"/>

@@ -1,12 +1,9 @@
-<?xml version="1.0" ?>
-
 <Node
-	type="textField"
+	type="text"
 	bhNodeID="idFuncName"
 	name="FuncName"
 	nodeStyleID="Identifier.json"
-	nodeInputControl="TextField.fxml"
-	textAcceptabilityChecker="CheckIdentifierFormat.js"
+	onTextChecking="CheckIdentifierFormat.js"
     initString="機能名">
 
     <Imitation imitationID="imitIdFuncName" imitationNodeID="idFuncName"/>

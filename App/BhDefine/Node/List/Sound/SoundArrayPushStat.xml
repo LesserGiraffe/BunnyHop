@@ -1,12 +1,13 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idSoundArrayPushStat"
 	name="SoundArrayPushStat"
 	nodeStyleID="SoundArrayPushStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idSoundListCnctr" name="Arg0"/>
@@ -16,11 +17,10 @@
 			name="noMatsubiNi"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idSoundArrayPushStat.prvNode0"
 				name="noMatsubiNi"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="の末尾に">
 			</Node>
 		</PrivateConnector>
@@ -32,11 +32,10 @@
 			name="woTsuikaSuru"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idSoundArrayPushStat.prvNode1"
 				name="woTsuikaSuru"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="を追加する">
 			</Node>
 		</PrivateConnector>

@@ -1,11 +1,11 @@
 (function() {
 
-	let section = bhReplacedNewNode.findSymbolInDescendants('*');
+	let section = bhNodeToConnect.findSymbolInDescendants('*');
 	let sectionName = null;
 	if (section !== null) {
 		sectionName = String(section.getSymbolName());
 	}
 
-	return sectionName === 'SoundExpSctn' ||
+	return sectionName === 'NumberExpSctn' ||
 		   sectionName === 'AnyExpSctn';
 })();

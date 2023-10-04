@@ -3,11 +3,11 @@
 	bhNodeID="idColorArrayAppendStat"
 	name="ColorArrayAppendStat"
 	nodeStyleID="ColorArrayAppendStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idColorListCnctr" name="Arg0"/>
@@ -17,11 +17,10 @@
 			name="ni"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idColorArrayAppendStat.prvNode0"
 				name="ni"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="に">
 			</Node>
 		</PrivateConnector>
@@ -33,11 +32,10 @@
 			name="noYosoWoSubeteTsuikaSuru"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idColorArrayAppendStat.prvNode1"
 				name="noYosoWoSubeteTsuikaSuru"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="の要素を全て追加する">
 			</Node>
 		</PrivateConnector>

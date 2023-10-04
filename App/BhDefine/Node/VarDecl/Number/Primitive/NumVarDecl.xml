@@ -1,12 +1,13 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idNumVarDecl"
 	name="NumVarDecl"
 	nodeStyleID="NumVarDecl.json"
 	onPrivateTemplateCreating="CreateVarDeclPrivateTemplate.js"
-	onMovedFromChildToWS="onVarDeclMovedToWS.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnVarDeclMovedToWS.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idNumVar"/>
 	<Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idNumArg"/>

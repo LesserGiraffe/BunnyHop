@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * 関数定義のコード生成を行うクラス

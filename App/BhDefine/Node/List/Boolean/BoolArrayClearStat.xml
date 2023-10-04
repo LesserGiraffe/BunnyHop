@@ -3,11 +3,11 @@
 	bhNodeID="idBoolArrayClearStat"
 	name="BoolArrayClearStat"
 	nodeStyleID="BoolArrayClearStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idBoolListCnctr" name="Arg0"/>
@@ -17,11 +17,10 @@
 			name="noYosoWoSubeteKesu"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idBoolArrayClearStat.prvNode0"
 				name="noYosoWoSubeteKesu"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="の要素を全て消す">
 			</Node>
 		</PrivateConnector>

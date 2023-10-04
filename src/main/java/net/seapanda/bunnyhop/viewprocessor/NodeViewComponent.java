@@ -24,6 +24,6 @@ public interface NodeViewComponent {
 	/**
 	 * visitor に自オブジェクトを渡す
 	 * @param visitor 自オブジェクトを渡すvisitor
-	 * */
+	 */
 	public void accept(NodeViewProcessor visitor) ;
 }

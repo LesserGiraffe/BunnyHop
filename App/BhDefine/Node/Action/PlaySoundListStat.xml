@@ -2,11 +2,11 @@
 	bhNodeID="idPlaySoundListStat"
 	name="PlaySoundListStat"
 	nodeStyleID="PlayMelodyStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<PrivateConnector 
@@ -14,11 +14,10 @@
 			name="ensouSuru"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idPlaySoundListStat.prvNode0"
 				name="ensouSuru"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="演奏する">
 			</Node>
 		</PrivateConnector>
@@ -29,7 +28,7 @@
 			name="Arg1"
 			fixed="true">
 			<Node
-				type="noView"
+				type="text"
 				bhNodeID="idPlaySoundListStat.prvNode1"
 				name="BoolLiteral"
 				initString="false"/>

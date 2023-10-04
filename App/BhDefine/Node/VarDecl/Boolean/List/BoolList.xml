@@ -3,7 +3,7 @@
 	bhNodeID="idBoolList"
 	name="BoolList"
 	nodeStyleID="BoolList.json"
-	syntaxErrorChecker="isOutOfScope.js">
+	onSyntaxChecking="IsOutOfScope.js">
 
 	<ConnectorSection name="BooleanListSctn">
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
@@ -13,11 +13,10 @@
 			name="ListSign"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idBoolList.prvNode0"
 				name="ListSign"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="[...]">
 			</Node>
 		</PrivateConnector>

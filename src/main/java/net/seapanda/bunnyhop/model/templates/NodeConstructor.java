@@ -36,7 +36,7 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeType;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.model.node.connective.ConnectorID;
@@ -45,7 +45,6 @@ import net.seapanda.bunnyhop.model.node.connective.Section;
 import net.seapanda.bunnyhop.model.node.connective.Subsection;
 import net.seapanda.bunnyhop.model.node.imitation.ImitationConnectionPos;
 import net.seapanda.bunnyhop.model.node.imitation.ImitationID;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 
 /**
  * \<Node\> タグ以下の情報からBhNodeを作成する
@@ -77,9 +76,9 @@ public class NodeConstructor {
 	 */
 	public Optional<? extends BhNode> genTemplate(Document doc) {
 
-		if (!doc.getFirstChild().getNodeName().equals(BhParams.BhModelDef.ELEM_NAME_NODE)) {
+		if (!doc.getFirstChild().getNodeName().equals(BhParams.BhModelDef.ELEM_NODE)) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				"ノード定義のルート要素は " + BhParams.BhModelDef.ELEM_NAME_NODE + " で始めてください.  " + doc.getBaseURI());
+				"ノード定義のルート要素は " + BhParams.BhModelDef.ELEM_NODE + " で始めてください.  " + doc.getBaseURI());
 			return Optional.empty();
 		}
 
@@ -95,8 +94,8 @@ public class NodeConstructor {
 	public Optional<? extends BhNode> genTemplate(Element nodeRoot) {
 
 		Optional<? extends BhNode> templateNode = Optional.empty();
-		String typeName = nodeRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_TYPE);
-		BhNodeViewType type = BhNodeViewType.toType(typeName);
+		String typeName = nodeRoot.getAttribute(BhParams.BhModelDef.ATTR_TYPE);
+		BhNodeType type = BhNodeType.toType(typeName);
 
 		switch (type) {
 			//<Node type="connective">
@@ -104,25 +103,15 @@ public class NodeConstructor {
 				templateNode = genConnectiveNode(nodeRoot);
 				break;
 
-			//<Node type="textField">
-			//<Node type="comboBox">
-			//<Node type="label">
-			case TEXT_FIELD:
-			case COMBO_BOX:
-			case LABEL:
-			case TEXT_AREA:
-				templateNode = genTextNode(nodeRoot, type, true);
-				break;
-			//<Node type="noView">
-			//<Node type="noContent">
-			case NO_VIEW:
-			case NO_CONTENT:
-				templateNode = genTextNode(nodeRoot, type, false);
+			//<Node type="text">
+			case TEXT:
+				templateNode = genTextNode(nodeRoot);
 				break;
 
 			default:
 				MsgPrinter.INSTANCE.errMsgForDebug(
-					BhParams.BhModelDef.ATTR_NAME_TYPE + "=" + type + " はサポートされていません.\n" + nodeRoot.getBaseURI() + "\n");
+					BhParams.BhModelDef.ATTR_TYPE + "=" + type + " はサポートされていません.\n" 
+					+ nodeRoot.getBaseURI() + "\n");
 				break;
 		}
 		return templateNode;
@@ -139,23 +128,23 @@ public class NodeConstructor {
 
 		boolean success = true;
 		Map<ImitationID, BhNodeID> imitIdToImitNodeId = new HashMap<>();
-		List<Element> imitTagList = BhNodeTemplates.getElementsByTagNameFromChild(node, BhParams.BhModelDef.ELEM_NAME_IMITATION);
+		List<Element> imitTagList = BhNodeTemplates.getElementsByTagNameFromChild(node, BhParams.BhModelDef.ELEM_IMITATION);
 
 		for (Element imitTag : imitTagList) {
-			ImitationID imitationID = ImitationID.create(imitTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMITATION_ID));
+			ImitationID imitationID = ImitationID.create(imitTag.getAttribute(BhParams.BhModelDef.ATTR_IMITATION_ID));
 			if (imitationID.equals(ImitationID.NONE)) {
 				MsgPrinter.INSTANCE.errMsgForDebug(
-					BhParams.BhModelDef.ELEM_NAME_IMITATION + " タグには, " +
-					BhParams.BhModelDef.ATTR_NAME_IMITATION_ID + " 属性を記述してください. " + node.getBaseURI());
+					BhParams.BhModelDef.ELEM_IMITATION + " タグには, " +
+					BhParams.BhModelDef.ATTR_IMITATION_ID + " 属性を記述してください. " + node.getBaseURI());
 				success &= false;
 				continue;
 			}
 
-			BhNodeID imitNodeID = BhNodeID.create(imitTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID));
+			BhNodeID imitNodeID = BhNodeID.create(imitTag.getAttribute(BhParams.BhModelDef.ATTR_IMITATION_NODE_ID));
 			if (imitNodeID.equals(BhNodeID.NONE)) {
 				MsgPrinter.INSTANCE.errMsgForDebug(
-					BhParams.BhModelDef.ELEM_NAME_IMITATION + " タグには, " +
-					BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID + " 属性を記述してください. " + node.getBaseURI());
+					BhParams.BhModelDef.ELEM_IMITATION + " タグには, " +
+					BhParams.BhModelDef.ATTR_IMITATION_NODE_ID + " 属性を記述してください. " + node.getBaseURI());
 				success &= false;
 				continue;
 			}
@@ -165,11 +154,11 @@ public class NodeConstructor {
 
 		if (canCreateImitManually && (imitIdToImitNodeId.get(ImitationID.MANUAL) == null)) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhParams.BhModelDef.ATTR_NAME_CAN_CREATE_IMIT_MANUALLY + " 属性が " + 
-				BhParams.BhModelDef.ATTR_VALUE_TRUE + " のとき " +
-				BhParams.BhModelDef.ATTR_NAME_IMITATION_ID + " 属性に " +
-				BhParams.BhModelDef.ATTR_VALUE_IMIT_ID_MANUAL + " を指定した" +
-				BhParams.BhModelDef.ELEM_NAME_IMITATION + " タグを作る必要があります. " + node.getBaseURI());
+				BhParams.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY + " 属性が " + 
+				BhParams.BhModelDef.ATTR_VAL_TRUE + " のとき " +
+				BhParams.BhModelDef.ATTR_IMITATION_ID + " 属性に " +
+				BhParams.BhModelDef.ATTR_VAL_IMIT_ID_MANUAL + " を指定した" +
+				BhParams.BhModelDef.ELEM_IMITATION + " タグを作る必要があります. " + node.getBaseURI());
 			success &= false;
 		}
 		if (!success) {
@@ -187,24 +176,24 @@ public class NodeConstructor {
 	private Optional<ConnectiveNode> genConnectiveNode(Element node) {
 
 		Optional<BhNodeAttributes> nodeAttrs = BhNodeAttributes.readBhNodeAttriButes(node);
-		if (!nodeAttrs.isPresent()) {
+		if (nodeAttrs.isEmpty()) {
 			return Optional.empty();
 		}
 
 		Optional<ArrayList<Section>> childSection = genSectionList(node);
-		if (!childSection.isPresent()) {
+		if (childSection.isEmpty()) {
 			return Optional.empty();
 		}
 
 		if (childSection.get().size() != 1) {
-			MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ATTR_NAME_TYPE + " が "
-				+ BhParams.BhModelDef.ATTR_VALUE_CONNECTIVE + " の "
-				+ BhParams.BhModelDef.ELEM_NAME_NODE + " タグは, "
-				+ BhParams.BhModelDef.ELEM_NAME_SECTION + " または " + BhParams.BhModelDef.ELEM_NAME_CONNECTOR_SECTION + " 子タグを1つ持たなければなりません. " + node.getBaseURI());
+			MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ATTR_TYPE + " が "
+				+ BhParams.BhModelDef.ATTR_VAL_CONNECTIVE + " の "
+				+ BhParams.BhModelDef.ELEM_NODE + " タグは, "
+				+ BhParams.BhModelDef.ELEM_SECTION + " または " + BhParams.BhModelDef.ELEM_CONNECTOR_SECTION + " 子タグを1つ持たなければなりません. " + node.getBaseURI());
 			return Optional.empty();
 		}
 
-		//実行時スクリプトチェック
+		//実行時スクリプト存在チェック
 		boolean allScriptsFound = BhNodeTemplates.allScriptsExist(
 			node.getBaseURI(),
 			nodeAttrs.get().getOnMovedFromChildToWS(),
@@ -213,7 +202,7 @@ public class NodeConstructor {
 			nodeAttrs.get().getOnDeletionRequested(),
 			nodeAttrs.get().getOnCutRequested(),
 			nodeAttrs.get().getOnCopyRequested(),
-			nodeAttrs.get().getSyntaxErrorChecker(),
+			nodeAttrs.get().getOnSyntaxChecking(),
 			nodeAttrs.get().getOnPrivateTemplateCreating());
 		if (!allScriptsFound)
 			return Optional.empty();
@@ -221,7 +210,7 @@ public class NodeConstructor {
 		BhNodeID orgNodeID = nodeAttrs.get().getBhNodeID();
 		Optional<Map<ImitationID, BhNodeID>> imitIdToImitNodeID =
 			genImitIDAndNodePair(node, orgNodeID, nodeAttrs.get().getCanCreateImitManually());
-		if (!imitIdToImitNodeID.isPresent())
+		if (imitIdToImitNodeID.isEmpty())
 			return Optional.empty();
 
 		return Optional.of(new ConnectiveNode(childSection.get().get(0), imitIdToImitNodeID.get(), nodeAttrs.get()));
@@ -234,48 +223,36 @@ public class NodeConstructor {
 	 * @param checkViewComponent GUI部品の有無をチェックする場合true
 	 * @return TextFieldオブジェクト (Option)
 	 */
-	private Optional<TextNode> genTextNode(Element node, BhNodeViewType type, boolean checkViewComponent) {
+	private Optional<TextNode> genTextNode(Element node) {
 
 		Optional<BhNodeAttributes> nodeAttrs = BhNodeAttributes.readBhNodeAttriButes(node);
-		if (!nodeAttrs.isPresent()) {
+		if (nodeAttrs.isEmpty()) {
 			return Optional.empty();
 		}
 
-		//実行時スクリプトチェック
-		boolean allScriptsFound = BhNodeTemplates.allScriptsExist(node.getBaseURI(),
+		//実行時スクリプト存在チェック
+		boolean allScriptsFound = BhNodeTemplates.allScriptsExist(
+			node.getBaseURI(),
 			nodeAttrs.get().getOnMovedFromChildToWS(),
 			nodeAttrs.get().getOnMovedToChild(),
-			nodeAttrs.get().getTextAcceptabilityChecker(),
+			nodeAttrs.get().getOnTextChecking(),
 			nodeAttrs.get().getOnDeletionRequested(),
 			nodeAttrs.get().getOnCutRequested(),
 			nodeAttrs.get().getOnCopyRequested(),
-			nodeAttrs.get().getTextFormatter(),
-			nodeAttrs.get().getSyntaxErrorChecker(),
-			nodeAttrs.get().getOnPrivateTemplateCreating());
+			nodeAttrs.get().getOnTextFormatting(),
+			nodeAttrs.get().getOnSyntaxChecking(),
+			nodeAttrs.get().getOnPrivateTemplateCreating(),
+			nodeAttrs.get().getOnViewContentsCreating());
 		if (!allScriptsFound) {
 			return Optional.empty();
 		}
 
-		if (checkViewComponent && nodeAttrs.get().getNodeInputControlFileName().isEmpty()) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhParams.BhModelDef.ATTR_NAME_TYPE + " 属性が " + type + " の " +
-				"<" + BhParams.BhModelDef.ELEM_NAME_NODE + "> タグは " +
-				BhParams.BhModelDef.ATTR_NAME_NODE_INPUT_CONTROL + 
-				" 属性でGUI入力部品のfxmlファイルを指定しなければなりません.\n" +
-				node.getBaseURI() + "\n");
-			return Optional.empty();
-		}
-		else {
-			BhNodeViewStyle.nodeIdToInputControlFileName.put(
-				nodeAttrs.get().getBhNodeID(), nodeAttrs.get().getNodeInputControlFileName());
-		}
-
 		Optional<Map<ImitationID, BhNodeID>> imitIdToImitNodeId =
 			genImitIDAndNodePair(node, nodeAttrs.get().getBhNodeID(), nodeAttrs.get().getCanCreateImitManually());
-		if (!imitIdToImitNodeId.isPresent())
+		if (imitIdToImitNodeId.isEmpty())
 			return Optional.empty();
 
-		return Optional.of(new TextNode(type, imitIdToImitNodeId.get(), nodeAttrs.get()));
+		return Optional.of(new TextNode(imitIdToImitNodeId.get(), nodeAttrs.get()));
 	}
 
 	/**
@@ -300,10 +277,10 @@ public class NodeConstructor {
 				continue;
 			}
 
-			if (childNode.getNodeName().equals(BhParams.BhModelDef.ELEM_NAME_CONNECTOR_SECTION)) {	//parentTag の子ノードの名前が ConnectorSection
+			if (childNode.getNodeName().equals(BhParams.BhModelDef.ELEM_CONNECTOR_SECTION)) {	//parentTag の子ノードの名前が ConnectorSection
 				Optional<ConnectorSection> connectorGroup = genConnectorSection((Element) childNode);
 				sectionListTmp.add(connectorGroup);
-			} else if (childNode.getNodeName().equals(BhParams.BhModelDef.ELEM_NAME_SECTION)) {	//parentTag の子ノードの名前が Section
+			} else if (childNode.getNodeName().equals(BhParams.BhModelDef.ELEM_SECTION)) {	//parentTag の子ノードの名前が Section
 				Optional<Subsection> subsection = genSection((Element) childNode);
 				sectionListTmp.add(subsection);
 			}
@@ -326,7 +303,7 @@ public class NodeConstructor {
 	 */
 	private Optional<Subsection> genSection(Element section) {
 
-		String groupName = section.getAttribute(BhParams.BhModelDef.ATTR_NAME_NAME);
+		String groupName = section.getAttribute(BhParams.BhModelDef.ATTR_NAME);
 		Optional<ArrayList<Section>> childSectionListOpt = genSectionList(section);	//このSubsection オブジェクトが持つセクションリスト
 		return childSectionListOpt.map(sectionList -> new Subsection(groupName, sectionList));
 	}
@@ -338,24 +315,24 @@ public class NodeConstructor {
 	 */
 	private Optional<ConnectorSection> genConnectorSection(Element connectorSection) {
 
-		String sectionName = connectorSection.getAttribute(BhParams.BhModelDef.ATTR_NAME_NAME);
-		Collection<Element> connectorTags = BhNodeTemplates.getElementsByTagNameFromChild(connectorSection, BhParams.BhModelDef.ELEM_NAME_CONNECTOR);
-		Collection<Element> privateCnctrTags = BhNodeTemplates.getElementsByTagNameFromChild(connectorSection, BhParams.BhModelDef.ELEM_NAME_PRIVATE_CONNECTOR);
+		String sectionName = connectorSection.getAttribute(BhParams.BhModelDef.ATTR_NAME);
+		Collection<Element> connectorTags = BhNodeTemplates.getElementsByTagNameFromChild(connectorSection, BhParams.BhModelDef.ELEM_CONNECTOR);
+		Collection<Element> privateCnctrTags = BhNodeTemplates.getElementsByTagNameFromChild(connectorSection, BhParams.BhModelDef.ELEM_PRIVATE_CONNECTOR);
 		List<Connector> cnctrList = new ArrayList<>();
 		List<ConnectorSection.CnctrInstantiationParams> cnctrInstantiationParamsList = new ArrayList<>();
 
 		if (connectorTags.isEmpty() && privateCnctrTags.isEmpty()) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				"<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR_SECTION + ">" + " タグは最低一つ " +
-				"<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + "> タグか" +
-				"<" + BhParams.BhModelDef.ELEM_NAME_PRIVATE_CONNECTOR + "> タグを" +
+				"<" + BhParams.BhModelDef.ELEM_CONNECTOR_SECTION + ">" + " タグは最低一つ " +
+				"<" + BhParams.BhModelDef.ELEM_CONNECTOR + "> タグか" +
+				"<" + BhParams.BhModelDef.ELEM_PRIVATE_CONNECTOR + "> タグを" +
 					"持たなければなりません.  " + connectorSection.getBaseURI());
 			return Optional.empty();
 		}
 
 		for (Element connectorTag : connectorTags) {
 			Optional<Pair<Connector, ConnectorSection.CnctrInstantiationParams>> cnctr_instParams = getConnector(connectorTag);
-			if (!cnctr_instParams.isPresent()) {
+			if (cnctr_instParams.isEmpty()) {
 				return Optional.empty();
 			}
 			cnctrList.add(cnctr_instParams.get()._1);
@@ -364,7 +341,7 @@ public class NodeConstructor {
 
 		for (Element connectorTag : privateCnctrTags) {
 			Optional<Pair<Connector, ConnectorSection.CnctrInstantiationParams>> cnctrAndInstParams = genPrivateConnector(connectorTag);
-			if (!cnctrAndInstParams.isPresent()) {
+			if (cnctrAndInstParams.isEmpty()) {
 				return Optional.empty();
 			}
 			cnctrList.add(cnctrAndInstParams.get()._1);
@@ -381,15 +358,15 @@ public class NodeConstructor {
 	 */
 	private Optional<Pair<Connector, ConnectorSection.CnctrInstantiationParams>> getConnector(Element connectorTag) {
 
-		ConnectorID connectorID = ConnectorID.createCnctrID(connectorTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_BHCONNECTOR_ID));
+		ConnectorID connectorID = ConnectorID.createCnctrID(connectorTag.getAttribute(BhParams.BhModelDef.ATTR_BH_CONNECTOR_ID));
 		if (connectorID.equals(ConnectorID.NONE)) {
-			MsgPrinter.INSTANCE.errMsgForDebug("<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグには "
-												   + BhParams.BhModelDef.ATTR_NAME_BHCONNECTOR_ID + " 属性を記述してください.  " + connectorTag.getBaseURI());
+			MsgPrinter.INSTANCE.errMsgForDebug("<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグには "
+												   + BhParams.BhModelDef.ATTR_BH_CONNECTOR_ID + " 属性を記述してください.  " + connectorTag.getBaseURI());
 			return Optional.empty();
 		}
 
 		Optional<Connector> connectorOpt = getCnctrTemplate.apply(connectorID);
-		if (!connectorOpt.isPresent())
+		if (connectorOpt.isEmpty())
 			MsgPrinter.INSTANCE.errMsgForDebug(connectorID + " に対応するコネクタ定義が見つかりません.  " + connectorTag.getBaseURI());
 
 		return connectorOpt.map(connector -> new Pair<>(connector, genConnectorInstParams(connectorTag)));
@@ -402,11 +379,12 @@ public class NodeConstructor {
 	 */
 	private Optional<Pair<Connector, ConnectorSection.CnctrInstantiationParams>> genPrivateConnector(Element connectorTag) {
 
-		List<Element> privateNodeTagList = BhNodeTemplates.getElementsByTagNameFromChild(connectorTag, BhParams.BhModelDef.ELEM_NAME_NODE);
+		List<Element> privateNodeTagList = BhNodeTemplates.getElementsByTagNameFromChild(
+			connectorTag, BhParams.BhModelDef.ELEM_NODE);
 		if (privateNodeTagList.size() >= 2) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				"<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + "タグの下に2つ以上" +
-				" <" + BhParams.BhModelDef.ELEM_NAME_NODE +"> タグを定義できません.\n" + connectorTag.getBaseURI());
+				"<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + "タグの下に2つ以上" +
+				" <" + BhParams.BhModelDef.ELEM_NODE +"> タグを定義できません.\n" + connectorTag.getBaseURI());
 			return Optional.empty();
 		}
 
@@ -434,9 +412,9 @@ public class NodeConstructor {
 	 */
 	private ConnectorSection.CnctrInstantiationParams genConnectorInstParams(Element connectorTag) {
 
-		String imitationID = connectorTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMITATION_ID);
-		String imitCnctPoint = connectorTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_IMIT_CNCT_POS);
-		String name = connectorTag.getAttribute(BhParams.BhModelDef.ATTR_NAME_NAME);
+		String imitationID = connectorTag.getAttribute(BhParams.BhModelDef.ATTR_IMITATION_ID);
+		String imitCnctPoint = connectorTag.getAttribute(BhParams.BhModelDef.ATTR_IMIT_CNCT_POS);
+		String name = connectorTag.getAttribute(BhParams.BhModelDef.ATTR_NAME);
 		return new ConnectorSection.CnctrInstantiationParams(
 			name,
 			ImitationID.create(imitationID),
@@ -458,12 +436,13 @@ public class NodeConstructor {
 				getCnctrTemplate);
 
 		Optional<? extends BhNode> privateNodeOpt = constructor.genTemplate(nodeTag);
-		if (!privateNodeOpt.isPresent())
+		if (privateNodeOpt.isEmpty())
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				"プライベートノード(<" +  BhParams.BhModelDef.ELEM_NAME_PRIVATE_CONNECTOR + "> タグの下に定義されたノード) エラー.\n"
+				"プライベートノード(<" +  BhParams.BhModelDef.ELEM_PRIVATE_CONNECTOR + "> タグの下に定義されたノード) エラー.\n"
 				+ nodeTag.getBaseURI());
 
-		privateNodeOpt.ifPresent(privateNode -> registerNodeTemplate.accept(privateNode.getID(), privateNode));
+		privateNodeOpt.ifPresent(
+			privateNode -> registerNodeTemplate.accept(privateNode.getID(), privateNode));
 		return privateNodeOpt;
 	}
 }

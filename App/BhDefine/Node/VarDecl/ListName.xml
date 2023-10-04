@@ -1,12 +1,9 @@
-<?xml version="1.0" ?>
-
 <Node
-	type="textField"
+	type="text"
 	bhNodeID="idListName"
 	name="ListName"
 	nodeStyleID="Identifier.json"
-	nodeInputControl="TextField.fxml"
-	textAcceptabilityChecker="CheckIdentifierFormat.js"
+	onTextChecking="CheckIdentifierFormat.js"
 	initString="リスト名">
 	
 	<Imitation imitationID="imitIdListName" imitationNodeID="idListName"/>

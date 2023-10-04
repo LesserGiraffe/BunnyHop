@@ -1,9 +1,8 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idColorListArg"
 	name="ColorListArg"
-	nodeStyleID="ColorListArg.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="ColorListArg.json">
 
 	<ConnectorSection>
 		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
@@ -13,11 +12,10 @@
 			name="ListSign"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idColorListArg.prvNode0"
 				name="ListSign"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="[...]">
 			</Node>
 		</PrivateConnector>

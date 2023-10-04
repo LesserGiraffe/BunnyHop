@@ -101,7 +101,7 @@ class BhProgramManagerCommon {
 	Future<Boolean> connectAsync() {
 
 		Optional<BhProgramTransceiver> transceiver = getTransceiver();
-		if (!transceiver.isPresent()) {
+		if (transceiver.isEmpty()) {
 			MsgPrinter.INSTANCE.errMsgForUser("!! 接続失敗 (プログラム未実行) !!\n");
 			return connectTaskExec.submit(() -> false);
 		}
@@ -116,7 +116,7 @@ class BhProgramManagerCommon {
 	Future<Boolean> disconnectAsync() {
 
 		Optional<BhProgramTransceiver> transceiver = getTransceiver();
-		if (!transceiver.isPresent()) {
+		if (transceiver.isEmpty()) {
 			MsgPrinter.INSTANCE.errMsgForUser("!! 切断失敗 (プログラム未実行) !!\n");
 			return connectTaskExec.submit(() -> false);
 		}

@@ -22,7 +22,7 @@ import java.util.Optional;
 
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * イベントハンドラのコード生成を行うクラス

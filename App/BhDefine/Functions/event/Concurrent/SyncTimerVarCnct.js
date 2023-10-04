@@ -1,3 +1,3 @@
 (function() {
-	return String(bhReplacedNewNode.getSymbolName()) === 'SyncTimerVar';
+	return String(bhNodeToConnect.getSymbolName()) === 'SyncTimerVar';
 })();

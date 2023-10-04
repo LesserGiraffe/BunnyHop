@@ -2,11 +2,11 @@
 	bhNodeID="idSleepStat"
 	name="SleepStat"
 	nodeStyleID="SleepStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		
@@ -17,11 +17,10 @@
 			name="byoMatsu"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idSleepStat.prvNode0"
 				name="byoMatsu"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="秒待つ">
 			</Node>
 		</PrivateConnector>

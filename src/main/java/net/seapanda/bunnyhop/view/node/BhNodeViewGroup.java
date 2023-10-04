@@ -95,13 +95,15 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
 		Connector cnctr = view.getModel().getParentConnector();
 		if (cnctr != null) {
 			String cnctrName = cnctr.getSymbolName();
-			if (cnctrNameToNodeView.containsKey(cnctrName)) {	// このグループ内に追加すべき場所が見つかった
+			// このグループ内に追加すべき場所が見つかった
+			if (cnctrNameToNodeView.containsKey(cnctrName)) {
 				cnctrNameToNodeView.put(cnctrName, view);
 				view.getTreeManager().setParentGroup(this);
 				cnctr.setOuterFlag(!inner);
 				return true;
 			}
-			else {	//サブグループに追加する
+			//サブグループに追加する
+			else {
 				for (BhNodeViewGroup subGroup : subGroupList) {
 					if (subGroup.addNodeView(view))
 						return true;

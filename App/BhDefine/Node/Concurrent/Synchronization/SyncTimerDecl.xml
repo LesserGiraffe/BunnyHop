@@ -4,10 +4,10 @@
 	name="SyncTimerDecl"
 	nodeStyleID="SyncTimerDecl.json"
 	onPrivateTemplateCreating="CreateSyncTimerDeclPrivateTemplate.js"
-	onMovedFromChildToWS="onGlobalDataDeclMovedToWS.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idSyncTimerVar"/>
 
@@ -18,11 +18,10 @@
 			name="SyncTimer"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idSyncTimerDecl.prvNode0"
 				name="SyncTimer"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="処理待ちタイマー">
 			</Node>
 		</PrivateConnector>
@@ -38,11 +37,10 @@
 			name="autoReset"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idSyncTimerDecl.prvNode1"
 				name="autoReset"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="自動リセット">
 			</Node>
 		</PrivateConnector>
@@ -52,11 +50,11 @@
 			name="Arg1"
     		fixed="true">
 			<Node
-				type="comboBox"
+				type="text"
 				bhNodeID="idSyncTimerDecl.prvNode2"
 				name="BoolLiteral"
 				nodeStyleID="WordComboBox.json"
-				nodeInputControl="DoOrDonot.fxml">
+				onViewContentsCreating="CreateDoOrDonot.js">
 			</Node>
 		</PrivateConnector>
 
@@ -65,11 +63,10 @@
 			name="initCount"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idSyncTimerDecl.prvNode3"
 				name="initCount"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="タイマーの初期値">
 			</Node>
 		</PrivateConnector>
@@ -79,13 +76,12 @@
 			name="Arg0"
     		fixed="true">
 			<Node
-				type="textField"
+				type="text"
 				bhNodeID="idSyncTimerDecl.prvNode4"
 				name="NumLiteral"
 				nodeStyleID="FixedNumLiteral.json"
-				nodeInputControl="TextField.fxml"
-				textFormatter="FullWidthToHalfWidth.js"
-				textAcceptabilityChecker="CheckSyncTimerCount.js"
+				onTextFormatting="FullWidthToHalfWidth.js"
+				onTextChecking="CheckSyncTimerCount.js"
 				initString="1">
 			</Node>
 		</PrivateConnector>

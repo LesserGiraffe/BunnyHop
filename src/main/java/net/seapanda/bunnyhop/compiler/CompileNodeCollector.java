@@ -91,7 +91,7 @@ public class CompileNodeCollector {
 			ButtonType.NO,
 			ButtonType.YES);
 
-		if (!btnType.isPresent())
+		if (btnType.isEmpty())
 			return false;
 
 		return btnType

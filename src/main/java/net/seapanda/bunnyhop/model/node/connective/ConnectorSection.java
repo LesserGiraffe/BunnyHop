@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.imitation.ImitationConnectionPos;
 import net.seapanda.bunnyhop.model.node.imitation.ImitationID;
-import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 

@@ -1,9 +1,7 @@
 <Node type="connective"
 	  bhNodeID="idStrCompExp"
 	  name="StrCompExp"
-	  nodeStyleID="CompExp.json"
-	  onMovedFromChildToWS=""
-	  onMovedToChild="">
+	  nodeStyleID="CompExp.json">
 
 	<ConnectorSection name="BooleanExpSctn">
 		<Connector bhConnectorID="idStrExpCnctr" name="LeftExp"/>
@@ -13,11 +11,11 @@
 			name="Operator"
 			fixed="true">
 			<Node
-				type="comboBox"
+				type="text"
 				bhNodeID="idStrCompExp.prvNode0"
 				name="CompOpe"
 				nodeStyleID="DefaultComboBox.json"
-				nodeInputControl="CompOpe.fxml">
+				onViewContentsCreating="CreateCompOps.js">
 			</Node>
 		</PrivateConnector>
 		

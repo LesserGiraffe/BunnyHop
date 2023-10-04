@@ -1,11 +1,7 @@
-<?xml version="1.0" ?>
-
 <Node type="connective"
 	  bhNodeID="idStrRowChainExp"
 	  name="StrChainExp"
-	  nodeStyleID="StrChainExp.json"
-	  onMovedFromChildToWS=""
-	  onMovedToChild="">
+	  nodeStyleID="StrChainExp.json">
 
 	<ConnectorSection name="StringExpSctn">
 		<PrivateConnector

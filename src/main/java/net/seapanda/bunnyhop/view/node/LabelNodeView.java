@@ -23,7 +23,6 @@ import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
-import net.seapanda.bunnyhop.view.node.part.ComponentLoader;
 import net.seapanda.bunnyhop.view.node.part.ImitationCreationButton;
 import net.seapanda.bunnyhop.view.node.part.PrivateTemplateCreationButton;
 import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
@@ -53,22 +52,23 @@ public final class LabelNodeView extends BhNodeView {
 
 	private void init() throws ViewInitializationException {
 
-		var labelOpt = ComponentLoader.<Label>loadComponent(model.getID());
-		label = labelOpt.orElseThrow(() -> new ViewInitializationException(
-			getClass().getSimpleName() + "  failed To load the Label of this view."));
 		getTreeManager().addChild(label);
 
 		if (model.canCreateImitManually) {
-			var imitButtonOpt = ImitationCreationButton.create(model, viewStyle.imitation);
-			var imitButton = imitButtonOpt.orElseThrow(() -> new ViewInitializationException(
-				getClass().getSimpleName() + "  failed To load the Imitation Creation Button of this view."));
+			ImitationCreationButton imitButton = 
+				ImitationCreationButton.create(model, viewStyle.imitation)
+				.orElseThrow(() -> new ViewInitializationException(
+					getClass().getSimpleName() +
+					"  failed To load the Imitation Creation Button of this view."));
 			getTreeManager().addChild(imitButton);
 		}
 
 		if (model.hasPrivateTemplateNodes()) {
-			var privateTemplateBtnOpt = PrivateTemplateCreationButton.create(model, viewStyle.privatTemplate);
-			var privateTemplateBtn = privateTemplateBtnOpt.orElseThrow(() -> new ViewInitializationException(
-				getClass().getSimpleName() + "  failed To load the Private Template Button of this view."));
+			PrivateTemplateCreationButton privateTemplateBtn =
+				PrivateTemplateCreationButton.create(model, viewStyle.privatTemplate)
+				.orElseThrow(() -> new ViewInitializationException(
+					getClass().getSimpleName() +
+					"  failed To load the Private Template Button of this view."));
 			getTreeManager().addChild(privateTemplateBtn);
 		}
 

@@ -1,6 +1,4 @@
-<?xml version="1.0" ?>
-
 <Connector 
 	bhConnectorID="idSoundListCnctr"
 	defaultBhNodeID="idSoundEmptyList"
-	replaceabilityChecker="SoundListCnct.js"/>
+	onConnectabilityChecking="SoundListCnct.js"/>

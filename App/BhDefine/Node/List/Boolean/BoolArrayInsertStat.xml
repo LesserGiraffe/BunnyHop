@@ -1,12 +1,13 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idBoolArrayInsertStat"
 	name="BoolArrayInsertStat"
 	nodeStyleID="BoolArrayInsertStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idBoolListCnctr" name="Arg0"/>
@@ -16,11 +17,10 @@
 			name="no"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idBoolArrayInsertStat.prvNode0"
 				name="no"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="の">
 			</Node>
 		</PrivateConnector>
@@ -32,11 +32,10 @@
 			name="banmeNi"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idBoolArrayInsertStat.prvNode1"
 				name="banmeNi"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="番目に">
 			</Node>
 		</PrivateConnector>
@@ -48,11 +47,10 @@
 			name="woSonyuSuru"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idBoolArrayInsertStat.prvNode2"
 				name="woSonyuSuru"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="を挿入する">
 			</Node>
 		</PrivateConnector>

@@ -2,9 +2,7 @@
 	type="connective"
 	bhNodeID="idDetectColorExp"
 	name="DetectColorExp"
-	nodeStyleID="DetectColorExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="DetectColorExp.json">
 
 	<ConnectorSection name="ColorExpSctn">
 		<PrivateConnector
@@ -12,11 +10,10 @@
 			name="iroWoShutoku"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idDetectColorExp.prvNode0"
 				name="iroWoShutoku"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="検出された色">
 			</Node>
 		</PrivateConnector>

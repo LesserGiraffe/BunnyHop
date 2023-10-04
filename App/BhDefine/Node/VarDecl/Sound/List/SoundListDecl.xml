@@ -1,12 +1,13 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idSoundListDecl"
 	name="SoundListDecl"
 	nodeStyleID="SoundListDecl.json"
 	onPrivateTemplateCreating="CreateListDeclPrivateTemplate.js"
-	onMovedFromChildToWS="onVarDeclMovedToWS.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnVarDeclMovedToWS.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<Imitation imitationID="imitIdManual" imitationNodeID="idSoundList"/>
 	<Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idSoundListArg"/>
@@ -20,11 +21,10 @@
 			name="ListSign"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idSoundListDecl.prvNode0"
 				name="ListSign"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="[...]">
 			</Node>
 		</PrivateConnector>

@@ -1,7 +1,7 @@
 (function() {
 
-	let newNodeName = String(bhReplacedNewNode.getSymbolName());
-	let section = bhReplacedNewNode.findSymbolInDescendants('*');
+	let newNodeName = String(bhNodeToConnect.getSymbolName());
+	let section = bhNodeToConnect.findSymbolInDescendants('*');
 	let sectionName = null;
 	if (section !== null) {
 		sectionName = String(section.getSymbolName());

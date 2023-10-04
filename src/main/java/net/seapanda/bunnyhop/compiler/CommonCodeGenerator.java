@@ -15,7 +15,7 @@
  */
 package net.seapanda.bunnyhop.compiler;
 
-import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * @author K.Koike

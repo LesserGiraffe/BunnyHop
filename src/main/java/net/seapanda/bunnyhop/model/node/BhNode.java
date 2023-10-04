@@ -38,12 +38,11 @@ import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEventDispatcher;
-import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelprocessor.ImitationReplacer;
@@ -63,7 +62,6 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	private BhNodeEventDispatcher dispatcher = new BhNodeEventDispatcher(this);
 
 
-	private final BhNodeViewType type;	//!< ノードのタイプ (connective, void, textField, ...)
 	private BhNode lastReplaced;	//!< 最後にこのノードと入れ替わったノード
 	private boolean isDefaultNode = false;	//!< デフォルトノードである場合true
 	transient private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
@@ -122,11 +120,10 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 	 * @param type xml のtype属性
 	 * @param attrbute ノードの設定情報
 	 * */
-	protected BhNode(BhNodeViewType type, BhNodeAttributes attributes) {
+	protected BhNode(BhNodeAttributes attributes) {
 
 		super(attributes.getName());
 		this.bhID = attributes.getBhNodeID();
-		this.type = type;
 
 		registerScriptName(BhNodeEvent.ON_MOVED_FROM_CHILD_TO_WS, attributes.getOnMovedFromChildToWS());
 		registerScriptName(BhNodeEvent.ON_MOVED_TO_CHILD, attributes.getOnMovedToChild());
@@ -134,7 +131,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		registerScriptName(BhNodeEvent.ON_CUT_REQUESTED, attributes.getOnCutRequested());
 		registerScriptName(BhNodeEvent.ON_COPY_REQUESTED, attributes.getOnCopyRequested());
 		registerScriptName(BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING, attributes.getOnPrivateTemplateCreating());
-		registerScriptName(BhNodeEvent.ON_SYNTAX_ERROR_CHECKING, attributes.getSyntaxErrorChecker());
+		registerScriptName(BhNodeEvent.ON_SYNTAX_CHECKING, attributes.getOnSyntaxChecking());
 	}
 
 	/**
@@ -148,7 +145,6 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		parentConnector = null;
 		workspace = null;
 		eventToScriptName = new HashMap<>(org.eventToScriptName);
-		type = org.type;
 		lastReplaced = null;
 		isDefaultNode = org.isDefaultNode;
 
@@ -203,14 +199,6 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 
 			return State.CHILD;
 		}
-	}
-
-	/**
-	 * このノードのタイプを返す
-	 * @return このノードのタイプ
-	 */
-	public BhNodeViewType getType() {
-		return type;
 	}
 
 	/**
@@ -553,7 +541,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
 		if (getState() == BhNode.State.DELETED)
 			return false;
 
-		Optional<String> scriptName = getScriptName(BhNodeEvent.ON_SYNTAX_ERROR_CHECKING);
+		Optional<String> scriptName = getScriptName(BhNodeEvent.ON_SYNTAX_CHECKING);
 		Script syntaxErrorChecker = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
 		if (syntaxErrorChecker == null)
 			return false;

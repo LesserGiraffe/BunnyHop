@@ -37,7 +37,7 @@ module net.seapanda.bunnyhop {
 	exports net.seapanda.bunnyhop.model.templates;
 	exports net.seapanda.bunnyhop.modelservice;
 	exports net.seapanda.bunnyhop.modelprocessor;
-	exports net.seapanda.bunnyhop.model.syntaxsynbol;
+	exports net.seapanda.bunnyhop.model.syntaxsymbol;
 	exports net.seapanda.bunnyhop.common;
 	exports net.seapanda.bunnyhop.common.tools;
 	exports net.seapanda.bunnyhop.common.constant;

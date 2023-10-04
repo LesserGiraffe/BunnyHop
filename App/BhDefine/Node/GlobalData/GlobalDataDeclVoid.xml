@@ -1,5 +1,5 @@
 <Node
-	type="noContent"
+	type="text"
 	bhNodeID="idGlobalDataDeclVoid" 
 	name="GlobalDataDeclVoid" 
 	nodeStyleID="GlobalDataDeclVoid.json"

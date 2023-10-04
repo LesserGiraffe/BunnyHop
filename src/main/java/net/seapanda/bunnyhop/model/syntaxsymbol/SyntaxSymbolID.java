@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.syntaxsynbol;
+package net.seapanda.bunnyhop.model.syntaxsymbol;
 
 import java.io.Serializable;
 import java.util.Objects;

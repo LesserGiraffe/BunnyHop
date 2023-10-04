@@ -1,11 +1,9 @@
-<?xml version="1.0" ?>
-
 <Node
 	type="connective"
 	bhNodeID="idNumLiteralExp"
 	name="NumLiteralExp"
 	nodeStyleID="NumLiteralExp.json"
-	onMovedFromChildToWS="onLiteralMovedToWS.js">
+	onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
 	<ConnectorSection name="NumberExpSctn">
 
@@ -14,17 +12,15 @@
 			name="Literal"
 			fixed="true">
 			<Node
-				type="textField"
+				type="text"
 				bhNodeID="idNumLiteral"
 				name="NumLiteral"
 				nodeStyleID="NumLiteral.json"
-				nodeInputControl="TextField.fxml"
-				textFormatter="FullWidthToHalfWidth.js"
-				textAcceptabilityChecker="CheckNumFormat.js"
-				onMovedFromChildToWS="onLiteralMovedToWS.js"
+				onViewContentsCreating="CreateEyeSelection.js"
+				onTextFormatting="FullWidthToHalfWidth.js"
+				onTextChecking="CheckNumFormat.js"
 			    initString="0">
 			</Node>
 		</PrivateConnector>
 	</ConnectorSection>
 </Node>
-

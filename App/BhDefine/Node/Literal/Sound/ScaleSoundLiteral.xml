@@ -3,7 +3,7 @@
 	bhNodeID="idScaleSoundLiteral"
 	name="ScaleSoundLiteral"
 	nodeStyleID="ScaleSoundLiteral.json"
-	onMovedFromChildToWS="onLiteralMovedToWS.js">
+	onMovedFromChildToWS="OnLiteralMovedToWS.js">
 	
 	<ConnectorSection name="SoundExpSctn">
 
@@ -14,11 +14,10 @@
 			name="ByoKanNo"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idScaleSoundLiteral.prvNode0"
 				name="ByoKanNo"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="秒間の">
 			</Node>
 		</PrivateConnector>
@@ -28,11 +27,10 @@
 			name="takasa"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idScaleSoundLiteral.prvNode1"
 				name="takasa"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="高さ">
 			</Node>
 		</PrivateConnector>
@@ -42,11 +40,11 @@
 			name="Octave"
 			fixed="true">
 			<Node
-				type="comboBox"
+				type="text"
 				bhNodeID="idScaleSoundLiteral.prvNode2"
 				name="NumLiteral"
 				nodeStyleID="WordComboBox.json"
-				nodeInputControl="Octave.fxml">
+				onViewContentsCreating="CreateOctave.js">
 			</Node>
 		</PrivateConnector>
 		
@@ -55,11 +53,10 @@
 			name="no"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idScaleSoundLiteral.prvNode3"
 				name="no"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="の">
 			</Node>
 		</PrivateConnector>
@@ -69,11 +66,11 @@
 			name="ScaleSound"
 			fixed="true">
 			<Node
-				type="comboBox"
+				type="text"
 				bhNodeID="idScaleSoundLiteral.prvNode4"
 				name="NumLiteral"
 				nodeStyleID="WordComboBox.json"
-				nodeInputControl="MusicalScale.fxml">
+				onViewContentsCreating="CreateMusicalScale.js">
 			</Node>
 		</PrivateConnector>
 	</ConnectorSection>

@@ -36,9 +36,11 @@ public enum BhNodeEvent {
 	/** ユーザー操作により, このノードがコピー&ペーストされるときに発行されるイベント */
 	ON_COPY_REQUESTED,
 	/** 構文エラーをチェックするときに発行されるイベント */
-	ON_SYNTAX_ERROR_CHECKING,
+	ON_SYNTAX_CHECKING,
 	/** テキストノードのテキストを整形するときに発行されるイベント */
 	ON_TEXT_FORMATTING,
 	/** テキストノードに入力されたテキストが受理可能かどうか判断するときに発行されるイベント */
-	ON_TEXT_ACCEPTABILITY_CHECKING,
+	ON_TEXT_CHECKING,
+	/** ビューのコンテンツを生成するときに発行されるイベント */
+	ON_VIEW_CONTENTS_CREATING,
 }

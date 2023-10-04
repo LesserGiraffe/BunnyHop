@@ -1,10 +1,8 @@
-<?xml version="1.0" ?>
-
 <Node type="connective"
 	  bhNodeID="idStrRowChainLinkExp"
 	  name="StrChainLinkExp"
 	  nodeStyleID="StrRowChainLinkExp.json"
-	  onChildReplaced="onChildStrExpInChainReplaced.js">
+	  onChildReplaced="OnChildStrExpInChainReplaced.js">
 
 	<ConnectorSection name="StrChainLinkSctn">
 
@@ -15,11 +13,10 @@
 			name="StrAppendOpe"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idStrRowChainLinkExp.prvNode0"
 				name="StrAppendOpe"
 				nodeStyleID="SignLabel.json"
-				nodeInputControl="Label.fxml"
 				initString="＋">
 			</Node>
 		</PrivateConnector>

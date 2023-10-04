@@ -294,6 +294,16 @@ public class MsgService {
 	}
 
 	/**
+	 * 引数で指定した BhNode に対応する BhNodeView が存在するか調べる.
+	 * @param node このノードに対応するビューが存在するか調べる.
+	 * @return node に対応するビューが存在する場合 true
+	 */
+	public boolean hasView(BhNode node) {
+		MsgData result = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW, node);
+		return result != null;
+	}
+	
+	/**
 	 * 引数で指定したノードをワークスペース中央に表示する
 	 * @param node 中央に表示するノード
 	 */

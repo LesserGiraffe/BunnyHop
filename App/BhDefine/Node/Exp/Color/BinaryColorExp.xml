@@ -1,9 +1,8 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idBinaryColorExp"
 	name="BinaryColorExp"
-	nodeStyleID="BinaryColorExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="BinaryColorExp.json">
 
 	<ConnectorSection name="ColorExpSctn">
 		<Connector bhConnectorID="idColorExpCnctr" name="Arg0"/>
@@ -13,11 +12,11 @@
 			name="Option0"
     		fixed="true">
 			<Node
-				type="comboBox"
+				type="text"
 				bhNodeID="idBinaryColorExp.prvNode0"
 				name="StrLiteral"
 				nodeStyleID="DefaultComboBox.json"
-				nodeInputControl="AddSubOpe.fxml">
+				onViewContentsCreating="CreateAddSubOps.js">
 			</Node>
 		</PrivateConnector>
 		

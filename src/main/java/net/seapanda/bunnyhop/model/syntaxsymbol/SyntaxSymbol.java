@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.syntaxsynbol;
+package net.seapanda.bunnyhop.model.syntaxsymbol;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -65,7 +65,8 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
 	 */
 	public SyntaxSymbol findSymbolInDescendants(String... symbolNamePath) {
 
-		assert symbolNamePath.length != 0;
+		if (symbolNamePath.length == 0)
+			throw new AssertionError("The symbol name path must not be an empty string.");
 
 		List<SyntaxSymbol> foundSymbolList = new ArrayList<>();
 		findSymbolInDescendants(symbolNamePath.length, false, foundSymbolList, symbolNamePath[symbolNamePath.length - 1]);
@@ -91,7 +92,8 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
 	 */
 	public SyntaxSymbol findSymbolInAncestors(String... symbolNamePath) {
 
-		assert symbolNamePath.length != 0;
+		if (symbolNamePath.length == 0)
+			throw new AssertionError("The symbol name path must not be an empty string.");
 
 		int idx = 0;
 		SyntaxSymbol currentLevel = this;

@@ -13,42 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.node.attribute;
+package net.seapanda.bunnyhop.view.node;
 
 import net.seapanda.bunnyhop.common.constant.BhParams;
 
 /**
  * @author K.Koike
- * BhNode に関連する BhNodeView の種類
+ * GUI 要素の種類 
  */
-public enum BhNodeViewType {
+public enum ComponentType {
 
-	CONNECTIVE(BhParams.BhModelDef.ATTR_VALUE_CONNECTIVE),
-	TEXT_FIELD(BhParams.BhModelDef.ATTR_VALUE_TEXT_FIELD),
-	COMBO_BOX(BhParams.BhModelDef.ATTR_VALUE_COMBO_BOX),
-	LABEL(BhParams.BhModelDef.ATTR_VALUE_LABEL),
-	TEXT_AREA(BhParams.BhModelDef.ATTR_VALUE_TEXT_AREA),
-	NO_VIEW(BhParams.BhModelDef.ATTR_VALUE_NO_VIEW),
-	NO_CONTENT(BhParams.BhModelDef.ATTR_VALUE_NO_CONTENT),
-	VOID(BhParams.BhModelDef.ATTR_VALUE_VOID);
+	TEXT_FIELD(BhParams.NodeStyleDef.VAL_TEXT_FIELD),
+	COMBO_BOX(BhParams.NodeStyleDef.VAL_COMBO_BOX),
+	LABEL(BhParams.NodeStyleDef.VAL_LABEL),
+	TEXT_AREA(BhParams.NodeStyleDef.VAL_TEXT_AREA),
+	NONE(BhParams.NodeStyleDef.VAL_NONE);
 
 	private final String typeName;
 
-	private BhNodeViewType(String typeName) {
+	private ComponentType(String typeName) {
 		this.typeName = typeName;
 	}
 
 	/**
 	 * タイプ名から列挙子を得る
 	 */
-	public static BhNodeViewType toType(String typeName) {
+	public static ComponentType toType(String name) {
 
-		for (var type : BhNodeViewType.values())
-			if (type.getName().equals(typeName))
+		for (var type : ComponentType.values())
+			if (type.getName().equals(name))
 				return type;
 
-		throw new IllegalArgumentException(
-			BhNodeViewType.class.getSimpleName() + "  unknown BhNode type name  " + typeName);
+		throw new IllegalArgumentException("Unknown component type  " + name);
 	}
 
 	public String getName() {

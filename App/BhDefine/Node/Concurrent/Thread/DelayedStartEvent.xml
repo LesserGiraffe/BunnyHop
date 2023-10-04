@@ -1,9 +1,7 @@
 <Node type="connective"
 	bhNodeID="idDelayedStartEvent"
 	name="DelayedStartEvent"
-	nodeStyleID="DelayedStartEvent.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="DelayedStartEvent.json">
 
 	<ConnectorSection name="EventSctn">
 
@@ -12,13 +10,12 @@
 			name="TimeCnctr"
     		fixed="true">
 			<Node
-				type="textField"
+				type="text"
 				bhNodeID="idDelayedStartEvent.prvNode0"
 				name="DelayTime"
 				nodeStyleID="FixedNumLiteral.json"
-				nodeInputControl="TextField.fxml"
-				textFormatter="FullWidthToHalfWidth.js"
-				textAcceptabilityChecker="CheckNumFormat.js"
+				onTextFormatting="FullWidthToHalfWidth.js"
+				onTextChecking="CheckNumFormat.js"
 				initString="1">
 			</Node>
 		</PrivateConnector>
@@ -28,11 +25,10 @@
 			name="byoGoNiHajimeru"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idDelayedStartEvent.prvNode1"
 				name="byoGoNiHajimeru"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="秒後に始める">
 			</Node>
 		</PrivateConnector>

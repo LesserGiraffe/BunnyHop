@@ -128,7 +128,7 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
 				else {
 					allBhNodesExist &= false;
 					MsgPrinter.INSTANCE.errMsgForDebug(
-						bhNodeIDStr + " に対応する " + BhParams.BhModelDef.ELEM_NAME_NODE + " が存在しません.\n" +
+						bhNodeIDStr + " に対応する " + BhParams.BhModelDef.ELEM_NODE + " が存在しません.\n" +
 						"(" + fileName + ")");
 				}
 			}

@@ -1,12 +1,13 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idIfElseStat"
 	name="IfElseStat"
 	nodeStyleID="IfElseStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		
@@ -15,11 +16,10 @@
 			name="Moshi"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idIfElseStat.prvNode0"
 				name="Moshi"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="もし">
 			</Node>
 		</PrivateConnector>
@@ -31,11 +31,10 @@
 			name="Nara"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idIfElseStat.prvNode1"
 				name="Nara"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="なら">
 			</Node>
 		</PrivateConnector>
@@ -47,11 +46,10 @@
 			name="Sodenakereba"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idIfElseStat.prvNode2"
 				name="Sodenakereba"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="そうでないとき">
 			</Node>
 		</PrivateConnector>

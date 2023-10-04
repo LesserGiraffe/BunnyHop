@@ -68,9 +68,8 @@ public class MsgPrinter {
 					queuedMsgs.drainTo(msgList);
 					StringBuilder text = new StringBuilder();
 					msgList.forEach(msg -> text.append(msg));
-					if (!msgList.isEmpty()) {
+					if (!msgList.isEmpty())
 						mainMsgArea.appendText(text.toString());
-					}
 				}));
 		msgPrintTimer.setCycleCount(Timeline.INDEFINITE);
 		msgPrintTimer.play();

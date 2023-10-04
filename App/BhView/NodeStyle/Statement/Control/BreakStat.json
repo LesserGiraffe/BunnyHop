@@ -1,4 +1,5 @@
 {
+	"component" : "Label",
 	"paddingTop" : 1.0,
 	"paddingBottom" : 1.0,
 	"paddingLeft" : 2.5,

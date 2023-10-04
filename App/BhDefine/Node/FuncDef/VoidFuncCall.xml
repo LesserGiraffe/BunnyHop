@@ -1,12 +1,13 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idVoidFuncCall"
 	name="VoidFuncCall"
 	nodeStyleID="VoidFuncCall.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idFuncNameCnctr" name="FuncName" imitCnctPos="imitPosFuncName"/>
@@ -16,11 +17,10 @@
 			name="nyuryoku"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idVoidFuncCall.prvNode0"
 				name="nyuryoku"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="入力">
 			</Node>
 		</PrivateConnector>
@@ -32,11 +32,10 @@
 			name="shuturyoku"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idVoidFuncCall.prvNode1"
 				name="shuturyoku"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="出力">
 			</Node>
 		</PrivateConnector>
@@ -45,4 +44,3 @@
 		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
 	</ConnectorSection>
 </Node>
-

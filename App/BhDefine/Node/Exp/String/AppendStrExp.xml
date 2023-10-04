@@ -1,9 +1,8 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idAppendStrExp"
 	name="AppendStrExp"
-	nodeStyleID="AppendStrExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="AppendStrExp.json">
 
 	<ConnectorSection name="StringExpSctn">
 		<Connector bhConnectorID="idStrExpCnctr" name="LeftExp"/>
@@ -13,7 +12,7 @@
 			name="Operator"
     		fixed="true">
 			<Node
-				type="noView"
+				type="text"
 				bhNodeID="idAppendStrExp.prvNode0"
 				name="StrAppendOpe"
 				initString="add">
@@ -25,11 +24,10 @@
 			name="OperatorView"
     		fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idAppendStrExp.prvNode1"
 				name="StrAppendOpeView"
 				nodeStyleID="SignLabel.json"
-				nodeInputControl="Label.fxml"
 				initString="＋">
 			</Node>
 		</PrivateConnector>

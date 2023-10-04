@@ -3,7 +3,7 @@
 	bhNodeID="idSoundVar"
 	name="SoundVar"
 	nodeStyleID="SoundVar.json"
-	syntaxErrorChecker="isOutOfScope.js">
+	onSyntaxChecking="IsOutOfScope.js">
 
 	<ConnectorSection name="SoundExpSctn">
 		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>

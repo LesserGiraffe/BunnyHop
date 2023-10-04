@@ -1,3 +1,3 @@
 (function() {
-	return String(bhReplacedNewNode.getSymbolName()) === "SoundVar";
+	return String(bhNodeToConnect.getSymbolName()) === "SoundVar";
 })();

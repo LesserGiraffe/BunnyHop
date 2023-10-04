@@ -1,12 +1,13 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idSoundArrayPopStat"
 	name="SoundArrayPopStat"
 	nodeStyleID="SoundArrayPopStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idSoundListCnctr" name="Arg0"/>
@@ -16,11 +17,10 @@
 			name="noMatsubiNoYosoWoKesu"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idSoundArrayPopStat.prvNode0"
 				name="noMatsubiNoYosoWoKesu"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="の末尾の要素を消す">
 			</Node>
 		</PrivateConnector>

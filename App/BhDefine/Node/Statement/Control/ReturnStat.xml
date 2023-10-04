@@ -1,13 +1,12 @@
-<?xml version="1.0" ?>
-
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idReturnStat"
 	name="ReturnStat"
 	nodeStyleID="ReturnStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<PrivateConnector
@@ -15,11 +14,10 @@
 			name="kinouKaraNukeru"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idReturnStat.prvNode0"
 				name="kinouKaraNukeru"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="機能から抜ける">
 			</Node>
 		</PrivateConnector>

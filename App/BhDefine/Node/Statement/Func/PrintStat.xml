@@ -1,12 +1,13 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idPrintStat"
 	name="PrintStat"
 	nodeStyleID="PrintStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
@@ -16,11 +17,10 @@
 			name="woShuturyokuSuru"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idPrintStat.prvNode0"
 				name="woShuturyokuSuru"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="を出力する">
 			</Node>
 		</PrivateConnector>

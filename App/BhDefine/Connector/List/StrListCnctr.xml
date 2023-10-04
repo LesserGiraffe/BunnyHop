@@ -1,6 +1,4 @@
-<?xml version="1.0" ?>
-
 <Connector 
 	bhConnectorID="idStrListCnctr"
 	defaultBhNodeID="idStrEmptyList"
-	replaceabilityChecker="StrListCnct.js"/>
+	onConnectabilityChecking="StrListCnct.js"/>

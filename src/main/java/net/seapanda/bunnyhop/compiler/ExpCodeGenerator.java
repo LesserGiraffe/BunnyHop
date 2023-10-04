@@ -22,7 +22,7 @@ import java.util.List;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * 式のコード生成を行うクラス

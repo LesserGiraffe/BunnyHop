@@ -1,12 +1,9 @@
-<?xml version="1.0" ?>
-
 <Node
-	type="label"
+	type="text"
 	bhNodeID="idColorEmptyList"
 	name="ColorEmptyList"
 	nodeStyleID="ColorEmptyList.json"
-	nodeInputControl="Label.fxml"
-	onMovedFromChildToWS="onLiteralMovedToWS.js"
+	onMovedFromChildToWS="OnLiteralMovedToWS.js"
 	initString="[...]">
 </Node>
 

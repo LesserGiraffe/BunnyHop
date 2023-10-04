@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * @author K.Koike

@@ -35,16 +35,16 @@ public class BhNodeAttributes {
 	private String nodeStyleID;
 	private String onMovedFromChildToWS;
 	private String onMovedToChild;
-	private String textAcceptabilityChecker;
+	private String onTextChecking;
 	private String onDeletionRequested;
 	private String onCutRequested;
 	private String onCopyRequested;
 	private String onChildReplaced;
 	private String onPrivateTemplateCreating;
-	private String textFormatter;
-	private String syntaxErrorChecker;
+	private String onTextFormatting;
+	private String onSyntaxChecking;
+	private String onViewContentsCreating;
 	private String initString;
-	private String nodeInputControlFileName;
 	private boolean canCreateImitManually;
 
 	private BhNodeAttributes(){}
@@ -57,74 +57,74 @@ public class BhNodeAttributes {
 
 		BhNodeAttributes nodeAttrs = new BhNodeAttributes();
 
-		//bhNodeID
-		nodeAttrs.bhNodeID = BhNodeID.create(node.getAttribute(BhParams.BhModelDef.ATTR_NAME_BHNODE_ID));
+		// bhNodeID
+		nodeAttrs.bhNodeID = BhNodeID.create(node.getAttribute(BhParams.BhModelDef.ATTR_BH_NODE_ID));
 		if (nodeAttrs.bhNodeID.equals(BhNodeID.NONE)) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				"<" + BhParams.BhModelDef.ELEM_NAME_NODE + ">" + " タグには "
-				+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " 属性を記述してください.  " + node.getBaseURI());
+				"<" + BhParams.BhModelDef.ELEM_NODE + ">" + " タグには "
+				+ BhParams.BhModelDef.ATTR_BH_NODE_ID + " 属性を記述してください.  " + node.getBaseURI());
 			return Optional.empty();
 		}
 
-		//name
-		nodeAttrs.name = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_NAME);
+		// name
+		nodeAttrs.name = node.getAttribute(BhParams.BhModelDef.ATTR_NAME);
 
 		// nodeStyleID
-		String nodeStyleID = node.getAttribute(BhParams.NodeStyleDef.KEY_NODE_STYLE_ID);
-		nodeAttrs.nodeStyleID = nodeStyleID.isEmpty() ? BhParams.BhModelDef.ATTR_VALUE_DEFAULT_NODE_STYLE_ID : nodeStyleID;
-		BhNodeViewStyle.putNodeID_NodeStyleID(nodeAttrs.bhNodeID, nodeAttrs.nodeStyleID);
+		nodeAttrs.nodeStyleID = node.getAttribute(BhParams.BhModelDef.ATTR_NODE_STYLE_ID);
+		if (!nodeAttrs.nodeStyleID.isEmpty())
+			BhNodeViewStyle.putNodeIdToNodeStyleId(nodeAttrs.bhNodeID, nodeAttrs.nodeStyleID);
 
-		//onMovedFromChildToWS
-		nodeAttrs.onMovedFromChildToWS = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_MOVED_FROM_CHILD_TO_WS);
+		// onMovedFromChildToWS
+		nodeAttrs.onMovedFromChildToWS = node.getAttribute(BhParams.BhModelDef.ATTR_ON_MOVED_FROM_CHILD_TO_WS);
 
-		//onMovedToChild
-		nodeAttrs.onMovedToChild = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_MOVED_TO_CHILD);
+		// onMovedToChild
+		nodeAttrs.onMovedToChild = node.getAttribute(BhParams.BhModelDef.ATTR_ON_MOVED_TO_CHILD);
 
-		//onTextAcceptabilityChecked
-		nodeAttrs.textAcceptabilityChecker = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_TEXT_ACCEPTABILITY_CHECKER);
+		// onTextChecking
+		nodeAttrs.onTextChecking = node.getAttribute(BhParams.BhModelDef.ATTR_ON_TEXT_CHECKING);
 
-		//textFormatter
-		nodeAttrs.textFormatter = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_TEXT_FORMATTER);
+		// onTextFormatting
+		nodeAttrs.onTextFormatting = node.getAttribute(BhParams.BhModelDef.ATTR_ON_TEXT_FORMATTING);
 
-		//onDeletionRequested
-		nodeAttrs.onDeletionRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_DELETION_REQUESTED);
+		// onDeletionRequested
+		nodeAttrs.onDeletionRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_DELETION_REQUESTED);
 
-		//onCutRequested
-		nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CUT_REQUESTED);
+		// onCutRequested
+		nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CUT_REQUESTED);
 
-		//onCopyRequested
-		nodeAttrs.onCopyRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_COPY_REQUESTED);
+		// onCopyRequested
+		nodeAttrs.onCopyRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_COPY_REQUESTED);
 
-		//onChildReplaced
-		nodeAttrs.onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CHILD_REPLACED);
+		// onChildReplaced
+		nodeAttrs.onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CHILD_REPLACED);
 
-		//onCutRequested
-		nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_CUT_REQUESTED);
+		// onCutRequested
+		nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CUT_REQUESTED);
 
-		//onPrivateTemplateCreating
-		nodeAttrs.onPrivateTemplateCreating = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_ON_PRIFVATE_TEMPLATE_CREATING);
+		// onPrivateTemplateCreating
+		nodeAttrs.onPrivateTemplateCreating = node.getAttribute(BhParams.BhModelDef.ATTR_ON_PRIFVATE_TEMPLATE_CREATING);
 
-		//syntaxErrorChecker
-		nodeAttrs.syntaxErrorChecker = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_SYNTAX_ERROR_CHECKER);
+		// onSyntaxChecking
+		nodeAttrs.onSyntaxChecking = node.getAttribute(BhParams.BhModelDef.ATTR_ON_SYNTAX_CHECKING);
+		
+		// onViewContentsCreating
+		nodeAttrs.onViewContentsCreating = node.getAttribute(BhParams.BhModelDef.ATTR_ON_VIEW_CONTENTS_CREATING);
 
-		//initString
-		nodeAttrs.initString = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_INIT_STRING);
+		// initString
+		nodeAttrs.initString = node.getAttribute(BhParams.BhModelDef.ATTR_INIT_STRING);
 
-		//nodeInputControl
-		nodeAttrs.nodeInputControlFileName = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_NODE_INPUT_CONTROL);
-
-		//canCreateImitManually
-		String strCreateImit = node.getAttribute(BhParams.BhModelDef.ATTR_NAME_CAN_CREATE_IMIT_MANUALLY);
-		if (strCreateImit.equals(BhParams.BhModelDef.ATTR_VALUE_TRUE)) {
+		// canCreateImitManually
+		String strCreateImit = node.getAttribute(BhParams.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY);
+		if (strCreateImit.equals(BhParams.BhModelDef.ATTR_VAL_TRUE)) {
 			nodeAttrs.canCreateImitManually = true;
 		}
-		else if (strCreateImit.equals(BhParams.BhModelDef.ATTR_VALUE_FALSE) || strCreateImit.isEmpty()) {
+		else if (strCreateImit.equals(BhParams.BhModelDef.ATTR_VAL_FALSE) || strCreateImit.isEmpty()) {
 			nodeAttrs.canCreateImitManually = false;
 		}
 		else {
-			MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ATTR_NAME_CAN_CREATE_IMIT_MANUALLY + " 属性には "
-				+ BhParams.BhModelDef.ATTR_VALUE_TRUE + " か "
-				+ BhParams.BhModelDef.ATTR_VALUE_FALSE + " を指定してください. " + node.getBaseURI());
+			MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY + " 属性には "
+				+ BhParams.BhModelDef.ATTR_VAL_TRUE + " か "
+				+ BhParams.BhModelDef.ATTR_VAL_FALSE + " を指定してください. " + node.getBaseURI());
 			return Optional.empty();
 		}
 		return Optional.of(nodeAttrs);
@@ -150,8 +150,8 @@ public class BhNodeAttributes {
 		return onMovedToChild;
 	}
 
-	public String getTextAcceptabilityChecker() {
-		return textAcceptabilityChecker;
+	public String getOnTextChecking() {
+		return onTextChecking;
 	}
 
 	public String getOnDeletionRequested() {
@@ -174,20 +174,20 @@ public class BhNodeAttributes {
 		return onPrivateTemplateCreating;
 	}
 
-	public String getTextFormatter() {
-		return textFormatter;
+	public String getOnTextFormatting() {
+		return onTextFormatting;
 	}
 
-	public String getSyntaxErrorChecker() {
-		return syntaxErrorChecker;
+	public String getOnSyntaxChecking() {
+		return onSyntaxChecking;
+	}
+	
+	public String getOnViewContentsCreating() {
+		return onViewContentsCreating;
 	}
 
 	public String getIinitString() {
 		return initString;
-	}
-
-	public String getNodeInputControlFileName() {
-		return nodeInputControlFileName;
 	}
 
 	public boolean getCanCreateImitManually() {

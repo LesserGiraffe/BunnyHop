@@ -12,11 +12,10 @@
 			name="noZettaichi"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idAbsExp.prvNode0"
 				name="noZettaichi"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="の絶対値">
 			</Node>
 		</PrivateConnector>

@@ -1,9 +1,7 @@
 <Node type="connective"
 	bhNodeID="idKeyPressedEvent"
 	name="KeyPressedEvent"
-	nodeStyleID="KeyPressedEvent.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="KeyPressedEvent.json">
 
 	<ConnectorSection name="EventSctn">
 
@@ -12,11 +10,11 @@
 			name="keyCodeCnctr"
     		fixed="true">
 			<Node
-				type="comboBox"
+				type="text"
 				bhNodeID="idKeyPressedEvent.prvNode0"
 				name="KeyCode"
 				nodeStyleID="WordComboBox.json"
-				nodeInputControl="EventKeyCode.fxml">
+				onViewContentsCreating="CreateKeyPressedEvents.js">
 			</Node>
 		</PrivateConnector>
 		
@@ -25,11 +23,10 @@
 			name="gaOsaretaToki"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idKeyPressedEvent.prvNode1"
 				name="gaOsaretaToki"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="が押されたとき">
 			</Node>
 		</PrivateConnector>

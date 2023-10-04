@@ -159,8 +159,7 @@ public class BhNodeTemplates {
 			DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = dbfactory.newDocumentBuilder();
 			Document doc = builder.parse(file.toFile());
-			Optional<? extends Connector> templateConnector = new ConnectorConstructor().genTemplate(doc);
-			return templateConnector;
+			return new ConnectorConstructor().genTemplate(doc);
 		}
 		catch (IOException | ParserConfigurationException | SAXException e) {
 			MsgPrinter.INSTANCE.errMsgForDebug("ConnectorTemplates genTemplate \n" + e.toString() + "\n" +  file);
@@ -239,20 +238,20 @@ public class BhNodeTemplates {
 				Optional<BhNode> initNode = initNodeID.equals(BhNodeID.NONE) ? defNode : getBhNodeTemplate(initNodeID);
 
 				//ノードテンプレートが見つからない
-				if (!defNode.isPresent()) {
+				if (defNode.isEmpty()) {
 					MsgPrinter.INSTANCE.errMsgForDebug(
-						"<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグの "
-							+ BhParams.BhModelDef.ATTR_NAME_DEFAULT_BHNODE_ID + " (" + defNodeID +") " + "と一致する "
-							+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " を持つ"
-							+ BhParams.BhModelDef.ELEM_NAME_NODE + " の定義が見つかりません.");
+						"<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
+							+ BhParams.BhModelDef.ATTR_DEFAULT_BHNODE_ID + " (" + defNodeID +") " + "と一致する "
+							+ BhParams.BhModelDef.ATTR_BH_NODE_ID + " を持つ"
+							+ BhParams.BhModelDef.ELEM_NODE + " の定義が見つかりません.");
 					return false;
 				}
-				else if (!initNode.isPresent()) {
+				else if (initNode.isEmpty()) {
 					MsgPrinter.INSTANCE.errMsgForDebug(
-						"<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグの "
+						"<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
 							+ BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID + " (" + initNodeID +") " + "と一致する "
-							+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " を持つ "
-							+ BhParams.BhModelDef.ELEM_NAME_NODE + " の定義が見つかりません.");
+							+ BhParams.BhModelDef.ATTR_BH_NODE_ID + " を持つ "
+							+ BhParams.BhModelDef.ELEM_NODE + " の定義が見つかりません.");
 					return false;
 				}
 				else {
@@ -266,41 +265,43 @@ public class BhNodeTemplates {
 	}
 
 	/**
-	 * イミテーションノードの整合性を検査する
-	 * @param orgNodeID_imitNodeID オリジナルノードとイミテーションノードのIDのリスト
-	 * @return オリジナルノードとイミテーションノードの整合性が取れていた場合 true
+	 * オリジナルノードとイミテーションノード間の制約が満たされているか検査する
+	 * @param orgNodeId_imitNodeId_list オリジナルノードとイミテーションノードのIDのリスト
+	 * @return オリジナルノードとイミテーションノード間の制約が満たされていた場合 true
 	 */
-	private boolean checkImitationConsistency(List<Pair<BhNodeID, BhNodeID>> orgNodeID_imitNodeID) {
+	private boolean checkImitationConsistency(
+			List<Pair<BhNodeID, BhNodeID>> orgNodeId_imitNodeId_list) {
 
-		boolean hasConsistency = orgNodeID_imitNodeID.stream()
-			.map(orgID_imitID -> {
+		var allValid = true; 
 
-				//イミテーションノードの存在チェック
-				if (!bhNodeExists(orgID_imitID._2)) {
-					MsgPrinter.INSTANCE.errMsgForDebug(
-						"\"" + orgID_imitID._2 + "\"" + " を "
-						+ BhParams.BhModelDef.ATTR_NAME_BHNODE_ID + " に持つ "
-						+ BhParams.BhModelDef.ELEM_NAME_NODE + " が見つかりません. " + "(" + orgID_imitID._1 + ")");
-					return false;
-				}
+		for (Pair<BhNodeID, BhNodeID> orgId_imitId : orgNodeId_imitNodeId_list) {
+			var orgId = orgId_imitId._1;
+			var imitId = orgId_imitId._2;
+			if (!bhNodeExists(imitId)) {
+				MsgPrinter.INSTANCE.errMsgForDebug(
+					"\"" + imitId + "\"" + " を "
+					+ BhParams.BhModelDef.ATTR_BH_NODE_ID + " に持つ "
+					+ BhParams.BhModelDef.ELEM_NODE + " が見つかりません. " +
+					"(" + orgId + ")");
+				allValid = false;
+			}
+			
+			BhNode orgNode = getBhNodeTemplate(orgId).get();
+			BhNode imitNode = getBhNodeTemplate(imitId).get();
+			if (orgNode.getClass() != imitNode.getClass()) {
+				MsgPrinter.INSTANCE.errMsgForDebug(
+					BhParams.BhModelDef.ATTR_IMITATION_NODE_ID + " 属性を持つ" +
+					BhParams.BhModelDef.ELEM_NODE + " タグの " + 
+					BhParams.BhModelDef.ATTR_TYPE + " と " +
+					BhParams.BhModelDef.ATTR_IMITATION_NODE_ID + " で指定された " +
+					BhParams.BhModelDef.ELEM_NODE + " の " +
+					BhParams.BhModelDef.ATTR_TYPE + " は同じでなければなりません.\n" +
+					"    org: " + orgId + "    imit: " + imitId);
+				allValid = false;
+			}			
+		}
 
-				//オリジナルノードとイミテーションノードの型一致チェック
-				Optional<BhNode> orgNodeOpt = getBhNodeTemplate(orgID_imitID._1);
-				Optional<BhNode> imitNodeOpt = getBhNodeTemplate(orgID_imitID._2);
-				boolean isSameType = orgNodeOpt.get().getClass() == imitNodeOpt.get().getClass();
-				if (!isSameType) {
-					MsgPrinter.INSTANCE.errMsgForDebug(
-						BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + orgNodeOpt.get().getType() + " の " + 
-						BhParams.BhModelDef.ELEM_NAME_NODE + " は " +
-						BhParams.BhModelDef.ATTR_NAME_TYPE + " が " + imitNodeOpt.get().getType() + " の " + 
-						BhParams.BhModelDef.ELEM_NAME_NODE + " を " +
-						BhParams.BhModelDef.ATTR_NAME_IMITATION_NODE_ID + " に指定できません. \n" +
-						"org: " + orgID_imitID._1 + "    imit: " + orgID_imitID._2);
-				}
-				return isSameType;
-			})
-			.allMatch(Boolean::valueOf);
-		return hasConsistency;
+		return allValid;
 	}
 
 	/**

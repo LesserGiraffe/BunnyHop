@@ -1,9 +1,8 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idRandomIntExp"
 	name="RandomIntExp"
-	nodeStyleID="RandomIntExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="RandomIntExp.json">
 
 	<ConnectorSection name="NumberExpSctn">
 		<Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
@@ -13,11 +12,10 @@
 			name="ijyo"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idRandomIntExp.prvNode0"
 				name="ijyo"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="以上">
 			</Node>
 		</PrivateConnector>
@@ -29,11 +27,10 @@
 			name="ikaNoRandamuNaSeisu"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idRandomIntExp.prvNode1"
 				name="ikaNoRandamuNaSeisu"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="以下のランダムな整数">
 			</Node>
 		</PrivateConnector>

@@ -1,9 +1,8 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idBinaryBoolExp"
 	name="BinaryBoolExp"
-	nodeStyleID="BinaryBoolExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="BinaryBoolExp.json">
 
 	<ConnectorSection name="BooleanExpSctn">
 		<Connector bhConnectorID="idBoolExpCnctr" name="LeftExp"/>
@@ -14,10 +13,10 @@
     		fixed="true">
 			<Node
 				bhNodeID="idBinaryBoolExp.prvNode0"
-				type="comboBox"
+				type="text"
 				name="BinaryBoolOpe"
 				nodeStyleID="WordComboBox.json"
-				nodeInputControl="BinaryBoolOpe.fxml">
+				onViewContentsCreating="CreateBinaryBoolOps.js">
 			</Node>
 		</PrivateConnector>
 		

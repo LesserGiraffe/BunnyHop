@@ -1,9 +1,7 @@
 <Node type="connective"
 	  bhNodeID="idBoolArg"
 	  name="BoolArg"
-	  nodeStyleID="BoolArg.json"
-	  onMovedFromChildToWS=""
-	  onMovedToChild="">
+	  nodeStyleID="BoolArg.json">
     
     <ConnectorSection>
         <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>

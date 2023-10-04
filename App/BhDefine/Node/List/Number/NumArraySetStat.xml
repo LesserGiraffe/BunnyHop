@@ -3,11 +3,11 @@
 	bhNodeID="idNumArraySetStat"
 	name="NumArraySetStat"
 	nodeStyleID="NumArraySetStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idNumListCnctr" name="Arg0"/>
@@ -17,11 +17,10 @@
 			name="no"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idNumArraySetStat.prvNode0"
 				name="no"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="の">
 			</Node>
 		</PrivateConnector>
@@ -33,11 +32,10 @@
 			name="banmeWo"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idNumArraySetStat.prvNode1"
 				name="banmeWo"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="番目を">
 			</Node>
 		</PrivateConnector>
@@ -49,11 +47,10 @@
 			name="niKakikaeru"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idNumArraySetStat.prvNode2"
 				name="niKakikaeru"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="に書き換える">
 			</Node>
 		</PrivateConnector>

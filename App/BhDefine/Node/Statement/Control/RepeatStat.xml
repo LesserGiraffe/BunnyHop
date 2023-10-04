@@ -1,12 +1,13 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idRepeatStat"
 	name="RepeatStat"
 	nodeStyleID="RepeatStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 
@@ -17,11 +18,10 @@
 			name="kaiKurikaesu"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idRepeatStat.prvNode0"
 				name="kaiKurikaesu"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="回くり返す">
 			</Node>
 		</PrivateConnector>

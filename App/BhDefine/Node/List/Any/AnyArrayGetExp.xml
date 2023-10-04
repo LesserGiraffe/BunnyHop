@@ -3,9 +3,8 @@
 	bhNodeID="idAnyArrayGetExp"
 	name="AnyArrayGetExp"
 	nodeStyleID="AnyArrayGetExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="onAnyExpMovedToChild.js"
-	onChildReplaced="onChildOfAnyTypeNodeReplaced.js">
+	onMovedToChild="OnAnyExpMovedToChild.js"
+	onChildReplaced="OnChildOfAnyTypeNodeReplaced.js">
 
 	<ConnectorSection name="AnyExpSctn">
 		<Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
@@ -15,11 +14,10 @@
 			name="no"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idAnyArrayGetExp.prvNode0"
 				name="no"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="の">
 			</Node>
 		</PrivateConnector>
@@ -31,11 +29,10 @@
 			name="banmeNoYoso"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idAnyArrayGetExp.prvNode1"
 				name="banmeNoYoso"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="番目の要素">
 			</Node>
 		</PrivateConnector>

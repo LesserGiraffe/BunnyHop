@@ -436,7 +436,7 @@ public class MenuOperationController {
 					ModelExclusiveControl.INSTANCE.unlockForRead();
 				}
 
-				if (!snapshotAndNodeToExecOpt.isPresent())
+				if (snapshotAndNodeToExecOpt.isEmpty())
 					return;
 
 				preparingForExecution.set(true);
@@ -646,9 +646,9 @@ public class MenuOperationController {
 		wss.addOnCopyListChanged(change -> changePasteButtonEnable(wss), true);
 		wss.addOnCutListChanged(change -> changePasteButtonEnable(wss), true);
 		wss.addOnSelectedNodeListChanged(
-			(ws, list) -> jumpBtn.setDisable(!findNodeToJumpTo(wss).isPresent()), true);
+			(ws, list) -> jumpBtn.setDisable(findNodeToJumpTo(wss).isEmpty()), true);
 		wss.addOnCurrentWorkspaceChanged(
-			(oldWs, newWs) -> jumpBtn.setDisable(!findNodeToJumpTo(wss).isPresent()), true);
+			(oldWs, newWs) -> jumpBtn.setDisable(findNodeToJumpTo(wss).isEmpty()), true);
 	}
 
 	/**

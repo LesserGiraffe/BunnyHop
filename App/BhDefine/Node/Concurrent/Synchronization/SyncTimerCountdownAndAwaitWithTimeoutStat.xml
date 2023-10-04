@@ -2,11 +2,11 @@
 	bhNodeID="idSyncTimerCountdownAndAwaitWithTimeoutStat"
 	name="SyncTimerCountdownAndAwaitWithTimeoutStat"
 	nodeStyleID="SyncTimerCountdownAndAwaitWithTimeoutStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
@@ -16,11 +16,10 @@
 			name="countdown"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idSyncTimerCountdownAndAwaitWithTimeoutStat.prvNode0"
 				name="countdown"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="のカウントを 1 減らしてから">
 			</Node>
 		</PrivateConnector>
@@ -30,11 +29,10 @@
 			name="zeroNiNarumade"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idSyncTimerCountdownAndAwaitWithTimeoutStat.prvNode1"
 				name="zeroNiNarumade"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="カウントが 0 になるまで、最大">
 			</Node>
 		</PrivateConnector>
@@ -46,11 +44,10 @@
 			name="matsu"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idSyncTimerCountdownAndAwaitWithTimeoutStat.prvNode3"
 				name="matsu"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="秒間待つ">
 			</Node>
 		</PrivateConnector>

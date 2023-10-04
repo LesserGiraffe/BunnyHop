@@ -2,9 +2,7 @@
 	type="connective"
 	bhNodeID="idModExp"
 	name="ModExp"
-	nodeStyleID="ModExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="ModExp.json">
 
 	<ConnectorSection name="NumberExpSctn">
 		<Connector bhConnectorID="idNumExpCnctr" name="LeftExp"/>
@@ -14,11 +12,10 @@
 			name="wo"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idModExp.prvNode0"
 				name="wo"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="を">
 			</Node>
 		</PrivateConnector>
@@ -30,11 +27,10 @@
 			name="deWattaAmari"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idModExp.prvNode1"
 				name="deWattaAmari"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="で割ったあまり">
 			</Node>
 		</PrivateConnector>
@@ -44,7 +40,7 @@
 			name="Operator"
     		fixed="true">
 			<Node
-				type="noView"
+				type="text"
 				bhNodeID="idModExp.prvNode2"
 				name="ModOpe"
 				initString="mod">

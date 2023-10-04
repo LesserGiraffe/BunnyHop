@@ -1,7 +1,5 @@
-<?xml version="1.0" ?>
-
 <Connector 
 	bhConnectorID="idBoolExpCnctr"
 	defaultBhNodeID="idBoolLiteralExp"
 	class="BoolClass"
-	replaceabilityChecker="BoolExpCnct.js"/>
+	onConnectabilityChecking="BoolExpCnct.js"/>

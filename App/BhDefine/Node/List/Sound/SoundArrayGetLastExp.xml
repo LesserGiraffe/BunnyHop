@@ -2,9 +2,7 @@
 	type="connective"
 	bhNodeID="idSoundArrayGetLastExp"
 	name="SoundArrayGetLastExp"
-	nodeStyleID="SoundArrayGetLastExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="SoundArrayGetLastExp.json">
 
 	<ConnectorSection name="SoundExpSctn">
 		<Connector bhConnectorID="idSoundListCnctr" name="Arg0"/>
@@ -14,11 +12,10 @@
 			name="noSaigoNoYoso"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idSoundArrayGetLastExp.prvNode0"
 				name="noSaigoNoYoso"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="の最後の要素">
 			</Node>
 		</PrivateConnector>
@@ -28,7 +25,7 @@
 			name="Arg1"
 			fixed="true">
 			<Node
-				type="noView"
+				type="text"
 				bhNodeID="idSoundArrayGetLastExp.prvNode1"
 				name="NilSound"
 				initString="_nilSound"/>

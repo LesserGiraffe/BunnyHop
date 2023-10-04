@@ -2,11 +2,11 @@
 	bhNodeID="idLightEyeStat"
 	name="LightEyeStat"
 	nodeStyleID="LightEyeStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 
@@ -15,11 +15,11 @@
 			name="Arg0"
 			fixed="true">
 			<Node
-				type="comboBox"
+				type="text"
 				bhNodeID="idLightEyeStat.prvNode0"
 				name="StrLiteral"
 				nodeStyleID="WordComboBox.json"
-				nodeInputControl="EyeSelection.fxml">
+				onViewContentsCreating="CreateEyeSelection.js">
 			</Node>
 		</PrivateConnector>
 		
@@ -28,7 +28,7 @@
 			name="wo"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idLightEyeStat.prvNode1"
 				name="wo"
 				nodeStyleID="WordLabel2.json"
@@ -44,7 +44,7 @@
 			name="deHikaraseru"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idLightEyeStat.prvNode2"
 				name="deHikaraseru"
 				nodeStyleID="WordLabel2.json"

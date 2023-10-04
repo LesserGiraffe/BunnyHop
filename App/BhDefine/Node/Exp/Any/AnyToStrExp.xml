@@ -1,11 +1,7 @@
-<?xml version="1.0" ?>
-
 <Node type="connective"
 	  bhNodeID="idAnyToStrExp"
 	  name="AnyToStrExp"
-	  nodeStyleID="ToStrExp.json"
-	  onMovedFromChildToWS=""
-	  onMovedToChild="">
+	  nodeStyleID="ToStrExp.json">
 
 	<ConnectorSection name="StringExpSctn">
 		<Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>

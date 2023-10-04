@@ -16,7 +16,6 @@
 package net.seapanda.bunnyhop.control.node;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
@@ -51,10 +50,10 @@ public class ComboBoxNodeController extends BhNodeController {
 		view.setTextChangeListener(
 			(observable, oldVal, newVal) -> checkAndSetContent(model, view, oldVal, newVal));
 
-		Optional<SelectableItem> optItem = view.getItemByModelText(model.getText());
-		optItem.ifPresent(item -> view.setItem(item));
-		if (!optItem.isPresent())
-			model.setText(view.getItem().getModelText());
+		view.getItemByModelText(model.getText())
+		.ifPresentOrElse(
+			item -> view.setItem(item),
+			() -> model.setText(view.getItem().getModelText()));
 	}
 
 	/**

@@ -1,15 +1,13 @@
-<?xml version="1.0" ?>
-
 <Node
 	type="connective"
 	bhNodeID="idCommentPart"
 	name="CommentPart"
 	nodeStyleID="CommentPart.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 	
@@ -18,11 +16,10 @@
 			name="Comment"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idCommentPart.prvNode0"
 				name="Comment"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="コメント">
 			</Node>
 		</PrivateConnector>
@@ -32,11 +29,10 @@
 			name="Setsumei"
 			fixed="true">
 			<Node
-				type="textArea"
+				type="text"
 				bhNodeID="idCommentPart.prvNode1"
 				name="setsumei"
-				nodeStyleID="defaultTextArea.json"
-				nodeInputControl="TextArea.fxml"
+				nodeStyleID="DefaultTextArea.json"
 				initString="説明">
 			</Node>
 		</PrivateConnector>

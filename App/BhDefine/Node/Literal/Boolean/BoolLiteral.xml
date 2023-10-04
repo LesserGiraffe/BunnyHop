@@ -1,11 +1,9 @@
-<?xml version="1.0" ?>
-
 <Node
 	type="connective"
 	bhNodeID="idBoolLiteralExp"
 	name="BoolLiteralExp"
 	nodeStyleID="BoolLiteralExp.json"
-	onMovedFromChildToWS="onLiteralMovedToWS.js">
+	onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
 	<ConnectorSection name="BooleanExpSctn">
 
@@ -14,11 +12,11 @@
 			name="Literal"
 			fixed="true">
 			<Node
-				type="comboBox"
+				type="text"
 				bhNodeID="idBoolLiteralExp.prvNode0"
 				name="BoolLiteral"
 				nodeStyleID="BoolLiteral.json"
-				nodeInputControl="BoolLiteral.fxml">
+				onViewContentsCreating="CreateBoolLiteral.js">
 			</Node>
 		</PrivateConnector>
 	</ConnectorSection>

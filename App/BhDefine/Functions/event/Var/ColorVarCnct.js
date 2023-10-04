@@ -1,3 +1,3 @@
 (function() {
-	return String(bhReplacedNewNode.getSymbolName()) === "ColorVar";
+	return String(bhNodeToConnect.getSymbolName()) === "ColorVar";
 })();

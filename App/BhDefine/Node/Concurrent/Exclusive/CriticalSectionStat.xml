@@ -3,11 +3,11 @@
 	bhNodeID="idCriticalSectionStat"
 	name="CriticalSectionStat"
 	nodeStyleID="CriticalSectionStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		
@@ -16,11 +16,10 @@
 			name="haita"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idCriticalSectionStat.prvNode0"
 				name="haita"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="排他区間">
 			</Node>
 		</PrivateConnector>

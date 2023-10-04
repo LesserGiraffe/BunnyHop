@@ -1,7 +1,5 @@
-<?xml version="1.0" ?>
-
 <Node
-    type="noContent"
+    type="text"
     bhNodeID="idVoidStat" 
     name="VoidStat" 
     nodeStyleID="VoidStat.json"

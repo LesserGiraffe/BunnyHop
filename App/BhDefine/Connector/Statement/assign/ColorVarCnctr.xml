@@ -1,7 +1,5 @@
-<?xml version="1.0" ?>
-
 <Connector 
 	bhConnectorID="idColorVarCnctr"
 	defaultBhNodeID="idColorVarVoid"
-	replaceabilityChecker="ColorVarCnct.js"/>
+	onConnectabilityChecking="ColorVarCnct.js"/>
 

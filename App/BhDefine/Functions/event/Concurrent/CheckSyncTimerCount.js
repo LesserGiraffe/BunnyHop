@@ -11,7 +11,7 @@
 		if (String(bhText.substr(0,2)) === "0x") {
 			try {
 				let num = java.lang.Integer.parseInt(bhText.substr(2, bhText.length), 16);
-				return (0 <= num && num <= maxCount);;
+				return (0 <= num && num <= maxCount);
 			}
 			catch(e){}
 		}

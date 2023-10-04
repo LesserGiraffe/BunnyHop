@@ -1,12 +1,13 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idStrAssignStat"
 	name="StrAssignStat"
 	nodeStyleID="StrAssignStat.json"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onDeletionRequested="onDeletionRequested.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onDeletionRequested="OnDeletionRequested.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 
 	<ConnectorSection name="StatSctn">
 		<Connector bhConnectorID="idStrVarCnctr" name="LeftVar"/>
@@ -16,11 +17,10 @@
 			name="ni"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idStrAssignStat.prvNode0"
 				name="ni"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="に">
 			</Node>
 		</PrivateConnector>
@@ -32,11 +32,10 @@
 			name="woDainyuSuru"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idStrAssignStat.prvNode1"
 				name="woDainyuSuru"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="を代入する">
 			</Node>
 		</PrivateConnector>

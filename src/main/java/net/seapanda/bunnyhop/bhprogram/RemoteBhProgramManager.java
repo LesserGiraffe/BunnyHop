@@ -296,7 +296,8 @@ public class RemoteBhProgramManager {
 			retVal = ContextFactory.getGlobal().call(cx -> cs.exec(cx, BhScriptManager.INSTANCE.createScriptScope()));
 		}
 		catch(Exception e) {
-			MsgPrinter.INSTANCE.errMsgForDebug("failed to eval" +  BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS + " " + e.toString());
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				"failed to eval" +  BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS + " " + e.toString());
 			return null;
 		}
 

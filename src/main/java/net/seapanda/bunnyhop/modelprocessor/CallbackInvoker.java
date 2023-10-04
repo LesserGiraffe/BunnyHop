@@ -27,7 +27,7 @@ import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.model.node.connective.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.connective.Subsection;
-import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * シンボル名 or ノードIDと一致する識別子を持つコールバック関数を呼び出す.

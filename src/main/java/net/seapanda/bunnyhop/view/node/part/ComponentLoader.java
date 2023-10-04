@@ -24,7 +24,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
 
 /**
  * GUI コンポーネントをロードするクラス
@@ -66,26 +65,23 @@ public class ComponentLoader {
 	 * @param id このノード ID に対応する GUI コンポーネントをロードする
 	 * @return ロードした GUI コンポーネント. ロードに失敗した場合は, {@code Optional.empty()}
 	 */
-	@SuppressWarnings("unchecked")
-	public static <T extends Control> Optional<T> loadComponent(BhNodeID id) {
+	public static <T extends Control> Optional<T> loadComponent(String contentFilePath) {
 
-		String inputControlFileName = BhNodeViewStyle.nodeIdToInputControlFileName.get(id);
-		if (inputControlFileName == null)
+		if (contentFilePath == null)
 			return Optional.empty();
 
-		Path filePath = FXMLCollector.INSTANCE.getFilePath(inputControlFileName);
+		Path filePath = FXMLCollector.INSTANCE.getFilePath(contentFilePath);
 		if (filePath == null)
 			return Optional.empty();
 
 		try {
 			FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
-			return Optional.of((T)loader.load());
+			return Optional.of(loader.<T>load());
 		}
 		catch (IOException | ClassCastException e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				"failed to load component for the " + id + "\n" + inputControlFileName + "\n" +  e.toString());
+				"failed to load component in " + contentFilePath + "\n" +  e.toString());
 			return Optional.empty();
 		}
 	}
-
 }

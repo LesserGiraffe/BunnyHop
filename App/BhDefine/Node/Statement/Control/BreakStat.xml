@@ -1,16 +1,13 @@
-<?xml version="1.0" ?>
-
 <Node
-	type="label"
+	type="text"
 	bhNodeID="idBreakStat"
 	name="BreakStat"
 	nodeStyleID="BreakStat.json"
-	nodeInputControl="Label.fxml"
 	initString="繰り返しを抜ける"
-	syntaxErrorChecker="breakAndContinueChecker.js"
-	onMovedFromChildToWS="onStatMovedToWS.js"
-	onMovedToChild="onStatMovedToChild.js"
-	onCutRequested="onCutRequested.js"
-	onCopyRequested="onCopyRequested.js">
+	onSyntaxChecking="BreakAndContinueChecker.js"
+	onMovedFromChildToWS="OnStatMovedToWS.js"
+	onMovedToChild="OnStatMovedToChild.js"
+	onCutRequested="OnCutRequested.js"
+	onCopyRequested="OnCopyRequested.js">
 </Node>
 

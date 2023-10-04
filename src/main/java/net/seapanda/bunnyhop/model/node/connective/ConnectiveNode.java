@@ -31,11 +31,10 @@ import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.model.node.imitation.ImitationBase;
 import net.seapanda.bunnyhop.model.node.imitation.ImitationID;
-import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
@@ -62,7 +61,7 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
 		Map<ImitationID, BhNodeID> imitIdToImitNodeID,
 		BhNodeAttributes attributes) {
 
-		super(BhNodeViewType.CONNECTIVE, attributes, imitIdToImitNodeID);
+		super(attributes, imitIdToImitNodeID);
 		this.childSection = childSection;
 		registerScriptName(BhNodeEvent.ON_CHILD_REPLACED, attributes.getOnChildReplaced());
 	}

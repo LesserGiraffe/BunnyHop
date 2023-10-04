@@ -1,11 +1,9 @@
-<?xml version="1.0" ?>
-
 <Node
 	type="connective"
 	bhNodeID="idColorLiteralExp"
 	name="ColorLiteralExp"
 	nodeStyleID="ColorLiteralExp.json"
-	onMovedFromChildToWS="onLiteralMovedToWS.js">
+	onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
 	<ConnectorSection name="ColorExpSctn">
 
@@ -14,11 +12,11 @@
 			name="Literal"
 			fixed="true">
 			<Node
-				type="comboBox"
+				type="text"
 				bhNodeID="idColorLiteralExp.prvNode0"
 				name="ColorLiteral"
 				nodeStyleID="ColorLiteral.json"
-				nodeInputControl="ColorLiteral.fxml">
+				onViewContentsCreating="CreateColorLiteral.js">
 			</Node>
 		</PrivateConnector>
 	</ConnectorSection>

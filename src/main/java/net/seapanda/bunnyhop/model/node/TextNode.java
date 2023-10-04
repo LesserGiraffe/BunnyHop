@@ -33,11 +33,10 @@ import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.model.node.imitation.ImitationBase;
 import net.seapanda.bunnyhop.model.node.imitation.ImitationID;
-import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
@@ -60,13 +59,15 @@ public class TextNode  extends ImitationBase<TextNode> {
 	 * @param attributes ノードの設定情報
 	 * */
 	public TextNode(
-		BhNodeViewType type,
 		Map<ImitationID, BhNodeID> imitIdToImitNodeID,
 		BhNodeAttributes attributes) {
 
-		super(type, attributes, imitIdToImitNodeID);
-		registerScriptName(BhNodeEvent.ON_TEXT_FORMATTING, attributes.getTextFormatter());
-		registerScriptName(BhNodeEvent.ON_TEXT_ACCEPTABILITY_CHECKING, attributes.getTextAcceptabilityChecker());
+		super(attributes, imitIdToImitNodeID);
+		registerScriptName(BhNodeEvent.ON_TEXT_FORMATTING, attributes.getOnTextFormatting());
+		registerScriptName(
+			BhNodeEvent.ON_TEXT_CHECKING, attributes.getOnTextChecking());
+		registerScriptName(
+			BhNodeEvent.ON_VIEW_CONTENTS_CREATING, attributes.getOnViewContentsCreating());
 		text = attributes.getIinitString();
 	}
 
@@ -116,23 +117,23 @@ public class TextNode  extends ImitationBase<TextNode> {
 	 */
 	public boolean isTextAcceptable(String text) {
 
-		Optional<String> scriptName = getScriptName(BhNodeEvent.ON_TEXT_ACCEPTABILITY_CHECKING);
-		Script textAcceptabilityChecker =
+		Optional<String> scriptName = getScriptName(BhNodeEvent.ON_TEXT_CHECKING);
+		Script checker =
 			scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
 
-		if (textAcceptabilityChecker == null)
+		if (checker == null)
 			return true;
 
 		ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_TEXT, text);
 		Object jsReturn = null;
 		try {
-			jsReturn = ContextFactory.getGlobal().call(cx -> textAcceptabilityChecker.exec(cx, scriptScope));
+			jsReturn = ContextFactory.getGlobal().call(cx -> checker.exec(cx, scriptScope));
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				TextNode.class.getSimpleName() +  "::isTextAcceptable   " + scriptName.get() + "\n" +
-				e.toString() + "\n");
+				TextNode.class.getSimpleName() +  "::isTextAcceptable   " + scriptName.get() + "\n"
+				+ e.toString() + "\n");
 		}
 
 		if(jsReturn instanceof Boolean)
@@ -151,31 +152,58 @@ public class TextNode  extends ImitationBase<TextNode> {
 	public Pair<Boolean, String> formatText(String text, String addedText) {
 
 		Optional<String> scriptName = getScriptName(BhNodeEvent.ON_TEXT_FORMATTING);
-		Script textFormatter = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+		Script formatter = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
 
-		if (textFormatter == null)
+		if (formatter == null)
 			return new Pair<Boolean, String>(false, addedText);
 
 		ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_TEXT, text);
 		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_ADDED_TEXT, addedText);
 		try {
-			NativeObject jsObj = (NativeObject)ContextFactory.getGlobal().call(	cx -> textFormatter.exec(cx, scriptScope));
+			NativeObject jsObj = (NativeObject)ContextFactory.getGlobal().call(	cx -> formatter.exec(cx, scriptScope));
 			Boolean isEntireTextFormatted = (Boolean)jsObj.get(BhParams.JsKeyword.KEY_BH_IS_ENTIRE_TEXT_FORMATTED);
 			String formattedText = (String)jsObj.get(BhParams.JsKeyword.KEY_BH_FORMATTED_TEXT);
 			return new Pair<Boolean, String>(isEntireTextFormatted, formattedText);
 		}
 		catch (Exception e) {
 			MsgPrinter.INSTANCE.errMsgForDebug(
-				TextNode.class.getSimpleName() +  "::getFormattedText   " + scriptName.get() + "\n" +
-				e.toString() + "\n");
+				TextNode.class.getSimpleName() +  "::getFormattedText   " + scriptName.get() + "\n" 
+				+ e.toString() + "\n");
 		}
 
 		return new Pair<Boolean, String>(false, addedText);
 	}
+	
+	/**
+	 * このノードのビューが保持すべきコンテンツを生成して返す.
+	 * @return このノードのビューが保持すべきコンテンツ 
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getViewContents() {
+		
+		Optional<String> scriptName = getScriptName(BhNodeEvent.ON_VIEW_CONTENTS_CREATING);
+		Script creator =
+			scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+
+		if (creator == null)
+			return null;
+
+		ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
+		T contents = null;
+		try {
+			contents = (T)ContextFactory.getGlobal().call(cx -> creator.exec(cx, scriptScope));
+		}
+		catch (Exception e) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				TextNode.class.getSimpleName() +  "::onViewContentsCreating   "
+				+ scriptName.get() + "\n" + e.toString() + "\n");
+		}
+		return contents;
+	}
 
 	/**
-	 * イミテーションノードにこのノードを模倣させる
+	 * このノードのイミテーションノードにこのノードを模倣させる
 	 */
 	public void getImitNodesToImitateContents() {
 

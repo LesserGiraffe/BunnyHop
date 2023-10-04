@@ -19,7 +19,6 @@ import java.util.Collection;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -29,8 +28,8 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  */
 public abstract class Imitatable extends BhNode {
 
-	protected Imitatable(BhNodeViewType type, BhNodeAttributes attributes) {
-		super(type, attributes);
+	protected Imitatable(BhNodeAttributes attributes) {
+		super(attributes);
 	}
 
 	protected Imitatable(Imitatable org) {

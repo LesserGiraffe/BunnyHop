@@ -30,7 +30,7 @@ import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
  * ConnectiveNode に対応するビュークラス
  * @author K.Koike
  */
-public final class ConnectiveNodeView extends BhNodeView{
+public final class ConnectiveNodeView extends BhNodeView {
 
 	private final BhNodeViewGroup innerGroup = new BhNodeViewGroup(this, true); //!< ノード内部に描画されるノードのGroup
 	private final BhNodeViewGroup outerGroup = new BhNodeViewGroup(this, false); //!< ノード外部に描画されるノードのGroup
@@ -58,16 +58,20 @@ public final class ConnectiveNodeView extends BhNodeView{
 		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_CONNECTIVE_NODE);
 
 		if (model.canCreateImitManually) {
-			var imitButtonOpt = ImitationCreationButton.create(model, viewStyle.imitation);
-			var imitButton = imitButtonOpt.orElseThrow(() -> new ViewInitializationException(
-				getClass().getSimpleName() + "  failed To load the Imitation Creation Button of this view."));
+			ImitationCreationButton imitButton = 
+				ImitationCreationButton.create(model, viewStyle.imitation)
+				.orElseThrow(() -> new ViewInitializationException(
+					getClass().getSimpleName() +
+					"  failed To load the Imitation Creation Button of this view."));
 			getTreeManager().addChild(imitButton);
 		}
 
 		if (model.hasPrivateTemplateNodes()) {
-			var privateTemplateBtnOpt = PrivateTemplateCreationButton.create(model, viewStyle.privatTemplate);
-			var privateTemplateBtn = privateTemplateBtnOpt.orElseThrow(() -> new ViewInitializationException(
-				getClass().getSimpleName() + "  failed To load the Private Template Button of this view."));
+			PrivateTemplateCreationButton privateTemplateBtn =
+				PrivateTemplateCreationButton.create(model, viewStyle.privatTemplate)
+				.orElseThrow(() -> new ViewInitializationException(
+					getClass().getSimpleName() +
+					"  failed To load the Private Template Button of this view."));
 			getTreeManager().addChild(privateTemplateBtn);
 		}
 	}
@@ -82,7 +86,7 @@ public final class ConnectiveNodeView extends BhNodeView{
 	}
 
 	/**
-	 * ノード内部に描画されるノードをリストの最後に追加する
+	 * ノード内部に描画されるノードを追加する
 	 * @param view ノード内部に描画されるノード
 	 * */
 	public void addToGroup(BhNodeView view) {

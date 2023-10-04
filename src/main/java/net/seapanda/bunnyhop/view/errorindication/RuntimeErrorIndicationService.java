@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramException;
-import net.seapanda.bunnyhop.model.syntaxsynbol.SyntaxSymbolID;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbolID;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**

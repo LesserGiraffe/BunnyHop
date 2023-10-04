@@ -1,6 +1,4 @@
-<?xml version="1.0" ?>
-
 <Connector 
 	bhConnectorID="idBoolListCnctr"
 	defaultBhNodeID="idBoolEmptyList"
-	replaceabilityChecker="BoolListCnct.js"/>
+	onConnectabilityChecking="BoolListCnct.js"/>

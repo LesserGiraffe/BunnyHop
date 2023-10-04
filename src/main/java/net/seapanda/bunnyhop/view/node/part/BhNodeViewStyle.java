@@ -40,11 +40,12 @@ import net.seapanda.bunnyhop.view.bodyshape.BodyShape;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShape.BODY_SHAPE;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape.CNCTR_SHAPE;
+import net.seapanda.bunnyhop.view.node.ComponentType;
 
 /**
  * 描画時の見た目(大きさ, 色など)の情報を持つクラス
  * @author K.Koike
- * */
+ */
 public class BhNodeViewStyle {
 
 	public String nodeStyleID; //!< ノードスタイルに付けられたID
@@ -64,7 +65,8 @@ public class BhNodeViewStyle {
 	public ConnectorShape.CNCTR_SHAPE notchShape =  ConnectorShape.CNCTR_SHAPE.NONE;	//!< 切り欠きの形
 	public double connectorBoundsRate = 2.0; //!< ドラッグ&ドロップ時などに適用されるコネクタの範囲
 	public String cssClass = "defaultNode";
-
+	public ComponentType component = ComponentType.NONE; //!< BhNodeView の種類
+	
 	public Connective connective = new Connective();
 
 	public static class Connective {
@@ -141,11 +143,9 @@ public class BhNodeViewStyle {
 	}
 
 	/** ノードスタイルのテンプレートを格納するハッシュ. xml ファイルの nodeStyleID がキー */
-	private static final HashMap<String, BhNodeViewStyle> nodeStyleIDToNodeStyleTemplate = new HashMap<>();
+	private static final HashMap<String, BhNodeViewStyle> nodeStyleIdToNodeStyleTemplate = new HashMap<>();
 	/** ノードIDとノードスタイルのペアを格納するハッシュ */
 	private static final HashMap<BhNodeID, String> nodeIdToNodeStyleID = new HashMap<>();
-	/** ノードIDと BhNode の入力 GUI 部品の fxml ファイル名のペアを格納するハッシュ */
-	public static final HashMap<BhNodeID, String> nodeIdToInputControlFileName = new HashMap<>();
 
 	public enum CNCTR_POS {
 		LEFT, TOP
@@ -189,6 +189,7 @@ public class BhNodeViewStyle {
 		this.connective.inner.copy(org.connective.inner);
 		this.connective.outer.copy(org.connective.outer);
 		this.cssClass = org.cssClass;
+		this.component = org.component;
 		this.textField.minWidth = org.textField.minWidth;
 		this.textField.cssClass = org.textField.cssClass;
 		this.label.cssClass = org.label.cssClass;
@@ -233,8 +234,8 @@ public class BhNodeViewStyle {
 		}
 
 		boolean succes = paths.map(filePath -> registerNodeStyle(filePath)).allMatch(Boolean::valueOf);
-		nodeStyleIDToNodeStyleTemplate.put(
-			BhParams.BhModelDef.ATTR_VALUE_DEFAULT_NODE_STYLE_ID, new BhNodeViewStyle());
+		nodeStyleIdToNodeStyleTemplate.put(
+			BhParams.BhModelDef.ATTR_VAL_DEFAULT_NODE_STYLE_ID, new BhNodeViewStyle());
 		paths.close();
 		return succes;
 	}
@@ -253,7 +254,8 @@ public class BhNodeViewStyle {
 		String styleID = filePath.getFileName().toString();
 		Optional<BhNodeViewStyle> bhNodeViewStyle =
 			genBhNodeViewStyle(jsonObj.get(), filePath.toAbsolutePath().toString(), styleID);
-		bhNodeViewStyle.ifPresent(viewStyle -> nodeStyleIDToNodeStyleTemplate.put(viewStyle.nodeStyleID, viewStyle));
+		bhNodeViewStyle.ifPresent(
+			viewStyle -> nodeStyleIdToNodeStyleTemplate.put(viewStyle.nodeStyleID, viewStyle));
 		return bhNodeViewStyle.isPresent();
 	}
 
@@ -263,32 +265,33 @@ public class BhNodeViewStyle {
 	 * @param fileName jsonObj が記述してある .JSON ファイルのファイル名
 	 * @return BhNodeViewStyle (オプション)
 	 */
-	private static Optional<BhNodeViewStyle> genBhNodeViewStyle(NativeObject jsonObj, String fileName, String styleID) {
+	private static Optional<BhNodeViewStyle> genBhNodeViewStyle(
+		NativeObject jsonObj, String fileName, String styleID) {
 
-		BhNodeViewStyle bhNodeViewStyle = new BhNodeViewStyle();
+		BhNodeViewStyle style = new BhNodeViewStyle();
 
 		//styleID
-		bhNodeViewStyle.nodeStyleID = styleID;
+		style.nodeStyleID = styleID;
 
 		//paddingTop
 		Optional<Object> val = readValue(BhParams.NodeStyleDef.KEY_PADDING_TOP, Number.class, jsonObj, fileName);
 		val.ifPresent(paddingTop ->
-			bhNodeViewStyle.paddingTop = ((Number) paddingTop).doubleValue() * BhParams.LnF.NODE_SCALE);
+			style.paddingTop = ((Number) paddingTop).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//paddingBottom
 		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_BOTTOM, Number.class, jsonObj, fileName);
 		val.ifPresent(paddingBottom ->
-			bhNodeViewStyle.paddingBottom = ((Number) paddingBottom).doubleValue() * BhParams.LnF.NODE_SCALE);
+			style.paddingBottom = ((Number) paddingBottom).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//paddingLeft
 		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_LEFT, Number.class, jsonObj, fileName);
 		val.ifPresent(paddingLeft ->
-			bhNodeViewStyle.paddingLeft = ((Number) paddingLeft).doubleValue() * BhParams.LnF.NODE_SCALE);
+			style.paddingLeft = ((Number) paddingLeft).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//paddingRight
 		val = readValue(BhParams.NodeStyleDef.KEY_PADDING_RIGHT, Number.class, jsonObj, fileName);
 		val.ifPresent(paddingRight ->
-			bhNodeViewStyle.paddingRight = ((Number) paddingRight).doubleValue() * BhParams.LnF.NODE_SCALE);
+			style.paddingRight = ((Number) paddingRight).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//bodyShape
 		val = readValue(BhParams.NodeStyleDef.KEY_BODY_SHAPE, String.class, jsonObj, fileName);
@@ -296,7 +299,7 @@ public class BhNodeViewStyle {
 			bodyShape -> {
 				String shapeStr = (String)bodyShape;
 				BODY_SHAPE shapeType = BodyShape.getBodyTypeFromName(shapeStr, fileName);
-				bhNodeViewStyle.bodyShape = shapeType;
+				style.bodyShape = shapeType;
 			});
 
 		//connectorPos
@@ -304,9 +307,9 @@ public class BhNodeViewStyle {
 		val.ifPresent(connectorPos -> {
 			String posStr = (String) connectorPos;
 			if (posStr.equals(BhParams.NodeStyleDef.VAL_TOP)) {
-				bhNodeViewStyle.connectorPos = CNCTR_POS.TOP;
+				style.connectorPos = CNCTR_POS.TOP;
 			} else if (posStr.equals(BhParams.NodeStyleDef.VAL_LEFT)) {
-				bhNodeViewStyle.connectorPos = CNCTR_POS.LEFT;
+				style.connectorPos = CNCTR_POS.LEFT;
 			} else {
 				MsgPrinter.INSTANCE.errMsgForDebug("\"" + BhParams.NodeStyleDef.KEY_CONNECTOR_POS + "\"" + " (" + posStr
 						+ ") " + "format is invalid.  " + "(" + fileName + ")");
@@ -316,17 +319,17 @@ public class BhNodeViewStyle {
 		//connectorShift
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_SHIFT, Number.class, jsonObj, fileName);
 		val.ifPresent(connectorShift ->
-			bhNodeViewStyle.connectorShift = ((Number) connectorShift).doubleValue() * BhParams.LnF.NODE_SCALE);
+			style.connectorShift = ((Number) connectorShift).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//connectorWidth
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_WIDTH, Number.class, jsonObj, fileName);
 		val.ifPresent(connectorWidth ->
-			bhNodeViewStyle.connectorWidth = ((Number) connectorWidth).doubleValue() * BhParams.LnF.NODE_SCALE);
+			style.connectorWidth = ((Number) connectorWidth).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//connectorHeight
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_HEIGHT, Number.class, jsonObj, fileName);
 		val.ifPresent(connectorHeight ->
-			bhNodeViewStyle.connectorHeight = ((Number) connectorHeight).doubleValue() * BhParams.LnF.NODE_SCALE);
+			style.connectorHeight = ((Number) connectorHeight).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//connectorShape
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_SHAPE, String.class, jsonObj, fileName);
@@ -334,7 +337,7 @@ public class BhNodeViewStyle {
 			connectorShape -> {
 				String shapeStr = (String) connectorShape;
 				CNCTR_SHAPE shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
-				bhNodeViewStyle.connectorShape = shapeType;
+				style.connectorShape = shapeType;
 			});
 
 		//notchPos
@@ -342,24 +345,25 @@ public class BhNodeViewStyle {
 		val.ifPresent(notchPos -> {
 			String posStr = (String) notchPos;
 			if (posStr.equals(BhParams.NodeStyleDef.VAL_RIGHT)) {
-				bhNodeViewStyle.notchPos = NOTCH_POS.RIGHT;
+				style.notchPos = NOTCH_POS.RIGHT;
 			} else if (posStr.equals(BhParams.NodeStyleDef.VAL_BOTTOM)) {
-				bhNodeViewStyle.notchPos = NOTCH_POS.BOTTOM;
+				style.notchPos = NOTCH_POS.BOTTOM;
 			} else {
-				MsgPrinter.INSTANCE.errMsgForDebug("\"" + BhParams.NodeStyleDef.KEY_NOTCH_POS + "\"" + " (" + posStr
-						+ ") " + "format is invalid.  " + "(" + fileName + ")");
+				MsgPrinter.INSTANCE.errMsgForDebug(
+					"\"" + BhParams.NodeStyleDef.KEY_NOTCH_POS + "\"" +
+					" (" + posStr + ") " + "format is invalid.  " + "(" + fileName + ")");
 			}
 		});
 
 		//notchWidth
 		val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_WIDTH, Number.class, jsonObj, fileName);
 		val.ifPresent(notchWidth ->
-			bhNodeViewStyle.notchWidth = ((Number)notchWidth).doubleValue() * BhParams.LnF.NODE_SCALE);
+			style.notchWidth = ((Number)notchWidth).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//notchHeight
 		val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_HEIGHT, Number.class, jsonObj, fileName);
 		val.ifPresent(notchHeight ->
-			bhNodeViewStyle.notchHeight = ((Number)notchHeight).doubleValue() * BhParams.LnF.NODE_SCALE);
+			style.notchHeight = ((Number)notchHeight).doubleValue() * BhParams.LnF.NODE_SCALE);
 
 		//notchShape
 		val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_SHAPE, String.class, jsonObj, fileName);
@@ -367,60 +371,58 @@ public class BhNodeViewStyle {
 			notchShape -> {
 				String shapeStr = (String)notchShape;
 				CNCTR_SHAPE shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
-				bhNodeViewStyle.notchShape = shapeType;
+				style.notchShape = shapeType;
 			});
 
 		//connectorBoundsRate
 		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_BOUNDS_RATE, Number.class, jsonObj, fileName);
 		val.ifPresent(connectorBoundsRate ->
-			bhNodeViewStyle.connectorBoundsRate = ((Number) connectorBoundsRate).doubleValue());
+			style.connectorBoundsRate = ((Number) connectorBoundsRate).doubleValue());
 
 		//bodyCssClass
 		val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
-		val.ifPresent(bodyCssClass -> bhNodeViewStyle.cssClass = (String) bodyCssClass);
+		val.ifPresent(bodyCssClass -> style.cssClass = (String) bodyCssClass);
 
 		//connective
-		Optional<Object> connectiveOpt =
-			readValue(BhParams.NodeStyleDef.KEY_CONNECTIVE, NativeObject.class, jsonObj, fileName);
-		connectiveOpt.ifPresent(
-			connective -> fillConnectiveParams(bhNodeViewStyle.connective, (NativeObject)connective, fileName));
+		val = readValue(BhParams.NodeStyleDef.KEY_CONNECTIVE, NativeObject.class, jsonObj, fileName);
+		val.ifPresent(
+			connective -> fillConnectiveParams(style.connective, (NativeObject) connective, fileName));
 
 		//textField
-		Optional<Object> textFieldOpt =
-			readValue(BhParams.NodeStyleDef.KEY_TEXT_FIELD, NativeObject.class, jsonObj, fileName);
-		textFieldOpt.ifPresent(
-			textField -> fillTextFieldParams(bhNodeViewStyle.textField, (NativeObject) textField, fileName));
+		val = readValue(BhParams.NodeStyleDef.KEY_TEXT_FIELD, NativeObject.class, jsonObj, fileName);
+		val.ifPresent(
+			textField -> fillTextFieldParams(style.textField, (NativeObject) textField, fileName));
 
 		//label
-		Optional<Object> labelOpt =
-			readValue(BhParams.NodeStyleDef.KEY_LABEL, NativeObject.class, jsonObj, fileName);
-		labelOpt.ifPresent(label -> fillLabelParams(bhNodeViewStyle.label, (NativeObject) label, fileName));
+		val = readValue(BhParams.NodeStyleDef.KEY_LABEL, NativeObject.class, jsonObj, fileName);
+		val.ifPresent(label -> fillLabelParams(style.label, (NativeObject) label, fileName));
 
 		//comboBox
-		Optional<Object> comboBoxOpt =
-			readValue(BhParams.NodeStyleDef.KEY_COMBO_BOX, NativeObject.class, jsonObj, fileName);
-		comboBoxOpt.ifPresent(
-			comboBox -> fillComboBoxParams(bhNodeViewStyle.comboBox, (NativeObject) comboBox, fileName));
+		val = readValue(BhParams.NodeStyleDef.KEY_COMBO_BOX, NativeObject.class, jsonObj, fileName);
+		val.ifPresent(
+			comboBox -> fillComboBoxParams(style.comboBox, (NativeObject) comboBox, fileName));
 
 		//textArea
-		Optional<Object> textAreaOpt =
-			readValue(BhParams.NodeStyleDef.KEY_TEXT_AREA, NativeObject.class, jsonObj, fileName);
-		textAreaOpt.ifPresent(
-			textArea -> fillTextAreaParams(bhNodeViewStyle.textArea, (NativeObject)textArea, fileName));
+		val = readValue(BhParams.NodeStyleDef.KEY_TEXT_AREA, NativeObject.class, jsonObj, fileName);
+		val.ifPresent(
+			textArea -> fillTextAreaParams(style.textArea, (NativeObject)textArea, fileName));
 
 		//imitation
-		Optional<Object> imitationOpt =
-			readValue(BhParams.NodeStyleDef.KEY_IMITATION, NativeObject.class, jsonObj, fileName);
-		imitationOpt.ifPresent(
-			imitation -> fillButtonParams(bhNodeViewStyle.imitation, (NativeObject)imitation, fileName));
+		val = readValue(BhParams.NodeStyleDef.KEY_IMITATION, NativeObject.class, jsonObj, fileName);
+		val.ifPresent(
+			imitation -> fillButtonParams(style.imitation, (NativeObject) imitation, fileName));
 
 		//privateTemplate
-		Optional<Object> privateTemplateOpt =
-			readValue(BhParams.NodeStyleDef.KEY_PRIVATE_TEMPLATE, NativeObject.class, jsonObj, fileName);
-		privateTemplateOpt.ifPresent(privateTemplate ->
-			fillButtonParams(bhNodeViewStyle.privatTemplate, (NativeObject)privateTemplate, fileName));
+		val = readValue(BhParams.NodeStyleDef.KEY_PRIVATE_TEMPLATE, NativeObject.class, jsonObj, fileName);
+		val.ifPresent(privateTemplate ->
+			fillButtonParams(style.privatTemplate, (NativeObject) privateTemplate, fileName));
 
-		return Optional.of(bhNodeViewStyle);
+		//component
+		val = readValue(BhParams.NodeStyleDef.KEY_COMPONENT, String.class, jsonObj, fileName);
+		val.ifPresent(
+			type -> style.component = ComponentType.toType((String)type));
+		
+		return Optional.of(style);
 	}
 
 	/**
@@ -625,8 +627,6 @@ public class BhNodeViewStyle {
 		val.ifPresent(minHeight -> textArea.minHeight = ((Number) minHeight).doubleValue() * BhParams.LnF.NODE_SCALE);
 	}
 
-
-
 	/**
 	 * Json オブジェクトからエラーチェック付きで Value を読む
 	 * @param keyName keyの名前
@@ -659,20 +659,20 @@ public class BhNodeViewStyle {
 	 * @param nodeID ノードID (bhNodeID属性)
 	 * @param nodeStyleID ノードスタイルID (nodeStyleID属性)
 	 */
-	public static void putNodeID_NodeStyleID(BhNodeID nodeID, String nodeStyleID) {
+	public static void putNodeIdToNodeStyleId(BhNodeID nodeID, String nodeStyleID) {
 		nodeIdToNodeStyleID.put(nodeID, nodeStyleID);
 	}
 
 	/**
 	 * ノードID から ノードスタイルオブジェクトを取得する
 	 * @param nodeID ノードID (bhNodeID属性)
-	 * @return ノードスタイルオブジェクト
+	 * @return ノードスタイルオブジェクト (オプション)
 	 */
-	public static BhNodeViewStyle getNodeViewStyleFromNodeID(BhNodeID nodeID) {
+	public static Optional<BhNodeViewStyle> getNodeViewStyleFromNodeID(BhNodeID nodeID) {
 
-		String nodeStyleID = nodeIdToNodeStyleID.get(nodeID);
-		BhNodeViewStyle nodeStyle = nodeStyleIDToNodeStyleTemplate.get(nodeStyleID);
-		return new BhNodeViewStyle(nodeStyle);
+		return Optional.ofNullable(nodeIdToNodeStyleID.getOrDefault(nodeID, null))
+				.map(styleId -> nodeStyleIdToNodeStyleTemplate.getOrDefault(styleId, null))
+				.map(nodeStyle -> new BhNodeViewStyle(nodeStyle));		
 	}
 
 	/**
@@ -681,16 +681,18 @@ public class BhNodeViewStyle {
 	 */
 	public static boolean checkNodeIdAndNodeTemplate() {
 
-		return nodeIdToNodeStyleID.values().stream()
-			.map(nodeStyleID -> {
-				if (!nodeStyleIDToNodeStyleTemplate.containsKey(nodeStyleID)) {
-					MsgPrinter.INSTANCE.errMsgForDebug(
-						"A node style file " + "(" + nodeStyleID + ")" + " is not found among *.json files");
-					return false;
-				} else {
-					return true;
-				}
-			})
+		boolean success = nodeIdToNodeStyleID.values().stream()
+			.map(nodeStyleID -> nodeStyleIdToNodeStyleTemplate.containsKey(nodeStyleID))
 			.allMatch(Boolean::valueOf);
+		
+		if (!success)
+			for (String nodeStyleId : nodeIdToNodeStyleID.values())
+				if (nodeStyleIdToNodeStyleTemplate.containsKey(nodeStyleId))
+					MsgPrinter.INSTANCE.errMsgForDebug(
+						"A node style file " + "(" + nodeStyleId + ")" + " is not found among *.json files");
+		
+		return success;
 	}
 }
+
+

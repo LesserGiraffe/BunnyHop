@@ -1,9 +1,8 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idScanExp"
 	name="ScanExp"
-	nodeStyleID="ScanExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="ScanExp.json">
 
 	<ConnectorSection name="StringExpSctn">
 		
@@ -12,11 +11,10 @@
 			name="nyuryokumojiretsu"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idScanExp.prvNode0"
 				name="nyuryokumojiretsu"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="入力文字列">
 			</Node>
 		</PrivateConnector>
@@ -26,11 +24,10 @@
 			name="nyuryokuYokyu"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idScanExp.prvNode1"
 				name="nyuryokuYokyu"
 				nodeStyleID="SmallCharLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="（入力要求メッセージ：">
 			</Node>
 		</PrivateConnector>
@@ -42,14 +39,14 @@
 			defaultBhNodeID="idScanExp.prvNode2"
 			initialBhNodeID=""
 			class="StrClass"
-			replaceabilityChecker="StrExpCnct.js">
+			onConnectabilityChecking="StrExpCnct.js">
 
 			<Node
 				type="connective"
 				bhNodeID="idScanExp.prvNode2"
 				name="StrLiteralExp"
 				nodeStyleID="StrLiteralExp.json"
-				onMovedFromChildToWS="onLiteralMovedToWS.js">
+				onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
 				<ConnectorSection name="StringExpSctn">
 
@@ -58,12 +55,11 @@
 						name="Literal"
 						fixed="true">
 						<Node
-							type="textField"
+							type="text"
 							bhNodeID="idScanExp.prvNode2.prvNode0"
 							name="StrLiteral"
 							nodeStyleID="StrLiteral.json"
-							nodeInputControl="TextField.fxml"
-							textAcceptabilityChecker="CheckTextFormat.js"
+							onTextChecking="CheckTextFormat.js"
 							initString="入力待ちです">
 						</Node>
 					</PrivateConnector>
@@ -76,11 +72,10 @@
 			name="bracket"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idScanExp.prvNode3"
 				name="bracket"
 				nodeStyleID="SmallCharLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="）">
 			</Node>
 		</PrivateConnector>

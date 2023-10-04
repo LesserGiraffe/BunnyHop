@@ -43,8 +43,10 @@ public class ConnectorConstructor {
 
 		//ルートタグチェック
 		Element root = doc.getDocumentElement();
-		if (!root.getNodeName().equals(BhParams.BhModelDef.ELEM_NAME_CONNECTOR)) {
-			MsgPrinter.INSTANCE.errMsgForDebug("コネクタ定義のルート要素は " + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + " で始めてください.  " + doc.getBaseURI());
+		if (!root.getNodeName().equals(BhParams.BhModelDef.ELEM_CONNECTOR)) {
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				"コネクタ定義のルート要素は " + BhParams.BhModelDef.ELEM_CONNECTOR 
+				+ " で始めてください.  " + doc.getBaseURI());
 			return Optional.empty();
 		}
 		return genTemplate(root);
@@ -58,49 +60,58 @@ public class ConnectorConstructor {
 	public Optional<Connector> genTemplate(Element cnctrRoot) {
 
 		//コネクタID
-		ConnectorID cnctrID = ConnectorID.createCnctrID(cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_BHCONNECTOR_ID));
+		ConnectorID cnctrID = ConnectorID.createCnctrID(
+			cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_BH_CONNECTOR_ID));
 		if (cnctrID.equals(ConnectorID.NONE)) {
-			MsgPrinter.INSTANCE.errMsgForDebug("<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグには "
-				+ BhParams.BhModelDef.ATTR_NAME_BHCONNECTOR_ID + " 属性を付加してください.  " + cnctrRoot.getBaseURI());
+			MsgPrinter.INSTANCE.errMsgForDebug(
+				"<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグには "
+				+ BhParams.BhModelDef.ATTR_BH_CONNECTOR_ID + " 属性を付加してください.  " + cnctrRoot.getBaseURI());
 			return Optional.empty();
 		}
 
 		//Fixed
-		String fixedStr = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_FIXED);
-		if (!fixedStr.isEmpty() && !fixedStr.equals(BhParams.BhModelDef.ATTR_VALUE_TRUE) && !fixedStr.equals(BhParams.BhModelDef.ATTR_VALUE_FALSE)) {
-			MsgPrinter.INSTANCE.errMsgForDebug("<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + ">" + " タグの "
-				+ BhParams.BhModelDef.ATTR_NAME_FIXED + " 属性は, " + cnctrRoot.getBaseURI()
-				+ BhParams.BhModelDef.ATTR_VALUE_TRUE + "か" + BhParams.BhModelDef.ATTR_VALUE_FALSE + "で無ければなりません.  " + cnctrRoot.getBaseURI());
+		String fixedStr = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_FIXED);
+		if (!fixedStr.isEmpty() && 
+			!fixedStr.equals(BhParams.BhModelDef.ATTR_VAL_TRUE) && 
+			!fixedStr.equals(BhParams.BhModelDef.ATTR_VAL_FALSE)) {
+			MsgPrinter.INSTANCE.errMsgForDebug("<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
+				+ BhParams.BhModelDef.ATTR_FIXED + " 属性は, " + cnctrRoot.getBaseURI()
+				+ BhParams.BhModelDef.ATTR_VAL_TRUE + "か" + BhParams.BhModelDef.ATTR_VAL_FALSE 
+				+ "で無ければなりません.  " + cnctrRoot.getBaseURI());
 			return Optional.empty();
 		}
-		boolean fixed = fixedStr.equals(BhParams.BhModelDef.ATTR_VALUE_TRUE);
+		boolean fixed = fixedStr.equals(BhParams.BhModelDef.ATTR_VAL_TRUE);
 
 		//初期接続ノードID
-		BhNodeID initNodeID = BhNodeID.create(cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID));
+		BhNodeID initNodeID = BhNodeID.create(
+			cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID));
 		//デフォルトノードID
-		BhNodeID defNodeID = BhNodeID.create(cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_DEFAULT_BHNODE_ID));
+		BhNodeID defNodeID = BhNodeID.create(
+			cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_DEFAULT_BHNODE_ID));
 		boolean hasFixedInitNode = fixed && !initNodeID.equals(BhNodeID.NONE);
-		if (hasFixedInitNode) {	//初期ノードが固定ノードである => 初期ノードがデフォルトノードとなる
+		//初期ノードが固定ノードである => 初期ノードがデフォルトノードとなる
+		if (hasFixedInitNode) {
 			defNodeID = initNodeID;
 		}
 		else if (defNodeID.equals(BhNodeID.NONE)) {	//初期ノードが固定ノードではないのに, デフォルトノードの指定がない
 			MsgPrinter.INSTANCE.errMsgForDebug(
 				"固定初期ノードを持たない "
-				+ "<" + BhParams.BhModelDef.ELEM_NAME_CONNECTOR + "> および "
-				+ "<" + BhParams.BhModelDef.ELEM_NAME_PRIVATE_CONNECTOR + "> タグは"
-				+ BhParams.BhModelDef.ATTR_NAME_DEFAULT_BHNODE_ID + " 属性を持たなければなりません.  " + cnctrRoot.getBaseURI());
-			return Optional.empty();
-		}
-
-		//ノード入れ替え時の実行スクリプト
-		String scriptNameOfReplaceabilityChecker = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_REPLACEABILITY_CHECKER);
-		if (!BhNodeTemplates.allScriptsExist(cnctrRoot.getBaseURI(), scriptNameOfReplaceabilityChecker)) {
+				+ "<" + BhParams.BhModelDef.ELEM_CONNECTOR + "> および "
+				+ "<" + BhParams.BhModelDef.ELEM_PRIVATE_CONNECTOR + "> タグは"
+				+ BhParams.BhModelDef.ATTR_DEFAULT_BHNODE_ID + " 属性を持たなければなりません.  "
+				+ cnctrRoot.getBaseURI());
 			return Optional.empty();
 		}
 
 		//コネクタクラス
-		String cnctrClass = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_CLASS);
+		String cnctrClass = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_CLASS);
+		//ノード入れ替え時の実行スクリプト
+		String scriptName =
+			cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_ON_CONNECTABILITY_CHECKING);
+		if (!BhNodeTemplates.allScriptsExist(cnctrRoot.getBaseURI(), scriptName))
+			return Optional.empty();
 
-		return Optional.of(new Connector(cnctrID, defNodeID, initNodeID, cnctrClass, fixed, scriptNameOfReplaceabilityChecker));
+		return Optional.of(
+			new Connector(cnctrID, defNodeID, initNodeID, cnctrClass, fixed, scriptName));
 	}
 }

@@ -3,7 +3,7 @@
 	bhNodeID="idFreqSoundLiteral"
 	name="FreqSoundLiteral"
 	nodeStyleID="FreqSoundLiteral.json"
-	onMovedFromChildToWS="onLiteralMovedToWS.js">
+	onMovedFromChildToWS="OnLiteralMovedToWS.js">
 	
 	<ConnectorSection name="SoundExpSctn">
 
@@ -14,11 +14,10 @@
 			name="ByoKanNo"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idFreqSoundLiteral.prvNode1"
 				name="ByoKanNo"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="秒間の">
 			</Node>
 		</PrivateConnector>
@@ -30,11 +29,10 @@
 			name="HzNoOto"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idFreqSoundLiteral.prvNode0"
 				name="HzNoOto"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="ヘルツの音">
 			</Node>
 		</PrivateConnector>

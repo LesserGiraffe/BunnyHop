@@ -1,9 +1,7 @@
 <Node type="connective"
 	  bhNodeID="idColorCompExp"
 	  name="ColorCompExp"
-	  nodeStyleID="ColorCompExp.json"
-	  onMovedFromChildToWS=""
-	  onMovedToChild="">
+	  nodeStyleID="ColorCompExp.json">
 
 	<ConnectorSection name="BooleanExpSctn">
 		<Connector bhConnectorID="idColorExpCnctr" name="Arg0"/>
@@ -13,11 +11,11 @@
 			name="Arg2"
 			fixed="true">
 			<Node
-				type="comboBox"
+				type="text"
 				bhNodeID="idColorCompExp.prvNode0"
 				name="StrLiteral"
 				nodeStyleID="DefaultComboBox.json"
-				nodeInputControl="EqualityCompOpe.fxml">
+				onViewContentsCreating="CreateEqualityCompOps.js">
 			</Node>
 		</PrivateConnector>
 		

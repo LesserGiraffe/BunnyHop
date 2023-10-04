@@ -2,9 +2,7 @@
 	type="connective"
 	bhNodeID="idColorArrayGetExp"
 	name="ColorArrayGetExp"
-	nodeStyleID="ColorArrayGetExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="ColorArrayGetExp.json">
 
 	<ConnectorSection name="ColorExpSctn">
 		<Connector bhConnectorID="idColorListCnctr" name="Arg0"/>
@@ -14,11 +12,10 @@
 			name="no"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idColorArrayGetExp.prvNode0"
 				name="no"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="の">
 			</Node>
 		</PrivateConnector>
@@ -30,11 +27,10 @@
 			name="banmeNoYoso"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idColorArrayGetExp.prvNode1"
 				name="banmeNoYoso"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="番目の要素">
 			</Node>
 		</PrivateConnector>
@@ -44,7 +40,7 @@
 			name="Arg2"
 			fixed="true">
 			<Node
-				type="noView"
+				type="text"
 				bhNodeID="idColorArrayGetExp.prvNode2"
 				name="NilColor"
 				initString="_nilColor"/>

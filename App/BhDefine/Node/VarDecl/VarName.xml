@@ -1,12 +1,9 @@
-<?xml version="1.0" ?>
-
 <Node
-	type="textField"
+	type="text"
 	bhNodeID="idVarName"
 	name="VarName"
 	nodeStyleID="Identifier.json"
-	nodeInputControl="TextField.fxml"
-	textAcceptabilityChecker="CheckIdentifierFormat.js"
+	onTextChecking="CheckIdentifierFormat.js"
 	initString="変数名">
 	
 	<Imitation imitationID="imitIdVarName" imitationNodeID="idVarName"/>

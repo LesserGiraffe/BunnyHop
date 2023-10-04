@@ -1,11 +1,9 @@
-<?xml version="1.0" ?>
-
 <Node
 	type="connective"
 	bhNodeID="idNewLine"
 	name="NewLine"
 	nodeStyleID="NewLine.json"
-	onMovedFromChildToWS="onLiteralMovedToWS.js">
+	onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
 	<ConnectorSection name="StringExpSctn">
 
@@ -14,11 +12,10 @@
 			name="kaigyo"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idNewLine.prvNode0"
 				name="kaigyo"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="改行">
 			</Node>
 		</PrivateConnector>
@@ -28,7 +25,7 @@
 			name="Literal"
 			fixed="true">
 			<Node
-				type="noView"
+				type="text"
 				bhNodeID="idNewLine.prvNode1"
 				name="LineFeed"
 				initString="('\n')">

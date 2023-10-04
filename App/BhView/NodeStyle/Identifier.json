@@ -1,4 +1,5 @@
 {
+	"component" : "TextField",
 	"paddingTop" : 0.0,
 	"paddingBottom" : 0.0,
 	"paddingLeft" : 0.0,

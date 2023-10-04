@@ -2,9 +2,7 @@
 	type="connective"
 	bhNodeID="idGetTimeSinceProgramStartedExp"
 	name="GetTimeSinceProgramStartedExp"
-	nodeStyleID="GetTimeSinceProgramStartedExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="GetTimeSinceProgramStartedExp.json">
 
 	<ConnectorSection name="NumberExpSctn">
 		<PrivateConnector
@@ -12,11 +10,10 @@
 			name="timeSinceProgramStarted"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idGetTimeSinceProgramStartedExp.prvNode0"
 				name="timeSinceProgramStarted"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="プログラムが始まってからの時間 (ミリ秒)">
 			</Node>
 		</PrivateConnector>

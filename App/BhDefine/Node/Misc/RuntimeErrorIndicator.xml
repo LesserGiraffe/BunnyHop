@@ -1,5 +1,3 @@
-<?xml version="1.0" ?>
-
 <Node
 	type="connective"
 	bhNodeID="idRuntimeErrorIndicator"
@@ -16,11 +14,10 @@
 			name="Error"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idRuntimeErrorIndicator.prvNode0"
 				name="Error"
 				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
 				initString="">
 			</Node>
 		</PrivateConnector>
@@ -30,11 +27,10 @@
 			name="ErrorDetails"
 			fixed="true">
 			<Node
-				type="textArea"
+				type="text"
 				bhNodeID="idRuntimeErrorIndicator.prvNode1"
 				name="ErrorDetails"
-				nodeStyleID="defaultTextArea.json"
-				nodeInputControl="TextArea.fxml"
+				nodeStyleID="DefaultTextArea.json"
 				initString="">
 			</Node>
 		</PrivateConnector>

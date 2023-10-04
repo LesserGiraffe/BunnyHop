@@ -29,7 +29,7 @@ public class ImitationID implements Serializable {
 
 	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
 	public static final ImitationID NONE = new ImitationID("");	//!< イミテーションIDが存在しないことを表す
-	public static final ImitationID MANUAL = new ImitationID(BhParams.BhModelDef.ATTR_VALUE_IMIT_ID_MANUAL);	//!< イミテーション手動作成時のID
+	public static final ImitationID MANUAL = new ImitationID(BhParams.BhModelDef.ATTR_VAL_IMIT_ID_MANUAL);	//!< イミテーション手動作成時のID
 	private final String id;
 
 	/**

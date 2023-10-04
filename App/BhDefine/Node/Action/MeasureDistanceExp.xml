@@ -10,11 +10,10 @@
 			name="zenpoKyori"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idMeasureDistanceExp.prvNode0"
 				name="zenpoKyori"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="障害物までの距離 (cm)">
 			</Node>
 		</PrivateConnector>

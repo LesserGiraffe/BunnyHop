@@ -32,7 +32,6 @@ import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
-import net.seapanda.bunnyhop.view.node.part.ComponentLoader;
 import net.seapanda.bunnyhop.view.node.part.ImitationCreationButton;
 import net.seapanda.bunnyhop.view.node.part.PrivateTemplateCreationButton;
 import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
@@ -62,23 +61,24 @@ public final class TextFieldNodeView extends TextInputNodeView {
 
 	private void init() throws ViewInitializationException {
 
-		var textFieldOpt = ComponentLoader.<TextField>loadComponent(model.getID());
-		textField = textFieldOpt.orElseThrow(() -> new ViewInitializationException(
-			getClass().getSimpleName() + "  failed To load the TextField of this view."));
 		getTreeManager().addChild(textField);
 		textField.addEventFilter(MouseEvent.ANY, this::propagateEvent);
 
 		if (model.canCreateImitManually) {
-			var imitButtonOpt = ImitationCreationButton.create(model, viewStyle.imitation);
-			var imitButton = imitButtonOpt.orElseThrow(() -> new ViewInitializationException(
-				getClass().getSimpleName() + "  failed To load the Imitation Creation Button of this view."));
+			ImitationCreationButton imitButton = 
+				ImitationCreationButton.create(model, viewStyle.imitation)
+				.orElseThrow(() -> new ViewInitializationException(
+					getClass().getSimpleName() +
+					"  failed To load the Imitation Creation Button of this view."));
 			getTreeManager().addChild(imitButton);
 		}
 
 		if (model.hasPrivateTemplateNodes()) {
-			var privateTemplateBtnOpt = PrivateTemplateCreationButton.create(model, viewStyle.privatTemplate);
-			var privateTemplateBtn = privateTemplateBtnOpt.orElseThrow(() -> new ViewInitializationException(
-				getClass().getSimpleName() + "  failed To load the Private Template Button of this view."));
+			PrivateTemplateCreationButton privateTemplateBtn =
+				PrivateTemplateCreationButton.create(model, viewStyle.privatTemplate)
+				.orElseThrow(() -> new ViewInitializationException(
+					getClass().getSimpleName() +
+					"  failed To load the Private Template Button of this view."));
 			getTreeManager().addChild(privateTemplateBtn);
 		}
 
@@ -132,9 +132,9 @@ public final class TextFieldNodeView extends TextInputNodeView {
 			// 正確な文字部分の境界を取得するため, GUI部品内部のTextの境界は使わない.
 			double newWidth = ViewHelper.INSTANCE.calcStrWidth(textPart.getText(), textPart.getFont());
 			newWidth = Math.max(newWidth, viewStyle.textField.minWidth);
-			//幅を (文字幅 + パディング) にするとキャレットの移動時に文字が左右に移動するので定数 2 を足す.
+			//幅を (文字幅 + パディング) にするとキャレットの移動時に文字が左右に移動するので定数 3 を足す.
 			//この定数はフォントやパディングが違っても機能する.
-			newWidth += textField.getPadding().getLeft() + textField.getPadding().getRight() + 2;
+			newWidth += textField.getPadding().getLeft() + textField.getPadding().getRight() + 3;
 			textField.setPrefWidth(newWidth);
 			boolean acceptable = checkFormatFunc.apply(textPart.getText());
 			if (acceptable)

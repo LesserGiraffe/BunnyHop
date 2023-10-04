@@ -1,10 +1,8 @@
-<?xml version="1.0" ?>
-
 <Node
-	type="noContent"
+	type="text"
 	bhNodeID="idAnyExpVoid"
 	name="AnyExpVoid"
 	nodeStyleID="AnyExpVoid.json"
 	initString="_anyObj"
-	onMovedFromChildToWS="onLiteralMovedToWS.js">
+	onMovedFromChildToWS="OnLiteralMovedToWS.js">
 </Node>

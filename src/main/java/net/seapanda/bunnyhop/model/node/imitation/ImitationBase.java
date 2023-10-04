@@ -25,7 +25,6 @@ import java.util.Objects;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeViewType;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -56,12 +55,10 @@ public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatab
 	public abstract T createImitNode(ImitationID imitID, UserOperationCommand userOpeCmd);
 
 	public ImitationBase(
-		BhNodeViewType type,
 		BhNodeAttributes attributes,
 		Map<ImitationID, BhNodeID> imitIdToImitNodeID) {
 
-		super(type, attributes);
-
+		super(attributes);
 		this.canCreateImitManually = attributes.getCanCreateImitManually();
 		this.imitIdToImitNodeID = imitIdToImitNodeID;
 		imitNodeList = new ArrayList<>();
@@ -207,7 +204,7 @@ public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatab
 		if (node.isDescendantOf(this) || this.isDescendantOf(node))	//同じtree に含まれている場合置き換え不可
 			return false;
 
-		return parentConnector.isConnectedNodeReplaceableWith(node);
+		return parentConnector.isConnectableWith(node);
 	}
 }
 

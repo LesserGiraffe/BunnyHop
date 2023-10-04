@@ -1,9 +1,8 @@
-<Node type="connective"
+<Node
+	type="connective"
 	bhNodeID="idNumRoundExp"
 	name="NumRoundExp"
-	nodeStyleID="NumRoundExp.json"
-	onMovedFromChildToWS=""
-	onMovedToChild="">
+	nodeStyleID="NumRoundExp.json">
 
 	<ConnectorSection name="NumberExpSctn">
 		<Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
@@ -13,11 +12,10 @@
 			name="noShosutenIka"
 			fixed="true">
 			<Node
-				type="label"
+				type="text"
 				bhNodeID="idNumRoundExp.prvNode0"
 				name="noShosutenIka"
 				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
 				initString="の小数点以下">
 			</Node>
 		</PrivateConnector>
@@ -27,11 +25,11 @@
 			name="Option0"
     		fixed="true">
 			<Node
-				type="comboBox"
+				type="text"
 				bhNodeID="idNumRoundExp.prvNode1"
 				name="NumRoundOpe"
 				nodeStyleID="WordComboBox.json"
-				nodeInputControl="NumRoundOpe.fxml">
+				onViewContentsCreating="CreateNumRoundOps.js">
 			</Node>
 		</PrivateConnector>
 	</ConnectorSection>
