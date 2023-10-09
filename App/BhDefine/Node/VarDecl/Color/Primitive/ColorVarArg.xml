@@ -1,11 +1,12 @@
-<Node type="connective"
-	  bhNodeID="idColorArg"
-	  name="ColorArg"
-	  nodeStyleID="ColorArg.json">
+<Node
+  type="connective"
+  bhNodeID="idColorArg"
+  name="ColorArg"
+  nodeStyleID="ColorArg.json">
 
-	<ConnectorSection>
-		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
-		<Connector bhConnectorID="idColorExpCnctr" name="Arg"/>
-		<Connector bhConnectorID="idArgCnctr" name="NextArg" imitCnctPos="imitPosNextArg"/>
-	</ConnectorSection>
+  <ConnectorSection>
+    <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
+    <Connector bhConnectorID="idColorExpCnctr" name="Arg"/>
+    <Connector bhConnectorID="idArgCnctr" name="NextArg" imitCnctPos="imitPosNextArg"/>
+  </ConnectorSection>
 </Node>

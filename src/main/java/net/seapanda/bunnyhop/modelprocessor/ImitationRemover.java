@@ -26,44 +26,44 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  */
 public class ImitationRemover implements BhModelProcessor {
 
-	private UserOperationCommand userOpeCmd;	//!< undo用コマンドオブジェクト
+  private UserOperationCommand userOpeCmd;  //!< undo用コマンドオブジェクト
 
-	/**
-	 * 引数で指定したノード以下にあるイミテーションノードをオリジナルノードのイミテーションノードリストから取り除く.
-	 * @param node このノード以下のイミテーションノードをイミテーションノードリストから取り除く.
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
-	public static void remove(BhNode node, UserOperationCommand userOpeCmd) {
-		node.accept(new ImitationRemover(userOpeCmd));
-	}
+  /**
+   * 引数で指定したノード以下にあるイミテーションノードをオリジナルノードのイミテーションノードリストから取り除く.
+   * @param node このノード以下のイミテーションノードをイミテーションノードリストから取り除く.
+   * @param userOpeCmd undo用コマンドオブジェクト
+   * */
+  public static void remove(BhNode node, UserOperationCommand userOpeCmd) {
+    node.accept(new ImitationRemover(userOpeCmd));
+  }
 
-	/**
-	 * コンストラクタ
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 */
-	private ImitationRemover(UserOperationCommand userOpeCmd) {
-		this.userOpeCmd = userOpeCmd;
-	}
+  /**
+   * コンストラクタ
+   * @param userOpeCmd undo用コマンドオブジェクト
+   */
+  private ImitationRemover(UserOperationCommand userOpeCmd) {
+    this.userOpeCmd = userOpeCmd;
+  }
 
-	/**
-	 * node の削除処理を行う
-	 * @param node 削除するノード
-	 * */
-	@Override
-	public void visit(ConnectiveNode node) {
+  /**
+   * node の削除処理を行う
+   * @param node 削除するノード
+   * */
+  @Override
+  public void visit(ConnectiveNode node) {
 
-		//このノードがイミテーションノードだった場合, オリジナルにイミテーションが消えたことを伝える
-		if (node.isImitationNode())
-			node.getOriginal().disconnectOrgImitRelation(node, userOpeCmd);
+    //このノードがイミテーションノードだった場合, オリジナルにイミテーションが消えたことを伝える
+    if (node.isImitationNode())
+      node.getOriginal().disconnectOrgImitRelation(node, userOpeCmd);
 
-		node.sendToSections(this);
-	}
+    node.sendToSections(this);
+  }
 
-	@Override
-	public void visit(TextNode node) {
+  @Override
+  public void visit(TextNode node) {
 
-		//このノードがイミテーションノードだった場合, オリジナルにイミテーションが消えたことを伝える
-		if (node.isImitationNode())
-			node.getOriginal().disconnectOrgImitRelation(node, userOpeCmd);
-	}
+    //このノードがイミテーションノードだった場合, オリジナルにイミテーションが消えたことを伝える
+    if (node.isImitationNode())
+      node.getOriginal().disconnectOrgImitRelation(node, userOpeCmd);
+  }
 }

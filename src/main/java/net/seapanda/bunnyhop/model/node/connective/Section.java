@@ -29,98 +29,98 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  */
 public abstract class Section extends SyntaxSymbol {
 
-	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	//どちらか一方のみのフィールドが親オブジェクトを持つ
-	protected ConnectiveNode parentNode;	//!< このセクションを保持している ConnectiveNode オブジェクト
-	protected Subsection parentSection;	//!< このセクションを保持している Subsection オブジェクト
+  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
+  //どちらか一方のみのフィールドが親オブジェクトを持つ
+  protected ConnectiveNode parentNode;  //!< このセクションを保持している ConnectiveNode オブジェクト
+  protected Subsection parentSection;  //!< このセクションを保持している Subsection オブジェクト
 
-	/**
-	 * コンストラクタ
-	 * @param symbolName  終端, 非終端記号名
-	 * */
-	protected Section(String symbolName) {
-		super(symbolName);
-	}
+  /**
+   * コンストラクタ
+   * @param symbolName  終端, 非終端記号名
+   * */
+  protected Section(String symbolName) {
+    super(symbolName);
+  }
 
-	/**
-	 * コピーコンストラクタ
-	 * @param org コピー元オブジェクト
-	 */
-	protected Section(Section org) {
-		super(org);
-	}
+  /**
+   * コピーコンストラクタ
+   * @param org コピー元オブジェクト
+   */
+  protected Section(Section org) {
+    super(org);
+  }
 
-	/**
-	 * このノードのコピーを作成し返す
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @param isNodeToBeCopied ノードがコピーの対象かどうか判定する関数
-	 * @return このノードのコピー
-	 */
-	public abstract Section copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied);
+  /**
+   * このノードのコピーを作成し返す
+   * @param userOpeCmd undo用コマンドオブジェクト
+   * @param isNodeToBeCopied ノードがコピーの対象かどうか判定する関数
+   * @return このノードのコピー
+   */
+  public abstract Section copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied);
 
-	/**
-	 * 最後尾に繋がる外部ノードを探す
-	 * @param generation 取得する外部ノードの世代.
-	 *               例 (0: 自分, 1: 子世代の外部ノード, 2: 孫世代の外部ノード. 負の数: 末尾の外部ノードを取得する)
-	 * @return 最後尾に繋がる外部ノード
-	 */
-	public abstract BhNode findOuterNode(int generation);
+  /**
+   * 最後尾に繋がる外部ノードを探す
+   * @param generation 取得する外部ノードの世代.
+   *               例 (0: 自分, 1: 子世代の外部ノード, 2: 孫世代の外部ノード. 負の数: 末尾の外部ノードを取得する)
+   * @return 最後尾に繋がる外部ノード
+   */
+  public abstract BhNode findOuterNode(int generation);
 
-	/**
-	 * このセクションを保持している ConnectiveNode オブジェクトをセットする
-	 * @param parentNode このセクションを保持している ConnectiveNode オブジェクト
-	 */
-	public void setParent(ConnectiveNode parentNode) {
-		this.parentNode = parentNode;
-	}
+  /**
+   * このセクションを保持している ConnectiveNode オブジェクトをセットする
+   * @param parentNode このセクションを保持している ConnectiveNode オブジェクト
+   */
+  public void setParent(ConnectiveNode parentNode) {
+    this.parentNode = parentNode;
+  }
 
    /**
     * このセクションを保持しているSubsection オブジェクトを登録する
-	* @param parentSection このセクションを保持しているSubsection オブジェクト
+  * @param parentSection このセクションを保持しているSubsection オブジェクト
     * */
-	public void setParent(Subsection parentSection) {
-		this.parentSection = parentSection;
-	}
+  public void setParent(Subsection parentSection) {
+    this.parentSection = parentSection;
+  }
 
    /**
     * このセクションのルートとなるConnectiveNode オブジェクトを返す
-	* @return このセクションのルートとなるConnectiveNode オブジェクト
+  * @return このセクションのルートとなるConnectiveNode オブジェクト
     * */
-	public ConnectiveNode findParentNode() {
-		if (parentNode != null)
-			return parentNode;
+  public ConnectiveNode findParentNode() {
+    if (parentNode != null)
+      return parentNode;
 
-		return parentSection.findParentNode();
-	}
+    return parentSection.findParentNode();
+  }
 
-	@Override
-	public boolean isDescendantOf(SyntaxSymbol ancestor) {
+  @Override
+  public boolean isDescendantOf(SyntaxSymbol ancestor) {
 
-		if (this == ancestor)
-			return true;
+    if (this == ancestor)
+      return true;
 
-		if (parentNode != null)
-			return parentNode.isDescendantOf(ancestor);
+    if (parentNode != null)
+      return parentNode.isDescendantOf(ancestor);
 
-		return parentSection.isDescendantOf(ancestor);
-	}
+    return parentSection.isDescendantOf(ancestor);
+  }
 
-	@Override
-	public SyntaxSymbol findSymbolInAncestors(String symbolName, int generation, boolean toTop) {
+  @Override
+  public SyntaxSymbol findSymbolInAncestors(String symbolName, int generation, boolean toTop) {
 
-		if (generation == 0) {
-			if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
-				return this;
-			}
+    if (generation == 0) {
+      if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
+        return this;
+      }
 
-			if (!toTop) {
-				return null;
-			}
-		}
+      if (!toTop) {
+        return null;
+      }
+    }
 
-		if (parentNode != null)
-			return parentNode.findSymbolInAncestors(symbolName, Math.max(0, generation-1), toTop);
+    if (parentNode != null)
+      return parentNode.findSymbolInAncestors(symbolName, Math.max(0, generation-1), toTop);
 
-		return parentSection.findSymbolInAncestors(symbolName, Math.max(0, generation-1), toTop);
-	}
+    return parentSection.findSymbolInAncestors(symbolName, Math.max(0, generation-1), toTop);
+  }
 }

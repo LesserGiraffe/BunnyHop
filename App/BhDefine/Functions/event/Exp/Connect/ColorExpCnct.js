@@ -1,11 +1,11 @@
 (function() {
 
-	let section = bhNodeToConnect.findSymbolInDescendants('*');
-	let sectionName = null;
-	if (section !== null) {
-		sectionName = String(section.getSymbolName());
-	}
+  let section = bhNodeToConnect.findSymbolInDescendants('*');
+  let sectionName = null;
+  if (section !== null) {
+    sectionName = String(section.getSymbolName());
+  }
 
-	return sectionName === 'ColorExpSctn' ||
-		   sectionName === 'AnyExpSctn';
+  return sectionName === 'ColorExpSctn' ||
+       sectionName === 'AnyExpSctn';
 })();

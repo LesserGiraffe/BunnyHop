@@ -1,15 +1,15 @@
 .soundType {
-	-fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, soundTypeCol 50%, derive(soundTypeCol, 50%) 0em);
+  -fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, soundTypeCol 50%, derive(soundTypeCol, 50%) 0em);
 }
 
 .soundType:isEven {
-	-fx-fill: soundTypeCol;
+  -fx-fill: soundTypeCol;
 }
 
 .soundVarType {
-	-fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, soundTypeCol 50%, derive(soundTypeCol, 50%) 0em);
+  -fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, soundTypeCol 50%, derive(soundTypeCol, 50%) 0em);
 }
 
 .soundVarType:isEven {
-	-fx-fill: soundTypeCol;
+  -fx-fill: soundTypeCol;
 }

@@ -21,7 +21,7 @@ package net.seapanda.bunnyhop.view;
  */
 public class ViewInitializationException extends Exception {
 
-	public ViewInitializationException(String msg) {
-		super(msg);
-	}
+  public ViewInitializationException(String msg) {
+    super(msg);
+  }
 }

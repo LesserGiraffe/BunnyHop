@@ -14,42 +14,42 @@
  * limitations under the License.
  */
 module net.seapanda.bunnyhop {
-	requires java.xml;
-	requires java.rmi;
-	requires java.scripting;
-	requires java.desktop;
-	requires transitive javafx.graphics;
-	requires transitive javafx.controls;
-	requires javafx.fxml;
-	requires transitive javafx.base;
-	requires rhino;
-	requires jsch;
-	requires org.apache.commons.lang3;
-	//requires org.scenicview.scenicview;
+  requires java.xml;
+  requires java.rmi;
+  requires java.scripting;
+  requires java.desktop;
+  requires transitive javafx.graphics;
+  requires transitive javafx.controls;
+  requires javafx.fxml;
+  requires transitive javafx.base;
+  requires rhino;
+  requires jsch;
+  requires org.apache.commons.lang3;
+  //requires org.scenicview.scenicview;
 
-	exports net.seapanda.bunnyhop.root;
-	exports net.seapanda.bunnyhop.model;
-	exports net.seapanda.bunnyhop.model.node;
-	exports net.seapanda.bunnyhop.model.node.attribute;
-	exports net.seapanda.bunnyhop.model.node.connective;
-	exports net.seapanda.bunnyhop.model.node.event;
-	exports net.seapanda.bunnyhop.model.node.imitation;
-	exports net.seapanda.bunnyhop.model.templates;
-	exports net.seapanda.bunnyhop.modelservice;
-	exports net.seapanda.bunnyhop.modelprocessor;
-	exports net.seapanda.bunnyhop.model.syntaxsymbol;
-	exports net.seapanda.bunnyhop.common;
-	exports net.seapanda.bunnyhop.common.tools;
-	exports net.seapanda.bunnyhop.common.constant;
-	exports net.seapanda.bunnyhop.message;
-	exports net.seapanda.bunnyhop.bhprogram.common;	//[java -jar BhProgramExecEnv.jar] を自己完結型の Javaから呼ぶために必要
-	exports net.seapanda.bunnyhop.view;
-	exports net.seapanda.bunnyhop.view.node;
-	exports net.seapanda.bunnyhop.view.node.part;
-	opens net.seapanda.bunnyhop.view to javafx.fxml;
-	opens net.seapanda.bunnyhop.view.workspace to javafx.fxml;
-	opens net.seapanda.bunnyhop.view.nodeselection to javafx.fxml;
-	opens net.seapanda.bunnyhop.control to javafx.fxml;
-	opens net.seapanda.bunnyhop.control.workspace to javafx.fxml;
-	opens net.seapanda.bunnyhop.control.nodeselection to javafx.fxml;
+  exports net.seapanda.bunnyhop.root;
+  exports net.seapanda.bunnyhop.model;
+  exports net.seapanda.bunnyhop.model.node;
+  exports net.seapanda.bunnyhop.model.node.attribute;
+  exports net.seapanda.bunnyhop.model.node.connective;
+  exports net.seapanda.bunnyhop.model.node.event;
+  exports net.seapanda.bunnyhop.model.node.imitation;
+  exports net.seapanda.bunnyhop.model.templates;
+  exports net.seapanda.bunnyhop.modelservice;
+  exports net.seapanda.bunnyhop.modelprocessor;
+  exports net.seapanda.bunnyhop.model.syntaxsymbol;
+  exports net.seapanda.bunnyhop.common;
+  exports net.seapanda.bunnyhop.common.tools;
+  exports net.seapanda.bunnyhop.common.constant;
+  exports net.seapanda.bunnyhop.message;
+  exports net.seapanda.bunnyhop.bhprogram.common;  //[java -jar BhProgramExecEnv.jar] を自己完結型の Javaから呼ぶために必要
+  exports net.seapanda.bunnyhop.view;
+  exports net.seapanda.bunnyhop.view.node;
+  exports net.seapanda.bunnyhop.view.node.part;
+  opens net.seapanda.bunnyhop.view to javafx.fxml;
+  opens net.seapanda.bunnyhop.view.workspace to javafx.fxml;
+  opens net.seapanda.bunnyhop.view.nodeselection to javafx.fxml;
+  opens net.seapanda.bunnyhop.control to javafx.fxml;
+  opens net.seapanda.bunnyhop.control.workspace to javafx.fxml;
+  opens net.seapanda.bunnyhop.control.nodeselection to javafx.fxml;
 }

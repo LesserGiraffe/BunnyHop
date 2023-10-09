@@ -1,9 +1,10 @@
-<Node type="connective"
-	  bhNodeID="idAnyToStrExp"
-	  name="AnyToStrExp"
-	  nodeStyleID="ToStrExp.json">
+<Node
+  type="connective"
+  bhNodeID="idAnyToStrExp"
+  name="AnyToStrExp"
+  nodeStyleID="ToStrExp.json">
 
-	<ConnectorSection name="StringExpSctn">
-		<Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
+  <ConnectorSection name="StringExpSctn">
+    <Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
     </ConnectorSection>
 </Node>

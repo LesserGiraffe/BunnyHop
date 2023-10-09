@@ -1,7 +1,7 @@
 <Node
-	type="text"
-	bhNodeID="idArgVoid" 
-	name="ArgVoid" 
-	nodeStyleID="ArgVoid.json"
-	initString="">
+  type="text"
+  bhNodeID="idArgVoid" 
+  name="ArgVoid" 
+  nodeStyleID="ArgVoid.json"
+  initString="">
 </Node>

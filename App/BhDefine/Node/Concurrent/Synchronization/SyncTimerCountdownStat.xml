@@ -1,29 +1,30 @@
-<Node type="connective"
-	bhNodeID="idSyncTimerCountdownStat"
-	name="SyncTimerCountdownStat"
-	nodeStyleID="SyncTimerCountdownStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+<Node
+  type="connective"
+  bhNodeID="idSyncTimerCountdownStat"
+  name="SyncTimerCountdownStat"
+  nodeStyleID="SyncTimerCountdownStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
 
-		<PrivateConnector
-			bhConnectorID="idSyncTimerCountdownStat.prvCnctr0"
-			name="countdown"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idSyncTimerCountdownStat.prvNode0"
-				name="countdown"
-				nodeStyleID="WordLabel2.json"
-				initString="のカウントを 1 減らす">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+    <PrivateConnector
+      bhConnectorID="idSyncTimerCountdownStat.prvCnctr0"
+      name="countdown"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idSyncTimerCountdownStat.prvNode0"
+        name="countdown"
+        nodeStyleID="WordLabel2.json"
+        initString="のカウントを 1 減らす">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

@@ -1,23 +1,23 @@
 <Node
-	type="connective"
-	bhNodeID="idStrList"
-	name="StrList"
-	nodeStyleID="StrList.json"
-	onSyntaxChecking="IsOutOfScope.js">
+  type="connective"
+  bhNodeID="idStrList"
+  name="StrList"
+  nodeStyleID="StrList.json"
+  onSyntaxChecking="IsOutOfScope.js">
 
-	<ConnectorSection name="StringListSctn">
-		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
-		<PrivateConnector
-			bhConnectorID="idStrList.prvCnctr0"
-			name="ListSign"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idStrList.prvNode0"
-				name="ListSign"
-				nodeStyleID="WordLabel1.json"
-				initString="[...]">
-			</Node>
-		</PrivateConnector>
-	</ConnectorSection>
+  <ConnectorSection name="StringListSctn">
+    <Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
+    <PrivateConnector
+      bhConnectorID="idStrList.prvCnctr0"
+      name="ListSign"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idStrList.prvNode0"
+        name="ListSign"
+        nodeStyleID="WordLabel1.json"
+        initString="[...]">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
 </Node>

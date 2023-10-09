@@ -1,49 +1,49 @@
 <Node
-	type="connective"
-	bhNodeID="idStrArrayGetExp"
-	name="StrArrayGetExp"
-	nodeStyleID="StrArrayGetExp.json">
+  type="connective"
+  bhNodeID="idStrArrayGetExp"
+  name="StrArrayGetExp"
+  nodeStyleID="StrArrayGetExp.json">
 
-	<ConnectorSection name="StringExpSctn">
-		<Connector bhConnectorID="idStrListCnctr" name="Arg0"/>
-		
-		<PrivateConnector
-			bhConnectorID="idStrArrayGetExp.prvCnctr0"
-			name="no"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idStrArrayGetExp.prvNode0"
-				name="no"
-				nodeStyleID="WordLabel1.json"
-				initString="の">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-		
-		<PrivateConnector
-			bhConnectorID="idStrArrayGetExp.prvCnctr1"
-			name="banmeNoYoso"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idStrArrayGetExp.prvNode1"
-				name="banmeNoYoso"
-				nodeStyleID="WordLabel1.json"
-				initString="番目の要素">
-			</Node>
-		</PrivateConnector>
-		
-		<PrivateConnector
-			bhConnectorID="idStrArrayGetExp.prvCnctr2"
-			name="Arg2"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idStrArrayGetExp.prvNode2"
-				name="StrLiteral"
-				initString=""/>
-		</PrivateConnector>
-	</ConnectorSection>
+  <ConnectorSection name="StringExpSctn">
+    <Connector bhConnectorID="idStrListCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idStrArrayGetExp.prvCnctr0"
+      name="no"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idStrArrayGetExp.prvNode0"
+        name="no"
+        nodeStyleID="WordLabel1.json"
+        initString="の">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+    
+    <PrivateConnector
+      bhConnectorID="idStrArrayGetExp.prvCnctr1"
+      name="banmeNoYoso"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idStrArrayGetExp.prvNode1"
+        name="banmeNoYoso"
+        nodeStyleID="WordLabel1.json"
+        initString="番目の要素">
+      </Node>
+    </PrivateConnector>
+    
+    <PrivateConnector
+      bhConnectorID="idStrArrayGetExp.prvCnctr2"
+      name="Arg2"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idStrArrayGetExp.prvNode2"
+        name="StrLiteral"
+        initString=""/>
+    </PrivateConnector>
+  </ConnectorSection>
 </Node>

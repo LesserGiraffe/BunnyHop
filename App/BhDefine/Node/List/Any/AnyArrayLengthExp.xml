@@ -1,24 +1,24 @@
 <Node
-	type="connective"
-	bhNodeID="idAnyArrayLengthExp"
-	name="AnyArrayLengthExp"
-	nodeStyleID="AnyArrayLengthExp.json">
+  type="connective"
+  bhNodeID="idAnyArrayLengthExp"
+  name="AnyArrayLengthExp"
+  nodeStyleID="AnyArrayLengthExp.json">
 
-	<ConnectorSection name="NumberExpSctn">
-		<Connector bhConnectorID="idAnyListCnctr" name="Array"/>
-		
-		<PrivateConnector
-			bhConnectorID="idAnyArrayLengthExp.prvCnctr0"
-			name="noSaizu"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idAnyArrayLengthExp.prvNode0"
-				name="noSaizu"
-				nodeStyleID="WordLabel1.json"
-				initString="のサイズ">
-			</Node>
-		</PrivateConnector>
-		
-	</ConnectorSection>
+  <ConnectorSection name="NumberExpSctn">
+    <Connector bhConnectorID="idAnyListCnctr" name="Array"/>
+    
+    <PrivateConnector
+      bhConnectorID="idAnyArrayLengthExp.prvCnctr0"
+      name="noSaizu"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyArrayLengthExp.prvNode0"
+        name="noSaizu"
+        nodeStyleID="WordLabel1.json"
+        initString="のサイズ">
+      </Node>
+    </PrivateConnector>
+    
+  </ConnectorSection>
 </Node>

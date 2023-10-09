@@ -25,45 +25,45 @@ import java.util.LinkedList;
  */
 public class BhProgramException extends RuntimeException implements Serializable {
 
-	private final Deque<BhNodeInstanceID> callStack;
-	private final String scriptEngineMsg;
+  private final Deque<BhNodeInstanceID> callStack;
+  private final String scriptEngineMsg;
 
-	/**
-	 * コンストラクタ
-	 * @param callStack 例外が発生した時のコールスタック
-	 * @param msg 例外メッセージ
-	 */
-	public BhProgramException(Collection<BhNodeInstanceID> callStack, String msg) {
+  /**
+   * コンストラクタ
+   * @param callStack 例外が発生した時のコールスタック
+   * @param msg 例外メッセージ
+   */
+  public BhProgramException(Collection<BhNodeInstanceID> callStack, String msg) {
 
-		super(msg);
-		this.callStack = new LinkedList<>(callStack);
-		scriptEngineMsg = "";
-	}
+    super(msg);
+    this.callStack = new LinkedList<>(callStack);
+    scriptEngineMsg = "";
+  }
 
-	/**
-	 * コンストラクタ
-	 * @param callStack 例外が発生した時のコールスタック
-	 * @param msg 例外メッセージ
-	 * @param scriptEngineMsg BhProgram の実行エンジンから返されたエラーメッセージ
-	 */
-	public BhProgramException(Collection<BhNodeInstanceID> callStack, String msg, String scriptEngineMsg) {
+  /**
+   * コンストラクタ
+   * @param callStack 例外が発生した時のコールスタック
+   * @param msg 例外メッセージ
+   * @param scriptEngineMsg BhProgram の実行エンジンから返されたエラーメッセージ
+   */
+  public BhProgramException(Collection<BhNodeInstanceID> callStack, String msg, String scriptEngineMsg) {
 
-		super(msg);
-		this.callStack = new LinkedList<>(callStack);
-		this.scriptEngineMsg = scriptEngineMsg;
-	}
+    super(msg);
+    this.callStack = new LinkedList<>(callStack);
+    this.scriptEngineMsg = scriptEngineMsg;
+  }
 
-	/**
-	 * BhProgram の実行エンジンから返されたエラーメッセージを取得する
-	 */
-	public String getScriptEngineMsg() {
-		return scriptEngineMsg;
-	}
+  /**
+   * BhProgram の実行エンジンから返されたエラーメッセージを取得する
+   */
+  public String getScriptEngineMsg() {
+    return scriptEngineMsg;
+  }
 
-	/**
-	 * 例外が発生した時のコールスタックを取得する
-	 */
-	public Deque<BhNodeInstanceID> getCallStack() {
-		return new LinkedList<>(callStack);
-	}
+  /**
+   * 例外が発生した時のコールスタックを取得する
+   */
+  public Deque<BhNodeInstanceID> getCallStack() {
+    return new LinkedList<>(callStack);
+  }
 }

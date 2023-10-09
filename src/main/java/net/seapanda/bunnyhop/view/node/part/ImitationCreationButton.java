@@ -38,60 +38,60 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  */
 public final class ImitationCreationButton extends Button {
 
-	/**
-	 * イミテーション作成ボタンを作成する
-	 * @param model ボタンを持つビューに対応するノード
-	 * @param buttonStyle ボタンに適用するスタイル
-	 */
-	public static Optional<ImitationCreationButton> create(
-		Imitatable node, BhNodeViewStyle.Button buttonStyle) {
+  /**
+   * イミテーション作成ボタンを作成する
+   * @param model ボタンを持つビューに対応するノード
+   * @param buttonStyle ボタンに適用するスタイル
+   */
+  public static Optional<ImitationCreationButton> create(
+    Imitatable node, BhNodeViewStyle.Button buttonStyle) {
 
-		try {
-			return Optional.of(new ImitationCreationButton(node, buttonStyle));
-		}
-		catch (IOException | ClassCastException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(ImitationCreationButton.class.getSimpleName()
-				+ "  failed to create a ImitationCreationButton\n" + e);
-			return Optional.empty();
-		}
-	}
+    try {
+      return Optional.of(new ImitationCreationButton(node, buttonStyle));
+    }
+    catch (IOException | ClassCastException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(ImitationCreationButton.class.getSimpleName()
+        + "  failed to create a ImitationCreationButton\n" + e);
+      return Optional.empty();
+    }
+  }
 
-	private ImitationCreationButton(Imitatable node, BhNodeViewStyle.Button buttonStyle)
-		throws IOException, ClassCastException {
+  private ImitationCreationButton(Imitatable node, BhNodeViewStyle.Button buttonStyle)
+    throws IOException, ClassCastException {
 
-		ComponentLoader.loadButton(BhParams.Path.IMIT_BUTTON_FXML, this, buttonStyle);
-		setOnAction(event -> ImitationCreationButton.onImitCreating(event, node));
-	}
+    ComponentLoader.loadButton(BhParams.Path.IMIT_BUTTON_FXML, this, buttonStyle);
+    setOnAction(event -> ImitationCreationButton.onImitCreating(event, node));
+  }
 
-	/**
-	 * イミテーション作成時のイベントハンドラ
-	 */
-	private static void onImitCreating(ActionEvent event, Imitatable node) {
+  /**
+   * イミテーション作成時のイベントハンドラ
+   */
+  private static void onImitCreating(ActionEvent event, Imitatable node) {
 
-		if (MsgService.INSTANCE.isTemplateNode(node))
-			return;
+    if (MsgService.INSTANCE.isTemplateNode(node))
+      return;
 
-		ModelExclusiveControl.INSTANCE.lockForModification();
-		try {
-			createImitationNode(node);
-			event.consume();
-		}
-		finally {
-			ModelExclusiveControl.INSTANCE.unlockForModification();
-		}
-	}
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      createImitationNode(node);
+      event.consume();
+    }
+    finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
+  }
 
-	/**
-	 * @param model 作成するイミテーションのオリジナルノード
-	 */
-	private static void createImitationNode(Imitatable node) {
+  /**
+   * @param model 作成するイミテーションのオリジナルノード
+   */
+  private static void createImitationNode(Imitatable node) {
 
-		UserOperationCommand userOpeCmd = new UserOperationCommand();
-		Vec2D pos = MsgService.INSTANCE.getPosOnWS(node);
-		double x = pos.x + BhParams.LnF.REPLACED_NODE_SHIFT;
-		double y = pos.y + BhParams.LnF.REPLACED_NODE_SHIFT;
-		Imitatable imitNode = ImitationBuilder.build(node, ImitationID.MANUAL, true, userOpeCmd);
-		BhNodeHandler.INSTANCE.addRootNode(node.getWorkspace(), imitNode, x, y, userOpeCmd);
-		BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-	}
+    UserOperationCommand userOpeCmd = new UserOperationCommand();
+    Vec2D pos = MsgService.INSTANCE.getPosOnWS(node);
+    double x = pos.x + BhParams.LnF.REPLACED_NODE_SHIFT;
+    double y = pos.y + BhParams.LnF.REPLACED_NODE_SHIFT;
+    Imitatable imitNode = ImitationBuilder.build(node, ImitationID.MANUAL, true, userOpeCmd);
+    BhNodeHandler.INSTANCE.addRootNode(node.getWorkspace(), imitNode, x, y, userOpeCmd);
+    BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+  }
 }

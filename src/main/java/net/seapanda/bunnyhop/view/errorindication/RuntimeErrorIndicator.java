@@ -26,22 +26,22 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
  */
 class RuntimeErrorIndicator {
 
-	//BhNodeView
+  //BhNodeView
 
-	/**
-	 * コンストラクタ
-	 * @param exception 実行時エラー情報を含む例外オブジェクト
-	 * @param nodeIdToNodeView エラー表示を追加するビューの一覧
-	 */
-	public void RuntimeErrorIndicator(BhProgramException exception, Map<BhNodeID, BhNodeView> nodeIdToNodeView) {
-	}
+  /**
+   * コンストラクタ
+   * @param exception 実行時エラー情報を含む例外オブジェクト
+   * @param nodeIdToNodeView エラー表示を追加するビューの一覧
+   */
+  public void RuntimeErrorIndicator(BhProgramException exception, Map<BhNodeID, BhNodeView> nodeIdToNodeView) {
+  }
 
-	/**
-	 * エラー情報を構築する
-	 */
-	private void buildErrorIndication() {
+  /**
+   * エラー情報を構築する
+   */
+  private void buildErrorIndication() {
 
-	}
+  }
 
 
 }

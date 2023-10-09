@@ -31,57 +31,57 @@ import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
  */
 public class ComponentLoader {
 
-	/**
-	 * FXML ファイルからボタンをロードする
-	 * @param fileName ボタンをロードするFXMLファイル名
-	 * @param root このオブジェクトに対してボタンをロードする
-	 * @param buttonStyle ボタンに適用するスタイル
-	 * @return 成功した場合 true
-	 */
-	public static void loadButton(String fileName, Button root, BhNodeViewStyle.Button buttonStyle)
-		throws IOException, ClassCastException {
+  /**
+   * FXML ファイルからボタンをロードする
+   * @param fileName ボタンをロードするFXMLファイル名
+   * @param root このオブジェクトに対してボタンをロードする
+   * @param buttonStyle ボタンに適用するスタイル
+   * @return 成功した場合 true
+   */
+  public static void loadButton(String fileName, Button root, BhNodeViewStyle.Button buttonStyle)
+    throws IOException, ClassCastException {
 
-		Path filePath = FXMLCollector.INSTANCE.getFilePath(fileName);
-		FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
-		loader.setController(root);
-		loader.setRoot(root);
-		loader.load();
-		setBtnStyle(buttonStyle, root);
-	}
+    Path filePath = FXMLCollector.INSTANCE.getFilePath(fileName);
+    FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
+    loader.setController(root);
+    loader.setRoot(root);
+    loader.load();
+    setBtnStyle(buttonStyle, root);
+  }
 
-	/**
-	 * イミテーションノード作成ボタンのスタイルを指定する
-	 * @param style イミテーションノード作成ボタンのスタイル情報が格納されたオブジェクト
-	 */
-	private static void setBtnStyle(BhNodeViewStyle.Button style, Button button) {
+  /**
+   * イミテーションノード作成ボタンのスタイルを指定する
+   * @param style イミテーションノード作成ボタンのスタイル情報が格納されたオブジェクト
+   */
+  private static void setBtnStyle(BhNodeViewStyle.Button style, Button button) {
 
-		button.setTranslateX(style.buttonPosX);
-		button.setTranslateY(style.buttonPosY);
-		button.getStyleClass().add(style.cssClass);
-	}
+    button.setTranslateX(style.buttonPosX);
+    button.setTranslateY(style.buttonPosY);
+    button.getStyleClass().add(style.cssClass);
+  }
 
-	/**
-	 * {@code BhNodeID} に応じた GUI コンポーネントをロードする
-	 * @param id このノード ID に対応する GUI コンポーネントをロードする
-	 * @return ロードした GUI コンポーネント. ロードに失敗した場合は, {@code Optional.empty()}
-	 */
-	public static <T extends Control> Optional<T> loadComponent(String contentFilePath) {
+  /**
+   * {@code BhNodeID} に応じた GUI コンポーネントをロードする
+   * @param id このノード ID に対応する GUI コンポーネントをロードする
+   * @return ロードした GUI コンポーネント. ロードに失敗した場合は, {@code Optional.empty()}
+   */
+  public static <T extends Control> Optional<T> loadComponent(String contentFilePath) {
 
-		if (contentFilePath == null)
-			return Optional.empty();
+    if (contentFilePath == null)
+      return Optional.empty();
 
-		Path filePath = FXMLCollector.INSTANCE.getFilePath(contentFilePath);
-		if (filePath == null)
-			return Optional.empty();
+    Path filePath = FXMLCollector.INSTANCE.getFilePath(contentFilePath);
+    if (filePath == null)
+      return Optional.empty();
 
-		try {
-			FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
-			return Optional.of(loader.<T>load());
-		}
-		catch (IOException | ClassCastException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				"failed to load component in " + contentFilePath + "\n" +  e.toString());
-			return Optional.empty();
-		}
-	}
+    try {
+      FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
+      return Optional.of(loader.<T>load());
+    }
+    catch (IOException | ClassCastException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+        "failed to load component in " + contentFilePath + "\n" +  e.toString());
+      return Optional.empty();
+    }
+  }
 }

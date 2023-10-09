@@ -1,25 +1,25 @@
 (function() {
 
-	try {
-		let dnum = java.lang.Double.parseDouble(bhText);
-		let lastChar = bhText.slice(-1);
-		if (!java.lang.Double.isFinite(dnum))
-			return false;
+  try {
+    let dnum = java.lang.Double.parseDouble(bhText);
+    let lastChar = bhText.slice(-1);
+    if (!java.lang.Double.isFinite(dnum))
+      return false;
 
-		return (lastChar !== 'd' && lastChar !== 'D' && lastChar !== 'f' && lastChar !== 'F');
-	}
-	catch(e){}
+    return (lastChar !== 'd' && lastChar !== 'D' && lastChar !== 'f' && lastChar !== 'F');
+  }
+  catch(e){}
 
-	if (bhText.length >= 2) {
-		if (String(bhText.substr(0,2)) === "0x") {
-			try {
-				java.lang.Integer.parseInt(bhText.substr(2, bhText.length), 16);
-				return true;
-			}
-			catch(e){}
-		}
-	}
-	return false;
+  if (bhText.length >= 2) {
+    if (String(bhText.substr(0,2)) === "0x") {
+      try {
+        java.lang.Integer.parseInt(bhText.substr(2, bhText.length), 16);
+        return true;
+      }
+      catch(e){}
+    }
+  }
+  return false;
 })();
 
 

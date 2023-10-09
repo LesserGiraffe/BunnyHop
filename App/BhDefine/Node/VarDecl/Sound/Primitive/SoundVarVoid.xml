@@ -1,7 +1,7 @@
 <Node
-	type="text"
-	bhNodeID="idSoundVarVoid"
-	name="SoundVarVoid"
-	nodeStyleID="SoundVarVoid.json"
-	onMovedFromChildToWS="DeleteNode.js">
+  type="text"
+  bhNodeID="idSoundVarVoid"
+  name="SoundVarVoid"
+  nodeStyleID="SoundVarVoid.json"
+  onMovedFromChildToWS="DeleteNode.js">
 </Node>

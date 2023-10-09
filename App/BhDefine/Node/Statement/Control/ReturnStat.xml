@@ -1,25 +1,25 @@
 <Node
-	type="connective"
-	bhNodeID="idReturnStat"
-	name="ReturnStat"
-	nodeStyleID="ReturnStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idReturnStat"
+  name="ReturnStat"
+  nodeStyleID="ReturnStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<PrivateConnector
-			bhConnectorID="idReturnStat.prvCnctr0"
-			name="kinouKaraNukeru"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idReturnStat.prvNode0"
-				name="kinouKaraNukeru"
-				nodeStyleID="WordLabel1.json"
-				initString="機能から抜ける">
-			</Node>
-		</PrivateConnector>
-	</ConnectorSection>
+  <ConnectorSection name="StatSctn">
+    <PrivateConnector
+      bhConnectorID="idReturnStat.prvCnctr0"
+      name="kinouKaraNukeru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idReturnStat.prvNode0"
+        name="kinouKaraNukeru"
+        nodeStyleID="WordLabel1.json"
+        initString="機能から抜ける">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
 </Node>

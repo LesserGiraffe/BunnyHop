@@ -1,34 +1,34 @@
 <Node
-	type="connective"
-	bhNodeID="idColorArrayGetLastExp"
-	name="ColorArrayGetLastExp"
-	nodeStyleID="ColorArrayGetLastExp.json">
+  type="connective"
+  bhNodeID="idColorArrayGetLastExp"
+  name="ColorArrayGetLastExp"
+  nodeStyleID="ColorArrayGetLastExp.json">
 
-	<ConnectorSection name="ColorExpSctn">
-		<Connector bhConnectorID="idColorListCnctr" name="Arg0"/>
-		
-		<PrivateConnector
-			bhConnectorID="idColorArrayGetLastExp.prvCnctr0"
-			name="noSaigoNoYoso"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idColorArrayGetLastExp.prvNode0"
-				name="noSaigoNoYoso"
-				nodeStyleID="WordLabel2.json"
-				initString="の最後の要素">
-			</Node>
-		</PrivateConnector>
-		
-		<PrivateConnector
-			bhConnectorID="idColorArrayGetLastExp.prvCnctr1"
-			name="Arg1"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idColorArrayGetLastExp.prvNode1"
-				name="NilColor"
-				initString="_nilColor"/>
-		</PrivateConnector>
-	</ConnectorSection>
+  <ConnectorSection name="ColorExpSctn">
+    <Connector bhConnectorID="idColorListCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idColorArrayGetLastExp.prvCnctr0"
+      name="noSaigoNoYoso"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idColorArrayGetLastExp.prvNode0"
+        name="noSaigoNoYoso"
+        nodeStyleID="WordLabel2.json"
+        initString="の最後の要素">
+      </Node>
+    </PrivateConnector>
+    
+    <PrivateConnector
+      bhConnectorID="idColorArrayGetLastExp.prvCnctr1"
+      name="Arg1"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idColorArrayGetLastExp.prvNode1"
+        name="NilColor"
+        initString="_nilColor"/>
+    </PrivateConnector>
+  </ConnectorSection>
 </Node>

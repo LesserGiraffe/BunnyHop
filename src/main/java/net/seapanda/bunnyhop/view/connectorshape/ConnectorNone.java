@@ -27,16 +27,16 @@ import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
 public class ConnectorNone extends ConnectorShape {
 
 
-	/** コネクタの頂点を算出する
-	 * @param offsetX 頂点に加算するオフセットX
-	 * @param offsetY 頂点に加算するオフセットY
-	 * @param width   コネクタの幅
-	 * @param height  コネクタの高さ
-	 * */
-	@Override
-	public List<Double> createVertices(double offsetX, double offsetY, double width, double height, CNCTR_POS pos) {
+  /** コネクタの頂点を算出する
+   * @param offsetX 頂点に加算するオフセットX
+   * @param offsetY 頂点に加算するオフセットY
+   * @param width   コネクタの幅
+   * @param height  コネクタの高さ
+   * */
+  @Override
+  public List<Double> createVertices(double offsetX, double offsetY, double width, double height, CNCTR_POS pos) {
 
-		return new ArrayList<>();
-	}
+    return new ArrayList<>();
+  }
 }
 

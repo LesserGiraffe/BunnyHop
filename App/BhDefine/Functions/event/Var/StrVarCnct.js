@@ -1,3 +1,3 @@
 (function() {
-	return String(bhNodeToConnect.getSymbolName()) === "StrVar";
+  return String(bhNodeToConnect.getSymbolName()) === "StrVar";
 })();

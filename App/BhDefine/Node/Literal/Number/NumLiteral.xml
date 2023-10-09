@@ -1,26 +1,26 @@
 <Node
-	type="connective"
-	bhNodeID="idNumLiteralExp"
-	name="NumLiteralExp"
-	nodeStyleID="NumLiteralExp.json"
-	onMovedFromChildToWS="OnLiteralMovedToWS.js">
+  type="connective"
+  bhNodeID="idNumLiteralExp"
+  name="NumLiteralExp"
+  nodeStyleID="NumLiteralExp.json"
+  onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
-	<ConnectorSection name="NumberExpSctn">
+  <ConnectorSection name="NumberExpSctn">
 
-		<PrivateConnector
-			bhConnectorID="idNumLiteralExp.prvCnctr0"
-			name="Literal"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idNumLiteral"
-				name="NumLiteral"
-				nodeStyleID="NumLiteral.json"
-				onViewContentsCreating="CreateEyeSelection.js"
-				onTextFormatting="FullWidthToHalfWidth.js"
-				onTextChecking="CheckNumFormat.js"
-			    initString="0">
-			</Node>
-		</PrivateConnector>
-	</ConnectorSection>
+    <PrivateConnector
+      bhConnectorID="idNumLiteralExp.prvCnctr0"
+      name="Literal"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNumLiteral"
+        name="NumLiteral"
+        nodeStyleID="NumLiteral.json"
+        onViewContentsCreating="CreateEyeSelection.js"
+        onTextFormatting="FullWidthToHalfWidth.js"
+        onTextChecking="CheckNumFormat.js"
+          initString="0">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
 </Node>

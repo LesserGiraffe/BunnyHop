@@ -1,27 +1,27 @@
 {
-	"paddingTop" : 0.0,
-	"paddingBottom" : 0.0,
-	"paddingLeft" : 0.0,
-	"paddingRight" : 1.0,
-	"bodyShape" : "NONE",
-	"connectorPos" : "Left",
-	"connectorShift" : 0.0,
-	"connectorWidth" : 0.0,
-	"connectorHeight" : 0.0,
-	"connectorShape" : "NONE",
-	"connectorBoundsRate" : 0.0,
-	"cssClass" : "strType",
+  "paddingTop" : 0.0,
+  "paddingBottom" : 0.0,
+  "paddingLeft" : 0.0,
+  "paddingRight" : 1.0,
+  "bodyShape" : "NONE",
+  "connectorPos" : "Left",
+  "connectorShift" : 0.0,
+  "connectorWidth" : 0.0,
+  "connectorHeight" : 0.0,
+  "connectorShape" : "NONE",
+  "connectorBoundsRate" : 0.0,
+  "cssClass" : "strType",
 
-	"connective" : {
-		"inner" : {
-			"space" : 1.0,
-			"arrangement" : "Row",
-			"connectorList" : ["StrAppendOpe", "Arg0"]
-		},
-		
-		"outer" : {
-			"connectorList" : ["Arg1"]
-		}
-	}
+  "connective" : {
+    "inner" : {
+      "space" : 1.0,
+      "arrangement" : "Row",
+      "connectorList" : ["StrAppendOpe", "Arg0"]
+    },
+    
+    "outer" : {
+      "connectorList" : ["Arg1"]
+    }
+  }
 }
 

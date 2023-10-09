@@ -32,8 +32,6 @@ import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
-import net.seapanda.bunnyhop.view.node.part.ImitationCreationButton;
-import net.seapanda.bunnyhop.view.node.part.PrivateTemplateCreationButton;
 import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 
 /**
@@ -42,150 +40,128 @@ import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
  */
 public final class TextFieldNodeView extends TextInputNodeView {
 
-	private TextField textField = new TextField();
-	private final TextNode model;
+  private TextField textField = new TextField();
+  private final TextNode model;
 
-	/**
-	 * コンストラクタ
-	 * @param model このノードビューに対応するノード
-	 * @param viewStyle このノードビューのスタイル
-	 * @throws ViewInitializationException ノードビューの初期化に失敗
-	 */
-	public TextFieldNodeView(TextNode model, BhNodeViewStyle viewStyle)
-		throws ViewInitializationException {
+  /**
+   * コンストラクタ
+   * @param model このノードビューに対応するノード
+   * @param viewStyle このノードビューのスタイル
+   * @throws ViewInitializationException ノードビューの初期化に失敗
+   */
+  public TextFieldNodeView(TextNode model, BhNodeViewStyle viewStyle)
+    throws ViewInitializationException {
 
-		super(model, viewStyle);
-		this.model = model;
-		init();
-	}
+    super(model, viewStyle);
+    this.model = model;
+    getTreeManager().addChild(textField);
+    textField.addEventFilter(MouseEvent.ANY, this::propagateEvent);
+    initStyle();
+  }
 
-	private void init() throws ViewInitializationException {
 
-		getTreeManager().addChild(textField);
-		textField.addEventFilter(MouseEvent.ANY, this::propagateEvent);
+  private void propagateEvent(Event event) {
 
-		if (model.canCreateImitManually) {
-			ImitationCreationButton imitButton = 
-				ImitationCreationButton.create(model, viewStyle.imitation)
-				.orElseThrow(() -> new ViewInitializationException(
-					getClass().getSimpleName() +
-					"  failed To load the Imitation Creation Button of this view."));
-			getTreeManager().addChild(imitButton);
-		}
+    getEventManager().propagateEvent(event);
+    if (MsgService.INSTANCE.isTemplateNode(model))
+      event.consume();
+  }
 
-		if (model.hasPrivateTemplateNodes()) {
-			PrivateTemplateCreationButton privateTemplateBtn =
-				PrivateTemplateCreationButton.create(model, viewStyle.privatTemplate)
-				.orElseThrow(() -> new ViewInitializationException(
-					getClass().getSimpleName() +
-					"  failed To load the Private Template Button of this view."));
-			getTreeManager().addChild(privateTemplateBtn);
-		}
+  private void initStyle() {
 
-		initStyle();
-	}
+    textField.setTranslateX(viewStyle.paddingLeft);
+    textField.setTranslateY(viewStyle.paddingTop);
+    textField.getStyleClass().add(viewStyle.textField.cssClass);
+    textField.heightProperty().addListener(observable -> notifySizeChange());
+    textField.widthProperty().addListener(observable -> notifySizeChange());
+    textField.setMaxWidth(USE_PREF_SIZE);
+    textField.setMinWidth(USE_PREF_SIZE);
+    getAppearanceManager().addCssClass(BhParams.CSS.CLASS_TEXT_FIELD_NODE);
+  }
 
-	private void propagateEvent(Event event) {
+  @Override
+  public TextNode getModel() {
+    return model;
+  }
 
-		getEventManager().propagateEvent(event);
-		if (MsgService.INSTANCE.isTemplateNode(model))
-			event.consume();
-	}
+  @Override
+  public void setTextChangeListener(Function<String, Boolean> checkFormatFunc) {
 
-	private void initStyle() {
+    textField.boundsInLocalProperty().addListener(
+      (observable, oldVal, newVal) -> updateTextFieldLook(checkFormatFunc));
 
-		textField.setTranslateX(viewStyle.paddingLeft);
-		textField.setTranslateY(viewStyle.paddingTop);
-		textField.getStyleClass().add(viewStyle.textField.cssClass);
-		textField.heightProperty().addListener(observable -> notifySizeChange());
-		textField.widthProperty().addListener(observable -> notifySizeChange());
-		textField.setMaxWidth(USE_PREF_SIZE);
-		textField.setMinWidth(USE_PREF_SIZE);
-		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_TEXT_FIELD_NODE);
-	}
+    // テキストの長さに応じてTextField の長さが変わるように
+    textField.textProperty().addListener(
+      (observable, oldVal, newVal) ->  updateTextFieldLook(checkFormatFunc));
+  }
 
-	@Override
-	public TextNode getModel() {
-		return model;
-	}
+  /**
+   * テキストフィールドの見た目を変える
+   * @param checkFormatFunc テキストのフォーマットをチェックする関数
+   * */
+  private void updateTextFieldLook(Function<String, Boolean> checkFormatFunc) {
 
-	@Override
-	public void setTextChangeListener(Function<String, Boolean> checkFormatFunc) {
+    Text textPart = (Text)textField.lookup(".text");
+    if (textPart != null) {
 
-		textField.boundsInLocalProperty().addListener(
-			(observable, oldVal, newVal) -> updateTextFieldLook(checkFormatFunc));
+      // 正確な文字部分の境界を取得するため, GUI部品内部のTextの境界は使わない.
+      double newWidth = ViewHelper.INSTANCE.calcStrWidth(textPart.getText(), textPart.getFont());
+      newWidth = Math.max(newWidth, viewStyle.textField.minWidth);
+      //幅を (文字幅 + パディング) にするとキャレットの移動時に文字が左右に移動するので定数 3 を足す.
+      //この定数はフォントやパディングが違っても機能する.
+      newWidth += textField.getPadding().getLeft() + textField.getPadding().getRight() + 3;
+      textField.setPrefWidth(newWidth);
+      boolean acceptable = checkFormatFunc.apply(textPart.getText());
+      if (acceptable)
+        textField.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), false);
+      else
+        textField.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), true);
+    }
+  }
 
-		// テキストの長さに応じてTextField の長さが変わるように
-		textField.textProperty().addListener(
-			(observable, oldVal, newVal) ->	updateTextFieldLook(checkFormatFunc));
-	}
+  @Override
+  protected void arrangeAndResize() {
+    getAppearanceManager().updatePolygonShape();
+  }
 
-	/**
-	 * テキストフィールドの見た目を変える
-	 * @param checkFormatFunc テキストのフォーマットをチェックする関数
-	 * */
-	private void updateTextFieldLook(Function<String, Boolean> checkFormatFunc) {
+  @Override
+  protected Vec2D getBodySize(boolean includeCnctr) {
 
-		Text textPart = (Text)textField.lookup(".text");
-		if (textPart != null) {
+    Vec2D cnctrSize = viewStyle.getConnectorSize();
+    // textField.getWidth() だと設定した値以外が返る場合がある
+    double bodyWidth = viewStyle.paddingLeft + textField.getPrefWidth() + viewStyle.paddingRight;
+    if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.LEFT))
+      bodyWidth += cnctrSize.x;
 
-			// 正確な文字部分の境界を取得するため, GUI部品内部のTextの境界は使わない.
-			double newWidth = ViewHelper.INSTANCE.calcStrWidth(textPart.getText(), textPart.getFont());
-			newWidth = Math.max(newWidth, viewStyle.textField.minWidth);
-			//幅を (文字幅 + パディング) にするとキャレットの移動時に文字が左右に移動するので定数 3 を足す.
-			//この定数はフォントやパディングが違っても機能する.
-			newWidth += textField.getPadding().getLeft() + textField.getPadding().getRight() + 3;
-			textField.setPrefWidth(newWidth);
-			boolean acceptable = checkFormatFunc.apply(textPart.getText());
-			if (acceptable)
-				textField.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), false);
-			else
-				textField.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), true);
-		}
-	}
+    double bodyHeight = viewStyle.paddingTop + textField.getHeight() + viewStyle.paddingBottom;
+    if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.TOP))
+      bodyHeight += cnctrSize.y;
 
-	@Override
-	protected void arrangeAndResize() {
-		getAppearanceManager().updatePolygonShape();
-	}
+    return new Vec2D(bodyWidth, bodyHeight);
+  }
 
-	@Override
-	protected Vec2D getBodySize(boolean includeCnctr) {
+  @Override
+  protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
+    return getBodySize(includeCnctr);
+  }
 
-		Vec2D cnctrSize = viewStyle.getConnectorSize();
+  @Override
+  protected TextInputControl getTextInputControl() {
+    return textField;
+  }
 
-		// textField.getWidth() だと設定した値以外が返る場合がある
-		double bodyWidth = viewStyle.paddingLeft + textField.getPrefWidth() + viewStyle.paddingRight;
-		if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.LEFT))
-			bodyWidth += cnctrSize.x;
+  @Override
+  public void accept(NodeViewProcessor visitor) {
+    visitor.visit(this);
+  }
 
-		double bodyHeight = viewStyle.paddingTop + textField.getHeight() + viewStyle.paddingBottom;
-		if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.TOP))
-			bodyHeight += cnctrSize.y;
-
-		return new Vec2D(bodyWidth, bodyHeight);
-	}
-
-	@Override
-	protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
-		return getBodySize(includeCnctr);
-	}
-
-	@Override
-	protected TextInputControl getTextInputControl() {
-		return textField;
-	}
-
-	@Override
-	public void accept(NodeViewProcessor visitor) {
-		visitor.visit(this);
-	}
-
-	@Override
-	public void show(int depth) {
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<" + this.getClass().getSimpleName() + ">   " + this.hashCode());
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<content" + ">   " + textField.getText());
-	}
+  @Override
+  public void show(int depth) {
+    MsgPrinter.INSTANCE.msgForDebug(
+      indent(depth) + "<" + this.getClass().getSimpleName() + ">   " + this.hashCode());
+    MsgPrinter.INSTANCE.msgForDebug(
+      indent(depth + 1) + "<content" + ">   " + textField.getText());
+  }
 }
 
 

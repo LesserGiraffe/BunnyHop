@@ -1,45 +1,45 @@
 <Node
-	type="connective"
-	bhNodeID="idNumAssignStat"
-	name="NumAssignStat"
-	nodeStyleID="NumAssignStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idNumAssignStat"
+  name="NumAssignStat"
+  nodeStyleID="NumAssignStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idNumVarCnctr" name="LeftVar"/>
-		
-		<PrivateConnector
-			bhConnectorID="idNumAssignStat.prvCnctr0"
-			name="ni"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idNumAssignStat.prvNode0"
-				name="ni"
-				nodeStyleID="WordLabel1.json"
-				initString="に">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idNumExpCnctr" name="RightExp"/>
-		
-		<PrivateConnector
-			bhConnectorID="idNumAssignStat.prvCnctr1"
-			name="woDainyuSuru"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idNumAssignStat.prvNode1"
-				name="woDainyuSuru"
-				nodeStyleID="WordLabel1.json"
-				initString="を代入する">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idNumVarCnctr" name="LeftVar"/>
+    
+    <PrivateConnector
+      bhConnectorID="idNumAssignStat.prvCnctr0"
+      name="ni"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNumAssignStat.prvNode0"
+        name="ni"
+        nodeStyleID="WordLabel1.json"
+        initString="に">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idNumExpCnctr" name="RightExp"/>
+    
+    <PrivateConnector
+      bhConnectorID="idNumAssignStat.prvCnctr1"
+      name="woDainyuSuru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNumAssignStat.prvNode1"
+        name="woDainyuSuru"
+        nodeStyleID="WordLabel1.json"
+        initString="を代入する">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

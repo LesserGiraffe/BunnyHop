@@ -1,30 +1,30 @@
 <Node
-	type="connective"
-	bhNodeID="idStrArrayClearStat"
-	name="StrArrayClearStat"
-	nodeStyleID="StrArrayClearStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idStrArrayClearStat"
+  name="StrArrayClearStat"
+  nodeStyleID="StrArrayClearStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idStrListCnctr" name="Arg0"/>
-		
-		<PrivateConnector
-			bhConnectorID="idStrArrayClearStat.prvCnctr0"
-			name="noYosoWoSubeteKesu"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idStrArrayClearStat.prvNode0"
-				name="noYosoWoSubeteKesu"
-				nodeStyleID="WordLabel1.json"
-				initString="の要素を全て消す">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idStrListCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idStrArrayClearStat.prvCnctr0"
+      name="noYosoWoSubeteKesu"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idStrArrayClearStat.prvNode0"
+        name="noYosoWoSubeteKesu"
+        nodeStyleID="WordLabel1.json"
+        initString="の要素を全て消す">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

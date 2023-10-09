@@ -41,182 +41,182 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  */
 public class BhNodeEventDispatcher implements Serializable {
 
-	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	private final BhNode target;
+  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
+  private final BhNode target;
 
-	/**
-	 * コンストラクタ
-	 * @param target このノードに登録されたイベントを処理する.
-	 */
-	public BhNodeEventDispatcher(BhNode target) {
-		this.target = target;
-	}
+  /**
+   * コンストラクタ
+   * @param target このノードに登録されたイベントを処理する.
+   */
+  public BhNodeEventDispatcher(BhNode target) {
+    this.target = target;
+  }
 
-	/**
-	 * 初期値が設定されたスクリプトスコープを作成する
-	 */
-	public ScriptableObject newDefaultScriptScope() {
+  /**
+   * 初期値が設定されたスクリプトスコープを作成する
+   */
+  public ScriptableObject newDefaultScriptScope() {
 
-		ScriptableObject scriptScope = BhScriptManager.INSTANCE.createScriptScope();
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_THIS, target);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, BhNodeTemplates.INSTANCE);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
-		return scriptScope;
-	}
+    ScriptableObject scriptScope = BhScriptManager.INSTANCE.createScriptScope();
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_THIS, target);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, BhNodeTemplates.INSTANCE);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
+    return scriptScope;
+  }
 
 
-	/**
-	 * 子ノードに移ったときのイベント処理を実行する
-	 * @param oldParent 移る前に接続されていた親. ワークスペースから子ノードに移動したときはnull.
-	 * @param oldRoot 移る前に所属していたノードツリーのルートノード. ワークスペースから子ノードに移動したときは, このオブジェクト.
-	 * @param oldReplaced 元々子ノードとしてつながっていたノード
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
-	public void dispatchOnMovedToChild(
-		ConnectiveNode oldParent,
-		BhNode oldRoot,
-		BhNode oldReplaced,
-		UserOperationCommand userOpeCmd) {
+  /**
+   * 子ノードに移ったときのイベント処理を実行する
+   * @param oldParent 移る前に接続されていた親. ワークスペースから子ノードに移動したときはnull.
+   * @param oldRoot 移る前に所属していたノードツリーのルートノード. ワークスペースから子ノードに移動したときは, このオブジェクト.
+   * @param oldReplaced 元々子ノードとしてつながっていたノード
+   * @param userOpeCmd undo用コマンドオブジェクト
+   * */
+  public void dispatchOnMovedToChild(
+    ConnectiveNode oldParent,
+    BhNode oldRoot,
+    BhNode oldReplaced,
+    UserOperationCommand userOpeCmd) {
 
-		Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_MOVED_TO_CHILD);
-		Script onMovedToChild = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
-		if (onMovedToChild == null)
-			return;
+    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_MOVED_TO_CHILD);
+    Script onMovedToChild = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+    if (onMovedToChild == null)
+      return;
 
-		ScriptableObject scriptScope = newDefaultScriptScope();
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldReplaced);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
-		try {
-			ContextFactory.getGlobal().call(cx -> onMovedToChild.exec(cx, scriptScope));
-		}
-		catch (Exception e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() +  ".dispatchOnMovedToChild   " + scriptName.get() + "\n" +
-				e.toString() + "\n");
-		}
-	}
+    ScriptableObject scriptScope = newDefaultScriptScope();
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldReplaced);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+    try {
+      ContextFactory.getGlobal().call(cx -> onMovedToChild.exec(cx, scriptScope));
+    }
+    catch (Exception e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+        BhNode.class.getSimpleName() +  ".dispatchOnMovedToChild   " + scriptName.get() + "\n" +
+        e.toString() + "\n");
+    }
+  }
 
-	/**
-	 * 子ノードからワークスペースに移ったときのイベント処理を実行する
-	 * @param oldParent 移る前に接続されていた親
-	 * @param oldRoot 移る前に所属していたルートノード
-	 * @param newReplaced WSに移る際, このノードの替わりにつながったノード
-	 * @param manuallyRemoved D&Dで子ノードからワークスペースに移された場合 true
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 */
-	public void dispatchOnMovedFromChildToWS(
-		ConnectiveNode oldParent,
-		BhNode oldRoot,
-		BhNode newReplaced,
-		Boolean manuallyRemoved,
-		UserOperationCommand userOpeCmd) {
+  /**
+   * 子ノードからワークスペースに移ったときのイベント処理を実行する
+   * @param oldParent 移る前に接続されていた親
+   * @param oldRoot 移る前に所属していたルートノード
+   * @param newReplaced WSに移る際, このノードの替わりにつながったノード
+   * @param manuallyRemoved D&Dで子ノードからワークスペースに移された場合 true
+   * @param userOpeCmd undo用コマンドオブジェクト
+   */
+  public void dispatchOnMovedFromChildToWS(
+    ConnectiveNode oldParent,
+    BhNode oldRoot,
+    BhNode newReplaced,
+    Boolean manuallyRemoved,
+    UserOperationCommand userOpeCmd) {
 
-		Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_MOVED_FROM_CHILD_TO_WS);
-		Script onMovedFromChildToWS = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
-		if (onMovedFromChildToWS == null)
-			return;
+    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_MOVED_FROM_CHILD_TO_WS);
+    Script onMovedFromChildToWS = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+    if (onMovedFromChildToWS == null)
+      return;
 
-		ScriptableObject scriptScope = newDefaultScriptScope();
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newReplaced);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_MANUALLY_REMOVED, manuallyRemoved);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
-		try {
-			ContextFactory.getGlobal().call(cx -> onMovedFromChildToWS.exec(cx, scriptScope));
-		}
-		catch (Exception e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() + ".dispatchOnMovedFromChildToWS   " + scriptName.get() + "\n" +
-				e.toString() + "\n");
-		}
-	}
+    ScriptableObject scriptScope = newDefaultScriptScope();
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newReplaced);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_MANUALLY_REMOVED, manuallyRemoved);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+    try {
+      ContextFactory.getGlobal().call(cx -> onMovedFromChildToWS.exec(cx, scriptScope));
+    }
+    catch (Exception e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+        BhNode.class.getSimpleName() + ".dispatchOnMovedFromChildToWS   " + scriptName.get() + "\n" +
+        e.toString() + "\n");
+    }
+  }
 
-	/**
-	 * このノードの削除前に呼ばれるイベント処理を実行する.
-	 *
-	 * <pre>
-	 * この関数を呼び出す対象となるノードを削除原因ごとに記す.
-	 *   INFLUENCE_OF_ORIGINAL_DELETION -> オリジナルノード削除後に残っているすべてのイミテーションノード
-	 *   TRASH_BOX -> ゴミ箱の上に D&D されたノード
-	 *   SYNTAX_ERROR -> 構文エラーを起こしているノード
-	 *   SELECTED_FOR_DELETION ->	削除対象として選択されているノード
-	 *   WORKSPACE_DELETION -> 削除されるワークスペースにあるルートノード
-	 * </pre>
-	 * @param nodesToDelete このノードと共に削除される予定のノード.
-	 * @param isDirectlySpecified 直接削除指定されている場合 true
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @return 削除をキャンセルする場合 false. 続行する場合 true.
-	 */
-	public boolean dispatchOnDeletionRequested(
-		Collection<? extends BhNode> nodesToDelete,
-		CauseOfDeletion causeOfDeletion,
-		UserOperationCommand userOpeCmd) {
+  /**
+   * このノードの削除前に呼ばれるイベント処理を実行する.
+   *
+   * <pre>
+   * この関数を呼び出す対象となるノードを削除原因ごとに記す.
+   *   INFLUENCE_OF_ORIGINAL_DELETION -> オリジナルノード削除後に残っているすべてのイミテーションノード
+   *   TRASH_BOX -> ゴミ箱の上に D&D されたノード
+   *   SYNTAX_ERROR -> 構文エラーを起こしているノード
+   *   SELECTED_FOR_DELETION ->  削除対象として選択されているノード
+   *   WORKSPACE_DELETION -> 削除されるワークスペースにあるルートノード
+   * </pre>
+   * @param nodesToDelete このノードと共に削除される予定のノード.
+   * @param isDirectlySpecified 直接削除指定されている場合 true
+   * @param userOpeCmd undo用コマンドオブジェクト
+   * @return 削除をキャンセルする場合 false. 続行する場合 true.
+   */
+  public boolean dispatchOnDeletionRequested(
+    Collection<? extends BhNode> nodesToDelete,
+    CauseOfDeletion causeOfDeletion,
+    UserOperationCommand userOpeCmd) {
 
-		Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_DELETION_REQUESTED);
-		Script onDeletionRequested = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
-		if (onDeletionRequested == null)
-			return true;
+    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_DELETION_REQUESTED);
+    Script onDeletionRequested = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+    if (onDeletionRequested == null)
+      return true;
 
-		ScriptableObject scriptScope = newDefaultScriptScope();
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToDelete);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CAUSE_OF_DELETION, causeOfDeletion);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
-		Object doDeletion = null;
-		try {
-			doDeletion = ContextFactory.getGlobal().call(cx -> onDeletionRequested.exec(cx, scriptScope));
-		} catch (Exception e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() + ".dispatchOnDeletionRequested   " + scriptName.get() + "\n" +
-				e.toString() + "\n");
-		}
+    ScriptableObject scriptScope = newDefaultScriptScope();
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToDelete);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CAUSE_OF_DELETION, causeOfDeletion);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+    Object doDeletion = null;
+    try {
+      doDeletion = ContextFactory.getGlobal().call(cx -> onDeletionRequested.exec(cx, scriptScope));
+    } catch (Exception e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+        BhNode.class.getSimpleName() + ".dispatchOnDeletionRequested   " + scriptName.get() + "\n" +
+        e.toString() + "\n");
+    }
 
-		if (doDeletion instanceof Boolean)
-			return (Boolean)doDeletion;
+    if (doDeletion instanceof Boolean)
+      return (Boolean)doDeletion;
 
-		throw new AssertionError(
-			this.getClass().getSimpleName()
-			+ ".execScriptOnDeletionRequested  (" + scriptName.get() + " must return a boolean value.)");
-	}
+    throw new AssertionError(
+      this.getClass().getSimpleName()
+      + ".execScriptOnDeletionRequested  (" + scriptName.get() + " must return a boolean value.)");
+  }
 
-	/**
-	 * ユーザー操作により, このノードがカット & ペーストされる直前に呼ばれるイベント処理を実行する.
-	 * @param nodesToCut このノードとともにカットされる予定のノード
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @return カットをキャンセルする場合 false.  続行する場合 true.
-	 */
-	public boolean dispatchOnCutRequested(
-		Collection<? extends BhNode> nodesToCut, UserOperationCommand userOpeCmd) {
+  /**
+   * ユーザー操作により, このノードがカット & ペーストされる直前に呼ばれるイベント処理を実行する.
+   * @param nodesToCut このノードとともにカットされる予定のノード
+   * @param userOpeCmd undo用コマンドオブジェクト
+   * @return カットをキャンセルする場合 false.  続行する場合 true.
+   */
+  public boolean dispatchOnCutRequested(
+    Collection<? extends BhNode> nodesToCut, UserOperationCommand userOpeCmd) {
 
-		Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_CUT_REQUESTED);
-		Script onCutRequested = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
-		if (onCutRequested == null)
-			return true;
+    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_CUT_REQUESTED);
+    Script onCutRequested = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+    if (onCutRequested == null)
+      return true;
 
-		Object doCut = null;
-		ScriptableObject scriptScope = newDefaultScriptScope();
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCut);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
-		try {
-			doCut = ContextFactory.getGlobal().call(cx -> onCutRequested.exec(cx, scriptScope));
-		}
-		catch (Exception e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNode.class.getSimpleName() + ".dispatchOnCutRequested   " + scriptName.get() + "\n" +
-				e.toString() + "\n");
-		}
+    Object doCut = null;
+    ScriptableObject scriptScope = newDefaultScriptScope();
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCut);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+    try {
+      doCut = ContextFactory.getGlobal().call(cx -> onCutRequested.exec(cx, scriptScope));
+    }
+    catch (Exception e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+        BhNode.class.getSimpleName() + ".dispatchOnCutRequested   " + scriptName.get() + "\n" +
+        e.toString() + "\n");
+    }
 
-		if (doCut instanceof Boolean)
-			return (Boolean)doCut;
+    if (doCut instanceof Boolean)
+      return (Boolean)doCut;
 
-		throw new AssertionError(
-			this.getClass().getSimpleName()
-			+ ".execScriptOnCutRequested  (" + scriptName.get() + " must return a boolean value.)");
-	}
+    throw new AssertionError(
+      this.getClass().getSimpleName()
+      + ".execScriptOnCutRequested  (" + scriptName.get() + " must return a boolean value.)");
+  }
 
 }

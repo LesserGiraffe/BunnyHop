@@ -1,37 +1,37 @@
 <Node
-	type="connective"
-	bhNodeID="idAppendStrExp"
-	name="AppendStrExp"
-	nodeStyleID="AppendStrExp.json">
+  type="connective"
+  bhNodeID="idAppendStrExp"
+  name="AppendStrExp"
+  nodeStyleID="AppendStrExp.json">
 
-	<ConnectorSection name="StringExpSctn">
-		<Connector bhConnectorID="idStrExpCnctr" name="LeftExp"/>
-		
-		<PrivateConnector 
-			bhConnectorID="idAppendStrExp.prvCnctr0"
-			name="Operator"
-    		fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idAppendStrExp.prvNode0"
-				name="StrAppendOpe"
-				initString="add">
-			</Node>
-		</PrivateConnector>
+  <ConnectorSection name="StringExpSctn">
+    <Connector bhConnectorID="idStrExpCnctr" name="LeftExp"/>
+    
+    <PrivateConnector 
+      bhConnectorID="idAppendStrExp.prvCnctr0"
+      name="Operator"
+        fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAppendStrExp.prvNode0"
+        name="StrAppendOpe"
+        initString="add">
+      </Node>
+    </PrivateConnector>
 
-		<PrivateConnector 
-			bhConnectorID="idAppendStrExp.prvCnctr1"
-			name="OperatorView"
-    		fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idAppendStrExp.prvNode1"
-				name="StrAppendOpeView"
-				nodeStyleID="SignLabel.json"
-				initString="＋">
-			</Node>
-		</PrivateConnector>
+    <PrivateConnector 
+      bhConnectorID="idAppendStrExp.prvCnctr1"
+      name="OperatorView"
+        fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAppendStrExp.prvNode1"
+        name="StrAppendOpeView"
+        nodeStyleID="SignLabel.json"
+        initString="＋">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idStrExpCnctr" name="RightExp"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idStrExpCnctr" name="RightExp"/>
+  </ConnectorSection>
 </Node>

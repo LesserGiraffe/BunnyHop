@@ -35,128 +35,128 @@ import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
  * */
 public class CallbackInvoker implements BhModelProcessor {
 
-	private final CallbackRegistry callbackRegistry;
+  private final CallbackRegistry callbackRegistry;
 
 
-	private CallbackInvoker(CallbackRegistry callbackRegistry) {
-		this.callbackRegistry = callbackRegistry;
-	}
+  private CallbackInvoker(CallbackRegistry callbackRegistry) {
+    this.callbackRegistry = callbackRegistry;
+  }
 
-	/**
-	 * コールバック関数の登録先オブジェクトを作成する
-	 * @return コールバック関数の登録先オブジェクト
-	 */
-	public static CallbackRegistry newCallbackRegistry() {
-		return new CallbackRegistry();
-	}
+  /**
+   * コールバック関数の登録先オブジェクトを作成する
+   * @return コールバック関数の登録先オブジェクト
+   */
+  public static CallbackRegistry newCallbackRegistry() {
+    return new CallbackRegistry();
+  }
 
-	/**
-	 * コールバック関数を呼び出す.
-	 * @param registry 登録されたコールバック関数を持つオブジェクト
-	 * @param node これ以下のノードのシンボル名とノードIDを調べ, 登録されたコードバック関数を呼び出す.
-	 * */
-	public static void invoke(CallbackRegistry registry, BhNode node) {
-		node.accept(new CallbackInvoker(registry));
-	}
+  /**
+   * コールバック関数を呼び出す.
+   * @param registry 登録されたコールバック関数を持つオブジェクト
+   * @param node これ以下のノードのシンボル名とノードIDを調べ, 登録されたコードバック関数を呼び出す.
+   * */
+  public static void invoke(CallbackRegistry registry, BhNode node) {
+    node.accept(new CallbackInvoker(registry));
+  }
 
-	@Override
-	public void visit(ConnectiveNode node) {
-		callbackRegistry.call(node);
-		node.sendToSections(this);
-	}
+  @Override
+  public void visit(ConnectiveNode node) {
+    callbackRegistry.call(node);
+    node.sendToSections(this);
+  }
 
-	@Override
-	public void visit(TextNode node) {
-		callbackRegistry.call(node);
-	}
+  @Override
+  public void visit(TextNode node) {
+    callbackRegistry.call(node);
+  }
 
-	@Override
-	public void visit(Subsection section) {
-		callbackRegistry.call(section);
-		section.sendToSubsections(this);
-	}
+  @Override
+  public void visit(Subsection section) {
+    callbackRegistry.call(section);
+    section.sendToSubsections(this);
+  }
 
-	@Override
-	public void visit(ConnectorSection connectorGroup) {
-		callbackRegistry.call(connectorGroup);
-		connectorGroup.sendToConnectors(this);
-	}
+  @Override
+  public void visit(ConnectorSection connectorGroup) {
+    callbackRegistry.call(connectorGroup);
+    connectorGroup.sendToConnectors(this);
+  }
 
-	@Override
-	public void visit(Connector connector) {
-		callbackRegistry.call(connector);
-		connector.sendToConnectedNode(this);
-	}
+  @Override
+  public void visit(Connector connector) {
+    callbackRegistry.call(connector);
+    connector.sendToConnectedNode(this);
+  }
 
-	public static class CallbackRegistry {
+  public static class CallbackRegistry {
 
-		private final Map<BhNodeID, Consumer<? super BhNode>> nodeIdToCallback = new HashMap<>();
-		private final Map<String, Consumer<? super SyntaxSymbol>> symbolNameToCallback = new HashMap<>();
-		private Consumer<? super BhNode> callBackForAllNodes;
-		private Consumer<? super SyntaxSymbol> callBackForAllSymbols;
-		private boolean allNodes = false;
-		private boolean allSymbols = false;
+    private final Map<BhNodeID, Consumer<? super BhNode>> nodeIdToCallback = new HashMap<>();
+    private final Map<String, Consumer<? super SyntaxSymbol>> symbolNameToCallback = new HashMap<>();
+    private Consumer<? super BhNode> callBackForAllNodes;
+    private Consumer<? super SyntaxSymbol> callBackForAllSymbols;
+    private boolean allNodes = false;
+    private boolean allSymbols = false;
 
-		private CallbackRegistry() {}
+    private CallbackRegistry() {}
 
-		/**
-		 * シンボル名と一致したときに呼ばれるコールバック関数を登録する
-		 */
-		public CallbackRegistry set(String symbolName, Consumer<? super SyntaxSymbol> callback) {
-			symbolNameToCallback.put(symbolName, callback);
-			return this;
-		}
+    /**
+     * シンボル名と一致したときに呼ばれるコールバック関数を登録する
+     */
+    public CallbackRegistry set(String symbolName, Consumer<? super SyntaxSymbol> callback) {
+      symbolNameToCallback.put(symbolName, callback);
+      return this;
+    }
 
-		/**
-		 * ノードIDと一致したときに呼ばれるコールバック関数を登録する
-		 */
-		public CallbackRegistry set(BhNodeID nodeID, Consumer<? super BhNode> callback) {
-			nodeIdToCallback.put(nodeID, callback);
-			return this;
-		}
+    /**
+     * ノードIDと一致したときに呼ばれるコールバック関数を登録する
+     */
+    public CallbackRegistry set(BhNodeID nodeID, Consumer<? super BhNode> callback) {
+      nodeIdToCallback.put(nodeID, callback);
+      return this;
+    }
 
-		/**
-		 * 全ノードに対して呼ぶコールバック関数を登録する
-		 */
-		public CallbackRegistry setForAllNodes(Consumer<? super BhNode> callback) {
-			allNodes = true;
-			callBackForAllNodes = callback;
-			return this;
-		}
+    /**
+     * 全ノードに対して呼ぶコールバック関数を登録する
+     */
+    public CallbackRegistry setForAllNodes(Consumer<? super BhNode> callback) {
+      allNodes = true;
+      callBackForAllNodes = callback;
+      return this;
+    }
 
-		/**
-		 * 全 SyntaxSymbol に対して呼ぶコールバック関数を登録する
-		 */
-		public CallbackRegistry setForAllSyntaxSymbols(Consumer<? super SyntaxSymbol> callback) {
-			allSymbols = true;
-			callBackForAllSymbols = callback;
-			return this;
-		}
+    /**
+     * 全 SyntaxSymbol に対して呼ぶコールバック関数を登録する
+     */
+    public CallbackRegistry setForAllSyntaxSymbols(Consumer<? super SyntaxSymbol> callback) {
+      allSymbols = true;
+      callBackForAllSymbols = callback;
+      return this;
+    }
 
-		void call(BhNode node) {
+    void call(BhNode node) {
 
-			if (allNodes)
-				callBackForAllNodes.accept(node);
+      if (allNodes)
+        callBackForAllNodes.accept(node);
 
-			if (allSymbols)
-				callBackForAllSymbols.accept(node);
+      if (allSymbols)
+        callBackForAllSymbols.accept(node);
 
-			Optional.ofNullable(nodeIdToCallback.get(node.getID()))
-			.ifPresent(callback -> callback.accept(node));
+      Optional.ofNullable(nodeIdToCallback.get(node.getID()))
+      .ifPresent(callback -> callback.accept(node));
 
-			Optional.ofNullable(symbolNameToCallback.get(node.getSymbolName()))
-			.ifPresent(callback -> callback.accept(node));
-		}
+      Optional.ofNullable(symbolNameToCallback.get(node.getSymbolName()))
+      .ifPresent(callback -> callback.accept(node));
+    }
 
-		void call(SyntaxSymbol symbol) {
+    void call(SyntaxSymbol symbol) {
 
-			if (allSymbols)
-				callBackForAllSymbols.accept(symbol);
+      if (allSymbols)
+        callBackForAllSymbols.accept(symbol);
 
-			Optional.ofNullable(symbolNameToCallback.get(symbol.getSymbolName()))
-			.ifPresent(callback -> callback.accept(symbol));
-		}
-	}
+      Optional.ofNullable(symbolNameToCallback.get(symbol.getSymbolName()))
+      .ifPresent(callback -> callback.accept(symbol));
+    }
+  }
 }
 
 

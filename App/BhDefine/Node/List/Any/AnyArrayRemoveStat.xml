@@ -1,46 +1,46 @@
 <Node
-	type="connective"
-	bhNodeID="idAnyArrayRemoveStat"
-	name="AnyArrayRemoveStat"
-	nodeStyleID="AnyArrayRemoveStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onChildReplaced="OnChildOfAnyTypeNodeReplaced.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idAnyArrayRemoveStat"
+  name="AnyArrayRemoveStat"
+  nodeStyleID="AnyArrayRemoveStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onChildReplaced="OnChildOfAnyTypeNodeReplaced.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
-		
-		<PrivateConnector
-			bhConnectorID="idAnyArrayRemoveStat.prvCnctr0"
-			name="no"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idAnyArrayRemoveStat.prvNode0"
-				name="no"
-				nodeStyleID="WordLabel1.json"
-				initString="の">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-		
-		<PrivateConnector
-			bhConnectorID="idAnyArrayRemoveStat.prvCnctr1"
-			name="banmeWoSakujyoSuru"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idAnyArrayRemoveStat.prvNode1"
-				name="banmeWoSakujyoSuru"
-				nodeStyleID="WordLabel1.json"
-				initString="番目を削除する">
-			</Node>
-		</PrivateConnector>
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idAnyArrayRemoveStat.prvCnctr0"
+      name="no"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyArrayRemoveStat.prvNode0"
+        name="no"
+        nodeStyleID="WordLabel1.json"
+        initString="の">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+    
+    <PrivateConnector
+      bhConnectorID="idAnyArrayRemoveStat.prvCnctr1"
+      name="banmeWoSakujyoSuru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyArrayRemoveStat.prvNode1"
+        name="banmeWoSakujyoSuru"
+        nodeStyleID="WordLabel1.json"
+        initString="番目を削除する">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

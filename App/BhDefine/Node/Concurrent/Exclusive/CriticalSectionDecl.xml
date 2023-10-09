@@ -1,37 +1,37 @@
 <Node
-	type="connective"
-	bhNodeID="idCriticalSectionDecl"
-	name="CriticalSectionDecl"
-	nodeStyleID="CriticalSectionDecl.json"
-	onPrivateTemplateCreating="CreateImitIdManualPrivateTemplate.js"
-	onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idCriticalSectionDecl"
+  name="CriticalSectionDecl"
+  nodeStyleID="CriticalSectionDecl.json"
+  onPrivateTemplateCreating="CreateImitIdManualPrivateTemplate.js"
+  onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<Imitation imitationID="imitIdManual" imitationNodeID="idCriticalSectionStat"/>
+  <Imitation imitationID="imitIdManual" imitationNodeID="idCriticalSectionStat"/>
 
-	<ConnectorSection name="GlobalDataDeclSctn">
+  <ConnectorSection name="GlobalDataDeclSctn">
 
-		<PrivateConnector
-			bhConnectorID="idCriticalSectionDecl.prvCnctr0"
-			name="haita"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idCriticalSectionDecl.prvNode0"
-				name="haita"
-				nodeStyleID="WordLabel2.json"
-				initString="排他区間">
-			</Node>
-		</PrivateConnector>
+    <PrivateConnector
+      bhConnectorID="idCriticalSectionDecl.prvCnctr0"
+      name="haita"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idCriticalSectionDecl.prvNode0"
+        name="haita"
+        nodeStyleID="WordLabel2.json"
+        initString="排他区間">
+      </Node>
+    </PrivateConnector>
 
-		<Connector
-			bhConnectorID="idVarNameCnctr"
-			name="CriticalSectionName"
-			imitationID="imitIdVarName"
-			imitCnctPos="imitPosVarName"/>
+    <Connector
+      bhConnectorID="idVarNameCnctr"
+      name="CriticalSectionName"
+      imitationID="imitIdVarName"
+      imitCnctPos="imitPosVarName"/>
 
-		<Connector bhConnectorID="idGlobalDataDeclCnctr" name="NextGlobalDataDecl"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idGlobalDataDeclCnctr" name="NextGlobalDataDecl"/>
+  </ConnectorSection>
 </Node>

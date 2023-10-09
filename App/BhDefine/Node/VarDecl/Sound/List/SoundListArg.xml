@@ -1,26 +1,26 @@
 <Node
-	type="connective"
-	bhNodeID="idSoundListArg"
-	name="SoundListArg"
-	nodeStyleID="SoundListArg.json">
+  type="connective"
+  bhNodeID="idSoundListArg"
+  name="SoundListArg"
+  nodeStyleID="SoundListArg.json">
 
-	<ConnectorSection>
-		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
-		
-		<PrivateConnector
-			bhConnectorID="idSoundListArg.prvCnctr0"
-			name="ListSign"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idSoundListArg.prvNode0"
-				name="ListSign"
-				nodeStyleID="WordLabel1.json"
-				initString="[...]">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idSoundListCnctr" name="Arg"/>
-		<Connector bhConnectorID="idArgCnctr" name="NextArg" imitCnctPos="imitPosNextArg"/>
-	</ConnectorSection>
+  <ConnectorSection>
+    <Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
+    
+    <PrivateConnector
+      bhConnectorID="idSoundListArg.prvCnctr0"
+      name="ListSign"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idSoundListArg.prvNode0"
+        name="ListSign"
+        nodeStyleID="WordLabel1.json"
+        initString="[...]">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idSoundListCnctr" name="Arg"/>
+    <Connector bhConnectorID="idArgCnctr" name="NextArg" imitCnctPos="imitPosNextArg"/>
+  </ConnectorSection>
 </Node>

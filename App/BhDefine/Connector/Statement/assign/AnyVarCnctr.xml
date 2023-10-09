@@ -1,5 +1,5 @@
 <Connector 
-	bhConnectorID="idAnyVarCnctr"
-	defaultBhNodeID="idAnyVarVoid"
-	onConnectabilityChecking="AnyVarCnct.js"/>
+  bhConnectorID="idAnyVarCnctr"
+  defaultBhNodeID="idAnyVarVoid"
+  onConnectabilityChecking="AnyVarCnct.js"/>
 

@@ -1,6 +1,6 @@
 (function() {
-	let jSelectableItem = net.seapanda.bunnyhop.view.node.part.SelectableItem;
-	return [
+  let jSelectableItem = net.seapanda.bunnyhop.view.node.part.SelectableItem;
+  return [
         new jSelectableItem("-9", "ド"),
         new jSelectableItem("-8", "ド＃"),
         new jSelectableItem("-7", "レ"),

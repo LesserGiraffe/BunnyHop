@@ -1,10 +1,10 @@
 <Node
-	type="text"
-	bhNodeID="idVarName"
-	name="VarName"
-	nodeStyleID="Identifier.json"
-	onTextChecking="CheckIdentifierFormat.js"
-	initString="変数名">
-	
-	<Imitation imitationID="imitIdVarName" imitationNodeID="idVarName"/>
+  type="text"
+  bhNodeID="idVarName"
+  name="VarName"
+  nodeStyleID="Identifier.json"
+  onTextChecking="CheckIdentifierFormat.js"
+  initString="変数名">
+  
+  <Imitation imitationID="imitIdVarName" imitationNodeID="idVarName"/>
 </Node>

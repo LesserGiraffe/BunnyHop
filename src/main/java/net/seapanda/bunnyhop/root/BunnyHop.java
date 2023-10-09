@@ -58,239 +58,239 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
  * */
 public class BunnyHop {
 
-	private final WorkspaceSet workspaceSet = new WorkspaceSet();	//!<  ワークスペースの集合
-	private BhNodeCategoryList nodeCategoryList;	//!< BhNode 選択用画面のモデル
-	private FoundationController foundationController;
-	public static final BunnyHop INSTANCE  = new BunnyHop();
-	private boolean shoudlSave = false;	//!< 終了時の保存が必要かどうかのフラグ
-	private Scene scene;
+  private final WorkspaceSet workspaceSet = new WorkspaceSet();  //!<  ワークスペースの集合
+  private BhNodeCategoryList nodeCategoryList;  //!< BhNode 選択用画面のモデル
+  private FoundationController foundationController;
+  public static final BunnyHop INSTANCE  = new BunnyHop();
+  private boolean shoudlSave = false;  //!< 終了時の保存が必要かどうかのフラグ
+  private Scene scene;
 
-	private BunnyHop() {}
+  private BunnyHop() {}
 
-	/**
-	 * メインウィンドウを作成する
-	 * @param stage JavaFx startメソッドのstage
-	 */
-	public boolean createWindow(Stage stage) {
+  /**
+   * メインウィンドウを作成する
+   * @param stage JavaFx startメソッドのstage
+   */
+  public boolean createWindow(Stage stage) {
 
-		TrashboxService.INSTANCE.init(workspaceSet);
-		nodeCategoryList = genNodeCategoryList().orElse(null);
-		if (nodeCategoryList == null)
-			return false;
+    TrashboxService.INSTANCE.init(workspaceSet);
+    nodeCategoryList = genNodeCategoryList().orElse(null);
+    if (nodeCategoryList == null)
+      return false;
 
-		VBox root;
-		try {
-			Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.FOUNDATION_FXML);
-			FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
-			root = loader.load();
-			foundationController = loader.getController();
-			boolean success = foundationController.init(workspaceSet, nodeCategoryList);
-			if (!success)
-				return false;
-		}
-		catch (IOException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug("failed to load fxml " + BhParams.Path.FOUNDATION_FXML + "\n" +
-			e.toString() + "\n");
-			return false;
-		}
+    VBox root;
+    try {
+      Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.FOUNDATION_FXML);
+      FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
+      root = loader.load();
+      foundationController = loader.getController();
+      boolean success = foundationController.init(workspaceSet, nodeCategoryList);
+      if (!success)
+        return false;
+    }
+    catch (IOException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug("failed to load fxml " + BhParams.Path.FOUNDATION_FXML + "\n" +
+      e.toString() + "\n");
+      return false;
+    }
 
-		addNewWorkSpace(
-			BhParams.LnF.INITIAL_WORKSPACE_NAME,
-			BhParams.LnF.DEFAULT_WORKSPACE_HEIGHT,
-			BhParams.LnF.DEFAULT_WORKSPACE_HEIGHT,
-			new UserOperationCommand());
+    addNewWorkSpace(
+      BhParams.LnF.INITIAL_WORKSPACE_NAME,
+      BhParams.LnF.DEFAULT_WORKSPACE_HEIGHT,
+      BhParams.LnF.DEFAULT_WORKSPACE_HEIGHT,
+      new UserOperationCommand());
 
-		Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-		double width = primaryScreenBounds.getWidth() * BhParams.LnF.DEFAULT_APP_WIDTH_RATE;
-		double height = primaryScreenBounds.getHeight() * BhParams.LnF.DEFAULT_APP_HEIGHT_RATE;
-		scene = new Scene(root, width, height);
-		setCSS(scene);
-		initStage(stage, scene);
-		//ScenicView.show(scene);
-		return true;
-	}
+    Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+    double width = primaryScreenBounds.getWidth() * BhParams.LnF.DEFAULT_APP_WIDTH_RATE;
+    double height = primaryScreenBounds.getHeight() * BhParams.LnF.DEFAULT_APP_HEIGHT_RATE;
+    scene = new Scene(root, width, height);
+    setCSS(scene);
+    initStage(stage, scene);
+    //ScenicView.show(scene);
+    return true;
+  }
 
-	/**
-	 * 引数で指定したステージを初期化する
-	 * @param stage 初期化するステージ
-	 * @param scene ステージに登録するシーン
-	 */
-	private void initStage(Stage stage, Scene scene) {
+  /**
+   * 引数で指定したステージを初期化する
+   * @param stage 初期化するステージ
+   * @param scene ステージに登録するシーン
+   */
+  private void initStage(Stage stage, Scene scene) {
 
-		String iconPath = Paths.get(
-			Util.INSTANCE.EXEC_PATH,
-			BhParams.Path.VIEW_DIR,
-			BhParams.Path.IMAGES_DIR,
-			BhParams.Path.BUNNY_HOP_ICON).toUri().toString();
-		stage.getIcons().add(new Image(iconPath));
-		stage.setScene(scene);
-		stage.setTitle(BhParams.APPLICATION_NAME);
-		stage.show();
-	}
+    String iconPath = Paths.get(
+      Util.INSTANCE.EXEC_PATH,
+      BhParams.Path.VIEW_DIR,
+      BhParams.Path.IMAGES_DIR,
+      BhParams.Path.BUNNY_HOP_ICON).toUri().toString();
+    stage.getIcons().add(new Image(iconPath));
+    stage.setScene(scene);
+    stage.setTitle(BhParams.APPLICATION_NAME);
+    stage.show();
+  }
 
-	private Optional<BhNodeCategoryList> genNodeCategoryList() {
+  private Optional<BhNodeCategoryList> genNodeCategoryList() {
 
-		Path filePath = Paths.get(
-			Util.INSTANCE.EXEC_PATH,
-			BhParams.Path.BH_DEF_DIR,
-			BhParams.Path.TEMPLATE_LIST_DIR,
-			BhParams.Path.NODE_TEMPLATE_LIST_JSON);
+    Path filePath = Paths.get(
+      Util.INSTANCE.EXEC_PATH,
+      BhParams.Path.BH_DEF_DIR,
+      BhParams.Path.TEMPLATE_LIST_DIR,
+      BhParams.Path.NODE_TEMPLATE_LIST_JSON);
 
-		return BhNodeCategoryList.create(filePath);
-	}
+    return BhNodeCategoryList.create(filePath);
+  }
 
-	/**
-	 * ワークスペースを新しく作成し追加する
-	 * @param workspaceName ワークスペース名
-	 * @param width ワークスペース幅
-	 * @param height ワークスペース高さ
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
-	public void addNewWorkSpace(String workspaceName, double width, double height, UserOperationCommand userOpeCmd) {
+  /**
+   * ワークスペースを新しく作成し追加する
+   * @param workspaceName ワークスペース名
+   * @param width ワークスペース幅
+   * @param height ワークスペース高さ
+   * @param userOpeCmd undo用コマンドオブジェクト
+   * */
+  public void addNewWorkSpace(String workspaceName, double width, double height, UserOperationCommand userOpeCmd) {
 
-		Workspace ws = new Workspace(workspaceName);
-		WorkspaceView wsView = new WorkspaceView(ws);
-		wsView.init(width, height);
-		WorkspaceController wsController;
-		try {
-			wsController = new WorkspaceController(ws, wsView, new MultiNodeShifterView());
-		}
-		catch (ViewInitializationException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + ".addNewWorkspace\n" + e);
-			return;
-		}
-		ws.setMsgProcessor(wsController);
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, userOpeCmd), workspaceSet);
-		for (int i = 0; i < Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL); ++i) {
-			boolean zoomIn = BhParams.LnF.INITIAL_ZOOM_LEVEL > 0;
-			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
-		}
-	}
+    Workspace ws = new Workspace(workspaceName);
+    WorkspaceView wsView = new WorkspaceView(ws);
+    wsView.init(width, height);
+    WorkspaceController wsController;
+    try {
+      wsController = new WorkspaceController(ws, wsView, new MultiNodeShifterView());
+    }
+    catch (ViewInitializationException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + ".addNewWorkspace\n" + e);
+      return;
+    }
+    ws.setMsgProcessor(wsController);
+    MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, userOpeCmd), workspaceSet);
+    for (int i = 0; i < Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL); ++i) {
+      boolean zoomIn = BhParams.LnF.INITIAL_ZOOM_LEVEL > 0;
+      MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
+    }
+  }
 
-	/**
-	 * 引数で指定したワークスペースを追加する
-	 * @param ws 追加するワークスペース
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 */
-	public void addWorkspace(Workspace ws, UserOperationCommand userOpeCmd) {
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
-		for (int i = 0; i < Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL); ++i) {
-			boolean zoomIn = BhParams.LnF.INITIAL_ZOOM_LEVEL > 0;
-			MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
-		}
-	}
+  /**
+   * 引数で指定したワークスペースを追加する
+   * @param ws 追加するワークスペース
+   * @param userOpeCmd undo用コマンドオブジェクト
+   */
+  public void addWorkspace(Workspace ws, UserOperationCommand userOpeCmd) {
+    MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
+    for (int i = 0; i < Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL); ++i) {
+      boolean zoomIn = BhParams.LnF.INITIAL_ZOOM_LEVEL > 0;
+      MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
+    }
+  }
 
-	/**
-	 * 現在操作対象のワークスペースを取得する.
-	 * @return 現在操作対象のワークスペース. 存在しない場合は null.
-	 */
-	public Workspace getCurrentWorkspace() {
-		return workspaceSet.getCurrentWorkspace();
-	}
+  /**
+   * 現在操作対象のワークスペースを取得する.
+   * @return 現在操作対象のワークスペース. 存在しない場合は null.
+   */
+  public Workspace getCurrentWorkspace() {
+    return workspaceSet.getCurrentWorkspace();
+  }
 
-	/**
-	 * アプリケーションのワークスペースセットを返す.
-	 * @return アプリケーションのワークスペースセット
-	 */
-	public WorkspaceSet getWorkspaceSet() {
-		return workspaceSet;
-	}
+  /**
+   * アプリケーションのワークスペースセットを返す.
+   * @return アプリケーションのワークスペースセット
+   */
+  public WorkspaceSet getWorkspaceSet() {
+    return workspaceSet;
+  }
 
-	/**
-	 * 引数で指定したワークスペースを削除する
-	 * @param ws 消したいワークスペース
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 */
-	public void deleteWorkspace(Workspace ws, UserOperationCommand userOpeCmd) {
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.DELETE_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
-	}
+  /**
+   * 引数で指定したワークスペースを削除する
+   * @param ws 消したいワークスペース
+   * @param userOpeCmd undo用コマンドオブジェクト
+   */
+  public void deleteWorkspace(Workspace ws, UserOperationCommand userOpeCmd) {
+    MsgTransporter.INSTANCE.sendMessage(BhMsg.DELETE_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
+  }
 
-	/**
-	 * 全てのワークスペースを削除する
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 */
-	public void deleteAllWorkspace(UserOperationCommand userOpeCmd) {
+  /**
+   * 全てのワークスペースを削除する
+   * @param userOpeCmd undo用コマンドオブジェクト
+   */
+  public void deleteAllWorkspace(UserOperationCommand userOpeCmd) {
 
-		Workspace[] wsList = workspaceSet.getWorkspaceList().toArray(new Workspace[workspaceSet.getWorkspaceList().size()]);
-		for (Workspace ws : wsList) {
-			deleteWorkspace(ws, userOpeCmd);
-		}
-	}
+    Workspace[] wsList = workspaceSet.getWorkspaceList().toArray(new Workspace[workspaceSet.getWorkspaceList().size()]);
+    for (Workspace ws : wsList) {
+      deleteWorkspace(ws, userOpeCmd);
+    }
+  }
 
-	/**
-	 * CSS ファイルを読み込む
-	 * @param scene css の適用先シーングラフ
-	 */
-	private void setCSS(Scene scene) {
+  /**
+   * CSS ファイルを読み込む
+   * @param scene css の適用先シーングラフ
+   */
+  private void setCSS(Scene scene) {
 
-		Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.CSS_DIR);
-		Stream<Path> files = null;	//読み込むファイルパスリスト
-		try {
-			files = Files.walk(dirPath, FOLLOW_LINKS).filter(filePath -> filePath.toString().toLowerCase().endsWith(".css"));
-		}
-		catch (IOException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug("css directory not found " + dirPath);
-			return;
-		}
+    Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.CSS_DIR);
+    Stream<Path> files = null;  //読み込むファイルパスリスト
+    try {
+      files = Files.walk(dirPath, FOLLOW_LINKS).filter(filePath -> filePath.toString().toLowerCase().endsWith(".css"));
+    }
+    catch (IOException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug("css directory not found " + dirPath);
+      return;
+    }
 
-		files.forEach(path -> {
-			try {
-				scene.getStylesheets().add(path.toUri().toString());
-			} catch (Exception e) {
-				MsgPrinter.INSTANCE.errMsgForDebug(BunnyHop.class.getSimpleName() + ".setCSS\n" + e.toString());
-			}
-		});
-	}
+    files.forEach(path -> {
+      try {
+        scene.getStylesheets().add(path.toUri().toString());
+      } catch (Exception e) {
+        MsgPrinter.INSTANCE.errMsgForDebug(BunnyHop.class.getSimpleName() + ".setCSS\n" + e.toString());
+      }
+    });
+  }
 
-	/**
-	 * undo 用コマンドオブジェクトをundoスタックに積む
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 */
-	public void pushUserOpeCmd(UserOperationCommand userOpeCmd) {
-		MsgTransporter.INSTANCE.sendMessage(BhMsg.PUSH_USER_OPE_CMD, new MsgData(userOpeCmd), workspaceSet);
-	}
+  /**
+   * undo 用コマンドオブジェクトをundoスタックに積む
+   * @param userOpeCmd undo用コマンドオブジェクト
+   */
+  public void pushUserOpeCmd(UserOperationCommand userOpeCmd) {
+    MsgTransporter.INSTANCE.sendMessage(BhMsg.PUSH_USER_OPE_CMD, new MsgData(userOpeCmd), workspaceSet);
+  }
 
-	/**
-	 * アプリ終了時の処理を行う
-	 * @return アプリの終了を許可する場合trueを返す.
-	 */
-	public boolean processCloseRequest() {
+  /**
+   * アプリ終了時の処理を行う
+   * @return アプリの終了を許可する場合trueを返す.
+   */
+  public boolean processCloseRequest() {
 
-		if (!shoudlSave)
-			return true;
+    if (!shoudlSave)
+      return true;
 
-		Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
-			Alert.AlertType.CONFIRMATION,
-			BhParams.APPLICATION_NAME,
-			null,
-			"保存しますか",
-			ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+    Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
+      Alert.AlertType.CONFIRMATION,
+      BhParams.APPLICATION_NAME,
+      null,
+      "保存しますか",
+      ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 
-		return buttonType
-			.map(btnType -> {
-					if (btnType.equals(ButtonType.YES))
-						return foundationController.getMenuBarController().save(workspaceSet);
+    return buttonType
+      .map(btnType -> {
+          if (btnType.equals(ButtonType.YES))
+            return foundationController.getMenuBarController().save(workspaceSet);
 
-					return btnType.equals(ButtonType.NO);
-				})
-			.orElse(false);
-	}
+          return btnType.equals(ButtonType.NO);
+        })
+      .orElse(false);
+  }
 
-	/**
-	 * 終了時に保存が必要かどうかのフラグをセットする
-	 * @param save trueの場合終了時に保存が必要となる
-	 */
-	public void shouldSave(boolean save) {
-		shoudlSave = save;
-	}
+  /**
+   * 終了時に保存が必要かどうかのフラグをセットする
+   * @param save trueの場合終了時に保存が必要となる
+   */
+  public void shouldSave(boolean save) {
+    shoudlSave = save;
+  }
 
-	/**
-	 * アプリに設定された全スタイルを返す
-	 * @return アプリに設定された全スタイル
-	 */
-	public List<String> getAllStyles() {
-		return new ArrayList<>(scene.getStylesheets());
-	}
+  /**
+   * アプリに設定された全スタイルを返す
+   * @return アプリに設定された全スタイル
+   */
+  public List<String> getAllStyles() {
+    return new ArrayList<>(scene.getStylesheets());
+  }
 }
 
 

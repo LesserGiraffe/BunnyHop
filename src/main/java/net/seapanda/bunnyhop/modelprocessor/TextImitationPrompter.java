@@ -25,22 +25,22 @@ import net.seapanda.bunnyhop.model.node.TextNode;
  */
 public class TextImitationPrompter implements BhModelProcessor {
 
-	/**
-	 * 引数で指定したノード以下のイミテーションテキストノードにオリジナルノードのテキストを真似させる.
-	 * */
-	public static void prompt(BhNode node) {
-		node.accept(new TextImitationPrompter());
-	}
+  /**
+   * 引数で指定したノード以下のイミテーションテキストノードにオリジナルノードのテキストを真似させる.
+   * */
+  public static void prompt(BhNode node) {
+    node.accept(new TextImitationPrompter());
+  }
 
-	private TextImitationPrompter() {}
+  private TextImitationPrompter() {}
 
-	@Override
-	public void visit(TextNode node) {
+  @Override
+  public void visit(TextNode node) {
 
-		if(node.isImitationNode()) {
-			TextNode original = node.getOriginal();
-			String viewText = MsgService.INSTANCE.getViewText(original);
-			MsgService.INSTANCE.imitateText(node, original.getText(), viewText);
-		}
-	}
+    if(node.isImitationNode()) {
+      TextNode original = node.getOriginal();
+      String viewText = MsgService.INSTANCE.getViewText(original);
+      MsgService.INSTANCE.imitateText(node, original.getText(), viewText);
+    }
+  }
 }

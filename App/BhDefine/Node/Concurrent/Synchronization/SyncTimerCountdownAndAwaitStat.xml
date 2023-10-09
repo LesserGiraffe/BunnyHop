@@ -1,42 +1,43 @@
-<Node type="connective"
-	bhNodeID="idSyncTimerCountdownAndAwaitStat"
-	name="SyncTimerCountdownAndAwaitStat"
-	nodeStyleID="SyncTimerCountdownAndAwaitStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+<Node
+  type="connective"
+  bhNodeID="idSyncTimerCountdownAndAwaitStat"
+  name="SyncTimerCountdownAndAwaitStat"
+  nodeStyleID="SyncTimerCountdownAndAwaitStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
 
-		<PrivateConnector
-			bhConnectorID="idSyncTimerCountdownAndAwaitStat.prvCnctr0"
-			name="countdown"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idSyncTimerCountdownAndAwaitStat.prvNode0"
-				name="countdown"
-				nodeStyleID="WordLabel2.json"
-				initString="のカウントを 1 減らしてから">
-			</Node>
-		</PrivateConnector>
+    <PrivateConnector
+      bhConnectorID="idSyncTimerCountdownAndAwaitStat.prvCnctr0"
+      name="countdown"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idSyncTimerCountdownAndAwaitStat.prvNode0"
+        name="countdown"
+        nodeStyleID="WordLabel2.json"
+        initString="のカウントを 1 減らしてから">
+      </Node>
+    </PrivateConnector>
 
-		<PrivateConnector
-			bhConnectorID="idSyncTimerCountdownAndAwaitStat.prvCnctr1"
-			name="matsu"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idSyncTimerCountdownAndAwaitStat.prvNode1"
-				name="matsu"
-				nodeStyleID="WordLabel2.json"
-				initString="カウントが 0 になるまで待つ">
-			</Node>
-		</PrivateConnector>
+    <PrivateConnector
+      bhConnectorID="idSyncTimerCountdownAndAwaitStat.prvCnctr1"
+      name="matsu"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idSyncTimerCountdownAndAwaitStat.prvNode1"
+        name="matsu"
+        nodeStyleID="WordLabel2.json"
+        initString="カウントが 0 になるまで待つ">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

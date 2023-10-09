@@ -1,21 +1,21 @@
 <Node
-	type="connective"
-	bhNodeID="idGetTimeSinceProgramStartedExp"
-	name="GetTimeSinceProgramStartedExp"
-	nodeStyleID="GetTimeSinceProgramStartedExp.json">
+  type="connective"
+  bhNodeID="idGetTimeSinceProgramStartedExp"
+  name="GetTimeSinceProgramStartedExp"
+  nodeStyleID="GetTimeSinceProgramStartedExp.json">
 
-	<ConnectorSection name="NumberExpSctn">
-		<PrivateConnector
-			bhConnectorID="idGetTimeSinceProgramStartedExp.prvCnctr0"
-			name="timeSinceProgramStarted"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idGetTimeSinceProgramStartedExp.prvNode0"
-				name="timeSinceProgramStarted"
-				nodeStyleID="WordLabel1.json"
-				initString="プログラムが始まってからの時間 (ミリ秒)">
-			</Node>
-		</PrivateConnector>
-	</ConnectorSection>
+  <ConnectorSection name="NumberExpSctn">
+    <PrivateConnector
+      bhConnectorID="idGetTimeSinceProgramStartedExp.prvCnctr0"
+      name="timeSinceProgramStarted"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idGetTimeSinceProgramStartedExp.prvNode0"
+        name="timeSinceProgramStarted"
+        nodeStyleID="WordLabel1.json"
+        initString="プログラムが始まってからの時間 (ミリ秒)">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
 </Node>

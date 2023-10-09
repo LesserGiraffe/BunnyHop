@@ -1,18 +1,18 @@
 {
-	"component" : "TextField",
-	"paddingTop" : 0.0,
-	"paddingBottom" : 0.0,
-	"paddingLeft" : 0.0,
-	"paddingRight" : 0.0,
-	"bodyShape" : "NONE",
-	"connectorPos" : "Left",
-	"connectorShift" : 0.0,
-	"connectorWidth" : 0.0,
-	"connectorHeight" : 0.0,
-	"connectorShape" : "NONE",
-	"connectorBoundsRate" : 0.0,
+  "component" : "TextField",
+  "paddingTop" : 0.0,
+  "paddingBottom" : 0.0,
+  "paddingLeft" : 0.0,
+  "paddingRight" : 0.0,
+  "bodyShape" : "NONE",
+  "connectorPos" : "Left",
+  "connectorShift" : 0.0,
+  "connectorWidth" : 0.0,
+  "connectorHeight" : 0.0,
+  "connectorShape" : "NONE",
+  "connectorBoundsRate" : 0.0,
     
     "textField" : {
-		"minWidth": 3.0
-	}
+    "minWidth": 3.0
+  }
 }

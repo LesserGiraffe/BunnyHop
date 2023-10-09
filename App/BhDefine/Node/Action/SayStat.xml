@@ -1,30 +1,30 @@
 <Node
-	type="connective"
-	bhNodeID="idSayStat"
-	name="SayStat"
-	nodeStyleID="SayStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idSayStat"
+  name="SayStat"
+  nodeStyleID="SayStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idStrExpCnctr" name="Arg0"/>
-		
-		<PrivateConnector 
-			bhConnectorID="idSayStat.prvCnctr0"
-			name="toIu"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idSayStat.prvNode0"
-				name="toIu"
-				nodeStyleID="WordLabel2.json"
-				initString="と言う">
-			</Node>
-		</PrivateConnector>
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idStrExpCnctr" name="Arg0"/>
+    
+    <PrivateConnector 
+      bhConnectorID="idSayStat.prvCnctr0"
+      name="toIu"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idSayStat.prvNode0"
+        name="toIu"
+        nodeStyleID="WordLabel2.json"
+        initString="と言う">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

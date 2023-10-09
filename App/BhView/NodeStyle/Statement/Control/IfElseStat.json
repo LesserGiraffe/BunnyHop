@@ -1,42 +1,42 @@
 {
-	"paddingTop" : 2.0,
-	"paddingBottom" : 3.0,
-	"paddingLeft" : 5.5,
-	"paddingRight" : 1.5,
-	"connectorPos" : "Top",
-	"connectorShift" : 1.0,
-	"connectorWidth" : 3.5,
-	"connectorHeight" : 3.5,
-	"connectorShape" : "ARROW",
-	"connectorBoundsRate" : 1.25,
-	"cssClass" : "controlType",
+  "paddingTop" : 2.0,
+  "paddingBottom" : 3.0,
+  "paddingLeft" : 5.5,
+  "paddingRight" : 1.5,
+  "connectorPos" : "Top",
+  "connectorShift" : 1.0,
+  "connectorWidth" : 3.5,
+  "connectorHeight" : 3.5,
+  "connectorShape" : "ARROW",
+  "connectorBoundsRate" : 1.25,
+  "cssClass" : "controlType",
 
-	"connective" : {
-		"inner" : {
-			"arrangement" : "Column",
-			"space" : 0.5,
-			
-			"subGroup0" : {
-				"arrangement" : "Row",
-				"space" : 2.0,
-				"connectorList" : ["Moshi", "CondExp", "Nara"]
-			},
-			
-			"subGroup1" : {
-				"arrangement" : "Column",
-				"paddingBottom" : 2.5,
-				"connectorList" : ["ThenStat"]
-			},
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 0.5,
+      
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "space" : 2.0,
+        "connectorList" : ["Moshi", "CondExp", "Nara"]
+      },
+      
+      "subGroup1" : {
+        "arrangement" : "Column",
+        "paddingBottom" : 2.5,
+        "connectorList" : ["ThenStat"]
+      },
 
-			"subGroup2" : {
-				"arrangement" : "Column",
-				"space" : 0.5,
-				"connectorList" : ["Sodenakereba", "ElseStat"]
-			}
-		},
+      "subGroup2" : {
+        "arrangement" : "Column",
+        "space" : 0.5,
+        "connectorList" : ["Sodenakereba", "ElseStat"]
+      }
+    },
 
-		"outer" : {
-			"connectorList" : ["NextStat"]
-		}
-	}
+    "outer" : {
+      "connectorList" : ["NextStat"]
+    }
+  }
 }

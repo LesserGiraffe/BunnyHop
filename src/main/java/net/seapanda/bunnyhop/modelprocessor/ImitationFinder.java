@@ -29,36 +29,36 @@ import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
  */
 public class ImitationFinder implements BhModelProcessor {
 
-	private Collection<Imitatable> imitations = new ArrayList<>();
+  private Collection<Imitatable> imitations = new ArrayList<>();
 
-	/**
-	 * 引数で指定したノード以下のオリジナルノードが持つイミテーションノードを全て返す.
-	 * @param node このノード以下のオリジナルノードが持つイミテーションノードを探す
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @return 発見したイミテーションノードのリスト
-	 */
-	public static Collection<Imitatable> find(BhNode node) {
+  /**
+   * 引数で指定したノード以下のオリジナルノードが持つイミテーションノードを全て返す.
+   * @param node このノード以下のオリジナルノードが持つイミテーションノードを探す
+   * @param userOpeCmd undo用コマンドオブジェクト
+   * @return 発見したイミテーションノードのリスト
+   */
+  public static Collection<Imitatable> find(BhNode node) {
 
-		var finder = new ImitationFinder();
-		node.accept(finder);
-		return finder.imitations;
-	}
+    var finder = new ImitationFinder();
+    node.accept(finder);
+    return finder.imitations;
+  }
 
-	/**
-	 * コンストラクタ
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 */
-	private ImitationFinder() {}
+  /**
+   * コンストラクタ
+   * @param userOpeCmd undo用コマンドオブジェクト
+   */
+  private ImitationFinder() {}
 
-	@Override
-	public void visit(ConnectiveNode node) {
+  @Override
+  public void visit(ConnectiveNode node) {
 
-		imitations.addAll(node.getImitationList());
-		node.sendToSections(this);
-	}
+    imitations.addAll(node.getImitationList());
+    node.sendToSections(this);
+  }
 
-	@Override
-	public void visit(TextNode node) {
-		imitations.addAll(node.getImitationList());
-	}
+  @Override
+  public void visit(TextNode node) {
+    imitations.addAll(node.getImitationList());
+  }
 }

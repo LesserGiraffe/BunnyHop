@@ -24,38 +24,38 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class ModelExclusiveControl {
 
-	public static final ModelExclusiveControl INSTANCE = new ModelExclusiveControl();	//!< シングルトンインスタンス
-	private ReadWriteLock lock = new ReentrantReadWriteLock();
+  public static final ModelExclusiveControl INSTANCE = new ModelExclusiveControl();  //!< シングルトンインスタンス
+  private ReadWriteLock lock = new ReentrantReadWriteLock();
 
-	private ModelExclusiveControl() {}
+  private ModelExclusiveControl() {}
 
-	/**
-	 * Model 修正のためのロックをかける
-	 */
-	public void lockForModification() {
-		lock.writeLock().lock();
-	}
+  /**
+   * Model 修正のためのロックをかける
+   */
+  public void lockForModification() {
+    lock.writeLock().lock();
+  }
 
-	/**
-	 * Model 修正のためのロックを解放する
-	 */
-	public void unlockForModification() {
-		lock.writeLock().unlock();
-	}
+  /**
+   * Model 修正のためのロックを解放する
+   */
+  public void unlockForModification() {
+    lock.writeLock().unlock();
+  }
 
-	/**
-	 * Model 読み取りのためのロックをかける
-	 */
-	public void lockForRead() {
-		lock.readLock().lock();
-	}
+  /**
+   * Model 読み取りのためのロックをかける
+   */
+  public void lockForRead() {
+    lock.readLock().lock();
+  }
 
-	/**
-	 * Model 読み取りのためのロックを解放する
-	 */
-	public void unlockForRead() {
-		lock.readLock().unlock();
-	}
+  /**
+   * Model 読み取りのためのロックを解放する
+   */
+  public void unlockForRead() {
+    lock.readLock().unlock();
+  }
 }
 
 

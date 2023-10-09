@@ -1,22 +1,22 @@
 {
-	"paddingTop" : 1.0,
-	"paddingBottom" : 1.0,
-	"paddingLeft" : 2.5,
-	"paddingRight" : 1.5,
-	"connectorPos" : "Left",
-	"connectorShift" : 0.0,
-	"connectorWidth" : 3.5,
-	"connectorHeight" : 3.5,
-	"connectorShape" : "CHAR_V",
-	"connectorBoundsRate" : 1.25,
-	"cssClass" : "colorType",
+  "paddingTop" : 1.0,
+  "paddingBottom" : 1.0,
+  "paddingLeft" : 2.5,
+  "paddingRight" : 1.5,
+  "connectorPos" : "Left",
+  "connectorShift" : 0.0,
+  "connectorWidth" : 3.5,
+  "connectorHeight" : 3.5,
+  "connectorShape" : "CHAR_V",
+  "connectorBoundsRate" : 1.25,
+  "cssClass" : "colorType",
 
-	"connective" : {
-		"inner" : {
-			"space" : 2.0,
-			"arrangement" : "Row",
-			"connectorList" : ["iroWoShutoku"]
-		}
-	}
+  "connective" : {
+    "inner" : {
+      "space" : 2.0,
+      "arrangement" : "Row",
+      "connectorList" : ["iroWoShutoku"]
+    }
+  }
 }
 

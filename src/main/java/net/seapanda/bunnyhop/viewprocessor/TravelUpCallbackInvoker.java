@@ -26,82 +26,82 @@ import net.seapanda.bunnyhop.view.node.BhNodeViewGroup;
  */
 public class TravelUpCallbackInvoker {
 
-	/** ノードビューに対して呼び出すコールバック関数 */
-	private final Consumer<BhNodeView> callbackForNode;
-	/** ノードグループに対して呼び出すコールバック関数 */
-	private final Consumer<BhNodeViewGroup> callbackForGroup;
-	/** 親要素の走査後にコールバック関数を呼び出すかどうか */
-	private final boolean callAfterSearch;
+  /** ノードビューに対して呼び出すコールバック関数 */
+  private final Consumer<BhNodeView> callbackForNode;
+  /** ノードグループに対して呼び出すコールバック関数 */
+  private final Consumer<BhNodeViewGroup> callbackForGroup;
+  /** 親要素の走査後にコールバック関数を呼び出すかどうか */
+  private final boolean callAfterSearch;
 
 
-	/**
-	 * コールバック関数を呼び出す.
-	 * @param callbackForNode ノードビューに対して呼び出すコールバック関数
-	 * @param callbackForGroup ノードビューグループ呼び出すコールバック関数
-	 * @param nodeView これ以上のノードビューに対して callback を呼び出す
-	 * @param callAfterSearch 親要素を走査してから {@code callback} を呼ぶ場合 true.
-	 */
-	public static void invoke(
-		Consumer<BhNodeView> callbackForNode,
-		Consumer<BhNodeViewGroup> callbackForGroup,
-		BhNodeView nodeView,
-		boolean callAfterSearch) {
+  /**
+   * コールバック関数を呼び出す.
+   * @param callbackForNode ノードビューに対して呼び出すコールバック関数
+   * @param callbackForGroup ノードビューグループ呼び出すコールバック関数
+   * @param nodeView これ以上のノードビューに対して callback を呼び出す
+   * @param callAfterSearch 親要素を走査してから {@code callback} を呼ぶ場合 true.
+   */
+  public static void invoke(
+    Consumer<BhNodeView> callbackForNode,
+    Consumer<BhNodeViewGroup> callbackForGroup,
+    BhNodeView nodeView,
+    boolean callAfterSearch) {
 
-		var invoker = new TravelUpCallbackInvoker(callbackForNode, callbackForGroup, nodeView, callAfterSearch);
-		invoker.visit(nodeView);
-	}
+    var invoker = new TravelUpCallbackInvoker(callbackForNode, callbackForGroup, nodeView, callAfterSearch);
+    invoker.visit(nodeView);
+  }
 
-	/**
-	 * コールバック関数を呼び出す.
-	 * @param callback ノードビューに対して呼び出すコールバック関数
-	 * @param nodeView これ以上のノードビューに対して callback を呼び出す
-	 * @param callAfterSearch 親要素を走査してから {@code callback} を呼ぶ場合 true.
-	 */
-	public static void invoke(
-		Consumer<BhNodeView> callback, BhNodeView nodeView, boolean callAfterSearch) {
+  /**
+   * コールバック関数を呼び出す.
+   * @param callback ノードビューに対して呼び出すコールバック関数
+   * @param nodeView これ以上のノードビューに対して callback を呼び出す
+   * @param callAfterSearch 親要素を走査してから {@code callback} を呼ぶ場合 true.
+   */
+  public static void invoke(
+    Consumer<BhNodeView> callback, BhNodeView nodeView, boolean callAfterSearch) {
 
-		var invoker = new TravelUpCallbackInvoker(callback, g->{}, nodeView, callAfterSearch);
-		invoker.visit(nodeView);
-	}
+    var invoker = new TravelUpCallbackInvoker(callback, g->{}, nodeView, callAfterSearch);
+    invoker.visit(nodeView);
+  }
 
-	private TravelUpCallbackInvoker(
-		Consumer<BhNodeView> callbackForNode,
-		Consumer<BhNodeViewGroup> callbackForGroup,
-		BhNodeView nodeView,
-		boolean callAfterSearch) {
+  private TravelUpCallbackInvoker(
+    Consumer<BhNodeView> callbackForNode,
+    Consumer<BhNodeViewGroup> callbackForGroup,
+    BhNodeView nodeView,
+    boolean callAfterSearch) {
 
-		this.callbackForNode = callbackForNode;
-		this.callbackForGroup = callbackForGroup;
-		this.callAfterSearch = callAfterSearch;
-	}
+    this.callbackForNode = callbackForNode;
+    this.callbackForGroup = callbackForGroup;
+    this.callAfterSearch = callAfterSearch;
+  }
 
-	private void visit(BhNodeView view) {
+  private void visit(BhNodeView view) {
 
-		if (!callAfterSearch)
-			callbackForNode.accept(view);
+    if (!callAfterSearch)
+      callbackForNode.accept(view);
 
 
-		BhNodeViewGroup parentGroup = view.getTreeManager().getParentGroup();
-		if (parentGroup != null)
-			visit(parentGroup);
+    BhNodeViewGroup parentGroup = view.getTreeManager().getParentGroup();
+    if (parentGroup != null)
+      visit(parentGroup);
 
-		if (callAfterSearch)
-			callbackForNode.accept(view);
-	}
+    if (callAfterSearch)
+      callbackForNode.accept(view);
+  }
 
-	private void visit(BhNodeViewGroup group) {
+  private void visit(BhNodeViewGroup group) {
 
-		if (!callAfterSearch)
-			callbackForGroup.accept(group);
+    if (!callAfterSearch)
+      callbackForGroup.accept(group);
 
-		BhNodeViewGroup parentGroup = group.getParentGroup();
+    BhNodeViewGroup parentGroup = group.getParentGroup();
 
-		if (parentGroup != null)
-			visit(parentGroup);
-		else
-			visit(group.getParentView());
+    if (parentGroup != null)
+      visit(parentGroup);
+    else
+      visit(group.getParentView());
 
-		if (callAfterSearch)
-			callbackForGroup.accept(group);
-	}
+    if (callAfterSearch)
+      callbackForGroup.accept(group);
+  }
 }

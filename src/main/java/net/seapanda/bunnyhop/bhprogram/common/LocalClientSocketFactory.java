@@ -27,39 +27,39 @@ import java.rmi.server.RMIClientSocketFactory;
  */
 public class LocalClientSocketFactory implements RMIClientSocketFactory, Serializable {
 
-	private static final long serialVersionUID = 1L;
-	private int id;	//!< 同一性確認のためのID
+  private static final long serialVersionUID = 1L;
+  private int id;  //!< 同一性確認のためのID
 
-	/**
-	 * コンストラクタ
-	 * @param id オブジェクトの同一性確認のためのID
-	 */
-	public LocalClientSocketFactory(int id) {
-		this.id = id;
-	}
+  /**
+   * コンストラクタ
+   * @param id オブジェクトの同一性確認のためのID
+   */
+  public LocalClientSocketFactory(int id) {
+    this.id = id;
+  }
 
-	@Override
-	public Socket createSocket(String host, int port) throws IOException {
-		Socket socket = null;
-		try {
-			socket = new Socket(InetAddress.getLoopbackAddress(), port);
-		}
-		catch(IOException e) {
-			throw new IOException();
-		}
-		return socket;
-	}
+  @Override
+  public Socket createSocket(String host, int port) throws IOException {
+    Socket socket = null;
+    try {
+      socket = new Socket(InetAddress.getLoopbackAddress(), port);
+    }
+    catch(IOException e) {
+      throw new IOException();
+    }
+    return socket;
+  }
 
-	@Override
-	public int hashCode() {
-		return id;
+  @Override
+  public int hashCode() {
+    return id;
     }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		return (getClass() == obj.getClass()) && (id == ((LocalClientSocketFactory)obj).id);
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null)
+      return false;
+    return (getClass() == obj.getClass()) && (id == ((LocalClientSocketFactory)obj).id);
     }
 }
 

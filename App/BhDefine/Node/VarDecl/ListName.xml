@@ -1,10 +1,10 @@
 <Node
-	type="text"
-	bhNodeID="idListName"
-	name="ListName"
-	nodeStyleID="Identifier.json"
-	onTextChecking="CheckIdentifierFormat.js"
-	initString="リスト名">
-	
-	<Imitation imitationID="imitIdListName" imitationNodeID="idListName"/>
+  type="text"
+  bhNodeID="idListName"
+  name="ListName"
+  nodeStyleID="Identifier.json"
+  onTextChecking="CheckIdentifierFormat.js"
+  initString="リスト名">
+  
+  <Imitation imitationID="imitIdListName" imitationNodeID="idListName"/>
 </Node>

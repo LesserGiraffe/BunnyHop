@@ -1,15 +1,15 @@
 .numType {
-	-fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, numTypeCol 50%, derive(numTypeCol, 50%) 0em);
+  -fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, numTypeCol 50%, derive(numTypeCol, 50%) 0em);
 }
 
 .numType:isEven {
-	-fx-fill: numTypeCol;
+  -fx-fill: numTypeCol;
 }
 
 .numVarType {
-	-fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, numTypeCol 50%, derive(numTypeCol, 50%) 0em);
+  -fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, numTypeCol 50%, derive(numTypeCol, 50%) 0em);
 }
 
 .numVarType:isEven {
-	-fx-fill: numTypeCol;
+  -fx-fill: numTypeCol;
 }

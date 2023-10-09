@@ -1,30 +1,30 @@
 .nodeShifterCircle {
-	-fx-fill: rgba(255, 255, 0, 0.5);
-	-fx-stroke-width: 0.2em;
-	-fx-stroke: rgba(0, 0, 0, 0.5);
+  -fx-fill: rgba(255, 255, 0, 0.5);
+  -fx-stroke-width: 0.2em;
+  -fx-stroke: rgba(0, 0, 0, 0.5);
 }
 
 .nodeShifterCircle:selected {
-	-fx-fill: rgba(255, 255, 0, 1.0);
-	-fx-stroke: rgba(0, 0, 0, 1.0);
-	-fx-effect: dropshadow(two-pass-box , #202020 , 10, 0.3, 6 , 6);
+  -fx-fill: rgba(255, 255, 0, 1.0);
+  -fx-stroke: rgba(0, 0, 0, 1.0);
+  -fx-effect: dropshadow(two-pass-box , #202020 , 10, 0.3, 6 , 6);
 }
 
 .nodeShifterArrow {
-	-fx-fill: rgba(0, 0, 0, 0.5);
+  -fx-fill: rgba(0, 0, 0, 0.5);
 }
 
 .nodeShifterArrow:selected {
-	-fx-fill: rgba(0, 0, 0, 1.0);
+  -fx-fill: rgba(0, 0, 0, 1.0);
 }
 
 .nodeShifterLink {
-	-fx-stroke-width: 0.3em;
-	-fx-stroke-dash-array: 0.8em 1.2em;
-	-fx-stroke: rgba(0, 0, 0, 0.5);
+  -fx-stroke-width: 0.3em;
+  -fx-stroke-dash-array: 0.8em 1.2em;
+  -fx-stroke: rgba(0, 0, 0, 0.5);
 }
 
 .nodeShifterLink:selected {
-	-fx-stroke: rgba(0, 0, 0, 1.0);
+  -fx-stroke: rgba(0, 0, 0, 1.0);
 }
 

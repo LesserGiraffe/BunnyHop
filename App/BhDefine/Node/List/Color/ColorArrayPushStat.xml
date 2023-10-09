@@ -1,45 +1,45 @@
 <Node
-	type="connective"
-	bhNodeID="idColorArrayPushStat"
-	name="ColorArrayPushStat"
-	nodeStyleID="ColorArrayPushStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idColorArrayPushStat"
+  name="ColorArrayPushStat"
+  nodeStyleID="ColorArrayPushStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idColorListCnctr" name="Arg0"/>
-		
-		<PrivateConnector
-			bhConnectorID="idColorArrayPushStat.prvCnctr0"
-			name="noMatsubiNi"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idColorArrayPushStat.prvNode0"
-				name="noMatsubiNi"
-				nodeStyleID="WordLabel2.json"
-				initString="の末尾に">
-			</Node>
-		</PrivateConnector>
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idColorListCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idColorArrayPushStat.prvCnctr0"
+      name="noMatsubiNi"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idColorArrayPushStat.prvNode0"
+        name="noMatsubiNi"
+        nodeStyleID="WordLabel2.json"
+        initString="の末尾に">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idColorExpCnctr" name="Arg1"/>
+    <Connector bhConnectorID="idColorExpCnctr" name="Arg1"/>
 
-		<PrivateConnector
-			bhConnectorID="idColorArrayPushStat.prvCnctr1"
-			name="woTsuikaSuru"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idColorArrayPushStat.prvNode1"
-				name="woTsuikaSuru"
-				nodeStyleID="WordLabel2.json"
-				initString="を追加する">
-			</Node>
-		</PrivateConnector>
+    <PrivateConnector
+      bhConnectorID="idColorArrayPushStat.prvCnctr1"
+      name="woTsuikaSuru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idColorArrayPushStat.prvNode1"
+        name="woTsuikaSuru"
+        nodeStyleID="WordLabel2.json"
+        initString="を追加する">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

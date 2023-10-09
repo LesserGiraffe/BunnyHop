@@ -21,26 +21,26 @@ package net.seapanda.bunnyhop.model.node.event;
  */
 public enum BhNodeEvent {
 
-	/** 子ノードからワークスペースに移されたときに発行されるイベント */
-	ON_MOVED_FROM_CHILD_TO_WS,
-	/** ワークスペースもしくは, 子ノードから子ノードに移されたときに発行されるイベント */
-	ON_MOVED_TO_CHILD,
-	/** 子ノードが入れ替わった時に発行されるイベント */
-	ON_CHILD_REPLACED,
-	/** このノードが削除候補になったときに発行されるイベント */
-	ON_DELETION_REQUESTED,
-	/** ユーザー操作により, このノードがカット&ペーストされるときに発行されるイベント */
-	ON_CUT_REQUESTED,
-	/** ノードごとのノードテンプレートを作成するときに発行されるイベント */
-	ON_PRIVATE_TEMPLATE_CREATING,
-	/** ユーザー操作により, このノードがコピー&ペーストされるときに発行されるイベント */
-	ON_COPY_REQUESTED,
-	/** 構文エラーをチェックするときに発行されるイベント */
-	ON_SYNTAX_CHECKING,
-	/** テキストノードのテキストを整形するときに発行されるイベント */
-	ON_TEXT_FORMATTING,
-	/** テキストノードに入力されたテキストが受理可能かどうか判断するときに発行されるイベント */
-	ON_TEXT_CHECKING,
-	/** ビューのコンテンツを生成するときに発行されるイベント */
-	ON_VIEW_CONTENTS_CREATING,
+  /** 子ノードからワークスペースに移されたときに発行されるイベント */
+  ON_MOVED_FROM_CHILD_TO_WS,
+  /** ワークスペースもしくは, 子ノードから子ノードに移されたときに発行されるイベント */
+  ON_MOVED_TO_CHILD,
+  /** 子ノードが入れ替わった時に発行されるイベント */
+  ON_CHILD_REPLACED,
+  /** このノードが削除候補になったときに発行されるイベント */
+  ON_DELETION_REQUESTED,
+  /** ユーザー操作により, このノードがカット&ペーストされるときに発行されるイベント */
+  ON_CUT_REQUESTED,
+  /** ノードごとのノードテンプレートを作成するときに発行されるイベント */
+  ON_PRIVATE_TEMPLATE_CREATING,
+  /** ユーザー操作により, このノードがコピー&ペーストされるときに発行されるイベント */
+  ON_COPY_REQUESTED,
+  /** 構文エラーをチェックするときに発行されるイベント */
+  ON_SYNTAX_CHECKING,
+  /** テキストノードのテキストを整形するときに発行されるイベント */
+  ON_TEXT_FORMATTING,
+  /** テキストノードに入力されたテキストが受理可能かどうか判断するときに発行されるイベント */
+  ON_TEXT_CHECKING,
+  /** ビューのコンテンツを生成するときに発行されるイベント */
+  ON_VIEW_CONTENTS_CREATING,
 }

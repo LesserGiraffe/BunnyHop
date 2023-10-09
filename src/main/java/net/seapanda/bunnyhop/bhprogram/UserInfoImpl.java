@@ -25,74 +25,74 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
  */
 public class UserInfoImpl implements UserInfo {
 
-	private final String uname;
-	private final String host;
-	private final String password;
+  private final String uname;
+  private final String host;
+  private final String password;
 
-	/**
-	 * コンストラクタ
-	 * @param host ホスト名. null禁止
-	 * @param uname ユーザー名. null禁止
-	 * @param password パスワード. null禁止
-	 * */
-	public UserInfoImpl(String host, String uname, String password) {
-		this.host = host == null ? "" : host;
-		this.uname = uname == null ? "" : uname;
-		this.password = password == null ? "" : password;
-	}
+  /**
+   * コンストラクタ
+   * @param host ホスト名. null禁止
+   * @param uname ユーザー名. null禁止
+   * @param password パスワード. null禁止
+   * */
+  public UserInfoImpl(String host, String uname, String password) {
+    this.host = host == null ? "" : host;
+    this.uname = uname == null ? "" : uname;
+    this.password = password == null ? "" : password;
+  }
 
-	/**
-	 * コピーコンストラクタ
-	 * */
-	public UserInfoImpl(UserInfoImpl original) {
-		this.host = original.host;
-		this.uname = original.uname;
-		this.password = original.password;
-	}
+  /**
+   * コピーコンストラクタ
+   * */
+  public UserInfoImpl(UserInfoImpl original) {
+    this.host = original.host;
+    this.uname = original.uname;
+    this.password = original.password;
+  }
 
-	@Override
-	public String getPassphrase() {
-		return null;
-	}
+  @Override
+  public String getPassphrase() {
+    return null;
+  }
 
-	@Override
-	public String getPassword() {
-		return password;
-	}
+  @Override
+  public String getPassword() {
+    return password;
+  }
 
-	@Override
-	public boolean promptPassphrase(String arg0) {
-		return false;
-	}
+  @Override
+  public boolean promptPassphrase(String arg0) {
+    return false;
+  }
 
-	@Override
-	public boolean promptPassword(String message) {
-		return true;
-	}
+  @Override
+  public boolean promptPassword(String message) {
+    return true;
+  }
 
-	@Override
-	public boolean promptYesNo(String message) {
-		return true;
-	}
+  @Override
+  public boolean promptYesNo(String message) {
+    return true;
+  }
 
-	@Override
-	public void showMessage(String message) {
-		MsgPrinter.INSTANCE.msgForUser(message + "\n");
-	}
+  @Override
+  public void showMessage(String message) {
+    MsgPrinter.INSTANCE.msgForUser(message + "\n");
+  }
 
-	public String getUname () {
-		return uname;
-	}
+  public String getUname () {
+    return uname;
+  }
 
-	public String getHost() {
-		return host;
-	}
+  public String getHost() {
+    return host;
+  }
 
-	/**
-	 * このオブジェクトの接続先と同じかどうかを調べる
-	 * @return 引数の接続先がこのオブジェクトが表す接続先と同じ場合true
-	 * */
-	public boolean isSameAccessPoint(String host, String uname) {
-		return this.uname.equals(uname) && this.host.contentEquals(host);
-	}
+  /**
+   * このオブジェクトの接続先と同じかどうかを調べる
+   * @return 引数の接続先がこのオブジェクトが表す接続先と同じ場合true
+   * */
+  public boolean isSameAccessPoint(String host, String uname) {
+    return this.uname.equals(uname) && this.host.contentEquals(host);
+  }
 }

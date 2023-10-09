@@ -1,46 +1,46 @@
 <Node
-	type="connective"
-	bhNodeID="idIfStat"
-	name="IfStat"
-	nodeStyleID="IfStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idIfStat"
+  name="IfStat"
+  nodeStyleID="IfStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		
-		<PrivateConnector
-			bhConnectorID="idIfStat.prvCnctr0"
-			name="Moshi"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idIfStat.prvNode0"
-				name="Moshi"
-				nodeStyleID="WordLabel1.json"
-				initString="もし">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idBoolExpCnctr" name="CondExp"/>
+  <ConnectorSection name="StatSctn">
+    
+    <PrivateConnector
+      bhConnectorID="idIfStat.prvCnctr0"
+      name="Moshi"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idIfStat.prvNode0"
+        name="Moshi"
+        nodeStyleID="WordLabel1.json"
+        initString="もし">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idBoolExpCnctr" name="CondExp"/>
 
-		<PrivateConnector
-			bhConnectorID="idIfStat.prvCnctr1"
-			name="Nara"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idIfStat.prvNode1"
-				name="Nara"
-				nodeStyleID="WordLabel1.json"
-				initString="なら">
-			</Node>
-		</PrivateConnector>
+    <PrivateConnector
+      bhConnectorID="idIfStat.prvCnctr1"
+      name="Nara"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idIfStat.prvNode1"
+        name="Nara"
+        nodeStyleID="WordLabel1.json"
+        initString="なら">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idStatCnctr" name="ThenStat"/>
-		
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idStatCnctr" name="ThenStat"/>
+    
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

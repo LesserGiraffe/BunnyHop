@@ -31,30 +31,30 @@ import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
  * */
 public class BodyNone extends BodyShape {
 
-	@Override
-	public Collection<Double> createVertices(
-		double bodyWidth,
-		double bodyHeight,
-		ConnectorShape connector,
-		BhNodeViewStyle.CNCTR_POS cnctrPos,
-		double cnctrWidth,
-		double cnctrHeight,
-		double cnctrShift,
-		ConnectorShape notch,
-		BhNodeViewStyle.NOTCH_POS notchPos,
-		double notchWidth,
-		double notchHeight) {
+  @Override
+  public Collection<Double> createVertices(
+    double bodyWidth,
+    double bodyHeight,
+    ConnectorShape connector,
+    BhNodeViewStyle.CNCTR_POS cnctrPos,
+    double cnctrWidth,
+    double cnctrHeight,
+    double cnctrShift,
+    ConnectorShape notch,
+    BhNodeViewStyle.NOTCH_POS notchPos,
+    double notchWidth,
+    double notchHeight) {
 
-		if (connector instanceof ConnectorNone) {
-			return new ArrayList<>();
-		}
-		List<Double> vertices = createConnectorVertices(connector, cnctrPos, cnctrWidth, cnctrHeight, cnctrShift);
-		if (cnctrPos == CNCTR_POS.LEFT) {
-			vertices.addAll(Arrays.asList(0.0, cnctrShift + cnctrHeight * 0.5));
-		}
-		else if (cnctrPos == CNCTR_POS.TOP) {
-			vertices.addAll(Arrays.asList(cnctrShift + cnctrWidth * 0.5, 0.0));
-		}
-		return vertices;
-	}
+    if (connector instanceof ConnectorNone) {
+      return new ArrayList<>();
+    }
+    List<Double> vertices = createConnectorVertices(connector, cnctrPos, cnctrWidth, cnctrHeight, cnctrShift);
+    if (cnctrPos == CNCTR_POS.LEFT) {
+      vertices.addAll(Arrays.asList(0.0, cnctrShift + cnctrHeight * 0.5));
+    }
+    else if (cnctrPos == CNCTR_POS.TOP) {
+      vertices.addAll(Arrays.asList(cnctrShift + cnctrWidth * 0.5, 0.0));
+    }
+    return vertices;
+  }
 }

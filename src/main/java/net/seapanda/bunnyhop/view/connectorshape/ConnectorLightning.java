@@ -28,41 +28,41 @@ import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
 public class ConnectorLightning extends ConnectorShape {
 
 
-	/** コネクタの頂点を算出する
-	 * @param offsetX 頂点に加算するオフセットX
-	 * @param offsetY 頂点に加算するオフセットY
-	 * @param width   コネクタの幅
-	 * @param height  コネクタの高さ
-	 * */
-	@Override
-	public List<Double> createVertices(double offsetX, double offsetY, double width, double height, CNCTR_POS pos) {
+  /** コネクタの頂点を算出する
+   * @param offsetX 頂点に加算するオフセットX
+   * @param offsetY 頂点に加算するオフセットY
+   * @param width   コネクタの幅
+   * @param height  コネクタの高さ
+   * */
+  @Override
+  public List<Double> createVertices(double offsetX, double offsetY, double width, double height, CNCTR_POS pos) {
 
-		ArrayList<Double> vertices = null;
-		double p = 2.0 / 3.0;
-		double q = 1.0 - p;
+    ArrayList<Double> vertices = null;
+    double p = 2.0 / 3.0;
+    double q = 1.0 - p;
 
-		if (pos == CNCTR_POS.LEFT) {
-			vertices = new ArrayList<>(Arrays.asList(
-				offsetX + width,     offsetY + height * p,
-				offsetX + width * p, offsetY + height * 0.5,
-				offsetX + width * p, offsetY + height,
-				offsetX + 0.0,       offsetY + height * p,
-				offsetX + 0.0,       offsetY + height * q,
-				offsetX + width * q, offsetY + height * 0.5,
-				offsetX + width * q, offsetY + 0.0,
-				offsetX + width,     offsetY + height * q));
-		}
-		else if (pos == CNCTR_POS.TOP) {
-			vertices = new ArrayList<>(Arrays.asList(
-				offsetX + width * q,   offsetY + height,
-				offsetX + width * 0.5, offsetY + height * p,
-				offsetX + 0.0,         offsetY + height * p,
-				offsetX + width * q,   offsetY + 0.0,
-				offsetX + width * p,   offsetY + 0.0,
-				offsetX + width * 0.5, offsetY + height * q,
-				offsetX + width,       offsetY + height * q,
-				offsetX + width * p,   offsetY + height));
-		}
-		return vertices;
-	}
+    if (pos == CNCTR_POS.LEFT) {
+      vertices = new ArrayList<>(Arrays.asList(
+        offsetX + width,     offsetY + height * p,
+        offsetX + width * p, offsetY + height * 0.5,
+        offsetX + width * p, offsetY + height,
+        offsetX + 0.0,       offsetY + height * p,
+        offsetX + 0.0,       offsetY + height * q,
+        offsetX + width * q, offsetY + height * 0.5,
+        offsetX + width * q, offsetY + 0.0,
+        offsetX + width,     offsetY + height * q));
+    }
+    else if (pos == CNCTR_POS.TOP) {
+      vertices = new ArrayList<>(Arrays.asList(
+        offsetX + width * q,   offsetY + height,
+        offsetX + width * 0.5, offsetY + height * p,
+        offsetX + 0.0,         offsetY + height * p,
+        offsetX + width * q,   offsetY + 0.0,
+        offsetX + width * p,   offsetY + 0.0,
+        offsetX + width * 0.5, offsetY + height * q,
+        offsetX + width,       offsetY + height * q,
+        offsetX + width * p,   offsetY + height));
+    }
+    return vertices;
+  }
 }

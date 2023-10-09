@@ -1,23 +1,24 @@
-<Node type="connective"
-	  bhNodeID="idMelodyExp"
-	  name="MelodyExp"
-	  nodeStyleID="MelodyExp.json"
-	  onChildReplaced="OnChildSoundExpReplaced.js">
+<Node
+  type="connective"
+  bhNodeID="idMelodyExp"
+  name="MelodyExp"
+  nodeStyleID="MelodyExp.json"
+  onChildReplaced="OnChildSoundExpReplaced.js">
 
-	<ConnectorSection name="MelodyExpSctn">
+  <ConnectorSection name="MelodyExpSctn">
 
-		<PrivateConnector
-			bhConnectorID="idMelodyExp.prvCnctr0"
-			name="Arg0"
-			defaultBhNodeID="idSoundLiteralVoid"
-			initialBhNodeID=""
-			class="SoundClass"
-			onConnectabilityChecking="SoundExpCnct.js"/>
+    <PrivateConnector
+      bhConnectorID="idMelodyExp.prvCnctr0"
+      name="Arg0"
+      defaultBhNodeID="idSoundLiteralVoid"
+      initialBhNodeID=""
+      class="SoundClass"
+      onConnectabilityChecking="SoundExpCnct.js"/>
 
-		<PrivateConnector 
-			bhConnectorID="idMelodyExp.prvCnctr1"
-			name="Arg1"
-			fixed="true"
-			initialBhNodeID="idMelodyExpVoid"/>
-	</ConnectorSection>
+    <PrivateConnector 
+      bhConnectorID="idMelodyExp.prvCnctr1"
+      name="Arg1"
+      fixed="true"
+      initialBhNodeID="idMelodyExpVoid"/>
+  </ConnectorSection>
 </Node>

@@ -34,99 +34,99 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  * */
 public class Subsection extends Section {
 
-	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	List<Section> subsectionList = new ArrayList<>();	//!< サブグループリスト
+  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
+  List<Section> subsectionList = new ArrayList<>();  //!< サブグループリスト
 
-	/**
-	 * コンストラクタ
-	 * @param symbolName     終端, 非終端記号名
-	 * @param subsectionList サブセクションリスト
-	 * */
-	public Subsection(String symbolName, Collection<Section> subsectionList) {
-		super(symbolName);
-		this.subsectionList.addAll(subsectionList);
-	}
+  /**
+   * コンストラクタ
+   * @param symbolName     終端, 非終端記号名
+   * @param subsectionList サブセクションリスト
+   * */
+  public Subsection(String symbolName, Collection<Section> subsectionList) {
+    super(symbolName);
+    this.subsectionList.addAll(subsectionList);
+  }
 
-	/**
-	 * コピーコンストラクタ
-	 * @param org コピー元オブジェクト
-	 */
-	private Subsection(Subsection org) {
-		super(org);
-	}
+  /**
+   * コピーコンストラクタ
+   * @param org コピー元オブジェクト
+   */
+  private Subsection(Subsection org) {
+    super(org);
+  }
 
-	@Override
-	public Subsection copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
+  @Override
+  public Subsection copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
 
-		Subsection newSubsection = new Subsection(this);
-		subsectionList.forEach(section -> {
-			Section newSection = section.copy(userOpeCmd, isNodeToBeCopied);
-			newSection.setParent(newSubsection);
-			newSubsection.subsectionList.add(newSection);
-		});
-		return newSubsection;
-	}
+    Subsection newSubsection = new Subsection(this);
+    subsectionList.forEach(section -> {
+      Section newSection = section.copy(userOpeCmd, isNodeToBeCopied);
+      newSection.setParent(newSubsection);
+      newSubsection.subsectionList.add(newSection);
+    });
+    return newSubsection;
+  }
 
-	@Override
-	public void accept(BhModelProcessor visitor) {
-		visitor.visit(this);
-	}
+  @Override
+  public void accept(BhModelProcessor visitor) {
+    visitor.visit(this);
+  }
 
-	/**
-	 * visitor をこのセクションの下のサブセクションに渡す
-	 * @param visitor サブグループに渡す visitor
-	 * */
-	public void sendToSubsections(BhModelProcessor visitor) {
-		subsectionList.forEach(subsection -> subsection.accept(visitor));
-	}
+  /**
+   * visitor をこのセクションの下のサブセクションに渡す
+   * @param visitor サブグループに渡す visitor
+   * */
+  public void sendToSubsections(BhModelProcessor visitor) {
+    subsectionList.forEach(subsection -> subsection.accept(visitor));
+  }
 
-	@Override
-	public void findSymbolInDescendants(int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
+  @Override
+  public void findSymbolInDescendants(int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
 
-		if (generation == 0) {
-			for (String symbolName : symbolNames) {
-				if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
-					foundSymbolList.add(this);
-				}
-			}
-			if (!toBottom) {
-				return;
-			}
-		}
+    if (generation == 0) {
+      for (String symbolName : symbolNames) {
+        if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
+          foundSymbolList.add(this);
+        }
+      }
+      if (!toBottom) {
+        return;
+      }
+    }
 
-		int childLevel = generation - 1;
-		for (Section subsection : subsectionList) {
-			subsection.findSymbolInDescendants(Math.max(0, childLevel), toBottom, foundSymbolList, symbolNames);
-		}
-	}
+    int childLevel = generation - 1;
+    for (Section subsection : subsectionList) {
+      subsection.findSymbolInDescendants(Math.max(0, childLevel), toBottom, foundSymbolList, symbolNames);
+    }
+  }
 
-	@Override
-	public BhNode findOuterNode(int generation) {
+  @Override
+  public BhNode findOuterNode(int generation) {
 
-		for (int i = subsectionList.size() - 1; i >= 0; --i) {
-			BhNode outerNode = subsectionList.get(i).findOuterNode(generation);
-			if (outerNode != null)
-				return outerNode;
-		}
-		return null;
-	}
+    for (int i = subsectionList.size() - 1; i >= 0; --i) {
+      BhNode outerNode = subsectionList.get(i).findOuterNode(generation);
+      if (outerNode != null)
+        return outerNode;
+    }
+    return null;
+  }
 
-	/**
-	 * モデルの構造を表示する
-	 * @param depth 表示インデント数
-	 * */
-	@Override
-	public void show(int depth) {
+  /**
+   * モデルの構造を表示する
+   * @param depth 表示インデント数
+   * */
+  @Override
+  public void show(int depth) {
 
-		int parentHash;
-		if (parentNode != null)
-			parentHash = parentNode.hashCode();
-		else
-			parentHash = parentSection.hashCode();
+    int parentHash;
+    if (parentNode != null)
+      parentHash = parentNode.hashCode();
+    else
+      parentHash = parentSection.hashCode();
 
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<ConnectorGroup" + " name=" + getSymbolName() + "  parent=" + parentHash + "  > " + this.hashCode());
-		subsectionList.forEach((connector -> connector.show(depth + 1)));
-	}
+    MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<ConnectorGroup" + " name=" + getSymbolName() + "  parent=" + parentHash + "  > " + this.hashCode());
+    subsectionList.forEach((connector -> connector.show(depth + 1)));
+  }
 }
 
 

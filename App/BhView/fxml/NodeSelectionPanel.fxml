@@ -4,13 +4,13 @@
 <?import javafx.scene.layout.*?>
 
 <fx:root
-	xmlns:fx="http://javafx.com/fxml"
-	type="ScrollPane"
-	HbarPolicy="AS_NEEDED"
-	VbarPolicy="AS_NEEDED"
-	StackPane.alignment="top_right"
-	fx:id="nodeSelectionPanelBase">
-	<Pane fx:id="nodeSelectionPanelWrapper">
-		<Pane fx:id="nodeSelectionPanel"/>
-	</Pane>
+  xmlns:fx="http://javafx.com/fxml"
+  type="ScrollPane"
+  HbarPolicy="AS_NEEDED"
+  VbarPolicy="AS_NEEDED"
+  StackPane.alignment="top_right"
+  fx:id="nodeSelectionPanelBase">
+  <Pane fx:id="nodeSelectionPanelWrapper">
+    <Pane fx:id="nodeSelectionPanel"/>
+  </Pane>
 </fx:root>

@@ -1,45 +1,45 @@
 <Node
-	type="connective"
-	bhNodeID="idBoolArrayAppendStat"
-	name="BoolArrayAppendStat"
-	nodeStyleID="BoolArrayAppendStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idBoolArrayAppendStat"
+  name="BoolArrayAppendStat"
+  nodeStyleID="BoolArrayAppendStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idBoolListCnctr" name="Arg0"/>
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idBoolListCnctr" name="Arg0"/>
 
-		<PrivateConnector
-			bhConnectorID="idBoolArrayAppendStat.prvCnctr0"
-			name="ni"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idBoolArrayAppendStat.prvNode0"
-				name="ni"
-				nodeStyleID="WordLabel1.json"
-				initString="に">
-			</Node>
-		</PrivateConnector>
+    <PrivateConnector
+      bhConnectorID="idBoolArrayAppendStat.prvCnctr0"
+      name="ni"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idBoolArrayAppendStat.prvNode0"
+        name="ni"
+        nodeStyleID="WordLabel1.json"
+        initString="に">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idBoolListCnctr" name="Arg1"/>
-		
-		<PrivateConnector
-			bhConnectorID="idBoolArrayAppendStat.prvCnctr1"
-			name="noYosoWoSubeteTsuikaSuru"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idBoolArrayAppendStat.prvNode1"
-				name="noYosoWoSubeteTsuikaSuru"
-				nodeStyleID="WordLabel1.json"
-				initString="の要素を全て追加する">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idBoolListCnctr" name="Arg1"/>
+    
+    <PrivateConnector
+      bhConnectorID="idBoolArrayAppendStat.prvCnctr1"
+      name="noYosoWoSubeteTsuikaSuru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idBoolArrayAppendStat.prvNode1"
+        name="noYosoWoSubeteTsuikaSuru"
+        nodeStyleID="WordLabel1.json"
+        initString="の要素を全て追加する">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

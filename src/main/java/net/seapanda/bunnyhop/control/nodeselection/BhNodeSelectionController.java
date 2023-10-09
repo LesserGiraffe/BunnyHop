@@ -27,44 +27,44 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
  */
 public class BhNodeSelectionController implements MsgProcessor {
 
-	private Workspace model;
-	private BhNodeSelectionView view;
+  private Workspace model;
+  private BhNodeSelectionView view;
 
-	/**
-	 * コンストラクタ
-	 * @param model 操作対象のモデル
-	 * @param view 操作対象のビュー
-	 */
-	public BhNodeSelectionController(Workspace model, BhNodeSelectionView view) {
+  /**
+   * コンストラクタ
+   * @param model 操作対象のモデル
+   * @param view 操作対象のビュー
+   */
+  public BhNodeSelectionController(Workspace model, BhNodeSelectionView view) {
 
-		this.model = model;
-		this.view = view;
-	}
+    this.model = model;
+    this.view = view;
+  }
 
-	/**
-	 * メッセージ受信
-	 * @param msg メッセージの種類
-	 * @param data メッセージの種類に応じて処理するもの
-	 * */
-	@Override
-	public MsgData processMsg(BhMsg msg, MsgData data) {
+  /**
+   * メッセージ受信
+   * @param msg メッセージの種類
+   * @param data メッセージの種類に応じて処理するもの
+   * */
+  @Override
+  public MsgData processMsg(BhMsg msg, MsgData data) {
 
-		switch (msg) {
+    switch (msg) {
 
-			case ADD_ROOT_NODE:
-				model.addRootNode(data.node);
-				view.addNodeView(data.nodeView);
-				break;
+      case ADD_ROOT_NODE:
+        model.addRootNode(data.node);
+        view.addNodeView(data.nodeView);
+        break;
 
-			case REMOVE_ROOT_NODE:
-				model.removeRootNode(data.node);
-				view.removeNodeView(data.nodeView);
-				break;
+      case REMOVE_ROOT_NODE:
+        model.removeRootNode(data.node);
+        view.removeNodeView(data.nodeView);
+        break;
 
-			default:
-				// do nothing.
-		}
+      default:
+        // do nothing.
+    }
 
-		return null;
-	};
+    return null;
+  };
 }

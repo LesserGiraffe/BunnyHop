@@ -20,8 +20,8 @@ package net.seapanda.bunnyhop.bhprogram;
  * @author K.Koike
  */
 public enum BhProgramExecEnvError {
-	
-	SUCCESS,	//!< エラーなし
-	SEND_WHEN_DISCONNECTED,	//!< 切断中に送信しようとした
-	SEND_QUEUE_FULL,	//!< 送信キューが満杯で送信できない
+  
+  SUCCESS,  //!< エラーなし
+  SEND_WHEN_DISCONNECTED,  //!< 切断中に送信しようとした
+  SEND_QUEUE_FULL,  //!< 送信キューが満杯で送信できない
 }

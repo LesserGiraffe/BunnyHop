@@ -1,34 +1,34 @@
 <Node
-	type="connective"
-	bhNodeID="idColorListDecl"
-	name="ColorListDecl"
-	nodeStyleID="ColorListDecl.json"
-	onPrivateTemplateCreating="CreateListDeclPrivateTemplate.js"
-	onMovedFromChildToWS="OnVarDeclMovedToWS.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idColorListDecl"
+  name="ColorListDecl"
+  nodeStyleID="ColorListDecl.json"
+  onPrivateTemplateCreating="CreateListDeclPrivateTemplate.js"
+  onMovedFromChildToWS="OnVarDeclMovedToWS.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<Imitation imitationID="imitIdManual" imitationNodeID="idColorList"/>
-	<Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idColorListArg"/>
-	<Imitation imitationID="imitIdVarDeclToOutArg" imitationNodeID="idColorListArg"/>
+  <Imitation imitationID="imitIdManual" imitationNodeID="idColorList"/>
+  <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idColorListArg"/>
+  <Imitation imitationID="imitIdVarDeclToOutArg" imitationNodeID="idColorListArg"/>
 
-	<ConnectorSection name="VarDeclSctn">
-		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitationID="imitIdListName" imitCnctPos="imitPosListName"/>
-		
-		<PrivateConnector
-			bhConnectorID="idColorListDecl.prvCnctr0"
-			name="ListSign"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idColorListDecl.prvNode0"
-				name="ListSign"
-				nodeStyleID="WordLabel2.json"
-				initString="[...]">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idVarDeclCnctr" name="NextVarDecl" imitCnctPos="imitPosNextArg"/>
-	</ConnectorSection>
+  <ConnectorSection name="VarDeclSctn">
+    <Connector bhConnectorID="idListNameCnctr" name="ListName" imitationID="imitIdListName" imitCnctPos="imitPosListName"/>
+    
+    <PrivateConnector
+      bhConnectorID="idColorListDecl.prvCnctr0"
+      name="ListSign"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idColorListDecl.prvNode0"
+        name="ListSign"
+        nodeStyleID="WordLabel2.json"
+        initString="[...]">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idVarDeclCnctr" name="NextVarDecl" imitCnctPos="imitPosNextArg"/>
+  </ConnectorSection>
 </Node>

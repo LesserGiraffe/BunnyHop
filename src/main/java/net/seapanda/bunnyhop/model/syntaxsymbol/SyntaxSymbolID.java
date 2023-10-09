@@ -28,35 +28,35 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
  * */
 public class SyntaxSymbolID implements Serializable {
 
-	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	static private AtomicLong sequentialID = new AtomicLong(0);
-	private final String id;
+  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
+  static private AtomicLong sequentialID = new AtomicLong(0);
+  private final String id;
 
-	static SyntaxSymbolID newID() {
-		long id = sequentialID.addAndGet(1);
-		return new SyntaxSymbolID(Long.toHexString(id));
-	}
+  static SyntaxSymbolID newID() {
+    long id = sequentialID.addAndGet(1);
+    return new SyntaxSymbolID(Long.toHexString(id));
+  }
 
-	private SyntaxSymbolID(String id) {
-		this.id = id;
-	}
+  private SyntaxSymbolID(String id) {
+    this.id = id;
+  }
 
-	@Override
-	public String toString() {
-		return id;
-	}
+  @Override
+  public String toString() {
+    return id;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		return (getClass() == obj.getClass()) && (id.equals(((SyntaxSymbolID)obj).id));
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null)
+      return false;
+    return (getClass() == obj.getClass()) && (id.equals(((SyntaxSymbolID)obj).id));
+  }
 
-	@Override
-	public int hashCode() {
-		int hash = 71;
-		hash = 311 * hash + Objects.hashCode(this.id);
-		return hash;
-	}
+  @Override
+  public int hashCode() {
+    int hash = 71;
+    hash = 311 * hash + Objects.hashCode(this.id);
+    return hash;
+  }
 }

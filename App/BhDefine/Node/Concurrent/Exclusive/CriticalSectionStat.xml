@@ -1,36 +1,36 @@
 <Node
-	type="connective"
-	bhNodeID="idCriticalSectionStat"
-	name="CriticalSectionStat"
-	nodeStyleID="CriticalSectionStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idCriticalSectionStat"
+  name="CriticalSectionStat"
+  nodeStyleID="CriticalSectionStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		
-		<PrivateConnector
-			bhConnectorID="idCriticalSectionStat.prvCnctr0"
-			name="haita"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idCriticalSectionStat.prvNode0"
-				name="haita"
-				nodeStyleID="WordLabel2.json"
-				initString="排他区間">
-			</Node>
-		</PrivateConnector>
+  <ConnectorSection name="StatSctn">
+    
+    <PrivateConnector
+      bhConnectorID="idCriticalSectionStat.prvCnctr0"
+      name="haita"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idCriticalSectionStat.prvNode0"
+        name="haita"
+        nodeStyleID="WordLabel2.json"
+        initString="排他区間">
+      </Node>
+    </PrivateConnector>
 
-		<Connector
-			bhConnectorID="idVarNameCnctr"
-			name="CriticalSectionName"
-			imitCnctPos="imitPosVarName"/>
+    <Connector
+      bhConnectorID="idVarNameCnctr"
+      name="CriticalSectionName"
+      imitCnctPos="imitPosVarName"/>
 
-		<Connector bhConnectorID="idStatCnctr" name="ExclusiveStat"/>
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+    <Connector bhConnectorID="idStatCnctr" name="ExclusiveStat"/>
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
 
-	</ConnectorSection>
+  </ConnectorSection>
 </Node>

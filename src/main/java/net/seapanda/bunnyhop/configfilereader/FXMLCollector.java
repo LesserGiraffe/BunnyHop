@@ -35,36 +35,36 @@ import net.seapanda.bunnyhop.common.tools.Util;
  */
 public class FXMLCollector {
 
-	public static final FXMLCollector INSTANCE = new FXMLCollector();
-	private static final Map<String, Path> fileName_filePath = new HashMap<>();
+  public static final FXMLCollector INSTANCE = new FXMLCollector();
+  private static final Map<String, Path> fileName_filePath = new HashMap<>();
 
-	private FXMLCollector(){}
+  private FXMLCollector(){}
 
-	/**
-	 * FXMLファイルのファイル名とそのパスを集める
-	 * @return FXMLファイルのフォルダが見つからなかった場合 falseを返す
-	 */
-	public boolean collectFXMLFiles() {
+  /**
+   * FXMLファイルのファイル名とそのパスを集める
+   * @return FXMLファイルのフォルダが見つからなかった場合 falseを返す
+   */
+  public boolean collectFXMLFiles() {
 
-		Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.FXML_DIR);
-		Stream<Path> paths;	//読み込むファイルパスリスト
-		try {
-			paths = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.getFileName().toString().endsWith(".fxml")); //.fxmlファイルだけ収集
-		}
-		catch (IOException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug("fxml directory not found " + dirPath + "\n" + e.toString());
-			return false;
-		}
-		paths.forEach(filePath -> fileName_filePath.put(filePath.getFileName().toString(), filePath));
-		return true;
-	}
+    Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.FXML_DIR);
+    Stream<Path> paths;  //読み込むファイルパスリスト
+    try {
+      paths = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.getFileName().toString().endsWith(".fxml")); //.fxmlファイルだけ収集
+    }
+    catch (IOException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug("fxml directory not found " + dirPath + "\n" + e.toString());
+      return false;
+    }
+    paths.forEach(filePath -> fileName_filePath.put(filePath.getFileName().toString(), filePath));
+    return true;
+  }
 
-	/**
-	 * FXMLファイル名からそのファイルのフルパスを取得する
-	 * @param fileName フルパスを知りたいFXMLファイル名
-	 * @return fileName で指定したファイルのパスオブジェクト. パスが見つからない場合はnullを返す
-	 */
-	public Path getFilePath(String fileName) {
-		return fileName_filePath.getOrDefault(fileName, null);
-	}
+  /**
+   * FXMLファイル名からそのファイルのフルパスを取得する
+   * @param fileName フルパスを知りたいFXMLファイル名
+   * @return fileName で指定したファイルのパスオブジェクト. パスが見つからない場合はnullを返す
+   */
+  public Path getFilePath(String fileName) {
+    return fileName_filePath.getOrDefault(fileName, null);
+  }
 }

@@ -26,43 +26,43 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
  */
 public class ImitationConnectionPos implements Serializable {
 
-	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	public static final ImitationConnectionPos NONE = new ImitationConnectionPos("");	//!< イミテーション接続位置が存在しないことを表す
-	private final String pos;
+  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
+  public static final ImitationConnectionPos NONE = new ImitationConnectionPos("");  //!< イミテーション接続位置が存在しないことを表す
+  private final String pos;
 
-	/**
-	 * コンストラクタ
-	 * @param point 接続先名
-	 */
-	private ImitationConnectionPos(String point) {
-		this.pos = point;
-	}
+  /**
+   * コンストラクタ
+   * @param point 接続先名
+   */
+  private ImitationConnectionPos(String point) {
+    this.pos = point;
+  }
 
-	/**
-	 * イミテーション接続位置の識別子を作成する
-	 * @param point イミテーション接続位置名
-	 * @return イミテーション接続位置の識別子
-	 */
-	public static ImitationConnectionPos createImitCnctPoint(String point) {
-		return new ImitationConnectionPos(point == null ? "" : point);
-	}
+  /**
+   * イミテーション接続位置の識別子を作成する
+   * @param point イミテーション接続位置名
+   * @return イミテーション接続位置の識別子
+   */
+  public static ImitationConnectionPos createImitCnctPoint(String point) {
+    return new ImitationConnectionPos(point == null ? "" : point);
+  }
 
-	@Override
-	public String toString() {
-		return pos;
-	}
+  @Override
+  public String toString() {
+    return pos;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		return (getClass() == obj.getClass()) && (pos.equals(((ImitationConnectionPos)obj).pos));
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null)
+      return false;
+    return (getClass() == obj.getClass()) && (pos.equals(((ImitationConnectionPos)obj).pos));
+  }
 
-	@Override
-	public int hashCode() {
-		int hash = 5;
-		hash = 71 * hash + Objects.hashCode(this.pos);
-		return hash;
-	}
+  @Override
+  public int hashCode() {
+    int hash = 5;
+    hash = 71 * hash + Objects.hashCode(this.pos);
+    return hash;
+  }
 }

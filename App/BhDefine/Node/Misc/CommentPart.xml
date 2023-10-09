@@ -1,42 +1,42 @@
 <Node
-	type="connective"
-	bhNodeID="idCommentPart"
-	name="CommentPart"
-	nodeStyleID="CommentPart.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idCommentPart"
+  name="CommentPart"
+  nodeStyleID="CommentPart.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-	
-		<PrivateConnector
-			bhConnectorID="idCommentPart.prvCnctr0"
-			name="Comment"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idCommentPart.prvNode0"
-				name="Comment"
-				nodeStyleID="WordLabel2.json"
-				initString="コメント">
-			</Node>
-		</PrivateConnector>
-	
-		<PrivateConnector
-			bhConnectorID="idCommentPart.prvCnctr1"
-			name="Setsumei"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idCommentPart.prvNode1"
-				name="setsumei"
-				nodeStyleID="DefaultTextArea.json"
-				initString="説明">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+  <ConnectorSection name="StatSctn">
+  
+    <PrivateConnector
+      bhConnectorID="idCommentPart.prvCnctr0"
+      name="Comment"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idCommentPart.prvNode0"
+        name="Comment"
+        nodeStyleID="WordLabel2.json"
+        initString="コメント">
+      </Node>
+    </PrivateConnector>
+  
+    <PrivateConnector
+      bhConnectorID="idCommentPart.prvCnctr1"
+      name="Setsumei"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idCommentPart.prvNode1"
+        name="setsumei"
+        nodeStyleID="DefaultTextArea.json"
+        initString="説明">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

@@ -1,35 +1,35 @@
 <Node
-	type="connective"
-	bhNodeID="idNewLine"
-	name="NewLine"
-	nodeStyleID="NewLine.json"
-	onMovedFromChildToWS="OnLiteralMovedToWS.js">
+  type="connective"
+  bhNodeID="idNewLine"
+  name="NewLine"
+  nodeStyleID="NewLine.json"
+  onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
-	<ConnectorSection name="StringExpSctn">
+  <ConnectorSection name="StringExpSctn">
 
-		<PrivateConnector
-			bhConnectorID="idNewLine.prvCnctr0"
-			name="kaigyo"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idNewLine.prvNode0"
-				name="kaigyo"
-				nodeStyleID="WordLabel1.json"
-				initString="改行">
-			</Node>
-		</PrivateConnector>
-		
-		<PrivateConnector
-			bhConnectorID="idNewLine.prvCnctr1"
-			name="Literal"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idNewLine.prvNode1"
-				name="LineFeed"
-				initString="('\n')">
-			</Node>
-		</PrivateConnector>
-	</ConnectorSection>
+    <PrivateConnector
+      bhConnectorID="idNewLine.prvCnctr0"
+      name="kaigyo"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNewLine.prvNode0"
+        name="kaigyo"
+        nodeStyleID="WordLabel1.json"
+        initString="改行">
+      </Node>
+    </PrivateConnector>
+    
+    <PrivateConnector
+      bhConnectorID="idNewLine.prvCnctr1"
+      name="Literal"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNewLine.prvNode1"
+        name="LineFeed"
+        initString="('\n')">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
 </Node>

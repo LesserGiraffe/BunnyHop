@@ -1,36 +1,37 @@
-<Node type="connective"
-	bhNodeID="idKeyPressedEvent"
-	name="KeyPressedEvent"
-	nodeStyleID="KeyPressedEvent.json">
+<Node
+  type="connective"
+  bhNodeID="idKeyPressedEvent"
+  name="KeyPressedEvent"
+  nodeStyleID="KeyPressedEvent.json">
 
-	<ConnectorSection name="EventSctn">
+  <ConnectorSection name="EventSctn">
 
-		<PrivateConnector
-			bhConnectorID="idKeyPressedEvent.prvCnctr0"
-			name="keyCodeCnctr"
-    		fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idKeyPressedEvent.prvNode0"
-				name="KeyCode"
-				nodeStyleID="WordComboBox.json"
-				onViewContentsCreating="CreateKeyPressedEvents.js">
-			</Node>
-		</PrivateConnector>
-		
-		<PrivateConnector
-			bhConnectorID="idKeyPressedEvent.prvCnctr1"
-			name="gaOsaretaToki"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idKeyPressedEvent.prvNode1"
-				name="gaOsaretaToki"
-				nodeStyleID="WordLabel2.json"
-				initString="が押されたとき">
-			</Node>
-		</PrivateConnector>
+    <PrivateConnector
+      bhConnectorID="idKeyPressedEvent.prvCnctr0"
+      name="keyCodeCnctr"
+        fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idKeyPressedEvent.prvNode0"
+        name="KeyCode"
+        nodeStyleID="WordComboBox.json"
+        onViewContentsCreating="CreateKeyPressedEvents.js">
+      </Node>
+    </PrivateConnector>
+    
+    <PrivateConnector
+      bhConnectorID="idKeyPressedEvent.prvCnctr1"
+      name="gaOsaretaToki"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idKeyPressedEvent.prvNode1"
+        name="gaOsaretaToki"
+        nodeStyleID="WordLabel2.json"
+        initString="が押されたとき">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idStatCnctr" name="StatList"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idStatCnctr" name="StatList"/>
+  </ConnectorSection>
 </Node>

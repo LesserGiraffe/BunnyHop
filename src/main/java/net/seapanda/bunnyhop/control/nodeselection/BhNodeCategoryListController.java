@@ -34,42 +34,42 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryListView;
  */
 public class BhNodeCategoryListController implements MsgProcessor {
 
-	@FXML private ScrollPane nodeCategoryListViewBase;
-	@FXML private TreeView<BhNodeCategoryListView.BhNodeCategory> categoryTree;
-	private BhNodeCategoryList model;
-	private BhNodeCategoryListView view;
+  @FXML private ScrollPane nodeCategoryListViewBase;
+  @FXML private TreeView<BhNodeCategoryListView.BhNodeCategory> categoryTree;
+  private BhNodeCategoryList model;
+  private BhNodeCategoryListView view;
 
-	/**
-	 * コントローラとビューの初期化を行う.
-	 * @param categoryList ノードカテゴリリストのモデル
-	 */
-	public boolean init(BhNodeCategoryList categoryList) {
+  /**
+   * コントローラとビューの初期化を行う.
+   * @param categoryList ノードカテゴリリストのモデル
+   */
+  public boolean init(BhNodeCategoryList categoryList) {
 
-		model = categoryList;
-		try {
-			view = new BhNodeCategoryListView(categoryTree, model);
-		}
-		catch(ViewInitializationException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + ".init\n" + e);
-			return false;
-		}
-		nodeCategoryListViewBase.setMinWidth(Region.USE_PREF_SIZE);
-		nodeCategoryListViewBase.widthProperty().addListener(
-			(obs, oldVal, newVal) -> nodeCategoryListViewBase.setMinWidth(Rem.VAL * 3));
+    model = categoryList;
+    try {
+      view = new BhNodeCategoryListView(categoryTree, model);
+    }
+    catch(ViewInitializationException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + ".init\n" + e);
+      return false;
+    }
+    nodeCategoryListViewBase.setMinWidth(Region.USE_PREF_SIZE);
+    nodeCategoryListViewBase.widthProperty().addListener(
+      (obs, oldVal, newVal) -> nodeCategoryListViewBase.setMinWidth(Rem.VAL * 3));
 
-		return true;
-	}
+    return true;
+  }
 
-	/**
-	 * カテゴリリストのビューを返す
-	 * @return カテゴリリストのビュー
-	 */
-	public BhNodeCategoryListView getView() {
-		return view;
-	}
+  /**
+   * カテゴリリストのビューを返す
+   * @return カテゴリリストのビュー
+   */
+  public BhNodeCategoryListView getView() {
+    return view;
+  }
 
-	@Override
-	public MsgData processMsg(BhMsg msg, MsgData data) {
-		throw new AssertionError("receive an unknown msg " + msg);
-	}
+  @Override
+  public MsgData processMsg(BhMsg msg, MsgData data) {
+    throw new AssertionError("receive an unknown msg " + msg);
+  }
 }

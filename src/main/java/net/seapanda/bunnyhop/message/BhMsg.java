@@ -21,42 +21,42 @@ package net.seapanda.bunnyhop.message;
  */
 public enum BhMsg {
 
-	ADD_ROOT_NODE, //!< ワークスペースにルートノードを追加
-	REMOVE_ROOT_NODE, //!< ワークスペースからルートノードが消えた
-	REPLACE_NODE_VIEW, //!< ノードビューを入れ替える
-	ADD_WORKSPACE, //!< 新しいワークスペースを追加
-	DELETE_WORKSPACE, //!< 新しいワークスペースを削除する
-	GET_CURRENT_WORKSPACE, //!< 現在選択中のワークスペースを取得する
-	CHANGE_WORKSPACE_VIEW_SIZE, //!< ワークスペースの大きさを変える
-	ADD_QT_RECTANGLE, //!< 4文木に登録される矩形オブジェクトを追加する(このメッセージを受け取ったBhNodeController の BhNodeView以下の全てのViewの矩形を登録する)
-	REMOVE_QT_RECTANGLE, //!< 4文木に登録される矩形オブジェクトを削除する
-	SET_POS_ON_WORKSPACE, //!< ワークスペース上の位置を設定する. (4分木空間上の位置も更新する)
-	GET_POS_ON_WORKSPACE, //!< ワークスペース上の位置を取得する.
-	MOVE_NODE_ON_WORKSPACE, //!< ワークスペース上のノードを動かす
-	GET_VIEW_SIZE_INCLUDING_OUTER, //!< BhNodeView の外部ノード込みの大きさを取得する
-	UPDATE_ABS_POS, //!< 絶対位置 (= workspace からの相対位置) を更新する. (=4分木空間上の位置を更新する)
-	SWITCH_PSEUDO_CLASS_ACTIVATION, //!< 擬似クラスの有効/無効を切り替える
-	ADD_NODE_SELECTION_PANEL, //!< ノード選択ビューを追加する
-	SCENE_TO_WORKSPACE, //!< Scene 上での位置をワークスペース上での位置に直す
-	GET_WORKSPACE_SIZE, //!< ワークスペースのサイズを取得する
-	GET_VIEW, //!< ビューを取得する
-	UNDO, //!< Undoを命令する
-	REDO, //!< Redoを命令する
-	SET_USER_OPE_CMD, //!< ユーザー操作を表すオブジェクトを登録する
-	PUSH_USER_OPE_CMD, //!< ユーザー操作を表すオブジェクトをundoスタックに追加する
-	DELETE_USER_OPE_CMD, //!< undo, redo の対象になっているコマンドを削除する
-	REMOVE_FROM_GUI_TREE, //!< GUIツリー上からViewを消す
-	IMITATE_TEXT, //!< イミテーションノードのテキストをオリジナルと一致させる
-	GET_VIEW_TEXT, //!< ビューのテキストを取得する
-	ZOOM, //!< WSのズーム処理
-	IS_IN_TRASHBOX_AREA, //!< ゴミ箱エリアに入っているかどうかを調べる
-	OPEN_TRASHBOX, //!< ゴミ箱を開閉する
-	SET_VISIBLE, //!< ノードの可視性をセットする
-	SET_SYNTAX_ERRPR_INDICATOR, //!< ノードの構文エラー警告表示を変更する
-	UPDATE_MULTI_NODE_SHIFTER, //!< マルチノードシフタ(複数ノード移動用マルチノードシフタ)とリンクを更新する
-	GET_NODE_BODY_RANGE, //!< BhNodeのボディのワークスペース上での範囲を取得する
-	REMOVE_NODE_TO_PASTE, //!< 貼り付け予定のノードを貼り付け候補から取り除く
-	SELECT_NODE_VIEW, //!< ノードビューの選択表示の有効/無効状態を切り替える
-	LOOK_AT_NODE_VIEW, //!< 特定のノードビューをワークスぺ^ス中央に表示する
-	IS_TEMPLATE_NODE, //!< テンプレートノードかどうかを調べる
+  ADD_ROOT_NODE, //!< ワークスペースにルートノードを追加
+  REMOVE_ROOT_NODE, //!< ワークスペースからルートノードが消えた
+  REPLACE_NODE_VIEW, //!< ノードビューを入れ替える
+  ADD_WORKSPACE, //!< 新しいワークスペースを追加
+  DELETE_WORKSPACE, //!< 新しいワークスペースを削除する
+  GET_CURRENT_WORKSPACE, //!< 現在選択中のワークスペースを取得する
+  CHANGE_WORKSPACE_VIEW_SIZE, //!< ワークスペースの大きさを変える
+  ADD_QT_RECTANGLE, //!< 4文木に登録される矩形オブジェクトを追加する(このメッセージを受け取ったBhNodeController の BhNodeView以下の全てのViewの矩形を登録する)
+  REMOVE_QT_RECTANGLE, //!< 4文木に登録される矩形オブジェクトを削除する
+  SET_POS_ON_WORKSPACE, //!< ワークスペース上の位置を設定する. (4分木空間上の位置も更新する)
+  GET_POS_ON_WORKSPACE, //!< ワークスペース上の位置を取得する.
+  MOVE_NODE_ON_WORKSPACE, //!< ワークスペース上のノードを動かす
+  GET_VIEW_SIZE_INCLUDING_OUTER, //!< BhNodeView の外部ノード込みの大きさを取得する
+  UPDATE_ABS_POS, //!< 絶対位置 (= workspace からの相対位置) を更新する. (=4分木空間上の位置を更新する)
+  SWITCH_PSEUDO_CLASS_ACTIVATION, //!< 擬似クラスの有効/無効を切り替える
+  ADD_NODE_SELECTION_PANEL, //!< ノード選択ビューを追加する
+  SCENE_TO_WORKSPACE, //!< Scene 上での位置をワークスペース上での位置に直す
+  GET_WORKSPACE_SIZE, //!< ワークスペースのサイズを取得する
+  GET_VIEW, //!< ビューを取得する
+  UNDO, //!< Undoを命令する
+  REDO, //!< Redoを命令する
+  SET_USER_OPE_CMD, //!< ユーザー操作を表すオブジェクトを登録する
+  PUSH_USER_OPE_CMD, //!< ユーザー操作を表すオブジェクトをundoスタックに追加する
+  DELETE_USER_OPE_CMD, //!< undo, redo の対象になっているコマンドを削除する
+  REMOVE_FROM_GUI_TREE, //!< GUIツリー上からViewを消す
+  IMITATE_TEXT, //!< イミテーションノードのテキストをオリジナルと一致させる
+  GET_VIEW_TEXT, //!< ビューのテキストを取得する
+  ZOOM, //!< WSのズーム処理
+  IS_IN_TRASHBOX_AREA, //!< ゴミ箱エリアに入っているかどうかを調べる
+  OPEN_TRASHBOX, //!< ゴミ箱を開閉する
+  SET_VISIBLE, //!< ノードの可視性をセットする
+  SET_SYNTAX_ERRPR_INDICATOR, //!< ノードの構文エラー警告表示を変更する
+  UPDATE_MULTI_NODE_SHIFTER, //!< マルチノードシフタ(複数ノード移動用マルチノードシフタ)とリンクを更新する
+  GET_NODE_BODY_RANGE, //!< BhNodeのボディのワークスペース上での範囲を取得する
+  REMOVE_NODE_TO_PASTE, //!< 貼り付け予定のノードを貼り付け候補から取り除く
+  SELECT_NODE_VIEW, //!< ノードビューの選択表示の有効/無効状態を切り替える
+  LOOK_AT_NODE_VIEW, //!< 特定のノードビューをワークスぺ^ス中央に表示する
+  IS_TEMPLATE_NODE, //!< テンプレートノードかどうかを調べる
 }

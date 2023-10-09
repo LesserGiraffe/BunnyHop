@@ -1,12 +1,12 @@
 <Node
-	type="connective"
-	bhNodeID="idSoundVar"
-	name="SoundVar"
-	nodeStyleID="SoundVar.json"
-	onSyntaxChecking="IsOutOfScope.js">
+  type="connective"
+  bhNodeID="idSoundVar"
+  name="SoundVar"
+  nodeStyleID="SoundVar.json"
+  onSyntaxChecking="IsOutOfScope.js">
 
-	<ConnectorSection name="SoundExpSctn">
-		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
-	</ConnectorSection>
+  <ConnectorSection name="SoundExpSctn">
+    <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
+  </ConnectorSection>
 
 </Node>

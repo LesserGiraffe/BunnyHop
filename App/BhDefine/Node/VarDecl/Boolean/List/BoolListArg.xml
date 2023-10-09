@@ -1,26 +1,26 @@
 <Node
-	type="connective"
-	bhNodeID="idBoolListArg"
-	name="BoolListArg"
-	nodeStyleID="BoolListArg.json">
+  type="connective"
+  bhNodeID="idBoolListArg"
+  name="BoolListArg"
+  nodeStyleID="BoolListArg.json">
 
-	<ConnectorSection>
-		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
-		
-		<PrivateConnector
-			bhConnectorID="idBoolListArg.prvCnctr0"
-			name="ListSign"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idBoolListArg.prvNode0"
-				name="ListSign"
-				nodeStyleID="WordLabel1.json"
-				initString="[...]">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idBoolListCnctr" name="Arg"/>
-		<Connector bhConnectorID="idArgCnctr" name="NextArg" imitCnctPos="imitPosNextArg"/>
-	</ConnectorSection>
+  <ConnectorSection>
+    <Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
+    
+    <PrivateConnector
+      bhConnectorID="idBoolListArg.prvCnctr0"
+      name="ListSign"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idBoolListArg.prvNode0"
+        name="ListSign"
+        nodeStyleID="WordLabel1.json"
+        initString="[...]">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idBoolListCnctr" name="Arg"/>
+    <Connector bhConnectorID="idArgCnctr" name="NextArg" imitCnctPos="imitPosNextArg"/>
+  </ConnectorSection>
 </Node>

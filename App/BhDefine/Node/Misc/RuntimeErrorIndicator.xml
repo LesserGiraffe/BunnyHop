@@ -1,39 +1,39 @@
 <Node
-	type="connective"
-	bhNodeID="idRuntimeErrorIndicator"
-	name="RuntimeErrorIndicator"
-	nodeStyleID="RuntimeErrorIndicator.json"
-	onDeletionRequested="RejectDeletion.js"
-	onCutRequested="RejectCut.js"
-	onCopyRequested="RejectCopy.js">
+  type="connective"
+  bhNodeID="idRuntimeErrorIndicator"
+  name="RuntimeErrorIndicator"
+  nodeStyleID="RuntimeErrorIndicator.json"
+  onDeletionRequested="RejectDeletion.js"
+  onCutRequested="RejectCut.js"
+  onCopyRequested="RejectCopy.js">
 
-	<ConnectorSection name="StatSctn">
-	
-		<PrivateConnector
-			bhConnectorID="idRuntimeErrorIndicator.prvCnctr0"
-			name="Error"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idRuntimeErrorIndicator.prvNode0"
-				name="Error"
-				nodeStyleID="WordLabel2.json"
-				initString="">
-			</Node>
-		</PrivateConnector>
-	
-		<PrivateConnector
-			bhConnectorID="idRuntimeErrorIndicator.prvCnctr1"
-			name="ErrorDetails"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idRuntimeErrorIndicator.prvNode1"
-				name="ErrorDetails"
-				nodeStyleID="DefaultTextArea.json"
-				initString="">
-			</Node>
-		</PrivateConnector>
+  <ConnectorSection name="StatSctn">
+  
+    <PrivateConnector
+      bhConnectorID="idRuntimeErrorIndicator.prvCnctr0"
+      name="Error"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idRuntimeErrorIndicator.prvNode0"
+        name="Error"
+        nodeStyleID="WordLabel2.json"
+        initString="">
+      </Node>
+    </PrivateConnector>
+  
+    <PrivateConnector
+      bhConnectorID="idRuntimeErrorIndicator.prvCnctr1"
+      name="ErrorDetails"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idRuntimeErrorIndicator.prvNode1"
+        name="ErrorDetails"
+        nodeStyleID="DefaultTextArea.json"
+        initString="">
+      </Node>
+    </PrivateConnector>
 
-	</ConnectorSection>
+  </ConnectorSection>
 </Node>

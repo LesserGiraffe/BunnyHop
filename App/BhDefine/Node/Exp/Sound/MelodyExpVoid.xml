@@ -1,7 +1,7 @@
 <Node
-	type="text"
-	bhNodeID="idMelodyExpVoid"
-	name="MelodyExpVoid"
-	nodeStyleID="MelodyExpVoid.json"
-	initString="">
+  type="text"
+  bhNodeID="idMelodyExpVoid"
+  name="MelodyExpVoid"
+  nodeStyleID="MelodyExpVoid.json"
+  initString="">
 </Node>

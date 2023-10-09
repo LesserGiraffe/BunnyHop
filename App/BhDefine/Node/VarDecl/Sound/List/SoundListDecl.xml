@@ -1,34 +1,34 @@
 <Node
-	type="connective"
-	bhNodeID="idSoundListDecl"
-	name="SoundListDecl"
-	nodeStyleID="SoundListDecl.json"
-	onPrivateTemplateCreating="CreateListDeclPrivateTemplate.js"
-	onMovedFromChildToWS="OnVarDeclMovedToWS.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idSoundListDecl"
+  name="SoundListDecl"
+  nodeStyleID="SoundListDecl.json"
+  onPrivateTemplateCreating="CreateListDeclPrivateTemplate.js"
+  onMovedFromChildToWS="OnVarDeclMovedToWS.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<Imitation imitationID="imitIdManual" imitationNodeID="idSoundList"/>
-	<Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idSoundListArg"/>
-	<Imitation imitationID="imitIdVarDeclToOutArg" imitationNodeID="idSoundListArg"/>
+  <Imitation imitationID="imitIdManual" imitationNodeID="idSoundList"/>
+  <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idSoundListArg"/>
+  <Imitation imitationID="imitIdVarDeclToOutArg" imitationNodeID="idSoundListArg"/>
 
-	<ConnectorSection name="VarDeclSctn">
-		<Connector bhConnectorID="idListNameCnctr" name="ListName" imitationID="imitIdListName" imitCnctPos="imitPosListName"/>
-		
-		<PrivateConnector
-			bhConnectorID="idSoundListDecl.prvCnctr0"
-			name="ListSign"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idSoundListDecl.prvNode0"
-				name="ListSign"
-				nodeStyleID="WordLabel1.json"
-				initString="[...]">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idVarDeclCnctr" name="NextVarDecl" imitCnctPos="imitPosNextArg"/>
-	</ConnectorSection>
+  <ConnectorSection name="VarDeclSctn">
+    <Connector bhConnectorID="idListNameCnctr" name="ListName" imitationID="imitIdListName" imitCnctPos="imitPosListName"/>
+    
+    <PrivateConnector
+      bhConnectorID="idSoundListDecl.prvCnctr0"
+      name="ListSign"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idSoundListDecl.prvNode0"
+        name="ListSign"
+        nodeStyleID="WordLabel1.json"
+        initString="[...]">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idVarDeclCnctr" name="NextVarDecl" imitCnctPos="imitPosNextArg"/>
+  </ConnectorSection>
 </Node>

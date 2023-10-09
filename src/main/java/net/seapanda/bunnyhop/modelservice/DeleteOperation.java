@@ -24,10 +24,10 @@ import java.util.Set;
  * @author K.Koike
  */
 public enum DeleteOperation {
-	/** イミテーションノードをオリジナルノードのイミテーションリストから取り除く */
-	REMOVE_FROM_IMIT_LIST;
+  /** イミテーションノードをオリジナルノードのイミテーションリストから取り除く */
+  REMOVE_FROM_IMIT_LIST;
 
-	public static Set<DeleteOperation> getSet() {
-		return new HashSet<DeleteOperation>(Arrays.asList(DeleteOperation.values()));
-	}
+  public static Set<DeleteOperation> getSet() {
+    return new HashSet<DeleteOperation>(Arrays.asList(DeleteOperation.values()));
+  }
 }

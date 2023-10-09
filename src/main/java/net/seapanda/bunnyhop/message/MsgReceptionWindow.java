@@ -21,17 +21,17 @@ package net.seapanda.bunnyhop.message;
  */
 public interface MsgReceptionWindow {
 
-	/**
-	 * MsgProcessorを登録する
-	 * @param processor メッセージを処理するオブジェクト
-	 */
-	public void setMsgProcessor(MsgProcessor processor);
+  /**
+   * MsgProcessorを登録する
+   * @param processor メッセージを処理するオブジェクト
+   */
+  public void setMsgProcessor(MsgProcessor processor);
 
-	/**
-	 * 引数で指定したメッセージをMsgProcessorに渡して処理結果を返す
-	 * @param msg 処理するメッセージ
-	 * @param data 処理するデータ
-	 * @return 処理結果
-	 */
-	public MsgData passMsg(BhMsg msg, MsgData data);
+  /**
+   * 引数で指定したメッセージをMsgProcessorに渡して処理結果を返す
+   * @param msg 処理するメッセージ
+   * @param data 処理するデータ
+   * @return 処理結果
+   */
+  public MsgData passMsg(BhMsg msg, MsgData data);
 }

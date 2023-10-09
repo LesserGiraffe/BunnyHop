@@ -23,31 +23,31 @@ import java.util.Objects;
  * */
 public class BhNodeInstanceID implements Serializable {
 
-	private final String id;
-	public static final BhNodeInstanceID NONE = new BhNodeInstanceID("NONE");	//!< IDが無いことを表す null オブジェクト
+  private final String id;
+  public static final BhNodeInstanceID NONE = new BhNodeInstanceID("NONE");  //!< IDが無いことを表す null オブジェクト
 
-	public BhNodeInstanceID(String id) {
-		this.id = id;
-	}
+  public BhNodeInstanceID(String id) {
+    this.id = id;
+  }
 
-	@Override
-	public String toString() {
-		return id;
-	}
+  @Override
+  public String toString() {
+    return id;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		return (getClass() == obj.getClass()) && (id.equals(((BhNodeInstanceID)obj).id));
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null)
+      return false;
+    return (getClass() == obj.getClass()) && (id.equals(((BhNodeInstanceID)obj).id));
+  }
 
-	@Override
-	public int hashCode() {
+  @Override
+  public int hashCode() {
 
-		int hash = 29;
-		hash = 173 * hash + Objects.hashCode(this.id);
-		return hash;
-	}
+    int hash = 29;
+    hash = 173 * hash + Objects.hashCode(this.id);
+    return hash;
+  }
 }
 

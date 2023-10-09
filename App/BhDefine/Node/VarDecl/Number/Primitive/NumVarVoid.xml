@@ -1,8 +1,8 @@
 <Node
-	type="text"
-	bhNodeID="idNumVarVoid"
-	name="NumVarVoid"
-	nodeStyleID="NumVarVoid.json"
-	onMovedFromChildToWS="DeleteNode.js">
+  type="text"
+  bhNodeID="idNumVarVoid"
+  name="NumVarVoid"
+  nodeStyleID="NumVarVoid.json"
+  onMovedFromChildToWS="DeleteNode.js">
 </Node>
 

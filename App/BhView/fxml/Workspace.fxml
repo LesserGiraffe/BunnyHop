@@ -6,26 +6,26 @@
 <?import net.seapanda.bunnyhop.view.workspace.*?>
 
 <fx:root
-	xmlns:fx="http://javafx.com/fxml"
-	type="Tab">
-	<ScrollPane
-		fx:id="wsScrollPane"
-		HbarPolicy="AS_NEEDED"
-		VbarPolicy="AS_NEEDED"
-		FitToWidth="false"
-		FitToHeight="false">
-		<Pane fx:id="wsWrapper">
-			<WorkspaceViewPane fx:id="wsPane">
-				<Polygon
-					fx:id="rectSelTool"
-					mouseTransparent="true"
-					visible="false"
-					styleClass="rectSelTool"/>
-			</WorkspaceViewPane>
-			
-			<WorkspaceViewPane
-				fx:id="errInfoPane"
-				mouseTransparent="true"/>
-		</Pane>
-	</ScrollPane>
+  xmlns:fx="http://javafx.com/fxml"
+  type="Tab">
+  <ScrollPane
+    fx:id="wsScrollPane"
+    HbarPolicy="AS_NEEDED"
+    VbarPolicy="AS_NEEDED"
+    FitToWidth="false"
+    FitToHeight="false">
+    <Pane fx:id="wsWrapper">
+      <WorkspaceViewPane fx:id="wsPane">
+        <Polygon
+          fx:id="rectSelTool"
+          mouseTransparent="true"
+          visible="false"
+          styleClass="rectSelTool"/>
+      </WorkspaceViewPane>
+      
+      <WorkspaceViewPane
+        fx:id="errInfoPane"
+        mouseTransparent="true"/>
+    </Pane>
+  </ScrollPane>
 </fx:root>

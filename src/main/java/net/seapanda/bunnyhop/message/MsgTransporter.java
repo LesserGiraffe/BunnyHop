@@ -21,39 +21,39 @@ package net.seapanda.bunnyhop.message;
  * */
 public class MsgTransporter {
 
-	private MsgTransporter() {};
-	public static final MsgTransporter INSTANCE = new MsgTransporter();	//!< シングルトンインスタンス
+  private MsgTransporter() {};
+  public static final MsgTransporter INSTANCE = new MsgTransporter();  //!< シングルトンインスタンス
 
-	/**
-	 * msgReceptionWindows に対応するそれぞれの MsgProcessor に順番にメッセージを送信する<br>
-	 * 2つめ以降のmsgReceptionWindowには, 1つ前のMsgProcessorの処理結果であるMsgDataが渡される.
-	 * @param msg 送信メッセージ
-	 * @param data 1番目のMsgReceptionWindow に渡されるメッセージ
-	 * @param msgReceptionWindows メッセージ投函先
-	 * @return 最後のメッセージ送信先から返されるデータ
-	 * */
-	public MsgData sendMessage(BhMsg msg, MsgData data, MsgReceptionWindow... msgReceptionWindows) {
+  /**
+   * msgReceptionWindows に対応するそれぞれの MsgProcessor に順番にメッセージを送信する<br>
+   * 2つめ以降のmsgReceptionWindowには, 1つ前のMsgProcessorの処理結果であるMsgDataが渡される.
+   * @param msg 送信メッセージ
+   * @param data 1番目のMsgReceptionWindow に渡されるメッセージ
+   * @param msgReceptionWindows メッセージ投函先
+   * @return 最後のメッセージ送信先から返されるデータ
+   * */
+  public MsgData sendMessage(BhMsg msg, MsgData data, MsgReceptionWindow... msgReceptionWindows) {
 
-		for (MsgReceptionWindow msgReceptionWindow : msgReceptionWindows) {
-			data = msgReceptionWindow.passMsg(msg, data);
-		}
-		return data;
-	}
+    for (MsgReceptionWindow msgReceptionWindow : msgReceptionWindows) {
+      data = msgReceptionWindow.passMsg(msg, data);
+    }
+    return data;
+  }
 
-	/**
-	 * msgReceptionWindows に対応するそれぞれの MsgProcessor に順番にメッセージを送信する
-	 * @param msg 送信メッセージ
-	 * @param msgReceptionWindows メッセージ投函先
-	 * @return 最後のメッセージ送信先から返されるデータ
-	 * */
-	public MsgData sendMessage(BhMsg msg, MsgReceptionWindow... msgReceptionWindows) {
+  /**
+   * msgReceptionWindows に対応するそれぞれの MsgProcessor に順番にメッセージを送信する
+   * @param msg 送信メッセージ
+   * @param msgReceptionWindows メッセージ投函先
+   * @return 最後のメッセージ送信先から返されるデータ
+   * */
+  public MsgData sendMessage(BhMsg msg, MsgReceptionWindow... msgReceptionWindows) {
 
-		MsgData data = null;
-		for (MsgReceptionWindow msgReceptionWindow : msgReceptionWindows) {
-			data = msgReceptionWindow.passMsg(msg, data);
-		}
-		return data;
-	}
+    MsgData data = null;
+    for (MsgReceptionWindow msgReceptionWindow : msgReceptionWindows) {
+      data = msgReceptionWindow.passMsg(msg, data);
+    }
+    return data;
+  }
 }
 
 

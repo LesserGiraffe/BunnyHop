@@ -22,28 +22,28 @@ import java.util.Objects;
  */
 public class Single<T>{
 
-	public T content;
+  public T content;
 
-	public Single(T content) {
-		this.content = content;
-	};
+  public Single(T content) {
+    this.content = content;
+  };
 
-	public Single() {};
+  public Single() {};
 
-	@Override
-	public boolean equals(Object obj) {
+  @Override
+  public boolean equals(Object obj) {
 
-		if (!(obj instanceof Single))
-			return false;
+    if (!(obj instanceof Single))
+      return false;
 
-		Single<?> single = (Single<?>)obj;
-		return (content == null) ? (single.content == null) : content.equals(single.content);
-	}
+    Single<?> single = (Single<?>)obj;
+    return (content == null) ? (single.content == null) : content.equals(single.content);
+  }
 
-	@Override
-	public int hashCode() {
-		int hash = 7;
-		hash = 59 * hash + Objects.hashCode(this.content);
-		return hash;
-	}
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 59 * hash + Objects.hashCode(this.content);
+    return hash;
+  }
 }

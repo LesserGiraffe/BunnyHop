@@ -1,7 +1,8 @@
-<Node type="connective"
-	  bhNodeID="idBoolOutArg"
-	  name="BoolOutArg"
-	  nodeStyleID="BoolArg.json">
+<Node
+    type="connective"
+  bhNodeID="idBoolOutArg"
+  name="BoolOutArg"
+  nodeStyleID="BoolArg.json">
     
     <ConnectorSection>
         <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>

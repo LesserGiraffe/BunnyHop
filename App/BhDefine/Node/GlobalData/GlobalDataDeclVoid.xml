@@ -1,8 +1,8 @@
 <Node
-	type="text"
-	bhNodeID="idGlobalDataDeclVoid" 
-	name="GlobalDataDeclVoid" 
-	nodeStyleID="GlobalDataDeclVoid.json"
-	initString=""
-	onMovedFromChildToWS="DeleteNode.js">
+  type="text"
+  bhNodeID="idGlobalDataDeclVoid" 
+  name="GlobalDataDeclVoid" 
+  nodeStyleID="GlobalDataDeclVoid.json"
+  initString=""
+  onMovedFromChildToWS="DeleteNode.js">
 </Node>

@@ -27,41 +27,41 @@ import net.seapanda.bunnyhop.model.node.connective.Subsection;
  * */
 public interface BhModelProcessor {
 
-	/**
-	 *  ConnectiveNode が持つ onnerSection, outerSection に自オブジェクトを渡す
-	 * @param node 自オブジェクトを渡してもらう ConnectiveNode オブジェクト
-	 */
-	default public void visit(ConnectiveNode node) {
-		node.sendToSections(this);
-	}
+  /**
+   *  ConnectiveNode が持つ onnerSection, outerSection に自オブジェクトを渡す
+   * @param node 自オブジェクトを渡してもらう ConnectiveNode オブジェクト
+   */
+  default public void visit(ConnectiveNode node) {
+    node.sendToSections(this);
+  }
 
-	/**
-	 * TextNode を訪れた時の処理
-	 * @param node BhModelProcessor が訪れる VoidNode
-	 */
-	default public void visit(TextNode node) {}
+  /**
+   * TextNode を訪れた時の処理
+   * @param node BhModelProcessor が訪れる VoidNode
+   */
+  default public void visit(TextNode node) {}
 
-	/**
-	 * Section の下位Sectionに 自オブジェクトを渡す
-	 * @param section 自オブジェクトを渡してもらう section オブジェクト
-	 */
-	default public void visit(Subsection section) {
-		section.sendToSubsections(this);
-	}
+  /**
+   * Section の下位Sectionに 自オブジェクトを渡す
+   * @param section 自オブジェクトを渡してもらう section オブジェクト
+   */
+  default public void visit(Subsection section) {
+    section.sendToSubsections(this);
+  }
 
-	/**
-	 * ConnectorGroup が持つConnector に自オブジェクトを渡す
-	 * @param connectorGroup 自オブジェクトを渡してもらう ConnectorGroup オブジェクト
-	 */
-	default public void visit(ConnectorSection connectorGroup) {
-		connectorGroup.sendToConnectors(this);
-	}
+  /**
+   * ConnectorGroup が持つConnector に自オブジェクトを渡す
+   * @param connectorGroup 自オブジェクトを渡してもらう ConnectorGroup オブジェクト
+   */
+  default public void visit(ConnectorSection connectorGroup) {
+    connectorGroup.sendToConnectors(this);
+  }
 
-	/**
-	 * Connector に接続された ノード に自オブジェクトを渡す
-	 * @param connector 自オブジェクトを渡してもらう FixedConnector オブジェクト
-	 */
-	default public void visit(Connector connector) {
-		connector.sendToConnectedNode(this);
-	}
+  /**
+   * Connector に接続された ノード に自オブジェクトを渡す
+   * @param connector 自オブジェクトを渡してもらう FixedConnector オブジェクト
+   */
+  default public void visit(Connector connector) {
+    connector.sendToConnectedNode(this);
+  }
 }

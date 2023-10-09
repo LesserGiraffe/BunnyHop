@@ -1,12 +1,12 @@
 <Node
-	type="connective"
-	bhNodeID="idColorVar"
-	name="ColorVar"
-	nodeStyleID="ColorVar.json"
-	onSyntaxChecking="IsOutOfScope.js">
+  type="connective"
+  bhNodeID="idColorVar"
+  name="ColorVar"
+  nodeStyleID="ColorVar.json"
+  onSyntaxChecking="IsOutOfScope.js">
 
-	<ConnectorSection name="ColorExpSctn">
-		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
-	</ConnectorSection>
+  <ConnectorSection name="ColorExpSctn">
+    <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
+  </ConnectorSection>
 
 </Node>

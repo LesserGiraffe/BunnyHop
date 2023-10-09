@@ -21,9 +21,9 @@ package net.seapanda.bunnyhop.model.node.event;
  */
 public enum CauseOfDeletion {
 
-	INFLUENCE_OF_ORIGINAL_DELETION,	//!< オリジナルノードが削除された
-	TRASH_BOX,	//!< ゴミ箱に入れられた
-	SYNTAX_ERROR,	//!< 構文エラーノードの削除
-	SELECTED_FOR_DELETION,	//!< 選択削除の対象になった
-	WORKSPACE_DELETION;	//!< ワークスペースの削除
+  INFLUENCE_OF_ORIGINAL_DELETION,  //!< オリジナルノードが削除された
+  TRASH_BOX,  //!< ゴミ箱に入れられた
+  SYNTAX_ERROR,  //!< 構文エラーノードの削除
+  SELECTED_FOR_DELETION,  //!< 選択削除の対象になった
+  WORKSPACE_DELETION;  //!< ワークスペースの削除
 }

@@ -40,160 +40,160 @@ import net.seapanda.bunnyhop.root.BunnyHop;
  * */
 public class MsgPrinter {
 
-	public static final MsgPrinter INSTANCE = new MsgPrinter();	//!< シングルトンインスタンス
-	private TextArea mainMsgArea;
-	private BlockingQueue<String> queuedMsgs = new ArrayBlockingQueue<>(BhParams.Message.MAX_MAIN_MSG_QUEUE_SIZE);
-	private Timeline msgPrintTimer;
+  public static final MsgPrinter INSTANCE = new MsgPrinter();  //!< シングルトンインスタンス
+  private TextArea mainMsgArea;
+  private BlockingQueue<String> queuedMsgs = new ArrayBlockingQueue<>(BhParams.Message.MAX_MAIN_MSG_QUEUE_SIZE);
+  private Timeline msgPrintTimer;
 
-	private MsgPrinter() {}
+  private MsgPrinter() {}
 
-	public boolean init() {
-		startMsgTimer();
-		return LogManager.INSTANCE.init();
-	}
+  public boolean init() {
+    startMsgTimer();
+    return LogManager.INSTANCE.init();
+  }
 
-	/**
-	 * メッセージ出力タイマーを駆動する
-	 */
-	private void startMsgTimer() {
+  /**
+   * メッセージ出力タイマーを駆動する
+   */
+  private void startMsgTimer() {
 
-		msgPrintTimer = new Timeline(
-			new KeyFrame(
-				Duration.millis(100),
-				(event) ->{
-					if (mainMsgArea == null)
-						return;
+    msgPrintTimer = new Timeline(
+      new KeyFrame(
+        Duration.millis(100),
+        (event) ->{
+          if (mainMsgArea == null)
+            return;
 
-					List<String> msgList = new ArrayList<>(queuedMsgs.size());
-					queuedMsgs.drainTo(msgList);
-					StringBuilder text = new StringBuilder();
-					msgList.forEach(msg -> text.append(msg));
-					if (!msgList.isEmpty())
-						mainMsgArea.appendText(text.toString());
-				}));
-		msgPrintTimer.setCycleCount(Timeline.INDEFINITE);
-		msgPrintTimer.play();
-	}
+          List<String> msgList = new ArrayList<>(queuedMsgs.size());
+          queuedMsgs.drainTo(msgList);
+          StringBuilder text = new StringBuilder();
+          msgList.forEach(msg -> text.append(msg));
+          if (!msgList.isEmpty())
+            mainMsgArea.appendText(text.toString());
+        }));
+    msgPrintTimer.setCycleCount(Timeline.INDEFINITE);
+    msgPrintTimer.play();
+  }
 
-	/**
-	 * デバッグ用メッセージ出力メソッド
-	 * */
-	public void errMsgForDebug(String msg) {
-		msg = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(Calendar.getInstance().getTime()) + "  ERR : " + msg;
-		System.err.print(msg + "\n");
-		LogManager.INSTANCE.writeMsgToLogFile(msg + "\n");
-	}
+  /**
+   * デバッグ用メッセージ出力メソッド
+   * */
+  public void errMsgForDebug(String msg) {
+    msg = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(Calendar.getInstance().getTime()) + "  ERR : " + msg;
+    System.err.print(msg + "\n");
+    LogManager.INSTANCE.writeMsgToLogFile(msg + "\n");
+  }
 
-	/**
-	 * デバッグ用メッセージ出力メソッド
-	 * */
-	public void msgForDebug(String msg) {
-		msg = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(Calendar.getInstance().getTime()) + "  MSG : " + msg;
-		System.out.print(msg + "\n");
-		LogManager.INSTANCE.writeMsgToLogFile(msg + "\n");
-	}
+  /**
+   * デバッグ用メッセージ出力メソッド
+   * */
+  public void msgForDebug(String msg) {
+    msg = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(Calendar.getInstance().getTime()) + "  MSG : " + msg;
+    System.out.print(msg + "\n");
+    LogManager.INSTANCE.writeMsgToLogFile(msg + "\n");
+  }
 
-	/**
-	 * アプリケーションユーザ向けにメッセージを出力する
-	 */
-	public void msgForUser(String msg) {
+  /**
+   * アプリケーションユーザ向けにメッセージを出力する
+   */
+  public void msgForUser(String msg) {
 
-		if (Platform.isFxApplicationThread()) {
-			mainMsgArea.appendText(msg);
-		}
-		else {
-			try {
-				queuedMsgs.put(msg);
-			}
-			catch(InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
-		}
-	}
+    if (Platform.isFxApplicationThread()) {
+      mainMsgArea.appendText(msg);
+    }
+    else {
+      try {
+        queuedMsgs.put(msg);
+      }
+      catch(InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }
+  }
 
-	/**
-	 * アプリケーションユーザ向けにメッセージを出力する
-	 */
-	public void msgForUser(List<Character> charCodeList) {
+  /**
+   * アプリケーションユーザ向けにメッセージを出力する
+   */
+  public void msgForUser(List<Character> charCodeList) {
 
-		if (charCodeList.isEmpty())
-			return;
+    if (charCodeList.isEmpty())
+      return;
 
-		char[] charCodeArray = new char[charCodeList.size()];
-		for (int i = 0; i < charCodeArray.length; ++i)
-			charCodeArray[i] = charCodeList.get(i);
-		String progressInfo = new String(charCodeArray);	//サイズ0の配列の場合 readStr == '\0'
-		msgForUser(progressInfo + "\n");
-	}
+    char[] charCodeArray = new char[charCodeList.size()];
+    for (int i = 0; i < charCodeArray.length; ++i)
+      charCodeArray[i] = charCodeList.get(i);
+    String progressInfo = new String(charCodeArray);  //サイズ0の配列の場合 readStr == '\0'
+    msgForUser(progressInfo + "\n");
+  }
 
-	/**
-	 * アプリケーションユーザ向けにエラーメッセージを出力する
-	 */
-	public void errMsgForUser(String msg) {
-		msgForUser(msg);
-	}
+  /**
+   * アプリケーションユーザ向けにエラーメッセージを出力する
+   */
+  public void errMsgForUser(String msg) {
+    msgForUser(msg);
+  }
 
-	/**
-	 * アラーウィンドウでメッセージを出力する
-	 * @param type アラートの種類
-	 * @param title アラートウィンドウのタイトル (null可)
-	 * @param header アラートウィンドウのヘッダ (null可)
-	 * @param content アラートウィンドウの本文 (null可)
-	 * @param buttonTypes 表示するボタン (null可)
-	 * @return メッセージに対して選択されたボタン
-	 */
-	public Optional<ButtonType> alert(
-			Alert.AlertType type,
-			String title,
-			String header,
-			String content,
-			ButtonType ...buttonTypes) {
+  /**
+   * アラーウィンドウでメッセージを出力する
+   * @param type アラートの種類
+   * @param title アラートウィンドウのタイトル (null可)
+   * @param header アラートウィンドウのヘッダ (null可)
+   * @param content アラートウィンドウの本文 (null可)
+   * @param buttonTypes 表示するボタン (null可)
+   * @return メッセージに対して選択されたボタン
+   */
+  public Optional<ButtonType> alert(
+      Alert.AlertType type,
+      String title,
+      String header,
+      String content,
+      ButtonType ...buttonTypes) {
 
-		FutureTask<Optional<ButtonType>> alertTask = new FutureTask<>(() -> {
-			Alert alert = new Alert(type);
-			alert.setTitle(title);
-			alert.setHeaderText(header);
-			alert.setContentText(content);
-			alert.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
-			if (buttonTypes.length != 0)
-				alert.getButtonTypes().setAll(buttonTypes);
-			return alert.showAndWait();
-		});
+    FutureTask<Optional<ButtonType>> alertTask = new FutureTask<>(() -> {
+      Alert alert = new Alert(type);
+      alert.setTitle(title);
+      alert.setHeaderText(header);
+      alert.setContentText(content);
+      alert.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
+      if (buttonTypes.length != 0)
+        alert.getButtonTypes().setAll(buttonTypes);
+      return alert.showAndWait();
+    });
 
-		if (Platform.isFxApplicationThread())
-			alertTask.run();
-		else
-			Platform.runLater(alertTask);
+    if (Platform.isFxApplicationThread())
+      alertTask.run();
+    else
+      Platform.runLater(alertTask);
 
-		Optional<ButtonType> buttonType = Optional.empty();
-		try {
-			buttonType = alertTask.get();
-		}
-		catch(Exception e) {
-			errMsgForDebug(e.toString());
-		}
-		return buttonType;
-	}
+    Optional<ButtonType> buttonType = Optional.empty();
+    try {
+      buttonType = alertTask.get();
+    }
+    catch(Exception e) {
+      errMsgForDebug(e.toString());
+    }
+    return buttonType;
+  }
 
-	/**
-	 * メインのメッセージ出力エリアを登録する
-	 * @param mainMsgArea 登録するメインのメッセージ出力エリア
-	 */
-	public void setMainMsgArea(TextArea mainMsgArea) {
-		this.mainMsgArea = mainMsgArea;
-	}
+  /**
+   * メインのメッセージ出力エリアを登録する
+   * @param mainMsgArea 登録するメインのメッセージ出力エリア
+   */
+  public void setMainMsgArea(TextArea mainMsgArea) {
+    this.mainMsgArea = mainMsgArea;
+  }
 
-	/**
-	 * 終了処理をする
-	 */
-	public void end() {
-		LogManager.INSTANCE.end();
-	}
+  /**
+   * 終了処理をする
+   */
+  public void end() {
+    LogManager.INSTANCE.end();
+  }
 
-	/**
-	 * BunnyHopのメッセージ出力機能を止める
-	 */
-	public void stop() {
-		msgPrintTimer.stop();
-	}
+  /**
+   * BunnyHopのメッセージ出力機能を止める
+   */
+  public void stop() {
+    msgPrintTimer.stop();
+  }
 }

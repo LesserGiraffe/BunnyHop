@@ -1,27 +1,27 @@
 <Node
-	type="connective"
-	bhNodeID="idSyncTimerVar"
-	name="SyncTimerVar"
-	nodeStyleID="SyncTimerVar.json">
+  type="connective"
+  bhNodeID="idSyncTimerVar"
+  name="SyncTimerVar"
+  nodeStyleID="SyncTimerVar.json">
 
-	<ConnectorSection name="SyncTimerExpSctn">
-		
-		<PrivateConnector
-			bhConnectorID="idSyncTimerVar.prvCnctr0"
-			name="SyncTimer"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idSyncTimerVar.prvNode0"
-				name="SyncTimer"
-				nodeStyleID="WordLabel2.json"
-				initString="処理待ちタイマー">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector
-			bhConnectorID="idVarNameCnctr"
-			name="SyncTimerName"
-			imitCnctPos="imitPosVarName"/>
-	</ConnectorSection>
+  <ConnectorSection name="SyncTimerExpSctn">
+    
+    <PrivateConnector
+      bhConnectorID="idSyncTimerVar.prvCnctr0"
+      name="SyncTimer"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idSyncTimerVar.prvNode0"
+        name="SyncTimer"
+        nodeStyleID="WordLabel2.json"
+        initString="処理待ちタイマー">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector
+      bhConnectorID="idVarNameCnctr"
+      name="SyncTimerName"
+      imitCnctPos="imitPosVarName"/>
+  </ConnectorSection>
 </Node>

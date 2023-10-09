@@ -26,43 +26,43 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
  */
 public class BhNodeID implements Serializable {
 
-	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	public static final BhNodeID NONE = new BhNodeID("");	//!< BhNodeIDが存在しないことを表す
-	String id;
+  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
+  public static final BhNodeID NONE = new BhNodeID("");  //!< BhNodeIDが存在しないことを表す
+  String id;
 
-	/**
-	 * コンストラクタ
-	 * @param id 識別子名
-	 */
-	private BhNodeID(String id) {
-		this.id = id;
-	}
+  /**
+   * コンストラクタ
+   * @param id 識別子名
+   */
+  private BhNodeID(String id) {
+    this.id = id;
+  }
 
-	/**
-	 * BhノードIDを作成する
-	 * @param id 識別子名
-	 * @return BhノードID
-	 */
-	public static BhNodeID create(String id) {
-		return new BhNodeID(id == null ? "" : id);
-	}
+  /**
+   * BhノードIDを作成する
+   * @param id 識別子名
+   * @return BhノードID
+   */
+  public static BhNodeID create(String id) {
+    return new BhNodeID(id == null ? "" : id);
+  }
 
-	@Override
-	public String toString() {
-		return id;
-	}
+  @Override
+  public String toString() {
+    return id;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		return (getClass() == obj.getClass()) && (id.equals(((BhNodeID)obj).id));
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null)
+      return false;
+    return (getClass() == obj.getClass()) && (id.equals(((BhNodeID)obj).id));
+  }
 
-	@Override
-	public int hashCode() {
-		int hash = 5;
-		hash = 11 * hash + Objects.hashCode(this.id);
-		return hash;
-	}
+  @Override
+  public int hashCode() {
+    int hash = 5;
+    hash = 11 * hash + Objects.hashCode(this.id);
+    return hash;
+  }
 }

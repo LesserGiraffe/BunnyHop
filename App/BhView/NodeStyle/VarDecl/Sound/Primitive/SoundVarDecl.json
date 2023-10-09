@@ -1,31 +1,31 @@
 {
-	"paddingTop" : 1.0,
-	"paddingBottom" : 1.0,
-	"paddingLeft" : 11.0,
-	"paddingRight" : 4.0,
-	"connectorPos" : "Top",
-	"connectorShift" : 1.0,
-	"connectorWidth" : 3.5,
-	"connectorHeight" : 3.5,
-	"connectorShape" : "CHAR_T",
-	"connectorBoundsRate" : 1.25,
-	"cssClass" : "soundType",
+  "paddingTop" : 1.0,
+  "paddingBottom" : 1.0,
+  "paddingLeft" : 11.0,
+  "paddingRight" : 4.0,
+  "connectorPos" : "Top",
+  "connectorShift" : 1.0,
+  "connectorWidth" : 3.5,
+  "connectorHeight" : 3.5,
+  "connectorShape" : "CHAR_T",
+  "connectorBoundsRate" : 1.25,
+  "cssClass" : "soundType",
 
-	"connective" : {
+  "connective" : {
     
-		"inner" : {
-			"connectorList" : ["VarName"]
-		},
-		
-		"outer" : {
-			"connectorList" : ["NextVarDecl"]
-		}
-		
-	},
-	
+    "inner" : {
+      "connectorList" : ["VarName"]
+    },
+    
+    "outer" : {
+      "connectorList" : ["NextVarDecl"]
+    }
+    
+  },
+  
     "privateTemplate" : {
-		"buttonPosX" : 6.0,
-		"buttonPosY" : 1.0
-	}
-	
+    "buttonPosX" : 6.0,
+    "buttonPosY" : 1.0
+  }
+  
 }

@@ -1,32 +1,32 @@
 <Node
-	type="connective"
-	bhNodeID="idWhileStat"
-	name="WhileStat"
-	nodeStyleID="WhileStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idWhileStat"
+  name="WhileStat"
+  nodeStyleID="WhileStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
+  <ConnectorSection name="StatSctn">
 
-		<Connector bhConnectorID="idBoolExpCnctr" name="CondExp"/>
+    <Connector bhConnectorID="idBoolExpCnctr" name="CondExp"/>
 
-		<PrivateConnector
-			bhConnectorID="idWhileStat.prvCnctr0"
-			name="NoAidaKurikaesu"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idWhileStat.prvNode0"
-				name="NoAidaKurikaesu"
-				nodeStyleID="WordLabel1.json"
-				initString="の間くり返す">
-			</Node>
-		</PrivateConnector>
+    <PrivateConnector
+      bhConnectorID="idWhileStat.prvCnctr0"
+      name="NoAidaKurikaesu"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idWhileStat.prvNode0"
+        name="NoAidaKurikaesu"
+        nodeStyleID="WordLabel1.json"
+        initString="の間くり返す">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idStatCnctr" name="LoopStat"/>
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idStatCnctr" name="LoopStat"/>
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

@@ -1,4 +1,4 @@
 <Connector
-	bhConnectorID="idGlobalDataDeclCnctr"
-	defaultBhNodeID="idGlobalDataDeclVoid"
-	onConnectabilityChecking="GlobalDataDeclCnct.js"/>
+  bhConnectorID="idGlobalDataDeclCnctr"
+  defaultBhNodeID="idGlobalDataDeclVoid"
+  onConnectabilityChecking="GlobalDataDeclCnct.js"/>

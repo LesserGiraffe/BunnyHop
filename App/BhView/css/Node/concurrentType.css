@@ -1,9 +1,9 @@
 .concurrentType {
-	-fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, concurrentTypeCol 50%, derive(concurrentTypeCol, 65%) 0em);
+  -fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, concurrentTypeCol 50%, derive(concurrentTypeCol, 65%) 0em);
 }
 
 .concurrentType:isEven {
-	-fx-fill: concurrentTypeCol;
+  -fx-fill: concurrentTypeCol;
 }
 
 .keyPressedEventType {

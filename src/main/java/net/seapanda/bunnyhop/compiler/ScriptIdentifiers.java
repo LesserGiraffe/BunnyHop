@@ -20,82 +20,82 @@ package net.seapanda.bunnyhop.compiler;
  */
 public class ScriptIdentifiers {
 
-	public static class Funcs {
-		public static final String TO_STR = "_toStr";
-		public static final String STR_TO_NUM = "_strToNum";
-		public static final String RANDOM_INT = "_randomInt";
-		public static final String PRINTLN = "_println";
-		public static final String SLEEP = "_sleep";
-		public static final String PLAY_MELODIES = "_playMelodies";
-		public static final String COMPARE_COLORS = "_compareColors";
-		public static final String ADD_COLOR = "_addColor";
-		public static final String SUB_COLOR = "_subColor";
-		public static final String DETECT_COLOR = "_detectColor";
-		public static final String SAY = "_say";
-		public static final String LIGHT_EYE = "_lightEye";
-		public static final String SCAN = "_scan";
-		public static final String ARY_PUSH = "_aryPush";
-		public static final String ARY_POP = "_aryPop";
-		public static final String ARY_INSERT = "_aryInsert";
-		public static final String ARY_REMOVE = "_aryRemove";
-		public static final String ARY_CLEAR = "_aryClear";
-		public static final String ARY_ADD_ALL = "_aryAddAll";
-		public static final String ARY_GET = "_aryGet";
-		public static final String ARY_GET_LAST = "_aryGetLast";
-		public static final String ARY_SET = "_arySet";
-		public static final String MOVE_FORWARD = "_moveForward";
-		public static final String MOVE_BACKWARD = "_moveBackward";
-		public static final String TURN_RIGHT = "_turnRight";
-		public static final String TURN_LEFT = "_turnLeft";
-		public static final String MEASURE_DISTANCE = "_measureDistance";
-		public static final String GEN_LOCK_OBJ = "_genLockObj";
-		public static final String GEN_SYNC_TIMER = "_genSyncTimer";
-		public static final String SYNC_TIMER_COUNTDOWN = "_syncTimerCountdown";
-		public static final String SYNC_TIMER_AWAIT = "_syncTimerAwait";
-		public static final String SYNC_TIMER_COUNTDOWN_AND_AWAIT = "_syncTimerCountdownAndAwait";
-		public static final String RESET_SYNC_TIMER = "_resetSyncTimer";
-		public static final String GET_SYNC_TIMER_COUNT = "_getSyncTimerCount";
-		public static final String TRY_LOCK = "_tryLock";
-		public static final String LOCK = "_lock";
-		public static final String UNLOCK = "_unlock";
-		public static final String ADD_EVENT = "_addEvent";
-		public static final String GET_EVENT_HANDLER_NAMES = "_getEventHandlerNames";
-		public static final String BH_MAIN = "_bhMain";
-		public static final String CREATE_SOUND = "_createSound";
-		public static final String CREATE_COLOR_FROM_NAME = "_createColorFromName";
-		public static final String PUSH_SOUND = "_pushSound";
-		public static final String CURRENT_TIME_MILLS = "_currentTimeMillis";
-		public static final String GET_TIME_SINCE_PROGRAM_STARTED = "_getTimeSinceProgramStarted";
-		public static final String STRCAT = "_strcat";
-		public static final String LIST_TO_STR = "_listToStr";
-		public static final String IDENTITY = "_identity";	//恒等写像 (実際に共通コード部には定義しない)
-		public static final String SET_EXCEPTION_NODE_INFO = "_setExceptionNodeInfo";
-		public static final String NEW_BH_PROGRAM_EXCEPTION = "_newBhProgramExceptioin";
-		public static final String INIT_THIS_OBJ = "_initThisObj";
-		public static final String OUT_ARG_TEST = "_outArgTest";
-	}
+  public static class Funcs {
+    public static final String TO_STR = "_toStr";
+    public static final String STR_TO_NUM = "_strToNum";
+    public static final String RANDOM_INT = "_randomInt";
+    public static final String PRINTLN = "_println";
+    public static final String SLEEP = "_sleep";
+    public static final String PLAY_MELODIES = "_playMelodies";
+    public static final String COMPARE_COLORS = "_compareColors";
+    public static final String ADD_COLOR = "_addColor";
+    public static final String SUB_COLOR = "_subColor";
+    public static final String DETECT_COLOR = "_detectColor";
+    public static final String SAY = "_say";
+    public static final String LIGHT_EYE = "_lightEye";
+    public static final String SCAN = "_scan";
+    public static final String ARY_PUSH = "_aryPush";
+    public static final String ARY_POP = "_aryPop";
+    public static final String ARY_INSERT = "_aryInsert";
+    public static final String ARY_REMOVE = "_aryRemove";
+    public static final String ARY_CLEAR = "_aryClear";
+    public static final String ARY_ADD_ALL = "_aryAddAll";
+    public static final String ARY_GET = "_aryGet";
+    public static final String ARY_GET_LAST = "_aryGetLast";
+    public static final String ARY_SET = "_arySet";
+    public static final String MOVE_FORWARD = "_moveForward";
+    public static final String MOVE_BACKWARD = "_moveBackward";
+    public static final String TURN_RIGHT = "_turnRight";
+    public static final String TURN_LEFT = "_turnLeft";
+    public static final String MEASURE_DISTANCE = "_measureDistance";
+    public static final String GEN_LOCK_OBJ = "_genLockObj";
+    public static final String GEN_SYNC_TIMER = "_genSyncTimer";
+    public static final String SYNC_TIMER_COUNTDOWN = "_syncTimerCountdown";
+    public static final String SYNC_TIMER_AWAIT = "_syncTimerAwait";
+    public static final String SYNC_TIMER_COUNTDOWN_AND_AWAIT = "_syncTimerCountdownAndAwait";
+    public static final String RESET_SYNC_TIMER = "_resetSyncTimer";
+    public static final String GET_SYNC_TIMER_COUNT = "_getSyncTimerCount";
+    public static final String TRY_LOCK = "_tryLock";
+    public static final String LOCK = "_lock";
+    public static final String UNLOCK = "_unlock";
+    public static final String ADD_EVENT = "_addEvent";
+    public static final String GET_EVENT_HANDLER_NAMES = "_getEventHandlerNames";
+    public static final String BH_MAIN = "_bhMain";
+    public static final String CREATE_SOUND = "_createSound";
+    public static final String CREATE_COLOR_FROM_NAME = "_createColorFromName";
+    public static final String PUSH_SOUND = "_pushSound";
+    public static final String CURRENT_TIME_MILLS = "_currentTimeMillis";
+    public static final String GET_TIME_SINCE_PROGRAM_STARTED = "_getTimeSinceProgramStarted";
+    public static final String STRCAT = "_strcat";
+    public static final String LIST_TO_STR = "_listToStr";
+    public static final String IDENTITY = "_identity";  //恒等写像 (実際に共通コード部には定義しない)
+    public static final String SET_EXCEPTION_NODE_INFO = "_setExceptionNodeInfo";
+    public static final String NEW_BH_PROGRAM_EXCEPTION = "_newBhProgramExceptioin";
+    public static final String INIT_THIS_OBJ = "_initThisObj";
+    public static final String OUT_ARG_TEST = "_outArgTest";
+  }
 
-	public static class JsFuncs {
-		public static final String IS_FINITE = "isFinite";
-		public static final String PUSH = "push";
-		public static final String POP = "pop";
-		public static final String CALL = "call";
-	}
+  public static class JsFuncs {
+    public static final String IS_FINITE = "isFinite";
+    public static final String PUSH = "push";
+    public static final String POP = "pop";
+    public static final String CALL = "call";
+  }
 
 
-	public static class Properties {
-		public static final String OUT_VALS = "_outVals";
-		public static final String HAS_BH_EXCEPTION = "_hasBhException";
-		public static final String CALL_STACK = "_callStack";
-	}
+  public static class Properties {
+    public static final String OUT_VALS = "_outVals";
+    public static final String HAS_BH_EXCEPTION = "_hasBhException";
+    public static final String CALL_STACK = "_callStack";
+  }
 
-	public static class Vars {
-		public static final String NIL_SOUND  = "_nilSound";
-		public static final String NIL_COLOR = "_nilColor";
-		public static final String PROGRAM_STARTING_TIME = "_programStartingTime";
-	}
+  public static class Vars {
+    public static final String NIL_SOUND  = "_nilSound";
+    public static final String NIL_COLOR = "_nilColor";
+    public static final String PROGRAM_STARTING_TIME = "_programStartingTime";
+  }
 
-	public static class Label {
-		public static final String end = "_end";
-	}
+  public static class Label {
+    public static final String end = "_end";
+  }
 }

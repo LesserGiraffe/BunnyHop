@@ -29,93 +29,93 @@ import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
  * */
 public class MultiNodeShifterController {
 
-	private final MultiNodeShifterView view; //!< 管理するビュー
-	private final Workspace ws;	//!< view が存在するワークスぺース
+  private final MultiNodeShifterView view; //!< 管理するビュー
+  private final Workspace ws;  //!< view が存在するワークスぺース
 
-	/**
-	 * コンストラクタ
-	 * @param view 管理するマルチノードシフタのビュー
-	 * @param ws view があるワークスペース
-	 * */
-	public MultiNodeShifterController(MultiNodeShifterView view, Workspace ws) {
+  /**
+   * コンストラクタ
+   * @param view 管理するマルチノードシフタのビュー
+   * @param ws view があるワークスペース
+   * */
+  public MultiNodeShifterController(MultiNodeShifterView view, Workspace ws) {
 
-		this.view = view;
-		this.ws = ws;
-		Vec2D mousePressedPos = new Vec2D(0.0, 0.0);
-		setOnMousePressedHandler(mousePressedPos);
-		setOnMouseDraggedHandler(mousePressedPos);
-		setOnMouseReleasedHandler(mousePressedPos);
-	}
+    this.view = view;
+    this.ws = ws;
+    Vec2D mousePressedPos = new Vec2D(0.0, 0.0);
+    setOnMousePressedHandler(mousePressedPos);
+    setOnMouseDraggedHandler(mousePressedPos);
+    setOnMouseReleasedHandler(mousePressedPos);
+  }
 
-	/**
-	 * マウスボタン押下時のイベントハンドラを登録する
-	 * @param mousePressedPos マウスボタン押下時のカーソル位置の格納先
-	 */
-	private void setOnMousePressedHandler(Vec2D mousePressedPos) {
+  /**
+   * マウスボタン押下時のイベントハンドラを登録する
+   * @param mousePressedPos マウスボタン押下時のカーソル位置の格納先
+   */
+  private void setOnMousePressedHandler(Vec2D mousePressedPos) {
 
-		view.setOnMousePressedHandler(mouseEvent -> {
-			view.switchPseudoClassActivation(true, BhParams.CSS.PSEUDO_SELECTED);
-			javafx.geometry.Point2D pos = view.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-			mousePressedPos.x = pos.getX();
-			mousePressedPos.y = pos.getY();
-			view.toFront();
-			mouseEvent.consume();
-		});
-	}
+    view.setOnMousePressedHandler(mouseEvent -> {
+      view.switchPseudoClassActivation(true, BhParams.CSS.PSEUDO_SELECTED);
+      javafx.geometry.Point2D pos = view.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+      mousePressedPos.x = pos.getX();
+      mousePressedPos.y = pos.getY();
+      view.toFront();
+      mouseEvent.consume();
+    });
+  }
 
-	/**
-	 * マウスドラッグ時のイベントハンドラを登録する
-	 * @param mousePressedPos マウスボタン押下時のカーソル位置
-	 */
-	private void setOnMouseDraggedHandler(Vec2D mousePressedPos) {
+  /**
+   * マウスドラッグ時のイベントハンドラを登録する
+   * @param mousePressedPos マウスボタン押下時のカーソル位置
+   */
+  private void setOnMouseDraggedHandler(Vec2D mousePressedPos) {
 
-		view.setOnMouseDraggedHandler(mouseEvent -> {
+    view.setOnMouseDraggedHandler(mouseEvent -> {
 
-			double diffX = mouseEvent.getX() - mousePressedPos.x;
-			double diffY = mouseEvent.getY() - mousePressedPos.y;
-			Vec2D wsSize = ViewHelper.INSTANCE.getWorkspaceView(view).getWorkspaceSize();
+      double diffX = mouseEvent.getX() - mousePressedPos.x;
+      double diffY = mouseEvent.getY() - mousePressedPos.y;
+      Vec2D wsSize = ViewHelper.INSTANCE.getWorkspaceView(view).getWorkspaceSize();
 
-			if (mouseEvent.isShiftDown()) {
-				view.move(new Vec2D(diffX, diffY), wsSize, true);
-			}
-			else {
-				Vec2D distance = view.move(new Vec2D(diffX, diffY), wsSize, false);
-				view.getLinkedNodeList().forEach(node -> MsgService.INSTANCE.moveNodeOnWS(node, distance));
-			}
-			mouseEvent.consume();
-		});
-	}
+      if (mouseEvent.isShiftDown()) {
+        view.move(new Vec2D(diffX, diffY), wsSize, true);
+      }
+      else {
+        Vec2D distance = view.move(new Vec2D(diffX, diffY), wsSize, false);
+        view.getLinkedNodeList().forEach(node -> MsgService.INSTANCE.moveNodeOnWS(node, distance));
+      }
+      mouseEvent.consume();
+    });
+  }
 
-	/**
-	 * マウスボタンを離したときのイベントハンドラを登録する
-	 * @param mousePressedPos マウスボタンを押下時のカーソル位置
-	 */
-	private void setOnMouseReleasedHandler(Vec2D mousePressedPos) {
+  /**
+   * マウスボタンを離したときのイベントハンドラを登録する
+   * @param mousePressedPos マウスボタンを押下時のカーソル位置
+   */
+  private void setOnMouseReleasedHandler(Vec2D mousePressedPos) {
 
-		view.setOnMouseReleasedHandler(mouseEvent -> {
-			view.switchPseudoClassActivation(false, BhParams.CSS.PSEUDO_SELECTED);
-			mouseEvent.consume();
-		});
-	}
+    view.setOnMouseReleasedHandler(mouseEvent -> {
+      view.switchPseudoClassActivation(false, BhParams.CSS.PSEUDO_SELECTED);
+      mouseEvent.consume();
+    });
+  }
 
-	/**
-	 * マルチノードシフタを更新する
-	 * @param node マルチノードシフタの更新の原因を作ったノード
-	 * */
-	void updateMultiNodeShifter(BhNode node) {
+  /**
+   * マルチノードシフタを更新する
+   * @param node マルチノードシフタの更新の原因を作ったノード
+   * */
+  void updateMultiNodeShifter(BhNode node) {
 
-		if (node.getWorkspace() == ws &&
-			node.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
-			node.isSelected()) {
+    if (node.getWorkspace() == ws &&
+      node.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS &&
+      node.isSelected()) {
 
-			if (view.isLinked(node))
-				view.updateLinkPos(node);
-			else
-				view.createLink(node);
+      if (view.isLinked(node))
+        view.updateLinkPos(node);
+      else
+        view.createLink(node);
 
-			return;
-		}
+      return;
+    }
 
-		view.deleteLink(node);
-	}
+    view.deleteLink(node);
+  }
 }

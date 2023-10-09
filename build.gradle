@@ -20,25 +20,25 @@ import java.util.regex.*
 import java.nio.file.*
 
 plugins {
-	// Apply the java plugin to add support for Java
-	id 'java'
+  // Apply the java plugin to add support for Java
+  id 'java'
 
-	// Apply the application plugin to add support for building an application
-	id 'application'
+  // Apply the application plugin to add support for building an application
+  id 'application'
 
-	id "de.undercouch.download" version "3.4.3"
+  id "de.undercouch.download" version "3.4.3"
 }
 
 repositories {
-	jcenter()
-	mavenCentral()
+  jcenter()
+  mavenCentral()
 }
 
 dependencies {
-	compile group: 'com.jcraft', name: 'jsch', version: '0.1.55'
-	compile group: 'com.jcraft', name: 'jzlib', version: '1.1.3'
-	compile group: 'org.mozilla', name: 'rhino', version: '1.7.11'
-	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+  compile group: 'com.jcraft', name: 'jsch', version: '0.1.55'
+  compile group: 'com.jcraft', name: 'jzlib', version: '1.1.3'
+  compile group: 'org.mozilla', name: 'rhino', version: '1.7.11'
+  compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
 }
 
 ext.moduleName = 'net.seapanda.bunnyhop'
@@ -60,74 +60,74 @@ ext.bhProgramName = 'BhAppScript.js'
 // JFXライブラリの展開と配置
 task prepareJFX {
 
-	def jfxJarZipPath = "$projectDir/$jfxLib/jfx.zip"
-	def jfxModZipPath = "$projectDir/$jfxMlib/jfx.zip"
+  def jfxJarZipPath = "$projectDir/$jfxLib/jfx.zip"
+  def jfxModZipPath = "$projectDir/$jfxMlib/jfx.zip"
 
-	doFirst {
-		if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-			ext.jfxLibs = [
-				'http://gluonhq.com/download/javafx-11-0-2-sdk-windows/': jfxJarZipPath,
-				'https://gluonhq.com/download/javafx-11-0-2-jmods-windows/': jfxModZipPath
-			]
-		}
-		else if (Os.isFamily(Os.FAMILY_UNIX)) {
-			ext.jfxLibs = [
-				'http://gluonhq.com/download/javafx-11-0-2-sdk-linux/': jfxJarZipPath,
-				'https://gluonhq.com/download/javafx-11-0-2-jmods-linux/': jfxModZipPath
-			]
-		}
-		else if (Os.isFamily(Os.FAMILY_MAC)) {
-			ext.jfxLibs = [
-				'http://gluonhq.com/download/javafx-11-0-2-sdk-mac': jfxJarZipPath,
-				'https://gluonhq.com/download/javafx-11-0-2-jmods-mac/': jfxModZipPath
-			]
-		}
+  doFirst {
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+      ext.jfxLibs = [
+        'http://gluonhq.com/download/javafx-11-0-2-sdk-windows/': jfxJarZipPath,
+        'https://gluonhq.com/download/javafx-11-0-2-jmods-windows/': jfxModZipPath
+      ]
+    }
+    else if (Os.isFamily(Os.FAMILY_UNIX)) {
+      ext.jfxLibs = [
+        'http://gluonhq.com/download/javafx-11-0-2-sdk-linux/': jfxJarZipPath,
+        'https://gluonhq.com/download/javafx-11-0-2-jmods-linux/': jfxModZipPath
+      ]
+    }
+    else if (Os.isFamily(Os.FAMILY_MAC)) {
+      ext.jfxLibs = [
+        'http://gluonhq.com/download/javafx-11-0-2-sdk-mac': jfxJarZipPath,
+        'https://gluonhq.com/download/javafx-11-0-2-jmods-mac/': jfxModZipPath
+      ]
+    }
 
-		for (lib in jfxLibs) {
-			if (!file(lib.value).exists()) {
-				download {
-					src lib.key
-					dest file(lib.value)
-				}
-			}
-		}
+    for (lib in jfxLibs) {
+      if (!file(lib.value).exists()) {
+        download {
+          src lib.key
+          dest file(lib.value)
+        }
+      }
+    }
 
-		//解凍
-		copy {
-			from zipTree(jfxJarZipPath)
-			into file("$projectDir/$jfxLib")
-		}
+    //解凍
+    copy {
+      from zipTree(jfxJarZipPath)
+      into file("$projectDir/$jfxLib")
+    }
 
-		copy {
-			from zipTree(jfxModZipPath)
-			into file("$projectDir/$jfxMlib")
-		}
+    copy {
+      from zipTree(jfxModZipPath)
+      into file("$projectDir/$jfxMlib")
+    }
 
-		// 必要なファイルの配置
-		FileTree ftree = fileTree("$projectDir/$jfxLib")
-		ftree.visit {element ->
-			if (element.file.toString() ==~ /.+javafx.+[\/\\]lib[\/\\].+\.jar$/ ||
-				element.file.toString() ==~ /.+javafx.+[\/\\]lib[\/\\].+\.so$/) {
-				ant.move(todir: "$projectDir/$jfxLib") {
-					fileset(file: element.file.toString())
-				}
-			}
-			else if (element.file.toString() ==~ /.+javafx.+[\/\\]bin$/) {
-				ant.move(todir: "$projectDir/bin") {
-					fileset(dir: element.file.toString())
-				}
-			}
-		}
+    // 必要なファイルの配置
+    FileTree ftree = fileTree("$projectDir/$jfxLib")
+    ftree.visit {element ->
+      if (element.file.toString() ==~ /.+javafx.+[\/\\]lib[\/\\].+\.jar$/ ||
+        element.file.toString() ==~ /.+javafx.+[\/\\]lib[\/\\].+\.so$/) {
+        ant.move(todir: "$projectDir/$jfxLib") {
+          fileset(file: element.file.toString())
+        }
+      }
+      else if (element.file.toString() ==~ /.+javafx.+[\/\\]bin$/) {
+        ant.move(todir: "$projectDir/bin") {
+          fileset(dir: element.file.toString())
+        }
+      }
+    }
 
-		ftree = fileTree("$projectDir/$jfxMlib")
-		ftree.visit {element ->
-			if (element.file.toString() ==~ /.+\.jmod$/) {
-				ant.move(todir: "$projectDir/$jfxMlib") {
-					fileset(file: element.file.toString())
-				}
-			}
-		}
-	}
+    ftree = fileTree("$projectDir/$jfxMlib")
+    ftree.visit {element ->
+      if (element.file.toString() ==~ /.+\.jmod$/) {
+        ant.move(todir: "$projectDir/$jfxMlib") {
+          fileset(file: element.file.toString())
+        }
+      }
+    }
+  }
 }
 
 
@@ -136,175 +136,175 @@ task prepareJFX {
  * @param libFilePath Modular JAR にしたい JAR ファイルのパス
  */
 def createModFromJar(libFilePath) {
-	
-	def libFileName = Paths.get(libFilePath).getFileName()
-	println libFileName
-	def modFileName = libFileName
-	
-	// モジュールファイルが存在する場合は実行しない
-	if (!file("$projectDir/mlib/$modFileName").exists()) {
+  
+  def libFileName = Paths.get(libFilePath).getFileName()
+  println libFileName
+  def modFileName = libFileName
+  
+  // モジュールファイルが存在する場合は実行しない
+  if (!file("$projectDir/mlib/$modFileName").exists()) {
 
-		def output = new ByteArrayOutputStream()
-		exec {
-			commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jdeps'),
-						'--module-path', "$projectDir/lib",
-						'--generate-module-info', "$projectDir/lib/moduleInfo", "$libFilePath")
-			standardOutput = output
-		}
-		
-		// [writing to PATH/モジュール名/module-info.java] と出力される行からモジュール名を抜き出す
-		def line = (output.toString() =~ /.+module-info.java/)[0]
-		def modName = line.split(Pattern.quote(fs))[-2]
+    def output = new ByteArrayOutputStream()
+    exec {
+      commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jdeps'),
+            '--module-path', "$projectDir/lib",
+            '--generate-module-info', "$projectDir/lib/moduleInfo", "$libFilePath")
+      standardOutput = output
+    }
+    
+    // [writing to PATH/モジュール名/module-info.java] と出力される行からモジュール名を抜き出す
+    def line = (output.toString() =~ /.+module-info.java/)[0]
+    def modName = line.split(Pattern.quote(fs))[-2]
 
-		exec {
-			commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/javac'),
-						'--patch-module', "$modName=$libFilePath",
-						'--module-path', "$projectDir/lib",
-						"$projectDir/lib/moduleInfo/$modName/module-info.java")
-		}
-		ant.copy(tofile: "$projectDir/mlib/$modFileName") {
-			fileset(file: "$libFilePath")
-		}
-		exec {
-			commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jar'),
-						 'uf', "$projectDir/mlib/$modFileName", '-C', "$projectDir/lib/moduleInfo/$modName", 'module-info.class')
-		}
+    exec {
+      commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/javac'),
+            '--patch-module', "$modName=$libFilePath",
+            '--module-path', "$projectDir/lib",
+            "$projectDir/lib/moduleInfo/$modName/module-info.java")
+    }
+    ant.copy(tofile: "$projectDir/mlib/$modFileName") {
+      fileset(file: "$libFilePath")
+    }
+    exec {
+      commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jar'),
+             'uf', "$projectDir/mlib/$modFileName", '-C', "$projectDir/lib/moduleInfo/$modName", 'module-info.class')
+    }
 
-		delete "$projectDir/lib/moduleInfo/$modName"
-	}
+    delete "$projectDir/lib/moduleInfo/$modName"
+  }
 }
 
 task copyDependencies(type: Copy) {
-	
-	from configurations.default
-	into 'lib'
-	
-	doFirst {
-		delete "$projectDir/lib/"
-		delete "$projectDir/mlib/"
-	}
+  
+  from configurations.default
+  into 'lib'
+  
+  doFirst {
+    delete "$projectDir/lib/"
+    delete "$projectDir/mlib/"
+  }
 }
 
 // ライブラリの準備
 task prepareLibs {
 
-	dependsOn 'copyDependencies'
-	
-	doFirst {
-		FileTree ftree = fileTree("$projectDir/lib")
-		ftree.visit {element ->
-			def filePath = element.file.toString()
-			if (filePath ==~ /.+\.jar$/) {
-				createModFromJar(filePath)
-			}
-		}
-	}
+  dependsOn 'copyDependencies'
+  
+  doFirst {
+    FileTree ftree = fileTree("$projectDir/lib")
+    ftree.visit {element ->
+      def filePath = element.file.toString()
+      if (filePath ==~ /.+\.jar$/) {
+        createModFromJar(filePath)
+      }
+    }
+  }
 }
 
 compileJava {
-	
-	doFirst {
-		options.fork = true
-		options.forkOptions.executable = USR_HOME + '/java/' + JDK_VER + '/jdk/bin/javac'
-		options.sourcepath = files("$projectDir/src/main/java")
-		options.compilerArgs = [
-			'-source', JDK_VER,
-			'-target', JDK_VER,
-			'-encoding', 'UTF8',
-			'--module-path', ("$projectDir/mlib" + ps + "$projectDir/$jfxLib"),
-		]
-		classpath = files()
-	}
+  
+  doFirst {
+    options.fork = true
+    options.forkOptions.executable = USR_HOME + '/java/' + JDK_VER + '/jdk/bin/javac'
+    options.sourcepath = files("$projectDir/src/main/java")
+    options.compilerArgs = [
+      '-source', JDK_VER,
+      '-target', JDK_VER,
+      '-encoding', 'UTF8',
+      '--module-path', ("$projectDir/mlib" + ps + "$projectDir/$jfxLib"),
+    ]
+    classpath = files()
+  }
 }
 
 task createModJar(type:Exec) {
 
-	dependsOn 'compileJava'
-	doFirst {
-		commandLine ((USR_HOME + '/java/' + JDK_VER +'/jdk/bin/jar'),
-					'--create',
-					'--file', "$projectDir/$appDirName/${moduleName}.jar",
-					'--main-class', "$mainClass",
-					'--module-version', '1.0',
-					'-C', "$projectDir/build/classes/java/main", '.')
-	}
+  dependsOn 'compileJava'
+  doFirst {
+    commandLine ((USR_HOME + '/java/' + JDK_VER +'/jdk/bin/jar'),
+          '--create',
+          '--file', "$projectDir/$appDirName/${moduleName}.jar",
+          '--main-class', "$mainClass",
+          '--module-version', '1.0',
+          '-C', "$projectDir/build/classes/java/main", '.')
+  }
 }
 
 task runApp(type: JavaExec) {
 
-	dependsOn 'createModJar'
-	doFirst {
-		executable = USR_HOME + '/java/' + JDK_VER + '/jdk/bin/java'
-		main = ''
-		jvmArgs = [
-			'--module-path', ("$projectDir/mlib" + ps + "$projectDir/$jfxLib" + ps + "$projectDir/$appDirName"),
-			'--module', "$moduleName/$mainClass",
-		]
-		classpath = files()
-	}
+  dependsOn 'createModJar'
+  doFirst {
+    executable = USR_HOME + '/java/' + JDK_VER + '/jdk/bin/java'
+    main = ''
+    jvmArgs = [
+      '--module-path', ("$projectDir/mlib" + ps + "$projectDir/$jfxLib" + ps + "$projectDir/$appDirName"),
+      '--module', "$moduleName/$mainClass",
+    ]
+    classpath = files()
+  }
 }
 
 task jlink() {
 
-	dependsOn 'createModJar'
-	doFirst {
-	
-		def requiredModNames = new ByteArrayOutputStream()
-		exec {
-			commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jdeps'),
-						'--print-module-deps',
-						'--module-path', ("$projectDir/mlib" + ps + "$projectDir/$jfxLib" + ps + "$projectDir/$appDirName"),
-						'--add-modules', "$moduleName,$bhProgramExecModName")
+  dependsOn 'createModJar'
+  doFirst {
+  
+    def requiredModNames = new ByteArrayOutputStream()
+    exec {
+      commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jdeps'),
+            '--print-module-deps',
+            '--module-path', ("$projectDir/mlib" + ps + "$projectDir/$jfxLib" + ps + "$projectDir/$appDirName"),
+            '--add-modules', "$moduleName,$bhProgramExecModName")
 
-			standardOutput = requiredModNames
-		}
-		// println requiredModNames.toString()
-		
-		// カスタムJRE作成
-		exec {
-			delete "$projectDir/$projName"
-			commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jlink'),
-						'--module-path', ((USR_HOME + '/java/' +  JDK_VER + '/jdk/jmods') + ps + 
-										  "$projectDir/$jfxMlib" + ps + 
-										  "$projectDir/mlib"),
-						'--add-modules', requiredModNames.toString().trim(),
-						//'--compress=2',
-						'--output', "$projectDir/$projName")
-		}
-	}
+      standardOutput = requiredModNames
+    }
+    // println requiredModNames.toString()
+    
+    // カスタムJRE作成
+    exec {
+      delete "$projectDir/$projName"
+      commandLine ((USR_HOME + '/java/' + JDK_VER + '/jdk/bin/jlink'),
+            '--module-path', ((USR_HOME + '/java/' +  JDK_VER + '/jdk/jmods') + ps + 
+                      "$projectDir/$jfxMlib" + ps + 
+                      "$projectDir/mlib"),
+            '--add-modules', requiredModNames.toString().trim(),
+            //'--compress=2',
+            '--output', "$projectDir/$projName")
+    }
+  }
 
-	doLast {
-		ant.mkdir(dir:"$projectDir/$projName/$appDirName")
-		ant.copy(todir: "$projectDir/$projName/$appDirName") {
-			fileset(dir: "$projectDir/$appDirName")
-		}
-		delete fileTree("$projectDir/$projName/$appDirName/Log"){}
-		delete fileTree("$projectDir/$projName/$appDirName/BhExecEnvLog"){}
-		delete fileTree("$projectDir/$projName/$appDirName/Compiled"){}
-	}
+  doLast {
+    ant.mkdir(dir:"$projectDir/$projName/$appDirName")
+    ant.copy(todir: "$projectDir/$projName/$appDirName") {
+      fileset(dir: "$projectDir/$appDirName")
+    }
+    delete fileTree("$projectDir/$projName/$appDirName/Log"){}
+    delete fileTree("$projectDir/$projName/$appDirName/BhExecEnvLog"){}
+    delete fileTree("$projectDir/$projName/$appDirName/Compiled"){}
+  }
 }
 
 task runSelfContained(type:Exec) {
-	doFirst {
-		commandLine ("$projectDir/$projName/bin/java",
-					 ('-splash:' + "$projectDir/$projName/$appDirName/BhView/images/slpash.png"),
-					 '-cp', "$projectDir/$projName/$appDirName/${moduleName}.jar",
-					 mainClass)
-	}
+  doFirst {
+    commandLine (
+	  "$projectDir/$projName/bin/java",
+      ('-splash:' + "$projectDir/$projName/$appDirName/BhView/images/slpash.png"),
+      '-cp', "$projectDir/$projName/$appDirName/${moduleName}.jar",
+       mainClass)
+  }
 }
 
 task runBhProgram(type: JavaExec) {
 
-	doFirst {
-		standardInput = System.in;
-		executable = USR_HOME + '/java/' + JDK_VER + '/jdk/bin/java'
-		main = ''
-		jvmArgs = [
-			'-cp', ("$projectDir/mlib/*" + ps + "$projectDir/$appDirName/$bhProgramExecEnvJarName"),
-			"$bhProgramExecEnvMainClass",
-			'-run', "$bhProgramName"
-		]
-		classpath = files()
-	}
+  doFirst {
+    standardInput = System.in;
+    executable = USR_HOME + '/java/' + JDK_VER + '/jdk/bin/java'
+    main = ''
+    jvmArgs = [
+      '-cp', ("$projectDir/mlib/*" + ps + "$projectDir/$appDirName/$bhProgramExecEnvJarName"),
+      "$bhProgramExecEnvMainClass",
+      '-run', "$bhProgramName"
+    ]
+    classpath = files()
+  }
 }
-

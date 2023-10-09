@@ -1,30 +1,30 @@
 <Node
-	type="connective"
-	bhNodeID="idPrintStat"
-	name="PrintStat"
-	nodeStyleID="PrintStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idPrintStat"
+  name="PrintStat"
+  nodeStyleID="PrintStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
-		
-		<PrivateConnector 
-			bhConnectorID="idPrintStat.prvCnctr0"
-			name="woShuturyokuSuru"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idPrintStat.prvNode0"
-				name="woShuturyokuSuru"
-				nodeStyleID="WordLabel1.json"
-				initString="を出力する">
-			</Node>
-		</PrivateConnector>
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
+    
+    <PrivateConnector 
+      bhConnectorID="idPrintStat.prvCnctr0"
+      name="woShuturyokuSuru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idPrintStat.prvNode0"
+        name="woShuturyokuSuru"
+        nodeStyleID="WordLabel1.json"
+        initString="を出力する">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

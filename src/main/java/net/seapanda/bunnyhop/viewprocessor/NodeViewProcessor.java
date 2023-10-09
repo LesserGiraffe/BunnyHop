@@ -29,53 +29,53 @@ import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
  * */
 public interface NodeViewProcessor {
 
-	/**
-	 * BhNodeViewGroup を処理する.
-	 * @param group 処理する BhNodeViewGroup
-	 */
-	default public void visit(BhNodeViewGroup group) {
-		group.sendToChildNode(this);
-		group.sendToSubGroupList(this);
-	}
+  /**
+   * BhNodeViewGroup を処理する.
+   * @param group 処理する BhNodeViewGroup
+   */
+  default public void visit(BhNodeViewGroup group) {
+    group.sendToChildNode(this);
+    group.sendToSubGroupList(this);
+  }
 
-	/**
-	 * ConnectiveNodeView を処理する.
-	 * @param view 処理する ConnectiveNodeView
-	 * */
-	default public void visit(ConnectiveNodeView view) {
-		view.sendToInnerGroup(this);
-		view.sendToOuterGroup(this);
-	}
+  /**
+   * ConnectiveNodeView を処理する.
+   * @param view 処理する ConnectiveNodeView
+   * */
+  default public void visit(ConnectiveNodeView view) {
+    view.sendToInnerGroup(this);
+    view.sendToOuterGroup(this);
+  }
 
-	/**
-	 * TextFieldNodeView を処理する
-	 * @param view 処理する TextFieldNodeView
-	 * */
-	default public void visit(TextFieldNodeView view) {}
+  /**
+   * TextFieldNodeView を処理する
+   * @param view 処理する TextFieldNodeView
+   * */
+  default public void visit(TextFieldNodeView view) {}
 
-	/**
-	 * TextAreaNodeView を処理する
-	 * @param view 処理する TextAreaNodeView
-	 * */
-	default public void visit(TextAreaNodeView view) {}
+  /**
+   * TextAreaNodeView を処理する
+   * @param view 処理する TextAreaNodeView
+   * */
+  default public void visit(TextAreaNodeView view) {}
 
-	/**
-	 * LabelNodeView を処理する
-	 * @param view 処理する LabelNodeView
-	 * */
-	default public void visit(LabelNodeView view) {}
+  /**
+   * LabelNodeView を処理する
+   * @param view 処理する LabelNodeView
+   * */
+  default public void visit(LabelNodeView view) {}
 
-	/**
-	 * ComboBoxNodeView を処理する
-	 * @param view 処理する ComboBoxNodeView
-	 * */
-	default public void visit(ComboBoxNodeView view) {}
+  /**
+   * ComboBoxNodeView を処理する
+   * @param view 処理する ComboBoxNodeView
+   * */
+  default public void visit(ComboBoxNodeView view) {}
 
-	/**
-	 * NoContentNodeView を処理する
-	 * @param view 処理する NoContentNodeView
-	 * */
-	default public void visit(NoContentNodeView view) {}
+  /**
+   * NoContentNodeView を処理する
+   * @param view 処理する NoContentNodeView
+   * */
+  default public void visit(NoContentNodeView view) {}
 }
 
 

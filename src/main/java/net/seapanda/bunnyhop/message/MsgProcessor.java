@@ -21,11 +21,11 @@ package net.seapanda.bunnyhop.message;
  */
 public interface MsgProcessor {
 
-	/**
-	 * メッセージを処理する
-	 * @param msg 受信したメッセージ
-	 * @param data 受信したデータ
-	 * @return 受信したメッセージに対する返信データ
-	 * */
-	MsgData processMsg(BhMsg msg, MsgData data);
+  /**
+   * メッセージを処理する
+   * @param msg 受信したメッセージ
+   * @param data 受信したデータ
+   * @return 受信したメッセージに対する返信データ
+   * */
+  MsgData processMsg(BhMsg msg, MsgData data);
 }

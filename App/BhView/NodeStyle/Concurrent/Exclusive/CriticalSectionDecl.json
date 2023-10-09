@@ -1,29 +1,29 @@
 {
-	"paddingTop" : 1.0,
-	"paddingBottom" : 1.0,
-	"paddingLeft" : 12.5,
-	"paddingRight" : 1.5,
-	"connectorPos" : "Top",
-	"connectorShift" : 1.0,
-	"connectorWidth" : 3.5,
-	"connectorHeight" : 3.5,
-	"connectorShape" : "INV_PENTAGON",
-	"connectorBoundsRate" : 1.25,
-	"cssClass" : "concurrentType",
+  "paddingTop" : 1.0,
+  "paddingBottom" : 1.0,
+  "paddingLeft" : 12.5,
+  "paddingRight" : 1.5,
+  "connectorPos" : "Top",
+  "connectorShift" : 1.0,
+  "connectorWidth" : 3.5,
+  "connectorHeight" : 3.5,
+  "connectorShape" : "INV_PENTAGON",
+  "connectorBoundsRate" : 1.25,
+  "cssClass" : "concurrentType",
 
-	"connective" : {
-		"inner" : {
-			"space" : 2.0,
-			"arrangement" : "Row",
-			"connectorList" : ["haita", "CriticalSectionName"]
-		},
-		"outer" : {
-			"connectorList" : ["NextGlobalDataDecl"]
-		}
-	},
-	
+  "connective" : {
+    "inner" : {
+      "space" : 2.0,
+      "arrangement" : "Row",
+      "connectorList" : ["haita", "CriticalSectionName"]
+    },
+    "outer" : {
+      "connectorList" : ["NextGlobalDataDecl"]
+    }
+  },
+  
     "privateTemplate" : {
-		"buttonPosX" : 6.0,
-		"buttonPosY" : 1.0
-	}
+    "buttonPosX" : 6.0,
+    "buttonPosY" : 1.0
+  }
 }

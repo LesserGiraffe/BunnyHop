@@ -1,58 +1,59 @@
-<Node type="connective"
-	bhNodeID="idLightEyeStat"
-	name="LightEyeStat"
-	nodeStyleID="LightEyeStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+<Node
+  type="connective"
+  bhNodeID="idLightEyeStat"
+  name="LightEyeStat"
+  nodeStyleID="LightEyeStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
+  <ConnectorSection name="StatSctn">
 
-		<PrivateConnector
-			bhConnectorID="idLightEyeStat.prvCnctr0"
-			name="Arg0"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idLightEyeStat.prvNode0"
-				name="StrLiteral"
-				nodeStyleID="WordComboBox.json"
-				onViewContentsCreating="CreateEyeSelection.js">
-			</Node>
-		</PrivateConnector>
-		
-		<PrivateConnector 
-			bhConnectorID="idLightEyeStat.prvCnctr1"
-			name="wo"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idLightEyeStat.prvNode1"
-				name="wo"
-				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
-				initString="を">
-			</Node>
-		</PrivateConnector>
+    <PrivateConnector
+      bhConnectorID="idLightEyeStat.prvCnctr0"
+      name="Arg0"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idLightEyeStat.prvNode0"
+        name="StrLiteral"
+        nodeStyleID="WordComboBox.json"
+        onViewContentsCreating="CreateEyeSelection.js">
+      </Node>
+    </PrivateConnector>
+    
+    <PrivateConnector 
+      bhConnectorID="idLightEyeStat.prvCnctr1"
+      name="wo"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idLightEyeStat.prvNode1"
+        name="wo"
+        nodeStyleID="WordLabel2.json"
+        nodeInputControl="Label.fxml"
+        initString="を">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idColorExpCnctr" name="Arg1"/>
+    <Connector bhConnectorID="idColorExpCnctr" name="Arg1"/>
 
-		<PrivateConnector 
-			bhConnectorID="idLightEyeStat.prvCnctr2"
-			name="deHikaraseru"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idLightEyeStat.prvNode2"
-				name="deHikaraseru"
-				nodeStyleID="WordLabel2.json"
-				nodeInputControl="Label.fxml"
-				initString="で光らせる">
-			</Node>
-		</PrivateConnector>
+    <PrivateConnector 
+      bhConnectorID="idLightEyeStat.prvCnctr2"
+      name="deHikaraseru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idLightEyeStat.prvNode2"
+        name="deHikaraseru"
+        nodeStyleID="WordLabel2.json"
+        nodeInputControl="Label.fxml"
+        initString="で光らせる">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

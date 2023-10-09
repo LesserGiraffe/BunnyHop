@@ -56,357 +56,357 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  */
 public class BhNodeTemplates {
 
-	public static final BhNodeTemplates INSTANCE = new BhNodeTemplates(); //!< シングルトンインスタンス
+  public static final BhNodeTemplates INSTANCE = new BhNodeTemplates(); //!< シングルトンインスタンス
 
-	private final HashMap<BhNodeID, BhNode> nodeID_nodeTemplate = new HashMap<>(); //!< ノードのテンプレートを格納するハッシュ. Nodeタグの bhID がキー
-	private final HashMap<ConnectorID, Connector> cnctrID_cntrTemplate = new HashMap<>(); //!< コネクタのテンプレートを格納するハッシュ. Connectorタグの bhID がキー
-	private final List<Pair<BhNodeID, BhNodeID>> orgNodeID_imitNodeID = new ArrayList<>();	// オリジナルノードと, そのイミテーションノードのIDを格納する.
+  private final HashMap<BhNodeID, BhNode> nodeID_nodeTemplate = new HashMap<>(); //!< ノードのテンプレートを格納するハッシュ. Nodeタグの bhID がキー
+  private final HashMap<ConnectorID, Connector> cnctrID_cntrTemplate = new HashMap<>(); //!< コネクタのテンプレートを格納するハッシュ. Connectorタグの bhID がキー
+  private final List<Pair<BhNodeID, BhNodeID>> orgNodeID_imitNodeID = new ArrayList<>();  // オリジナルノードと, そのイミテーションノードのIDを格納する.
 
-	private BhNodeTemplates() {}
+  private BhNodeTemplates() {}
 
-	/**
-	 * ノードIDからBhNode のテンプレートを取得する
-	 * @param id 取得したいノードのID
-	 * @return id で指定したBhNodeのテンプレート.
-	 * */
-	private Optional<BhNode> getBhNodeTemplate(BhNodeID id) {
-		return Optional.ofNullable(nodeID_nodeTemplate.get(id));
-	}
+  /**
+   * ノードIDからBhNode のテンプレートを取得する
+   * @param id 取得したいノードのID
+   * @return id で指定したBhNodeのテンプレート.
+   * */
+  private Optional<BhNode> getBhNodeTemplate(BhNodeID id) {
+    return Optional.ofNullable(nodeID_nodeTemplate.get(id));
+  }
 
-	/**
-	 * ノードIDからBhNode を新しく作る
-	 * @param id 取得したいノードのID
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * @return id で指定したBhNodeのオブジェクト
-	 * */
-	public BhNode genBhNode(BhNodeID id, UserOperationCommand userOpeCmd) {
+  /**
+   * ノードIDからBhNode を新しく作る
+   * @param id 取得したいノードのID
+   * @param userOpeCmd undo用コマンドオブジェクト
+   * @return id で指定したBhNodeのオブジェクト
+   * */
+  public BhNode genBhNode(BhNodeID id, UserOperationCommand userOpeCmd) {
 
-		BhNode newNode = nodeID_nodeTemplate.get(id);
-		if (newNode == null) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				BhNodeTemplates.class.getSimpleName() +  ".genBhNode template not found" + id);
-		}
-		else {
-			newNode = newNode.copy(userOpeCmd, bhNode -> true);
-		}
-		return newNode;
-	}
+    BhNode newNode = nodeID_nodeTemplate.get(id);
+    if (newNode == null) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+        BhNodeTemplates.class.getSimpleName() +  ".genBhNode template not found" + id);
+    }
+    else {
+      newNode = newNode.copy(userOpeCmd, bhNode -> true);
+    }
+    return newNode;
+  }
 
-	/**
-	 * 引数で指定したIDを持つBhNode が存在するかどうかを返す
-	 * @param id 存在を確認するBhNode のID
-	 * @return BhNodeが存在していた場合true
-	 * */
-	public boolean bhNodeExists(BhNodeID id) {
-		return nodeID_nodeTemplate.get(id) != null;
-	}
+  /**
+   * 引数で指定したIDを持つBhNode が存在するかどうかを返す
+   * @param id 存在を確認するBhNode のID
+   * @return BhNodeが存在していた場合true
+   * */
+  public boolean bhNodeExists(BhNodeID id) {
+    return nodeID_nodeTemplate.get(id) != null;
+  }
 
-	/**
-	 * テンプレートを作成する
-	 * @return テンプレートノードの作成に成功した場合true
-	 * */
-	public boolean genTemplate() {
+  /**
+   * テンプレートを作成する
+   * @return テンプレートノードの作成に成功した場合true
+   * */
+  public boolean genTemplate() {
 
-		boolean success = true;	//全てのファイルから正しくテンプレートを作成できた場合 true
-		success &= genConnectorTemplate();
-		success &= genNodeTemplate();
-		if (!success)
-			return false;
+    boolean success = true;  //全てのファイルから正しくテンプレートを作成できた場合 true
+    success &= genConnectorTemplate();
+    success &= genNodeTemplate();
+    if (!success)
+      return false;
 
-		success &= registerDefaultNodeWithConnector();
-		success &= genCompoundNodes();
-		return success;
-	}
+    success &= registerDefaultNodeWithConnector();
+    success &= genCompoundNodes();
+    return success;
+  }
 
-	/**
-	 * コネクタのテンプレートを作成し, ハッシュに格納する
-	 * @return 成功した場合 true
-	 * */
-	private boolean genConnectorTemplate() {
+  /**
+   * コネクタのテンプレートを作成し, ハッシュに格納する
+   * @return 成功した場合 true
+   * */
+  private boolean genConnectorTemplate() {
 
-		//コネクタファイルパスリスト取得
-		Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.CONNECTOR_DEF_DIR);
-		Stream<Path> files;	//読み込むファイルパスリスト
-		try {
-			files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
-		}
-		catch (IOException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug("connector directory not found " + dirPath);
-			return false;
-		}
+    //コネクタファイルパスリスト取得
+    Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.CONNECTOR_DEF_DIR);
+    Stream<Path> files;  //読み込むファイルパスリスト
+    try {
+      files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
+    }
+    catch (IOException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug("connector directory not found " + dirPath);
+      return false;
+    }
 
-		//コネクタ設定ファイル読み込み
-		boolean success = files
-			.map(file -> {
-				Optional<? extends Connector> connectorOpt = genConnectorFromFile(file);
-				connectorOpt.ifPresent(connector -> registerCnctrTemplate(connector.getID(), connector));
-				return connectorOpt.isPresent();
-			})
-			.allMatch(Boolean::valueOf);
+    //コネクタ設定ファイル読み込み
+    boolean success = files
+      .map(file -> {
+        Optional<? extends Connector> connectorOpt = genConnectorFromFile(file);
+        connectorOpt.ifPresent(connector -> registerCnctrTemplate(connector.getID(), connector));
+        return connectorOpt.isPresent();
+      })
+      .allMatch(Boolean::valueOf);
 
-		files.close();
-		return success;
-	}
+    files.close();
+    return success;
+  }
 
-	/**
-	 * ファイルからコネクタを作成する.
-	 * @param file コネクタが定義されたファイル
-	 * @return {@code file} から作成したコネクタ
-	 */
-	private Optional<? extends Connector> genConnectorFromFile(Path file) {
+  /**
+   * ファイルからコネクタを作成する.
+   * @param file コネクタが定義されたファイル
+   * @return {@code file} から作成したコネクタ
+   */
+  private Optional<? extends Connector> genConnectorFromFile(Path file) {
 
-		try {
-			DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = dbfactory.newDocumentBuilder();
-			Document doc = builder.parse(file.toFile());
-			return new ConnectorConstructor().genTemplate(doc);
-		}
-		catch (IOException | ParserConfigurationException | SAXException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug("ConnectorTemplates genTemplate \n" + e.toString() + "\n" +  file);
-			return Optional.empty();
-		}
-	}
+    try {
+      DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = dbfactory.newDocumentBuilder();
+      Document doc = builder.parse(file.toFile());
+      return new ConnectorConstructor().genTemplate(doc);
+    }
+    catch (IOException | ParserConfigurationException | SAXException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug("ConnectorTemplates genTemplate \n" + e.toString() + "\n" +  file);
+      return Optional.empty();
+    }
+  }
 
-	/**
-	 * ノードのテンプレートを作成し, ハッシュに格納する
-	 * @return 成功した場合 true
-	 * */
-	private boolean genNodeTemplate() {
+  /**
+   * ノードのテンプレートを作成し, ハッシュに格納する
+   * @return 成功した場合 true
+   * */
+  private boolean genNodeTemplate() {
 
-		//ノードファイルパスリスト取得
-		Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.NODE_DEF_DIR);
-		Stream<Path> files;	//読み込むファイルパスリスト
-		try {
-			files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
-		}
-		catch (IOException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug("node directory not found " + dirPath);
-			return false;
-		}
+    //ノードファイルパスリスト取得
+    Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.NODE_DEF_DIR);
+    Stream<Path> files;  //読み込むファイルパスリスト
+    try {
+      files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
+    }
+    catch (IOException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug("node directory not found " + dirPath);
+      return false;
+    }
 
-		//ノード設定ファイル読み込み
-		boolean success = files
-			.map(file -> {
-				Optional<? extends BhNode> nodeOpt = genNodeFromFile(file);
-				nodeOpt.ifPresent(node -> nodeID_nodeTemplate.put(node.getID(), node));
-				return nodeOpt.isPresent();
-			})
-			.allMatch(Boolean::valueOf);
-		files.close();
-		success &= checkImitationConsistency(orgNodeID_imitNodeID);
-		return success;
-	}
+    //ノード設定ファイル読み込み
+    boolean success = files
+      .map(file -> {
+        Optional<? extends BhNode> nodeOpt = genNodeFromFile(file);
+        nodeOpt.ifPresent(node -> nodeID_nodeTemplate.put(node.getID(), node));
+        return nodeOpt.isPresent();
+      })
+      .allMatch(Boolean::valueOf);
+    files.close();
+    success &= checkImitationConsistency(orgNodeID_imitNodeID);
+    return success;
+  }
 
-	/**
-	 * ファイルからノードを作成する.
-	 * @param file ノードが定義されたファイル
-	 * @return {@code file} から作成したノード
-	 */
-	private Optional<? extends BhNode> genNodeFromFile(Path file) {
+  /**
+   * ファイルからノードを作成する.
+   * @param file ノードが定義されたファイル
+   * @return {@code file} から作成したノード
+   */
+  private Optional<? extends BhNode> genNodeFromFile(Path file) {
 
-		try {
-			DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = dbfactory.newDocumentBuilder();
-			Document doc = builder.parse(file.toFile());
-			Optional<? extends BhNode> templateNode =
-				new NodeConstructor(
-					this::registerNodeTemplate,
-					this::registerCnctrTemplate,
-					this::registerOrgNodeIdAndImitNodeID,
-					this::getCnctrTemplate)
-					.genTemplate(doc);
-			return templateNode;
-		}
-		catch (IOException | ParserConfigurationException | SAXException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug("NodeTemplates genTemplate \n" + e.toString() + "\n" +  file);
-			return Optional.empty();
-		}
-	}
+    try {
+      DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = dbfactory.newDocumentBuilder();
+      Document doc = builder.parse(file.toFile());
+      Optional<? extends BhNode> templateNode =
+        new NodeConstructor(
+          this::registerNodeTemplate,
+          this::registerCnctrTemplate,
+          this::registerOrgNodeIdAndImitNodeID,
+          this::getCnctrTemplate)
+          .genTemplate(doc);
+      return templateNode;
+    }
+    catch (IOException | ParserConfigurationException | SAXException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug("NodeTemplates genTemplate \n" + e.toString() + "\n" +  file);
+      return Optional.empty();
+    }
+  }
 
-	/**
-	 * コネクタに最初につながっているノードをテンプレートコネクタに登録する
-	 * @return 全てのコネクタに対し、ノードの登録が成功した場合 true を返す
-	 * */
-	private boolean registerDefaultNodeWithConnector() {
+  /**
+   * コネクタに最初につながっているノードをテンプレートコネクタに登録する
+   * @return 全てのコネクタに対し、ノードの登録が成功した場合 true を返す
+   * */
+  private boolean registerDefaultNodeWithConnector() {
 
-		//コネクタに最初につながっているノード(defaultNode) をコネクタに登録する
-		boolean success = cnctrID_cntrTemplate.values().stream()
-			.map(connector -> {
-				BhNodeID defNodeID = connector.defaultNodeID;
-				Optional<BhNode> defNode = getBhNodeTemplate(defNodeID);
-				BhNodeID initNodeID = connector.initNodeID;
-				Optional<BhNode> initNode = initNodeID.equals(BhNodeID.NONE) ? defNode : getBhNodeTemplate(initNodeID);
+    //コネクタに最初につながっているノード(defaultNode) をコネクタに登録する
+    boolean success = cnctrID_cntrTemplate.values().stream()
+      .map(connector -> {
+        BhNodeID defNodeID = connector.defaultNodeID;
+        Optional<BhNode> defNode = getBhNodeTemplate(defNodeID);
+        BhNodeID initNodeID = connector.initNodeID;
+        Optional<BhNode> initNode = initNodeID.equals(BhNodeID.NONE) ? defNode : getBhNodeTemplate(initNodeID);
 
-				//ノードテンプレートが見つからない
-				if (defNode.isEmpty()) {
-					MsgPrinter.INSTANCE.errMsgForDebug(
-						"<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
-							+ BhParams.BhModelDef.ATTR_DEFAULT_BHNODE_ID + " (" + defNodeID +") " + "と一致する "
-							+ BhParams.BhModelDef.ATTR_BH_NODE_ID + " を持つ"
-							+ BhParams.BhModelDef.ELEM_NODE + " の定義が見つかりません.");
-					return false;
-				}
-				else if (initNode.isEmpty()) {
-					MsgPrinter.INSTANCE.errMsgForDebug(
-						"<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
-							+ BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID + " (" + initNodeID +") " + "と一致する "
-							+ BhParams.BhModelDef.ATTR_BH_NODE_ID + " を持つ "
-							+ BhParams.BhModelDef.ELEM_NODE + " の定義が見つかりません.");
-					return false;
-				}
-				else {
-					connector.connectNode(initNode.get(), null);
-					return true;
-				}
-			})
-			.allMatch(Boolean::valueOf);
+        //ノードテンプレートが見つからない
+        if (defNode.isEmpty()) {
+          MsgPrinter.INSTANCE.errMsgForDebug(
+            "<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
+              + BhParams.BhModelDef.ATTR_DEFAULT_BHNODE_ID + " (" + defNodeID +") " + "と一致する "
+              + BhParams.BhModelDef.ATTR_BH_NODE_ID + " を持つ"
+              + BhParams.BhModelDef.ELEM_NODE + " の定義が見つかりません.");
+          return false;
+        }
+        else if (initNode.isEmpty()) {
+          MsgPrinter.INSTANCE.errMsgForDebug(
+            "<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
+              + BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID + " (" + initNodeID +") " + "と一致する "
+              + BhParams.BhModelDef.ATTR_BH_NODE_ID + " を持つ "
+              + BhParams.BhModelDef.ELEM_NODE + " の定義が見つかりません.");
+          return false;
+        }
+        else {
+          connector.connectNode(initNode.get(), null);
+          return true;
+        }
+      })
+      .allMatch(Boolean::valueOf);
 
-		return success;
-	}
+    return success;
+  }
 
-	/**
-	 * オリジナルノードとイミテーションノード間の制約が満たされているか検査する
-	 * @param orgNodeId_imitNodeId_list オリジナルノードとイミテーションノードのIDのリスト
-	 * @return オリジナルノードとイミテーションノード間の制約が満たされていた場合 true
-	 */
-	private boolean checkImitationConsistency(
-			List<Pair<BhNodeID, BhNodeID>> orgNodeId_imitNodeId_list) {
+  /**
+   * オリジナルノードとイミテーションノード間の制約が満たされているか検査する
+   * @param orgNodeId_imitNodeId_list オリジナルノードとイミテーションノードのIDのリスト
+   * @return オリジナルノードとイミテーションノード間の制約が満たされていた場合 true
+   */
+  private boolean checkImitationConsistency(
+      List<Pair<BhNodeID, BhNodeID>> orgNodeId_imitNodeId_list) {
 
-		var allValid = true; 
+    var allValid = true; 
 
-		for (Pair<BhNodeID, BhNodeID> orgId_imitId : orgNodeId_imitNodeId_list) {
-			var orgId = orgId_imitId._1;
-			var imitId = orgId_imitId._2;
-			if (!bhNodeExists(imitId)) {
-				MsgPrinter.INSTANCE.errMsgForDebug(
-					"\"" + imitId + "\"" + " を "
-					+ BhParams.BhModelDef.ATTR_BH_NODE_ID + " に持つ "
-					+ BhParams.BhModelDef.ELEM_NODE + " が見つかりません. " +
-					"(" + orgId + ")");
-				allValid = false;
-			}
-			
-			BhNode orgNode = getBhNodeTemplate(orgId).get();
-			BhNode imitNode = getBhNodeTemplate(imitId).get();
-			if (orgNode.getClass() != imitNode.getClass()) {
-				MsgPrinter.INSTANCE.errMsgForDebug(
-					BhParams.BhModelDef.ATTR_IMITATION_NODE_ID + " 属性を持つ" +
-					BhParams.BhModelDef.ELEM_NODE + " タグの " + 
-					BhParams.BhModelDef.ATTR_TYPE + " と " +
-					BhParams.BhModelDef.ATTR_IMITATION_NODE_ID + " で指定された " +
-					BhParams.BhModelDef.ELEM_NODE + " の " +
-					BhParams.BhModelDef.ATTR_TYPE + " は同じでなければなりません.\n" +
-					"    org: " + orgId + "    imit: " + imitId);
-				allValid = false;
-			}			
-		}
+    for (Pair<BhNodeID, BhNodeID> orgId_imitId : orgNodeId_imitNodeId_list) {
+      var orgId = orgId_imitId._1;
+      var imitId = orgId_imitId._2;
+      if (!bhNodeExists(imitId)) {
+        MsgPrinter.INSTANCE.errMsgForDebug(
+          "\"" + imitId + "\"" + " を "
+          + BhParams.BhModelDef.ATTR_BH_NODE_ID + " に持つ "
+          + BhParams.BhModelDef.ELEM_NODE + " が見つかりません. " +
+          "(" + orgId + ")");
+        allValid = false;
+      }
+      
+      BhNode orgNode = getBhNodeTemplate(orgId).get();
+      BhNode imitNode = getBhNodeTemplate(imitId).get();
+      if (orgNode.getClass() != imitNode.getClass()) {
+        MsgPrinter.INSTANCE.errMsgForDebug(
+          BhParams.BhModelDef.ATTR_IMITATION_NODE_ID + " 属性を持つ" +
+          BhParams.BhModelDef.ELEM_NODE + " タグの " + 
+          BhParams.BhModelDef.ATTR_TYPE + " と " +
+          BhParams.BhModelDef.ATTR_IMITATION_NODE_ID + " で指定された " +
+          BhParams.BhModelDef.ELEM_NODE + " の " +
+          BhParams.BhModelDef.ATTR_TYPE + " は同じでなければなりません.\n" +
+          "    org: " + orgId + "    imit: " + imitId);
+        allValid = false;
+      }      
+    }
 
-		return allValid;
-	}
+    return allValid;
+  }
 
-	/**
-	 * ノードIDとノードテンプレートを登録する
-	 * @param nodeID bhNodeのID
-	 * @param nodeTemplate bhNodeテンプレート
-	 */
-	public void registerNodeTemplate(BhNodeID nodeID, BhNode nodeTemplate) {
+  /**
+   * ノードIDとノードテンプレートを登録する
+   * @param nodeID bhNodeのID
+   * @param nodeTemplate bhNodeテンプレート
+   */
+  public void registerNodeTemplate(BhNodeID nodeID, BhNode nodeTemplate) {
 
-		// テンプレートノードを再登録する場合は, テンプレートコネクタが参照しているノードも変える
-		if (nodeID_nodeTemplate.containsKey(nodeID))
-			cnctrID_cntrTemplate.values().forEach(cnctr -> {
-				if (cnctr.getConnectedNode().getID().equals(nodeID))
-					cnctr.connectNode(nodeTemplate, new UserOperationCommand());
-			});
+    // テンプレートノードを再登録する場合は, テンプレートコネクタが参照しているノードも変える
+    if (nodeID_nodeTemplate.containsKey(nodeID))
+      cnctrID_cntrTemplate.values().forEach(cnctr -> {
+        if (cnctr.getConnectedNode().getID().equals(nodeID))
+          cnctr.connectNode(nodeTemplate, new UserOperationCommand());
+      });
 
-		nodeID_nodeTemplate.put(nodeID, nodeTemplate);
-	}
+    nodeID_nodeTemplate.put(nodeID, nodeTemplate);
+  }
 
-	/**
-	 * コネクタIDとコネクタテンプレートを登録する
- 	 * @param cnctrID コネクタID
-	 * @param cnctrTemplate コネクタテンプレート
+  /**
+   * コネクタIDとコネクタテンプレートを登録する
+    * @param cnctrID コネクタID
+   * @param cnctrTemplate コネクタテンプレート
 
-	 */
-	private void registerCnctrTemplate(ConnectorID cnctrID, Connector cnctrTemplate) {
-		cnctrID_cntrTemplate.put(cnctrID, cnctrTemplate);
-	}
+   */
+  private void registerCnctrTemplate(ConnectorID cnctrID, Connector cnctrTemplate) {
+    cnctrID_cntrTemplate.put(cnctrID, cnctrTemplate);
+  }
 
-	/**
-	 * オリジナルノードのIDと, そのイミテーションノードのIDを登録する
-	 * @param orgNodID オリジナルノードのID
-	 * @param imitNodeID イミテーションノードのID
-	 */
-	private void registerOrgNodeIdAndImitNodeID(BhNodeID orgNodeID, BhNodeID imitNodeID) {
-		orgNodeID_imitNodeID.add(new Pair<>(orgNodeID, imitNodeID));
-	}
+  /**
+   * オリジナルノードのIDと, そのイミテーションノードのIDを登録する
+   * @param orgNodID オリジナルノードのID
+   * @param imitNodeID イミテーションノードのID
+   */
+  private void registerOrgNodeIdAndImitNodeID(BhNodeID orgNodeID, BhNodeID imitNodeID) {
+    orgNodeID_imitNodeID.add(new Pair<>(orgNodeID, imitNodeID));
+  }
 
-	/**
-	 * コネクタテンプレートを取得する
-	 * @param cnctrID このIDを持つコネクタのテンプレートを取得する
-	 * @return コネクタテンプレート
-	 */
-	private Optional<Connector> getCnctrTemplate(ConnectorID cnctrID) {
-		return Optional.ofNullable(cnctrID_cntrTemplate.get(cnctrID));
-	}
+  /**
+   * コネクタテンプレートを取得する
+   * @param cnctrID このIDを持つコネクタのテンプレートを取得する
+   * @return コネクタテンプレート
+   */
+  private Optional<Connector> getCnctrTemplate(ConnectorID cnctrID) {
+    return Optional.ofNullable(cnctrID_cntrTemplate.get(cnctrID));
+  }
 
 
-	/**
-	 * 複合ノードを作成する
-	 */
-	private boolean genCompoundNodes() {
+  /**
+   * 複合ノードを作成する
+   */
+  private boolean genCompoundNodes() {
 
-		Script cs = BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.GEN_COMPOUND_NODES_JS);
-		ScriptableObject scriptScope = BhScriptManager.INSTANCE.createScriptScope();
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, new UserOperationCommand());
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, INSTANCE);
-		ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
-		try {
-			ContextFactory.getGlobal().call(cx -> cs.exec(cx, scriptScope));
-		}
-		catch (Exception e) {
-			MsgPrinter.INSTANCE.errMsgForDebug("eval " + BhParams.Path.GEN_COMPOUND_NODES_JS + "\n" + e.toString());
-			return false;
-		}
-		return true;
-	}
+    Script cs = BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.GEN_COMPOUND_NODES_JS);
+    ScriptableObject scriptScope = BhScriptManager.INSTANCE.createScriptScope();
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, new UserOperationCommand());
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, INSTANCE);
+    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
+    try {
+      ContextFactory.getGlobal().call(cx -> cs.exec(cx, scriptScope));
+    }
+    catch (Exception e) {
+      MsgPrinter.INSTANCE.errMsgForDebug("eval " + BhParams.Path.GEN_COMPOUND_NODES_JS + "\n" + e.toString());
+      return false;
+    }
+    return true;
+  }
 
-	/**
-	 * BhNode の処理時に呼ばれるスクリプトが存在するかどうか調べる <br>
-	 * ただし, スクリプト名が nullか空文字だった場合, そのスクリプトの存在は調べない
-	 * @param fileName scriptNames が書いてあるファイル名
-	 * @param scriptNames 実行されるスクリプト名
-	 * @return nullか空文字以外のスクリプト名に対応するスクリプトが全て見つかった場合 trueを返す
-	 * */
-	public static boolean allScriptsExist(String fileName, String... scriptNames) {
+  /**
+   * BhNode の処理時に呼ばれるスクリプトが存在するかどうか調べる <br>
+   * ただし, スクリプト名が nullか空文字だった場合, そのスクリプトの存在は調べない
+   * @param fileName scriptNames が書いてあるファイル名
+   * @param scriptNames 実行されるスクリプト名
+   * @return nullか空文字以外のスクリプト名に対応するスクリプトが全て見つかった場合 trueを返す
+   * */
+  public static boolean allScriptsExist(String fileName, String... scriptNames) {
 
-		String[] scriptNamesFiltered = Stream.of(scriptNames)
-			.filter(scriptName -> {
-				if (scriptName != null)
-					if (!scriptName.isEmpty())
-						return true;
-				return false;})
-			.toArray(String[]::new);
+    String[] scriptNamesFiltered = Stream.of(scriptNames)
+      .filter(scriptName -> {
+        if (scriptName != null)
+          if (!scriptName.isEmpty())
+            return true;
+        return false;})
+      .toArray(String[]::new);
 
-		return BhScriptManager.INSTANCE.scriptsExist(fileName, scriptNamesFiltered);
-	}
+    return BhScriptManager.INSTANCE.scriptsExist(fileName, scriptNamesFiltered);
+  }
 
-	/**
-	 * 指定した名前を持つ子タグを探す
-	 * @param elem         子タグを探すタグ
-	 * @param childTagName 探したいタグ名
-	 * @return childTagName で指定した名前を持つタグリスト
-	 * */
-	public static List<Element> getElementsByTagNameFromChild(Element elem, String childTagName) {
+  /**
+   * 指定した名前を持つ子タグを探す
+   * @param elem         子タグを探すタグ
+   * @param childTagName 探したいタグ名
+   * @return childTagName で指定した名前を持つタグリスト
+   * */
+  public static List<Element> getElementsByTagNameFromChild(Element elem, String childTagName) {
 
-		ArrayList<Element> selectedElementList = new ArrayList<>();
-		for (int i = 0; i < elem.getChildNodes().getLength(); ++i) {
-			Node node = elem.getChildNodes().item(i);
-			if (node instanceof Element) {
-				Element tag = (Element) node;
-				if (tag.getTagName().equals(childTagName))
-					selectedElementList.add(tag);
-			}
-		}
-		return selectedElementList;
-	}
+    ArrayList<Element> selectedElementList = new ArrayList<>();
+    for (int i = 0; i < elem.getChildNodes().getLength(); ++i) {
+      Node node = elem.getChildNodes().item(i);
+      if (node instanceof Element) {
+        Element tag = (Element) node;
+        if (tag.getTagName().equals(childTagName))
+          selectedElementList.add(tag);
+      }
+    }
+    return selectedElementList;
+  }
 }

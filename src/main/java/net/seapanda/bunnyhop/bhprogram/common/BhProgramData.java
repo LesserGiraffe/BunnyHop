@@ -23,97 +23,97 @@ import java.io.Serializable;
  */
 public class BhProgramData implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	public final TYPE type;
-	public final String str;
-	public final EVENT event;
-	public final String eventHandlerResolver;
-	public final BhProgramException exception;
+  private static final long serialVersionUID = 1L;
+  public final TYPE type;
+  public final String str;
+  public final EVENT event;
+  public final String eventHandlerResolver;
+  public final BhProgramException exception;
 
-	public BhProgramData(TYPE type, String str) {
+  public BhProgramData(TYPE type, String str) {
 
-		this.type = type;
-		this.str = str;
-		this.event = null;
-		this.eventHandlerResolver = null;
-		this.exception = null;
-	}
+    this.type = type;
+    this.str = str;
+    this.event = null;
+    this.eventHandlerResolver = null;
+    this.exception = null;
+  }
 
-	public BhProgramData(EVENT event, String eventHandlerResolver) {
+  public BhProgramData(EVENT event, String eventHandlerResolver) {
 
-		this.type = TYPE.INPUT_EVENT;
-		this.str = null;
-		this.event = event;
-		this.eventHandlerResolver = eventHandlerResolver;
-		this.exception = null;
-	}
+    this.type = TYPE.INPUT_EVENT;
+    this.str = null;
+    this.event = event;
+    this.eventHandlerResolver = eventHandlerResolver;
+    this.exception = null;
+  }
 
-	public BhProgramData(BhProgramException exception) {
+  public BhProgramData(BhProgramException exception) {
 
-		this.type = TYPE.OUTPUT_EXCEPTION;
-		this.str = null;
-		this.event = null;
-		this.eventHandlerResolver = null;
-		this.exception = exception;
-	}
+    this.type = TYPE.OUTPUT_EXCEPTION;
+    this.str = null;
+    this.event = null;
+    this.eventHandlerResolver = null;
+    this.exception = exception;
+  }
 
-	/**
-	 * データの種類
-	 */
-	public enum TYPE {
-		OUTPUT_STR,	//!< BhProgramからの出力文字列
-		INPUT_STR, //!< BhProgram への入力文字列
-		INPUT_EVENT, //!<BhProgram への入力イベント
-		OUTPUT_EXCEPTION, //!< BhProgram からの例外
-	}
+  /**
+   * データの種類
+   */
+  public enum TYPE {
+    OUTPUT_STR,  //!< BhProgramからの出力文字列
+    INPUT_STR, //!< BhProgram への入力文字列
+    INPUT_EVENT, //!<BhProgram への入力イベント
+    OUTPUT_EXCEPTION, //!< BhProgram からの例外
+  }
 
-	public enum EVENT {
-		KEY_DIGIT0_PRESSED,
-		KEY_DIGIT1_PRESSED,
-		KEY_DIGIT2_PRESSED,
-		KEY_DIGIT3_PRESSED,
-		KEY_DIGIT4_PRESSED,
-		KEY_DIGIT5_PRESSED,
-		KEY_DIGIT6_PRESSED,
-		KEY_DIGIT7_PRESSED,
-		KEY_DIGIT8_PRESSED,
-		KEY_DIGIT9_PRESSED,
-		KEY_ENTER_PRESSED,
-		KEY_SPACE_PRESSED,
-		KEY_SHIFT_PRESSED,
-		KEY_CTRL_PRESSED,
-		KEY_RIGHT_PRESSED,
-		KEY_LEFT_PRESSED,
-		KEY_UP_PRESSED,
-		KEY_DOWN_PRESSED,
-		KEY_A_PRESSED,
-		KEY_B_PRESSED,
-		KEY_C_PRESSED,
-		KEY_D_PRESSED,
-		KEY_E_PRESSED,
-		KEY_F_PRESSED,
-		KEY_G_PRESSED,
-		KEY_H_PRESSED,
-		KEY_I_PRESSED,
-		KEY_J_PRESSED,
-		KEY_K_PRESSED,
-		KEY_L_PRESSED,
-		KEY_M_PRESSED,
-		KEY_N_PRESSED,
-		KEY_O_PRESSED,
-		KEY_P_PRESSED,
-		KEY_Q_PRESSED,
-		KEY_R_PRESSED,
-		KEY_S_PRESSED,
-		KEY_T_PRESSED,
-		KEY_U_PRESSED,
-		KEY_V_PRESSED,
-		KEY_W_PRESSED,
-		KEY_X_PRESSED,
-		KEY_Y_PRESSED,
-		KEY_Z_PRESSED,
-		PROGRAM_START,	//!< プログラムの開始時に必ず1回発行されるイベント
-	}
+  public enum EVENT {
+    KEY_DIGIT0_PRESSED,
+    KEY_DIGIT1_PRESSED,
+    KEY_DIGIT2_PRESSED,
+    KEY_DIGIT3_PRESSED,
+    KEY_DIGIT4_PRESSED,
+    KEY_DIGIT5_PRESSED,
+    KEY_DIGIT6_PRESSED,
+    KEY_DIGIT7_PRESSED,
+    KEY_DIGIT8_PRESSED,
+    KEY_DIGIT9_PRESSED,
+    KEY_ENTER_PRESSED,
+    KEY_SPACE_PRESSED,
+    KEY_SHIFT_PRESSED,
+    KEY_CTRL_PRESSED,
+    KEY_RIGHT_PRESSED,
+    KEY_LEFT_PRESSED,
+    KEY_UP_PRESSED,
+    KEY_DOWN_PRESSED,
+    KEY_A_PRESSED,
+    KEY_B_PRESSED,
+    KEY_C_PRESSED,
+    KEY_D_PRESSED,
+    KEY_E_PRESSED,
+    KEY_F_PRESSED,
+    KEY_G_PRESSED,
+    KEY_H_PRESSED,
+    KEY_I_PRESSED,
+    KEY_J_PRESSED,
+    KEY_K_PRESSED,
+    KEY_L_PRESSED,
+    KEY_M_PRESSED,
+    KEY_N_PRESSED,
+    KEY_O_PRESSED,
+    KEY_P_PRESSED,
+    KEY_Q_PRESSED,
+    KEY_R_PRESSED,
+    KEY_S_PRESSED,
+    KEY_T_PRESSED,
+    KEY_U_PRESSED,
+    KEY_V_PRESSED,
+    KEY_W_PRESSED,
+    KEY_X_PRESSED,
+    KEY_Y_PRESSED,
+    KEY_Z_PRESSED,
+    PROGRAM_START,  //!< プログラムの開始時に必ず1回発行されるイベント
+  }
 }
 
 

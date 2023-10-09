@@ -1,83 +1,83 @@
 <Node
-	type="connective"
-	bhNodeID="idScanExp"
-	name="ScanExp"
-	nodeStyleID="ScanExp.json">
+  type="connective"
+  bhNodeID="idScanExp"
+  name="ScanExp"
+  nodeStyleID="ScanExp.json">
 
-	<ConnectorSection name="StringExpSctn">
-		
-		<PrivateConnector
-			bhConnectorID="idScanExp.prvCnctr0"
-			name="nyuryokumojiretsu"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idScanExp.prvNode0"
-				name="nyuryokumojiretsu"
-				nodeStyleID="WordLabel1.json"
-				initString="入力文字列">
-			</Node>
-		</PrivateConnector>
-		
-		<PrivateConnector
-			bhConnectorID="idScanExp.prvCnctr1"
-			name="nyuryokuYokyu"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idScanExp.prvNode1"
-				name="nyuryokuYokyu"
-				nodeStyleID="SmallCharLabel1.json"
-				initString="（入力要求メッセージ：">
-			</Node>
-		</PrivateConnector>
-		
-		<PrivateConnector
-			bhConnectorID="idScanExp.prvCnctr2"
-			name="Arg0"
-			fixed="false"
-			defaultBhNodeID="idScanExp.prvNode2"
-			initialBhNodeID=""
-			class="StrClass"
-			onConnectabilityChecking="StrExpCnct.js">
+  <ConnectorSection name="StringExpSctn">
+    
+    <PrivateConnector
+      bhConnectorID="idScanExp.prvCnctr0"
+      name="nyuryokumojiretsu"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idScanExp.prvNode0"
+        name="nyuryokumojiretsu"
+        nodeStyleID="WordLabel1.json"
+        initString="入力文字列">
+      </Node>
+    </PrivateConnector>
+    
+    <PrivateConnector
+      bhConnectorID="idScanExp.prvCnctr1"
+      name="nyuryokuYokyu"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idScanExp.prvNode1"
+        name="nyuryokuYokyu"
+        nodeStyleID="SmallCharLabel1.json"
+        initString="（入力要求メッセージ：">
+      </Node>
+    </PrivateConnector>
+    
+    <PrivateConnector
+      bhConnectorID="idScanExp.prvCnctr2"
+      name="Arg0"
+      fixed="false"
+      defaultBhNodeID="idScanExp.prvNode2"
+      initialBhNodeID=""
+      class="StrClass"
+      onConnectabilityChecking="StrExpCnct.js">
 
-			<Node
-				type="connective"
-				bhNodeID="idScanExp.prvNode2"
-				name="StrLiteralExp"
-				nodeStyleID="StrLiteralExp.json"
-				onMovedFromChildToWS="OnLiteralMovedToWS.js">
+      <Node
+        type="connective"
+        bhNodeID="idScanExp.prvNode2"
+        name="StrLiteralExp"
+        nodeStyleID="StrLiteralExp.json"
+        onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
-				<ConnectorSection name="StringExpSctn">
+        <ConnectorSection name="StringExpSctn">
 
-					<PrivateConnector
-						bhConnectorID="idScanExp.prvNode2.prvCnctr0"
-						name="Literal"
-						fixed="true">
-						<Node
-							type="text"
-							bhNodeID="idScanExp.prvNode2.prvNode0"
-							name="StrLiteral"
-							nodeStyleID="StrLiteral.json"
-							onTextChecking="CheckTextFormat.js"
-							initString="入力待ちです">
-						</Node>
-					</PrivateConnector>
-				</ConnectorSection>
-			</Node>
-		</PrivateConnector>
-		
-		<PrivateConnector
-			bhConnectorID="idScanExp.prvCnctr3"
-			name="bracket"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idScanExp.prvNode3"
-				name="bracket"
-				nodeStyleID="SmallCharLabel1.json"
-				initString="）">
-			</Node>
-		</PrivateConnector>
-	</ConnectorSection>
+          <PrivateConnector
+            bhConnectorID="idScanExp.prvNode2.prvCnctr0"
+            name="Literal"
+            fixed="true">
+            <Node
+              type="text"
+              bhNodeID="idScanExp.prvNode2.prvNode0"
+              name="StrLiteral"
+              nodeStyleID="StrLiteral.json"
+              onTextChecking="CheckTextFormat.js"
+              initString="入力待ちです">
+            </Node>
+          </PrivateConnector>
+        </ConnectorSection>
+      </Node>
+    </PrivateConnector>
+    
+    <PrivateConnector
+      bhConnectorID="idScanExp.prvCnctr3"
+      name="bracket"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idScanExp.prvNode3"
+        name="bracket"
+        nodeStyleID="SmallCharLabel1.json"
+        initString="）">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
 </Node>

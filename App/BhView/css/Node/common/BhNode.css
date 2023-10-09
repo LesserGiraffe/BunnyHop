@@ -1,31 +1,31 @@
 
 .BhNode {
-	-fx-stroke: black;
-	-fx-stroke-width: 0.15em;
-	-fx-stroke-type: inside;
+  -fx-stroke: black;
+  -fx-stroke-width: 0.15em;
+  -fx-stroke-type: inside;
 }
 
 .BhNode:selected {
-	-fx-stroke: gold;
+  -fx-stroke: gold;
 }
 
 .BhNode:highlightImit {
-	-fx-stroke: gold;
-	-fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
+  -fx-stroke: gold;
+  -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
 }
 
 .BhNode-Pane:highlightImit{}
 
 .BhNode:overlapped {
-	-fx-stroke: magenta;
+  -fx-stroke: magenta;
 }
 
 .BhNode-SyntaxError {
-	-fx-stroke-width: 0.30em;
-	-fx-stroke: red;
+  -fx-stroke-width: 0.30em;
+  -fx-stroke: red;
 }
 
 #nodeViewShadowPane {
-	-fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
+  -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
 }
 

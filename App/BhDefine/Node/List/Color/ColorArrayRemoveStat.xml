@@ -1,45 +1,45 @@
 <Node
-	type="connective"
-	bhNodeID="idColorArrayRemoveStat"
-	name="ColorArrayRemoveStat"
-	nodeStyleID="ColorArrayRemoveStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idColorArrayRemoveStat"
+  name="ColorArrayRemoveStat"
+  nodeStyleID="ColorArrayRemoveStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idColorListCnctr" name="Arg0"/>
-		
-		<PrivateConnector
-			bhConnectorID="idColorArrayRemoveStat.prvCnctr0"
-			name="no"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idColorArrayRemoveStat.prvNode0"
-				name="no"
-				nodeStyleID="WordLabel2.json"
-				initString="の">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-		
-		<PrivateConnector
-			bhConnectorID="idColorArrayRemoveStat.prvCnctr1"
-			name="banmeWoSakujyoSuru"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idColorArrayRemoveStat.prvNode1"
-				name="banmeWoSakujyoSuru"
-				nodeStyleID="WordLabel2.json"
-				initString="番目を削除する">
-			</Node>
-		</PrivateConnector>
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idColorListCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idColorArrayRemoveStat.prvCnctr0"
+      name="no"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idColorArrayRemoveStat.prvNode0"
+        name="no"
+        nodeStyleID="WordLabel2.json"
+        initString="の">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+    
+    <PrivateConnector
+      bhConnectorID="idColorArrayRemoveStat.prvCnctr1"
+      name="banmeWoSakujyoSuru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idColorArrayRemoveStat.prvNode1"
+        name="banmeWoSakujyoSuru"
+        nodeStyleID="WordLabel2.json"
+        initString="番目を削除する">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

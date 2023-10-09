@@ -1,13 +1,14 @@
-<Node type="connective"
-	  bhNodeID="idStrRowChainExp"
-	  name="StrChainExp"
-	  nodeStyleID="StrChainExp.json">
+<Node
+  type="connective"
+  bhNodeID="idStrRowChainExp"
+  name="StrChainExp"
+  nodeStyleID="StrChainExp.json">
 
-	<ConnectorSection name="StringExpSctn">
-		<PrivateConnector
-			bhConnectorID="idStrRowChainExp.prvCnctr0"
-			name="Arg0"
-			defaultBhNodeID="idStrRowChainLinkExp"
-			fixed="true"/>
-	</ConnectorSection>
+  <ConnectorSection name="StringExpSctn">
+    <PrivateConnector
+      bhConnectorID="idStrRowChainExp.prvCnctr0"
+      name="Arg0"
+      defaultBhNodeID="idStrRowChainLinkExp"
+      fixed="true"/>
+  </ConnectorSection>
 </Node>

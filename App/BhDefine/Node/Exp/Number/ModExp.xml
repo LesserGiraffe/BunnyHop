@@ -1,51 +1,51 @@
 <Node
-	type="connective"
-	bhNodeID="idModExp"
-	name="ModExp"
-	nodeStyleID="ModExp.json">
+  type="connective"
+  bhNodeID="idModExp"
+  name="ModExp"
+  nodeStyleID="ModExp.json">
 
-	<ConnectorSection name="NumberExpSctn">
-		<Connector bhConnectorID="idNumExpCnctr" name="LeftExp"/>
-		
-		<PrivateConnector
-			bhConnectorID="idModExp.prvCnctr0"
-			name="wo"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idModExp.prvNode0"
-				name="wo"
-				nodeStyleID="WordLabel1.json"
-				initString="を">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idNumExpCnctr" name="RightExp"/>
-		
-		<PrivateConnector
-			bhConnectorID="idModExp.prvCnctr1"
-			name="deWattaAmari"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idModExp.prvNode1"
-				name="deWattaAmari"
-				nodeStyleID="WordLabel1.json"
-				initString="で割ったあまり">
-			</Node>
-		</PrivateConnector>
-		
-		<PrivateConnector 
-			bhConnectorID="idModExp.prvCnctr2"
-			name="Operator"
-    		fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idModExp.prvNode2"
-				name="ModOpe"
-				initString="mod">
-			</Node>
-		</PrivateConnector>
-		
-	</ConnectorSection>
+  <ConnectorSection name="NumberExpSctn">
+    <Connector bhConnectorID="idNumExpCnctr" name="LeftExp"/>
+    
+    <PrivateConnector
+      bhConnectorID="idModExp.prvCnctr0"
+      name="wo"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idModExp.prvNode0"
+        name="wo"
+        nodeStyleID="WordLabel1.json"
+        initString="を">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idNumExpCnctr" name="RightExp"/>
+    
+    <PrivateConnector
+      bhConnectorID="idModExp.prvCnctr1"
+      name="deWattaAmari"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idModExp.prvNode1"
+        name="deWattaAmari"
+        nodeStyleID="WordLabel1.json"
+        initString="で割ったあまり">
+      </Node>
+    </PrivateConnector>
+    
+    <PrivateConnector 
+      bhConnectorID="idModExp.prvCnctr2"
+      name="Operator"
+        fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idModExp.prvNode2"
+        name="ModOpe"
+        initString="mod">
+      </Node>
+    </PrivateConnector>
+    
+  </ConnectorSection>
 </Node>

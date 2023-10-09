@@ -29,44 +29,44 @@ import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
  * */
 public class SyntaxErrorNodeCollector implements BhModelProcessor {
 
-	private final List<BhNode> errorNodeList = new ArrayList<>();	//!< オリジナルノードと同じスコープに居ないイミテーションノードのリスト
+  private final List<BhNode> errorNodeList = new ArrayList<>();  //!< オリジナルノードと同じスコープに居ないイミテーションノードのリスト
 
-	/**
-	 * 以下の2種類の構文エラーノードを管理対象に入れる
-	 *   ・引数のノード以下にある構文エラーノード
-	 *   ・引数のノード以下にあるオリジナルノードが持つイミテーションで構文エラーを起こしているノード
-	 * */
-	public static List<BhNode> collect(BhNode node) {
+  /**
+   * 以下の2種類の構文エラーノードを管理対象に入れる
+   *   ・引数のノード以下にある構文エラーノード
+   *   ・引数のノード以下にあるオリジナルノードが持つイミテーションで構文エラーを起こしているノード
+   * */
+  public static List<BhNode> collect(BhNode node) {
 
-		var collector = new SyntaxErrorNodeCollector();
-		node.accept(collector);
-		return collector.errorNodeList;
-	}
+    var collector = new SyntaxErrorNodeCollector();
+    node.accept(collector);
+    return collector.errorNodeList;
+  }
 
-	private SyntaxErrorNodeCollector() {}
+  private SyntaxErrorNodeCollector() {}
 
-	@Override
-	public void visit(ConnectiveNode node) {
+  @Override
+  public void visit(ConnectiveNode node) {
 
-		node.sendToSections(this);
-		for (Imitatable imitNode : node.getImitationList()) {
-			if (imitNode.hasSyntaxError())
-				errorNodeList.add(imitNode);
-		}
+    node.sendToSections(this);
+    for (Imitatable imitNode : node.getImitationList()) {
+      if (imitNode.hasSyntaxError())
+        errorNodeList.add(imitNode);
+    }
 
-		if (node.hasSyntaxError())
-			errorNodeList.add(node);
-	}
+    if (node.hasSyntaxError())
+      errorNodeList.add(node);
+  }
 
-	@Override
-	public void visit(TextNode node) {
+  @Override
+  public void visit(TextNode node) {
 
-		for (Imitatable imitNode : node.getImitationList()) {
-			if (imitNode.hasSyntaxError())
-				errorNodeList.add(imitNode);
-		}
+    for (Imitatable imitNode : node.getImitationList()) {
+      if (imitNode.hasSyntaxError())
+        errorNodeList.add(imitNode);
+    }
 
-		if (node.hasSyntaxError())
-			errorNodeList.add(node);
-	}
+    if (node.hasSyntaxError())
+      errorNodeList.add(node);
+  }
 }

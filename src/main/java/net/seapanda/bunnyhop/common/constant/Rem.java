@@ -22,13 +22,13 @@ import javafx.scene.text.Font;
  */
 public class Rem {
 
-	public static final double VAL = Font.getDefault().getSize();
+  public static final double VAL = Font.getDefault().getSize();
 
-	private double remVal = VAL;
-	public void setRem(double val) {
-		remVal = Rem.VAL *  val;
-	}
-	public double getRem() {
-		return remVal;
-	}
+  private double remVal = VAL;
+  public void setRem(double val) {
+    remVal = Rem.VAL *  val;
+  }
+  public double getRem() {
+    return remVal;
+  }
 }

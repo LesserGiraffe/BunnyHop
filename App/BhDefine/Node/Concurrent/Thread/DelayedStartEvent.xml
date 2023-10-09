@@ -1,38 +1,39 @@
-<Node type="connective"
-	bhNodeID="idDelayedStartEvent"
-	name="DelayedStartEvent"
-	nodeStyleID="DelayedStartEvent.json">
+<Node
+  type="connective"
+  bhNodeID="idDelayedStartEvent"
+  name="DelayedStartEvent"
+  nodeStyleID="DelayedStartEvent.json">
 
-	<ConnectorSection name="EventSctn">
+  <ConnectorSection name="EventSctn">
 
-		<PrivateConnector
-			bhConnectorID="idDelayedStartEvent.prvCnctr0"
-			name="TimeCnctr"
-    		fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idDelayedStartEvent.prvNode0"
-				name="DelayTime"
-				nodeStyleID="FixedNumLiteral.json"
-				onTextFormatting="FullWidthToHalfWidth.js"
-				onTextChecking="CheckNumFormat.js"
-				initString="1">
-			</Node>
-		</PrivateConnector>
-		
-		<PrivateConnector
-			bhConnectorID="idDelayedStartEvent.prvCnctr1"
-			name="byoGoNiHajimeru"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idDelayedStartEvent.prvNode1"
-				name="byoGoNiHajimeru"
-				nodeStyleID="WordLabel2.json"
-				initString="秒後に始める">
-			</Node>
-		</PrivateConnector>
+    <PrivateConnector
+      bhConnectorID="idDelayedStartEvent.prvCnctr0"
+      name="TimeCnctr"
+        fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idDelayedStartEvent.prvNode0"
+        name="DelayTime"
+        nodeStyleID="FixedNumLiteral.json"
+        onTextFormatting="FullWidthToHalfWidth.js"
+        onTextChecking="CheckNumFormat.js"
+        initString="1">
+      </Node>
+    </PrivateConnector>
+    
+    <PrivateConnector
+      bhConnectorID="idDelayedStartEvent.prvCnctr1"
+      name="byoGoNiHajimeru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idDelayedStartEvent.prvNode1"
+        name="byoGoNiHajimeru"
+        nodeStyleID="WordLabel2.json"
+        initString="秒後に始める">
+      </Node>
+    </PrivateConnector>
 
-		<Connector bhConnectorID="idStatCnctr" name="StatList"/>
-	</ConnectorSection>
+    <Connector bhConnectorID="idStatCnctr" name="StatList"/>
+  </ConnectorSection>
 </Node>

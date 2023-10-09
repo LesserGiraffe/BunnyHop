@@ -1,22 +1,23 @@
-<Node type="connective"
-	  bhNodeID="idNotExp"
-	  name="NotExp"
-	  nodeStyleID="NotExp.json">
+<Node
+  type="connective"
+  bhNodeID="idNotExp"
+  name="NotExp"
+  nodeStyleID="NotExp.json">
 
-	<ConnectorSection name="BooleanExpSctn">
-		<Connector bhConnectorID="idBoolExpCnctr" name="PrimaryExp"/>
+  <ConnectorSection name="BooleanExpSctn">
+    <Connector bhConnectorID="idBoolExpCnctr" name="PrimaryExp"/>
 
-		<PrivateConnector
-			bhConnectorID="idNotExp.prvCnctr0"
-			name="dehanai"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idNotExp.prvNode0"
-				name="dehanai"
-				nodeStyleID="WordLabel1.json"
-				initString="ではない">
-			</Node>
-		</PrivateConnector>
-	</ConnectorSection>
+    <PrivateConnector
+      bhConnectorID="idNotExp.prvCnctr0"
+      name="dehanai"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNotExp.prvNode0"
+        name="dehanai"
+        nodeStyleID="WordLabel1.json"
+        initString="ではない">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
 </Node>

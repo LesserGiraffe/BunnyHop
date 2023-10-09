@@ -1,14 +1,14 @@
 #workspaceSetViewBase {
-	-fx-orientation: vertical;
+  -fx-orientation: vertical;
 }
 
 #workspaceSetStackPane {
-	-fx-alignment: top-left;
-	-fx-min-height: 0em;
+  -fx-alignment: top-left;
+  -fx-min-height: 0em;
 }
 
 #mainMsgArea {
-	-fx-min-height: 1em;
+  -fx-min-height: 1em;
     -fx-font-family: "Meiryo UI";
     -fx-font-size: 1.1em;
 }
@@ -19,13 +19,13 @@
 }
 
 #closedTrashboxIV {
-	-fx-translate-x: -2em;
-	-fx-translate-y: -2em;
+  -fx-translate-x: -2em;
+  -fx-translate-y: -2em;
 }
 
 #openedTrashboxIV {
-	-fx-translate-x: -2em;
-	-fx-translate-y: -2em;
+  -fx-translate-x: -2em;
+  -fx-translate-y: -2em;
 }
 
 

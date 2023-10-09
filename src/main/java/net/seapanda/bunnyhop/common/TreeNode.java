@@ -22,14 +22,14 @@ import java.util.ArrayList;
  */
 public class TreeNode<T> {
 
-	public T content;
-	public  ArrayList<TreeNode<T>> children = new ArrayList<>();
+  public T content;
+  public  ArrayList<TreeNode<T>> children = new ArrayList<>();
 
-	public boolean isLeaf() {
-		return children.isEmpty();
-	}
+  public boolean isLeaf() {
+    return children.isEmpty();
+  }
 
-	public TreeNode (T content) {
-		this.content = content;
-	}
+  public TreeNode (T content) {
+    this.content = content;
+  }
 }

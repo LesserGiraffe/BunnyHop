@@ -4,5 +4,5 @@
     name="VoidStat" 
     nodeStyleID="VoidStat.json"
     initString=""
-	onMovedFromChildToWS="DeleteNode.js">
+  onMovedFromChildToWS="DeleteNode.js">
 </Node>

@@ -1,7 +1,7 @@
 <Node
-	type="text"
-	bhNodeID="idStrChainLinkVoid"
-	name="StrChainLinkVoid"
-	nodeStyleID="StrChainLinkExpVoid.json"
-	initString="''">
+  type="text"
+  bhNodeID="idStrChainLinkVoid"
+  name="StrChainLinkVoid"
+  nodeStyleID="StrChainLinkExpVoid.json"
+  initString="''">
 </Node>

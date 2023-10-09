@@ -5,8 +5,8 @@ package net.seapanda.bunnyhop.common.constant;
  * */
 public enum ExclusiveSelection {
 
-	YES,
-	NO,
-	CANCEL,
-	NONE_OF_THEM, //!< どれにも当てはまらない
+  YES,
+  NO,
+  CANCEL,
+  NONE_OF_THEM, //!< どれにも当てはまらない
 }

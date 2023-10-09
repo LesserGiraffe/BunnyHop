@@ -34,135 +34,135 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  */
 public class BhNodeSelectionService {
 
-	public static final BhNodeSelectionService INSTANCE = new BhNodeSelectionService();
-	private BhNodeSelectionService() {}
+  public static final BhNodeSelectionService INSTANCE = new BhNodeSelectionService();
+  private BhNodeSelectionService() {}
 
-	private final Map<String, BhNodeSelectionView> categoryNameToSelectionView = new HashMap<>();
-	private final Map<String, Workspace> categoryNameToWorkspace = new HashMap<>();
+  private final Map<String, BhNodeSelectionView> categoryNameToSelectionView = new HashMap<>();
+  private final Map<String, Workspace> categoryNameToWorkspace = new HashMap<>();
 
 
-	/**
-	 * ノード選択ビューを登録する.
-	 * @param view 登録するビュー.
-	 */
-	public void registerView(BhNodeSelectionView view) {
+  /**
+   * ノード選択ビューを登録する.
+   * @param view 登録するビュー.
+   */
+  public void registerView(BhNodeSelectionView view) {
 
-		String categoryName = view.getCategoryName();
-		categoryNameToSelectionView.put(categoryName, view);
-		var model = new Workspace(categoryName);
-		var controller = new BhNodeSelectionController(model, view);
-		model.setMsgProcessor(controller);
-		categoryNameToWorkspace.put(categoryName, model);
-	}
+    String categoryName = view.getCategoryName();
+    categoryNameToSelectionView.put(categoryName, view);
+    var model = new Workspace(categoryName);
+    var controller = new BhNodeSelectionController(model, view);
+    model.setMsgProcessor(controller);
+    categoryNameToWorkspace.put(categoryName, model);
+  }
 
-	/**
-	 * 引数で指定したカテゴリにテンプレートノードを追加する.
-	 *
-	 * <p> {@code node} の MVC が構築されていること.
-	 * @param categoryName {@code node} を追加するカテゴリの名前
-	 * @param node 追加するノード
-	 * @param userOpeCmd undo 用コマンドオブジェクト
-	 */
-	public void addTemplateNode(String categoryName, BhNode node, UserOperationCommand userOpeCmd) {
+  /**
+   * 引数で指定したカテゴリにテンプレートノードを追加する.
+   *
+   * <p> {@code node} の MVC が構築されていること.
+   * @param categoryName {@code node} を追加するカテゴリの名前
+   * @param node 追加するノード
+   * @param userOpeCmd undo 用コマンドオブジェクト
+   */
+  public void addTemplateNode(String categoryName, BhNode node, UserOperationCommand userOpeCmd) {
 
-		Workspace ws = categoryNameToWorkspace.get(categoryName);
-		if (ws == null)
-			return;
+    Workspace ws = categoryNameToWorkspace.get(categoryName);
+    if (ws == null)
+      return;
 
-		BhNodeHandler.INSTANCE.addRootNode(ws, node, 0, 0, userOpeCmd);
-	}
+    BhNodeHandler.INSTANCE.addRootNode(ws, node, 0, 0, userOpeCmd);
+  }
 
-	/**
-	 * 引数で指定したカテゴリのノード選択ビューにある全てのノードを取得する.
-	 *
-	 * <p> 返されるリストのノードは, {@code addTemplateNode} で追加したノードである.
-	 * @param category このカテゴリのテンプレートノードを全て取得する
-	 * @return {@code categoryName} にある全てのテンプレートノード. 登録されていないカテゴリを指定した場合は空のリスト.
-	 */
-	public Collection<BhNode> getTemplateNodes(String categoryName) {
+  /**
+   * 引数で指定したカテゴリのノード選択ビューにある全てのノードを取得する.
+   *
+   * <p> 返されるリストのノードは, {@code addTemplateNode} で追加したノードである.
+   * @param category このカテゴリのテンプレートノードを全て取得する
+   * @return {@code categoryName} にある全てのテンプレートノード. 登録されていないカテゴリを指定した場合は空のリスト.
+   */
+  public Collection<BhNode> getTemplateNodes(String categoryName) {
 
-		Workspace ws = categoryNameToWorkspace.get(categoryName);
-		if (ws == null)
-			return new ArrayList<BhNode>();
+    Workspace ws = categoryNameToWorkspace.get(categoryName);
+    if (ws == null)
+      return new ArrayList<BhNode>();
 
-		return ws.getRootNodeList();
-	}
+    return ws.getRootNodeList();
+  }
 
-	/**
-	 * 引数で指定したカテゴリのノード選択ビューにある全てのノードを削除する.
-	 * @param categoryName このカテゴリのテンプレートノードを全て削除する
-	 * @param userOpeCmd undo 用コマンドオブジェクト
-	 */
-	public void deleteAllNodes(String categoryName, UserOperationCommand userOpeCmd) {
+  /**
+   * 引数で指定したカテゴリのノード選択ビューにある全てのノードを削除する.
+   * @param categoryName このカテゴリのテンプレートノードを全て削除する
+   * @param userOpeCmd undo 用コマンドオブジェクト
+   */
+  public void deleteAllNodes(String categoryName, UserOperationCommand userOpeCmd) {
 
-		Collection<BhNode> nodesToDelete = getTemplateNodes(categoryName);
-		if (nodesToDelete.isEmpty())
-			return;
+    Collection<BhNode> nodesToDelete = getTemplateNodes(categoryName);
+    if (nodesToDelete.isEmpty())
+      return;
 
-		BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
-	}
+    BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
+  }
 
-	/**
-	 * ノード選択ビューを全て拡大もしくは縮小する.
-	 * @param zoomIn 拡大する場合 true
-	 */
-	public void zoomAll(boolean zoomIn) {
-		categoryNameToSelectionView.values().stream().forEach(view -> view.zoom(zoomIn));
-	}
+  /**
+   * ノード選択ビューを全て拡大もしくは縮小する.
+   * @param zoomIn 拡大する場合 true
+   */
+  public void zoomAll(boolean zoomIn) {
+    categoryNameToSelectionView.values().stream().forEach(view -> view.zoom(zoomIn));
+  }
 
-	/**
-	 * 全てのノード選択ビューを隠す.
-	 */
-	public void hideAll() {
-		categoryNameToSelectionView.values().stream().forEach(view -> view.setVisible(false));
-	}
+  /**
+   * 全てのノード選択ビューを隠す.
+   */
+  public void hideAll() {
+    categoryNameToSelectionView.values().stream().forEach(view -> view.setVisible(false));
+  }
 
-	/**
-	 * 引数で指定したカテゴリのノード選択ビューを表示する.
-	 * @param 表示するノード選択ビューのカテゴリ名
-	 */
-	public void show(String categoryName) {
+  /**
+   * 引数で指定したカテゴリのノード選択ビューを表示する.
+   * @param 表示するノード選択ビューのカテゴリ名
+   */
+  public void show(String categoryName) {
 
-		BhNodeSelectionView view = categoryNameToSelectionView.get(categoryName);
-		if (view == null)
-			return;
+    BhNodeSelectionView view = categoryNameToSelectionView.get(categoryName);
+    if (view == null)
+      return;
 
-		hideAll();
-		view.setVisible(true);
-	}
+    hideAll();
+    view.setVisible(true);
+  }
 
-	/**
-	 * 現在表示されているカテゴリの名前を返す.
-	 * return 現在表示されているカテゴリの名前. 表示されているカテゴリがない場合は empty.
-	 */
-	public Optional<String> getNameOfShowedCategory() {
-		return categoryNameToSelectionView
-				.values().stream()
-				.filter(view -> view.visibleProperty().get())
-				.findFirst()
-				.map(view -> view.getCategoryName());
-	}
+  /**
+   * 現在表示されているカテゴリの名前を返す.
+   * return 現在表示されているカテゴリの名前. 表示されているカテゴリがない場合は empty.
+   */
+  public Optional<String> getNameOfShowedCategory() {
+    return categoryNameToSelectionView
+        .values().stream()
+        .filter(view -> view.visibleProperty().get())
+        .findFirst()
+        .map(view -> view.getCategoryName());
+  }
 
-	/**
-	 * ノード選択ビューのうち表示されているものがあるかどうか調べる.
-	 * @return BhNode選択パネルのうち一つでも表示されている場合true
-	 */
-	public boolean isAnyShowed() {
-		return categoryNameToSelectionView.values().stream().anyMatch(view -> view.visibleProperty().get());
-	}
+  /**
+   * ノード選択ビューのうち表示されているものがあるかどうか調べる.
+   * @return BhNode選択パネルのうち一つでも表示されている場合true
+   */
+  public boolean isAnyShowed() {
+    return categoryNameToSelectionView.values().stream().anyMatch(view -> view.visibleProperty().get());
+  }
 
-	/**
-	 * 引数で指定したカテゴリのノード選択ビューが表示されているかどうかを調べる.
-	 * @param categoryName 表示状態を調べるノード選択ビューのカテゴリ名
-	 * @return 表示されている場合 true. 批評の場合と {@code categoryName} に対応するビューが見つからなかった場合は false.
-	 */
-	public boolean isShowed(String categoryName) {
+  /**
+   * 引数で指定したカテゴリのノード選択ビューが表示されているかどうかを調べる.
+   * @param categoryName 表示状態を調べるノード選択ビューのカテゴリ名
+   * @return 表示されている場合 true. 批評の場合と {@code categoryName} に対応するビューが見つからなかった場合は false.
+   */
+  public boolean isShowed(String categoryName) {
 
-		BhNodeSelectionView view = categoryNameToSelectionView.get(categoryName);
-		if (view == null)
-			return false;
+    BhNodeSelectionView view = categoryNameToSelectionView.get(categoryName);
+    if (view == null)
+      return false;
 
-		return view.isVisible();
-	}
+    return view.isVisible();
+  }
 }
 

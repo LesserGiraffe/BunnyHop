@@ -1,23 +1,23 @@
 <Node
-	type="connective"
-	bhNodeID="idAbsExp"
-	name="AbsExp"
-	nodeStyleID="AbsExp.json">
+  type="connective"
+  bhNodeID="idAbsExp"
+  name="AbsExp"
+  nodeStyleID="AbsExp.json">
 
-	<ConnectorSection name="NumberExpSctn">
-		<Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
-		
-		<PrivateConnector
-			bhConnectorID="idAbsExp.prvCnctr0"
-			name="noZettaichi"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idAbsExp.prvNode0"
-				name="noZettaichi"
-				nodeStyleID="WordLabel1.json"
-				initString="の絶対値">
-			</Node>
-		</PrivateConnector>
-	</ConnectorSection>
+  <ConnectorSection name="NumberExpSctn">
+    <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idAbsExp.prvCnctr0"
+      name="noZettaichi"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAbsExp.prvNode0"
+        name="noZettaichi"
+        nodeStyleID="WordLabel1.json"
+        initString="の絶対値">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
 </Node>

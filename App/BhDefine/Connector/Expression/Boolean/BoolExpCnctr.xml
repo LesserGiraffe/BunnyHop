@@ -1,5 +1,5 @@
 <Connector 
-	bhConnectorID="idBoolExpCnctr"
-	defaultBhNodeID="idBoolLiteralExp"
-	class="BoolClass"
-	onConnectabilityChecking="BoolExpCnct.js"/>
+  bhConnectorID="idBoolExpCnctr"
+  defaultBhNodeID="idBoolLiteralExp"
+  class="BoolClass"
+  onConnectabilityChecking="BoolExpCnct.js"/>

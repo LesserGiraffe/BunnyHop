@@ -26,49 +26,49 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
  */
 public class ConnectorID implements Serializable {
 
-	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	public static final ConnectorID NONE = new ConnectorID("");	//!< コネクタIDが存在しないことを表す
-	String id;
+  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
+  public static final ConnectorID NONE = new ConnectorID("");  //!< コネクタIDが存在しないことを表す
+  String id;
 
-	/**
-	 * コンストラクタ
-	 * @param id 識別子名
-	 */
-	private ConnectorID(String id) {
-		this.id = id;
-	}
+  /**
+   * コンストラクタ
+   * @param id 識別子名
+   */
+  private ConnectorID(String id) {
+    this.id = id;
+  }
 
-	/**
-	 * コネクタIDを作成する
-	 * @param id 識別子名
-	 * @return コネクタID
-	 */
-	public static ConnectorID createCnctrID(String id) {
-		return new ConnectorID(id == null ? "" : id);
-	}
+  /**
+   * コネクタIDを作成する
+   * @param id 識別子名
+   * @return コネクタID
+   */
+  public static ConnectorID createCnctrID(String id) {
+    return new ConnectorID(id == null ? "" : id);
+  }
 
-	@Override
-	public String toString() {
-		return id;
-	}
+  @Override
+  public String toString() {
+    return id;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
+  @Override
+  public boolean equals(Object obj) {
 
-		if (obj == null)
-			return false;
+    if (obj == null)
+      return false;
 
-		if (getClass() != obj.getClass())
-			return false;
+    if (getClass() != obj.getClass())
+      return false;
 
-		ConnectorID cnctrID = (ConnectorID)obj;
-		return id == null ? (cnctrID.id == null) : (id.equals(cnctrID.id));
-	}
+    ConnectorID cnctrID = (ConnectorID)obj;
+    return id == null ? (cnctrID.id == null) : (id.equals(cnctrID.id));
+  }
 
-	@Override
-	public int hashCode() {
-		int hash = 5;
-		hash = 97 * hash + Objects.hashCode(this.id);
-		return hash;
-	}
+  @Override
+  public int hashCode() {
+    int hash = 5;
+    hash = 97 * hash + Objects.hashCode(this.id);
+    return hash;
+  }
 }

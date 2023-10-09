@@ -38,121 +38,121 @@ import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
  */
 public class BhNodeCategoryList implements MsgReceptionWindow {
 
-	private TreeNode<String> templateTreeRoot;
-	private MsgProcessor msgProcessor;	//!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
+  private TreeNode<String> templateTreeRoot;
+  private MsgProcessor msgProcessor;  //!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
 
-	private BhNodeCategoryList() {};
+  private BhNodeCategoryList() {};
 
-	/**
-	 * ノードカテゴリとテンプレートノードの配置情報が記されたファイルを読み込みテンプレートリストを作成する
-	 * @param ノードカテゴリとテンプレートノードの配置情報が記されたファイルのパス
-	 * @return
-	 */
-	public static Optional<BhNodeCategoryList> create(Path filePath) {
+  /**
+   * ノードカテゴリとテンプレートノードの配置情報が記されたファイルを読み込みテンプレートリストを作成する
+   * @param ノードカテゴリとテンプレートノードの配置情報が記されたファイルのパス
+   * @return
+   */
+  public static Optional<BhNodeCategoryList> create(Path filePath) {
 
-		Optional<NativeObject> jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
-		if (jsonObj.isEmpty())
-			return Optional.empty();
+    Optional<NativeObject> jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
+    if (jsonObj.isEmpty())
+      return Optional.empty();
 
-		var newObj = new BhNodeCategoryList();
+    var newObj = new BhNodeCategoryList();
 
-		newObj.templateTreeRoot = new TreeNode<>("root");
-		boolean success = newObj.addChildren(jsonObj.get(), newObj.templateTreeRoot, filePath.toString());
-		if (success)
-			return Optional.of(newObj);
+    newObj.templateTreeRoot = new TreeNode<>("root");
+    boolean success = newObj.addChildren(jsonObj.get(), newObj.templateTreeRoot, filePath.toString());
+    if (success)
+      return Optional.of(newObj);
 
-		return Optional.empty();
-	}
+    return Optional.empty();
+  }
 
-	/**
-	 * テンプレートツリーに子ノードを追加する.<br>
-	 * 子ノードが葉だった場合、対応するBhNode があるかどうかを調べ, ない場合はfalse を返す
-	 * @param jsonObj このオブジェクトのメンバーが追加すべき子ノードとなる
-	 * @param parent 子ノードを追加したいノード
-	 * @return 下位の葉ノードに対応するBhNode があった場合true
-	 * */
-	private boolean addChildren(NativeObject jsonObj, TreeNode<String> parent, String fileName) {
+  /**
+   * テンプレートツリーに子ノードを追加する.<br>
+   * 子ノードが葉だった場合、対応するBhNode があるかどうかを調べ, ない場合はfalse を返す
+   * @param jsonObj このオブジェクトのメンバーが追加すべき子ノードとなる
+   * @param parent 子ノードを追加したいノード
+   * @return 下位の葉ノードに対応するBhNode があった場合true
+   * */
+  private boolean addChildren(NativeObject jsonObj, TreeNode<String> parent, String fileName) {
 
-		boolean bhNodeForLeafExists = true;
-		for(Object key : jsonObj.keySet()) {
+    boolean bhNodeForLeafExists = true;
+    for(Object key : jsonObj.keySet()) {
 
-			if (!(key instanceof String))
-				continue;
+      if (!(key instanceof String))
+        continue;
 
-			Object val = jsonObj.get(key);
-			switch (key.toString()) {
-				case BhParams.NodeTemplate.KEY_CSS_CLASS:	//cssクラスのキー
-					if (val instanceof String) {
-						TreeNode<String> cssClass = new TreeNode<>(BhParams.NodeTemplate.KEY_CSS_CLASS);
-						cssClass.children.add(new TreeNode<>(val.toString()));
-						parent.children.add(cssClass);
-					}
-					break;
+      Object val = jsonObj.get(key);
+      switch (key.toString()) {
+        case BhParams.NodeTemplate.KEY_CSS_CLASS:  //cssクラスのキー
+          if (val instanceof String) {
+            TreeNode<String> cssClass = new TreeNode<>(BhParams.NodeTemplate.KEY_CSS_CLASS);
+            cssClass.children.add(new TreeNode<>(val.toString()));
+            parent.children.add(cssClass);
+          }
+          break;
 
-				case BhParams.NodeTemplate.KEY_CONTENTS:	//ノードIDの配列のキー
-					if (val instanceof NativeArray) {
-						TreeNode<String> contents = new TreeNode<>(BhParams.NodeTemplate.KEY_CONTENTS);
-						bhNodeForLeafExists &= addBhNodeID((NativeArray)val, contents, fileName);
-						parent.children.add(contents);
-					}
-					break;
+        case BhParams.NodeTemplate.KEY_CONTENTS:  //ノードIDの配列のキー
+          if (val instanceof NativeArray) {
+            TreeNode<String> contents = new TreeNode<>(BhParams.NodeTemplate.KEY_CONTENTS);
+            bhNodeForLeafExists &= addBhNodeID((NativeArray)val, contents, fileName);
+            parent.children.add(contents);
+          }
+          break;
 
-				default:					//カテゴリ名
-					if (val instanceof NativeObject) {
-						TreeNode<String> child = new TreeNode<>(key.toString());
-						parent.children.add(child);
-						bhNodeForLeafExists &= addChildren((NativeObject)val, child, fileName);
-					}
-					break;
-			}
-		}
-		return bhNodeForLeafExists;
-	}
+        default:          //カテゴリ名
+          if (val instanceof NativeObject) {
+            TreeNode<String> child = new TreeNode<>(key.toString());
+            parent.children.add(child);
+            bhNodeForLeafExists &= addChildren((NativeObject)val, child, fileName);
+          }
+          break;
+      }
+    }
+    return bhNodeForLeafExists;
+  }
 
-	/**
-	 * JsonArray からBhNode の ID を読み取って、対応するノードがあるIDのみ子ノードとして追加する
-	 * @param bhNodeIDList BhNode の ID のリスト
-	 * @param parent IDを子ノードとして追加する親ノード
-	 * @return 各IDに対応するBhNodeがすべて見つかった場合true
-	 * */
-	private boolean addBhNodeID(NativeArray bhNodeIDList, TreeNode<String> parent, String fileName) {
+  /**
+   * JsonArray からBhNode の ID を読み取って、対応するノードがあるIDのみ子ノードとして追加する
+   * @param bhNodeIDList BhNode の ID のリスト
+   * @param parent IDを子ノードとして追加する親ノード
+   * @return 各IDに対応するBhNodeがすべて見つかった場合true
+   * */
+  private boolean addBhNodeID(NativeArray bhNodeIDList, TreeNode<String> parent, String fileName) {
 
-		boolean allBhNodesExist = true;
-		for (Object bhNodeID : bhNodeIDList) {
-			if (bhNodeID instanceof String) {	// 配列内の文字列だけをBhNode の IDとみなす
+    boolean allBhNodesExist = true;
+    for (Object bhNodeID : bhNodeIDList) {
+      if (bhNodeID instanceof String) {  // 配列内の文字列だけをBhNode の IDとみなす
 
-				String bhNodeIDStr = (String)bhNodeID;
-				if (BhNodeTemplates.INSTANCE.bhNodeExists(BhNodeID.create(bhNodeIDStr))) {	//IDに対応する BhNode がある
-					parent.children.add(new TreeNode<>(bhNodeIDStr));
-				}
-				else {
-					allBhNodesExist &= false;
-					MsgPrinter.INSTANCE.errMsgForDebug(
-						bhNodeIDStr + " に対応する " + BhParams.BhModelDef.ELEM_NODE + " が存在しません.\n" +
-						"(" + fileName + ")");
-				}
-			}
-		}
-		return allBhNodesExist;
-	}
+        String bhNodeIDStr = (String)bhNodeID;
+        if (BhNodeTemplates.INSTANCE.bhNodeExists(BhNodeID.create(bhNodeIDStr))) {  //IDに対応する BhNode がある
+          parent.children.add(new TreeNode<>(bhNodeIDStr));
+        }
+        else {
+          allBhNodesExist &= false;
+          MsgPrinter.INSTANCE.errMsgForDebug(
+            bhNodeIDStr + " に対応する " + BhParams.BhModelDef.ELEM_NODE + " が存在しません.\n" +
+            "(" + fileName + ")");
+        }
+      }
+    }
+    return allBhNodesExist;
+  }
 
-	/**
-	 * BhNode選択リストのルートノードを返す
-	 * @return BhNode選択リストのルートノード
-	 */
-	public TreeNode<String> getRootNode() {
-		return templateTreeRoot;
-	}
+  /**
+   * BhNode選択リストのルートノードを返す
+   * @return BhNode選択リストのルートノード
+   */
+  public TreeNode<String> getRootNode() {
+    return templateTreeRoot;
+  }
 
-	@Override
-	public void setMsgProcessor(MsgProcessor processor) {
-		msgProcessor = processor;
-	}
+  @Override
+  public void setMsgProcessor(MsgProcessor processor) {
+    msgProcessor = processor;
+  }
 
-	@Override
-	public MsgData passMsg(BhMsg msg, MsgData data) {
-		return msgProcessor.processMsg(msg, data);
-	}
+  @Override
+  public MsgData passMsg(BhMsg msg, MsgData data) {
+    return msgProcessor.processMsg(msg, data);
+  }
 }
 
 

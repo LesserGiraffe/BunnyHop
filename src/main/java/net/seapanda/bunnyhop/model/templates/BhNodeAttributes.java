@@ -30,169 +30,169 @@ import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
  */
 public class BhNodeAttributes {
 
-	private BhNodeID bhNodeID;
-	private String name;
-	private String nodeStyleID;
-	private String onMovedFromChildToWS;
-	private String onMovedToChild;
-	private String onTextChecking;
-	private String onDeletionRequested;
-	private String onCutRequested;
-	private String onCopyRequested;
-	private String onChildReplaced;
-	private String onPrivateTemplateCreating;
-	private String onTextFormatting;
-	private String onSyntaxChecking;
-	private String onViewContentsCreating;
-	private String initString;
-	private boolean canCreateImitManually;
+  private BhNodeID bhNodeID;
+  private String name;
+  private String nodeStyleID;
+  private String onMovedFromChildToWS;
+  private String onMovedToChild;
+  private String onTextChecking;
+  private String onDeletionRequested;
+  private String onCutRequested;
+  private String onCopyRequested;
+  private String onChildReplaced;
+  private String onPrivateTemplateCreating;
+  private String onTextFormatting;
+  private String onSyntaxChecking;
+  private String onViewContentsCreating;
+  private String initString;
+  private boolean canCreateImitManually;
 
-	private BhNodeAttributes(){}
+  private BhNodeAttributes(){}
 
-	/**
-	 * \<Node\> タグが持つ属性一覧を読み取る
-	 * @param node \<Node\>タグを表すオブジェクト
-	 */
-	static Optional<BhNodeAttributes> readBhNodeAttriButes(Element node) {
+  /**
+   * \<Node\> タグが持つ属性一覧を読み取る
+   * @param node \<Node\>タグを表すオブジェクト
+   */
+  static Optional<BhNodeAttributes> readBhNodeAttriButes(Element node) {
 
-		BhNodeAttributes nodeAttrs = new BhNodeAttributes();
+    BhNodeAttributes nodeAttrs = new BhNodeAttributes();
 
-		// bhNodeID
-		nodeAttrs.bhNodeID = BhNodeID.create(node.getAttribute(BhParams.BhModelDef.ATTR_BH_NODE_ID));
-		if (nodeAttrs.bhNodeID.equals(BhNodeID.NONE)) {
-			MsgPrinter.INSTANCE.errMsgForDebug(
-				"<" + BhParams.BhModelDef.ELEM_NODE + ">" + " タグには "
-				+ BhParams.BhModelDef.ATTR_BH_NODE_ID + " 属性を記述してください.  " + node.getBaseURI());
-			return Optional.empty();
-		}
+    // bhNodeID
+    nodeAttrs.bhNodeID = BhNodeID.create(node.getAttribute(BhParams.BhModelDef.ATTR_BH_NODE_ID));
+    if (nodeAttrs.bhNodeID.equals(BhNodeID.NONE)) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+        "<" + BhParams.BhModelDef.ELEM_NODE + ">" + " タグには "
+        + BhParams.BhModelDef.ATTR_BH_NODE_ID + " 属性を記述してください.  " + node.getBaseURI());
+      return Optional.empty();
+    }
 
-		// name
-		nodeAttrs.name = node.getAttribute(BhParams.BhModelDef.ATTR_NAME);
+    // name
+    nodeAttrs.name = node.getAttribute(BhParams.BhModelDef.ATTR_NAME);
 
-		// nodeStyleID
-		nodeAttrs.nodeStyleID = node.getAttribute(BhParams.BhModelDef.ATTR_NODE_STYLE_ID);
-		if (!nodeAttrs.nodeStyleID.isEmpty())
-			BhNodeViewStyle.putNodeIdToNodeStyleId(nodeAttrs.bhNodeID, nodeAttrs.nodeStyleID);
+    // nodeStyleID
+    nodeAttrs.nodeStyleID = node.getAttribute(BhParams.BhModelDef.ATTR_NODE_STYLE_ID);
+    if (!nodeAttrs.nodeStyleID.isEmpty())
+      BhNodeViewStyle.putNodeIdToNodeStyleId(nodeAttrs.bhNodeID, nodeAttrs.nodeStyleID);
 
-		// onMovedFromChildToWS
-		nodeAttrs.onMovedFromChildToWS = node.getAttribute(BhParams.BhModelDef.ATTR_ON_MOVED_FROM_CHILD_TO_WS);
+    // onMovedFromChildToWS
+    nodeAttrs.onMovedFromChildToWS = node.getAttribute(BhParams.BhModelDef.ATTR_ON_MOVED_FROM_CHILD_TO_WS);
 
-		// onMovedToChild
-		nodeAttrs.onMovedToChild = node.getAttribute(BhParams.BhModelDef.ATTR_ON_MOVED_TO_CHILD);
+    // onMovedToChild
+    nodeAttrs.onMovedToChild = node.getAttribute(BhParams.BhModelDef.ATTR_ON_MOVED_TO_CHILD);
 
-		// onTextChecking
-		nodeAttrs.onTextChecking = node.getAttribute(BhParams.BhModelDef.ATTR_ON_TEXT_CHECKING);
+    // onTextChecking
+    nodeAttrs.onTextChecking = node.getAttribute(BhParams.BhModelDef.ATTR_ON_TEXT_CHECKING);
 
-		// onTextFormatting
-		nodeAttrs.onTextFormatting = node.getAttribute(BhParams.BhModelDef.ATTR_ON_TEXT_FORMATTING);
+    // onTextFormatting
+    nodeAttrs.onTextFormatting = node.getAttribute(BhParams.BhModelDef.ATTR_ON_TEXT_FORMATTING);
 
-		// onDeletionRequested
-		nodeAttrs.onDeletionRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_DELETION_REQUESTED);
+    // onDeletionRequested
+    nodeAttrs.onDeletionRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_DELETION_REQUESTED);
 
-		// onCutRequested
-		nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CUT_REQUESTED);
+    // onCutRequested
+    nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CUT_REQUESTED);
 
-		// onCopyRequested
-		nodeAttrs.onCopyRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_COPY_REQUESTED);
+    // onCopyRequested
+    nodeAttrs.onCopyRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_COPY_REQUESTED);
 
-		// onChildReplaced
-		nodeAttrs.onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CHILD_REPLACED);
+    // onChildReplaced
+    nodeAttrs.onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CHILD_REPLACED);
 
-		// onCutRequested
-		nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CUT_REQUESTED);
+    // onCutRequested
+    nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CUT_REQUESTED);
 
-		// onPrivateTemplateCreating
-		nodeAttrs.onPrivateTemplateCreating = node.getAttribute(BhParams.BhModelDef.ATTR_ON_PRIFVATE_TEMPLATE_CREATING);
+    // onPrivateTemplateCreating
+    nodeAttrs.onPrivateTemplateCreating = node.getAttribute(BhParams.BhModelDef.ATTR_ON_PRIFVATE_TEMPLATE_CREATING);
 
-		// onSyntaxChecking
-		nodeAttrs.onSyntaxChecking = node.getAttribute(BhParams.BhModelDef.ATTR_ON_SYNTAX_CHECKING);
-		
-		// onViewContentsCreating
-		nodeAttrs.onViewContentsCreating = node.getAttribute(BhParams.BhModelDef.ATTR_ON_VIEW_CONTENTS_CREATING);
+    // onSyntaxChecking
+    nodeAttrs.onSyntaxChecking = node.getAttribute(BhParams.BhModelDef.ATTR_ON_SYNTAX_CHECKING);
+    
+    // onViewContentsCreating
+    nodeAttrs.onViewContentsCreating = node.getAttribute(BhParams.BhModelDef.ATTR_ON_VIEW_CONTENTS_CREATING);
 
-		// initString
-		nodeAttrs.initString = node.getAttribute(BhParams.BhModelDef.ATTR_INIT_STRING);
+    // initString
+    nodeAttrs.initString = node.getAttribute(BhParams.BhModelDef.ATTR_INIT_STRING);
 
-		// canCreateImitManually
-		String strCreateImit = node.getAttribute(BhParams.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY);
-		if (strCreateImit.equals(BhParams.BhModelDef.ATTR_VAL_TRUE)) {
-			nodeAttrs.canCreateImitManually = true;
-		}
-		else if (strCreateImit.equals(BhParams.BhModelDef.ATTR_VAL_FALSE) || strCreateImit.isEmpty()) {
-			nodeAttrs.canCreateImitManually = false;
-		}
-		else {
-			MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY + " 属性には "
-				+ BhParams.BhModelDef.ATTR_VAL_TRUE + " か "
-				+ BhParams.BhModelDef.ATTR_VAL_FALSE + " を指定してください. " + node.getBaseURI());
-			return Optional.empty();
-		}
-		return Optional.of(nodeAttrs);
-	}
+    // canCreateImitManually
+    String strCreateImit = node.getAttribute(BhParams.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY);
+    if (strCreateImit.equals(BhParams.BhModelDef.ATTR_VAL_TRUE)) {
+      nodeAttrs.canCreateImitManually = true;
+    }
+    else if (strCreateImit.equals(BhParams.BhModelDef.ATTR_VAL_FALSE) || strCreateImit.isEmpty()) {
+      nodeAttrs.canCreateImitManually = false;
+    }
+    else {
+      MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY + " 属性には "
+        + BhParams.BhModelDef.ATTR_VAL_TRUE + " か "
+        + BhParams.BhModelDef.ATTR_VAL_FALSE + " を指定してください. " + node.getBaseURI());
+      return Optional.empty();
+    }
+    return Optional.of(nodeAttrs);
+  }
 
-	public BhNodeID getBhNodeID() {
-		return bhNodeID;
-	}
+  public BhNodeID getBhNodeID() {
+    return bhNodeID;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public String getNodeStyleID() {
-		return nodeStyleID;
-	}
+  public String getNodeStyleID() {
+    return nodeStyleID;
+  }
 
-	public String getOnMovedFromChildToWS() {
-		return onMovedFromChildToWS;
-	}
+  public String getOnMovedFromChildToWS() {
+    return onMovedFromChildToWS;
+  }
 
-	public String getOnMovedToChild() {
-		return onMovedToChild;
-	}
+  public String getOnMovedToChild() {
+    return onMovedToChild;
+  }
 
-	public String getOnTextChecking() {
-		return onTextChecking;
-	}
+  public String getOnTextChecking() {
+    return onTextChecking;
+  }
 
-	public String getOnDeletionRequested() {
-		return onDeletionRequested;
-	}
+  public String getOnDeletionRequested() {
+    return onDeletionRequested;
+  }
 
-	public String getOnCutRequested() {
-		return onCutRequested;
-	}
+  public String getOnCutRequested() {
+    return onCutRequested;
+  }
 
-	public String getOnCopyRequested() {
-		return onCopyRequested;
-	}
+  public String getOnCopyRequested() {
+    return onCopyRequested;
+  }
 
-	public String getOnChildReplaced() {
-		return onChildReplaced;
-	}
+  public String getOnChildReplaced() {
+    return onChildReplaced;
+  }
 
-	public String getOnPrivateTemplateCreating() {
-		return onPrivateTemplateCreating;
-	}
+  public String getOnPrivateTemplateCreating() {
+    return onPrivateTemplateCreating;
+  }
 
-	public String getOnTextFormatting() {
-		return onTextFormatting;
-	}
+  public String getOnTextFormatting() {
+    return onTextFormatting;
+  }
 
-	public String getOnSyntaxChecking() {
-		return onSyntaxChecking;
-	}
-	
-	public String getOnViewContentsCreating() {
-		return onViewContentsCreating;
-	}
+  public String getOnSyntaxChecking() {
+    return onSyntaxChecking;
+  }
+  
+  public String getOnViewContentsCreating() {
+    return onViewContentsCreating;
+  }
 
-	public String getIinitString() {
-		return initString;
-	}
+  public String getIinitString() {
+    return initString;
+  }
 
-	public boolean getCanCreateImitManually() {
-		return canCreateImitManually;
-	}
+  public boolean getCanCreateImitManually() {
+    return canCreateImitManually;
+  }
 
 }
 

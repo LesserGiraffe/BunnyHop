@@ -1,31 +1,31 @@
 <Node
-	type="connective"
-	bhNodeID="idAnyArrayPopStat"
-	name="AnyArrayPopStat"
-	nodeStyleID="AnyArrayPopStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onChildReplaced="OnChildOfAnyTypeNodeReplaced.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idAnyArrayPopStat"
+  name="AnyArrayPopStat"
+  nodeStyleID="AnyArrayPopStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onChildReplaced="OnChildOfAnyTypeNodeReplaced.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
-		
-		<PrivateConnector
-			bhConnectorID="idAnyArrayPopStat.prvCnctr0"
-			name="noMatsubiNoYosoWoKesu"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idAnyArrayPopStat.prvNode0"
-				name="noMatsubiNoYosoWoKesu"
-				nodeStyleID="WordLabel1.json"
-				initString="の末尾の要素を消す">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idAnyArrayPopStat.prvCnctr0"
+      name="noMatsubiNoYosoWoKesu"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyArrayPopStat.prvNode0"
+        name="noMatsubiNoYosoWoKesu"
+        nodeStyleID="WordLabel1.json"
+        initString="の末尾の要素を消す">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

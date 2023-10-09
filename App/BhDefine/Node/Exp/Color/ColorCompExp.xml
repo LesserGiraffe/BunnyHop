@@ -1,24 +1,25 @@
-<Node type="connective"
-	  bhNodeID="idColorCompExp"
-	  name="ColorCompExp"
-	  nodeStyleID="ColorCompExp.json">
+<Node
+  type="connective"
+  bhNodeID="idColorCompExp"
+  name="ColorCompExp"
+  nodeStyleID="ColorCompExp.json">
 
-	<ConnectorSection name="BooleanExpSctn">
-		<Connector bhConnectorID="idColorExpCnctr" name="Arg0"/>
-		
-		<PrivateConnector
-			bhConnectorID="idColorCompExp.prvCnctr0"
-			name="Arg2"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idColorCompExp.prvNode0"
-				name="StrLiteral"
-				nodeStyleID="DefaultComboBox.json"
-				onViewContentsCreating="CreateEqualityCompOps.js">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idColorExpCnctr" name="Arg1"/>
-	</ConnectorSection>
+  <ConnectorSection name="BooleanExpSctn">
+    <Connector bhConnectorID="idColorExpCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idColorCompExp.prvCnctr0"
+      name="Arg2"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idColorCompExp.prvNode0"
+        name="StrLiteral"
+        nodeStyleID="DefaultComboBox.json"
+        onViewContentsCreating="CreateEqualityCompOps.js">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idColorExpCnctr" name="Arg1"/>
+  </ConnectorSection>
 </Node>

@@ -1,3 +1,3 @@
 (function() {
-	return String(bhNodeToConnect.getSymbolName()) === "BoolVar";
+  return String(bhNodeToConnect.getSymbolName()) === "BoolVar";
 })();

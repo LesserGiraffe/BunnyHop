@@ -1,4 +1,4 @@
 <Connector 
-	bhConnectorID="idArgCnctr"
-	defaultBhNodeID="idArgVoid"
-	fixed="true"/>
+  bhConnectorID="idArgCnctr"
+  defaultBhNodeID="idArgVoid"
+  fixed="true"/>

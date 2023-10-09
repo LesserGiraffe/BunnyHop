@@ -22,59 +22,59 @@ import java.util.Objects;
  * @author K.Koike
  */
 public class SelectableItem {
-	
-	private String viewText;	//!< ビューに表示されるテキスト
-	private String modelText;	//!< モデルが保持するテキスト
-	
-	public SelectableItem(String modelText, String viewText) {
-		this.modelText = modelText;
-		this.viewText = viewText;
-	}
-		
-	/**
-	 * ビューに表示されるテキストを取得する
-	 * @return ビューに表示されるテキスト
-	 */
-	public String getViewText() {
-		return viewText;
-	}
-	
-	
-	/**
-	 * モデルが保持するテキストを取得する
-	 * @return モデル側でのテキスト
-	 */
-	public String getModelText() {
-		return modelText;
-	}
-	
-	@Override
-	public String toString() {
-		return viewText;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		
-		if (getClass() != obj.getClass())
-			return false;
-		
-		SelectableItem selectableItem = (SelectableItem)obj;
-		if (selectableItem.getModelText() == null) {
-			return modelText == null;
-		}
+  
+  private String viewText;  //!< ビューに表示されるテキスト
+  private String modelText;  //!< モデルが保持するテキスト
+  
+  public SelectableItem(String modelText, String viewText) {
+    this.modelText = modelText;
+    this.viewText = viewText;
+  }
+    
+  /**
+   * ビューに表示されるテキストを取得する
+   * @return ビューに表示されるテキスト
+   */
+  public String getViewText() {
+    return viewText;
+  }
+  
+  
+  /**
+   * モデルが保持するテキストを取得する
+   * @return モデル側でのテキスト
+   */
+  public String getModelText() {
+    return modelText;
+  }
+  
+  @Override
+  public String toString() {
+    return viewText;
+  }
+  
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null)
+      return false;
+    
+    if (getClass() != obj.getClass())
+      return false;
+    
+    SelectableItem selectableItem = (SelectableItem)obj;
+    if (selectableItem.getModelText() == null) {
+      return modelText == null;
+    }
 
-		return Objects.equals(modelText, selectableItem.modelText) &&
-			   Objects.equals(viewText, selectableItem.viewText);
-	}
+    return Objects.equals(modelText, selectableItem.modelText) &&
+         Objects.equals(viewText, selectableItem.viewText);
+  }
 
-	@Override
-	public int hashCode() {
-		int hash = 5;
-		hash = 17 * hash + Objects.hashCode(this.viewText);
-		hash = 17 * hash + Objects.hashCode(this.modelText);
-		return hash;
-	}
+  @Override
+  public int hashCode() {
+    int hash = 5;
+    hash = 17 * hash + Objects.hashCode(this.viewText);
+    hash = 17 * hash + Objects.hashCode(this.modelText);
+    return hash;
+  }
 }

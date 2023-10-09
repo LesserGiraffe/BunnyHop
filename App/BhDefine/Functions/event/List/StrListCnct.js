@@ -1,3 +1,3 @@
 (function() {
-	return 'StrList' === String(bhNodeToConnect.getSymbolName());
+  return 'StrList' === String(bhNodeToConnect.getSymbolName());
 })();

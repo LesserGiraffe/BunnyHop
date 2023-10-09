@@ -1,22 +1,22 @@
 {
-	"component" : "Label",
-	"paddingTop" : 1.25,
-	"paddingBottom" : 1.25,
-	"paddingLeft" : 1.5,
-	"paddingRight" : 2.7,
-	"connectorPos" : "Left",
-	"connectorShift" : 0.0,
-	"connectorWidth" : 6.5,
-	"connectorHeight" : 6.5,
-	"connectorShape" : "CHAR_V",
-	"connectorBoundsRate" : 1.0,
-	"notchPos" : "Right",
-	"notchShape" : "TRIANGLE",
-	"notchWidth" : 1.5,
-	"notchHeight" : 1.5,
-	"cssClass" : "voidVarType",
-	
-	"label" : {
-		"cssClass" : "defaultLabel"
-	}
+  "component" : "Label",
+  "paddingTop" : 1.25,
+  "paddingBottom" : 1.25,
+  "paddingLeft" : 1.5,
+  "paddingRight" : 2.7,
+  "connectorPos" : "Left",
+  "connectorShift" : 0.0,
+  "connectorWidth" : 6.5,
+  "connectorHeight" : 6.5,
+  "connectorShape" : "CHAR_V",
+  "connectorBoundsRate" : 1.0,
+  "notchPos" : "Right",
+  "notchShape" : "TRIANGLE",
+  "notchWidth" : 1.5,
+  "notchHeight" : 1.5,
+  "cssClass" : "voidVarType",
+  
+  "label" : {
+    "cssClass" : "defaultLabel"
+  }
 }

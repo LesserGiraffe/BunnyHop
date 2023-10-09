@@ -24,30 +24,30 @@ import java.util.List;
  * */
 public class FuncID {
 
-	private List<String> id;
+  private List<String> id;
 
-	/**
-	 * 識別子を作成する
-	 * @param snippets IDを構成する情報
-	 * */
-	public static FuncID create(String... snippets) {
+  /**
+   * 識別子を作成する
+   * @param snippets IDを構成する情報
+   * */
+  public static FuncID create(String... snippets) {
 
-		var retVal = new FuncID();
-		retVal.id = new ArrayList<String>(Arrays.asList(snippets));
-		return retVal;
-	}
+    var retVal = new FuncID();
+    retVal.id = new ArrayList<String>(Arrays.asList(snippets));
+    return retVal;
+  }
 
-	private FuncID() {}
+  private FuncID() {}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		return (getClass() == obj.getClass()) && (id.equals(((FuncID)obj).id));
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null)
+      return false;
+    return (getClass() == obj.getClass()) && (id.equals(((FuncID)obj).id));
+  }
 
-	@Override
-	public int hashCode() {
-		return id.hashCode();
-	}
+  @Override
+  public int hashCode() {
+    return id.hashCode();
+  }
 }

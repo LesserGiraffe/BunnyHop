@@ -38,102 +38,102 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
  */
 public class NodeGraphSnapshot {
 
-	private final Set<BhNode> rootNodeSet;	//!< スナップショット作成時の全ルートノードのコピー
-	private final WorkspaceSet wss;
-	/**
-	 * SyntaxSymbolID と対応する BhNodeView のマップ. <br>
-	 * BhNodeView はスナップショットではなく, オリジナルのモデル (BhNode) に対応するビューオブジェクト.
-	 */
-	private final Map<SyntaxSymbolID, BhNodeView> symbolIdToNodeView;
-	private final Map<SyntaxSymbolID, BhNode> symbolIdToNode;	//!< SyntaxSymbolID とそれに対応する BhNode のマップ.
+  private final Set<BhNode> rootNodeSet;  //!< スナップショット作成時の全ルートノードのコピー
+  private final WorkspaceSet wss;
+  /**
+   * SyntaxSymbolID と対応する BhNodeView のマップ. <br>
+   * BhNodeView はスナップショットではなく, オリジナルのモデル (BhNode) に対応するビューオブジェクト.
+   */
+  private final Map<SyntaxSymbolID, BhNodeView> symbolIdToNodeView;
+  private final Map<SyntaxSymbolID, BhNode> symbolIdToNode;  //!< SyntaxSymbolID とそれに対応する BhNode のマップ.
 
-	/**
-	 * 引数で指定したワークスペースセットにある全ノードの構造を保持するスナップショットを構築する
-	 * @param wss 保存するノードを含むワークスペースセット
-	 */
-	public NodeGraphSnapshot(WorkspaceSet wss) {
+  /**
+   * 引数で指定したワークスペースセットにある全ノードの構造を保持するスナップショットを構築する
+   * @param wss 保存するノードを含むワークスペースセット
+   */
+  public NodeGraphSnapshot(WorkspaceSet wss) {
 
-		this.wss = wss;
-		HashSet<BhNode> originalRootNodeSet = collectRootNodes(wss);
-		symbolIdToNodeView = collectNodeView(originalRootNodeSet);
-		rootNodeSet = SerializationUtils.clone(originalRootNodeSet);
-		symbolIdToNode = collectNode(rootNodeSet);
-	}
+    this.wss = wss;
+    HashSet<BhNode> originalRootNodeSet = collectRootNodes(wss);
+    symbolIdToNodeView = collectNodeView(originalRootNodeSet);
+    rootNodeSet = SerializationUtils.clone(originalRootNodeSet);
+    symbolIdToNode = collectNode(rootNodeSet);
+  }
 
-	/**
-	 * ルートノードを集めて返す
-	 */
-	private HashSet<BhNode> collectRootNodes(WorkspaceSet wss) {
+  /**
+   * ルートノードを集めて返す
+   */
+  private HashSet<BhNode> collectRootNodes(WorkspaceSet wss) {
 
-		var rootNodes = wss.getWorkspaceList().stream()
-			.flatMap(ws -> ws.getRootNodeList().stream())
-			.collect(Collectors.toSet());
-		return new HashSet<BhNode>(rootNodes);
-	}
+    var rootNodes = wss.getWorkspaceList().stream()
+      .flatMap(ws -> ws.getRootNodeList().stream())
+      .collect(Collectors.toSet());
+    return new HashSet<BhNode>(rootNodes);
+  }
 
-	/**
-	 * 引数のノードリストから辿れるノードのノードビューをシンボルIDと共に集めて返す
-	 */
-	private Map<SyntaxSymbolID, BhNodeView> collectNodeView(Collection<BhNode> rootNodeList) {
+  /**
+   * 引数のノードリストから辿れるノードのノードビューをシンボルIDと共に集めて返す
+   */
+  private Map<SyntaxSymbolID, BhNodeView> collectNodeView(Collection<BhNode> rootNodeList) {
 
-		var symbolIdToNodeView = new HashMap<SyntaxSymbolID, BhNodeView>();
-		var registry = CallbackInvoker.newCallbackRegistry().setForAllNodes(
-			node -> {
-				if (MsgService.INSTANCE.hasView(node)) {
-					BhNodeView view = MsgService.INSTANCE.getBhNodeView(node);
-					symbolIdToNodeView.put(node.getSymbolID(), view);
-				}
-			});
+    var symbolIdToNodeView = new HashMap<SyntaxSymbolID, BhNodeView>();
+    var registry = CallbackInvoker.newCallbackRegistry().setForAllNodes(
+      node -> {
+        if (MsgService.INSTANCE.hasView(node)) {
+          BhNodeView view = MsgService.INSTANCE.getBhNodeView(node);
+          symbolIdToNodeView.put(node.getSymbolID(), view);
+        }
+      });
 
-		rootNodeList.forEach(rootNode -> CallbackInvoker.invoke(registry, rootNode));
-		return symbolIdToNodeView;
-	}
+    rootNodeList.forEach(rootNode -> CallbackInvoker.invoke(registry, rootNode));
+    return symbolIdToNodeView;
+  }
 
-	/**
-	 * 引数のノードリストから辿れるノードをシンボルIDと共に集めて返す
-	 */
-	private Map<SyntaxSymbolID, BhNode> collectNode(Collection<BhNode> rootNodeList) {
+  /**
+   * 引数のノードリストから辿れるノードをシンボルIDと共に集めて返す
+   */
+  private Map<SyntaxSymbolID, BhNode> collectNode(Collection<BhNode> rootNodeList) {
 
-		var symbolIdToNode = new HashMap<SyntaxSymbolID, BhNode>();
-		var registry = CallbackInvoker.newCallbackRegistry().setForAllNodes(
-			node -> symbolIdToNode.put(node.getSymbolID(), node));
+    var symbolIdToNode = new HashMap<SyntaxSymbolID, BhNode>();
+    var registry = CallbackInvoker.newCallbackRegistry().setForAllNodes(
+      node -> symbolIdToNode.put(node.getSymbolID(), node));
 
-		rootNodeList.forEach(rootNode -> CallbackInvoker.invoke(registry, rootNode));
-		return symbolIdToNode;
-	}
+    rootNodeList.forEach(rootNode -> CallbackInvoker.invoke(registry, rootNode));
+    return symbolIdToNode;
+  }
 
-	/**
-	 * スナップショットを取ったノードが存在したワークスペースセットを返す
-	 * @return スナップショットを取ったノードが存在したワークスペースセット
-	 */
-	public WorkspaceSet getWorkspaceSet() {
-		return wss;
-	}
+  /**
+   * スナップショットを取ったノードが存在したワークスペースセットを返す
+   * @return スナップショットを取ったノードが存在したワークスペースセット
+   */
+  public WorkspaceSet getWorkspaceSet() {
+    return wss;
+  }
 
-	/**
-	 * 全ルートノードのスナップショットを返す
-	 * @return 全ルートノードのスナップショット
-	 */
-	public Collection<BhNode> getRootNodeList() {
-		return new ArrayList<>(rootNodeSet);
-	}
+  /**
+   * 全ルートノードのスナップショットを返す
+   * @return 全ルートノードのスナップショット
+   */
+  public Collection<BhNode> getRootNodeList() {
+    return new ArrayList<>(rootNodeSet);
+  }
 
-	/**
-	 * シンボルIDとそれに対応するノードビューのマップを返す. <br>
-	 * マップの BhNodeView はスナップショットではなく, オリジナルのモデル (BhNode) に対応するビューオブジェクト.
-	 * @return シンボルIDとそれに対応するノードビューのマップ
-	 */
-	public Map<SyntaxSymbolID, BhNodeView> getMapOfSymbolIdToNodeView() {
-		return new HashMap<>(symbolIdToNodeView);
-	}
+  /**
+   * シンボルIDとそれに対応するノードビューのマップを返す. <br>
+   * マップの BhNodeView はスナップショットではなく, オリジナルのモデル (BhNode) に対応するビューオブジェクト.
+   * @return シンボルIDとそれに対応するノードビューのマップ
+   */
+  public Map<SyntaxSymbolID, BhNodeView> getMapOfSymbolIdToNodeView() {
+    return new HashMap<>(symbolIdToNodeView);
+  }
 
-	/**
-	 * シンボルIDとそれに対応するノード (スナップショット) のマップを返す.
-	 * @return シンボルIDとそれに対応するノード (スナップショット) のマップ
-	 */
-	public Map<SyntaxSymbolID, BhNode> getMapOfSymbolIdToNode() {
-		return new HashMap<>(symbolIdToNode);
-	}
+  /**
+   * シンボルIDとそれに対応するノード (スナップショット) のマップを返す.
+   * @return シンボルIDとそれに対応するノード (スナップショット) のマップ
+   */
+  public Map<SyntaxSymbolID, BhNode> getMapOfSymbolIdToNode() {
+    return new HashMap<>(symbolIdToNode);
+  }
 }
 
 

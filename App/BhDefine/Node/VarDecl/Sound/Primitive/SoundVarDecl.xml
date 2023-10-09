@@ -1,20 +1,20 @@
 <Node
-	type="connective"
-	bhNodeID="idSoundVarDecl"
-	name="SoundVarDecl"
-	nodeStyleID="SoundVarDecl.json"
-	onPrivateTemplateCreating="CreateVarDeclPrivateTemplate.js"
-	onMovedFromChildToWS="OnVarDeclMovedToWS.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idSoundVarDecl"
+  name="SoundVarDecl"
+  nodeStyleID="SoundVarDecl.json"
+  onPrivateTemplateCreating="CreateVarDeclPrivateTemplate.js"
+  onMovedFromChildToWS="OnVarDeclMovedToWS.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
     <Imitation imitationID="imitIdManual" imitationNodeID="idSoundVar"/>
     <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idSoundArg"/>
     <Imitation imitationID="imitIdVarDeclToOutArg" imitationNodeID="idSoundOutArg"/>
     
-	<ConnectorSection name="VarDeclSctn">
-		<Connector bhConnectorID="idVarNameCnctr" name="VarName" imitationID="imitIdVarName" imitCnctPos="imitPosVarName"/>
+  <ConnectorSection name="VarDeclSctn">
+    <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitationID="imitIdVarName" imitCnctPos="imitPosVarName"/>
         <Connector bhConnectorID="idVarDeclCnctr" name="NextVarDecl" imitCnctPos="imitPosNextArg"/>
-	</ConnectorSection>
+  </ConnectorSection>
 </Node>

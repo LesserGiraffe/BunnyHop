@@ -1,25 +1,25 @@
 <Node
-	type="connective"
-	bhNodeID="idFourArithExp"
-	name="FourArithExp"
-	nodeStyleID="FourArithExp.json">
+  type="connective"
+  bhNodeID="idFourArithExp"
+  name="FourArithExp"
+  nodeStyleID="FourArithExp.json">
 
-	<ConnectorSection name="NumberExpSctn">
-		<Connector bhConnectorID="idNumExpCnctr" name="LeftExp"/>
-		
-		<PrivateConnector
-			bhConnectorID="idFourArithExp.prvCnctr0"
-			name="Operator"
-    		fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idFourArithExp.prvNode0"
-				name="FourArithOpe"
-				nodeStyleID="DefaultComboBox.json"
-				onViewContentsCreating="CreateFourArithOps.js">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idNumExpCnctr" name="RightExp"/>
-	</ConnectorSection>
+  <ConnectorSection name="NumberExpSctn">
+    <Connector bhConnectorID="idNumExpCnctr" name="LeftExp"/>
+    
+    <PrivateConnector
+      bhConnectorID="idFourArithExp.prvCnctr0"
+      name="Operator"
+        fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idFourArithExp.prvNode0"
+        name="FourArithOpe"
+        nodeStyleID="DefaultComboBox.json"
+        onViewContentsCreating="CreateFourArithOps.js">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idNumExpCnctr" name="RightExp"/>
+  </ConnectorSection>
 </Node>

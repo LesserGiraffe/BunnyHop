@@ -1,21 +1,21 @@
 <Node
-	type="connective"
-	bhNodeID="idMeasureDistanceExp"
-	name="MeasureDistanceExp"
-	nodeStyleID="MeasureDistanceExp.json">
+  type="connective"
+  bhNodeID="idMeasureDistanceExp"
+  name="MeasureDistanceExp"
+  nodeStyleID="MeasureDistanceExp.json">
 
-	<ConnectorSection name="NumberExpSctn">
-		<PrivateConnector
-			bhConnectorID="idMeasureDistanceExp.prvCnctr0"
-			name="zenpoKyori"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idMeasureDistanceExp.prvNode0"
-				name="zenpoKyori"
-				nodeStyleID="WordLabel1.json"
-				initString="障害物までの距離 (cm)">
-			</Node>
-		</PrivateConnector>
-	</ConnectorSection>
+  <ConnectorSection name="NumberExpSctn">
+    <PrivateConnector
+      bhConnectorID="idMeasureDistanceExp.prvCnctr0"
+      name="zenpoKyori"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idMeasureDistanceExp.prvNode0"
+        name="zenpoKyori"
+        nodeStyleID="WordLabel1.json"
+        initString="障害物までの距離 (cm)">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
 </Node>

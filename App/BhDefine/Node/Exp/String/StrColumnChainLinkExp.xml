@@ -1,31 +1,32 @@
-<Node type="connective"
-	  bhNodeID="idStrColumnChainLinkExp"
-	  name="StrChainLinkExp"
-	  nodeStyleID="StrColumnChainLinkExp.json"
-	  onChildReplaced="OnChildStrExpInChainReplaced.js">
+<Node
+  type="connective"
+  bhNodeID="idStrColumnChainLinkExp"
+  name="StrChainLinkExp"
+  nodeStyleID="StrColumnChainLinkExp.json"
+  onChildReplaced="OnChildStrExpInChainReplaced.js">
 
-	<ConnectorSection name="StrChainLinkSctn">
+  <ConnectorSection name="StrChainLinkSctn">
 
-		<Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
-		
-		<PrivateConnector 
-			bhConnectorID="idStrColumnChainLinkExp.prvCnctr0"
-			name="StrAppendOpe"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idStrColumnChainLinkExp.prvNode0"
-				name="StrAppendOpe"
-				nodeStyleID="SignLabel.json"
-				initString="＋">
-			</Node>
-		</PrivateConnector>
-		
-		<PrivateConnector
-			bhConnectorID="idStrColumnChainLinkExp.prvCnctr1"
-			name="Arg1"
-			fixed="true"
-			initialBhNodeID="idStrChainLinkVoid"/>
+    <Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
+    
+    <PrivateConnector 
+      bhConnectorID="idStrColumnChainLinkExp.prvCnctr0"
+      name="StrAppendOpe"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idStrColumnChainLinkExp.prvNode0"
+        name="StrAppendOpe"
+        nodeStyleID="SignLabel.json"
+        initString="＋">
+      </Node>
+    </PrivateConnector>
+    
+    <PrivateConnector
+      bhConnectorID="idStrColumnChainLinkExp.prvCnctr1"
+      name="Arg1"
+      fixed="true"
+      initialBhNodeID="idStrChainLinkVoid"/>
 
-	</ConnectorSection>
+  </ConnectorSection>
 </Node>

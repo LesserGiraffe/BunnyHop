@@ -1,30 +1,30 @@
 {
-	"paddingTop" : 1.0,
-	"paddingBottom" : 1.0,
-	"paddingLeft" : 6.5,
-	"paddingRight" : 2.5,
-	"connectorPos" : "Left",
-	"connectorShift" : 0.0,
-	"connectorWidth" : 0.0,
-	"connectorHeight" : 0.0,
-	"connectorShape" : "NONE",
-	"connectorBoundsRate" : 1.25,
-	"cssClass" : "delayedStartEventType",
+  "paddingTop" : 1.0,
+  "paddingBottom" : 1.0,
+  "paddingLeft" : 6.5,
+  "paddingRight" : 2.5,
+  "connectorPos" : "Left",
+  "connectorShift" : 0.0,
+  "connectorWidth" : 0.0,
+  "connectorHeight" : 0.0,
+  "connectorShape" : "NONE",
+  "connectorBoundsRate" : 1.25,
+  "cssClass" : "delayedStartEventType",
     
     "connective" : {
-		"inner" : {
-			"arrangement" : "Column",
-			"space" : 2.0,
-			"subGroup0" : {
-				"arrangement" : "Row",
-				"space" : 2.0,
-				"connectorList" : ["TimeCnctr", "byoGoNiHajimeru"]
-			},
-			"subGroup1" : {
-				"arrangement" : "Column",
-				"space" : 0.0,
-				"connectorList" : ["StatList"]
-			}
-		}
-	}
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 2.0,
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "space" : 2.0,
+        "connectorList" : ["TimeCnctr", "byoGoNiHajimeru"]
+      },
+      "subGroup1" : {
+        "arrangement" : "Column",
+        "space" : 0.0,
+        "connectorList" : ["StatList"]
+      }
+    }
+  }
 }

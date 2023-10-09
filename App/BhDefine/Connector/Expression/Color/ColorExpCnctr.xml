@@ -1,5 +1,5 @@
 <Connector 
-	bhConnectorID="idColorExpCnctr"
-	defaultBhNodeID="idColorLiteralExp"
-	class="ColorClass"
-	onConnectabilityChecking="ColorExpCnct.js"/>
+  bhConnectorID="idColorExpCnctr"
+  defaultBhNodeID="idColorLiteralExp"
+  class="ColorClass"
+  onConnectabilityChecking="ColorExpCnct.js"/>

@@ -34,8 +34,6 @@ import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
-import net.seapanda.bunnyhop.view.node.part.ImitationCreationButton;
-import net.seapanda.bunnyhop.view.node.part.PrivateTemplateCreationButton;
 import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 
 /**
@@ -44,166 +42,143 @@ import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
  */
 public final class TextAreaNodeView  extends TextInputNodeView {
 
-	private TextArea textArea = new TextArea();
-	private final TextNode model;
+  private TextArea textArea = new TextArea();
+  private final TextNode model;
 
-	/**
-	 * コンストラクタ
-	 * @param model このノードビューに対応するノード
-	 * @param viewStyle このノードビューのスタイル
-	 * @throws ViewInitializationException ノードビューの初期化に失敗
-	 */
-	public TextAreaNodeView(TextNode model, BhNodeViewStyle viewStyle)
-		throws ViewInitializationException {
+  /**
+   * コンストラクタ
+   * @param model このノードビューに対応するノード
+   * @param viewStyle このノードビューのスタイル
+   * @throws ViewInitializationException ノードビューの初期化に失敗
+   */
+  public TextAreaNodeView(TextNode model, BhNodeViewStyle viewStyle)
+    throws ViewInitializationException {
 
-		super(model, viewStyle);
-		this.model = model;
-		init();
-	}
+    super(model, viewStyle);
+    this.model = model;
+    getTreeManager().addChild(textArea);
+    textArea.addEventFilter(MouseEvent.ANY, this::propagateEvent);
+    initStyle();
+  }
 
-	private void init() throws ViewInitializationException {
 
-		getTreeManager().addChild(textArea);
-		textArea.addEventFilter(MouseEvent.ANY, this::propagateEvent);
+  private void propagateEvent(Event event) {
 
-		if (model.canCreateImitManually) {
-			ImitationCreationButton imitButton = 
-				ImitationCreationButton.create(model, viewStyle.imitation)
-				.orElseThrow(() -> new ViewInitializationException(
-					getClass().getSimpleName() +
-					"  failed To load the Imitation Creation Button of this view."));
-			getTreeManager().addChild(imitButton);
-		}
+    getEventManager().propagateEvent(event);
+    if (MsgService.INSTANCE.isTemplateNode(model))
+      event.consume();
+  }
 
-		if (model.hasPrivateTemplateNodes()) {
-			PrivateTemplateCreationButton privateTemplateBtn =
-				PrivateTemplateCreationButton.create(model, viewStyle.privatTemplate)
-				.orElseThrow(() -> new ViewInitializationException(
-					getClass().getSimpleName() +
-					"  failed To load the Private Template Button of this view."));
-			getTreeManager().addChild(privateTemplateBtn);
-		}
+  private void initStyle() {
 
-		initStyle();
-	}
+    textArea.setTranslateX(viewStyle.paddingLeft);
+    textArea.setTranslateY(viewStyle.paddingTop);
+    textArea.getStyleClass().add(viewStyle.textArea.cssClass);
+    textArea.heightProperty().addListener((observable, oldVal , newVal) -> notifySizeChange());
+    textArea.widthProperty().addListener((observable, oldVal , newVal) -> notifySizeChange());
+    textArea.setWrapText(false);
+    textArea.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
+    textArea.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
+    getAppearanceManager().addCssClass(BhParams.CSS.CLASS_TEXT_AREA_NODE);
+  }
 
-	private void propagateEvent(Event event) {
+  @Override
+  public TextNode getModel() {
+    return model;
+  }
 
-		getEventManager().propagateEvent(event);
-		if (MsgService.INSTANCE.isTemplateNode(model))
-			event.consume();
-	}
+  /**
+   * テキスト変更時のイベントハンドラを登録する
+   * @param checkFormatFunc 入力された文字列の形式が正しいかどうか判断する関数 (テキスト変更時のイベントハンドラから呼び出す)
+   */
+  public void setTextChangeListener(Function<String, Boolean> checkFormatFunc) {
 
-	private void initStyle() {
+    textArea.boundsInLocalProperty().addListener(
+      (observable, oldVal, newVal) -> updateTextAreaLook(checkFormatFunc));
 
-		textArea.setTranslateX(viewStyle.paddingLeft);
-		textArea.setTranslateY(viewStyle.paddingTop);
-		textArea.getStyleClass().add(viewStyle.textArea.cssClass);
-		textArea.heightProperty().addListener((observable, oldVal , newVal) -> notifySizeChange());
-		textArea.widthProperty().addListener((observable, oldVal , newVal) -> notifySizeChange());
-		textArea.setWrapText(false);
-		textArea.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
-		textArea.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
-		getAppearanceManager().addCssClass(BhParams.CSS.CLASS_TEXT_AREA_NODE);
-	}
+    // テキストの長さに応じてTextArea のサイズが変わるように
+    textArea.textProperty().addListener(
+      (observable, oldVal, newVal) ->  updateTextAreaLook(checkFormatFunc));
+  }
 
-	@Override
-	public TextNode getModel() {
-		return model;
-	}
+  /**
+   * テキストエリアの見た目を変える
+   * @param checkFormatFunc テキストのフォーマットをチェックする関数
+   * @param text このテキストに基づいてテキストエリアの見た目を変える
+   */
+  private void updateTextAreaLook(Function<String, Boolean> checkFormatFunc) {
 
-	/**
-	 * テキスト変更時のイベントハンドラを登録する
-	 * @param checkFormatFunc 入力された文字列の形式が正しいかどうか判断する関数 (テキスト変更時のイベントハンドラから呼び出す)
-	 */
-	public void setTextChangeListener(Function<String, Boolean> checkFormatFunc) {
+    Text textPart = (Text)textArea.lookup(".text");
+    Region content = (Region)textArea.lookup(".content");
+    if (textPart != null && content != null){
 
-		textArea.boundsInLocalProperty().addListener(
-			(observable, oldVal, newVal) -> updateTextAreaLook(checkFormatFunc));
+      // 正確な文字部分の境界を取得するため, GUI部品内部のTextの境界は使わない.
+      Vec2D textBounds = ViewHelper.INSTANCE.calcStrBounds(
+        textPart.getText(),
+        textPart.getFont(),
+        textPart.getBoundsType(),
+        textPart.getLineSpacing());
 
-		// テキストの長さに応じてTextArea のサイズが変わるように
-		textArea.textProperty().addListener(
-			(observable, oldVal, newVal) ->	updateTextAreaLook(checkFormatFunc));
-	}
+      double newWidth = Math.max(textBounds.x, viewStyle.textArea.minWidth);
+      //幅を (文字幅 + パディング) にするとwrapの設定によらず文字列が折り返してしまういことがあるので定数 6 を足す
+      //この定数はフォントやパディングが違っても機能する.
+      newWidth += content.getPadding().getLeft() + content.getPadding().getRight() + 6;
+      double newHeight = Math.max(textBounds.y, viewStyle.textArea.minHeight);
+      newHeight += content.getPadding().getTop() + content.getPadding().getBottom() + 2;
+      textArea.setPrefSize(newWidth, newHeight);
+      boolean acceptable = checkFormatFunc.apply(textPart.getText());
+      if (acceptable)
+        textArea.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), false);
+      else
+        textArea.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), true);
 
-	/**
-	 * テキストエリアの見た目を変える
-	 * @param checkFormatFunc テキストのフォーマットをチェックする関数
-	 * @param text このテキストに基づいてテキストエリアの見た目を変える
-	 */
-	private void updateTextAreaLook(Function<String, Boolean> checkFormatFunc) {
+      // textArea.requestLayout() を呼ばないと, newWidth の値によってはノード選択ビューでサイズが更新されない.
+      Platform.runLater(() -> textArea.requestLayout());
+    }
+  }
 
-		Text textPart = (Text)textArea.lookup(".text");
-		Region content = (Region)textArea.lookup(".content");
-		if (textPart != null && content != null){
+  @Override
+  public void show(int depth) {
+    MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<" + this.getClass().getSimpleName() + ">   " + this.hashCode());
+    MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<content" + ">   " + textArea.getText());
+  }
 
-			// 正確な文字部分の境界を取得するため, GUI部品内部のTextの境界は使わない.
-			Vec2D textBounds = ViewHelper.INSTANCE.calcStrBounds(
-				textPart.getText(),
-				textPart.getFont(),
-				textPart.getBoundsType(),
-				textPart.getLineSpacing());
+  @Override
+  protected void arrangeAndResize() {
+    getAppearanceManager().updatePolygonShape();
+  }
 
-			double newWidth = Math.max(textBounds.x, viewStyle.textArea.minWidth);
-			//幅を (文字幅 + パディング) にするとwrapの設定によらず文字列が折り返してしまういことがあるので定数 6 を足す
-			//この定数はフォントやパディングが違っても機能する.
-			newWidth += content.getPadding().getLeft() + content.getPadding().getRight() + 6;
-			double newHeight = Math.max(textBounds.y, viewStyle.textArea.minHeight);
-			newHeight += content.getPadding().getTop() + content.getPadding().getBottom() + 2;
-			textArea.setPrefSize(newWidth, newHeight);
-			boolean acceptable = checkFormatFunc.apply(textPart.getText());
-			if (acceptable)
-				textArea.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), false);
-			else
-				textArea.pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.CSS.PSEUDO_BHNODE), true);
+  @Override
+  protected Vec2D getBodySize(boolean includeCnctr) {
 
-			// textArea.requestLayout() を呼ばないと, newWidth の値によってはノード選択ビューでサイズが更新されない.
-			Platform.runLater(() -> textArea.requestLayout());
-		}
-	}
+    Vec2D cnctrSize = viewStyle.getConnectorSize();
 
-	@Override
-	public void show(int depth) {
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<" + this.getClass().getSimpleName() + ">   " + this.hashCode());
-		MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<content" + ">   " + textArea.getText());
-	}
+    // textField.getWidth() だと設定した値以外が返る場合がある
+    double bodyWidth = viewStyle.paddingLeft + textArea.getPrefWidth() + viewStyle.paddingRight;
+    if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.LEFT))
+      bodyWidth += cnctrSize.x;
 
-	@Override
-	protected void arrangeAndResize() {
-		getAppearanceManager().updatePolygonShape();
-	}
+    double bodyHeight = viewStyle.paddingTop + textArea.getPrefHeight() + viewStyle.paddingBottom;
+    if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.TOP))
+      bodyHeight += cnctrSize.y;
 
-	@Override
-	protected Vec2D getBodySize(boolean includeCnctr) {
+    return new Vec2D(bodyWidth, bodyHeight);
+  }
 
-		Vec2D cnctrSize = viewStyle.getConnectorSize();
+  @Override
+  protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
+    return getBodySize(includeCnctr);
+  }
 
-		// textField.getWidth() だと設定した値以外が返る場合がある
-		double bodyWidth = viewStyle.paddingLeft + textArea.getPrefWidth() + viewStyle.paddingRight;
-		if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.LEFT))
-			bodyWidth += cnctrSize.x;
+  @Override
+  protected TextInputControl getTextInputControl() {
+    return textArea;
+  }
 
-		double bodyHeight = viewStyle.paddingTop + textArea.getPrefHeight() + viewStyle.paddingBottom;
-		if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.TOP))
-			bodyHeight += cnctrSize.y;
-
-		return new Vec2D(bodyWidth, bodyHeight);
-	}
-
-	@Override
-	protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
-		return getBodySize(includeCnctr);
-	}
-
-	@Override
-	protected TextInputControl getTextInputControl() {
-		return textArea;
-	}
-
-	@Override
-	public void accept(NodeViewProcessor visitor) {
-		visitor.visit(this);
-	}
+  @Override
+  public void accept(NodeViewProcessor visitor) {
+    visitor.visit(this);
+  }
 }
 
 

@@ -30,38 +30,38 @@ import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
  */
 public class TemplateImitationCollector implements BhModelProcessor {
 
-	/** テンプレートイミテーションノードのリスト */
-	private Collection<Imitatable> templateImitationNodes = new ArrayList<>();
+  /** テンプレートイミテーションノードのリスト */
+  private Collection<Imitatable> templateImitationNodes = new ArrayList<>();
 
-	/**
-	 * 引数で指定したノード以下にあるオリジナルノードが持つテンプレートイミテーションノードを集める.
-	 * @param node このノード以下のオリジナルノードが持つテンプレートイミテーションノードを集める
-	 * @return {@code node} 以下のオリジナルノードが保持していたテンプレートイミテーションノードのリスト
-	 * */
-	public static Collection<Imitatable> collect(BhNode node) {
-		var deleter = new TemplateImitationCollector();
-		node.accept(deleter);
-		return deleter.templateImitationNodes;
-	}
+  /**
+   * 引数で指定したノード以下にあるオリジナルノードが持つテンプレートイミテーションノードを集める.
+   * @param node このノード以下のオリジナルノードが持つテンプレートイミテーションノードを集める
+   * @return {@code node} 以下のオリジナルノードが保持していたテンプレートイミテーションノードのリスト
+   * */
+  public static Collection<Imitatable> collect(BhNode node) {
+    var deleter = new TemplateImitationCollector();
+    node.accept(deleter);
+    return deleter.templateImitationNodes;
+  }
 
-	private TemplateImitationCollector() {}
+  private TemplateImitationCollector() {}
 
-	@Override
-	public void visit(ConnectiveNode node) {
+  @Override
+  public void visit(ConnectiveNode node) {
 
-		node.getImitationList().forEach(imit -> {
-			if (MsgService.INSTANCE.isTemplateNode(imit))
-				templateImitationNodes.add(imit);
-		});
-		node.sendToSections(this);
-	}
+    node.getImitationList().forEach(imit -> {
+      if (MsgService.INSTANCE.isTemplateNode(imit))
+        templateImitationNodes.add(imit);
+    });
+    node.sendToSections(this);
+  }
 
-	@Override
-	public void visit(TextNode node) {
+  @Override
+  public void visit(TextNode node) {
 
-		node.getImitationList().forEach(imit -> {
-			if (MsgService.INSTANCE.isTemplateNode(imit))
-				templateImitationNodes.add(imit);
-		});
-	}
+    node.getImitationList().forEach(imit -> {
+      if (MsgService.INSTANCE.isTemplateNode(imit))
+        templateImitationNodes.add(imit);
+    });
+  }
 }

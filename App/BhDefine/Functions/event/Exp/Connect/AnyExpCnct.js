@@ -1,3 +1,3 @@
 (function() {
-	return bhCommon.isStaticTypeExp(bhNodeToConnect);
+  return bhCommon.isStaticTypeExp(bhNodeToConnect);
 })();

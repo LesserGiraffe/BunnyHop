@@ -1,53 +1,54 @@
-<Node type="connective"
-	bhNodeID="idMaxMinExp"
-	name="MaxMinExp"
-	nodeStyleID="MaxMinExp.json">
+<Node
+  type="connective"
+  bhNodeID="idMaxMinExp"
+  name="MaxMinExp"
+  nodeStyleID="MaxMinExp.json">
 
-	<ConnectorSection name="NumberExpSctn">
+  <ConnectorSection name="NumberExpSctn">
 
-		<Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
-		
-		<PrivateConnector
-			bhConnectorID="idMaxMinExp.prvCnctr0"
-			name="to"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idMaxMinExp.prvNode0"
-				name="to"
-				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
-				initString="と">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-		
-		<PrivateConnector 
-			bhConnectorID="idMaxMinExp.prvCnctr1"
-			name="no"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idMaxMinExp.prvNode1"
-				name="no"
-				nodeStyleID="WordLabel1.json"
-				nodeInputControl="Label.fxml"
-				initString="の">
-			</Node>
-		</PrivateConnector>
-		
-		<PrivateConnector
-			bhConnectorID="idMaxMinExp.prvCnctr2"
-			name="Option0"
-    		fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idMaxMinExp.prvNode2"
-				name="MaxMinOpe"
-				nodeStyleID="WordComboBox.json"
-				onViewContentsCreating="CreateMaxMinOps.js">
-			</Node>
-		</PrivateConnector>
-	</ConnectorSection>
+    <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idMaxMinExp.prvCnctr0"
+      name="to"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idMaxMinExp.prvNode0"
+        name="to"
+        nodeStyleID="WordLabel1.json"
+        nodeInputControl="Label.fxml"
+        initString="と">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+    
+    <PrivateConnector 
+      bhConnectorID="idMaxMinExp.prvCnctr1"
+      name="no"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idMaxMinExp.prvNode1"
+        name="no"
+        nodeStyleID="WordLabel1.json"
+        nodeInputControl="Label.fxml"
+        initString="の">
+      </Node>
+    </PrivateConnector>
+    
+    <PrivateConnector
+      bhConnectorID="idMaxMinExp.prvCnctr2"
+      name="Option0"
+        fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idMaxMinExp.prvNode2"
+        name="MaxMinOpe"
+        nodeStyleID="WordComboBox.json"
+        onViewContentsCreating="CreateMaxMinOps.js">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
 </Node>

@@ -1,4 +1,4 @@
 <Connector 
-	bhConnectorID="idAnyExpCnctr"
-	defaultBhNodeID="idAnyExpVoid"
-	onConnectabilityChecking="AnyExpCnct.js"/>
+  bhConnectorID="idAnyExpCnctr"
+  defaultBhNodeID="idAnyExpVoid"
+  onConnectabilityChecking="AnyExpCnct.js"/>

@@ -27,44 +27,44 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
  */
 public class ImitationID implements Serializable {
 
-	private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-	public static final ImitationID NONE = new ImitationID("");	//!< イミテーションIDが存在しないことを表す
-	public static final ImitationID MANUAL = new ImitationID(BhParams.BhModelDef.ATTR_VAL_IMIT_ID_MANUAL);	//!< イミテーション手動作成時のID
-	private final String id;
+  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
+  public static final ImitationID NONE = new ImitationID("");  //!< イミテーションIDが存在しないことを表す
+  public static final ImitationID MANUAL = new ImitationID(BhParams.BhModelDef.ATTR_VAL_IMIT_ID_MANUAL);  //!< イミテーション手動作成時のID
+  private final String id;
 
-	/**
-	 * コンストラクタ
-	 * @param id 識別子名
-	 */
-	private ImitationID(String id) {
-		this.id = id;
-	}
+  /**
+   * コンストラクタ
+   * @param id 識別子名
+   */
+  private ImitationID(String id) {
+    this.id = id;
+  }
 
-	/**
-	 * イミテーションIDを作成する
-	 * @param id 識別子名
-	 * @return イミテーションID
-	 */
-	public static ImitationID create(String id) {
-		return new ImitationID(id == null ? "" : id);
-	}
+  /**
+   * イミテーションIDを作成する
+   * @param id 識別子名
+   * @return イミテーションID
+   */
+  public static ImitationID create(String id) {
+    return new ImitationID(id == null ? "" : id);
+  }
 
-	@Override
-	public String toString() {
-		return id;
-	}
+  @Override
+  public String toString() {
+    return id;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		return (getClass() == obj.getClass()) && (id.equals(((ImitationID)obj).id));
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null)
+      return false;
+    return (getClass() == obj.getClass()) && (id.equals(((ImitationID)obj).id));
+  }
 
-	@Override
-	public int hashCode() {
-		int hash = 7;
-		hash = 59 * hash + Objects.hashCode(this.id);
-		return hash;
-	}
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 59 * hash + Objects.hashCode(this.id);
+    return hash;
+  }
 }

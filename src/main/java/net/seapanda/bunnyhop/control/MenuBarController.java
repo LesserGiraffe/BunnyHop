@@ -39,268 +39,268 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
  */
 public class MenuBarController {
 
-	@FXML private MenuBar menuBar;
-	@FXML private MenuItem loadMenu;
-	@FXML private MenuItem saveMenu;
-	@FXML private MenuItem saveAsMenu;
-	@FXML private MenuItem aboutBunnyHop;
-	@FXML private MenuItem freeMemory;
-	private File currentSaveFile;	//!< 現在保存対象になっているファイル
+  @FXML private MenuBar menuBar;
+  @FXML private MenuItem loadMenu;
+  @FXML private MenuItem saveMenu;
+  @FXML private MenuItem saveAsMenu;
+  @FXML private MenuItem aboutBunnyHop;
+  @FXML private MenuItem freeMemory;
+  private File currentSaveFile;  //!< 現在保存対象になっているファイル
 
-	/**
-	 * 初期化する
-	 * @param wss ワークスペースセット
-	 */
-	public void init(WorkspaceSet wss) {
+  /**
+   * 初期化する
+   * @param wss ワークスペースセット
+   */
+  public void init(WorkspaceSet wss) {
 
-		setSaveAsHandler(wss);
-		setSaveHandler(wss);
-		setLoadHandler(wss);
-		setFreeMemoryHandler(wss);
-		setAboutBunnyHopHandler();
-	}
+    setSaveAsHandler(wss);
+    setSaveHandler(wss);
+    setLoadHandler(wss);
+    setFreeMemoryHandler(wss);
+    setAboutBunnyHopHandler();
+  }
 
-	/**
-	 * セーブ(新規保存)ボタンのイベントハンドラを登録する
-	 * @param wss イベント時に操作するワークスペースセット
-	 */
-	private void setSaveAsHandler(WorkspaceSet wss) {
-		saveAsMenu.setOnAction(action -> {
-			saveAs(wss);
-		});
-	}
+  /**
+   * セーブ(新規保存)ボタンのイベントハンドラを登録する
+   * @param wss イベント時に操作するワークスペースセット
+   */
+  private void setSaveAsHandler(WorkspaceSet wss) {
+    saveAsMenu.setOnAction(action -> {
+      saveAs(wss);
+    });
+  }
 
-	/**
-	 * 新規保存セーブを行う
-	 * @param wss 保存時に操作するワークスペースセット
-	 * @return 保存した場合true
-	 */
-	private boolean saveAs(WorkspaceSet wss) {
+  /**
+   * 新規保存セーブを行う
+   * @param wss 保存時に操作するワークスペースセット
+   * @return 保存した場合true
+   */
+  private boolean saveAs(WorkspaceSet wss) {
 
-		if (wss.getWorkspaceList().isEmpty()) {
-			MsgPrinter.INSTANCE.alert(
-				Alert.AlertType.INFORMATION,
-				"名前を付けて保存",
-				null,
-				"保存すべきワークスペースがありません");
-			return false;
-		}
+    if (wss.getWorkspaceList().isEmpty()) {
+      MsgPrinter.INSTANCE.alert(
+        Alert.AlertType.INFORMATION,
+        "名前を付けて保存",
+        null,
+        "保存すべきワークスペースがありません");
+      return false;
+    }
 
-		BhNodeSelectionService.INSTANCE.hideAll();
-		Optional<File> selectedFileOpt = getFileToSave();
-		boolean success = selectedFileOpt.map(selectedFile -> wss.save(selectedFile)).orElse(false);
-		if (success)
-			currentSaveFile = selectedFileOpt.get();
+    BhNodeSelectionService.INSTANCE.hideAll();
+    Optional<File> selectedFileOpt = getFileToSave();
+    boolean success = selectedFileOpt.map(selectedFile -> wss.save(selectedFile)).orElse(false);
+    if (success)
+      currentSaveFile = selectedFileOpt.get();
 
-		return success;
-	}
+    return success;
+  }
 
-	/**
-	 * セーブ先のファイルを取得する
-	 * @return セーブ先のファイル
-	 */
-	private Optional<File> getFileToSave() {
+  /**
+   * セーブ先のファイルを取得する
+   * @return セーブ先のファイル
+   */
+  private Optional<File> getFileToSave() {
 
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("名前を付けて保存");
-		fileChooser.setInitialDirectory(getInitDir());
-		fileChooser.getExtensionFilters().addAll(
-			new FileChooser.ExtensionFilter("BunnyHop Files", "*.bnh"),
-			new FileChooser.ExtensionFilter("All Files", "*.*"));
-		File selectedFile = fileChooser.showSaveDialog(menuBar.getScene().getWindow());
-		return Optional.ofNullable(selectedFile);
-	}
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setTitle("名前を付けて保存");
+    fileChooser.setInitialDirectory(getInitDir());
+    fileChooser.getExtensionFilters().addAll(
+      new FileChooser.ExtensionFilter("BunnyHop Files", "*.bnh"),
+      new FileChooser.ExtensionFilter("All Files", "*.*"));
+    File selectedFile = fileChooser.showSaveDialog(menuBar.getScene().getWindow());
+    return Optional.ofNullable(selectedFile);
+  }
 
-	/**
-	 * セーブ(上書き保存)ボタンのイベントハンドラを登録する
-	 * @param wss イベント時に操作するワークスペースセット
-	 */
-	private void setSaveHandler(WorkspaceSet wss) {
-		saveMenu.setOnAction(action -> {
-			save(wss);
-		});
-	}
+  /**
+   * セーブ(上書き保存)ボタンのイベントハンドラを登録する
+   * @param wss イベント時に操作するワークスペースセット
+   */
+  private void setSaveHandler(WorkspaceSet wss) {
+    saveMenu.setOnAction(action -> {
+      save(wss);
+    });
+  }
 
-	/**
-	 * 上書きセーブを行う
-	 * @param wss 保存時に操作するワークスペースセット
-	 * @return 保存した場合true
-	 */
-	public boolean save(WorkspaceSet wss) {
+  /**
+   * 上書きセーブを行う
+   * @param wss 保存時に操作するワークスペースセット
+   * @return 保存した場合true
+   */
+  public boolean save(WorkspaceSet wss) {
 
-		if (wss.getWorkspaceList().isEmpty()) {
-			MsgPrinter.INSTANCE.alert(
-				Alert.AlertType.INFORMATION,
-				"上書き保存",
-				null,
-				"保存すべきワークスペースがありません");
-			return false;
-		}
+    if (wss.getWorkspaceList().isEmpty()) {
+      MsgPrinter.INSTANCE.alert(
+        Alert.AlertType.INFORMATION,
+        "上書き保存",
+        null,
+        "保存すべきワークスペースがありません");
+      return false;
+    }
 
-		boolean fileExists = false;
-		if (currentSaveFile != null)
-			fileExists = currentSaveFile.exists();
+    boolean fileExists = false;
+    if (currentSaveFile != null)
+      fileExists = currentSaveFile.exists();
 
-		if (fileExists) {
-			BhNodeSelectionService.INSTANCE.hideAll();
-			return wss.save(currentSaveFile);
-		}
-		else {
-			return saveAs(wss);	//保存対象のファイルが無い場合, 名前をつけて保存
-		}
-	}
+    if (fileExists) {
+      BhNodeSelectionService.INSTANCE.hideAll();
+      return wss.save(currentSaveFile);
+    }
+    else {
+      return saveAs(wss);  //保存対象のファイルが無い場合, 名前をつけて保存
+    }
+  }
 
-	/**
-	 * ロードボタンのイベントハンドラを登録する
-	 * @param wss イベント時に操作するワークスペースセット
-	 */
-	private void setLoadHandler(WorkspaceSet wss) {
+  /**
+   * ロードボタンのイベントハンドラを登録する
+   * @param wss イベント時に操作するワークスペースセット
+   */
+  private void setLoadHandler(WorkspaceSet wss) {
 
-		loadMenu.setOnAction(action -> {
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("開く");
-			fileChooser.setInitialDirectory(getInitDir());
-			fileChooser.getExtensionFilters().addAll(
-				new FileChooser.ExtensionFilter("BunnyHop Files", "*.bnh"),
-				new FileChooser.ExtensionFilter("All Files", "*.*"));
-			File selectedFile = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
-			boolean success = false;
+    loadMenu.setOnAction(action -> {
+      FileChooser fileChooser = new FileChooser();
+      fileChooser.setTitle("開く");
+      fileChooser.setInitialDirectory(getInitDir());
+      fileChooser.getExtensionFilters().addAll(
+        new FileChooser.ExtensionFilter("BunnyHop Files", "*.bnh"),
+        new FileChooser.ExtensionFilter("All Files", "*.*"));
+      File selectedFile = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
+      boolean success = false;
 
-			if (selectedFile != null) {
-				success = askIfClearOldWs()
-					.map(clearWS -> {
-							boolean isLoadSuccessful = wss.load(selectedFile, clearWS);
-							if (!isLoadSuccessful) {
-								String fileName = selectedFile.getPath();
-								MsgPrinter.INSTANCE.alert(
-									Alert.AlertType.INFORMATION,
-									"開く",
-									null,
-									"ファイルを開けませんでした\n" + fileName);
-							}
-							return isLoadSuccessful;
-						})
-					.orElse(false);
-			}
+      if (selectedFile != null) {
+        success = askIfClearOldWs()
+          .map(clearWS -> {
+              boolean isLoadSuccessful = wss.load(selectedFile, clearWS);
+              if (!isLoadSuccessful) {
+                String fileName = selectedFile.getPath();
+                MsgPrinter.INSTANCE.alert(
+                  Alert.AlertType.INFORMATION,
+                  "開く",
+                  null,
+                  "ファイルを開けませんでした\n" + fileName);
+              }
+              return isLoadSuccessful;
+            })
+          .orElse(false);
+      }
 
-			if (success)
-				currentSaveFile = selectedFile;
-		});
-	}
+      if (success)
+        currentSaveFile = selectedFile;
+    });
+  }
 
-	/**
-	 * ファイル保存時の初期ディレクトリを返す
-	 * @return ファイル保存時の初期ディレクトリ
-	 */
-	private File getInitDir() {
+  /**
+   * ファイル保存時の初期ディレクトリを返す
+   * @return ファイル保存時の初期ディレクトリ
+   */
+  private File getInitDir() {
 
-		if (currentSaveFile != null) {
-			File parent = currentSaveFile.getParentFile();
-			if (parent != null) {
-				if (parent.exists()) {
-					return parent;
-				}
-			}
-		}
-		return new File(Util.INSTANCE.EXEC_PATH);
-	}
+    if (currentSaveFile != null) {
+      File parent = currentSaveFile.getParentFile();
+      if (parent != null) {
+        if (parent.exists()) {
+          return parent;
+        }
+      }
+    }
+    return new File(Util.INSTANCE.EXEC_PATH);
+  }
 
-	/**
-	 * ロード方法を確認する
-	 * @retval true 既存のワークスペースをすべて削除
-	 * @retval false 既存のワークスペースにロードしたワークスペースを追加
-	 */
-	private Optional<Boolean> askIfClearOldWs() {
+  /**
+   * ロード方法を確認する
+   * @retval true 既存のワークスペースをすべて削除
+   * @retval false 既存のワークスペースにロードしたワークスペースを追加
+   */
+  private Optional<Boolean> askIfClearOldWs() {
 
-		String title = "ファイルのロード方法";
-		String content = "既存のワークスペースに追加する場合は" + " [" + ButtonType.YES.getText() + "].\n"
-				+ "既存のワークスペースを全て削除する場合は" + " [" + ButtonType.NO.getText() + "].";
+    String title = "ファイルのロード方法";
+    String content = "既存のワークスペースに追加する場合は" + " [" + ButtonType.YES.getText() + "].\n"
+        + "既存のワークスペースを全て削除する場合は" + " [" + ButtonType.NO.getText() + "].";
 
-		Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
-			AlertType.CONFIRMATION,
-			title,
-			null,
-			content,
-			ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+    Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
+      AlertType.CONFIRMATION,
+      title,
+      null,
+      content,
+      ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 
-		return buttonType.flatMap(btntype -> {
+    return buttonType.flatMap(btntype -> {
 
-			if (btntype.equals(ButtonType.NO))
-				return Optional.of(true);
-			else if (btntype.equals(ButtonType.YES))
-				return Optional.of(false);
+      if (btntype.equals(ButtonType.NO))
+        return Optional.of(true);
+      else if (btntype.equals(ButtonType.YES))
+        return Optional.of(false);
 
-			return Optional.empty();
-		});
-	}
+      return Optional.empty();
+    });
+  }
 
-	/**
-	 * アプリケーションのメモリ解放時のハンドラをセットする
-	 * @param wss ワークスペースセット
-	 * */
-	private void setFreeMemoryHandler(WorkspaceSet wss) {
+  /**
+   * アプリケーションのメモリ解放時のハンドラをセットする
+   * @param wss ワークスペースセット
+   * */
+  private void setFreeMemoryHandler(WorkspaceSet wss) {
 
-		freeMemory.setOnAction(action -> {
-			ModelExclusiveControl.INSTANCE.lockForModification();
-			try {
-				freeMemory(wss);
-			}
-			finally {
-				ModelExclusiveControl.INSTANCE.unlockForModification();
-			}
-		});
-	}
+    freeMemory.setOnAction(action -> {
+      ModelExclusiveControl.INSTANCE.lockForModification();
+      try {
+        freeMemory(wss);
+      }
+      finally {
+        ModelExclusiveControl.INSTANCE.unlockForModification();
+      }
+    });
+  }
 
-	/**
-	 * アプリケーションのメモリを解放する
-	 * @param wss ワークスペースセット
-	 * */
-	private void freeMemory(WorkspaceSet wss) {
-		MsgService.INSTANCE.deleteUndoRedoCommand(wss);
-		MsgPrinter.INSTANCE.msgForUser("メモリを解放しました\n");
-		System.gc();
-	}
+  /**
+   * アプリケーションのメモリを解放する
+   * @param wss ワークスペースセット
+   * */
+  private void freeMemory(WorkspaceSet wss) {
+    MsgService.INSTANCE.deleteUndoRedoCommand(wss);
+    MsgPrinter.INSTANCE.msgForUser("メモリを解放しました\n");
+    System.gc();
+  }
 
-	/**
-	 * BunnyHopの基本情報を表示するハンドラを登録する
-	 */
-	private void setAboutBunnyHopHandler() {
-		aboutBunnyHop.setOnAction(action -> {
-			String content = "Version: " + VersionInfo.APP_VERSION;
-			MsgPrinter.INSTANCE.alert(
-				Alert.AlertType.INFORMATION,
-				"BunnyHopについて",
-				null,
-				content);
-		});
-	}
+  /**
+   * BunnyHopの基本情報を表示するハンドラを登録する
+   */
+  private void setAboutBunnyHopHandler() {
+    aboutBunnyHop.setOnAction(action -> {
+      String content = "Version: " + VersionInfo.APP_VERSION;
+      MsgPrinter.INSTANCE.alert(
+        Alert.AlertType.INFORMATION,
+        "BunnyHopについて",
+        null,
+        content);
+    });
+  }
 
-	/**
-	 * ユーザメニュー操作のイベントを起こす
-	 * @param op 基本操作を表す列挙子
-	 */
-	public void fireEvent(MENU_BAR op) {
+  /**
+   * ユーザメニュー操作のイベントを起こす
+   * @param op 基本操作を表す列挙子
+   */
+  public void fireEvent(MENU_BAR op) {
 
-		switch (op) {
-			case SAVE:
-				saveMenu.fire();
-				break;
+    switch (op) {
+      case SAVE:
+        saveMenu.fire();
+        break;
 
-			case SAVE_AS:
-				saveAsMenu.fire();
-				break;
+      case SAVE_AS:
+        saveAsMenu.fire();
+        break;
 
-			case FREE_MEMORY:
-				freeMemory.fire();
+      case FREE_MEMORY:
+        freeMemory.fire();
 
-			default:
-				throw new AssertionError("invalid menu bar operation " + op);
-		}
-	}
+      default:
+        throw new AssertionError("invalid menu bar operation " + op);
+    }
+  }
 
-	public enum MENU_BAR {
-		SAVE,
-		SAVE_AS,
-		FREE_MEMORY,
-	}
+  public enum MENU_BAR {
+    SAVE,
+    SAVE_AS,
+    FREE_MEMORY,
+  }
 }

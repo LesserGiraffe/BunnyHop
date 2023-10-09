@@ -1,24 +1,25 @@
-<Node type="connective"
-	  bhNodeID="idBoolCompExp"
-	  name="BoolCompExp"
-	  nodeStyleID="CompExp.json">
+<Node
+  type="connective"
+  bhNodeID="idBoolCompExp"
+  name="BoolCompExp"
+  nodeStyleID="CompExp.json">
 
-	<ConnectorSection name="BooleanExpSctn">
-		<Connector bhConnectorID="idBoolExpCnctr" name="LeftExp"/>
-		
-		<PrivateConnector
-			bhConnectorID="idBoolCompExp.prvCnctr0"
-			name="Operator"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idBoolCompExp.prvNode0"
-				name="compOpe"
-				nodeStyleID="DefaultComboBox.json"
-				onViewContentsCreating="CreateEqualityCompOps.js">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idBoolExpCnctr" name="RightExp"/>
-	</ConnectorSection>
+  <ConnectorSection name="BooleanExpSctn">
+    <Connector bhConnectorID="idBoolExpCnctr" name="LeftExp"/>
+    
+    <PrivateConnector
+      bhConnectorID="idBoolCompExp.prvCnctr0"
+      name="Operator"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idBoolCompExp.prvNode0"
+        name="compOpe"
+        nodeStyleID="DefaultComboBox.json"
+        onViewContentsCreating="CreateEqualityCompOps.js">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idBoolExpCnctr" name="RightExp"/>
+  </ConnectorSection>
 </Node>

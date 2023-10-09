@@ -1,4 +1,4 @@
 <Connector 
-	bhConnectorID="idSoundListCnctr"
-	defaultBhNodeID="idSoundEmptyList"
-	onConnectabilityChecking="SoundListCnct.js"/>
+  bhConnectorID="idSoundListCnctr"
+  defaultBhNodeID="idSoundEmptyList"
+  onConnectabilityChecking="SoundListCnct.js"/>

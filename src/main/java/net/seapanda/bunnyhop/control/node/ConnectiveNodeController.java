@@ -24,13 +24,13 @@ import net.seapanda.bunnyhop.view.node.ConnectiveNodeView;
  */
 public class ConnectiveNodeController extends BhNodeController {
 
-	/**
-	 * コンストラクタ
-	 * @param model 管理するモデル
-	 * @param view 管理するビュー
-	 * */
-	public ConnectiveNodeController(ConnectiveNode model, ConnectiveNodeView view) {
-		super(model, view);
-	}
+  /**
+   * コンストラクタ
+   * @param model 管理するモデル
+   * @param view 管理するビュー
+   * */
+  public ConnectiveNodeController(ConnectiveNode model, ConnectiveNodeView view) {
+    super(model, view);
+  }
 }
 

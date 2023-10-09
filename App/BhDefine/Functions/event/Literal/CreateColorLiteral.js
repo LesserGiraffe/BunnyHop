@@ -1,5 +1,5 @@
 (function() {
-	let jSelectableItem = net.seapanda.bunnyhop.view.node.part.SelectableItem;
+  let jSelectableItem = net.seapanda.bunnyhop.view.node.part.SelectableItem;
     return [
         new jSelectableItem('Red',     '赤'),
         new jSelectableItem('Green',   '緑'),

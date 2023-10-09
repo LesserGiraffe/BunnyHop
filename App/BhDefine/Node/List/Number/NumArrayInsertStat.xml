@@ -1,60 +1,60 @@
 <Node
-	type="connective"
-	bhNodeID="idNumArrayInsertStat"
-	name="NumArrayInsertStat"
-	nodeStyleID="NumArrayInsertStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idNumArrayInsertStat"
+  name="NumArrayInsertStat"
+  nodeStyleID="NumArrayInsertStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idNumListCnctr" name="Arg0"/>
-		
-		<PrivateConnector
-			bhConnectorID="idNumArrayInsertStat.prvCnctr0"
-			name="no"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idNumArrayInsertStat.prvNode0"
-				name="no"
-				nodeStyleID="WordLabel1.json"
-				initString="の">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-		
-		<PrivateConnector
-			bhConnectorID="idNumArrayInsertStat.prvCnctr1"
-			name="banmeNi"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idNumArrayInsertStat.prvNode1"
-				name="banmeNi"
-				nodeStyleID="WordLabel1.json"
-				initString="番目に">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idNumExpCnctr" name="Arg2"/>
-		
-		<PrivateConnector
-			bhConnectorID="idNumArrayInsertStat.prvCnctr2"
-			name="woSonyuSuru"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idNumArrayInsertStat.prvNode2"
-				name="woSonyuSuru"
-				nodeStyleID="WordLabel1.json"
-				initString="を挿入する">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idNumListCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idNumArrayInsertStat.prvCnctr0"
+      name="no"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNumArrayInsertStat.prvNode0"
+        name="no"
+        nodeStyleID="WordLabel1.json"
+        initString="の">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+    
+    <PrivateConnector
+      bhConnectorID="idNumArrayInsertStat.prvCnctr1"
+      name="banmeNi"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNumArrayInsertStat.prvNode1"
+        name="banmeNi"
+        nodeStyleID="WordLabel1.json"
+        initString="番目に">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idNumExpCnctr" name="Arg2"/>
+    
+    <PrivateConnector
+      bhConnectorID="idNumArrayInsertStat.prvCnctr2"
+      name="woSonyuSuru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNumArrayInsertStat.prvNode2"
+        name="woSonyuSuru"
+        nodeStyleID="WordLabel1.json"
+        initString="を挿入する">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

@@ -1,46 +1,46 @@
 <Node
-	type="connective"
-	bhNodeID="idAnyAssignStat"
-	name="AnyAssignStat"
-	nodeStyleID="AnyAssignStat.json"
-	onMovedFromChildToWS="OnStatMovedToWS.js"
-	onMovedToChild="OnStatMovedToChild.js"
-	onChildReplaced="OnChildOfAnyTypeNodeReplaced.js"
-	onDeletionRequested="OnDeletionRequested.js"
-	onCutRequested="OnCutRequested.js"
-	onCopyRequested="OnCopyRequested.js">
+  type="connective"
+  bhNodeID="idAnyAssignStat"
+  name="AnyAssignStat"
+  nodeStyleID="AnyAssignStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onChildReplaced="OnChildOfAnyTypeNodeReplaced.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
 
-	<ConnectorSection name="StatSctn">
-		<Connector bhConnectorID="idAnyVarCnctr" name="LeftVar"/>
-		
-		<PrivateConnector
-			bhConnectorID="idAnyAssignStat.prvCnctr0"
-			name="ni"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idAnyAssignStat.prvNode0"
-				name="ni"
-				nodeStyleID="WordLabel1.json"
-				initString="に">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idAnyExpCnctr" name="RightExp"/>
-		
-		<PrivateConnector
-			bhConnectorID="idAnyAssignStat.prvCnctr1"
-			name="woDainyuSuru"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idAnyAssignStat.prvNode1"
-				name="woDainyuSuru"
-				nodeStyleID="WordLabel1.json"
-				initString="を代入する">
-			</Node>
-		</PrivateConnector>
-		
-		<Connector bhConnectorID="idStatCnctr" name="NextStat"/>
-	</ConnectorSection>
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idAnyVarCnctr" name="LeftVar"/>
+    
+    <PrivateConnector
+      bhConnectorID="idAnyAssignStat.prvCnctr0"
+      name="ni"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyAssignStat.prvNode0"
+        name="ni"
+        nodeStyleID="WordLabel1.json"
+        initString="に">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idAnyExpCnctr" name="RightExp"/>
+    
+    <PrivateConnector
+      bhConnectorID="idAnyAssignStat.prvCnctr1"
+      name="woDainyuSuru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyAssignStat.prvNode1"
+        name="woDainyuSuru"
+        nodeStyleID="WordLabel1.json"
+        initString="を代入する">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
 </Node>

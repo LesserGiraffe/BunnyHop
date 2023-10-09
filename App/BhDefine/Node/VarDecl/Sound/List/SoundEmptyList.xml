@@ -1,8 +1,8 @@
 <Node
-	type="text"
-	bhNodeID="idSoundEmptyList"
-	name="SoundEmptyList"
-	nodeStyleID="SoundEmptyList.json"
-	onMovedFromChildToWS="OnLiteralMovedToWS.js"
-	initString="[...]">
+  type="text"
+  bhNodeID="idSoundEmptyList"
+  name="SoundEmptyList"
+  nodeStyleID="SoundEmptyList.json"
+  onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  initString="[...]">
 </Node>

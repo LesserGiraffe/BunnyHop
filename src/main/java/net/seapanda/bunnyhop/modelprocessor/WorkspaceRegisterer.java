@@ -27,47 +27,47 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  */
 public class WorkspaceRegisterer implements BhModelProcessor {
 
-	private final Workspace ws;	//!< 登録されるワークスペース
-	private final UserOperationCommand userOpeCmd;
+  private final Workspace ws;  //!< 登録されるワークスペース
+  private final UserOperationCommand userOpeCmd;
 
-	/**
-	 * 引数で指定したノード以下のノードに引数で指定したワークスペースを登録する
-	 * @param node これ以下のノードにワークスペースを登録する
-	 * @param ws 登録するワークスペース
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
-	public static void register(BhNode node, Workspace ws, UserOperationCommand userOpeCmd) {
-		var registerer = new WorkspaceRegisterer(ws, userOpeCmd);
-		node.accept(registerer);
-	}
+  /**
+   * 引数で指定したノード以下のノードに引数で指定したワークスペースを登録する
+   * @param node これ以下のノードにワークスペースを登録する
+   * @param ws 登録するワークスペース
+   * @param userOpeCmd undo用コマンドオブジェクト
+   * */
+  public static void register(BhNode node, Workspace ws, UserOperationCommand userOpeCmd) {
+    var registerer = new WorkspaceRegisterer(ws, userOpeCmd);
+    node.accept(registerer);
+  }
 
-	/**
-	 * 引数で指定したノード以下のノードのワークスペースの登録を解除する
-	 * @param node このノード以下のノードのワークスペースの登録を解除する
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 * */
-	public static void deregister(BhNode node, UserOperationCommand userOpeCmd) {
-		var registerer = new WorkspaceRegisterer(null, userOpeCmd);
-		node.accept(registerer);
-	}
+  /**
+   * 引数で指定したノード以下のノードのワークスペースの登録を解除する
+   * @param node このノード以下のノードのワークスペースの登録を解除する
+   * @param userOpeCmd undo用コマンドオブジェクト
+   * */
+  public static void deregister(BhNode node, UserOperationCommand userOpeCmd) {
+    var registerer = new WorkspaceRegisterer(null, userOpeCmd);
+    node.accept(registerer);
+  }
 
-	/**
-	 * @param ws 登録されるワークスペース
-	 * @param userOpeCmd undo用コマンドオブジェクト
-	 */
-	private WorkspaceRegisterer(Workspace ws, UserOperationCommand userOpeCmd) {
-		this.ws = ws;
-		this.userOpeCmd = userOpeCmd;
-	}
+  /**
+   * @param ws 登録されるワークスペース
+   * @param userOpeCmd undo用コマンドオブジェクト
+   */
+  private WorkspaceRegisterer(Workspace ws, UserOperationCommand userOpeCmd) {
+    this.ws = ws;
+    this.userOpeCmd = userOpeCmd;
+  }
 
-	@Override
-	public void visit(ConnectiveNode node) {
-		node.setWorkspace(ws, userOpeCmd);
-		node.sendToSections(this);
-	}
+  @Override
+  public void visit(ConnectiveNode node) {
+    node.setWorkspace(ws, userOpeCmd);
+    node.sendToSections(this);
+  }
 
-	@Override
-	public void visit(TextNode node) {
-		node.setWorkspace(ws, userOpeCmd);
-	}
+  @Override
+  public void visit(TextNode node) {
+    node.setWorkspace(ws, userOpeCmd);
+  }
 }

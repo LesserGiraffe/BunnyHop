@@ -1,23 +1,23 @@
 <Node
-	type="connective"
-	bhNodeID="idStrLiteralExp"
-	name="StrLiteralExp"
-	nodeStyleID="StrLiteralExp.json"
-	onMovedFromChildToWS="OnLiteralMovedToWS.js">
+  type="connective"
+  bhNodeID="idStrLiteralExp"
+  name="StrLiteralExp"
+  nodeStyleID="StrLiteralExp.json"
+  onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
-	<ConnectorSection name="StringExpSctn">
-		<PrivateConnector
-			bhConnectorID="idStrLiteralExp.prvCnctr0"
-			name="Literal"
-			fixed="true">
-			<Node
-				type="text"
-				bhNodeID="idStrLiteralExp.prvNode0"
-				name="StrLiteral"
-				nodeStyleID="StrLiteral.json"
-				onTextChecking="CheckTextFormat.js"
-				initString="テキスト">
-			</Node>
-		</PrivateConnector>
-	</ConnectorSection>
+  <ConnectorSection name="StringExpSctn">
+    <PrivateConnector
+      bhConnectorID="idStrLiteralExp.prvCnctr0"
+      name="Literal"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idStrLiteralExp.prvNode0"
+        name="StrLiteral"
+        nodeStyleID="StrLiteral.json"
+        onTextChecking="CheckTextFormat.js"
+        initString="テキスト">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
 </Node>

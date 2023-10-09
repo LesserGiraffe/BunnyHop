@@ -32,164 +32,164 @@ import net.seapanda.bunnyhop.common.tools.Util;
  */
 public class LocalBhProgramManager {
 
-	public static final LocalBhProgramManager INSTANCE = new LocalBhProgramManager();	//!< シングルトンインスタンス
-	private final BhProgramManagerCommon common = new BhProgramManagerCommon();
-	private Process process;
-	private final AtomicReference<Boolean> programRunning = new AtomicReference<>(false);	//!< プログラム実行中ならtrue
+  public static final LocalBhProgramManager INSTANCE = new LocalBhProgramManager();  //!< シングルトンインスタンス
+  private final BhProgramManagerCommon common = new BhProgramManagerCommon();
+  private Process process;
+  private final AtomicReference<Boolean> programRunning = new AtomicReference<>(false);  //!< プログラム実行中ならtrue
 
-	private LocalBhProgramManager() {}
+  private LocalBhProgramManager() {}
 
-	public boolean init() {
-		return common.init();
-	}
+  public boolean init() {
+    return common.init();
+  }
 
-	/**
-	 * BhProgramの実行環境を立ち上げ、BhProgramを実行する
-	 * @param filePath BhProgramのファイルパス
-	 * @param ipAddr BhProgramを実行するマシンのIPアドレス
-	 * @return BhProgram実行タスクのFutureオブジェクト
-	 */
-	public Future<Boolean> executeAsync(Path filePath, String ipAddr) {
-		return common.executeAsync(() -> execute(filePath, ipAddr));
-	}
+  /**
+   * BhProgramの実行環境を立ち上げ、BhProgramを実行する
+   * @param filePath BhProgramのファイルパス
+   * @param ipAddr BhProgramを実行するマシンのIPアドレス
+   * @return BhProgram実行タスクのFutureオブジェクト
+   */
+  public Future<Boolean> executeAsync(Path filePath, String ipAddr) {
+    return common.executeAsync(() -> execute(filePath, ipAddr));
+  }
 
-	/**
-	 * BhProgramの実行環境を立ち上げ、BhProgramを実行する
-	 * @param filePath BhProgramのファイルパス
-	 * @param ipAddr BhProgramを実行するマシンのIPアドレス
-	 * @return BhProgramの実行に成功した場合true
-	 */
-	private synchronized boolean execute(Path filePath, String ipAddr) {
+  /**
+   * BhProgramの実行環境を立ち上げ、BhProgramを実行する
+   * @param filePath BhProgramのファイルパス
+   * @param ipAddr BhProgramを実行するマシンのIPアドレス
+   * @return BhProgramの実行に成功した場合true
+   */
+  private synchronized boolean execute(Path filePath, String ipAddr) {
 
-		boolean success = true;
+    boolean success = true;
 
-		if (programRunning.get())
-			terminate();
+    if (programRunning.get())
+      terminate();
 
-		MsgPrinter.INSTANCE.msgForUser("-- プログラム実行準備中 (local) --\n");
-		if (success) {
-			process = startExecEnvProcess();
-			if (process == null) {
-				success &= false;
-			}
-		}
+    MsgPrinter.INSTANCE.msgForUser("-- プログラム実行準備中 (local) --\n");
+    if (success) {
+      process = startExecEnvProcess();
+      if (process == null) {
+        success &= false;
+      }
+    }
 
-		if (process != null) {
-			String fileName = filePath.getFileName().toString();
-			success &= common.runBhProgram(fileName, ipAddr, process.getInputStream());
-		}
+    if (process != null) {
+      String fileName = filePath.getFileName().toString();
+      success &= common.runBhProgram(fileName, ipAddr, process.getInputStream());
+    }
 
-		if (!success) {	//リモートでのスクリプト実行失敗
-			MsgPrinter.INSTANCE.errMsgForUser("!! プログラム実行準備失敗 (local) !!\n");
-			MsgPrinter.INSTANCE.errMsgForDebug("failed to run " + filePath.getFileName() + " (local)");
-			terminate();
-		}
-		else {
-			MsgPrinter.INSTANCE.msgForUser("-- プログラム実行開始 (local) --\n");
-			programRunning.set(true);
-		}
+    if (!success) {  //リモートでのスクリプト実行失敗
+      MsgPrinter.INSTANCE.errMsgForUser("!! プログラム実行準備失敗 (local) !!\n");
+      MsgPrinter.INSTANCE.errMsgForDebug("failed to run " + filePath.getFileName() + " (local)");
+      terminate();
+    }
+    else {
+      MsgPrinter.INSTANCE.msgForUser("-- プログラム実行開始 (local) --\n");
+      programRunning.set(true);
+    }
 
-		return success;
-	}
+    return success;
+  }
 
-	/**
-	 * 現在実行中のBhProgramExecEnvironment を強制終了する
-	 * @return BhProgram強制終了タスクのFutureオブジェクト.
-	 */
-	public Future<Boolean> terminateAsync() {
+  /**
+   * 現在実行中のBhProgramExecEnvironment を強制終了する
+   * @return BhProgram強制終了タスクのFutureオブジェクト.
+   */
+  public Future<Boolean> terminateAsync() {
 
-		if (!programRunning.get()) {
-			MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了済み (local) !!\n");
-			return common.terminateAsync(() -> false);
-		}
+    if (!programRunning.get()) {
+      MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了済み (local) !!\n");
+      return common.terminateAsync(() -> false);
+    }
 
-		return common.terminateAsync(() -> terminate());
-	}
+    return common.terminateAsync(() -> terminate());
+  }
 
-	/**
-	 * 現在実行中のBhProgramExecEnvironment を強制終了する.
-	 * BhProgram実行環境を終了済みの場合に呼んでも問題ない.
-	 * @return 強制終了に成功した場合true
-	 */
-	public synchronized boolean terminate() {
+  /**
+   * 現在実行中のBhProgramExecEnvironment を強制終了する.
+   * BhProgram実行環境を終了済みの場合に呼んでも問題ない.
+   * @return 強制終了に成功した場合true
+   */
+  public synchronized boolean terminate() {
 
-		MsgPrinter.INSTANCE.msgForUser("-- プログラム終了中 (local)  --\n");
-		boolean success = common.haltTransceiver();
+    MsgPrinter.INSTANCE.msgForUser("-- プログラム終了中 (local)  --\n");
+    boolean success = common.haltTransceiver();
 
-		if (process != null) {
-			success &= common.waitForProcessEnd(process, true, BhParams.ExternalApplication.DEAD_PROC_END_TIMEOUT);
-		}
-		process = null;
-		if (!success) {
-			MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了失敗 (local)  !!\n");
-		}
-		else {
-			MsgPrinter.INSTANCE.msgForUser("-- プログラム終了完了 (local)  --\n");
-			programRunning.set(false);
-		}
-		return success;
-	}
+    if (process != null) {
+      success &= common.waitForProcessEnd(process, true, BhParams.ExternalApplication.DEAD_PROC_END_TIMEOUT);
+    }
+    process = null;
+    if (!success) {
+      MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了失敗 (local)  !!\n");
+    }
+    else {
+      MsgPrinter.INSTANCE.msgForUser("-- プログラム終了完了 (local)  --\n");
+      programRunning.set(false);
+    }
+    return success;
+  }
 
-	/**
-	 * BhProgram の実行環境と通信を行うようにする
-	 * @return 接続タスクのFutureオブジェクト. タスクを実行しなかった場合null.
-	 */
-	public Future<Boolean> connectAsync() {
-		return common.connectAsync();
-	}
+  /**
+   * BhProgram の実行環境と通信を行うようにする
+   * @return 接続タスクのFutureオブジェクト. タスクを実行しなかった場合null.
+   */
+  public Future<Boolean> connectAsync() {
+    return common.connectAsync();
+  }
 
-	/**
-	 * BhProgram の実行環境と通信を行わないようにする
-	 * @return 切断タスクのFutureオブジェクト. タスクを実行しなかった場合null.
-	 */
-	public Future<Boolean> disconnectAsync() {
-		return common.disconnectAsync();
-	}
+  /**
+   * BhProgram の実行環境と通信を行わないようにする
+   * @return 切断タスクのFutureオブジェクト. タスクを実行しなかった場合null.
+   */
+  public Future<Boolean> disconnectAsync() {
+    return common.disconnectAsync();
+  }
 
-	/**
-	 * 引数で指定したデータをBhProgramの実行環境に送る
-	 * @param data 送信データ
-	 * @return 送信データリストにデータを追加できた場合true
-	 */
-	public BhProgramExecEnvError sendAsync(BhProgramData data) {
-		return common.sendAsync(data);
-	}
+  /**
+   * 引数で指定したデータをBhProgramの実行環境に送る
+   * @param data 送信データ
+   * @return 送信データリストにデータを追加できた場合true
+   */
+  public BhProgramExecEnvError sendAsync(BhProgramData data) {
+    return common.sendAsync(data);
+  }
 
-	/**
-	 * BhProgramの実行環境プロセスをスタートする
-	 * @return スタートしたプロセスのオブジェクト. スタートに失敗した場合null.
-	 */
-	private Process startExecEnvProcess() {
-		// ""でパスを囲まない
-		Process proc = null;
-		ProcessBuilder procBuilder = new ProcessBuilder(
-			Util.INSTANCE.JAVA_PATH,
-			"-cp",
-			Paths.get(Util.INSTANCE.EXEC_PATH, "..", "lib").toString() + Util.INSTANCE.FS  + "*" +
-			Util.INSTANCE.PS +
-			Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENV_JAR).toString(),
-			BhParams.ExternalApplication.BH_PROGRAM_EXEC_MAIN_CLASS,
-			"true");	//localFlag == true
+  /**
+   * BhProgramの実行環境プロセスをスタートする
+   * @return スタートしたプロセスのオブジェクト. スタートに失敗した場合null.
+   */
+  private Process startExecEnvProcess() {
+    // ""でパスを囲まない
+    Process proc = null;
+    ProcessBuilder procBuilder = new ProcessBuilder(
+      Util.INSTANCE.JAVA_PATH,
+      "-cp",
+      Paths.get(Util.INSTANCE.EXEC_PATH, "..", "lib").toString() + Util.INSTANCE.FS  + "*" +
+      Util.INSTANCE.PS +
+      Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENV_JAR).toString(),
+      BhParams.ExternalApplication.BH_PROGRAM_EXEC_MAIN_CLASS,
+      "true");  //localFlag == true
 
-		procBuilder.redirectErrorStream(true);
-		try {
-			proc = procBuilder.start();
-		}
-		catch (IOException e) {
-			MsgPrinter.INSTANCE.errMsgForDebug("startExecEnvProcess " +  e.toString());
-		}
+    procBuilder.redirectErrorStream(true);
+    try {
+      proc = procBuilder.start();
+    }
+    catch (IOException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug("startExecEnvProcess " +  e.toString());
+    }
 
-		return proc;
-	}
+    return proc;
+  }
 
-	/**
-	 * 終了処理をする
-	 * @return 終了処理が正常に完了した場合true
-	 */
-	public boolean end() {
+  /**
+   * 終了処理をする
+   * @return 終了処理が正常に完了した場合true
+   */
+  public boolean end() {
 
-		boolean success = terminate();
-		success &= common.end();
-		return success;
-	}
+    boolean success = terminate();
+    success &= common.end();
+    return success;
+  }
 }

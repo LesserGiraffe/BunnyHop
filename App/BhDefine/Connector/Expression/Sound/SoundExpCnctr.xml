@@ -1,5 +1,5 @@
 <Connector
-	bhConnectorID="idSoundExpCnctr"
-	defaultBhNodeID="idFreqSoundLiteral"
-	class="SoundClass"
-	onConnectabilityChecking="SoundExpCnct.js"/>
+  bhConnectorID="idSoundExpCnctr"
+  defaultBhNodeID="idFreqSoundLiteral"
+  class="SoundClass"
+  onConnectabilityChecking="SoundExpCnct.js"/>

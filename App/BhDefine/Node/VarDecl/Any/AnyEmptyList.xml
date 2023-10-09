@@ -1,9 +1,9 @@
 <Node
-	type="text"
-	bhNodeID="idAnyEmptyList"
-	name="AnyEmptyList"
-	nodeStyleID="AnyEmptyList.json"
-	onMovedFromChildToWS="OnLiteralMovedToWS.js"
-	initString="[...]">
+  type="text"
+  bhNodeID="idAnyEmptyList"
+  name="AnyEmptyList"
+  nodeStyleID="AnyEmptyList.json"
+  onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  initString="[...]">
 </Node>
 

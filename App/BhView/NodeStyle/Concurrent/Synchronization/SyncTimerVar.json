@@ -1,21 +1,21 @@
 {
-	"paddingTop" : 1.0,
-	"paddingBottom" : 1.0,
-	"paddingLeft" : 1.5,
-	"paddingRight" : 1.5,
-	"connectorPos" : "Top",
-	"connectorShift" : 1.0,
-	"connectorWidth" : 3.5,
-	"connectorHeight" : 3.5,
-	"connectorShape" : "SANDGLASS",
-	"connectorBoundsRate" : 1.25,
-	"cssClass" : "concurrentType",
+  "paddingTop" : 1.0,
+  "paddingBottom" : 1.0,
+  "paddingLeft" : 1.5,
+  "paddingRight" : 1.5,
+  "connectorPos" : "Top",
+  "connectorShift" : 1.0,
+  "connectorWidth" : 3.5,
+  "connectorHeight" : 3.5,
+  "connectorShape" : "SANDGLASS",
+  "connectorBoundsRate" : 1.25,
+  "cssClass" : "concurrentType",
 
-	"connective" : {
-		"inner" : {
-			"space" : 2.0,
-			"arrangement" : "Row",
-			"connectorList" : ["SyncTimer", "SyncTimerName"]
-		}
-	}
+  "connective" : {
+    "inner" : {
+      "space" : 2.0,
+      "arrangement" : "Row",
+      "connectorList" : ["SyncTimer", "SyncTimerName"]
+    }
+  }
 }

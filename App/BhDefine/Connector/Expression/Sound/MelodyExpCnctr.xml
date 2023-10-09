@@ -1,4 +1,4 @@
 <Connector
-	bhConnectorID="idMelodyExpCnctr"
-	defaultBhNodeID="idMelodyExp"
-	fixed="true"/>
+  bhConnectorID="idMelodyExpCnctr"
+  defaultBhNodeID="idMelodyExp"
+  fixed="true"/>

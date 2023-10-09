@@ -1,4 +1,4 @@
 <Connector 
-	bhConnectorID="idColorListCnctr"
-	defaultBhNodeID="idColorEmptyList"
-	onConnectabilityChecking="ColorListCnct.js"/>
+  bhConnectorID="idColorListCnctr"
+  defaultBhNodeID="idColorEmptyList"
+  onConnectabilityChecking="ColorListCnct.js"/>
