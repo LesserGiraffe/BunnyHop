@@ -4,8 +4,6 @@
 # Ignore Gradle build output directory
 build
 BunnyHop
-lib
-mlib
 bin
 jfx
 Actions/open_jtalk
@@ -15,6 +13,7 @@ App/BhExecEnvLog
 App/Actions/open_jtalk
 App/net.seapanda.bunnyhop.jar
 App/BhProgramExecEnvironment.jar
+App/Jlib
 .settings
 .checkstyle
 .classpath

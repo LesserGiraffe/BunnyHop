@@ -54,7 +54,7 @@ public class Util {
       EXEC_PATH = root + jarPath.subpath(0, jarPath.getNameCount()).toString();
     }
     else {
-      EXEC_PATH = root + jarPath.subpath(0, jarPath.getNameCount() - 1).toString();
+      EXEC_PATH = root + jarPath.subpath(0, jarPath.getNameCount() - 2).toString();
     }
     JAVA_PATH = System.getProperty("java.home") + FS + "bin" + FS + "java";
   }

@@ -165,9 +165,7 @@ public class LocalBhProgramManager {
     ProcessBuilder procBuilder = new ProcessBuilder(
       Util.INSTANCE.JAVA_PATH,
       "-cp",
-      Paths.get(Util.INSTANCE.EXEC_PATH, "..", "lib").toString() + Util.INSTANCE.FS  + "*" +
-      Util.INSTANCE.PS +
-      Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENV_JAR).toString(),
+      Paths.get(Util.INSTANCE.EXEC_PATH, "Jlib").toString() + Util.INSTANCE.FS  + "*",
       BhParams.ExternalApplication.BH_PROGRAM_EXEC_MAIN_CLASS,
       "true");  //localFlag == true
 
