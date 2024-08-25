@@ -17,7 +17,6 @@ package net.seapanda.bunnyhop.modelprocessor;
 
 import java.util.Collection;
 import java.util.Optional;
-
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
@@ -128,7 +127,8 @@ public class ImitationReplacer implements BhModelProcessor {
       nodeToReplace.ifPresent(imitToReplace -> {
         Connector parentCnctr = imitToReplace.getParentConnector();
         Imitatable newImit = original.findExistingOrCreateNewImit(imitToReplace, userOpeCmd);
-        BhNodeHandler.INSTANCE.replaceChildNewlyCreated(imitToReplace, newImit, userOpeCmd);
+        BhNodeHandler.INSTANCE.addRootNode(imitToReplace.getWorkspace(), newImit, 0, 0, userOpeCmd);
+        BhNodeHandler.INSTANCE.replaceChild(imitToReplace, newImit, userOpeCmd);
         BhNodeHandler.INSTANCE.deleteNodeWithDelay(
           imitToReplace, userOpeCmd, DeleteOperation.REMOVE_FROM_IMIT_LIST);
         newImit.findParentNode().execScriptOnChildReplaced(imitToReplace, newImit, parentCnctr, userOpeCmd);

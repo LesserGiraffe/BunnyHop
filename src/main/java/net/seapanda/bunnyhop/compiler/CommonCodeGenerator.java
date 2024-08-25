@@ -32,6 +32,16 @@ public class CommonCodeGenerator {
     return Keywords.Prefix.varPrefix + varDecl.getSymbolID();
   }
 
+/**
+   * 変数定義から出力引数に代入するための変数名を生成する
+   *
+   * @param varDecl 変数定義ノード
+   * @return 変数名
+   */
+  public String genOutArgName(SyntaxSymbol varDecl) {
+    return Keywords.Prefix.outArgPrefix + varDecl.getSymbolID();
+  }
+
   /**
    * 関数定義から関数名を生成する
    * @param funcDef 関数定義シンボル
@@ -105,22 +115,44 @@ public class CommonCodeGenerator {
   public String genPushToCallStackCode(SyntaxSymbol funcCallNode) {
 
     var funcName = genPropertyAccessCode(
-      Keywords.JS._this, ScriptIdentifiers.Properties.CALL_STACK, ScriptIdentifiers.JsFuncs.PUSH);
+      Keywords.Js._this, ScriptIdentifiers.Properties.CALL_STACK, ScriptIdentifiers.JsFuncs.PUSH);
     return genFuncCallCode(funcName, toJsString(funcCallNode.getSymbolID().toString()));
   }
 
   /**
-   * コールスタックから関数呼び出しノードのシンボル ID を削除するコードを作成する
+   * コールスタックから関数呼び出しノードのシンボル ID を削除するコードを作成する.
    */
   public String genPopFromCallStackCode() {
 
     var funcName = genPropertyAccessCode(
-      Keywords.JS._this, ScriptIdentifiers.Properties.CALL_STACK, ScriptIdentifiers.JsFuncs.POP);
+        Keywords.Js._this, ScriptIdentifiers.Properties.CALL_STACK, ScriptIdentifiers.JsFuncs.POP);
     return genFuncCallCode(funcName);
   }
 
   /**
-   * 引数で指定した文字列を Javascript の文字列リテラル表現に変換する
+   * {@code varDecl} が出力引数であるかどうかチェックする.
+   *
+   * @param varDecl 変数宣言ノード
+   * @return {@code varDecl} が出力引数である場合 true を返す.
+   */
+  public boolean isOutputParam(SyntaxSymbol varDecl) {
+    return varDecl.findSymbolInAncestors(SymbolNames.UserDefFunc.OUT_PARAM_DECL, 1, true) != null;
+  }
+
+  /** 出力引数の値を取得するコードを作成する. */
+  public String genGetOutputParamValCode(SyntaxSymbol varDecl) {
+    return genPropertyAccessCode(
+        genVarName(varDecl), ScriptIdentifiers.Properties.OUT_PARAM_GETTER) + "()";
+  }
+
+  /** 出力引数に値を設定するコードを作成する. */
+  public String genSetOutputParamValCode(SyntaxSymbol varDecl, String val) {
+    return genPropertyAccessCode(
+        genVarName(varDecl), ScriptIdentifiers.Properties.OUT_PARAM_SETTER) + "(" + val + ")";
+  }
+
+  /**
+   * 引数で指定した文字列を Javascript の文字列リテラル表現に変換する.
    */
   public String toJsString(String str) {
     return "'" + str.replaceAll("\\\\", "\\\\\\\\").replaceAll("'", "\\\\'") + "'";

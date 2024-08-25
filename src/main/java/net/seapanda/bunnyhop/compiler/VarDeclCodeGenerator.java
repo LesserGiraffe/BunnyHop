@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbolID;
 
 /**
  * @author K.Koike
@@ -49,11 +49,11 @@ final public class VarDeclCodeGenerator {
     CompileOption option) {
 
     List<VarDeclCodeGenerator.VarDeclInfo> varDeclInfoList = new ArrayList<>();
-    nodeListToCompile.forEach(node -> {
+    for (SyntaxSymbol node : nodeListToCompile) {
       if (SymbolNames.VarDecl.LIST.contains(node.getSymbolName())) {
         genVarDeclInfos(node, varDeclInfoList);
       }
-    });
+    };
     genVarDecls(code, varDeclInfoList, nestLevel, option);
   }
 
@@ -139,12 +139,13 @@ final public class VarDeclCodeGenerator {
       .findFirst()
       .map(node -> node.getText()).orElse("");
     String varName = common.genVarName(varDeclNode);
+    String outArgName = common.genOutArgName(varDeclNode);
     String initVal = SymbolNames.VarDecl.INIT_VAL_MAP.get(varDeclNode.getSymbolName());
-    varDeclInfoList.add(new VarDeclInfo(varName, initVal, comment));
+    varDeclInfoList.add(new VarDeclInfo(varName, outArgName, initVal, comment));
 
-        SyntaxSymbol nextVarDecl = varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.NEXT_VAR_DECL, "*");
-        if (nextVarDecl != null)
-          genVarDeclInfos(nextVarDecl, varDeclInfoList);
+    SyntaxSymbol nextVarDecl = varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.NEXT_VAR_DECL, "*");
+    if (nextVarDecl != null)
+      genVarDeclInfos(nextVarDecl, varDeclInfoList);
   }
 
   /**
@@ -161,46 +162,68 @@ final public class VarDeclCodeGenerator {
     CompileOption option) {
 
     varDeclInfoList.forEach(varDeclInfo -> {
+      genVarDeclCode(code, varDeclInfo, nestLevel, option);
+      genOutArgDeclCode(code, varDeclInfo, nestLevel, option);
+    });
+  }
 
-      code.append(common.indent(nestLevel))
-        .append(Keywords.JS._let_)
+  private void genVarDeclCode(
+      StringBuilder code,
+      VarDeclInfo varDeclInfo,
+      int nestLevel,
+      CompileOption option) {
+    code.append(common.indent(nestLevel))
+        .append(Keywords.Js._let_)
         .append(varDeclInfo.varName)
         .append(" = ")
         .append(varDeclInfo.initVal)
         .append(";");
 
-      if (option.withComments) {
-        code.append(" /*")
+    if (option.withComments) {
+      code.append(" /*")
           .append(varDeclInfo.comment)
           .append("*/");
-      }
-      code.append(Keywords.newLine);
-    });
+    }
+    code.append(Keywords.newLine);
+  }
+
+  /** 変数宣言から, 出力引数に代入するためのオブジェクトを定義するコードを生成する. */
+  private void genOutArgDeclCode(
+      StringBuilder code,
+      VarDeclInfo varDeclInfo,
+      int nestLevel,
+      CompileOption option) {
+    code.append(common.indent(nestLevel))
+        .append(Keywords.Js._const_)
+        .append(varDeclInfo.outArgName)
+        .append(" = { ")
+        .append(ScriptIdentifiers.Properties.OUT_PARAM_SETTER + ": (v) => ")
+        .append(varDeclInfo.varName)
+        .append(" = v, ")
+        .append(ScriptIdentifiers.Properties.OUT_PARAM_GETTER + ": () => ")
+        .append(varDeclInfo.varName + " };")
+        .append(Keywords.newLine);
   }
 
   /**
-   * 変数定義に必要な情報
+   * 変数宣言に必要な情報.
+   *
+   * @param varName 変数名
+   * @param outArgName 出力引数に代入する変数名
+   * @param initVal 初期値
+   * @param comment コメント (デバッグ用)
    */
-  private static class VarDeclInfo {
-
-    public final String varName;  //!< 変数名
-    public final String initVal;  //!< 初期値
-    public final String comment;  //!< コメント (デバッグ用)
-
-    public VarDeclInfo(String varName, String initVal, String comment) {
-      this.varName = varName;
-      this.initVal = initVal;
-      this.comment = comment;
-    }
-  }
+  private static record VarDeclInfo(
+      String varName, String outArgName, String initVal, String comment) {}
 
   /**
    * 変数宣言文を作成する.
+   *
    * @param code 生成したコードの格納先
    * @param varName 変数名
    * @param initExp 初期値. null の場合は初期値をセットしない.
-    * @param nestLevel ネストレベル
-   * */
+   * @param nestLevel ネストレベル
+   */
   public void genVarDeclStat(
     StringBuilder code,
     String varName,
@@ -208,7 +231,7 @@ final public class VarDeclCodeGenerator {
     int nestLevel) {
 
     code.append(common.indent(nestLevel))
-      .append(Keywords.JS._let_)
+      .append(Keywords.Js._let_)
       .append(varName);
 
     if (initExp != null) {
@@ -219,5 +242,58 @@ final public class VarDeclCodeGenerator {
     else {
       code.append(";").append(Keywords.newLine);
     }
+  }
+
+  /**
+   * 変数定義から, 出力引数に代入するためのオブジェクトを定義するコードを生成する.
+   *
+   * @param varDeclNode 変数定義ノード
+   * @param code 生成したコードの格納先
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   */
+  public void genOutArgs(
+      SyntaxSymbol varDeclNode,
+      StringBuilder code,
+      int nestLevel,
+      CompileOption option) {
+    List<VarDeclCodeGenerator.VarDeclInfo> varDeclInfoList = new ArrayList<>();
+    genVarDeclInfos(varDeclNode, varDeclInfoList);
+    varDeclInfoList.forEach(
+        varDeclInfo -> genOutArgDeclCode(code, varDeclInfo, nestLevel, option));
+  }
+
+  /**
+   * <pre>
+   * {@code symbol} の {@link SyntaxSymbolID} から,
+   * - 変数宣言対
+   * - 出力引数に代入するための変数
+   * を作成する.
+   * </pre>
+   *
+   * @return [0] -> 変数, [1] -> 出力引数に代入するための変数.
+   */
+  public List<String> genVarDeclAndOutVarArg(
+      SyntaxSymbol symbol,
+      String initVal,
+      StringBuilder code,
+      int nestLevel,
+      CompileOption option) {
+    String varName = common.genVarName(symbol);
+    code.append(common.indent(nestLevel))
+        .append(Keywords.Js._let_)
+        .append(varName)
+        .append(" = ")
+        .append(initVal)
+        .append(";")
+        .append(Keywords.newLine);
+
+    String outArgName = common.genOutArgName(symbol);
+    genOutArgDeclCode(
+        code,
+        new VarDeclCodeGenerator.VarDeclInfo(varName, outArgName, "", ""),
+        nestLevel,
+        option);
+    return List.of(varName, outArgName);
   }
 }

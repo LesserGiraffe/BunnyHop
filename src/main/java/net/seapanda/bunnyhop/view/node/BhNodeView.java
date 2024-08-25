@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
@@ -296,8 +295,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     /**
      * このノードビュー以下のノードビューを適切な位置に配置してサイズを変更する.
      *
-     * <p> 4分木空間上の位置も更新する.
-     * @param child 形状が変わった子ノードを含むグループ. このノード自体の形状が変わった場合 null を指定する.
+     * <p> 4分木空間上の位置も更新する. </p>
      */
     public void arrangeAndResize() {
 
@@ -550,7 +548,6 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
      * @param newNode
      */
     public void replace(BhNodeView newNode) {
-
       parent.replace(BhNodeView.this, newNode);
       newNode.notifySizeChange();
     }

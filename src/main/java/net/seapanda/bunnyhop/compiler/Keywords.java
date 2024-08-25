@@ -23,9 +23,10 @@ public class Keywords {
     public static final String varPrefix = "_v";
     public static final String lockVarPrefix = "_lockObj";
     public static final String funcPrefix = "_f";
+    public static final String outArgPrefix = "_vo";
   }
 
-  public static class JS {
+  public static class Js {
     public static final String _if_ = "if ";
     public static final String _else_ = "else ";
     public static final String _while_ = "while ";

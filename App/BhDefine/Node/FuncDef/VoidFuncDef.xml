@@ -7,7 +7,7 @@
 
   <Imitation imitationID="imitIdManual" imitationNodeID="idVoidFuncCall"/>
 
-    <Section name="FuncDefSctn">
+  <Section name="FuncDefSctn">
     
     <ConnectorSection name="FuncNameSctn">
       <Connector

@@ -29,13 +29,8 @@
   };
 
   function _initThisObj() {
-    this._outVals = [];
     this._additionalErrorMsgs = [];
     this._callStack = [];
-  }
-
-  function _genCallObj() {
-    return {_outArgs:[]};
   }
 
   function _genLockObj() {
@@ -192,19 +187,6 @@
       return counter.getAndIncrement();
     }
   })();
-
-  //==================================================================
-  //              test
-  //==================================================================
-  function _outArgTest(in0, in1, in2, out0, out1, out2) {
-    out0 += in0;
-    out1 += in1;
-    out2 += in2;
-    this._outVals[0] = out0;
-    this._outVals[1] = out1;
-    this._outVals[2] = out2;
-    return in0 + in1 + in2;
-  }
 
   //==================================================================
   //              プロセス待ち

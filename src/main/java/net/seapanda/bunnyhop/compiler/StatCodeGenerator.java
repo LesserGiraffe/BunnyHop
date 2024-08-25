@@ -78,40 +78,72 @@ public class StatCodeGenerator {
       genStatement(nextStat, code, nestLevel, option);
   }
 
-
   /**
-   * 代入文のコードを生成する
+   * 代入文のコードを生成する.
+   *
    * @param code 生成したコードの格納先
    * @param assignStatNode 代入文のノード
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   private void genAssignStat(
-    StringBuilder code,
-    SyntaxSymbol assignStatNode,
-    int nestLevel,
-    CompileOption option) {
-
-    SyntaxSymbol varSymbol = assignStatNode.findSymbolInDescendants("*", SymbolNames.AssignStat.LEFT_VAR, "*");
-    String varName = null;
-    if (SymbolNames.VarDecl.VAR_LIST.contains(varSymbol.getSymbolName())) {  //varNode である
-      varName = expCodeGen.genExpression(code, varSymbol, nestLevel, option);
-    }
-
-    SyntaxSymbol rightExp = assignStatNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
+      StringBuilder code,
+      SyntaxSymbol assignStatNode,
+      int nestLevel,
+      CompileOption option) {
+    SyntaxSymbol rightExp = 
+        assignStatNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
     String rightExpCode = expCodeGen.genExpression(code, rightExp, nestLevel, option);
-    if (varName == null || rightExpCode == null)
+    if (rightExpCode == null) {
       return;
+    }
+    SyntaxSymbol varSymbol = 
+        assignStatNode.findSymbolInDescendants("*", SymbolNames.AssignStat.LEFT_VAR, "*");
+    boolean isAddAssign =
+        assignStatNode.getSymbolName().equals(SymbolNames.AssignStat.NUM_ADD_ASSIGN_STAT);
+    genAssignCode(code, varSymbol, rightExpCode, isAddAssign, nestLevel, option);
+  }
 
-    String assignOpe = " = ";
-    if (assignStatNode.getSymbolName().equals(SymbolNames.AssignStat.NUM_ADD_ASSIGN_STAT))
-      assignOpe = " += ";
-
-    code.append(common.indent(nestLevel))
-      .append(varName)
-      .append(assignOpe)
-      .append(rightExpCode)
-      .append(";").append(Keywords.newLine);
+  /**
+   * 代入文のコードを生成する.
+   *
+   * @param code 生成したコードの格納先
+   * @param varSymbol 代入先の変数ノード
+   * @param rightExp 右辺のコード
+   * @param isAddAssign += 代入文を生成する場合 true
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   */
+  private void genAssignCode(
+      StringBuilder code,
+      SyntaxSymbol varSymbol,
+      String rightExp,
+      boolean isAddAssign,
+      int nestLevel,
+      CompileOption option) {
+    if (SymbolNames.VarDecl.VAR_LIST.contains(varSymbol.getSymbolName())) {
+      BhNode varDecl = ((BhNode) varSymbol).getOriginal();
+      if (common.isOutputParam(varDecl)) {
+        if (isAddAssign) {
+          rightExp = "(" + rightExp + " + " + common.genGetOutputParamValCode(varDecl) + ")";
+        }
+        code.append(common.indent(nestLevel))
+            .append(common.genSetOutputParamValCode(varDecl, rightExp))
+            .append(";")
+            .append(Keywords.newLine);
+      } else {
+        String varName = common.genVarName(varDecl);
+        if (isAddAssign) {
+          rightExp = "(" + rightExp + " + " + varName + ")";
+        }
+        code.append(common.indent(nestLevel))
+            .append(varName)
+            .append(" = ")
+            .append(rightExp)
+            .append(";")
+            .append(Keywords.newLine);
+      }
+    }
   }
 
   /**
@@ -131,12 +163,12 @@ public class StatCodeGenerator {
 
     switch (symbolName) {
       case SymbolNames.ControlStat.BREAK_STAT:
-        code.append(common.indent(nestLevel)).append(Keywords.JS._break).append(";")
+        code.append(common.indent(nestLevel)).append(Keywords.Js._break).append(";")
           .append(Keywords.newLine);
         break;
 
       case SymbolNames.ControlStat.CONTINUE_STAT:
-        code.append(common.indent(nestLevel)).append(Keywords.JS._continue).append(";")
+        code.append(common.indent(nestLevel)).append(Keywords.Js._continue).append(";")
           .append(Keywords.newLine);
         break;
 
@@ -159,7 +191,7 @@ public class StatCodeGenerator {
 
       case SymbolNames.ControlStat.RETURN_STAT:
         code.append(common.indent(nestLevel))
-          .append(Keywords.JS._break_).append(ScriptIdentifiers.Label.end).append(";").append(Keywords.newLine);
+          .append(Keywords.Js._break_).append(ScriptIdentifiers.Label.end).append(";").append(Keywords.newLine);
         break;
 
       case SymbolNames.ControlStat.CRITICAL_SECTION_STAT:
@@ -188,7 +220,7 @@ public class StatCodeGenerator {
     SyntaxSymbol condExp = ifElseStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.COND_EXP, "*");
     String condExpCode = expCodeGen.genExpression(code, condExp, nestLevel, option);
     code.append(common.indent(nestLevel))
-      .append(Keywords.JS._if_)
+      .append(Keywords.Js._if_)
       .append("(")
       .append(condExpCode)
       .append(") {")
@@ -205,7 +237,7 @@ public class StatCodeGenerator {
     SyntaxSymbol elseStat = ifElseStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.ELSE_STAT, "*");
     if (elseStat != null) {
       code.append(common.indent(nestLevel))
-        .append(Keywords.JS._else_)
+        .append(Keywords.Js._else_)
         .append("{").append(Keywords.newLine);
       genStatement(elseStat, code, nestLevel + 1, option);
       code.append(common.indent(nestLevel))
@@ -228,20 +260,20 @@ public class StatCodeGenerator {
 
     //conditional part
     code.append(common.indent(nestLevel))
-      .append(Keywords.JS._while_)
+      .append(Keywords.Js._while_)
       .append("(")
-      .append(Keywords.JS._true)
+      .append(Keywords.Js._true)
       .append(") {").append(Keywords.newLine);
 
     SyntaxSymbol condExp = whileStatNode.findSymbolInDescendants("*", SymbolNames.ControlStat.COND_EXP, "*");
     String condExpCode = expCodeGen.genExpression(code, condExp, nestLevel+1, option);
     code.append(common.indent(nestLevel + 1))
-      .append(Keywords.JS._if_)
+      .append(Keywords.Js._if_)
       .append("(!")
       .append(condExpCode)
       .append(") {").append(Keywords.newLine)
       .append(common.indent(nestLevel + 2))
-      .append(Keywords.JS._break).append(";").append(Keywords.newLine)
+      .append(Keywords.Js._break).append(";").append(Keywords.newLine)
       .append(common.indent(nestLevel + 1))
       .append("}").append(Keywords.newLine);
 
@@ -293,7 +325,7 @@ public class StatCodeGenerator {
     String loopCounter = common.genVarName(repeatStatNode);
     String numRepetitionVar = "_" + loopCounter;
     code.append(common.indent(nestLevel))
-      .append(Keywords.JS._const_)
+      .append(Keywords.Js._const_)
       .append(numRepetitionVar)
       .append(" = ")
       .append("Math.floor")
@@ -303,9 +335,9 @@ public class StatCodeGenerator {
 
     //for (init; cond; update)
     code.append(common.indent(nestLevel))
-      .append(Keywords.JS._for_)
+      .append(Keywords.Js._for_)
       .append("(")
-      .append(Keywords.JS._let_)
+      .append(Keywords.Js._let_)
       .append(loopCounter)
       .append(" = 0; ")
       .append(loopCounter)
@@ -340,7 +372,7 @@ public class StatCodeGenerator {
 
     // try {
     code.append(common.indent(nestLevel))
-      .append(Keywords.JS._try_)
+      .append(Keywords.Js._try_)
       .append("{").append(Keywords.newLine);
 
     // lock
@@ -358,7 +390,7 @@ public class StatCodeGenerator {
 
     // fincally { _unlock(...); }
     code.append(common.indent(nestLevel))
-    .append(Keywords.JS._finally_).append("{ ")
+    .append(Keywords.Js._finally_).append("{ ")
       .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.UNLOCK, lockVar))
       .append("; }").append(Keywords.newLine);
   }

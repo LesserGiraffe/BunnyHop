@@ -24,7 +24,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Optional;
-
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.common.constant.BhParams;
@@ -49,8 +48,7 @@ public class BhCompiler {
   private String remoteCommonCode;
   private String localCommonCode;
 
-  private BhCompiler(){
-
+  private BhCompiler() {
     common = new CommonCodeGenerator();
     varDeclCodeGen = new VarDeclCodeGenerator(common);
     ExpCodeGenerator expCodeGen = new ExpCodeGenerator(common, varDeclCodeGen);
@@ -152,6 +150,7 @@ public class BhCompiler {
 
     genCodeForIdentifierDef(code, 1, option);
     varDeclCodeGen.genVarDecls(nodeListToCompile, code, 1, option);
+    
     globalDataDeclCodeGen.genGlobalDataDecls(nodeListToCompile, code, 1, option);
     code.append(Keywords.newLine);
     funcDefCodeGen.genFuncDefs(nodeListToCompile, code, 1, option);
@@ -178,7 +177,7 @@ public class BhCompiler {
   private void genCodeForIdentifierDef(StringBuilder code, int nestLevel, CompileOption option) {
 
     code.append(common.indent(nestLevel))
-      .append(common.genFuncPrototypeCallCode(ScriptIdentifiers.Funcs.INIT_THIS_OBJ, Keywords.JS._this))
+      .append(common.genFuncPrototypeCallCode(ScriptIdentifiers.Funcs.INIT_THIS_OBJ, Keywords.Js._this))
       .append(";").append(Keywords.newLine);
   }
 

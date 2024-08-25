@@ -17,7 +17,6 @@ package net.seapanda.bunnyhop.modelprocessor;
 
 import java.util.Deque;
 import java.util.LinkedList;
-
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
@@ -44,7 +43,7 @@ public class ImitationBuilder implements BhModelProcessor {
    * @param userOpeCmd undo用コマンドオブジェクト
    * @return 作成したイミテーションノードツリーのトップノード
    * */
-  public static Imitatable buildReferingAncestor(
+  public static Imitatable buildFromImitIdOfAncestor(
     Imitatable node, boolean buildMVC, UserOperationCommand userOpeCmd) {
 
     var builder = new ImitationBuilder(ImitationID.NONE, buildMVC, userOpeCmd);
@@ -76,7 +75,7 @@ public class ImitationBuilder implements BhModelProcessor {
   }
 
   /**
-   * @param node イミテーションを作成して、入れ替えを行いたいオリジナルノード
+   * {@code node} のイミテーションノードを作成する.
    */
   @Override
   public void visit(ConnectiveNode node) {

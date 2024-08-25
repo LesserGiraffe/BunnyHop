@@ -57,6 +57,6 @@ public enum BhMsg {
   GET_NODE_BODY_RANGE, //!< BhNodeのボディのワークスペース上での範囲を取得する
   REMOVE_NODE_TO_PASTE, //!< 貼り付け予定のノードを貼り付け候補から取り除く
   SELECT_NODE_VIEW, //!< ノードビューの選択表示の有効/無効状態を切り替える
-  LOOK_AT_NODE_VIEW, //!< 特定のノードビューをワークスぺ^ス中央に表示する
+  LOOK_AT_NODE_VIEW, //!< 特定のノードビューをワークスぺース中央に表示する
   IS_TEMPLATE_NODE, //!< テンプレートノードかどうかを調べる
 }

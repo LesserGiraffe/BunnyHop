@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
@@ -193,20 +192,20 @@ public class EventHandlerCodeGenerator {
 
     // function funcName() {...
     code.append(common.indent(nestLevel))
-      .append(Keywords.JS._function_)
+      .append(Keywords.Js._function_)
       .append(funcName)
       .append("(){").append(Keywords.newLine);
 
     // if (_tryLock(lockObj)) {
     code.append(common.indent(nestLevel + 1))
-      .append(Keywords.JS._if_)
+      .append(Keywords.Js._if_)
       .append("(")
       .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.TRY_LOCK, lockVar))
       .append(") {").append(Keywords.newLine);
 
     //try {
     code.append(common.indent(nestLevel + 2))
-      .append(Keywords.JS._try_)
+      .append(Keywords.Js._try_)
       .append("{").append(Keywords.newLine);
 
     // _end : {...
@@ -215,7 +214,7 @@ public class EventHandlerCodeGenerator {
 
     // _initThisObj.call(this);
     code.append(common.indent(nestLevel + 4))
-      .append(common.genFuncPrototypeCallCode(ScriptIdentifiers.Funcs.INIT_THIS_OBJ, Keywords.JS._this))
+      .append(common.genFuncPrototypeCallCode(ScriptIdentifiers.Funcs.INIT_THIS_OBJ, Keywords.Js._this))
       .append(";").append(Keywords.newLine);
   }
 
@@ -240,7 +239,7 @@ public class EventHandlerCodeGenerator {
     //     _unlock(...);
     // }
     code.append(common.indent(nestLevel + 2))
-      .append(Keywords.JS._finally_).append("{").append(Keywords.newLine)
+      .append(Keywords.Js._finally_).append("{").append(Keywords.newLine)
       .append(common.indent(nestLevel + 3))
       .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.UNLOCK, lockVar))
       .append(";").append(Keywords.newLine)

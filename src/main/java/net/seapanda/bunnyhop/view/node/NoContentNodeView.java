@@ -57,7 +57,6 @@ public class NoContentNodeView extends BhNodeView {
 
   @Override
   protected void arrangeAndResize() {
-
     boolean inner = (parent == null) ? true : parent.inner;
     if (inner)
       getAppearanceManager().setBodyShape(viewStyle.bodyShape);

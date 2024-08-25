@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import net.seapanda.bunnyhop.common.Showable;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -124,8 +123,8 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
     for (Entry<String, BhNodeView> entrySet : cnctrNameToNodeView.entrySet()) {
       if (entrySet.getValue().equals(oldNodeView)) {
         entrySet.setValue(newNodeView);
-                newNodeView.getTreeManager().setParentGroup(this);    //親をセット
-                oldNodeView.getTreeManager().setParentGroup(null);    //親を削除
+        newNodeView.getTreeManager().setParentGroup(this);    //親をセット
+        oldNodeView.getTreeManager().setParentGroup(null);    //親を削除
         newNodeView.getTreeManager().addToGUITree(oldNodeView.getParent());
         return;
       }

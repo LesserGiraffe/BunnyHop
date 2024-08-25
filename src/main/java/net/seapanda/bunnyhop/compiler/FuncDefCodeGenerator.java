@@ -17,7 +17,6 @@ package net.seapanda.bunnyhop.compiler;
 
 import java.util.Collection;
 import java.util.List;
-
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 
@@ -75,21 +74,19 @@ public class FuncDefCodeGenerator {
 
     String funcName = common.genFuncName(funcDefNode);
     code.append(common.indent(nestLevel))
-      .append(Keywords.JS._function_)
-      .append(funcName)
-      .append("(");
-
+        .append(Keywords.Js._function_)
+        .append(funcName)
+        .append("(");
     if (option.withComments) {
       TextNode funcNameNode = ((TextNode)funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.FUNC_NAME, "*"));
       code.append(" /*").append(funcNameNode.getText()).append("*/");
     }
-
     SyntaxSymbol param = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.PARAM_DECL, "*");
     SyntaxSymbol outParam = funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.UserDefFunc.OUT_PARAM_DECL, "*");
     List<String> outArgs = varDeclCodeGen.genParamList(param, outParam, code, nestLevel + 1, option);
     code.append(") {").append(Keywords.newLine);
+    varDeclCodeGen.genOutArgs(param, code, nestLevel + 1, option);
     genFuncDefInner(funcDefNode, code, nestLevel + 1, option);
-    genOutArgCopy(code, outArgs, nestLevel + 1);
     code.append(common.indent(nestLevel))
       .append("}").append(Keywords.newLine).append(Keywords.newLine);
   }
@@ -115,24 +112,6 @@ public class FuncDefCodeGenerator {
     statCodeGen.genStatement(stat, code, nestLevel + 1, option);
     code.append(common.indent(nestLevel))
       .append("}").append(Keywords.newLine);
-  }
-
-  /**
-   * 出力引数のコピーコードを作成する
-   * @param code 生成したコードの格納先
-   * @param outArgs 出力引数名のリスト
-   * @param nestLevel ソースコードのネストレベル
-   */
-  private void genOutArgCopy(StringBuilder code, List<String> outArgs, int nestLevel) {
-
-    String outValListName =
-      common.genPropertyAccessCode(Keywords.JS._this, ScriptIdentifiers.Properties.OUT_VALS);
-    for (int i = 0; i < outArgs.size(); ++i) {
-      code.append(common.indent(nestLevel))
-        .append(outValListName).append("[").append(i).append("]")
-        .append(" = ")
-        .append(outArgs.get(i)).append(";").append(Keywords.newLine);
-    }
   }
 }
 

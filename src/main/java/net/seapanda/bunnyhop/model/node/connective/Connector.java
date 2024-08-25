@@ -18,11 +18,6 @@ package net.seapanda.bunnyhop.model.node.connective;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
-
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.ScriptableObject;
-
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -40,6 +35,9 @@ import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.ScriptableObject;
 
 /**
  * ノードとノードをつなぐ部分のクラス

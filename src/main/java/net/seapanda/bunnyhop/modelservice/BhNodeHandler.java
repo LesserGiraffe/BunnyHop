@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.MsgService;
@@ -58,7 +57,6 @@ public class BhNodeHandler {
    * @param userOpeCmd undo用コマンドオブジェクト
    * */
   public void addRootNode(Workspace ws, BhNode node, double x, double y, UserOperationCommand userOpeCmd) {
-
     Vec2D curPos = MsgService.INSTANCE.getPosOnWS(node);
     WorkspaceRegisterer.register(node, ws, userOpeCmd);  //ツリーの各ノードへのWSの登録
     MsgService.INSTANCE.addRootNode(node, ws, userOpeCmd);  //ワークスペース直下に追加
@@ -307,26 +305,6 @@ public class BhNodeHandler {
 
     SyntaxErrorNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);
     SyntaxErrorNodeManager.INSTANCE.collect(newNode, userOpeCmd);
-    SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
-  }
-
-  /**
-   * 新しく作られた子ノードを古いノードと入れ替える
-   * @param oldChildNode 入れ替え対象の古いノード. 呼び出した後, WS直下にもノードツリーにも居ない状態になるが消去はされない.
-   * @param newNode 入れ替え対象の新しいノード (新規作成されたノード)
-   * @param userOpeCmd undo用コマンドオブジェクト
-   */
-  public void replaceChildNewlyCreated(BhNode oldChildNode, BhNode newNode, UserOperationCommand userOpeCmd) {
-
-    //新しいノードを4分木空間に登録し, ビューツリーにつなぐ
-    Workspace ws = oldChildNode.getWorkspace();
-    WorkspaceRegisterer.register(newNode, ws, userOpeCmd);    //ツリーの各ノードへのWSの登録
-    MsgService.INSTANCE.addQTRectangle(newNode, ws, userOpeCmd);
-    MsgService.INSTANCE.replaceChildNodeView(oldChildNode, newNode, userOpeCmd);
-    oldChildNode.replace(newNode, userOpeCmd);  //イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
-
-    SyntaxErrorNodeManager.INSTANCE.collect(newNode, userOpeCmd);
-    SyntaxErrorNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);
     SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
   }
 

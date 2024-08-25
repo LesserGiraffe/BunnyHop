@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.view.connectorshape;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
 
 /**

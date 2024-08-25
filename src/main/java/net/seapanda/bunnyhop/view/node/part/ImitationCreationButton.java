@@ -17,7 +17,6 @@ package net.seapanda.bunnyhop.view.node.part;
 
 import java.io.IOException;
 import java.util.Optional;
-
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import net.seapanda.bunnyhop.common.Vec2D;
@@ -64,7 +63,7 @@ public final class ImitationCreationButton extends Button {
   }
 
   /**
-   * イミテーション作成時のイベントハンドラ
+   * イミテーション作成時のイベントハンドラ.
    */
   private static void onImitCreating(ActionEvent event, Imitatable node) {
 
@@ -82,7 +81,7 @@ public final class ImitationCreationButton extends Button {
   }
 
   /**
-   * @param model 作成するイミテーションのオリジナルノード
+   * @param node 作成するイミテーションのオリジナルノード
    */
   private static void createImitationNode(Imitatable node) {
 

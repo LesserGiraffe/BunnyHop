@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
@@ -112,7 +111,6 @@ public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatab
    * @param userOpeCmd undo用コマンドオブジェクト
    */
   public void addImitation(T imitNode, UserOperationCommand userOpeCmd) {
-
     imitNodeList.add(imitNode);
     userOpeCmd.pushCmdOfAddImitation(imitNode, self());
   }
@@ -123,7 +121,6 @@ public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatab
    * @param userOpeCmd undo用コマンドオブジェクト
    */
   public void removeImitation(T imitNode, UserOperationCommand userOpeCmd) {
-
     imitNodeList.remove(imitNode);
     userOpeCmd.pushCmdOfRemoveImitation(imitNode, self());
   }
@@ -164,7 +161,7 @@ public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatab
         }
       }
     }
-    return ImitationBuilder.buildReferingAncestor(this, true, userOpeCmd);
+    return ImitationBuilder.buildFromImitIdOfAncestor(this, true, userOpeCmd);
   }
 
   @Override

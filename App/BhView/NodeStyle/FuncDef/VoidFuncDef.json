@@ -11,28 +11,32 @@
   "connectorBoundsRate" : 1.25,
   "cssClass" : "voidFuncDefType",
     
-    "connective" : {
+  "connective" : {
     "inner" : {
       "arrangement" : "Column",
       "space" : 2.0,
       "connectorList" : ["FuncName"],
       "subGroup0" : {
-        "arrangement" : "Row",
-        "space" : 4.0,
+        "arrangement" : "Column",
+        "space" : 2.0,
         "subGroup0" : {
-          "arrangement" : "Column",
-          "space" : 0.0,
-          "connectorList" : ["StatList"]
+          "arrangement" : "Row",
+          "space" : 2.0,
+          "subGroup0" : {
+            "arrangement" : "Column",
+            "space" : 1.0,
+            "connectorList" : ["nyuryoku", "ParamDecl"]
+          },
+          "subGroup1" : {
+            "arrangement" : "Column",
+            "space" : 1.0,
+            "connectorList" : ["shuturyoku", "OutParamDecl"]
+          }
         },
         "subGroup1" : {
           "arrangement" : "Column",
-          "space" : 1.0,
-          "connectorList" : ["nyuryoku", "ParamDecl"]
-        },
-        "subGroup2" : {
-          "arrangement" : "Column",
-          "space" : 1.0,
-          "connectorList" : ["shuturyoku", "OutParamDecl"]
+          "space" : 0.0,
+          "connectorList" : ["StatList"]
         }
       }
     }

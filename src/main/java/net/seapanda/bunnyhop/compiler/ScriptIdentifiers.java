@@ -84,9 +84,10 @@ public class ScriptIdentifiers {
 
 
   public static class Properties {
-    public static final String OUT_VALS = "_outVals";
     public static final String HAS_BH_EXCEPTION = "_hasBhException";
     public static final String CALL_STACK = "_callStack";
+    public static final String OUT_PARAM_SETTER = "_set";
+    public static final String OUT_PARAM_GETTER = "_get";
   }
 
   public static class Vars {
