@@ -1,5 +1,5 @@
 .colorType {
-  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, colorTypeCol 50%, derive(colorTypeCol, 35%) 0mm);
+  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, colorTypeCol 50%, derive(colorTypeCol, 25%) 0mm);
 }
 
 .colorType:isEven {
@@ -7,7 +7,7 @@
 }
 
 .colorVarType {
-  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, colorTypeCol 50%, derive(colorTypeCol, 35%) 0mm);
+  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, colorTypeCol 50%, derive(colorTypeCol, 25%) 0mm);
 }
 
 .colorVarType:isEven {

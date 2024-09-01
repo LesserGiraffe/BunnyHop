@@ -1,5 +1,5 @@
 .strType {
-  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, strTypeCol 50%, derive(strTypeCol, 60%) 0mm);
+  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, strTypeCol 50%, derive(strTypeCol, 30%) 0mm);
 }
 
 .strType:isEven {
@@ -7,7 +7,7 @@
 }
 
 .strVarType {
-  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, strTypeCol 50%, derive(strTypeCol, 60%) 0mm);
+  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, strTypeCol 50%, derive(strTypeCol, 30%) 0mm);
 }
 
 .strVarType:isEven {

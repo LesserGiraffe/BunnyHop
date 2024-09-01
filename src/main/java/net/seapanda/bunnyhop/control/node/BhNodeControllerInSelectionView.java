@@ -17,7 +17,6 @@
 package net.seapanda.bunnyhop.control.node;
 
 import javafx.geometry.Point2D;
-import net.seapanda.bunnyhop.common.Single;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
@@ -38,6 +37,7 @@ import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
 import net.seapanda.bunnyhop.view.node.TextInputNodeView;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
+import org.apache.commons.lang3.mutable.MutableObject;
 
 /**
  * ノード選択リストにあるノードのコントローラ.
@@ -52,7 +52,7 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
   /** 上のview ルートとなる view. */
   private final BhNodeView rootView;
   /** 現在、テンプレートのBhNodeView 上で発生したマウスイベントを送っているワークスペース上の view. */
-  private final Single<BhNodeView> currentView = new Single<>();
+  private final MutableObject<BhNodeView> currentView = new MutableObject<>(null);
   
   /**
    * コンストラクタ.
@@ -102,7 +102,7 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
             BhNode newNode = model.findRootNode().copy(userOpeCmd, (bhNode) -> true);
             BhNodeView nodeView = NodeMvcBuilder.build(newNode); //MVC構築
             TextImitationPrompter.prompt(newNode);
-            currentView.content = nodeView;
+            currentView.setValue(nodeView);
             Vec2D posOnRootView = calcRelativePosFromRoot();  //クリックされたテンプレートノードのルートノード上でのクリック位置
             posOnRootView.x += mouseEvent.getX();
             posOnRootView.y += mouseEvent.getY();
@@ -116,7 +116,7 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
                 userOpeCmd);
             MsgTransporter.INSTANCE.sendMessage(
                 BhMsg.SET_USER_OPE_CMD, new MsgData(userOpeCmd), newNode);  // undo 用コマンドセット
-            currentView.content.getEventManager().propagateEvent(mouseEvent);
+            currentView.getValue().getEventManager().propagateEvent(mouseEvent);
             BhNodeSelectionService.INSTANCE.hideAll();
             mouseEvent.consume();
           } finally {
@@ -128,10 +128,10 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
   /** マウスドラッグ時のイベントハンドラを登録する. */
   private void setOnMouseDragged() {
     view.getEventManager().setOnMouseDragged(mouseEvent -> {
-      if (currentView.content == null) {
+      if (currentView.getValue() == null) {
         return;
       }
-      currentView.content.getEventManager().propagateEvent(mouseEvent);
+      currentView.getValue().getEventManager().propagateEvent(mouseEvent);
     });
   }
 
@@ -140,10 +140,10 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
     view.getEventManager().setOnDragDetected(mouseEvent -> {
       ModelExclusiveControl.INSTANCE.lockForModification();
       try {
-        if (currentView.content == null) {
+        if (currentView.getValue() == null) {
           return;
         }
-        currentView.content.getEventManager().propagateEvent(mouseEvent);
+        currentView.getValue().getEventManager().propagateEvent(mouseEvent);
       } finally {
         ModelExclusiveControl.INSTANCE.unlockForModification();
       }
@@ -155,11 +155,11 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
     view.getEventManager().setOnMouseReleased(mouseEvent -> {
       ModelExclusiveControl.INSTANCE.lockForModification();
       try {
-        if (currentView.content == null) {
+        if (currentView.getValue() == null) {
           return;
         }
-        currentView.content.getEventManager().propagateEvent(mouseEvent);
-        currentView.content = null;
+        currentView.getValue().getEventManager().propagateEvent(mouseEvent);
+        currentView.setValue(null);
       } finally {
         ModelExclusiveControl.INSTANCE.unlockForModification();
       }
