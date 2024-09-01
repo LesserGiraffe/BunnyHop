@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,56 +13,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.model.node.imitation;
 
 import java.io.Serializable;
 import java.util.Objects;
-
+import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
- * イミテーションの接続先の識別子
+ * 作成するイミテーションを識別するための ID.
+ *
  * @author K.Koike
  */
-public class ImitationConnectionPos implements Serializable {
+public class ImitationId implements Serializable {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  public static final ImitationConnectionPos NONE = new ImitationConnectionPos("");  //!< イミテーション接続位置が存在しないことを表す
-  private final String pos;
+  /** イミテーションIDが存在しないことを表す null オブジェクト. */
+  public static final ImitationId NONE = new ImitationId("");
+  /** イミテーション手動作成時のID. */
+  public static final ImitationId MANUAL =
+      new ImitationId(BhParams.BhModelDef.ATTR_VAL_IMIT_ID_MANUAL);
+  private final String id;
 
   /**
-   * コンストラクタ
-   * @param point 接続先名
+   * コンストラクタ.
+   *
+   * @param id 識別子名
    */
-  private ImitationConnectionPos(String point) {
-    this.pos = point;
+  private ImitationId(String id) {
+    this.id = id;
   }
 
   /**
-   * イミテーション接続位置の識別子を作成する
-   * @param point イミテーション接続位置名
-   * @return イミテーション接続位置の識別子
+   * イミテーションIDを作成する.
+   *
+   * @param id 識別子名
+   * @return イミテーションID
    */
-  public static ImitationConnectionPos createImitCnctPoint(String point) {
-    return new ImitationConnectionPos(point == null ? "" : point);
+  public static ImitationId create(String id) {
+    return new ImitationId(id == null ? "" : id);
   }
 
   @Override
   public String toString() {
-    return pos;
+    return id;
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null)
+    if (obj == null) {
       return false;
-    return (getClass() == obj.getClass()) && (pos.equals(((ImitationConnectionPos)obj).pos));
+    }
+    return (getClass() == obj.getClass()) && (id.equals(((ImitationId) obj).id));
   }
 
   @Override
   public int hashCode() {
-    int hash = 5;
-    hash = 71 * hash + Objects.hashCode(this.pos);
+    int hash = 7;
+    hash = 59 * hash + Objects.hashCode(this.id);
     return hash;
   }
 }

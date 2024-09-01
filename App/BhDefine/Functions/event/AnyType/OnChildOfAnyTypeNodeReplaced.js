@@ -14,7 +14,7 @@
     if (staticTypeNodeID === null)
       return null;
 
-    let posOnWS = bhMsgService.getPosOnWS(bhThis);
+    let posOnWS = bhMsgService.getPosOnWs(bhThis);
     let staticTypeNode = bhCommon.addNewNodeToWS(
       staticTypeNodeID,
       bhThis.getWorkspace(),

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.compiler;
 
+/** 生成するコードで使用するキーワード.
+ *
+ * @author K.Koike
+ */
 public class Keywords {
 
   public static final String newLine = "\r\n";
 
+  /** 変数や関数に付く接頭辞. */
   public static class Prefix {
     public static final String varPrefix = "_v";
     public static final String lockVarPrefix = "_lockObj";
@@ -26,6 +32,7 @@ public class Keywords {
     public static final String outArgPrefix = "_vo";
   }
 
+  /** Javascript のキーワード. */
   public static class Js {
     public static final String _if_ = "if ";
     public static final String _else_ = "else ";

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.modelprocessor;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
@@ -21,7 +22,8 @@ import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
- * ノードツリーの全ノードを非選択にするクラス
+ * ノードツリーの全ノードを非選択にするクラス.
+ *
  * @author K.Koike
  */
 public class NodeDeselector implements BhModelProcessor {
@@ -30,16 +32,18 @@ public class NodeDeselector implements BhModelProcessor {
 
   /**
    * 引数で指定したノード以下のノードを非選択にする.
+   *
    * @param node このノード以下のノードを非選択にする.
-   * @param userOpeCmd undo用コマンドオブジェクト
+   * @param userOpeCmd undo 用コマンドオブジェクト
    * */
   public static void deselect(BhNode node, UserOperationCommand userOpeCmd) {
     node.accept(new NodeDeselector(userOpeCmd));
   }
 
   /**
-   * コンストラクタ
-   * @param userOpeCmd undo用コマンドオブジェクト
+   * コンストラクタ.
+   *
+   * @param userOpeCmd undo 用コマンドオブジェクト
    */
   private NodeDeselector(UserOperationCommand userOpeCmd) {
     this.userOpeCmd = userOpeCmd;
@@ -47,14 +51,16 @@ public class NodeDeselector implements BhModelProcessor {
 
   @Override
   public void visit(ConnectiveNode node) {
-    if (node.isSelected())
+    if (node.isSelected()) {
       node.getWorkspace().removeSelectedNode(node, userOpeCmd);
+    }
     node.sendToSections(this);
   }
 
   @Override
   public void visit(TextNode node) {
-    if (node.isSelected())
+    if (node.isSelected()) {
       node.getWorkspace().removeSelectedNode(node, userOpeCmd);
+    }
   }
 }

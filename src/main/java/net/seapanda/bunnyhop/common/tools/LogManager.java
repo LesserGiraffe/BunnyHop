@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.common.tools;
 
 import java.io.IOException;
@@ -23,16 +24,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-
 import net.seapanda.bunnyhop.common.constant.BhParams;
 
 /**
- * ログ出力クラス
+ * ログ出力クラス.
+ *
  * @author K.Koike
- * */
+ */
 public class LogManager {
-
-  public static final LogManager INSTANCE = new LogManager();  //!< シングルトンインスタンス
+  /** シングルトンインスタンス. */
+  public static final LogManager INSTANCE = new LogManager();
   private OutputStream logOutputStream;
 
   private LogManager() {}
@@ -42,33 +43,35 @@ public class LogManager {
     return true;
   }
 
-  /**
-   * ログ機能を初期化する
-   */
+  /** ログ機能を初期化する. */
   private boolean initLogSystem() {
-
+    var logDirPath = Paths.get(Util.INSTANCE.execPath, BhParams.Path.LOG_DIR);
+    if (!Util.INSTANCE.createDirectoryIfNotExists(logDirPath)) {
+      return false;
+    }
     Path logFilePath = genLogFilePath(0);
-    if (!Util.INSTANCE.createDirectoryIfNotExists(Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.LOG_DIR)))
+    if (!Util.INSTANCE.createFileIfNotExists(logFilePath)) {
       return false;
-
-    if (!Util.INSTANCE.createFileIfNotExists(logFilePath))
-      return false;
-
+    }
     try {
       //ログローテーション
-      if (Files.size(logFilePath) > BhParams.Message.LOG_FILE_SIZE_LIMIT)
-        if (!renameLogFiles())
+      if (Files.size(logFilePath) > BhParams.Message.LOG_FILE_SIZE_LIMIT) {
+        if (!renameLogFiles()) {
           return false;
-      logOutputStream = Files.newOutputStream(logFilePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND, StandardOpenOption.WRITE);
-    }
-    catch (IOException | SecurityException e) {
+        }
+        logOutputStream = Files.newOutputStream(
+            logFilePath,
+            StandardOpenOption.CREATE, StandardOpenOption.APPEND, StandardOpenOption.WRITE);
+      }
+    } catch (IOException | SecurityException e) {
       return false;
     }
     return true;
   }
 
   /**
-   * ログファイルにメッセージを書き込む
+   * ログファイルにメッセージを書き込む.
+   *
    * @param msg ログファイルに書き込むメッセージ
    */
   synchronized void writeMsgToLogFile(String msg) {
@@ -78,29 +81,28 @@ public class LogManager {
         logOutputStream.write(msg.getBytes(StandardCharsets.UTF_8));
         logOutputStream.flush();
       }
-    }
-    catch(IOException | SecurityException e) {}
+    } catch (IOException | SecurityException e) { /* do nothing */ }
   }
 
   /**
-   * ログローテンションのため, ログファイルをリネームする
+   * ログローテンションのため, ログファイルをリネームする.
+   *
    * @return リネームに成功した場合true
    */
   private boolean renameLogFiles() {
-
     try {
       Path oldestLogFilePath = genLogFilePath(BhParams.Message.MAX_LOG_FILE_NUM - 1);
-      if (Files.exists(oldestLogFilePath))
+      if (Files.exists(oldestLogFilePath)) {
         Files.delete(oldestLogFilePath);
-
+      }
       for (int fileNo = BhParams.Message.MAX_LOG_FILE_NUM - 2; fileNo >= 0; --fileNo) {
         Path oldLogFilePath = genLogFilePath(fileNo);
         Path newLogFilePath = genLogFilePath(fileNo + 1);
-        if (Files.exists(oldLogFilePath))
+        if (Files.exists(oldLogFilePath)) {
           Files.move(oldLogFilePath, newLogFilePath, StandardCopyOption.ATOMIC_MOVE);
+        }
       }
-    }
-    catch (IOException | SecurityException e) {
+    } catch (IOException | SecurityException e) {
       return false;
     }
     return true;
@@ -110,18 +112,16 @@ public class LogManager {
     String numStr = ("0000" + fileNo);
     numStr = numStr.substring(numStr.length() - 4, numStr.length());
     String logFileName = BhParams.Path.LOG_FILE_NAME + numStr + ".log";
-    return Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.LOG_DIR, logFileName);
+    return Paths.get(Util.INSTANCE.execPath, BhParams.Path.LOG_DIR, logFileName);
   }
 
 
-  /**
-   * 終了処理をする
-   */
+  /** 終了処理をする. */
   void end() {
     try {
-      if (logOutputStream != null)
+      if (logOutputStream != null) {
         logOutputStream.close();
-    }
-    catch (IOException e) {}
+      }
+    } catch (IOException e) { /* do nothing */ }
   }
 }

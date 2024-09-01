@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.message;
 
 /**
- * BhMsgを処理するクラスのインタフェース
+ * BhMsgを処理するクラスのインタフェース.
+ *
  * @author K.Koike
  */
 public interface MsgProcessor {
 
   /**
-   * メッセージを処理する
+   * メッセージを処理する.
+   *
    * @param msg 受信したメッセージ
    * @param data 受信したデータ
    * @return 受信したメッセージに対する返信データ
-   * */
+   */
   MsgData processMsg(BhMsg msg, MsgData data);
 }

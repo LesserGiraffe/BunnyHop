@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.common.constant;
 
-
 /**
+ * バージョン情報を格納するクラス.
+ *
  * @author K.Koike
  */
 public class VersionInfo {
-
   public static final int MAJOR = 1;
   public static final int MINOR = 4;
   public static final int PATCH = 2;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.bhprogram;
 
 import com.jcraft.jsch.UserInfo;
-
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 
 /**
- * SSH接続時に必要な情報を返す機能を持つクラス
+ * SSH接続時に必要な情報を返す機能を持つクラス.
+ *
  * @author K.Koike
  */
 public class UserInfoImpl implements UserInfo {
@@ -30,20 +31,19 @@ public class UserInfoImpl implements UserInfo {
   private final String password;
 
   /**
-   * コンストラクタ
+   * コンストラクタ.
+   *
    * @param host ホスト名. null禁止
    * @param uname ユーザー名. null禁止
    * @param password パスワード. null禁止
-   * */
+   */
   public UserInfoImpl(String host, String uname, String password) {
     this.host = host == null ? "" : host;
     this.uname = uname == null ? "" : uname;
     this.password = password == null ? "" : password;
   }
 
-  /**
-   * コピーコンストラクタ
-   * */
+  /** コピーコンストラクタ. */
   public UserInfoImpl(UserInfoImpl original) {
     this.host = original.host;
     this.uname = original.uname;
@@ -80,7 +80,7 @@ public class UserInfoImpl implements UserInfo {
     MsgPrinter.INSTANCE.msgForUser(message + "\n");
   }
 
-  public String getUname () {
+  public String getUname() {
     return uname;
   }
 
@@ -89,9 +89,10 @@ public class UserInfoImpl implements UserInfo {
   }
 
   /**
-   * このオブジェクトの接続先と同じかどうかを調べる
+   * このオブジェクトの接続先と同じかどうかを調べる.
+   *
    * @return 引数の接続先がこのオブジェクトが表す接続先と同じ場合true
-   * */
+   */
   public boolean isSameAccessPoint(String host, String uname) {
     return this.uname.equals(uname) && this.host.contentEquals(host);
   }

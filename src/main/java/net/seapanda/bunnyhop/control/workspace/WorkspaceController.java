@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.control.workspace;
 
 import java.lang.reflect.Field;
@@ -21,7 +22,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
@@ -35,7 +35,7 @@ import net.seapanda.bunnyhop.modelservice.DelayedDeleter;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
-import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OVERLAP_OPTION;
+import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import net.seapanda.bunnyhop.view.ViewHelper;
@@ -44,9 +44,9 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
-
 /**
- * ワークスペースとそれに関連するビューのコントローラ
+ * ワークスペースとそれに関連するビューのコントローラ.
+ *
  * @author K.Koike
  */
 public class WorkspaceController implements MsgProcessor {
@@ -55,16 +55,18 @@ public class WorkspaceController implements MsgProcessor {
   private WorkspaceView view;
   private MultiNodeShifterController nodeShifterController;
 
-  public WorkspaceController () {}
+  /** コンストラクタ. */
+  public WorkspaceController() {}
 
   /**
-   * コンストラクタ
+   * コンストラクタ.
+   *
    * @param model 操作対象のモデル
    * @param view 操作対象のするビュー
    * @param nodeShifterView 操作対象のノードシフタビュー
    */
-  public WorkspaceController(Workspace model, WorkspaceView view, MultiNodeShifterView nodeShifterView) {
-
+  public WorkspaceController(
+      Workspace model, WorkspaceView view, MultiNodeShifterView nodeShifterView) {
     this.model = model;
     this.view = view;
     view.addtMultiNodeShifterView(nodeShifterView);
@@ -72,107 +74,96 @@ public class WorkspaceController implements MsgProcessor {
     setMouseEventHandlers();
   }
 
-  /**
-   * マウスイベント関連のハンドラを登録する.
-   */
+  /** マウスイベント関連のハンドラを登録する. */
   private void setMouseEventHandlers() {
-
     Vec2D mousePressedPos = new Vec2D(0.0, 0.0);
     setOnMousePressedHandler(mousePressedPos);
     setOnMouseDraggedHandler(mousePressedPos);
     setOnMouseReleasedHandler(mousePressedPos);
   }
 
-  /**
-   * マウスボタン押下時のイベントハンドラを登録する
+  /** マウスボタン押下時のイベントハンドラを登録する.
+   *
    * @param mousePressedPos マウスボタン押下時のカーソル位置の格納先
    */
   private void setOnMousePressedHandler(Vec2D mousePressedPos) {
-
     // WSをクリックしたときにテキストフィールドのカーソルが消えなくなるので, マウスイベントをconsumeしない.
-    view.setOnMousePressed(
-      mouseEvent -> {
-        if (!mouseEvent.isShiftDown()) {
-          UserOperationCommand userOpeCmd = new UserOperationCommand();
-          BhNodeSelectionService.INSTANCE.hideAll();
-          model.clearSelectedNodeList(userOpeCmd);
-          BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-        }
-        ViewHelper.INSTANCE.deleteShadow(model);
-        mousePressedPos.x = mouseEvent.getX();
-        mousePressedPos.y = mouseEvent.getY();
-        view.showSelectionRectangle(mousePressedPos, mousePressedPos);
-      });
+    view.setOnMousePressed(mouseEvent -> {
+      if (!mouseEvent.isShiftDown()) {
+        UserOperationCommand userOpeCmd = new UserOperationCommand();
+        BhNodeSelectionService.INSTANCE.hideAll();
+        model.clearSelectedNodeList(userOpeCmd);
+        BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+      }
+      ViewHelper.INSTANCE.deleteShadow(model);
+      mousePressedPos.x = mouseEvent.getX();
+      mousePressedPos.y = mouseEvent.getY();
+      view.showSelectionRectangle(mousePressedPos, mousePressedPos);
+    });
   }
 
   /**
-   * マウスドラッグ時のイベントハンドラを登録する
+   * マウスドラッグ時のイベントハンドラを登録する.
+   *
    * @param mousePressedPos マウスボタン押下時のカーソル位置
    */
   private void setOnMouseDraggedHandler(Vec2D mousePressedPos) {
-
-    view.setOnMouseDragged(
-      mouseEvent -> {
-        view.showSelectionRectangle(mousePressedPos, new Vec2D(mouseEvent.getX(), mouseEvent.getY()));
-      });
+    view.setOnMouseDragged(mouseEvent -> {
+      view.showSelectionRectangle(
+          mousePressedPos, new Vec2D(mouseEvent.getX(), mouseEvent.getY()));
+    });
   }
 
   /**
-   * マウスボタンを離したときのイベントハンドラを登録する
+   * マウスボタンを離したときのイベントハンドラを登録する.
+   *
    * @param mousePressedPos マウスボタンを押下時のカーソル位置
    */
   private void setOnMouseReleasedHandler(Vec2D mousePressedPos) {
-
-    view.setOnMouseReleased(
-      mouseEvent -> {
-        view.hideSelectionRectangle();
-        var selectionRange = new QuadTreeRectangle(
-          Math.min(mousePressedPos.x, mouseEvent.getX()), Math.min(mousePressedPos.y, mouseEvent.getY()),
-          Math.max(mousePressedPos.x, mouseEvent.getX()), Math.max(mousePressedPos.y, mouseEvent.getY()),
-          null);
-
-        List<BhNodeView> containedNodes =
-          view.searchForOverlappedNodeViews(selectionRange, true, OVERLAP_OPTION.CONTAIN).stream()
+    view.setOnMouseReleased(mouseEvent -> {
+      view.hideSelectionRectangle();
+      double minX = Math.min(mousePressedPos.x, mouseEvent.getX());
+      double minY = Math.min(mousePressedPos.y, mouseEvent.getY());
+      double maxX = Math.max(mousePressedPos.x, mouseEvent.getX());
+      double maxY = Math.max(mousePressedPos.y, mouseEvent.getY());
+      var selectionRange = new QuadTreeRectangle(minX, minY, maxX, maxY, null);
+      List<BhNodeView> containedNodes =
+          view.searchForOverlappedNodeViews(selectionRange, true, OverlapOption.CONTAIN).stream()
           .filter(nodeView -> nodeView.getModel().isMovable() && !nodeView.getModel().isSelected())
           .collect(Collectors.toCollection(ArrayList::new));
-
-        // 面積の大きい順にソート
-        containedNodes.sort(this::compareViewSize);
-
-        ModelExclusiveControl.INSTANCE.lockForModification();
-        try {
-          var userOpeCmd = new UserOperationCommand();
-          selectNodes(containedNodes, userOpeCmd);
-          BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-        }
-        finally {
-          ModelExclusiveControl.INSTANCE.unlockForModification();
-        }
-      });
+      // 面積の大きい順にソート
+      containedNodes.sort(this::compareViewSize);
+      ModelExclusiveControl.INSTANCE.lockForModification();
+      try {
+        var userOpeCmd = new UserOperationCommand();
+        selectNodes(containedNodes, userOpeCmd);
+        BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+      } finally {
+        ModelExclusiveControl.INSTANCE.unlockForModification();
+      }
+    });
   }
 
   private int compareViewSize(BhNodeView viewA, BhNodeView viewB) {
-
     Vec2D sizeA = viewA.getRegionManager().getBodySize(false);
     double areaA = sizeA.x * sizeA.y;
     Vec2D sizeB = viewB.getRegionManager().getBodySize(false);
     double areaB = sizeB.x * sizeB.y;
-
-    if (areaA < areaB)
+    if (areaA < areaB) {
       return 1;
-    else if (areaA > areaB)
+    } else if (areaA > areaB) {
       return -1;
-
+    }
     return 0;
   }
 
   /**
-   * 矩形選択するノードを選び出す
+   * 矩形選択するノードを選び出す.
+   *
    * @param candidates 矩形選択される候補ノード
    * @param userOpeCmd undo 用コマンドオブジェクト
-   * */
+   */
   private void selectNodes(List<BhNodeView> candidates, UserOperationCommand userOpeCmd) {
-
     // 親ノードが選択候補でかつ, 親ノードのボディの領域に包含されているノードは選択対象としない.
     LinkedList<BhNodeView> nodesToSelect = new LinkedList<>(candidates);
     while (nodesToSelect.size() != 0) {
@@ -182,8 +173,8 @@ public class WorkspaceController implements MsgProcessor {
       while (iter.hasNext()) {
         BhNodeView smaller = iter.next();
         // 子孫 - 先祖関係にあってかつ領域が包含関係にある -> 矩形選択の対象としない
-        if (larger.getRegionManager().overlapsWith(smaller, OVERLAP_OPTION.CONTAIN) &&
-          smaller.getModel().isDescendantOf(larger.getModel())) {
+        if (larger.getRegionManager().overlapsWith(smaller, OverlapOption.CONTAIN)
+            && smaller.getModel().isDescendantOf(larger.getModel())) {
           iter.remove();
         }
       }
@@ -191,15 +182,14 @@ public class WorkspaceController implements MsgProcessor {
   }
 
   /**
-   * メッセージ受信
+   * メッセージ受信.
+   *
    * @param msg メッセージの種類
    * @param data メッセージの種類に応じて処理するもの
    * */
   @Override
   public MsgData processMsg(BhMsg msg, MsgData data) {
-
     switch (msg) {
-
       case ADD_ROOT_NODE:
         model.addRootNode(data.node);
         view.addNodeView(data.nodeView);
@@ -213,7 +203,7 @@ public class WorkspaceController implements MsgProcessor {
         break;
 
       case ADD_QT_RECTANGLE:
-        view.addRectangleToQTSpace(data.nodeView);
+        view.addRectangleToQtSpace(data.nodeView);
         break;
 
       case CHANGE_WORKSPACE_VIEW_SIZE:
@@ -249,48 +239,38 @@ public class WorkspaceController implements MsgProcessor {
       default:
         throw new AssertionError("receive an unknown msg " + msg);
     }
-
     return null;
-  };
+  }
 
   private MsgData deleteWorkspace(MsgData data) {
-
     Collection<BhNode> rootNodes = model.getRootNodeList();
-    rootNodes.forEach(node -> node.getEventDispatcher().dispatchOnDeletionRequested(
-      rootNodes, CauseOfDeletion.WORKSPACE_DELETION, data.userOpeCmd));
+    rootNodes.forEach(node -> node.getEventDispatcher().execOnDeletionRequested(
+        rootNodes, CauseOfDeletion.WORKSPACE_DELETION, data.userOpeCmd));
     BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), data.userOpeCmd);
     return new MsgData(model, view, data.userOpeCmd);
   }
 
   //デバッグ用
   private void printDebugInfo() {
-
-    //4分木登録ノード数表示
+    //4 分木登録ノード数表示
     Class<WorkspaceView> c = WorkspaceView.class;
     Field f = null;
     try {
       f = c.getDeclaredField("quadTreeMngForConnector");
       f.setAccessible(true);
-      QuadTreeManager quadTreeMngForConnector = (QuadTreeManager)f.get(view);
-      MsgPrinter.INSTANCE.msgForDebug("num of QuadTreeNodes " + quadTreeMngForConnector.calcRegisteredNodeNum());
-    } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException e) {
+      QuadTreeManager quadTreeMngForConnector = (QuadTreeManager) f.get(view);
+      MsgPrinter.INSTANCE.msgForDebug(
+          "num of QuadTreeNodes " + quadTreeMngForConnector.calcRegisteredNodeNum());
+    } catch (IllegalAccessException
+        | IllegalArgumentException
+        | NoSuchFieldException
+        | SecurityException e) {
       MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
     }
-
     MsgPrinter.INSTANCE.msgForDebug("num of root nodes " + model.getRootNodeList().size());
-    MsgPrinter.INSTANCE.msgForDebug("num of deletion candidates " + DelayedDeleter.INSTANCE.getDeletionCadidateList().size());
-    MsgPrinter.INSTANCE.msgForDebug("num of selected nodes " + model.getSelectedNodeList().size() + "\n");
+    MsgPrinter.INSTANCE.msgForDebug(
+        "num of deletion candidates " + DelayedDeleter.INSTANCE.getDeletionCadidateList().size());
+    MsgPrinter.INSTANCE.msgForDebug(
+        "num of selected nodes " + model.getSelectedNodeList().size() + "\n");
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-

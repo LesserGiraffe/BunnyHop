@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.compiler;
 
-/**
- * 変数, 関数, プロパティ等の定義
- */
+/** 変数, 関数, プロパティ等の定義. */
 public class ScriptIdentifiers {
 
+  /** BhProgram で使用される関数名. (Javascript の組み込み関数は除く) */
   public static class Funcs {
     public static final String TO_STR = "_toStr";
     public static final String STR_TO_NUM = "_strToNum";
@@ -75,6 +75,7 @@ public class ScriptIdentifiers {
     public static final String OUT_ARG_TEST = "_outArgTest";
   }
 
+  /** Javascript の組み込み関数名.  */
   public static class JsFuncs {
     public static final String IS_FINITE = "isFinite";
     public static final String PUSH = "push";
@@ -82,7 +83,7 @@ public class ScriptIdentifiers {
     public static final String CALL = "call";
   }
 
-
+  /** BhProgram で使用されるプロパティ名. */
   public static class Properties {
     public static final String HAS_BH_EXCEPTION = "_hasBhException";
     public static final String CALL_STACK = "_callStack";
@@ -90,12 +91,14 @@ public class ScriptIdentifiers {
     public static final String OUT_PARAM_GETTER = "_get";
   }
 
+  /** BhProgram で使用される変数名. */
   public static class Vars {
     public static final String NIL_SOUND  = "_nilSound";
     public static final String NIL_COLOR = "_nilColor";
     public static final String PROGRAM_STARTING_TIME = "_programStartingTime";
   }
 
+  /** BhProgram で使用されるラベル名. */
   public static class Label {
     public static final String end = "_end";
   }

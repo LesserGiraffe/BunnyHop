@@ -5,7 +5,7 @@
 
 <VBox
   xmlns:fx="http://javafx.com/fxml"
-  fx:id="foundationVBox"
+  fx:id="foundationVbox"
   fx:controller="net.seapanda.bunnyhop.control.FoundationController">
   <fx:include fx:id="menuBar" source="MenuBar.fxml"/>
   <Separator orientation="HORIZONTAL"/>

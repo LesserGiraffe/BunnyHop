@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.bhprogram;
 
 import java.io.IOException;
@@ -20,22 +21,23 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
-
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 
 /**
- * BunnyHopで作成したプログラムのローカル環境での実行、終了、通信を行うクラス
+ * BunnyHopで作成したプログラムのローカル環境での実行、終了、通信を行うクラス.
+ *
  * @author K.Koike
  */
 public class LocalBhProgramManager {
-
-  public static final LocalBhProgramManager INSTANCE = new LocalBhProgramManager();  //!< シングルトンインスタンス
+  /** シングルトンインスタンス. */
+  public static final LocalBhProgramManager INSTANCE = new LocalBhProgramManager();
   private final BhProgramManagerCommon common = new BhProgramManagerCommon();
   private Process process;
-  private final AtomicReference<Boolean> programRunning = new AtomicReference<>(false);  //!< プログラム実行中ならtrue
+  /** プログラム実行中なら true. */
+  private final AtomicReference<Boolean> programRunning = new AtomicReference<>(false);
 
   private LocalBhProgramManager() {}
 
@@ -44,7 +46,8 @@ public class LocalBhProgramManager {
   }
 
   /**
-   * BhProgramの実行環境を立ち上げ、BhProgramを実行する
+   * BhProgramの実行環境を立ち上げ、BhProgramを実行する.
+   *
    * @param filePath BhProgramのファイルパス
    * @param ipAddr BhProgramを実行するマシンのIPアドレス
    * @return BhProgram実行タスクのFutureオブジェクト
@@ -54,18 +57,17 @@ public class LocalBhProgramManager {
   }
 
   /**
-   * BhProgramの実行環境を立ち上げ、BhProgramを実行する
+   * BhProgramの実行環境を立ち上げ、BhProgramを実行する.
+   *
    * @param filePath BhProgramのファイルパス
    * @param ipAddr BhProgramを実行するマシンのIPアドレス
    * @return BhProgramの実行に成功した場合true
    */
   private synchronized boolean execute(Path filePath, String ipAddr) {
-
     boolean success = true;
-
-    if (programRunning.get())
+    if (programRunning.get()) {
       terminate();
-
+    }
     MsgPrinter.INSTANCE.msgForUser("-- プログラム実行準備中 (local) --\n");
     if (success) {
       process = startExecEnvProcess();
@@ -73,57 +75,50 @@ public class LocalBhProgramManager {
         success &= false;
       }
     }
-
     if (process != null) {
       String fileName = filePath.getFileName().toString();
       success &= common.runBhProgram(fileName, ipAddr, process.getInputStream());
     }
-
     if (!success) {  //リモートでのスクリプト実行失敗
       MsgPrinter.INSTANCE.errMsgForUser("!! プログラム実行準備失敗 (local) !!\n");
       MsgPrinter.INSTANCE.errMsgForDebug("failed to run " + filePath.getFileName() + " (local)");
       terminate();
-    }
-    else {
+    } else {
       MsgPrinter.INSTANCE.msgForUser("-- プログラム実行開始 (local) --\n");
       programRunning.set(true);
     }
-
     return success;
   }
 
   /**
-   * 現在実行中のBhProgramExecEnvironment を強制終了する
+   * 現在実行中のBhProgramExecEnvironment を強制終了する.
+   *
    * @return BhProgram強制終了タスクのFutureオブジェクト.
    */
   public Future<Boolean> terminateAsync() {
-
     if (!programRunning.get()) {
       MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了済み (local) !!\n");
       return common.terminateAsync(() -> false);
     }
-
     return common.terminateAsync(() -> terminate());
   }
 
   /**
    * 現在実行中のBhProgramExecEnvironment を強制終了する.
    * BhProgram実行環境を終了済みの場合に呼んでも問題ない.
+   *
    * @return 強制終了に成功した場合true
    */
   public synchronized boolean terminate() {
-
     MsgPrinter.INSTANCE.msgForUser("-- プログラム終了中 (local)  --\n");
     boolean success = common.haltTransceiver();
-
     if (process != null) {
-      success &= common.waitForProcessEnd(process, true, BhParams.ExternalApplication.DEAD_PROC_END_TIMEOUT);
+      success &= common.killProcess(process, BhParams.ExternalApplication.DEAD_PROC_END_TIMEOUT);
     }
     process = null;
     if (!success) {
       MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了失敗 (local)  !!\n");
-    }
-    else {
+    } else {
       MsgPrinter.INSTANCE.msgForUser("-- プログラム終了完了 (local)  --\n");
       programRunning.set(false);
     }
@@ -131,7 +126,8 @@ public class LocalBhProgramManager {
   }
 
   /**
-   * BhProgram の実行環境と通信を行うようにする
+   * BhProgram の実行環境と通信を行うようにする.
+   *
    * @return 接続タスクのFutureオブジェクト. タスクを実行しなかった場合null.
    */
   public Future<Boolean> connectAsync() {
@@ -139,7 +135,8 @@ public class LocalBhProgramManager {
   }
 
   /**
-   * BhProgram の実行環境と通信を行わないようにする
+   * BhProgram の実行環境と通信を行わないようにする.
+   *
    * @return 切断タスクのFutureオブジェクト. タスクを実行しなかった場合null.
    */
   public Future<Boolean> disconnectAsync() {
@@ -147,7 +144,8 @@ public class LocalBhProgramManager {
   }
 
   /**
-   * 引数で指定したデータをBhProgramの実行環境に送る
+   * 引数で指定したデータをBhProgramの実行環境に送る.
+   *
    * @param data 送信データ
    * @return 送信データリストにデータを追加できた場合true
    */
@@ -156,36 +154,36 @@ public class LocalBhProgramManager {
   }
 
   /**
-   * BhProgramの実行環境プロセスをスタートする
+   * BhProgramの実行環境プロセスをスタートする.
+   *
    * @return スタートしたプロセスのオブジェクト. スタートに失敗した場合null.
    */
   private Process startExecEnvProcess() {
     // ""でパスを囲まない
     Process proc = null;
     ProcessBuilder procBuilder = new ProcessBuilder(
-      Util.INSTANCE.JAVA_PATH,
-      "-cp",
-      Paths.get(Util.INSTANCE.EXEC_PATH, "Jlib").toString() + Util.INSTANCE.FS  + "*",
-      BhParams.ExternalApplication.BH_PROGRAM_EXEC_MAIN_CLASS,
-      "true");  //localFlag == true
+        Util.INSTANCE.javaPath,
+        "-cp",
+        Paths.get(Util.INSTANCE.execPath, "Jlib").toString() + Util.INSTANCE.fs  + "*",
+        BhParams.ExternalApplication.BH_PROGRAM_EXEC_MAIN_CLASS,
+        "true");  //localFlag == true
 
     procBuilder.redirectErrorStream(true);
     try {
       proc = procBuilder.start();
-    }
-    catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("startExecEnvProcess " +  e.toString());
+    } catch (IOException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug("startExecEnvProcess " +  e);
     }
 
     return proc;
   }
 
   /**
-   * 終了処理をする
+   * 終了処理をする.
+   *
    * @return 終了処理が正常に完了した場合true
    */
   public boolean end() {
-
     boolean success = terminate();
     success &= common.end();
     return success;

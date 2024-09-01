@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.control.node;
 
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.view.node.ConnectiveNodeView;
 
 /**
- * ConnectiveNode のコントローラ
+ * {@link ConnectiveNodeView} のコントローラ. のコントローラ.
+ *
  * @author K.Koike
  */
 public class ConnectiveNodeController extends BhNodeController {
 
   /**
-   * コンストラクタ
+   * コンストラクタ.
+   *
    * @param model 管理するモデル
    * @param view 管理するビュー
-   * */
+   */
   public ConnectiveNodeController(ConnectiveNode model, ConnectiveNodeView view) {
     super(model, view);
   }
 }
-

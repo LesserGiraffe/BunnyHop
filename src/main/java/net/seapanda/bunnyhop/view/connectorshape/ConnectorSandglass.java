@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,63 +13,62 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.view.connectorshape;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
 
 /**
- * 砂時計コネクタクラス
+ * 砂時計コネクタクラス.
+ *
  * @author K.Koike
- * */
+ */
 public class ConnectorSandglass extends ConnectorShape {
 
-
-  /** コネクタの頂点を算出する
+  /** コネクタの頂点を算出する.
+   *
    * @param offsetX 頂点に加算するオフセットX
    * @param offsetY 頂点に加算するオフセットY
    * @param width   コネクタの幅
    * @param height  コネクタの高さ
    */
   @Override
-  public List<Double> createVertices(double offsetX, double offsetY, double width, double height, CNCTR_POS pos) {
-
+  public List<Double> createVertices(
+      double offsetX, double offsetY, double width, double height, ConnectorPos pos) {
     ArrayList<Double> vertices = null;
     final double p = 0.3;
     final double q = 0.2;
     final double r = 0.25;
     final double s = 0.45;
 
-    if (pos == CNCTR_POS.LEFT) {
+    if (pos == ConnectorPos.LEFT) {
       vertices = new ArrayList<>(Arrays.asList(
-        offsetX + width            , offsetY + height,
+        offsetX + width,             offsetY + height,
         offsetX + width * (1.0 - q), offsetY + height,
         offsetX + width * (1.0 - s), offsetY + height * (1.0 - p),
-        offsetX + width * r        , offsetY + height,
-        offsetX                    , offsetY + height,
-        offsetX                    , offsetY,
-        offsetX + width * r        , offsetY,
+        offsetX + width * r,         offsetY + height,
+        offsetX,                     offsetY + height,
+        offsetX,                     offsetY,
+        offsetX + width * r,         offsetY,
         offsetX + width * (1.0 - s), offsetY + height * p,
         offsetX + width * (1.0 - q), offsetY,
-        offsetX + width            , offsetY));
-    }
-    else if (pos == CNCTR_POS.TOP) {
+        offsetX + width,             offsetY));
+    } else if (pos == ConnectorPos.TOP) {
       vertices = new ArrayList<>(Arrays.asList(
-        offsetX                    , offsetY + height,
-        offsetX                    , offsetY + height * (1.0 - q),
-        offsetX + width * p        , offsetY + height * (1.0 - s),
-        offsetX                    , offsetY + height * r,
-        offsetX                    , offsetY,
-        offsetX + width            , offsetY,
-        offsetX + width            , offsetY + height * r,
+        offsetX,                     offsetY + height,
+        offsetX,                     offsetY + height * (1.0 - q),
+        offsetX + width * p,         offsetY + height * (1.0 - s),
+        offsetX,                     offsetY + height * r,
+        offsetX,                     offsetY,
+        offsetX + width,             offsetY,
+        offsetX + width,             offsetY + height * r,
         offsetX + width * (1.0 - p), offsetY + height * (1.0 - s),
-        offsetX + width            , offsetY + height * (1.0 - q),
-        offsetX + width            , offsetY + height));
+        offsetX + width,             offsetY + height * (1.0 - q),
+        offsetX + width,             offsetY + height));
     }
     return vertices;
   }
 }
-

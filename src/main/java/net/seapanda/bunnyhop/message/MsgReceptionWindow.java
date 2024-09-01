@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,22 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.message;
 
 /**
- * BhMsgの投函窓口
+ * {@link BhMsg} の投函窓口.
+ *
  * @author K.Koike
  */
 public interface MsgReceptionWindow {
 
   /**
-   * MsgProcessorを登録する
+   * MsgProcessorを登録する.
+   *
    * @param processor メッセージを処理するオブジェクト
    */
   public void setMsgProcessor(MsgProcessor processor);
 
   /**
-   * 引数で指定したメッセージをMsgProcessorに渡して処理結果を返す
+   * 引数で指定したメッセージをMsgProcessorに渡して処理結果を返す.
+   *
    * @param msg 処理するメッセージ
    * @param data 処理するデータ
    * @return 処理結果

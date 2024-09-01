@@ -1,5 +1,5 @@
 .concurrentType {
-  -fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, concurrentTypeCol 50%, derive(concurrentTypeCol, 65%) 0em);
+  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, concurrentTypeCol 50%, derive(concurrentTypeCol, 65%) 0mm);
 }
 
 .concurrentType:isEven {

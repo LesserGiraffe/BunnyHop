@@ -1,13 +1,13 @@
 (function() {
 
-  let BhNodeID = net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
+  let BhNodeId = net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 
-  function registerNodeTemplate(bhNodeID, bhNode) {
-    bhNodeTemplates.registerNodeTemplate(BhNodeID.create(bhNodeID), bhNode);
+  function registerNodeTemplate(bhNodeId, bhNode) {
+    bhNodeTemplates.registerNodeTemplate(BhNodeId.create(bhNodeId), bhNode);
   }
 
-  function genBhNode(bhNodeID, bhUserOpeCmd) {
-    return bhNodeTemplates.genBhNode(BhNodeID.create(bhNodeID), bhUserOpeCmd);
+  function genBhNode(bhNodeId, bhUserOpeCmd) {
+    return bhNodeTemplates.genBhNode(BhNodeId.create(bhNodeId), bhUserOpeCmd);
   }
 
   function connect(parentNode, childNode, cnctrPath) {

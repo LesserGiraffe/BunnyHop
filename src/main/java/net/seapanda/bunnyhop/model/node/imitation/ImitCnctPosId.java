@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,62 +13,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.model.node.connective;
+
+package net.seapanda.bunnyhop.model.node.imitation;
 
 import java.io.Serializable;
 import java.util.Objects;
-
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
- * コネクタID
+ * イミテーションの接続先の識別子.
+ *
  * @author K.Koike
  */
-public class ConnectorID implements Serializable {
+public class ImitCnctPosId implements Serializable {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  public static final ConnectorID NONE = new ConnectorID("");  //!< コネクタIDが存在しないことを表す
-  String id;
+  /** イミテーション接続位置が存在しないことを表す. */
+  public static final ImitCnctPosId NONE = new ImitCnctPosId("");
+  private final String pos;
 
   /**
-   * コンストラクタ
-   * @param id 識別子名
+   * コンストラクタ.
+   *
+   * @param point 接続先名
    */
-  private ConnectorID(String id) {
-    this.id = id;
+  private ImitCnctPosId(String point) {
+    this.pos = point;
   }
 
   /**
-   * コネクタIDを作成する
-   * @param id 識別子名
-   * @return コネクタID
+   * イミテーション接続位置の識別子を作成する.
+   *
+   * @param point イミテーション接続位置名
+   * @return イミテーション接続位置の識別子
    */
-  public static ConnectorID createCnctrID(String id) {
-    return new ConnectorID(id == null ? "" : id);
+  public static ImitCnctPosId create(String point) {
+    return new ImitCnctPosId(point == null ? "" : point);
   }
 
   @Override
   public String toString() {
-    return id;
+    return pos;
   }
 
   @Override
   public boolean equals(Object obj) {
-
-    if (obj == null)
+    if (obj == null) {
       return false;
-
-    if (getClass() != obj.getClass())
-      return false;
-
-    ConnectorID cnctrID = (ConnectorID)obj;
-    return id == null ? (cnctrID.id == null) : (id.equals(cnctrID.id));
+    }
+    return (getClass() == obj.getClass()) && (pos.equals(((ImitCnctPosId) obj).pos));
   }
 
   @Override
   public int hashCode() {
     int hash = 5;
-    hash = 97 * hash + Objects.hashCode(this.id);
+    hash = 71 * hash + Objects.hashCode(this.pos);
     return hash;
   }
 }

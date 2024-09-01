@@ -18,12 +18,12 @@
     -fx-font-size: 1.1em;
 }
 
-#closedTrashboxIV {
+#closedTrashboxIv {
   -fx-translate-x: -2em;
   -fx-translate-y: -2em;
 }
 
-#openedTrashboxIV {
+#openedTrashboxIv {
   -fx-translate-x: -2em;
   -fx-translate-y: -2em;
 }

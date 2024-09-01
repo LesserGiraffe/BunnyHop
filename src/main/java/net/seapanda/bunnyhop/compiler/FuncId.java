@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,37 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.common;
 
-import java.util.Objects;
+package net.seapanda.bunnyhop.compiler;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
+ * 関数の識別子.
+ *
  * @author K.Koike
  */
-public class Single<T>{
+public class FuncId {
+  
+  private List<String> id;
 
-  public T content;
+  /**
+   * 識別子を作成する.
+   *
+   * @param snippets IDを構成する情報
+   */
+  public static FuncId create(String... snippets) {
 
-  public Single(T content) {
-    this.content = content;
-  };
+    var retVal = new FuncId();
+    retVal.id = new ArrayList<String>(Arrays.asList(snippets));
+    return retVal;
+  }
 
-  public Single() {};
+  private FuncId() {}
 
   @Override
   public boolean equals(Object obj) {
-
-    if (!(obj instanceof Single))
+    if (obj == null) {
       return false;
-
-    Single<?> single = (Single<?>)obj;
-    return (content == null) ? (single.content == null) : content.equals(single.content);
+    }
+    return (getClass() == obj.getClass()) && (id.equals(((FuncId) obj).id));
   }
 
   @Override
   public int hashCode() {
-    int hash = 7;
-    hash = 59 * hash + Objects.hashCode(this.content);
-    return hash;
+    return id.hashCode();
   }
 }

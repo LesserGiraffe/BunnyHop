@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.model.node;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.NativeObject;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.ScriptableObject;
-
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
@@ -32,51 +27,52 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.model.node.imitation.ImitationBase;
-import net.seapanda.bunnyhop.model.node.imitation.ImitationID;
+import net.seapanda.bunnyhop.model.node.imitation.ImitationId;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.ScriptableObject;
 
 /**
- * 文字情報を持つ終端BhNode
+ * 文字情報を持つ終端 BhNode.
+ *
  * @author K.Koike
  */
 public class TextNode  extends ImitationBase<TextNode> {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  private String text = "";  //!< このノードの管理する文字列データ
+  private String text = "";
 
   /**
-   * コンストラクタ<br>
-   * ノード内部・外部とは描画位置のこと
-   * @param type 関連する BhNodeView の種類
-   * @param imitIdToImitNodeID イミテーションIDとそれに対応するイミテーションノードIDのマップ
+   * コンストラクタ.
+   *
+   * @param imitIdToImitNodeId イミテーションIDとそれに対応するイミテーションノードIDのマップ
    * @param attributes ノードの設定情報
    * */
-  public TextNode(
-    Map<ImitationID, BhNodeID> imitIdToImitNodeID,
-    BhNodeAttributes attributes) {
-
-    super(attributes, imitIdToImitNodeID);
+  public TextNode(Map<ImitationId, BhNodeId> imitIdToImitNodeId, BhNodeAttributes attributes) {
+    super(attributes, imitIdToImitNodeId);
     registerScriptName(BhNodeEvent.ON_TEXT_FORMATTING, attributes.getOnTextFormatting());
     registerScriptName(
-      BhNodeEvent.ON_TEXT_CHECKING, attributes.getOnTextChecking());
+        BhNodeEvent.ON_TEXT_CHECKING, attributes.getOnTextChecking());
     registerScriptName(
-      BhNodeEvent.ON_VIEW_CONTENTS_CREATING, attributes.getOnViewContentsCreating());
+        BhNodeEvent.ON_VIEW_CONTENTS_CREATING, attributes.getOnViewContentsCreating());
     text = attributes.getIinitString();
   }
 
   /**
-   * コピーコンストラクタ
+   * コピーコンストラクタ.
+   *
    * @param org コピー元オブジェクト
    */
   private TextNode(TextNode org, UserOperationCommand userOpeCmd) {
-
     super(org, userOpeCmd);
     text = org.text;
   }
@@ -94,7 +90,8 @@ public class TextNode  extends ImitationBase<TextNode> {
   }
 
   /**
-   * このノードが保持している文字列を返す
+   * このノードが保持している文字列を返す.
+   *
    * @return 表示文字列
    */
   public String getText() {
@@ -102,7 +99,8 @@ public class TextNode  extends ImitationBase<TextNode> {
   }
 
   /**
-   * 引数の文字列をセットする
+   * 引数の文字列をセットする.
+   *
    * @param text セットする文字列
    */
   public void setText(String text) {
@@ -111,138 +109,133 @@ public class TextNode  extends ImitationBase<TextNode> {
 
 
   /**
-   * 引数の文字列がセット可能かどうか判断する
+   * 引数の文字列がセット可能かどうか判断する.
+   *
    * @param text セット可能かどうか判断する文字列
    * @return 引数の文字列がセット可能だった
    */
   public boolean isTextAcceptable(String text) {
-
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_TEXT_CHECKING);
     Script checker =
-      scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
 
-    if (checker == null)
+    if (checker == null) {
       return true;
-
+    }
     ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
     ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_TEXT, text);
     Object jsReturn = null;
     try {
       jsReturn = ContextFactory.getGlobal().call(cx -> checker.exec(cx, scriptScope));
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-        TextNode.class.getSimpleName() +  "::isTextAcceptable   " + scriptName.get() + "\n"
-        + e.toString() + "\n");
+          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
     }
 
-    if(jsReturn instanceof Boolean)
-      return (Boolean)jsReturn;
-
+    if (jsReturn instanceof Boolean) {
+      return (Boolean) jsReturn;
+    }
     return false;
   }
 
   /**
    * 入力されたテキストを整形して返す.
+   *
    * @param text 整形対象の全文字列
    * @param addedText 前回整形したテキストから新たに追加された文字列
-   * @return _1 -> テキスト全体を整形した場合 true. 追加分だけ整形した場合 false. <br>
-   *          _2 -> 整形したテキスト
+   * @return v1 -> テキスト全体を整形した場合 true. 追加分だけ整形した場合 false.
+   *         v2 -> 整形したテキスト.
    */
   public Pair<Boolean, String> formatText(String text, String addedText) {
-
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_TEXT_FORMATTING);
     Script formatter = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
 
-    if (formatter == null)
+    if (formatter == null) {
       return new Pair<Boolean, String>(false, addedText);
-
+    }
     ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
     ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_TEXT, text);
     ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_ADDED_TEXT, addedText);
     try {
-      NativeObject jsObj = (NativeObject)ContextFactory.getGlobal().call(  cx -> formatter.exec(cx, scriptScope));
-      Boolean isEntireTextFormatted = (Boolean)jsObj.get(BhParams.JsKeyword.KEY_BH_IS_ENTIRE_TEXT_FORMATTED);
-      String formattedText = (String)jsObj.get(BhParams.JsKeyword.KEY_BH_FORMATTED_TEXT);
+      NativeObject jsObj = (NativeObject) ContextFactory.getGlobal().call(
+          cx -> formatter.exec(cx, scriptScope));
+      Boolean isEntireTextFormatted =
+          (Boolean) jsObj.get(BhParams.JsKeyword.KEY_BH_IS_ENTIRE_TEXT_FORMATTED);
+      String formattedText = (String) jsObj.get(BhParams.JsKeyword.KEY_BH_FORMATTED_TEXT);
       return new Pair<Boolean, String>(isEntireTextFormatted, formattedText);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-        TextNode.class.getSimpleName() +  "::getFormattedText   " + scriptName.get() + "\n" 
-        + e.toString() + "\n");
+          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
     }
-
     return new Pair<Boolean, String>(false, addedText);
   }
   
   /**
    * このノードのビューが保持すべきコンテンツを生成して返す.
+   *
    * @return このノードのビューが保持すべきコンテンツ 
    */
   @SuppressWarnings("unchecked")
   public <T> T getViewContents() {
-    
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_VIEW_CONTENTS_CREATING);
     Script creator =
-      scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
 
-    if (creator == null)
+    if (creator == null) {
       return null;
-
+    }
     ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
     T contents = null;
     try {
-      contents = (T)ContextFactory.getGlobal().call(cx -> creator.exec(cx, scriptScope));
-    }
-    catch (Exception e) {
+      contents = (T) ContextFactory.getGlobal().call(cx -> creator.exec(cx, scriptScope));
+    } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-        TextNode.class.getSimpleName() +  "::onViewContentsCreating   "
-        + scriptName.get() + "\n" + e.toString() + "\n");
+          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
     }
     return contents;
   }
 
-  /**
-   * このノードのイミテーションノードにこのノードを模倣させる
-   */
+  /** このノードのイミテーションノードにこのノードを模倣させる. */
   public void getImitNodesToImitateContents() {
-
     String viewText = MsgService.INSTANCE.getViewText(this);
     getImitationList().forEach(imit -> MsgService.INSTANCE.imitateText(imit, text, viewText));
   }
 
   @Override
   public BhNode findOuterNode(int generation) {
-    if (generation <= 0)
+    if (generation <= 0) {
       return this;
-
+    }
     return null;
   }
 
   @Override
   public void findSymbolInDescendants(
-    int generation,
-    boolean toBottom,
-    List<SyntaxSymbol> foundSymbolList,
-    String... symbolNames) {
+      int generation,
+      boolean toBottom,
+      List<SyntaxSymbol> foundSymbolList,
+      String... symbolNames) {
 
-    if (generation == 0)
-      for (String symbolName : symbolNames)
-        if (Util.INSTANCE.equals(getSymbolName(), symbolName))
+    if (generation == 0) {
+      for (String symbolName : symbolNames) {
+        if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
           foundSymbolList.add(this);
+        }
+      }
+    }
   }
 
   @Override
-  public TextNode createImitNode(ImitationID imitID, UserOperationCommand userOpeCmd) {
-
+  public TextNode createImitNode(ImitationId imitId, UserOperationCommand userOpeCmd) {
     //イミテーションノード作成
-    BhNode imitationNode = BhNodeTemplates.INSTANCE.genBhNode(getImitationNodeID(imitID), userOpeCmd);
+    BhNode imitationNode =
+        BhNodeTemplates.INSTANCE.genBhNode(getImitationNodeId(imitId), userOpeCmd);
 
-    if (!(imitationNode instanceof TextNode))
+    if (!(imitationNode instanceof TextNode)) {
       throw new AssertionError("imitation node type inconsistency");
-
+    }
     //オリジナルとイミテーションの関連付け
-    TextNode textImit = (TextNode)imitationNode;
+    TextNode textImit = (TextNode) imitationNode;
     addImitation(textImit, userOpeCmd);
     textImit.setOriginal(this, userOpeCmd);
     return textImit;
@@ -255,41 +248,24 @@ public class TextNode  extends ImitationBase<TextNode> {
 
   @Override
   public void show(int depth) {
-
     String parentHash = "";
-    if (parentConnector != null)
+    if (parentConnector != null) {
       parentHash = parentConnector.hashCode() + "";
-
+    }
     String lastReplacedHash = "";
-    if (getLastReplaced() != null)
+    if (getLastReplaced() != null) {
       lastReplacedHash =  getLastReplaced().hashCode() + "";
+    }
 
-    MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<TextNode" + "string=" + text + "  bhID=" + getID() + "  parent="+ parentHash + "> " + this.hashCode());
-    MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "ws " + workspace + "> ");
-    MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "last replaced " + lastReplacedHash + "> ");
-    MsgPrinter.INSTANCE.msgForDebug(indent(depth+1) + "<" + "imitation" + "> ");
+    MsgPrinter.INSTANCE.msgForDebug(
+        indent(depth) + "<TextNode" + "string=" + text + "  bhID=" + getId()
+        + "  parent=" + parentHash + "> " + this.hashCode());
+    MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<" + "ws " + workspace + "> ");
+    MsgPrinter.INSTANCE.msgForDebug(
+        indent(depth + 1) + "<" + "last replaced " + lastReplacedHash + "> ");
+    MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<" + "imitation" + "> ");
     getImitationList().forEach(imit -> {
-      MsgPrinter.INSTANCE.msgForDebug(indent(depth+2) + "imit " + imit.hashCode());
+      MsgPrinter.INSTANCE.msgForDebug(indent(depth + 2) + "imit " + imit.hashCode());
     });
-
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

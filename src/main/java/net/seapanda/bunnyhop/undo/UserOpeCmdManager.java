@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,60 +13,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.undo;
 
 import java.util.Deque;
 import java.util.LinkedList;
-
 import net.seapanda.bunnyhop.common.constant.BhParams;
 
 /**
- * undo/redo時に UserOperationCommand クラスを操作するクラス
- * @author Koike
+ * undo/redo 時に {@link UserOperationCommand} クラスを操作するクラス.
+ *
+ * @author K.Koike
  */
 public class UserOpeCmdManager {
 
-  private final Deque<UserOperationCommand> undoStack = new LinkedList<>();  //Undo できるコマンドのスタック
-  private final Deque<UserOperationCommand> redoStack = new LinkedList<>();  //Redo できるコマンドのスタック
+  /** Undo できるコマンドのスタック. */
+  private final Deque<UserOperationCommand> undoStack = new LinkedList<>();
+  /** Redo できるコマンドのスタック. */
+  private final Deque<UserOperationCommand> redoStack = new LinkedList<>();
 
   /**
-   * Undo の対象になるコマンドを追加する
+   * Undo の対象になるコマンドを追加する.
+   *
    * @param cmd Undo の対象になるコマンド
    */
   public void pushUndoCommand(UserOperationCommand cmd) {
 
     undoStack.addLast(cmd);
-    if(undoStack.size() > BhParams.NUM_TIMES_MAX_UNDO)
+    if (undoStack.size() > BhParams.NUM_TIMES_MAX_UNDO) {
       undoStack.removeFirst();
-
+    }
     redoStack.clear();
   }
 
+  /** Undo 操作を行う. */
   public void undo() {
-
-    if (undoStack.isEmpty())
+    if (undoStack.isEmpty()) {
       return;
-
+    }
     UserOperationCommand invCmd = undoStack.removeLast().doInverseOperation();
     redoStack.addLast(invCmd);
   }
 
+  /** Redo 操作を行う. */
   public void redo() {
-
-    if (redoStack.isEmpty())
+    if (redoStack.isEmpty()) {
       return;
-
+    }
     UserOperationCommand invCmd = redoStack.removeLast().doInverseOperation();
     undoStack.addLast(invCmd);
   }
 
-  /**
-   * undo/redo対象の操作を全て消す
-   * */
+  /** undo/redo 対象の操作を全て消す. */
   public void delete() {
     undoStack.clear();
     redoStack.clear();
   }
 }
-
-

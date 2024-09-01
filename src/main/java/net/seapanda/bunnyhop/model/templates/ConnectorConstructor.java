@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,93 +13,97 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.model.templates;
 
 import java.util.Optional;
-
+import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
+import net.seapanda.bunnyhop.model.node.connective.Connector;
+import net.seapanda.bunnyhop.model.node.connective.ConnectorId;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import net.seapanda.bunnyhop.common.constant.BhParams;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
-import net.seapanda.bunnyhop.model.node.connective.Connector;
-import net.seapanda.bunnyhop.model.node.connective.ConnectorID;
-
 /**
- * \<Conncetor\> タグからコネクタを作成するクラス
+ * {@link Connector} が定義された xml の Connector タグ以下の情報から {@link Connector} を作成する.
+ *
  * @author K.Koike
  */
 public class ConnectorConstructor {
 
-  public ConnectorConstructor(){}
+  /** コンストラクタ. */
+  public ConnectorConstructor() {}
 
   /**
-   * コネクタテンプレートを作成する
+   * コネクタテンプレートを作成する.
+   *
    * @param doc テンプレートを作成するxml の Document オブジェクト
    * @return 作成したコネクタオブジェクト
    */
   public Optional<Connector> genTemplate(Document doc) {
-
     //ルートタグチェック
     Element root = doc.getDocumentElement();
     if (!root.getNodeName().equals(BhParams.BhModelDef.ELEM_CONNECTOR)) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-        "コネクタ定義のルート要素は " + BhParams.BhModelDef.ELEM_CONNECTOR 
-        + " で始めてください.  " + doc.getBaseURI());
+          "コネクタ定義のルート要素は " + BhParams.BhModelDef.ELEM_CONNECTOR 
+          + " で始めてください.  " + doc.getBaseURI());
       return Optional.empty();
     }
     return genTemplate(root);
   }
 
   /**
-   * コネクタテンプレートを作成する
-   * @param cnctrRoot \<Connector\> タグの要素
+   * コネクタテンプレートを作成する.
+   *
+   * @param cnctrRoot Connector タグの要素.
    * @return 作成したコネクタオブジェクト
    */
   public Optional<Connector> genTemplate(Element cnctrRoot) {
 
     //コネクタID
-    ConnectorID cnctrID = ConnectorID.createCnctrID(
-      cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_BH_CONNECTOR_ID));
-    if (cnctrID.equals(ConnectorID.NONE)) {
+    ConnectorId cnctrId = ConnectorId.createCnctrId(
+        cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_BH_CONNECTOR_ID));
+    if (cnctrId.equals(ConnectorId.NONE)) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-        "<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグには "
-        + BhParams.BhModelDef.ATTR_BH_CONNECTOR_ID + " 属性を付加してください.  " + cnctrRoot.getBaseURI());
+          "<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグには "
+          + BhParams.BhModelDef.ATTR_BH_CONNECTOR_ID + " 属性を付加してください.  " + cnctrRoot.getBaseURI());
       return Optional.empty();
     }
 
     //Fixed
     String fixedStr = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_FIXED);
-    if (!fixedStr.isEmpty() && 
-      !fixedStr.equals(BhParams.BhModelDef.ATTR_VAL_TRUE) && 
-      !fixedStr.equals(BhParams.BhModelDef.ATTR_VAL_FALSE)) {
-      MsgPrinter.INSTANCE.errMsgForDebug("<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
-        + BhParams.BhModelDef.ATTR_FIXED + " 属性は, " + cnctrRoot.getBaseURI()
-        + BhParams.BhModelDef.ATTR_VAL_TRUE + "か" + BhParams.BhModelDef.ATTR_VAL_FALSE 
-        + "で無ければなりません.  " + cnctrRoot.getBaseURI());
+    if (!fixedStr.isEmpty()
+        && !fixedStr.equals(BhParams.BhModelDef.ATTR_VAL_TRUE)
+        && !fixedStr.equals(BhParams.BhModelDef.ATTR_VAL_FALSE)) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          "<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
+          + BhParams.BhModelDef.ATTR_FIXED + " 属性は, " + cnctrRoot.getBaseURI()
+          + BhParams.BhModelDef.ATTR_VAL_TRUE + "か" + BhParams.BhModelDef.ATTR_VAL_FALSE 
+          + "で無ければなりません.  " + cnctrRoot.getBaseURI());
       return Optional.empty();
     }
     boolean fixed = fixedStr.equals(BhParams.BhModelDef.ATTR_VAL_TRUE);
 
     //初期接続ノードID
-    BhNodeID initNodeID = BhNodeID.create(
-      cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID));
+    BhNodeId initNodeId = BhNodeId.create(
+        cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID));
     //デフォルトノードID
-    BhNodeID defNodeID = BhNodeID.create(
-      cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_DEFAULT_BHNODE_ID));
-    boolean hasFixedInitNode = fixed && !initNodeID.equals(BhNodeID.NONE);
+    BhNodeId defNodeId = BhNodeId.create(
+        cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_DEFAULT_BHNODE_ID));
+    boolean hasFixedInitNode = fixed && !initNodeId.equals(BhNodeId.NONE);
     //初期ノードが固定ノードである => 初期ノードがデフォルトノードとなる
     if (hasFixedInitNode) {
-      defNodeID = initNodeID;
-    }
-    else if (defNodeID.equals(BhNodeID.NONE)) {  //初期ノードが固定ノードではないのに, デフォルトノードの指定がない
+      defNodeId = initNodeId;
+
+    //初期ノードが固定ノードではないのに, デフォルトノードの指定がない
+    } else if (defNodeId.equals(BhNodeId.NONE)) {  
       MsgPrinter.INSTANCE.errMsgForDebug(
-        "固定初期ノードを持たない "
-        + "<" + BhParams.BhModelDef.ELEM_CONNECTOR + "> および "
-        + "<" + BhParams.BhModelDef.ELEM_PRIVATE_CONNECTOR + "> タグは"
-        + BhParams.BhModelDef.ATTR_DEFAULT_BHNODE_ID + " 属性を持たなければなりません.  "
-        + cnctrRoot.getBaseURI());
+          "固定初期ノードを持たない "
+          + "<" + BhParams.BhModelDef.ELEM_CONNECTOR + "> および "
+          + "<" + BhParams.BhModelDef.ELEM_PRIVATE_CONNECTOR + "> タグは"
+          + BhParams.BhModelDef.ATTR_DEFAULT_BHNODE_ID + " 属性を持たなければなりません.  "
+          + cnctrRoot.getBaseURI());
       return Optional.empty();
     }
 
@@ -107,11 +111,11 @@ public class ConnectorConstructor {
     String cnctrClass = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_CLASS);
     //ノード入れ替え時の実行スクリプト
     String scriptName =
-      cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_ON_CONNECTABILITY_CHECKING);
-    if (!BhNodeTemplates.allScriptsExist(cnctrRoot.getBaseURI(), scriptName))
+        cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_ON_CONNECTABILITY_CHECKING);
+    if (!BhNodeTemplates.allScriptsExist(cnctrRoot.getBaseURI(), scriptName)) {
       return Optional.empty();
-
+    }
     return Optional.of(
-      new Connector(cnctrID, defNodeID, initNodeID, cnctrClass, fixed, scriptName));
+        new Connector(cnctrId, defNodeId, initNodeId, cnctrClass, fixed, scriptName));
   }
 }

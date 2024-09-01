@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,28 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.root;
 
 import java.awt.SplashScreen;
 import java.nio.file.Paths;
 import java.util.Optional;
-
 import javafx.application.Application;
 import javafx.stage.Stage;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramManager;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramManager;
-import net.seapanda.bunnyhop.common.Single;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhParams.Path;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
-import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
+import net.seapanda.bunnyhop.configfilereader.FxmlCollector;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 /**
- * メインクラス
+ * メインクラス.
+ *
  * @author K.Koike
  */
 public class AppMain extends Application {
@@ -45,24 +46,21 @@ public class AppMain extends Application {
 
   @Override
   public void start(Stage stage) throws Exception {
-
     setOnCloseHandler(stage);
-
-    if (!MsgPrinter.INSTANCE.init())
+    if (!MsgPrinter.INSTANCE.init()) {
       System.exit(-1);
-
-    if (!FXMLCollector.INSTANCE.collectFXMLFiles())
+    }
+    if (!FxmlCollector.INSTANCE.collectFxmlFiles()) {
       System.exit(-1);
-
+    }
     boolean success = BhScriptManager.INSTANCE.genCompiledCode(
-        Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.FUNCTIONS_DIR),
-        Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.BH_DEF_DIR, BhParams.Path.TEMPLATE_LIST_DIR),
-        Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.REMOTE_DIR));
+        Paths.get(Util.INSTANCE.execPath, Path.BH_DEF_DIR, Path.FUNCTIONS_DIR),
+        Paths.get(Util.INSTANCE.execPath, Path.BH_DEF_DIR, Path.TEMPLATE_LIST_DIR),
+        Paths.get(Util.INSTANCE.execPath, Path.REMOTE_DIR));
 
     if (!success) {
       System.exit(-1);
     }
-
     if (!BhCompiler.INSTANCE.init()) {
       System.exit(-1);
     }
@@ -70,50 +68,48 @@ public class AppMain extends Application {
     success = BhNodeViewStyle.genViewStyleTemplate();
     success &= BhNodeTemplates.INSTANCE.genTemplate();
     success &= BhNodeViewStyle.checkNodeIdAndNodeTemplate();
-    if (!success)
+    if (!success) {
       System.exit(-1);
-
-    if (!BunnyHop.INSTANCE.createWindow(stage))
+    }
+    if (!BunnyHop.INSTANCE.createWindow(stage)) {
       System.exit(-1);
-    if (!LocalBhProgramManager.INSTANCE.init())
+    }
+    if (!LocalBhProgramManager.INSTANCE.init()) {
       System.exit(-1);
-
-    if (!RemoteBhProgramManager.INSTANCE.init())
+    }
+    if (!RemoteBhProgramManager.INSTANCE.init()) {
       System.exit(-1);
-
+    }
     Optional.ofNullable(SplashScreen.getSplashScreen()).ifPresent(SplashScreen::close);
   }
 
-  /**
-   * 終了処理を登録する
-   */
+  /** 終了処理を登録する. */
   private void setOnCloseHandler(Stage stage) {
-
-    Single<Boolean> teminate = new Single<>(true);
+    MutableBoolean teminate = new MutableBoolean(true);
 
     stage.setOnCloseRequest(event -> {
-      teminate.content = true;
+      teminate.setTrue();
       switch (RemoteBhProgramManager.INSTANCE.askIfStopProgram()) {
-      case NO:
-        teminate.content = false;
-        break;
+        case NO:
+          teminate.setFalse();
+          break;
 
-      case CANCEL:
-        event.consume();
-        return;
+        case CANCEL:
+          event.consume();
+          return;
 
-      default:
-        break;
+        default:
+          break;
       }
-
-      if (!BunnyHop.INSTANCE.processCloseRequest())
+      if (!BunnyHop.INSTANCE.processCloseRequest()) {
         event.consume();
+      }
     });
 
     stage.showingProperty().addListener((observable, oldValue, newValue) -> {
       if (oldValue == true && newValue == false) {
         LocalBhProgramManager.INSTANCE.end();
-        RemoteBhProgramManager.INSTANCE.end(teminate.content);
+        RemoteBhProgramManager.INSTANCE.end(teminate.getValue());
         MsgPrinter.INSTANCE.end();
         System.exit(0);
       }

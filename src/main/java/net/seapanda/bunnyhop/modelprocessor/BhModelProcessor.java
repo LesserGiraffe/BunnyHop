@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.modelprocessor;
 
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
@@ -22,46 +24,32 @@ import net.seapanda.bunnyhop.model.node.connective.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.connective.Subsection;
 
 /**
- * BhNode の各ノードに対して何かしらの処理を施すクラスのインタフェース
+ * {@link BhNode} を走査する Visitor クラスのインタフェース.
+ *
  * @author K.Koike
- * */
+ */
 public interface BhModelProcessor {
 
-  /**
-   *  ConnectiveNode が持つ onnerSection, outerSection に自オブジェクトを渡す
-   * @param node 自オブジェクトを渡してもらう ConnectiveNode オブジェクト
-   */
-  default public void visit(ConnectiveNode node) {
+  /** {@link ConnectiveNode} に対する処理を行う. */
+  public default void visit(ConnectiveNode node) {
     node.sendToSections(this);
   }
 
-  /**
-   * TextNode を訪れた時の処理
-   * @param node BhModelProcessor が訪れる VoidNode
-   */
-  default public void visit(TextNode node) {}
+  /** {@link TextNode} に対する処理を行う. */
+  public default void visit(TextNode node) {}
 
-  /**
-   * Section の下位Sectionに 自オブジェクトを渡す
-   * @param section 自オブジェクトを渡してもらう section オブジェクト
-   */
-  default public void visit(Subsection section) {
+  /** {@link Subsection} に対する処理を行う. */
+  public default void visit(Subsection section) {
     section.sendToSubsections(this);
   }
 
-  /**
-   * ConnectorGroup が持つConnector に自オブジェクトを渡す
-   * @param connectorGroup 自オブジェクトを渡してもらう ConnectorGroup オブジェクト
-   */
-  default public void visit(ConnectorSection connectorGroup) {
-    connectorGroup.sendToConnectors(this);
+  /** {@link ConnectorSection} に対する処理を行う. */
+  public default void visit(ConnectorSection section) {
+    section.sendToConnectors(this);
   }
 
-  /**
-   * Connector に接続された ノード に自オブジェクトを渡す
-   * @param connector 自オブジェクトを渡してもらう FixedConnector オブジェクト
-   */
-  default public void visit(Connector connector) {
+  /** {@link Connector} に対する処理を行う. */
+  public default void visit(Connector connector) {
     connector.sendToConnectedNode(this);
   }
 }

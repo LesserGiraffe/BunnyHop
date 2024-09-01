@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,58 +13,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.configfilereader;
 
-import static java.nio.file.FileVisitOption.*;
+import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
-
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 
 /**
- * FXMLファイルとそのパスを保存するクラス
+ * FXMLファイルとそのパスを保存するクラス.
+ *
  * @author Koike
  */
-public class FXMLCollector {
+public class FxmlCollector {
 
-  public static final FXMLCollector INSTANCE = new FXMLCollector();
-  private static final Map<String, Path> fileName_filePath = new HashMap<>();
+  public static final FxmlCollector INSTANCE = new FxmlCollector();
+  private static final Map<String, Path> fileNameToFilePath = new HashMap<>();
 
-  private FXMLCollector(){}
+  private FxmlCollector() {}
 
   /**
-   * FXMLファイルのファイル名とそのパスを集める
+   * FXMLファイルのファイル名とそのパスを集める.
+   *
    * @return FXMLファイルのフォルダが見つからなかった場合 falseを返す
    */
-  public boolean collectFXMLFiles() {
-
-    Path dirPath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.VIEW_DIR, BhParams.Path.FXML_DIR);
-    Stream<Path> paths;  //読み込むファイルパスリスト
+  public boolean collectFxmlFiles() {
+    Path dirPath =
+        Paths.get(Util.INSTANCE.execPath, BhParams.Path.VIEW_DIR, BhParams.Path.FXML_DIR);
+    List<Path> paths;  //読み込むファイルパスリスト
     try {
-      paths = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.getFileName().toString().endsWith(".fxml")); //.fxmlファイルだけ収集
-    }
-    catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("fxml directory not found " + dirPath + "\n" + e.toString());
+      paths = Files.walk(dirPath, FOLLOW_LINKS)
+          .filter(path -> path.getFileName().toString().endsWith(".fxml")) //.fxmlファイルだけ収集
+          .toList();
+    } catch (IOException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          "fxml directory not found " + dirPath + "\n" + e);
       return false;
     }
-    paths.forEach(filePath -> fileName_filePath.put(filePath.getFileName().toString(), filePath));
+    paths.forEach(filePath -> fileNameToFilePath.put(filePath.getFileName().toString(), filePath));
     return true;
   }
 
   /**
-   * FXMLファイル名からそのファイルのフルパスを取得する
+   * FXMLファイル名からそのファイルのフルパスを取得する.
+   *
    * @param fileName フルパスを知りたいFXMLファイル名
    * @return fileName で指定したファイルのパスオブジェクト. パスが見つからない場合はnullを返す
    */
   public Path getFilePath(String fileName) {
-    return fileName_filePath.getOrDefault(fileName, null);
+    return fileNameToFilePath.getOrDefault(fileName, null);
   }
 }

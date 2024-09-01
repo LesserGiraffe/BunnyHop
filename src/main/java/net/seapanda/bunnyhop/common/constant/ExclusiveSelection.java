@@ -1,12 +1,9 @@
 package net.seapanda.bunnyhop.common.constant;
 
-/**
- * 排他的な選択しの列挙
- * */
+/** 排他的な選択肢の列挙. */
 public enum ExclusiveSelection {
-
   YES,
   NO,
   CANCEL,
-  NONE_OF_THEM, //!< どれにも当てはまらない
+  NONE_OF_THEM, // どれでもない
 }

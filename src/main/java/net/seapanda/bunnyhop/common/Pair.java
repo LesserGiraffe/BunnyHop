@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,43 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.common;
 
 import java.util.Objects;
 
 /**
- * タプル
+ * タプル.
+ *
  * @author K.Koike
- * */
+ */
 public class Pair<T1, T2> {
 
-  public final T1 _1;
-  public final T2 _2;
+  public final T1 v1;
+  public final T2 v2;
 
-  public Pair(T1 _1, T2 _2) {
-    this._1 = _1;
-    this._2 = _2;
+  public Pair(T1 v1, T2 v2) {
+    this.v1 = v1;
+    this.v2 = v2;
   }
 
-  static private boolean equals(Object obj1, Object obj2) {
+  private static boolean equals(Object obj1, Object obj2) {
     return (obj1 == null) ? (obj2 == null) : obj1.equals(obj2);
   }
 
   @Override
   public boolean equals(Object obj) {
-
-    if (!(obj instanceof Pair))
+    if (!(obj instanceof Pair)) {
       return false;
-
-    Pair<?, ?> pair = (Pair<?, ?>)obj;
-    return equals(_1, pair._1) && equals(_2, pair._2);
+    }
+    Pair<?, ?> pair = (Pair<?, ?>) obj;
+    return equals(v1, pair.v1) && equals(v2, pair.v2);
   }
 
   @Override
   public int hashCode() {
     int hash = 3;
-    hash = 79 * hash + Objects.hashCode(this._1);
-    hash = 79 * hash + Objects.hashCode(this._2);
+    hash = 79 * hash + Objects.hashCode(this.v1);
+    hash = 79 * hash + Objects.hashCode(this.v2);
     return hash;
   }
 }

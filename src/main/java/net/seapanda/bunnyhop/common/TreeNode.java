@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,23 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.common;
 
 import java.util.ArrayList;
 
 /**
+ * 木構造のノード.
+ *
  * @author K.Koike
  */
 public class TreeNode<T> {
 
   public T content;
-  public  ArrayList<TreeNode<T>> children = new ArrayList<>();
+  public ArrayList<TreeNode<T>> children = new ArrayList<>();
 
   public boolean isLeaf() {
     return children.isEmpty();
   }
 
-  public TreeNode (T content) {
+  public TreeNode(T content) {
     this.content = content;
   }
 }

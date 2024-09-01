@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,24 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.common;
 
 /**
- * モデル構造表示用インタフェース (デバッグ用)
+ * モデル構造表示用インタフェース (デバッグ用).
+ *
  * @author K.Koike
- * */
+ */
 public interface Showable {
 
   /**
-   * モデルの構造を表示する
+   * モデルの構造を表示する.
+   *
    * @param depth 表示インデント数
-   * */
+   */
   public void show(int depth);
 
+  /** インデント分の空白文字を返す. */
   default String indent(int depth) {
     String ret = "";
-    for (int i = 0; i < depth; ++i)
+    for (int i = 0; i < depth; ++i) {
       ret += "  ";
+    }
     return ret;
   }
 }

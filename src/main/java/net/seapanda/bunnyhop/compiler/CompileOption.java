@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.compiler;
 
 /**
- * コンパイルオプションを格納するクラス
+ * コンパイルオプションを格納するクラス.
+ *
  * @author K.Koike
  */
 public class CompileOption {
@@ -35,6 +37,7 @@ public class CompileOption {
     this.withComments = builder.withComments;
   }
 
+  /** {@link CompileOption} のビルダークラス. */
   public static class Builder {
 
     private final boolean local;

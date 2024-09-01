@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.view.node.part;
 
 import net.seapanda.bunnyhop.common.constant.BhParams;
 
 /**
+ * {@link BhNodeView} が持つ GUI 要素の種類.
+ *
  * @author K.Koike
- * GUI 要素の種類 
  */
 public enum ComponentType {
 
@@ -35,15 +37,13 @@ public enum ComponentType {
     this.typeName = typeName;
   }
 
-  /**
-   * タイプ名から列挙子を得る
-   */
+  /** タイプ名から列挙子を得る. */
   public static ComponentType toType(String name) {
-
-    for (var type : ComponentType.values())
-      if (type.getName().equals(name))
+    for (var type : ComponentType.values()) {
+      if (type.getName().equals(name)) {
         return type;
-
+      }
+    }
     throw new IllegalArgumentException("Unknown component type  " + name);
   }
 

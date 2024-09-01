@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,20 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.seapanda.bunnyhop.bhprogram.common;
+
+package net.seapanda.bunnyhop.model.syntaxsymbol;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
+import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
- * BunnyHop と BhProgram の実行環境間でノードのインスタンスを特定するための識別子
- * */
-public class BhNodeInstanceID implements Serializable {
+ * {@link SyntaxSymbol} の ID.
+ *
+ * @author K.Koike
+ */
+public class SyntaxSymbolId implements Serializable {
 
+  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
+  private static AtomicLong sequentialID = new AtomicLong(0);
   private final String id;
-  public static final BhNodeInstanceID NONE = new BhNodeInstanceID("NONE");  //!< IDが無いことを表す null オブジェクト
 
-  public BhNodeInstanceID(String id) {
+  static SyntaxSymbolId newId() {
+    long id = sequentialID.addAndGet(1);
+    return new SyntaxSymbolId(Long.toHexString(id));
+  }
+
+  private SyntaxSymbolId(String id) {
     this.id = id;
   }
 
@@ -37,17 +48,16 @@ public class BhNodeInstanceID implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null)
+    if (obj == null) {
       return false;
-    return (getClass() == obj.getClass()) && (id.equals(((BhNodeInstanceID)obj).id));
+    }
+    return (getClass() == obj.getClass()) && (id.equals(((SyntaxSymbolId) obj).id));
   }
 
   @Override
   public int hashCode() {
-
-    int hash = 29;
-    hash = 173 * hash + Objects.hashCode(this.id);
+    int hash = 71;
+    hash = 311 * hash + Objects.hashCode(this.id);
     return hash;
   }
 }
-

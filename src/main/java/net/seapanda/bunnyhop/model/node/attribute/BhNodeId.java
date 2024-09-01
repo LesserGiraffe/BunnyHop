@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,31 +14,41 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.syntaxsymbol;
+package net.seapanda.bunnyhop.model.node.attribute;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
-
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
- * SyntaxSymbolのID
+ * Bh ノード ID.
+ *
  * @author K.Koike
- * */
-public class SyntaxSymbolID implements Serializable {
+ */
+public class BhNodeId implements Serializable {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  static private AtomicLong sequentialID = new AtomicLong(0);
-  private final String id;
+  /** BhNodeIDが存在しないことを表す null オブジェクト. */
+  public static final BhNodeId NONE = new BhNodeId("");
+  String id;
 
-  static SyntaxSymbolID newID() {
-    long id = sequentialID.addAndGet(1);
-    return new SyntaxSymbolID(Long.toHexString(id));
+  /**
+   * コンストラクタ.
+   *
+   * @param id 識別子名
+   */
+  private BhNodeId(String id) {
+    this.id = id;
   }
 
-  private SyntaxSymbolID(String id) {
-    this.id = id;
+  /**
+   * BhノードIDを作成する.
+   *
+   * @param id 識別子名
+   * @return BhノードID
+   */
+  public static BhNodeId create(String id) {
+    return new BhNodeId(id == null ? "" : id);
   }
 
   @Override
@@ -48,15 +58,16 @@ public class SyntaxSymbolID implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null)
+    if (obj == null) {
       return false;
-    return (getClass() == obj.getClass()) && (id.equals(((SyntaxSymbolID)obj).id));
+    }
+    return (getClass() == obj.getClass()) && (id.equals(((BhNodeId) obj).id));
   }
 
   @Override
   public int hashCode() {
-    int hash = 71;
-    hash = 311 * hash + Objects.hashCode(this.id);
+    int hash = 5;
+    hash = 11 * hash + Objects.hashCode(this.id);
     return hash;
   }
 }

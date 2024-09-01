@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017 K.Koike
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package net.seapanda.bunnyhop.view.connectionline;
 
 import javafx.scene.Group;
@@ -9,47 +25,64 @@ import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.Rem;
 import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+
 /**
- * BhNodeView を繋ぐ線を表すクラス
+ * {@link BhNodeView} を繋ぐ線を表すクラス.
+ *
  * @author K.Koike
  */
 public class ConnectionLine {
 
-  private final TIP_TYPE startPointTipType;  //!< 始点の先端の形
-  private final TIP_TYPE endPointTipType;  //!< 終点の先端の形
-  private final LINE_TYPE lineType;  //!< 線の種類
-  private final Paint color;  ///!< 色
-  private final BhNodeView startNode;  //!< 始点となる NodeView
-  private final BhNodeView endNode;  //!< 終点となる NodeView
-  private final Group shapeGroup = new Group();  //!< 接続線のGUI部品を持つグループ
-  private Shape startPointTip;  //!< 始点パーツ
-  private Shape endPointTip;  //!< 終点パーツ
-  private Line line;  //!< 線パーツ
+  /** 始点の先端の形. */
+  private final TipType startPointTipType;
+  /** 終点の先端の形. */
+  private final TipType endPointTipType;
+  /** 線の種類. */
+  private final LineType lineType;
+  /** 線の色. */
+  private final Paint color;
+  /** 始点となる {@link NodeView}. */
+  private final BhNodeView startNode;
+  /** 終点となる {@link NodeView}. */
+  private final BhNodeView endNode;
+  /** 接続線の GUI 部品を持つグループ. */
+  private final Group shapeGroup = new Group();
+  /** 始点パーツ. */
+  private Shape startPointTip;
+  /** 終点パーツ. */
+  private Shape endPointTip;
+  /** 線パーツ. */
+  private Line line;
 
   private static double ARROW_LENGTH = 5.0 * Rem.VAL;
   private static double ARROW_ANGLE_OF_OPENING = Math.toRadians(30.0);
   private static double STROKE_WIDTH = 0.5 * Rem.VAL;
   private static double STROKE_DASH_LEN = 0.5 * Rem.VAL;
 
-  /**
-   * 先端の形
-   */
-  public enum TIP_TYPE {
-    ARROW,  //!< 矢印
-    NONE,  //!< 装飾無し
+  /** 先端の形. */
+  public enum TipType {
+    /** 矢印. */
+    ARROW,
+    /** 装飾無し. */
+    NONE,
   }
 
-  /**
-   * 線の種類
-   */
-  public enum LINE_TYPE {
-    SOLID,  //!< 実線
-    DOTTED,  //!<点線
+  /** 線の種類. */
+  public enum LineType {
+    /** 実線. */
+    SOLID,
+    /** 点線. */
+    DOTTED,
   }
 
-  public ConnectionLine(
-    TIP_TYPE startPointTipType, TIP_TYPE endPointTipType, LINE_TYPE lineType, Paint color,
-    BhNodeView startNode, BhNodeView endNode) {
+  /** コンストラクタ. */
+  private ConnectionLine(
+      TipType startPointTipType,
+      TipType endPointTipType,
+      LineType lineType,
+      Paint color,
+      BhNodeView startNode,
+      BhNodeView endNode) {
 
     this.startPointTipType = startPointTipType;
     this.endPointTipType = endPointTipType;
@@ -60,7 +93,8 @@ public class ConnectionLine {
   }
 
   /**
-   * BhNodeView を繋ぐ線オブジェクトを作成する
+   * BhNodeView を繋ぐ線オブジェクトを作成する.
+   *
    * @param startPointTipType 始点の先端の形
    * @param endPointTipType 終点の先端の形
    * @param lineType 線の種類
@@ -69,23 +103,25 @@ public class ConnectionLine {
    * @param endNode 終点となる NodeView
    */
   public static ConnectionLine create(
-    TIP_TYPE startPointTipType, TIP_TYPE endPointTipType, LINE_TYPE lineType, Paint color,
-    BhNodeView startNode, BhNodeView endNode) {
+      TipType startPointTipType,
+      TipType endPointTipType,
+      LineType lineType,
+      Paint color,
+      BhNodeView startNode,
+      BhNodeView endNode) {
 
-    if (startNode == null || endNode == null)
+    if (startNode == null || endNode == null) {
       throw new IllegalArgumentException(
-        "ConnectionLine.create()    'startPoint' and 'endPoint' must not be null");
-
-    var line = new ConnectionLine(startPointTipType, endPointTipType, lineType, color, startNode, endNode);
+          "ConnectionLine.create()    'startPoint' and 'endPoint' must not be null");
+    }
+    var line = new ConnectionLine(
+        startPointTipType, endPointTipType, lineType, color, startNode, endNode);
     line.build();
     return line;
   }
 
-  /**
-   * 線を構築する
-   */
+  /** 線を構築する. */
   private void build() {
-
     createTipsOfLine();
     createLine();
     shapeGroup.getChildren().add(line);
@@ -93,11 +129,8 @@ public class ConnectionLine {
     shapeGroup.getChildren().add(endPointTip);
   }
 
-  /**
-   * 接続線のライン部分を作成する
-   */
+  /** 接続線のライン部分を作成する. */
   private void createLine() {
-
     line = new Line();
     line.setStroke(color);
     line.setStrokeWidth(STROKE_WIDTH);
@@ -106,18 +139,16 @@ public class ConnectionLine {
         break;
       case DOTTED:
         line.getStrokeDashArray().addAll(STROKE_DASH_LEN, STROKE_DASH_LEN);
+        break;
       default:
-        throw new AssertionError("ConnectionLine.build()    unknown line type");
+        throw new AssertionError("unknown line type");
     }
   }
 
-  /**
-   * 接続線の先端部分を作成する
-   */
+  /** 接続線の先端部分を作成する. */
   private void createTipsOfLine() {
-
     switch (startPointTipType) {
-      case ARROW :
+      case ARROW:
         startPointTip = TipShapeFactory.createArrow(
           ARROW_ANGLE_OF_OPENING, ARROW_LENGTH, STROKE_WIDTH, 0, color);
         break;
@@ -127,11 +158,11 @@ public class ConnectionLine {
         break;
 
       default:
-        throw new AssertionError("ConnectionLine.build()    unknown tip type");
+        throw new AssertionError("unknown tip type");
     }
 
     switch (endPointTipType) {
-      case ARROW :
+      case ARROW:
         endPointTip = TipShapeFactory.createArrow(
           ARROW_ANGLE_OF_OPENING, ARROW_LENGTH, STROKE_WIDTH, Math.toRadians(180.0), color);
         break;
@@ -141,16 +172,15 @@ public class ConnectionLine {
         break;
 
       default:
-        throw new AssertionError("ConnectionLine.build()    unknown tip type");
+        throw new AssertionError("unknown tip type");
     }
   }
 
   /**
-   * 線を表示する. <br>
+   * 線を表示する.
    * 始点 NodeView と終点 NodeView が同じワークスペースに無い場合は表示しない.
    */
   public void show() {
-
     if (!areInSameWorkspaceView(startNode, endNode)) {
       shapeGroup.setVisible(false);
       return;
@@ -162,26 +192,28 @@ public class ConnectionLine {
     Vec2D startNodeSize = startNode.getRegionManager().getBodySize(false);
     Vec2D endNodeSize = endNode.getRegionManager().getBodySize(false);
 
-    Pair<Double, Double> xPoints = calcConnectionPointX(startPosOnWs, endPosOnWs, startNodeSize, endNodeSize);
-    Pair<Double, Double> yPoints = calcConnectionPointY(startPosOnWs, endPosOnWs, startNodeSize, endNodeSize);
-    double xLen = xPoints._2 - xPoints._1;
-    double yLen = yPoints._2 - yPoints._1;
-    double lineLen = Math.sqrt(xLen * xLen + yLen * yLen);
+    Pair<Double, Double> pointsX =
+        calcConnectionPointsX(startPosOnWs, endPosOnWs, startNodeSize, endNodeSize);
+    Pair<Double, Double> pointsY =
+        calcConnectionPointsY(startPosOnWs, endPosOnWs, startNodeSize, endNodeSize);
+    double lenX = pointsX.v2 - pointsX.v1;
+    double lenY = pointsY.v2 - pointsY.v1;
+    double lineLen = Math.sqrt(lenX * lenX + lenY * lenY);
     line.setEndX(lineLen);
     endPointTip.setTranslateX(lineLen);
-    shapeGroup.setTranslateX(xPoints._1);
-    shapeGroup.setTranslateY(yPoints._1);
-    double rotAngle = Math.atan2(-(yPoints._2 - yPoints._1), xPoints._2 - xPoints._1);
+    shapeGroup.setTranslateX(pointsX.v1);
+    shapeGroup.setTranslateY(pointsY.v1);
+    double rotAngle = Math.atan2(-(pointsY.v2 - pointsY.v1), pointsX.v2 - pointsX.v1);
     shapeGroup.setRotate(rotAngle);
   }
 
   /**
-   * 接続点のX座標を求める
+   * 接続点のX座標を求める.
+   *
    * @return 始点ノードの X 位置と終点ノードの X 位置のペア
    */
-  private Pair<Double, Double> calcConnectionPointX(
-    Vec2D startPosOnWs, Vec2D endPosOnWs, Vec2D startNodeSize, Vec2D endNodeSize) {
-
+  private Pair<Double, Double> calcConnectionPointsX(
+      Vec2D startPosOnWs, Vec2D endPosOnWs, Vec2D startNodeSize, Vec2D endNodeSize) {
     double startLeft = startPosOnWs.x;
     double startRight = startLeft + startNodeSize.x;
     double endLeft = endPosOnWs.x;
@@ -214,12 +246,12 @@ public class ConnectionLine {
   }
 
   /**
-   * 接続点のY座標を求める
+   * 接続点の Y 座標を求める.
+   *
    * @return 始点ノードの Y 位置と終点ノードの Y 位置のペア
-   * */
-  private Pair<Double, Double> calcConnectionPointY(
+   */
+  private Pair<Double, Double> calcConnectionPointsY(
       Vec2D startPosOnWs, Vec2D endPosOnWs, Vec2D startNodeSize, Vec2D endNodeSize) {
-
     double startTop = startPosOnWs.y;
     double startBottom = startTop + startNodeSize.y;
     double endTop = endPosOnWs.y;
@@ -251,37 +283,9 @@ public class ConnectionLine {
     return new Pair<Double, Double>(startPointY, endPointY);
   }
 
-  /**
-   * 引数の2つの BhNodeView が同じワークスペースビューにあるかどうか調べる
-   */
+  /** 引数の2つの {@link BhNodeView} が同じワークスペースビューにあるかどうか調べる. */
   private boolean areInSameWorkspaceView(BhNodeView viewA, BhNodeView viewB) {
-    return ViewHelper.INSTANCE.getWorkspaceView(viewA) == ViewHelper.INSTANCE.getWorkspaceView(viewB);
+    return ViewHelper.INSTANCE.getWorkspaceView(viewA)
+        == ViewHelper.INSTANCE.getWorkspaceView(viewB);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

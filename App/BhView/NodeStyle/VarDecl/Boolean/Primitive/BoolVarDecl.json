@@ -1,7 +1,7 @@
 {
   "paddingTop" : 1.0,
   "paddingBottom" : 1.0,
-  "paddingLeft" : 11.0,
+  "paddingLeft" : 12.0,
   "paddingRight" : 4.0,
   "connectorPos" : "Top",
   "connectorShift" : 1.0,
@@ -23,7 +23,7 @@
     
   },
   
-    "privateTemplate" : {
+  "privateTemplate" : {
     "buttonPosX" : 6.0,
     "buttonPosY" : 1.0
   }

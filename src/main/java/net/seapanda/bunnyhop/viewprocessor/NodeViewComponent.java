@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.viewprocessor;
 
 /**
- * NodeView を構成する部品が共通で持つ機能のインタフェース
+ * NodeView を構成する部品が共通で持つ機能のインタフェース.
+ *
  * @author K.Koike
- * */
+ */
 public interface NodeViewComponent {
 
-  /**
-   * visitor に自オブジェクトを渡す
-   * @param visitor 自オブジェクトを渡すvisitor
-   */
-  public void accept(NodeViewProcessor visitor) ;
+  /** {@code visitor} にこのオブジェクトを渡す. */
+  public void accept(NodeViewProcessor visitor);
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.view.node;
 
 import net.seapanda.bunnyhop.common.Vec2D;
@@ -20,34 +21,33 @@ import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
-import net.seapanda.bunnyhop.view.bodyshape.BodyShape.BODY_SHAPE;
+import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 
-/**
- * 内部に何も表示しないノードビュー
- * */
+/** 内部に何も表示しないノードビュー. */
 public class NoContentNodeView extends BhNodeView {
 
   private final TextNode model;  //!< このビューに対応するモデル
 
   /**
-   * コンストラクタ
+   * コンストラクタ.
+   *
    * @param model ビューに対応するモデル
    * @param viewStyle ビューのスタイル
-   * */
+   */
   public NoContentNodeView(TextNode model, BhNodeViewStyle viewStyle) 
-    throws ViewInitializationException {
-
+      throws ViewInitializationException {
     super(viewStyle, model);
     this.model = model;
-    getAppearanceManager().addCssClass(BhParams.CSS.CLASS_NO_CONTENT_NODE);
+    getLookManager().addCssClass(BhParams.Css.CLASS_NO_CONTENT_NODE);
     setMouseTransparent(true);
   }
 
   /**
-   * このビューのモデルであるBhNodeを取得する
+   * このビューのモデルであるBhNodeを取得する.
+   *
    * @return このビューのモデルであるBhNode
    */
   @Override
@@ -58,12 +58,12 @@ public class NoContentNodeView extends BhNodeView {
   @Override
   protected void arrangeAndResize() {
     boolean inner = (parent == null) ? true : parent.inner;
-    if (inner)
-      getAppearanceManager().setBodyShape(viewStyle.bodyShape);
-    else
-      getAppearanceManager().setBodyShape(BODY_SHAPE.BODY_SHAPE_NONE);
-
-    getAppearanceManager().updatePolygonShape();
+    if (inner) {
+      getLookManager().setBodyShape(viewStyle.bodyShape);
+    } else {
+      getLookManager().setBodyShape(BodyShape.BODY_SHAPE_NONE);
+    }
+    getLookManager().updatePolygonShape();
   }
 
   @Override
@@ -84,13 +84,13 @@ public class NoContentNodeView extends BhNodeView {
 
     Vec2D cnctrSize = viewStyle.getConnectorSize();
     double bodyWidth = paddingLeft + paddingRight;
-    if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.LEFT))
+    if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.LEFT)) {
       bodyWidth += cnctrSize.x;
-
+    }
     double bodyHeight = paddingTop + paddingBottom;
-    if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.TOP))
+    if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.TOP)) {
       bodyHeight += cnctrSize.y;
-
+    }
     return new Vec2D(bodyWidth, bodyHeight);
   }
 
@@ -105,11 +105,13 @@ public class NoContentNodeView extends BhNodeView {
   }
 
   /**
-   * モデルの構造を表示する
+   * モデルの構造を表示する.
+   *
    * @param depth 表示インデント数
-   * */
+   */
   @Override
   public void show(int depth) {
-    MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<NoContentNodeView" + ">   " + this.hashCode());
+    MsgPrinter.INSTANCE.msgForDebug(
+        indent(depth) + "<NoContentNodeView" + ">   " + this.hashCode());
   }
 }

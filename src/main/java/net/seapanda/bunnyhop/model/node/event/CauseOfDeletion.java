@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.model.node.event;
 
 /**
- * ノードの削除原因
+ * ノードの削除原因.
+ *
  * @author K.Koike
  */
 public enum CauseOfDeletion {
-
-  INFLUENCE_OF_ORIGINAL_DELETION,  //!< オリジナルノードが削除された
-  TRASH_BOX,  //!< ゴミ箱に入れられた
-  SYNTAX_ERROR,  //!< 構文エラーノードの削除
-  SELECTED_FOR_DELETION,  //!< 選択削除の対象になった
-  WORKSPACE_DELETION;  //!< ワークスペースの削除
+  /** オリジナルノードが削除された. */
+  INFLUENCE_OF_ORIGINAL_DELETION,
+  /** ゴミ箱に入れられた. */
+  TRASH_BOX,
+  /** 構文エラーノードの削除. */
+  SYNTAX_ERROR,
+  /** 選択削除の対象になった. */
+  SELECTED_FOR_DELETION,
+  /** ワークスペースの削除. */
+  WORKSPACE_DELETION;
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.modelprocessor;
 
 import net.seapanda.bunnyhop.message.MsgService;
@@ -23,25 +24,29 @@ import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
- * ノードを貼り付け候補から取り除くクラス
+ * ノードを貼り付け候補から取り除くクラス.
+ *
  * @author K.Koike
  */
 public class PasteCanceler implements BhModelProcessor {
 
-  private final UserOperationCommand userOpeCmd;  //!< undo 用コマンドオブジェクト
+  /** undo 用コマンドオブジェクト. */
+  private final UserOperationCommand userOpeCmd;
 
   /**
-   * 引数で指定したノード以下のノードを貼り付け候補から取り除く
+   * 引数で指定したノード以下のノードを貼り付け候補から取り除く.
+   *
    * @param node このノード以下のノードを貼り付け候補から取り除く
-   * @param userOpeCmd undo用コマンドオブジェクト
-   * */
+   * @param userOpeCmd undo 用コマンドオブジェクト
+   */
   public static void cancel(BhNode node, UserOperationCommand userOpeCmd) {
     node.accept(new PasteCanceler(userOpeCmd));
   }
 
   /**
-   * コンストラクタ
-   * @param userOpeCmd undo用コマンドオブジェクト
+   * コンストラクタ.
+   *
+   * @param userOpeCmd undo 用コマンドオブジェクト
    */
   private PasteCanceler(UserOperationCommand userOpeCmd) {
     this.userOpeCmd = userOpeCmd;

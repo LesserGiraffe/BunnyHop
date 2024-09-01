@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.control.workspace;
 
 import javafx.fxml.FXML;
@@ -39,9 +40,10 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
- * ワークスペースセットのコントローラ
+ * ワークスペースセットのコントローラ.
+ *
  * @author K.Koike
- * */
+ */
 public class WorkspaceSetController implements MsgProcessor {
 
   private WorkspaceSet model;
@@ -49,73 +51,66 @@ public class WorkspaceSetController implements MsgProcessor {
   @FXML private StackPane workspaceSetStackPane;
   @FXML private TabPane workspaceSetTab;  //!< ワークスペース表示タブ
   @FXML private TextArea mainMsgArea;
-  @FXML private ImageView openedTrashboxIV;
-  @FXML private ImageView closedTrashboxIV;
+  @FXML private ImageView openedTrashboxIv;
+  @FXML private ImageView closedTrashboxIv;
   private final UserOpeCmdManager userOpeCmdManager = new UserOpeCmdManager();
 
   /**
-   * モデルとイベントハンドラをセットする
+   * モデルとイベントハンドラをセットする.
+   *
    * @param wss ワークスペースセットのモデル
    */
   public void init(WorkspaceSet wss) {
-
     model = wss;
     setEventHandlers();
     workspaceSetViewBase.setDividerPositions(BhParams.LnF.DEFAULT_VERTICAL_DIV_POS);
     MsgPrinter.INSTANCE.setMainMsgArea(mainMsgArea); //メインメッセージエリアの登録
   }
 
-  /**
-   * イベントハンドラを登録する
-   */
+  /** イベントハンドラを登録する. */
   private void setEventHandlers() {
-
     setMessageAreaEvenHandlers();
     setResizeEventHandlers();
     workspaceSetTab.getSelectionModel().selectedItemProperty().addListener(
-      (observable, oldTab, newTab) -> setCurrentWorkspace(newTab));
+        (observable, oldTab, newTab) -> setCurrentWorkspace(newTab));
   }
 
-  /** 現在捜査中のワークスペースを設定する */
+  /** 現在走査中のワークスペースを設定する. */
   private void setCurrentWorkspace(Tab newTab) {
-
-    if (newTab != null)
-      model.setCurrentWorkspace(((WorkspaceView)newTab).getWorkspace());
-    else
+    if (newTab != null) {
+      model.setCurrentWorkspace(((WorkspaceView) newTab).getWorkspace());
+    } else {
       model.setCurrentWorkspace(null);
-  }
-
-  /**
-   * ワークスペースリサイズ時におこるイベントハンドラを登録する
-   */
-  private void setResizeEventHandlers() {
-
-    //ワークスペースセットの大きさ変更時にノード選択ビューの高さを再計算する
-    workspaceSetTab.heightProperty().addListener(
-      (observable, oldValue, newValue) -> resizeNodeSelectionViewHeight(newValue.doubleValue()));
-
-    // タブクローズイベントで TabDragPolicy.FIXED にするので, クリック時に再度 REORDER に変更する必要がある
-    workspaceSetTab.setOnMousePressed(event ->   workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER));
-  }
-
-  /**
-   * タブペインの高さに合わせてノード選択ビューの高さを変更する
-   * @param tabViewHeight タブペインの高さ
-   */
-  private void resizeNodeSelectionViewHeight(double tabViewHeight) {
-
-    for (Node node : workspaceSetStackPane.getChildren()) {
-      if (node instanceof BhNodeSelectionView)
-        ((BhNodeSelectionView)node).setMaxHeight(tabViewHeight - node.getTranslateY());
     }
   }
 
-  /**
-   * メッセージエリアのイベントハンドラを登録する
-   */
-  private void setMessageAreaEvenHandlers() {
+  /** ワークスペースリサイズ時におこるイベントハンドラを登録する. */
+  private void setResizeEventHandlers() {
+    //ワークスペースセットの大きさ変更時にノード選択ビューの高さを再計算する
+    workspaceSetTab.heightProperty().addListener(
+        (observable, oldValue, newValue) -> resizeNodeSelectionViewHeight(newValue.doubleValue()));
 
-    mainMsgArea.textProperty().addListener((observable, oldVal, newVal)-> {
+    // タブクローズイベントで TabDragPolicy.FIXED にするので, クリック時に再度 REORDER に変更する必要がある
+    workspaceSetTab.setOnMousePressed(
+        event ->   workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER));
+  }
+
+  /**
+   * タブペインの高さに合わせてノード選択ビューの高さを変更する.
+   *
+   * @param tabViewHeight タブペインの高さ
+   */
+  private void resizeNodeSelectionViewHeight(double tabViewHeight) {
+    for (Node node : workspaceSetStackPane.getChildren()) {
+      if (node instanceof BhNodeSelectionView) {
+        ((BhNodeSelectionView) node).setMaxHeight(tabViewHeight - node.getTranslateY());
+      }
+    }
+  }
+
+  /** メッセージエリアのイベントハンドラを登録する. */
+  private void setMessageAreaEvenHandlers() {
+    mainMsgArea.textProperty().addListener((observable, oldVal, newVal) -> {
       if (newVal.length() > BhParams.Message.MAX_MAIN_MSG_AREA_CHARS) {
         int numDeleteChars = newVal.length() - BhParams.Message.MAX_MAIN_MSG_AREA_CHARS;
         mainMsgArea.deleteText(0, numDeleteChars);
@@ -124,17 +119,18 @@ public class WorkspaceSetController implements MsgProcessor {
     });
 
     mainMsgArea.scrollTopProperty().addListener((observable, oldVal, newVal) -> {
-      if (oldVal.doubleValue() == Double.MAX_VALUE && newVal.doubleValue() == 0.0)
+      if (oldVal.doubleValue() == Double.MAX_VALUE && newVal.doubleValue() == 0.0) {
         mainMsgArea.setScrollTop(Double.MAX_VALUE);
+      }
     });
   }
 
   /**
-   * ノード選択ビューを追加する
+   * ノード選択ビューを追加する.
+   *
    * @param nodeSelectionView 表示するノードテンプレート
-   * */
+   */
   private void addNodeSelectionView(BhNodeSelectionView nodeSelectionView) {
-
     workspaceSetStackPane.getChildren().add(nodeSelectionView);
     nodeSelectionView.toFront();
 
@@ -145,7 +141,8 @@ public class WorkspaceSetController implements MsgProcessor {
   }
 
   /**
-   * ワークスペース表示用のタブペインを返す
+   * ワークスペース表示用のタブペインを返す.
+   *
    * @return ワークスペース表示用のタブペイン
    */
   public TabPane getTabPane() {
@@ -153,37 +150,35 @@ public class WorkspaceSetController implements MsgProcessor {
   }
 
   /**
-   * ゴミ箱を開閉する
+   * ゴミ箱を開閉する.
+   *
    * @param open ゴミ箱を開ける場合true
    */
   private void openTrashBox(boolean open) {
     if (open) {
-      openedTrashboxIV.setVisible(true);
-      closedTrashboxIV.setVisible(false);
-    }
-    else {
-      openedTrashboxIV.setVisible(false);
-      closedTrashboxIV.setVisible(true);
+      openedTrashboxIv.setVisible(true);
+      closedTrashboxIv.setVisible(false);
+    } else {
+      openedTrashboxIv.setVisible(false);
+      closedTrashboxIv.setVisible(true);
     }
   }
 
   /**
-   * 引数で指定した位置がゴミ箱エリアにあるかどうか調べる
+   * 引数で指定した位置がゴミ箱エリアにあるかどうか調べる.
+   *
    * @param sceneX シーン上でのX位置
    * @param sceneY シーン上でのY位置
    * @return 引数で指定した位置がゴミ箱エリアにある場合true
    */
   private boolean isPointInTrashBoxArea(double sceneX, double sceneY) {
-
-    Point2D localPos = closedTrashboxIV.sceneToLocal(sceneX, sceneY);
-    return closedTrashboxIV.contains(localPos.getX(), localPos.getY());
+    Point2D localPos = closedTrashboxIv.sceneToLocal(sceneX, sceneY);
+    return closedTrashboxIv.contains(localPos.getX(), localPos.getY());
   }
 
   @Override
-  public MsgData processMsg(BhMsg msg, MsgData data){
-
+  public MsgData processMsg(BhMsg msg, MsgData data) {
     switch (msg) {
-
       case ADD_WORKSPACE:
         addWorkspace(data.workspace, data.workspaceView, data.userOpeCmd);
         break;
@@ -237,14 +232,14 @@ public class WorkspaceSetController implements MsgProcessor {
   }
 
   /**
-   * ワークスペースを追加する
+   * ワークスペースを追加する.
+   *
    * @param workspace 追加するワークスペース
    * @param workspaceView workspace に対応するビュー
-   * @param userOpeCmd undo用コマンドオブジェクト
+   * @param userOpeCmd undo 用コマンドオブジェクト
    */
   private void addWorkspace(
-    Workspace workspace, WorkspaceView workspaceView, UserOperationCommand userOpeCmd) {
-
+      Workspace workspace, WorkspaceView workspaceView, UserOperationCommand userOpeCmd) {
     model.addWorkspace(workspace);
     workspaceSetTab.getTabs().add(workspaceView);
     workspaceSetTab.getSelectionModel().select(workspaceView);
@@ -254,14 +249,14 @@ public class WorkspaceSetController implements MsgProcessor {
   }
 
   /**
-   * ワークスペースを削除する
+   * ワークスペースを削除する.
+   *
    * @param workspace 削除するワークスペース
    * @param workspaceView workspace に対応するビュー
-   * @param userOpeCmd undo用コマンドオブジェクト
+   * @param userOpeCmd undo 用コマンドオブジェクト
    */
   private void deleteWorkspace(
-    Workspace workspace, WorkspaceView workspaceView, UserOperationCommand userOpeCmd) {
-
+      Workspace workspace, WorkspaceView workspaceView, UserOperationCommand userOpeCmd) {
     model.removeWorkspace(workspace);
     workspaceSetTab.getTabs().remove(workspaceView);
     // ここで REORDER にしないと, タブを消した後でタブドラッグすると例外が発生する
@@ -270,12 +265,13 @@ public class WorkspaceSetController implements MsgProcessor {
   }
 
   /**
-   * 現在選択中の Workspace を返す
+   * 現在選択中の Workspace を返す.
+   *
    * @return 現在選択中のWorkspace
    * */
   private Workspace getCurrentWorkspace() {
-
-    WorkspaceView newWorkspaceView = (WorkspaceView)workspaceSetTab.getSelectionModel().getSelectedItem();
+    WorkspaceView newWorkspaceView =
+        (WorkspaceView) workspaceSetTab.getSelectionModel().getSelectedItem();
     if (newWorkspaceView == null) {
       return null;
     }
@@ -283,33 +279,19 @@ public class WorkspaceSetController implements MsgProcessor {
   }
 
   /**
-   * 現在選択中の Workspace を返す
+   * 現在選択中の Workspace を返す.
+   *
    * @return 現在選択中のWorkspace
-   * */
+   */
   public WorkspaceView getCurrentWorkspaceView() {
-    return (WorkspaceView)workspaceSetTab.getSelectionModel().getSelectedItem();
+    return (WorkspaceView) workspaceSetTab.getSelectionModel().getSelectedItem();
   }
 
-  /**
-   * 引数で指定した undo 用コマンドオブジェクトを undo スタックに追加する
-   */
+  /** 引数で指定した undo 用コマンドオブジェクトを undo スタックに追加する. */
   private void pushUserOpeCmd(UserOperationCommand userOpeCmd) {
-
     if (userOpeCmd.getNumSubOpe() > 0) {
       userOpeCmdManager.pushUndoCommand(userOpeCmd);
       BunnyHop.INSTANCE.shouldSave(true);
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-

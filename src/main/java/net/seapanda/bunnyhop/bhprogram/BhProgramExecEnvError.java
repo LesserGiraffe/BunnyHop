@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.bhprogram;
 
 /**
- * BhProgramの実行環境に関するエラーコード
+ * BhProgram の実行環境に関するエラーコード.
+ *
  * @author K.Koike
  */
 public enum BhProgramExecEnvError {
-  
-  SUCCESS,  //!< エラーなし
-  SEND_WHEN_DISCONNECTED,  //!< 切断中に送信しようとした
-  SEND_QUEUE_FULL,  //!< 送信キューが満杯で送信できない
+  /** エラーなし. */
+  SUCCESS,
+  /** 切断中に送信しようとした. */
+  SEND_WHEN_DISCONNECTED,
+  /** 送信キューが満杯で送信できない. */
+  SEND_QUEUE_FULL,
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.modelprocessor;
 
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Optional;
-
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.control.node.BhNodeControllerInSelectionView;
 import net.seapanda.bunnyhop.control.node.ComboBoxNodeController;
 import net.seapanda.bunnyhop.control.node.ConnectiveNodeController;
@@ -43,127 +44,132 @@ import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 
 /**
- * ノードのMVC関係を構築するクラス
+ * ノードのMVC関係を構築するクラス.
+ *
  * @author K.Koike
- * */
-public class NodeMVCBuilder implements BhModelProcessor {
+ */
+public class NodeMvcBuilder implements BhModelProcessor {
 
-  private BhNodeView topNodeView;  //!< MVCを構築したBhNodeツリーのトップノードのビュー
-  private final Deque<ConnectiveNodeView> parentStack = new LinkedList<>();  //!< 子ノードの追加先のビュー
-  private MVCConnector mvcConnector;
+  /** MVC を構築した {@link BhNode} ツリーのトップノードのビュー. */
+  private BhNodeView topNodeView;
+  /** 子ノードの追加先のビュー. */
+  private final Deque<ConnectiveNodeView> parentStack = new LinkedList<>();
+  private MvcConnector mvcConnector;
 
   /**
-   * 引数で指定したノード以下のノードに対し, MVC関係を構築する. (ワークスペースに追加するノード用)
-   * @return 引数で指定したノードに対応する BhNodeView.
-   * */
+   * 引数で指定したノード以下のノードに対し, MVC関係を構築する. (ワークスペースに追加するノード用).
+   *
+   * @return 引数で指定したノードに対応する BhNodeView
+   */
   public static BhNodeView build(BhNode node) {
-    var builder = new NodeMVCBuilder(ControllerType.Default);
+    var builder = new NodeMvcBuilder(ControllerType.Default);
     node.accept(builder);
     return builder.topNodeView;
   }
 
   /**
    * 引数で指定したノード以下のノードに対し, MVC関係を構築する. (ノード選択ビューに追加するノード用)
+   *
    * @return 引数で指定したノードに対応する BhNodeView.
-   * */
+   */
   public static BhNodeView buildTemplate(BhNode node) {
-
-    var builder = new NodeMVCBuilder(ControllerType.Template);
+    var builder = new NodeMvcBuilder(ControllerType.Template);
     node.accept(builder);
     return builder.topNodeView;
   }
 
   /**
-   * コンストラクタ
+   * コンストラクタ.
+   *
    * @param type Controller の種類 (ワークスペースのノード用かノードセレクタ用)
-   * */
-  private NodeMVCBuilder(ControllerType type) {
-
+   */
+  private NodeMvcBuilder(ControllerType type) {
     if (type == ControllerType.Default) {
       mvcConnector = new DefaultConnector();
-    }
-    else if (type == ControllerType.Template) {
+    } else if (type == ControllerType.Template) {
       mvcConnector = new TemplateConnector();
     }
   }
 
-
-  private void addChildView(BhNode node, BhNodeView view) {
-    
+  private void addChildView(BhNode node, BhNodeView view) {    
     if ((node.getParentConnector() != null) && (parentStack.peekLast() != null)) {
       parentStack.peekLast().addToGroup(view);
     }
   }
 
   /**
-   * node のビューとコントロールを作成しMVCとして結びつける
+   * node のビューとコントロールを作成しMVCとして結びつける.
+   *
    * @param node ビューとコントロールを結びつけるノード
    */
   @Override
   public void visit(ConnectiveNode node) {
-
-    Optional<ConnectiveNodeView> nodeView =
-      BhNodeViewStyle.getNodeViewStyleFromNodeID(node.getID())
-      .flatMap(style -> createViewForConnectiveNode(node, style));
+    Optional<ConnectiveNodeView> nodeView = BhNodeViewStyle
+        .getNodeViewStyleFromNodeId(node.getId())
+        .flatMap(style -> createViewForConnectiveNode(node, style));
     
-    if (nodeView.isEmpty())
+    if (nodeView.isEmpty()) {
       node.setMsgProcessor((BhMsg msg, MsgData data) -> null);
+    }
 
-    if (topNodeView == null)
+    if (topNodeView == null) {
       topNodeView = nodeView.orElse(null);
-
+    }
     parentStack.addLast(nodeView.orElse(null));
     node.sendToSections(this);
     parentStack.removeLast();
     nodeView.ifPresent(view -> addChildView(node, view));
   }
 
+  @Override
+  public void visit(TextNode node) {
+    Optional<BhNodeView> nodeView = BhNodeViewStyle
+        .getNodeViewStyleFromNodeId(node.getId())
+        .flatMap(style -> createViewForTextNode(node, style));
+    
+    if (nodeView.isEmpty()) {
+      node.setMsgProcessor((BhMsg msg, MsgData data) -> null);
+    }
+    if (topNodeView == null) {
+      topNodeView = nodeView.orElse(null);
+    }
+    nodeView.ifPresent(view -> addChildView(node, view));
+  }
+
+  @Override
+  public void visit(Connector connector) {
+    connector.setScriptScope();
+    connector.sendToConnectedNode(this);
+  }
+
   /**
    * 引数で指定したコネクティブノードに応じたノードビューを作成する.
+   *
    * @param node このノードに対応するノードビューを作成する
    * @param viewStyle ノードビューに適用するスタイル
    * @return {@code node} に対応するノードビュー
    */
   private Optional<ConnectiveNodeView> createViewForConnectiveNode(
-    ConnectiveNode node, BhNodeViewStyle viewStyle) {
-
+      ConnectiveNode node, BhNodeViewStyle viewStyle) {
     ConnectiveNodeView nodeView = null;
     try {
       nodeView = new ConnectiveNodeView(node, viewStyle);
       mvcConnector.connect(node, nodeView);
-    }
-    catch (ViewInitializationException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + "\n" + e);
+    } catch (ViewInitializationException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(Util.INSTANCE.getCurrentMethodName() + "\n" + e);
       return Optional.empty();
     }
     return Optional.of(nodeView);
   }
-
-  @Override
-  public void visit(TextNode node) {
-
-    Optional<BhNodeView> nodeView =
-      BhNodeViewStyle.getNodeViewStyleFromNodeID(node.getID())
-      .flatMap(style -> createViewForTextNode(node, style));
-    
-    if (nodeView.isEmpty())
-      node.setMsgProcessor((BhMsg msg, MsgData data) -> null);
-    
-    if (topNodeView == null)
-      topNodeView = nodeView.orElse(null);
-
-    nodeView.ifPresent(view -> addChildView(node, view));
-  }
   
   /**
    * 引数で指定したテキストノードに応じたノードビューを作成する.
+   *
    * @param node このノードに対応するノードビューを作成する
    * @param viewStyle ノードビューに適用するスタイル
    * @return {@code node} に対応するノードビュー
    */
-  private Optional<BhNodeView> createViewForTextNode(
-    TextNode node, BhNodeViewStyle viewStyle) {
-
+  private Optional<BhNodeView> createViewForTextNode(TextNode node, BhNodeViewStyle viewStyle) {
     try {
       switch (viewStyle.component) {
         case TEXT_FIELD:
@@ -195,34 +201,28 @@ public class NodeMVCBuilder implements BhModelProcessor {
           throw new ViewInitializationException(
             "Invalid component type " + viewStyle.component);
       }
-    }
-    catch (ViewInitializationException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + "\n" + e);
+    } catch (ViewInitializationException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(Util.INSTANCE.getCurrentMethodName() + "\n" + e);
     }
     return Optional.empty();
   }
 
-  @Override
-  public void visit(Connector connector) {
-    connector.setScriptScope();
-    connector.sendToConnectedNode(this);
-  }
-
-  private interface MVCConnector {
-
+  private interface MvcConnector {
     public void connect(ConnectiveNode node, ConnectiveNodeView view);
+    
     public void connect(TextNode node, TextFieldNodeView view);
+    
     public void connect(TextNode node, LabelNodeView view);
+    
     public void connect(TextNode node, ComboBoxNodeView view);
+    
     public void connect(TextNode node, TextAreaNodeView view);
+    
     public void connect(TextNode node, NoContentNodeView view);
   }
 
-  /**
-   * ワークスペースに追加されるノードのModel と View をつなぐ機能を提供するクラス
-   */
-  private static class DefaultConnector implements MVCConnector {
-
+  /** ワークスペースに追加されるノードのModel と View をつなぐ機能を提供するクラス. */
+  private static class DefaultConnector implements MvcConnector {
     @Override
     public void connect(ConnectiveNode node, ConnectiveNodeView view) {
       var controller = new ConnectiveNodeController(node, view);
@@ -260,84 +260,71 @@ public class NodeMVCBuilder implements BhModelProcessor {
     }
   }
 
-   /**
-   * テンプレートノードリストに追加されるノードのModel と View をつなぐ機能を提供するクラス
-   */
-  private static class TemplateConnector implements MVCConnector {
+  /** テンプレートノードリストに追加されるノードの Model と View をつなぐ機能を提供するクラス. */
+  private static class TemplateConnector implements MvcConnector {
 
     BhNodeView rootView = null;  //トップノードのビュー
 
     @Override
     public void connect(ConnectiveNode node, ConnectiveNodeView view) {
-      if (rootView == null)
+      if (rootView == null) {
         rootView = view;
+      }
       var control = new BhNodeControllerInSelectionView(node, view, rootView);
       node.setMsgProcessor(control);
     }
 
     @Override
     public void connect(TextNode node, TextFieldNodeView view) {
-      if (rootView == null)
+      if (rootView == null) {
         rootView = view;
+      }
       var control = new BhNodeControllerInSelectionView(node, view, rootView);
       node.setMsgProcessor(control);
     }
 
     @Override
     public void connect(TextNode node, LabelNodeView view) {
-      if (rootView == null)
+      if (rootView == null) {
         rootView = view;
+      }
       var control = new BhNodeControllerInSelectionView(node, view, rootView);
       node.setMsgProcessor(control);
     }
 
     @Override
     public void connect(TextNode node, ComboBoxNodeView view) {
-      if (rootView == null)
+      if (rootView == null) {
         rootView = view;
+      }
       var control = new BhNodeControllerInSelectionView(node, view, rootView);
       node.setMsgProcessor(control);
     }
 
     @Override
     public void connect(TextNode node, TextAreaNodeView view) {
-      if (rootView == null)
+      if (rootView == null) {
         rootView = view;
+      }
       var control = new BhNodeControllerInSelectionView(node, view, rootView);
       node.setMsgProcessor(control);
     }
 
     @Override
     public void connect(TextNode node, NoContentNodeView view) {
-      if (rootView == null)
+      if (rootView == null) {
         rootView = view;
+      }
       var control = new BhNodeControllerInSelectionView(node, view, rootView);
       node.setMsgProcessor(control);
     }
   }
 
+  /** MVC のコントローラのタイプ. */
   public static enum ControllerType {
-    Default,  //!< ワークスペース上で操作されるBhNode 用のMVCコネクタ
-    Template,  //!< テンプレートリスト上にあるBhNode 用のMVCコネクタ
+    /** ワークスペース上で操作される BhNode 用のコントローラ. */
+    Default,
+    /** テンプレートリスト上にあるBhNode 用のMVCコネクタ. */
+    Template,
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

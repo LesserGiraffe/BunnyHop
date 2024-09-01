@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.modelprocessor;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
@@ -25,6 +25,7 @@ import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
 
 /**
  * 走査したノードが保持するイミテーションノードを集めるクラス.
+ *
  * @author K.Koike
  */
 public class ImitationFinder implements BhModelProcessor {
@@ -33,26 +34,21 @@ public class ImitationFinder implements BhModelProcessor {
 
   /**
    * 引数で指定したノード以下のオリジナルノードが持つイミテーションノードを全て返す.
+   *
    * @param node このノード以下のオリジナルノードが持つイミテーションノードを探す
-   * @param userOpeCmd undo用コマンドオブジェクト
    * @return 発見したイミテーションノードのリスト
    */
   public static Collection<Imitatable> find(BhNode node) {
-
     var finder = new ImitationFinder();
     node.accept(finder);
     return finder.imitations;
   }
 
-  /**
-   * コンストラクタ
-   * @param userOpeCmd undo用コマンドオブジェクト
-   */
+  /** コンストラクタ. */
   private ImitationFinder() {}
 
   @Override
   public void visit(ConnectiveNode node) {
-
     imitations.addAll(node.getImitationList());
     node.sendToSections(this);
   }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,26 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.view.node.part;
 
 import java.util.Objects;
 
 /**
- * コンボボックスなどに登録する選択アイテム
+ * コンボボックスなどに登録する選択アイテム.
+ *
  * @author K.Koike
  */
 public class SelectableItem {
   
-  private String viewText;  //!< ビューに表示されるテキスト
-  private String modelText;  //!< モデルが保持するテキスト
+  /** ビューに表示されるテキスト. */
+  private String viewText;
+  /** モデルが保持するテキスト. */
+  private String modelText;
   
+  /** コンストラクタ. */
   public SelectableItem(String modelText, String viewText) {
     this.modelText = modelText;
     this.viewText = viewText;
   }
     
   /**
-   * ビューに表示されるテキストを取得する
+   * ビューに表示されるテキストを取得する.
+   *
    * @return ビューに表示されるテキスト
    */
   public String getViewText() {
@@ -41,7 +47,8 @@ public class SelectableItem {
   
   
   /**
-   * モデルが保持するテキストを取得する
+   * モデルが保持するテキストを取得する.
+   *
    * @return モデル側でのテキスト
    */
   public String getModelText() {
@@ -55,19 +62,18 @@ public class SelectableItem {
   
   @Override
   public boolean equals(Object obj) {
-    if (obj == null)
+    if (obj == null) {
       return false;
-    
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
-    
-    SelectableItem selectableItem = (SelectableItem)obj;
+    }
+    SelectableItem selectableItem = (SelectableItem) obj;
     if (selectableItem.getModelText() == null) {
       return modelText == null;
     }
-
-    return Objects.equals(modelText, selectableItem.modelText) &&
-         Objects.equals(viewText, selectableItem.viewText);
+    return Objects.equals(modelText, selectableItem.modelText)
+        && Objects.equals(viewText, selectableItem.viewText);
   }
 
   @Override

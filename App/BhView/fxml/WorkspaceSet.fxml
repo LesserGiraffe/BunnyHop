@@ -16,10 +16,10 @@
   </fx:define>
   <StackPane fx:id="workspaceSetStackPane">
     <TabPane fx:id="workspaceSetTab" tabClosingPolicy="ALL_TABS" tabDragPolicy="REORDER"/>
-    <ImageView fx:id="closedTrashboxIV" StackPane.Alignment="BOTTOM_RIGHT" PickOnBounds="true" MouseTransparent="true">
+    <ImageView fx:id="closedTrashboxIv" StackPane.Alignment="BOTTOM_RIGHT" PickOnBounds="true" MouseTransparent="true">
       <Image url="@../images/closedTrashbox.png" requestedWidth="$trashBoxWidth.rem" requestedHeight="$trashBoxHeight.rem"/>
     </ImageView>
-    <ImageView fx:id="openedTrashboxIV" StackPane.Alignment="BOTTOM_RIGHT" PickOnBounds="true" MouseTransparent="true" visible="false">
+    <ImageView fx:id="openedTrashboxIv" StackPane.Alignment="BOTTOM_RIGHT" PickOnBounds="true" MouseTransparent="true" visible="false">
       <Image url="@../images/openedTrashbox.png" requestedWidth="$trashBoxWidth.rem" requestedHeight="$trashBoxHeight.rem"/>
     </ImageView>
   </StackPane>

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,27 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.model.templates;
 
 import java.util.Optional;
-
-import org.w3c.dom.Element;
-
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import org.w3c.dom.Element;
 
 /**
- * \<Node\> タグが持つ属性一覧
+ * ノードが定義された xml の Node タグが持つ属性一覧を保持するクラス.
+ *
  * @author K.Koike
  */
 public class BhNodeAttributes {
 
-  private BhNodeID bhNodeID;
+  private BhNodeId bhNodeId;
   private String name;
-  private String nodeStyleID;
-  private String onMovedFromChildToWS;
+  private String nodeStyleId;
+  private String onMovedFromChildToWs;
   private String onMovedToChild;
   private String onTextChecking;
   private String onDeletionRequested;
@@ -47,22 +47,23 @@ public class BhNodeAttributes {
   private String initString;
   private boolean canCreateImitManually;
 
-  private BhNodeAttributes(){}
+  private BhNodeAttributes() {}
 
   /**
-   * \<Node\> タグが持つ属性一覧を読み取る
-   * @param node \<Node\>タグを表すオブジェクト
+   * Node タグが持つ属性一覧を読み取る.
+   *
+   * @param node Node タグを表すオブジェクト
    */
   static Optional<BhNodeAttributes> readBhNodeAttriButes(Element node) {
 
     BhNodeAttributes nodeAttrs = new BhNodeAttributes();
 
     // bhNodeID
-    nodeAttrs.bhNodeID = BhNodeID.create(node.getAttribute(BhParams.BhModelDef.ATTR_BH_NODE_ID));
-    if (nodeAttrs.bhNodeID.equals(BhNodeID.NONE)) {
+    nodeAttrs.bhNodeId = BhNodeId.create(node.getAttribute(BhParams.BhModelDef.ATTR_BH_NODE_ID));
+    if (nodeAttrs.bhNodeId.equals(BhNodeId.NONE)) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-        "<" + BhParams.BhModelDef.ELEM_NODE + ">" + " タグには "
-        + BhParams.BhModelDef.ATTR_BH_NODE_ID + " 属性を記述してください.  " + node.getBaseURI());
+          "<" + BhParams.BhModelDef.ELEM_NODE + ">" + " タグには "
+          + BhParams.BhModelDef.ATTR_BH_NODE_ID + " 属性を記述してください.  " + node.getBaseURI());
       return Optional.empty();
     }
 
@@ -70,12 +71,14 @@ public class BhNodeAttributes {
     nodeAttrs.name = node.getAttribute(BhParams.BhModelDef.ATTR_NAME);
 
     // nodeStyleID
-    nodeAttrs.nodeStyleID = node.getAttribute(BhParams.BhModelDef.ATTR_NODE_STYLE_ID);
-    if (!nodeAttrs.nodeStyleID.isEmpty())
-      BhNodeViewStyle.putNodeIdToNodeStyleId(nodeAttrs.bhNodeID, nodeAttrs.nodeStyleID);
+    nodeAttrs.nodeStyleId = node.getAttribute(BhParams.BhModelDef.ATTR_NODE_STYLE_ID);
+    if (!nodeAttrs.nodeStyleId.isEmpty()) {
+      BhNodeViewStyle.putNodeIdToNodeStyleId(nodeAttrs.bhNodeId, nodeAttrs.nodeStyleId);
+    }
 
     // onMovedFromChildToWS
-    nodeAttrs.onMovedFromChildToWS = node.getAttribute(BhParams.BhModelDef.ATTR_ON_MOVED_FROM_CHILD_TO_WS);
+    nodeAttrs.onMovedFromChildToWs =
+        node.getAttribute(BhParams.BhModelDef.ATTR_ON_MOVED_FROM_CHILD_TO_WS);
 
     // onMovedToChild
     nodeAttrs.onMovedToChild = node.getAttribute(BhParams.BhModelDef.ATTR_ON_MOVED_TO_CHILD);
@@ -87,7 +90,8 @@ public class BhNodeAttributes {
     nodeAttrs.onTextFormatting = node.getAttribute(BhParams.BhModelDef.ATTR_ON_TEXT_FORMATTING);
 
     // onDeletionRequested
-    nodeAttrs.onDeletionRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_DELETION_REQUESTED);
+    nodeAttrs.onDeletionRequested =
+        node.getAttribute(BhParams.BhModelDef.ATTR_ON_DELETION_REQUESTED);
 
     // onCutRequested
     nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CUT_REQUESTED);
@@ -102,13 +106,15 @@ public class BhNodeAttributes {
     nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CUT_REQUESTED);
 
     // onPrivateTemplateCreating
-    nodeAttrs.onPrivateTemplateCreating = node.getAttribute(BhParams.BhModelDef.ATTR_ON_PRIFVATE_TEMPLATE_CREATING);
+    nodeAttrs.onPrivateTemplateCreating =
+        node.getAttribute(BhParams.BhModelDef.ATTR_ON_PRIFVATE_TEMPLATE_CREATING);
 
     // onSyntaxChecking
     nodeAttrs.onSyntaxChecking = node.getAttribute(BhParams.BhModelDef.ATTR_ON_SYNTAX_CHECKING);
     
     // onViewContentsCreating
-    nodeAttrs.onViewContentsCreating = node.getAttribute(BhParams.BhModelDef.ATTR_ON_VIEW_CONTENTS_CREATING);
+    nodeAttrs.onViewContentsCreating = 
+        node.getAttribute(BhParams.BhModelDef.ATTR_ON_VIEW_CONTENTS_CREATING);
 
     // initString
     nodeAttrs.initString = node.getAttribute(BhParams.BhModelDef.ATTR_INIT_STRING);
@@ -117,33 +123,33 @@ public class BhNodeAttributes {
     String strCreateImit = node.getAttribute(BhParams.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY);
     if (strCreateImit.equals(BhParams.BhModelDef.ATTR_VAL_TRUE)) {
       nodeAttrs.canCreateImitManually = true;
-    }
-    else if (strCreateImit.equals(BhParams.BhModelDef.ATTR_VAL_FALSE) || strCreateImit.isEmpty()) {
+    } else if (strCreateImit.equals(
+        BhParams.BhModelDef.ATTR_VAL_FALSE) || strCreateImit.isEmpty()) {
       nodeAttrs.canCreateImitManually = false;
-    }
-    else {
-      MsgPrinter.INSTANCE.errMsgForDebug(BhParams.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY + " 属性には "
-        + BhParams.BhModelDef.ATTR_VAL_TRUE + " か "
-        + BhParams.BhModelDef.ATTR_VAL_FALSE + " を指定してください. " + node.getBaseURI());
+    } else {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          BhParams.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY + " 属性には "
+          + BhParams.BhModelDef.ATTR_VAL_TRUE + " か "
+          + BhParams.BhModelDef.ATTR_VAL_FALSE + " を指定してください. " + node.getBaseURI());
       return Optional.empty();
     }
     return Optional.of(nodeAttrs);
   }
 
-  public BhNodeID getBhNodeID() {
-    return bhNodeID;
+  public BhNodeId getBhNodeId() {
+    return bhNodeId;
   }
 
   public String getName() {
     return name;
   }
 
-  public String getNodeStyleID() {
-    return nodeStyleID;
+  public String getNodeStyleId() {
+    return nodeStyleId;
   }
 
-  public String getOnMovedFromChildToWS() {
-    return onMovedFromChildToWS;
+  public String getOnMovedFromChildToWs() {
+    return onMovedFromChildToWs;
   }
 
   public String getOnMovedToChild() {
@@ -193,24 +199,4 @@ public class BhNodeAttributes {
   public boolean getCanCreateImitManually() {
     return canCreateImitManually;
   }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

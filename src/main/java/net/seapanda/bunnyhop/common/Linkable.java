@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,103 +13,83 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.common;
 
 /**
- * 双方向リストのノードクラス
+ * 双方向リストのノードクラス.
+ *
  * @author K.Koike
- * */
+ */
 public class Linkable<T> {
 
   protected Linkable<T> next;  //!< 次のノード
   protected Linkable<T> prev;  //!< 前のノード
   protected T container;    //!< ノードの保持するもの
 
-  /**
-   * コンストラクタ
-   * */
+  /** コンストラクタ. */
   public Linkable(T container) {
     this.container = container;
   }
 
-  /**
-   * コンストラクタ
-   * */
+  /** コンストラクタ. */
   public Linkable() {}
 
-  /**
-   * 次のノードを返す
-   * */
+  /** 次のノードを返す. */
   public T getNext() {
-
-    if (next != null)
+    if (next != null) {
       return next.container;
-    else
+    } else {
       return null;
+    }
   }
 
-  /**
-   * 前のノードを返す
-   * */
+  /** 前のノードを返す. */
   public T getPrev() {
-    if (prev != null)
+    if (prev != null) {
       return prev.container;
-    else
+    } else {
       return null;
+    }
   }
 
   /**
-   * newNode を自分の次のノードとして繋ぐ
+   * {@code newNode} を自分の次のノードとして繋ぐ.
+   *
    * @param newNode 呼び出し元の次のノードとして繋ぐノード
-   * */
+   */
   public void connectToNext(Linkable<T> newNode) {
-
-    if (next != null)
+    if (next != null) {
       next.prev = newNode;
-
+    }
     newNode.next = next;
     next = newNode;
     newNode.prev = this;
   }
 
   /**
-   * newNode を自分の前のノードとして繋ぐ
+   * newNode を自分の前のノードとして繋ぐ.
+   *
    * @param newNode 呼び出し元の前のノードとして繋ぐノード
-   * */
+   */
   public void connectToPrev(Linkable<T> newNode) {
-
-    if (prev != null)
+    if (prev != null) {
       prev.next = newNode;
-
+    }
     newNode.prev = prev;
     prev = newNode;
     newNode.next = this;
   }
 
-  /**
-   * 自ノードを双方向リストから取り除く
-   * */
+  /** 自ノードを双方向リストから取り除く. */
   public void remove() {
-
-    if (next != null)
+    if (next != null) {
       next.prev = prev;
-
-    if (prev != null)
+    }
+    if (prev != null) {
       prev.next = next;
-    
+    }
     next = null;
     prev = null;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-

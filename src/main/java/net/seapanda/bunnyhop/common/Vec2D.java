@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.common;
 
 import java.io.Serializable;
-
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
+ * 二次元ベクトル.
+ *
  * @author K.Koike
  */
 public class Vec2D implements Serializable {
@@ -36,7 +38,7 @@ public class Vec2D implements Serializable {
   /**
    * 引数で指定した数の方が現在の値より大きい場合, その数で置き換える.
    * 片方の要素だけ大きい場合は、その要素だけ置き換える.
-   * */
+   */
   public void updateIfGreter(Vec2D pos) {
     x = Math.max(x, pos.x);
     y = Math.max(y, pos.y);
@@ -46,7 +48,7 @@ public class Vec2D implements Serializable {
   /**
    * 引数で指定した数の方が現在の値より大きい場合, その数で置き換える.
    * 片方の要素だけ大きい場合は、その要素だけ置き換える.
-   * */
+   */
   public void updateIfGreter(double x, double y) {
     this.x = Math.max(this.x, x);
     this.y = Math.max(this.y, y);
@@ -55,7 +57,7 @@ public class Vec2D implements Serializable {
   /**
    * 引数で指定した数の方が現在の値より小さい場合, その数で置き換える.
    * 片方の要素だけ小さい場合は、その要素だけ置き換える.
-   * */
+   */
   public void updateIfLess(Vec2D pos) {
     x = Math.min(x, pos.x);
     y = Math.min(y, pos.y);
@@ -64,23 +66,19 @@ public class Vec2D implements Serializable {
   /**
    * 引数で指定した数の方が現在の値のより小さい場合, その数で置き換える.
    * 片方の要素だけ小さい場合は、その要素だけ置き換える.
-   * */
+   */
   public void updateIfLess(double x, double y) {
     this.x = Math.min(this.x, x);
     this.y = Math.min(this.y, y);
   }
 
-  /**
-   * 引数で指定した要素を現在の値に足し込む
-   * */
+  /** 引数で指定した要素を現在の値に足し込む. */
   public void add(Vec2D pos) {
     this.x += pos.x;
     this.y += pos.y;
   }
 
-  /**
-   * 引数で指定した要素を現在の値に足し込む
-   * */
+  /** 引数で指定した要素を現在の値に足し込む. */
   public void add(double x, double y) {
     this.x += x;
     this.y += y;
@@ -88,18 +86,20 @@ public class Vec2D implements Serializable {
 
   @Override
   public boolean equals(Object point) {
-
-    if (point instanceof Vec2D)
-      return (x == ((Vec2D)point).x) && (y == ((Vec2D)point).y);
-    else
+    if (point instanceof Vec2D) {
+      return (x == ((Vec2D) point).x) && (y == ((Vec2D) point).y);
+    } else {
       return false;
+    }
   }
 
   @Override
   public int hashCode() {
     int hash = 5;
-    hash = 67 * hash + (int) (Double.doubleToLongBits(this.x) ^ (Double.doubleToLongBits(this.x) >>> 32));
-    hash = 67 * hash + (int) (Double.doubleToLongBits(this.y) ^ (Double.doubleToLongBits(this.y) >>> 32));
+    hash = 67 * hash
+        + (int) (Double.doubleToLongBits(this.x) ^ (Double.doubleToLongBits(this.x) >>> 32));
+    hash = 67 * hash
+        + (int) (Double.doubleToLongBits(this.y) ^ (Double.doubleToLongBits(this.y) >>> 32));
     return hash;
   }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.control.nodeselection;
 
 import net.seapanda.bunnyhop.message.BhMsg;
@@ -22,7 +23,8 @@ import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 
 /**
- * ノード選択ビューのコントローラ
+ * ノード選択ビューのコントローラ.
+ *
  * @author K.Koike
  */
 public class BhNodeSelectionController implements MsgProcessor {
@@ -31,26 +33,25 @@ public class BhNodeSelectionController implements MsgProcessor {
   private BhNodeSelectionView view;
 
   /**
-   * コンストラクタ
+   * コンストラクタ.
+   *
    * @param model 操作対象のモデル
    * @param view 操作対象のビュー
    */
   public BhNodeSelectionController(Workspace model, BhNodeSelectionView view) {
-
     this.model = model;
     this.view = view;
   }
 
   /**
-   * メッセージ受信
+   * メッセージ受信.
+   *
    * @param msg メッセージの種類
    * @param data メッセージの種類に応じて処理するもの
-   * */
+   */
   @Override
   public MsgData processMsg(BhMsg msg, MsgData data) {
-
     switch (msg) {
-
       case ADD_ROOT_NODE:
         model.addRootNode(data.node);
         view.addNodeView(data.nodeView);
@@ -64,7 +65,6 @@ public class BhNodeSelectionController implements MsgProcessor {
       default:
         // do nothing.
     }
-
     return null;
-  };
+  }
 }

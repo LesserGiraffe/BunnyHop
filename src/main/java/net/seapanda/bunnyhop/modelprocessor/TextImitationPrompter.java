@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.modelprocessor;
 
 import net.seapanda.bunnyhop.message.MsgService;
@@ -20,14 +21,15 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 
 /**
- * テキストイミテーションノードにオリジナルの模倣をさせるクラス
+ * テキストイミテーションノードにオリジナルの模倣を命令するクラス.
+ *
  * @author K.Koike
  */
 public class TextImitationPrompter implements BhModelProcessor {
 
   /**
    * 引数で指定したノード以下のイミテーションテキストノードにオリジナルノードのテキストを真似させる.
-   * */
+   */
   public static void prompt(BhNode node) {
     node.accept(new TextImitationPrompter());
   }
@@ -36,8 +38,7 @@ public class TextImitationPrompter implements BhModelProcessor {
 
   @Override
   public void visit(TextNode node) {
-
-    if(node.isImitationNode()) {
+    if (node.isImitationNode()) {
       TextNode original = node.getOriginal();
       String viewText = MsgService.INSTANCE.getViewText(original);
       MsgService.INSTANCE.imitateText(node, original.getText(), viewText);

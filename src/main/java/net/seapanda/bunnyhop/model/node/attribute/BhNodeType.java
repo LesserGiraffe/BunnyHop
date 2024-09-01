@@ -1,7 +1,9 @@
 package net.seapanda.bunnyhop.model.node.attribute;
 
 import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.tools.Util;
 
+/** {@link BhNode} のタイプ. */
 public enum BhNodeType {
   
   CONNECTIVE(BhParams.BhModelDef.ATTR_VAL_CONNECTIVE),
@@ -12,17 +14,15 @@ public enum BhNodeType {
     this.typeName = typeName;
   }
 
-  /**
-   * タイプ名から列挙子を得る
-   */
+  /** タイプ名から列挙子を得る. */
   public static BhNodeType toType(String typeName) {
-
-    for (var type : BhNodeType.values())
-      if (type.getName().equals(typeName))
+    for (var type : BhNodeType.values()) {
+      if (type.getName().equals(typeName)) {
         return type;
-
+      }
+    }
     throw new IllegalArgumentException(
-      BhNodeType.class.getSimpleName() + "  unknown BhNode type name  " + typeName);
+        Util.INSTANCE.getCurrentMethodName() + " - unknown BhNode type name  " + typeName);
   }
 
   public String getName() {

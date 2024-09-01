@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,51 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.bhprogram;
 
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 /**
- * BhProgram の実行環境が送信したしたコマンドを処理するクラス
+ * BhProgram の実行環境が送信したしたコマンドを処理するクラス.
+ *
  * @author K.koike
  */
 public class BhProgramDataProcessor {
 
-  private final BlockingQueue<BhProgramData> recvDataList = new ArrayBlockingQueue<>(BhParams.ExternalApplication.MAX_REMOTE_CMD_QUEUE_SIZE);
-  private final ExecutorService remoteCmdExec = Executors.newSingleThreadExecutor();  //!< コマンド受信用
+  private final BlockingQueue<BhProgramData> recvDataList =
+      new ArrayBlockingQueue<>(BhParams.ExternalApplication.MAX_REMOTE_CMD_QUEUE_SIZE);
+  /** コマンド受信用. */
+  private final ExecutorService remoteCmdExec = Executors.newSingleThreadExecutor();
 
   void init() {
+    var stopped = new MutableBoolean(false);
     remoteCmdExec.submit(() -> {
-      while (true) {
-        BhProgramData data = null;
-        try {
-          data = recvDataList.poll(BhParams.ExternalApplication.POP_RECV_DATA_TIMEOUT, TimeUnit.SECONDS);
-        }
-        catch(InterruptedException e) {
-          break;
-        }
-
-        if (data != null)
-          process(data);
+      while (stopped.isFalse()) {
+        fetch(stopped).ifPresent(this::process);
       }
     });
   }
 
+  private Optional<BhProgramData> fetch(MutableBoolean stopped) {
+    BhProgramData data = null;
+    try {
+      data = recvDataList.poll(
+          BhParams.ExternalApplication.POP_RECV_DATA_TIMEOUT, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      stopped.setTrue();
+    }
+    return Optional.ofNullable(data);
+  }
+
   /**
-   * BhProgram の実行環境が送信したコマンドを処理する
+   * BhProgram の実行環境が送信したコマンドを処理する.
+   *
    * @param data リモート環境から受信したデータ. nullは駄目.
    */
   private void process(BhProgramData data) {
-
-    switch(data.type) {
+    switch (data.type) {
       case OUTPUT_STR:
         MsgPrinter.INSTANCE.msgForUser(data.str + "\n");
         break;
@@ -66,8 +74,9 @@ public class BhProgramDataProcessor {
         MsgPrinter.INSTANCE.msgForUser(data.exception.getMessage() + "\n");
         // MsgPrinter.INSTANCE.msgForUser(data.exception.getScriptEngineMsg() + "\n");
         var iter = data.exception.getCallStack().descendingIterator();
-        while (iter.hasNext())
+        while (iter.hasNext()) {
           MsgPrinter.INSTANCE.msgForUser("  " + iter.next().toString() + "\n");
+        }
         break;
 
       default:
@@ -75,32 +84,31 @@ public class BhProgramDataProcessor {
   }
 
   /**
-   * 処理対象のデータを追加する
+   * 処理対象のデータを追加する.
+   *
    * @param data 処理対象のデータ
    */
   public void add(BhProgramData data) throws InterruptedException {
     recvDataList.put(data);
   }
 
-  /**
-   * 現在追加されている処理対象のデータを全て削除する
-   */
+  /** 現在追加されている処理対象のデータを全て削除する. */
   public void clearAllData() {
     recvDataList.clear();
   }
 
   /**
-   * このオブジェクトの終了処理を行う
+   * このオブジェクトの終了処理を行う.
+   *
    * @return 終了処理が成功した場合true
    */
   public boolean end() {
-
     boolean success = false;
     remoteCmdExec.shutdownNow();
     try {
-      success = remoteCmdExec.awaitTermination(BhParams.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
-    }
-    catch(InterruptedException e) {
+      success =
+          remoteCmdExec.awaitTermination(BhParams.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
     return success;

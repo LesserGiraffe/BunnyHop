@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.model.nodeselection;
 
 import java.nio.file.Path;
 import java.util.Optional;
-
-import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.NativeObject;
-
 import net.seapanda.bunnyhop.common.TreeNode;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -29,56 +26,61 @@ import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeObject;
 
 /**
- * ノードのカテゴリ一覧を表示している部分のモデル
+ * ノードのカテゴリ一覧とテンプレートノードを管理するクラス.
+ * <p>
+ * テンプレートツリー : ノード選択部分のカテゴリ名や各カテゴリのテンプレートノードの ID を文字列として保持する木.
+ * </p>
+ *
  * @author K.Koike
  */
 public class BhNodeCategoryList implements MsgReceptionWindow {
 
   private TreeNode<String> templateTreeRoot;
-  private MsgProcessor msgProcessor;  //!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
+  /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
+  private MsgProcessor msgProcessor;
 
-  private BhNodeCategoryList() {};
+  private BhNodeCategoryList() {}
 
   /**
-   * ノードカテゴリとテンプレートノードの配置情報が記されたファイルを読み込みテンプレートリストを作成する
-   * @param ノードカテゴリとテンプレートノードの配置情報が記されたファイルのパス
-   * @return
+   * ノードカテゴリとテンプレートノードの配置情報が記されたファイルを読み込みテンプレートツリー作成する.
+   *
+   * @param filePath ノードカテゴリとテンプレートノードの配置情報が記されたファイルのパス
    */
   public static Optional<BhNodeCategoryList> create(Path filePath) {
-
     Optional<NativeObject> jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
-    if (jsonObj.isEmpty())
+    if (jsonObj.isEmpty()) {
       return Optional.empty();
-
+    }
     var newObj = new BhNodeCategoryList();
-
     newObj.templateTreeRoot = new TreeNode<>("root");
-    boolean success = newObj.addChildren(jsonObj.get(), newObj.templateTreeRoot, filePath.toString());
-    if (success)
+    boolean success =
+        newObj.addChildren(jsonObj.get(), newObj.templateTreeRoot, filePath.toString());
+    if (success) {
       return Optional.of(newObj);
-
+    }
     return Optional.empty();
   }
 
   /**
-   * テンプレートツリーに子ノードを追加する.<br>
-   * 子ノードが葉だった場合、対応するBhNode があるかどうかを調べ, ない場合はfalse を返す
-   * @param jsonObj このオブジェクトのメンバーが追加すべき子ノードとなる
+   * テンプレートツリーに子ノードを追加する.
+   *
+   * @param jsonObj 追加する子ノードをメンバとして持つオブジェクト
    * @param parent 子ノードを追加したいノード
-   * @return 下位の葉ノードに対応するBhNode があった場合true
-   * */
+   * @param fileName ノードカテゴリとテンプレートノードの定義が書かれたファイル
+   * @return テンプレートツリーを正常に構築できた場合 true
+   */
   private boolean addChildren(NativeObject jsonObj, TreeNode<String> parent, String fileName) {
-
     boolean bhNodeForLeafExists = true;
-    for(Object key : jsonObj.keySet()) {
-
-      if (!(key instanceof String))
+    for (Object key : jsonObj.keySet()) {
+      if (!(key instanceof String)) {
         continue;
-
+      }
       Object val = jsonObj.get(key);
       switch (key.toString()) {
         case BhParams.NodeTemplate.KEY_CSS_CLASS:  //cssクラスのキー
@@ -89,19 +91,19 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
           }
           break;
 
-        case BhParams.NodeTemplate.KEY_CONTENTS:  //ノードIDの配列のキー
+        case BhParams.NodeTemplate.KEY_CONTENTS:  //ノード ID の配列のキー
           if (val instanceof NativeArray) {
             TreeNode<String> contents = new TreeNode<>(BhParams.NodeTemplate.KEY_CONTENTS);
-            bhNodeForLeafExists &= addBhNodeID((NativeArray)val, contents, fileName);
+            bhNodeForLeafExists &= addBhNodeId((NativeArray) val, contents, fileName);
             parent.children.add(contents);
           }
           break;
 
-        default:          //カテゴリ名
+        default: // カテゴリ名 ("文字列", "制御", "動作", ...)
           if (val instanceof NativeObject) {
             TreeNode<String> child = new TreeNode<>(key.toString());
             parent.children.add(child);
-            bhNodeForLeafExists &= addChildren((NativeObject)val, child, fileName);
+            bhNodeForLeafExists &= addChildren((NativeObject) val, child, fileName);
           }
           break;
       }
@@ -110,26 +112,25 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
   }
 
   /**
-   * JsonArray からBhNode の ID を読み取って、対応するノードがあるIDのみ子ノードとして追加する
-   * @param bhNodeIDList BhNode の ID のリスト
-   * @param parent IDを子ノードとして追加する親ノード
-   * @return 各IDに対応するBhNodeがすべて見つかった場合true
-   * */
-  private boolean addBhNodeID(NativeArray bhNodeIDList, TreeNode<String> parent, String fileName) {
-
+   * JsonArray からBhNode の ID を読み取って, 対応するノードがある ID のみ子ノードとして追加する.
+   *
+   * @param bhNodeIdList BhNode の ID のリスト
+   * @param parent ID を子ノードとして追加する親ノード
+   * @return 各 ID に対応する BhNode がすべて見つかった場合true
+   */
+  private boolean addBhNodeId(NativeArray bhNodeIdList, TreeNode<String> parent, String fileName) {
     boolean allBhNodesExist = true;
-    for (Object bhNodeID : bhNodeIDList) {
-      if (bhNodeID instanceof String) {  // 配列内の文字列だけをBhNode の IDとみなす
-
-        String bhNodeIDStr = (String)bhNodeID;
-        if (BhNodeTemplates.INSTANCE.bhNodeExists(BhNodeID.create(bhNodeIDStr))) {  //IDに対応する BhNode がある
-          parent.children.add(new TreeNode<>(bhNodeIDStr));
-        }
-        else {
+    for (Object bhNodeId : bhNodeIdList) {
+      if (bhNodeId instanceof String) {  // 配列内の文字列だけをBhNode の IDとみなす
+        String bhNodeIdStr = (String) bhNodeId;
+        // IDに対応する BhNode がある
+        if (BhNodeTemplates.INSTANCE.bhNodeExists(BhNodeId.create(bhNodeIdStr))) {
+          parent.children.add(new TreeNode<>(bhNodeIdStr));
+        } else {
           allBhNodesExist &= false;
           MsgPrinter.INSTANCE.errMsgForDebug(
-            bhNodeIDStr + " に対応する " + BhParams.BhModelDef.ELEM_NODE + " が存在しません.\n" +
-            "(" + fileName + ")");
+              bhNodeIdStr + " に対応する " + BhParams.BhModelDef.ELEM_NODE + " が存在しません.\n"
+              + "(" + fileName + ")");
         }
       }
     }
@@ -137,8 +138,9 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
   }
 
   /**
-   * BhNode選択リストのルートノードを返す
-   * @return BhNode選択リストのルートノード
+   * テンプレートツリーのルートノードを返す.
+   *
+   * @return テンプレートツリーのルートノード
    */
   public TreeNode<String> getRootNode() {
     return templateTreeRoot;

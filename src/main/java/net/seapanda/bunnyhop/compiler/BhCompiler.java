@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.compiler;
 
 import java.io.BufferedWriter;
@@ -33,6 +34,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 
 /**
  * BhNode をコンパイルするクラス.
+ *
  * @author K.Koike
  */
 public class BhCompiler {
@@ -60,25 +62,28 @@ public class BhCompiler {
 
   /**
    * コンパイルに必要な初期化処理を行う.
+   *
    * @return 初期化に成功した場合true
    */
   public boolean init() {
-
-    Path commonCodePath = Paths.get(Util.INSTANCE.EXEC_PATH,
-      BhParams.Path.BH_DEF_DIR,
-      BhParams.Path.FUNCTIONS_DIR,
-      BhParams.Path.lib,
-      BhParams.Path.COMMON_CODE_JS);
-    Path remoteCommonCodePath = Paths.get(Util.INSTANCE.EXEC_PATH,
-      BhParams.Path.BH_DEF_DIR,
-      BhParams.Path.FUNCTIONS_DIR,
-      BhParams.Path.lib,
-      BhParams.Path.REMOTE_COMMON_CODE_JS);
-    Path localCommonCodePath = Paths.get(Util.INSTANCE.EXEC_PATH,
-      BhParams.Path.BH_DEF_DIR,
-      BhParams.Path.FUNCTIONS_DIR,
-      BhParams.Path.lib,
-      BhParams.Path.LOCAL_COMMON_CODE_JS);
+    Path commonCodePath = Paths.get(
+        Util.INSTANCE.execPath,
+        BhParams.Path.BH_DEF_DIR,
+        BhParams.Path.FUNCTIONS_DIR,
+        BhParams.Path.lib,
+        BhParams.Path.COMMON_CODE_JS);
+    Path remoteCommonCodePath = Paths.get(
+        Util.INSTANCE.execPath,
+        BhParams.Path.BH_DEF_DIR,
+        BhParams.Path.FUNCTIONS_DIR,
+        BhParams.Path.lib,
+        BhParams.Path.REMOTE_COMMON_CODE_JS);
+    Path localCommonCodePath = Paths.get(
+        Util.INSTANCE.execPath,
+        BhParams.Path.BH_DEF_DIR,
+        BhParams.Path.FUNCTIONS_DIR,
+        BhParams.Path.lib,
+        BhParams.Path.LOCAL_COMMON_CODE_JS);
     try {
       byte[] content = Files.readAllBytes(commonCodePath);
       commonCode = new String(content, StandardCharsets.UTF_8);
@@ -86,46 +91,46 @@ public class BhCompiler {
       remoteCommonCode = new String(content, StandardCharsets.UTF_8);
       content = Files.readAllBytes(localCommonCodePath);
       localCommonCode = new String(content, StandardCharsets.UTF_8);
-    }
-    catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("failed to initialize + " + BhCompiler.class.getSimpleName() + "\n" + e.toString());
+    } catch (IOException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          "failed to initialize + " + getClass().getSimpleName() + "\n" + e);
       return false;
     }
     return true;
   }
 
   /**
-   * ワークスペース中のノードをコンパイルし, 作成されたファイルのパスを返す
+   * ワークスペース中のノードをコンパイルし, 作成されたファイルのパスを返す.
+   *
    * @param execNode 実行するノード
    * @param nodesToCompile コンパイル対象のノードリスト (execNode を含む)
    * @param option コンパイルオプション
-   * @return コンパイルした結果作成されたファイルのパス(コンパイルできた場合). <br>
-   *          コンパイルできなかった場合はOptional.empty
+   * @return コンパイルした結果作成されたファイルのパス(コンパイルできた場合).
+   *         コンパイルできなかった場合はOptional.empty
    */
   public Optional<Path> compile(
-    BhNode execNode, Collection<BhNode> nodesToCompile, CompileOption option) {
-
+      BhNode execNode, Collection<BhNode> nodesToCompile, CompileOption option) {
     Preprocessor.process(nodesToCompile);
     StringBuilder code = new StringBuilder();
     genCode(code, execNode, nodesToCompile, option);
 
-    Util.INSTANCE.createDirectoryIfNotExists(Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.COMPILED_DIR));
-    Path appFilePath = Paths.get(Util.INSTANCE.EXEC_PATH, BhParams.Path.COMPILED_DIR, BhParams.Path.APP_FILE_NAME_JS);
-    try (BufferedWriter writer =
-      Files.newBufferedWriter(
-        appFilePath,
-        StandardCharsets.UTF_8,
+    Util.INSTANCE.createDirectoryIfNotExists(
+        Paths.get(Util.INSTANCE.execPath, BhParams.Path.COMPILED_DIR));
+    Path appFilePath = Paths.get(
+        Util.INSTANCE.execPath, BhParams.Path.COMPILED_DIR, BhParams.Path.APP_FILE_NAME_JS);
+    try (BufferedWriter writer = Files.newBufferedWriter(
+        appFilePath, StandardCharsets.UTF_8,
         StandardOpenOption.CREATE,
         StandardOpenOption.TRUNCATE_EXISTING,
         StandardOpenOption.WRITE)) {
       writer.write(code.toString());
-    }
-    catch (IOException e) {
+
+    } catch (IOException e) {
       MsgPrinter.INSTANCE.alert(
-        Alert.AlertType.ERROR,
-        "ファイル書き込みエラー",
-        null,
-        e.toString() + "\n" + appFilePath.toString());
+          Alert.AlertType.ERROR,
+          "ファイル書き込みエラー",
+          null,
+          e + "\n" + appFilePath.toString());
       return Optional.empty();
     }
     MsgPrinter.INSTANCE.msgForUser("\n-- コンパイル成功 --\n");
@@ -134,67 +139,72 @@ public class BhCompiler {
 
   /**
    * プログラム全体のコードを生成する.
+   *
    * @param code 生成したソースコードの格納先
    * @param execNode 実行するノード
    * @param nodeListToCompile コンパイル対象のノードリスト (execNode を含む)
    * @param option コンパイルオプション
    */
   private void genCode(
-    StringBuilder code, BhNode execNode, Collection<BhNode> nodeListToCompile, CompileOption option) {
+      StringBuilder code,
+      BhNode execNode,
+      Collection<BhNode> nodeListToCompile,
+      CompileOption option) {
 
     code.append(commonCode);
-    if (option.local)
+    if (option.local) {
       code.append(localCommonCode);
-    else
+    } else {
       code.append(remoteCommonCode);
-
+    }
     genCodeForIdentifierDef(code, 1, option);
     varDeclCodeGen.genVarDecls(nodeListToCompile, code, 1, option);
-    
     globalDataDeclCodeGen.genGlobalDataDecls(nodeListToCompile, code, 1, option);
     code.append(Keywords.newLine);
     funcDefCodeGen.genFuncDefs(nodeListToCompile, code, 1, option);
     eventHandlerCodeGen.genEventHandlers(nodeListToCompile, code, 1, option);
     String lockVar = Keywords.Prefix.lockVarPrefix + ScriptIdentifiers.Funcs.BH_MAIN;
-    eventHandlerCodeGen.genHeaderSnippetOfEventCall(code, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 1);
+    eventHandlerCodeGen.genHeaderSnippetOfEventCall(
+        code, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 1);
     statCodeGen.genStatement(execNode, code, 5, option);
     eventHandlerCodeGen.genFooterSnippetOfEventCall(code, lockVar, 1);
     String addEventCallStat = common.genFuncCallCode(
-      ScriptIdentifiers.Funcs.ADD_EVENT,
-      ScriptIdentifiers.Funcs.BH_MAIN,
-      "'" + BhProgramData.EVENT.PROGRAM_START.toString() + "'");
+        ScriptIdentifiers.Funcs.ADD_EVENT,
+        ScriptIdentifiers.Funcs.BH_MAIN,
+        "'" + BhProgramData.Event.PROGRAM_START.toString() + "'");
     addEventCallStat += ";" + Keywords.newLine;
     code.append(common.indent(1)).append(addEventCallStat).append(Keywords.newLine);
     genCodeForProgramStart(code, 1, option);
   }
 
   /**
-   * 識別子定義の前の準備を行うコードを生成する
+   * 識別子定義の前の準備を行うコードを生成する.
+   *
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   private void genCodeForIdentifierDef(StringBuilder code, int nestLevel, CompileOption option) {
-
     code.append(common.indent(nestLevel))
-      .append(common.genFuncPrototypeCallCode(ScriptIdentifiers.Funcs.INIT_THIS_OBJ, Keywords.Js._this))
-      .append(";").append(Keywords.newLine);
+        .append(common.genFuncPrototypeCallCode(
+            ScriptIdentifiers.Funcs.INIT_THIS_OBJ, Keywords.Js._this))
+        .append(";" + Keywords.newLine);
   }
 
   /**
-   * プログラム開始前の初期化用コードを生成する
+   * プログラム開始前の初期化用コードを生成する.
+   *
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   private void genCodeForProgramStart(StringBuilder code, int nestLevel, CompileOption option) {
-
     // プログラム開始時刻の更新
     code.append(common.indent(nestLevel))
-      .append(ScriptIdentifiers.Vars.PROGRAM_STARTING_TIME)
-      .append(" = ")
-      .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.CURRENT_TIME_MILLS))
-      .append(";").append(Keywords.newLine);
+        .append(ScriptIdentifiers.Vars.PROGRAM_STARTING_TIME)
+        .append(" = ")
+        .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.CURRENT_TIME_MILLS))
+        .append(";" + Keywords.newLine);
   }
 }
 

@@ -1,5 +1,5 @@
 .boolType {
-  -fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, boolTypeCol 50%, derive(boolTypeCol, 50%) 0em);
+  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, boolTypeCol 50%, derive(boolTypeCol, 50%) 0mm);
 }
 
 .boolType:isEven {
@@ -7,7 +7,7 @@
 }
 
 .boolVarType {
-  -fx-fill: linear-gradient(from 0em 0em to 0.1em 0.1em, repeat, boolTypeCol 50%, derive(boolTypeCol, 50%) 0em);
+  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, boolTypeCol 50%, derive(boolTypeCol, 50%) 0mm);
 }
 
 .boolVarType:isEven {

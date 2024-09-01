@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.model.node.connective;
 
 import java.util.List;
@@ -25,13 +26,13 @@ import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeID;
-import net.seapanda.bunnyhop.model.node.imitation.ImitationConnectionPos;
-import net.seapanda.bunnyhop.model.node.imitation.ImitationID;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
+import net.seapanda.bunnyhop.model.node.imitation.ImitCnctPosId;
+import net.seapanda.bunnyhop.model.node.imitation.ImitationId;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
-import net.seapanda.bunnyhop.modelprocessor.NodeMVCBuilder;
+import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -40,24 +41,37 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
 /**
- * ノードとノードをつなぐ部分のクラス
+ * ノードとノードをつなぐコネクタのクラス.
+ *
  * @author K.Koike
- * */
+ */
 public class Connector extends SyntaxSymbol {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  private final ConnectorID id; //!< コネクタID (\<Connector\> タグの bhID)
-  public final BhNodeID defaultNodeID; //!< ノードが取り外されたときに変わりに繋がるノードのID (\<Connector\> タグの bhID)
-  public final BhNodeID initNodeID; //!< 最初に接続されているノードのID
-  private BhNode connectedNode; //!< 接続中のノード. null となるのは、テンプレート構築中とClone メソッドの一瞬のみ
-  private ConnectorSection parent; //!< このオブジェクトを保持する ConnectorSection オブジェクト
-  private final boolean fixed; //!< このコネクタにつながるBhNodeが手動で取り外しや入れ替えができない場合true
-  private boolean outer = false; //!< 外部描画ノードを接続するコネクタの場合true
-  private ImitationID imitID; //!< イミテーション生成時のID
-  private ImitationConnectionPos imitCnctPoint; //!< イミテーション生成時のタグ
-  private final String cnctCheckScriptName; //!< ノードを接続可能かどうかチェックするスクリプトの名前
-  private final String claz; //!< コネクタに付けられたクラス
-  transient protected ScriptableObject scriptScope; //!< スクリプト実行時のスコープ
+  /** コネクタID (Connector タグの bhID). */
+  private final ConnectorId id;
+  /** ノードが取り外されたときに変わりに繋がるノードのID (Connector タグの bhID). */
+  public final BhNodeId defaultNodeId;
+  /** 最初に接続されているノードのID. */
+  public final BhNodeId initNodeId;
+  /** 接続中のノード. null となるのは、テンプレート構築中とClone メソッドの一瞬のみ. */
+  private BhNode connectedNode;
+  /** このオブジェクトを保持する ConnectorSection オブジェクト. */
+  private ConnectorSection parent;
+  /** このコネクタにつながるBhNodeが手動で取り外しや入れ替えができない場合true. */
+  private final boolean fixed;
+  /** 外部描画ノードを接続するコネクタの場合true. */
+  private boolean outer = false;
+  /** イミテーション生成時のID. */
+  private ImitationId imitId;
+  /** イミテーション生成時のタグ. */
+  private ImitCnctPosId imitCnctPoint;
+  /** ノードを接続可能かどうかチェックするスクリプトの名前. */
+  private final String cnctCheckScriptName;
+  /** コネクタに付けられたクラス. */
+  private final String claz;
+  /** スクリプト実行時のスコープ. */
+  protected transient ScriptableObject scriptScope;
 
   @Override
    public void accept(BhModelProcessor visitor) {
@@ -65,102 +79,98 @@ public class Connector extends SyntaxSymbol {
   }
 
   /**
-   * コンストラクタ
-   * @param id コネクタID (\<Connector\> タグの bhID)
-   * @param defaultNodeID ノードが取り外されたときに変わりに繋がるノードのID
-   * @param initialNodeID 最初に接続されているノードのID
+   * コンストラクタ.
+   *
+   * @param id コネクタID (Connector タグの bhID)
+   * @param defaultNodeId ノードが取り外されたときに変わりに繋がるノードのID
+   * @param initialNodeId 最初に接続されているノードのID
    * @param claz コネクタに付けられたクラス
    * @param fixed このコネクタにつながるノードの入れ替えや取り外しができない場合true
    * @param cnctCheckScriptName ノードを入れ替え可能かどうかチェックするスクリプトの名前
    */
   public Connector(
-    ConnectorID id,
-    BhNodeID defaultNodeID,
-    BhNodeID initialNodeID,
-    String claz,
-    boolean fixed,
-    String cnctCheckScriptName) {
+      ConnectorId id,
+      BhNodeId defaultNodeId,
+      BhNodeId initialNodeId,
+      String claz,
+      boolean fixed,
+      String cnctCheckScriptName) {
+
     super("");
     this.id = id;
     this.cnctCheckScriptName = cnctCheckScriptName;
-    this.defaultNodeID = defaultNodeID;
-    this.initNodeID = initialNodeID;  // BhNodeID.NONE でも initNodeID = defaultNodeID としないこと
+    this.defaultNodeId = defaultNodeId;
+    this.initNodeId = initialNodeId;  // BhNodeID.NONE でも initNodeID = defaultNodeID としないこと
     this.fixed = fixed;
     this.claz = claz;
   }
 
   /**
-   * コピーコンストラクタ
+   * コピーコンストラクタ.
+   *
    * @param org コピー元オブジェクト
    * @param name コネクタ名
-   * @param imitID 作成するイミテーションノードの識別子
+   * @param imitId 作成するイミテーションノードの識別子
    * @param imitCncrPoint イミテーション接続位置の識別子
    * @param isOuter 外部描画フラグ
    * @param parent 親コネクタセクション
    */
   private Connector(
-    Connector org,
-    String name,
-    ImitationID imitID,
-    ImitationConnectionPos imitCnctPoint,
-    ConnectorSection parent) {
+      Connector org,
+      String name,
+      ImitationId imitId,
+      ImitCnctPosId imitCnctPoint,
+      ConnectorSection parent) {
 
     super(name);
     id = org.id;
-    defaultNodeID = org.defaultNodeID;
-    initNodeID = org.initNodeID;
+    defaultNodeId = org.defaultNodeId;
+    initNodeId = org.initNodeId;
     cnctCheckScriptName = org.cnctCheckScriptName;
     fixed = org.fixed;
-    this.imitID = imitID;
+    this.imitId = imitId;
     this.imitCnctPoint = imitCnctPoint;
     this.parent = parent;
     this.claz = org.claz;
   }
 
   /**
-   * このコネクタのコピーを作成して返す
-   * @param userOpeCmd undo用コマンドオブジェクト
+   * このコネクタのコピーを作成して返す.
+   *
+   * @param userOpeCmd undo 用コマンドオブジェクト
    * @param name コネクタ名
-   * @param imitID 作成するイミテーションの識別子
+   * @param imitId 作成するイミテーションの識別子
    * @param imitCnctPoint イミテーション接続位置の識別子
    * @param parent 親コネクタセクション
    * @param isNodeToBeCopied ノードがコピーの対象かどうかを判別する関数
    * @return このノードのコピー
    */
   public Connector copy(
-    UserOperationCommand userOpeCmd,
-    String name,
-    ImitationID imitID,
-    ImitationConnectionPos imitCnctPoint,
-    ConnectorSection parent,
-     Predicate<BhNode> isNodeToBeCopied) {
-
-    Connector newConnector =
-      new Connector(
-        this,
-        name,
-        imitID,
-        imitCnctPoint,
-        parent);
-
+      UserOperationCommand userOpeCmd,
+      String name,
+      ImitationId imitId,
+      ImitCnctPosId imitCnctPoint,
+      ConnectorSection parent,
+      Predicate<BhNode> isNodeToBeCopied) {
+    Connector newConnector = new Connector(this, name, imitId, imitCnctPoint, parent);
     BhNode newNode = null;
     if (isNodeToBeCopied.test(connectedNode)) {
       newNode = connectedNode.copy(userOpeCmd, isNodeToBeCopied);
+    } else {
+      // コピー対象のノードでない場合, 初期ノードもしくはデフォルトノードを新規作成して接続する
+      BhNodeId nodeId = initNodeId.equals(BhNodeId.NONE) ? defaultNodeId : initNodeId;
+      newNode = BhNodeTemplates.INSTANCE.genBhNode(nodeId, userOpeCmd);
     }
-    // コピー対象のノードでない場合, 初期ノードもしくはデフォルトノードを新規作成して接続する
-    else {
-      BhNodeID nodeID = initNodeID.equals(BhNodeID.NONE) ? defaultNodeID : initNodeID;
-      newNode = BhNodeTemplates.INSTANCE.genBhNode(nodeID, userOpeCmd);
-    }
-    if (newNode.getID().equals(defaultNodeID) && !defaultNodeID.equals(initNodeID))
+    if (newNode.getId().equals(defaultNodeId) && !defaultNodeId.equals(initNodeId)) {
       newNode.setDefaultNode(true);
+    }
     newConnector.connectNode(newNode, null);
-
     return newConnector;
   }
 
   /**
-   * BhModelProcessor を接続されているノードに渡す
+   * BhModelProcessor を接続されているノードに渡す.
+   *
    * @param processor 接続されているノードに渡す BhModelProcessor
    */
   public void sendToConnectedNode(BhModelProcessor processor) {
@@ -168,25 +178,26 @@ public class Connector extends SyntaxSymbol {
   }
 
   /**
-   * ノードを接続する
+   * ノードを接続する.
+   *
    * @param node 接続されるノード.  null 不可.
-   * @param userOpeCmd undo用コマンドオブジェクト
+   * @param userOpeCmd undo 用コマンドオブジェクト
    */
   public final void connectNode(BhNode node, UserOperationCommand userOpeCmd) {
-
     Objects.requireNonNull(node);
-
-    if (userOpeCmd != null)
+    if (userOpeCmd != null) {
       userOpeCmd.pushCmdOfConnectNode(connectedNode, this);
-
-    if(connectedNode != null)
+    }
+    if (connectedNode != null) {
       connectedNode.setParentConnector(null);  //古いノードから親を消す
+    }
     connectedNode = node;
     node.setParentConnector(this);  //新しいノードの親をセット
   }
 
   /**
-   * このコネクタの親となるノードを返す
+   * このコネクタの親となるノードを返す.
+   *
    * @return このコネクタの親となるノード
    */
   public ConnectiveNode getParentNode() {
@@ -194,7 +205,8 @@ public class Connector extends SyntaxSymbol {
   }
 
   /**
-   * このコネクタにつながるノードの入れ替えと取り外しができない場合trueを返す
+   * このコネクタにつながるノードの入れ替えと取り外しができない場合trueを返す.
+   *
    * @return このコネクタにつながるノードの入れ替えと取り外しができない場合true
    */
   public boolean isFixed() {
@@ -203,116 +215,115 @@ public class Connector extends SyntaxSymbol {
 
   /**
    * 引数で指定したノードがこのコネクタに接続可能か調べる.
+   *
    * @param node 接続可能か調べるノード
    * @return 引数で指定したノードがこのコネクタに接続可能な場合, true を返す
    */
   public boolean isConnectableWith(BhNode node) {
-
-    if (fixed)
+    if (fixed) {
       return false;
-
+    }
     Script script = BhScriptManager.INSTANCE.getCompiledScript(cnctCheckScriptName);
-    if (script == null)
+    if (script == null) {
       return false;
-    
-    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_CURRENT_NODE, connectedNode);
+    }
+    ScriptableObject.putProperty(
+        scriptScope, BhParams.JsKeyword.KEY_BH_CURRENT_NODE, connectedNode);
     ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_TO_CONNECT, node);
     Object isConnectable;
     try {
       isConnectable = ContextFactory.getGlobal().call(cx -> script.exec(cx, scriptScope));
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-        Connector.class.getSimpleName() + ".isConnectableWith   " 
-        + cnctCheckScriptName + "\n" + e.toString() + "\n");
+          Util.INSTANCE.getCurrentMethodName() + " - " + cnctCheckScriptName + "\n" + e + "\n");
       return false;
     }
 
-    if (isConnectable instanceof Boolean)
-      return (Boolean)isConnectable;
-
+    if (isConnectable instanceof Boolean res) {
+      return res;
+    }
     return false;
   }
 
   /**
-   * 現在繋がっているノードを取り除く
-   * @param userOpeCmd undo用コマンドオブジェクト
+   * 現在繋がっているノードを取り除く.
+   *
+   * @param userOpeCmd undo 用コマンドオブジェクト
    * @return 現在繋がっているノードを取り除いた結果, 新しくできたノード
    */
   public BhNode remove(UserOperationCommand userOpeCmd) {
 
-    if (connectedNode == null)
+    if (connectedNode == null) {
       throw new AssertionError("try to remove null");
-
-    BhNode newNode = BhNodeTemplates.INSTANCE.genBhNode(defaultNodeID, userOpeCmd);  //デフォルトノードを作成
-    NodeMVCBuilder.build(newNode); //MVC構築
+    }
+    BhNode newNode = BhNodeTemplates.INSTANCE.genBhNode(defaultNodeId, userOpeCmd);  //デフォルトノードを作成
+    NodeMvcBuilder.build(newNode); //MVC構築
     TextImitationPrompter.prompt(newNode);
     newNode.setDefaultNode(true);
     connectedNode.replace(newNode, userOpeCmd);
     return newNode;
   }
 
-  public ConnectorID getID() {
+  public ConnectorId getId() {
     return id;
   }
 
-  /**
-   * コネクタクラスを取得する
-   */
+  /** コネクタクラスを取得する. */
   public String getClaz() {
     return claz;
   }
 
   /**
-   * このコネクタに接続されているBhNode を返す
+   * このコネクタに接続されているBhNode を返す.
+   *
    * @return このコネクタに接続されているBhNode
    */
   public BhNode getConnectedNode() {
     return connectedNode;
   }
 
-  /**
-   * スクリプト実行時のスコープ変数を登録する
-   */
+  /** スクリプト実行時のスコープ変数を登録する. */
   public final void setScriptScope() {
-
     scriptScope = BhScriptManager.INSTANCE.createScriptScope();
     ScriptableObject.putProperty(
-      scriptScope, BhParams.JsKeyword.KEY_BH_THIS, this);
+        scriptScope, BhParams.JsKeyword.KEY_BH_THIS, this);
     ScriptableObject.putProperty(
-      scriptScope, BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
+        scriptScope, BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
     ScriptableObject.putProperty(
-      scriptScope, BhParams.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
+        scriptScope, BhParams.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
     ScriptableObject.putProperty(
-      scriptScope, BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
+        scriptScope, BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
     ScriptableObject.putProperty(
-      scriptScope, BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
+        scriptScope, BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
   }
 
   /**
-   * イミテーション作成時のIDを取得する
+   * イミテーション作成時のIDを取得する.
+   *
    * @return イミテーション作成時のID
    */
-  public ImitationID findImitationID() {
-
-    if (imitID.equals(ImitationID.NONE)) {
+  public ImitationId findImitationId() {
+    if (imitId.equals(ImitationId.NONE)) {
       Connector parentCnctr = getParentNode().getParentConnector();
-      if (parentCnctr != null)
-        return parentCnctr.findImitationID();
+      if (parentCnctr != null) {
+        return parentCnctr.findImitationId();
+      }
     }
-    return imitID;
+    return imitId;
   }
 
   /**
-   * イミテーション接続位置の識別子を取得する
+   * イミテーション接続位置の識別子を取得する.
+   *
    * @return イミテーション接続位置の識別子
    */
-  public ImitationConnectionPos getImitCnctPoint() {
+  public ImitCnctPosId getImitCnctPoint() {
     return imitCnctPoint;
   }
 
   /**
-   * 外部描画ノードかどうかを示すフラグをセットする
+   * 外部描画ノードかどうかを示すフラグをセットする.
+   *
    * @param outer このコネクタが外部描画ノードを接続する場合true
    */
   public void setOuterFlag(boolean outer) {
@@ -320,7 +331,8 @@ public class Connector extends SyntaxSymbol {
   }
 
   /**
-   * 外部描画ノードをつなぐコネクタかどうかを調べる
+   * 外部描画ノードをつなぐコネクタかどうかを調べる.
+   *
    * @return 外部描画ノードをコネクタの場合true
    */
   public boolean isOuter() {
@@ -329,11 +341,10 @@ public class Connector extends SyntaxSymbol {
 
   @Override
   public void findSymbolInDescendants(
-    int generationi,
-    boolean toBottom,
-    List<SyntaxSymbol> foundSymbolList,
-    String... symbolNames) {
-
+      int generationi,
+      boolean toBottom,
+      List<SyntaxSymbol> foundSymbolList,
+      String... symbolNames) {
     if (generationi == 0) {
       for (String symbolName : symbolNames) {
         if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
@@ -344,9 +355,8 @@ public class Connector extends SyntaxSymbol {
         return;
       }
     }
-
     connectedNode.findSymbolInDescendants(
-      Math.max(0, generationi-1), toBottom, foundSymbolList, symbolNames);
+        Math.max(0, generationi - 1), toBottom, foundSymbolList, symbolNames);
   }
 
   @Override
@@ -360,53 +370,29 @@ public class Connector extends SyntaxSymbol {
         return null;
       }
     }
-
-    return parent.findSymbolInAncestors(symbolName, Math.max(0, generation-1), toTop);
+    return parent.findSymbolInAncestors(symbolName, Math.max(0, generation - 1), toTop);
   }
 
   @Override
   public boolean isDescendantOf(SyntaxSymbol ancestor) {
-
-    if (this == ancestor)
+    if (this == ancestor) {
       return true;
-
+    }
     return parent.isDescendantOf(ancestor);
   }
 
   /**
-   * モデルの構造を表示する
+   * モデルの構造を表示する.
+   *
    * @param depth 表示インデント数
    */
   @Override
   public void show(int depth) {
     MsgPrinter.INSTANCE.msgForDebug(
-      indent(depth) +"<Connector" 
-      + " bhID=" + id 
-      + " nodeID=" + connectedNode.getID() 
-      + " parent=" + parent.hashCode() + "> " + this.hashCode());
+        indent(depth) + "<Connector" 
+        + " bhID=" + id 
+        + " nodeID=" + connectedNode.getId() 
+        + " parent=" + parent.hashCode() + "> " + this.hashCode());
     connectedNode.show(depth + 1);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

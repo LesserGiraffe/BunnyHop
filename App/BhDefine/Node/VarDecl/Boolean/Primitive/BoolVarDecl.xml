@@ -15,6 +15,6 @@
     
   <ConnectorSection name="VarDeclSctn">
     <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitationID="imitIdVarName" imitCnctPos="imitPosVarName"/>
-        <Connector bhConnectorID="idVarDeclCnctr" name="NextVarDecl" imitCnctPos="imitPosNextArg"/>
+    <Connector bhConnectorID="idVarDeclCnctr" name="NextVarDecl" imitCnctPos="imitPosNextArg"/>
   </ConnectorSection>
 </Node>

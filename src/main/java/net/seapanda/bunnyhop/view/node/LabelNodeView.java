@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.view.node;
 
 import javafx.scene.control.Label;
@@ -22,11 +23,12 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.CNCTR_POS;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 
 /**
- * ラベルを入力フォームに持つビュー
+ * ラベルを入力フォームに持つビュー.
+ *
  * @author K.Koike
  */
 public final class LabelNodeView extends BhNodeView {
@@ -35,23 +37,21 @@ public final class LabelNodeView extends BhNodeView {
   private final TextNode model;
 
   /**
-   * コンストラクタ
+   * コンストラクタ.
+   *
    * @param model このノードビューに対応するノード
    * @param viewStyle このノードビューのスタイル
    * @throws ViewInitializationException ノードビューの初期化に失敗
    */
   public LabelNodeView(TextNode model, BhNodeViewStyle viewStyle)
-    throws ViewInitializationException {
-
+      throws ViewInitializationException {
     super(viewStyle, model);
     this.model = model;
     getTreeManager().addChild(label);
     initStyle();
   }
 
-
   private void initStyle() {
-
     label.autosize();
     label.setMouseTransparent(true);
     label.setTranslateX(viewStyle.paddingLeft);
@@ -59,22 +59,14 @@ public final class LabelNodeView extends BhNodeView {
     label.getStyleClass().add(viewStyle.label.cssClass);
     label.heightProperty().addListener(newValue -> notifySizeChange());
     label.widthProperty().addListener(newValue -> notifySizeChange());
-    getAppearanceManager().addCssClass(BhParams.CSS.CLASS_LABEL_NODE);
+    getLookManager().addCssClass(BhParams.Css.CLASS_LABEL_NODE);
   }
 
-  /**
-   * このビューのモデルであるBhNodeを取得する
-   * @return このビューのモデルであるBhNode
-   */
   @Override
   public TextNode getModel() {
     return model;
   }
 
-  /**
-   * モデルの構造を表示する
-   * @param depth 表示インデント数
-   * */
   @Override
   public void show(int depth) {
     MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<LabelView>   " + this.hashCode());
@@ -83,22 +75,20 @@ public final class LabelNodeView extends BhNodeView {
 
   @Override
   protected void arrangeAndResize() {
-    getAppearanceManager().updatePolygonShape();
+    getLookManager().updatePolygonShape();
   }
 
   @Override
   protected Vec2D getBodySize(boolean includeCnctr) {
-
     Vec2D cnctrSize = viewStyle.getConnectorSize();
-
     double bodyWidth = viewStyle.paddingLeft + label.getWidth() + viewStyle.paddingRight;
-    if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.LEFT))
+    if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.LEFT)) {
       bodyWidth += cnctrSize.x;
-
+    }
     double bodyHeight = viewStyle.paddingTop + label.getHeight() + viewStyle.paddingBottom;
-    if (includeCnctr && (viewStyle.connectorPos == CNCTR_POS.TOP))
+    if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.TOP)) {
       bodyHeight += cnctrSize.y;
-
+    }
     return new Vec2D(bodyWidth, bodyHeight);
   }
 
@@ -120,17 +110,3 @@ public final class LabelNodeView extends BhNodeView {
     visitor.visit(this);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

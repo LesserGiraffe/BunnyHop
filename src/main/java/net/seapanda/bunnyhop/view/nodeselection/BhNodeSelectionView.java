@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.view.nodeselection;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Optional;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,12 +33,14 @@ import javafx.scene.transform.Scale;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.configfilereader.FXMLCollector;
+import net.seapanda.bunnyhop.common.tools.Util;
+import net.seapanda.bunnyhop.configfilereader.FxmlCollector;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
- * ノードカテゴリ選択時にワークスペース上に現れるBhNode 選択パネル
+ * ノードカテゴリ選択時にワークスペース上に現れる {@link BhNode} 選択パネル.
+ *
  * @author K.Koike
  */
 public final class BhNodeSelectionView extends ScrollPane {
@@ -50,28 +53,27 @@ public final class BhNodeSelectionView extends ScrollPane {
   private final String categoryName;
 
   /**
-   * GUI初期化
+   * GUI コンポーネントを初期化する.
+   *
    * @param categoryName このビューに関連付けられたBhNodeリストのカテゴリ名
    * @param cssClass ビューに適用するcssクラス名
    * @param categoryListView このビューを保持しているカテゴリリストのビュー
    */
   public BhNodeSelectionView(
-    String categoryName, String cssClass, BhNodeCategoryListView categoryListView)
-    throws ViewInitializationException {
-
+      String categoryName, String cssClass, BhNodeCategoryListView categoryListView)
+      throws ViewInitializationException {
     this.categoryName = categoryName;
     try {
-      Path filePath = FXMLCollector.INSTANCE.getFilePath(BhParams.Path.NODE_SELECTION_PANEL_FXML);
+      Path filePath = FxmlCollector.INSTANCE.getFilePath(BhParams.Path.NODE_SELECTION_PANEL_FXML);
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
       loader.setController(this);
       loader.setRoot(this);
       loader.load();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-        BhNodeSelectionView.class.getSimpleName() + "\n  category : " + categoryName + "\n" + e);
+          Util.INSTANCE.getCurrentMethodName() + "\n  category : " + categoryName + "\n" + e);
       throw new ViewInitializationException(
-        "failed to initialize "  + BhNodeSelectionView.class.getSimpleName());
+          "failed to initialize "  + BhNodeSelectionView.class.getSimpleName());
     }
 
     nodeSelectionPanel.getTransforms().add(new Scale());
@@ -80,31 +82,31 @@ public final class BhNodeSelectionView extends ScrollPane {
     nodeSelectionPanel.getStyleClass().add(cssClass);
     nodeSelectionPanelWrapper.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
     nodeSelectionPanelWrapper.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
-
-    if (nodeSelectionPanelBase.getScene() != null) {
-      var wsSetTab = nodeSelectionPanelBase.getScene().lookup("#" + BhParams.Fxml.ID_WORKSPACE_SET_TAB);
-      if (wsSetTab != null) {
-        ((TabPane)wsSetTab).widthProperty().addListener((oldval, newval, obs) ->{
-        Math.min(nodeSelectionPanelBase.getMaxWidth(), ((TabPane)wsSetTab).getWidth() * 0.5);});
-      }
+    Node wsSetTab = Optional.ofNullable(nodeSelectionPanelBase.getScene())
+        .map(scene -> scene.lookup("#" + BhParams.Fxml.ID_WORKSPACE_SET_TAB))
+        .orElse(null);
+    if (wsSetTab == null) {
+      return;
     }
+    ((TabPane) wsSetTab).widthProperty().addListener((oldval, newval, obs) ->
+        Math.min(nodeSelectionPanelBase.getMaxWidth(), ((TabPane) wsSetTab).getWidth() * 0.5));
   }
 
   /**
-   * このビューのカテゴリ名を取得する
+   * このビューのカテゴリ名を取得する.
+   *
    * @return このビューのカテゴリ名
    */
   public String getCategoryName() {
     return categoryName;
   }
 
-  /***
-   * 全ノード選択ビューの拡大/縮小を行う
-   * @param categoryListView このビューを保持する {@code BhNodeCategoryListView}
+  /**
+   * 全ノード選択ビューの拡大/縮小を行う.
+   *
    * @param event スクロールイベント
    */
   private void zoomAll(ScrollEvent event) {
-
     if (event.isControlDown() && event.getDeltaY() != 0) {
       event.consume();
       boolean zoomIn = event.getDeltaY() >= 0;
@@ -114,58 +116,60 @@ public final class BhNodeSelectionView extends ScrollPane {
 
   /**
    * ノード選択リストに表示するBhNode のビューを追加する.
+   *
    * @param view テンプレートリストに表示するBhNodeのビュー
    */
   public void addNodeView(BhNodeView view) {
-
-    view.getTreeManager().addToGUITree(nodeSelectionPanel);
+    view.getTreeManager().addToGuiTree(nodeSelectionPanel);
     view.getEventManager().addOnNodeSizesInTreeChanged(nodeView -> {
-      if (isVisible())
+      if (isVisible()) {
         arrange();
+      }
     });
     rootNodeList.add(view);
-    view.getAppearanceManager().arrangeAndResize();
+    view.getLookManager().arrangeAndResize();
     visibleProperty().addListener((observable, oldVal, newVal) -> {
-      if (newVal)
+      if (newVal) {
         arrange();
+      }
     });
   }
 
-  /**
-   * ノード選択リストのノードを全て削除する.
-   */
+  /** ノード選択リストのノードを全て削除する. */
   public void removeNodeView(BhNodeView view) {
-
     if (rootNodeList.contains(view)) {
-      view.getTreeManager().removeFromGUITree();
+      view.getTreeManager().removeFromGuiTree();
       rootNodeList.remove(view);
     }
-
     Long numNodes = rootNodeList.stream()
-      .filter(root -> !root.getModel().getSymbolName().equals(BhParams.NodeTemplate.SELECTION_VIEW_SPACE))
-      .count();
+        .filter(root -> !root.getModel()
+        .getSymbolName()
+        .equals(BhParams.NodeTemplate.SELECTION_VIEW_SPACE))
+        .count();
 
-    if (numNodes == 0 && BhNodeSelectionService.INSTANCE.isShowed(categoryName))
+    if (numNodes == 0 && BhNodeSelectionService.INSTANCE.isShowed(categoryName)) {
       BhNodeSelectionService.INSTANCE.hideAll();
+    }
   }
 
   /**
-   * ノード選択ビューのズーム処理を行う
+   * ノード選択ビューのズーム処理を行う.
+   *
    * @param zoomIn 拡大処理を行う場合true
    */
   public void zoom(boolean zoomIn) {
-
-    if ((BhParams.LnF.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn)
+    if ((BhParams.LnF.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn) {
       return;
-
-    if ((BhParams.LnF.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn)
+    }
+    if ((BhParams.LnF.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn) {
       return;
-
+    }
     Scale scale = new Scale();
-    if (zoomIn)
+    if (zoomIn) {
       ++zoomLevel;
-    else
+    } else {
       --zoomLevel;
+    }
     double mag = Math.pow(BhParams.LnF.ZOOM_MAGNIFICATION, zoomLevel);
     scale.setX(mag);
     scale.setY(mag);
@@ -174,11 +178,8 @@ public final class BhNodeSelectionView extends ScrollPane {
     adjustWrapperSize(nodeSelectionPanel.getWidth(), nodeSelectionPanel.getHeight());
   }
 
-  /**
-   * 表示するノードを並べる
-   */
+  /** 表示するノードを並べる. */
   public void arrange() {
-
     double panelWidth = 0.0;
     double panelHeight = 0.0;
     double offset = nodeSelectionPanel.getPadding().getTop();
@@ -188,15 +189,14 @@ public final class BhNodeSelectionView extends ScrollPane {
     final double bottomPadding = nodeSelectionPanel.getPadding().getBottom();
 
     for (int i = 0; i < nodeSelectionPanel.getChildren().size(); ++i) {
-
       Node node = nodeSelectionPanel.getChildren().get(i);
-      if (!(node instanceof BhNodeView))
+      if (!(node instanceof BhNodeView)) {
         continue;
-
-      BhNodeView nodeToShift = (BhNodeView)node;
-      if (nodeToShift.getTreeManager().getParentView() != null)
+      }
+      BhNodeView nodeToShift = (BhNodeView) node;
+      if (nodeToShift.getTreeManager().getParentView() != null) {
         continue;
-
+      }
       Vec2D wholeBodySize = nodeToShift.getRegionManager().getNodeSizeIncludingOuter(true);
       Vec2D bodySize = nodeToShift.getRegionManager().getNodeSizeIncludingOuter(false);
       double upperCnctrHeight = wholeBodySize.y - bodySize.y;
@@ -204,8 +204,8 @@ public final class BhNodeSelectionView extends ScrollPane {
       offset += wholeBodySize.y + BhParams.LnF.BHNODE_SPACE_ON_SELECTION_PANEL;
       panelWidth = Math.max(panelWidth, wholeBodySize.x);
     }
-
-    panelHeight = (offset - BhParams.LnF.BHNODE_SPACE_ON_SELECTION_PANEL) + topPadding + bottomPadding;
+    panelHeight =
+        (offset - BhParams.LnF.BHNODE_SPACE_ON_SELECTION_PANEL) + topPadding + bottomPadding;
     panelWidth += rightPadding + leftPadding;
     nodeSelectionPanel.setMinSize(panelWidth, panelHeight);
     //バインディングではなく, ここでこのメソッドを呼ばないとスクロールバーの稼働域が変わらない
@@ -213,35 +213,26 @@ public final class BhNodeSelectionView extends ScrollPane {
   }
 
   /**
-   * スクロールバーの可動域が変わるようにノード選択パネルのラッパーのサイズを変更する
+   * スクロールバーの可動域が変わるようにノード選択パネルのラッパーのサイズを変更する.
+   *
    * @param panelWidth ノード選択パネルの幅
    * @param panelHeight ノード選択パネルの高さ
    */
   private void adjustWrapperSize(double panelWidth, double panelHeight) {
-
     double wrapperSizeX = panelWidth * nodeSelectionPanel.getTransforms().get(0).getMxx();
     double wrapperSizeY = panelHeight * nodeSelectionPanel.getTransforms().get(0).getMyy();
-    nodeSelectionPanelWrapper.setPrefSize(wrapperSizeX, wrapperSizeY);  //スクロール時にスクロールバーの可動域が変わるようにする
-    double maxWidth = wrapperSizeX + nodeSelectionPanelBase.getPadding().getLeft() + nodeSelectionPanelBase.getPadding().getRight();
-    if (nodeSelectionPanelBase.getScene() != null) {
-      var wsSetTab = nodeSelectionPanelBase.getScene().lookup("#" + BhParams.Fxml.ID_WORKSPACE_SET_TAB);
-      if (wsSetTab != null) {
-        maxWidth = Math.min(maxWidth, ((TabPane)wsSetTab).getWidth() * 0.5);
-      }
+    // スクロール時にスクロールバーの可動域が変わるようにする
+    nodeSelectionPanelWrapper.setPrefSize(wrapperSizeX, wrapperSizeY);
+    Node wsSetTab = Optional.ofNullable(nodeSelectionPanelBase.getScene())
+        .map(scene -> scene.lookup("#" + BhParams.Fxml.ID_WORKSPACE_SET_TAB))
+        .orElse(null);
+    double maxWidth = wrapperSizeX + nodeSelectionPanelBase.getPadding().getLeft()
+        + nodeSelectionPanelBase.getPadding().getRight();
+    if (wsSetTab != null) {
+      maxWidth = Math.min(maxWidth, ((TabPane) wsSetTab).getWidth() * 0.5);
     }
     nodeSelectionPanelBase.setMaxWidth(maxWidth);
     // 選択ビューの幅を設定後にレイアウトしないと適切な幅で表示されない
     Platform.runLater(nodeSelectionPanelBase::requestLayout);
   }
 }
-
-
-
-
-
-
-
-
-
-
-

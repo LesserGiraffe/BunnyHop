@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,39 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.compiler;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
 
 /**
- * コード生成前の処理を行うクラス
+ * コード生成前の処理を行うクラス.
+ *
  * @author K.Koike
  */
 public class Preprocessor {
 
   private static final Map<String, Consumer<SyntaxSymbol>> NODE_NAME_TO_PREPROCESSOR_FUNC =
-    new HashMap<>() {{
-      put(SymbolNames.PreDefFunc.ANY_LIST_TO_STR_EXP, Preprocessor::procAnyListToStrExp);
-    }};
+      new HashMap<>() {{
+          put(SymbolNames.PreDefFunc.ANY_LIST_TO_STR_EXP, Preprocessor::procAnyListToStrExp);
+        }
+      };
 
   /**
    * コンパイル前の処理を行う.
+   *
    * @param nodesToPreprocess 処理するノードのリスト
-   * */
+   */
   public static void process(Collection<BhNode> nodesToPreprocess) {
 
     // コールバック登録
     CallbackInvoker.CallbackRegistry callbacks = CallbackInvoker.newCallbackRegistry();
     NODE_NAME_TO_PREPROCESSOR_FUNC.entrySet().forEach(
-      nodeIdAndFunc -> callbacks.set(nodeIdAndFunc.getKey(), nodeIdAndFunc.getValue()));
+        nodeIdAndFunc -> callbacks.set(nodeIdAndFunc.getKey(), nodeIdAndFunc.getValue()));
 
     // コールバック呼び出し
     nodesToPreprocess.forEach(node -> CallbackInvoker.invoke(callbacks, node));
@@ -53,36 +56,17 @@ public class Preprocessor {
 
 
   /**
-   * AnyListToStrExp ノードの前処理を行う
+   * AnyListToStrExp ノードの前処理を行う.
+   *
    * @param node AnyListToStrExp ノード
-   * */
+   */
   private static void procAnyListToStrExp(SyntaxSymbol node) {
-
     SyntaxSymbol listNode = node.findSymbolInDescendants("*", "Arg0", "*");
-    SyntaxSymbol listNameNode = listNode.findSymbolInDescendants("*", SymbolNames.VarDecl.LIST_NAME ,"*");
-    if (!(listNameNode instanceof TextNode))
-      return;
-
-    String listName = ((TextNode)listNameNode).getText();
-    listNameNode = node.findSymbolInDescendants("*", "Arg1", "*");
-    ((TextNode)listNameNode).setText(listName);
+    SyntaxSymbol listNameNode =
+        listNode.findSymbolInDescendants("*", SymbolNames.VarDecl.LIST_NAME, "*");
+    if (listNameNode instanceof TextNode textNode) {
+      SyntaxSymbol dest = node.findSymbolInDescendants("*", "Arg1", "*");
+      ((TextNode) dest).setText(textNode.getText());
+    }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.compiler;
 
 import java.util.ArrayList;
@@ -21,13 +22,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbolID;
+import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbolId;
 
 /**
+ * 変数定義のコードを生成するクラス.
+ *
  * @author K.Koike
- * 変数定義のコードを生成するクラス
  */
-final public class VarDeclCodeGenerator {
+public class VarDeclCodeGenerator {
 
   private final CommonCodeGenerator common;
 
@@ -36,39 +38,41 @@ final public class VarDeclCodeGenerator {
   }
 
   /**
-   * 変数定義のコードを作成する
+   * 変数定義のコードを作成する.
+   *
    * @param nodeListToCompile コンパイル対象のノードリスト
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   public void genVarDecls(
-    Collection<? extends SyntaxSymbol> nodeListToCompile,
-    StringBuilder code,
-    int nestLevel,
-    CompileOption option) {
+      Collection<? extends SyntaxSymbol> nodeListToCompile,
+      StringBuilder code,
+      int nestLevel,
+      CompileOption option) {
 
     List<VarDeclCodeGenerator.VarDeclInfo> varDeclInfoList = new ArrayList<>();
     for (SyntaxSymbol node : nodeListToCompile) {
       if (SymbolNames.VarDecl.LIST.contains(node.getSymbolName())) {
         genVarDeclInfos(node, varDeclInfoList);
       }
-    };
+    }
     genVarDecls(code, varDeclInfoList, nestLevel, option);
   }
 
   /**
-   * 変数定義のコードを作成する
+   * 変数定義のコードを作成する.
+   *
    * @param varDeclNode 変数定義ノード
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   public void genVarDecls(
-    SyntaxSymbol varDeclNode,
-    StringBuilder code,
-    int nestLevel,
-    CompileOption option) {
+      SyntaxSymbol varDeclNode,
+      StringBuilder code,
+      int nestLevel,
+      CompileOption option) {
 
     List<VarDeclCodeGenerator.VarDeclInfo> varDeclInfoList = new ArrayList<>();
     genVarDeclInfos(varDeclNode, varDeclInfoList);
@@ -76,7 +80,28 @@ final public class VarDeclCodeGenerator {
   }
 
   /**
-   * 仮引数リストを作成する
+   * 変数定義リストのコードを生成する.
+   *
+   * @param code 生成したコードの格納先
+   * @param varDeclInfoList 変数定義に必要な情報のリスト
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   */
+  private void genVarDecls(
+      StringBuilder code,
+      List<VarDeclInfo> varDeclInfoList,
+      int nestLevel,
+      CompileOption option) {
+
+    varDeclInfoList.forEach(varDeclInfo -> {
+      genVarDeclCode(code, varDeclInfo, nestLevel, option);
+      genOutArgDeclCode(code, varDeclInfo, nestLevel, option);
+    });
+  }
+
+  /**
+   * 仮引数リストを作成する.
+   *
    * @param paramNode 仮引数のノード
    * @param outParamNode 出力引数ノード
    * @param code 生成したコードの格納先
@@ -85,11 +110,11 @@ final public class VarDeclCodeGenerator {
    * @return 出力仮引数名のリスト
    */
   public List<String> genParamList(
-    SyntaxSymbol paramNode,
-    SyntaxSymbol outParamNode,
-    StringBuilder code,
-    int nestLevel,
-    CompileOption option) {
+      SyntaxSymbol paramNode,
+      SyntaxSymbol outParamNode,
+      StringBuilder code,
+      int nestLevel,
+      CompileOption option) {
 
     List<VarDeclCodeGenerator.VarDeclInfo> varDeclInfoList = new ArrayList<>();
     List<VarDeclCodeGenerator.VarDeclInfo> outVarDeclInfoList = new ArrayList<>();
@@ -97,14 +122,13 @@ final public class VarDeclCodeGenerator {
     genVarDeclInfos(outParamNode, outVarDeclInfoList);
     varDeclInfoList.addAll(outVarDeclInfoList);
 
-    if (varDeclInfoList.size() >= 1)
+    if (varDeclInfoList.size() >= 1) {
       code.append(Keywords.newLine);
-
+    }
     for (int i = 0; i < varDeclInfoList.size(); ++i) {
-
       VarDeclCodeGenerator.VarDeclInfo varDeclInfo = varDeclInfoList.get(i);
       code.append(common.indent(nestLevel))
-        .append(varDeclInfo.varName);
+          .append(varDeclInfo.varName);
       boolean isLastParam = i == (varDeclInfoList.size() - 1);
       if (!isLastParam) {
         code.append(",");
@@ -116,55 +140,37 @@ final public class VarDeclCodeGenerator {
         code.append(Keywords.newLine);
       }
     }
-
     return outVarDeclInfoList.stream()
-      .map(info -> info.varName).collect(Collectors.toCollection(ArrayList::new));
+        .map(info -> info.varName).collect(Collectors.toCollection(ArrayList::new));
   }
 
-
   /**
-   * 変数定義ノードから変数定義リストを取得する
+   * 変数定義ノードから変数定義リストを取得する.
+   *
    * @param varDeclNode 変数定義ノード
    * @param varDeclInfoList 変数定義に必要な情報のリスト
    */
   private void genVarDeclInfos(SyntaxSymbol varDeclNode, List<VarDeclInfo> varDeclInfoList) {
 
-    if (!SymbolNames.VarDecl.LIST.contains(varDeclNode.getSymbolName()))
+    if (!SymbolNames.VarDecl.LIST.contains(varDeclNode.getSymbolName())) {
       return;
-
+    }
     String comment =
-      SymbolNames.VarDecl.VAR_NAME_CNCTR_LIST.stream()
-      .map(cnctrName -> (TextNode)varDeclNode.findSymbolInDescendants("*", cnctrName, "*"))
-      .filter(node -> node != null)
-      .findFirst()
-      .map(node -> node.getText()).orElse("");
+        SymbolNames.VarDecl.VAR_NAME_CNCTR_LIST.stream()
+        .map(cnctrName -> (TextNode) varDeclNode.findSymbolInDescendants("*", cnctrName, "*"))
+        .filter(node -> node != null)
+        .findFirst()
+        .map(node -> node.getText()).orElse("");
     String varName = common.genVarName(varDeclNode);
     String outArgName = common.genOutArgName(varDeclNode);
     String initVal = SymbolNames.VarDecl.INIT_VAL_MAP.get(varDeclNode.getSymbolName());
     varDeclInfoList.add(new VarDeclInfo(varName, outArgName, initVal, comment));
 
-    SyntaxSymbol nextVarDecl = varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.NEXT_VAR_DECL, "*");
-    if (nextVarDecl != null)
+    SyntaxSymbol nextVarDecl =
+        varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.NEXT_VAR_DECL, "*");
+    if (nextVarDecl != null) {
       genVarDeclInfos(nextVarDecl, varDeclInfoList);
-  }
-
-  /**
-   * 変数定義リストのコードを生成する
-   * @param code 生成したコードの格納先
-   * @param varDeclInfoList 変数定義に必要な情報のリスト
-   * @param nestLevel ソースコードのネストレベル
-   * @param option コンパイルオプション
-   */
-  private void genVarDecls(
-    StringBuilder code,
-    List<VarDeclInfo> varDeclInfoList,
-    int nestLevel,
-    CompileOption option) {
-
-    varDeclInfoList.forEach(varDeclInfo -> {
-      genVarDeclCode(code, varDeclInfo, nestLevel, option);
-      genOutArgDeclCode(code, varDeclInfo, nestLevel, option);
-    });
+    }
   }
 
   private void genVarDeclCode(
@@ -172,6 +178,7 @@ final public class VarDeclCodeGenerator {
       VarDeclInfo varDeclInfo,
       int nestLevel,
       CompileOption option) {
+
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._let_)
         .append(varDeclInfo.varName)
@@ -193,6 +200,7 @@ final public class VarDeclCodeGenerator {
       VarDeclInfo varDeclInfo,
       int nestLevel,
       CompileOption option) {
+
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(varDeclInfo.outArgName)
@@ -225,22 +233,21 @@ final public class VarDeclCodeGenerator {
    * @param nestLevel ネストレベル
    */
   public void genVarDeclStat(
-    StringBuilder code,
-    String varName,
-    String initExp,
-    int nestLevel) {
+      StringBuilder code,
+      String varName,
+      String initExp,
+      int nestLevel) {
 
     code.append(common.indent(nestLevel))
-      .append(Keywords.Js._let_)
-      .append(varName);
+        .append(Keywords.Js._let_)
+        .append(varName);
 
     if (initExp != null) {
       code.append(" = (")
-        .append(initExp)
-        .append(");").append(Keywords.newLine);
-    }
-    else {
-      code.append(";").append(Keywords.newLine);
+          .append(initExp)
+          .append(");" + Keywords.newLine);
+    } else {
+      code.append(";" + Keywords.newLine);
     }
   }
 
@@ -257,6 +264,7 @@ final public class VarDeclCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
+
     List<VarDeclCodeGenerator.VarDeclInfo> varDeclInfoList = new ArrayList<>();
     genVarDeclInfos(varDeclNode, varDeclInfoList);
     varDeclInfoList.forEach(
@@ -265,7 +273,7 @@ final public class VarDeclCodeGenerator {
 
   /**
    * <pre>
-   * {@code symbol} の {@link SyntaxSymbolID} から,
+   * {@code symbol} の {@link SyntaxSymbolId} から,
    * - 変数宣言対
    * - 出力引数に代入するための変数
    * を作成する.
@@ -279,6 +287,7 @@ final public class VarDeclCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
+
     String varName = common.genVarName(symbol);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._let_)

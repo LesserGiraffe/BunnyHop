@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.modelservice;
 
 import java.util.Arrays;
@@ -20,11 +21,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * ノードを削除する際に実行する操作
+ * ノードを削除する際に実行する操作.
+ *
  * @author K.Koike
  */
 public enum DeleteOperation {
-  /** イミテーションノードをオリジナルノードのイミテーションリストから取り除く */
+  /** イミテーションノードをオリジナルノードのイミテーションリストから取り除く. */
   REMOVE_FROM_IMIT_LIST;
 
   public static Set<DeleteOperation> getSet() {

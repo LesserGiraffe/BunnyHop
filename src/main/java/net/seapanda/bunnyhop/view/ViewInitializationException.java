@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.view;
 
 /**
- * ビューの初期化に失敗したことを表す例外
+ * ビューの初期化に失敗したことを表す例外.
+ *
  * @author K.Koike
  */
 public class ViewInitializationException extends Exception {
-
   public ViewInitializationException(String msg) {
     super(msg);
   }

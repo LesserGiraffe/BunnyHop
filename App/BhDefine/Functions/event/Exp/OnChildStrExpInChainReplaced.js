@@ -5,9 +5,9 @@
   if (bhCommon.isStaticTypeExp(bhReplacedNewNode)) {
 
     // 新文字列リンクノード作成
-    let posOnWS = bhMsgService.getPosOnWS(bhThis);
+    let posOnWS = bhMsgService.getPosOnWs(bhThis);
     let newStrChainLinkExp = bhCommon.addNewNodeToWS(
-      bhThis.getID(),
+      bhThis.getId(),
       bhThis.getWorkspace(),
       posOnWS,
       bhNodeHandler,

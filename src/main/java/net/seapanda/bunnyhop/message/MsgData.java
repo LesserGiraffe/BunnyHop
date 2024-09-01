@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.message;
 
 import net.seapanda.bunnyhop.common.Pair;
@@ -25,7 +26,8 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
- * MsgTransporterが送信するデータ
+ * MsgTransporterが送信するデータ.
+ *
  * @author K.Koike
  * */
 public class MsgData {
@@ -42,6 +44,7 @@ public class MsgData {
   public final String text;
   public final BhNodeSelectionView nodeSelectionView;
 
+  /** コンストラクタ. */
   public MsgData() {
     this.node = null;
     this.nodeView = null;
@@ -56,6 +59,7 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
+  /** コンストラクタ. */
   public MsgData(BhNodeView view) {
     this.node = null;
     this.nodeView = view;
@@ -70,6 +74,7 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
+  /** コンストラクタ. */
   public MsgData(Vec2D vec2d) {
     this.node = null;
     this.nodeView = null;
@@ -84,7 +89,9 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
-  public MsgData(Workspace workspace, WorkspaceView workspaceView, UserOperationCommand userOpeCmd) {
+  /** コンストラクタ. */
+  public MsgData(
+      Workspace workspace, WorkspaceView workspaceView, UserOperationCommand userOpeCmd) {
     this.node = null;
     this.nodeView = null;
     this.vec2d = null;
@@ -98,6 +105,7 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
+  /** コンストラクタ. */
   public MsgData(BhNode node, BhNodeView view) {
     this.node = node;
     this.nodeView = view;
@@ -112,6 +120,7 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
+  /** コンストラクタ. */
   public MsgData(BhNode node) {
     this.node = node;
     this.nodeView = null;
@@ -126,7 +135,7 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
-
+  /** コンストラクタ. */
   public MsgData(boolean bool) {
     this.node = null;
     this.nodeView = null;
@@ -141,6 +150,7 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
+  /** コンストラクタ. */
   public MsgData(UserOperationCommand userOpeCmd) {
     this.node = null;
     this.nodeView = null;
@@ -155,6 +165,7 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
+  /** コンストラクタ. */
   public MsgData(String text) {
     this.node = null;
     this.nodeView = null;
@@ -169,6 +180,7 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
+  /** コンストラクタ. */
   public MsgData(Workspace workspace) {
     this.node = null;
     this.nodeView = null;
@@ -183,6 +195,7 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
+  /** コンストラクタ. */
   public MsgData(boolean bool, String text) {
     this.node = null;
     this.nodeView = null;
@@ -197,6 +210,7 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
+  /** コンストラクタ. */
   public MsgData(BhNodeSelectionView nodeSelectionView) {
     this.node = null;
     this.nodeView = null;
@@ -211,6 +225,7 @@ public class MsgData {
     this.nodeSelectionView = nodeSelectionView;
   }
 
+  /** コンストラクタ. */
   public MsgData(String textA, String textB) {
     this.node = null;
     this.nodeView = null;
@@ -225,6 +240,7 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
+  /** コンストラクタ. */
   public MsgData(boolean bool, UserOperationCommand userOpeCmd) {
     this.node = null;
     this.nodeView = null;
@@ -239,12 +255,13 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
+  /** コンストラクタ. */
   public MsgData(Vec2D vecA, Vec2D vecB) {
     this.node = null;
     this.nodeView = null;
     this.vec2d = null;
     this.strPair = null;
-    this.vec2dPair = new Pair<Vec2D, Vec2D> (vecA, vecB);
+    this.vec2dPair = new Pair<Vec2D, Vec2D>(vecA, vecB);
     this.workspace = null;
     this.workspaceView = null;
     this.bool = false;
@@ -253,6 +270,7 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 
+  /** コンストラクタ. */
   public MsgData(BhNode node, UserOperationCommand userOpeCmd) {
     this.node = node;
     this.nodeView = null;
@@ -267,41 +285,3 @@ public class MsgData {
     this.nodeSelectionView = null;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

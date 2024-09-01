@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.control.node;
 
 import net.seapanda.bunnyhop.message.BhMsg;
@@ -24,88 +25,88 @@ import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
 import net.seapanda.bunnyhop.view.node.TextInputNodeView;
 
 /**
- * TextNodeとTextFieldNodeViewのコントローラ
+ * {@code TextFieldNodeView} のコントローラ.
+ *
  * @author K.Koike
  */
 public class TextInputNodeController extends BhNodeController {
 
-  private final TextNode model;  //!< 管理するモデル
-  private final TextInputNodeView view;  //!< 管理するビュー
+  private final TextNode model;
+  private final TextInputNodeView view;
 
+  /** コンストラクタ. */
   public TextInputNodeController(TextNode model, TextFieldNodeView view) {
-
     super(model, view);
     this.model = model;
     this.view = view;
-    if (model.isImitationNode())
+    if (model.isImitationNode()) {
       view.setEditable(false);
+    }
     setTextChangeHandlers(model, view);
   }
 
+  /** コンストラクタ. */
   public TextInputNodeController(TextNode model, TextAreaNodeView view) {
-
     super(model, view);
     this.model = model;
     this.view = view;
-    if (model.isImitationNode())
+    if (model.isImitationNode()) {
       view.setEditable(false);
+    }
     setTextChangeHandlers(model, view);
   }
 
   /**
-   * TextNodeView に対して文字列変更時のハンドラを登録する
+   * TextNodeView に対して文字列変更時のハンドラを登録する.
+   *
    * @param model TextNodeView に対応する model
    * @param view イベントハンドラを登録するview
    */
-  static public void setTextChangeHandlers(TextNode model, TextInputNodeView view) {
-
+  public static void setTextChangeHandlers(TextNode model, TextInputNodeView view) {
     view.setTextFormatHandler(model::formatText);
     view.setTextChangeListener(model::isTextAcceptable);
-    view.addFocusListener((observable, oldValue, newValue) -> onFocusChanged(model, view, !newValue));
+    view.addFocusListener(
+        (observable, oldValue, newValue) -> onFocusChanged(model, view, !newValue));
 
     String initText = model.getText();
     view.setText(initText + " ");  //初期文字列が空文字だったときのため
     view.setText(initText);
   }
 
-  /**
-   * {@code TextInputNodeView} のフォーカスが外れた時のイベントハンドラ
-   */
-  private static void onFocusChanged(TextNode model, TextInputNodeView view, Boolean isInputFinished) {
-
+  /** {@code TextInputNodeView} のフォーカスが外れた時のイベントハンドラ. */
+  private static void onFocusChanged(
+      TextNode model, TextInputNodeView view, Boolean isInputFinished) {
     //テキストフィールドにフォーカスが移ったとき
-    if (!isInputFinished)
+    if (!isInputFinished) {
       return;
-
+    }
     ModelExclusiveControl.INSTANCE.lockForModification();
     try {
-      String currentGUIText = view.getText();
+      String currentGuiText = view.getText();
       boolean isValidFormat = model.isTextAcceptable(view.getText());
       if (isValidFormat) {  //正しいフォーマットの文字列が入力されていた場合
-        model.setText(currentGUIText);  //model の文字列をTextField のものに変更する
+        model.setText(currentGuiText);  //model の文字列をTextField のものに変更する
         model.getImitNodesToImitateContents();
-      }
-      else {
+      } else {
         view.setText(model.getText());  //view の文字列を変更前の文字列に戻す
       }
-    }
-    finally {
+    } finally {
       ModelExclusiveControl.INSTANCE.unlockForModification();
     }
   }
 
   /**
-   * 受信したメッセージを処理する
+   * 受信したメッセージを処理する.
+   *
    * @param msg メッセージの種類
    * @param data メッセージの種類に応じて処理するデータ
    * @return メッセージを処理した結果返すデータ
-   * */
+   */
   @Override
   public MsgData processMsg(BhMsg msg, MsgData data) {
-
     switch (msg) {
       case IMITATE_TEXT:
-        setText(model, view, data.strPair._1, data.strPair._2);
+        setText(model, view, data.strPair.v1, data.strPair.v2);
         break;
 
       case GET_VIEW_TEXT:
@@ -118,14 +119,15 @@ public class TextInputNodeController extends BhNodeController {
   }
 
   /**
-   * テキストノードとそのビューにテキストをセットする
+   * テキストノードとそのビューにテキストをセットする.
+   *
    * @param model テキストをセットするノード
    * @param view テキストをセットするビュー
    * @param modelText {@code model} にセットする文字列
    * @param viewText {@code view} にセットする文字列
    */
-  public static void setText(TextNode model, TextInputNodeView view, String modelText, String viewText) {
-
+  public static void setText(
+      TextNode model, TextInputNodeView view, String modelText, String viewText) {
     model.setText(modelText);
     boolean editable = view.getEditable();
     view.setEditable(true);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.modelprocessor;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
@@ -22,39 +23,40 @@ import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
- * ノードに対してワークスペースをセットする
+ * ノードに対してワークスペースをセットする.
+ *
  * @author K.Koike
  */
 public class WorkspaceRegisterer implements BhModelProcessor {
 
-  private final Workspace ws;  //!< 登録されるワークスペース
+  /** undo 用コマンドオブジェクト. */
   private final UserOperationCommand userOpeCmd;
-
+  /** {@link BhNode} にセットするワークスペース. */
+  private final Workspace ws;
+  
   /**
-   * 引数で指定したノード以下のノードに引数で指定したワークスペースを登録する
+   * {@code node} 以下のノードに {@code ws} を登録する.
+   *
    * @param node これ以下のノードにワークスペースを登録する
    * @param ws 登録するワークスペース
-   * @param userOpeCmd undo用コマンドオブジェクト
-   * */
+   * @param userOpeCmd undo 用コマンドオブジェクト
+   */
   public static void register(BhNode node, Workspace ws, UserOperationCommand userOpeCmd) {
     var registerer = new WorkspaceRegisterer(ws, userOpeCmd);
     node.accept(registerer);
   }
 
   /**
-   * 引数で指定したノード以下のノードのワークスペースの登録を解除する
+   * 引数で指定したノード以下のノードのワークスペースの登録を解除する.
+   *
    * @param node このノード以下のノードのワークスペースの登録を解除する
-   * @param userOpeCmd undo用コマンドオブジェクト
+   * @param userOpeCmd undo 用コマンドオブジェクト
    * */
   public static void deregister(BhNode node, UserOperationCommand userOpeCmd) {
     var registerer = new WorkspaceRegisterer(null, userOpeCmd);
     node.accept(registerer);
   }
 
-  /**
-   * @param ws 登録されるワークスペース
-   * @param userOpeCmd undo用コマンドオブジェクト
-   */
   private WorkspaceRegisterer(Workspace ws, UserOperationCommand userOpeCmd) {
     this.ws = ws;
     this.userOpeCmd = userOpeCmd;

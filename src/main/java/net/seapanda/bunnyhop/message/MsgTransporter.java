@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,27 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.message;
 
 /**
- * メッセージを送信するクラス
+ * メッセージを送信するクラス.
+ *
  * @author K.Koike
- * */
+ */
 public class MsgTransporter {
+  /** シングルトンインスタンス. */
+  public static final MsgTransporter INSTANCE = new MsgTransporter();
 
-  private MsgTransporter() {};
-  public static final MsgTransporter INSTANCE = new MsgTransporter();  //!< シングルトンインスタンス
+  /** コンストラクタ. */
+  private MsgTransporter() {}
 
   /**
    * msgReceptionWindows に対応するそれぞれの MsgProcessor に順番にメッセージを送信する<br>
    * 2つめ以降のmsgReceptionWindowには, 1つ前のMsgProcessorの処理結果であるMsgDataが渡される.
+   *
    * @param msg 送信メッセージ
    * @param data 1番目のMsgReceptionWindow に渡されるメッセージ
    * @param msgReceptionWindows メッセージ投函先
    * @return 最後のメッセージ送信先から返されるデータ
    * */
   public MsgData sendMessage(BhMsg msg, MsgData data, MsgReceptionWindow... msgReceptionWindows) {
-
     for (MsgReceptionWindow msgReceptionWindow : msgReceptionWindows) {
       data = msgReceptionWindow.passMsg(msg, data);
     }
@@ -41,13 +45,13 @@ public class MsgTransporter {
   }
 
   /**
-   * msgReceptionWindows に対応するそれぞれの MsgProcessor に順番にメッセージを送信する
+   * msgReceptionWindows に対応するそれぞれの MsgProcessor に順番にメッセージを送信する.
+   *
    * @param msg 送信メッセージ
    * @param msgReceptionWindows メッセージ投函先
    * @return 最後のメッセージ送信先から返されるデータ
-   * */
+   */
   public MsgData sendMessage(BhMsg msg, MsgReceptionWindow... msgReceptionWindows) {
-
     MsgData data = null;
     for (MsgReceptionWindow msgReceptionWindow : msgReceptionWindows) {
       data = msgReceptionWindow.passMsg(msg, data);
@@ -55,19 +59,3 @@ public class MsgTransporter {
     return data;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

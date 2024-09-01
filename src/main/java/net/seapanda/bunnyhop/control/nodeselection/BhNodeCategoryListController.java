@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 K.Koike
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.seapanda.bunnyhop.control.nodeselection;
 
 import javafx.fxml.FXML;
@@ -21,6 +22,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
 import net.seapanda.bunnyhop.common.constant.Rem;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
@@ -29,7 +31,8 @@ import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryListView;
 
 /**
- * BhNode のカテゴリ選択画面のコントローラ
+ * BhNode のカテゴリ選択画面のコントローラ.
+ *
  * @author K.Koike
  */
 public class BhNodeCategoryListController implements MsgProcessor {
@@ -41,6 +44,7 @@ public class BhNodeCategoryListController implements MsgProcessor {
 
   /**
    * コントローラとビューの初期化を行う.
+   *
    * @param categoryList ノードカテゴリリストのモデル
    */
   public boolean init(BhNodeCategoryList categoryList) {
@@ -48,20 +52,20 @@ public class BhNodeCategoryListController implements MsgProcessor {
     model = categoryList;
     try {
       view = new BhNodeCategoryListView(categoryTree, model);
-    }
-    catch(ViewInitializationException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(getClass().getSimpleName() + ".init\n" + e);
+    } catch (ViewInitializationException e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(Util.INSTANCE.getCurrentMethodName() + "\n" + e);
       return false;
     }
     nodeCategoryListViewBase.setMinWidth(Region.USE_PREF_SIZE);
     nodeCategoryListViewBase.widthProperty().addListener(
-      (obs, oldVal, newVal) -> nodeCategoryListViewBase.setMinWidth(Rem.VAL * 3));
+        (obs, oldVal, newVal) -> nodeCategoryListViewBase.setMinWidth(Rem.VAL * 3));
 
     return true;
   }
 
   /**
-   * カテゴリリストのビューを返す
+   * カテゴリリストのビューを返す.
+   *
    * @return カテゴリリストのビュー
    */
   public BhNodeCategoryListView getView() {
