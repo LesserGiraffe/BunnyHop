@@ -63,7 +63,7 @@ public class TextInputNodeController extends BhNodeController {
    * @param view イベントハンドラを登録するview
    */
   public static void setTextChangeHandlers(TextNode model, TextInputNodeView view) {
-    view.setTextFormatHandler(model::formatText);
+    view.setTextFormatter(model::formatText);
     view.setTextChangeListener(model::isTextAcceptable);
     view.addFocusListener(
         (observable, oldValue, newValue) -> onFocusChanged(model, view, !newValue));

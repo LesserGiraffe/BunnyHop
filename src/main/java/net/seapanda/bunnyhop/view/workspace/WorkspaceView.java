@@ -48,7 +48,6 @@ import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.FxmlCollector;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
@@ -502,9 +501,9 @@ public class WorkspaceView extends Tab {
     scrollBarPos.y = scrollBarPos.y * (wsScrollPane.getVmax() - wsScrollPane.getVmin())
         + wsScrollPane.getVmin();
     wsScrollPane.setHvalue(
-        Util.INSTANCE.clamp(scrollBarPos.x, wsScrollPane.getHmin(), wsScrollPane.getHmax()));
+        Math.clamp(scrollBarPos.x, wsScrollPane.getHmin(), wsScrollPane.getHmax()));
     wsScrollPane.setVvalue(
-        Util.INSTANCE.clamp(scrollBarPos.y, wsScrollPane.getVmin(), wsScrollPane.getVmax()));
+        Math.clamp(scrollBarPos.y, wsScrollPane.getVmin(), wsScrollPane.getVmax()));
   }
 
   /** ズームしたワークスペース上でのノードビューの中心位置を返す. */

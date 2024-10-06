@@ -17,7 +17,6 @@
   let _jSystem = java.lang.System;
   let _jCyclicBarrier = java.util.concurrent.CyclicBarrier;
   let _jStringBuilder = java.lang.StringBuilder;
-  let _jSynchronizingTimer = net.seapanda.bunnyhop.programexecenv.lib.SynchronizingTimer;
   let _jTimeUnit = java.util.concurrent.TimeUnit;
 
   let _eventHandlers = {};
@@ -144,15 +143,13 @@
   }
 
   function _println(arg) {
-
     if (arg === _anyObj)
       arg = '';
 
-    bhInout.println(arg._toStr());
+    bhScriptHelper.io.println(arg._toStr());
   }
 
   function _sleep(sec) {
-
     if (sec <= 0)
       return;
     
@@ -168,8 +165,8 @@
   }
 
   function _scan(str) {
-    bhInout.println(str);
-    let input = bhInout.scanln();
+    bhScriptHelper.io.println(str);
+    let input = bhScriptHelper.io.scanln();
     return (input === null) ? "" : String(input);
   }
 
@@ -202,7 +199,7 @@
 
     let byteArray = _jReflectArray.newInstance(_jByteType, readByte.length);
     for (let i = 0; i < readByte.length; ++i)
-      byteArray[i] = bhScriptHelper.toByte(readByte[i]);
+      byteArray[i] = bhScriptHelper.util.toByte(readByte[i]);
 
     return new _jString(byteArray);
   }
@@ -219,7 +216,7 @@
 
       process.waitFor();
       if (checkExitVal && (process.exitValue() !== 0))
-        throw 'abnormal process end';
+        throw _newBhProgramExceptioin.call(this, 'abnormal process end');
     }
     finally {
       process.getErrorStream().close();
@@ -237,7 +234,7 @@
   }
 
   function _newBhProgramExceptioin(msg) {
-    return bhScriptHelper.newBhProgramException(this._callStack, msg);
+    return bhScriptHelper.util.newBhProgramException(this._callStack, msg);
   }
 
   //==================================================================
@@ -321,7 +318,7 @@
    * @param samplePos 基準波形の最初の取得位置
    * @return 基準波形の次の取得位置
    * */
-  function _genOneFreqWave(waveBuf, bufBegin, bufEnd, hz, amp, samplePos) {
+  function _genMonoFreqWave(waveBuf, bufBegin, bufEnd, hz, amp, samplePos) {
 
     hz = Math.round(hz);
     if (hz < 0 || hz > (samplingRate / 2))
@@ -333,12 +330,12 @@
     for (let i = bufBegin; i < bufEnd; i += bytePerSample) {
       let sample = Math.floor(amp * wave1Hz[samplePos]);
       if (isBigEndian) {
-        waveBuf[i+1] = bhScriptHelper.toByte(sample);
-        waveBuf[i] = bhScriptHelper.toByte((sample >> 8));
+        waveBuf[i+1] = bhScriptHelper.util.toByte(sample);
+        waveBuf[i] = bhScriptHelper.util.toByte((sample >> 8));
       }
       else {
-        waveBuf[i] = bhScriptHelper.toByte(sample);
-        waveBuf[i+1] = bhScriptHelper.toByte((sample >> 8));
+        waveBuf[i] = bhScriptHelper.util.toByte(sample);
+        waveBuf[i+1] = bhScriptHelper.util.toByte((sample >> 8));
       }
       samplePos += hz;
       if (samplePos > (wave1Hz.length - 1))
@@ -368,14 +365,14 @@
       if (soundLen > waveBufRemains) {
         sound.duration -= waveBufRemains / bytePerSample / samplingRate;
         let bufEnd = bufBegin + waveBufRemains;
-        samplePos = _genOneFreqWave(waveBuf, bufBegin, bufEnd, sound.hz, sound.amp * vol, samplePos);
+        samplePos = _genMonoFreqWave(waveBuf, bufBegin, bufEnd, sound.hz, sound.amp * vol, samplePos);
         bufBegin = bufEnd;
         waveBufRemains = 0;
       }
       else {
         soundList.pop();
         let bufEnd = bufBegin + soundLen;
-        samplePos = _genOneFreqWave(waveBuf, bufBegin, bufEnd, sound.hz, sound.amp * vol, samplePos);
+        samplePos = _genMonoFreqWave(waveBuf, bufBegin, bufEnd, sound.hz, sound.amp * vol, samplePos);
         bufBegin = bufEnd;
         waveBufRemains -= soundLen;
       }
@@ -499,11 +496,12 @@
   function _sayOnLinux(word) {
 
     word = word.replace(/"/g, '');
-    let talkCmd = String(_jPaths.get(bhScriptHelper.getExecPath(), 'Actions', 'bhSay.sh').toAbsolutePath().toString());
+    let path = _jPaths.get(bhScriptHelper.util.getExecPath(), 'Actions', 'bhSay.sh');
+    let talkCmd = String(path.toAbsolutePath().toString());
     let procBuilder = new _jProcBuilder('sh', talkCmd, '"' + word + '"');
     let success = false;
     try {
-      let process =  procBuilder.start();
+      let process = procBuilder.start();
       _waitProcEnd(process, false, true);
       success = true;
     }
@@ -541,9 +539,9 @@
       case 'black':
         return new _Color(0,0,0);
       default:
-        throw ('_createColorFromName invalid colorName ' + colorName);
+        throw _newBhProgramExceptioin.call(
+            this, '_createColorFromName invalid colorName ' + colorName);
     }
-    return null;
   }
 
   function _compareColors(colorA, colorB, eq) {
@@ -553,10 +551,8 @@
       return equality;
     else if (eq === 'neq')
       return !equality;
-    else
-      throw ('_compareColors invalid eq (' + eq + ')');
-
-    return null;
+    
+    throw _newBhProgramExceptioin.call(this, '_compareColors invalid eq (' + eq + ')');
   }
 
   function _addColor(left, right) {
@@ -629,12 +625,11 @@
   //              同期/排他
   //==================================================================
   function _genSyncTimer(count, autoReset) {
-
     if (count < 0 || count > 65535)
       throw _newBhProgramExceptioin.call(
         this, 'タイマーの初期値は 0 以上 65535 以下でなければなりません.  (' + count + ')');
   
-    return new _jSynchronizingTimer(count, autoReset);
+    return bhScriptHelper.util.newSyncTimer(count, autoReset);
   }
 
   function _syncTimerCountdown(timer) {

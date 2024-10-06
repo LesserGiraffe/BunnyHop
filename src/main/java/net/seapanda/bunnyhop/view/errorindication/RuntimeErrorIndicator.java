@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.view.errorindication;
 
 import java.util.Map;
-import net.seapanda.bunnyhop.bhprogram.common.BhProgramException;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 

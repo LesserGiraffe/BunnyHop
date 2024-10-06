@@ -37,7 +37,7 @@ public class ComboBoxNodeController extends BhNodeController {
   public ComboBoxNodeController(TextNode model, ComboBoxNodeView view) {
     super(model, view);
     this.view = view;
-    setItemChangeHandler(model, view);
+    setEventHandlers(model, view);
   }
 
   /**
@@ -46,7 +46,7 @@ public class ComboBoxNodeController extends BhNodeController {
    * @param model ComboBoxView に対応する model
    * @param view イベントハンドラを登録するview
    */
-  public static void setItemChangeHandler(TextNode model, ComboBoxNodeView view) {
+  public static void setEventHandlers(TextNode model, ComboBoxNodeView view) {
     view.setTextChangeListener(
         (observable, oldVal, newVal) -> checkAndSetContent(model, view, oldVal, newVal));
 

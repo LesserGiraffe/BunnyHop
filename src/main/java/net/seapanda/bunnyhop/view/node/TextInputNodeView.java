@@ -71,7 +71,7 @@ public abstract class TextInputNodeView extends BhNodeView {
    *     &nbsp;&nbsp; _2 -> 整形したテキスト
    *     </pre>
    */
-  public final void setTextFormatHandler(
+  public final void setTextFormatter(
       BiFunction<String, String, Pair<Boolean, String>> formatterFunc) {
     TextInputControl control = getTextInputControl();
     control.setTextFormatter(new TextFormatter<Object>(

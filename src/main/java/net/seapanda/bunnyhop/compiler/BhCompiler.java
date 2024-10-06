@@ -26,7 +26,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Optional;
 import javafx.scene.control.Alert;
-import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
@@ -171,7 +171,7 @@ public class BhCompiler {
     String addEventCallStat = common.genFuncCallCode(
         ScriptIdentifiers.Funcs.ADD_EVENT,
         ScriptIdentifiers.Funcs.BH_MAIN,
-        "'" + BhProgramData.Event.PROGRAM_START.toString() + "'");
+        "'" + BhProgramEvent.Name.PROGRAM_START.toString() + "'");
     addEventCallStat += ";" + Keywords.newLine;
     code.append(common.indent(1)).append(addEventCallStat).append(Keywords.newLine);
     genCodeForProgramStart(code, 1, option);

@@ -133,16 +133,6 @@ public class Util {
     return dnum * x;
   }
 
-  /**
-   * <pre>
-   * val を min から max までの間に切り詰める.
-   * 即ち, val が min 以下の場合 min を返し, max 以上の場合 max を返す.
-   * </pre>
-   */
-  public double clamp(double val, double min, double max) {
-    return Math.max(min, Math.min(max, val));
-  }
-
   /** このメソッドを呼び出したメソッド名を (クラス名.メソッド名) として返す. */
   public String getCurrentMethodName() {
     StackTraceElement[] elems = Thread.currentThread().getStackTrace();

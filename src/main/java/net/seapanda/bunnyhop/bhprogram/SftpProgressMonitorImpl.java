@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
  *
  * @author K.Koike
  */
-public class SftpProgressMonitorImpl implements SftpProgressMonitor {
+class SftpProgressMonitorImpl implements SftpProgressMonitor {
   /** 転送元. */
   private String src;
   /** 転送先. */
@@ -47,7 +47,7 @@ public class SftpProgressMonitorImpl implements SftpProgressMonitor {
    *
    * @param fileCopyIsCancelled ファイル転送キャンセルフラグ
    */
-  public SftpProgressMonitorImpl(AtomicReference<Boolean> fileCopyIsCancelled) {
+  SftpProgressMonitorImpl(AtomicReference<Boolean> fileCopyIsCancelled) {
     this.fileCopyIsCancelled = fileCopyIsCancelled;
   }
 

@@ -54,20 +54,11 @@ public class MenuBarController {
    * @param wss ワークスペースセット
    */
   public void init(WorkspaceSet wss) {
-    setSaveAsHandler(wss);
-    setSaveHandler(wss);
-    setLoadHandler(wss);
-    setFreeMemoryHandler(wss);
-    setAboutBunnyHopHandler();
-  }
-
-  /**
-   * セーブ(新規保存)ボタンのイベントハンドラを登録する.
-   *
-   * @param wss イベント時に操作するワークスペースセット
-   */
-  private void setSaveAsHandler(WorkspaceSet wss) {
-    saveAsMenu.setOnAction(action -> saveAs(wss));
+    saveAsMenu.setOnAction(action -> saveAs(wss)); // セーブ(新規保存)
+    saveMenu.setOnAction(action -> save(wss)); // 上書きセーブ
+    loadMenu.setOnAction(action -> load(wss));
+    freeMemory.setOnAction(action -> freeMemory(wss));
+    aboutBunnyHop.setOnAction(action -> showBunnyHopInfo());
   }
 
   /**
@@ -112,15 +103,6 @@ public class MenuBarController {
   }
 
   /**
-   * セーブ(上書き保存)ボタンのイベントハンドラを登録する.
-   *
-   * @param wss イベント時に操作するワークスペースセット
-   */
-  private void setSaveHandler(WorkspaceSet wss) {
-    saveMenu.setOnAction(action -> save(wss));
-  }
-
-  /**
    * 上書きセーブを行う.
    *
    * @param wss 保存時に操作するワークスペースセット
@@ -148,41 +130,35 @@ public class MenuBarController {
     }
   }
 
-  /**
-   * ロードボタンのイベントハンドラを登録する.
-   *
-   * @param wss イベント時に操作するワークスペースセット
-   */
-  private void setLoadHandler(WorkspaceSet wss) {
-    loadMenu.setOnAction(action -> {
-      FileChooser fileChooser = new FileChooser();
-      fileChooser.setTitle("開く");
-      fileChooser.setInitialDirectory(getInitDir());
-      fileChooser.getExtensionFilters().addAll(
-        new FileChooser.ExtensionFilter("BunnyHop Files", "*.bnh"),
-        new FileChooser.ExtensionFilter("All Files", "*.*"));
-      File selectedFile = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
-      boolean success = false;
-      if (selectedFile != null) {
-        success = askIfClearOldWs()
-          .map(clearWS -> {
-            boolean isLoadSuccessful = wss.load(selectedFile, clearWS);
-            if (!isLoadSuccessful) {
-              String fileName = selectedFile.getPath();
-              MsgPrinter.INSTANCE.alert(
-                  Alert.AlertType.INFORMATION,
-                  "開く",
-                  null,
-                  "ファイルを開けませんでした\n" + fileName);
-            }
-            return isLoadSuccessful;
-          })
-          .orElse(false);
-      }
-      if (success) {
-        currentSaveFile = selectedFile;
-      }
-    });
+  /** ロードボタン押下時の処理. */
+  private void load(WorkspaceSet wss) {
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setTitle("開く");
+    fileChooser.setInitialDirectory(getInitDir());
+    fileChooser.getExtensionFilters().addAll(
+      new FileChooser.ExtensionFilter("BunnyHop Files", "*.bnh"),
+      new FileChooser.ExtensionFilter("All Files", "*.*"));
+    File selectedFile = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
+    boolean success = false;
+    if (selectedFile != null) {
+      success = askIfClearOldWs()
+        .map(clearWS -> {
+          boolean isLoadSuccessful = wss.load(selectedFile, clearWS);
+          if (!isLoadSuccessful) {
+            String fileName = selectedFile.getPath();
+            MsgPrinter.INSTANCE.alert(
+                Alert.AlertType.INFORMATION,
+                "開く",
+                null,
+                "ファイルを開けませんでした\n" + fileName);
+          }
+          return isLoadSuccessful;
+        })
+        .orElse(false);
+    }
+    if (success) {
+      currentSaveFile = selectedFile;
+    }
   }
 
   /**
@@ -230,43 +206,26 @@ public class MenuBarController {
     });
   }
 
-  /**
-   * アプリケーションのメモリ解放時のハンドラをセットする.
-   *
-   * @param wss ワークスペースセット
-   */
-  private void setFreeMemoryHandler(WorkspaceSet wss) {
-    freeMemory.setOnAction(action -> {
-      ModelExclusiveControl.INSTANCE.lockForModification();
-      try {
-        freeMemory(wss);
-      } finally {
-        ModelExclusiveControl.INSTANCE.unlockForModification();
-      }
-    });
-  }
-
-  /**
-   * アプリケーションのメモリを解放する.
-   *
-   * @param wss ワークスペースセット
-   */
+  /** アプリケーションが使用しているメモリを開放する. */
   private void freeMemory(WorkspaceSet wss) {
-    MsgService.INSTANCE.deleteUndoRedoCommand(wss);
-    MsgPrinter.INSTANCE.msgForUser("メモリを解放しました\n");
-    System.gc();
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      MsgService.INSTANCE.deleteUndoRedoCommand(wss);
+      MsgPrinter.INSTANCE.msgForUser("メモリを解放しました\n");
+      System.gc();
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
   }
 
-  /** BunnyHopの基本情報を表示するハンドラを登録する. */
-  private void setAboutBunnyHopHandler() {
-    aboutBunnyHop.setOnAction(action -> {
-      String content = "Version: " + VersionInfo.APP_VERSION;
-      MsgPrinter.INSTANCE.alert(
-          Alert.AlertType.INFORMATION,
-          "BunnyHopについて",
-          null,
-          content);
-    });
+  /** BunnyHopの基本情報を表示する. */
+  private void showBunnyHopInfo() {
+    String content = "Version: " + VersionInfo.APP_VERSION;
+    MsgPrinter.INSTANCE.alert(
+        Alert.AlertType.INFORMATION,
+        "BunnyHopについて",
+        null,
+        content);
   }
 
   /**

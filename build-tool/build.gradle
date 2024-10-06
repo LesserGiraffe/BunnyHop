@@ -16,6 +16,7 @@ plugins {
 
 repositories {
   mavenCentral()
+  maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -31,6 +32,7 @@ dependencies {
   implementation "com.badlogicgames.gdx:gdx-bullet:1.12.1"
   implementation "com.badlogicgames.gdx:gdx-freetype:1.12.1"
   implementation "com.kotcrab.vis:vis-ui:1.5.3"
+  implementation "com.github.mgsx-dev.gdx-gltf:gltf:2.2.1"
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -45,7 +47,6 @@ tasks.withType(JavaCompile) {
 }
 
 ext.jarName = 'bunnyhop.jar'
-ext.bhProgramExecModName = 'net.seapanda.bhprogramexecenv'
 ext.USR_HOME = System.getProperty('user.home')
 ext.JDK_VER = 21
 ext.appDirName = 'App';
@@ -54,8 +55,9 @@ ext.fs = File.separator
 ext.projName = 'BunnyHop'
 ext.jarLibName = 'Jlib'
 
-ext.bhProgramExecEnvJarName = 'BhProgramExecEnvironment.jar'
-ext.bhProgramExecEnvMainClass = 'net.seapanda.bunnyhop.programexecenv.BhProgramExecEnvironment'
+ext.bhRuntimeJarName = 'bhruntimelib.jar'
+ext.bhSimulatorJarName = 'bhsimulator.jar'
+ext.bhRuntimeMainClass = 'net.seapanda.bunnyhop.runtime.AppMain'
 ext.bhProgramName = 'BhAppScript.js'
 
 application {
@@ -74,7 +76,7 @@ task prepareLibs(type: Copy) {
 
   doLast {
     ant.copy(todir: "$projectDir/../$appDirName/$jarLibName") {
-      fileset(dir: "$projectDir/..", includes: "$bhProgramExecEnvJarName")
+      fileset(dir: "$projectDir/..", includes: "$bhSimulatorJarName,$bhRuntimeJarName")
     }
   }
 }
@@ -88,9 +90,10 @@ sourceSets {
 }
 
 compileJava {
+  classpath += fileTree("$projectDir/../$appDirName/$jarLibName") { include "*.jar" }
   options.incremental = true
   options.fork = true
-  options.failOnError = false
+  options.failOnError = true
   options.forkOptions.executable = USR_HOME + '/java/' + JDK_VER + '/jdk/bin/javac.exe'
 }
 
@@ -161,7 +164,7 @@ task runBhProgram(type: Exec) {
     commandLine (
       "$projectDir/../$projName/bin/java",
       '-cp', ("$projectDir/../$appDirName/$jarLibName/*"),
-      bhProgramExecEnvMainClass,
+      bhRuntimeMainClass,
       '-run', "$bhProgramName")
   }
 }

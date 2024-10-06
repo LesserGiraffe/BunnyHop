@@ -34,10 +34,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
-import net.seapanda.bunnyhop.bhprogram.BhProgramExecEnvError;
-import net.seapanda.bunnyhop.bhprogram.LocalBhProgramManager;
-import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramManager;
-import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
+import net.seapanda.bunnyhop.bhprogram.BhProgramService;
+import net.seapanda.bunnyhop.bhprogram.BhRuntimeStatus;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.InputTextCmd;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhParams;
@@ -138,326 +137,248 @@ public class MenuOperationController {
    * @param workspaceSetTab ワークスペース表示用のタブペイン
    */
   public void init(WorkspaceSet wss, TabPane workspaceSetTab) {
-    setCutHandler(wss);  // カット
-    setCopyHandler(wss);  // コピー
-    setPasteHandler(wss, workspaceSetTab);  // ペースト
-    setDeleteHandler(wss);  // デリート
-    setJumpHandler(wss);  // ジャンプ
-    setUndoHandler(wss);  // アンドゥ
-    setRedoHandler(wss);  // リドゥ
-    setZoomInHandler(wss);  // ズームイン
-    setZoomOutHandler(wss);  // ズームアウト
-    setWidenHandler(wss);  // ワークスペースの範囲拡大
-    setNarrowHandler(wss);  // ワークスペースの範囲縮小
-    setAddWorkspaceHandler(wss); // ワークスペース追加
-    setExecuteHandler(wss);
-    setTerminateHandler();
-    setConnectHandler();
-    setDisconnectHandler();
-    setSendHandler();
-    setRemoteLocalSelectHandler();
+    copyBtn.setOnAction(action -> copy(wss)); // コピー
+    cutBtn.setOnAction(action -> cut(wss)); // カット
+    pasteBtn.setOnAction(action -> paste(wss, workspaceSetTab)); // ペースト
+    deleteBtn.setOnAction(action -> delete(wss));
+    jumpBtn.setOnAction(action -> jump(wss)); // ジャンプ
+    undoBtn.setOnAction(action -> undo(wss)); // アンドゥ
+    redoBtn.setOnAction(action -> redo(wss)); // リドゥ
+    zoomInBtn.setOnAction(action -> zoomIn(wss)); // ズームイン
+    zoomOutBtn.setOnAction(action -> zoomOut(wss)); // ズームアウト
+    widenBtn.setOnAction(action -> widen(wss)); // ワークスペースの領域拡大
+    narrowBtn.setOnAction(action -> narrow(wss)); // ワークスペースの領域縮小
+    addWorkspaceBtn.setOnAction(action -> addWorkspace(wss)); // ワークスペース追加
+    executeBtn.setOnAction(action -> execute(wss)); // プログラム実行
+    terminateBtn.setOnAction(action -> terminate()); // プログラム終了
+    connectBtn.setOnAction(action -> connect()); // 接続
+    disconnectBtn.setOnAction(action -> disconnect()); // 切断
+    sendBtn.setOnAction(action -> send()); // 送信
+    remotLocalSelectBtn.selectedProperty()
+        .addListener((observable, oldVal, newVal) -> switchRemoteLocal(newVal));
     setHandlersToChangeButtonEnable(wss);
   }
 
-  /**
-   * コピーボタン押下時のイベントハンドラを登録する.
-   *
-   * @param wss イベント発生時に操作するワークスペースセット
-   */
-  private void setCopyHandler(WorkspaceSet wss) {
-    copyBtn.setOnAction(action -> {
-      ModelExclusiveControl.INSTANCE.lockForModification();
-      try {
-        Workspace currentWs = wss.getCurrentWorkspace();
-        if (currentWs == null) {
-          return;
-        }
+  /** コピーボタン押下時の処理. */
+  private void copy(WorkspaceSet wss) {
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      Workspace currentWs = wss.getCurrentWorkspace();
+      if (currentWs == null) {
+        return;
+      }
+      UserOperationCommand userOpeCmd = new UserOperationCommand();
+      wss.addNodesToCopyList(currentWs.getSelectedNodeList(), userOpeCmd);
+      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
+  }
+
+  /** カットボタン押下時の処理. */
+  private void cut(WorkspaceSet wss) {
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      Workspace currentWs = wss.getCurrentWorkspace();
+      if (currentWs == null) {
+        return;
+      }
+      UserOperationCommand userOpeCmd = new UserOperationCommand();
+      wss.addNodesToCutList(currentWs.getSelectedNodeList(), userOpeCmd);
+      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
+  }
+
+  /** ペーストボタン押下時の処理. */
+  private void paste(WorkspaceSet wss, TabPane workspaceSetTab) {
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      Workspace currentWs = wss.getCurrentWorkspace();
+      if (currentWs == null) {
+        return;
+      }
+      javafx.geometry.Point2D pos =
+          workspaceSetTab.localToScene(0, workspaceSetTab.getHeight() / 3.0);
+      Vec2D localPos = MsgService.INSTANCE.sceneToWorkspace(pos.getX(), pos.getY(), currentWs);
+      double pastePosX = localPos.x + BhParams.LnF.REPLACED_NODE_SHIFT * 2;
+      double pastePosY = localPos.y;
+      wss.paste(currentWs, new Vec2D(pastePosX, pastePosY));
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
+  }
+
+  /** デリートボタン押下時の処理. */
+  private void delete(WorkspaceSet wss) {
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      Workspace currentWs = wss.getCurrentWorkspace();
+      if (currentWs == null) {
+        return;
+      }
+      UserOperationCommand userOpeCmd = new UserOperationCommand();
+      var candidates = currentWs.getSelectedNodeList();
+      var nodesToDelete = candidates.stream()
+          .filter(node -> node.getEventDispatcher().execOnDeletionRequested(
+              candidates, CauseOfDeletion.SELECTED_FOR_DELETION, userOpeCmd))
+          .collect(Collectors.toCollection(ArrayList::new));
+      List<Pair<BhNode, BhNode>> oldAndNewNodeList =
+          BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
+      for (var oldAndNewNode : oldAndNewNodeList) {
+        BhNode oldNode = oldAndNewNode.v1;
+        BhNode newNode = oldAndNewNode.v2;
+        newNode.findParentNode().execOnChildReplaced(
+            oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
+      }
+      DelayedDeleter.INSTANCE.deleteAll(userOpeCmd);
+      SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
+      SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
+      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
+  }
+
+  /** ジャンプボタン押下時の処理. */
+  private void jump(WorkspaceSet wss) {
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      findNodeToJumpTo(wss).ifPresent(node -> {
+        MsgService.INSTANCE.lookAt(node);
         UserOperationCommand userOpeCmd = new UserOperationCommand();
-        wss.addNodesToCopyList(currentWs.getSelectedNodeList(), userOpeCmd);
+        node.getWorkspace().clearSelectedNodeList(userOpeCmd);
+        node.getWorkspace().addSelectedNode(node, userOpeCmd);
         BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-      } finally {
-        ModelExclusiveControl.INSTANCE.unlockForModification();
-      }
-    });
-  }
-
-  /**
-   * カットボタン押下時のイベントハンドラを登録する.
-   *
-   * @param wss イベント発生時に操作するワークスペースセット
-   */
-  private void setCutHandler(WorkspaceSet wss) {
-    cutBtn.setOnAction(action -> {
-      ModelExclusiveControl.INSTANCE.lockForModification();
-      try {
-        Workspace currentWs = wss.getCurrentWorkspace();
-        if (currentWs == null) {
-          return;
-        }
-        UserOperationCommand userOpeCmd = new UserOperationCommand();
-        wss.addNodesToCutList(currentWs.getSelectedNodeList(), userOpeCmd);
-        BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-      } finally {
-        ModelExclusiveControl.INSTANCE.unlockForModification();
-      }
-    });
-  }
-
-  /**
-   * ペーストボタン押下時のイベントハンドラを登録する.
-   *
-   * @param wss イベント発生時に操作するワークスペースセット
-   * @param workspaceSetTab ワークスペースセットに対応するタブペイン
-   */
-  private void setPasteHandler(WorkspaceSet wss, TabPane workspaceSetTab) {
-    pasteBtn.setOnAction(action -> {
-      ModelExclusiveControl.INSTANCE.lockForModification();
-      try {
-        Workspace currentWs = wss.getCurrentWorkspace();
-        if (currentWs == null) {
-          return;
-        }
-        javafx.geometry.Point2D pos =
-            workspaceSetTab.localToScene(0, workspaceSetTab.getHeight() / 3.0);
-        Vec2D localPos = MsgService.INSTANCE.sceneToWorkspace(pos.getX(), pos.getY(), currentWs);
-        double pastePosX = localPos.x + BhParams.LnF.REPLACED_NODE_SHIFT * 2;
-        double pastePosY = localPos.y;
-        wss.paste(currentWs, new Vec2D(pastePosX, pastePosY));
-      } finally {
-        ModelExclusiveControl.INSTANCE.unlockForModification();
-      }
-    });
-  }
-
-  /**
-   * デリートボタン押下時のイベントハンドラを登録する.
-   *
-   * @param wss イベント発生時に操作するワークスペースセット
-   */
-  private void setDeleteHandler(WorkspaceSet wss) {
-    deleteBtn.setOnAction(action -> {
-      ModelExclusiveControl.INSTANCE.lockForModification();
-      try {
-        Workspace currentWs = wss.getCurrentWorkspace();
-        if (currentWs == null) {
-          return;
-        }
-        UserOperationCommand userOpeCmd = new UserOperationCommand();
-        var candidates = currentWs.getSelectedNodeList();
-        var nodesToDelete = candidates.stream()
-            .filter(node -> node.getEventDispatcher().execOnDeletionRequested(
-                candidates, CauseOfDeletion.SELECTED_FOR_DELETION, userOpeCmd))
-            .collect(Collectors.toCollection(ArrayList::new));
-        List<Pair<BhNode, BhNode>> oldAndNewNodeList =
-            BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
-        for (var oldAndNewNode : oldAndNewNodeList) {
-          BhNode oldNode = oldAndNewNode.v1;
-          BhNode newNode = oldAndNewNode.v2;
-          newNode.findParentNode().execOnChildReplaced(
-              oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
-        }
-        DelayedDeleter.INSTANCE.deleteAll(userOpeCmd);
-        SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
-        SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
-        BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-      } finally {
-        ModelExclusiveControl.INSTANCE.unlockForModification();
-      }
-    });
-  }
-
-  /**
-   * ジャンプボタン押下時のイベントハンドラを登録する.
-   *
-   * @param wss イベント発生時に操作するワークスペースセット
-   */
-  private void setJumpHandler(WorkspaceSet wss) {
-    jumpBtn.setOnAction(action -> {
-      ModelExclusiveControl.INSTANCE.lockForModification();
-      try {
-        findNodeToJumpTo(wss).ifPresent(node -> {
-          MsgService.INSTANCE.lookAt(node);
-          UserOperationCommand userOpeCmd = new UserOperationCommand();
-          node.getWorkspace().clearSelectedNodeList(userOpeCmd);
-          node.getWorkspace().addSelectedNode(node, userOpeCmd);
-          BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-        });
-      } finally {
-        ModelExclusiveControl.INSTANCE.unlockForModification();
-      }
-    });
-  }
-
-  /**
-   * アンドゥボタン押下時のイベントハンドラを登録する.
-   *
-   * @param wss イベント発生時に操作するワークスペースセット
-   */
-  private void setUndoHandler(WorkspaceSet wss) {
-    undoBtn.setOnAction(action -> {
-      ModelExclusiveControl.INSTANCE.lockForModification();
-      try {
-        MsgTransporter.INSTANCE.sendMessage(BhMsg.UNDO, wss);
-      } finally {
-        ModelExclusiveControl.INSTANCE.unlockForModification();
-      }
-    });
-  }
-
-  /**
-   * リドゥボタン押下時のイベントハンドラを登録する.
-   *
-   * @param wss イベント発生時に操作するワークスペースセット
-   */
-  private void setRedoHandler(WorkspaceSet wss) {
-    redoBtn.setOnAction(action -> {
-      ModelExclusiveControl.INSTANCE.lockForModification();
-      try {
-        MsgTransporter.INSTANCE.sendMessage(BhMsg.REDO, wss);
-      } finally {
-        ModelExclusiveControl.INSTANCE.unlockForModification();
-      }
-    });
-  }
-
-  /**
-   * ズームインボタン押下時のイベントハンドラを登録する.
-   *
-   * @param wss イベント発生時に操作するワークスペースセット
-   */
-  private void setZoomInHandler(WorkspaceSet wss) {
-    zoomInBtn.setOnAction(action -> {
-      if (BhNodeSelectionService.INSTANCE.isAnyShowed()) {
-        BhNodeSelectionService.INSTANCE.zoomAll(true);
-        return;
-      }
-      Workspace currentWs = wss.getCurrentWorkspace();
-      if (currentWs == null) {
-        return;
-      }
-      MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(true), currentWs);
-    });
-  }
-
-  /**
-   * ズームインボタン押下時のイベントハンドラを登録する.
-   *
-   * @param wss イベント発生時に操作するワークスペースセット
-   */
-  private void setZoomOutHandler(WorkspaceSet wss) {
-    zoomOutBtn.setOnAction(action -> {
-      if (BhNodeSelectionService.INSTANCE.isAnyShowed()) {
-        BhNodeSelectionService.INSTANCE.zoomAll(false);
-        return;
-      }
-      Workspace currentWs = wss.getCurrentWorkspace();
-      if (currentWs == null) {
-        return;
-      }
-      MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(false), currentWs);
-    });
-  }
-
-  /**
-   * ワークスペース拡大ボタンのイベントハンドラを登録する.
-   *
-   * @param wss イベント発生時に操作するワークスペースセット
-   */
-  private void setWidenHandler(WorkspaceSet wss) {
-    widenBtn.setOnAction(action -> {
-      Workspace currentWs = wss.getCurrentWorkspace();
-      if (currentWs == null) {
-        return;
-      }
-      MsgTransporter.INSTANCE.sendMessage(
-          BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(true), currentWs);
-    });
-  }
-
-  /**
-   * ワークスペース縮小ボタンのイベントハンドラを登録する.
-   *
-   * @param wss イベント発生時に操作するワークスペースセット
-   */
-  private void setNarrowHandler(WorkspaceSet wss) {
-    narrowBtn.setOnAction(action -> {
-      Workspace currentWs = wss.getCurrentWorkspace();
-      if (currentWs == null) {
-        return;
-      }
-      MsgTransporter.INSTANCE.sendMessage(
-          BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(false), currentWs);
-    });
-  }
-
-  /**
-   * ワークスペース追加ボタンのイベントハンドラを登録する.
-   *
-   * @param wss イベント発生時に操作するワークスペースセット
-   */
-  private void setAddWorkspaceHandler(WorkspaceSet wss) {
-    addWorkspaceBtn.setOnAction(action -> {
-      ModelExclusiveControl.INSTANCE.lockForModification();
-      try {
-        String defaultWsName = "ワークスペース" + (wss.getWorkspaceList().size() + 1);
-        TextInputDialog dialog = new TextInputDialog(defaultWsName);
-        dialog.setTitle("ワークスペースの作成");
-        dialog.setHeaderText(null);
-        dialog.setContentText("ワークスペース名を入力してください");
-        dialog.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
-        Optional<String> inputText = dialog.showAndWait();
-        inputText.ifPresent(wsName -> {
-          UserOperationCommand userOpeCmd = new UserOperationCommand();
-          BunnyHop.INSTANCE.addNewWorkSpace(
-              wsName,
-              BhParams.LnF.DEFAULT_WORKSPACE_WIDTH,
-              BhParams.LnF.DEFAULT_WORKSPACE_HEIGHT,
-              userOpeCmd);
-          BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-        });
-      } finally {
-        ModelExclusiveControl.INSTANCE.unlockForModification();
-      }
-    });
-  }
-
-  /**
-   * 実行ボタンのイベントハンドラを登録する.
-   *
-   * @param wss イベント発生時に操作するワークスペースセット
-   */
-  private void setExecuteHandler(WorkspaceSet wss) {
-    executeBtn.setOnAction(action -> {
-      ModelExclusiveControl.INSTANCE.lockForRead();
-      Optional<Pair<NodeGraphSnapshot, BhNode>> snapshotAndNodeToExecOpt = Optional.empty();
-      try {
-        if (preparingForExecution.get()) {
-          MsgPrinter.INSTANCE.errMsgForUser("!! 実行準備中 !!\n");
-          return;
-        }
-        BhNodeSelectionService.INSTANCE.hideAll();
-        var userOpeCmd = new UserOperationCommand();
-        var imitToDelete = wss.getWorkspaceList().stream()
-            .flatMap(ws -> ws.getRootNodeList().stream())
-            .flatMap(rootNode -> TemplateImitationCollector.collect(rootNode).stream())
-            .collect(Collectors.toCollection(ArrayList::new));
-        BhNodeHandler.INSTANCE.deleteNodes(imitToDelete, new UserOperationCommand());
-        snapshotAndNodeToExecOpt = CompileNodeCollector.collect(wss, userOpeCmd);
-        BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-      } finally {
-        ModelExclusiveControl.INSTANCE.unlockForRead();
-      }
-      if (snapshotAndNodeToExecOpt.isEmpty()) {
-        return;
-      }
-      preparingForExecution.set(true);
-      var snapshotAndNodeToExec = snapshotAndNodeToExecOpt.get();
-      compileExec.submit(() -> {
-        Optional<Path> srcFilePath = compile(snapshotAndNodeToExec);
-        srcFilePath.ifPresentOrElse(
-            this::execute,
-            () -> preparingForExecution.set(false));
       });
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
+  }
+
+  /** アンドゥボタン押下時の処理. */
+  private void undo(WorkspaceSet wss) {
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      MsgTransporter.INSTANCE.sendMessage(BhMsg.UNDO, wss);
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
+  }
+
+  /** リドゥボタン押下時の処理. */
+  private void redo(WorkspaceSet wss) {
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      MsgTransporter.INSTANCE.sendMessage(BhMsg.REDO, wss);
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
+  }
+
+  /** ズームインボタン押下時の処理. */
+  private void zoomIn(WorkspaceSet wss) {
+    if (BhNodeSelectionService.INSTANCE.isAnyShowed()) {
+      BhNodeSelectionService.INSTANCE.zoomAll(true);
+      return;
+    }
+    Workspace currentWs = wss.getCurrentWorkspace();
+    if (currentWs == null) {
+      return;
+    }
+    MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(true), currentWs);
+  }
+
+  /** ズームインボタン押下時の処理. */
+  private void zoomOut(WorkspaceSet wss) {
+    if (BhNodeSelectionService.INSTANCE.isAnyShowed()) {
+      BhNodeSelectionService.INSTANCE.zoomAll(false);
+      return;
+    }
+    Workspace currentWs = wss.getCurrentWorkspace();
+    if (currentWs == null) {
+      return;
+    }
+    MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(false), currentWs);
+  }
+
+  /** ワークスペース拡大ボタン押下時の処理. */
+  private void widen(WorkspaceSet wss) {
+    Workspace currentWs = wss.getCurrentWorkspace();
+    if (currentWs == null) {
+      return;
+    }
+    MsgTransporter.INSTANCE.sendMessage(
+        BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(true), currentWs);
+  }
+
+  /** ワークスペース縮小ボタン押下時の処理. */
+  private void narrow(WorkspaceSet wss) {
+    Workspace currentWs = wss.getCurrentWorkspace();
+    if (currentWs == null) {
+      return;
+    }
+    MsgTransporter.INSTANCE.sendMessage(
+        BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(false), currentWs);
+  }
+
+  /** ワークスペース追加ボタン押下時の処理. */
+  private void addWorkspace(WorkspaceSet wss) {
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      String defaultWsName = "ワークスペース" + (wss.getWorkspaceList().size() + 1);
+      TextInputDialog dialog = new TextInputDialog(defaultWsName);
+      dialog.setTitle("ワークスペースの作成");
+      dialog.setHeaderText(null);
+      dialog.setContentText("ワークスペース名を入力してください");
+      dialog.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
+      Optional<String> inputText = dialog.showAndWait();
+      inputText.ifPresent(wsName -> {
+        UserOperationCommand userOpeCmd = new UserOperationCommand();
+        BunnyHop.INSTANCE.addNewWorkSpace(
+            wsName,
+            BhParams.LnF.DEFAULT_WORKSPACE_WIDTH,
+            BhParams.LnF.DEFAULT_WORKSPACE_HEIGHT,
+            userOpeCmd);
+        BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+      });
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
+  }
+
+  /** 実行ボタン押下時の処理. */
+  private void execute(WorkspaceSet wss) {
+    ModelExclusiveControl.INSTANCE.lockForRead();
+    Optional<Pair<NodeGraphSnapshot, BhNode>> snapshotAndNodeToExecOpt = Optional.empty();
+    try {
+      if (preparingForExecution.get()) {
+        MsgPrinter.INSTANCE.errMsgForUser("!! 実行準備中 !!\n");
+        return;
+      }
+      BhNodeSelectionService.INSTANCE.hideAll();
+      var userOpeCmd = new UserOperationCommand();
+      var imitToDelete = wss.getWorkspaceList().stream()
+          .flatMap(ws -> ws.getRootNodeList().stream())
+          .flatMap(rootNode -> TemplateImitationCollector.collect(rootNode).stream())
+          .collect(Collectors.toCollection(ArrayList::new));
+      BhNodeHandler.INSTANCE.deleteNodes(imitToDelete, new UserOperationCommand());
+      snapshotAndNodeToExecOpt = CompileNodeCollector.collect(wss, userOpeCmd);
+      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForRead();
+    }
+    if (snapshotAndNodeToExecOpt.isEmpty()) {
+      return;
+    }
+    preparingForExecution.set(true);
+    var snapshotAndNodeToExec = snapshotAndNodeToExecOpt.get();
+    compileExec.submit(() -> {
+      Optional<Path> srcFilePath = compile(snapshotAndNodeToExec);
+      srcFilePath.ifPresentOrElse(
+          this::execute,
+          () -> preparingForExecution.set(false));
     });
   }
 
@@ -494,73 +415,67 @@ public class MenuOperationController {
    */
   private Future<Boolean> startProgram(Path filePath) {
     if (isLocalHost()) {
-      return LocalBhProgramManager.INSTANCE.executeAsync(
+      return BhProgramService.local().executeAsync(
           filePath, BhParams.ExternalApplication.LOLCAL_HOST);
     }
-    return RemoteBhProgramManager.INSTANCE.executeAsync(
+    return BhProgramService.remote().executeAsync(
       filePath, ipAddrTextField.getText(), unameTextField.getText(), passwordTextField.getText());
   }
 
-  /** 終了ボタンのイベントハンドラを登録する. */
-  private void setTerminateHandler() {
-    terminateBtn.setOnAction(action -> {
-      if (preparingForTermination.get()) {
-        MsgPrinter.INSTANCE.errMsgForUser("!! 終了準備中 !!\n");
-        return;
-      }
-      Future<Boolean> future;
-      if (isLocalHost()) {
-        future = LocalBhProgramManager.INSTANCE.terminateAsync();
-      } else {
-        future = RemoteBhProgramManager.INSTANCE.terminateAsync();
-      }
-      preparingForTermination.set(true);
-      waitTaskExec.submit(() -> {
-        waitForTaskToComplete(future, "Terminate");
-        preparingForTermination.set(false);
-      });
+  /** 終了ボタン押下時の処理. */
+  private void terminate() {
+    if (preparingForTermination.get()) {
+      MsgPrinter.INSTANCE.errMsgForUser("!! 終了準備中 !!\n");
+      return;
+    }
+    Future<Boolean> future;
+    if (isLocalHost()) {
+      future = BhProgramService.local().terminateAsync();
+    } else {
+      future = BhProgramService.remote().terminateAsync();
+    }
+    preparingForTermination.set(true);
+    waitTaskExec.submit(() -> {
+      waitForTaskToComplete(future, "Terminate");
+      preparingForTermination.set(false);
     });
   }
 
-  /** 切断ボタンのイベントハンドラを登録する. */
-  private void setDisconnectHandler() {
-    disconnectBtn.setOnAction(action -> {
-      if (disconnecting.get()) {
-        MsgPrinter.INSTANCE.errMsgForUser("!! 切断準備中 !!\n");
-        return;
-      }
-      Future<Boolean> future;
-      if (isLocalHost()) {
-        future = LocalBhProgramManager.INSTANCE.disconnectAsync();
-      } else {
-        future = RemoteBhProgramManager.INSTANCE.disconnectAsync();
-      }
-      disconnecting.set(true);
-      waitTaskExec.submit(() -> {
-        waitForTaskToComplete(future, "Disconnect");
-        disconnecting.set(false);
-      });
+  /** 切断ボタン押下時の処理. */
+  private void disconnect() {
+    if (disconnecting.get()) {
+      MsgPrinter.INSTANCE.errMsgForUser("!! 切断準備中 !!\n");
+      return;
+    }
+    Future<Boolean> future;
+    if (isLocalHost()) {
+      future = BhProgramService.local().disconnectAsync();
+    } else {
+      future = BhProgramService.remote().disconnectAsync();
+    }
+    disconnecting.set(true);
+    waitTaskExec.submit(() -> {
+      waitForTaskToComplete(future, "Disconnect");
+      disconnecting.set(false);
     });
   }
 
-  /** 接続ボタンのイベントハンドラを登録する. */
-  private void setConnectHandler() {
-    connectBtn.setOnAction(action -> {
-      if (connecting.get()) {
-        MsgPrinter.INSTANCE.errMsgForUser("!! 接続準備中 !!\n");
-        return;
-      }
-      Future<Boolean> future;
-      if (isLocalHost()) {
-        future = LocalBhProgramManager.INSTANCE.connectAsync();
-      } else {
-        future = RemoteBhProgramManager.INSTANCE.connectAsync();
-      }
-      connecting.set(true);
-      waitTaskExec.submit(() -> {
-        waitForTaskToComplete(future, "Connect");
-        connecting.set(false);
-      });
+  /** 接続ボタン押下時の処理. */
+  private void connect() {
+    if (connecting.get()) {
+      MsgPrinter.INSTANCE.errMsgForUser("!! 接続準備中 !!\n");
+      return;
+    }
+    Future<Boolean> future;
+    if (isLocalHost()) {
+      future = BhProgramService.local().connectAsync();
+    } else {
+      future = BhProgramService.remote().connectAsync();
+    }
+    connecting.set(true);
+    waitTaskExec.submit(() -> {
+      waitForTaskToComplete(future, "Connect");
+      connecting.set(false);
     });
   }
 
@@ -581,51 +496,46 @@ public class MenuOperationController {
     return null;
   }
 
-  /** 送信ボタンのイベントハンドラを登録する. */
-  private void setSendHandler() {
-    sendBtn.setOnAction(action -> {
-      BhProgramExecEnvError errCode;
-      if (isLocalHost()) {
-        errCode = LocalBhProgramManager.INSTANCE.sendAsync(
-          new BhProgramData(BhProgramData.Type.INPUT_STR, stdInTextField.getText()));
-      } else {
-        errCode = RemoteBhProgramManager.INSTANCE.sendAsync(
-          new BhProgramData(BhProgramData.Type.INPUT_STR, stdInTextField.getText()));
-      }
-      switch (errCode) {
-        case SEND_QUEUE_FULL:
-          MsgPrinter.INSTANCE.errMsgForUser("!! 送信失敗 (送信データ追加失敗) !!\n");
-          break;
+  /** 送信ボタン押下時の処理. */
+  private void send() throws AssertionError {
+    BhRuntimeStatus status;
+    var cmd = new InputTextCmd(stdInTextField.getText());
+    if (isLocalHost()) {
+      status = BhProgramService.local().sendAsync(cmd);
+    } else {
+      status = BhProgramService.remote().sendAsync(cmd);
+    }
+    switch (status) {
+      case SEND_QUEUE_FULL:
+        MsgPrinter.INSTANCE.errMsgForUser("!! 送信失敗 (送信データ追加失敗) !!\n");
+        break;
 
-        case SEND_WHEN_DISCONNECTED:
-          MsgPrinter.INSTANCE.errMsgForUser("!! 送信失敗 (未接続) !!\n");
-          break;
+      case SEND_WHEN_DISCONNECTED:
+        MsgPrinter.INSTANCE.errMsgForUser("!! 送信失敗 (未接続) !!\n");
+        break;
 
-        case SUCCESS:
-          MsgPrinter.INSTANCE.errMsgForUser("-- 送信完了 --\n");
-          break;
+      case SUCCESS:
+        MsgPrinter.INSTANCE.errMsgForUser("-- 送信完了 --\n");
+        break;
 
-        default:
-          throw new AssertionError("invalid error code" + errCode);
-      }
-    });
+      default:
+        throw new AssertionError("invalid status code" + status);
+    }
   }
 
-  /** リモート/セレクトを切り替えた時のイベントハンドラを登録する. */
-  private void setRemoteLocalSelectHandler() {
-    remotLocalSelectBtn.selectedProperty().addListener((observable, oldVal, newVal) -> {
-      if (newVal) {
-        ipAddrTextField.setDisable(false);
-        unameTextField.setDisable(false);
-        passwordTextField.setDisable(false);
-        remotLocalSelectBtn.setText("リモート");
-      } else {
-        ipAddrTextField.setDisable(true);
-        unameTextField.setDisable(true);
-        passwordTextField.setDisable(true);
-        remotLocalSelectBtn.setText("ローカル");
-      }
-    });
+  /** リモート/セレクトを切り替えた時の処理. */
+  private void switchRemoteLocal(Boolean newVal) {
+    if (newVal) {
+      ipAddrTextField.setDisable(false);
+      unameTextField.setDisable(false);
+      passwordTextField.setDisable(false);
+      remotLocalSelectBtn.setText("リモート");
+    } else {
+      ipAddrTextField.setDisable(true);
+      unameTextField.setDisable(true);
+      passwordTextField.setDisable(true);
+      remotLocalSelectBtn.setText("ローカル");
+    }
   }
 
   /** ボタンの有効/無効状態を変化させるイベントハンドラを設定する. */
@@ -660,7 +570,7 @@ public class MenuOperationController {
     return Optional.ofNullable(currentWs.getSelectedNodeList().get(0).getOriginal());
   }
 
-  /** IPアドレス入力欄にローカルホストが指定してある場合 true を返す. */
+  /** IP アドレス入力欄にローカルホストが指定してある場合 true を返す. */
   public boolean isLocalHost() {
     return !remotLocalSelectBtn.isSelected();
   }

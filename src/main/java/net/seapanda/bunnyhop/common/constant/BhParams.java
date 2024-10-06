@@ -32,9 +32,9 @@ public class BhParams {
   /** Look & Feel. */
   public static class LnF {
     /** 起動時の画面幅のディスプレイに対する割合. */
-    public static final double DEFAULT_APP_WIDTH_RATE = 0.8;
+    public static final double DEFAULT_APP_WIDTH_RATE = 0.6;
     /** 起動時の画面高さのディスプレイに対する割合. */
-    public static final double DEFAULT_APP_HEIGHT_RATE = 0.8;
+    public static final double DEFAULT_APP_HEIGHT_RATE = 0.6;
     public static final double DEFAULT_WORKSPACE_WIDTH = 200 * Rem.VAL;
     public static final double DEFAULT_WORKSPACE_HEIGHT = 200 * Rem.VAL;
     /** ワークスペースとメッセージエリアを分けるディバイダの初期位置. */
@@ -309,23 +309,28 @@ public class BhParams {
   /** BunnyHopと連携する外部プログラム関連のパラメータ. */
   public static class ExternalApplication {
 
-    public static final String BH_PROGRAM_EXEC_ENV_JAR = "BhProgramExecEnvironment.jar";
-    public static final String BH_PROGRAM_EXEC_MOD_NAME = "net.seapanda.bhprogramexecenv";
+    public static final String BH_PROGRAM_RUNTIME_JAR = "bhruntimelib.jar";
     public static final String BH_PROGRAM_EXEC_MAIN_CLASS = 
-        "net.seapanda.bunnyhop.programexecenv.BhProgramExecEnvironment";
-    /** リモートのBhProgramExecEnvironment終了待ちのタイムアウト時間 (sec). */
-    public static final int REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT = 10;
-    /** リモートのBhProgramExecEnvironment終了待ちのタイムアウト時間 (sec). */
-    public static final int REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT_SHORT = 4;
-    public static final int DEAD_PROC_END_TIMEOUT = 3; //!< 死んでいるプロセスの終了完了待ちタイムアウト時間 (sec)
-    public static final int POP_RECV_DATA_TIMEOUT = 3; //!< BhProgram実行環境からの受信データ待ちタイムアウト (sec)
-    public static final int POP_SEND_DATA_TIMEOUT = 3; //!< BhProgram実行環境への送信データ待ちタイムアウト (sec)
-    public static final int TCP_PORT_READ_TIMEOUT = 15; //!< TCPポート読み取りのタイムアウト (sec)
+        "net.seapanda.bunnyhop.runtime.AppMain";
+    /** リモートの BhRuntime 終了待ちのタイムアウト時間 (sec). */
+    public static final int REMOTE_RUNTIME_TERMINATION_TIMEOUT = 10;
+    /** リモートの BhRuntime 終了待ちのタイムアウト時間 (sec). */
+    public static final int REMOTE_RUNTIME_TERMINATION_TIMEOUT_SHORT = 4;
+    /**  終了したプロセスの終了完了待ちタイムアウト時間 (sec). */
+    public static final int DEAD_PROC_END_TIMEOUT = 3;
+    /** BhProgram 実行環境からの受信データ待ちタイムアウト (sec). */
+    public static final int POP_RECV_DATA_TIMEOUT = 3;
+    /** BhProgram 実行環境への送信データ待ちタイムアウト (sec). */
+    public static final int POP_SEND_DATA_TIMEOUT = 3;
+    /** TCPポート読み取りのタイムアウト (sec). */
+    public static final int TCP_PORT_READ_TIMEOUT = 15;
     public static final int MAX_REMOTE_CMD_QUEUE_SIZE = 2048;
     /** BhProgram 実行環境との通信に使う RMI オブジェクトを探す際の TCP ポートに付けられる接尾辞. */
     public static final String RMI_TCP_PORT_SUFFIX = "@RmiTcpPort";
     public static final String LOLCAL_HOST = "localhost";
     public static final int SSH_PORT = 22;
+    /** BhSimulator 初期化待ちタイムアウト (sec). */
+    public static final int SIMULATOR_INIT_TIMEOUT = 5;
   }
 
   /** BunnyHop が出力するテキストメッセージに関するパラメータ. */

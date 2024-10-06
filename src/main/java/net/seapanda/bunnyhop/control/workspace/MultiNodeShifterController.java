@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.control.workspace;
 
+import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.message.MsgService;
@@ -46,59 +47,51 @@ public class MultiNodeShifterController {
     this.view = view;
     this.ws = ws;
     Vec2D mousePressedPos = new Vec2D(0.0, 0.0);
-    setOnMousePressedHandler(mousePressedPos);
-    setOnMouseDraggedHandler(mousePressedPos);
-    setOnMouseReleasedHandler(mousePressedPos);
+    view.setOnMousePressed(mouseEvent -> onMousePressed(mouseEvent, mousePressedPos));
+    view.setOnMouseDragged(mouseEvent -> onMouseDragged(mouseEvent, mousePressedPos));
+    view.setOnMouseReleased(mouseEvent -> onMouseReleased(mouseEvent));
   }
 
   /**
-   * マウスボタン押下時のイベントハンドラを登録する.
+   * マウスボタン押下時の処理.
    *
+   * @param mouseEvent 発生したマウスイベント.
    * @param mousePressedPos マウスボタン押下時のカーソル位置の格納先
    */
-  private void setOnMousePressedHandler(Vec2D mousePressedPos) {
-    view.setOnMousePressedHandler(mouseEvent -> {
-      view.switchPseudoClassActivation(true, BhParams.Css.PSEUDO_SELECTED);
-      javafx.geometry.Point2D pos =
-          view.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-      mousePressedPos.x = pos.getX();
-      mousePressedPos.y = pos.getY();
-      view.toFront();
-      mouseEvent.consume();
-    });
+  private void onMousePressed(MouseEvent mouseEvent, Vec2D mousePressedPos) {
+    view.switchPseudoClassActivation(true, BhParams.Css.PSEUDO_SELECTED);
+    javafx.geometry.Point2D pos =
+        view.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+    mousePressedPos.x = pos.getX();
+    mousePressedPos.y = pos.getY();
+    view.toFront();
+    mouseEvent.consume();
   }
 
   /**
-   * マウスドラッグ時のイベントハンドラを登録する.
+   * マウスドラッグ時の処理.
    *
+   * @param mouseEvent 発生したマウスイベント.
    * @param mousePressedPos マウスボタン押下時のカーソル位置
    */
-  private void setOnMouseDraggedHandler(Vec2D mousePressedPos) {
-    view.setOnMouseDraggedHandler(mouseEvent -> {
-      double diffX = mouseEvent.getX() - mousePressedPos.x;
-      double diffY = mouseEvent.getY() - mousePressedPos.y;
-      Vec2D wsSize = ViewHelper.INSTANCE.getWorkspaceView(view).getWorkspaceSize();
+  private void onMouseDragged(MouseEvent mouseEvent, Vec2D mousePressedPos) {
+    double diffX = mouseEvent.getX() - mousePressedPos.x;
+    double diffY = mouseEvent.getY() - mousePressedPos.y;
+    Vec2D wsSize = ViewHelper.INSTANCE.getWorkspaceView(view).getWorkspaceSize();
 
-      if (mouseEvent.isShiftDown()) {
-        view.move(new Vec2D(diffX, diffY), wsSize, true);
-      } else {
-        Vec2D distance = view.move(new Vec2D(diffX, diffY), wsSize, false);
-        view.getLinkedNodeList().forEach(node -> MsgService.INSTANCE.moveNodeOnWs(node, distance));
-      }
-      mouseEvent.consume();
-    });
+    if (mouseEvent.isShiftDown()) {
+      view.move(new Vec2D(diffX, diffY), wsSize, true);
+    } else {
+      Vec2D distance = view.move(new Vec2D(diffX, diffY), wsSize, false);
+      view.getLinkedNodeList().forEach(node -> MsgService.INSTANCE.moveNodeOnWs(node, distance));
+    }
+    mouseEvent.consume();
   }
 
-  /**
-   * マウスボタンを離したときのイベントハンドラを登録する.
-   *
-   * @param mousePressedPos マウスボタンを押下時のカーソル位置
-   */
-  private void setOnMouseReleasedHandler(Vec2D mousePressedPos) {
-    view.setOnMouseReleasedHandler(mouseEvent -> {
-      view.switchPseudoClassActivation(false, BhParams.Css.PSEUDO_SELECTED);
-      mouseEvent.consume();
-    });
+  /** マウスボタンを離したときの処理. */
+  private void onMouseReleased(MouseEvent mouseEvent) {
+    view.switchPseudoClassActivation(false, BhParams.Css.PSEUDO_SELECTED);
+    mouseEvent.consume();
   }
 
   /**

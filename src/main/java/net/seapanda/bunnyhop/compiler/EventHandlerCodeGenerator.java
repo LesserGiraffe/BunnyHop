@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 
@@ -35,52 +35,52 @@ public class EventHandlerCodeGenerator {
   private final StatCodeGenerator statCodeGen;
   private final VarDeclCodeGenerator varDeclCodeGen;
 
-  private static final Map<String, BhProgramData.Event> KEY_TO_KEYPRESSED_EVENT =
-      new HashMap<String, BhProgramData.Event>() {{
-          put("LEFT",   BhProgramData.Event.KEY_LEFT_PRESSED);
-          put("RIGHT",  BhProgramData.Event.KEY_RIGHT_PRESSED);
-          put("UP",     BhProgramData.Event.KEY_UP_PRESSED);
-          put("DOWN",   BhProgramData.Event.KEY_DOWN_PRESSED);
-          put("SPACE",  BhProgramData.Event.KEY_SPACE_PRESSED);
-          put("ENTER",  BhProgramData.Event.KEY_ENTER_PRESSED);
-          put("SHIFT",  BhProgramData.Event.KEY_SHIFT_PRESSED);
-          put("CTRL",   BhProgramData.Event.KEY_CTRL_PRESSED);
-          put("DIGIT0", BhProgramData.Event.KEY_DIGIT0_PRESSED);
-          put("DIGIT1", BhProgramData.Event.KEY_DIGIT1_PRESSED);
-          put("DIGIT2", BhProgramData.Event.KEY_DIGIT2_PRESSED);
-          put("DIGIT3", BhProgramData.Event.KEY_DIGIT3_PRESSED);
-          put("DIGIT4", BhProgramData.Event.KEY_DIGIT4_PRESSED);
-          put("DIGIT5", BhProgramData.Event.KEY_DIGIT5_PRESSED);
-          put("DIGIT6", BhProgramData.Event.KEY_DIGIT6_PRESSED);
-          put("DIGIT7", BhProgramData.Event.KEY_DIGIT7_PRESSED);
-          put("DIGIT8", BhProgramData.Event.KEY_DIGIT8_PRESSED);
-          put("DIGIT9", BhProgramData.Event.KEY_DIGIT9_PRESSED);
-          put("A", BhProgramData.Event.KEY_A_PRESSED);
-          put("B", BhProgramData.Event.KEY_B_PRESSED);
-          put("C", BhProgramData.Event.KEY_C_PRESSED);
-          put("D", BhProgramData.Event.KEY_D_PRESSED);
-          put("E", BhProgramData.Event.KEY_E_PRESSED);
-          put("F", BhProgramData.Event.KEY_F_PRESSED);
-          put("G", BhProgramData.Event.KEY_G_PRESSED);
-          put("H", BhProgramData.Event.KEY_H_PRESSED);
-          put("I", BhProgramData.Event.KEY_I_PRESSED);
-          put("J", BhProgramData.Event.KEY_J_PRESSED);
-          put("K", BhProgramData.Event.KEY_K_PRESSED);
-          put("L", BhProgramData.Event.KEY_L_PRESSED);
-          put("M", BhProgramData.Event.KEY_M_PRESSED);
-          put("N", BhProgramData.Event.KEY_N_PRESSED);
-          put("O", BhProgramData.Event.KEY_O_PRESSED);
-          put("P", BhProgramData.Event.KEY_P_PRESSED);
-          put("Q", BhProgramData.Event.KEY_Q_PRESSED);
-          put("R", BhProgramData.Event.KEY_R_PRESSED);
-          put("S", BhProgramData.Event.KEY_S_PRESSED);
-          put("T", BhProgramData.Event.KEY_T_PRESSED);
-          put("U", BhProgramData.Event.KEY_U_PRESSED);
-          put("V", BhProgramData.Event.KEY_V_PRESSED);
-          put("W", BhProgramData.Event.KEY_W_PRESSED);
-          put("X", BhProgramData.Event.KEY_X_PRESSED);
-          put("Y", BhProgramData.Event.KEY_Y_PRESSED);
-          put("Z", BhProgramData.Event.KEY_Z_PRESSED);
+  private static final Map<String, BhProgramEvent.Name> KEY_TO_KEYPRESSED_EVENT =
+      new HashMap<>() {{
+          put("LEFT",   BhProgramEvent.Name.KEY_LEFT_PRESSED);
+          put("RIGHT",  BhProgramEvent.Name.KEY_RIGHT_PRESSED);
+          put("UP",     BhProgramEvent.Name.KEY_UP_PRESSED);
+          put("DOWN",   BhProgramEvent.Name.KEY_DOWN_PRESSED);
+          put("SPACE",  BhProgramEvent.Name.KEY_SPACE_PRESSED);
+          put("ENTER",  BhProgramEvent.Name.KEY_ENTER_PRESSED);
+          put("SHIFT",  BhProgramEvent.Name.KEY_SHIFT_PRESSED);
+          put("CTRL",   BhProgramEvent.Name.KEY_CTRL_PRESSED);
+          put("DIGIT0", BhProgramEvent.Name.KEY_DIGIT0_PRESSED);
+          put("DIGIT1", BhProgramEvent.Name.KEY_DIGIT1_PRESSED);
+          put("DIGIT2", BhProgramEvent.Name.KEY_DIGIT2_PRESSED);
+          put("DIGIT3", BhProgramEvent.Name.KEY_DIGIT3_PRESSED);
+          put("DIGIT4", BhProgramEvent.Name.KEY_DIGIT4_PRESSED);
+          put("DIGIT5", BhProgramEvent.Name.KEY_DIGIT5_PRESSED);
+          put("DIGIT6", BhProgramEvent.Name.KEY_DIGIT6_PRESSED);
+          put("DIGIT7", BhProgramEvent.Name.KEY_DIGIT7_PRESSED);
+          put("DIGIT8", BhProgramEvent.Name.KEY_DIGIT8_PRESSED);
+          put("DIGIT9", BhProgramEvent.Name.KEY_DIGIT9_PRESSED);
+          put("A", BhProgramEvent.Name.KEY_A_PRESSED);
+          put("B", BhProgramEvent.Name.KEY_B_PRESSED);
+          put("C", BhProgramEvent.Name.KEY_C_PRESSED);
+          put("D", BhProgramEvent.Name.KEY_D_PRESSED);
+          put("E", BhProgramEvent.Name.KEY_E_PRESSED);
+          put("F", BhProgramEvent.Name.KEY_F_PRESSED);
+          put("G", BhProgramEvent.Name.KEY_G_PRESSED);
+          put("H", BhProgramEvent.Name.KEY_H_PRESSED);
+          put("I", BhProgramEvent.Name.KEY_I_PRESSED);
+          put("J", BhProgramEvent.Name.KEY_J_PRESSED);
+          put("K", BhProgramEvent.Name.KEY_K_PRESSED);
+          put("L", BhProgramEvent.Name.KEY_L_PRESSED);
+          put("M", BhProgramEvent.Name.KEY_M_PRESSED);
+          put("N", BhProgramEvent.Name.KEY_N_PRESSED);
+          put("O", BhProgramEvent.Name.KEY_O_PRESSED);
+          put("P", BhProgramEvent.Name.KEY_P_PRESSED);
+          put("Q", BhProgramEvent.Name.KEY_Q_PRESSED);
+          put("R", BhProgramEvent.Name.KEY_R_PRESSED);
+          put("S", BhProgramEvent.Name.KEY_S_PRESSED);
+          put("T", BhProgramEvent.Name.KEY_T_PRESSED);
+          put("U", BhProgramEvent.Name.KEY_U_PRESSED);
+          put("V", BhProgramEvent.Name.KEY_V_PRESSED);
+          put("W", BhProgramEvent.Name.KEY_W_PRESSED);
+          put("X", BhProgramEvent.Name.KEY_X_PRESSED);
+          put("Y", BhProgramEvent.Name.KEY_Y_PRESSED);
+          put("Z", BhProgramEvent.Name.KEY_Z_PRESSED);
         }
       };
 
@@ -151,7 +151,7 @@ public class EventHandlerCodeGenerator {
   }
 
   private void genAddEventFuncCall(
-      BhProgramData.Event event,
+      BhProgramEvent.Name event,
       String funcName,
       StringBuilder code,
       int nestLevel) {
@@ -170,7 +170,7 @@ public class EventHandlerCodeGenerator {
    * @param eventNode イベントの種類を取得したいイベントノード
    * @return イベントの種類
    * */
-  private Optional<BhProgramData.Event> getEventType(SyntaxSymbol eventNode) {
+  private Optional<BhProgramEvent.Name> getEventType(SyntaxSymbol eventNode) {
     switch (eventNode.getSymbolName()) {
       case SymbolNames.Event.KEY_PRESS_EVENT:
         TextNode eventTypeNode =
@@ -178,7 +178,7 @@ public class EventHandlerCodeGenerator {
         return Optional.ofNullable(KEY_TO_KEYPRESSED_EVENT.get(eventTypeNode.getText()));
 
       case SymbolNames.Event.DELAYED_START_EVENT:
-        return Optional.of(BhProgramData.Event.PROGRAM_START);
+        return Optional.of(BhProgramEvent.Name.PROGRAM_START);
 
       default:
     }

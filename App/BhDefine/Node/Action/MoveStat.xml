@@ -57,7 +57,7 @@
     <PrivateConnector
       bhConnectorID="idMoveStat.prvCnctr3"
       name="Option0"
-        fixed="true">
+      fixed="true">
       <Node
         type="text"
         bhNodeID="idMoveStat.prvNode3"

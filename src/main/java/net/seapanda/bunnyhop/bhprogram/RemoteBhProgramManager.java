@@ -30,47 +30,48 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.constant.BhParams.ExternalApplication;
 import net.seapanda.bunnyhop.common.constant.ExclusiveSelection;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
+import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 /**
- * BunnyHopで作成したプログラムのローカル環境での実行、終了、通信を行うクラス.
+ * BhProgram のリモート環境での実行、終了、通信を行うクラス.
  *
  * @author K.Koike
  */
 public class RemoteBhProgramManager {
-  /** シングルトンインスタンス. */
-  public static final RemoteBhProgramManager INSTANCE = new RemoteBhProgramManager();
-  private final BhProgramManagerCommon common = new BhProgramManagerCommon();
+  
+  private final BhProgramManagerCommon common;
   private UserInfoImpl userInfo;
   /** プログラム実行中なら true. */
   private AtomicReference<Boolean> programRunning = new AtomicReference<>(false);
   /** ファイルがコピー中の場合 true. */
   private AtomicReference<Boolean> fileCopyIsCancelled = new AtomicReference<>(true);
 
-  private RemoteBhProgramManager() {}
+  /** コンストラクタ. */
+  RemoteBhProgramManager(SimulatorCmdProcessor simCmdProcessor) 
+      throws IllegalStateException {
 
-  /** 初期化処理を行う. */
-  public boolean init() {
-    boolean success = common.init();
-    success &= BhScriptManager.INSTANCE.scriptsExist(
+    common = new BhProgramManagerCommon(simCmdProcessor);
+    boolean success = BhScriptManager.INSTANCE.scriptsExist(
         getClass().getSimpleName(),
         BhParams.Path.REMOTE_EXEC_CMD_GENERATOR_JS,
         BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS);
 
     if (!success) {
-      MsgPrinter.INSTANCE.errMsgForDebug("failed to initialize " + getClass().getSimpleName());
+      String msg = "connot find remote cmd scripts";
+      MsgPrinter.INSTANCE.errMsgForDebug(msg + " " + getClass().getSimpleName());
+      throw new IllegalStateException(msg);
     }
-    return success;
   }
 
   /**
@@ -116,15 +117,7 @@ public class RemoteBhProgramManager {
       String uname,
       String password,
       boolean terminate) {
-
-    if (programRunning.get()) {
-      if (terminate) {
-        terminate(BhParams.ExternalApplication.REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT);
-      } else {
-        common.haltTransceiver();
-        programRunning.set(false);
-      }
-    }
+    terminateOrDisconnect(terminate);
     MsgPrinter.INSTANCE.msgForUser("-- プログラム実行準備中 (remote) --\n");
     try {
       var destPath = Paths.get(
@@ -136,7 +129,7 @@ public class RemoteBhProgramManager {
         throw new Exception();
       }
       userInfo = new UserInfoImpl(ipAddr, uname, password);
-      ChannelExec channel = startExecEnvProcess(userInfo);  //リモート実行環境起動
+      ChannelExec channel = startRuntimeProcess(userInfo);  //リモート実行環境起動
       if (channel == null) {
         throw new Exception();
       }
@@ -151,7 +144,7 @@ public class RemoteBhProgramManager {
     } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForUser("!! プログラム実行準備失敗 (remote) !!\n");
       MsgPrinter.INSTANCE.errMsgForDebug("failed to run " + filePath.getFileName() + " (remote)");
-      terminate(BhParams.ExternalApplication.REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT_SHORT);
+      terminate(BhParams.ExternalApplication.REMOTE_RUNTIME_TERMINATION_TIMEOUT_SHORT);
       return false;
     }
     MsgPrinter.INSTANCE.msgForUser("-- プログラム実行開始 (remote) --\n");
@@ -160,7 +153,23 @@ public class RemoteBhProgramManager {
   }
 
   /**
-   * 現在実行中のBhProgramExecEnvironment を強制終了する.
+   * BhProgram が動作している場合, 終了か切断を行う.
+   *
+   * @param terminate 終了する場合 true. 切断する場合 false.
+   */
+  private void terminateOrDisconnect(boolean terminate) {
+    if (programRunning.get()) {
+      if (terminate) {
+        terminate(BhParams.ExternalApplication.REMOTE_RUNTIME_TERMINATION_TIMEOUT);
+      } else {
+        common.haltTransceiver();
+        programRunning.set(false);
+      }
+    }
+  }
+
+  /**
+   * 現在実行中の BhProgram を強制終了する.
    *
    * @return 強制終了タスクの結果. タスクを実行しなかった場合 Optional.empty.
    */
@@ -171,7 +180,7 @@ public class RemoteBhProgramManager {
       return common.terminateAsync(() -> false);
     }
     return common.terminateAsync(
-      () -> terminate(BhParams.ExternalApplication.REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT));
+      () -> terminate(BhParams.ExternalApplication.REMOTE_RUNTIME_TERMINATION_TIMEOUT));
   }
 
   /**
@@ -234,13 +243,13 @@ public class RemoteBhProgramManager {
   }
 
   /**
-   * 引数で指定したデータをBhProgramの実行環境に送る.
+   * 引数で指定した {@link BhProgramMessage} を BhProgram の実行環境に送る.
    *
-   * @param data 送信データ
-   * @return 送信データリストにデータを追加できた場合true
+   * @param msg 送信データ
+   * @return ステータスコード
    */
-  public BhProgramExecEnvError sendAsync(BhProgramData data) {
-    return common.sendAsync(data);
+  public BhRuntimeStatus sendAsync(BhProgramMessage msg) {
+    return common.sendAsync(msg);
   }
 
   /**
@@ -249,7 +258,7 @@ public class RemoteBhProgramManager {
    * @param userInfo リモートのユーザー情報
    * @return スタートしたプロセスのオブジェクト. スタートに失敗した場合null.
    */
-  private ChannelExec startExecEnvProcess(UserInfoImpl userInfo) {
+  private ChannelExec startRuntimeProcess(UserInfoImpl userInfo) {
     ChannelExec channel = null;
     try {
       String startCmd = genStartCmd(userInfo.getHost());
@@ -262,7 +271,7 @@ public class RemoteBhProgramManager {
       }
     } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "failed to start " +  BhParams.ExternalApplication.BH_PROGRAM_EXEC_ENV_JAR + " " + e);
+          "failed to start " +  BhParams.ExternalApplication.BH_PROGRAM_RUNTIME_JAR + " " + e);
     }
     return channel;
   }
@@ -451,7 +460,7 @@ public class RemoteBhProgramManager {
     boolean success = true;
     if (programRunning.get()) {
       if (terminate) {
-        success = terminate(BhParams.ExternalApplication.REMOTE_PROG_EXEC_ENV_TERMINATION_TIMEOUT);
+        success = terminate(BhParams.ExternalApplication.REMOTE_RUNTIME_TERMINATION_TIMEOUT);
       } else {
         success = common.haltTransceiver();
       }

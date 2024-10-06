@@ -24,7 +24,7 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
  *
  * @author K.Koike
  */
-public class UserInfoImpl implements UserInfo {
+class UserInfoImpl implements UserInfo {
 
   private final String uname;
   private final String host;
@@ -37,14 +37,14 @@ public class UserInfoImpl implements UserInfo {
    * @param uname ユーザー名. null禁止
    * @param password パスワード. null禁止
    */
-  public UserInfoImpl(String host, String uname, String password) {
+  UserInfoImpl(String host, String uname, String password) {
     this.host = host == null ? "" : host;
     this.uname = uname == null ? "" : uname;
     this.password = password == null ? "" : password;
   }
 
   /** コピーコンストラクタ. */
-  public UserInfoImpl(UserInfoImpl original) {
+  UserInfoImpl(UserInfoImpl original) {
     this.host = original.host;
     this.uname = original.uname;
     this.password = original.password;

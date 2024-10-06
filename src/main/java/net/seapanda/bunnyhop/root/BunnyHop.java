@@ -55,11 +55,13 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 /** アプリケーションの初期化およびワークスペースへのアクセスを行うクラス. */
 public class BunnyHop {
 
-  private final WorkspaceSet workspaceSet = new WorkspaceSet();  //!<  ワークスペースの集合
-  private BhNodeCategoryList nodeCategoryList;  //!< BhNode 選択用画面のモデル
+  private final WorkspaceSet workspaceSet = new WorkspaceSet();
+  /** BhNode 選択用画面のモデル. */
+  private BhNodeCategoryList nodeCategoryList;
   private FoundationController foundationController;
   public static final BunnyHop INSTANCE  = new BunnyHop();
-  private boolean shoudlSave = false;  //!< 終了時の保存が必要かどうかのフラグ
+  /** 終了時の保存が必要かどうかのフラグ. */
+  private boolean shoudlSave = false;
   private Scene scene;
 
   private BunnyHop() {}
@@ -300,5 +302,10 @@ public class BunnyHop {
    */
   public List<String> getAllStyles() {
     return new ArrayList<>(scene.getStylesheets());
+  }
+
+  /** 現在選択されている BhProgram の実行環境がローカルかリモートか調べる. */
+  public boolean isBhRuntimeLocal() {
+    return foundationController.isBhRuntimeLocal();
   }
 }

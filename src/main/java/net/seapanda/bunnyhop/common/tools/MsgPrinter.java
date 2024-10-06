@@ -44,7 +44,7 @@ public class MsgPrinter {
   /** シングルトンインスタンス. */
   public static final MsgPrinter INSTANCE = new MsgPrinter();
   private TextArea mainMsgArea;
-  private BlockingQueue<String> queuedMsgs =
+  private BlockingQueue<String> messages =
       new ArrayBlockingQueue<>(BhParams.Message.MAX_MAIN_MSG_QUEUE_SIZE);
   private Timeline msgPrintTimer;
 
@@ -67,8 +67,8 @@ public class MsgPrinter {
     if (mainMsgArea == null) {
       return;
     }
-    List<String> msgList = new ArrayList<>(queuedMsgs.size());
-    queuedMsgs.drainTo(msgList);
+    List<String> msgList = new ArrayList<>(messages.size());
+    messages.drainTo(msgList);
     StringBuilder text = new StringBuilder();
     msgList.forEach(text::append);
     if (!msgList.isEmpty()) {
@@ -98,7 +98,7 @@ public class MsgPrinter {
       mainMsgArea.appendText(msg);
     } else {
       try {
-        queuedMsgs.put(msg);
+        messages.put(msg);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }

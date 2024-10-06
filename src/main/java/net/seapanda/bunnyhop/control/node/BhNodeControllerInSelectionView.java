@@ -74,7 +74,7 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
         textInputView.setEditable(false);
       }
     } else if (view instanceof ComboBoxNodeView) {
-      ComboBoxNodeController.setItemChangeHandler((TextNode) model, (ComboBoxNodeView) view);
+      ComboBoxNodeController.setEventHandlers((TextNode) model, (ComboBoxNodeView) view);
     } else if (view instanceof LabelNodeView) {
       LabelNodeController.setInitStr((TextNode) model, (LabelNodeView) view);
     }

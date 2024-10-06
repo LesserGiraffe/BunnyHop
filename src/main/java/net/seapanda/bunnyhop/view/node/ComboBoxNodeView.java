@@ -160,8 +160,8 @@ public final class ComboBoxNodeView extends BhNodeView {
   /**
    * 引数で指定した文字列を modelText として持つ SelectableItem を取得する.
    *
-   * @param modelText このテキストを modelText として持つ SelectableItem を見つける
-   * @return 引数で指定した文字列を modelText として持つ SelectableItem
+   * @param modelText このテキストを modelText として持つ {@link SelectableItem} を見つける
+   * @return 引数で指定した文字列を modelText として持つ {@link SelectableItem}
    */
   public Optional<SelectableItem> getItemByModelText(String modelText) {
     for (SelectableItem item : comboBox.getItems()) {

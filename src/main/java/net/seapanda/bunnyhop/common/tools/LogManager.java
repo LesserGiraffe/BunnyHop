@@ -31,14 +31,14 @@ import net.seapanda.bunnyhop.common.constant.BhParams;
  *
  * @author K.Koike
  */
-public class LogManager {
+class LogManager {
   /** シングルトンインスタンス. */
-  public static final LogManager INSTANCE = new LogManager();
+  static final LogManager INSTANCE = new LogManager();
   private OutputStream logOutputStream;
 
   private LogManager() {}
 
-  public boolean init() {
+  boolean init() {
     initLogSystem();  //ログシステムがエラーでも処理は続ける
     return true;
   }
@@ -75,7 +75,6 @@ public class LogManager {
    * @param msg ログファイルに書き込むメッセージ
    */
   synchronized void writeMsgToLogFile(String msg) {
-
     try {
       if (logOutputStream != null) {
         logOutputStream.write(msg.getBytes(StandardCharsets.UTF_8));

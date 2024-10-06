@@ -16,9 +16,7 @@
 
 package net.seapanda.bunnyhop.control;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import javafx.event.EventTarget;
 import javafx.fxml.FXML;
@@ -28,10 +26,10 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
-import net.seapanda.bunnyhop.bhprogram.LocalBhProgramManager;
-import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramManager;
-import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
+import net.seapanda.bunnyhop.bhprogram.BhProgramService;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.KeyCodeConverter;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.control.nodeselection.BhNodeCategoryListController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
@@ -58,53 +56,6 @@ public class FoundationController {
 
   /** 押下状態のキー. */
   private Set<KeyCode> pressedKey = new HashSet<>();
-  private Map<KeyCode, BhProgramData.Event> keyCodeToKeyEvent =
-      new HashMap<KeyCode, BhProgramData.Event>() {{
-          put(KeyCode.DIGIT0, BhProgramData.Event.KEY_DIGIT0_PRESSED);
-          put(KeyCode.DIGIT1, BhProgramData.Event.KEY_DIGIT1_PRESSED);
-          put(KeyCode.DIGIT2, BhProgramData.Event.KEY_DIGIT2_PRESSED);
-          put(KeyCode.DIGIT3, BhProgramData.Event.KEY_DIGIT3_PRESSED);
-          put(KeyCode.DIGIT4, BhProgramData.Event.KEY_DIGIT4_PRESSED);
-          put(KeyCode.DIGIT5, BhProgramData.Event.KEY_DIGIT5_PRESSED);
-          put(KeyCode.DIGIT6, BhProgramData.Event.KEY_DIGIT6_PRESSED);
-          put(KeyCode.DIGIT7, BhProgramData.Event.KEY_DIGIT7_PRESSED);
-          put(KeyCode.DIGIT8, BhProgramData.Event.KEY_DIGIT8_PRESSED);
-          put(KeyCode.DIGIT9, BhProgramData.Event.KEY_DIGIT9_PRESSED);
-          put(KeyCode.UP, BhProgramData.Event.KEY_UP_PRESSED);
-          put(KeyCode.DOWN, BhProgramData.Event.KEY_DOWN_PRESSED);
-          put(KeyCode.RIGHT, BhProgramData.Event.KEY_RIGHT_PRESSED);
-          put(KeyCode.LEFT, BhProgramData.Event.KEY_LEFT_PRESSED);
-          put(KeyCode.SHIFT, BhProgramData.Event.KEY_SHIFT_PRESSED);
-          put(KeyCode.CONTROL, BhProgramData.Event.KEY_CTRL_PRESSED);
-          put(KeyCode.SPACE, BhProgramData.Event.KEY_SPACE_PRESSED);
-          put(KeyCode.ENTER, BhProgramData.Event.KEY_ENTER_PRESSED);
-          put(KeyCode.A, BhProgramData.Event.KEY_A_PRESSED);
-          put(KeyCode.B, BhProgramData.Event.KEY_B_PRESSED);
-          put(KeyCode.C, BhProgramData.Event.KEY_C_PRESSED);
-          put(KeyCode.D, BhProgramData.Event.KEY_D_PRESSED);
-          put(KeyCode.E, BhProgramData.Event.KEY_E_PRESSED);
-          put(KeyCode.F, BhProgramData.Event.KEY_F_PRESSED);
-          put(KeyCode.G, BhProgramData.Event.KEY_G_PRESSED);
-          put(KeyCode.H, BhProgramData.Event.KEY_H_PRESSED);
-          put(KeyCode.I, BhProgramData.Event.KEY_I_PRESSED);
-          put(KeyCode.J, BhProgramData.Event.KEY_J_PRESSED);
-          put(KeyCode.K, BhProgramData.Event.KEY_K_PRESSED);
-          put(KeyCode.L, BhProgramData.Event.KEY_L_PRESSED);
-          put(KeyCode.M, BhProgramData.Event.KEY_M_PRESSED);
-          put(KeyCode.N, BhProgramData.Event.KEY_N_PRESSED);
-          put(KeyCode.O, BhProgramData.Event.KEY_O_PRESSED);
-          put(KeyCode.P, BhProgramData.Event.KEY_P_PRESSED);
-          put(KeyCode.Q, BhProgramData.Event.KEY_Q_PRESSED);
-          put(KeyCode.R, BhProgramData.Event.KEY_R_PRESSED);
-          put(KeyCode.S, BhProgramData.Event.KEY_S_PRESSED);
-          put(KeyCode.T, BhProgramData.Event.KEY_T_PRESSED);
-          put(KeyCode.U, BhProgramData.Event.KEY_U_PRESSED);
-          put(KeyCode.V, BhProgramData.Event.KEY_V_PRESSED);
-          put(KeyCode.W, BhProgramData.Event.KEY_W_PRESSED);
-          put(KeyCode.X, BhProgramData.Event.KEY_X_PRESSED);
-          put(KeyCode.Y, BhProgramData.Event.KEY_Y_PRESSED);
-          put(KeyCode.Z, BhProgramData.Event.KEY_Z_PRESSED);
-        }};
 
 
   /**
@@ -143,7 +94,7 @@ public class FoundationController {
     });
     foundationVbox.setOnKeyPressed(event -> {
       fireBhOpEvent(event);
-      sendKeyEventToBhProgram(event);
+      sendKeyEventToBhProgram(event.getCode());
       event.consume();
     });
     foundationVbox.setOnKeyReleased(event ->  pressedKey.remove(event.getCode()));
@@ -241,50 +192,26 @@ public class FoundationController {
   }
 
   /** BhProgram にキーイベントを送信する. */
-  private void sendKeyEventToBhProgram(KeyEvent event) {
+  private void sendKeyEventToBhProgram(KeyCode keyCode) {
     // 押下済みのキーのイベントは送信しない
-    if (pressedKey.contains(event.getCode())) {
+    if (pressedKey.contains(keyCode)) {
       return;
     }
-
-    BhProgramData.Event bhEvent = keyCodeToKeyEvent.get(event.getCode());
-    if (bhEvent != null) {
-      pressedKey.add(event.getCode());
-      var sendData = new BhProgramData(bhEvent, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
-
-      if (menuOperationController.isLocalHost()) {
-        LocalBhProgramManager.INSTANCE.sendAsync(sendData);
-      } else {
-        RemoteBhProgramManager.INSTANCE.sendAsync(sendData);
-      }
+    var eventName = KeyCodeConverter.toBhProgramEventName(keyCode).orElse(null);
+    if (eventName == null) {
+      return;
+    }
+    pressedKey.add(keyCode);
+    var bhEvent = new BhProgramEvent(eventName, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
+    if (menuOperationController.isLocalHost()) {
+      BhProgramService.local().sendAsync(bhEvent);
+    } else {
+      BhProgramService.remote().sendAsync(bhEvent);
     }
   }
+
+  /** 現在選択されている BhProgram の実行環境がローカルかリモートか調べる. */
+  public boolean isBhRuntimeLocal() {
+    return menuOperationController.isLocalHost();
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

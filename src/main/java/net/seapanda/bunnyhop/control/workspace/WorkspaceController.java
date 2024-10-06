@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
@@ -71,77 +72,75 @@ public class WorkspaceController implements MsgProcessor {
     this.view = view;
     view.addtMultiNodeShifterView(nodeShifterView);
     nodeShifterController = new MultiNodeShifterController(nodeShifterView, model);
-    setMouseEventHandlers();
+    setEventHandlers();
   }
 
-  /** マウスイベント関連のハンドラを登録する. */
-  private void setMouseEventHandlers() {
+  /** イベントハンドラを登録する. */
+  private void setEventHandlers() {
     Vec2D mousePressedPos = new Vec2D(0.0, 0.0);
-    setOnMousePressedHandler(mousePressedPos);
-    setOnMouseDraggedHandler(mousePressedPos);
-    setOnMouseReleasedHandler(mousePressedPos);
+    view.setOnMousePressed(mouseEvent -> onMousePressed(mouseEvent, mousePressedPos));
+    view.setOnMouseDragged(mouseEvent -> onMouseDragged(mouseEvent, mousePressedPos));
+    view.setOnMouseReleased(mouseEvent -> onMouseReleased(mousePressedPos, mouseEvent));
   }
 
-  /** マウスボタン押下時のイベントハンドラを登録する.
+  /** 
+   * マウスボタン押下時の処理.
    *
+   * @param mouseEvent 発生したマウスイベント
    * @param mousePressedPos マウスボタン押下時のカーソル位置の格納先
    */
-  private void setOnMousePressedHandler(Vec2D mousePressedPos) {
-    // WSをクリックしたときにテキストフィールドのカーソルが消えなくなるので, マウスイベントをconsumeしない.
-    view.setOnMousePressed(mouseEvent -> {
-      if (!mouseEvent.isShiftDown()) {
-        UserOperationCommand userOpeCmd = new UserOperationCommand();
-        BhNodeSelectionService.INSTANCE.hideAll();
-        model.clearSelectedNodeList(userOpeCmd);
-        BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-      }
-      ViewHelper.INSTANCE.deleteShadow(model);
-      mousePressedPos.x = mouseEvent.getX();
-      mousePressedPos.y = mouseEvent.getY();
-      view.showSelectionRectangle(mousePressedPos, mousePressedPos);
-    });
+  private void onMousePressed(MouseEvent mouseEvent, Vec2D mousePressedPos) {
+    // ワークスペースをクリックしたときにテキストフィールドのカーソルが消えなくなるので, マウスイベントを consume しない.
+    if (!mouseEvent.isShiftDown()) {
+      UserOperationCommand userOpeCmd = new UserOperationCommand();
+      BhNodeSelectionService.INSTANCE.hideAll();
+      model.clearSelectedNodeList(userOpeCmd);
+      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+    }
+    ViewHelper.INSTANCE.deleteShadow(model);
+    mousePressedPos.x = mouseEvent.getX();
+    mousePressedPos.y = mouseEvent.getY();
+    view.showSelectionRectangle(mousePressedPos, mousePressedPos);
   }
 
   /**
    * マウスドラッグ時のイベントハンドラを登録する.
    *
+   * @param mouseEvent 発生したマウスイベント
    * @param mousePressedPos マウスボタン押下時のカーソル位置
    */
-  private void setOnMouseDraggedHandler(Vec2D mousePressedPos) {
-    view.setOnMouseDragged(mouseEvent -> {
-      view.showSelectionRectangle(
-          mousePressedPos, new Vec2D(mouseEvent.getX(), mouseEvent.getY()));
-    });
+  private void onMouseDragged(MouseEvent mouseEvent, Vec2D mousePressedPos) {
+    view.showSelectionRectangle(
+        mousePressedPos, new Vec2D(mouseEvent.getX(), mouseEvent.getY()));
   }
 
   /**
-   * マウスボタンを離したときのイベントハンドラを登録する.
+   * マウスボタンを離したときの処理.
    *
+   * @param mouseEvent 発生したマウスイベント
    * @param mousePressedPos マウスボタンを押下時のカーソル位置
    */
-  private void setOnMouseReleasedHandler(Vec2D mousePressedPos) {
-    view.setOnMouseReleased(mouseEvent -> {
-      view.hideSelectionRectangle();
-      double minX = Math.min(mousePressedPos.x, mouseEvent.getX());
-      double minY = Math.min(mousePressedPos.y, mouseEvent.getY());
-      double maxX = Math.max(mousePressedPos.x, mouseEvent.getX());
-      double maxY = Math.max(mousePressedPos.y, mouseEvent.getY());
-      var selectionRange = new QuadTreeRectangle(minX, minY, maxX, maxY, null);
-      List<BhNodeView> containedNodes =
-          view.searchForOverlappedNodeViews(selectionRange, true, OverlapOption.CONTAIN).stream()
-          .filter(nodeView -> nodeView.getModel().isMovable() && !nodeView.getModel().isSelected())
-          .collect(Collectors.toCollection(ArrayList::new));
-      // 面積の大きい順にソート
-      containedNodes.sort(this::compareViewSize);
-      ModelExclusiveControl.INSTANCE.lockForModification();
-      try {
-        var userOpeCmd = new UserOperationCommand();
-        selectNodes(containedNodes, userOpeCmd);
-        BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
-      } finally {
-        ModelExclusiveControl.INSTANCE.unlockForModification();
-      }
-    });
+  private void onMouseReleased(Vec2D mousePressedPos, MouseEvent mouseEvent) {
+    view.hideSelectionRectangle();
+    double minX = Math.min(mousePressedPos.x, mouseEvent.getX());
+    double minY = Math.min(mousePressedPos.y, mouseEvent.getY());
+    double maxX = Math.max(mousePressedPos.x, mouseEvent.getX());
+    double maxY = Math.max(mousePressedPos.y, mouseEvent.getY());
+    var selectionRange = new QuadTreeRectangle(minX, minY, maxX, maxY, null);
+    List<BhNodeView> containedNodes =
+        view.searchForOverlappedNodeViews(selectionRange, true, OverlapOption.CONTAIN).stream()
+        .filter(nodeView -> nodeView.getModel().isMovable() && !nodeView.getModel().isSelected())
+        .collect(Collectors.toCollection(ArrayList::new));
+    // 面積の大きい順にソート
+    containedNodes.sort(this::compareViewSize);
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      var userOpeCmd = new UserOperationCommand();
+      selectNodes(containedNodes, userOpeCmd);
+      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
   }
 
   private int compareViewSize(BhNodeView viewA, BhNodeView viewB) {

@@ -21,28 +21,27 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
-import net.seapanda.bunnyhop.bhprogram.common.BhProgramData;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.common.constant.BhParams;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
+import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 
 /**
- * BunnyHopで作成したプログラムのローカル環境での実行、終了、通信を行うクラス.
+ * BhProgram のローカル環境での実行、終了、通信を行うクラス.
  *
  * @author K.Koike
  */
 public class LocalBhProgramManager {
-  /** シングルトンインスタンス. */
-  public static final LocalBhProgramManager INSTANCE = new LocalBhProgramManager();
-  private final BhProgramManagerCommon common = new BhProgramManagerCommon();
+
+  private final BhProgramManagerCommon common;
   private Process process;
   /** プログラム実行中なら true. */
   private final AtomicReference<Boolean> programRunning = new AtomicReference<>(false);
 
-  private LocalBhProgramManager() {}
-
-  public boolean init() {
-    return common.init();
+  /** コンストラクタ. */
+  LocalBhProgramManager(SimulatorCmdProcessor simCmdProcessor) {
+    common = new BhProgramManagerCommon(simCmdProcessor);
   }
 
   /**
@@ -70,7 +69,7 @@ public class LocalBhProgramManager {
     }
     MsgPrinter.INSTANCE.msgForUser("-- プログラム実行準備中 (local) --\n");
     if (success) {
-      process = startExecEnvProcess();
+      process = startRuntimeProcess();
       if (process == null) {
         success &= false;
       }
@@ -91,9 +90,9 @@ public class LocalBhProgramManager {
   }
 
   /**
-   * 現在実行中のBhProgramExecEnvironment を強制終了する.
+   * 現在実行中の BhProgram を強制終了する.
    *
-   * @return BhProgram強制終了タスクのFutureオブジェクト.
+   * @return BhProgram 強制終了タスクのFutureオブジェクト.
    */
   public Future<Boolean> terminateAsync() {
     if (!programRunning.get()) {
@@ -104,16 +103,17 @@ public class LocalBhProgramManager {
   }
 
   /**
-   * 現在実行中のBhProgramExecEnvironment を強制終了する.
+   * 現在実行中の BhProgram を強制終了する.
    * BhProgram実行環境を終了済みの場合に呼んでも問題ない.
    *
    * @return 強制終了に成功した場合true
    */
-  public synchronized boolean terminate() {
+  private synchronized boolean terminate() {
     MsgPrinter.INSTANCE.msgForUser("-- プログラム終了中 (local)  --\n");
     boolean success = common.haltTransceiver();
     if (process != null) {
-      success &= common.killProcess(process, BhParams.ExternalApplication.DEAD_PROC_END_TIMEOUT);
+      success &= BhProgramManagerCommon.killProcess(
+          process, BhParams.ExternalApplication.DEAD_PROC_END_TIMEOUT);
     }
     process = null;
     if (!success) {
@@ -144,21 +144,21 @@ public class LocalBhProgramManager {
   }
 
   /**
-   * 引数で指定したデータをBhProgramの実行環境に送る.
+   * 引数で指定した {@link BhProgramMessage} を BhProgram の実行環境に送る.
    *
-   * @param data 送信データ
-   * @return 送信データリストにデータを追加できた場合true
+   * @param msg 送信データ
+   * @return ステータスコード
    */
-  public BhProgramExecEnvError sendAsync(BhProgramData data) {
-    return common.sendAsync(data);
+  public BhRuntimeStatus sendAsync(BhProgramMessage msg) {
+    return common.sendAsync(msg);
   }
 
   /**
-   * BhProgramの実行環境プロセスをスタートする.
+   * BhProgram のランタイムプロセスをスタートする.
    *
    * @return スタートしたプロセスのオブジェクト. スタートに失敗した場合null.
    */
-  private Process startExecEnvProcess() {
+  private Process startRuntimeProcess() {
     // ""でパスを囲まない
     Process proc = null;
     ProcessBuilder procBuilder = new ProcessBuilder(
@@ -172,7 +172,7 @@ public class LocalBhProgramManager {
     try {
       proc = procBuilder.start();
     } catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("startExecEnvProcess " +  e);
+      MsgPrinter.INSTANCE.errMsgForDebug("startRuntimeProcess " +  e);
     }
 
     return proc;

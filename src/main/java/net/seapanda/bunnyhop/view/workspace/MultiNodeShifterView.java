@@ -25,11 +25,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
 import javafx.css.PseudoClass;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -308,32 +306,5 @@ public class MultiNodeShifterView extends Pane {
       nodeToMap.values().forEach(
           link -> link.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), false));
     }
-  }
-
-  /**
-   * マウス押下時のイベントハンドラを登録する.
-   *
-   * @param handler 登録するイベントハンドラ
-   */
-  public void setOnMousePressedHandler(EventHandler<? super MouseEvent> handler) {
-    shifterCircle.setOnMousePressed(handler);
-  }
-
-  /**
-   * マウスドラッグ中のイベントハンドラを登録する.
-   *
-   * @param handler 登録するイベントハンドラ
-   */
-  public void setOnMouseDraggedHandler(EventHandler<? super MouseEvent> handler) {
-    shifterCircle.setOnMouseDragged(handler);
-  }
-
-  /**
-   * マウスボタンを離した時のイベントハンドラを登録する.
-   *
-   * @param handler 登録するイベントハンドラ
-   */
-  public void setOnMouseReleasedHandler(EventHandler<? super MouseEvent> handler) {
-    shifterCircle.setOnMouseReleased(handler);
   }
 }

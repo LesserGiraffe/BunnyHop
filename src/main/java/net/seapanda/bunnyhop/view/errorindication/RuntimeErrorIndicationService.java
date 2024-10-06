@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.view.errorindication;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import net.seapanda.bunnyhop.bhprogram.common.BhProgramException;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbolId;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 

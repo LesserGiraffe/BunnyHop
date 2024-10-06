@@ -14,7 +14,8 @@
     speed = Math.min(Math.max(0.0, speed), 1.0);
     time *= 1000;
     time = Math.floor(time);
-    let moveCmd = String(_jPaths.get(bhScriptHelper.getExecPath(), 'Actions', 'bhMove').toAbsolutePath().toString());
+    let path = _jPaths.get(bhScriptHelper.util.getExecPath(), 'Actions', 'bhMove');
+    let moveCmd = String(path.toAbsolutePath().toString());
     let procBuilder = new _jProcBuilder(moveCmd, String(cmd), String(time), String(speed));
     let success = false;
     try {
@@ -45,8 +46,8 @@
   }
 
   function _measureDistance() {
-
-    let spiCmd = String(_jPaths.get(bhScriptHelper.getExecPath(), 'Actions', 'bhSpiRead').toAbsolutePath().toString());
+    let path = _jPaths.get(bhScriptHelper.util.getExecPath(), 'Actions', 'bhSpiRead');
+    let spiCmd = String(path.toAbsolutePath().toString());
     let procBuilder = new _jProcBuilder(spiCmd, '20', '5');
     let distanceList;
     let success = false;
@@ -88,7 +89,8 @@
 
     let exposureTime = 50;  //ms
     let retryTimes = 10;
-    let cmd = String(_jPaths.get(bhScriptHelper.getExecPath(), 'Actions', 'bhColorDetection').toAbsolutePath().toString());
+    let path = _jPaths.get(bhScriptHelper.util.getExecPath(), 'Actions', 'bhColorDetection');
+    let cmd = String(path.toAbsolutePath().toString());
     let procBuilder = new _jProcBuilder(cmd, String(exposureTime), String(retryTimes));
     let colorList = null;
     let success = false;
