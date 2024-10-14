@@ -31,7 +31,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
@@ -130,7 +130,7 @@ public class BhNodeTemplates {
   private boolean genConnectorTemplate() {
     //コネクタファイルパスリスト取得
     Path dirPath = Paths.get(
-        Util.INSTANCE.execPath, BhParams.Path.BH_DEF_DIR, BhParams.Path.CONNECTOR_DEF_DIR);
+        Util.INSTANCE.execPath, BhConstants.Path.BH_DEF_DIR, BhConstants.Path.CONNECTOR_DEF_DIR);
     Stream<Path> files;  //読み込むファイルパスリスト
     try {
       files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
@@ -177,7 +177,7 @@ public class BhNodeTemplates {
   private boolean genNodeTemplate() {
     //ノードファイルパスリスト取得
     Path dirPath = Paths.get(
-        Util.INSTANCE.execPath, BhParams.Path.BH_DEF_DIR, BhParams.Path.NODE_DEF_DIR);
+        Util.INSTANCE.execPath, BhConstants.Path.BH_DEF_DIR, BhConstants.Path.NODE_DEF_DIR);
     Stream<Path> files;  //読み込むファイルパスリスト
     try {
       files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
@@ -249,18 +249,18 @@ public class BhNodeTemplates {
     //ノードテンプレートが見つからない
     if (defNode.isEmpty()) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
-          + BhParams.BhModelDef.ATTR_DEFAULT_BHNODE_ID + " (" + defNodeId + ") " + "と一致する "
-          + BhParams.BhModelDef.ATTR_BH_NODE_ID + " を持つ"
-          + BhParams.BhModelDef.ELEM_NODE + " の定義が見つかりません.");
+          "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
+          + BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID + " (" + defNodeId + ") " + "と一致する "
+          + BhConstants.BhModelDef.ATTR_BH_NODE_ID + " を持つ"
+          + BhConstants.BhModelDef.ELEM_NODE + " の定義が見つかりません.");
       return Optional.empty();
     }
     if (initNode.isEmpty()) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
-          + BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID + " (" + initNodeId + ") " + "と一致する "
-          + BhParams.BhModelDef.ATTR_BH_NODE_ID + " を持つ "
-          + BhParams.BhModelDef.ELEM_NODE + " の定義が見つかりません.");
+          "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
+          + BhConstants.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID + " (" + initNodeId + ") " + "と一致する "
+          + BhConstants.BhModelDef.ATTR_BH_NODE_ID + " を持つ "
+          + BhConstants.BhModelDef.ELEM_NODE + " の定義が見つかりません.");
       return Optional.empty();
     }
     return initNode;
@@ -281,8 +281,8 @@ public class BhNodeTemplates {
       if (!bhNodeExists(imitId)) {
         MsgPrinter.INSTANCE.errMsgForDebug(
             "\"" + imitId + "\"" + " を "
-            + BhParams.BhModelDef.ATTR_BH_NODE_ID + " に持つ "
-            + BhParams.BhModelDef.ELEM_NODE + " が見つかりません. "
+            + BhConstants.BhModelDef.ATTR_BH_NODE_ID + " に持つ "
+            + BhConstants.BhModelDef.ELEM_NODE + " が見つかりません. "
             + "(" + orgId + ")");
         allValid = false;
       }
@@ -291,12 +291,12 @@ public class BhNodeTemplates {
       BhNode imitNode = getBhNodeTemplate(imitId).get();
       if (orgNode.getClass() != imitNode.getClass()) {
         MsgPrinter.INSTANCE.errMsgForDebug(
-            BhParams.BhModelDef.ATTR_IMITATION_NODE_ID + " 属性を持つ"
-            + BhParams.BhModelDef.ELEM_NODE + " タグの "
-            + BhParams.BhModelDef.ATTR_TYPE + " と "
-            + BhParams.BhModelDef.ATTR_IMITATION_NODE_ID + " で指定された "
-            + BhParams.BhModelDef.ELEM_NODE + " の "
-            + BhParams.BhModelDef.ATTR_TYPE + " は同じでなければなりません.\n"
+            BhConstants.BhModelDef.ATTR_IMITATION_NODE_ID + " 属性を持つ"
+            + BhConstants.BhModelDef.ELEM_NODE + " タグの "
+            + BhConstants.BhModelDef.ATTR_TYPE + " と "
+            + BhConstants.BhModelDef.ATTR_IMITATION_NODE_ID + " で指定された "
+            + BhConstants.BhModelDef.ELEM_NODE + " の "
+            + BhConstants.BhModelDef.ATTR_TYPE + " は同じでなければなりません.\n"
             + "    org: " + orgId + "    imit: " + imitId);
         allValid = false;
       }      
@@ -353,16 +353,16 @@ public class BhNodeTemplates {
 
   /** 複合ノードを作成する. */
   private boolean genCompoundNodes() {
-    Script cs = BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.GEN_COMPOUND_NODES_JS);
+    Script cs = BhScriptManager.INSTANCE.getCompiledScript(BhConstants.Path.GEN_COMPOUND_NODES_JS);
     ScriptableObject scriptScope = BhScriptManager.INSTANCE.createScriptScope();
     ScriptableObject.putProperty(
-        scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, new UserOperationCommand());
-    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_TEMPLATES, INSTANCE);
-    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, new UserOperationCommand());
+    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_TEMPLATES, INSTANCE);
+    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
     try {
       ContextFactory.getGlobal().call(cx -> cs.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("eval " + BhParams.Path.GEN_COMPOUND_NODES_JS + "\n" + e);
+      MsgPrinter.INSTANCE.errMsgForDebug("eval " + BhConstants.Path.GEN_COMPOUND_NODES_JS + "\n" + e);
       return false;
     }
     return true;

@@ -25,6 +25,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
+import net.seapanda.bunnyhop.common.constant.BhSettings;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
@@ -46,7 +47,9 @@ public class MenuBarController {
   @FXML private MenuItem saveAsMenu;
   @FXML private MenuItem aboutBunnyHop;
   @FXML private MenuItem freeMemory;
-  private File currentSaveFile;  //!< 現在保存対象になっているファイル
+  @FXML private MenuItem focusSimulator;
+  /** 現在保存対象になっているファイル. */
+  private File currentSaveFile;
 
   /**
    * 初期化する.
@@ -59,6 +62,10 @@ public class MenuBarController {
     loadMenu.setOnAction(action -> load(wss));
     freeMemory.setOnAction(action -> freeMemory(wss));
     aboutBunnyHop.setOnAction(action -> showBunnyHopInfo());
+    focusSimulator.setOnAction(action -> switchSimFocusSetting());
+    if (BhSettings.BhSimulator.focusOnStartBhProgram.get()) {
+      focusSimulator.setText(focusSimulator.getText() + " ✓");
+    }
   }
 
   /**
@@ -226,6 +233,17 @@ public class MenuBarController {
         "BunnyHopについて",
         null,
         content);
+  }
+
+  /** BhProgram 実行時にシミュレータにフォーカスするかどうかを切り替える. */
+  private void switchSimFocusSetting() {
+    var val = BhSettings.BhSimulator.focusOnStartBhProgram.get();
+    BhSettings.BhSimulator.focusOnStartBhProgram.set(!val);
+    if (val) {
+      focusSimulator.setText(focusSimulator.getText().replace("✓", ""));
+    } else {
+      focusSimulator.setText(focusSimulator.getText() + " ✓");
+    }
   }
 
   /**

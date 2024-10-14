@@ -1,13 +1,13 @@
 package net.seapanda.bunnyhop.model.node.attribute;
 
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.Util;
 
 /** {@link BhNode} のタイプ. */
 public enum BhNodeType {
   
-  CONNECTIVE(BhParams.BhModelDef.ATTR_VAL_CONNECTIVE),
-  TEXT(BhParams.BhModelDef.ATTR_VAL_TEXT);
+  CONNECTIVE(BhConstants.BhModelDef.ATTR_VAL_CONNECTIVE),
+  TEXT(BhConstants.BhModelDef.ATTR_VAL_TEXT);
   private final String typeName;
 
   private BhNodeType(String typeName) {

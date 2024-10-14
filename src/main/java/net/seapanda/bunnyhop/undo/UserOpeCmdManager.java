@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.undo;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 
 /**
  * undo/redo 時に {@link UserOperationCommand} クラスを操作するクラス.
@@ -40,7 +40,7 @@ public class UserOpeCmdManager {
   public void pushUndoCommand(UserOperationCommand cmd) {
 
     undoStack.addLast(cmd);
-    if (undoStack.size() > BhParams.NUM_TIMES_MAX_UNDO) {
+    if (undoStack.size() > BhConstants.NUM_TIMES_MAX_UNDO) {
       undoStack.removeFirst();
     }
     redoStack.clear();

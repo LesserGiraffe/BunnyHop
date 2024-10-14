@@ -34,7 +34,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.FxmlCollector;
@@ -79,7 +79,7 @@ public class BunnyHop {
     }
     VBox root;
     try {
-      Path filePath = FxmlCollector.INSTANCE.getFilePath(BhParams.Path.FOUNDATION_FXML);
+      Path filePath = FxmlCollector.INSTANCE.getFilePath(BhConstants.Path.FOUNDATION_FXML);
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
       root = loader.load();
       foundationController = loader.getController();
@@ -89,19 +89,19 @@ public class BunnyHop {
       }
     } catch (IOException e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "failed to load fxml " + BhParams.Path.FOUNDATION_FXML + "\n"
+          "failed to load fxml " + BhConstants.Path.FOUNDATION_FXML + "\n"
           + e + "\n");
       return false;
     }
 
     addNewWorkSpace(
-        BhParams.LnF.INITIAL_WORKSPACE_NAME,
-        BhParams.LnF.DEFAULT_WORKSPACE_HEIGHT,
-        BhParams.LnF.DEFAULT_WORKSPACE_HEIGHT,
+        BhConstants.LnF.INITIAL_WORKSPACE_NAME,
+        BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT,
+        BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT,
         new UserOperationCommand());
     Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-    double width = primaryScreenBounds.getWidth() * BhParams.LnF.DEFAULT_APP_WIDTH_RATE;
-    double height = primaryScreenBounds.getHeight() * BhParams.LnF.DEFAULT_APP_HEIGHT_RATE;
+    double width = primaryScreenBounds.getWidth() * BhConstants.LnF.DEFAULT_APP_WIDTH_RATE;
+    double height = primaryScreenBounds.getHeight() * BhConstants.LnF.DEFAULT_APP_HEIGHT_RATE;
     scene = new Scene(root, width, height);
     setCss(scene);
     initStage(stage, scene);
@@ -118,21 +118,21 @@ public class BunnyHop {
   private void initStage(Stage stage, Scene scene) {
     String iconPath = Paths.get(
         Util.INSTANCE.execPath,
-        BhParams.Path.VIEW_DIR,
-        BhParams.Path.IMAGES_DIR,
-        BhParams.Path.BUNNY_HOP_ICON).toUri().toString();
+        BhConstants.Path.VIEW_DIR,
+        BhConstants.Path.IMAGES_DIR,
+        BhConstants.Path.BUNNY_HOP_ICON).toUri().toString();
     stage.getIcons().add(new Image(iconPath));
     stage.setScene(scene);
-    stage.setTitle(BhParams.APPLICATION_NAME);
+    stage.setTitle(BhConstants.APPLICATION_NAME);
     stage.show();
   }
 
   private Optional<BhNodeCategoryList> genNodeCategoryList() {
     Path filePath = Paths.get(
         Util.INSTANCE.execPath,
-        BhParams.Path.BH_DEF_DIR,
-        BhParams.Path.TEMPLATE_LIST_DIR,
-        BhParams.Path.NODE_TEMPLATE_LIST_JSON);
+        BhConstants.Path.BH_DEF_DIR,
+        BhConstants.Path.TEMPLATE_LIST_DIR,
+        BhConstants.Path.NODE_TEMPLATE_LIST_JSON);
     return BhNodeCategoryList.create(filePath);
   }
 
@@ -163,8 +163,8 @@ public class BunnyHop {
     ws.setMsgProcessor(wsController);
     MsgTransporter.INSTANCE.sendMessage(
         BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, userOpeCmd), workspaceSet);
-    for (int i = 0; i < Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL); ++i) {
-      boolean zoomIn = BhParams.LnF.INITIAL_ZOOM_LEVEL > 0;
+    for (int i = 0; i < Math.abs(BhConstants.LnF.INITIAL_ZOOM_LEVEL); ++i) {
+      boolean zoomIn = BhConstants.LnF.INITIAL_ZOOM_LEVEL > 0;
       MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
     }
   }
@@ -178,8 +178,8 @@ public class BunnyHop {
   public void addWorkspace(Workspace ws, UserOperationCommand userOpeCmd) {
     MsgTransporter.INSTANCE.sendMessage(
         BhMsg.ADD_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
-    for (int i = 0; i < Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL); ++i) {
-      boolean zoomIn = BhParams.LnF.INITIAL_ZOOM_LEVEL > 0;
+    for (int i = 0; i < Math.abs(BhConstants.LnF.INITIAL_ZOOM_LEVEL); ++i) {
+      boolean zoomIn = BhConstants.LnF.INITIAL_ZOOM_LEVEL > 0;
       MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
     }
   }
@@ -232,7 +232,7 @@ public class BunnyHop {
    * @param scene css の適用先シーングラフ
    */
   private void setCss(Scene scene) {
-    Path dirPath = Paths.get(Util.INSTANCE.execPath, BhParams.Path.VIEW_DIR, BhParams.Path.CSS_DIR);
+    Path dirPath = Paths.get(Util.INSTANCE.execPath, BhConstants.Path.VIEW_DIR, BhConstants.Path.CSS_DIR);
     List<Path> files = null;  //読み込むファイルパスリスト
     try {
       files = Files.walk(dirPath, FOLLOW_LINKS).filter(
@@ -271,7 +271,7 @@ public class BunnyHop {
     }
     Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
         Alert.AlertType.CONFIRMATION,
-        BhParams.APPLICATION_NAME,
+        BhConstants.APPLICATION_NAME,
         null,
         "保存しますか",
         ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);

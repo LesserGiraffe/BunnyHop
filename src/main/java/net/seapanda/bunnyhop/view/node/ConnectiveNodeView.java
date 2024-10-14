@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.view.node;
 
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
@@ -52,7 +52,7 @@ public final class ConnectiveNodeView extends BhNodeView {
     innerGroup.buildSubGroup(viewStyle.connective.inner);
     outerGroup.buildSubGroup(viewStyle.connective.outer);
     getPositionManager().setOnAbsPosUpdated(this::updateAbsPos);
-    getLookManager().addCssClass(BhParams.Css.CLASS_CONNECTIVE_NODE);
+    getLookManager().addCssClass(BhConstants.Css.CLASS_CONNECTIVE_NODE);
   }
 
   /**

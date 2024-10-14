@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.view.node;
 
 import javafx.scene.control.Label;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
@@ -59,7 +59,7 @@ public final class LabelNodeView extends BhNodeView {
     label.getStyleClass().add(viewStyle.label.cssClass);
     label.heightProperty().addListener(newValue -> notifySizeChange());
     label.widthProperty().addListener(newValue -> notifySizeChange());
-    getLookManager().addCssClass(BhParams.Css.CLASS_LABEL_NODE);
+    getLookManager().addCssClass(BhConstants.Css.CLASS_LABEL_NODE);
   }
 
   @Override

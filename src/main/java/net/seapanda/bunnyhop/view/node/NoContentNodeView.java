@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.view.node;
 
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
@@ -41,7 +41,7 @@ public class NoContentNodeView extends BhNodeView {
       throws ViewInitializationException {
     super(viewStyle, model);
     this.model = model;
-    getLookManager().addCssClass(BhParams.Css.CLASS_NO_CONTENT_NODE);
+    getLookManager().addCssClass(BhConstants.Css.CLASS_NO_CONTENT_NODE);
     setMouseTransparent(true);
   }
 

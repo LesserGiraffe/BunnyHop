@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.model.nodeselection;
 import java.nio.file.Path;
 import java.util.Optional;
 import net.seapanda.bunnyhop.common.TreeNode;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.BhMsg;
@@ -83,17 +83,17 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
       }
       Object val = jsonObj.get(key);
       switch (key.toString()) {
-        case BhParams.NodeTemplate.KEY_CSS_CLASS:  //cssクラスのキー
+        case BhConstants.NodeTemplate.KEY_CSS_CLASS:  //cssクラスのキー
           if (val instanceof String) {
-            TreeNode<String> cssClass = new TreeNode<>(BhParams.NodeTemplate.KEY_CSS_CLASS);
+            TreeNode<String> cssClass = new TreeNode<>(BhConstants.NodeTemplate.KEY_CSS_CLASS);
             cssClass.children.add(new TreeNode<>(val.toString()));
             parent.children.add(cssClass);
           }
           break;
 
-        case BhParams.NodeTemplate.KEY_CONTENTS:  //ノード ID の配列のキー
+        case BhConstants.NodeTemplate.KEY_CONTENTS:  //ノード ID の配列のキー
           if (val instanceof NativeArray) {
-            TreeNode<String> contents = new TreeNode<>(BhParams.NodeTemplate.KEY_CONTENTS);
+            TreeNode<String> contents = new TreeNode<>(BhConstants.NodeTemplate.KEY_CONTENTS);
             bhNodeForLeafExists &= addBhNodeId((NativeArray) val, contents, fileName);
             parent.children.add(contents);
           }
@@ -129,7 +129,7 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
         } else {
           allBhNodesExist &= false;
           MsgPrinter.INSTANCE.errMsgForDebug(
-              bhNodeIdStr + " に対応する " + BhParams.BhModelDef.ELEM_NODE + " が存在しません.\n"
+              bhNodeIdStr + " に対応する " + BhConstants.BhModelDef.ELEM_NODE + " が存在しません.\n"
               + "(" + fileName + ")");
         }
       }

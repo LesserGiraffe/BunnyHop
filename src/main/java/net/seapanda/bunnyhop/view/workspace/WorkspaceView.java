@@ -46,7 +46,7 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FxmlCollector;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
@@ -102,7 +102,7 @@ public class WorkspaceView extends Tab {
    */
   public boolean init(double width, double height) {
     try {
-      Path filePath = FxmlCollector.INSTANCE.getFilePath(BhParams.Path.WORKSPACE_FXML);
+      Path filePath = FxmlCollector.INSTANCE.getFilePath(BhConstants.Path.WORKSPACE_FXML);
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
       loader.setController(this);
       loader.setRoot(this);
@@ -122,9 +122,9 @@ public class WorkspaceView extends Tab {
     wsPane.setMaxSize(minPaneSize.x, minPaneSize.y);
     wsPane.getTransforms().add(new Scale());
     quadTreeMngForBody =
-        new QuadTreeManager(BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
+        new QuadTreeManager(BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
     quadTreeMngForConnector =
-        new QuadTreeManager(BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
+        new QuadTreeManager(BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
     rectSelTool.getPoints().addAll(Stream.generate(() -> 0.0).limit(8).toArray(Double[]::new));
     drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
     setEventHandlers();
@@ -206,7 +206,7 @@ public class WorkspaceView extends Tab {
     }
     var group = new Group();
     var shadowGroup = new Group();
-    shadowGroup.setId(BhParams.Fxml.ID_NODE_VIEW_SHADOW_PANE);
+    shadowGroup.setId(BhConstants.Fxml.ID_NODE_VIEW_SHADOW_PANE);
     group.getChildren().add(shadowGroup);
     nodeView.getTreeManager().addToGuiTree(group);
     wsPane.getChildren().add(group);
@@ -325,10 +325,10 @@ public class WorkspaceView extends Tab {
    * @param widen ワークスペースの大きさを大きくする場合true
    */
   public void changeWorkspaceViewSize(boolean widen) {
-    if ((workspaceSizeLevel == BhParams.LnF.MIN_WORKSPACE_SIZE_LEVEL) && !widen) {
+    if ((workspaceSizeLevel == BhConstants.LnF.MIN_WORKSPACE_SIZE_LEVEL) && !widen) {
       return;
     }
-    if ((workspaceSizeLevel == BhParams.LnF.MAX_WORKSPACE_SIZE_LEVEL) && widen) {
+    if ((workspaceSizeLevel == BhConstants.LnF.MAX_WORKSPACE_SIZE_LEVEL) && widen) {
       return;
     }
     workspaceSizeLevel = widen ? workspaceSizeLevel + 1 : workspaceSizeLevel - 1;
@@ -339,9 +339,9 @@ public class WorkspaceView extends Tab {
     wsPane.setMinSize(newWsWidth, newWsHeight);
     wsPane.setMaxSize(newWsWidth, newWsHeight);
     quadTreeMngForBody = new QuadTreeManager(
-        quadTreeMngForBody, BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
+        quadTreeMngForBody, BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
     quadTreeMngForConnector = new QuadTreeManager(
-        quadTreeMngForConnector, BhParams.LnF.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
+        quadTreeMngForConnector, BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
 
     //全ノードの位置更新
     for (BhNodeView rootView : rootNodeToGroup.keySet()) {
@@ -387,10 +387,10 @@ public class WorkspaceView extends Tab {
    * @param zoomIn 拡大処理を行う場合true
    */
   public void zoom(boolean zoomIn) {
-    if ((BhParams.LnF.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn) {
+    if ((BhConstants.LnF.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn) {
       return;
     }
-    if ((BhParams.LnF.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn) {
+    if ((BhConstants.LnF.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn) {
       return;
     }
     Scale scale = new Scale();
@@ -399,7 +399,7 @@ public class WorkspaceView extends Tab {
     } else {
       --zoomLevel;
     }
-    double mag = Math.pow(BhParams.LnF.ZOOM_MAGNIFICATION, zoomLevel);
+    double mag = Math.pow(BhConstants.LnF.ZOOM_MAGNIFICATION, zoomLevel);
     scale.setX(mag);
     scale.setY(mag);
     wsPane.getTransforms().clear();
@@ -417,8 +417,8 @@ public class WorkspaceView extends Tab {
           Vec2D nodeSize = nodeView.getRegionManager().getNodeSizeIncludingOuter(false);
           Vec2D nodePos = nodeView.getPositionManager().getPosOnWorkspace();
           return new Vec2D(
-            magX * (nodePos.x + nodeSize.x) + BhParams.LnF.NODE_SCALE * 20,
-            magY * (nodePos.y + nodeSize.y) + BhParams.LnF.NODE_SCALE * 20);
+            magX * (nodePos.x + nodeSize.x) + BhConstants.LnF.NODE_SCALE * 20,
+            magY * (nodePos.y + nodeSize.y) + BhConstants.LnF.NODE_SCALE * 20);
         })
         .reduce(
           new Vec2D(0.0, 0.0),

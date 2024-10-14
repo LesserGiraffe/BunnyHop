@@ -17,6 +17,7 @@
     <Rem fx:id="undoRedoSize" rem="2.0"/>
     <Rem fx:id="startSize" rem="2.0"/>
     <Rem fx:id="stopSize" rem="2.0"/>
+    <Rem fx:id="focusSimSize" rem="2.0"/>
   </fx:define>
   <FlowPane
     fx:id="menuOpViewUpper"
@@ -94,6 +95,13 @@
     <Button text="接続" fx:id="connectBtn" styleClass="menuOpFlatButtons"/>
     <Button text="切断" fx:id="disconnectBtn" styleClass="menuOpFlatButtons"/>
     <Separator fx:id="menuOpSeparator4" orientation="VERTICAL" styleClass="menuOpeSeparator"/>
+    <Button fx:id="focusSimBtn" styleClass="menuOpFlatButtons">
+      <graphic>
+        <ImageView>
+          <Image url="@../images/focusSimulator.png" smooth="true" requestedWidth="$focusSimSize.rem" requestedHeight="$focusSimSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button> <!-- シミュレータにフォーカス -->
   </FlowPane>
   
   <FlowPane

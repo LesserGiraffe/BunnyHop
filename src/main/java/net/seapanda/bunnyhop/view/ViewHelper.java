@@ -26,7 +26,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
@@ -105,7 +105,7 @@ public class ViewHelper {
    */
   public Vec2D getPosOnWorkspace(Node node) {
     Parent parent = node.getParent();
-    while (parent != null && !BhParams.Fxml.ID_WS_PANE.equals(parent.getId())) {
+    while (parent != null && !BhConstants.Fxml.ID_WS_PANE.equals(parent.getId())) {
       parent = parent.getParent();
     }
     if (parent != null) {
@@ -124,7 +124,7 @@ public class ViewHelper {
    */
   public WorkspaceView getWorkspaceView(Node node) {
     Parent parent = node.getParent();
-    while (parent != null && !BhParams.Fxml.ID_WS_PANE.equals(parent.getId())) {
+    while (parent != null && !BhConstants.Fxml.ID_WS_PANE.equals(parent.getId())) {
       parent = parent.getParent();
     }
     if (parent != null) {

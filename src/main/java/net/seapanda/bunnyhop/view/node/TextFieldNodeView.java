@@ -24,7 +24,7 @@ import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.TextNode;
@@ -75,7 +75,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
     textField.widthProperty().addListener(observable -> notifySizeChange());
     textField.setMaxWidth(USE_PREF_SIZE);
     textField.setMinWidth(USE_PREF_SIZE);
-    getLookManager().addCssClass(BhParams.Css.CLASS_TEXT_FIELD_NODE);
+    getLookManager().addCssClass(BhConstants.Css.CLASS_TEXT_FIELD_NODE);
   }
 
   @Override
@@ -112,7 +112,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
     textField.setPrefWidth(newWidth);
     boolean acceptable = checkFormatFunc.apply(textPart.getText());
     textField.pseudoClassStateChanged(
-        PseudoClass.getPseudoClass(BhParams.Css.PSEUDO_ERROR), !acceptable);
+        PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR), !acceptable);
   }
 
   @Override

@@ -34,8 +34,8 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
-import net.seapanda.bunnyhop.common.constant.BhParams.LnF;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.constant.BhConstants.LnF;
 import net.seapanda.bunnyhop.common.constant.Rem;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
@@ -62,7 +62,7 @@ public class MultiNodeShifterView extends Pane {
   /** コンストラクタ. */
   public MultiNodeShifterView() throws ViewInitializationException {
     try {
-      Path filePath = FxmlCollector.INSTANCE.getFilePath(BhParams.Path.MULTI_NODE_SHIFTER_FXML);
+      Path filePath = FxmlCollector.INSTANCE.getFilePath(BhConstants.Path.MULTI_NODE_SHIFTER_FXML);
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
       loader.setController(this);
       loader.setRoot(this);
@@ -96,7 +96,7 @@ public class MultiNodeShifterView extends Pane {
   public void createLink(BhNode node) {
     if (!nodeToMap.containsKey(node)) {
       var newLink = new Line(0.0, 0.0, 0.0, 0.0);
-      newLink.getStyleClass().add(BhParams.Css.CLASS_NODE_SHIFTER_LINK);
+      newLink.getStyleClass().add(BhConstants.Css.CLASS_NODE_SHIFTER_LINK);
       newLink.setStrokeDashOffset(1.0);
       nodeToMap.put(node, newLink);
       getChildren().add(newLink);

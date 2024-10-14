@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.Optional;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
@@ -68,22 +68,22 @@ public class BhCompiler {
   public boolean init() {
     Path commonCodePath = Paths.get(
         Util.INSTANCE.execPath,
-        BhParams.Path.BH_DEF_DIR,
-        BhParams.Path.FUNCTIONS_DIR,
-        BhParams.Path.lib,
-        BhParams.Path.COMMON_CODE_JS);
+        BhConstants.Path.BH_DEF_DIR,
+        BhConstants.Path.FUNCTIONS_DIR,
+        BhConstants.Path.lib,
+        BhConstants.Path.COMMON_CODE_JS);
     Path remoteCommonCodePath = Paths.get(
         Util.INSTANCE.execPath,
-        BhParams.Path.BH_DEF_DIR,
-        BhParams.Path.FUNCTIONS_DIR,
-        BhParams.Path.lib,
-        BhParams.Path.REMOTE_COMMON_CODE_JS);
+        BhConstants.Path.BH_DEF_DIR,
+        BhConstants.Path.FUNCTIONS_DIR,
+        BhConstants.Path.lib,
+        BhConstants.Path.REMOTE_COMMON_CODE_JS);
     Path localCommonCodePath = Paths.get(
         Util.INSTANCE.execPath,
-        BhParams.Path.BH_DEF_DIR,
-        BhParams.Path.FUNCTIONS_DIR,
-        BhParams.Path.lib,
-        BhParams.Path.LOCAL_COMMON_CODE_JS);
+        BhConstants.Path.BH_DEF_DIR,
+        BhConstants.Path.FUNCTIONS_DIR,
+        BhConstants.Path.lib,
+        BhConstants.Path.LOCAL_COMMON_CODE_JS);
     try {
       byte[] content = Files.readAllBytes(commonCodePath);
       commonCode = new String(content, StandardCharsets.UTF_8);
@@ -115,9 +115,9 @@ public class BhCompiler {
     genCode(code, execNode, nodesToCompile, option);
 
     Util.INSTANCE.createDirectoryIfNotExists(
-        Paths.get(Util.INSTANCE.execPath, BhParams.Path.COMPILED_DIR));
+        Paths.get(Util.INSTANCE.execPath, BhConstants.Path.COMPILED_DIR));
     Path appFilePath = Paths.get(
-        Util.INSTANCE.execPath, BhParams.Path.COMPILED_DIR, BhParams.Path.APP_FILE_NAME_JS);
+        Util.INSTANCE.execPath, BhConstants.Path.COMPILED_DIR, BhConstants.Path.APP_FILE_NAME_JS);
     try (BufferedWriter writer = Files.newBufferedWriter(
         appFilePath, StandardCharsets.UTF_8,
         StandardOpenOption.CREATE,

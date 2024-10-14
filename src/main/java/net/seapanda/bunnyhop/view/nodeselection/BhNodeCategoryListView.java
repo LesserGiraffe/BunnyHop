@@ -25,7 +25,7 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import net.seapanda.bunnyhop.common.TreeNode;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
@@ -62,8 +62,8 @@ public final class BhNodeCategoryListView {
     this.categoryTree = categoryTree;
     buildCategoryList(model.getRootNode());
     registerPrivateTemplateView();
-    for (int i = 0; i < Math.abs(BhParams.LnF.INITIAL_ZOOM_LEVEL); ++i) {
-      BhNodeSelectionService.INSTANCE.zoomAll(BhParams.LnF.INITIAL_ZOOM_LEVEL > 0);
+    for (int i = 0; i < Math.abs(BhConstants.LnF.INITIAL_ZOOM_LEVEL); ++i) {
+      BhNodeSelectionService.INSTANCE.zoomAll(BhConstants.LnF.INITIAL_ZOOM_LEVEL > 0);
     }
   }
 
@@ -103,12 +103,12 @@ public final class BhNodeCategoryListView {
       throws ViewInitializationException {
     for (TreeNode<String> child : parent.children) {
       switch (child.content) {
-        case BhParams.NodeTemplate.KEY_CSS_CLASS:
+        case BhConstants.NodeTemplate.KEY_CSS_CLASS:
           String cssClass = child.children.get(0).content;
           parentItem.getValue().setCssClass(cssClass);
           break;
 
-        case BhParams.NodeTemplate.KEY_CONTENTS:
+        case BhConstants.NodeTemplate.KEY_CONTENTS:
           for (TreeNode<String> id : child.children) {
             addBhNodeToSelectionView(parentItem.getValue(), BhNodeId.create(id.content));
           }
@@ -153,8 +153,8 @@ public final class BhNodeCategoryListView {
   private void registerPrivateTemplateView()
       throws ViewInitializationException {
     var selectionView = new BhNodeSelectionView(
-        BhParams.NodeTemplate.PRIVATE_NODE_TEMPLATE,
-        BhParams.Css.CLASS_PRIVATE_NODE_TEMPLATE,
+        BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE,
+        BhConstants.Css.CLASS_PRIVATE_NODE_TEMPLATE,
         this);
     BhNodeSelectionService.INSTANCE.registerView(selectionView);
     selectionView.setVisible(false);
@@ -211,7 +211,7 @@ public final class BhNodeCategoryListView {
 
     /** TreeItemの選択状態を解除する. */
     public void select(boolean select) {
-      pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.Css.PSEUDO_SELECTED), select);
+      pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_SELECTED), select);
     }
 
     @Override
@@ -222,11 +222,11 @@ public final class BhNodeCategoryListView {
         select(false);
         getStyleClass().clear();
         getStyleClass().add("tree-cell");
-        pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.Css.PSEUDO_EMPTY), true);
+        pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_EMPTY), true);
         setText(null);
       } else {
         getStyleClass().add(model.getCssClass());
-        pseudoClassStateChanged(PseudoClass.getPseudoClass(BhParams.Css.PSEUDO_EMPTY), false);
+        pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_EMPTY), false);
         setText(category.toString());
       }
     }

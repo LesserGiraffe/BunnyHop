@@ -16,6 +16,9 @@
 
 package net.seapanda.bunnyhop.control;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +42,8 @@ import net.seapanda.bunnyhop.bhprogram.BhRuntimeStatus;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.InputTextCmd;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.constant.BhSettings;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
@@ -104,6 +108,8 @@ public class MenuOperationController {
   private @FXML Button connectBtn;
   /** 切断ボタン. */
   private @FXML Button disconnectBtn;
+  /** シミュレータフォーカスボタン. */
+  private @FXML Button focusSimBtn;
   /** ジャンプボタン. */
   private @FXML Button jumpBtn;
   /** IPアドレス入力欄. */
@@ -153,6 +159,7 @@ public class MenuOperationController {
     terminateBtn.setOnAction(action -> terminate()); // プログラム終了
     connectBtn.setOnAction(action -> connect()); // 接続
     disconnectBtn.setOnAction(action -> disconnect()); // 切断
+    focusSimBtn.setOnAction(action -> focusSimulator()); // シミュレータにフォーカス
     sendBtn.setOnAction(action -> send()); // 送信
     remotLocalSelectBtn.selectedProperty()
         .addListener((observable, oldVal, newVal) -> switchRemoteLocal(newVal));
@@ -202,7 +209,7 @@ public class MenuOperationController {
       javafx.geometry.Point2D pos =
           workspaceSetTab.localToScene(0, workspaceSetTab.getHeight() / 3.0);
       Vec2D localPos = MsgService.INSTANCE.sceneToWorkspace(pos.getX(), pos.getY(), currentWs);
-      double pastePosX = localPos.x + BhParams.LnF.REPLACED_NODE_SHIFT * 2;
+      double pastePosX = localPos.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
       double pastePosY = localPos.y;
       wss.paste(currentWs, new Vec2D(pastePosX, pastePosY));
     } finally {
@@ -338,8 +345,8 @@ public class MenuOperationController {
         UserOperationCommand userOpeCmd = new UserOperationCommand();
         BunnyHop.INSTANCE.addNewWorkSpace(
             wsName,
-            BhParams.LnF.DEFAULT_WORKSPACE_WIDTH,
-            BhParams.LnF.DEFAULT_WORKSPACE_HEIGHT,
+            BhConstants.LnF.DEFAULT_WORKSPACE_WIDTH,
+            BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT,
             userOpeCmd);
         BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
       });
@@ -383,6 +390,20 @@ public class MenuOperationController {
   }
 
   /**
+   * 引数で指定したソースファイルのコードを実行する.
+   *
+   * @param srcPath 実行するソースファイルのパス
+   */
+  private void execute(Path srcPath) {
+    Future<Boolean> future = startProgram(srcPath);
+    boolean success = waitForTaskToComplete(future, "Execute");
+    if (BhSettings.BhSimulator.focusOnStartBhProgram.get() && success) {
+      focusSimulator();
+    }
+    preparingForExecution.set(false);
+  }
+
+  /**
    * ノードをコンパイルする.
    *
    * @param snapshotAndNodeToExec コンパイル対象のノードのスナップショットと実行ノードのペア
@@ -397,17 +418,6 @@ public class MenuOperationController {
   }
 
   /**
-   * 引数で指定したソースファイルのコードを実行する.
-   *
-   * @param srcPath 実行するソースファイルのパス
-   */
-  private void execute(Path srcPath) {
-    Future<Boolean> future = startProgram(srcPath);
-    waitForTaskToComplete(future, "Execute");
-    preparingForExecution.set(false);
-  }
-
-  /**
    * コンパイルしたプログラムを実行する.
    *
    * @param filePath 実行するプログラムのファイルパス
@@ -416,10 +426,13 @@ public class MenuOperationController {
   private Future<Boolean> startProgram(Path filePath) {
     if (isLocalHost()) {
       return BhProgramService.local().executeAsync(
-          filePath, BhParams.ExternalApplication.LOLCAL_HOST);
+          filePath, BhConstants.BhRuntime.LOLCAL_HOST);
     }
     return BhProgramService.remote().executeAsync(
-      filePath, ipAddrTextField.getText(), unameTextField.getText(), passwordTextField.getText());
+        filePath,
+        ipAddrTextField.getText(),
+        unameTextField.getText(),
+        passwordTextField.getText());
   }
 
   /** 終了ボタン押下時の処理. */
@@ -477,6 +490,15 @@ public class MenuOperationController {
       waitForTaskToComplete(future, "Connect");
       connecting.set(false);
     });
+  }
+
+  /** シミュレータにフォーカスする. */
+  private void focusSimulator() {
+    Lwjgl3Window window = ((Lwjgl3Graphics) Gdx.app.getGraphics()).getWindow();
+    if (!window.isIconified()) {
+      window.restoreWindow();
+      window.focusWindow();
+    }
   }
 
   /**

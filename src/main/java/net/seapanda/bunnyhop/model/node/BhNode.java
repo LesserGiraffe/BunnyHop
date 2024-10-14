@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
@@ -476,8 +476,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
     Object ret = null;
     ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
     ScriptableObject.putProperty(
-        scriptScope, BhParams.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCopy);
-    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCopy);
+    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
     try {
       ret = ContextFactory.getGlobal().call(cx -> onCopyRequested.exec(cx, scriptScope));
     } catch (Exception e) {
@@ -535,7 +535,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
     }
     Object privateTemplateNodes = null;
     ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
-    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
     try {
       privateTemplateNodes =
         ContextFactory.getGlobal().call(cx -> privateTemplateCreator.exec(cx, scriptScope));

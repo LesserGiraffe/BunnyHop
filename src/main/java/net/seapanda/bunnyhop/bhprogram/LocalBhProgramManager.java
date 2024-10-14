@@ -22,7 +22,7 @@ import java.nio.file.Paths;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
@@ -113,7 +113,7 @@ public class LocalBhProgramManager {
     boolean success = common.haltTransceiver();
     if (process != null) {
       success &= BhProgramManagerCommon.killProcess(
-          process, BhParams.ExternalApplication.DEAD_PROC_END_TIMEOUT);
+          process, BhConstants.BhRuntime.DEAD_PROC_END_TIMEOUT);
     }
     process = null;
     if (!success) {
@@ -165,7 +165,7 @@ public class LocalBhProgramManager {
         Util.INSTANCE.javaPath,
         "-cp",
         Paths.get(Util.INSTANCE.execPath, "Jlib").toString() + Util.INSTANCE.fs  + "*",
-        BhParams.ExternalApplication.BH_PROGRAM_EXEC_MAIN_CLASS,
+        BhConstants.BhRuntime.BH_PROGRAM_EXEC_MAIN_CLASS,
         "true");  //localFlag == true
 
     procBuilder.redirectErrorStream(true);

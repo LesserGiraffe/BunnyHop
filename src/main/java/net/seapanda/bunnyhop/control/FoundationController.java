@@ -28,7 +28,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.BhProgramService;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.constant.KeyCodeConverter;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.control.nodeselection.BhNodeCategoryListController;
@@ -109,7 +109,7 @@ public class FoundationController {
     }
     // スクロールペインが矢印やスペースキーでスクロールしないようにする。
     if (target instanceof ScrollPane) {
-      if (((ScrollPane) target).getId().equals(BhParams.Fxml.ID_WS_SCROLL_PANE)) {
+      if (((ScrollPane) target).getId().equals(BhConstants.Fxml.ID_WS_SCROLL_PANE)) {
         return true;
       }
     }

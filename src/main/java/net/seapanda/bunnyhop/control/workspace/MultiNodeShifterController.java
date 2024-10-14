@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.control.workspace;
 
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
@@ -59,7 +59,7 @@ public class MultiNodeShifterController {
    * @param mousePressedPos マウスボタン押下時のカーソル位置の格納先
    */
   private void onMousePressed(MouseEvent mouseEvent, Vec2D mousePressedPos) {
-    view.switchPseudoClassActivation(true, BhParams.Css.PSEUDO_SELECTED);
+    view.switchPseudoClassActivation(true, BhConstants.Css.PSEUDO_SELECTED);
     javafx.geometry.Point2D pos =
         view.sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
     mousePressedPos.x = pos.getX();
@@ -90,7 +90,7 @@ public class MultiNodeShifterController {
 
   /** マウスボタンを離したときの処理. */
   private void onMouseReleased(MouseEvent mouseEvent) {
-    view.switchPseudoClassActivation(false, BhParams.Css.PSEUDO_SELECTED);
+    view.switchPseudoClassActivation(false, BhConstants.Css.PSEUDO_SELECTED);
     mouseEvent.consume();
   }
 

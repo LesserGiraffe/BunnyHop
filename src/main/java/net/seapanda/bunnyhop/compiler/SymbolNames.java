@@ -230,7 +230,6 @@ public class SymbolNames {
     public static final String MOD_EXP = "ModExp";
     public static final String NUM_COMP_EXP = "NumCompExp";
     public static final String STR_COMP_EXP = "StrCompExp";
-    public static final String BOOL_COMP_EXP = "BoolCompExp";
     public static final String APPEND_STR_EXP = "AppendStrExp";
     public static final String LEFT_EXP = "LeftExp";
     public static final String RIGHT_EXP = "RightExp";
@@ -243,7 +242,6 @@ public class SymbolNames {
             BINARY_BOOL_EXP,
             NUM_COMP_EXP,
             STR_COMP_EXP,
-            BOOL_COMP_EXP,
             APPEND_STR_EXP));  //二項演算子リスト
 
     public static final HashSet<String> ARITH_EXCEPTION_EXP =
@@ -304,7 +302,7 @@ public class SymbolNames {
     public static final String MAX_MIN_EXP = "MaxMinExp";
     public static final String MEASURE_DISTANCE_EXP = "MeasureDistanceExp";
     public static final String MELODY_EXP = "MelodyExp";
-    public static final String COLOR_COMP_EXP = "ColorCompExp";
+    public static final String ANY_COMP_EXP = "AnyCompExp";
     public static final String BINARY_COLOR_EXP = "BinaryColorExp";
     public static final String DETECT_COLOR_EXP = "DetectColorExp";
     public static final String GET_TIME_SINCE_PROGRAM_STARTED_EXP = "GetTimeSinceProgramStartedExp";
@@ -353,7 +351,7 @@ public class SymbolNames {
             MAX_MIN_EXP,
             MEASURE_DISTANCE_EXP,
             MELODY_EXP,
-            COLOR_COMP_EXP,
+            ANY_COMP_EXP,
             BINARY_COLOR_EXP,
             DETECT_COLOR_EXP,
             GET_TIME_SINCE_PROGRAM_STARTED_EXP,
@@ -455,7 +453,7 @@ public class SymbolNames {
             put(FuncId.create(RAMDOM_INT_EXP), ScriptIdentifiers.Funcs.RANDOM_INT);
             put(FuncId.create(MEASURE_DISTANCE_EXP), ScriptIdentifiers.Funcs.MEASURE_DISTANCE);
             put(FuncId.create(MELODY_EXP), ScriptIdentifiers.Funcs.PUSH_SOUND);
-            put(FuncId.create(COLOR_COMP_EXP), ScriptIdentifiers.Funcs.COMPARE_COLORS);
+            put(FuncId.create(ANY_COMP_EXP), ScriptIdentifiers.Funcs.COMPARE_ANY);
             put(FuncId.create(BINARY_COLOR_EXP, OPT_ADD), ScriptIdentifiers.Funcs.ADD_COLOR);
             put(FuncId.create(BINARY_COLOR_EXP, OPT_SUB), ScriptIdentifiers.Funcs.SUB_COLOR);
             put(FuncId.create(DETECT_COLOR_EXP), ScriptIdentifiers.Funcs.DETECT_COLOR);

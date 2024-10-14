@@ -26,7 +26,7 @@ import javafx.scene.control.TabPane.TabDragPolicy;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
@@ -63,7 +63,7 @@ public class WorkspaceSetController implements MsgProcessor {
   public void init(WorkspaceSet wss) {
     model = wss;
     setEventHandlers();
-    workspaceSetViewBase.setDividerPositions(BhParams.LnF.DEFAULT_VERTICAL_DIV_POS);
+    workspaceSetViewBase.setDividerPositions(BhConstants.LnF.DEFAULT_VERTICAL_DIV_POS);
     MsgPrinter.INSTANCE.setMainMsgArea(mainMsgArea); //メインメッセージエリアの登録
   }
 
@@ -111,8 +111,8 @@ public class WorkspaceSetController implements MsgProcessor {
   /** メッセージエリアのイベントハンドラを登録する. */
   private void setMessageAreaEvenHandlers() {
     mainMsgArea.textProperty().addListener((observable, oldVal, newVal) -> {
-      if (newVal.length() > BhParams.Message.MAX_MAIN_MSG_AREA_CHARS) {
-        int numDeleteChars = newVal.length() - BhParams.Message.MAX_MAIN_MSG_AREA_CHARS;
+      if (newVal.length() > BhConstants.Message.MAX_MAIN_MSG_AREA_CHARS) {
+        int numDeleteChars = newVal.length() - BhConstants.Message.MAX_MAIN_MSG_AREA_CHARS;
         mainMsgArea.deleteText(0, numDeleteChars);
       }
       mainMsgArea.setScrollTop(Double.MAX_VALUE);

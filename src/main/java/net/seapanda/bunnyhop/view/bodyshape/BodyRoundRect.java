@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 
@@ -47,14 +47,14 @@ public class BodyRoundRect extends BodyShapeBase {
 
     ArrayList<Double> bodyVertices = null;
     bodyVertices = new ArrayList<>(Arrays.asList(
-       0.0,                                        0.0 + 0.2 * BhParams.LnF.NODE_SCALE,
-       0.0 + 0.2 * BhParams.LnF.NODE_SCALE,        0.0,
-       bodyWidth - 0.2 * BhParams.LnF.NODE_SCALE,  0.0,
-       bodyWidth,                                  0.0 + 0.2 * BhParams.LnF.NODE_SCALE,
-       bodyWidth,                                  bodyHeight - 0.2 * BhParams.LnF.NODE_SCALE,
-       bodyWidth - 0.2 * BhParams.LnF.NODE_SCALE,  bodyHeight,
-        0.0 + 0.2 * BhParams.LnF.NODE_SCALE,       bodyHeight,
-        0.0,                                       bodyHeight - 0.2 * BhParams.LnF.NODE_SCALE));
+       0.0,                                        0.0 + 0.2 * BhConstants.LnF.NODE_SCALE,
+       0.0 + 0.2 * BhConstants.LnF.NODE_SCALE,        0.0,
+       bodyWidth - 0.2 * BhConstants.LnF.NODE_SCALE,  0.0,
+       bodyWidth,                                  0.0 + 0.2 * BhConstants.LnF.NODE_SCALE,
+       bodyWidth,                                  bodyHeight - 0.2 * BhConstants.LnF.NODE_SCALE,
+       bodyWidth - 0.2 * BhConstants.LnF.NODE_SCALE,  bodyHeight,
+        0.0 + 0.2 * BhConstants.LnF.NODE_SCALE,       bodyHeight,
+        0.0,                                       bodyHeight - 0.2 * BhConstants.LnF.NODE_SCALE));
 
     List<Double> notchVertices =
         createNotchVertices(notch, notchPos, notchWidth, notchHeight, bodyWidth, bodyHeight);

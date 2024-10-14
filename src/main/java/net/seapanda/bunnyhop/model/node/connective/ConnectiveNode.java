@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
@@ -135,13 +135,13 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
     }
     ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
     ScriptableObject.putProperty(
-        scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newChild);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newChild);
     ScriptableObject.putProperty(
-        scriptScope, BhParams.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldChild);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldChild);
     ScriptableObject.putProperty(
-        scriptScope, BhParams.JsKeyword.KEY_BH_PARENT_CONNECTOR, parentCnctr);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_PARENT_CONNECTOR, parentCnctr);
     ScriptableObject.putProperty(
-        scriptScope, BhParams.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
     try {
       ContextFactory.getGlobal().call(cx -> onChildReplaced.exec(cx, scriptScope));
     } catch (Exception e) {

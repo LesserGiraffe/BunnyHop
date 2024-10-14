@@ -26,7 +26,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.TextNode;
@@ -78,7 +78,7 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     textArea.setWrapText(false);
     textArea.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
     textArea.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
-    getLookManager().addCssClass(BhParams.Css.CLASS_TEXT_AREA_NODE);
+    getLookManager().addCssClass(BhConstants.Css.CLASS_TEXT_AREA_NODE);
   }
 
   @Override
@@ -128,7 +128,7 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     textArea.setPrefSize(newWidth, newHeight);
     boolean acceptable = checkFormatFunc.apply(textPart.getText());
     textArea.pseudoClassStateChanged(
-        PseudoClass.getPseudoClass(BhParams.Css.PSEUDO_ERROR), !acceptable);
+        PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR), !acceptable);
     // textArea.requestLayout() を呼ばないと, newWidth の値によってはノード選択ビューでサイズが更新されない.
     Platform.runLater(() -> textArea.requestLayout());
   }

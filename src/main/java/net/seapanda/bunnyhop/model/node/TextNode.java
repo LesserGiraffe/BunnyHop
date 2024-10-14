@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
@@ -123,7 +123,7 @@ public class TextNode  extends ImitationBase<TextNode> {
       return true;
     }
     ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
-    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_TEXT, text);
+    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_TEXT, text);
     Object jsReturn = null;
     try {
       jsReturn = ContextFactory.getGlobal().call(cx -> checker.exec(cx, scriptScope));
@@ -154,14 +154,14 @@ public class TextNode  extends ImitationBase<TextNode> {
       return new Pair<Boolean, String>(false, addedText);
     }
     ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
-    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_TEXT, text);
-    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_ADDED_TEXT, addedText);
+    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_TEXT, text);
+    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_ADDED_TEXT, addedText);
     try {
       NativeObject jsObj = (NativeObject) ContextFactory.getGlobal().call(
           cx -> formatter.exec(cx, scriptScope));
       Boolean isEntireTextFormatted =
-          (Boolean) jsObj.get(BhParams.JsKeyword.KEY_BH_IS_ENTIRE_TEXT_FORMATTED);
-      String formattedText = (String) jsObj.get(BhParams.JsKeyword.KEY_BH_FORMATTED_TEXT);
+          (Boolean) jsObj.get(BhConstants.JsKeyword.KEY_BH_IS_ENTIRE_TEXT_FORMATTED);
+      String formattedText = (String) jsObj.get(BhConstants.JsKeyword.KEY_BH_FORMATTED_TEXT);
       return new Pair<Boolean, String>(isEntireTextFormatted, formattedText);
     } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(

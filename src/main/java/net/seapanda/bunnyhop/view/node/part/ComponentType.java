@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.view.node.part;
 
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 
 /**
  * {@link BhNodeView} が持つ GUI 要素の種類.
@@ -25,11 +25,11 @@ import net.seapanda.bunnyhop.common.constant.BhParams;
  */
 public enum ComponentType {
 
-  TEXT_FIELD(BhParams.NodeStyleDef.VAL_TEXT_FIELD),
-  COMBO_BOX(BhParams.NodeStyleDef.VAL_COMBO_BOX),
-  LABEL(BhParams.NodeStyleDef.VAL_LABEL),
-  TEXT_AREA(BhParams.NodeStyleDef.VAL_TEXT_AREA),
-  NONE(BhParams.NodeStyleDef.VAL_NONE);
+  TEXT_FIELD(BhConstants.NodeStyleDef.VAL_TEXT_FIELD),
+  COMBO_BOX(BhConstants.NodeStyleDef.VAL_COMBO_BOX),
+  LABEL(BhConstants.NodeStyleDef.VAL_LABEL),
+  TEXT_AREA(BhConstants.NodeStyleDef.VAL_TEXT_AREA),
+  NONE(BhConstants.NodeStyleDef.VAL_NONE);
 
   private final String typeName;
 

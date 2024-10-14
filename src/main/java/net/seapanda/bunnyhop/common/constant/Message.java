@@ -33,11 +33,11 @@ public enum Message {
 
   static {
     try {
-      File file = Paths.get(Util.INSTANCE.execPath, BhParams.Path.MESSAGE_DIR).toFile();
+      File file = Paths.get(Util.INSTANCE.execPath, BhConstants.Path.MESSAGE_DIR).toFile();
       URL[] urls = {file.toURI().toURL()};
       ClassLoader loader = new URLClassLoader(urls);
       rb = ResourceBundle.getBundle(
-          BhParams.Path.DEFAULT_MESSAGE_FILE_NAME, Locale.getDefault(), loader);
+          BhConstants.Path.DEFAULT_MESSAGE_FILE_NAME, Locale.getDefault(), loader);
     } catch (Exception e) {
       e.printStackTrace();
     }

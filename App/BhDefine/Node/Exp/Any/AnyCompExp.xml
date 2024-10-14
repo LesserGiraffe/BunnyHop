@@ -1,25 +1,25 @@
 <Node
   type="connective"
-  bhNodeID="idColorCompExp"
-  name="ColorCompExp"
-  nodeStyleID="ColorCompExp.json">
+  bhNodeID="idAnyCompExp"
+  name="AnyCompExp"
+  nodeStyleID="AnyCompExp.json">
 
   <ConnectorSection name="BooleanExpSctn">
-    <Connector bhConnectorID="idColorExpCnctr" name="Arg0"/>
+    <Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
     
     <PrivateConnector
-      bhConnectorID="idColorCompExp.prvCnctr0"
+      bhConnectorID="idAnyExpCnctr.prvCnctr0"
       name="Arg2"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idColorCompExp.prvNode0"
+        bhNodeID="idAnyExpCnctr.prvNode0"
         name="StrLiteral"
         nodeStyleID="DefaultComboBox.json"
         onViewContentsCreating="CreateEqualityCompOps.js">
       </Node>
     </PrivateConnector>
     
-    <Connector bhConnectorID="idColorExpCnctr" name="Arg1"/>
+    <Connector bhConnectorID="idAnyExpCnctr" name="Arg1"/>
   </ConnectorSection>
 </Node>

@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.model.templates;
 
 import java.util.Optional;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
@@ -44,9 +44,9 @@ public class ConnectorConstructor {
   public Optional<Connector> genTemplate(Document doc) {
     //ルートタグチェック
     Element root = doc.getDocumentElement();
-    if (!root.getNodeName().equals(BhParams.BhModelDef.ELEM_CONNECTOR)) {
+    if (!root.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR)) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "コネクタ定義のルート要素は " + BhParams.BhModelDef.ELEM_CONNECTOR 
+          "コネクタ定義のルート要素は " + BhConstants.BhModelDef.ELEM_CONNECTOR 
           + " で始めてください.  " + doc.getBaseURI());
       return Optional.empty();
     }
@@ -63,34 +63,34 @@ public class ConnectorConstructor {
 
     //コネクタID
     ConnectorId cnctrId = ConnectorId.createCnctrId(
-        cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_BH_CONNECTOR_ID));
+        cnctrRoot.getAttribute(BhConstants.BhModelDef.ATTR_BH_CONNECTOR_ID));
     if (cnctrId.equals(ConnectorId.NONE)) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグには "
-          + BhParams.BhModelDef.ATTR_BH_CONNECTOR_ID + " 属性を付加してください.  " + cnctrRoot.getBaseURI());
+          "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + ">" + " タグには "
+          + BhConstants.BhModelDef.ATTR_BH_CONNECTOR_ID + " 属性を付加してください.  " + cnctrRoot.getBaseURI());
       return Optional.empty();
     }
 
     //Fixed
-    String fixedStr = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_FIXED);
+    String fixedStr = cnctrRoot.getAttribute(BhConstants.BhModelDef.ATTR_FIXED);
     if (!fixedStr.isEmpty()
-        && !fixedStr.equals(BhParams.BhModelDef.ATTR_VAL_TRUE)
-        && !fixedStr.equals(BhParams.BhModelDef.ATTR_VAL_FALSE)) {
+        && !fixedStr.equals(BhConstants.BhModelDef.ATTR_VAL_TRUE)
+        && !fixedStr.equals(BhConstants.BhModelDef.ATTR_VAL_FALSE)) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "<" + BhParams.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
-          + BhParams.BhModelDef.ATTR_FIXED + " 属性は, " + cnctrRoot.getBaseURI()
-          + BhParams.BhModelDef.ATTR_VAL_TRUE + "か" + BhParams.BhModelDef.ATTR_VAL_FALSE 
+          "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
+          + BhConstants.BhModelDef.ATTR_FIXED + " 属性は, " + cnctrRoot.getBaseURI()
+          + BhConstants.BhModelDef.ATTR_VAL_TRUE + "か" + BhConstants.BhModelDef.ATTR_VAL_FALSE 
           + "で無ければなりません.  " + cnctrRoot.getBaseURI());
       return Optional.empty();
     }
-    boolean fixed = fixedStr.equals(BhParams.BhModelDef.ATTR_VAL_TRUE);
+    boolean fixed = fixedStr.equals(BhConstants.BhModelDef.ATTR_VAL_TRUE);
 
     //初期接続ノードID
     BhNodeId initNodeId = BhNodeId.create(
-        cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID));
+        cnctrRoot.getAttribute(BhConstants.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID));
     //デフォルトノードID
     BhNodeId defNodeId = BhNodeId.create(
-        cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_DEFAULT_BHNODE_ID));
+        cnctrRoot.getAttribute(BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID));
     boolean hasFixedInitNode = fixed && !initNodeId.equals(BhNodeId.NONE);
     //初期ノードが固定ノードである => 初期ノードがデフォルトノードとなる
     if (hasFixedInitNode) {
@@ -100,18 +100,18 @@ public class ConnectorConstructor {
     } else if (defNodeId.equals(BhNodeId.NONE)) {  
       MsgPrinter.INSTANCE.errMsgForDebug(
           "固定初期ノードを持たない "
-          + "<" + BhParams.BhModelDef.ELEM_CONNECTOR + "> および "
-          + "<" + BhParams.BhModelDef.ELEM_PRIVATE_CONNECTOR + "> タグは"
-          + BhParams.BhModelDef.ATTR_DEFAULT_BHNODE_ID + " 属性を持たなければなりません.  "
+          + "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + "> および "
+          + "<" + BhConstants.BhModelDef.ELEM_PRIVATE_CONNECTOR + "> タグは"
+          + BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID + " 属性を持たなければなりません.  "
           + cnctrRoot.getBaseURI());
       return Optional.empty();
     }
 
     //コネクタクラス
-    String cnctrClass = cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_CLASS);
+    String cnctrClass = cnctrRoot.getAttribute(BhConstants.BhModelDef.ATTR_CLASS);
     //ノード入れ替え時の実行スクリプト
     String scriptName =
-        cnctrRoot.getAttribute(BhParams.BhModelDef.ATTR_ON_CONNECTABILITY_CHECKING);
+        cnctrRoot.getAttribute(BhConstants.BhModelDef.ATTR_ON_CONNECTABILITY_CHECKING);
     if (!BhNodeTemplates.allScriptsExist(cnctrRoot.getBaseURI(), scriptName)) {
       return Optional.empty();
     }

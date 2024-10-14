@@ -21,7 +21,7 @@ import java.util.Optional;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.MsgService;
@@ -60,7 +60,7 @@ public final class ImitationCreationButton extends Button {
 
   private ImitationCreationButton(Imitatable node, BhNodeViewStyle.Button buttonStyle)
       throws IOException, ClassCastException {
-    ComponentLoader.loadButton(BhParams.Path.IMIT_BUTTON_FXML, this, buttonStyle);
+    ComponentLoader.loadButton(BhConstants.Path.IMIT_BUTTON_FXML, this, buttonStyle);
     setOnAction(event -> ImitationCreationButton.onImitCreating(event, node));
   }
 
@@ -86,8 +86,8 @@ public final class ImitationCreationButton extends Button {
   private static void createImitationNode(Imitatable node) {
     UserOperationCommand userOpeCmd = new UserOperationCommand();
     Vec2D pos = MsgService.INSTANCE.getPosOnWs(node);
-    double x = pos.x + BhParams.LnF.REPLACED_NODE_SHIFT;
-    double y = pos.y + BhParams.LnF.REPLACED_NODE_SHIFT;
+    double x = pos.x + BhConstants.LnF.REPLACED_NODE_SHIFT;
+    double y = pos.y + BhConstants.LnF.REPLACED_NODE_SHIFT;
     Imitatable imitNode = ImitationBuilder.build(node, ImitationId.MANUAL, true, userOpeCmd);
     BhNodeHandler.INSTANCE.addRootNode(node.getWorkspace(), imitNode, x, y, userOpeCmd);
     BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);

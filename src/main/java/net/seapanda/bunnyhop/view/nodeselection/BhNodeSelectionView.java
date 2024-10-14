@@ -31,7 +31,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.transform.Scale;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.FxmlCollector;
@@ -64,7 +64,7 @@ public final class BhNodeSelectionView extends ScrollPane {
       throws ViewInitializationException {
     this.categoryName = categoryName;
     try {
-      Path filePath = FxmlCollector.INSTANCE.getFilePath(BhParams.Path.NODE_SELECTION_PANEL_FXML);
+      Path filePath = FxmlCollector.INSTANCE.getFilePath(BhConstants.Path.NODE_SELECTION_PANEL_FXML);
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
       loader.setController(this);
       loader.setRoot(this);
@@ -83,7 +83,7 @@ public final class BhNodeSelectionView extends ScrollPane {
     nodeSelectionPanelWrapper.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
     nodeSelectionPanelWrapper.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
     Node wsSetTab = Optional.ofNullable(nodeSelectionPanelBase.getScene())
-        .map(scene -> scene.lookup("#" + BhParams.Fxml.ID_WORKSPACE_SET_TAB))
+        .map(scene -> scene.lookup("#" + BhConstants.Fxml.ID_WORKSPACE_SET_TAB))
         .orElse(null);
     if (wsSetTab == null) {
       return;
@@ -144,7 +144,7 @@ public final class BhNodeSelectionView extends ScrollPane {
     Long numNodes = rootNodeList.stream()
         .filter(root -> !root.getModel()
         .getSymbolName()
-        .equals(BhParams.NodeTemplate.SELECTION_VIEW_SPACE))
+        .equals(BhConstants.NodeTemplate.SELECTION_VIEW_SPACE))
         .count();
 
     if (numNodes == 0 && BhNodeSelectionService.INSTANCE.isShowed(categoryName)) {
@@ -158,10 +158,10 @@ public final class BhNodeSelectionView extends ScrollPane {
    * @param zoomIn 拡大処理を行う場合true
    */
   public void zoom(boolean zoomIn) {
-    if ((BhParams.LnF.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn) {
+    if ((BhConstants.LnF.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn) {
       return;
     }
-    if ((BhParams.LnF.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn) {
+    if ((BhConstants.LnF.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn) {
       return;
     }
     Scale scale = new Scale();
@@ -170,7 +170,7 @@ public final class BhNodeSelectionView extends ScrollPane {
     } else {
       --zoomLevel;
     }
-    double mag = Math.pow(BhParams.LnF.ZOOM_MAGNIFICATION, zoomLevel);
+    double mag = Math.pow(BhConstants.LnF.ZOOM_MAGNIFICATION, zoomLevel);
     scale.setX(mag);
     scale.setY(mag);
     nodeSelectionPanel.getTransforms().clear();
@@ -201,11 +201,11 @@ public final class BhNodeSelectionView extends ScrollPane {
       Vec2D bodySize = nodeToShift.getRegionManager().getNodeSizeIncludingOuter(false);
       double upperCnctrHeight = wholeBodySize.y - bodySize.y;
       nodeToShift.getPositionManager().setPosOnWorkspace(leftPadding, offset + upperCnctrHeight);
-      offset += wholeBodySize.y + BhParams.LnF.BHNODE_SPACE_ON_SELECTION_PANEL;
+      offset += wholeBodySize.y + BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_PANEL;
       panelWidth = Math.max(panelWidth, wholeBodySize.x);
     }
     panelHeight =
-        (offset - BhParams.LnF.BHNODE_SPACE_ON_SELECTION_PANEL) + topPadding + bottomPadding;
+        (offset - BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_PANEL) + topPadding + bottomPadding;
     panelWidth += rightPadding + leftPadding;
     nodeSelectionPanel.setMinSize(panelWidth, panelHeight);
     //バインディングではなく, ここでこのメソッドを呼ばないとスクロールバーの稼働域が変わらない
@@ -224,7 +224,7 @@ public final class BhNodeSelectionView extends ScrollPane {
     // スクロール時にスクロールバーの可動域が変わるようにする
     nodeSelectionPanelWrapper.setPrefSize(wrapperSizeX, wrapperSizeY);
     Node wsSetTab = Optional.ofNullable(nodeSelectionPanelBase.getScene())
-        .map(scene -> scene.lookup("#" + BhParams.Fxml.ID_WORKSPACE_SET_TAB))
+        .map(scene -> scene.lookup("#" + BhConstants.Fxml.ID_WORKSPACE_SET_TAB))
         .orElse(null);
     double maxWidth = wrapperSizeX + nodeSelectionPanelBase.getPadding().getLeft()
         + nodeSelectionPanelBase.getPadding().getRight();

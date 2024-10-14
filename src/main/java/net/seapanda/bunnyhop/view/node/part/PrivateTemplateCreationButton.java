@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.MsgService;
@@ -64,7 +64,7 @@ public final class PrivateTemplateCreationButton extends Button {
 
   private PrivateTemplateCreationButton(BhNode node, BhNodeViewStyle.Button buttonStyle)
       throws IOException, ClassCastException {
-    ComponentLoader.loadButton(BhParams.Path.PRIVATE_TEMPLATE_BUTTON_FXML, this, buttonStyle);
+    ComponentLoader.loadButton(BhConstants.Path.PRIVATE_TEMPLATE_BUTTON_FXML, this, buttonStyle);
     // setPrefHeight(20);
     setOnAction(event -> onTemplateCreating(event, node));
   }
@@ -84,11 +84,11 @@ public final class PrivateTemplateCreationButton extends Button {
       // 現在表示しているプライベートテンプレートを作ったボタンを押下した場合, プライベートテンプレートを閉じる
       if (lastClicked.getAndSet(this) == this
           && BhNodeSelectionService.INSTANCE.isShowed(
-                BhParams.NodeTemplate.PRIVATE_NODE_TEMPLATE)) {
+                BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE)) {
         BhNodeSelectionService.INSTANCE.hideAll();
       } else {
         createPrivateTemplate(node);
-        BhNodeSelectionService.INSTANCE.show(BhParams.NodeTemplate.PRIVATE_NODE_TEMPLATE);
+        BhNodeSelectionService.INSTANCE.show(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE);
       }
       event.consume();
     } finally {
@@ -104,12 +104,12 @@ public final class PrivateTemplateCreationButton extends Button {
   private static void createPrivateTemplate(BhNode node) {
     var userOpeCmd = new UserOperationCommand();
     BhNodeSelectionService.INSTANCE.deleteAllNodes(
-        BhParams.NodeTemplate.PRIVATE_NODE_TEMPLATE, userOpeCmd);
+        BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE, userOpeCmd);
     for (var templateNode : node.genPrivateTemplateNodes(userOpeCmd)) {
       NodeMvcBuilder.buildTemplate(templateNode);
       TextImitationPrompter.prompt(templateNode);
       BhNodeSelectionService.INSTANCE.addTemplateNode(
-          BhParams.NodeTemplate.PRIVATE_NODE_TEMPLATE, templateNode, userOpeCmd);
+          BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE, templateNode, userOpeCmd);
     }
     BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
   }

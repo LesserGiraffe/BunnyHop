@@ -33,8 +33,8 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import net.seapanda.bunnyhop.bhprogram.BhProgramService;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
-import net.seapanda.bunnyhop.common.constant.BhParams;
-import net.seapanda.bunnyhop.common.constant.BhParams.Path;
+import net.seapanda.bunnyhop.common.constant.BhConstants.Path;
+import net.seapanda.bunnyhop.common.constant.BhSettings;
 import net.seapanda.bunnyhop.common.constant.KeyCodeConverter;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
@@ -89,7 +89,7 @@ public class AppMain extends Application {
     success = BhNodeViewStyle.genViewStyleTemplate();
     success &= BhNodeTemplates.INSTANCE.genTemplate();
     success &= BhNodeViewStyle.checkNodeIdAndNodeTemplate();
-    success &= simulator.waitForInitialization(BhParams.ExternalApplication.SIMULATOR_INIT_TIMEOUT);
+    success &= simulator.waitForInitialization(BhSettings.BhSimulator.initTimeout);
     success &= simulator.getCmdProcessor()
         .map(cmdProcesspr -> BhProgramService.init(cmdProcesspr)).orElse(false);
     if (!success) {

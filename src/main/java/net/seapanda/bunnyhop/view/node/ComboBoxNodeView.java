@@ -31,7 +31,7 @@ import javafx.scene.control.ScrollBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.TextNode;
@@ -86,7 +86,7 @@ public final class ComboBoxNodeView extends BhNodeView {
     if (!comboBox.getItems().isEmpty()) {
       comboBox.setValue(comboBox.getItems().get(0));
     }
-    getLookManager().addCssClass(BhParams.Css.CLASS_COMBO_BOX_NODE);
+    getLookManager().addCssClass(BhConstants.Css.CLASS_COMBO_BOX_NODE);
   }
 
   /**

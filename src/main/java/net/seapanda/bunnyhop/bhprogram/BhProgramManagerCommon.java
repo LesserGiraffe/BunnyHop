@@ -40,7 +40,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessor;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramTransceiver;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
@@ -187,11 +187,11 @@ class BhProgramManagerCommon {
     boolean success = true;
     try {
       success &= runBhProgramExec.awaitTermination(
-          BhParams.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+          BhConstants.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
       success &= connectTaskExec.awaitTermination(
-          BhParams.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+          BhConstants.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
       success &= terminationExec.awaitTermination(
-          BhParams.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+          BhConstants.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       success &= false;
     }
@@ -246,8 +246,8 @@ class BhProgramManagerCommon {
       RemoteException {
     String portStr = getSuffixedLine(
         br,
-        BhParams.ExternalApplication.RMI_TCP_PORT_SUFFIX,
-        BhParams.ExternalApplication.TCP_PORT_READ_TIMEOUT);
+        BhConstants.BhRuntime.RMI_TCP_PORT_SUFFIX,
+        BhConstants.BhRuntime.TCP_PORT_READ_TIMEOUT);
     int port = Integer.parseInt(portStr);
     // リモートオブジェクト取得
     BhProgramHandler programHandler = (BhProgramHandler) findRemoteObj(

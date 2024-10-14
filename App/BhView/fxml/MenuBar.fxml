@@ -22,6 +22,11 @@
         <MenuItem fx:id="freeMemory" text="メモリ解放"/>
       </items>
     </Menu>
+      <Menu text="設定">
+      <items>
+        <MenuItem fx:id="focusSimulator" text="プログラム開始時にシミュレータを表示する"/>
+      </items>
+    </Menu>
     <Menu text="ヘルプ">
       <items>
         <MenuItem fx:id="aboutBunnyHop" text="BunnyHopについて"/>

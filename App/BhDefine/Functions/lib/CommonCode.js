@@ -23,9 +23,11 @@
   let _executor = _jExecutors.newFixedThreadPool(16);
   let _programStartingTime = _currentTimeMillis();
   let _nilSyncTimer = _genSyncTimer(0, true);
-  let _anyObj = {
-    _toStr : function() {return '';}
-  };
+  let _anyObj = new _AnyNil();
+
+  function _AnyNil() {
+    this._toStr = function() {return '';}
+  }
 
   function _initThisObj() {
     this._additionalErrorMsgs = [];
@@ -287,6 +289,26 @@
       ary[idx] = val;
   }
 
+  function _compareAny(a, b, op) {
+    let equality = null;
+    if (a.constructor !== b.constructor)
+      equality = false;
+    else if (typeof(a) === 'number' || a instanceof Number)
+      equality = (a === b);
+    else if (typeof(a) === 'string' || a instanceof String)
+      equality = (a === b);
+    else if (typeof(a) === 'boolean' || a instanceof Boolean)
+      equality = (a === b);
+    else if (a instanceof _Sound)
+      equality = (a.hz === b.hz) && (a.duration === b.duration) && (a.amp === b.amp);
+    else if (a instanceof _Color)
+      equality = (a.red === b.red) && (a.green === b.green) && (a.blue === b.blue);
+    else if (a instanceof _AnyNil)
+      equality = true;
+
+    return (op === 'eq') ? equality : !equality;
+  }
+
   //==================================================================
   //              音再生
   //==================================================================
@@ -343,7 +365,6 @@
     }
     return samplePos;
   }
-
 
   /**
    * 音リストからバッファに収まる分の波形を生成する. 音リストの末尾から順に波形を生成する.
@@ -440,7 +461,6 @@
    * @param path 再生したいファイルのパス (java.nio.file.Path オブジェクト)
    * */
   function _playWavFile(path) {
-
     let line = null;
     let bis = null;
     let ais = null;
@@ -494,7 +514,6 @@
   }
 
   function _sayOnLinux(word) {
-
     word = word.replace(/"/g, '');
     let path = _jPaths.get(bhScriptHelper.util.getExecPath(), 'Actions', 'bhSay.sh');
     let talkCmd = String(path.toAbsolutePath().toString());
@@ -519,7 +538,6 @@
   }
 
   function _createColorFromName(colorName) {
-
     colorName = colorName.toLowerCase();
     switch (colorName) {
       case 'red':
@@ -544,17 +562,6 @@
     }
   }
 
-  function _compareColors(colorA, colorB, eq) {
-
-    let equality = (colorA.red === colorB.red) && (colorA.green === colorB.green) && (colorA.blue === colorB.blue);
-    if (eq === 'eq')
-      return equality;
-    else if (eq === 'neq')
-      return !equality;
-    
-    throw _newBhProgramExceptioin.call(this, '_compareColors invalid eq (' + eq + ')');
-  }
-
   function _addColor(left, right) {
     return new _Color(
       _clamp(left.red + right.red, 0, 255),
@@ -568,6 +575,7 @@
       _clamp(left.green - right.green, 0, 255),
       _clamp(left.blue - right.blue, 0, 255));
   }
+
 
   let _nilColor = new _Color(0, 0, 0);
 

@@ -40,7 +40,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.BhMsg;
@@ -256,11 +256,11 @@ public class WorkspaceSet implements MsgReceptionWindow {
           wsToPasteIn,
           copy,
           pasteBasePos.x,
-          pasteBasePos.y + pastePosOffsetCount * BhParams.LnF.REPLACED_NODE_SHIFT * 2,
+          pasteBasePos.y + pastePosOffsetCount * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
           userOpeCmd);
       //コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
       Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(orgAndCopy.v1);
-      pasteBasePos.x += size.x + BhParams.LnF.REPLACED_NODE_SHIFT * 2;
+      pasteBasePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
     }
     pastePosOffsetCount = (pastePosOffsetCount > 2) ? -2 : ++pastePosOffsetCount;
   }
@@ -292,10 +292,10 @@ public class WorkspaceSet implements MsgReceptionWindow {
           wsToPasteIn,
           node,
           pasteBasePos.x,
-          pasteBasePos.y + pastePosOffsetCount * BhParams.LnF.REPLACED_NODE_SHIFT * 2,
+          pasteBasePos.y + pastePosOffsetCount * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
           userOpeCmd);
       Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
-      pasteBasePos.x += size.x + BhParams.LnF.REPLACED_NODE_SHIFT * 2;
+      pasteBasePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
       DelayedDeleter.INSTANCE.deleteAll(userOpeCmd);
       newChild.ifPresent(child -> {
         node.getEventDispatcher().execOnMovedFromChildToWs(

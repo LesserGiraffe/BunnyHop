@@ -25,7 +25,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 
@@ -48,7 +48,7 @@ public class FxmlCollector {
    */
   public boolean collectFxmlFiles() {
     Path dirPath =
-        Paths.get(Util.INSTANCE.execPath, BhParams.Path.VIEW_DIR, BhParams.Path.FXML_DIR);
+        Paths.get(Util.INSTANCE.execPath, BhConstants.Path.VIEW_DIR, BhConstants.Path.FXML_DIR);
     List<Path> paths;  //読み込むファイルパスリスト
     try {
       paths = Files.walk(dirPath, FOLLOW_LINKS)

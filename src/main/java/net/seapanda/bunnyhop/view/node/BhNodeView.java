@@ -38,7 +38,7 @@ import javafx.scene.shape.Polygon;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Showable;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
@@ -141,7 +141,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     shadowShape.setMouseTransparent(true);
     viewTreeManager.addChild(nodeShape);
     lookManager.addCssClass(viewStyle.cssClass);
-    lookManager.addCssClass(BhParams.Css.CLASS_BHNODE);
+    lookManager.addCssClass(BhConstants.Css.CLASS_BHNODE);
     if (model.canCreateImitManually) {
       createImitButton(model);
     }
@@ -276,9 +276,9 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
      */
     void addCssClass(String cssClassName) {
       nodeShape.getStyleClass().add(cssClassName);
-      BhNodeView.this.getStyleClass().add(cssClassName + BhParams.Css.CLASS_SUFFIX_PANE);
+      BhNodeView.this.getStyleClass().add(cssClassName + BhConstants.Css.CLASS_SUFFIX_PANE);
       BhNodeView.this.syntaxErrorMark.getStyleClass().add(
-          cssClassName + BhParams.Css.CLASS_SUFFIX_SYNTAX_ERROR);
+          cssClassName + BhConstants.Css.CLASS_SUFFIX_SYNTAX_ERROR);
     }
 
     /**
@@ -361,7 +361,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
      * @param enable 選択表示を有効化する場合 true
      */
     public void select(boolean enable) {
-      switchPseudoClassActivation(enable, BhParams.Css.PSEUDO_SELECTED);
+      switchPseudoClassActivation(enable, BhConstants.Css.PSEUDO_SELECTED);
     }
 
     /**
@@ -679,7 +679,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
      * @param shadowShapes 追加する影ポリゴン
      */
     private void addShadowShapes(Parent parent, Collection<Node> shadowShapes) {
-      Node shadowShapeContainer = parent.lookup("#" + BhParams.Fxml.ID_NODE_VIEW_SHADOW_PANE);
+      Node shadowShapeContainer = parent.lookup("#" + BhConstants.Fxml.ID_NODE_VIEW_SHADOW_PANE);
       if (shadowShapeContainer instanceof Group) {
         Group shadowGroup = (Group) shadowShapeContainer;
         Set<Node> childShapes = new HashSet<>(shadowGroup.getChildren());
@@ -721,7 +721,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
         view.getTreeManager().isEven = true;  //ルートは even
       }
       view.getLookManager().switchPseudoClassActivation(
-          view.getTreeManager().isEven, BhParams.Css.PSEUDO_IS_EVEN);
+          view.getTreeManager().isEven, BhConstants.Css.PSEUDO_IS_EVEN);
     }
 
     /**

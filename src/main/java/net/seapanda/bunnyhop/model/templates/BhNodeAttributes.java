@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.model.templates;
 
 import java.util.Optional;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
@@ -59,78 +59,78 @@ public class BhNodeAttributes {
     BhNodeAttributes nodeAttrs = new BhNodeAttributes();
 
     // bhNodeID
-    nodeAttrs.bhNodeId = BhNodeId.create(node.getAttribute(BhParams.BhModelDef.ATTR_BH_NODE_ID));
+    nodeAttrs.bhNodeId = BhNodeId.create(node.getAttribute(BhConstants.BhModelDef.ATTR_BH_NODE_ID));
     if (nodeAttrs.bhNodeId.equals(BhNodeId.NONE)) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "<" + BhParams.BhModelDef.ELEM_NODE + ">" + " タグには "
-          + BhParams.BhModelDef.ATTR_BH_NODE_ID + " 属性を記述してください.  " + node.getBaseURI());
+          "<" + BhConstants.BhModelDef.ELEM_NODE + ">" + " タグには "
+          + BhConstants.BhModelDef.ATTR_BH_NODE_ID + " 属性を記述してください.  " + node.getBaseURI());
       return Optional.empty();
     }
 
     // name
-    nodeAttrs.name = node.getAttribute(BhParams.BhModelDef.ATTR_NAME);
+    nodeAttrs.name = node.getAttribute(BhConstants.BhModelDef.ATTR_NAME);
 
     // nodeStyleID
-    nodeAttrs.nodeStyleId = node.getAttribute(BhParams.BhModelDef.ATTR_NODE_STYLE_ID);
+    nodeAttrs.nodeStyleId = node.getAttribute(BhConstants.BhModelDef.ATTR_NODE_STYLE_ID);
     if (!nodeAttrs.nodeStyleId.isEmpty()) {
       BhNodeViewStyle.putNodeIdToNodeStyleId(nodeAttrs.bhNodeId, nodeAttrs.nodeStyleId);
     }
 
     // onMovedFromChildToWS
     nodeAttrs.onMovedFromChildToWs =
-        node.getAttribute(BhParams.BhModelDef.ATTR_ON_MOVED_FROM_CHILD_TO_WS);
+        node.getAttribute(BhConstants.BhModelDef.ATTR_ON_MOVED_FROM_CHILD_TO_WS);
 
     // onMovedToChild
-    nodeAttrs.onMovedToChild = node.getAttribute(BhParams.BhModelDef.ATTR_ON_MOVED_TO_CHILD);
+    nodeAttrs.onMovedToChild = node.getAttribute(BhConstants.BhModelDef.ATTR_ON_MOVED_TO_CHILD);
 
     // onTextChecking
-    nodeAttrs.onTextChecking = node.getAttribute(BhParams.BhModelDef.ATTR_ON_TEXT_CHECKING);
+    nodeAttrs.onTextChecking = node.getAttribute(BhConstants.BhModelDef.ATTR_ON_TEXT_CHECKING);
 
     // onTextFormatting
-    nodeAttrs.onTextFormatting = node.getAttribute(BhParams.BhModelDef.ATTR_ON_TEXT_FORMATTING);
+    nodeAttrs.onTextFormatting = node.getAttribute(BhConstants.BhModelDef.ATTR_ON_TEXT_FORMATTING);
 
     // onDeletionRequested
     nodeAttrs.onDeletionRequested =
-        node.getAttribute(BhParams.BhModelDef.ATTR_ON_DELETION_REQUESTED);
+        node.getAttribute(BhConstants.BhModelDef.ATTR_ON_DELETION_REQUESTED);
 
     // onCutRequested
-    nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CUT_REQUESTED);
+    nodeAttrs.onCutRequested = node.getAttribute(BhConstants.BhModelDef.ATTR_ON_CUT_REQUESTED);
 
     // onCopyRequested
-    nodeAttrs.onCopyRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_COPY_REQUESTED);
+    nodeAttrs.onCopyRequested = node.getAttribute(BhConstants.BhModelDef.ATTR_ON_COPY_REQUESTED);
 
     // onChildReplaced
-    nodeAttrs.onChildReplaced = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CHILD_REPLACED);
+    nodeAttrs.onChildReplaced = node.getAttribute(BhConstants.BhModelDef.ATTR_ON_CHILD_REPLACED);
 
     // onCutRequested
-    nodeAttrs.onCutRequested = node.getAttribute(BhParams.BhModelDef.ATTR_ON_CUT_REQUESTED);
+    nodeAttrs.onCutRequested = node.getAttribute(BhConstants.BhModelDef.ATTR_ON_CUT_REQUESTED);
 
     // onPrivateTemplateCreating
     nodeAttrs.onPrivateTemplateCreating =
-        node.getAttribute(BhParams.BhModelDef.ATTR_ON_PRIFVATE_TEMPLATE_CREATING);
+        node.getAttribute(BhConstants.BhModelDef.ATTR_ON_PRIFVATE_TEMPLATE_CREATING);
 
     // onSyntaxChecking
-    nodeAttrs.onSyntaxChecking = node.getAttribute(BhParams.BhModelDef.ATTR_ON_SYNTAX_CHECKING);
+    nodeAttrs.onSyntaxChecking = node.getAttribute(BhConstants.BhModelDef.ATTR_ON_SYNTAX_CHECKING);
     
     // onViewContentsCreating
     nodeAttrs.onViewContentsCreating = 
-        node.getAttribute(BhParams.BhModelDef.ATTR_ON_VIEW_CONTENTS_CREATING);
+        node.getAttribute(BhConstants.BhModelDef.ATTR_ON_VIEW_CONTENTS_CREATING);
 
     // initString
-    nodeAttrs.initString = node.getAttribute(BhParams.BhModelDef.ATTR_INIT_STRING);
+    nodeAttrs.initString = node.getAttribute(BhConstants.BhModelDef.ATTR_INIT_STRING);
 
     // canCreateImitManually
-    String strCreateImit = node.getAttribute(BhParams.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY);
-    if (strCreateImit.equals(BhParams.BhModelDef.ATTR_VAL_TRUE)) {
+    String strCreateImit = node.getAttribute(BhConstants.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY);
+    if (strCreateImit.equals(BhConstants.BhModelDef.ATTR_VAL_TRUE)) {
       nodeAttrs.canCreateImitManually = true;
     } else if (strCreateImit.equals(
-        BhParams.BhModelDef.ATTR_VAL_FALSE) || strCreateImit.isEmpty()) {
+        BhConstants.BhModelDef.ATTR_VAL_FALSE) || strCreateImit.isEmpty()) {
       nodeAttrs.canCreateImitManually = false;
     } else {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          BhParams.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY + " 属性には "
-          + BhParams.BhModelDef.ATTR_VAL_TRUE + " か "
-          + BhParams.BhModelDef.ATTR_VAL_FALSE + " を指定してください. " + node.getBaseURI());
+          BhConstants.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY + " 属性には "
+          + BhConstants.BhModelDef.ATTR_VAL_TRUE + " か "
+          + BhConstants.BhModelDef.ATTR_VAL_FALSE + " を指定してください. " + node.getBaseURI());
       return Optional.empty();
     }
     return Optional.of(nodeAttrs);

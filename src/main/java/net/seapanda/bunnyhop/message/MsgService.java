@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.message;
 import java.util.Collection;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
@@ -239,7 +239,7 @@ public class MsgService {
     if (orgNode instanceof Imitatable) {
       Collection<? extends Imitatable> imitationList = ((Imitatable) orgNode).getImitationList();
       imitationList.forEach(imitation ->
-          switchPseudoClassActivation(imitation, BhParams.Css.PSEUDO_HIGHLIGHT_IMIT, enable));
+          switchPseudoClassActivation(imitation, BhConstants.Css.PSEUDO_HIGHLIGHT_IMIT, enable));
     }
   }
 

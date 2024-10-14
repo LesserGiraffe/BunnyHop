@@ -27,7 +27,7 @@ public class ScriptIdentifiers {
     public static final String PRINTLN = "_println";
     public static final String SLEEP = "_sleep";
     public static final String PLAY_MELODIES = "_playMelodies";
-    public static final String COMPARE_COLORS = "_compareColors";
+    public static final String COMPARE_ANY = "_compareAny";
     public static final String ADD_COLOR = "_addColor";
     public static final String SUB_COLOR = "_subColor";
     public static final String DETECT_COLOR = "_detectColor";

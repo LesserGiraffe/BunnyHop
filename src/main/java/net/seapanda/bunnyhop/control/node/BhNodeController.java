@@ -21,7 +21,7 @@ import java.util.List;
 import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
@@ -184,7 +184,7 @@ public class BhNodeController implements MsgProcessor {
 
       if (ddInfo.currentOverlapped != null) {
         MsgService.INSTANCE.switchPseudoClassActivation(
-            ddInfo.currentOverlapped, BhParams.Css.PSEUDO_OVERLAPPED, false);
+            ddInfo.currentOverlapped, BhConstants.Css.PSEUDO_OVERLAPPED, false);
       }
       //子ノード -> ワークスペース
       if ((model.getState() == BhNode.State.ROOT_DANGLING) && ddInfo.currentOverlapped == null) {
@@ -237,8 +237,8 @@ public class BhNodeController implements MsgProcessor {
         ddInfo.latestParent, ddInfo.latestRoot, oldChildNode, ddInfo.userOpeCmd);
 
     Vec2D posOnWs = MsgService.INSTANCE.getPosOnWs(oldChildNode);
-    double newXposInWs = posOnWs.x + BhParams.LnF.REPLACED_NODE_SHIFT;
-    double newYposInWs = posOnWs.y + BhParams.LnF.REPLACED_NODE_SHIFT;
+    double newXposInWs = posOnWs.x + BhConstants.LnF.REPLACED_NODE_SHIFT;
+    double newYposInWs = posOnWs.y + BhConstants.LnF.REPLACED_NODE_SHIFT;
     //重なっているノードをWSに移動
     BhNodeHandler.INSTANCE.moveToWs(
         oldChildNode.getWorkspace(), oldChildNode, newXposInWs, newYposInWs, ddInfo.userOpeCmd);
@@ -297,7 +297,7 @@ public class BhNodeController implements MsgProcessor {
     if (ddInfo.currentOverlapped != null) {
       //前回重なっていたものをライトオフ
       MsgService.INSTANCE.switchPseudoClassActivation(
-          ddInfo.currentOverlapped, BhParams.Css.PSEUDO_OVERLAPPED, false);
+          ddInfo.currentOverlapped, BhConstants.Css.PSEUDO_OVERLAPPED, false);
     }
     ddInfo.currentOverlapped = null;
     List<BhNode> overlappedList = view.getRegionManager().searchForOverlappedModels();
@@ -305,7 +305,7 @@ public class BhNodeController implements MsgProcessor {
       if (overlapped.canBeReplacedWith(model)) {  //このノードと入れ替え可能
         //今回重なっているものをライトオン
         MsgService.INSTANCE.switchPseudoClassActivation(
-            overlapped, BhParams.Css.PSEUDO_OVERLAPPED, true);
+            overlapped, BhConstants.Css.PSEUDO_OVERLAPPED, true);
         ddInfo.currentOverlapped = overlapped;
         break;
       }

@@ -32,7 +32,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.util.Duration;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.root.BunnyHop;
 
 /**
@@ -45,7 +45,7 @@ public class MsgPrinter {
   public static final MsgPrinter INSTANCE = new MsgPrinter();
   private TextArea mainMsgArea;
   private BlockingQueue<String> messages =
-      new ArrayBlockingQueue<>(BhParams.Message.MAX_MAIN_MSG_QUEUE_SIZE);
+      new ArrayBlockingQueue<>(BhConstants.Message.MAX_MAIN_MSG_QUEUE_SIZE);
   private Timeline msgPrintTimer;
 
   private MsgPrinter() {}

@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.model.node.connective;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
@@ -228,8 +228,8 @@ public class Connector extends SyntaxSymbol {
       return false;
     }
     ScriptableObject.putProperty(
-        scriptScope, BhParams.JsKeyword.KEY_BH_CURRENT_NODE, connectedNode);
-    ScriptableObject.putProperty(scriptScope, BhParams.JsKeyword.KEY_BH_NODE_TO_CONNECT, node);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_CURRENT_NODE, connectedNode);
+    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_TO_CONNECT, node);
     Object isConnectable;
     try {
       isConnectable = ContextFactory.getGlobal().call(cx -> script.exec(cx, scriptScope));
@@ -286,15 +286,17 @@ public class Connector extends SyntaxSymbol {
   public final void setScriptScope() {
     scriptScope = BhScriptManager.INSTANCE.createScriptScope();
     ScriptableObject.putProperty(
-        scriptScope, BhParams.JsKeyword.KEY_BH_THIS, this);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_THIS, this);
     ScriptableObject.putProperty(
-        scriptScope, BhParams.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
     ScriptableObject.putProperty(
-        scriptScope, BhParams.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
     ScriptableObject.putProperty(
-        scriptScope, BhParams.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
+        scriptScope,
+        BhConstants.JsKeyword.KEY_BH_COMMON,
+        BhScriptManager.INSTANCE.getCommonJsObj());
     ScriptableObject.putProperty(
-        scriptScope, BhParams.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
   }
 
   /**

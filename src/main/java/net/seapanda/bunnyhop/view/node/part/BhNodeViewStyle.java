@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
@@ -52,30 +52,30 @@ public class BhNodeViewStyle {
   /** ノードスタイルに付けられたID. */
   public String nodeStyleId;
   /** ノード上部の余白. */
-  public double paddingTop = 2.5 * BhParams.LnF.NODE_SCALE;
+  public double paddingTop = 2.5 * BhConstants.LnF.NODE_SCALE;
   /** ノード下部の余白. */
-  public double paddingBottom = 2.5 * BhParams.LnF.NODE_SCALE;
+  public double paddingBottom = 2.5 * BhConstants.LnF.NODE_SCALE;
   /** ノード左部の余白. */
-  public double paddingLeft = 2.5 * BhParams.LnF.NODE_SCALE;
+  public double paddingLeft = 2.5 * BhConstants.LnF.NODE_SCALE;
   /** ノード右部の余白. */
-  public double paddingRight = 2.5 * BhParams.LnF.NODE_SCALE;
+  public double paddingRight = 2.5 * BhConstants.LnF.NODE_SCALE;
   public BodyShape bodyShape = BodyShape.BODY_SHAPE_ROUND_RECT;
   /** コネクタの位置. */
   public ConnectorPos connectorPos = ConnectorPos.TOP;
   /** ノードの左上からのコネクタの位置. */
-  public double connectorShift = 0.5 * BhParams.LnF.NODE_SCALE;
+  public double connectorShift = 0.5 * BhConstants.LnF.NODE_SCALE;
   /** コネクタ部分の幅. */
-  public double connectorWidth = 1.5 * BhParams.LnF.NODE_SCALE;
+  public double connectorWidth = 1.5 * BhConstants.LnF.NODE_SCALE;
   /** コネクタ部分の高さ. */
-  public double connectorHeight = 1.5 * BhParams.LnF.NODE_SCALE;
+  public double connectorHeight = 1.5 * BhConstants.LnF.NODE_SCALE;
   /** コネクタの形. */
   public ConnectorShape.CnctrShape connectorShape = ConnectorShape.CnctrShape.ARROW;
   /** 切り欠きの位置. */
   public NotchPos notchPos = NotchPos.RIGHT;
   /** コネクタ部分の幅. */
-  public double notchWidth = 1.5 * BhParams.LnF.NODE_SCALE;
+  public double notchWidth = 1.5 * BhConstants.LnF.NODE_SCALE;
   /** コネクタ部分の高さ. */
-  public double notchHeight = 1.5 * BhParams.LnF.NODE_SCALE;
+  public double notchHeight = 1.5 * BhConstants.LnF.NODE_SCALE;
   /** 切り欠きの形. */
   public ConnectorShape.CnctrShape notchShape =  ConnectorShape.CnctrShape.NONE;
   /** ドラッグ&ドロップ時などに適用されるコネクタの範囲. */
@@ -95,7 +95,7 @@ public class BhNodeViewStyle {
   /** ノードの内部に描画するノードの並べ方のパラメータ. */
   public static class Arrangement {
     /** ノード内部に描画するノード同士の間隔. */
-    public double space = 2.5 * BhParams.LnF.NODE_SCALE;
+    public double space = 2.5 * BhConstants.LnF.NODE_SCALE;
     /** 内部ノード上部の余白. */
     public double paddingTop = 0;
     /** 内部ノード右部の余白. */
@@ -129,7 +129,7 @@ public class BhNodeViewStyle {
 
   /** テキストフィールドのパラメータ. */
   public static class TextField {
-    public double minWidth = 0 * BhParams.LnF.NODE_SCALE;
+    public double minWidth = 0 * BhConstants.LnF.NODE_SCALE;
     public String cssClass = "defaultTextField";
   }
 
@@ -151,8 +151,8 @@ public class BhNodeViewStyle {
 
   /** テキストエリアのパラメータ. */
   public static class TextArea {
-    public double minWidth = 4 * BhParams.LnF.NODE_SCALE;
-    public double minHeight = 3 * BhParams.LnF.NODE_SCALE;
+    public double minWidth = 4 * BhConstants.LnF.NODE_SCALE;
+    public double minHeight = 3 * BhConstants.LnF.NODE_SCALE;
     public String cssClass = "defaultTextArea";
   }
 
@@ -161,8 +161,8 @@ public class BhNodeViewStyle {
 
   /** ボタンのパラメータ. */
   public static class Button {
-    public double buttonPosX = 0.5 * BhParams.LnF.NODE_SCALE;
-    public double buttonPosY = 0.5 * BhParams.LnF.NODE_SCALE;
+    public double buttonPosX = 0.5 * BhConstants.LnF.NODE_SCALE;
+    public double buttonPosY = 0.5 * BhConstants.LnF.NODE_SCALE;
     public String cssClass = "defaultImitButton";
 
     public Button(String cssClass) {
@@ -256,7 +256,7 @@ public class BhNodeViewStyle {
   /** {@link BhNodeViewStyle} のテンプレートを作成する. */
   public static boolean genViewStyleTemplate() {
     Path dirPath = Paths.get(
-        Util.INSTANCE.execPath, BhParams.Path.VIEW_DIR, BhParams.Path.NODE_STYLE_DEF_DIR);
+        Util.INSTANCE.execPath, BhConstants.Path.VIEW_DIR, BhConstants.Path.NODE_STYLE_DEF_DIR);
     Stream<Path> paths = null; //読み込むファイルパスリスト
     try {
       paths = Files
@@ -269,7 +269,7 @@ public class BhNodeViewStyle {
 
     boolean succes = paths.map(filePath -> registerNodeStyle(filePath)).allMatch(Boolean::valueOf);
     nodeStyleIdToNodeStyleTemplate.put(
-        BhParams.BhModelDef.ATTR_VAL_DEFAULT_NODE_STYLE_ID, new BhNodeViewStyle());
+        BhConstants.BhModelDef.ATTR_VAL_DEFAULT_NODE_STYLE_ID, new BhNodeViewStyle());
     paths.close();
     return succes;
   }
@@ -308,27 +308,27 @@ public class BhNodeViewStyle {
 
     //paddingTop
     Optional<Object> val =
-        readValue(BhParams.NodeStyleDef.KEY_PADDING_TOP, Number.class, jsonObj, fileName);
+        readValue(BhConstants.NodeStyleDef.KEY_PADDING_TOP, Number.class, jsonObj, fileName);
     val.ifPresent(paddingTop ->
-        style.paddingTop = ((Number) paddingTop).doubleValue() * BhParams.LnF.NODE_SCALE);
+        style.paddingTop = ((Number) paddingTop).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //paddingBottom
-    val = readValue(BhParams.NodeStyleDef.KEY_PADDING_BOTTOM, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_BOTTOM, Number.class, jsonObj, fileName);
     val.ifPresent(paddingBottom ->
-        style.paddingBottom = ((Number) paddingBottom).doubleValue() * BhParams.LnF.NODE_SCALE);
+        style.paddingBottom = ((Number) paddingBottom).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //paddingLeft
-    val = readValue(BhParams.NodeStyleDef.KEY_PADDING_LEFT, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_LEFT, Number.class, jsonObj, fileName);
     val.ifPresent(paddingLeft ->
-        style.paddingLeft = ((Number) paddingLeft).doubleValue() * BhParams.LnF.NODE_SCALE);
+        style.paddingLeft = ((Number) paddingLeft).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //paddingRight
-    val = readValue(BhParams.NodeStyleDef.KEY_PADDING_RIGHT, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_RIGHT, Number.class, jsonObj, fileName);
     val.ifPresent(paddingRight ->
-        style.paddingRight = ((Number) paddingRight).doubleValue() * BhParams.LnF.NODE_SCALE);
+        style.paddingRight = ((Number) paddingRight).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //bodyShape
-    val = readValue(BhParams.NodeStyleDef.KEY_BODY_SHAPE, String.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_BODY_SHAPE, String.class, jsonObj, fileName);
     val.ifPresent(bodyShape -> {
       String shapeStr = (String) bodyShape;
       BodyShape shapeType = BodyShapeBase.getBodyTypeFromName(shapeStr, fileName);
@@ -336,37 +336,37 @@ public class BhNodeViewStyle {
     });
 
     //connectorPos
-    val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_POS, String.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_POS, String.class, jsonObj, fileName);
     val.ifPresent(connectorPos -> {
       String posStr = (String) connectorPos;
-      if (posStr.equals(BhParams.NodeStyleDef.VAL_TOP)) {
+      if (posStr.equals(BhConstants.NodeStyleDef.VAL_TOP)) {
         style.connectorPos = ConnectorPos.TOP;
-      } else if (posStr.equals(BhParams.NodeStyleDef.VAL_LEFT)) {
+      } else if (posStr.equals(BhConstants.NodeStyleDef.VAL_LEFT)) {
         style.connectorPos = ConnectorPos.LEFT;
       } else {
         MsgPrinter.INSTANCE.errMsgForDebug(
-            "\"" + BhParams.NodeStyleDef.KEY_CONNECTOR_POS + "\"" + " (" + posStr
+            "\"" + BhConstants.NodeStyleDef.KEY_CONNECTOR_POS + "\"" + " (" + posStr
             + ") " + "format is invalid.  " + "(" + fileName + ")");
       }
     });
 
     //connectorShift
-    val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_SHIFT, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHIFT, Number.class, jsonObj, fileName);
     val.ifPresent(connectorShift ->
-        style.connectorShift = ((Number) connectorShift).doubleValue() * BhParams.LnF.NODE_SCALE);
+        style.connectorShift = ((Number) connectorShift).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //connectorWidth
-    val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_WIDTH, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_WIDTH, Number.class, jsonObj, fileName);
     val.ifPresent(connectorWidth ->
-        style.connectorWidth = ((Number) connectorWidth).doubleValue() * BhParams.LnF.NODE_SCALE);
+        style.connectorWidth = ((Number) connectorWidth).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //connectorHeight
-    val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_HEIGHT, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_HEIGHT, Number.class, jsonObj, fileName);
     val.ifPresent(connectorHeight ->
-        style.connectorHeight = ((Number) connectorHeight).doubleValue() * BhParams.LnF.NODE_SCALE);
+        style.connectorHeight = ((Number) connectorHeight).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //connectorShape
-    val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_SHAPE, String.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHAPE, String.class, jsonObj, fileName);
     val.ifPresent(connectorShape -> {
       String shapeStr = (String) connectorShape;
       CnctrShape shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
@@ -374,32 +374,32 @@ public class BhNodeViewStyle {
     });
 
     //notchPos
-    val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_POS, String.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_NOTCH_POS, String.class, jsonObj, fileName);
     val.ifPresent(notchPos -> {
       String posStr = (String) notchPos;
-      if (posStr.equals(BhParams.NodeStyleDef.VAL_RIGHT)) {
+      if (posStr.equals(BhConstants.NodeStyleDef.VAL_RIGHT)) {
         style.notchPos = NotchPos.RIGHT;
-      } else if (posStr.equals(BhParams.NodeStyleDef.VAL_BOTTOM)) {
+      } else if (posStr.equals(BhConstants.NodeStyleDef.VAL_BOTTOM)) {
         style.notchPos = NotchPos.BOTTOM;
       } else {
         MsgPrinter.INSTANCE.errMsgForDebug(
-            "\"" + BhParams.NodeStyleDef.KEY_NOTCH_POS + "\"" 
+            "\"" + BhConstants.NodeStyleDef.KEY_NOTCH_POS + "\"" 
             + " (" + posStr + ") " + "format is invalid.  " + "(" + fileName + ")");
       }
     });
 
     //notchWidth
-    val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_WIDTH, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_NOTCH_WIDTH, Number.class, jsonObj, fileName);
     val.ifPresent(notchWidth ->
-        style.notchWidth = ((Number) notchWidth).doubleValue() * BhParams.LnF.NODE_SCALE);
+        style.notchWidth = ((Number) notchWidth).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //notchHeight
-    val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_HEIGHT, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_NOTCH_HEIGHT, Number.class, jsonObj, fileName);
     val.ifPresent(notchHeight ->
-        style.notchHeight = ((Number) notchHeight).doubleValue() * BhParams.LnF.NODE_SCALE);
+        style.notchHeight = ((Number) notchHeight).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //notchShape
-    val = readValue(BhParams.NodeStyleDef.KEY_NOTCH_SHAPE, String.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_NOTCH_SHAPE, String.class, jsonObj, fileName);
     val.ifPresent(notchShape -> {
       String shapeStr = (String) notchShape;
       CnctrShape shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
@@ -408,51 +408,51 @@ public class BhNodeViewStyle {
 
     //connectorBoundsRate
     val = readValue(
-        BhParams.NodeStyleDef.KEY_CONNECTOR_BOUNDS_RATE, Number.class, jsonObj, fileName);
+        BhConstants.NodeStyleDef.KEY_CONNECTOR_BOUNDS_RATE, Number.class, jsonObj, fileName);
     val.ifPresent(connectorBoundsRate ->
         style.connectorBoundsRate = ((Number) connectorBoundsRate).doubleValue());
 
     //bodyCssClass
-    val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
     val.ifPresent(bodyCssClass -> style.cssClass = (String) bodyCssClass);
 
     //connective
-    val = readValue(BhParams.NodeStyleDef.KEY_CONNECTIVE, NativeObject.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTIVE, NativeObject.class, jsonObj, fileName);
     val.ifPresent(
         connective -> fillConnectiveParams(style.connective, (NativeObject) connective, fileName));
 
     //textField
-    val = readValue(BhParams.NodeStyleDef.KEY_TEXT_FIELD, NativeObject.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_TEXT_FIELD, NativeObject.class, jsonObj, fileName);
     val.ifPresent(
         textField -> fillTextFieldParams(style.textField, (NativeObject) textField, fileName));
 
     //label
-    val = readValue(BhParams.NodeStyleDef.KEY_LABEL, NativeObject.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_LABEL, NativeObject.class, jsonObj, fileName);
     val.ifPresent(label -> fillLabelParams(style.label, (NativeObject) label, fileName));
 
     //comboBox
-    val = readValue(BhParams.NodeStyleDef.KEY_COMBO_BOX, NativeObject.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_COMBO_BOX, NativeObject.class, jsonObj, fileName);
     val.ifPresent(
         comboBox -> fillComboBoxParams(style.comboBox, (NativeObject) comboBox, fileName));
 
     //textArea
-    val = readValue(BhParams.NodeStyleDef.KEY_TEXT_AREA, NativeObject.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_TEXT_AREA, NativeObject.class, jsonObj, fileName);
     val.ifPresent(
         textArea -> fillTextAreaParams(style.textArea, (NativeObject) textArea, fileName));
 
     //imitation
-    val = readValue(BhParams.NodeStyleDef.KEY_IMITATION, NativeObject.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_IMITATION, NativeObject.class, jsonObj, fileName);
     val.ifPresent(
         imitation -> fillButtonParams(style.imitation, (NativeObject) imitation, fileName));
 
     //privateTemplate
     val = readValue(
-        BhParams.NodeStyleDef.KEY_PRIVATE_TEMPLATE, NativeObject.class, jsonObj, fileName);
+        BhConstants.NodeStyleDef.KEY_PRIVATE_TEMPLATE, NativeObject.class, jsonObj, fileName);
     val.ifPresent(privateTemplate ->
         fillButtonParams(style.privatTemplate, (NativeObject) privateTemplate, fileName));
 
     //component
-    val = readValue(BhParams.NodeStyleDef.KEY_COMPONENT, String.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_COMPONENT, String.class, jsonObj, fileName);
     val.ifPresent(type -> style.component = ComponentType.toType((String) type));
     
     return Optional.of(style);
@@ -471,12 +471,12 @@ public class BhNodeViewStyle {
         
     // inner
     Optional<Object> val =
-        readValue(BhParams.NodeStyleDef.KEY_INNER, NativeObject.class, jsonObj, fileName);
+        readValue(BhConstants.NodeStyleDef.KEY_INNER, NativeObject.class, jsonObj, fileName);
     val.ifPresent(innerArrange -> 
         fillArrangementParams(connectiveStyle.inner, (NativeObject) innerArrange, fileName));
 
     // outer
-    val = readValue(BhParams.NodeStyleDef.KEY_OUTER, NativeObject.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_OUTER, NativeObject.class, jsonObj, fileName);
     val.ifPresent(outerArrange -> 
         fillArrangementParams(connectiveStyle.outer, (NativeObject) outerArrange, fileName));
   }
@@ -495,52 +495,52 @@ public class BhNodeViewStyle {
 
     //space
     Optional<Object> val =
-        readValue(BhParams.NodeStyleDef.KEY_SPACE, Number.class, jsonObj, fileName);
+        readValue(BhConstants.NodeStyleDef.KEY_SPACE, Number.class, jsonObj, fileName);
     val.ifPresent(space -> {
-      arrangement.space = ((Number) space).doubleValue() * BhParams.LnF.NODE_SCALE;
+      arrangement.space = ((Number) space).doubleValue() * BhConstants.LnF.NODE_SCALE;
     });
 
     //paddingTop
-    val = readValue(BhParams.NodeStyleDef.KEY_PADDING_TOP, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_TOP, Number.class, jsonObj, fileName);
     val.ifPresent(paddingTop -> {
-      arrangement.paddingTop = ((Number) paddingTop).doubleValue() * BhParams.LnF.NODE_SCALE;
+      arrangement.paddingTop = ((Number) paddingTop).doubleValue() * BhConstants.LnF.NODE_SCALE;
     });
 
     //paddingRight
-    val = readValue(BhParams.NodeStyleDef.KEY_PADDING_RIGHT, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_RIGHT, Number.class, jsonObj, fileName);
     val.ifPresent(paddingRight -> {
-      arrangement.paddingRight = ((Number) paddingRight).doubleValue() * BhParams.LnF.NODE_SCALE;
+      arrangement.paddingRight = ((Number) paddingRight).doubleValue() * BhConstants.LnF.NODE_SCALE;
     });
 
     //paddingBottom
-    val = readValue(BhParams.NodeStyleDef.KEY_PADDING_BOTTOM, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_BOTTOM, Number.class, jsonObj, fileName);
     val.ifPresent(paddingBottom -> {
-      arrangement.paddingBottom = ((Number) paddingBottom).doubleValue() * BhParams.LnF.NODE_SCALE;
+      arrangement.paddingBottom = ((Number) paddingBottom).doubleValue() * BhConstants.LnF.NODE_SCALE;
     });
 
     //paddingLeft
-    val = readValue(BhParams.NodeStyleDef.KEY_PADDING_LEFT, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_LEFT, Number.class, jsonObj, fileName);
     val.ifPresent(paddingLeft -> {
-      arrangement.paddingLeft = ((Number) paddingLeft).doubleValue() * BhParams.LnF.NODE_SCALE;
+      arrangement.paddingLeft = ((Number) paddingLeft).doubleValue() * BhConstants.LnF.NODE_SCALE;
     });
 
     //arrangement
-    val = readValue(BhParams.NodeStyleDef.KEY_ARRANGEMENR, String.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_ARRANGEMENR, String.class, jsonObj, fileName);
     val.ifPresent(childArrange -> {
       String arrangeStr = (String) childArrange;
-      if (arrangeStr.equals(BhParams.NodeStyleDef.VAL_ROW)) {
+      if (arrangeStr.equals(BhConstants.NodeStyleDef.VAL_ROW)) {
         arrangement.arrangement = ChildArrangement.ROW;
-      } else if (arrangeStr.equals(BhParams.NodeStyleDef.VAL_COLUMN)) {
+      } else if (arrangeStr.equals(BhConstants.NodeStyleDef.VAL_COLUMN)) {
         arrangement.arrangement = ChildArrangement.COLUMN;
       } else {
         MsgPrinter.INSTANCE.errMsgForDebug(
-            "\"" + BhParams.NodeStyleDef.KEY_ARRANGEMENR + "\"" + " ("
+            "\"" + BhConstants.NodeStyleDef.KEY_ARRANGEMENR + "\"" + " ("
             + arrangeStr + ") " + "format is invalid.  " + "(" + fileName + ")");
       }
     });
 
     //cnctrNameList
-    val = readValue(BhParams.NodeStyleDef.KEY_CONNECTOR_LIST, NativeArray.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_LIST, NativeArray.class, jsonObj, fileName);
     val.ifPresent(cnctrs -> {
       for (Object cnctrName : (NativeArray) cnctrs) {
         arrangement.cnctrNameList.add(cnctrName.toString());
@@ -550,7 +550,7 @@ public class BhNodeViewStyle {
     //subGroup
     int groupId = 0;
     while (true) {
-      String subGroupKeyName = BhParams.NodeStyleDef.KEY_SUB_GROUP + groupId;
+      String subGroupKeyName = BhConstants.NodeStyleDef.KEY_SUB_GROUP + groupId;
       val = readValue(subGroupKeyName, NativeObject.class, jsonObj, fileName);
       if (val.isPresent()) {
         Arrangement subGroup = new Arrangement();
@@ -577,19 +577,19 @@ public class BhNodeViewStyle {
 
     //buttonPosX
     Optional<Object> val =
-        readValue(BhParams.NodeStyleDef.KEY_BUTTON_POS_X, Number.class, jsonObj, fileName);
+        readValue(BhConstants.NodeStyleDef.KEY_BUTTON_POS_X, Number.class, jsonObj, fileName);
     val.ifPresent(btnPosX -> {
-      button.buttonPosX = ((Number) btnPosX).doubleValue() * BhParams.LnF.NODE_SCALE;
+      button.buttonPosX = ((Number) btnPosX).doubleValue() * BhConstants.LnF.NODE_SCALE;
     });
 
     //buttonPosY
-    val = readValue(BhParams.NodeStyleDef.KEY_BUTTON_POS_Y, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_BUTTON_POS_Y, Number.class, jsonObj, fileName);
     val.ifPresent(btnPosY -> {
-      button.buttonPosY = ((Number) btnPosY).doubleValue() * BhParams.LnF.NODE_SCALE;
+      button.buttonPosY = ((Number) btnPosY).doubleValue() * BhConstants.LnF.NODE_SCALE;
     });
 
     //buttonCssClass
-    val = readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
     val.ifPresent(buttonCssClass -> button.cssClass = (String) buttonCssClass);
   }
 
@@ -607,13 +607,13 @@ public class BhNodeViewStyle {
 
     //cssClass
     Optional<Object> val =
-        readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
+        readValue(BhConstants.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
     val.ifPresent(textCssClass -> textField.cssClass = (String) textCssClass);
 
     //minWidth
-    val = readValue(BhParams.NodeStyleDef.KEY_MIN_WIDTH, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_MIN_WIDTH, Number.class, jsonObj, fileName);
     val.ifPresent(minWidth ->
-        textField.minWidth = ((Number) minWidth).doubleValue() * BhParams.LnF.NODE_SCALE);
+        textField.minWidth = ((Number) minWidth).doubleValue() * BhConstants.LnF.NODE_SCALE);
   }
 
   /**
@@ -630,7 +630,7 @@ public class BhNodeViewStyle {
 
     //cssClass
     Optional<Object> val =
-        readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
+        readValue(BhConstants.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
     val.ifPresent(textCssClass -> textField.cssClass = (String) textCssClass);
   }
 
@@ -648,7 +648,7 @@ public class BhNodeViewStyle {
 
     //cssClass
     Optional<Object> val =
-        readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
+        readValue(BhConstants.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
     val.ifPresent(comboBoxCssClass -> comboBox.cssClass = (String) comboBoxCssClass);
   }
 
@@ -666,18 +666,18 @@ public class BhNodeViewStyle {
 
     //cssClass
     Optional<Object> val =
-        readValue(BhParams.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
+        readValue(BhConstants.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
     val.ifPresent(textAreaCssClass -> textArea.cssClass = (String) textAreaCssClass);
 
     //minWidth
-    val = readValue(BhParams.NodeStyleDef.KEY_MIN_WIDTH, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_MIN_WIDTH, Number.class, jsonObj, fileName);
     val.ifPresent(minWidth ->
-        textArea.minWidth = ((Number) minWidth).doubleValue() * BhParams.LnF.NODE_SCALE);
+        textArea.minWidth = ((Number) minWidth).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //minHeight
-    val = readValue(BhParams.NodeStyleDef.KEY_MIN_HEIGHT, Number.class, jsonObj, fileName);
+    val = readValue(BhConstants.NodeStyleDef.KEY_MIN_HEIGHT, Number.class, jsonObj, fileName);
     val.ifPresent(minHeight ->
-        textArea.minHeight = ((Number) minHeight).doubleValue() * BhParams.LnF.NODE_SCALE);
+        textArea.minHeight = ((Number) minHeight).doubleValue() * BhConstants.LnF.NODE_SCALE);
   }
 
   /**

@@ -31,8 +31,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
-import net.seapanda.bunnyhop.common.constant.BhParams;
-import net.seapanda.bunnyhop.common.constant.BhParams.ExternalApplication;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.constant.BhConstants.BhRuntime;
 import net.seapanda.bunnyhop.common.constant.ExclusiveSelection;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
@@ -64,8 +64,8 @@ public class RemoteBhProgramManager {
     common = new BhProgramManagerCommon(simCmdProcessor);
     boolean success = BhScriptManager.INSTANCE.scriptsExist(
         getClass().getSimpleName(),
-        BhParams.Path.REMOTE_EXEC_CMD_GENERATOR_JS,
-        BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS);
+        BhConstants.Path.REMOTE_EXEC_CMD_GENERATOR_JS,
+        BhConstants.Path.REMOTE_KILL_CMD_GENERATOR_JS);
 
     if (!success) {
       String msg = "connot find remote cmd scripts";
@@ -121,9 +121,9 @@ public class RemoteBhProgramManager {
     MsgPrinter.INSTANCE.msgForUser("-- プログラム実行準備中 (remote) --\n");
     try {
       var destPath = Paths.get(
-          BhParams.Path.REMOTE_BUNNYHOP_DIR,
-          BhParams.Path.REMOTE_COMPILED_DIR,
-          BhParams.Path.APP_FILE_NAME_JS);
+          BhConstants.Path.REMOTE_BUNNYHOP_DIR,
+          BhConstants.Path.REMOTE_COMPILED_DIR,
+          BhConstants.Path.APP_FILE_NAME_JS);
       boolean success = copyFile(ipAddr, uname, password, filePath.toString(), destPath.toString());
       if (!success) {
         throw new Exception();
@@ -144,7 +144,7 @@ public class RemoteBhProgramManager {
     } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForUser("!! プログラム実行準備失敗 (remote) !!\n");
       MsgPrinter.INSTANCE.errMsgForDebug("failed to run " + filePath.getFileName() + " (remote)");
-      terminate(BhParams.ExternalApplication.REMOTE_RUNTIME_TERMINATION_TIMEOUT_SHORT);
+      terminate(BhConstants.BhRuntime.REMOTE_RUNTIME_TERMINATION_TIMEOUT_SHORT);
       return false;
     }
     MsgPrinter.INSTANCE.msgForUser("-- プログラム実行開始 (remote) --\n");
@@ -160,7 +160,7 @@ public class RemoteBhProgramManager {
   private void terminateOrDisconnect(boolean terminate) {
     if (programRunning.get()) {
       if (terminate) {
-        terminate(BhParams.ExternalApplication.REMOTE_RUNTIME_TERMINATION_TIMEOUT);
+        terminate(BhConstants.BhRuntime.REMOTE_RUNTIME_TERMINATION_TIMEOUT);
       } else {
         common.haltTransceiver();
         programRunning.set(false);
@@ -180,7 +180,7 @@ public class RemoteBhProgramManager {
       return common.terminateAsync(() -> false);
     }
     return common.terminateAsync(
-      () -> terminate(BhParams.ExternalApplication.REMOTE_RUNTIME_TERMINATION_TIMEOUT));
+      () -> terminate(BhConstants.BhRuntime.REMOTE_RUNTIME_TERMINATION_TIMEOUT));
   }
 
   /**
@@ -271,7 +271,7 @@ public class RemoteBhProgramManager {
       }
     } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "failed to start " +  BhParams.ExternalApplication.BH_PROGRAM_RUNTIME_JAR + " " + e);
+          "failed to start " +  BhConstants.BhRuntime.BH_PROGRAM_RUNTIME_JAR + " " + e);
     }
     return channel;
   }
@@ -283,15 +283,15 @@ public class RemoteBhProgramManager {
    */
   private String genStartCmd(String host) {
     Script cs =
-        BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.REMOTE_EXEC_CMD_GENERATOR_JS);
+        BhScriptManager.INSTANCE.getCompiledScript(BhConstants.Path.REMOTE_EXEC_CMD_GENERATOR_JS);
     Scriptable scope = BhScriptManager.INSTANCE.createScriptScope();
-    ScriptableObject.putProperty(scope, BhParams.JsKeyword.KEY_IP_ADDR, host);
+    ScriptableObject.putProperty(scope, BhConstants.JsKeyword.KEY_IP_ADDR, host);
     Object retVal = null;
     try {
       retVal = ContextFactory.getGlobal().call(cx -> cs.exec(cx, scope));
     } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "failed to eval " +  BhParams.Path.REMOTE_EXEC_CMD_GENERATOR_JS + " " + e);
+          "failed to eval " +  BhConstants.Path.REMOTE_EXEC_CMD_GENERATOR_JS + " " + e);
       return null;
     }
     if (retVal instanceof String) {
@@ -307,14 +307,14 @@ public class RemoteBhProgramManager {
    */
   private String genKillCmd() {
     Script cs =
-        BhScriptManager.INSTANCE.getCompiledScript(BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS);
+        BhScriptManager.INSTANCE.getCompiledScript(BhConstants.Path.REMOTE_KILL_CMD_GENERATOR_JS);
     Object retVal;
     try {
       retVal = ContextFactory.getGlobal().call(
           cx -> cs.exec(cx, BhScriptManager.INSTANCE.createScriptScope()));
     } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "failed to eval" +  BhParams.Path.REMOTE_KILL_CMD_GENERATOR_JS + " " + e);
+          "failed to eval" +  BhConstants.Path.REMOTE_KILL_CMD_GENERATOR_JS + " " + e);
       return null;
     }
     if (retVal instanceof String) {
@@ -337,7 +337,7 @@ public class RemoteBhProgramManager {
       Session session = jsch.getSession(
           userInfo.getUname(),
           userInfo.getHost(),
-          BhParams.ExternalApplication.SSH_PORT);
+          BhConstants.BhRuntime.SSH_PORT);
       session.setUserInfo(userInfo);
       session.connect();
       channel = (ChannelExec) session.openChannel("exec");
@@ -373,7 +373,7 @@ public class RemoteBhProgramManager {
     fileCopyIsCancelled.set(false);
     JSch jsch = new JSch();
     try {
-      Session session = jsch.getSession(uname, host, ExternalApplication.SSH_PORT);
+      Session session = jsch.getSession(uname, host, BhRuntime.SSH_PORT);
       UserInfo ui = new UserInfoImpl(host, uname, password);
       session.setUserInfo(ui);
       session.connect();
@@ -460,7 +460,7 @@ public class RemoteBhProgramManager {
     boolean success = true;
     if (programRunning.get()) {
       if (terminate) {
-        success = terminate(BhParams.ExternalApplication.REMOTE_RUNTIME_TERMINATION_TIMEOUT);
+        success = terminate(BhConstants.BhRuntime.REMOTE_RUNTIME_TERMINATION_TIMEOUT);
       } else {
         success = common.haltTransceiver();
       }

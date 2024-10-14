@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Stream;
-import net.seapanda.bunnyhop.common.constant.BhParams;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
@@ -88,7 +88,7 @@ public class BhScriptManager {
             .filter(path -> path.getFileName().toString().endsWith(".js")); //.jsファイルだけ収集
       } catch (IOException e) {
         MsgPrinter.INSTANCE.errMsgForDebug(
-            BhParams.Path.FUNCTIONS_DIR + " directory not found " + dirPath);
+            BhConstants.Path.FUNCTIONS_DIR + " directory not found " + dirPath);
         success &= false;
         continue;
       }
@@ -119,16 +119,16 @@ public class BhScriptManager {
    * @return オブジェクトの作成に成功した場合true, 失敗した場合 false.
    */
   private boolean genCommonObj() {
-    if (scriptNameToScript.containsKey(BhParams.Path.COMMON_EVENT_JS)) {
+    if (scriptNameToScript.containsKey(BhConstants.Path.COMMON_EVENT_JS)) {
       try {
         commonJsObj = ContextFactory.getGlobal().call(cx -> {
           return scriptNameToScript
-              .get(BhParams.Path.COMMON_EVENT_JS)
+              .get(BhConstants.Path.COMMON_EVENT_JS)
               .exec(cx, cx.initStandardObjects());
         });
       } catch (Exception e) {
         MsgPrinter.INSTANCE.errMsgForDebug(
-            "exec " + BhParams.Path.COMMON_EVENT_JS + "\n" + e + "\n");
+            "exec " + BhConstants.Path.COMMON_EVENT_JS + "\n" + e + "\n");
         return false;
       }
     }
