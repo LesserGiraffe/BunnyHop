@@ -4,7 +4,7 @@
   name="AbsExp"
   nodeStyleID="AbsExp.json">
 
-  <ConnectorSection name="NumberExpSctn">
+  <ConnectorSection name="NumExpSctn">
     <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
     
     <PrivateConnector

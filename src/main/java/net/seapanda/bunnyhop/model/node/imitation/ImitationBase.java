@@ -191,7 +191,7 @@ public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatab
       return false;
     }
     //デフォルトノードは移動不可
-    if (isDefaultNode()) {
+    if (isDefault()) {
       return false;
     }
     return !parentConnector.isFixed();

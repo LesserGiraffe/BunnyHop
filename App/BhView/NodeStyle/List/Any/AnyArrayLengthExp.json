@@ -15,7 +15,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 2.0,
-      "connectorList" : ["Array", "noSaizu"]
+      "connectorList" : ["Arg0", "noSaizu"]
     }
   }
 }

@@ -15,7 +15,7 @@
         bhNodeID="idKeyPressedEvent.prvNode0"
         name="KeyCode"
         nodeStyleID="WordComboBox.json"
-        onViewContentsCreating="CreateKeyPressedEvents.js">
+        onTextOptionsCreating="CreateKeyPressedEvents.js">
       </Node>
     </PrivateConnector>
     

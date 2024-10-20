@@ -1,5 +1,4 @@
 (function() {
-
   try {
     let num = java.lang.Integer.parseInt(bhText);
     return (num >= 1);
@@ -18,5 +17,3 @@
   
   return false;
 })();
-
-

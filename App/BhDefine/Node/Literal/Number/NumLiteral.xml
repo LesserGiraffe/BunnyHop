@@ -5,7 +5,7 @@
   nodeStyleID="NumLiteralExp.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
-  <ConnectorSection name="NumberExpSctn">
+  <ConnectorSection name="NumExpSctn">
 
     <PrivateConnector
       bhConnectorID="idNumLiteralExp.prvCnctr0"
@@ -16,10 +16,9 @@
         bhNodeID="idNumLiteral"
         name="NumLiteral"
         nodeStyleID="NumLiteral.json"
-        onViewContentsCreating="CreateEyeSelection.js"
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckNumFormat.js"
-          initString="0">
+        initString="0">
       </Node>
     </PrivateConnector>
   </ConnectorSection>

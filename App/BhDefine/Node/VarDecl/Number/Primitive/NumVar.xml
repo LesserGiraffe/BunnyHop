@@ -5,7 +5,7 @@
   nodeStyleID="NumVar.json"
   onSyntaxChecking="IsOutOfScope.js">
     
-    <ConnectorSection name="NumberExpSctn">
+    <ConnectorSection name="NumExpSctn">
     <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
   </ConnectorSection>
 

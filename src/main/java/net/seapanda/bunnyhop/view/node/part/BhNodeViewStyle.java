@@ -70,6 +70,8 @@ public class BhNodeViewStyle {
   public double connectorHeight = 1.5 * BhConstants.LnF.NODE_SCALE;
   /** コネクタの形. */
   public ConnectorShape.CnctrShape connectorShape = ConnectorShape.CnctrShape.ARROW;
+  /** 固定ノードのコネクタの形. */
+  public ConnectorShape.CnctrShape connectorShapeFixed = ConnectorShape.CnctrShape.ARROW;
   /** 切り欠きの位置. */
   public NotchPos notchPos = NotchPos.RIGHT;
   /** コネクタ部分の幅. */
@@ -78,6 +80,8 @@ public class BhNodeViewStyle {
   public double notchHeight = 1.5 * BhConstants.LnF.NODE_SCALE;
   /** 切り欠きの形. */
   public ConnectorShape.CnctrShape notchShape =  ConnectorShape.CnctrShape.NONE;
+  /** 固定ノードの切り欠きの形. */
+  public ConnectorShape.CnctrShape notchShapeFixed =  ConnectorShape.CnctrShape.NONE;
   /** ドラッグ&ドロップ時などに適用されるコネクタの範囲. */
   public double connectorBoundsRate = 2.0;
   public String cssClass = "defaultNode";
@@ -211,11 +215,13 @@ public class BhNodeViewStyle {
     this.connectorWidth = org.connectorWidth;
     this.connectorHeight = org.connectorHeight;
     this.connectorShape = org.connectorShape;
+    this.connectorShapeFixed = org.connectorShapeFixed;
     this.connectorBoundsRate = org.connectorBoundsRate;
     this.notchPos = org.notchPos;
     this.notchWidth = org.notchWidth;
     this.notchHeight = org.notchHeight;
     this.notchShape = org.notchShape;
+    this.notchShapeFixed = org.notchShapeFixed;
     this.connective.inner = new Arrangement(org.connective.inner);
     this.connective.outer = new Arrangement(org.connective.outer);
     this.cssClass = org.cssClass;
@@ -238,16 +244,17 @@ public class BhNodeViewStyle {
   /**
    * コネクタの大きさを取得する.
    *
+   * @param isFixed 描画対象が固定ノードの場合 true を指定すること.
    * @return コネクタの大きさ
    */
-  public Vec2D getConnectorSize() {
-
+  public Vec2D getConnectorSize(boolean isFixed) {
     double cnctrWidth = 0.0;
-    if (connectorShape != CnctrShape.NONE) {
+    CnctrShape shape = isFixed ? connectorShapeFixed : connectorShape;
+    if (shape != CnctrShape.NONE) {
       cnctrWidth = connectorWidth;
     }
     double cnctrHeight = 0.0;
-    if (connectorShape != CnctrShape.NONE) {
+    if (shape != CnctrShape.NONE) {
       cnctrHeight = connectorHeight;
     }
     return new Vec2D(cnctrWidth, cnctrHeight);
@@ -352,25 +359,35 @@ public class BhNodeViewStyle {
 
     //connectorShift
     val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHIFT, Number.class, jsonObj, fileName);
-    val.ifPresent(connectorShift ->
-        style.connectorShift = ((Number) connectorShift).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    val.ifPresent(connectorShift -> style.connectorShift = 
+        ((Number) connectorShift).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //connectorWidth
     val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_WIDTH, Number.class, jsonObj, fileName);
-    val.ifPresent(connectorWidth ->
-        style.connectorWidth = ((Number) connectorWidth).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    val.ifPresent(connectorWidth -> style.connectorWidth =
+        ((Number) connectorWidth).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //connectorHeight
     val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_HEIGHT, Number.class, jsonObj, fileName);
-    val.ifPresent(connectorHeight ->
-        style.connectorHeight = ((Number) connectorHeight).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    val.ifPresent(connectorHeight -> style.connectorHeight =
+        ((Number) connectorHeight).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //connectorShape
     val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHAPE, String.class, jsonObj, fileName);
-    val.ifPresent(connectorShape -> {
-      String shapeStr = (String) connectorShape;
+    val.ifPresent(shape -> {
+      String shapeStr = (String) shape;
       CnctrShape shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
       style.connectorShape = shapeType;
+    });
+
+    //connectorShapeFixed
+    style.connectorShapeFixed = style.connectorShape;
+    val = readValue(
+        BhConstants.NodeStyleDef.KEY_CONNECTOR_SHAPE_FIXED, String.class, jsonObj, fileName);
+    val.ifPresent(shape -> {
+      String shapeStr = (String) shape;
+      CnctrShape shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
+      style.connectorShapeFixed = shapeType;
     });
 
     //notchPos
@@ -404,6 +421,16 @@ public class BhNodeViewStyle {
       String shapeStr = (String) notchShape;
       CnctrShape shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
       style.notchShape = shapeType;
+    });
+
+    //notchShapeFixed
+    style.notchShapeFixed = style.notchShape;
+    val = readValue(
+        BhConstants.NodeStyleDef.KEY_NOTCH_SHAPE_FIXED, String.class, jsonObj, fileName);
+    val.ifPresent(notchShape -> {
+      String shapeStr = (String) notchShape;
+      CnctrShape shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
+      style.notchShapeFixed = shapeType;
     });
 
     //connectorBoundsRate
@@ -514,9 +541,8 @@ public class BhNodeViewStyle {
 
     //paddingBottom
     val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_BOTTOM, Number.class, jsonObj, fileName);
-    val.ifPresent(paddingBottom -> {
-      arrangement.paddingBottom = ((Number) paddingBottom).doubleValue() * BhConstants.LnF.NODE_SCALE;
-    });
+    val.ifPresent(paddingBottom -> arrangement.paddingBottom = 
+        ((Number) paddingBottom).doubleValue() * BhConstants.LnF.NODE_SCALE);
 
     //paddingLeft
     val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_LEFT, Number.class, jsonObj, fileName);
@@ -540,7 +566,8 @@ public class BhNodeViewStyle {
     });
 
     //cnctrNameList
-    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_LIST, NativeArray.class, jsonObj, fileName);
+    val = readValue(
+        BhConstants.NodeStyleDef.KEY_CONNECTOR_LIST, NativeArray.class, jsonObj, fileName);
     val.ifPresent(cnctrs -> {
       for (Object cnctrName : (NativeArray) cnctrs) {
         arrangement.cnctrNameList.add(cnctrName.toString());
@@ -743,7 +770,7 @@ public class BhNodeViewStyle {
     
     if (!success) {
       for (String nodeStyleId : nodeIdToNodeStyleID.values()) {
-        if (nodeStyleIdToNodeStyleTemplate.containsKey(nodeStyleId)) {
+        if (!nodeStyleIdToNodeStyleTemplate.containsKey(nodeStyleId)) {
           MsgPrinter.INSTANCE.errMsgForDebug(
               "A node style file " + "(" + nodeStyleId + ")" + " is not found among *.json files");
         }

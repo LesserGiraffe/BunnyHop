@@ -4,7 +4,7 @@
   name="NumRoundExp"
   nodeStyleID="NumRoundExp.json">
 
-  <ConnectorSection name="NumberExpSctn">
+  <ConnectorSection name="NumExpSctn">
     <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
     
     <PrivateConnector
@@ -29,7 +29,7 @@
         bhNodeID="idNumRoundExp.prvNode1"
         name="NumRoundOpe"
         nodeStyleID="WordComboBox.json"
-        onViewContentsCreating="CreateNumRoundOps.js">
+        onTextOptionsCreating="CreateNumRoundOps.js">
       </Node>
     </PrivateConnector>
   </ConnectorSection>

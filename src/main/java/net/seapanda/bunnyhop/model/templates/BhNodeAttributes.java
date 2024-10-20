@@ -43,7 +43,7 @@ public class BhNodeAttributes {
   private String onPrivateTemplateCreating;
   private String onTextFormatting;
   private String onSyntaxChecking;
-  private String onViewContentsCreating;
+  private String onTextOptionsCreating;
   private String initString;
   private boolean canCreateImitManually;
 
@@ -112,9 +112,9 @@ public class BhNodeAttributes {
     // onSyntaxChecking
     nodeAttrs.onSyntaxChecking = node.getAttribute(BhConstants.BhModelDef.ATTR_ON_SYNTAX_CHECKING);
     
-    // onViewContentsCreating
-    nodeAttrs.onViewContentsCreating = 
-        node.getAttribute(BhConstants.BhModelDef.ATTR_ON_VIEW_CONTENTS_CREATING);
+    // onTextOptionsCreating
+    nodeAttrs.onTextOptionsCreating = 
+        node.getAttribute(BhConstants.BhModelDef.ATTR_ON_TEST_OPTIONS_CREATING);
 
     // initString
     nodeAttrs.initString = node.getAttribute(BhConstants.BhModelDef.ATTR_INIT_STRING);
@@ -188,8 +188,8 @@ public class BhNodeAttributes {
     return onSyntaxChecking;
   }
   
-  public String getOnViewContentsCreating() {
-    return onViewContentsCreating;
+  public String getOnTextOptionsCreating() {
+    return onTextOptionsCreating;
   }
 
   public String getIinitString() {

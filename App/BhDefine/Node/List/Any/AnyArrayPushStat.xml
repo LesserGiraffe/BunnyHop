@@ -5,39 +5,58 @@
   nodeStyleID="AnyArrayPushStat.json"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedToChild="OnStatMovedToChild.js"
-  onChildReplaced="OnChildOfAnyTypeNodeReplaced.js"
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
 
     <PrivateConnector
       bhConnectorID="idAnyArrayPushStat.prvCnctr0"
-      name="noMatsubiNi"
+      name="noSaigoNi"
       fixed="true">
       <Node
         type="text"
         bhNodeID="idAnyArrayPushStat.prvNode0"
-        name="noMatsubiNi"
+        name="noSaigoNi"
         nodeStyleID="WordLabel1.json"
-        initString="の末尾に">
+        initString="の最後に">
       </Node>
     </PrivateConnector>
 
-    <Connector bhConnectorID="idAnyExpCnctr" name="Arg1"/>
+    <Connector bhConnectorID="idSameTypeOfExpCnctr" name="Arg1"/>
 
     <PrivateConnector
       bhConnectorID="idAnyArrayPushStat.prvCnctr1"
-      name="woTsuikaSuru"
+      name="wo"
       fixed="true">
       <Node
         type="text"
         bhNodeID="idAnyArrayPushStat.prvNode1"
-        name="woTsuikaSuru"
+        name="wo"
         nodeStyleID="WordLabel1.json"
-        initString="を追加する">
+        initString="を">
+      </Node>
+    </PrivateConnector>
+
+    <PrivateConnector
+      bhConnectorID="idAnyArrayPushStat.prvCnctr2"
+      name="Arg2"
+      defaultBhNodeID="idPositiveIntLiteralExp"
+      onConnectabilityChecking="NumExpCnct.js"/>
+
+    <PrivateConnector
+      bhConnectorID="idAnyArrayPushStat.prvCnctr3"
+      name="koTsuikaSuru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyArrayPushStat.prvNode3"
+        name="koTsuikaSuru"
+        nodeStyleID="WordLabel1.json"
+        initString="個追加する">
       </Node>
     </PrivateConnector>
 

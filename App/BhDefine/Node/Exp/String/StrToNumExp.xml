@@ -4,7 +4,7 @@
   name="StrToNumExp"
   nodeStyleID="StrToNumExp.json">
 
-  <ConnectorSection name="NumberExpSctn">
+  <ConnectorSection name="NumExpSctn">
     <Connector bhConnectorID="idStrExpCnctr" name="Arg0"/>
   </ConnectorSection>
 </Node>

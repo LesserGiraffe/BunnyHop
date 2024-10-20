@@ -1,3 +1,6 @@
 .anyType {
+  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, anyTypeCol 50%, derive(anyTypeCol, -10%) 0mm);
+}
+.anyType:isEven {
   -fx-fill: anyTypeCol;
 }

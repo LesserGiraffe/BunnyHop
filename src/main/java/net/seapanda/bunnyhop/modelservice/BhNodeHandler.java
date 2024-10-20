@@ -74,7 +74,7 @@ public class BhNodeHandler {
   /**
    * 引数で指定したBhNodeを削除する.
    *
-   * @param node WSから取り除きたいノード.
+   * @param node 削除するノード.
    * @param userOpeCmd undo 用コマンドオブジェクト
    * @return 削除したノードと入れ替わる子ノードが作成された場合, そのノードを返す
    */
@@ -204,7 +204,7 @@ public class BhNodeHandler {
     }
 
     imitToDelete.forEach(imit -> imit.getEventDispatcher().execOnDeletionRequested(
-        imitToDelete, CauseOfDeletion.INFLUENCE_OF_ORIGINAL_DELETION, userOpeCmd));
+        imitToDelete, CauseOfDeletion.ORIGINAL_DELETION, userOpeCmd));
     List<Pair<BhNode, BhNode>> oldAndNewNodeList = deleteNodes(imitToDelete, userOpeCmd);
     for (var oldAndNewNode : oldAndNewNodeList) {
       BhNode oldNode = oldAndNewNode.v1;

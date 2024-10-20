@@ -1,0 +1,31 @@
+<Node
+  type="connective"
+  bhNodeID="idAnyArrayReverseStat"
+  name="AnyArrayReverseStat"
+  nodeStyleID="AnyArrayReverseStat.json"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedToChild="OnStatMovedToChild.js"
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js">
+
+  <ConnectorSection name="StatSctn">
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idAnyArrayReverseStat.prvCnctr0"
+      name="noJunbanWoGyakuNiSuru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyArrayReverseStat.prvNode0"
+        name="noJunbanWoGyakuNiSuru"
+        nodeStyleID="WordLabel1.json"
+        initString="の順番を逆にする">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+  </ConnectorSection>
+</Node>

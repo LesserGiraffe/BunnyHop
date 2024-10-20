@@ -4,7 +4,7 @@
   name="StrChainExp"
   nodeStyleID="StrChainExp.json">
 
-  <ConnectorSection name="StringExpSctn">
+  <ConnectorSection name="StrExpSctn">
     <PrivateConnector
       bhConnectorID="idStrColumnChainExp.prvCnctr0"
       name="Arg0"

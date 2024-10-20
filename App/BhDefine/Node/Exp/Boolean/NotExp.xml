@@ -4,7 +4,7 @@
   name="NotExp"
   nodeStyleID="NotExp.json">
 
-  <ConnectorSection name="BooleanExpSctn">
+  <ConnectorSection name="BoolExpSctn">
     <Connector bhConnectorID="idBoolExpCnctr" name="PrimaryExp"/>
 
     <PrivateConnector

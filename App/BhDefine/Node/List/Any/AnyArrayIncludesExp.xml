@@ -1,0 +1,40 @@
+<Node
+  type="connective"
+  bhNodeID="idAnyArrayIncludesExp"
+  name="AnyArrayIncludesExp"
+  nodeStyleID="AnyArrayIncludesExp.json"
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js">
+
+  <ConnectorSection name="BoolExpSctn">
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
+
+    <PrivateConnector
+      bhConnectorID="idAnyArrayIncludesExp.prvCnctr0"
+      name="ga"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyArrayIncludesExp.prvNode0"
+        name="ga"
+        nodeStyleID="WordLabel1.json"
+        initString="が">
+      </Node>
+    </PrivateConnector>
+
+    <Connector bhConnectorID="idSameTypeOfExpCnctr" name="Arg1"/>
+
+    <PrivateConnector
+      bhConnectorID="idAnyArrayIncludesExp.prvCnctr1"
+      name="woFukumu"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyArrayIncludesExp.prvNode1"
+        name="woFukumu"
+        nodeStyleID="WordLabel1.json"
+        initString="を含む">
+      </Node>
+    </PrivateConnector>
+    
+  </ConnectorSection>
+</Node>

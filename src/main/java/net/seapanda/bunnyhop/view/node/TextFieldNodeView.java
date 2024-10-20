@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.view.node;
 
 import java.util.function.Function;
+import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
 import javafx.scene.control.TextField;
@@ -57,6 +58,8 @@ public final class TextFieldNodeView extends TextInputNodeView {
     this.model = model;
     getTreeManager().addChild(textField);
     textField.addEventFilter(MouseEvent.ANY, this::propagateEvent);
+    textField.focusedProperty().addListener(
+        (ov, oldVal, newVal) -> Platform.runLater(() -> selectText()));
     initStyle();
   }
 
@@ -76,6 +79,12 @@ public final class TextFieldNodeView extends TextInputNodeView {
     textField.setMaxWidth(USE_PREF_SIZE);
     textField.setMinWidth(USE_PREF_SIZE);
     getLookManager().addCssClass(BhConstants.Css.CLASS_TEXT_FIELD_NODE);
+  }
+
+  private void selectText() {
+    if (textField.isFocused() && !textField.getText().isEmpty()) {
+      textField.selectAll();
+    }
   }
 
   @Override
@@ -122,7 +131,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
 
   @Override
   protected Vec2D getBodySize(boolean includeCnctr) {
-    Vec2D cnctrSize = viewStyle.getConnectorSize();
+    Vec2D cnctrSize = viewStyle.getConnectorSize(isFixed());
     // textField.getWidth() だと設定した値以外が返る場合がある
     double bodyWidth = viewStyle.paddingLeft + textField.getPrefWidth() + viewStyle.paddingRight;
     if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.LEFT)) {

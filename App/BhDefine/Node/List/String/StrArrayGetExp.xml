@@ -2,10 +2,11 @@
   type="connective"
   bhNodeID="idStrArrayGetExp"
   name="StrArrayGetExp"
-  nodeStyleID="StrArrayGetExp.json">
+  nodeStyleID="StrArrayGetExp.json"
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js">
 
-  <ConnectorSection name="StringExpSctn">
-    <Connector bhConnectorID="idStrListCnctr" name="Arg0"/>
+  <ConnectorSection name="StrExpSctn">
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
     
     <PrivateConnector
       bhConnectorID="idStrArrayGetExp.prvCnctr0"

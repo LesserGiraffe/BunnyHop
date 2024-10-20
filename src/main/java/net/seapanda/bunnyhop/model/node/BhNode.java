@@ -66,7 +66,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
   /** 最後にこのノードと入れ替わったノード. */
   private BhNode lastReplaced;
   /** デフォルトノードである場合true. */
-  private boolean isDefaultNode = false;
+  private boolean isDefault = false;
   /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
   private transient MsgProcessor msgProcessor;
 
@@ -160,7 +160,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
     workspace = null;
     eventToScriptName = new HashMap<>(org.eventToScriptName);
     lastReplaced = null;
-    isDefaultNode = org.isDefaultNode;
+    isDefault = org.isDefault;
   }
 
   public BhNodeId getId() {
@@ -193,8 +193,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
    * ノードの状態を取得する.
    *
    * @retval State.DELETED 削除済みノード. 子ノードでも削除されていればこの値が返る.
-   * @retval State.ROOT_DANGLING ルートノードであるがワークスペースには属していない
-   * @retval State.ROOT_DIRECTLY_UNDER_WS ワークスペースに属しているルートノード
+   * @retval State.ROOT_DANGLING ルートノードであるが, ワークスペースにルートノードとして登録されていない
+   * @retval State.ROOT_DIRECTLY_UNDER_WS ルートノードでかつ, ワークスペースにルートノードとして登録されている
    * @retval State.CHILD 子ノード. ワークスペースに属していてもいなくても子ノードならばこの値が返る
    */
   public State getState() {
@@ -352,8 +352,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
    *
    * @return このノードがデフォルトノードの場合true
    */
-  public boolean isDefaultNode() {
-    return isDefaultNode;
+  public boolean isDefault() {
+    return isDefault;
   }
 
   /**
@@ -371,10 +371,10 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
   /**
    * デフォルトノードかどうかを設定する.
    *
-   * @param isDefaultNode デフォルトノードの場合 true
+   * @param isDefault デフォルトノードの場合 true
    */
-  public void setDefaultNode(boolean isDefaultNode) {
-    this.isDefaultNode = isDefaultNode;
+  public void setDefault(boolean isDefault) {
+    this.isDefault = isDefault;
   }
 
   /**
@@ -477,7 +477,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
     ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCopy);
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+    ScriptableObject.putProperty(
+        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
     try {
       ret = ContextFactory.getGlobal().call(cx -> onCopyRequested.exec(cx, scriptScope));
     } catch (Exception e) {
@@ -535,7 +536,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
     }
     Object privateTemplateNodes = null;
     ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+    ScriptableObject.putProperty(
+        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
     try {
       privateTemplateNodes =
         ContextFactory.getGlobal().call(cx -> privateTemplateCreator.exec(cx, scriptScope));

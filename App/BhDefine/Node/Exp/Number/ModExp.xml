@@ -4,7 +4,7 @@
   name="ModExp"
   nodeStyleID="ModExp.json">
 
-  <ConnectorSection name="NumberExpSctn">
+  <ConnectorSection name="NumExpSctn">
     <Connector bhConnectorID="idNumExpCnctr" name="LeftExp"/>
     
     <PrivateConnector

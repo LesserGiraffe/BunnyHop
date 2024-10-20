@@ -148,7 +148,7 @@ public final class TextAreaNodeView  extends TextInputNodeView {
 
   @Override
   protected Vec2D getBodySize(boolean includeCnctr) {
-    Vec2D cnctrSize = viewStyle.getConnectorSize();
+    Vec2D cnctrSize = viewStyle.getConnectorSize(isFixed());
     // textField.getWidth() だと設定した値以外が返る場合がある
     double bodyWidth = viewStyle.paddingLeft + textArea.getPrefWidth() + viewStyle.paddingRight;
     if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.LEFT)) {

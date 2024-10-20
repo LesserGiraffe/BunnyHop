@@ -10,13 +10,13 @@
     <PrivateConnector
       bhConnectorID="idBinaryColorExp.prvCnctr0"
       name="Option0"
-        fixed="true">
+      fixed="true">
       <Node
         type="text"
         bhNodeID="idBinaryColorExp.prvNode0"
         name="StrLiteral"
         nodeStyleID="DefaultComboBox.json"
-        onViewContentsCreating="CreateAddSubOps.js">
+        onTextOptionsCreating="CreateAddSubOps.js">
       </Node>
     </PrivateConnector>
     

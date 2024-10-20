@@ -239,7 +239,8 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
         continue;
       }
       //outer はコネクタの大きさを考慮しない
-      Vec2D cnctrSize = inner ? childNodeView.viewStyle.getConnectorSize() : new Vec2D(0.0,  0.0);
+      Vec2D cnctrSize = inner ? childNodeView.viewStyle.getConnectorSize(childNodeView.isFixed()) 
+          : new Vec2D(0.0,  0.0);
       Vec2D childNodeSize = childNodeView.getRegionManager().getNodeSizeIncludingOuter(false);
       //コネクタが上に付く
       if (childNodeView.viewStyle.connectorPos == BhNodeViewStyle.ConnectorPos.TOP) {
@@ -331,7 +332,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       if (childNodeView == null) {
         continue;
       }
-      Vec2D cnctrSize = childNodeView.viewStyle.getConnectorSize();
+      Vec2D cnctrSize = childNodeView.viewStyle.getConnectorSize(childNodeView.isFixed());
       // グループの中が縦並びでかつコネクタが左に付く
       if (arrangeParams.arrangement == BhNodeViewStyle.ChildArrangement.COLUMN
           && childNodeView.viewStyle.connectorPos == BhNodeViewStyle.ConnectorPos.LEFT) {

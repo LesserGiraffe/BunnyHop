@@ -23,7 +23,7 @@ package net.seapanda.bunnyhop.model.node.event;
  */
 public enum CauseOfDeletion {
   /** オリジナルノードが削除された. */
-  INFLUENCE_OF_ORIGINAL_DELETION,
+  ORIGINAL_DELETION,
   /** ゴミ箱に入れられた. */
   TRASH_BOX,
   /** 構文エラーノードの削除. */

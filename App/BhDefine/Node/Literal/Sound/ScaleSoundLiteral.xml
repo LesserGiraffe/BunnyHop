@@ -44,7 +44,7 @@
         bhNodeID="idScaleSoundLiteral.prvNode2"
         name="NumLiteral"
         nodeStyleID="WordComboBox.json"
-        onViewContentsCreating="CreateOctave.js">
+        onTextOptionsCreating="CreateOctave.js">
       </Node>
     </PrivateConnector>
     
@@ -70,7 +70,7 @@
         bhNodeID="idScaleSoundLiteral.prvNode4"
         name="NumLiteral"
         nodeStyleID="WordComboBox.json"
-        onViewContentsCreating="CreateMusicalScale.js">
+        onTextOptionsCreating="CreateMusicalScale.js">
       </Node>
     </PrivateConnector>
   </ConnectorSection>

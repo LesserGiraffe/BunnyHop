@@ -54,7 +54,7 @@
         bhNodeID="idSyncTimerDecl.prvNode2"
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
-        onViewContentsCreating="CreateDoOrDonot.js">
+        onTextOptionsCreating="CreateDoOrDonot.js">
       </Node>
     </PrivateConnector>
 

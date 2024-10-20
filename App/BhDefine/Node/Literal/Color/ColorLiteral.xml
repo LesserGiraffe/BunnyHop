@@ -16,9 +16,8 @@
         bhNodeID="idColorLiteralExp.prvNode0"
         name="ColorLiteral"
         nodeStyleID="ColorLiteral.json"
-        onViewContentsCreating="CreateColorLiteral.js">
+        onTextOptionsCreating="CreateColorLiteral.js">
       </Node>
     </PrivateConnector>
   </ConnectorSection>
 </Node>
-

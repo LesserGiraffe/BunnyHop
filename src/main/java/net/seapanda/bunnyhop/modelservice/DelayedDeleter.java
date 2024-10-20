@@ -118,7 +118,7 @@ public class DelayedDeleter {
       return;
     }
     imitToDelete.forEach(imit -> imit.getEventDispatcher().execOnDeletionRequested(
-        imitToDelete, CauseOfDeletion.INFLUENCE_OF_ORIGINAL_DELETION, userOpeCmd));
+        imitToDelete, CauseOfDeletion.ORIGINAL_DELETION, userOpeCmd));
 
     List<Pair<BhNode, BhNode>> oldAndNewNodeList =
         BhNodeHandler.INSTANCE.deleteNodes(imitToDelete, userOpeCmd);

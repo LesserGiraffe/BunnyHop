@@ -4,7 +4,7 @@
   name="MaxMinExp"
   nodeStyleID="MaxMinExp.json">
 
-  <ConnectorSection name="NumberExpSctn">
+  <ConnectorSection name="NumExpSctn">
 
     <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
     
@@ -47,7 +47,7 @@
         bhNodeID="idMaxMinExp.prvNode2"
         name="MaxMinOpe"
         nodeStyleID="WordComboBox.json"
-        onViewContentsCreating="CreateMaxMinOps.js">
+        onTextOptionsCreating="CreateMaxMinOps.js">
       </Node>
     </PrivateConnector>
   </ConnectorSection>

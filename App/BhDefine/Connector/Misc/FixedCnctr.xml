@@ -1,0 +1,4 @@
+<Connector 
+  bhConnectorID="idAnyFixedCnctr"
+  defaultBhNodeID="idAnyExpVoid"
+  fixed="true"/>

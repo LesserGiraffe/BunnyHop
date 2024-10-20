@@ -16,7 +16,6 @@
 
 package net.seapanda.bunnyhop.model.node.connective;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -24,8 +23,6 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.imitation.ImitCnctPosId;
-import net.seapanda.bunnyhop.model.node.imitation.ImitationId;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -41,7 +38,7 @@ public class ConnectorSection extends Section {
   /** コネクタリスト. */
   private final List<Connector> cnctrList;
   /** コネクタ生成時のパラメータ. */
-  private final List<ConnectorSection.CnctrInstantiationParams> cnctrInstantiationParamsList;
+  private final List<ConnectorInstantiationParams> cnctrInstantiationParamsList;
 
   /**
    * コンストラクタ.
@@ -53,7 +50,7 @@ public class ConnectorSection extends Section {
   public ConnectorSection(
       String symbolName,
       List<Connector> cnctrList,
-      List<ConnectorSection.CnctrInstantiationParams> cnctrInstantiationParamsList) {
+      List<ConnectorInstantiationParams> cnctrInstantiationParamsList) {
     super(symbolName);
     this.cnctrList = cnctrList;
     this.cnctrInstantiationParamsList = cnctrInstantiationParamsList;
@@ -77,15 +74,9 @@ public class ConnectorSection extends Section {
       UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
     ConnectorSection newSection = new ConnectorSection(this);
     for (int i = 0; i < cnctrList.size(); ++i) {
-      CnctrInstantiationParams cnctrInstParams = cnctrInstantiationParamsList.get(i);
+      ConnectorInstantiationParams params = cnctrInstantiationParamsList.get(i);
       Connector newConnector =
-          cnctrList.get(i).copy(
-              userOpeCmd,
-              cnctrInstParams.cnctrName,
-              cnctrInstParams.imitationId,
-              cnctrInstParams.imitCnctPoint,
-              newSection,
-              isNodeToBeCopied);
+          cnctrList.get(i).copy(userOpeCmd, params, newSection, isNodeToBeCopied);
       newSection.cnctrList.add(newConnector);
     }
     return newSection;
@@ -162,33 +153,5 @@ public class ConnectorSection extends Section {
         indent(depth) + "<ConnectorGroup  " + "name=" + getSymbolName() 
         + "  parenNode=" + parentHash  + "  > " + this.hashCode());
     cnctrList.forEach(connector -> connector.show(depth + 1));
-  }
-
-  /** コネクタ生成時のパラメータ. */
-  public static class CnctrInstantiationParams implements Serializable {
-    private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-    /** コネクタ名. */
-    public final String cnctrName;
-    /** 作成するイミテーションの識別子. */
-    public final ImitationId imitationId;
-    /** イミテーション接続位置. */
-    public final ImitCnctPosId imitCnctPoint;
-
-    /**
-     * コンストラクタ.
-     *
-     * @param cnctrName コネクタ名
-     * @param imitationId イミテーションID (作成するイミテーションの識別子)
-     * @param imitCnctPoint イミテーション接続位置の識別子
-     */
-    public CnctrInstantiationParams(
-        String cnctrName,
-        ImitationId imitationId,
-        ImitCnctPosId imitCnctPoint) {
-
-      this.cnctrName = cnctrName;
-      this.imitationId = imitationId;
-      this.imitCnctPoint = imitCnctPoint;
-    }
   }
 }

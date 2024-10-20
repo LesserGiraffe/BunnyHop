@@ -2,10 +2,11 @@
   type="connective"
   bhNodeID="idColorArrayGetExp"
   name="ColorArrayGetExp"
-  nodeStyleID="ColorArrayGetExp.json">
+  nodeStyleID="ColorArrayGetExp.json"
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js">
 
   <ConnectorSection name="ColorExpSctn">
-    <Connector bhConnectorID="idColorListCnctr" name="Arg0"/>
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
     
     <PrivateConnector
       bhConnectorID="idColorArrayGetExp.prvCnctr0"

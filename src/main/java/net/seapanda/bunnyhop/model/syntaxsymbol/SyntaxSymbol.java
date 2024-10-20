@@ -64,7 +64,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
    */
   public SyntaxSymbol findSymbolInDescendants(String... symbolNamePath) {
     if (symbolNamePath.length == 0) {
-      throw new AssertionError("The symbol name path must not be an empty string.");
+      throw new AssertionError("The symbol name path must not be empty.");
     }
     List<SyntaxSymbol> foundSymbolList = new ArrayList<>();
     findSymbolInDescendants(
@@ -106,7 +106,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
    */
   public SyntaxSymbol findSymbolInAncestors(String... symbolNamePath) {
     if (symbolNamePath.length == 0) {
-      throw new AssertionError("The symbol name path must not be an empty string.");
+      throw new AssertionError("The symbol name path must not be empty.");
     }
 
     int idx = 0;

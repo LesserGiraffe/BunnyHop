@@ -1,9 +1,8 @@
 {
-  "component" : "Label",
   "paddingTop" : 1.25,
   "paddingBottom" : 1.25,
   "paddingLeft" : 1.5,
-  "paddingRight" : 2.7,
+  "paddingRight" : 3.2,
   "connectorPos" : "Left",
   "connectorShift" : 0.0,
   "connectorWidth" : 6.5,
@@ -15,8 +14,12 @@
   "notchWidth" : 1.5,
   "notchHeight" : 1.5,
   "cssClass" : "voidVarType",
-  
-  "label" : {
-    "cssClass" : "defaultLabel"
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 0.0,
+      "connectorList" : ["ListSign"]
+    }
   }
 }

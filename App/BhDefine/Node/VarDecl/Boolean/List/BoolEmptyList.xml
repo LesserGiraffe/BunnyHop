@@ -1,9 +1,23 @@
 <Node
-  type="text"
+  type="connective"
   bhNodeID="idBoolEmptyList"
   name="BoolEmptyList"
   nodeStyleID="BoolEmptyList.json"
-  onMovedFromChildToWS="OnLiteralMovedToWS.js"
-  initString="[...]">
-</Node>
+  onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
+  <!-- BoolList と共通のセクションを持たせる -->
+  <ConnectorSection name="BoolListSctn">
+    <PrivateConnector
+      bhConnectorID="idBoolEmptyList.prvCnctr0"
+      name="ListSign"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idBoolEmptyList.prvNode0"
+        name="ListSign"
+        nodeStyleID="WordLabel1.json"
+        initString="[...]">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
+</Node>

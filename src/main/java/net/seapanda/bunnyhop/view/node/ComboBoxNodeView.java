@@ -67,8 +67,8 @@ public final class ComboBoxNodeView extends BhNodeView {
 
     super(viewStyle, model);
     this.model = model;
-    var contents = model.<List<?>>getViewContents().stream()
-        .map(item -> (SelectableItem) item).toList();
+    var contents = model.getOptions().stream()
+        .map(item -> new SelectableItem(item.v1, item.v2.toString())).toList();
     comboBox.setItems(FXCollections.observableArrayList(contents));
     getTreeManager().addChild(comboBox);
     initStyle();
@@ -131,7 +131,7 @@ public final class ComboBoxNodeView extends BhNodeView {
 
   @Override
   protected Vec2D getBodySize(boolean includeCnctr) {
-    Vec2D cnctrSize = viewStyle.getConnectorSize();
+    Vec2D cnctrSize = viewStyle.getConnectorSize(isFixed());
     double bodyWidth = viewStyle.paddingLeft + comboBox.getWidth() + viewStyle.paddingRight;
     if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.LEFT)) {
       bodyWidth += cnctrSize.x;

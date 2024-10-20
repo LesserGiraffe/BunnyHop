@@ -88,7 +88,7 @@ public class BhNodeTemplates {
     BhNode newNode = nodeIdToNodeTemplate.get(id);
     if (newNode == null) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - template not found" + id);
+          Util.INSTANCE.getCurrentMethodName() + " - template not found " + id);
     } else {
       newNode = newNode.copy(userOpeCmd, bhNode -> true);
     }
@@ -240,9 +240,9 @@ public class BhNodeTemplates {
 
   /** {@code connector} に設定された初期ノードを取得する. */
   private Optional<BhNode> getDefaultNode(Connector connector) {
-    BhNodeId defNodeId = connector.defaultNodeId;
+    BhNodeId defNodeId = connector.getDefaultNodeId();
     Optional<BhNode> defNode = getBhNodeTemplate(defNodeId);
-    BhNodeId initNodeId = connector.initNodeId;
+    BhNodeId initNodeId = connector.initialNodeId;
     Optional<BhNode> initNode =
         initNodeId.equals(BhNodeId.NONE) ? defNode : getBhNodeTemplate(initNodeId);
 
@@ -251,7 +251,7 @@ public class BhNodeTemplates {
       MsgPrinter.INSTANCE.errMsgForDebug(
           "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
           + BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID + " (" + defNodeId + ") " + "と一致する "
-          + BhConstants.BhModelDef.ATTR_BH_NODE_ID + " を持つ"
+          + BhConstants.BhModelDef.ATTR_BH_NODE_ID + " を持つ "
           + BhConstants.BhModelDef.ELEM_NODE + " の定義が見つかりません.");
       return Optional.empty();
     }
@@ -357,12 +357,13 @@ public class BhNodeTemplates {
     ScriptableObject scriptScope = BhScriptManager.INSTANCE.createScriptScope();
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, new UserOperationCommand());
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_TEMPLATES, INSTANCE);
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
+    ScriptableObject.putProperty(
+        scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_TEMPLATES, INSTANCE);
     try {
       ContextFactory.getGlobal().call(cx -> cs.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("eval " + BhConstants.Path.GEN_COMPOUND_NODES_JS + "\n" + e);
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          "eval " + BhConstants.Path.GEN_COMPOUND_NODES_JS + "\n" + e);
       return false;
     }
     return true;

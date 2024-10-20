@@ -5,7 +5,7 @@
   nodeStyleID="BoolLiteralExp.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
-  <ConnectorSection name="BooleanExpSctn">
+  <ConnectorSection name="BoolExpSctn">
 
     <PrivateConnector
       bhConnectorID="idBoolLiteralExp.prvCnctr0"
@@ -16,7 +16,7 @@
         bhNodeID="idBoolLiteralExp.prvNode0"
         name="BoolLiteral"
         nodeStyleID="BoolLiteral.json"
-        onViewContentsCreating="CreateBoolLiteral.js">
+        onTextOptionsCreating="CreateBoolLiteral.js">
       </Node>
     </PrivateConnector>
   </ConnectorSection>

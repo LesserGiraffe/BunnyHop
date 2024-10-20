@@ -4,19 +4,19 @@
   name="AnyCompExp"
   nodeStyleID="AnyCompExp.json">
 
-  <ConnectorSection name="BooleanExpSctn">
+  <ConnectorSection name="BoolExpSctn">
     <Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
     
     <PrivateConnector
       bhConnectorID="idAnyExpCnctr.prvCnctr0"
-      name="Arg2"
+      name="Option0"
       fixed="true">
       <Node
         type="text"
         bhNodeID="idAnyExpCnctr.prvNode0"
         name="StrLiteral"
         nodeStyleID="DefaultComboBox.json"
-        onViewContentsCreating="CreateEqualityCompOps.js">
+        onTextOptionsCreating="CreateEqualityCompOps.js">
       </Node>
     </PrivateConnector>
     

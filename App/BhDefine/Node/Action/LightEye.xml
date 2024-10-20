@@ -20,7 +20,7 @@
         bhNodeID="idLightEyeStat.prvNode0"
         name="StrLiteral"
         nodeStyleID="WordComboBox.json"
-        onViewContentsCreating="CreateEyeSelection.js">
+        onTextOptionsCreating="CreateEyeSelection.js">
       </Node>
     </PrivateConnector>
     

@@ -82,9 +82,9 @@ public final class PrivateTemplateCreationButton extends Button {
     ModelExclusiveControl.INSTANCE.lockForModification();
     try {
       // 現在表示しているプライベートテンプレートを作ったボタンを押下した場合, プライベートテンプレートを閉じる
-      if (lastClicked.getAndSet(this) == this
-          && BhNodeSelectionService.INSTANCE.isShowed(
-                BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE)) {
+      boolean isPrivateTemplateShowed =
+          BhNodeSelectionService.INSTANCE.isShowed(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE);
+      if (lastClicked.getAndSet(this) == this && isPrivateTemplateShowed) {
         BhNodeSelectionService.INSTANCE.hideAll();
       } else {
         createPrivateTemplate(node);
@@ -105,6 +105,7 @@ public final class PrivateTemplateCreationButton extends Button {
     var userOpeCmd = new UserOperationCommand();
     BhNodeSelectionService.INSTANCE.deleteAllNodes(
         BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE, userOpeCmd);
+    
     for (var templateNode : node.genPrivateTemplateNodes(userOpeCmd)) {
       NodeMvcBuilder.buildTemplate(templateNode);
       TextImitationPrompter.prompt(templateNode);

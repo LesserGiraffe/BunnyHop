@@ -1,0 +1,38 @@
+<Node
+  type="connective"
+  bhNodeID="idAnySetCompExp"
+  name="AnySetCompExp"
+  nodeStyleID="AnySetCompExp.json">
+
+  <ConnectorSection name="BoolExpSctn">
+    <Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idAnySetCompExp.prvCnctr0"
+      name="shugou"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnySetCompExp.prvNode0"
+        name="noYosoWoSubeteKesu"
+        nodeStyleID="WordLabel1.json"
+        initString="[集合]">
+      </Node>
+    </PrivateConnector>
+
+    <PrivateConnector
+      bhConnectorID="idAnySetCompExp.prvCnctr1"
+      name="Option0"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnySetCompExp.prvNode1"
+        name="StrLiteral"
+        nodeStyleID="DefaultComboBox.json"
+        onTextOptionsCreating="CreateSetCompOps.js">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idAnyListCnctr" name="Arg1"/>
+  </ConnectorSection>
+</Node>

@@ -6,7 +6,6 @@ build
 BunnyHop
 bin
 jfx
-Actions/open_jtalk
 App/Log
 App/Compiled
 App/BhExecEnvLog

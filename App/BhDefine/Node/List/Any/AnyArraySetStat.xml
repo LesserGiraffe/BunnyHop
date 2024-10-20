@@ -5,13 +5,13 @@
   nodeStyleID="AnyArraySetStat.json"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedToChild="OnStatMovedToChild.js"
-  onChildReplaced="OnChildOfAnyTypeNodeReplaced.js"
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
     
     <PrivateConnector
       bhConnectorID="idAnyArraySetStat.prvCnctr0"
@@ -41,7 +41,7 @@
       </Node>
     </PrivateConnector>
     
-    <Connector bhConnectorID="idAnyExpCnctr" name="Arg2"/>
+    <Connector bhConnectorID="idSameTypeOfExpCnctr" name="Arg2"/>
     
     <PrivateConnector
       bhConnectorID="idAnyArraySetStat.prvCnctr2"

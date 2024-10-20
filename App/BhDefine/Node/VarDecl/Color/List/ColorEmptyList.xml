@@ -1,9 +1,23 @@
 <Node
-  type="text"
+  type="connective"
   bhNodeID="idColorEmptyList"
   name="ColorEmptyList"
   nodeStyleID="ColorEmptyList.json"
-  onMovedFromChildToWS="OnLiteralMovedToWS.js"
-  initString="[...]">
-</Node>
+  onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
+  <!-- ColorList と共通のセクションを持たせる -->
+  <ConnectorSection name="ColorListSctn">
+    <PrivateConnector
+      bhConnectorID="idColorEmptyList.prvCnctr0"
+      name="ListSign"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idColorEmptyList.prvNode0"
+        name="ListSign"
+        nodeStyleID="WordLabel1.json"
+        initString="[...]">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
+</Node>

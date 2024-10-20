@@ -60,7 +60,6 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
       Section childSection,
       Map<ImitationId, BhNodeId> imitIdToImitNodeId,
       BhNodeAttributes attributes) {
-
     super(attributes, imitIdToImitNodeId);
     this.childSection = childSection;
     registerScriptName(BhNodeEvent.ON_CHILD_REPLACED, attributes.getOnChildReplaced());
@@ -77,7 +76,6 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
 
   @Override
   public ConnectiveNode copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
-
     ConnectiveNode newNode = new ConnectiveNode(this, userOpeCmd);
     newNode.childSection = childSection.copy(userOpeCmd, isNodeToBeCopied);
     newNode.childSection.setParent(newNode);
@@ -126,7 +124,6 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
       BhNode newChild,
       Connector parentCnctr,
       UserOperationCommand userOpeCmd) {
-
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_CHILD_REPLACED);
     Script onChildReplaced =
         scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);

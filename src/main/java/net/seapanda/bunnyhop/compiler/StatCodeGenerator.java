@@ -133,7 +133,7 @@ public class StatCodeGenerator {
       BhNode varDecl = ((BhNode) varSymbol).getOriginal();
       if (common.isOutputParam(varDecl)) {
         if (isAddAssign) {
-          rightExp = "(" + rightExp + " + " + common.genGetOutputParamValCode(varDecl) + ")";
+          rightExp = "(" + common.genGetOutputParamValCode(varDecl) + " + " + rightExp + ")";
         }
         code.append(common.indent(nestLevel))
             .append(common.genSetOutputParamValCode(varDecl, rightExp))
@@ -141,7 +141,7 @@ public class StatCodeGenerator {
       } else {
         String varName = common.genVarName(varDecl);
         if (isAddAssign) {
-          rightExp = "(" + rightExp + " + " + varName + ")";
+          rightExp = "(" + varName + " + " + rightExp + ")";
         }
         code.append(common.indent(nestLevel))
             .append(varName)

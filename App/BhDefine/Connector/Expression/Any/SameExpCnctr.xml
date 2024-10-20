@@ -1,0 +1,4 @@
+<Connector 
+  bhConnectorID="idSameTypeOfExpCnctr"
+  defaultBhNodeID="idAnyExpVoid"
+  onConnectabilityChecking="SameTypeOfExpCnct.js"/>

@@ -61,7 +61,6 @@ public class Subsection extends Section {
 
   @Override
   public Subsection copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
-
     Subsection newSubsection = new Subsection(this);
     subsectionList.forEach(section -> {
       Section newSection = section.copy(userOpeCmd, isNodeToBeCopied);

@@ -1,0 +1,53 @@
+<Node
+  type="connective"
+  bhNodeID="idAnyArrayIndexOfExp"
+  name="AnyArrayIndexOfExp"
+  nodeStyleID="AnyArrayIndexOfExp.json"
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js">
+
+  <ConnectorSection name="NumExpSctn">
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
+
+    <PrivateConnector
+      bhConnectorID="idAnyArrayIndexOfExp.prvCnctr0"
+      name="niFukumareru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyArrayIndexOfExp.prvNode0"
+        name="niFukumareru"
+        nodeStyleID="WordLabel1.json"
+        initString="に含まれる">
+      </Node>
+    </PrivateConnector>
+
+    <PrivateConnector
+      bhConnectorID="idAnyArrayIndexOfExp.prvCnctr1"
+      name="Option0"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyArrayIndexOfExp.prvNode1"
+        name="Position"
+        nodeStyleID="WordComboBox.json"
+        onTextOptionsCreating="CreateFirstOrLast.js">
+      </Node>
+    </PrivateConnector>
+
+    <Connector bhConnectorID="idSameTypeOfExpCnctr" name="Arg1"/>
+
+    <PrivateConnector
+      bhConnectorID="idAnyArrayIndexOfExp.prvCnctr2"
+      name="noIndex"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyArrayIndexOfExp.prvNode2"
+        name="noIndex"
+        nodeStyleID="WordLabel1.json"
+        initString="のインデックス">
+      </Node>
+    </PrivateConnector>
+    
+  </ConnectorSection>
+</Node>

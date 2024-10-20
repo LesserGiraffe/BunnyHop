@@ -7,13 +7,13 @@
   colorTypeCol: hsb(240 , 80%, 95%);
 
   controlTypeCol0: hsb(29, 15%, 100%);
-  controlTypeCol1: hsb(335, 15%, 100%);
+  controlTypeCol1: hsb(34, 39%, 87%);
   voidFuncTypeCol: hsb(18, 44%, 48%);
   actionTypeCol: hsb(165 , 100%, 43%);
   concurrentTypeCol: hsb(329 , 100%, 78%);
 
   voidTypeCol: hsb(0, 0%, 95%);
-  anyTypeCol: hsb(0, 0%, 85%);
+  anyTypeCol: hsb(240, 8%, 85%);
   miscTypeCol: hsb(0, 0%, 15%);
   errorTypeCol: hsb(60, 100%, 100%);
 }

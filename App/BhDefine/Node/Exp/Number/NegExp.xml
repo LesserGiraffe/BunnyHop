@@ -4,7 +4,7 @@
   name="NegExp"
   nodeStyleID="NegExp.json">
 
-  <ConnectorSection name="NumberExpSctn">
+  <ConnectorSection name="NumExpSctn">
     <PrivateConnector
       bhConnectorID="idNegExp.prvCnctr0"
       name="mainasu"

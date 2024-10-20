@@ -4,7 +4,7 @@
   name="BinaryBoolExp"
   nodeStyleID="BinaryBoolExp.json">
 
-  <ConnectorSection name="BooleanExpSctn">
+  <ConnectorSection name="BoolExpSctn">
     <Connector bhConnectorID="idBoolExpCnctr" name="LeftExp"/>
     
     <PrivateConnector
@@ -16,7 +16,7 @@
         type="text"
         name="BinaryBoolOpe"
         nodeStyleID="WordComboBox.json"
-        onViewContentsCreating="CreateBinaryBoolOps.js">
+        onTextOptionsCreating="CreateBinaryBoolOps.js">
       </Node>
     </PrivateConnector>
     

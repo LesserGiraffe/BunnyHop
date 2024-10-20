@@ -4,7 +4,7 @@
   name="StrCompExp"
   nodeStyleID="CompExp.json">
 
-  <ConnectorSection name="BooleanExpSctn">
+  <ConnectorSection name="BoolExpSctn">
     <Connector bhConnectorID="idStrExpCnctr" name="LeftExp"/>
     
     <PrivateConnector
@@ -16,7 +16,7 @@
         bhNodeID="idStrCompExp.prvNode0"
         name="CompOpe"
         nodeStyleID="DefaultComboBox.json"
-        onViewContentsCreating="CreateCompOps.js">
+        onTextOptionsCreating="CreateCompOps.js">
       </Node>
     </PrivateConnector>
     

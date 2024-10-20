@@ -9,7 +9,7 @@
   "connectorHeight" : 3.5,
   "connectorShape" : "ARROW",
   "connectorBoundsRate" : 1.25,
-  "cssClass" : "numType",
+  "cssClass" : "anyType",
 
   "connective" : {
     "inner" : {

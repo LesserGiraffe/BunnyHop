@@ -4,7 +4,7 @@
   name="FourArithExp"
   nodeStyleID="FourArithExp.json">
 
-  <ConnectorSection name="NumberExpSctn">
+  <ConnectorSection name="NumExpSctn">
     <Connector bhConnectorID="idNumExpCnctr" name="LeftExp"/>
     
     <PrivateConnector
@@ -16,7 +16,7 @@
         bhNodeID="idFourArithExp.prvNode0"
         name="FourArithOpe"
         nodeStyleID="DefaultComboBox.json"
-        onViewContentsCreating="CreateFourArithOps.js">
+        onTextOptionsCreating="CreateFourArithOps.js">
       </Node>
     </PrivateConnector>
     

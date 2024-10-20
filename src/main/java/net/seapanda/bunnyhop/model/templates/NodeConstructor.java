@@ -35,6 +35,7 @@ import net.seapanda.bunnyhop.model.node.attribute.BhNodeType;
 import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.model.node.connective.ConnectorId;
+import net.seapanda.bunnyhop.model.node.connective.ConnectorInstantiationParams;
 import net.seapanda.bunnyhop.model.node.connective.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.connective.Section;
 import net.seapanda.bunnyhop.model.node.connective.Subsection;
@@ -250,7 +251,7 @@ public class NodeConstructor {
         nodeAttrs.get().getOnTextFormatting(),
         nodeAttrs.get().getOnSyntaxChecking(),
         nodeAttrs.get().getOnPrivateTemplateCreating(),
-        nodeAttrs.get().getOnViewContentsCreating());
+        nodeAttrs.get().getOnTextOptionsCreating());
     if (!allScriptsFound) {
       return Optional.empty();
     }
@@ -326,7 +327,7 @@ public class NodeConstructor {
     Collection<Element> privateCnctrTags = BhNodeTemplates.getElementsByTagNameFromChild(
         connectorSection, BhConstants.BhModelDef.ELEM_PRIVATE_CONNECTOR);
     List<Connector> cnctrList = new ArrayList<>();
-    List<ConnectorSection.CnctrInstantiationParams> cnctrInstantiationParamsList =
+    List<ConnectorInstantiationParams> cnctrInstantiationParamsList =
         new ArrayList<>();
 
     if (connectorTags.isEmpty() && privateCnctrTags.isEmpty()) {
@@ -339,7 +340,7 @@ public class NodeConstructor {
     }
 
     for (Element connectorTag : connectorTags) {
-      Optional<Pair<Connector, ConnectorSection.CnctrInstantiationParams>> cnctrAndParams =
+      Optional<Pair<Connector, ConnectorInstantiationParams>> cnctrAndParams =
           getConnector(connectorTag);
       if (cnctrAndParams.isEmpty()) {
         return Optional.empty();
@@ -349,7 +350,7 @@ public class NodeConstructor {
     }
 
     for (Element connectorTag : privateCnctrTags) {
-      Optional<Pair<Connector, ConnectorSection.CnctrInstantiationParams>> cnctrAndParams =
+      Optional<Pair<Connector, ConnectorInstantiationParams>> cnctrAndParams =
           genPrivateConnector(connectorTag);
       if (cnctrAndParams.isEmpty()) {
         return Optional.empty();
@@ -367,7 +368,7 @@ public class NodeConstructor {
    * @param connector Connector タグを表す Element オブジェクト
    * @return コネクタとそれのインスタンス化の際のパラメータのタプル
    */
-  private Optional<Pair<Connector, ConnectorSection.CnctrInstantiationParams>> getConnector(
+  private Optional<Pair<Connector, ConnectorInstantiationParams>> getConnector(
       Element connectorTag) {
     ConnectorId connectorId = ConnectorId.createCnctrId(
         connectorTag.getAttribute(BhConstants.BhModelDef.ATTR_BH_CONNECTOR_ID));
@@ -394,14 +395,15 @@ public class NodeConstructor {
    *
    * @return プライベートコネクタとコネクタインスタンス化時のパラメータのペア
    */
-  private Optional<Pair<Connector, ConnectorSection.CnctrInstantiationParams>> genPrivateConnector(
+  private Optional<Pair<Connector, ConnectorInstantiationParams>> genPrivateConnector(
       Element connectorTag) {
     List<Element> privateNodeTagList = BhNodeTemplates.getElementsByTagNameFromChild(
         connectorTag, BhConstants.BhModelDef.ELEM_NODE);
     if (privateNodeTagList.size() >= 2) {
       MsgPrinter.INSTANCE.errMsgForDebug(
           "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + ">" + "タグの下に2つ以上"
-          + " <" + BhConstants.BhModelDef.ELEM_NODE + "> タグを定義できません.\n" + connectorTag.getBaseURI());
+          + " <" + BhConstants.BhModelDef.ELEM_NODE + "> タグを定義できません.\n"
+          + connectorTag.getBaseURI());
       return Optional.empty();
     }
 
@@ -411,7 +413,8 @@ public class NodeConstructor {
       if (privateNode.isPresent()
           && !connectorTag.hasAttribute(BhConstants.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID)) {
         connectorTag.setAttribute(
-            BhConstants.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID, privateNode.get().getId().toString());
+            BhConstants.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID,
+            privateNode.get().getId().toString());
       }
     }
 
@@ -429,13 +432,17 @@ public class NodeConstructor {
    * @param connectorTag Connector or PrivateConnector タグを表す Element オブジェクト
    * @return コネクタオブジェクトをインスタンス化する際のパラメータ
    */
-  private ConnectorSection.CnctrInstantiationParams genConnectorInstParams(Element connectorTag) {
+  private ConnectorInstantiationParams genConnectorInstParams(Element connectorTag) {
     String imitationId =
         connectorTag.getAttribute(BhConstants.BhModelDef.ATTR_IMITATION_ID);
     String imitCnctPoint = connectorTag.getAttribute(BhConstants.BhModelDef.ATTR_IMIT_CNCT_POS);
     String name = connectorTag.getAttribute(BhConstants.BhModelDef.ATTR_NAME);
-    return new ConnectorSection.CnctrInstantiationParams(
+    String fixedStr = connectorTag.getAttribute(BhConstants.BhModelDef.ATTR_FIXED);
+    Boolean fixed =
+        fixedStr.isEmpty() ? null : fixedStr.equals(BhConstants.BhModelDef.ATTR_VAL_TRUE);
+    return new ConnectorInstantiationParams(
       name,
+      fixed,
       ImitationId.create(imitationId),
       ImitCnctPosId.create(imitCnctPoint));
   }

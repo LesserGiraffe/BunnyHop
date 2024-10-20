@@ -79,9 +79,6 @@ public class ExpCodeGenerator {
     } else if (SymbolNames.PreDefFunc.PREDEF_FUNC_CALL_EXP_LIST.contains(expSymbolName)) {
       return genPreDefFuncCallExp(code, expNode, nestLevel, option, true);
 
-    } else if (SymbolNames.Array.LENGTH_EXP_LIST.contains(expSymbolName)) {
-      return genArrayLenExp(code, expNode, nestLevel, option);
-
     } else if (SymbolNames.ConstantValue.LIST.contains(expSymbolName)) {
       return genIdentifierExp(code, expNode, nestLevel, option);
     }
@@ -434,33 +431,6 @@ public class ExpCodeGenerator {
       }
     }
     return argList;
-  }
-
-  /**
-   * 配列の長さを取得するコードを作成する.
-   *
-   * @param code 生成したコードの格納先
-   * @param arrayLenNode 配列長取得ノード
-   * @param nestLevel ソースコードのネストレベル
-   * @param option コンパイルオプション
-   * @return 式もしくは式の評価結果を格納した変数.
-   */
-  private String genArrayLenExp(
-      StringBuilder code,
-      SyntaxSymbol arrayLenNode,
-      int nestLevel,
-      CompileOption option) {
-
-    SyntaxSymbol arayExp = arrayLenNode.findSymbolInDescendants("*", SymbolNames.Array.ARRAY, "*");
-    String arrayExpCode = genExpression(code, arayExp, nestLevel, option);
-    String tmpVar = common.genVarName(arrayLenNode);
-    code.append(common.indent(nestLevel))
-        .append(Keywords.Js._const_)
-        .append(tmpVar)
-        .append(" = ")
-        .append(arrayExpCode)
-        .append(".length;" + Keywords.newLine);
-    return tmpVar;
   }
 
   /**

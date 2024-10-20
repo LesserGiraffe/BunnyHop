@@ -4,7 +4,7 @@
   name="GetTimeSinceProgramStartedExp"
   nodeStyleID="GetTimeSinceProgramStartedExp.json">
 
-  <ConnectorSection name="NumberExpSctn">
+  <ConnectorSection name="NumExpSctn">
     <PrivateConnector
       bhConnectorID="idGetTimeSinceProgramStartedExp.prvCnctr0"
       name="timeSinceProgramStarted"

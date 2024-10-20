@@ -80,7 +80,7 @@ public final class LabelNodeView extends BhNodeView {
 
   @Override
   protected Vec2D getBodySize(boolean includeCnctr) {
-    Vec2D cnctrSize = viewStyle.getConnectorSize();
+    Vec2D cnctrSize = viewStyle.getConnectorSize(isFixed());
     double bodyWidth = viewStyle.paddingLeft + label.getWidth() + viewStyle.paddingRight;
     if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.LEFT)) {
       bodyWidth += cnctrSize.x;

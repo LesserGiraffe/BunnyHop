@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.model.node;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,7 +64,7 @@ public class TextNode  extends ImitationBase<TextNode> {
     registerScriptName(
         BhNodeEvent.ON_TEXT_CHECKING, attributes.getOnTextChecking());
     registerScriptName(
-        BhNodeEvent.ON_VIEW_CONTENTS_CREATING, attributes.getOnViewContentsCreating());
+        BhNodeEvent.ON_VIEW_CONTENTS_CREATING, attributes.getOnTextOptionsCreating());
     text = attributes.getIinitString();
   }
 
@@ -171,28 +172,33 @@ public class TextNode  extends ImitationBase<TextNode> {
   }
   
   /**
-   * このノードのビューが保持すべきコンテンツを生成して返す.
+   * このノードが保持する可能性のあるテキストデータのリストを取得する.
    *
-   * @return このノードのビューが保持すべきコンテンツ 
+   * @return [ (モデルが保持するテキスト 0, ビューが保持するオブジェクト 0), 
+   *           (モデルが保持するテキスト 1, ビューが保持するオブジェクト 1), ... ]
    */
-  @SuppressWarnings("unchecked")
-  public <T> T getViewContents() {
+  public List<Pair<String, Object>> getOptions() {
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_VIEW_CONTENTS_CREATING);
     Script creator =
         scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
-
     if (creator == null) {
       return null;
     }
+
     ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
-    T contents = null;
+    var options = new ArrayList<Pair<String, Object>>();
     try {
-      contents = (T) ContextFactory.getGlobal().call(cx -> creator.exec(cx, scriptScope));
+      List<?> contents =
+          (List<?>) ContextFactory.getGlobal().call(cx -> creator.exec(cx, scriptScope));
+      for (Object content : contents) {
+        List<?> modelAndView = (List<?>) content;
+        options.add(new Pair<>(modelAndView.get(0).toString(), modelAndView.get(1)));
+      }
     } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
           Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
     }
-    return contents;
+    return options;
   }
 
   /** このノードのイミテーションノードにこのノードを模倣させる. */

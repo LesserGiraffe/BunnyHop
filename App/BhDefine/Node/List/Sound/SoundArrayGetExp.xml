@@ -2,10 +2,11 @@
   type="connective"
   bhNodeID="idSoundArrayGetExp"
   name="SoundArrayGetExp"
-  nodeStyleID="SoundArrayGetExp.json">
+  nodeStyleID="SoundArrayGetExp.json"
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js">
 
   <ConnectorSection name="SoundExpSctn">
-    <Connector bhConnectorID="idSoundListCnctr" name="Arg0"/>
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
     
     <PrivateConnector
       bhConnectorID="idSoundArrayGetExp.prvCnctr0"

@@ -107,9 +107,8 @@ public final class ConnectiveNodeView extends BhNodeView {
 
   @Override
   protected Vec2D getBodySize(boolean includeCnctr) {
-
     Vec2D innerSize = innerGroup.getSize();
-    Vec2D cnctrSize = viewStyle.getConnectorSize();
+    Vec2D cnctrSize = viewStyle.getConnectorSize(isFixed());
 
     double bodyWidth = viewStyle.paddingLeft + innerSize.x + viewStyle.paddingRight;
     if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.LEFT)) {

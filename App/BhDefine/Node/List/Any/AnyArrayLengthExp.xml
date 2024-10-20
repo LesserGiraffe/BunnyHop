@@ -2,10 +2,11 @@
   type="connective"
   bhNodeID="idAnyArrayLengthExp"
   name="AnyArrayLengthExp"
-  nodeStyleID="AnyArrayLengthExp.json">
+  nodeStyleID="AnyArrayLengthExp.json"
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js">
 
-  <ConnectorSection name="NumberExpSctn">
-    <Connector bhConnectorID="idAnyListCnctr" name="Array"/>
+  <ConnectorSection name="NumExpSctn">
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
     
     <PrivateConnector
       bhConnectorID="idAnyArrayLengthExp.prvCnctr0"
@@ -16,7 +17,7 @@
         bhNodeID="idAnyArrayLengthExp.prvNode0"
         name="noSaizu"
         nodeStyleID="WordLabel1.json"
-        initString="のサイズ">
+        initString="の要素数">
       </Node>
     </PrivateConnector>
     

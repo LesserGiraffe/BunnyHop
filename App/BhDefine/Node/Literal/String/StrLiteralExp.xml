@@ -5,7 +5,7 @@
   nodeStyleID="StrLiteralExp.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
-  <ConnectorSection name="StringExpSctn">
+  <ConnectorSection name="StrExpSctn">
     <PrivateConnector
       bhConnectorID="idStrLiteralExp.prvCnctr0"
       name="Literal"

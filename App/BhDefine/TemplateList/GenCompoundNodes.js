@@ -15,31 +15,6 @@
     cnctr.connectNode(childNode, bhUserOpeCmd);
   }
 
-  //カウンタ付き回数指定ループノード作成
-  function addRepeatAndCountNode(nodeID) {
-
-    let compoundNode = genBhNode('idCompoundStat', bhUserOpeCmd);
-    let countVarNode = genBhNode('idNumVarDecl', bhUserOpeCmd);
-    let initAssignStatNode = genBhNode('idNumAssignStat', bhUserOpeCmd);
-    let repeatStatNode = genBhNode('idRepeatStat', bhUserOpeCmd);
-    let updateAssignStatNode = genBhNode('idNumAddAssignStat', bhUserOpeCmd);
-
-    connect(compoundNode, initAssignStatNode, ['*', '*', 'StatList']);
-    connect(compoundNode, countVarNode, ['*', '*', 'LocalVarDecl']);
-    connect(initAssignStatNode, repeatStatNode, ['*', 'NextStat']);
-    connect(repeatStatNode, updateAssignStatNode,  ['*', 'LoopStat']);
-
-    //変数名変更
-    let countVarName = countVarNode.findSymbolInDescendants(['*', 'VarName', '*']);
-    countVarName.setText('カウンター');
-
-    //カウンタ更新幅変更
-    let updateDiff = updateAssignStatNode.findSymbolInDescendants(['*', 'RightExp', '*', '*', 'Literal', '*']);
-    updateDiff.setText('1');
-
-    registerNodeTemplate(nodeID, compoundNode);
-  }
-
   //移動ノードの初期速度を変更して再登録
   function setInitialMoveSpeed() {
     let newMoveStat = genBhNode('idMoveStat', bhUserOpeCmd);
@@ -93,7 +68,6 @@
     }
   }
 
-  addRepeatAndCountNode('idRepeatAndCount');
   setInitialMoveSpeed();
   setVarAndListName();
   setInitialSoundParams();

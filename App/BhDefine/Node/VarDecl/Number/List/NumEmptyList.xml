@@ -1,9 +1,23 @@
 <Node
-  type="text"
+  type="connective"
   bhNodeID="idNumEmptyList"
   name="NumEmptyList"
   nodeStyleID="NumEmptyList.json"
-  onMovedFromChildToWS="OnLiteralMovedToWS.js"
-  initString="[...]">
-</Node>
+  onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
+  <!-- NumList と共通のセクションを持たせる -->
+  <ConnectorSection name="NumListSctn">
+    <PrivateConnector
+      bhConnectorID="idNumEmptyList.prvCnctr0"
+      name="ListSign"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNumEmptyList.prvNode0"
+        name="ListSign"
+        nodeStyleID="WordLabel1.json"
+        initString="[...]">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
+</Node>

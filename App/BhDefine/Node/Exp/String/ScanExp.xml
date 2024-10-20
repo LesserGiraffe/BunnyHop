@@ -4,7 +4,7 @@
   name="ScanExp"
   nodeStyleID="ScanExp.json">
 
-  <ConnectorSection name="StringExpSctn">
+  <ConnectorSection name="StrExpSctn">
     
     <PrivateConnector
       bhConnectorID="idScanExp.prvCnctr0"
@@ -48,7 +48,7 @@
         nodeStyleID="StrLiteralExp.json"
         onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
-        <ConnectorSection name="StringExpSctn">
+        <ConnectorSection name="StrExpSctn">
 
           <PrivateConnector
             bhConnectorID="idScanExp.prvNode2.prvCnctr0"

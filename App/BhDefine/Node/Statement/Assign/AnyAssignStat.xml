@@ -5,13 +5,13 @@
   nodeStyleID="AnyAssignStat.json"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedToChild="OnStatMovedToChild.js"
-  onChildReplaced="OnChildOfAnyTypeNodeReplaced.js"
+  onChildReplaced="OnChildOfPrimVarCtrlReplaced.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idAnyVarCnctr" name="LeftVar"/>
+    <Connector bhConnectorID="idAnyFixedCnctr" name="LeftVar"/>
     
     <PrivateConnector
       bhConnectorID="idAnyAssignStat.prvCnctr0"
@@ -26,7 +26,7 @@
       </Node>
     </PrivateConnector>
     
-    <Connector bhConnectorID="idAnyExpCnctr" name="RightExp"/>
+    <Connector bhConnectorID="idSameTypeOfExpCnctr" name="RightExp"/>
     
     <PrivateConnector
       bhConnectorID="idAnyAssignStat.prvCnctr1"

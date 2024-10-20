@@ -218,8 +218,8 @@ public class BhNodeController implements MsgProcessor {
    */
   private void toChildNode(BhNode oldChildNode) {
     boolean fromWs = model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
-    ConnectiveNode parentNode = oldChildNode.findParentNode();
-    Connector parentCnctr = oldChildNode.getParentConnector();
+    final ConnectiveNode parentNode = oldChildNode.findParentNode();
+    final Connector parentCnctr = oldChildNode.getParentConnector();
 
     //ワークスペースから移動する場合
     if (fromWs) {
@@ -227,9 +227,9 @@ public class BhNodeController implements MsgProcessor {
           ddInfo.posOnWorkspace.x, ddInfo.posOnWorkspace.y, model);
     }
     // 入れ替えられるノードの親ノード
-    ConnectiveNode oldParentOfReplaced = oldChildNode.findParentNode();
+    final ConnectiveNode oldParentOfReplaced = oldChildNode.findParentNode();
     // 入れ替えられるノードのルートノード
-    BhNode oldRootOfReplaced = oldChildNode.findRootNode();
+    final BhNode oldRootOfReplaced = oldChildNode.findRootNode();
     // 重なっているノードをこのノードと入れ替え
     BhNodeHandler.INSTANCE.replaceChild(oldChildNode, model, ddInfo.userOpeCmd);
     //接続変更時のスクリプト実行

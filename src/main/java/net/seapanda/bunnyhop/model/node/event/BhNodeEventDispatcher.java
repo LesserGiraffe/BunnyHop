@@ -64,10 +64,12 @@ public class BhNodeEventDispatcher implements Serializable {
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
     ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_COMMON, BhScriptManager.INSTANCE.getCommonJsObj());
+        scriptScope,
+        BhConstants.JsKeyword.KEY_BH_COMMON,
+        BhScriptManager.INSTANCE.getCommonJsObj());
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_TEMPLATES, BhNodeTemplates.INSTANCE);
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_UTIL, Util.INSTANCE);
+
     return scriptScope;
   }
 
@@ -97,7 +99,8 @@ public class BhNodeEventDispatcher implements Serializable {
     ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldReplaced);
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+    ScriptableObject.putProperty(
+        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
     try {
       ContextFactory.getGlobal().call(cx -> onMovedToChild.exec(cx, scriptScope));
     } catch (Exception e) {
@@ -134,7 +137,8 @@ public class BhNodeEventDispatcher implements Serializable {
         scriptScope, BhConstants.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newReplaced);
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_MANUALLY_REMOVED, manuallyRemoved);
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+    ScriptableObject.putProperty(
+        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
     try {
       ContextFactory.getGlobal().call(cx -> onMovedFromChildToWs.exec(cx, scriptScope));
     } catch (Exception e) {
@@ -148,7 +152,7 @@ public class BhNodeEventDispatcher implements Serializable {
    *
    * <pre>
    * この関数を呼び出す対象となるノードを削除原因ごとに記す.
-   *   INFLUENCE_OF_ORIGINAL_DELETION -> オリジナルノード削除後に残っているすべてのイミテーションノード
+   *   ORIGINAL_DELETION -> オリジナルノード削除後に残っているすべてのイミテーションノード
    *   TRASH_BOX -> ゴミ箱の上に D&D されたノード
    *   SYNTAX_ERROR -> 構文エラーを起こしているノード
    *   SELECTED_FOR_DELETION ->  削除対象として選択されているノード
@@ -176,7 +180,8 @@ public class BhNodeEventDispatcher implements Serializable {
         scriptScope, BhConstants.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToDelete);
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_CAUSE_OF_DELETION, causeOfDeletion);
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+    ScriptableObject.putProperty(
+        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
     Object doDeletion = null;
     try {
       doDeletion = ContextFactory.getGlobal().call(cx -> onDeletionRequested.exec(cx, scriptScope));
@@ -210,7 +215,8 @@ public class BhNodeEventDispatcher implements Serializable {
     ScriptableObject scriptScope = newDefaultScriptScope();
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCut);
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+    ScriptableObject.putProperty(
+        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
     try {
       doCut = ContextFactory.getGlobal().call(cx -> onCutRequested.exec(cx, scriptScope));
     } catch (Exception e) {

@@ -1,0 +1,25 @@
+<Node
+  type="connective"
+  bhNodeID="idPositiveIntLiteralExp"
+  name="NumLiteralExp"
+  nodeStyleID="NumLiteralExp.json"
+  onMovedFromChildToWS="OnLiteralMovedToWS.js">
+
+  <ConnectorSection name="NumExpSctn">
+
+    <PrivateConnector
+      bhConnectorID="idPositiveIntLiteralExp.prvCnctr0"
+      name="Literal"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idPositiveIntLiteral"
+        name="NumLiteral"
+        nodeStyleID="NumLiteral.json"
+        onTextFormatting="FullWidthToHalfWidth.js"
+        onTextChecking="CheckPositiveIntFormat.js"
+        initString="1">
+      </Node>
+    </PrivateConnector>
+  </ConnectorSection>
+</Node>

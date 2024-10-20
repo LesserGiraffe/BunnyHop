@@ -2,7 +2,6 @@
 
   let NodeMvcBuilder = net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
   let BhNodeId = net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-  let BhNodeState = net.seapanda.bunnyhop.model.node.BhNode.State;
   let ImitationBuilder = net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
   let ImitationId = net.seapanda.bunnyhop.model.node.imitation.ImitationId;
   let bhCommon = {};
@@ -96,7 +95,8 @@
     if (isOuterNotToReconnect)
       return;
 
-    if (candidates.contains(nodeToReconnect))
+    candidates = toJsArray(candidates);
+    if (candidates.includes(nodeToReconnect))
       return;
     
     let nodeToReplace = findNodeToBeReplaced(nodeToReconnect, node, candidates);
@@ -122,153 +122,10 @@
     if (parent === null)
       return null;
 
-    if (candidates.contains(parent))
+    if (candidates.includes(parent))
       return findNodeToBeReplaced(nodeToReconnect, parent, candidates);
 
     return nodeToCheckReplaceability;
-  }
-
-  //  any-typeノードと入れ替えるべき子ノードのパスのマップ
-  let anyTypeToPathOfChildToBeMoved = {
-    'AnyArrayGetExp' : [['*', 'Arg1', '*']],
-    'AnyArrayInsertStat' : [['*', 'Arg1', '*']],
-    'AnyArrayRemoveStat' : [['*', 'Arg1', '*']],
-    'AnyArraySetStat' : [['*', 'Arg1', '*']]
-  }
-
-  /**
-   * any-typeノードの入れ替えるべき子ノードのパスを取得する
-   * @param nodeName any-typeノード名
-   * @return 入れ替えるべき子ノードのパスのリスト. 見つからない場合null
-   */
-  function getPathOfAnyTypeChildToBeMoved(nodeName) {
-    let path = anyTypeToPathOfChildToBeMoved[nodeName];
-    if (!path)
-      return null;
-    return path;
-  }
-
-  // any-typeノードと型決定シンボルからstatic-typeノードを特定するマップ
-  let anyTypeToStaticTypeNode = {
-    'AnyAssignStat' : {
-      'NumberExpSctn' : 'idNumAssignStat',
-      'StringExpSctn' : 'idStrAssignStat',
-      'BooleanExpSctn': 'idBoolAssignStat',
-      'ColorExpSctn'  : 'idColorAssignStat',
-      'SoundExpSctn'  : 'idSoundAssignStat'
-    },
-
-    'AnyArrayPushStat' : {
-      'NumberExpSctn' : 'idNumArrayPushStat',
-      'StringExpSctn' : 'idStrArrayPushStat',
-      'BooleanExpSctn': 'idBoolArrayPushStat',
-      'ColorExpSctn'  : 'idColorArrayPushStat',
-      'SoundExpSctn'  : 'idSoundArrayPushStat',
-      'NumberListSctn' : 'idNumArrayPushStat',
-      'StringListSctn' : 'idStrArrayPushStat',
-      'BooleanListSctn': 'idBoolArrayPushStat',
-      'ColorListSctn'  : 'idColorArrayPushStat',
-      'SoundListSctn'  : 'idSoundArrayPushStat'
-    },
-
-    'AnyArrayGetExp' : {
-      'NumberListSctn'  : 'idNumArrayGetExp',
-      'StringListSctn'  : 'idStrArrayGetExp',
-      'BooleanListSctn' : 'idBoolArrayGetExp',
-      'ColorListSctn'   : 'idColorArrayGetExp',
-      'SoundListSctn'   : 'idSoundArrayGetExp',
-      'NumClass'   : 'idNumArrayGetExp',
-      'StrClass'   : 'idStrArrayGetExp',
-      'BoolClass'  : 'idBoolArrayGetExp',
-      'ColorClass' : 'idColorArrayGetExp',
-      'SoundClass' : 'idSoundArrayGetExp'
-    },
-
-    'AnyArrayGetLastExp' : {
-      'NumberListSctn'  : 'idNumArrayGetLastExp',
-      'StringListSctn'  : 'idStrArrayGetLastExp',
-      'BooleanListSctn' : 'idBoolArrayGetLastExp',
-      'ColorListSctn'   : 'idColorArrayGetLastExp',
-      'SoundListSctn'   : 'idSoundArrayGetLastExp',
-      'NumClass'   : 'idNumArrayGetLastExp',
-      'StrClass'   : 'idStrArrayGetLastExp',
-      'BoolClass'  : 'idBoolArrayGetLastExp',
-      'ColorClass' : 'idColorArrayGetLastExp',
-      'SoundClass' : 'idSoundArrayGetLastExp'
-    },
-
-    'AnyArrayPopStat' : {
-      'NumberListSctn'  : 'idNumArrayPopStat',
-      'StringListSctn'  : 'idStrArrayPopStat',
-      'BooleanListSctn' : 'idBoolArrayPopStat',
-      'ColorListSctn'   : 'idColorArrayPopStat',
-      'SoundListSctn'   : 'idSoundArrayPopStat'
-    },
-
-    'AnyArrayInsertStat' : {
-      'NumberListSctn'  : 'idNumArrayInsertStat',
-      'StringListSctn'  : 'idStrArrayInsertStat',
-      'BooleanListSctn' : 'idBoolArrayInsertStat',
-      'ColorListSctn'   : 'idColorArrayInsertStat',
-      'SoundListSctn'   : 'idSoundArrayInsertStat',
-      'NumberExpSctn'  : 'idNumArrayInsertStat',
-      'StringExpSctn'  : 'idStrArrayInsertStat',
-      'BooleanExpSctn' : 'idBoolArrayInsertStat',
-      'ColorExpSctn'   : 'idColorArrayInsertStat',
-      'SoundExpSctn'   : 'idSoundArrayInsertStat'
-    },
-
-    'AnyArrayRemoveStat' : {
-      'NumberListSctn'  : 'idNumArrayRemoveStat',
-      'StringListSctn'  : 'idStrArrayRemoveStat',
-      'BooleanListSctn' : 'idBoolArrayRemoveStat',
-      'ColorListSctn'   : 'idColorArrayRemoveStat',
-      'SoundListSctn'   : 'idSoundArrayRemoveStat'
-    },
-
-    'AnyArraySetStat' : {
-      'NumberListSctn'  : 'idNumArraySetStat',
-      'StringListSctn'  : 'idStrArraySetStat',
-      'BooleanListSctn' : 'idBoolArraySetStat',
-      'ColorListSctn'   : 'idColorArraySetStat',
-      'SoundListSctn'   : 'idSoundArraySetStat',
-      'NumberExpSctn'  : 'idNumArraySetStat',
-      'StringExpSctn'  : 'idStrArraySetStat',
-      'BooleanExpSctn' : 'idBoolArraySetStat',
-      'ColorExpSctn'   : 'idColorArraySetStat',
-      'SoundExpSctn'   : 'idSoundArraySetStat'
-    },
-
-    'AnyArrayAppendStat' : {
-      'NumberListSctn'  : 'idNumArrayAppendStat',
-      'StringListSctn'  : 'idStrArrayAppendStat',
-      'BooleanListSctn' : 'idBoolArrayAppendStat',
-      'ColorListSctn'   : 'idColorArrayAppendStat',
-      'SoundListSctn'   : 'idSoundArrayAppendStat'
-    },
-
-    'AnyArrayClearStat' : {
-      'NumberListSctn'  : 'idNumArrayClearStat',
-      'StringListSctn'  : 'idStrArrayClearStat',
-      'BooleanListSctn' : 'idBoolArrayClearStat',
-      'ColorListSctn'   : 'idColorArrayClearStat',
-      'SoundListSctn'   : 'idSoundArrayClearStat'
-    }
-  };
-
-  /**
-   * any-Type のノード名と型を決定するシンボル名から対応する static-type Node のIDを取得する
-   */
-  function getStaticTypeNodeID(anyTypeNodeName, typeDecisiveSymbolName) {
-    let sectionNameToStaticType = anyTypeToStaticTypeNode[anyTypeNodeName];
-    if (!sectionNameToStaticType)
-      return null;
-
-    let staticTypeNodeID = sectionNameToStaticType[typeDecisiveSymbolName];
-    if (!staticTypeNodeID)
-      return null;
-
-    return staticTypeNodeID;
   }
   
   /**
@@ -280,11 +137,11 @@
     if (section !== null)
       sectionName = String(section.getSymbolName());
     
-    return sectionName === 'NumberExpSctn'  ||
-         sectionName === 'StringExpSctn'  ||
-         sectionName === 'BooleanExpSctn' ||
-         sectionName === 'SoundExpSctn'   ||
-         sectionName === 'ColorExpSctn';
+    return sectionName === 'NumExpSctn' ||
+        sectionName === 'StrExpSctn'    ||
+        sectionName === 'BoolExpSctn'   ||
+        sectionName === 'SoundExpSctn'  ||
+        sectionName === 'ColorExpSctn';
   }
   
   /**
@@ -308,16 +165,24 @@
     return bhNodeTemplates.genBhNode(BhNodeId.create(bhNodeId), bhUserOpeCmd);
   }
 
+  /** Java の List を JavaScript の配列に変換する. */
+  function toJsArray(javaArray) {
+    let jsArray = [];
+    for (let elem of javaArray) {
+      jsArray.push(elem);
+    }
+    return jsArray;
+  }
+
   bhCommon['appendRemovedNode'] = appendRemovedNode;
-  bhCommon['getStaticTypeNodeID'] = getStaticTypeNodeID;
   bhCommon['addNewNodeToWS'] = addNewNodeToWS;
   bhCommon['replaceDescendant'] = replaceDescendant;
   bhCommon['replaceStatWithNewStat'] = replaceStatWithNewStat;
   bhCommon['moveDescendant'] = moveDescendant;
-  bhCommon['getPathOfAnyTypeChildToBeMoved'] = getPathOfAnyTypeChildToBeMoved;
   bhCommon['isStaticTypeExp'] = isStaticTypeExp;
   bhCommon['reconnectOuter'] = reconnectOuter;
   bhCommon['buildImitation'] = buildImitation;
   bhCommon['genBhNode'] = genBhNode;
+  bhCommon['toJsArray'] = toJsArray;
   return bhCommon;
 })();

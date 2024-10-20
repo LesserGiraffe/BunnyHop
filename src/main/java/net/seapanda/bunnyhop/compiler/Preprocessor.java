@@ -34,7 +34,7 @@ public class Preprocessor {
 
   private static final Map<String, Consumer<SyntaxSymbol>> NODE_NAME_TO_PREPROCESSOR_FUNC =
       new HashMap<>() {{
-          put(SymbolNames.PreDefFunc.ANY_LIST_TO_STR_EXP, Preprocessor::procAnyListToStrExp);
+          put(SymbolNames.PreDefFunc.ANY_ARRAY_TO_STR_EXP, Preprocessor::procAnyArrayToStrExp);
         }
       };
 
@@ -56,11 +56,11 @@ public class Preprocessor {
 
 
   /**
-   * AnyListToStrExp ノードの前処理を行う.
+   * AnyArrayToStrExp ノードの前処理を行う.
    *
-   * @param node AnyListToStrExp ノード
+   * @param node AnyArrayToStrExp ノード
    */
-  private static void procAnyListToStrExp(SyntaxSymbol node) {
+  private static void procAnyArrayToStrExp(SyntaxSymbol node) {
     SyntaxSymbol listNode = node.findSymbolInDescendants("*", "Arg0", "*");
     SyntaxSymbol listNameNode =
         listNode.findSymbolInDescendants("*", SymbolNames.VarDecl.LIST_NAME, "*");

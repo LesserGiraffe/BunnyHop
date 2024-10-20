@@ -63,7 +63,7 @@
         bhNodeID="idMoveStat.prvNode3"
         name="MoveOpe"
         nodeStyleID="WordComboBox.json"
-        onViewContentsCreating="CreateMoveOpe.js">
+        onTextOptionsCreating="CreateMoveOpe.js">
       </Node>
     </PrivateConnector>
     

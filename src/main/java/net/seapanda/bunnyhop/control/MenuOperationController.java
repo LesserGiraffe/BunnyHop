@@ -159,7 +159,7 @@ public class MenuOperationController {
     terminateBtn.setOnAction(action -> terminate()); // プログラム終了
     connectBtn.setOnAction(action -> connect()); // 接続
     disconnectBtn.setOnAction(action -> disconnect()); // 切断
-    focusSimBtn.setOnAction(action -> focusSimulator()); // シミュレータにフォーカス
+    focusSimBtn.setOnAction(action -> focusSimulator(true)); // シミュレータにフォーカス
     sendBtn.setOnAction(action -> send()); // 送信
     remotLocalSelectBtn.selectedProperty()
         .addListener((observable, oldVal, newVal) -> switchRemoteLocal(newVal));
@@ -398,7 +398,7 @@ public class MenuOperationController {
     Future<Boolean> future = startProgram(srcPath);
     boolean success = waitForTaskToComplete(future, "Execute");
     if (BhSettings.BhSimulator.focusOnStartBhProgram.get() && success) {
-      focusSimulator();
+      focusSimulator(false);
     }
     preparingForExecution.set(false);
   }
@@ -493,9 +493,9 @@ public class MenuOperationController {
   }
 
   /** シミュレータにフォーカスする. */
-  private void focusSimulator() {
+  private void focusSimulator(boolean doForcibly) {
     Lwjgl3Window window = ((Lwjgl3Graphics) Gdx.app.getGraphics()).getWindow();
-    if (!window.isIconified()) {
+    if (!window.isIconified() || doForcibly) {
       window.restoreWindow();
       window.focusWindow();
     }

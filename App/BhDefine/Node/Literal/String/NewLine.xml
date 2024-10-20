@@ -5,7 +5,7 @@
   nodeStyleID="NewLine.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
-  <ConnectorSection name="StringExpSctn">
+  <ConnectorSection name="StrExpSctn">
 
     <PrivateConnector
       bhConnectorID="idNewLine.prvCnctr0"

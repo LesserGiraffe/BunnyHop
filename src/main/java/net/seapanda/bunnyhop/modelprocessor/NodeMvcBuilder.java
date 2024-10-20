@@ -138,7 +138,7 @@ public class NodeMvcBuilder implements BhModelProcessor {
 
   @Override
   public void visit(Connector connector) {
-    connector.setScriptScope();
+    connector.initScriptScope();
     connector.sendToConnectedNode(this);
   }
 

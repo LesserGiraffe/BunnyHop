@@ -6,10 +6,10 @@
       "idMeasureDistanceExp",
       "idDetectColorExp",
       "idPlayMelodyStat",
-      "idPlaySoundListStat",
       "idSleepStat",
       "idSayStat",
       "idLightEyeStat",
+      "idStopRaspiCarStat",
       "idGetTimeSinceProgramStartedExp"]
   },
 
@@ -38,8 +38,7 @@
       "idScanExp", 
       "idStrRowChainExp",
       "idStrColumnChainExp",
-      "idSayStat",
-      "idAnyListToStrExp"]
+      "idSayStat"]
   },
   
   "論理": {
@@ -50,7 +49,9 @@
       "idNotExp",
       "idNumCompExp",
       "idStrCompExp",
-      "idAnyCompExp"]
+      "idAnyCompExp",
+      "idAnyArrayCompExp",
+      "idAnySetCompExp"]
   },
 
   "音": {
@@ -58,8 +59,7 @@
     "contents":[
       "idScaleSoundLiteral",
       "idFreqSoundLiteral",
-      "idPlayMelodyStat",
-      "idPlaySoundListStat"]
+      "idPlayMelodyStat"]
   },
   
   "色": {
@@ -69,7 +69,6 @@
       "idBinaryColorExp",
       "idDetectColorExp",
       "idLightEyeStat"]
-    
   },
 
   "制御" : {
@@ -81,7 +80,6 @@
       "idWhileStat",
       "idBreakStat", 
       "idContinueStat",
-      "idRepeatAndCount",
       "idCompoundStat"]
   },
   

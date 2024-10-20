@@ -148,47 +148,23 @@ public class SymbolNames {
 
   /** コンパイル時に無視される文. */
   public static class StatToBeIgnored {
-    public static final String ANY_ASSIGN_STAT = "AnyAssignStat";
-    public static final String ANY_ARRAY_APPEND_STAT =  "AnyArrayAppendStat";
-    public static final String ANY_ARRAY_CLEAR_STAT = "AnyArrayClearStat";
-    public static final String ANY_ARRAY_INSERT_STAT = "AnyArrayInsertStat";
-    public static final String ANY_ARRAY_POP_STAT = "AnyArrayPopStat";
-    public static final String ANY_ARRAY_PUSH_STAT = "AnyArrayPushStat";
-    public static final String ANY_ARRAY_REMOVE_STAT = "AnyArrayRemoveStat";
-    public static final String ANY_ARRAY_SET_STAT = "AnyArraySetStat";
     public static final String COMMENT_PART = "CommentPart";
 
     public static final HashSet<String> LIST =
         new HashSet<>(Arrays.asList(
-            ANY_ASSIGN_STAT,
-            ANY_ARRAY_APPEND_STAT,
-            ANY_ARRAY_CLEAR_STAT,
-            ANY_ARRAY_INSERT_STAT,
-            ANY_ARRAY_POP_STAT,
-            ANY_ARRAY_PUSH_STAT,
-            ANY_ARRAY_REMOVE_STAT,
-            ANY_ARRAY_SET_STAT,
             COMMENT_PART));
   }
 
   /** 代入文に関するシンボル名. */
   public static class AssignStat {
 
-    public static final String NUM_ASSIGN_STAT = "NumAssignStat";
     public static final String NUM_ADD_ASSIGN_STAT = "NumAddAssignStat";
-    public static final String STR_ASSIGN_STAT = "StrAssignStat";
-    public static final String BOOL_ASSIGN_STAT = "BoolAssignStat";
-    public static final String COLOR_ASSIGN_STAT = "ColorAssignStat";
-    public static final String SOUND_ASSIGN_STAT = "SoundAssignStat";
+    public static final String ANY_ASSIGN_STAT = "AnyAssignStat";
     public static final String LEFT_VAR = "LeftVar";
     public static final HashSet<String> LIST =
         new HashSet<>(Arrays.asList(
-            NUM_ASSIGN_STAT,
-            NUM_ADD_ASSIGN_STAT,
-            STR_ASSIGN_STAT,
-            BOOL_ASSIGN_STAT,
-            COLOR_ASSIGN_STAT,
-            SOUND_ASSIGN_STAT));
+            ANY_ASSIGN_STAT,
+            NUM_ADD_ASSIGN_STAT));
   }
 
   /** 制御文に関するシンボル名. */
@@ -309,10 +285,11 @@ public class SymbolNames {
     public static final String STR_CHAIN_LINK_EXP = "StrChainLinkExp";
     public static final String STR_CHAIN_EXP = "StrChainExp";
     public static final String GET_SYNC_TIMER_COUNT_EXP = "GetSyncTimerCountExp";
-    public static final String ANY_LIST_TO_STR_EXP = "AnyListToStrExp";
+    public static final String ANY_ARRAY_TO_STR_EXP = "AnyArrayToStrExp";
     public static final String OUT_ARG_TEST_EXP = "OutArgTestExp";
     public static final String PRINT_STAT = "PrintStat";
     public static final String MOVE_STAT = "MoveStat";
+    public static final String STOP_RASPI_CAR_STAT = "StopRaspiCarStat";
     public static final String SLEEP_STAT = "SleepStat";
     public static final String PLAY_MELODY_STAT = "PlayMelodyStat";
     public static final String PLAY_SOUND_LIST_STAT = "PlaySoundListStat";
@@ -339,7 +316,18 @@ public class SymbolNames {
     public static final String OPT_TURN_LEFT = "turnLeft";
     public static final String OPT_ADD = "add";
     public static final String OPT_SUB = "sub";
+    public static final String OPT_REMOVE = "remove";
+    public static final String OPT_EXTRACT = "extract";
+    public static final String OPT_FIRST = "first";
+    public static final String OPT_LAST = "last";
+    public static final String OPT_EQ = "eq";
+    public static final String OPT_NEQ = "neq";
+    public static final String OPT_SUBSET = "subset";
+    public static final String OPT_PROPER_SUBSET = "properSubset";
+    public static final String OPT_SUPERSET = "superset";
+    public static final String OPT_PROPER_SUPERSET = "properSuperset";
 
+    // 定義済み関数式のリスト
     public static final HashSet<String> PREDEF_FUNC_CALL_EXP_LIST =
         new HashSet<>(Arrays.asList(
             STR_TO_NUM_EXP,
@@ -358,24 +346,26 @@ public class SymbolNames {
             STR_CHAIN_LINK_EXP,
             STR_CHAIN_EXP,
             GET_SYNC_TIMER_COUNT_EXP,
-            ANY_LIST_TO_STR_EXP,
+            ANY_ARRAY_TO_STR_EXP,
             OUT_ARG_TEST_EXP,
 
             Array.NUM_ARRAY_GET_EXP,
-            Array.NUM_ARRAY_GET_LAST_EXP,
             Array.STR_ARRAY_GET_EXP,
-            Array.STR_ARRAY_GET_LAST_EXP,
             Array.BOOL_ARRAY_GET_EXP,
-            Array.BOOL_ARRAY_GET_LAST_EXP,
             Array.COLOR_ARRAY_GET_EXP,
-            Array.COLOR_ARRAY_GET_LAST_EXP,
             Array.SOUND_ARRAY_GET_EXP,
-            Array.SOUND_ARRAY_GET_LAST_EXP));  // 定義済み関数式のリスト
+            Array.ANY_ARRAY_LEN_EXP,
+            Array.ANY_ARRAY_INDEX_OF_EXP,
+            Array.ANY_ARRAY_INCLUDES_EXP,
+            Array.ANY_ARRAY_COMP_EXP,
+            Array.ANY_SET_COMP_EXP));
 
+    // 定義済み関数文のリスト
     public static final HashSet<String> PREDEF_FUNC_CALL_STAT_LIST =
         new HashSet<>(Arrays.asList(
             PRINT_STAT,
             MOVE_STAT,
+            STOP_RASPI_CAR_STAT,
             SLEEP_STAT,
             PLAY_MELODY_STAT,
             PLAY_SOUND_LIST_STAT,
@@ -388,46 +378,14 @@ public class SymbolNames {
             RESET_SYNC_TIMER_STAT,
             SYNC_TIMER_COUNTDOWN_STAT,
 
-            Array.STR_ARRAY_PUSH_STAT,
-            Array.STR_ARRAY_POP_STAT,
-            Array.STR_ARRAY_SET_STAT,
-            Array.STR_ARRAY_INSERT_STAT,
-            Array.STR_ARRAY_REMOVE_STAT,
-            Array.STR_ARRAY_APPEND_STAT,
-            Array.STR_ARRAY_CLEAR_STAT,
+            Array.ANY_ARRAY_PUSH_STAT,
+            Array.ANY_ARRAY_APPEND_STAT,
+            Array.ANY_ARRAY_INSERT_STAT,
+            Array.ANY_ARRAY_SPLICE_STAT,
+            Array.ANY_ARRAY_SET_STAT,
+            Array.ANY_ARRAY_REVERSE_STAT));
 
-            Array.NUM_ARRAY_PUSH_STAT,
-            Array.NUM_ARRAY_POP_STAT,
-            Array.NUM_ARRAY_SET_STAT,
-            Array.NUM_ARRAY_INSERT_STAT,
-            Array.NUM_ARRAY_REMOVE_STAT,
-            Array.NUM_ARRAY_APPEND_STAT,
-            Array.NUM_ARRAY_CLEAR_STAT,
-
-            Array.BOOL_ARRAY_PUSH_STAT,
-            Array.BOOL_ARRAY_POP_STAT,
-            Array.BOOL_ARRAY_SET_STAT,
-            Array.BOOL_ARRAY_INSERT_STAT,
-            Array.BOOL_ARRAY_REMOVE_STAT,
-            Array.BOOL_ARRAY_APPEND_STAT,
-            Array.BOOL_ARRAY_CLEAR_STAT,
-
-            Array.COLOR_ARRAY_PUSH_STAT,
-            Array.COLOR_ARRAY_POP_STAT,
-            Array.COLOR_ARRAY_SET_STAT,
-            Array.COLOR_ARRAY_INSERT_STAT,
-            Array.COLOR_ARRAY_REMOVE_STAT,
-            Array.COLOR_ARRAY_APPEND_STAT,
-            Array.COLOR_ARRAY_CLEAR_STAT,
-
-            Array.SOUND_ARRAY_PUSH_STAT,
-            Array.SOUND_ARRAY_POP_STAT,
-            Array.SOUND_ARRAY_INSERT_STAT,
-            Array.SOUND_ARRAY_REMOVE_STAT,
-            Array.SOUND_ARRAY_APPEND_STAT,
-            Array.SOUND_ARRAY_CLEAR_STAT,
-            Array.SOUND_ARRAY_SET_STAT));  // 定義済み関数文のリスト
-
+    //  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
     public static final Map<FuncId, String> PREDEF_FUNC_NAME_MAP =
         new HashMap<FuncId, String>() {{
             put(FuncId.create(STR_TO_NUM_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
@@ -453,7 +411,8 @@ public class SymbolNames {
             put(FuncId.create(RAMDOM_INT_EXP), ScriptIdentifiers.Funcs.RANDOM_INT);
             put(FuncId.create(MEASURE_DISTANCE_EXP), ScriptIdentifiers.Funcs.MEASURE_DISTANCE);
             put(FuncId.create(MELODY_EXP), ScriptIdentifiers.Funcs.PUSH_SOUND);
-            put(FuncId.create(ANY_COMP_EXP), ScriptIdentifiers.Funcs.COMPARE_ANY);
+            put(FuncId.create(ANY_COMP_EXP, OPT_EQ), ScriptIdentifiers.Funcs.ANY_EQ);
+            put(FuncId.create(ANY_COMP_EXP, OPT_NEQ), ScriptIdentifiers.Funcs.ANY_NEQ);
             put(FuncId.create(BINARY_COLOR_EXP, OPT_ADD), ScriptIdentifiers.Funcs.ADD_COLOR);
             put(FuncId.create(BINARY_COLOR_EXP, OPT_SUB), ScriptIdentifiers.Funcs.SUB_COLOR);
             put(FuncId.create(DETECT_COLOR_EXP), ScriptIdentifiers.Funcs.DETECT_COLOR);
@@ -463,12 +422,13 @@ public class SymbolNames {
             put(FuncId.create(STR_CHAIN_EXP), ScriptIdentifiers.Funcs.IDENTITY);
             put(FuncId.create(GET_SYNC_TIMER_COUNT_EXP),
                 ScriptIdentifiers.Funcs.GET_SYNC_TIMER_COUNT);
-            put(FuncId.create(ANY_LIST_TO_STR_EXP), ScriptIdentifiers.Funcs.LIST_TO_STR);
+            put(FuncId.create(ANY_ARRAY_TO_STR_EXP), ScriptIdentifiers.Funcs.ARY_TO_STR);
             put(FuncId.create(OUT_ARG_TEST_EXP), ScriptIdentifiers.Funcs.OUT_ARG_TEST);
             put(FuncId.create(MOVE_STAT, OPT_MOVE_FORWARD), ScriptIdentifiers.Funcs.MOVE_FORWARD);
             put(FuncId.create(MOVE_STAT, OPT_MOVE_BACKWARD), ScriptIdentifiers.Funcs.MOVE_BACKWARD);
             put(FuncId.create(MOVE_STAT, OPT_TURN_RIGHT), ScriptIdentifiers.Funcs.TURN_RIGHT);
             put(FuncId.create(MOVE_STAT, OPT_TURN_LEFT), ScriptIdentifiers.Funcs.TURN_LEFT);
+            put(FuncId.create(STOP_RASPI_CAR_STAT), ScriptIdentifiers.Funcs.STOP_RASPI_CAR);
             put(FuncId.create(SLEEP_STAT), ScriptIdentifiers.Funcs.SLEEP);
             put(FuncId.create(PLAY_MELODY_STAT), ScriptIdentifiers.Funcs.PLAY_MELODIES);
             put(FuncId.create(PLAY_SOUND_LIST_STAT), ScriptIdentifiers.Funcs.PLAY_MELODIES);
@@ -478,58 +438,41 @@ public class SymbolNames {
                 ScriptIdentifiers.Funcs.GEN_LOCK_OBJ);
             put(FuncId.create(GlobalData.SYNC_TIMER_DECL), ScriptIdentifiers.Funcs.GEN_SYNC_TIMER);
 
-            put(FuncId.create(Array.STR_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
-            put(FuncId.create(Array.STR_ARRAY_POP_STAT), ScriptIdentifiers.Funcs.ARY_POP);
+            put(FuncId.create(Array.ANY_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
+            put(FuncId.create(Array.ANY_ARRAY_LEN_EXP), ScriptIdentifiers.Funcs.ARY_LEN);
+            put(FuncId.create(Array.ANY_ARRAY_INSERT_STAT), ScriptIdentifiers.Funcs.ARY_INSERT);
+            put(FuncId.create(Array.ANY_ARRAY_APPEND_STAT), ScriptIdentifiers.Funcs.ARY_ADD_ALL);
+            put(FuncId.create(Array.ANY_ARRAY_SPLICE_STAT, OPT_REMOVE),
+                ScriptIdentifiers.Funcs.ARY_REMOVE);
+            put(FuncId.create(Array.ANY_ARRAY_SPLICE_STAT, OPT_EXTRACT),
+                ScriptIdentifiers.Funcs.ARY_EXTRACT);
+            put(FuncId.create(Array.ANY_ARRAY_SET_STAT), ScriptIdentifiers.Funcs.ARY_SET);
+            put(FuncId.create(Array.ANY_ARRAY_REVERSE_STAT), ScriptIdentifiers.Funcs.ARY_REVERSE);
+            put(FuncId.create(Array.ANY_ARRAY_INDEX_OF_EXP, OPT_FIRST),
+                ScriptIdentifiers.Funcs.ARY_FIRST_INDEX_OF);
+            put(FuncId.create(Array.ANY_ARRAY_INDEX_OF_EXP, OPT_LAST),
+                ScriptIdentifiers.Funcs.ARY_LAST_INDEX_OF);
+            put(FuncId.create(Array.ANY_ARRAY_INCLUDES_EXP), ScriptIdentifiers.Funcs.ARY_INCLUDES);
+            put(FuncId.create(Array.ANY_ARRAY_COMP_EXP, OPT_EQ), ScriptIdentifiers.Funcs.ARY_EQ);
+            put(FuncId.create(Array.ANY_ARRAY_COMP_EXP, OPT_NEQ), ScriptIdentifiers.Funcs.ARY_NEQ);
+
+            put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_SUBSET),
+                ScriptIdentifiers.Funcs.IS_SUBSET);
+            put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_PROPER_SUBSET),
+                ScriptIdentifiers.Funcs.IS_PROPER_SUBSET);
+            put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_SUPERSET),
+                ScriptIdentifiers.Funcs.IS_SUPERSET);
+            put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_PROPER_SUPERSET),
+                ScriptIdentifiers.Funcs.IS_PROPER_SUPERSET);
+            put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_EQ), ScriptIdentifiers.Funcs.SET_EQ);
+            put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_NEQ), ScriptIdentifiers.Funcs.SET_NEQ);
+
             put(FuncId.create(Array.STR_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
-            put(FuncId.create(Array.STR_ARRAY_GET_LAST_EXP), ScriptIdentifiers.Funcs.ARY_GET_LAST);
-            put(FuncId.create(Array.STR_ARRAY_SET_STAT), ScriptIdentifiers.Funcs.ARY_SET);
-            put(FuncId.create(Array.STR_ARRAY_INSERT_STAT), ScriptIdentifiers.Funcs.ARY_INSERT);
-            put(FuncId.create(Array.STR_ARRAY_REMOVE_STAT), ScriptIdentifiers.Funcs.ARY_REMOVE);
-            put(FuncId.create(Array.STR_ARRAY_APPEND_STAT), ScriptIdentifiers.Funcs.ARY_ADD_ALL);
-            put(FuncId.create(Array.STR_ARRAY_CLEAR_STAT), ScriptIdentifiers.Funcs.ARY_CLEAR);
-
-            put(FuncId.create(Array.NUM_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
-            put(FuncId.create(Array.NUM_ARRAY_POP_STAT), ScriptIdentifiers.Funcs.ARY_POP);
             put(FuncId.create(Array.NUM_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
-            put(FuncId.create(Array.NUM_ARRAY_GET_LAST_EXP), ScriptIdentifiers.Funcs.ARY_GET_LAST);
-            put(FuncId.create(Array.NUM_ARRAY_SET_STAT), ScriptIdentifiers.Funcs.ARY_SET);
-            put(FuncId.create(Array.NUM_ARRAY_INSERT_STAT), ScriptIdentifiers.Funcs.ARY_INSERT);
-            put(FuncId.create(Array.NUM_ARRAY_REMOVE_STAT), ScriptIdentifiers.Funcs.ARY_REMOVE);
-            put(FuncId.create(Array.NUM_ARRAY_APPEND_STAT), ScriptIdentifiers.Funcs.ARY_ADD_ALL);
-            put(FuncId.create(Array.NUM_ARRAY_CLEAR_STAT), ScriptIdentifiers.Funcs.ARY_CLEAR);
-
-            put(FuncId.create(Array.BOOL_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
-            put(FuncId.create(Array.BOOL_ARRAY_POP_STAT), ScriptIdentifiers.Funcs.ARY_POP);
             put(FuncId.create(Array.BOOL_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
-            put(FuncId.create(Array.BOOL_ARRAY_GET_LAST_EXP), ScriptIdentifiers.Funcs.ARY_GET_LAST);
-            put(FuncId.create(Array.BOOL_ARRAY_SET_STAT), ScriptIdentifiers.Funcs.ARY_SET);
-            put(FuncId.create(Array.BOOL_ARRAY_INSERT_STAT), ScriptIdentifiers.Funcs.ARY_INSERT);
-            put(FuncId.create(Array.BOOL_ARRAY_REMOVE_STAT), ScriptIdentifiers.Funcs.ARY_REMOVE);
-            put(FuncId.create(Array.BOOL_ARRAY_APPEND_STAT), ScriptIdentifiers.Funcs.ARY_ADD_ALL);
-            put(FuncId.create(Array.BOOL_ARRAY_CLEAR_STAT), ScriptIdentifiers.Funcs.ARY_CLEAR);
-
-            put(FuncId.create(Array.COLOR_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
-            put(FuncId.create(Array.COLOR_ARRAY_POP_STAT), ScriptIdentifiers.Funcs.ARY_POP);
             put(FuncId.create(Array.COLOR_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
-            put(FuncId.create(Array.COLOR_ARRAY_GET_LAST_EXP),
-                ScriptIdentifiers.Funcs.ARY_GET_LAST);
-            put(FuncId.create(Array.COLOR_ARRAY_SET_STAT), ScriptIdentifiers.Funcs.ARY_SET);
-            put(FuncId.create(Array.COLOR_ARRAY_INSERT_STAT), ScriptIdentifiers.Funcs.ARY_INSERT);
-            put(FuncId.create(Array.COLOR_ARRAY_REMOVE_STAT), ScriptIdentifiers.Funcs.ARY_REMOVE);
-            put(FuncId.create(Array.COLOR_ARRAY_APPEND_STAT), ScriptIdentifiers.Funcs.ARY_ADD_ALL);
-            put(FuncId.create(Array.COLOR_ARRAY_CLEAR_STAT), ScriptIdentifiers.Funcs.ARY_CLEAR);
-
-            put(FuncId.create(Array.SOUND_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
-            put(FuncId.create(Array.SOUND_ARRAY_POP_STAT), ScriptIdentifiers.Funcs.ARY_POP);
-            put(FuncId.create(Array.SOUND_ARRAY_INSERT_STAT),  ScriptIdentifiers.Funcs.ARY_INSERT);
-            put(FuncId.create(Array.SOUND_ARRAY_REMOVE_STAT), ScriptIdentifiers.Funcs.ARY_REMOVE);
-            put(FuncId.create(Array.SOUND_ARRAY_APPEND_STAT), ScriptIdentifiers.Funcs.ARY_ADD_ALL);
-            put(FuncId.create(Array.SOUND_ARRAY_CLEAR_STAT), ScriptIdentifiers.Funcs.ARY_CLEAR);
             put(FuncId.create(Array.SOUND_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
-            put(FuncId.create(Array.SOUND_ARRAY_GET_LAST_EXP),
-                ScriptIdentifiers.Funcs.ARY_GET_LAST);
-            put(FuncId.create(Array.SOUND_ARRAY_SET_STAT), ScriptIdentifiers.Funcs.ARY_SET);
-          }};  //  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
+          }};
   }
 
   /** ユーザ定義関数に関するシンボル名. */
@@ -592,7 +535,7 @@ public class SymbolNames {
     public static final String NUM_LITERAL_EXP = "NumLiteralExp";
     public static final String BOOL_LITERAL_EXP = "BoolLiteralExp";
     public static final String COLOR_LITERAL_EXP = "ColorLiteralExp";
-
+    
     public static final HashSet<String> LIST =
         new HashSet<>(Arrays.asList(
             STR_LITERAL,
@@ -643,65 +586,23 @@ public class SymbolNames {
     public static final String ARRAY = "Array";
     public static final String INDEX = "Index";
 
-    public static final String STR_ARRAY_PUSH_STAT = "StrArrayPushStat";
-    public static final String STR_ARRAY_POP_STAT = "StrArrayPopStat";
-    public static final String STR_ARRAY_INSERT_STAT = "StrArrayInsertStat";
-    public static final String STR_ARRAY_REMOVE_STAT = "StrArrayRemoveStat";
-    public static final String STR_ARRAY_APPEND_STAT = "StrArrayAppendStat";
-    public static final String STR_ARRAY_CLEAR_STAT = "StrArrayClearStat";
-    public static final String STR_ARRAY_GET_EXP = "StrArrayGetExp";
-    public static final String STR_ARRAY_GET_LAST_EXP = "StrArrayGetLastExp";
-    public static final String STR_ARRAY_SET_STAT = "StrArraySetStat";
-    public static final String STR_ARRAY_LEN_EXP = "StrArrayLengthExp";
-
-    public static final String NUM_ARRAY_PUSH_STAT = "NumArrayPushStat";
-    public static final String NUM_ARRAY_POP_STAT = "NumArrayPopStat";
-    public static final String NUM_ARRAY_INSERT_STAT = "NumArrayInsertStat";
-    public static final String NUM_ARRAY_REMOVE_STAT = "NumArrayRemoveStat";
-    public static final String NUM_ARRAY_APPEND_STAT = "NumArrayAppendStat";
-    public static final String NUM_ARRAY_CLEAR_STAT = "NumArrayClearStat";
-    public static final String NUM_ARRAY_GET_EXP = "NumArrayGetExp";
-    public static final String NUM_ARRAY_GET_LAST_EXP = "NumArrayGetLastExp";
-    public static final String NUM_ARRAY_SET_STAT = "NumArraySetStat";
-    public static final String NUM_ARRAY_LEN_EXP = "NumArrayLengthExp";
-
-    public static final String BOOL_ARRAY_PUSH_STAT = "BoolArrayPushStat";
-    public static final String BOOL_ARRAY_POP_STAT = "BoolArrayPopStat";
-    public static final String BOOL_ARRAY_INSERT_STAT = "BoolArrayInsertStat";
-    public static final String BOOL_ARRAY_REMOVE_STAT = "BoolArrayRemoveStat";
-    public static final String BOOL_ARRAY_APPEND_STAT = "BoolArrayAppendStat";
-    public static final String BOOL_ARRAY_CLEAR_STAT = "BoolArrayClearStat";
-    public static final String BOOL_ARRAY_GET_EXP = "BoolArrayGetExp";
-    public static final String BOOL_ARRAY_GET_LAST_EXP = "BoolArrayGetLastExp";
-    public static final String BOOL_ARRAY_SET_STAT = "BoolArraySetStat";
-    public static final String BOOL_ARRAY_LEN_EXP = "BoolArrayLengthExp";
-
-    public static final String COLOR_ARRAY_PUSH_STAT = "ColorArrayPushStat";
-    public static final String COLOR_ARRAY_POP_STAT = "ColorArrayPopStat";
-    public static final String COLOR_ARRAY_INSERT_STAT = "ColorArrayInsertStat";
-    public static final String COLOR_ARRAY_REMOVE_STAT = "ColorArrayRemoveStat";
-    public static final String COLOR_ARRAY_APPEND_STAT = "ColorArrayAppendStat";
-    public static final String COLOR_ARRAY_CLEAR_STAT = "ColorArrayClearStat";
-    public static final String COLOR_ARRAY_GET_EXP = "ColorArrayGetExp";
-    public static final String COLOR_ARRAY_GET_LAST_EXP = "ColorArrayGetLastExp";
-    public static final String COLOR_ARRAY_SET_STAT = "ColorArraySetStat";
-    public static final String COLOR_ARRAY_LEN_EXP = "ColorArrayLengthExp";
-
-    public static final String SOUND_ARRAY_PUSH_STAT = "SoundArrayPushStat";
-    public static final String SOUND_ARRAY_POP_STAT = "SoundArrayPopStat";
-    public static final String SOUND_ARRAY_INSERT_STAT = "SoundArrayInsertStat";
-    public static final String SOUND_ARRAY_REMOVE_STAT = "SoundArrayRemoveStat";
-    public static final String SOUND_ARRAY_APPEND_STAT = "SoundArrayAppendStat";
-    public static final String SOUND_ARRAY_CLEAR_STAT = "SoundArrayClearStat";
-    public static final String SOUND_ARRAY_GET_EXP = "SoundArrayGetExp";
-    public static final String SOUND_ARRAY_GET_LAST_EXP = "SoundArrayGetLastExp";
-    public static final String SOUND_ARRAY_SET_STAT = "SoundArraySetStat";
-    public static final String SOUND_ARRAY_LEN_EXP = "SoundArrayLengthExp";
-
+    public static final String ANY_ARRAY_PUSH_STAT = "AnyArrayPushStat";
     public static final String ANY_ARRAY_LEN_EXP = "AnyArrayLengthExp";
+    public static final String ANY_ARRAY_APPEND_STAT = "AnyArrayAppendStat";
+    public static final String ANY_ARRAY_INSERT_STAT = "AnyArrayInsertStat";
+    public static final String ANY_ARRAY_SPLICE_STAT = "AnyArraySpliceStat";
+    public static final String ANY_ARRAY_SET_STAT = "AnyArraySetStat";
+    public static final String ANY_ARRAY_REVERSE_STAT = "AnyArrayReverseStat";
+    public static final String ANY_ARRAY_INDEX_OF_EXP = "AnyArrayIndexOfExp";
+    public static final String ANY_ARRAY_INCLUDES_EXP = "AnyArrayIncludesExp";
+    public static final String ANY_ARRAY_COMP_EXP = "AnyArrayCompExp";
+    public static final String ANY_SET_COMP_EXP = "AnySetCompExp";
 
-    public static final HashSet<String> LENGTH_EXP_LIST =
-        new HashSet<>(Arrays.asList(ANY_ARRAY_LEN_EXP));
+    public static final String STR_ARRAY_GET_EXP = "StrArrayGetExp";
+    public static final String NUM_ARRAY_GET_EXP = "NumArrayGetExp";
+    public static final String BOOL_ARRAY_GET_EXP = "BoolArrayGetExp";
+    public static final String COLOR_ARRAY_GET_EXP = "ColorArrayGetExp";
+    public static final String SOUND_ARRAY_GET_EXP = "SoundArrayGetExp";
   }
 
   /** グローバルデータに関するシンボル名. */

@@ -82,7 +82,7 @@ public class NoContentNodeView extends BhNodeView {
       paddingBottom = viewStyle.paddingBottom;
     }
 
-    Vec2D cnctrSize = viewStyle.getConnectorSize();
+    Vec2D cnctrSize = viewStyle.getConnectorSize(isFixed());
     double bodyWidth = paddingLeft + paddingRight;
     if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.LEFT)) {
       bodyWidth += cnctrSize.x;

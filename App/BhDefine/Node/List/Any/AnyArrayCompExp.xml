@@ -1,0 +1,25 @@
+<Node
+  type="connective"
+  bhNodeID="idAnyArrayCompExp"
+  name="AnyArrayCompExp"
+  nodeStyleID="AnyArrayCompExp.json">
+
+  <ConnectorSection name="BoolExpSctn">
+    <Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
+    
+    <PrivateConnector
+      bhConnectorID="idAnyArrayCompExp.prvCnctr0"
+      name="Option0"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyArrayCompExp.prvNode0"
+        name="StrLiteral"
+        nodeStyleID="DefaultComboBox.json"
+        onTextOptionsCreating="CreateEqualityCompOps.js">
+      </Node>
+    </PrivateConnector>
+    
+    <Connector bhConnectorID="idAnyListCnctr" name="Arg1"/>
+  </ConnectorSection>
+</Node>

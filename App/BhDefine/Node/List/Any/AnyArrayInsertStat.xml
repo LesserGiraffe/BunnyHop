@@ -5,13 +5,13 @@
   nodeStyleID="AnyArrayInsertStat.json"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedToChild="OnStatMovedToChild.js"
-  onChildReplaced="OnChildOfAnyTypeNodeReplaced.js"
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
     
     <PrivateConnector
       bhConnectorID="idAnyArrayInsertStat.prvCnctr0"
@@ -41,18 +41,37 @@
       </Node>
     </PrivateConnector>
     
-    <Connector bhConnectorID="idAnyExpCnctr" name="Arg2"/>
-    
+    <Connector bhConnectorID="idSameTypeOfExpCnctr" name="Arg2"/>
+
     <PrivateConnector
       bhConnectorID="idAnyArrayInsertStat.prvCnctr2"
-      name="woSonyuSuru"
+      name="wo"
       fixed="true">
       <Node
         type="text"
         bhNodeID="idAnyArrayInsertStat.prvNode2"
-        name="woSonyuSuru"
+        name="wo"
         nodeStyleID="WordLabel1.json"
-        initString="を挿入する">
+        initString="を">
+      </Node>
+    </PrivateConnector>
+
+    <PrivateConnector
+      bhConnectorID="idAnyArrayInsertStat.prvCnctr3"
+      name="Arg3"
+      defaultBhNodeID="idPositiveIntLiteralExp"
+      onConnectabilityChecking="NumExpCnct.js"/>
+
+    <PrivateConnector
+      bhConnectorID="idAnyArrayInsertStat.prvCnctr4"
+      name="koSonyuSuru"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyArrayInsertStat.prvNode4"
+        name="koSonyuSuru"
+        nodeStyleID="WordLabel1.json"
+        initString="個挿入する">
       </Node>
     </PrivateConnector>
     

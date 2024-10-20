@@ -50,7 +50,6 @@ import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
-import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape.CnctrShape;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.node.part.ImitationCreationButton;
@@ -136,7 +135,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     this.setPickOnBounds(false);  //nodeShape 部分だけが MouseEvent を拾うように
     this.viewStyle = viewStyle;
     this.model = model;
-    lookManager = this.new LookManager(viewStyle.bodyShape, viewStyle.notchShape);
+    lookManager = this.new LookManager(viewStyle.bodyShape);
     shadowShape.setVisible(false);
     shadowShape.setMouseTransparent(true);
     viewTreeManager.addChild(nodeShape);
@@ -216,6 +215,14 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
         false);
   }
 
+  /** このビューに対応する BhNode が固定ノードであるか調べる.. */
+  public boolean isFixed() {
+    if (model.getParentConnector() == null) {
+      return false;
+    }
+    return model.getParentConnector().isFixed();
+  }
+
   private void createImitButton(Imitatable model)
       throws ViewInitializationException {
     var err = new ViewInitializationException("Failed To load the Imitation Creation Button.");
@@ -236,18 +243,16 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
   
   /** 見た目を変更する処理を行うクラス. */
   public class LookManager {
-    private final ConnectorShape notch;  //!< 切り欠き部分の形を表すオブジェクト
     private BodyShape bodyShape;
-    private boolean isShadowRoot = false;  //!< 影が描画されるノードビュー群のルートノードである場合 true
+    /** 影が描画されるノードビュー群のルートノードである場合 true. */
+    private boolean isShadowRoot = false;
 
     /**
      * コンストラクタ.
      *
-     * @param bodyShape 本体の形
-     * @param notchShape 切り欠きの形
+     * @param bodyShape 本体部分の形
      */
-    public LookManager(BodyShape bodyShape, CnctrShape notchShape) {
-      notch = notchShape.shape;
+    public LookManager(BodyShape bodyShape) {
       this.bodyShape = bodyShape;
     }
 
@@ -288,16 +293,21 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
      */
     protected void updatePolygonShape() {
       Vec2D bodySize = getRegionManager().getBodySize(false);
+      boolean isFixed = BhNodeView.this.isFixed();
+      ConnectorShape cnctrShape =
+          isFixed ? viewStyle.connectorShapeFixed.shape : viewStyle.connectorShape.shape;
+      ConnectorShape notchShape =
+          isFixed ? viewStyle.notchShapeFixed.shape : viewStyle.notchShape.shape;
       nodeShape.getPoints().setAll(
           bodyShape.shape.createVertices(
               bodySize.x,
               bodySize.y,
-              viewStyle.connectorShape.shape,
+              cnctrShape,
               viewStyle.connectorPos,
               viewStyle.connectorWidth,
               viewStyle.connectorHeight,
               viewStyle.connectorShift,
-              notch,
+              notchShape,
               viewStyle.notchPos,
               viewStyle.notchWidth,
               viewStyle.notchHeight));

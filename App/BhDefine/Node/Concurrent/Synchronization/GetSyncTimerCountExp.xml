@@ -4,7 +4,7 @@
   name="GetSyncTimerCountExp"
   nodeStyleID="GetSyncTimerCountExp.json">
 
-  <ConnectorSection name="NumberExpSctn">
+  <ConnectorSection name="NumExpSctn">
     <Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
     
     <PrivateConnector 
