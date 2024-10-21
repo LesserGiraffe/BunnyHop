@@ -245,7 +245,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       //コネクタが上に付く
       if (childNodeView.viewStyle.connectorPos == BhNodeViewStyle.ConnectorPos.TOP) {
         childSumLen.add(childNodeSize.x, childNodeSize.y + cnctrSize.y);
-        childMaxLen.updateIfGreter(childNodeSize.x, childNodeSize.y);
+        childMaxLen.updateIfGreater(childNodeSize.x, childNodeSize.y);
         //グループの中が縦並び
         if (arrangeParams.arrangement == BhNodeViewStyle.ChildArrangement.COLUMN) {
           childRelPos.add(0, cnctrSize.y);
@@ -253,7 +253,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       //コネクタが左に付く
       } else if (childNodeView.viewStyle.connectorPos == BhNodeViewStyle.ConnectorPos.LEFT) {
         childSumLen.add(childNodeSize.x + cnctrSize.x, childNodeSize.y);
-        childMaxLen.updateIfGreter(childNodeSize.x, childNodeSize.y);
+        childMaxLen.updateIfGreater(childNodeSize.x, childNodeSize.y);
         //グループの中が横並び
         if (arrangeParams.arrangement == BhNodeViewStyle.ChildArrangement.ROW) {
           childRelPos.add(cnctrSize.x, 0);

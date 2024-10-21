@@ -1,20 +1,16 @@
-# Ignore Gradle project-specific cache directory
 .gradle
-
-# Ignore Gradle build output directory
-build
-BunnyHop
-bin
-jfx
-App/Log
-App/Compiled
-App/BhExecEnvLog
-App/Actions/open_jtalk
-App/net.seapanda.bunnyhop.jar
-App/BhProgramExecEnvironment.jar
-App/Jlib
 .settings
 .checkstyle
 .classpath
 .project
 google-java-format_windows-x86-64.exe
+/build
+/BunnyHop
+/bin
+/App/Log
+/App/Compiled
+/App/BhExecEnvLog
+/App/Actions/open_jtalk
+/App/net.seapanda.bunnyhop.jar
+/App/BhProgramExecEnvironment.jar
+/App/Jlib
