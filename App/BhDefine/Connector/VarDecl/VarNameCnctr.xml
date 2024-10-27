@@ -1,4 +1,4 @@
 <Connector 
   bhConnectorID="idVarNameCnctr"
   defaultBhNodeID="idVarName"
-    fixed="true"/>
+  fixed="true"/>

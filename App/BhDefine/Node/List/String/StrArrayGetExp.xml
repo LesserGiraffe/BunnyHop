@@ -7,34 +7,8 @@
 
   <ConnectorSection name="StrExpSctn">
     <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
-    
-    <PrivateConnector
-      bhConnectorID="idStrArrayGetExp.prvCnctr0"
-      name="no"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idStrArrayGetExp.prvNode0"
-        name="no"
-        nodeStyleID="WordLabel1.json"
-        initString="の">
-      </Node>
-    </PrivateConnector>
-    
+
     <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-    
-    <PrivateConnector
-      bhConnectorID="idStrArrayGetExp.prvCnctr1"
-      name="banmeNoYoso"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idStrArrayGetExp.prvNode1"
-        name="banmeNoYoso"
-        nodeStyleID="WordLabel1.json"
-        initString="番目の要素">
-      </Node>
-    </PrivateConnector>
     
     <PrivateConnector
       bhConnectorID="idStrArrayGetExp.prvCnctr2"

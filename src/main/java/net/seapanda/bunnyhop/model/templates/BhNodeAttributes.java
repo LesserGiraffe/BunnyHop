@@ -45,7 +45,6 @@ public class BhNodeAttributes {
   private String onSyntaxChecking;
   private String onTextOptionsCreating;
   private String initString;
-  private boolean canCreateImitManually;
 
   private BhNodeAttributes() {}
 
@@ -73,7 +72,7 @@ public class BhNodeAttributes {
     // nodeStyleID
     nodeAttrs.nodeStyleId = node.getAttribute(BhConstants.BhModelDef.ATTR_NODE_STYLE_ID);
     if (!nodeAttrs.nodeStyleId.isEmpty()) {
-      BhNodeViewStyle.putNodeIdToNodeStyleId(nodeAttrs.bhNodeId, nodeAttrs.nodeStyleId);
+      BhNodeViewStyle.registerNodeIdAndStyleId(nodeAttrs.bhNodeId, nodeAttrs.nodeStyleId);
     }
 
     // onMovedFromChildToWS
@@ -119,20 +118,6 @@ public class BhNodeAttributes {
     // initString
     nodeAttrs.initString = node.getAttribute(BhConstants.BhModelDef.ATTR_INIT_STRING);
 
-    // canCreateImitManually
-    String strCreateImit = node.getAttribute(BhConstants.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY);
-    if (strCreateImit.equals(BhConstants.BhModelDef.ATTR_VAL_TRUE)) {
-      nodeAttrs.canCreateImitManually = true;
-    } else if (strCreateImit.equals(
-        BhConstants.BhModelDef.ATTR_VAL_FALSE) || strCreateImit.isEmpty()) {
-      nodeAttrs.canCreateImitManually = false;
-    } else {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          BhConstants.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY + " 属性には "
-          + BhConstants.BhModelDef.ATTR_VAL_TRUE + " か "
-          + BhConstants.BhModelDef.ATTR_VAL_FALSE + " を指定してください. " + node.getBaseURI());
-      return Optional.empty();
-    }
     return Optional.of(nodeAttrs);
   }
 
@@ -194,9 +179,5 @@ public class BhNodeAttributes {
 
   public String getIinitString() {
     return initString;
-  }
-
-  public boolean getCanCreateImitManually() {
-    return canCreateImitManually;
   }
 }

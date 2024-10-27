@@ -11,19 +11,6 @@
 
   <ConnectorSection name="StatSctn">
     <Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
-    
-    <PrivateConnector 
-      bhConnectorID="idPrintStat.prvCnctr0"
-      name="woShuturyokuSuru"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idPrintStat.prvNode0"
-        name="woShuturyokuSuru"
-        nodeStyleID="WordLabel1.json"
-        initString="を出力する">
-      </Node>
-    </PrivateConnector>
 
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>

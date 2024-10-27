@@ -15,8 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["Arg0", "noShosutenIka", "Option0"]
+      "connectorList" : ["Arg0", "${L1}{の小数点以下}", "Option0"]
     }
   }
 }
-

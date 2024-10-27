@@ -18,7 +18,7 @@
       "subGroup0" : {
         "arrangement" : "Row",
         "space" : 2.0,
-        "connectorList" : ["CondExp", "kaiKurikaesu"]
+        "connectorList" : ["CondExp", "${L1}{回くり返す}"]
       },
       "subGroup1" : {
         "arrangement" : "Column",

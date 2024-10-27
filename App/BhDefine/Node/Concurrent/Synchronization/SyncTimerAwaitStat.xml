@@ -10,20 +10,7 @@
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
-
-    <PrivateConnector
-      bhConnectorID="idSyncTimerAwaitStat.prvCnctr0"
-      name="matsu"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSyncTimerAwaitStat.prvNode0"
-        name="matsu"
-        nodeStyleID="WordLabel2.json"
-        initString="のカウントが 0 になるまで待つ">
-      </Node>
-    </PrivateConnector>
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
     
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>

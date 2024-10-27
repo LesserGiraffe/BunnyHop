@@ -6,18 +6,5 @@
   onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
   <!-- StrList と共通のセクションを持たせる -->
-  <ConnectorSection name="StrListSctn">
-    <PrivateConnector
-      bhConnectorID="idStrEmptyList.prvCnctr0"
-      name="ListSign"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idStrEmptyList.prvNode0"
-        name="ListSign"
-        nodeStyleID="WordLabel1.json"
-        initString="[...]">
-      </Node>
-    </PrivateConnector>
-  </ConnectorSection>
+  <Section name="StrListSctn"/>
 </Node>

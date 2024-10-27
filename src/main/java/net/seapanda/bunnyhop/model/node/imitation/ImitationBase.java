@@ -38,8 +38,6 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
 public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatable {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  /** このオブジェクトを持つノードがイミテーションノードの手動作成機能を持つ場合 true. */
-  public final boolean canCreateImitManually;
   /** イミテーションタグとそれに対応するイミテーションノードIDのマップ. */
   private final Map<ImitationId, BhNodeId> imitIdToImitNodeId;
   /** このオブジェクトを持つノードから作成されたイミテーションノードの集合. */
@@ -63,7 +61,6 @@ public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatab
   public ImitationBase(
       BhNodeAttributes attributes, Map<ImitationId, BhNodeId> imitIdToImitNodeId) {
     super(attributes);
-    this.canCreateImitManually = attributes.getCanCreateImitManually();
     this.imitIdToImitNodeId = imitIdToImitNodeId;
     imitNodeList = new ArrayList<>();
     orgNode = null;
@@ -78,7 +75,6 @@ public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatab
   public ImitationBase(ImitationBase<T> org, UserOperationCommand userOpeCmd) {
     super(org);
     imitIdToImitNodeId = org.imitIdToImitNodeId;
-    canCreateImitManually = org.canCreateImitManually;
     imitNodeList = new ArrayList<>();  //元ノードをコピーしても、イミテーションノードとのつながりは無いようにする
     orgNode = null;
 

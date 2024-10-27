@@ -87,7 +87,7 @@ public class ComboBoxNodeController extends BhNodeController {
   public MsgData processMsg(BhMsg msg, MsgData data) {
     switch (msg) {
       case GET_VIEW_TEXT:
-        return new MsgData(view.getItem().getViewText());
+        return new MsgData(view.getItem().getViewString());
 
       default:
         return super.processMsg(msg, data);

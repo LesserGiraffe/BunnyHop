@@ -9,7 +9,7 @@
     <PrivateConnector
       bhConnectorID="idDelayedStartEvent.prvCnctr0"
       name="TimeCnctr"
-        fixed="true">
+      fixed="true">
       <Node
         type="text"
         bhNodeID="idDelayedStartEvent.prvNode0"
@@ -18,19 +18,6 @@
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckNumFormat.js"
         initString="1">
-      </Node>
-    </PrivateConnector>
-    
-    <PrivateConnector
-      bhConnectorID="idDelayedStartEvent.prvCnctr1"
-      name="byoGoNiHajimeru"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idDelayedStartEvent.prvNode1"
-        name="byoGoNiHajimeru"
-        nodeStyleID="WordLabel2.json"
-        initString="秒後に始める">
       </Node>
     </PrivateConnector>
 

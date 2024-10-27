@@ -16,7 +16,7 @@
     "inner" : {
       "space" : 0.0,
       "arrangement" : "Column",
-      "connectorList" : ["StrAppendOpe", "Arg0"]
+      "connectorList" : ["${SignLabel}{＋}", "Arg0"]
     },
 
     "outer" : {
@@ -24,4 +24,3 @@
     }
   }
 }
-

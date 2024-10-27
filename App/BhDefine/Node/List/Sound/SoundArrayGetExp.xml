@@ -8,33 +8,7 @@
   <ConnectorSection name="SoundExpSctn">
     <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
     
-    <PrivateConnector
-      bhConnectorID="idSoundArrayGetExp.prvCnctr0"
-      name="no"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSoundArrayGetExp.prvNode0"
-        name="no"
-        nodeStyleID="WordLabel1.json"
-        initString="の">
-      </Node>
-    </PrivateConnector>
-    
     <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-    
-    <PrivateConnector
-      bhConnectorID="idSoundArrayGetExp.prvCnctr1"
-      name="banmeNoYoso"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSoundArrayGetExp.prvNode1"
-        name="banmeNoYoso"
-        nodeStyleID="WordLabel1.json"
-        initString="番目の要素">
-      </Node>
-    </PrivateConnector>
 
     <PrivateConnector
       bhConnectorID="idSoundArrayGetExp.prvCnctr2"

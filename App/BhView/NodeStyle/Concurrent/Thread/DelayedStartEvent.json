@@ -18,7 +18,7 @@
       "subGroup0" : {
         "arrangement" : "Row",
         "space" : 2.0,
-        "connectorList" : ["TimeCnctr", "byoGoNiHajimeru"]
+        "connectorList" : ["TimeCnctr", "${L2}{秒後に始める}"]
       },
       "subGroup1" : {
         "arrangement" : "Column",

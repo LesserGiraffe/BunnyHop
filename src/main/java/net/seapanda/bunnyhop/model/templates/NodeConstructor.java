@@ -125,11 +125,10 @@ public class NodeConstructor {
    *
    * @param node イミテーションノードに関する情報が書いてあるxmlタグをあらわすノード
    * @param orgNodeId イミテーションを持つノードのID
-   * @param canCreateImitManually イミテーションを手動作成できる場合 true
    * @return イミテーション ID とイミテーションノード ID のマップ
    */
   private Optional<Map<ImitationId, BhNodeId>> genImitIdAndNodePair(
-      Element node, BhNodeId orgNodeId, boolean canCreateImitManually) {
+        Element node, BhNodeId orgNodeId) {
 
     boolean success = true;
     Map<ImitationId, BhNodeId> imitIdToImitNodeId = new HashMap<>();
@@ -159,15 +158,6 @@ public class NodeConstructor {
       registerOrgNodeIdAndImitNodeId.accept(orgNodeId, imitNodeId);
     }
 
-    if (canCreateImitManually && (imitIdToImitNodeId.get(ImitationId.MANUAL) == null)) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          BhConstants.BhModelDef.ATTR_CAN_CREATE_IMIT_MANUALLY + " 属性が "
-          + BhConstants.BhModelDef.ATTR_VAL_TRUE + " のとき "
-          + BhConstants.BhModelDef.ATTR_IMITATION_ID + " 属性に "
-          + BhConstants.BhModelDef.ATTR_VAL_IMIT_ID_MANUAL + " を指定した"
-          + BhConstants.BhModelDef.ELEM_IMITATION + " タグを作る必要があります. " + node.getBaseURI());
-      success &= false;
-    }
     if (!success) {
       return Optional.empty();
     }
@@ -216,8 +206,7 @@ public class NodeConstructor {
       return Optional.empty();
     }
     BhNodeId orgNodeId = nodeAttrs.get().getBhNodeId();
-    Optional<Map<ImitationId, BhNodeId>> imitIdToImitNodeId =
-        genImitIdAndNodePair(node, orgNodeId, nodeAttrs.get().getCanCreateImitManually());
+    Optional<Map<ImitationId, BhNodeId>> imitIdToImitNodeId = genImitIdAndNodePair(node, orgNodeId);
     if (imitIdToImitNodeId.isEmpty()) {
       return Optional.empty();
     }
@@ -256,8 +245,8 @@ public class NodeConstructor {
       return Optional.empty();
     }
 
-    Optional<Map<ImitationId, BhNodeId>> imitIdToImitNodeId = genImitIdAndNodePair(
-        node, nodeAttrs.get().getBhNodeId(), nodeAttrs.get().getCanCreateImitManually());
+    Optional<Map<ImitationId, BhNodeId>> imitIdToImitNodeId =
+        genImitIdAndNodePair(node, nodeAttrs.get().getBhNodeId());
     if (imitIdToImitNodeId.isEmpty()) {
       return Optional.empty();
     }

@@ -6,35 +6,8 @@
   onMovedFromChildToWS="OnLiteralMovedToWS.js">
   
   <ConnectorSection name="SoundExpSctn">
-
     <Connector bhConnectorID="idNumExpCnctr" name="Duration"/>
     
-    <PrivateConnector 
-      bhConnectorID="idFreqSoundLiteral.prvCnctr1"
-      name="ByoKanNo"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idFreqSoundLiteral.prvNode1"
-        name="ByoKanNo"
-        nodeStyleID="WordLabel1.json"
-        initString="秒間の">
-      </Node>
-    </PrivateConnector>
-    
     <Connector bhConnectorID="idNumExpCnctr" name="Frequency"/>
-
-    <PrivateConnector 
-      bhConnectorID="idFreqSoundLiteral.prvCnctr0"
-      name="HzNoOto"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idFreqSoundLiteral.prvNode0"
-        name="HzNoOto"
-        nodeStyleID="WordLabel1.json"
-        initString="ヘルツの音">
-      </Node>
-    </PrivateConnector>
   </ConnectorSection>
 </Node>

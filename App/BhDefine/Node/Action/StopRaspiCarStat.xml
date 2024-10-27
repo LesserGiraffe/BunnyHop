@@ -10,20 +10,6 @@
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-        
-    <PrivateConnector 
-      bhConnectorID="idStopRaspiCarStat.prvCnctr0"
-      name="RobotWoTeishiSaseru"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idStopRaspiCarStat.prvNode0"
-        name="RobotWoTeishiSaseru"
-        nodeStyleID="WordLabel2.json"
-        initString="ロボットを停止させる">
-      </Node>
-    </PrivateConnector>
-
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>
 </Node>

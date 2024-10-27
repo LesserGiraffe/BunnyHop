@@ -16,7 +16,7 @@
         bhNodeID="idNumCompExp.prvNode0"
         name="compOpe"
         nodeStyleID="DefaultComboBox.json"
-        onTextOptionsCreating="CreateCompOps.js">
+        onTextOptionsCreating="CreateOrderCompOps.js">
       </Node>
     </PrivateConnector>
     

@@ -1,5 +1,4 @@
 {
-  "component" : "Label",
   "paddingTop" : 1.0,
   "paddingBottom" : 1.0,
   "paddingLeft" : 2.5,
@@ -11,8 +10,12 @@
   "connectorShape" : "ARROW",
   "connectorBoundsRate" : 1.25,
   "cssClass" : "controlType",
-  
-  "label" : {
-    "cssClass" : "defaultLabel"
+
+  "connective" : {
+    "inner" : {
+      "space" : 2.0,
+      "arrangement" : "Row",
+      "connectorList" : ["${L1}{くり返しの初めに戻る}"]
+    }
   }
 }

@@ -4,18 +4,6 @@
   name="DetectColorExp"
   nodeStyleID="DetectColorExp.json">
 
-  <ConnectorSection name="ColorExpSctn">
-    <PrivateConnector
-      bhConnectorID="idDetectColorExp.prvCnctr0"
-      name="iroWoShutoku"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idDetectColorExp.prvNode0"
-        name="iroWoShutoku"
-        nodeStyleID="WordLabel2.json"
-        initString="検出された色">
-      </Node>
-    </PrivateConnector>
-  </ConnectorSection>
+  <Section name="ColorExpSctn"/>
+
 </Node>

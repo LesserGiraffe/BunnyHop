@@ -15,8 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["iroWoShutoku"]
+      "connectorList" : ["${L2}{検出された色}"]
     }
   }
 }
-

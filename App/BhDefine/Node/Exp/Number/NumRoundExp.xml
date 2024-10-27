@@ -8,22 +8,9 @@
     <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
     
     <PrivateConnector
-      bhConnectorID="idNumRoundExp.prvCnctr0"
-      name="noShosutenIka"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idNumRoundExp.prvNode0"
-        name="noShosutenIka"
-        nodeStyleID="WordLabel1.json"
-        initString="の小数点以下">
-      </Node>
-    </PrivateConnector>
-    
-    <PrivateConnector
       bhConnectorID="idNumRoundExp.prvCnctr1"
       name="Option0"
-        fixed="true">
+      fixed="true">
       <Node
         type="text"
         bhNodeID="idNumRoundExp.prvNode1"

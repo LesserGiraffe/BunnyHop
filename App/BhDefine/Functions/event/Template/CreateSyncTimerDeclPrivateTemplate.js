@@ -1,8 +1,5 @@
-let imitIdManual = 'imitIdManual';
-
 function genSyncTimerDeclTemplateNode(nodeID) {
-
-  let timer = bhCommon.buildImitation(bhThis, imitIdManual, bhUserOpeCmd);
+  let timer = bhCommon.buildImitation(bhThis, 'imitIdSyncTimeVar', bhUserOpeCmd);
   let templateNode = bhCommon.genBhNode(nodeID, bhNodeTemplates, bhUserOpeCmd);
   let timerVarArg = templateNode.findSymbolInDescendants('*', 'Arg0', '*');
   timerVarArg.replace(timer, bhUserOpeCmd);
@@ -10,7 +7,6 @@ function genSyncTimerDeclTemplateNode(nodeID) {
 }
 
 (function() {
-
   return [
     genSyncTimerDeclTemplateNode('idSyncTimerCountdownStat'),
     genSyncTimerDeclTemplateNode('idSyncTimerAwaitStat'),

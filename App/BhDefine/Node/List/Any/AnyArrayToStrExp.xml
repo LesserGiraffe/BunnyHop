@@ -15,8 +15,7 @@
       <Node
         type="text"
         bhNodeID="idAnyArrayToStrExp.prvNode0"
-        name="StrLiteral"
-        initString="">
+        name="StrLiteral">
       </Node>
     </PrivateConnector>
   </ConnectorSection>

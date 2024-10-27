@@ -15,7 +15,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 2.0,
-      "connectorList" : ["Arg0", "matsu"]
+      "connectorList" : ["Arg0", "${L2}{のカウントが 0 になるまで待つ}"]
     },
 
     "outer" : {

@@ -10,19 +10,6 @@
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-    
-    <PrivateConnector
-      bhConnectorID="idCriticalSectionStat.prvCnctr0"
-      name="haita"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idCriticalSectionStat.prvNode0"
-        name="haita"
-        nodeStyleID="WordLabel2.json"
-        initString="排他区間">
-      </Node>
-    </PrivateConnector>
 
     <Connector
       bhConnectorID="idVarNameCnctr"

@@ -4,7 +4,7 @@
   name="ListName"
   nodeStyleID="Identifier.json"
   onTextChecking="CheckIdentifierFormat.js"
-  initString="リスト名">
+  onTextOptionsCreating="CreateDefaultVarName.js">
   
   <Imitation imitationID="imitIdListName" imitationNodeID="idListName"/>
 </Node>

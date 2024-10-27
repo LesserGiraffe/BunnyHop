@@ -565,12 +565,12 @@ public class ExpCodeGenerator {
     scaleSound = scaleSound.replaceAll("[^\\d\\-]", "");
     double frequency =
         440 * Math.pow(2, (Double.parseDouble(octave) + Double.parseDouble(scaleSound)) / 12);
-    frequency = Math.round(frequency);
+    // frequency = Math.round(frequency);
 
     // 音オブジェクト作成
     String soundVar = common.genVarName(scaleSoundLiteralNode);
     String rightExp = common.genFuncCallCode(
-        ScriptIdentifiers.Funcs.CREATE_SOUND, frequency + "", duration);
+        ScriptIdentifiers.Funcs.CREATE_SOUND, "%.3f".formatted(frequency), duration);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(soundVar)

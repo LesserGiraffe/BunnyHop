@@ -13,34 +13,8 @@
   <ConnectorSection name="StatSctn">
     <Connector bhConnectorID="idAnyFixedCnctr" name="LeftVar"/>
     
-    <PrivateConnector
-      bhConnectorID="idNumAddAssignStat.prvCnctr0"
-      name="ni"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idNumAddAssignStat.prvNode0"
-        name="ni"
-        nodeStyleID="WordLabel1.json"
-        initString="に">
-      </Node>
-    </PrivateConnector>
-    
     <Connector bhConnectorID="idNumExpCnctr" name="RightExp"/>
-    
-    <PrivateConnector
-      bhConnectorID="idNumAddAssignStat.prvCnctr1"
-      name="woKasanSuru"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idNumAddAssignStat.prvNode1"
-        name="woKasanSuru"
-        nodeStyleID="WordLabel1.json"
-        initString="を足しこむ">
-      </Node>
-    </PrivateConnector>
-    
+        
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>
 </Node>

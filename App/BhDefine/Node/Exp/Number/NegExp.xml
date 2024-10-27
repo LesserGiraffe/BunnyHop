@@ -5,20 +5,6 @@
   nodeStyleID="NegExp.json">
 
   <ConnectorSection name="NumExpSctn">
-    <PrivateConnector
-      bhConnectorID="idNegExp.prvCnctr0"
-      name="mainasu"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idNegExp.prvNode0"
-        name="mainasu"
-        nodeStyleID="WordLabel1.json"
-        initString="マイナス">
-      </Node>
-    </PrivateConnector>
-    
-    <Connector bhConnectorID="idNumExpCnctr" name="PrimaryExp"/>
-    
+    <Connector bhConnectorID="idNumExpCnctr" name="PrimaryExp"/>    
   </ConnectorSection>
 </Node>

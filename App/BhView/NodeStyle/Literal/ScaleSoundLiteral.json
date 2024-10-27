@@ -15,7 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["Duration", "ByoKanNo", "takasa", "Octave", "no", "ScaleSound"]
+      "connectorList" : ["Duration", "${L1}{秒間の}", "${L1}{高さ}", "Octave", "${L1}{の}", "ScaleSound"]
     }
   }
 }

@@ -15,7 +15,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 2.0,
-      "connectorList" : ["ListName", "ListSign", "Arg"]
+      "connectorList" : ["ListName", "${L2}{[...]}", "Arg"]
     },
     "outer" : {
       "connectorList" : ["NextArg"]

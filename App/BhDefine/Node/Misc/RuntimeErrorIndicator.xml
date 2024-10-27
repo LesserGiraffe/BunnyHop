@@ -17,8 +17,7 @@
         type="text"
         bhNodeID="idRuntimeErrorIndicator.prvNode0"
         name="Error"
-        nodeStyleID="WordLabel2.json"
-        initString="">
+        nodeStyleID="L2.json">
       </Node>
     </PrivateConnector>
   
@@ -30,8 +29,7 @@
         type="text"
         bhNodeID="idRuntimeErrorIndicator.prvNode1"
         name="ErrorDetails"
-        nodeStyleID="DefaultTextArea.json"
-        initString="">
+        nodeStyleID="DefaultTextArea.json">
       </Node>
     </PrivateConnector>
 

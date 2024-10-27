@@ -15,7 +15,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 2.0,
-      "connectorList" : ["LeftVar", "ni", "RightExp", "woKasanSuru"]
+      "connectorList" : ["LeftVar", "${L1}{に}", "RightExp", "${L1}{を足す}"]
     },
     "outer" : {
       "connectorList" : ["NextStat"]

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -41,7 +42,6 @@ import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.node.imitation.ImitationBase;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
@@ -52,7 +52,6 @@ import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
-import net.seapanda.bunnyhop.view.node.part.ImitationCreationButton;
 import net.seapanda.bunnyhop.view.node.part.PrivateTemplateCreationButton;
 import net.seapanda.bunnyhop.viewprocessor.CallbackInvoker;
 import net.seapanda.bunnyhop.viewprocessor.NodeViewComponent;
@@ -95,11 +94,11 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
   private final LookManager lookManager;
 
   /**
-   * このビューのモデルであるBhNodeを取得する.
+   * このビューのモデルである {@link BhNode} を取得する.
    *
-   * @return このビューのモデルであるBhNode
+   * @return このビューのモデルである {@link BhNode}
    */
-  public abstract BhNode getModel();
+  public abstract Optional<? extends BhNode> getModel();
 
   /**
    * 子コンポーネントを適切に配置し, このノードビューのサイズを変更する.
@@ -141,8 +140,10 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     viewTreeManager.addChild(nodeShape);
     lookManager.addCssClass(viewStyle.cssClass);
     lookManager.addCssClass(BhConstants.Css.CLASS_BHNODE);
-    if (model.canCreateImitManually) {
-      createImitButton(model);
+    // model がない場合は controller も無いので, nodeShape に対するイベントは, 親に投げる.
+    if (model == null) {
+      nodeShape.addEventFilter(Event.ANY, this::propagateEvent);
+      return;
     }
     if (model.hasPrivateTemplateNodes()) {
       createPrivateTemplateButton(model);
@@ -217,19 +218,13 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
 
   /** このビューに対応する BhNode が固定ノードであるか調べる.. */
   public boolean isFixed() {
+    if (model == null) {
+      return false;
+    }
     if (model.getParentConnector() == null) {
       return false;
     }
     return model.getParentConnector().isFixed();
-  }
-
-  private void createImitButton(Imitatable model)
-      throws ViewInitializationException {
-    var err = new ViewInitializationException("Failed To load the Imitation Creation Button.");
-    var button = ImitationCreationButton
-        .create(model, viewStyle.imitation)
-        .orElseThrow(() -> err);
-    getTreeManager().addChild(button);
   }
 
   private void createPrivateTemplateButton(BhNode model)
@@ -240,7 +235,17 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
         .orElseThrow(() -> err);
     getTreeManager().addChild(button);
   }
-  
+
+  private void propagateEvent(Event event) {
+    BhNodeView view = getTreeManager().getParentView();
+    if (view == null) {
+      event.consume();
+      return;
+    }
+    view.getEventManager().propagateEvent(event);
+    event.consume();
+  }
+
   /** 見た目を変更する処理を行うクラス. */
   public class LookManager {
     private BodyShape bodyShape;
@@ -434,6 +439,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
           connectorPartRange.searchOverlappedRects(OverlapOption.INTERSECT);
       return overlappedRectList.stream()
           .map(rectangle -> rectangle.<BhNodeView>getUserData().model)
+          .filter(model -> model != null)
           .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -569,7 +575,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
      *
      * @return このビューの親となるビュー.  このビューがルートノードの場合は null.
      */
-    public BhNodeView getParentView() {
+    public ConnectiveNodeView getParentView() {
       if (parent == null) {
         return null;
       }
@@ -606,20 +612,18 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     /** 引数で指定したノードビューとそれに付随する描画物 (影, エラーマーク) をそれぞれの親要素から取り除く. */
     private void removeFromParent(BhNodeView nodeView) {
       Parent parent = nodeView.getParent();
-      if (parent instanceof Group) {
-        var group = (Group) parent;
+      if (parent instanceof Group group) {
         group.getChildren().remove(nodeView);
         group.getChildren().remove(nodeView.syntaxErrorMark);
-      } else if (parent instanceof Pane) {
-        var pane = (Pane) parent;
+      } else if (parent instanceof Pane pane) {
         pane.getChildren().remove(nodeView);
         pane.getChildren().remove(nodeView.syntaxErrorMark);
       }
 
       nodeView.shadowShape.setVisible(false);
       Node shadowGroup = nodeView.shadowShape.getParent();
-      if (shadowGroup instanceof Group) {
-        ((Group) shadowGroup).getChildren().remove(nodeView.shadowShape);
+      if (shadowGroup instanceof Group group) {
+        group.getChildren().remove(nodeView.shadowShape);
       }
     }
 

@@ -64,7 +64,8 @@ public final class BhNodeSelectionView extends ScrollPane {
       throws ViewInitializationException {
     this.categoryName = categoryName;
     try {
-      Path filePath = FxmlCollector.INSTANCE.getFilePath(BhConstants.Path.NODE_SELECTION_PANEL_FXML);
+      Path filePath =
+          FxmlCollector.INSTANCE.getFilePath(BhConstants.Path.NODE_SELECTION_PANEL_FXML);
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
       loader.setController(this);
       loader.setRoot(this);
@@ -115,9 +116,9 @@ public final class BhNodeSelectionView extends ScrollPane {
   }
 
   /**
-   * ノード選択リストに表示するBhNode のビューを追加する.
+   * ノード選択リストに表示する {@link BhNodeView} を追加する.
    *
-   * @param view テンプレートリストに表示するBhNodeのビュー
+   * @param view ノード選択リストに表示する {@link BhNodeView}
    */
   public void addNodeView(BhNodeView view) {
     view.getTreeManager().addToGuiTree(nodeSelectionPanel);
@@ -135,21 +136,30 @@ public final class BhNodeSelectionView extends ScrollPane {
     });
   }
 
-  /** ノード選択リストのノードを全て削除する. */
+  /**
+   * ノード選択リストに表示する {@link BhNodeView} を削除する.
+   *
+   * @param view ノード選択リストから削除する {@link BhNodeView}
+   */
   public void removeNodeView(BhNodeView view) {
     if (rootNodeList.contains(view)) {
       view.getTreeManager().removeFromGuiTree();
       rootNodeList.remove(view);
     }
     Long numNodes = rootNodeList.stream()
-        .filter(root -> !root.getModel()
-        .getSymbolName()
-        .equals(BhConstants.NodeTemplate.SELECTION_VIEW_SPACE))
+        .filter(root -> !isSpaceNodeView(root))
         .count();
 
     if (numNodes == 0 && BhNodeSelectionService.INSTANCE.isShowed(categoryName)) {
       BhNodeSelectionService.INSTANCE.hideAll();
     }
+  }
+
+  /** {@code view} が空白を開けるための {@link BhNodeView} であるかどうか調べる. */
+  private boolean isSpaceNodeView(BhNodeView view) {
+    return view.getModel().map(
+        model -> model.getSymbolName().equals(BhConstants.NodeTemplate.SELECTION_VIEW_SPACE))
+        .orElse(false);
   }
 
   /**

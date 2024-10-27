@@ -19,7 +19,7 @@
       "subGroup0" : {
         "arrangement" : "Row",
         "space" : 2.0,
-        "connectorList" : ["Moshi", "CondExp", "Nara"]
+        "connectorList" : ["${L1}{もし}", "CondExp", "${L1}{なら}"]
       },
       
       "subGroup1" : {
@@ -31,7 +31,7 @@
       "subGroup2" : {
         "arrangement" : "Column",
         "space" : 0.5,
-        "connectorList" : ["Sodenakereba", "ElseStat"]
+        "connectorList" : ["${L1}{そうでないとき}", "ElseStat"]
       }
     },
 

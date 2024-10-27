@@ -18,7 +18,7 @@
       "subGroup0" : {
         "arrangement" : "Row",
         "space" : 2.0,
-        "connectorList" : ["haita", "CriticalSectionName"]
+        "connectorList" : ["${L2}{排他区間}", "CriticalSectionName"]
       },
       "subGroup1" : {
         "connectorList" : ["ExclusiveStat"]

@@ -14,7 +14,7 @@
         type="text"
         bhNodeID="idOutArgTestExp.prvNode0"
         name="OutArgTest"
-        nodeStyleID="WordLabel1.json"
+        nodeStyleID="L1.json"
         initString="OutArgTest">
       </Node>
     </PrivateConnector>

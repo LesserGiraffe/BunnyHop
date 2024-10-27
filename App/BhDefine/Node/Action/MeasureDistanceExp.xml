@@ -4,18 +4,5 @@
   name="MeasureDistanceExp"
   nodeStyleID="MeasureDistanceExp.json">
 
-  <ConnectorSection name="NumExpSctn">
-    <PrivateConnector
-      bhConnectorID="idMeasureDistanceExp.prvCnctr0"
-      name="zenpoKyori"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idMeasureDistanceExp.prvNode0"
-        name="zenpoKyori"
-        nodeStyleID="WordLabel1.json"
-        initString="障害物までの距離 (cm)">
-      </Node>
-    </PrivateConnector>
-  </ConnectorSection>
+  <Section name="NumExpSctn"/>
 </Node>

@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.model.node.imitation;
 
 import java.io.Serializable;
 import java.util.Objects;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
@@ -31,9 +30,6 @@ public class ImitationId implements Serializable {
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** イミテーションIDが存在しないことを表す null オブジェクト. */
   public static final ImitationId NONE = new ImitationId("");
-  /** イミテーション手動作成時のID. */
-  public static final ImitationId MANUAL =
-      new ImitationId(BhConstants.BhModelDef.ATTR_VAL_IMIT_ID_MANUAL);
   private final String id;
 
   /**

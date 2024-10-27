@@ -16,7 +16,7 @@
         name="StrLiteral"
         nodeStyleID="StrLiteral.json"
         onTextChecking="CheckTextFormat.js"
-        initString="テキスト">
+        onTextOptionsCreating="CreateDefaultStrLiteral.js">
       </Node>
     </PrivateConnector>
   </ConnectorSection>

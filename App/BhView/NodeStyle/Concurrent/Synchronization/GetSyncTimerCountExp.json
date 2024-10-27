@@ -15,8 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["Arg0", "count"]
+      "connectorList" : ["Arg0", "${L1}{の現在のカウント}"]
     }
   }
 }
-

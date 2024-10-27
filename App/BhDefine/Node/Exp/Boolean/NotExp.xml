@@ -6,18 +6,5 @@
 
   <ConnectorSection name="BoolExpSctn">
     <Connector bhConnectorID="idBoolExpCnctr" name="PrimaryExp"/>
-
-    <PrivateConnector
-      bhConnectorID="idNotExp.prvCnctr0"
-      name="dehanai"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idNotExp.prvNode0"
-        name="dehanai"
-        nodeStyleID="WordLabel1.json"
-        initString="ではない">
-      </Node>
-    </PrivateConnector>
   </ConnectorSection>
 </Node>

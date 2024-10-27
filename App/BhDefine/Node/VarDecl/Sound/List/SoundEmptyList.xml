@@ -6,18 +6,5 @@
   onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
   <!-- SoundList と共通のセクションを持たせる -->
-  <ConnectorSection name="SoundListSctn">
-    <PrivateConnector
-      bhConnectorID="idSoundEmptyList.prvCnctr0"
-      name="ListSign"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSoundEmptyList.prvNode0"
-        name="ListSign"
-        nodeStyleID="WordLabel1.json"
-        initString="[...]">
-      </Node>
-    </PrivateConnector>
-  </ConnectorSection>
+  <Section name="SoundListSctn"/>
 </Node>

@@ -15,7 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["timeSinceProgramStarted"]
+      "connectorList" : ["${L1}{プログラムが始まってからの時間 (ミリ秒)}"]
     }
   }
 }

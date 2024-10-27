@@ -206,7 +206,6 @@ public class SymbolNames {
     public static final String MOD_EXP = "ModExp";
     public static final String NUM_COMP_EXP = "NumCompExp";
     public static final String STR_COMP_EXP = "StrCompExp";
-    public static final String APPEND_STR_EXP = "AppendStrExp";
     public static final String LEFT_EXP = "LeftExp";
     public static final String RIGHT_EXP = "RightExp";
     public static final String OPERATOR = "Operator";
@@ -217,8 +216,7 @@ public class SymbolNames {
             MOD_EXP,
             BINARY_BOOL_EXP,
             NUM_COMP_EXP,
-            STR_COMP_EXP,
-            APPEND_STR_EXP));  //二項演算子リスト
+            STR_COMP_EXP));  //二項演算子リスト
 
     public static final HashSet<String> ARITH_EXCEPTION_EXP =
         new HashSet<>(Arrays.asList(
@@ -308,6 +306,7 @@ public class SymbolNames {
     public static final String OPT_ROUND = "round";
     public static final String OPT_CEIL = "ceil";
     public static final String OPT_FLOOR = "floor";
+    public static final String OPT_TRUNC = "trunc";
     public static final String OPT_MAX = "max";
     public static final String OPT_MIN = "min";
     public static final String OPT_MOVE_FORWARD = "moveForward";
@@ -405,6 +404,7 @@ public class SymbolNames {
             put(FuncId.create(NUM_ROUND_EXP, OPT_ROUND), "Math.round");
             put(FuncId.create(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
             put(FuncId.create(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor");
+            put(FuncId.create(NUM_ROUND_EXP, OPT_TRUNC), "Math.trunc");
             put(FuncId.create(ABS_EXP), "Math.abs");
             put(FuncId.create(MAX_MIN_EXP, OPT_MAX), "Math.max");
             put(FuncId.create(MAX_MIN_EXP, OPT_MIN), "Math.min");

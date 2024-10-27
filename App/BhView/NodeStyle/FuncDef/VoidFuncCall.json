@@ -19,12 +19,12 @@
       "subGroup0" : {
         "space" : 1.5,
         "arrangement" : "Row",
-        "connectorList" : ["nyuryoku", "Arg"]
+        "connectorList" : ["${L2}{入力}", "Arg"]
       },
       "subGroup1" : {
         "space" : 1.5,
         "arrangement" : "Row",
-        "connectorList" : ["shuturyoku", "OutArg"]
+        "connectorList" : ["${L2}{出力}", "OutArg"]
       }
     },
     

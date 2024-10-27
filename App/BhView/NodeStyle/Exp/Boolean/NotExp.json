@@ -15,7 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["PrimaryExp", "dehanai"]
+      "connectorList" : ["PrimaryExp", "${L1}{ではない}"]
     }
   }
 }

@@ -15,7 +15,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 2.0,
-      "connectorList" : ["Arg0", "noJunbanWoGyakuNiSuru"]
+      "connectorList" : ["Arg0", "${L1}{の順番を逆にする}"]
     },
     "outer" : {
       "connectorList" : ["NextStat"]

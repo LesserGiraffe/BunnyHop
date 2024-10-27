@@ -3,6 +3,7 @@
 .checkstyle
 .classpath
 .project
+.vscode
 google-java-format_windows-x86-64.exe
 /build
 /BunnyHop

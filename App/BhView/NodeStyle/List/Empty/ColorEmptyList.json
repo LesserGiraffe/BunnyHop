@@ -19,7 +19,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 0.0,
-      "connectorList" : ["ListSign"]
+      "connectorList" : ["${L1}{[...]}"]
     }
   }
 }

@@ -105,7 +105,7 @@ public class NodeMvcBuilder implements BhModelProcessor {
   @Override
   public void visit(ConnectiveNode node) {
     Optional<ConnectiveNodeView> nodeView = BhNodeViewStyle
-        .getNodeViewStyleFromNodeId(node.getId())
+        .getStyleFromNodeId(node.getId())
         .flatMap(style -> createViewForConnectiveNode(node, style));
     
     if (nodeView.isEmpty()) {
@@ -124,7 +124,7 @@ public class NodeMvcBuilder implements BhModelProcessor {
   @Override
   public void visit(TextNode node) {
     Optional<BhNodeView> nodeView = BhNodeViewStyle
-        .getNodeViewStyleFromNodeId(node.getId())
+        .getStyleFromNodeId(node.getId())
         .flatMap(style -> createViewForTextNode(node, style));
     
     if (nodeView.isEmpty()) {

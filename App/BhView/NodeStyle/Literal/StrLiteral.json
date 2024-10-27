@@ -12,7 +12,7 @@
   "connectorShape" : "NONE",
   "connectorBoundsRate" : 0.0,
     
-    "textField" : {
+  "textField" : {
     "minWidth": 4.0
   }
 }

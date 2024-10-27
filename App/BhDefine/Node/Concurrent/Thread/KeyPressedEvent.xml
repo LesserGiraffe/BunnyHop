@@ -19,19 +19,6 @@
       </Node>
     </PrivateConnector>
     
-    <PrivateConnector
-      bhConnectorID="idKeyPressedEvent.prvCnctr1"
-      name="gaOsaretaToki"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idKeyPressedEvent.prvNode1"
-        name="gaOsaretaToki"
-        nodeStyleID="WordLabel2.json"
-        initString="が押されたとき">
-      </Node>
-    </PrivateConnector>
-
     <Connector bhConnectorID="idStatCnctr" name="StatList"/>
   </ConnectorSection>
 </Node>

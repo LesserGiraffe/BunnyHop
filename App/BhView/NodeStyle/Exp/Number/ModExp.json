@@ -15,7 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["LeftExp", "wo", "RightExp", "deWattaAmari"]
+      "connectorList" : ["LeftExp", "${L1}{を}", "RightExp", "${L1}{で割ったあまり}"]
     }
   }
 }

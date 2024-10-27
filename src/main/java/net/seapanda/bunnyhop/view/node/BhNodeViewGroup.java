@@ -21,10 +21,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.seapanda.bunnyhop.common.Showable;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.connective.Connector;
+import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.Arrangement;
 import net.seapanda.bunnyhop.viewprocessor.NodeViewComponent;
@@ -47,10 +51,14 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
   public final boolean inner; 
   /** ノードの配置を決めるパラメータ. */
   private BhNodeViewStyle.Arrangement arrangeParams;
+  /** 子要素の名前のリスト. */
+  private final List<String> childNames = new ArrayList<>();
   /** コネクタ名とそのコネクタにつながる {@link BhNodeView}. */
-  private final Map<String, BhNodeView> cnctrNameToNodeView = new HashMap<>();
+  private final Map<String, BhNodeView> childNameToNodeView = new HashMap<>();
   private final Vec2D size = new Vec2D(0.0, 0.0);
   private final Vec2D relativePos = new Vec2D(0.0, 0.0);
+  /** 疑似ビューの ID. */
+  private int pseudoViewId = 0;
 
   /**
    * コンストラクタ.
@@ -66,8 +74,8 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
   /**
    * コンストラクタ.
    *
-   * @param parentGroup このグループを持つBhNodeViewGroup
-   * @param inner このグループが内部描画ノードを持つグループの場合true
+   * @param parentGroup このグループを持つ {@link BhNodeViewGroup}
+   * @param inner このグループが内部描画ノードを持つグループの場合 true
    */
   public BhNodeViewGroup(BhNodeViewGroup parentGroup, boolean inner) {
     this.parentGroup = parentGroup;
@@ -78,12 +86,24 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
    * このノード以下のサブグループを作成する.
    *
    * @param arrangeParams ノード配置パラメータ
+   * @param styleId このグループのスタイルが定義してある {@link BhNodeViewStyle} の ID
+   * @throws ViewInitializationException グループの初期化に失敗した
    */
-  public void buildSubGroup(BhNodeViewStyle.Arrangement arrangeParams) {
+  void buildSubGroup(BhNodeViewStyle.Arrangement arrangeParams, String styleId)
+      throws ViewInitializationException {
     this.arrangeParams = arrangeParams;
-    arrangeParams.cnctrNameList.forEach(cnctrName -> cnctrNameToNodeView.put(cnctrName, null));
     for (String cnctrName : arrangeParams.cnctrNameList) {
-      cnctrNameToNodeView.put(cnctrName, null);
+      // コネクタ名が $ から始まる場合は, 疑似ビューの指定と見なす.
+      if (cnctrName.startsWith("$")) {
+        BhNodeView view = createPseudoView(cnctrName, styleId);
+        view.getTreeManager().setParentGroup(this);
+        String pseudoViewName = "$" + pseudoViewId++;
+        childNameToNodeView.put(pseudoViewName, view);
+        childNames.add(pseudoViewName);
+        continue;
+      }
+      childNameToNodeView.put(cnctrName, null);
+      childNames.add(cnctrName);
       // 外部ノードをつなぐコネクタは1つだけとする
       if (!inner) {
         return;
@@ -91,7 +111,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
     }
     for (Arrangement subGroupParams : arrangeParams.subGroup) {
       var subGroup = new BhNodeViewGroup(this, inner);
-      subGroup.buildSubGroup(subGroupParams);
+      subGroup.buildSubGroup(subGroupParams, styleId);
       subGroupList.add(subGroup);
     }
   }
@@ -102,13 +122,13 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
    * @param view 追加するノードビュー
    * @return 追加に成功した場合 true. 失敗した場合 false.
    */
-  public boolean addNodeView(BhNodeView view) {
-    Connector cnctr = view.getModel().getParentConnector();
+  boolean addNodeView(BhNodeView view) {
+    Connector cnctr = view.getModel().map(model -> model.getParentConnector()).orElse(null);
     if (cnctr != null) {
       String cnctrName = cnctr.getSymbolName();
       // このグループ内に追加すべき場所が見つかった
-      if (cnctrNameToNodeView.containsKey(cnctrName)) {
-        cnctrNameToNodeView.put(cnctrName, view);
+      if (childNameToNodeView.containsKey(cnctrName)) {
+        childNameToNodeView.put(cnctrName, view);
         view.getTreeManager().setParentGroup(this);
         cnctr.setOuterFlag(!inner);
         return true;
@@ -131,8 +151,8 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
    * @param oldNodeView 入れ替えられる古いノード
    * @param newNodeView 入れ替える新しいノード
    */
-  public void replace(BhNodeView oldNodeView, BhNodeView newNodeView) {
-    for (Entry<String, BhNodeView> entrySet : cnctrNameToNodeView.entrySet()) {
+  void replace(BhNodeView oldNodeView, BhNodeView newNodeView) {
+    for (Entry<String, BhNodeView> entrySet : childNameToNodeView.entrySet()) {
       if (entrySet.getValue().equals(oldNodeView)) {
         entrySet.setValue(newNodeView);
         newNodeView.getTreeManager().setParentGroup(this);    //親をセット
@@ -171,7 +191,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
    *
    * @return 親ノードまたは親グループからの相対位置
    */
-  public Vec2D getRelativePosFromParent() {
+  Vec2D getRelativePosFromParent() {
     return new Vec2D(relativePos.x, relativePos.y);
   }
 
@@ -181,7 +201,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
    * @param posX 親ノードまたは親グループからのX相対位置
    * @param posY 親ノードまたは親グループからのY相対位置
    */
-  public void setRelativePosFromParent(double posX, double posY) {
+  void setRelativePosFromParent(double posX, double posY) {
     relativePos.x = posX;
     relativePos.y = posY;
   }
@@ -197,8 +217,8 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
    * @param posY グループ左上のY絶対位置
    */
   void updateAbsPos(double posX, double posY) {
-    for (String cnctrName : arrangeParams.cnctrNameList) {
-      BhNodeView childNodeView = cnctrNameToNodeView.get(cnctrName);
+    for (String childName : childNames) {
+      BhNodeView childNodeView = childNameToNodeView.get(childName);
       if (childNodeView == null) {
         continue;
       }
@@ -233,8 +253,8 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
    * @param childSumLen 子ノードと幅の合計と高さの合計が格納される.
    */
   private void updateChildNodeRelPos(Vec2D childRelPos, Vec2D childMaxLen, Vec2D childSumLen) {
-    for (String cnctrName : arrangeParams.cnctrNameList) {
-      BhNodeView childNodeView = cnctrNameToNodeView.get(cnctrName);
+    for (String childName : childNames) {
+      BhNodeView childNodeView = childNameToNodeView.get(childName);
       if (childNodeView == null) {
         continue;
       }
@@ -291,7 +311,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
   private void updateGroupSize(Vec2D childMaxLen, Vec2D childSumLen, Vec2D offsetOfCnctr) {
     size.x = arrangeParams.paddingLeft;
     size.y = arrangeParams.paddingTop;
-    int numSpace = Math.max(0, arrangeParams.cnctrNameList.size() + subGroupList.size() - 1);
+    int numSpace = Math.max(0, childNames.size() + subGroupList.size() - 1);
     //グループの中が縦並び
     if (arrangeParams.arrangement == BhNodeViewStyle.ChildArrangement.COLUMN) {
       size.x += offsetOfCnctr.x + childMaxLen.x + arrangeParams.paddingRight;
@@ -327,8 +347,8 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
     if (!inner) {
       return new Vec2D(0.0, 0.0);
     }
-    for (String cnctrName : arrangeParams.cnctrNameList) {
-      BhNodeView childNodeView = cnctrNameToNodeView.get(cnctrName);
+    for (String childName : childNames) {
+      BhNodeView childNodeView = childNameToNodeView.get(childName);
       if (childNodeView == null) {
         continue;
       }
@@ -361,11 +381,28 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
    * @param visitor 子ノードビューに渡す visitor
    */
   public void sendToChildNode(NodeViewProcessor visitor) {
-    for (BhNodeView child : cnctrNameToNodeView.values()) {
+    for (BhNodeView child : childNameToNodeView.values()) {
       if (child != null) {
         child.accept(visitor);
       }
     }
+  }
+
+  /** このグループの中で定義された MVC 構造を持たない {@link BhNodeView} を作成する. */
+  public BhNodeView createPseudoView(String specification, String styleId)
+      throws ViewInitializationException {
+    String pattern = "^\\$(?:\\{((?:(?:\\\\\\{)|(?:\\\\\\})|[^\\{\\}])+)\\}){2,}$";
+    if (!specification.matches(pattern)) {
+      throw new ViewInitializationException(
+          "Invalid pseudo view format (" + specification + ") in " + styleId + ".");
+    }
+    pattern = "\\{((?:(?:\\\\\\{)|(?:\\\\\\})|[^\\{\\}])+)\\}";
+    Matcher matcher = Pattern.compile(pattern).matcher(specification);
+    List<String> specifiers = matcher.results().map(
+        result -> result.group(1).replaceAll("\\\\\\{", "{").replaceAll("\\\\\\}", "}")).toList();
+    String styleIdOfPseudoView =
+        specifiers.get(0).endsWith(".json") ? specifiers.get(0) : specifiers.get(0) + ".json";
+    return ViewHelper.INSTANCE.createModellessNodeView(styleIdOfPseudoView, specifiers.get(1));
   }
 
   @Override
@@ -378,8 +415,8 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
     try {
       MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<BhNodeViewGroup>  "  + this.hashCode());
       MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + (inner ? "<inner>" : "<outer>"));
-      arrangeParams.cnctrNameList.stream()
-          .map(cnctrName -> cnctrNameToNodeView.get(cnctrName))
+      childNames.stream()
+          .map(childName -> childNameToNodeView.get(childName))
           .filter(childNodeView -> childNodeView != null)
           .forEachOrdered(childNodeView -> childNodeView.show(depth + 1));
       subGroupList.forEach(subGroup -> subGroup.show(depth + 1));

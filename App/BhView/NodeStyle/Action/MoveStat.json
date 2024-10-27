@@ -18,7 +18,7 @@
       "subGroup0" : {
         "arrangement" : "Row",
         "space" : 1.0,
-        "connectorList" : ["hayasa", "Arg0", "de"]
+        "connectorList" : ["${L2}{速さ}", "Arg0", "${L2}{(1～10) で}"]
       },
       "subGroup1" : {
         "arrangement" : "Row",
@@ -27,12 +27,12 @@
         "subGroup0" : {
           "arrangement" : "Row",
           "space" : 1.0,
-          "connectorList" : ["Arg1", "byokan"]
+          "connectorList" : ["Arg1", "${L2}{秒間}"]
         },
         "subGroup1" : {
           "arrangement" : "Row",
           "space" : 1.0,
-          "connectorList" : ["Option0", "suru"]
+          "connectorList" : ["Option0", "${L2}{する}"]
         }
       }
     },

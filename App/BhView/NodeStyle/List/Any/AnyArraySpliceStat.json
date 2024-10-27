@@ -15,7 +15,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 2.0,
-      "connectorList" : ["Arg0", "no", "Arg1", "banmeKara", "Arg2", "ko", "Option0"]
+      "connectorList" : ["Arg0", "${L1}{の}", "Arg1", "${L1}{番目から}", "Arg2", "${L1}{個}", "Option0"]
     },
     "outer" : {
       "connectorList" : ["NextStat"]

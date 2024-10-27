@@ -40,7 +40,7 @@ public class BhConstants {
     /** ワークスペースとメッセージエリアを分けるディバイダの初期位置. */
     public static final double DEFAULT_VERTICAL_DIV_POS = 0.85;
     /** ctrl + マウスホイールや拡大, 縮小ボタンを押したときの拡大縮小倍率. */
-    public static final double ZOOM_MAGNIFICATION = 1.1;
+    public static final double ZOOM_MAGNIFICATION = 1.05;
     /** 拡大レベルの最大値. */
     public static final double MAX_ZOOM_LEVEL = 30;
     /** 拡大レベルの最小値. */
@@ -114,7 +114,7 @@ public class BhConstants {
     public static final String REMOTE_COMMON_CODE_JS = "RemoteCommonCode.js";
     /** BunnyHop が作成した BhProgram のスクリプト名. */
     public static final String APP_FILE_NAME_JS = "BhAppScript.js";
-    public static final String GEN_COMPOUND_NODES_JS = "GenCompoundNodes.js";
+    public static final String ON_NODE_TEMPLATE_COMPLETE_JS = "OnNodeTemplateComplete.js";
     /** リモートのBhProgram実行環境をスタートさせるコマンドを生成するスクリプト名. */
     public static final String REMOTE_EXEC_CMD_GENERATOR_JS = "RemoteExecCmdGenerator.js";
     /** リモートのBhProgram実行環境を終わらせるコマンドを生成するスクリプト名. */
@@ -158,7 +158,6 @@ public class BhConstants {
     public static final String ATTR_ON_PRIFVATE_TEMPLATE_CREATING = "onPrivateTemplateCreating";
     public static final String ATTR_ON_TEST_OPTIONS_CREATING = "onTextOptionsCreating";
     public static final String ATTR_IMITATION_NODE_ID = "imitationNodeID";
-    public static final String ATTR_CAN_CREATE_IMIT_MANUALLY = "canCreateImitManually";
     public static final String ATTR_INIT_STRING = "initString";
     public static final String ATTR_IMITATION_ID = "imitationID";
     public static final String ATTR_IMIT_CNCT_POS = "imitCnctPos";
@@ -167,7 +166,6 @@ public class BhConstants {
     public static final String ATTR_VAL_TRUE = "true";
     public static final String ATTR_VAL_FALSE = "false";
     public static final String ATTR_VAL_DEFAULT_NODE_STYLE_ID = "";
-    public static final String ATTR_VAL_IMIT_ID_MANUAL = "imitIdManual";
     public static final String ATTR_VAL_TAG_REFER_TO_PARENT = "tagReferToParent";
     public static final String ATTR_VAL_CONNECTIVE = "connective";
     public static final String ATTR_VAL_TEXT = "text";
@@ -190,8 +188,8 @@ public class BhConstants {
     public static final String KEY_BH_NODE_TO_CONNECT = "bhNodeToConnect";
     public static final String KEY_BH_PARENT_CONNECTOR = "bhParentConnector";
     public static final String KEY_BH_NODE_TO_DELETE = "bhNodeToDelete";
-    /** 手動で子ノードからワークスペースに移動したかどうかのフラグ名. */
-    public static final String KEY_BH_MANUALLY_REMOVED = "bhManuallyRemoved";
+    /** D&D やカット&ペーストで, 直接指定されて子ノードからワークスペースに移動したかどうかのフラグ名. */
+    public static final String KEY_BH_IS_SPECIFIED_DIRECTLY = "bhIsSpecifiedDirectly";
     public static final String KEY_BH_NEXT_SYMBOL_NAME = "bhNextSymbolName";
     public static final String KEY_BH_USER_OPE_CMD = "bhUserOpeCmd";
     public static final String KEY_BH_COMMON = "bhCommon";

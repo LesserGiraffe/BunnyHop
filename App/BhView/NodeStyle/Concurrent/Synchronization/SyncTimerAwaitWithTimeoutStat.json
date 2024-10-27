@@ -18,12 +18,12 @@
       "subGroup0" : {
         "space" : 2.0,
         "arrangement" : "Row",
-        "connectorList" : ["Arg0", "zeroNiNarumade"]
+        "connectorList" : ["Arg0", "${L2}{のカウントが 0 になるまで}"]
       },
       "subGroup1" : {
         "space" : 2.0,
         "arrangement" : "Row",
-        "connectorList" : ["saidai", "Arg1", "matsu"]
+        "connectorList" : ["${L2}{最大}", "Arg1", "${L2}{秒間待つ}"]
       }
     },
 

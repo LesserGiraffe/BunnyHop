@@ -16,7 +16,9 @@
 
 package net.seapanda.bunnyhop.view.node;
 
+import java.util.Optional;
 import javafx.scene.control.Label;
+import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -47,8 +49,20 @@ public final class LabelNodeView extends BhNodeView {
       throws ViewInitializationException {
     super(viewStyle, model);
     this.model = model;
+    setInitText();
     getTreeManager().addChild(label);
     initStyle();
+  }
+
+  /**
+   * コンストラクタ.
+   *
+   * @param viewStyle このノードビューのスタイル
+   * @throws ViewInitializationException ノードビューの初期化に失敗
+   */
+  public LabelNodeView(BhNodeViewStyle viewStyle)
+      throws ViewInitializationException {
+    this(null, viewStyle);
   }
 
   private void initStyle() {
@@ -62,9 +76,21 @@ public final class LabelNodeView extends BhNodeView {
     getLookManager().addCssClass(BhConstants.Css.CLASS_LABEL_NODE);
   }
 
+  private void setInitText() {
+    if (model == null) {
+      return;
+    }
+    model.getOptions().stream()
+        .reduce((a, b) -> new Pair<>(a.v1 + b.v1, a.v2.toString() + b.v2.toString()))
+        .ifPresent(text -> {
+          model.setText(text.v1);
+          setText(text.v2.toString());
+        });
+  }
+
   @Override
-  public TextNode getModel() {
-    return model;
+  public Optional<TextNode> getModel() {
+    return Optional.ofNullable(model);
   }
 
   @Override

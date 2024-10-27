@@ -12,35 +12,10 @@
   <ConnectorSection name="StatSctn">
     <Connector bhConnectorID="idFuncNameCnctr" name="FuncName" imitCnctPos="imitPosFuncName"/>
     
-    <PrivateConnector 
-      bhConnectorID="idVoidFuncCall.prvCnctr0"
-      name="nyuryoku"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idVoidFuncCall.prvNode0"
-        name="nyuryoku"
-        nodeStyleID="WordLabel2.json"
-        initString="入力">
-      </Node>
-    </PrivateConnector>
-    
     <Connector bhConnectorID="idArgCnctr" name="Arg" imitCnctPos="imitPosArg"/>
-    
-    <PrivateConnector
-      bhConnectorID="idVoidFuncCall.prvCnctr1"
-      name="shuturyoku"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idVoidFuncCall.prvNode1"
-        name="shuturyoku"
-        nodeStyleID="WordLabel2.json"
-        initString="出力">
-      </Node>
-    </PrivateConnector>
-    
+        
     <Connector bhConnectorID="idArgCnctr" name="OutArg" imitCnctPos="imitPosOutArg"/>
+
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>
 </Node>

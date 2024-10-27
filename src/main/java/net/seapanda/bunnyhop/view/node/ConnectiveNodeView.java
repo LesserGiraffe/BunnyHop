@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.view.node;
 
+import java.util.Optional;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -49,8 +50,8 @@ public final class ConnectiveNodeView extends BhNodeView {
       throws ViewInitializationException {
     super(viewStyle, model);
     this.model = model;
-    innerGroup.buildSubGroup(viewStyle.connective.inner);
-    outerGroup.buildSubGroup(viewStyle.connective.outer);
+    innerGroup.buildSubGroup(viewStyle.connective.inner, viewStyle.nodeStyleId);
+    outerGroup.buildSubGroup(viewStyle.connective.outer, viewStyle.nodeStyleId);
     getPositionManager().setOnAbsPosUpdated(this::updateAbsPos);
     getLookManager().addCssClass(BhConstants.Css.CLASS_CONNECTIVE_NODE);
   }
@@ -61,8 +62,8 @@ public final class ConnectiveNodeView extends BhNodeView {
    * @return このビューのモデルであるBhNode
    */
   @Override
-  public ConnectiveNode getModel() {
-    return model;
+  public Optional<ConnectiveNode> getModel() {
+    return Optional.ofNullable(model);
   }
 
   /**

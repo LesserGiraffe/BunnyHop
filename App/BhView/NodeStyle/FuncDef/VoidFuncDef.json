@@ -25,12 +25,12 @@
           "subGroup0" : {
             "arrangement" : "Column",
             "space" : 1.0,
-            "connectorList" : ["nyuryoku", "ParamDecl"]
+            "connectorList" : ["${L1}{入力}", "ParamDecl"]
           },
           "subGroup1" : {
             "arrangement" : "Column",
             "space" : 1.0,
-            "connectorList" : ["shuturyoku", "OutParamDecl"]
+            "connectorList" : ["${L1}{出力}", "OutParamDecl"]
           }
         },
         "subGroup1" : {

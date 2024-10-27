@@ -64,17 +64,24 @@ public final class ComboBoxNodeView extends BhNodeView {
    */
   public ComboBoxNodeView(TextNode model, BhNodeViewStyle viewStyle)
       throws ViewInitializationException {
-
     super(viewStyle, model);
     this.model = model;
-    var contents = model.getOptions().stream()
-        .map(item -> new SelectableItem(item.v1, item.v2.toString())).toList();
-    comboBox.setItems(FXCollections.observableArrayList(contents));
+    setItems();
     getTreeManager().addChild(comboBox);
     initStyle();
     setComboBoxEventHandlers();
   }
 
+  /**
+   * コンストラクタ.
+   *
+   * @param viewStyle このノードビューのスタイル
+   * @throws ViewInitializationException ノードビューの初期化に失敗
+   */
+  public ComboBoxNodeView(BhNodeViewStyle viewStyle)
+      throws ViewInitializationException {
+    this(null, viewStyle);
+  }
 
   private void initStyle() {
     comboBox.setButtonCell(buttonCell);
@@ -89,14 +96,22 @@ public final class ComboBoxNodeView extends BhNodeView {
     getLookManager().addCssClass(BhConstants.Css.CLASS_COMBO_BOX_NODE);
   }
 
+  private void setItems() {
+    if (model != null) {
+      var contents = model.getOptions().stream()
+          .map(item -> new SelectableItem(item.v1, item.v2.toString())).toList();
+      comboBox.setItems(FXCollections.observableArrayList(contents));
+    }
+  }
+  
   /**
    * このビューのモデルであるBhNodeを取得する.
    *
    * @return このビューのモデルであるBhNode
    */
   @Override
-  public TextNode getModel() {
-    return model;
+  public Optional<TextNode> getModel() {
+    return Optional.ofNullable(model);
   }
 
   /**
@@ -215,13 +230,18 @@ public final class ComboBoxNodeView extends BhNodeView {
   private void setComboBoxEventHandlers() {
     comboBox.addEventFilter(Event.ANY, this::propagateEvent);
     comboBox.setOnShowing(event -> fitComboBoxWidthToListWidth());
-    comboBox.setOnHidden(event -> 
-        fitComboBoxWidthToContentWidth(comboBox.getValue().getViewText(), buttonCell.getFont()));
+    comboBox.setOnHidden(event -> fitComboBoxWidthToContentWidth(
+        comboBox.getValue().getViewString(), buttonCell.getFont()));
   }
 
   private void propagateEvent(Event event) {
-    getEventManager().propagateEvent(event);
-    if (MsgService.INSTANCE.isTemplateNode(model) || dragged.getValue()) {
+    BhNodeView view = (model == null) ? getTreeManager().getParentView() : this;
+    if (view == null) {
+      event.consume();
+      return;
+    }
+    view.getEventManager().propagateEvent(event);
+    if (MsgService.INSTANCE.isTemplateNode(view.getModel().get()) || dragged.getValue()) {
       event.consume();
     }
     if (event.getEventType().equals(MouseEvent.DRAG_DETECTED)) {
@@ -234,7 +254,7 @@ public final class ComboBoxNodeView extends BhNodeView {
   /** コンボボックスの幅を表示されているリストの幅に合わせる. */
   private void fitComboBoxWidthToListWidth() {
     List<String> itemTextList = new ArrayList<>();
-    comboBox.getItems().forEach(item -> itemTextList.add(item.getViewText()));
+    comboBox.getItems().forEach(item -> itemTextList.add(item.getViewString()));
     double maxWidth = calcMaxStrWidth(itemTextList, buttonCell.fontProperty().get());
     ScrollBar scrollBar = getVerticalScrollbar();
     if (scrollBar != null) {
@@ -258,7 +278,7 @@ public final class ComboBoxNodeView extends BhNodeView {
     visitor.visit(this);
   }
 
-  /** BhNode カテゴリのView.  BhNodeCategoryとの結びつきは動的に変わる. */
+  /** BhNode カテゴリの View.  BhNodeCategoryとの結びつきは動的に変わる. */
   public class ComboBoxNodeListCell extends ListCell<SelectableItem> {
 
     SelectableItem item;
@@ -270,8 +290,8 @@ public final class ComboBoxNodeView extends BhNodeView {
       super.updateItem(item, empty);
       this.item = item;
       if (!empty) {
-        setText(item.getViewText());
-        fitComboBoxWidthToContentWidth(item.getViewText(), getFont());
+        setText(item.getViewString());
+        fitComboBoxWidthToContentWidth(item.getViewString(), getFont());
       }
     }
   }

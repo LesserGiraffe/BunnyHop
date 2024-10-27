@@ -15,7 +15,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 2.0,
-      "connectorList" : ["Arg0", "niFukumareru", "Option0", "Arg1", "noIndex"]
+      "connectorList" : ["Arg0", "${L1}{に含まれる}", "Option0", "Arg1", "${L1}{のインデックス}"]
     }
   }
 }

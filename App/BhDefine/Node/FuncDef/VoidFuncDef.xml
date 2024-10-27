@@ -3,9 +3,9 @@
   bhNodeID="idVoidFuncDef"
   name="VoidFuncDef"
   nodeStyleID="VoidFuncDef.json"
-  onPrivateTemplateCreating="CreateImitIdManualPrivateTemplate.js">
+  onPrivateTemplateCreating="CreateVoidFuncPrivateTemplate.js">
 
-  <Imitation imitationID="imitIdManual" imitationNodeID="idVoidFuncCall"/>
+  <Imitation imitationID="imitIdFuncCall" imitationNodeID="idVoidFuncCall"/>
 
   <Section name="FuncDefSctn">
     
@@ -20,37 +20,11 @@
     <ConnectorSection name="VarScopeSctn">
       <Connector bhConnectorID="idStatCnctr" name="StatList"/>
     
-      <PrivateConnector
-        bhConnectorID="idVoidFuncDef.prvCnctr0"
-        name="nyuryoku"
-        fixed="true">
-        <Node
-          type="text"
-          bhNodeID="idVoidFuncDef.prvNode0"
-          name="nyuryoku"
-          nodeStyleID="WordLabel1.json"
-          initString="入力">
-        </Node>
-      </PrivateConnector>
-    
       <Connector
         bhConnectorID="idVarDeclCnctr"
         name="ParamDecl"
         imitationID="imitIdVarDeclToArg"
         imitCnctPos="imitPosArg"/>
-    
-      <PrivateConnector
-        bhConnectorID="idVoidFuncDef.prvCnctr1"
-        name="shuturyoku"
-        fixed="true">
-        <Node
-          type="text"
-          bhNodeID="idVoidFuncDef.prvNode1"
-          name="shuturyoku"
-          nodeStyleID="WordLabel1.json"
-          initString="出力">
-        </Node>
-      </PrivateConnector>
     
       <Connector
         bhConnectorID="idVarDeclCnctr"

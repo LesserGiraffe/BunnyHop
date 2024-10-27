@@ -200,7 +200,7 @@ public class EventHandlerCodeGenerator {
 
     // let lockVar = new _genLockObj();
     varDeclCodeGen.genVarDeclStat(
-        code, lockVar, ScriptIdentifiers.Funcs.GEN_LOCK_OBJ + "()", nestLevel);
+        code, lockVar, ScriptIdentifiers.Funcs.GEN_LOCK_OBJ + "(false)", nestLevel);
 
     // function funcName() {...
     code.append(common.indent(nestLevel))

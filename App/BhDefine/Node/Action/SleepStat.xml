@@ -13,19 +13,6 @@
     
     <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
     
-    <PrivateConnector 
-      bhConnectorID="idSleepStat.prvCnctr0"
-      name="byoMatsu"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSleepStat.prvNode0"
-        name="byoMatsu"
-        nodeStyleID="WordLabel2.json"
-        initString="秒待つ">
-      </Node>
-    </PrivateConnector>
-
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>
 </Node>

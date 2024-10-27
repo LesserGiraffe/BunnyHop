@@ -7,35 +7,9 @@
 
   <ConnectorSection name="ColorExpSctn">
     <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
-    
-    <PrivateConnector
-      bhConnectorID="idColorArrayGetExp.prvCnctr0"
-      name="no"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idColorArrayGetExp.prvNode0"
-        name="no"
-        nodeStyleID="WordLabel2.json"
-        initString="の">
-      </Node>
-    </PrivateConnector>
-    
+        
     <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-    
-    <PrivateConnector
-      bhConnectorID="idColorArrayGetExp.prvCnctr1"
-      name="banmeNoYoso"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idColorArrayGetExp.prvNode1"
-        name="banmeNoYoso"
-        nodeStyleID="WordLabel2.json"
-        initString="番目の要素">
-      </Node>
-    </PrivateConnector>
-    
+        
     <PrivateConnector
       bhConnectorID="idColorArrayGetExp.prvCnctr2"
       name="Arg2"

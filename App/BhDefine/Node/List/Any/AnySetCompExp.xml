@@ -6,19 +6,6 @@
 
   <ConnectorSection name="BoolExpSctn">
     <Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
-    
-    <PrivateConnector
-      bhConnectorID="idAnySetCompExp.prvCnctr0"
-      name="shugou"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idAnySetCompExp.prvNode0"
-        name="noYosoWoSubeteKesu"
-        nodeStyleID="WordLabel1.json"
-        initString="[集合]">
-      </Node>
-    </PrivateConnector>
 
     <PrivateConnector
       bhConnectorID="idAnySetCompExp.prvCnctr1"
@@ -32,7 +19,7 @@
         onTextOptionsCreating="CreateSetCompOps.js">
       </Node>
     </PrivateConnector>
-    
+
     <Connector bhConnectorID="idAnyListCnctr" name="Arg1"/>
   </ConnectorSection>
 </Node>

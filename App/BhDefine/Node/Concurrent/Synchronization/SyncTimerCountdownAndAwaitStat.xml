@@ -10,33 +10,7 @@
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
-
-    <PrivateConnector
-      bhConnectorID="idSyncTimerCountdownAndAwaitStat.prvCnctr0"
-      name="countdown"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSyncTimerCountdownAndAwaitStat.prvNode0"
-        name="countdown"
-        nodeStyleID="WordLabel2.json"
-        initString="のカウントを 1 減らしてから">
-      </Node>
-    </PrivateConnector>
-
-    <PrivateConnector
-      bhConnectorID="idSyncTimerCountdownAndAwaitStat.prvCnctr1"
-      name="matsu"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSyncTimerCountdownAndAwaitStat.prvNode1"
-        name="matsu"
-        nodeStyleID="WordLabel2.json"
-        initString="カウントが 0 になるまで待つ">
-      </Node>
-    </PrivateConnector>
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
 
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>

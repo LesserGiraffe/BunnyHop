@@ -9,41 +9,15 @@
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js">
 
-  <Imitation imitationID="imitIdManual" imitationNodeID="idSyncTimerVar"/>
+  <Imitation imitationID="imitIdSyncTimeVar" imitationNodeID="idSyncTimerVar"/>
 
   <ConnectorSection name="GlobalDataDeclSctn">
-
-    <PrivateConnector
-      bhConnectorID="idSyncTimerDecl.prvCnctr0"
-      name="SyncTimer"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSyncTimerDecl.prvNode0"
-        name="SyncTimer"
-        nodeStyleID="WordLabel2.json"
-        initString="処理待ちタイマー">
-      </Node>
-    </PrivateConnector>
 
     <Connector
       bhConnectorID="idVarNameCnctr"
       name="SyncTimerName"
       imitationID="imitIdVarName"
       imitCnctPos="imitPosVarName"/>
-
-    <PrivateConnector
-      bhConnectorID="idSyncTimerDecl.prvCnctr1"
-      name="autoReset"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSyncTimerDecl.prvNode1"
-        name="autoReset"
-        nodeStyleID="WordLabel2.json"
-        initString="自動リセット">
-      </Node>
-    </PrivateConnector>
 
     <PrivateConnector
       bhConnectorID="idSyncTimerDecl.prvCnctr2"
@@ -54,20 +28,7 @@
         bhNodeID="idSyncTimerDecl.prvNode2"
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateDoOrDonot.js">
-      </Node>
-    </PrivateConnector>
-
-    <PrivateConnector
-      bhConnectorID="idSyncTimerDecl.prvCnctr3"
-      name="initCount"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSyncTimerDecl.prvNode3"
-        name="initCount"
-        nodeStyleID="WordLabel2.json"
-        initString="タイマーの初期値">
+        onTextOptionsCreating="CreateSynTimerOps.js">
       </Node>
     </PrivateConnector>
 

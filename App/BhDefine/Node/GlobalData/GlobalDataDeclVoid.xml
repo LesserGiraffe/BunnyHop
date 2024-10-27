@@ -3,6 +3,5 @@
   bhNodeID="idGlobalDataDeclVoid" 
   name="GlobalDataDeclVoid" 
   nodeStyleID="GlobalDataDeclVoid.json"
-  initString=""
   onMovedFromChildToWS="DeleteNode.js">
 </Node>

@@ -15,7 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["Duration", "ByoKanNo", "Frequency", "HzNoOto"]
+      "connectorList" : ["Duration", "${L1}{秒間の}", "Frequency", "${L1}{ヘルツの音}"]
     }
   }
 }

@@ -15,7 +15,7 @@
     "inner" : {
       "arrangement" : "Column",
       "space" : 1.5,
-      "connectorList" : ["Comment", "Setsumei"]
+      "connectorList" : ["${L2}{コメント}", "Comment"]
     },
     "outer" : {
       "connectorList" : ["NextStat"]

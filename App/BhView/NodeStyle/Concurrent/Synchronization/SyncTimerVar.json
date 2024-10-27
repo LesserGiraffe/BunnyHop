@@ -8,6 +8,7 @@
   "connectorWidth" : 3.5,
   "connectorHeight" : 3.5,
   "connectorShape" : "SANDGLASS",
+  "connectorShapeFixed" : "NONE",
   "connectorBoundsRate" : 1.25,
   "cssClass" : "concurrentType",
 
@@ -15,7 +16,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["SyncTimer", "SyncTimerName"]
+      "connectorList" : ["${L2}{処理待ちタイマー}", "SyncTimerName"]
     }
   }
 }

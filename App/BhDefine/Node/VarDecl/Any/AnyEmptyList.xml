@@ -5,18 +5,5 @@
   nodeStyleID="AnyEmptyList.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
-  <ConnectorSection name="AnyListSctn">
-    <PrivateConnector
-      bhConnectorID="idAnyEmptyList.prvCnctr0"
-      name="ListSign"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idAnyEmptyList.prvNode0"
-        name="ListSign"
-        nodeStyleID="WordLabel1.json"
-        initString="[...]">
-      </Node>
-    </PrivateConnector>
-  </ConnectorSection>
+  <Section name="AnyListSctn"/>
 </Node>

@@ -36,7 +36,7 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.json.JsonParser;
 
 /**
- * Javascriptを管理するクラス.
+ * JavaScriptを管理するクラス.
  *
  * @author K.Koike
  */
@@ -49,9 +49,9 @@ public class BhScriptManager {
   private Object commonJsObj;
 
   /**
-   * Javascript 実行時の変数スコープを新たに作成する.
+   * JavaScript 実行時の変数スコープを新たに作成する.
    *
-   * @return Javascript 実行時の変数スコープ
+   * @return JavaScript 実行時の変数スコープ
    */
   public ScriptableObject createScriptScope() {
     Context cx = ContextFactory.getGlobal().enterContext();
@@ -61,7 +61,7 @@ public class BhScriptManager {
   }
 
   /**
-   * Javascriptのファイルパスからコンパイル済みスクリプトを取得する.
+   * JavaScriptのファイルパスからコンパイル済みスクリプトを取得する.
    *
    * @param fileName 取得したいスクリプトのファイル名. null 許可.
    * @return {@code fileName} で指定した名前のスクリプト. fileName が null の場合は, null.
@@ -74,7 +74,7 @@ public class BhScriptManager {
   }
 
   /**
-   * Javascriptファイルを読み込み、コンパイルする.
+   * JavaScriptファイルを読み込み、コンパイルする.
    *
    * @param dirPaths このフォルダの下にある.jsファイルをコンパイルする
    * @return ひとつでもコンパイル不能なJSファイルがあった場合 false を返す

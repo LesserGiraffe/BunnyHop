@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.view.node;
 
+import java.util.Optional;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -41,8 +42,19 @@ public class NoContentNodeView extends BhNodeView {
       throws ViewInitializationException {
     super(viewStyle, model);
     this.model = model;
+    setInitText();
     getLookManager().addCssClass(BhConstants.Css.CLASS_NO_CONTENT_NODE);
     setMouseTransparent(true);
+  }
+
+  private void setInitText() {
+    if (model == null) {
+      return;
+    }
+    model.getOptions().stream()
+        .map(item -> item.v1)
+        .reduce((v0, v1) -> v0 + v1)
+        .ifPresent(text -> model.setText(text));
   }
 
   /**
@@ -51,8 +63,8 @@ public class NoContentNodeView extends BhNodeView {
    * @return このビューのモデルであるBhNode
    */
   @Override
-  public TextNode getModel() {
-    return model;
+  public Optional<TextNode> getModel() {
+    return Optional.ofNullable(model);
   }
 
   @Override
@@ -68,7 +80,6 @@ public class NoContentNodeView extends BhNodeView {
 
   @Override
   protected Vec2D getBodySize(boolean includeCnctr) {
-
     double paddingLeft = 0.0;
     double paddingRight = 0.0;
     double paddingTop = 0.0;

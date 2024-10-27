@@ -15,7 +15,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 2.0,
-      "connectorList" : ["shugou", "Arg0", "Option0", "Arg1"]
+      "connectorList" : ["${L1}{[集合]}", "Arg0", "Option0", "Arg1"]
     },
     "outer" : {
       "connectorList" : ["NextStat"]

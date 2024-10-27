@@ -10,33 +10,19 @@
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-  
+
     <PrivateConnector
-      bhConnectorID="idCommentPart.prvCnctr0"
+      bhConnectorID="idCommentPart.prvCnctr1"
       name="Comment"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idCommentPart.prvNode0"
-        name="Comment"
-        nodeStyleID="WordLabel2.json"
-        initString="コメント">
-      </Node>
-    </PrivateConnector>
-  
-    <PrivateConnector
-      bhConnectorID="idCommentPart.prvCnctr1"
-      name="Setsumei"
-      fixed="true">
-      <Node
-        type="text"
         bhNodeID="idCommentPart.prvNode1"
-        name="setsumei"
+        name="Comment"
         nodeStyleID="DefaultTextArea.json"
-        initString="説明">
+        onTextOptionsCreating="CreateDefaultVarName.js">
       </Node>
-    </PrivateConnector>
-    
+    </PrivateConnector>  
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>
 </Node>

@@ -13,52 +13,13 @@
   <ConnectorSection name="StatSctn">
     <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
 
-    <PrivateConnector
-      bhConnectorID="idAnyArrayPushStat.prvCnctr0"
-      name="noSaigoNi"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idAnyArrayPushStat.prvNode0"
-        name="noSaigoNi"
-        nodeStyleID="WordLabel1.json"
-        initString="の最後に">
-      </Node>
-    </PrivateConnector>
-
     <Connector bhConnectorID="idSameTypeOfExpCnctr" name="Arg1"/>
-
-    <PrivateConnector
-      bhConnectorID="idAnyArrayPushStat.prvCnctr1"
-      name="wo"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idAnyArrayPushStat.prvNode1"
-        name="wo"
-        nodeStyleID="WordLabel1.json"
-        initString="を">
-      </Node>
-    </PrivateConnector>
 
     <PrivateConnector
       bhConnectorID="idAnyArrayPushStat.prvCnctr2"
       name="Arg2"
       defaultBhNodeID="idPositiveIntLiteralExp"
       onConnectabilityChecking="NumExpCnct.js"/>
-
-    <PrivateConnector
-      bhConnectorID="idAnyArrayPushStat.prvCnctr3"
-      name="koTsuikaSuru"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idAnyArrayPushStat.prvNode3"
-        name="koTsuikaSuru"
-        nodeStyleID="WordLabel1.json"
-        initString="個追加する">
-      </Node>
-    </PrivateConnector>
 
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>

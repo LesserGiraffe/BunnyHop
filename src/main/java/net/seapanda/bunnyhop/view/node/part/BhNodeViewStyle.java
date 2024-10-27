@@ -737,25 +737,36 @@ public class BhNodeViewStyle {
   }
 
   /**
-   * ノードIDとノードスタイルID のペアを登録する.
+   * ノード ID とノードスタイル ID のペアを登録する.
    *
    * @param nodeId ノードID (bhNodeID属性)
-   * @param nodeStyleId ノードスタイルID (nodeStyleID属性)
+   * @param styleId ノードスタイルID (nodeStyleID属性)
    */
-  public static void putNodeIdToNodeStyleId(BhNodeId nodeId, String nodeStyleId) {
-    nodeIdToNodeStyleID.put(nodeId, nodeStyleId);
+  public static void registerNodeIdAndStyleId(BhNodeId nodeId, String styleId) {
+    nodeIdToNodeStyleID.put(nodeId, styleId);
   }
 
   /**
-   * ノードID から ノードスタイルオブジェクトを取得する.
+   * ノード ID から ノードスタイルオブジェクトを取得する.
    *
-   * @param nodeId ノードID (bhNodeID属性)
-   * @return ノードスタイルオブジェクト (オプション)
+   * @param nodeId ノード ID
+   * @return ノードスタイルオブジェクト
    */
-  public static Optional<BhNodeViewStyle> getNodeViewStyleFromNodeId(BhNodeId nodeId) {
+  public static Optional<BhNodeViewStyle> getStyleFromNodeId(BhNodeId nodeId) {
     return Optional.ofNullable(nodeIdToNodeStyleID.getOrDefault(nodeId, null))
         .map(styleId -> nodeStyleIdToNodeStyleTemplate.getOrDefault(styleId, null))
-        .map(nodeStyle -> new BhNodeViewStyle(nodeStyle));    
+        .map(nodeStyle -> new BhNodeViewStyle(nodeStyle));
+  }
+
+  /**
+   * スタイル ID から ノードスタイルオブジェクトを取得する.
+   *
+   * @param styleId スタイル ID
+   * @return ノードスタイルオブジェクト
+   */
+  public static Optional<BhNodeViewStyle> getStyleFromStyleId(String styleId) {
+    return Optional.ofNullable(nodeStyleIdToNodeStyleTemplate.getOrDefault(styleId, null))
+        .map(nodeStyle -> new BhNodeViewStyle(nodeStyle));
   }
 
   /**

@@ -18,12 +18,12 @@
       "subGroup0" : {
         "space" : 2.0,
         "arrangement" : "Row",
-        "connectorList" : ["Arg0", "countdown"]
+        "connectorList" : ["Arg0", "${L2}{のカウントを 1 減らしてから}"]
       },
       "subGroup1" : {
         "space" : 0.0,
         "arrangement" : "Row",
-        "connectorList" : ["matsu"]
+        "connectorList" : ["${L2}{カウントが 0 になるまで待つ}"]
       }
     },
 

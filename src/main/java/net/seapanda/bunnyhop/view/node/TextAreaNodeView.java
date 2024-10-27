@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.view.node;
 
+import java.util.Optional;
 import java.util.function.Function;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
@@ -25,6 +26,7 @@ import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
+import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
@@ -57,14 +59,31 @@ public final class TextAreaNodeView  extends TextInputNodeView {
       throws ViewInitializationException {
     super(model, viewStyle);
     this.model = model;
+    setInitText();
     getTreeManager().addChild(textArea);
     textArea.addEventFilter(MouseEvent.ANY, this::propagateEvent);
     initStyle();
   }
 
+  /**
+   * コンストラクタ.
+   *
+   * @param viewStyle このノードビューのスタイル
+   * @throws ViewInitializationException ノードビューの初期化に失敗
+   */
+  public TextAreaNodeView(BhNodeViewStyle viewStyle)
+      throws ViewInitializationException {
+    this(null, viewStyle);
+  }
+
   private void propagateEvent(Event event) {
-    getEventManager().propagateEvent(event);
-    if (MsgService.INSTANCE.isTemplateNode(model)) {
+    BhNodeView view = (model == null) ? getTreeManager().getParentView() : this;
+    if (view == null) {
+      event.consume();
+      return;
+    }
+    view.getEventManager().propagateEvent(event);
+    if (MsgService.INSTANCE.isTemplateNode(view.getModel().get())) {
       event.consume();
     }
   }
@@ -81,9 +100,21 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     getLookManager().addCssClass(BhConstants.Css.CLASS_TEXT_AREA_NODE);
   }
 
+  private void setInitText() {
+    if (model == null) {
+      return;
+    }
+    model.getOptions().stream()
+        .reduce((a, b) -> new Pair<>(a.v1 + b.v1, a.v2.toString() + b.v2.toString()))
+        .ifPresent(text -> {
+          model.setText(text.v1);
+          setText(text.v2.toString());
+        });
+  }
+
   @Override
-  public TextNode getModel() {
-    return model;
+  public Optional<TextNode> getModel() {
+    return Optional.ofNullable(model);
   }
 
   /**

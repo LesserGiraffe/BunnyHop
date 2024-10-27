@@ -1,4 +1,4 @@
-let imitIdManual = 'imitIdManual';
+let imitIdList = 'imitIdList';
 
 let listDeclToGetStat = {
   'NumListDecl'   : 'idNumArrayGetExp',
@@ -35,7 +35,7 @@ function genNodeToReplace(symbolMaps) {
 function genAnyArrayControlNode(arrayCtrlNodeId, argNames, symbolMaps) {
   let arrayCtrlNode = bhCommon.genBhNode(arrayCtrlNodeId, bhNodeTemplates, bhUserOpeCmd);
   argNames = ['Arg0'].concat(argNames);
-  newNodes = [bhCommon.buildImitation(bhThis, imitIdManual, bhUserOpeCmd)]
+  newNodes = [bhCommon.buildImitation(bhThis, imitIdList, bhUserOpeCmd)]
     .concat(genNodeToReplace(symbolMaps));
 
   for (let i = 0; i < argNames.length; ++i) {
@@ -47,7 +47,7 @@ function genAnyArrayControlNode(arrayCtrlNodeId, argNames, symbolMaps) {
 }
 
 (function() {
-  let list = bhCommon.buildImitation(bhThis, imitIdManual, bhUserOpeCmd);
+  let list = bhCommon.buildImitation(bhThis, imitIdList, bhUserOpeCmd);
   let templates = [
     list,
     genAnyArrayControlNode('idAnyArrayToStrExp', [], []),

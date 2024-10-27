@@ -9,7 +9,7 @@
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js">
 
-  <Imitation imitationID="imitIdManual" imitationNodeID="idNumVar"/>
+  <Imitation imitationID="imitIdVar" imitationNodeID="idNumVar"/>
   <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idNumArg"/>
   <Imitation imitationID="imitIdVarDeclToOutArg" imitationNodeID="idNumOutArg"/>
 

@@ -1,13 +1,13 @@
 <Node
-  type="text"
+  type="connective"
   bhNodeID="idBreakStat"
   name="BreakStat"
   nodeStyleID="BreakStat.json"
-  initString="繰り返しを抜ける"
   onSyntaxChecking="BreakAndContinueChecker.js"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedToChild="OnStatMovedToChild.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js">
-</Node>
 
+  <Section name="StatSctn"/>
+</Node>

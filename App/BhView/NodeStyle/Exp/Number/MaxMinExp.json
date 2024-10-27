@@ -15,7 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["Arg0", "to", "Arg1", "no", "Option0"]
+      "connectorList" : ["Arg0", "${L1}{と}", "Arg1", "${L1}{の}", "Option0"]
     }
   }
 }

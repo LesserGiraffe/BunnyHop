@@ -15,7 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["Arg0", "wo", "Arg1", "deHikaraseru"]
+      "connectorList" : ["Arg0", "${L2}{を}", "Arg1", "${L2}{で光らせる}"]
     },
 
     "outer" : {

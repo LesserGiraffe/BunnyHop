@@ -21,7 +21,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 2.0,
-      "connectorList" : ["ListName", "ListSign"]
+      "connectorList" : ["ListName", "${L1}{[...]}"]
     }
   }
 }

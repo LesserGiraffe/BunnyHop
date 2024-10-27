@@ -115,14 +115,14 @@ public class BhNodeEventDispatcher implements Serializable {
    * @param oldParent 移る前に接続されていた親
    * @param oldRoot 移る前に所属していたルートノード
    * @param newReplaced WSに移る際, このノードの替わりにつながったノード
-   * @param manuallyRemoved D&Dで子ノードからワークスペースに移された場合 true
+   * @param isSpecifiedDirectly この処理を呼び出すノードが, D&D やカット&ペーストで直接指定されてワークスペースに移動した場合 true
    * @param userOpeCmd undo 用コマンドオブジェクト
    */
   public void execOnMovedFromChildToWs(
       ConnectiveNode oldParent,
       BhNode oldRoot,
       BhNode newReplaced,
-      Boolean manuallyRemoved,
+      Boolean isSpecifiedDirectly,
       UserOperationCommand userOpeCmd) {
     Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_MOVED_FROM_CHILD_TO_WS);
     Script onMovedFromChildToWs =
@@ -136,7 +136,7 @@ public class BhNodeEventDispatcher implements Serializable {
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newReplaced);
     ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_MANUALLY_REMOVED, manuallyRemoved);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_IS_SPECIFIED_DIRECTLY, isSpecifiedDirectly);
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
     try {

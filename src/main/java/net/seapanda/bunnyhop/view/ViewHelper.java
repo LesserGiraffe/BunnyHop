@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.view;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 import javafx.geometry.Point2D;
@@ -27,8 +28,15 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
+import net.seapanda.bunnyhop.view.node.LabelNodeView;
+import net.seapanda.bunnyhop.view.node.TextAreaNodeView;
+import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.part.SelectableItem;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceViewPane;
 
@@ -98,10 +106,10 @@ public class ViewHelper {
   }
 
   /**
-   * node のワークスペース上での位置を取得する.
+   * {@code node} のワークスペース上での位置を取得する.
    *
    * @param node ワークペース上での位置を計算するノード
-   * @return node のワークスペース上での位置.
+   * @return {@code node} のワークスペース上での位置.
    */
   public Vec2D getPosOnWorkspace(Node node) {
     Parent parent = node.getParent();
@@ -117,9 +125,9 @@ public class ViewHelper {
   }
 
   /**
-   * node が属するワークスペースビューを取得する.
+   * {@code node} が属するワークスペースビューを取得する.
    *
-   * @return node が属するワークスペースビュー.
+   * @return {@code node} が属するワークスペースビュー.
    *         どのワークスペースビューにも属していない場合は null を返す.
    */
   public WorkspaceView getWorkspaceView(Node node) {
@@ -169,14 +177,15 @@ public class ViewHelper {
    * @param nodeToPutShadowOn 新たに影を付けるノード.
    */
   public void drawShadow(BhNodeView nodeToPutShadowOn) {
-    shadowNodes.removeIf(nodeView -> {
-      if (nodeView.getModel().getWorkspace() == nodeToPutShadowOn.getModel().getWorkspace()
-          || nodeView.getModel().isDeleted()) {
-        nodeView.getLookManager().showShadow(false);
-        return true;
-      }
-      return false;
-    });
+    if (nodeToPutShadowOn.getModel().isEmpty()) {
+      return;
+    }
+    var nodesToRemoveShadow = shadowNodes.stream()
+        .filter(view ->
+            areInSameWorkspace(view, nodeToPutShadowOn) || view.getModel().get().isDeleted())
+        .toList();
+    nodesToRemoveShadow.forEach(view -> view.getLookManager().showShadow(false));
+    shadowNodes.removeAll(nodesToRemoveShadow);
     nodeToPutShadowOn.getLookManager().showShadow(true);
     shadowNodes.add(nodeToPutShadowOn);
   }
@@ -186,13 +195,67 @@ public class ViewHelper {
    *
    * @param ws このワークスペースに描画されている影を消す
    */
-  public void deleteShadow(Workspace ws) {
-    shadowNodes.removeIf(nodeView -> {
-      if (nodeView.getModel().getWorkspace() == ws || nodeView.getModel().isDeleted()) {
-        nodeView.getLookManager().showShadow(false);
-        return true;
-      }
+  public void removeShadow(Workspace ws) {
+    var nodesToRemoveShadow = shadowNodes.stream()
+        .filter(view ->
+            view.getModel().get().getWorkspace() == ws || view.getModel().get().isDeleted())
+        .toList();
+    nodesToRemoveShadow.forEach(view -> view.getLookManager().showShadow(false));
+    shadowNodes.removeAll(nodesToRemoveShadow);
+  }
+
+  /** {@code viewA} と {@code viewB} が同じワークスペース上にあるか調べる. */
+  public boolean areInSameWorkspace(BhNodeView viewA, BhNodeView viewB) {
+    if (viewA.getModel().isEmpty() || viewB.getModel().isEmpty()) {
       return false;
-    });
+    }
+    return viewA.getModel().get().getWorkspace() == viewB.getModel().get().getWorkspace();
+  }
+
+  /**
+   * モデルを持たない {@link BhNodeView} を作成する.
+   *
+   * @param styleId 作成するビューのスタイル ID
+   * @param text 作成するビューに設定する文字列
+   * @return 作成した {@link BhNodeView}
+   */
+  public BhNodeView createModellessNodeView(String styleId, String text)
+      throws ViewInitializationException {
+    Optional<BhNodeViewStyle> style = BhNodeViewStyle.getStyleFromStyleId(styleId);
+    if (style.isEmpty()) {
+      String msg = Util.INSTANCE.getCurrentMethodName()
+          + " - BhNode View Style '" + styleId + "' was not found.";
+      throw new ViewInitializationException(msg);
+    }
+    return switch (style.get().component) {
+      case TEXT_FIELD -> {
+        var view = new TextFieldNodeView(style.get());
+        view.setTextChangeListener(str -> true);
+        view.setText(text);
+        yield view;
+      }
+      case COMBO_BOX -> {
+        var view = new ComboBoxNodeView(style.get());
+        view.setItem(new SelectableItem(text, text));
+        yield view;
+      }
+      case LABEL -> {
+        var view = new LabelNodeView(style.get());
+        view.setText(text);
+        yield view;
+      }
+      case TEXT_AREA -> {
+        var view = new TextAreaNodeView(style.get());
+        view.setTextChangeListener(str -> true);
+        view.setText(text);
+        yield view;
+      }
+      default -> {
+        String msg = Util.INSTANCE.getCurrentMethodName()
+            + " - cannot create a modelless node view whose component is " + style.get().component
+            + ".  (" + styleId + ")";
+        throw new ViewInitializationException(msg);
+      }
+    };
   }
 }

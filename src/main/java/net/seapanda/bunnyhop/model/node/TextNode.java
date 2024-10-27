@@ -181,12 +181,12 @@ public class TextNode  extends ImitationBase<TextNode> {
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_VIEW_CONTENTS_CREATING);
     Script creator =
         scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+    var options = new ArrayList<Pair<String, Object>>();
     if (creator == null) {
-      return null;
+      return options;
     }
 
     ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
-    var options = new ArrayList<Pair<String, Object>>();
     try {
       List<?> contents =
           (List<?>) ContextFactory.getGlobal().call(cx -> creator.exec(cx, scriptScope));

@@ -7,18 +7,5 @@
 
   <ConnectorSection name="SoundListSctn">
     <Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
-    
-    <PrivateConnector
-      bhConnectorID="idSoundList.prvCnctr0"
-      name="ListSign"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSoundList.prvNode0"
-        name="ListSign"
-        nodeStyleID="WordLabel1.json"
-        initString="[...]">
-      </Node>
-    </PrivateConnector>
   </ConnectorSection>
 </Node>

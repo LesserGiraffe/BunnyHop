@@ -15,7 +15,7 @@
     "inner" : {
       "space" : 0.0,
       "arrangement" : "Row",
-      "connectorList" : ["kaigyo"]
+      "connectorList" : ["${L1}{改行}"]
     }
   }
 }

@@ -33,8 +33,8 @@ function _initThisObj() {
   this._callStack = [];
 }
 
-function _genLockObj() {
-  return new _jLock();
+function _genLockObj(fair) {
+  return new _jLock(fair);
 }
 
 function _tryLock(lockObj) {

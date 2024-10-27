@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.control.node;
 
 import javafx.geometry.Point2D;
+import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
@@ -82,88 +83,73 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
 
   /** 各種イベントハンドラをセットする. */
   private void setEventHandlers() {
-    setOnMousePressed();
-    setOnMouseDragged();
-    setOnDeagDetected();
-    setOnMouseReleased();
+    view.getEventManager().setOnMousePressed(mouseEvent -> onMousePressed(mouseEvent));
+    view.getEventManager().setOnMouseDragged(mouseEvent -> onMouseDragged(mouseEvent));
+    view.getEventManager().setOnDragDetected(mouseEvent -> onDragDetected(mouseEvent));
+    view.getEventManager().setOnMouseReleased(mouseEvent -> onMouseReleased(mouseEvent));
   }
 
-  /** マウスボタン押下時のイベントハンドラを登録する. */
-  private void setOnMousePressed() {
-    view.getEventManager().setOnMousePressed(
-        mouseEvent -> {
-          ModelExclusiveControl.INSTANCE.lockForModification();
-          try {
-            Workspace currentWs = BunnyHop.INSTANCE.getCurrentWorkspace();
-            if (currentWs == null) {
-              return;
-            }
-            UserOperationCommand userOpeCmd = new UserOperationCommand();
-            BhNode newNode = model.findRootNode().copy(userOpeCmd, (bhNode) -> true);
-            BhNodeView nodeView = NodeMvcBuilder.build(newNode); //MVC構築
-            TextImitationPrompter.prompt(newNode);
-            currentView.setValue(nodeView);
-            Vec2D posOnRootView = calcRelativePosFromRoot();  //クリックされたテンプレートノードのルートノード上でのクリック位置
-            posOnRootView.x += mouseEvent.getX();
-            posOnRootView.y += mouseEvent.getY();
-            Vec2D posOnWs = MsgService.INSTANCE.sceneToWorkspace(
-                mouseEvent.getSceneX(), mouseEvent.getSceneY(), currentWs);
-            BhNodeHandler.INSTANCE.addRootNode(
-                currentWs,
-                newNode,
-                posOnWs.x - posOnRootView.x,
-                posOnWs.y - posOnRootView.y,
-                userOpeCmd);
-            MsgTransporter.INSTANCE.sendMessage(
-                BhMsg.SET_USER_OPE_CMD, new MsgData(userOpeCmd), newNode);  // undo 用コマンドセット
-            currentView.getValue().getEventManager().propagateEvent(mouseEvent);
-            BhNodeSelectionService.INSTANCE.hideAll();
-            mouseEvent.consume();
-          } finally {
-            ModelExclusiveControl.INSTANCE.unlockForModification();
-          }
-        });
-  }
-
-  /** マウスドラッグ時のイベントハンドラを登録する. */
-  private void setOnMouseDragged() {
-    view.getEventManager().setOnMouseDragged(mouseEvent -> {
-      if (currentView.getValue() == null) {
+  /** マウスボタン押下時のイベントハンドラ. */
+  private void onMousePressed(MouseEvent mouseEvent) {
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      Workspace currentWs = BunnyHop.INSTANCE.getCurrentWorkspace();
+      if (currentWs == null) {
         return;
       }
+      UserOperationCommand userOpeCmd = new UserOperationCommand();
+      BhNode newNode = model.findRootNode().copy(userOpeCmd, (bhNode) -> true);
+      BhNodeView nodeView = NodeMvcBuilder.build(newNode); //MVC構築
+      TextImitationPrompter.prompt(newNode);
+      currentView.setValue(nodeView);
+      Vec2D posOnRootView = calcRelativePosFromRoot();  //クリックされたテンプレートノードのルートノード上でのクリック位置
+      posOnRootView.x += mouseEvent.getX();
+      posOnRootView.y += mouseEvent.getY();
+      Vec2D posOnWs = MsgService.INSTANCE.sceneToWorkspace(
+          mouseEvent.getSceneX(), mouseEvent.getSceneY(), currentWs);
+      BhNodeHandler.INSTANCE.addRootNode(
+          currentWs,
+          newNode,
+          posOnWs.x - posOnRootView.x,
+          posOnWs.y - posOnRootView.y,
+          userOpeCmd);
+      MsgTransporter.INSTANCE.sendMessage(
+          BhMsg.SET_USER_OPE_CMD, new MsgData(userOpeCmd), newNode);  // undo 用コマンドセット
       currentView.getValue().getEventManager().propagateEvent(mouseEvent);
-    });
+      BhNodeSelectionService.INSTANCE.hideAll();
+      mouseEvent.consume();
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
   }
 
-  /** マウスドラッグ検出検出時のイベントハンドラを登録する. */
-  private void setOnDeagDetected() {
-    view.getEventManager().setOnDragDetected(mouseEvent -> {
-      ModelExclusiveControl.INSTANCE.lockForModification();
-      try {
-        if (currentView.getValue() == null) {
-          return;
-        }
-        currentView.getValue().getEventManager().propagateEvent(mouseEvent);
-      } finally {
-        ModelExclusiveControl.INSTANCE.unlockForModification();
-      }
-    });
+  /** マウスドラッグ時のイベントハンドラ. */
+  private void onMouseDragged(MouseEvent mouseEvent) {
+    if (currentView.getValue() == null) {
+      return;
+    }
+    currentView.getValue().getEventManager().propagateEvent(mouseEvent);
   }
 
-  /** マウスボタンを離したときのイベントハンドラを登録する. */
-  private void setOnMouseReleased() {
-    view.getEventManager().setOnMouseReleased(mouseEvent -> {
-      ModelExclusiveControl.INSTANCE.lockForModification();
-      try {
-        if (currentView.getValue() == null) {
-          return;
-        }
-        currentView.getValue().getEventManager().propagateEvent(mouseEvent);
-        currentView.setValue(null);
-      } finally {
-        ModelExclusiveControl.INSTANCE.unlockForModification();
-      }
-    });
+  /** マウスドラッグ検出検出時のイベントハンドラ. */
+  private void onDragDetected(MouseEvent mouseEvent) {
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      onMouseDragged(mouseEvent);
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
+  }
+
+  /** マウスボタンを離したときのイベントハンドラ. */
+  private void onMouseReleased(MouseEvent mouseEvent) {
+    ModelExclusiveControl.INSTANCE.lockForModification();
+    try {
+      onMouseDragged(mouseEvent);
+      currentView.setValue(null);
+    } finally {
+      ModelExclusiveControl.INSTANCE.unlockForModification();
+    }
   }
 
   /** view の rootView からの相対位置を求める. */

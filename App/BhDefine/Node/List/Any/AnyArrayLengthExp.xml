@@ -6,20 +6,6 @@
   onChildReplaced="OnChildOfArrayCtrlReplaced.js">
 
   <ConnectorSection name="NumExpSctn">
-    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
-    
-    <PrivateConnector
-      bhConnectorID="idAnyArrayLengthExp.prvCnctr0"
-      name="noSaizu"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idAnyArrayLengthExp.prvNode0"
-        name="noSaizu"
-        nodeStyleID="WordLabel1.json"
-        initString="の要素数">
-      </Node>
-    </PrivateConnector>
-    
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>    
   </ConnectorSection>
 </Node>

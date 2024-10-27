@@ -13,9 +13,18 @@
 
   "connective" : {
     "inner" : {
+      "arrangement" : "Column",
       "space" : 2.0,
-      "arrangement" : "Row",
-      "connectorList" : ["haita", "CriticalSectionName"]
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "space" : 2.0,
+        "connectorList" : ["${L2}{排他区間}", "CriticalSectionName"]
+      },
+      "subGroup1" : {
+        "arrangement" : "Row",
+        "space" : 1.0,
+        "connectorList" : ["${L2}{公平に}", "Arg0"]
+      }
     },
     "outer" : {
       "connectorList" : ["NextGlobalDataDecl"]

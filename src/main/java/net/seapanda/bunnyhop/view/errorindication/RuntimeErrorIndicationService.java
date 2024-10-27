@@ -73,7 +73,9 @@ public class RuntimeErrorIndicationService {
    */
   public synchronized void setNodeViewsForErrorIndication(Collection<BhNodeView> nodeViewList) {
     var nodeIdToNodeView = new HashMap<SyntaxSymbolId, BhNodeView>();
-    nodeViewList.forEach(view -> nodeIdToNodeView.put(view.getModel().getSymbolId(), view));
+    nodeViewList.stream()
+        .filter(view -> view.getModel().isPresent())
+        .forEach(view -> nodeIdToNodeView.put(view.getModel().get().getSymbolId(), view));
     this.nodeIdToNodeView = nodeIdToNodeView;
   }
 }

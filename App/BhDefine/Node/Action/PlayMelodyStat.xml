@@ -10,20 +10,9 @@
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-    <PrivateConnector 
-      bhConnectorID="idPlayMelodyStat.prvCnctr0"
-      name="ensouSuru"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idPlayMelodyStat.prvNode0"
-        name="ensouSuru"
-        nodeStyleID="WordLabel2.json"
-        initString="演奏する">
-      </Node>
-    </PrivateConnector>
     
     <Connector bhConnectorID="idMelodyExpCnctr" name="Arg0"/>
+
     <PrivateConnector
       bhConnectorID="idPlayMelodyStat.prvCnctr1"
       name="Arg1"

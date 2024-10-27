@@ -6,18 +6,5 @@
 
   <ConnectorSection name="NumExpSctn">
     <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
-    
-    <PrivateConnector
-      bhConnectorID="idAbsExp.prvCnctr0"
-      name="noZettaichi"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idAbsExp.prvNode0"
-        name="noZettaichi"
-        nodeStyleID="WordLabel1.json"
-        initString="の絶対値">
-      </Node>
-    </PrivateConnector>
   </ConnectorSection>
 </Node>

@@ -25,27 +25,35 @@ import java.util.Objects;
  */
 public class SelectableItem {
   
-  /** ビューに表示されるテキスト. */
-  private String viewText;
+  /** ビューが保持するオブジェクト. */
+  private Object viewObject;
   /** モデルが保持するテキスト. */
   private String modelText;
   
   /** コンストラクタ. */
-  public SelectableItem(String modelText, String viewText) {
+  public SelectableItem(String modelText, Object viewObj) {
     this.modelText = modelText;
-    this.viewText = viewText;
+    this.viewObject = viewObj;
   }
     
   /**
-   * ビューに表示されるテキストを取得する.
+   * ビューが保持するオブジェクトを取得する.
    *
-   * @return ビューに表示されるテキスト
+   * @return ビューが保持するオブジェクト
    */
-  public String getViewText() {
-    return viewText;
+  public Object getViewObject() {
+    return viewObject;
   }
-  
-  
+
+  /**
+   * ビューが保持するオブジェクトの文字列表現を取得する.
+   *
+   * @return ビューが保持するオブジェクトの文字列表現
+   */
+  public String getViewString() {
+    return viewObject.toString();
+  }
+
   /**
    * モデルが保持するテキストを取得する.
    *
@@ -57,7 +65,7 @@ public class SelectableItem {
   
   @Override
   public String toString() {
-    return viewText;
+    return viewObject.toString();
   }
   
   @Override
@@ -73,13 +81,13 @@ public class SelectableItem {
       return modelText == null;
     }
     return Objects.equals(modelText, selectableItem.modelText)
-        && Objects.equals(viewText, selectableItem.viewText);
+        && Objects.equals(viewObject, selectableItem.viewObject);
   }
 
   @Override
   public int hashCode() {
     int hash = 5;
-    hash = 17 * hash + Objects.hashCode(this.viewText);
+    hash = 17 * hash + Objects.hashCode(this.viewObject);
     hash = 17 * hash + Objects.hashCode(this.modelText);
     return hash;
   }

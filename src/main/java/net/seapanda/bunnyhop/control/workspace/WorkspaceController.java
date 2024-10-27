@@ -97,7 +97,7 @@ public class WorkspaceController implements MsgProcessor {
       model.clearSelectedNodeList(userOpeCmd);
       BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
     }
-    ViewHelper.INSTANCE.deleteShadow(model);
+    ViewHelper.INSTANCE.removeShadow(model);
     mousePressedPos.x = mouseEvent.getX();
     mousePressedPos.y = mouseEvent.getY();
     view.showSelectionRectangle(mousePressedPos, mousePressedPos);
@@ -129,7 +129,7 @@ public class WorkspaceController implements MsgProcessor {
     var selectionRange = new QuadTreeRectangle(minX, minY, maxX, maxY, null);
     List<BhNodeView> containedNodes =
         view.searchForOverlappedNodeViews(selectionRange, true, OverlapOption.CONTAIN).stream()
-        .filter(nodeView -> nodeView.getModel().isMovable() && !nodeView.getModel().isSelected())
+        .filter(WorkspaceController::isNodeSelectable)
         .collect(Collectors.toCollection(ArrayList::new));
     // 面積の大きい順にソート
     containedNodes.sort(this::compareViewSize);
@@ -141,6 +141,11 @@ public class WorkspaceController implements MsgProcessor {
     } finally {
       ModelExclusiveControl.INSTANCE.unlockForModification();
     }
+  }
+
+  /** {@code view} が矩形選択可能かどうか調べる. */
+  private static boolean isNodeSelectable(BhNodeView view) {
+    return view.getModel().map(model -> model.isMovable() && !model.isSelected()).orElse(false);
   }
 
   private int compareViewSize(BhNodeView viewA, BhNodeView viewB) {
@@ -167,13 +172,13 @@ public class WorkspaceController implements MsgProcessor {
     LinkedList<BhNodeView> nodesToSelect = new LinkedList<>(candidates);
     while (nodesToSelect.size() != 0) {
       BhNodeView larger = nodesToSelect.pop();
-      model.addSelectedNode(larger.getModel(), userOpeCmd);  // ノード選択
+      model.addSelectedNode(larger.getModel().get(), userOpeCmd);  // ノード選択
       var iter = nodesToSelect.iterator();
       while (iter.hasNext()) {
         BhNodeView smaller = iter.next();
         // 子孫 - 先祖関係にあってかつ領域が包含関係にある -> 矩形選択の対象としない
         if (larger.getRegionManager().overlapsWith(smaller, OverlapOption.CONTAIN)
-            && smaller.getModel().isDescendantOf(larger.getModel())) {
+            && smaller.getModel().get().isDescendantOf(larger.getModel().get())) {
           iter.remove();
         }
       }

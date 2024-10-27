@@ -18,12 +18,12 @@
       "subGroup0" : {
         "space" : 2.0,
         "arrangement" : "Row",
-        "connectorList" : ["Arg0", "count"]
+        "connectorList" : ["Arg0", "${L2}{のカウントを}"]
       },
       "subGroup1" : {
         "space" : 2.0,
         "arrangement" : "Row",
-        "connectorList" : ["Arg1", "reset"]
+        "connectorList" : ["Arg1", "${L2}{にする}"]
       }
     },
 

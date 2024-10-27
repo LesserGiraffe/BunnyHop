@@ -7,34 +7,8 @@
 
   <ConnectorSection name="BoolExpSctn">
     <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
-    
-    <PrivateConnector
-      bhConnectorID="idBoolArrayGetExp.prvCnctr0"
-      name="no"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idBoolArrayGetExp.prvNode0"
-        name="no"
-        nodeStyleID="WordLabel1.json"
-        initString="の">
-      </Node>
-    </PrivateConnector>
-    
+        
     <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-    
-    <PrivateConnector
-      bhConnectorID="idBoolArrayGetExp.prvCnctr1"
-      name="banmeNoYoso"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idBoolArrayGetExp.prvNode1"
-        name="banmeNoYoso"
-        nodeStyleID="WordLabel1.json"
-        initString="番目の要素">
-      </Node>
-    </PrivateConnector>
     
     <PrivateConnector
       bhConnectorID="idBoolArrayGetExp.prvCnctr2"

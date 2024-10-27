@@ -8,32 +8,6 @@
   <ConnectorSection name="SoundExpSctn">
 
     <Connector bhConnectorID="idNumExpCnctr" name="Duration"/>
-    
-    <PrivateConnector 
-      bhConnectorID="idScaleSoundLiteral.prvCnctr0"
-      name="ByoKanNo"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idScaleSoundLiteral.prvNode0"
-        name="ByoKanNo"
-        nodeStyleID="WordLabel1.json"
-        initString="秒間の">
-      </Node>
-    </PrivateConnector>
-
-    <PrivateConnector 
-      bhConnectorID="idScaleSoundLiteral.prvCnctr1"
-      name="takasa"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idScaleSoundLiteral.prvNode1"
-        name="takasa"
-        nodeStyleID="WordLabel1.json"
-        initString="高さ">
-      </Node>
-    </PrivateConnector>
   
     <PrivateConnector
       bhConnectorID="idScaleSoundLiteral.prvCnctr2" 
@@ -45,19 +19,6 @@
         name="NumLiteral"
         nodeStyleID="WordComboBox.json"
         onTextOptionsCreating="CreateOctave.js">
-      </Node>
-    </PrivateConnector>
-    
-    <PrivateConnector 
-      bhConnectorID="idScaleSoundLiteral.prvCnctr3"
-      name="no"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idScaleSoundLiteral.prvNode3"
-        name="no"
-        nodeStyleID="WordLabel1.json"
-        initString="の">
       </Node>
     </PrivateConnector>
     

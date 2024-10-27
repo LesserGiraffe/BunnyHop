@@ -10,7 +10,6 @@
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-
     <PrivateConnector
       bhConnectorID="idLightEyeStat.prvCnctr0"
       name="Arg0"
@@ -20,40 +19,12 @@
         bhNodeID="idLightEyeStat.prvNode0"
         name="StrLiteral"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateEyeSelection.js">
-      </Node>
-    </PrivateConnector>
-    
-    <PrivateConnector 
-      bhConnectorID="idLightEyeStat.prvCnctr1"
-      name="wo"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idLightEyeStat.prvNode1"
-        name="wo"
-        nodeStyleID="WordLabel2.json"
-        nodeInputControl="Label.fxml"
-        initString="を">
+        onTextOptionsCreating="CreateEyeOps.js">
       </Node>
     </PrivateConnector>
 
     <Connector bhConnectorID="idColorExpCnctr" name="Arg1"/>
-
-    <PrivateConnector 
-      bhConnectorID="idLightEyeStat.prvCnctr2"
-      name="deHikaraseru"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idLightEyeStat.prvNode2"
-        name="deHikaraseru"
-        nodeStyleID="WordLabel2.json"
-        nodeInputControl="Label.fxml"
-        initString="で光らせる">
-      </Node>
-    </PrivateConnector>
-
+    
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>
 </Node>

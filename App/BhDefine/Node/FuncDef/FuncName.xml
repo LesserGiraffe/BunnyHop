@@ -4,7 +4,6 @@
   name="FuncName"
   nodeStyleID="Identifier.json"
   onTextChecking="CheckIdentifierFormat.js"
-    initString="機能名">
-
-    <Imitation imitationID="imitIdFuncName" imitationNodeID="idFuncName"/>
+  onTextOptionsCreating="CreateDefaultFuncName.js">
+  <Imitation imitationID="imitIdFuncName" imitationNodeID="idFuncName"/>
 </Node>

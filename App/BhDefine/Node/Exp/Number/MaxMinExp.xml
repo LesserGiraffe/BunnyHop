@@ -7,37 +7,9 @@
   <ConnectorSection name="NumExpSctn">
 
     <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
-    
-    <PrivateConnector
-      bhConnectorID="idMaxMinExp.prvCnctr0"
-      name="to"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idMaxMinExp.prvNode0"
-        name="to"
-        nodeStyleID="WordLabel1.json"
-        nodeInputControl="Label.fxml"
-        initString="と">
-      </Node>
-    </PrivateConnector>
-    
+        
     <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-    
-    <PrivateConnector 
-      bhConnectorID="idMaxMinExp.prvCnctr1"
-      name="no"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idMaxMinExp.prvNode1"
-        name="no"
-        nodeStyleID="WordLabel1.json"
-        nodeInputControl="Label.fxml"
-        initString="の">
-      </Node>
-    </PrivateConnector>
-    
+        
     <PrivateConnector
       bhConnectorID="idMaxMinExp.prvCnctr2"
       name="Option0"

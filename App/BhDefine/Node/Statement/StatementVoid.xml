@@ -3,6 +3,5 @@
     bhNodeID="idVoidStat" 
     name="VoidStat" 
     nodeStyleID="VoidStat.json"
-    initString=""
   onMovedFromChildToWS="DeleteNode.js">
 </Node>

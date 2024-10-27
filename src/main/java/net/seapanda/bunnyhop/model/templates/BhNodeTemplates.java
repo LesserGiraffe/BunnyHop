@@ -118,7 +118,7 @@ public class BhNodeTemplates {
       return false;
     }
     success &= registerDefaultNodeWithConnector();
-    success &= genCompoundNodes();
+    success &= onTemplateCompleted();
     return success;
   }
 
@@ -351,9 +351,10 @@ public class BhNodeTemplates {
   }
 
 
-  /** 複合ノードを作成する. */
-  private boolean genCompoundNodes() {
-    Script cs = BhScriptManager.INSTANCE.getCompiledScript(BhConstants.Path.GEN_COMPOUND_NODES_JS);
+  /** ノードテンプレートが完成した時の外部処理を呼ぶ. */
+  private boolean onTemplateCompleted() {
+    Script cs = BhScriptManager.INSTANCE.getCompiledScript(
+        BhConstants.Path.ON_NODE_TEMPLATE_COMPLETE_JS);
     ScriptableObject scriptScope = BhScriptManager.INSTANCE.createScriptScope();
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, new UserOperationCommand());
@@ -363,7 +364,7 @@ public class BhNodeTemplates {
       ContextFactory.getGlobal().call(cx -> cs.exec(cx, scriptScope));
     } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "eval " + BhConstants.Path.GEN_COMPOUND_NODES_JS + "\n" + e);
+          "eval " + BhConstants.Path.ON_NODE_TEMPLATE_COMPLETE_JS + "\n" + e);
       return false;
     }
     return true;

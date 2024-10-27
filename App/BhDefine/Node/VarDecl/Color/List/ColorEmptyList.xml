@@ -6,18 +6,5 @@
   onMovedFromChildToWS="OnLiteralMovedToWS.js">
 
   <!-- ColorList と共通のセクションを持たせる -->
-  <ConnectorSection name="ColorListSctn">
-    <PrivateConnector
-      bhConnectorID="idColorEmptyList.prvCnctr0"
-      name="ListSign"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idColorEmptyList.prvNode0"
-        name="ListSign"
-        nodeStyleID="WordLabel1.json"
-        initString="[...]">
-      </Node>
-    </PrivateConnector>
-  </ConnectorSection>
+  <Section name="ColorListSctn"/>
 </Node>

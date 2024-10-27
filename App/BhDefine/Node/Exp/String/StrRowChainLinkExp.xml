@@ -9,19 +9,6 @@
 
     <Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
     
-    <PrivateConnector 
-      bhConnectorID="idStrRowChainLinkExp.prvCnctr0"
-      name="StrAppendOpe"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idStrRowChainLinkExp.prvNode0"
-        name="StrAppendOpe"
-        nodeStyleID="SignLabel.json"
-        initString="＋">
-      </Node>
-    </PrivateConnector>
-    
     <PrivateConnector
       bhConnectorID="idStrRowChainLinkExp.prvCnctr1"
       name="Arg1"

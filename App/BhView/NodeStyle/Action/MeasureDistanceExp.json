@@ -15,8 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["zenpoKyori"]
+      "connectorList" : ["${L1}{障害物までの距離 (cm)}"]
     }
   }
 }
-

@@ -47,7 +47,7 @@ import org.mozilla.javascript.ScriptableObject;
 public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  private Section childSection;            //!< セクションの集合 (ノード内部に描画されるもの)
+  private Section childSection;
 
   /**
    * コンストラクタ.

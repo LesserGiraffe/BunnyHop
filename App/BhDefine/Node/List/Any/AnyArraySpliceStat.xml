@@ -13,52 +13,13 @@
   <ConnectorSection name="StatSctn">
     <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
     
-    <PrivateConnector
-      bhConnectorID="idAnyArraySpliceStat.prvCnctr0"
-      name="no"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idAnyArraySpliceStat.prvNode0"
-        name="no"
-        nodeStyleID="WordLabel1.json"
-        initString="の">
-      </Node>
-    </PrivateConnector>
-    
     <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-    
-    <PrivateConnector
-      bhConnectorID="idAnyArraySpliceStat.prvCnctr1"
-      name="banmeKara"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idAnyArraySpliceStat.prvNode1"
-        name="banmeKara"
-        nodeStyleID="WordLabel1.json"
-        initString="番目から">
-      </Node>
-    </PrivateConnector>
     
     <PrivateConnector
       bhConnectorID="idAnyArraySpliceStat.prvCnctr2"
       name="Arg2"
       defaultBhNodeID="idPositiveIntLiteralExp"
       onConnectabilityChecking="NumExpCnct.js"/>
-
-    <PrivateConnector
-      bhConnectorID="idAnyArraySpliceStat.prvCnctr3"
-      name="ko"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idAnyArraySpliceStat.prvNode3"
-        name="ko"
-        nodeStyleID="WordLabel1.json"
-        initString="個">
-      </Node>
-    </PrivateConnector>
 
     <PrivateConnector
       bhConnectorID="idAnyArraySpliceStat.prvCnctr4"
@@ -69,7 +30,7 @@
         bhNodeID="idAnyArraySpliceStat.prvNode4"
         name="Function"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateExtractOrRemove.js">
+        onTextOptionsCreating="CreateListSpliceOps.js">
       </Node>
     </PrivateConnector>
     

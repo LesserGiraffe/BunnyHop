@@ -6,19 +6,6 @@
   onSyntaxChecking="IsOutOfScope.js">
 
   <ConnectorSection name="ColorListSctn">
-    <Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
-    
-    <PrivateConnector
-      bhConnectorID="idColorList.prvCnctr0"
-      name="ListSign"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idColorList.prvNode0"
-        name="ListSign"
-        nodeStyleID="WordLabel2.json"
-        initString="[...]">
-      </Node>
-    </PrivateConnector>
+    <Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>    
   </ConnectorSection>
 </Node>

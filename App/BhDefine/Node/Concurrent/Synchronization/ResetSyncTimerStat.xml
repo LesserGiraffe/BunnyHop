@@ -10,35 +10,9 @@
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
-
-    <PrivateConnector
-      bhConnectorID="idResetSyncTimerStat.prvCnctr0"
-      name="count"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idResetSyncTimerStat.prvNode0"
-        name="count"
-        nodeStyleID="WordLabel2.json"
-        initString="のカウントを">
-      </Node>
-    </PrivateConnector>
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
 
     <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-
-    <PrivateConnector 
-      bhConnectorID="idResetSyncTimerStat.prvCnctr1"
-      name="reset"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idResetSyncTimerStat.prvNode1"
-        name="reset"
-        nodeStyleID="WordLabel2.json"
-        initString="でリセットする">
-      </Node>
-    </PrivateConnector>
 
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>

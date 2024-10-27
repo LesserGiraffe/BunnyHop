@@ -8,20 +8,7 @@
   <ConnectorSection name="StrChainLinkSctn">
 
     <Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
-    
-    <PrivateConnector 
-      bhConnectorID="idStrColumnChainLinkExp.prvCnctr0"
-      name="StrAppendOpe"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idStrColumnChainLinkExp.prvNode0"
-        name="StrAppendOpe"
-        nodeStyleID="SignLabel.json"
-        initString="＋">
-      </Node>
-    </PrivateConnector>
-    
+
     <PrivateConnector
       bhConnectorID="idStrColumnChainLinkExp.prvCnctr1"
       name="Arg1"

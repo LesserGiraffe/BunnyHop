@@ -10,48 +10,9 @@
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
-
-    <PrivateConnector
-      bhConnectorID="idSyncTimerAwaitWithTimeoutStat.prvCnctr0"
-      name="zeroNiNarumade"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSyncTimerAwaitWithTimeoutStat.prvNode0"
-        name="zeroNiNarumade"
-        nodeStyleID="WordLabel2.json"
-        initString="のカウントが 0 になるまで">
-      </Node>
-    </PrivateConnector>
-
-    <PrivateConnector
-      bhConnectorID="idSyncTimerAwaitWithTimeoutStat.prvCnctr1"
-      name="saidai"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSyncTimerAwaitWithTimeoutStat.prvNode1"
-        name="saidai"
-        nodeStyleID="WordLabel2.json"
-        initString="最大">
-      </Node>
-    </PrivateConnector>
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
 
     <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-
-    <PrivateConnector 
-      bhConnectorID="idSyncTimerAwaitWithTimeoutStat.prvCnctr2"
-      name="matsu"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSyncTimerAwaitWithTimeoutStat.prvNode2"
-        name="matsu"
-        nodeStyleID="WordLabel2.json"
-        initString="秒間待つ">
-      </Node>
-    </PrivateConnector>
 
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>

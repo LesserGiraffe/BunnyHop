@@ -13,48 +13,9 @@
   <ConnectorSection name="StatSctn">
     <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
     
-    <PrivateConnector
-      bhConnectorID="idAnyArraySetStat.prvCnctr0"
-      name="no"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idAnyArraySetStat.prvNode0"
-        name="no"
-        nodeStyleID="WordLabel1.json"
-        initString="の">
-      </Node>
-    </PrivateConnector>
-    
     <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-    
-    <PrivateConnector
-      bhConnectorID="idAnyArraySetStat.prvCnctr1"
-      name="banmeWo"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idAnyArraySetStat.prvNode1"
-        name="banmeWo"
-        nodeStyleID="WordLabel1.json"
-        initString="番目を">
-      </Node>
-    </PrivateConnector>
-    
+        
     <Connector bhConnectorID="idSameTypeOfExpCnctr" name="Arg2"/>
-    
-    <PrivateConnector
-      bhConnectorID="idAnyArraySetStat.prvCnctr2"
-      name="niKakikaeru"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idAnyArraySetStat.prvNode2"
-        name="niKakikaeru"
-        nodeStyleID="WordLabel1.json"
-        initString="に書き換える">
-      </Node>
-    </PrivateConnector>
     
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>

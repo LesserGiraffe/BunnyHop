@@ -15,8 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["mainasu", "PrimaryExp"]
+      "connectorList" : ["${L1}{マイナス}", "PrimaryExp"]
     }
   }
 }
-

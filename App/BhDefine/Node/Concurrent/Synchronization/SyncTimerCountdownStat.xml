@@ -10,20 +10,7 @@
   onCopyRequested="OnCopyRequested.js">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idSyncTimerVarCnctr" name="Arg0"/>
-
-    <PrivateConnector
-      bhConnectorID="idSyncTimerCountdownStat.prvCnctr0"
-      name="countdown"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSyncTimerCountdownStat.prvNode0"
-        name="countdown"
-        nodeStyleID="WordLabel2.json"
-        initString="のカウントを 1 減らす">
-      </Node>
-    </PrivateConnector>
+    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
     
     <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
   </ConnectorSection>
