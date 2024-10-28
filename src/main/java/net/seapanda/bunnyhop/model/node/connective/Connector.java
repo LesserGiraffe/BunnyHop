@@ -52,24 +52,20 @@ public class Connector extends SyntaxSymbol {
   private final ConnectorId id;
   /** ノードが取り外されたときに変わりに繋がるノードのID (Connector タグの bhID). */
   private BhNodeId defaultNodeId;
-  /** 最初に接続されているノードのID. */
-  public final BhNodeId initialNodeId;
-  /** 接続中のノード. null となるのは、テンプレート構築中とClone メソッドの一瞬のみ. */
+  /** 接続中のノード. */
   private BhNode connectedNode;
   /** このオブジェクトを保持する ConnectorSection オブジェクト. */
   private ConnectorSection parent;
   /** このコネクタにつながる {@link BhNode} が手動で取り外しや入れ替えができない場合 true. */
-  private boolean fixed;
+  private final boolean fixed;
   /** 外部描画ノードを接続するコネクタの場合true. */
   private boolean outer = false;
-  /** イミテーション生成時のID. */
+  /** 作成するイミテーションを特定するための ID. */
   private ImitationId imitId;
-  /** イミテーション生成時のタグ. */
-  private ImitCnctPosId imitCnctPoint;
+  /** イミテーションの接続位置の ID. */
+  private ImitCnctPosId imitCnctPos;
   /** ノードを接続可能かどうかチェックするスクリプトの名前. */
   private final String cnctCheckScriptName;
-  /** コネクタに付けられたクラス. */
-  private final String claz;
   /** スクリプト実行時のスコープ. */
   protected transient ScriptableObject scriptScope;
 
@@ -83,26 +79,19 @@ public class Connector extends SyntaxSymbol {
    *
    * @param id コネクタID (Connector タグの bhID)
    * @param defaultNodeId ノードが取り外されたときに変わりに繋がるノードのID
-   * @param initialNodeId 最初に接続されているノードのID
-   * @param claz コネクタに付けられたクラス
    * @param fixed 子ノードを固定ノードにする場合 true
    * @param cnctCheckScriptName ノードを入れ替え可能かどうかチェックするスクリプトの名前
    */
   public Connector(
       ConnectorId id,
       BhNodeId defaultNodeId,
-      BhNodeId initialNodeId,
-      String claz,
       boolean fixed,
       String cnctCheckScriptName) {
-
     super("");
     this.id = id;
     this.cnctCheckScriptName = cnctCheckScriptName;
     this.defaultNodeId = defaultNodeId;
-    this.initialNodeId = initialNodeId;  // BhNodeID.NONE でも initNodeID = defaultNodeID としないこと
     this.fixed = fixed;
-    this.claz = claz;
   }
 
   /**
@@ -122,7 +111,6 @@ public class Connector extends SyntaxSymbol {
       Connector org,
       String name,
       BhNodeId defaultNodeId,
-      BhNodeId initialNodeId,
       boolean fixed,
       ImitationId imitId,
       ImitCnctPosId imitCnctPoint,
@@ -131,12 +119,10 @@ public class Connector extends SyntaxSymbol {
     this.fixed =  fixed;
     id = org.id;
     this.defaultNodeId = defaultNodeId;
-    this.initialNodeId = initialNodeId;
     cnctCheckScriptName = org.cnctCheckScriptName;
     this.imitId = imitId;
-    this.imitCnctPoint = imitCnctPoint;
+    this.imitCnctPos = imitCnctPoint;
     this.parent = parent;
-    this.claz = org.claz;
   }
 
   /**
@@ -158,7 +144,6 @@ public class Connector extends SyntaxSymbol {
         this,
         params.name(),
         defaultNodeId,
-        initialNodeId,
         fixed,
         params.imitationId(),
         params.imitCnctPoint(),
@@ -167,12 +152,8 @@ public class Connector extends SyntaxSymbol {
     if (isNodeToBeCopied.test(connectedNode)) {
       newNode = connectedNode.copy(userOpeCmd, isNodeToBeCopied);
     } else {
-      // コピー対象のノードでない場合, 初期ノードもしくはデフォルトノードを新規作成して接続する
-      BhNodeId nodeId = initialNodeId.equals(BhNodeId.NONE) ? defaultNodeId : initialNodeId;
-      newNode = BhNodeTemplates.INSTANCE.genBhNode(nodeId, userOpeCmd);
-    }
-    if (newNode.getId().equals(defaultNodeId) && !defaultNodeId.equals(initialNodeId)) {
-      newNode.setDefault(true);
+      // コピー対象のノードでない場合, デフォルトノードを新規作成して接続する
+      newNode = BhNodeTemplates.INSTANCE.genBhNode(defaultNodeId, userOpeCmd);
     }
     newConnector.connectNode(newNode, null);
     return newConnector;
@@ -225,11 +206,6 @@ public class Connector extends SyntaxSymbol {
   public boolean isFixed() {
     return fixed;
   }
-
-  /** 固定コネクタの設定を変更する. */
-  public void setFixed(boolean isFixed) {
-    fixed = isFixed;
-  }
   
   /**
    * 引数で指定したノードがこのコネクタに接続可能か調べる.
@@ -276,18 +252,12 @@ public class Connector extends SyntaxSymbol {
     BhNode newNode = BhNodeTemplates.INSTANCE.genBhNode(defaultNodeId, userOpeCmd);
     NodeMvcBuilder.build(newNode); //MVC構築
     TextImitationPrompter.prompt(newNode);
-    newNode.setDefault(true);
     connectedNode.replace(newNode, userOpeCmd);
     return newNode;
   }
 
   public ConnectorId getId() {
     return id;
-  }
-
-  /** コネクタクラスを取得する. */
-  public String getClaz() {
-    return claz;
   }
 
   /**
@@ -315,7 +285,7 @@ public class Connector extends SyntaxSymbol {
   }
 
   /**
-   * イミテーション作成時のIDを取得する.
+   * 作成するイミテーションを特定するための ID を取得する.
    *
    * @return イミテーション作成時のID
    */
@@ -334,8 +304,8 @@ public class Connector extends SyntaxSymbol {
    *
    * @return イミテーション接続位置の識別子
    */
-  public ImitCnctPosId getImitCnctPoint() {
-    return imitCnctPoint;
+  public ImitCnctPosId getImitCnctPos() {
+    return imitCnctPos;
   }
 
   /**
@@ -363,9 +333,6 @@ public class Connector extends SyntaxSymbol {
    */
   public void setDefaultNodeId(BhNodeId nodeId) {
     Objects.requireNonNull(nodeId);
-    if (connectedNode != null && connectedNode.getId().equals(nodeId)) {
-      connectedNode.setDefault(true);
-    }
     defaultNodeId = nodeId;
   }
 

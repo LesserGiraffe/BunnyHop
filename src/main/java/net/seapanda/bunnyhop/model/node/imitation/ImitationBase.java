@@ -40,9 +40,9 @@ public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatab
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** イミテーションタグとそれに対応するイミテーションノードIDのマップ. */
   private final Map<ImitationId, BhNodeId> imitIdToImitNodeId;
-  /** このオブジェクトを持つノードから作成されたイミテーションノードの集合. */
+  /** このオブジェクトが持つイミテーションノードの集合. */
   private final List<T> imitNodeList;
-  /** このオブジェクトを持つノードがイミテーションノードの場合、そのオリジナルノードを保持する. */
+  /** このノードがイミテーションノードの場合、そのオリジナルノードを保持する. */
   private T orgNode;
 
   /** サブタイプのインスタンスを返す. */

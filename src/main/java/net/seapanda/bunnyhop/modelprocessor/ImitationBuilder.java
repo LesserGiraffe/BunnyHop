@@ -104,7 +104,7 @@ public class ImitationBuilder implements BhModelProcessor {
       Imitatable parentImit = parentImitStack.peekLast();
       //接続先を探す
       BhNode oldImit =
-          ImitTaggedChildFinder.find(parentImit, node.getParentConnector().getImitCnctPoint());
+          ImitTaggedChildFinder.find(parentImit, node.getParentConnector().getImitCnctPos());
       if (oldImit != null) {
         ConnectiveNode newImit = node.createImitNode(imitId, userOpeCmd);
         oldImit.replace(newImit, userOpeCmd);
@@ -139,7 +139,7 @@ public class ImitationBuilder implements BhModelProcessor {
       Imitatable parentImit = parentImitStack.peekLast();
       //接続先を探す
       BhNode oldImit =
-          ImitTaggedChildFinder.find(parentImit, node.getParentConnector().getImitCnctPoint());
+          ImitTaggedChildFinder.find(parentImit, node.getParentConnector().getImitCnctPos());
       if (oldImit != null) {
         TextNode newImit = node.createImitNode(imitId, userOpeCmd);
         oldImit.replace(newImit, userOpeCmd);

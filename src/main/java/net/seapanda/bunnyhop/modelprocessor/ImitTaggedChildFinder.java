@@ -83,7 +83,7 @@ public class ImitTaggedChildFinder implements BhModelProcessor {
     if (found) {
       return;
     }
-    if (connector.getImitCnctPoint().equals(imitCnctPosId)) {
+    if (connector.getImitCnctPos().equals(imitCnctPosId)) {
       foundNode = connector.getConnectedNode();
       found = true;
     }

@@ -65,10 +65,7 @@ public class ProjectSaveData implements Serializable {
     BhNodeHandler.INSTANCE.deleteNodes(imitToDelete, new UserOperationCommand());
 
     workspaceSaveList = workspaceList.stream()
-      .map(workspace -> {
-        WorkspaceSaveData wsSaveData = this.new WorkspaceSaveData(workspace);
-        return wsSaveData;
-      })
+      .map(workspace -> this.new WorkspaceSaveData(workspace))
       .collect(Collectors.toCollection(ArrayList::new));
   }
 

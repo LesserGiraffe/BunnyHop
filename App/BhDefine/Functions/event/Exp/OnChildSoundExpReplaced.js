@@ -11,7 +11,8 @@
   
     // 新メロディノード作成
     let posOnWS = bhMsgService.getPosOnWs(bhThis);
-    let newMelodyExp = bhCommon.addNewNodeToWS('idMelodyExp', bhThis.getWorkspace(), posOnWS, bhNodeHandler, bhNodeTemplates, bhUserOpeCmd);
+    let newMelodyExp = bhCommon.addNewNodeToWS(
+      'idMelodyExp', bhThis.getWorkspace(), posOnWS, bhNodeHandler, bhNodeTemplates, bhUserOpeCmd);
     bhNodeHandler.exchangeNodes(nextMelodyExp, newMelodyExp, bhUserOpeCmd);
     
     // 新ノードの末尾に旧ノードを追加

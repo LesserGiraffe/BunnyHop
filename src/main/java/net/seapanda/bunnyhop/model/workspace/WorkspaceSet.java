@@ -70,9 +70,12 @@ public class WorkspaceSet implements MsgReceptionWindow {
   private final ObservableList<BhNode> readyToCopy = FXCollections.observableArrayList();
   /** カット予定のノード. */
   private final ObservableList<BhNode> readyToCut = FXCollections.observableArrayList();
-  private final List<Workspace> workspaceList = new ArrayList<>();  //!< 全てのワークスペースのリスト
-  private MsgProcessor msgProcessor;  //!< このオブジェクト宛てに送られたメッセージを処理するオブジェクト
-  private int pastePosOffsetCount = -2; //!< ノードの貼り付け位置をずらすためのカウンタ
+  /** 全てのワークスペース. */
+  private final List<Workspace> workspaceList = new ArrayList<>();
+  /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
+  private MsgProcessor msgProcessor;
+  /** ノードの貼り付け位置をずらすためのカウンタ. */
+  private int pastePosOffsetCount = -2;
   private Workspace currentWorkspace;
   /**
    * key : コピー予定ノードのリストに変化がった時のイベントハンドラ.
@@ -382,13 +385,13 @@ public class WorkspaceSet implements MsgReceptionWindow {
   /**
    * ファイルからワークスペースをロードし追加する.
    *
-   * @param loaded ロードファイル
+   * @param saveFile ロードするファイル
    * @param isOldWsCleared ロード方法を確認する関数
    * @return ロードに成功した場合true
    */
-  public boolean load(File loaded, Boolean isOldWsCleared) {
+  public boolean load(File saveFile, Boolean isOldWsCleared) {
     ModelExclusiveControl.INSTANCE.lockForRead();
-    try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(loaded));) {
+    try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(saveFile));) {
       ProjectSaveData loadData = (ProjectSaveData) inputStream.readObject();
       UserOperationCommand userOpeCmd = new UserOperationCommand();
       if (isOldWsCleared) {

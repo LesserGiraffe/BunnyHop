@@ -242,10 +242,6 @@ public class BhNodeTemplates {
   private Optional<BhNode> getDefaultNode(Connector connector) {
     BhNodeId defNodeId = connector.getDefaultNodeId();
     Optional<BhNode> defNode = getBhNodeTemplate(defNodeId);
-    BhNodeId initNodeId = connector.initialNodeId;
-    Optional<BhNode> initNode =
-        initNodeId.equals(BhNodeId.NONE) ? defNode : getBhNodeTemplate(initNodeId);
-
     //ノードテンプレートが見つからない
     if (defNode.isEmpty()) {
       MsgPrinter.INSTANCE.errMsgForDebug(
@@ -255,15 +251,7 @@ public class BhNodeTemplates {
           + BhConstants.BhModelDef.ELEM_NODE + " の定義が見つかりません.");
       return Optional.empty();
     }
-    if (initNode.isEmpty()) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
-          + BhConstants.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID + " (" + initNodeId + ") " + "と一致する "
-          + BhConstants.BhModelDef.ATTR_BH_NODE_ID + " を持つ "
-          + BhConstants.BhModelDef.ELEM_NODE + " の定義が見つかりません.");
-      return Optional.empty();
-    }
-    return initNode;
+    return defNode;
   }
 
   /**

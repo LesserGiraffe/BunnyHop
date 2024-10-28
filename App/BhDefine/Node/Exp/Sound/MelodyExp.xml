@@ -11,14 +11,12 @@
       bhConnectorID="idMelodyExp.prvCnctr0"
       name="Arg0"
       defaultBhNodeID="idSoundLiteralVoid"
-      initialBhNodeID=""
-      class="SoundClass"
       onConnectabilityChecking="SoundExpCnct.js"/>
 
     <PrivateConnector 
       bhConnectorID="idMelodyExp.prvCnctr1"
       name="Arg1"
       fixed="true"
-      initialBhNodeID="idMelodyExpVoid"/>
+      defaultBhNodeID="idMelodyExpVoid"/>
   </ConnectorSection>
 </Node>

@@ -90,36 +90,24 @@ public class ConnectorConstructor {
     }
     // 固定ノードフラグ
     boolean fixed = fixedStr.equals(BhConstants.BhModelDef.ATTR_VAL_TRUE);
-    // 初期接続ノードID
-    BhNodeId initNodeId = BhNodeId.create(
-        cnctrRoot.getAttribute(BhConstants.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID));
     // デフォルトノードID
     BhNodeId defNodeId = BhNodeId.create(
         cnctrRoot.getAttribute(BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID));
-    boolean hasFixedInitNode = fixed && !initNodeId.equals(BhNodeId.NONE);
-    // 初期ノードが固定ノードである => 初期ノードがデフォルトノードとなる
-    if (hasFixedInitNode) {
-      defNodeId = initNodeId;
-    // 初期ノードが固定ノードではないのに, デフォルトノードの指定がない
-    } else if (defNodeId.equals(BhNodeId.NONE)) {
+    // デフォルトノードの指定がない
+    if (defNodeId.equals(BhNodeId.NONE)) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "固定初期ノードを持たない "
-          + "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + "> および "
+          "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + "> および "
           + "<" + BhConstants.BhModelDef.ELEM_PRIVATE_CONNECTOR + "> タグは"
           + BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID + " 属性か, "
           + BhConstants.BhModelDef.ATTR_ON_DEFAULT_BH_NODE_SELECTING + " 属性を持たなければなりません.  "
           + cnctrRoot.getBaseURI());
       return Optional.empty();
     }
-    // コネクタクラス
-    String cnctrClass = cnctrRoot.getAttribute(BhConstants.BhModelDef.ATTR_CLASS);
 
     return Optional.of(
         new Connector(
             cnctrId,
             defNodeId,
-            initNodeId,
-            cnctrClass,
             fixed,
             cnctCheckScriptName));
   }

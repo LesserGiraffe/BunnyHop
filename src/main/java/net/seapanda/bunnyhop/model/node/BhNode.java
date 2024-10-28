@@ -64,9 +64,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
   private Map<BhNodeEvent, String> eventToScriptName = new HashMap<>();
   private BhNodeEventDispatcher dispatcher = new BhNodeEventDispatcher(this);
   /** 最後にこのノードと入れ替わったノード. */
-  private BhNode lastReplaced;
-  /** デフォルトノードである場合true. */
-  private boolean isDefault = false;
+  private transient BhNode lastReplaced;
   /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
   private transient MsgProcessor msgProcessor;
 
@@ -160,7 +158,6 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
     workspace = null;
     eventToScriptName = new HashMap<>(org.eventToScriptName);
     lastReplaced = null;
-    isDefault = org.isDefault;
   }
 
   public BhNodeId getId() {
@@ -350,10 +347,14 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
   /**
    * このノードがデフォルトノードかどうか調べる.
    *
-   * @return このノードがデフォルトノードの場合true
+   * @return このノードがデフォルトノードの場合 true
    */
   public boolean isDefault() {
-    return isDefault;
+    var cnctr = getParentConnector();
+    if (cnctr == null) {
+      return false;
+    }
+    return cnctr.getDefaultNodeId().equals(bhId);
   }
 
   /**
@@ -366,15 +367,6 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
       return false;
     }
     return parentConnector.isOuter();
-  }
-
-  /**
-   * デフォルトノードかどうかを設定する.
-   *
-   * @param isDefault デフォルトノードの場合 true
-   */
-  public void setDefault(boolean isDefault) {
-    this.isDefault = isDefault;
   }
 
   /**

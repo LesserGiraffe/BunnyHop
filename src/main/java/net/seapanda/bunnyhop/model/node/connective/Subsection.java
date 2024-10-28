@@ -36,7 +36,6 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
 public class Subsection extends Section {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  /** サブグループリスト. */
   List<Section> subsectionList = new ArrayList<>();
 
   /**

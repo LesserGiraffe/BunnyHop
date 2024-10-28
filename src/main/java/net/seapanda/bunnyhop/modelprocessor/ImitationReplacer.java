@@ -68,7 +68,7 @@ public class ImitationReplacer implements BhModelProcessor {
   @Override
   public void visit(ConnectiveNode newOriginal) {
     ImitationId imitId = newOriginal.getParentConnector().findImitationId();
-    ImitCnctPosId imitCnctPosId = newOriginal.getParentConnector().getImitCnctPoint();
+    ImitCnctPosId imitCnctPosId = newOriginal.getParentConnector().getImitCnctPos();
     //子オリジナルノードに対応するイミテーションがある場合
     if (newOriginal.imitationNodeExists(imitId)) {
       //オリジナルの親ノードが持つイミテーションの数だけ, 新たにイミテーションを作成して繋ぐ(入れ替える)
@@ -83,7 +83,7 @@ public class ImitationReplacer implements BhModelProcessor {
   @Override
   public void visit(TextNode newOriginal) {
     ImitationId imitId = newOriginal.getParentConnector().findImitationId();
-    ImitCnctPosId imitCnctPosId = newOriginal.getParentConnector().getImitCnctPoint();
+    ImitCnctPosId imitCnctPosId = newOriginal.getParentConnector().getImitCnctPos();
     //子オリジナルノードに対応するイミテーションがある場合
     if (newOriginal.imitationNodeExists(imitId)) {
       //オリジナルの親ノードが持つイミテーションの数だけ, 新たにイミテーションを作成して繋ぐ(入れ替える)

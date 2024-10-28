@@ -1,5 +1,4 @@
 <Connector 
   bhConnectorID="idNumExpCnctr"
   defaultBhNodeID="idNumLiteralExp"
-  class="NumClass"
   onConnectabilityChecking="NumExpCnct.js"/>

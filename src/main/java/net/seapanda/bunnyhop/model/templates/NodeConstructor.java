@@ -384,8 +384,9 @@ public class NodeConstructor {
    *
    * @return プライベートコネクタとコネクタインスタンス化時のパラメータのペア
    */
-  private Optional<Pair<Connector, ConnectorInstantiationParams>> genPrivateConnector(
-      Element connectorTag) {
+  private Optional<Pair<Connector, ConnectorInstantiationParams>>
+      genPrivateConnector(Element connectorTag) {
+
     List<Element> privateNodeTagList = BhNodeTemplates.getElementsByTagNameFromChild(
         connectorTag, BhConstants.BhModelDef.ELEM_NODE);
     if (privateNodeTagList.size() >= 2) {
@@ -400,19 +401,18 @@ public class NodeConstructor {
     if (privateNodeTagList.size() == 1) {
       Optional<? extends BhNode> privateNode = genPirvateNode(privateNodeTagList.get(0));
       if (privateNode.isPresent()
-          && !connectorTag.hasAttribute(BhConstants.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID)) {
+          && !connectorTag.hasAttribute(BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID)) {
         connectorTag.setAttribute(
-            BhConstants.BhModelDef.ATTR_NAME_INITIAL_BHNODE_ID,
+            BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID,
             privateNode.get().getId().toString());
       }
     }
 
-    Optional<Connector> privateCnctrOpt = new ConnectorConstructor().genTemplate(connectorTag);
+    Optional<Connector> privateCnctr = new ConnectorConstructor().genTemplate(connectorTag);
     //コネクタテンプレートリストに登録
-    privateCnctrOpt.ifPresent(
-        privateCnctr -> registerCnctrTemplate.accept(privateCnctr.getId(), privateCnctr));
-    return privateCnctrOpt.map(
-        privateCnctr -> new Pair<>(privateCnctr, genConnectorInstParams(connectorTag)));
+    privateCnctr.ifPresent(cnctr -> registerCnctrTemplate.accept(cnctr.getId(), cnctr));
+    return privateCnctr.map(
+        cnctr -> new Pair<>(cnctr, genConnectorInstParams(connectorTag)));
   }
 
   /**
@@ -452,7 +452,8 @@ public class NodeConstructor {
     Optional<? extends BhNode> privateNodeOpt = constructor.genTemplate(nodeTag);
     if (privateNodeOpt.isEmpty()) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "プライベートノード(<" +  BhConstants.BhModelDef.ELEM_PRIVATE_CONNECTOR + "> タグの下に定義されたノード) エラー.\n"
+          "プライベートノード(<" +  BhConstants.BhModelDef.ELEM_PRIVATE_CONNECTOR 
+          + "> タグの下に定義されたノード) エラー.\n"
           + nodeTag.getBaseURI());
     }
     privateNodeOpt.ifPresent(

@@ -139,8 +139,6 @@ public class BhConstants {
     public static final String ATTR_BH_NODE_ID = "bhNodeID";
     public static final String ATTR_BH_CONNECTOR_ID = "bhConnectorID";
     public static final String ATTR_DEFAULT_BHNODE_ID = "defaultBhNodeID";
-    public static final String ATTR_NAME_INITIAL_BHNODE_ID = "initialBhNodeID";
-    public static final String ATTR_CLASS = "class";
     public static final String ATTR_TYPE = "type";
     public static final String ATTR_NAME = "name";
     public static final String ATTR_FIXED = "fixed";

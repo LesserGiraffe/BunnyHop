@@ -13,7 +13,7 @@
       bhConnectorID="idStrColumnChainLinkExp.prvCnctr1"
       name="Arg1"
       fixed="true"
-      initialBhNodeID="idStrChainLinkVoid"/>
+      defaultBhNodeID="idStrChainLinkVoid"/>
 
   </ConnectorSection>
 </Node>

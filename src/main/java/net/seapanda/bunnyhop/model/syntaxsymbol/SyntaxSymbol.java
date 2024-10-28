@@ -35,7 +35,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** 終端, 非終端記号名. */
   private final String symbolName;
-  /** SyntaxSymbolオブジェクトが持つID. */
+  /** {@link SyntaxSymbol} オブジェクトを識別する ID. */
   private SyntaxSymbolId symbolId = SyntaxSymbolId.newId();
 
   /**
