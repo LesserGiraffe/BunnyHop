@@ -1,7 +1,7 @@
 <Node
-    type="text"
-    bhNodeID="idVoidStat" 
-    name="VoidStat" 
-    nodeStyleID="VoidStat.json"
-  onMovedFromChildToWS="DeleteNode.js">
-</Node>
+  type="text"
+  bhNodeID="idVoidStat" 
+  name="VoidStat" 
+  nodeStyleID="VoidStat.json"
+  onMovedFromChildToWS="DeleteNode.js"
+  version="bh-1.0"/>

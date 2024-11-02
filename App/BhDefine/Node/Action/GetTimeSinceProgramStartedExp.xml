@@ -2,7 +2,8 @@
   type="connective"
   bhNodeID="idGetTimeSinceProgramStartedExp"
   name="GetTimeSinceProgramStartedExp"
-  nodeStyleID="GetTimeSinceProgramStartedExp.json">
+  nodeStyleID="GetTimeSinceProgramStartedExp.json"
+  version="bh-1.0">
 
   <Section name="NumExpSctn"/>
 </Node>

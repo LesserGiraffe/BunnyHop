@@ -3,10 +3,14 @@
   bhNodeID="idBoolVar"
   name="BoolVar"
   nodeStyleID="BoolVar.json"
-  onSyntaxChecking="IsOutOfScope.js">
+  onSyntaxChecking="IsOutOfScope.js"
+  version="bh-1.0">
 
   <ConnectorSection name="BoolExpSctn">
-    <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
+    <Connector
+      bhConnectorID="idBoolVar.cnctr0"
+      import="idVarNameCnctr"
+      name="VarName"
+      imitCnctPos="imitPosVarName"/>
   </ConnectorSection>
-
 </Node>

@@ -3,11 +3,20 @@
   bhNodeID="idFreqSoundLiteral"
   name="FreqSoundLiteral"
   nodeStyleID="FreqSoundLiteral.json"
-  onMovedFromChildToWS="OnLiteralMovedToWS.js">
+  onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  version="bh-1.0">
   
   <ConnectorSection name="SoundExpSctn">
-    <Connector bhConnectorID="idNumExpCnctr" name="Duration"/>
     
-    <Connector bhConnectorID="idNumExpCnctr" name="Frequency"/>
+    <Connector
+      bhConnectorID="idFreqSoundLiteral.cnctr0"
+      import="idNumExpCnctr"
+      name="Duration"/>
+    
+    <Connector
+      bhConnectorID="idFreqSoundLiteral.cnctr1"
+      import="idNumExpCnctr"
+      name="Frequency"/>
+
   </ConnectorSection>
 </Node>

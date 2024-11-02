@@ -2,7 +2,8 @@
   type="connective"
   bhNodeID="idDetectColorExp"
   name="DetectColorExp"
-  nodeStyleID="DetectColorExp.json">
+  nodeStyleID="DetectColorExp.json"
+  version="bh-1.0">
 
   <Section name="ColorExpSctn"/>
 

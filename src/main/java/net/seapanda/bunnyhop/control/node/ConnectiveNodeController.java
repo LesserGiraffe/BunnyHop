@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.control.node;
 
-import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.view.node.ConnectiveNodeView;
 
 /**

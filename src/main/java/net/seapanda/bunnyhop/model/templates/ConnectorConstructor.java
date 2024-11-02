@@ -19,108 +19,139 @@ package net.seapanda.bunnyhop.model.templates;
 import java.util.Optional;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-import net.seapanda.bunnyhop.model.node.connective.Connector;
-import net.seapanda.bunnyhop.model.node.connective.ConnectorId;
-import org.w3c.dom.Document;
+import net.seapanda.bunnyhop.model.node.attribute.ConnectorAttributes;
+import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
+import net.seapanda.bunnyhop.model.node.attribute.ConnectorParamSetId;
+import net.seapanda.bunnyhop.model.node.attribute.ImitCnctPosId;
+import net.seapanda.bunnyhop.model.node.attribute.ImitationId;
 import org.w3c.dom.Element;
 
 /**
- * {@link Connector} が定義された xml の Connector タグ以下の情報から {@link Connector} を作成する.
+ * {@link Connector} が定義された xml の Connector エレメント以下の情報から {@link Connector} を作成する.
  *
  * @author K.Koike
  */
 public class ConnectorConstructor {
-
-  /** コンストラクタ. */
-  public ConnectorConstructor() {}
+  
+  private final Element elem;
 
   /**
-   * コネクタテンプレートを作成する.
+   * コンストラクタ.
    *
-   * @param doc テンプレートを作成するxml の Document オブジェクト
-   * @return 作成したコネクタオブジェクト
+   * @param elem ConnectorParameterSet もしくは Connector エレメント.
    */
-  public Optional<Connector> genTemplate(Document doc) {
-    //ルートタグチェック
-    Element root = doc.getDocumentElement();
-    if (!root.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR)) {
+  public ConnectorConstructor(Element elem) {
+    this.elem = elem;
+  }
+
+  /** このオブジェクトが持つエレメントがコネクタパラメータセットであるか調べる. */
+  public boolean isParamSet() {
+    return elem.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR_PARAM_SET);
+  }
+
+  /** このオブジェクトが持つエレメントがコネクタであるか調べる. */
+  public boolean isConnector() {
+    return elem.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR);
+  }
+
+  /** コネクタパラメータセットを作成する. */
+  public Optional<ConnectorAttributes> genParamSet() {
+    //ルートエレメントチェック
+    if (!elem.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR_PARAM_SET)) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "コネクタ定義のルート要素は " + BhConstants.BhModelDef.ELEM_CONNECTOR 
-          + " で始めてください.  " + doc.getBaseURI());
+          "Invalid connector parameter set definition (" + elem.getNodeName() + ")\n"
+          + "A connector parameter set definition must have a '"
+          + BhConstants.BhModelDef.ELEM_CONNECTOR_PARAM_SET + "' root element.\n"
+          + elem.getBaseURI());
       return Optional.empty();
     }
-    return genTemplate(root);
+    return Optional.of(ConnectorAttributes.of(elem));
   }
 
   /**
-   * コネクタテンプレートを作成する.
+   * コネクタのを作成する.
    *
-   * @param cnctrRoot Connector タグの要素.
    * @return 作成したコネクタオブジェクト
    */
-  public Optional<Connector> genTemplate(Element cnctrRoot) {
-    //コネクタID
-    ConnectorId cnctrId = ConnectorId.createCnctrId(
-        cnctrRoot.getAttribute(BhConstants.BhModelDef.ATTR_BH_CONNECTOR_ID));
-    if (cnctrId.equals(ConnectorId.NONE)) {
+  public Optional<Connector> genConnector() {
+    // ルートエレメントチェック
+    if (!elem.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR)) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + ">" + " タグには "
-          + BhConstants.BhModelDef.ATTR_BH_CONNECTOR_ID + " 属性を付加してください.  "
-          + cnctrRoot.getBaseURI());
+          "Invalid connector definition (" + elem.getNodeName() + ")\n"
+          + "A connector definition must have a '"
+          + BhConstants.BhModelDef.ELEM_CONNECTOR + "' root element.\n"
+          + elem.getBaseURI());
       return Optional.empty();
     }
 
-    // Fixed
-    String fixedStr = cnctrRoot.getAttribute(BhConstants.BhModelDef.ATTR_FIXED);
-    if (!fixedStr.isEmpty()
-        && !fixedStr.equals(BhConstants.BhModelDef.ATTR_VAL_TRUE)
-        && !fixedStr.equals(BhConstants.BhModelDef.ATTR_VAL_FALSE)) {
+    var cnctrAttrs = ConnectorAttributes.of(elem);
+    // コネクタ ID 存在チェック
+    if (cnctrAttrs.connectorId().equals(ConnectorId.NONE)) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + ">" + " タグの "
-          + BhConstants.BhModelDef.ATTR_FIXED + " 属性は, " + cnctrRoot.getBaseURI()
-          + BhConstants.BhModelDef.ATTR_VAL_TRUE + "か" + BhConstants.BhModelDef.ATTR_VAL_FALSE 
-          + "で無ければなりません.  " + cnctrRoot.getBaseURI());
+          "A '" + BhConstants.BhModelDef.ELEM_CONNECTOR + "' element must have a '"
+          + BhConstants.BhModelDef.ATTR_BH_CONNECTOR_ID + "' attribute.\n"
+          + elem.getBaseURI());
       return Optional.empty();
     }
-    // スクリプト名
-    String cnctCheckScriptName = getScriptName(cnctrRoot);
-    if (cnctCheckScriptName == null) {
+    // スクリプト存在チェック
+    if (!BhNodeTemplates.allScriptsExist(
+        elem.getBaseURI(), cnctrAttrs.onConnectabilityChecking())) {
       return Optional.empty();
     }
-    // 固定ノードフラグ
-    boolean fixed = fixedStr.equals(BhConstants.BhModelDef.ATTR_VAL_TRUE);
-    // デフォルトノードID
-    BhNodeId defNodeId = BhNodeId.create(
-        cnctrRoot.getAttribute(BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID));
-    // デフォルトノードの指定がない
-    if (defNodeId.equals(BhNodeId.NONE)) {
+    ConnectorAttributes imported =
+        BhNodeTemplates.INSTANCE.getConnectorAttributes(cnctrAttrs.imports()).orElse(cnctrAttrs);
+    // デフォルトノードの存在チェック.
+    if (imported.defaultNodeId().equals(BhNodeId.NONE)
+        && cnctrAttrs.defaultNodeId().equals(BhNodeId.NONE)) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + "> および "
-          + "<" + BhConstants.BhModelDef.ELEM_PRIVATE_CONNECTOR + "> タグは"
-          + BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID + " 属性か, "
-          + BhConstants.BhModelDef.ATTR_ON_DEFAULT_BH_NODE_SELECTING + " 属性を持たなければなりません.  "
-          + cnctrRoot.getBaseURI());
+          "A '" + BhConstants.BhModelDef.ELEM_CONNECTOR + "' element must have a '"
+          + BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID + "' attribute.\n"
+          + elem.getBaseURI());
       return Optional.empty();
     }
 
-    return Optional.of(
-        new Connector(
-            cnctrId,
-            defNodeId,
-            fixed,
-            cnctCheckScriptName));
+    return Optional.of(new Connector(buildConnectorParams(imported, cnctrAttrs)));
   }
 
-  /** スクリプト名を取得. */
-  private String getScriptName(Element cnctrRoot) {
-    // ノードを入れ替え可能かチェックするスクリプト.
-    String cnctCheckScriptName =
-        cnctrRoot.getAttribute(BhConstants.BhModelDef.ATTR_ON_CONNECTABILITY_CHECKING);
-    if (!BhNodeTemplates.allScriptsExist(cnctrRoot.getBaseURI(), cnctCheckScriptName)) {
-      return null;
+  /**
+   * コネクタパラメータセットの定義に指定されたパラメータとコネクタの定義に指定されたパラメータを合わせて, 新しくコネクタパラメータを作成する.
+   *
+   * @param imported コネクタパラメータセットの定義に指定されたパラメータ
+   * @param defined コネクタの定義に指定されたパラメータ
+   * @return {@code imported} と {@code defined} を合わせたパラメータ
+   */
+  private ConnectorAttributes buildConnectorParams(
+      ConnectorAttributes imported, ConnectorAttributes defined) {
+    var name = defined.name().isEmpty() ? imported.name() : defined.name();
+    var defaultNodeId = defined.defaultNodeId().equals(BhNodeId.NONE)
+        ? imported.defaultNodeId() : defined.defaultNodeId();
+    var imitId = defined.imitId().equals(ImitationId.NONE) ? imported.imitId() : defined.imitId();
+    var imitNodeId = defined.imitNodeId().equals(BhNodeId.NONE)
+        ? imported.imitNodeId() : defined.imitNodeId();
+    var imitCnctPosId = defined.imitCnctPosId().equals(ImitCnctPosId.NONE)
+        ? imported.imitCnctPosId() : defined.imitCnctPosId();
+    boolean fixed = false;
+    if (defined.fixed() != null) {
+      fixed = defined.fixed();
+    } else if (imported.fixed() != null) {
+      fixed = imported.fixed();
     }
-    return cnctCheckScriptName;
+    var onConnectabilityChecking = defined.onConnectabilityChecking().isEmpty()
+        ? imported.onConnectabilityChecking() : defined.onConnectabilityChecking();
+    
+    return new ConnectorAttributes(
+        defined.connectorId(),
+        name,
+        ConnectorParamSetId.NONE,
+        defaultNodeId,
+        imitId,
+        imitNodeId,
+        imitCnctPosId,
+        fixed,
+        ConnectorParamSetId.NONE,
+        onConnectabilityChecking);
   }
 
   /** コネクタで定義されるスクリプト名のセット. */

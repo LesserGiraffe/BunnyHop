@@ -36,7 +36,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
   /** 終端, 非終端記号名. */
   private final String symbolName;
   /** {@link SyntaxSymbol} オブジェクトを識別する ID. */
-  private SyntaxSymbolId symbolId = SyntaxSymbolId.newId();
+  private InstanceId instanceId = InstanceId.newId();
 
   /**
    * 引数で指定したシンボル名を持つSyntaxSymbolをgeneration(もしくはそれ以下)の世代のSyntaxSymbolから探す.
@@ -190,12 +190,12 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
   }
 
   /**
-   * シンボル ID を取得する.
+   * オブジェクト固有の ID を取得する.
    *
    * @return シンボル ID
    */
-  public SyntaxSymbolId getSymbolId() {
-    return symbolId;
+  public InstanceId getInstanceId() {
+    return instanceId;
   }
 
   /**
@@ -203,9 +203,9 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
    *
    * @return 新しく割り振られたシンボルID
    */
-  public SyntaxSymbolId renewSymbolId() {
-    symbolId = SyntaxSymbolId.newId();
-    return symbolId;
+  public InstanceId renewInstancelId() {
+    instanceId = InstanceId.newId();
+    return instanceId;
   }
 
   /** {@code visitor} にこのオブジェクトを渡す. */

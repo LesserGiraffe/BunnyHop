@@ -3,7 +3,8 @@
   bhNodeID="idBoolEmptyList"
   name="BoolEmptyList"
   nodeStyleID="BoolEmptyList.json"
-  onMovedFromChildToWS="OnLiteralMovedToWS.js">
+  onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  version="bh-1.0">
 
   <!-- BoolList と共通のセクションを持たせる -->
   <Section name="BoolListSctn"/>

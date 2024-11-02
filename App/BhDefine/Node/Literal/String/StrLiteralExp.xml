@@ -3,21 +3,24 @@
   bhNodeID="idStrLiteralExp"
   name="StrLiteralExp"
   nodeStyleID="StrLiteralExp.json"
-  onMovedFromChildToWS="OnLiteralMovedToWS.js">
+  onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StrExpSctn">
-    <PrivateConnector
-      bhConnectorID="idStrLiteralExp.prvCnctr0"
+
+    <Connector
+      bhConnectorID="idStrLiteralExp.cnctr0"
       name="Literal"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idStrLiteralExp.prvNode0"
+        bhNodeID="idStrLiteralExp.node0"
         name="StrLiteral"
         nodeStyleID="StrLiteral.json"
         onTextChecking="CheckTextFormat.js"
-        onTextOptionsCreating="CreateDefaultStrLiteral.js">
-      </Node>
-    </PrivateConnector>
+        onTextOptionsCreating="CreateDefaultStrLiteral.js"
+        version="bh-1.0"/>
+    </Connector>
+
   </ConnectorSection>
 </Node>

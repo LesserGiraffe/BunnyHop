@@ -14,12 +14,8 @@ function genAssignStat() {
   let assignStat = bhCommon.genBhNode(assignStatID, bhNodeTemplates, bhUserOpeCmd);
   let leftVar = assignStat.findSymbolInDescendants('*', 'LeftVar', '*');
   leftVar.replace(variable, bhUserOpeCmd);
-
-  let literal = bhCommon.genBhNode(
-    listDeclToLiteral[bhThis.getSymbolName()], bhNodeTemplates, bhUserOpeCmd);
-  let rightExp = assignStat.findSymbolInDescendants('*', 'RightExp', '*');
-  rightExp.replace(literal, bhUserOpeCmd);
-  literal.getParentConnector().setDefaultNodeId(literal.getId());
+  let rightExpCnctr = assignStat.findSymbolInDescendants('*', 'RightExp');
+  bhCommon.changeDefaultNode(rightExpCnctr, listDeclToLiteral[bhThis.getSymbolName()], bhUserOpeCmd);
   return assignStat;
 }
 

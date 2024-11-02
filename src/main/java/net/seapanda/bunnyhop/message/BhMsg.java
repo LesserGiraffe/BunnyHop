@@ -76,8 +76,8 @@ public enum BhMsg {
   DELETE_USER_OPE_CMD,
   /** GUIツリー上からViewを消す. */
   REMOVE_FROM_GUI_TREE,
-  /** イミテーションノードのテキストをオリジナルと一致させる. */
-  IMITATE_TEXT,
+  /** モデルとビューにテキストを設定する. */
+  SET_TEXT,
   /** ビューのテキストを取得する. */
   GET_VIEW_TEXT,
   /** WSのズーム処理. */

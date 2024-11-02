@@ -7,27 +7,38 @@
   onMovedToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StatSctn">
         
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
+    <Connector 
+      bhConnectorID="idMoveStat.cnctr0"
+      import="idNumExpCnctr"
+      name="Arg0"/>
         
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+    <Connector
+      bhConnectorID="idMoveStat.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
     
-    <PrivateConnector
-      bhConnectorID="idMoveStat.prvCnctr3"
+    <Connector
+      bhConnectorID="idMoveStat.cnctr2"
       name="Option0"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idMoveStat.prvNode3"
+        bhNodeID="idMoveStat.node2"
         name="MoveOpe"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateMoveOps.js">
+        onTextOptionsCreating="CreateMoveOps.js"
+        version="bh-1.0">
       </Node>
-    </PrivateConnector>
+    </Connector>
     
-    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+    <Connector
+      bhConnectorID="idMoveStat.cnctr3"
+      import="idStatCnctr"
+      name="NextStat"/>
   </ConnectorSection>
 </Node>

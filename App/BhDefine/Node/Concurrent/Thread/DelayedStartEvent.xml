@@ -2,25 +2,30 @@
   type="connective"
   bhNodeID="idDelayedStartEvent"
   name="DelayedStartEvent"
-  nodeStyleID="DelayedStartEvent.json">
+  nodeStyleID="DelayedStartEvent.json"
+  version="bh-1.0">
 
   <ConnectorSection name="EventSctn">
 
-    <PrivateConnector
-      bhConnectorID="idDelayedStartEvent.prvCnctr0"
+    <Connector
+      bhConnectorID="idDelayedStartEvent.cnctr0"
       name="TimeCnctr"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idDelayedStartEvent.prvNode0"
+        bhNodeID="idDelayedStartEvent.node0"
         name="DelayTime"
         nodeStyleID="FixedNumLiteral.json"
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckNumFormat.js"
-        initString="1">
-      </Node>
-    </PrivateConnector>
+        initString="1"
+        version="bh-1.0"/>
+    </Connector>
 
-    <Connector bhConnectorID="idStatCnctr" name="StatList"/>
+    <Connector
+      bhConnectorID="idDelayedStartEvent.cnctr1"
+      import="idStatCnctr"
+      name="StatList"/>
+
   </ConnectorSection>
 </Node>

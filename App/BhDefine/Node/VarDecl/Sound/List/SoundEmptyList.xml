@@ -3,7 +3,8 @@
   bhNodeID="idSoundEmptyList"
   name="SoundEmptyList"
   nodeStyleID="SoundEmptyList.json"
-  onMovedFromChildToWS="OnLiteralMovedToWS.js">
+  onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  version="bh-1.0">
 
   <!-- SoundList と共通のセクションを持たせる -->
   <Section name="SoundListSctn"/>

@@ -2,25 +2,33 @@
   type="connective"
   bhNodeID="idMaxMinExp"
   name="MaxMinExp"
-  nodeStyleID="MaxMinExp.json">
+  nodeStyleID="MaxMinExp.json"
+  version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">
 
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
+    <Connector
+      bhConnectorID="idMaxMinExp.cnctr0"
+      import="idNumExpCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idMaxMinExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
         
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-        
-    <PrivateConnector
-      bhConnectorID="idMaxMinExp.prvCnctr2"
+    <Connector
+      bhConnectorID="idMaxMinExp.cnctr2"
       name="Option0"
-        fixed="true">
+      fixed="true">
       <Node
         type="text"
-        bhNodeID="idMaxMinExp.prvNode2"
+        bhNodeID="idMaxMinExp.node2"
         name="MaxMinOpe"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateMaxMinOps.js">
-      </Node>
-    </PrivateConnector>
+        onTextOptionsCreating="CreateMaxMinOps.js"
+        version="bh-1.0"/>
+    </Connector>
+
   </ConnectorSection>
 </Node>

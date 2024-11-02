@@ -19,8 +19,8 @@ package net.seapanda.bunnyhop.modelprocessor;
 import java.util.ArrayList;
 import java.util.Collection;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
 
 /**

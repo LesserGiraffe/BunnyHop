@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.node.connective;
+package net.seapanda.bunnyhop.model.node.section;
 
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 

@@ -1,4 +1,4 @@
-<Connector
-  bhConnectorID="idBoolListCnctr"
+<ConnectorParamSet
+  paramSetID="idBoolListCnctr"
   defaultBhNodeID="idBoolEmptyList"
   onConnectabilityChecking="BoolListCnct.js"/>

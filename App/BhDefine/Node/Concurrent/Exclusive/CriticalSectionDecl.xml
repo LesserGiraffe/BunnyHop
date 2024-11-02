@@ -7,31 +7,37 @@
   onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <Imitation imitationID="imitIdCriticalSectionStat" imitationNodeID="idCriticalSectionStat"/>
 
   <ConnectorSection name="GlobalDataDeclSctn">
 
     <Connector
-      bhConnectorID="idVarNameCnctr"
+      bhConnectorID="idCriticalSectionDecl.cnctr0"
+      import="idVarNameCnctr"
       name="CriticalSectionName"
       imitationID="imitIdVarName"
       imitCnctPos="imitPosVarName"/>
 
-    <PrivateConnector
-      bhConnectorID="idCriticalSectionDecl.prvCnctr0"
+    <Connector
+      bhConnectorID="idCriticalSectionDecl.cnctr1"
       name="Arg0"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idCriticalSectionDecl.prvNode0"
+        bhNodeID="idCriticalSectionDecl.node1"
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateCriticalSectionOps.js">
+        onTextOptionsCreating="CreateCriticalSectionOps.js"
+        version="bh-1.0">
       </Node>
-    </PrivateConnector>
+    </Connector>
 
-    <Connector bhConnectorID="idGlobalDataDeclCnctr" name="NextGlobalDataDecl"/>
+    <Connector
+      bhConnectorID="idCriticalSectionDecl.cnctr2"
+      import="idGlobalDataDeclCnctr"
+      name="NextGlobalDataDecl"/>
   </ConnectorSection>
 </Node>

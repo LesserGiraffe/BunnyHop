@@ -1,4 +1,4 @@
-<Connector
-  bhConnectorID="idSoundExpCnctr"
+<ConnectorParamSet
+  paramSetID="idSoundExpCnctr"
   defaultBhNodeID="idFreqSoundLiteral"
   onConnectabilityChecking="SoundExpCnct.js"/>

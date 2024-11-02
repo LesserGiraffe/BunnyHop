@@ -2,12 +2,12 @@
 
   let BhNodeId = net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 
-  function registerNodeTemplate(bhNodeId, bhNode) {
-    bhNodeTemplates.registerNodeTemplate(BhNodeId.create(bhNodeId), bhNode);
+  function overwriteNodeTemplate(bhNodeId, bhNode) {
+    bhNodeTemplates.overwriteNodeTemplate(BhNodeId.of(bhNodeId), bhNode);
   }
 
   function genBhNode(bhNodeId) {
-    return bhNodeTemplates.genBhNode(BhNodeId.create(bhNodeId), bhUserOpeCmd);
+    return bhNodeTemplates.genBhNode(BhNodeId.of(bhNodeId), bhUserOpeCmd);
   }
 
   function connect(parentNode, childNode, cnctrPath) {
@@ -22,7 +22,7 @@
     let moveTime = newMoveStat.findSymbolInDescendants('*', 'Arg1', '*', '*', 'Literal', '*');
     moveSpeed.setText('2');
     moveTime.setText('1');
-    registerNodeTemplate('idMoveStat', newMoveStat);
+    overwriteNodeTemplate('idMoveStat', newMoveStat);
   }
 
   // 音ノードの初期値を変更して再登録
@@ -32,12 +32,12 @@
     let freq = newFreqSoundLiteral.findSymbolInDescendants('*', 'Frequency', '*', '*', 'Literal', '*');
     duration.setText('1');
     freq.setText('500');
-    registerNodeTemplate('idFreqSoundLiteral', newFreqSoundLiteral);
+    overwriteNodeTemplate('idFreqSoundLiteral', newFreqSoundLiteral);
 
     let newScaleSoundLiteral = genBhNode('idScaleSoundLiteral');
     duration = newScaleSoundLiteral.findSymbolInDescendants('*', 'Duration', '*', '*', 'Literal', '*');
     duration.setText('1');
-    registerNodeTemplate('idScaleSoundLiteral', newScaleSoundLiteral);
+    overwriteNodeTemplate('idScaleSoundLiteral', newScaleSoundLiteral);
   }
 
   // 文字入力ノードの出力メッセージを変更して再登録
@@ -45,7 +45,7 @@
     let scanExp = genBhNode('idScanExp');
     let msg = scanExp.findSymbolInDescendants('*', 'Arg0', '*', '*', 'Literal', '*');
     msg.setText('入力待ちです');
-    registerNodeTemplate('idScanExp', scanExp);
+    overwriteNodeTemplate('idScanExp', scanExp);
   }
 
   setInitialMoveSpeed();

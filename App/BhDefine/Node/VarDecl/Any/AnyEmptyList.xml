@@ -3,7 +3,8 @@
   bhNodeID="idAnyEmptyList"
   name="AnyEmptyList"
   nodeStyleID="AnyEmptyList.json"
-  onMovedFromChildToWS="OnLiteralMovedToWS.js">
+  onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  version="bh-1.0">
 
   <Section name="AnyListSctn"/>
 </Node>

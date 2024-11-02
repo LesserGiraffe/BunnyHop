@@ -7,23 +7,31 @@
   onMovedToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StatSctn">
     
-    <Connector bhConnectorID="idMelodyExpCnctr" name="Arg0"/>
+    <Connector
+      bhConnectorID="idPlayMelodyStat.cnctr0"
+      import="idMelodyExpCnctr"
+      name="Arg0"/>
 
-    <PrivateConnector
-      bhConnectorID="idPlayMelodyStat.prvCnctr1"
+    <Connector
+      bhConnectorID="idPlayMelodyStat.cnctr1"
       name="Arg1"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idPlayMelodyStat.prvNode1"
+        bhNodeID="idPlayMelodyStat.node1"
         name="BoolLiteral"
-        initString="true"/>
-    </PrivateConnector>
+        initString="true"
+        version="bh-1.0"/>
+    </Connector>
     
-    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+    <Connector
+      bhConnectorID="idPlayMelodyStat.cnctr2"
+      import="idStatCnctr"
+      name="NextStat"/>
   </ConnectorSection>
 </Node>

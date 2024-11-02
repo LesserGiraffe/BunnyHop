@@ -2,5 +2,5 @@
   type="text"
   bhNodeID="idMelodyExpVoid"
   name="MelodyExpVoid"
-  nodeStyleID="MelodyExpVoid.json">
-</Node>
+  nodeStyleID="MelodyExpVoid.json"
+  version="bh-1.0"/>

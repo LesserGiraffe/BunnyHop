@@ -136,7 +136,7 @@ public class CompileNodeCollector {
   /** 実行ノードのコピーを取得する. */
   private BhNode getCopyOfExecNode(
       NodeGraphSnapshot snapshot, BhNode nodeToExec) {
-    BhNode copyOfNodeToExec = snapshot.getMapOfSymbolIdToNode().get(nodeToExec.getSymbolId());
+    BhNode copyOfNodeToExec = snapshot.getMapOfSymbolIdToNode().get(nodeToExec.getInstanceId());
     if (copyOfNodeToExec == null) {
       String msg = " - not found the copy of the BhNode to execute in the snapshot";
       MsgPrinter.INSTANCE.msgForDebug(Util.INSTANCE.getCurrentMethodName() + msg);

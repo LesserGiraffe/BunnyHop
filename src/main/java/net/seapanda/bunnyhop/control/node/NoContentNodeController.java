@@ -46,7 +46,7 @@ public class NoContentNodeController extends BhNodeController {
   @Override
   public MsgData processMsg(BhMsg msg, MsgData data) {
     switch (msg) {
-      case IMITATE_TEXT:
+      case SET_TEXT:
         model.setText(data.strPair.v1);
         break;
 

@@ -2,24 +2,33 @@
   type="connective"
   bhNodeID="idBinaryBoolExp"
   name="BinaryBoolExp"
-  nodeStyleID="BinaryBoolExp.json">
+  nodeStyleID="BinaryBoolExp.json"
+  version="bh-1.0">
 
   <ConnectorSection name="BoolExpSctn">
-    <Connector bhConnectorID="idBoolExpCnctr" name="LeftExp"/>
     
-    <PrivateConnector
-      bhConnectorID="idBinaryBoolExp.prvCnctr0"
+    <Connector
+      bhConnectorID="idBinaryBoolExp.cnctr0"
+      import="idBoolExpCnctr"
+      name="LeftExp"/>
+    
+    <Connector
+      bhConnectorID="idBinaryBoolExp.cnctr1"
       name="Operator"
-        fixed="true">
+      fixed="true">
       <Node
-        bhNodeID="idBinaryBoolExp.prvNode0"
+        bhNodeID="idBinaryBoolExp.node1"
         type="text"
         name="BinaryBoolOpe"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateBinaryBoolOps.js">
-      </Node>
-    </PrivateConnector>
+        onTextOptionsCreating="CreateBinaryBoolOps.js"
+        version="bh-1.0"/>
+    </Connector>
     
-    <Connector bhConnectorID="idBoolExpCnctr" name="RightExp"/>
+    <Connector
+      bhConnectorID="idBinaryBoolExp.cnctr2"
+      import="idBoolExpCnctr"
+      name="RightExp"/>
+
   </ConnectorSection>
 </Node>

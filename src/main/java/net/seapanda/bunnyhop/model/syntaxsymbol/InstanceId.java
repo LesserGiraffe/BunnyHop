@@ -22,22 +22,22 @@ import java.util.concurrent.atomic.AtomicLong;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
- * {@link SyntaxSymbol} の ID.
+ * 各 {@link SyntaxSymbol} オブジェクト固有の ID.
  *
  * @author K.Koike
  */
-public class SyntaxSymbolId implements Serializable {
+public class InstanceId implements Serializable {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   private static AtomicLong sequentialID = new AtomicLong(0);
   private final String id;
 
-  static SyntaxSymbolId newId() {
+  static InstanceId newId() {
     long id = sequentialID.addAndGet(1);
-    return new SyntaxSymbolId(Long.toHexString(id));
+    return new InstanceId(Long.toHexString(id));
   }
 
-  private SyntaxSymbolId(String id) {
+  private InstanceId(String id) {
     this.id = id;
   }
 
@@ -51,13 +51,11 @@ public class SyntaxSymbolId implements Serializable {
     if (obj == null) {
       return false;
     }
-    return (getClass() == obj.getClass()) && (id.equals(((SyntaxSymbolId) obj).id));
+    return (getClass() == obj.getClass()) && (id.equals(((InstanceId) obj).id));
   }
 
   @Override
   public int hashCode() {
-    int hash = 71;
-    hash = 311 * hash + Objects.hashCode(this.id);
-    return hash;
+    return  Objects.hashCode(this.id);
   }
 }

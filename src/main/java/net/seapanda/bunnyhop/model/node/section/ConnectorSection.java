@@ -14,59 +14,63 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.node.connective;
+package net.seapanda.bunnyhop.model.node.section;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
- * サブグループとして Section の集合を持つクラス.
+ * コネクタ集合を持つグループ.
  *
  * @author K.Koike
  */
-public class Subsection extends Section {
+public class ConnectorSection extends Section {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  List<Section> subsectionList = new ArrayList<>();
+  /** コネクタリスト. */
+  private final List<Connector> cnctrList;
 
   /**
    * コンストラクタ.
    *
-   * @param symbolName 終端, 非終端記号名
-   * @param subsectionList サブセクションリスト
+   * @param symbolName  終端, 非終端記号名
+   * @param cnctrList 保持するコネクタのリスト
    */
-  public Subsection(String symbolName, Collection<Section> subsectionList) {
+  public ConnectorSection(String symbolName, List<Connector> cnctrList) {
     super(symbolName);
-    this.subsectionList.addAll(subsectionList);
+    this.cnctrList = cnctrList;
   }
 
   /**
    * コピーコンストラクタ.
    *
    * @param org コピー元オブジェクト
+   * @param parentNode このセクションを保持する ConnectiveNode オブジェクト
+   * @param parentSection このセクションを保持している Subsection オブジェクト
    */
-  private Subsection(Subsection org) {
+  private ConnectorSection(ConnectorSection org) {
     super(org);
+    cnctrList = new ArrayList<>();
   }
 
   @Override
-  public Subsection copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
-    Subsection newSubsection = new Subsection(this);
-    subsectionList.forEach(section -> {
-      Section newSection = section.copy(userOpeCmd, isNodeToBeCopied);
-      newSection.setParent(newSubsection);
-      newSubsection.subsectionList.add(newSection);
-    });
-    return newSubsection;
+  public ConnectorSection copy(
+      UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
+    var newSection = new ConnectorSection(this);
+    for (int i = 0; i < cnctrList.size(); ++i) {
+      Connector newConnector = cnctrList.get(i).copy(userOpeCmd, newSection, isNodeToBeCopied);
+      newSection.cnctrList.add(newConnector);
+    }
+    return newSection;
   }
 
   @Override
@@ -75,12 +79,21 @@ public class Subsection extends Section {
   }
 
   /**
-   * visitor をこのセクションの下のサブセクションに渡す.
+   * visitor をコネクタに渡す.
    *
-   * @param visitor サブグループに渡す visitor
+   * @param visitor コネクタに渡す visitor
    */
-  public void sendToSubsections(BhModelProcessor visitor) {
-    subsectionList.forEach(subsection -> subsection.accept(visitor));
+  public void sendToConnectors(BhModelProcessor visitor) {
+    cnctrList.forEach(connector -> connector.accept(visitor));
+  }
+
+  /**
+   * コネクタのリストを返す.
+   *
+   * @return コネクタのリスト
+   */
+  public List<Connector> getConnectorList() {
+    return cnctrList;
   }
 
   @Override
@@ -98,18 +111,17 @@ public class Subsection extends Section {
     }
 
     int childLevel = generation - 1;
-    for (Section subsection : subsectionList) {
-      subsection.findSymbolInDescendants(
+    for (Connector cnctr : cnctrList) {
+      cnctr.findSymbolInDescendants(
           Math.max(0, childLevel), toBottom, foundSymbolList, symbolNames);
     }
   }
 
   @Override
   public BhNode findOuterNode(int generation) {
-    for (int i = subsectionList.size() - 1; i >= 0; --i) {
-      BhNode outerNode = subsectionList.get(i).findOuterNode(generation);
-      if (outerNode != null) {
-        return outerNode;
+    for (int i = cnctrList.size() - 1; i >= 0; --i) {
+      if (cnctrList.get(i).isOuter()) {
+        return cnctrList.get(i).getConnectedNode().findOuterNode(Math.max(generation - 1, -1));
       }
     }
     return null;
@@ -129,8 +141,8 @@ public class Subsection extends Section {
       parentHash = parentSection.hashCode();
     }
     MsgPrinter.INSTANCE.msgForDebug(
-        indent(depth) + "<ConnectorGroup" + " name=" + getSymbolName() 
-        + "  parent=" + parentHash + "  > " + this.hashCode());
-    subsectionList.forEach((connector -> connector.show(depth + 1)));
+        indent(depth) + "<ConnectorGroup  " + "name=" + getSymbolName() 
+        + "  parenNode=" + parentHash  + "  > " + this.hashCode());
+    cnctrList.forEach(connector -> connector.show(depth + 1));
   }
 }

@@ -25,8 +25,9 @@ import java.util.Objects;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
+import net.seapanda.bunnyhop.model.node.attribute.ImitationId;
 import net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -72,7 +73,8 @@ public abstract class ImitationBase<T extends ImitationBase<T>> extends Imitatab
    * @param org コピー元オブジェクト
    * @param userOpeCmd undo 用コマンドオブジェクト
    */
-  public ImitationBase(ImitationBase<T> org, UserOperationCommand userOpeCmd) {
+  public ImitationBase(
+      ImitationBase<T> org, UserOperationCommand userOpeCmd) {
     super(org);
     imitIdToImitNodeId = org.imitIdToImitNodeId;
     imitNodeList = new ArrayList<>();  //元ノードをコピーしても、イミテーションノードとのつながりは無いようにする

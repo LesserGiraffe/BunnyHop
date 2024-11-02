@@ -2,9 +2,13 @@
   type="connective"
   bhNodeID="idScanExp"
   name="ScanExp"
-  nodeStyleID="ScanExp.json">
+  nodeStyleID="ScanExp.json"
+  version="bh-1.0">
 
   <ConnectorSection name="StrExpSctn">
-    <Connector bhConnectorID="idStrExpCnctr" name="Arg0"/>
+    <Connector
+      bhConnectorID="idScanExp.cnctr0"
+      import="idStrExpCnctr"
+      name="Arg0"/>
   </ConnectorSection>
 </Node>

@@ -2,24 +2,32 @@
   type="connective"
   bhNodeID="idBinaryColorExp"
   name="BinaryColorExp"
-  nodeStyleID="BinaryColorExp.json">
+  nodeStyleID="BinaryColorExp.json"
+  version="bh-1.0">
 
   <ConnectorSection name="ColorExpSctn">
-    <Connector bhConnectorID="idColorExpCnctr" name="Arg0"/>
+    <Connector
+      bhConnectorID="idBinaryColorExp.cnctr0"
+      import="idColorExpCnctr"
+      name="Arg0"/>
 
-    <PrivateConnector
-      bhConnectorID="idBinaryColorExp.prvCnctr0"
+    <Connector
+      bhConnectorID="idBinaryColorExp.cnctr1"
       name="Option0"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idBinaryColorExp.prvNode0"
+        bhNodeID="idBinaryColorExp.node1"
         name="StrLiteral"
         nodeStyleID="DefaultComboBox.json"
-        onTextOptionsCreating="CreateAddSubOps.js">
-      </Node>
-    </PrivateConnector>
+        onTextOptionsCreating="CreateAddSubOps.js"
+        version="bh-1.0"/>
+    </Connector>
     
-    <Connector bhConnectorID="idColorExpCnctr" name="Arg1"/>
+    <Connector
+      bhConnectorID="idBinaryColorExp.cnctr2"
+      import="idColorExpCnctr"
+      name="Arg1"/>
+
   </ConnectorSection>
 </Node>

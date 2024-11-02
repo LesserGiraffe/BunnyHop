@@ -3,19 +3,22 @@
   bhNodeID="idNewLine"
   name="NewLine"
   nodeStyleID="NewLine.json"
-  onMovedFromChildToWS="OnLiteralMovedToWS.js">
+  onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  version="bh-1.0">
 
-  <ConnectorSection name="StrExpSctn">    
-    <PrivateConnector
-      bhConnectorID="idNewLine.prvCnctr1"
+  <ConnectorSection name="StrExpSctn">
+
+    <Connector
+      bhConnectorID="idNewLine.cnctr0"
       name="Literal"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idNewLine.prvNode1"
+        bhNodeID="idNewLine.node0"
         name="LineFeed"
-        initString="('\n')">
-      </Node>
-    </PrivateConnector>
+        initString="('\n')"
+        version="bh-1.0"/>
+    </Connector>
   </ConnectorSection>
+
 </Node>

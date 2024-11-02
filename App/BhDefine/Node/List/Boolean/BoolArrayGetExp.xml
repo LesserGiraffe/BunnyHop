@@ -3,22 +3,32 @@
   bhNodeID="idBoolArrayGetExp"
   name="BoolArrayGetExp"
   nodeStyleID="BoolArrayGetExp.json"
-  onChildReplaced="OnChildOfArrayCtrlReplaced.js">
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  version="bh-1.0">
 
   <ConnectorSection name="BoolExpSctn">
-    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
-        
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
     
-    <PrivateConnector
-      bhConnectorID="idBoolArrayGetExp.prvCnctr2"
+    <Connector
+      bhConnectorID="idBoolArrayGetExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+        
+    <Connector
+      bhConnectorID="idBoolArrayGetExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+    
+    <Connector
+      bhConnectorID="idBoolArrayGetExp.cnctr2"
       name="Arg2"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idBoolArrayGetExp.prvNode2"
+        bhNodeID="idBoolArrayGetExp.node2"
         name="BoolLiteral"
-        initString="false"/>
-    </PrivateConnector>
+        initString="false"
+        version="bh-1.0"/>
+    </Connector>
+
   </ConnectorSection>
 </Node>

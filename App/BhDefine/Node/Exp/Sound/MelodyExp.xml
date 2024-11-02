@@ -3,20 +3,22 @@
   bhNodeID="idMelodyExp"
   name="MelodyExp"
   nodeStyleID="MelodyExp.json"
-  onChildReplaced="OnChildSoundExpReplaced.js">
+  onChildReplaced="OnChildSoundExpReplaced.js"
+  version="bh-1.0">
 
   <ConnectorSection name="MelodyExpSctn">
 
-    <PrivateConnector
-      bhConnectorID="idMelodyExp.prvCnctr0"
+    <Connector
+      bhConnectorID="idMelodyExp.cnctr0"
       name="Arg0"
       defaultBhNodeID="idSoundLiteralVoid"
       onConnectabilityChecking="SoundExpCnct.js"/>
 
-    <PrivateConnector 
-      bhConnectorID="idMelodyExp.prvCnctr1"
+    <Connector 
+      bhConnectorID="idMelodyExp.cnctr1"
       name="Arg1"
       fixed="true"
       defaultBhNodeID="idMelodyExpVoid"/>
+
   </ConnectorSection>
 </Node>

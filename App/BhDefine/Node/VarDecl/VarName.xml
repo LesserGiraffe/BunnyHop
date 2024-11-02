@@ -4,7 +4,8 @@
   name="VarName"
   nodeStyleID="Identifier.json"
   onTextChecking="CheckIdentifierFormat.js"
-  onTextOptionsCreating="CreateDefaultVarName.js">
+  onTextOptionsCreating="CreateDefaultVarName.js"
+  version="bh-1.0">
   
   <Imitation imitationID="imitIdVarName" imitationNodeID="idVarName"/>
 </Node>

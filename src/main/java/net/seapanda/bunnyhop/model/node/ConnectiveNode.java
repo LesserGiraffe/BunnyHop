@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.node.connective;
+package net.seapanda.bunnyhop.model.node;
 
 import java.util.List;
 import java.util.Map;
@@ -25,13 +25,13 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
-import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
+import net.seapanda.bunnyhop.model.node.attribute.ImitationId;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.model.node.imitation.ImitationBase;
-import net.seapanda.bunnyhop.model.node.imitation.ImitationId;
+import net.seapanda.bunnyhop.model.node.section.Section;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -62,7 +62,7 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
       BhNodeAttributes attributes) {
     super(attributes, imitIdToImitNodeId);
     this.childSection = childSection;
-    registerScriptName(BhNodeEvent.ON_CHILD_REPLACED, attributes.getOnChildReplaced());
+    registerScriptName(BhNodeEvent.ON_CHILD_REPLACED, attributes.onChildReplaced());
   }
 
   /**
@@ -70,12 +70,14 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
    *
    * @param org コピー元オブジェクト
    */
-  private ConnectiveNode(ConnectiveNode org, UserOperationCommand userOpeCmd) {
+  private ConnectiveNode(
+      ConnectiveNode org,
+      UserOperationCommand userOpeCmd) {
     super(org, userOpeCmd);
   }
 
   @Override
-  public ConnectiveNode copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
+  public ConnectiveNode copy(Predicate<BhNode> isNodeToBeCopied, UserOperationCommand userOpeCmd) {
     ConnectiveNode newNode = new ConnectiveNode(this, userOpeCmd);
     newNode.childSection = childSection.copy(userOpeCmd, isNodeToBeCopied);
     newNode.childSection.setParent(newNode);
@@ -172,15 +174,13 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
     //イミテーションノード作成
     BhNode imitationNode =
         BhNodeTemplates.INSTANCE.genBhNode(getImitationNodeId(imitId), userOpeCmd);
-
-    if (!(imitationNode instanceof ConnectiveNode)) {
-      throw new AssertionError("imitation node type inconsistency");
+    if (imitationNode instanceof ConnectiveNode imit) {
+      //オリジナルとイミテーションの関連付け
+      addImitation(imit, userOpeCmd);
+      imit.setOriginal(this, userOpeCmd);
+      return imit;
     }
-    //オリジナルとイミテーションの関連付け
-    ConnectiveNode connectiveImit = (ConnectiveNode) imitationNode;
-    addImitation(connectiveImit, userOpeCmd);
-    connectiveImit.setOriginal(this, userOpeCmd);
-    return connectiveImit;
+    throw new AssertionError("imitation node type inconsistency");    
   }
 
   @Override

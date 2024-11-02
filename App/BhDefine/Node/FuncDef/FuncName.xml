@@ -4,6 +4,8 @@
   name="FuncName"
   nodeStyleID="Identifier.json"
   onTextChecking="CheckIdentifierFormat.js"
-  onTextOptionsCreating="CreateDefaultFuncName.js">
+  onTextOptionsCreating="CreateDefaultFuncName.js"
+  version="bh-1.0">
+  
   <Imitation imitationID="imitIdFuncName" imitationNodeID="idFuncName"/>
 </Node>

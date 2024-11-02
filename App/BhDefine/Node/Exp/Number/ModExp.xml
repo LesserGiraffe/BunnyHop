@@ -2,23 +2,32 @@
   type="connective"
   bhNodeID="idModExp"
   name="ModExp"
-  nodeStyleID="ModExp.json">
+  nodeStyleID="ModExp.json"
+  version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">
-    <Connector bhConnectorID="idNumExpCnctr" name="LeftExp"/>
+
+    <Connector
+      bhConnectorID="idModExp.cnctr0"
+      import="idNumExpCnctr"
+      name="LeftExp"/>
     
-    <Connector bhConnectorID="idNumExpCnctr" name="RightExp"/>
-    
-    <PrivateConnector 
-      bhConnectorID="idModExp.prvCnctr2"
+    <Connector
+      bhConnectorID="idModExp.cnctr1"
+      import="idNumExpCnctr"
+      name="RightExp"/>
+
+    <Connector 
+      bhConnectorID="idModExp.cnctr2"
       name="Operator"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idModExp.prvNode2"
+        bhNodeID="idModExp.node2"
         name="ModOpe"
-        initString="mod">
-      </Node>
-    </PrivateConnector>
+        initString="mod"
+        version="bh-1.0"/>
+    </Connector>
+
   </ConnectorSection>
 </Node>

@@ -18,8 +18,9 @@ package net.seapanda.bunnyhop.model.node.imitation;
 
 import java.util.Collection;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
+import net.seapanda.bunnyhop.model.node.attribute.ImitationId;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**

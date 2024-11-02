@@ -2,9 +2,13 @@
   type="connective"
   bhNodeID="idGetSyncTimerCountExp"
   name="GetSyncTimerCountExp"
-  nodeStyleID="GetSyncTimerCountExp.json">
+  nodeStyleID="GetSyncTimerCountExp.json"
+  version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">
-    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>    
+    <Connector
+      bhConnectorID="idGetSyncTimerCountExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
   </ConnectorSection>
 </Node>

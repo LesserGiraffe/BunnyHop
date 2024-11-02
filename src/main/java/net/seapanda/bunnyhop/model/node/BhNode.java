@@ -32,18 +32,15 @@ import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
-import net.seapanda.bunnyhop.model.node.connective.Connector;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEventDispatcher;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelprocessor.ImitationReplacer;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -61,6 +58,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
   protected Connector parentConnector;
   /** このノードがあるWorkSpace. */
   protected Workspace workspace;
+  /** デフォルトノード (= コネクタからノードを取り外したときに, 代わりに繋がるノード) フラグ. */
+  private boolean isDefault = false;
   private Map<BhNodeEvent, String> eventToScriptName = new HashMap<>();
   private BhNodeEventDispatcher dispatcher = new BhNodeEventDispatcher(this);
   /** 最後にこのノードと入れ替わったノード. */
@@ -119,12 +118,24 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
   /**
    * このノード以下のノードツリーのコピーを作成する.
    *
+   * @param isNodeToBeCopied このノードの子ノードがコピーの対象かどうかを判別する関数.
+   *                         copy を呼んだノードは判定対象にならず, 必ずコピーされる.
    * @param userOpeCmd undo 用コマンドオブジェクト
-   * @param isNodeToBeCopied ノードがコピーの対象かどうかを判別する関数.
-   *                         ただし, copyを呼んだBhNodeは判定対象にならず, 必ずコピーされる.
    * @return このノード以下のノードツリーのコピー
    */
-  public abstract BhNode copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied);
+  public abstract BhNode copy(
+      Predicate<BhNode> isNodeToBeCopied,
+      UserOperationCommand userOpeCmd);
+
+  /**
+   * このノード以下のノードツリーのコピーを作成する.
+   *
+   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @return このノード以下のノードツリーのコピー
+   */
+  public BhNode copy(UserOperationCommand userOpeCmd) {
+    return copy(node -> true, userOpeCmd);
+  }
 
   /**
    * コンストラクタ.
@@ -133,17 +144,17 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
    * @param attrbute ノードの設定情報
    */
   protected BhNode(BhNodeAttributes attributes) {
-    super(attributes.getName());
-    this.bhId = attributes.getBhNodeId();
+    super(attributes.name());
+    this.bhId = attributes.bhNodeId();
     registerScriptName(
-        BhNodeEvent.ON_MOVED_FROM_CHILD_TO_WS, attributes.getOnMovedFromChildToWs());
-    registerScriptName(BhNodeEvent.ON_MOVED_TO_CHILD, attributes.getOnMovedToChild());
-    registerScriptName(BhNodeEvent.ON_DELETION_REQUESTED, attributes.getOnDeletionRequested());
-    registerScriptName(BhNodeEvent.ON_CUT_REQUESTED, attributes.getOnCutRequested());
-    registerScriptName(BhNodeEvent.ON_COPY_REQUESTED, attributes.getOnCopyRequested());
+        BhNodeEvent.ON_MOVED_FROM_CHILD_TO_WS, attributes.onMovedFromChildToWs());
+    registerScriptName(BhNodeEvent.ON_MOVED_TO_CHILD, attributes.onMovedToChild());
+    registerScriptName(BhNodeEvent.ON_DELETION_REQUESTED, attributes.onDeletionRequested());
+    registerScriptName(BhNodeEvent.ON_CUT_REQUESTED, attributes.onCutRequested());
+    registerScriptName(BhNodeEvent.ON_COPY_REQUESTED, attributes.onCopyRequested());
     registerScriptName(
-        BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING, attributes.getOnPrivateTemplateCreating());
-    registerScriptName(BhNodeEvent.ON_SYNTAX_CHECKING, attributes.getOnSyntaxChecking());
+        BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING, attributes.onPrivateTemplateCreating());
+    registerScriptName(BhNodeEvent.ON_SYNTAX_CHECKING, attributes.onSyntaxChecking());
   }
 
   /**
@@ -154,6 +165,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
   protected BhNode(BhNode org) {
     super(org);
     bhId = org.bhId;
+    isDefault = org.isDefault;
     parentConnector = null;
     workspace = null;
     eventToScriptName = new HashMap<>(org.eventToScriptName);
@@ -350,11 +362,12 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
    * @return このノードがデフォルトノードの場合 true
    */
   public boolean isDefault() {
-    var cnctr = getParentConnector();
-    if (cnctr == null) {
-      return false;
-    }
-    return cnctr.getDefaultNodeId().equals(bhId);
+    return isDefault;
+  }
+
+  /** このノードのデフォルトフラグを変更する. */
+  void setDefault(boolean isDefault) {
+    this.isDefault = isDefault;
   }
 
   /**
@@ -446,69 +459,6 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
    */
   public BhNodeEventDispatcher getEventDispatcher() {
     return dispatcher;
-  }
-
-  /**
-   * このノードをコピーする.
-   *
-   * <p> 返されるノードの MVC は構築されていない. </p>
-   *
-   * @param nodesToCopy このノードとともにコピーされるノード
-   * @param userOpeCmd undo 用コマンドオブジェクト
-   * @return 作成したコピーノード.  コピーノードを作らなかった場合 null.
-   */
-  public BhNode genCopyNode(
-      Collection<? extends BhNode> nodesToCopy, UserOperationCommand userOpeCmd) {
-    Optional<String> scriptName = getScriptName(BhNodeEvent.ON_COPY_REQUESTED);
-    Script onCopyRequested =
-        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
-    if (onCopyRequested == null) {
-      return copy(userOpeCmd, node -> true);
-    }
-    Object ret = null;
-    ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCopy);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
-    try {
-      ret = ContextFactory.getGlobal().call(cx -> onCopyRequested.exec(cx, scriptScope));
-    } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
-    }
-
-    if (ret == null) {
-      return null;
-    }
-    if (ret instanceof Function) {
-      Function copyCheckFunc = (Function) ret;
-      return copy(userOpeCmd, genCopyCheckFunc(copyCheckFunc, scriptName.get()));
-    }
-    throw new AssertionError(
-        scriptName.get() + " must return null or a function that returns a boolean value.");
-  }
-
-  /**
-   * コピー判定関数を作成する.
-   *
-   * @param copyCheckFunc 作成するコピー判定関数が呼び出す Javascript の関数
-   * @param scriptName copyCheckFunc を返したスクリプトの名前
-   * @return コピー判定関数
-   */
-  private Predicate<BhNode> genCopyCheckFunc(Function copyCheckFunc, String scriptName) {
-    Predicate<BhNode> isNodeToCopy = node -> {
-      ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
-      Object retVal = ContextFactory.getGlobal().call(cx -> 
-          ((Function) copyCheckFunc).call(cx, scriptScope, scriptScope, new Object[] {node}));
-      if (!(retVal instanceof Boolean)) {
-        String msg = scriptName + " must return null or a function that returns a boolean value.";
-        MsgPrinter.INSTANCE.errMsgForDebug(msg);
-        throw new ClassCastException();
-      }
-      return (boolean) retVal;
-    };
-    return isNodeToCopy;
   }
 
   /**

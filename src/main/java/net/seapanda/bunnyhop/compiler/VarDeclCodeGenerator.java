@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbolId;
 
 /**
  * 変数定義のコードを生成するクラス.
@@ -273,7 +273,7 @@ public class VarDeclCodeGenerator {
 
   /**
    * <pre>
-   * {@code symbol} の {@link SyntaxSymbolId} から,
+   * {@code symbol} の {@link InstanceId} から,
    * - 変数宣言対
    * - 出力引数に代入するための変数
    * を作成する.

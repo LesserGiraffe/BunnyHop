@@ -3,22 +3,32 @@
   bhNodeID="idNumArrayGetExp"
   name="NumArrayGetExp"
   nodeStyleID="NumArrayGetExp.json"
-  onChildReplaced="OnChildOfArrayCtrlReplaced.js">
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">
-    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
 
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+    <Connector
+      bhConnectorID="idNumArrayGetExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idNumArrayGetExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
     
-    <PrivateConnector
-      bhConnectorID="idNumArrayGetExp.prvCnctr2"
+    <Connector
+      bhConnectorID="idNumArrayGetExp.cnctr2"
       name="Arg2"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idNumArrayGetExp.prvNode2"
+        bhNodeID="idNumArrayGetExp.node2"
         name="NumLiteral"
-        initString="0"/>
-    </PrivateConnector>
+        initString="0"
+        version="bh-1.0"/>
+    </Connector>
+
   </ConnectorSection>
 </Node>

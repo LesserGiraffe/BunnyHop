@@ -7,13 +7,25 @@
   onMovedToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
 
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+    <Connector
+      bhConnectorID="idResetSyncTimerStat.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
 
-    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+    <Connector
+      bhConnectorID="idResetSyncTimerStat.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+
+    <Connector
+      bhConnectorID="idResetSyncTimerStat.cnctr2"
+      import="idStatCnctr"
+      name="NextStat"/>
+
   </ConnectorSection>
 </Node>

@@ -3,10 +3,14 @@
   bhNodeID="idColorVar"
   name="ColorVar"
   nodeStyleID="ColorVar.json"
-  onSyntaxChecking="IsOutOfScope.js">
+  onSyntaxChecking="IsOutOfScope.js"
+  version="bh-1.0">
 
   <ConnectorSection name="ColorExpSctn">
-    <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
+    <Connector
+      bhConnectorID="idColorVar.cnctr2"
+      import="idVarNameCnctr"
+      name="VarName"
+      imitCnctPos="imitPosVarName"/>
   </ConnectorSection>
-
 </Node>

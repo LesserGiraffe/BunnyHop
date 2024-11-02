@@ -2,7 +2,8 @@
   type="connective"
   bhNodeID="idMeasureDistanceExp"
   name="MeasureDistanceExp"
-  nodeStyleID="MeasureDistanceExp.json">
+  nodeStyleID="MeasureDistanceExp.json"
+  version="bh-1.0">
 
   <Section name="NumExpSctn"/>
 </Node>

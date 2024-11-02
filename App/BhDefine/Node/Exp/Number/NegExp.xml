@@ -2,9 +2,13 @@
   type="connective"
   bhNodeID="idNegExp"
   name="NegExp"
-  nodeStyleID="NegExp.json">
+  nodeStyleID="NegExp.json"
+  version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">
-    <Connector bhConnectorID="idNumExpCnctr" name="PrimaryExp"/>    
+    <Connector
+      bhConnectorID="idNegExp.cnctr0"
+      import="idNumExpCnctr"
+      name="PrimaryExp"/>
   </ConnectorSection>
 </Node>

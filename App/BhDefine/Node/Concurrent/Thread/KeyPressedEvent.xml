@@ -2,23 +2,28 @@
   type="connective"
   bhNodeID="idKeyPressedEvent"
   name="KeyPressedEvent"
-  nodeStyleID="KeyPressedEvent.json">
+  nodeStyleID="KeyPressedEvent.json"
+  version="bh-1.0">
 
   <ConnectorSection name="EventSctn">
 
-    <PrivateConnector
-      bhConnectorID="idKeyPressedEvent.prvCnctr0"
+    <Connector
+      bhConnectorID="idKeyPressedEvent.cnctr0"
       name="keyCodeCnctr"
-        fixed="true">
+      fixed="true">
       <Node
         type="text"
-        bhNodeID="idKeyPressedEvent.prvNode0"
+        bhNodeID="idKeyPressedEvent.node0"
         name="KeyCode"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateKeyPressedEvents.js">
-      </Node>
-    </PrivateConnector>
+        onTextOptionsCreating="CreateKeyPressedEvents.js"
+        version="bh-1.0"/>
+    </Connector>
     
-    <Connector bhConnectorID="idStatCnctr" name="StatList"/>
+    <Connector
+      bhConnectorID="idKeyPressedEvent.cnctr1"
+      import="idStatCnctr"
+      name="StatList"/>
+
   </ConnectorSection>
 </Node>

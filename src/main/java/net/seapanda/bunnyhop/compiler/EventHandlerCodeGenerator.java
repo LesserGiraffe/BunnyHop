@@ -130,7 +130,7 @@ public class EventHandlerCodeGenerator {
       int nestLevel,
       CompileOption option) {
 
-    String lockVar = Keywords.Prefix.lockVarPrefix + eventNode.getSymbolId();
+    String lockVar = Keywords.Prefix.lockVarPrefix + eventNode.getInstanceId();
     String funcName = common.genFuncName(eventNode);
     genHeaderSnippetOfEventCall(code, funcName, lockVar, nestLevel);
     // _sleep(...)

@@ -3,22 +3,32 @@
   bhNodeID="idSoundArrayGetExp"
   name="SoundArrayGetExp"
   nodeStyleID="SoundArrayGetExp.json"
-  onChildReplaced="OnChildOfArrayCtrlReplaced.js">
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  version="bh-1.0">
 
   <ConnectorSection name="SoundExpSctn">
-    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
     
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+    <Connector
+      bhConnectorID="idSoundArrayGetExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+    
+    <Connector
+      bhConnectorID="idSoundArrayGetExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
 
-    <PrivateConnector
-      bhConnectorID="idSoundArrayGetExp.prvCnctr2"
+    <Connector
+      bhConnectorID="idSoundArrayGetExp.cnctr2"
       name="Arg2"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idSoundArrayGetExp.prvNode2"
+        bhNodeID="idSoundArrayGetExp.node2"
         name="NilSound"
-        initString="_nilSound"/>
-    </PrivateConnector>
+        initString="_nilSound"
+        version="bh-1.0"/>
+    </Connector>
+
   </ConnectorSection>
 </Node>

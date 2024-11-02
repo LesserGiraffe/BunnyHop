@@ -3,25 +3,33 @@
   bhNodeID="idAnyArrayIndexOfExp"
   name="AnyArrayIndexOfExp"
   nodeStyleID="AnyArrayIndexOfExp.json"
-  onChildReplaced="OnChildOfArrayCtrlReplaced.js">
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">
-    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
+    
+    <Connector
+      bhConnectorID="idAnyArrayIndexOfExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
 
-    <PrivateConnector
-      bhConnectorID="idAnyArrayIndexOfExp.prvCnctr1"
+    <Connector
+      bhConnectorID="idAnyArrayIndexOfExp.cnctr1"
       name="Option0"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idAnyArrayIndexOfExp.prvNode1"
+        bhNodeID="idAnyArrayIndexOfExp.node1"
         name="Position"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateArrayIndexOfOps.js">
-      </Node>
-    </PrivateConnector>
+        onTextOptionsCreating="CreateArrayIndexOfOps.js"
+        version="bh-1.0"/>
+    </Connector>
 
-    <Connector bhConnectorID="idSameTypeOfExpCnctr" name="Arg1"/>
+    <Connector
+      bhConnectorID="idAnyArrayIndexOfExp.cnctr2"
+      import="idSameTypeOfExpCnctr"
+      name="Arg1"/>
     
   </ConnectorSection>
 </Node>

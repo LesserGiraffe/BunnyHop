@@ -1,12 +1,28 @@
 <Node
-    type="connective"
+  type="connective"
   bhNodeID="idBoolOutArg"
   name="BoolOutArg"
-  nodeStyleID="BoolArg.json">
+  nodeStyleID="BoolArg.json"
+  version="bh-1.0">
     
-    <ConnectorSection>
-        <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
-        <Connector bhConnectorID="idBoolVarCnctr" name="Arg"/>
-        <Connector bhConnectorID="idArgCnctr" name="NextArg" imitCnctPos="imitPosNextArg"/>
-    </ConnectorSection>    
+  <ConnectorSection>
+    
+    <Connector
+      bhConnectorID="idBoolOutArg.cnctr0"
+      import="idVarNameCnctr"
+      name="VarName"
+      imitCnctPos="imitPosVarName"/>
+
+    <Connector
+      bhConnectorID="idBoolOutArg.cnctr1"
+      import="idBoolVarCnctr"
+      name="Arg"/>
+
+    <Connector
+      bhConnectorID="idBoolOutArg.cnctr2"
+      import="idArgCnctr"
+      name="NextArg"
+      imitCnctPos="imitPosNextArg"/>
+
+  </ConnectorSection>    
 </Node>

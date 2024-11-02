@@ -1,4 +1,4 @@
-<Connector 
-  bhConnectorID="idStrListCnctr"
+<ConnectorParamSet 
+  paramSetID="idStrListCnctr"
   defaultBhNodeID="idStrEmptyList"
   onConnectabilityChecking="StrListCnct.js"/>

@@ -1,4 +1,4 @@
-<Connector
-  bhConnectorID="idMelodyExpCnctr"
+<ConnectorParamSet
+  paramSetID="idMelodyExpCnctr"
   defaultBhNodeID="idMelodyExp"
   fixed="true"/>

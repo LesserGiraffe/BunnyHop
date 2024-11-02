@@ -1,5 +1,5 @@
-<Connector 
-  bhConnectorID="idBoolVarCnctr"
+<ConnectorParamSet 
+  paramSetID="idBoolVarCnctr"
   defaultBhNodeID="idBoolVarVoid"
   onConnectabilityChecking="BoolVarCnct.js"/>
 

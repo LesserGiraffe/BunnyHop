@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbolId;
+import net.seapanda.bunnyhop.model.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
@@ -32,7 +32,7 @@ public class RuntimeErrorIndicationService {
 
   public static final RuntimeErrorIndicationService INSTANCE = new RuntimeErrorIndicationService();
   /** シンボルIDとエラーの表示対象となるノードビューのマップ. */
-  Map<SyntaxSymbolId, BhNodeView> nodeIdToNodeView;
+  Map<InstanceId, BhNodeView> nodeIdToNodeView;
 
   private RuntimeErrorIndicationService() {}
 
@@ -72,10 +72,10 @@ public class RuntimeErrorIndicationService {
    * @param nodeViewList ノードIDとエラーの表示対象となるノードビューのマップ
    */
   public synchronized void setNodeViewsForErrorIndication(Collection<BhNodeView> nodeViewList) {
-    var nodeIdToNodeView = new HashMap<SyntaxSymbolId, BhNodeView>();
+    var nodeIdToNodeView = new HashMap<InstanceId, BhNodeView>();
     nodeViewList.stream()
         .filter(view -> view.getModel().isPresent())
-        .forEach(view -> nodeIdToNodeView.put(view.getModel().get().getSymbolId(), view));
+        .forEach(view -> nodeIdToNodeView.put(view.getModel().get().getInstanceId(), view));
     this.nodeIdToNodeView = nodeIdToNodeView;
   }
 }

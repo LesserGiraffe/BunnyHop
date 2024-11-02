@@ -1,5 +1,5 @@
-<Connector 
-  bhConnectorID="idSoundVarCnctr"
+<ConnectorParamSet 
+  paramSetID="idSoundVarCnctr"
   defaultBhNodeID="idSoundVarVoid"
   onConnectabilityChecking="SoundVarCnct.js"/>
 

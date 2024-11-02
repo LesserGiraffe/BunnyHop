@@ -8,13 +8,25 @@
   onChildReplaced="OnChildOfPrimVarCtrlReplaced.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idAnyFixedCnctr" name="LeftVar"/>
     
-    <Connector bhConnectorID="idNumExpCnctr" name="RightExp"/>
+    <Connector
+      bhConnectorID="idNumAddAssignStat.cnctr0"
+      import="idAnyFixedCnctr"
+      name="LeftVar"/>
+    
+    <Connector
+      bhConnectorID="idNumAddAssignStat.cnctr1"
+      import="idNumExpCnctr"
+      name="RightExp"/>
         
-    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+    <Connector
+      bhConnectorID="idNumAddAssignStat.cnctr2"
+      import="idStatCnctr"
+      name="NextStat"/>
+
   </ConnectorSection>
 </Node>

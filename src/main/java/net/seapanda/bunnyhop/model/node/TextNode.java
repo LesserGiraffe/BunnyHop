@@ -28,12 +28,12 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
+import net.seapanda.bunnyhop.model.node.attribute.ImitationId;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.model.node.imitation.ImitationBase;
-import net.seapanda.bunnyhop.model.node.imitation.ImitationId;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.templates.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -57,15 +57,16 @@ public class TextNode  extends ImitationBase<TextNode> {
    *
    * @param imitIdToImitNodeId イミテーションIDとそれに対応するイミテーションノードIDのマップ
    * @param attributes ノードの設定情報
-   * */
-  public TextNode(Map<ImitationId, BhNodeId> imitIdToImitNodeId, BhNodeAttributes attributes) {
+   */
+  public TextNode(
+      Map<ImitationId, BhNodeId> imitIdToImitNodeId, BhNodeAttributes attributes) {
     super(attributes, imitIdToImitNodeId);
-    registerScriptName(BhNodeEvent.ON_TEXT_FORMATTING, attributes.getOnTextFormatting());
+    registerScriptName(BhNodeEvent.ON_TEXT_FORMATTING, attributes.onTextFormatting());
     registerScriptName(
-        BhNodeEvent.ON_TEXT_CHECKING, attributes.getOnTextChecking());
+        BhNodeEvent.ON_TEXT_CHECKING, attributes.onTextChecking());
     registerScriptName(
-        BhNodeEvent.ON_VIEW_CONTENTS_CREATING, attributes.getOnTextOptionsCreating());
-    text = attributes.getIinitString();
+        BhNodeEvent.ON_VIEW_CONTENTS_CREATING, attributes.onTextOptionsCreating());
+    text = attributes.initString();
   }
 
   /**
@@ -79,10 +80,8 @@ public class TextNode  extends ImitationBase<TextNode> {
   }
 
   @Override
-  public TextNode copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
-
-    TextNode newNode = new TextNode(this, userOpeCmd);
-    return newNode;
+  public TextNode copy(Predicate<BhNode> isNodeToBeCopied, UserOperationCommand userOpeCmd) {
+    return new TextNode(this, userOpeCmd);
   }
 
   @Override
@@ -204,7 +203,7 @@ public class TextNode  extends ImitationBase<TextNode> {
   /** このノードのイミテーションノードにこのノードを模倣させる. */
   public void getImitNodesToImitateContents() {
     String viewText = MsgService.INSTANCE.getViewText(this);
-    getImitationList().forEach(imit -> MsgService.INSTANCE.imitateText(imit, text, viewText));
+    getImitationList().forEach(imit -> MsgService.INSTANCE.setText(imit, text, viewText));
   }
 
   @Override

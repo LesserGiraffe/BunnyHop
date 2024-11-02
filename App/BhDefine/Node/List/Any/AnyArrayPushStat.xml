@@ -8,19 +8,31 @@
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
+    
+    <Connector
+      bhConnectorID="idAnyArrayPushStat.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
 
-    <Connector bhConnectorID="idSameTypeOfExpCnctr" name="Arg1"/>
+    <Connector
+      bhConnectorID="idAnyArrayPushStat.cnctr1"
+      import="idSameTypeOfExpCnctr"
+      name="Arg1"/>
 
-    <PrivateConnector
-      bhConnectorID="idAnyArrayPushStat.prvCnctr2"
+    <Connector
+      bhConnectorID="idAnyArrayPushStat.cnctr2"
       name="Arg2"
       defaultBhNodeID="idPositiveIntLiteralExp"
       onConnectabilityChecking="NumExpCnct.js"/>
 
-    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+    <Connector
+      bhConnectorID="idAnyArrayPushStat.cnctr3"
+      import="idStatCnctr"
+      name="NextStat"/>
+
   </ConnectorSection>
 </Node>

@@ -4,5 +4,5 @@
   name="AnyExpVoid"
   nodeStyleID="AnyExpVoid.json"
   initString="_anyObj"
-  onMovedFromChildToWS="OnLiteralMovedToWS.js">
-</Node>
+  onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  version="bh-1.0"/>

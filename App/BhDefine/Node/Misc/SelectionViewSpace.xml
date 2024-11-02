@@ -2,5 +2,5 @@
     type="text"
     bhNodeID="idSelectionViewSpace" 
     name="SelectionViewSpace" 
-    nodeStyleID="SelectionViewSpace.json">
-</Node>
+    nodeStyleID="SelectionViewSpace.json"
+    version="bh-1.0"/>

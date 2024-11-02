@@ -3,7 +3,7 @@
   let NodeMvcBuilder = net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
   let BhNodeId = net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
   let ImitationBuilder = net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
-  let ImitationId = net.seapanda.bunnyhop.model.node.imitation.ImitationId;
+  let ImitationId = net.seapanda.bunnyhop.model.node.attribute.ImitationId;
   let bhCommon = {};
 
   // 入れ替わってWSに移ったノードを末尾に再接続する
@@ -27,7 +27,7 @@
    * @return 新規作成したノード
    * */
   function addNewNodeToWS(bhNodeId, workspace, pos, bhNodeHandler, bhNodeTemplates, bhUserOpeCmd) {
-    let newNode = bhNodeTemplates.genBhNode(BhNodeId.create(bhNodeId), bhUserOpeCmd);
+    let newNode = genBhNode(bhNodeId, bhNodeTemplates, bhUserOpeCmd)    
     NodeMvcBuilder.build(newNode);
     bhNodeHandler.addRootNode(workspace, newNode, pos.x, pos.y, bhUserOpeCmd);
     return newNode;
@@ -152,17 +152,28 @@
    * @return node のイミテーションノード
    */
   function buildImitation(node, imitID, userOpeCmd) {
-    return ImitationBuilder.build(node, ImitationId.create(imitID), false, userOpeCmd);
+    return ImitationBuilder.build(node, ImitationId.of(imitID), false, userOpeCmd);
   }
   
   /**
    * BhNode を新規作成する
    * @param nodeID 作成するノードのID
    * @param bhNodeTemplates ノードテンプレート管理オブジェクト
-   * @param bhUserOpeCmd ndo/redo用コマンドオブジェクト
+   * @param bhUserOpeCmd undo/redo用コマンドオブジェクト
    */
   function genBhNode(bhNodeId, bhNodeTemplates, bhUserOpeCmd) {
-    return bhNodeTemplates.genBhNode(BhNodeId.create(bhNodeId), bhUserOpeCmd);
+    return bhNodeTemplates.genBhNode(BhNodeId.of(bhNodeId), bhUserOpeCmd);
+  }
+
+  /**
+   * コネクタのデフォルトノードを変更して, 接続されているノードを変更後のデフォルトノードにする.
+   * @prarm connector デフォルトノードを変更するコネクタ
+   * @param defulatNodeID connector に設定するデフォルトノードの ID
+   * @param bhUserOpeCmd undo/redo用コマンドオブジェクト
+   */
+  function changeDefaultNode(connector, defaultNodeId, bhUserOpeCmd) {
+    connector.setDefaultNodeId(BhNodeId.of(defaultNodeId));
+    connector.remove(bhUserOpeCmd);
   }
 
   /** Java の List を JavaScript の配列に変換する. */
@@ -183,6 +194,7 @@
   bhCommon['reconnectOuter'] = reconnectOuter;
   bhCommon['buildImitation'] = buildImitation;
   bhCommon['genBhNode'] = genBhNode;
-  bhCommon['toJsArray'] = toJsArray;
+  bhCommon['changeDefaultNode'] = changeDefaultNode;
+  bhCommon['toJsArray'] = toJsArray;  
   return bhCommon;
 })();

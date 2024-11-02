@@ -21,16 +21,16 @@ import java.util.Objects;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
- * Bh ノード ID.
+ * BhNode の ID.
  *
  * @author K.Koike
  */
 public class BhNodeId implements Serializable {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  /** BhNodeIDが存在しないことを表す null オブジェクト. */
+  /** BhNode の ID が存在しないことを表すオブジェクト. */
   public static final BhNodeId NONE = new BhNodeId("");
-  String id;
+  private final String id;
 
   /**
    * コンストラクタ.
@@ -42,12 +42,12 @@ public class BhNodeId implements Serializable {
   }
 
   /**
-   * BhノードIDを作成する.
+   * {@link BhNodeId} を作成する.
    *
    * @param id 識別子名
-   * @return BhノードID
+   * @return BhNodeId オブジェクト.
    */
-  public static BhNodeId create(String id) {
+  public static BhNodeId of(String id) {
     return new BhNodeId(id == null ? "" : id);
   }
 
@@ -58,16 +58,14 @@ public class BhNodeId implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
+    if (obj instanceof BhNodeId other) {
+      return id.equals(other.id);
     }
-    return (getClass() == obj.getClass()) && (id.equals(((BhNodeId) obj).id));
+    return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = 5;
-    hash = 11 * hash + Objects.hashCode(this.id);
-    return hash;
+    return Objects.hashCode(id);
   }
 }

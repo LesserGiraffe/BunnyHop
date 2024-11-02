@@ -110,7 +110,7 @@ public final class BhNodeCategoryListView {
 
         case BhConstants.NodeTemplate.KEY_CONTENTS:
           for (TreeNode<String> id : child.children) {
-            addBhNodeToSelectionView(parentItem.getValue(), BhNodeId.create(id.content));
+            addBhNodeToSelectionView(parentItem.getValue(), BhNodeId.of(id.content));
           }
           break;
 

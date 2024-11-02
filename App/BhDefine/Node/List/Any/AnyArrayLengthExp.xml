@@ -3,9 +3,13 @@
   bhNodeID="idAnyArrayLengthExp"
   name="AnyArrayLengthExp"
   nodeStyleID="AnyArrayLengthExp.json"
-  onChildReplaced="OnChildOfArrayCtrlReplaced.js">
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">
-    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>    
+    <Connector
+      bhConnectorID="idAnyArrayLengthExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
   </ConnectorSection>
 </Node>

@@ -7,15 +7,33 @@
   onMovedToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idFuncNameCnctr" name="FuncName" imitCnctPos="imitPosFuncName"/>
     
-    <Connector bhConnectorID="idArgCnctr" name="Arg" imitCnctPos="imitPosArg"/>
+    <Connector
+      bhConnectorID="idVoidFuncCall.cnctr0"
+      import="idFuncNameCnctr"
+      name="FuncName"
+      imitCnctPos="imitPosFuncName"/>
+    
+    <Connector
+      bhConnectorID="idVoidFuncCall.cnctr1"
+      import="idArgCnctr"
+      name="Arg"
+      imitCnctPos="imitPosArg"/>
         
-    <Connector bhConnectorID="idArgCnctr" name="OutArg" imitCnctPos="imitPosOutArg"/>
+    <Connector
+      bhConnectorID="idVoidFuncCall.cnctr2"
+      import="idArgCnctr"
+      name="OutArg"
+      imitCnctPos="imitPosOutArg"/>
 
-    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+    <Connector
+      bhConnectorID="idVoidFuncCall.cnctr3"
+      import="idStatCnctr"
+      name="NextStat"/>
+
   </ConnectorSection>
 </Node>

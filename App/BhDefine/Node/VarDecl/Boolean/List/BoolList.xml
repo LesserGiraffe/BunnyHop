@@ -3,9 +3,14 @@
   bhNodeID="idBoolList"
   name="BoolList"
   nodeStyleID="BoolList.json"
-  onSyntaxChecking="IsOutOfScope.js">
+  onSyntaxChecking="IsOutOfScope.js"
+  version="bh-1.0">
 
   <ConnectorSection name="BoolListSctn">
-    <Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>    
+    <Connector
+      bhConnectorID="idBoolList.cnctr0"
+      import="idListNameCnctr"
+      name="ListName"
+      imitCnctPos="imitPosListName"/>    
   </ConnectorSection>
 </Node>

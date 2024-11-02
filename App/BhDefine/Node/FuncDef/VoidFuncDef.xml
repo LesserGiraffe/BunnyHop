@@ -3,7 +3,8 @@
   bhNodeID="idVoidFuncDef"
   name="VoidFuncDef"
   nodeStyleID="VoidFuncDef.json"
-  onPrivateTemplateCreating="CreateVoidFuncPrivateTemplate.js">
+  onPrivateTemplateCreating="CreateVoidFuncPrivateTemplate.js"
+  version="bh-1.0">
 
   <Imitation imitationID="imitIdFuncCall" imitationNodeID="idVoidFuncCall"/>
 
@@ -11,26 +12,34 @@
     
     <ConnectorSection name="FuncNameSctn">
       <Connector
-        bhConnectorID="idFuncNameCnctr"
+        bhConnectorID="idVoidFuncDef.cnctr0"
+        import="idFuncNameCnctr"
         name="FuncName"
         imitationID="imitIdFuncName"
         imitCnctPos="imitPosFuncName"/>
     </ConnectorSection>
     
     <ConnectorSection name="VarScopeSctn">
-      <Connector bhConnectorID="idStatCnctr" name="StatList"/>
+      
+      <Connector
+        bhConnectorID="idVoidFuncDef.cnctr1"
+        import="idStatCnctr"
+        name="StatList"/>
     
       <Connector
-        bhConnectorID="idVarDeclCnctr"
+        bhConnectorID="idVoidFuncDef.cnctr2"
+        import="idVarDeclCnctr"
         name="ParamDecl"
         imitationID="imitIdVarDeclToArg"
         imitCnctPos="imitPosArg"/>
     
       <Connector
-        bhConnectorID="idVarDeclCnctr"
+        bhConnectorID="idVoidFuncDef.cnctr3"
+        import="idVarDeclCnctr"
         name="OutParamDecl"
         imitationID="imitIdVarDeclToOutArg"
         imitCnctPos="imitPosOutArg"/>
+
     </ConnectorSection>
   </Section>
 </Node>

@@ -168,7 +168,7 @@ public class ProjectSaveData implements Serializable {
       /** このオブジェクトが保持するルートノード以下の全ての SyntaxSymbol の SymbolID を新しいものにする. */
       public void giveNewSymbolId() {
         var callbacks = CallbackInvoker.newCallbackRegistry()
-            .setForAllSyntaxSymbols(SyntaxSymbol::renewSymbolId);
+            .setForAllSyntaxSymbols(SyntaxSymbol::renewInstancelId);
         CallbackInvoker.invoke(callbacks, rootNode);
       }
 

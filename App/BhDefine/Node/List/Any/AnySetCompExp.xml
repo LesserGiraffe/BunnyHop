@@ -2,24 +2,32 @@
   type="connective"
   bhNodeID="idAnySetCompExp"
   name="AnySetCompExp"
-  nodeStyleID="AnySetCompExp.json">
+  nodeStyleID="AnySetCompExp.json"
+  version="bh-1.0">
 
   <ConnectorSection name="BoolExpSctn">
-    <Connector bhConnectorID="idAnyListCnctr" name="Arg0"/>
+    <Connector
+      bhConnectorID="idAnySetCompExp.cnctr0"
+      import="idAnyListCnctr"
+      name="Arg0"/>
 
-    <PrivateConnector
-      bhConnectorID="idAnySetCompExp.prvCnctr1"
+    <Connector
+      bhConnectorID="idAnySetCompExp.cnctr1"
       name="Option0"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idAnySetCompExp.prvNode1"
+        bhNodeID="idAnySetCompExp.node1"
         name="StrLiteral"
         nodeStyleID="DefaultComboBox.json"
-        onTextOptionsCreating="CreateSetCompOps.js">
-      </Node>
-    </PrivateConnector>
+        onTextOptionsCreating="CreateSetCompOps.js"
+        version="bh-1.0"/>
+    </Connector>
 
-    <Connector bhConnectorID="idAnyListCnctr" name="Arg1"/>
+    <Connector
+      bhConnectorID="idAnySetCompExp.cnctr2"
+      import="idAnyListCnctr"
+      name="Arg1"/>
+
   </ConnectorSection>
 </Node>

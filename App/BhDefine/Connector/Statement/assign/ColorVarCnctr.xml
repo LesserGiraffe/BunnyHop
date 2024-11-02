@@ -1,5 +1,5 @@
-<Connector 
-  bhConnectorID="idColorVarCnctr"
+<ConnectorParamSet 
+  paramSetID="idColorVarCnctr"
   defaultBhNodeID="idColorVarVoid"
   onConnectabilityChecking="ColorVarCnct.js"/>
 

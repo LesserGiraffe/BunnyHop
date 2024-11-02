@@ -7,14 +7,27 @@
   onMovedFromChildToWS="OnVarDeclMovedToWS.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
-    <Imitation imitationID="imitIdVar" imitationNodeID="idStrVar"/>
-    <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idStrArg"/>
-    <Imitation imitationID="imitIdVarDeclToOutArg" imitationNodeID="idStrOutArg"/>
+  <Imitation imitationID="imitIdVar" imitationNodeID="idStrVar"/>
+  <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idStrArg"/>
+  <Imitation imitationID="imitIdVarDeclToOutArg" imitationNodeID="idStrOutArg"/>
     
   <ConnectorSection name="VarDeclSctn">
-    <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitationID="imitIdVarName" imitCnctPos="imitPosVarName"/>
-        <Connector bhConnectorID="idVarDeclCnctr" name="NextVarDecl" imitCnctPos="imitPosNextArg"/>
+    
+    <Connector
+      bhConnectorID="idStrVarDecl.cnctr0"
+      import="idVarNameCnctr"
+      name="VarName"
+      imitationID="imitIdVarName"
+      imitCnctPos="imitPosVarName"/>
+      
+    <Connector
+      bhConnectorID="idStrVarDecl.cnctr1"
+      import="idVarDeclCnctr"
+      name="NextVarDecl"
+      imitCnctPos="imitPosNextArg"/>
+
   </ConnectorSection>
 </Node>

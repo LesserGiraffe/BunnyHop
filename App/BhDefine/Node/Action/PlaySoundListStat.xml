@@ -8,23 +8,31 @@
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StatSctn">
     
-    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
+    <Connector
+      bhConnectorID="idPlaySoundListStat.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
     
-    <PrivateConnector
-      bhConnectorID="idPlaySoundListStat.prvCnctr1"
+    <Connector
+      bhConnectorID="idPlaySoundListStat.cnctr1"
       name="Arg1"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idPlaySoundListStat.prvNode1"
+        bhNodeID="idPlaySoundListStat.node1"
         name="BoolLiteral"
-        initString="false"/>
-    </PrivateConnector>
+        initString="false"
+        version="bh-1.0"/>
+    </Connector>
       
-    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+    <Connector
+      bhConnectorID="idPlaySoundListStat.cnctr2"
+      import="idStatCnctr"
+      name="NextStat"/>
   </ConnectorSection>
 </Node>

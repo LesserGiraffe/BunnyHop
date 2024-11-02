@@ -3,21 +3,23 @@
   bhNodeID="idColorLiteralExp"
   name="ColorLiteralExp"
   nodeStyleID="ColorLiteralExp.json"
-  onMovedFromChildToWS="OnLiteralMovedToWS.js">
+  onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  version="bh-1.0">
 
   <ConnectorSection name="ColorExpSctn">
 
-    <PrivateConnector
-      bhConnectorID="idColorLiteralExp.prvCnctr0"
+    <Connector
+      bhConnectorID="idColorLiteralExp.cnctr0"
       name="Literal"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idColorLiteralExp.prvNode0"
+        bhNodeID="idColorLiteralExp.node0"
         name="ColorLiteral"
         nodeStyleID="ColorLiteral.json"
-        onTextOptionsCreating="CreateColorLiteral.js">
-      </Node>
-    </PrivateConnector>
+        onTextOptionsCreating="CreateColorLiteral.js"
+        version="bh-1.0"/>
+    </Connector>
+
   </ConnectorSection>
 </Node>

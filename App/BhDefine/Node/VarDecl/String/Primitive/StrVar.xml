@@ -3,9 +3,14 @@
   bhNodeID="idStrVar"
   name="StrVar"
   nodeStyleID="StrVar.json"
-  onSyntaxChecking="IsOutOfScope.js">
+  onSyntaxChecking="IsOutOfScope.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StrExpSctn">
-    <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
+    <Connector
+      bhConnectorID="idStrVar.cnctr0"
+      import="idVarNameCnctr"
+      name="VarName"
+      imitCnctPos="imitPosVarName"/>
   </ConnectorSection>
 </Node>

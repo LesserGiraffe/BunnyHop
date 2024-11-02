@@ -2,5 +2,5 @@
   type="text"
   bhNodeID="idArgVoid" 
   name="ArgVoid" 
-  nodeStyleID="ArgVoid.json">
-</Node>
+  nodeStyleID="ArgVoid.json"
+  version="bh-1.0"/>

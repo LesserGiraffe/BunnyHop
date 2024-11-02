@@ -2,11 +2,13 @@
   type="connective"
   bhNodeID="idSyncTimerVar"
   name="SyncTimerVar"
-  nodeStyleID="SyncTimerVar.json">
+  nodeStyleID="SyncTimerVar.json"
+  version="bh-1.0">
 
   <ConnectorSection name="SyncTimerExpSctn">    
     <Connector
-      bhConnectorID="idVarNameCnctr"
+      bhConnectorID="idSyncTimerVar.cnctr0"
+      import="idVarNameCnctr"
       name="SyncTimerName"
       imitCnctPos="imitPosVarName"/>
   </ConnectorSection>

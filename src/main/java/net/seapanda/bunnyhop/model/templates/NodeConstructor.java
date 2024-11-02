@@ -23,40 +23,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeType;
-import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
-import net.seapanda.bunnyhop.model.node.connective.Connector;
-import net.seapanda.bunnyhop.model.node.connective.ConnectorId;
-import net.seapanda.bunnyhop.model.node.connective.ConnectorInstantiationParams;
-import net.seapanda.bunnyhop.model.node.connective.ConnectorSection;
-import net.seapanda.bunnyhop.model.node.connective.Section;
-import net.seapanda.bunnyhop.model.node.connective.Subsection;
-import net.seapanda.bunnyhop.model.node.imitation.ImitCnctPosId;
-import net.seapanda.bunnyhop.model.node.imitation.ImitationId;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeVersion;
+import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
+import net.seapanda.bunnyhop.model.node.attribute.ImitationId;
+import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
+import net.seapanda.bunnyhop.model.node.section.Section;
+import net.seapanda.bunnyhop.model.node.section.Subsection;
+import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * {@link BhNode } が定義された xml の Node タグ以下の情報から {@link BhNode} を作成する.
+ * {@link BhNode } が定義された xml の Node エレメント以下の情報から {@link BhNode} を作成する.
  *
  * @author K.Koike
  */
 public class NodeConstructor {
 
   /** ノードテンプレート登録用関数. */
-  private final BiConsumer<BhNodeId, BhNode> registerNodeTemplate;
+  private final BiFunction<BhNodeId, BhNode, Boolean> registerNodeTemplate;
   /** コネクタテンプレート登録用関数. */
-  private final BiConsumer<ConnectorId, Connector> registerCnctrTemplate;
+  private final BiFunction<ConnectorId, Connector, Boolean> registerCnctrTemplate;
   /** オリジナル & イミテーションノード格納用関数. */
   private final BiConsumer<BhNodeId, BhNodeId> registerOrgNodeIdAndImitNodeId;
   /** コネクタテンプレート取得用関数. */
@@ -64,8 +65,8 @@ public class NodeConstructor {
 
   /** コンストラクタ. */
   public NodeConstructor(
-      BiConsumer<BhNodeId, BhNode> registerNodeTemplate,
-      BiConsumer<ConnectorId, Connector> registerCnctrTemplate,
+      BiFunction<BhNodeId, BhNode, Boolean> registerNodeTemplate,
+      BiFunction<ConnectorId, Connector, Boolean> registerCnctrTemplate,
       BiConsumer<BhNodeId, BhNodeId> registerOrgNodeIdAndImitNodeId,
       Function<ConnectorId, Optional<Connector>> getCnctrTemplate) {
     this.registerNodeTemplate = registerNodeTemplate;
@@ -83,7 +84,9 @@ public class NodeConstructor {
   public Optional<? extends BhNode> genTemplate(Document doc) {
     if (!doc.getFirstChild().getNodeName().equals(BhConstants.BhModelDef.ELEM_NODE)) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "ノード定義のルート要素は " + BhConstants.BhModelDef.ELEM_NODE + " で始めてください.  "
+          "Invalid BhNode definition (" + doc.getFirstChild().getNodeName() + ")\n"
+          + "A BhNode definition must have a '"
+          + BhConstants.BhModelDef.ELEM_NODE + "' root element.\n"
           + doc.getBaseURI());
       return Optional.empty();
     }
@@ -93,7 +96,7 @@ public class NodeConstructor {
   /**
    * ノードテンプレートを作成する.
    *
-   * @param nodeRoot Node タグを表す要素
+   * @param nodeRoot Node エレメントを表す要素
    * @return 作成した {@link BhNode} オブジェクト
    */
   public Optional<? extends BhNode> genTemplate(Element nodeRoot) {
@@ -113,17 +116,16 @@ public class NodeConstructor {
 
       default:
         MsgPrinter.INSTANCE.errMsgForDebug(
-            BhConstants.BhModelDef.ATTR_TYPE + "=" + type + " はサポートされていません.\n" 
-            + nodeRoot.getBaseURI() + "\n");
+            "Unknown BhNode type  (" + type + ")\n" + nodeRoot.getBaseURI());
         break;
     }
     return templateNode;
   }
 
   /**
-   * Imitation タグの情報を取得する.
+   * Imitation エレメントの情報を取得する.
    *
-   * @param node イミテーションノードに関する情報が書いてあるxmlタグをあらわすノード
+   * @param node イミテーションノードに関する情報が書いてあるエレメントをあらわすノード
    * @param orgNodeId イミテーションを持つノードのID
    * @return イミテーション ID とイミテーションノード ID のマップ
    */
@@ -136,21 +138,21 @@ public class NodeConstructor {
         BhNodeTemplates.getElementsByTagNameFromChild(node, BhConstants.BhModelDef.ELEM_IMITATION);
     for (Element imitTag : imitTagList) {
       ImitationId imitationId =
-          ImitationId.create(imitTag.getAttribute(BhConstants.BhModelDef.ATTR_IMITATION_ID));
+          ImitationId.of(imitTag.getAttribute(BhConstants.BhModelDef.ATTR_IMITATION_ID));
       if (imitationId.equals(ImitationId.NONE)) {
         MsgPrinter.INSTANCE.errMsgForDebug(
-            BhConstants.BhModelDef.ELEM_IMITATION + " タグには, "
-            + BhConstants.BhModelDef.ATTR_IMITATION_ID + " 属性を記述してください. " + node.getBaseURI());
+            "A '" + BhConstants.BhModelDef.ELEM_IMITATION + "' element must have a '"
+            + BhConstants.BhModelDef.ATTR_IMITATION_ID + "' attribute.\n" + node.getBaseURI());
         success &= false;
         continue;
       }
 
       BhNodeId imitNodeId =
-          BhNodeId.create(imitTag.getAttribute(BhConstants.BhModelDef.ATTR_IMITATION_NODE_ID));
+          BhNodeId.of(imitTag.getAttribute(BhConstants.BhModelDef.ATTR_IMITATION_NODE_ID));
       if (imitNodeId.equals(BhNodeId.NONE)) {
         MsgPrinter.INSTANCE.errMsgForDebug(
-            BhConstants.BhModelDef.ELEM_IMITATION + " タグには, "
-            + BhConstants.BhModelDef.ATTR_IMITATION_NODE_ID + " 属性を記述してください. " + node.getBaseURI());
+            "A '" + BhConstants.BhModelDef.ELEM_IMITATION + "' element must have a '"
+            + BhConstants.BhModelDef.ATTR_IMITATION_NODE_ID + "' attribute.\n" + node.getBaseURI());
         success &= false;
         continue;
       }
@@ -167,13 +169,28 @@ public class NodeConstructor {
   /**
    * {@link ConnectiveNode} を構築する.
    *
-   * @param node Node タグを表すオブジェクト
+   * @param node Node エレメントを表すオブジェクト
    * @return {@link ConnectiveNode} オブジェクト
    */
   private Optional<ConnectiveNode> genConnectiveNode(Element node) {
-    Optional<BhNodeAttributes> nodeAttrs = BhNodeAttributes.readBhNodeAttriButes(node);
-    if (nodeAttrs.isEmpty()) {
+    BhNodeAttributes nodeAttrs = BhNodeAttributes.of(node);
+
+    if (nodeAttrs.bhNodeId().equals(BhNodeId.NONE)) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          "A '" + BhConstants.BhModelDef.ELEM_NODE + "' element must have a '"
+          + BhConstants.BhModelDef.ATTR_BH_NODE_ID + "' attribute.\n" + node.getBaseURI());
       return Optional.empty();
+    }
+
+    if (nodeAttrs.version().equals(BhNodeVersion.NONE)) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          "A '" + BhConstants.BhModelDef.ELEM_NODE + "' element must have a '"
+          + BhConstants.BhModelDef.ATTR_VERSION + "' attribute.\n" + node.getBaseURI());
+      return Optional.empty();
+    }
+
+    if (!nodeAttrs.nodeStyleId().isEmpty()) {
+      BhNodeViewStyle.registerNodeIdAndStyleId(nodeAttrs.bhNodeId(), nodeAttrs.nodeStyleId());
     }
 
     Optional<ArrayList<Section>> childSection = genSectionList(node);
@@ -182,81 +199,94 @@ public class NodeConstructor {
     }
 
     if (childSection.get().size() != 1) {
-      MsgPrinter.INSTANCE.errMsgForDebug(BhConstants.BhModelDef.ATTR_TYPE + " が "
-          + BhConstants.BhModelDef.ATTR_VAL_CONNECTIVE + " の "
-          + BhConstants.BhModelDef.ELEM_NODE + " タグは, "
-          + BhConstants.BhModelDef.ELEM_SECTION + " または "
-          + BhConstants.BhModelDef.ELEM_CONNECTOR_SECTION + " 子タグを1つ持たなければなりません. "
-          + node.getBaseURI());
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          "A '" + BhConstants.BhModelDef.ELEM_SECTION + "' element whose '"
+          + BhConstants.BhModelDef.ATTR_TYPE + "' is '" + BhConstants.BhModelDef.ATTR_VAL_CONNECTIVE
+          + "' must have a child '" + BhConstants.BhModelDef.ELEM_SECTION + "' element or a child'"
+          + BhConstants.BhModelDef.ELEM_CONNECTOR_SECTION + "' element.\n" + node.getBaseURI());
       return Optional.empty();
     }
 
     //実行時スクリプト存在チェック
     boolean allScriptsFound = BhNodeTemplates.allScriptsExist(
         node.getBaseURI(),
-        nodeAttrs.get().getOnMovedFromChildToWs(),
-        nodeAttrs.get().getOnMovedToChild(),
-        nodeAttrs.get().getOnChildReplaced(),
-        nodeAttrs.get().getOnDeletionRequested(),
-        nodeAttrs.get().getOnCutRequested(),
-        nodeAttrs.get().getOnCopyRequested(),
-        nodeAttrs.get().getOnSyntaxChecking(),
-        nodeAttrs.get().getOnPrivateTemplateCreating());
+        nodeAttrs.onMovedFromChildToWs(),
+        nodeAttrs.onMovedToChild(),
+        nodeAttrs.onChildReplaced(),
+        nodeAttrs.onDeletionRequested(),
+        nodeAttrs.onCutRequested(),
+        nodeAttrs.onCopyRequested(),
+        nodeAttrs.onSyntaxChecking(),
+        nodeAttrs.onPrivateTemplateCreating());
     if (!allScriptsFound) {
       return Optional.empty();
     }
-    BhNodeId orgNodeId = nodeAttrs.get().getBhNodeId();
-    Optional<Map<ImitationId, BhNodeId>> imitIdToImitNodeId = genImitIdAndNodePair(node, orgNodeId);
+    Optional<Map<ImitationId, BhNodeId>> imitIdToImitNodeId =
+        genImitIdAndNodePair(node, nodeAttrs.bhNodeId());
     if (imitIdToImitNodeId.isEmpty()) {
       return Optional.empty();
     }
     return Optional.of(
-        new ConnectiveNode(childSection.get().get(0), imitIdToImitNodeId.get(), nodeAttrs.get()));
+        new ConnectiveNode(childSection.get().get(0), imitIdToImitNodeId.get(), nodeAttrs));
   }
 
   /**
    * {@link TextNode} を構築する.
    *
-   * @param node Node タグを表すオブジェクト
+   * @param node Node エレメントを表すオブジェクト
    * @param type 関連する BhNodeView の種類
    * @param checkViewComponent GUI部品の有無をチェックする場合true
    * @return {@link TextNode} オブジェクト
    */
   private Optional<TextNode> genTextNode(Element node) {
-    Optional<BhNodeAttributes> nodeAttrs = BhNodeAttributes.readBhNodeAttriButes(node);
-    if (nodeAttrs.isEmpty()) {
+    BhNodeAttributes nodeAttrs = BhNodeAttributes.of(node);
+
+    if (nodeAttrs.bhNodeId().equals(BhNodeId.NONE)) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          "A '" + BhConstants.BhModelDef.ELEM_NODE + "' element must have a '"
+          + BhConstants.BhModelDef.ATTR_BH_NODE_ID + "' attribute.\n" + node.getBaseURI());
       return Optional.empty();
     }
 
+    if (nodeAttrs.version().equals(BhNodeVersion.NONE)) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          "A '" + BhConstants.BhModelDef.ELEM_NODE + "' element must have a '"
+          + BhConstants.BhModelDef.ATTR_VERSION + "' attribute.\n" + node.getBaseURI());
+      return Optional.empty();
+    }
+
+    if (!nodeAttrs.nodeStyleId().isEmpty()) {
+      BhNodeViewStyle.registerNodeIdAndStyleId(nodeAttrs.bhNodeId(), nodeAttrs.nodeStyleId());
+    }
     //実行時スクリプト存在チェック
     boolean allScriptsFound = BhNodeTemplates.allScriptsExist(
         node.getBaseURI(),
-        nodeAttrs.get().getOnMovedFromChildToWs(),
-        nodeAttrs.get().getOnMovedToChild(),
-        nodeAttrs.get().getOnTextChecking(),
-        nodeAttrs.get().getOnDeletionRequested(),
-        nodeAttrs.get().getOnCutRequested(),
-        nodeAttrs.get().getOnCopyRequested(),
-        nodeAttrs.get().getOnTextFormatting(),
-        nodeAttrs.get().getOnSyntaxChecking(),
-        nodeAttrs.get().getOnPrivateTemplateCreating(),
-        nodeAttrs.get().getOnTextOptionsCreating());
+        nodeAttrs.onMovedFromChildToWs(),
+        nodeAttrs.onMovedToChild(),
+        nodeAttrs.onTextChecking(),
+        nodeAttrs.onTextFormatting(),
+        nodeAttrs.onDeletionRequested(),
+        nodeAttrs.onCutRequested(),
+        nodeAttrs.onCopyRequested(),
+        nodeAttrs.onSyntaxChecking(),
+        nodeAttrs.onPrivateTemplateCreating(),
+        nodeAttrs.onTextOptionsCreating());
     if (!allScriptsFound) {
       return Optional.empty();
     }
 
     Optional<Map<ImitationId, BhNodeId>> imitIdToImitNodeId =
-        genImitIdAndNodePair(node, nodeAttrs.get().getBhNodeId());
+        genImitIdAndNodePair(node, nodeAttrs.bhNodeId());
     if (imitIdToImitNodeId.isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(new TextNode(imitIdToImitNodeId.get(), nodeAttrs.get()));
+    return Optional.of(new TextNode(imitIdToImitNodeId.get(), nodeAttrs));
   }
 
   /**
-   * {@code parentTag} で指定したタグより下の {@link Section} リストを作成する.
+   * {@code parentTag} で指定したエレメントより下の {@link Section} リストを作成する.
    *
-   * @param parentTag Section タグ or ConnectorSection タグを子に持つタグ
+   * @param parentTag Section エレメント or ConnectorSection エレメントを子に持つエレメント
    * @return parentTag より下の {@link Section} リスト
    */
   private Optional<ArrayList<Section>> genSectionList(Element parentTag) {
@@ -267,11 +297,11 @@ public class NodeConstructor {
     NodeList sections = parentTag.getChildNodes();
     for (int i = 0; i < sections.getLength(); ++i) {
       Node childNode = sections.item(i);
-      // 子タグ以外処理しない
+      // 子エレメント以外処理しない
       if (childNode.getNodeType() != Node.ELEMENT_NODE) {
         continue;
       }
-      // parentTag の子ノードの名前が ConnectorSection/
+      // parentTag の子ノードの名前が ConnectorSection
       if (childNode.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR_SECTION)) {
         Optional<ConnectorSection> connectorGroup = genConnectorSection((Element) childNode);
         sectionListTmp.add(connectorGroup);
@@ -293,10 +323,10 @@ public class NodeConstructor {
   }
 
   /**
-   * Section タグから {@link Subsection} オブジェクトを作成する.
+   * Section エレメントから {@link Subsection} オブジェクトを作成する.
    *
-   * @param section Section タグを表す Element オブジェクト
-   * @return Section タグ の内容を反映した {@link Subsection} オブジェクト
+   * @param section Section エレメントを表す Element オブジェクト
+   * @return Section エレメント の内容を反映した {@link Subsection} オブジェクト
    */
   private Optional<Subsection> genSection(Element section) {
     String groupName = section.getAttribute(BhConstants.BhModelDef.ATTR_NAME);
@@ -304,160 +334,86 @@ public class NodeConstructor {
   }
 
   /**
-   * ConnectorSection タグから {@link ConnectorSection} オブジェクトを作成する.
+   * ConnectorSection エレメントから {@link ConnectorSection} オブジェクトを作成する.
    *
-   * @param connectorSection ConnectorSection タグを表すElement オブジェクト
-   * @return ConnectorSection タグ の内容を反映した {@link ConnectorSection} オブジェクト
+   * @param connectorSection ConnectorSection エレメントを表す Element オブジェクト
+   * @return ConnectorSection エレメント の内容を反映した {@link ConnectorSection} オブジェクト
    */
   private Optional<ConnectorSection> genConnectorSection(Element connectorSection) {
     final String sectionName = connectorSection.getAttribute(BhConstants.BhModelDef.ATTR_NAME);
     Collection<Element> connectorTags = BhNodeTemplates.getElementsByTagNameFromChild(
         connectorSection, BhConstants.BhModelDef.ELEM_CONNECTOR);
-    Collection<Element> privateCnctrTags = BhNodeTemplates.getElementsByTagNameFromChild(
-        connectorSection, BhConstants.BhModelDef.ELEM_PRIVATE_CONNECTOR);
     List<Connector> cnctrList = new ArrayList<>();
-    List<ConnectorInstantiationParams> cnctrInstantiationParamsList =
-        new ArrayList<>();
-
-    if (connectorTags.isEmpty() && privateCnctrTags.isEmpty()) {
+  
+    if (connectorTags.isEmpty()) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "<" + BhConstants.BhModelDef.ELEM_CONNECTOR_SECTION + ">" + " タグは最低一つ "
-          + "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + "> タグか"
-          + "<" + BhConstants.BhModelDef.ELEM_PRIVATE_CONNECTOR + "> タグを"
-          + "持たなければなりません.  " + connectorSection.getBaseURI());
+          "A '" + BhConstants.BhModelDef.ELEM_CONNECTOR_SECTION
+          + "' element must have at least one child '" + BhConstants.BhModelDef.ELEM_CONNECTOR 
+          + "' element.\n" + connectorSection.getBaseURI());
       return Optional.empty();
     }
 
     for (Element connectorTag : connectorTags) {
-      Optional<Pair<Connector, ConnectorInstantiationParams>> cnctrAndParams =
-          getConnector(connectorTag);
-      if (cnctrAndParams.isEmpty()) {
+      Optional<Connector> connector = genConnector(connectorTag);
+      if (connector.isEmpty()) {
         return Optional.empty();
       }
-      cnctrList.add(cnctrAndParams.get().v1);
-      cnctrInstantiationParamsList.add(cnctrAndParams.get().v2);
+      cnctrList.add(connector.get());
     }
-
-    for (Element connectorTag : privateCnctrTags) {
-      Optional<Pair<Connector, ConnectorInstantiationParams>> cnctrAndParams =
-          genPrivateConnector(connectorTag);
-      if (cnctrAndParams.isEmpty()) {
-        return Optional.empty();
-      }
-      cnctrList.add(cnctrAndParams.get().v1);
-      cnctrInstantiationParamsList.add(cnctrAndParams.get().v2);
-    }
-
-    return Optional.of(new ConnectorSection(sectionName, cnctrList, cnctrInstantiationParamsList));
+    return Optional.of(new ConnectorSection(sectionName, cnctrList));
   }
 
   /**
-   * Connector タグからコネクタのテンプレートを取得する.
-   *
-   * @param connector Connector タグを表す Element オブジェクト
-   * @return コネクタとそれのインスタンス化の際のパラメータのタプル
-   */
-  private Optional<Pair<Connector, ConnectorInstantiationParams>> getConnector(
-      Element connectorTag) {
-    ConnectorId connectorId = ConnectorId.createCnctrId(
-        connectorTag.getAttribute(BhConstants.BhModelDef.ATTR_BH_CONNECTOR_ID));
-    if (connectorId.equals(ConnectorId.NONE)) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + ">" + " タグには "
-          + BhConstants.BhModelDef.ATTR_BH_CONNECTOR_ID + " 属性を記述してください.  "
-          + connectorTag.getBaseURI());
-      return Optional.empty();
-    }
-
-    Optional<Connector> connectorOpt = getCnctrTemplate.apply(connectorId);
-    if (connectorOpt.isEmpty()) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          connectorId + " に対応するコネクタ定義が見つかりません.  " + connectorTag.getBaseURI());
-    }
-    return connectorOpt.map(
-        connector -> new Pair<>(connector, genConnectorInstParams(connectorTag)));
-  }
-
-  /**
-   * PrivateConnector タグからコネクタのテンプレートを取得する.
-   * プライベートコネクタの下にBhNodeがある場合, そのテンプレートも作成する.
+   * Connector エレメントからコネクタのテンプレートを取得する.
+   * プライベートコネクタの下に BhNode がある場合, そのテンプレートも作成する.
    *
    * @return プライベートコネクタとコネクタインスタンス化時のパラメータのペア
    */
-  private Optional<Pair<Connector, ConnectorInstantiationParams>>
-      genPrivateConnector(Element connectorTag) {
-
+  private Optional<Connector> genConnector(Element cnctrElem) {
     List<Element> privateNodeTagList = BhNodeTemplates.getElementsByTagNameFromChild(
-        connectorTag, BhConstants.BhModelDef.ELEM_NODE);
+        cnctrElem, BhConstants.BhModelDef.ELEM_NODE);
     if (privateNodeTagList.size() >= 2) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "<" + BhConstants.BhModelDef.ELEM_CONNECTOR + ">" + "タグの下に2つ以上"
-          + " <" + BhConstants.BhModelDef.ELEM_NODE + "> タグを定義できません.\n"
-          + connectorTag.getBaseURI());
+          "A '" + BhConstants.BhModelDef.ELEM_CONNECTOR
+          + "' element cannot have more than two child '" + BhConstants.BhModelDef.ELEM_NODE
+          + "' elements.\n" + cnctrElem.getBaseURI());
       return Optional.empty();
     }
-
-    //プライベートノードがある
+    // プライベートノードがある
     if (privateNodeTagList.size() == 1) {
       Optional<? extends BhNode> privateNode = genPirvateNode(privateNodeTagList.get(0));
       if (privateNode.isPresent()
-          && !connectorTag.hasAttribute(BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID)) {
-        connectorTag.setAttribute(
+          && !cnctrElem.hasAttribute(BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID)) {
+        cnctrElem.setAttribute(
             BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID,
             privateNode.get().getId().toString());
       }
     }
-
-    Optional<Connector> privateCnctr = new ConnectorConstructor().genTemplate(connectorTag);
-    //コネクタテンプレートリストに登録
-    privateCnctr.ifPresent(cnctr -> registerCnctrTemplate.accept(cnctr.getId(), cnctr));
-    return privateCnctr.map(
-        cnctr -> new Pair<>(cnctr, genConnectorInstParams(connectorTag)));
+    // コネクタ作成
+    Optional<Connector> connector = new ConnectorConstructor(cnctrElem).genConnector();
+    boolean success =
+        connector.map(cnctr -> registerCnctrTemplate.apply(cnctr.getId(), cnctr)).orElse(false);
+    
+    return success ? connector : Optional.empty();
   }
 
   /**
-   * コネクタオブジェクトをインスタンス化する際のパラメータオブジェクトを作成する.
+   * プライベートノードの定義 (= Connector エレメントの下に定義されたノード) から {@link BhNode} を作成する.
    *
-   * @param connectorTag Connector or PrivateConnector タグを表す Element オブジェクト
-   * @return コネクタオブジェクトをインスタンス化する際のパラメータ
-   */
-  private ConnectorInstantiationParams genConnectorInstParams(Element connectorTag) {
-    String imitationId =
-        connectorTag.getAttribute(BhConstants.BhModelDef.ATTR_IMITATION_ID);
-    String imitCnctPoint = connectorTag.getAttribute(BhConstants.BhModelDef.ATTR_IMIT_CNCT_POS);
-    String name = connectorTag.getAttribute(BhConstants.BhModelDef.ATTR_NAME);
-    String fixedStr = connectorTag.getAttribute(BhConstants.BhModelDef.ATTR_FIXED);
-    Boolean fixed =
-        fixedStr.isEmpty() ? null : fixedStr.equals(BhConstants.BhModelDef.ATTR_VAL_TRUE);
-    return new ConnectorInstantiationParams(
-      name,
-      fixed,
-      ImitationId.create(imitationId),
-      ImitCnctPosId.create(imitCnctPoint));
-  }
-
-  /**
-   * プライベートノードの定義 (= PrivateConnector タグの下に定義されたノード) から {@link BhNode} を作成する.
-   *
-   * @param nodeTag Node タグを表すオブジェクト
+   * @param nodeElem Node エレメントを表すオブジェクト
    * @return プライベートノードオブジェクト
    */
-  private Optional<? extends BhNode> genPirvateNode(Element nodeTag) {
+  private Optional<? extends BhNode> genPirvateNode(Element nodeElem) {
     NodeConstructor constructor = new NodeConstructor(
         registerNodeTemplate,
         registerCnctrTemplate,
         registerOrgNodeIdAndImitNodeId,
         getCnctrTemplate);
 
-    Optional<? extends BhNode> privateNodeOpt = constructor.genTemplate(nodeTag);
-    if (privateNodeOpt.isEmpty()) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          "プライベートノード(<" +  BhConstants.BhModelDef.ELEM_PRIVATE_CONNECTOR 
-          + "> タグの下に定義されたノード) エラー.\n"
-          + nodeTag.getBaseURI());
-    }
-    privateNodeOpt.ifPresent(
-        privateNode -> registerNodeTemplate.accept(privateNode.getId(), privateNode));
-    return privateNodeOpt;
+    Optional<? extends BhNode> privateNode = constructor.genTemplate(nodeElem);
+    boolean success = privateNode
+        .map(node -> registerNodeTemplate.apply(node.getId(), node)).orElse(false);
+
+    return success ? privateNode : Optional.empty();
   }
 }

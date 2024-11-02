@@ -2,13 +2,27 @@
   type="connective"
   bhNodeID="idBoolListArg"
   name="BoolListArg"
-  nodeStyleID="BoolListArg.json">
+  nodeStyleID="BoolListArg.json"
+  version="bh-1.0">
 
   <ConnectorSection>
-    <Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
-    
-    <Connector bhConnectorID="idBoolListCnctr" name="Arg"/>
 
-    <Connector bhConnectorID="idArgCnctr" name="NextArg" imitCnctPos="imitPosNextArg"/>
+    <Connector
+      bhConnectorID="idBoolListArg.cnctr0"
+      import="idListNameCnctr"
+      name="ListName"
+      imitCnctPos="imitPosListName"/>
+    
+    <Connector
+      bhConnectorID="idBoolListArg.cnctr1"
+      import="idBoolListCnctr"
+      name="Arg"/>
+
+    <Connector
+      bhConnectorID="idBoolListArg.cnctr2"
+      import="idArgCnctr"
+      name="NextArg"
+      imitCnctPos="imitPosNextArg"/>
+
   </ConnectorSection>
 </Node>

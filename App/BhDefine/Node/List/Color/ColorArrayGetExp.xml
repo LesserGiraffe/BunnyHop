@@ -3,22 +3,31 @@
   bhNodeID="idColorArrayGetExp"
   name="ColorArrayGetExp"
   nodeStyleID="ColorArrayGetExp.json"
-  onChildReplaced="OnChildOfArrayCtrlReplaced.js">
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  version="bh-1.0">
 
   <ConnectorSection name="ColorExpSctn">
-    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
+    <Connector
+      bhConnectorID="idColorArrayGetExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
         
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+    <Connector
+      bhConnectorID="idColorArrayGetExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
         
-    <PrivateConnector
-      bhConnectorID="idColorArrayGetExp.prvCnctr2"
+    <Connector
+      bhConnectorID="idColorArrayGetExp.cnctr2"
       name="Arg2"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idColorArrayGetExp.prvNode2"
+        bhNodeID="idColorArrayGetExp.node2"
         name="NilColor"
-        initString="_nilColor"/>
-    </PrivateConnector>
+        initString="_nilColor"
+        version="bh-1.0"/>
+    </Connector>
+
   </ConnectorSection>
 </Node>

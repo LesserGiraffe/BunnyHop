@@ -1,4 +1,4 @@
-<Connector 
-  bhConnectorID="idSyncTimerVarCnctr"
+<ConnectorParamSet 
+  paramSetID="idSyncTimerVarCnctr"
   defaultBhNodeID="idSyncTimerVarVoid"
   onConnectabilityChecking="SyncTimerVarCnct.js"/>

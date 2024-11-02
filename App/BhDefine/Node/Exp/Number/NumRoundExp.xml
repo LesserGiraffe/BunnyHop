@@ -2,22 +2,28 @@
   type="connective"
   bhNodeID="idNumRoundExp"
   name="NumRoundExp"
-  nodeStyleID="NumRoundExp.json">
+  nodeStyleID="NumRoundExp.json"
+  version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
     
-    <PrivateConnector
-      bhConnectorID="idNumRoundExp.prvCnctr1"
+    <Connector
+      bhConnectorID="idNumRoundExp.cnctr0"
+      import="idNumExpCnctr"
+      name="Arg0"/>
+    
+    <Connector
+      bhConnectorID="idNumRoundExp.cnctr1"
       name="Option0"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idNumRoundExp.prvNode1"
+        bhNodeID="idNumRoundExp.node1"
         name="NumRoundOpe"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateNumRoundOps.js">
-      </Node>
-    </PrivateConnector>
+        onTextOptionsCreating="CreateNumRoundOps.js"
+        version="bh-1.0"/>
+    </Connector>
+
   </ConnectorSection>
 </Node>

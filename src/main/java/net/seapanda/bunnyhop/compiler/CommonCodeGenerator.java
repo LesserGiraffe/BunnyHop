@@ -32,7 +32,7 @@ public class CommonCodeGenerator {
    * @return 変数名
    */
   public String genVarName(SyntaxSymbol varDecl) {
-    return Keywords.Prefix.varPrefix + varDecl.getSymbolId();
+    return Keywords.Prefix.varPrefix + varDecl.getInstanceId();
   }
 
   /**
@@ -42,7 +42,7 @@ public class CommonCodeGenerator {
    * @return 変数名
    */
   public String genOutArgName(SyntaxSymbol varDecl) {
-    return Keywords.Prefix.outArgPrefix + varDecl.getSymbolId();
+    return Keywords.Prefix.outArgPrefix + varDecl.getInstanceId();
   }
 
   /**
@@ -52,7 +52,7 @@ public class CommonCodeGenerator {
    * @return 関数名
    */
   public String genFuncName(SyntaxSymbol funcDef) {
-    return Keywords.Prefix.funcPrefix + funcDef.getSymbolId();
+    return Keywords.Prefix.funcPrefix + funcDef.getInstanceId();
   }
 
   /**
@@ -121,7 +121,7 @@ public class CommonCodeGenerator {
         Keywords.Js._this,
         ScriptIdentifiers.Properties.CALL_STACK,
         ScriptIdentifiers.JsFuncs.PUSH);
-    return genFuncCallCode(funcName, toJsString(funcCallNode.getSymbolId().toString()));
+    return genFuncCallCode(funcName, toJsString(funcCallNode.getInstanceId().toString()));
   }
 
   /** コールスタックから関数呼び出しノードのシンボル ID を削除するコードを作成する. */

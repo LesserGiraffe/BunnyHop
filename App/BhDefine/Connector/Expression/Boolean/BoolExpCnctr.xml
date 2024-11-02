@@ -1,4 +1,4 @@
-<Connector 
-  bhConnectorID="idBoolExpCnctr"
+<ConnectorParamSet 
+  paramSetID="idBoolExpCnctr"
   defaultBhNodeID="idBoolLiteralExp"
   onConnectabilityChecking="BoolExpCnct.js"/>

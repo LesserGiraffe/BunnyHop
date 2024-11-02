@@ -2,24 +2,33 @@
   type="connective"
   bhNodeID="idStrCompExp"
   name="StrCompExp"
-  nodeStyleID="CompExp.json">
+  nodeStyleID="CompExp.json"
+  version="bh-1.0">
 
   <ConnectorSection name="BoolExpSctn">
-    <Connector bhConnectorID="idStrExpCnctr" name="LeftExp"/>
     
-    <PrivateConnector
-      bhConnectorID="idStrCompExp.prvCnctr0"
+    <Connector
+      bhConnectorID="idStrCompExp.cnctr0"
+      import="idStrExpCnctr"
+      name="LeftExp"/>
+
+    <Connector
+      bhConnectorID="idStrCompExp.cnctr1"
       name="Operator"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idStrCompExp.prvNode0"
+        bhNodeID="idStrCompExp.node1"
         name="CompOpe"
         nodeStyleID="DefaultComboBox.json"
-        onTextOptionsCreating="CreateOrderCompOps.js">
-      </Node>
-    </PrivateConnector>
+        onTextOptionsCreating="CreateOrderCompOps.js"
+        version="bh-1.0"/>
+    </Connector>
     
-    <Connector bhConnectorID="idStrExpCnctr" name="RightExp"/>
+    <Connector
+      bhConnectorID="idStrCompExp.cnctr2"
+      import="idStrExpCnctr"
+      name="RightExp"/>
+
   </ConnectorSection>
 </Node>

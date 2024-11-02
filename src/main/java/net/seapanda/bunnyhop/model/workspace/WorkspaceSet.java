@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -43,12 +44,14 @@ import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
+import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgReceptionWindow;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
@@ -59,6 +62,10 @@ import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.saveandload.ProjectSaveData;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.ScriptableObject;
 
 /**
  * ワークスペースの集合を保持、管理するクラス.
@@ -246,7 +253,8 @@ public class WorkspaceSet implements MsgReceptionWindow {
         .filter(this::canCopyOrCut).collect(Collectors.toCollection(HashSet::new));
 
     Collection<Pair<BhNode, BhNode>> orgsAndCopies = candidates.stream()
-        .map(node -> new Pair<BhNode, BhNode>(node, node.genCopyNode(candidates, userOpeCmd)))
+        .map(node ->
+            new Pair<BhNode, BhNode>(node, genCopyNode(node, candidates, userOpeCmd)))
         .filter(orgAndCopy -> orgAndCopy.v2 != null)
         .collect(Collectors.toCollection(ArrayList::new));
 
@@ -266,6 +274,74 @@ public class WorkspaceSet implements MsgReceptionWindow {
       pasteBasePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
     }
     pastePosOffsetCount = (pastePosOffsetCount > 2) ? -2 : ++pastePosOffsetCount;
+  }
+
+  /**
+   * このノードをコピーする.
+   *
+   * <p> 返されるノードの MVC は構築されない. </p>
+   *
+   * @param target コピー対象のノード
+   * @param nodesToCopy {@code target} ノードとともにコピーされるノード
+   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @return 作成したコピーノード.  コピーノードを作らなかった場合 null.
+   */
+  private BhNode genCopyNode(
+      BhNode target,
+      Collection<? extends BhNode> nodesToCopy,
+      UserOperationCommand userOpeCmd) {
+    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_COPY_REQUESTED);
+    Script onCopyRequested =
+        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+    if (onCopyRequested == null) {
+      return target.copy(userOpeCmd);
+    }
+    Object ret = null;
+    ScriptableObject scriptScope = target.getEventDispatcher().newDefaultScriptScope();
+    ScriptableObject.putProperty(
+        scriptScope, BhConstants.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCopy);
+    ScriptableObject.putProperty(
+        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+    try {
+      ret = ContextFactory.getGlobal().call(cx -> onCopyRequested.exec(cx, scriptScope));
+    } catch (Exception e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
+    }
+
+    if (ret == null) {
+      return null;
+    }
+    if (ret instanceof Function copyCheckFunc) {
+      Predicate<BhNode> copyTestFunc = genCopyCheckFunc(copyCheckFunc, scriptName.get(), target);
+      return target.copy(copyTestFunc, userOpeCmd);
+    }
+    throw new AssertionError(
+        scriptName.get() + " must return null or a function that returns a boolean value.");
+  }
+
+  /**
+   * コピー判定関数を作成する.
+   *
+   * @param copyCheckFunc 作成するコピー判定関数が呼び出す Javascript の関数
+   * @param scriptName copyCheckFunc を返したスクリプトの名前
+   * @param caller コピー判定関数を呼ぶノード
+   * @return コピー判定関数
+   */
+  private Predicate<BhNode> genCopyCheckFunc(
+      Function copyCheckFunc, String scriptName, BhNode caller) {
+    Predicate<BhNode> isNodeToCopy = node -> {
+      ScriptableObject scriptScope = caller.getEventDispatcher().newDefaultScriptScope();
+      Object retVal = ContextFactory.getGlobal().call(cx -> 
+          ((Function) copyCheckFunc).call(cx, scriptScope, scriptScope, new Object[] {node}));
+      if (!(retVal instanceof Boolean)) {
+        String msg = scriptName + " must return null or a function that returns a boolean value.";
+        MsgPrinter.INSTANCE.errMsgForDebug(msg);
+        throw new ClassCastException();
+      }
+      return (boolean) retVal;
+    };
+    return isNodeToCopy;
   }
 
   /**

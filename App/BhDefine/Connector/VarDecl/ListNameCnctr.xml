@@ -1,4 +1,4 @@
-<Connector 
-  bhConnectorID="idListNameCnctr"
+<ConnectorParamSet 
+  paramSetID="idListNameCnctr"
   defaultBhNodeID="idListName"
   fixed="true"/>

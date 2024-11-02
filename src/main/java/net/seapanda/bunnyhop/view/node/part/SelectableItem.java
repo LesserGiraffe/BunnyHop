@@ -86,9 +86,7 @@ public class SelectableItem {
 
   @Override
   public int hashCode() {
-    int hash = 5;
-    hash = 17 * hash + Objects.hashCode(this.viewObject);
-    hash = 17 * hash + Objects.hashCode(this.modelText);
-    return hash;
+    int hash = Objects.hashCode(this.viewObject);
+    return 31 * hash + Objects.hashCode(this.modelText);
   }
 }

@@ -1,4 +1,5 @@
 let imitIdList = 'imitIdList';
+let ImitationId = net.seapanda.bunnyhop.model.node.attribute.ImitationId;
 
 let listDeclToGetStat = {
   'NumListDecl'   : 'idNumArrayGetExp',
@@ -34,14 +35,13 @@ function genNodeToReplace(symbolMaps) {
 
 function genAnyArrayControlNode(arrayCtrlNodeId, argNames, symbolMaps) {
   let arrayCtrlNode = bhCommon.genBhNode(arrayCtrlNodeId, bhNodeTemplates, bhUserOpeCmd);
-  argNames = ['Arg0'].concat(argNames);
-  newNodes = [bhCommon.buildImitation(bhThis, imitIdList, bhUserOpeCmd)]
-    .concat(genNodeToReplace(symbolMaps));
+  let arg = arrayCtrlNode.findSymbolInDescendants('*', 'Arg0', '*');
+  let newNode = bhCommon.buildImitation(bhThis, imitIdList, bhUserOpeCmd);
+  arg.replace(newNode, bhUserOpeCmd);
 
   for (let i = 0; i < argNames.length; ++i) {
-    let arg = arrayCtrlNode.findSymbolInDescendants('*', argNames[i], '*');
-    arg.replace(newNodes[i], bhUserOpeCmd);
-    newNodes[i].getParentConnector().setDefaultNodeId(newNodes[i].getId());
+    cnctr = arrayCtrlNode.findSymbolInDescendants('*', argNames[i]);
+    bhCommon.changeDefaultNode(cnctr, symbolMaps[i][bhThis.getSymbolName()], bhUserOpeCmd);
   }
   return arrayCtrlNode;
 }

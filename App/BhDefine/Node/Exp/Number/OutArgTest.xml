@@ -2,29 +2,53 @@
   type="connective"
   bhNodeID="idOutArgTestExp"
   name="OutArgTestExp"
-  nodeStyleID="OutArgTestExp.json">
+  nodeStyleID="OutArgTestExp.json"
+  version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">
 
-    <PrivateConnector
-      bhConnectorID="idOutArgTestExp.prvCnctr0"
+    <Connector
+      bhConnectorID="idOutArgTestExp.cnctr0"
       name="OutArgTest"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idOutArgTestExp.prvNode0"
+        bhNodeID="idOutArgTestExp.node0"
         name="OutArgTest"
         nodeStyleID="L1.json"
-        initString="OutArgTest">
-      </Node>
-    </PrivateConnector>
+        initString="OutArgTest"
+        version="bh-1.0"/>
+    </Connector>
 
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg2"/>
-    <Connector bhConnectorID="idNumVarCnctr" name="OutArg0"/>
-    <Connector bhConnectorID="idNumVarCnctr" name="OutArg1"/>
-    <Connector bhConnectorID="idNumVarCnctr" name="OutArg2"/>
+    <Connector
+      bhConnectorID="idOutArgTestExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idOutArgTestExp.cnctr2"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+
+    <Connector
+      bhConnectorID="idOutArgTestExp.cnctr3"
+      import="idNumExpCnctr"
+      name="Arg2"/>
+
+    <Connector
+      bhConnectorID="idOutArgTestExp.cnctr4"
+      import="idNumVarCnctr"
+      name="OutArg0"/>
+
+    <Connector
+      bhConnectorID="idOutArgTestExp.cnctr5"
+      import="idNumVarCnctr"
+      name="OutArg1"/>
+
+    <Connector
+      bhConnectorID="idOutArgTestExp.cnctr6"
+      import="idNumVarCnctr"
+      name="OutArg2"/>
 
   </ConnectorSection>
 </Node>

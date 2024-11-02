@@ -7,22 +7,28 @@
   onMovedToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StatSctn">
 
-    <PrivateConnector
-      bhConnectorID="idCommentPart.prvCnctr1"
+    <Connector
+      bhConnectorID="idCommentPart.cnctr0"
       name="Comment"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idCommentPart.prvNode1"
+        bhNodeID="idCommentPart.node0"
         name="Comment"
         nodeStyleID="DefaultTextArea.json"
-        onTextOptionsCreating="CreateDefaultVarName.js">
-      </Node>
-    </PrivateConnector>  
-    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+        onTextOptionsCreating="CreateDefaultVarName.js"
+        version="bh-1.0"/>
+    </Connector>
+
+    <Connector
+      bhConnectorID="idCommentPart.cnctr1"
+      import="idStatCnctr"
+      name="NextStat"/>
+
   </ConnectorSection>
 </Node>

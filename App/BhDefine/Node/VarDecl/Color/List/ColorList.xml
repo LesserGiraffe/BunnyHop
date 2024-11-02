@@ -3,9 +3,14 @@
   bhNodeID="idColorList"
   name="ColorList"
   nodeStyleID="ColorList.json"
-  onSyntaxChecking="IsOutOfScope.js">
+  onSyntaxChecking="IsOutOfScope.js"
+  version="bh-1.0">
 
   <ConnectorSection name="ColorListSctn">
-    <Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>    
+    <Connector
+      bhConnectorID="idColorList.cnctr0"
+      import="idListNameCnctr"
+      name="ListName"
+      imitCnctPos="imitPosListName"/>    
   </ConnectorSection>
 </Node>

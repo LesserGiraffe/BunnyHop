@@ -2,11 +2,27 @@
   type="connective"
   bhNodeID="idColorArg"
   name="ColorArg"
-  nodeStyleID="ColorArg.json">
+  nodeStyleID="ColorArg.json"
+  version="bh-1.0">
 
   <ConnectorSection>
-    <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
-    <Connector bhConnectorID="idColorExpCnctr" name="Arg"/>
-    <Connector bhConnectorID="idArgCnctr" name="NextArg" imitCnctPos="imitPosNextArg"/>
+    
+    <Connector
+      bhConnectorID="idColorArg.cnctr0"
+      import="idVarNameCnctr"
+      name="VarName"
+      imitCnctPos="imitPosVarName"/>
+
+    <Connector
+      bhConnectorID="idColorArg.cnctr1"
+      import="idColorExpCnctr"
+      name="Arg"/>
+
+    <Connector
+      bhConnectorID="idColorArg.cnctr2"
+      import="idArgCnctr"
+      name="NextArg"
+      imitCnctPos="imitPosNextArg"/>
+
   </ConnectorSection>
 </Node>

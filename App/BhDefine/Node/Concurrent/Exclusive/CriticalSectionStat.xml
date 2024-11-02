@@ -7,17 +7,26 @@
   onMovedToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StatSctn">
 
     <Connector
-      bhConnectorID="idVarNameCnctr"
+      bhConnectorID="idCriticalSectionStat.cnctr0"
+      import="idVarNameCnctr"
       name="CriticalSectionName"
       imitCnctPos="imitPosVarName"/>
 
-    <Connector bhConnectorID="idStatCnctr" name="ExclusiveStat"/>
-    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+    <Connector
+      bhConnectorID="idCriticalSectionStat.cnctr1"
+      import="idStatCnctr"
+      name="ExclusiveStat"/>
+
+    <Connector
+      bhConnectorID="idCriticalSectionStat.cnctr2"
+      import="idStatCnctr"
+      name="NextStat"/>
 
   </ConnectorSection>
 </Node>

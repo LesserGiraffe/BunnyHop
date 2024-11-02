@@ -281,8 +281,8 @@ public class MsgService {
    * @param modelText モデルに模倣させるテキスト
    * @param viewText ビューに模倣させるテキスト
    */
-  public void imitateText(TextNode node, String modelText, String viewText) {
-    MsgTransporter.INSTANCE.sendMessage(BhMsg.IMITATE_TEXT, new MsgData(modelText, viewText), node);
+  public void setText(TextNode node, String modelText, String viewText) {
+    MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_TEXT, new MsgData(modelText, viewText), node);
   }
 
   /**

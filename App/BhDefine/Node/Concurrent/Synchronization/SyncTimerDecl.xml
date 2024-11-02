@@ -7,46 +7,52 @@
   onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <Imitation imitationID="imitIdSyncTimeVar" imitationNodeID="idSyncTimerVar"/>
 
   <ConnectorSection name="GlobalDataDeclSctn">
 
     <Connector
-      bhConnectorID="idVarNameCnctr"
+      bhConnectorID="idSyncTimerDecl.cnctr0"
+      import="idVarNameCnctr"
       name="SyncTimerName"
       imitationID="imitIdVarName"
       imitCnctPos="imitPosVarName"/>
 
-    <PrivateConnector
-      bhConnectorID="idSyncTimerDecl.prvCnctr2"
+    <Connector
+      bhConnectorID="idSyncTimerDecl.cnctr1"
       name="Arg1"
-        fixed="true">
+      fixed="true">
       <Node
         type="text"
-        bhNodeID="idSyncTimerDecl.prvNode2"
+        bhNodeID="idSyncTimerDecl.node1"
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateSynTimerOps.js">
-      </Node>
-    </PrivateConnector>
+        onTextOptionsCreating="CreateSynTimerOps.js"
+        version="bh-1.0"/>
+    </Connector>
 
-    <PrivateConnector
-      bhConnectorID="idSyncTimerDecl.prvCnctr4"
+    <Connector
+      bhConnectorID="idSyncTimerDecl.cnctr2"
       name="Arg0"
-        fixed="true">
+      fixed="true">
       <Node
         type="text"
-        bhNodeID="idSyncTimerDecl.prvNode4"
+        bhNodeID="idSyncTimerDecl.node2"
         name="NumLiteral"
         nodeStyleID="FixedNumLiteral.json"
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckSyncTimerCount.js"
-        initString="1">
-      </Node>
-    </PrivateConnector>
+        initString="1"
+        version="bh-1.0"/>
+    </Connector>
 
-    <Connector bhConnectorID="idGlobalDataDeclCnctr" name="NextGlobalDataDecl"/>
+    <Connector
+      bhConnectorID="idSyncTimerDecl.cnctr3"
+      import="idGlobalDataDeclCnctr"
+      name="NextGlobalDataDecl"/>
+
   </ConnectorSection>
 </Node>

@@ -3,5 +3,5 @@
   bhNodeID="idVarDeclVoid" 
   name="VarDeclVoid" 
   nodeStyleID="VarDeclVoid.json"
-  onMovedFromChildToWS="DeleteNode.js">
-</Node>
+  onMovedFromChildToWS="DeleteNode.js"
+  version="bh-1.0"/>

@@ -1,4 +1,4 @@
-<Connector 
-  bhConnectorID="idColorExpCnctr"
+<ConnectorParamSet 
+  paramSetID="idColorExpCnctr"
   defaultBhNodeID="idColorLiteralExp"
   onConnectabilityChecking="ColorExpCnct.js"/>

@@ -2,11 +2,20 @@
   type="connective"
   bhNodeID="idRandomIntExp"
   name="RandomIntExp"
-  nodeStyleID="RandomIntExp.json">
+  nodeStyleID="RandomIntExp.json"
+  version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg0"/>
+    
+    <Connector
+      bhConnectorID="idRandomIntExp.cnctr0"
+      import="idNumExpCnctr"
+      name="Arg0"/>
         
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+    <Connector
+      bhConnectorID="idRandomIntExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+
   </ConnectorSection>
 </Node>

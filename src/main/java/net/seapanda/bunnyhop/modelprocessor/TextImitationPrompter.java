@@ -41,7 +41,7 @@ public class TextImitationPrompter implements BhModelProcessor {
     if (node.isImitationNode()) {
       TextNode original = node.getOriginal();
       String viewText = MsgService.INSTANCE.getViewText(original);
-      MsgService.INSTANCE.imitateText(node, original.getText(), viewText);
+      MsgService.INSTANCE.setText(node, original.getText(), viewText);
     }
   }
 }

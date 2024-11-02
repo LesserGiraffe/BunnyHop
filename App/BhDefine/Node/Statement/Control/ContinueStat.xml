@@ -7,7 +7,8 @@
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedToChild="OnStatMovedToChild.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <Section name="StatSctn"/>
 </Node>

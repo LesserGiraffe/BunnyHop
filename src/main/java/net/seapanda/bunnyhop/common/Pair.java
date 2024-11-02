@@ -48,8 +48,7 @@ public class Pair<T1, T2> {
 
   @Override
   public int hashCode() {
-    int hash = 3;
-    hash = 79 * hash + Objects.hashCode(this.v1);
+    int hash = Objects.hashCode(this.v1);
     hash = 79 * hash + Objects.hashCode(this.v2);
     return hash;
   }

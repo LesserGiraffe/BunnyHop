@@ -3,9 +3,14 @@
   bhNodeID="idSoundList"
   name="SoundList"
   nodeStyleID="SoundList.json"
-  onSyntaxChecking="IsOutOfScope.js">
+  onSyntaxChecking="IsOutOfScope.js"
+  version="bh-1.0">
 
   <ConnectorSection name="SoundListSctn">
-    <Connector bhConnectorID="idListNameCnctr" name="ListName" imitCnctPos="imitPosListName"/>
+    <Connector
+      bhConnectorID="idSoundList.cnctr0"
+      import="idListNameCnctr"
+      name="ListName"
+      imitCnctPos="imitPosListName"/>
   </ConnectorSection>
 </Node>

@@ -7,24 +7,32 @@
   onMovedToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StatSctn">
-    <PrivateConnector
-      bhConnectorID="idLightEyeStat.prvCnctr0"
+    <Connector
+      bhConnectorID="idLightEyeStat.cnctr0"
       name="Arg0"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idLightEyeStat.prvNode0"
+        bhNodeID="idLightEyeStat.node0"
         name="StrLiteral"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateEyeOps.js">
+        onTextOptionsCreating="CreateEyeOps.js"
+        version="bh-1.0">
       </Node>
-    </PrivateConnector>
+    </Connector>
 
-    <Connector bhConnectorID="idColorExpCnctr" name="Arg1"/>
+    <Connector
+      bhConnectorID="idLightEyeStat.cnctr1"
+      import="idColorExpCnctr"
+      name="Arg1"/>
     
-    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+    <Connector
+      bhConnectorID="idLightEyeStat.cnctr2"
+      import="idStatCnctr"
+      name="NextStat"/>
   </ConnectorSection>
 </Node>

@@ -60,9 +60,8 @@ public class LabelNodeController extends BhNodeController {
    * */
   @Override
   public MsgData processMsg(BhMsg msg, MsgData data) {
-
     switch (msg) {
-      case IMITATE_TEXT:
+      case SET_TEXT:
         setText(model, view, data.strPair.v1, data.strPair.v2);
         break;
 

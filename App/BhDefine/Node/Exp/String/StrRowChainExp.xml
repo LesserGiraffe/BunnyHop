@@ -2,11 +2,12 @@
   type="connective"
   bhNodeID="idStrRowChainExp"
   name="StrChainExp"
-  nodeStyleID="StrChainExp.json">
+  nodeStyleID="StrChainExp.json"
+  version="bh-1.0">
 
   <ConnectorSection name="StrExpSctn">
-    <PrivateConnector
-      bhConnectorID="idStrRowChainExp.prvCnctr0"
+    <Connector
+      bhConnectorID="idStrRowChainExp.cnctr0"
       name="Arg0"
       defaultBhNodeID="idStrRowChainLinkExp"
       fixed="true"/>

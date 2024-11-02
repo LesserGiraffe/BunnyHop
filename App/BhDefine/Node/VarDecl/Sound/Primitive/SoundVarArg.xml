@@ -2,11 +2,27 @@
   type="connective"
   bhNodeID="idSoundArg"
   name="SoundArg"
-  nodeStyleID="SoundArg.json">
+  nodeStyleID="SoundArg.json"
+  version="bh-1.0">
 
   <ConnectorSection>
-    <Connector bhConnectorID="idVarNameCnctr" name="VarName" imitCnctPos="imitPosVarName"/>
-    <Connector bhConnectorID="idSoundExpCnctr" name="Arg"/>
-    <Connector bhConnectorID="idArgCnctr" name="NextArg" imitCnctPos="imitPosNextArg"/>
+
+    <Connector
+      bhConnectorID="idSoundArg.cnctr0"
+      import="idVarNameCnctr"
+      name="VarName"
+      imitCnctPos="imitPosVarName"/>
+
+    <Connector
+      bhConnectorID="idSoundArg.cnctr1"
+      import="idSoundExpCnctr"
+      name="Arg"/>
+
+    <Connector
+      bhConnectorID="idSoundArg.cnctr2"
+      import="idArgCnctr"
+      name="NextArg"
+      imitCnctPos="imitPosNextArg"/>
+
   </ConnectorSection>
 </Node>

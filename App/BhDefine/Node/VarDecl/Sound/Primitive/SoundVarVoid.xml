@@ -3,5 +3,5 @@
   bhNodeID="idSoundVarVoid"
   name="SoundVarVoid"
   nodeStyleID="SoundVarVoid.json"
-  onMovedFromChildToWS="DeleteNode.js">
-</Node>
+  onMovedFromChildToWS="DeleteNode.js"
+  version="bh-1.0"/>

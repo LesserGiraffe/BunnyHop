@@ -8,32 +8,44 @@
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
-  onCopyRequested="OnCopyRequested.js">
+  onCopyRequested="OnCopyRequested.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StatSctn">
-    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
     
-    <Connector bhConnectorID="idNumExpCnctr" name="Arg1"/>
+    <Connector
+      bhConnectorID="idAnyArraySpliceStat.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
     
-    <PrivateConnector
-      bhConnectorID="idAnyArraySpliceStat.prvCnctr2"
+    <Connector
+      bhConnectorID="idAnyArraySpliceStat.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+    
+    <Connector
+      bhConnectorID="idAnyArraySpliceStat.cnctr2"
       name="Arg2"
       defaultBhNodeID="idPositiveIntLiteralExp"
       onConnectabilityChecking="NumExpCnct.js"/>
 
-    <PrivateConnector
-      bhConnectorID="idAnyArraySpliceStat.prvCnctr4"
+    <Connector
+      bhConnectorID="idAnyArraySpliceStat.cnctr3"
       name="Option0"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idAnyArraySpliceStat.prvNode4"
+        bhNodeID="idAnyArraySpliceStat.node3"
         name="Function"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateListSpliceOps.js">
-      </Node>
-    </PrivateConnector>
+        onTextOptionsCreating="CreateListSpliceOps.js"
+        version="bh-1.0"/>
+    </Connector>
     
-    <Connector bhConnectorID="idStatCnctr" name="NextStat"/>
+    <Connector
+      bhConnectorID="idAnyArraySpliceStat.cnctr4"
+      import="idStatCnctr"
+      name="NextStat"/>
+
   </ConnectorSection>
 </Node>

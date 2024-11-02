@@ -17,11 +17,11 @@
 package net.seapanda.bunnyhop.modelprocessor;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.connective.ConnectiveNode;
-import net.seapanda.bunnyhop.model.node.connective.Connector;
-import net.seapanda.bunnyhop.model.node.connective.ConnectorSection;
-import net.seapanda.bunnyhop.model.node.connective.Subsection;
-import net.seapanda.bunnyhop.model.node.imitation.ImitCnctPosId;
+import net.seapanda.bunnyhop.model.node.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.Connector;
+import net.seapanda.bunnyhop.model.node.attribute.ImitCnctPosId;
+import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
+import net.seapanda.bunnyhop.model.node.section.Subsection;
 
 /**
  * イミテーションタグを指定し, そこに接続されている {@link BhNode} を見つけるクラス.

@@ -3,14 +3,18 @@
   bhNodeID="idStrRowChainLinkExp"
   name="StrChainLinkExp"
   nodeStyleID="StrRowChainLinkExp.json"
-  onChildReplaced="OnChildStrExpInChainReplaced.js">
+  onChildReplaced="OnChildStrExpInChainReplaced.js"
+  version="bh-1.0">
 
   <ConnectorSection name="StrChainLinkSctn">
 
-    <Connector bhConnectorID="idAnyExpCnctr" name="Arg0"/>
+    <Connector
+      bhConnectorID="idStrRowChainLinkExp.cnctr0"
+      import="idAnyExpCnctr"
+      name="Arg0"/>
     
-    <PrivateConnector
-      bhConnectorID="idStrRowChainLinkExp.prvCnctr1"
+    <Connector
+      bhConnectorID="idStrRowChainLinkExp.cnctr1"
       name="Arg1"
       fixed="true"
       defaultBhNodeID="idStrChainLinkVoid"/>

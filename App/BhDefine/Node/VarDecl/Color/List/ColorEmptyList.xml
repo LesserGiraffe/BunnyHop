@@ -3,7 +3,8 @@
   bhNodeID="idColorEmptyList"
   name="ColorEmptyList"
   nodeStyleID="ColorEmptyList.json"
-  onMovedFromChildToWS="OnLiteralMovedToWS.js">
+  onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  version="bh-1.0">
 
   <!-- ColorList と共通のセクションを持たせる -->
   <Section name="ColorListSctn"/>

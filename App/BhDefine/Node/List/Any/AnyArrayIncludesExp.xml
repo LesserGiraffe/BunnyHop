@@ -3,11 +3,20 @@
   bhNodeID="idAnyArrayIncludesExp"
   name="AnyArrayIncludesExp"
   nodeStyleID="AnyArrayIncludesExp.json"
-  onChildReplaced="OnChildOfArrayCtrlReplaced.js">
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  version="bh-1.0">
 
   <ConnectorSection name="BoolExpSctn">
-    <Connector bhConnectorID="idAnyFixedCnctr" name="Arg0"/>
 
-    <Connector bhConnectorID="idSameTypeOfExpCnctr" name="Arg1"/>   
+    <Connector
+      bhConnectorID="idAnyArrayIncludesExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idAnyArrayIncludesExp.cnctr1"
+      import="idSameTypeOfExpCnctr"
+      name="Arg1"/>
+
   </ConnectorSection>
 </Node>

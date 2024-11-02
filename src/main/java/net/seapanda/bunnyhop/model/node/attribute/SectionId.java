@@ -14,60 +14,58 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.node.imitation;
+package net.seapanda.bunnyhop.model.node.attribute;
 
 import java.io.Serializable;
 import java.util.Objects;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
- * イミテーションの接続先の識別子.
+ * セクション ID.
  *
  * @author K.Koike
  */
-public class ImitCnctPosId implements Serializable {
+public class SectionId implements Serializable {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  /** イミテーション接続位置が存在しないことを表す. */
-  public static final ImitCnctPosId NONE = new ImitCnctPosId("");
-  private final String pos;
+  /** コネクタ ID が存在しないことを表すオブジェクト. */
+  public static final SectionId NONE = new SectionId("");
+  private final String id;
 
   /**
    * コンストラクタ.
    *
-   * @param point 接続先名
+   * @param id 識別子名
    */
-  private ImitCnctPosId(String point) {
-    this.pos = point;
+  private SectionId(String id) {
+    this.id = id;
   }
 
   /**
-   * イミテーション接続位置の識別子を作成する.
+   * セクション ID を作成する.
    *
-   * @param point イミテーション接続位置名
-   * @return イミテーション接続位置の識別子
+   * @param id 識別子名
+   * @return セクション ID
    */
-  public static ImitCnctPosId create(String point) {
-    return new ImitCnctPosId(point == null ? "" : point);
+  public static SectionId of(String id) {
+    return new SectionId(id == null ? "" : id);
   }
 
   @Override
   public String toString() {
-    return pos;
+    return id;
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
+    if (obj instanceof SectionId other) {
+      return id.equals(other.id);
     }
-    return (getClass() == obj.getClass()) && (pos.equals(((ImitCnctPosId) obj).pos));
+    return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = 5;
-    hash = 71 * hash + Objects.hashCode(this.pos);
-    return hash;
+    return Objects.hashCode(id);
   }
 }

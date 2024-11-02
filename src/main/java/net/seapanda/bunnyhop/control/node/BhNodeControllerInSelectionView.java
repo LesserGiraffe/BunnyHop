@@ -98,7 +98,7 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
         return;
       }
       UserOperationCommand userOpeCmd = new UserOperationCommand();
-      BhNode newNode = model.findRootNode().copy(userOpeCmd, (bhNode) -> true);
+      BhNode newNode = model.findRootNode().copy(userOpeCmd);
       BhNodeView nodeView = NodeMvcBuilder.build(newNode); //MVC構築
       TextImitationPrompter.prompt(newNode);
       currentView.setValue(nodeView);
@@ -199,7 +199,7 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
         data.userOpeCmd.pushCmdOfSetVisible(view, data.bool);
         break;
 
-      case IMITATE_TEXT:
+      case SET_TEXT:
         setText(data.strPair.v1, data.strPair.v2);
         break;
 

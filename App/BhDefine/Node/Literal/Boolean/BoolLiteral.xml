@@ -3,21 +3,23 @@
   bhNodeID="idBoolLiteralExp"
   name="BoolLiteralExp"
   nodeStyleID="BoolLiteralExp.json"
-  onMovedFromChildToWS="OnLiteralMovedToWS.js">
+  onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  version="bh-1.0">
 
   <ConnectorSection name="BoolExpSctn">
 
-    <PrivateConnector
-      bhConnectorID="idBoolLiteralExp.prvCnctr0"
+    <Connector
+      bhConnectorID="idBoolLiteralExp.cnctr0"
       name="Literal"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idBoolLiteralExp.prvNode0"
+        bhNodeID="idBoolLiteralExp.node0"
         name="BoolLiteral"
         nodeStyleID="BoolLiteral.json"
-        onTextOptionsCreating="CreateBoolLiteral.js">
-      </Node>
-    </PrivateConnector>
+        onTextOptionsCreating="CreateBoolLiteral.js"
+        version="bh-1.0"/>
+    </Connector>
+
   </ConnectorSection>
 </Node>

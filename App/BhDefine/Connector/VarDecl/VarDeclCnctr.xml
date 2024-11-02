@@ -1,4 +1,4 @@
-<Connector 
-  bhConnectorID="idVarDeclCnctr"
+<ConnectorParamSet 
+  paramSetID="idVarDeclCnctr"
   defaultBhNodeID="idVarDeclVoid"
   onConnectabilityChecking="VarDeclCnct.js"/>
