@@ -23,11 +23,16 @@ package net.seapanda.bunnyhop.compiler;
  */
 public class CompileOption {
 
-  public final boolean local;  //!< ルーカルで実行するコードを生成する場合true
-  public final boolean isDebug;  //!< デバッグ用コードを追加する場合true
-  public final boolean keepRealNumber; //!< 算術演算で結果を実数に保つ場合 true
-  public final boolean traceException;  //!< 例外を追跡するためのコードを追加する場合 true
-  public final boolean withComments;  //!< ソースコードにコメントを追加する場合true
+  /** ルーカルで実行するコードを生成する場合 true. */
+  public final boolean local;
+  /** デバッグ用コードを追加する場合 true. */
+  public final boolean isDebug;
+  /** 算術演算で結果を実数に保つ場合 true. */
+  public final boolean keepRealNumber;
+  /** 例外を追跡するためのコードを追加する場合 true. */
+  public final boolean traceException;
+  /** ソースコードにコメントを追加する場合 true. */
+  public final boolean withComments;
 
   private CompileOption(Builder builder) {
     this.local = builder.local;

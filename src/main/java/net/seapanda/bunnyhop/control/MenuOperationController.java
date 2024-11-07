@@ -55,12 +55,11 @@ import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.NodeGraphSnapshot;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.modelprocessor.TemplateImitationCollector;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
-import net.seapanda.bunnyhop.modelservice.DelayedDeleter;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
@@ -228,18 +227,18 @@ public class MenuOperationController {
       UserOperationCommand userOpeCmd = new UserOperationCommand();
       var candidates = currentWs.getSelectedNodeList();
       var nodesToDelete = candidates.stream()
-          .filter(node -> node.getEventDispatcher().execOnDeletionRequested(
+          .filter(node -> node.getEventAgent().execOnDeletionRequested(
               candidates, CauseOfDeletion.SELECTED_FOR_DELETION, userOpeCmd))
           .collect(Collectors.toCollection(ArrayList::new));
-      List<Pair<BhNode, BhNode>> oldAndNewNodeList =
+      List<Swapped> swappedNodes =
           BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
-      for (var oldAndNewNode : oldAndNewNodeList) {
-        BhNode oldNode = oldAndNewNode.v1;
-        BhNode newNode = oldAndNewNode.v2;
-        newNode.findParentNode().execOnChildReplaced(
-            oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
+      for (var swapped : swappedNodes) {
+        swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
+            swapped.oldNode(),
+            swapped.newNode(),
+            swapped.newNode().getParentConnector(),
+            userOpeCmd);
       }
-      DelayedDeleter.INSTANCE.deleteAll(userOpeCmd);
       SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
       SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
       BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
@@ -366,11 +365,6 @@ public class MenuOperationController {
       }
       BhNodeSelectionService.INSTANCE.hideAll();
       var userOpeCmd = new UserOperationCommand();
-      var imitToDelete = wss.getWorkspaceList().stream()
-          .flatMap(ws -> ws.getRootNodeList().stream())
-          .flatMap(rootNode -> TemplateImitationCollector.collect(rootNode).stream())
-          .collect(Collectors.toCollection(ArrayList::new));
-      BhNodeHandler.INSTANCE.deleteNodes(imitToDelete, new UserOperationCommand());
       snapshotAndNodeToExecOpt = CompileNodeCollector.collect(wss, userOpeCmd);
       BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
     } finally {

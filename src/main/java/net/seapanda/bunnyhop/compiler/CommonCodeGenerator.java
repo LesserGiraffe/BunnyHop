@@ -154,7 +154,7 @@ public class CommonCodeGenerator {
   }
 
   /**
-   * 引数で指定した文字列を Javascript の文字列リテラル表現に変換する.
+   * 引数で指定した文字列を JavaScript の文字列リテラル表現に変換する.
    */
   public String toJsString(String str) {
     return "'" + str.replaceAll("\\\\", "\\\\\\\\").replaceAll("'", "\\\\'") + "'";

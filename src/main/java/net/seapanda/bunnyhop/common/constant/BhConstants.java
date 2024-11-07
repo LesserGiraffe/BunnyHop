@@ -79,7 +79,7 @@ public class BhConstants {
     public static final String CONNECTOR_DEF_DIR = "Connector";
     /** ノードのスタイル定義ファイルがあるフォルダ名. */
     public static final String NODE_STYLE_DEF_DIR = "NodeStyle";
-    /** Javascript コードが書かれたファイルのあるトップフォルダ. */
+    /** JavaScript コードが書かれたファイルのあるトップフォルダ. */
     public static final String FUNCTIONS_DIR = "Functions";
     /** ノードテンプレートの配置情報が書かれたファイルがあるフォルダ名. */
     public static final String TEMPLATE_LIST_DIR = "TemplateList";

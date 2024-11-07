@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author K.Koike
  */
 public class Util {
-  /** シングルトンインスタンス. */
+
   public static final Util INSTANCE = new Util();
   /** 実行時jarパス. */
   public final String execPath;

@@ -21,9 +21,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.modelprocessor.SyntaxErrorNodeCollector;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -35,7 +35,6 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  */
 public class SyntaxErrorNodeManager {
 
-  /** シングルトンインスタンス. */
   public static final SyntaxErrorNodeManager INSTANCE = new SyntaxErrorNodeManager();
   /** 構文エラーノードのリスト. */
   private final Set<BhNode> errorNodeList = new HashSet<>();
@@ -45,8 +44,8 @@ public class SyntaxErrorNodeManager {
   /**
    * 以下の2種類の構文エラーノードを管理対象に入れる.
    * <pre>
-   *   ・引数のノード以下にある構文エラーノード
-   *   ・引数のノード以下にあるオリジナルノードが持つ構文エラーを起こしているイミテーションノード
+   *   ・{@code node} 以下にある構文エラーノード
+   *   ・{@code node} 以下にあるオリジナルノードが持つ構文エラーを起こしているイミテーションノード
    * </pre>
    */
   public void collect(BhNode node, UserOperationCommand userOpeCmd) {
@@ -82,23 +81,24 @@ public class SyntaxErrorNodeManager {
 
   /** 管理下の全ての構文エラーノードを削除する.*/
   public void deleteErrorNodes(UserOperationCommand userOpeCmd) {
-    var nodesToDelete =
-        errorNodeList.stream()
+    var errNodes = errorNodeList.stream()
         .filter(node -> node.hasSyntaxError())
-        .collect(Collectors.toCollection(HashSet::new));
+        .toList();
 
-    nodesToDelete.forEach(node -> node.getEventDispatcher().execOnDeletionRequested(
-        nodesToDelete, CauseOfDeletion.SYNTAX_ERROR, userOpeCmd));
+    var nodesToDelete = errNodes.stream()
+        .filter(node -> node.getEventAgent().execOnDeletionRequested(
+            errNodes, CauseOfDeletion.SYNTAX_ERROR, userOpeCmd))
+        .toList();
 
-    List<Pair<BhNode, BhNode>> oldAndNewNodeList =
+    List<Swapped> swappedNodes =
         BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
-    for (var oldAndNewNode : oldAndNewNodeList) {
-      BhNode oldNode = oldAndNewNode.v1;
-      BhNode newNode = oldAndNewNode.v2;
-      newNode.findParentNode().execOnChildReplaced(
-          oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
+    for (var swapped : swappedNodes) {
+      swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
+          swapped.oldNode(),
+          swapped.newNode(),
+          swapped.newNode().getParentConnector(),
+          userOpeCmd);
     }
-
     errorNodeList.removeAll(nodesToDelete);
     userOpeCmd.pushCmdOfRemoveFromList(errorNodeList, nodesToDelete);
   }

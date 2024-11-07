@@ -18,13 +18,10 @@ package net.seapanda.bunnyhop.model.node;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.ImitationId;
@@ -35,9 +32,6 @@ import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.ScriptableObject;
 
 /**
  * 子ノードと接続されるノード.
@@ -53,7 +47,7 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
    * コンストラクタ.
    *
    * @param childSection 子セクション
-   * @param imitIdToImitNodeId イミテーションタグとそれに対応するイミテーションノードIDのマップ
+   * @param imitIdToImitNodeId イミテーション接続位置とそれに対応するイミテーションノードIDのマップ
    * @param attributes ノードの設定情報
    */
   public ConnectiveNode(
@@ -77,9 +71,10 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
   }
 
   @Override
-  public ConnectiveNode copy(Predicate<BhNode> isNodeToBeCopied, UserOperationCommand userOpeCmd) {
+  public ConnectiveNode copy(
+      Predicate<? super BhNode> isNodeToBeCopied, UserOperationCommand userOpeCmd) {
     ConnectiveNode newNode = new ConnectiveNode(this, userOpeCmd);
-    newNode.childSection = childSection.copy(userOpeCmd, isNodeToBeCopied);
+    newNode.childSection = childSection.copy(isNodeToBeCopied, userOpeCmd);
     newNode.childSection.setParent(newNode);
     return newNode;
   }
@@ -113,42 +108,6 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
     return null;
   }
 
-  /**
-   * 子ノードが入れ替わったときの処理を実行する.
-   *
-   * @param oldChild 入れ替わった古いノード
-   * @param newChild 入れ替わった新しいノード
-   * @param parentCnctr 子が入れ替わったコネクタ
-   * @param userOpeCmd undo 用コマンドオブジェクト
-   */
-  public void execOnChildReplaced(
-      BhNode oldChild,
-      BhNode newChild,
-      Connector parentCnctr,
-      UserOperationCommand userOpeCmd) {
-    Optional<String> scriptName = getScriptName(BhNodeEvent.ON_CHILD_REPLACED);
-    Script onChildReplaced =
-        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
-    if (onChildReplaced == null) {
-      return;
-    }
-    ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newChild);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldChild);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_PARENT_CONNECTOR, parentCnctr);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
-    try {
-      ContextFactory.getGlobal().call(cx -> onChildReplaced.exec(cx, scriptScope));
-    } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
-    }
-  }
-
   @Override
   public void findSymbolInDescendants(
       int generation,
@@ -177,7 +136,6 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
     if (imitationNode instanceof ConnectiveNode imit) {
       //オリジナルとイミテーションの関連付け
       addImitation(imit, userOpeCmd);
-      imit.setOriginal(this, userOpeCmd);
       return imit;
     }
     throw new AssertionError("imitation node type inconsistency");    

@@ -23,12 +23,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
-import net.seapanda.bunnyhop.view.node.BhNodeView;
 import org.apache.commons.lang3.SerializationUtils;
 
 /**
@@ -37,14 +35,9 @@ import org.apache.commons.lang3.SerializationUtils;
  * @author K.Koike
  */
 public class NodeGraphSnapshot {
-
-  private final Set<BhNode> rootNodeSet;  //!< スナップショット作成時の全ルートノードのコピー
+  /** 全ルートノードを格納する. */
+  private final Set<BhNode> rootNodeSet;
   private final WorkspaceSet wss;
-  /**
-   * {@link InstanceId} と対応する {@link BhNodeView} のマップ.
-   * {@link BhNodeView} はスナップショットではなく, オリジナルのモデル ({@link BhNode}) に対応するビューオブジェクト.
-   */
-  private final Map<InstanceId, BhNodeView> symbolIdToNodeView;
   /** {@link InstanceId} とそれに対応する BhNode のマップ. */
   private final Map<InstanceId, BhNode> symbolIdToNode;
 
@@ -56,7 +49,6 @@ public class NodeGraphSnapshot {
   public NodeGraphSnapshot(WorkspaceSet wss) {
     this.wss = wss;
     HashSet<BhNode> originalRootNodeSet = collectRootNodes(wss);
-    symbolIdToNodeView = collectNodeView(originalRootNodeSet);
     rootNodeSet = SerializationUtils.clone(originalRootNodeSet);
     symbolIdToNode = collectNode(rootNodeSet);
   }
@@ -67,19 +59,6 @@ public class NodeGraphSnapshot {
         .flatMap(ws -> ws.getRootNodeList().stream())
         .collect(Collectors.toSet());
     return new HashSet<BhNode>(rootNodes);
-  }
-
-  /** 引数のノードリストから辿れるノードのノードビューをシンボルIDと共に集めて返す. */
-  private Map<InstanceId, BhNodeView> collectNodeView(Collection<BhNode> rootNodeList) {
-    var symbolIdToNodeView = new HashMap<InstanceId, BhNodeView>();
-    var registry = CallbackInvoker.newCallbackRegistry().setForAllNodes(node -> {
-      if (MsgService.INSTANCE.hasView(node)) {
-        BhNodeView view = MsgService.INSTANCE.getBhNodeView(node);
-        symbolIdToNodeView.put(node.getInstanceId(), view);
-      }
-    });
-    rootNodeList.forEach(rootNode -> CallbackInvoker.invoke(registry, rootNode));
-    return symbolIdToNodeView;
   }
 
   /** 引数のノードリストから辿れるノードをシンボルIDと共に集めて返す. */
@@ -107,16 +86,6 @@ public class NodeGraphSnapshot {
    */
   public Collection<BhNode> getRootNodeList() {
     return new ArrayList<>(rootNodeSet);
-  }
-
-  /**
-   * シンボルIDとそれに対応するノードビューのマップを返す.
-   * マップの {@link BhNodeView} はスナップショットではなく, オリジナルのモデル ({@link BhNode}) に対応するビューオブジェクト.
-   *
-   * @return シンボルIDとそれに対応するノードビューのマップ
-   */
-  public Map<InstanceId, BhNodeView> getMapOfSymbolIdToNodeView() {
-    return new HashMap<>(symbolIdToNodeView);
   }
 
   /**

@@ -107,7 +107,7 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
       posOnRootView.y += mouseEvent.getY();
       Vec2D posOnWs = MsgService.INSTANCE.sceneToWorkspace(
           mouseEvent.getSceneX(), mouseEvent.getSceneY(), currentWs);
-      BhNodeHandler.INSTANCE.addRootNode(
+      BhNodeHandler.INSTANCE.moveToWs(
           currentWs,
           newNode,
           posOnWs.x - posOnRootView.x,

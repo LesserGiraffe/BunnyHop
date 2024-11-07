@@ -25,7 +25,7 @@ import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 /**
  * ゴミ箱操作サービスクラス.
  *
- * @author Koike
+ * @author K.Koike
  */
 public class TrashboxService {
 

@@ -67,13 +67,12 @@ public class CompileNodeCollector {
       BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
       return Optional.empty();
     }
-    Optional<BhNode> nodeToExecOpt = findNodeToExecute(wss.getCurrentWorkspace(), userOpeCmd);
-
-    return nodeToExecOpt.map(nodeToExec -> {
-      var snapshot = new NodeGraphSnapshot(wss);
-      BhNode copyOfNodeToExec = getCopyOfExecNode(snapshot, nodeToExec);
-      return new Pair<>(snapshot, copyOfNodeToExec);
-    });
+    return findNodeToExecute(wss.getCurrentWorkspace(), userOpeCmd)
+        .map(nodeToExec -> {
+          var snapshot = new NodeGraphSnapshot(wss);
+          BhNode copyOfNodeToExec = getNodeToExec(snapshot, nodeToExec);
+          return new Pair<>(snapshot, copyOfNodeToExec);
+        });
   }
 
   /**
@@ -133,8 +132,8 @@ public class CompileNodeCollector {
     return Optional.of(nodeToExec);
   }
 
-  /** 実行ノードのコピーを取得する. */
-  private BhNode getCopyOfExecNode(
+  /** 実行ノード対象のノードを取得する. */
+  private BhNode getNodeToExec(
       NodeGraphSnapshot snapshot, BhNode nodeToExec) {
     BhNode copyOfNodeToExec = snapshot.getMapOfSymbolIdToNode().get(nodeToExec.getInstanceId());
     if (copyOfNodeToExec == null) {

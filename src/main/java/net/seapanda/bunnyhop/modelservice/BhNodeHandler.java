@@ -17,25 +17,22 @@
 package net.seapanda.bunnyhop.modelservice;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.BhNode.State;
-import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelprocessor.ImitationFinder;
 import net.seapanda.bunnyhop.modelprocessor.ImitationRemover;
 import net.seapanda.bunnyhop.modelprocessor.NodeDeselector;
+import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
 import net.seapanda.bunnyhop.modelprocessor.PasteCanceler;
+import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.modelprocessor.WorkspaceRegisterer;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
@@ -46,270 +43,196 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  */
 public class BhNodeHandler {
 
-  public static final BhNodeHandler INSTANCE = new BhNodeHandler();  //!< シングルトンインスタンス
+  public static final BhNodeHandler INSTANCE = new BhNodeHandler();
 
   private BhNodeHandler() { }
-
-  /**
-   * {@link Workspace} へのBhNodeの新規追加と4 分木空間への登録を行う.
-   *
-   * @param ws BhNodeを追加したいワークスペース
-   * @param node WS直下に追加したいノード.
-   * @param x ワークスペース上での位置
-   * @param y ワークスペース上での位置
-   * @param userOpeCmd undo 用コマンドオブジェクト
-   */
-  public void addRootNode(
-      Workspace ws, BhNode node, double x, double y, UserOperationCommand userOpeCmd) {
-    final Vec2D curPos = MsgService.INSTANCE.getPosOnWs(node);
-    WorkspaceRegisterer.register(node, ws, userOpeCmd);  //ツリーの各ノードへのWSの登録
-    MsgService.INSTANCE.addRootNode(node, ws, userOpeCmd);  //ワークスペース直下に追加
-    MsgService.INSTANCE.addQtRectangle(node, ws, userOpeCmd);  //4 分木ノード登録(重複登録はされない)
-    MsgService.INSTANCE.setPosOnWs(node, x, y);  //ワークスペース内での位置登録
-    userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
-    SyntaxErrorNodeManager.INSTANCE.collect(node, userOpeCmd);
-    SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
-  }
 
   /**
    * 引数で指定したBhNodeを削除する.
    *
    * @param node 削除するノード.
    * @param userOpeCmd undo 用コマンドオブジェクト
-   * @return 削除したノードと入れ替わる子ノードが作成された場合, そのノードを返す
+   * @return この操作で消した子ノードの削除結果のリスト.
+   *         0 番目が {@code node} と, これの代わりに作成されたノードのペアであることが保証される.
    */
-  public Optional<BhNode> deleteNode(BhNode node, UserOperationCommand userOpeCmd) {
-    if (!isNodeToDelete(node)) {
-      return Optional.empty();
+  public List<Swapped> deleteNode(BhNode node, UserOperationCommand userOpeCmd) {
+    if (node.isDeleted()) {
+      return new ArrayList<>();
     }
     Set<Imitatable> imitations = new HashSet<>();
     imitations.addAll(ImitationFinder.find(node));
-    Optional<BhNode> newNode = delete(node, DeleteOperation.getSet(), userOpeCmd);
-    deleteImitations(imitations, userOpeCmd);
-    return newNode;
+    List<Swapped> swappedNodes = delete(node, userOpeCmd);
+    swappedNodes.addAll(deleteNodes(imitations, userOpeCmd));
+    return swappedNodes;
   }
 
   /**
    * 引数で指定したノードを全て削除する.
    *
-   * @param nodeListToDelete 削除するノード.
+   * @param nodes 削除するノード.
    * @param userOpeCmd undo 用コマンドオブジェクト
-   * @return 削除したノードと入れ替わる子ノードが作成された場合, 削除された古いノードと新しく作成されたノードのペアのリストを返す
+   * @return この操作で消した子ノードの削除結果のリスト.
    */
-  public List<Pair<BhNode, BhNode>> deleteNodes(
-      Collection<? extends BhNode> nodeListToDelete, UserOperationCommand userOpeCmd) {
-    Collection<? extends BhNode> nodesToDelete = nodeListToDelete.stream()
-        .filter(this::isNodeToDelete)
-        .collect(Collectors.toCollection(ArrayList::new));
-
-    if (nodesToDelete.isEmpty()) {
-      return new ArrayList<>();
+  public List<Swapped> deleteNodes(
+      Collection<? extends BhNode> nodes, UserOperationCommand userOpeCmd) {
+    List<Swapped> swappedNodes = new ArrayList<>();
+    for (BhNode node : nodes) {
+      swappedNodes.addAll(deleteNode(node, userOpeCmd));
     }
-    Set<Imitatable> imitations = new HashSet<>();
-    nodesToDelete.forEach(node -> imitations.addAll(ImitationFinder.find(node)));
-    List<Pair<BhNode, BhNode>> oldAndNewNodeList = new ArrayList<>();
-    Set<DeleteOperation> allOperations = DeleteOperation.getSet();
-    for (BhNode node : nodesToDelete) {
-      if (isNodeToDelete(node)) {
-        Optional<BhNode> newNodeOpt = delete(node, allOperations, userOpeCmd);
-        newNodeOpt.ifPresent(newNode -> oldAndNewNodeList.add(new Pair<>(node, newNode)));
-      }
-    }
-    deleteImitations(imitations, userOpeCmd);
-    return oldAndNewNodeList;
+    return swappedNodes;
   }
 
-  /**
-   * 引数で指定した {@link BhNode} を遅延削除する.
-   *
-   * <pre>
-   * 引数で指定したノードは遅延削除リストに入る.
-   * この関数で削除したノードは, {@link DelayedDeleter#delete}
-   * もしくは {@link DelayedDeleter#deleteAll} を呼び出すと完全に削除される.
-   * </pre>
-   *
-   * @param node 仮削除するノード
-   * @param userOpeCmd undo 用コマンドオブジェクト
-   * @param operationsWithDelay {@link DelayedDeleter} による削除時に実行する削除操作
-   * @return 削除したノードと入れ替わる子ノードが作成された場合, そのノードを返す
-   */
-  public Optional<BhNode> deleteNodeWithDelay(
-      BhNode node, UserOperationCommand userOpeCmd, DeleteOperation... operationsWithDelay) {
-    if (!isNodeToDelete(node)) {
-      return Optional.empty();
-    }
-    List<DeleteOperation> opeListWithDelay = Arrays.asList(operationsWithDelay);
-    Set<DeleteOperation> opeListWithoutDelay = DeleteOperation.getSet();
-    opeListWithoutDelay.removeAll(opeListWithDelay);
-    Optional<BhNode> newNode = delete(node, opeListWithoutDelay, userOpeCmd);
-    DelayedDeleter.INSTANCE.addDeletionCandidate(node, opeListWithDelay);
-    return newNode;
-  }
-
-  /**
-   * 引数で指定したノードの削除操作を実行する.
-   *
-   * @param node 削除するノード
-   * @param optionalOperations 追加で行う削除操作
-   * @param userOpeCmd undo 用コマンドオブジェクト
-   * @return 削除された {@code node} と入れ替わるために作成されたノード. ({@code node} が子ノードの時のみ存在)
-   */
-  private Optional<BhNode> delete(
-      BhNode node, Set<DeleteOperation> optionalOperations, UserOperationCommand userOpeCmd) {
+  private List<Swapped> delete(BhNode node, UserOperationCommand userOpeCmd) {
     //undo時に削除前の状態のBhNodeを選択ノードとして MultiNodeShifterController に通知するためここで非選択にする
     NodeDeselector.deselect(node, userOpeCmd);
-    final Optional<BhNode> newNode = removeDependingOnState(node, userOpeCmd);
+    final List<Swapped> swappedNodes = removeDependingOnState(node, userOpeCmd);
     MsgService.INSTANCE.removeQtRectangle(node, userOpeCmd);  //4 分木空間からの削除
     WorkspaceRegisterer.deregister(node, userOpeCmd);
     PasteCanceler.cancel(node, userOpeCmd);
-    if (optionalOperations.contains(DeleteOperation.REMOVE_FROM_IMIT_LIST)) {
-      ImitationRemover.remove(node, userOpeCmd);
-    }
-    return newNode;
+    ImitationRemover.remove(node, userOpeCmd);
+    return swappedNodes;
   }
-
+  
   /** ノードのステートごとの削除処理を行う. */
-  private Optional<BhNode> removeDependingOnState(BhNode node, UserOperationCommand userOpeCmd) {
-    Optional<BhNode> newNode = Optional.empty();
+  private List<Swapped> removeDependingOnState(BhNode node, UserOperationCommand userOpeCmd) {
+    List<Swapped> swappedNodes = new ArrayList<>();
     BhNode.State nodeState = node.getState();
     switch (nodeState) {
       case CHILD:
-        newNode = Optional.of(removeChild(node, userOpeCmd));
+        swappedNodes.addAll(removeChild(node, userOpeCmd));
         MsgService.INSTANCE.removeFromGuiTree(node);
         break;
 
       case ROOT_DANGLING:
-        MsgService.INSTANCE.removeFromGuiTree(node);  //GUIツリー上から削除
+        MsgService.INSTANCE.removeFromGuiTree(node);  // GUIツリー上から削除
         break;
 
       case ROOT_DIRECTLY_UNDER_WS:
-        MsgService.INSTANCE.removeRootNode(node, userOpeCmd);  //WS直下から削除
+        removeFromWs(node, userOpeCmd);
         break;
 
       case DELETED:
-        return newNode;
+        return swappedNodes;
 
       default:
         throw new AssertionError("invalid node state " + nodeState);
     }
-    return newNode;
-  }
-
-  private void deleteImitations(Set<Imitatable> imitations, UserOperationCommand userOpeCmd) {
-    Set<Imitatable> imitToDelete = imitations.stream()
-        .filter(this::isNodeToDelete)
-        .collect(Collectors.toSet());
-    if (imitToDelete.isEmpty()) {
-      return;
-    }
-
-    imitToDelete.forEach(imit -> imit.getEventDispatcher().execOnDeletionRequested(
-        imitToDelete, CauseOfDeletion.ORIGINAL_DELETION, userOpeCmd));
-    List<Pair<BhNode, BhNode>> oldAndNewNodeList = deleteNodes(imitToDelete, userOpeCmd);
-    for (var oldAndNewNode : oldAndNewNodeList) {
-      BhNode oldNode = oldAndNewNode.v1;
-      BhNode newNode = oldAndNewNode.v2;
-      newNode.findParentNode().execOnChildReplaced(
-          oldNode, newNode, newNode.getParentConnector(), userOpeCmd);
-    }
+    return swappedNodes;
   }
 
   /**
-   * 削除対象のノードかどうかを調べる.
-   *
-   * @param node 削除対象かどうか調べるノード
-   * @return 削除対象のノードである場合 true
-   */
-  private boolean isNodeToDelete(BhNode node) {
-    return !DelayedDeleter.INSTANCE.containsInCandidateList(node)
-        && node.getState() != State.DELETED;
-  }
-
-  /**
-   * {@code node} を {@code ws} に移動する (4 分木空間への登録は行わないが, 4 分木空間上の位置は更新する).
+   * {@code node} を {@code ws} に移動する.
    *
    * @param ws {@code node} を追加したいワークスペース
    * @param node WS直下に追加したいノード.
    * @param x ワークスペース上での位置
    * @param y ワークスペース上での位置
    * @param userOpeCmd undo 用コマンドオブジェクト
+   * @return この入れ替え操作で入れ替わったノード一式.
+   *         {@code node} が子ノードであった場合, 0 番目が {@code node} と, これの代わりに作成されたノードのペアであることが保証される.
    */
-  public void moveToWs(
+  public List<Swapped> moveToWs(
       Workspace ws, BhNode node, double x, double y, UserOperationCommand userOpeCmd) {
-    if (node.getState() == State.ROOT_DIRECTLY_UNDER_WS) {
-      removeFromWs(node, userOpeCmd);
-    } else if (node.getState() == State.CHILD) {
-      removeChild(node, userOpeCmd);
-    }
     final Vec2D curPos = MsgService.INSTANCE.getPosOnWs(node);
+    final List<Swapped> swappedNodes = removeDependingOnState(node, userOpeCmd);
     WorkspaceRegisterer.register(node, ws, userOpeCmd);
     MsgService.INSTANCE.addRootNode(node, ws, userOpeCmd);  //ワークスペースに移動
+    MsgService.INSTANCE.addQtRectangle(node, ws, userOpeCmd);
     MsgService.INSTANCE.setPosOnWs(node, x, y);  //ワークスペース内での位置登録
     userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
-    
     SyntaxErrorNodeManager.INSTANCE.collect(node, userOpeCmd);
     SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
+    return swappedNodes;
   }
 
   /**
-   * {@code node} を {@code ws} から移動する (4 分木空間からの消去は行わない).
+   * {@code node} を {@code ws} から移動する.
    *
    * @param node ワークスペース直下から移動させるノード.
    *             呼び出した後, ワークスペース直下にもノードツリーにも居ない状態になるが消去はされない.
    * @param userOpeCmd undo 用コマンドオブジェクト
-   * */
-  public void removeFromWs(BhNode node, UserOperationCommand userOpeCmd) {
+   */
+  private void removeFromWs(BhNode node, UserOperationCommand userOpeCmd) {
     Vec2D curPos = MsgService.INSTANCE.getPosOnWs(node);
     userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
     MsgService.INSTANCE.removeRootNode(node, userOpeCmd);
-
     SyntaxErrorNodeManager.INSTANCE.collect(node, userOpeCmd);
     SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
   }
 
   /**
-   * 子ノードを取り除く (GUIツリー上からは取り除かない).
+   * 子ノードを取り除く (GUI ツリー上からは取り除かない).
+   * {@code oldChild} が子ノードでなかった場合何もしない.
    *
-   * @param childToRemove 取り除く子ノード. 呼び出した後, WS直下にもノードツリーにも居ない状態になるが消去はされない.
+   * @param toRemove 取り除く子ノード. 呼び出した後, WS直下にもノードツリーにも居ない状態になるが消去はされない.
    * @param userOpeCmd undo 用コマンドオブジェクト
-   * @return 取り除いた子ノードの代わりに作成されたノード
+   * @return {@code toRemove} を取り除くことで変更のあったノード一式
+   *         0 番目が {@code toRemove} と, これの代わりに作成されたノードのペアであることが保証される.
+   *         {@code oldChild} が子ノードでなかった場合は, 空のリスト.
    */
-  public BhNode removeChild(BhNode childToRemove, UserOperationCommand userOpeCmd) {
-    Workspace ws = childToRemove.getWorkspace();
-    BhNode newNode = childToRemove.remove(userOpeCmd);
+  public List<Swapped> removeChild(BhNode toRemove, UserOperationCommand userOpeCmd) {
+    Workspace ws = toRemove.getWorkspace();
+    List<Swapped> swappedNodes = toRemove.remove(userOpeCmd);
     // 子ノードを取り除いた結果新しくできたノードを, 4 分木空間に登録し, ビューツリーにつなぐ
-    WorkspaceRegisterer.register(newNode, ws, userOpeCmd);  // ツリーの各ノードへのWSの登録
+    BhNode newNode = swappedNodes.get(0).newNode();
+    NodeMvcBuilder.build(newNode);
+    TextImitationPrompter.prompt(newNode);
+    WorkspaceRegisterer.register(newNode, ws, userOpeCmd);
     MsgService.INSTANCE.addQtRectangle(newNode, ws, userOpeCmd);
-    MsgService.INSTANCE.replaceChildNodeView(childToRemove, newNode, userOpeCmd);
+    MsgService.INSTANCE.replaceChildNodeView(toRemove, newNode, userOpeCmd);
 
-    SyntaxErrorNodeManager.INSTANCE.collect(childToRemove, userOpeCmd);
+    for (Swapped imits : new ArrayList<>(swappedNodes.subList(1, swappedNodes.size()))) {
+      swappedNodes.addAll(completeNewNodeReplacement(imits, userOpeCmd));
+    }
+    SyntaxErrorNodeManager.INSTANCE.collect(toRemove, userOpeCmd);
+    SyntaxErrorNodeManager.INSTANCE.collect(newNode, userOpeCmd);
     SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
-    return newNode;
+    return swappedNodes;
   }
 
   /**
-   * 子ノードを入れ替える.
+   * 子ノードを入れ替える ({@code oldChild} は GUI ツリー上からは取り除かない).
+   * {@code oldChild} が子ノードでなかった場合何もしない.
    *
-   * @param oldChildNode 入れ替え対象の古いノード.
-   *                     呼び出した後, ワークスペース直下にもノードツリーにも居ない状態になるが消去はされない.
-   * @param newNode 入れ替え対象の新しいノード
+   * @param oldChild 入れ替え対象の古いノード.
+   *                 呼び出した後, ワークスペース直下にもノードツリーにも居ない状態になるが消去はされない.
+   * @param newChild 入れ替え対象の新しいノード
    * @param userOpeCmd undo 用コマンドオブジェクト
+   * @return この入れ替え操作で入れ替わったノード一式
+   *         0 番目が {@code oldChild} と {@code newChild} のペアであることが保証される.
+   *         {@code oldChild} が子ノードでなかった場合は, 空のリスト.
    */
-  public void replaceChild(BhNode oldChildNode, BhNode newNode, UserOperationCommand userOpeCmd) {
-    if (newNode.getState() == State.ROOT_DIRECTLY_UNDER_WS) {
-      removeFromWs(newNode, userOpeCmd);
-    } else if (newNode.getState() == State.CHILD) {
-      removeChild(newNode, userOpeCmd);
+  public List<Swapped> replaceChild(
+      BhNode oldChild, BhNode newChild, UserOperationCommand userOpeCmd) {
+    if (!oldChild.isChild()) {
+      return new ArrayList<>();
     }
-    WorkspaceRegisterer.register(newNode, oldChildNode.getWorkspace(), userOpeCmd);
-    //新しいノードをビューツリーにつないで, 4 分木空間内の位置を更新する
-    MsgService.INSTANCE.replaceChildNodeView(oldChildNode, newNode, userOpeCmd);
-    //イミテーションの自動追加は, ビューツリーにつないだ後でなければならないので, モデルの変更はここで行う
-    oldChildNode.replace(newNode, userOpeCmd);
-
-    SyntaxErrorNodeManager.INSTANCE.collect(oldChildNode, userOpeCmd);
-    SyntaxErrorNodeManager.INSTANCE.collect(newNode, userOpeCmd);
+    final List<Swapped> swappedNodes = removeDependingOnState(newChild, userOpeCmd);
+    Workspace ws = oldChild.getWorkspace();
+    WorkspaceRegisterer.register(newChild, ws, userOpeCmd);
+    swappedNodes.addAll(oldChild.replace(newChild, userOpeCmd));
+    MsgService.INSTANCE.addQtRectangle(newChild, ws, userOpeCmd);
+    MsgService.INSTANCE.replaceChildNodeView(oldChild, newChild, userOpeCmd);
+    
+    for (Swapped imits : new ArrayList<>(swappedNodes.subList(1, swappedNodes.size()))) {
+      swappedNodes.addAll(completeNewNodeReplacement(imits, userOpeCmd));
+    }
+    SyntaxErrorNodeManager.INSTANCE.collect(oldChild, userOpeCmd);
+    SyntaxErrorNodeManager.INSTANCE.collect(newChild, userOpeCmd);
     SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
+    return swappedNodes;
+  }
+
+  /** ノード入れ替えにともなって新しく作成されたノードの入れ替え処理を完了させる. */
+  private List<Swapped> completeNewNodeReplacement(Swapped nodes, UserOperationCommand userOpeCmd) {
+    Workspace ws = nodes.oldNode().getWorkspace();
+    NodeMvcBuilder.build(nodes.newNode());
+    TextImitationPrompter.prompt(nodes.newNode());
+    WorkspaceRegisterer.register(nodes.newNode(), ws, userOpeCmd);
+    MsgService.INSTANCE.addQtRectangle(nodes.newNode(), ws, userOpeCmd);
+    MsgService.INSTANCE.replaceChildNodeView(nodes.oldNode(), nodes.newNode(), userOpeCmd);
+    HomologueCache.INSTANCE.put((Imitatable) nodes.oldNode());
+    return deleteNode(nodes.oldNode(), userOpeCmd);
   }
 
   /**
@@ -317,7 +240,7 @@ public class BhNodeHandler {
    *
    * @param nodeA 入れ替えたいノード (ダングリング状態のノードはエラー)
    * @param nodeB 入れ替えたいノード (ダングリング状態のノードはエラー)
-   * */
+   */
   public void exchangeNodes(BhNode nodeA, BhNode nodeB, UserOperationCommand userOpeCmd) {
     if (nodeA.getState() == BhNode.State.DELETED
         || nodeA.getState() == BhNode.State.ROOT_DANGLING
@@ -347,8 +270,10 @@ public class BhNodeHandler {
     if (nodeA.getState() == BhNode.State.CHILD) {
       // (child, child)
       if (nodeB.getState() == BhNode.State.CHILD) {
-        BhNode newNodeA = removeChild(nodeA, userOpeCmd);
-        BhNode newNodeB = removeChild(nodeB, userOpeCmd);
+        List<Swapped> swappedNodesA = removeChild(nodeA, userOpeCmd);
+        BhNode newNodeA = swappedNodesA.get(0).newNode();
+        List<Swapped> swappedNodesB = removeChild(nodeB, userOpeCmd);
+        BhNode newNodeB = swappedNodesB.get(0).newNode();        
         replaceChild(newNodeA, nodeB, userOpeCmd);
         replaceChild(newNodeB, nodeA, userOpeCmd);
         deleteNode(newNodeA, userOpeCmd);

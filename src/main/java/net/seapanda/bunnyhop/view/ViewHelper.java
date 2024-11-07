@@ -46,7 +46,7 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceViewPane;
  * @author K.Koike
  */
 public class ViewHelper {
-  /** シングルトンインスタンス. */
+
   public static final ViewHelper INSTANCE = new ViewHelper();
   /** 影付きノードリスト. */
   public final Set<BhNodeView> shadowNodes = 

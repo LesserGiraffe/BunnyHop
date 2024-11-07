@@ -22,11 +22,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * モデル操作のための Lock 機構を提供するクラス.
  *
- * @author Koike
+ * @author K.Koike
  */
 public class ModelExclusiveControl {
-  
-  /** シングルトンインスタンス. */
+
   public static final ModelExclusiveControl INSTANCE = new ModelExclusiveControl();
   private ReadWriteLock lock = new ReentrantReadWriteLock();
 

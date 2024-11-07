@@ -28,8 +28,8 @@ import net.seapanda.bunnyhop.view.node.LabelNodeView;
  */
 public class LabelNodeController extends BhNodeController {
 
-  private final TextNode model;  //!< 管理するモデル
-  private final LabelNodeView view;  //!< 管理するビュー
+  private final TextNode model;
+  private final LabelNodeView view;
 
   /** コンストラクタ. */
   public LabelNodeController(TextNode model, LabelNodeView view) {

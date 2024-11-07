@@ -59,7 +59,7 @@ import org.xml.sax.SAXException;
  */
 public class BhNodeTemplates {
 
-  public static final BhNodeTemplates INSTANCE = new BhNodeTemplates(); //!< シングルトンインスタンス
+  public static final BhNodeTemplates INSTANCE = new BhNodeTemplates();
 
   /** {@link BhNode} のテンプレートを格納するハッシュ.*/
   private final HashMap<BhNodeId, BhNode> nodeIdToNodeTemplate = new HashMap<>();

@@ -49,7 +49,8 @@ public class WorkspaceSetController implements MsgProcessor {
   private WorkspaceSet model;
   @FXML private SplitPane workspaceSetViewBase;
   @FXML private StackPane workspaceSetStackPane;
-  @FXML private TabPane workspaceSetTab;  //!< ワークスペース表示タブ
+  /** ワークスペース表示タブ. */
+  @FXML private TabPane workspaceSetTab;
   @FXML private TextArea mainMsgArea;
   @FXML private ImageView openedTrashboxIv;
   @FXML private ImageView closedTrashboxIv;

@@ -30,7 +30,7 @@ import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
 /** 内部に何も表示しないノードビュー. */
 public class NoContentNodeView extends BhNodeView {
 
-  private final TextNode model;  //!< このビューに対応するモデル
+  private final TextNode model;
 
   /**
    * コンストラクタ.

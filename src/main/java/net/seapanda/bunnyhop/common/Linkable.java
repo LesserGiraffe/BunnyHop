@@ -23,9 +23,12 @@ package net.seapanda.bunnyhop.common;
  */
 public class Linkable<T> {
 
-  protected Linkable<T> next;  //!< 次のノード
-  protected Linkable<T> prev;  //!< 前のノード
-  protected T container;    //!< ノードの保持するもの
+  /** 次のノード. */
+  protected Linkable<T> next;
+  /** 前のノード. */
+  protected Linkable<T> prev;
+  /** ノードの保持するもの. */
+  protected T container;
 
   /** コンストラクタ. */
   public Linkable(T container) {

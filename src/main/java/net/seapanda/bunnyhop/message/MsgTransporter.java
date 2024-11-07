@@ -22,39 +22,42 @@ package net.seapanda.bunnyhop.message;
  * @author K.Koike
  */
 public class MsgTransporter {
-  /** シングルトンインスタンス. */
+
   public static final MsgTransporter INSTANCE = new MsgTransporter();
 
   /** コンストラクタ. */
   private MsgTransporter() {}
 
   /**
-   * msgReceptionWindows に対応するそれぞれの MsgProcessor に順番にメッセージを送信する<br>
-   * 2つめ以降のmsgReceptionWindowには, 1つ前のMsgProcessorの処理結果であるMsgDataが渡される.
+   * dispatchers に順番にメッセージを渡す.
+   * 2 つめ以降の {@link MsgDispatcher} オブジェクトには,
+   * 1 つ前の {@link MsgDispatcher} オブジェクトの処理結果である {@link MsgData} が渡される.
    *
    * @param msg 送信メッセージ
-   * @param data 1番目のMsgReceptionWindow に渡されるメッセージ
-   * @param msgReceptionWindows メッセージ投函先
+   * @param data 1 つ目の dispatchers に渡されるメッセージ
+   * @param dispatchers メッセージ投函先
    * @return 最後のメッセージ送信先から返されるデータ
-   * */
-  public MsgData sendMessage(BhMsg msg, MsgData data, MsgReceptionWindow... msgReceptionWindows) {
-    for (MsgReceptionWindow msgReceptionWindow : msgReceptionWindows) {
-      data = msgReceptionWindow.passMsg(msg, data);
+   */
+  public MsgData sendMessage(BhMsg msg, MsgData data, MsgDispatcher... dispatchers) {
+    for (MsgDispatcher dispatcher : dispatchers) {
+      data = dispatcher.dispatch(msg, data);
     }
     return data;
   }
 
   /**
-   * msgReceptionWindows に対応するそれぞれの MsgProcessor に順番にメッセージを送信する.
+   * dispatchers に順番にメッセージを渡す.
+   * 2 つめ以降の {@link MsgDispatcher} オブジェクトには, 
+   * 1つ前の {@link MsgDispatcher} オブジェクトの処理結果である {@link MsgData} が渡される.
    *
    * @param msg 送信メッセージ
-   * @param msgReceptionWindows メッセージ投函先
+   * @param dispatchers メッセージ投函先
    * @return 最後のメッセージ送信先から返されるデータ
    */
-  public MsgData sendMessage(BhMsg msg, MsgReceptionWindow... msgReceptionWindows) {
+  public MsgData sendMessage(BhMsg msg, MsgDispatcher... dispatchers) {
     MsgData data = null;
-    for (MsgReceptionWindow msgReceptionWindow : msgReceptionWindows) {
-      data = msgReceptionWindow.passMsg(msg, data);
+    for (MsgDispatcher dispatcher : dispatchers) {
+      data = dispatcher.dispatch(msg, data);
     }
     return data;
   }

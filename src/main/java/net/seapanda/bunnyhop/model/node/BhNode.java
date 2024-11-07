@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.model.node;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -30,13 +31,14 @@ import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
+import net.seapanda.bunnyhop.message.MsgDispatcher;
 import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.message.MsgReceptionWindow;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
-import net.seapanda.bunnyhop.model.node.event.BhNodeEventDispatcher;
+import net.seapanda.bunnyhop.model.node.event.BhNodeEventAgent;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelprocessor.ImitationReplacer;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -49,7 +51,7 @@ import org.mozilla.javascript.ScriptableObject;
  *
  * @author K.Koike
  */
-public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow {
+public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** ノードID (Node タグの bhID). */
@@ -61,11 +63,11 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
   /** デフォルトノード (= コネクタからノードを取り外したときに, 代わりに繋がるノード) フラグ. */
   private boolean isDefault = false;
   private Map<BhNodeEvent, String> eventToScriptName = new HashMap<>();
-  private BhNodeEventDispatcher dispatcher = new BhNodeEventDispatcher(this);
+  private BhNodeEventAgent agent = new BhNodeEventAgent(this);
   /** 最後にこのノードと入れ替わったノード. */
   private transient BhNode lastReplaced;
   /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
-  private transient MsgProcessor msgProcessor;
+  private transient MsgProcessor msgProcessor = (msg, data) -> null;
 
   /** BhNode がとり得る状態. */
   public enum State {
@@ -124,7 +126,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
    * @return このノード以下のノードツリーのコピー
    */
   public abstract BhNode copy(
-      Predicate<BhNode> isNodeToBeCopied,
+      Predicate<? super BhNode> isNodeToBeCopied,
       UserOperationCommand userOpeCmd);
 
   /**
@@ -181,21 +183,36 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
    *
    * @param newNode このノードと入れ替えるノード.
    * @param userOpeCmd undo 用コマンドオブジェクト.
+   * @return この入れ替え操作で入れ替わったノード一式.
+   *         0 番目が {@code newNode} とこのノードのペアであることが保証される.
    */
-  public void replace(BhNode newNode, UserOperationCommand userOpeCmd) {
+  public List<Swapped> replace(BhNode newNode, UserOperationCommand userOpeCmd) {
+    if (parentConnector == null) {
+      return new ArrayList<>();
+    }
+    var swappedList = new ArrayList<Swapped>();
+    swappedList.add(new Swapped(this, newNode));
     setLastReplaced(newNode, userOpeCmd);
-    parentConnector.connectNode(newNode, userOpeCmd);  //model 更新
-    ImitationReplacer.replace(newNode, this, userOpeCmd);
+    parentConnector.connectNode(newNode, userOpeCmd);
+    swappedList.addAll(ImitationReplacer.replace(newNode, this, userOpeCmd));
+    return swappedList;
   }
 
   /**
-   * このノードをモデルツリーから取り除く. ノードの削除は行わない.
+   * このノードをモデルツリーから取り除く.
    *
    * @param userOpeCmd undo 用コマンドオブジェクト
-   * @return このノードを取り除いた結果, 新しくできたノード
+   * @return この入れ替え操作で入れ替わったノード一式.
+   *         0 番目がこのノードとこのノードに代わり新しく作成されたノードのペアであることが保証される.
    */
-  public BhNode remove(UserOperationCommand userOpeCmd) {
-    return parentConnector.remove(userOpeCmd);
+  public List<Swapped> remove(UserOperationCommand userOpeCmd) {
+    if (parentConnector == null) {
+      return new ArrayList<>();
+    }
+    BhNode newNode =
+        BhNodeTemplates.INSTANCE.genBhNode(parentConnector.getDefaultNodeId(), userOpeCmd);
+    newNode.setDefault(true);
+    return replace(newNode, userOpeCmd);
   }
 
   /**
@@ -366,7 +383,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
   }
 
   /** このノードのデフォルトフラグを変更する. */
-  void setDefault(boolean isDefault) {
+  protected void setDefault(boolean isDefault) {
     this.isDefault = isDefault;
   }
 
@@ -457,8 +474,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
    *
    * @return このノードに登録されたイベントとその処理を実行するオブジェクト
    */
-  public BhNodeEventDispatcher getEventDispatcher() {
-    return dispatcher;
+  public BhNodeEventAgent getEventAgent() {
+    return agent;
   }
 
   /**
@@ -477,7 +494,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
       return new ArrayList<>();
     }
     Object privateTemplateNodes = null;
-    ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
+    ScriptableObject scriptScope = getEventAgent().newDefaultScriptScope();
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
     try {
@@ -513,7 +530,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
       return false;
     }
     Object hasError = null;
-    ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
+    ScriptableObject scriptScope = getEventAgent().newDefaultScriptScope();
     try {
       hasError = ContextFactory.getGlobal().call(cx -> syntaxErrorChecker.exec(cx, scriptScope));
     } catch (Exception e) {
@@ -533,7 +550,16 @@ public abstract class BhNode extends SyntaxSymbol implements MsgReceptionWindow 
   }
 
   @Override
-  public MsgData passMsg(BhMsg msg, MsgData data) {
+  public MsgData dispatch(BhMsg msg, MsgData data) {
     return msgProcessor.processMsg(msg, data);
   }
+
+  /**
+   * ノードの入れ替えの結果変化のあったノード一式.
+   *
+   * @param oldNode 入れ替え前に子ノードであったノード
+   * @param newNode 入れ替え後に子ノードとなったノード
+   * @param imitPairs 入れ替わった古いイミテーションノードと新しいイミテーションノードのペアのリスト
+   */
+  public record Swapped(BhNode oldNode, BhNode newNode) {}
 }

@@ -16,17 +16,17 @@
 
 package net.seapanda.bunnyhop.modelprocessor;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
-import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.attribute.ImitCnctPosId;
 import net.seapanda.bunnyhop.model.node.attribute.ImitationId;
 import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
-import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
-import net.seapanda.bunnyhop.modelservice.DeleteOperation;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 
 /**
@@ -39,18 +39,22 @@ public class ImitationReplacer implements BhModelProcessor {
   /** undo 用コマンドオブジェクト. */
   UserOperationCommand userOpeCmd;
   /** イミテーションノードが置き換わるオリジナルノード. */
-  BhNode oldOriginal;
+  private BhNode oldOriginal;
+  /** 入れ替わった古いイミテーションノードと新しいイミテーションノードのペアのリスト. */
+  private List<Swapped> swappedNodes = new ArrayList<>();
 
   /**
-   * oldOriginal のイミテーションノードを newOriginal のイミテーションノードで置き換える.
+   * {@code oldOriginal} のイミテーションノードを {@code newOriginal} のイミテーションノードで置き換える.
    *
-   * @param newOriginal このノードのイミテーションノードで oldOriginal の
+   * @param newOriginal このノードのイミテーションノードで {@code oldOriginal} のイミテーションノードを置き換える.
    * @param oldOriginal このノードのイミテーションノードを入れ替える.
    * @param userOpeCmd undo 用コマンドオブジェクト
    */
-  public static void replace(
+  public static List<Swapped> replace(
       BhNode newOriginal, BhNode oldOriginal, UserOperationCommand userOpeCmd) {
-    newOriginal.accept(new ImitationReplacer(oldOriginal, userOpeCmd));
+    var replaced = new ImitationReplacer(oldOriginal, userOpeCmd);
+    newOriginal.accept(replaced);
+    return replaced.swappedNodes;
   }
 
   /**
@@ -96,9 +100,9 @@ public class ImitationReplacer implements BhModelProcessor {
   }
 
   /**
-   * {@cide imitParent} が持つコネクタのイミテーションタグが imitTag と一致した場合そのノードを返す.
+   * {@code imitParent} が持つコネクタのイミテーション接続位置が {@code imitCnctPosId} と一致した場合そのノードを返す.
    *
-   * @param imitParent imitTag の位置に入れ替えもしくは削除の対象になるイミテーションノードを持っているか探すノード
+   * @param imitParent 入れ替えもしくは削除の対象になる子イミテーションノードを持っているか探すノード
    * @param imitCnctPosId この ID を指定されたコネクタが {@code imitParent} にあった場合, そのコネクタに接続されたノードを返す
    * @return 入れ替えもしくは削除対象になるノード. 見つからなかった場合 Optional.empty を返す.
    */
@@ -127,7 +131,6 @@ public class ImitationReplacer implements BhModelProcessor {
       Collection<ConnectiveNode> parentNodeList,
       Imitatable original,
       ImitCnctPosId imiCnctPos) {
-
     for (ConnectiveNode parent : parentNodeList) {
       getNodeToReplaceOrRemove(parent, imiCnctPos)
           .ifPresent(toBeReplaced -> replaceConnectiveChildren(toBeReplaced, original));
@@ -141,14 +144,9 @@ public class ImitationReplacer implements BhModelProcessor {
    * @param original このノードのイミテーションで子ノードを置き換える
    */
   private void replaceConnectiveChildren(BhNode toBeReplaced, Imitatable original) {
-    final Connector parentCnctr = toBeReplaced.getParentConnector();
+    // final Connector parentCnctr = toBeReplaced.getParentConnector();
     Imitatable newImit = original.findExistingOrCreateNewImit(toBeReplaced, userOpeCmd);
-    BhNodeHandler.INSTANCE.addRootNode(toBeReplaced.getWorkspace(), newImit, 0, 0, userOpeCmd);
-    BhNodeHandler.INSTANCE.replaceChild(toBeReplaced, newImit, userOpeCmd);
-    BhNodeHandler.INSTANCE.deleteNodeWithDelay(
-        toBeReplaced, userOpeCmd, DeleteOperation.REMOVE_FROM_IMIT_LIST);
-    newImit.findParentNode().execOnChildReplaced(
-        toBeReplaced, newImit, parentCnctr, userOpeCmd);
+    swappedNodes.addAll(toBeReplaced.replace(newImit, userOpeCmd));
   }
 
   /**
@@ -162,17 +160,9 @@ public class ImitationReplacer implements BhModelProcessor {
     for (ConnectiveNode parent : parentNodeList) {
       getNodeToReplaceOrRemove(parent, imitCnctPosId).ifPresent(node -> {
         if (node.getOriginal() == oldOriginal) {
-          remove(node);
+          swappedNodes.addAll(node.remove(userOpeCmd));
         }
       });
     }
-  }
-
-  private void remove(BhNode node) {
-    Connector parentCnctr = node.getParentConnector();
-    BhNode newNode = BhNodeHandler.INSTANCE.removeChild(node, userOpeCmd);
-    BhNodeHandler.INSTANCE.deleteNodeWithDelay(
-        node, userOpeCmd, DeleteOperation.REMOVE_FROM_IMIT_LIST);
-    newNode.findParentNode().execOnChildReplaced(node, newNode, parentCnctr, userOpeCmd);
   }
 }

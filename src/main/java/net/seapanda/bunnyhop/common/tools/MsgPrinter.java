@@ -41,7 +41,7 @@ import net.seapanda.bunnyhop.root.BunnyHop;
  * @author K.Koike
  * */
 public class MsgPrinter {
-  /** シングルトンインスタンス. */
+
   public static final MsgPrinter INSTANCE = new MsgPrinter();
   private TextArea mainMsgArea;
   private BlockingQueue<String> messages =

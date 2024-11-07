@@ -65,7 +65,7 @@ public abstract class Imitatable extends BhNode {
       BhNode oldNode, UserOperationCommand userOpeCmd);
 
   /**
-   * 引数で指定したイミテーションタグに対応するイミテーションノードIDを返す.
+   * 引数で指定したイミテーション接続位置に対応するイミテーションノードIDを返す.
    *
    * @param imitId このイミテーションIDに対応するイミテーションノードIDを返す
    * @return 引数で指定したコネクタ名に対応するイミテーションノードID

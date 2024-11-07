@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.compiler;
 /** 変数, 関数, プロパティ等の定義. */
 public class ScriptIdentifiers {
 
-  /** BhProgram で使用される関数名. (Javascript の組み込み関数は除く) */
+  /** BhProgram で使用される関数名. (JavaScript の組み込み関数は除く) */
   public static class Funcs {
     public static final String TO_STR = "_toStr";
     public static final String STR_TO_NUM = "_strToNum";
@@ -88,7 +88,7 @@ public class ScriptIdentifiers {
     public static final String OUT_ARG_TEST = "_outArgTest";
   }
 
-  /** Javascript の組み込み関数名.  */
+  /** JavaScript の組み込み関数名.  */
   public static class JsFuncs {
     public static final String IS_FINITE = "isFinite";
     public static final String PUSH = "push";

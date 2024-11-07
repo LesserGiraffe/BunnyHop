@@ -506,10 +506,11 @@ public class SymbolNames {
     public static final String KEY_CODE = "KeyCode";
     public static final String DELAY_TIME = "DelayTime";
 
+    /** イベントノードのリスト. */
     public static final HashSet<String> LIST =
         new HashSet<>(Arrays.asList(
             KEY_PRESS_EVENT,
-            DELAYED_START_EVENT));  //!< イベントノードのリスト
+            DELAYED_START_EVENT));
   }
 
   /** リテラルに関するシンボル名. */

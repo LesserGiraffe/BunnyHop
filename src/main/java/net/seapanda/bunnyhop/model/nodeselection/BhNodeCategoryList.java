@@ -24,8 +24,8 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
+import net.seapanda.bunnyhop.message.MsgDispatcher;
 import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.message.MsgReceptionWindow;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import org.mozilla.javascript.NativeArray;
@@ -39,11 +39,11 @@ import org.mozilla.javascript.NativeObject;
  *
  * @author K.Koike
  */
-public class BhNodeCategoryList implements MsgReceptionWindow {
+public class BhNodeCategoryList implements MsgDispatcher {
 
   private TreeNode<String> templateTreeRoot;
   /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
-  private MsgProcessor msgProcessor;
+  private MsgProcessor msgProcessor = (msg, data) -> null;
 
   private BhNodeCategoryList() {}
 
@@ -152,28 +152,7 @@ public class BhNodeCategoryList implements MsgReceptionWindow {
   }
 
   @Override
-  public MsgData passMsg(BhMsg msg, MsgData data) {
+  public MsgData dispatch(BhMsg msg, MsgData data) {
     return msgProcessor.processMsg(msg, data);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

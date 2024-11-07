@@ -86,7 +86,7 @@ public class TextInputNodeController extends BhNodeController {
       boolean isValidFormat = model.isTextAcceptable(view.getText());
       if (isValidFormat) {  //正しいフォーマットの文字列が入力されていた場合
         model.setText(currentGuiText);  //model の文字列をTextField のものに変更する
-        model.getImitNodesToImitateContents();
+        model.assignContentsToImitations();
       } else {
         view.setText(model.getText());  //view の文字列を変更前の文字列に戻す
       }

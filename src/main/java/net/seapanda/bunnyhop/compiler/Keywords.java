@@ -32,7 +32,7 @@ public class Keywords {
     public static final String outArgPrefix = "_vo";
   }
 
-  /** Javascript のキーワード. */
+  /** JavaScript のキーワード. */
   public static class Js {
     public static final String _if_ = "if ";
     public static final String _else_ = "else ";

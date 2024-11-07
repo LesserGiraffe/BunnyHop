@@ -36,20 +36,18 @@ public class ImitationBuilder implements BhModelProcessor {
   private final Deque<Imitatable> parentImitStack = new LinkedList<>();
   /** undo 用コマンドオブジェクト. */
   UserOperationCommand userOpeCmd;
-  private final boolean buildMvc;
   private ImitationId imitationId = ImitationId.NONE;
 
   /**
    * {@code node} の先祖のコネクタに定義されたイミテーション ID を元にイミテーションノードを作成する.
    *
    * @param node イミテーションを作成するオリジナルノード
-   * @param buildMvc イミテーションノードの MVC 関係を構築する場合 true.
    * @param userOpeCmd undo 用コマンドオブジェクト
    * @return 作成したイミテーションノードツリーのトップノード
    * */
   public static Imitatable buildFromImitIdOfAncestor(
-      Imitatable node, boolean buildMvc, UserOperationCommand userOpeCmd) {
-    var builder = new ImitationBuilder(ImitationId.NONE, buildMvc, userOpeCmd);
+      Imitatable node, UserOperationCommand userOpeCmd) {
+    var builder = new ImitationBuilder(ImitationId.NONE, userOpeCmd);
     node.accept(builder);
     return builder.parentImitStack.peekLast();
   }
@@ -59,20 +57,18 @@ public class ImitationBuilder implements BhModelProcessor {
    *
    * @param node イミテーションを作成するオリジナルノード
    * @param imitId 作成するイミテーションのID.  {@code node} に対して, このイミテーション ID が定義されていること.
-   * @param buildMvc イミテーションノードの MVC 関係を構築する場合 true.
    * @param userOpeCmd undo 用コマンドオブジェクト
    * @return 作成したイミテーションノードツリーのトップノード
    */
   public static Imitatable build(
-      Imitatable node, ImitationId imitId, boolean buildMvc, UserOperationCommand userOpeCmd) {
-    var builder = new ImitationBuilder(imitId, buildMvc, userOpeCmd);
+      Imitatable node, ImitationId imitId, UserOperationCommand userOpeCmd) {
+    var builder = new ImitationBuilder(imitId, userOpeCmd);
     node.accept(builder);
     return builder.parentImitStack.peekLast();
   }
 
-  private ImitationBuilder(ImitationId imitId, boolean buildMvc, UserOperationCommand userOpeCmd) {
+  private ImitationBuilder(ImitationId imitId, UserOperationCommand userOpeCmd) {
     this.imitationId = imitId;
-    this.buildMvc = buildMvc;
     this.userOpeCmd = userOpeCmd;
   }
 
@@ -96,10 +92,6 @@ public class ImitationBuilder implements BhModelProcessor {
       ConnectiveNode newImit = node.createImitNode(imitId, userOpeCmd);
       parentImitStack.addLast(newImit);
       node.sendToSections(this);
-      if (buildMvc) {
-        NodeMvcBuilder.build(newImit);
-        TextImitationPrompter.prompt(newImit);
-      }
     } else {
       Imitatable parentImit = parentImitStack.peekLast();
       //接続先を探す
@@ -131,10 +123,6 @@ public class ImitationBuilder implements BhModelProcessor {
     if (parentImitStack.isEmpty()) {
       TextNode newImit = node.createImitNode(imitId, userOpeCmd);
       parentImitStack.addLast(newImit);
-      if (buildMvc) {
-        NodeMvcBuilder.build(newImit);
-        TextImitationPrompter.prompt(newImit);
-      }
     } else {
       Imitatable parentImit = parentImitStack.peekLast();
       //接続先を探す

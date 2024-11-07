@@ -64,7 +64,8 @@ public abstract class Section extends SyntaxSymbol {
    * @param isNodeToBeCopied ノードがコピーの対象かどうか判定する関数
    * @return このノードのコピー
    */
-  public abstract Section copy(UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied);
+  public abstract Section copy(
+      Predicate<? super BhNode> isNodeToBeCopied, UserOperationCommand userOpeCmd);
 
   /**
    * 最後尾に繋がる外部ノードを探す.

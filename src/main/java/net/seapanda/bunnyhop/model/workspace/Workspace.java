@@ -19,7 +19,6 @@ package net.seapanda.bunnyhop.model.workspace;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -31,8 +30,8 @@ import javafx.application.Platform;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
+import net.seapanda.bunnyhop.message.MsgDispatcher;
 import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.message.MsgReceptionWindow;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -42,7 +41,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
  *
  * @author K.Koike
  */
-public class Workspace implements MsgReceptionWindow, Serializable {
+public class Workspace implements MsgDispatcher, Serializable {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** ワークスペースのルートノードのリスト. */
@@ -64,7 +63,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
   /** このワークスペースを持つワークスペースセット. */
   private transient WorkspaceSet workspaceSet;
   /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
-  private transient MsgProcessor msgProcessor;
+  private transient MsgProcessor msgProcessor = (msg, data) -> null;
 
   /**
    * コンストラクタ.
@@ -134,7 +133,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
    * @return ワークスペース内のルート {@link BhNode} の集合
    */
   public Collection<BhNode> getRootNodeList() {
-    return Collections.unmodifiableSet(rootNodeList);
+    return new ArrayList<>(rootNodeList);
   }
 
   /**
@@ -176,7 +175,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
    * @return 選択中のBhNodeのリスト
    */
   public List<BhNode> getSelectedNodeList() {
-    return Collections.unmodifiableList(new ArrayList<>(selectedList));
+    return new ArrayList<>(selectedList);
   }
 
   /**
@@ -263,7 +262,7 @@ public class Workspace implements MsgReceptionWindow, Serializable {
   }
 
   @Override
-  public MsgData passMsg(BhMsg msg, MsgData data) {
+  public MsgData dispatch(BhMsg msg, MsgData data) {
     return msgProcessor.processMsg(msg, data);
   }
 }

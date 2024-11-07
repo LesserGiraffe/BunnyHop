@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.modelprocessor;
 
+import java.util.Objects;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
@@ -42,6 +43,8 @@ public class WorkspaceRegisterer implements BhModelProcessor {
    * @param userOpeCmd undo 用コマンドオブジェクト
    */
   public static void register(BhNode node, Workspace ws, UserOperationCommand userOpeCmd) {
+    Objects.requireNonNull(node);
+    Objects.requireNonNull(ws);
     var registerer = new WorkspaceRegisterer(ws, userOpeCmd);
     node.accept(registerer);
   }

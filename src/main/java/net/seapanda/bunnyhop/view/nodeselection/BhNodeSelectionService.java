@@ -19,10 +19,12 @@ package net.seapanda.bunnyhop.view.nodeselection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import net.seapanda.bunnyhop.control.nodeselection.BhNodeSelectionController;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
@@ -69,7 +71,7 @@ public class BhNodeSelectionService {
     if (ws == null) {
       return;
     }
-    BhNodeHandler.INSTANCE.addRootNode(ws, node, 0, 0, userOpeCmd);
+    BhNodeHandler.INSTANCE.moveToWs(ws, node, 0, 0, userOpeCmd);
   }
 
   /**
@@ -96,10 +98,15 @@ public class BhNodeSelectionService {
    */
   public void deleteAllNodes(String categoryName, UserOperationCommand userOpeCmd) {
     Collection<BhNode> nodesToDelete = getTemplateNodes(categoryName);
-    if (nodesToDelete.isEmpty()) {
-      return;
+    List<Swapped> swappedNodes =
+        BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
+    for (var swapped : swappedNodes) {
+      swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
+          swapped.oldNode(),
+          swapped.newNode(),
+          swapped.newNode().getParentConnector(),
+          userOpeCmd);
     }
-    BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
   }
 
   /**

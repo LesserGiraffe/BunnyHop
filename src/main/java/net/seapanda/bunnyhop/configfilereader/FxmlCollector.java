@@ -32,7 +32,7 @@ import net.seapanda.bunnyhop.common.tools.Util;
 /**
  * FXMLファイルとそのパスを保存するクラス.
  *
- * @author Koike
+ * @author K.Koike
  */
 public class FxmlCollector {
 

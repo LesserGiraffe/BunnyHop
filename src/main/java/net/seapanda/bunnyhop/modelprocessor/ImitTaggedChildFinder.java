@@ -24,7 +24,7 @@ import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.section.Subsection;
 
 /**
- * イミテーションタグを指定し, そこに接続されている {@link BhNode} を見つけるクラス.
+ * イミテーション接続位置を指定し, そこに接続されている {@link BhNode} を見つけるクラス.
  *
  * @author K.Koike
  */
@@ -37,10 +37,10 @@ public class ImitTaggedChildFinder implements BhModelProcessor {
   private boolean found = false;
 
   /**
-   * イミテーションタグを指定し, そこに接続されているBhNode を見つける.
+   * イミテーション接続位置を指定し, そこに接続されている {@link BhNode} を見つける.
    *
-   * @param node これ以下のノードから, イミテーションタグに一致する場所に接続されているノードを見つける.
-   * @param imitCnctPos イミテーションタグ. (イミテーションの接続位置を識別するタグ)
+   * @param node これ以下のノードから, イミテーション接続位置に一致する場所に接続されているノードを見つける.
+   * @param imitCnctPos イミテーション接続位置. (イミテーションの接続位置を識別するタグ)
    */
   public static BhNode find(BhNode node, ImitCnctPosId imitCnctPos) {
     var finder = new ImitTaggedChildFinder(imitCnctPos);
@@ -51,7 +51,7 @@ public class ImitTaggedChildFinder implements BhModelProcessor {
   /**
    * コンストラクタ.
    *
-   * @param imitCnctPosId このイミテーションタグを持つコネクタにつながったBhNodeを見つける
+   * @param imitCnctPosId このイミテーション接続位置を持つコネクタにつながったBhNodeを見つける
    */
   private ImitTaggedChildFinder(ImitCnctPosId imitCnctPosId) {
     this.imitCnctPosId = imitCnctPosId;

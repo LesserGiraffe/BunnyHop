@@ -24,14 +24,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -44,35 +41,29 @@ import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
+import net.seapanda.bunnyhop.message.MsgDispatcher;
 import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.message.MsgReceptionWindow;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
+import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
-import net.seapanda.bunnyhop.modelservice.DelayedDeleter;
-import net.seapanda.bunnyhop.modelservice.DeleteOperation;
+import net.seapanda.bunnyhop.modelservice.HomologueCache;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.saveandload.ProjectSaveData;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.ScriptableObject;
 
 /**
  * ワークスペースの集合を保持、管理するクラス.
  *
  * @author K.Koike
  */
-public class WorkspaceSet implements MsgReceptionWindow {
+public class WorkspaceSet implements MsgDispatcher {
   /** コピー予定のノード. */
   private final ObservableList<BhNode> readyToCopy = FXCollections.observableArrayList();
   /** カット予定のノード. */
@@ -80,7 +71,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
   /** 全てのワークスペース. */
   private final List<Workspace> workspaceList = new ArrayList<>();
   /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
-  private MsgProcessor msgProcessor;
+  private MsgProcessor msgProcessor = (msg, data) -> null;
   /** ノードの貼り付け位置をずらすためのカウンタ. */
   private int pastePosOffsetCount = -2;
   private Workspace currentWorkspace;
@@ -234,9 +225,9 @@ public class WorkspaceSet implements MsgReceptionWindow {
     UserOperationCommand userOpeCmd = new UserOperationCommand();
     copyAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
     cutAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
-    DelayedDeleter.INSTANCE.deleteAll(userOpeCmd);
     SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
     SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
+    HomologueCache.INSTANCE.clearAll();
     BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
   }
 
@@ -263,7 +254,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
       BhNode copy = orgAndCopy.v2;
       NodeMvcBuilder.build(copy);
       TextImitationPrompter.prompt(copy);
-      BhNodeHandler.INSTANCE.addRootNode(
+      BhNodeHandler.INSTANCE.moveToWs(
           wsToPasteIn,
           copy,
           pasteBasePos.x,
@@ -290,58 +281,10 @@ public class WorkspaceSet implements MsgReceptionWindow {
       BhNode target,
       Collection<? extends BhNode> nodesToCopy,
       UserOperationCommand userOpeCmd) {
-    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_COPY_REQUESTED);
-    Script onCopyRequested =
-        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
-    if (onCopyRequested == null) {
-      return target.copy(userOpeCmd);
-    }
-    Object ret = null;
-    ScriptableObject scriptScope = target.getEventDispatcher().newDefaultScriptScope();
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST, nodesToCopy);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
-    try {
-      ret = ContextFactory.getGlobal().call(cx -> onCopyRequested.exec(cx, scriptScope));
-    } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
-    }
-
-    if (ret == null) {
-      return null;
-    }
-    if (ret instanceof Function copyCheckFunc) {
-      Predicate<BhNode> copyTestFunc = genCopyCheckFunc(copyCheckFunc, scriptName.get(), target);
-      return target.copy(copyTestFunc, userOpeCmd);
-    }
-    throw new AssertionError(
-        scriptName.get() + " must return null or a function that returns a boolean value.");
-  }
-
-  /**
-   * コピー判定関数を作成する.
-   *
-   * @param copyCheckFunc 作成するコピー判定関数が呼び出す Javascript の関数
-   * @param scriptName copyCheckFunc を返したスクリプトの名前
-   * @param caller コピー判定関数を呼ぶノード
-   * @return コピー判定関数
-   */
-  private Predicate<BhNode> genCopyCheckFunc(
-      Function copyCheckFunc, String scriptName, BhNode caller) {
-    Predicate<BhNode> isNodeToCopy = node -> {
-      ScriptableObject scriptScope = caller.getEventDispatcher().newDefaultScriptScope();
-      Object retVal = ContextFactory.getGlobal().call(cx -> 
-          ((Function) copyCheckFunc).call(cx, scriptScope, scriptScope, new Object[] {node}));
-      if (!(retVal instanceof Boolean)) {
-        String msg = scriptName + " must return null or a function that returns a boolean value.";
-        MsgPrinter.INSTANCE.errMsgForDebug(msg);
-        throw new ClassCastException();
-      }
-      return (boolean) retVal;
-    };
-    return isNodeToCopy;
+     
+    return target.getEventAgent()
+        .execOnCopyRequested(nodesToCopy, node -> true, userOpeCmd)
+        .map(copyTestFunc -> target.copy(copyTestFunc, userOpeCmd)).orElse(null);
   }
 
   /**
@@ -360,14 +303,12 @@ public class WorkspaceSet implements MsgReceptionWindow {
         .filter(this::canCopyOrCut).collect(Collectors.toCollection(HashSet::new));
 
     Collection<BhNode> nodesToPaste = candidates.stream()
-        .filter(node -> node.getEventDispatcher().execOnCutRequested(candidates, userOpeCmd))
+        .filter(node -> node.getEventAgent().execOnCutRequested(candidates, userOpeCmd))
         .collect(Collectors.toCollection(ArrayList::new));
 
     // 貼り付け処理
     for (var node : nodesToPaste) {
-      final Optional<BhNode> newChild = BhNodeHandler.INSTANCE.deleteNodeWithDelay(
-          node, userOpeCmd, DeleteOperation.REMOVE_FROM_IMIT_LIST);
-      BhNodeHandler.INSTANCE.addRootNode(
+      List<Swapped> swappedNodes = BhNodeHandler.INSTANCE.moveToWs(
           wsToPasteIn,
           node,
           pasteBasePos.x,
@@ -375,18 +316,32 @@ public class WorkspaceSet implements MsgReceptionWindow {
           userOpeCmd);
       Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
       pasteBasePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
-      DelayedDeleter.INSTANCE.deleteAll(userOpeCmd);
-      newChild.ifPresent(child -> {
-        node.getEventDispatcher().execOnMovedFromChildToWs(
-            child.findParentNode(), child.findRootNode(), child, true, userOpeCmd);
-        child.findParentNode().execOnChildReplaced(
-            node, child, child.getParentConnector(), userOpeCmd);
-      });
+      dispatchEventsOnPaste(node, swappedNodes, userOpeCmd);
     }
 
     pastePosOffsetCount = (pastePosOffsetCount > 2) ? -2 : ++pastePosOffsetCount;
     userOpeCmd.pushCmdOfRemoveFromList(readyToCut, readyToCut);
     readyToCut.clear();
+  }
+
+  /** ペースト時のイベント処理を実行する. */
+  private void dispatchEventsOnPaste(
+      BhNode node, List<Swapped> swappedNodes, UserOperationCommand userOpeCmd) {
+    if (!swappedNodes.isEmpty()) {
+      node.getEventAgent().execOnMovedFromChildToWs(
+          swappedNodes.get(0).newNode().findParentNode(),
+          swappedNodes.get(0).newNode().findRootNode(),
+          swappedNodes.get(0).newNode(),
+          true,
+          userOpeCmd);
+    }
+    for (var swapped : swappedNodes) {
+      swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
+          node,
+          swapped.newNode(),
+          swapped.newNode().getParentConnector(),
+          userOpeCmd);
+    }
   }
 
   /**
@@ -408,7 +363,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
    * @return 現在保持しているワークスペース一覧
    */
   public List<Workspace> getWorkspaceList() {
-    return Collections.unmodifiableList(workspaceList);
+    return new ArrayList<>(workspaceList);
   }
 
   /**
@@ -614,7 +569,7 @@ public class WorkspaceSet implements MsgReceptionWindow {
   }
 
   @Override
-  public MsgData passMsg(BhMsg msg, MsgData data) {
+  public MsgData dispatch(BhMsg msg, MsgData data) {
     return msgProcessor.processMsg(msg, data);
   }
 }

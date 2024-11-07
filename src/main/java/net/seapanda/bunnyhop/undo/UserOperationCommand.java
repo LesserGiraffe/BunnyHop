@@ -39,7 +39,7 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 /**
  * undo/redo 用コマンドクラス.
  *
- * @author Koike
+ * @author K.Koike
  */
 public class UserOperationCommand {
 
@@ -97,16 +97,6 @@ public class UserOperationCommand {
    */
   public <T extends ImitationBase<T>> void pushCmdOfRemoveImitation(T imit, T org) {
     subOpeList.addLast(new RemoveImitationCmd<T>(imit, org));
-  }
-
-  /**
-   * イミテーションのオリジナルノード登録操作をコマンド化してサブ操作リストに加える.
-   *
-   * @param imit 新しくオリジナルノードがセットされたイミテーション
-   * @param oldOrg imit に元々登録されていたオリジナルノード
-   */
-  public <T extends ImitationBase<T>> void pushCmdOfSetOriginal(T imit, T oldOrg) {
-    subOpeList.addLast(new SetOriginalCmd<T>(imit, oldOrg));
   }
 
   /**
@@ -201,20 +191,20 @@ public class UserOperationCommand {
   }
 
   /**
-   * 選択ノードリストへのノードの追加をコマンド化してサブ操作リストに加える.
+   * 選択されたノードのリストへのノードの追加をコマンド化してサブ操作リストに加える.
    *
-   * @param ws 選択ノードリストを持つワークスペース
-   * @param node 選択ノードリストに追加するノード
+   * @param ws 選択されたノードのリストを持つワークスペース
+   * @param node 選択されたノードのリストに追加するノード
    */
   public void pushCmdOfAddSelectedNode(Workspace ws, BhNode node) {
     subOpeList.addLast(new AddSelectedNodeCmd(ws, node));
   }
 
   /**
-   * 選択ノードリストからのノードの削除をコマンド化してサブ操作リストに加える.
+   * 選択されたノードのリストからのノードの削除をコマンド化してサブ操作リストに加える.
    *
-   * @param ws 選択ノードリストを持つワークスペース
-   * @param node 選択ノードリストから削除するノード
+   * @param ws 選択されたノードのリストを持つワークスペース
+   * @param node 選択されたノードのリストから削除するノード
    */
   public void pushCmdOfRemoveSelectedNode(Workspace ws, BhNode node) {
     subOpeList.addLast(new RemoveSelectedNodeCmd(ws, node));
@@ -367,25 +357,6 @@ public class UserOperationCommand {
     @Override
     public void doInverseOperation(UserOperationCommand inverseCmd) {
       org.addImitation(imit, inverseCmd);
-    }
-  }
-
-  /** イミテーションノードに対するオリジナルノードの登録を表すコマンド. */
-  private static class SetOriginalCmd<T extends ImitationBase<T>> implements SubOperation {
-
-    /** 新しくオリジナルノードがセットされたイミテーション. */
-    private final T imit;
-    /** {@code imit} に元々登録されていたオリジナルノード. */
-    private final T oldOrg;
-
-    public SetOriginalCmd(T imit, T oldOrg) {
-      this.imit = imit;
-      this.oldOrg = oldOrg;
-    }
-
-    @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
-      imit.setOriginal(oldOrg, inverseCmd);  //元々登録されていたオリジナルノードをセットする
     }
   }
 
@@ -573,11 +544,13 @@ public class UserOperationCommand {
     }
   }
 
-  /** 選択ノードリストへの BhNode の追加を表すコマンド. */
+  /** 選択されたノードのリストへの BhNode の追加を表すコマンド. */
   private static class AddSelectedNodeCmd implements SubOperation {
 
-    private final Workspace ws;  //!< 選択ノードリストを持つワークスペース
-    private final BhNode node;  //!< 選択リストに追加するノード
+    /** 選択されたノードのリストを持つワークスペース. */
+    private final Workspace ws;
+    /** 選択されたノードのリストに追加するノード. */
+    private final BhNode node;
 
     public AddSelectedNodeCmd(Workspace ws, BhNode node) {
       this.node = node;
@@ -590,12 +563,12 @@ public class UserOperationCommand {
     }
   }
 
-  /** 選択ノードリストからの BhNode の削除を表すコマンド. */
+  /** 選択されたノードのリストからの BhNode の削除を表すコマンド. */
   private static class RemoveSelectedNodeCmd implements SubOperation {
 
-    /** 選択ノードリストを持つワークスペース. */
+    /** 選択されたノードのリストを持つワークスペース. */
     private final Workspace ws;
-    /** 選択リストから削除するノード. */
+    /** 選択されたノードのリストから削除するノード. */
     private final BhNode node;
 
     public RemoveSelectedNodeCmd(Workspace ws, BhNode node) {

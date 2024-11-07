@@ -39,7 +39,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
  */
 public class BhCompiler {
 
-  public static final BhCompiler INSTANCE = new BhCompiler() {};  //!< シングルトンインスタンス
+  public static final BhCompiler INSTANCE = new BhCompiler() {};
   private final VarDeclCodeGenerator varDeclCodeGen;
   private final FuncDefCodeGenerator funcDefCodeGen;
   private final StatCodeGenerator statCodeGen;

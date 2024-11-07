@@ -80,7 +80,8 @@ public class TextNode  extends ImitationBase<TextNode> {
   }
 
   @Override
-  public TextNode copy(Predicate<BhNode> isNodeToBeCopied, UserOperationCommand userOpeCmd) {
+  public TextNode copy(
+      Predicate<? super BhNode> isNodeToBeCopied, UserOperationCommand userOpeCmd) {
     return new TextNode(this, userOpeCmd);
   }
 
@@ -122,7 +123,7 @@ public class TextNode  extends ImitationBase<TextNode> {
     if (checker == null) {
       return true;
     }
-    ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
+    ScriptableObject scriptScope = getEventAgent().newDefaultScriptScope();
     ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_TEXT, text);
     Object jsReturn = null;
     try {
@@ -153,7 +154,7 @@ public class TextNode  extends ImitationBase<TextNode> {
     if (formatter == null) {
       return new Pair<Boolean, String>(false, addedText);
     }
-    ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
+    ScriptableObject scriptScope = getEventAgent().newDefaultScriptScope();
     ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_TEXT, text);
     ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_ADDED_TEXT, addedText);
     try {
@@ -185,7 +186,7 @@ public class TextNode  extends ImitationBase<TextNode> {
       return options;
     }
 
-    ScriptableObject scriptScope = getEventDispatcher().newDefaultScriptScope();
+    ScriptableObject scriptScope = getEventAgent().newDefaultScriptScope();
     try {
       List<?> contents =
           (List<?>) ContextFactory.getGlobal().call(cx -> creator.exec(cx, scriptScope));
@@ -201,7 +202,7 @@ public class TextNode  extends ImitationBase<TextNode> {
   }
 
   /** このノードのイミテーションノードにこのノードを模倣させる. */
-  public void getImitNodesToImitateContents() {
+  public void assignContentsToImitations() {
     String viewText = MsgService.INSTANCE.getViewText(this);
     getImitationList().forEach(imit -> MsgService.INSTANCE.setText(imit, text, viewText));
   }
@@ -242,7 +243,6 @@ public class TextNode  extends ImitationBase<TextNode> {
     //オリジナルとイミテーションの関連付け
     TextNode textImit = (TextNode) imitationNode;
     addImitation(textImit, userOpeCmd);
-    textImit.setOriginal(this, userOpeCmd);
     return textImit;
   }
 

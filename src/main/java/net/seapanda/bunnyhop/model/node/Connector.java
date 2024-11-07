@@ -34,8 +34,6 @@ import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
-import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
-import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperationCommand;
 import org.mozilla.javascript.ContextFactory;
@@ -107,15 +105,15 @@ public class Connector extends SyntaxSymbol {
   /**
    * このコネクタのコピーを作成して返す.
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
    * @param parent 親コネクタセクション
    * @param isNodeToBeCopied 子ノードがコピーの対象かどうかを判別する関数
+   * @param userOpeCmd undo 用コマンドオブジェクト
    * @return このノードのコピー
    */
   public Connector copy(
-      UserOperationCommand userOpeCmd,
       ConnectorSection parent,
-      Predicate<BhNode> isNodeToBeCopied) {
+      Predicate<? super BhNode> isNodeToBeCopied,
+      UserOperationCommand userOpeCmd) {
     BhNode newNode = null;
     if (connectedNode != null && isNodeToBeCopied.test(connectedNode)) {
       newNode = connectedNode.copy(isNodeToBeCopied, userOpeCmd);
@@ -207,24 +205,6 @@ public class Connector extends SyntaxSymbol {
       return res;
     }
     return false;
-  }
-
-  /**
-   * 現在繋がっているノードを取り除く.
-   *
-   * @param userOpeCmd undo 用コマンドオブジェクト
-   * @return 現在繋がっているノードを取り除いた結果, 新しくできたノード
-   */
-  public BhNode remove(UserOperationCommand userOpeCmd) {
-    if (connectedNode == null) {
-      throw new AssertionError("try to remove null");
-    }
-    BhNode newNode = BhNodeTemplates.INSTANCE.genBhNode(defaultNodeId, userOpeCmd);
-    newNode.setDefault(true);
-    NodeMvcBuilder.build(newNode); //MVC構築
-    TextImitationPrompter.prompt(newNode);
-    connectedNode.replace(newNode, userOpeCmd);
-    return newNode;
   }
 
   public ConnectorId getId() {

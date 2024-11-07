@@ -67,7 +67,7 @@ public class ComboBoxNodeController extends BhNodeController {
       if (model.isTextAcceptable(newItem.getModelText())) {
         // model の文字列を ComboBox の選択アイテムに対応したものにする
         model.setText(newItem.getModelText());
-        model.getImitNodesToImitateContents();
+        model.assignContentsToImitations();
       } else {
         view.setItem(oldItem);
       }

@@ -431,7 +431,7 @@ public class WorkspaceView extends Tab {
   }
 
   /**
-   * ワークスペース上での node の右下の位置を取得する.
+   * ワークスペース上での {@code node} の右下の位置を取得する.
    *
    * @param node 右下の位置を取得するノードビュー
    */

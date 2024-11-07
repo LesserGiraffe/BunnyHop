@@ -29,6 +29,7 @@ import net.seapanda.bunnyhop.control.node.NoContentNodeController;
 import net.seapanda.bunnyhop.control.node.TextInputNodeController;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
+import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.Connector;
@@ -62,8 +63,12 @@ public class NodeMvcBuilder implements BhModelProcessor {
    * @return 引数で指定したノードに対応する BhNodeView
    */
   public static BhNodeView build(BhNode node) {
+    if (MsgService.INSTANCE.hasView(node)) {
+      return MsgService.INSTANCE.getBhNodeView(node);
+    }
     var builder = new NodeMvcBuilder(ControllerType.Default);
     node.accept(builder);
+    builder.topNodeView.getLookManager().arrangeAndResize();
     return builder.topNodeView;
   }
 
@@ -73,8 +78,12 @@ public class NodeMvcBuilder implements BhModelProcessor {
    * @return 引数で指定したノードに対応する BhNodeView.
    */
   public static BhNodeView buildTemplate(BhNode node) {
+    if (MsgService.INSTANCE.hasView(node)) {
+      return MsgService.INSTANCE.getBhNodeView(node);
+    }
     var builder = new NodeMvcBuilder(ControllerType.Template);
     node.accept(builder);
+    builder.topNodeView.getLookManager().arrangeAndResize();
     return builder.topNodeView;
   }
 

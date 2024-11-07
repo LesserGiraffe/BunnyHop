@@ -64,10 +64,10 @@ public class ConnectorSection extends Section {
 
   @Override
   public ConnectorSection copy(
-      UserOperationCommand userOpeCmd, Predicate<BhNode> isNodeToBeCopied) {
+      Predicate<? super BhNode> isNodeToBeCopied, UserOperationCommand userOpeCmd) {
     var newSection = new ConnectorSection(this);
     for (int i = 0; i < cnctrList.size(); ++i) {
-      Connector newConnector = cnctrList.get(i).copy(userOpeCmd, newSection, isNodeToBeCopied);
+      Connector newConnector = cnctrList.get(i).copy(newSection, isNodeToBeCopied, userOpeCmd);
       newSection.cnctrList.add(newConnector);
     }
     return newSection;

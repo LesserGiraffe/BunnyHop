@@ -36,7 +36,7 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
  * @author K.Koike
  */
 public class MsgService {
-  /** シングルトンインスタンス. */
+
   public static final MsgService INSTANCE = new MsgService();
 
   /** コンストラクタ. */
@@ -149,7 +149,7 @@ public class MsgService {
   }
 
   /**
-   * ノードビューを入れ替える.
+   * ノードビューを入れ替える. GUI ツリーからは取り除かない.
    *
    * @param oldNode 入れ替えられる古いノードビューの BhNode
    * @param newNode 入れ替えられる新しいノードビューの BhNode
@@ -174,13 +174,14 @@ public class MsgService {
 
   /**
    * 4 分木空間にノードの領域を登録する.
+   * 異なるワークスペースに {@code node} の領域が重複して登録されることはない.
    *
-   * @param node このノードの領域をワークスペースの4 分木空間に登録する
+   * @param node このノードの領域をワークスペースの 4 分木空間に登録する
    * @param ws このワークスペースが持つ4 分木空間にノードの領域を登録する
    * @param userOpeCmd undo 用コマンドオブジェクト
    */
   public void addQtRectangle(BhNode node, Workspace ws, UserOperationCommand userOpeCmd) {
-    MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);  //4 分木ノード登録(重複登録はされない)
+    MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);
     userOpeCmd.pushCmdOfaddQtRectangle(node, ws);
   }
 
@@ -294,11 +295,10 @@ public class MsgService {
    * @return scenePosX と scenePosY のワークスペース上の位置
    */
   public Vec2D sceneToWorkspace(double scenePosX, double scenePosY, Workspace ws) {
-
     return MsgTransporter.INSTANCE.sendMessage(
-      BhMsg.SCENE_TO_WORKSPACE,
-      new MsgData(new Vec2D(scenePosX, scenePosY)),
-      ws).vec2d;
+        BhMsg.SCENE_TO_WORKSPACE,
+        new MsgData(new Vec2D(scenePosX, scenePosY)),
+        ws).vec2d;
   }
 
   /**

@@ -45,7 +45,7 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 /**
  * 全ワークスペースの保存に必要なデータを保持するクラス.
  *
- * @author Koike
+ * @author K.Koike
  */
 public class ProjectSaveData implements Serializable {
 
@@ -58,11 +58,13 @@ public class ProjectSaveData implements Serializable {
    * @param workspaceList 保存するワークスペースのリスト
    */
   public ProjectSaveData(Collection<Workspace> workspaceList) {
+    // ワークスペース以外のイミテーションノードを保存したくない.
     var imitToDelete = workspaceList.stream()
         .flatMap(ws -> ws.getRootNodeList().stream())
         .flatMap(rootNode -> TemplateImitationCollector.collect(rootNode).stream())
         .collect(Collectors.toCollection(ArrayList::new));
     BhNodeHandler.INSTANCE.deleteNodes(imitToDelete, new UserOperationCommand());
+    ///////////////////////////////
 
     workspaceSaveList = workspaceList.stream()
       .map(workspace -> this.new WorkspaceSaveData(workspace))
@@ -136,7 +138,7 @@ public class ProjectSaveData implements Serializable {
         Pair<BhNode, Vec2D> rootNodeAndPos = nodeSaveData.getBhNodeAndPos();
         Vec2D pos = rootNodeAndPos.v2;
         BhNode rootNode = rootNodeAndPos.v1;
-        BhNodeHandler.INSTANCE.addRootNode(ws, rootNode, pos.x, pos.y, userOpeCmd);
+        BhNodeHandler.INSTANCE.moveToWs(ws, rootNode, pos.x, pos.y, userOpeCmd);
       });
       return Optional.of(ws);
     }

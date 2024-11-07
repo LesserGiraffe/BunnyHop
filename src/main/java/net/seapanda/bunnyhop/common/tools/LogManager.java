@@ -32,7 +32,7 @@ import net.seapanda.bunnyhop.common.constant.BhConstants;
  * @author K.Koike
  */
 class LogManager {
-  /** シングルトンインスタンス. */
+
   static final LogManager INSTANCE = new LogManager();
   private OutputStream logOutputStream;
 

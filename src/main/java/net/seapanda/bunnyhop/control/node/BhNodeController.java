@@ -27,12 +27,12 @@ import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
-import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
-import net.seapanda.bunnyhop.modelservice.DelayedDeleter;
+import net.seapanda.bunnyhop.modelservice.HomologueCache;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
@@ -162,9 +162,15 @@ public class BhNodeController implements MsgProcessor {
       if (model.isRemovable()) {
         ddInfo.latestParent = model.findParentNode();
         ddInfo.latestRoot = model.findRootNode();
-        BhNode newNode = BhNodeHandler.INSTANCE.removeChild(model, ddInfo.userOpeCmd);
-        ddInfo.latestParent.execOnChildReplaced(
-            model, newNode, newNode.getParentConnector(), ddInfo.userOpeCmd);
+        List<Swapped> swappedNodes =
+            BhNodeHandler.INSTANCE.removeChild(model, ddInfo.userOpeCmd);
+        for (var swapped : swappedNodes) {
+          swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
+              swapped.oldNode(),
+              swapped.newNode(),
+              swapped.newNode().getParentConnector(),
+              ddInfo.userOpeCmd);
+        }
       }
       mouseEvent.consume();
     } finally {
@@ -196,11 +202,11 @@ public class BhNodeController implements MsgProcessor {
         //同一ワークスペース上で移動
         toSameWorkspace();
       }
-
       view.getPositionManager().toFront(false);
-      deleteUnnecessaryNodes(mouseEvent);
+      deleteTrashedNode(mouseEvent);
       SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(ddInfo.userOpeCmd);
       SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(ddInfo.userOpeCmd);
+      HomologueCache.INSTANCE.clearAll();
       BunnyHop.INSTANCE.pushUserOpeCmd(ddInfo.userOpeCmd);
       ddInfo.reset();
       view.setMouseTransparent(false);  // 処理が終わったので、元に戻しておく。
@@ -218,9 +224,6 @@ public class BhNodeController implements MsgProcessor {
    */
   private void toChildNode(BhNode oldChildNode) {
     boolean fromWs = model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
-    final ConnectiveNode parentNode = oldChildNode.findParentNode();
-    final Connector parentCnctr = oldChildNode.getParentConnector();
-
     //ワークスペースから移動する場合
     if (fromWs) {
       ddInfo.userOpeCmd.pushCmdOfSetPosOnWorkspace(
@@ -231,9 +234,10 @@ public class BhNodeController implements MsgProcessor {
     // 入れ替えられるノードのルートノード
     final BhNode oldRootOfReplaced = oldChildNode.findRootNode();
     // 重なっているノードをこのノードと入れ替え
-    BhNodeHandler.INSTANCE.replaceChild(oldChildNode, model, ddInfo.userOpeCmd);
+    final List<Swapped> swappedNodes =
+        BhNodeHandler.INSTANCE.replaceChild(oldChildNode, model, ddInfo.userOpeCmd);
     //接続変更時のスクリプト実行
-    model.getEventDispatcher().execOnMovedToChild(
+    model.getEventAgent().execOnMovedToChild(
         ddInfo.latestParent, ddInfo.latestRoot, oldChildNode, ddInfo.userOpeCmd);
 
     Vec2D posOnWs = MsgService.INSTANCE.getPosOnWs(oldChildNode);
@@ -243,11 +247,16 @@ public class BhNodeController implements MsgProcessor {
     BhNodeHandler.INSTANCE.moveToWs(
         oldChildNode.getWorkspace(), oldChildNode, newXposInWs, newYposInWs, ddInfo.userOpeCmd);
     //接続変更時のスクリプト実行
-    oldChildNode.getEventDispatcher().execOnMovedFromChildToWs(
+    oldChildNode.getEventAgent().execOnMovedFromChildToWs(
         oldParentOfReplaced, oldRootOfReplaced, model, false, ddInfo.userOpeCmd);
-
     // 子ノード入れ替え時のスクリプト実行
-    parentNode.execOnChildReplaced(oldChildNode, model, parentCnctr, ddInfo.userOpeCmd);
+    for (var swapped : swappedNodes) {
+      swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
+          swapped.oldNode(),
+          swapped.newNode(),
+          swapped.newNode().getParentConnector(),
+          ddInfo.userOpeCmd);
+    }
   }
 
   /**
@@ -258,7 +267,7 @@ public class BhNodeController implements MsgProcessor {
   private void toWorkspace(Workspace ws) {
     Vec2D absPosInWs = view.getPositionManager().getPosOnWorkspace();
     BhNodeHandler.INSTANCE.moveToWs(ws, model, absPosInWs.x, absPosInWs.y, ddInfo.userOpeCmd);
-    model.getEventDispatcher().execOnMovedFromChildToWs(
+    model.getEventAgent().execOnMovedFromChildToWs(
         ddInfo.latestParent,
         ddInfo.latestRoot,
         model.getLastReplaced(),
@@ -276,19 +285,25 @@ public class BhNodeController implements MsgProcessor {
     view.getLookManager().arrangeAndResize();
   }
 
-  /** 不要になったノードを削除する. */
-  private void deleteUnnecessaryNodes(MouseEvent mouseEvent) {
-    DelayedDeleter.INSTANCE.deleteAll(ddInfo.userOpeCmd);
+  /** ゴミ箱に入れられたノードを削除する. */
+  private void deleteTrashedNode(MouseEvent mouseEvent) {
     boolean isInTrashboxArea =
         TrashboxService.INSTANCE.isInTrashboxArea(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-    //ゴミ箱に重なっていた場合, 削除
-    if (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS && isInTrashboxArea) {
-      model.getEventDispatcher().execOnDeletionRequested(
+    if (model.isRootDirectolyUnderWs() && isInTrashboxArea) {
+      model.getEventAgent().execOnDeletionRequested(
           new ArrayList<BhNode>() {{
             add(model);
           }},
           CauseOfDeletion.TRASH_BOX, ddInfo.userOpeCmd);
-      BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
+      List<Swapped> swappedNodes =
+          BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpeCmd);
+      for (var swapped : swappedNodes) {
+        swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
+            swapped.oldNode(),
+            swapped.newNode(),
+            swapped.newNode().getParentConnector(),
+            ddInfo.userOpeCmd);
+      }
     }
   }
 
@@ -367,12 +382,18 @@ public class BhNodeController implements MsgProcessor {
   private class DragAndDropEventInfo {
     Vec2D mousePressedPos = null;
     Vec2D posOnWorkspace = null;
-    BhNode currentOverlapped = null;  //現在重なっているView
-    boolean propagateEvent = false;  //!< イベントを親ノードに伝播する場合true
-    boolean dragging = false;  //!< ドラッグ中ならtrue
-    ConnectiveNode latestParent = null;  //!< 最後につながっていた親ノード
-    BhNode latestRoot = null;  //!< 最後に子孫であったルートノード
-    UserOperationCommand userOpeCmd;  //!< D&D操作のundo 用コマンド
+    /** 現在重なっている View. */
+    BhNode currentOverlapped = null;
+    /** イベントを親ノードに伝播する場合 true. */
+    boolean propagateEvent = false;
+    /** ドラッグ中のとき true. */
+    boolean dragging = false;
+    /** {@code model} に最後につながっていた親ノード. */
+    ConnectiveNode latestParent = null;
+    /** {@code latestParent} のルートノード. */
+    BhNode latestRoot = null;
+    /** undo 用コマンドオブジェクト. */
+    UserOperationCommand userOpeCmd;
 
     /** D&Dイベント情報を初期化する. */
     public void reset() {
@@ -403,10 +424,10 @@ public class BhNodeController implements MsgProcessor {
       switch (msg) {
 
         case ADD_ROOT_NODE: // model がWorkSpace のルートノードとして登録された
-          return  new MsgData(model, view);
+          return new MsgData(model, view);
 
         case REMOVE_ROOT_NODE:
-          return  new MsgData(model, view);
+          return new MsgData(model, view);
 
         case ADD_QT_RECTANGLE:
           return new MsgData(view);
@@ -486,7 +507,6 @@ public class BhNodeController implements MsgProcessor {
      * @param posOnWs 設定するワークスペース上での位置
      */
     private void setPosOnWorkspace(Vec2D posOnWs) {
-
       view.getPositionManager().setPosOnWorkspace(posOnWs.x, posOnWs.y);
       if (model.getWorkspace() != null) {
         MsgService.INSTANCE.updateMultiNodeShifter(model, model.getWorkspace());

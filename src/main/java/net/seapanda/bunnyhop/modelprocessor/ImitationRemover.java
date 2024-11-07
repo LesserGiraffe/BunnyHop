@@ -34,7 +34,7 @@ public class ImitationRemover implements BhModelProcessor {
   /**
    * 引数で指定したノード以下にあるイミテーションノードをオリジナルノードのイミテーションノードリストから取り除く.
    *
-   * @param node このノード以下のイミテーションノードをイミテーションノードリストから取り除く.
+   * @param node このノード以下のイミテーションノードを, オリジナルノードのイミテーションノードリストから取り除く.
    * @param userOpeCmd undo 用コマンドオブジェクト
    * */
   public static void remove(BhNode node, UserOperationCommand userOpeCmd) {
@@ -57,18 +57,16 @@ public class ImitationRemover implements BhModelProcessor {
    */
   @Override
   public void visit(ConnectiveNode node) {
-    //このノードがイミテーションノードだった場合, オリジナルにイミテーションが消えたことを伝える
     if (node.isImitationNode()) {
-      node.getOriginal().disconnectOrgImitRelation(node, userOpeCmd);
+      node.getOriginal().removeImitation(node, userOpeCmd);
     }
     node.sendToSections(this);
   }
 
   @Override
   public void visit(TextNode node) {
-    //このノードがイミテーションノードだった場合, オリジナルにイミテーションが消えたことを伝える
     if (node.isImitationNode()) {
-      node.getOriginal().disconnectOrgImitRelation(node, userOpeCmd);
+      node.getOriginal().removeImitation(node, userOpeCmd);
     }
   }
 }

@@ -29,7 +29,7 @@
   function addNewNodeToWS(bhNodeId, workspace, pos, bhNodeHandler, bhNodeTemplates, bhUserOpeCmd) {
     let newNode = genBhNode(bhNodeId, bhNodeTemplates, bhUserOpeCmd)    
     NodeMvcBuilder.build(newNode);
-    bhNodeHandler.addRootNode(workspace, newNode, pos.x, pos.y, bhUserOpeCmd);
+    bhNodeHandler.moveToWs(workspace, newNode, pos.x, pos.y, bhUserOpeCmd);
     return newNode;
   }
 
@@ -152,7 +152,7 @@
    * @return node のイミテーションノード
    */
   function buildImitation(node, imitID, userOpeCmd) {
-    return ImitationBuilder.build(node, ImitationId.of(imitID), false, userOpeCmd);
+    return ImitationBuilder.build(node, ImitationId.of(imitID), userOpeCmd);
   }
   
   /**
@@ -173,7 +173,7 @@
    */
   function changeDefaultNode(connector, defaultNodeId, bhUserOpeCmd) {
     connector.setDefaultNodeId(BhNodeId.of(defaultNodeId));
-    connector.remove(bhUserOpeCmd);
+    connector.getConnectedNode().remove(bhUserOpeCmd);
   }
 
   /** Java の List を JavaScript の配列に変換する. */

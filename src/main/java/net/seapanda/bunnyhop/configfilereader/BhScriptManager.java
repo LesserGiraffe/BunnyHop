@@ -36,16 +36,16 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.json.JsonParser;
 
 /**
- * JavaScriptを管理するクラス.
+ * JavaScript コードを管理するクラス.
  *
  * @author K.Koike
  */
 public class BhScriptManager {
-  /** シングルトンインスタンス. */
+
   public static final BhScriptManager INSTANCE = new BhScriptManager();
   /** スクリプト名とコンパイル済みスクリプトのマップ. */
   private final HashMap<String, Script> scriptNameToScript = new HashMap<>();
-  /** スクリプト共通で使うJavascriptオブジェクト. */
+  /** スクリプト共通で使う Javascript オブジェクト. */
   private Object commonJsObj;
 
   /**
@@ -116,7 +116,7 @@ public class BhScriptManager {
   /**
    * 各スクリプトが共通で使うオブジェクトを生成する.
    *
-   * @return オブジェクトの作成に成功した場合true, 失敗した場合 false.
+   * @return オブジェクトの作成に成功した場合 true, 失敗した場合 false.
    */
   private boolean genCommonObj() {
     if (scriptNameToScript.containsKey(BhConstants.Path.COMMON_EVENT_JS)) {
@@ -140,7 +140,7 @@ public class BhScriptManager {
    *
    * @param fileName スクリプト名の書いてあるファイル名
    * @param scriptNames スクリプトが存在するかどうか調べるスクリプト名
-   * @return 引数で指定したスクリプト名に対応するスクリプトが全て見つかった場合true
+   * @return 引数で指定したスクリプト名に対応するスクリプトが全て見つかった場合 true
    */
   public boolean scriptsExist(String fileName, String... scriptNames) {
     Stream<String> scriptNameStream = Stream.of(scriptNames);
@@ -156,10 +156,10 @@ public class BhScriptManager {
   }
 
   /**
-   * Jsonファイルをパースしてオブジェクトにして返す.
+   * Json ファイルをパースしてオブジェクトにして返す.
    *
-   * @param filePath Jsonファイルのパス
-   * @return Jsonファイルをパースしてできたオブジェクト. 失敗した場合 empty.
+   * @param filePath Json ファイルのパス
+   * @return Json ファイルをパースしてできたオブジェクト. 失敗した場合 empty.
    */
   public Optional<NativeObject> parseJsonFile(Path filePath) {
     Object jsonObj = null;

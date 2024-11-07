@@ -29,10 +29,10 @@ import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
-import net.seapanda.bunnyhop.modelservice.DelayedDeleter;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
@@ -248,9 +248,17 @@ public class WorkspaceController implements MsgProcessor {
 
   private MsgData deleteWorkspace(MsgData data) {
     Collection<BhNode> rootNodes = model.getRootNodeList();
-    rootNodes.forEach(node -> node.getEventDispatcher().execOnDeletionRequested(
+    rootNodes.forEach(node -> node.getEventAgent().execOnDeletionRequested(
         rootNodes, CauseOfDeletion.WORKSPACE_DELETION, data.userOpeCmd));
-    BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), data.userOpeCmd);
+    List<Swapped> swappedNodes =
+        BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), data.userOpeCmd);
+    for (var swapped : swappedNodes) {
+      swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
+          swapped.oldNode(),
+          swapped.newNode(),
+          swapped.newNode().getParentConnector(),
+          data.userOpeCmd);
+    }
     return new MsgData(model, view, data.userOpeCmd);
   }
 
@@ -272,8 +280,6 @@ public class WorkspaceController implements MsgProcessor {
       MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
     }
     MsgPrinter.INSTANCE.msgForDebug("num of root nodes " + model.getRootNodeList().size());
-    MsgPrinter.INSTANCE.msgForDebug(
-        "num of deletion candidates " + DelayedDeleter.INSTANCE.getDeletionCadidateList().size());
     MsgPrinter.INSTANCE.msgForDebug(
         "num of selected nodes " + model.getSelectedNodeList().size() + "\n");
   }
