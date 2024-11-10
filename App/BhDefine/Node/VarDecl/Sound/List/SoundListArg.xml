@@ -11,7 +11,7 @@
       bhConnectorID="idSoundListArg.cnctr0"
       import="idListNameCnctr"
       name="ListName"
-      imitCnctPos="imitPosListName"/>
+      derivativeJoint="dervJointListName"/>
     
     <Connector
       bhConnectorID="idSoundListArg.cnctr1"
@@ -22,7 +22,7 @@
       bhConnectorID="idSoundListArg.cnctr2"
       import="idArgCnctr"
       name="NextArg"
-      imitCnctPos="imitPosNextArg"/>
+      derivativeJoint="dervJointNextArg"/>
 
   </ConnectorSection>
 </Node>

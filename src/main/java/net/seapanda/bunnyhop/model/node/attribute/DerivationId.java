@@ -21,15 +21,21 @@ import java.util.Objects;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
- * 作成するイミテーションを識別するための ID.
+ * 派生先 ID (= 派生ノードを特定するための ID).
+ *
+ * <p>
+ * ノードには, 複数の派生先を定義することができる.
+ * 各派生先の定義において, この ID と派生ノードの ID が 1 つずつ指定される.
+ * 従って, ノードに対しこの ID を指定すると, 対応する派生ノードを (あれば) 1 つ特定することができる.
+ * </p>
  *
  * @author K.Koike
  */
-public class ImitationId implements Serializable {
+public class DerivationId implements Serializable {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  /** イミテーション ID が存在しないことを表す null オブジェクト. */
-  public static final ImitationId NONE = new ImitationId("");
+  /** 派生 ID が存在しないことを表す null オブジェクト. */
+  public static final DerivationId NONE = new DerivationId("");
   private final String id;
 
   /**
@@ -37,18 +43,18 @@ public class ImitationId implements Serializable {
    *
    * @param id 識別子名
    */
-  private ImitationId(String id) {
+  private DerivationId(String id) {
     this.id = id;
   }
 
   /**
-   * イミテーションIDを作成する.
+   * 派生 ID を作成する.
    *
    * @param id 識別子名
-   * @return イミテーションID
+   * @return 派生 ID
    */
-  public static ImitationId of(String id) {
-    return new ImitationId(id == null ? "" : id);
+  public static DerivationId of(String id) {
+    return new DerivationId(id == null ? "" : id);
   }
 
   @Override
@@ -58,7 +64,7 @@ public class ImitationId implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof ImitationId other) {
+    if (obj instanceof DerivationId other) {
       return id.equals(other.id);
     }
     return false;

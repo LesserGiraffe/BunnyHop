@@ -49,14 +49,14 @@ import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
-import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
+import net.seapanda.bunnyhop.modelprocessor.TextPrompter;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
-import net.seapanda.bunnyhop.modelservice.HomologueCache;
+import net.seapanda.bunnyhop.modelservice.DerivativeCache;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
 import net.seapanda.bunnyhop.saveandload.ProjectSaveData;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
  * ワークスペースの集合を保持、管理するクラス.
@@ -144,23 +144,23 @@ public class WorkspaceSet implements MsgDispatcher {
    * コピー予定のBhNodeリストを追加する.
    *
    * @param nodeList コピー予定のBhNodeリスト
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
   public void addNodesToCopyList(
-      Collection<BhNode> nodeList, UserOperationCommand userOpeCmd) {
-    clearCutList(userOpeCmd);
-    clearCopyList(userOpeCmd);
+      Collection<BhNode> nodeList, UserOperation userOpe) {
+    clearCutList(userOpe);
+    clearCopyList(userOpe);
     readyToCopy.addAll(nodeList);
-    userOpeCmd.pushCmdOfAddToList(readyToCopy, nodeList);
+    userOpe.pushCmdOfAddToList(readyToCopy, nodeList);
   }
 
   /**
    * コピー予定のBhNodeリストをクリアする.
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void clearCopyList(UserOperationCommand userOpeCmd) {
-    userOpeCmd.pushCmdOfRemoveFromList(readyToCopy, readyToCopy);
+  public void clearCopyList(UserOperation userOpe) {
+    userOpe.pushCmdOfRemoveFromList(readyToCopy, readyToCopy);
     readyToCopy.clear();
   }
 
@@ -168,12 +168,12 @@ public class WorkspaceSet implements MsgDispatcher {
    * コピー予定のノードリストからノードを取り除く.
    *
    * @param nodeToRemove 取り除くノード
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * */
   public void removeNodeFromCopyList(
-      BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
+      BhNode nodeToRemove, UserOperation userOpe) {
     if (readyToCopy.contains(nodeToRemove)) {
-      userOpeCmd.pushCmdOfRemoveFromList(readyToCopy, nodeToRemove);
+      userOpe.pushCmdOfRemoveFromList(readyToCopy, nodeToRemove);
       readyToCopy.remove(nodeToRemove);
     }
   }
@@ -182,23 +182,23 @@ public class WorkspaceSet implements MsgDispatcher {
    * カット予定のBhNodeリストを追加する.
    *
    * @param nodeList カット予定のBhNodeリスト
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
   public void addNodesToCutList(
-      Collection<BhNode> nodeList, UserOperationCommand userOpeCmd) {
-    clearCutList(userOpeCmd);
-    clearCopyList(userOpeCmd);
+      Collection<BhNode> nodeList, UserOperation userOpe) {
+    clearCutList(userOpe);
+    clearCopyList(userOpe);
     readyToCut.addAll(nodeList);
-    userOpeCmd.pushCmdOfAddToList(readyToCut, nodeList);
+    userOpe.pushCmdOfAddToList(readyToCut, nodeList);
   }
 
   /**
    * カット予定のBhNodeリストをクリアする.
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void clearCutList(UserOperationCommand userOpeCmd) {
-    userOpeCmd.pushCmdOfRemoveFromList(readyToCut, readyToCut);
+  public void clearCutList(UserOperation userOpe) {
+    userOpe.pushCmdOfRemoveFromList(readyToCut, readyToCut);
     readyToCut.clear();
   }
 
@@ -206,11 +206,11 @@ public class WorkspaceSet implements MsgDispatcher {
    * カット予定のノードリストからノードを取り除く.
    *
    * @param nodeToRemove 取り除くノード
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void removeNodeFromCutList(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
+  public void removeNodeFromCutList(BhNode nodeToRemove, UserOperation userOpe) {
     if (readyToCut.contains(nodeToRemove)) {
-      userOpeCmd.pushCmdOfRemoveFromList(readyToCut, nodeToRemove);
+      userOpe.pushCmdOfRemoveFromList(readyToCut, nodeToRemove);
       readyToCut.remove(nodeToRemove);
     }
   }
@@ -222,13 +222,13 @@ public class WorkspaceSet implements MsgDispatcher {
    * @param pasteBasePos 貼り付け基準位置
    */
   public void paste(Workspace wsToPasteIn, Vec2D pasteBasePos) {
-    UserOperationCommand userOpeCmd = new UserOperationCommand();
-    copyAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
-    cutAndPaste(wsToPasteIn, pasteBasePos, userOpeCmd);
-    SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
-    SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
-    HomologueCache.INSTANCE.clearAll();
-    BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+    UserOperation userOpe = new UserOperation();
+    copyAndPaste(wsToPasteIn, pasteBasePos, userOpe);
+    cutAndPaste(wsToPasteIn, pasteBasePos, userOpe);
+    SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpe);
+    SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpe);
+    DerivativeCache.INSTANCE.clearAll();
+    BunnyHop.INSTANCE.pushUserOperation(userOpe);
   }
 
   /**
@@ -236,16 +236,16 @@ public class WorkspaceSet implements MsgDispatcher {
    *
    * @param wsToPasteIn 貼り付け先のワークスペース
    * @param pasteBasePos 貼り付け基準位置
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
   private void copyAndPaste(
-      Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperationCommand userOpeCmd) {
+      Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperation userOpe) {
     Collection<BhNode> candidates = readyToCopy.stream()
         .filter(this::canCopyOrCut).collect(Collectors.toCollection(HashSet::new));
 
     Collection<Pair<BhNode, BhNode>> orgsAndCopies = candidates.stream()
         .map(node ->
-            new Pair<BhNode, BhNode>(node, genCopyNode(node, candidates, userOpeCmd)))
+            new Pair<BhNode, BhNode>(node, genCopyNode(node, candidates, userOpe)))
         .filter(orgAndCopy -> orgAndCopy.v2 != null)
         .collect(Collectors.toCollection(ArrayList::new));
 
@@ -253,13 +253,13 @@ public class WorkspaceSet implements MsgDispatcher {
     for (var orgAndCopy : orgsAndCopies) {
       BhNode copy = orgAndCopy.v2;
       NodeMvcBuilder.build(copy);
-      TextImitationPrompter.prompt(copy);
+      TextPrompter.prompt(copy);
       BhNodeHandler.INSTANCE.moveToWs(
           wsToPasteIn,
           copy,
           pasteBasePos.x,
           pasteBasePos.y + pastePosOffsetCount * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
-          userOpeCmd);
+          userOpe);
       //コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
       Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(orgAndCopy.v1);
       pasteBasePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
@@ -274,17 +274,16 @@ public class WorkspaceSet implements MsgDispatcher {
    *
    * @param target コピー対象のノード
    * @param nodesToCopy {@code target} ノードとともにコピーされるノード
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return 作成したコピーノード.  コピーノードを作らなかった場合 null.
    */
   private BhNode genCopyNode(
       BhNode target,
       Collection<? extends BhNode> nodesToCopy,
-      UserOperationCommand userOpeCmd) {
-     
+      UserOperation userOpe) {
     return target.getEventAgent()
-        .execOnCopyRequested(nodesToCopy, node -> true, userOpeCmd)
-        .map(copyTestFunc -> target.copy(copyTestFunc, userOpeCmd)).orElse(null);
+        .execOnCopyRequested(nodesToCopy, node -> true, userOpe)
+        .map(copyTestFunc -> target.copy(copyTestFunc, userOpe)).orElse(null);
   }
 
   /**
@@ -292,10 +291,10 @@ public class WorkspaceSet implements MsgDispatcher {
    *
    * @param wsToPasteIn 貼り付け先のワークスペース
    * @param pasteBasePos 貼り付け基準位置
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
   private void cutAndPaste(
-      Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperationCommand userOpeCmd) {
+      Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperation userOpe) {
     if (readyToCut.isEmpty()) {
       return;
     }
@@ -303,7 +302,7 @@ public class WorkspaceSet implements MsgDispatcher {
         .filter(this::canCopyOrCut).collect(Collectors.toCollection(HashSet::new));
 
     Collection<BhNode> nodesToPaste = candidates.stream()
-        .filter(node -> node.getEventAgent().execOnCutRequested(candidates, userOpeCmd))
+        .filter(node -> node.getEventAgent().execOnCutRequested(candidates, userOpe))
         .collect(Collectors.toCollection(ArrayList::new));
 
     // 貼り付け処理
@@ -313,34 +312,34 @@ public class WorkspaceSet implements MsgDispatcher {
           node,
           pasteBasePos.x,
           pasteBasePos.y + pastePosOffsetCount * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
-          userOpeCmd);
+          userOpe);
       Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
       pasteBasePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
-      dispatchEventsOnPaste(node, swappedNodes, userOpeCmd);
+      dispatchEventsOnPaste(node, swappedNodes, userOpe);
     }
 
     pastePosOffsetCount = (pastePosOffsetCount > 2) ? -2 : ++pastePosOffsetCount;
-    userOpeCmd.pushCmdOfRemoveFromList(readyToCut, readyToCut);
+    userOpe.pushCmdOfRemoveFromList(readyToCut, readyToCut);
     readyToCut.clear();
   }
 
   /** ペースト時のイベント処理を実行する. */
   private void dispatchEventsOnPaste(
-      BhNode node, List<Swapped> swappedNodes, UserOperationCommand userOpeCmd) {
+      BhNode node, List<Swapped> swappedNodes, UserOperation userOpe) {
     if (!swappedNodes.isEmpty()) {
       node.getEventAgent().execOnMovedFromChildToWs(
           swappedNodes.get(0).newNode().findParentNode(),
           swappedNodes.get(0).newNode().findRootNode(),
           swappedNodes.get(0).newNode(),
           true,
-          userOpeCmd);
+          userOpe);
     }
     for (var swapped : swappedNodes) {
       swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
           node,
           swapped.newNode(),
           swapped.newNode().getParentConnector(),
-          userOpeCmd);
+          userOpe);
     }
   }
 
@@ -424,12 +423,12 @@ public class WorkspaceSet implements MsgDispatcher {
     ModelExclusiveControl.INSTANCE.lockForRead();
     try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(saveFile));) {
       ProjectSaveData loadData = (ProjectSaveData) inputStream.readObject();
-      UserOperationCommand userOpeCmd = new UserOperationCommand();
+      UserOperation userOpe = new UserOperation();
       if (isOldWsCleared) {
-        BunnyHop.INSTANCE.deleteAllWorkspace(userOpeCmd);
+        BunnyHop.INSTANCE.deleteAllWorkspace(userOpe);
       }
-      loadData.load(userOpeCmd).forEach(ws -> BunnyHop.INSTANCE.addWorkspace(ws, userOpeCmd));
-      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+      loadData.load(userOpe).forEach(ws -> BunnyHop.INSTANCE.addWorkspace(ws, userOpe));
+      BunnyHop.INSTANCE.pushUserOperation(userOpe);
       return true;
     } catch (ClassNotFoundException | IOException | ClassCastException e) {
       MsgPrinter.INSTANCE.errMsgForDebug(Util.INSTANCE.getCurrentMethodName() + "\n" + e);

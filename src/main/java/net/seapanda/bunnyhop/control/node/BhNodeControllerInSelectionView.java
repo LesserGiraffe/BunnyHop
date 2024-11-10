@@ -28,11 +28,11 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
-import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
+import net.seapanda.bunnyhop.modelprocessor.TextPrompter;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
@@ -71,7 +71,7 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
       var textNode = (TextNode) model;
       var textInputView = (TextInputNodeView) view;
       TextInputNodeController.setTextChangeHandlers(textNode, textInputView);
-      if (textNode.isImitationNode()) {
+      if (textNode.isDerivative()) {
         textInputView.setEditable(false);
       }
     } else if (view instanceof ComboBoxNodeView) {
@@ -97,10 +97,10 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
       if (currentWs == null) {
         return;
       }
-      UserOperationCommand userOpeCmd = new UserOperationCommand();
-      BhNode newNode = model.findRootNode().copy(userOpeCmd);
+      UserOperation userOpe = new UserOperation();
+      BhNode newNode = model.findRootNode().copy(userOpe);
       BhNodeView nodeView = NodeMvcBuilder.build(newNode); //MVC構築
-      TextImitationPrompter.prompt(newNode);
+      TextPrompter.prompt(newNode);
       currentView.setValue(nodeView);
       Vec2D posOnRootView = calcRelativePosFromRoot();  //クリックされたテンプレートノードのルートノード上でのクリック位置
       posOnRootView.x += mouseEvent.getX();
@@ -112,9 +112,9 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
           newNode,
           posOnWs.x - posOnRootView.x,
           posOnWs.y - posOnRootView.y,
-          userOpeCmd);
+          userOpe);
       MsgTransporter.INSTANCE.sendMessage(
-          BhMsg.SET_USER_OPE_CMD, new MsgData(userOpeCmd), newNode);  // undo 用コマンドセット
+          BhMsg.SET_USER_OPE_CMD, new MsgData(userOpe), newNode);  // undo 用コマンドセット
       currentView.getValue().getEventManager().propagateEvent(mouseEvent);
       BhNodeSelectionService.INSTANCE.hideAll();
       mouseEvent.consume();
@@ -196,7 +196,7 @@ public class BhNodeControllerInSelectionView implements MsgProcessor {
 
       case SET_VISIBLE:
         view.getLookManager().setVisible(data.bool);
-        data.userOpeCmd.pushCmdOfSetVisible(view, data.bool);
+        data.userOpe.pushCmdOfSetVisible(view, data.bool);
         break;
 
       case SET_TEXT:

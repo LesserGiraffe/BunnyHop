@@ -2,18 +2,18 @@
 
   let NodeMvcBuilder = net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
   let BhNodeId = net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-  let ImitationBuilder = net.seapanda.bunnyhop.modelprocessor.ImitationBuilder;
-  let ImitationId = net.seapanda.bunnyhop.model.node.attribute.ImitationId;
+  let DerivativeBuilder = net.seapanda.bunnyhop.modelprocessor.DerivativeBuilder;
+  let DerivationId = net.seapanda.bunnyhop.model.node.attribute.DerivationId;
   let bhCommon = {};
 
-  // 入れ替わってWSに移ったノードを末尾に再接続する
-  function appendRemovedNode(newNode, oldNode, isSpecifiedDirectly, bhNodeHandler, bhUserOpeCmd) {
+  // 入れ替わってワークスペースに移ったノードを末尾に再接続する
+  function appendRemovedNode(newNode, oldNode, isSpecifiedDirectly, bhNodeHandler, bhUserOpe) {
     let outerEnd = newNode.findOuterNode(-1);
     if (outerEnd.canBeReplacedWith(oldNode)
         && !isSpecifiedDirectly
         && !newNode.equals(outerEnd)) { // return などの外部ノードを持たないノードは newNode == outerEnd となる.
-      bhNodeHandler.replaceChild(outerEnd, oldNode, bhUserOpeCmd);
-      bhNodeHandler.deleteNode(outerEnd, bhUserOpeCmd);
+      bhNodeHandler.replaceChild(outerEnd, oldNode, bhUserOpe);
+      bhNodeHandler.deleteNode(outerEnd, bhUserOpe);
     }
   }
 
@@ -23,13 +23,13 @@
    * @param pos 追加時のワークスペース上の位置
    * @param bhNodeHandler ノード操作用オブジェクト
    * @param bhNodeTemplates ノードテンプレート管理オブジェクト
-   * @param bhUserOpeCmd undo/redo用コマンドオブジェクト
+   * @param bhUserOpe undo/redo用コマンドオブジェクト
    * @return 新規作成したノード
    * */
-  function addNewNodeToWS(bhNodeId, workspace, pos, bhNodeHandler, bhNodeTemplates, bhUserOpeCmd) {
-    let newNode = genBhNode(bhNodeId, bhNodeTemplates, bhUserOpeCmd)    
+  function addNewNodeToWS(bhNodeId, workspace, pos, bhNodeHandler, bhNodeTemplates, bhUserOpe) {
+    let newNode = genBhNode(bhNodeId, bhNodeTemplates, bhUserOpe)    
     NodeMvcBuilder.build(newNode);
-    bhNodeHandler.moveToWs(workspace, newNode, pos.x, pos.y, bhUserOpeCmd);
+    bhNodeHandler.moveToWs(workspace, newNode, pos.x, pos.y, bhUserOpe);
     return newNode;
   }
 
@@ -39,12 +39,12 @@
    * @param descendantPath 入れ替えられる子孫ノードの rootNode からのパス
    * @param newNode 入れ替える新しいノード
    * @param bhNodeHandler ノード操作用オブジェクト
-   * @param bhUserOpeCmd undo/redo用コマンドオブジェクト
+   * @param bhUserOpe undo/redo用コマンドオブジェクト
    * */
-  function replaceDescendant(rootNode, descendantPath, newNode, bhNodeHandler, bhUserOpeCmd) {
+  function replaceDescendant(rootNode, descendantPath, newNode, bhNodeHandler, bhUserOpe) {
     let oldNode = rootNode.findSymbolInDescendants(descendantPath);
-    bhNodeHandler.replaceChild(oldNode, newNode, bhUserOpeCmd);
-    bhNodeHandler.deleteNode(oldNode, bhUserOpeCmd);
+    bhNodeHandler.replaceChild(oldNode, newNode, bhUserOpe);
+    bhNodeHandler.deleteNode(oldNode, bhUserOpe);
   }
 
   /**
@@ -54,13 +54,13 @@
    * @param from このノードの path の位置のノードを to の位置の path の位置に移す
    * @param descendantPath 移し元および移し先のノードのパス
    * @param bhNodeHandler ノード操作用オブジェクト
-   * @param bhUserOpeCmd undo/redo用コマンドオブジェクト
+   * @param bhUserOpe undo/redo用コマンドオブジェクト
    * */
-  function moveDescendant(from, to, descendantPath, bhNodeHandler, bhUserOpeCmd) {
+  function moveDescendant(from, to, descendantPath, bhNodeHandler, bhUserOpe) {
     let childToBeMoved = from.findSymbolInDescendants(descendantPath);
     let oldNode = to.findSymbolInDescendants(descendantPath);
-    bhNodeHandler.replaceChild(oldNode, childToBeMoved, bhUserOpeCmd);
-    bhNodeHandler.deleteNode(oldNode, bhUserOpeCmd);
+    bhNodeHandler.replaceChild(oldNode, childToBeMoved, bhUserOpe);
+    bhNodeHandler.deleteNode(oldNode, bhUserOpe);
   }
 
   /**
@@ -68,22 +68,22 @@
    * @param oldStat 入れ替えられる古いステートノード
    * @param newStat 入れ替える新しいステートノード
    * @param bhNodeHandler ノード操作用オブジェクト
-   * @param userOpeCmd undo/redo用コマンドオブジェクト
+   * @param userOpe undo/redo用コマンドオブジェクト
    * */
-  function replaceStatWithNewStat(oldStat, newStat, bhNodeHandler, bhUserOpeCmd) {
+  function replaceStatWithNewStat(oldStat, newStat, bhNodeHandler, bhUserOpe) {
     let nextStatOfOldStat = oldStat.findSymbolInDescendants('*', 'NextStat', '*');
     let nextStatOfNewStat = newStat.findSymbolInDescendants('*', 'NextStat', '*');
-    bhNodeHandler.exchangeNodes(nextStatOfOldStat, nextStatOfNewStat, bhUserOpeCmd);
-    bhNodeHandler.exchangeNodes(oldStat, newStat, bhUserOpeCmd);
+    bhNodeHandler.exchangeNodes(nextStatOfOldStat, nextStatOfNewStat, bhUserOpe);
+    bhNodeHandler.exchangeNodes(oldStat, newStat, bhUserOpe);
   }
   
   /**
    * node の外部ノードが cut か delete の対象でない場合, 適切な位置に再接続する
    * @param node このノードの外部ノードが cut か delete の対象でない場合, それを繋ぎ換える
    * @param cadidates cut か delete の対象ノードのリスト
-   * @param userOpeCmd undo/redo用コマンドオブジェクト
+   * @param userOpe undo/redo用コマンドオブジェクト
    */
-  function reconnectOuter(node, candidates, bhMsgService, bhNodeHandler, userOpeCmd) {
+  function reconnectOuter(node, candidates, bhMsgService, bhNodeHandler, userOpe) {
     // 移動させる外部ノードを探す
     let nodeToReconnect = node.findOuterNode(1);
     if (nodeToReconnect === null)
@@ -104,12 +104,12 @@
     // 接続先が無い場合は, ワークスペースへ
     if (nodeToReplace === null) {
       let posOnWS = bhMsgService.getPosOnWs(nodeToReconnect);
-      bhNodeHandler.moveToWs(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpeCmd);
+      bhNodeHandler.moveToWs(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpe);
     }
     else {
       let posOnWS = bhMsgService.getPosOnWs(nodeToReconnect);
-      bhNodeHandler.moveToWs(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpeCmd);
-      bhNodeHandler.exchangeNodes(nodeToReconnect, nodeToReplace, userOpeCmd);
+      bhNodeHandler.moveToWs(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpe);
+      bhNodeHandler.exchangeNodes(nodeToReconnect, nodeToReplace, userOpe);
     }
     return;
   }
@@ -145,35 +145,35 @@
   }
   
   /**
-   * イミテーションノードを作成する
-   * @param node イミテーションノードを作成するオリジナルノード
-   * @param imitID 作成するイミテーションノードの ID (文字列)
-   * @param userOpeCmd undo/redo用コマンドオブジェクト
-   * @return node のイミテーションノード
+   * 派生ノードを作成する
+   * @param node このノードの派生ノードを作成する
+   * @param derivationId この ID に対応する派生ノードを作成する ID (文字列)
+   * @param userOpe undo/redo用コマンドオブジェクト
+   * @return node の派生ノード
    */
-  function buildImitation(node, imitID, userOpeCmd) {
-    return ImitationBuilder.build(node, ImitationId.of(imitID), userOpeCmd);
+  function buildDerivative(node, derivationId, userOpe) {
+    return DerivativeBuilder.build(node, DerivationId.of(derivationId), userOpe);
   }
   
   /**
    * BhNode を新規作成する
    * @param nodeID 作成するノードのID
    * @param bhNodeTemplates ノードテンプレート管理オブジェクト
-   * @param bhUserOpeCmd undo/redo用コマンドオブジェクト
+   * @param bhUserOpe undo/redo用コマンドオブジェクト
    */
-  function genBhNode(bhNodeId, bhNodeTemplates, bhUserOpeCmd) {
-    return bhNodeTemplates.genBhNode(BhNodeId.of(bhNodeId), bhUserOpeCmd);
+  function genBhNode(bhNodeId, bhNodeTemplates, bhUserOpe) {
+    return bhNodeTemplates.genBhNode(BhNodeId.of(bhNodeId), bhUserOpe);
   }
 
   /**
    * コネクタのデフォルトノードを変更して, 接続されているノードを変更後のデフォルトノードにする.
    * @prarm connector デフォルトノードを変更するコネクタ
    * @param defulatNodeID connector に設定するデフォルトノードの ID
-   * @param bhUserOpeCmd undo/redo用コマンドオブジェクト
+   * @param bhUserOpe undo/redo用コマンドオブジェクト
    */
-  function changeDefaultNode(connector, defaultNodeId, bhUserOpeCmd) {
+  function changeDefaultNode(connector, defaultNodeId, bhUserOpe) {
     connector.setDefaultNodeId(BhNodeId.of(defaultNodeId));
-    connector.getConnectedNode().remove(bhUserOpeCmd);
+    connector.getConnectedNode().remove(bhUserOpe);
   }
 
   /** Java の List を JavaScript の配列に変換する. */
@@ -192,7 +192,7 @@
   bhCommon['moveDescendant'] = moveDescendant;
   bhCommon['isStaticTypeExp'] = isStaticTypeExp;
   bhCommon['reconnectOuter'] = reconnectOuter;
-  bhCommon['buildImitation'] = buildImitation;
+  bhCommon['buildDerivative'] = buildDerivative;
   bhCommon['genBhNode'] = genBhNode;
   bhCommon['changeDefaultNode'] = changeDefaultNode;
   bhCommon['toJsArray'] = toJsArray;  

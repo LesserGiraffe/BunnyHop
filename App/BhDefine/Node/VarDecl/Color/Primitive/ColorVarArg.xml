@@ -11,7 +11,7 @@
       bhConnectorID="idColorArg.cnctr0"
       import="idVarNameCnctr"
       name="VarName"
-      imitCnctPos="imitPosVarName"/>
+      derivativeJoint="dervJointVarName"/>
 
     <Connector
       bhConnectorID="idColorArg.cnctr1"
@@ -22,7 +22,7 @@
       bhConnectorID="idColorArg.cnctr2"
       import="idArgCnctr"
       name="NextArg"
-      imitCnctPos="imitPosNextArg"/>
+      derivativeJoint="dervJointNextArg"/>
 
   </ConnectorSection>
 </Node>

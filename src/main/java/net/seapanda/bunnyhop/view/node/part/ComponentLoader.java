@@ -50,9 +50,9 @@ public class ComponentLoader {
   }
 
   /**
-   * イミテーションノード作成ボタンのスタイルを指定する.
+   * ノードに付くボタンのスタイルを指定する.
    *
-   * @param style イミテーションノード作成ボタンのスタイル情報が格納されたオブジェクト
+   * @param style ノードに付くボタンのスタイル情報が格納されたオブジェクト
    */
   private static void setBtnStyle(BhNodeViewStyle.Button style, Button button) {
     button.setTranslateX(style.buttonPosX);

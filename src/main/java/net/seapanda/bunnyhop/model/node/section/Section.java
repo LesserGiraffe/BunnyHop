@@ -22,7 +22,7 @@ import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
  * ノード定義の ConnectorSection と Section に該当するクラスの基底クラス.
@@ -60,12 +60,12 @@ public abstract class Section extends SyntaxSymbol {
   /**
    * このノードのコピーを作成し返す.
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @param isNodeToBeCopied ノードがコピーの対象かどうか判定する関数
    * @return このノードのコピー
    */
   public abstract Section copy(
-      Predicate<? super BhNode> isNodeToBeCopied, UserOperationCommand userOpeCmd);
+      Predicate<? super BhNode> isNodeToBeCopied, UserOperation userOpe);
 
   /**
    * 最後尾に繋がる外部ノードを探す.

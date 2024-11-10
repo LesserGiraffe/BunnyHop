@@ -16,7 +16,7 @@
       bhConnectorID="idCriticalSectionStat.cnctr0"
       import="idVarNameCnctr"
       name="CriticalSectionName"
-      imitCnctPos="imitPosVarName"/>
+      derivativeJoint="dervJointVarName"/>
 
     <Connector
       bhConnectorID="idCriticalSectionStat.cnctr1"

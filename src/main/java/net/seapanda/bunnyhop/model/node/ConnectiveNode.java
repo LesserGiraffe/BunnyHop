@@ -24,21 +24,21 @@ import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-import net.seapanda.bunnyhop.model.node.attribute.ImitationId;
+import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
+import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
-import net.seapanda.bunnyhop.model.node.imitation.ImitationBase;
 import net.seapanda.bunnyhop.model.node.section.Section;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
  * 子ノードと接続されるノード.
  *
  * @author K.Koike
  */
-public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
+public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   private Section childSection;
@@ -47,14 +47,15 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
    * コンストラクタ.
    *
    * @param childSection 子セクション
-   * @param imitIdToImitNodeId イミテーション接続位置とそれに対応するイミテーションノードIDのマップ
+   * @param derivationToDerivative このノードに紐づけられた派生ノードの ID ({@link BhNodeId})
+   *                               とそれを選択するための ID ({@link DerivationId})
    * @param attributes ノードの設定情報
    */
   public ConnectiveNode(
       Section childSection,
-      Map<ImitationId, BhNodeId> imitIdToImitNodeId,
+      Map<DerivationId, BhNodeId> derivationToDerivative,
       BhNodeAttributes attributes) {
-    super(attributes, imitIdToImitNodeId);
+    super(attributes, derivationToDerivative);
     this.childSection = childSection;
     registerScriptName(BhNodeEvent.ON_CHILD_REPLACED, attributes.onChildReplaced());
   }
@@ -66,15 +67,15 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
    */
   private ConnectiveNode(
       ConnectiveNode org,
-      UserOperationCommand userOpeCmd) {
-    super(org, userOpeCmd);
+      UserOperation userOpe) {
+    super(org, userOpe);
   }
 
   @Override
   public ConnectiveNode copy(
-      Predicate<? super BhNode> isNodeToBeCopied, UserOperationCommand userOpeCmd) {
-    ConnectiveNode newNode = new ConnectiveNode(this, userOpeCmd);
-    newNode.childSection = childSection.copy(isNodeToBeCopied, userOpeCmd);
+      Predicate<? super BhNode> isNodeToBeCopied, UserOperation userOpe) {
+    ConnectiveNode newNode = new ConnectiveNode(this, userOpe);
+    newNode.childSection = childSection.copy(isNodeToBeCopied, userOpe);
     newNode.childSection.setParent(newNode);
     return newNode;
   }
@@ -129,16 +130,17 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
   }
 
   @Override
-  public ConnectiveNode createImitNode(ImitationId imitId, UserOperationCommand userOpeCmd) {
-    //イミテーションノード作成
-    BhNode imitationNode =
-        BhNodeTemplates.INSTANCE.genBhNode(getImitationNodeId(imitId), userOpeCmd);
-    if (imitationNode instanceof ConnectiveNode imit) {
-      //オリジナルとイミテーションの関連付け
-      addImitation(imit, userOpeCmd);
-      return imit;
+  public ConnectiveNode createDerivative(
+      DerivationId derivationId, UserOperation userOpe) {
+    // 派生ノード作成
+    BhNode derivative =
+        BhNodeTemplates.INSTANCE.genBhNode(getDerivativeIdOf(derivationId), userOpe);
+    if (derivative instanceof ConnectiveNode node) {
+      // オリジナルと派生ノードの関連付け
+      addDerivative(node, userOpe);
+      return node;
     }
-    throw new AssertionError("imitation node type inconsistency");    
+    throw new AssertionError("derivative type inconsistency");
   }
 
   @Override
@@ -161,9 +163,9 @@ public class ConnectiveNode extends ImitationBase<ConnectiveNode> {
         + "  parent=" + parentHashCode + "  > " + this.hashCode());
     MsgPrinter.INSTANCE.msgForDebug(
         indent(depth + 1) + "<" + "last replaced " + lastReplacedHash + "> ");
-    MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<" + "imitation" + "> ");
-    getImitationList().forEach(imit -> 
-        MsgPrinter.INSTANCE.msgForDebug(indent(depth + 2) + "imit " + imit.hashCode())
+    MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<derivation>");
+    getDerivatives().forEach(derv -> 
+        MsgPrinter.INSTANCE.msgForDebug(indent(depth + 2) + "derivative " + derv.hashCode())
     );
     childSection.show(depth + 1);
   }

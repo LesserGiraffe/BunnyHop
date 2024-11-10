@@ -22,11 +22,11 @@ import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.node.derivative.Derivative;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 
@@ -65,10 +65,10 @@ public class MsgService {
    *
    * @param node このノードの可視性を変更する
    * @param visible 可視状態にする場合true, 不可視にする場合false
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void setNodeVisibility(BhNode node, boolean visible, UserOperationCommand userOpeCmd) {
-    MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_VISIBLE, new MsgData(visible, userOpeCmd), node);
+  public void setNodeVisibility(BhNode node, boolean visible, UserOperation userOpe) {
+    MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_VISIBLE, new MsgData(visible, userOpe), node);
   }
 
   /**
@@ -76,11 +76,11 @@ public class MsgService {
    *
    * @param node 警告表示を変更するノード
    * @param show 警告を表示する場合 true. 隠す場合 false.
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * */
-  public void setSyntaxErrorIndicator(BhNode node, boolean show, UserOperationCommand userOpeCmd) {
+  public void setSyntaxErrorIndicator(BhNode node, boolean show, UserOperation userOpe) {
     MsgTransporter.INSTANCE.sendMessage(
-        BhMsg.SET_SYNTAX_ERRPR_INDICATOR, new MsgData(show, userOpeCmd), node);
+        BhMsg.SET_SYNTAX_ERRPR_INDICATOR, new MsgData(show, userOpe), node);
   }
 
   /**
@@ -140,12 +140,12 @@ public class MsgService {
    *
    * @param nodeToRemove 取り除くノード
    * @param wss 貼り付けノードの管理をしているワークスペースセット
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
   public void removeFromPasteList(
-      BhNode nodeToRemove, WorkspaceSet wss, UserOperationCommand userOpeCmd) {
+      BhNode nodeToRemove, WorkspaceSet wss, UserOperation userOpe) {
     MsgTransporter.INSTANCE.sendMessage(
-        BhMsg.REMOVE_NODE_TO_PASTE, new MsgData(nodeToRemove, userOpeCmd), wss);
+        BhMsg.REMOVE_NODE_TO_PASTE, new MsgData(nodeToRemove, userOpe), wss);
   }
 
   /**
@@ -153,14 +153,14 @@ public class MsgService {
    *
    * @param oldNode 入れ替えられる古いノードビューの BhNode
    * @param newNode 入れ替えられる新しいノードビューの BhNode
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
   public void replaceChildNodeView(
-      BhNode oldNode, BhNode newNode, UserOperationCommand userOpeCmd) {
+      BhNode oldNode, BhNode newNode, UserOperation userOpe) {
     BhNodeView newNodeView = getBhNodeView(newNode);
     boolean hasParent = newNodeView.getParent() != null;
     MsgTransporter.INSTANCE.sendMessage(BhMsg.REPLACE_NODE_VIEW, new MsgData(newNodeView), oldNode);
-    userOpeCmd.pushCmdOfReplaceNodeView(oldNode, newNode, hasParent);
+    userOpe.pushCmdOfReplaceNodeView(oldNode, newNode, hasParent);
   }
 
   /**
@@ -178,22 +178,22 @@ public class MsgService {
    *
    * @param node このノードの領域をワークスペースの 4 分木空間に登録する
    * @param ws このワークスペースが持つ4 分木空間にノードの領域を登録する
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void addQtRectangle(BhNode node, Workspace ws, UserOperationCommand userOpeCmd) {
+  public void addQtRectangle(BhNode node, Workspace ws, UserOperation userOpe) {
     MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);
-    userOpeCmd.pushCmdOfaddQtRectangle(node, ws);
+    userOpe.pushCmdOfaddQtRectangle(node, ws);
   }
 
   /**
    * 4 分木空間からノードの領域を削除する.
    *
    * @param node このノードの領域をワークスペースの4 分木空間から削除する
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * */
-  public void removeQtRectangle(BhNode node, UserOperationCommand userOpeCmd) {
+  public void removeQtRectangle(BhNode node, UserOperation userOpe) {
     MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);
-    userOpeCmd.pushCmdOfRemoveQtRectangle(node, node.getWorkspace());
+    userOpe.pushCmdOfRemoveQtRectangle(node, node.getWorkspace());
   }
 
   /**
@@ -201,23 +201,23 @@ public class MsgService {
    *
    * @param rootNode 追加するルートノード
    * @param ws rootNode を追加するワークスペース
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void addRootNode(BhNode rootNode, Workspace ws, UserOperationCommand userOpeCmd) {
+  public void addRootNode(BhNode rootNode, Workspace ws, UserOperation userOpe) {
     MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_ROOT_NODE, rootNode, ws);
-    userOpeCmd.pushCmdOfAddRootNode(rootNode);
+    userOpe.pushCmdOfAddRootNode(rootNode);
   }
 
   /**
    * ワークスペースからルートノードを削除する.
    *
    * @param rootNode 削除するルートノード
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void removeRootNode(BhNode rootNode, UserOperationCommand userOpeCmd) {
+  public void removeRootNode(BhNode rootNode, UserOperation userOpe) {
     Workspace ws = rootNode.getWorkspace();
     MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_ROOT_NODE, rootNode, ws);
-    userOpeCmd.pushCmdOfRemoveRootNode(rootNode, ws);
+    userOpe.pushCmdOfRemoveRootNode(rootNode, ws);
   }
 
   /**
@@ -231,16 +231,16 @@ public class MsgService {
   }
 
   /**
-   * orgNode のイミテーションノードの強調表示を切り替える.
+   * orgNode の派生ノードの強調表示を切り替える.
    *
-   * @param orgNode このノードのイミテーションノードの強調表示を切り替える
+   * @param orgNode このノードの派生ノードの強調表示を切り替える
    * @param enable 強調表示を有効にする場合 true.  無効にする場合 false.
    */
-  public void hilightImit(BhNode orgNode, boolean enable) {
-    if (orgNode instanceof Imitatable) {
-      Collection<? extends Imitatable> imitationList = ((Imitatable) orgNode).getImitationList();
-      imitationList.forEach(imitation ->
-          switchPseudoClassActivation(imitation, BhConstants.Css.PSEUDO_HIGHLIGHT_IMIT, enable));
+  public void hilightDerivatives(BhNode orgNode, boolean enable) {
+    if (orgNode instanceof Derivative) {
+      Collection<? extends Derivative> derivatives = ((Derivative) orgNode).getDerivatives();
+      derivatives.forEach(derivative -> switchPseudoClassActivation(
+          derivative, BhConstants.Css.PSEUDO_HIGHLIGHT_DERIVATIVE, enable));
     }
   }
 

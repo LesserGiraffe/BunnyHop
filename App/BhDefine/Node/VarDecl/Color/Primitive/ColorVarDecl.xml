@@ -10,9 +10,9 @@
   onCopyRequested="OnCopyRequested.js"
   version="bh-1.0">
 
-  <Imitation imitationID="imitIdVar" imitationNodeID="idColorVar"/>
-  <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idColorArg"/>
-  <Imitation imitationID="imitIdVarDeclToOutArg" imitationNodeID="idColorOutArg"/>
+  <Derivation derivationID="dervIdVar" derivativeID="idColorVar"/>
+  <Derivation derivationID="dervIdVarDeclToArg" derivativeID="idColorArg"/>
+  <Derivation derivationID="dervIdVarDeclToOutArg" derivativeID="idColorOutArg"/>
     
   <ConnectorSection name="VarDeclSctn">
     
@@ -20,14 +20,14 @@
       bhConnectorID="idColorVarDecl.cnctr0"
       import="idVarNameCnctr"
       name="VarName"
-      imitationID="imitIdVarName"
-      imitCnctPos="imitPosVarName"/>
+      derivationID="dervIdVarName"
+      derivativeJoint="dervJointVarName"/>
 
     <Connector
       bhConnectorID="idColorVarDecl.cnctr1"
       import="idVarDeclCnctr"
       name="NextVarDecl"
-      imitCnctPos="imitPosNextArg"/>
+      derivativeJoint="dervJointNextArg"/>
 
   </ConnectorSection>
 </Node>

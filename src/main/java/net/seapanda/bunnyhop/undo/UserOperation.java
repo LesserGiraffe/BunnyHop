@@ -30,7 +30,7 @@ import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.Connector;
-import net.seapanda.bunnyhop.model.node.imitation.ImitationBase;
+import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
@@ -41,9 +41,9 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
  *
  * @author K.Koike
  */
-public class UserOperationCommand {
+public class UserOperation {
 
-  public UserOperationCommand() {}
+  public UserOperation() {}
 
   /** このオブジェクトが表す操作を構成するサブ操作のリスト. */
   private Deque<SubOperation> subOpeList = new LinkedList<>();
@@ -54,8 +54,8 @@ public class UserOperationCommand {
    * @return このコマンドの逆の操作を表す UserOperationCommand オブジェクトを返す. <br>
    *          つまり, 戻りオブジェクトの doInverseOperation はこのコマンドの元になった操作を行う
    */
-  UserOperationCommand doInverseOperation() {
-    UserOperationCommand inverseCmd = new UserOperationCommand();
+  UserOperation doInverseOperation() {
+    UserOperation inverseCmd = new UserOperation();
     while (!subOpeList.isEmpty()) {
       subOpeList.removeLast().doInverseOperation(inverseCmd);
     }
@@ -80,23 +80,23 @@ public class UserOperationCommand {
   }
 
   /**
-   * イミテーションノードリストへの追加をコマンド化してサブ操作リストに加える.
+   * 派生ノードリストへの追加をコマンド化してサブ操作リストに加える.
    *
-   * @param imit 追加したイミテーションノード
-   * @param org imit のオリジナルノード
+   * @param derivative 追加した派生ノード
+   * @param original {@code derivative} のオリジナルノード
    */
-  public <T extends ImitationBase<T>> void pushCmdOfAddImitation(T imit, T org) {
-    subOpeList.addLast(new AddImitationCmd<T>(imit, org));
+  public <T extends DerivativeBase<T>> void pushCmdOfAddDerivative(T derivative, T original) {
+    subOpeList.addLast(new AddDerivativeCmd<T>(derivative, original));
   }
 
   /**
-   * イミテーションノードリストからの削除をコマンド化してサブ操作リストに加える.
+   * 派生ノードリストからの削除をコマンド化してサブ操作リストに加える.
    *
-   * @param imit 削除したイミテーションノード
-   * @param org imit を保持していたオリジナルノード
+   * @param derivative 削除した派生ノード
+   * @param original {@code derivative} を保持していたオリジナルノード
    */
-  public <T extends ImitationBase<T>> void pushCmdOfRemoveImitation(T imit, T org) {
-    subOpeList.addLast(new RemoveImitationCmd<T>(imit, org));
+  public <T extends DerivativeBase<T>> void pushCmdOfRemoveDerivative(T derivative, T original) {
+    subOpeList.addLast(new RemoveDerivativeCmd<T>(derivative, original));
   }
 
   /**
@@ -312,51 +312,51 @@ public class UserOperationCommand {
     subOpeList.addLast(new RemoveFromGuiTreeCmd(view, parent));
   }
 
-  /** {@link UserOperationCommand} を構成するサブ操作. */
+  /** {@link UserOperation} を構成するサブ操作. */
   interface SubOperation {
     /**
      * このSubOperation の逆の操作を行う.
      *
      * @param inverseCmd このサブ操作の逆の操作を作るための UserOperationCommand オブジェクト
      */
-    public void doInverseOperation(UserOperationCommand inverseCmd);
+    public void doInverseOperation(UserOperation inverseCmd);
   }
 
-  /** イミテーションノードの追加を表すコマンド. */
-  private static class AddImitationCmd<T extends ImitationBase<T>> implements SubOperation {
+  /** 派生ノードの追加を表すコマンド. */
+  private static class AddDerivativeCmd<T extends DerivativeBase<T>> implements SubOperation {
     
-    /** リストに追加されたイミテーション. */
-    private final T imit;
-    /** {@code imit} のオリジナルノード. */
-    private final T org;
+    /** オリジナルノードの派生ノード一覧に追加された派生ノード. */
+    private final T derivative;
+    /** {@link #derivative} のオリジナルノード. */
+    private final T original;
 
-    public AddImitationCmd(T imit, T org) {
-      this.imit = imit;
-      this.org = org;
+    public AddDerivativeCmd(T derivative, T original) {
+      this.derivative = derivative;
+      this.original = original;
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
-      org.removeImitation(imit, inverseCmd);
+    public void doInverseOperation(UserOperation inverseCmd) {
+      original.removeDerivative(derivative, inverseCmd);
     }
   }
 
-  /** イミテーションノードの削除を表すコマンド. */
-  private static class RemoveImitationCmd<T extends ImitationBase<T>> implements SubOperation {
+  /** 派生ノードの削除を表すコマンド. */
+  private static class RemoveDerivativeCmd<T extends DerivativeBase<T>> implements SubOperation {
 
-    /** リストから削除されたイミテーション. */
-    private final T imit;
-    /** {@code imit} のオリジナルノード. */
-    private final T org;
+    /** オリジナルノードの派生ノード一覧から削除された派生ノード. */
+    private final T derivative;
+    /** {@link #derivative} のオリジナルノード. */
+    private final T original;
 
-    public RemoveImitationCmd(T imit, T org) {
-      this.imit = imit;
-      this.org = org;
+    public RemoveDerivativeCmd(T derivative, T original) {
+      this.derivative = derivative;
+      this.original = original;
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
-      org.addImitation(imit, inverseCmd);
+    public void doInverseOperation(UserOperation inverseCmd) {
+      original.addDerivative(derivative, inverseCmd);
     }
   }
 
@@ -371,7 +371,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       MsgService.INSTANCE.removeRootNode(node, inverseCmd);
     }
   }
@@ -390,7 +390,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);
       inverseCmd.pushCmdOfAddRootNode(node);
     }
@@ -413,7 +413,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       Vec2D curPos = MsgService.INSTANCE.getPosOnWs(node);
       inverseCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
       MsgService.INSTANCE.setPosOnWs(node, posX, posY);
@@ -434,7 +434,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);
       inverseCmd.pushCmdOfRemoveQtRectangle(node, ws);
     }
@@ -454,7 +454,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       MsgService.INSTANCE.addQtRectangle(node, ws, inverseCmd);
       MsgTransporter.INSTANCE.sendMessage(BhMsg.UPDATE_ABS_POS, node);    //4 分木空間での位置確定
     }
@@ -477,7 +477,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       //元々付いていた古いViewに付け替える
       MsgService.INSTANCE.replaceChildNodeView(newNode, oldNode, inverseCmd);
       // 入れ替え前に newNode の親がなかった場合GUIツリーから消す.
@@ -501,7 +501,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       connector.connectNode(oldNode, inverseCmd);
     }
   }
@@ -520,7 +520,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       nodeRegisteredWith.setLastReplaced(oldNode, inverseCmd);
     }
   }
@@ -539,7 +539,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       node.setWorkspace(oldWs, inverseCmd);
     }
   }
@@ -558,7 +558,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       ws.removeSelectedNode(node, inverseCmd);
     }
   }
@@ -577,7 +577,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       ws.addSelectedNode(node, inverseCmd);
     }
   }
@@ -599,7 +599,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       MsgTransporter.INSTANCE.sendMessage(
           BhMsg.DELETE_WORKSPACE, new MsgData(ws, wsView, inverseCmd), wss);
     }
@@ -622,7 +622,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       MsgTransporter.INSTANCE.sendMessage(
           BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, inverseCmd), wss);
     }
@@ -642,7 +642,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       nodeView.getLookManager().setVisible(!visible);
       inverseCmd.pushCmdOfSetVisible(nodeView, !visible);
     }
@@ -665,7 +665,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       nodeView.getLookManager().setSytaxErrorVisibility(prevVal);
       inverseCmd.pushCmdOfSetSyntaxError(nodeView, prevVal, setVal);
     }
@@ -690,7 +690,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       for (Object elem : addedElems) {
         list.remove(elem);
       }
@@ -717,7 +717,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       list.addAll(removedElems);
       inverseCmd.pushCmdOfAddToList(list, removedElems);
     }
@@ -734,7 +734,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       Parent parent = view.getParent();
       view.getTreeManager().removeFromGuiTree();
       inverseCmd.pushCmdOfRemoveFromGuiTree(view, parent);
@@ -755,7 +755,7 @@ public class UserOperationCommand {
     }
 
     @Override
-    public void doInverseOperation(UserOperationCommand inverseCmd) {
+    public void doInverseOperation(UserOperation inverseCmd) {
       view.getTreeManager().addToGuiTree(parent);
       inverseCmd.pushCmdOfAddToGuiTree(view);
     }

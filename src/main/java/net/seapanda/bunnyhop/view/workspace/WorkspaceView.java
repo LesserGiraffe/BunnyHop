@@ -49,12 +49,13 @@ import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.configfilereader.FxmlCollector;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
 import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.viewprocessor.CallbackInvoker;
@@ -171,9 +172,9 @@ public class WorkspaceView extends Tab {
 
   /** ワークスペース削除時の処理. */
   private void onClosed(Event event) {
-    UserOperationCommand userOpeCmd = new UserOperationCommand();
-    BunnyHop.INSTANCE.deleteWorkspace(workspace, userOpeCmd);
-    BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+    UserOperation userOpe = new UserOperation();
+    BunnyHop.INSTANCE.deleteWorkspace(workspace, userOpe);
+    BunnyHop.INSTANCE.pushUserOperation(userOpe);
   }
 
   private void setErrInfoPaneListener() {

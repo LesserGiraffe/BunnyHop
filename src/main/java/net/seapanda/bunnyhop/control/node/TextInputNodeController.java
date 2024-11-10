@@ -39,7 +39,7 @@ public class TextInputNodeController extends BhNodeController {
     super(model, view);
     this.model = model;
     this.view = view;
-    if (model.isImitationNode()) {
+    if (model.isDerivative()) {
       view.setEditable(false);
     }
     setTextChangeHandlers(model, view);
@@ -50,7 +50,7 @@ public class TextInputNodeController extends BhNodeController {
     super(model, view);
     this.model = model;
     this.view = view;
-    if (model.isImitationNode()) {
+    if (model.isDerivative()) {
       view.setEditable(false);
     }
     setTextChangeHandlers(model, view);
@@ -86,7 +86,7 @@ public class TextInputNodeController extends BhNodeController {
       boolean isValidFormat = model.isTextAcceptable(view.getText());
       if (isValidFormat) {  //正しいフォーマットの文字列が入力されていた場合
         model.setText(currentGuiText);  //model の文字列をTextField のものに変更する
-        model.assignContentsToImitations();
+        model.assignContentsToDerivatives();
       } else {
         view.setText(model.getText());  //view の文字列を変更前の文字列に戻す
       }

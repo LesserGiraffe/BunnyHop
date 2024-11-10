@@ -7,12 +7,12 @@
   }
 
   function genBhNode(bhNodeId) {
-    return bhNodeTemplates.genBhNode(BhNodeId.of(bhNodeId), bhUserOpeCmd);
+    return bhNodeTemplates.genBhNode(BhNodeId.of(bhNodeId), bhUserOpe);
   }
 
   function connect(parentNode, childNode, cnctrPath) {
     let cnctr = parentNode.findSymbolInDescendants(cnctrPath);
-    cnctr.connectNode(childNode, bhUserOpeCmd);
+    cnctr.connectNode(childNode, bhUserOpe);
   }
 
   // 移動ノードの初期速度を変更して再登録

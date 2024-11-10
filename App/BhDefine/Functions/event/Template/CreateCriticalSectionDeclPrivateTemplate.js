@@ -1,4 +1,4 @@
 (function() {
-  let imit = bhCommon.buildImitation(bhThis, 'imitIdCriticalSectionStat', bhUserOpeCmd);
-  return [imit];
+  let derivative = bhCommon.buildDerivative(bhThis, 'dervIdCriticalSectionStat', bhUserOpe);
+  return [derivative];
 })();

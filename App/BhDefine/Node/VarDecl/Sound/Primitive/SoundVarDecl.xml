@@ -10,9 +10,9 @@
   onCopyRequested="OnCopyRequested.js"
   version="bh-1.0">
 
-  <Imitation imitationID="imitIdVar" imitationNodeID="idSoundVar"/>
-  <Imitation imitationID="imitIdVarDeclToArg" imitationNodeID="idSoundArg"/>
-  <Imitation imitationID="imitIdVarDeclToOutArg" imitationNodeID="idSoundOutArg"/>
+  <Derivation derivationID="dervIdVar" derivativeID="idSoundVar"/>
+  <Derivation derivationID="dervIdVarDeclToArg" derivativeID="idSoundArg"/>
+  <Derivation derivationID="dervIdVarDeclToOutArg" derivativeID="idSoundOutArg"/>
     
   <ConnectorSection name="VarDeclSctn">
     
@@ -20,14 +20,14 @@
       bhConnectorID="idSoundVarDecl.cnctr0"
       import="idVarNameCnctr"
       name="VarName"
-      imitationID="imitIdVarName"
-      imitCnctPos="imitPosVarName"/>
+      derivationID="dervIdVarName"
+      derivativeJoint="dervJointVarName"/>
       
     <Connector
       bhConnectorID="idSoundVarDecl.cnctr1"
       import="idVarDeclCnctr"
       name="NextVarDecl"
-      imitCnctPos="imitPosNextArg"/>
+      derivativeJoint="dervJointNextArg"/>
 
   </ConnectorSection>
 </Node>

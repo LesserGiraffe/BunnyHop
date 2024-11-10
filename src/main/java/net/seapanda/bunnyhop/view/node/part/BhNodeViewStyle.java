@@ -160,14 +160,13 @@ public class BhNodeViewStyle {
     public String cssClass = "defaultTextArea";
   }
 
-  public Button imitation = new Button("defaultImitButton");
   public Button privatTemplate = new Button("defaultPrivateTemplateButton");
 
   /** ボタンのパラメータ. */
   public static class Button {
     public double buttonPosX = 0.5 * BhConstants.LnF.NODE_SCALE;
     public double buttonPosY = 0.5 * BhConstants.LnF.NODE_SCALE;
-    public String cssClass = "defaultImitButton";
+    public String cssClass = "defaultPrivateTemplateButton";
 
     public Button(String cssClass) {
       this.cssClass = cssClass;
@@ -233,9 +232,6 @@ public class BhNodeViewStyle {
     this.textArea.minWidth = org.textArea.minWidth;
     this.textArea.minHeight = org.textArea.minHeight;
     this.textArea.cssClass = org.textArea.cssClass;
-    this.imitation.cssClass = org.imitation.cssClass;
-    this.imitation.buttonPosX = org.imitation.buttonPosX;
-    this.imitation.buttonPosY = org.imitation.buttonPosY;
     this.privatTemplate.cssClass = org.privatTemplate.cssClass;
     this.privatTemplate.buttonPosX = org.privatTemplate.buttonPosX;
     this.privatTemplate.buttonPosY = org.privatTemplate.buttonPosY;
@@ -466,11 +462,6 @@ public class BhNodeViewStyle {
     val = readValue(BhConstants.NodeStyleDef.KEY_TEXT_AREA, NativeObject.class, jsonObj, fileName);
     val.ifPresent(
         textArea -> fillTextAreaParams(style.textArea, (NativeObject) textArea, fileName));
-
-    //imitation
-    val = readValue(BhConstants.NodeStyleDef.KEY_IMITATION, NativeObject.class, jsonObj, fileName);
-    val.ifPresent(
-        imitation -> fillButtonParams(style.imitation, (NativeObject) imitation, fileName));
 
     //privateTemplate
     val = readValue(

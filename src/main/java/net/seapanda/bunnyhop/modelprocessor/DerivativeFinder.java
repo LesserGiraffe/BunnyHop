@@ -19,31 +19,32 @@ package net.seapanda.bunnyhop.modelprocessor;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.Connector;
-import net.seapanda.bunnyhop.model.node.attribute.ImitCnctPosId;
+import net.seapanda.bunnyhop.model.node.attribute.DerivativeJointId;
 import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.section.Subsection;
 
 /**
- * イミテーション接続位置を指定し, そこに接続されている {@link BhNode} を見つけるクラス.
+ * 派生ノード接続位置を指定し, そこに接続されている {@link BhNode} を見つけるクラス.
  *
  * @author K.Koike
  */
-public class ImitTaggedChildFinder implements BhModelProcessor {
+public class DerivativeFinder implements BhModelProcessor {
 
   /** 見つかったノード. */
   private BhNode foundNode;
   /** この ID を持つコネクタに接続されている {@link BhNode} を探す. */
-  private ImitCnctPosId imitCnctPosId;
+  private DerivativeJointId joint;
   private boolean found = false;
 
   /**
-   * イミテーション接続位置を指定し, そこに接続されている {@link BhNode} を見つける.
+   * 派生ノード接続位置を指定し, そこに接続されている {@link BhNode} を見つける.
    *
-   * @param node これ以下のノードから, イミテーション接続位置に一致する場所に接続されているノードを見つける.
-   * @param imitCnctPos イミテーション接続位置. (イミテーションの接続位置を識別するタグ)
+   * @param node これ以下のノードから, {@code joint} と同じ派生ノード接続位置が定義されたコネクタに接続されているノードを見つける.
+   * @param joint 派生ノード接続位置.
+   * @return 見つかったノード. 見つからなかった場合は null.
    */
-  public static BhNode find(BhNode node, ImitCnctPosId imitCnctPos) {
-    var finder = new ImitTaggedChildFinder(imitCnctPos);
+  public static BhNode find(BhNode node, DerivativeJointId joint) {
+    var finder = new DerivativeFinder(joint);
     node.accept(finder);
     return finder.foundNode;
   }
@@ -51,10 +52,10 @@ public class ImitTaggedChildFinder implements BhModelProcessor {
   /**
    * コンストラクタ.
    *
-   * @param imitCnctPosId このイミテーション接続位置を持つコネクタにつながったBhNodeを見つける
+   * @param joint この派生ノード接続位置を持つコネクタに接続されている {@link BhNode} を見つける
    */
-  private ImitTaggedChildFinder(ImitCnctPosId imitCnctPosId) {
-    this.imitCnctPosId = imitCnctPosId;
+  private DerivativeFinder(DerivativeJointId joint) {
+    this.joint = joint;
   }
 
   @Override
@@ -83,7 +84,7 @@ public class ImitTaggedChildFinder implements BhModelProcessor {
     if (found) {
       return;
     }
-    if (connector.getImitCnctPos().equals(imitCnctPosId)) {
+    if (connector.getDerivativeJoint().equals(joint)) {
       foundNode = connector.getConnectedNode();
       found = true;
     }

@@ -38,7 +38,7 @@ import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
 import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
@@ -92,10 +92,10 @@ public class WorkspaceController implements MsgProcessor {
   private void onMousePressed(MouseEvent mouseEvent, Vec2D mousePressedPos) {
     // ワークスペースをクリックしたときにテキストフィールドのカーソルが消えなくなるので, マウスイベントを consume しない.
     if (!mouseEvent.isShiftDown()) {
-      UserOperationCommand userOpeCmd = new UserOperationCommand();
+      UserOperation userOpe = new UserOperation();
       BhNodeSelectionService.INSTANCE.hideAll();
-      model.clearSelectedNodeList(userOpeCmd);
-      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+      model.clearSelectedNodeList(userOpe);
+      BunnyHop.INSTANCE.pushUserOperation(userOpe);
     }
     ViewHelper.INSTANCE.removeShadow(model);
     mousePressedPos.x = mouseEvent.getX();
@@ -135,9 +135,9 @@ public class WorkspaceController implements MsgProcessor {
     containedNodes.sort(this::compareViewSize);
     ModelExclusiveControl.INSTANCE.lockForModification();
     try {
-      var userOpeCmd = new UserOperationCommand();
-      selectNodes(containedNodes, userOpeCmd);
-      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+      var userOpe = new UserOperation();
+      selectNodes(containedNodes, userOpe);
+      BunnyHop.INSTANCE.pushUserOperation(userOpe);
     } finally {
       ModelExclusiveControl.INSTANCE.unlockForModification();
     }
@@ -165,14 +165,14 @@ public class WorkspaceController implements MsgProcessor {
    * 矩形選択するノードを選び出す.
    *
    * @param candidates 矩形選択される候補ノード
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  private void selectNodes(List<BhNodeView> candidates, UserOperationCommand userOpeCmd) {
+  private void selectNodes(List<BhNodeView> candidates, UserOperation userOpe) {
     // 親ノードが選択候補でかつ, 親ノードのボディの領域に包含されているノードは選択対象としない.
     LinkedList<BhNodeView> nodesToSelect = new LinkedList<>(candidates);
     while (nodesToSelect.size() != 0) {
       BhNodeView larger = nodesToSelect.pop();
-      model.addSelectedNode(larger.getModel().get(), userOpeCmd);  // ノード選択
+      model.addSelectedNode(larger.getModel().get(), userOpe);  // ノード選択
       var iter = nodesToSelect.iterator();
       while (iter.hasNext()) {
         BhNodeView smaller = iter.next();
@@ -227,7 +227,7 @@ public class WorkspaceController implements MsgProcessor {
         return new MsgData(new Vec2D(size.x, size.y));
 
       case ADD_WORKSPACE:
-        return new MsgData(model, view, data.userOpeCmd);
+        return new MsgData(model, view, data.userOpe);
 
       case DELETE_WORKSPACE:
         return deleteWorkspace(data);
@@ -249,17 +249,17 @@ public class WorkspaceController implements MsgProcessor {
   private MsgData deleteWorkspace(MsgData data) {
     Collection<BhNode> rootNodes = model.getRootNodeList();
     rootNodes.forEach(node -> node.getEventAgent().execOnDeletionRequested(
-        rootNodes, CauseOfDeletion.WORKSPACE_DELETION, data.userOpeCmd));
+        rootNodes, CauseOfDeletion.WORKSPACE_DELETION, data.userOpe));
     List<Swapped> swappedNodes =
-        BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), data.userOpeCmd);
+        BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), data.userOpe);
     for (var swapped : swappedNodes) {
       swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
           swapped.oldNode(),
           swapped.newNode(),
           swapped.newNode().getParentConnector(),
-          data.userOpeCmd);
+          data.userOpe);
     }
-    return new MsgData(model, view, data.userOpeCmd);
+    return new MsgData(model, view, data.userOpe);
   }
 
   //デバッグ用

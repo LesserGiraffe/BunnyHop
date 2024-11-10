@@ -37,7 +37,7 @@ import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeType;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeVersion;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
-import net.seapanda.bunnyhop.model.node.attribute.ImitationId;
+import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
 import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.section.Section;
 import net.seapanda.bunnyhop.model.node.section.Subsection;
@@ -58,8 +58,8 @@ public class NodeConstructor {
   private final BiFunction<BhNodeId, BhNode, Boolean> registerNodeTemplate;
   /** コネクタテンプレート登録用関数. */
   private final BiFunction<ConnectorId, Connector, Boolean> registerCnctrTemplate;
-  /** オリジナル & イミテーションノード格納用関数. */
-  private final BiConsumer<BhNodeId, BhNodeId> registerOrgNodeIdAndImitNodeId;
+  /** オリジナルと派生ノードの ID を登録するための関数. */
+  private final BiConsumer<BhNodeId, BhNodeId> registerOrgAndDervNodeId;
   /** コネクタテンプレート取得用関数. */
   private final Function<ConnectorId, Optional<Connector>> getCnctrTemplate;
 
@@ -67,11 +67,11 @@ public class NodeConstructor {
   public NodeConstructor(
       BiFunction<BhNodeId, BhNode, Boolean> registerNodeTemplate,
       BiFunction<ConnectorId, Connector, Boolean> registerCnctrTemplate,
-      BiConsumer<BhNodeId, BhNodeId> registerOrgNodeIdAndImitNodeId,
+      BiConsumer<BhNodeId, BhNodeId> registerOrgAndDervId,
       Function<ConnectorId, Optional<Connector>> getCnctrTemplate) {
     this.registerNodeTemplate = registerNodeTemplate;
     this.registerCnctrTemplate = registerCnctrTemplate;
-    this.registerOrgNodeIdAndImitNodeId = registerOrgNodeIdAndImitNodeId;
+    this.registerOrgAndDervNodeId = registerOrgAndDervId;
     this.getCnctrTemplate = getCnctrTemplate;
   }
 
@@ -123,47 +123,47 @@ public class NodeConstructor {
   }
 
   /**
-   * Imitation エレメントの情報を取得する.
+   * Derivation エレメントの情報を取得する.
    *
-   * @param node イミテーションノードに関する情報が書いてあるエレメントをあらわすノード
-   * @param orgNodeId イミテーションを持つノードのID
-   * @return イミテーション ID とイミテーションノード ID のマップ
+   * @param node 派生先情報が書いてあるエレメントを表すノード
+   * @param orgNodeId 派生ノードを持つノードのID
+   * @return 派生先 ID と派生ノード ID のマップ
    */
-  private Optional<Map<ImitationId, BhNodeId>> genImitIdAndNodePair(
-        Element node, BhNodeId orgNodeId) {
+  private Optional<Map<DerivationId, BhNodeId>> genDerivationAndDerivative(
+      Element node, BhNodeId orgNodeId) {
 
     boolean success = true;
-    Map<ImitationId, BhNodeId> imitIdToImitNodeId = new HashMap<>();
-    List<Element> imitTagList =
-        BhNodeTemplates.getElementsByTagNameFromChild(node, BhConstants.BhModelDef.ELEM_IMITATION);
-    for (Element imitTag : imitTagList) {
-      ImitationId imitationId =
-          ImitationId.of(imitTag.getAttribute(BhConstants.BhModelDef.ATTR_IMITATION_ID));
-      if (imitationId.equals(ImitationId.NONE)) {
+    Map<DerivationId, BhNodeId> derivationToDerivative = new HashMap<>();
+    List<Element> derivationElems =
+        BhNodeTemplates.getElementsByTagNameFromChild(node, BhConstants.BhModelDef.ELEM_DERIVATION);
+    for (Element derivationElem : derivationElems) {
+      DerivationId derivationId =
+          DerivationId.of(derivationElem.getAttribute(BhConstants.BhModelDef.ATTR_DETIVATION_ID));
+      if (derivationId.equals(DerivationId.NONE)) {
         MsgPrinter.INSTANCE.errMsgForDebug(
-            "A '" + BhConstants.BhModelDef.ELEM_IMITATION + "' element must have a '"
-            + BhConstants.BhModelDef.ATTR_IMITATION_ID + "' attribute.\n" + node.getBaseURI());
+            "A '" + BhConstants.BhModelDef.ELEM_DERIVATION + "' element must have a '"
+            + BhConstants.BhModelDef.ATTR_DETIVATION_ID + "' attribute.\n" + node.getBaseURI());
         success &= false;
         continue;
       }
 
-      BhNodeId imitNodeId =
-          BhNodeId.of(imitTag.getAttribute(BhConstants.BhModelDef.ATTR_IMITATION_NODE_ID));
-      if (imitNodeId.equals(BhNodeId.NONE)) {
+      BhNodeId derivativeId =
+          BhNodeId.of(derivationElem.getAttribute(BhConstants.BhModelDef.ATTR_DERIVATIVE_ID));
+      if (derivativeId.equals(BhNodeId.NONE)) {
         MsgPrinter.INSTANCE.errMsgForDebug(
-            "A '" + BhConstants.BhModelDef.ELEM_IMITATION + "' element must have a '"
-            + BhConstants.BhModelDef.ATTR_IMITATION_NODE_ID + "' attribute.\n" + node.getBaseURI());
+            "A '" + BhConstants.BhModelDef.ELEM_DERIVATION + "' element must have a '"
+            + BhConstants.BhModelDef.ATTR_DERIVATIVE_ID + "' attribute.\n" + node.getBaseURI());
         success &= false;
         continue;
       }
-      imitIdToImitNodeId.put(imitationId, imitNodeId);
-      registerOrgNodeIdAndImitNodeId.accept(orgNodeId, imitNodeId);
+      derivationToDerivative.put(derivationId, derivativeId);
+      registerOrgAndDervNodeId.accept(orgNodeId, derivativeId);
     }
 
     if (!success) {
       return Optional.empty();
     }
-    return Optional.of(imitIdToImitNodeId);
+    return Optional.of(derivationToDerivative);
   }
 
   /**
@@ -221,13 +221,13 @@ public class NodeConstructor {
     if (!allScriptsFound) {
       return Optional.empty();
     }
-    Optional<Map<ImitationId, BhNodeId>> imitIdToImitNodeId =
-        genImitIdAndNodePair(node, nodeAttrs.bhNodeId());
-    if (imitIdToImitNodeId.isEmpty()) {
+    Optional<Map<DerivationId, BhNodeId>> derivationToDerivative =
+        genDerivationAndDerivative(node, nodeAttrs.bhNodeId());
+    if (derivationToDerivative.isEmpty()) {
       return Optional.empty();
     }
     return Optional.of(
-        new ConnectiveNode(childSection.get().get(0), imitIdToImitNodeId.get(), nodeAttrs));
+        new ConnectiveNode(childSection.get().get(0), derivationToDerivative.get(), nodeAttrs));
   }
 
   /**
@@ -275,12 +275,12 @@ public class NodeConstructor {
       return Optional.empty();
     }
 
-    Optional<Map<ImitationId, BhNodeId>> imitIdToImitNodeId =
-        genImitIdAndNodePair(node, nodeAttrs.bhNodeId());
-    if (imitIdToImitNodeId.isEmpty()) {
+    Optional<Map<DerivationId, BhNodeId>> derivationToDerivative =
+        genDerivationAndDerivative(node, nodeAttrs.bhNodeId());
+    if (derivationToDerivative.isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(new TextNode(imitIdToImitNodeId.get(), nodeAttrs));
+    return Optional.of(new TextNode(derivationToDerivative.get(), nodeAttrs));
   }
 
   /**
@@ -407,7 +407,7 @@ public class NodeConstructor {
     NodeConstructor constructor = new NodeConstructor(
         registerNodeTemplate,
         registerCnctrTemplate,
-        registerOrgNodeIdAndImitNodeId,
+        registerOrgAndDervNodeId,
         getCnctrTemplate);
 
     Optional<? extends BhNode> privateNode = constructor.genTemplate(nodeElem);

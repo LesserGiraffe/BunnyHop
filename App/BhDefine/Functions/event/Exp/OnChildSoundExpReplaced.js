@@ -12,24 +12,24 @@
     // 新メロディノード作成
     let posOnWS = bhMsgService.getPosOnWs(bhThis);
     let newMelodyExp = bhCommon.addNewNodeToWS(
-      'idMelodyExp', bhThis.getWorkspace(), posOnWS, bhNodeHandler, bhNodeTemplates, bhUserOpeCmd);
-    bhNodeHandler.exchangeNodes(nextMelodyExp, newMelodyExp, bhUserOpeCmd);
+      'idMelodyExp', bhThis.getWorkspace(), posOnWS, bhNodeHandler, bhNodeTemplates, bhUserOpe);
+    bhNodeHandler.exchangeNodes(nextMelodyExp, newMelodyExp, bhUserOpe);
     
     // 新ノードの末尾に旧ノードを追加
     let newMelodyExpNext = newMelodyExp.findSymbolInDescendants('*', 'Arg1', '*');
-    bhNodeHandler.exchangeNodes(newMelodyExpNext, nextMelodyExp, bhUserOpeCmd);
-    bhNodeHandler.deleteNode(newMelodyExpNext, bhUserOpeCmd);
+    bhNodeHandler.exchangeNodes(newMelodyExpNext, nextMelodyExp, bhUserOpe);
+    bhNodeHandler.deleteNode(newMelodyExpNext, bhUserOpe);
     
     // 旧音ノードを新メロディノードに繋ぎ直し
     let soundExpVoid = newMelodyExp.findSymbolInDescendants('*', 'Arg0', '*');
-    bhNodeHandler.exchangeNodes(soundExpVoid, bhReplacedOldNode, bhUserOpeCmd);
-    bhNodeHandler.deleteNode(soundExpVoid, bhUserOpeCmd);
+    bhNodeHandler.exchangeNodes(soundExpVoid, bhReplacedOldNode, bhUserOpe);
+    bhNodeHandler.deleteNode(soundExpVoid, bhUserOpe);
   }
   // 音削除
   else if (String(bhParentConnector.getConnectedNode().getSymbolName()) === 'SoundLiteralVoid') {
     if (String(nextMelodyExp.getSymbolName()) === 'MelodyExp') {
-      bhNodeHandler.replaceChild(bhThis, nextMelodyExp, bhUserOpeCmd);
-      bhNodeHandler.deleteNode(bhThis, bhUserOpeCmd);
+      bhNodeHandler.replaceChild(bhThis, nextMelodyExp, bhUserOpe);
+      bhNodeHandler.deleteNode(bhThis, bhUserOpe);
     }
   }
 })();

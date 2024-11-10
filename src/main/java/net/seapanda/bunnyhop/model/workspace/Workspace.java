@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.message.MsgDispatcher;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
  * ワークスペースを表すクラス.
@@ -140,33 +140,33 @@ public class Workspace implements MsgDispatcher, Serializable {
    * 選択されたノードをセットする. このワークスペースの選択済みのノードは全て非選択になる.
    *
    * @param selected 新たに選択されたノード
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void setSelectedNode(BhNode selected, UserOperationCommand userOpeCmd) {
+  public void setSelectedNode(BhNode selected, UserOperation userOpe) {
     // 同じノードをクリックしたときにundoスタックにコマンドが積まれるのを避ける
     if ((selectedList.size() == 1) && selectedList.contains(selected)) {
       return;
     }
-    clearSelectedNodeList(userOpeCmd);
-    addSelectedNode(selected, userOpeCmd);
+    clearSelectedNodeList(userOpe);
+    addSelectedNode(selected, userOpe);
   }
 
   /**
    * 選択されたノードを選択済みリストに追加する.
    *
    * @param nodeToAdd 追加されるノード
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void addSelectedNode(BhNode nodeToAdd, UserOperationCommand userOpeCmd) {
+  public void addSelectedNode(BhNode nodeToAdd, UserOperation userOpe) {
     if (selectedList.contains(nodeToAdd)) {
       return;
     }
     selectedList.add(nodeToAdd);
     MsgService.INSTANCE.selectNodeView(nodeToAdd, true);
     MsgService.INSTANCE.updateMultiNodeShifter(nodeToAdd, this);
-    MsgService.INSTANCE.hilightImit(nodeToAdd, true);
+    MsgService.INSTANCE.hilightDerivatives(nodeToAdd, true);
     onSelectedNodeListChangedToThreadFlag.forEach(this::invokeOnSelectedNodeChanged);
-    userOpeCmd.pushCmdOfAddSelectedNode(this, nodeToAdd);
+    userOpe.pushCmdOfAddSelectedNode(this, nodeToAdd);
   }
 
   /**
@@ -182,18 +182,18 @@ public class Workspace implements MsgDispatcher, Serializable {
    * 引数で指定したノードを選択済みリストから削除する.
    *
    * @param nodeToRemove 選択済みリストから削除する {@link BhNode}
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void removeSelectedNode(BhNode nodeToRemove, UserOperationCommand userOpeCmd) {
+  public void removeSelectedNode(BhNode nodeToRemove, UserOperation userOpe) {
     if (!selectedList.contains(nodeToRemove)) {
       return;
     }
     selectedList.remove(nodeToRemove);
     MsgService.INSTANCE.selectNodeView(nodeToRemove, false);
     MsgService.INSTANCE.updateMultiNodeShifter(nodeToRemove, this);
-    MsgService.INSTANCE.hilightImit(nodeToRemove, false);
+    MsgService.INSTANCE.hilightDerivatives(nodeToRemove, false);
     onSelectedNodeListChangedToThreadFlag.forEach(this::invokeOnSelectedNodeChanged);
-    userOpeCmd.pushCmdOfRemoveSelectedNode(this, nodeToRemove);
+    userOpe.pushCmdOfRemoveSelectedNode(this, nodeToRemove);
   }
 
   /** 選択変更時のイベントハンドラを呼び出す. */
@@ -211,12 +211,12 @@ public class Workspace implements MsgDispatcher, Serializable {
   /**
    * 選択中のノードをすべて非選択にする.
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void clearSelectedNodeList(UserOperationCommand userOpeCmd) {
+  public void clearSelectedNodeList(UserOperation userOpe) {
     BhNode[] nodesToDeselect = selectedList.toArray(new BhNode[selectedList.size()]);
     for (BhNode node : nodesToDeselect) {
-      removeSelectedNode(node, userOpeCmd);
+      removeSelectedNode(node, userOpe);
     }
   }
 

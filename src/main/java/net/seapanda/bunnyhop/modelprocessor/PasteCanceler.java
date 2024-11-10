@@ -21,7 +21,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
  * ノードを貼り付け候補から取り除くクラス.
@@ -31,36 +31,36 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
 public class PasteCanceler implements BhModelProcessor {
 
   /** undo 用コマンドオブジェクト. */
-  private final UserOperationCommand userOpeCmd;
+  private final UserOperation userOpe;
 
   /**
    * 引数で指定したノード以下のノードを貼り付け候補から取り除く.
    *
    * @param node このノード以下のノードを貼り付け候補から取り除く
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public static void cancel(BhNode node, UserOperationCommand userOpeCmd) {
-    node.accept(new PasteCanceler(userOpeCmd));
+  public static void cancel(BhNode node, UserOperation userOpe) {
+    node.accept(new PasteCanceler(userOpe));
   }
 
   /**
    * コンストラクタ.
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  private PasteCanceler(UserOperationCommand userOpeCmd) {
-    this.userOpeCmd = userOpeCmd;
+  private PasteCanceler(UserOperation userOpe) {
+    this.userOpe = userOpe;
   }
 
   @Override
   public void visit(ConnectiveNode node) {
 
-    MsgService.INSTANCE.removeFromPasteList(node, BunnyHop.INSTANCE.getWorkspaceSet(), userOpeCmd);
+    MsgService.INSTANCE.removeFromPasteList(node, BunnyHop.INSTANCE.getWorkspaceSet(), userOpe);
     node.sendToSections(this);
   }
 
   @Override
   public void visit(TextNode node) {
-    MsgService.INSTANCE.removeFromPasteList(node, BunnyHop.INSTANCE.getWorkspaceSet(), userOpeCmd);
+    MsgService.INSTANCE.removeFromPasteList(node, BunnyHop.INSTANCE.getWorkspaceSet(), userOpe);
   }
 }

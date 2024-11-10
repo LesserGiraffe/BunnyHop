@@ -46,7 +46,7 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.TrashboxService;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
@@ -98,7 +98,7 @@ public class BunnyHop {
         BhConstants.LnF.INITIAL_WORKSPACE_NAME,
         BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT,
         BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT,
-        new UserOperationCommand());
+        new UserOperation());
     Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
     double width = primaryScreenBounds.getWidth() * BhConstants.LnF.DEFAULT_APP_WIDTH_RATE;
     double height = primaryScreenBounds.getHeight() * BhConstants.LnF.DEFAULT_APP_HEIGHT_RATE;
@@ -142,14 +142,13 @@ public class BunnyHop {
    * @param workspaceName ワークスペース名
    * @param width ワークスペース幅
    * @param height ワークスペース高さ
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
   public void addNewWorkSpace(
       String workspaceName,
       double width,
       double height,
-      UserOperationCommand userOpeCmd) {
-
+      UserOperation userOpe) {
     Workspace ws = new Workspace(workspaceName);
     WorkspaceView wsView = new WorkspaceView(ws);
     wsView.init(width, height);
@@ -162,7 +161,7 @@ public class BunnyHop {
     }
     ws.setMsgProcessor(wsController);
     MsgTransporter.INSTANCE.sendMessage(
-        BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, userOpeCmd), workspaceSet);
+        BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, userOpe), workspaceSet);
     for (int i = 0; i < Math.abs(BhConstants.LnF.INITIAL_ZOOM_LEVEL); ++i) {
       boolean zoomIn = BhConstants.LnF.INITIAL_ZOOM_LEVEL > 0;
       MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
@@ -173,11 +172,11 @@ public class BunnyHop {
    * 引数で指定したワークスペースを追加する.
    *
    * @param ws 追加するワークスペース
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void addWorkspace(Workspace ws, UserOperationCommand userOpeCmd) {
+  public void addWorkspace(Workspace ws, UserOperation userOpe) {
     MsgTransporter.INSTANCE.sendMessage(
-        BhMsg.ADD_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
+        BhMsg.ADD_WORKSPACE, new MsgData(userOpe), ws, workspaceSet);
     for (int i = 0; i < Math.abs(BhConstants.LnF.INITIAL_ZOOM_LEVEL); ++i) {
       boolean zoomIn = BhConstants.LnF.INITIAL_ZOOM_LEVEL > 0;
       MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(zoomIn), ws);
@@ -206,23 +205,23 @@ public class BunnyHop {
    * 引数で指定したワークスペースを削除する.
    *
    * @param ws 消したいワークスペース
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void deleteWorkspace(Workspace ws, UserOperationCommand userOpeCmd) {
+  public void deleteWorkspace(Workspace ws, UserOperation userOpe) {
     MsgTransporter.INSTANCE.sendMessage(
-        BhMsg.DELETE_WORKSPACE, new MsgData(userOpeCmd), ws, workspaceSet);
+        BhMsg.DELETE_WORKSPACE, new MsgData(userOpe), ws, workspaceSet);
   }
 
   /**
    * 全てのワークスペースを削除する.
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void deleteAllWorkspace(UserOperationCommand userOpeCmd) {
+  public void deleteAllWorkspace(UserOperation userOpe) {
     Workspace[] wsList = workspaceSet.getWorkspaceList().toArray(
         new Workspace[workspaceSet.getWorkspaceList().size()]);
     for (Workspace ws : wsList) {
-      deleteWorkspace(ws, userOpeCmd);
+      deleteWorkspace(ws, userOpe);
     }
   }
 
@@ -232,7 +231,8 @@ public class BunnyHop {
    * @param scene css の適用先シーングラフ
    */
   private void setCss(Scene scene) {
-    Path dirPath = Paths.get(Util.INSTANCE.execPath, BhConstants.Path.VIEW_DIR, BhConstants.Path.CSS_DIR);
+    Path dirPath =
+        Paths.get(Util.INSTANCE.execPath, BhConstants.Path.VIEW_DIR, BhConstants.Path.CSS_DIR);
     List<Path> files = null;  //読み込むファイルパスリスト
     try {
       files = Files.walk(dirPath, FOLLOW_LINKS).filter(
@@ -253,11 +253,11 @@ public class BunnyHop {
   /**
    * undo 用コマンドオブジェクトをundoスタックに積む.
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void pushUserOpeCmd(UserOperationCommand userOpeCmd) {
+  public void pushUserOperation(UserOperation userOpe) {
     MsgTransporter.INSTANCE.sendMessage(
-        BhMsg.PUSH_USER_OPE_CMD, new MsgData(userOpeCmd), workspaceSet);
+        BhMsg.PUSH_USER_OPE_CMD, new MsgData(userOpe), workspaceSet);
   }
 
   /**

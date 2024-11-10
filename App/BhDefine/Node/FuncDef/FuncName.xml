@@ -7,5 +7,5 @@
   onTextOptionsCreating="CreateDefaultFuncName.js"
   version="bh-1.0">
   
-  <Imitation imitationID="imitIdFuncName" imitationNodeID="idFuncName"/>
+  <Derivation derivationID="dervIdFuncName" derivativeID="idFuncName"/>
 </Node>

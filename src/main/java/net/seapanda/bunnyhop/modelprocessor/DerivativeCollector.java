@@ -21,40 +21,40 @@ import java.util.Collection;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.node.derivative.Derivative;
 
 /**
- * 走査したノードが保持するイミテーションノードを集めるクラス.
+ * 走査したノードが保持する派生ノードを集めるクラス.
  *
  * @author K.Koike
  */
-public class ImitationFinder implements BhModelProcessor {
+public class DerivativeCollector implements BhModelProcessor {
 
-  private Collection<Imitatable> imitations = new ArrayList<>();
+  private Collection<Derivative> derivatives = new ArrayList<>();
 
   /**
-   * 引数で指定したノード以下のオリジナルノードが持つイミテーションノードを全て返す.
+   * 引数で指定したノード以下のオリジナルノードが持つ派生ノードを全て返す.
    *
-   * @param node このノード以下のオリジナルノードが持つイミテーションノードを探す
-   * @return 発見したイミテーションノードのリスト
+   * @param node このノード以下のオリジナルノードが持つ派生ノードを探す
+   * @return 発見した派生ノードのリスト
    */
-  public static Collection<Imitatable> find(BhNode node) {
-    var finder = new ImitationFinder();
+  public static Collection<Derivative> find(BhNode node) {
+    var finder = new DerivativeCollector();
     node.accept(finder);
-    return finder.imitations;
+    return finder.derivatives;
   }
 
   /** コンストラクタ. */
-  private ImitationFinder() {}
+  private DerivativeCollector() {}
 
   @Override
   public void visit(ConnectiveNode node) {
-    imitations.addAll(node.getImitationList());
+    derivatives.addAll(node.getDerivatives());
     node.sendToSections(this);
   }
 
   @Override
   public void visit(TextNode node) {
-    imitations.addAll(node.getImitationList());
+    derivatives.addAll(node.getDerivatives());
   }
 }

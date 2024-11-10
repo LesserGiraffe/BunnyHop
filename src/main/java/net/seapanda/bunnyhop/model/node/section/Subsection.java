@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
  * サブグループとして Section の集合を持つクラス.
@@ -60,10 +60,10 @@ public class Subsection extends Section {
 
   @Override
   public Subsection copy(
-      Predicate<? super BhNode> isNodeToBeCopied, UserOperationCommand userOpeCmd) {
+      Predicate<? super BhNode> isNodeToBeCopied, UserOperation userOpe) {
     Subsection newSubsection = new Subsection(this);
     subsectionList.forEach(section -> {
-      Section newSection = section.copy(isNodeToBeCopied, userOpeCmd);
+      Section newSection = section.copy(isNodeToBeCopied, userOpe);
       newSection.setParent(newSubsection);
       newSubsection.subsectionList.add(newSection);
     });

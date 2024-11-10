@@ -27,7 +27,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
  * ノード選択ビューの操作を公開するクラス.
@@ -64,14 +64,14 @@ public class BhNodeSelectionService {
    *
    * @param categoryName {@code node} を追加するカテゴリの名前
    * @param node 追加するノード
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void addTemplateNode(String categoryName, BhNode node, UserOperationCommand userOpeCmd) {
+  public void addTemplateNode(String categoryName, BhNode node, UserOperation userOpe) {
     Workspace ws = categoryNameToWorkspace.get(categoryName);
     if (ws == null) {
       return;
     }
-    BhNodeHandler.INSTANCE.moveToWs(ws, node, 0, 0, userOpeCmd);
+    BhNodeHandler.INSTANCE.moveToWs(ws, node, 0, 0, userOpe);
   }
 
   /**
@@ -94,18 +94,18 @@ public class BhNodeSelectionService {
    * 引数で指定したカテゴリのノード選択ビューにある全てのノードを削除する.
    *
    * @param categoryName このカテゴリのテンプレートノードを全て削除する
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void deleteAllNodes(String categoryName, UserOperationCommand userOpeCmd) {
+  public void deleteAllNodes(String categoryName, UserOperation userOpe) {
     Collection<BhNode> nodesToDelete = getTemplateNodes(categoryName);
     List<Swapped> swappedNodes =
-        BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
+        BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpe);
     for (var swapped : swappedNodes) {
       swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
           swapped.oldNode(),
           swapped.newNode(),
           swapped.newNode().getParentConnector(),
-          userOpeCmd);
+          userOpe);
     }
   }
 

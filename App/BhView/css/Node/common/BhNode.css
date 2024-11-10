@@ -9,12 +9,12 @@
   -fx-stroke: gold;
 }
 
-.BhNode:highlightImit {
+.BhNode:highlightDerivative {
   -fx-stroke: gold;
   -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
 }
 
-.BhNode-Pane:highlightImit{}
+.BhNode-Pane:highlightDerivative {}
 
 .BhNode:overlapped {
   -fx-stroke: magenta;

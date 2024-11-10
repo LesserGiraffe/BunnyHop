@@ -25,16 +25,16 @@ import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
-import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.node.derivative.Derivative;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.modelprocessor.ImitationFinder;
-import net.seapanda.bunnyhop.modelprocessor.ImitationRemover;
+import net.seapanda.bunnyhop.modelprocessor.DerivationRemover;
+import net.seapanda.bunnyhop.modelprocessor.DerivativeCollector;
 import net.seapanda.bunnyhop.modelprocessor.NodeDeselector;
 import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
 import net.seapanda.bunnyhop.modelprocessor.PasteCanceler;
-import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
+import net.seapanda.bunnyhop.modelprocessor.TextPrompter;
 import net.seapanda.bunnyhop.modelprocessor.WorkspaceRegisterer;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
  * BhNodeの追加, 移動, 入れ替え, 削除用メソッドを提供するクラス.
@@ -51,18 +51,18 @@ public class BhNodeHandler {
    * 引数で指定したBhNodeを削除する.
    *
    * @param node 削除するノード.
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return この操作で消した子ノードの削除結果のリスト.
    *         0 番目が {@code node} と, これの代わりに作成されたノードのペアであることが保証される.
    */
-  public List<Swapped> deleteNode(BhNode node, UserOperationCommand userOpeCmd) {
+  public List<Swapped> deleteNode(BhNode node, UserOperation userOpe) {
     if (node.isDeleted()) {
       return new ArrayList<>();
     }
-    Set<Imitatable> imitations = new HashSet<>();
-    imitations.addAll(ImitationFinder.find(node));
-    List<Swapped> swappedNodes = delete(node, userOpeCmd);
-    swappedNodes.addAll(deleteNodes(imitations, userOpeCmd));
+    Set<Derivative> derivatives = new HashSet<>();
+    derivatives.addAll(DerivativeCollector.find(node));
+    List<Swapped> swappedNodes = delete(node, userOpe);
+    swappedNodes.addAll(deleteNodes(derivatives, userOpe));
     return swappedNodes;
   }
 
@@ -70,36 +70,36 @@ public class BhNodeHandler {
    * 引数で指定したノードを全て削除する.
    *
    * @param nodes 削除するノード.
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return この操作で消した子ノードの削除結果のリスト.
    */
   public List<Swapped> deleteNodes(
-      Collection<? extends BhNode> nodes, UserOperationCommand userOpeCmd) {
+      Collection<? extends BhNode> nodes, UserOperation userOpe) {
     List<Swapped> swappedNodes = new ArrayList<>();
     for (BhNode node : nodes) {
-      swappedNodes.addAll(deleteNode(node, userOpeCmd));
+      swappedNodes.addAll(deleteNode(node, userOpe));
     }
     return swappedNodes;
   }
 
-  private List<Swapped> delete(BhNode node, UserOperationCommand userOpeCmd) {
+  private List<Swapped> delete(BhNode node, UserOperation userOpe) {
     //undo時に削除前の状態のBhNodeを選択ノードとして MultiNodeShifterController に通知するためここで非選択にする
-    NodeDeselector.deselect(node, userOpeCmd);
-    final List<Swapped> swappedNodes = removeDependingOnState(node, userOpeCmd);
-    MsgService.INSTANCE.removeQtRectangle(node, userOpeCmd);  //4 分木空間からの削除
-    WorkspaceRegisterer.deregister(node, userOpeCmd);
-    PasteCanceler.cancel(node, userOpeCmd);
-    ImitationRemover.remove(node, userOpeCmd);
+    NodeDeselector.deselect(node, userOpe);
+    final List<Swapped> swappedNodes = removeDependingOnState(node, userOpe);
+    MsgService.INSTANCE.removeQtRectangle(node, userOpe);  //4 分木空間からの削除
+    WorkspaceRegisterer.deregister(node, userOpe);
+    PasteCanceler.cancel(node, userOpe);
+    DerivationRemover.remove(node, userOpe);
     return swappedNodes;
   }
   
   /** ノードのステートごとの削除処理を行う. */
-  private List<Swapped> removeDependingOnState(BhNode node, UserOperationCommand userOpeCmd) {
+  private List<Swapped> removeDependingOnState(BhNode node, UserOperation userOpe) {
     List<Swapped> swappedNodes = new ArrayList<>();
     BhNode.State nodeState = node.getState();
     switch (nodeState) {
       case CHILD:
-        swappedNodes.addAll(removeChild(node, userOpeCmd));
+        swappedNodes.addAll(removeChild(node, userOpe));
         MsgService.INSTANCE.removeFromGuiTree(node);
         break;
 
@@ -108,7 +108,7 @@ public class BhNodeHandler {
         break;
 
       case ROOT_DIRECTLY_UNDER_WS:
-        removeFromWs(node, userOpeCmd);
+        removeFromWs(node, userOpe);
         break;
 
       case DELETED:
@@ -127,21 +127,21 @@ public class BhNodeHandler {
    * @param node WS直下に追加したいノード.
    * @param x ワークスペース上での位置
    * @param y ワークスペース上での位置
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return この入れ替え操作で入れ替わったノード一式.
    *         {@code node} が子ノードであった場合, 0 番目が {@code node} と, これの代わりに作成されたノードのペアであることが保証される.
    */
   public List<Swapped> moveToWs(
-      Workspace ws, BhNode node, double x, double y, UserOperationCommand userOpeCmd) {
+      Workspace ws, BhNode node, double x, double y, UserOperation userOpe) {
     final Vec2D curPos = MsgService.INSTANCE.getPosOnWs(node);
-    final List<Swapped> swappedNodes = removeDependingOnState(node, userOpeCmd);
-    WorkspaceRegisterer.register(node, ws, userOpeCmd);
-    MsgService.INSTANCE.addRootNode(node, ws, userOpeCmd);  //ワークスペースに移動
-    MsgService.INSTANCE.addQtRectangle(node, ws, userOpeCmd);
+    final List<Swapped> swappedNodes = removeDependingOnState(node, userOpe);
+    WorkspaceRegisterer.register(node, ws, userOpe);
+    MsgService.INSTANCE.addRootNode(node, ws, userOpe);  //ワークスペースに移動
+    MsgService.INSTANCE.addQtRectangle(node, ws, userOpe);
     MsgService.INSTANCE.setPosOnWs(node, x, y);  //ワークスペース内での位置登録
-    userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
-    SyntaxErrorNodeManager.INSTANCE.collect(node, userOpeCmd);
-    SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
+    userOpe.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
+    SyntaxErrorNodeManager.INSTANCE.collect(node, userOpe);
+    SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpe);
     return swappedNodes;
   }
 
@@ -150,14 +150,14 @@ public class BhNodeHandler {
    *
    * @param node ワークスペース直下から移動させるノード.
    *             呼び出した後, ワークスペース直下にもノードツリーにも居ない状態になるが消去はされない.
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  private void removeFromWs(BhNode node, UserOperationCommand userOpeCmd) {
+  private void removeFromWs(BhNode node, UserOperation userOpe) {
     Vec2D curPos = MsgService.INSTANCE.getPosOnWs(node);
-    userOpeCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
-    MsgService.INSTANCE.removeRootNode(node, userOpeCmd);
-    SyntaxErrorNodeManager.INSTANCE.collect(node, userOpeCmd);
-    SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
+    userOpe.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
+    MsgService.INSTANCE.removeRootNode(node, userOpe);
+    SyntaxErrorNodeManager.INSTANCE.collect(node, userOpe);
+    SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpe);
   }
 
   /**
@@ -165,28 +165,28 @@ public class BhNodeHandler {
    * {@code oldChild} が子ノードでなかった場合何もしない.
    *
    * @param toRemove 取り除く子ノード. 呼び出した後, WS直下にもノードツリーにも居ない状態になるが消去はされない.
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return {@code toRemove} を取り除くことで変更のあったノード一式
    *         0 番目が {@code toRemove} と, これの代わりに作成されたノードのペアであることが保証される.
    *         {@code oldChild} が子ノードでなかった場合は, 空のリスト.
    */
-  public List<Swapped> removeChild(BhNode toRemove, UserOperationCommand userOpeCmd) {
+  public List<Swapped> removeChild(BhNode toRemove, UserOperation userOpe) {
     Workspace ws = toRemove.getWorkspace();
-    List<Swapped> swappedNodes = toRemove.remove(userOpeCmd);
+    List<Swapped> swappedNodes = toRemove.remove(userOpe);
     // 子ノードを取り除いた結果新しくできたノードを, 4 分木空間に登録し, ビューツリーにつなぐ
     BhNode newNode = swappedNodes.get(0).newNode();
     NodeMvcBuilder.build(newNode);
-    TextImitationPrompter.prompt(newNode);
-    WorkspaceRegisterer.register(newNode, ws, userOpeCmd);
-    MsgService.INSTANCE.addQtRectangle(newNode, ws, userOpeCmd);
-    MsgService.INSTANCE.replaceChildNodeView(toRemove, newNode, userOpeCmd);
+    TextPrompter.prompt(newNode);
+    WorkspaceRegisterer.register(newNode, ws, userOpe);
+    MsgService.INSTANCE.addQtRectangle(newNode, ws, userOpe);
+    MsgService.INSTANCE.replaceChildNodeView(toRemove, newNode, userOpe);
 
-    for (Swapped imits : new ArrayList<>(swappedNodes.subList(1, swappedNodes.size()))) {
-      swappedNodes.addAll(completeNewNodeReplacement(imits, userOpeCmd));
+    for (Swapped swapped : new ArrayList<>(swappedNodes.subList(1, swappedNodes.size()))) {
+      swappedNodes.addAll(completeNewNodeReplacement(swapped, userOpe));
     }
-    SyntaxErrorNodeManager.INSTANCE.collect(toRemove, userOpeCmd);
-    SyntaxErrorNodeManager.INSTANCE.collect(newNode, userOpeCmd);
-    SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
+    SyntaxErrorNodeManager.INSTANCE.collect(toRemove, userOpe);
+    SyntaxErrorNodeManager.INSTANCE.collect(newNode, userOpe);
+    SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpe);
     return swappedNodes;
   }
 
@@ -197,42 +197,42 @@ public class BhNodeHandler {
    * @param oldChild 入れ替え対象の古いノード.
    *                 呼び出した後, ワークスペース直下にもノードツリーにも居ない状態になるが消去はされない.
    * @param newChild 入れ替え対象の新しいノード
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return この入れ替え操作で入れ替わったノード一式
    *         0 番目が {@code oldChild} と {@code newChild} のペアであることが保証される.
    *         {@code oldChild} が子ノードでなかった場合は, 空のリスト.
    */
   public List<Swapped> replaceChild(
-      BhNode oldChild, BhNode newChild, UserOperationCommand userOpeCmd) {
+      BhNode oldChild, BhNode newChild, UserOperation userOpe) {
     if (!oldChild.isChild()) {
       return new ArrayList<>();
     }
-    final List<Swapped> swappedNodes = removeDependingOnState(newChild, userOpeCmd);
+    final List<Swapped> swappedNodes = removeDependingOnState(newChild, userOpe);
     Workspace ws = oldChild.getWorkspace();
-    WorkspaceRegisterer.register(newChild, ws, userOpeCmd);
-    swappedNodes.addAll(oldChild.replace(newChild, userOpeCmd));
-    MsgService.INSTANCE.addQtRectangle(newChild, ws, userOpeCmd);
-    MsgService.INSTANCE.replaceChildNodeView(oldChild, newChild, userOpeCmd);
+    WorkspaceRegisterer.register(newChild, ws, userOpe);
+    swappedNodes.addAll(oldChild.replace(newChild, userOpe));
+    MsgService.INSTANCE.addQtRectangle(newChild, ws, userOpe);
+    MsgService.INSTANCE.replaceChildNodeView(oldChild, newChild, userOpe);
     
-    for (Swapped imits : new ArrayList<>(swappedNodes.subList(1, swappedNodes.size()))) {
-      swappedNodes.addAll(completeNewNodeReplacement(imits, userOpeCmd));
+    for (Swapped swapped : new ArrayList<>(swappedNodes.subList(1, swappedNodes.size()))) {
+      swappedNodes.addAll(completeNewNodeReplacement(swapped, userOpe));
     }
-    SyntaxErrorNodeManager.INSTANCE.collect(oldChild, userOpeCmd);
-    SyntaxErrorNodeManager.INSTANCE.collect(newChild, userOpeCmd);
-    SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
+    SyntaxErrorNodeManager.INSTANCE.collect(oldChild, userOpe);
+    SyntaxErrorNodeManager.INSTANCE.collect(newChild, userOpe);
+    SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpe);
     return swappedNodes;
   }
 
   /** ノード入れ替えにともなって新しく作成されたノードの入れ替え処理を完了させる. */
-  private List<Swapped> completeNewNodeReplacement(Swapped nodes, UserOperationCommand userOpeCmd) {
+  private List<Swapped> completeNewNodeReplacement(Swapped nodes, UserOperation userOpe) {
     Workspace ws = nodes.oldNode().getWorkspace();
     NodeMvcBuilder.build(nodes.newNode());
-    TextImitationPrompter.prompt(nodes.newNode());
-    WorkspaceRegisterer.register(nodes.newNode(), ws, userOpeCmd);
-    MsgService.INSTANCE.addQtRectangle(nodes.newNode(), ws, userOpeCmd);
-    MsgService.INSTANCE.replaceChildNodeView(nodes.oldNode(), nodes.newNode(), userOpeCmd);
-    HomologueCache.INSTANCE.put((Imitatable) nodes.oldNode());
-    return deleteNode(nodes.oldNode(), userOpeCmd);
+    TextPrompter.prompt(nodes.newNode());
+    WorkspaceRegisterer.register(nodes.newNode(), ws, userOpe);
+    MsgService.INSTANCE.addQtRectangle(nodes.newNode(), ws, userOpe);
+    MsgService.INSTANCE.replaceChildNodeView(nodes.oldNode(), nodes.newNode(), userOpe);
+    DerivativeCache.INSTANCE.put((Derivative) nodes.oldNode());
+    return deleteNode(nodes.oldNode(), userOpe);
   }
 
   /**
@@ -241,7 +241,7 @@ public class BhNodeHandler {
    * @param nodeA 入れ替えたいノード (ダングリング状態のノードはエラー)
    * @param nodeB 入れ替えたいノード (ダングリング状態のノードはエラー)
    */
-  public void exchangeNodes(BhNode nodeA, BhNode nodeB, UserOperationCommand userOpeCmd) {
+  public void exchangeNodes(BhNode nodeA, BhNode nodeB, UserOperation userOpe) {
     if (nodeA.getState() == BhNode.State.DELETED
         || nodeA.getState() == BhNode.State.ROOT_DANGLING
         || nodeB.getState() == BhNode.State.DELETED
@@ -270,23 +270,23 @@ public class BhNodeHandler {
     if (nodeA.getState() == BhNode.State.CHILD) {
       // (child, child)
       if (nodeB.getState() == BhNode.State.CHILD) {
-        List<Swapped> swappedNodesA = removeChild(nodeA, userOpeCmd);
+        List<Swapped> swappedNodesA = removeChild(nodeA, userOpe);
         BhNode newNodeA = swappedNodesA.get(0).newNode();
-        List<Swapped> swappedNodesB = removeChild(nodeB, userOpeCmd);
+        List<Swapped> swappedNodesB = removeChild(nodeB, userOpe);
         BhNode newNodeB = swappedNodesB.get(0).newNode();        
-        replaceChild(newNodeA, nodeB, userOpeCmd);
-        replaceChild(newNodeB, nodeA, userOpeCmd);
-        deleteNode(newNodeA, userOpeCmd);
-        deleteNode(newNodeB, userOpeCmd);
+        replaceChild(newNodeA, nodeB, userOpe);
+        replaceChild(newNodeB, nodeA, userOpe);
+        deleteNode(newNodeA, userOpe);
+        deleteNode(newNodeB, userOpe);
       // (child, workspace)
       } else {
-        replaceChild(nodeA, nodeB, userOpeCmd);
-        moveToWs(wsB, nodeA, posB.x, posB.y, userOpeCmd);
+        replaceChild(nodeA, nodeB, userOpe);
+        moveToWs(wsB, nodeA, posB.x, posB.y, userOpe);
       }
     //(workspace, workspace)
     } else {
-      moveToWs(wsA, nodeB, posA.x, posA.y, userOpeCmd);
-      moveToWs(wsB, nodeA, posB.x, posB.y, userOpeCmd);
+      moveToWs(wsA, nodeB, posA.x, posA.y, userOpe);
+      moveToWs(wsB, nodeA, posB.x, posB.y, userOpe);
     }
   }
 }

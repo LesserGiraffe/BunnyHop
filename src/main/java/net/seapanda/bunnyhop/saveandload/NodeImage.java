@@ -31,16 +31,16 @@ import net.seapanda.bunnyhop.model.syntaxsymbol.InstanceId;
  *
  * @author K.Koike
  */
-public class NodeInfo {
+public class NodeImage {
   public final BhNodeId nodeId;
   public final InstanceId symbolId;
-  public final List<InstanceId> imitSymbolIdList;
+  public final List<InstanceId> derivativeInstIdList;
   public final String text;
   public final ConnectorId parentConnectorId;
   public final BhNodeVersion version;
   public final Vec2D pos;
-  private NodeInfo parent;
-  private final List<NodeInfo> children = new ArrayList<>();
+  private NodeImage parent;
+  private final List<NodeImage> children = new ArrayList<>();
 
   /**
    * コンストラクタ.
@@ -48,23 +48,23 @@ public class NodeInfo {
    *
    * @param nodeId 対象の BhNode の ID
    * @param symbolId 対象の BhNode のシンボル ID
-   * @param imitSymbolIdList 対象の BhNode が持つイミテーションノードのシンボル ID
+   * @param derivativeInstIdList 対象の BhNode が持つ派生ノードのシンボル ID
    * @param text 対象の BhNode が TextNode の場合に持っているテキスト
    * @param parentConnectorId 対象の BhNode がつながれているコネクタの ID
    * @param version 対象の BhNode のバージョン
    * @param pos このノードのワークスペース上での位置
    */
-  public NodeInfo(
+  public NodeImage(
       BhNodeId nodeId,
       InstanceId symbolId,
-      Collection<InstanceId> imitSymbolIdList,
+      Collection<InstanceId> derivativeInstIdList,
       String text,
       ConnectorId parentConnectorId,
       BhNodeVersion version,
       Vec2D pos) {
     this.nodeId = nodeId;
     this.symbolId = symbolId;
-    this.imitSymbolIdList = new ArrayList<>(imitSymbolIdList);
+    this.derivativeInstIdList = new ArrayList<>(derivativeInstIdList);
     this.text = (text == null) ? "" : text;
     this.parentConnectorId = parentConnectorId;
     this.version = version;
@@ -72,18 +72,18 @@ public class NodeInfo {
   }
 
   /** 子要素を追加する. */
-  public void addChild(NodeInfo child) {
+  public void addChild(NodeImage child) {
     children.add(child);
     child.parent = this;
   }
 
   /** 子要素を取得する. */
-  public Collection<NodeInfo> getChildren() {
+  public Collection<NodeImage> getChildren() {
     return new ArrayList<>(children);
   }
 
   /** 親要素を取得する. */
-  public Optional<NodeInfo> getParent() {
+  public Optional<NodeImage> getParent() {
     return Optional.ofNullable(parent);
   }
 }

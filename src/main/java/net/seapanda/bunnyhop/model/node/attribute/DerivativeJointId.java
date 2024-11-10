@@ -21,15 +21,15 @@ import java.util.Objects;
 import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
- * イミテーションの接続先の識別子.
+ * 派生ノードの接続先の識別子.
  *
  * @author K.Koike
  */
-public class ImitCnctPosId implements Serializable {
+public class DerivativeJointId implements Serializable {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  /** イミテーション接続位置が存在しないことを表す. */
-  public static final ImitCnctPosId NONE = new ImitCnctPosId("");
+  /** 派生ノードの接続位置が存在しないことを表す. */
+  public static final DerivativeJointId NONE = new DerivativeJointId("");
   private final String id;
 
   /**
@@ -37,18 +37,18 @@ public class ImitCnctPosId implements Serializable {
    *
    * @param point 接続先名
    */
-  private ImitCnctPosId(String point) {
+  private DerivativeJointId(String point) {
     this.id = point;
   }
 
   /**
-   * イミテーション接続位置の識別子を作成する.
+   * 派生ノードの接続位置の識別子を作成する.
    *
-   * @param point イミテーション接続位置名
-   * @return イミテーション接続位置の識別子
+   * @param point 派生ノードの接続位置名
+   * @return 派生ノードの接続位置の識別子
    */
-  public static ImitCnctPosId create(String point) {
-    return new ImitCnctPosId(point == null ? "" : point);
+  public static DerivativeJointId create(String point) {
+    return new DerivativeJointId(point == null ? "" : point);
   }
 
   @Override
@@ -58,7 +58,7 @@ public class ImitCnctPosId implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof ImitCnctPosId other) {
+    if (obj instanceof DerivativeJointId other) {
       return id.equals(other.id);
     }
     return false;

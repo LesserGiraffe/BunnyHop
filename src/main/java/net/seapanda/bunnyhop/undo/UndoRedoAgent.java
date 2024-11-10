@@ -21,24 +21,23 @@ import java.util.LinkedList;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 
 /**
- * undo/redo 時に {@link UserOperationCommand} クラスを操作するクラス.
+ * undo/redo 時に {@link UserOperation} クラスを操作するクラス.
  *
  * @author K.Koike
  */
-public class UserOpeCmdManager {
+public class UndoRedoAgent {
 
   /** Undo できるコマンドのスタック. */
-  private final Deque<UserOperationCommand> undoStack = new LinkedList<>();
+  private final Deque<UserOperation> undoStack = new LinkedList<>();
   /** Redo できるコマンドのスタック. */
-  private final Deque<UserOperationCommand> redoStack = new LinkedList<>();
+  private final Deque<UserOperation> redoStack = new LinkedList<>();
 
   /**
    * Undo の対象になるコマンドを追加する.
    *
    * @param cmd Undo の対象になるコマンド
    */
-  public void pushUndoCommand(UserOperationCommand cmd) {
-
+  public void pushUndoCommand(UserOperation cmd) {
     undoStack.addLast(cmd);
     if (undoStack.size() > BhConstants.NUM_TIMES_MAX_UNDO) {
       undoStack.removeFirst();
@@ -51,7 +50,7 @@ public class UserOpeCmdManager {
     if (undoStack.isEmpty()) {
       return;
     }
-    UserOperationCommand invCmd = undoStack.removeLast().doInverseOperation();
+    UserOperation invCmd = undoStack.removeLast().doInverseOperation();
     redoStack.addLast(invCmd);
   }
 
@@ -60,7 +59,7 @@ public class UserOpeCmdManager {
     if (redoStack.isEmpty()) {
       return;
     }
-    UserOperationCommand invCmd = redoStack.removeLast().doInverseOperation();
+    UserOperation invCmd = redoStack.removeLast().doInverseOperation();
     undoStack.addLast(invCmd);
   }
 

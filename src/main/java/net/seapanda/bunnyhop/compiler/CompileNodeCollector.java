@@ -30,7 +30,7 @@ import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
  * コンパイル対象のノードを準備するクラス.
@@ -46,28 +46,28 @@ public class CompileNodeCollector {
    * 返されるノードは, ワークスペースに存在するノードのディープコピー.
    *
    * @param wss このワークスペースセットからコンパイル対象ノードを集める.
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return {@code wss} に存在する全ノードのスナップショットと実行ノードのペア
    */
   public static Optional<Pair<NodeGraphSnapshot, BhNode>> collect(
-      WorkspaceSet wss, UserOperationCommand userOpeCmd) {
-    return new CompileNodeCollector().collectNodesToCompile(wss, userOpeCmd);
+      WorkspaceSet wss, UserOperation userOpe) {
+    return new CompileNodeCollector().collectNodesToCompile(wss, userOpe);
   }
 
   /**
    * コンパイル前の準備をする.
    *
    * @param wss このワークスペースセットからコンパイル対象ノードを集める.
-   * @param userOpeCmd undo 用コマンドオブジェクト.
+   * @param userOpe undo 用コマンドオブジェクト.
    * @return コンパイル対象ノードと実行対象ノードのペア
    */
   private Optional<Pair<NodeGraphSnapshot, BhNode>> collectNodesToCompile(
-      WorkspaceSet wss, UserOperationCommand userOpeCmd) {
-    if (!deleteSyntaxErrorNodes(userOpeCmd)) {
-      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+      WorkspaceSet wss, UserOperation userOpe) {
+    if (!deleteSyntaxErrorNodes(userOpe)) {
+      BunnyHop.INSTANCE.pushUserOperation(userOpe);
       return Optional.empty();
     }
-    return findNodeToExecute(wss.getCurrentWorkspace(), userOpeCmd)
+    return findNodeToExecute(wss.getCurrentWorkspace(), userOpe)
         .map(nodeToExec -> {
           var snapshot = new NodeGraphSnapshot(wss);
           BhNode copyOfNodeToExec = getNodeToExec(snapshot, nodeToExec);
@@ -78,10 +78,10 @@ public class CompileNodeCollector {
   /**
    * 構文エラーノードを削除する.
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return 全ての構文エラーノードが無くなった場合 true.
    */
-  private boolean deleteSyntaxErrorNodes(UserOperationCommand userOpeCmd) {
+  private boolean deleteSyntaxErrorNodes(UserOperation userOpe) {
     if (!SyntaxErrorNodeManager.INSTANCE.hasErrorNodes()) {
       return true;
     }
@@ -99,8 +99,8 @@ public class CompileNodeCollector {
     return btnType
         .map(type -> {
           if (type.equals(ButtonType.YES)) {
-            SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
-            SyntaxErrorNodeManager.INSTANCE.deleteErrorNodes(userOpeCmd);
+            SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpe);
+            SyntaxErrorNodeManager.INSTANCE.deleteErrorNodes(userOpe);
             return true;
           }
           return false;
@@ -112,10 +112,10 @@ public class CompileNodeCollector {
    * 実行対象のノードを探す.
    *
    * @param ws このワークスペースに実行対象があるかどうかチェックする.
-   * @param userOpeCmd undo 用コマンドオブジェクト.
+   * @param userOpe undo 用コマンドオブジェクト.
    * @return 実行対象のノード
    */
-  private Optional<BhNode> findNodeToExecute(Workspace ws, UserOperationCommand userOpeCmd) {
+  private Optional<BhNode> findNodeToExecute(Workspace ws, UserOperation userOpe) {
     if (ws == null) {
       return Optional.empty();
     }
@@ -126,9 +126,9 @@ public class CompileNodeCollector {
     }
     // 実行対象以外を非選択に.
     BhNode nodeToExec = selectedNodeList.get(0).findRootNode();
-    ws.clearSelectedNodeList(userOpeCmd);
-    ws.addSelectedNode(nodeToExec, userOpeCmd);
-    BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+    ws.clearSelectedNodeList(userOpe);
+    ws.addSelectedNode(nodeToExec, userOpe);
+    BunnyHop.INSTANCE.pushUserOperation(userOpe);
     return Optional.of(nodeToExec);
   }
 

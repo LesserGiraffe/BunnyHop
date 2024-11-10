@@ -42,7 +42,7 @@ import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.imitation.ImitationBase;
+import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
@@ -129,7 +129,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
    * @param viewStyle ノードの見た目を決めるパラメータオブジェクト
    * @param model ビューが表すモデル
    */
-  protected BhNodeView(BhNodeViewStyle viewStyle, ImitationBase<?> model)
+  protected BhNodeView(BhNodeViewStyle viewStyle, DerivativeBase<?> model)
       throws ViewInitializationException {
     this.setPickOnBounds(false);  //nodeShape 部分だけが MouseEvent を拾うように
     this.viewStyle = viewStyle;

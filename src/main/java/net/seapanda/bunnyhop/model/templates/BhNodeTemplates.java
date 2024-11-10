@@ -43,7 +43,7 @@ import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorParamSetId;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
@@ -65,8 +65,8 @@ public class BhNodeTemplates {
   private final HashMap<BhNodeId, BhNode> nodeIdToNodeTemplate = new HashMap<>();
   /** {@link Connector} のテンプレートを格納するハッシュ.*/
   private final HashMap<ConnectorId, Connector> cnctrIdToCntrTemplate = new HashMap<>();
-  /** オリジナルノードと, そのイミテーションノードの ID を格納する. */
-  private final Set<Pair<BhNodeId, BhNodeId>> orgAndImitNodeIdSet = new HashSet<>();
+  /** オリジナルノードと, その派生ノードの ID を格納する. */
+  private final Set<Pair<BhNodeId, BhNodeId>> orgAndDerivativeIdSet = new HashSet<>();
   /** コネクタパラメータセットを格納するハッシュ.  */
   private final HashMap<ConnectorParamSetId, ConnectorAttributes> cnctrParamIdToCnctrAttributes
       = new HashMap<>();
@@ -87,16 +87,16 @@ public class BhNodeTemplates {
    * ノード ID から {@link BhNode} を新しく作る.
    *
    * @param id 取得したいノードの ID
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return id で指定した {@link BhNode} のオブジェクト
    */
-  public BhNode genBhNode(BhNodeId id, UserOperationCommand userOpeCmd) {
+  public BhNode genBhNode(BhNodeId id, UserOperation userOpe) {
     BhNode newNode = nodeIdToNodeTemplate.get(id);
     if (newNode == null) {
       MsgPrinter.INSTANCE.errMsgForDebug(
           Util.INSTANCE.getCurrentMethodName() + " - template not found " + id);
     } else {
-      newNode = newNode.copy(bhNode -> true, userOpeCmd);
+      newNode = newNode.copy(bhNode -> true, userOpe);
     }
     return newNode;
   }
@@ -222,7 +222,7 @@ public class BhNodeTemplates {
         })
         .allMatch(Boolean::valueOf);
     files.close();
-    success &= checkImitationConsistency();
+    success &= checkDerivativeConsistency();
     return success;
   }
 
@@ -240,7 +240,7 @@ public class BhNodeTemplates {
       Optional<? extends BhNode> templateNode = new NodeConstructor(
           this::registerNodeTemplate,
           this::registerCnctrTemplate,
-          this::registerOrgNodeIdAndImitNodeId,
+          this::registerOrgAndDervId,
           this::getCnctrTemplate)
           .genTemplate(doc);
       return templateNode;
@@ -271,31 +271,31 @@ public class BhNodeTemplates {
   }
 
   /**
-   * オリジナルノードとイミテーションノード間の制約が満たされているか検査する.
+   * オリジナルノードと派生ノード間の制約が満たされているか検査する.
    *
-   * @return 全てのオリジナルノードとイミテーションノード間の制約が満たされていた場合 true
+   * @return 全てのオリジナルノードと派生ノード間の制約が満たされていた場合 true
    */
-  private boolean checkImitationConsistency() {
+  private boolean checkDerivativeConsistency() {
     var allValid = true; 
-    for (Pair<BhNodeId, BhNodeId> orgIdAndImitId : orgAndImitNodeIdSet) {
-      var orgId = orgIdAndImitId.v1;
-      var imitId = orgIdAndImitId.v2;
-      if (!bhNodeExists(imitId)) {
+    for (Pair<BhNodeId, BhNodeId> orgIdAndDervId : orgAndDerivativeIdSet) {
+      var orgId = orgIdAndDervId.v1;
+      var dervId = orgIdAndDervId.v2;
+      if (!bhNodeExists(dervId)) {
         MsgPrinter.INSTANCE.errMsgForDebug(
             "There is no '" + BhConstants.BhModelDef.ELEM_NODE + "' with the '"
             + BhConstants.BhModelDef.ATTR_BH_NODE_ID + "' matching the '"
-            + BhConstants.BhModelDef.ATTR_IMITATION_ID + " " + imitId 
+            + BhConstants.BhModelDef.ATTR_DETIVATION_ID + " " + dervId 
             + " that is defined in " + orgId + ".");
         allValid = false;
       }
       
-      BhNode orgNode = getBhNodeTemplate(orgId).get();
-      BhNode imitNode = getBhNodeTemplate(imitId).get();
-      if (orgNode.getClass() != imitNode.getClass()) {
+      BhNode original = getBhNodeTemplate(orgId).get();
+      BhNode derivative = getBhNodeTemplate(dervId).get();
+      if (original.getClass() != derivative.getClass()) {
         MsgPrinter.INSTANCE.errMsgForDebug(
-            "An original node and it's imitation node must have the same '"
+            "An original node and it's derivative node must have the same '"
             + BhConstants.BhModelDef.ATTR_TYPE + "' attribute.\n"
-            + "    org: " + orgId + "    imit: " + imitId);
+            + "    original: " + orgId + "    derivative: " + dervId);
         allValid = false;
       }      
     }
@@ -346,13 +346,13 @@ public class BhNodeTemplates {
   }
 
   /**
-   * オリジナルノードの ID と, そのイミテーションノードの ID を登録する.
+   * オリジナルノードの ID と, その派生ノードの ID を登録する.
    *
    * @param orgNodeId オリジナルノードの ID
-   * @param imitNodeId イミテーションノードの ID
+   * @param dervNodeId 派生ノードの ID
    */
-  private void registerOrgNodeIdAndImitNodeId(BhNodeId orgNodeId, BhNodeId imitNodeId) {
-    orgAndImitNodeIdSet.add(new Pair<>(orgNodeId, imitNodeId));
+  private void registerOrgAndDervId(BhNodeId orgNodeId, BhNodeId dervNodeId) {
+    orgAndDerivativeIdSet.add(new Pair<>(orgNodeId, dervNodeId));
   }
 
   /**
@@ -372,7 +372,7 @@ public class BhNodeTemplates {
         BhConstants.Path.ON_NODE_TEMPLATE_COMPLETE_JS);
     ScriptableObject scriptScope = BhScriptManager.INSTANCE.createScriptScope();
     ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, new UserOperationCommand());
+        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE, new UserOperation());
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_TEMPLATES, INSTANCE);
     try {

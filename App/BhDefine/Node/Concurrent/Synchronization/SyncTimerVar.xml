@@ -10,6 +10,6 @@
       bhConnectorID="idSyncTimerVar.cnctr0"
       import="idVarNameCnctr"
       name="SyncTimerName"
-      imitCnctPos="imitPosVarName"/>
+      derivativeJoint="dervJointVarName"/>
   </ConnectorSection>
 </Node>

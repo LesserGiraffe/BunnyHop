@@ -21,10 +21,5 @@
     "outer" : {
       "connectorList" : ["NextStat"]
     }
-  },
-    
-    "imitation" : {
-    "buttonPosX" : 1.5,
-    "buttonPosY" : 1.0
   }
 }

@@ -31,8 +31,8 @@ import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
-import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.modelprocessor.TextPrompter;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 
 /**
@@ -141,12 +141,12 @@ public final class BhNodeCategoryListView {
       categoryToSselectionView.put(category, selectionView);
       selectionViewList.add(selectionView);
     }
-    UserOperationCommand userOpeCmd = new UserOperationCommand();
-    BhNode node = BhNodeTemplates.INSTANCE.genBhNode(bhNodeId, userOpeCmd);
+    UserOperation userOpe = new UserOperation();
+    BhNode node = BhNodeTemplates.INSTANCE.genBhNode(bhNodeId, userOpe);
     NodeMvcBuilder.buildTemplate(node);  //MVC構築
-    TextImitationPrompter.prompt(node);
+    TextPrompter.prompt(node);
     //BhNode テンプレートリストパネルにBhNodeテンプレートを追加
-    BhNodeSelectionService.INSTANCE.addTemplateNode(category.categoryName, node, userOpeCmd);
+    BhNodeSelectionService.INSTANCE.addTemplateNode(category.categoryName, node, userOpe);
   }
 
   /** ノード固有のノード選択ビューを登録する. */

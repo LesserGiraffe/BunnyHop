@@ -21,7 +21,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
  * ノードに対してワークスペースをセットする.
@@ -31,7 +31,7 @@ import net.seapanda.bunnyhop.undo.UserOperationCommand;
 public class WorkspaceRegisterer implements BhModelProcessor {
 
   /** undo 用コマンドオブジェクト. */
-  private final UserOperationCommand userOpeCmd;
+  private final UserOperation userOpe;
   /** {@link BhNode} にセットするワークスペース. */
   private final Workspace ws;
   
@@ -40,12 +40,12 @@ public class WorkspaceRegisterer implements BhModelProcessor {
    *
    * @param node これ以下のノードにワークスペースを登録する
    * @param ws 登録するワークスペース
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public static void register(BhNode node, Workspace ws, UserOperationCommand userOpeCmd) {
+  public static void register(BhNode node, Workspace ws, UserOperation userOpe) {
     Objects.requireNonNull(node);
     Objects.requireNonNull(ws);
-    var registerer = new WorkspaceRegisterer(ws, userOpeCmd);
+    var registerer = new WorkspaceRegisterer(ws, userOpe);
     node.accept(registerer);
   }
 
@@ -53,26 +53,26 @@ public class WorkspaceRegisterer implements BhModelProcessor {
    * 引数で指定したノード以下のノードのワークスペースの登録を解除する.
    *
    * @param node このノード以下のノードのワークスペースの登録を解除する
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * */
-  public static void deregister(BhNode node, UserOperationCommand userOpeCmd) {
-    var registerer = new WorkspaceRegisterer(null, userOpeCmd);
+  public static void deregister(BhNode node, UserOperation userOpe) {
+    var registerer = new WorkspaceRegisterer(null, userOpe);
     node.accept(registerer);
   }
 
-  private WorkspaceRegisterer(Workspace ws, UserOperationCommand userOpeCmd) {
+  private WorkspaceRegisterer(Workspace ws, UserOperation userOpe) {
     this.ws = ws;
-    this.userOpeCmd = userOpeCmd;
+    this.userOpe = userOpe;
   }
 
   @Override
   public void visit(ConnectiveNode node) {
-    node.setWorkspace(ws, userOpeCmd);
+    node.setWorkspace(ws, userOpe);
     node.sendToSections(this);
   }
 
   @Override
   public void visit(TextNode node) {
-    node.setWorkspace(ws, userOpeCmd);
+    node.setWorkspace(ws, userOpe);
   }
 }

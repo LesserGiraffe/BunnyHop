@@ -40,8 +40,8 @@ import net.seapanda.bunnyhop.model.node.event.BhNodeEventAgent;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.modelprocessor.ImitationReplacer;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.modelprocessor.DerivativeReplacer;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
@@ -98,10 +98,10 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
   public abstract boolean canBeReplacedWith(BhNode node);
 
   /**
-   * このノードがイミテーションノードだった場合, そのオリジナルノードを返す.
-   * イミテーションノードで無かった場合 null を返す.
+   * このノードが派生ノードだった場合, そのオリジナルノードを返す.
+   * 派生ノードで無かった場合 null を返す.
    *
-   * @return このノードのオリジナルノード. このノードがイミテーションノードで無い場合は null を返す.
+   * @return このノードのオリジナルノード. このノードが派生ノードで無い場合は null を返す.
    */
   public abstract BhNode getOriginal();
 
@@ -122,21 +122,21 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
    *
    * @param isNodeToBeCopied このノードの子ノードがコピーの対象かどうかを判別する関数.
    *                         copy を呼んだノードは判定対象にならず, 必ずコピーされる.
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return このノード以下のノードツリーのコピー
    */
   public abstract BhNode copy(
       Predicate<? super BhNode> isNodeToBeCopied,
-      UserOperationCommand userOpeCmd);
+      UserOperation userOpe);
 
   /**
    * このノード以下のノードツリーのコピーを作成する.
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return このノード以下のノードツリーのコピー
    */
-  public BhNode copy(UserOperationCommand userOpeCmd) {
-    return copy(node -> true, userOpeCmd);
+  public BhNode copy(UserOperation userOpe) {
+    return copy(node -> true, userOpe);
   }
 
   /**
@@ -182,37 +182,37 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
    * {@code newBhNode} とこのノードを入れ替える.
    *
    * @param newNode このノードと入れ替えるノード.
-   * @param userOpeCmd undo 用コマンドオブジェクト.
+   * @param userOpe undo 用コマンドオブジェクト.
    * @return この入れ替え操作で入れ替わったノード一式.
    *         0 番目が {@code newNode} とこのノードのペアであることが保証される.
    */
-  public List<Swapped> replace(BhNode newNode, UserOperationCommand userOpeCmd) {
+  public List<Swapped> replace(BhNode newNode, UserOperation userOpe) {
     if (parentConnector == null) {
       return new ArrayList<>();
     }
     var swappedList = new ArrayList<Swapped>();
     swappedList.add(new Swapped(this, newNode));
-    setLastReplaced(newNode, userOpeCmd);
-    parentConnector.connectNode(newNode, userOpeCmd);
-    swappedList.addAll(ImitationReplacer.replace(newNode, this, userOpeCmd));
+    setLastReplaced(newNode, userOpe);
+    parentConnector.connectNode(newNode, userOpe);
+    swappedList.addAll(DerivativeReplacer.replace(newNode, this, userOpe));
     return swappedList;
   }
 
   /**
    * このノードをモデルツリーから取り除く.
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return この入れ替え操作で入れ替わったノード一式.
    *         0 番目がこのノードとこのノードに代わり新しく作成されたノードのペアであることが保証される.
    */
-  public List<Swapped> remove(UserOperationCommand userOpeCmd) {
+  public List<Swapped> remove(UserOperation userOpe) {
     if (parentConnector == null) {
       return new ArrayList<>();
     }
     BhNode newNode =
-        BhNodeTemplates.INSTANCE.genBhNode(parentConnector.getDefaultNodeId(), userOpeCmd);
+        BhNodeTemplates.INSTANCE.genBhNode(parentConnector.getDefaultNodeId(), userOpe);
     newNode.setDefault(true);
-    return replace(newNode, userOpeCmd);
+    return replace(newNode, userOpe);
   }
 
   /**
@@ -316,10 +316,10 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
    * このノードがあるワークスペースを登録する.
    *
    * @param workspace このノードを直接保持するワークスペース
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void setWorkspace(Workspace workspace, UserOperationCommand userOpeCmd) {
-    userOpeCmd.pushCmdOfSetWorkspace(this.workspace, this);
+  public void setWorkspace(Workspace workspace, UserOperation userOpe) {
+    userOpe.pushCmdOfSetWorkspace(this.workspace, this);
     this.workspace = workspace;
   }
 
@@ -345,10 +345,10 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
    * このノードと入れ替わったノードをセットする.
    *
    * @param lastReplaced このノードと入れ替わったノード
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void setLastReplaced(BhNode lastReplaced, UserOperationCommand userOpeCmd) {
-    userOpeCmd.pushCmdOfSetLastReplaced(this.lastReplaced, this);
+  public void setLastReplaced(BhNode lastReplaced, UserOperation userOpe) {
+    userOpe.pushCmdOfSetLastReplaced(this.lastReplaced, this);
     this.lastReplaced = lastReplaced;
   }
 
@@ -483,10 +483,10 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
    *
    * <p> 返されるノードの MVC は構築されていない. </p>
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return このノード固有のテンプレートノードのリスト. 固有のテンプレートノードを持たない場合, 空のリストを返す.
    */
-  public Collection<BhNode> genPrivateTemplateNodes(UserOperationCommand userOpeCmd) {
+  public Collection<BhNode> genPrivateTemplateNodes(UserOperation userOpe) {
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING);
     Script privateTemplateCreator =
         scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
@@ -496,7 +496,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
     Object privateTemplateNodes = null;
     ScriptableObject scriptScope = getEventAgent().newDefaultScriptScope();
     ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE_CMD, userOpeCmd);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE, userOpe);
     try {
       privateTemplateNodes =
         ContextFactory.getGlobal().call(cx -> privateTemplateCreator.exec(cx, scriptScope));
@@ -559,7 +559,6 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
    *
    * @param oldNode 入れ替え前に子ノードであったノード
    * @param newNode 入れ替え後に子ノードとなったノード
-   * @param imitPairs 入れ替わった古いイミテーションノードと新しいイミテーションノードのペアのリスト
    */
   public record Swapped(BhNode oldNode, BhNode newNode) {}
 }

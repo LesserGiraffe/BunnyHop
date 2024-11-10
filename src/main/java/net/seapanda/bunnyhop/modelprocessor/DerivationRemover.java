@@ -19,35 +19,35 @@ package net.seapanda.bunnyhop.modelprocessor;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
- * イミテーションノードをオリジナルノードのイミテーションノードリストから取り除くクラス.
+ * 走査したノードが派生ノードであった場合, そのオリジナルノードの派生ノード一覧から取り除くクラス.
  *
  * @author K.Koike
  */
-public class ImitationRemover implements BhModelProcessor {
+public class DerivationRemover implements BhModelProcessor {
 
   /** undo 用コマンドオブジェクト. */
-  private UserOperationCommand userOpeCmd;
+  private UserOperation userOpe;
 
   /**
-   * 引数で指定したノード以下にあるイミテーションノードをオリジナルノードのイミテーションノードリストから取り除く.
+   * {@code node} で指定ノード以下にある派生ノードを, そのオリジナルノードの派生ノード一覧から取り除く.
    *
-   * @param node このノード以下のイミテーションノードを, オリジナルノードのイミテーションノードリストから取り除く.
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param node このノード以下の派生ノードを, そのオリジナルノードの派生ノード一覧から取り除く.
+   * @param userOpe undo 用コマンドオブジェクト
    * */
-  public static void remove(BhNode node, UserOperationCommand userOpeCmd) {
-    node.accept(new ImitationRemover(userOpeCmd));
+  public static void remove(BhNode node, UserOperation userOpe) {
+    node.accept(new DerivationRemover(userOpe));
   }
 
   /**
    * コンストラクタ.
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  private ImitationRemover(UserOperationCommand userOpeCmd) {
-    this.userOpeCmd = userOpeCmd;
+  private DerivationRemover(UserOperation userOpe) {
+    this.userOpe = userOpe;
   }
 
   /**
@@ -57,16 +57,16 @@ public class ImitationRemover implements BhModelProcessor {
    */
   @Override
   public void visit(ConnectiveNode node) {
-    if (node.isImitationNode()) {
-      node.getOriginal().removeImitation(node, userOpeCmd);
+    if (node.isDerivative()) {
+      node.getOriginal().removeDerivative(node, userOpe);
     }
     node.sendToSections(this);
   }
 
   @Override
   public void visit(TextNode node) {
-    if (node.isImitationNode()) {
-      node.getOriginal().removeImitation(node, userOpeCmd);
+    if (node.isDerivative()) {
+      node.getOriginal().removeDerivative(node, userOpe);
     }
   }
 }

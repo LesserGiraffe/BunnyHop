@@ -1,4 +1,4 @@
 (function() {
   if (bhThis.isDefault())
-    bhNodeHandler.deleteNode(bhThis, bhUserOpeCmd);
+    bhNodeHandler.deleteNode(bhThis, bhUserOpe);
 })();

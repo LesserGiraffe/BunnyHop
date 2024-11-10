@@ -30,13 +30,13 @@ import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-import net.seapanda.bunnyhop.model.node.attribute.ImitationId;
+import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
+import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
-import net.seapanda.bunnyhop.model.node.imitation.ImitationBase;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Script;
@@ -47,7 +47,7 @@ import org.mozilla.javascript.ScriptableObject;
  *
  * @author K.Koike
  */
-public class TextNode  extends ImitationBase<TextNode> {
+public class TextNode  extends DerivativeBase<TextNode> {
 
   private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   private String text = "";
@@ -55,12 +55,12 @@ public class TextNode  extends ImitationBase<TextNode> {
   /**
    * コンストラクタ.
    *
-   * @param imitIdToImitNodeId イミテーションIDとそれに対応するイミテーションノードIDのマップ
+   * @param derivationToDerivative 派生先 ID とそれに対応する派生ノード ID のマップ
    * @param attributes ノードの設定情報
    */
   public TextNode(
-      Map<ImitationId, BhNodeId> imitIdToImitNodeId, BhNodeAttributes attributes) {
-    super(attributes, imitIdToImitNodeId);
+      Map<DerivationId, BhNodeId> derivationToDerivative, BhNodeAttributes attributes) {
+    super(attributes, derivationToDerivative);
     registerScriptName(BhNodeEvent.ON_TEXT_FORMATTING, attributes.onTextFormatting());
     registerScriptName(
         BhNodeEvent.ON_TEXT_CHECKING, attributes.onTextChecking());
@@ -74,15 +74,15 @@ public class TextNode  extends ImitationBase<TextNode> {
    *
    * @param org コピー元オブジェクト
    */
-  private TextNode(TextNode org, UserOperationCommand userOpeCmd) {
-    super(org, userOpeCmd);
+  private TextNode(TextNode org, UserOperation userOpe) {
+    super(org, userOpe);
     text = org.text;
   }
 
   @Override
   public TextNode copy(
-      Predicate<? super BhNode> isNodeToBeCopied, UserOperationCommand userOpeCmd) {
-    return new TextNode(this, userOpeCmd);
+      Predicate<? super BhNode> isNodeToBeCopied, UserOperation userOpe) {
+    return new TextNode(this, userOpe);
   }
 
   @Override
@@ -201,10 +201,10 @@ public class TextNode  extends ImitationBase<TextNode> {
     return options;
   }
 
-  /** このノードのイミテーションノードにこのノードを模倣させる. */
-  public void assignContentsToImitations() {
+  /** このノードの派生ノードにこのノードのテキストを設定する. */
+  public void assignContentsToDerivatives() {
     String viewText = MsgService.INSTANCE.getViewText(this);
-    getImitationList().forEach(imit -> MsgService.INSTANCE.setText(imit, text, viewText));
+    getDerivatives().forEach(derv -> MsgService.INSTANCE.setText(derv, text, viewText));
   }
 
   @Override
@@ -232,18 +232,17 @@ public class TextNode  extends ImitationBase<TextNode> {
   }
 
   @Override
-  public TextNode createImitNode(ImitationId imitId, UserOperationCommand userOpeCmd) {
-    //イミテーションノード作成
-    BhNode imitationNode =
-        BhNodeTemplates.INSTANCE.genBhNode(getImitationNodeId(imitId), userOpeCmd);
+  public TextNode createDerivative(DerivationId derivationId, UserOperation userOpe) {
+    BhNode node =
+        BhNodeTemplates.INSTANCE.genBhNode(getDerivativeIdOf(derivationId), userOpe);
 
-    if (!(imitationNode instanceof TextNode)) {
-      throw new AssertionError("imitation node type inconsistency");
+    if (!(node instanceof TextNode)) {
+      throw new AssertionError("derivative node type inconsistency");
     }
-    //オリジナルとイミテーションの関連付け
-    TextNode textImit = (TextNode) imitationNode;
-    addImitation(textImit, userOpeCmd);
-    return textImit;
+    //オリジナルと派生ノードの関連付け
+    TextNode derivative = (TextNode) node;
+    addDerivative(derivative, userOpe);
+    return derivative;
   }
 
   @Override
@@ -265,12 +264,12 @@ public class TextNode  extends ImitationBase<TextNode> {
     MsgPrinter.INSTANCE.msgForDebug(
         indent(depth) + "<TextNode" + "string=" + text + "  bhID=" + getId()
         + "  parent=" + parentHash + "> " + this.hashCode());
-    MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<" + "ws " + workspace + "> ");
+    MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<ws " + workspace + "> ");
     MsgPrinter.INSTANCE.msgForDebug(
         indent(depth + 1) + "<" + "last replaced " + lastReplacedHash + "> ");
-    MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<" + "imitation" + "> ");
-    getImitationList().forEach(imit -> {
-      MsgPrinter.INSTANCE.msgForDebug(indent(depth + 2) + "imit " + imit.hashCode());
+    MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<derivation");
+    getDerivatives().forEach(derv -> {
+      MsgPrinter.INSTANCE.msgForDebug(indent(depth + 2) + "derivative " + derv.hashCode());
     });
   }
 }

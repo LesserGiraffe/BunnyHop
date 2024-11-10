@@ -16,19 +16,19 @@
       bhConnectorID="idVoidFuncCall.cnctr0"
       import="idFuncNameCnctr"
       name="FuncName"
-      imitCnctPos="imitPosFuncName"/>
+      derivativeJoint="dervJointFuncName"/>
     
     <Connector
       bhConnectorID="idVoidFuncCall.cnctr1"
       import="idArgCnctr"
       name="Arg"
-      imitCnctPos="imitPosArg"/>
+      derivativeJoint="dervJointArg"/>
         
     <Connector
       bhConnectorID="idVoidFuncCall.cnctr2"
       import="idArgCnctr"
       name="OutArg"
-      imitCnctPos="imitPosOutArg"/>
+      derivativeJoint="dervJointOutArg"/>
 
     <Connector
       bhConnectorID="idVoidFuncCall.cnctr3"

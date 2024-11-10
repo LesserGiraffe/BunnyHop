@@ -1,4 +1,4 @@
-let imitIdVar = 'imitIdVar';
+let dervIdVar = 'dervIdVar';
 /** 代入ノード作成 */
 function genAssignStat() {
   let listDeclToLiteral = {
@@ -10,20 +10,20 @@ function genAssignStat() {
   };
 
   let assignStatID = 'idAnyAssignStat';
-  let variable = bhCommon.buildImitation(bhThis, imitIdVar, bhUserOpeCmd);
-  let assignStat = bhCommon.genBhNode(assignStatID, bhNodeTemplates, bhUserOpeCmd);
+  let variable = bhCommon.buildDerivative(bhThis, dervIdVar, bhUserOpe);
+  let assignStat = bhCommon.genBhNode(assignStatID, bhNodeTemplates, bhUserOpe);
   let leftVar = assignStat.findSymbolInDescendants('*', 'LeftVar', '*');
-  leftVar.replace(variable, bhUserOpeCmd);
+  leftVar.replace(variable, bhUserOpe);
   let rightExpCnctr = assignStat.findSymbolInDescendants('*', 'RightExp');
-  bhCommon.changeDefaultNode(rightExpCnctr, listDeclToLiteral[bhThis.getSymbolName()], bhUserOpeCmd);
+  bhCommon.changeDefaultNode(rightExpCnctr, listDeclToLiteral[bhThis.getSymbolName()], bhUserOpe);
   return assignStat;
 }
 
 function genNumAddAssignStat() {
-  let variable = bhCommon.buildImitation(bhThis, imitIdVar, bhUserOpeCmd);
-  let numAddAssignStat = bhCommon.genBhNode('idNumAddAssignStat', bhNodeTemplates, bhUserOpeCmd);
+  let variable = bhCommon.buildDerivative(bhThis, dervIdVar, bhUserOpe);
+  let numAddAssignStat = bhCommon.genBhNode('idNumAddAssignStat', bhNodeTemplates, bhUserOpe);
   let leftVar = numAddAssignStat.findSymbolInDescendants('*', 'LeftVar', '*');
-  leftVar.replace(variable, bhUserOpeCmd);
+  leftVar.replace(variable, bhUserOpe);
   
   let rightLiteral = numAddAssignStat.findSymbolInDescendants('*', 'RightExp', '*', '*', 'Literal', '*');
   rightLiteral.setText(1);
@@ -31,7 +31,7 @@ function genNumAddAssignStat() {
 }
 
 (function() {
-  let variable = bhCommon.buildImitation(bhThis, imitIdVar, bhUserOpeCmd);
+  let variable = bhCommon.buildDerivative(bhThis, dervIdVar, bhUserOpe);
   templates = [variable, genAssignStat()];
   if (String(bhThis.getSymbolName()) === 'NumVarDecl')
     templates.push(genNumAddAssignStat());

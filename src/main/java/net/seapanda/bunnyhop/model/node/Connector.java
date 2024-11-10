@@ -28,14 +28,14 @@ import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
-import net.seapanda.bunnyhop.model.node.attribute.ImitCnctPosId;
-import net.seapanda.bunnyhop.model.node.attribute.ImitationId;
+import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
+import net.seapanda.bunnyhop.model.node.attribute.DerivativeJointId;
 import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
@@ -60,10 +60,10 @@ public class Connector extends SyntaxSymbol {
   private final boolean fixed;
   /** 外部描画ノードを接続するコネクタの場合true. */
   private boolean outer = false;
-  /** 作成するイミテーションを特定するための ID. */
-  private final ImitationId imitId;
-  /** イミテーションの接続位置の ID. */
-  private final ImitCnctPosId imitCnctPos;
+  /** 作成する派生ノードを特定するための ID. */
+  private final DerivationId derivationId;
+  /** 派生ノードの接続位置の ID. */
+  private final DerivativeJointId derivativeJoint;
   /** ノードを接続可能かどうかチェックするスクリプトの名前. */
   private final String cnctCheckScriptName;
   /** スクリプト実行時のスコープ. */
@@ -83,8 +83,8 @@ public class Connector extends SyntaxSymbol {
     super(attrs.name());
     id = attrs.connectorId();
     defaultNodeId = attrs.defaultNodeId();
-    imitId = attrs.imitId();
-    imitCnctPos = attrs.imitCnctPosId();
+    derivationId = attrs.derivationId();
+    derivativeJoint = attrs.derivativeJoint();
     fixed = attrs.fixed();
     cnctCheckScriptName = attrs.onConnectabilityChecking();
     parent = null;
@@ -95,8 +95,8 @@ public class Connector extends SyntaxSymbol {
     super(org.getSymbolName());
     id = org.id;
     defaultNodeId = org.defaultNodeId;
-    imitId = org.imitId;
-    imitCnctPos = org.imitCnctPos;
+    derivationId = org.derivationId;
+    derivativeJoint = org.derivativeJoint;
     fixed =  org.fixed;
     cnctCheckScriptName = org.cnctCheckScriptName;
     this.parent = parent;
@@ -107,19 +107,19 @@ public class Connector extends SyntaxSymbol {
    *
    * @param parent 親コネクタセクション
    * @param isNodeToBeCopied 子ノードがコピーの対象かどうかを判別する関数
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return このノードのコピー
    */
   public Connector copy(
       ConnectorSection parent,
       Predicate<? super BhNode> isNodeToBeCopied,
-      UserOperationCommand userOpeCmd) {
+      UserOperation userOpe) {
     BhNode newNode = null;
     if (connectedNode != null && isNodeToBeCopied.test(connectedNode)) {
-      newNode = connectedNode.copy(isNodeToBeCopied, userOpeCmd);
+      newNode = connectedNode.copy(isNodeToBeCopied, userOpe);
     } else {
       // コピー対象のノードでない場合, デフォルトノードを新規作成して接続する
-      newNode = BhNodeTemplates.INSTANCE.genBhNode(defaultNodeId, userOpeCmd);
+      newNode = BhNodeTemplates.INSTANCE.genBhNode(defaultNodeId, userOpe);
       newNode.setDefault(true);
     }
     var newConnector = new Connector(this, parent);
@@ -140,12 +140,12 @@ public class Connector extends SyntaxSymbol {
    * ノードを接続する.
    *
    * @param node 接続されるノード.  null 不可.
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public final void connectNode(BhNode node, UserOperationCommand userOpeCmd) {
+  public final void connectNode(BhNode node, UserOperation userOpe) {
     Objects.requireNonNull(node);
-    if (userOpeCmd != null) {
-      userOpeCmd.pushCmdOfConnectNode(connectedNode, this);
+    if (userOpe != null) {
+      userOpe.pushCmdOfConnectNode(connectedNode, this);
     }
     if (connectedNode != null) {
       connectedNode.setParentConnector(null);  //古いノードから親を消す
@@ -236,27 +236,26 @@ public class Connector extends SyntaxSymbol {
   }
 
   /**
-   * 作成するイミテーションを特定するための ID を取得する.
-   *
-   * @return イミテーション作成時のID
+   * このコネクタと先祖コネクタの中に, DerivationId.NONE 以外の派生先 ID (派生ノードを特定するための ID) があればそれを返す.
+   * なければ, DerivationId.NONE を返す.
    */
-  public ImitationId findImitationId() {
-    if (imitId.equals(ImitationId.NONE)) {
+  public DerivationId findDerivationId() {
+    if (derivationId.equals(DerivationId.NONE)) {
       Connector parentCnctr = getParentNode().getParentConnector();
       if (parentCnctr != null) {
-        return parentCnctr.findImitationId();
+        return parentCnctr.findDerivationId();
       }
     }
-    return imitId;
+    return derivationId;
   }
 
   /**
-   * イミテーション接続位置の識別子を取得する.
+   * 派生ノード接続位置の識別子を取得する.
    *
-   * @return イミテーション接続位置の識別子
+   * @return 派生ノード接続位置の識別子
    */
-  public ImitCnctPosId getImitCnctPos() {
-    return imitCnctPos;
+  public DerivativeJointId getDerivativeJoint() {
+    return derivativeJoint;
   }
 
   /**

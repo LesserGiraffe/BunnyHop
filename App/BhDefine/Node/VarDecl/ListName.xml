@@ -7,5 +7,5 @@
   onTextOptionsCreating="CreateDefaultVarName.js"
   version="bh-1.0">
   
-  <Imitation imitationID="imitIdListName" imitationNodeID="idListName"/>
+  <Derivation derivationID="dervIdListName" derivativeID="idListName"/>
 </Node>

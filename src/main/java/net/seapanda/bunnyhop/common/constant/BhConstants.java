@@ -32,9 +32,9 @@ public class BhConstants {
   /** Look & Feel. */
   public static class LnF {
     /** 起動時の画面幅のディスプレイに対する割合. */
-    public static final double DEFAULT_APP_WIDTH_RATE = 0.6;
+    public static final double DEFAULT_APP_WIDTH_RATE = 0.7;
     /** 起動時の画面高さのディスプレイに対する割合. */
-    public static final double DEFAULT_APP_HEIGHT_RATE = 0.6;
+    public static final double DEFAULT_APP_HEIGHT_RATE = 0.7;
     public static final double DEFAULT_WORKSPACE_WIDTH = 200 * Rem.VAL;
     public static final double DEFAULT_WORKSPACE_HEIGHT = 200 * Rem.VAL;
     /** ワークスペースとメッセージエリアを分けるディバイダの初期位置. */
@@ -102,8 +102,6 @@ public class BhConstants {
     public static final String MULTI_NODE_SHIFTER_FXML = "MultiNodeShifter.fxml";
     /** BhNodeテンプレートリスト部分のビューが定義してあるfxmlの名前. */
     public static final String NODE_SELECTION_PANEL_FXML = "NodeSelectionPanel.fxml";
-    /** イミテーションボタンが定義してあるfxmlの名前. */
-    public static final String IMIT_BUTTON_FXML = "ImitButton.fxml";
     /** プライベートテンプレートボタンが定義してあるfxmlの名前. */
     public static final String PRIVATE_TEMPLATE_BUTTON_FXML = "PrivateTemplateButton.fxml";
     /** ノードテンプレートの配置情報が書かれたファイルの名前. */
@@ -134,7 +132,7 @@ public class BhConstants {
     public static final String ELEM_CONNECTOR = "Connector";
     public static final String ELEM_CONNECTOR_PARAM_SET = "ConnectorParamSet";
     public static final String ELEM_CONNECTOR_SECTION = "ConnectorSection";
-    public static final String ELEM_IMITATION = "Imitation";
+    public static final String ELEM_DERIVATION = "Derivation";
     public static final String ATTR_NODE_STYLE_ID = "nodeStyleID";
     public static final String ATTR_BH_NODE_ID = "bhNodeID";
     public static final String ATTR_VERSION = "version";
@@ -156,11 +154,10 @@ public class BhConstants {
     public static final String ATTR_ON_COPY_REQUESTED = "onCopyRequested";
     public static final String ATTR_ON_PRIFVATE_TEMPLATE_CREATING = "onPrivateTemplateCreating";
     public static final String ATTR_ON_TEST_OPTIONS_CREATING = "onTextOptionsCreating";
-    public static final String ATTR_IMITATION_NODE_ID = "imitationNodeID";
+    public static final String ATTR_DERIVATIVE_ID = "derivativeID";
     public static final String ATTR_INIT_STRING = "initString";
-    public static final String ATTR_IMITATION_ID = "imitationID";
-    public static final String ATTR_IMIT_CNCT_POS = "imitCnctPos";
-    public static final String ATTR_IMIT_SCOPE_NAME = "imitScopeName";
+    public static final String ATTR_DETIVATION_ID = "derivationID";
+    public static final String ATTR_DERIVATIVE_JOINT = "derivativeJoint";
     public static final String ATTR_IMPORT = "import";
     public static final String ATTR_VALUE = "value";
     public static final String ATTR_VAL_TRUE = "true";
@@ -191,7 +188,7 @@ public class BhConstants {
     /** D&D やカット&ペーストで, 直接指定されて子ノードからワークスペースに移動したかどうかのフラグ名. */
     public static final String KEY_BH_IS_SPECIFIED_DIRECTLY = "bhIsSpecifiedDirectly";
     public static final String KEY_BH_NEXT_SYMBOL_NAME = "bhNextSymbolName";
-    public static final String KEY_BH_USER_OPE_CMD = "bhUserOpeCmd";
+    public static final String KEY_BH_USER_OPE = "bhUserOpe";
     public static final String KEY_BH_COMMON = "bhCommon";
     public static final String KEY_BH_NODE_TEMPLATES = "bhNodeTemplates";
     public static final String KEY_BH_CANDIDATE_NODE_LIST = "bhCandidateNodeList";
@@ -226,7 +223,6 @@ public class BhConstants {
     public static final String KEY_CONNECTOR_BOUNDS_RATE = "connectorBoundsRate";
     public static final String KEY_CSS_CLASS = "cssClass";
     public static final String KEY_CONNECTIVE = "connective";
-    public static final String KEY_IMITATION = "imitation";
     public static final String KEY_PRIVATE_TEMPLATE = "privateTemplate";
     public static final String KEY_BUTTON_POS_X = "buttonPosX";
     public static final String KEY_BUTTON_POS_Y = "buttonPosY";
@@ -287,7 +283,7 @@ public class BhConstants {
   /** CSS ファイルで使用されるのキーワード. */
   public static class Css {
     public static final String PSEUDO_SELECTED = "selected";
-    public static final String PSEUDO_HIGHLIGHT_IMIT = "highlightImit";
+    public static final String PSEUDO_HIGHLIGHT_DERIVATIVE = "highlightDerivative";
     public static final String PSEUDO_OVERLAPPED = "overlapped";
     public static final String PSEUDO_EMPTY = "empty";
     public static final String PSEUDO_ERROR = "error";

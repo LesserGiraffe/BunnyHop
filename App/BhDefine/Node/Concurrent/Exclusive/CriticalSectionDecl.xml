@@ -10,7 +10,7 @@
   onCopyRequested="OnCopyRequested.js"
   version="bh-1.0">
 
-  <Imitation imitationID="imitIdCriticalSectionStat" imitationNodeID="idCriticalSectionStat"/>
+  <Derivation derivationID="dervIdCriticalSectionStat" derivativeID="idCriticalSectionStat"/>
 
   <ConnectorSection name="GlobalDataDeclSctn">
 
@@ -18,8 +18,8 @@
       bhConnectorID="idCriticalSectionDecl.cnctr0"
       import="idVarNameCnctr"
       name="CriticalSectionName"
-      imitationID="imitIdVarName"
-      imitCnctPos="imitPosVarName"/>
+      derivationID="dervIdVarName"
+      derivativeJoint="dervJointVarName"/>
 
     <Connector
       bhConnectorID="idCriticalSectionDecl.cnctr1"

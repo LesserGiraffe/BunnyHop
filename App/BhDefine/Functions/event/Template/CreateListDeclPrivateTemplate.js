@@ -1,5 +1,4 @@
-let imitIdList = 'imitIdList';
-let ImitationId = net.seapanda.bunnyhop.model.node.attribute.ImitationId;
+let dervIdList = 'dervIdList';
 
 let listDeclToGetStat = {
   'NumListDecl'   : 'idNumArrayGetExp',
@@ -28,26 +27,26 @@ function genNodeToReplace(symbolMaps) {
   nodes = [];
   for (let symbolMap of symbolMaps) {
     nodes.push(
-      bhCommon.genBhNode(symbolMap[bhThis.getSymbolName()], bhNodeTemplates, bhUserOpeCmd));
+      bhCommon.genBhNode(symbolMap[bhThis.getSymbolName()], bhNodeTemplates, bhUserOpe));
   }
   return nodes;
 }
 
 function genAnyArrayControlNode(arrayCtrlNodeId, argNames, symbolMaps) {
-  let arrayCtrlNode = bhCommon.genBhNode(arrayCtrlNodeId, bhNodeTemplates, bhUserOpeCmd);
+  let arrayCtrlNode = bhCommon.genBhNode(arrayCtrlNodeId, bhNodeTemplates, bhUserOpe);
   let arg = arrayCtrlNode.findSymbolInDescendants('*', 'Arg0', '*');
-  let newNode = bhCommon.buildImitation(bhThis, imitIdList, bhUserOpeCmd);
-  arg.replace(newNode, bhUserOpeCmd);
+  let newNode = bhCommon.buildDerivative(bhThis, dervIdList, bhUserOpe);
+  arg.replace(newNode, bhUserOpe);
 
   for (let i = 0; i < argNames.length; ++i) {
     cnctr = arrayCtrlNode.findSymbolInDescendants('*', argNames[i]);
-    bhCommon.changeDefaultNode(cnctr, symbolMaps[i][bhThis.getSymbolName()], bhUserOpeCmd);
+    bhCommon.changeDefaultNode(cnctr, symbolMaps[i][bhThis.getSymbolName()], bhUserOpe);
   }
   return arrayCtrlNode;
 }
 
 (function() {
-  let list = bhCommon.buildImitation(bhThis, imitIdList, bhUserOpeCmd);
+  let list = bhCommon.buildDerivative(bhThis, dervIdList, bhUserOpe);
   let templates = [
     list,
     genAnyArrayControlNode('idAnyArrayToStrExp', [], []),

@@ -11,6 +11,6 @@
       bhConnectorID="idColorVar.cnctr2"
       import="idVarNameCnctr"
       name="VarName"
-      imitCnctPos="imitPosVarName"/>
+      derivativeJoint="dervJointVarName"/>
   </ConnectorSection>
 </Node>

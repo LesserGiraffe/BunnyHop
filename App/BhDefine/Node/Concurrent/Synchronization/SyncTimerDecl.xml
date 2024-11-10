@@ -10,7 +10,7 @@
   onCopyRequested="OnCopyRequested.js"
   version="bh-1.0">
 
-  <Imitation imitationID="imitIdSyncTimeVar" imitationNodeID="idSyncTimerVar"/>
+  <Derivation derivationID="dervIdSyncTimeVar" derivativeID="idSyncTimerVar"/>
 
   <ConnectorSection name="GlobalDataDeclSctn">
 
@@ -18,8 +18,8 @@
       bhConnectorID="idSyncTimerDecl.cnctr0"
       import="idVarNameCnctr"
       name="SyncTimerName"
-      imitationID="imitIdVarName"
-      imitCnctPos="imitPosVarName"/>
+      derivationID="dervIdVarName"
+      derivativeJoint="dervJointVarName"/>
 
     <Connector
       bhConnectorID="idSyncTimerDecl.cnctr1"

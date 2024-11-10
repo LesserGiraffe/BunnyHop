@@ -30,14 +30,15 @@ import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceController;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
 import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
-import net.seapanda.bunnyhop.modelprocessor.TemplateImitationCollector;
-import net.seapanda.bunnyhop.modelprocessor.TextImitationPrompter;
+import net.seapanda.bunnyhop.modelprocessor.TemplateDerivativeCollector;
+import net.seapanda.bunnyhop.modelprocessor.TextPrompter;
 import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
@@ -58,12 +59,12 @@ public class ProjectSaveData implements Serializable {
    * @param workspaceList 保存するワークスペースのリスト
    */
   public ProjectSaveData(Collection<Workspace> workspaceList) {
-    // ワークスペース以外のイミテーションノードを保存したくない.
-    var imitToDelete = workspaceList.stream()
+    // ワークスペース以外の派生ノードを保存したくない.
+    var derivativesToDelete = workspaceList.stream()
         .flatMap(ws -> ws.getRootNodeList().stream())
-        .flatMap(rootNode -> TemplateImitationCollector.collect(rootNode).stream())
+        .flatMap(rootNode -> TemplateDerivativeCollector.collect(rootNode).stream())
         .collect(Collectors.toCollection(ArrayList::new));
-    BhNodeHandler.INSTANCE.deleteNodes(imitToDelete, new UserOperationCommand());
+    BhNodeHandler.INSTANCE.deleteNodes(derivativesToDelete, new UserOperation());
     ///////////////////////////////
 
     workspaceSaveList = workspaceList.stream()
@@ -74,13 +75,13 @@ public class ProjectSaveData implements Serializable {
   /**
    * ワークスペースのリストをワークスペースセットに追加できる状態にして返す.
    *
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    * @return ロードしたワークスペースのリスト
    */
-  public List<Workspace> load(UserOperationCommand userOpeCmd) {
+  public List<Workspace> load(UserOperation userOpe) {
     workspaceSaveList.forEach(wsSaveData -> wsSaveData.initBhNodes());
     return workspaceSaveList.stream()
-        .map(wsSaveData -> wsSaveData.load(userOpeCmd).orElse(null))
+        .map(wsSaveData -> wsSaveData.load(userOpe).orElse(null))
         .filter(ws -> ws != null)
         .collect(Collectors.toCollection(ArrayList::new));
   }
@@ -107,21 +108,21 @@ public class ProjectSaveData implements Serializable {
     /**
      * ワークスペース以下の全てのBhNode を初期化する.
      *
-     * @param userOpeCmd undo 用コマンドオブジェクト
+     * @param userOpe undo 用コマンドオブジェクト
      */
     public void initBhNodes() {
       rootNodeSaveList.forEach(rootNodeSaveData -> rootNodeSaveData.buildMvc());
-      rootNodeSaveList.forEach(rootNodeSaveData -> rootNodeSaveData.imitOriginalNode());
+      rootNodeSaveList.forEach(rootNodeSaveData -> rootNodeSaveData.setTextOfDerivatives());
       rootNodeSaveList.forEach(rootNodeSaveData -> rootNodeSaveData.giveNewSymbolId());
     }
 
     /**
      * ワークスペースをワークスペースセットに追加できる状態にして返す.
      *
-     * @param userOpeCmd undo 用コマンドオブジェクト
+     * @param userOpe undo 用コマンドオブジェクト
      * @return ロードしたワークスペース. 失敗した場合 empty.
      */
-    public Optional<Workspace> load(UserOperationCommand userOpeCmd) {
+    public Optional<Workspace> load(UserOperation userOpe) {
       WorkspaceView wsView = new WorkspaceView(ws);
       wsView.init(workspaceSize.x, workspaceSize.y);
 
@@ -138,7 +139,7 @@ public class ProjectSaveData implements Serializable {
         Pair<BhNode, Vec2D> rootNodeAndPos = nodeSaveData.getBhNodeAndPos();
         Vec2D pos = rootNodeAndPos.v2;
         BhNode rootNode = rootNodeAndPos.v1;
-        BhNodeHandler.INSTANCE.moveToWs(ws, rootNode, pos.x, pos.y, userOpeCmd);
+        BhNodeHandler.INSTANCE.moveToWs(ws, rootNode, pos.x, pos.y, userOpe);
       });
       return Optional.of(ws);
     }
@@ -162,9 +163,9 @@ public class ProjectSaveData implements Serializable {
         NodeMvcBuilder.build(rootNode);
       }
 
-      /** イミテーションノードにオリジナルノードを模倣させる. */
-      public void imitOriginalNode() {
-        TextImitationPrompter.prompt(rootNode);
+      /** {@link TextNode} 型の派生ノードにオリジナルのテキストをセットする. */
+      public void setTextOfDerivatives() {
+        TextPrompter.prompt(rootNode);
       }
 
       /** このオブジェクトが保持するルートノード以下の全ての SyntaxSymbol の SymbolID を新しいものにする. */

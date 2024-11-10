@@ -21,7 +21,7 @@ import java.util.List;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.imitation.Imitatable;
+import net.seapanda.bunnyhop.model.node.derivative.Derivative;
 
 /**
  * 構文エラーノードを探して集めるクラス.
@@ -36,7 +36,7 @@ public class SyntaxErrorNodeCollector implements BhModelProcessor {
    * <pre>
    * 以下の2種類の構文エラーノードを管理対象に入れる.
    *   ・{@code node} 以下にある構文エラーノード
-   *   ・{@code node} 以下にあるオリジナルノードが持つイミテーションで構文エラーを起こしているノード
+   *   ・{@code node} 以下にあるオリジナルノードが持つ派生ノードで構文エラーを起こしているノード
    * </pre>
    */
   public static List<BhNode> collect(BhNode node) {
@@ -50,9 +50,9 @@ public class SyntaxErrorNodeCollector implements BhModelProcessor {
   @Override
   public void visit(ConnectiveNode node) {
     node.sendToSections(this);
-    for (Imitatable imitNode : node.getImitationList()) {
-      if (imitNode.hasSyntaxError()) {
-        errorNodeList.add(imitNode);
+    for (Derivative derivative : node.getDerivatives()) {
+      if (derivative.hasSyntaxError()) {
+        errorNodeList.add(derivative);
       }
     }
     if (node.hasSyntaxError()) {
@@ -62,9 +62,9 @@ public class SyntaxErrorNodeCollector implements BhModelProcessor {
 
   @Override
   public void visit(TextNode node) {
-    for (Imitatable imitNode : node.getImitationList()) {
-      if (imitNode.hasSyntaxError()) {
-        errorNodeList.add(imitNode);
+    for (Derivative derivative : node.getDerivatives()) {
+      if (derivative.hasSyntaxError()) {
+        errorNodeList.add(derivative);
       }
     }
     if (node.hasSyntaxError()) {

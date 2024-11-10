@@ -20,7 +20,7 @@ import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
@@ -40,7 +40,7 @@ public class MsgData {
   public final Workspace workspace;
   public final WorkspaceView workspaceView;
   public final boolean bool;
-  public final UserOperationCommand userOpeCmd;
+  public final UserOperation userOpe;
   public final String text;
   public final BhNodeSelectionView nodeSelectionView;
 
@@ -54,7 +54,7 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = false;
-    this.userOpeCmd = null;
+    this.userOpe = null;
     this.text = null;
     this.nodeSelectionView = null;
   }
@@ -69,7 +69,7 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = false;
-    this.userOpeCmd = null;
+    this.userOpe = null;
     this.text = null;
     this.nodeSelectionView = null;
   }
@@ -84,14 +84,14 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = false;
-    this.userOpeCmd = null;
+    this.userOpe = null;
     this.text = null;
     this.nodeSelectionView = null;
   }
 
   /** コンストラクタ. */
   public MsgData(
-      Workspace workspace, WorkspaceView workspaceView, UserOperationCommand userOpeCmd) {
+      Workspace workspace, WorkspaceView workspaceView, UserOperation userOpe) {
     this.node = null;
     this.nodeView = null;
     this.vec2d = null;
@@ -100,7 +100,7 @@ public class MsgData {
     this.workspace = workspace;
     this.workspaceView = workspaceView;
     this.bool = false;
-    this.userOpeCmd = userOpeCmd;
+    this.userOpe = userOpe;
     this.text = null;
     this.nodeSelectionView = null;
   }
@@ -115,7 +115,7 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = false;
-    this.userOpeCmd = null;
+    this.userOpe = null;
     this.text = null;
     this.nodeSelectionView = null;
   }
@@ -130,7 +130,7 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = false;
-    this.userOpeCmd = null;
+    this.userOpe = null;
     this.text = null;
     this.nodeSelectionView = null;
   }
@@ -145,13 +145,13 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = bool;
-    this.userOpeCmd = null;
+    this.userOpe = null;
     this.text = null;
     this.nodeSelectionView = null;
   }
 
   /** コンストラクタ. */
-  public MsgData(UserOperationCommand userOpeCmd) {
+  public MsgData(UserOperation userOpe) {
     this.node = null;
     this.nodeView = null;
     this.vec2d = null;
@@ -160,7 +160,7 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = false;
-    this.userOpeCmd = userOpeCmd;
+    this.userOpe = userOpe;
     this.text = null;
     this.nodeSelectionView = null;
   }
@@ -175,7 +175,7 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = false;
-    this.userOpeCmd = null;
+    this.userOpe = null;
     this.text = text;
     this.nodeSelectionView = null;
   }
@@ -190,7 +190,7 @@ public class MsgData {
     this.workspace = workspace;
     this.workspaceView = null;
     this.bool = false;
-    this.userOpeCmd = null;
+    this.userOpe = null;
     this.text = null;
     this.nodeSelectionView = null;
   }
@@ -205,7 +205,7 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = bool;
-    this.userOpeCmd = null;
+    this.userOpe = null;
     this.text = text;
     this.nodeSelectionView = null;
   }
@@ -220,7 +220,7 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = false;
-    this.userOpeCmd = null;
+    this.userOpe = null;
     this.text = null;
     this.nodeSelectionView = nodeSelectionView;
   }
@@ -235,13 +235,13 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = false;
-    this.userOpeCmd = null;
+    this.userOpe = null;
     this.text = null;
     this.nodeSelectionView = null;
   }
 
   /** コンストラクタ. */
-  public MsgData(boolean bool, UserOperationCommand userOpeCmd) {
+  public MsgData(boolean bool, UserOperation userOpe) {
     this.node = null;
     this.nodeView = null;
     this.vec2d = null;
@@ -250,7 +250,7 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = bool;
-    this.userOpeCmd = userOpeCmd;
+    this.userOpe = userOpe;
     this.text = null;
     this.nodeSelectionView = null;
   }
@@ -265,13 +265,13 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = false;
-    this.userOpeCmd = null;
+    this.userOpe = null;
     this.text = null;
     this.nodeSelectionView = null;
   }
 
   /** コンストラクタ. */
-  public MsgData(BhNode node, UserOperationCommand userOpeCmd) {
+  public MsgData(BhNode node, UserOperation userOpe) {
     this.node = node;
     this.nodeView = null;
     this.vec2d = null;
@@ -280,7 +280,7 @@ public class MsgData {
     this.workspace = null;
     this.workspaceView = null;
     this.bool = false;
-    this.userOpeCmd = userOpeCmd;
+    this.userOpe = userOpe;
     this.text = null;
     this.nodeSelectionView = null;
   }

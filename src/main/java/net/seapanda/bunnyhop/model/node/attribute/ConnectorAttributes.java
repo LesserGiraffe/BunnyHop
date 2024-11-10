@@ -31,9 +31,9 @@ public record ConnectorAttributes(
     String name,
     ConnectorParamSetId paramSetId,
     BhNodeId defaultNodeId,
-    ImitationId imitId,
-    BhNodeId imitNodeId,
-    ImitCnctPosId imitCnctPosId,
+    DerivationId derivationId,
+    BhNodeId derivativeId,
+    DerivativeJointId derivativeJoint,
     Boolean fixed,
     ConnectorParamSetId imports,
     String onConnectabilityChecking) {
@@ -51,12 +51,12 @@ public record ConnectorAttributes(
         ConnectorParamSetId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_PARAM_SET_ID));
     var defaultNodeId =
         BhNodeId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID));
-    var imitId =
-        ImitationId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_IMITATION_ID));
-    var imitNodeId =
-        BhNodeId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_IMITATION_NODE_ID));
-    var imitCnctPosId =
-        ImitCnctPosId.create(elem.getAttribute(BhConstants.BhModelDef.ATTR_IMIT_CNCT_POS));
+    var derivationId =
+        DerivationId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_DETIVATION_ID));
+    var derivativeId =
+        BhNodeId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_DERIVATIVE_ID));
+    var derivativeJoint =
+        DerivativeJointId.create(elem.getAttribute(BhConstants.BhModelDef.ATTR_DERIVATIVE_JOINT));
     var imports = 
         ConnectorParamSetId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_IMPORT));
 
@@ -85,9 +85,9 @@ public record ConnectorAttributes(
         name,
         paramSetId,
         defaultNodeId,
-        imitId,
-        imitNodeId,
-        imitCnctPosId,
+        derivationId,
+        derivativeId,
+        derivativeJoint,
         fixed,
         imports,
         onConnectabilityChecking

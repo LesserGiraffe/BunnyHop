@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.modelprocessor.SyntaxErrorNodeCollector;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
  * 構文エラーノードを集めて管理するクラス.
@@ -45,62 +45,62 @@ public class SyntaxErrorNodeManager {
    * 以下の2種類の構文エラーノードを管理対象に入れる.
    * <pre>
    *   ・{@code node} 以下にある構文エラーノード
-   *   ・{@code node} 以下にあるオリジナルノードが持つ構文エラーを起こしているイミテーションノード
+   *   ・{@code node} 以下にあるオリジナルノードが持つ派生ノードのうち, 構文エラーを起こしているもの
    * </pre>
    */
-  public void collect(BhNode node, UserOperationCommand userOpeCmd) {
+  public void collect(BhNode node, UserOperation userOpe) {
     if (MsgService.INSTANCE.isTemplateNode(node)) {
       return;
     }
     for (BhNode errNode : SyntaxErrorNodeCollector.collect(node)) {
       if (!errorNodeList.contains(errNode)) {
         errorNodeList.add(errNode);
-        userOpeCmd.pushCmdOfAddToList(errorNodeList, errNode);
+        userOpe.pushCmdOfAddToList(errorNodeList, errNode);
       }
     }
   }
 
   /** 管理下のノードの構文エラー表示を更新する. */
-  public void updateErrorNodeIndicator(UserOperationCommand userOpeCmd) {
+  public void updateErrorNodeIndicator(UserOperation userOpe) {
     errorNodeList.forEach(node -> {
       if (node.getState() != BhNode.State.DELETED) {
-        MsgService.INSTANCE.setSyntaxErrorIndicator(node, node.hasSyntaxError(), userOpeCmd);
+        MsgService.INSTANCE.setSyntaxErrorIndicator(node, node.hasSyntaxError(), userOpe);
       }
     });
   }
 
   /** 構文エラーノード以外のノードを全て管理下から外す. */
-  public void unmanageNonErrorNodes(UserOperationCommand userOpeCmd) {
+  public void unmanageNonErrorNodes(UserOperation userOpe) {
     var nodesToRemove =
         errorNodeList.stream()
         .filter(node -> !node.hasSyntaxError())
         .collect(Collectors.toCollection(ArrayList::new));
     errorNodeList.removeAll(nodesToRemove);
-    userOpeCmd.pushCmdOfRemoveFromList(errorNodeList, nodesToRemove);
+    userOpe.pushCmdOfRemoveFromList(errorNodeList, nodesToRemove);
   }
 
   /** 管理下の全ての構文エラーノードを削除する.*/
-  public void deleteErrorNodes(UserOperationCommand userOpeCmd) {
+  public void deleteErrorNodes(UserOperation userOpe) {
     var errNodes = errorNodeList.stream()
         .filter(node -> node.hasSyntaxError())
         .toList();
 
     var nodesToDelete = errNodes.stream()
         .filter(node -> node.getEventAgent().execOnDeletionRequested(
-            errNodes, CauseOfDeletion.SYNTAX_ERROR, userOpeCmd))
+            errNodes, CauseOfDeletion.SYNTAX_ERROR, userOpe))
         .toList();
 
     List<Swapped> swappedNodes =
-        BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
+        BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpe);
     for (var swapped : swappedNodes) {
       swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
           swapped.oldNode(),
           swapped.newNode(),
           swapped.newNode().getParentConnector(),
-          userOpeCmd);
+          userOpe);
     }
     errorNodeList.removeAll(nodesToDelete);
-    userOpeCmd.pushCmdOfRemoveFromList(errorNodeList, nodesToDelete);
+    userOpe.pushCmdOfRemoveFromList(errorNodeList, nodesToDelete);
   }
 
   /**

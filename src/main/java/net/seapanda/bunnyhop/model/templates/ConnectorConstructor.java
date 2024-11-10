@@ -24,8 +24,8 @@ import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorParamSetId;
-import net.seapanda.bunnyhop.model.node.attribute.ImitCnctPosId;
-import net.seapanda.bunnyhop.model.node.attribute.ImitationId;
+import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
+import net.seapanda.bunnyhop.model.node.attribute.DerivativeJointId;
 import org.w3c.dom.Element;
 
 /**
@@ -127,11 +127,12 @@ public class ConnectorConstructor {
     var name = defined.name().isEmpty() ? imported.name() : defined.name();
     var defaultNodeId = defined.defaultNodeId().equals(BhNodeId.NONE)
         ? imported.defaultNodeId() : defined.defaultNodeId();
-    var imitId = defined.imitId().equals(ImitationId.NONE) ? imported.imitId() : defined.imitId();
-    var imitNodeId = defined.imitNodeId().equals(BhNodeId.NONE)
-        ? imported.imitNodeId() : defined.imitNodeId();
-    var imitCnctPosId = defined.imitCnctPosId().equals(ImitCnctPosId.NONE)
-        ? imported.imitCnctPosId() : defined.imitCnctPosId();
+    var derivationId = defined.derivationId().equals(DerivationId.NONE)
+        ? imported.derivationId() : defined.derivationId();
+    var derivativeId = defined.derivativeId().equals(BhNodeId.NONE)
+        ? imported.derivativeId() : defined.derivativeId();
+    var derivativeJoint = defined.derivativeJoint().equals(DerivativeJointId.NONE)
+        ? imported.derivativeJoint() : defined.derivativeJoint();
     boolean fixed = false;
     if (defined.fixed() != null) {
       fixed = defined.fixed();
@@ -146,9 +147,9 @@ public class ConnectorConstructor {
         name,
         ConnectorParamSetId.NONE,
         defaultNodeId,
-        imitId,
-        imitNodeId,
-        imitCnctPosId,
+        derivationId,
+        derivativeId,
+        derivativeJoint,
         fixed,
         ConnectorParamSetId.NONE,
         onConnectabilityChecking);

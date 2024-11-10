@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
  * コネクタ集合を持つグループ.
@@ -64,10 +64,10 @@ public class ConnectorSection extends Section {
 
   @Override
   public ConnectorSection copy(
-      Predicate<? super BhNode> isNodeToBeCopied, UserOperationCommand userOpeCmd) {
+      Predicate<? super BhNode> isNodeToBeCopied, UserOperation userOpe) {
     var newSection = new ConnectorSection(this);
     for (int i = 0; i < cnctrList.size(); ++i) {
-      Connector newConnector = cnctrList.get(i).copy(newSection, isNodeToBeCopied, userOpeCmd);
+      Connector newConnector = cnctrList.get(i).copy(newSection, isNodeToBeCopied, userOpe);
       newSection.cnctrList.add(newConnector);
     }
     return newSection;

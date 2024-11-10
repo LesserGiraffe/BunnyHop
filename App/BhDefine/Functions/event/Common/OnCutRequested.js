@@ -1,5 +1,5 @@
 (function() {
-  bhCommon.reconnectOuter(bhThis, bhCandidateNodeList, bhMsgService, bhNodeHandler, bhUserOpeCmd);
+  bhCommon.reconnectOuter(bhThis, bhCandidateNodeList, bhMsgService, bhNodeHandler, bhUserOpe);
 
   let parent = bhThis.findParentNode();
   if (parent === null)

@@ -63,7 +63,7 @@ import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
 import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 
 /**
@@ -173,9 +173,9 @@ public class MenuOperationController {
       if (currentWs == null) {
         return;
       }
-      UserOperationCommand userOpeCmd = new UserOperationCommand();
-      wss.addNodesToCopyList(currentWs.getSelectedNodeList(), userOpeCmd);
-      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+      UserOperation userOpe = new UserOperation();
+      wss.addNodesToCopyList(currentWs.getSelectedNodeList(), userOpe);
+      BunnyHop.INSTANCE.pushUserOperation(userOpe);
     } finally {
       ModelExclusiveControl.INSTANCE.unlockForModification();
     }
@@ -189,9 +189,9 @@ public class MenuOperationController {
       if (currentWs == null) {
         return;
       }
-      UserOperationCommand userOpeCmd = new UserOperationCommand();
-      wss.addNodesToCutList(currentWs.getSelectedNodeList(), userOpeCmd);
-      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+      UserOperation userOpe = new UserOperation();
+      wss.addNodesToCutList(currentWs.getSelectedNodeList(), userOpe);
+      BunnyHop.INSTANCE.pushUserOperation(userOpe);
     } finally {
       ModelExclusiveControl.INSTANCE.unlockForModification();
     }
@@ -224,24 +224,24 @@ public class MenuOperationController {
       if (currentWs == null) {
         return;
       }
-      UserOperationCommand userOpeCmd = new UserOperationCommand();
+      UserOperation userOpe = new UserOperation();
       var candidates = currentWs.getSelectedNodeList();
       var nodesToDelete = candidates.stream()
           .filter(node -> node.getEventAgent().execOnDeletionRequested(
-              candidates, CauseOfDeletion.SELECTED_FOR_DELETION, userOpeCmd))
+              candidates, CauseOfDeletion.SELECTED_FOR_DELETION, userOpe))
           .collect(Collectors.toCollection(ArrayList::new));
       List<Swapped> swappedNodes =
-          BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpeCmd);
+          BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpe);
       for (var swapped : swappedNodes) {
         swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
             swapped.oldNode(),
             swapped.newNode(),
             swapped.newNode().getParentConnector(),
-            userOpeCmd);
+            userOpe);
       }
-      SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpeCmd);
-      SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpeCmd);
-      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+      SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpe);
+      SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpe);
+      BunnyHop.INSTANCE.pushUserOperation(userOpe);
     } finally {
       ModelExclusiveControl.INSTANCE.unlockForModification();
     }
@@ -253,10 +253,10 @@ public class MenuOperationController {
     try {
       findNodeToJumpTo(wss).ifPresent(node -> {
         MsgService.INSTANCE.lookAt(node);
-        UserOperationCommand userOpeCmd = new UserOperationCommand();
-        node.getWorkspace().clearSelectedNodeList(userOpeCmd);
-        node.getWorkspace().addSelectedNode(node, userOpeCmd);
-        BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+        UserOperation userOpe = new UserOperation();
+        node.getWorkspace().clearSelectedNodeList(userOpe);
+        node.getWorkspace().addSelectedNode(node, userOpe);
+        BunnyHop.INSTANCE.pushUserOperation(userOpe);
       });
     } finally {
       ModelExclusiveControl.INSTANCE.unlockForModification();
@@ -341,13 +341,13 @@ public class MenuOperationController {
       dialog.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
       Optional<String> inputText = dialog.showAndWait();
       inputText.ifPresent(wsName -> {
-        UserOperationCommand userOpeCmd = new UserOperationCommand();
+        UserOperation userOpe = new UserOperation();
         BunnyHop.INSTANCE.addNewWorkSpace(
             wsName,
             BhConstants.LnF.DEFAULT_WORKSPACE_WIDTH,
             BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT,
-            userOpeCmd);
-        BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+            userOpe);
+        BunnyHop.INSTANCE.pushUserOperation(userOpe);
       });
     } finally {
       ModelExclusiveControl.INSTANCE.unlockForModification();
@@ -364,9 +364,9 @@ public class MenuOperationController {
         return;
       }
       BhNodeSelectionService.INSTANCE.hideAll();
-      var userOpeCmd = new UserOperationCommand();
-      snapshotAndNodeToExecOpt = CompileNodeCollector.collect(wss, userOpeCmd);
-      BunnyHop.INSTANCE.pushUserOpeCmd(userOpeCmd);
+      var userOpe = new UserOperation();
+      snapshotAndNodeToExecOpt = CompileNodeCollector.collect(wss, userOpe);
+      BunnyHop.INSTANCE.pushUserOperation(userOpe);
     } finally {
       ModelExclusiveControl.INSTANCE.unlockForRead();
     }

@@ -34,8 +34,8 @@ import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.undo.UserOpeCmdManager;
-import net.seapanda.bunnyhop.undo.UserOperationCommand;
+import net.seapanda.bunnyhop.undo.UndoRedoAgent;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
@@ -54,7 +54,7 @@ public class WorkspaceSetController implements MsgProcessor {
   @FXML private TextArea mainMsgArea;
   @FXML private ImageView openedTrashboxIv;
   @FXML private ImageView closedTrashboxIv;
-  private final UserOpeCmdManager userOpeCmdManager = new UserOpeCmdManager();
+  private final UndoRedoAgent undoRedoAgent = new UndoRedoAgent();
 
   /**
    * モデルとイベントハンドラをセットする.
@@ -181,11 +181,11 @@ public class WorkspaceSetController implements MsgProcessor {
   public MsgData processMsg(BhMsg msg, MsgData data) {
     switch (msg) {
       case ADD_WORKSPACE:
-        addWorkspace(data.workspace, data.workspaceView, data.userOpeCmd);
+        addWorkspace(data.workspace, data.workspaceView, data.userOpe);
         break;
 
       case DELETE_WORKSPACE:
-        deleteWorkspace(data.workspace, data.workspaceView, data.userOpeCmd);
+        deleteWorkspace(data.workspace, data.workspaceView, data.userOpe);
         break;
 
       case ADD_NODE_SELECTION_PANEL:
@@ -203,26 +203,26 @@ public class WorkspaceSetController implements MsgProcessor {
         break;
 
       case UNDO:
-        userOpeCmdManager.undo();
+        undoRedoAgent.undo();
         BunnyHop.INSTANCE.shouldSave(true);
         break;
 
       case REDO:
-        userOpeCmdManager.redo();
+        undoRedoAgent.redo();
         BunnyHop.INSTANCE.shouldSave(true);
         break;
 
       case DELETE_USER_OPE_CMD:
-        userOpeCmdManager.delete();
+        undoRedoAgent.delete();
         break;
 
       case PUSH_USER_OPE_CMD:
-        pushUserOpeCmd(data.userOpeCmd);
+        pushUserOperation(data.userOpe);
         break;
 
       case REMOVE_NODE_TO_PASTE:
-        model.removeNodeFromCopyList(data.node, data.userOpeCmd);
-        model.removeNodeFromCutList(data.node, data.userOpeCmd);
+        model.removeNodeFromCopyList(data.node, data.userOpe);
+        model.removeNodeFromCutList(data.node, data.userOpe);
         break;
 
       default:
@@ -237,16 +237,16 @@ public class WorkspaceSetController implements MsgProcessor {
    *
    * @param workspace 追加するワークスペース
    * @param workspaceView workspace に対応するビュー
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
   private void addWorkspace(
-      Workspace workspace, WorkspaceView workspaceView, UserOperationCommand userOpeCmd) {
+      Workspace workspace, WorkspaceView workspaceView, UserOperation userOpe) {
     model.addWorkspace(workspace);
     workspaceSetTab.getTabs().add(workspaceView);
     workspaceSetTab.getSelectionModel().select(workspaceView);
     // ここで REORDER にしないと, undo でタブを戻した時, タブドラッグ時に例外が発生する
     workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
-    userOpeCmd.pushCmdOfAddWorkspace(workspace, workspaceView, model);
+    userOpe.pushCmdOfAddWorkspace(workspace, workspaceView, model);
   }
 
   /**
@@ -254,15 +254,15 @@ public class WorkspaceSetController implements MsgProcessor {
    *
    * @param workspace 削除するワークスペース
    * @param workspaceView workspace に対応するビュー
-   * @param userOpeCmd undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
   private void deleteWorkspace(
-      Workspace workspace, WorkspaceView workspaceView, UserOperationCommand userOpeCmd) {
+      Workspace workspace, WorkspaceView workspaceView, UserOperation userOpe) {
     model.removeWorkspace(workspace);
     workspaceSetTab.getTabs().remove(workspaceView);
     // ここで REORDER にしないと, タブを消した後でタブドラッグすると例外が発生する
     workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
-    userOpeCmd.pushCmdOfDeleteWorkspace(workspace, workspaceView, model);
+    userOpe.pushCmdOfDeleteWorkspace(workspace, workspaceView, model);
   }
 
   /**
@@ -289,9 +289,9 @@ public class WorkspaceSetController implements MsgProcessor {
   }
 
   /** 引数で指定した undo 用コマンドオブジェクトを undo スタックに追加する. */
-  private void pushUserOpeCmd(UserOperationCommand userOpeCmd) {
-    if (userOpeCmd.getNumSubOpe() > 0) {
-      userOpeCmdManager.pushUndoCommand(userOpeCmd);
+  private void pushUserOperation(UserOperation userOpe) {
+    if (userOpe.getNumSubOpe() > 0) {
+      undoRedoAgent.pushUndoCommand(userOpe);
       BunnyHop.INSTANCE.shouldSave(true);
     }
   }
