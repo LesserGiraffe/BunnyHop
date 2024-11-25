@@ -25,7 +25,7 @@
         type="text"
         bhNodeID="idColorArrayGetExp.node2"
         name="NilColor"
-        initString="_nilColor"
+        initialText="_nilColor"
         version="bh-1.0"/>
     </Connector>
 

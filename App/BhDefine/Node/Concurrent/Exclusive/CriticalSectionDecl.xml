@@ -16,9 +16,9 @@
 
     <Connector
       bhConnectorID="idCriticalSectionDecl.cnctr0"
-      import="idVarNameCnctr"
+      import="idIdentifierNameCnctr"
       name="CriticalSectionName"
-      derivationID="dervIdVarName"
+      derivationID="dervIdIdentifierName"
       derivativeJoint="dervJointVarName"/>
 
     <Connector

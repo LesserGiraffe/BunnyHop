@@ -27,14 +27,14 @@ import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.section.Subsection;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 
 /**
  * シンボル名 or ノードIDと一致する識別子を持つコールバック関数を呼び出す.
  *
  * @author K.Koike
  */
-public class CallbackInvoker implements BhModelProcessor {
+public class CallbackInvoker implements BhNodeWalker {
 
   private final CallbackRegistry callbackRegistry;
 

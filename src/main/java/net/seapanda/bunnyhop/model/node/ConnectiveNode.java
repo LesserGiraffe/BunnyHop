@@ -19,18 +19,19 @@ package net.seapanda.bunnyhop.model.node;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
+import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.model.node.section.Section;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
-import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.modelprocessor.BhNodeWalker;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.Util;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
@@ -40,7 +41,6 @@ import net.seapanda.bunnyhop.undo.UserOperation;
  */
 public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   private Section childSection;
 
   /**
@@ -81,16 +81,16 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
   }
 
   @Override
-  public void accept(BhModelProcessor processor) {
+  public void accept(BhNodeWalker processor) {
     processor.visit(this);
   }
 
   /**
-   * BhModelProcessor を子Section に渡す.
+   * {@link BhNodeWalker} を子 {@link Section} に渡す.
    *
-   * @param processor 子Section に渡す BhModelProcessor
+   * @param processor 子 Section に渡す BhNodeWalker
    */
-  public void sendToSections(BhModelProcessor processor) {
+  public void sendToSections(BhNodeWalker processor) {
     childSection.accept(processor);
   }
 
@@ -107,6 +107,17 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
       return this;
     }
     return null;
+  }
+
+  /**
+   * このノードの下にある {@code id} で指定したコネクタ ID 持つコネクタを取得する.
+   * 子ノード以下は探さない.
+   *
+   * @param id 探すコネクタの ID
+   * @return {@code id} に一致するコネクタ ID を持つコネクタ.
+   */
+  public Connector findConnector(ConnectorId id) {
+    return childSection.findConnector(id);
   }
 
   @Override
@@ -130,11 +141,9 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
   }
 
   @Override
-  public ConnectiveNode createDerivative(
-      DerivationId derivationId, UserOperation userOpe) {
+  public ConnectiveNode createDerivative(DerivationId derivationId, UserOperation userOpe) {
     // 派生ノード作成
-    BhNode derivative =
-        BhNodeTemplates.INSTANCE.genBhNode(getDerivativeIdOf(derivationId), userOpe);
+    BhNode derivative = BhNodeFactory.INSTANCE.create(getDerivativeIdOf(derivationId), userOpe);
     if (derivative instanceof ConnectiveNode node) {
       // オリジナルと派生ノードの関連付け
       addDerivative(node, userOpe);
@@ -150,23 +159,18 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
 
   @Override
   public void show(int depth) {
-    String parentHashCode = "null";
-    if (parentConnector != null) {
-      parentHashCode = parentConnector.hashCode() + "";
-    }
-    String lastReplacedHash = "";
-    if (getLastReplaced() != null) {
-      lastReplacedHash =  getLastReplaced().hashCode() + "";
-    }
-    MsgPrinter.INSTANCE.msgForDebug(
-        indent(depth) + "<ConnectiveNode" + "  bhID=" + getId() 
-        + "  parent=" + parentHashCode + "  > " + this.hashCode());
-    MsgPrinter.INSTANCE.msgForDebug(
-        indent(depth + 1) + "<" + "last replaced " + lastReplacedHash + "> ");
-    MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<derivation>");
-    getDerivatives().forEach(derv -> 
-        MsgPrinter.INSTANCE.msgForDebug(indent(depth + 2) + "derivative " + derv.hashCode())
-    );
+    var parentinstId =
+        (parentConnector != null) ? parentConnector.getInstanceId() : InstanceId.NONE;
+    var lastReplacedInstId =
+        (getLastReplaced() != null) ? getLastReplaced().getInstanceId() : InstanceId.NONE;
+
+    MsgPrinter.INSTANCE.println("%s<ConnectiveNode  bhID=%s  parent=%s>  %s"
+        .formatted(indent(depth), getId(), parentinstId, getInstanceId()));
+    MsgPrinter.INSTANCE.println("%s<last replaced>  %s"
+        .formatted(indent(depth + 1), lastReplacedInstId));
+    MsgPrinter.INSTANCE.println(indent(depth + 1) + "<derivation>");
+    getDerivatives().forEach(derv -> MsgPrinter.INSTANCE.println(
+        "%s<derivative>  %s".formatted(indent(depth + 2), derv.getInstanceId())));
     childSection.show(depth + 1);
   }
 }

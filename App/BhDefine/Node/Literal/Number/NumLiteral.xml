@@ -19,7 +19,7 @@
         nodeStyleID="NumLiteral.json"
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckNumFormat.js"
-        initString="0"
+        initialText="0"
         version="bh-1.0"/>
     </Connector>
 

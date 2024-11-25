@@ -13,9 +13,9 @@
     <ConnectorSection name="FuncNameSctn">
       <Connector
         bhConnectorID="idVoidFuncDef.cnctr0"
-        import="idFuncNameCnctr"
+        import="idIdentifierNameCnctr"
         name="FuncName"
-        derivationID="dervIdFuncName"
+        derivationID="dervIdIdentifierName"
         derivativeJoint="dervJointFuncName"/>
     </ConnectorSection>
     

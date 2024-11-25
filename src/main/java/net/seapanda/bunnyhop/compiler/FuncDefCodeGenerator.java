@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.compiler;
 
 import java.util.Collection;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 
 /**
  * 関数定義のコード生成を行うクラス.

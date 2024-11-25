@@ -21,7 +21,6 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
-import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
  * 派生ノードおよびオリジナルノードのインタフェース.
@@ -54,16 +53,6 @@ public abstract class Derivative extends BhNode {
   public abstract boolean hasDerivativeOf(DerivationId derivationId);
 
   /**
-   * {@code toReplace} と入れ替える既存の派生ノードを探す. 見つからない場合は, 新規作成する.
-   *
-   * @param toReplace このノードと入れ替えるためのノードを探す.
-   * @param userOpe undo 用コマンドオブジェクト
-   * @return {@code toReplace} と入れ替えるための派生ノード
-   */
-  public abstract Derivative findOrCreateDerivative(
-      BhNode toReplace, UserOperation userOpe);
-
-  /**
    * {@code derivationId} で指定した派生先 ID に対応する派生ノード ID を返す.
    *
    * @param derivationId この派生先 ID に対応する派生ノード ID を返す
@@ -74,7 +63,7 @@ public abstract class Derivative extends BhNode {
   /**
    * このノードが持つ派生ノードリストを取得する.
    *
-   * @return 派生ノードリスト
+   * @return 派生ノードリスト. 派生ノードが存在し場合は空のコレクション
    */
   public abstract Collection<? extends Derivative> getDerivatives();
 }

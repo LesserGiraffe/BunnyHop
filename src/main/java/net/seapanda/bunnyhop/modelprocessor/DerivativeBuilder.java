@@ -30,27 +30,13 @@ import net.seapanda.bunnyhop.undo.UserOperation;
  *
  * @author K.Koike
  */
-public class DerivativeBuilder implements BhModelProcessor {
+public class DerivativeBuilder implements BhNodeWalker {
 
   /** 現在処理中の {@link BhNode} の親がトップにくるスタック. */
   private final Deque<Derivative> parentStack = new LinkedList<>();
   /** undo 用コマンドオブジェクト. */
   UserOperation userOpe;
   private DerivationId derivationId = DerivationId.NONE;
-
-  /**
-   * {@code node} の先祖のコネクタに定義された派生先 ID を元に派生ノードを作成する.
-   *
-   * @param node このノードの派生ノードを作成する
-   * @param userOpe undo 用コマンドオブジェクト
-   * @return 作成した派生ノードツリーのトップノード
-   * */
-  public static Derivative buildFromAncestor(
-      Derivative node, UserOperation userOpe) {
-    var builder = new DerivativeBuilder(DerivationId.NONE, userOpe);
-    node.accept(builder);
-    return builder.parentStack.peekLast();
-  }
 
   /**
    * {@code node} の {@code derivationId} に対応する派生ノードを作成する.
@@ -81,8 +67,8 @@ public class DerivativeBuilder implements BhModelProcessor {
     if (!derivationId.equals(DerivationId.NONE)) {
       dervId = derivationId;
       derivationId = DerivationId.NONE;
-    } else if (node.getParentConnector() != null) {
-      dervId = node.getParentConnector().findDerivationId();
+    } else {
+      dervId = node.findDerivationIdUp();
     }
 
     if (!node.hasDerivativeOf(dervId)) {
@@ -113,8 +99,8 @@ public class DerivativeBuilder implements BhModelProcessor {
     if (!derivationId.equals(DerivationId.NONE)) {
       dervId = derivationId;
       derivationId = DerivationId.NONE;
-    } else if (node.getParentConnector() != null) {
-      dervId = node.getParentConnector().findDerivationId();
+    } else {
+      dervId = node.findDerivationIdUp();
     }
 
     if (!node.hasDerivativeOf(dervId)) {

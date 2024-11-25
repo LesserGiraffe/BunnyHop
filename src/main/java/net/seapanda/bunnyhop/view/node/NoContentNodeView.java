@@ -19,8 +19,8 @@ package net.seapanda.bunnyhop.view.node;
 import java.util.Optional;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
@@ -42,19 +42,8 @@ public class NoContentNodeView extends BhNodeView {
       throws ViewInitializationException {
     super(viewStyle, model);
     this.model = model;
-    setInitText();
     getLookManager().addCssClass(BhConstants.Css.CLASS_NO_CONTENT_NODE);
     setMouseTransparent(true);
-  }
-
-  private void setInitText() {
-    if (model == null) {
-      return;
-    }
-    model.getOptions().stream()
-        .map(item -> item.v1)
-        .reduce((v0, v1) -> v0 + v1)
-        .ifPresent(text -> model.setText(text));
   }
 
   /**
@@ -115,14 +104,9 @@ public class NoContentNodeView extends BhNodeView {
     visitor.visit(this);
   }
 
-  /**
-   * モデルの構造を表示する.
-   *
-   * @param depth 表示インデント数
-   */
   @Override
   public void show(int depth) {
-    MsgPrinter.INSTANCE.msgForDebug(
-        indent(depth) + "<NoContentNodeView" + ">   " + this.hashCode());
+    MsgPrinter.INSTANCE.println(
+        "%s<NoContentNodeView>  %s".formatted(indent(depth), hashCode()));
   }
 }

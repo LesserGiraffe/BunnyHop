@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.model.node.attribute;
 
 import java.io.Serializable;
 import java.util.Objects;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
  * BhNode の ID.
@@ -27,7 +26,6 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
  */
 public class BhNodeId implements Serializable {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** BhNode の ID が存在しないことを表すオブジェクト. */
   public static final BhNodeId NONE = new BhNodeId("");
   private final String id;
@@ -39,6 +37,11 @@ public class BhNodeId implements Serializable {
    */
   private BhNodeId(String id) {
     this.id = id;
+  }
+
+  /** デフォルトコンストラクタ. (デシリアライズ用) */
+  public BhNodeId() {
+    this.id = NONE.id;
   }
 
   /**

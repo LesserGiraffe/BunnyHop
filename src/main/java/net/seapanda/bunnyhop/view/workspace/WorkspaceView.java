@@ -44,20 +44,21 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
-import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.configfilereader.FxmlCollector;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
 import net.seapanda.bunnyhop.root.BunnyHop;
+import net.seapanda.bunnyhop.service.FxmlCollector;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeView.ViewRegionManager.Rectangles;
 import net.seapanda.bunnyhop.viewprocessor.CallbackInvoker;
 
 /**
@@ -89,9 +90,17 @@ public class WorkspaceView extends Tab {
   /** ワークスペースの大きさの段階. */
   int workspaceSizeLevel = 0;
 
-  /** コンストラクタ. */
-  public WorkspaceView(Workspace workspace) {
+  /**
+   * コンストラクタ.
+   *
+   * @param workspace 管理するモデル.
+   * @param width ワークスペースの初期幅
+   * @param height ワークスペースの初期高さ
+   */
+  public WorkspaceView(Workspace workspace, double width, double height)
+      throws ViewInitializationException {
     this.workspace = workspace;
+    init(width, height);
   }
 
   /**
@@ -101,7 +110,7 @@ public class WorkspaceView extends Tab {
    * @param height ワークスペースの初期高さ
    * @return 初期化に成功した場合 true
    */
-  public boolean init(double width, double height) {
+  private void init(double width, double height) throws ViewInitializationException {
     try {
       Path filePath = FxmlCollector.INSTANCE.getFilePath(BhConstants.Path.WORKSPACE_FXML);
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
@@ -109,9 +118,8 @@ public class WorkspaceView extends Tab {
       loader.setRoot(this);
       loader.load();
     } catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          "failed to initizlize " + getClass().getSimpleName() + "\n" + e);
-      return false;
+      throw new ViewInitializationException(
+        "Failed to initizlize %s.\n%s".formatted(getClass().getSimpleName(), e));
     }
     setErrInfoPaneListener();
     minPaneSize.x = width;
@@ -130,7 +138,6 @@ public class WorkspaceView extends Tab {
     drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
     setEventHandlers();
     setText(workspace.getName());
-    return true;
   }
 
   private void setEventHandlers() {
@@ -158,7 +165,7 @@ public class WorkspaceView extends Tab {
         Alert.AlertType.CONFIRMATION,
         "ワークスペースの削除",
         null,
-        "「" + this.getText() + "」 を削除します.");
+        "「%s」を削除します".formatted(getText()));
 
     // このイベントハンドラを抜けるとき, TabDragPolicy.FIXED にしないと
     // タブ消しをキャンセルした後, そのタブが使えなくなる.
@@ -234,14 +241,18 @@ public class WorkspaceView extends Tab {
    * 4 分木空間に矩形を登録する.
    *
    * @param nodeView 登録する矩形を持つBhNodeViewオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void addRectangleToQtSpace(BhNodeView nodeView) {
+  public void addRectangleToQtSpace(BhNodeView nodeView, UserOperation userOpe) {
     CallbackInvoker.invoke(
         view -> {
-          Pair<QuadTreeRectangle, QuadTreeRectangle> bodyAndCnctr =
-              view.getRegionManager().getRegions();
-          quadTreeMngForBody.addQuadTreeObj(bodyAndCnctr.v1);
-          quadTreeMngForConnector.addQuadTreeObj(bodyAndCnctr.v2);
+          Rectangles rects = view.getRegionManager().getRegions();
+          final QuadTreeManager oldBodyManager = rects.body().getCurrenManager();
+          final QuadTreeManager oldCnctrManager = rects.cnctr().getCurrenManager();
+          quadTreeMngForBody.addQuadTreeObj(rects.body());
+          quadTreeMngForConnector.addQuadTreeObj(rects.cnctr());
+          userOpe.pushCmdOfSetQtRectangle(rects.body(), oldBodyManager, quadTreeMngForBody);
+          userOpe.pushCmdOfSetQtRectangle(rects.cnctr(), oldCnctrManager, quadTreeMngForConnector);
         },
         nodeView,
         false);

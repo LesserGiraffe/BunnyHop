@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.model.node.attribute;
 
 import java.io.Serializable;
 import java.util.Objects;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
  * セクション ID.
@@ -27,7 +26,6 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
  */
 public class SectionId implements Serializable {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** コネクタ ID が存在しないことを表すオブジェクト. */
   public static final SectionId NONE = new SectionId("");
   private final String id;

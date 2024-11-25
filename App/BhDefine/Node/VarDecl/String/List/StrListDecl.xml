@@ -10,7 +10,7 @@
   onCopyRequested="OnCopyRequested.js"
   version="bh-1.0">
 
-  <Derivation derivationID="dervIdList" derivativeID="idStrList"/>
+  <Derivation derivationID="dervIdIdentifierName" derivativeID="idStrList"/>
   <Derivation derivationID="dervIdVarDeclToArg" derivativeID="idStrListArg"/>
   <Derivation derivationID="dervIdVarDeclToOutArg" derivativeID="idStrListArg"/>
 
@@ -18,9 +18,9 @@
 
     <Connector
       bhConnectorID="idStrListDecl.cnctr0"
-      import="idListNameCnctr"
+      import="idIdentifierNameCnctr"
       name="ListName"
-      derivationID="dervIdListName"
+      derivationID="dervIdIdentifierName"
       derivativeJoint="dervJointListName"/>
     
     <Connector

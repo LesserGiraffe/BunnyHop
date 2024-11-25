@@ -44,8 +44,6 @@ import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.constant.BhSettings;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.CompileNodeCollector;
 import net.seapanda.bunnyhop.compiler.CompileOption;
@@ -59,10 +57,11 @@ import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
-import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
-import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
+import net.seapanda.bunnyhop.service.BhNodeHandler;
+import net.seapanda.bunnyhop.service.ModelExclusiveControl;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 
@@ -506,8 +505,7 @@ public class MenuOperationController {
     try {
       return future.get();
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.msgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + taskName + "  " + e);
+      MsgPrinter.INSTANCE.println("%s\n%s".formatted(taskName, e));
     }
     return null;
   }
@@ -535,7 +533,7 @@ public class MenuOperationController {
         break;
 
       default:
-        throw new AssertionError("invalid status code" + status);
+        throw new AssertionError("Invalid status code" + status);
     }
   }
 
@@ -623,7 +621,7 @@ public class MenuOperationController {
         break;
 
       default:
-        throw new AssertionError("invalid menu operation " + op);
+        throw new AssertionError("Invalid menu operation " + op);
     }
   }
 

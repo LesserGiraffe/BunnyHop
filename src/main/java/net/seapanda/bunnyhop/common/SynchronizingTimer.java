@@ -46,7 +46,7 @@ public final class SynchronizingTimer {
    */
   public SynchronizingTimer(int count, boolean autoReset) {
     if (count < 0 || count > 65535) {
-      throw new IllegalArgumentException("The 'count' must be 0 - 65535.  (" + count + ")");
+      throw new IllegalArgumentException("The 'count' must be 0 - 65535.  (%s)".formatted(count));
     }
     resetVal = count;
     this.autoReset = autoReset;
@@ -202,7 +202,7 @@ public final class SynchronizingTimer {
    */
   public synchronized void reset(int count) {
     if (count < 0 || count > 65535) {
-      throw new IllegalArgumentException("The 'count' must be 0 - 65535.  (" + count + ")");
+      throw new IllegalArgumentException("The 'count' must be 0 - 65535.  (%s)".formatted(count));
     }
     resetVal = count;
     int currentCount = phaser.getRegisteredParties();

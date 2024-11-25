@@ -24,17 +24,21 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivativeJointId;
 import net.seapanda.bunnyhop.model.node.derivative.Derivative;
+import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker.CallbackRegistry;
+import net.seapanda.bunnyhop.service.DerivativeCache;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 /**
  * 派生ノードの入れ替えを行うクラス.
  *
  * @author K.Koike
  */
-public class DerivativeReplacer implements BhModelProcessor {
+public class DerivativeReplacer implements BhNodeWalker {
 
   /** undo 用コマンドオブジェクト. */
   UserOperation userOpe;
@@ -44,29 +48,28 @@ public class DerivativeReplacer implements BhModelProcessor {
   private List<Swapped> swappedNodes = new ArrayList<>();
 
   /**
-   * <pre> 
-   * {@code orgOfNewDervs} の親ノードの派生ノードを A(0) ~ A(n-1) とする.
-   * {@code orgOfOldDervs} の派生ノードを B(0) ~ B(m-1) とする.
-   * 以下の条件 1 ~ 4 (5 は不問) を満たすとき, A(x) (x = 0 ~ n-1) の s につながる子ノードを r と入れ替える.
-   *
-   * 条件
-   *   1. {@code orgOfNewDervs} の親コネクタに, 派生先 ID (p) が定義されている.
-   *   2. p に対応する派生ノード r を {@code orgOfNewDervs} が持っている.
-   *   3. {@code orgOfNewDervs} の先祖コネクタに, 派生ノード接続先 ID (q) が定義されている.
-   *   4. A(x) が q が定義されたコネクタ (s) を持つ
-   *   5. s に B(y) (y = 0 ~ m-1) が接続されている.
+   * <pre>
+   * {@code orgOfOldDervs} の派生ノード一式を E とする
+   * {@code orgOfNewDervs} の先祖コネクタが持つ派生先 ID を p とする
+   * {@code orgOfNewDervs} の p に対応する派生ノードを q とする
+   * {@code orgOfNewDervs} の親コネクタが持つ, 派生ノード接続先 ID を r とする.
+   * {@code orgOfNewDervs} の親ノードが持つ m 個の派生ノードを D(0) ~ D(m-1) とする
+   * D(i) の子コネクタの中で r が指定してあるものがあれば, それを D_r(i) とする.  (i = 0, 1, 2, ..., m - 1)
+   * D_r(i) の子ノードを C_r(i) とする.
+   * 
+   * C_r(i) の子ノードを q と入れ替える. (q は入れ替える個数分作成する)
+   * q が存在しない場合, C_r(i) ∈ E であったなら, その C_r(i) を取り除く.
    * </pre>
-   * 条件 3 ~ 5 だけを満たすとき B(y) を取り除く.
    *
    * @param orgOfNewDervs このノードの派生ノードで {@code orgOfOldDervs} の派生ノードを置き換える.
-   * @param orgOfOldDervs このノードの派生ノードを入れ替える.
+   * @param orgOfOldDervs このノードの派生ノードを取り除くまたは入れ替える.
    * @param userOpe undo 用コマンドオブジェクト
    */
   public static List<Swapped> replace(
       BhNode orgOfNewDervs, BhNode orgOfOldDervs, UserOperation userOpe) {
-    var replaced = new DerivativeReplacer(orgOfOldDervs, userOpe);
-    orgOfNewDervs.accept(replaced);
-    return replaced.swappedNodes;
+    var replacer = new DerivativeReplacer(orgOfOldDervs, userOpe);
+    orgOfNewDervs.accept(replacer);
+    return replacer.swappedNodes;
   }
 
   /**
@@ -75,34 +78,30 @@ public class DerivativeReplacer implements BhModelProcessor {
    * @param orgOfOldDervs このノードの派生ノードを入れ替える.
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public DerivativeReplacer(BhNode orgOfOldDervs, UserOperation userOpe) {
+  private DerivativeReplacer(BhNode orgOfOldDervs, UserOperation userOpe) {
     this.userOpe = userOpe;
     this.orgOfOldDervs = orgOfOldDervs;
   }
 
-  /** {@code orgOfNewDervs} の派生ノードを作成して, {@code orgOfNewDervs} の親ノードの派生ノードの子ノードと入れ替えを行う. */
   @Override
   public void visit(ConnectiveNode orgOfNewDervs) {
-    DerivationId derivationId = orgOfNewDervs.getParentConnector().findDerivationId();
+    DerivationId derivationId = orgOfNewDervs.findDerivationIdUp();
     DerivativeJointId joint = orgOfNewDervs.getParentConnector().getDerivativeJoint();
     // orgOfNewDervs に対応する派生ノードがある場合
     if (orgOfNewDervs.hasDerivativeOf(derivationId)) {
-      // orgOfNewDervs の親ノードが持つ派生ノードを A(0) ~ A(n-1) としたとき, 
-      // 新たに n 個の orgOfNewDervs の派生ノードを作成して, A(0) ~ A(n-1) の子ノードと入れ替える.
-      replaceConnectiveChildren(
+      replaceChildren(
           orgOfNewDervs.findParentNode().getDerivatives(), orgOfNewDervs, joint);
     } else {
-      // orgOfNewDervs の親ノードが持つ派生ノードを A(0) ~ A(n-1) としたとき, A(0) ~ A(n-1) の子ノードを取り除く.
       removeConnectiveChildren(orgOfNewDervs.findParentNode().getDerivatives(), joint);
     }
   }
 
   @Override
   public void visit(TextNode orgOfNewDervs) {
-    DerivationId derivationId = orgOfNewDervs.getParentConnector().findDerivationId();
+    DerivationId derivationId = orgOfNewDervs.findDerivationIdUp();
     DerivativeJointId joint = orgOfNewDervs.getParentConnector().getDerivativeJoint();
     if (orgOfNewDervs.hasDerivativeOf(derivationId)) {
-      replaceConnectiveChildren(
+      replaceChildren(
           orgOfNewDervs.findParentNode().getDerivatives(), orgOfNewDervs, joint);
     } else {
       removeConnectiveChildren(orgOfNewDervs.findParentNode().getDerivatives(), joint);
@@ -110,7 +109,7 @@ public class DerivativeReplacer implements BhModelProcessor {
   }
 
   /**
-   * {@code parent} が持つコネクタの派生ノード接続位置が {@code jointId} と一致した場合そのノードを返す.
+   * {@code parent} が持つコネクタの派生ノード接続位置が {@code joint} と一致した場合そのノードを返す.
    *
    * @param parent 入れ替えもしくは削除の対象になる子派生ノードを持っているか探すノード
    * @param joint この ID を指定されたコネクタが {@code parent} の下にあった場合, そのコネクタに接続されたノードを返す
@@ -129,18 +128,19 @@ public class DerivativeReplacer implements BhModelProcessor {
   }
 
   /**
-   * {@code parents} の子ノードを {@code original} の派生ノードと入れ替える.
+   * {@code parents} の子コネクタに {@code joint} が指定しれあるものがあれば, そのコネクタの子ノードを
+   * {@code original} の派生ノードと入れ替える.
    *
-   * @param parents 子ノードを入れ替える親ノードのリスト
+   * @param parents このノードの子ノードから入れ替え対象を探す
    * @param original このノードの派生ノードで {@code parents} の子ノードを置き換える
-   * @param joint {@code parents} の各ノードが持つコネクタに {@code jointId} が指定されていた場合,
+   * @param joint {@code parents} の各ノードが持つコネクタに {@code joint} が指定されていた場合,
    *                   そこに繋がる子ノードを入れ替えの対象とする.
    */
-  private void replaceConnectiveChildren(
+  private void replaceChildren(
       Collection<ConnectiveNode> parents, Derivative original, DerivativeJointId joint) {
     for (ConnectiveNode parent : parents) {
       findNodeToReplace(parent, joint).ifPresent(
-          toBeReplaced -> replaceConnectiveChildren(toBeReplaced, original));
+          toBeReplaced -> replaceChild(toBeReplaced, original));
     }
   }
 
@@ -150,13 +150,90 @@ public class DerivativeReplacer implements BhModelProcessor {
    * @param toBeReplaced 入れ替えられるノード
    * @param original このノードの派生ノードで {@code toBeReplaced} を置き換える
    */
-  private void replaceConnectiveChildren(BhNode toBeReplaced, Derivative original) { 
-    Derivative newDerv = original.findOrCreateDerivative(toBeReplaced, userOpe);
+  private void replaceChild(BhNode toBeReplaced, Derivative original) {
+    Derivative newDerv = findOrCreateDerivative(toBeReplaced, original, userOpe);
     swappedNodes.addAll(toBeReplaced.replace(newDerv, userOpe));
   }
 
   /**
-   * {@code parents} の子のうち, {@code jointId} で指定された位置に繋がるものが
+   * 派生ノードのキャッシュ ({@link DerivativeCache}) から
+   * {@code toBeReplaced} と入れ替える {@code original} の派生ノードを探す.
+   * 見つからない場合は, 新規作成する.
+   * 
+   * <pre>
+   * {@link DerivativeCache} にある削除済みの派生ノードの中で, {@code original} の派生ノードであったものの集合を A とする.
+   * 以下の条件を満たす a (∈ A) があるとき, それを返す.
+   * 条件を満たす a が存在しないとき, {@code original} の派生ノードを新規作成する.
+   * 
+   * 1. a の {@link BhNodeId} が, {@code original} と
+   *    その先祖コネクタが持つ {@link DerivationId} で特定される {@link BhNodeId} に一致する.
+   * 2. a と最後に入れ替わったノードと {@code toBeReplaced} が直系である
+   * 3. a 以下の各ノード b に対し 4 が満たされる
+   * 4. b を最後に保持していたオリジナルノードが削除されていない
+   * </pre>
+   *
+   * @param toBeReplaced このノードと入れ替えるためのノードを探す.
+   * @param original このノードの派生ノード
+   * @param userOpe undo 用コマンドオブジェクト
+   * @return {@code toReplace} と入れ替えるための派生ノード
+   */
+  private Derivative findOrCreateDerivative(
+      BhNode toBeReplaced, Derivative original, UserOperation userOpe) {
+    DerivationId derivationId = original.findDerivationIdUp();
+    BhNodeId derivativeNodeId = original.getDerivativeIdOf(derivationId);
+    for (Derivative derivative : DerivativeCache.INSTANCE.get(original)) {
+      if (derivative.getLastOriginal() == original
+          && derivative.getId().equals(derivativeNodeId)
+          && toBeReplaced.isLinealWith(derivative.getLastReplaced())
+          && allDeleted(derivative)
+          && !anyOriginalDeleted(derivative)) {
+        DerivativeCache.INSTANCE.remove(derivative);
+        DerivativeReassigner.assign(derivative, userOpe);
+        return derivative;
+      }
+    }
+    return DerivativeBuilder.build(original, derivationId, userOpe);
+  }
+
+
+  /**
+   * {@code root} 以下のノードが全て削除済みであるかどうか調べる.
+   *
+   * @param root このノード以下のノードが全て削除済みであるかどうか調べる
+   * @retval true {@code root} 以下のノードが全て削除済みであった
+   * @retval false {@code root} 以下に削除されていないノードがあった
+   */
+  private boolean allDeleted(BhNode root) {
+    MutableBoolean allDeleted = new MutableBoolean(true);
+    CallbackRegistry registry = CallbackInvoker.newCallbackRegistry().setForAllNodes(node -> {
+      if (!node.isDeleted()) {
+        allDeleted.setFalse();
+      }
+    });
+    CallbackInvoker.invoke(registry, root);
+    return allDeleted.getValue();
+  }
+
+  /**
+   * {@code root} 以下の各ノード a に対して, a を保持していた最後のオリジナルノードが削除されているかどうか調べる.
+   *
+   * @param root このノード以下の各ノード a に対して, a を保持していた最後のオリジナルノードが削除されているかどうか調べる
+   * @retval true {@code root} 以下の各ノード a の中に, a を保持していた最後のオリジナルノードが削除さているものが有った
+   * @retval false {@code root} 以下のノード a の中に, a を保持していた最後のオリジナルノードが削除さているものは無かった
+   */
+  private boolean anyOriginalDeleted(BhNode root) {
+    MutableBoolean anyDeleted = new MutableBoolean(false);
+    CallbackRegistry registry = CallbackInvoker.newCallbackRegistry().setForAllNodes(node -> {
+      if (node.getLastOriginal() != null && node.getLastOriginal().isDeleted()) {
+        anyDeleted.setTrue();
+      }
+    });
+    CallbackInvoker.invoke(registry, root);
+    return anyDeleted.getValue();
+  }
+
+  /**
+   * {@code parents} の子のうち, {@code joint} で指定された位置に繋がるものが
    * {@link #orgOfOldDervs} の派生ノードであった場合, それを削除する.
    *
    * @param parents 子ノードを削除する {@link ConnectiveNode} のリスト
@@ -171,6 +248,38 @@ public class DerivativeReplacer implements BhModelProcessor {
           swappedNodes.addAll(toRemove.remove(userOpe));
         }
       });
+    }
+  }
+
+  /**
+   * オリジナルノードに派生ノードを割り当てるクラス.
+   */
+  private static class DerivativeReassigner implements BhNodeWalker {
+
+    private final UserOperation userOpe;
+
+    /** {@code root} 以下の派生ノードをそのノードの最後のオリジナルノードの派生ノードとする. */
+    public static void assign(BhNode root, UserOperation userOpe) {
+      root.accept(new DerivativeReassigner(userOpe));
+    }
+
+    private DerivativeReassigner(UserOperation userOpe) {
+      this.userOpe = userOpe;
+    }
+
+    @Override
+    public void visit(ConnectiveNode node) {
+      if (node.getLastOriginal() != null) {
+        node.getLastOriginal().addDerivative(node, userOpe);
+      }
+      node.sendToSections(this);
+    }
+
+    @Override
+    public void visit(TextNode node) {
+      if (node.getLastOriginal() != null) {
+        node.getLastOriginal().addDerivative(node, userOpe);
+      }
     }
   }
 }

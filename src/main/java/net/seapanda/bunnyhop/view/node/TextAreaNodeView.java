@@ -26,12 +26,11 @@ import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
-import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
@@ -59,7 +58,6 @@ public final class TextAreaNodeView  extends TextInputNodeView {
       throws ViewInitializationException {
     super(model, viewStyle);
     this.model = model;
-    setInitText();
     getTreeManager().addChild(textArea);
     textArea.addEventFilter(MouseEvent.ANY, this::propagateEvent);
     initStyle();
@@ -97,19 +95,8 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     textArea.setWrapText(false);
     textArea.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
     textArea.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
+    setEditable(viewStyle.textArea.editable);
     getLookManager().addCssClass(BhConstants.Css.CLASS_TEXT_AREA_NODE);
-  }
-
-  private void setInitText() {
-    if (model == null) {
-      return;
-    }
-    model.getOptions().stream()
-        .reduce((a, b) -> new Pair<>(a.v1 + b.v1, a.v2.toString() + b.v2.toString()))
-        .ifPresent(text -> {
-          model.setText(text.v1);
-          setText(text.v2.toString());
-        });
   }
 
   @Override
@@ -166,10 +153,10 @@ public final class TextAreaNodeView  extends TextInputNodeView {
 
   @Override
   public void show(int depth) {
-    MsgPrinter.INSTANCE.msgForDebug(
-        indent(depth) + "<" + getClass().getSimpleName() + ">   " + this.hashCode());
-    MsgPrinter.INSTANCE.msgForDebug(
-        indent(depth + 1) + "<content" + ">   " + textArea.getText());
+    MsgPrinter.INSTANCE.println(
+        "%s<TextAreaNodeView>  %s".formatted(indent(depth), hashCode()));
+    MsgPrinter.INSTANCE.println(
+        "%s<content>  %s".formatted(indent(depth + 1), textArea.getText()));
   }
 
   @Override

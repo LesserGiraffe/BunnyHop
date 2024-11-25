@@ -23,8 +23,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.Util;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 
 /**
@@ -80,7 +80,8 @@ public class LocalBhProgramManager {
     }
     if (!success) {  //リモートでのスクリプト実行失敗
       MsgPrinter.INSTANCE.errMsgForUser("!! プログラム実行準備失敗 (local) !!\n");
-      MsgPrinter.INSTANCE.errMsgForDebug("failed to run " + filePath.getFileName() + " (local)");
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          "Failed to run %s. (local)".formatted(filePath.getFileName()));
       terminate();
     } else {
       MsgPrinter.INSTANCE.msgForUser("-- プログラム実行開始 (local) --\n");
@@ -156,7 +157,7 @@ public class LocalBhProgramManager {
   /**
    * BhProgram のランタイムプロセスをスタートする.
    *
-   * @return スタートしたプロセスのオブジェクト. スタートに失敗した場合null.
+   * @return スタートしたプロセスのオブジェクト. スタートに失敗した場合 null.
    */
   private Process startRuntimeProcess() {
     // ""でパスを囲まない
@@ -172,9 +173,8 @@ public class LocalBhProgramManager {
     try {
       proc = procBuilder.start();
     } catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("startRuntimeProcess " +  e);
+      MsgPrinter.INSTANCE.errMsgForDebug("Failed to start BhRuntime\n" +  e);
     }
-
     return proc;
   }
 

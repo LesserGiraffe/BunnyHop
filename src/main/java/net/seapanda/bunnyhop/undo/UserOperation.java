@@ -23,7 +23,6 @@ import java.util.Deque;
 import java.util.LinkedList;
 import javafx.scene.Parent;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgService;
@@ -33,6 +32,9 @@ import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
+import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
@@ -74,9 +76,8 @@ public class UserOperation {
   /** for debug. */
   public void printSubOpeList() {
     for (SubOperation subope : subOpeList) {
-      MsgPrinter.INSTANCE.msgForDebug("subope  " + subope);
+      MsgPrinter.INSTANCE.println("subope  " + subope);
     }
-    MsgPrinter.INSTANCE.msgForDebug("");
   }
 
   /**
@@ -132,21 +133,13 @@ public class UserOperation {
   /**
    * 4 分木ノードの4 分木空間への登録をコマンド化してサブ操作リストに加える.
    *
-   * @param node 4 分木ノードを登録するBhNode
-   * @param ws 追加した4 分木ノードがあった4 分木空間に対応するワークスペース
+   * @param rect 4 分木空間に登録した矩形オブジェクト
+   * @param oldManager {@code node} が元々あった 4 分木空間を管理するオブジェクト
+   * @param newManager {@code node} が新しく入った 4 分木空間を管理するオブジェクト
    */
-  public void pushCmdOfaddQtRectangle(BhNode node, Workspace ws) {
-    subOpeList.addLast(new AddQtRectangleCmd(node, ws));
-  }
-
-  /**
-   * 4 分木ノードの 4 分木空間からの削除をコマンド化してサブ操作リストに加える.
-   *
-   * @param node 4 分木ノードを削除したBhNode
-   * @param ws 削除した4 分木ノードがあった4 分木空間に対応するワークスペース
-   */
-  public void pushCmdOfRemoveQtRectangle(BhNode node, Workspace ws) {
-    subOpeList.addLast(new RemoveQtRectangleCmd(node, ws));
+  public void pushCmdOfSetQtRectangle(
+      QuadTreeRectangle rect, QuadTreeManager oldManager, QuadTreeManager newManager) {
+    subOpeList.addLast(new SetQtRectangleCmd(rect, oldManager, newManager));
   }
 
   /**
@@ -420,43 +413,41 @@ public class UserOperation {
     }
   }
 
-  /** 4 分木空間への 4 分木ノード登録を表すコマンド. */
-  private static class AddQtRectangleCmd implements SubOperation {
+  /** 4 分木空間への 4 分木ノードの登録を表すコマンド. */
+  private static class SetQtRectangleCmd implements SubOperation {
 
-    /** 4 分木ノードを登録した {@link BhNode}. */
-    private final BhNode node;
-    /** 追加した4 分木ノードがあった 4 分木空間に対応するワークスペース. */
-    private final Workspace ws;
+    /** 4 分木空間に登録した矩形オブジェクト. */
+    private final QuadTreeRectangle rect;
+    /** {@code rect} が元々あった 4 分木空間を管理するオブジェクト. */
+    private final QuadTreeManager oldManager;
+    /** {@code rect} が新しく入った 4 分木空間を管理するオブジェクト. */
+    private final QuadTreeManager newManager;
 
-    public AddQtRectangleCmd(BhNode node, Workspace ws) {
-      this.node = node;
-      this.ws = ws;
+    public SetQtRectangleCmd(
+        QuadTreeRectangle rect, QuadTreeManager oldManager, QuadTreeManager newManager) {
+      this.rect = rect;
+      this.oldManager = oldManager;
+      this.newManager = newManager;
     }
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);
-      inverseCmd.pushCmdOfRemoveQtRectangle(node, ws);
-    }
-  }
-
-  /** 4 分木空間からの4 分木ノード削除を表すコマンド. */
-  private static class RemoveQtRectangleCmd implements SubOperation {
-
-    /** 4 分木ノードから削除した {@link BhNode}. */
-    private final BhNode node;
-    /** 削除した 4 分木ノードがあった 4 分木空間に対応するワークスペース. */
-    private final Workspace ws;
-
-    public RemoveQtRectangleCmd(BhNode node, Workspace ws) {
-      this.node = node;
-      this.ws = ws;
+      if (oldManager != null) {
+        addQuadTree(inverseCmd);
+      } else {
+        QuadTreeManager.removeQuadTreeObj(rect);
+      }
+      inverseCmd.pushCmdOfSetQtRectangle(rect, newManager, oldManager);
     }
 
-    @Override
-    public void doInverseOperation(UserOperation inverseCmd) {
-      MsgService.INSTANCE.addQtRectangle(node, ws, inverseCmd);
-      MsgTransporter.INSTANCE.sendMessage(BhMsg.UPDATE_ABS_POS, node);    //4 分木空間での位置確定
+    private void addQuadTree(UserOperation inverseCmd) {
+      oldManager.addQuadTreeObj(rect);
+      // 4 分木空間での位置確定
+      if (rect.getUserData() != null
+          && rect.getUserData() instanceof BhNodeView view
+          && view.getModel().isPresent()) {
+        MsgTransporter.INSTANCE.sendMessage(BhMsg.UPDATE_ABS_POS, view.getModel().get());
+      }
     }
   }
 
@@ -467,7 +458,7 @@ public class UserOperation {
     private final BhNode oldNode;
     /** 入れ替え後の新しい View に対応する {@link BhNode}. */
     private final BhNode newNode;
-    /** 入れ替え前に newNode が親GUIコンポーネントを持っていた場合 true. */
+    /** 入れ替え前に newNode が親 GUI コンポーネントを持っていた場合 true. */
     private final boolean newNodeHasParent;
 
     public ReplaceNodeViewCmd(BhNode oldNode, BhNode newNode, boolean newNodeHasParent) {

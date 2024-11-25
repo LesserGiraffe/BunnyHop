@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.model.node.attribute;
 
 import java.io.Serializable;
 import java.util.Objects;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
  * 派生先 ID (= 派生ノードを特定するための ID).
@@ -33,7 +32,6 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
  */
 public class DerivationId implements Serializable {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** 派生 ID が存在しないことを表す null オブジェクト. */
   public static final DerivationId NONE = new DerivationId("");
   private final String id;

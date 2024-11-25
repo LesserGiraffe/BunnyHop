@@ -67,8 +67,8 @@ public abstract class TextInputNodeView extends BhNodeView {
    *     formatterFunc の第1引数 -> 整形対象の全文字列
    *     formatterFunc の第2引数 -> 前回整形したテキストから新たに追加された文字列
    *     formatterFunc の戻り値
-   *     &nbsp;&nbsp; _1 -> テキスト全体を整形した場合 true. 追加分だけ整形した場合 false.
-   *     &nbsp;&nbsp; _2 -> 整形したテキスト
+   *     &nbsp;&nbsp; v1 -> テキスト全体を整形した場合 true. 追加分だけ整形した場合 false.
+   *     &nbsp;&nbsp; v2 -> 整形したテキスト
    *     </pre>
    */
   public final void setTextFormatter(

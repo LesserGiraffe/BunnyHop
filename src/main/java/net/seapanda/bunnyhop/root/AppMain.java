@@ -35,14 +35,14 @@ import net.seapanda.bunnyhop.bhprogram.BhProgramService;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.common.constant.BhConstants.Path;
 import net.seapanda.bunnyhop.common.constant.BhSettings;
-import net.seapanda.bunnyhop.common.constant.KeyCodeConverter;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
-import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
-import net.seapanda.bunnyhop.configfilereader.FxmlCollector;
-import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.service.BhScriptManager;
+import net.seapanda.bunnyhop.service.FxmlCollector;
+import net.seapanda.bunnyhop.service.KeyCodeConverter;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.Util;
 import net.seapanda.bunnyhop.simulator.BhSimulator;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -87,7 +87,7 @@ public class AppMain extends Application {
       System.exit(-1);
     }
     success = BhNodeViewStyle.genViewStyleTemplate();
-    success &= BhNodeTemplates.INSTANCE.genTemplate();
+    success &= BhNodeFactory.INSTANCE.initialize();
     success &= BhNodeViewStyle.checkNodeIdAndNodeTemplate();
     success &= simulator.waitForInitialization(BhSettings.BhSimulator.initTimeout);
     success &= simulator.getCmdProcessor()

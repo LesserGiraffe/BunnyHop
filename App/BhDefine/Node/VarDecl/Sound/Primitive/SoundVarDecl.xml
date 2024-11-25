@@ -10,7 +10,7 @@
   onCopyRequested="OnCopyRequested.js"
   version="bh-1.0">
 
-  <Derivation derivationID="dervIdVar" derivativeID="idSoundVar"/>
+  <Derivation derivationID="dervIdIdentifierName" derivativeID="idSoundVar"/>
   <Derivation derivationID="dervIdVarDeclToArg" derivativeID="idSoundArg"/>
   <Derivation derivationID="dervIdVarDeclToOutArg" derivativeID="idSoundOutArg"/>
     
@@ -18,9 +18,9 @@
     
     <Connector
       bhConnectorID="idSoundVarDecl.cnctr0"
-      import="idVarNameCnctr"
+      import="idIdentifierNameCnctr"
       name="VarName"
-      derivationID="dervIdVarName"
+      derivationID="dervIdIdentifierName"
       derivativeJoint="dervJointVarName"/>
       
     <Connector

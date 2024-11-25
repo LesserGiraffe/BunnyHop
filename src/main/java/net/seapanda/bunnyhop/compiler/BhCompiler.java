@@ -28,9 +28,9 @@ import java.util.Optional;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.Util;
 
 /**
  * BhNode をコンパイルするクラス.
@@ -93,7 +93,7 @@ public class BhCompiler {
       localCommonCode = new String(content, StandardCharsets.UTF_8);
     } catch (IOException e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "failed to initialize + " + getClass().getSimpleName() + "\n" + e);
+          "Failed to initialize %s.\n%s".formatted(getClass().getSimpleName(), e));
       return false;
     }
     return true;
@@ -130,7 +130,7 @@ public class BhCompiler {
           Alert.AlertType.ERROR,
           "ファイル書き込みエラー",
           null,
-          e + "\n" + appFilePath.toString());
+          "%s\n%s".formatted(e, appFilePath.toString()));
       return Optional.empty();
     }
     MsgPrinter.INSTANCE.msgForUser("\n-- コンパイル成功 --\n");
@@ -171,7 +171,7 @@ public class BhCompiler {
     String addEventCallStat = common.genFuncCallCode(
         ScriptIdentifiers.Funcs.ADD_EVENT,
         ScriptIdentifiers.Funcs.BH_MAIN,
-        "'" + BhProgramEvent.Name.PROGRAM_START.toString() + "'");
+        "'%s'".formatted(BhProgramEvent.Name.PROGRAM_START));
     addEventCallStat += ";" + Keywords.newLine;
     code.append(common.indent(1)).append(addEventCallStat).append(Keywords.newLine);
     genCodeForProgramStart(code, 1, option);

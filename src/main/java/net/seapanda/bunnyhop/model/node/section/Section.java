@@ -17,11 +17,12 @@
 package net.seapanda.bunnyhop.model.node.section;
 
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.Connector;
+import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.service.Util;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
@@ -30,8 +31,6 @@ import net.seapanda.bunnyhop.undo.UserOperation;
  * @author K.Koike
  */
 public abstract class Section extends SyntaxSymbol {
-
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   
   //どちらか一方のみのフィールドが親オブジェクトを持つ
   /** このセクションを保持している ConnectiveNode オブジェクト. */
@@ -77,7 +76,16 @@ public abstract class Section extends SyntaxSymbol {
   public abstract BhNode findOuterNode(int generation);
 
   /**
-   * このセクションを保持している ConnectiveNode オブジェクトをセットする.
+   * このセクション以下にあるコネクタが持つ {@link Connector} を探す.
+   * 子ノード以下は探さない.
+   *
+   * @param id 探すコネクタの ID
+   * @return {@code id} に一致するコネクタ ID を持つコネクタ.
+   */
+  public abstract Connector findConnector(ConnectorId id);
+
+  /**
+   * このセクションを保持している {@link ConnectiveNode} オブジェクトをセットする.
    *
    * @param parentNode このセクションを保持している ConnectiveNode オブジェクト
    */

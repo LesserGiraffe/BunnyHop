@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.compiler;
 
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 
 /**
  * 式や文のコード生成に必要な共通の機能を持つクラス.
@@ -112,7 +112,7 @@ public class CommonCodeGenerator {
   }
 
   /**
-   * コールスタックに関数呼び出しノードのシンボル ID を追加するコードを作成する.
+   * コールスタックに関数呼び出しノードのインスタンス ID を追加するコードを作成する.
    *
    * @param funcCallNode 関数呼び出しノード
    */
@@ -124,7 +124,7 @@ public class CommonCodeGenerator {
     return genFuncCallCode(funcName, toJsString(funcCallNode.getInstanceId().toString()));
   }
 
-  /** コールスタックから関数呼び出しノードのシンボル ID を削除するコードを作成する. */
+  /** コールスタックから関数呼び出しノードのインスタンス ID を削除するコードを作成する. */
   public String genPopFromCallStackCode() {
     var funcName = genPropertyAccessCode(
         Keywords.Js._this, ScriptIdentifiers.Properties.CALL_STACK, ScriptIdentifiers.JsFuncs.POP);

@@ -28,7 +28,7 @@ import net.seapanda.bunnyhop.undo.UserOperation;
  *
  * @author K.Koike
  */
-public class PasteCanceler implements BhModelProcessor {
+public class PasteCanceler implements BhNodeWalker {
 
   /** undo 用コマンドオブジェクト. */
   private final UserOperation userOpe;

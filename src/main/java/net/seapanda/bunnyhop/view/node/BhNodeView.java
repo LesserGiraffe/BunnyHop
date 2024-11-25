@@ -36,16 +36,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
-import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Showable;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
+import net.seapanda.bunnyhop.service.Util;
+import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
@@ -229,7 +229,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
 
   private void createPrivateTemplateButton(BhNode model)
       throws ViewInitializationException {
-    var err = new ViewInitializationException("Failed To load the Private Template Button.");
+    var err = new ViewInitializationException("Failed to load Private Template Button.");
     var button = PrivateTemplateCreationButton
         .create(model, viewStyle.privatTemplate)
         .orElseThrow(() -> err);
@@ -448,8 +448,8 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
      *
      * @return ボディとコネクタ部分の領域を保持するQuadTreeRectangleオブジェクトのペア
      */
-    public Pair<QuadTreeRectangle, QuadTreeRectangle> getRegions() {
-      return new Pair<>(wholeBodyRange, connectorPartRange);
+    public Rectangles getRegions() {
+      return new Rectangles(wholeBodyRange, connectorPartRange);
     }
 
     private void updateBodyPos(
@@ -501,11 +501,15 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     }
 
     /** 4 分木空間からこのView以下の領域判定オブジェクトを消す. */
-    public void removeQtRectable() {
+    public void removeQtRectangle(UserOperation userOpe) {
       CallbackInvoker.invoke(
           view -> {
-            QuadTreeManager.removeQuadTreeObj(view.getRegionManager().connectorPartRange);
-            QuadTreeManager.removeQuadTreeObj(view.getRegionManager().wholeBodyRange);
+            QuadTreeRectangle body = view.getRegionManager().getRegions().body();
+            QuadTreeRectangle cnctr = view.getRegionManager().getRegions().cnctr();
+            userOpe.pushCmdOfSetQtRectangle(body, body.getCurrenManager(), null);
+            userOpe.pushCmdOfSetQtRectangle(cnctr, cnctr.getCurrenManager(), null);
+            QuadTreeManager.removeQuadTreeObj(body);
+            QuadTreeManager.removeQuadTreeObj(cnctr);
           },
           BhNodeView.this,
           false);
@@ -541,6 +545,14 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     public boolean overlapsWith(BhNodeView view, OverlapOption option) {
       return wholeBodyRange.overlapsWith(view.getRegionManager().wholeBodyRange, option);
     }
+
+    /**
+     * ボディとコネクタ部分の領域に対応する {@link QuadTreeRectangle} をまとめたレコード.
+     *
+     * @param body ボディ部分の矩形領域に対応する {@link QuadTreeRectangle} オブジェクト
+     * @param cnctr コネクタ部分の矩形領域に対応する {@link QuadTreeRectangle} オブジェクト
+     */
+    public record Rectangles(QuadTreeRectangle body, QuadTreeRectangle cnctr) { }
   }
 
   /** View の木構造を操作するクラス. */
@@ -631,7 +643,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
      * これ以下のノードビューを引数で指定したGUIコンポーネントの子として追加する.
      * parent が Group か Pane のサブクラスでない場合, 追加しない.
      *
-     * @param parent 親となるGUIコンポーネント. (null可)
+     * @param parent 親となるGUIコンポーネント. (nullable)
      */
     public void addToGuiTree(Parent parent) {
       if (!(parent instanceof Group) && !(parent instanceof Pane)) {

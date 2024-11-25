@@ -28,7 +28,7 @@ import net.seapanda.bunnyhop.undo.UserOperation;
  *
  * @author K.Koike
  */
-public class WorkspaceRegisterer implements BhModelProcessor {
+public class WorkspaceRegisterer implements BhNodeWalker {
 
   /** undo 用コマンドオブジェクト. */
   private final UserOperation userOpe;

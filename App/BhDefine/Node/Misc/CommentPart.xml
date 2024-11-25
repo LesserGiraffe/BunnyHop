@@ -21,7 +21,7 @@
         bhNodeID="idCommentPart.node0"
         name="Comment"
         nodeStyleID="DefaultTextArea.json"
-        onTextOptionsCreating="CreateDefaultVarName.js"
+        initialText="説明"
         version="bh-1.0"/>
     </Connector>
 

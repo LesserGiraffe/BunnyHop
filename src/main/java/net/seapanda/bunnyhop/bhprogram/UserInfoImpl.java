@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.bhprogram;
 
 import com.jcraft.jsch.UserInfo;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 
 /**
  * SSH接続時に必要な情報を返す機能を持つクラス.

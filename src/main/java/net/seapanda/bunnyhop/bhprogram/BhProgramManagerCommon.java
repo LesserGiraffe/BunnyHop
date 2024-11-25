@@ -41,8 +41,8 @@ import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessor;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramTransceiver;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 
 /**
@@ -74,7 +74,7 @@ class BhProgramManagerCommon {
    */
   Remote findRemoteObj(String ipAddr, int port, String name)
       throws MalformedURLException, NotBoundException, RemoteException {
-    return Naming.lookup("rmi://" + ipAddr + ":" + port + "/" + name);
+    return Naming.lookup("rmi://%s:%s/%s".formatted(ipAddr, port, name));
   }
 
   /**
@@ -158,7 +158,7 @@ class BhProgramManagerCommon {
       process.getInputStream().close();
       process.getOutputStream().close();
     } catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("failed to close iostream"  + "\n" + e);
+      MsgPrinter.INSTANCE.errMsgForDebug("Failed to close the IO stream.\n" + e);
       success = false;
     }
     return success;
@@ -170,7 +170,7 @@ class BhProgramManagerCommon {
       success = process.waitFor(timeout, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      MsgPrinter.INSTANCE.errMsgForDebug("failed to waitFor" +  "\n" + e);
+      MsgPrinter.INSTANCE.errMsgForDebug("Failed to wait for the process to end.\n" + e);
     }
     return success;
   }
@@ -228,7 +228,7 @@ class BhProgramManagerCommon {
       success &= transceiver.connect();
       success &= runScript(fileName, programHandler);
     } catch (IOException | NotBoundException | NumberFormatException | TimeoutException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("failed to run BhProgram " + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug("Failed to run BhProgram\n" + e);
       success &= false;
     }
     if (!success) {

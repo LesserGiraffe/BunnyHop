@@ -40,7 +40,8 @@ public record BhNodeAttributes(
     String onPrivateTemplateCreating,
     String onSyntaxChecking,
     String onTextOptionsCreating,
-    String initString) {
+    String onTemplateCreated,
+    String initialText) {
 
   /**
    * Node タグが持つ属性一覧を読み取る.
@@ -66,7 +67,8 @@ public record BhNodeAttributes(
     String onSyntaxChecking = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_SYNTAX_CHECKING);
     String onTextOptionsCreating = 
         elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_TEST_OPTIONS_CREATING);
-    String initString = elem.getAttribute(BhConstants.BhModelDef.ATTR_INIT_STRING);
+    String onTemplateCreated = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_TEMPLATE_CREATED);
+    String initialText = elem.getAttribute(BhConstants.BhModelDef.ATTR_INITIAL_TEXT);
     var version = BhNodeVersion.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_VERSION));
 
     return new BhNodeAttributes(
@@ -85,6 +87,7 @@ public record BhNodeAttributes(
         onPrivateTemplateCreating,
         onSyntaxChecking,
         onTextOptionsCreating,
-        initString);
+        onTemplateCreated,
+        initialText);
   }
 }

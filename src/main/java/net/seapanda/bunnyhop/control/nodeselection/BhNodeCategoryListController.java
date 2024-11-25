@@ -21,12 +21,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
 import net.seapanda.bunnyhop.common.constant.Rem;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryListView;
 
@@ -53,7 +52,7 @@ public class BhNodeCategoryListController implements MsgProcessor {
     try {
       view = new BhNodeCategoryListView(categoryTree, model);
     } catch (ViewInitializationException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(Util.INSTANCE.getCurrentMethodName() + "\n" + e);
+      MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
       return false;
     }
     nodeCategoryListViewBase.setMinWidth(Region.USE_PREF_SIZE);

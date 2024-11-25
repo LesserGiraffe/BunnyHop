@@ -23,19 +23,19 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
-import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.modelprocessor.BhNodeWalker;
+import net.seapanda.bunnyhop.service.BhScriptManager;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.Util;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.NativeObject;
@@ -47,9 +47,8 @@ import org.mozilla.javascript.ScriptableObject;
  *
  * @author K.Koike
  */
-public class TextNode  extends DerivativeBase<TextNode> {
+public class TextNode extends DerivativeBase<TextNode> {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   private String text = "";
 
   /**
@@ -65,8 +64,8 @@ public class TextNode  extends DerivativeBase<TextNode> {
     registerScriptName(
         BhNodeEvent.ON_TEXT_CHECKING, attributes.onTextChecking());
     registerScriptName(
-        BhNodeEvent.ON_VIEW_CONTENTS_CREATING, attributes.onTextOptionsCreating());
-    text = attributes.initString();
+        BhNodeEvent.ON_VIEW_OPTIONS_CREATING, attributes.onTextOptionsCreating());
+    text = attributes.initialText();
   }
 
   /**
@@ -86,7 +85,7 @@ public class TextNode  extends DerivativeBase<TextNode> {
   }
 
   @Override
-  public void accept(BhModelProcessor processor) {
+  public void accept(BhNodeWalker processor) {
     processor.visit(this);
   }
 
@@ -129,8 +128,7 @@ public class TextNode  extends DerivativeBase<TextNode> {
     try {
       jsReturn = ContextFactory.getGlobal().call(cx -> checker.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
     }
 
     if (jsReturn instanceof Boolean) {
@@ -165,8 +163,7 @@ public class TextNode  extends DerivativeBase<TextNode> {
       String formattedText = (String) jsObj.get(BhConstants.JsKeyword.KEY_BH_FORMATTED_TEXT);
       return new Pair<Boolean, String>(isEntireTextFormatted, formattedText);
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
     }
     return new Pair<Boolean, String>(false, addedText);
   }
@@ -178,7 +175,7 @@ public class TextNode  extends DerivativeBase<TextNode> {
    *           (モデルが保持するテキスト 1, ビューが保持するオブジェクト 1), ... ]
    */
   public List<Pair<String, Object>> getOptions() {
-    Optional<String> scriptName = getScriptName(BhNodeEvent.ON_VIEW_CONTENTS_CREATING);
+    Optional<String> scriptName = getScriptName(BhNodeEvent.ON_VIEW_OPTIONS_CREATING);
     Script creator =
         scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
     var options = new ArrayList<Pair<String, Object>>();
@@ -195,16 +192,19 @@ public class TextNode  extends DerivativeBase<TextNode> {
         options.add(new Pair<>(modelAndView.get(0).toString(), modelAndView.get(1)));
       }
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
     }
     return options;
   }
 
-  /** このノードの派生ノードにこのノードのテキストを設定する. */
+  /**
+   * このノードの派生ノードにこのノードのテキストを設定する.
+   * 派生ノードの先の全ての派生ノードにも再帰的にこの処理を適用する.
+   */
   public void assignContentsToDerivatives() {
-    String viewText = MsgService.INSTANCE.getViewText(this);
-    getDerivatives().forEach(derv -> MsgService.INSTANCE.setText(derv, text, viewText));
+    getDerivatives().forEach(derv -> derv.setText(text));
+    getDerivatives().forEach(MsgService.INSTANCE::matchViewContentToModel);
+    getDerivatives().forEach(derv -> derv.assignContentsToDerivatives());
   }
 
   @Override
@@ -234,7 +234,7 @@ public class TextNode  extends DerivativeBase<TextNode> {
   @Override
   public TextNode createDerivative(DerivationId derivationId, UserOperation userOpe) {
     BhNode node =
-        BhNodeTemplates.INSTANCE.genBhNode(getDerivativeIdOf(derivationId), userOpe);
+        BhNodeFactory.INSTANCE.create(getDerivativeIdOf(derivationId), userOpe);
 
     if (!(node instanceof TextNode)) {
       throw new AssertionError("derivative node type inconsistency");
@@ -252,24 +252,18 @@ public class TextNode  extends DerivativeBase<TextNode> {
 
   @Override
   public void show(int depth) {
-    String parentHash = "";
-    if (parentConnector != null) {
-      parentHash = parentConnector.hashCode() + "";
-    }
-    String lastReplacedHash = "";
-    if (getLastReplaced() != null) {
-      lastReplacedHash =  getLastReplaced().hashCode() + "";
-    }
+    var parentinstId =
+        (parentConnector != null) ? parentConnector.getInstanceId() : InstanceId.NONE;
+    var lastReplacedInstId =
+        (getLastReplaced() != null) ? getLastReplaced().getInstanceId() : InstanceId.NONE;
 
-    MsgPrinter.INSTANCE.msgForDebug(
-        indent(depth) + "<TextNode" + "string=" + text + "  bhID=" + getId()
-        + "  parent=" + parentHash + "> " + this.hashCode());
-    MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<ws " + workspace + "> ");
-    MsgPrinter.INSTANCE.msgForDebug(
-        indent(depth + 1) + "<" + "last replaced " + lastReplacedHash + "> ");
-    MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<derivation");
-    getDerivatives().forEach(derv -> {
-      MsgPrinter.INSTANCE.msgForDebug(indent(depth + 2) + "derivative " + derv.hashCode());
-    });
+    MsgPrinter.INSTANCE.println("%s<TextNode text=%s  bhID=%s  parent=%s>  %s"
+        .formatted(indent(depth), text, getId(), parentinstId, getInstanceId()));
+    MsgPrinter.INSTANCE.println("%s<ws>  %s".formatted(indent(depth + 1), workspace));
+    MsgPrinter.INSTANCE.println(
+        "%s<last replaced>  %s".formatted(indent(depth + 1), lastReplacedInstId));
+    MsgPrinter.INSTANCE.println(indent(depth + 1) + "<derivation>");
+    getDerivatives().forEach(derv ->  MsgPrinter.INSTANCE.println(
+        "%s<derivative>  %s".formatted(indent(depth + 2), derv.getInstanceId())));
   }
 }

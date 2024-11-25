@@ -31,11 +31,11 @@ import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
-import net.seapanda.bunnyhop.modelservice.DerivativeCache;
-import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
-import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
+import net.seapanda.bunnyhop.service.BhNodeHandler;
+import net.seapanda.bunnyhop.service.DerivativeCache;
+import net.seapanda.bunnyhop.service.ModelExclusiveControl;
+import net.seapanda.bunnyhop.service.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.TrashboxService;
 import net.seapanda.bunnyhop.view.ViewHelper;
@@ -429,11 +429,11 @@ public class BhNodeController implements MsgProcessor {
         case REMOVE_ROOT_NODE:
           return new MsgData(model, view);
 
-        case ADD_QT_RECTANGLE:
-          return new MsgData(view);
+        case SET_QT_RECTANGLE:
+          return new MsgData(view, data.userOpe);
 
         case REMOVE_QT_RECTANGLE:
-          view.getRegionManager().removeQtRectable();
+          view.getRegionManager().removeQtRectangle(data.userOpe);
           break;
 
         case GET_POS_ON_WORKSPACE:

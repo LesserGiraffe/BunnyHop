@@ -9,7 +9,7 @@
   <ConnectorSection name="SoundExpSctn">
     <Connector
       bhConnectorID="idSoundVar.cnctr0"
-      import="idVarNameCnctr"
+      import="idAnyFixedCnctr"
       name="VarName"
       derivativeJoint="dervJointVarName"/>
   </ConnectorSection>

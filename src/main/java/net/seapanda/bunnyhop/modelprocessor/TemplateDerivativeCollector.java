@@ -29,7 +29,7 @@ import net.seapanda.bunnyhop.model.node.derivative.Derivative;
  *
  * @author K.Koike
  */
-public class TemplateDerivativeCollector implements BhModelProcessor {
+public class TemplateDerivativeCollector implements BhNodeWalker {
 
   /** テンプレート派生ノードのリスト. */
   private Collection<Derivative> templateDerivatives = new ArrayList<>();

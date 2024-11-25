@@ -1,6 +1,6 @@
 function genSyncTimerDeclTemplateNode(nodeID) {
   let timer = bhCommon.buildDerivative(bhThis, 'dervIdSyncTimeVar', bhUserOpe);
-  let templateNode = bhCommon.genBhNode(nodeID, bhNodeTemplates, bhUserOpe);
+  let templateNode = bhCommon.createBhNode(nodeID, bhUserOpe);
   let timerVarArg = templateNode.findSymbolInDescendants('*', 'Arg0', '*');
   timerVarArg.replace(timer, bhUserOpe);
   return templateNode;

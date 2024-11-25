@@ -25,8 +25,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.seapanda.bunnyhop.common.Showable;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.Connector;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
@@ -394,7 +394,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
     String pattern = "^\\$(?:\\{((?:(?:\\\\\\{)|(?:\\\\\\})|[^\\{\\}])+)\\}){2,}$";
     if (!specification.matches(pattern)) {
       throw new ViewInitializationException(
-          "Invalid pseudo view format (" + specification + ") in " + styleId + ".");
+          "Invalid pseudo view format (%s) in %s.".formatted(specification, styleId));
     }
     pattern = "\\{((?:(?:\\\\\\{)|(?:\\\\\\})|[^\\{\\}])+)\\}";
     Matcher matcher = Pattern.compile(pattern).matcher(specification);
@@ -413,15 +413,16 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
   @Override
   public void show(int depth) {
     try {
-      MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<BhNodeViewGroup>  "  + this.hashCode());
-      MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + (inner ? "<inner>" : "<outer>"));
+      MsgPrinter.INSTANCE.println(
+          "%s<BhNodeViewGroup>  %s".formatted(indent(depth), hashCode()));
+      MsgPrinter.INSTANCE.println(indent(depth + 1) + (inner ? "<inner>" : "<outer>"));
       childNames.stream()
           .map(childName -> childNameToNodeView.get(childName))
           .filter(childNodeView -> childNodeView != null)
           .forEachOrdered(childNodeView -> childNodeView.show(depth + 1));
       subGroupList.forEach(subGroup -> subGroup.show(depth + 1));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.msgForDebug("connectiveNodeView show exception " + e);
+      MsgPrinter.INSTANCE.println("connectiveNodeView show exception " + e);
     }
   }
 }

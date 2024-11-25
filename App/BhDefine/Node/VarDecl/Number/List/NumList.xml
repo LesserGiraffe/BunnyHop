@@ -9,7 +9,7 @@
   <ConnectorSection name="NumListSctn">
     <Connector
       bhConnectorID="idNumList.cnctr0"
-      import="idListNameCnctr"
+      import="idAnyFixedCnctr"
       name="ListName"
       derivativeJoint="dervJointListName"/>
   </ConnectorSection>

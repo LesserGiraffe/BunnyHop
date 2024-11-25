@@ -26,7 +26,7 @@
         type="text"
         bhNodeID="idNumArrayGetExp.node2"
         name="NumLiteral"
-        initString="0"
+        initialText="0"
         version="bh-1.0"/>
     </Connector>
 

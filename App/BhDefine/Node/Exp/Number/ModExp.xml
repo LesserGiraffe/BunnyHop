@@ -25,7 +25,7 @@
         type="text"
         bhNodeID="idModExp.node2"
         name="ModOpe"
-        initString="mod"
+        initialText="mod"
         version="bh-1.0"/>
     </Connector>
 

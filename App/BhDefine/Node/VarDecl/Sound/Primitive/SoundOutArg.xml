@@ -9,7 +9,7 @@
     
     <Connector
       bhConnectorID="idSoundOutArg.cnctr0"
-      import="idVarNameCnctr"
+      import="idAnyFixedCnctr"
       name="VarName"
       derivativeJoint="dervJointVarName"/>
       

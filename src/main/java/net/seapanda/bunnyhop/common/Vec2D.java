@@ -17,7 +17,6 @@
 package net.seapanda.bunnyhop.common;
 
 import java.io.Serializable;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
  * 二次元ベクトル.
@@ -26,7 +25,6 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
  */
 public class Vec2D implements Serializable {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   public double x;
   public double y;
 
@@ -105,6 +103,6 @@ public class Vec2D implements Serializable {
 
   @Override
   public String toString() {
-    return "x : " + x + " , " + "y : " + y;
+    return "x: %s,  y: %s".formatted(x, y);
   }
 }

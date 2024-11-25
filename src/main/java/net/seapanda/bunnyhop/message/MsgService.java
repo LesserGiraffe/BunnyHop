@@ -42,9 +42,16 @@ public class MsgService {
   /** コンストラクタ. */
   private MsgService() {}
 
-  /** 引数で指定したノードのワークスペース上での位置を取得する. */
+  /**
+   * 引数で指定したノードのワークスペース上での位置を取得する.
+   * 位置の取得ができなかった場合 null.
+   */
   public Vec2D getPosOnWs(BhNode node) {
-    return MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, node).vec2d;
+    MsgData result = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_POS_ON_WORKSPACE, node);
+    if (result == null) {
+      return null;
+    }
+    return result.vec2d;
   }
 
   /**
@@ -109,7 +116,7 @@ public class MsgService {
    */
   public Pair<Vec2D, Vec2D> getNodeBodyRange(BhNode node) {
     BhNodeView nodeView = getBhNodeView(node);
-    QuadTreeRectangle bodyRange = nodeView.getRegionManager().getRegions().v1;
+    QuadTreeRectangle bodyRange = nodeView.getRegionManager().getRegions().body();
     return new Pair<Vec2D, Vec2D>(bodyRange.getUpperLeftPos(), bodyRange.getLowerRightPos());
   }
 
@@ -180,9 +187,8 @@ public class MsgService {
    * @param ws このワークスペースが持つ4 分木空間にノードの領域を登録する
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public void addQtRectangle(BhNode node, Workspace ws, UserOperation userOpe) {
-    MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_QT_RECTANGLE, node, ws);
-    userOpe.pushCmdOfaddQtRectangle(node, ws);
+  public void setQtRectangle(BhNode node, Workspace ws, UserOperation userOpe) {
+    MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_QT_RECTANGLE, new MsgData(userOpe), node, ws);
   }
 
   /**
@@ -192,8 +198,7 @@ public class MsgService {
    * @param userOpe undo 用コマンドオブジェクト
    * */
   public void removeQtRectangle(BhNode node, UserOperation userOpe) {
-    MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, node);
-    userOpe.pushCmdOfRemoveQtRectangle(node, node.getWorkspace());
+    MsgTransporter.INSTANCE.sendMessage(BhMsg.REMOVE_QT_RECTANGLE, new MsgData(userOpe), node);
   }
 
   /**
@@ -260,30 +265,25 @@ public class MsgService {
    * 引数で指定したワークスペースの描画サイズを取得する.
    *
    * @param ws このワークスペースの描画サイズを取得する
-   * @return 引数で指定したワークスペースの描画サイズ
+   * @return 引数で指定したワークスペースの描画サイズ.
+   *         {@code ws} のワークスペースビューが存在しない場合 null を返す.
    */
   public Vec2D getWorkspaceSize(Workspace ws) {
-    return MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_WORKSPACE_SIZE, ws).vec2d;
+    MsgData result = MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_WORKSPACE_SIZE, ws);
+    if (result == null) {
+      return null;
+    }
+    return result.vec2d;
   }
 
   /**
-   * 引数で指定した TextNode のビューのテキストを取得する.
+   * {@code node} が持つ文字列に合わせて, その View の内容を変更する.
+   * {@code node} がビューを持たない場合, 何もしない.
    *
-   * @param node ビューのテキストを取得するノード
+   * @param node このノードのビューを変更する.
    */
-  public String getViewText(TextNode node) {
-    return MsgTransporter.INSTANCE.sendMessage(BhMsg.GET_VIEW_TEXT, node).text;
-  }
-
-  /**
-   * テキストノードとそのビューにテキストを模倣させる.
-   *
-   * @param node このノードにテキストを模倣させる
-   * @param modelText モデルに模倣させるテキスト
-   * @param viewText ビューに模倣させるテキスト
-   */
-  public void setText(TextNode node, String modelText, String viewText) {
-    MsgTransporter.INSTANCE.sendMessage(BhMsg.SET_TEXT, new MsgData(modelText, viewText), node);
+  public void matchViewContentToModel(TextNode node) {
+    MsgTransporter.INSTANCE.sendMessage(BhMsg.MATCH_VIEW_CONTENT_TO_MODEL, node);
   }
 
   /**

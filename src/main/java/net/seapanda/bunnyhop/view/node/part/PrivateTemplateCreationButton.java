@@ -22,14 +22,15 @@ import java.util.concurrent.atomic.AtomicReference;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
+import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker.CallbackRegistry;
 import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextPrompter;
-import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.root.BunnyHop;
+import net.seapanda.bunnyhop.service.ModelExclusiveControl;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 
@@ -56,8 +57,7 @@ public final class PrivateTemplateCreationButton extends Button {
       return Optional.of(new PrivateTemplateCreationButton(node, buttonStyle));
     } catch (IOException | ClassCastException e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() 
-          + " - failed to create a PrivateTemplateCreationButton\n" + e);
+          "Failed to create Private Template Creation Button.\n" + e);
       return Optional.empty();
     }
   }
@@ -107,6 +107,9 @@ public final class PrivateTemplateCreationButton extends Button {
         BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE, userOpe);
     
     for (var templateNode : node.genPrivateTemplateNodes(userOpe)) {
+      CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
+          .setForAllNodes(bhNode -> bhNode.getEventAgent().execOnTemplateCreated(userOpe));
+      CallbackInvoker.invoke(registry, templateNode);
       NodeMvcBuilder.buildTemplate(templateNode);
       TextPrompter.prompt(templateNode);
       BhNodeSelectionService.INSTANCE.addTemplateNode(

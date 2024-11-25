@@ -18,11 +18,10 @@ package net.seapanda.bunnyhop.view.node;
 
 import java.util.Optional;
 import javafx.scene.control.Label;
-import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
@@ -49,7 +48,6 @@ public final class LabelNodeView extends BhNodeView {
       throws ViewInitializationException {
     super(viewStyle, model);
     this.model = model;
-    setInitText();
     getTreeManager().addChild(label);
     initStyle();
   }
@@ -76,18 +74,6 @@ public final class LabelNodeView extends BhNodeView {
     getLookManager().addCssClass(BhConstants.Css.CLASS_LABEL_NODE);
   }
 
-  private void setInitText() {
-    if (model == null) {
-      return;
-    }
-    model.getOptions().stream()
-        .reduce((a, b) -> new Pair<>(a.v1 + b.v1, a.v2.toString() + b.v2.toString()))
-        .ifPresent(text -> {
-          model.setText(text.v1);
-          setText(text.v2.toString());
-        });
-  }
-
   @Override
   public Optional<TextNode> getModel() {
     return Optional.ofNullable(model);
@@ -95,8 +81,8 @@ public final class LabelNodeView extends BhNodeView {
 
   @Override
   public void show(int depth) {
-    MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<LabelView>   " + this.hashCode());
-    MsgPrinter.INSTANCE.msgForDebug(indent(depth + 1) + "<content>   " + label.getText());
+    MsgPrinter.INSTANCE.println("%s<LabelView>  %s".formatted(indent(depth), hashCode()));
+    MsgPrinter.INSTANCE.println("%s<content>  %s".formatted(indent(depth + 1), label.getText()));
   }
 
   @Override

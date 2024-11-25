@@ -25,7 +25,7 @@
         type="text"
         bhNodeID="idPlayMelodyStat.node1"
         name="BoolLiteral"
-        initString="true"
+        initialText="true"
         version="bh-1.0"/>
     </Connector>
     

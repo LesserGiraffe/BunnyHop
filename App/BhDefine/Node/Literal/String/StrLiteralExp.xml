@@ -18,7 +18,7 @@
         name="StrLiteral"
         nodeStyleID="StrLiteral.json"
         onTextChecking="CheckTextFormat.js"
-        onTextOptionsCreating="CreateDefaultStrLiteral.js"
+        initialText="テキスト"
         version="bh-1.0"/>
     </Connector>
 

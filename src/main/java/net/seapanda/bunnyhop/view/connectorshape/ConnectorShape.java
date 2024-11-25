@@ -102,14 +102,14 @@ public abstract class ConnectorShape {
    * コネクタ名から対応する CNCTR_SHAPE を返す.
    *
    * @param cnctrShapeName コネクタの形を表す文字列
-   * @param fileName コネクタの形が記述してあるjsonファイルの名前 (null可)
+   * @param fileName コネクタの形が記述してあるjsonファイルの名前 (nullable)
    * @return shapeStrに対応する CNCTR_SHAPE 列挙子 (オプション)
    */
   public static CnctrShape getConnectorTypeFromName(String cnctrShapeName, String fileName) {
     CnctrShape type = CnctrShape.getByName(cnctrShapeName);
     if (type == null) {
-      throw new AssertionError(
-          "invalid connector shape name " + cnctrShapeName + " (" + fileName + ")");
+      throw new IllegalArgumentException(
+          "Invalid connector shape name %s  (%s)".formatted(cnctrShapeName, fileName));
     }
     return type;
   }

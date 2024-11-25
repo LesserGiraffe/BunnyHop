@@ -27,7 +27,7 @@ import net.seapanda.bunnyhop.common.Vec2D;
  * 4 分木空間に登録される矩形オブジェクト.
  *
  * @author K.Koike
- * */
+ */
 public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
 
   /** 現在属している 4 分木ノードのインデックス. */
@@ -43,6 +43,8 @@ public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
       searchOverlappedHandler;
   /** この矩形に関連するオブジェクト. */
   private final Object userData;
+  /** この矩形オブジェクトを保持する {@link QuadTreeManager} を取得する. */
+  private QuadTreeManager qtManager;
 
   /**
    * コンストラクタ.
@@ -160,7 +162,7 @@ public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
         return intersects(rectangle);
 
       default:
-        throw new AssertionError("invalid search option " + option);
+        throw new AssertionError("Invalid search option " + option);
     }
   }
 
@@ -198,6 +200,23 @@ public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
    */
   public List<QuadTreeRectangle> searchOverlappedRects(OverlapOption option) {
     return searchOverlappedHandler.apply(this, option);
+  }
+
+  /**
+   * この矩形オブジェクトを保持する {@link QuadTreeManager} を取得する.
+   * 存在しない場合は null.
+   */
+  public QuadTreeManager getCurrenManager() {
+    return qtManager;
+  }
+
+  /**
+   * この矩形オブジェクトを保持する {@link QuadTreeManager} を設定する.
+   *
+   * @param qtManager この矩形オブジェクトを保持する {@link QuadTreeManager} オブジェクト. (nullable)
+   */
+  public void setCurrenManager(QuadTreeManager qtManager) {
+    this.qtManager = qtManager;
   }
 
   /**

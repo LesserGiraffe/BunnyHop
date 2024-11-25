@@ -28,7 +28,7 @@ import net.seapanda.bunnyhop.model.node.derivative.Derivative;
  *
  * @author K.Koike
  * */
-public class SyntaxErrorNodeCollector implements BhModelProcessor {
+public class SyntaxErrorNodeCollector implements BhNodeWalker {
 
   private final List<BhNode> errorNodeList = new ArrayList<>();
 
@@ -47,14 +47,20 @@ public class SyntaxErrorNodeCollector implements BhModelProcessor {
 
   private SyntaxErrorNodeCollector() {}
 
-  @Override
-  public void visit(ConnectiveNode node) {
-    node.sendToSections(this);
+  /** {@code node} の派生ノードがエラーを持つかチェックする. */
+  private void checkDerivatives(Derivative node) {
     for (Derivative derivative : node.getDerivatives()) {
       if (derivative.hasSyntaxError()) {
         errorNodeList.add(derivative);
       }
+      checkDerivatives(derivative);
     }
+  }
+
+  @Override
+  public void visit(ConnectiveNode node) {
+    node.sendToSections(this);
+    checkDerivatives(node);
     if (node.hasSyntaxError()) {
       errorNodeList.add(node);
     }
@@ -62,11 +68,7 @@ public class SyntaxErrorNodeCollector implements BhModelProcessor {
 
   @Override
   public void visit(TextNode node) {
-    for (Derivative derivative : node.getDerivatives()) {
-      if (derivative.hasSyntaxError()) {
-        errorNodeList.add(derivative);
-      }
-    }
+    checkDerivatives(node);
     if (node.hasSyntaxError()) {
       errorNodeList.add(node);
     }

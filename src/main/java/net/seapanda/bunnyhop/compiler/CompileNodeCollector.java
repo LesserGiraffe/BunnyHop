@@ -22,14 +22,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.NodeGraphSnapshot;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
@@ -137,8 +136,8 @@ public class CompileNodeCollector {
       NodeGraphSnapshot snapshot, BhNode nodeToExec) {
     BhNode copyOfNodeToExec = snapshot.getMapOfSymbolIdToNode().get(nodeToExec.getInstanceId());
     if (copyOfNodeToExec == null) {
-      String msg = " - not found the copy of the BhNode to execute in the snapshot";
-      MsgPrinter.INSTANCE.msgForDebug(Util.INSTANCE.getCurrentMethodName() + msg);
+      var msg = "The copy of the BhNode to execute was not found in the snapshot.";
+      MsgPrinter.INSTANCE.errMsgForDebug(msg);
       throw new AssertionError(msg);
     }
     return copyOfNodeToExec;

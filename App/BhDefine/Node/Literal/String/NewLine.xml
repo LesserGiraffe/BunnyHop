@@ -16,7 +16,7 @@
         type="text"
         bhNodeID="idNewLine.node0"
         name="LineFeed"
-        initString="('\n')"
+        initialText="('\n')"
         version="bh-1.0"/>
     </Connector>
   </ConnectorSection>

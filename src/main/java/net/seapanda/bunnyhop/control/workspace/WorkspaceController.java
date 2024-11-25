@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgProcessor;
@@ -32,12 +31,13 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
-import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
 import net.seapanda.bunnyhop.root.BunnyHop;
+import net.seapanda.bunnyhop.service.BhNodeHandler;
+import net.seapanda.bunnyhop.service.ModelExclusiveControl;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
@@ -206,8 +206,8 @@ public class WorkspaceController implements MsgProcessor {
         nodeShifterController.updateMultiNodeShifter(data.node);
         break;
 
-      case ADD_QT_RECTANGLE:
-        view.addRectangleToQtSpace(data.nodeView);
+      case SET_QT_RECTANGLE:
+        view.addRectangleToQtSpace(data.nodeView, data.userOpe);
         break;
 
       case CHANGE_WORKSPACE_VIEW_SIZE:
@@ -271,16 +271,16 @@ public class WorkspaceController implements MsgProcessor {
       f = c.getDeclaredField("quadTreeMngForConnector");
       f.setAccessible(true);
       QuadTreeManager quadTreeMngForConnector = (QuadTreeManager) f.get(view);
-      MsgPrinter.INSTANCE.msgForDebug(
-          "num of QuadTreeNodes " + quadTreeMngForConnector.calcRegisteredNodeNum());
+      MsgPrinter.INSTANCE.println(
+          "num of QuadTreeNodes: " + quadTreeMngForConnector.calcRegisteredNodeNum());
     } catch (IllegalAccessException
         | IllegalArgumentException
         | NoSuchFieldException
         | SecurityException e) {
       MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
     }
-    MsgPrinter.INSTANCE.msgForDebug("num of root nodes " + model.getRootNodeList().size());
-    MsgPrinter.INSTANCE.msgForDebug(
-        "num of selected nodes " + model.getSelectedNodeList().size() + "\n");
+    MsgPrinter.INSTANCE.println("num of root nodes: " + model.getRootNodeList().size());
+    MsgPrinter.INSTANCE.println(
+        "num of selected nodes: " + model.getSelectedNodeList().size());
   }
 }

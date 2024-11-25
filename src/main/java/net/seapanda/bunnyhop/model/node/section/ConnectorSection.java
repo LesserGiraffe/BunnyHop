@@ -19,13 +19,13 @@ package net.seapanda.bunnyhop.model.node.section;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.Connector;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
+import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.modelprocessor.BhNodeWalker;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.Util;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
@@ -35,7 +35,6 @@ import net.seapanda.bunnyhop.undo.UserOperation;
  */
 public class ConnectorSection extends Section {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** コネクタリスト. */
   private final List<Connector> cnctrList;
 
@@ -74,7 +73,7 @@ public class ConnectorSection extends Section {
   }
 
   @Override
-  public void accept(BhModelProcessor visitor) {
+  public void accept(BhNodeWalker visitor) {
     visitor.visit(this);
   }
 
@@ -83,7 +82,7 @@ public class ConnectorSection extends Section {
    *
    * @param visitor コネクタに渡す visitor
    */
-  public void sendToConnectors(BhModelProcessor visitor) {
+  public void sendToConnectors(BhNodeWalker visitor) {
     cnctrList.forEach(connector -> connector.accept(visitor));
   }
 
@@ -127,22 +126,17 @@ public class ConnectorSection extends Section {
     return null;
   }
 
-  /**
-   * モデルの構造を表示する.
-   *
-   * @param depth 表示インデント数
-   */
+  @Override
+  public Connector findConnector(ConnectorId id) {
+    return cnctrList.stream().filter(cnctr -> cnctr.getId().equals(id)).findFirst().orElse(null);
+  }
+
   @Override
   public void show(int depth) {
-    int parentHash;
-    if (parentNode != null) {
-      parentHash = parentNode.hashCode();
-    } else {
-      parentHash = parentSection.hashCode();
-    }
-    MsgPrinter.INSTANCE.msgForDebug(
-        indent(depth) + "<ConnectorGroup  " + "name=" + getSymbolName() 
-        + "  parenNode=" + parentHash  + "  > " + this.hashCode());
+    var parentInstId =
+        (parentNode != null) ? parentNode.getInstanceId() : parentSection.getInstanceId();
+    MsgPrinter.INSTANCE.println("%s<ConnectorSection  name=%s  parent=%s>  %s"
+        .formatted(indent(depth), getSymbolName(), parentInstId, getInstanceId()));
     cnctrList.forEach(connector -> connector.show(depth + 1));
   }
 }

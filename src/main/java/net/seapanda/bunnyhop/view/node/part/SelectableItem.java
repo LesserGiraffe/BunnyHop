@@ -26,12 +26,14 @@ import java.util.Objects;
 public class SelectableItem {
   
   /** ビューが保持するオブジェクト. */
-  private Object viewObject;
+  private final Object viewObject;
   /** モデルが保持するテキスト. */
-  private String modelText;
+  private final String modelText;
   
   /** コンストラクタ. */
   public SelectableItem(String modelText, Object viewObj) {
+    Objects.requireNonNull(modelText);
+    Objects.requireNonNull(viewObj);
     this.modelText = modelText;
     this.viewObject = viewObj;
   }
@@ -77,9 +79,6 @@ public class SelectableItem {
       return false;
     }
     SelectableItem selectableItem = (SelectableItem) obj;
-    if (selectableItem.getModelText() == null) {
-      return modelText == null;
-    }
     return Objects.equals(modelText, selectableItem.modelText)
         && Objects.equals(viewObject, selectableItem.viewObject);
   }

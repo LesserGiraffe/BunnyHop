@@ -18,7 +18,7 @@
         nodeStyleID="FixedNumLiteral.json"
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckNumFormat.js"
-        initString="1"
+        initialText="1"
         version="bh-1.0"/>
     </Connector>
 

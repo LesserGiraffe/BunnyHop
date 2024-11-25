@@ -16,9 +16,9 @@
 
     <Connector
       bhConnectorID="idSyncTimerDecl.cnctr0"
-      import="idVarNameCnctr"
+      import="idIdentifierNameCnctr"
       name="SyncTimerName"
-      derivationID="dervIdVarName"
+      derivationID="dervIdIdentifierName"
       derivativeJoint="dervJointVarName"/>
 
     <Connector
@@ -45,7 +45,7 @@
         nodeStyleID="FixedNumLiteral.json"
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckSyncTimerCount.js"
-        initString="1"
+        initialText="1"
         version="bh-1.0"/>
     </Connector>
 

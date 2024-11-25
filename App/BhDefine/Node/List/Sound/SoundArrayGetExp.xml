@@ -26,7 +26,7 @@
         type="text"
         bhNodeID="idSoundArrayGetExp.node2"
         name="NilSound"
-        initString="_nilSound"
+        initialText="_nilSound"
         version="bh-1.0"/>
     </Connector>
 

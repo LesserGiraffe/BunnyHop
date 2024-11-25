@@ -9,7 +9,7 @@
 
     <Connector
       bhConnectorID="idBoolListArg.cnctr0"
-      import="idListNameCnctr"
+      import="idAnyFixedCnctr"
       name="ListName"
       derivativeJoint="dervJointListName"/>
     

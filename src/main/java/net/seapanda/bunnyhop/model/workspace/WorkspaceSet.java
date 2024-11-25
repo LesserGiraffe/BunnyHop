@@ -16,18 +16,15 @@
 
 package net.seapanda.bunnyhop.model.workspace;
 
+import com.google.gson.JsonSyntaxException;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
@@ -36,11 +33,15 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
+import net.seapanda.bunnyhop.export.CorruptedSaveDataException;
+import net.seapanda.bunnyhop.export.IncompatibleSaveFormatException;
+import net.seapanda.bunnyhop.export.ProjectExporter;
+import net.seapanda.bunnyhop.export.ProjectImporter;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgDispatcher;
@@ -50,12 +51,12 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextPrompter;
-import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
-import net.seapanda.bunnyhop.modelservice.DerivativeCache;
-import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
-import net.seapanda.bunnyhop.modelservice.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.saveandload.ProjectSaveData;
+import net.seapanda.bunnyhop.service.BhNodeHandler;
+import net.seapanda.bunnyhop.service.DerivativeCache;
+import net.seapanda.bunnyhop.service.ModelExclusiveControl;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
@@ -350,10 +351,8 @@ public class WorkspaceSet implements MsgDispatcher {
    * @return コピーもしくはカットの対象になる場合 true
    */
   private boolean canCopyOrCut(BhNode node) {
-    return
-      (node.getState() == BhNode.State.CHILD
-        && node.findRootNode().getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS)
-        || node.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
+    return (node.isChild() && node.findRootNode().isRootDirectolyUnderWs())
+        || node.isRootDirectolyUnderWs();
   }
 
   /**
@@ -388,19 +387,19 @@ public class WorkspaceSet implements MsgDispatcher {
   /**
    * 全ワークスペースを保存する.
    *
-   * @param fileToSave セーブファイル
-   * @return セーブに成功した場合true
+   * @param fileToSave 保存先のファイル
+   * @return セーブに成功した場合 true
    */
   public boolean save(File fileToSave) {
     ModelExclusiveControl.INSTANCE.lockForRead();
-    ProjectSaveData saveData = new ProjectSaveData(workspaceList);
-    try (ObjectOutputStream outputStream =
-        new ObjectOutputStream(new FileOutputStream(fileToSave));) {
-      outputStream.writeObject(saveData);
-      MsgPrinter.INSTANCE.msgForUser("-- 保存完了 (" + fileToSave.getPath() + ") --\n");
+    try {
+      ProjectExporter.export(workspaceList, fileToSave.toPath());
+      MsgPrinter.INSTANCE.msgForUser("-- 保存完了 (%s)--\n".formatted(fileToSave.getPath()));
       BunnyHop.INSTANCE.shouldSave(false);
       return true;
-    } catch (IOException e) {
+    } catch (Exception e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          "Failed to save the project.\n%s\n%s".formatted(fileToSave.getPath(), e));
       MsgPrinter.INSTANCE.alert(
           Alert.AlertType.ERROR,
           "ファイルの保存に失敗しました",
@@ -416,26 +415,77 @@ public class WorkspaceSet implements MsgDispatcher {
    * ファイルからワークスペースをロードし追加する.
    *
    * @param saveFile ロードするファイル
-   * @param isOldWsCleared ロード方法を確認する関数
+   * @param clearOldWorkspaces 既存のワークスペースを全て消す場合 true
    * @return ロードに成功した場合true
    */
-  public boolean load(File saveFile, Boolean isOldWsCleared) {
+  public boolean load(File saveFile, Boolean clearOldWorkspaces) {
     ModelExclusiveControl.INSTANCE.lockForRead();
-    try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(saveFile));) {
-      ProjectSaveData loadData = (ProjectSaveData) inputStream.readObject();
+    try {
+      ProjectImporter.Result result =  ProjectImporter.imports(saveFile.toPath());
+      if (!result.warnings().isEmpty()) {
+        MsgPrinter.INSTANCE.errMsgForDebug(result.warningMsg());
+      }
+      boolean continueLoading = result.warnings().isEmpty() || askIfContinueLoading();
+      if (!continueLoading) {
+        return false;
+      }
       UserOperation userOpe = new UserOperation();
-      if (isOldWsCleared) {
+      if (clearOldWorkspaces) {
         BunnyHop.INSTANCE.deleteAllWorkspace(userOpe);
       }
-      loadData.load(userOpe).forEach(ws -> BunnyHop.INSTANCE.addWorkspace(ws, userOpe));
+      result.workspaces().forEach(ws -> BunnyHop.INSTANCE.addWorkspace(ws, userOpe));
+      result.workspaces().stream().flatMap(ws -> ws.getRootNodeList().stream()).forEach(
+          root -> SyntaxErrorNodeManager.INSTANCE.collect(root, userOpe));
       BunnyHop.INSTANCE.pushUserOperation(userOpe);
       return true;
-    } catch (ClassNotFoundException | IOException | ClassCastException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(Util.INSTANCE.getCurrentMethodName() + "\n" + e);
+    } catch (IncompatibleSaveFormatException e) {
+      var msg = "サポートしていないバージョンのセーブデータです.\n  (file: %s)  (app: %s)".formatted(
+          e.version, BhConstants.saveDataVersion);
+      outputLoadErrMsg(saveFile, e, msg);
+      return false;
+    } catch (CorruptedSaveDataException | JsonSyntaxException e) {
+      outputLoadErrMsg(saveFile, e, "セーブデータが破損しています");
+      return false;
+    } catch (Exception e) {
+      outputLoadErrMsg(saveFile, e, "ファイルを読み込めませんでした");
       return false;
     } finally {
       ModelExclusiveControl.INSTANCE.unlockForRead();
     }
+  }
+
+  /**
+   * ロードを中断するか確認する.
+   *
+   * @retval true ロードを中断する
+   * @retval false 既存のワークスペースにロードしたワークスペースを追加
+   */
+  private Boolean askIfContinueLoading() {
+    String title = "警告";
+    String content = """
+        一部のノードが正しく読み込めませんでした.
+        ロードを続けますか?
+        続ける場合は [%s]    止める場合は [%s]
+        """.formatted(
+            ButtonType.YES.getText(),
+            ButtonType.NO.getText());
+
+    Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
+        AlertType.CONFIRMATION,
+        title,
+        null,
+        content,
+        ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+
+    return buttonType.map(type -> type.equals(ButtonType.YES)).orElse(false);
+  }
+
+  /** ロード失敗時のエラーメッセージを出力する. */
+  private void outputLoadErrMsg(File saveFile, Exception e, String msg) {
+    msg += "\n" + saveFile.getAbsolutePath();
+    MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
+    MsgPrinter.INSTANCE.alert(Alert.AlertType.INFORMATION, "ロード", null, msg);
+    MsgPrinter.INSTANCE.errMsgForUser(e.toString());
   }
 
   /**
@@ -503,7 +553,7 @@ public class WorkspaceSet implements MsgDispatcher {
    *     handler 第1引数 : 前の操作対象のワークスペース
    *     handler 第2引数 : 新しい操作対象のワークスペース
    *     </pre>
-   * @param invokeOnUiThread UIスレッド上で呼び出す場合 true
+   * @param invokeOnUiThread UI スレッド上で呼び出す場合 true
    */
   public void addOnCurrentWorkspaceChanged(
       BiConsumer<? super Workspace, ? super Workspace> handler, boolean invokeOnUiThread) {

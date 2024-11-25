@@ -22,8 +22,8 @@ import java.util.Optional;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Control;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.configfilereader.FxmlCollector;
+import net.seapanda.bunnyhop.service.FxmlCollector;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 
 /**
  * GUI コンポーネントをロードするクラス.
@@ -79,7 +79,7 @@ public class ComponentLoader {
       return Optional.of(loader.<T>load());
     } catch (IOException | ClassCastException e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "failed to load component in " + contentFilePath + "\n" +  e);
+          "Failed to load component in %s\n%s.".formatted(contentFilePath, e));
       return Optional.empty();
     }
   }

@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.service.Util;
 
 /**
  * 式のコード生成を行うクラス.
@@ -219,7 +219,7 @@ public class ExpCodeGenerator {
         return genColorLiteralExp(code, literalNode, nestLevel, option);
 
       default:
-        throw new AssertionError("invalid literal " + literalNode.getSymbolName());
+        throw new AssertionError("Invalid literal " + literalNode.getSymbolName());
     }
   }
 
@@ -498,7 +498,7 @@ public class ExpCodeGenerator {
     if (soundLiteralNode.getSymbolName().equals(SymbolNames.Literal.SCALE_SOUND_LITERAL)) {
       return genScaleSoundLiteralExp(code, soundLiteralNode, nestLevel, option);
     }
-    throw new AssertionError("invalid sound literal " + soundLiteralNode.getSymbolName());
+    throw new AssertionError("Invalid sound literal " + soundLiteralNode.getSymbolName());
   }
 
   /**

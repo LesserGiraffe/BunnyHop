@@ -14,7 +14,7 @@
     
     <Connector
       bhConnectorID="idVoidFuncCall.cnctr0"
-      import="idFuncNameCnctr"
+      import="idAnyFixedCnctr"
       name="FuncName"
       derivativeJoint="dervJointFuncName"/>
     

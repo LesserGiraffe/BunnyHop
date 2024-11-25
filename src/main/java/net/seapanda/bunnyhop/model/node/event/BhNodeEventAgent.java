@@ -22,16 +22,14 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.Connector;
-import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
-import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
+import net.seapanda.bunnyhop.service.BhNodeHandler;
+import net.seapanda.bunnyhop.service.BhScriptManager;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
@@ -45,7 +43,6 @@ import org.mozilla.javascript.ScriptableObject;
  */
 public class BhNodeEventAgent implements Serializable {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   private final BhNode target;
 
   /**
@@ -72,7 +69,7 @@ public class BhNodeEventAgent implements Serializable {
         BhConstants.JsKeyword.KEY_BH_COMMON,
         BhScriptManager.INSTANCE.getCommonJsObj());
     ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_TEMPLATES, BhNodeTemplates.INSTANCE);
+        scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_FACTORY, BhNodeFactory.INSTANCE);
 
     return scriptScope;
   }
@@ -107,8 +104,7 @@ public class BhNodeEventAgent implements Serializable {
     try {
       ContextFactory.getGlobal().call(cx -> onMovedToChild.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() +  " - " + scriptName.get() + "\n" + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
     }
   }
 
@@ -117,7 +113,7 @@ public class BhNodeEventAgent implements Serializable {
    *
    * @param oldParent 移る前に接続されていた親
    * @param oldRoot 移る前に所属していたルートノード
-   * @param newReplaced WSに移る際, このノードの替わりにつながったノード
+   * @param newReplaced ワークスペースに移る際, この処理を呼び出すノードの替わりにつながったノード
    * @param isSpecifiedDirectly この処理を呼び出すノードが, D&D やカット&ペーストで直接指定されてワークスペースに移動した場合 true
    * @param userOpe undo 用コマンドオブジェクト
    */
@@ -145,8 +141,7 @@ public class BhNodeEventAgent implements Serializable {
     try {
       ContextFactory.getGlobal().call(cx -> onMovedFromChildToWs.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
     }
   }
 
@@ -181,8 +176,7 @@ public class BhNodeEventAgent implements Serializable {
     try {
       ContextFactory.getGlobal().call(cx -> onChildReplaced.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
     }
   }
 
@@ -225,8 +219,7 @@ public class BhNodeEventAgent implements Serializable {
     try {
       doDeletion = ContextFactory.getGlobal().call(cx -> onDeletionRequested.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
     }
 
     if (doDeletion instanceof Boolean) {
@@ -261,8 +254,7 @@ public class BhNodeEventAgent implements Serializable {
     try {
       doCut = ContextFactory.getGlobal().call(cx -> onCutRequested.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
     }
 
     if (doCut instanceof Boolean) {
@@ -301,8 +293,7 @@ public class BhNodeEventAgent implements Serializable {
     try {
       ret = ContextFactory.getGlobal().call(cx -> onCopyRequested.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
     }
     if (ret == null) {
       return Optional.empty();
@@ -329,12 +320,33 @@ public class BhNodeEventAgent implements Serializable {
       Object retVal = ContextFactory.getGlobal().call(cx -> 
           ((Function) copyCheckFunc).call(cx, scriptScope, scriptScope, new Object[] {node}));
       if (!(retVal instanceof Boolean)) {
-        String msg = scriptName + " must return null or a function that returns a boolean value.";
-        MsgPrinter.INSTANCE.errMsgForDebug(msg);
+        MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+            "'%s' must return null or a function that returns a boolean value.", scriptName));
         throw new ClassCastException();
       }
       return (boolean) retVal;
     };
     return isNodeToCopy;
+  }
+
+  /**
+   * テンプレートノードが作成されたときの処理を実行する.
+   *
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public void execOnTemplateCreated(UserOperation userOpe) {
+    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_TEMPLATE_CREATED);
+    Script onTemplateCreated =
+        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+    if (onTemplateCreated == null) {
+      return;
+    }
+    ScriptableObject scriptScope = newDefaultScriptScope();
+    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE, userOpe);
+    try {
+      ContextFactory.getGlobal().call(cx -> onTemplateCreated.exec(cx, scriptScope));
+    } catch (Exception e) {
+      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
+    }
   }
 }

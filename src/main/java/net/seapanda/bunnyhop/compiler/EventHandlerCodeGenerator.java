@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 
 /**
  * イベントハンドラのコード生成を行うクラス.
@@ -159,9 +159,9 @@ public class EventHandlerCodeGenerator {
     String addEventCallStat = common.genFuncCallCode(
         ScriptIdentifiers.Funcs.ADD_EVENT,
         funcName,
-        "'" + event.toString() + "'");
+        "'%s'".formatted(event));
     code.append(common.indent(nestLevel))
-        .append(addEventCallStat + "; " + Keywords.newLine + Keywords.newLine);
+        .append(addEventCallStat + ";" + Keywords.newLine.repeat(2));
   }
 
   /**

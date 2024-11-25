@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.control.node;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
+import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.view.node.TextAreaNodeView;
 import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
 import net.seapanda.bunnyhop.view.node.TextInputNodeView;
@@ -39,10 +39,7 @@ public class TextInputNodeController extends BhNodeController {
     super(model, view);
     this.model = model;
     this.view = view;
-    if (model.isDerivative()) {
-      view.setEditable(false);
-    }
-    setTextChangeHandlers(model, view);
+    setEventHandlers(model, view);
   }
 
   /** コンストラクタ. */
@@ -50,10 +47,7 @@ public class TextInputNodeController extends BhNodeController {
     super(model, view);
     this.model = model;
     this.view = view;
-    if (model.isDerivative()) {
-      view.setEditable(false);
-    }
-    setTextChangeHandlers(model, view);
+    setEventHandlers(model, view);
   }
 
   /**
@@ -62,7 +56,7 @@ public class TextInputNodeController extends BhNodeController {
    * @param model TextNodeView に対応する model
    * @param view イベントハンドラを登録するview
    */
-  public static void setTextChangeHandlers(TextNode model, TextInputNodeView view) {
+  public static void setEventHandlers(TextNode model, TextInputNodeView view) {
     view.setTextFormatter(model::formatText);
     view.setTextChangeListener(model::isTextAcceptable);
     view.addFocusListener(
@@ -83,7 +77,7 @@ public class TextInputNodeController extends BhNodeController {
     ModelExclusiveControl.INSTANCE.lockForModification();
     try {
       String currentGuiText = view.getText();
-      boolean isValidFormat = model.isTextAcceptable(view.getText());
+      boolean isValidFormat = model.isTextAcceptable(currentGuiText);
       if (isValidFormat) {  //正しいフォーマットの文字列が入力されていた場合
         model.setText(currentGuiText);  //model の文字列をTextField のものに変更する
         model.assignContentsToDerivatives();
@@ -105,33 +99,18 @@ public class TextInputNodeController extends BhNodeController {
   @Override
   public MsgData processMsg(BhMsg msg, MsgData data) {
     switch (msg) {
-      case SET_TEXT:
-        setText(model, view, data.strPair.v1, data.strPair.v2);
+      case MATCH_VIEW_CONTENT_TO_MODEL:
+        matchViewToModel(model, view);
         break;
-
-      case GET_VIEW_TEXT:
-        return new MsgData(view.getText());
 
       default:
         return super.processMsg(msg, data);
-    }
+    };
     return null;
   }
 
-  /**
-   * テキストノードとそのビューにテキストをセットする.
-   *
-   * @param model テキストをセットするノード
-   * @param view テキストをセットするビュー
-   * @param modelText {@code model} にセットする文字列
-   * @param viewText {@code view} にセットする文字列
-   */
-  public static void setText(
-      TextNode model, TextInputNodeView view, String modelText, String viewText) {
-    model.setText(modelText);
-    boolean editable = view.getEditable();
-    view.setEditable(true);
-    view.setText(viewText);
-    view.setEditable(editable);
+  /** {@code model} の持つ文字列に合わせて {@code view} の内容を変更する. */
+  public static void matchViewToModel(TextNode model, TextInputNodeView view) {
+    view.setText(model.getText());
   }
 }

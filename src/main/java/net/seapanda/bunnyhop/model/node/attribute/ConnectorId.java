@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.model.node.attribute;
 
 import java.io.Serializable;
 import java.util.Objects;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
  * コネクタ ID.
@@ -27,7 +26,6 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
  */
 public class ConnectorId implements Serializable {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** コネクタ ID が存在しないことを表すオブジェクト. */
   public static final ConnectorId NONE = new ConnectorId("");
   private final String id;
@@ -39,6 +37,11 @@ public class ConnectorId implements Serializable {
    */
   private ConnectorId(String id) {
     this.id = id;
+  }
+
+  /** デフォルトコンストラクタ. (デシリアライズ用) */
+  public ConnectorId() {
+    id = NONE.id;
   }
 
   /**

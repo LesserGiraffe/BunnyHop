@@ -9,7 +9,7 @@
     
     <Connector
       bhConnectorID="idSoundListArg.cnctr0"
-      import="idListNameCnctr"
+      import="idAnyFixedCnctr"
       name="ListName"
       derivativeJoint="dervJointListName"/>
     

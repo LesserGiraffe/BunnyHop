@@ -18,7 +18,8 @@ package net.seapanda.bunnyhop.model.node.attribute;
 
 import java.io.Serializable;
 import java.util.Objects;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * BhNode のバージョン.
@@ -27,13 +28,12 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
  */
 public class BhNodeVersion implements Serializable {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** BhNode のバージョンが存在しないことを表すオブジェクト. */
   public static final BhNodeVersion NONE = new BhNodeVersion("");
-  private final String version;
-  private final String prefix;
-  private final String major;
-  private final String minor;
+  public final String version;
+  public final String prefix;
+  public final String major;
+  public final String minor;
 
   /**
    * コンストラクタ.
@@ -48,26 +48,44 @@ public class BhNodeVersion implements Serializable {
       minor = "";
       return;
     }
-    if (version == null || !version.matches("[a-zA-Z0-9]+\\-\\d+\\.\\d+")) {
+    Matcher matcher = Pattern.compile("([a-zA-Z0-9]+)\\-(\\d+)\\.(\\d+)").matcher(version);
+    if (version == null || !matcher.find()) {
       throw new IllegalArgumentException("Invalid BhNode version format (" + version + ")");
     }
-    prefix = version.substring(0, version.indexOf("-"));
-    major = version.substring(version.indexOf("-") + 1, version.indexOf("."));
-    minor = version.substring(version.indexOf(".") + 1, version.length());
+    prefix = matcher.group(1);
+    major = matcher.group(2);
+    minor = matcher.group(3);
+  }
+
+  /** デフォルトコンストラクタ. (デシリアライズ用) */
+  public BhNodeVersion() {
+    version = NONE.version;
+    prefix = NONE.prefix;
+    major = NONE.major;
+    minor = NONE.minor;
   }
 
   /** 接頭語部分を比較する. */
   public boolean compPrefix(BhNodeVersion other) {
+    if (other == null) {
+      return false;
+    }
     return other.prefix.equals(prefix);
   }
 
   /** メジャー番号を比較する. */
   public boolean compMajor(BhNodeVersion other) {
+    if (other == null) {
+      return false;
+    }
     return other.major.equals(major);
   }
 
   /** マイナー番号を比較する. */
   public boolean compMinor(BhNodeVersion other) {
+    if (other == null) {
+      return false;
+    }
     return other.minor.equals(minor);
   }
 

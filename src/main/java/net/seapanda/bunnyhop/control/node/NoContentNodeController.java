@@ -46,12 +46,8 @@ public class NoContentNodeController extends BhNodeController {
   @Override
   public MsgData processMsg(BhMsg msg, MsgData data) {
     switch (msg) {
-      case SET_TEXT:
-        model.setText(data.strPair.v1);
+      case MATCH_VIEW_CONTENT_TO_MODEL:
         break;
-
-      case GET_VIEW_TEXT:
-        return new MsgData();
 
       default:
         return super.processMsg(msg, data);

@@ -34,9 +34,8 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.constant.BhConstants.BhRuntime;
 import net.seapanda.bunnyhop.common.constant.ExclusiveSelection;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
+import net.seapanda.bunnyhop.service.BhScriptManager;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
@@ -68,8 +67,8 @@ public class RemoteBhProgramManager {
         BhConstants.Path.REMOTE_KILL_CMD_GENERATOR_JS);
 
     if (!success) {
-      String msg = "connot find remote cmd scripts";
-      MsgPrinter.INSTANCE.errMsgForDebug(msg + " " + getClass().getSimpleName());
+      String msg = "Cannot find remote cmd scripts";
+      MsgPrinter.INSTANCE.errMsgForDebug(msg);
       throw new IllegalStateException(msg);
     }
   }
@@ -143,7 +142,8 @@ public class RemoteBhProgramManager {
       }
     } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForUser("!! プログラム実行準備失敗 (remote) !!\n");
-      MsgPrinter.INSTANCE.errMsgForDebug("failed to run " + filePath.getFileName() + " (remote)");
+      MsgPrinter.INSTANCE.errMsgForDebug(
+          "Failed to run %s. (remote)".formatted(filePath.getFileName()));
       terminate(BhConstants.BhRuntime.REMOTE_RUNTIME_TERMINATION_TIMEOUT_SHORT);
       return false;
     }
@@ -212,7 +212,7 @@ public class RemoteBhProgramManager {
         throw new Exception();
       }
       if (status.get() != 0) {
-        MsgPrinter.INSTANCE.errMsgForDebug("terminate status err " + status.get());
+        MsgPrinter.INSTANCE.errMsgForDebug("terminate status err  (%s)".formatted(status.get()));
         throw new Exception("");
       }
     } catch (Exception e) {
@@ -271,15 +271,15 @@ public class RemoteBhProgramManager {
       }
     } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "failed to start " +  BhConstants.BhRuntime.BH_PROGRAM_RUNTIME_JAR + " " + e);
+          "Failed to start %s.\n%s".formatted(BhConstants.BhRuntime.BH_PROGRAM_RUNTIME_JAR, e));
     }
     return channel;
   }
 
   /**
-   * BhProgram実行環境開始のコマンドを生成する.
+   * BhProgram 実行環境開始のコマンドを生成する.
    *
-   * @return BhProgram実行環境開始のコマンド. コマンドの生成に失敗した場合null.
+   * @return BhProgram 実行環境開始のコマンド. コマンドの生成に失敗した場合 null.
    */
   private String genStartCmd(String host) {
     Script cs =
@@ -291,7 +291,7 @@ public class RemoteBhProgramManager {
       retVal = ContextFactory.getGlobal().call(cx -> cs.exec(cx, scope));
     } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "failed to eval " +  BhConstants.Path.REMOTE_EXEC_CMD_GENERATOR_JS + " " + e);
+          "Failed to execute %s.\n%s".formatted(BhConstants.Path.REMOTE_EXEC_CMD_GENERATOR_JS, e));
       return null;
     }
     if (retVal instanceof String) {
@@ -314,7 +314,7 @@ public class RemoteBhProgramManager {
           cx -> cs.exec(cx, BhScriptManager.INSTANCE.createScriptScope()));
     } catch (Exception e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "failed to eval" +  BhConstants.Path.REMOTE_KILL_CMD_GENERATOR_JS + " " + e);
+          "Failed to execute %s.\n%s".formatted(BhConstants.Path.REMOTE_KILL_CMD_GENERATOR_JS, e));
       return null;
     }
     if (retVal instanceof String) {
@@ -324,7 +324,7 @@ public class RemoteBhProgramManager {
   }
 
   /**
-   * SSH接続しリモートでコマンドを実行する.
+   * SSH 接続しリモートでコマンドを実行する.
    *
    * @param userInfo 接続先の情報
    * @param cmd 実行するコマンド
@@ -346,7 +346,7 @@ public class RemoteBhProgramManager {
       channel.connect();
     } catch (JSchException e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "failed to exec cmd remotely (" + cmd + ")  " + e);
+          "Failed to execute a cmd remotely (%s).\n%s".formatted(cmd, e));
       channel = null;
     }
     return channel;
@@ -382,12 +382,11 @@ public class RemoteBhProgramManager {
       SftpProgressMonitorImpl monitor = new SftpProgressMonitorImpl(fileCopyIsCancelled);
       channel.put(srcPath, destPath, monitor, ChannelSftp.OVERWRITE);
       if (monitor.isFileCopyCancelled()) {
-        throw new Exception("file transfer has been cancelled");
+        throw new Exception("File transfer has been cancelled.");
       }
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + "\n" + e + "\n");
-      MsgPrinter.INSTANCE.errMsgForUser("!! プログラム転送失敗 !!\n  " + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
+      MsgPrinter.INSTANCE.errMsgForUser("!! プログラム転送失敗 !!\n  %s\n".formatted(e));
       return false;
     }
     return true;

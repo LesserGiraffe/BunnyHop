@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import javafx.application.Platform;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgDispatcher;
@@ -43,7 +42,6 @@ import net.seapanda.bunnyhop.undo.UserOperation;
  */
 public class Workspace implements MsgDispatcher, Serializable {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** ワークスペースのルートノードのリスト. */
   private final Set<BhNode> rootNodeList = new HashSet<>();
   /** 選択中のノード. 挿入順を保持したいので LinkedHashSet を使う. */

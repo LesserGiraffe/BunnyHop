@@ -22,7 +22,7 @@ import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
 
 /**
- * 4文木空間を持ちいた衝突を管理するクラス.
+ * 4 分木空間を使って衝突を管理するクラス.
  *
  * @author K.Koike
  * */
@@ -96,6 +96,7 @@ public class QuadTreeManager {
     quadTreeObj.remove();
     quadTreeObj.setIdxInQuadTree(-1);  //無効な4 分木ノードインデックスを登録しておく
     unknownSpaceListHead.connectToNext(quadTreeObj);
+    quadTreeObj.setCurrenManager(this);
     quadTreeObj.setCallBackFuncs(this::registerWithQuadTree, this::searchOverlappedRects);
   }
 
@@ -107,6 +108,7 @@ public class QuadTreeManager {
   public static void removeQuadTreeObj(QuadTreeRectangle quadTreeObj) {
     quadTreeObj.remove();
     quadTreeObj.setIdxInQuadTree(-1);
+    quadTreeObj.setCurrenManager(null);
     quadTreeObj.setCallBackFuncs(null, null);
   }
 

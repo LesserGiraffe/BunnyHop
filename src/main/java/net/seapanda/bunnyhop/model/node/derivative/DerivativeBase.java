@@ -21,13 +21,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
-import net.seapanda.bunnyhop.modelprocessor.DerivativeBuilder;
-import net.seapanda.bunnyhop.modelservice.DerivativeCache;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
@@ -37,13 +34,14 @@ import net.seapanda.bunnyhop.undo.UserOperation;
  */
 public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Derivative {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** 派生先 ID とそれに対応する派生ノード ID のマップ. */
   private final Map<DerivationId, BhNodeId> derivationToDerivative;
   /** このオブジェクトが持つ派生ノードのリスト. */
   private final Set<T> derivatives;
-  /** このノードが派生ノードの場合、そのオリジナルノードを保持する. */
-  protected T original;
+  /** このノードが派生ノードの場合, そのオリジナルノードを保持する. */
+  private T original = null;
+  /** 最後にこのノードのオリジナルノードとなったノードを保持する. */
+  private T lastOriginal = null;
 
   /** サブタイプのインスタンスを返す. */
   protected abstract T self();
@@ -63,7 +61,6 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
     super(attributes);
     this.derivationToDerivative = derivationToDeivative;
     derivatives = new HashSet<>();
-    original = null;
   }
 
   /**
@@ -76,7 +73,6 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
     super(org);
     derivationToDerivative = org.derivationToDerivative;
     derivatives = new HashSet<>();  //元ノードをコピーしても, 派生ノードとのつながりは無いようにする
-    original = null;
 
     // 派生ノードをコピーした場合, コピー元と同じオリジナルノードの派生ノードとする
     if (org.isDerivative()) {
@@ -96,6 +92,19 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
     return original;
   }
 
+  /** このノードのオリジナルノードを設定する. */
+  protected final void setOriginal(T original) {
+    this.original = original;
+    if (original != null) {
+      lastOriginal = original;
+    }
+  }
+
+  @Override
+  public final T getLastOriginal() {
+    return lastOriginal;
+  }
+
   /**
    * 派生ノードを追加する.
    *
@@ -104,7 +113,7 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
    */
   public void addDerivative(T derivative, UserOperation userOpe) {
     derivatives.add(derivative);
-    derivative.original = self();
+    derivative.setOriginal(self());
     userOpe.pushCmdOfAddDerivative(derivative, self());
   }
 
@@ -117,7 +126,7 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
    */
   public void removeDerivative(T derivative, UserOperation userOpe) {
     derivatives.remove(derivative);
-    derivative.original = null;
+    derivative.setOriginal(null);
     userOpe.pushCmdOfRemoveDerivative(derivative, self());
   }
 
@@ -129,25 +138,6 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
   @Override
   public boolean isDerivative() {
     return original != null;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Derivative findOrCreateDerivative(BhNode oldNode, UserOperation userOpe) {
-    BhNode outerTailOfOldNode = oldNode.findOuterNode(-1);
-    for (Derivative derivative : DerivativeCache.INSTANCE.get(this)) {
-      if  (derivative.getLastReplaced() == null || !derivative.isDeleted()) {
-        continue;
-      }
-      // oldNode の外部末尾ノードが, このノードと最後に入れ替わったノードの外部末尾ノードと
-      // 一致する派生ノードを oldNode と入れ替える派生ノードとする
-      if (derivative.getLastReplaced().findOuterNode(-1) == outerTailOfOldNode) {
-        DerivativeCache.INSTANCE.remove(derivative);
-        addDerivative((T) derivative, userOpe);
-        return derivative;
-      }
-    }
-    return DerivativeBuilder.buildFromAncestor(this, userOpe);
   }
 
   @Override

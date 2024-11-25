@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.model.node.attribute;
 
 import java.io.Serializable;
 import java.util.Objects;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
 
 /**
  * 派生ノードの接続先の識別子.
@@ -27,7 +26,6 @@ import net.seapanda.bunnyhop.common.constant.VersionInfo;
  */
 public class DerivativeJointId implements Serializable {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** 派生ノードの接続位置が存在しないことを表す. */
   public static final DerivativeJointId NONE = new DerivativeJointId("");
   private final String id;

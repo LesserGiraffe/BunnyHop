@@ -29,10 +29,10 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
+import net.seapanda.bunnyhop.service.BhScriptManager;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.Util;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
@@ -134,6 +134,7 @@ public class BhNodeViewStyle {
   /** テキストフィールドのパラメータ. */
   public static class TextField {
     public double minWidth = 0 * BhConstants.LnF.NODE_SCALE;
+    public boolean editable = true;
     public String cssClass = "defaultTextField";
   }
 
@@ -157,6 +158,7 @@ public class BhNodeViewStyle {
   public static class TextArea {
     public double minWidth = 4 * BhConstants.LnF.NODE_SCALE;
     public double minHeight = 3 * BhConstants.LnF.NODE_SCALE;
+    public boolean editable = true;
     public String cssClass = "defaultTextArea";
   }
 
@@ -227,10 +229,12 @@ public class BhNodeViewStyle {
     this.component = org.component;
     this.textField.minWidth = org.textField.minWidth;
     this.textField.cssClass = org.textField.cssClass;
+    this.textField.editable = org.textField.editable;
     this.label.cssClass = org.label.cssClass;
     this.comboBox.cssClass = org.comboBox.cssClass;
     this.textArea.minWidth = org.textArea.minWidth;
     this.textArea.minHeight = org.textArea.minHeight;
+    this.textArea.editable = org.textArea.editable;
     this.textArea.cssClass = org.textArea.cssClass;
     this.privatTemplate.cssClass = org.privatTemplate.cssClass;
     this.privatTemplate.buttonPosX = org.privatTemplate.buttonPosX;
@@ -266,7 +270,7 @@ public class BhNodeViewStyle {
           .walk(dirPath, FOLLOW_LINKS)
           .filter(path -> path.getFileName().toString().endsWith(".json"));
     } catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("style directory not found " + dirPath);
+      MsgPrinter.INSTANCE.errMsgForDebug("Directory not found.  (%s)".formatted(dirPath));
       return false;
     }
 
@@ -347,9 +351,8 @@ public class BhNodeViewStyle {
       } else if (posStr.equals(BhConstants.NodeStyleDef.VAL_LEFT)) {
         style.connectorPos = ConnectorPos.LEFT;
       } else {
-        MsgPrinter.INSTANCE.errMsgForDebug(
-            "\"" + BhConstants.NodeStyleDef.KEY_CONNECTOR_POS + "\"" + " (" + posStr
-            + ") " + "format is invalid.  " + "(" + fileName + ")");
+        MsgPrinter.INSTANCE.errMsgForDebug("'%s' (%s) format is invalid.  (%s)".formatted(
+            BhConstants.NodeStyleDef.KEY_CONNECTOR_POS, posStr, fileName));
       }
     });
 
@@ -395,9 +398,8 @@ public class BhNodeViewStyle {
       } else if (posStr.equals(BhConstants.NodeStyleDef.VAL_BOTTOM)) {
         style.notchPos = NotchPos.BOTTOM;
       } else {
-        MsgPrinter.INSTANCE.errMsgForDebug(
-            "\"" + BhConstants.NodeStyleDef.KEY_NOTCH_POS + "\"" 
-            + " (" + posStr + ") " + "format is invalid.  " + "(" + fileName + ")");
+        MsgPrinter.INSTANCE.errMsgForDebug("'%s' (%s) format is invalid.  (%s)"
+            .formatted(BhConstants.NodeStyleDef.KEY_NOTCH_POS, posStr, fileName));
       }
     });
 
@@ -550,9 +552,8 @@ public class BhNodeViewStyle {
       } else if (arrangeStr.equals(BhConstants.NodeStyleDef.VAL_COLUMN)) {
         arrangement.arrangement = ChildArrangement.COLUMN;
       } else {
-        MsgPrinter.INSTANCE.errMsgForDebug(
-            "\"" + BhConstants.NodeStyleDef.KEY_ARRANGEMENR + "\"" + " ("
-            + arrangeStr + ") " + "format is invalid.  " + "(" + fileName + ")");
+        MsgPrinter.INSTANCE.errMsgForDebug("'%s' (%s) format is invalid.  (%s)"
+            .formatted(BhConstants.NodeStyleDef.KEY_ARRANGEMENR, arrangeStr, fileName));
       }
     });
 
@@ -632,6 +633,10 @@ public class BhNodeViewStyle {
     val = readValue(BhConstants.NodeStyleDef.KEY_MIN_WIDTH, Number.class, jsonObj, fileName);
     val.ifPresent(minWidth ->
         textField.minWidth = ((Number) minWidth).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    
+    // editable
+    val = readValue(BhConstants.NodeStyleDef.KEY_EDITABLE, Boolean.class, jsonObj, fileName);
+    val.ifPresent(editable -> textField.editable = ((Boolean) editable).booleanValue());
   }
 
   /**
@@ -696,6 +701,10 @@ public class BhNodeViewStyle {
     val = readValue(BhConstants.NodeStyleDef.KEY_MIN_HEIGHT, Number.class, jsonObj, fileName);
     val.ifPresent(minHeight ->
         textArea.minHeight = ((Number) minHeight).doubleValue() * BhConstants.LnF.NODE_SCALE);
+
+    // editable
+    val = readValue(BhConstants.NodeStyleDef.KEY_EDITABLE, Boolean.class, jsonObj, fileName);
+    val.ifPresent(editable -> textArea.editable = ((Boolean) editable).booleanValue());
   }
 
   /**
@@ -720,8 +729,8 @@ public class BhNodeViewStyle {
 
     if (!valueType.isAssignableFrom(val.getClass())) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "The type of " + keyName + " must be " + valueType.getSimpleName() + ".  \n"
-          + "The actual type is " + val.getClass().getSimpleName() + ". " + "(" + fileName + ")");
+          "The type of '%s' must be %s.\nThe actual type is %s.  (%s)".formatted(
+              keyName, valueType.getSimpleName(), val.getClass().getSimpleName(), fileName));
       return Optional.empty();
     }
     return Optional.of(val);
@@ -774,7 +783,7 @@ public class BhNodeViewStyle {
       for (String nodeStyleId : nodeIdToNodeStyleID.values()) {
         if (!nodeStyleIdToNodeStyleTemplate.containsKey(nodeStyleId)) {
           MsgPrinter.INSTANCE.errMsgForDebug(
-              "A node style file " + "(" + nodeStyleId + ")" + " is not found among *.json files");
+              "A node style file (%s) is not found among *.json files.".formatted(nodeStyleId));
         }
       }
     }

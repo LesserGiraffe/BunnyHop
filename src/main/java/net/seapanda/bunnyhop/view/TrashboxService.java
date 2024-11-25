@@ -23,7 +23,7 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 
 /**
- * ゴミ箱操作サービスクラス.
+ * ゴミ箱の操作を提供するクラス.
  *
  * @author K.Koike
  */

@@ -41,7 +41,7 @@ public enum BhMsg {
    * 4文木に登録される矩形オブジェクトを追加する.
    * (このメッセージを受け取ったBhNodeController の BhNodeView以下の全てのViewの矩形を登録する)
    */
-  ADD_QT_RECTANGLE,
+  SET_QT_RECTANGLE,
   /** 4文木に登録される矩形オブジェクトを削除する. */
   REMOVE_QT_RECTANGLE,
   /** ワークスペース上の位置を設定する. (4 分木空間上の位置も更新する). */
@@ -76,10 +76,6 @@ public enum BhMsg {
   DELETE_USER_OPE_CMD,
   /** GUIツリー上からViewを消す. */
   REMOVE_FROM_GUI_TREE,
-  /** モデルとビューにテキストを設定する. */
-  SET_TEXT,
-  /** ビューのテキストを取得する. */
-  GET_VIEW_TEXT,
   /** WSのズーム処理. */
   ZOOM,
   /** ゴミ箱エリアに入っているかどうかを調べる. */
@@ -102,4 +98,6 @@ public enum BhMsg {
   LOOK_AT_NODE_VIEW,
   /** テンプレートノードかどうかを調べる. */
   IS_TEMPLATE_NODE,
+  /** TextNode が持つ文字列に合わせて, その View の内容を変更する. */
+  MATCH_VIEW_CONTENT_TO_MODEL,
 }

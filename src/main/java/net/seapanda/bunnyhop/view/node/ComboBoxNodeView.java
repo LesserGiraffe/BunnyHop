@@ -19,7 +19,6 @@ package net.seapanda.bunnyhop.view.node;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
@@ -32,9 +31,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
@@ -66,7 +65,6 @@ public final class ComboBoxNodeView extends BhNodeView {
       throws ViewInitializationException {
     super(viewStyle, model);
     this.model = model;
-    setItems();
     getTreeManager().addChild(comboBox);
     initStyle();
     setComboBoxEventHandlers();
@@ -96,12 +94,14 @@ public final class ComboBoxNodeView extends BhNodeView {
     getLookManager().addCssClass(BhConstants.Css.CLASS_COMBO_BOX_NODE);
   }
 
-  private void setItems() {
-    if (model != null) {
-      var contents = model.getOptions().stream()
-          .map(item -> new SelectableItem(item.v1, item.v2.toString())).toList();
-      comboBox.setItems(FXCollections.observableArrayList(contents));
-    }
+  /** コンボボックスの選択肢を登録する. */
+  public void setItems(List<SelectableItem> items) {
+    comboBox.setItems(FXCollections.observableArrayList(items));
+  }
+
+  /** コンボぼっくに登録された選択肢を返す. */
+  public List<SelectableItem> getItems() {
+    return new ArrayList<>(comboBox.getItems());
   }
   
   /**
@@ -123,19 +123,15 @@ public final class ComboBoxNodeView extends BhNodeView {
     comboBox.valueProperty().addListener(handler);
   }
 
-  /**
-   * モデルの構造を表示する.
-   *
-   * @param depth 表示インデント数
-   */
   @Override
   public void show(int depth) {
     try {
-      MsgPrinter.INSTANCE.msgForDebug(indent(depth) + "<TextNodeView" + ">   " + this.hashCode());
-      MsgPrinter.INSTANCE.msgForDebug(
-          indent(depth + 1) + "<content" + ">   " + comboBox.getValue());
+      MsgPrinter.INSTANCE.println(
+          "%s<TextNodeView>   %s".formatted(indent(depth), this.hashCode()));
+      MsgPrinter.INSTANCE.println(
+          "%s<content>   %s".formatted(indent(depth + 1), comboBox.getValue()));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.msgForDebug("TextNodeView show exception " + e);
+      MsgPrinter.INSTANCE.println("TextNodeView show exception " + e);
     }
   }
 
@@ -168,19 +164,19 @@ public final class ComboBoxNodeView extends BhNodeView {
    *
    * @return 現在のコンボボックスのテキスト
    */
-  public SelectableItem getItem() {
+  public SelectableItem getValue() {
     return comboBox.getValue();
   }
 
   /**
    * 引数で指定した文字列を modelText として持つ SelectableItem を取得する.
    *
-   * @param modelText このテキストを modelText として持つ {@link SelectableItem} を見つける
+   * @param text このテキストを modelText として持つ {@link SelectableItem} を見つける
    * @return 引数で指定した文字列を modelText として持つ {@link SelectableItem}
    */
-  public Optional<SelectableItem> getItemByModelText(String modelText) {
+  public Optional<SelectableItem> getItemByModelText(String text) {
     for (SelectableItem item : comboBox.getItems()) {
-      if (item.getModelText().equals(modelText)) {
+      if (item.getModelText().equals(text)) {
         return Optional.of(item);
       }
     }
@@ -192,8 +188,8 @@ public final class ComboBoxNodeView extends BhNodeView {
    *
    * @param item 選択する要素
    */
-  public void setItem(SelectableItem item) {
-    Platform.runLater(() -> comboBox.setValue(item));
+  public void setValue(SelectableItem item) {    
+    comboBox.setValue(item);
   }
 
   /** コンボボックスの垂直スクロールバーを取得する. */

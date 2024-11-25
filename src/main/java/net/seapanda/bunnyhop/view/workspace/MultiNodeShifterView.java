@@ -37,11 +37,9 @@ import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.constant.BhConstants.LnF;
 import net.seapanda.bunnyhop.common.constant.Rem;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.configfilereader.FxmlCollector;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.service.FxmlCollector;
 import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 
@@ -68,8 +66,7 @@ public class MultiNodeShifterView extends Pane {
       loader.setRoot(this);
       loader.load();
     } catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(Util.INSTANCE.getCurrentMethodName() + "\n" + e);
-      throw new ViewInitializationException("failed to initialize  " + getClass().getSimpleName());
+      throw new ViewInitializationException("Failed to initialize  " + getClass().getSimpleName());
     }
 
     setVisible(false);
@@ -193,12 +190,21 @@ public class MultiNodeShifterView extends Pane {
     } else if (-1.0 < y && y < 0.0) {
       y = -1.0;
     }
-    double len = Util.INSTANCE.fastSqrt(x * x + y * y);
+    double len = fastSqrt(x * x + y * y);
     double cosVal = x / len;
     double sinVal = y / len;
     double r = shifterCircle.getRadius();
     link.setStartX(r * cosVal);
     link.setStartY(r * sinVal);
+  }
+
+  /** 高速平方根計算. */
+  private static double fastSqrt(double x) {
+    double half = 0.5 * x;
+    long lnum = 0x5FE6EB50C7B537AAL - (Double.doubleToLongBits(x) >> 1);
+    double dnum = Double.longBitsToDouble(lnum);
+    dnum *= 1.5 - half * dnum * dnum;
+    return dnum * x;
   }
 
   /**

@@ -16,6 +16,9 @@
 
 package net.seapanda.bunnyhop.common.constant;
 
+import net.seapanda.bunnyhop.export.SaveDataVersion;
+import net.seapanda.bunnyhop.root.AppVersion;
+
 /**
  * BunnyHop の定数一式をまとめたクラス.
  *
@@ -24,6 +27,10 @@ package net.seapanda.bunnyhop.common.constant;
 public class BhConstants {
 
   public static final String APPLICATION_NAME = "BunnyHop";
+  /** アプリケーションのバージョン. */
+  public static final AppVersion appVersion = AppVersion.of("bh-2.0.0");
+  /** セーブデータのバージョン. */
+  public static final SaveDataVersion saveDataVersion = SaveDataVersion.of("bh-1.0");
   /** undo 可能な最大回数. */
   public static final int NUM_TIMES_MAX_UNDO = 128;
   /** ExecutorService のシャットダウンを待つ時間 (sec). */
@@ -106,13 +113,12 @@ public class BhConstants {
     public static final String PRIVATE_TEMPLATE_BUTTON_FXML = "PrivateTemplateButton.fxml";
     /** ノードテンプレートの配置情報が書かれたファイルの名前. */
     public static final String NODE_TEMPLATE_LIST_JSON = "NodeTemplateList.json";
-    public static final String COMMON_EVENT_JS = "CommonEvent.js";
+    public static final String COMMON_FUNCS_JS = "CommonFuncs.js";
     public static final String COMMON_CODE_JS = "CommonCode.js";
     public static final String LOCAL_COMMON_CODE_JS = "LocalCommonCode.js";
     public static final String REMOTE_COMMON_CODE_JS = "RemoteCommonCode.js";
     /** BunnyHop が作成した BhProgram のスクリプト名. */
     public static final String APP_FILE_NAME_JS = "BhAppScript.js";
-    public static final String ON_NODE_TEMPLATE_COMPLETE_JS = "OnNodeTemplateComplete.js";
     /** リモートのBhProgram実行環境をスタートさせるコマンドを生成するスクリプト名. */
     public static final String REMOTE_EXEC_CMD_GENERATOR_JS = "RemoteExecCmdGenerator.js";
     /** リモートのBhProgram実行環境を終わらせるコマンドを生成するスクリプト名. */
@@ -154,8 +160,9 @@ public class BhConstants {
     public static final String ATTR_ON_COPY_REQUESTED = "onCopyRequested";
     public static final String ATTR_ON_PRIFVATE_TEMPLATE_CREATING = "onPrivateTemplateCreating";
     public static final String ATTR_ON_TEST_OPTIONS_CREATING = "onTextOptionsCreating";
+    public static final String ATTR_ON_TEMPLATE_CREATED = "onTemplateCreated";
     public static final String ATTR_DERIVATIVE_ID = "derivativeID";
-    public static final String ATTR_INIT_STRING = "initString";
+    public static final String ATTR_INITIAL_TEXT = "initialText";
     public static final String ATTR_DETIVATION_ID = "derivationID";
     public static final String ATTR_DERIVATIVE_JOINT = "derivativeJoint";
     public static final String ATTR_IMPORT = "import";
@@ -190,7 +197,7 @@ public class BhConstants {
     public static final String KEY_BH_NEXT_SYMBOL_NAME = "bhNextSymbolName";
     public static final String KEY_BH_USER_OPE = "bhUserOpe";
     public static final String KEY_BH_COMMON = "bhCommon";
-    public static final String KEY_BH_NODE_TEMPLATES = "bhNodeTemplates";
+    public static final String KEY_BH_NODE_FACTORY = "bhNodeFactory";
     public static final String KEY_BH_CANDIDATE_NODE_LIST = "bhCandidateNodeList";
     public static final String KEY_BH_NODES_TO_DELETE = "bhNodesToDelete";
     public static final String KEY_BH_CAUSE_OF_DELETION = "bhCauseOfDeletion";
@@ -246,6 +253,7 @@ public class BhConstants {
     public static final String KEY_CONNECTOR_LIST = "connectorList";
     public static final String KEY_SUB_GROUP = "subGroup";
     public static final String KEY_COMPONENT = "component";
+    public static final String KEY_EDITABLE = "editable";
     public static final String VAL_ROW = "Row";
     public static final String VAL_COLUMN = "Column";
     public static final String VAL_LEFT = "Left";

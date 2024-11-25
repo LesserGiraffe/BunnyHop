@@ -1,4 +1,4 @@
-let dervIdList = 'dervIdList';
+let dervIdIdentifierName = 'dervIdIdentifierName';
 
 let listDeclToGetStat = {
   'NumListDecl'   : 'idNumArrayGetExp',
@@ -27,15 +27,15 @@ function genNodeToReplace(symbolMaps) {
   nodes = [];
   for (let symbolMap of symbolMaps) {
     nodes.push(
-      bhCommon.genBhNode(symbolMap[bhThis.getSymbolName()], bhNodeTemplates, bhUserOpe));
+      bhCommon.createBhNode(symbolMap[bhThis.getSymbolName()], bhUserOpe));
   }
   return nodes;
 }
 
 function genAnyArrayControlNode(arrayCtrlNodeId, argNames, symbolMaps) {
-  let arrayCtrlNode = bhCommon.genBhNode(arrayCtrlNodeId, bhNodeTemplates, bhUserOpe);
+  let arrayCtrlNode = bhCommon.createBhNode(arrayCtrlNodeId, bhUserOpe);
   let arg = arrayCtrlNode.findSymbolInDescendants('*', 'Arg0', '*');
-  let newNode = bhCommon.buildDerivative(bhThis, dervIdList, bhUserOpe);
+  let newNode = bhCommon.buildDerivative(bhThis, dervIdIdentifierName, bhUserOpe);
   arg.replace(newNode, bhUserOpe);
 
   for (let i = 0; i < argNames.length; ++i) {
@@ -46,7 +46,7 @@ function genAnyArrayControlNode(arrayCtrlNodeId, argNames, symbolMaps) {
 }
 
 (function() {
-  let list = bhCommon.buildDerivative(bhThis, dervIdList, bhUserOpe);
+  let list = bhCommon.buildDerivative(bhThis, dervIdIdentifierName, bhUserOpe);
   let templates = [
     list,
     genAnyArrayControlNode('idAnyArrayToStrExp', [], []),

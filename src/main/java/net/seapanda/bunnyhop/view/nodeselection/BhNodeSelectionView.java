@@ -32,9 +32,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.transform.Scale;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.configfilereader.FxmlCollector;
+import net.seapanda.bunnyhop.service.FxmlCollector;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
@@ -71,10 +70,9 @@ public final class BhNodeSelectionView extends ScrollPane {
       loader.setRoot(this);
       loader.load();
     } catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + "\n  category : " + categoryName + "\n" + e);
+      MsgPrinter.INSTANCE.errMsgForDebug("category : %s\n%s".formatted(categoryName, e));
       throw new ViewInitializationException(
-          "failed to initialize "  + BhNodeSelectionView.class.getSimpleName());
+          "Failed to initialize " + BhNodeSelectionView.class.getSimpleName());
     }
 
     nodeSelectionPanel.getTransforms().add(new Scale());

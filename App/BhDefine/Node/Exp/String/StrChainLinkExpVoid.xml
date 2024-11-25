@@ -3,5 +3,5 @@
   bhNodeID="idStrChainLinkVoid"
   name="StrChainLinkVoid"
   nodeStyleID="StrChainLinkExpVoid.json"
-  initString="''"
+  initialText="''"
   version="bh-1.0"/>

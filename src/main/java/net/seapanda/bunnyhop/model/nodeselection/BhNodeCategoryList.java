@@ -20,14 +20,14 @@ import java.nio.file.Path;
 import java.util.Optional;
 import net.seapanda.bunnyhop.common.TreeNode;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgDispatcher;
 import net.seapanda.bunnyhop.message.MsgProcessor;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
+import net.seapanda.bunnyhop.service.BhScriptManager;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 
@@ -124,13 +124,12 @@ public class BhNodeCategoryList implements MsgDispatcher {
       if (bhNodeId instanceof String) {  // 配列内の文字列だけをBhNode の IDとみなす
         String bhNodeIdStr = (String) bhNodeId;
         // IDに対応する BhNode がある
-        if (BhNodeTemplates.INSTANCE.bhNodeExists(BhNodeId.of(bhNodeIdStr))) {
+        if (BhNodeFactory.INSTANCE.bhNodeExists(BhNodeId.of(bhNodeIdStr))) {
           parent.children.add(new TreeNode<>(bhNodeIdStr));
         } else {
           allBhNodesExist &= false;
-          MsgPrinter.INSTANCE.errMsgForDebug(
-              bhNodeIdStr + " に対応する " + BhConstants.BhModelDef.ELEM_NODE + " が存在しません.\n"
-              + "(" + fileName + ")");
+          MsgPrinter.INSTANCE.errMsgForDebug("Cannot find %s for %s\n(%s)"
+              .formatted(BhConstants.BhModelDef.ELEM_NODE, bhNodeIdStr, fileName));
         }
       }
     }

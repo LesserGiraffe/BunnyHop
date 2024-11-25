@@ -25,10 +25,10 @@ import net.seapanda.bunnyhop.model.node.TextNode;
  *
  * @author K.Koike
  */
-public class TextPrompter implements BhModelProcessor {
+public class TextPrompter implements BhNodeWalker {
 
   /**
-   * {@code node} で指定したノード以下の {@link TextNode} 型の派生ノードにオリジナルのテキストをセットする.
+   * {@code node} で指定したノード以下の {@link TextNode} 型の派生ノードに, そのオリジナルノードのテキストをセットする.
    */
   public static void prompt(BhNode node) {
     node.accept(new TextPrompter());
@@ -39,9 +39,8 @@ public class TextPrompter implements BhModelProcessor {
   @Override
   public void visit(TextNode node) {
     if (node.isDerivative()) {
-      TextNode original = node.getOriginal();
-      String viewText = MsgService.INSTANCE.getViewText(original);
-      MsgService.INSTANCE.setText(node, original.getText(), viewText);
+      node.setText(node.getOriginal().getText());
+      MsgService.INSTANCE.matchViewContentToModel(node);
     }
   }
 }

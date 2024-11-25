@@ -61,12 +61,9 @@ public class LabelNodeController extends BhNodeController {
   @Override
   public MsgData processMsg(BhMsg msg, MsgData data) {
     switch (msg) {
-      case SET_TEXT:
-        setText(model, view, data.strPair.v1, data.strPair.v2);
+      case MATCH_VIEW_CONTENT_TO_MODEL:
+        matchViewToModel(model, view);
         break;
-
-      case GET_VIEW_TEXT:
-        return new MsgData(view.getText());
 
       default:
         return super.processMsg(msg, data);
@@ -74,17 +71,8 @@ public class LabelNodeController extends BhNodeController {
     return null;
   }
 
-  /**
-   * テキストノードとそのビューにテキストをセットする.
-   *
-   * @param model テキストをセットするノード
-   * @param view テキストをセットするビュー
-   * @param modelText {@code model} にセットする文字列
-   * @param viewText {@code view} にセットする文字列
-   */
-  public static void setText(
-      TextNode model, LabelNodeView view, String modelText, String viewText) {
-    model.setText(modelText);
-    view.setText(viewText);
+  /** {@code model} の持つ文字列に合わせて {@code view} の内容を変更する. */
+  public static void matchViewToModel(TextNode model, LabelNodeView view) {
+    view.setText(model.getText());
   }
 }

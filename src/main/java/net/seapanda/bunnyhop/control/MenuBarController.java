@@ -25,13 +25,13 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
 import net.seapanda.bunnyhop.common.constant.BhSettings;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
+import net.seapanda.bunnyhop.service.ModelExclusiveControl;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.Util;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 
 /**
@@ -85,18 +85,18 @@ public class MenuBarController {
     }
 
     BhNodeSelectionService.INSTANCE.hideAll();
-    Optional<File> selectedFileOpt = getFileToSave();
-    boolean success = selectedFileOpt.map(selectedFile -> wss.save(selectedFile)).orElse(false);
+    Optional<File> fileToSave = getFileToSave();
+    boolean success = fileToSave.map(file -> wss.save(file)).orElse(false);
     if (success) {
-      currentSaveFile = selectedFileOpt.get();
+      currentSaveFile = fileToSave.get();
     }
     return success;
   }
 
   /**
-   * セーブ先のファイルを取得する.
+   * 保存先のファイルを取得する.
    *
-   * @return セーブ先のファイル
+   * @return 保存先のファイル
    */
   private Optional<File> getFileToSave() {
     FileChooser fileChooser = new FileChooser();
@@ -146,23 +146,11 @@ public class MenuBarController {
       new FileChooser.ExtensionFilter("BunnyHop Files", "*.bnh"),
       new FileChooser.ExtensionFilter("All Files", "*.*"));
     File selectedFile = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
-    boolean success = false;
-    if (selectedFile != null) {
-      success = askIfClearOldWs()
-        .map(clearWS -> {
-          boolean isLoadSuccessful = wss.load(selectedFile, clearWS);
-          if (!isLoadSuccessful) {
-            String fileName = selectedFile.getPath();
-            MsgPrinter.INSTANCE.alert(
-                Alert.AlertType.INFORMATION,
-                "開く",
-                null,
-                "ファイルを開けませんでした\n" + fileName);
-          }
-          return isLoadSuccessful;
-        })
-        .orElse(false);
+    if (selectedFile == null) {
+      return;
     }
+    boolean success =
+        askIfClearOldWs().map(clearWs -> wss.load(selectedFile, clearWs)).orElse(false);
     if (success) {
       currentSaveFile = selectedFile;
     }
@@ -190,12 +178,12 @@ public class MenuBarController {
    *
    * @retval true 既存のワークスペースをすべて削除
    * @retval false 既存のワークスペースにロードしたワークスペースを追加
+   * @retval empty どちらも選択されなかった場合
    */
   private Optional<Boolean> askIfClearOldWs() {
     String title = "ファイルのロード方法";
-    String content = "既存のワークスペースに追加する場合は" + " [" + ButtonType.YES.getText() + "].\n"
-        + "既存のワークスペースを全て削除する場合は" + " [" + ButtonType.NO.getText() + "].";
-
+    String content = "既存のワークスペースに追加する場合は [%s]\n既存のワークスペースを全て削除する場合は [%s]"
+        .formatted(ButtonType.YES.getText(), ButtonType.NO.getText());
     Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
         AlertType.CONFIRMATION,
         title,
@@ -203,10 +191,10 @@ public class MenuBarController {
         content,
         ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 
-    return buttonType.flatMap(btntype -> {
-      if (btntype.equals(ButtonType.NO)) {
+    return buttonType.flatMap(type -> {
+      if (type.equals(ButtonType.NO)) {
         return Optional.of(true);
-      } else if (btntype.equals(ButtonType.YES)) {
+      } else if (type.equals(ButtonType.YES)) {
         return Optional.of(false);
       }
       return Optional.empty();
@@ -227,12 +215,11 @@ public class MenuBarController {
 
   /** BunnyHopの基本情報を表示する. */
   private void showBunnyHopInfo() {
-    String content = "Version: " + VersionInfo.APP_VERSION;
     MsgPrinter.INSTANCE.alert(
         Alert.AlertType.INFORMATION,
         "BunnyHopについて",
         null,
-        content);
+        "Version: " + BhConstants.appVersion);
   }
 
   /** BhProgram 実行時にシミュレータにフォーカスするかどうかを切り替える. */
@@ -266,7 +253,7 @@ public class MenuBarController {
         break;
 
       default:
-        throw new AssertionError("invalid menu bar operation " + op);
+        throw new AssertionError("Invalid menu bar operation " + op);
     }
   }
 

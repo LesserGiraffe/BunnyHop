@@ -28,7 +28,7 @@ import net.seapanda.bunnyhop.model.node.derivative.Derivative;
  *
  * @author K.Koike
  */
-public class DerivativeCollector implements BhModelProcessor {
+public class DerivativeCollector implements BhNodeWalker {
 
   private Collection<Derivative> derivatives = new ArrayList<>();
 

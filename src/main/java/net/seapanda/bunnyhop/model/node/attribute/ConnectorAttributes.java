@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.model.node.attribute;
 
 
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import org.w3c.dom.Element;
 
 /**
@@ -64,12 +64,14 @@ public record ConnectorAttributes(
     if (!fixedStr.isEmpty()
         && !fixedStr.equals(BhConstants.BhModelDef.ATTR_VAL_TRUE)
         && !fixedStr.equals(BhConstants.BhModelDef.ATTR_VAL_FALSE)) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          "The value of a '" + BhConstants.BhModelDef.ATTR_FIXED + "' attribute "
-          + "must be '" + BhConstants.BhModelDef.ATTR_VAL_TRUE + "' or '"
-          + BhConstants.BhModelDef.ATTR_VAL_FALSE + "'.    "
-          + "'" + BhConstants.BhModelDef.ATTR_FIXED + "=" + fixedStr + "' is ignored.\n"
-          + elem.getOwnerDocument().getBaseURI());
+      MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+          "The value of a '%s' attribute must be '%s' or '%s'.    '%s=%s' is ignored.\n%s",
+          BhConstants.BhModelDef.ATTR_FIXED,
+          BhConstants.BhModelDef.ATTR_VAL_TRUE,
+          BhConstants.BhModelDef.ATTR_VAL_FALSE,
+          BhConstants.BhModelDef.ATTR_FIXED,
+          fixedStr,
+          elem.getOwnerDocument().getBaseURI()));
     }
     Boolean fixed = switch (fixedStr) {
       case BhConstants.BhModelDef.ATTR_VAL_TRUE -> true;

@@ -75,6 +75,21 @@ public class MsgData {
   }
 
   /** コンストラクタ. */
+  public MsgData(BhNodeView view, UserOperation userOpe) {
+    this.node = null;
+    this.nodeView = view;
+    this.vec2d = null;
+    this.strPair = null;
+    this.vec2dPair = null;
+    this.workspace = null;
+    this.workspaceView = null;
+    this.bool = false;
+    this.userOpe = userOpe;
+    this.text = null;
+    this.nodeSelectionView = null;
+  }
+
+  /** コンストラクタ. */
   public MsgData(Vec2D vec2d) {
     this.node = null;
     this.nodeView = null;

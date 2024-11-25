@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
-import net.seapanda.bunnyhop.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
@@ -31,7 +31,7 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
 public class RuntimeErrorIndicationService {
 
   public static final RuntimeErrorIndicationService INSTANCE = new RuntimeErrorIndicationService();
-  /** シンボルIDとエラーの表示対象となるノードビューのマップ. */
+  /** インスタンス IDとエラーの表示対象となるノードビューのマップ. */
   Map<InstanceId, BhNodeView> nodeIdToNodeView;
 
   private RuntimeErrorIndicationService() {}

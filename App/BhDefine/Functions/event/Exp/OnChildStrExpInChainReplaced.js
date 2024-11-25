@@ -7,12 +7,7 @@
     // 新文字列リンクノード作成
     let posOnWS = bhMsgService.getPosOnWs(bhThis);
     let newStrChainLinkExp = bhCommon.addNewNodeToWS(
-      bhThis.getId(),
-      bhThis.getWorkspace(),
-      posOnWS,
-      bhNodeHandler,
-      bhNodeTemplates,
-      bhUserOpe);
+      bhThis.getId(), bhThis.getWorkspace(), posOnWS, bhUserOpe);
     bhNodeHandler.exchangeNodes(nextStrChainLinkExp, newStrChainLinkExp, bhUserOpe);
 
     // 新ノードの末尾に旧ノードを追加

@@ -16,11 +16,14 @@
 
 package net.seapanda.bunnyhop.control.node;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.modelservice.ModelExclusiveControl;
+import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.part.SelectableItem;
 
@@ -31,12 +34,14 @@ import net.seapanda.bunnyhop.view.node.part.SelectableItem;
  */
 public class ComboBoxNodeController extends BhNodeController {
 
+  private final TextNode model;
   private final ComboBoxNodeView view;
 
   /** コンストラクタ. */
   public ComboBoxNodeController(TextNode model, ComboBoxNodeView view) {
     super(model, view);
     this.view = view;
+    this.model = model;
     setEventHandlers(model, view);
   }
 
@@ -47,13 +52,18 @@ public class ComboBoxNodeController extends BhNodeController {
    * @param view イベントハンドラを登録するview
    */
   public static void setEventHandlers(TextNode model, ComboBoxNodeView view) {
+    List<SelectableItem> items = createItems(model);
+    view.setItems(items);
     view.setTextChangeListener(
         (observable, oldVal, newVal) -> checkAndSetContent(model, view, oldVal, newVal));
 
     view.getItemByModelText(model.getText())
         .ifPresentOrElse(
-            item -> view.setItem(item),
-            () -> model.setText(view.getItem().getModelText()));
+            item -> view.setValue(item),
+            () -> {
+              model.setText(items.get(0).getModelText());
+              view.setValue(items.get(0));
+            });
   }
 
   /** 新しく選択されたコンボボックスのアイテムが適切かどうかを調べて, 適切ならビューとモデルに設定する. */
@@ -69,11 +79,22 @@ public class ComboBoxNodeController extends BhNodeController {
         model.setText(newItem.getModelText());
         model.assignContentsToDerivatives();
       } else {
-        view.setItem(oldItem);
+        view.setValue(oldItem);
       }
     } finally {
       ModelExclusiveControl.INSTANCE.unlockForModification();
     }
+  }
+
+  /** コンボボックスの選択肢を作成する. */
+  private static List<SelectableItem> createItems(TextNode model) {
+    ArrayList<SelectableItem> items = model.getOptions().stream()
+        .map(item -> new SelectableItem(item.v1, item.v2.toString()))
+        .collect(Collectors.toCollection(ArrayList::new));
+    if (items.isEmpty()) {
+      items.add(new SelectableItem(model.getText(), model.getText()));
+    }
+    return items;
   }
 
   /**
@@ -86,11 +107,21 @@ public class ComboBoxNodeController extends BhNodeController {
   @Override
   public MsgData processMsg(BhMsg msg, MsgData data) {
     switch (msg) {
-      case GET_VIEW_TEXT:
-        return new MsgData(view.getItem().getViewString());
+      case MATCH_VIEW_CONTENT_TO_MODEL:
+        matchViewToModel(model, view);
+        break;
 
       default:
         return super.processMsg(msg, data);
-    }
+    };
+    return null;
+  }
+
+  /** {@code model} の持つ文字列に合わせて {@code view} の内容を変更する. */
+  public static void matchViewToModel(TextNode model, ComboBoxNodeView view) {
+    view.getItems().stream()
+        .filter(item -> item.getModelText().equals(model.getText()))
+        .findFirst()
+        .ifPresent(view::setValue);
   }
 }

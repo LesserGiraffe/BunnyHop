@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.control.nodeselection.BhNodeSelectionController;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
+import net.seapanda.bunnyhop.service.BhNodeHandler;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**

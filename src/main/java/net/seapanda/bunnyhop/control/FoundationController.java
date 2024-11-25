@@ -29,13 +29,13 @@ import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.BhProgramService;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.constant.KeyCodeConverter;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.control.nodeselection.BhNodeCategoryListController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.service.KeyCodeConverter;
 
 /**
  * GUIの基底部分のコントローラ.

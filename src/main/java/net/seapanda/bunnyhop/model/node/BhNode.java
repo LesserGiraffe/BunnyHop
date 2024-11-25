@@ -25,22 +25,23 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.BhMsg;
 import net.seapanda.bunnyhop.message.MsgData;
 import net.seapanda.bunnyhop.message.MsgDispatcher;
 import net.seapanda.bunnyhop.message.MsgProcessor;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
+import net.seapanda.bunnyhop.model.node.attribute.BhNodeVersion;
+import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEventAgent;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.modelprocessor.DerivativeReplacer;
+import net.seapanda.bunnyhop.service.BhScriptManager;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.Util;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
@@ -53,17 +54,18 @@ import org.mozilla.javascript.ScriptableObject;
  */
 public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
-  /** ノードID (Node タグの bhID). */
+  /** ノード ID. */
   private final BhNodeId bhId;
+  /** ノードのバージョン. */
+  private final BhNodeVersion version;
   /** このノードを繋いでいるコネクタ. */
   protected Connector parentConnector;
-  /** このノードがあるWorkSpace. */
+  /** このノードがある WorkSpace. */
   protected Workspace workspace;
   /** デフォルトノード (= コネクタからノードを取り外したときに, 代わりに繋がるノード) フラグ. */
   private boolean isDefault = false;
   private Map<BhNodeEvent, String> eventToScriptName = new HashMap<>();
-  private BhNodeEventAgent agent = new BhNodeEventAgent(this);
+  private BhNodeEventAgent eventAgent = new BhNodeEventAgent(this);
   /** 最後にこのノードと入れ替わったノード. */
   private transient BhNode lastReplaced;
   /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
@@ -104,6 +106,14 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
    * @return このノードのオリジナルノード. このノードが派生ノードで無い場合は null を返す.
    */
   public abstract BhNode getOriginal();
+
+  /**
+   * 最後にこのノードのオリジナルノードとなったノードを返す.
+   *
+   * @return 最後にこのノードのオリジナルノードとなったノード.
+   *         このノードが一度も派生ノードになったことがない場合 null.
+   */
+  public abstract BhNode getLastOriginal();
 
   /**
    * 外部ノードを取得する. 指定した世代にあたる外部ノードがなかった場合, nullを返す.
@@ -148,8 +158,8 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
   protected BhNode(BhNodeAttributes attributes) {
     super(attributes.name());
     this.bhId = attributes.bhNodeId();
-    registerScriptName(
-        BhNodeEvent.ON_MOVED_FROM_CHILD_TO_WS, attributes.onMovedFromChildToWs());
+    this.version = attributes.version();
+    registerScriptName(BhNodeEvent.ON_MOVED_FROM_CHILD_TO_WS, attributes.onMovedFromChildToWs());
     registerScriptName(BhNodeEvent.ON_MOVED_TO_CHILD, attributes.onMovedToChild());
     registerScriptName(BhNodeEvent.ON_DELETION_REQUESTED, attributes.onDeletionRequested());
     registerScriptName(BhNodeEvent.ON_CUT_REQUESTED, attributes.onCutRequested());
@@ -157,6 +167,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
     registerScriptName(
         BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING, attributes.onPrivateTemplateCreating());
     registerScriptName(BhNodeEvent.ON_SYNTAX_CHECKING, attributes.onSyntaxChecking());
+    registerScriptName(BhNodeEvent.ON_TEMPLATE_CREATED, attributes.onTemplateCreated());
   }
 
   /**
@@ -167,6 +178,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
   protected BhNode(BhNode org) {
     super(org);
     bhId = org.bhId;
+    version = org.version;
     isDefault = org.isDefault;
     parentConnector = null;
     workspace = null;
@@ -174,8 +186,14 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
     lastReplaced = null;
   }
 
+  /** このノードの ID を取得する. */
   public BhNodeId getId() {
     return bhId;
+  }
+
+  /** このノードのバージョンを取得する. */
+  public BhNodeVersion getVersion() {
+    return version;
   }
 
   /**
@@ -210,7 +228,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
       return new ArrayList<>();
     }
     BhNode newNode =
-        BhNodeTemplates.INSTANCE.genBhNode(parentConnector.getDefaultNodeId(), userOpe);
+        BhNodeFactory.INSTANCE.create(parentConnector.getDefaultNodeId(), userOpe);
     newNode.setDefault(true);
     return replace(newNode, userOpe);
   }
@@ -383,7 +401,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
   }
 
   /** このノードのデフォルトフラグを変更する. */
-  protected void setDefault(boolean isDefault) {
+  public void setDefault(boolean isDefault) {
     this.isDefault = isDefault;
   }
 
@@ -421,6 +439,28 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
       return this;
     }
     return parentConnector.getParentNode().findRootNode();
+  }
+
+  /**
+   * このノードの先祖コネクタの中に, DerivationId.NONE 以外の派生先 ID (派生ノードを特定するための ID) があればそれを返す.
+   * なければ, DerivationId.NONE を返す.
+   */
+  public DerivationId findDerivationIdUp() {
+    if (getParentConnector() == null) {
+      return null;
+    }
+    return getParentConnector().findDerivationIdUp();
+  }
+
+  /**
+   * このノードの先祖コネクタの中に, DerivationId.NONE 以外の派生先 ID (派生ノードを特定するための ID) を持つコネクタがあればそれを返す.
+   * なければ, null を返す.
+   */
+  public Connector findDerivationConnectorUp() {
+    if (getParentConnector() == null) {
+      return null;
+    }
+    return getParentConnector().findDerivationConnectorUp();
   }
 
   @Override
@@ -475,7 +515,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
    * @return このノードに登録されたイベントとその処理を実行するオブジェクト
    */
   public BhNodeEventAgent getEventAgent() {
-    return agent;
+    return eventAgent;
   }
 
   /**
@@ -501,8 +541,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
       privateTemplateNodes =
         ContextFactory.getGlobal().call(cx -> privateTemplateCreator.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
     }
 
     if (privateTemplateNodes instanceof Collection<?>) {
@@ -534,8 +573,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
     try {
       hasError = ContextFactory.getGlobal().call(cx -> syntaxErrorChecker.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + scriptName.get() + "\n" + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
     }
 
     if (hasError instanceof Boolean) {

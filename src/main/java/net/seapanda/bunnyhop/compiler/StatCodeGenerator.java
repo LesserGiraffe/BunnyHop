@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.compiler;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 
 /**
  * 文のコード生成を行うクラス.
@@ -133,7 +133,7 @@ public class StatCodeGenerator {
       BhNode varDecl = ((BhNode) varSymbol).getOriginal();
       if (common.isOutputParam(varDecl)) {
         if (isAddAssign) {
-          rightExp = "(" + common.genGetOutputParamValCode(varDecl) + " + " + rightExp + ")";
+          rightExp = "(%s + %s)".formatted(common.genGetOutputParamValCode(varDecl), rightExp);
         }
         code.append(common.indent(nestLevel))
             .append(common.genSetOutputParamValCode(varDecl, rightExp))
@@ -141,7 +141,7 @@ public class StatCodeGenerator {
       } else {
         String varName = common.genVarName(varDecl);
         if (isAddAssign) {
-          rightExp = "(" + varName + " + " + rightExp + ")";
+          rightExp = "(%s + %s)".formatted(varName, rightExp);
         }
         code.append(common.indent(nestLevel))
             .append(varName)
@@ -209,7 +209,7 @@ public class StatCodeGenerator {
         break;
 
       default:
-        throw new AssertionError("invalid control stat " + symbolName);
+        throw new AssertionError("Invalid control stat " + symbolName);
     }
   }
 

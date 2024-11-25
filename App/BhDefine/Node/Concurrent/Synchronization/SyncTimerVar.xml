@@ -8,7 +8,7 @@
   <ConnectorSection name="SyncTimerExpSctn">    
     <Connector
       bhConnectorID="idSyncTimerVar.cnctr0"
-      import="idVarNameCnctr"
+      import="idAnyFixedCnctr"
       name="SyncTimerName"
       derivativeJoint="dervJointVarName"/>
   </ConnectorSection>

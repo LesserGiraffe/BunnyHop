@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
 import org.apache.commons.lang3.SerializationUtils;
@@ -61,7 +61,7 @@ public class NodeGraphSnapshot {
     return new HashSet<BhNode>(rootNodes);
   }
 
-  /** 引数のノードリストから辿れるノードをシンボルIDと共に集めて返す. */
+  /** {@link rootNodeList} から辿れるノードをインスタンス ID と共に集めて返す. */
   private Map<InstanceId, BhNode> collectNode(Collection<BhNode> rootNodeList) {
     var symbolIdToNode = new HashMap<InstanceId, BhNode>();
     var registry = CallbackInvoker.newCallbackRegistry().setForAllNodes(
@@ -89,9 +89,9 @@ public class NodeGraphSnapshot {
   }
 
   /**
-   * シンボルIDとそれに対応するノード (スナップショット) のマップを返す.
+   * インスタンス ID とそれに対応するノード (スナップショット) のマップを返す.
    *
-   * @return シンボルIDとそれに対応するノード (スナップショット) のマップ
+   * @return インスタンス ID とそれに対応するノード (スナップショット) のマップ
    */
   public Map<InstanceId, BhNode> getMapOfSymbolIdToNode() {
     return new HashMap<>(symbolIdToNode);

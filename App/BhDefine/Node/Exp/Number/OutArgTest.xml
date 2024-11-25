@@ -16,7 +16,7 @@
         bhNodeID="idOutArgTestExp.node0"
         name="OutArgTest"
         nodeStyleID="L1.json"
-        initString="OutArgTest"
+        initialText="OutArgTest"
         version="bh-1.0"/>
     </Connector>
 

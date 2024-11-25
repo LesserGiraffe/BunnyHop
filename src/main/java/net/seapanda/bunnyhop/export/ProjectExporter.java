@@ -1,0 +1,70 @@
+/*
+ * Copyright 2017 K.Koike
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+package net.seapanda.bunnyhop.export;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.reflect.TypeToken;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
+import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
+import net.seapanda.bunnyhop.modelprocessor.NodeImageBuilder;
+
+/**
+ * プロジェクトを保存する機能を提供するクラス.
+ *
+ * @author K.Koike
+ */
+public class ProjectExporter {
+
+  /**
+   * {@code workspaces} で指定した {@link Workspace} 一式とそれらに含まれる全 {@link BhNode} の情報を
+   * JSON 形式で {@code filePath} に保存する.
+   *
+   * @param workspaces これらの {@link Workspace} とその下にある {@link BhNode} を保存する.
+   * @param filePath データを保存するファイルのパス.
+   */
+  public static void export(List<Workspace> workspaces, Path filePath)
+      throws JsonIOException, IOException {
+    List<WorkspaceImage> wsi = workspaces.stream().map(ProjectExporter::convertToImage).toList();
+    var image = new ProjectImage(BhConstants.appVersion, BhConstants.saveDataVersion, wsi);
+    Gson gson = new GsonBuilder().create();
+    try (var jw = gson.newJsonWriter(new FileWriter(filePath.toString()))) {
+      gson.toJson(image, new TypeToken<ProjectImage>(){}.getType(), jw);
+    }
+  }
+
+  /** {@code workspace} に対応する {@link WorkspaceImage} を作成する. */
+  private static WorkspaceImage convertToImage(Workspace workspace) {
+    Collection<BhNodeImage> nodeImages = workspace.getRootNodeList().stream()
+        .map(root -> NodeImageBuilder.build(root))
+        .toList();
+    Vec2D size = MsgService.INSTANCE.getWorkspaceSize(workspace);
+    size = (size == null) ? new Vec2D(0, 0) : size;
+    return new WorkspaceImage(
+        workspace.getName(), size, nodeImages);
+  }
+}

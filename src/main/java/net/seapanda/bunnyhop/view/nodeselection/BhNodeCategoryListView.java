@@ -26,10 +26,12 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import net.seapanda.bunnyhop.common.TreeNode;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
-import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
+import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
+import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker.CallbackRegistry;
 import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
 import net.seapanda.bunnyhop.modelprocessor.TextPrompter;
 import net.seapanda.bunnyhop.undo.UserOperation;
@@ -142,9 +144,13 @@ public final class BhNodeCategoryListView {
       selectionViewList.add(selectionView);
     }
     UserOperation userOpe = new UserOperation();
-    BhNode node = BhNodeTemplates.INSTANCE.genBhNode(bhNodeId, userOpe);
+    BhNode node = BhNodeFactory.INSTANCE.create(bhNodeId, userOpe);
+    CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
+        .setForAllNodes(bhNode -> bhNode.getEventAgent().execOnTemplateCreated(userOpe));
+    CallbackInvoker.invoke(registry, node);
     NodeMvcBuilder.buildTemplate(node);  //MVC構築
     TextPrompter.prompt(node);
+    node.getEventAgent().execOnTemplateCreated(userOpe);
     //BhNode テンプレートリストパネルにBhNodeテンプレートを追加
     BhNodeSelectionService.INSTANCE.addTemplateNode(category.categoryName, node, userOpe);
   }

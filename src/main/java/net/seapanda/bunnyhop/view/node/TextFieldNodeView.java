@@ -25,12 +25,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
-import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.view.ViewHelper;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
@@ -58,7 +57,6 @@ public final class TextFieldNodeView extends TextInputNodeView {
       throws ViewInitializationException {
     super(model, viewStyle);
     this.model = model;
-    setInitText();
     getTreeManager().addChild(textField);
     textField.addEventFilter(MouseEvent.ANY, this::propagateEvent);
     textField.focusedProperty().addListener(
@@ -97,6 +95,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
     textField.widthProperty().addListener(observable -> notifySizeChange());
     textField.setMaxWidth(USE_PREF_SIZE);
     textField.setMinWidth(USE_PREF_SIZE);
+    setEditable(viewStyle.textField.editable);
     getLookManager().addCssClass(BhConstants.Css.CLASS_TEXT_FIELD_NODE);
   }
 
@@ -104,18 +103,6 @@ public final class TextFieldNodeView extends TextInputNodeView {
     if (textField.isFocused() && !textField.getText().isEmpty()) {
       textField.selectAll();
     }
-  }
-
-  private void setInitText() {
-    if (model == null) {
-      return;
-    }
-    model.getOptions().stream()
-        .reduce((a, b) -> new Pair<>(a.v1 + b.v1, a.v2.toString() + b.v2.toString()))
-        .ifPresent(text -> {
-          model.setText(text.v1);
-          setText(text.v2.toString());
-        });
   }
 
   @Override
@@ -192,9 +179,9 @@ public final class TextFieldNodeView extends TextInputNodeView {
 
   @Override
   public void show(int depth) {
-    MsgPrinter.INSTANCE.msgForDebug(
-        indent(depth) + "<" + getClass().getSimpleName() + ">   " + this.hashCode());
-    MsgPrinter.INSTANCE.msgForDebug(
-        indent(depth + 1) + "<content" + ">   " + textField.getText());
+    MsgPrinter.INSTANCE.println(
+        "%s<TextFieldNodeView>  %s".formatted(indent(depth), hashCode()));
+    MsgPrinter.INSTANCE.println(
+        "%s<content>  %s".formatted(indent(depth + 1), textField.getText()));
   }
 }

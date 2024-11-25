@@ -43,6 +43,8 @@ public enum BhNodeEvent {
   ON_TEXT_FORMATTING,
   /** テキストノードに入力されたテキストが受理可能かどうか判断するときに発行されるイベント. */
   ON_TEXT_CHECKING,
-  /** ビューのコンテンツを生成するときに発行されるイベント. */
-  ON_VIEW_CONTENTS_CREATING,
+  /** ノードビューが提示する選択肢を生成するときに発行されるイベント. */
+  ON_VIEW_OPTIONS_CREATING,
+  /** テンプレートノードが作成されたときに発行されるイベント. */
+  ON_TEMPLATE_CREATED,
 }

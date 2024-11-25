@@ -28,7 +28,7 @@ import net.seapanda.bunnyhop.model.node.section.Subsection;
  *
  * @author K.Koike
  */
-public class DerivativeFinder implements BhModelProcessor {
+public class DerivativeFinder implements BhNodeWalker {
 
   /** 見つかったノード. */
   private BhNode foundNode;

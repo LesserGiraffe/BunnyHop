@@ -20,21 +20,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.constant.VersionInfo;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.configfilereader.BhScriptManager;
 import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivativeJointId;
 import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
-import net.seapanda.bunnyhop.model.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.templates.BhNodeTemplates;
-import net.seapanda.bunnyhop.modelprocessor.BhModelProcessor;
-import net.seapanda.bunnyhop.modelservice.BhNodeHandler;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.modelprocessor.BhNodeWalker;
+import net.seapanda.bunnyhop.service.BhNodeHandler;
+import net.seapanda.bunnyhop.service.BhScriptManager;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.Util;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
@@ -47,7 +46,6 @@ import org.mozilla.javascript.ScriptableObject;
  */
 public class Connector extends SyntaxSymbol {
 
-  private static final long serialVersionUID = VersionInfo.SERIAL_VERSION_UID;
   /** コネクタID (Connector タグの bhID). */
   private final ConnectorId id;
   /** ノードが取り外されたときに変わりに繋がるノードのID (Connector タグの bhID). */
@@ -70,7 +68,7 @@ public class Connector extends SyntaxSymbol {
   protected transient ScriptableObject scriptScope;
 
   @Override
-   public void accept(BhModelProcessor visitor) {
+   public void accept(BhNodeWalker visitor) {
     visitor.visit(this);
   }
 
@@ -119,7 +117,7 @@ public class Connector extends SyntaxSymbol {
       newNode = connectedNode.copy(isNodeToBeCopied, userOpe);
     } else {
       // コピー対象のノードでない場合, デフォルトノードを新規作成して接続する
-      newNode = BhNodeTemplates.INSTANCE.genBhNode(defaultNodeId, userOpe);
+      newNode = BhNodeFactory.INSTANCE.create(defaultNodeId, userOpe);
       newNode.setDefault(true);
     }
     var newConnector = new Connector(this, parent);
@@ -128,11 +126,11 @@ public class Connector extends SyntaxSymbol {
   }
 
   /**
-   * BhModelProcessor を接続されているノードに渡す.
+   * {@link BhNodeWalker} を接続されているノードに渡す.
    *
-   * @param processor 接続されているノードに渡す BhModelProcessor
+   * @param processor 接続されているノードに渡す {@link BhNodeWalker}
    */
-  public void sendToConnectedNode(BhModelProcessor processor) {
+  public void sendToConnectedNode(BhNodeWalker processor) {
     connectedNode.accept(processor);
   }
 
@@ -196,8 +194,7 @@ public class Connector extends SyntaxSymbol {
     try {
       isConnectable = ContextFactory.getGlobal().call(cx -> script.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          Util.INSTANCE.getCurrentMethodName() + " - " + cnctCheckScriptName + "\n" + e + "\n");
+      MsgPrinter.INSTANCE.errMsgForDebug(cnctCheckScriptName + "\n" + e);
       return false;
     }
 
@@ -239,15 +236,32 @@ public class Connector extends SyntaxSymbol {
    * このコネクタと先祖コネクタの中に, DerivationId.NONE 以外の派生先 ID (派生ノードを特定するための ID) があればそれを返す.
    * なければ, DerivationId.NONE を返す.
    */
-  public DerivationId findDerivationId() {
+  DerivationId findDerivationIdUp() {    
     if (derivationId.equals(DerivationId.NONE)) {
       Connector parentCnctr = getParentNode().getParentConnector();
       if (parentCnctr != null) {
-        return parentCnctr.findDerivationId();
+        return parentCnctr.findDerivationIdUp();
       }
     }
     return derivationId;
   }
+
+  /**
+   * このコネクタと先祖コネクタの中に, DerivationId.NONE 以外の派生先 ID (派生ノードを特定するための ID) を持つコネクタがあればそれを返す.
+   * なければ, null を返す.
+   */
+  Connector findDerivationConnectorUp() {
+    if (derivationId.equals(DerivationId.NONE)) {
+      Connector parentCnctr = getParentNode().getParentConnector();
+      if (parentCnctr != null) {
+        return parentCnctr.findDerivationConnectorUp();
+      } else {
+        return null;
+      }
+    }
+    return this;
+  }
+  
 
   /**
    * 派生ノード接続位置の識別子を取得する.
@@ -333,18 +347,10 @@ public class Connector extends SyntaxSymbol {
     return parent.isDescendantOf(ancestor);
   }
 
-  /**
-   * モデルの構造を表示する.
-   *
-   * @param depth 表示インデント数
-   */
   @Override
   public void show(int depth) {
-    MsgPrinter.INSTANCE.msgForDebug(
-        indent(depth) + "<Connector" 
-        + " bhID=" + id
-        + " nodeID=" + connectedNode.getId() 
-        + " parent=" + parent.hashCode() + "> " + this.hashCode());
+    MsgPrinter.INSTANCE.println("%s<Connector bhID=%s nodeID=%s parent=%s>  %s".formatted(
+        indent(depth), id, connectedNode.getId(), parent.getInstanceId(), getInstanceId()));
     connectedNode.show(depth + 1);
   }
 }

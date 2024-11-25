@@ -3,6 +3,7 @@
   bhNodeID="idScanExp"
   name="ScanExp"
   nodeStyleID="ScanExp.json"
+  onTemplateCreated="SetDefaultScanExpMsg.js"
   version="bh-1.0">
 
   <ConnectorSection name="StrExpSctn">

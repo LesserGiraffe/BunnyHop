@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.undo.UserOperation;
  *
  * @author K.Koike
  */
-public class NodeDeselector implements BhModelProcessor {
+public class NodeDeselector implements BhNodeWalker {
 
   private final UserOperation userOpe;
 

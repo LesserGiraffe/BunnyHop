@@ -26,7 +26,7 @@
         type="text"
         bhNodeID="idBoolArrayGetExp.node2"
         name="BoolLiteral"
-        initString="false"
+        initialText="false"
         version="bh-1.0"/>
     </Connector>
 

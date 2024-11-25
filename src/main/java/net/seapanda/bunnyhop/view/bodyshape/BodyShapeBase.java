@@ -159,13 +159,14 @@ public abstract class BodyShapeBase {
    * ボディ名から対応する BODY_SHAPE を返す.
    *
    * @param bodyShapeName ボディの形を表す文字列
-   * @param fileName ボディの形が記述してあるjsonファイルの名前 (null可)
+   * @param fileName ボディの形が記述してあるjsonファイルの名前 (nullable)
    * @return shapeStrに対応する CNCTR_SHAPE 列挙子 (オプション)
    */
   public static BodyShape getBodyTypeFromName(String bodyShapeName, String fileName) {
     BodyShape type = BodyShape.getByName(bodyShapeName);
     if (type == null) {
-      throw new AssertionError("invalid body shape name " + bodyShapeName + " (" + fileName + ")");
+      throw new IllegalArgumentException(
+          "Invalid body shape name %s (%s)".formatted(bodyShapeName, fileName));
     }
     return type;
   }

@@ -35,9 +35,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
-import net.seapanda.bunnyhop.common.tools.Util;
-import net.seapanda.bunnyhop.configfilereader.FxmlCollector;
 import net.seapanda.bunnyhop.control.FoundationController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceController;
 import net.seapanda.bunnyhop.message.BhMsg;
@@ -46,6 +43,9 @@ import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.service.FxmlCollector;
+import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.Util;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.TrashboxService;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
@@ -89,8 +89,7 @@ public class BunnyHop {
       }
     } catch (IOException e) {
       MsgPrinter.INSTANCE.errMsgForDebug(
-          "failed to load fxml " + BhConstants.Path.FOUNDATION_FXML + "\n"
-          + e + "\n");
+          "Failed to load %s\n%s".formatted(BhConstants.Path.FOUNDATION_FXML, e));
       return false;
     }
 
@@ -139,24 +138,21 @@ public class BunnyHop {
   /**
    * ワークスペースを新しく作成し追加する.
    *
-   * @param workspaceName ワークスペース名
+   * @param name ワークスペース名
    * @param width ワークスペース幅
    * @param height ワークスペース高さ
    * @param userOpe undo 用コマンドオブジェクト
    */
   public void addNewWorkSpace(
-      String workspaceName,
-      double width,
-      double height,
-      UserOperation userOpe) {
-    Workspace ws = new Workspace(workspaceName);
-    WorkspaceView wsView = new WorkspaceView(ws);
-    wsView.init(width, height);
+      String name, double width, double height, UserOperation userOpe) {
+    Workspace ws = new Workspace(name);
+    WorkspaceView wsView;
     WorkspaceController wsController;
     try {
+      wsView = new WorkspaceView(ws, width, height);
       wsController = new WorkspaceController(ws, wsView, new MultiNodeShifterView());
     } catch (ViewInitializationException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(Util.INSTANCE.getCurrentMethodName() + "\n" + e);
+      MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
       return;
     }
     ws.setMsgProcessor(wsController);
@@ -238,14 +234,14 @@ public class BunnyHop {
       files = Files.walk(dirPath, FOLLOW_LINKS).filter(
           filePath -> filePath.toString().toLowerCase().endsWith(".css")).toList();
     } catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("css directory not found " + dirPath);
+      MsgPrinter.INSTANCE.errMsgForDebug("Directory not found.  (%s)".formatted(dirPath));
       return;
     }
     files.forEach(path -> {
       try {
         scene.getStylesheets().add(path.toUri().toString());
       } catch (Exception e) {
-        MsgPrinter.INSTANCE.errMsgForDebug(Util.INSTANCE.getCurrentMethodName() + "\n" + e);
+        MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
       }
     });
   }

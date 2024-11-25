@@ -19,8 +19,8 @@ package net.seapanda.bunnyhop.view.node;
 import java.util.Optional;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
@@ -173,12 +173,12 @@ public final class ConnectiveNodeView extends BhNodeView {
   @Override
   public void show(int depth) {
     try {
-      MsgPrinter.INSTANCE.msgForDebug(
-          indent(depth) + "<ConnectiveNodeView" + ">   " + this.hashCode());
+      MsgPrinter.INSTANCE.println(
+          "%s<ConnectiveNodeView>  %s".formatted(indent(depth), hashCode()));
       innerGroup.show(depth + 1);
       outerGroup.show(depth + 1);
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.msgForDebug("connectiveNodeView show exception " + e);
+      MsgPrinter.INSTANCE.println("connectiveNodeView show exception " + e);
     }
   }
 }

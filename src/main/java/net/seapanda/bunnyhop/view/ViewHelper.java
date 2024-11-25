@@ -28,7 +28,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.Util;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
@@ -223,9 +222,8 @@ public class ViewHelper {
       throws ViewInitializationException {
     Optional<BhNodeViewStyle> style = BhNodeViewStyle.getStyleFromStyleId(styleId);
     if (style.isEmpty()) {
-      String msg = Util.INSTANCE.getCurrentMethodName()
-          + " - BhNode View Style '" + styleId + "' was not found.";
-      throw new ViewInitializationException(msg);
+      throw new ViewInitializationException(
+        "BhNode View Style '%s' was not found.".formatted(styleId));
     }
     return switch (style.get().component) {
       case TEXT_FIELD -> {
@@ -236,7 +234,7 @@ public class ViewHelper {
       }
       case COMBO_BOX -> {
         var view = new ComboBoxNodeView(style.get());
-        view.setItem(new SelectableItem(text, text));
+        view.setValue(new SelectableItem(text, text));
         yield view;
       }
       case LABEL -> {
@@ -251,10 +249,9 @@ public class ViewHelper {
         yield view;
       }
       default -> {
-        String msg = Util.INSTANCE.getCurrentMethodName()
-            + " - cannot create a modelless node view whose component is " + style.get().component
-            + ".  (" + styleId + ")";
-        throw new ViewInitializationException(msg);
+        throw new ViewInitializationException(
+            "Cannot create a modelless node view whose component is '%s'.  (%s)"
+                .formatted(style.get().component, styleId));
       }
     };
   }

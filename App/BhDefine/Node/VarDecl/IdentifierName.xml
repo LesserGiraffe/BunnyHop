@@ -1,0 +1,11 @@
+<Node
+  type="text"
+  bhNodeID="idIdentifierName"
+  name="IdentifierName"
+  nodeStyleID="Identifier.json"
+  onTextChecking="CheckIdentifierFormat.js"
+  onTemplateCreated="SetDefaultIdentifierName.js"
+  version="bh-1.0">
+  
+  <Derivation derivationID="dervIdIdentifierName" derivativeID="idUneditableIdentifierName"/>
+</Node>

@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.common.SynchronizingTimer;
 import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.tools.MsgPrinter;
+import net.seapanda.bunnyhop.service.MsgPrinter;
 
 /**
  * BhProgram と通信をするクラス.
@@ -95,7 +95,7 @@ public class BhProgramTransceiver {
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
       MsgPrinter.INSTANCE.errMsgForUser("!! 接続失敗 !!\n");
-      MsgPrinter.INSTANCE.errMsgForDebug("failed to connect. " + e);
+      MsgPrinter.INSTANCE.errMsgForDebug("Failed to connect to BhRuntime.\n" + e);
       return false;
     }
     connected.set(true);
@@ -115,7 +115,7 @@ public class BhProgramTransceiver {
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
       MsgPrinter.INSTANCE.errMsgForUser("!! 切断失敗 !!\n");
-      MsgPrinter.INSTANCE.errMsgForDebug("failed to disconnect " + e);
+      MsgPrinter.INSTANCE.errMsgForDebug("Failed to disconnect from BhRuntime\n" + e);
       return false;
     }
     connected.set(false);
@@ -154,8 +154,7 @@ public class BhProgramTransceiver {
       success &= res;
       if (!res) {
         MsgPrinter.INSTANCE.errMsgForDebug(
-            "failed to cancel " + futures.toName(future) + " task "
-            + BhConstants.BhRuntime.BH_PROGRAM_RUNTIME_JAR);
+            "Failed to cancel '%s' task.".formatted(futures.toName(future)));
       }  
     }
     futures = null;

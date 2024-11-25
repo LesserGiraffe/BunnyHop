@@ -1,0 +1,4 @@
+<ConnectorParamSet 
+  paramSetID="idIdentifierNameCnctr"
+  defaultBhNodeID="idIdentifierName"
+  fixed="true"/>

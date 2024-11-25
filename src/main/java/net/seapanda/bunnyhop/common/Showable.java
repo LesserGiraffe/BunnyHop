@@ -17,14 +17,14 @@
 package net.seapanda.bunnyhop.common;
 
 /**
- * モデル構造表示用インタフェース (デバッグ用).
+ * オブジェクトの詳細表示用インタフェース (デバッグ用).
  *
  * @author K.Koike
  */
 public interface Showable {
 
   /**
-   * モデルの構造を表示する.
+   * オブジェクトの詳細を表示する.
    *
    * @param depth 表示インデント数
    */
