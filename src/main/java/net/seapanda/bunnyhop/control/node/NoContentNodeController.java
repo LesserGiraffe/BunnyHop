@@ -16,8 +16,8 @@
 
 package net.seapanda.bunnyhop.control.node;
 
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
+import net.seapanda.bunnyhop.command.BhCmd;
+import net.seapanda.bunnyhop.command.CmdData;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.node.NoContentNodeView;
 
@@ -44,13 +44,13 @@ public class NoContentNodeController extends BhNodeController {
    * @return メッセージを処理した結果返すデータ
    */
   @Override
-  public MsgData processMsg(BhMsg msg, MsgData data) {
+  public CmdData process(BhCmd msg, CmdData data) {
     switch (msg) {
       case MATCH_VIEW_CONTENT_TO_MODEL:
         break;
 
       default:
-        return super.processMsg(msg, data);
+        return super.process(msg, data);
     }
     return null;
   }

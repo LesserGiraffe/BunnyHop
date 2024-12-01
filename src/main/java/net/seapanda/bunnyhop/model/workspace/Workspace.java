@@ -27,12 +27,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import javafx.application.Platform;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgDispatcher;
-import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.command.BhCmd;
+import net.seapanda.bunnyhop.command.CmdData;
+import net.seapanda.bunnyhop.command.CmdDispatcher;
+import net.seapanda.bunnyhop.command.CmdProcessor;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
@@ -40,7 +40,7 @@ import net.seapanda.bunnyhop.undo.UserOperation;
  *
  * @author K.Koike
  */
-public class Workspace implements MsgDispatcher, Serializable {
+public class Workspace implements CmdDispatcher, Serializable {
 
   /** ワークスペースのルートノードのリスト. */
   private final Set<BhNode> rootNodeList = new HashSet<>();
@@ -61,7 +61,7 @@ public class Workspace implements MsgDispatcher, Serializable {
   /** このワークスペースを持つワークスペースセット. */
   private transient WorkspaceSet workspaceSet;
   /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
-  private transient MsgProcessor msgProcessor = (msg, data) -> null;
+  private transient CmdProcessor msgProcessor = (msg, data) -> null;
 
   /**
    * コンストラクタ.
@@ -160,9 +160,9 @@ public class Workspace implements MsgDispatcher, Serializable {
       return;
     }
     selectedList.add(nodeToAdd);
-    MsgService.INSTANCE.selectNodeView(nodeToAdd, true);
-    MsgService.INSTANCE.updateMultiNodeShifter(nodeToAdd, this);
-    MsgService.INSTANCE.hilightDerivatives(nodeToAdd, true);
+    BhService.cmdProxy().selectNodeView(nodeToAdd, true);
+    BhService.cmdProxy().updateMultiNodeShifter(nodeToAdd, this);
+    BhService.cmdProxy().hilightDerivatives(nodeToAdd, true);
     onSelectedNodeListChangedToThreadFlag.forEach(this::invokeOnSelectedNodeChanged);
     userOpe.pushCmdOfAddSelectedNode(this, nodeToAdd);
   }
@@ -187,9 +187,9 @@ public class Workspace implements MsgDispatcher, Serializable {
       return;
     }
     selectedList.remove(nodeToRemove);
-    MsgService.INSTANCE.selectNodeView(nodeToRemove, false);
-    MsgService.INSTANCE.updateMultiNodeShifter(nodeToRemove, this);
-    MsgService.INSTANCE.hilightDerivatives(nodeToRemove, false);
+    BhService.cmdProxy().selectNodeView(nodeToRemove, false);
+    BhService.cmdProxy().updateMultiNodeShifter(nodeToRemove, this);
+    BhService.cmdProxy().hilightDerivatives(nodeToRemove, false);
     onSelectedNodeListChangedToThreadFlag.forEach(this::invokeOnSelectedNodeChanged);
     userOpe.pushCmdOfRemoveSelectedNode(this, nodeToRemove);
   }
@@ -255,12 +255,12 @@ public class Workspace implements MsgDispatcher, Serializable {
   }
 
   @Override
-  public void setMsgProcessor(MsgProcessor processor) {
+  public void setMsgProcessor(CmdProcessor processor) {
     msgProcessor = processor;
   }
 
   @Override
-  public MsgData dispatch(BhMsg msg, MsgData data) {
-    return msgProcessor.processMsg(msg, data);
+  public CmdData dispatch(BhCmd msg, CmdData data) {
+    return msgProcessor.process(msg, data);
   }
 }

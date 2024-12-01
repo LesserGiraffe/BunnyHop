@@ -1,12 +1,12 @@
 (function() {
 
-  let NodeMvcBuilder = net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
+  let NodeMvcBuilder = net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
   let BhNodeId = net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-  let DerivativeBuilder = net.seapanda.bunnyhop.modelprocessor.DerivativeBuilder;
+  let DerivativeBuilder = net.seapanda.bunnyhop.model.traverse.DerivativeBuilder;
   let DerivationId = net.seapanda.bunnyhop.model.node.attribute.DerivationId;
   let bhCommon = {
     'bhNodeFactory': bhNodeFactory,
-    'bhNodeHandler': bhNodeHandler
+    'bhNodePlacer': bhNodePlacer
   };
 
   // 入れ替わってワークスペースに移ったノードを末尾に再接続する
@@ -15,8 +15,8 @@
     if (outerEnd.canBeReplacedWith(oldNode)
         && !isSpecifiedDirectly
         && !newNode.equals(outerEnd)) { // return などの外部ノードを持たないノードは newNode == outerEnd となる.
-      bhNodeHandler.replaceChild(outerEnd, oldNode, bhUserOpe);
-      bhNodeHandler.deleteNode(outerEnd, bhUserOpe);
+      bhNodePlacer.replaceChild(outerEnd, oldNode, bhUserOpe);
+      bhNodePlacer.deleteNode(outerEnd, bhUserOpe);
     }
   }
 
@@ -30,7 +30,7 @@
   function addNewNodeToWS(bhNodeId, workspace, pos, bhUserOpe) {
     let newNode = createBhNode(bhNodeId, bhUserOpe)    
     NodeMvcBuilder.build(newNode);
-    bhNodeHandler.moveToWs(workspace, newNode, pos.x, pos.y, bhUserOpe);
+    bhNodePlacer.moveToWs(workspace, newNode, pos.x, pos.y, bhUserOpe);
     return newNode;
   }
 
@@ -43,8 +43,8 @@
    */
   function replaceDescendant(rootNode, descendantPath, newNode, bhUserOpe) {
     let oldNode = rootNode.findSymbolInDescendants(descendantPath);
-    bhNodeHandler.replaceChild(oldNode, newNode, bhUserOpe);
-    bhNodeHandler.deleteNode(oldNode, bhUserOpe);
+    bhNodePlacer.replaceChild(oldNode, newNode, bhUserOpe);
+    bhNodePlacer.deleteNode(oldNode, bhUserOpe);
   }
 
   /**
@@ -58,8 +58,8 @@
   function moveDescendant(from, to, descendantPath, bhUserOpe) {
     let childToBeMoved = from.findSymbolInDescendants(descendantPath);
     let oldNode = to.findSymbolInDescendants(descendantPath);
-    bhNodeHandler.replaceChild(oldNode, childToBeMoved, bhUserOpe);
-    bhNodeHandler.deleteNode(oldNode, bhUserOpe);
+    bhNodePlacer.replaceChild(oldNode, childToBeMoved, bhUserOpe);
+    bhNodePlacer.deleteNode(oldNode, bhUserOpe);
   }
 
   /**
@@ -71,8 +71,8 @@
   function replaceStatWithNewStat(oldStat, newStat, bhUserOpe) {
     let nextStatOfOldStat = oldStat.findSymbolInDescendants('*', 'NextStat', '*');
     let nextStatOfNewStat = newStat.findSymbolInDescendants('*', 'NextStat', '*');
-    bhNodeHandler.exchangeNodes(nextStatOfOldStat, nextStatOfNewStat, bhUserOpe);
-    bhNodeHandler.exchangeNodes(oldStat, newStat, bhUserOpe);
+    bhNodePlacer.exchangeNodes(nextStatOfOldStat, nextStatOfNewStat, bhUserOpe);
+    bhNodePlacer.exchangeNodes(oldStat, newStat, bhUserOpe);
   }
   
   /**
@@ -81,7 +81,7 @@
    * @param cadidates cut か delete の対象ノードのリスト
    * @param userOpe undo/redo用コマンドオブジェクト
    */
-  function reconnectOuter(node, candidates, bhMsgService, userOpe) {
+  function reconnectOuter(node, candidates, bhCmdProxy, userOpe) {
     // 移動させる外部ノードを探す
     let nodeToReconnect = node.findOuterNode(1);
     if (nodeToReconnect === null)
@@ -101,13 +101,13 @@
     
     // 接続先が無い場合は, ワークスペースへ
     if (nodeToReplace === null) {
-      let posOnWS = bhMsgService.getPosOnWs(nodeToReconnect);
-      bhNodeHandler.moveToWs(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpe);
+      let posOnWS = bhCmdProxy.getPosOnWs(nodeToReconnect);
+      bhNodePlacer.moveToWs(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpe);
     }
     else {
-      let posOnWS = bhMsgService.getPosOnWs(nodeToReconnect);
-      bhNodeHandler.moveToWs(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpe);
-      bhNodeHandler.exchangeNodes(nodeToReconnect, nodeToReplace, userOpe);
+      let posOnWS = bhCmdProxy.getPosOnWs(nodeToReconnect);
+      bhNodePlacer.moveToWs(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpe);
+      bhNodePlacer.exchangeNodes(nodeToReconnect, nodeToReplace, userOpe);
     }
     return;
   }

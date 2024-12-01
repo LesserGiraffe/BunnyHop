@@ -25,16 +25,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
+import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
-import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
+import net.seapanda.bunnyhop.view.traverse.NodeViewProcessor;
 
 /**
  * テキストフィールドを入力フォームに持つビュー.
@@ -82,7 +81,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
       return;
     }
     view.getEventManager().propagateEvent(event);
-    if (MsgService.INSTANCE.isTemplateNode(view.getModel().get())) {
+    if (BhService.cmdProxy().isTemplateNode(view.getModel().get())) {
       event.consume();
     }
   }
@@ -131,7 +130,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
       return;
     }
     // 正確な文字部分の境界を取得するため, GUI部品内部のTextの境界は使わない.
-    double newWidth = ViewHelper.INSTANCE.calcStrWidth(textPart.getText(), textPart.getFont());
+    double newWidth = ViewUtil.calcStrWidth(textPart.getText(), textPart.getFont());
     newWidth = Math.max(newWidth, viewStyle.textField.minWidth);
     //幅を (文字幅 + パディング) にするとキャレットの移動時に文字が左右に移動するので定数 3 を足す.
     //この定数はフォントやパディングが違っても機能する.
@@ -179,9 +178,9 @@ public final class TextFieldNodeView extends TextInputNodeView {
 
   @Override
   public void show(int depth) {
-    MsgPrinter.INSTANCE.println(
+    BhService.msgPrinter().println(
         "%s<TextFieldNodeView>  %s".formatted(indent(depth), hashCode()));
-    MsgPrinter.INSTANCE.println(
+    BhService.msgPrinter().println(
         "%s<content>  %s".formatted(indent(depth + 1), textField.getText()));
   }
 }

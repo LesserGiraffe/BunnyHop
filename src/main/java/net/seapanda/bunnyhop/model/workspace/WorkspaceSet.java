@@ -35,36 +35,31 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.command.BhCmd;
+import net.seapanda.bunnyhop.command.CmdData;
+import net.seapanda.bunnyhop.command.CmdDispatcher;
+import net.seapanda.bunnyhop.command.CmdProcessor;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.export.CorruptedSaveDataException;
 import net.seapanda.bunnyhop.export.IncompatibleSaveFormatException;
 import net.seapanda.bunnyhop.export.ProjectExporter;
 import net.seapanda.bunnyhop.export.ProjectImporter;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgDispatcher;
-import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
-import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
-import net.seapanda.bunnyhop.modelprocessor.TextPrompter;
-import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.service.BhNodeHandler;
-import net.seapanda.bunnyhop.service.DerivativeCache;
+import net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
+import net.seapanda.bunnyhop.model.traverse.TextPrompter;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.service.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.utility.Pair;
+import net.seapanda.bunnyhop.utility.Vec2D;
 
 /**
  * ワークスペースの集合を保持、管理するクラス.
  *
  * @author K.Koike
  */
-public class WorkspaceSet implements MsgDispatcher {
+public class WorkspaceSet implements CmdDispatcher {
   /** コピー予定のノード. */
   private final ObservableList<BhNode> readyToCopy = FXCollections.observableArrayList();
   /** カット予定のノード. */
@@ -72,9 +67,11 @@ public class WorkspaceSet implements MsgDispatcher {
   /** 全てのワークスペース. */
   private final List<Workspace> workspaceList = new ArrayList<>();
   /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
-  private MsgProcessor msgProcessor = (msg, data) -> null;
+  private CmdProcessor msgProcessor = (msg, data) -> null;
   /** ノードの貼り付け位置をずらすためのカウンタ. */
   private int pastePosOffsetCount = -2;
+  /** 保存後に変更されたかどうかのフラグ. */
+  private boolean isDirty = false;
   private Workspace currentWorkspace;
   /**
    * key : コピー予定ノードのリストに変化がった時のイベントハンドラ.
@@ -226,10 +223,10 @@ public class WorkspaceSet implements MsgDispatcher {
     UserOperation userOpe = new UserOperation();
     copyAndPaste(wsToPasteIn, pasteBasePos, userOpe);
     cutAndPaste(wsToPasteIn, pasteBasePos, userOpe);
-    SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpe);
-    SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpe);
-    DerivativeCache.INSTANCE.clearAll();
-    BunnyHop.INSTANCE.pushUserOperation(userOpe);
+    BhService.compileErrNodeManager().updateErrorNodeIndicator(userOpe);
+    BhService.compileErrNodeManager().unmanageNonErrorNodes(userOpe);
+    BhService.derivativeCache().clearAll();
+    BhService.undoRedoAgent().pushUndoCommand(userOpe);
   }
 
   /**
@@ -255,14 +252,14 @@ public class WorkspaceSet implements MsgDispatcher {
       BhNode copy = orgAndCopy.v2;
       NodeMvcBuilder.build(copy);
       TextPrompter.prompt(copy);
-      BhNodeHandler.INSTANCE.moveToWs(
+      BhService.bhNodePlacer().moveToWs(
           wsToPasteIn,
           copy,
           pasteBasePos.x,
           pasteBasePos.y + pastePosOffsetCount * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
           userOpe);
       //コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
-      Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(orgAndCopy.v1);
+      Vec2D size = BhService.cmdProxy().getViewSizeIncludingOuter(orgAndCopy.v1);
       pasteBasePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
     }
     pastePosOffsetCount = (pastePosOffsetCount > 2) ? -2 : ++pastePosOffsetCount;
@@ -308,13 +305,13 @@ public class WorkspaceSet implements MsgDispatcher {
 
     // 貼り付け処理
     for (var node : nodesToPaste) {
-      List<Swapped> swappedNodes = BhNodeHandler.INSTANCE.moveToWs(
+      List<Swapped> swappedNodes = BhService.bhNodePlacer().moveToWs(
           wsToPasteIn,
           node,
           pasteBasePos.x,
           pasteBasePos.y + pastePosOffsetCount * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
           userOpe);
-      Vec2D size = MsgService.INSTANCE.getViewSizeIncludingOuter(node);
+      Vec2D size = BhService.cmdProxy().getViewSizeIncludingOuter(node);
       pasteBasePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
       dispatchEventsOnPaste(node, swappedNodes, userOpe);
     }
@@ -376,9 +373,9 @@ public class WorkspaceSet implements MsgDispatcher {
   }
 
   /**
-   * 現在操作対象のワークスペースを取得する.
+   * 現在, 操作対象となっているワークスペースを取得する.
    *
-   * @return 現在操作対象のワークスペース. 存在しない場合は null.
+   * @return 現在操作対象となっているワークスペース. 存在しない場合は null.
    */
   public Workspace getCurrentWorkspace() {
     return currentWorkspace;
@@ -391,23 +388,23 @@ public class WorkspaceSet implements MsgDispatcher {
    * @return セーブに成功した場合 true
    */
   public boolean save(File fileToSave) {
-    ModelExclusiveControl.INSTANCE.lockForRead();
+    ModelExclusiveControl.lockForRead();
     try {
       ProjectExporter.export(workspaceList, fileToSave.toPath());
-      MsgPrinter.INSTANCE.msgForUser("-- 保存完了 (%s)--\n".formatted(fileToSave.getPath()));
-      BunnyHop.INSTANCE.shouldSave(false);
+      BhService.msgPrinter().infoForUser("-- 保存完了 (%s)--\n".formatted(fileToSave.getPath()));
+      isDirty = false;
       return true;
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
+      BhService.msgPrinter().errForDebug(
           "Failed to save the project.\n%s\n%s".formatted(fileToSave.getPath(), e));
-      MsgPrinter.INSTANCE.alert(
+      BhService.msgPrinter().alert(
           Alert.AlertType.ERROR,
           "ファイルの保存に失敗しました",
           null,
           fileToSave.getPath() + "\n" + e);
       return false;
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForRead();
+      ModelExclusiveControl.unlockForRead();
     }
   }
 
@@ -419,11 +416,11 @@ public class WorkspaceSet implements MsgDispatcher {
    * @return ロードに成功した場合true
    */
   public boolean load(File saveFile, Boolean clearOldWorkspaces) {
-    ModelExclusiveControl.INSTANCE.lockForRead();
+    ModelExclusiveControl.lockForRead();
     try {
       ProjectImporter.Result result =  ProjectImporter.imports(saveFile.toPath());
       if (!result.warnings().isEmpty()) {
-        MsgPrinter.INSTANCE.errMsgForDebug(result.warningMsg());
+        BhService.msgPrinter().errForDebug(result.warningMsg());
       }
       boolean continueLoading = result.warnings().isEmpty() || askIfContinueLoading();
       if (!continueLoading) {
@@ -431,12 +428,13 @@ public class WorkspaceSet implements MsgDispatcher {
       }
       UserOperation userOpe = new UserOperation();
       if (clearOldWorkspaces) {
-        BunnyHop.INSTANCE.deleteAllWorkspace(userOpe);
+        deleteAllWorkspaces(userOpe);
       }
-      result.workspaces().forEach(ws -> BunnyHop.INSTANCE.addWorkspace(ws, userOpe));
-      result.workspaces().stream().flatMap(ws -> ws.getRootNodeList().stream()).forEach(
-          root -> SyntaxErrorNodeManager.INSTANCE.collect(root, userOpe));
-      BunnyHop.INSTANCE.pushUserOperation(userOpe);
+      result.workspaces().forEach(ws -> BhService.cmdProxy().addWorkspace(ws, userOpe));
+      result.workspaces().stream()
+          .flatMap(ws -> ws.getRootNodeList().stream())
+          .forEach(root -> BhService.compileErrNodeManager().collect(root, userOpe));
+      BhService.undoRedoAgent().pushUndoCommand(userOpe);
       return true;
     } catch (IncompatibleSaveFormatException e) {
       var msg = "サポートしていないバージョンのセーブデータです.\n  (file: %s)  (app: %s)".formatted(
@@ -450,7 +448,7 @@ public class WorkspaceSet implements MsgDispatcher {
       outputLoadErrMsg(saveFile, e, "ファイルを読み込めませんでした");
       return false;
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForRead();
+      ModelExclusiveControl.unlockForRead();
     }
   }
 
@@ -470,7 +468,7 @@ public class WorkspaceSet implements MsgDispatcher {
             ButtonType.YES.getText(),
             ButtonType.NO.getText());
 
-    Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
+    Optional<ButtonType> buttonType = BhService.msgPrinter().alert(
         AlertType.CONFIRMATION,
         title,
         null,
@@ -483,9 +481,20 @@ public class WorkspaceSet implements MsgDispatcher {
   /** ロード失敗時のエラーメッセージを出力する. */
   private void outputLoadErrMsg(File saveFile, Exception e, String msg) {
     msg += "\n" + saveFile.getAbsolutePath();
-    MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
-    MsgPrinter.INSTANCE.alert(Alert.AlertType.INFORMATION, "ロード", null, msg);
-    MsgPrinter.INSTANCE.errMsgForUser(e.toString());
+    BhService.msgPrinter().errForDebug(e.toString());
+    BhService.msgPrinter().alert(Alert.AlertType.INFORMATION, "ロード", null, msg);
+    BhService.msgPrinter().errForUser(e.toString());
+  }
+
+  /**
+   * 全てのワークスペースを削除する.
+   *
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  private void deleteAllWorkspaces(UserOperation userOpe) {
+    for (Workspace ws : new ArrayList<>(workspaceList)) {
+      BhService.cmdProxy().deleteWorkspace(ws, userOpe);
+    }
   }
 
   /**
@@ -541,7 +550,6 @@ public class WorkspaceSet implements MsgDispatcher {
   public void addOnSelectedNodeListChanged(
       BiConsumer<? super Workspace, ? super Collection<? super BhNode>> handler,
       boolean invokeOnUiThread) {
-
     onSelectedNodeListChangedToThreadFlag.put(handler, invokeOnUiThread);
   }
 
@@ -612,13 +620,23 @@ public class WorkspaceSet implements MsgDispatcher {
     });
   }
 
+  /** ワークスペースセットが保存後に変更されていることを示すフラグをセットする. */
+  public void setDirty() {
+    isDirty = true;
+  }
+
+  /** ワークスペースセットが保存後に変更されている場合 true を返す. */
+  public boolean isDirty() {
+    return isDirty;
+  }
+
   @Override
-  public void setMsgProcessor(MsgProcessor processor) {
+  public void setMsgProcessor(CmdProcessor processor) {
     msgProcessor = processor;
   }
 
   @Override
-  public MsgData dispatch(BhMsg msg, MsgData data) {
-    return msgProcessor.processMsg(msg, data);
+  public CmdData dispatch(BhCmd msg, CmdData data) {
+    return msgProcessor.process(msg, data);
   }
 }

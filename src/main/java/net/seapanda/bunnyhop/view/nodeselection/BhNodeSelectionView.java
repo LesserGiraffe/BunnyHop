@@ -30,10 +30,10 @@ import javafx.scene.control.TabPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.transform.Scale;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.service.FxmlCollector;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
@@ -64,13 +64,13 @@ public final class BhNodeSelectionView extends ScrollPane {
     this.categoryName = categoryName;
     try {
       Path filePath =
-          FxmlCollector.INSTANCE.getFilePath(BhConstants.Path.NODE_SELECTION_PANEL_FXML);
+          BhService.fxmlCollector().getFilePath(BhConstants.Path.NODE_SELECTION_PANEL_FXML);
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
       loader.setController(this);
       loader.setRoot(this);
       loader.load();
     } catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("category : %s\n%s".formatted(categoryName, e));
+      BhService.msgPrinter().errForDebug("category : %s\n%s".formatted(categoryName, e));
       throw new ViewInitializationException(
           "Failed to initialize " + BhNodeSelectionView.class.getSimpleName());
     }
@@ -109,7 +109,7 @@ public final class BhNodeSelectionView extends ScrollPane {
     if (event.isControlDown() && event.getDeltaY() != 0) {
       event.consume();
       boolean zoomIn = event.getDeltaY() >= 0;
-      BhNodeSelectionService.INSTANCE.zoomAll(zoomIn);
+      BhService.bhNodeSelectionService().zoomAll(zoomIn);
     }
   }
 
@@ -148,8 +148,8 @@ public final class BhNodeSelectionView extends ScrollPane {
         .filter(root -> !isSpaceNodeView(root))
         .count();
 
-    if (numNodes == 0 && BhNodeSelectionService.INSTANCE.isShowed(categoryName)) {
-      BhNodeSelectionService.INSTANCE.hideAll();
+    if (numNodes == 0 && BhService.bhNodeSelectionService().isShowed(categoryName)) {
+      BhService.bhNodeSelectionService().hideAll();
     }
   }
 

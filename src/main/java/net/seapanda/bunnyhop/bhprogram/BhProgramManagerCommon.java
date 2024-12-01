@@ -40,9 +40,9 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessor;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramTransceiver;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 
 /**
@@ -105,7 +105,7 @@ class BhProgramManagerCommon {
   Future<Boolean> connectAsync() {
     var xcvr = dispatcher.getTransceiver();
     if (xcvr.isEmpty()) {
-      MsgPrinter.INSTANCE.errMsgForUser("!! 接続失敗 (プログラム未実行) !!\n");
+      BhService.msgPrinter().errForUser("!! 接続失敗 (プログラム未実行) !!\n");
       return connectTaskExec.submit(() -> false);
     }
     return connectTaskExec.submit(() -> xcvr.get().connect());
@@ -119,7 +119,7 @@ class BhProgramManagerCommon {
   Future<Boolean> disconnectAsync() {
     var xcvr = dispatcher.getTransceiver();
     if (xcvr.isEmpty()) {
-      MsgPrinter.INSTANCE.errMsgForUser("!! 切断失敗 (プログラム未実行) !!\n");
+      BhService.msgPrinter().errForUser("!! 切断失敗 (プログラム未実行) !!\n");
       return connectTaskExec.submit(() -> false);
     }
     return connectTaskExec.submit(() -> xcvr.get().disconnect());
@@ -158,7 +158,7 @@ class BhProgramManagerCommon {
       process.getInputStream().close();
       process.getOutputStream().close();
     } catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("Failed to close the IO stream.\n" + e);
+      BhService.msgPrinter().errForDebug("Failed to close the IO stream.\n" + e);
       success = false;
     }
     return success;
@@ -170,7 +170,7 @@ class BhProgramManagerCommon {
       success = process.waitFor(timeout, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      MsgPrinter.INSTANCE.errMsgForDebug("Failed to wait for the process to end.\n" + e);
+      BhService.msgPrinter().errForDebug("Failed to wait for the process to end.\n" + e);
     }
     return success;
   }
@@ -218,7 +218,7 @@ class BhProgramManagerCommon {
    * @return 正常に BhProgram を開始できた場合 true
    */
   boolean runBhProgram(String fileName, String ipAddr, InputStream is) {
-    MsgPrinter.INSTANCE.msgForUser("-- 通信準備中 --\n");
+    BhService.msgPrinter().infoForUser("-- 通信準備中 --\n");
     boolean success = true;
     try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
       BhProgramHandler programHandler = getBhProgramHandler(ipAddr, br);
@@ -228,11 +228,11 @@ class BhProgramManagerCommon {
       success &= transceiver.connect();
       success &= runScript(fileName, programHandler);
     } catch (IOException | NotBoundException | NumberFormatException | TimeoutException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("Failed to run BhProgram\n" + e);
+      BhService.msgPrinter().errForDebug("Failed to run BhProgram\n" + e);
       success &= false;
     }
     if (!success) {
-      MsgPrinter.INSTANCE.errMsgForUser("!! 通信準備失敗 !!\n");
+      BhService.msgPrinter().errForUser("!! 通信準備失敗 !!\n");
     }
     return success;
   }

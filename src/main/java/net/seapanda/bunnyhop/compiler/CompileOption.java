@@ -23,8 +23,6 @@ package net.seapanda.bunnyhop.compiler;
  */
 public class CompileOption {
 
-  /** ルーカルで実行するコードを生成する場合 true. */
-  public final boolean local;
   /** デバッグ用コードを追加する場合 true. */
   public final boolean isDebug;
   /** 算術演算で結果を実数に保つ場合 true. */
@@ -35,7 +33,6 @@ public class CompileOption {
   public final boolean withComments;
 
   private CompileOption(Builder builder) {
-    this.local = builder.local;
     this.isDebug = builder.isDebug;
     this.keepRealNumber = builder.keepRealNumber;
     this.traceException = builder.traceException;
@@ -45,15 +42,10 @@ public class CompileOption {
   /** {@link CompileOption} のビルダークラス. */
   public static class Builder {
 
-    private final boolean local;
     private boolean isDebug = true;
     private boolean keepRealNumber = true;
     private boolean traceException = true;
     private boolean withComments = true;
-
-    public Builder(boolean local) {
-      this.local = local;
-    }
 
     public Builder keepRealNumber(boolean keepRealNumber) {
       this.keepRealNumber = keepRealNumber;

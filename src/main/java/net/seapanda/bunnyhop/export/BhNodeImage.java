@@ -18,11 +18,11 @@ package net.seapanda.bunnyhop.export;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeVersion;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.utility.Vec2D;
 
 /**
  * BhNode を保存する際の情報を保持するクラス.

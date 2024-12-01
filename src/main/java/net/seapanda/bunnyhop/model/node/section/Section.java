@@ -22,7 +22,6 @@ import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.service.Util;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
@@ -128,7 +127,7 @@ public abstract class Section extends SyntaxSymbol {
   @Override
   public SyntaxSymbol findSymbolInAncestors(String symbolName, int generation, boolean toTop) {
     if (generation == 0) {
-      if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
+      if (symbolNameMatches(symbolName)) {
         return this;
       }
       if (!toTop) {

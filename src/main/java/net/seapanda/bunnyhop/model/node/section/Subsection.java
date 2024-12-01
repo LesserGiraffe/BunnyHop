@@ -24,9 +24,8 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.modelprocessor.BhNodeWalker;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.service.Util;
+import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
@@ -89,7 +88,7 @@ public class Subsection extends Section {
       int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
     if (generation == 0) {
       for (String symbolName : symbolNames) {
-        if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
+        if (symbolNameMatches(symbolName)) {
           foundSymbolList.add(this);
         }
       }
@@ -131,7 +130,7 @@ public class Subsection extends Section {
   public void show(int depth) {
     var parentInstId =
         (parentNode != null) ? parentNode.getInstanceId() : parentSection.getInstanceId();
-    MsgPrinter.INSTANCE.println("%s<Subsection  name=%s  parent=%s>  %s"
+    BhService.msgPrinter().println("%s<Subsection  name=%s  parent=%s>  %s"
         .formatted(indent(depth), getSymbolName(), parentInstId, getInstanceId()));        
     subsectionList.forEach((connector -> connector.show(depth + 1)));
   }

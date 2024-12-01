@@ -26,12 +26,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.traverse.NodeImageBuilder;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.modelprocessor.NodeImageBuilder;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.Vec2D;
 
 /**
  * プロジェクトを保存する機能を提供するクラス.
@@ -62,7 +62,7 @@ public class ProjectExporter {
     Collection<BhNodeImage> nodeImages = workspace.getRootNodeList().stream()
         .map(root -> NodeImageBuilder.build(root))
         .toList();
-    Vec2D size = MsgService.INSTANCE.getWorkspaceSize(workspace);
+    Vec2D size = BhService.cmdProxy().getWorkspaceSize(workspace);
     size = (size == null) ? new Vec2D(0, 0) : size;
     return new WorkspaceImage(
         workspace.getName(), size, nodeImages);

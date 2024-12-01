@@ -29,17 +29,16 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
+import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.node.part.SelectableItem;
-import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
+import net.seapanda.bunnyhop.view.traverse.NodeViewProcessor;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 /**
@@ -126,12 +125,12 @@ public final class ComboBoxNodeView extends BhNodeView {
   @Override
   public void show(int depth) {
     try {
-      MsgPrinter.INSTANCE.println(
+      BhService.msgPrinter().println(
           "%s<TextNodeView>   %s".formatted(indent(depth), this.hashCode()));
-      MsgPrinter.INSTANCE.println(
+      BhService.msgPrinter().println(
           "%s<content>   %s".formatted(indent(depth + 1), comboBox.getValue()));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.println("TextNodeView show exception " + e);
+      BhService.msgPrinter().println("TextNodeView show exception " + e);
     }
   }
 
@@ -216,7 +215,7 @@ public final class ComboBoxNodeView extends BhNodeView {
   private double calcMaxStrWidth(List<String> strList, Font font) {
     double width = 0.0;
     for (String str : strList) {
-      double strWidth = ViewHelper.INSTANCE.calcStrWidth(str, font);
+      double strWidth = ViewUtil.calcStrWidth(str, font);
       width = Math.max(width, strWidth);
     }
     return width;
@@ -237,7 +236,7 @@ public final class ComboBoxNodeView extends BhNodeView {
       return;
     }
     view.getEventManager().propagateEvent(event);
-    if (MsgService.INSTANCE.isTemplateNode(view.getModel().get()) || dragged.getValue()) {
+    if (BhService.cmdProxy().isTemplateNode(view.getModel().get()) || dragged.getValue()) {
       event.consume();
     }
     if (event.getEventType().equals(MouseEvent.DRAG_DETECTED)) {
@@ -263,7 +262,7 @@ public final class ComboBoxNodeView extends BhNodeView {
 
   /** コンボボックスの幅を表示されている文字の幅に合わせる. */
   private void fitComboBoxWidthToContentWidth(String currentStr, Font font) {
-    double width = ViewHelper.INSTANCE.calcStrWidth(currentStr, font);
+    double width = ViewUtil.calcStrWidth(currentStr, font);
     width += buttonCell.getInsets().getLeft() + buttonCell.getInsets().getRight();
     width += buttonCell.getPadding().getLeft() + buttonCell.getPadding().getRight();
     buttonCell.getListView().setPrefWidth(width);

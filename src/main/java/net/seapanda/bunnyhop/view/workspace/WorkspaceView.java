@@ -44,22 +44,20 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
-import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.service.FxmlCollector;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
+import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.BhNodeView.ViewRegionManager.Rectangles;
-import net.seapanda.bunnyhop.viewprocessor.CallbackInvoker;
+import net.seapanda.bunnyhop.view.traverse.CallbackInvoker;
 
 /**
  * ワークスペースを表すビュー (タブの中の描画物に対応).
@@ -112,7 +110,7 @@ public class WorkspaceView extends Tab {
    */
   private void init(double width, double height) throws ViewInitializationException {
     try {
-      Path filePath = FxmlCollector.INSTANCE.getFilePath(BhConstants.Path.WORKSPACE_FXML);
+      Path filePath = BhService.fxmlCollector().getFilePath(BhConstants.Path.WORKSPACE_FXML);
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
       loader.setController(this);
       loader.setRoot(this);
@@ -161,7 +159,7 @@ public class WorkspaceView extends Tab {
     if (workspace.getRootNodeList().isEmpty()) {
       return;
     }
-    Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
+    Optional<ButtonType> buttonType = BhService.msgPrinter().alert(
         Alert.AlertType.CONFIRMATION,
         "ワークスペースの削除",
         null,
@@ -180,8 +178,8 @@ public class WorkspaceView extends Tab {
   /** ワークスペース削除時の処理. */
   private void onClosed(Event event) {
     UserOperation userOpe = new UserOperation();
-    BunnyHop.INSTANCE.deleteWorkspace(workspace, userOpe);
-    BunnyHop.INSTANCE.pushUserOperation(userOpe);
+    BhService.cmdProxy().deleteWorkspace(workspace, userOpe);
+    BhService.undoRedoAgent().pushUndoCommand(userOpe);
   }
 
   private void setErrInfoPaneListener() {
@@ -419,6 +417,15 @@ public class WorkspaceView extends Tab {
     recalculateScrollableRange();
   }
 
+  /** ワークスペースの表示の拡大率を設定する. */
+  public void setZoomLevel(int level) {
+    int numZooms = Math.abs(zoomLevel - level);
+    boolean zoomIn = zoomLevel < level;
+    for (int i = 0; i < numZooms; ++i) {
+      zoom(zoomIn);
+    }
+  }
+
   /** スクロール可能な範囲を再計算する. */
   private void recalculateScrollableRange() {
     double magX = wsPane.getTransforms().get(0).getMxx();
@@ -489,7 +496,7 @@ public class WorkspaceView extends Tab {
    * @param nodeView 中央に表示するノードビュー
    */
   public void lookAt(BhNodeView nodeView) {
-    WorkspaceView wsView = ViewHelper.INSTANCE.getWorkspaceView(nodeView);
+    WorkspaceView wsView = ViewUtil.getWorkspaceView(nodeView);
     if (!this.equals(wsView)) {
       return;
     }

@@ -3,7 +3,7 @@
   bhNodeID="idBreakStat"
   name="BreakStat"
   nodeStyleID="BreakStat.json"
-  onSyntaxChecking="BreakAndContinueChecker.js"
+  onCompileErrorChecking="BreakAndContinueChecker.js"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedToChild="OnStatMovedToChild.js"
   onCutRequested="OnCutRequested.js"

@@ -23,10 +23,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javafx.scene.input.MouseEvent;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgProcessor;
+import net.seapanda.bunnyhop.command.BhCmd;
+import net.seapanda.bunnyhop.command.CmdData;
+import net.seapanda.bunnyhop.command.CmdProcessor;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
@@ -34,14 +33,11 @@ import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
-import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.service.BhNodeHandler;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
-import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
@@ -50,7 +46,7 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
  *
  * @author K.Koike
  */
-public class WorkspaceController implements MsgProcessor {
+public class WorkspaceController implements CmdProcessor {
 
   private Workspace model;
   private WorkspaceView view;
@@ -93,11 +89,11 @@ public class WorkspaceController implements MsgProcessor {
     // ワークスペースをクリックしたときにテキストフィールドのカーソルが消えなくなるので, マウスイベントを consume しない.
     if (!mouseEvent.isShiftDown()) {
       UserOperation userOpe = new UserOperation();
-      BhNodeSelectionService.INSTANCE.hideAll();
+      BhService.bhNodeSelectionService().hideAll();
       model.clearSelectedNodeList(userOpe);
-      BunnyHop.INSTANCE.pushUserOperation(userOpe);
+      BhService.undoRedoAgent().pushUndoCommand(userOpe);
     }
-    ViewHelper.INSTANCE.removeShadow(model);
+    BhNodeView.LookManager.removeShadow(model);
     mousePressedPos.x = mouseEvent.getX();
     mousePressedPos.y = mouseEvent.getY();
     view.showSelectionRectangle(mousePressedPos, mousePressedPos);
@@ -133,13 +129,13 @@ public class WorkspaceController implements MsgProcessor {
         .collect(Collectors.toCollection(ArrayList::new));
     // 面積の大きい順にソート
     containedNodes.sort(this::compareViewSize);
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
       var userOpe = new UserOperation();
       selectNodes(containedNodes, userOpe);
-      BunnyHop.INSTANCE.pushUserOperation(userOpe);
+      BhService.undoRedoAgent().pushUndoCommand(userOpe);
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
@@ -192,7 +188,7 @@ public class WorkspaceController implements MsgProcessor {
    * @param data メッセージの種類に応じて処理するもの
    * */
   @Override
-  public MsgData processMsg(BhMsg msg, MsgData data) {
+  public CmdData process(BhCmd msg, CmdData data) {
     switch (msg) {
       case ADD_ROOT_NODE:
         model.addRootNode(data.node);
@@ -216,18 +212,22 @@ public class WorkspaceController implements MsgProcessor {
 
       case SCENE_TO_WORKSPACE:
         javafx.geometry.Point2D pos = view.sceneToWorkspace(data.vec2d.x, data.vec2d.y);
-        return new MsgData(new Vec2D(pos.getX(), pos.getY()));
+        return new CmdData(new Vec2D(pos.getX(), pos.getY()));
 
       case ZOOM:
         view.zoom(data.bool);
         break;
 
+      case SET_ZOOM_LEVEL:
+        view.setZoomLevel(data.integer);
+        break;
+
       case GET_WORKSPACE_SIZE:
         Vec2D size = view.getWorkspaceSize();
-        return new MsgData(new Vec2D(size.x, size.y));
+        return new CmdData(new Vec2D(size.x, size.y));
 
       case ADD_WORKSPACE:
-        return new MsgData(model, view, data.userOpe);
+        return new CmdData(model, view, data.userOpe);
 
       case DELETE_WORKSPACE:
         return deleteWorkspace(data);
@@ -246,12 +246,12 @@ public class WorkspaceController implements MsgProcessor {
     return null;
   }
 
-  private MsgData deleteWorkspace(MsgData data) {
+  private CmdData deleteWorkspace(CmdData data) {
     Collection<BhNode> rootNodes = model.getRootNodeList();
     rootNodes.forEach(node -> node.getEventAgent().execOnDeletionRequested(
         rootNodes, CauseOfDeletion.WORKSPACE_DELETION, data.userOpe));
     List<Swapped> swappedNodes =
-        BhNodeHandler.INSTANCE.deleteNodes(model.getRootNodeList(), data.userOpe);
+        BhService.bhNodePlacer().deleteNodes(model.getRootNodeList(), data.userOpe);
     for (var swapped : swappedNodes) {
       swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
           swapped.oldNode(),
@@ -259,7 +259,7 @@ public class WorkspaceController implements MsgProcessor {
           swapped.newNode().getParentConnector(),
           data.userOpe);
     }
-    return new MsgData(model, view, data.userOpe);
+    return new CmdData(model, view, data.userOpe);
   }
 
   //デバッグ用
@@ -271,16 +271,16 @@ public class WorkspaceController implements MsgProcessor {
       f = c.getDeclaredField("quadTreeMngForConnector");
       f.setAccessible(true);
       QuadTreeManager quadTreeMngForConnector = (QuadTreeManager) f.get(view);
-      MsgPrinter.INSTANCE.println(
+      BhService.msgPrinter().println(
           "num of QuadTreeNodes: " + quadTreeMngForConnector.calcRegisteredNodeNum());
     } catch (IllegalAccessException
         | IllegalArgumentException
         | NoSuchFieldException
         | SecurityException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
+      BhService.msgPrinter().errForDebug(e.toString());
     }
-    MsgPrinter.INSTANCE.println("num of root nodes: " + model.getRootNodeList().size());
-    MsgPrinter.INSTANCE.println(
+    BhService.msgPrinter().println("num of root nodes: " + model.getRootNodeList().size());
+    BhService.msgPrinter().println(
         "num of selected nodes: " + model.getSelectedNodeList().size());
   }
 }

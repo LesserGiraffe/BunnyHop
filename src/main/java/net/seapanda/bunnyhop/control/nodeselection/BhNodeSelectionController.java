@@ -16,9 +16,9 @@
 
 package net.seapanda.bunnyhop.control.nodeselection;
 
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgProcessor;
+import net.seapanda.bunnyhop.command.BhCmd;
+import net.seapanda.bunnyhop.command.CmdData;
+import net.seapanda.bunnyhop.command.CmdProcessor;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 
@@ -27,7 +27,7 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
  *
  * @author K.Koike
  */
-public class BhNodeSelectionController implements MsgProcessor {
+public class BhNodeSelectionController implements CmdProcessor {
 
   private Workspace model;
   private BhNodeSelectionView view;
@@ -50,7 +50,7 @@ public class BhNodeSelectionController implements MsgProcessor {
    * @param data メッセージの種類に応じて処理するもの
    */
   @Override
-  public MsgData processMsg(BhMsg msg, MsgData data) {
+  public CmdData process(BhCmd msg, CmdData data) {
     switch (msg) {
       case ADD_ROOT_NODE:
         model.addRootNode(data.node);

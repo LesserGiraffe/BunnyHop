@@ -3,7 +3,7 @@
   bhNodeID="idNumList"
   name="NumList"
   nodeStyleID="NumList.json"
-  onSyntaxChecking="IsOutOfScope.js"
+  onCompileErrorChecking="IsOutOfScope.js"
   version="bh-1.0">
 
   <ConnectorSection name="NumListSctn">

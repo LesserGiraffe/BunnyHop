@@ -19,7 +19,9 @@ package net.seapanda.bunnyhop.control;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,30 +42,23 @@ import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.BhProgramService;
 import net.seapanda.bunnyhop.bhprogram.BhRuntimeStatus;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.InputTextCmd;
-import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.constant.BhSettings;
+import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.CompileNodeCollector;
 import net.seapanda.bunnyhop.compiler.CompileOption;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.NodeGraphSnapshot;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.service.BhNodeHandler;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.service.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
+import net.seapanda.bunnyhop.utility.Pair;
+import net.seapanda.bunnyhop.utility.Utility;
+import net.seapanda.bunnyhop.utility.Vec2D;
 
 /**
  * 画面上部のボタンのコントローラクラス.
@@ -133,14 +128,19 @@ public class MenuOperationController {
   private final ExecutorService compileExec = Executors.newCachedThreadPool();
   /** 非同期処理完了待ちタスクを実行する. */
   private final ExecutorService waitTaskExec = Executors.newCachedThreadPool();
+  
+  /** ローカル環境で実行する BhProgram を生成するコンパイラ. */
+  private BhCompiler locaCompiler;
+  /** リモート環境で実行する BhProgram を生成するコンパイラ. */
+  private BhCompiler remoteCompiler;
 
   /**
-   * イベントハンドラをセットする.
+   * コントローラを初期化する.
    *
    * @param wss ワークスペースセット
    * @param workspaceSetTab ワークスペース表示用のタブペイン
    */
-  public void init(WorkspaceSet wss, TabPane workspaceSetTab) {
+  public boolean initialize(WorkspaceSet wss, TabPane workspaceSetTab) {
     copyBtn.setOnAction(action -> copy(wss)); // コピー
     cutBtn.setOnAction(action -> cut(wss)); // カット
     pasteBtn.setOnAction(action -> paste(wss, workspaceSetTab)); // ペースト
@@ -161,12 +161,38 @@ public class MenuOperationController {
     sendBtn.setOnAction(action -> send()); // 送信
     remotLocalSelectBtn.selectedProperty()
         .addListener((observable, oldVal, newVal) -> switchRemoteLocal(newVal));
-    setHandlersToChangeButtonEnable(wss);
+    setHandlersToChangeButtonEnable(wss);    
+    locaCompiler = genCompiler(true).orElse(null);
+    remoteCompiler = genCompiler(false).orElse(null);
+    return (locaCompiler != null) && (remoteCompiler != null);
+  }
+
+  /** {@link BhCompiler} オブジェクトを作成する. */
+  private Optional<BhCompiler> genCompiler(boolean isLocal) {
+    var commonLibPath = Paths.get(
+        Utility.execPath,
+        BhConstants.Path.BH_DEF_DIR,
+        BhConstants.Path.FUNCTIONS_DIR,
+        BhConstants.Path.lib,
+        BhConstants.Path.COMMON_CODE_JS);
+    
+    var localOrRemoteLibPath = Paths.get(
+        Utility.execPath,
+        BhConstants.Path.BH_DEF_DIR,
+        BhConstants.Path.FUNCTIONS_DIR,
+        BhConstants.Path.lib,
+        isLocal ? BhConstants.Path.LOCAL_COMMON_CODE_JS : BhConstants.Path.REMOTE_COMMON_CODE_JS);
+    try {
+      return Optional.of(new BhCompiler(commonLibPath, localOrRemoteLibPath));
+    } catch (IOException e) {
+      BhService.msgPrinter().errForDebug("Failed to initialize Compiler.\n%s".formatted(e));
+    }
+    return Optional.empty();
   }
 
   /** コピーボタン押下時の処理. */
   private void copy(WorkspaceSet wss) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -174,15 +200,15 @@ public class MenuOperationController {
       }
       UserOperation userOpe = new UserOperation();
       wss.addNodesToCopyList(currentWs.getSelectedNodeList(), userOpe);
-      BunnyHop.INSTANCE.pushUserOperation(userOpe);
+      BhService.undoRedoAgent().pushUndoCommand(userOpe);
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** カットボタン押下時の処理. */
   private void cut(WorkspaceSet wss) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -190,15 +216,15 @@ public class MenuOperationController {
       }
       UserOperation userOpe = new UserOperation();
       wss.addNodesToCutList(currentWs.getSelectedNodeList(), userOpe);
-      BunnyHop.INSTANCE.pushUserOperation(userOpe);
+      BhService.undoRedoAgent().pushUndoCommand(userOpe);
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** ペーストボタン押下時の処理. */
   private void paste(WorkspaceSet wss, TabPane workspaceSetTab) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -206,18 +232,18 @@ public class MenuOperationController {
       }
       javafx.geometry.Point2D pos =
           workspaceSetTab.localToScene(0, workspaceSetTab.getHeight() / 3.0);
-      Vec2D localPos = MsgService.INSTANCE.sceneToWorkspace(pos.getX(), pos.getY(), currentWs);
+      Vec2D localPos = BhService.cmdProxy().sceneToWorkspace(pos.getX(), pos.getY(), currentWs);
       double pastePosX = localPos.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
       double pastePosY = localPos.y;
       wss.paste(currentWs, new Vec2D(pastePosX, pastePosY));
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** デリートボタン押下時の処理. */
   private void delete(WorkspaceSet wss) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -229,8 +255,7 @@ public class MenuOperationController {
           .filter(node -> node.getEventAgent().execOnDeletionRequested(
               candidates, CauseOfDeletion.SELECTED_FOR_DELETION, userOpe))
           .collect(Collectors.toCollection(ArrayList::new));
-      List<Swapped> swappedNodes =
-          BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpe);
+      List<Swapped> swappedNodes = BhService.bhNodePlacer().deleteNodes(nodesToDelete, userOpe);
       for (var swapped : swappedNodes) {
         swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
             swapped.oldNode(),
@@ -238,74 +263,76 @@ public class MenuOperationController {
             swapped.newNode().getParentConnector(),
             userOpe);
       }
-      SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(userOpe);
-      SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpe);
-      BunnyHop.INSTANCE.pushUserOperation(userOpe);
+      BhService.compileErrNodeManager().updateErrorNodeIndicator(userOpe);
+      BhService.compileErrNodeManager().unmanageNonErrorNodes(userOpe);
+      BhService.undoRedoAgent().pushUndoCommand(userOpe);
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** ジャンプボタン押下時の処理. */
   private void jump(WorkspaceSet wss) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
       findNodeToJumpTo(wss).ifPresent(node -> {
-        MsgService.INSTANCE.lookAt(node);
+        BhService.cmdProxy().lookAt(node);
         UserOperation userOpe = new UserOperation();
         node.getWorkspace().clearSelectedNodeList(userOpe);
         node.getWorkspace().addSelectedNode(node, userOpe);
-        BunnyHop.INSTANCE.pushUserOperation(userOpe);
+        BhService.undoRedoAgent().pushUndoCommand(userOpe);
       });
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** アンドゥボタン押下時の処理. */
   private void undo(WorkspaceSet wss) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
-      MsgTransporter.INSTANCE.sendMessage(BhMsg.UNDO, wss);
+      BhService.undoRedoAgent().undo();
+      wss.setDirty();
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** リドゥボタン押下時の処理. */
   private void redo(WorkspaceSet wss) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
-      MsgTransporter.INSTANCE.sendMessage(BhMsg.REDO, wss);
+      BhService.undoRedoAgent().redo();
+      wss.setDirty();
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** ズームインボタン押下時の処理. */
   private void zoomIn(WorkspaceSet wss) {
-    if (BhNodeSelectionService.INSTANCE.isAnyShowed()) {
-      BhNodeSelectionService.INSTANCE.zoomAll(true);
+    if (BhService.bhNodeSelectionService().isAnyShowed()) {
+      BhService.bhNodeSelectionService().zoomAll(true);
       return;
     }
     Workspace currentWs = wss.getCurrentWorkspace();
     if (currentWs == null) {
       return;
     }
-    MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(true), currentWs);
+    BhService.cmdProxy().zoomInOnWorkspace(currentWs);
   }
 
-  /** ズームインボタン押下時の処理. */
+  /** ズームアウトボタン押下時の処理. */
   private void zoomOut(WorkspaceSet wss) {
-    if (BhNodeSelectionService.INSTANCE.isAnyShowed()) {
-      BhNodeSelectionService.INSTANCE.zoomAll(false);
+    if (BhService.bhNodeSelectionService().isAnyShowed()) {
+      BhService.bhNodeSelectionService().zoomAll(false);
       return;
     }
     Workspace currentWs = wss.getCurrentWorkspace();
     if (currentWs == null) {
       return;
     }
-    MsgTransporter.INSTANCE.sendMessage(BhMsg.ZOOM, new MsgData(false), currentWs);
+    BhService.cmdProxy().zoomOutOnWorkspace(currentWs);
   }
 
   /** ワークスペース拡大ボタン押下時の処理. */
@@ -314,8 +341,7 @@ public class MenuOperationController {
     if (currentWs == null) {
       return;
     }
-    MsgTransporter.INSTANCE.sendMessage(
-        BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(true), currentWs);
+    BhService.cmdProxy().extendWorkspace(currentWs);
   }
 
   /** ワークスペース縮小ボタン押下時の処理. */
@@ -324,50 +350,49 @@ public class MenuOperationController {
     if (currentWs == null) {
       return;
     }
-    MsgTransporter.INSTANCE.sendMessage(
-        BhMsg.CHANGE_WORKSPACE_VIEW_SIZE, new MsgData(false), currentWs);
+    BhService.cmdProxy().narrowWorkspace(currentWs);
   }
 
   /** ワークスペース追加ボタン押下時の処理. */
   private void addWorkspace(WorkspaceSet wss) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
       String defaultWsName = "ワークスペース" + (wss.getWorkspaceList().size() + 1);
       TextInputDialog dialog = new TextInputDialog(defaultWsName);
       dialog.setTitle("ワークスペースの作成");
       dialog.setHeaderText(null);
       dialog.setContentText("ワークスペース名を入力してください");
-      dialog.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
+      dialog.getDialogPane().getStylesheets().addAll(menuOpViewBase.getScene().getStylesheets());
       Optional<String> inputText = dialog.showAndWait();
       inputText.ifPresent(wsName -> {
         UserOperation userOpe = new UserOperation();
-        BunnyHop.INSTANCE.addNewWorkSpace(
+        BhService.cmdProxy().addNewWorkspace(
             wsName,
             BhConstants.LnF.DEFAULT_WORKSPACE_WIDTH,
             BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT,
             userOpe);
-        BunnyHop.INSTANCE.pushUserOperation(userOpe);
+        BhService.undoRedoAgent().pushUndoCommand(userOpe);
       });
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** 実行ボタン押下時の処理. */
   private void execute(WorkspaceSet wss) {
-    ModelExclusiveControl.INSTANCE.lockForRead();
+    ModelExclusiveControl.lockForRead();
     Optional<Pair<NodeGraphSnapshot, BhNode>> snapshotAndNodeToExecOpt = Optional.empty();
     try {
       if (preparingForExecution.get()) {
-        MsgPrinter.INSTANCE.errMsgForUser("!! 実行準備中 !!\n");
+        BhService.msgPrinter().errForUser("!! 実行準備中 !!\n");
         return;
       }
-      BhNodeSelectionService.INSTANCE.hideAll();
+      BhService.bhNodeSelectionService().hideAll();
       var userOpe = new UserOperation();
       snapshotAndNodeToExecOpt = CompileNodeCollector.collect(wss, userOpe);
-      BunnyHop.INSTANCE.pushUserOperation(userOpe);
+      BhService.undoRedoAgent().pushUndoCommand(userOpe);
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForRead();
+      ModelExclusiveControl.unlockForRead();
     }
     if (snapshotAndNodeToExecOpt.isEmpty()) {
       return;
@@ -375,10 +400,10 @@ public class MenuOperationController {
     preparingForExecution.set(true);
     var snapshotAndNodeToExec = snapshotAndNodeToExecOpt.get();
     compileExec.submit(() -> {
-      Optional<Path> srcFilePath = compile(snapshotAndNodeToExec);
-      srcFilePath.ifPresentOrElse(
-          this::execute,
-          () -> preparingForExecution.set(false));
+      compile(snapshotAndNodeToExec.v1, snapshotAndNodeToExec.v2)
+          .ifPresentOrElse(
+              this::execute,
+              () -> preparingForExecution.set(false));
     });
   }
 
@@ -399,14 +424,15 @@ public class MenuOperationController {
   /**
    * ノードをコンパイルする.
    *
-   * @param snapshotAndNodeToExec コンパイル対象のノードのスナップショットと実行ノードのペア
+   * @param snapshot コンパイル対象のノードのスナップショット
+   * @param nodeToExec 実行対象のノード
    * @return ノードをコンパイルしてできたソースファイルのパス
    */
-  private Optional<Path> compile(Pair<NodeGraphSnapshot, BhNode> snapshotAndNodeToExec) {
-    CompileOption option = new CompileOption.Builder(isLocalHost()).build();
-    Collection<BhNode> nodesToCompile = snapshotAndNodeToExec.v1.getRootNodeList();
-    BhNode nodeToExec = snapshotAndNodeToExec.v2;
-    Optional<Path> execFilePath = BhCompiler.INSTANCE.compile(nodeToExec, nodesToCompile, option);
+  private Optional<Path> compile(NodeGraphSnapshot snapshot, BhNode nodeToExec) {
+    CompileOption option = new CompileOption.Builder().build();
+    Collection<BhNode> nodesToCompile = snapshot.getRootNodeList();
+    BhCompiler compiler = isLocalHost() ? locaCompiler : remoteCompiler;
+    Optional<Path> execFilePath = compiler.compile(nodeToExec, nodesToCompile, option);
     return execFilePath;
   }
 
@@ -431,7 +457,7 @@ public class MenuOperationController {
   /** 終了ボタン押下時の処理. */
   private void terminate() {
     if (preparingForTermination.get()) {
-      MsgPrinter.INSTANCE.errMsgForUser("!! 終了準備中 !!\n");
+      BhService.msgPrinter().errForUser("!! 終了準備中 !!\n");
       return;
     }
     Future<Boolean> future;
@@ -450,7 +476,7 @@ public class MenuOperationController {
   /** 切断ボタン押下時の処理. */
   private void disconnect() {
     if (disconnecting.get()) {
-      MsgPrinter.INSTANCE.errMsgForUser("!! 切断準備中 !!\n");
+      BhService.msgPrinter().errForUser("!! 切断準備中 !!\n");
       return;
     }
     Future<Boolean> future;
@@ -469,7 +495,7 @@ public class MenuOperationController {
   /** 接続ボタン押下時の処理. */
   private void connect() {
     if (connecting.get()) {
-      MsgPrinter.INSTANCE.errMsgForUser("!! 接続準備中 !!\n");
+      BhService.msgPrinter().errForUser("!! 接続準備中 !!\n");
       return;
     }
     Future<Boolean> future;
@@ -505,7 +531,7 @@ public class MenuOperationController {
     try {
       return future.get();
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.println("%s\n%s".formatted(taskName, e));
+      BhService.msgPrinter().println("%s\n%s".formatted(taskName, e));
     }
     return null;
   }
@@ -521,15 +547,15 @@ public class MenuOperationController {
     }
     switch (status) {
       case SEND_QUEUE_FULL:
-        MsgPrinter.INSTANCE.errMsgForUser("!! 送信失敗 (送信データ追加失敗) !!\n");
+        BhService.msgPrinter().errForUser("!! 送信失敗 (送信データ追加失敗) !!\n");
         break;
 
       case SEND_WHEN_DISCONNECTED:
-        MsgPrinter.INSTANCE.errMsgForUser("!! 送信失敗 (未接続) !!\n");
+        BhService.msgPrinter().errForUser("!! 送信失敗 (未接続) !!\n");
         break;
 
       case SUCCESS:
-        MsgPrinter.INSTANCE.errMsgForUser("-- 送信完了 --\n");
+        BhService.msgPrinter().errForUser("-- 送信完了 --\n");
         break;
 
       default:

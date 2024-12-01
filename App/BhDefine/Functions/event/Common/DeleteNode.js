@@ -1,3 +1,3 @@
 (function() {
-  bhNodeHandler.deleteNode(bhThis, bhUserOpe);
+  bhNodePlacer.deleteNode(bhThis, bhUserOpe);
 })();

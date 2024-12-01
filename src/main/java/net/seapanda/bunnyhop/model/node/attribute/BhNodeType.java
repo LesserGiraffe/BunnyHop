@@ -1,6 +1,6 @@
 package net.seapanda.bunnyhop.model.node.attribute;
 
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 
 /** {@link BhNode} のタイプ. */
 public enum BhNodeType {

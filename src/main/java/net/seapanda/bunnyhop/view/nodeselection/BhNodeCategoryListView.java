@@ -24,17 +24,17 @@ import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import net.seapanda.bunnyhop.common.TreeNode;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
-import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
-import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker.CallbackRegistry;
-import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
-import net.seapanda.bunnyhop.modelprocessor.TextPrompter;
+import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
+import net.seapanda.bunnyhop.model.traverse.CallbackInvoker.CallbackRegistry;
+import net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
+import net.seapanda.bunnyhop.model.traverse.TextPrompter;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.utility.TreeNode;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 
 /**
@@ -65,7 +65,7 @@ public final class BhNodeCategoryListView {
     buildCategoryList(model.getRootNode());
     registerPrivateTemplateView();
     for (int i = 0; i < Math.abs(BhConstants.LnF.INITIAL_ZOOM_LEVEL); ++i) {
-      BhNodeSelectionService.INSTANCE.zoomAll(BhConstants.LnF.INITIAL_ZOOM_LEVEL > 0);
+      BhService.bhNodeSelectionService().zoomAll(BhConstants.LnF.INITIAL_ZOOM_LEVEL > 0);
     }
   }
 
@@ -103,15 +103,15 @@ public final class BhNodeCategoryListView {
    */
   private void addChildren(TreeNode<String> parent, TreeItem<BhNodeCategory> parentItem)
       throws ViewInitializationException {
-    for (TreeNode<String> child : parent.children) {
+    for (TreeNode<String> child : parent.getChildren()) {
       switch (child.content) {
         case BhConstants.NodeTemplate.KEY_CSS_CLASS:
-          String cssClass = child.children.get(0).content;
+          String cssClass = child.getChildAt(0).content;
           parentItem.getValue().setCssClass(cssClass);
           break;
 
         case BhConstants.NodeTemplate.KEY_CONTENTS:
-          for (TreeNode<String> id : child.children) {
+          for (TreeNode<String> id : child.getChildren()) {
             addBhNodeToSelectionView(parentItem.getValue(), BhNodeId.of(id.content));
           }
           break;
@@ -138,13 +138,13 @@ public final class BhNodeCategoryListView {
       throws ViewInitializationException {
     if (!categoryToSselectionView.containsKey(category)) {
       var selectionView = new BhNodeSelectionView(category.categoryName, category.cssClass, this);
-      BhNodeSelectionService.INSTANCE.registerView(selectionView);
+      BhService.bhNodeSelectionService().registerView(selectionView);
       selectionView.setVisible(false);
       categoryToSselectionView.put(category, selectionView);
       selectionViewList.add(selectionView);
     }
     UserOperation userOpe = new UserOperation();
-    BhNode node = BhNodeFactory.INSTANCE.create(bhNodeId, userOpe);
+    BhNode node = BhService.bhNodeFactory().create(bhNodeId, userOpe);
     CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
         .setForAllNodes(bhNode -> bhNode.getEventAgent().execOnTemplateCreated(userOpe));
     CallbackInvoker.invoke(registry, node);
@@ -152,7 +152,7 @@ public final class BhNodeCategoryListView {
     TextPrompter.prompt(node);
     node.getEventAgent().execOnTemplateCreated(userOpe);
     //BhNode テンプレートリストパネルにBhNodeテンプレートを追加
-    BhNodeSelectionService.INSTANCE.addTemplateNode(category.categoryName, node, userOpe);
+    BhService.bhNodeSelectionService().addTemplateNode(category.categoryName, node, userOpe);
   }
 
   /** ノード固有のノード選択ビューを登録する. */
@@ -162,7 +162,7 @@ public final class BhNodeCategoryListView {
         BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE,
         BhConstants.Css.CLASS_PRIVATE_NODE_TEMPLATE,
         this);
-    BhNodeSelectionService.INSTANCE.registerView(selectionView);
+    BhService.bhNodeSelectionService().registerView(selectionView);
     selectionView.setVisible(false);
     selectionViewList.add(selectionView);
   }
@@ -205,11 +205,11 @@ public final class BhNodeCategoryListView {
       // BhNode のカテゴリクリック時の処理
       setOnMousePressed(evenet -> {
         // カテゴリ名の無い TreeCell がクリックされたときと表示済みカテゴリを再度クリックした場合はそれを隠す
-        if (isEmpty() || BhNodeSelectionService.INSTANCE.isShowed(model.categoryName)) {
-          BhNodeSelectionService.INSTANCE.hideAll();
+        if (isEmpty() || BhService.bhNodeSelectionService().isShowed(model.categoryName)) {
+          BhService.bhNodeSelectionService().hideAll();
           select(false);
         } else {
-          BhNodeSelectionService.INSTANCE.show(model.categoryName);
+          BhService.bhNodeSelectionService().show(model.categoryName);
           select(true);
         }
       });

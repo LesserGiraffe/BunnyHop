@@ -20,10 +20,10 @@ import javafx.scene.Group;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
-import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.Rem;
-import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.common.Rem;
+import net.seapanda.bunnyhop.utility.Pair;
+import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
@@ -181,14 +181,14 @@ public class ConnectionLine {
    * 始点 NodeView と終点 NodeView が同じワークスペースに無い場合は表示しない.
    */
   public void show() {
-    if (!areInSameWorkspaceView(startNode, endNode)) {
+    if (!startNode.getPositionManager().isInSameWorkspace(endNode)) {
       shapeGroup.setVisible(false);
       return;
     }
 
     shapeGroup.setVisible(true);
-    Vec2D startPosOnWs = ViewHelper.INSTANCE.getPosOnWorkspace(startNode);
-    Vec2D endPosOnWs = ViewHelper.INSTANCE.getPosOnWorkspace(endNode);
+    Vec2D startPosOnWs = ViewUtil.getPosOnWorkspace(startNode);
+    Vec2D endPosOnWs = ViewUtil.getPosOnWorkspace(endNode);
     Vec2D startNodeSize = startNode.getRegionManager().getBodySize(false);
     Vec2D endNodeSize = endNode.getRegionManager().getBodySize(false);
 
@@ -281,11 +281,5 @@ public class ConnectionLine {
       endPointY = endBottom;
     }
     return new Pair<Double, Double>(startPointY, endPointY);
-  }
-
-  /** 引数の2つの {@link BhNodeView} が同じワークスペースビューにあるかどうか調べる. */
-  private boolean areInSameWorkspaceView(BhNodeView viewA, BhNodeView viewB) {
-    return ViewHelper.INSTANCE.getWorkspaceView(viewA)
-        == ViewHelper.INSTANCE.getWorkspaceView(viewB);
   }
 }

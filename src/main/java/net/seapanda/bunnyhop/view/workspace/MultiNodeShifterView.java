@@ -32,16 +32,15 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
-import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.constant.BhConstants.LnF;
-import net.seapanda.bunnyhop.common.constant.Rem;
-import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants.LnF;
+import net.seapanda.bunnyhop.common.Rem;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.service.FxmlCollector;
-import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.Pair;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
+import net.seapanda.bunnyhop.view.ViewUtil;
 
 /**
  * 複数ノードを同時に移動させるマルチノードシフタのビュー.
@@ -60,7 +59,8 @@ public class MultiNodeShifterView extends Pane {
   /** コンストラクタ. */
   public MultiNodeShifterView() throws ViewInitializationException {
     try {
-      Path filePath = FxmlCollector.INSTANCE.getFilePath(BhConstants.Path.MULTI_NODE_SHIFTER_FXML);
+      Path filePath =
+          BhService.fxmlCollector().getFilePath(BhConstants.Path.MULTI_NODE_SHIFTER_FXML);
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
       loader.setController(this);
       loader.setRoot(this);
@@ -164,7 +164,7 @@ public class MultiNodeShifterView extends Pane {
    */
   private Point2D calcLinkPosForNode(BhNode node) {
     final double yOffset = 0.5 * Rem.VAL;
-    Pair<Vec2D, Vec2D> bodyRange = MsgService.INSTANCE.getNodeBodyRange(node);
+    Pair<Vec2D, Vec2D> bodyRange = BhService.cmdProxy().getNodeBodyRange(node);
     double linkPosX = (bodyRange.v1.x + bodyRange.v2.x) / 2;
     double linkPosY = bodyRange.v1.y + yOffset;
     return new Point2D(linkPosX, linkPosY);
@@ -226,7 +226,7 @@ public class MultiNodeShifterView extends Pane {
    * @return 実際に移動した量
    */
   public Vec2D move(Vec2D diff, Vec2D wsSize, boolean moveLink) {
-    Vec2D distance = ViewHelper.INSTANCE.distance(diff, wsSize, getPosOnWorkspace());
+    Vec2D distance = ViewUtil.distance(diff, wsSize, getPosOnWorkspace());
     setPosOnWorkspace(getTranslateX() + distance.x, getTranslateY() + distance.y);
     if (moveLink) {
       for (BhNode node : nodeToMap.keySet()) {
@@ -238,7 +238,7 @@ public class MultiNodeShifterView extends Pane {
 
   /** マルチノードシフタのワークスペース上での位置を取得する. */
   private Vec2D getPosOnWorkspace() {
-    return ViewHelper.INSTANCE.getPosOnWorkspace(this);
+    return ViewUtil.getPosOnWorkspace(this);
   }
 
   /** マルチノードシフタのワークスペース上での位置を設定する. */

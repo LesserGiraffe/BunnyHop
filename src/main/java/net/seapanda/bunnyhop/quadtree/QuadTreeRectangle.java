@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import net.seapanda.bunnyhop.common.Linkable;
-import net.seapanda.bunnyhop.common.Vec2D;
+import net.seapanda.bunnyhop.utility.Linkable;
+import net.seapanda.bunnyhop.utility.Vec2D;
 
 /**
  * 4 分木空間に登録される矩形オブジェクト.

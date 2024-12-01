@@ -32,9 +32,9 @@ import net.seapanda.bunnyhop.bhprogram.BhRuntimeStatus;
 import net.seapanda.bunnyhop.bhprogram.common.BhProgramHandler;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
-import net.seapanda.bunnyhop.common.SynchronizingTimer;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.SynchronizingTimer;
 
 /**
  * BhProgram と通信をするクラス.
@@ -94,12 +94,12 @@ public class BhProgramTransceiver {
       connectionWait.reset(0);
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
-      MsgPrinter.INSTANCE.errMsgForUser("!! 接続失敗 !!\n");
-      MsgPrinter.INSTANCE.errMsgForDebug("Failed to connect to BhRuntime.\n" + e);
+      BhService.msgPrinter().errForUser("!! 接続失敗 !!\n");
+      BhService.msgPrinter().errForDebug("Failed to connect to BhRuntime.\n" + e);
       return false;
     }
     connected.set(true);
-    MsgPrinter.INSTANCE.msgForUser("-- 接続完了 --\n");
+    BhService.msgPrinter().infoForUser("-- 接続完了 --\n");
     return true;
   }
 
@@ -114,12 +114,12 @@ public class BhProgramTransceiver {
       connectionWait.reset(1);
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
-      MsgPrinter.INSTANCE.errMsgForUser("!! 切断失敗 !!\n");
-      MsgPrinter.INSTANCE.errMsgForDebug("Failed to disconnect from BhRuntime\n" + e);
+      BhService.msgPrinter().errForUser("!! 切断失敗 !!\n");
+      BhService.msgPrinter().errForDebug("Failed to disconnect from BhRuntime\n" + e);
       return false;
     }
     connected.set(false);
-    MsgPrinter.INSTANCE.msgForUser("-- 切断完了 --\n");
+    BhService.msgPrinter().infoForUser("-- 切断完了 --\n");
     return true;
   }
 
@@ -153,7 +153,7 @@ public class BhProgramTransceiver {
       boolean res = future.cancel(true);
       success &= res;
       if (!res) {
-        MsgPrinter.INSTANCE.errMsgForDebug(
+        BhService.msgPrinter().errForDebug(
             "Failed to cancel '%s' task.".formatted(futures.toName(future)));
       }  
     }

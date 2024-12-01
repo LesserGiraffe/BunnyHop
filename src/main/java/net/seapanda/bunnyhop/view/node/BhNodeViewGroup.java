@@ -21,18 +21,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.seapanda.bunnyhop.common.Showable;
-import net.seapanda.bunnyhop.common.Vec2D;
 import net.seapanda.bunnyhop.model.node.Connector;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.Showable;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.Arrangement;
-import net.seapanda.bunnyhop.viewprocessor.NodeViewComponent;
-import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
+import net.seapanda.bunnyhop.view.node.part.SelectableItem;
+import net.seapanda.bunnyhop.view.traverse.NodeViewComponent;
+import net.seapanda.bunnyhop.view.traverse.NodeViewProcessor;
 
 /**
  * {@link BhNodeView} の集合を持つクラス.
@@ -402,7 +403,52 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
         result -> result.group(1).replaceAll("\\\\\\{", "{").replaceAll("\\\\\\}", "}")).toList();
     String styleIdOfPseudoView =
         specifiers.get(0).endsWith(".json") ? specifiers.get(0) : specifiers.get(0) + ".json";
-    return ViewHelper.INSTANCE.createModellessNodeView(styleIdOfPseudoView, specifiers.get(1));
+    return createModellessNodeView(styleIdOfPseudoView, specifiers.get(1));
+  }
+
+  /**
+   * モデルを持たない {@link BhNodeView} を作成する.
+   *
+   * @param styleId 作成するビューのスタイル ID
+   * @param text 作成するビューに設定する文字列
+   * @return 作成した {@link BhNodeView}
+   */
+  private static BhNodeView createModellessNodeView(String styleId, String text)
+      throws ViewInitializationException {
+    Optional<BhNodeViewStyle> style = BhNodeViewStyle.getStyleFromStyleId(styleId);
+    if (style.isEmpty()) {
+      throw new ViewInitializationException(
+        "BhNode View Style '%s' was not found.".formatted(styleId));
+    }
+    return switch (style.get().component) {
+      case TEXT_FIELD -> {
+        var view = new TextFieldNodeView(style.get());
+        view.setTextChangeListener(str -> true);
+        view.setText(text);
+        yield view;
+      }
+      case COMBO_BOX -> {
+        var view = new ComboBoxNodeView(style.get());
+        view.setValue(new SelectableItem(text, text));
+        yield view;
+      }
+      case LABEL -> {
+        var view = new LabelNodeView(style.get());
+        view.setText(text);
+        yield view;
+      }
+      case TEXT_AREA -> {
+        var view = new TextAreaNodeView(style.get());
+        view.setTextChangeListener(str -> true);
+        view.setText(text);
+        yield view;
+      }
+      default -> {
+        throw new ViewInitializationException(
+            "Cannot create a modelless node view whose component is '%s'.  (%s)"
+                .formatted(style.get().component, styleId));
+      }
+    };
   }
 
   @Override
@@ -413,16 +459,16 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
   @Override
   public void show(int depth) {
     try {
-      MsgPrinter.INSTANCE.println(
+      BhService.msgPrinter().println(
           "%s<BhNodeViewGroup>  %s".formatted(indent(depth), hashCode()));
-      MsgPrinter.INSTANCE.println(indent(depth + 1) + (inner ? "<inner>" : "<outer>"));
+      BhService.msgPrinter().println(indent(depth + 1) + (inner ? "<inner>" : "<outer>"));
       childNames.stream()
           .map(childName -> childNameToNodeView.get(childName))
           .filter(childNodeView -> childNodeView != null)
           .forEachOrdered(childNodeView -> childNodeView.show(depth + 1));
       subGroupList.forEach(subGroup -> subGroup.show(depth + 1));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.println("connectiveNodeView show exception " + e);
+      BhService.msgPrinter().println("connectiveNodeView show exception " + e);
     }
   }
 }

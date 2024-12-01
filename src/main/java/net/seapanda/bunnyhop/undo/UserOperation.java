@@ -22,21 +22,15 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
 import javafx.scene.Parent;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.message.MsgTransporter;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
-import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
  * undo/redo 用コマンドクラス.
@@ -76,7 +70,7 @@ public class UserOperation {
   /** for debug. */
   public void printSubOpeList() {
     for (SubOperation subope : subOpeList) {
-      MsgPrinter.INSTANCE.println("subope  " + subope);
+      BhService.msgPrinter().println("subope  " + subope);
     }
   }
 
@@ -122,23 +116,25 @@ public class UserOperation {
   /**
    * ワークスペース上での位置指定をコマンド化してサブ操作リストに加える.
    *
-   * @param x ワークスペース上での元の位置 x
-   * @param y ワークスペース上での元の位置 y
+   * @param oldPos 移動前に位置
+   * @param newPos 移動後に位置
    * @param node 位置指定をしたノード
    */
-  public void pushCmdOfSetPosOnWorkspace(double x, double y, BhNode node) {
-    subOpeList.addLast(new SetPosOnWorkspaceCmd(x, y, node));
+  public void pushCmdOfSetPosOnWorkspace(Vec2D oldPos, Vec2D newPos, BhNode node) {
+    subOpeList.addLast(new SetPosOnWorkspaceCmd(oldPos, newPos, node));
   }
 
   /**
-   * 4 分木ノードの4 分木空間への登録をコマンド化してサブ操作リストに加える.
+   * 4 分木ノードの 4 分木空間への登録をコマンド化してサブ操作リストに加える.
    *
    * @param rect 4 分木空間に登録した矩形オブジェクト
    * @param oldManager {@code node} が元々あった 4 分木空間を管理するオブジェクト
    * @param newManager {@code node} が新しく入った 4 分木空間を管理するオブジェクト
    */
   public void pushCmdOfSetQtRectangle(
-      QuadTreeRectangle rect, QuadTreeManager oldManager, QuadTreeManager newManager) {
+      QuadTreeRectangle rect,
+      QuadTreeManager oldManager,
+      QuadTreeManager newManager) {
     subOpeList.addLast(new SetQtRectangleCmd(rect, oldManager, newManager));
   }
 
@@ -207,22 +203,18 @@ public class UserOperation {
    * ワークスペースの追加をコマンド化してサブ操作リストに加える.
    *
    * @param ws 追加されたワークスペース
-   * @param wsView 追加されたワークスペースのビュー
-   * @param wss  ワークスペースを追加したワークスペースセット
    */
-  public void pushCmdOfAddWorkspace(Workspace ws, WorkspaceView wsView, WorkspaceSet wss) {
-    subOpeList.addLast(new AddWorkspaceCmd(ws, wsView, wss));
+  public void pushCmdOfAddWorkspace(Workspace ws) {
+    subOpeList.addLast(new AddWorkspaceCmd(ws));
   }
 
   /**
    * ワークスペースの削除をコマンド化してサブ操作リストに加える.
    *
    * @param ws 削除されたワークスペース
-   * @param wsView 削除されたワークスペースのビュー
-   * @param wss  ワークスペースを削除したワークスペースセット
    */
-  public void pushCmdOfDeleteWorkspace(Workspace ws, WorkspaceView wsView, WorkspaceSet wss) {
-    subOpeList.addLast(new DeleteWorkspaceCmd(ws, wsView, wss));
+  public void pushCmdOfDeleteWorkspace(Workspace ws) {
+    subOpeList.addLast(new DeleteWorkspaceCmd(ws));
   }
 
   /**
@@ -236,14 +228,14 @@ public class UserOperation {
   }
 
   /**
-   * ノードの構文エラー設定をコマンド化してサブ操作リストに加える.
+   * ノードのコンパイルエラー設定をコマンド化してサブ操作リストに加える.
    *
-   * @param nodeView ノードの構文エラー設定を変更したノード
+   * @param nodeView ノードのコンパイルエラー設定を変更したノード
    * @param setVal 設定した状態
    * @param prevVal 前の状態
    */
-  public void pushCmdOfSetSyntaxError(BhNodeView nodeView, boolean setVal, boolean prevVal) {
-    subOpeList.addLast(new SetSyntaxErrorCmd(nodeView, setVal, prevVal));
+  public void pushCmdOfSetCompileError(BhNodeView nodeView, boolean setVal, boolean prevVal) {
+    subOpeList.addLast(new SetCompileErrorCmd(nodeView, setVal, prevVal));
   }
 
   /**
@@ -365,7 +357,7 @@ public class UserOperation {
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      MsgService.INSTANCE.removeRootNode(node, inverseCmd);
+      BhService.cmdProxy().removeRootNode(node, inverseCmd);
     }
   }
 
@@ -384,7 +376,7 @@ public class UserOperation {
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      MsgTransporter.INSTANCE.sendMessage(BhMsg.ADD_ROOT_NODE, node, ws);
+      BhService.cmdProxy().addRootNode(node, ws, new UserOperation());
       inverseCmd.pushCmdOfAddRootNode(node);
     }
   }
@@ -392,24 +384,23 @@ public class UserOperation {
   /** ワークスペース上の位置指定を表すコマンド. */
   private static class SetPosOnWorkspaceCmd implements SubOperation {
 
-    /** 指定前のワークスペース上での位置X. */
-    private final double posX;
-    /** 指定前のワークスペース上での位置y. */
-    private final double posY;
+    /** 移動前の位置. */
+    private final Vec2D oldPos;
+    /** 移動後の位置. */
+    private final Vec2D newPos;
     /** 位置を指定したノード. */
     private final BhNode node;
 
-    public SetPosOnWorkspaceCmd(double x, double y, BhNode node) {
-      this.posX = x;
-      this.posY = y;
+    public SetPosOnWorkspaceCmd(Vec2D oldPos, Vec2D newPos, BhNode node) {
+      this.oldPos = oldPos;
+      this.newPos = newPos;
       this.node = node;
     }
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      Vec2D curPos = MsgService.INSTANCE.getPosOnWs(node);
-      inverseCmd.pushCmdOfSetPosOnWorkspace(curPos.x, curPos.y, node);
-      MsgService.INSTANCE.setPosOnWs(node, posX, posY);
+      inverseCmd.pushCmdOfSetPosOnWorkspace(newPos, oldPos, node);
+      BhService.cmdProxy().setPosOnWs(node, oldPos.x, oldPos.y);
     }
   }
 
@@ -446,7 +437,8 @@ public class UserOperation {
       if (rect.getUserData() != null
           && rect.getUserData() instanceof BhNodeView view
           && view.getModel().isPresent()) {
-        MsgTransporter.INSTANCE.sendMessage(BhMsg.UPDATE_ABS_POS, view.getModel().get());
+        Vec2D pos = view.getPositionManager().getPosOnWorkspace();
+        view.getPositionManager().setPosOnWorkspace(pos.x, pos.y);
       }
     }
   }
@@ -470,10 +462,10 @@ public class UserOperation {
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
       //元々付いていた古いViewに付け替える
-      MsgService.INSTANCE.replaceChildNodeView(newNode, oldNode, inverseCmd);
+      BhService.cmdProxy().replaceChildNodeView(newNode, oldNode, inverseCmd);
       // 入れ替え前に newNode の親がなかった場合GUIツリーから消す.
       if (!newNodeHasParent) {
-        MsgService.INSTANCE.removeFromGuiTree(newNode);
+        BhService.cmdProxy().removeFromGuiTree(newNode);
       }
     }
   }
@@ -578,21 +570,14 @@ public class UserOperation {
 
     /** 追加されたワークスペース. */
     Workspace ws;
-    /** 追加されたワークスペースのビュー. */
-    WorkspaceView wsView;
-    /** ワークスペースを追加したワークスペースセット. */
-    WorkspaceSet wss;
 
-    public AddWorkspaceCmd(Workspace ws, WorkspaceView wsView, WorkspaceSet wss) {
+    public AddWorkspaceCmd(Workspace ws) {
       this.ws = ws;
-      this.wsView = wsView;
-      this.wss = wss;
     }
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      MsgTransporter.INSTANCE.sendMessage(
-          BhMsg.DELETE_WORKSPACE, new MsgData(ws, wsView, inverseCmd), wss);
+      BhService.cmdProxy().deleteWorkspace(ws, inverseCmd);
     }
   }
 
@@ -601,21 +586,14 @@ public class UserOperation {
 
     /** 削除されたワークスペース. */
     Workspace ws;
-    /** 削除されたワークスペースのビュー. */
-    WorkspaceView wsView;
-    /** ワークスペースを削除したワークスペースセット. */
-    WorkspaceSet wss;
 
-    public DeleteWorkspaceCmd(Workspace ws, WorkspaceView wsView, WorkspaceSet wss) {
+    public DeleteWorkspaceCmd(Workspace ws) {
       this.ws = ws;
-      this.wsView = wsView;
-      this.wss = wss;
     }
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      MsgTransporter.INSTANCE.sendMessage(
-          BhMsg.ADD_WORKSPACE, new MsgData(ws, wsView, inverseCmd), wss);
+      BhService.cmdProxy().addWorkspace(ws, inverseCmd);
     }
   }
 
@@ -639,17 +617,17 @@ public class UserOperation {
     }
   }
 
-  /** {@link BhNodeView} の構文エラー表示の変更を表すコマンド. */
-  private static class SetSyntaxErrorCmd implements SubOperation {
+  /** {@link BhNodeView} のコンパイルエラー表示の変更を表すコマンド. */
+  private static class SetCompileErrorCmd implements SubOperation {
 
-    /** ノードの構文エラー設定を変更したノード. */
+    /** ノードのコンパイルエラー設定を変更したノード. */
     private final BhNodeView nodeView;
     /** 設定した状態. */
     private final boolean setVal;
     /** 以前の状態. */
     private final boolean prevVal;
 
-    public SetSyntaxErrorCmd(BhNodeView nodeView, boolean setVal, boolean prevVal) {
+    public SetCompileErrorCmd(BhNodeView nodeView, boolean setVal, boolean prevVal) {
       this.nodeView = nodeView;
       this.setVal = setVal;
       this.prevVal = prevVal;
@@ -658,7 +636,7 @@ public class UserOperation {
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
       nodeView.getLookManager().setSytaxErrorVisibility(prevVal);
-      inverseCmd.pushCmdOfSetSyntaxError(nodeView, prevVal, setVal);
+      inverseCmd.pushCmdOfSetCompileError(nodeView, prevVal, setVal);
     }
   }
 

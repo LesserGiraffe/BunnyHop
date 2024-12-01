@@ -19,9 +19,7 @@ package net.seapanda.bunnyhop.model.node;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
@@ -29,12 +27,10 @@ import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivativeJointId;
 import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.modelprocessor.BhNodeWalker;
-import net.seapanda.bunnyhop.service.BhNodeHandler;
-import net.seapanda.bunnyhop.service.BhScriptManager;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.service.Util;
+import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
@@ -64,8 +60,6 @@ public class Connector extends SyntaxSymbol {
   private final DerivativeJointId derivativeJoint;
   /** ノードを接続可能かどうかチェックするスクリプトの名前. */
   private final String cnctCheckScriptName;
-  /** スクリプト実行時のスコープ. */
-  protected transient ScriptableObject scriptScope;
 
   @Override
    public void accept(BhNodeWalker visitor) {
@@ -117,7 +111,7 @@ public class Connector extends SyntaxSymbol {
       newNode = connectedNode.copy(isNodeToBeCopied, userOpe);
     } else {
       // コピー対象のノードでない場合, デフォルトノードを新規作成して接続する
-      newNode = BhNodeFactory.INSTANCE.create(defaultNodeId, userOpe);
+      newNode = BhService.bhNodeFactory().create(defaultNodeId, userOpe);
       newNode.setDefault(true);
     }
     var newConnector = new Connector(this, parent);
@@ -183,10 +177,11 @@ public class Connector extends SyntaxSymbol {
     if (fixed) {
       return false;
     }
-    Script script = BhScriptManager.INSTANCE.getCompiledScript(cnctCheckScriptName);
+    Script script = BhService.bhScriptManager().getCompiledScript(cnctCheckScriptName);
     if (script == null) {
       return false;
     }
+    ScriptableObject scriptScope = newScriptScope();
     ScriptableObject.putProperty(
         scriptScope, BhConstants.JsKeyword.KEY_BH_CURRENT_NODE, connectedNode);
     ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_TO_CONNECT, node);
@@ -194,7 +189,7 @@ public class Connector extends SyntaxSymbol {
     try {
       isConnectable = ContextFactory.getGlobal().call(cx -> script.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(cnctCheckScriptName + "\n" + e);
+      BhService.msgPrinter().errForDebug(cnctCheckScriptName + "\n" + e);
       return false;
     }
 
@@ -218,18 +213,19 @@ public class Connector extends SyntaxSymbol {
   }
 
   /** スクリプト実行時のスコープ変数を登録する. */
-  public final void initScriptScope() {
-    scriptScope = BhScriptManager.INSTANCE.createScriptScope();
+  private ScriptableObject newScriptScope() {
+    Context cx = ContextFactory.getGlobal().enterContext();
+    ScriptableObject scope = cx.initStandardObjects();
     ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_THIS, this);
+        scope, BhConstants.JsKeyword.KEY_BH_THIS, this);
     ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
+        scope, BhConstants.JsKeyword.KEY_BH_NODE_PLACER, BhService.bhNodePlacer());
     ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
+        scope, BhConstants.JsKeyword.KEY_BH_CMD_PROXY, BhService.cmdProxy());
     ScriptableObject.putProperty(
-        scriptScope,
-        BhConstants.JsKeyword.KEY_BH_COMMON,
-        BhScriptManager.INSTANCE.getCommonJsObj());
+        scope, BhConstants.JsKeyword.KEY_BH_COMMON, BhService.bhScriptManager().getCommonJsObj());
+    Context.exit();
+    return scope;
   }
 
   /**
@@ -245,23 +241,6 @@ public class Connector extends SyntaxSymbol {
     }
     return derivationId;
   }
-
-  /**
-   * このコネクタと先祖コネクタの中に, DerivationId.NONE 以外の派生先 ID (派生ノードを特定するための ID) を持つコネクタがあればそれを返す.
-   * なければ, null を返す.
-   */
-  Connector findDerivationConnectorUp() {
-    if (derivationId.equals(DerivationId.NONE)) {
-      Connector parentCnctr = getParentNode().getParentConnector();
-      if (parentCnctr != null) {
-        return parentCnctr.findDerivationConnectorUp();
-      } else {
-        return null;
-      }
-    }
-    return this;
-  }
-  
 
   /**
    * 派生ノード接続位置の識別子を取得する.
@@ -313,7 +292,7 @@ public class Connector extends SyntaxSymbol {
       String... symbolNames) {
     if (generationi == 0) {
       for (String symbolName : symbolNames) {
-        if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
+        if (symbolNameMatches(symbolName)) {
           foundSymbolList.add(this);
         }
       }
@@ -329,7 +308,7 @@ public class Connector extends SyntaxSymbol {
   public SyntaxSymbol findSymbolInAncestors(String symbolName, int generation, boolean toTop) {
 
     if (generation == 0) {
-      if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
+      if (symbolNameMatches(symbolName)) {
         return this;
       }
       if (!toTop) {
@@ -349,7 +328,7 @@ public class Connector extends SyntaxSymbol {
 
   @Override
   public void show(int depth) {
-    MsgPrinter.INSTANCE.println("%s<Connector bhID=%s nodeID=%s parent=%s>  %s".formatted(
+    BhService.msgPrinter().println("%s<Connector bhID=%s nodeID=%s parent=%s>  %s".formatted(
         indent(depth), id, connectedNode.getId(), parent.getInstanceId(), getInstanceId()));
     connectedNode.show(depth + 1);
   }

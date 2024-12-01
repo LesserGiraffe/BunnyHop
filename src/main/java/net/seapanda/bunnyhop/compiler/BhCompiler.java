@@ -23,14 +23,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.service.Util;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.Utility;
 
 /**
  * BhNode をコンパイルするクラス.
@@ -39,18 +41,16 @@ import net.seapanda.bunnyhop.service.Util;
  */
 public class BhCompiler {
 
-  public static final BhCompiler INSTANCE = new BhCompiler() {};
   private final VarDeclCodeGenerator varDeclCodeGen;
   private final FuncDefCodeGenerator funcDefCodeGen;
   private final StatCodeGenerator statCodeGen;
   private final EventHandlerCodeGenerator eventHandlerCodeGen;
   private final CommonCodeGenerator common;
   private final GlobalDataDeclCodeGenerator globalDataDeclCodeGen;
-  private String commonCode;
-  private String remoteCommonCode;
-  private String localCommonCode;
+  private final List<String> commonCodeList;
 
-  private BhCompiler() {
+  /** コンストラクタ. */
+  public BhCompiler(Path... libPaths) throws IOException {
     common = new CommonCodeGenerator();
     varDeclCodeGen = new VarDeclCodeGenerator(common);
     ExpCodeGenerator expCodeGen = new ExpCodeGenerator(common, varDeclCodeGen);
@@ -58,45 +58,16 @@ public class BhCompiler {
     funcDefCodeGen = new FuncDefCodeGenerator(common, statCodeGen, varDeclCodeGen);
     eventHandlerCodeGen = new EventHandlerCodeGenerator(common, statCodeGen, varDeclCodeGen);
     globalDataDeclCodeGen = new GlobalDataDeclCodeGenerator(common, expCodeGen);
+    commonCodeList = readLibCode(libPaths);
   }
 
-  /**
-   * コンパイルに必要な初期化処理を行う.
-   *
-   * @return 初期化に成功した場合true
-   */
-  public boolean init() {
-    Path commonCodePath = Paths.get(
-        Util.INSTANCE.execPath,
-        BhConstants.Path.BH_DEF_DIR,
-        BhConstants.Path.FUNCTIONS_DIR,
-        BhConstants.Path.lib,
-        BhConstants.Path.COMMON_CODE_JS);
-    Path remoteCommonCodePath = Paths.get(
-        Util.INSTANCE.execPath,
-        BhConstants.Path.BH_DEF_DIR,
-        BhConstants.Path.FUNCTIONS_DIR,
-        BhConstants.Path.lib,
-        BhConstants.Path.REMOTE_COMMON_CODE_JS);
-    Path localCommonCodePath = Paths.get(
-        Util.INSTANCE.execPath,
-        BhConstants.Path.BH_DEF_DIR,
-        BhConstants.Path.FUNCTIONS_DIR,
-        BhConstants.Path.lib,
-        BhConstants.Path.LOCAL_COMMON_CODE_JS);
-    try {
-      byte[] content = Files.readAllBytes(commonCodePath);
-      commonCode = new String(content, StandardCharsets.UTF_8);
-      content = Files.readAllBytes(remoteCommonCodePath);
-      remoteCommonCode = new String(content, StandardCharsets.UTF_8);
-      content = Files.readAllBytes(localCommonCodePath);
-      localCommonCode = new String(content, StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
-          "Failed to initialize %s.\n%s".formatted(getClass().getSimpleName(), e));
-      return false;
+  private List<String> readLibCode(Path... libPaths) throws IOException {
+    var codeList = new ArrayList<String>();
+    for (Path libPath : libPaths) {
+      byte[] content = Files.readAllBytes(libPath);
+      codeList.add(new String(content, StandardCharsets.UTF_8));
     }
-    return true;
+    return codeList;
   }
 
   /**
@@ -114,27 +85,29 @@ public class BhCompiler {
     StringBuilder code = new StringBuilder();
     genCode(code, execNode, nodesToCompile, option);
 
-    Util.INSTANCE.createDirectoryIfNotExists(
-        Paths.get(Util.INSTANCE.execPath, BhConstants.Path.COMPILED_DIR));
-    Path appFilePath = Paths.get(
-        Util.INSTANCE.execPath, BhConstants.Path.COMPILED_DIR, BhConstants.Path.APP_FILE_NAME_JS);
+    Path logDir = Paths.get(Utility.execPath, BhConstants.Path.COMPILED_DIR);
+    Path appFile = Paths.get(
+        Utility.execPath, BhConstants.Path.COMPILED_DIR, BhConstants.Path.APP_FILE_NAME_JS);
     try (BufferedWriter writer = Files.newBufferedWriter(
-        appFilePath, StandardCharsets.UTF_8,
+        appFile,
+        StandardCharsets.UTF_8,
         StandardOpenOption.CREATE,
         StandardOpenOption.TRUNCATE_EXISTING,
         StandardOpenOption.WRITE)) {
+      if (!Files.isDirectory(logDir)) {
+        Files.createDirectory(logDir);
+      }          
       writer.write(code.toString());
-
     } catch (IOException e) {
-      MsgPrinter.INSTANCE.alert(
+      BhService.msgPrinter().alert(
           Alert.AlertType.ERROR,
           "ファイル書き込みエラー",
           null,
-          "%s\n%s".formatted(e, appFilePath.toString()));
+          "%s\n%s".formatted(e, appFile.toString()));
       return Optional.empty();
     }
-    MsgPrinter.INSTANCE.msgForUser("\n-- コンパイル成功 --\n");
-    return Optional.of(appFilePath);
+    BhService.msgPrinter().infoForUser("\n-- コンパイル成功 --\n");
+    return Optional.of(appFile);
   }
 
   /**
@@ -150,13 +123,8 @@ public class BhCompiler {
       BhNode execNode,
       Collection<BhNode> nodeListToCompile,
       CompileOption option) {
-
-    code.append(commonCode);
-    if (option.local) {
-      code.append(localCommonCode);
-    } else {
-      code.append(remoteCommonCode);
-    }
+    String libCode = commonCodeList.stream().reduce("", (a, b) -> a + b);
+    code.append(libCode);
     genCodeForIdentifierDef(code, 1, option);
     varDeclCodeGen.genVarDecls(nodeListToCompile, code, 1, option);
     globalDataDeclCodeGen.genGlobalDataDecls(nodeListToCompile, code, 1, option);

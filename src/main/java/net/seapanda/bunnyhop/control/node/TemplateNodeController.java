@@ -18,26 +18,22 @@ package net.seapanda.bunnyhop.control.node;
 
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.message.MsgTransporter;
+import net.seapanda.bunnyhop.command.BhCmd;
+import net.seapanda.bunnyhop.command.CmdData;
+import net.seapanda.bunnyhop.command.CmdProcessor;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
+import net.seapanda.bunnyhop.model.traverse.TextPrompter;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
-import net.seapanda.bunnyhop.modelprocessor.TextPrompter;
-import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.service.BhNodeHandler;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
 import net.seapanda.bunnyhop.view.node.TextInputNodeView;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 /**
@@ -45,7 +41,7 @@ import org.apache.commons.lang3.mutable.MutableObject;
  *
  * @author K.Koike
  */
-public class TemplateNodeController implements MsgProcessor {
+public class TemplateNodeController implements CmdProcessor {
 
   private final BhNode model;
   /** テンプレートリストのビュー. */
@@ -88,9 +84,9 @@ public class TemplateNodeController implements MsgProcessor {
 
   /** マウスボタン押下時のイベントハンドラ. */
   private void onMousePressed(MouseEvent mouseEvent) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
-      Workspace currentWs = BunnyHop.INSTANCE.getCurrentWorkspace();
+      Workspace currentWs = BhService.getCurrentWorkspace();
       if (currentWs == null) {
         return;
       }
@@ -100,23 +96,17 @@ public class TemplateNodeController implements MsgProcessor {
       TextPrompter.prompt(newNode);
       currentView.setValue(nodeView);
       Vec2D posOnRootView = calcRelativePosFromRoot();  //クリックされたテンプレートノードのルートノード上でのクリック位置
-      posOnRootView.x += mouseEvent.getX();
-      posOnRootView.y += mouseEvent.getY();
-      Vec2D posOnWs = MsgService.INSTANCE.sceneToWorkspace(
+      posOnRootView.add(mouseEvent.getX(), mouseEvent.getY());
+      Vec2D posOnWs = BhService.cmdProxy().sceneToWorkspace(
           mouseEvent.getSceneX(), mouseEvent.getSceneY(), currentWs);
-      BhNodeHandler.INSTANCE.moveToWs(
-          currentWs,
-          newNode,
-          posOnWs.x - posOnRootView.x,
-          posOnWs.y - posOnRootView.y,
-          userOpe);
-      MsgTransporter.INSTANCE.sendMessage(
-          BhMsg.SET_USER_OPE_CMD, new MsgData(userOpe), newNode);  // undo 用コマンドセット
+      posOnWs.sub(posOnRootView);
+      BhService.bhNodePlacer().moveToWs(currentWs, newNode, posOnWs.x, posOnWs.y, userOpe);
+      BhService.cmdProxy().setUserOpeCmd(newNode, userOpe);  // undo 用コマンドセット
       currentView.getValue().getEventManager().propagateEvent(mouseEvent);
-      BhNodeSelectionService.INSTANCE.hideAll();
+      BhService.bhNodeSelectionService().hideAll();
       mouseEvent.consume();
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
@@ -130,22 +120,22 @@ public class TemplateNodeController implements MsgProcessor {
 
   /** マウスドラッグ検出検出時のイベントハンドラ. */
   private void onDragDetected(MouseEvent mouseEvent) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
       onMouseDragged(mouseEvent);
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** マウスボタンを離したときのイベントハンドラ. */
   private void onMouseReleased(MouseEvent mouseEvent) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
       onMouseDragged(mouseEvent);
       currentView.setValue(null);
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
@@ -164,17 +154,17 @@ public class TemplateNodeController implements MsgProcessor {
    * @return メッセージを処理した結果返すデータ
    */
   @Override
-  public MsgData processMsg(BhMsg msg, MsgData data) {
+  public CmdData process(BhCmd msg, CmdData data) {
     switch (msg) {
       case ADD_ROOT_NODE: // model がWorkSpace のルートノードとして登録された
-        return  new MsgData(model, view);
+        return new CmdData(model, view);
 
       case REMOVE_ROOT_NODE:
-        return  new MsgData(model, view);
+        return new CmdData(model, view);
 
       case GET_POS_ON_WORKSPACE:
         var pos = view.getPositionManager().getPosOnWorkspace();
-        return new MsgData(pos);
+        return new CmdData(pos);
 
       case REPLACE_NODE_VIEW:
         view.getTreeManager().replace(data.nodeView);
@@ -185,7 +175,7 @@ public class TemplateNodeController implements MsgProcessor {
         break;
 
       case GET_VIEW:
-        return new MsgData(view);
+        return new CmdData(view);
 
       case REMOVE_FROM_GUI_TREE:
         view.getTreeManager().removeFromGuiTree();
@@ -201,7 +191,7 @@ public class TemplateNodeController implements MsgProcessor {
         break;
 
       case IS_TEMPLATE_NODE:
-        return new MsgData(true);
+        return new CmdData(true);
 
       default:
         // do nothing

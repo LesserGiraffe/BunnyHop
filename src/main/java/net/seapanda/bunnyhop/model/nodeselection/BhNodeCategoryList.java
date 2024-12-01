@@ -18,16 +18,15 @@ package net.seapanda.bunnyhop.model.nodeselection;
 
 import java.nio.file.Path;
 import java.util.Optional;
-import net.seapanda.bunnyhop.common.TreeNode;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgDispatcher;
-import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.command.BhCmd;
+import net.seapanda.bunnyhop.command.CmdData;
+import net.seapanda.bunnyhop.command.CmdDispatcher;
+import net.seapanda.bunnyhop.command.CmdProcessor;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.service.BhScriptManager;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.TreeNode;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 
@@ -39,11 +38,11 @@ import org.mozilla.javascript.NativeObject;
  *
  * @author K.Koike
  */
-public class BhNodeCategoryList implements MsgDispatcher {
+public class BhNodeCategoryList implements CmdDispatcher {
 
   private TreeNode<String> templateTreeRoot;
   /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
-  private MsgProcessor msgProcessor = (msg, data) -> null;
+  private CmdProcessor msgProcessor = (msg, data) -> null;
 
   private BhNodeCategoryList() {}
 
@@ -53,7 +52,7 @@ public class BhNodeCategoryList implements MsgDispatcher {
    * @param filePath ノードカテゴリとテンプレートノードの配置情報が記されたファイルのパス
    */
   public static Optional<BhNodeCategoryList> create(Path filePath) {
-    Optional<NativeObject> jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
+    Optional<NativeObject> jsonObj = BhScriptManager.parseJsonFile(filePath);
     if (jsonObj.isEmpty()) {
       return Optional.empty();
     }
@@ -86,8 +85,8 @@ public class BhNodeCategoryList implements MsgDispatcher {
         case BhConstants.NodeTemplate.KEY_CSS_CLASS:  //cssクラスのキー
           if (val instanceof String) {
             TreeNode<String> cssClass = new TreeNode<>(BhConstants.NodeTemplate.KEY_CSS_CLASS);
-            cssClass.children.add(new TreeNode<>(val.toString()));
-            parent.children.add(cssClass);
+            cssClass.addChild(new TreeNode<>(val.toString()));
+            parent.addChild(cssClass);
           }
           break;
 
@@ -95,14 +94,14 @@ public class BhNodeCategoryList implements MsgDispatcher {
           if (val instanceof NativeArray) {
             TreeNode<String> contents = new TreeNode<>(BhConstants.NodeTemplate.KEY_CONTENTS);
             bhNodeForLeafExists &= addBhNodeId((NativeArray) val, contents, fileName);
-            parent.children.add(contents);
+            parent.addChild(contents);
           }
           break;
 
         default: // カテゴリ名 ("文字列", "制御", "動作", ...)
           if (val instanceof NativeObject) {
             TreeNode<String> child = new TreeNode<>(key.toString());
-            parent.children.add(child);
+            parent.addChild(child);
             bhNodeForLeafExists &= addChildren((NativeObject) val, child, fileName);
           }
           break;
@@ -124,11 +123,11 @@ public class BhNodeCategoryList implements MsgDispatcher {
       if (bhNodeId instanceof String) {  // 配列内の文字列だけをBhNode の IDとみなす
         String bhNodeIdStr = (String) bhNodeId;
         // IDに対応する BhNode がある
-        if (BhNodeFactory.INSTANCE.bhNodeExists(BhNodeId.of(bhNodeIdStr))) {
-          parent.children.add(new TreeNode<>(bhNodeIdStr));
+        if (BhService.bhNodeFactory().bhNodeExists(BhNodeId.of(bhNodeIdStr))) {
+          parent.addChild(new TreeNode<>(bhNodeIdStr));
         } else {
           allBhNodesExist &= false;
-          MsgPrinter.INSTANCE.errMsgForDebug("Cannot find %s for %s\n(%s)"
+          BhService.msgPrinter().errForDebug("Cannot find %s for %s\n(%s)"
               .formatted(BhConstants.BhModelDef.ELEM_NODE, bhNodeIdStr, fileName));
         }
       }
@@ -146,12 +145,12 @@ public class BhNodeCategoryList implements MsgDispatcher {
   }
 
   @Override
-  public void setMsgProcessor(MsgProcessor processor) {
+  public void setMsgProcessor(CmdProcessor processor) {
     msgProcessor = processor;
   }
 
   @Override
-  public MsgData dispatch(BhMsg msg, MsgData data) {
-    return msgProcessor.processMsg(msg, data);
+  public CmdData dispatch(BhCmd msg, CmdData data) {
+    return msgProcessor.process(msg, data);
   }
 }

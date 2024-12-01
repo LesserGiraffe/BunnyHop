@@ -21,18 +21,15 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
-import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker.CallbackRegistry;
-import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
-import net.seapanda.bunnyhop.modelprocessor.TextPrompter;
-import net.seapanda.bunnyhop.root.BunnyHop;
+import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
+import net.seapanda.bunnyhop.model.traverse.CallbackInvoker.CallbackRegistry;
+import net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
+import net.seapanda.bunnyhop.model.traverse.TextPrompter;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
-import net.seapanda.bunnyhop.service.MsgPrinter;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 
 /**
  * ノード固有のテンプレートノードを作成するボタン.
@@ -56,7 +53,7 @@ public final class PrivateTemplateCreationButton extends Button {
     try {
       return Optional.of(new PrivateTemplateCreationButton(node, buttonStyle));
     } catch (IOException | ClassCastException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
+      BhService.msgPrinter().errForDebug(
           "Failed to create Private Template Creation Button.\n" + e);
       return Optional.empty();
     }
@@ -76,23 +73,23 @@ public final class PrivateTemplateCreationButton extends Button {
    * @param node このノードのプライベートテンプレートを作成する
    */
   private void onTemplateCreating(ActionEvent event, BhNode node) {
-    if (MsgService.INSTANCE.isTemplateNode(node)) {
+    if (BhService.cmdProxy().isTemplateNode(node)) {
       return;
     }
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
       // 現在表示しているプライベートテンプレートを作ったボタンを押下した場合, プライベートテンプレートを閉じる
-      boolean isPrivateTemplateShowed =
-          BhNodeSelectionService.INSTANCE.isShowed(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE);
+      boolean isPrivateTemplateShowed = BhService.bhNodeSelectionService().isShowed(
+          BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE);
       if (lastClicked.getAndSet(this) == this && isPrivateTemplateShowed) {
-        BhNodeSelectionService.INSTANCE.hideAll();
+        BhService.bhNodeSelectionService().hideAll();
       } else {
         createPrivateTemplate(node);
-        BhNodeSelectionService.INSTANCE.show(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE);
+        BhService.bhNodeSelectionService().show(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE);
       }
       event.consume();
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
@@ -103,7 +100,7 @@ public final class PrivateTemplateCreationButton extends Button {
    */
   private static void createPrivateTemplate(BhNode node) {
     var userOpe = new UserOperation();
-    BhNodeSelectionService.INSTANCE.deleteAllNodes(
+    BhService.bhNodeSelectionService().deleteAllNodes(
         BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE, userOpe);
     
     for (var templateNode : node.genPrivateTemplateNodes(userOpe)) {
@@ -112,9 +109,9 @@ public final class PrivateTemplateCreationButton extends Button {
       CallbackInvoker.invoke(registry, templateNode);
       NodeMvcBuilder.buildTemplate(templateNode);
       TextPrompter.prompt(templateNode);
-      BhNodeSelectionService.INSTANCE.addTemplateNode(
+      BhService.bhNodeSelectionService().addTemplateNode(
           BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE, templateNode, userOpe);
     }
-    BunnyHop.INSTANCE.pushUserOperation(userOpe);
+    BhService.undoRedoAgent().pushUndoCommand(userOpe);
   }
 }

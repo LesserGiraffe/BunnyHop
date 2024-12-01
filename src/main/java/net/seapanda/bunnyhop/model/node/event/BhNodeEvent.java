@@ -37,7 +37,7 @@ public enum BhNodeEvent {
   ON_PRIVATE_TEMPLATE_CREATING,
   /** ユーザー操作により, このノードがコピー&ペーストされるときに発行されるイベント. */
   ON_COPY_REQUESTED,
-  /** 構文エラーをチェックするときに発行されるイベント. */
+  /** コンパイルエラーをチェックするときに発行されるイベント. */
   ON_SYNTAX_CHECKING,
   /** テキストノードのテキストを整形するときに発行されるイベント. */
   ON_TEXT_FORMATTING,

@@ -20,7 +20,7 @@
   -fx-stroke: magenta;
 }
 
-.BhNode-SyntaxError {
+.BhNode-CompileError {
   -fx-stroke-width: 0.30em;
   -fx-stroke: red;
 }

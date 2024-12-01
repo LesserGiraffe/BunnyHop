@@ -21,8 +21,9 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import net.seapanda.bunnyhop.common.Showable;
-import net.seapanda.bunnyhop.modelprocessor.BhNodeWalker;
+import java.util.Objects;
+import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.utility.Showable;
 
 /**
  * 終端記号, 非終端記号を表すクラス.
@@ -37,11 +38,12 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
   private InstanceId instanceId = InstanceId.newId();
 
   /**
-   * 引数で指定したシンボル名を持つSyntaxSymbolをgeneration(もしくはそれ以下)の世代のSyntaxSymbolから探す.
+   * 引数で指定したシンボル名を持つ {@link SyntaxSymbol} を {@code generation} もしくは
+   * それ以下の世代の {@link SyntaxSymbol} から探す.
    *
-   * @param generation 自分から見てこのレベルの世代もしくはそれ以下を探す.  例(0:自分(もしくはそれ以下)を探す. 1:子(もしくはそれ以下)を探す)
-   * @param toTerminal generation で指定した階層のみ探す場合false. 末端ノードまで探す場合true
-   * @param foundSymbolList 見つかったSyntaxSymbolを格納するリスト
+   * @param generation 自分から見てこのレベルの世代もしくはそれ以下を探す.  例 (0:自分. 1:子)
+   * @param toTerminal {@code generation} で指定した世代のみ探す場合 false. 末端ノードまで探す場合 true.
+   * @param foundSymbolList 見つかった {@link SyntaxSymbol} を格納するリスト
    * @param symbolNames シンボル名
    */
   public abstract void findSymbolInDescendants(
@@ -67,7 +69,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
     List<SyntaxSymbol> foundSymbolList = new ArrayList<>();
     findSymbolInDescendants(
         symbolNamePath.length, false, foundSymbolList, symbolNamePath[symbolNamePath.length - 1]);
-    //symbolNamePath == (a,b,c)  => reverseSymbolNamePath == (b,a,thisSymbolName)
+    // symbolNamePath == (a,b,c)  => reverseSymbolNamePath == (b, a, thisSymbolName)
     String[] reverseSymbolNamePath = new String[symbolNamePath.length];
     for (int i = symbolNamePath.length - 2, j = 0; i >= 0; --i, ++j) {
       reverseSymbolNamePath[j] = symbolNamePath[i];
@@ -82,18 +84,19 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
   }
 
   /**
-   * 引数で指定したシンボル名を持つ SyntaxSymbol を generation(もしくはそれ以上)の世代の SyntaxSymbol から探す.
+   * 引数で指定したシンボル名を持つ {@link SyntaxSymbol} を {@code generation} もしくは
+   * それ以上の世代の {@link SyntaxSymbol} から探す.
    *
    * @param symbolName シンボル名
-   * @param generation 自分から見てこのレベルの世代もしくはそれ以上を探す.  例(0:自分(もしくはそれ以上)を探す. 1:親(もしくはそれ以上)を探す)
-   * @param upToTop generation で指定した世代のみ探す場合false. トップノードまで探す場合true.
-   * @return シンボル名を持つ SyntaxSymbol オブジェクト. 見つからなかった場合は null.
+   * @param generation 自分から見てこのレベルの世代もしくはそれ以上を探す.  例 (0:自分. 1:親)
+   * @param upToTop {@code generation} で指定した世代のみ探す場合 false. トップノードまで探す場合 true.
+   * @return シンボル名を持つ {@link SyntaxSymbol} オブジェクト. 見つからなかった場合は null.
    */
   public abstract SyntaxSymbol findSymbolInAncestors(
       String symbolName, int generation, boolean upToTop);
 
   /**
-   * 引数で指定したシンボル名を持つSyntaxSymbolを親以上のSyntaxSymbolから探す.
+   * 引数で指定したシンボル名を持つ {@link SyntaxSymbol} を親以上の {@link SyntaxSymbol} から探す.
    *
    * @param symbolNamePath
    *      <pre>
@@ -165,6 +168,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
    * @param symbolName シンボル名.
    */
   protected SyntaxSymbol(String symbolName) {
+    Objects.requireNonNull(symbolName);
     this.symbolName = symbolName;
   }
 
@@ -180,7 +184,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
   /**
    * シンボル名を取得する.
    *
-   * @return 終端, 非終端記号名
+   * @return シンボル名
    */
   public String getSymbolName() {
     return symbolName;
@@ -196,13 +200,20 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
   }
 
   /**
-   * インスタンス ID を新しくする.
+   * このシンボルの名前が {@code name} に一致するか調べる.
    *
-   * @return 新しく割り振られたインスタンス ID
+   * @param name このシンボルの名前と一致するか調べる文字列. 
+   *             "*" を指定した場合, このシンボルの名前によらず一致したとみなす.
+   * @return このシンボルの名前が {@code name} に一致する場合 true.
    */
-  public InstanceId renewInstancelId() {
-    instanceId = InstanceId.newId();
-    return instanceId;
+  public boolean symbolNameMatches(String name) {
+    if (name == null) {
+      return false;
+    }
+    if (name.equals("*")) {
+      return true;
+    }
+    return symbolName.equals(name);
   }
 
   /** {@code visitor} にこのオブジェクトを渡す. */

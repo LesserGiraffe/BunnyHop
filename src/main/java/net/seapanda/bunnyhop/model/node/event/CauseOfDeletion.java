@@ -24,10 +24,26 @@ package net.seapanda.bunnyhop.model.node.event;
 public enum CauseOfDeletion {
   /** ゴミ箱に入れられた. */
   TRASH_BOX,
-  /** 構文エラーノードの削除. */
-  SYNTAX_ERROR,
+  /** コンパイルエラーノードの削除. */
+  COMPILE_ERROR,
   /** 選択削除の対象になった. */
   SELECTED_FOR_DELETION,
   /** ワークスペースの削除. */
   WORKSPACE_DELETION;
+
+  public boolean isTrashBox() {
+    return this.equals(TRASH_BOX);
+  }
+
+  public boolean isCompileError() {
+    return this.equals(COMPILE_ERROR);
+  }
+
+  public boolean isSelectedForDeletion() {
+    return this.equals(SELECTED_FOR_DELETION);
+  }
+
+  public boolean isWorkspaceDeletion() {
+    return this.equals(WORKSPACE_DELETION);
+  }
 }

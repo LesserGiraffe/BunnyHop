@@ -31,10 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceController;
-import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.Connector;
@@ -43,11 +41,10 @@ import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeVersion;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.modelprocessor.BhNodeWalker;
-import net.seapanda.bunnyhop.modelprocessor.NodeMvcBuilder;
-import net.seapanda.bunnyhop.service.BhNodeHandler;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
@@ -121,7 +118,7 @@ public class ProjectImporter {
           importer.filePath);
     } catch (Exception e) {
       if (!importer.warnings.isEmpty()) {
-        MsgPrinter.INSTANCE.errMsgForDebug(
+        BhService.msgPrinter().errForDebug(
             "Import %s\n[Warnings]\n%s".formatted(filePath, importer.getWarningMsg()));
       }
       throw e;
@@ -192,7 +189,7 @@ public class ProjectImporter {
     for (BhNodeImage nodeImage : wsImage.getRootNodes()) {
       BhNode root = genBhNode(nodeImage);
       if (root != null) {
-        BhNodeHandler.INSTANCE.moveToWs(
+        BhService.bhNodePlacer().moveToWs(
             ws, root, nodeImage.pos.x, nodeImage.pos.y, false, userOpe);
       }
     }
@@ -210,7 +207,7 @@ public class ProjectImporter {
     if (!checkBhNodeExistence(nodeImage)) {
       return null;
     }
-    BhNode node = BhNodeFactory.INSTANCE.create(nodeImage.nodeId, new UserOperation());
+    BhNode node = BhService.bhNodeFactory().create(nodeImage.nodeId, new UserOperation());
     node.setDefault(nodeImage.isDefault);
     if (!checkNodeVersionCompatiblity(nodeImage, node)) {
       return null;
@@ -224,7 +221,7 @@ public class ProjectImporter {
     NodeMvcBuilder.build(node);
     if (node instanceof TextNode textNode) {
       textNode.setText(nodeImage.text);
-      MsgService.INSTANCE.matchViewContentToModel(textNode);
+      BhService.cmdProxy().matchViewContentToModel(textNode);
     }
     // InstanceId の重複チェックは genBhNode を呼び出した後で行う必要がある.
     checkNodeImageInstanceId(nodeImage);
@@ -236,7 +233,7 @@ public class ProjectImporter {
 
   /** {@code nodeImage} で指定した {@link BhNode} が作成可能か調べる. */
   private boolean checkBhNodeExistence(BhNodeImage nodeImage) {
-    boolean bhNodeExists = BhNodeFactory.INSTANCE.bhNodeExists(nodeImage.nodeId);
+    boolean bhNodeExists = BhService.bhNodeFactory().bhNodeExists(nodeImage.nodeId);
     if (!bhNodeExists) {
       warnings.add(ImportWarning.UNKNOWN_BH_NODE_ID);
       unknownNodeIds.add(nodeImage.nodeId);

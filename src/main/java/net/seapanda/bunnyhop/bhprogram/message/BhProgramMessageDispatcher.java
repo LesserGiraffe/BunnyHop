@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.TurnLeftRas
 import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.TurnRightRaspiCarCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.InputTextResp;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 
 /**
@@ -128,13 +128,13 @@ public class BhProgramMessageDispatcher {
 
   private void notifyInvalidMsg(BhProgramMessage msg) {
     String message = "不正なメッセージを受信しました.  (%s)".formatted(msg);
-    MsgPrinter.INSTANCE.msgForUser(message + "\n");
-    MsgPrinter.INSTANCE.errMsgForDebug(message);
+    BhService.msgPrinter().infoForUser(message + "\n");
+    BhService.msgPrinter().errForDebug(message);
   }
 
   private void notifyInvalidResp(BhProgramResponse resp) {
     String message = "不正なレスポンスを受信しました.  (%s)".formatted(resp);
-    MsgPrinter.INSTANCE.msgForUser(message + "\n");
-    MsgPrinter.INSTANCE.errMsgForDebug(message);
+    BhService.msgPrinter().infoForUser(message + "\n");
+    BhService.msgPrinter().errForDebug(message);
   }
 }

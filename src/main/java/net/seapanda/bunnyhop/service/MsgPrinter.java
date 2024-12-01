@@ -16,14 +16,18 @@
 
 package net.seapanda.bunnyhop.service;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.Queue;
 import java.util.concurrent.FutureTask;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -32,108 +36,110 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.util.Duration;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.root.BunnyHop;
+import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.utility.LogManager;
+import net.seapanda.bunnyhop.utility.Utility;
 
 /**
  * メッセージ出力クラス.
  *
  * @author K.Koike
- * */
-public class MsgPrinter {
+ */
+public class MsgPrinter implements Closeable {
 
-  public static final MsgPrinter INSTANCE = new MsgPrinter();
   private TextArea mainMsgArea;
-  private BlockingQueue<String> messages =
-      new ArrayBlockingQueue<>(BhConstants.Message.MAX_MAIN_MSG_QUEUE_SIZE);
-  private Timeline msgPrintTimer;
+  private Queue<String> messages = new LinkedList<>();
+  private final Timeline msgPrintTimer;
+  private final LogManager logManager;
+  private Collection<String> style = new ArrayList<>();
+  private boolean isClosed = false;
 
-  private MsgPrinter() {}
 
-  public boolean init() {
-    startMsgTimer();
-    return LogManager.INSTANCE.init();
-  }
-
-  /** メッセージ出力タイマーを駆動する. */
-  private void startMsgTimer() {
-    msgPrintTimer = new Timeline(
-        new KeyFrame(Duration.millis(100), event -> outputMsg()));
+  MsgPrinter() throws IOException {
+    logManager = new LogManager(
+      Paths.get(Utility.execPath, BhConstants.Path.LOG_DIR),
+      BhConstants.Path.LOG_FILE_NAME,
+      BhConstants.Message.LOG_FILE_SIZE_LIMIT,
+      BhConstants.Message.MAX_LOG_FILE_NUM);
+    var keyFrame = new KeyFrame(Duration.millis(100), event -> outputMsg());
+    msgPrintTimer = new Timeline(keyFrame);
     msgPrintTimer.setCycleCount(Timeline.INDEFINITE);
     msgPrintTimer.play();
   }
 
-  private void outputMsg() {
-    if (mainMsgArea == null) {
+  private synchronized void outputMsg() {
+    if (isClosed || mainMsgArea == null) {
       return;
     }
-    List<String> msgList = new ArrayList<>(messages.size());
-    messages.drainTo(msgList);
-    StringBuilder text = new StringBuilder();
-    msgList.forEach(text::append);
-    if (!msgList.isEmpty()) {
+    StringBuilder text = new StringBuilder("");
+    messages.forEach(text::append);
+    messages.clear();
+    if (!text.isEmpty()) {
       mainMsgArea.appendText(text.toString());
     }
   }
 
   /** デバッグ用エラーメッセージ出力メソッド. */
-  public void errMsgForDebug(String msg) {
+  public synchronized void errForDebug(String msg) {
+    if (isClosed) {
+      return;
+    }
     Date date = Calendar.getInstance().getTime();
     msg = "[ERR] : %s @ %s\n%s\n----\n".formatted(
-        Util.INSTANCE.getMethodName(2),
+        Utility.getMethodName(2),
         new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date),
         msg);
     System.err.print(msg);
-    LogManager.INSTANCE.writeToFile(msg);
+    logManager.writeToFile(msg);
   }
 
   /** デバッグ用メッセージ出力メソッド. */
-  public void msgForDebug(String msg) {
+  public synchronized void infoForDebug(String msg) {
+    if (isClosed) {
+      return;
+    }
     Date date = Calendar.getInstance().getTime();
-    msg = "[MSG] : %s @ %s\n%s\n----\n".formatted(
-        Util.INSTANCE.getMethodName(2),
+    msg = "[INFO] : %s @ %s\n%s\n----\n".formatted(
+        Utility.getMethodName(2),
         new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date),
         msg);
     System.out.print(msg);
-    LogManager.INSTANCE.writeToFile(msg);
+    logManager.writeToFile(msg);
   }
 
   /** アプリケーションユーザ向けにメッセージを出力する. */
-  public void msgForUser(String msg) {
+  public synchronized void infoForUser(String msg) {
+    if (isClosed || mainMsgArea == null) {
+      return;
+    }
     if (Platform.isFxApplicationThread()) {
       mainMsgArea.appendText(msg);
     } else {
-      try {
-        messages.put(msg);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
+      messages.offer(msg);
     }
   }
 
   /** アプリケーションユーザ向けにメッセージを出力する. */
-  public void msgForUser(List<Character> charCodeList) {
-    if (charCodeList.isEmpty()) {
-      return;
-    }
+  public synchronized void infoForUser(List<Character> charCodeList) {
     char[] charCodeArray = new char[charCodeList.size()];
     for (int i = 0; i < charCodeArray.length; ++i) {
       charCodeArray[i] = charCodeList.get(i);
     }
-    String progressInfo = new String(charCodeArray);  //サイズ0の配列の場合 readStr == '\0'
-    msgForUser(progressInfo + "\n");
+    infoForUser(new String(charCodeArray));
   }
 
   /** アプリケーションユーザ向けにエラーメッセージを出力する. */
-  public void errMsgForUser(String msg) {
-    msgForUser(msg);
+  public synchronized void errForUser(String msg) {
+    infoForUser(msg);
   }
 
   /** 標準出力にメッセージを出力する. */
-  public void println(String msg) {
+  public synchronized void println(String msg) {
+    if (isClosed) {
+      return;
+    }
     System.out.println(msg);
   }
-
 
   /**
    * アラーウィンドウでメッセージを出力する.
@@ -151,13 +157,15 @@ public class MsgPrinter {
       String header,
       String content,
       ButtonType ... buttonTypes) {
-
+    if (isClosed) {
+      return Optional.empty();
+    }
     FutureTask<Optional<ButtonType>> alertTask = new FutureTask<>(() -> {
       Alert alert = new Alert(type);
       alert.setTitle(title);
       alert.setHeaderText(header);
       alert.setContentText(content);
-      alert.getDialogPane().getStylesheets().addAll(BunnyHop.INSTANCE.getAllStyles());
+      alert.getDialogPane().getStylesheets().addAll(style);
       if (buttonTypes.length != 0) {
         alert.getButtonTypes().setAll(buttonTypes);
       }
@@ -173,7 +181,7 @@ public class MsgPrinter {
     try {
       buttonType = alertTask.get();
     } catch (Exception e) {
-      errMsgForDebug(e.toString());
+      errForDebug(e.toString());
     }
     return buttonType;
   }
@@ -183,17 +191,22 @@ public class MsgPrinter {
    *
    * @param mainMsgArea 登録するメインのメッセージ出力エリア
    */
-  public void setMainMsgArea(TextArea mainMsgArea) {
+  public synchronized void setMainMsgArea(TextArea mainMsgArea) {
     this.mainMsgArea = mainMsgArea;
   }
 
-  /** 終了処理をする. */
-  public void end() {
-    LogManager.INSTANCE.end();
+  /** ウィンドウを使うメッセージ出力のスタイルをセットする. */
+  public synchronized void setWindowStyle(Collection<String> style) {
+    if (style != null) {
+      this.style = new ArrayList<>(style);
+    }
   }
 
-  /** BunnyHopのメッセージ出力機能を止める. */
-  public void stop() {
+  /** 終了処理をする. */
+  @Override
+  public synchronized void close() {
+    isClosed = true;
+    logManager.close();
     msgPrintTimer.stop();
   }
 }

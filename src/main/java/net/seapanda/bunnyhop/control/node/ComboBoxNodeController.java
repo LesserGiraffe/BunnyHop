@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
+import net.seapanda.bunnyhop.command.BhCmd;
+import net.seapanda.bunnyhop.command.CmdData;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
@@ -72,7 +72,7 @@ public class ComboBoxNodeController extends BhNodeController {
     if (Objects.equals(newItem.getModelText(), model.getText())) {
       return;
     }
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
       if (model.isTextAcceptable(newItem.getModelText())) {
         // model の文字列を ComboBox の選択アイテムに対応したものにする
@@ -82,7 +82,7 @@ public class ComboBoxNodeController extends BhNodeController {
         view.setValue(oldItem);
       }
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
@@ -105,14 +105,14 @@ public class ComboBoxNodeController extends BhNodeController {
    * @return メッセージを処理した結果返すデータ
    */
   @Override
-  public MsgData processMsg(BhMsg msg, MsgData data) {
+  public CmdData process(BhCmd msg, CmdData data) {
     switch (msg) {
       case MATCH_VIEW_CONTENT_TO_MODEL:
         matchViewToModel(model, view);
         break;
 
       default:
-        return super.processMsg(msg, data);
+        return super.process(msg, data);
     };
     return null;
   }

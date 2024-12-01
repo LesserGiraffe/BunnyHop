@@ -26,22 +26,21 @@ import net.seapanda.bunnyhop.control.nodeselection.BhNodeSelectionController;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.service.BhNodeHandler;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
- * ノード選択ビューの操作を公開するクラス.
+ * ノード選択ビューの操作を提供するクラス.
  *
  * @author K.Koike
  */
 public class BhNodeSelectionService {
 
-  public static final BhNodeSelectionService INSTANCE = new BhNodeSelectionService();
   private final Map<String, BhNodeSelectionView> categoryNameToSelectionView = new HashMap<>();
   private final Map<String, Workspace> categoryNameToWorkspace = new HashMap<>();
 
   /** コンストラクタ. */
-  private BhNodeSelectionService() {}
+  public BhNodeSelectionService() {}
 
   /**
    * ノード選択ビューを登録する.
@@ -71,7 +70,7 @@ public class BhNodeSelectionService {
     if (ws == null) {
       return;
     }
-    BhNodeHandler.INSTANCE.moveToWs(ws, node, 0, 0, userOpe);
+    BhService.bhNodePlacer().moveToWs(ws, node, 0, 0, userOpe);
   }
 
   /**
@@ -98,8 +97,7 @@ public class BhNodeSelectionService {
    */
   public void deleteAllNodes(String categoryName, UserOperation userOpe) {
     Collection<BhNode> nodesToDelete = getTemplateNodes(categoryName);
-    List<Swapped> swappedNodes =
-        BhNodeHandler.INSTANCE.deleteNodes(nodesToDelete, userOpe);
+    List<Swapped> swappedNodes = BhService.bhNodePlacer().deleteNodes(nodesToDelete, userOpe);
     for (var swapped : swappedNodes) {
       swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
           swapped.oldNode(),

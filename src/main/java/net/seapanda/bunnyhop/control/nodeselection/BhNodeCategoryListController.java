@@ -20,12 +20,12 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
-import net.seapanda.bunnyhop.common.constant.Rem;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgProcessor;
+import net.seapanda.bunnyhop.command.BhCmd;
+import net.seapanda.bunnyhop.command.CmdData;
+import net.seapanda.bunnyhop.command.CmdProcessor;
+import net.seapanda.bunnyhop.common.Rem;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryListView;
 
@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryListView;
  *
  * @author K.Koike
  */
-public class BhNodeCategoryListController implements MsgProcessor {
+public class BhNodeCategoryListController implements CmdProcessor {
 
   @FXML private ScrollPane nodeCategoryListViewBase;
   @FXML private TreeView<BhNodeCategoryListView.BhNodeCategory> categoryTree;
@@ -46,13 +46,12 @@ public class BhNodeCategoryListController implements MsgProcessor {
    *
    * @param categoryList ノードカテゴリリストのモデル
    */
-  public boolean init(BhNodeCategoryList categoryList) {
-
+  public boolean initialize(BhNodeCategoryList categoryList) {
     model = categoryList;
     try {
       view = new BhNodeCategoryListView(categoryTree, model);
     } catch (ViewInitializationException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
+      BhService.msgPrinter().errForDebug(e.toString());
       return false;
     }
     nodeCategoryListViewBase.setMinWidth(Region.USE_PREF_SIZE);
@@ -72,7 +71,7 @@ public class BhNodeCategoryListController implements MsgProcessor {
   }
 
   @Override
-  public MsgData processMsg(BhMsg msg, MsgData data) {
+  public CmdData process(BhCmd msg, CmdData data) {
     throw new AssertionError("receive an unknown msg " + msg);
   }
 }

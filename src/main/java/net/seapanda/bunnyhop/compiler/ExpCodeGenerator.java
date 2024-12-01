@@ -23,7 +23,7 @@ import java.util.List;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.service.Util;
+import net.seapanda.bunnyhop.utility.Utility;
 
 /**
  * 式のコード生成を行うクラス.
@@ -465,7 +465,7 @@ public class ExpCodeGenerator {
           option);
       return vars.get(1);
     }
-    throw new IllegalStateException(Util.INSTANCE.getCurrentMethodName());
+    throw new IllegalStateException(Utility.getCurrentMethodName());
   }
 
   /**
@@ -476,7 +476,7 @@ public class ExpCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    * @return 音リテラルを格納した変数.
-   * */
+   */
   private String genSoundLiteralExp(
       StringBuilder code,
       SyntaxSymbol soundLiteralNode,
@@ -509,7 +509,7 @@ public class ExpCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    * @return 音リテラルを格納した変数.
-   * */
+   */
   private String genFreqSoundLiteralExp(
       StringBuilder code,
       SyntaxSymbol freqSoundLiteralNode,
@@ -543,7 +543,7 @@ public class ExpCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    * @return 音リテラルを格納した変数.
-   * */
+   */
   private String genScaleSoundLiteralExp(
       StringBuilder code,
       SyntaxSymbol scaleSoundLiteralNode,

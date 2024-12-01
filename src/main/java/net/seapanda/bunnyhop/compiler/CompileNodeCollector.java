@@ -21,18 +21,16 @@ import java.util.Optional;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.model.NodeGraphSnapshot;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.service.SyntaxErrorNodeManager;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.utility.Pair;
 
 /**
- * コンパイル対象のノードを準備するクラス.
+ * コンパイル対象のノードを集める.
  *
  * @author K.Koike
  */
@@ -41,7 +39,7 @@ public class CompileNodeCollector {
   private CompileNodeCollector() {}
 
   /**
-   * コンパイル対象のノードを準備する.
+   * コンパイル対象のノードを集める.
    * 返されるノードは, ワークスペースに存在するノードのディープコピー.
    *
    * @param wss このワークスペースセットからコンパイル対象ノードを集める.
@@ -50,20 +48,19 @@ public class CompileNodeCollector {
    */
   public static Optional<Pair<NodeGraphSnapshot, BhNode>> collect(
       WorkspaceSet wss, UserOperation userOpe) {
-    return new CompileNodeCollector().collectNodesToCompile(wss, userOpe);
+    return new CompileNodeCollector().collectNodes(wss, userOpe);
   }
 
   /**
-   * コンパイル前の準備をする.
+   * コンパイル対象のノードを集める.
    *
    * @param wss このワークスペースセットからコンパイル対象ノードを集める.
    * @param userOpe undo 用コマンドオブジェクト.
    * @return コンパイル対象ノードと実行対象ノードのペア
    */
-  private Optional<Pair<NodeGraphSnapshot, BhNode>> collectNodesToCompile(
+  private Optional<Pair<NodeGraphSnapshot, BhNode>> collectNodes(
       WorkspaceSet wss, UserOperation userOpe) {
-    if (!deleteSyntaxErrorNodes(userOpe)) {
-      BunnyHop.INSTANCE.pushUserOperation(userOpe);
+    if (!deleteCompileErrorNodes(userOpe)) {
       return Optional.empty();
     }
     return findNodeToExecute(wss.getCurrentWorkspace(), userOpe)
@@ -75,20 +72,20 @@ public class CompileNodeCollector {
   }
 
   /**
-   * 構文エラーノードを削除する.
+   * コンパイルエラーノードを削除する.
    *
    * @param userOpe undo 用コマンドオブジェクト
-   * @return 全ての構文エラーノードが無くなった場合 true.
+   * @return 全てのコンパイルエラーノードが無くなった場合 true.
    */
-  private boolean deleteSyntaxErrorNodes(UserOperation userOpe) {
-    if (!SyntaxErrorNodeManager.INSTANCE.hasErrorNodes()) {
+  private boolean deleteCompileErrorNodes(UserOperation userOpe) {
+    if (!BhService.compileErrNodeManager().hasErrorNodes()) {
       return true;
     }
-    Optional<ButtonType> btnType = MsgPrinter.INSTANCE.alert(
+    Optional<ButtonType> btnType = BhService.msgPrinter().alert(
         Alert.AlertType.CONFIRMATION,
-        "構文エラーノードの削除",
+        "コンパイルエラーノードの削除",
         null,
-        "構文エラーノードを削除してもよろしいですか?\n「いいえ」を選択した場合、実行を中止します",
+        "コンパイルエラーノードを削除してもよろしいですか?\n「いいえ」を選択した場合、実行を中止します",
         ButtonType.NO,
         ButtonType.YES);
 
@@ -98,8 +95,8 @@ public class CompileNodeCollector {
     return btnType
         .map(type -> {
           if (type.equals(ButtonType.YES)) {
-            SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(userOpe);
-            SyntaxErrorNodeManager.INSTANCE.deleteErrorNodes(userOpe);
+            BhService.compileErrNodeManager().unmanageNonErrorNodes(userOpe);
+            BhService.compileErrNodeManager().deleteErrorNodes(userOpe);
             return true;
           }
           return false;
@@ -120,24 +117,22 @@ public class CompileNodeCollector {
     }
     List<BhNode> selectedNodeList = ws.getSelectedNodeList();
     if (selectedNodeList.isEmpty()) {
-      MsgPrinter.INSTANCE.alert(AlertType.ERROR, "実行対象の選択", null, "実行対象を一つ選択してください");
+      BhService.msgPrinter().alert(AlertType.ERROR, "実行対象の選択", null, "実行対象を一つ選択してください");
       return Optional.empty();
     }
     // 実行対象以外を非選択に.
     BhNode nodeToExec = selectedNodeList.get(0).findRootNode();
     ws.clearSelectedNodeList(userOpe);
     ws.addSelectedNode(nodeToExec, userOpe);
-    BunnyHop.INSTANCE.pushUserOperation(userOpe);
     return Optional.of(nodeToExec);
   }
 
   /** 実行ノード対象のノードを取得する. */
-  private BhNode getNodeToExec(
-      NodeGraphSnapshot snapshot, BhNode nodeToExec) {
+  private BhNode getNodeToExec(NodeGraphSnapshot snapshot, BhNode nodeToExec) {
     BhNode copyOfNodeToExec = snapshot.getMapOfSymbolIdToNode().get(nodeToExec.getInstanceId());
     if (copyOfNodeToExec == null) {
       var msg = "The copy of the BhNode to execute was not found in the snapshot.";
-      MsgPrinter.INSTANCE.errMsgForDebug(msg);
+      BhService.msgPrinter().errForDebug(msg);
       throw new AssertionError(msg);
     }
     return copyOfNodeToExec;

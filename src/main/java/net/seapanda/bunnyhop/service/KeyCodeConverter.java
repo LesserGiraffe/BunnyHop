@@ -97,7 +97,7 @@ public class KeyCodeConverter {
         }};
 
   /** Javafx のキーコードと {@link BhProgramEvent.Name} の対応.  */
-  private static Map<KeyCode, BhProgramEvent.Name> jfxKeyCodeToEventName =
+  private static final Map<KeyCode, BhProgramEvent.Name> jfxKeyCodeToEventName =
       new HashMap<>() {{
           put(KeyCode.DIGIT0, BhProgramEvent.Name.KEY_DIGIT0_PRESSED);
           put(KeyCode.DIGIT1, BhProgramEvent.Name.KEY_DIGIT1_PRESSED);

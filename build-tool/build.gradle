@@ -63,7 +63,7 @@ ext.bhProgramName = 'BhAppScript.js'
 
 application {
   // Define the main class for the application.
-  mainClass = 'net.seapanda.bunnyhop.root.AppMain'
+  mainClass = 'net.seapanda.bunnyhop.launch.AppMain'
 }
 
 // ライブラリの準備

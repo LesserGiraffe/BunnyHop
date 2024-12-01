@@ -25,8 +25,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
 import org.apache.commons.lang3.SerializationUtils;
 
 /**

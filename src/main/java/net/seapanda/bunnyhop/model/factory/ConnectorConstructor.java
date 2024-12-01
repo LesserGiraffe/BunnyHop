@@ -17,7 +17,8 @@
 package net.seapanda.bunnyhop.model.factory;
 
 import java.util.Optional;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import java.util.function.Function;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorAttributes;
@@ -25,7 +26,8 @@ import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorParamSetId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivativeJointId;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhScriptManager;
+import net.seapanda.bunnyhop.service.BhService;
 import org.w3c.dom.Element;
 
 /**
@@ -36,14 +38,26 @@ import org.w3c.dom.Element;
 public class ConnectorConstructor {
   
   private final Element elem;
+  /** コネクタアトリビュート取得用関数. */
+  private final Function<ConnectorParamSetId, Optional<ConnectorAttributes>> getCnctrAttr;
+  /** {@link Connector} のパラメータの定義ファイルに書かれた JavaScript ファイルを保持する {@link BhScriptManager} オブジェクト. */
+  private final BhScriptManager scriptManager;
 
   /**
    * コンストラクタ.
    *
    * @param elem ConnectorParameterSet もしくは Connector エレメント.
+   * @param getCnctrAttr コネクタアトリビュート取得用関数
+   * @param scriptManager {@link Connector} のパラメータの定義ファイルに書かれた
+   *                      JavaScript ファイルを保持する {@link BhScriptManager} オブジェクト.
    */
-  public ConnectorConstructor(Element elem) {
+  ConnectorConstructor(
+      Element elem,
+      Function<ConnectorParamSetId, Optional<ConnectorAttributes>> getCnctrAttr,
+      BhScriptManager scriptManager) {
     this.elem = elem;
+    this.getCnctrAttr = getCnctrAttr;
+    this.scriptManager = scriptManager;
   }
 
   /** このオブジェクトが持つエレメントがコネクタパラメータセットであるか調べる. */
@@ -60,7 +74,7 @@ public class ConnectorConstructor {
   public Optional<ConnectorAttributes> genParamSet() {
     //ルートエレメントチェック
     if (!elem.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR_PARAM_SET)) {
-      MsgPrinter.INSTANCE.errMsgForDebug(String.format("""
+      BhService.msgPrinter().errForDebug(String.format("""
           Invalid connector parameter set definition (%s).
           A connector parameter set definition must have a '%s' root element.\n%s
           """,
@@ -80,7 +94,7 @@ public class ConnectorConstructor {
   public Optional<Connector> genConnector() {
     // ルートエレメントチェック
     if (!elem.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR)) {
-      MsgPrinter.INSTANCE.errMsgForDebug(String.format("""
+      BhService.msgPrinter().errForDebug(String.format("""
           Invalid connector definition. (%s)
           A connector definition must have a '%s' root element.\n%s
           """,
@@ -93,7 +107,7 @@ public class ConnectorConstructor {
     var cnctrAttrs = ConnectorAttributes.of(elem);
     // コネクタ ID 存在チェック
     if (cnctrAttrs.connectorId().equals(ConnectorId.NONE)) {
-      MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+      BhService.msgPrinter().errForDebug(String.format(
           "A '%s' elements must have a '%s' attribute.\n%s",
           BhConstants.BhModelDef.ELEM_CONNECTOR,
           BhConstants.BhModelDef.ATTR_BH_CONNECTOR_ID,
@@ -101,16 +115,15 @@ public class ConnectorConstructor {
       return Optional.empty();
     }
     // スクリプト存在チェック
-    if (!BhNodeFactory.allScriptsExist(
+    if (!scriptManager.allExistIgnoringEmpty(
         elem.getBaseURI(), cnctrAttrs.onConnectabilityChecking())) {
       return Optional.empty();
     }
-    ConnectorAttributes imported =
-        BhNodeFactory.INSTANCE.getConnectorAttributes(cnctrAttrs.imports()).orElse(cnctrAttrs);
+    ConnectorAttributes imported = getCnctrAttr.apply(cnctrAttrs.imports()).orElse(cnctrAttrs);
     // デフォルトノードの存在チェック.
     if (imported.defaultNodeId().equals(BhNodeId.NONE)
         && cnctrAttrs.defaultNodeId().equals(BhNodeId.NONE)) {
-      MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+      BhService.msgPrinter().errForDebug(String.format(
           "A '%s' elements must have a '%s' attribute.\n%s",
           BhConstants.BhModelDef.ELEM_CONNECTOR,
           BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID,

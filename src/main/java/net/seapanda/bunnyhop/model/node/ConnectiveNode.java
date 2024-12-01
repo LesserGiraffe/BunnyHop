@@ -19,7 +19,6 @@ package net.seapanda.bunnyhop.model.node;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
@@ -29,9 +28,8 @@ import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.model.node.section.Section;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.modelprocessor.BhNodeWalker;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.service.Util;
+import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
@@ -128,7 +126,7 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
       String... symbolNames) {
     if (generation == 0) {
       for (String symbolName : symbolNames) {
-        if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
+        if (symbolNameMatches(symbolName)) {
           foundSymbolList.add(this);
         }
       }
@@ -143,7 +141,7 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
   @Override
   public ConnectiveNode createDerivative(DerivationId derivationId, UserOperation userOpe) {
     // 派生ノード作成
-    BhNode derivative = BhNodeFactory.INSTANCE.create(getDerivativeIdOf(derivationId), userOpe);
+    BhNode derivative = BhService.bhNodeFactory().create(getDerivativeIdOf(derivationId), userOpe);
     if (derivative instanceof ConnectiveNode node) {
       // オリジナルと派生ノードの関連付け
       addDerivative(node, userOpe);
@@ -164,12 +162,12 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
     var lastReplacedInstId =
         (getLastReplaced() != null) ? getLastReplaced().getInstanceId() : InstanceId.NONE;
 
-    MsgPrinter.INSTANCE.println("%s<ConnectiveNode  bhID=%s  parent=%s>  %s"
+    BhService.msgPrinter().println("%s<ConnectiveNode  bhID=%s  parent=%s>  %s"
         .formatted(indent(depth), getId(), parentinstId, getInstanceId()));
-    MsgPrinter.INSTANCE.println("%s<last replaced>  %s"
+    BhService.msgPrinter().println("%s<last replaced>  %s"
         .formatted(indent(depth + 1), lastReplacedInstId));
-    MsgPrinter.INSTANCE.println(indent(depth + 1) + "<derivation>");
-    getDerivatives().forEach(derv -> MsgPrinter.INSTANCE.println(
+    BhService.msgPrinter().println(indent(depth + 1) + "<derivation>");
+    getDerivatives().forEach(derv -> BhService.msgPrinter().println(
         "%s<derivative>  %s".formatted(indent(depth + 2), derv.getInstanceId())));
     childSection.show(depth + 1);
   }

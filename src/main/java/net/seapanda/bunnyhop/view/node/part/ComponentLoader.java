@@ -22,8 +22,7 @@ import java.util.Optional;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Control;
-import net.seapanda.bunnyhop.service.FxmlCollector;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhService;
 
 /**
  * GUI コンポーネントをロードするクラス.
@@ -41,7 +40,7 @@ public class ComponentLoader {
    */
   public static void loadButton(String fileName, Button root, BhNodeViewStyle.Button buttonStyle)
       throws IOException, ClassCastException {
-    Path filePath = FxmlCollector.INSTANCE.getFilePath(fileName);
+    Path filePath = BhService.fxmlCollector().getFilePath(fileName);
     FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
     loader.setController(root);
     loader.setRoot(root);
@@ -70,7 +69,7 @@ public class ComponentLoader {
     if (contentFilePath == null) {
       return Optional.empty();
     }
-    Path filePath = FxmlCollector.INSTANCE.getFilePath(contentFilePath);
+    Path filePath = BhService.fxmlCollector().getFilePath(contentFilePath);
     if (filePath == null) {
       return Optional.empty();
     }
@@ -78,7 +77,7 @@ public class ComponentLoader {
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
       return Optional.of(loader.<T>load());
     } catch (IOException | ClassCastException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
+      BhService.msgPrinter().errForDebug(
           "Failed to load component in %s\n%s.".formatted(contentFilePath, e));
       return Optional.empty();
     }

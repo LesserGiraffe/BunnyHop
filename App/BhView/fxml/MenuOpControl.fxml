@@ -4,12 +4,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.constant.*?>
+<?import net.seapanda.bunnyhop.common.*?>
 
 <VBox
   xmlns:fx="http://javafx.com/fxml"
   fx:controller="net.seapanda.bunnyhop.control.MenuOperationController"
-  fx:id="menuViewBase">
+  fx:id="menuOpViewBase">
   <fx:define>
     <Rem fx:id="widenSize" rem="2.0"/>
     <Rem fx:id="narrowSize" rem="2.0"/>
@@ -108,28 +108,9 @@
     fx:id="menuOpViewLower"
     styleClass="menuOpFlowPane">
     <ToggleButton fx:id="remotLocalSelectBtn" text="ローカル" styleClass="menuOpButtons"/>
-    
-    <!-- <Label text="IPアドレス:" styleClass="loginInfoLabel">
-      <FlowPane.margin>
-        <Insets left="15.0"/>
-      </FlowPane.margin>
-    </Label> -->
     <TextField fx:id="ipAddrTextField" disable="true" promptText="IPアドレス"/>
-    
-    <!-- <Label text="ユーザー名:" styleClass="loginInfoLabel">
-      <FlowPane.margin>
-        <Insets left="15.0"/>
-      </FlowPane.margin>
-    </Label> -->
     <TextField fx:id="unameTextField" disable="true" promptText="ユーザー名"/>
-    
-    <!-- <Label text="パスワード:" styleClass="loginInfoLabel">
-      <FlowPane.margin>
-        <Insets left="15.0"/>
-      </FlowPane.margin>
-    </Label> -->
     <PasswordField fx:id="passwordTextField" disable="true" promptText="パスワード"/>
-    
     <Separator fx:id="menuSeparator4" orientation="VERTICAL" styleClass="menuOpSeparator"/>
     <TextField fx:id="stdInTextField" promptText="標準入力"/>
     <Button text="送信" fx:id="sendBtn" styleClass="menuOpButtons"/>

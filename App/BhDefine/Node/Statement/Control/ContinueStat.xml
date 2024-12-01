@@ -3,7 +3,7 @@
   bhNodeID="idContinueStat"
   name="ContinueStat"
   nodeStyleID="ContinueStat.json"
-  onSyntaxChecking="BreakAndContinueChecker.js"
+  onCompileErrorChecking="BreakAndContinueChecker.js"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedToChild="OnStatMovedToChild.js"
   onCutRequested="OnCutRequested.js"

@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.model.node.attribute;
 
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 import org.w3c.dom.Element;
 
 /**
@@ -38,7 +38,7 @@ public record BhNodeAttributes(
     String onCopyRequested,
     String onChildReplaced,
     String onPrivateTemplateCreating,
-    String onSyntaxChecking,
+    String onCompileErrorChecking,
     String onTextOptionsCreating,
     String onTemplateCreated,
     String initialText) {
@@ -64,7 +64,8 @@ public record BhNodeAttributes(
     String onChildReplaced = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_CHILD_REPLACED);
     String onPrivateTemplateCreating =
         elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_PRIFVATE_TEMPLATE_CREATING);
-    String onSyntaxChecking = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_SYNTAX_CHECKING);
+    String onCompileErrorChecking =
+        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_COMPILE_ERROR_CHECKING);
     String onTextOptionsCreating = 
         elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_TEST_OPTIONS_CREATING);
     String onTemplateCreated = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_TEMPLATE_CREATED);
@@ -85,7 +86,7 @@ public record BhNodeAttributes(
         onCopyRequested,
         onChildReplaced,
         onPrivateTemplateCreating,
-        onSyntaxChecking,
+        onCompileErrorChecking,
         onTextOptionsCreating,
         onTemplateCreated,
         initialText);

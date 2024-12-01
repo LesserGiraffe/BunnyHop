@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.view.node.part;
 
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 
 /**
  * {@link BhNodeView} が持つ GUI 要素の種類.

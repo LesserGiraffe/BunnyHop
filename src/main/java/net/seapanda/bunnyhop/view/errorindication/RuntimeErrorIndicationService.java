@@ -30,7 +30,6 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
  */
 public class RuntimeErrorIndicationService {
 
-  public static final RuntimeErrorIndicationService INSTANCE = new RuntimeErrorIndicationService();
   /** インスタンス IDとエラーの表示対象となるノードビューのマップ. */
   Map<InstanceId, BhNodeView> nodeIdToNodeView;
 

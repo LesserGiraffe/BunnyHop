@@ -24,12 +24,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgDispatcher;
-import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.command.BhCmd;
+import net.seapanda.bunnyhop.command.CmdData;
+import net.seapanda.bunnyhop.command.CmdDispatcher;
+import net.seapanda.bunnyhop.command.CmdProcessor;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeVersion;
@@ -37,11 +36,9 @@ import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEventAgent;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.model.traverse.DerivativeReplacer;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.modelprocessor.DerivativeReplacer;
-import net.seapanda.bunnyhop.service.BhScriptManager;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.service.Util;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
@@ -52,7 +49,7 @@ import org.mozilla.javascript.ScriptableObject;
  *
  * @author K.Koike
  */
-public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
+public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
 
   /** ノード ID. */
   private final BhNodeId bhId;
@@ -69,7 +66,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
   /** 最後にこのノードと入れ替わったノード. */
   private transient BhNode lastReplaced;
   /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
-  private transient MsgProcessor msgProcessor = (msg, data) -> null;
+  private transient CmdProcessor msgProcessor = (msg, data) -> null;
 
   /** BhNode がとり得る状態. */
   public enum State {
@@ -166,7 +163,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
     registerScriptName(BhNodeEvent.ON_COPY_REQUESTED, attributes.onCopyRequested());
     registerScriptName(
         BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING, attributes.onPrivateTemplateCreating());
-    registerScriptName(BhNodeEvent.ON_SYNTAX_CHECKING, attributes.onSyntaxChecking());
+    registerScriptName(BhNodeEvent.ON_SYNTAX_CHECKING, attributes.onCompileErrorChecking());
     registerScriptName(BhNodeEvent.ON_TEMPLATE_CREATED, attributes.onTemplateCreated());
   }
 
@@ -228,7 +225,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
       return new ArrayList<>();
     }
     BhNode newNode =
-        BhNodeFactory.INSTANCE.create(parentConnector.getDefaultNodeId(), userOpe);
+        BhService.bhNodeFactory().create(parentConnector.getDefaultNodeId(), userOpe);
     newNode.setDefault(true);
     return replace(newNode, userOpe);
   }
@@ -452,17 +449,6 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
     return getParentConnector().findDerivationIdUp();
   }
 
-  /**
-   * このノードの先祖コネクタの中に, DerivationId.NONE 以外の派生先 ID (派生ノードを特定するための ID) を持つコネクタがあればそれを返す.
-   * なければ, null を返す.
-   */
-  public Connector findDerivationConnectorUp() {
-    if (getParentConnector() == null) {
-      return null;
-    }
-    return getParentConnector().findDerivationConnectorUp();
-  }
-
   @Override
   public boolean isDescendantOf(SyntaxSymbol ancestor) {
     if (this == ancestor) {
@@ -477,7 +463,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
   @Override
   public SyntaxSymbol findSymbolInAncestors(String symbolName, int generation, boolean toTop) {
     if (generation == 0) {
-      if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
+      if (symbolNameMatches(symbolName)) {
         return this;
       }
       if (!toTop) {
@@ -529,7 +515,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
   public Collection<BhNode> genPrivateTemplateNodes(UserOperation userOpe) {
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING);
     Script privateTemplateCreator =
-        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (privateTemplateCreator == null) {
       return new ArrayList<>();
     }
@@ -541,7 +527,7 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
       privateTemplateNodes =
         ContextFactory.getGlobal().call(cx -> privateTemplateCreator.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
     }
 
     if (privateTemplateNodes instanceof Collection<?>) {
@@ -558,22 +544,22 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
    *
    * @return 文法エラーがある場合 true.  無い場合 false.
    */
-  public boolean hasSyntaxError() {
+  public boolean hasCompileError() {
     if (getState() == BhNode.State.DELETED) {
       return false;
     }
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_SYNTAX_CHECKING);
-    Script syntaxErrorChecker
-        = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
-    if (syntaxErrorChecker == null) {
+    Script errorChecker
+        = scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
+    if (errorChecker == null) {
       return false;
     }
     Object hasError = null;
     ScriptableObject scriptScope = getEventAgent().newDefaultScriptScope();
     try {
-      hasError = ContextFactory.getGlobal().call(cx -> syntaxErrorChecker.exec(cx, scriptScope));
+      hasError = ContextFactory.getGlobal().call(cx -> errorChecker.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
     }
 
     if (hasError instanceof Boolean) {
@@ -583,13 +569,13 @@ public abstract class BhNode extends SyntaxSymbol implements MsgDispatcher {
   }
 
   @Override
-  public void setMsgProcessor(MsgProcessor processor) {
+  public void setMsgProcessor(CmdProcessor processor) {
     msgProcessor = processor;
   }
 
   @Override
-  public MsgData dispatch(BhMsg msg, MsgData data) {
-    return msgProcessor.processMsg(msg, data);
+  public CmdData dispatch(BhCmd msg, CmdData data) {
+    return msgProcessor.process(msg, data);
   }
 
   /**

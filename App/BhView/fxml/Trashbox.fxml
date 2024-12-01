@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import net.seapanda.bunnyhop.common.*?>
+
+<StackPane
+  xmlns:fx="http://javafx.com/fxml"
+  fx:id="trashboxViewBase"
+  fx:controller="net.seapanda.bunnyhop.control.workspace.TrashboxController">
+  <fx:define>
+    <Rem fx:id="trashBoxWidth" rem="5"/>
+    <Rem fx:id="trashBoxHeight" rem="8.9"/>
+  </fx:define>
+  <ImageView fx:id="closedTrashboxIv" StackPane.Alignment="BOTTOM_RIGHT" PickOnBounds="true" MouseTransparent="true">
+    <Image url="@../images/closedTrashbox.png" requestedWidth="$trashBoxWidth.rem" requestedHeight="$trashBoxHeight.rem"/>
+  </ImageView>
+  <ImageView fx:id="openedTrashboxIv" StackPane.Alignment="BOTTOM_RIGHT" PickOnBounds="true" MouseTransparent="true" visible="false">
+    <Image url="@../images/openedTrashbox.png" requestedWidth="$trashBoxWidth.rem" requestedHeight="$trashBoxHeight.rem"/>
+  </ImageView>
+</StackPane>

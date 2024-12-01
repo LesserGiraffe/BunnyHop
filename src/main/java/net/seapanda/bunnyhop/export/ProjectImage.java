@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.export;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import net.seapanda.bunnyhop.root.AppVersion;
 
 /**
  * プロジェクト全体の保存用イメージ.

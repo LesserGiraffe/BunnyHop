@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.bhprogram;
 import com.jcraft.jsch.SftpProgressMonitor;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhService;
 
 /**
  * ファイル転送プロセス進捗管理クラス.
@@ -59,11 +59,11 @@ class SftpProgressMonitorImpl implements SftpProgressMonitor {
     int newRateOfDataSent = (int) (100L * allByteSent / max);
 
     if (fileCopyHasBeenCancelled) {
-      MsgPrinter.INSTANCE.msgForUser(fileName + " 転送中止\n");
-      MsgPrinter.INSTANCE.msgForDebug(
+      BhService.msgPrinter().infoForUser(fileName + " 転送中止\n");
+      BhService.msgPrinter().infoForDebug(
           "A transfer is cancelled\n   %s -> %s  (%s / %s)".formatted(src, dest, allByteSent, max));
     } else if (newRateOfDataSent >= rateOfDataSent + 4) {
-      MsgPrinter.INSTANCE.msgForUser("%s 転送中 (%s%%)\n".formatted(fileName, newRateOfDataSent));
+      BhService.msgPrinter().infoForUser("%s 転送中 (%s%%)\n".formatted(fileName, newRateOfDataSent));
       rateOfDataSent = newRateOfDataSent;
     }
     return !fileCopyHasBeenCancelled;  //trueを返すと転送が続く
@@ -75,7 +75,7 @@ class SftpProgressMonitorImpl implements SftpProgressMonitor {
       return;
     }
     String fileName = Paths.get(src).getFileName().toString();
-    MsgPrinter.INSTANCE.msgForUser(fileName + " 転送終了\n");
+    BhService.msgPrinter().infoForUser(fileName + " 転送終了\n");
   }
 
   @Override
@@ -83,7 +83,7 @@ class SftpProgressMonitorImpl implements SftpProgressMonitor {
     this.src = src;
     this.dest = dest;
     this.max = max;
-    MsgPrinter.INSTANCE.msgForUser("転送開始\n  %s -> %s (%s Bytes)\n".formatted(src, dest, max));
+    BhService.msgPrinter().infoForUser("転送開始\n  %s -> %s (%s Bytes)\n".formatted(src, dest, max));
   }
 
   public boolean  isFileCopyCancelled() {

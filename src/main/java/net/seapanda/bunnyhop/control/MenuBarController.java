@@ -25,14 +25,12 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.constant.BhSettings;
-import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.service.Util;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
+import net.seapanda.bunnyhop.utility.Utility;
 
 /**
  * メニューバーのコントローラクラス.
@@ -56,11 +54,11 @@ public class MenuBarController {
    *
    * @param wss ワークスペースセット
    */
-  public void init(WorkspaceSet wss) {
+  public void initialize(WorkspaceSet wss) {
     saveAsMenu.setOnAction(action -> saveAs(wss)); // セーブ(新規保存)
     saveMenu.setOnAction(action -> save(wss)); // 上書きセーブ
     loadMenu.setOnAction(action -> load(wss));
-    freeMemory.setOnAction(action -> freeMemory(wss));
+    freeMemory.setOnAction(action -> freeMemory());
     aboutBunnyHop.setOnAction(action -> showBunnyHopInfo());
     focusSimulator.setOnAction(action -> switchSimFocusSetting());
     if (BhSettings.BhSimulator.focusOnStartBhProgram.get()) {
@@ -76,7 +74,7 @@ public class MenuBarController {
    */
   private boolean saveAs(WorkspaceSet wss) {
     if (wss.getWorkspaceList().isEmpty()) {
-      MsgPrinter.INSTANCE.alert(
+      BhService.msgPrinter().alert(
           Alert.AlertType.INFORMATION,
           "名前を付けて保存",
           null,
@@ -84,7 +82,7 @@ public class MenuBarController {
       return false;
     }
 
-    BhNodeSelectionService.INSTANCE.hideAll();
+    BhService.bhNodeSelectionService().hideAll();
     Optional<File> fileToSave = getFileToSave();
     boolean success = fileToSave.map(file -> wss.save(file)).orElse(false);
     if (success) {
@@ -117,7 +115,7 @@ public class MenuBarController {
    */
   public boolean save(WorkspaceSet wss) {
     if (wss.getWorkspaceList().isEmpty()) {
-      MsgPrinter.INSTANCE.alert(
+      BhService.msgPrinter().alert(
           Alert.AlertType.INFORMATION,
           "上書き保存",
           null,
@@ -130,7 +128,7 @@ public class MenuBarController {
       fileExists = currentSaveFile.exists();
     }
     if (fileExists) {
-      BhNodeSelectionService.INSTANCE.hideAll();
+      BhService.bhNodeSelectionService().hideAll();
       return wss.save(currentSaveFile);
     } else {
       return saveAs(wss);  //保存対象のファイルが無い場合, 名前をつけて保存
@@ -170,7 +168,7 @@ public class MenuBarController {
         }
       }
     }
-    return new File(Util.INSTANCE.execPath);
+    return new File(Utility.execPath);
   }
 
   /**
@@ -184,7 +182,7 @@ public class MenuBarController {
     String title = "ファイルのロード方法";
     String content = "既存のワークスペースに追加する場合は [%s]\n既存のワークスペースを全て削除する場合は [%s]"
         .formatted(ButtonType.YES.getText(), ButtonType.NO.getText());
-    Optional<ButtonType> buttonType = MsgPrinter.INSTANCE.alert(
+    Optional<ButtonType> buttonType = BhService.msgPrinter().alert(
         AlertType.CONFIRMATION,
         title,
         null,
@@ -202,20 +200,20 @@ public class MenuBarController {
   }
 
   /** アプリケーションが使用しているメモリを開放する. */
-  private void freeMemory(WorkspaceSet wss) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+  private void freeMemory() {
+    ModelExclusiveControl.lockForModification();
     try {
-      MsgService.INSTANCE.deleteUndoRedoCommand(wss);
-      MsgPrinter.INSTANCE.msgForUser("メモリを解放しました\n");
+      BhService.undoRedoAgent().deleteCommands();
+      BhService.msgPrinter().infoForUser("メモリを解放しました\n");
       System.gc();
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** BunnyHopの基本情報を表示する. */
   private void showBunnyHopInfo() {
-    MsgPrinter.INSTANCE.alert(
+    BhService.msgPrinter().alert(
         Alert.AlertType.INFORMATION,
         "BunnyHopについて",
         null,

@@ -21,16 +21,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.Connector;
-import net.seapanda.bunnyhop.service.BhNodeHandler;
-import net.seapanda.bunnyhop.service.BhScriptManager;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Script;
@@ -58,20 +55,19 @@ public class BhNodeEventAgent implements Serializable {
    * 初期値が設定されたスクリプトスコープを作成する.
    */
   public ScriptableObject newDefaultScriptScope() {
-    ScriptableObject scriptScope = BhScriptManager.INSTANCE.createScriptScope();
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_THIS, target);
+    Context cx = ContextFactory.getGlobal().enterContext();
+    ScriptableObject scope = cx.initStandardObjects();
+    ScriptableObject.putProperty(scope, BhConstants.JsKeyword.KEY_BH_THIS, target);
     ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_HANDLER, BhNodeHandler.INSTANCE);
+        scope, BhConstants.JsKeyword.KEY_BH_NODE_PLACER, BhService.bhNodePlacer());
     ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_MSG_SERVICE, MsgService.INSTANCE);
+        scope, BhConstants.JsKeyword.KEY_BH_CMD_PROXY, BhService.cmdProxy());
     ScriptableObject.putProperty(
-        scriptScope,
-        BhConstants.JsKeyword.KEY_BH_COMMON,
-        BhScriptManager.INSTANCE.getCommonJsObj());
+        scope, BhConstants.JsKeyword.KEY_BH_COMMON, BhService.bhScriptManager().getCommonJsObj());
     ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_FACTORY, BhNodeFactory.INSTANCE);
-
-    return scriptScope;
+        scope, BhConstants.JsKeyword.KEY_BH_NODE_FACTORY, BhService.bhNodeFactory());
+    Context.exit();
+    return scope;
   }
 
 
@@ -90,7 +86,7 @@ public class BhNodeEventAgent implements Serializable {
       UserOperation userOpe) {
     Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_MOVED_TO_CHILD);
     Script onMovedToChild =
-        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onMovedToChild == null) {
       return;
     }
@@ -104,7 +100,7 @@ public class BhNodeEventAgent implements Serializable {
     try {
       ContextFactory.getGlobal().call(cx -> onMovedToChild.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
     }
   }
 
@@ -125,7 +121,7 @@ public class BhNodeEventAgent implements Serializable {
       UserOperation userOpe) {
     Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_MOVED_FROM_CHILD_TO_WS);
     Script onMovedFromChildToWs =
-        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onMovedFromChildToWs == null) {
       return;
     }
@@ -141,7 +137,7 @@ public class BhNodeEventAgent implements Serializable {
     try {
       ContextFactory.getGlobal().call(cx -> onMovedFromChildToWs.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
     }
   }
 
@@ -160,7 +156,7 @@ public class BhNodeEventAgent implements Serializable {
       UserOperation userOpe) {
     Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_CHILD_REPLACED);
     Script onChildReplaced =
-        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onChildReplaced == null) {
       return;
     }
@@ -176,7 +172,7 @@ public class BhNodeEventAgent implements Serializable {
     try {
       ContextFactory.getGlobal().call(cx -> onChildReplaced.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
     }
   }
 
@@ -186,7 +182,7 @@ public class BhNodeEventAgent implements Serializable {
    * <pre>
    * この関数を呼び出す対象となるノードを削除原因ごとに記す.
    *   TRASH_BOX -> ゴミ箱の上に D&D されたノード
-   *   SYNTAX_ERROR -> 構文エラーを起こしているノード
+   *   COMPILE_ERROR -> コンパイルエラーを起こしているノード
    *   SELECTED_FOR_DELETION ->  削除対象として選択されているノード
    *   WORKSPACE_DELETION -> 削除されるワークスペースにあるルートノード
    * </pre>
@@ -202,7 +198,7 @@ public class BhNodeEventAgent implements Serializable {
       UserOperation userOpe) {
     Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_DELETION_REQUESTED);
     Script onDeletionRequested =
-        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onDeletionRequested == null) {
       return true;
     }
@@ -219,7 +215,7 @@ public class BhNodeEventAgent implements Serializable {
     try {
       doDeletion = ContextFactory.getGlobal().call(cx -> onDeletionRequested.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
     }
 
     if (doDeletion instanceof Boolean) {
@@ -239,7 +235,7 @@ public class BhNodeEventAgent implements Serializable {
       Collection<? extends BhNode> nodesToCut, UserOperation userOpe) {
     Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_CUT_REQUESTED);
     Script onCutRequested =
-        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onCutRequested == null) {
       return true;
     }
@@ -254,7 +250,7 @@ public class BhNodeEventAgent implements Serializable {
     try {
       doCut = ContextFactory.getGlobal().call(cx -> onCutRequested.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
     }
 
     if (doCut instanceof Boolean) {
@@ -277,12 +273,12 @@ public class BhNodeEventAgent implements Serializable {
       UserOperation userOpe) {
     Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_COPY_REQUESTED);
     Script onCopyRequested =
-        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onCopyRequested == null) {
       return Optional.ofNullable(defaultFunc);
     }
 
-    ScriptableObject scriptScope = target.getEventAgent().newDefaultScriptScope();
+    ScriptableObject scriptScope = newDefaultScriptScope();
     ScriptableObject.putProperty(
         scriptScope,
         BhConstants.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST,
@@ -293,13 +289,13 @@ public class BhNodeEventAgent implements Serializable {
     try {
       ret = ContextFactory.getGlobal().call(cx -> onCopyRequested.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
     }
     if (ret == null) {
       return Optional.empty();
     }
     if (ret instanceof Function copyCheckFunc) {
-      return Optional.of(genCopyCheckFunc(copyCheckFunc, scriptName.get(), target));
+      return Optional.of(genCopyCheckFunc(copyCheckFunc, scriptName.get()));
     }
     throw new AssertionError(
         scriptName.get() + " must return null or a function that returns a boolean value.");
@@ -313,14 +309,13 @@ public class BhNodeEventAgent implements Serializable {
    * @param caller コピー判定関数を呼ぶノード
    * @return コピー判定関数
    */
-  private Predicate<BhNode> genCopyCheckFunc(
-      Function copyCheckFunc, String scriptName, BhNode caller) {
+  private Predicate<BhNode> genCopyCheckFunc(Function copyCheckFunc, String scriptName) {
     Predicate<BhNode> isNodeToCopy = node -> {
-      ScriptableObject scriptScope = caller.getEventAgent().newDefaultScriptScope();
+      ScriptableObject scriptScope = node.getEventAgent().newDefaultScriptScope();
       Object retVal = ContextFactory.getGlobal().call(cx -> 
           ((Function) copyCheckFunc).call(cx, scriptScope, scriptScope, new Object[] {node}));
       if (!(retVal instanceof Boolean)) {
-        MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+        BhService.msgPrinter().errForDebug(String.format(
             "'%s' must return null or a function that returns a boolean value.", scriptName));
         throw new ClassCastException();
       }
@@ -337,7 +332,7 @@ public class BhNodeEventAgent implements Serializable {
   public void execOnTemplateCreated(UserOperation userOpe) {
     Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_TEMPLATE_CREATED);
     Script onTemplateCreated =
-        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onTemplateCreated == null) {
       return;
     }
@@ -346,7 +341,7 @@ public class BhNodeEventAgent implements Serializable {
     try {
       ContextFactory.getGlobal().call(cx -> onTemplateCreated.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
     }
   }
 }

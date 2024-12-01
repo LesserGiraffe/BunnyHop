@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.undo;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 
 /**
  * undo/redo 時に {@link UserOperation} クラスを操作するクラス.
@@ -64,7 +64,7 @@ public class UndoRedoAgent {
   }
 
   /** undo/redo 対象の操作を全て消す. */
-  public void delete() {
+  public void deleteCommands() {
     undoStack.clear();
     redoStack.clear();
   }

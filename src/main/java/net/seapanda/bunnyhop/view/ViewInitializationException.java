@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.view;
 
-import net.seapanda.bunnyhop.service.Util;
+import net.seapanda.bunnyhop.utility.Utility;
 
 /**
  * ビューの初期化に失敗したことを表す例外.
@@ -29,6 +29,6 @@ public class ViewInitializationException extends Exception {
   }
 
   public ViewInitializationException(String msg, boolean includeMethodInfo) {
-    super(msg + "\n  " + Util.INSTANCE.getMethodName(1));
+    super(msg + "\n  " + Utility.getMethodName(1));
   }
 }

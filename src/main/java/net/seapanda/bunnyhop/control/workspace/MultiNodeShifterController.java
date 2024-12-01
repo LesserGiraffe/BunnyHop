@@ -17,12 +17,12 @@
 package net.seapanda.bunnyhop.control.workspace;
 
 import javafx.scene.input.MouseEvent;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
 
 /**
@@ -77,13 +77,13 @@ public class MultiNodeShifterController {
   private void onMouseDragged(MouseEvent mouseEvent, Vec2D mousePressedPos) {
     double diffX = mouseEvent.getX() - mousePressedPos.x;
     double diffY = mouseEvent.getY() - mousePressedPos.y;
-    Vec2D wsSize = ViewHelper.INSTANCE.getWorkspaceView(view).getWorkspaceSize();
+    Vec2D wsSize = ViewUtil.getWorkspaceView(view).getWorkspaceSize();
 
     if (mouseEvent.isShiftDown()) {
       view.move(new Vec2D(diffX, diffY), wsSize, true);
     } else {
       Vec2D distance = view.move(new Vec2D(diffX, diffY), wsSize, false);
-      view.getLinkedNodeList().forEach(node -> MsgService.INSTANCE.moveNodeOnWs(node, distance));
+      view.getLinkedNodeList().forEach(node -> BhService.cmdProxy().moveNodeOnWs(node, distance));
     }
     mouseEvent.consume();
   }
@@ -101,7 +101,7 @@ public class MultiNodeShifterController {
    * */
   void updateMultiNodeShifter(BhNode node) {
     if (node.getWorkspace() == ws
-        && node.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS
+        && node.isRootDirectolyUnderWs()
         && node.isSelected()) {
 
       if (view.isLinked(node)) {

@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.constant.*?>
+<?import net.seapanda.bunnyhop.common.*?>
 <?import javafx.scene.control.TabPane.TabDragPolicy?>
 
 <SplitPane
@@ -16,12 +16,7 @@
   </fx:define>
   <StackPane fx:id="workspaceSetStackPane">
     <TabPane fx:id="workspaceSetTab" tabClosingPolicy="ALL_TABS" tabDragPolicy="REORDER"/>
-    <ImageView fx:id="closedTrashboxIv" StackPane.Alignment="BOTTOM_RIGHT" PickOnBounds="true" MouseTransparent="true">
-      <Image url="@../images/closedTrashbox.png" requestedWidth="$trashBoxWidth.rem" requestedHeight="$trashBoxHeight.rem"/>
-    </ImageView>
-    <ImageView fx:id="openedTrashboxIv" StackPane.Alignment="BOTTOM_RIGHT" PickOnBounds="true" MouseTransparent="true" visible="false">
-      <Image url="@../images/openedTrashbox.png" requestedWidth="$trashBoxWidth.rem" requestedHeight="$trashBoxHeight.rem"/>
-    </ImageView>
+    <fx:include fx:id="trashbox" source="Trashbox.fxml" MouseTransparent="true"/>
   </StackPane>
   <TextArea  fx:id="mainMsgArea" VBox.vgrow="ALWAYS"/>
 </SplitPane>

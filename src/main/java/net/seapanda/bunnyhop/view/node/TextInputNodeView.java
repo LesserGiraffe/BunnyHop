@@ -22,8 +22,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.TextInputControl;
-import net.seapanda.bunnyhop.common.Pair;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.utility.Pair;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 

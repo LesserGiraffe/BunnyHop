@@ -21,10 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.common.Pair;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.message.MsgService;
-import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
@@ -32,11 +29,10 @@ import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.modelprocessor.BhNodeWalker;
-import net.seapanda.bunnyhop.service.BhScriptManager;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.service.Util;
+import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.utility.Pair;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Script;
@@ -117,7 +113,7 @@ public class TextNode extends DerivativeBase<TextNode> {
   public boolean isTextAcceptable(String text) {
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_TEXT_CHECKING);
     Script checker =
-        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
 
     if (checker == null) {
       return true;
@@ -128,7 +124,7 @@ public class TextNode extends DerivativeBase<TextNode> {
     try {
       jsReturn = ContextFactory.getGlobal().call(cx -> checker.exec(cx, scriptScope));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
     }
 
     if (jsReturn instanceof Boolean) {
@@ -147,7 +143,7 @@ public class TextNode extends DerivativeBase<TextNode> {
    */
   public Pair<Boolean, String> formatText(String text, String addedText) {
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_TEXT_FORMATTING);
-    Script formatter = scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+    Script formatter = scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
 
     if (formatter == null) {
       return new Pair<Boolean, String>(false, addedText);
@@ -163,7 +159,7 @@ public class TextNode extends DerivativeBase<TextNode> {
       String formattedText = (String) jsObj.get(BhConstants.JsKeyword.KEY_BH_FORMATTED_TEXT);
       return new Pair<Boolean, String>(isEntireTextFormatted, formattedText);
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
     }
     return new Pair<Boolean, String>(false, addedText);
   }
@@ -177,7 +173,7 @@ public class TextNode extends DerivativeBase<TextNode> {
   public List<Pair<String, Object>> getOptions() {
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_VIEW_OPTIONS_CREATING);
     Script creator =
-        scriptName.map(BhScriptManager.INSTANCE::getCompiledScript).orElse(null);
+        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     var options = new ArrayList<Pair<String, Object>>();
     if (creator == null) {
       return options;
@@ -192,7 +188,7 @@ public class TextNode extends DerivativeBase<TextNode> {
         options.add(new Pair<>(modelAndView.get(0).toString(), modelAndView.get(1)));
       }
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
     }
     return options;
   }
@@ -203,7 +199,7 @@ public class TextNode extends DerivativeBase<TextNode> {
    */
   public void assignContentsToDerivatives() {
     getDerivatives().forEach(derv -> derv.setText(text));
-    getDerivatives().forEach(MsgService.INSTANCE::matchViewContentToModel);
+    getDerivatives().forEach(BhService.cmdProxy()::matchViewContentToModel);
     getDerivatives().forEach(derv -> derv.assignContentsToDerivatives());
   }
 
@@ -224,7 +220,7 @@ public class TextNode extends DerivativeBase<TextNode> {
 
     if (generation == 0) {
       for (String symbolName : symbolNames) {
-        if (Util.INSTANCE.equals(getSymbolName(), symbolName)) {
+        if (symbolNameMatches(symbolName)) {
           foundSymbolList.add(this);
         }
       }
@@ -234,7 +230,7 @@ public class TextNode extends DerivativeBase<TextNode> {
   @Override
   public TextNode createDerivative(DerivationId derivationId, UserOperation userOpe) {
     BhNode node =
-        BhNodeFactory.INSTANCE.create(getDerivativeIdOf(derivationId), userOpe);
+        BhService.bhNodeFactory().create(getDerivativeIdOf(derivationId), userOpe);
 
     if (!(node instanceof TextNode)) {
       throw new AssertionError("derivative node type inconsistency");
@@ -257,13 +253,13 @@ public class TextNode extends DerivativeBase<TextNode> {
     var lastReplacedInstId =
         (getLastReplaced() != null) ? getLastReplaced().getInstanceId() : InstanceId.NONE;
 
-    MsgPrinter.INSTANCE.println("%s<TextNode text=%s  bhID=%s  parent=%s>  %s"
+    BhService.msgPrinter().println("%s<TextNode text=%s  bhID=%s  parent=%s>  %s"
         .formatted(indent(depth), text, getId(), parentinstId, getInstanceId()));
-    MsgPrinter.INSTANCE.println("%s<ws>  %s".formatted(indent(depth + 1), workspace));
-    MsgPrinter.INSTANCE.println(
+    BhService.msgPrinter().println("%s<ws>  %s".formatted(indent(depth + 1), workspace));
+    BhService.msgPrinter().println(
         "%s<last replaced>  %s".formatted(indent(depth + 1), lastReplacedInstId));
-    MsgPrinter.INSTANCE.println(indent(depth + 1) + "<derivation>");
-    getDerivatives().forEach(derv ->  MsgPrinter.INSTANCE.println(
+    BhService.msgPrinter().println(indent(depth + 1) + "<derivation>");
+    getDerivatives().forEach(derv ->  BhService.msgPrinter().println(
         "%s<derivative>  %s".formatted(indent(depth + 2), derv.getInstanceId())));
   }
 }

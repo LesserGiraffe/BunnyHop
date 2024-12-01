@@ -27,12 +27,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.service.BhScriptManager;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.service.Util;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.Utility;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
@@ -263,14 +263,14 @@ public class BhNodeViewStyle {
   /** {@link BhNodeViewStyle} のテンプレートを作成する. */
   public static boolean genViewStyleTemplate() {
     Path dirPath = Paths.get(
-        Util.INSTANCE.execPath, BhConstants.Path.VIEW_DIR, BhConstants.Path.NODE_STYLE_DEF_DIR);
+        Utility.execPath, BhConstants.Path.VIEW_DIR, BhConstants.Path.NODE_STYLE_DEF_DIR);
     Stream<Path> paths = null; //読み込むファイルパスリスト
     try {
       paths = Files
           .walk(dirPath, FOLLOW_LINKS)
           .filter(path -> path.getFileName().toString().endsWith(".json"));
     } catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("Directory not found.  (%s)".formatted(dirPath));
+      BhService.msgPrinter().errForDebug("Directory not found.  (%s)".formatted(dirPath));
       return false;
     }
 
@@ -288,7 +288,7 @@ public class BhNodeViewStyle {
    * @return 成功した場合 true.
    */
   private static Boolean registerNodeStyle(Path filePath) {
-    Optional<NativeObject> jsonObj = BhScriptManager.INSTANCE.parseJsonFile(filePath);
+    Optional<NativeObject> jsonObj = BhScriptManager.parseJsonFile(filePath);
     if (jsonObj.isEmpty()) {
       return false;
     }
@@ -351,7 +351,7 @@ public class BhNodeViewStyle {
       } else if (posStr.equals(BhConstants.NodeStyleDef.VAL_LEFT)) {
         style.connectorPos = ConnectorPos.LEFT;
       } else {
-        MsgPrinter.INSTANCE.errMsgForDebug("'%s' (%s) format is invalid.  (%s)".formatted(
+        BhService.msgPrinter().errForDebug("'%s' (%s) format is invalid.  (%s)".formatted(
             BhConstants.NodeStyleDef.KEY_CONNECTOR_POS, posStr, fileName));
       }
     });
@@ -398,7 +398,7 @@ public class BhNodeViewStyle {
       } else if (posStr.equals(BhConstants.NodeStyleDef.VAL_BOTTOM)) {
         style.notchPos = NotchPos.BOTTOM;
       } else {
-        MsgPrinter.INSTANCE.errMsgForDebug("'%s' (%s) format is invalid.  (%s)"
+        BhService.msgPrinter().errForDebug("'%s' (%s) format is invalid.  (%s)"
             .formatted(BhConstants.NodeStyleDef.KEY_NOTCH_POS, posStr, fileName));
       }
     });
@@ -552,7 +552,7 @@ public class BhNodeViewStyle {
       } else if (arrangeStr.equals(BhConstants.NodeStyleDef.VAL_COLUMN)) {
         arrangement.arrangement = ChildArrangement.COLUMN;
       } else {
-        MsgPrinter.INSTANCE.errMsgForDebug("'%s' (%s) format is invalid.  (%s)"
+        BhService.msgPrinter().errForDebug("'%s' (%s) format is invalid.  (%s)"
             .formatted(BhConstants.NodeStyleDef.KEY_ARRANGEMENR, arrangeStr, fileName));
       }
     });
@@ -728,7 +728,7 @@ public class BhNodeViewStyle {
     }
 
     if (!valueType.isAssignableFrom(val.getClass())) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
+      BhService.msgPrinter().errForDebug(
           "The type of '%s' must be %s.\nThe actual type is %s.  (%s)".formatted(
               keyName, valueType.getSimpleName(), val.getClass().getSimpleName(), fileName));
       return Optional.empty();
@@ -782,7 +782,7 @@ public class BhNodeViewStyle {
     if (!success) {
       for (String nodeStyleId : nodeIdToNodeStyleID.values()) {
         if (!nodeStyleIdToNodeStyleTemplate.containsKey(nodeStyleId)) {
-          MsgPrinter.INSTANCE.errMsgForDebug(
+          BhService.msgPrinter().errForDebug(
               "A node style file (%s) is not found among *.json files.".formatted(nodeStyleId));
         }
       }

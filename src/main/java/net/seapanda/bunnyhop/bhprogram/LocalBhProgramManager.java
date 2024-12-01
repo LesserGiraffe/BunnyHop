@@ -22,10 +22,10 @@ import java.nio.file.Paths;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.service.Util;
+import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
+import net.seapanda.bunnyhop.utility.Utility;
 
 /**
  * BhProgram のローカル環境での実行、終了、通信を行うクラス.
@@ -67,7 +67,7 @@ public class LocalBhProgramManager {
     if (programRunning.get()) {
       terminate();
     }
-    MsgPrinter.INSTANCE.msgForUser("-- プログラム実行準備中 (local) --\n");
+    BhService.msgPrinter().infoForUser("-- プログラム実行準備中 (local) --\n");
     if (success) {
       process = startRuntimeProcess();
       if (process == null) {
@@ -79,12 +79,12 @@ public class LocalBhProgramManager {
       success &= common.runBhProgram(fileName, ipAddr, process.getInputStream());
     }
     if (!success) {  //リモートでのスクリプト実行失敗
-      MsgPrinter.INSTANCE.errMsgForUser("!! プログラム実行準備失敗 (local) !!\n");
-      MsgPrinter.INSTANCE.errMsgForDebug(
+      BhService.msgPrinter().errForUser("!! プログラム実行準備失敗 (local) !!\n");
+      BhService.msgPrinter().errForDebug(
           "Failed to run %s. (local)".formatted(filePath.getFileName()));
       terminate();
     } else {
-      MsgPrinter.INSTANCE.msgForUser("-- プログラム実行開始 (local) --\n");
+      BhService.msgPrinter().infoForUser("-- プログラム実行開始 (local) --\n");
       programRunning.set(true);
     }
     return success;
@@ -97,7 +97,7 @@ public class LocalBhProgramManager {
    */
   public Future<Boolean> terminateAsync() {
     if (!programRunning.get()) {
-      MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了済み (local) !!\n");
+      BhService.msgPrinter().errForUser("!! プログラム終了済み (local) !!\n");
       return common.terminateAsync(() -> false);
     }
     return common.terminateAsync(() -> terminate());
@@ -110,7 +110,7 @@ public class LocalBhProgramManager {
    * @return 強制終了に成功した場合true
    */
   private synchronized boolean terminate() {
-    MsgPrinter.INSTANCE.msgForUser("-- プログラム終了中 (local)  --\n");
+    BhService.msgPrinter().infoForUser("-- プログラム終了中 (local)  --\n");
     boolean success = common.haltTransceiver();
     if (process != null) {
       success &= BhProgramManagerCommon.killProcess(
@@ -118,9 +118,9 @@ public class LocalBhProgramManager {
     }
     process = null;
     if (!success) {
-      MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了失敗 (local)  !!\n");
+      BhService.msgPrinter().errForUser("!! プログラム終了失敗 (local)  !!\n");
     } else {
-      MsgPrinter.INSTANCE.msgForUser("-- プログラム終了完了 (local)  --\n");
+      BhService.msgPrinter().infoForUser("-- プログラム終了完了 (local)  --\n");
       programRunning.set(false);
     }
     return success;
@@ -163,9 +163,9 @@ public class LocalBhProgramManager {
     // ""でパスを囲まない
     Process proc = null;
     ProcessBuilder procBuilder = new ProcessBuilder(
-        Util.INSTANCE.javaPath,
+        Utility.javaPath,
         "-cp",
-        Paths.get(Util.INSTANCE.execPath, "Jlib").toString() + Util.INSTANCE.fs  + "*",
+        Paths.get(Utility.execPath, "Jlib").toString() + Utility.fs  + "*",
         BhConstants.BhRuntime.BH_PROGRAM_EXEC_MAIN_CLASS,
         "true");  //localFlag == true
 
@@ -173,7 +173,7 @@ public class LocalBhProgramManager {
     try {
       proc = procBuilder.start();
     } catch (IOException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug("Failed to start BhRuntime\n" +  e);
+      BhService.msgPrinter().errForDebug("Failed to start BhRuntime\n" +  e);
     }
     return proc;
   }

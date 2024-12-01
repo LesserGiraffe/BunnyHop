@@ -18,10 +18,12 @@ package net.seapanda.bunnyhop.view.node;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -36,26 +38,27 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
-import net.seapanda.bunnyhop.common.Showable;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
-import net.seapanda.bunnyhop.service.Util;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.utility.Showable;
+import net.seapanda.bunnyhop.utility.Utility;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
+import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.node.part.PrivateTemplateCreationButton;
-import net.seapanda.bunnyhop.viewprocessor.CallbackInvoker;
-import net.seapanda.bunnyhop.viewprocessor.NodeViewComponent;
-import net.seapanda.bunnyhop.viewprocessor.TravelUpCallbackInvoker;
+import net.seapanda.bunnyhop.view.traverse.CallbackInvoker;
+import net.seapanda.bunnyhop.view.traverse.NodeViewComponent;
+import net.seapanda.bunnyhop.view.traverse.TravelUpCallbackInvoker;
 
 /**
  * ノードのビュークラス.
@@ -79,8 +82,8 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
   protected final Polygon nodeShape = new Polygon();
   /** 影描画用ポリゴン. */
   protected final Polygon shadowShape = new Polygon();
-  /** 構文エラーノードであることを示す印. */
-  protected final SyntaxErrorMark syntaxErrorMark = new SyntaxErrorMark(0.0, 0.0, 0.0, 0.0);
+  /** コンパイルエラーノードであることを示す印. */
+  protected final CompileErrorMark compileErrorMark = new CompileErrorMark(0.0, 0.0, 0.0, 0.0);
   /** ノードの見た目のパラメータオブジェクト. */
   protected final BhNodeViewStyle viewStyle;
   private final BhNode model;
@@ -248,6 +251,11 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
 
   /** 見た目を変更する処理を行うクラス. */
   public class LookManager {
+
+    /** 影付きノードリスト. */
+    public static final Set<BhNodeView> shadowNodes = 
+        Collections.newSetFromMap(new WeakHashMap<BhNodeView, Boolean>());
+
     private BodyShape bodyShape;
     /** 影が描画されるノードビュー群のルートノードである場合 true. */
     private boolean isShadowRoot = false;
@@ -287,8 +295,8 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     void addCssClass(String cssClassName) {
       nodeShape.getStyleClass().add(cssClassName);
       BhNodeView.this.getStyleClass().add(cssClassName + BhConstants.Css.CLASS_SUFFIX_PANE);
-      BhNodeView.this.syntaxErrorMark.getStyleClass().add(
-          cssClassName + BhConstants.Css.CLASS_SUFFIX_SYNTAX_ERROR);
+      BhNodeView.this.compileErrorMark.getStyleClass().add(
+          cssClassName + BhConstants.Css.CLASS_SUFFIX_COMPILE_ERROR);
     }
 
     /**
@@ -317,8 +325,8 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
               viewStyle.notchWidth,
               viewStyle.notchHeight));
       shadowShape.getPoints().setAll(nodeShape.getPoints());
-      syntaxErrorMark.setEndX(bodySize.x);
-      syntaxErrorMark.setEndY(bodySize.y);
+      compileErrorMark.setEndX(bodySize.x);
+      compileErrorMark.setEndY(bodySize.y);
     }
 
     /**
@@ -353,21 +361,21 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     }
 
     /**
-     * 構文エラー表示の可視性を切り替える.
+     * コンパイルエラー表示の可視性を切り替える.
      *
-     * @param visible 構文エラー表示を有効にする場合 true. 無効にする場合 false.
+     * @param visible コンパイルエラー表示を有効にする場合 true. 無効にする場合 false.
      */
     public void setSytaxErrorVisibility(boolean visible) {
-      BhNodeView.this.syntaxErrorMark.setVisible(visible);
+      BhNodeView.this.compileErrorMark.setVisible(visible);
     }
 
     /**
-     * 構文エラー表示の状態を返す.
+     * コンパイルエラー表示の状態を返す.
      *
-     * @return 構文エラー表示されている場合 true.
+     * @return コンパイルエラー表示されている場合 true.
      */
-    public boolean isSyntaxErrorVisible() {
-      return BhNodeView.this.syntaxErrorMark.isVisible();
+    public boolean isCompileErrorVisible() {
+      return BhNodeView.this.compileErrorMark.isVisible();
     }
 
     /**
@@ -417,6 +425,40 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
      */
     BodyShape getBodyShape() {
       return bodyShape;
+    }
+
+    /**
+     * このノードビューに影を付ける.
+     * ただし, 影を付けるノードと同じワークスペースに既に影の付いたノードがあった場合, そのノードの影は消える.
+     *
+     */
+    public void drawShadow() {
+      if (getModel().isEmpty()) {
+        return;
+      }
+      var nodesToRemoveShadow = shadowNodes.stream()
+          .filter(view ->
+              view.getPositionManager().isInSameWorkspace(BhNodeView.this)
+              || view.getModel().get().isDeleted())
+          .toList();
+      nodesToRemoveShadow.forEach(view -> view.getLookManager().showShadow(false));
+      shadowNodes.removeAll(nodesToRemoveShadow);
+      getLookManager().showShadow(true);
+      shadowNodes.add(BhNodeView.this);
+    }
+
+    /**
+     * ワークスペースに描画されているノードビューの影を消す.
+     *
+     * @param ws このワークスペースに描画されている影を消す
+     */
+    public static void removeShadow(Workspace ws) {
+      var nodesToRemoveShadow = shadowNodes.stream()
+          .filter(view ->
+              view.getModel().get().getWorkspace() == ws || view.getModel().get().isDeleted())
+          .toList();
+      nodesToRemoveShadow.forEach(view -> view.getLookManager().showShadow(false));
+      shadowNodes.removeAll(nodesToRemoveShadow);
     }
   }
 
@@ -626,10 +668,10 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
       Parent parent = nodeView.getParent();
       if (parent instanceof Group group) {
         group.getChildren().remove(nodeView);
-        group.getChildren().remove(nodeView.syntaxErrorMark);
+        group.getChildren().remove(nodeView.compileErrorMark);
       } else if (parent instanceof Pane pane) {
         pane.getChildren().remove(nodeView);
-        pane.getChildren().remove(nodeView.syntaxErrorMark);
+        pane.getChildren().remove(nodeView.compileErrorMark);
       }
 
       nodeView.shadowShape.setVisible(false);
@@ -654,7 +696,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
       CallbackInvoker.invoke(
           nodeView -> {
             nodes.add(nodeView);
-            nodes.add(nodeView.syntaxErrorMark);
+            nodes.add(nodeView.compileErrorMark);
             shadowShapes.add(nodeView.shadowShape);
             nodeView.shadowShape.setVisible(false);
           },
@@ -668,7 +710,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
       // JDK-8205092 対策
       nodesToAdd.stream()
           .filter(node ->
-              !(node instanceof NoContentNodeView) && !(node instanceof SyntaxErrorMark))
+              !(node instanceof NoContentNodeView) && !(node instanceof CompileErrorMark))
           .forEach(node -> node.setMouseTransparent(false));
 
       if (parent instanceof Group) {
@@ -832,8 +874,8 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     private void updatePosOnWorkspace(double posX, double posY) {
       BhNodeView.this.setTranslateX(posX);
       BhNodeView.this.setTranslateY(posY);
-      BhNodeView.this.syntaxErrorMark.setTranslateX(posX);
-      BhNodeView.this.syntaxErrorMark.setTranslateY(posY);
+      BhNodeView.this.compileErrorMark.setTranslateX(posX);
+      BhNodeView.this.compileErrorMark.setTranslateY(posY);
       BhNodeView.this.shadowShape.setTranslateX(posX);
       BhNodeView.this.shadowShape.setTranslateY(posY);
     }
@@ -848,7 +890,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
 
     /** {@code view} の Z 位置を更新する. */
     private static void updateZpos(BhNodeView view) {
-      view.syntaxErrorMark.setViewOrder(SYNTAX_ERR_MARK_VIEW_ORDER);
+      view.compileErrorMark.setViewOrder(SYNTAX_ERR_MARK_VIEW_ORDER);
       Parent parent = view.getTreeManager().getParentView();
       if (parent == null) {
         view.setViewOrder(0.0);
@@ -876,8 +918,8 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
      */
     public void move(double diffX, double diffY) {
       Vec2D posOnWs = getPosOnWorkspace();
-      Vec2D wsSize = ViewHelper.INSTANCE.getWorkspaceView(BhNodeView.this).getWorkspaceSize();
-      Vec2D newPos = ViewHelper.INSTANCE.newPosition(new Vec2D(diffX, diffY), wsSize, posOnWs);
+      Vec2D wsSize = ViewUtil.getWorkspaceView(BhNodeView.this).getWorkspaceSize();
+      Vec2D newPos = ViewUtil.newPosition(new Vec2D(diffX, diffY), wsSize, posOnWs);
       setPosOnWorkspace(newPos.x, newPos.y);
       getEventManager().invokeOnMoved();
     }
@@ -902,14 +944,22 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
             nodeView -> {
               nodeView.setViewOrder(nodeView.getViewOrder() + FRONT_VIEW_ORDER_OFFSET);
               nodeView.getPositionManager().updateShadowZpos();
-              nodeView.syntaxErrorMark.setViewOrder(
-                  nodeView.syntaxErrorMark.getViewOrder() + FRONT_VIEW_ORDER_OFFSET);
+              nodeView.compileErrorMark.setViewOrder(
+                  nodeView.compileErrorMark.getViewOrder() + FRONT_VIEW_ORDER_OFFSET);
             },
             BhNodeView.this,
             false);
       } else {
         updateZpos();
       }
+    }
+
+    /** {@code other} とこの {@link BhNodeView} が同じワークスペース上にいるか調べる. */
+    public boolean isInSameWorkspace(BhNodeView other) {
+      if (getModel().isEmpty() || other.getModel().isEmpty()) {
+        return false;
+      }
+      return getModel().get().getWorkspace() == other.getModel().get().getWorkspace();
     }
   }
 
@@ -1055,7 +1105,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     private void invokeOnMoved() {
       if (!Platform.isFxApplicationThread()) {
         throw new IllegalStateException(
-            Util.INSTANCE.getCurrentMethodName() 
+            Utility.getCurrentMethodName() 
             + " - a handler invoked in an inappropriate thread");
       }
       onMoved.forEach(handler -> handler.accept(BhNodeView.this));
@@ -1065,7 +1115,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     private void invokeOnAddToWorkspaceView() {
       if (!Platform.isFxApplicationThread()) {
         throw new IllegalStateException(
-          Util.INSTANCE.getCurrentMethodName()
+          Utility.getCurrentMethodName()
           + " - a handler invoked in an inappropriate thread");
       }
       onAddToWorkspaceView.forEach(handler -> handler.accept(BhNodeView.this));
@@ -1075,7 +1125,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     private void invokeOnRemovedFromWorkspaceView() {
       if (!Platform.isFxApplicationThread()) {
         throw new IllegalStateException(
-            Util.INSTANCE.getCurrentMethodName() 
+            Utility.getCurrentMethodName() 
             + " - a handler invoked in an inappropriate thread");
       }
       onRemovedFromWorkspaceView.forEach(handler -> handler.accept(BhNodeView.this));
@@ -1085,15 +1135,15 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     private void invokeOnNodeSizesInTreeChanged() {
       if (!Platform.isFxApplicationThread()) {
         throw new IllegalStateException(
-            Util.INSTANCE.getCurrentMethodName() 
+            Utility.getCurrentMethodName() 
             + " - a handler invoked in an inappropriate thread");
       }
       onNodeSizesInTreeChanged.forEach(handler -> handler.accept(BhNodeView.this));
     }
   }
 
-  private class SyntaxErrorMark extends Line {
-    SyntaxErrorMark(double startX, double startY, double endX, double endY) {
+  private class CompileErrorMark extends Line {
+    CompileErrorMark(double startX, double startY, double endX, double endY) {
       super(startX, startY, endX, endY);
       this.setVisible(false);
       this.setMouseTransparent(true);

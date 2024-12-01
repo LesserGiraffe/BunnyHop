@@ -17,15 +17,15 @@
 package net.seapanda.bunnyhop.view.node;
 
 import java.util.Optional;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
-import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
+import net.seapanda.bunnyhop.view.traverse.NodeViewProcessor;
 
 /** 内部に何も表示しないノードビュー. */
 public class NoContentNodeView extends BhNodeView {
@@ -106,7 +106,7 @@ public class NoContentNodeView extends BhNodeView {
 
   @Override
   public void show(int depth) {
-    MsgPrinter.INSTANCE.println(
+    BhService.msgPrinter().println(
         "%s<NoContentNodeView>  %s".formatted(indent(depth), hashCode()));
   }
 }

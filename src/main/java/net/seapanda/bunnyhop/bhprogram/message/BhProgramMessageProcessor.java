@@ -22,7 +22,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.InputTextResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.OutputTextResp;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhService;
 
 /**
  * BhProgram の実行環境から受信した {@link BhProgramMessage} および {@link BhProgramResponse} を処理するクラス.
@@ -40,7 +40,7 @@ public class BhProgramMessageProcessor {
    * @return {@code cmd} に対応する応答データ
    */
   public OutputTextResp process(OutputTextCmd cmd) {
-    MsgPrinter.INSTANCE.msgForUser(cmd.text);
+    BhService.msgPrinter().infoForUser(cmd.text);
     return new OutputTextResp(cmd.getId(), true, cmd.text);
   }
 
@@ -52,8 +52,8 @@ public class BhProgramMessageProcessor {
   public void process(InputTextResp resp) {
     if (!resp.success) {
       String msg = "テキストの送信に失敗しました.  (%s)".formatted(resp.text);
-      MsgPrinter.INSTANCE.msgForUser(msg + "\n");
-      MsgPrinter.INSTANCE.errMsgForDebug(msg);
+      BhService.msgPrinter().infoForUser(msg + "\n");
+      BhService.msgPrinter().errForDebug(msg);
     }
   }
 
@@ -63,11 +63,11 @@ public class BhProgramMessageProcessor {
    * @param exception 処理する例外
    */
   public void process(BhProgramException exception) {
-    MsgPrinter.INSTANCE.msgForUser(exception.getMessage() + "\n");
-    // MsgPrinter.INSTANCE.msgForUser(exception.getScriptEngineMsg() + "\n");
+    BhService.msgPrinter().infoForUser(exception.getMessage() + "\n");
+    // BhService.msgPrinter().msgForUser(exception.getScriptEngineMsg() + "\n");
     var iter = exception.getCallStack().descendingIterator();
     while (iter.hasNext()) {
-      MsgPrinter.INSTANCE.msgForUser("  %s\n".formatted(iter.next()));
+      BhService.msgPrinter().infoForUser("  %s\n".formatted(iter.next()));
     }
   }
 }

@@ -20,25 +20,19 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgProcessor;
-import net.seapanda.bunnyhop.message.MsgService;
+import net.seapanda.bunnyhop.command.BhCmd;
+import net.seapanda.bunnyhop.command.CmdData;
+import net.seapanda.bunnyhop.command.CmdProcessor;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.service.BhNodeHandler;
-import net.seapanda.bunnyhop.service.DerivativeCache;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
-import net.seapanda.bunnyhop.service.SyntaxErrorNodeManager;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.view.TrashboxService;
-import net.seapanda.bunnyhop.view.ViewHelper;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
@@ -46,7 +40,7 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
  *
  * @author K.Koike
  */
-public class BhNodeController implements MsgProcessor {
+public class BhNodeController implements CmdProcessor {
 
   private final BhNode model;
   private final BhNodeView view;
@@ -66,16 +60,16 @@ public class BhNodeController implements MsgProcessor {
   }
 
   /**
-   * 引数で指定したノードに対応するビューにGUIイベントを伝播する.
+   * 引数で指定したノードに対応するビューに GUI イベントを伝播する.
    *
-   * @param node イベントを伝播したいBhNodeView に対応するBhNode
+   * @param node イベントを伝播したい {@link BhNodeView} に対応する {@link BhNode}
    * @param event 伝播したいイベント
    */
   private void propagateGuiEvent(BhNode node, Event event) {
     if (node == null) {
       return;
     }
-    BhNodeView nodeView = MsgService.INSTANCE.getBhNodeView(node);
+    BhNodeView nodeView = BhService.cmdProxy().getBhNodeView(node);
     nodeView.getEventManager().propagateEvent(event);
     event.consume();
   }
@@ -90,19 +84,18 @@ public class BhNodeController implements MsgProcessor {
 
   /** マウスボタン押下時の処理. */
   private void  onMousePressed(MouseEvent event) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
-      //model.show(0);  //for debug
       if (!model.isMovable()) {
         ddInfo.propagateEvent = true;
         propagateGuiEvent(model.findParentNode(), event);
         return;
       }
-      //BhNode の新規追加の場合, すでにundo 用コマンドオブジェクトがセットされている
+      // BhNode の新規追加の場合, すでにundo 用コマンドオブジェクトがセットされている
       if (ddInfo.userOpe == null) {
         ddInfo.userOpe = new UserOperation();
       }
-      ViewHelper.INSTANCE.drawShadow(view);
+      view.getLookManager().drawShadow();
       view.getPositionManager().toFront(true);
       selectNode(event.isShiftDown());  //選択処理
       javafx.geometry.Point2D mousePressedPos =
@@ -112,7 +105,7 @@ public class BhNodeController implements MsgProcessor {
       view.setMouseTransparent(true);
       event.consume();
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
@@ -135,7 +128,7 @@ public class BhNodeController implements MsgProcessor {
       moveNodeOnWorkspace(diffX, diffY);
       // ドラッグ検出されていない場合、強調は行わない. 子ノードがダングリングになっていないのに、重なったノード (入れ替え対象) だけが検出されるのを防ぐ
       highlightOverlappedNode();
-      TrashboxService.INSTANCE.openCloseTrashbox(event.getSceneX(), event.getSceneY());
+      BhService.trashboxCtrl().auto(event.getSceneX(), event.getSceneY());
     }
     event.consume();
   }
@@ -145,7 +138,7 @@ public class BhNodeController implements MsgProcessor {
    * 先に {@code onMouseDragged} が呼ばれ, ある程度ドラッグしたときにこれが呼ばれる.
    */
   private void onMouseDragDetected(MouseEvent mouseEvent) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
       if (ddInfo.propagateEvent) {
         propagateGuiEvent(model.findParentNode(), mouseEvent);
@@ -162,8 +155,7 @@ public class BhNodeController implements MsgProcessor {
       if (model.isRemovable()) {
         ddInfo.latestParent = model.findParentNode();
         ddInfo.latestRoot = model.findRootNode();
-        List<Swapped> swappedNodes =
-            BhNodeHandler.INSTANCE.removeChild(model, ddInfo.userOpe);
+        List<Swapped> swappedNodes = BhService.bhNodePlacer().removeChild(model, ddInfo.userOpe);
         for (var swapped : swappedNodes) {
           swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
               swapped.oldNode(),
@@ -174,13 +166,13 @@ public class BhNodeController implements MsgProcessor {
       }
       mouseEvent.consume();
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** マウスボタンを離したときの処理. */
   private void onMouseReleased(MouseEvent mouseEvent) {
-    ModelExclusiveControl.INSTANCE.lockForModification();
+    ModelExclusiveControl.lockForModification();
     try {
       if (ddInfo.propagateEvent) {
         propagateGuiEvent(model.findParentNode(), mouseEvent);
@@ -189,7 +181,7 @@ public class BhNodeController implements MsgProcessor {
       }
 
       if (ddInfo.currentOverlapped != null) {
-        MsgService.INSTANCE.switchPseudoClassActivation(
+        BhService.cmdProxy().switchPseudoClassActivation(
             ddInfo.currentOverlapped, BhConstants.Css.PSEUDO_OVERLAPPED, false);
       }
       //子ノード -> ワークスペース
@@ -204,16 +196,16 @@ public class BhNodeController implements MsgProcessor {
       }
       view.getPositionManager().toFront(false);
       deleteTrashedNode(mouseEvent);
-      SyntaxErrorNodeManager.INSTANCE.updateErrorNodeIndicator(ddInfo.userOpe);
-      SyntaxErrorNodeManager.INSTANCE.unmanageNonErrorNodes(ddInfo.userOpe);
-      DerivativeCache.INSTANCE.clearAll();
-      BunnyHop.INSTANCE.pushUserOperation(ddInfo.userOpe);
+      BhService.compileErrNodeManager().updateErrorNodeIndicator(ddInfo.userOpe);
+      BhService.compileErrNodeManager().unmanageNonErrorNodes(ddInfo.userOpe);
+      BhService.derivativeCache().clearAll();
+      BhService.undoRedoAgent().pushUndoCommand(ddInfo.userOpe);
       ddInfo.reset();
       view.setMouseTransparent(false);  // 処理が終わったので、元に戻しておく。
-      TrashboxService.INSTANCE.openCloseTrashbox(false);
+      BhService.trashboxCtrl().close();
       mouseEvent.consume();
     } finally {
-      ModelExclusiveControl.INSTANCE.unlockForModification();
+      ModelExclusiveControl.unlockForModification();
     }
   }
 
@@ -227,7 +219,7 @@ public class BhNodeController implements MsgProcessor {
     //ワークスペースから移動する場合
     if (fromWs) {
       ddInfo.userOpe.pushCmdOfSetPosOnWorkspace(
-          ddInfo.posOnWorkspace.x, ddInfo.posOnWorkspace.y, model);
+          ddInfo.posOnWorkspace, view.getPositionManager().getPosOnWorkspace(), model);
     }
     // 入れ替えられるノードの親ノード
     final ConnectiveNode oldParentOfReplaced = oldChildNode.findParentNode();
@@ -235,16 +227,16 @@ public class BhNodeController implements MsgProcessor {
     final BhNode oldRootOfReplaced = oldChildNode.findRootNode();
     // 重なっているノードをこのノードと入れ替え
     final List<Swapped> swappedNodes =
-        BhNodeHandler.INSTANCE.replaceChild(oldChildNode, model, ddInfo.userOpe);
+        BhService.bhNodePlacer().replaceChild(oldChildNode, model, ddInfo.userOpe);
     //接続変更時のスクリプト実行
     model.getEventAgent().execOnMovedToChild(
         ddInfo.latestParent, ddInfo.latestRoot, oldChildNode, ddInfo.userOpe);
 
-    Vec2D posOnWs = MsgService.INSTANCE.getPosOnWs(oldChildNode);
+    Vec2D posOnWs = BhService.cmdProxy().getPosOnWs(oldChildNode);
     double newXposInWs = posOnWs.x + BhConstants.LnF.REPLACED_NODE_SHIFT;
     double newYposInWs = posOnWs.y + BhConstants.LnF.REPLACED_NODE_SHIFT;
     //重なっているノードをWSに移動
-    BhNodeHandler.INSTANCE.moveToWs(
+    BhService.bhNodePlacer().moveToWs(
         oldChildNode.getWorkspace(), oldChildNode, newXposInWs, newYposInWs, ddInfo.userOpe);
     //接続変更時のスクリプト実行
     oldChildNode.getEventAgent().execOnMovedFromChildToWs(
@@ -266,7 +258,7 @@ public class BhNodeController implements MsgProcessor {
    */
   private void toWorkspace(Workspace ws) {
     Vec2D absPosInWs = view.getPositionManager().getPosOnWorkspace();
-    BhNodeHandler.INSTANCE.moveToWs(ws, model, absPosInWs.x, absPosInWs.y, ddInfo.userOpe);
+    BhService.bhNodePlacer().moveToWs(ws, model, absPosInWs.x, absPosInWs.y, ddInfo.userOpe);
     model.getEventAgent().execOnMovedFromChildToWs(
         ddInfo.latestParent,
         ddInfo.latestRoot,
@@ -280,23 +272,22 @@ public class BhNodeController implements MsgProcessor {
   private void toSameWorkspace() {
     if (ddInfo.dragging && (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS)) {
       ddInfo.userOpe.pushCmdOfSetPosOnWorkspace(
-          ddInfo.posOnWorkspace.x, ddInfo.posOnWorkspace.y, model);
+          ddInfo.posOnWorkspace, view.getPositionManager().getPosOnWorkspace(), model);
     }
     view.getLookManager().arrangeAndResize();
   }
 
   /** ゴミ箱に入れられたノードを削除する. */
   private void deleteTrashedNode(MouseEvent mouseEvent) {
-    boolean isInTrashboxArea =
-        TrashboxService.INSTANCE.isInTrashboxArea(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+    boolean isInTrashboxArea = BhService.trashboxCtrl().isPointInTrashBoxArea(
+        mouseEvent.getSceneX(), mouseEvent.getSceneY());
     if (model.isRootDirectolyUnderWs() && isInTrashboxArea) {
       model.getEventAgent().execOnDeletionRequested(
           new ArrayList<BhNode>() {{
             add(model);
           }},
           CauseOfDeletion.TRASH_BOX, ddInfo.userOpe);
-      List<Swapped> swappedNodes =
-          BhNodeHandler.INSTANCE.deleteNode(model, ddInfo.userOpe);
+      List<Swapped> swappedNodes = BhService.bhNodePlacer().deleteNode(model, ddInfo.userOpe);
       for (var swapped : swappedNodes) {
         swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
             swapped.oldNode(),
@@ -311,7 +302,7 @@ public class BhNodeController implements MsgProcessor {
   private void highlightOverlappedNode() {
     if (ddInfo.currentOverlapped != null) {
       //前回重なっていたものをライトオフ
-      MsgService.INSTANCE.switchPseudoClassActivation(
+      BhService.cmdProxy().switchPseudoClassActivation(
           ddInfo.currentOverlapped, BhConstants.Css.PSEUDO_OVERLAPPED, false);
     }
     ddInfo.currentOverlapped = null;
@@ -319,7 +310,7 @@ public class BhNodeController implements MsgProcessor {
     for (BhNode overlapped : overlappedList) {
       if (overlapped.canBeReplacedWith(model)) {  //このノードと入れ替え可能
         //今回重なっているものをライトオン
-        MsgService.INSTANCE.switchPseudoClassActivation(
+        BhService.cmdProxy().switchPseudoClassActivation(
             overlapped, BhConstants.Css.PSEUDO_OVERLAPPED, true);
         ddInfo.currentOverlapped = overlapped;
         break;
@@ -367,12 +358,12 @@ public class BhNodeController implements MsgProcessor {
   private void moveNodeOnWorkspace(double distanceX, double distanceY) {
     view.getPositionManager().move(distanceX, distanceY);
     if (model.getWorkspace() != null) {
-      MsgService.INSTANCE.updateMultiNodeShifter(model, model.getWorkspace());
+      BhService.cmdProxy().updateMultiNodeShifter(model, model.getWorkspace());
     }
   }
 
   @Override
-  public MsgData processMsg(BhMsg msg, MsgData data) {
+  public CmdData process(BhCmd msg, CmdData data) {
     return msgProcessor.processMsg(msg, data);
   }
 
@@ -420,17 +411,17 @@ public class BhNodeController implements MsgProcessor {
      * @param data メッセージの種類に応じて処理するデータ
      * @return メッセージを処理した結果返すデータ
      */
-    public MsgData processMsg(BhMsg msg, MsgData data) {
+    public CmdData processMsg(BhCmd msg, CmdData data) {
       switch (msg) {
 
         case ADD_ROOT_NODE: // model がWorkSpace のルートノードとして登録された
-          return new MsgData(model, view);
+          return new CmdData(model, view);
 
         case REMOVE_ROOT_NODE:
-          return new MsgData(model, view);
+          return new CmdData(model, view);
 
         case SET_QT_RECTANGLE:
-          return new MsgData(view, data.userOpe);
+          return new CmdData(view, data.userOpe);
 
         case REMOVE_QT_RECTANGLE:
           view.getRegionManager().removeQtRectangle(data.userOpe);
@@ -438,7 +429,7 @@ public class BhNodeController implements MsgProcessor {
 
         case GET_POS_ON_WORKSPACE:
           var pos = view.getPositionManager().getPosOnWorkspace();
-          return new MsgData(pos);
+          return new CmdData(pos);
 
         case SET_POS_ON_WORKSPACE:
           setPosOnWorkspace(data.vec2d);
@@ -450,7 +441,7 @@ public class BhNodeController implements MsgProcessor {
 
         case GET_VIEW_SIZE_INCLUDING_OUTER:
           Vec2D size = view.getRegionManager().getNodeSizeIncludingOuter(data.bool);
-          return new MsgData(size);
+          return new CmdData(size);
 
         case UPDATE_ABS_POS:
           Vec2D posOnWs = view.getPositionManager().getPosOnWorkspace();  //workspace からの相対位置を計算
@@ -466,7 +457,7 @@ public class BhNodeController implements MsgProcessor {
           break;
 
         case GET_VIEW:
-          return new MsgData(view);
+          return new CmdData(view);
 
         case SET_USER_OPE_CMD:
           ddInfo.userOpe = data.userOpe;
@@ -482,8 +473,8 @@ public class BhNodeController implements MsgProcessor {
           break;
 
         case SET_SYNTAX_ERRPR_INDICATOR:
-          data.userOpe.pushCmdOfSetSyntaxError(
-              view, data.bool, view.getLookManager().isSyntaxErrorVisible());
+          data.userOpe.pushCmdOfSetCompileError(
+              view, data.bool, view.getLookManager().isCompileErrorVisible());
           view.getLookManager().setSytaxErrorVisibility(data.bool);
           break;
 
@@ -492,7 +483,7 @@ public class BhNodeController implements MsgProcessor {
           break;
 
         case IS_TEMPLATE_NODE:
-          return new MsgData(false);
+          return new CmdData(false);
 
         default:
           throw new IllegalStateException("receive an unknown msg " + msg);
@@ -509,7 +500,7 @@ public class BhNodeController implements MsgProcessor {
     private void setPosOnWorkspace(Vec2D posOnWs) {
       view.getPositionManager().setPosOnWorkspace(posOnWs.x, posOnWs.y);
       if (model.getWorkspace() != null) {
-        MsgService.INSTANCE.updateMultiNodeShifter(model, model.getWorkspace());
+        BhService.cmdProxy().updateMultiNodeShifter(model, model.getWorkspace());
       }
     }
   }

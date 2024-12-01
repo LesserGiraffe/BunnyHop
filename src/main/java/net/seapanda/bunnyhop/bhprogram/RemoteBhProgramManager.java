@@ -31,12 +31,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.common.constant.BhConstants.BhRuntime;
-import net.seapanda.bunnyhop.common.constant.ExclusiveSelection;
-import net.seapanda.bunnyhop.service.BhScriptManager;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants.BhRuntime;
+import net.seapanda.bunnyhop.common.ExclusiveSelection;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
@@ -61,14 +61,14 @@ public class RemoteBhProgramManager {
       throws IllegalStateException {
 
     common = new BhProgramManagerCommon(simCmdProcessor);
-    boolean success = BhScriptManager.INSTANCE.scriptsExist(
+    boolean success = BhService.bhScriptManager().allExist(
         getClass().getSimpleName(),
         BhConstants.Path.REMOTE_EXEC_CMD_GENERATOR_JS,
         BhConstants.Path.REMOTE_KILL_CMD_GENERATOR_JS);
 
     if (!success) {
       String msg = "Cannot find remote cmd scripts";
-      MsgPrinter.INSTANCE.errMsgForDebug(msg);
+      BhService.msgPrinter().errForDebug(msg);
       throw new IllegalStateException(msg);
     }
   }
@@ -117,7 +117,7 @@ public class RemoteBhProgramManager {
       String password,
       boolean terminate) {
     terminateOrDisconnect(terminate);
-    MsgPrinter.INSTANCE.msgForUser("-- プログラム実行準備中 (remote) --\n");
+    BhService.msgPrinter().infoForUser("-- プログラム実行準備中 (remote) --\n");
     try {
       var destPath = Paths.get(
           BhConstants.Path.REMOTE_BUNNYHOP_DIR,
@@ -141,13 +141,13 @@ public class RemoteBhProgramManager {
         throw new Exception();
       }
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForUser("!! プログラム実行準備失敗 (remote) !!\n");
-      MsgPrinter.INSTANCE.errMsgForDebug(
+      BhService.msgPrinter().errForUser("!! プログラム実行準備失敗 (remote) !!\n");
+      BhService.msgPrinter().errForDebug(
           "Failed to run %s. (remote)".formatted(filePath.getFileName()));
       terminate(BhConstants.BhRuntime.REMOTE_RUNTIME_TERMINATION_TIMEOUT_SHORT);
       return false;
     }
-    MsgPrinter.INSTANCE.msgForUser("-- プログラム実行開始 (remote) --\n");
+    BhService.msgPrinter().infoForUser("-- プログラム実行開始 (remote) --\n");
     programRunning.set(true);
     return true;
   }
@@ -176,7 +176,7 @@ public class RemoteBhProgramManager {
   public Future<Boolean> terminateAsync() {
     fileCopyIsCancelled.set(true);
     if (!programRunning.get()) {
-      MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了済み (remote) !!\n");
+      BhService.msgPrinter().errForUser("!! プログラム終了済み (remote) !!\n");
       return common.terminateAsync(() -> false);
     }
     return common.terminateAsync(
@@ -193,7 +193,7 @@ public class RemoteBhProgramManager {
    * @return 強制終了に成功した場合true
    */
   private synchronized boolean terminate(int timeout) {
-    MsgPrinter.INSTANCE.msgForUser("-- プログラム終了中 (remote)  --\n");
+    BhService.msgPrinter().infoForUser("-- プログラム終了中 (remote)  --\n");
     try {
       boolean success = common.haltTransceiver();
       if (!success) {
@@ -212,14 +212,14 @@ public class RemoteBhProgramManager {
         throw new Exception();
       }
       if (status.get() != 0) {
-        MsgPrinter.INSTANCE.errMsgForDebug("terminate status err  (%s)".formatted(status.get()));
+        BhService.msgPrinter().errForDebug("terminate status err  (%s)".formatted(status.get()));
         throw new Exception("");
       }
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForUser("!! プログラム終了失敗 (remote)  !!\n");
+      BhService.msgPrinter().errForUser("!! プログラム終了失敗 (remote)  !!\n");
       return false;
     }
-    MsgPrinter.INSTANCE.msgForUser("-- プログラム終了完了 (remote)  --\n");
+    BhService.msgPrinter().infoForUser("-- プログラム終了完了 (remote)  --\n");
     programRunning.set(false);
     return true;
   }
@@ -270,7 +270,7 @@ public class RemoteBhProgramManager {
         throw new Exception();
       }
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
+      BhService.msgPrinter().errForDebug(
           "Failed to start %s.\n%s".formatted(BhConstants.BhRuntime.BH_PROGRAM_RUNTIME_JAR, e));
     }
     return channel;
@@ -283,16 +283,19 @@ public class RemoteBhProgramManager {
    */
   private String genStartCmd(String host) {
     Script cs =
-        BhScriptManager.INSTANCE.getCompiledScript(BhConstants.Path.REMOTE_EXEC_CMD_GENERATOR_JS);
-    Scriptable scope = BhScriptManager.INSTANCE.createScriptScope();
-    ScriptableObject.putProperty(scope, BhConstants.JsKeyword.KEY_IP_ADDR, host);
+        BhService.bhScriptManager().getCompiledScript(BhConstants.Path.REMOTE_EXEC_CMD_GENERATOR_JS);
     Object retVal = null;
     try {
-      retVal = ContextFactory.getGlobal().call(cx -> cs.exec(cx, scope));
+      Context cx = ContextFactory.getGlobal().enterContext();
+      Scriptable scope = cx.initStandardObjects();
+      ScriptableObject.putProperty(scope, BhConstants.JsKeyword.KEY_IP_ADDR, host);
+      retVal = cs.exec(cx, scope);
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
+      BhService.msgPrinter().errForDebug(
           "Failed to execute %s.\n%s".formatted(BhConstants.Path.REMOTE_EXEC_CMD_GENERATOR_JS, e));
       return null;
+    } finally {
+      Context.exit();
     }
     if (retVal instanceof String) {
       return (String) retVal;
@@ -307,13 +310,12 @@ public class RemoteBhProgramManager {
    */
   private String genKillCmd() {
     Script cs =
-        BhScriptManager.INSTANCE.getCompiledScript(BhConstants.Path.REMOTE_KILL_CMD_GENERATOR_JS);
+        BhService.bhScriptManager().getCompiledScript(BhConstants.Path.REMOTE_KILL_CMD_GENERATOR_JS);
     Object retVal;
     try {
-      retVal = ContextFactory.getGlobal().call(
-          cx -> cs.exec(cx, BhScriptManager.INSTANCE.createScriptScope()));
+      retVal = ContextFactory.getGlobal().call(cx -> cs.exec(cx, cx.initStandardObjects()));
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
+      BhService.msgPrinter().errForDebug(
           "Failed to execute %s.\n%s".formatted(BhConstants.Path.REMOTE_KILL_CMD_GENERATOR_JS, e));
       return null;
     }
@@ -345,7 +347,7 @@ public class RemoteBhProgramManager {
       channel.setCommand(cmd);
       channel.connect();
     } catch (JSchException e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(
+      BhService.msgPrinter().errForDebug(
           "Failed to execute a cmd remotely (%s).\n%s".formatted(cmd, e));
       channel = null;
     }
@@ -369,7 +371,7 @@ public class RemoteBhProgramManager {
       String srcPath,
       String destPath) {
 
-    MsgPrinter.INSTANCE.msgForUser("-- プログラム転送中 --\n");
+    BhService.msgPrinter().infoForUser("-- プログラム転送中 --\n");
     fileCopyIsCancelled.set(false);
     JSch jsch = new JSch();
     try {
@@ -385,8 +387,8 @@ public class RemoteBhProgramManager {
         throw new Exception("File transfer has been cancelled.");
       }
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForDebug(e.toString());
-      MsgPrinter.INSTANCE.errMsgForUser("!! プログラム転送失敗 !!\n  %s\n".formatted(e));
+      BhService.msgPrinter().errForDebug(e.toString());
+      BhService.msgPrinter().errForUser("!! プログラム転送失敗 !!\n  %s\n".formatted(e));
       return false;
     }
     return true;
@@ -403,7 +405,7 @@ public class RemoteBhProgramManager {
    */
   public ExclusiveSelection askIfStopProgram() {
     if (programRunning.get()) {
-      Optional<ButtonType> selected = MsgPrinter.INSTANCE.alert(
+      Optional<ButtonType> selected = BhService.msgPrinter().alert(
           AlertType.CONFIRMATION,
           "プログラム停止の確認",
           null,
@@ -443,7 +445,7 @@ public class RemoteBhProgramManager {
         }
       }
     } catch (Exception e) {
-      MsgPrinter.INSTANCE.errMsgForUser("channel close err " + e);
+      BhService.msgPrinter().errForUser("channel close err " + e);
       return Optional.empty();
     }
     return Optional.of(channel.getExitStatus());

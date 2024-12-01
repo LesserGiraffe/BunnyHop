@@ -28,13 +28,13 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.BhProgramService;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.control.nodeselection.BhNodeCategoryListController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
-import net.seapanda.bunnyhop.message.MsgService;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.KeyCodeConverter;
 
 /**
@@ -64,17 +64,17 @@ public class FoundationController {
    * @param wss ワークスペースセットのモデル
    * @param nodeCategoryList ノードカテゴリリストのモデル
    */
-  public boolean init(WorkspaceSet wss, BhNodeCategoryList nodeCategoryList) {
-    workspaceSetController.init(wss);
-    boolean success = nodeCategoryListController.init(nodeCategoryList);
+  public boolean initialize(WorkspaceSet wss, BhNodeCategoryList nodeCategoryList) {
+    workspaceSetController.initialize(wss);
+    boolean success = nodeCategoryListController.initialize(nodeCategoryList);
+    success &= menuOperationController.initialize(wss, workspaceSetController.getTabPane());
     if (!success) {
       return false;
     }
-    menuOperationController.init(wss, workspaceSetController.getTabPane());
-    menuBarController.init(wss);
+    menuBarController.initialize(wss);
     wss.setMsgProcessor(workspaceSetController);
     nodeCategoryListController.getView().getSelectionViewList().forEach(
-        view -> MsgService.INSTANCE.addNodeSelectionView(wss, view));
+        view -> BhService.cmdProxy().addNodeSelectionView(view));
     nodeCategoryList.setMsgProcessor(nodeCategoryListController);
     setKeyEvents();
     return true;
@@ -213,5 +213,10 @@ public class FoundationController {
   /** 現在選択されている BhProgram の実行環境がローカルかリモートか調べる. */
   public boolean isBhRuntimeLocal() {
     return menuOperationController.isLocalHost();
+  }
+
+  /** ワークスペースセットのコントローラを返す. */
+  public WorkspaceSetController getWorkspaceSetController() {
+    return workspaceSetController;
   }
 }

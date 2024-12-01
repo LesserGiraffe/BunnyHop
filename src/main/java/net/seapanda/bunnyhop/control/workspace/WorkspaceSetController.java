@@ -17,24 +17,20 @@
 package net.seapanda.bunnyhop.control.workspace;
 
 import javafx.fxml.FXML;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabDragPolicy;
 import javafx.scene.control.TextArea;
-import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
-import net.seapanda.bunnyhop.message.BhMsg;
-import net.seapanda.bunnyhop.message.MsgData;
-import net.seapanda.bunnyhop.message.MsgProcessor;
+import net.seapanda.bunnyhop.command.BhCmd;
+import net.seapanda.bunnyhop.command.CmdData;
+import net.seapanda.bunnyhop.command.CmdProcessor;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.root.BunnyHop;
-import net.seapanda.bunnyhop.service.MsgPrinter;
-import net.seapanda.bunnyhop.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
@@ -44,28 +40,27 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
  *
  * @author K.Koike
  */
-public class WorkspaceSetController implements MsgProcessor {
+public class WorkspaceSetController implements CmdProcessor {
 
   private WorkspaceSet model;
   @FXML private SplitPane workspaceSetViewBase;
   @FXML private StackPane workspaceSetStackPane;
   /** ワークスペース表示タブ. */
   @FXML private TabPane workspaceSetTab;
+  @FXML private Pane trashbox;
   @FXML private TextArea mainMsgArea;
-  @FXML private ImageView openedTrashboxIv;
-  @FXML private ImageView closedTrashboxIv;
-  private final UndoRedoAgent undoRedoAgent = new UndoRedoAgent();
+  /** ノード削除用のゴミ箱のコントローラ. */
+  @FXML private TrashboxController trashboxController;
 
   /**
    * モデルとイベントハンドラをセットする.
    *
    * @param wss ワークスペースセットのモデル
    */
-  public void init(WorkspaceSet wss) {
+  public void initialize(WorkspaceSet wss) {
     model = wss;
     setEventHandlers();
     workspaceSetViewBase.setDividerPositions(BhConstants.LnF.DEFAULT_VERTICAL_DIV_POS);
-    MsgPrinter.INSTANCE.setMainMsgArea(mainMsgArea); //メインメッセージエリアの登録
   }
 
   /** イベントハンドラを登録する. */
@@ -150,35 +145,8 @@ public class WorkspaceSetController implements MsgProcessor {
     return workspaceSetTab;
   }
 
-  /**
-   * ゴミ箱を開閉する.
-   *
-   * @param open ゴミ箱を開ける場合true
-   */
-  private void openTrashBox(boolean open) {
-    if (open) {
-      openedTrashboxIv.setVisible(true);
-      closedTrashboxIv.setVisible(false);
-    } else {
-      openedTrashboxIv.setVisible(false);
-      closedTrashboxIv.setVisible(true);
-    }
-  }
-
-  /**
-   * 引数で指定した位置がゴミ箱エリアにあるかどうか調べる.
-   *
-   * @param sceneX シーン上でのX位置
-   * @param sceneY シーン上でのY位置
-   * @return 引数で指定した位置がゴミ箱エリアにある場合true
-   */
-  private boolean isPointInTrashBoxArea(double sceneX, double sceneY) {
-    Point2D localPos = closedTrashboxIv.sceneToLocal(sceneX, sceneY);
-    return closedTrashboxIv.contains(localPos.getX(), localPos.getY());
-  }
-
   @Override
-  public MsgData processMsg(BhMsg msg, MsgData data) {
+  public CmdData process(BhCmd msg, CmdData data) {
     switch (msg) {
       case ADD_WORKSPACE:
         addWorkspace(data.workspace, data.workspaceView, data.userOpe);
@@ -193,32 +161,7 @@ public class WorkspaceSetController implements MsgProcessor {
         break;
 
       case GET_CURRENT_WORKSPACE:
-        return new MsgData(getCurrentWorkspace());
-
-      case IS_IN_TRASHBOX_AREA:
-        return new MsgData(isPointInTrashBoxArea(data.vec2d.x, data.vec2d.y));
-
-      case OPEN_TRASHBOX:
-        openTrashBox(data.bool);
-        break;
-
-      case UNDO:
-        undoRedoAgent.undo();
-        BunnyHop.INSTANCE.shouldSave(true);
-        break;
-
-      case REDO:
-        undoRedoAgent.redo();
-        BunnyHop.INSTANCE.shouldSave(true);
-        break;
-
-      case DELETE_USER_OPE_CMD:
-        undoRedoAgent.delete();
-        break;
-
-      case PUSH_USER_OPE_CMD:
-        pushUserOperation(data.userOpe);
-        break;
+        return new CmdData(getCurrentWorkspace());
 
       case REMOVE_NODE_TO_PASTE:
         model.removeNodeFromCopyList(data.node, data.userOpe);
@@ -246,7 +189,7 @@ public class WorkspaceSetController implements MsgProcessor {
     workspaceSetTab.getSelectionModel().select(workspaceView);
     // ここで REORDER にしないと, undo でタブを戻した時, タブドラッグ時に例外が発生する
     workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
-    userOpe.pushCmdOfAddWorkspace(workspace, workspaceView, model);
+    userOpe.pushCmdOfAddWorkspace(workspace);
   }
 
   /**
@@ -262,7 +205,7 @@ public class WorkspaceSetController implements MsgProcessor {
     workspaceSetTab.getTabs().remove(workspaceView);
     // ここで REORDER にしないと, タブを消した後でタブドラッグすると例外が発生する
     workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
-    userOpe.pushCmdOfDeleteWorkspace(workspace, workspaceView, model);
+    userOpe.pushCmdOfDeleteWorkspace(workspace);
   }
 
   /**
@@ -288,11 +231,13 @@ public class WorkspaceSetController implements MsgProcessor {
     return (WorkspaceView) workspaceSetTab.getSelectionModel().getSelectedItem();
   }
 
-  /** 引数で指定した undo 用コマンドオブジェクトを undo スタックに追加する. */
-  private void pushUserOperation(UserOperation userOpe) {
-    if (userOpe.getNumSubOpe() > 0) {
-      undoRedoAgent.pushUndoCommand(userOpe);
-      BunnyHop.INSTANCE.shouldSave(true);
-    }
+  /** アプリケーションのメッセージを表示する TextArea を取得する. */
+  public TextArea getMsgArea() {
+    return mainMsgArea;
+  }
+
+  /** ノード削除用のゴミ箱のコントローラオブジェクトを取得する. */
+  public TrashboxController getTrashboxController() {
+    return trashboxController;
   }
 }

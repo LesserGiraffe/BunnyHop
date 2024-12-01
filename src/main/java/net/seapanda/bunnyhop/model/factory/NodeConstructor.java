@@ -26,7 +26,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.Connector;
@@ -35,12 +35,15 @@ import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeType;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeVersion;
+import net.seapanda.bunnyhop.model.node.attribute.ConnectorAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
+import net.seapanda.bunnyhop.model.node.attribute.ConnectorParamSetId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
 import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.section.Section;
 import net.seapanda.bunnyhop.model.node.section.Subsection;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhScriptManager;
+import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -62,17 +65,35 @@ public class NodeConstructor {
   private final BiConsumer<BhNodeId, BhNodeId> registerOrgAndDervNodeId;
   /** コネクタテンプレート取得用関数. */
   private final Function<ConnectorId, Optional<Connector>> getCnctrTemplate;
+  /** コネクタアトリビュート取得用関数. */
+  private final Function<ConnectorParamSetId, Optional<ConnectorAttributes>> getCnctrAttr;
+  /** {@link BhNode} の定義ファイルに書かれた JavaScript ファイルを保持する {@link BhScriptManager} オブジェクト. */
+  private final BhScriptManager scriptManager;
 
-  /** コンストラクタ. */
+  /**
+   * コンストラクタ.
+   *
+   * @param registerNodeTemplate ノードテンプレート登録用関数
+   * @param registerCnctrTemplate コネクタテンプレート登録用関数.
+   * @param registerOrgAndDervId オリジナルと派生ノードの ID を登録するための関数.
+   * @param getCnctrTemplate コネクタテンプレート取得用関数
+   * @param getCnctrAttr コネクタアトリビュート取得用関数
+   * @param scriptManager {@link BhNode} の定義ファイルに書かれた
+   *                      JavaScript ファイルを保持する {@link BhScriptManager} オブジェクト
+   */
   public NodeConstructor(
       BiFunction<BhNodeId, BhNode, Boolean> registerNodeTemplate,
       BiFunction<ConnectorId, Connector, Boolean> registerCnctrTemplate,
       BiConsumer<BhNodeId, BhNodeId> registerOrgAndDervId,
-      Function<ConnectorId, Optional<Connector>> getCnctrTemplate) {
+      Function<ConnectorId, Optional<Connector>> getCnctrTemplate,
+      Function<ConnectorParamSetId, Optional<ConnectorAttributes>> getCnctrAttr,
+      BhScriptManager scriptManager) {
     this.registerNodeTemplate = registerNodeTemplate;
     this.registerCnctrTemplate = registerCnctrTemplate;
     this.registerOrgAndDervNodeId = registerOrgAndDervId;
     this.getCnctrTemplate = getCnctrTemplate;
+    this.getCnctrAttr = getCnctrAttr;
+    this.scriptManager = scriptManager;
   }
 
   /**
@@ -83,7 +104,7 @@ public class NodeConstructor {
    */
   public Optional<? extends BhNode> genTemplate(Document doc) {
     if (!doc.getFirstChild().getNodeName().equals(BhConstants.BhModelDef.ELEM_NODE)) {
-      MsgPrinter.INSTANCE.errMsgForDebug(String.format("""
+      BhService.msgPrinter().errForDebug(String.format("""
           Invalid BhNode definition. (%s)
           A BhNode definition must have a '%s' root element.\n%s
           """,
@@ -117,7 +138,7 @@ public class NodeConstructor {
         break;
 
       default:
-        MsgPrinter.INSTANCE.errMsgForDebug(
+        BhService.msgPrinter().errForDebug(
             "Unknown BhNode type.  (%s)\n%s".formatted(type, nodeRoot.getBaseURI()));
         break;
     }
@@ -142,7 +163,7 @@ public class NodeConstructor {
       DerivationId derivationId =
           DerivationId.of(derivationElem.getAttribute(BhConstants.BhModelDef.ATTR_DETIVATION_ID));
       if (derivationId.equals(DerivationId.NONE)) {
-        MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+        BhService.msgPrinter().errForDebug(String.format(
             "A '%s' element must have a '%s' attribute.\n%s",
             BhConstants.BhModelDef.ELEM_DERIVATION,
             BhConstants.BhModelDef.ATTR_DETIVATION_ID,
@@ -154,7 +175,7 @@ public class NodeConstructor {
       BhNodeId derivativeId =
           BhNodeId.of(derivationElem.getAttribute(BhConstants.BhModelDef.ATTR_DERIVATIVE_ID));
       if (derivativeId.equals(BhNodeId.NONE)) {
-        MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+        BhService.msgPrinter().errForDebug(String.format(
             "A '%s' element must have a '%s' attribute.\n%s",
             BhConstants.BhModelDef.ELEM_DERIVATION,
             BhConstants.BhModelDef.ATTR_DERIVATIVE_ID,
@@ -182,7 +203,7 @@ public class NodeConstructor {
     BhNodeAttributes nodeAttrs = BhNodeAttributes.of(node);
 
     if (nodeAttrs.bhNodeId().equals(BhNodeId.NONE)) {
-      MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+      BhService.msgPrinter().errForDebug(String.format(
           "A '%s' element must have a '%s' attribute.\n%s",
           BhConstants.BhModelDef.ELEM_NODE,
           BhConstants.BhModelDef.ATTR_BH_NODE_ID,
@@ -191,7 +212,7 @@ public class NodeConstructor {
     }
 
     if (nodeAttrs.version().equals(BhNodeVersion.NONE)) {
-      MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+      BhService.msgPrinter().errForDebug(String.format(
           "A '%s' element must have a '%s' attribute.\n%s",
           BhConstants.BhModelDef.ELEM_NODE,
           BhConstants.BhModelDef.ATTR_VERSION,
@@ -209,7 +230,7 @@ public class NodeConstructor {
     }
 
     if (childSection.get().size() != 1) {
-      MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+      BhService.msgPrinter().errForDebug(String.format(
           ("A '%s' element whose '%s' is '%s' must have a child '%s' element "
           + "or a child '%s' element.\n%s"),
           BhConstants.BhModelDef.ELEM_SECTION,
@@ -222,7 +243,7 @@ public class NodeConstructor {
     }
 
     //実行時スクリプト存在チェック
-    boolean allScriptsFound = BhNodeFactory.allScriptsExist(
+    boolean allScriptsFound = scriptManager.allExistIgnoringEmpty(
         node.getBaseURI(),
         nodeAttrs.onMovedFromChildToWs(),
         nodeAttrs.onMovedToChild(),
@@ -230,7 +251,7 @@ public class NodeConstructor {
         nodeAttrs.onDeletionRequested(),
         nodeAttrs.onCutRequested(),
         nodeAttrs.onCopyRequested(),
-        nodeAttrs.onSyntaxChecking(),
+        nodeAttrs.onCompileErrorChecking(),
         nodeAttrs.onPrivateTemplateCreating(),
         nodeAttrs.onTemplateCreated());
     if (!allScriptsFound) {
@@ -257,7 +278,7 @@ public class NodeConstructor {
     BhNodeAttributes nodeAttrs = BhNodeAttributes.of(node);
 
     if (nodeAttrs.bhNodeId().equals(BhNodeId.NONE)) {
-      MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+      BhService.msgPrinter().errForDebug(String.format(
           "A '%s' element must have a '%s' attribute.\n%s",
           BhConstants.BhModelDef.ELEM_NODE,
           BhConstants.BhModelDef.ATTR_BH_NODE_ID,
@@ -266,7 +287,7 @@ public class NodeConstructor {
     }
 
     if (nodeAttrs.version().equals(BhNodeVersion.NONE)) {
-      MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+      BhService.msgPrinter().errForDebug(String.format(
           "A '%s' element must have a '%s' attribute.\n%s",
           BhConstants.BhModelDef.ELEM_NODE,
           BhConstants.BhModelDef.ATTR_VERSION,
@@ -278,7 +299,7 @@ public class NodeConstructor {
       BhNodeViewStyle.registerNodeIdAndStyleId(nodeAttrs.bhNodeId(), nodeAttrs.nodeStyleId());
     }
     //実行時スクリプト存在チェック
-    boolean allScriptsFound = BhNodeFactory.allScriptsExist(
+    boolean allScriptsFound = scriptManager.allExistIgnoringEmpty(
         node.getBaseURI(),
         nodeAttrs.onMovedFromChildToWs(),
         nodeAttrs.onMovedToChild(),
@@ -287,7 +308,7 @@ public class NodeConstructor {
         nodeAttrs.onDeletionRequested(),
         nodeAttrs.onCutRequested(),
         nodeAttrs.onCopyRequested(),
-        nodeAttrs.onSyntaxChecking(),
+        nodeAttrs.onCompileErrorChecking(),
         nodeAttrs.onPrivateTemplateCreating(),
         nodeAttrs.onTextOptionsCreating(),
         nodeAttrs.onTemplateCreated());
@@ -366,7 +387,7 @@ public class NodeConstructor {
     List<Connector> cnctrList = new ArrayList<>();
   
     if (connectorTags.isEmpty()) {
-      MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+      BhService.msgPrinter().errForDebug(String.format(
           "A '%s' element must have at least one child '%s' element.\n%s",
           BhConstants.BhModelDef.ELEM_CONNECTOR_SECTION,
           BhConstants.BhModelDef.ELEM_CONNECTOR,
@@ -394,7 +415,7 @@ public class NodeConstructor {
     List<Element> privateNodeTagList = BhNodeFactory.getElementsByTagNameFromChild(
         cnctrElem, BhConstants.BhModelDef.ELEM_NODE);
     if (privateNodeTagList.size() >= 2) {
-      MsgPrinter.INSTANCE.errMsgForDebug(String.format(
+      BhService.msgPrinter().errForDebug(String.format(
           "A '%s' element cannot have more than two child '%s' elements.\n%s",
           BhConstants.BhModelDef.ELEM_CONNECTOR,
           BhConstants.BhModelDef.ELEM_NODE,
@@ -412,7 +433,8 @@ public class NodeConstructor {
       }
     }
     // コネクタ作成
-    Optional<Connector> connector = new ConnectorConstructor(cnctrElem).genConnector();
+    Optional<Connector> connector =
+        new ConnectorConstructor(cnctrElem, getCnctrAttr, scriptManager).genConnector();
     boolean success =
         connector.map(cnctr -> registerCnctrTemplate.apply(cnctr.getId(), cnctr)).orElse(false);
     
@@ -430,7 +452,9 @@ public class NodeConstructor {
         registerNodeTemplate,
         registerCnctrTemplate,
         registerOrgAndDervNodeId,
-        getCnctrTemplate);
+        getCnctrTemplate,
+        getCnctrAttr,
+        scriptManager);
 
     Optional<? extends BhNode> privateNode = constructor.genTemplate(nodeElem);
     boolean success = privateNode

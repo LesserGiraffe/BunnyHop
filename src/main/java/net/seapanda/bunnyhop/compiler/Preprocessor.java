@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.modelprocessor.CallbackInvoker;
+import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
 
 /**
  * コード生成前の処理を行うクラス.

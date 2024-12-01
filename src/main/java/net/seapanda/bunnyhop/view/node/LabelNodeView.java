@@ -18,14 +18,14 @@ package net.seapanda.bunnyhop.view.node;
 
 import java.util.Optional;
 import javafx.scene.control.Label;
-import net.seapanda.bunnyhop.common.Vec2D;
-import net.seapanda.bunnyhop.common.constant.BhConstants;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.service.MsgPrinter;
+import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
-import net.seapanda.bunnyhop.viewprocessor.NodeViewProcessor;
+import net.seapanda.bunnyhop.view.traverse.NodeViewProcessor;
 
 /**
  * ラベルを入力フォームに持つビュー.
@@ -81,8 +81,8 @@ public final class LabelNodeView extends BhNodeView {
 
   @Override
   public void show(int depth) {
-    MsgPrinter.INSTANCE.println("%s<LabelView>  %s".formatted(indent(depth), hashCode()));
-    MsgPrinter.INSTANCE.println("%s<content>  %s".formatted(indent(depth + 1), label.getText()));
+    BhService.msgPrinter().println("%s<LabelView>  %s".formatted(indent(depth), hashCode()));
+    BhService.msgPrinter().println("%s<content>  %s".formatted(indent(depth + 1), label.getText()));
   }
 
   @Override
