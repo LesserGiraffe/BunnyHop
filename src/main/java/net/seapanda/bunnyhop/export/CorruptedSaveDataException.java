@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.export;
 /**
  * セーブデータが破損していることを表す例外.
  */
-public class CorruptedSaveDataException extends Exception{
+public class CorruptedSaveDataException extends Exception {
   public CorruptedSaveDataException(String msg) {
     super(msg);
   }

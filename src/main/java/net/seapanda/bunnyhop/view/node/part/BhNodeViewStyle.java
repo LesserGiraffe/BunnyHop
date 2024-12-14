@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.service.BhScriptManager;
 import net.seapanda.bunnyhop.service.BhService;
@@ -263,7 +264,10 @@ public class BhNodeViewStyle {
   /** {@link BhNodeViewStyle} のテンプレートを作成する. */
   public static boolean genViewStyleTemplate() {
     Path dirPath = Paths.get(
-        Utility.execPath, BhConstants.Path.VIEW_DIR, BhConstants.Path.NODE_STYLE_DEF_DIR);
+        Utility.execPath,
+        BhConstants.Path.VIEW_DIR,
+        BhConstants.Path.NODE_STYLE_DEF_DIR,
+        BhSettings.language);
     Stream<Path> paths = null; //読み込むファイルパスリスト
     try {
       paths = Files

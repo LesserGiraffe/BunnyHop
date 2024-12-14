@@ -1,6 +1,6 @@
 (function() {
   return [
-    ['remove', '消す'],
-    ['extract', '残す']
+    ['remove', bhTextDb.get('node', 'list-splice-ops', 'remove')],
+    ['extract', bhTextDb.get('node', 'list-splice-ops', 'extract')]
   ];
 })();

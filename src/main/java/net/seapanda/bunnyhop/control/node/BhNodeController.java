@@ -19,6 +19,8 @@ package net.seapanda.bunnyhop.control.node;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.event.Event;
+import javafx.geometry.Point2D;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.command.BhCmd;
 import net.seapanda.bunnyhop.command.CmdData;
@@ -27,6 +29,7 @@ import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
+import net.seapanda.bunnyhop.model.node.event.BhNodeEventAgent.MouseEventInfo;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.service.BhService;
@@ -44,8 +47,9 @@ public class BhNodeController implements CmdProcessor {
 
   private final BhNode model;
   private final BhNodeView view;
-  private final DragAndDropEventInfo ddInfo = this.new DragAndDropEventInfo();
+  private final DndEventInfo ddInfo = this.new DndEventInfo();
   private final MsgProcessor msgProcessor = this.new MsgProcessor();
+  private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
 
   /**
    * コンストラクタ.
@@ -59,31 +63,23 @@ public class BhNodeController implements CmdProcessor {
     setEventHandlers();
   }
 
-  /**
-   * 引数で指定したノードに対応するビューに GUI イベントを伝播する.
-   *
-   * @param node イベントを伝播したい {@link BhNodeView} に対応する {@link BhNode}
-   * @param event 伝播したいイベント
-   */
-  private void propagateGuiEvent(BhNode node, Event event) {
-    if (node == null) {
-      return;
-    }
-    BhNodeView nodeView = BhService.cmdProxy().getBhNodeView(node);
-    nodeView.getEventManager().propagateEvent(event);
-    event.consume();
-  }
-
   /** 各種イベントハンドラをセットする. */
   private void setEventHandlers() {
     view.getEventManager().setOnMousePressed(this::onMousePressed);
     view.getEventManager().setOnMouseDragged(this::onMouseDragged);
     view.getEventManager().setOnDragDetected(this::onMouseDragDetected);
     view.getEventManager().setOnMouseReleased(this::onMouseReleased);
+    view.getEventManager().addEventFilter(
+        MouseEvent.ANY,
+        mouseEvent -> consumeIfNotAcceptable(mouseEvent));
   }
 
   /** マウスボタン押下時の処理. */
   private void  onMousePressed(MouseEvent event) {
+    if (!mouseCtrlLock.tryLock(event.getButton())) {
+      event.consume();
+      return;
+    }
     ModelExclusiveControl.lockForModification();
     try {
       if (!model.isMovable()) {
@@ -96,14 +92,16 @@ public class BhNodeController implements CmdProcessor {
         ddInfo.userOpe = new UserOperation();
       }
       view.getLookManager().drawShadow();
-      view.getPositionManager().toFront(true);
-      selectNode(event.isShiftDown());  //選択処理
-      javafx.geometry.Point2D mousePressedPos =
-          view.sceneToLocal(event.getSceneX(), event.getSceneY());
+      view.getPositionManager().toFront();
+      selectNode(event);  //選択処理
+      Point2D mousePressedPos = view.sceneToLocal(event.getSceneX(), event.getSceneY());
       ddInfo.mousePressedPos = new Vec2D(mousePressedPos.getX(), mousePressedPos.getY());
       ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
       view.setMouseTransparent(true);
       event.consume();
+    } catch (Throwable e) {
+      mouseCtrlLock.unlock();
+      throw e;
     } finally {
       ModelExclusiveControl.unlockForModification();
     }
@@ -111,47 +109,57 @@ public class BhNodeController implements CmdProcessor {
 
   /** マウスドラッグ時の処理. */
   private void onMouseDragged(MouseEvent event) {
-    if (ddInfo.propagateEvent) {
-      propagateGuiEvent(model.findParentNode(), event);
-      return;
-    }
-
-    if (event.isShiftDown()) {
-      event.setDragDetect(false);
+    if (!mouseCtrlLock.isLockedBy(event.getButton())) {
       event.consume();
       return;
     }
-
-    if (ddInfo.dragging) {
-      double diffX = event.getX() - ddInfo.mousePressedPos.x;
-      double diffY = event.getY() - ddInfo.mousePressedPos.y;
-      moveNodeOnWorkspace(diffX, diffY);
-      // ドラッグ検出されていない場合、強調は行わない. 子ノードがダングリングになっていないのに、重なったノード (入れ替え対象) だけが検出されるのを防ぐ
-      highlightOverlappedNode();
-      BhService.trashboxCtrl().auto(event.getSceneX(), event.getSceneY());
+    try {
+      if (ddInfo.propagateEvent) {
+        propagateGuiEvent(model.findParentNode(), event);
+        return;
+      }
+      if (event.isShiftDown()) {
+        event.setDragDetect(false);
+        event.consume();
+        return;
+      }
+      if (ddInfo.dragging) {
+        double diffX = event.getX() - ddInfo.mousePressedPos.x;
+        double diffY = event.getY() - ddInfo.mousePressedPos.y;
+        moveNodeOnWorkspace(diffX, diffY);
+        // ドラッグ検出されていない場合, 強調は行わない.
+        // 子ノードがダングリングになっていないのに, 重なったノード (入れ替え候補) が検出されるのを防ぐ
+        highlightOverlappedNode();
+        BhService.trashboxCtrl().auto(event.getSceneX(), event.getSceneY());
+      }
+      event.consume();
+    } catch (Throwable e) {
+      mouseCtrlLock.unlock();
+      throw e;
     }
-    event.consume();
   }
 
   /**
    * マウスドラッグを検出した時の処理.
    * 先に {@code onMouseDragged} が呼ばれ, ある程度ドラッグしたときにこれが呼ばれる.
    */
-  private void onMouseDragDetected(MouseEvent mouseEvent) {
+  private void onMouseDragDetected(MouseEvent event) {
+    if (!mouseCtrlLock.isLockedBy(event.getButton())) {
+      event.consume();
+      return;
+    }
     ModelExclusiveControl.lockForModification();
     try {
       if (ddInfo.propagateEvent) {
-        propagateGuiEvent(model.findParentNode(), mouseEvent);
+        propagateGuiEvent(model.findParentNode(), event);
         return;
       }
-
-      if (mouseEvent.isShiftDown()) {
-        mouseEvent.consume();
+      if (event.isShiftDown()) {
+        event.consume();
         return;
       }
-
       ddInfo.dragging = true;
-      //子ノードでかつ取り外し可能 -> 親ノードから切り離し, ダングリング状態へ
+      // 子ノードでかつ取り外し可能 -> 親ノードから切り離し, ダングリング状態へ
       if (model.isRemovable()) {
         ddInfo.latestParent = model.findParentNode();
         ddInfo.latestRoot = model.findRootNode();
@@ -164,22 +172,30 @@ public class BhNodeController implements CmdProcessor {
               ddInfo.userOpe);
         }
       }
-      mouseEvent.consume();
+      model.getEventAgent().execOnDragStarted(toEventInfo(event), ddInfo.userOpe);
+      view.getPositionManager().toFront();
+      event.consume();
+    } catch (Throwable e) {
+      mouseCtrlLock.unlock();
+      throw e;
     } finally {
       ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** マウスボタンを離したときの処理. */
-  private void onMouseReleased(MouseEvent mouseEvent) {
+  private void onMouseReleased(MouseEvent event) {
+    if (!mouseCtrlLock.isLockedBy(event.getButton())) {
+      event.consume();
+      return;
+    }
     ModelExclusiveControl.lockForModification();
     try {
       if (ddInfo.propagateEvent) {
-        propagateGuiEvent(model.findParentNode(), mouseEvent);
+        propagateGuiEvent(model.findParentNode(), event);
         ddInfo.propagateEvent = false;
         return;
       }
-
       if (ddInfo.currentOverlapped != null) {
         BhService.cmdProxy().switchPseudoClassActivation(
             ddInfo.currentOverlapped, BhConstants.Css.PSEUDO_OVERLAPPED, false);
@@ -194,8 +210,8 @@ public class BhNodeController implements CmdProcessor {
         //同一ワークスペース上で移動
         toSameWorkspace();
       }
-      view.getPositionManager().toFront(false);
-      deleteTrashedNode(mouseEvent);
+      view.getPositionManager().updateZpos();
+      deleteTrashedNode(event);
       BhService.compileErrNodeManager().updateErrorNodeIndicator(ddInfo.userOpe);
       BhService.compileErrNodeManager().unmanageNonErrorNodes(ddInfo.userOpe);
       BhService.derivativeCache().clearAll();
@@ -203,8 +219,9 @@ public class BhNodeController implements CmdProcessor {
       ddInfo.reset();
       view.setMouseTransparent(false);  // 処理が終わったので、元に戻しておく。
       BhService.trashboxCtrl().close();
-      mouseEvent.consume();
+      event.consume();
     } finally {
+      mouseCtrlLock.unlock();
       ModelExclusiveControl.unlockForModification();
     }
   }
@@ -215,7 +232,7 @@ public class BhNodeController implements CmdProcessor {
    * @param oldChildNode 入れ替え対象の古い子ノード
    */
   private void toChildNode(BhNode oldChildNode) {
-    boolean fromWs = model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
+    boolean fromWs = model.getState() == BhNode.State.ROOT_ON_WS;
     //ワークスペースから移動する場合
     if (fromWs) {
       ddInfo.userOpe.pushCmdOfSetPosOnWorkspace(
@@ -228,17 +245,17 @@ public class BhNodeController implements CmdProcessor {
     // 重なっているノードをこのノードと入れ替え
     final List<Swapped> swappedNodes =
         BhService.bhNodePlacer().replaceChild(oldChildNode, model, ddInfo.userOpe);
-    //接続変更時のスクリプト実行
+    // 接続変更時のスクリプト実行
     model.getEventAgent().execOnMovedToChild(
         ddInfo.latestParent, ddInfo.latestRoot, oldChildNode, ddInfo.userOpe);
 
     Vec2D posOnWs = BhService.cmdProxy().getPosOnWs(oldChildNode);
     double newXposInWs = posOnWs.x + BhConstants.LnF.REPLACED_NODE_SHIFT;
     double newYposInWs = posOnWs.y + BhConstants.LnF.REPLACED_NODE_SHIFT;
-    //重なっているノードをWSに移動
+    // 重なっているノードを WS に移動
     BhService.bhNodePlacer().moveToWs(
         oldChildNode.getWorkspace(), oldChildNode, newXposInWs, newYposInWs, ddInfo.userOpe);
-    //接続変更時のスクリプト実行
+    // 接続変更時のスクリプト実行
     oldChildNode.getEventAgent().execOnMovedFromChildToWs(
         oldParentOfReplaced, oldRootOfReplaced, model, false, ddInfo.userOpe);
     // 子ノード入れ替え時のスクリプト実行
@@ -270,7 +287,7 @@ public class BhNodeController implements CmdProcessor {
 
   /** 同一ワークスペースへの移動処理. */
   private void toSameWorkspace() {
-    if (ddInfo.dragging && (model.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS)) {
+    if (ddInfo.dragging && (model.getState() == BhNode.State.ROOT_ON_WS)) {
       ddInfo.userOpe.pushCmdOfSetPosOnWorkspace(
           ddInfo.posOnWorkspace, view.getPositionManager().getPosOnWorkspace(), model);
     }
@@ -281,7 +298,7 @@ public class BhNodeController implements CmdProcessor {
   private void deleteTrashedNode(MouseEvent mouseEvent) {
     boolean isInTrashboxArea = BhService.trashboxCtrl().isPointInTrashBoxArea(
         mouseEvent.getSceneX(), mouseEvent.getSceneY());
-    if (model.isRootDirectolyUnderWs() && isInTrashboxArea) {
+    if (model.isRootOnWs() && isInTrashboxArea) {
       model.getEventAgent().execOnDeletionRequested(
           new ArrayList<BhNode>() {{
             add(model);
@@ -298,10 +315,10 @@ public class BhNodeController implements CmdProcessor {
     }
   }
 
-  /** viewと重なっているBhNodeViewを強調する. */
+  /** view と重なっている BhNodeView を強調する. */
   private void highlightOverlappedNode() {
     if (ddInfo.currentOverlapped != null) {
-      //前回重なっていたものをライトオフ
+      // 前回重なっていたものをライトオフ
       BhService.cmdProxy().switchPseudoClassActivation(
           ddInfo.currentOverlapped, BhConstants.Css.PSEUDO_OVERLAPPED, false);
     }
@@ -309,7 +326,7 @@ public class BhNodeController implements CmdProcessor {
     List<BhNode> overlappedList = view.getRegionManager().searchForOverlappedModels();
     for (BhNode overlapped : overlappedList) {
       if (overlapped.canBeReplacedWith(model)) {  //このノードと入れ替え可能
-        //今回重なっているものをライトオン
+        // 今回重なっているものをライトオン
         BhService.cmdProxy().switchPseudoClassActivation(
             overlapped, BhConstants.Css.PSEUDO_OVERLAPPED, true);
         ddInfo.currentOverlapped = overlapped;
@@ -323,29 +340,32 @@ public class BhNodeController implements CmdProcessor {
    *
    * @param isShiftDown シフトボタンが押されている場合 true
    */
-  private void selectNode(boolean isShiftDown) {
-    if (isShiftDown) {
+  private void selectNode(MouseEvent event) {
+    // 右クリック
+    if (event.getButton() == MouseButton.SECONDARY) {
+      if (!model.isSelected()) {
+        model.getWorkspace().addSelectedNode(model, ddInfo.userOpe);
+      }
+      return;
+    }
+    // 左クリック
+    if (event.isShiftDown()) {
       if (model.isSelected()) {
         model.getWorkspace().removeSelectedNode(model, ddInfo.userOpe);
       } else {
         model.getWorkspace().addSelectedNode(model, ddInfo.userOpe);
       }
-    } else {
-      if (model.isSelected()) {
-        // 末尾ノードまで一気に選択
-        BhNode outerNode = model.findOuterNode(-1);
-        while (true) {
-          if (outerNode == model) {
-            break;
-          }
-          if (!outerNode.isSelected() && outerNode.isMovable()) {
-            model.getWorkspace().addSelectedNode(outerNode, ddInfo.userOpe);
-          }
-          outerNode = outerNode.findParentNode();
+    } else if (model.isSelected()) {
+      // 末尾ノードまで一気に選択
+      BhNode outerNode = model.findOuterNode(-1);
+      while (outerNode != model) {
+        if (!outerNode.isSelected() && outerNode.isMovable()) {
+          model.getWorkspace().addSelectedNode(outerNode, ddInfo.userOpe);
         }
-      } else {
-        model.getWorkspace().setSelectedNode(model, ddInfo.userOpe);
+        outerNode = outerNode.findParentNode();
       }
+    } else {
+      model.getWorkspace().setSelectedNode(model, ddInfo.userOpe);
     }
   }
 
@@ -362,6 +382,42 @@ public class BhNodeController implements CmdProcessor {
     }
   }
 
+  /**
+   * 引数で指定したノードに対応するビューに GUI イベントを伝播する.
+   *
+   * @param node イベントを伝播したい {@link BhNodeView} に対応する {@link BhNode}
+   * @param event 伝播したいイベント
+   */
+  private void propagateGuiEvent(BhNode node, Event event) {
+    if (node == null) {
+      return;
+    }
+    BhNodeView nodeView = BhService.cmdProxy().getBhNodeView(node);
+    nodeView.getEventManager().propagateEvent(event);
+    event.consume();
+  }
+
+  /** 受付不能なマウスイベントを consume する. */
+  private void consumeIfNotAcceptable(MouseEvent event) {
+    MouseButton button = event.getButton();
+    if (button != MouseButton.PRIMARY && button != MouseButton.SECONDARY) {
+      event.consume();
+    }
+  }
+
+  /** {@link MouseEvent} オブジェクトの情報を {@link MouseEventInfo} オブジェクトに格納して返す. */
+  private MouseEventInfo toEventInfo(MouseEvent event) {
+    return new MouseEventInfo(
+        event.getButton() == MouseButton.PRIMARY,
+        event.getButton() == MouseButton.SECONDARY,
+        event.getButton() == MouseButton.MIDDLE,
+        event.getButton() == MouseButton.BACK,
+        event.getButton() == MouseButton.FORWARD,
+        event.isShiftDown(),
+        event.isControlDown(),
+        event.isAltDown());
+  }
+
   @Override
   public CmdData process(BhCmd msg, CmdData data) {
     return msgProcessor.processMsg(msg, data);
@@ -370,7 +426,7 @@ public class BhNodeController implements CmdProcessor {
   /**
    * D&D 操作で使用する一連のイベントハンドラがアクセスするデータをまとめたクラス.
    */
-  private class DragAndDropEventInfo {
+  private class DndEventInfo {
     Vec2D mousePressedPos = null;
     Vec2D posOnWorkspace = null;
     /** 現在重なっている View. */

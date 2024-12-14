@@ -39,7 +39,7 @@ public class ConnectorConstructor {
   
   private final Element elem;
   /** コネクタアトリビュート取得用関数. */
-  private final Function<ConnectorParamSetId, Optional<ConnectorAttributes>> getCnctrAttr;
+  private final Function<ConnectorParamSetId, Optional<ConnectorAttributes>> fnGetCnctrAttr;
   /** {@link Connector} のパラメータの定義ファイルに書かれた JavaScript ファイルを保持する {@link BhScriptManager} オブジェクト. */
   private final BhScriptManager scriptManager;
 
@@ -47,16 +47,16 @@ public class ConnectorConstructor {
    * コンストラクタ.
    *
    * @param elem ConnectorParameterSet もしくは Connector エレメント.
-   * @param getCnctrAttr コネクタアトリビュート取得用関数
+   * @param fnGetCnctrAttr コネクタアトリビュート取得用関数
    * @param scriptManager {@link Connector} のパラメータの定義ファイルに書かれた
    *                      JavaScript ファイルを保持する {@link BhScriptManager} オブジェクト.
    */
   ConnectorConstructor(
       Element elem,
-      Function<ConnectorParamSetId, Optional<ConnectorAttributes>> getCnctrAttr,
+      Function<ConnectorParamSetId, Optional<ConnectorAttributes>> fnGetCnctrAttr,
       BhScriptManager scriptManager) {
     this.elem = elem;
-    this.getCnctrAttr = getCnctrAttr;
+    this.fnGetCnctrAttr = fnGetCnctrAttr;
     this.scriptManager = scriptManager;
   }
 
@@ -119,7 +119,7 @@ public class ConnectorConstructor {
         elem.getBaseURI(), cnctrAttrs.onConnectabilityChecking())) {
       return Optional.empty();
     }
-    ConnectorAttributes imported = getCnctrAttr.apply(cnctrAttrs.imports()).orElse(cnctrAttrs);
+    ConnectorAttributes imported = fnGetCnctrAttr.apply(cnctrAttrs.imports()).orElse(cnctrAttrs);
     // デフォルトノードの存在チェック.
     if (imported.defaultNodeId().equals(BhNodeId.NONE)
         && cnctrAttrs.defaultNodeId().equals(BhNodeId.NONE)) {

@@ -110,33 +110,33 @@ public final class TextFieldNodeView extends TextInputNodeView {
   }
 
   @Override
-  public void setTextChangeListener(Function<String, Boolean> checkFormatFunc) {
+  public void setTextChangeListener(Function<String, Boolean> fnCheckFormat) {
     textField.boundsInLocalProperty().addListener(
-        (observable, oldVal, newVal) -> updateTextFieldLook(checkFormatFunc));
+        (observable, oldVal, newVal) -> updateTextFieldLook(fnCheckFormat));
 
     // テキストの長さに応じてTextField の長さが変わるように
     textField.textProperty().addListener(
-        (observable, oldVal, newVal) ->  updateTextFieldLook(checkFormatFunc));
+        (observable, oldVal, newVal) ->  updateTextFieldLook(fnCheckFormat));
   }
 
   /**
    * テキストフィールドの見た目を変える.
    *
-   * @param checkFormatFunc テキストのフォーマットをチェックする関数
+   * @param fnCheckFormat テキストのフォーマットをチェックする関数
    */
-  private void updateTextFieldLook(Function<String, Boolean> checkFormatFunc) {
+  private void updateTextFieldLook(Function<String, Boolean> fnCheckFormat) {
     Text textPart = (Text) textField.lookup(".text");
     if (textPart == null) {
       return;
     }
-    // 正確な文字部分の境界を取得するため, GUI部品内部のTextの境界は使わない.
+    // 正確な文字部分の境界を取得するため, GUI 部品内部の Text の境界は使わない.
     double newWidth = ViewUtil.calcStrWidth(textPart.getText(), textPart.getFont());
     newWidth = Math.max(newWidth, viewStyle.textField.minWidth);
-    //幅を (文字幅 + パディング) にするとキャレットの移動時に文字が左右に移動するので定数 3 を足す.
-    //この定数はフォントやパディングが違っても機能する.
+    // 幅を (文字幅 + パディング) にするとキャレットの移動時に文字が左右に移動するので定数 3 を足す.
+    // この定数はフォントやパディングが違っても機能する.
     newWidth += textField.getPadding().getLeft() + textField.getPadding().getRight() + 3;
     textField.setPrefWidth(newWidth);
-    boolean acceptable = checkFormatFunc.apply(textPart.getText());
+    boolean acceptable = fnCheckFormat.apply(textPart.getText());
     textField.pseudoClassStateChanged(
         PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR), !acceptable);
   }

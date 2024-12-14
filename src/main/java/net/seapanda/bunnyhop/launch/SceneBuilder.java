@@ -34,6 +34,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.control.FoundationController;
 import net.seapanda.bunnyhop.control.MenuBarController;
 import net.seapanda.bunnyhop.control.workspace.TrashboxController;
@@ -91,7 +92,7 @@ public class SceneBuilder {
     stage.setScene(scene);
     stage.setTitle(BhConstants.APPLICATION_NAME);
     BhService.cmdProxy().addNewWorkspace(
-        BhConstants.LnF.INITIAL_WORKSPACE_NAME,
+        TextDefs.Workspace.initialWsName.get(),
         BhConstants.LnF.DEFAULT_WORKSPACE_WIDTH,
         BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT,
         new UserOperation());

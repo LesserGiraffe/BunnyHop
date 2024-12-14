@@ -1,7 +1,6 @@
 (function() {
   return [
-    ['first', '最初の'],
-    ['last', '最後の']
+    ['first', bhTextDb.get('node', 'array-index-of-ops', 'first')],
+    ['last', bhTextDb.get('node', 'array-index-of-ops', 'last')]
   ];
 })();
-  

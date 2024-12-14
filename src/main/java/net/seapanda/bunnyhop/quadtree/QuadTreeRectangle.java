@@ -37,10 +37,10 @@ public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
   /** 矩形の右下座標. */
   private Vec2D lowerRightPos;
   /** 位置が更新されたときに呼び出すメソッド. */
-  Consumer<QuadTreeRectangle> posUpdateHandler;
+  Consumer<QuadTreeRectangle> fnUpdatePos;
   /** このオブジェクトの矩形領域に重なっているQuadTreeRectangleを探すときに呼び出すメソッド. */
   BiFunction<QuadTreeRectangle, OverlapOption, ArrayList<QuadTreeRectangle>>
-      searchOverlappedHandler;
+      fnSearchOverlapped;
   /** この矩形に関連するオブジェクト. */
   private final Object userData;
   /** この矩形オブジェクトを保持する {@link QuadTreeManager} を取得する. */
@@ -90,8 +90,8 @@ public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
 
   /** 現在の位置で位置更新する. */
   public void updatePos() {
-    if (posUpdateHandler != null) {
-      posUpdateHandler.accept(this);
+    if (fnUpdatePos != null) {
+      fnUpdatePos.accept(this);
     }
   }
 
@@ -116,16 +116,16 @@ public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
   /**
    * コールバック関数を登録する.
    *
-   * @param posUpdate 位置更新時に呼び出すメソッド
-   * @param searchOverlapped このオブジェクトの矩形領域に重なっているQuadTreeRectangleを探すときに呼び出すメソッド
+   * @param fnUpdatePos 位置更新時に呼び出すメソッド
+   * @param fnSearchOverlapped このオブジェクトの矩形領域に重なっている {@link QuadTreeRectangle} を探すときに呼び出すメソッド
    */
   public void setCallBackFuncs(
-      Consumer<QuadTreeRectangle> posUpdate,
+      Consumer<QuadTreeRectangle> fnUpdatePos,
       BiFunction<QuadTreeRectangle, OverlapOption, ArrayList<QuadTreeRectangle>>
-          searchOverlapped) {
+          fnSearchOverlapped) {
 
-    posUpdateHandler = posUpdate;
-    searchOverlappedHandler = searchOverlapped;
+    this.fnUpdatePos = fnUpdatePos;
+    this.fnSearchOverlapped = fnSearchOverlapped;
   }
 
   /**
@@ -199,7 +199,7 @@ public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
    * @param option 検索オプション
    */
   public List<QuadTreeRectangle> searchOverlappedRects(OverlapOption option) {
-    return searchOverlappedHandler.apply(this, option);
+    return fnSearchOverlapped.apply(this, option);
   }
 
   /**

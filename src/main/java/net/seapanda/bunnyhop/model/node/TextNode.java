@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.model.node;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,7 +34,7 @@ import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Pair;
-import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
@@ -76,7 +77,7 @@ public class TextNode extends DerivativeBase<TextNode> {
 
   @Override
   public TextNode copy(
-      Predicate<? super BhNode> isNodeToBeCopied, UserOperation userOpe) {
+      Predicate<? super BhNode> fnIsNodeToBeCopied, UserOperation userOpe) {
     return new TextNode(this, userOpe);
   }
 
@@ -112,25 +113,24 @@ public class TextNode extends DerivativeBase<TextNode> {
    */
   public boolean isTextAcceptable(String text) {
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_TEXT_CHECKING);
-    Script checker =
-        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
-
+    Script checker = scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (checker == null) {
       return true;
     }
-    ScriptableObject scriptScope = getEventAgent().newDefaultScriptScope();
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_TEXT, text);
-    Object jsReturn = null;
+    Map<String, Object> nameToObj = new HashMap<>() {{
+        put(BhConstants.JsIdName.BH_TEXT, text);
+      }};
+    Context cx = Context.enter();
+    ScriptableObject scope = getEventAgent().createScriptScope(cx, nameToObj);
     try {
-      jsReturn = ContextFactory.getGlobal().call(cx -> checker.exec(cx, scriptScope));
+      return (Boolean) checker.exec(cx, scope);
     } catch (Exception e) {
-      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(
+          "'%s' must return a boolean value.\n%s".formatted(scriptName.get(), e));
+    } finally {
+      Context.exit();
     }
-
-    if (jsReturn instanceof Boolean) {
-      return (Boolean) jsReturn;
-    }
-    return false;
+    return true;
   }
 
   /**
@@ -139,36 +139,41 @@ public class TextNode extends DerivativeBase<TextNode> {
    * @param text 整形対象の全文字列
    * @param addedText 前回整形したテキストから新たに追加された文字列
    * @return v1 -> テキスト全体を整形した場合 true. 追加分だけ整形した場合 false.
-   *         v2 -> 整形したテキスト.
+   *         v2 -> 整形した部分のテキスト.
    */
   public Pair<Boolean, String> formatText(String text, String addedText) {
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_TEXT_FORMATTING);
     Script formatter = scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
-
     if (formatter == null) {
       return new Pair<Boolean, String>(false, addedText);
     }
-    ScriptableObject scriptScope = getEventAgent().newDefaultScriptScope();
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_TEXT, text);
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_ADDED_TEXT, addedText);
+    Map<String, Object> nameToObj = new HashMap<>() {{
+        put(BhConstants.JsIdName.BH_TEXT, text);
+        put(BhConstants.JsIdName.BH_ADDED_TEXT, addedText);
+      }};
+    Context cx = Context.enter();
+    ScriptableObject scope = getEventAgent().createScriptScope(cx, nameToObj);
     try {
-      NativeObject jsObj = (NativeObject) ContextFactory.getGlobal().call(
-          cx -> formatter.exec(cx, scriptScope));
+      NativeObject jsObj = (NativeObject) formatter.exec(cx, scope);
       Boolean isEntireTextFormatted =
-          (Boolean) jsObj.get(BhConstants.JsKeyword.KEY_BH_IS_ENTIRE_TEXT_FORMATTED);
-      String formattedText = (String) jsObj.get(BhConstants.JsKeyword.KEY_BH_FORMATTED_TEXT);
+          (Boolean) jsObj.get(BhConstants.JsIdName.BH_IS_ENTIRE_TEXT_FORMATTED);
+      String formattedText = (String) jsObj.get(BhConstants.JsIdName.BH_FORMATTED_TEXT);
       return new Pair<Boolean, String>(isEntireTextFormatted, formattedText);
     } catch (Exception e) {
-      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(
+          "Invalid text formatter  (%s).\n%s".formatted(scriptName.get(), e));
+    } finally {
+      Context.exit();
     }
     return new Pair<Boolean, String>(false, addedText);
   }
-  
+
   /**
    * このノードが保持する可能性のあるテキストデータのリストを取得する.
    *
    * @return [ (モデルが保持するテキスト 0, ビューが保持するオブジェクト 0), 
-   *           (モデルが保持するテキスト 1, ビューが保持するオブジェクト 1), ... ]
+   *           (モデルが保持するテキスト 1, ビューが保持するオブジェクト 1),
+   *           ... ]
    */
   public List<Pair<String, Object>> getOptions() {
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_VIEW_OPTIONS_CREATING);
@@ -178,17 +183,18 @@ public class TextNode extends DerivativeBase<TextNode> {
     if (creator == null) {
       return options;
     }
-
-    ScriptableObject scriptScope = getEventAgent().newDefaultScriptScope();
+    Context cx = Context.enter();
+    ScriptableObject scriptScope = getEventAgent().createScriptScope(cx);
     try {
-      List<?> contents =
-          (List<?>) ContextFactory.getGlobal().call(cx -> creator.exec(cx, scriptScope));
+      List<?> contents = (List<?>) creator.exec(cx, scriptScope);
       for (Object content : contents) {
         List<?> modelAndView = (List<?>) content;
         options.add(new Pair<>(modelAndView.get(0).toString(), modelAndView.get(1)));
       }
     } catch (Exception e) {
       BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
+    } finally {
+      Context.exit();
     }
     return options;
   }

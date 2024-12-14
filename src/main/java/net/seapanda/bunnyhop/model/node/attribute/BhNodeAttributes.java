@@ -16,7 +16,11 @@
 
 package net.seapanda.bunnyhop.model.node.attribute;
 
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.service.BhService;
 import org.w3c.dom.Element;
 
 /**
@@ -41,7 +45,19 @@ public record BhNodeAttributes(
     String onCompileErrorChecking,
     String onTextOptionsCreating,
     String onTemplateCreated,
+    String onDragStarted,
     String initialText) {
+
+  private static Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
+  private static Pattern escapeRbrace = Pattern.compile(Pattern.quote("\\}"));
+  /** `\\...\$` */
+  private static Pattern escapeDollar = Pattern.compile("^(\\\\)+\\$");
+  /** テキスト DB 参照パターン `${a}{b}...{z}` */
+  private static Pattern embeded =
+      Pattern.compile("^\\$(\\{(((\\\\\\{)|(\\\\\\})|[^\\{\\}])*)\\})+$");
+  /** テキスト DB 参照パターン `${a}{b}...{z}` の (a, b, ..., z) を取り出す用. */
+  private static Pattern contents =
+      Pattern.compile("\\{((?:(?:\\\\\\{)|(?:\\\\\\})|[^\\{\\}])*)\\}");
 
   /**
    * Node タグが持つ属性一覧を読み取る.
@@ -69,7 +85,8 @@ public record BhNodeAttributes(
     String onTextOptionsCreating = 
         elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_TEST_OPTIONS_CREATING);
     String onTemplateCreated = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_TEMPLATE_CREATED);
-    String initialText = elem.getAttribute(BhConstants.BhModelDef.ATTR_INITIAL_TEXT);
+    String onDragStarted = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_DRAG_STARTED);
+    String initialText = getInitialText(elem);
     var version = BhNodeVersion.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_VERSION));
 
     return new BhNodeAttributes(
@@ -89,6 +106,26 @@ public record BhNodeAttributes(
         onCompileErrorChecking,
         onTextOptionsCreating,
         onTemplateCreated,
+        onDragStarted,
         initialText);
+  }
+
+  private static String getInitialText(Element elem) {
+    String value = elem.getAttribute(BhConstants.BhModelDef.ATTR_INITIAL_TEXT);
+    if (embeded.matcher(value).find()) {
+      Matcher matcher = contents.matcher(value);
+      List<String> textId = matcher.results().map(
+          result -> {  
+            String tmp = escapeLbrace.matcher(result.group(1)).replaceAll("{");
+            return escapeRbrace.matcher(tmp).replaceAll("}");
+          }).toList();
+      return BhService.textDb().get(textId);
+    }
+
+    if (escapeDollar.matcher(value).find()) {
+      return value.substring(1);
+    }
+
+    return value;
   }
 }

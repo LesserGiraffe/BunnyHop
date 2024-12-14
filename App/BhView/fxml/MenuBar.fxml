@@ -4,32 +4,45 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
+<?import net.seapanda.bunnyhop.common.TextFetcher?>
 
 <MenuBar 
   xmlns:fx="http://javafx.com/fxml"
   fx:controller="net.seapanda.bunnyhop.control.MenuBarController"
   fx:id="menuBar">
+  <fx:define>
+    <TextFetcher fx:id="fileText" textId="gui,menu-bar,file"/>
+    <TextFetcher fx:id="loadText" textId="gui,menu-bar,load"/>
+    <TextFetcher fx:id="saveText" textId="gui,menu-bar,save"/>
+    <TextFetcher fx:id="saveAsText" textId="gui,menu-bar,save-as"/>
+    <TextFetcher fx:id="operationText" textId="gui,menu-bar,operation"/>
+    <TextFetcher fx:id="freeMemoryText" textId="gui,menu-bar,free-memory"/>
+    <TextFetcher fx:id="settingsText" textId="gui,menu-bar,settings"/>
+    <TextFetcher fx:id="focusSimulatorText" textId="gui,menu-bar,focus-simulator"/>
+    <TextFetcher fx:id="helpText" textId="gui,menu-bar,help"/>
+    <TextFetcher fx:id="aboutBunnyHopText" textId="gui,menu-bar,about-bunnyhop"/>
+  </fx:define>
   <menus>
-    <Menu text="ファイル">
+    <Menu text="$fileText.text">
       <items>
-        <MenuItem fx:id="loadMenu" text="ファイルを開く"/>
-        <MenuItem fx:id="saveMenu" text="上書き保存"/>
-        <MenuItem fx:id="saveAsMenu" text="名前を付けて保存"/>
+        <MenuItem fx:id="load" text="$loadText.text"/>
+        <MenuItem fx:id="save" text="$saveText.text"/>
+        <MenuItem fx:id="saveAs" text="$saveAsText.text"/>
       </items>
     </Menu>
-    <Menu text="操作">
+    <Menu text="$operationText.text">
       <items>
-        <MenuItem fx:id="freeMemory" text="メモリ解放"/>
+        <MenuItem fx:id="freeMemory" text="$freeMemoryText.text"/>
       </items>
     </Menu>
-      <Menu text="設定">
+      <Menu text="$settingsText.text">
       <items>
-        <MenuItem fx:id="focusSimulator" text="プログラム開始時にシミュレータを表示する"/>
+        <MenuItem fx:id="focusSimulator" text="$focusSimulatorText.text"/>
       </items>
     </Menu>
-    <Menu text="ヘルプ">
+    <Menu text="$helpText.text">
       <items>
-        <MenuItem fx:id="aboutBunnyHop" text="BunnyHopについて"/>
+        <MenuItem fx:id="aboutBunnyHop" text="$aboutBunnyHopText.text"/>
       </items>
     </Menu>
   </menus>

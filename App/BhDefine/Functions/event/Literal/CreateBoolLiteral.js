@@ -1,6 +1,6 @@
 (function() {
   return [
-    ['true', '真'],
-    ['false', '偽']
+    ['true', bhTextDb.get('node', 'bool-literal', 'true')],
+    ['false', bhTextDb.get('node', 'bool-literal', 'false')]
   ];
 })();

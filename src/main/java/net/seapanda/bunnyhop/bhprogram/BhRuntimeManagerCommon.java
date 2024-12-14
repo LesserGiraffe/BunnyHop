@@ -39,8 +39,9 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent.Name;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessor;
-import net.seapanda.bunnyhop.bhprogram.message.BhProgramTransceiver;
+import net.seapanda.bunnyhop.bhprogram.message.BhRuntimeTransceiver;
 import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
@@ -50,17 +51,17 @@ import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
  *
  * @author K.Koike
  */
-class BhProgramManagerCommon {
+class BhRuntimeManagerCommon {
   /** BhProgram実行用. */
   private final ExecutorService runBhProgramExec = Executors.newSingleThreadExecutor();
   /** 接続, 切断処理用. */
-  private final ExecutorService connectTaskExec = Executors.newSingleThreadExecutor();
+  private final ExecutorService connectionExec = Executors.newSingleThreadExecutor();
   /** プロセス終了用. */
   private final ExecutorService terminationExec = Executors.newSingleThreadExecutor();
   /** BhProgram の実行環境から受信したデータを処理するオブジェクト. */
   private final BhProgramMessageDispatcher dispatcher;
 
-  public BhProgramManagerCommon(SimulatorCmdProcessor simCmdProcessor) {
+  public BhRuntimeManagerCommon(SimulatorCmdProcessor simCmdProcessor) {
     dispatcher = new BhProgramMessageDispatcher(new BhProgramMessageProcessor(), simCmdProcessor);
   }
 
@@ -105,10 +106,11 @@ class BhProgramManagerCommon {
   Future<Boolean> connectAsync() {
     var xcvr = dispatcher.getTransceiver();
     if (xcvr.isEmpty()) {
-      BhService.msgPrinter().errForUser("!! 接続失敗 (プログラム未実行) !!\n");
-      return connectTaskExec.submit(() -> false);
+      BhService.msgPrinter().errForUser(
+          TextDefs.BhRuntime.Communication.noRuntimeToConnectTo.get());
+      return connectionExec.submit(() -> false);
     }
-    return connectTaskExec.submit(() -> xcvr.get().connect());
+    return connectionExec.submit(() -> xcvr.get().connect());
   }
 
   /**
@@ -119,10 +121,11 @@ class BhProgramManagerCommon {
   Future<Boolean> disconnectAsync() {
     var xcvr = dispatcher.getTransceiver();
     if (xcvr.isEmpty()) {
-      BhService.msgPrinter().errForUser("!! 切断失敗 (プログラム未実行) !!\n");
-      return connectTaskExec.submit(() -> false);
+      BhService.msgPrinter().errForUser(
+          TextDefs.BhRuntime.Communication.noRuntimeToDisconnectFrom.get());
+      return connectionExec.submit(() -> false);
     }
-    return connectTaskExec.submit(() -> xcvr.get().disconnect());
+    return connectionExec.submit(() -> xcvr.get().disconnect());
   }
 
   /**
@@ -182,13 +185,13 @@ class BhProgramManagerCommon {
    */
   boolean end() {
     runBhProgramExec.shutdownNow();
-    connectTaskExec.shutdownNow();
+    connectionExec.shutdownNow();
     terminationExec.shutdownNow();
     boolean success = true;
     try {
       success &= runBhProgramExec.awaitTermination(
           BhConstants.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
-      success &= connectTaskExec.awaitTermination(
+      success &= connectionExec.awaitTermination(
           BhConstants.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
       success &= terminationExec.awaitTermination(
           BhConstants.EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
@@ -218,11 +221,12 @@ class BhProgramManagerCommon {
    * @return 正常に BhProgram を開始できた場合 true
    */
   boolean runBhProgram(String fileName, String ipAddr, InputStream is) {
-    BhService.msgPrinter().infoForUser("-- 通信準備中 --\n");
+    BhService.msgPrinter().infoForUser(
+        TextDefs.BhRuntime.Communication.preparingToCommunicate.get());
     boolean success = true;
     try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
       BhProgramHandler programHandler = getBhProgramHandler(ipAddr, br);
-      var transceiver = new BhProgramTransceiver(programHandler);
+      var transceiver = new BhRuntimeTransceiver(programHandler);
       dispatcher.replaceTransceiver(transceiver).ifPresent(old -> old.halt());
       transceiver.start();
       success &= transceiver.connect();
@@ -232,7 +236,8 @@ class BhProgramManagerCommon {
       success &= false;
     }
     if (!success) {
-      BhService.msgPrinter().errForUser("!! 通信準備失敗 !!\n");
+      BhService.msgPrinter().errForUser(
+          TextDefs.BhRuntime.Communication.failedToEstablishConnection.get());
     }
     return success;
   }

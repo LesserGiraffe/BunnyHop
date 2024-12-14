@@ -32,7 +32,7 @@ import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
  */
 public class Preprocessor {
 
-  private static final Map<String, Consumer<SyntaxSymbol>> NODE_NAME_TO_PREPROCESSOR_FUNC =
+  private static final Map<String, Consumer<SyntaxSymbol>> NODE_NAME_TO_PREPROCESSOR =
       new HashMap<>() {{
           put(SymbolNames.PreDefFunc.ANY_ARRAY_TO_STR_EXP, Preprocessor::procAnyArrayToStrExp);
         }
@@ -47,7 +47,7 @@ public class Preprocessor {
 
     // コールバック登録
     CallbackInvoker.CallbackRegistry callbacks = CallbackInvoker.newCallbackRegistry();
-    NODE_NAME_TO_PREPROCESSOR_FUNC.entrySet().forEach(
+    NODE_NAME_TO_PREPROCESSOR.entrySet().forEach(
         nodeIdAndFunc -> callbacks.set(nodeIdAndFunc.getKey(), nodeIdAndFunc.getValue()));
 
     // コールバック呼び出し

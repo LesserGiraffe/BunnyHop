@@ -1,5 +1,5 @@
 {
-  "動作" : {
+  "${node-category}{action}" : {
     "cssClass" : "action",
     "contents":[
       "idMoveStat",
@@ -13,7 +13,7 @@
       "idGetTimeSinceProgramStartedExp"]
   },
 
-  "数値" : {
+  "${node-category}{number}" : {
     "cssClass":"numOpe",
     "contents":[
       "idNumLiteralExp", 
@@ -29,7 +29,7 @@
       "idGetTimeSinceProgramStartedExp"]
   },
 
-  "文字列": {
+  "${node-category}{string}": {
     "cssClass":"strOpe",
     "contents":[
       "idStrLiteralExp", 
@@ -41,7 +41,7 @@
       "idSayStat"]
   },
   
-  "論理": {
+  "${node-category}{boolean}": {
     "cssClass":"boolOpe",
     "contents":[
       "idBoolLiteralExp", 
@@ -54,7 +54,7 @@
       "idAnySetCompExp"]
   },
 
-  "音": {
+  "${node-category}{sound}": {
     "cssClass":"soundOpe",
     "contents":[
       "idScaleSoundLiteral",
@@ -62,7 +62,7 @@
       "idPlayMelodyStat"]
   },
   
-  "色": {
+  "${node-category}{color}": {
     "cssClass":"colorOpe",
     "contents":[
       "idColorLiteralExp",
@@ -71,7 +71,7 @@
       "idLightEyeStat"]
   },
 
-  "制御" : {
+  "${node-category}{control}" : {
     "cssClass":"control",
     "contents":[
       "idIfStat", 
@@ -83,7 +83,7 @@
       "idCompoundStat"]
   },
   
-  "変数 / リスト": {
+  "${node-category}{variable}": {
     "cssClass":"varAndList",
     "contents":[
       "idNumVarDecl",
@@ -99,21 +99,21 @@
     ]
   },
 
-  "機能作成" : {
+  "${node-category}{func-def}": {
     "cssClass":"funcDef",
     "contents":["idVoidFuncDef", "idReturnStat"]
   },
   
-  "イベント" : {
+  "${node-category}{event}" : {
     "cssClass":"concurrent",
     "contents":[
       "idKeyPressedEvent",
       "idDelayedStartEvent",
-      "idCriticalSectionDecl",
+      "idMutexBlockDecl",
       "idSyncTimerDecl"]
   },
   
-  "その他" : {
+  "${node-category}{misc}" : {
     "cssClass":"misc",
     "contents":["idCommentPart"]
   }

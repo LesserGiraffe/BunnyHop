@@ -21,6 +21,7 @@ import java.util.Optional;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.model.NodeGraphSnapshot;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
@@ -83,9 +84,9 @@ public class CompileNodeCollector {
     }
     Optional<ButtonType> btnType = BhService.msgPrinter().alert(
         Alert.AlertType.CONFIRMATION,
-        "コンパイルエラーノードの削除",
+        TextDefs.Compile.AskIfDeleteErrNodes.title.get(),
         null,
-        "コンパイルエラーノードを削除してもよろしいですか?\n「いいえ」を選択した場合、実行を中止します",
+        TextDefs.Compile.AskIfDeleteErrNodes.body.get(),
         ButtonType.NO,
         ButtonType.YES);
 
@@ -117,7 +118,11 @@ public class CompileNodeCollector {
     }
     List<BhNode> selectedNodeList = ws.getSelectedNodeList();
     if (selectedNodeList.isEmpty()) {
-      BhService.msgPrinter().alert(AlertType.ERROR, "実行対象の選択", null, "実行対象を一つ選択してください");
+      BhService.msgPrinter().alert(
+          AlertType.ERROR,
+          TextDefs.Compile.InformSelectNodeToExecute.title.get(),
+          null,
+          TextDefs.Compile.InformSelectNodeToExecute.body.get());
       return Optional.empty();
     }
     // 実行対象以外を非選択に.

@@ -22,6 +22,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.InputTextResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.OutputTextResp;
+import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.service.BhService;
 
 /**
@@ -51,9 +52,10 @@ public class BhProgramMessageProcessor {
    */
   public void process(InputTextResp resp) {
     if (!resp.success) {
-      String msg = "テキストの送信に失敗しました.  (%s)".formatted(resp.text);
-      BhService.msgPrinter().infoForUser(msg + "\n");
-      BhService.msgPrinter().errForDebug(msg);
+      BhService.msgPrinter().infoForUser(
+          TextDefs.BhRuntime.Communication.failedToProcessText.get(resp.text));
+      BhService.msgPrinter().errForDebug(
+          "Failed to process a text data.  (%s)".formatted(resp.text));
     }
   }
 

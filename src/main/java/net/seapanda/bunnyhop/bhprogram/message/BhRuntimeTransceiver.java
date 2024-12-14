@@ -33,15 +33,16 @@ import net.seapanda.bunnyhop.bhprogram.common.BhProgramHandler;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.utility.SynchronizingTimer;
 
 /**
- * BhProgram と通信をするクラス.
+ * BhProgram の実行環境と通信をするクラス.
  *
  * @author K.Koike
  */
-public class BhProgramTransceiver {
+public class BhRuntimeTransceiver {
 
   private static final AtomicInteger nextId = new AtomicInteger(0);
   /** 接続状態. */
@@ -78,7 +79,7 @@ public class BhProgramTransceiver {
    *
    * @param programHandler BhProgram と BunnyHop 間でデータを送受信するオブジェクト
    */
-  public BhProgramTransceiver(BhProgramHandler programHandler) {
+  public BhRuntimeTransceiver(BhProgramHandler programHandler) {
     this.programHandler = programHandler;
     id = nextId.getAndIncrement();
   }
@@ -94,19 +95,19 @@ public class BhProgramTransceiver {
       connectionWait.reset(0);
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
-      BhService.msgPrinter().errForUser("!! 接続失敗 !!\n");
+      BhService.msgPrinter().errForUser(TextDefs.BhRuntime.Communication.failedToConnect.get());
       BhService.msgPrinter().errForDebug("Failed to connect to BhRuntime.\n" + e);
       return false;
     }
     connected.set(true);
-    BhService.msgPrinter().infoForUser("-- 接続完了 --\n");
+    BhService.msgPrinter().infoForUser(TextDefs.BhRuntime.Communication.hasConnected.get());
     return true;
   }
 
   /**
    * BhProgram の実行環境と通信を行わないようにする.
    *
-   * @return 接続に成功した場合 true
+   * @return 切断に成功した場合 true
    */
   public synchronized boolean disconnect() {
     try {
@@ -114,12 +115,12 @@ public class BhProgramTransceiver {
       connectionWait.reset(1);
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
-      BhService.msgPrinter().errForUser("!! 切断失敗 !!\n");
+      BhService.msgPrinter().errForUser(TextDefs.BhRuntime.Communication.failedToDisconnect.get());
       BhService.msgPrinter().errForDebug("Failed to disconnect from BhRuntime\n" + e);
       return false;
     }
     connected.set(false);
-    BhService.msgPrinter().infoForUser("-- 切断完了 --\n");
+    BhService.msgPrinter().infoForUser(TextDefs.BhRuntime.Communication.hasDisconnected.get());
     return true;
   }
 

@@ -1,8 +1,8 @@
 <Node
   type="connective"
-  bhNodeID="idCriticalSectionStat"
-  name="CriticalSectionStat"
-  nodeStyleID="CriticalSectionStat.json"
+  bhNodeID="idMutexBlockStat"
+  name="MutexBlockStat"
+  nodeStyleID="MutexBlockStat.json"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
@@ -13,18 +13,18 @@
   <ConnectorSection name="StatSctn">
 
     <Connector
-      bhConnectorID="idCriticalSectionStat.cnctr0"
+      bhConnectorID="idMutexBlockStat.cnctr0"
       import="idAnyFixedCnctr"
-      name="CriticalSectionName"
+      name="MutexBlockName"
       derivativeJoint="dervJointVarName"/>
 
     <Connector
-      bhConnectorID="idCriticalSectionStat.cnctr1"
+      bhConnectorID="idMutexBlockStat.cnctr1"
       import="idStatCnctr"
       name="ExclusiveStat"/>
 
     <Connector
-      bhConnectorID="idCriticalSectionStat.cnctr2"
+      bhConnectorID="idMutexBlockStat.cnctr2"
       import="idStatCnctr"
       name="NextStat"/>
 

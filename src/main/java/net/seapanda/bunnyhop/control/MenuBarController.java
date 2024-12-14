@@ -27,6 +27,7 @@ import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhSettings;
+import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
@@ -40,9 +41,9 @@ import net.seapanda.bunnyhop.utility.Utility;
 public class MenuBarController {
 
   @FXML private MenuBar menuBar;
-  @FXML private MenuItem loadMenu;
-  @FXML private MenuItem saveMenu;
-  @FXML private MenuItem saveAsMenu;
+  @FXML private MenuItem load;
+  @FXML private MenuItem save;
+  @FXML private MenuItem saveAs;
   @FXML private MenuItem aboutBunnyHop;
   @FXML private MenuItem freeMemory;
   @FXML private MenuItem focusSimulator;
@@ -55,9 +56,9 @@ public class MenuBarController {
    * @param wss ワークスペースセット
    */
   public void initialize(WorkspaceSet wss) {
-    saveAsMenu.setOnAction(action -> saveAs(wss)); // セーブ(新規保存)
-    saveMenu.setOnAction(action -> save(wss)); // 上書きセーブ
-    loadMenu.setOnAction(action -> load(wss));
+    saveAs.setOnAction(action -> saveAs(wss)); // セーブ(新規保存)
+    save.setOnAction(action -> save(wss)); // 上書きセーブ
+    load.setOnAction(action -> load(wss));
     freeMemory.setOnAction(action -> freeMemory());
     aboutBunnyHop.setOnAction(action -> showBunnyHopInfo());
     focusSimulator.setOnAction(action -> switchSimFocusSetting());
@@ -76,9 +77,9 @@ public class MenuBarController {
     if (wss.getWorkspaceList().isEmpty()) {
       BhService.msgPrinter().alert(
           Alert.AlertType.INFORMATION,
-          "名前を付けて保存",
+          TextDefs.Export.InformNoWsToSave.title.get(),
           null,
-          "保存すべきワークスペースがありません");
+          TextDefs.Export.InformNoWsToSave.body.get());
       return false;
     }
 
@@ -98,7 +99,7 @@ public class MenuBarController {
    */
   private Optional<File> getFileToSave() {
     FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle("名前を付けて保存");
+    fileChooser.setTitle(TextDefs.Export.FileChooser.title.get());
     fileChooser.setInitialDirectory(getInitDir());
     fileChooser.getExtensionFilters().addAll(
       new FileChooser.ExtensionFilter("BunnyHop Files", "*.bnh"),
@@ -117,9 +118,9 @@ public class MenuBarController {
     if (wss.getWorkspaceList().isEmpty()) {
       BhService.msgPrinter().alert(
           Alert.AlertType.INFORMATION,
-          "上書き保存",
+          TextDefs.Export.InformNoWsToSave.title.get(),
           null,
-          "保存すべきワークスペースがありません");
+          TextDefs.Export.InformNoWsToSave.body.get());
       return false;
     }
 
@@ -138,7 +139,7 @@ public class MenuBarController {
   /** ロードボタン押下時の処理. */
   private void load(WorkspaceSet wss) {
     FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle("開く");
+    fileChooser.setTitle(TextDefs.Import.FileChooser.title.get());
     fileChooser.setInitialDirectory(getInitDir());
     fileChooser.getExtensionFilters().addAll(
       new FileChooser.ExtensionFilter("BunnyHop Files", "*.bnh"),
@@ -179,14 +180,14 @@ public class MenuBarController {
    * @retval empty どちらも選択されなかった場合
    */
   private Optional<Boolean> askIfClearOldWs() {
-    String title = "ファイルのロード方法";
-    String content = "既存のワークスペースに追加する場合は [%s]\n既存のワークスペースを全て削除する場合は [%s]"
-        .formatted(ButtonType.YES.getText(), ButtonType.NO.getText());
+    String title = TextDefs.Import.AskIfClearOldWs.title.get();
+    String body = TextDefs.Import.AskIfClearOldWs.body.get(
+        ButtonType.YES.getText(), ButtonType.NO.getText());
     Optional<ButtonType> buttonType = BhService.msgPrinter().alert(
         AlertType.CONFIRMATION,
         title,
         null,
-        content,
+        body,
         ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 
     return buttonType.flatMap(type -> {
@@ -204,7 +205,7 @@ public class MenuBarController {
     ModelExclusiveControl.lockForModification();
     try {
       BhService.undoRedoAgent().deleteCommands();
-      BhService.msgPrinter().infoForUser("メモリを解放しました\n");
+      BhService.msgPrinter().infoForUser(TextDefs.MenubarOps.freeMemory.get());
       System.gc();
     } finally {
       ModelExclusiveControl.unlockForModification();
@@ -215,9 +216,9 @@ public class MenuBarController {
   private void showBunnyHopInfo() {
     BhService.msgPrinter().alert(
         Alert.AlertType.INFORMATION,
-        "BunnyHopについて",
+        TextDefs.MenubarOps.bunnyHopDetails.get(),
         null,
-        "Version: " + BhConstants.appVersion);
+        "Version: " + BhConstants.APP_VERSION);
   }
 
   /** BhProgram 実行時にシミュレータにフォーカスするかどうかを切り替える. */
@@ -239,11 +240,11 @@ public class MenuBarController {
   public void fireEvent(MenuBarItem op) {
     switch (op) {
       case SAVE:
-        saveMenu.fire();
+        save.fire();
         break;
 
       case SAVE_AS:
-        saveAsMenu.fire();
+        saveAs.fire();
         break;
 
       case FREE_MEMORY:

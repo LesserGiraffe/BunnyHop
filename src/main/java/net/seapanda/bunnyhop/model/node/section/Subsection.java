@@ -59,10 +59,10 @@ public class Subsection extends Section {
 
   @Override
   public Subsection copy(
-      Predicate<? super BhNode> isNodeToBeCopied, UserOperation userOpe) {
+      Predicate<? super BhNode> fnIsNodeToBeCopied, UserOperation userOpe) {
     Subsection newSubsection = new Subsection(this);
     subsectionList.forEach(section -> {
-      Section newSection = section.copy(isNodeToBeCopied, userOpe);
+      Section newSection = section.copy(fnIsNodeToBeCopied, userOpe);
       newSection.setParent(newSubsection);
       newSubsection.subsectionList.add(newSection);
     });

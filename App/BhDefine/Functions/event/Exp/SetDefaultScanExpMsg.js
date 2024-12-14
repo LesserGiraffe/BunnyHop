@@ -1,5 +1,5 @@
 (function() {
   let msg = bhThis.findSymbolInDescendants('*', 'Arg0', '*', '*', 'Literal', '*');
-  msg.setText('入力待ちです');
+  msg.setText(bhTextDb.get('node', 'scan-exp', 'prompt-text'));
 })();
   

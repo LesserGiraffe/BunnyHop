@@ -34,17 +34,24 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane.TabDragPolicy;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
+import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.BhSettings;
+import net.seapanda.bunnyhop.common.Rem;
+import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
@@ -65,6 +72,7 @@ import net.seapanda.bunnyhop.view.traverse.CallbackInvoker;
  * @author K.Koike
  */
 public class WorkspaceView extends Tab {
+
   /** 操作対象のビュー. */
   private @FXML ScrollPane wsScrollPane;
   /** {@link BhNode} を保持するペイン. */
@@ -75,18 +83,23 @@ public class WorkspaceView extends Tab {
   private @FXML Pane wsWrapper;
   /** 矩形選択用ビュー. */
   private @FXML Polygon rectSelTool;
+  /** タブ名ラベル. */
+  private @FXML Label tabNameLabel;
+  /** タブ名入力テキストフィールド. */
+  private @FXML TextField tabNameTextField;
+
   private final Workspace workspace;
-  private final Vec2D minPaneSize = new Vec2D(0.0, 0.0);
+  private final Vec2D minPaneSize;
   /** このワークスペースにあるルートノードビューとルートノード以下のノードを持つGorupオブジェクトのマップ. */
-  private final Map<BhNodeView, Group> rootNodeToGroup = new HashMap<>();
+  private Map<BhNodeView, Group> rootNodeToGroup = new HashMap<>();
   /** ノードの本体部分の重なり判定に使う4 分木管理クラス. */
   private QuadTreeManager quadTreeMngForBody;
   /** ノードのコネクタ部分の重なり判定に使う4 分木管理クラス. */
   private QuadTreeManager quadTreeMngForConnector;
   /** ワークスペースの拡大/縮小の段階. */
-  int zoomLevel = 0;
+  private int zoomLevel = 0;
   /** ワークスペースの大きさの段階. */
-  int workspaceSizeLevel = 0;
+  private int workspaceSizeLevel = 0;
 
   /**
    * コンストラクタ.
@@ -98,17 +111,24 @@ public class WorkspaceView extends Tab {
   public WorkspaceView(Workspace workspace, double width, double height)
       throws ViewInitializationException {
     this.workspace = workspace;
-    init(width, height);
+    minPaneSize = new Vec2D(width, height);
+    configurGuiComponents();
+    quadTreeMngForBody =
+        new QuadTreeManager(BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
+    quadTreeMngForConnector =
+        new QuadTreeManager(BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
+    drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
   }
 
   /**
-   * 初期化処理を行う.
+   * GUI 部品の設定を行う.
    *
    * @param width ワークスペースの初期幅
    * @param height ワークスペースの初期高さ
    * @return 初期化に成功した場合 true
    */
-  private void init(double width, double height) throws ViewInitializationException {
+  private void configurGuiComponents()
+      throws ViewInitializationException {
     try {
       Path filePath = BhService.fxmlCollector().getFilePath(BhConstants.Path.WORKSPACE_FXML);
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
@@ -119,26 +139,9 @@ public class WorkspaceView extends Tab {
       throw new ViewInitializationException(
         "Failed to initizlize %s.\n%s".formatted(getClass().getSimpleName(), e));
     }
-    setErrInfoPaneListener();
-    minPaneSize.x = width;
-    minPaneSize.y = height;
-    //タブの中の部分のサイズを決める. スクロールバーが表示されなくなるので setPrefSize() は使わない.
-    errInfoPane.setContainer(this);
-    wsPane.setContainer(this);
-    wsPane.setMinSize(minPaneSize.x, minPaneSize.y);
-    wsPane.setMaxSize(minPaneSize.x, minPaneSize.y);
-    wsPane.getTransforms().add(new Scale());
-    quadTreeMngForBody =
-        new QuadTreeManager(BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
-    quadTreeMngForConnector =
-        new QuadTreeManager(BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
+    configureWsPane();
+    configureTabNameComponents();
     rectSelTool.getPoints().addAll(Stream.generate(() -> 0.0).limit(8).toArray(Double[]::new));
-    drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
-    setEventHandlers();
-    setText(workspace.getName());
-  }
-
-  private void setEventHandlers() {
     wsScrollPane.addEventFilter(ScrollEvent.ANY, this::onScroll);
     setOnCloseRequest(this::onCloseRequest);
     setOnClosed(this::onClosed);
@@ -161,9 +164,9 @@ public class WorkspaceView extends Tab {
     }
     Optional<ButtonType> buttonType = BhService.msgPrinter().alert(
         Alert.AlertType.CONFIRMATION,
-        "ワークスペースの削除",
+        TextDefs.Workspace.AskIfDeleteWs.title.get(),
         null,
-        "「%s」を削除します".formatted(getText()));
+        TextDefs.Workspace.AskIfDeleteWs.body.get(workspace.getName()));
 
     // このイベントハンドラを抜けるとき, TabDragPolicy.FIXED にしないと
     // タブ消しをキャンセルした後, そのタブが使えなくなる.
@@ -180,6 +183,17 @@ public class WorkspaceView extends Tab {
     UserOperation userOpe = new UserOperation();
     BhService.cmdProxy().deleteWorkspace(workspace, userOpe);
     BhService.undoRedoAgent().pushUndoCommand(userOpe);
+  }
+
+  /** ノードを配置する部分の設定を行う. */
+  private void configureWsPane() { 
+    setErrInfoPaneListener();
+    errInfoPane.setContainer(this);
+    wsPane.setContainer(this);
+    //  スクロールバーが表示されなくなるので setPrefSize() は使わない.   
+    wsPane.setMinSize(minPaneSize.x, minPaneSize.y);
+    wsPane.setMaxSize(minPaneSize.x, minPaneSize.y);
+    wsPane.getTransforms().add(new Scale());
   }
 
   private void setErrInfoPaneListener() {
@@ -199,6 +213,74 @@ public class WorkspaceView extends Tab {
       errInfoPane.getTransforms().clear();
       change.getList().forEach(errInfoPane.getTransforms()::add);
     });
+  }
+
+  /** タブ名を表示する部分の設定を行う. */
+  private void configureTabNameComponents() {
+    tabNameTextField.setMaxWidth(Region.USE_PREF_SIZE);
+    tabNameTextField.setMinWidth(Region.USE_PREF_SIZE);
+    tabNameTextField.setPrefWidth(1);
+    tabNameLabel.setMaxWidth(BhSettings.LnF.maxWsTabSize);
+    tabNameLabel.setMinWidth(BhSettings.LnF.minWsTabSize);
+
+    tabNameTextField.textProperty().addListener((observable, oldVal, newVal) -> {
+      updateTabNameWidth();
+    });
+    tabNameTextField.setOnAction(event -> {
+      workspace.setName(tabNameTextField.getText());
+      setTabNameNotEditable(workspace.getName());      
+    });
+    tabNameTextField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+      if (!newValue) {
+        workspace.setName(tabNameTextField.getText());
+        setTabNameNotEditable(workspace.getName());      
+      }
+    });
+    tabNameLabel.setOnMouseClicked(event -> {
+      if (event.getClickCount() == 2) {
+        setTabNameEditable(workspace.getName());
+      }
+    });
+
+    setTabNameNotEditable(workspace.getName());
+  }
+
+  /** タブ名の幅をその文字列に応じて変える. */
+  private void updateTabNameWidth() {
+    Text textPart = (Text) tabNameTextField.lookup(".text");
+    if (textPart == null) {
+      return;
+    }
+    // 正確な文字部分の境界を取得するため, GUI 部品内部の Text の境界は使わない.
+    double newWidth = ViewUtil.calcStrWidth(textPart.getText(), textPart.getFont());
+    newWidth = Math.max(newWidth, Rem.VAL);
+    // 幅を (文字幅 + パディング) にするとキャレットの移動時に文字が左右に移動するので定数 3 を足す.
+    // この定数はフォントやパディングが違っても機能する.
+    newWidth += tabNameTextField.getPadding().getLeft()
+        + tabNameTextField.getPadding().getRight() + 3;
+    tabNameTextField.setPrefWidth(newWidth);
+  }
+
+  /** タブ名を編集可能な状態にする. */
+  private void setTabNameEditable(String tabName) {
+    tabNameTextField.setVisible(true);
+    tabNameTextField.setDisable(false);
+    tabNameTextField.setText(tabName);
+    tabNameTextField.selectAll();
+    tabNameTextField.requestFocus();
+    tabNameLabel.setText("");
+    tabNameLabel.setVisible(false);
+    tabNameLabel.setDisable(true);
+  }
+
+  /** タブ名を編集不可能な状態にする. */
+  private void setTabNameNotEditable(String tabName) {
+    tabNameLabel.setVisible(true);
+    tabNameLabel.setDisable(false);
+    tabNameLabel.setText(tabName);
+    tabNameTextField.setVisible(false);
+    tabNameTextField.setDisable(true);
+    tabNameTextField.setText("");
   }
 
   /**

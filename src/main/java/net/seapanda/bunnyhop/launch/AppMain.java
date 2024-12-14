@@ -33,10 +33,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import net.seapanda.bunnyhop.bhprogram.BhProgramService;
+import net.seapanda.bunnyhop.bhprogram.BhRuntimeService;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
-import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhSettings;
+import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.service.BhService;
@@ -72,7 +72,7 @@ public class AppMain extends Application {
     }
     boolean success = simulator.waitForInitialization(BhSettings.BhSimulator.initTimeout);
     success &= simulator.getCmdProcessor()
-      .map(cmdProcesspr -> BhProgramService.init(cmdProcesspr))
+      .map(cmdProcesspr -> BhRuntimeService.init(cmdProcesspr))
       .orElse(false);
     success &= BhNodeViewStyle.genViewStyleTemplate();
     success &= BhNodeViewStyle.checkNodeIdAndNodeTemplate();        
@@ -97,22 +97,22 @@ public class AppMain extends Application {
   }
 
   /** シミュレータがフォーカスを持っているときにキーが押されたときの処理. */
-  private void onKeyPressed(int keyCode, Supplier<Boolean> checkIfBhRuntimeIsLocal) {
+  private void onKeyPressed(int keyCode, Supplier<Boolean> fnCheckIfBhRuntimeIsLocal) {
     var eventName = KeyCodeConverter.toBhProgramEventName(keyCode).orElse(null);
     var bhEvent = new BhProgramEvent(eventName, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
-    if (checkIfBhRuntimeIsLocal.get()) {
-      BhProgramService.local().sendAsync(bhEvent);
+    if (fnCheckIfBhRuntimeIsLocal.get()) {
+      BhRuntimeService.local().sendAsync(bhEvent);
     } else {
-      BhProgramService.remote().sendAsync(bhEvent);
+      BhRuntimeService.remote().sendAsync(bhEvent);
     }
   }
 
   /** 終了処理を登録する. */
   private void setOnCloseHandler(
-      Stage stage, Supplier<Boolean> checkIfProjectIsDirty, Supplier<Boolean> saveFunc) {
+      Stage stage, Supplier<Boolean> fnCheckIfProjectIsDirty, Supplier<Boolean> fnSave) {
     MutableBoolean killRemoteProcess = new MutableBoolean(true);
     stage.setOnCloseRequest(
-        event -> onCloseRequest(event, killRemoteProcess, checkIfProjectIsDirty, saveFunc));
+        event -> onCloseRequest(event, killRemoteProcess, fnCheckIfProjectIsDirty, fnSave));
     stage.showingProperty().addListener((observable, oldValue, newValue) ->
         terminate(killRemoteProcess, oldValue, newValue));
   }
@@ -121,18 +121,18 @@ public class AppMain extends Application {
   private void onCloseRequest(
       WindowEvent event,
       MutableBoolean teminate,
-      Supplier<Boolean> checkIfProjectIsDirty,
-      Supplier<Boolean> saveFunc) {
+      Supplier<Boolean> fnCheckIfProjectIsDirty,
+      Supplier<Boolean> fnSave) {
     teminate.setTrue();
-    switch (BhProgramService.remote().askIfStopProgram()) {
+    switch (BhRuntimeService.remote().askIfStopProgram()) {
       case NO -> teminate.setFalse();
       case CANCEL -> event.consume();
       default -> { }
     }
-    if (checkIfProjectIsDirty.get()) {
+    if (fnCheckIfProjectIsDirty.get()) {
       return;
     }
-    if (!askIfSaveProject(saveFunc)) {
+    if (!askIfSaveProject(fnSave)) {
       event.consume();
     }
   }
@@ -142,18 +142,18 @@ public class AppMain extends Application {
    *
    * @return アプリの終了を許可する場合 true を返す.
    */
-  public boolean askIfSaveProject(Supplier<Boolean> saveFunc) {
+  public boolean askIfSaveProject(Supplier<Boolean> fnSave) {
     Optional<ButtonType> buttonType = BhService.msgPrinter().alert(
         Alert.AlertType.CONFIRMATION,
-        BhConstants.APPLICATION_NAME,
+        TextDefs.Export.AskIfSave.title.get(),
         null,
-        "保存しますか",
+        TextDefs.Export.AskIfSave.body.get(),
         ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 
     return buttonType
       .map(btnType -> {
         if (btnType.equals(ButtonType.YES)) {
-          return saveFunc.get();
+          return fnSave.get();
         }
         return btnType.equals(ButtonType.NO);
       })
@@ -163,8 +163,8 @@ public class AppMain extends Application {
   /** BunnyHop の終了処理. */
   private void terminate(MutableBoolean killRemoteRuntime, Boolean oldVal, Boolean newVal) {
     if (oldVal == true && newVal == false) {
-      BhProgramService.local().end();
-      BhProgramService.remote().end(killRemoteRuntime.getValue());
+      BhRuntimeService.local().end();
+      BhRuntimeService.remote().end(killRemoteRuntime.getValue());
       BhService.msgPrinter().close();
       Gdx.app.exit();
       try {

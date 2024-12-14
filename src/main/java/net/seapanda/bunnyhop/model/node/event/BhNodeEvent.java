@@ -47,4 +47,6 @@ public enum BhNodeEvent {
   ON_VIEW_OPTIONS_CREATING,
   /** テンプレートノードが作成されたときに発行されるイベント. */
   ON_TEMPLATE_CREATED,
+  /** ノードのドラッグ操作が始まったときに発行されるイベント. */
+  ON_DRAG_STARTED,
 }

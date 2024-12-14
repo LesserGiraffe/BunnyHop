@@ -20,11 +20,13 @@ package net.seapanda.bunnyhop.service;
 import java.nio.file.Paths;
 import net.seapanda.bunnyhop.command.CmdProxy;
 import net.seapanda.bunnyhop.common.BhConstants.Path;
+import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.control.workspace.TrashboxController;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.undo.UndoRedoAgent;
+import net.seapanda.bunnyhop.utility.TextDatabase;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 
@@ -38,6 +40,7 @@ public class BhService {
   private static volatile WorkspaceSet workspaceSet;
   private static volatile MsgPrinter msgPrinter;
   private static volatile CmdProxy cmdProxy;
+  private static volatile TextDatabase textDatabase;
   private static volatile BhScriptManager bhScriptManager;
   private static volatile BhNodeFactory bhNodeFactory;
   private static volatile BhNodePlacer bhNodePlacer;
@@ -54,6 +57,8 @@ public class BhService {
       workspaceSet = wss;
       msgPrinter = new MsgPrinter();
       cmdProxy = new CmdProxy(wss);
+      textDatabase = new TextDatabase(
+          Paths.get(Utility.execPath, Path.LANGUAGE_DIR, BhSettings.language, Path.LANGUAGE_FILE));
       bhScriptManager = new BhScriptManager(
           Paths.get(Utility.execPath, Path.BH_DEF_DIR, Path.FUNCTIONS_DIR),
           Paths.get(Utility.execPath, Path.BH_DEF_DIR, Path.TEMPLATE_LIST_DIR),
@@ -122,6 +127,10 @@ public class BhService {
 
   public static TrashboxController trashboxCtrl() {
     return trashboxCtrl;
+  }
+
+  public static TextDatabase textDb() {
+    return textDatabase;
   }
 
   /**

@@ -45,7 +45,7 @@ import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 public class BhProgramMessageDispatcher {
   
   /** {@link BhProgramMessage} および {@link BhProgramResponse} を送受信するためのオブジェクト. */
-  AtomicReference<BhProgramTransceiver> transceiver = new AtomicReference<>();
+  AtomicReference<BhRuntimeTransceiver> transceiver = new AtomicReference<>();
   /** {@link BhSimulatorCmd} 以外の {@link BhProgramMessage} を処理するオブジェクト. */
   private final BhProgramMessageProcessor msgProcessor;
   /** {@link BhSimulatorCmd} を処理するオブジェクト. */
@@ -65,30 +65,30 @@ public class BhProgramMessageDispatcher {
   }
 
   /**
-   * BhProgram との通信に使う {@link BhProgramTransceiver} を交換する.
+   * BhProgram との通信に使う {@link BhRuntimeTransceiver} を交換する.
    * 既に設定済みのものは使用されなくなる.
    *
    * @param transceiver 新しく設定する通信用オブジェクト.
    * @return このメソッドを呼び出す前に使用していた通信用オブジェクト.
    */
-  public Optional<BhProgramTransceiver> replaceTransceiver(BhProgramTransceiver transceiver) {
+  public Optional<BhRuntimeTransceiver> replaceTransceiver(BhRuntimeTransceiver transceiver) {
     transceiver.setOnMsgReceived(msg -> dispatch(transceiver, msg));
     transceiver.setOnRespReceived(resp -> dispatch(resp));
     return Optional.ofNullable(this.transceiver.getAndSet(transceiver));
   }
 
-  /** このオブジェクトが, 現在 BhProgram との通信に使用している {@link BhProgramTransceiver} を取得する. */
-  public Optional<BhProgramTransceiver> getTransceiver() {
+  /** このオブジェクトが, 現在 BhProgram との通信に使用している {@link BhRuntimeTransceiver} を取得する. */
+  public Optional<BhRuntimeTransceiver> getTransceiver() {
     return Optional.ofNullable(transceiver.get());
   }
 
   /**
    * {@code msg} を適切なクラスへと渡す.
    *
-   * @param transceiver {@code msg} を受信した {@link BhProgramTransceiver}.
+   * @param transceiver {@code msg} を受信した {@link BhRuntimeTransceiver}.
    * @param msg 処理するメッセージ.
    */
-  private void dispatch(BhProgramTransceiver transceiver, BhProgramMessage msg) {
+  private void dispatch(BhRuntimeTransceiver transceiver, BhProgramMessage msg) {
     switch (msg) {
       case OutputTextCmd
           cmd -> transceiver.pushSendResp(msgProcessor.process(cmd));
@@ -127,14 +127,10 @@ public class BhProgramMessageDispatcher {
   }
 
   private void notifyInvalidMsg(BhProgramMessage msg) {
-    String message = "不正なメッセージを受信しました.  (%s)".formatted(msg);
-    BhService.msgPrinter().infoForUser(message + "\n");
-    BhService.msgPrinter().errForDebug(message);
+    BhService.msgPrinter().errForDebug("Received an invalid message.  (%s)".formatted(msg));
   }
 
   private void notifyInvalidResp(BhProgramResponse resp) {
-    String message = "不正なレスポンスを受信しました.  (%s)".formatted(resp);
-    BhService.msgPrinter().infoForUser(message + "\n");
-    BhService.msgPrinter().errForDebug(message);
+    BhService.msgPrinter().errForDebug("Received an invalid response.  (%s)".formatted(resp));
   }
 }

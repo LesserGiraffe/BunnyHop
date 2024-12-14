@@ -183,7 +183,7 @@ public class SymbolNames {
     public static final String CONTINUE_STAT = "ContinueStat";
     public static final String BREAK_STAT = "BreakStat";
     public static final String RETURN_STAT = "ReturnStat";
-    public static final String CRITICAL_SECTION_STAT = "CriticalSectionStat";
+    public static final String MUTEX_BLOCK_STAT = "MutexBlockStat";
     public static final String EXCLUSIVE_STAT = "ExclusiveStat";
     public static final HashSet<String> LIST =
         new HashSet<>(Arrays.asList(
@@ -195,7 +195,7 @@ public class SymbolNames {
             CONTINUE_STAT,
             BREAK_STAT,
             RETURN_STAT,
-            CRITICAL_SECTION_STAT));
+            MUTEX_BLOCK_STAT));
   }
 
   /** 二項演算式に関するシンボル名. */
@@ -434,7 +434,7 @@ public class SymbolNames {
             put(FuncId.create(PLAY_SOUND_LIST_STAT), ScriptIdentifiers.Funcs.PLAY_MELODIES);
             put(FuncId.create(SAY_STAT), ScriptIdentifiers.Funcs.SAY);
             put(FuncId.create(LIGHT_EYE_STAT), ScriptIdentifiers.Funcs.LIGHT_EYE);
-            put(FuncId.create(GlobalData.CRITICAL_SECTION_DECL),
+            put(FuncId.create(GlobalData.MUTEX_BLOCK_DECL),
                 ScriptIdentifiers.Funcs.GEN_LOCK_OBJ);
             put(FuncId.create(GlobalData.SYNC_TIMER_DECL), ScriptIdentifiers.Funcs.GEN_SYNC_TIMER);
 
@@ -609,17 +609,17 @@ public class SymbolNames {
   /** グローバルデータに関するシンボル名. */
   public static class GlobalData {
 
-    public static final String CRITICAL_SECTION_DECL = "CriticalSectionDecl";
+    public static final String MUTEX_BLOCK_DECL = "MutexBlockDecl";
     public static final String SYNC_TIMER_DECL = "SyncTimerDecl";
     public static final String SYNC_TIMER_VAR = "SyncTimerVar";
 
-    public static final String CRITICAL_SECTION_NAME = "CriticalSectionName";
+    public static final String MUTEX_BLOCK_NAME = "MutexBlockName";
     public static final String SYNC_TIMER_NAME = "SyncTimerName";
     public static final String NEXT_GLOBAL_DATA_DECL = "NextGlobalDataDecl";
 
     public static final HashSet<String> LIST =
         new HashSet<>(Arrays.asList(
-            CRITICAL_SECTION_DECL,
+            MUTEX_BLOCK_DECL,
             SYNC_TIMER_DECL,
             NEXT_GLOBAL_DATA_DECL));
 
@@ -629,7 +629,7 @@ public class SymbolNames {
 
     public static final HashSet<String> DATA_NAME_CNCTR_LIST =
         new HashSet<>(Arrays.asList(
-            CRITICAL_SECTION_NAME,
+            MUTEX_BLOCK_NAME,
             SYNC_TIMER_NAME));
   }
 

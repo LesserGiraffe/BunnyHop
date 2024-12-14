@@ -31,6 +31,7 @@ import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -591,7 +592,7 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
     /**
      * ボディとコネクタ部分の領域に対応する {@link QuadTreeRectangle} をまとめたレコード.
      *
-     * @param body ボディ部分の矩形領域に対応する {@link QuadTreeRectangle} オブジェクト
+     * @param bodyId ボディ部分の矩形領域に対応する {@link QuadTreeRectangle} オブジェクト
      * @param cnctr コネクタ部分の矩形領域に対応する {@link QuadTreeRectangle} オブジェクト
      */
     public record Rectangles(QuadTreeRectangle body, QuadTreeRectangle cnctr) { }
@@ -929,29 +930,21 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
       this.onAbsPosUpdated = onAbsPosUpdated;
     }
 
-    /**
-     * Z位置を最前面か本来の位置にする.
-     *
-     * @param enable 最前面に移動する場合 true. 本来の位置に移動する場合 false.
-     */
-    public void toFront(boolean enable) {
-      if (enable) {
-        Parent parent = getParent();
-        if (parent != null) {
-          parent.toFront();
-        }
-        CallbackInvoker.invoke(
-            nodeView -> {
-              nodeView.setViewOrder(nodeView.getViewOrder() + FRONT_VIEW_ORDER_OFFSET);
-              nodeView.getPositionManager().updateShadowZpos();
-              nodeView.compileErrorMark.setViewOrder(
-                  nodeView.compileErrorMark.getViewOrder() + FRONT_VIEW_ORDER_OFFSET);
-            },
-            BhNodeView.this,
-            false);
-      } else {
-        updateZpos();
+    /** Z 位置を最前面に移動する. */
+    public void toFront() {
+      Parent parent = getParent();
+      if (parent != null) {
+        parent.toFront();
       }
+      CallbackInvoker.invoke(
+          nodeView -> {
+            nodeView.setViewOrder(nodeView.getViewOrder() + FRONT_VIEW_ORDER_OFFSET);
+            nodeView.getPositionManager().updateShadowZpos();
+            nodeView.compileErrorMark.setViewOrder(
+                nodeView.compileErrorMark.getViewOrder() + FRONT_VIEW_ORDER_OFFSET);
+          },
+          BhNodeView.this,
+          false);
     }
 
     /** {@code other} とこの {@link BhNodeView} が同じワークスペース上にいるか調べる. */
@@ -1009,6 +1002,28 @@ public abstract class BhNodeView extends Pane implements NodeViewComponent, Show
      */
     public void setOnMouseReleased(EventHandler<? super MouseEvent> handler) {
       nodeShape.setOnMouseReleased(handler);
+    }
+
+    /**
+     * イベントフィルタを登録する.
+     *
+     * @param type イベントフィルタが受け取るイベントの種類
+     * @param handler 登録するイベントフィルタ
+     */
+    public <T extends Event> void addEventFilter(
+        EventType<T> type, EventHandler<? super T> handler) {
+      nodeShape.addEventFilter(type, handler);
+    }
+
+    /**
+     * イベントフィルタを削除する.
+     *
+     * @param type イベントフィルタを取り除くイベントの種類
+     * @param handler 削除するイベントフィルタ
+     */
+    public <T extends Event> void removeEventFilter(
+        EventType<T> type, EventHandler<? super T> handler) {
+      nodeShape.removeEventFilter(type, handler);
     }
 
     /**

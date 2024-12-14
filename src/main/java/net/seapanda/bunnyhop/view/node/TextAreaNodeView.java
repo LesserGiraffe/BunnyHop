@@ -106,24 +106,24 @@ public final class TextAreaNodeView  extends TextInputNodeView {
   /**
    * テキスト変更時のイベントハンドラを登録する.
    *
-   * @param checkFormatFunc 入力された文字列の形式が正しいかどうか判断する関数 (テキスト変更時のイベントハンドラから呼び出す)
+   * @param fnCheckFormat 入力された文字列の形式が正しいかどうか判断する関数 (テキスト変更時のイベントハンドラから呼び出す)
    */
-  public void setTextChangeListener(Function<String, Boolean> checkFormatFunc) {
+  public void setTextChangeListener(Function<String, Boolean> fnCheckFormat) {
     textArea.boundsInLocalProperty().addListener(
-        (observable, oldVal, newVal) -> updateTextAreaLooks(checkFormatFunc));
+        (observable, oldVal, newVal) -> updateTextAreaLooks(fnCheckFormat));
 
     // テキストの長さに応じてTextArea のサイズが変わるようにする.
     textArea.textProperty().addListener(
-        (observable, oldVal, newVal) ->  updateTextAreaLooks(checkFormatFunc));
+        (observable, oldVal, newVal) ->  updateTextAreaLooks(fnCheckFormat));
   }
 
   /**
    * テキストエリアの見た目を変える.
    *
-   * @param checkFormatFunc テキストのフォーマットをチェックする関数
+   * @param fnCheckFormat テキストのフォーマットをチェックする関数
    * @param text このテキストに基づいてテキストエリアの見た目を変える
    */
-  private void updateTextAreaLooks(Function<String, Boolean> checkFormatFunc) {
+  private void updateTextAreaLooks(Function<String, Boolean> fnCheckFormat) {
     Text textPart = (Text) textArea.lookup(".text");
     Region content = (Region) textArea.lookup(".content");
     if (textPart == null || content == null) {
@@ -137,13 +137,13 @@ public final class TextAreaNodeView  extends TextInputNodeView {
         textPart.getBoundsType(),
         textPart.getLineSpacing());
     double newWidth = Math.max(textBounds.x, viewStyle.textArea.minWidth);
-    //幅を (文字幅 + パディング) にするとwrapの設定によらず文字列が折り返してしまういことがあるので定数 6 を足す
-    //この定数はフォントやパディングが違っても機能する.
+    // 幅を (文字幅 + パディング) にするとwrapの設定によらず文字列が折り返してしまういことがあるので定数 6 を足す
+    // この定数はフォントやパディングが違っても機能する.
     newWidth += content.getPadding().getLeft() + content.getPadding().getRight() + 6;
     double newHeight = Math.max(textBounds.y, viewStyle.textArea.minHeight);
     newHeight += content.getPadding().getTop() + content.getPadding().getBottom() + 2;
     textArea.setPrefSize(newWidth, newHeight);
-    boolean acceptable = checkFormatFunc.apply(textPart.getText());
+    boolean acceptable = fnCheckFormat.apply(textPart.getText());
     textArea.pseudoClassStateChanged(
         PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR), !acceptable);
     // textArea.requestLayout() を呼ばないと, newWidth の値によってはノード選択ビューでサイズが更新されない.

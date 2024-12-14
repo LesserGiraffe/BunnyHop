@@ -26,7 +26,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
-import net.seapanda.bunnyhop.bhprogram.BhProgramService;
+import net.seapanda.bunnyhop.bhprogram.BhRuntimeService;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
@@ -46,17 +46,16 @@ public class FoundationController {
 
   //View
   @FXML VBox foundationVbox;
-  @FXML SplitPane horizontalSplitter;
+  @FXML SplitPane verticalSplitPane;
 
   //Controller
-  @FXML private MenuOperationController menuOperationController;
+  @FXML private MenuPanelController menuPanelController;
   @FXML private WorkspaceSetController workspaceSetController;
   @FXML private BhNodeCategoryListController nodeCategoryListController;
   @FXML private MenuBarController menuBarController;
 
   /** 押下状態のキー. */
   private Set<KeyCode> pressedKey = new HashSet<>();
-
 
   /**
    * 初期化する.
@@ -67,7 +66,7 @@ public class FoundationController {
   public boolean initialize(WorkspaceSet wss, BhNodeCategoryList nodeCategoryList) {
     workspaceSetController.initialize(wss);
     boolean success = nodeCategoryListController.initialize(nodeCategoryList);
-    success &= menuOperationController.initialize(wss, workspaceSetController.getTabPane());
+    success &= menuPanelController.initialize(wss, workspaceSetController.getTabPane());
     if (!success) {
       return false;
     }
@@ -141,31 +140,31 @@ public class FoundationController {
     switch (event.getCode()) {
       case C:
         if (event.isControlDown()) {
-          menuOperationController.fireEvent(MenuOperationController.MenuOperation.COPY);
+          menuPanelController.fireEvent(MenuPanelController.MenuOperation.COPY);
         }
         break;
 
       case X:
         if (event.isControlDown()) {
-          menuOperationController.fireEvent(MenuOperationController.MenuOperation.CUT);
+          menuPanelController.fireEvent(MenuPanelController.MenuOperation.CUT);
         }
         break;
 
       case V:
         if (event.isControlDown()) {
-          menuOperationController.fireEvent(MenuOperationController.MenuOperation.PASTE);
+          menuPanelController.fireEvent(MenuPanelController.MenuOperation.PASTE);
         }
         break;
 
       case Z:
         if (event.isControlDown()) {
-          menuOperationController.fireEvent(MenuOperationController.MenuOperation.UNDO);
+          menuPanelController.fireEvent(MenuPanelController.MenuOperation.UNDO);
         }
         break;
 
       case Y:
         if (event.isControlDown()) {
-          menuOperationController.fireEvent(MenuOperationController.MenuOperation.REDO);
+          menuPanelController.fireEvent(MenuPanelController.MenuOperation.REDO);
         }
         break;
 
@@ -184,7 +183,7 @@ public class FoundationController {
         break;
 
       case DELETE:
-        menuOperationController.fireEvent(MenuOperationController.MenuOperation.DELETE);
+        menuPanelController.fireEvent(MenuPanelController.MenuOperation.DELETE);
         break;
 
       default:
@@ -203,16 +202,16 @@ public class FoundationController {
     }
     pressedKey.add(keyCode);
     var bhEvent = new BhProgramEvent(eventName, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
-    if (menuOperationController.isLocalHost()) {
-      BhProgramService.local().sendAsync(bhEvent);
+    if (menuPanelController.isLocalHost()) {
+      BhRuntimeService.local().sendAsync(bhEvent);
     } else {
-      BhProgramService.remote().sendAsync(bhEvent);
+      BhRuntimeService.remote().sendAsync(bhEvent);
     }
   }
 
   /** 現在選択されている BhProgram の実行環境がローカルかリモートか調べる. */
   public boolean isBhRuntimeLocal() {
-    return menuOperationController.isLocalHost();
+    return menuPanelController.isLocalHost();
   }
 
   /** ワークスペースセットのコントローラを返す. */

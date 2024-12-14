@@ -119,34 +119,33 @@ public class BhScriptManager {
     }
   }
 
-  /**
-   * 各スクリプトが共通で使う JavaScript オブジェクトを生成する.
-   *
-   * @return オブジェクトの作成に成功した場合 true, 失敗した場合 false.
-   */
+  /** 各スクリプトが共通で使う JavaScript オブジェクトを生成する. */
   private Object genCommonJsObj() {
-    Context cx = ContextFactory.getGlobal().enterContext();
-    ScriptableObject scope = cx.initStandardObjects();
-    if (scriptNameToScript.containsKey(BhConstants.Path.COMMON_FUNCS_JS)) {
-      try {
-        return scriptNameToScript.get(BhConstants.Path.COMMON_FUNCS_JS)
-            .exec(cx, newScriptScope(cx));
-      } catch (Exception e) {
-        BhService.msgPrinter().errForDebug(
-            "Failed to execute %s\n%s".formatted(BhConstants.Path.COMMON_FUNCS_JS, e));
-      } finally {
-        Context.exit();
-      }
+    if (!scriptNameToScript.containsKey(BhConstants.Path.COMMON_FUNCS_JS)) {
+      return new NativeObject();
     }
-    return scope;
+    try {
+      Context cx = Context.enter();
+      Object jsObj = scriptNameToScript.get(BhConstants.Path.COMMON_FUNCS_JS)
+            .exec(cx, createScriptScope(cx));
+      return (jsObj instanceof NativeObject) ? jsObj : new NativeObject();
+    } catch (Exception e) {
+      BhService.msgPrinter().errForDebug(
+          "Failed to execute %s\n%s".formatted(BhConstants.Path.COMMON_FUNCS_JS, e));
+    } finally {
+      Context.exit();
+    }
+    return new NativeObject();
   }
 
-  private ScriptableObject newScriptScope(Context cx) {
+  private ScriptableObject createScriptScope(Context cx) {
     ScriptableObject scope = cx.initStandardObjects();
-    ScriptableObject.putProperty(
-        scope, BhConstants.JsKeyword.KEY_BH_NODE_FACTORY, BhService.bhNodeFactory());
-    ScriptableObject.putProperty(
-        scope, BhConstants.JsKeyword.KEY_BH_NODE_PLACER, BhService.bhNodePlacer());
+    Object val = Context.javaToJS(BhService.bhNodeFactory(), scope);
+    scope.put(BhConstants.JsIdName.BH_NODE_FACTORY, scope, val);
+    val = Context.javaToJS(BhService.bhNodePlacer(), scope);
+    scope.put(BhConstants.JsIdName.BH_NODE_PLACER, scope, val);
+    val = Context.javaToJS(BhService.textDb(), scope);
+    scope.put(BhConstants.JsIdName.BH_TEXT_DB, scope, val);
     return scope;
   }
 
@@ -163,7 +162,7 @@ public class BhScriptManager {
       boolean found = scriptNameToScript.get(scriptName) != null;
       if (!found) {
         BhService.msgPrinter().errForDebug(
-            "Cannot find '%s'.  file: %s".formatted(scriptNames, fileName));
+            "Cannot find '%s'.  file: %s".formatted(scriptName, fileName));
       }
       allFound &= found;
     }

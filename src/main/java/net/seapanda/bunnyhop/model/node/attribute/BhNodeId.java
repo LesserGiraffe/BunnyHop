@@ -48,7 +48,7 @@ public class BhNodeId implements Serializable {
    * {@link BhNodeId} を作成する.
    *
    * @param id 識別子名
-   * @return BhNodeId オブジェクト.
+   * @return {@link BhNodeId} オブジェクト.
    */
   public static BhNodeId of(String id) {
     return new BhNodeId(id == null ? "" : id);

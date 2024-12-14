@@ -28,9 +28,9 @@ public class BhConstants {
 
   public static final String APPLICATION_NAME = "BunnyHop";
   /** アプリケーションのバージョン. */
-  public static final AppVersion appVersion = AppVersion.of("bh-2.0.0");
+  public static final AppVersion APP_VERSION = AppVersion.of("bh-2.0.0");
   /** セーブデータのバージョン. */
-  public static final SaveDataVersion saveDataVersion = SaveDataVersion.of("bh-1.0");
+  public static final SaveDataVersion SAVE_DATA_VERSION = SaveDataVersion.of("bh-1.0");
   /** undo 可能な最大回数. */
   public static final int NUM_TIMES_MAX_UNDO = 128;
   /** ExecutorService のシャットダウンを待つ時間 (sec). */
@@ -59,8 +59,6 @@ public class BhConstants {
     public static final double MAX_WORKSPACE_SIZE_LEVEL = 3;
     /** ワークスペースの大きさレベルの最小値. */
     public static final double MIN_WORKSPACE_SIZE_LEVEL = -1;
-    /** 最初からあるワークスペースの名前. */
-    public static final String INITIAL_WORKSPACE_NAME = "メイン";
     public static final double NODE_SCALE = 0.5 * Rem.VAL;
     /** 入れ替えられたノードがワークスペースに移ったときの元の位置に対する位置 (rem). */
     public static final double REPLACED_NODE_SHIFT = 2.5 * BhConstants.LnF.NODE_SCALE;
@@ -129,6 +127,10 @@ public class BhConstants {
     public static final String REMOTE_BUNNYHOP_DIR = "BunnyHop";
     /** BhProgramのファイルを格納するリモート実行環境の下のフォルダ名. */
     public static final String REMOTE_COMPILED_DIR = "Compiled";
+    /** 言語ファイルが格納されたディレクトリのパス. */
+    public static final String LANGUAGE_DIR = "Language";
+    /** 言語ファイルの名前. */
+    public static final String LANGUAGE_FILE = "BunnyHop.json";
   }
 
   /** ノードやコネクタ定義のパラメータ. */
@@ -161,6 +163,7 @@ public class BhConstants {
     public static final String ATTR_ON_PRIFVATE_TEMPLATE_CREATING = "onPrivateTemplateCreating";
     public static final String ATTR_ON_TEST_OPTIONS_CREATING = "onTextOptionsCreating";
     public static final String ATTR_ON_TEMPLATE_CREATED = "onTemplateCreated";
+    public static final String ATTR_ON_DRAG_STARTED = "onDragStarted";
     public static final String ATTR_DERIVATIVE_ID = "derivativeID";
     public static final String ATTR_INITIAL_TEXT = "initialText";
     public static final String ATTR_DETIVATION_ID = "derivationID";
@@ -175,39 +178,41 @@ public class BhConstants {
     public static final String ATTR_VAL_TEXT = "text";
   }
 
-  /** JavaScript コードに内部でも使うキーワード. */
-  public static class JsKeyword {
+  /** JavaScript コードに内部で使う識別子名. */
+  public static class JsIdName {
     /** スクリプトの呼び出し元オブジェクト. */
-    public static final String KEY_BH_THIS = "bhThis";
-    public static final String KEY_BH_NODE_PLACER = "bhNodePlacer";
-    public static final String KEY_BH_CMD_PROXY = "bhCmdProxy";
+    public static final String BH_THIS = "bhThis";
+    public static final String BH_NODE_PLACER = "bhNodePlacer";
+    public static final String BH_CMD_PROXY = "bhCmdProxy";
     /** TextNode のString型フィールドアクセス用キーワード. */
-    public static final String KEY_BH_TEXT = "bhText";
-    public static final String KEY_BH_ADDED_TEXT = "bhAddedText";
-    public static final String KEY_BH_OLD_PARENT = "bhOldParent";
-    public static final String KEY_BH_OLD_ROOT = "bhOldRoot";
-    public static final String KEY_BH_REPLACED_NEW_NODE = "bhReplacedNewNode";
-    public static final String KEY_BH_REPLACED_OLD_NODE = "bhReplacedOldNode";
-    public static final String KEY_BH_CURRENT_NODE = "bhCurrentNode";
-    public static final String KEY_BH_NODE_TO_CONNECT = "bhNodeToConnect";
-    public static final String KEY_BH_PARENT_CONNECTOR = "bhParentConnector";
-    public static final String KEY_BH_NODE_TO_DELETE = "bhNodeToDelete";
+    public static final String BH_TEXT = "bhText";
+    public static final String BH_ADDED_TEXT = "bhAddedText";
+    public static final String BH_OLD_PARENT = "bhOldParent";
+    public static final String BH_OLD_ROOT = "bhOldRoot";
+    public static final String BH_REPLACED_NEW_NODE = "bhReplacedNewNode";
+    public static final String BH_REPLACED_OLD_NODE = "bhReplacedOldNode";
+    public static final String BH_CURRENT_NODE = "bhCurrentNode";
+    public static final String BH_NODE_TO_CONNECT = "bhNodeToConnect";
+    public static final String BH_PARENT_CONNECTOR = "bhParentConnector";
+    public static final String BH_NODE_TO_DELETE = "bhNodeToDelete";
     /** D&D やカット&ペーストで, 直接指定されて子ノードからワークスペースに移動したかどうかのフラグ名. */
-    public static final String KEY_BH_IS_SPECIFIED_DIRECTLY = "bhIsSpecifiedDirectly";
-    public static final String KEY_BH_NEXT_SYMBOL_NAME = "bhNextSymbolName";
-    public static final String KEY_BH_USER_OPE = "bhUserOpe";
-    public static final String KEY_BH_COMMON = "bhCommon";
-    public static final String KEY_BH_NODE_FACTORY = "bhNodeFactory";
-    public static final String KEY_BH_CANDIDATE_NODE_LIST = "bhCandidateNodeList";
-    public static final String KEY_BH_NODES_TO_DELETE = "bhNodesToDelete";
-    public static final String KEY_BH_CAUSE_OF_DELETION = "bhCauseOfDeletion";
-    public static final String KEY_BH_LIST_OF_NODES_TO_COMPILE = "bhListOfNodesToCompile";
-    public static final String KEY_IP_ADDR = "ipAddr";
-    public static final String KEY_UNAME = "uname";
-    public static final String KEY_PASSWORD = "password";
-    public static final String KEY_BH_PROGRAM_FILE_PATH = "bhProgramFilePath";
-    public static final String KEY_BH_IS_ENTIRE_TEXT_FORMATTED = "bhIsEntireTextFormatted";
-    public static final String KEY_BH_FORMATTED_TEXT = "bhFormattedText";
+    public static final String BH_IS_SPECIFIED_DIRECTLY = "bhIsSpecifiedDirectly";
+    public static final String BH_NEXT_SYMBOL_NAME = "bhNextSymbolName";
+    public static final String BH_USER_OPE = "bhUserOpe";
+    public static final String BH_COMMON = "bhCommon";
+    public static final String BH_NODE_FACTORY = "bhNodeFactory";
+    public static final String BH_CANDIDATE_NODE_LIST = "bhCandidateNodeList";
+    public static final String BH_NODES_TO_DELETE = "bhNodesToDelete";
+    public static final String BH_CAUSE_OF_DELETION = "bhCauseOfDeletion";
+    public static final String BH_LIST_OF_NODES_TO_COMPILE = "bhListOfNodesToCompile";
+    public static final String BH_PROGRAM_FILE_PATH = "bhProgramFilePath";
+    public static final String BH_IS_ENTIRE_TEXT_FORMATTED = "bhIsEntireTextFormatted";
+    public static final String BH_FORMATTED_TEXT = "bhFormattedText";
+    public static final String BH_TEXT_DB = "bhTextDb";
+    public static final String BH_MOUSE_EVENT = "bhMouseEvent";
+    public static final String IP_ADDR = "ipAddr";
+    public static final String UNAME = "uname";
+    public static final String PASSWORD = "password";
   }
 
   /** ノードのスタイル定義のパラメータ. */
@@ -288,7 +293,7 @@ public class BhConstants {
     public static final String ID_NODE_VIEW_SHADOW_PANE = "nodeViewShadowPane";
   }
 
-  /** CSS ファイルで使用されるのキーワード. */
+  /** CSS ファイルで使用されるキーワード. */
   public static class Css {
     public static final String PSEUDO_SELECTED = "selected";
     public static final String PSEUDO_HIGHLIGHT_DERIVATIVE = "highlightDerivative";
@@ -344,5 +349,10 @@ public class BhConstants {
     public static final int MAX_LOG_FILE_NUM = 4;
     /** ログファイル1つあたりの最大バイト数. */
     public static final int LOG_FILE_SIZE_LIMIT = 1024 * 1024;
+  }
+
+  /** 言語一覧. */
+  public static class Language {
+    public static final String JAPANESE = "Japanese";
   }
 }

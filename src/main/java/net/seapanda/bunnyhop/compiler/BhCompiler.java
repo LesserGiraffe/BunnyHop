@@ -30,6 +30,7 @@ import java.util.Optional;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.utility.Utility;
@@ -101,12 +102,12 @@ public class BhCompiler {
     } catch (IOException e) {
       BhService.msgPrinter().alert(
           Alert.AlertType.ERROR,
-          "ファイル書き込みエラー",
+          TextDefs.Compile.InformFailedToWrite.title.get(),
           null,
           "%s\n%s".formatted(e, appFile.toString()));
       return Optional.empty();
     }
-    BhService.msgPrinter().infoForUser("\n-- コンパイル成功 --\n");
+    BhService.msgPrinter().infoForUser(TextDefs.Compile.succeeded.get());
     return Optional.of(appFile);
   }
 

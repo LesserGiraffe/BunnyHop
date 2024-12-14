@@ -25,11 +25,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class BhSettings {
 
+  public static String language = "Japanese";
+
   /** BhSimulator に関するパラメータ. */
   public static class BhSimulator {
     /** BhSimulator 初期化待ちタイムアウト (sec). */
     public static int initTimeout = 5;
     /** BhProgram の開始時に BhSimulator をフォーカスするかどうか. */
     public static AtomicBoolean focusOnStartBhProgram = new AtomicBoolean(true);
+  }
+
+  
+  /** Look & Feel. */
+  public static class LnF {
+    /** ワークスペースのタブの最大サイズ. */
+    public static double maxWsTabSize = 32 * Rem.VAL;
+    /** ワークスペースのタブの最小サイズ. */
+    public static double minWsTabSize = 1 * Rem.VAL;
   }
 }

@@ -16,7 +16,9 @@
 
 package net.seapanda.bunnyhop.model.node;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -31,7 +33,6 @@ import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -98,17 +99,17 @@ public class Connector extends SyntaxSymbol {
    * このコネクタのコピーを作成して返す.
    *
    * @param parent 親コネクタセクション
-   * @param isNodeToBeCopied 子ノードがコピーの対象かどうかを判別する関数
+   * @param fnIsNodeToBeCopied 子ノードがコピーの対象かどうかを判別する関数
    * @param userOpe undo 用コマンドオブジェクト
    * @return このノードのコピー
    */
   public Connector copy(
       ConnectorSection parent,
-      Predicate<? super BhNode> isNodeToBeCopied,
+      Predicate<? super BhNode> fnIsNodeToBeCopied,
       UserOperation userOpe) {
     BhNode newNode = null;
-    if (connectedNode != null && isNodeToBeCopied.test(connectedNode)) {
-      newNode = connectedNode.copy(isNodeToBeCopied, userOpe);
+    if (connectedNode != null && fnIsNodeToBeCopied.test(connectedNode)) {
+      newNode = connectedNode.copy(fnIsNodeToBeCopied, userOpe);
     } else {
       // コピー対象のノードでない場合, デフォルトノードを新規作成して接続する
       newNode = BhService.bhNodeFactory().create(defaultNodeId, userOpe);
@@ -181,20 +182,19 @@ public class Connector extends SyntaxSymbol {
     if (script == null) {
       return false;
     }
-    ScriptableObject scriptScope = newScriptScope();
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_CURRENT_NODE, connectedNode);
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_NODE_TO_CONNECT, node);
-    Object isConnectable;
+    Map<String, Object> nameToObj = new HashMap<>() {{
+        put(BhConstants.JsIdName.BH_CURRENT_NODE, connectedNode);
+        put(BhConstants.JsIdName.BH_NODE_TO_CONNECT, node);
+      }};
+    Context cx = Context.enter();
+    ScriptableObject scriptScope = createScriptScope(cx, nameToObj);
     try {
-      isConnectable = ContextFactory.getGlobal().call(cx -> script.exec(cx, scriptScope));
+      return (Boolean) script.exec(cx, scriptScope);
     } catch (Exception e) {
-      BhService.msgPrinter().errForDebug(cnctCheckScriptName + "\n" + e);
-      return false;
-    }
-
-    if (isConnectable instanceof Boolean res) {
-      return res;
+      BhService.msgPrinter().errForDebug(
+          "'%s' must return a boolean value.\n%s".formatted(cnctCheckScriptName, e));
+    } finally {
+      Context.exit();
     }
     return false;
   }
@@ -212,19 +212,20 @@ public class Connector extends SyntaxSymbol {
     return connectedNode;
   }
 
-  /** スクリプト実行時のスコープ変数を登録する. */
-  private ScriptableObject newScriptScope() {
-    Context cx = ContextFactory.getGlobal().enterContext();
+  /** スクリプト実行時のスコープ変数を作成する. */
+  private ScriptableObject createScriptScope(Context cx, Map<String, Object> nameToObj) {
+    nameToObj = new HashMap<>(nameToObj);
+    nameToObj.put(BhConstants.JsIdName.BH_THIS, this);
+    nameToObj.put(BhConstants.JsIdName.BH_NODE_PLACER, BhService.bhNodePlacer());
+    nameToObj.put(BhConstants.JsIdName.BH_CMD_PROXY, BhService.cmdProxy());
+    nameToObj.put(BhConstants.JsIdName.BH_COMMON, BhService.bhScriptManager().getCommonJsObj());
+    nameToObj.put(BhConstants.JsIdName.BH_TEXT_DB, BhService.textDb());
+
     ScriptableObject scope = cx.initStandardObjects();
-    ScriptableObject.putProperty(
-        scope, BhConstants.JsKeyword.KEY_BH_THIS, this);
-    ScriptableObject.putProperty(
-        scope, BhConstants.JsKeyword.KEY_BH_NODE_PLACER, BhService.bhNodePlacer());
-    ScriptableObject.putProperty(
-        scope, BhConstants.JsKeyword.KEY_BH_CMD_PROXY, BhService.cmdProxy());
-    ScriptableObject.putProperty(
-        scope, BhConstants.JsKeyword.KEY_BH_COMMON, BhService.bhScriptManager().getCommonJsObj());
-    Context.exit();
+    for (String name : nameToObj.keySet()) {
+      Object val = Context.javaToJS(nameToObj.get(name), scope);
+      scope.put(name, scope, val);
+    }
     return scope;
   }
 

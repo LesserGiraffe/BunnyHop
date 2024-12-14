@@ -59,11 +59,11 @@ public abstract class Section extends SyntaxSymbol {
    * このノードのコピーを作成し返す.
    *
    * @param userOpe undo 用コマンドオブジェクト
-   * @param isNodeToBeCopied ノードがコピーの対象かどうか判定する関数
+   * @param fnIsNodeToBeCopied ノードがコピーの対象かどうか判定する関数
    * @return このノードのコピー
    */
   public abstract Section copy(
-      Predicate<? super BhNode> isNodeToBeCopied, UserOperation userOpe);
+      Predicate<? super BhNode> fnIsNodeToBeCopied, UserOperation userOpe);
 
   /**
    * 最後尾に繋がる外部ノードを探す.

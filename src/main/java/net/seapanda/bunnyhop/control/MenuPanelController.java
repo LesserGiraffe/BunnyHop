@@ -39,11 +39,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
-import net.seapanda.bunnyhop.bhprogram.BhProgramService;
+import net.seapanda.bunnyhop.bhprogram.BhRuntimeService;
 import net.seapanda.bunnyhop.bhprogram.BhRuntimeStatus;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.InputTextCmd;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhSettings;
+import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.CompileNodeCollector;
 import net.seapanda.bunnyhop.compiler.CompileOption;
@@ -65,10 +66,10 @@ import net.seapanda.bunnyhop.utility.Vec2D;
  *
  * @author K.Koike
  */
-public class MenuOperationController {
+public class MenuPanelController {
 
   /** ボタンの基底ペイン. */
-  private @FXML VBox menuOpViewBase;
+  private @FXML VBox menuPanelBase;
   /** コピーボタン. */
   private @FXML Button copyBtn;
   /** カットボタン. */
@@ -357,12 +358,13 @@ public class MenuOperationController {
   private void addWorkspace(WorkspaceSet wss) {
     ModelExclusiveControl.lockForModification();
     try {
-      String defaultWsName = "ワークスペース" + (wss.getWorkspaceList().size() + 1);
+      String defaultWsName =
+          TextDefs.Workspace.defaultWsName.get(wss.getWorkspaceList().size() + 1);
       TextInputDialog dialog = new TextInputDialog(defaultWsName);
-      dialog.setTitle("ワークスペースの作成");
+      dialog.setTitle(TextDefs.Workspace.PromptToNameWs.title.get());
       dialog.setHeaderText(null);
-      dialog.setContentText("ワークスペース名を入力してください");
-      dialog.getDialogPane().getStylesheets().addAll(menuOpViewBase.getScene().getStylesheets());
+      dialog.setContentText(TextDefs.Workspace.PromptToNameWs.body.get());
+      dialog.getDialogPane().getStylesheets().addAll(menuPanelBase.getScene().getStylesheets());
       Optional<String> inputText = dialog.showAndWait();
       inputText.ifPresent(wsName -> {
         UserOperation userOpe = new UserOperation();
@@ -384,7 +386,7 @@ public class MenuOperationController {
     Optional<Pair<NodeGraphSnapshot, BhNode>> snapshotAndNodeToExecOpt = Optional.empty();
     try {
       if (preparingForExecution.get()) {
-        BhService.msgPrinter().errForUser("!! 実行準備中 !!\n");
+        BhService.msgPrinter().infoForUser(TextDefs.BhRuntime.AlreadyDoing.preparation.get());
         return;
       }
       BhService.bhNodeSelectionService().hideAll();
@@ -444,10 +446,10 @@ public class MenuOperationController {
    */
   private Future<Boolean> startProgram(Path filePath) {
     if (isLocalHost()) {
-      return BhProgramService.local().executeAsync(
+      return BhRuntimeService.local().executeAsync(
           filePath, BhConstants.BhRuntime.LOLCAL_HOST);
     }
-    return BhProgramService.remote().executeAsync(
+    return BhRuntimeService.remote().executeAsync(
         filePath,
         ipAddrTextField.getText(),
         unameTextField.getText(),
@@ -457,14 +459,14 @@ public class MenuOperationController {
   /** 終了ボタン押下時の処理. */
   private void terminate() {
     if (preparingForTermination.get()) {
-      BhService.msgPrinter().errForUser("!! 終了準備中 !!\n");
+      BhService.msgPrinter().infoForUser(TextDefs.BhRuntime.AlreadyDoing.termination.get());
       return;
     }
     Future<Boolean> future;
     if (isLocalHost()) {
-      future = BhProgramService.local().terminateAsync();
+      future = BhRuntimeService.local().terminateAsync();
     } else {
-      future = BhProgramService.remote().terminateAsync();
+      future = BhRuntimeService.remote().terminateAsync();
     }
     preparingForTermination.set(true);
     waitTaskExec.submit(() -> {
@@ -476,14 +478,14 @@ public class MenuOperationController {
   /** 切断ボタン押下時の処理. */
   private void disconnect() {
     if (disconnecting.get()) {
-      BhService.msgPrinter().errForUser("!! 切断準備中 !!\n");
+      BhService.msgPrinter().infoForUser(TextDefs.BhRuntime.AlreadyDoing.disconnection.get());
       return;
     }
     Future<Boolean> future;
     if (isLocalHost()) {
-      future = BhProgramService.local().disconnectAsync();
+      future = BhRuntimeService.local().disconnectAsync();
     } else {
-      future = BhProgramService.remote().disconnectAsync();
+      future = BhRuntimeService.remote().disconnectAsync();
     }
     disconnecting.set(true);
     waitTaskExec.submit(() -> {
@@ -495,14 +497,14 @@ public class MenuOperationController {
   /** 接続ボタン押下時の処理. */
   private void connect() {
     if (connecting.get()) {
-      BhService.msgPrinter().errForUser("!! 接続準備中 !!\n");
+      BhService.msgPrinter().infoForUser(TextDefs.BhRuntime.AlreadyDoing.connection.get());
       return;
     }
     Future<Boolean> future;
     if (isLocalHost()) {
-      future = BhProgramService.local().connectAsync();
+      future = BhRuntimeService.local().connectAsync();
     } else {
-      future = BhProgramService.remote().connectAsync();
+      future = BhRuntimeService.remote().connectAsync();
     }
     connecting.set(true);
     waitTaskExec.submit(() -> {
@@ -541,21 +543,22 @@ public class MenuOperationController {
     BhRuntimeStatus status;
     var cmd = new InputTextCmd(stdInTextField.getText());
     if (isLocalHost()) {
-      status = BhProgramService.local().sendAsync(cmd);
+      status = BhRuntimeService.local().sendAsync(cmd);
     } else {
-      status = BhProgramService.remote().sendAsync(cmd);
+      status = BhRuntimeService.remote().sendAsync(cmd);
     }
     switch (status) {
       case SEND_QUEUE_FULL:
-        BhService.msgPrinter().errForUser("!! 送信失敗 (送信データ追加失敗) !!\n");
+        BhService.msgPrinter().errForUser(TextDefs.BhRuntime.Communication.failedToPushText.get());
         break;
 
       case SEND_WHEN_DISCONNECTED:
-        BhService.msgPrinter().errForUser("!! 送信失敗 (未接続) !!\n");
+        BhService.msgPrinter().errForUser(
+            TextDefs.BhRuntime.Communication.failedToSendTextForNoConnection.get());
         break;
 
       case SUCCESS:
-        BhService.msgPrinter().errForUser("-- 送信完了 --\n");
+        BhService.msgPrinter().infoForUser(TextDefs.BhRuntime.Communication.hasSentText.get());
         break;
 
       default:
@@ -569,12 +572,12 @@ public class MenuOperationController {
       ipAddrTextField.setDisable(false);
       unameTextField.setDisable(false);
       passwordTextField.setDisable(false);
-      remotLocalSelectBtn.setText("リモート");
+      remotLocalSelectBtn.setText(TextDefs.Gui.MenuPanel.remote.get());
     } else {
       ipAddrTextField.setDisable(true);
       unameTextField.setDisable(true);
       passwordTextField.setDisable(true);
-      remotLocalSelectBtn.setText("ローカル");
+      remotLocalSelectBtn.setText(TextDefs.Gui.MenuPanel.local.get());
     }
   }
 

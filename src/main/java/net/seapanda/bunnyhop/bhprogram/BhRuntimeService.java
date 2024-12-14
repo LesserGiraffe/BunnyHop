@@ -19,14 +19,14 @@ package net.seapanda.bunnyhop.bhprogram;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 
 /**
- * BhProgram の実行、終了、通信を行うオブジェクトを提供するクラス.
+ * BhRuntime の操作を行うオブジェクトを提供するクラス.
  *
  * @author K.Koike
  */
-public class BhProgramService {
+public class BhRuntimeService {
 
-  private static LocalBhProgramManager localManager;
-  private static RemoteBhProgramManager remoteManager;
+  private static LocalBhRuntimeManager localManager;
+  private static RemoteBhRuntimeManager remoteManager;
 
   /**
    * statis メンバの初期化を行う.
@@ -34,9 +34,9 @@ public class BhProgramService {
    * @param simCmdProcessor BhSimulator 用のコマンドを処理するオブジェクト.
    */
   public static boolean init(SimulatorCmdProcessor simCmdProcessor) {
-    localManager = new LocalBhProgramManager(simCmdProcessor);
+    localManager = new LocalBhRuntimeManager(simCmdProcessor);
     try {
-      remoteManager = new RemoteBhProgramManager(simCmdProcessor);
+      remoteManager = new RemoteBhRuntimeManager(simCmdProcessor);
     } catch (IllegalStateException e) {
       return false;
     }
@@ -44,12 +44,12 @@ public class BhProgramService {
   }
 
   /** ローカル環境で動作する BhProgram を制御するためのオブジェクトを取得する. */
-  public static LocalBhProgramManager local() {
+  public static LocalBhRuntimeManager local() {
     return localManager;
   }
 
   /** リモート環境で動作する BhProgram を制御するためのオブジェクトを取得する. */
-  public static RemoteBhProgramManager remote() {
+  public static RemoteBhRuntimeManager remote() {
     return remoteManager;
   }
 }

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.*?>
+<?import net.seapanda.bunnyhop.common.Rem?>
+<?import net.seapanda.bunnyhop.common.TextFetcher?>
+
+<VBox
+  xmlns:fx="http://javafx.com/fxml"
+  fx:controller="net.seapanda.bunnyhop.control.MenuPanelController"
+  fx:id="menuPanelBase">
+  <fx:define>
+    <Rem fx:id="widenSize" rem="2.0"/>
+    <Rem fx:id="narrowSize" rem="2.0"/>
+    <Rem fx:id="zoomSize" rem="2.0"/>
+    <Rem fx:id="undoRedoSize" rem="2.0"/>
+    <Rem fx:id="startSize" rem="2.0"/>
+    <Rem fx:id="stopSize" rem="2.0"/>
+    <Rem fx:id="focusSimSize" rem="2.0"/>
+    <Rem fx:id="addWsSize" rem="2.0"/>
+    <TextFetcher fx:id="copyText" textId="gui,menu-panel,copy"/>
+    <TextFetcher fx:id="cutText" textId="gui,menu-panel,cut"/>
+    <TextFetcher fx:id="pasteText" textId="gui,menu-panel,paste"/>
+    <TextFetcher fx:id="deleteText" textId="gui,menu-panel,delete"/>
+    <TextFetcher fx:id="jumpText" textId="gui,menu-panel,jump"/>
+    <TextFetcher fx:id="connectText" textId="gui,menu-panel,connect"/>
+    <TextFetcher fx:id="disconnectText" textId="gui,menu-panel,disconnect"/>
+    <TextFetcher fx:id="localText" textId="gui,menu-panel,local"/>
+    <TextFetcher fx:id="ipAddrText" textId="gui,menu-panel,ip-addr"/>
+    <TextFetcher fx:id="usernameText" textId="gui,menu-panel,username"/>
+    <TextFetcher fx:id="passwordText" textId="gui,menu-panel,password"/>
+    <TextFetcher fx:id="stdinText" textId="gui,menu-panel,stdin"/>
+    <TextFetcher fx:id="sendText" textId="gui,menu-panel,send"/>
+  </fx:define>
+  <FlowPane
+    fx:id="menuPanelUpper"
+    styleClass="menuPanelFlowPane">
+    <Button text="$copyText.text" fx:id="copyBtn" styleClass="menuPanelFlatButtons"/> <!-- コピー -->
+    <Button text="$cutText.text" fx:id="cutBtn" styleClass="menuPanelFlatButtons"/> <!-- カット -->
+    <Button text="$pasteText.text" fx:id="pasteBtn" styleClass="menuPanelFlatButtons"/> <!-- 貼り付け -->
+    <Button text="$deleteText.text" fx:id="deleteBtn" styleClass="menuPanelFlatButtons"/> <!-- 削除 -->
+    <Button text="$jumpText.text" fx:id="jumpBtn" styleClass="menuPanelFlatButtons"/> <!-- ジャンプ -->
+    <Separator fx:id="menuPanelSeparator0" orientation="VERTICAL" styleClass="menuPanelSeparator"/>
+    <Button fx:id="undoBtn" styleClass="menuPanelFlatButtons"> <!-- 元に戻す -->
+      <graphic>
+        <ImageView>
+          <Image url="@../images/undo.png" smooth="true" requestedWidth="$zoomSize.rem" requestedHeight="$zoomSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+    <Button fx:id="redoBtn" styleClass="menuPanelFlatButtons"> <!-- やり直す -->
+      <graphic>
+        <ImageView>
+          <Image url="@../images/redo.png" smooth="true" requestedWidth="$zoomSize.rem" requestedHeight="$zoomSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+    <Separator fx:id="menuPanelSeparator1" orientation="VERTICAL" styleClass="menuPanelSeparator"/>
+    
+    <Button fx:id="zoomInBtn" styleClass="menuPanelFlatButtons"> <!-- 拡大 -->
+      <graphic>
+        <ImageView>
+          <Image url="@../images/zoomIn.png" smooth="true" requestedWidth="$zoomSize.rem" requestedHeight="$zoomSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+    <Button fx:id="zoomOutBtn" styleClass="menuPanelFlatButtons"> <!-- 縮小 -->
+      <graphic>
+        <ImageView>
+          <Image url="@../images/zoomOut.png" smooth="true" requestedWidth="$zoomSize.rem" requestedHeight="$zoomSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+    <Separator fx:id="menuPanelSeparator2" orientation="VERTICAL" styleClass="menuPanelSeparator"/>
+    
+    <Button fx:id="addWorkspaceBtn" styleClass="menuPanelFlatButtons"> <!-- ワークスペースの追加 -->
+      <graphic>
+        <ImageView>
+          <Image url="@../images/addWorkspace.png" requestedWidth="$addWsSize.rem" requestedHeight="$addWsSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+
+    <Button fx:id="widenBtn" styleClass="menuPanelFlatButtons"> <!-- 広げる -->
+      <graphic>
+        <ImageView>
+          <Image url="@../images/widen.png" requestedWidth="$widenSize.rem" requestedHeight="$widenSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+    <Button fx:id="narrowBtn" styleClass="menuPanelFlatButtons"> <!-- 狭める -->
+      <graphic>
+        <ImageView>
+          <Image url="@../images/narrow.png" requestedWidth="$narrowSize.rem" requestedHeight="$narrowSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+    <Separator fx:id="menuPanelSeparator3" orientation="VERTICAL" styleClass="menuPanelSeparator"/>
+    
+    <Button fx:id="executeBtn" styleClass="menuPanelFlatButtons"> <!-- 実行 -->
+      <graphic>
+        <ImageView>
+          <Image url="@../images/start.png" smooth="true" requestedWidth="$startSize.rem" requestedHeight="$startSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+    <Button fx:id="terminateBtn" styleClass="menuPanelFlatButtons">
+      <graphic>
+        <ImageView>
+          <Image url="@../images/stop.png" smooth="true" requestedWidth="$stopSize.rem" requestedHeight="$stopSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button> <!-- 停止 -->
+    
+    <Button text="$connectText.text" fx:id="connectBtn" styleClass="menuPanelFlatButtons"/>
+    <Button text="$disconnectText.text" fx:id="disconnectBtn" styleClass="menuPanelFlatButtons"/>
+    <Separator fx:id="menuPanelSeparator4" orientation="VERTICAL" styleClass="menuPanelSeparator"/>
+    <Button fx:id="focusSimBtn" styleClass="menuPanelFlatButtons">
+      <graphic>
+        <ImageView>
+          <Image url="@../images/focusSimulator.png" smooth="true" requestedWidth="$focusSimSize.rem" requestedHeight="$focusSimSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button> <!-- シミュレータにフォーカス -->
+  </FlowPane>
+  
+  <FlowPane
+    fx:id="menuPanelLower"
+    styleClass="menuPanelFlowPane">
+    <ToggleButton fx:id="remotLocalSelectBtn" text="$localText.text" styleClass="menuPanelButtons"/> <!-- リモート/ローカル-->
+    <TextField fx:id="ipAddrTextField" disable="true" promptText="$ipAddrText.text"/>  <!-- IP アドレス -->
+    <TextField fx:id="unameTextField" disable="true" promptText="$usernameText.text"/> <!-- ユーザ名 -->
+    <PasswordField fx:id="passwordTextField" disable="true" promptText="$passwordText.text"/> <!-- パスワード -->
+    <Separator fx:id="menuSeparator4" orientation="VERTICAL" styleClass="menuPanelSeparator"/>
+    <TextField fx:id="stdInTextField" promptText="$stdinText.text"/> <!-- 標準入力 -->
+    <Button text="$sendText.text" fx:id="sendBtn" styleClass="menuPanelButtons"/> <!-- 送信 -->
+  </FlowPane>
+</VBox>

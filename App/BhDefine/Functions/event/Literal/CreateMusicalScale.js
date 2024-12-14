@@ -1,16 +1,16 @@
 (function() {
   return [
-    ['-9', 'ド'],
-    ['-8', 'ド＃'],
-    ['-7', 'レ'],
-    ['-6', 'レ＃'],
-    ['-5', 'ミ'],
-    ['-4', 'ファ'],
-    ['-3', 'ファ＃'],
-    ['-2', 'ソ'],
-    ['-1', 'ソ＃'],
-    ['0',  'ラ'],
-    ['1',  'ラ＃'],
-    ['2',  'シ']
+    ['-9', bhTextDb.get('node', 'musical-scale', 'c')],
+    ['-8', bhTextDb.get('node', 'musical-scale', 'c#')],
+    ['-7', bhTextDb.get('node', 'musical-scale', 'd')],
+    ['-6', bhTextDb.get('node', 'musical-scale', 'd#')],
+    ['-5', bhTextDb.get('node', 'musical-scale', 'e')],
+    ['-4', bhTextDb.get('node', 'musical-scale', 'f')],
+    ['-3', bhTextDb.get('node', 'musical-scale', 'f#')],
+    ['-2', bhTextDb.get('node', 'musical-scale', 'g')],
+    ['-1', bhTextDb.get('node', 'musical-scale', 'g#')],
+    ['0',  bhTextDb.get('node', 'musical-scale', 'a')],
+    ['1',  bhTextDb.get('node', 'musical-scale', 'a#')],
+    ['2',  bhTextDb.get('node', 'musical-scale', 'b')]
   ];
 })();

@@ -1,6 +1,6 @@
 (function() {
   return [
-    ['max', '大きい方'],
-    ['min', '小さい方']
+    ['max', bhTextDb.get('node', 'max-min-ops', 'max')],
+    ['min', bhTextDb.get('node', 'max-min-ops', 'min')]
   ];
 })();

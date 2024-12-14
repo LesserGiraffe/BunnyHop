@@ -21,7 +21,7 @@
         bhNodeID="idCommentPart.node0"
         name="Comment"
         nodeStyleID="DefaultTextArea.json"
-        initialText="説明"
+        initialText="${node}{comment-part}{initial}"
         version="bh-1.0"/>
     </Connector>
 

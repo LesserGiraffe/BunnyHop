@@ -8,6 +8,12 @@
 <fx:root
   xmlns:fx="http://javafx.com/fxml"
   type="Tab">
+  <graphic>
+    <Pane fx:id="tabNamePane">
+      <Label fx:id="tabNameLabel"/>
+      <TextField fx:id="tabNameTextField"/>
+    </Pane>
+  </graphic>
   <ScrollPane
     fx:id="wsScrollPane"
     HbarPolicy="AS_NEEDED"

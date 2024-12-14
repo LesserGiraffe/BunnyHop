@@ -47,7 +47,7 @@ public class Workspace implements CmdDispatcher, Serializable {
   /** 選択中のノード. 挿入順を保持したいので LinkedHashSet を使う. */
   private final Set<BhNode> selectedList = new LinkedHashSet<BhNode>();
   /** ワークスペース名. */
-  private final String workspaceName;
+  private String name;
   /**
    * <pre>
    * 選択ノードリストに変化があった時に呼び出すイベントハンドラのリストと呼び出しスレッドのフラグのマップ.
@@ -66,10 +66,11 @@ public class Workspace implements CmdDispatcher, Serializable {
   /**
    * コンストラクタ.
    *
-   * @param workspaceName ワークスペース名
+   * @param name ワークスペース名
    */
-  public Workspace(String workspaceName) {
-    this.workspaceName = workspaceName;
+  public Workspace(String name) {
+    name = (name == null) ? "" : name;
+    this.name = name;
   }
 
   /**
@@ -224,7 +225,17 @@ public class Workspace implements CmdDispatcher, Serializable {
    * @return ワークスペース名
    */
   public String getName() {
-    return workspaceName;
+    return name;
+  }
+
+  /**
+   * ワークスペース名を設定する.
+   *
+   * @param name 設定するワークスペース名
+   */
+  public void setName(String name) {
+    name = (name == null) ? "" : name;
+    this.name = name;
   }
 
   /**

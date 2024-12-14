@@ -48,10 +48,10 @@
   }
 
   /**
-   * from の descendantPath の位置にあるノードを to の descendantPath の位置にあるノードに移す.
-   * to の descendantPath の位置にあったノードは削除される.
-   * @param to from の descendantPathの位置にあるノードをこのノードの descendantPath の位置に移す
-   * @param from このノードの path の位置のノードを to の位置の path の位置に移す
+   * from から見て descendantPath の位置にあるノードを to から見て descendantPath の位置にあるノードに移す.
+   * to から見て descendantPath の位置にあったノードは削除される.
+   * @param to from の descendantPath の位置にあるノードをこのノードの descendantPath の位置に移す
+   * @param from このノードの descendantPath の位置のノードを to の位置の descendantPath の位置に移す
    * @param descendantPath 移し元および移し先のノードのパス
    * @param bhUserOpe undo/redo用コマンドオブジェクト
    */
@@ -61,75 +61,68 @@
     bhNodePlacer.replaceChild(oldNode, childToBeMoved, bhUserOpe);
     bhNodePlacer.deleteNode(oldNode, bhUserOpe);
   }
-
-  /**
-   * ステートノードを入れ替える.
-   * @param oldStat 入れ替えられる古いステートノード
-   * @param newStat 入れ替える新しいステートノード
-   * @param userOpe undo/redo用コマンドオブジェクト
-   */
-  function replaceStatWithNewStat(oldStat, newStat, bhUserOpe) {
-    let nextStatOfOldStat = oldStat.findSymbolInDescendants('*', 'NextStat', '*');
-    let nextStatOfNewStat = newStat.findSymbolInDescendants('*', 'NextStat', '*');
-    bhNodePlacer.exchangeNodes(nextStatOfOldStat, nextStatOfNewStat, bhUserOpe);
-    bhNodePlacer.exchangeNodes(oldStat, newStat, bhUserOpe);
-  }
   
   /**
-   * node の外部ノードが cut か delete の対象でない場合, 適切な位置に再接続する
-   * @param node このノードの外部ノードが cut か delete の対象でない場合, それを繋ぎ換える
-   * @param cadidates cut か delete の対象ノードのリスト
-   * @param userOpe undo/redo用コマンドオブジェクト
+   * startNode とその先祖ノード全体を A とする.
+   * B = { a ∈ A | a の親ノードが ignoredList の含まれていない }
+   * としたとき, B の中で親子関係が最も startNode に近いノードを b とする.
+   * 
+   * ignoredList の中に node が含まれていない場合 b と入れ替える.
+   * startNode が null の場合や b が存在しない場合は node をワークスペースに移動する.
+   * 
+   * node が 'VarDeclVoid', 'GlobalDataDeclVoid', 'VoidStat' のいずれかであった場合は何もしない.
+   * node === b であった場合も何もしない.
+   * 
+   * b が 'VarDeclVoid', 'GlobalDataDeclVoid', 'VoidStat' のいずれかであった場合削除される.
    */
-  function reconnectOuter(node, candidates, bhCmdProxy, userOpe) {
-    // 移動させる外部ノードを探す
-    let nodeToReconnect = node.findOuterNode(1);
-    if (nodeToReconnect === null)
+  function reconnect(node, startNode, ignoredList, bhCmdProxy, userOpe) {
+    if (node === null) {
       return;
-    
+    }
     // 繋ぎ換える必要がないノード
-    let outersNotToReconnect = ['VarDeclVoid', 'GlobalDataDeclVoid', 'VoidStat'];
-    let isOuterNotToReconnect = outersNotToReconnect.some(nodeName => nodeName === String(nodeToReconnect.getSymbolName()));
-    if (isOuterNotToReconnect)
+    let notToReconnect = ['VarDeclVoid', 'GlobalDataDeclVoid', 'VoidStat'];
+    // Java のリストに対して, Array.prototype.includes は定義されていないので, 代わりに indexOf を使う.
+    // indexOf は Java のリストに対しても呼び出すことができる.
+    if (notToReconnect.indexOf(String(node.getSymbolName())) >= 0
+        || ignoredList.indexOf(node) >= 0) {
       return;
+    }
 
-    candidates = toJsArray(candidates);
-    if (candidates.includes(nodeToReconnect))
+    let toBeReaplced = findNodeWhoseParentIsNotInList(startNode, ignoredList);    
+    if (node === toBeReaplced) {
       return;
-    
-    let nodeToReplace = findNodeToBeReplaced(nodeToReconnect, node, candidates);
-    
-    // 接続先が無い場合は, ワークスペースへ
-    if (nodeToReplace === null) {
-      let posOnWS = bhCmdProxy.getPosOnWs(nodeToReconnect);
-      bhNodePlacer.moveToWs(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpe);
+    } else if (toBeReaplced === null) {
+      // 接続先が無い場合は, ワークスペースへ
+      let posOnWS = bhCmdProxy.getPosOnWs(node);
+      bhNodePlacer.moveToWs(node.getWorkspace(), node, posOnWS.x, posOnWS.y, userOpe);
+    } else {
+      let posOnWS = bhCmdProxy.getPosOnWs(node);
+      bhNodePlacer.moveToWs(node.getWorkspace(), node, posOnWS.x, posOnWS.y, userOpe);
+      bhNodePlacer.exchangeNodes(node, toBeReaplced, userOpe);
+      if (notToReconnect.indexOf(String(toBeReaplced.getSymbolName())) >= 0) {
+        bhNodePlacer.deleteNode(toBeReaplced, userOpe)
+      }
     }
-    else {
-      let posOnWS = bhCmdProxy.getPosOnWs(nodeToReconnect);
-      bhNodePlacer.moveToWs(nodeToReconnect.getWorkspace(), nodeToReconnect, posOnWS.x, posOnWS.y, userOpe);
-      bhNodePlacer.exchangeNodes(nodeToReconnect, nodeToReplace, userOpe);
-    }
-    return;
   }
 
-  /**
-   * 外部ノードの接続先ノードを探す
-   */
-  function findNodeToBeReplaced(nodeToReconnect, nodeToCheckReplaceability, candidates) {
-    let parent = nodeToCheckReplaceability.findParentNode();
-    if (parent === null)
+  function findNodeWhoseParentIsNotInList(node, list) {
+    if (node === null) {
       return null;
-
-    if (candidates.includes(parent))
-      return findNodeToBeReplaced(nodeToReconnect, parent, candidates);
-
-    return nodeToCheckReplaceability;
+    }
+    let parent = node.findParentNode();
+    if (parent === null) {
+      return null;
+    }
+    if (list.indexOf(parent) >= 0) {
+      return findNodeWhoseParentIsNotInList(parent, list);
+    }
+    return node;
   }
   
   /**
    * static-type の式である場合 true を返す.
    */
-  function isStaticTypeExp(node) {
+  function isPrimitiveTypeExp(node) {
     let section = node.findSymbolInDescendants('*');
     let sectionName = null;
     if (section !== null)
@@ -173,25 +166,30 @@
     connector.getConnectedNode().remove(bhUserOpe);
   }
 
-  /** Java の List を JavaScript の配列に変換する. */
-  function toJsArray(javaArray) {
-    let jsArray = [];
-    for (let elem of javaArray) {
-      jsArray.push(elem);
+  /**
+   * node から外部子ノードをたどり, 最初に見つかった非選択状態のノードを返す.
+   * 見つからなかった場合は null を返す.
+   */
+  function findOuterNotSelected(node) {
+    let outerNode = node.findOuterNode(1);
+    if (outerNode === null) {
+      return null;
     }
-    return jsArray;
+    if (!outerNode.isSelected()) {
+      return outerNode;
+    }
+    return findOuterNotSelected(outerNode);
   }
 
   bhCommon['appendRemovedNode'] = appendRemovedNode;
   bhCommon['addNewNodeToWS'] = addNewNodeToWS;
   bhCommon['replaceDescendant'] = replaceDescendant;
-  bhCommon['replaceStatWithNewStat'] = replaceStatWithNewStat;
   bhCommon['moveDescendant'] = moveDescendant;
-  bhCommon['isStaticTypeExp'] = isStaticTypeExp;
-  bhCommon['reconnectOuter'] = reconnectOuter;
+  bhCommon['isPrimitiveTypeExp'] = isPrimitiveTypeExp;
+  bhCommon['reconnect'] = reconnect;
   bhCommon['buildDerivative'] = buildDerivative;
   bhCommon['createBhNode'] = createBhNode;
   bhCommon['changeDefaultNode'] = changeDefaultNode;
-  bhCommon['toJsArray'] = toJsArray;  
+  bhCommon['findOuterNotSelected'] = findOuterNotSelected;
   return bhCommon;
 })();

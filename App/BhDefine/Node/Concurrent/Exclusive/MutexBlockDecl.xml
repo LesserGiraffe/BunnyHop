@@ -1,42 +1,42 @@
 <Node
   type="connective"
-  bhNodeID="idCriticalSectionDecl"
-  name="CriticalSectionDecl"
-  nodeStyleID="CriticalSectionDecl.json"
-  onPrivateTemplateCreating="CreateCriticalSectionDeclPrivateTemplate.js"
+  bhNodeID="idMutexBlockDecl"
+  name="MutexBlockDecl"
+  nodeStyleID="MutexBlockDecl.json"
+  onPrivateTemplateCreating="CreateMutexBlockDeclPrivateTemplate.js"
   onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
   version="bh-1.0">
 
-  <Derivation derivationID="dervIdCriticalSectionStat" derivativeID="idCriticalSectionStat"/>
+  <Derivation derivationID="dervIdMutexBlockStat" derivativeID="idMutexBlockStat"/>
 
   <ConnectorSection name="GlobalDataDeclSctn">
 
     <Connector
-      bhConnectorID="idCriticalSectionDecl.cnctr0"
+      bhConnectorID="idMutexBlockDecl.cnctr0"
       import="idIdentifierNameCnctr"
-      name="CriticalSectionName"
+      name="MutexBlockName"
       derivationID="dervIdIdentifierName"
       derivativeJoint="dervJointVarName"/>
 
     <Connector
-      bhConnectorID="idCriticalSectionDecl.cnctr1"
+      bhConnectorID="idMutexBlockDecl.cnctr1"
       name="Arg0"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idCriticalSectionDecl.node1"
+        bhNodeID="idMutexBlockDecl.node1"
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateCriticalSectionOps.js"
+        onTextOptionsCreating="CreateMutexBlockOps.js"
         version="bh-1.0">
       </Node>
     </Connector>
 
     <Connector
-      bhConnectorID="idCriticalSectionDecl.cnctr2"
+      bhConnectorID="idMutexBlockDecl.cnctr2"
       import="idGlobalDataDeclCnctr"
       name="NextGlobalDataDecl"/>
   </ConnectorSection>

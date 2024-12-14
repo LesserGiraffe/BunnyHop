@@ -103,7 +103,7 @@ public class BhNodePlacer {
         BhService.cmdProxy().removeFromGuiTree(node);  // GUIツリー上から削除
         break;
 
-      case ROOT_DIRECTLY_UNDER_WS:
+      case ROOT_ON_WS:
         removeFromWs(node, userOpe);
         break;
 
@@ -261,11 +261,8 @@ public class BhNodePlacer {
    * @param nodeB 入れ替えたいノード (ダングリング状態のノードはエラー)
    */
   public void exchangeNodes(BhNode nodeA, BhNode nodeB, UserOperation userOpe) {
-    if (nodeA.getState() == BhNode.State.DELETED
-        || nodeA.getState() == BhNode.State.ROOT_DANGLING
-        || nodeB.getState() == BhNode.State.DELETED
-        || nodeB.getState() == BhNode.State.ROOT_DANGLING) {
-
+    if (nodeA.isDeleted() || nodeA.isRootDangling()
+        || nodeB.isDeleted() || nodeB.isRootDangling()) {
       throw new IllegalStateException(
           "try to exchange dangling/deleted nodes.    %s(%s)  %s(%s)".formatted(
               nodeA.getSymbolName(), nodeA.getState(), nodeB.getSymbolName(), nodeB.getState()));
@@ -274,7 +271,7 @@ public class BhNodePlacer {
       throw new IllegalStateException("try to exchange parent-child relationship nodes.    %s  %s"
           .formatted(nodeA.getSymbolName(), nodeB.getSymbolName()));
     }
-    if (nodeA.getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS
+    if (nodeA.getState() == BhNode.State.ROOT_ON_WS
         && nodeB.getState() == BhNode.State.CHILD) {
       //swap
       BhNode tmp = nodeA;

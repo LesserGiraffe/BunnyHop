@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -95,7 +94,6 @@ public class ProjectImporter {
    * @return インポートの結果を格納した {@link ProjectImporter.Result} オブジェクト
    */
   public static Result imports(Path filePath) throws
-      FileNotFoundException,
       IOException,
       JsonIOException,
       JsonSyntaxException,
@@ -134,7 +132,6 @@ public class ProjectImporter {
    * @return {@code filePath} から復元したワークスペース一式
    */
   public List<Workspace> load(Path filePath) throws
-      FileNotFoundException,
       IOException,
       JsonIOException,
       JsonSyntaxException,
@@ -169,10 +166,10 @@ public class ProjectImporter {
   /** セーブデータのバージョンをチェックする. */
   void checkSaveDataVersion(SaveDataVersion version) throws IncompatibleSaveFormatException {
     if (version == null
-        || !version.compPrefix(BhConstants.saveDataVersion)
-        || !version.compMajor(BhConstants.saveDataVersion)) {
+        || !version.compPrefix(BhConstants.SAVE_DATA_VERSION)
+        || !version.compMajor(BhConstants.SAVE_DATA_VERSION)) {
       String msg = "Incompatible save data version : %s.\nSupported save data version: %s."
-          .formatted(version, BhConstants.saveDataVersion);
+          .formatted(version, BhConstants.SAVE_DATA_VERSION);
       throw new IncompatibleSaveFormatException(msg, version);
     }
   }

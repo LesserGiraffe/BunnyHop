@@ -18,7 +18,7 @@
       "subGroup0" : {
         "arrangement" : "Row",
         "space" : 2.0,
-        "connectorList" : ["${L2}{排他区間}", "CriticalSectionName"]
+        "connectorList" : ["${L2}{排他区間}", "MutexBlockName"]
       },
       "subGroup1" : {
         "connectorList" : ["ExclusiveStat"]

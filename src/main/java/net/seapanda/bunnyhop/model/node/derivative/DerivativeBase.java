@@ -169,7 +169,7 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
     if (getState() != BhNode.State.CHILD) {
       return false;
     }
-    if (findRootNode().getState() != BhNode.State.ROOT_DIRECTLY_UNDER_WS) {
+    if (findRootNode().getState() != BhNode.State.ROOT_ON_WS) {
       return false;
     }
     // 同じ tree に含まれている場合置き換え不可

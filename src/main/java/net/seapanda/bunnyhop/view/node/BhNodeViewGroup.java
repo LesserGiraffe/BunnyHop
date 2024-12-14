@@ -42,6 +42,17 @@ import net.seapanda.bunnyhop.view.traverse.NodeViewProcessor;
  */
 public class BhNodeViewGroup implements NodeViewComponent, Showable {
 
+  private static Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
+  private static Pattern escapeRbrace = Pattern.compile(Pattern.quote("\\}"));
+  /** `\\...\$` */
+  private static Pattern escapeDollar = Pattern.compile("^(\\\\)+\\$");
+  /** 疑似ビュー指定パターン `${a}{b}...{z}` */
+  private static Pattern embeded =
+      Pattern.compile("^\\$(\\{(((\\\\\\{)|(\\\\\\})|[^\\{\\}])*)\\}){2,}$");
+  /** 疑似ビュー指定パターン `${a}{b}...{z}` の (a, b, ..., z) を取り出す用. */
+  private static Pattern contents =
+      Pattern.compile("\\{((?:(?:\\\\\\{)|(?:\\\\\\})|[^\\{\\}])*)\\}");
+
   /** このグループが子となる {@link BhNodeViewGroup} のリスト. */
   private final List<BhNodeViewGroup> subGroupList = new ArrayList<>();
   /** このグループを持つ {@link ConnectiveNodeView}. */
@@ -94,17 +105,18 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       throws ViewInitializationException {
     this.arrangeParams = arrangeParams;
     for (String cnctrName : arrangeParams.cnctrNameList) {
-      // コネクタ名が $ から始まる場合は, 疑似ビューの指定と見なす.
-      if (cnctrName.startsWith("$")) {
-        BhNodeView view = createPseudoView(cnctrName, styleId);
-        view.getTreeManager().setParentGroup(this);
-        String pseudoViewName = "$" + pseudoViewId++;
-        childNameToNodeView.put(pseudoViewName, view);
-        childNames.add(pseudoViewName);
-        continue;
+      String childName = cnctrName;
+      BhNodeView childView = null;
+      // 疑似ビュー指定パターン
+      if (embeded.matcher(cnctrName).find()) {
+        childName = "$" + pseudoViewId++;
+        childView = createPseudoView(cnctrName);
+      } else if (escapeDollar.matcher(cnctrName).find()) {
+        // 先頭の `\` を取り除く.
+        childName = cnctrName.substring(1);
       }
-      childNameToNodeView.put(cnctrName, null);
-      childNames.add(cnctrName);
+      childNameToNodeView.put(childName, childView);
+      childNames.add(childName);
       // 外部ノードをつなぐコネクタは1つだけとする
       if (!inner) {
         return;
@@ -390,20 +402,18 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
   }
 
   /** このグループの中で定義された MVC 構造を持たない {@link BhNodeView} を作成する. */
-  public BhNodeView createPseudoView(String specification, String styleId)
-      throws ViewInitializationException {
-    String pattern = "^\\$(?:\\{((?:(?:\\\\\\{)|(?:\\\\\\})|[^\\{\\}])+)\\}){2,}$";
-    if (!specification.matches(pattern)) {
-      throw new ViewInitializationException(
-          "Invalid pseudo view format (%s) in %s.".formatted(specification, styleId));
-    }
-    pattern = "\\{((?:(?:\\\\\\{)|(?:\\\\\\})|[^\\{\\}])+)\\}";
-    Matcher matcher = Pattern.compile(pattern).matcher(specification);
+  private BhNodeView createPseudoView(String specification) throws ViewInitializationException {
+    Matcher matcher = contents.matcher(specification);
     List<String> specifiers = matcher.results().map(
-        result -> result.group(1).replaceAll("\\\\\\{", "{").replaceAll("\\\\\\}", "}")).toList();
+        result -> {  
+          String tmp = escapeLbrace.matcher(result.group(1)).replaceAll("{");
+          return escapeRbrace.matcher(tmp).replaceAll("}");
+        }).toList();
     String styleIdOfPseudoView =
         specifiers.get(0).endsWith(".json") ? specifiers.get(0) : specifiers.get(0) + ".json";
-    return createModellessNodeView(styleIdOfPseudoView, specifiers.get(1));
+    BhNodeView view = createModellessNodeView(styleIdOfPseudoView, specifiers.get(1));
+    view.getTreeManager().setParentGroup(this);
+    return view;
   }
 
   /**

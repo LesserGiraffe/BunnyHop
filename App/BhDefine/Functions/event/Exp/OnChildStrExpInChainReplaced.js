@@ -2,7 +2,7 @@
   let nextStrChainLinkExp = bhThis.findSymbolInDescendants('*', 'Arg1', '*');
 
   // 文字列挿入
-  if (bhCommon.isStaticTypeExp(bhReplacedNewNode)) {
+  if (bhCommon.isPrimitiveTypeExp(bhReplacedNewNode)) {
 
     // 新文字列リンクノード作成
     let posOnWS = bhCmdProxy.getPosOnWs(bhThis);

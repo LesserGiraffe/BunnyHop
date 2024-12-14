@@ -1,9 +1,9 @@
-.menuOpButtons {
+.menuPanelButtons {
   -fx-font-size: 1.1em;
   -fx-font-family: "Meiryo UI";
 }
 
-.menuOpFlatButtons{
+.menuPanelFlatButtons{
   -fx-border-color: transparent;
   -fx-border-width: 1;
   -fx-background-radius: 0;
@@ -12,28 +12,28 @@
   -fx-font-size: 1.1em;
 }
 
-.menuOpFlatButtons:hover {
+.menuPanelFlatButtons:hover {
   -fx-border-color: black;
   -fx-border-width: 1;
   -fx-border-radius: 0;
   -fx-border-style: solid;
 }
 
-.menuOpFlatButtons:pressed {
+.menuPanelFlatButtons:pressed {
   -fx-background-color: #D0D0D0;
 }
 
-#menuOpViewUpper {
+#menuPanelUpper {
   -fx-hgap: 0.2em;
   -fx-padding: 0.0em 0.0em 0.1em 0.5em;
 }
 
-#menuOpViewLower {
+#menuPanelLower {
   -fx-hgap: 0.5em;
   -fx-padding: 0.0em 0.0em 0.3em 0.5em;
 }
 
-#menuOpViewLower * {
+#menuPanelLower * {
   -fx-prompt-text-fill: #909090;
 }
 
@@ -67,6 +67,6 @@
   -fx-font-size: 1.1em;
 }
 
-.menuOpSeparator {
+.menuPanelSeparator {
   -fx-padding:0 0.2em 0 0.2em;
 }

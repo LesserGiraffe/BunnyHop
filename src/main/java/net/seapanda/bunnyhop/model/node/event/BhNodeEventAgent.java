@@ -19,6 +19,8 @@ package net.seapanda.bunnyhop.model.node.event;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -28,7 +30,6 @@ import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
@@ -51,31 +52,35 @@ public class BhNodeEventAgent implements Serializable {
     this.target = target;
   }
 
-  /**
-   * 初期値が設定されたスクリプトスコープを作成する.
-   */
-  public ScriptableObject newDefaultScriptScope() {
-    Context cx = ContextFactory.getGlobal().enterContext();
+  /** スクリプト実行時のスコープ変数を作成する. */
+  public ScriptableObject createScriptScope(Context cx, Map<String, Object> nameToObj) {
+    nameToObj = new HashMap<>(nameToObj);
+    nameToObj.put(BhConstants.JsIdName.BH_THIS, target);
+    nameToObj.put(BhConstants.JsIdName.BH_NODE_PLACER, BhService.bhNodePlacer());
+    nameToObj.put(BhConstants.JsIdName.BH_CMD_PROXY, BhService.cmdProxy());
+    nameToObj.put(BhConstants.JsIdName.BH_COMMON, BhService.bhScriptManager().getCommonJsObj());
+    nameToObj.put(BhConstants.JsIdName.BH_NODE_FACTORY, BhService.bhNodeFactory());
+    nameToObj.put(BhConstants.JsIdName.BH_TEXT_DB, BhService.textDb());
+
     ScriptableObject scope = cx.initStandardObjects();
-    ScriptableObject.putProperty(scope, BhConstants.JsKeyword.KEY_BH_THIS, target);
-    ScriptableObject.putProperty(
-        scope, BhConstants.JsKeyword.KEY_BH_NODE_PLACER, BhService.bhNodePlacer());
-    ScriptableObject.putProperty(
-        scope, BhConstants.JsKeyword.KEY_BH_CMD_PROXY, BhService.cmdProxy());
-    ScriptableObject.putProperty(
-        scope, BhConstants.JsKeyword.KEY_BH_COMMON, BhService.bhScriptManager().getCommonJsObj());
-    ScriptableObject.putProperty(
-        scope, BhConstants.JsKeyword.KEY_BH_NODE_FACTORY, BhService.bhNodeFactory());
-    Context.exit();
+    for (String name : nameToObj.keySet()) {
+      Object val = Context.javaToJS(nameToObj.get(name), scope);
+      scope.put(name, scope, val);
+    }
     return scope;
   }
 
+  /** スクリプト実行時のスコープ変数を作成する. */
+  public ScriptableObject createScriptScope(Context cx) {
+    return createScriptScope(cx, new HashMap<>());
+  }
 
   /**
    * 子ノードに移ったときの処理を実行する.
    *
-   * @param oldParent 移る前に接続されていた親. ワークスペースから子ノードに移動したときはnull.
-   * @param oldRoot 移る前に所属していたノードツリーのルートノード. ワークスペースから子ノードに移動したときは, このオブジェクト.
+   * @param oldParent 移る前に接続されていた親. ワークスペースから子ノードに移動したときは null.
+   * @param oldRoot 移る前に所属していたノードツリーのルートノード.
+   *                ワークスペースから子ノードに移動したときは, この処理を呼び出すノードを指定すること.
    * @param oldReplaced 元々子ノードとしてつながっていたノード
    * @param userOpe undo 用コマンドオブジェクト
    */
@@ -90,17 +95,20 @@ public class BhNodeEventAgent implements Serializable {
     if (onMovedToChild == null) {
       return;
     }
-    ScriptableObject scriptScope = newDefaultScriptScope();
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldReplaced);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE, userOpe);
+    Map<String, Object> nameToObj = new HashMap<>() {{
+        put(BhConstants.JsIdName.BH_OLD_PARENT, oldParent);
+        put(BhConstants.JsIdName.BH_OLD_ROOT, oldRoot);
+        put(BhConstants.JsIdName.BH_REPLACED_OLD_NODE, oldReplaced);
+        put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
+      }};
+    Context cx = Context.enter();
+    ScriptableObject scope = createScriptScope(cx, nameToObj);
     try {
-      ContextFactory.getGlobal().call(cx -> onMovedToChild.exec(cx, scriptScope));
+      onMovedToChild.exec(cx, scope);
     } catch (Exception e) {
       BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
+    } finally {
+      Context.exit();
     }
   }
 
@@ -125,19 +133,21 @@ public class BhNodeEventAgent implements Serializable {
     if (onMovedFromChildToWs == null) {
       return;
     }
-    ScriptableObject scriptScope = newDefaultScriptScope();
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_OLD_PARENT, oldParent);
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_OLD_ROOT, oldRoot);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newReplaced);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_IS_SPECIFIED_DIRECTLY, isSpecifiedDirectly);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE, userOpe);
+    Map<String, Object> nameToObj = new HashMap<>() {{
+        put(BhConstants.JsIdName.BH_OLD_PARENT, oldParent);
+        put(BhConstants.JsIdName.BH_OLD_ROOT, oldRoot);
+        put(BhConstants.JsIdName.BH_REPLACED_NEW_NODE, newReplaced);
+        put(BhConstants.JsIdName.BH_IS_SPECIFIED_DIRECTLY, isSpecifiedDirectly);
+        put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
+      }};
+    Context cx = Context.enter();
+    ScriptableObject scope = createScriptScope(cx, nameToObj);
     try {
-      ContextFactory.getGlobal().call(cx -> onMovedFromChildToWs.exec(cx, scriptScope));
+      onMovedFromChildToWs.exec(cx, scope);
     } catch (Exception e) {
       BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
+    } finally {
+      Context.exit();
     }
   }
 
@@ -160,19 +170,20 @@ public class BhNodeEventAgent implements Serializable {
     if (onChildReplaced == null) {
       return;
     }
-    ScriptableObject scriptScope = newDefaultScriptScope();
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_REPLACED_NEW_NODE, newChild);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_REPLACED_OLD_NODE, oldChild);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_PARENT_CONNECTOR, parentCnctr);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE, userOpe);
+    Map<String, Object> nameToObj = new HashMap<>() {{
+        put(BhConstants.JsIdName.BH_REPLACED_NEW_NODE, newChild);
+        put(BhConstants.JsIdName.BH_REPLACED_OLD_NODE, oldChild);
+        put(BhConstants.JsIdName.BH_PARENT_CONNECTOR, parentCnctr);
+        put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
+      }};
+    Context cx = Context.enter();
+    ScriptableObject scope = createScriptScope(cx, nameToObj);
     try {
-      ContextFactory.getGlobal().call(cx -> onChildReplaced.exec(cx, scriptScope));
+      onChildReplaced.exec(cx, scope);
     } catch (Exception e) {
       BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
+    } finally {
+      Context.exit();
     }
   }
 
@@ -202,26 +213,22 @@ public class BhNodeEventAgent implements Serializable {
     if (onDeletionRequested == null) {
       return true;
     }
-    ScriptableObject scriptScope = newDefaultScriptScope();
-    ScriptableObject.putProperty(
-        scriptScope,
-        BhConstants.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST,
-        new ArrayList<>(nodesToDelete));
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_CAUSE_OF_DELETION, causeOfDeletion);
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE, userOpe);
-    Object doDeletion = null;
+    Map<String, Object> nameToObj = new HashMap<>() {{
+        put(BhConstants.JsIdName.BH_CANDIDATE_NODE_LIST, new ArrayList<>(nodesToDelete));
+        put(BhConstants.JsIdName.BH_CAUSE_OF_DELETION, causeOfDeletion);
+        put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
+      }};
+    Context cx = Context.enter();
+    ScriptableObject scope = createScriptScope(cx, nameToObj);
     try {
-      doDeletion = ContextFactory.getGlobal().call(cx -> onDeletionRequested.exec(cx, scriptScope));
+      return (Boolean) onDeletionRequested.exec(cx, scope);
     } catch (Exception e) {
-      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(
+          "'%s' must return a boolean value.\n%s".formatted(scriptName.get(), e));
+    } finally {
+      Context.exit();
     }
-
-    if (doDeletion instanceof Boolean) {
-      return (Boolean) doDeletion;
-    }
-    throw new AssertionError(scriptName.get() + " must return a boolean value.");
+    return true;
   }
 
   /**
@@ -239,24 +246,21 @@ public class BhNodeEventAgent implements Serializable {
     if (onCutRequested == null) {
       return true;
     }
-    Object doCut = null;
-    ScriptableObject scriptScope = newDefaultScriptScope();
-    ScriptableObject.putProperty(
-        scriptScope,
-        BhConstants.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST,
-        new ArrayList<>(nodesToCut));
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE, userOpe);
+    Map<String, Object> nameToObj = new HashMap<>() {{
+        put(BhConstants.JsIdName.BH_CANDIDATE_NODE_LIST, new ArrayList<>(nodesToCut));
+        put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
+      }};
+    Context cx = Context.enter();
+    ScriptableObject scope = createScriptScope(cx, nameToObj);
     try {
-      doCut = ContextFactory.getGlobal().call(cx -> onCutRequested.exec(cx, scriptScope));
+      return (Boolean) onCutRequested.exec(cx, scope);
     } catch (Exception e) {
-      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(
+          "'%s' must return a boolean value.\n%s".formatted(scriptName.get(), e));
+    } finally {
+      Context.exit();
     }
-
-    if (doCut instanceof Boolean) {
-      return (Boolean) doCut;
-    }
-    throw new AssertionError(scriptName.get() + " must return a boolean value.");
+    return true;
   }
 
   /**
@@ -277,51 +281,46 @@ public class BhNodeEventAgent implements Serializable {
     if (onCopyRequested == null) {
       return Optional.ofNullable(defaultFunc);
     }
-
-    ScriptableObject scriptScope = newDefaultScriptScope();
-    ScriptableObject.putProperty(
-        scriptScope,
-        BhConstants.JsKeyword.KEY_BH_CANDIDATE_NODE_LIST,
-        new ArrayList<>(nodesToCopy));
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE, userOpe);
-    Object ret = null;
+    Map<String, Object> nameToObj = new HashMap<>() {{
+        put(BhConstants.JsIdName.BH_CANDIDATE_NODE_LIST, new ArrayList<>(nodesToCopy));
+        put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
+      }};
+    Context cx = Context.enter();
+    ScriptableObject scope = createScriptScope(cx, nameToObj);
     try {
-      ret = ContextFactory.getGlobal().call(cx -> onCopyRequested.exec(cx, scriptScope));
+      Function copyCheckFunc = (Function) onCopyRequested.exec(cx, scope);
+      return (copyCheckFunc == null)
+          ?  Optional.empty()
+          : Optional.of(node -> isNodeToCopy(node, copyCheckFunc, scriptName.get()));
     } catch (Exception e) {
-      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(String.format(
+          "'%s' must return null or a function that returns a boolean value.\n%s", scriptName, e));
+    } finally {
+      Context.exit();
     }
-    if (ret == null) {
-      return Optional.empty();
-    }
-    if (ret instanceof Function copyCheckFunc) {
-      return Optional.of(genCopyCheckFunc(copyCheckFunc, scriptName.get()));
-    }
-    throw new AssertionError(
-        scriptName.get() + " must return null or a function that returns a boolean value.");
+    return Optional.ofNullable(defaultFunc);
   }
 
   /**
-   * コピー判定関数を作成する.
+   * コピー判定関数.
    *
-   * @param copyCheckFunc 作成するコピー判定関数が呼び出す JavaScript の関数
-   * @param scriptName copyCheckFunc を返したスクリプトの名前
-   * @param caller コピー判定関数を呼ぶノード
-   * @return コピー判定関数
+   * @param node このノードをコピーするか判定する.
+   * @param copyCheckFunc このメソッドが呼び出すコピー判定関数
+   * @param scriptName {@code copyCheckFunc} を返したスクリプトの名前
+   * @return {@code node} をコピーする場合 true
    */
-  private Predicate<BhNode> genCopyCheckFunc(Function copyCheckFunc, String scriptName) {
-    Predicate<BhNode> isNodeToCopy = node -> {
-      ScriptableObject scriptScope = node.getEventAgent().newDefaultScriptScope();
-      Object retVal = ContextFactory.getGlobal().call(cx -> 
-          ((Function) copyCheckFunc).call(cx, scriptScope, scriptScope, new Object[] {node}));
-      if (!(retVal instanceof Boolean)) {
-        BhService.msgPrinter().errForDebug(String.format(
-            "'%s' must return null or a function that returns a boolean value.", scriptName));
-        throw new ClassCastException();
-      }
-      return (boolean) retVal;
-    };
-    return isNodeToCopy;
+  private boolean isNodeToCopy(BhNode node, Function copyCheckFunc, String scriptName) {
+    Context cx = Context.enter();
+    ScriptableObject scope = node.getEventAgent().createScriptScope(cx);
+    try {
+      return (Boolean) copyCheckFunc.call(cx, scope, scope, new Object[] {node});
+    } catch (Exception e) {
+      BhService.msgPrinter().errForDebug(String.format(
+          "'%s' must return null or a function that returns a boolean value.\n%s", scriptName, e));
+      throw e;
+    } finally {
+      Context.exit();
+    }
   }
 
   /**
@@ -336,12 +335,78 @@ public class BhNodeEventAgent implements Serializable {
     if (onTemplateCreated == null) {
       return;
     }
-    ScriptableObject scriptScope = newDefaultScriptScope();
-    ScriptableObject.putProperty(scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE, userOpe);
+    Map<String, Object> nameToObj = new HashMap<>() {{
+        put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
+      }};
+    Context cx = Context.enter();
+    ScriptableObject scope = createScriptScope(cx, nameToObj);
     try {
-      ContextFactory.getGlobal().call(cx -> onTemplateCreated.exec(cx, scriptScope));
+      onTemplateCreated.exec(cx, scope);
     } catch (Exception e) {
       BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
+    } finally {
+      Context.exit();
+    }
+  }
+
+  /**
+   * ノードのドラッグが始まったときの処理を実行する.
+   *
+   * @param eventInfo ドラッグ操作に関連するマウスイベントを格納したオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public void execOnDragStarted(MouseEventInfo eventInfo, UserOperation userOpe) {
+    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_DRAG_STARTED);
+    Script onDragStarted =
+        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
+    if (onDragStarted == null) {
+      return;
+    }
+    Map<String, Object> nameToObj = new HashMap<>() {{
+        put(BhConstants.JsIdName.BH_MOUSE_EVENT, eventInfo);
+        put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
+      }};
+    Context cx = Context.enter();
+    ScriptableObject scope = createScriptScope(cx, nameToObj);
+    try {
+      onDragStarted.exec(cx, scope);
+    } catch (Exception e) {
+      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
+    } finally {
+      Context.exit();
+    }
+  }
+
+  /** マウスイベントに関連する情報を格納するクラス. */
+  public static class MouseEventInfo {
+
+    public final boolean isFromPrimaryButton;
+    public final boolean isFromSecondaryButton;
+    public final boolean isFromMiddleButton;
+    public final boolean isFromBackButton;
+    public final boolean isFromforwardButton;
+    public final boolean isShiftDown;
+    public final boolean isCtrlDown;
+    public final boolean isAltDown;
+    
+    /** コンストラクタ. */
+    public MouseEventInfo(
+        boolean isFromPrimaryButton,
+        boolean isFromSecondaryButton,
+        boolean isFromMiddleButton,
+        boolean isFromBackButton,
+        boolean isFromforwardButton,
+        boolean isShiftDown,
+        boolean isCtrlDown,
+        boolean isAltDown) {
+      this.isFromPrimaryButton = isFromPrimaryButton;
+      this.isFromSecondaryButton = isFromSecondaryButton;
+      this.isFromMiddleButton = isFromMiddleButton;
+      this.isFromBackButton = isFromBackButton;
+      this.isFromforwardButton = isFromforwardButton;
+      this.isShiftDown = isShiftDown;
+      this.isCtrlDown = isCtrlDown;
+      this.isAltDown = isAltDown;
     }
   }
 }

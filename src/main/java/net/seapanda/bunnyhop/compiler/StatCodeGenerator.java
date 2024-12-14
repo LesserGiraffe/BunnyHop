@@ -204,8 +204,8 @@ public class StatCodeGenerator {
             .append(";" + Keywords.newLine);
         break;
 
-      case SymbolNames.ControlStat.CRITICAL_SECTION_STAT:
-        genCriticalSectionStat(code, controlStatNode, nestLevel, option);
+      case SymbolNames.ControlStat.MUTEX_BLOCK_STAT:
+        genMutexBlockStat(code, controlStatNode, nestLevel, option);
         break;
 
       default:
@@ -378,20 +378,20 @@ public class StatCodeGenerator {
   }
 
   /**
-   * クリティカルセクションのコードを生成する.
+   * 排他制御区間のコードを生成する.
    *
    * @param code 生成したコードの格納先
-   * @param criticalSctnNode クリティカルセクションのノード
+   * @param mutexBlockNode クリティカルセクションのノード
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  private void genCriticalSectionStat(
+  private void genMutexBlockStat(
       StringBuilder code,
-      SyntaxSymbol criticalSctnNode,
+      SyntaxSymbol mutexBlockNode,
       int nestLevel,
       CompileOption option) {
 
-    BhNode lockVarNode = ((BhNode) criticalSctnNode).getOriginal();
+    BhNode lockVarNode = ((BhNode) mutexBlockNode).getOriginal();
     String lockVar = common.genVarName(lockVarNode);
     // try {
     code.append(common.indent(nestLevel))
@@ -404,7 +404,7 @@ public class StatCodeGenerator {
         .append(";" + Keywords.newLine);
 
     SyntaxSymbol exclusiveStat =
-        criticalSctnNode.findSymbolInDescendants("*", SymbolNames.ControlStat.EXCLUSIVE_STAT, "*");
+        mutexBlockNode.findSymbolInDescendants("*", SymbolNames.ControlStat.EXCLUSIVE_STAT, "*");
     genStatement(exclusiveStat, code, nestLevel + 1, option);
 
     // end of "try {"

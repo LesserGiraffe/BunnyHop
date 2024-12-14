@@ -1,0 +1,341 @@
+{
+  "gui": {
+    "menu-panel": {
+      "copy": "コピー",
+      "cut": "カット",
+      "paste": "貼り付け",
+      "delete": "削除",
+      "jump": "ジャンプ",
+      "connect": "接続",
+      "disconnect": "切断",
+      "local": "ローカル",
+      "remote": "リモート",
+      "ip-addr": "IPアドレス",
+      "username": "ユーザー名",
+      "password": "パスワード",
+      "stdin": "入力",
+      "send": "送信"
+    },
+
+    "menu-bar": {
+      "file": "ファイル",
+      "load": "ファイルを開く",
+      "save": "上書き保存",
+      "save-as": "名前を付けて保存",
+      "operation": "操作",
+      "free-memory": "メモリ解放",
+      "settings": "設定",
+      "focus-simulator": "プログラム開始時にシミュレータを表示する",
+      "help": "ヘルプ",
+      "about-bunnyhop": "BunnyHop について"
+    }
+  },
+
+  "msg": {
+    "export": {
+      "ask-if-save": {
+        "title": "BunnyHop",
+        "body": "保存しますか"
+      },
+      "inform-no-ws-to-save": {
+        "title": "保存エラー",
+        "body": "保存するワークスペースがありません"
+      },
+      "file-chooser": {
+        "title": "名前を付けて保存"
+      },
+      "inform-failed-to-save": {
+        "title": "プロジェクトの保存に失敗しました"
+      },
+      "has-saved": "-- 保存完了 (%s)--\n"
+    },
+
+    "import": {
+      "ask-if-continue": {
+        "title": "警告",
+        "body": "一部のノードが正しく読み込めませんでした.\nロードを続けますか?\n続ける場合は [%s]    止める場合は [%s]"
+      },
+      "ask-if-keep-existing-ws": {
+        "title": "既存のワークスペースを残しますか?",
+        "body": "既存のワークスペースを残す場合は [%s]\n既存のワークスペースを全て削除する場合は [%s]"
+      },
+      "error": {
+        "title": "ロードエラー",
+        "unsupported-save-data-version": "サポートしていないバージョンのセーブデータです.\n  (file: %s)  (app: %s)",
+        "corrupted-save-data": "セーブデータが破損しています",
+        "failed-to-read-save-file": "ファイルを読み込めませんでした"
+      },
+      "file-chooser": {
+        "title": "開く"
+      }
+    },
+
+    "bh-runtime": {
+      "local": {
+        "preparing-to-run": "-- プログラム実行準備中 (local) --\n",
+        "failed-to-run": "!! プログラムを開始できませんでした (local) !!\n",
+        "start-to-run": "-- プログラム実行開始 (local) --\n",
+        "has-already-ended": "!! プログラム終了済み (local) !!\n",
+        "preparing-to-end": "-- プログラム終了準備中 (local)  --\n",
+        "failed-to-end": "!! プログラムを終了できませんでした (local)  !!\n",
+        "has-teminated": "-- プログラム終了完了 (local)  --\n"
+      },
+      "remote": {
+        "preparing-to-run": "-- プログラム実行準備中 (remote) --\n",
+        "failed-to-run": "!! プログラムを開始できませんでした (remote) !!\n",
+        "start-to-run": "-- プログラム実行開始 (remote) --\n",
+        "has-already-ended": "!! プログラム終了済み (remote) !!\n",
+        "preparing-to-end": "-- プログラム終了準備中 (remote)  --\n",
+        "failed-to-end": "!! プログラムを終了できませんでした (remote)  !!\n",
+        "has-teminated": "-- プログラム終了完了 (remote)  --\n",
+        "transferring": "-- プログラム転送中 --\n",
+        "failed-to-transfer": "!! プログラム転送失敗 !!\n  %s\n",
+        "ask-if-stop": {
+          "title": "プログラム停止の確認",
+          "body": "現在実行しているプログラムを停止しますか?"
+        }
+      },
+      "already-doing": {
+        "preparation": "!! 実行準備中 !!\n",
+        "termination": "!! 終了準備中 !!\n",
+        "connection": "!! 接続準備中 !!\n",
+        "disconnection": "!! 切断準備中 !!\n"
+      },
+      "file-transfer": {
+        "stopped": "%s 転送中止\n",
+        "transferring": "%s 転送中 (%s%%)\n",
+        "complete": "%s 転送完了\n",
+        "start": "転送開始\n  %s -> %s (%s Bytes)\n"
+      },
+      "communication": {
+        "has-connected": "-- 接続完了 --\n",
+        "failed-to-connect": "!! 接続失敗 !!\n",
+        "no-runtime-to-connect-to": "!! 接続失敗 (プログラムを実行していません) !!\n",
+        "has-disconnected": "-- 切断完了 --\n",
+        "failed-to-disconnect": "!! 切断失敗 !!\n",
+        "no-runtime-to-disconnect-from": "!! 切断失敗 (プログラムを実行していません) !!\n",
+        "preparing-to-communicate": "-- 通信準備中 --\n",
+        "failed-to-establish-connection": "!! 実行環境との接続を確立できませんでした !!\n",
+        "has-sent-text": "-- 送信完了 --\n",
+        "failed-to-process-text": "!! テキストデータの処理に失敗しました.  (%s) !!\n",
+        "failed-to-push-text": "!! テキストデータをこれ以上追加できません !!\n",
+        "failed-to-send-text-for-no-connection": "!! 実行環境に接続していないのでテキストデータを送れません !!\n"
+      }
+    },
+
+    "compile": {
+      "ask-if-delete-err-nodes": {
+        "title": "コンパイルエラーノードの削除",
+        "body": "コンパイルエラーノードを削除してもよろしいですか?\n「いいえ」を選択した場合、実行を中止します"
+      },
+      "inform-failed-to-write": {
+        "title": "ファイル書き込みエラー"
+      },
+      "inform-select-node-to-execute": {
+        "title": "実行対象の選択",
+        "body": "実行対象を一つ選択してください"
+      },
+      "succeeded": "\n-- コンパイル成功 --\n"
+    },
+
+    "workspace": {
+      "initial-ws-name": "メイン",
+      "default-ws-name": "ワークスペース%s",
+      "prompt-to-name-ws": {
+        "title": "ワークスペースの作成",
+        "body": "ワークスペース名を入力してください"
+      },
+      "ask-if-delete-ws": {
+        "title": "ワークスペースの削除",
+        "body": "「%s」を削除します"
+      }
+    },
+
+    "menubar-ops": {
+      "free-memory": "メモリを解放しました\n",
+      "bunnyhop-details": "BunnyHop の詳細"
+    }    
+  },
+
+  "node": {
+    "num-round-ops": {
+      "floor": "切り捨て",
+      "ceil": "切り上げ",
+      "round": "四捨五入",
+      "trunc": "削除"
+    },
+
+    "add-sub-ops": {
+      "add": "＋",
+      "sub": "－"
+    },
+
+    "eye-ops": {
+      "both": "両目",
+      "right": "右目",
+      "left": "左目"
+    },
+
+    "move-ops": {
+      "moveForward": "前進",
+      "moveBackward": "後退",
+      "turnRight": "右回転",
+      "turnLeft": "左回転"
+    },
+
+    "mutex-block-ops": {
+      "true": "待つ",
+      "false": "待たない"
+    },
+
+    "sync-timer-ops": {
+      "true": "する",
+      "false": "しない"
+    },
+
+    "key-pressed-events": {
+      "LEFT": "←",
+      "RIGHT": "→",
+      "UP": "↑",
+      "DOWN": "↓",
+      "SPACE": "スペース",
+      "ENTER": "エンター",
+      "SHIFT": "シフト",
+      "CTRL": "コントロール",
+      "DIGIT0": "0",
+      "DIGIT1": "1",
+      "DIGIT2": "2",
+      "DIGIT3": "3",
+      "DIGIT4": "4",
+      "DIGIT5": "5",
+      "DIGIT6": "6",
+      "DIGIT7": "7",
+      "DIGIT8": "8",
+      "DIGIT9": "9",
+      "A": "A",
+      "B": "B",
+      "C": "C",
+      "D": "D",
+      "E": "E",
+      "F": "F",
+      "G": "G",
+      "H": "H",
+      "I": "I",
+      "J": "J",
+      "K": "K",
+      "L": "L",
+      "M": "M",
+      "N": "N",
+      "O": "O",
+      "P": "P",
+      "Q": "Q",
+      "R": "R",
+      "S": "S",
+      "T": "T",
+      "U": "U",
+      "V": "V",
+      "W": "W",
+      "X": "X",
+      "Y": "Y",
+      "Z": "Z"
+    },
+
+    "equality-comp-ops": {
+      "eq": "＝",
+      "neq": "≠"
+    },
+
+    "binary-bool-ops": {
+      "and": "かつ",
+      "or": "または"
+    },
+
+    "str-literal": {
+      "initial": "テキスト"
+    },
+
+    "comment-part": {
+      "initial": "説明"
+    },
+
+    "default-identifier-name": {
+      "num-var": "数値変数",
+      "str-var": "文字列変数",
+      "bool-var": "論理変数",
+      "color-var": "色変数",
+      "sound-var": "音変数",
+      "num-list": "数値リスト",
+      "str-list": "文字列リスト",
+      "bool-list": "論理リスト",
+      "color-list": "色リスト",
+      "sound-list": "音リスト",
+      "mutex-block": "区間名",
+      "sync-timer": "タイマー名",
+      "void-func-def": "機能名"
+    },
+
+    "scan-exp": {
+      "prompt-text": "入力待ちです"
+    },
+
+    "max-min-ops": {
+      "max": "大きい方",
+      "min": "小さい方"
+    },
+
+    "array-index-of-ops": {
+      "first": "最初の",
+      "last": "最後の"
+    },
+
+    "list-splice-ops": {
+      "remove": "消す",
+      "extract": "残す"
+    },
+
+    "bool-literal": {
+      "true": "真",
+      "false": "偽"
+    },
+
+    "color-literal": {
+      "red": "赤",
+      "green": "緑",
+      "blue": "青",
+      "cyan": "水色",
+      "magenta": "むらさき",
+      "yellow": "きいろ",
+      "white": "白",
+      "black": "黒" 
+    },
+
+    "musical-scale": {
+      "c": "ド",
+      "c#": "ド＃",
+      "d": "レ",
+      "d#": "レ＃",
+      "e": "ミ",
+      "f": "ファ",
+      "f#": "ファ＃",
+      "g": "ソ",
+      "g#": "ソ＃",
+      "a": "ラ",
+      "a#": "ラ＃",
+      "b": "シ"
+    }
+  },
+
+  "node-category": {
+    "action": "動作",
+    "number": "数値",
+    "string": "文字列",
+    "boolean": "論理",
+    "sound": "音",
+    "color": "色",
+    "control": "制御",
+    "variable": "変数 / リスト",
+    "func-def": "機能作成",
+    "event": "イベント",
+    "misc": "その他"
+  }
+}

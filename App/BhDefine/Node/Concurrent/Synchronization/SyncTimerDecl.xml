@@ -30,7 +30,7 @@
         bhNodeID="idSyncTimerDecl.node1"
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateSynTimerOps.js"
+        onTextOptionsCreating="CreateSyncTimerOps.js"
         version="bh-1.0"/>
     </Connector>
 

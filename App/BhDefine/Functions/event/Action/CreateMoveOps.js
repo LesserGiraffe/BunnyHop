@@ -1,8 +1,8 @@
 (function() {
   return [
-    ['moveForward', '前進'],
-    ['moveBackward', '後退'],
-    ['turnRight', '右回転'],
-    ['turnLeft', '左回転']
+    ['moveForward', bhTextDb.get('node', 'move-ops', 'moveForward')],
+    ['moveBackward', bhTextDb.get('node', 'move-ops', 'moveBackward')],
+    ['turnRight', bhTextDb.get('node', 'move-ops', 'turnRight')],
+    ['turnLeft', bhTextDb.get('node', 'move-ops', 'turnLeft')]
   ];
 })();

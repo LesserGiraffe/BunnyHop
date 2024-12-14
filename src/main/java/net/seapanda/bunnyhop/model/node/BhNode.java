@@ -40,7 +40,7 @@ import net.seapanda.bunnyhop.model.traverse.DerivativeReplacer;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -71,7 +71,7 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
   /** BhNode がとり得る状態. */
   public enum State {
     /** ワークスペース直下のルートノード. */
-    ROOT_DIRECTLY_UNDER_WS,
+    ROOT_ON_WS,
     /** ワークスペース直下に無いルートノード (ダングリング状態). */
     ROOT_DANGLING,
     /** 子ノード (ルートがダングリング状態かどうかは問わない). */
@@ -127,13 +127,13 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
   /**
    * このノード以下のノードツリーのコピーを作成する.
    *
-   * @param isNodeToBeCopied このノードの子ノードがコピーの対象かどうかを判別する関数.
+   * @param fnIsNodeToBeCopied このノードの子ノードがコピーの対象かどうかを判別する関数.
    *                         copy を呼んだノードは判定対象にならず, 必ずコピーされる.
    * @param userOpe undo 用コマンドオブジェクト
    * @return このノード以下のノードツリーのコピー
    */
   public abstract BhNode copy(
-      Predicate<? super BhNode> isNodeToBeCopied,
+      Predicate<? super BhNode> fnIsNodeToBeCopied,
       UserOperation userOpe);
 
   /**
@@ -165,6 +165,7 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
         BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING, attributes.onPrivateTemplateCreating());
     registerScriptName(BhNodeEvent.ON_SYNTAX_CHECKING, attributes.onCompileErrorChecking());
     registerScriptName(BhNodeEvent.ON_TEMPLATE_CREATED, attributes.onTemplateCreated());
+    registerScriptName(BhNodeEvent.ON_DRAG_STARTED, attributes.onDragStarted());
   }
 
   /**
@@ -235,7 +236,7 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
    *
    * @retval State.DELETED 削除済みノード. 子ノードでも削除されていればこの値が返る.
    * @retval State.ROOT_DANGLING ルートノードであるが, ワークスペースにルートノードとして登録されていない
-   * @retval State.ROOT_DIRECTLY_UNDER_WS ルートノードでかつ, ワークスペースにルートノードとして登録されている
+   * @retval State.ROOT_ON_WS ルートノードでかつ, ワークスペースにルートノードとして登録されている
    * @retval State.CHILD 子ノード. ワークスペースに属していてもいなくても子ノードならばこの値が返る
    */
   public State getState() {
@@ -243,7 +244,7 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
       return State.DELETED;
     } else if (parentConnector == null) {
       if (workspace.containsAsRoot(this)) {
-        return State.ROOT_DIRECTLY_UNDER_WS;
+        return State.ROOT_ON_WS;
       } else {
         return State.ROOT_DANGLING;
       }
@@ -261,7 +262,7 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
    * @return 移動可能なノードである場合 true
    */
   public boolean isMovable() {
-    return isRemovable() || (getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS);
+    return isRemovable() || (getState() == BhNode.State.ROOT_ON_WS);
   }
 
   /**
@@ -287,8 +288,8 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
    *
    * @return ワークスペース直下のルートノードである場合 true
    */
-  public boolean isRootDirectolyUnderWs() {
-    return getState() == BhNode.State.ROOT_DIRECTLY_UNDER_WS;
+  public boolean isRootOnWs() {
+    return getState() == BhNode.State.ROOT_ON_WS;
   }
 
   /**
@@ -519,24 +520,23 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
     if (privateTemplateCreator == null) {
       return new ArrayList<>();
     }
-    Object privateTemplateNodes = null;
-    ScriptableObject scriptScope = getEventAgent().newDefaultScriptScope();
-    ScriptableObject.putProperty(
-        scriptScope, BhConstants.JsKeyword.KEY_BH_USER_OPE, userOpe);
+    Map<String, Object> nameToObj = new HashMap<>() {{
+        put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
+      }};
+    Context cx = Context.enter();
+    ScriptableObject scriptScope = getEventAgent().createScriptScope(cx, nameToObj);
     try {
-      privateTemplateNodes =
-        ContextFactory.getGlobal().call(cx -> privateTemplateCreator.exec(cx, scriptScope));
-    } catch (Exception e) {
-      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
-    }
-
-    if (privateTemplateNodes instanceof Collection<?>) {
-      return ((Collection<?>) privateTemplateNodes).stream()
+      return ((Collection<?>) privateTemplateCreator.exec(cx, scriptScope)).stream()
           .filter(elem -> elem instanceof BhNode)
           .map(elem -> (BhNode) elem)
           .collect(Collectors.toCollection(ArrayList::new));
+    } catch (Exception e) {
+      BhService.msgPrinter().errForDebug(
+          "'%s' must return a collection of BhNode(s).\n%s".formatted(scriptName.get(), e));
+    } finally {
+      Context.exit();
     }
-    throw new AssertionError(scriptName.get() + " must return a collection of BhNode.");
+    return new ArrayList<>();
   }
 
   /**
@@ -545,27 +545,26 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
    * @return 文法エラーがある場合 true.  無い場合 false.
    */
   public boolean hasCompileError() {
-    if (getState() == BhNode.State.DELETED) {
+    if (isDeleted()) {
       return false;
     }
     Optional<String> scriptName = getScriptName(BhNodeEvent.ON_SYNTAX_CHECKING);
-    Script errorChecker
-        = scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
+    Script errorChecker =
+        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (errorChecker == null) {
       return false;
     }
-    Object hasError = null;
-    ScriptableObject scriptScope = getEventAgent().newDefaultScriptScope();
+    Context cx = Context.enter();
+    ScriptableObject scope = getEventAgent().createScriptScope(cx);
     try {
-      hasError = ContextFactory.getGlobal().call(cx -> errorChecker.exec(cx, scriptScope));
+      return (Boolean) errorChecker.exec(cx, scope);
     } catch (Exception e) {
-      BhService.msgPrinter().errForDebug(scriptName.get() + "\n" + e);
+      BhService.msgPrinter().errForDebug(
+          "'%s' must return a boolean value.\n%s".formatted(scriptName.get(), e));
+    } finally {
+      Context.exit();
     }
-
-    if (hasError instanceof Boolean) {
-      return (Boolean) hasError;
-    }
-    throw new AssertionError(scriptName.get() + " must return a boolean value.");
+    return false;
   }
 
   @Override

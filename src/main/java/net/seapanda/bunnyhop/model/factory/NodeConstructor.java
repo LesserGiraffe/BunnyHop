@@ -58,41 +58,41 @@ import org.w3c.dom.NodeList;
 public class NodeConstructor {
 
   /** ノードテンプレート登録用関数. */
-  private final BiFunction<BhNodeId, BhNode, Boolean> registerNodeTemplate;
+  private final BiFunction<BhNodeId, BhNode, Boolean> fnRegisterNodeTemplate;
   /** コネクタテンプレート登録用関数. */
-  private final BiFunction<ConnectorId, Connector, Boolean> registerCnctrTemplate;
+  private final BiFunction<ConnectorId, Connector, Boolean> fnRegisterCnctrTemplate;
   /** オリジナルと派生ノードの ID を登録するための関数. */
-  private final BiConsumer<BhNodeId, BhNodeId> registerOrgAndDervNodeId;
+  private final BiConsumer<BhNodeId, BhNodeId> fnRegisterOrgAndDervNodeId;
   /** コネクタテンプレート取得用関数. */
-  private final Function<ConnectorId, Optional<Connector>> getCnctrTemplate;
+  private final Function<ConnectorId, Optional<Connector>> fnGetCnctrTemplate;
   /** コネクタアトリビュート取得用関数. */
-  private final Function<ConnectorParamSetId, Optional<ConnectorAttributes>> getCnctrAttr;
+  private final Function<ConnectorParamSetId, Optional<ConnectorAttributes>> fnGetCnctrAttr;
   /** {@link BhNode} の定義ファイルに書かれた JavaScript ファイルを保持する {@link BhScriptManager} オブジェクト. */
   private final BhScriptManager scriptManager;
 
   /**
    * コンストラクタ.
    *
-   * @param registerNodeTemplate ノードテンプレート登録用関数
-   * @param registerCnctrTemplate コネクタテンプレート登録用関数.
-   * @param registerOrgAndDervId オリジナルと派生ノードの ID を登録するための関数.
-   * @param getCnctrTemplate コネクタテンプレート取得用関数
-   * @param getCnctrAttr コネクタアトリビュート取得用関数
+   * @param fnRegisterNodeTemplate ノードテンプレート登録用関数
+   * @param fnRegisterCnctrTemplate コネクタテンプレート登録用関数.
+   * @param fnRegisterOrgAndDervId オリジナルと派生ノードの ID を登録するための関数.
+   * @param fnGetCnctrTemplate コネクタテンプレート取得用関数
+   * @param fnGetCnctrAttr コネクタアトリビュート取得用関数
    * @param scriptManager {@link BhNode} の定義ファイルに書かれた
    *                      JavaScript ファイルを保持する {@link BhScriptManager} オブジェクト
    */
   public NodeConstructor(
-      BiFunction<BhNodeId, BhNode, Boolean> registerNodeTemplate,
-      BiFunction<ConnectorId, Connector, Boolean> registerCnctrTemplate,
-      BiConsumer<BhNodeId, BhNodeId> registerOrgAndDervId,
-      Function<ConnectorId, Optional<Connector>> getCnctrTemplate,
-      Function<ConnectorParamSetId, Optional<ConnectorAttributes>> getCnctrAttr,
+      BiFunction<BhNodeId, BhNode, Boolean> fnRegisterNodeTemplate,
+      BiFunction<ConnectorId, Connector, Boolean> fnRegisterCnctrTemplate,
+      BiConsumer<BhNodeId, BhNodeId> fnRegisterOrgAndDervId,
+      Function<ConnectorId, Optional<Connector>> fnGetCnctrTemplate,
+      Function<ConnectorParamSetId, Optional<ConnectorAttributes>> fnGetCnctrAttr,
       BhScriptManager scriptManager) {
-    this.registerNodeTemplate = registerNodeTemplate;
-    this.registerCnctrTemplate = registerCnctrTemplate;
-    this.registerOrgAndDervNodeId = registerOrgAndDervId;
-    this.getCnctrTemplate = getCnctrTemplate;
-    this.getCnctrAttr = getCnctrAttr;
+    this.fnRegisterNodeTemplate = fnRegisterNodeTemplate;
+    this.fnRegisterCnctrTemplate = fnRegisterCnctrTemplate;
+    this.fnRegisterOrgAndDervNodeId = fnRegisterOrgAndDervId;
+    this.fnGetCnctrTemplate = fnGetCnctrTemplate;
+    this.fnGetCnctrAttr = fnGetCnctrAttr;
     this.scriptManager = scriptManager;
   }
 
@@ -184,7 +184,7 @@ public class NodeConstructor {
         continue;
       }
       derivationToDerivative.put(derivationId, derivativeId);
-      registerOrgAndDervNodeId.accept(orgNodeId, derivativeId);
+      fnRegisterOrgAndDervNodeId.accept(orgNodeId, derivativeId);
     }
 
     if (!success) {
@@ -253,7 +253,8 @@ public class NodeConstructor {
         nodeAttrs.onCopyRequested(),
         nodeAttrs.onCompileErrorChecking(),
         nodeAttrs.onPrivateTemplateCreating(),
-        nodeAttrs.onTemplateCreated());
+        nodeAttrs.onTemplateCreated(),
+        nodeAttrs.onDragStarted());
     if (!allScriptsFound) {
       return Optional.empty();
     }
@@ -311,7 +312,8 @@ public class NodeConstructor {
         nodeAttrs.onCompileErrorChecking(),
         nodeAttrs.onPrivateTemplateCreating(),
         nodeAttrs.onTextOptionsCreating(),
-        nodeAttrs.onTemplateCreated());
+        nodeAttrs.onTemplateCreated(),
+        nodeAttrs.onDragStarted());
     if (!allScriptsFound) {
       return Optional.empty();
     }
@@ -434,9 +436,9 @@ public class NodeConstructor {
     }
     // コネクタ作成
     Optional<Connector> connector =
-        new ConnectorConstructor(cnctrElem, getCnctrAttr, scriptManager).genConnector();
+        new ConnectorConstructor(cnctrElem, fnGetCnctrAttr, scriptManager).genConnector();
     boolean success =
-        connector.map(cnctr -> registerCnctrTemplate.apply(cnctr.getId(), cnctr)).orElse(false);
+        connector.map(cnctr -> fnRegisterCnctrTemplate.apply(cnctr.getId(), cnctr)).orElse(false);
     
     return success ? connector : Optional.empty();
   }
@@ -449,16 +451,16 @@ public class NodeConstructor {
    */
   private Optional<? extends BhNode> genPirvateNode(Element nodeElem) {
     NodeConstructor constructor = new NodeConstructor(
-        registerNodeTemplate,
-        registerCnctrTemplate,
-        registerOrgAndDervNodeId,
-        getCnctrTemplate,
-        getCnctrAttr,
+        fnRegisterNodeTemplate,
+        fnRegisterCnctrTemplate,
+        fnRegisterOrgAndDervNodeId,
+        fnGetCnctrTemplate,
+        fnGetCnctrAttr,
         scriptManager);
 
     Optional<? extends BhNode> privateNode = constructor.genTemplate(nodeElem);
     boolean success = privateNode
-        .map(node -> registerNodeTemplate.apply(node.getId(), node)).orElse(false);
+        .map(node -> fnRegisterNodeTemplate.apply(node.getId(), node)).orElse(false);
 
     return success ? privateNode : Optional.empty();
   }

@@ -40,6 +40,7 @@ import net.seapanda.bunnyhop.command.CmdData;
 import net.seapanda.bunnyhop.command.CmdDispatcher;
 import net.seapanda.bunnyhop.command.CmdProcessor;
 import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.export.CorruptedSaveDataException;
 import net.seapanda.bunnyhop.export.IncompatibleSaveFormatException;
 import net.seapanda.bunnyhop.export.ProjectExporter;
@@ -281,7 +282,7 @@ public class WorkspaceSet implements CmdDispatcher {
       UserOperation userOpe) {
     return target.getEventAgent()
         .execOnCopyRequested(nodesToCopy, node -> true, userOpe)
-        .map(copyTestFunc -> target.copy(copyTestFunc, userOpe)).orElse(null);
+        .map(fnIsNodeToBeCopied -> target.copy(fnIsNodeToBeCopied, userOpe)).orElse(null);
   }
 
   /**
@@ -348,8 +349,8 @@ public class WorkspaceSet implements CmdDispatcher {
    * @return コピーもしくはカットの対象になる場合 true
    */
   private boolean canCopyOrCut(BhNode node) {
-    return (node.isChild() && node.findRootNode().isRootDirectolyUnderWs())
-        || node.isRootDirectolyUnderWs();
+    return (node.isChild() && node.findRootNode().isRootOnWs())
+        || node.isRootOnWs();
   }
 
   /**
@@ -391,7 +392,7 @@ public class WorkspaceSet implements CmdDispatcher {
     ModelExclusiveControl.lockForRead();
     try {
       ProjectExporter.export(workspaceList, fileToSave.toPath());
-      BhService.msgPrinter().infoForUser("-- 保存完了 (%s)--\n".formatted(fileToSave.getPath()));
+      BhService.msgPrinter().infoForUser(TextDefs.Export.hasSaved.get(fileToSave.getPath()));
       isDirty = false;
       return true;
     } catch (Exception e) {
@@ -399,7 +400,7 @@ public class WorkspaceSet implements CmdDispatcher {
           "Failed to save the project.\n%s\n%s".formatted(fileToSave.getPath(), e));
       BhService.msgPrinter().alert(
           Alert.AlertType.ERROR,
-          "ファイルの保存に失敗しました",
+          TextDefs.Export.InformFailedToSave.title.get(),
           null,
           fileToSave.getPath() + "\n" + e);
       return false;
@@ -436,17 +437,23 @@ public class WorkspaceSet implements CmdDispatcher {
           .forEach(root -> BhService.compileErrNodeManager().collect(root, userOpe));
       BhService.undoRedoAgent().pushUndoCommand(userOpe);
       return true;
+
     } catch (IncompatibleSaveFormatException e) {
-      var msg = "サポートしていないバージョンのセーブデータです.\n  (file: %s)  (app: %s)".formatted(
-          e.version, BhConstants.saveDataVersion);
+      String msg = TextDefs.Import.Error.unsupportedSaveDataVersion.get(
+          e.version, BhConstants.SAVE_DATA_VERSION);
       outputLoadErrMsg(saveFile, e, msg);
       return false;
+
     } catch (CorruptedSaveDataException | JsonSyntaxException e) {
-      outputLoadErrMsg(saveFile, e, "セーブデータが破損しています");
+      String msg = TextDefs.Import.Error.corruptedSaveData.get();
+      outputLoadErrMsg(saveFile, e, msg);
       return false;
+
     } catch (Exception e) {
-      outputLoadErrMsg(saveFile, e, "ファイルを読み込めませんでした");
+      String msg = TextDefs.Import.Error.failedToReadSaveFile.get();
+      outputLoadErrMsg(saveFile, e, msg);
       return false;
+
     } finally {
       ModelExclusiveControl.unlockForRead();
     }
@@ -459,20 +466,11 @@ public class WorkspaceSet implements CmdDispatcher {
    * @retval false 既存のワークスペースにロードしたワークスペースを追加
    */
   private Boolean askIfContinueLoading() {
-    String title = "警告";
-    String content = """
-        一部のノードが正しく読み込めませんでした.
-        ロードを続けますか?
-        続ける場合は [%s]    止める場合は [%s]
-        """.formatted(
-            ButtonType.YES.getText(),
-            ButtonType.NO.getText());
-
+    String title = TextDefs.Import.AskIfContinue.title.get();
+    String body = TextDefs.Import.AskIfContinue.body.get(
+        ButtonType.YES.getText(), ButtonType.NO.getText());
     Optional<ButtonType> buttonType = BhService.msgPrinter().alert(
-        AlertType.CONFIRMATION,
-        title,
-        null,
-        content,
+        AlertType.CONFIRMATION, title, null, body,
         ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 
     return buttonType.map(type -> type.equals(ButtonType.YES)).orElse(false);
@@ -481,9 +479,9 @@ public class WorkspaceSet implements CmdDispatcher {
   /** ロード失敗時のエラーメッセージを出力する. */
   private void outputLoadErrMsg(File saveFile, Exception e, String msg) {
     msg += "\n" + saveFile.getAbsolutePath();
+    String title = TextDefs.Import.Error.title.get();
     BhService.msgPrinter().errForDebug(e.toString());
-    BhService.msgPrinter().alert(Alert.AlertType.INFORMATION, "ロード", null, msg);
-    BhService.msgPrinter().errForUser(e.toString());
+    BhService.msgPrinter().alert(Alert.AlertType.INFORMATION, title, null, msg);
   }
 
   /**

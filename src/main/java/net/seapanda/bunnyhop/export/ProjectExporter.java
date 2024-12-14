@@ -50,7 +50,7 @@ public class ProjectExporter {
   public static void export(List<Workspace> workspaces, Path filePath)
       throws JsonIOException, IOException {
     List<WorkspaceImage> wsi = workspaces.stream().map(ProjectExporter::convertToImage).toList();
-    var image = new ProjectImage(BhConstants.appVersion, BhConstants.saveDataVersion, wsi);
+    var image = new ProjectImage(BhConstants.APP_VERSION, BhConstants.SAVE_DATA_VERSION, wsi);
     Gson gson = new GsonBuilder().create();
     try (var jw = gson.newJsonWriter(new FileWriter(filePath.toString()))) {
       gson.toJson(image, new TypeToken<ProjectImage>(){}.getType(), jw);

@@ -1,6 +1,6 @@
 (function() {
   return [
-    ['and', 'かつ'],
-    ['or', 'または']
+    ['and', bhTextDb.get('node', 'binary-bool-ops', 'and')],
+    ['or', bhTextDb.get('node', 'binary-bool-ops', 'or')]
   ];
 })();

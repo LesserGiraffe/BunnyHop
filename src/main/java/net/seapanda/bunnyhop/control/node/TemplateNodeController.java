@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.control.node;
 
 import javafx.geometry.Point2D;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.command.BhCmd;
 import net.seapanda.bunnyhop.command.CmdData;
@@ -50,6 +51,7 @@ public class TemplateNodeController implements CmdProcessor {
   private final BhNodeView rootView;
   /** 現在、テンプレートのBhNodeView 上で発生したマウスイベントを送っているワークスペース上の view. */
   private final MutableObject<BhNodeView> currentView = new MutableObject<>(null);
+  private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
   
   /**
    * コンストラクタ.
@@ -80,10 +82,16 @@ public class TemplateNodeController implements CmdProcessor {
     view.getEventManager().setOnMouseDragged(mouseEvent -> onMouseDragged(mouseEvent));
     view.getEventManager().setOnDragDetected(mouseEvent -> onDragDetected(mouseEvent));
     view.getEventManager().setOnMouseReleased(mouseEvent -> onMouseReleased(mouseEvent));
+    view.getEventManager().addEventFilter(
+        MouseEvent.ANY,
+        mouseEvent -> consumeIfNotAcceptable(mouseEvent));
   }
 
   /** マウスボタン押下時のイベントハンドラ. */
-  private void onMousePressed(MouseEvent mouseEvent) {
+  private void onMousePressed(MouseEvent event) {
+    if (!mouseCtrlLock.tryLock(event.getButton())) {
+      return;
+    }
     ModelExclusiveControl.lockForModification();
     try {
       Workspace currentWs = BhService.getCurrentWorkspace();
@@ -96,45 +104,63 @@ public class TemplateNodeController implements CmdProcessor {
       TextPrompter.prompt(newNode);
       currentView.setValue(nodeView);
       Vec2D posOnRootView = calcRelativePosFromRoot();  //クリックされたテンプレートノードのルートノード上でのクリック位置
-      posOnRootView.add(mouseEvent.getX(), mouseEvent.getY());
+      posOnRootView.add(event.getX(), event.getY());
       Vec2D posOnWs = BhService.cmdProxy().sceneToWorkspace(
-          mouseEvent.getSceneX(), mouseEvent.getSceneY(), currentWs);
+          event.getSceneX(), event.getSceneY(), currentWs);
       posOnWs.sub(posOnRootView);
       BhService.bhNodePlacer().moveToWs(currentWs, newNode, posOnWs.x, posOnWs.y, userOpe);
       BhService.cmdProxy().setUserOpeCmd(newNode, userOpe);  // undo 用コマンドセット
-      currentView.getValue().getEventManager().propagateEvent(mouseEvent);
+      currentView.getValue().getEventManager().propagateEvent(event);
       BhService.bhNodeSelectionService().hideAll();
-      mouseEvent.consume();
+      event.consume();
+    } catch (Exception e) {
+      mouseCtrlLock.unlock();
     } finally {
       ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** マウスドラッグ時のイベントハンドラ. */
-  private void onMouseDragged(MouseEvent mouseEvent) {
-    if (currentView.getValue() == null) {
+  private void onMouseDragged(MouseEvent event) {
+    if (!mouseCtrlLock.isLockedBy(event.getButton()) || currentView.getValue() == null) {
       return;
     }
-    currentView.getValue().getEventManager().propagateEvent(mouseEvent);
+    ModelExclusiveControl.lockForModification();
+    try {
+      currentView.getValue().getEventManager().propagateEvent(event);
+    } catch (Exception e) {
+      mouseCtrlLock.unlock();
+    } finally {
+      ModelExclusiveControl.unlockForModification();
+    }
   }
 
   /** マウスドラッグ検出検出時のイベントハンドラ. */
-  private void onDragDetected(MouseEvent mouseEvent) {
+  private void onDragDetected(MouseEvent event) {
+    if (!mouseCtrlLock.isLockedBy(event.getButton()) || currentView.getValue() == null) {
+      return;
+    }
     ModelExclusiveControl.lockForModification();
     try {
-      onMouseDragged(mouseEvent);
+      currentView.getValue().getEventManager().propagateEvent(event);
+    }  catch (Exception e) {
+      mouseCtrlLock.unlock();
     } finally {
       ModelExclusiveControl.unlockForModification();
     }
   }
 
   /** マウスボタンを離したときのイベントハンドラ. */
-  private void onMouseReleased(MouseEvent mouseEvent) {
+  private void onMouseReleased(MouseEvent event) {
+    if (!mouseCtrlLock.isLockedBy(event.getButton()) || currentView.getValue() == null) {
+      return;
+    }
     ModelExclusiveControl.lockForModification();
     try {
-      onMouseDragged(mouseEvent);
-      currentView.setValue(null);
+      currentView.getValue().getEventManager().propagateEvent(event);
     } finally {
+      currentView.setValue(null);
+      mouseCtrlLock.unlock();
       ModelExclusiveControl.unlockForModification();
     }
   }
@@ -144,6 +170,13 @@ public class TemplateNodeController implements CmdProcessor {
     Point2D pos = view.localToScene(0.0, 0.0);
     Point2D posFromRoot = rootView.sceneToLocal(pos);
     return new Vec2D(posFromRoot.getX(), posFromRoot.getY());
+  }
+
+  /** 受付不能なマウスイベントを consume する. */
+  private void consumeIfNotAcceptable(MouseEvent event) {
+    if (event.getButton() != MouseButton.PRIMARY) {
+      event.consume();
+    }
   }
 
   /**

@@ -1,7 +1,7 @@
 (function() {
   return [
-    ['both', '両目'],
-    ['right', '右目'],
-    ['left', '左目']
+    ['both', bhTextDb.get('node', 'eye-ops', 'both')],
+    ['right', bhTextDb.get('node', 'eye-ops', 'right')],
+    ['left', bhTextDb.get('node', 'eye-ops', 'left')]
   ];
 })();

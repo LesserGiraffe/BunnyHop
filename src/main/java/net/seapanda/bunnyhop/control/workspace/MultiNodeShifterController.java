@@ -101,7 +101,7 @@ public class MultiNodeShifterController {
    * */
   void updateMultiNodeShifter(BhNode node) {
     if (node.getWorkspace() == ws
-        && node.isRootDirectolyUnderWs()
+        && node.isRootOnWs()
         && node.isSelected()) {
 
       if (view.isLinked(node)) {

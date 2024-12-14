@@ -45,9 +45,9 @@ public abstract class TextInputNodeView extends BhNodeView {
   /**
    * テキスト変更時のイベントハンドラを登録する.
    *
-   * @param checkFormatFunc 入力された文字列の形式が正しいかどうか判断する関数 (テキスト変更時のイベントハンドラから呼び出す)
+   * @param fnCheckFormat 入力された文字列の形式が正しいかどうか判断する関数 (テキスト変更時のイベントハンドラから呼び出す)
    */
-  public abstract void setTextChangeListener(Function<String, Boolean> checkFormatFunc);
+  public abstract void setTextChangeListener(Function<String, Boolean> fnCheckFormat);
 
   /**
    * テキストフィールドのカーソル on/off 時のイベントハンドラを登録する.
@@ -61,7 +61,7 @@ public abstract class TextInputNodeView extends BhNodeView {
   /**
    * テキストを整形する関数を登録する.
    *
-   * @param formatterFunc
+   * @param formatter
    *     <pre>
    *     テキストを整形する関数.
    *     formatterFunc の第1引数 -> 整形対象の全文字列
@@ -72,10 +72,10 @@ public abstract class TextInputNodeView extends BhNodeView {
    *     </pre>
    */
   public final void setTextFormatter(
-      BiFunction<String, String, Pair<Boolean, String>> formatterFunc) {
+      BiFunction<String, String, Pair<Boolean, String>> formatter) {
     TextInputControl control = getTextInputControl();
     control.setTextFormatter(new TextFormatter<Object>(
-        change -> setFormattedText(formatterFunc, control.getLength(), change)));
+        change -> setFormattedText(formatter, control.getLength(), change)));
   }
 
   /**
