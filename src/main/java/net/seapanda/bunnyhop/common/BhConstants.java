@@ -178,12 +178,11 @@ public class BhConstants {
     public static final String ATTR_VAL_TEXT = "text";
   }
 
-  /** JavaScript コードに内部で使う識別子名. */
+  /** JavaScript のコードで使う識別子名. */
   public static class JsIdName {
     /** スクリプトの呼び出し元オブジェクト. */
     public static final String BH_THIS = "bhThis";
     public static final String BH_NODE_PLACER = "bhNodePlacer";
-    public static final String BH_CMD_PROXY = "bhCmdProxy";
     /** TextNode のString型フィールドアクセス用キーワード. */
     public static final String BH_TEXT = "bhText";
     public static final String BH_ADDED_TEXT = "bhAddedText";
@@ -301,7 +300,9 @@ public class BhConstants {
     public static final String PSEUDO_EMPTY = "empty";
     public static final String PSEUDO_ERROR = "error";
     public static final String PSEUDO_IS_EVEN = "isEven";
-    public static final String CLASS_BHNODE = "BhNode";
+    public static final String PSEUDO_CALLED = "called";
+    public static final String PSEUDO_RUNTIME_ERR = "runtimeErr";
+    public static final String CLASS_BH_NODE = "BhNode";
     public static final String CLASS_VOID_NODE = "voidNode";
     public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";
     public static final String CLASS_TEXT_FIELD_NODE = "textFieldNode";
@@ -309,8 +310,7 @@ public class BhConstants {
     public static final String CLASS_LABEL_NODE = "labelNode";
     public static final String CLASS_NO_CONTENT_NODE = "labelNode";
     public static final String CLASS_CONNECTIVE_NODE = "ConnectiveNode";
-    public static final String CLASS_SUFFIX_PANE = "-Pane";
-    public static final String CLASS_SUFFIX_COMPILE_ERROR = "-CompileError";
+    public static final String CLASS_BH_NODE_COMPILE_ERROR = "BhNode-CompileError";
     public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
     public static final String CLASS_PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
   }

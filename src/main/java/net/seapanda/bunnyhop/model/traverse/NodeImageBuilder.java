@@ -27,7 +27,6 @@ import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.utility.Vec2D;
 
 /**
@@ -59,12 +58,12 @@ public class NodeImageBuilder implements BhNodeWalker {
   @Override
   public void visit(ConnectiveNode node) {
     List<InstanceId> derivationIds = node.getDerivatives().stream()
-        .filter(derivatie -> !BhService.cmdProxy().isTemplateNode(derivatie))
-        .map(derivatie -> derivatie.getInstanceId())
+        .filter(derivative -> !derivative.getViewProxy().isTemplateNode())
+        .map(derivative -> derivative.getInstanceId())
         .toList();
     Connector parentCnctr = node.getParentConnector();
     ConnectorId cnctrId = (parentCnctr == null) ? ConnectorId.NONE : parentCnctr.getId();
-    Vec2D pos = BhService.cmdProxy().getPosOnWs(node);
+    Vec2D pos = node.getViewProxy().getPosOnWorkspace();
     pos = (pos == null) ? new Vec2D(0, 0) : pos; // View を持たない BhNode もある
     var nodeImage = new BhNodeImage(
         node.getId(),
@@ -88,12 +87,12 @@ public class NodeImageBuilder implements BhNodeWalker {
   @Override
   public void visit(TextNode node) {
     List<InstanceId> derivationIds = node.getDerivatives().stream()
-        .filter(derivatie -> !BhService.cmdProxy().isTemplateNode(derivatie))
+        .filter(derivatie -> !derivatie.getViewProxy().isTemplateNode())
         .map(derivatie -> derivatie.getInstanceId())
         .toList();
     Connector parentCnctr = node.getParentConnector();
     ConnectorId cnctrId = (parentCnctr == null) ? ConnectorId.NONE : parentCnctr.getId();
-    Vec2D pos = BhService.cmdProxy().getPosOnWs(node);
+    Vec2D pos = node.getViewProxy().getPosOnWorkspace();
     pos = (pos == null) ? new Vec2D(0, 0) : pos;
     var nodeImage = new BhNodeImage(
         node.getId(),

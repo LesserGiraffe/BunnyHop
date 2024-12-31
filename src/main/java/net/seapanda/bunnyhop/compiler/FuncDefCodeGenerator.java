@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.compiler;
 
 import java.util.Collection;
+import java.util.List;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 
@@ -91,7 +92,8 @@ public class FuncDefCodeGenerator {
         "*", "*", SymbolNames.UserDefFunc.PARAM_DECL, "*");
     SyntaxSymbol outParam = funcDefNode.findSymbolInDescendants(
         "*", "*", SymbolNames.UserDefFunc.OUT_PARAM_DECL, "*");
-    varDeclCodeGen.genParamList(param, outParam, code, nestLevel + 1, option);
+    var commonParams = List.of(ScriptIdentifiers.Vars.THREAD_CONTEXT);
+    varDeclCodeGen.genParamList(commonParams, param, outParam, code, nestLevel + 1, option);
     code.append(") {" + Keywords.newLine);
     varDeclCodeGen.genOutArgs(param, code, nestLevel + 1, option);
     genFuncDefInner(funcDefNode, code, nestLevel + 1, option);
@@ -112,7 +114,6 @@ public class FuncDefCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-
     // _end : {
     code.append(common.indent(nestLevel))
         .append(ScriptIdentifiers.Label.end)

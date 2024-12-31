@@ -20,9 +20,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.collections.ListChangeListener;
@@ -54,6 +57,7 @@ import net.seapanda.bunnyhop.common.Rem;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
@@ -64,10 +68,9 @@ import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.BhNodeView.ViewRegionManager.Rectangles;
-import net.seapanda.bunnyhop.view.traverse.CallbackInvoker;
 
 /**
- * ワークスペースを表すビュー (タブの中の描画物に対応).
+ * {@link WorkspaceView}を表すビュー (タブの中の描画物に対応).
  *
  * @author K.Koike
  */
@@ -90,23 +93,31 @@ public class WorkspaceView extends Tab {
 
   private final Workspace workspace;
   private final Vec2D minPaneSize;
-  /** このワークスペースにあるルートノードビューとルートノード以下のノードを持つGorupオブジェクトのマップ. */
-  private Map<BhNodeView, Group> rootNodeToGroup = new HashMap<>();
+  /** このワークスペースビューにあるルートノードビューとルートノード以下のノードを持つ {@link Group} オブジェクトのマップ. */
+  private final Map<BhNodeView, Group> rootNodeToGroup = new HashMap<>();
+  /** このワークスペースビューが保持する {@link BhNodeView} のセット. */
+  private final Set<BhNodeView> nodeViewList = new HashSet<>();
+  /** このワークスペースビュー内の {@link BhNodeView} が移動したときに呼ぶイベントハンドラのリスト. */
+  private final List<BiConsumer<? super BhNodeView, ? super Vec2D>> onBhNodeViewMovedList =
+      new ArrayList<>();
+  /** このワークスペースビュー内の {@link BhNodeView} が移動したときのイベントハンドラを呼ぶ関数オブジェクト. */
+  private final BiConsumer<? super BhNodeView, ? super Vec2D> onBhNodeViewMoved =
+      this::invokeOnNodeMoved;
   /** ノードの本体部分の重なり判定に使う4 分木管理クラス. */
   private QuadTreeManager quadTreeMngForBody;
   /** ノードのコネクタ部分の重なり判定に使う4 分木管理クラス. */
   private QuadTreeManager quadTreeMngForConnector;
-  /** ワークスペースの拡大/縮小の段階. */
+  /** {@link WorkspaceView} の拡大/縮小の段階. */
   private int zoomLevel = 0;
-  /** ワークスペースの大きさの段階. */
+  /** {@link WorkspaceView} の大きさの段階. */
   private int workspaceSizeLevel = 0;
 
   /**
    * コンストラクタ.
    *
    * @param workspace 管理するモデル.
-   * @param width ワークスペースの初期幅
-   * @param height ワークスペースの初期高さ
+   * @param width {@link WorkspaceView} の初期幅
+   * @param height {@link WorkspaceView} の初期高さ
    */
   public WorkspaceView(Workspace workspace, double width, double height)
       throws ViewInitializationException {
@@ -123,8 +134,8 @@ public class WorkspaceView extends Tab {
   /**
    * GUI 部品の設定を行う.
    *
-   * @param width ワークスペースの初期幅
-   * @param height ワークスペースの初期高さ
+   * @param width {@link WorkspaceView} の初期幅
+   * @param height {@link WorkspaceView} の初期高さ
    * @return 初期化に成功した場合 true
    */
   private void configurGuiComponents()
@@ -156,10 +167,10 @@ public class WorkspaceView extends Tab {
     }
   }
 
-  /** ワークスペース削除命令を受けた時の処理. */
+  /** {@link WorkspaceView}削除命令を受けた時の処理. */
   private void onCloseRequest(Event event) {
-    // 空のワークスペース削除時は警告なし
-    if (workspace.getRootNodeList().isEmpty()) {
+    // 空のワークスペースビュー削除時は警告なし
+    if (workspace.getRootNodes().isEmpty()) {
       return;
     }
     Optional<ButtonType> buttonType = BhService.msgPrinter().alert(
@@ -178,10 +189,13 @@ public class WorkspaceView extends Tab {
     });
   }
 
-  /** ワークスペース削除時の処理. */
+  /** {@link WorkspaceView} 削除時の処理. */
   private void onClosed(Event event) {
     UserOperation userOpe = new UserOperation();
-    BhService.cmdProxy().deleteWorkspace(workspace, userOpe);
+    WorkspaceSet wss = workspace.getWorkspaceSet();
+    if (wss != null) {
+      wss.removeWorkspace(workspace, userOpe);
+    }
     BhService.undoRedoAgent().pushUndoCommand(userOpe);
   }
 
@@ -284,62 +298,74 @@ public class WorkspaceView extends Tab {
   }
 
   /**
-   * ノードビューを追加する.
+   * この {@link WorkspaceView} に対し {@code view} をルートとして指定する.
    *
-   * @param nodeView 追加するノードビュー
+   * @param view ルートとして指定するビュー
    */
-  public void addNodeView(BhNodeView nodeView) {
-    if (rootNodeToGroup.containsKey(nodeView)) {
+  public void specifyNodeViewAsRoot(BhNodeView view) {
+    if (!nodeViewList.contains(view) || rootNodeToGroup.containsKey(view)) {
       return;
     }
     var group = new Group();
     var shadowGroup = new Group();
     shadowGroup.setId(BhConstants.Fxml.ID_NODE_VIEW_SHADOW_PANE);
     group.getChildren().add(shadowGroup);
-    nodeView.getTreeManager().addToGuiTree(group);
     wsPane.getChildren().add(group);
-    rootNodeToGroup.put(nodeView, group);
-    nodeView.getLookManager().arrangeAndResize();
+    view.getTreeManager().addToGuiTree(group);
+    rootNodeToGroup.put(view, group);
+    view.getLookManager().arrangeAndResize();
   }
 
   /**
-   * ノードビューを削除する.
+   * この {@link WorkspaceView} に対し {@code view} がルートノードとして指定されているとき, その指定を解除する.
    *
-   * @param nodeView 削除するビュー
+   * @param view ルートの指定を解除するするビュー
    */
-  public void removeNodeView(BhNodeView nodeView) {
-    if (!rootNodeToGroup.containsKey(nodeView)) {
+  public void specifyNodeViewAsNotRoot(BhNodeView view) {
+    if (!nodeViewList.contains(view) || !rootNodeToGroup.containsKey(view)) {
       return;
     }
-    Group group = rootNodeToGroup.get(nodeView);
-    nodeView.getTreeManager().removeFromGuiTree();
+    Group group = rootNodeToGroup.get(view);
+    view.getTreeManager().removeFromGuiTree();
     wsPane.getChildren().remove(group);
-    rootNodeToGroup.remove(nodeView);
+    rootNodeToGroup.remove(view);
+  }
+
+  /**
+   * {@code view} をこの {@link WorkspaceView} に追加する.
+   *
+   * @param view 追加する {@link BhNodeView}
+   */
+  public void addNodeView(BhNodeView view) {
+    nodeViewList.add(view);
+    view.getEventManager().addOnMoved(onBhNodeViewMoved);
+    addRectToQuatTreeSpace(view);
+  }
+
+  /**
+   * {@code view} をこの {@link WorkspaceView} から削除する.
+   *
+   * @param view 削除する {@link BhNodeView}
+   */
+  public void removeNodeView(BhNodeView view) {
+    nodeViewList.remove(view);
+    view.getEventManager().removeOnMoved(onBhNodeViewMoved);
+    view.getRegionManager().removeQuadTreeRect();
   }
 
   /**
    * 4 分木空間に矩形を登録する.
    *
-   * @param nodeView 登録する矩形を持つBhNodeViewオブジェクト
-   * @param userOpe undo 用コマンドオブジェクト
+   * @param nodeView 登録する矩形を持つ {@link BhNodeView} オブジェクト
    */
-  public void addRectangleToQtSpace(BhNodeView nodeView, UserOperation userOpe) {
-    CallbackInvoker.invoke(
-        view -> {
-          Rectangles rects = view.getRegionManager().getRegions();
-          final QuadTreeManager oldBodyManager = rects.body().getCurrenManager();
-          final QuadTreeManager oldCnctrManager = rects.cnctr().getCurrenManager();
-          quadTreeMngForBody.addQuadTreeObj(rects.body());
-          quadTreeMngForConnector.addQuadTreeObj(rects.cnctr());
-          userOpe.pushCmdOfSetQtRectangle(rects.body(), oldBodyManager, quadTreeMngForBody);
-          userOpe.pushCmdOfSetQtRectangle(rects.cnctr(), oldCnctrManager, quadTreeMngForConnector);
-        },
-        nodeView,
-        false);
+  private void addRectToQuatTreeSpace(BhNodeView nodeView) {
+    Rectangles rects = nodeView.getRegionManager().getRegions();
+    quadTreeMngForBody.addQuadTreeObj(rects.body());
+    quadTreeMngForConnector.addQuadTreeObj(rects.cnctr());
   }
 
   /**
-   * 引数で指定した矩形と重なるこのワークスペース上にあるノードを探す.
+   * 引数で指定した矩形と重なるこの {@link WorkspaceView} 上にあるノードを探す.
    *
    * @param rect この矩形と重なるノードを探す.
    * @param overlapWithBodyPart ノードのボディ部分と重なるノードを探す場合 true.
@@ -367,43 +393,93 @@ public class WorkspaceView extends Tab {
   }
 
   /**
-   * ワークスペース内でマウスが押された時の処理を登録する.
+   * {@link WorkspaceView} 内でマウスが押された時の処理を追加する.
    *
-   * @param handler ワークスペース内でマウスが押されたときの処理
+   * @param handler 追加するイベントハンドラ
    */
-  public void setOnMousePressed(EventHandler<? super MouseEvent> handler) {
-    wsPane.setOnMousePressed(handler);
+  public void addOnMousePressed(EventHandler<? super MouseEvent> handler) {
+    wsPane.addEventHandler(MouseEvent.MOUSE_PRESSED, handler);
   }
 
   /**
-   * ワークスペース内でマウスがドラッグされた時の処理を登録する.
+   * {@link WorkspaceView} 内でマウスが押された時の処理を削除する.
    *
-   * @param handler ワークスペース内でマウスがドラッグされたときの処理
+   * @param handler 削除するイベントハンドラ
    */
-  public void setOnMouseDragged(EventHandler<? super MouseEvent> handler) {
-    wsPane.setOnMouseDragged(handler);
+  public void removeOnMousePressed(EventHandler<? super MouseEvent> handler) {
+    wsPane.removeEventHandler(MouseEvent.MOUSE_PRESSED, handler);
   }
 
   /**
-   * ワークスペース内でマウスが離された時の処理を登録する.
+   * {@link WorkspaceView} 内でマウスがドラッグされた時の処理を追加する.
    *
-   * @param handler ワークスペース内でマウスが離されたときの処理
+   * @param handler 追加するイベントハンドラ
    */
-  public void setOnMouseReleased(EventHandler<? super MouseEvent> handler) {
-    wsPane.setOnMouseReleased(handler);
+  public void addOnMouseDragged(EventHandler<? super MouseEvent> handler) {
+    wsPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, handler);
   }
 
   /**
-   * ワークスペースの大きさを返す.
+   * {@link WorkspaceView} 内でマウスがドラッグされた時の処理を削除する.
    *
-   * @return ワークスペースの大きさ
+   * @param handler 削除するイベントハンドラ
+   */
+  public void removeOnMouseDragged(EventHandler<? super MouseEvent> handler) {
+    wsPane.removeEventHandler(MouseEvent.MOUSE_DRAGGED, handler);
+  }
+
+  /**
+   * {@link WorkspaceView} 内でマウスが離された時の処理を追加する.
+   *
+   * @param handler 追加するイベントハンドラ
+   */
+  public void addOnMouseReleased(EventHandler<? super MouseEvent> handler) {
+    wsPane.addEventHandler(MouseEvent.MOUSE_RELEASED, handler);
+  }
+
+  /**
+   * {@link WorkspaceView} 内でマウスが離された時の処理を削除する.
+   *
+   * @param handler 削除するイベントハンドラ
+   */
+  public void removeOnMouseReleased(EventHandler<? super MouseEvent> handler) {
+    wsPane.removeEventHandler(MouseEvent.MOUSE_RELEASED, handler);
+  }
+
+  /**
+   * {@link WorkspaceView} 内で {@link BhNodeView} が移動したときの処理を追加する.
+   *
+   * @param handler 追加するイベントハンドラ
+   */
+  public void addOnNodeMoved(BiConsumer<? super BhNodeView, ? super Vec2D> handler) {
+    onBhNodeViewMovedList.add(handler);
+  }
+
+  /**
+   * {@link WorkspaceView} 内で {@link BhNodeView} が移動したときの処理を削除する.
+   *
+   * @param handler 削除するイベントハンドラ
+   */
+  public void removeOnNodeMoved(BiConsumer<? super BhNodeView, ? super Vec2D> handler) {
+    onBhNodeViewMovedList.remove(handler);
+  }
+
+  /** {@link WorkspaceView} 内で {@link BhNodeView} が移動したときのイベントハンドラを呼び出す. */
+  private void invokeOnNodeMoved(BhNodeView view, Vec2D posOnWs) {
+    onBhNodeViewMovedList.forEach(handler -> handler.accept(view, posOnWs));
+  }
+
+  /**
+   * {@link WorkspaceView} の大きさを返す.
+   *
+   * @return {@link WorkspaceView} の大きさ
    */
   public Vec2D getWorkspaceSize() {
     return new Vec2D(wsPane.getWidth(), wsPane.getHeight());
   }
 
   /**
-   * このViewに対応しているWorkspace を返す.
+   * この {@link Wo} Viewに対応しているWorkspace を返す.
    *
    * @return この View に対応している {@link Workspace}
    */
@@ -412,11 +488,11 @@ public class WorkspaceView extends Tab {
   }
 
   /**
-   * ワークスペースの大きさを変える.
+   * {@link WorkspaceView} の大きさを変える.
    *
-   * @param widen ワークスペースの大きさを大きくする場合true
+   * @param widen {@link WorkspaceView} の大きさを大きくする場合true
    */
-  public void changeWorkspaceViewSize(boolean widen) {
+  public void changeViewSize(boolean widen) {
     if ((workspaceSizeLevel == BhConstants.LnF.MIN_WORKSPACE_SIZE_LEVEL) && !widen) {
       return;
     }
@@ -469,12 +545,13 @@ public class WorkspaceView extends Tab {
    * @param y Scene座標の変換したいY位置
    * @return 引数の座標のWorkspace上の位置
    */
-  public javafx.geometry.Point2D sceneToWorkspace(double x, double y) {
-    return wsPane.sceneToLocal(x, y);
+  public Vec2D sceneToWorkspace(double x, double y) {
+    var pos = wsPane.sceneToLocal(x, y);
+    return new Vec2D(pos.getX(), pos.getY());
   }
 
   /**
-   * ワークスペースのズーム処理を行う.
+   * {@link WorkspaceView} のズーム処理を行う.
    *
    * @param zoomIn 拡大処理を行う場合true
    */
@@ -499,7 +576,7 @@ public class WorkspaceView extends Tab {
     recalculateScrollableRange();
   }
 
-  /** ワークスペースの表示の拡大率を設定する. */
+  /** {@link WorkspaceView} の表示の拡大率を設定する. */
   public void setZoomLevel(int level) {
     int numZooms = Math.abs(zoomLevel - level);
     boolean zoomIn = zoomLevel < level;
@@ -515,7 +592,7 @@ public class WorkspaceView extends Tab {
     // 全ノードの内の右端の最大の位置と下端の最大の位置
     Vec2D maxRightAndBottomPosOfNodes = rootNodeToGroup.keySet().stream()
         .map(nodeView -> {
-          Vec2D nodeSize = nodeView.getRegionManager().getNodeSizeIncludingOuter(false);
+          Vec2D nodeSize = nodeView.getRegionManager().getNodeSizeIncludingOuters(false);
           Vec2D nodePos = nodeView.getPositionManager().getPosOnWorkspace();
           return new Vec2D(
             magX * (nodePos.x + nodeSize.x) + BhConstants.LnF.NODE_SCALE * 20,
@@ -531,18 +608,10 @@ public class WorkspaceView extends Tab {
     wsWrapper.setPrefSize(scrollableHorizontalRange, scrollableVerticalRange);
   }
 
-  /**
-   * ワークスペース上での {@code node} の右下の位置を取得する.
-   *
-   * @param node 右下の位置を取得するノードビュー
+  /** 
+   * マルチノードシフタを {@link WorkspaceView} に追加する.
+   * マルチノードシフタ: 複数ノードを同時に移動させる GUI 部品
    */
-  public Vec2D getLowerRightPosOnWorkspace(BhNodeView node) {
-    Vec2D nodeSize = node.getRegionManager().getNodeSizeIncludingOuter(false);
-    Vec2D nodePos = node.getPositionManager().getPosOnWorkspace();
-    return new Vec2D(nodePos.x + nodeSize.x, nodePos.y + nodeSize.y);
-  }
-
-  /** 複数ノードを同時に移動させるマルチノードシフタのビューをワークスペースに追加する. */
   public void addtMultiNodeShifterView(MultiNodeShifterView multiNodeShifter) {
     wsPane.getChildren().add(multiNodeShifter);
   }
@@ -550,8 +619,8 @@ public class WorkspaceView extends Tab {
   /**
    * 矩形選択ツールを表示する.
    *
-   * @param upperLeft 表示する矩形のワークスペース上の左上の座標
-   * @param lowerRight 表示する矩形のワークスペース上の右下の座標
+   * @param upperLeft 表示する矩形の {@link WorkspaceView} 上の左上の座標
+   * @param lowerRight 表示する矩形の {@link WorkspaceView} 上の右下の座標
    * */
   public void showSelectionRectangle(Vec2D upperLeft, Vec2D lowerRight) {
     rectSelTool.setVisible(true);
@@ -572,8 +641,8 @@ public class WorkspaceView extends Tab {
   }
 
   /**
-   * 引数で指定したノードビューが中央に表示されるようにスクロールする.
-   * このワークスペースビューに存在しないノードビューを指定した場合は, なにもしない.
+   * {@code nodeView} が中央に表示されるようにスクロールする.
+   * {@code nodeView} がこの {@link WorkspaceView} に存在しない場合なにもしない.
    *
    * @param nodeView 中央に表示するノードビュー
    */
@@ -607,7 +676,7 @@ public class WorkspaceView extends Tab {
         Math.clamp(scrollBarPos.y, wsScrollPane.getVmin(), wsScrollPane.getVmax()));
   }
 
-  /** ズームしたワークスペース上でのノードビューの中心位置を返す. */
+  /** ズームした {@link WorkspaceView} 上でのノードビューの中心位置を返す. */
   private Vec2D getCenterPosOnZoomedWorkspace(BhNodeView nodeView) {
     double magX = wsPane.getTransforms().get(0).getMxx();
     double magY = wsPane.getTransforms().get(0).getMyy();

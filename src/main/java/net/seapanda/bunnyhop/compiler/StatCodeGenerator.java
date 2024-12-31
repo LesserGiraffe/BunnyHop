@@ -54,7 +54,6 @@ public class StatCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-
     String statSymbolName = statementNode.getSymbolName();
     // void がつながっているときは, そこで文終了
     if (statSymbolName.equals(SymbolNames.Stat.VOID_STAT)) {
@@ -108,13 +107,14 @@ public class StatCodeGenerator {
         assignStatNode.findSymbolInDescendants("*", SymbolNames.AssignStat.LEFT_VAR, "*");
     boolean isAddAssign =
         assignStatNode.getSymbolName().equals(SymbolNames.AssignStat.NUM_ADD_ASSIGN_STAT);
-    genAssignCode(code, varSymbol, rightExpCode, isAddAssign, nestLevel, option);
+    genAssignCode(code, assignStatNode, varSymbol, rightExpCode, isAddAssign, nestLevel, option);
   }
 
   /**
    * 代入文のコードを生成する.
    *
    * @param code 生成したコードの格納先
+   * @param assignStatNode 代入文のノード
    * @param varSymbol 代入先の変数ノード
    * @param rightExp 右辺のコード
    * @param isAddAssign += 代入文を生成する場合 true
@@ -123,32 +123,39 @@ public class StatCodeGenerator {
    */
   private void genAssignCode(
       StringBuilder code,
+      SyntaxSymbol assignStatNode,
       SyntaxSymbol varSymbol,
       String rightExp,
       boolean isAddAssign,
       int nestLevel,
       CompileOption option) {
-
-    if (SymbolNames.VarDecl.VAR_LIST.contains(varSymbol.getSymbolName())) {
-      BhNode varDecl = ((BhNode) varSymbol).getOriginal();
-      if (common.isOutputParam(varDecl)) {
-        if (isAddAssign) {
-          rightExp = "(%s + %s)".formatted(common.genGetOutputParamValCode(varDecl), rightExp);
-        }
-        code.append(common.indent(nestLevel))
-            .append(common.genSetOutputParamValCode(varDecl, rightExp))
-            .append(";" + Keywords.newLine);
-      } else {
-        String varName = common.genVarName(varDecl);
-        if (isAddAssign) {
-          rightExp = "(%s + %s)".formatted(varName, rightExp);
-        }
-        code.append(common.indent(nestLevel))
-            .append(varName)
-            .append(" = ")
-            .append(rightExp)
-            .append(";" + Keywords.newLine);
+    if (!SymbolNames.VarDecl.VAR_LIST.contains(varSymbol.getSymbolName())) {
+      return;
+    }
+    // 実行中のノードをスレッドコンテキストに設定.
+    if (option.isDebug) {
+      code.append(common.indent(nestLevel))
+          .append(common.genSetCurrentNodeInstIdCode(assignStatNode))
+          .append(";" + Keywords.newLine);
+    }
+    BhNode varDecl = ((BhNode) varSymbol).getOriginal();
+    if (common.isOutputParam(varDecl)) {
+      if (isAddAssign) {
+        rightExp = "(%s + %s)".formatted(common.genGetOutputParamValCode(varDecl), rightExp);
       }
+      code.append(common.indent(nestLevel))
+          .append(common.genSetOutputParamValCode(varDecl, rightExp))
+          .append(";" + Keywords.newLine);
+    } else {
+      String varName = common.genVarName(varDecl);
+      if (isAddAssign) {
+        rightExp = "(%s + %s)".formatted(varName, rightExp);
+      }
+      code.append(common.indent(nestLevel))
+          .append(varName)
+          .append(" = ")
+          .append(rightExp)
+          .append(";" + Keywords.newLine);
     }
   }
 

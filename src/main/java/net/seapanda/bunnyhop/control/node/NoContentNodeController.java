@@ -16,10 +16,9 @@
 
 package net.seapanda.bunnyhop.control.node;
 
-import net.seapanda.bunnyhop.command.BhCmd;
-import net.seapanda.bunnyhop.command.CmdData;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.node.NoContentNodeView;
+import net.seapanda.bunnyhop.view.proxy.TextNodeViewProxy;
 
 /**
  * {@code NoContentNodeView} のコントローラ.
@@ -34,24 +33,16 @@ public class NoContentNodeController extends BhNodeController {
   public NoContentNodeController(TextNode model, NoContentNodeView view) {
     super(model, view);
     this.model = model;
+    model.setViewProxy(new TextNodeViewProxyImpl(view));
   }
 
-  /**
-   * 受信したメッセージを処理する.
-   *
-   * @param msg メッセージの種類
-   * @param data メッセージの種類に応じて処理するデータ
-   * @return メッセージを処理した結果返すデータ
-   */
-  @Override
-  public CmdData process(BhCmd msg, CmdData data) {
-    switch (msg) {
-      case MATCH_VIEW_CONTENT_TO_MODEL:
-        break;
+  private class TextNodeViewProxyImpl extends BhNodeViewProxyImpl implements TextNodeViewProxy {
 
-      default:
-        return super.process(msg, data);
+    public TextNodeViewProxyImpl(NoContentNodeView view) {
+      super(view, false);
     }
-    return null;
+
+    @Override
+    public void matchViewContentToModel() {}
   }
 }

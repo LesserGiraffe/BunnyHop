@@ -197,7 +197,6 @@ public class EventHandlerCodeGenerator {
       String funcName,
       String lockVar,
       int nestLevel) {
-
     // let lockVar = new _genLockObj();
     varDeclCodeGen.genVarDeclStat(
         code, lockVar, ScriptIdentifiers.Funcs.GEN_LOCK_OBJ + "(false)", nestLevel);
@@ -225,10 +224,12 @@ public class EventHandlerCodeGenerator {
         .append(ScriptIdentifiers.Label.end)
         .append(" : {" + Keywords.newLine);
 
-    // _initThisObj.call(this);
+    // let _threadContext = _createThreadContext();
     code.append(common.indent(nestLevel + 4))
-        .append(common.genFuncPrototypeCallCode(
-            ScriptIdentifiers.Funcs.INIT_THIS_OBJ, Keywords.Js._this))
+        .append(Keywords.Js._const_)
+        .append(ScriptIdentifiers.Vars.THREAD_CONTEXT)
+        .append(" = ")
+        .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.CREATE_THREAD_CONTEXT))
         .append(";" + Keywords.newLine);
   }
 
@@ -243,7 +244,6 @@ public class EventHandlerCodeGenerator {
       StringBuilder code,
       String lockVar,
       int nestLevel) {
-
     // end of "_end : {..."
     code.append(common.indent(nestLevel + 3))
         .append("}" + Keywords.newLine);
@@ -258,6 +258,10 @@ public class EventHandlerCodeGenerator {
     code.append(common.indent(nestLevel + 2))
         .append(Keywords.Js._finally_)
         .append("{" + Keywords.newLine)
+        .append(common.indent(nestLevel + 3))
+        .append(common.genFuncCallCode(
+            ScriptIdentifiers.Funcs.REMOVE_THREAD_CONTEXT, Keywords.Js._this))
+        .append(";" + Keywords.newLine)
         .append(common.indent(nestLevel + 3))
         .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.UNLOCK, lockVar))
         .append(";" + Keywords.newLine)

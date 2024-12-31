@@ -47,7 +47,7 @@ public class ExpCodeGenerator {
    * @param expNode 式のノード
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
-   * @return 式もしくは式の評価結果を格納した変数. expNode に該当する式ノードが見つからなかった場合null.
+   * @return 式もしくは式の評価結果を格納した変数. {@code expNode} に該当する式ノードが見つからなかった場合 null.
    */
   public String genExpression(
       StringBuilder code,
@@ -99,7 +99,6 @@ public class ExpCodeGenerator {
       SyntaxSymbol binaryExpNode,
       int nestLevel,
       CompileOption option) {
-
     SyntaxSymbol leftExp =
         binaryExpNode.findSymbolInDescendants("*",  SymbolNames.BinaryExp.LEFT_EXP, "*");
     String leftExpCode = genExpression(code, leftExp, nestLevel, option);
@@ -116,6 +115,12 @@ public class ExpCodeGenerator {
     }
 
     String tmpVar = common.genVarName(binaryExpNode);
+    // 実行中のノードをスレッドコンテキストに設定.
+    if (option.isDebug) {
+      code.append(common.indent(nestLevel))
+          .append(common.genSetCurrentNodeInstIdCode(binaryExpNode))
+          .append(";" + Keywords.newLine);
+    }
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(tmpVar)
@@ -125,24 +130,7 @@ public class ExpCodeGenerator {
         .append(rightExpCode)
         .append(";" + Keywords.newLine);
 
-    String tmpVarResult = tmpVar;
-    if (option.keepRealNumber) {
-      if (SymbolNames.BinaryExp.ARITH_EXCEPTION_EXP.contains(binaryExpNode.getSymbolName())) {
-        tmpVarResult = "_" + tmpVar;
-        code.append(common.indent(nestLevel))
-            .append(Keywords.Js._const_)
-            .append(tmpVarResult)
-            .append(" = ")
-            .append("(")
-            .append(common.genFuncCallCode(ScriptIdentifiers.JsFuncs.IS_FINITE, tmpVar))
-            .append(") ? ")
-            .append(tmpVar)
-            .append(" : ")
-            .append(leftExpCode)
-            .append(";" + Keywords.newLine);
-      }
-    }
-    return tmpVarResult;
+    return tmpVar;
   }
 
   /**
@@ -159,16 +147,21 @@ public class ExpCodeGenerator {
       SyntaxSymbol unaryExpNode,
       int nestLevel,
       CompileOption option) {
-
     SyntaxSymbol primaryExp =
         unaryExpNode.findSymbolInDescendants("*",  SymbolNames.UnaryExp.PRIMARY_EXP, "*");
-    String primaryExpCode = genExpression(code, primaryExp, nestLevel, option);
-    String operatorCode = SymbolNames.UnaryExp.OPERATOR_MAP.get(unaryExpNode.getSymbolName());
-
     if (primaryExp == null) {
       return null;
     }
+
+    String primaryExpCode = genExpression(code, primaryExp, nestLevel, option);
+    String operatorCode = SymbolNames.UnaryExp.OPERATOR_MAP.get(unaryExpNode.getSymbolName());
     String tmpVar = common.genVarName(unaryExpNode);
+    // 実行中のノードをスレッドコンテキストに設定.
+    if (option.isDebug) {
+      code.append(common.indent(nestLevel))
+          .append(common.genSetCurrentNodeInstIdCode(unaryExpNode))
+          .append(";" + Keywords.newLine);
+    }
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(tmpVar)
@@ -176,6 +169,7 @@ public class ExpCodeGenerator {
         .append(operatorCode)
         .append(primaryExpCode)
         .append(";" + Keywords.newLine);
+
     return tmpVar;
   }
 
@@ -253,10 +247,10 @@ public class ExpCodeGenerator {
           .append(retValName)
           .append(";" + Keywords.newLine);
     }
-    // コールスタック push
+    // 実行中のノードをスレッドコンテキストに設定.
     if (option.isDebug) {
       code.append(common.indent(nestLevel))
-          .append(common.genPushToCallStackCode(funcCallNode))
+          .append(common.genSetCurrentNodeInstIdCode(funcCallNode))
           .append(";" + Keywords.newLine);
     }
     String[] argArray = argList.toArray(new String[argList.size()]);
@@ -265,19 +259,13 @@ public class ExpCodeGenerator {
     if (funcName.equals(ScriptIdentifiers.Funcs.IDENTITY)) {
       funcCallCode = argArray[0];
     } else {
-      funcCallCode = common.genFuncPrototypeCallCode(funcName, Keywords.Js._this, argArray);
+      funcCallCode = common.genFuncCallCode(funcName, argArray);
     }
     code.append(common.indent(nestLevel));
     if (storeRetVal) {
       code.append(retValName).append(" = ");
     }
     code.append(funcCallCode).append(";").append(Keywords.newLine);
-    // コールスタック pop
-    if (option.isDebug) {
-      code.append(common.indent(nestLevel))
-          .append(common.genPopFromCallStackCode())
-          .append(";" + Keywords.newLine);
-    }
     return retValName;
   }
 
@@ -378,9 +366,10 @@ public class ExpCodeGenerator {
           .append(";" + Keywords.newLine);
     }
     argList.addAll(outArgList);
+    argList.addFirst(ScriptIdentifiers.Vars.THREAD_CONTEXT);
     String funcName = common.genFuncName(((BhNode) funcCallNode).getOriginal());
     String[] argArray = argList.toArray(new String[argList.size()]);
-    String funcCallCode = common.genFuncPrototypeCallCode(funcName, Keywords.Js._this, argArray);
+    String funcCallCode = common.genFuncCallCode(funcName, argArray);
 
     code.append(common.indent(nestLevel));
     if (storeRetVal) {

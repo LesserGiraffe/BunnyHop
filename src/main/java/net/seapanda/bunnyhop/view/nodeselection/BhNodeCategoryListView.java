@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.view.nodeselection;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javafx.css.PseudoClass;
@@ -36,6 +36,7 @@ import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.TreeNode;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
+import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 
 /**
  * BhNode のカテゴリ選択画面のビュー.
@@ -44,13 +45,11 @@ import net.seapanda.bunnyhop.view.ViewInitializationException;
  */
 public final class BhNodeCategoryListView {
 
+  private final BhNodeCategoryList model;
   private final TreeView<BhNodeCategory> categoryTree;
   /** BhNode 選択カテゴリと BhNode 選択ビューのマップ. */
-  private final Map<BhNodeCategory, BhNodeSelectionView> categoryToSselectionView =
-      new HashMap<>();
-  /** BhNode 選択ビューのリスト. */
-  private final List<BhNodeSelectionView> selectionViewList = new ArrayList<>();
-  private final List<BhNodeCategory> categoryList = new ArrayList<>();
+  private final Map<BhNodeCategory, BhNodeSelectionView> categoryToSelectionView =
+      new LinkedHashMap<>();
 
   /**
    * カテゴリリストを構築する.
@@ -62,10 +61,11 @@ public final class BhNodeCategoryListView {
   public BhNodeCategoryListView(TreeView<BhNodeCategory> categoryTree, BhNodeCategoryList model)
       throws ViewInitializationException {
     this.categoryTree = categoryTree;
+    this.model = model;
     buildCategoryList(model.getRootNode());
     registerPrivateTemplateView();
     for (int i = 0; i < Math.abs(BhConstants.LnF.INITIAL_ZOOM_LEVEL); ++i) {
-      BhService.bhNodeSelectionService().zoomAll(BhConstants.LnF.INITIAL_ZOOM_LEVEL > 0);
+      model.getAppRoot().getNodeSelectionViewProxy().zoom(BhConstants.LnF.INITIAL_ZOOM_LEVEL > 0);
     }
   }
 
@@ -92,7 +92,7 @@ public final class BhNodeCategoryListView {
    * @return ノード選択ビューのリスト
    */
   public List<BhNodeSelectionView> getSelectionViewList() {
-    return new ArrayList<>(selectionViewList);
+    return new ArrayList<>(categoryToSelectionView.values());
   }
 
   /**
@@ -118,7 +118,6 @@ public final class BhNodeCategoryListView {
 
         default:
           BhNodeCategory category = new BhNodeCategory(child.content);
-          categoryList.add(category);
           TreeItem<BhNodeCategory> childItem = new TreeItem<>(category);
           parentItem.getChildren().add(childItem);
           childItem.setExpanded(true);
@@ -136,35 +135,36 @@ public final class BhNodeCategoryListView {
    */
   private void addBhNodeToSelectionView(BhNodeCategory category, BhNodeId bhNodeId)
       throws ViewInitializationException {
-    if (!categoryToSselectionView.containsKey(category)) {
-      var selectionView = new BhNodeSelectionView(category.categoryName, category.cssClass, this);
-      BhService.bhNodeSelectionService().registerView(selectionView);
-      selectionView.setVisible(false);
-      categoryToSselectionView.put(category, selectionView);
-      selectionViewList.add(selectionView);
+    if (!categoryToSelectionView.containsKey(category)) {
+      BhNodeSelectionView selectionView = createNodeSelectionView(category);
+      categoryToSelectionView.put(category, selectionView);
     }
     UserOperation userOpe = new UserOperation();
     BhNode node = BhService.bhNodeFactory().create(bhNodeId, userOpe);
+    NodeMvcBuilder.buildTemplate(node);  //MVC構築
+    TextPrompter.prompt(node);
     CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
         .setForAllNodes(bhNode -> bhNode.getEventAgent().execOnTemplateCreated(userOpe));
     CallbackInvoker.invoke(registry, node);
-    NodeMvcBuilder.buildTemplate(node);  //MVC構築
-    TextPrompter.prompt(node);
-    node.getEventAgent().execOnTemplateCreated(userOpe);
-    //BhNode テンプレートリストパネルにBhNodeテンプレートを追加
-    BhService.bhNodeSelectionService().addTemplateNode(category.categoryName, node, userOpe);
+    // BhNode テンプレートリストパネルにBhNodeテンプレートを追加
+    model.getAppRoot().getNodeSelectionViewProxy().addNodeTree(
+        category.categoryName, node, userOpe);
+  }
+
+  /** {@code category} に対応する {@link BhNodeSelectionView} オブジェクトを作成する. */
+  private BhNodeSelectionView createNodeSelectionView(BhNodeCategory category)
+      throws ViewInitializationException {
+    var view = new BhNodeSelectionView(category.categoryName, category.cssClass, this);
+    model.getAppRoot().getNodeSelectionViewProxy().addNodeSelectionView(view);
+    return view;
   }
 
   /** ノード固有のノード選択ビューを登録する. */
-  private void registerPrivateTemplateView()
-      throws ViewInitializationException {
-    var selectionView = new BhNodeSelectionView(
-        BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE,
-        BhConstants.Css.CLASS_PRIVATE_NODE_TEMPLATE,
-        this);
-    BhService.bhNodeSelectionService().registerView(selectionView);
-    selectionView.setVisible(false);
-    selectionViewList.add(selectionView);
+  private void registerPrivateTemplateView() throws ViewInitializationException {
+    var category = new BhNodeCategory(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE);
+    category.setCssClass(BhConstants.Css.CLASS_PRIVATE_NODE_TEMPLATE);
+    BhNodeSelectionView selectionView = createNodeSelectionView(category);
+    categoryToSelectionView.put(category, selectionView);
   }
 
   /** TreeView の各セルのモデルクラス. */
@@ -203,13 +203,15 @@ public final class BhNodeCategoryListView {
     /** コンストラクタ. */
     public BhNodeCategoryView() {
       // BhNode のカテゴリクリック時の処理
-      setOnMousePressed(evenet -> {
-        // カテゴリ名の無い TreeCell がクリックされたときと表示済みカテゴリを再度クリックした場合はそれを隠す
-        if (isEmpty() || BhService.bhNodeSelectionService().isShowed(model.categoryName)) {
-          BhService.bhNodeSelectionService().hideAll();
+      setOnMousePressed(event -> {
+        BhNodeSelectionViewProxy selectionViewProxy =
+            BhNodeCategoryListView.this.model.getAppRoot().getNodeSelectionViewProxy();
+        // カテゴリ名の無い TreeCell がクリックされた場合と表示済みカテゴリを再度クリックした場合はそれを隠す
+        if (isEmpty() || selectionViewProxy.isShowed(model.categoryName)) {
+          selectionViewProxy.hideAll();
           select(false);
         } else {
-          BhService.bhNodeSelectionService().show(model.categoryName);
+          selectionViewProxy.show(model.categoryName);
           select(true);
         }
       });

@@ -23,14 +23,41 @@ let _executor = _jExecutors.newFixedThreadPool(16);
 let _programStartingTime = _currentTimeMillis();
 let _nilSyncTimer = _genSyncTimer(0, true);
 let _anyObj = new _AnyNil();
+let _idxCallStack = 0;
+let _idxCurrentNodeInstId = 1;
+let _idxErrorMsgs = 2;
 
 function _AnyNil() {
   this._toStr = function() {return '';}
 }
 
-function _initThisObj() {
-  this._additionalErrorMsgs = [];
-  this._callStack = [];
+/** スレッド固有のデータを作成する. */
+function _createThreadContext() {
+  // アクセス高速のため配列に格納する.
+  let threadContext = [
+    [],   // call stack
+    null, // current node instance id,
+    []    // error messages
+  ];
+  // Java の long 型は JavaScript で使うと double 型に変換される. 
+  // Java のスレッド ID は long 型 だが, Number.MAX_SAFE_INTEGER の範囲に入る保証がないので,
+  // スレッド ID は Java のメソッド内部で取り扱う.
+  bhScriptHelper.util.setThreadData(threadContext);
+  return threadContext;
+}
+
+function _removeThreadContext(dest) {
+  let threadContext = _getThreadContext();
+  if (dest && threadContext) {
+    dest['_callStack'] = threadContext[_idxCallStack];
+    dest['_currentNodeInstId'] = threadContext[_idxCurrentNodeInstId];
+    dest['_errorMsgs'] = threadContext[_idxErrorMsgs];
+  }
+  bhScriptHelper.util.removeThreadData();
+}
+
+function _getThreadContext() {
+  return bhScriptHelper.util.getThreadData();
 }
 
 function _genLockObj(fair) {
@@ -143,7 +170,7 @@ function _sleep(sec) {
     success = true;
   } finally {
     if (!success)
-      _addExceptionMsg.call(this, '_sleep()');
+      _addExceptionMsg('_sleep()');
   }
 }
 
@@ -184,8 +211,7 @@ function _anyEq(a, b) {
   else if (a instanceof _AnyNil)
     return true;
   
-  throw _newBhProgramExceptioin.call(
-    this, 'compared unknown data ' + String(a) + '  ' + String(b));
+  throw _newBhProgramExceptioin('compared unknown data ' + String(a) + '  ' + String(b));
 }
 
 function _anyNeq(a, b) {
@@ -222,7 +248,7 @@ function _waitProcEnd(process, getStdinStr, checkExitVal) {
         process.waitFor();
     }
     if (checkExitVal && (process.exitValue() !== 0))
-      throw _newBhProgramExceptioin.call(this, 'abnormal process end');
+      throw _newBhProgramExceptioin('abnormal process end');
   } finally {
     process.getErrorStream().close();
     process.getInputStream().close();
@@ -235,11 +261,14 @@ function _waitProcEnd(process, getStdinStr, checkExitVal) {
 //              例外処理
 //==================================================================
 function _addExceptionMsg(msg) {
-  this._additionalErrorMsgs.push(String(msg));
+  _getThreadContext()[_idxErrorMsgs].push(String(msg));
 }
 
 function _newBhProgramExceptioin(msg) {
-  return bhScriptHelper.util.newBhProgramException(this._callStack, msg);
+  let context = _getThreadContext();
+  let currentNodeInstId = context[_idxCurrentNodeInstId];
+  let callStack = context[_idxCallStack].concat(currentNodeInstId); // 'concat' returns a new array.
+  return bhScriptHelper.util.newBhProgramException(callStack, msg);
 }
 
 //==================================================================
@@ -309,6 +338,9 @@ function _aryAddAll(aryA, idx, aryB) {
 }
 
 function _aryGet(ary, idx, dflt) {
+  if (!Number.isFinite(idx)) {
+    throw _newBhProgramExceptioin('不正なインデックスです  ' + idx);
+  }
   idx = Math.trunc(idx);
   if (-ary.length <= idx && idx < ary.length) {
     idx = (idx < 0) ? (ary.length + idx) : idx;
@@ -575,7 +607,7 @@ function _playMelodies(soundList, reverse) {
     success = true;
   } finally {
     if (!success)
-      _addExceptionMsg.call(this, '_playMelodies()');
+      _addExceptionMsg('_playMelodies()');
     if (line !== null) {
       line.drain();
       line.close();
@@ -607,7 +639,7 @@ function _playWavFile(path) {
     success = true;
   } finally {
     if (!success)
-      _addExceptionMsg.call(this, '_playWavFile()');
+      _addExceptionMsg('_playWavFile()');
     if (line !== null) {
       line.drain();
       line.stop();
@@ -648,7 +680,7 @@ function _sayOnLinux(word) {
     success = true;
   } finally {
     if (!success)
-      _addExceptionMsg.call(this, '_sayOnLinux()');
+      _addExceptionMsg('_sayOnLinux()');
   }
 }
 
@@ -679,8 +711,7 @@ function _createColorFromName(colorName) {
     case 'black':
       return new _Color(0,0,0);
     default:
-      throw _newBhProgramExceptioin.call(
-          this, '_createColorFromName invalid colorName ' + colorName);
+      throw _newBhProgramExceptioin('_createColorFromName invalid colorName ' + colorName);
   }
 }
 
@@ -755,8 +786,8 @@ function _strcat(valA, valB) {
 //==================================================================
 function _genSyncTimer(count, autoReset) {
   if (count < 0 || count > 65535)
-    throw _newBhProgramExceptioin.call(
-      this, 'タイマーの初期値は 0 以上 65535 以下でなければなりません.  (' + count + ')');
+    throw _newBhProgramExceptioin(
+      'タイマーの初期値は 0 以上 65535 以下でなければなりません.  (' + count + ')');
 
   return bhScriptHelper.util.newSyncTimer(count, autoReset);
 }
@@ -808,8 +839,8 @@ function _resetSyncTimer(timer, count) {
     return;
 
   if (count < 0 || count > 65535)
-    throw _newBhProgramExceptioin.call(
-      this, 'リセット値は 0 以上 65535 以下でなければなりません.  (' + count + ')');
+    throw _newBhProgramExceptioin(
+      'リセット値は 0 以上 65535 以下でなければなりません.  (' + count + ')');
   
   timer.reset(count);
 }

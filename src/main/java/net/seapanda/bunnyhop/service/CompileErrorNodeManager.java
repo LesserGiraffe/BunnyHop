@@ -47,7 +47,7 @@ public class CompileErrorNodeManager {
    * </pre>
    */
   public synchronized void collect(BhNode node, UserOperation userOpe) {
-    if (BhService.cmdProxy().isTemplateNode(node)) {
+    if (node.getViewProxy().isTemplateNode()) {
       return;
     }
     for (BhNode errNode : CompileErrorNodeCollector.collect(node)) {
@@ -61,8 +61,8 @@ public class CompileErrorNodeManager {
   /** 管理下のノードのコンパイルエラー表示を更新する. */
   public synchronized void updateErrorNodeIndicator(UserOperation userOpe) {
     errorNodeList.forEach(node -> {
-      if (node.getState() != BhNode.State.DELETED) {
-        BhService.cmdProxy().setCompileErrorMark(node, node.hasCompileError(), userOpe);
+      if (!node.isDeleted()) {
+        node.getViewProxy().setCompileErrorVisibility(node.hasCompileError(), userOpe);
       }
     });
   }

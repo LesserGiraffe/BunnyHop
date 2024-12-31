@@ -37,13 +37,20 @@ import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.control.FoundationController;
 import net.seapanda.bunnyhop.control.MenuBarController;
+import net.seapanda.bunnyhop.control.nodeselection.BhNodeSelectionViewProxyImpl;
 import net.seapanda.bunnyhop.control.workspace.TrashboxController;
+import net.seapanda.bunnyhop.control.workspace.WorkspaceController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
+import net.seapanda.bunnyhop.model.AppRoot;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Utility;
+import net.seapanda.bunnyhop.view.ViewInitializationException;
+import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
+import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /** GUI 画面のロードと初期化を行う. */
 public class SceneBuilder {
@@ -55,9 +62,12 @@ public class SceneBuilder {
   public final WorkspaceSetController wssCtrl;
   public final TrashboxController trashboxCtrl;
   public final Scene scene;
+  public final WorkspaceSet wss;
+  public final AppRoot appRoot;
 
   /** コンストラクタ. */
   public SceneBuilder(WorkspaceSet wss) throws AppInitializationException {
+    this.wss = wss;
     nodeCategoryList = genNodeCategoryList().orElse(null);
     if (nodeCategoryList == null) {
       throw new AppInitializationException("Failed to create a node category list.");
@@ -68,12 +78,16 @@ public class SceneBuilder {
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());
       root = loader.load();
       foundationCtrl = loader.getController();
-      if (!foundationCtrl.initialize(wss, nodeCategoryList)) {
-        throw new AppInitializationException("Failed to initialize a FoundationController.");
-      }
       wssCtrl = foundationCtrl.getWorkspaceSetController();
       menuBarCtrl = foundationCtrl.getMenuBarController();
       trashboxCtrl = wssCtrl.getTrashboxController();
+      appRoot = new AppRoot(
+        wss, nodeCategoryList, new BhNodeSelectionViewProxyImpl(wssCtrl::addNodeSelectionView));
+      wss.setAppRoot(appRoot);
+      nodeCategoryList.setAppRoot(appRoot);
+      if (!foundationCtrl.initialize(wss, nodeCategoryList)) {
+        throw new AppInitializationException("Failed to initialize a FoundationController.");
+      }
       scene = genScene(root);
     } catch (IOException e) {
       throw new AppInitializationException(
@@ -91,11 +105,8 @@ public class SceneBuilder {
     stage.getIcons().add(new Image(iconPath));
     stage.setScene(scene);
     stage.setTitle(BhConstants.APPLICATION_NAME);
-    BhService.cmdProxy().addNewWorkspace(
-        TextDefs.Workspace.initialWsName.get(),
-        BhConstants.LnF.DEFAULT_WORKSPACE_WIDTH,
-        BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT,
-        new UserOperation());
+    var wsName = TextDefs.Workspace.initialWsName.get();
+    createWorkspace(wsName).ifPresent(ws -> wss.addWorkspace(ws, new UserOperation()));
     stage.show();
   }
 
@@ -130,5 +141,21 @@ public class SceneBuilder {
       return new ArrayList<>();
     }
     return files.stream().map(file -> file.toUri().toString()).toList();
+  }
+
+  /** {@link Workspace} とその MVC 構造を作成する. */
+  private Optional<Workspace> createWorkspace(String name) {
+    Workspace ws = new Workspace(name);
+    WorkspaceView wsView;
+    WorkspaceController wsController;
+    try {
+      wsView = new WorkspaceView(
+          ws, BhConstants.LnF.DEFAULT_WORKSPACE_WIDTH, BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT);
+      wsController = new WorkspaceController(ws, wsView, new MultiNodeShifterView());
+    } catch (ViewInitializationException e) {
+      BhService.msgPrinter().errForDebug(e.toString());
+      return Optional.empty();
+    }
+    return Optional.of(ws);
   }
 }

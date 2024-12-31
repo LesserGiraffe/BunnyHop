@@ -16,13 +16,13 @@
 
 package net.seapanda.bunnyhop.control.node;
 
+import java.util.Objects;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import net.seapanda.bunnyhop.command.BhCmd;
-import net.seapanda.bunnyhop.command.CmdData;
-import net.seapanda.bunnyhop.command.CmdProcessor;
+import net.seapanda.bunnyhop.control.MouseCtrlLock;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
 import net.seapanda.bunnyhop.model.traverse.TextPrompter;
@@ -35,6 +35,7 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
 import net.seapanda.bunnyhop.view.node.TextInputNodeView;
+import net.seapanda.bunnyhop.view.proxy.TextNodeViewProxy;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 /**
@@ -42,7 +43,7 @@ import org.apache.commons.lang3.mutable.MutableObject;
  *
  * @author K.Koike
  */
-public class TemplateNodeController implements CmdProcessor {
+public class TemplateNodeController {
 
   private final BhNode model;
   /** テンプレートリストのビュー. */
@@ -60,18 +61,36 @@ public class TemplateNodeController implements CmdProcessor {
    * @param view 管理するビュー
    */
   public TemplateNodeController(BhNode model, BhNodeView view, BhNodeView rootView) {
+    Objects.requireNonNull(model);
+    Objects.requireNonNull(view);
+    Objects.requireNonNull(rootView);
     this.model = model;
     this.view = view;
     this.rootView = rootView;
     setEventHandlers();
 
+    switch (model) {
+      case TextNode textNode ->
+          textNode.setViewProxy(new TextNodeViewProxyImpl(view));
+
+      case ConnectiveNode connectiveNode ->
+          connectiveNode.setViewProxy(new BhNodeViewProxyImpl(view, true));
+      
+      default -> throw new IllegalArgumentException("Unknown BhNode  (%s)".formatted(model));
+    }
+
     if (model instanceof TextNode textNode) {
-      if (view instanceof TextInputNodeView textInputView) {
-        TextInputNodeController.setEventHandlers(textNode, textInputView);
-      } else if (view instanceof ComboBoxNodeView comboBoxView) {
-        ComboBoxNodeController.setEventHandlers(textNode, comboBoxView);
-      } else if (view instanceof LabelNodeView labelView) {
-        LabelNodeController.setInitStr(textNode, labelView);
+      switch (view) {
+        case TextInputNodeView textInputView ->
+            TextInputNodeController.setEventHandlers(textNode, textInputView);
+          
+        case ComboBoxNodeView comboBoxView ->
+            ComboBoxNodeController.setEventHandlers(textNode, comboBoxView);
+
+        case LabelNodeView labelView ->
+            LabelNodeController.setInitStr(textNode, labelView);
+        
+        default -> { /* do nothing */ }
       }
     }
   }
@@ -94,7 +113,7 @@ public class TemplateNodeController implements CmdProcessor {
     }
     ModelExclusiveControl.lockForModification();
     try {
-      Workspace currentWs = BhService.getCurrentWorkspace();
+      Workspace currentWs = BhService.getAppRoot().getWorkspaceSet().getCurrentWorkspace();
       if (currentWs == null) {
         return;
       }
@@ -103,15 +122,12 @@ public class TemplateNodeController implements CmdProcessor {
       BhNodeView nodeView = NodeMvcBuilder.build(newNode); //MVC構築
       TextPrompter.prompt(newNode);
       currentView.setValue(nodeView);
-      Vec2D posOnRootView = calcRelativePosFromRoot();  //クリックされたテンプレートノードのルートノード上でのクリック位置
-      posOnRootView.add(event.getX(), event.getY());
-      Vec2D posOnWs = BhService.cmdProxy().sceneToWorkspace(
-          event.getSceneX(), event.getSceneY(), currentWs);
-      posOnWs.sub(posOnRootView);
+      Vec2D posOnWs = calcClickPosOnWs(event, currentWs);
       BhService.bhNodePlacer().moveToWs(currentWs, newNode, posOnWs.x, posOnWs.y, userOpe);
-      BhService.cmdProxy().setUserOpeCmd(newNode, userOpe);  // undo 用コマンドセット
+      // undo 用コマンドセット
+      nodeView.getController().ifPresent(ctrl -> ctrl.setUserOpeCmdForDnd(userOpe));
       currentView.getValue().getEventManager().propagateEvent(event);
-      BhService.bhNodeSelectionService().hideAll();
+      BhService.getAppRoot().getNodeSelectionViewProxy().hideAll();
       event.consume();
     } catch (Exception e) {
       mouseCtrlLock.unlock();
@@ -165,6 +181,17 @@ public class TemplateNodeController implements CmdProcessor {
     }
   }
 
+  /** クリックされたノードからの相対クリック位置をワークスペース上の位置に変換する. */
+  private Vec2D calcClickPosOnWs(MouseEvent event, Workspace currentWs) {
+    // クリックされたテンプレートノードのルートノード上でのクリック位置
+    Vec2D posOnRootView = calcRelativePosFromRoot();
+    posOnRootView.add(event.getX(), event.getY());
+    var posOnScene = new Vec2D(event.getSceneX(), event.getSceneY());
+    Vec2D posOnWs = currentWs.getViewProxy().sceneToWorkspace(posOnScene);
+    posOnWs.sub(posOnRootView);
+    return posOnWs;
+  }
+
   /** view の rootView からの相対位置を求める. */
   private Vec2D calcRelativePosFromRoot() {
     Point2D pos = view.localToScene(0.0, 0.0);
@@ -179,60 +206,7 @@ public class TemplateNodeController implements CmdProcessor {
     }
   }
 
-  /**
-   * 受信したメッセージを処理する.
-   *
-   * @param msg メッセージの種類
-   * @param data メッセージの種類に応じて処理するデータ
-   * @return メッセージを処理した結果返すデータ
-   */
-  @Override
-  public CmdData process(BhCmd msg, CmdData data) {
-    switch (msg) {
-      case ADD_ROOT_NODE: // model がWorkSpace のルートノードとして登録された
-        return new CmdData(model, view);
-
-      case REMOVE_ROOT_NODE:
-        return new CmdData(model, view);
-
-      case GET_POS_ON_WORKSPACE:
-        var pos = view.getPositionManager().getPosOnWorkspace();
-        return new CmdData(pos);
-
-      case REPLACE_NODE_VIEW:
-        view.getTreeManager().replace(data.nodeView);
-        break;
-
-      case SWITCH_PSEUDO_CLASS_ACTIVATION:
-        view.getLookManager().switchPseudoClassActivation(data.bool, data.text);
-        break;
-
-      case GET_VIEW:
-        return new CmdData(view);
-
-      case REMOVE_FROM_GUI_TREE:
-        view.getTreeManager().removeFromGuiTree();
-        break;
-
-      case SET_VISIBLE:
-        view.getLookManager().setVisible(data.bool);
-        data.userOpe.pushCmdOfSetVisible(view, data.bool);
-        break;
-
-      case MATCH_VIEW_CONTENT_TO_MODEL:
-        matchViewToModel(model, view);
-        break;
-
-      case IS_TEMPLATE_NODE:
-        return new CmdData(true);
-
-      default:
-        // do nothing
-    }
-    return null;
-  }
-
-  private void matchViewToModel(BhNode model, BhNodeView view) {
+  private static void matchViewToModel(BhNode model, BhNodeView view) {
     if (model instanceof TextNode textNode) {
       if (view instanceof TextInputNodeView textInputView) {
         TextInputNodeController.matchViewToModel(textNode, textInputView);
@@ -241,6 +215,18 @@ public class TemplateNodeController implements CmdProcessor {
       } else if (view instanceof ComboBoxNodeView comboBoxView) {
         ComboBoxNodeController.matchViewToModel(textNode, comboBoxView);
       }
+    }
+  }
+
+  private class TextNodeViewProxyImpl extends BhNodeViewProxyImpl implements TextNodeViewProxy {
+    
+    public TextNodeViewProxyImpl(BhNodeView view) {
+      super(view, true);
+    }
+
+    @Override
+    public void matchViewContentToModel() {
+      TemplateNodeController.matchViewToModel(model, view);
     }
   }
 }

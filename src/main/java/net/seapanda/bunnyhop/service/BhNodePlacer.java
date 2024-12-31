@@ -26,11 +26,8 @@ import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.derivative.Derivative;
 import net.seapanda.bunnyhop.model.traverse.DerivativeCollector;
 import net.seapanda.bunnyhop.model.traverse.DerivativeRemover;
-import net.seapanda.bunnyhop.model.traverse.NodeDeselector;
 import net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
-import net.seapanda.bunnyhop.model.traverse.PasteCanceler;
 import net.seapanda.bunnyhop.model.traverse.TextPrompter;
-import net.seapanda.bunnyhop.model.traverse.WorkspaceRegisterer;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Vec2D;
@@ -79,13 +76,10 @@ public class BhNodePlacer {
   }
 
   private List<Swapped> delete(BhNode node, UserOperation userOpe) {
-    //undo時に削除前の状態のBhNodeを選択ノードとして MultiNodeShifterController に通知するためここで非選択にする
-    NodeDeselector.deselect(node, userOpe);
-    BhService.cmdProxy().removeQtRectangle(node, userOpe);  //4 分木空間からの削除
+    node.deselect(userOpe);
     final List<Swapped> swappedNodes = removeDependingOnState(node, userOpe);
-    WorkspaceRegisterer.deregister(node, userOpe);
-    PasteCanceler.cancel(node, userOpe);
     DerivativeRemover.remove(node, userOpe);
+    node.getWorkspace().removeNodeTree(node, userOpe);
     return swappedNodes;
   }
   
@@ -96,11 +90,11 @@ public class BhNodePlacer {
     switch (nodeState) {
       case CHILD:
         swappedNodes.addAll(removeChild(node, userOpe));
-        BhService.cmdProxy().removeFromGuiTree(node);
+        node.getViewProxy().removeFromGuiTree();
         break;
 
       case ROOT_DANGLING:
-        BhService.cmdProxy().removeFromGuiTree(node);  // GUIツリー上から削除
+        node.getViewProxy().removeFromGuiTree();
         break;
 
       case ROOT_ON_WS:
@@ -108,7 +102,7 @@ public class BhNodePlacer {
         break;
 
       case DELETED:
-        return swappedNodes;
+        break;
 
       default:
         throw new AssertionError("Invalid node state " + nodeState);
@@ -120,7 +114,7 @@ public class BhNodePlacer {
    * {@code node} を {@code ws} に移動する.
    *
    * @param ws {@code node} を追加したいワークスペース
-   * @param node WS直下に追加したいノード.
+   * @param node ワークスペース直下に追加したいノード.
    * @param x ワークスペース上での位置
    * @param y ワークスペース上での位置
    * @param userOpe undo 用コマンドオブジェクト
@@ -136,7 +130,7 @@ public class BhNodePlacer {
    * {@code node} を {@code ws} に移動する.
    *
    * @param ws {@code node} を追加したいワークスペース
-   * @param node WS直下に追加したいノード.
+   * @param node ワークスペース直下に追加したいノード.
    * @param x ワークスペース上での位置
    * @param y ワークスペース上での位置
    * @param checkSyntaxErr コンパイルエラーをチェックする場合 true
@@ -152,10 +146,9 @@ public class BhNodePlacer {
       boolean checkSyntaxErr,
       UserOperation userOpe) {
     final List<Swapped> swappedNodes = removeDependingOnState(node, userOpe);
-    WorkspaceRegisterer.register(node, ws, userOpe);
-    BhService.cmdProxy().addRootNode(node, ws, userOpe);  //ワークスペースに移動
-    BhService.cmdProxy().setQtRectangle(node, ws, userOpe);
-    BhService.cmdProxy().setPosOnWs(node, x, y, userOpe);  //ワークスペース内での位置登録
+    ws.addNodeTree(node, userOpe);
+    ws.specifyNodeAsRoot(node, userOpe);
+    node.getViewProxy().setPosOnWorkspace(new Vec2D(x, y), userOpe);
     if (checkSyntaxErr) {
       BhService.compileErrNodeManager().collect(node, userOpe);
       BhService.compileErrNodeManager().updateErrorNodeIndicator(userOpe);
@@ -164,40 +157,46 @@ public class BhNodePlacer {
   }
 
   /**
-   * {@code node} を {@code ws} から移動する.
+   * {@code node} を {@code ws} から取り除く.
    *
    * @param node ワークスペース直下から移動させるノード.
    *             呼び出した後, ワークスペース直下にもノードツリーにも居ない状態になるが消去はされない.
    * @param userOpe undo 用コマンドオブジェクト
    */
   private void removeFromWs(BhNode node, UserOperation userOpe) {
-    Vec2D curPos = BhService.cmdProxy().getPosOnWs(node);
-    userOpe.pushCmdOfSetPosOnWorkspace(curPos, new Vec2D(0, 0), node);
-    BhService.cmdProxy().removeRootNode(node, userOpe);
+    Vec2D currentPos = node.getViewProxy().getPosOnWorkspace();
+    userOpe.pushCmdOfSetNodePos(node, currentPos);
+    node.getWorkspace().specifyNodeAsNotRoot(node, userOpe);
     BhService.compileErrNodeManager().collect(node, userOpe);
     BhService.compileErrNodeManager().updateErrorNodeIndicator(userOpe);
   }
 
   /**
    * 子ノードを取り除く (GUI ツリー上からは取り除かない).
-   * {@code oldChild} が子ノードでなかった場合何もしない.
+   * {@code toRemove} が子ノードでなかった場合何もしない.
    *
    * @param toRemove 取り除く子ノード. 呼び出した後, ワークスペース直下にもノードツリーにも居ない状態になるが消去はされない.
    * @param userOpe undo 用コマンドオブジェクト
    * @return {@code toRemove} を取り除くことで変更のあったノード一式
    *         0 番目が {@code toRemove} と, これの代わりに作成されたノードのペアであることが保証される.
-   *         {@code oldChild} が子ノードでなかった場合は, 空のリスト.
+   *         {@code toRemove} が子ノードでなかった場合は, 空のリスト.
    */
   public List<Swapped> removeChild(BhNode toRemove, UserOperation userOpe) {
+    if (!toRemove.isChild()) {
+      return new ArrayList<>();
+    }
     Workspace ws = toRemove.getWorkspace();
     List<Swapped> swappedNodes = toRemove.remove(userOpe);
     // 子ノードを取り除いた結果新しくできたノードを, 4 分木空間に登録し, ビューツリーにつなぐ
     BhNode newNode = swappedNodes.get(0).newNode();
-    NodeMvcBuilder.build(newNode);
+    if (newNode.getViewProxy().isTemplateNode()) {
+      NodeMvcBuilder.buildTemplate(newNode);
+    } else {
+      NodeMvcBuilder.build(newNode);
+    }
     TextPrompter.prompt(newNode);
-    WorkspaceRegisterer.register(newNode, ws, userOpe);
-    BhService.cmdProxy().setQtRectangle(newNode, ws, userOpe);
-    BhService.cmdProxy().replaceChildNodeView(toRemove, newNode, userOpe);
+    ws.addNodeTree(newNode, userOpe);
+    toRemove.getViewProxy().replace(newNode, userOpe);
 
     for (Swapped swapped : new ArrayList<>(swappedNodes.subList(1, swappedNodes.size()))) {
       swappedNodes.addAll(completeNewNodeReplacement(swapped, userOpe));
@@ -220,18 +219,16 @@ public class BhNodePlacer {
    *         0 番目が {@code oldChild} と {@code newChild} のペアであることが保証される.
    *         {@code oldChild} が子ノードでなかった場合は, 空のリスト.
    */
-  public List<Swapped> replaceChild(
-      BhNode oldChild, BhNode newChild, UserOperation userOpe) {
+  public List<Swapped> replaceChild(BhNode oldChild, BhNode newChild, UserOperation userOpe) {
     if (!oldChild.isChild()) {
       return new ArrayList<>();
     }
     final List<Swapped> allSwappedNodes = removeDependingOnState(newChild, userOpe);
     Workspace ws = oldChild.getWorkspace();
-    WorkspaceRegisterer.register(newChild, ws, userOpe);
+    ws.addNodeTree(newChild, userOpe);
     List<Swapped> swappedNodes = oldChild.replace(newChild, userOpe);
     allSwappedNodes.addAll(swappedNodes);
-    BhService.cmdProxy().setQtRectangle(newChild, ws, userOpe);
-    BhService.cmdProxy().replaceChildNodeView(oldChild, newChild, userOpe);
+    oldChild.getViewProxy().replace(newChild, userOpe);
     
     for (Swapped swapped : new ArrayList<>(swappedNodes.subList(1, swappedNodes.size()))) {
       allSwappedNodes.addAll(completeNewNodeReplacement(swapped, userOpe));
@@ -245,11 +242,14 @@ public class BhNodePlacer {
   /** ノード入れ替えにともなって新しく作成されたノードの入れ替え処理を完了させる. */
   private List<Swapped> completeNewNodeReplacement(Swapped nodes, UserOperation userOpe) {
     Workspace ws = nodes.oldNode().getWorkspace();
-    NodeMvcBuilder.build(nodes.newNode());
+    if (nodes.newNode().getViewProxy().isTemplateNode()) {
+      NodeMvcBuilder.buildTemplate(nodes.newNode());
+    } else {
+      NodeMvcBuilder.build(nodes.newNode());
+    }
     TextPrompter.prompt(nodes.newNode());
-    WorkspaceRegisterer.register(nodes.newNode(), ws, userOpe);
-    BhService.cmdProxy().setQtRectangle(nodes.newNode(), ws, userOpe);
-    BhService.cmdProxy().replaceChildNodeView(nodes.oldNode(), nodes.newNode(), userOpe);
+    ws.addNodeTree(nodes.newNode(), userOpe);
+    nodes.oldNode().getViewProxy().replace(nodes.newNode(), userOpe);
     BhService.derivativeCache().put((Derivative) nodes.oldNode());
     return deleteNode(nodes.oldNode(), userOpe);
   }
@@ -279,8 +279,8 @@ public class BhNodePlacer {
       nodeB = tmp;
     }
 
-    Vec2D posA = BhService.cmdProxy().getPosOnWs(nodeA);
-    Vec2D posB = BhService.cmdProxy().getPosOnWs(nodeB);
+    Vec2D posA = nodeA.getViewProxy().getPosOnWorkspace();
+    Vec2D posB = nodeB.getViewProxy().getPosOnWorkspace();
     Workspace wsA = nodeB.getWorkspace();
     Workspace wsB = nodeB.getWorkspace();
 

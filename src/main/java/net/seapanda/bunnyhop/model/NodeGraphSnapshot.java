@@ -55,8 +55,8 @@ public class NodeGraphSnapshot {
 
   /** ルートノードを集めて返す. */
   private HashSet<BhNode> collectRootNodes(WorkspaceSet wss) {
-    var rootNodes = wss.getWorkspaceList().stream()
-        .flatMap(ws -> ws.getRootNodeList().stream())
+    var rootNodes = wss.getWorkspaces().stream()
+        .flatMap(ws -> ws.getRootNodes().stream())
         .collect(Collectors.toSet());
     return new HashSet<BhNode>(rootNodes);
   }

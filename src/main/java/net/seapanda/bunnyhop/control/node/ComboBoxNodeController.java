@@ -20,12 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.command.BhCmd;
-import net.seapanda.bunnyhop.command.CmdData;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.part.SelectableItem;
+import net.seapanda.bunnyhop.view.proxy.TextNodeViewProxy;
 
 /**
  * {@link ComboBoxNodeView} のコントローラ.
@@ -43,6 +42,7 @@ public class ComboBoxNodeController extends BhNodeController {
     this.view = view;
     this.model = model;
     setEventHandlers(model, view);
+    model.setViewProxy(new TextNodeViewProxyImpl(view));
   }
 
   /**
@@ -97,31 +97,26 @@ public class ComboBoxNodeController extends BhNodeController {
     return items;
   }
 
-  /**
-   * 受信したメッセージを処理する.
-   *
-   * @param msg メッセージの種類
-   * @param data メッセージの種類に応じて処理するデータ
-   * @return メッセージを処理した結果返すデータ
-   */
-  @Override
-  public CmdData process(BhCmd msg, CmdData data) {
-    switch (msg) {
-      case MATCH_VIEW_CONTENT_TO_MODEL:
-        matchViewToModel(model, view);
-        break;
-
-      default:
-        return super.process(msg, data);
-    };
-    return null;
-  }
-
   /** {@code model} の持つ文字列に合わせて {@code view} の内容を変更する. */
   public static void matchViewToModel(TextNode model, ComboBoxNodeView view) {
     view.getItems().stream()
         .filter(item -> item.getModelText().equals(model.getText()))
         .findFirst()
         .ifPresent(view::setValue);
+  }
+
+  private class TextNodeViewProxyImpl extends BhNodeViewProxyImpl implements TextNodeViewProxy {
+
+    public TextNodeViewProxyImpl(ComboBoxNodeView view) {
+      super(view, false);
+    }
+
+    @Override
+    public void matchViewContentToModel() {
+      view.getItems().stream()
+          .filter(item -> item.getModelText().equals(model.getText()))
+          .findFirst()
+          .ifPresent(view::setValue);
+    }
   }
 }

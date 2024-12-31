@@ -31,6 +31,7 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.view.proxy.BhNodeViewProxy;
 
 /**
  * 子ノードと接続されるノード.
@@ -40,6 +41,8 @@ import net.seapanda.bunnyhop.undo.UserOperation;
 public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
 
   private Section childSection;
+  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクト. */
+  private transient BhNodeViewProxy viewProxy = new BhNodeViewProxy() {};
 
   /**
    * コンストラクタ.
@@ -118,6 +121,11 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
     return childSection.findConnector(id);
   }
 
+  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクトを設定する. */
+  public void setViewProxy(BhNodeViewProxy viewProxy) {
+    this.viewProxy = viewProxy;
+  }
+
   @Override
   public void findSymbolInDescendants(
       int generation,
@@ -148,6 +156,11 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
       return node;
     }
     throw new AssertionError("derivative type inconsistency");
+  }
+
+  @Override
+  public BhNodeViewProxy getViewProxy() {
+    return viewProxy;
   }
 
   @Override

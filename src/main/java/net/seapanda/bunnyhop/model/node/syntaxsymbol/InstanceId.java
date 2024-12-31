@@ -33,9 +33,23 @@ public class InstanceId implements Serializable {
   /** この ID が存在しないことを表すオブジェクト. */
   public static final InstanceId NONE = new InstanceId("");
 
+  /**
+   * {@link InstanceId} を作成する.
+   * このメソッドで作った {@link InstanceId} は重複しないことが保証される.
+   */
   static InstanceId newId() {
     long id = sequentialID.addAndGet(1);
     return new InstanceId(Long.toHexString(id));
+  }
+
+  /**
+   * {@link InstanceId} を作成する.
+   *
+   * @param id 識別子名
+   * @return {@link InstanceId} オブジェクト.
+   */
+  public static InstanceId of(String id) {
+    return new InstanceId(id == null ? "" : id);
   }
 
   private InstanceId(String id) {

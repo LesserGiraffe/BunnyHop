@@ -18,17 +18,11 @@ package net.seapanda.bunnyhop.control.workspace;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javafx.scene.input.MouseEvent;
-import net.seapanda.bunnyhop.command.BhCmd;
-import net.seapanda.bunnyhop.command.CmdData;
-import net.seapanda.bunnyhop.command.CmdProcessor;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
-import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
@@ -38,6 +32,7 @@ import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.proxy.WorkspaceViewProxy;
 import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
@@ -46,11 +41,10 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
  *
  * @author K.Koike
  */
-public class WorkspaceController implements CmdProcessor {
+public class WorkspaceController {
 
   private Workspace model;
   private WorkspaceView view;
-  private MultiNodeShifterController nodeShifterController;
 
   /** コンストラクタ. */
   public WorkspaceController() {}
@@ -66,17 +60,18 @@ public class WorkspaceController implements CmdProcessor {
       Workspace model, WorkspaceView view, MultiNodeShifterView nodeShifterView) {
     this.model = model;
     this.view = view;
+    model.setViewProxy(new WorkspaceViewProxyImpl());
     view.addtMultiNodeShifterView(nodeShifterView);
-    nodeShifterController = new MultiNodeShifterController(nodeShifterView, model);
+    new MultiNodeShifterController(nodeShifterView, model);
     setEventHandlers();
   }
 
   /** イベントハンドラを登録する. */
   private void setEventHandlers() {
     Vec2D mousePressedPos = new Vec2D(0.0, 0.0);
-    view.setOnMousePressed(mouseEvent -> onMousePressed(mouseEvent, mousePressedPos));
-    view.setOnMouseDragged(mouseEvent -> onMouseDragged(mouseEvent, mousePressedPos));
-    view.setOnMouseReleased(mouseEvent -> onMouseReleased(mousePressedPos, mouseEvent));
+    view.addOnMousePressed(mouseEvent -> onMousePressed(mouseEvent, mousePressedPos));
+    view.addOnMouseDragged(mouseEvent -> onMouseDragged(mouseEvent, mousePressedPos));
+    view.addOnMouseReleased(mouseEvent -> onMouseReleased(mousePressedPos, mouseEvent));
   }
 
   /** 
@@ -88,9 +83,11 @@ public class WorkspaceController implements CmdProcessor {
   private void onMousePressed(MouseEvent mouseEvent, Vec2D mousePressedPos) {
     // ワークスペースをクリックしたときにテキストフィールドのカーソルが消えなくなるので, マウスイベントを consume しない.
     if (!mouseEvent.isShiftDown()) {
+      BhService.getAppRoot().getNodeSelectionViewProxy().hideAll();
       UserOperation userOpe = new UserOperation();
-      BhService.bhNodeSelectionService().hideAll();
-      model.clearSelectedNodeList(userOpe);
+      for (BhNode selectedNode : model.getSelectedNodes()) {
+        selectedNode.deselect(userOpe);
+      }
       BhService.undoRedoAgent().pushUndoCommand(userOpe);
     }
     BhNodeView.LookManager.removeShadow(model);
@@ -131,7 +128,7 @@ public class WorkspaceController implements CmdProcessor {
     containedNodes.sort(this::compareViewSize);
     ModelExclusiveControl.lockForModification();
     try {
-      var userOpe = new UserOperation();
+      UserOperation userOpe = new UserOperation();
       selectNodes(containedNodes, userOpe);
       BhService.undoRedoAgent().pushUndoCommand(userOpe);
     } finally {
@@ -168,7 +165,7 @@ public class WorkspaceController implements CmdProcessor {
     LinkedList<BhNodeView> nodesToSelect = new LinkedList<>(candidates);
     while (nodesToSelect.size() != 0) {
       BhNodeView larger = nodesToSelect.pop();
-      model.addSelectedNode(larger.getModel().get(), userOpe);  // ノード選択
+      larger.getModel().get().select(userOpe); // ノード選択
       var iter = nodesToSelect.iterator();
       while (iter.hasNext()) {
         BhNodeView smaller = iter.next();
@@ -179,87 +176,6 @@ public class WorkspaceController implements CmdProcessor {
         }
       }
     }
-  }
-
-  /**
-   * メッセージ受信.
-   *
-   * @param msg メッセージの種類
-   * @param data メッセージの種類に応じて処理するもの
-   * */
-  @Override
-  public CmdData process(BhCmd msg, CmdData data) {
-    switch (msg) {
-      case ADD_ROOT_NODE:
-        model.addRootNode(data.node);
-        view.addNodeView(data.nodeView);
-        nodeShifterController.updateMultiNodeShifter(data.node);
-        break;
-
-      case REMOVE_ROOT_NODE:
-        model.removeRootNode(data.node);
-        view.removeNodeView(data.nodeView);
-        nodeShifterController.updateMultiNodeShifter(data.node);
-        break;
-
-      case SET_QT_RECTANGLE:
-        view.addRectangleToQtSpace(data.nodeView, data.userOpe);
-        break;
-
-      case CHANGE_WORKSPACE_VIEW_SIZE:
-        view.changeWorkspaceViewSize(data.bool);
-        break;
-
-      case SCENE_TO_WORKSPACE:
-        javafx.geometry.Point2D pos = view.sceneToWorkspace(data.vec2d.x, data.vec2d.y);
-        return new CmdData(new Vec2D(pos.getX(), pos.getY()));
-
-      case ZOOM:
-        view.zoom(data.bool);
-        break;
-
-      case SET_ZOOM_LEVEL:
-        view.setZoomLevel(data.integer);
-        break;
-
-      case GET_WORKSPACE_SIZE:
-        Vec2D size = view.getWorkspaceSize();
-        return new CmdData(new Vec2D(size.x, size.y));
-
-      case ADD_WORKSPACE:
-        return new CmdData(model, view, data.userOpe);
-
-      case DELETE_WORKSPACE:
-        return deleteWorkspace(data);
-
-      case UPDATE_MULTI_NODE_SHIFTER:
-        nodeShifterController.updateMultiNodeShifter(data.node);
-        break;
-
-      case LOOK_AT_NODE_VIEW:
-        view.lookAt(data.nodeView);
-        break;
-
-      default:
-        throw new AssertionError("receive an unknown msg " + msg);
-    }
-    return null;
-  }
-
-  private CmdData deleteWorkspace(CmdData data) {
-    Collection<BhNode> rootNodes = model.getRootNodeList();
-    rootNodes.forEach(node -> node.getEventAgent().execOnDeletionRequested(
-        rootNodes, CauseOfDeletion.WORKSPACE_DELETION, data.userOpe));
-    List<Swapped> swappedNodes =
-        BhService.bhNodePlacer().deleteNodes(model.getRootNodeList(), data.userOpe);
-    for (var swapped : swappedNodes) {
-      swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
-          swapped.oldNode(),
-          swapped.newNode(),
-          swapped.newNode().getParentConnector(),
-          data.userOpe);
-    }
-    return new CmdData(model, view, data.userOpe);
   }
 
   //デバッグ用
@@ -279,8 +195,76 @@ public class WorkspaceController implements CmdProcessor {
         | SecurityException e) {
       BhService.msgPrinter().errForDebug(e.toString());
     }
-    BhService.msgPrinter().println("num of root nodes: " + model.getRootNodeList().size());
+    BhService.msgPrinter().println("num of root nodes: " + model.getRootNodes().size());
     BhService.msgPrinter().println(
-        "num of selected nodes: " + model.getSelectedNodeList().size());
+        "num of selected nodes: " + model.getSelectedNodes().size());
+  }
+
+  private class WorkspaceViewProxyImpl implements WorkspaceViewProxy {
+
+    @Override
+    public WorkspaceView getView() {
+      return view;
+    }
+
+    @Override
+    public void notifyNodeSpecifiedAsRoot(BhNode node) {
+      BhNodeView nodeView = node.getViewProxy().getView();
+      if (nodeView != null) {
+        view.specifyNodeViewAsRoot(nodeView);
+      }
+    }
+
+    @Override
+    public void notifyNodeSpecifiedAsNotRoot(BhNode node) {
+      BhNodeView nodeView = node.getViewProxy().getView();
+      if (nodeView != null) {
+        view.specifyNodeViewAsNotRoot(nodeView);
+      }
+    }
+
+    @Override
+    public void notifyNodeAdded(BhNode node) {
+      BhNodeView nodeView = node.getViewProxy().getView();
+      if (nodeView != null) {
+        view.addNodeView(nodeView);
+      }
+    }
+
+    @Override
+    public void notifyNodeRemoved(BhNode node) {
+      BhNodeView nodeView = node.getViewProxy().getView();
+      if (nodeView != null) {
+        view.removeNodeView(nodeView);
+      }
+    }
+
+    @Override
+    public void changeViewSize(boolean widen) {
+      view.changeViewSize(widen);
+    }
+
+    @Override
+    public Vec2D getViewSize() {
+      return view.getWorkspaceSize();
+    }
+
+    @Override
+    public Vec2D sceneToWorkspace(Vec2D posOnScene) {
+      if (posOnScene == null) {
+        return null;
+      }
+      return view.sceneToWorkspace(posOnScene.x, posOnScene.y);
+    }
+
+    @Override
+    public void zoom(boolean zoomIn) {
+      view.zoom(zoomIn);
+    }
+
+    @Override
+    public void setZoomLevel(int level) {
+      view.setZoomLevel(level);
+    }
   }
 }

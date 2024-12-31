@@ -16,10 +16,9 @@
 
 package net.seapanda.bunnyhop.control.node;
 
-import net.seapanda.bunnyhop.command.BhCmd;
-import net.seapanda.bunnyhop.command.CmdData;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
+import net.seapanda.bunnyhop.view.proxy.TextNodeViewProxy;
 
 /**
  * {@link LabelNodeView} のコントローラ.
@@ -36,6 +35,7 @@ public class LabelNodeController extends BhNodeController {
     super(model, view);
     this.model = model;
     this.view = view;
+    model.setViewProxy(new TextNodeViewProxyImpl(view));
     setInitStr(model, view);
   }
 
@@ -51,28 +51,20 @@ public class LabelNodeController extends BhNodeController {
     view.setText(initText);
   }
 
-  /**
-   * 受信したメッセージを処理する.
-   *
-   * @param msg メッセージの種類
-   * @param data メッセージの種類に応じて処理するデータ
-   * @return メッセージを処理した結果返すデータ
-   * */
-  @Override
-  public CmdData process(BhCmd msg, CmdData data) {
-    switch (msg) {
-      case MATCH_VIEW_CONTENT_TO_MODEL:
-        matchViewToModel(model, view);
-        break;
-
-      default:
-        return super.process(msg, data);
-    }
-    return null;
-  }
-
   /** {@code model} の持つ文字列に合わせて {@code view} の内容を変更する. */
   public static void matchViewToModel(TextNode model, LabelNodeView view) {
     view.setText(model.getText());
+  }
+
+  private class TextNodeViewProxyImpl extends BhNodeViewProxyImpl implements TextNodeViewProxy {
+
+    public TextNodeViewProxyImpl(LabelNodeView view) {
+      super(view, false);
+    }
+
+    @Override
+    public void matchViewContentToModel() {
+      view.setText(model.getText());
+    }
   }
 }

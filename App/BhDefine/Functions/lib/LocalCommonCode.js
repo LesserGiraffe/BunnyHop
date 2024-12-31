@@ -37,12 +37,12 @@
     try {
       let process = procBuilder.start();
       _waitProcEnd(process, false, true);
-      _playWavFile.call(this, wavFilePath);
+      _playWavFile(wavFilePath);
       success = true;
     }
     finally {
       if (!success)
-        _addExceptionMsg.call(this, '_sayOnWindows()');
+        _addExceptionMsg('_sayOnWindows()');
     }
 
     procBuilder = new _jProcBuilder('cmd', '/C', 'del', '/F', wavFilePath.toString());
@@ -54,7 +54,7 @@
     }
     finally {
       if (!success)
-        _addExceptionMsg.call(this, '_sayOnWindows() del');
+        _addExceptionMsg('_sayOnWindows() del');
     }
   }
 
@@ -65,9 +65,9 @@
       return;
 
     if (bhScriptHelper.util.platform.isWindows())
-      _sayOnWindows.call(this, word);
+      _sayOnWindows(word);
     else if (bhScriptHelper.util.platform.isLinux())
-      _sayOnLinux.call(this, word);
+      _sayOnLinux(word);
   }
 
   function _detectColor() {
@@ -76,7 +76,6 @@
   }
 
   function _lightEye(eyeSel, color) {
-    let eye;
     switch (eyeSel) {
       case 'both':
         bhScriptHelper.simulator.setBothEyesColor(color.red, color.green, color.blue);
@@ -88,7 +87,6 @@
         bhScriptHelper.simulator.setLeftEyeColor(color.red, color.green, color.blue);
         break;
       default:
-        throw _newBhProgramExceptioin.call(this, 'invalid eye choice');
+        throw _newBhProgramExceptioin('invalid eye choice');
     }
   }
-

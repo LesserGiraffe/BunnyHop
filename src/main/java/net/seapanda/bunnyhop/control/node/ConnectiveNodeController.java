@@ -34,5 +34,6 @@ public class ConnectiveNodeController extends BhNodeController {
    */
   public ConnectiveNodeController(ConnectiveNode model, ConnectiveNodeView view) {
     super(model, view);
+    model.setViewProxy(new BhNodeViewProxyImpl(view, false));
   }
 }

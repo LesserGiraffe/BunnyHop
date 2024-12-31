@@ -16,6 +16,9 @@
 
 package net.seapanda.bunnyhop.bhprogram.message;
 
+
+import java.util.List;
+import net.seapanda.bunnyhop.bhprogram.ThreadContext;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
@@ -23,6 +26,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.InputTextResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.OutputTextResp;
 import net.seapanda.bunnyhop.common.TextDefs;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.service.BhService;
 
 /**
@@ -65,11 +69,12 @@ public class BhProgramMessageProcessor {
    * @param exception 処理する例外
    */
   public void process(BhProgramException exception) {
-    BhService.msgPrinter().infoForUser(exception.getMessage() + "\n");
-    // BhService.msgPrinter().msgForUser(exception.getScriptEngineMsg() + "\n");
-    var iter = exception.getCallStack().descendingIterator();
-    while (iter.hasNext()) {
-      BhService.msgPrinter().infoForUser("  %s\n".formatted(iter.next()));
-    }
+    BhService.msgPrinter().errForDebug(
+        "%s\n%s".formatted(exception.getMessage(), exception.getScriptEngineMsg()));
+    List<InstanceId> callStack = exception.getCallStack().stream()
+        .map(id -> InstanceId.of(id.toString()))
+        .toList();
+    var context = new ThreadContext(
+        exception.getThreadId(), callStack, exception.getMessage(), true);
   }
 }

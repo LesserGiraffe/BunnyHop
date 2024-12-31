@@ -18,17 +18,15 @@ package net.seapanda.bunnyhop.service;
 
 
 import java.nio.file.Paths;
-import net.seapanda.bunnyhop.command.CmdProxy;
 import net.seapanda.bunnyhop.common.BhConstants.Path;
 import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.control.workspace.TrashboxController;
+import net.seapanda.bunnyhop.model.AppRoot;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
-import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.utility.TextDatabase;
 import net.seapanda.bunnyhop.utility.Utility;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
 
 /**
  * アプリケーション全体で使用するクラスのオブジェクトをまとめて保持する.
@@ -37,9 +35,7 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionService;
  */
 public class BhService {
 
-  private static volatile WorkspaceSet workspaceSet;
   private static volatile MsgPrinter msgPrinter;
-  private static volatile CmdProxy cmdProxy;
   private static volatile TextDatabase textDatabase;
   private static volatile BhScriptManager bhScriptManager;
   private static volatile BhNodeFactory bhNodeFactory;
@@ -48,15 +44,13 @@ public class BhService {
   private static volatile CompileErrorNodeManager compileErrNodeManager;
   private static volatile DerivativeCache derivativeCache;
   private static volatile UndoRedoAgent undoRedoAgent;
-  private static volatile BhNodeSelectionService bhNodeSelectionService;
   private static volatile TrashboxController trashboxCtrl;
+  private static volatile AppRoot appRoot;
 
   /** 保持している全てのオブジェクトの初期化処理を行う. */
   public static boolean initialize(WorkspaceSet wss) {
     try {
-      workspaceSet = wss;
       msgPrinter = new MsgPrinter();
-      cmdProxy = new CmdProxy(wss);
       textDatabase = new TextDatabase(
           Paths.get(Utility.execPath, Path.LANGUAGE_DIR, BhSettings.language, Path.LANGUAGE_FILE));
       bhScriptManager = new BhScriptManager(
@@ -74,7 +68,6 @@ public class BhService {
       compileErrNodeManager = new CompileErrorNodeManager();
       derivativeCache = new DerivativeCache();
       undoRedoAgent = new UndoRedoAgent();
-      bhNodeSelectionService = new BhNodeSelectionService();
     } catch (Exception e) {
       if (msgPrinter != null) {
         msgPrinter.errForDebug(e.toString());
@@ -113,16 +106,8 @@ public class BhService {
     return undoRedoAgent;
   }
 
-  public static CmdProxy cmdProxy() {
-    return cmdProxy;
-  }
-
   public static BhNodeFactory bhNodeFactory() {
     return bhNodeFactory;
-  }
-
-  public static BhNodeSelectionService bhNodeSelectionService() {
-    return bhNodeSelectionService;
   }
 
   public static TrashboxController trashboxCtrl() {
@@ -133,16 +118,15 @@ public class BhService {
     return textDatabase;
   }
 
-  /**
-   * 現在, 操作対象となっているワークスペースを取得する.
-   *
-   * @return 現在操作対象となっているワークスペース. 存在しない場合は null.
-   */
-  public static Workspace getCurrentWorkspace() {
-    return workspaceSet.getCurrentWorkspace();
+  public static AppRoot getAppRoot() {
+    return appRoot;
   }
 
   public static void setTrashboxCtrl(TrashboxController ctrl) {
     trashboxCtrl = ctrl;
+  }
+
+  public static void setAppRoot(AppRoot appRoot) {
+    BhService.appRoot = appRoot;
   }
 }

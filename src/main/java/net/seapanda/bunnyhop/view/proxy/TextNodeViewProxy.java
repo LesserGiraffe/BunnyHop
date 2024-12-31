@@ -14,28 +14,16 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.command;
+package net.seapanda.bunnyhop.view.proxy;
+
 
 /**
- * {@link BhCmd} を {@link CmdProcessor} に渡す機能を定義したインタフェース.
+ * {@link TextNode} のビューを操作するプロキシクラスのインタフェース.
  *
  * @author K.Koike
  */
-public interface CmdDispatcher {
-
-  /**
-   * {@link CmdProcessor} を登録する.
-   *
-   * @param processor コマンドを処理するオブジェクト
-   */
-  public void setMsgProcessor(CmdProcessor processor);
-
-  /**
-   * 引数で指定したメコマンドを {@link CmdProcessor} に渡して処理結果を返す.
-   *
-   * @param cmd 処理するコマンド
-   * @param data 処理するデータ
-   * @return 処理結果
-   */
-  public CmdData dispatch(BhCmd cmd, CmdData data);
+public interface TextNodeViewProxy extends BhNodeViewProxy {
+  
+  /** {@link TextNode} が持つ文字列に合わせて, そのビューの内容を変更する. */
+  public default void matchViewContentToModel() { }
 }

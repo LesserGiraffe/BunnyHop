@@ -90,8 +90,7 @@ public class DerivativeReplacer implements BhNodeWalker {
     DerivativeJointId joint = orgOfNewDervs.getParentConnector().getDerivativeJoint();
     // orgOfNewDervs に対応する派生ノードがある場合
     if (orgOfNewDervs.hasDerivativeOf(derivationId)) {
-      replaceChildren(
-          orgOfNewDervs.findParentNode().getDerivatives(), orgOfNewDervs, joint);
+      replaceChildren(orgOfNewDervs.findParentNode().getDerivatives(), orgOfNewDervs, joint);
     } else {
       removeConnectiveChildren(orgOfNewDervs.findParentNode().getDerivatives(), joint);
     }
@@ -102,8 +101,7 @@ public class DerivativeReplacer implements BhNodeWalker {
     DerivationId derivationId = orgOfNewDervs.findDerivationIdUp();
     DerivativeJointId joint = orgOfNewDervs.getParentConnector().getDerivativeJoint();
     if (orgOfNewDervs.hasDerivativeOf(derivationId)) {
-      replaceChildren(
-          orgOfNewDervs.findParentNode().getDerivatives(), orgOfNewDervs, joint);
+      replaceChildren(orgOfNewDervs.findParentNode().getDerivatives(), orgOfNewDervs, joint);
     } else {
       removeConnectiveChildren(orgOfNewDervs.findParentNode().getDerivatives(), joint);
     }
@@ -259,7 +257,7 @@ public class DerivativeReplacer implements BhNodeWalker {
 
     private final UserOperation userOpe;
 
-    /** {@code root} 以下の派生ノードをそのノードの最後のオリジナルノードの派生ノードとする. */
+    /** {@code root} 以下のノードが元々派生ノードであった場合, 元のオリジナルノードの派生ノード一式に加える. */
     public static void assign(BhNode root, UserOperation userOpe) {
       root.accept(new DerivativeReassigner(userOpe));
     }
@@ -270,7 +268,7 @@ public class DerivativeReplacer implements BhNodeWalker {
 
     @Override
     public void visit(ConnectiveNode node) {
-      if (node.getLastOriginal() != null) {
+      if (node.getOriginal() == null && node.getLastOriginal() != null) {
         node.getLastOriginal().addDerivative(node, userOpe);
       }
       node.sendToSections(this);
@@ -278,7 +276,7 @@ public class DerivativeReplacer implements BhNodeWalker {
 
     @Override
     public void visit(TextNode node) {
-      if (node.getLastOriginal() != null) {
+      if (node.getOriginal() == null && node.getLastOriginal() != null) {
         node.getLastOriginal().addDerivative(node, userOpe);
       }
     }

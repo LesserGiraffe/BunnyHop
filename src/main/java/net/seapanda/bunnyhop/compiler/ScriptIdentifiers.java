@@ -85,6 +85,8 @@ public class ScriptIdentifiers {
     public static final String SET_EXCEPTION_NODE_INFO = "_setExceptionNodeInfo";
     public static final String NEW_BH_PROGRAM_EXCEPTION = "_newBhProgramExceptioin";
     public static final String INIT_THIS_OBJ = "_initThisObj";
+    public static final String CREATE_THREAD_CONTEXT = "_createThreadContext";
+    public static final String REMOVE_THREAD_CONTEXT = "_removeThreadContext";
     public static final String OUT_ARG_TEST = "_outArgTest";
   }
 
@@ -98,8 +100,6 @@ public class ScriptIdentifiers {
 
   /** BhProgram で使用されるプロパティ名. */
   public static class Properties {
-    public static final String HAS_BH_EXCEPTION = "_hasBhException";
-    public static final String CALL_STACK = "_callStack";
     public static final String OUT_PARAM_SETTER = "_set";
     public static final String OUT_PARAM_GETTER = "_get";
   }
@@ -109,6 +109,9 @@ public class ScriptIdentifiers {
     public static final String NIL_SOUND  = "_nilSound";
     public static final String NIL_COLOR = "_nilColor";
     public static final String PROGRAM_STARTING_TIME = "_programStartingTime";
+    public static final String THREAD_CONTEXT = "_threadContext";
+    public static final String IDX_CALL_STACK = "_idxCallStack";
+    public static final String IDX_CURRENT_NODE_INST_ID = "_idxCurrentNodeInstId";
   }
 
   /** BhProgram で使用されるラベル名. */

@@ -25,17 +25,11 @@ public class CompileOption {
 
   /** デバッグ用コードを追加する場合 true. */
   public final boolean isDebug;
-  /** 算術演算で結果を実数に保つ場合 true. */
-  public final boolean keepRealNumber;
-  /** 例外を追跡するためのコードを追加する場合 true. */
-  public final boolean traceException;
   /** ソースコードにコメントを追加する場合 true. */
   public final boolean withComments;
 
   private CompileOption(Builder builder) {
     this.isDebug = builder.isDebug;
-    this.keepRealNumber = builder.keepRealNumber;
-    this.traceException = builder.traceException;
     this.withComments = builder.withComments;
   }
 
@@ -43,19 +37,7 @@ public class CompileOption {
   public static class Builder {
 
     private boolean isDebug = true;
-    private boolean keepRealNumber = true;
-    private boolean traceException = true;
     private boolean withComments = true;
-
-    public Builder keepRealNumber(boolean keepRealNumber) {
-      this.keepRealNumber = keepRealNumber;
-      return this;
-    }
-
-    public Builder traceException(boolean traceException) {
-      this.traceException = traceException;
-      return this;
-    }
 
     public Builder withComments(boolean withComments) {
       this.withComments = withComments;

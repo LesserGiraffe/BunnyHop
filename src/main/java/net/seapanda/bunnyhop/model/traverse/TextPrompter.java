@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.model.traverse;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.service.BhService;
 
 /**
  * {@link TextNode} 型の派生ノードにオリジナルのテキストをセットするクラス.
@@ -40,7 +39,6 @@ public class TextPrompter implements BhNodeWalker {
   public void visit(TextNode node) {
     if (node.isDerivative()) {
       node.setText(node.getOriginal().getText());
-      BhService.cmdProxy().matchViewContentToModel(node);
     }
   }
 }

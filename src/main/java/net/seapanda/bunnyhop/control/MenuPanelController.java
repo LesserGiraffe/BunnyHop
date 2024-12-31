@@ -48,6 +48,7 @@ import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.CompileNodeCollector;
 import net.seapanda.bunnyhop.compiler.CompileOption;
+import net.seapanda.bunnyhop.control.workspace.WorkspaceController;
 import net.seapanda.bunnyhop.model.NodeGraphSnapshot;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
@@ -60,6 +61,10 @@ import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Pair;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.view.ViewInitializationException;
+import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
+import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
  * 画面上部のボタンのコントローラクラス.
@@ -200,7 +205,9 @@ public class MenuPanelController {
         return;
       }
       UserOperation userOpe = new UserOperation();
-      wss.addNodesToCopyList(currentWs.getSelectedNodeList(), userOpe);
+      wss.clearCopyList(userOpe);
+      wss.clearCutList(userOpe);
+      currentWs.getSelectedNodes().forEach(node -> wss.addNodeToCopyList(node, userOpe));
       BhService.undoRedoAgent().pushUndoCommand(userOpe);
     } finally {
       ModelExclusiveControl.unlockForModification();
@@ -216,7 +223,9 @@ public class MenuPanelController {
         return;
       }
       UserOperation userOpe = new UserOperation();
-      wss.addNodesToCutList(currentWs.getSelectedNodeList(), userOpe);
+      wss.clearCopyList(userOpe);
+      wss.clearCutList(userOpe);
+      currentWs.getSelectedNodes().forEach(node -> wss.addNodeToCutList(node, userOpe));
       BhService.undoRedoAgent().pushUndoCommand(userOpe);
     } finally {
       ModelExclusiveControl.unlockForModification();
@@ -233,10 +242,13 @@ public class MenuPanelController {
       }
       javafx.geometry.Point2D pos =
           workspaceSetTab.localToScene(0, workspaceSetTab.getHeight() / 3.0);
-      Vec2D localPos = BhService.cmdProxy().sceneToWorkspace(pos.getX(), pos.getY(), currentWs);
+      var posOnScene = new Vec2D(pos.getX(), pos.getY());
+      Vec2D localPos = currentWs.getViewProxy().sceneToWorkspace(posOnScene);
       double pastePosX = localPos.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
       double pastePosY = localPos.y;
-      wss.paste(currentWs, new Vec2D(pastePosX, pastePosY));
+      UserOperation userOpe = new UserOperation();
+      wss.paste(currentWs, new Vec2D(pastePosX, pastePosY), userOpe);
+      BhService.undoRedoAgent().pushUndoCommand(userOpe);
     } finally {
       ModelExclusiveControl.unlockForModification();
     }
@@ -251,7 +263,7 @@ public class MenuPanelController {
         return;
       }
       UserOperation userOpe = new UserOperation();
-      var candidates = currentWs.getSelectedNodeList();
+      var candidates = currentWs.getSelectedNodes();
       var nodesToDelete = candidates.stream()
           .filter(node -> node.getEventAgent().execOnDeletionRequested(
               candidates, CauseOfDeletion.SELECTED_FOR_DELETION, userOpe))
@@ -277,10 +289,10 @@ public class MenuPanelController {
     ModelExclusiveControl.lockForModification();
     try {
       findNodeToJumpTo(wss).ifPresent(node -> {
-        BhService.cmdProxy().lookAt(node);
-        UserOperation userOpe = new UserOperation();
-        node.getWorkspace().clearSelectedNodeList(userOpe);
-        node.getWorkspace().addSelectedNode(node, userOpe);
+        node.getViewProxy().lookAt();
+        var userOpe = new UserOperation();
+        node.getWorkspace().getSelectedNodes().forEach(selected -> selected.deselect(userOpe));
+        node.select(userOpe);
         BhService.undoRedoAgent().pushUndoCommand(userOpe);
       });
     } finally {
@@ -312,28 +324,30 @@ public class MenuPanelController {
 
   /** ズームインボタン押下時の処理. */
   private void zoomIn(WorkspaceSet wss) {
-    if (BhService.bhNodeSelectionService().isAnyShowed()) {
-      BhService.bhNodeSelectionService().zoomAll(true);
+    BhNodeSelectionViewProxy selectionViewProxy = wss.getAppRoot().getNodeSelectionViewProxy();
+    if (selectionViewProxy.isAnyShowed()) {
+      selectionViewProxy.zoom(true);
       return;
     }
     Workspace currentWs = wss.getCurrentWorkspace();
     if (currentWs == null) {
       return;
     }
-    BhService.cmdProxy().zoomInOnWorkspace(currentWs);
+    currentWs.getViewProxy().zoom(true);
   }
 
   /** ズームアウトボタン押下時の処理. */
   private void zoomOut(WorkspaceSet wss) {
-    if (BhService.bhNodeSelectionService().isAnyShowed()) {
-      BhService.bhNodeSelectionService().zoomAll(false);
+    BhNodeSelectionViewProxy selectionViewProxy = wss.getAppRoot().getNodeSelectionViewProxy();
+    if (selectionViewProxy.isAnyShowed()) {
+      selectionViewProxy.zoom(false);
       return;
     }
     Workspace currentWs = wss.getCurrentWorkspace();
     if (currentWs == null) {
       return;
     }
-    BhService.cmdProxy().zoomOutOnWorkspace(currentWs);
+    currentWs.getViewProxy().zoom(false);
   }
 
   /** ワークスペース拡大ボタン押下時の処理. */
@@ -342,7 +356,7 @@ public class MenuPanelController {
     if (currentWs == null) {
       return;
     }
-    BhService.cmdProxy().extendWorkspace(currentWs);
+    currentWs.getViewProxy().changeViewSize(true);
   }
 
   /** ワークスペース縮小ボタン押下時の処理. */
@@ -351,34 +365,47 @@ public class MenuPanelController {
     if (currentWs == null) {
       return;
     }
-    BhService.cmdProxy().narrowWorkspace(currentWs);
+    currentWs.getViewProxy().changeViewSize(false);
   }
 
   /** ワークスペース追加ボタン押下時の処理. */
   private void addWorkspace(WorkspaceSet wss) {
     ModelExclusiveControl.lockForModification();
     try {
-      String defaultWsName =
-          TextDefs.Workspace.defaultWsName.get(wss.getWorkspaceList().size() + 1);
-      TextInputDialog dialog = new TextInputDialog(defaultWsName);
+      String wsName =
+          TextDefs.Workspace.defaultWsName.get(wss.getWorkspaces().size() + 1);
+      TextInputDialog dialog = new TextInputDialog(wsName);
       dialog.setTitle(TextDefs.Workspace.PromptToNameWs.title.get());
       dialog.setHeaderText(null);
       dialog.setContentText(TextDefs.Workspace.PromptToNameWs.body.get());
       dialog.getDialogPane().getStylesheets().addAll(menuPanelBase.getScene().getStylesheets());
-      Optional<String> inputText = dialog.showAndWait();
-      inputText.ifPresent(wsName -> {
-        UserOperation userOpe = new UserOperation();
-        BhService.cmdProxy().addNewWorkspace(
-            wsName,
-            BhConstants.LnF.DEFAULT_WORKSPACE_WIDTH,
-            BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT,
-            userOpe);
-        BhService.undoRedoAgent().pushUndoCommand(userOpe);
-      });
+      wsName = dialog.showAndWait().orElse(null);
+      if (wsName == null) {
+        return;
+      }
+      var userOpe = new UserOperation();
+      createWorkspace(wsName).ifPresent(ws -> wss.addWorkspace(ws, userOpe));
+      BhService.undoRedoAgent().pushUndoCommand(userOpe);
     } finally {
       ModelExclusiveControl.unlockForModification();
     }
   }
+
+  /** {@link Workspace} とその MVC 構造を作成する. */
+  private Optional<Workspace> createWorkspace(String name) {
+    Workspace ws = new Workspace(name);
+    WorkspaceView wsView;
+    try {
+      wsView = new WorkspaceView(
+          ws, BhConstants.LnF.DEFAULT_WORKSPACE_WIDTH, BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT);
+      new WorkspaceController(ws, wsView, new MultiNodeShifterView());
+    } catch (ViewInitializationException e) {
+      BhService.msgPrinter().errForDebug(e.toString());
+      return Optional.empty();
+    }
+    return Optional.of(ws);
+  }
+
 
   /** 実行ボタン押下時の処理. */
   private void execute(WorkspaceSet wss) {
@@ -389,7 +416,6 @@ public class MenuPanelController {
         BhService.msgPrinter().infoForUser(TextDefs.BhRuntime.AlreadyDoing.preparation.get());
         return;
       }
-      BhService.bhNodeSelectionService().hideAll();
       var userOpe = new UserOperation();
       snapshotAndNodeToExecOpt = CompileNodeCollector.collect(wss, userOpe);
       BhService.undoRedoAgent().pushUndoCommand(userOpe);
@@ -584,17 +610,21 @@ public class MenuPanelController {
   /** ボタンの有効/無効状態を変化させるイベントハンドラを設定する. */
   private void setHandlersToChangeButtonEnable(WorkspaceSet wss) {
     pasteBtn.setDisable(true);
-    wss.addOnCopyListChanged(change -> changePasteButtonEnable(wss), true);
-    wss.addOnCutListChanged(change -> changePasteButtonEnable(wss), true);
-    wss.addOnSelectedNodeListChanged(
-        (ws, list) -> jumpBtn.setDisable(findNodeToJumpTo(wss).isEmpty()), true);
+    wss.addOnCopyNodeAdded(
+        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss), true);
+    wss.addOnCopyNodeRemoved(
+        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss), true);
+    wss.addOnCutNodeAdded(
+        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss), true);
+    wss.addOnCutNodeRemoved(
+        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss), true);
     wss.addOnCurrentWorkspaceChanged(
         (oldWs, newWs) -> jumpBtn.setDisable(findNodeToJumpTo(wss).isEmpty()), true);
   }
 
   /** ペーストボタンの有効/無効を切り替える. */
   private void changePasteButtonEnable(WorkspaceSet wss) {
-    boolean disable = wss.isCopyListEmpty() && wss.isCutListEmpty();
+    boolean disable = wss.getCopyList().isEmpty() && wss.getCutList().isEmpty();
     pasteBtn.setDisable(disable);
   }
 
@@ -606,11 +636,11 @@ public class MenuPanelController {
    */
   private Optional<BhNode> findNodeToJumpTo(WorkspaceSet wss) {
     Workspace currentWs = wss.getCurrentWorkspace();
-    if (currentWs == null || currentWs.getSelectedNodeList().size() != 1) {
+    if (currentWs == null || currentWs.getSelectedNodes().size() != 1) {
       jumpBtn.setDisable(true);
       return Optional.empty();
     }
-    return Optional.ofNullable(currentWs.getSelectedNodeList().get(0).getOriginal());
+    return Optional.ofNullable(currentWs.getSelectedNodes().getFirst().getOriginal());
   }
 
   /** IP アドレス入力欄にローカルホストが指定してある場合 true を返す. */

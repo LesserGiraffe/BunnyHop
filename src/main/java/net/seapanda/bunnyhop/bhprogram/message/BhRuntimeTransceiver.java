@@ -138,7 +138,7 @@ public class BhRuntimeTransceiver {
 
   /**
    * コマンド / レスポンスの送受信処理を終了する.
-   * {@link #start} を読んでいない場合は何もしない.
+   * {@link #start} を呼んでいない場合は何もしない.
    *
    * @return 正常に停止できた場合 true を返す.  送受信処理を開始していなかった場合も true を返す.
    */
@@ -172,7 +172,7 @@ public class BhRuntimeTransceiver {
           onMsgReceived.get().accept(msg);
         }
       } catch (RemoteException | InterruptedException e) {
-        // 子プロセスをkillした場合, RemoteExceptionで抜ける.
+        // 子プロセスを kill した場合, RemoteException で抜ける.
         break;
       }
       if (Thread.currentThread().isInterrupted()) {
@@ -229,8 +229,7 @@ public class BhRuntimeTransceiver {
     while (true) {
       BhProgramResponse resp = null;
       try {
-        resp = sendRespList.poll(
-            BhConstants.BhRuntime.POP_SEND_DATA_TIMEOUT, TimeUnit.SECONDS);
+        resp = sendRespList.poll(BhConstants.BhRuntime.POP_SEND_DATA_TIMEOUT, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
         break;
       }

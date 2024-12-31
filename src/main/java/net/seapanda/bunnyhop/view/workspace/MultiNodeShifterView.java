@@ -37,10 +37,10 @@ import net.seapanda.bunnyhop.common.BhConstants.LnF;
 import net.seapanda.bunnyhop.common.Rem;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.service.BhService;
-import net.seapanda.bunnyhop.utility.Pair;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.ViewUtil;
+import net.seapanda.bunnyhop.view.node.BhNodeView.ViewRegionManager.BodyRange;
 
 /**
  * 複数ノードを同時に移動させるマルチノードシフタのビュー.
@@ -50,7 +50,7 @@ import net.seapanda.bunnyhop.view.ViewUtil;
 public class MultiNodeShifterView extends Pane {
 
   /** マルチノードシフタが操作するノードとリンクのマップ.  */
-  private ObservableMap<BhNode, Line> nodeToMap =
+  private ObservableMap<BhNode, Line> nodeToLink =
       FXCollections.observableMap(new HashMap<BhNode, Line>());
   @FXML private Pane shifterBase;
   @FXML private Circle shifterCircle;
@@ -74,7 +74,7 @@ public class MultiNodeShifterView extends Pane {
     setPickOnBounds(false);
     shifterBase.setPickOnBounds(false);
     shifterArrow.setMouseTransparent(true);
-    nodeToMap.addListener((MapChangeListener<BhNode, Line>) (change -> {
+    nodeToLink.addListener((MapChangeListener<BhNode, Line>) (change -> {
       if (change.getMap().size() >= 2) {
         setVisible(true);
         toFront();
@@ -91,11 +91,11 @@ public class MultiNodeShifterView extends Pane {
    *             既にリンクがあるノードは, リンクとマルチノードシフタの位置の更新だけ行う.
    */
   public void createLink(BhNode node) {
-    if (!nodeToMap.containsKey(node)) {
+    if (!nodeToLink.containsKey(node)) {
       var newLink = new Line(0.0, 0.0, 0.0, 0.0);
       newLink.getStyleClass().add(BhConstants.Css.CLASS_NODE_SHIFTER_LINK);
       newLink.setStrokeDashOffset(1.0);
-      nodeToMap.put(node, newLink);
+      nodeToLink.put(node, newLink);
       getChildren().add(newLink);
       shifterBase.toFront();
     }
@@ -110,7 +110,7 @@ public class MultiNodeShifterView extends Pane {
    */
   public void deleteLink(BhNode node) {
 
-    Line link = nodeToMap.remove(node);
+    Line link = nodeToLink.remove(node);
     if (link != null) {
       getChildren().remove(link);
       updateShifterAndAllLinkPositions();
@@ -124,7 +124,7 @@ public class MultiNodeShifterView extends Pane {
    *             マニピュレータとリンクしていないノードを指定した場合, 何もしない.
    */
   public void updateLinkPos(BhNode node) {
-    Line link = nodeToMap.get(node);
+    Line link = nodeToLink.get(node);
     if (link != null) {
       Point2D linkPos = calcLinkPosForNode(node);
       Point2D newPos = parentToLocal(linkPos);
@@ -135,23 +135,23 @@ public class MultiNodeShifterView extends Pane {
   }
 
   /** シフタと全リンクの位置を更新する. */
-  private void updateShifterAndAllLinkPositions() {
-    if (nodeToMap.size() == 0) {
+  public void updateShifterAndAllLinkPositions() {
+    if (nodeToLink.size() == 0) {
       return;
     }
     //マルチノードシフタの新しい位置を計算する
     double shifterX = 0.0;
     double shifterY = 0.0;
-    for (BhNode node : nodeToMap.keySet()) {
+    for (BhNode node : nodeToLink.keySet()) {
       Point2D linkPos = calcLinkPosForNode(node);
       shifterX += linkPos.getX();
       shifterY += linkPos.getY();
     }
-    shifterX = shifterX / nodeToMap.size() - shifterCircle.getRadius();
-    shifterY = shifterY / nodeToMap.size() - shifterCircle.getRadius();
+    shifterX = shifterX / nodeToLink.size() - shifterCircle.getRadius();
+    shifterY = shifterY / nodeToLink.size() - shifterCircle.getRadius();
     setPosOnWorkspace(shifterX, shifterY);
 
-    for (BhNode node : nodeToMap.keySet()) {
+    for (BhNode node : nodeToLink.keySet()) {
       updateLinkPos(node);
     }
   }
@@ -164,9 +164,9 @@ public class MultiNodeShifterView extends Pane {
    */
   private Point2D calcLinkPosForNode(BhNode node) {
     final double yOffset = 0.5 * Rem.VAL;
-    Pair<Vec2D, Vec2D> bodyRange = BhService.cmdProxy().getNodeBodyRange(node);
-    double linkPosX = (bodyRange.v1.x + bodyRange.v2.x) / 2;
-    double linkPosY = bodyRange.v1.y + yOffset;
+    BodyRange bodyRange = node.getViewProxy().getView().getRegionManager().getBodyRange();
+    double linkPosX = (bodyRange.upperLeft().x + bodyRange.lowerRight().x) / 2;
+    double linkPosY = bodyRange.upperLeft().y + yOffset;
     return new Point2D(linkPosX, linkPosY);
   }
 
@@ -213,8 +213,8 @@ public class MultiNodeShifterView extends Pane {
    * @param node マルチノードシフタとリンクしているか調べるノード
    * @return 引数のノードがマルチノードシフタとリンクしているならtrue.
    */
-  public boolean isLinked(BhNode node) {
-    return nodeToMap.containsKey(node);
+  public boolean isLinkedWith(BhNode node) {
+    return nodeToLink.containsKey(node);
   }
 
   /**
@@ -229,7 +229,7 @@ public class MultiNodeShifterView extends Pane {
     Vec2D distance = ViewUtil.distance(diff, wsSize, getPosOnWorkspace());
     setPosOnWorkspace(getTranslateX() + distance.x, getTranslateY() + distance.y);
     if (moveLink) {
-      for (BhNode node : nodeToMap.keySet()) {
+      for (BhNode node : nodeToLink.keySet()) {
         updateLinkPos(node);
       }
     }
@@ -237,12 +237,12 @@ public class MultiNodeShifterView extends Pane {
   }
 
   /** マルチノードシフタのワークスペース上での位置を取得する. */
-  private Vec2D getPosOnWorkspace() {
+  public Vec2D getPosOnWorkspace() {
     return ViewUtil.getPosOnWorkspace(this);
   }
 
   /** マルチノードシフタのワークスペース上での位置を設定する. */
-  private void setPosOnWorkspace(double x, double y) {
+  public void setPosOnWorkspace(double x, double y) {
     setTranslateX(x);
     setTranslateY(y);
   }
@@ -252,8 +252,8 @@ public class MultiNodeShifterView extends Pane {
    *
    * @return 現在リンクしているノードのリスト
    */
-  public List<BhNode> getLinkedNodeList() {
-    return new ArrayList<>(nodeToMap.keySet());
+  public List<BhNode> getLinkedNodes() {
+    return new ArrayList<>(nodeToLink.keySet());
   }
 
   /** マルチノードシフタの形を作る. */
@@ -303,13 +303,13 @@ public class MultiNodeShifterView extends Pane {
       shifterBase.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true);
       shifterCircle.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true);
       shifterArrow.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true);
-      nodeToMap.values().forEach(
+      nodeToLink.values().forEach(
           link -> link.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true));
     } else {
       shifterBase.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), false);
       shifterCircle.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), false);
       shifterArrow.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), false);
-      nodeToMap.values().forEach(
+      nodeToLink.values().forEach(
           link -> link.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), false));
     }
   }

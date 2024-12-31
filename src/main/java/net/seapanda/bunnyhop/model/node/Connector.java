@@ -132,7 +132,7 @@ public class Connector extends SyntaxSymbol {
   /**
    * ノードを接続する.
    *
-   * @param node 接続されるノード.  null 不可.
+   * @param node 接続されるノード.  (null 不可)
    * @param userOpe undo 用コマンドオブジェクト
    */
   public final void connectNode(BhNode node, UserOperation userOpe) {
@@ -217,7 +217,6 @@ public class Connector extends SyntaxSymbol {
     nameToObj = new HashMap<>(nameToObj);
     nameToObj.put(BhConstants.JsIdName.BH_THIS, this);
     nameToObj.put(BhConstants.JsIdName.BH_NODE_PLACER, BhService.bhNodePlacer());
-    nameToObj.put(BhConstants.JsIdName.BH_CMD_PROXY, BhService.cmdProxy());
     nameToObj.put(BhConstants.JsIdName.BH_COMMON, BhService.bhScriptManager().getCommonJsObj());
     nameToObj.put(BhConstants.JsIdName.BH_TEXT_DB, BhService.textDb());
 

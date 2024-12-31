@@ -74,7 +74,7 @@ public class MenuBarController {
    * @return 保存した場合true
    */
   private boolean saveAs(WorkspaceSet wss) {
-    if (wss.getWorkspaceList().isEmpty()) {
+    if (wss.getWorkspaces().isEmpty()) {
       BhService.msgPrinter().alert(
           Alert.AlertType.INFORMATION,
           TextDefs.Export.InformNoWsToSave.title.get(),
@@ -82,8 +82,6 @@ public class MenuBarController {
           TextDefs.Export.InformNoWsToSave.body.get());
       return false;
     }
-
-    BhService.bhNodeSelectionService().hideAll();
     Optional<File> fileToSave = getFileToSave();
     boolean success = fileToSave.map(file -> wss.save(file)).orElse(false);
     if (success) {
@@ -115,7 +113,7 @@ public class MenuBarController {
    * @return 保存した場合true
    */
   public boolean save(WorkspaceSet wss) {
-    if (wss.getWorkspaceList().isEmpty()) {
+    if (wss.getWorkspaces().isEmpty()) {
       BhService.msgPrinter().alert(
           Alert.AlertType.INFORMATION,
           TextDefs.Export.InformNoWsToSave.title.get(),
@@ -129,7 +127,6 @@ public class MenuBarController {
       fileExists = currentSaveFile.exists();
     }
     if (fileExists) {
-      BhService.bhNodeSelectionService().hideAll();
       return wss.save(currentSaveFile);
     } else {
       return saveAs(wss);  //保存対象のファイルが無い場合, 名前をつけて保存

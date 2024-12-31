@@ -10,7 +10,7 @@
   if (String(newNodeSectionName) === 'SoundExpSctn') {
   
     // 新メロディノード作成
-    let posOnWS = bhCmdProxy.getPosOnWs(bhThis);
+    let posOnWS = bhThis.getViewProxy().getPosOnWorkspace()
     let newMelodyExp = bhCommon.addNewNodeToWS(
       'idMelodyExp', bhThis.getWorkspace(), posOnWS, bhUserOpe);
     bhNodePlacer.exchangeNodes(nextMelodyExp, newMelodyExp, bhUserOpe);

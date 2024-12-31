@@ -274,7 +274,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       //outer はコネクタの大きさを考慮しない
       Vec2D cnctrSize = inner ? childNodeView.viewStyle.getConnectorSize(childNodeView.isFixed()) 
           : new Vec2D(0.0,  0.0);
-      Vec2D childNodeSize = childNodeView.getRegionManager().getNodeSizeIncludingOuter(false);
+      Vec2D childNodeSize = childNodeView.getRegionManager().getNodeSizeIncludingOuters(false);
       //コネクタが上に付く
       if (childNodeView.viewStyle.connectorPos == BhNodeViewStyle.ConnectorPos.TOP) {
         childSumLen.add(childNodeSize.x, childNodeSize.y + cnctrSize.y);

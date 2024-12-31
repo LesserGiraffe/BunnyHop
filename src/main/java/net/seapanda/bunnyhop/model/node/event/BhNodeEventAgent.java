@@ -57,7 +57,6 @@ public class BhNodeEventAgent implements Serializable {
     nameToObj = new HashMap<>(nameToObj);
     nameToObj.put(BhConstants.JsIdName.BH_THIS, target);
     nameToObj.put(BhConstants.JsIdName.BH_NODE_PLACER, BhService.bhNodePlacer());
-    nameToObj.put(BhConstants.JsIdName.BH_CMD_PROXY, BhService.cmdProxy());
     nameToObj.put(BhConstants.JsIdName.BH_COMMON, BhService.bhScriptManager().getCommonJsObj());
     nameToObj.put(BhConstants.JsIdName.BH_NODE_FACTORY, BhService.bhNodeFactory());
     nameToObj.put(BhConstants.JsIdName.BH_TEXT_DB, BhService.textDb());
@@ -81,7 +80,7 @@ public class BhNodeEventAgent implements Serializable {
    * @param oldParent 移る前に接続されていた親. ワークスペースから子ノードに移動したときは null.
    * @param oldRoot 移る前に所属していたノードツリーのルートノード.
    *                ワークスペースから子ノードに移動したときは, この処理を呼び出すノードを指定すること.
-   * @param oldReplaced 元々子ノードとしてつながっていたノード
+   * @param oldReplaced このノードがつながった位置に, 元々子ノードとしてつながっていたノード
    * @param userOpe undo 用コマンドオブジェクト
    */
   public void execOnMovedToChild(

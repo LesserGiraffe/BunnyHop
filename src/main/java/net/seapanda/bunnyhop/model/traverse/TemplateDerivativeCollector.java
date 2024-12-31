@@ -22,7 +22,6 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.derivative.Derivative;
-import net.seapanda.bunnyhop.service.BhService;
 
 /**
  * テンプレートノードの派生ノードを集めるクラス.
@@ -51,7 +50,7 @@ public class TemplateDerivativeCollector implements BhNodeWalker {
   @Override
   public void visit(ConnectiveNode node) {
     node.getDerivatives().forEach(derv -> {
-      if (BhService.cmdProxy().isTemplateNode(derv)) {
+      if (derv.getViewProxy().isTemplateNode()) {
         templateDerivatives.add(derv);
       }
     });
@@ -61,7 +60,7 @@ public class TemplateDerivativeCollector implements BhNodeWalker {
   @Override
   public void visit(TextNode node) {
     node.getDerivatives().forEach(derv -> {
-      if (BhService.cmdProxy().isTemplateNode(derv)) {
+      if (derv.getViewProxy().isTemplateNode()) {
         templateDerivatives.add(derv);
       }
     });

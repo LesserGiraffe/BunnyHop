@@ -34,7 +34,6 @@ import net.seapanda.bunnyhop.control.nodeselection.BhNodeCategoryListController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.KeyCodeConverter;
 
 /**
@@ -71,10 +70,6 @@ public class FoundationController {
       return false;
     }
     menuBarController.initialize(wss);
-    wss.setMsgProcessor(workspaceSetController);
-    nodeCategoryListController.getView().getSelectionViewList().forEach(
-        view -> BhService.cmdProxy().addNodeSelectionView(view));
-    nodeCategoryList.setMsgProcessor(nodeCategoryListController);
     setKeyEvents();
     return true;
   }

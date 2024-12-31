@@ -157,7 +157,7 @@ public class ProjectImporter {
     for (WorkspaceImage wsImage : projImage.getWorkspaceImages()) {
       Workspace ws = genWorkspace(wsImage);
       wsList.add(ws);
-      rootNodes.addAll(ws.getRootNodeList());
+      rootNodes.addAll(ws.getRootNodes());
     }
     rootNodes.forEach(root -> new DerivativeAssigner().assign(root));
     return wsList;
@@ -179,8 +179,7 @@ public class ProjectImporter {
       throws CorruptedSaveDataException, ViewInitializationException {
     Workspace ws = new Workspace(wsImage.name);
     WorkspaceView wsView = new WorkspaceView(ws, wsImage.size.x, wsImage.size.y);
-    WorkspaceController wsCtrl = new WorkspaceController(ws, wsView, new MultiNodeShifterView());
-    ws.setMsgProcessor(wsCtrl);
+    new WorkspaceController(ws, wsView, new MultiNodeShifterView());
     // ルートノードの追加
     var userOpe = new UserOperation();
     for (BhNodeImage nodeImage : wsImage.getRootNodes()) {
@@ -218,7 +217,6 @@ public class ProjectImporter {
     NodeMvcBuilder.build(node);
     if (node instanceof TextNode textNode) {
       textNode.setText(nodeImage.text);
-      BhService.cmdProxy().matchViewContentToModel(textNode);
     }
     // InstanceId の重複チェックは genBhNode を呼び出した後で行う必要がある.
     checkNodeImageInstanceId(nodeImage);

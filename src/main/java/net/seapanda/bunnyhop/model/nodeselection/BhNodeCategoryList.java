@@ -26,11 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.seapanda.bunnyhop.command.BhCmd;
-import net.seapanda.bunnyhop.command.CmdData;
-import net.seapanda.bunnyhop.command.CmdDispatcher;
-import net.seapanda.bunnyhop.command.CmdProcessor;
 import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.model.AppRoot;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.utility.TreeNode;
@@ -43,7 +40,7 @@ import net.seapanda.bunnyhop.utility.TreeNode;
  *
  * @author K.Koike
  */
-public class BhNodeCategoryList implements CmdDispatcher {
+public class BhNodeCategoryList {
 
   private static Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
   private static Pattern escapeRbrace = Pattern.compile(Pattern.quote("\\}"));
@@ -57,8 +54,8 @@ public class BhNodeCategoryList implements CmdDispatcher {
       Pattern.compile("\\{((?:(?:\\\\\\{)|(?:\\\\\\})|[^\\{\\}])*)\\}");
 
   private TreeNode<String> templateTreeRoot;
-  /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
-  private CmdProcessor msgProcessor = (msg, data) -> null;
+  /** このオブジェクトを保持する {@link AppRoot} オブジェクト. */
+  private AppRoot appRoot;
 
   private BhNodeCategoryList() {}
 
@@ -181,13 +178,13 @@ public class BhNodeCategoryList implements CmdDispatcher {
     return templateTreeRoot;
   }
 
-  @Override
-  public void setMsgProcessor(CmdProcessor processor) {
-    msgProcessor = processor;
+  /** このオブジェクトを保持する {@link AppRoot} オブジェクトを取得する.*/
+  public AppRoot getAppRoot() {
+    return appRoot;
   }
 
-  @Override
-  public CmdData dispatch(BhCmd msg, CmdData data) {
-    return msgProcessor.process(msg, data);
+  /** このオブジェクトを保持する {@link AppRoot} オブジェクトを設定する.*/
+  public void setAppRoot(AppRoot appRoot) {
+    this.appRoot = appRoot;
   }
 }

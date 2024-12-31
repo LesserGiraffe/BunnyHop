@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import net.seapanda.bunnyhop.common.*?>
+<?import javafx.scene.control.TabPane.TabDragPolicy?>
+<?import javafx.scene.control.Tab?>
+
+<Tab
+  xmlns:fx="http://javafx.com/fxml"
+  fx:id="debugTab"
+  fx:controller="net.seapanda.bunnyhop.control.DebugBoardController"
+  text="$debugBoardName.text">
+  <fx:define>
+    <TextFetcher fx:id="debugBoardName" textId="gui,noticeboards,debug-board-name"/>
+  </fx:define>
+  <ScrollPane
+    fx:id="debugScrollPane"
+    HbarPolicy="AS_NEEDED"
+    VbarPolicy="AS_NEEDED"
+    FitToWidth="true"
+    FitToHeight="true">
+    <content>
+      <StackPane fx:id="debugStackPane">
+        <ComboBox fx:id="threadSelector" StackPane.Alignment="TOP_RIGHT"/>
+      </StackPane>
+    </content>
+  </ScrollPane>
+</Tab>

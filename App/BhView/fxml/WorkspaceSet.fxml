@@ -11,6 +11,9 @@
   fx:id="workspaceSetViewBase"
   fx:controller="net.seapanda.bunnyhop.control.workspace.WorkspaceSetController">
   <fx:define>
+    <TextFetcher fx:id="msgBoardName" textId="gui,noticeboards,msg-board-name"/>
+  </fx:define>
+  <fx:define>
     <Rem fx:id="trashBoxWidth" rem="5"/>
     <Rem fx:id="trashBoxHeight" rem="8.9"/>
   </fx:define>
@@ -18,5 +21,13 @@
     <TabPane fx:id="workspaceSetTab" tabClosingPolicy="ALL_TABS" tabDragPolicy="REORDER"/>
     <fx:include fx:id="trashbox" source="Trashbox.fxml" MouseTransparent="true"/>
   </StackPane>
-  <TextArea  fx:id="mainMsgArea" VBox.vgrow="ALWAYS"/>
+  <TabPane
+    fx:id="noticeboardBase"
+    tabClosingPolicy="UNAVAILABLE"
+    tabDragPolicy="REORDER">
+    <Tab fx:id="messageTab" text="$msgBoardName.text">
+      <TextArea  fx:id="mainMsgArea" VBox.vgrow="ALWAYS"/>
+    </Tab>
+    <fx:include fx:id="debugBoard" source="DebugBoard.fxml"/>
+  </TabPane>
 </SplitPane>

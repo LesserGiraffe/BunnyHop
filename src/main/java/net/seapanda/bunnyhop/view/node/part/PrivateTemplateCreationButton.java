@@ -17,10 +17,14 @@
 package net.seapanda.bunnyhop.view.node.part;
 
 import java.io.IOException;
+import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.SequencedSet;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
@@ -30,6 +34,7 @@ import net.seapanda.bunnyhop.model.traverse.TextPrompter;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 
 /**
  * ノード固有のテンプレートノードを作成するボタン.
@@ -64,6 +69,7 @@ public final class PrivateTemplateCreationButton extends Button {
     ComponentLoader.loadButton(BhConstants.Path.PRIVATE_TEMPLATE_BUTTON_FXML, this, buttonStyle);
     // setPrefHeight(20);
     setOnAction(event -> onTemplateCreating(event, node));
+    addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
   }
 
   /**
@@ -73,19 +79,25 @@ public final class PrivateTemplateCreationButton extends Button {
    * @param node このノードのプライベートテンプレートを作成する
    */
   private void onTemplateCreating(ActionEvent event, BhNode node) {
-    if (BhService.cmdProxy().isTemplateNode(node)) {
+    if (node.getViewProxy().isTemplateNode() || node.isDeleted()) {
       return;
     }
     ModelExclusiveControl.lockForModification();
     try {
       // 現在表示しているプライベートテンプレートを作ったボタンを押下した場合, プライベートテンプレートを閉じる
-      boolean isPrivateTemplateShowed = BhService.bhNodeSelectionService().isShowed(
-          BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE);
-      if (lastClicked.getAndSet(this) == this && isPrivateTemplateShowed) {
-        BhService.bhNodeSelectionService().hideAll();
+      BhNodeSelectionViewProxy selectionViewProxy = 
+          node.getWorkspace().getWorkspaceSet().getAppRoot().getNodeSelectionViewProxy();
+      if (lastClicked.getAndSet(this) == this
+          && selectionViewProxy.isShowed(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE)) {
+        selectionViewProxy.hideAll();
       } else {
-        createPrivateTemplate(node);
-        BhService.bhNodeSelectionService().show(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE);
+        UserOperation userOpe = new UserOperation();
+        String categoryName = BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE;
+        selectionViewProxy.getNodeTrees(categoryName).forEach(
+            templateNode -> BhService.bhNodePlacer().deleteNode(templateNode, userOpe));
+        createPrivateTemplates(node, userOpe).forEach(
+            templateNode -> selectionViewProxy.addNodeTree(categoryName, templateNode, userOpe));
+        selectionViewProxy.show(categoryName);
       }
       event.consume();
     } finally {
@@ -98,20 +110,24 @@ public final class PrivateTemplateCreationButton extends Button {
    *
    * @param model このノードのテンプレートノードを作成する.
    */
-  private static void createPrivateTemplate(BhNode node) {
-    var userOpe = new UserOperation();
-    BhService.bhNodeSelectionService().deleteAllNodes(
-        BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE, userOpe);
-    
+  private static SequencedSet<BhNode> createPrivateTemplates(BhNode node, UserOperation userOpe) {
+    var privateTempladeNodes = new LinkedHashSet<BhNode>();
     for (var templateNode : node.genPrivateTemplateNodes(userOpe)) {
       CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
           .setForAllNodes(bhNode -> bhNode.getEventAgent().execOnTemplateCreated(userOpe));
       CallbackInvoker.invoke(registry, templateNode);
       NodeMvcBuilder.buildTemplate(templateNode);
       TextPrompter.prompt(templateNode);
-      BhService.bhNodeSelectionService().addTemplateNode(
-          BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE, templateNode, userOpe);
+      privateTempladeNodes.add(templateNode);
     }
-    BhService.undoRedoAgent().pushUndoCommand(userOpe);
+    return privateTempladeNodes;
+  }
+
+  /** 受付不能なマウスイベントを consume する. */
+  private void consumeIfNotAcceptable(MouseEvent event) {
+    MouseButton button = event.getButton();
+    if (button != MouseButton.PRIMARY) {
+      event.consume();
+    }
   }
 }

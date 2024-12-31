@@ -84,6 +84,7 @@ public class AppMain extends Application {
     BhService.msgPrinter().setMainMsgArea(sceneBuilder.wssCtrl.getMsgArea());
     BhService.msgPrinter().setWindowStyle(sceneBuilder.scene.getStylesheets());
     BhService.setTrashboxCtrl(sceneBuilder.trashboxCtrl);
+    BhService.setAppRoot(sceneBuilder.appRoot);
     setOnCloseHandler(
         stage,
         () -> wss.isDirty(),
@@ -94,6 +95,7 @@ public class AppMain extends Application {
     if (SplashScreen.getSplashScreen() != null) {
       SplashScreen.getSplashScreen().close();
     }
+    BhService.undoRedoAgent().deleteCommands();
   }
 
   /** シミュレータがフォーカスを持っているときにキーが押されたときの処理. */
@@ -129,7 +131,7 @@ public class AppMain extends Application {
       case CANCEL -> event.consume();
       default -> { }
     }
-    if (fnCheckIfProjectIsDirty.get()) {
+    if (!fnCheckIfProjectIsDirty.get()) {
       return;
     }
     if (!askIfSaveProject(fnSave)) {

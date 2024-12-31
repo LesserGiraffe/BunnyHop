@@ -80,10 +80,12 @@ public final class TextFieldNodeView extends TextInputNodeView {
       event.consume();
       return;
     }
-    view.getEventManager().propagateEvent(event);
-    if (BhService.cmdProxy().isTemplateNode(view.getModel().get())) {
-      event.consume();
-    }
+    view.getEventManager().propagateEvent(event);    
+    view.getModel().ifPresent(node -> {
+      if (node.getViewProxy().isTemplateNode()) {
+        event.consume();
+      }
+    });
   }
 
   private void initStyle() {

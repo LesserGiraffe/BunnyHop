@@ -25,14 +25,12 @@ import javafx.scene.control.TabPane.TabDragPolicy;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import net.seapanda.bunnyhop.command.BhCmd;
-import net.seapanda.bunnyhop.command.CmdData;
-import net.seapanda.bunnyhop.command.CmdProcessor;
 import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.control.DebugBoardController;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
+import net.seapanda.bunnyhop.view.proxy.WorkspaceSetViewProxy;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
@@ -40,7 +38,7 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
  *
  * @author K.Koike
  */
-public class WorkspaceSetController implements CmdProcessor {
+public class WorkspaceSetController {
 
   private WorkspaceSet model;
   @FXML private SplitPane workspaceSetViewBase;
@@ -51,6 +49,7 @@ public class WorkspaceSetController implements CmdProcessor {
   @FXML private TextArea mainMsgArea;
   /** ノード削除用のゴミ箱のコントローラ. */
   @FXML private TrashboxController trashboxController;
+  @FXML private DebugBoardController debugBoardController;
 
   /**
    * モデルとイベントハンドラをセットする.
@@ -59,6 +58,7 @@ public class WorkspaceSetController implements CmdProcessor {
    */
   public void initialize(WorkspaceSet wss) {
     model = wss;
+    wss.setViewProxy(new WorkspaceSetViewProxyImpl());
     setEventHandlers();
     workspaceSetViewBase.setDividerPositions(BhConstants.LnF.DEFAULT_VERTICAL_DIV_POS);
   }
@@ -66,29 +66,30 @@ public class WorkspaceSetController implements CmdProcessor {
   /** イベントハンドラを登録する. */
   private void setEventHandlers() {
     setMessageAreaEvenHandlers();
-    setResizeEventHandlers();
-    workspaceSetTab.getSelectionModel().selectedItemProperty().addListener(
-        (observable, oldTab, newTab) -> setCurrentWorkspace(newTab));
+    setTabPaneEventHandlers();
   }
 
-  /** 現在走査中のワークスペースを設定する. */
+  /** 現在選択中のワークスペースを設定する. */
   private void setCurrentWorkspace(Tab newTab) {
-    if (newTab != null) {
-      model.setCurrentWorkspace(((WorkspaceView) newTab).getWorkspace());
+    if (newTab instanceof WorkspaceView wsView) {
+      model.setCurrentWorkspace(wsView.getWorkspace());
     } else {
       model.setCurrentWorkspace(null);
     }
   }
 
-  /** ワークスペースリサイズ時におこるイベントハンドラを登録する. */
-  private void setResizeEventHandlers() {
+  /** ワークスペースを表示するタブペインに関連するイベントハンドラを登録する. */
+  private void setTabPaneEventHandlers() {
     //ワークスペースセットの大きさ変更時にノード選択ビューの高さを再計算する
     workspaceSetTab.heightProperty().addListener(
         (observable, oldValue, newValue) -> resizeNodeSelectionViewHeight(newValue.doubleValue()));
 
     // タブクローズイベントで TabDragPolicy.FIXED にするので, クリック時に再度 REORDER に変更する必要がある
     workspaceSetTab.setOnMousePressed(
-        event ->   workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER));
+        event -> workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER));
+    
+    workspaceSetTab.getSelectionModel().selectedItemProperty().addListener(
+        (observable, oldTab, newTab) -> setCurrentWorkspace(newTab));
   }
 
   /**
@@ -126,7 +127,7 @@ public class WorkspaceSetController implements CmdProcessor {
    *
    * @param nodeSelectionView 表示するノードテンプレート
    */
-  private void addNodeSelectionView(BhNodeSelectionView nodeSelectionView) {
+  public void addNodeSelectionView(BhNodeSelectionView nodeSelectionView) {
     workspaceSetStackPane.getChildren().add(nodeSelectionView);
     nodeSelectionView.toFront();
 
@@ -134,6 +135,8 @@ public class WorkspaceSetController implements CmdProcessor {
     nodeSelectionView.translateYProperty().addListener((observable, oldValue, newValue) -> {
       nodeSelectionView.setMaxHeight(workspaceSetTab.getHeight() - newValue.doubleValue());
     });
+    workspaceSetTab.widthProperty().addListener((oldval, newval, obs) ->
+        Math.min(nodeSelectionView.getMaxWidth(), workspaceSetTab.getWidth() * 0.5));
   }
 
   /**
@@ -145,90 +148,18 @@ public class WorkspaceSetController implements CmdProcessor {
     return workspaceSetTab;
   }
 
-  @Override
-  public CmdData process(BhCmd msg, CmdData data) {
-    switch (msg) {
-      case ADD_WORKSPACE:
-        addWorkspace(data.workspace, data.workspaceView, data.userOpe);
-        break;
-
-      case DELETE_WORKSPACE:
-        deleteWorkspace(data.workspace, data.workspaceView, data.userOpe);
-        break;
-
-      case ADD_NODE_SELECTION_PANEL:
-        addNodeSelectionView(data.nodeSelectionView);
-        break;
-
-      case GET_CURRENT_WORKSPACE:
-        return new CmdData(getCurrentWorkspace());
-
-      case REMOVE_NODE_TO_PASTE:
-        model.removeNodeFromCopyList(data.node, data.userOpe);
-        model.removeNodeFromCutList(data.node, data.userOpe);
-        break;
-
-      default:
-        throw new AssertionError("received an unknown msg " + msg);
-    }
-
-    return null;
-  }
-
   /**
-   * ワークスペースを追加する.
+   * 現在操作対象となっている Workspace を返す.
    *
-   * @param workspace 追加するワークスペース
-   * @param workspaceView workspace に対応するビュー
-   * @param userOpe undo 用コマンドオブジェクト
+   * @return 現在操作対象となっている Workspace
    */
-  private void addWorkspace(
-      Workspace workspace, WorkspaceView workspaceView, UserOperation userOpe) {
-    model.addWorkspace(workspace);
-    workspaceSetTab.getTabs().add(workspaceView);
-    workspaceSetTab.getSelectionModel().select(workspaceView);
-    // ここで REORDER にしないと, undo でタブを戻した時, タブドラッグ時に例外が発生する
-    workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
-    userOpe.pushCmdOfAddWorkspace(workspace);
-  }
-
-  /**
-   * ワークスペースを削除する.
-   *
-   * @param workspace 削除するワークスペース
-   * @param workspaceView workspace に対応するビュー
-   * @param userOpe undo 用コマンドオブジェクト
-   */
-  private void deleteWorkspace(
-      Workspace workspace, WorkspaceView workspaceView, UserOperation userOpe) {
-    model.removeWorkspace(workspace);
-    workspaceSetTab.getTabs().remove(workspaceView);
-    // ここで REORDER にしないと, タブを消した後でタブドラッグすると例外が発生する
-    workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
-    userOpe.pushCmdOfDeleteWorkspace(workspace);
-  }
-
-  /**
-   * 現在選択中の Workspace を返す.
-   *
-   * @return 現在選択中のWorkspace
-   * */
-  private Workspace getCurrentWorkspace() {
+  public Workspace getCurrentWorkspace() {
     WorkspaceView newWorkspaceView =
         (WorkspaceView) workspaceSetTab.getSelectionModel().getSelectedItem();
     if (newWorkspaceView == null) {
       return null;
     }
     return newWorkspaceView.getWorkspace();
-  }
-
-  /**
-   * 現在選択中の Workspace を返す.
-   *
-   * @return 現在選択中のWorkspace
-   */
-  public WorkspaceView getCurrentWorkspaceView() {
-    return (WorkspaceView) workspaceSetTab.getSelectionModel().getSelectedItem();
   }
 
   /** アプリケーションのメッセージを表示する TextArea を取得する. */
@@ -239,5 +170,32 @@ public class WorkspaceSetController implements CmdProcessor {
   /** ノード削除用のゴミ箱のコントローラオブジェクトを取得する. */
   public TrashboxController getTrashboxController() {
     return trashboxController;
+  }
+
+  private class WorkspaceSetViewProxyImpl implements WorkspaceSetViewProxy {
+    
+    @Override
+    public void notifyWorkspaceAdded(Workspace ws) {
+      WorkspaceView wsView = ws.getViewProxy().getView();
+      if (wsView == null) {
+        return;
+      }
+      workspaceSetTab.getTabs().add(wsView);
+      workspaceSetTab.getSelectionModel().select(wsView);
+      // ここで REORDER にしないと, undo でタブを戻した時, タブドラッグ時に例外が発生する
+      workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
+      wsView.addOnMousePressed(event -> debugBoardController.removeMarksIn(ws));
+    }
+
+    @Override
+    public void notifyWorkspaceRemoved(Workspace ws) {
+      WorkspaceView wsView = ws.getViewProxy().getView();
+      if (wsView == null) {
+        return;
+      }
+      workspaceSetTab.getTabs().remove(wsView);
+      // ここで REORDER にしないと, タブを消した後でタブドラッグすると例外が発生する
+      workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
+    }
   }
 }

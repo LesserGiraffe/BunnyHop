@@ -16,8 +16,8 @@
 
 package net.seapanda.bunnyhop.compiler;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.SequencedSet;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -116,7 +116,7 @@ public class CompileNodeCollector {
     if (ws == null) {
       return Optional.empty();
     }
-    List<BhNode> selectedNodeList = ws.getSelectedNodeList();
+    SequencedSet<BhNode> selectedNodeList = ws.getSelectedNodes();
     if (selectedNodeList.isEmpty()) {
       BhService.msgPrinter().alert(
           AlertType.ERROR,
@@ -126,9 +126,11 @@ public class CompileNodeCollector {
       return Optional.empty();
     }
     // 実行対象以外を非選択に.
-    BhNode nodeToExec = selectedNodeList.get(0).findRootNode();
-    ws.clearSelectedNodeList(userOpe);
-    ws.addSelectedNode(nodeToExec, userOpe);
+    BhNode nodeToExec = selectedNodeList.getFirst().findRootNode();
+    for (BhNode selectedNode : ws.getSelectedNodes()) {
+      selectedNode.deselect(userOpe);
+    }
+    nodeToExec.select(userOpe);
     return Optional.of(nodeToExec);
   }
 

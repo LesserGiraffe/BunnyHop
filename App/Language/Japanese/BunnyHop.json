@@ -28,6 +28,11 @@
       "focus-simulator": "プログラム開始時にシミュレータを表示する",
       "help": "ヘルプ",
       "about-bunnyhop": "BunnyHop について"
+    },
+
+    "noticeboards": {
+      "msg-board-name": "メッセージ",
+      "debug-board-name": "デバッグ"
     }
   },
 

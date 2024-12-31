@@ -14,10 +14,18 @@
   -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
 }
 
-.BhNode-Pane:highlightDerivative {}
-
 .BhNode:overlapped {
   -fx-stroke: magenta;
+}
+
+.BhNode:runtimeErr {
+  -fx-stroke: red;
+  -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
+}
+
+.BhNode:called {
+  -fx-stroke: linear-gradient(from 0mm 0mm to 3mm 3mm, repeat, limegreen 50%, black 0mm);
+  -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
 }
 
 .BhNode-CompileError {

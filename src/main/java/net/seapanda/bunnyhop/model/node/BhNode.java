@@ -22,12 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.command.BhCmd;
-import net.seapanda.bunnyhop.command.CmdData;
-import net.seapanda.bunnyhop.command.CmdDispatcher;
-import net.seapanda.bunnyhop.command.CmdProcessor;
+import javafx.application.Platform;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
@@ -35,11 +33,14 @@ import net.seapanda.bunnyhop.model.node.attribute.BhNodeVersion;
 import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
 import net.seapanda.bunnyhop.model.node.event.BhNodeEventAgent;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.traverse.DerivativeReplacer;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.view.proxy.BhNodeViewProxy;
+import org.apache.commons.lang3.function.TriConsumer;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
@@ -49,7 +50,10 @@ import org.mozilla.javascript.ScriptableObject;
  *
  * @author K.Koike
  */
-public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
+public abstract class BhNode extends SyntaxSymbol {
+
+  /** ワークスペースに存在しているノードとそのノードの {@link InstanceId} を value と key に持つマップ. */
+  private static final Map<InstanceId, BhNode> instIdToNodeInWs = new ConcurrentHashMap<>();
 
   /** ノード ID. */
   private final BhNodeId bhId;
@@ -65,8 +69,13 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
   private BhNodeEventAgent eventAgent = new BhNodeEventAgent(this);
   /** 最後にこのノードと入れ替わったノード. */
   private transient BhNode lastReplaced;
-  /** このオブジェクト宛てに送られたメッセージを処理するオブジェクト. */
-  private transient CmdProcessor msgProcessor = (msg, data) -> null;
+  /** このノードが選択されたときに呼び出すメソッドと呼び出しスレッドのフラグ. */
+  private transient
+      Map<TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>, Boolean>
+      onSelectionStateChangedToThreadFlag = new HashMap<>();
+  /** このノードが選択されているかどうかのフラグ. */
+  private boolean isSelected = false;
+
 
   /** BhNode がとり得る状態. */
   public enum State {
@@ -124,6 +133,9 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
    */
   public abstract BhNode findOuterNode(int generation);
 
+  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクトを取得する. */
+  public abstract BhNodeViewProxy getViewProxy();
+
   /**
    * このノード以下のノードツリーのコピーを作成する.
    *
@@ -132,9 +144,7 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
    * @param userOpe undo 用コマンドオブジェクト
    * @return このノード以下のノードツリーのコピー
    */
-  public abstract BhNode copy(
-      Predicate<? super BhNode> fnIsNodeToBeCopied,
-      UserOperation userOpe);
+  public abstract BhNode copy(Predicate<? super BhNode> fnIsNodeToBeCopied, UserOperation userOpe);
 
   /**
    * このノード以下のノードツリーのコピーを作成する.
@@ -332,11 +342,14 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
    * このノードがあるワークスペースを登録する.
    *
    * @param workspace このノードを直接保持するワークスペース
-   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void setWorkspace(Workspace workspace, UserOperation userOpe) {
-    userOpe.pushCmdOfSetWorkspace(this.workspace, this);
+  public void setWorkspace(Workspace workspace) {
     this.workspace = workspace;
+    if (workspace == null) {
+      instIdToNodeInWs.remove(getInstanceId());
+    } else {
+      instIdToNodeInWs.put(getInstanceId(), this);
+    }
   }
 
   /**
@@ -383,10 +396,67 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
    * @return このノードが選択されている場合 trueを返す
    */
   public boolean isSelected() {
-    if (workspace == null) {
-      return false;
+    return isSelected;
+  }
+
+  /** このノードを選択状態にする. */
+  public void select(UserOperation userOpe) {
+    if (!isSelected) {
+      isSelected = true;
+      getViewProxy().notifyNodeSelected();
+      onSelectionStateChangedToThreadFlag.forEach(
+          (handler, threadFlag) -> invokeOnSelectionStateChanged(handler, threadFlag, userOpe));
+      userOpe.pushCmdOfSelectNode(this);
     }
-    return workspace.getSelectedNodeList().contains(this);
+  }
+
+  /** このノードを非選択状態にする. */
+  public void deselect(UserOperation userOpe) {
+    if (isSelected) {
+      isSelected = false;
+      getViewProxy().notifyNodeDeselected();
+      onSelectionStateChangedToThreadFlag.forEach(
+          (handler, threadFlag) -> invokeOnSelectionStateChanged(handler, threadFlag, userOpe));
+      userOpe.pushCmdOfDeselectNode(this);
+    }
+  }
+
+  /** 選択変更時のイベントハンドラを呼び出す. */
+  private void invokeOnSelectionStateChanged(
+        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler,
+        boolean invokeOnUiThread,
+        UserOperation userOpe) {
+    if (invokeOnUiThread && !Platform.isFxApplicationThread()) {
+      Platform.runLater(() -> handler.accept(this, isSelected, userOpe));
+    } else {
+      handler.accept(this, isSelected, userOpe);
+    }
+  }
+
+  /**
+   * ノードの選択状態が変更されたときのイベントハンドラを追加する.
+   *  <pre>
+   *  イベントハンドラの第 1 引数: 選択状態に変換のあった {@link BhNode}
+   *  イベントハンドラの第 2 引数: 選択状態. 選択されたなら true.
+   *  </pre>
+   *
+   * @param handler 追加するイベントハンドラ
+   * @param invokeOnUiThread UIスレッド上で呼び出す場合 true
+   */
+  public void addOnSelectionStateChanged(
+      TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler,
+      boolean invokeOnUiThread) {
+    onSelectionStateChangedToThreadFlag.put(handler, invokeOnUiThread);
+  }
+
+  /**
+   * ノードの選択状態が変更されたときのイベントハンドラを削除する.
+   *
+   * @param handler 削除するイベントハンドラ
+   */
+  public void removeOnSelectionStateChanged(
+      TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
+    onSelectionStateChangedToThreadFlag.remove(handler);
   }
 
   /**
@@ -567,14 +637,15 @@ public abstract class BhNode extends SyntaxSymbol implements CmdDispatcher {
     return false;
   }
 
-  @Override
-  public void setMsgProcessor(CmdProcessor processor) {
-    msgProcessor = processor;
-  }
-
-  @Override
-  public CmdData dispatch(BhCmd msg, CmdData data) {
-    return msgProcessor.process(msg, data);
+  /**
+   * {@link InstanceId} が {@code id} である {@link BhNode} がワークスペース上にあれば, それを返す.
+   *
+   * @param id この {@link InstanceId} を持つ {@link BhNode} をワークスペースから探す.
+   * @return {@link InstanceId} が {@code id} でかつワークスペース上にある {@link BhNode}.
+   *         存在しない場合は empty.
+   */
+  public static final Optional<BhNode> getBhNodeOf(InstanceId id) {
+    return Optional.ofNullable(instIdToNodeInWs.get(id));
   }
 
   /**

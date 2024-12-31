@@ -126,7 +126,6 @@ public class BhCompiler {
       CompileOption option) {
     String libCode = commonCodeList.stream().reduce("", (a, b) -> a + b);
     code.append(libCode);
-    genCodeForIdentifierDef(code, 1, option);
     varDeclCodeGen.genVarDecls(nodeListToCompile, code, 1, option);
     globalDataDeclCodeGen.genGlobalDataDecls(nodeListToCompile, code, 1, option);
     code.append(Keywords.newLine);
@@ -144,20 +143,6 @@ public class BhCompiler {
     addEventCallStat += ";" + Keywords.newLine;
     code.append(common.indent(1)).append(addEventCallStat).append(Keywords.newLine);
     genCodeForProgramStart(code, 1, option);
-  }
-
-  /**
-   * 識別子定義の前の準備を行うコードを生成する.
-   *
-   * @param code 生成したコードの格納先
-   * @param nestLevel ソースコードのネストレベル
-   * @param option コンパイルオプション
-   */
-  private void genCodeForIdentifierDef(StringBuilder code, int nestLevel, CompileOption option) {
-    code.append(common.indent(nestLevel))
-        .append(common.genFuncPrototypeCallCode(
-            ScriptIdentifiers.Funcs.INIT_THIS_OBJ, Keywords.Js._this))
-        .append(";" + Keywords.newLine);
   }
 
   /**

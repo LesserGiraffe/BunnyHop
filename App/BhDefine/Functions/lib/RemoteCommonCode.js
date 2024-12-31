@@ -25,7 +25,7 @@
     }
     finally {
       if (!success)
-        _addExceptionMsg.call(this, '_moveAny()  ' + cmd);
+        _addExceptionMsg('_moveAny()  ' + cmd);
     }
   }
 
@@ -58,7 +58,7 @@
     }
     finally {
       if (!success)
-        _addExceptionMsg.call(this, '_measureDistance()');
+        _addExceptionMsg('_measureDistance()');
     }
     distanceList = distanceList.split(",")
             .map(function (elem) { return Number(elem); })
@@ -81,7 +81,7 @@
     if (word === '')
       return;
 
-    _sayOnLinux.call(this, word);
+    _sayOnLinux(word);
   }
 
   // 色センサ値を取得
@@ -102,7 +102,7 @@
     }
     finally {
       if (!success)
-        _addExceptionMsg.call(this, '_detectColor()');
+        _addExceptionMsg('_detectColor()');
     }
 
     colorList = colorList.split(",");
@@ -202,7 +202,7 @@
     }
     finally {
       if (!success)
-        _addExceptionMsg.call(this, '_ioWrite()');
+        _addExceptionMsg('_ioWrite()');
     }
   }
 
@@ -217,7 +217,7 @@
     }
     finally {
       if (!success)
-        _addExceptionMsg.call(this, '_changeIoMode()');
+        _addExceptionMsg('_changeIoMode()');
     }
   }
 

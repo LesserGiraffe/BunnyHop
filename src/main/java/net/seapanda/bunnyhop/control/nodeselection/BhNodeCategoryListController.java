@@ -20,9 +20,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
-import net.seapanda.bunnyhop.command.BhCmd;
-import net.seapanda.bunnyhop.command.CmdData;
-import net.seapanda.bunnyhop.command.CmdProcessor;
 import net.seapanda.bunnyhop.common.Rem;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
 import net.seapanda.bunnyhop.service.BhService;
@@ -34,7 +31,7 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryListView;
  *
  * @author K.Koike
  */
-public class BhNodeCategoryListController implements CmdProcessor {
+public class BhNodeCategoryListController {
 
   @FXML private ScrollPane nodeCategoryListViewBase;
   @FXML private TreeView<BhNodeCategoryListView.BhNodeCategory> categoryTree;
@@ -68,10 +65,5 @@ public class BhNodeCategoryListController implements CmdProcessor {
    */
   public BhNodeCategoryListView getView() {
     return view;
-  }
-
-  @Override
-  public CmdData process(BhCmd msg, CmdData data) {
-    throw new AssertionError("receive an unknown msg " + msg);
   }
 }

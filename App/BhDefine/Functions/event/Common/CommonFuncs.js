@@ -75,7 +75,7 @@
    * 
    * b が 'VarDeclVoid', 'GlobalDataDeclVoid', 'VoidStat' のいずれかであった場合削除される.
    */
-  function reconnect(node, startNode, ignoredList, bhCmdProxy, userOpe) {
+  function reconnect(node, startNode, ignoredList, userOpe) {
     if (node === null) {
       return;
     }
@@ -93,10 +93,10 @@
       return;
     } else if (toBeReaplced === null) {
       // 接続先が無い場合は, ワークスペースへ
-      let posOnWS = bhCmdProxy.getPosOnWs(node);
+      let posOnWS = node.getViewProxy().getPosOnWorkspace()      
       bhNodePlacer.moveToWs(node.getWorkspace(), node, posOnWS.x, posOnWS.y, userOpe);
     } else {
-      let posOnWS = bhCmdProxy.getPosOnWs(node);
+      let posOnWS = node.getViewProxy().getPosOnWorkspace()
       bhNodePlacer.moveToWs(node.getWorkspace(), node, posOnWS.x, posOnWS.y, userOpe);
       bhNodePlacer.exchangeNodes(node, toBeReaplced, userOpe);
       if (notToReconnect.indexOf(String(toBeReaplced.getSymbolName())) >= 0) {

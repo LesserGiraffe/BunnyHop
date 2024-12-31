@@ -117,18 +117,27 @@ public class CommonCodeGenerator {
    * @param funcCallNode 関数呼び出しノード
    */
   public String genPushToCallStackCode(SyntaxSymbol funcCallNode) {
-    var funcName = genPropertyAccessCode(
-        Keywords.Js._this,
-        ScriptIdentifiers.Properties.CALL_STACK,
-        ScriptIdentifiers.JsFuncs.PUSH);
-    return genFuncCallCode(funcName, toJsString(funcCallNode.getInstanceId().toString()));
+    return "%s[%s].%s(\"%s\")".formatted(
+        ScriptIdentifiers.Vars.THREAD_CONTEXT,
+        ScriptIdentifiers.Vars.IDX_CALL_STACK,
+        ScriptIdentifiers.JsFuncs.PUSH,
+        funcCallNode.getInstanceId().toString());
   }
 
   /** コールスタックから関数呼び出しノードのインスタンス ID を削除するコードを作成する. */
   public String genPopFromCallStackCode() {
-    var funcName = genPropertyAccessCode(
-        Keywords.Js._this, ScriptIdentifiers.Properties.CALL_STACK, ScriptIdentifiers.JsFuncs.POP);
-    return genFuncCallCode(funcName);
+    return "%s[%s].%s()".formatted(
+        ScriptIdentifiers.Vars.THREAD_CONTEXT,
+        ScriptIdentifiers.Vars.IDX_CALL_STACK,
+        ScriptIdentifiers.JsFuncs.POP);
+  }
+
+  /** 処理中のノードのインスタンス ID をスレッドコンテキストに設定するコードを作成する. */
+  public String genSetCurrentNodeInstIdCode(SyntaxSymbol currentNode) {
+    return "%s[%s] = \"%s\"".formatted(
+        ScriptIdentifiers.Vars.THREAD_CONTEXT,
+        ScriptIdentifiers.Vars.IDX_CURRENT_NODE_INST_ID,
+        currentNode.getInstanceId().toString());    
   }
 
   /**

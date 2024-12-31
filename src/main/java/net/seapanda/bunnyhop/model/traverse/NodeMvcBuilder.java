@@ -19,8 +19,7 @@ package net.seapanda.bunnyhop.model.traverse;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Optional;
-import net.seapanda.bunnyhop.command.BhCmd;
-import net.seapanda.bunnyhop.command.CmdData;
+import net.seapanda.bunnyhop.control.node.BhNodeController;
 import net.seapanda.bunnyhop.control.node.ComboBoxNodeController;
 import net.seapanda.bunnyhop.control.node.ConnectiveNodeController;
 import net.seapanda.bunnyhop.control.node.LabelNodeController;
@@ -62,8 +61,9 @@ public class NodeMvcBuilder implements BhNodeWalker {
    *         {@code node} に対応する {@link BhNodeView} の定義が見つからなかった場合は null
    */
   public static BhNodeView build(BhNode node) {
-    if (BhService.cmdProxy().hasView(node)) {
-      return BhService.cmdProxy().getBhNodeView(node);
+    BhNodeView view = node.getViewProxy().getView();
+    if (view != null) {
+      return view;
     }
     var builder = new NodeMvcBuilder(ControllerType.Default);
     node.accept(builder);
@@ -79,8 +79,9 @@ public class NodeMvcBuilder implements BhNodeWalker {
    * @return 引数で指定したノードに対応する BhNodeView.
    */
   public static BhNodeView buildTemplate(BhNode node) {
-    if (BhService.cmdProxy().hasView(node)) {
-      return BhService.cmdProxy().getBhNodeView(node);
+    BhNodeView view = node.getViewProxy().getView();
+    if (view != null) {
+      return view;
     }
     var builder = new NodeMvcBuilder(ControllerType.Template);
     node.accept(builder);
@@ -118,10 +119,6 @@ public class NodeMvcBuilder implements BhNodeWalker {
         .getStyleFromNodeId(node.getId())
         .flatMap(style -> createViewForConnectiveNode(node, style));
     
-    if (nodeView.isEmpty()) {
-      node.setMsgProcessor((BhCmd msg, CmdData data) -> null);
-    }
-
     if (root == null) {
       root = nodeView.orElse(null);
     }
@@ -137,9 +134,6 @@ public class NodeMvcBuilder implements BhNodeWalker {
         .getStyleFromNodeId(node.getId())
         .flatMap(style -> createViewForTextNode(node, style));
     
-    if (nodeView.isEmpty()) {
-      node.setMsgProcessor((BhCmd msg, CmdData data) -> null);
-    }
     if (root == null) {
       root = nodeView.orElse(null);
     }
@@ -234,38 +228,32 @@ public class NodeMvcBuilder implements BhNodeWalker {
   private static class DefaultConnector implements MvcConnector {
     @Override
     public void connect(ConnectiveNode node, ConnectiveNodeView view) {
-      var controller = new ConnectiveNodeController(node, view);
-      node.setMsgProcessor(controller);
+      new ConnectiveNodeController(node, view);
     }
 
     @Override
     public void connect(TextNode node, TextFieldNodeView view) {
-      var controller = new TextInputNodeController(node, view);
-      node.setMsgProcessor(controller);
+      new TextInputNodeController(node, view);
     }
 
     @Override
     public void connect(TextNode node, LabelNodeView view) {
-      var controller = new LabelNodeController(node, view);
-      node.setMsgProcessor(controller);
+      new LabelNodeController(node, view);
     }
 
     @Override
     public void connect(TextNode node, ComboBoxNodeView view) {
-      var controller = new ComboBoxNodeController(node, view);
-      node.setMsgProcessor(controller);
+      new ComboBoxNodeController(node, view);
     }
 
     @Override
     public void connect(TextNode node, TextAreaNodeView  view) {
-      var controller = new TextInputNodeController(node, view);
-      node.setMsgProcessor(controller);
+      new TextInputNodeController(node, view);
     }
 
     @Override
     public void connect(TextNode node, NoContentNodeView view) {
-      var controller = new NoContentNodeController(node, view);
-      node.setMsgProcessor(controller);
+      new NoContentNodeController(node, view);
     }
   }
 
@@ -279,8 +267,7 @@ public class NodeMvcBuilder implements BhNodeWalker {
       if (rootView == null) {
         rootView = view;
       }
-      var control = new TemplateNodeController(node, view, rootView);
-      node.setMsgProcessor(control);
+      new TemplateNodeController(node, view, rootView);
     }
 
     @Override
@@ -288,8 +275,7 @@ public class NodeMvcBuilder implements BhNodeWalker {
       if (rootView == null) {
         rootView = view;
       }
-      var control = new TemplateNodeController(node, view, rootView);
-      node.setMsgProcessor(control);
+      new TemplateNodeController(node, view, rootView);
     }
 
     @Override
@@ -297,8 +283,7 @@ public class NodeMvcBuilder implements BhNodeWalker {
       if (rootView == null) {
         rootView = view;
       }
-      var control = new TemplateNodeController(node, view, rootView);
-      node.setMsgProcessor(control);
+      new TemplateNodeController(node, view, rootView);
     }
 
     @Override
@@ -306,8 +291,7 @@ public class NodeMvcBuilder implements BhNodeWalker {
       if (rootView == null) {
         rootView = view;
       }
-      var control = new TemplateNodeController(node, view, rootView);
-      node.setMsgProcessor(control);
+      new TemplateNodeController(node, view, rootView);
     }
 
     @Override
@@ -315,8 +299,7 @@ public class NodeMvcBuilder implements BhNodeWalker {
       if (rootView == null) {
         rootView = view;
       }
-      var control = new TemplateNodeController(node, view, rootView);
-      node.setMsgProcessor(control);
+      new TemplateNodeController(node, view, rootView);
     }
 
     @Override
@@ -324,8 +307,7 @@ public class NodeMvcBuilder implements BhNodeWalker {
       if (rootView == null) {
         rootView = view;
       }
-      var control = new TemplateNodeController(node, view, rootView);
-      node.setMsgProcessor(control);
+      new TemplateNodeController(node, view, rootView);
     }
   }
 
@@ -336,4 +318,6 @@ public class NodeMvcBuilder implements BhNodeWalker {
     /** テンプレートリスト上にあるBhNode 用のMVCコネクタ. */
     Template,
   }
+
+  record ViewAndController(BhNodeView view, BhNodeController controller) {}
 }

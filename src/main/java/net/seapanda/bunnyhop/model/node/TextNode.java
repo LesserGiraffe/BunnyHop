@@ -34,6 +34,7 @@ import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Pair;
+import net.seapanda.bunnyhop.view.proxy.TextNodeViewProxy;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Script;
@@ -47,6 +48,8 @@ import org.mozilla.javascript.ScriptableObject;
 public class TextNode extends DerivativeBase<TextNode> {
 
   private String text = "";
+  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクト. */
+  private transient TextNodeViewProxy viewProxy = new TextNodeViewProxy() {};
 
   /**
    * コンストラクタ.
@@ -75,6 +78,12 @@ public class TextNode extends DerivativeBase<TextNode> {
     text = org.text;
   }
 
+  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクトを設定する. */
+  public void setViewProxy(TextNodeViewProxy viewProxy) {
+    this.viewProxy = viewProxy;
+  }
+
+
   @Override
   public TextNode copy(
       Predicate<? super BhNode> fnIsNodeToBeCopied, UserOperation userOpe) {
@@ -102,6 +111,7 @@ public class TextNode extends DerivativeBase<TextNode> {
    */
   public void setText(String text) {
     this.text = text;
+    viewProxy.matchViewContentToModel();
   }
 
 
@@ -205,7 +215,6 @@ public class TextNode extends DerivativeBase<TextNode> {
    */
   public void assignContentsToDerivatives() {
     getDerivatives().forEach(derv -> derv.setText(text));
-    getDerivatives().forEach(BhService.cmdProxy()::matchViewContentToModel);
     getDerivatives().forEach(derv -> derv.assignContentsToDerivatives());
   }
 
@@ -235,9 +244,7 @@ public class TextNode extends DerivativeBase<TextNode> {
 
   @Override
   public TextNode createDerivative(DerivationId derivationId, UserOperation userOpe) {
-    BhNode node =
-        BhService.bhNodeFactory().create(getDerivativeIdOf(derivationId), userOpe);
-
+    BhNode node = BhService.bhNodeFactory().create(getDerivativeIdOf(derivationId), userOpe);
     if (!(node instanceof TextNode)) {
       throw new AssertionError("derivative node type inconsistency");
     }
@@ -245,6 +252,11 @@ public class TextNode extends DerivativeBase<TextNode> {
     TextNode derivative = (TextNode) node;
     addDerivative(derivative, userOpe);
     return derivative;
+  }
+
+  @Override
+  public TextNodeViewProxy getViewProxy() {
+    return viewProxy;
   }
 
   @Override

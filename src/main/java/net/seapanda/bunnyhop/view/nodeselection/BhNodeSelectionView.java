@@ -18,16 +18,16 @@ package net.seapanda.bunnyhop.view.nodeselection;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.SequencedSet;
+import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.transform.Scale;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -47,19 +47,27 @@ public final class BhNodeSelectionView extends ScrollPane {
   @FXML Pane nodeSelectionPanel;  //FXML で Pane 以外使わないこと
   @FXML Pane nodeSelectionPanelWrapper;
   @FXML ScrollPane nodeSelectionPanelBase;
-  List<BhNodeView> rootNodeList = new ArrayList<>();
+  private final SequencedSet<BhNodeView> rootNodeList = new LinkedHashSet<>();
   private int zoomLevel = 0;
   private final String categoryName;
+  private final Consumer<BhNodeView> onNodeSizeChanged =
+      nodeView -> {
+        if (isVisible()) {
+          arrange();
+        }
+      };
 
   /**
    * GUI コンポーネントを初期化する.
    *
-   * @param categoryName このビューに関連付けられたBhNodeリストのカテゴリ名
-   * @param cssClass ビューに適用するcssクラス名
+   * @param categoryName このビューに関連付けられたカテゴリ名
+   * @param cssClass ビューに適用する css クラス名
    * @param categoryListView このビューを保持しているカテゴリリストのビュー
    */
   public BhNodeSelectionView(
-      String categoryName, String cssClass, BhNodeCategoryListView categoryListView)
+      String categoryName,
+      String cssClass,
+      BhNodeCategoryListView categoryListView)
       throws ViewInitializationException {
     this.categoryName = categoryName;
     try {
@@ -76,19 +84,12 @@ public final class BhNodeSelectionView extends ScrollPane {
     }
 
     nodeSelectionPanel.getTransforms().add(new Scale());
-    addEventFilter(ScrollEvent.ANY, event -> zoomAll(event));
     getStyleClass().add(cssClass);
     nodeSelectionPanel.getStyleClass().add(cssClass);
     nodeSelectionPanelWrapper.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
     nodeSelectionPanelWrapper.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
-    Node wsSetTab = Optional.ofNullable(nodeSelectionPanelBase.getScene())
-        .map(scene -> scene.lookup("#" + BhConstants.Fxml.ID_WORKSPACE_SET_TAB))
-        .orElse(null);
-    if (wsSetTab == null) {
-      return;
-    }
-    ((TabPane) wsSetTab).widthProperty().addListener((oldval, newval, obs) ->
-        Math.min(nodeSelectionPanelBase.getMaxWidth(), ((TabPane) wsSetTab).getWidth() * 0.5));
+    visibleProperty().addListener((observable, oldVal, newVal) -> arrange());
+    hide();
   }
 
   /**
@@ -101,56 +102,44 @@ public final class BhNodeSelectionView extends ScrollPane {
   }
 
   /**
-   * 全ノード選択ビューの拡大/縮小を行う.
+   * {@code root} 以下のノードをノード選択リストに追加する.
    *
-   * @param event スクロールイベント
+   * @param root ノード選択リストに追加する {@link BhNodeView}
    */
-  private void zoomAll(ScrollEvent event) {
-    if (event.isControlDown() && event.getDeltaY() != 0) {
-      event.consume();
-      boolean zoomIn = event.getDeltaY() >= 0;
-      BhService.bhNodeSelectionService().zoomAll(zoomIn);
-    }
+  public void addNodeViewTree(BhNodeView root) {
+    root.getTreeManager().addToGuiTree(nodeSelectionPanel);
+    root.getEventManager().addOnNodeSizesInTreeChanged(onNodeSizeChanged);
+    rootNodeList.add(root);
   }
 
   /**
-   * ノード選択リストに表示する {@link BhNodeView} を追加する.
+   * {@code root} 以下のノードをノード選択リストから削除する.
    *
-   * @param view ノード選択リストに表示する {@link BhNodeView}
+   * @param root ノード選択リストから削除する {@link BhNodeView}
    */
-  public void addNodeView(BhNodeView view) {
-    view.getTreeManager().addToGuiTree(nodeSelectionPanel);
-    view.getEventManager().addOnNodeSizesInTreeChanged(nodeView -> {
-      if (isVisible()) {
-        arrange();
+  public void removeNodeViewTree(BhNodeView root) {
+    if (rootNodeList.contains(root)) {
+      root.getTreeManager().removeFromGuiTree();
+      root.getEventManager().removeOnNodeSizesInTreeChanged(onNodeSizeChanged);
+      rootNodeList.remove(root);
+      if (getNumNodeViewTrees() == 0 && isShowed()) {
+        hide();
       }
-    });
-    rootNodeList.add(view);
-    view.getLookManager().arrangeAndResize();
-    visibleProperty().addListener((observable, oldVal, newVal) -> {
-      if (newVal) {
-        arrange();
-      }
-    });
+    }
   }
 
-  /**
-   * ノード選択リストに表示する {@link BhNodeView} を削除する.
-   *
-   * @param view ノード選択リストから削除する {@link BhNodeView}
-   */
-  public void removeNodeView(BhNodeView view) {
-    if (rootNodeList.contains(view)) {
-      view.getTreeManager().removeFromGuiTree();
-      rootNodeList.remove(view);
+  /** ノード選択リストに追加されている {@link BhNodeView} を全て削除する. */
+  public void removeAll() {
+    while (rootNodeList.size() != 0) {
+      removeNodeViewTree(rootNodeList.getLast());
     }
-    Long numNodes = rootNodeList.stream()
+  }
+
+  /** このオブジェクトが現在保持する {@link BhNodeView} のツリーの数を取得する. */
+  public long getNumNodeViewTrees() {
+    return rootNodeList.stream()
         .filter(root -> !isSpaceNodeView(root))
         .count();
-
-    if (numNodes == 0 && BhService.bhNodeSelectionService().isShowed(categoryName)) {
-      BhService.bhNodeSelectionService().hideAll();
-    }
   }
 
   /** {@code view} が空白を開けるための {@link BhNodeView} であるかどうか調べる. */
@@ -205,8 +194,8 @@ public final class BhNodeSelectionView extends ScrollPane {
       if (nodeToShift.getTreeManager().getParentView() != null) {
         continue;
       }
-      Vec2D wholeBodySize = nodeToShift.getRegionManager().getNodeSizeIncludingOuter(true);
-      Vec2D bodySize = nodeToShift.getRegionManager().getNodeSizeIncludingOuter(false);
+      Vec2D wholeBodySize = nodeToShift.getRegionManager().getNodeSizeIncludingOuters(true);
+      Vec2D bodySize = nodeToShift.getRegionManager().getNodeSizeIncludingOuters(false);
       double upperCnctrHeight = wholeBodySize.y - bodySize.y;
       nodeToShift.getPositionManager().setPosOnWorkspace(leftPadding, offset + upperCnctrHeight);
       offset += wholeBodySize.y + BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_PANEL;
@@ -242,5 +231,37 @@ public final class BhNodeSelectionView extends ScrollPane {
     nodeSelectionPanelBase.setMaxWidth(maxWidth);
     // 選択ビューの幅を設定後にレイアウトしないと適切な幅で表示されない
     Platform.runLater(nodeSelectionPanelBase::requestLayout);
+  }
+
+  /**
+   * このオブジェクトに登録したノードをリストに格納して返す.
+   *
+   * @return このオブジェクトに登録したノードのリスト.
+   */
+  public SequencedSet<BhNodeView> getNodeViewList() {
+    return new LinkedHashSet<>(rootNodeList);
+  }
+
+  /**
+   * このビューを表示する.
+   */
+  public void show() {
+    setVisible(true);
+  }
+
+  /**
+   * このビューを非表示にする.
+   */
+  public void hide() {
+    setVisible(false);
+  }
+
+  /**
+   * このビューの現在の可視性を取得する.
+   *
+   * @return このビューの可視性.
+   */
+  public boolean isShowed() {
+    return visibleProperty().get();
   }
 }

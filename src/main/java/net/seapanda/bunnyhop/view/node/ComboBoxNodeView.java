@@ -51,7 +51,7 @@ public final class ComboBoxNodeView extends BhNodeView {
   private ComboBox<SelectableItem> comboBox = new ComboBox<>();
   private final TextNode model;
   private final ListCell<SelectableItem> buttonCell = new ComboBoxNodeListCell();
-  private final MutableBoolean dragged = new MutableBoolean(false);
+  private final MutableBoolean dragging = new MutableBoolean(false);
 
   /**
    * コンストラクタ.
@@ -236,13 +236,15 @@ public final class ComboBoxNodeView extends BhNodeView {
       return;
     }
     view.getEventManager().propagateEvent(event);
-    if (BhService.cmdProxy().isTemplateNode(view.getModel().get()) || dragged.getValue()) {
-      event.consume();
-    }
+    view.getModel().ifPresent(node -> {
+      if (node.getViewProxy().isTemplateNode() || dragging.getValue()) {
+        event.consume();  
+      }
+    });
     if (event.getEventType().equals(MouseEvent.DRAG_DETECTED)) {
-      dragged.setTrue();
+      dragging.setTrue();
     } else if (event.getEventType().equals(MouseEvent.MOUSE_RELEASED)) {
-      dragged.setFalse();
+      dragging.setFalse();
     }
   }
 

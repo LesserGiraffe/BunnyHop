@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.control.node;
+package net.seapanda.bunnyhop.control;
 
 import javafx.scene.input.MouseButton;
 
@@ -29,7 +29,7 @@ import javafx.scene.input.MouseButton;
  *
  * @author K.Koike
  */
-class MouseCtrlLock {
+public class MouseCtrlLock {
   private boolean isLocked = false;
   private MouseButton button = null;
     

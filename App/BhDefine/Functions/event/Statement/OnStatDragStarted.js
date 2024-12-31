@@ -8,8 +8,8 @@
     return;
   }
   if (bhThis.isRootDangling()) {
-    bhCommon.reconnect(toReconnect, bhThis.getLastReplaced(), [], bhCmdProxy, bhUserOpe);
+    bhCommon.reconnect(toReconnect, bhThis.getLastReplaced(), [], bhUserOpe);
   } else {
-    bhCommon.reconnect(toReconnect, null, [], bhCmdProxy, bhUserOpe);
+    bhCommon.reconnect(toReconnect, null, [], bhUserOpe);
   }  
 })();
