@@ -43,7 +43,11 @@ public class NoContentNodeView extends BhNodeView {
     super(viewStyle, model);
     this.model = model;
     getLookManager().addCssClass(BhConstants.Css.CLASS_NO_CONTENT_NODE);
-    setMouseTransparent(true);
+    nodeBase.setMouseTransparent(true);
+    getLookManager().setBodyShapeGetter(() -> {
+      boolean inner = (parent == null) ? true : parent.inner;
+      return inner ? viewStyle.bodyShape : BodyShape.BODY_SHAPE_NONE;
+    });
   }
 
   /**
@@ -57,14 +61,8 @@ public class NoContentNodeView extends BhNodeView {
   }
 
   @Override
-  protected void arrangeAndResize() {
-    boolean inner = (parent == null) ? true : parent.inner;
-    if (inner) {
-      getLookManager().setBodyShape(viewStyle.bodyShape);
-    } else {
-      getLookManager().setBodyShape(BodyShape.BODY_SHAPE_NONE);
-    }
-    getLookManager().updatePolygonShape();
+  protected void updatePosOnWorkspace(double posX, double posY) {
+    getPositionManager().setPosOnWorkspace(posX, posY);
   }
 
   @Override
@@ -98,6 +96,9 @@ public class NoContentNodeView extends BhNodeView {
   protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
     return getBodySize(includeCnctr);
   }
+
+  @Override
+  protected void updateChildRelativePos() {}
 
   @Override
   public void accept(NodeViewProcessor visitor) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.node.event;
+package net.seapanda.bunnyhop.model.node.hook;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ import org.mozilla.javascript.ScriptableObject;
  *
  * @author K.Koike
  */
-public class BhNodeEventAgent implements Serializable {
+public class HookAgent implements Serializable {
 
   private final BhNode target;
 
@@ -48,7 +48,7 @@ public class BhNodeEventAgent implements Serializable {
    *
    * @param target このノードに登録されたイベントを処理する.
    */
-  public BhNodeEventAgent(BhNode target) {
+  public HookAgent(BhNode target) {
     this.target = target;
   }
 
@@ -88,7 +88,7 @@ public class BhNodeEventAgent implements Serializable {
       BhNode oldRoot,
       BhNode oldReplaced,
       UserOperation userOpe) {
-    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_MOVED_TO_CHILD);
+    Optional<String> scriptName = target.getScriptName(HookEvent.ON_MOVED_TO_CHILD);
     Script onMovedToChild =
         scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onMovedToChild == null) {
@@ -126,7 +126,7 @@ public class BhNodeEventAgent implements Serializable {
       BhNode newReplaced,
       Boolean isSpecifiedDirectly,
       UserOperation userOpe) {
-    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_MOVED_FROM_CHILD_TO_WS);
+    Optional<String> scriptName = target.getScriptName(HookEvent.ON_MOVED_FROM_CHILD_TO_WS);
     Script onMovedFromChildToWs =
         scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onMovedFromChildToWs == null) {
@@ -163,7 +163,7 @@ public class BhNodeEventAgent implements Serializable {
       BhNode newChild,
       Connector parentCnctr,
       UserOperation userOpe) {
-    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_CHILD_REPLACED);
+    Optional<String> scriptName = target.getScriptName(HookEvent.ON_CHILD_REPLACED);
     Script onChildReplaced =
         scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onChildReplaced == null) {
@@ -206,7 +206,7 @@ public class BhNodeEventAgent implements Serializable {
       Collection<? extends BhNode> nodesToDelete,
       CauseOfDeletion causeOfDeletion,
       UserOperation userOpe) {
-    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_DELETION_REQUESTED);
+    Optional<String> scriptName = target.getScriptName(HookEvent.ON_DELETION_REQUESTED);
     Script onDeletionRequested =
         scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onDeletionRequested == null) {
@@ -239,7 +239,7 @@ public class BhNodeEventAgent implements Serializable {
    */
   public boolean execOnCutRequested(
       Collection<? extends BhNode> nodesToCut, UserOperation userOpe) {
-    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_CUT_REQUESTED);
+    Optional<String> scriptName = target.getScriptName(HookEvent.ON_CUT_REQUESTED);
     Script onCutRequested =
         scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onCutRequested == null) {
@@ -274,7 +274,7 @@ public class BhNodeEventAgent implements Serializable {
       Collection<? extends BhNode> nodesToCopy,
       Predicate<? super BhNode> defaultFunc,
       UserOperation userOpe) {
-    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_COPY_REQUESTED);
+    Optional<String> scriptName = target.getScriptName(HookEvent.ON_COPY_REQUESTED);
     Script onCopyRequested =
         scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onCopyRequested == null) {
@@ -310,7 +310,7 @@ public class BhNodeEventAgent implements Serializable {
    */
   private boolean isNodeToCopy(BhNode node, Function copyCheckFunc, String scriptName) {
     Context cx = Context.enter();
-    ScriptableObject scope = node.getEventAgent().createScriptScope(cx);
+    ScriptableObject scope = node.getHookAgent().createScriptScope(cx);
     try {
       return (Boolean) copyCheckFunc.call(cx, scope, scope, new Object[] {node});
     } catch (Exception e) {
@@ -328,7 +328,7 @@ public class BhNodeEventAgent implements Serializable {
    * @param userOpe undo 用コマンドオブジェクト
    */
   public void execOnTemplateCreated(UserOperation userOpe) {
-    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_TEMPLATE_CREATED);
+    Optional<String> scriptName = target.getScriptName(HookEvent.ON_TEMPLATE_CREATED);
     Script onTemplateCreated =
         scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onTemplateCreated == null) {
@@ -355,7 +355,7 @@ public class BhNodeEventAgent implements Serializable {
    * @param userOpe undo 用コマンドオブジェクト
    */
   public void execOnDragStarted(MouseEventInfo eventInfo, UserOperation userOpe) {
-    Optional<String> scriptName = target.getScriptName(BhNodeEvent.ON_DRAG_STARTED);
+    Optional<String> scriptName = target.getScriptName(HookEvent.ON_DRAG_STARTED);
     Script onDragStarted =
         scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (onDragStarted == null) {

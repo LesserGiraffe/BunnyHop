@@ -44,7 +44,7 @@ public class DerivativeCache {
    * </p>
    */
   public synchronized void put(Derivative derivative) {
-    if (derivative.getOriginal() instanceof Derivative derv) {
+    if (derivative.getLastOriginal() instanceof Derivative derv) {
       orgToDerivatives.putIfAbsent(derv, new HashSet<>());
       orgToDerivatives.get(derv).add(derivative);
     }

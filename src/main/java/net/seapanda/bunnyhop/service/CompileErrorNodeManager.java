@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
-import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.node.hook.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.traverse.CompileErrorNodeCollector;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
@@ -84,13 +84,13 @@ public class CompileErrorNodeManager {
         .toList();
 
     var nodesToDelete = errNodes.stream()
-        .filter(node -> node.getEventAgent().execOnDeletionRequested(
+        .filter(node -> node.getHookAgent().execOnDeletionRequested(
             errNodes, CauseOfDeletion.COMPILE_ERROR, userOpe))
         .toList();
 
     List<Swapped> swappedNodes = BhService.bhNodePlacer().deleteNodes(nodesToDelete, userOpe);
     for (var swapped : swappedNodes) {
-      swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
+      swapped.newNode().findParentNode().getHookAgent().execOnChildReplaced(
           swapped.oldNode(),
           swapped.newNode(),
           swapped.newNode().getParentConnector(),

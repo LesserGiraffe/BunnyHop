@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.model.node.derivative;
 
-import java.util.Collection;
+import java.util.Set;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
@@ -63,7 +63,7 @@ public abstract class Derivative extends BhNode {
   /**
    * このノードが持つ派生ノードリストを取得する.
    *
-   * @return 派生ノードリスト. 派生ノードが存在し場合は空のコレクション
+   * @return 派生ノードのセット. 派生ノードが存在し場合は空のセット.
    */
-  public abstract Collection<? extends Derivative> getDerivatives();
+  public abstract Set<? extends Derivative> getDerivatives();
 }

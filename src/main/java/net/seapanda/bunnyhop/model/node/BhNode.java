@@ -19,23 +19,24 @@ package net.seapanda.bunnyhop.model.node;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SequencedSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javafx.application.Platform;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeVersion;
 import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
-import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
-import net.seapanda.bunnyhop.model.node.event.BhNodeEventAgent;
+import net.seapanda.bunnyhop.model.node.hook.HookAgent;
+import net.seapanda.bunnyhop.model.node.hook.HookEvent;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.traverse.DerivativeReplacer;
+import net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
@@ -65,24 +66,21 @@ public abstract class BhNode extends SyntaxSymbol {
   protected Workspace workspace;
   /** デフォルトノード (= コネクタからノードを取り外したときに, 代わりに繋がるノード) フラグ. */
   private boolean isDefault = false;
-  private Map<BhNodeEvent, String> eventToScriptName = new HashMap<>();
-  private BhNodeEventAgent eventAgent = new BhNodeEventAgent(this);
-  /** 最後にこのノードと入れ替わったノード. */
-  private transient BhNode lastReplaced;
-  /** このノードが選択されたときに呼び出すメソッドと呼び出しスレッドのフラグ. */
-  private transient
-      Map<TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>, Boolean>
-      onSelectionStateChangedToThreadFlag = new HashMap<>();
   /** このノードが選択されているかどうかのフラグ. */
   private boolean isSelected = false;
-
+  /** フックイベント名とフック処理を記述したスクリプト名のマップ. */
+  private Map<HookEvent, String> eventToScriptName = new HashMap<>();
+  /** このノードに登録されたフック処理を実行するオブジェクト. */
+  private transient HookAgent hookAgent = new HookAgent(this);
+  /** このノードに登録されたイベントハンドラを管理するオブジェクト. */
+  private transient EventManager eventManager = new EventManager();
+  /** 最後にこのノードと入れ替わったノード. */
+  private transient BhNode lastReplaced;
 
   /** BhNode がとり得る状態. */
   public enum State {
     /** ワークスペース直下のルートノード. */
-    ROOT_ON_WS,
-    /** ワークスペース直下に無いルートノード (ダングリング状態). */
-    ROOT_DANGLING,
+    ROOT,
     /** 子ノード (ルートがダングリング状態かどうかは問わない). */
     CHILD,
     /** 削除済み. */
@@ -90,10 +88,10 @@ public abstract class BhNode extends SyntaxSymbol {
   }
 
   /**
-   * 手動で子ノードからの取り外しができる場合 true を返す.
-   * ルートノードの場合falseが返る.
+   * 子ノードでかつ取り外しができる場合 true を返す.
+   * ルートノードの場合 false が返る.
    *
-   * @return 手動で子ノードからの取り外しができる場合 true
+   * @return 子ノードでかつ取り外しができる場合 true
    */
   public abstract boolean isRemovable();
 
@@ -166,16 +164,16 @@ public abstract class BhNode extends SyntaxSymbol {
     super(attributes.name());
     this.bhId = attributes.bhNodeId();
     this.version = attributes.version();
-    registerScriptName(BhNodeEvent.ON_MOVED_FROM_CHILD_TO_WS, attributes.onMovedFromChildToWs());
-    registerScriptName(BhNodeEvent.ON_MOVED_TO_CHILD, attributes.onMovedToChild());
-    registerScriptName(BhNodeEvent.ON_DELETION_REQUESTED, attributes.onDeletionRequested());
-    registerScriptName(BhNodeEvent.ON_CUT_REQUESTED, attributes.onCutRequested());
-    registerScriptName(BhNodeEvent.ON_COPY_REQUESTED, attributes.onCopyRequested());
+    registerScriptName(HookEvent.ON_MOVED_FROM_CHILD_TO_WS, attributes.onMovedFromChildToWs());
+    registerScriptName(HookEvent.ON_MOVED_TO_CHILD, attributes.onMovedToChild());
+    registerScriptName(HookEvent.ON_DELETION_REQUESTED, attributes.onDeletionRequested());
+    registerScriptName(HookEvent.ON_CUT_REQUESTED, attributes.onCutRequested());
+    registerScriptName(HookEvent.ON_COPY_REQUESTED, attributes.onCopyRequested());
     registerScriptName(
-        BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING, attributes.onPrivateTemplateCreating());
-    registerScriptName(BhNodeEvent.ON_SYNTAX_CHECKING, attributes.onCompileErrorChecking());
-    registerScriptName(BhNodeEvent.ON_TEMPLATE_CREATED, attributes.onTemplateCreated());
-    registerScriptName(BhNodeEvent.ON_DRAG_STARTED, attributes.onDragStarted());
+        HookEvent.ON_PRIVATE_TEMPLATE_CREATING, attributes.onPrivateTemplateCreating());
+    registerScriptName(HookEvent.ON_SYNTAX_CHECKING, attributes.onCompileErrorChecking());
+    registerScriptName(HookEvent.ON_TEMPLATE_CREATED, attributes.onTemplateCreated());
+    registerScriptName(HookEvent.ON_DRAG_STARTED, attributes.onDragStarted());
   }
 
   /**
@@ -206,18 +204,33 @@ public abstract class BhNode extends SyntaxSymbol {
 
   /**
    * {@code newBhNode} とこのノードを入れ替える.
+   * このノードがルートノードであった場合は何もしない.
    *
    * @param newNode このノードと入れ替えるノード.
    * @param userOpe undo 用コマンドオブジェクト.
-   * @return この入れ替え操作で入れ替わったノード一式.
-   *         0 番目が {@code newNode} とこのノードのペアであることが保証される.
+   * @return この操作で入れ替わった子ノードのペアのリスト.
+   *         <pre>
+   *         このノードが子ノードであった場合
+   *             最初の要素 : このノードと {@code newNode} のペア
+   *             残りの要素 : この操作によって入れ替わった'子'派生ノードとそれと入れ替わったノードのペア.
+   * 
+   *         このノードがルートノードであった場合
+   *             空のセット
+   *         </pre>
    */
-  public List<Swapped> replace(BhNode newNode, UserOperation userOpe) {
+  public SequencedSet<Swapped> replace(BhNode newNode, UserOperation userOpe) {
     if (parentConnector == null) {
-      return new ArrayList<>();
+      return new LinkedHashSet<>();
     }
-    var swappedList = new ArrayList<Swapped>();
-    swappedList.add(new Swapped(this, newNode));
+    createMvcIfNotHaveView(newNode);
+    var swappedList = new LinkedHashSet<Swapped>();
+    swappedList.addFirst(new Swapped(this, newNode));
+    if (newNode.isChild()) {
+      SequencedSet<Swapped> tmp = newNode.remove(userOpe);
+      // newNode を子ノードから切り離した際の入れ替えは, 戻り値のセットに含めない.
+      tmp.removeFirst();
+      swappedList.addAll(tmp);
+    }
     setLastReplaced(newNode, userOpe);
     parentConnector.connectNode(newNode, userOpe);
     swappedList.addAll(DerivativeReplacer.replace(newNode, this, userOpe));
@@ -226,14 +239,22 @@ public abstract class BhNode extends SyntaxSymbol {
 
   /**
    * このノードをモデルツリーから取り除く.
+   * このノードがルートノードであった場合は何もしない.
    *
    * @param userOpe undo 用コマンドオブジェクト
-   * @return この入れ替え操作で入れ替わったノード一式.
-   *         0 番目がこのノードとこのノードに代わり新しく作成されたノードのペアであることが保証される.
+   * @return この操作で入れ替わった子ノードのペアのリスト.
+   *         <pre>
+   *         このノードが子ノードであった場合
+   *             最初の要素 : このノードとこれと入れ替わったデフォルトノードのペア
+   *             残りの要素 : この操作によって入れ替わった'子'派生ノードとそれと入れ替わったノードのペア.
+   * 
+   *         このノードがルートノードであった場合
+   *             空のセット
+   *         </pre>
    */
-  public List<Swapped> remove(UserOperation userOpe) {
+  public SequencedSet<Swapped> remove(UserOperation userOpe) {
     if (parentConnector == null) {
-      return new ArrayList<>();
+      return new LinkedHashSet<>();
     }
     BhNode newNode =
         BhService.bhNodeFactory().create(parentConnector.getDefaultNodeId(), userOpe);
@@ -241,27 +262,30 @@ public abstract class BhNode extends SyntaxSymbol {
     return replace(newNode, userOpe);
   }
 
+  /** {@code node} が対応するノードビューを持っていなかった場合, 作成する. */
+  private void createMvcIfNotHaveView(BhNode node) {
+    if (workspace != null && !node.getViewProxy().hasView()) {
+      if (getViewProxy().isTemplateNode()) {
+        NodeMvcBuilder.buildTemplate(node);
+      } else {
+        NodeMvcBuilder.build(node);
+      }
+    }
+  }
+
   /**
    * ノードの状態を取得する.
    *
-   * @retval State.DELETED 削除済みノード. 子ノードでも削除されていればこの値が返る.
-   * @retval State.ROOT_DANGLING ルートノードであるが, ワークスペースにルートノードとして登録されていない
-   * @retval State.ROOT_ON_WS ルートノードでかつ, ワークスペースにルートノードとして登録されている
-   * @retval State.CHILD 子ノード. ワークスペースに属していてもいなくても子ノードならばこの値が返る
+   * @retval State.DELETED 削除済みノード.
+   * @retval State.ROOT ルートノード.
+   * @retval State.CHILD 子ノード.
    */
   public State getState() {
     if (workspace == null) {
       return State.DELETED;
     } else if (parentConnector == null) {
-      if (workspace.containsAsRoot(this)) {
-        return State.ROOT_ON_WS;
-      } else {
-        return State.ROOT_DANGLING;
-      }
+      return State.ROOT;
     } else {
-      if (workspace.containsAsRoot(this)) {
-        throw new AssertionError("A child node is contained in a workspace as a root node.");
-      }
       return State.CHILD;
     }
   }
@@ -272,7 +296,7 @@ public abstract class BhNode extends SyntaxSymbol {
    * @return 移動可能なノードである場合 true
    */
   public boolean isMovable() {
-    return isRemovable() || (getState() == BhNode.State.ROOT_ON_WS);
+    return isRemovable() || (getState() == BhNode.State.ROOT);
   }
 
   /**
@@ -298,17 +322,8 @@ public abstract class BhNode extends SyntaxSymbol {
    *
    * @return ワークスペース直下のルートノードである場合 true
    */
-  public boolean isRootOnWs() {
-    return getState() == BhNode.State.ROOT_ON_WS;
-  }
-
-  /**
-   * ダングリング状態のルートノードかどうか調べる.
-   *
-   * @return ダングリング状態のルートノードである場合 true
-   */
-  public boolean isRootDangling() {
-    return getState() == BhNode.State.ROOT_DANGLING;
+  public boolean isRoot() {
+    return getState() == BhNode.State.ROOT;
   }
 
   /**
@@ -317,7 +332,7 @@ public abstract class BhNode extends SyntaxSymbol {
    * @return このノード固有のテンプレートノードがある場合 true
    */
   public boolean hasPrivateTemplateNodes() {
-    return getScriptName(BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING).isPresent();
+    return getScriptName(HookEvent.ON_PRIVATE_TEMPLATE_CREATING).isPresent();
   }
 
   /**
@@ -342,14 +357,23 @@ public abstract class BhNode extends SyntaxSymbol {
    * このノードがあるワークスペースを登録する.
    *
    * @param workspace このノードを直接保持するワークスペース
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void setWorkspace(Workspace workspace) {
+  public void setWorkspace(Workspace workspace, UserOperation userOpe) {
+    if (this.workspace == workspace) {
+      return;
+    }
+    Workspace oldWs = this.workspace;
     this.workspace = workspace;
     if (workspace == null) {
       instIdToNodeInWs.remove(getInstanceId());
     } else {
       instIdToNodeInWs.put(getInstanceId(), this);
     }
+    eventManager.invokeOnWorkspaceChanged(oldWs, userOpe);
+    // undo 時に Workspace.addNode の逆操作とこのコマンドの逆操作が重複するが問題ない.
+    // このメソッドの呼ばれ方によらず, このメソッドの逆操作をするために, ここで操作コマンドを追加する.
+    userOpe.pushCmdOfSetWorkspace(oldWs, this);
   }
 
   /**
@@ -403,9 +427,7 @@ public abstract class BhNode extends SyntaxSymbol {
   public void select(UserOperation userOpe) {
     if (!isSelected) {
       isSelected = true;
-      getViewProxy().notifyNodeSelected();
-      onSelectionStateChangedToThreadFlag.forEach(
-          (handler, threadFlag) -> invokeOnSelectionStateChanged(handler, threadFlag, userOpe));
+      eventManager.invokeOnSelectionStateChanged(userOpe);
       userOpe.pushCmdOfSelectNode(this);
     }
   }
@@ -414,49 +436,9 @@ public abstract class BhNode extends SyntaxSymbol {
   public void deselect(UserOperation userOpe) {
     if (isSelected) {
       isSelected = false;
-      getViewProxy().notifyNodeDeselected();
-      onSelectionStateChangedToThreadFlag.forEach(
-          (handler, threadFlag) -> invokeOnSelectionStateChanged(handler, threadFlag, userOpe));
+      eventManager.invokeOnSelectionStateChanged(userOpe);
       userOpe.pushCmdOfDeselectNode(this);
     }
-  }
-
-  /** 選択変更時のイベントハンドラを呼び出す. */
-  private void invokeOnSelectionStateChanged(
-        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler,
-        boolean invokeOnUiThread,
-        UserOperation userOpe) {
-    if (invokeOnUiThread && !Platform.isFxApplicationThread()) {
-      Platform.runLater(() -> handler.accept(this, isSelected, userOpe));
-    } else {
-      handler.accept(this, isSelected, userOpe);
-    }
-  }
-
-  /**
-   * ノードの選択状態が変更されたときのイベントハンドラを追加する.
-   *  <pre>
-   *  イベントハンドラの第 1 引数: 選択状態に変換のあった {@link BhNode}
-   *  イベントハンドラの第 2 引数: 選択状態. 選択されたなら true.
-   *  </pre>
-   *
-   * @param handler 追加するイベントハンドラ
-   * @param invokeOnUiThread UIスレッド上で呼び出す場合 true
-   */
-  public void addOnSelectionStateChanged(
-      TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler,
-      boolean invokeOnUiThread) {
-    onSelectionStateChangedToThreadFlag.put(handler, invokeOnUiThread);
-  }
-
-  /**
-   * ノードの選択状態が変更されたときのイベントハンドラを削除する.
-   *
-   * @param handler 削除するイベントハンドラ
-   */
-  public void removeOnSelectionStateChanged(
-      TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
-    onSelectionStateChangedToThreadFlag.remove(handler);
   }
 
   /**
@@ -549,7 +531,7 @@ public abstract class BhNode extends SyntaxSymbol {
   }
 
   /** 引数で指定したイベント名に対応するスクリプト名を返す. */
-  public Optional<String> getScriptName(BhNodeEvent event) {
+  public Optional<String> getScriptName(HookEvent event) {
     return Optional.ofNullable(eventToScriptName.get(event));
   }
 
@@ -559,7 +541,7 @@ public abstract class BhNode extends SyntaxSymbol {
    * @param event スクリプトに対応するイベント
    * @param scriptName 登録するスクリプト名.  null もしくは空文字の場合は登録しない.
    */
-  protected void registerScriptName(BhNodeEvent event, String scriptName) {
+  protected void registerScriptName(HookEvent event, String scriptName) {
     if (scriptName == null || scriptName.isEmpty()) {
       return;
     }
@@ -567,12 +549,21 @@ public abstract class BhNode extends SyntaxSymbol {
   }
 
   /**
-   * このノードに登録されたイベントとその処理を実行するオブジェクトを返す.
+   * このノードに登録されたフック処理を実行するオブジェクトを返す.
    *
-   * @return このノードに登録されたイベントとその処理を実行するオブジェクト
+   * @return このノードに登録されたフック処理を実行するオブジェクト
    */
-  public BhNodeEventAgent getEventAgent() {
-    return eventAgent;
+  public HookAgent getHookAgent() {
+    return hookAgent;
+  }
+
+  /**
+   * このノードに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
+   *
+   * @return このノードに対するイベントハンドラの追加と削除を行うオブジェクト
+   */
+  public EventManager getEventManager() {
+    return eventManager;
   }
 
   /**
@@ -584,7 +575,7 @@ public abstract class BhNode extends SyntaxSymbol {
    * @return このノード固有のテンプレートノードのリスト. 固有のテンプレートノードを持たない場合, 空のリストを返す.
    */
   public Collection<BhNode> genPrivateTemplateNodes(UserOperation userOpe) {
-    Optional<String> scriptName = getScriptName(BhNodeEvent.ON_PRIVATE_TEMPLATE_CREATING);
+    Optional<String> scriptName = getScriptName(HookEvent.ON_PRIVATE_TEMPLATE_CREATING);
     Script privateTemplateCreator =
         scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (privateTemplateCreator == null) {
@@ -594,7 +585,7 @@ public abstract class BhNode extends SyntaxSymbol {
         put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
       }};
     Context cx = Context.enter();
-    ScriptableObject scriptScope = getEventAgent().createScriptScope(cx, nameToObj);
+    ScriptableObject scriptScope = getHookAgent().createScriptScope(cx, nameToObj);
     try {
       return ((Collection<?>) privateTemplateCreator.exec(cx, scriptScope)).stream()
           .filter(elem -> elem instanceof BhNode)
@@ -618,14 +609,14 @@ public abstract class BhNode extends SyntaxSymbol {
     if (isDeleted()) {
       return false;
     }
-    Optional<String> scriptName = getScriptName(BhNodeEvent.ON_SYNTAX_CHECKING);
+    Optional<String> scriptName = getScriptName(HookEvent.ON_SYNTAX_CHECKING);
     Script errorChecker =
         scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (errorChecker == null) {
       return false;
     }
     Context cx = Context.enter();
-    ScriptableObject scope = getEventAgent().createScriptScope(cx);
+    ScriptableObject scope = getHookAgent().createScriptScope(cx);
     try {
       return (Boolean) errorChecker.exec(cx, scope);
     } catch (Exception e) {
@@ -655,4 +646,113 @@ public abstract class BhNode extends SyntaxSymbol {
    * @param newNode 入れ替え後に子ノードとなったノード
    */
   public record Swapped(BhNode oldNode, BhNode newNode) {}
+
+  /** イベントハンドラの管理を行うクラス. */
+  public class EventManager {
+
+    /** このノードが選択されたときに呼び出すメソッドと呼び出しスレッドのフラグ. */
+    private transient
+        SequencedSet<TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>>
+        onSelectionStateChangedList = new LinkedHashSet<>();
+    /** このノードが他のノードと入れ替わったとき呼び出すメソッドと呼び出しスレッドのフラグ. */
+    private transient
+        SequencedSet<TriConsumer<? super BhNode, ? super BhNode, ? super UserOperation>>
+        onNodeReplacedList = new LinkedHashSet<>();
+    /** このノードが属するワークスペースが変わったときに呼び出すメソッドと呼び出しスレッドのフラグ. */
+    private transient
+        SequencedSet<TriConsumer<? super Workspace, ? super Workspace, ? super UserOperation>>
+        onWorkspaceChangedList = new LinkedHashSet<>();
+
+    /**
+     * ノードの選択状態が変更されたときのイベントハンドラを追加する.
+     *  <pre>
+     *  イベントハンドラの第 1 引数: 選択状態に変換のあった {@link BhNode}
+     *  イベントハンドラの第 2 引数: 選択状態. 選択されたなら true.
+     *  イベントハンドラの第 3 引数: undo 用コマンドオブジェクト
+     *  </pre>
+     *
+     * @param handler 追加するイベントハンドラ
+     */
+    public void addOnSelectionStateChanged(
+        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
+      onSelectionStateChangedList.addLast(handler);
+    }
+
+    /**
+     * ノードの選択状態が変更されたときのイベントハンドラを削除する.
+     *
+     * @param handler 削除するイベントハンドラ
+     */
+    public void removeOnSelectionStateChanged(
+        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
+      onSelectionStateChangedList.remove(handler);
+    }
+
+    /** 選択変更時のイベントハンドラを呼び出す. */
+    private void invokeOnSelectionStateChanged(UserOperation userOpe) {
+      onSelectionStateChangedList.forEach(
+          handler -> handler.accept(BhNode.this, isSelected, userOpe));
+    }
+
+    /**
+     * ノードが入れ替わったときのイベントハンドラを追加する.
+     *  <pre>
+     *  イベントハンドラの第 1 引数: このノード
+     *  イベントハンドラの第 2 引数: このノードの代わりに, このノードがあった位置に接続されたノード
+     *  イベントハンドラの第 3 引数: undo 用コマンドオブジェクト
+     *  </pre>
+     *
+     * @param handler 追加するイベントハンドラ
+     */
+    public void addOnNodeReplaced(
+        TriConsumer<? super BhNode, ? super BhNode, ? super UserOperation> handler) {
+      onNodeReplacedList.addLast(handler);
+    }
+
+    /**
+     * ノードが入れ替わったときのイベントハンドラを削除する.
+     *
+     * @param handler 追加するイベントハンドラ
+     */
+    public void removeOnNodeReplaced(
+        TriConsumer<? super BhNode, ? super BhNode, ? super UserOperation> handler) {
+      onNodeReplacedList.remove(handler);
+    }
+
+    /** ワークスペース変更時のイベントハンドラを呼び出す. */
+    private void invokeOnWorkspaceChanged(Workspace oldWs, UserOperation userOpe) {
+      onWorkspaceChangedList.forEach(
+          handler -> handler.accept(oldWs, workspace, userOpe));
+    }
+
+    /**
+     * このノードが属するワークスペースが変わったときのイベントハンドラを追加する.
+     *  <pre>
+     *  イベントハンドラの第 1 引数: 変更前のワークスペース
+     *  イベントハンドラの第 2 引数: 変更後のワークスペース
+     *  イベントハンドラの第 3 引数: undo 用コマンドオブジェクト
+     *  </pre>
+     *
+     * @param handler 追加するイベントハンドラ
+     */
+    public void addOnWorkspaceChanged(
+        TriConsumer<? super Workspace, ? super Workspace, ? super UserOperation> handler) {
+      onWorkspaceChangedList.addLast(handler);
+    }
+
+    /**
+     * このノードが属するワークスペースが変わったときのイベントハンドラを削除する.
+     *
+     * @param handler 追加するイベントハンドラ
+     */
+    public void removeOnWorkspaceChanged(
+        TriConsumer<? super Workspace, ? super Workspace, ? super UserOperation> handler) {
+      onWorkspaceChangedList.remove(handler);
+    }
+
+    /** ノード入れ替え時のイベントハンドラを呼び出す. */
+    void invokeOnNodeReplaced(BhNode newNode, UserOperation userOpe) {
+      onNodeReplacedList.forEach(handler -> handler.accept(BhNode.this, newNode, userOpe));
+    }
+  }
 }

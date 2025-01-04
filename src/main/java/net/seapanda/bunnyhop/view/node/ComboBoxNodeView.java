@@ -64,7 +64,7 @@ public final class ComboBoxNodeView extends BhNodeView {
       throws ViewInitializationException {
     super(viewStyle, model);
     this.model = model;
-    getTreeManager().addChild(comboBox);
+    addComponent(comboBox);
     initStyle();
     setComboBoxEventHandlers();
   }
@@ -85,8 +85,8 @@ public final class ComboBoxNodeView extends BhNodeView {
     comboBox.setTranslateX(viewStyle.paddingLeft);
     comboBox.setTranslateY(viewStyle.paddingTop);
     comboBox.getStyleClass().add(viewStyle.comboBox.cssClass);
-    comboBox.heightProperty().addListener(observable -> notifySizeChange());
-    comboBox.widthProperty().addListener(observable -> notifySizeChange());
+    comboBox.heightProperty().addListener(observable -> notifySizeChanged());
+    comboBox.widthProperty().addListener(observable -> notifySizeChanged());
     if (!comboBox.getItems().isEmpty()) {
       comboBox.setValue(comboBox.getItems().get(0));
     }
@@ -135,8 +135,8 @@ public final class ComboBoxNodeView extends BhNodeView {
   }
 
   @Override
-  protected void arrangeAndResize() {
-    getLookManager().updatePolygonShape();
+  protected void updatePosOnWorkspace(double posX, double posY) {
+    getPositionManager().setPosOnWorkspace(posX, posY);
   }
 
   @Override
@@ -157,6 +157,9 @@ public final class ComboBoxNodeView extends BhNodeView {
   protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
     return getBodySize(includeCnctr);
   }
+
+  @Override
+  protected void updateChildRelativePos() {}
 
   /**
    * 現在選択中のコンボボックスのアイテムを取得する.

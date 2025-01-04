@@ -72,14 +72,14 @@ public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
   }
 
   /**
-   * 指定した値で位置を更新する.
+   * 位置を設定する.
    *
    * @param upperLeftX 左上X座標
    * @param upperLeftY 左上Y座標
    * @param lowerRightX 右下X座標
    * @param lowerRightY 右下Y座標
    */
-  public void updatePos(
+  public void setPos(
       double upperLeftX, double upperLeftY, double lowerRightX, double lowerRightY) {
     upperLeftPos.x = upperLeftX;
     upperLeftPos.y = upperLeftY;

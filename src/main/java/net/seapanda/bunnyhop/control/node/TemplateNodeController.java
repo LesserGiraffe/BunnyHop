@@ -17,7 +17,6 @@
 package net.seapanda.bunnyhop.control.node;
 
 import java.util.Objects;
-import javafx.geometry.Point2D;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.control.MouseCtrlLock;
@@ -25,7 +24,6 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
-import net.seapanda.bunnyhop.model.traverse.TextPrompter;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
@@ -104,6 +102,7 @@ public class TemplateNodeController {
     view.getEventManager().addEventFilter(
         MouseEvent.ANY,
         mouseEvent -> consumeIfNotAcceptable(mouseEvent));
+    model.getEventManager().addOnNodeReplaced((oldNode, newNode, userOpe) -> replaceView(newNode));
   }
 
   /** マウスボタン押下時のイベントハンドラ. */
@@ -113,21 +112,20 @@ public class TemplateNodeController {
     }
     ModelExclusiveControl.lockForModification();
     try {
-      Workspace currentWs = BhService.getAppRoot().getWorkspaceSet().getCurrentWorkspace();
+      Workspace currentWs = BhService.appRoot().getWorkspaceSet().getCurrentWorkspace();
       if (currentWs == null) {
         return;
       }
       UserOperation userOpe = new UserOperation();
       BhNode newNode = model.findRootNode().copy(userOpe);
       BhNodeView nodeView = NodeMvcBuilder.build(newNode); //MVC構築
-      TextPrompter.prompt(newNode);
       currentView.setValue(nodeView);
       Vec2D posOnWs = calcClickPosOnWs(event, currentWs);
       BhService.bhNodePlacer().moveToWs(currentWs, newNode, posOnWs.x, posOnWs.y, userOpe);
       // undo 用コマンドセット
       nodeView.getController().ifPresent(ctrl -> ctrl.setUserOpeCmdForDnd(userOpe));
       currentView.getValue().getEventManager().propagateEvent(event);
-      BhService.getAppRoot().getNodeSelectionViewProxy().hideAll();
+      BhService.appRoot().getNodeSelectionViewProxy().hideAll();
       event.consume();
     } catch (Exception e) {
       mouseCtrlLock.unlock();
@@ -194,9 +192,8 @@ public class TemplateNodeController {
 
   /** view の rootView からの相対位置を求める. */
   private Vec2D calcRelativePosFromRoot() {
-    Point2D pos = view.localToScene(0.0, 0.0);
-    Point2D posFromRoot = rootView.sceneToLocal(pos);
-    return new Vec2D(posFromRoot.getX(), posFromRoot.getY());
+    Vec2D pos = view.getPositionManager().localToScene(new Vec2D(0, 0));
+    return rootView.getPositionManager().sceneToLocal(pos);
   }
 
   /** 受付不能なマウスイベントを consume する. */
@@ -215,6 +212,14 @@ public class TemplateNodeController {
       } else if (view instanceof ComboBoxNodeView comboBoxView) {
         ComboBoxNodeController.matchViewToModel(textNode, comboBoxView);
       }
+    }
+  }
+
+  /** {@link #view} と {@code newNode} のノードビューを入れ替える. */
+  private void replaceView(BhNode newNode) {
+    if (newNode != null) {
+      BhNodeView newNodeView = newNode.getViewProxy().getView();
+      view.getTreeManager().replace(newNodeView);
     }
   }
 

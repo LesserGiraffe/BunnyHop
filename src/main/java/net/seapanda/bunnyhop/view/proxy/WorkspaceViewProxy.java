@@ -17,7 +17,6 @@
 
 package net.seapanda.bunnyhop.view.proxy;
 
-import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
@@ -33,18 +32,6 @@ public interface WorkspaceViewProxy {
   public default WorkspaceView getView() {
     return null;
   }
-
-  /** {@link WorkspaceView} に対し, ワークスペースの {@code node} がルートノードとして指定されたことを通知する. */
-  public default void notifyNodeSpecifiedAsRoot(BhNode node) {}
-
-  /** {@link WorkspaceView} に対し, ワークスペースの {@code node} がルートノードの指定を解除されたことを通知する. */
-  public default void notifyNodeSpecifiedAsNotRoot(BhNode node) {}
-
-  /** {@link WorkspaceView} に対し, ワークスペースに {@code node} が追加されたことを通知する. */
-  public default void notifyNodeAdded(BhNode node) {}
-
-  /** {@link WorkspaceView} に対し, ワークスペースから {@code node} が削除されたことを通知する. */
-  public default void notifyNodeRemoved(BhNode node) {}
 
   /**
    * {@link WorkspaceView} のサイズを変更する.

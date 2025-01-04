@@ -18,9 +18,7 @@ package net.seapanda.bunnyhop.control.node;
 
 
 import java.util.Objects;
-import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.derivative.Derivative;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
@@ -56,7 +54,7 @@ class BhNodeViewProxyImpl implements BhNodeViewProxy {
   public void setPosOnWorkspace(Vec2D pos, UserOperation userOpe) {
     Objects.requireNonNull(pos);
     Vec2D oldPos = view.getPositionManager().getPosOnWorkspace();
-    view.getPositionManager().setPosOnWorkspace(pos.x, pos.y);
+    view.getPositionManager().setTreePosOnWorkspace(pos.x, pos.y);
     if (userOpe != null && view.getModel().isPresent()) {
       userOpe.pushCmdOfSetNodePos(view.getModel().get(), oldPos);
     }
@@ -81,7 +79,7 @@ class BhNodeViewProxyImpl implements BhNodeViewProxy {
     if (newNodeView == null) {
       return;
     }
-    boolean hasParent = newNodeView.getParent() != null;
+    boolean hasParent = !newNodeView.getTreeManager().isRootView();
     view.getTreeManager().replace(newNodeView);
     view.getModel().ifPresent(
         oldNode -> userOpe.pushCmdOfReplaceNodeView(oldNode, newNode, hasParent));
@@ -113,26 +111,9 @@ class BhNodeViewProxyImpl implements BhNodeViewProxy {
     return isTemplateNode;
   }
 
-  @Override
-  public void notifyNodeSelected() {
-    view.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SELECTED, true);
-    view.getModel().ifPresent(node -> hilightDerivatives(node, true));
-  }
-
-  @Override
-  public void notifyNodeDeselected() {
-    view.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SELECTED, false);
-    view.getModel().ifPresent(node -> hilightDerivatives(node, false));
-  }
-
-  private void hilightDerivatives(BhNode node, boolean enable) {
-    if (node instanceof Derivative orgNode) {
-      orgNode.getDerivatives().forEach(derivative -> derivative
-          .getViewProxy()
-          .getView()
-          .getLookManager()
-          .switchPseudoClassState(BhConstants.Css.PSEUDO_HIGHLIGHT_DERIVATIVE, enable));      
-    }
+  /** ビューを持っているか調べる. */
+  public boolean hasView() {
+    return true;
   }
 
   @Override

@@ -32,7 +32,7 @@ public class DerivativeRemover implements BhNodeWalker {
   private UserOperation userOpe;
 
   /**
-   * {@code node} で指定ノード以下にある派生ノードを, そのオリジナルノードの派生ノード一覧から取り除く.
+   * {@code node} 以下にある派生ノードを, そのオリジナルノードの派生ノード一覧から取り除く.
    *
    * @param node このノード以下の派生ノードを, そのオリジナルノードの派生ノード一覧から取り除く.
    * @param userOpe undo 用コマンドオブジェクト

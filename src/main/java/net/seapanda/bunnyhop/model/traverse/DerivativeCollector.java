@@ -16,8 +16,8 @@
 
 package net.seapanda.bunnyhop.model.traverse;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
@@ -30,7 +30,7 @@ import net.seapanda.bunnyhop.model.node.derivative.Derivative;
  */
 public class DerivativeCollector implements BhNodeWalker {
 
-  private Collection<Derivative> derivatives = new ArrayList<>();
+  private Set<Derivative> derivatives = new HashSet<>();
 
   /**
    * 引数で指定したノード以下のオリジナルノードが持つ派生ノードを全て返す.
@@ -38,7 +38,7 @@ public class DerivativeCollector implements BhNodeWalker {
    * @param node このノード以下のオリジナルノードが持つ派生ノードを探す
    * @return 発見した派生ノードのリスト
    */
-  public static Collection<Derivative> find(BhNode node) {
+  public static Set<Derivative> collect(BhNode node) {
     var finder = new DerivativeCollector();
     node.accept(finder);
     return finder.derivatives;

@@ -17,11 +17,8 @@
 package net.seapanda.bunnyhop.model.workspace;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.SequencedSet;
-import javafx.application.Platform;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.undo.UserOperation;
@@ -43,25 +40,12 @@ public class Workspace implements Serializable {
   private final SequencedSet<BhNode> nodeList = new LinkedHashSet<>();
   /** ワークスペース名. */
   private String name;
-  /** ノードが選択された時のイベントハンドラとそれを呼び出すスレッドのフラグのマップ. */
-  private transient
-      Map<TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>, Boolean>
-      onNodeSelectionStateChangedToThreadFlag = new HashMap<>();
-  /** このワークスペースにノードが追加された時のイベントハンドラとそれを呼び出すスレッドのフラグのマップ. */
-  private transient
-      Map<TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation>, Boolean>
-      onNodeAddedToThreadFlag = new HashMap<>();
-  /** このワークスペースからノードが削除された時のイベントハンドラとそれを呼び出すスレッドのフラグのマップ. */
-  private transient
-      Map<TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation>, Boolean>
-      onNodeRemovedToThreadFlag = new HashMap<>();
-  /** このワークスペースからノードが削除された時のイベントハンドラを呼び出す関数オブジェクト. */
-  private transient TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>
-      onNodeSelectionStateChanged = this::invokeOnNodeSelectionStateChanged;
   /** このワークスペースを持つワークスペースセット. */
   private transient WorkspaceSet workspaceSet;
   /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクト. */
   private transient WorkspaceViewProxy viewProxy = new WorkspaceViewProxy() {};
+  /** このワークスペースに登録されたイベントハンドラを管理するオブジェクト. */
+  private transient EventManager eventManager = new EventManager();
 
   /**
    * コンストラクタ.
@@ -74,79 +58,67 @@ public class Workspace implements Serializable {
   }
 
   /**
-   * このワークスペースに対し {@code node} をルートノードとして指定する.
+   * このワークスペースに {@code root} 以下のノードを全て追加する.
+   * このメソッドを同じノードに対して複数回呼んでも重複追加はされない.
    *
-   * @param node ルートノードとして指定するノード
+   * @param root このワークスペースに追加するノードツリーのルートノード
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public void specifyNodeAsRoot(BhNode node, UserOperation userOpe) {
-    if (!nodeList.contains(node) || rootNodeList.contains(node)) {
+  public void addNodeTree(BhNode root, UserOperation userOpe) {
+    Workspace currentWs = root.getWorkspace();
+    // 1 つのノードツリーの全てのノードは同じワークスペースに入っていなければならないので, 
+    // 同じワークスペースへの重複追加を避けたければ, 追加するツリーのルートを調べればよい.
+    if (currentWs == this) {
       return;
     }
-    rootNodeList.add(node);
-    getViewProxy().notifyNodeSpecifiedAsRoot(node);
-    userOpe.pushCmdOfAddRootNode(node);
-  }
-
-  /**
-   * このワークスペースに対し {@code node} がルートノードとして指定されているとき, その指定を解除する.
-   *
-   * @param node ルートの指定を解除するするノード
-   * @param userOpe undo 用コマンドオブジェクト
-   */
-  public void specifyNodeAsNotRoot(BhNode node, UserOperation userOpe) {
-    if (!nodeList.contains(node) || !rootNodeList.contains(node)) {
-      return;
+    if (currentWs != null) {
+      currentWs.removeNodeTree(root, userOpe);
     }
-    rootNodeList.remove(node);
-    getViewProxy().notifyNodeSpecifiedAsNotRoot(node);
-    userOpe.pushCmdOfRemoveRootNode(node, this);
-  }
-
-  /**
-   * このワークスペースに {@link BhNode} 以下のノードを全て追加する.
-   *
-   * @param node このワークスペースに追加するノード
-   * @param userOpe undo 用コマンドオブジェクト
-   */
-  public void addNodeTree(BhNode node, UserOperation userOpe) {
     CallbackInvoker.CallbackRegistry callbacks = CallbackInvoker.newCallbackRegistry();
     callbacks.setForAllNodes(bhNode -> addNode(bhNode, userOpe));
-    CallbackInvoker.invoke(callbacks, node);
+    CallbackInvoker.invoke(callbacks, root);
+    if (!rootNodeList.contains(root) && root.isRoot()) {
+      rootNodeList.add(root);
+      eventManager.invokeOnNodeTurnedIntoRoot(root, userOpe);
+    }
+    userOpe.pushCmdOfAddNodeTreeToWorkspace(root, this);
   }
 
   /**
-   * このワークスペースに {@link BhNode} を追加する.
+   * このワークスペースに {@code node} を追加する.
    *
    * @param node このワークスペースに追加するノード
    * @param userOpe undo 用コマンドオブジェクト
    */  
-  public void addNode(BhNode node, UserOperation userOpe) {
+  private void addNode(BhNode node, UserOperation userOpe) {
     if (nodeList.contains(node)) {
       return;
     }
-    Workspace currentWs = node.getWorkspace();
-    if (currentWs != null && currentWs != this) {
-      currentWs.removeNodeTree(node, userOpe);
-    }
     nodeList.add(node);
-    node.setWorkspace(this);
-    node.addOnSelectionStateChanged(onNodeSelectionStateChanged, true);
-    getViewProxy().notifyNodeAdded(node);
-    invokeOnNodeAdded(node, userOpe);
-    userOpe.pushCmdOfAddToWorkspace(node, this);
+    node.setWorkspace(this, userOpe);
+    node.getEventManager().addOnSelectionStateChanged(eventManager.onNodeSelectionStateChanged);
+    node.getEventManager().addOnNodeReplaced(eventManager.onNodeReplaced);
+    eventManager.invokeOnNodeAdded(node, userOpe);
   }
 
   /**
-   * このワークスペースから {@link BhNode} 以下のノードを全て削除する.
+   * このワークスペースから {@code root} 以下のノードを全て削除する.
    *
-   * @param node このワークスペースから削除するノード.
+   * @param root このワークスペースから削除するノードツリーのルートノード.
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public void removeNodeTree(BhNode node, UserOperation userOpe) {
+  public void removeNodeTree(BhNode root, UserOperation userOpe) {
+    if (root.getWorkspace() != this) {
+      return;
+    }
+    if (rootNodeList.contains(root)) {
+      rootNodeList.remove(root);
+      eventManager.invokeOnNodeTurnedIntoNotRoot(root, userOpe);
+    }
     CallbackInvoker.CallbackRegistry callbacks = CallbackInvoker.newCallbackRegistry();
     callbacks.setForAllNodes(bhNode -> removeNode(bhNode, userOpe));
-    CallbackInvoker.invoke(callbacks, node);
+    CallbackInvoker.invoke(callbacks, root);
+    userOpe.pushCmdOfRemoveNodeTreeFromWorkspace(root, this);
   }
 
   /**
@@ -155,22 +127,18 @@ public class Workspace implements Serializable {
    * @param node このワークスペースから削除するノード.
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public void removeNode(BhNode node, UserOperation userOpe) {
+  private void removeNode(BhNode node, UserOperation userOpe) {
     if (!nodeList.contains(node)) {
       return;
     }
     if (node.isSelected()) {
       node.deselect(userOpe);
     }
-    if (rootNodeList.contains(node)) {
-      specifyNodeAsNotRoot(node, userOpe);
-    }
-    node.removeOnSelectionStateChanged(onNodeSelectionStateChanged);
-    node.setWorkspace(null);
+    node.getEventManager().removeOnSelectionStateChanged(eventManager.onNodeSelectionStateChanged);
+    node.getEventManager().removeOnNodeReplaced(eventManager.onNodeReplaced);
+    node.setWorkspace(null, userOpe);
     nodeList.remove(node);
-    getViewProxy().notifyNodeRemoved(node);
-    invokeOnNodeRemoved(node, userOpe);
-    userOpe.pushCmdOfRemoveFromWorkspace(node, this);
+    eventManager.invokeOnNodeRemoved(node, userOpe);
   }
 
   /**
@@ -189,16 +157,6 @@ public class Workspace implements Serializable {
    */
   public WorkspaceSet getWorkspaceSet() {
     return workspaceSet;
-  }
-
-  /**
-   * {@code node} をルートノードとして持っているかどうかチェックする.
-   *
-   * @param node ワークスペース直下のルートノードかどうかを調べるノード
-   * @return {@code node} をルートノードとして持っている場合 true
-   */
-  public boolean containsAsRoot(BhNode node) {
-    return rootNodeList.contains(node);
   }
 
   /**
@@ -284,107 +242,188 @@ public class Workspace implements Serializable {
   }
 
   /**
-   * このワークスペースのノードの選択状態に変化があった時のイベントハンドラを追加する.
+   * このワークスペースに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
    *
-   * @param handler 追加するイベントハンドラ
-   * @param invokeOnUiThread UI スレッド上で呼び出す場合 true
+   * @return このワークスペースに対するイベントハンドラの追加と削除を行うオブジェクト
    */
-  public void addOnNodeSelectionStateChanged(
-      TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler,
-      boolean invokeOnUiThread) {
-    onNodeSelectionStateChangedToThreadFlag.put(handler, invokeOnUiThread);
+  public EventManager getEventManager() {
+    return eventManager;
   }
 
-  /**
-   * このワークスペースのノードの選択状態に変化があった時のイベントハンドラを削除する.
-   *
-   * @param handler 削除するイベントハンドラ
-   */
-  public void removeOnNodeSelectionStateChanged(
-      TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
-    onNodeSelectionStateChangedToThreadFlag.remove(handler);
-  }
+  /** イベントハンドラの管理を行うクラス. */
+  public class EventManager {
+    
+    /** ノードが選択されたときのイベントハンドラのセット. */
+    private transient
+        SequencedSet<TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>>
+        onNodeSelectionStateChangedList = new LinkedHashSet<>();
+    /** このワークスペースにノードが追加されたときのイベントハンドラのセット. */
+    private transient
+        SequencedSet<TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation>>
+        onNodeAddedList = new LinkedHashSet<>();
+    /** このワークスペースからノードが削除されたときのイベントハンドラのセット. */
+    private transient
+        SequencedSet<TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation>>
+        onNodeRemoved = new LinkedHashSet<>();
+    /** このワークスペースのノードがルートノードとなったときのイベントハンドラのセット. */
+    private transient
+        SequencedSet<TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation>>
+        onNodeTurnedIntoRootList = new LinkedHashSet<>();
+    /** このワークスペースのノードが非ルートノードとなったときのイベントハンドラのセット. */
+    private transient
+        SequencedSet<TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation>>
+        onNodeTurnedIntoNotRootList = new LinkedHashSet<>();
+    /** このワークスペースからノードが削除されたときのイベントハンドラを呼び出す関数オブジェクト. */
+    private transient TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>
+        onNodeSelectionStateChanged = this::invokeOnNodeSelectionStateChanged;
+    /** このワークスペースのノードが他のノードと入れ替わったときのイベントハンドラを呼び出す関数オブジェクト. */
+    private transient TriConsumer<? super BhNode, ? super BhNode, ? super UserOperation>
+        onNodeReplaced = this::invokeOnNodeReplaced;
 
-  /**
-   * このワークスペースにノードが追加された時のイベントハンドラを追加する.
-   *
-   * @param handler 追加するイベントハンドラ
-   * @param invokeOnUiThread UI スレッド上で呼び出す場合 true
-   */
-  public void addOnNodeAdded(
-      TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler,
-      boolean invokeOnUiThread) {
-    onNodeAddedToThreadFlag.put(handler, invokeOnUiThread);
-  }
-
-  /**
-   * このワークスペースにノードが追加された時のイベントハンドラを削除する.
-   *
-   * @param handler 削除するイベントハンドラ
-   */
-  public void removeOnNodeAdded(
-      TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler) {
-    onNodeAddedToThreadFlag.remove(handler);
-  }
-
-  /**
-   * このワークスペースからノードが削除された時のイベントハンドラを追加する.
-   *
-   * @param handler 追加するイベントハンドラ
-   * @param invokeOnUiThread UI スレッド上で呼び出す場合 true
-   */
-  public void addOnNodeRemoved(
-      TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler,
-      boolean invokeOnUiThread) {
-    onNodeRemovedToThreadFlag.put(handler, invokeOnUiThread);
-  }
-
-  /**
-   * このワークスペースからノードが削除された時のイベントハンドラを削除する.
-   *
-   * @param handler 削除するイベントハンドラ
-   */
-  public void removeOnNodeRemoved(
-      TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler) {
-    onNodeRemovedToThreadFlag.remove(handler);
-  }
-
-  /** ノードの選択状態が変わった時のイベントハンドラを呼び出す. */
-  private void invokeOnNodeSelectionStateChanged(
-      BhNode node, boolean isSelected, UserOperation userOpe) {
-    if (isSelected) {
-      addToSelectedNodeList(node);
-    } else {
-      removeFromSelectedNodeList(node);
+    /**
+     * このワークスペースのノードの選択状態に変化があったときのイベントハンドラを追加する.
+     *
+     * @param handler 追加するイベントハンドラ
+     */
+    public void addOnNodeSelectionStateChanged(
+        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
+      onNodeSelectionStateChangedList.addLast(handler);
     }
-    onNodeSelectionStateChangedToThreadFlag.forEach((handler, invokeOnUiThread) -> {
-      if (invokeOnUiThread && !Platform.isFxApplicationThread()) {
-        Platform.runLater(() -> handler.accept(node, isSelected, userOpe));
-      } else {
-        handler.accept(node, isSelected, userOpe);
-      }
-    });
-  }
 
-  /** このワークスペースにノードが追加された時のイベントハンドラを呼び出す. */
-  private void invokeOnNodeAdded(BhNode node, UserOperation userOpe) {
-    onNodeAddedToThreadFlag.forEach((handler, invokeOnUiThread) -> {
-      if (invokeOnUiThread && !Platform.isFxApplicationThread()) {
-        Platform.runLater(() -> handler.accept(this, node, userOpe));
-      } else {
-        handler.accept(this, node, userOpe);
-      }
-    });
-  }
+    /**
+     * このワークスペースのノードの選択状態に変化があったときのイベントハンドラを削除する.
+     *
+     * @param handler 削除するイベントハンドラ
+     */
+    public void removeOnNodeSelectionStateChanged(
+        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
+      onNodeSelectionStateChangedList.remove(handler);
+    }
 
-  /** このワークスペースからノードが削除された時のイベントハンドラを呼び出す. */
-  private void invokeOnNodeRemoved(BhNode node, UserOperation userOpe) {
-    onNodeRemovedToThreadFlag.forEach((handler, invokeOnUiThread) -> {
-      if (invokeOnUiThread && !Platform.isFxApplicationThread()) {
-        Platform.runLater(() -> handler.accept(this, node, userOpe));
+    /**
+     * このワークスペースにノードが追加されたときのイベントハンドラを追加する.
+     *
+     * @param handler 追加するイベントハンドラ
+     */
+    public void addOnNodeAdded(
+        TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler) {
+      onNodeAddedList.addLast(handler);
+    }
+
+    /**
+     * このワークスペースにノードが追加されたときのイベントハンドラを削除する.
+     *
+     * @param handler 削除するイベントハンドラ
+     */
+    public void removeOnNodeAdded(
+        TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler) {
+      onNodeAddedList.remove(handler);
+    }
+
+    /**
+     * このワークスペースからノードが削除されたときのイベントハンドラを追加する.
+     *
+     * @param handler 追加するイベントハンドラ
+     */
+    public void addOnNodeRemoved(
+        TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler) {
+      onNodeRemoved.addLast(handler);
+    }
+
+    /**
+     * このワークスペースからノードが削除されたときのイベントハンドラを削除する.
+     *
+     * @param handler 削除するイベントハンドラ
+     */
+    public void removeOnNodeRemoved(
+        TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler) {
+      onNodeRemoved.remove(handler);
+    }
+
+    /**
+     * このワークスペースの非ルートノードがルートノードとなったときのイベントハンドラを追加する.
+     *
+     * @param handler 追加するイベントハンドラ
+     */
+    public void addOnNodeTurnedIntoRoot(
+        TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler) {
+      onNodeTurnedIntoRootList.addLast(handler);
+    }
+
+    /**
+     * このワークスペースの非ルートノードがルートノードとなったときのイベントハンドラを削除する.
+     *
+     * @param handler 削除するイベントハンドラ
+     */
+    public void removeOnNodeTurnedIntoRoot(
+        TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler) {
+      onNodeTurnedIntoRootList.remove(handler);
+    }
+
+    /**
+     * このワークスペースのルートノードが非ルートノードとなったときのイベントハンドラを追加する.
+     *
+     * @param handler 追加するイベントハンドラ
+     */
+    public void addOnNodeTurnedIntoNotRoot(
+        TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler) {
+      onNodeTurnedIntoNotRootList.addLast(handler);
+    }
+
+    /**
+     * このワークスペースのルートノードが非ルートノードとなったときのイベントハンドラを削除する.
+     *
+     * @param handler 削除するイベントハンドラ
+     */
+    public void removeOnNodeTurnedIntoNotRoot(
+        TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler) {
+      onNodeTurnedIntoNotRootList.remove(handler);
+    }
+
+    /** ノードの選択状態が変わったときのイベントハンドラを呼び出す. */
+    private void invokeOnNodeSelectionStateChanged(
+        BhNode node, boolean isSelected, UserOperation userOpe) {
+      if (isSelected) {
+        addToSelectedNodeList(node);
       } else {
-        handler.accept(this, node, userOpe);
-      }      
-    });
+        removeFromSelectedNodeList(node);
+      }
+      onNodeSelectionStateChangedList.forEach(handler -> handler.accept(node, isSelected, userOpe));
+    }
+
+    /** このワークスペースにノードが追加されたときのイベントハンドラを呼び出す. */
+    private void invokeOnNodeAdded(BhNode node, UserOperation userOpe) {
+      onNodeAddedList.forEach(handler -> handler.accept(Workspace.this, node, userOpe));
+    }
+
+    /** このワークスペースからノードが削除されたときのイベントハンドラを呼び出す. */
+    private void invokeOnNodeRemoved(BhNode node, UserOperation userOpe) {
+      onNodeRemoved.forEach(handler -> handler.accept(Workspace.this, node, userOpe));
+    }
+
+    /** このワークスペースのノードが他のノードと入れ替わったときのイベントハンドラを呼び出す. */
+    private void invokeOnNodeReplaced(BhNode oldNode, BhNode newNode, UserOperation userOpe) {
+      if (oldNode != null) {
+        if (!oldNode.isRoot()) {
+          throw new AssertionError("A replaced old node is not a root node.");
+        }
+        rootNodeList.add(oldNode);
+        invokeOnNodeTurnedIntoRoot(oldNode, userOpe);
+      }
+      if (newNode != null) {
+        rootNodeList.remove(newNode);
+        invokeOnNodeTurnedIntoNotRoot(newNode, userOpe);
+      }
+    }
+
+    /** このワークスペースの非ルートノードがルートノードになったときのイベントハンドラを呼び出す. */
+    private void invokeOnNodeTurnedIntoRoot(BhNode node, UserOperation userOpe) {
+      onNodeTurnedIntoRootList.forEach(handler -> handler.accept(Workspace.this, node, userOpe));
+    }
+
+    /** このワークスペースのルートノードが非ルートノードになったときのイベントハンドラを呼び出す. */
+    private void invokeOnNodeTurnedIntoNotRoot(BhNode node, UserOperation userOpe) {
+      onNodeTurnedIntoNotRootList.forEach(handler -> handler.accept(Workspace.this, node, userOpe));
+    }
   }
 }

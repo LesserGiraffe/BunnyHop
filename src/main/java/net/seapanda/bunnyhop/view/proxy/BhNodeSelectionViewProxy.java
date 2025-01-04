@@ -1,7 +1,6 @@
 package net.seapanda.bunnyhop.view.proxy;
 
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.SequencedSet;
 import net.seapanda.bunnyhop.control.node.TemplateNodeController;
 import net.seapanda.bunnyhop.model.node.BhNode;
@@ -81,15 +80,6 @@ public interface BhNodeSelectionViewProxy {
    */
   public default boolean isShowed(String categoryName) {
     return false;
-  }
-
-  /**
-   * 現在表示されているカテゴリの名前を返す.
-   *
-   * @return 現在表示されているカテゴリの名前. 表示されているカテゴリがない場合は empty.
-   */
-  public default Optional<String> getNameOfShowedCategory() {
-    return Optional.empty();
   }
 
   /**

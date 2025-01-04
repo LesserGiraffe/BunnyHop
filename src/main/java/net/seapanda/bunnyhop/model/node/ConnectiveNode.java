@@ -24,7 +24,7 @@ import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
-import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
+import net.seapanda.bunnyhop.model.node.hook.HookEvent;
 import net.seapanda.bunnyhop.model.node.section.Section;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
@@ -58,7 +58,7 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
       BhNodeAttributes attributes) {
     super(attributes, derivationToDerivative);
     this.childSection = childSection;
-    registerScriptName(BhNodeEvent.ON_CHILD_REPLACED, attributes.onChildReplaced());
+    registerScriptName(HookEvent.ON_CHILD_REPLACED, attributes.onChildReplaced());
   }
 
   /**

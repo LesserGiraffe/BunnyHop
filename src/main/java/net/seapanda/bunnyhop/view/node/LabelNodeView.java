@@ -48,7 +48,7 @@ public final class LabelNodeView extends BhNodeView {
       throws ViewInitializationException {
     super(viewStyle, model);
     this.model = model;
-    getTreeManager().addChild(label);
+    addComponent(label);
     initStyle();
   }
 
@@ -69,8 +69,8 @@ public final class LabelNodeView extends BhNodeView {
     label.setTranslateX(viewStyle.paddingLeft);
     label.setTranslateY(viewStyle.paddingTop);
     label.getStyleClass().add(viewStyle.label.cssClass);
-    label.heightProperty().addListener(newValue -> notifySizeChange());
-    label.widthProperty().addListener(newValue -> notifySizeChange());
+    label.heightProperty().addListener(newValue -> notifySizeChanged());
+    label.widthProperty().addListener(newValue -> notifySizeChanged());
     getLookManager().addCssClass(BhConstants.Css.CLASS_LABEL_NODE);
   }
 
@@ -86,8 +86,8 @@ public final class LabelNodeView extends BhNodeView {
   }
 
   @Override
-  protected void arrangeAndResize() {
-    getLookManager().updatePolygonShape();
+  protected void updatePosOnWorkspace(double posX, double posY) {
+    getPositionManager().setPosOnWorkspace(posX, posY);
   }
 
   @Override
@@ -108,6 +108,9 @@ public final class LabelNodeView extends BhNodeView {
   protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
     return getBodySize(includeCnctr);
   }
+
+  @Override
+  protected void updateChildRelativePos() {}
 
   public String getText() {
     return label.getText();

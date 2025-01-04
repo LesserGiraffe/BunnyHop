@@ -20,8 +20,8 @@ package net.seapanda.bunnyhop.control.node;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.SequencedSet;
 import javafx.event.Event;
-import javafx.geometry.Point2D;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -29,14 +29,15 @@ import net.seapanda.bunnyhop.control.MouseCtrlLock;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
-import net.seapanda.bunnyhop.model.node.event.BhNodeEventAgent.MouseEventInfo;
-import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
-import net.seapanda.bunnyhop.model.workspace.Workspace;
+import net.seapanda.bunnyhop.model.node.derivative.Derivative;
+import net.seapanda.bunnyhop.model.node.hook.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.node.hook.HookAgent.MouseEventInfo;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
  * BhNode のコントローラクラスに共通の処理をまとめたクラス.
@@ -74,6 +75,11 @@ public class BhNodeController {
     view.getEventManager().addEventFilter(
         MouseEvent.ANY,
         mouseEvent -> consumeIfNotAcceptable(mouseEvent));
+    model.getEventManager().addOnNodeReplaced((oldNode, newNode, userOpe) -> replaceView(newNode));
+    model.getEventManager().addOnSelectionStateChanged((node, isSelected, userOpe) -> {
+      view.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SELECTED, isSelected);
+      hilightDerivatives(model, isSelected);
+    });
   }
 
   /** マウスボタン押下時の処理. */
@@ -93,11 +99,11 @@ public class BhNodeController {
       if (ddInfo.userOpe == null) {
         ddInfo.userOpe = new UserOperation();
       }
-      view.getLookManager().drawShadow();
-      view.getPositionManager().toFront();
+      view.getLookManager().showShadow();
+      toFront();
       selectNode(event);  //選択処理
-      Point2D mousePressedPos = view.sceneToLocal(event.getSceneX(), event.getSceneY());
-      ddInfo.mousePressedPos = new Vec2D(mousePressedPos.getX(), mousePressedPos.getY());
+      Vec2D mousePressedPos = new Vec2D(event.getSceneX(), event.getSceneY());
+      ddInfo.mousePressedPos = view.getPositionManager().sceneToLocal(mousePressedPos);
       ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
       view.setMouseTransparent(true);
       event.consume();
@@ -130,7 +136,7 @@ public class BhNodeController {
         double diffY = event.getY() - ddInfo.mousePressedPos.y;
         view.getPositionManager().move(diffX, diffY);
         // ドラッグ検出されていない場合, 強調は行わない.
-        // 子ノードがダングリングになっていないのに, 重なったノード (入れ替え候補) が検出されるのを防ぐ
+        // 子ノードがワークスペース直下にいないのに, 重なったノード (入れ替え候補) が検出されるのを防ぐ
         highlightOverlappedNode();
         BhService.trashboxCtrl().auto(event.getSceneX(), event.getSceneY());
       }
@@ -161,21 +167,12 @@ public class BhNodeController {
         return;
       }
       ddInfo.dragging = true;
-      // 子ノードでかつ取り外し可能 -> 親ノードから切り離し, ダングリング状態へ
+      // 子ノードでかつ取り外し可能 -> ワークスペースへ
       if (model.isRemovable()) {
-        ddInfo.latestParent = model.findParentNode();
-        ddInfo.latestRoot = model.findRootNode();
-        List<Swapped> swappedNodes = BhService.bhNodePlacer().removeChild(model, ddInfo.userOpe);
-        for (var swapped : swappedNodes) {
-          swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
-              swapped.oldNode(),
-              swapped.newNode(),
-              swapped.newNode().getParentConnector(),
-              ddInfo.userOpe);
-        }
+        toWorkspace();
       }
-      model.getEventAgent().execOnDragStarted(toEventInfo(event), ddInfo.userOpe);
-      view.getPositionManager().toFront();
+      model.getHookAgent().execOnDragStarted(toEventInfo(event), ddInfo.userOpe);
+      toFront();
     } catch (Throwable e) {
       mouseCtrlLock.unlock();
       throw e;
@@ -201,17 +198,13 @@ public class BhNodeController {
         ddInfo.currentOverlapped.getViewProxy().switchPseudoClassState(
             BhConstants.Css.PSEUDO_OVERLAPPED, false);
       }
-      //子ノード -> ワークスペース
-      if (model.isRootDangling() && ddInfo.currentOverlapped == null) {
-        toWorkspace(model.getWorkspace());
-      } else if (ddInfo.currentOverlapped != null) {
-        // (ワークスペース or 子ノード) -> 子ノード
+      if (ddInfo.currentOverlapped != null) {
+        // ワークスペース -> 子ノード
         toChildNode(ddInfo.currentOverlapped);
       } else {
         //同一ワークスペース上で移動
         toSameWorkspace();
       }
-      view.getPositionManager().updateZpos();
       deleteTrashedNode(event);
       BhService.compileErrNodeManager().updateErrorNodeIndicator(ddInfo.userOpe);
       BhService.compileErrNodeManager().unmanageNonErrorNodes(ddInfo.userOpe);
@@ -227,14 +220,40 @@ public class BhNodeController {
     }
   }
 
+  /** {@link #model} を子ノードからワークスペース直下に移動させる. */
+  private void toWorkspace() {
+    ddInfo.latestParent = model.findParentNode();
+    ddInfo.latestRoot = model.findRootNode();
+    SequencedSet<Swapped> swappedNodes = BhService.bhNodePlacer().moveToWs(
+        model.getWorkspace(),
+        model,
+        ddInfo.posOnWorkspace.x,
+        ddInfo.posOnWorkspace.y,
+        ddInfo.userOpe);
+    for (var swapped : swappedNodes) {
+      swapped.newNode().findParentNode().getHookAgent().execOnChildReplaced(
+          swapped.oldNode(),
+          swapped.newNode(),
+          swapped.newNode().getParentConnector(),
+          ddInfo.userOpe);
+      BhService.derivativeCache().put((Derivative) swapped.oldNode());
+    }
+    model.getHookAgent().execOnMovedFromChildToWs(
+        ddInfo.latestParent,
+        ddInfo.latestRoot,
+        model.getLastReplaced(),
+        true,
+        ddInfo.userOpe);
+  }
+
   /**
-   * (ワークスペース or 子ノード) から 子ノード に移動する.
+   * {@link #model} をワークスペース直下から子ノードに移動する.
    *
    * @param oldChildNode 入れ替え対象の古い子ノード
    */
   private void toChildNode(BhNode oldChildNode) {
     //ワークスペースから移動する場合
-    if (model.isRootOnWs()) {
+    if (model.isRoot()) {
       ddInfo.userOpe.pushCmdOfSetNodePos(model, ddInfo.posOnWorkspace);
     }
     // 入れ替えられるノードの親ノード
@@ -242,24 +261,21 @@ public class BhNodeController {
     // 入れ替えられるノードのルートノード
     final BhNode oldRootOfReplaced = oldChildNode.findRootNode();
     // 重なっているノードをこのノードと入れ替え
-    final List<Swapped> swappedNodes =
+    final SequencedSet<Swapped> swappedNodes =
         BhService.bhNodePlacer().replaceChild(oldChildNode, model, ddInfo.userOpe);
     // 接続変更時のスクリプト実行
-    model.getEventAgent().execOnMovedToChild(
+    model.getHookAgent().execOnMovedToChild(
         ddInfo.latestParent, ddInfo.latestRoot, oldChildNode, ddInfo.userOpe);
 
     Vec2D posOnWs = oldChildNode.getViewProxy().getPosOnWorkspace();
-    double newXposInWs = posOnWs.x + BhConstants.LnF.REPLACED_NODE_SHIFT;
-    double newYposInWs = posOnWs.y + BhConstants.LnF.REPLACED_NODE_SHIFT;
-    // 重なっているノードを WS に移動
-    BhService.bhNodePlacer().moveToWs(
-        oldChildNode.getWorkspace(), oldChildNode, newXposInWs, newYposInWs, ddInfo.userOpe);
+    posOnWs.add(BhConstants.LnF.REPLACED_NODE_SHIFT, BhConstants.LnF.REPLACED_NODE_SHIFT);
+    oldChildNode.getViewProxy().setPosOnWorkspace(posOnWs, ddInfo.userOpe);
     // 接続変更時のスクリプト実行
-    oldChildNode.getEventAgent().execOnMovedFromChildToWs(
+    oldChildNode.getHookAgent().execOnMovedFromChildToWs(
         oldParentOfReplaced, oldRootOfReplaced, model, false, ddInfo.userOpe);
     // 子ノード入れ替え時のスクリプト実行
     for (var swapped : swappedNodes) {
-      swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
+      swapped.newNode().findParentNode().getHookAgent().execOnChildReplaced(
           swapped.oldNode(),
           swapped.newNode(),
           swapped.newNode().getParentConnector(),
@@ -267,44 +283,30 @@ public class BhNodeController {
     }
   }
 
-  /**
-   * 子ノードからワークスペースに移動する.
-   *
-   * @param ws 移動先のワークスペース
-   */
-  private void toWorkspace(Workspace ws) {
-    Vec2D absPosInWs = view.getPositionManager().getPosOnWorkspace();
-    BhService.bhNodePlacer().moveToWs(ws, model, absPosInWs.x, absPosInWs.y, ddInfo.userOpe);
-    model.getEventAgent().execOnMovedFromChildToWs(
-        ddInfo.latestParent,
-        ddInfo.latestRoot,
-        model.getLastReplaced(),
-        true,
-        ddInfo.userOpe);  //接続変更時のスクリプト実行
-    view.getLookManager().arrangeAndResize();
-  }
-
   /** 同一ワークスペースへの移動処理. */
   private void toSameWorkspace() {
-    if (ddInfo.dragging && (model.getState() == BhNode.State.ROOT_ON_WS)) {
+    if (ddInfo.dragging && (model.getState() == BhNode.State.ROOT)) {
       ddInfo.userOpe.pushCmdOfSetNodePos(model, ddInfo.posOnWorkspace);
     }
-    view.getLookManager().arrangeAndResize();
   }
 
   /** ゴミ箱に入れられたノードを削除する. */
   private void deleteTrashedNode(MouseEvent mouseEvent) {
     boolean isInTrashboxArea = BhService.trashboxCtrl().isPointInTrashBoxArea(
         mouseEvent.getSceneX(), mouseEvent.getSceneY());
-    if (model.isRootOnWs() && isInTrashboxArea) {
-      model.getEventAgent().execOnDeletionRequested(
+    if (model.isRoot() && isInTrashboxArea) {
+      boolean canDelete = model.getHookAgent().execOnDeletionRequested(
           new ArrayList<BhNode>() {{
             add(model);
           }},
           CauseOfDeletion.TRASH_BOX, ddInfo.userOpe);
-      List<Swapped> swappedNodes = BhService.bhNodePlacer().deleteNode(model, ddInfo.userOpe);
-      for (var swapped : swappedNodes) {
-        swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
+      if (!canDelete) {
+        return;
+      }
+      SequencedSet<Swapped> swappedNodes =
+          BhService.bhNodePlacer().deleteNode(model, ddInfo.userOpe);
+      for (Swapped swapped : swappedNodes) {
+        swapped.newNode().findParentNode().getHookAgent().execOnChildReplaced(
             swapped.oldNode(),
             swapped.newNode(),
             swapped.newNode().getParentConnector(),
@@ -407,9 +409,36 @@ public class BhNodeController {
         event.isAltDown());
   }
 
+  /** {@link #view} を最前面に移動させる. */
+  private void toFront() {
+    WorkspaceView wsView = view.getWorkspaceView();
+    if (wsView != null) {
+      wsView.moveToFront(view);
+    }
+  }
+
+  /** {@link #view} と {@code newNode} のノードビューを入れ替える. */
+  private void replaceView(BhNode newNode) {
+    if (newNode != null) {
+      BhNodeView newNodeView = newNode.getViewProxy().getView();
+      view.getTreeManager().replace(newNodeView);
+    }
+  }
+
   /** このオブジェクトが次の D&D 操作で使用する undo 用コマンドオブジェクトをセットする. */
   public void setUserOpeCmdForDnd(UserOperation userOpe) {
     ddInfo.userOpe = userOpe;
+  }
+
+  /** {@code node} の派生ノードを強調表示を切り返る. */
+  private static void hilightDerivatives(BhNode node, boolean enable) {
+    if (node instanceof Derivative orgNode) {
+      orgNode.getDerivatives().forEach(derivative -> derivative
+          .getViewProxy()
+          .getView()
+          .getLookManager()
+          .switchPseudoClassState(BhConstants.Css.PSEUDO_HIGHLIGHT_DERIVATIVE, enable));      
+    }
   }
 
   /**

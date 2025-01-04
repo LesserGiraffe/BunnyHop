@@ -46,8 +46,8 @@ public class UndoRedoAgent {
     if (undoStack.size() > BhConstants.NUM_TIMES_MAX_UNDO) {
       undoStack.removeFirst();
     }
-    if (BhService.getAppRoot() != null) {
-      BhService.getAppRoot().getWorkspaceSet().setDirty();
+    if (BhService.appRoot() != null) {
+      BhService.appRoot().getWorkspaceSet().setDirty();
     }
     redoStack.clear();
   }

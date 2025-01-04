@@ -57,7 +57,7 @@ public final class TextAreaNodeView  extends TextInputNodeView {
       throws ViewInitializationException {
     super(model, viewStyle);
     this.model = model;
-    getTreeManager().addChild(textArea);
+    addComponent(textArea);
     textArea.addEventFilter(MouseEvent.ANY, this::propagateEvent);
     initStyle();
   }
@@ -91,11 +91,11 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     textArea.setTranslateX(viewStyle.paddingLeft);
     textArea.setTranslateY(viewStyle.paddingTop);
     textArea.getStyleClass().add(viewStyle.textArea.cssClass);
-    textArea.heightProperty().addListener((observable, oldVal, newVal) -> notifySizeChange());
-    textArea.widthProperty().addListener((observable, oldVal, newVal) -> notifySizeChange());
+    textArea.heightProperty().addListener((observable, oldVal, newVal) -> notifySizeChanged());
+    textArea.widthProperty().addListener((observable, oldVal, newVal) -> notifySizeChanged());
     textArea.setWrapText(false);
-    textArea.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
-    textArea.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
+    textArea.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+    textArea.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
     setEditable(viewStyle.textArea.editable);
     getLookManager().addCssClass(BhConstants.Css.CLASS_TEXT_AREA_NODE);
   }
@@ -161,8 +161,8 @@ public final class TextAreaNodeView  extends TextInputNodeView {
   }
 
   @Override
-  protected void arrangeAndResize() {
-    getLookManager().updatePolygonShape();
+  protected void updatePosOnWorkspace(double posX, double posY) {
+    getPositionManager().setPosOnWorkspace(posX, posY);
   }
 
   @Override
@@ -184,6 +184,9 @@ public final class TextAreaNodeView  extends TextInputNodeView {
   protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
     return getBodySize(includeCnctr);
   }
+
+  @Override
+  protected void updateChildRelativePos() {}
 
   @Override
   protected TextInputControl getTextInputControl() {

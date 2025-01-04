@@ -3,7 +3,6 @@ package net.seapanda.bunnyhop.control.nodeselection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -41,8 +40,12 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
     String categoryName = view.getCategoryName();
     categoryNameToSelectionView.putIfAbsent(categoryName, view);
     Workspace workspace = categoryNameToWorkspace.computeIfAbsent(categoryName, Workspace::new);
-    workspace.addOnNodeAdded((ws, node, userOpe) -> addNodeView(view, node), true);
-    workspace.addOnNodeRemoved((ws, node, userOpe) -> removeNodeView(view, node), true);
+    workspace.getEventManager().addOnNodeAdded((ws, node, userOpe) -> addNodeView(node, view));
+    workspace.getEventManager().addOnNodeRemoved((ws, node, userOpe) -> removeNodeView(node, view));
+    workspace.getEventManager().addOnNodeTurnedIntoRoot(
+        (ws, root, userOpe) -> speficyNodeViewAsRoot(root, view));
+    workspace.getEventManager().addOnNodeTurnedIntoNotRoot(
+        (ws, root, userOpe) -> speficyNodeViewAsNotRoot(root, view));
     view.addEventFilter(ScrollEvent.ANY, event -> onScrolled(event));
     fnAddNodeSelectionViewToGuiTree.accept(view);
   }
@@ -55,24 +58,36 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
     }
   }
 
-  /** {@code view} に {@code node} のビューを追加する. */
-  private void addNodeView(BhNodeSelectionView view, BhNode node) {
-    if (!node.isRootDangling()) {
-      return;
-    }
+  /** {@code node} のノードビューをノード選択リストに追加する. */
+  private void addNodeView(BhNode node, BhNodeSelectionView view) {
     BhNodeView nodeView = node.getViewProxy().getView();
     if (nodeView != null) {
-      view.addNodeViewTree(nodeView);
+      view.addNodeView(nodeView);
     }
   }
 
-  /** {@code view} から {@code node} のビューを削除する. */
-  private void removeNodeView(BhNodeSelectionView view, BhNode node) {
+  /** {@code node} のノードビューをノード選択リストから削除する. */
+  private void removeNodeView(BhNode node, BhNodeSelectionView view) {
     BhNodeView nodeView = node.getViewProxy().getView();
-    if (nodeView == null) {
-      return;
+    if (nodeView != null) {
+      view.removeNodeView(nodeView);
     }
-    view.removeNodeViewTree(nodeView);
+  }
+
+  /** {@code node} をルートノードとしてノード選択ビューに設定する. */
+  private void speficyNodeViewAsRoot(BhNode node, BhNodeSelectionView view) {
+    BhNodeView nodeView = node.getViewProxy().getView();
+    if (nodeView != null) {
+      view.specifyNodeViewAsRoot(nodeView);
+    }
+  }
+
+  /** {@code node} を非ルートノードとしてノード選択ビューに設定する. */
+  private void speficyNodeViewAsNotRoot(BhNode node, BhNodeSelectionView view) {
+    BhNodeView nodeView = node.getViewProxy().getView();
+    if (nodeView != null) {
+      view.specifyNodeViewAsNotRoot(nodeView);
+    }
   }
 
   @Override
@@ -134,15 +149,6 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
       return false;
     }
     return view.isShowed();
-  }
-
-  @Override
-  public Optional<String> getNameOfShowedCategory() {
-    return categoryNameToSelectionView
-        .values().stream()
-        .filter(view -> view.visibleProperty().get())
-        .findFirst()
-        .map(view -> view.getCategoryName());
   }
 
   @Override

@@ -61,9 +61,8 @@ public class MultiNodeShifterController {
     view.addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
     WorkspaceView wsView = ws.getViewProxy().getView();
     if (wsView != null) {
-      ws.addOnNodeSelectionStateChanged(
-          (node, isSelected, userOpe) -> notifyNodeSelectionStateChanged(node),
-          true);
+      ws.getEventManager().addOnNodeSelectionStateChanged(
+          (node, isSelected, userOpe) -> notifyNodeSelectionStateChanged(node));
       wsView.addOnNodeMoved((nodeView, pos) -> notifyNodeMoved(nodeView));
     }
   }
@@ -171,7 +170,7 @@ public class MultiNodeShifterController {
   private void updateMultiNodeShifter(BhNode node) {
     if (node != null
         && node.getWorkspace() == ws
-        && node.isRootOnWs()
+        && node.isRoot()
         && node.isSelected()) {
       if (view.isLinkedWith(node)) {
         if (ddInfo.dragging) {

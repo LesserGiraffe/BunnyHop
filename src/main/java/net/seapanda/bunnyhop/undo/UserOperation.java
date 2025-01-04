@@ -21,7 +21,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
+import javafx.scene.Group;
 import javafx.scene.Parent;
+import javafx.scene.layout.Pane;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
@@ -96,25 +98,6 @@ public class UserOperation {
   }
 
   /**
-   * ワークスペース直下へのルートノードの追加をコマンド化してサブ操作リストに加える.
-   *
-   * @param node ワークスペース直下に追加したルートノード
-   */
-  public void pushCmdOfAddRootNode(BhNode node) {
-    subOpeList.addLast(new AddRootNodeCmd(node));
-  }
-
-  /**
-   * ワークスペース直下からのルートノードの削除をコマンド化してサブ操作リストに加える.
-   *
-   * @param node ワークスペース直下から削除したルートノード
-   * @param ws ルートノードを削除したワークスペース
-   */
-  public void pushCmdOfRemoveRootNode(BhNode node, Workspace ws) {
-    subOpeList.addLast(new RemoveRootNodeCmd(node, ws));
-  }
-
-  /**
    * ワークスペース上での {@link BhNode} の位置指定をコマンド化してサブ操作リストに加える.
    *
    * @param node 位置を指定したノード
@@ -170,23 +153,23 @@ public class UserOperation {
   }
 
   /**
-   * ノードのワークスペースへの追加をコマンド化してサブ操作リストに加える.
+   * ノードツリーのワークスペースへの追加をコマンド化してサブ操作リストに加える.
    *
-   * @param node ワークスペースに追加するノード
-   * @param ws {@code node} を追加するワークスペース
+   * @param root ワークスペースに追加するノードツリーのルートノード
+   * @param ws {@code root} 以下のノードを追加するワークスペース
    */
-  public void pushCmdOfAddToWorkspace(BhNode node, Workspace ws) {
-    subOpeList.addLast(new AddToWorkspaceCmd(node, ws));
+  public void pushCmdOfAddNodeTreeToWorkspace(BhNode root, Workspace ws) {
+    subOpeList.addLast(new AddNodeTreeToWorkspaceCmd(root, ws));
   }
 
   /**
-   * ノードのワークスペースからの削除をコマンド化してサブ操作リストに加える.
+   * ノードツリーのワークスペースからの削除をコマンド化してサブ操作リストに加える.
    *
-   * @param node ワークスペースから削除するノード
-   * @param ws {@code node} を削除するワークスペース
+   * @param root ワークスペースから削除するノードツリーのルートノード
+   * @param ws {@code root} 以下のノードを削除するワークスペース
    */
-  public void pushCmdOfRemoveFromWorkspace(BhNode node, Workspace ws) {
-    subOpeList.addLast(new RemoveFromWorkspaceCmd(node, ws));
+  public void pushCmdOfRemoveNodeTreeFromWorkspace(BhNode root, Workspace ws) {
+    subOpeList.addLast(new RemoveNodeTreeFromWorkspaceCmd(root, ws));
   }
 
   /**
@@ -335,6 +318,16 @@ public class UserOperation {
     subOpeList.addLast(new RemoveNodeFromCutListCmd(wss, removed));
   }
 
+  /**
+   * ノードが属するワークスペースを変更する操作をコマンド化してサブ操作リストに加える.
+   *
+   * @param oldWs {@code node} が属していた変更前のワークスペース.
+   * @param node ワークスペースが変更されたノード
+   */
+  public void pushCmdOfSetWorkspace(Workspace oldWs, BhNode node) {
+    subOpeList.addLast(new SetWorkspaceCmd(oldWs, node));
+  }
+
   /** {@link UserOperation} を構成するサブ操作. */
   interface SubOperation {
     /**
@@ -380,44 +373,6 @@ public class UserOperation {
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
       original.addDerivative(derivative, inverseCmd);
-    }
-  }
-
-  /** ワークスペースへのノードの追加を表すコマンド. */
-  private static class AddRootNodeCmd implements SubOperation {
-
-    /** ワークスペース直下に追加したノード. */
-    private final BhNode node;
-
-    public AddRootNodeCmd(BhNode node) {
-      this.node = node;
-    }
-
-    @Override
-    public void doInverseOperation(UserOperation inverseCmd) {
-      Workspace ws = node.getWorkspace();
-      if (ws != null) {
-        ws.specifyNodeAsNotRoot(node, inverseCmd);
-      }
-    }
-  }
-
-  /** ワークスペースからのノードの削除を表すコマンド. */
-  private static class RemoveRootNodeCmd implements SubOperation {
-
-    /** ワークスペース直下から削除したノード. */
-    private final BhNode node;
-    /** ノードを削除したワークスペース. */
-    private final Workspace ws;
-
-    public RemoveRootNodeCmd(BhNode node, Workspace ws) {
-      this.node = node;
-      this.ws = ws;
-    }
-
-    @Override
-    public void doInverseOperation(UserOperation inverseCmd) {
-      ws.specifyNodeAsRoot(node, inverseCmd);
     }
   }
 
@@ -474,7 +429,7 @@ public class UserOperation {
           && rect.getUserData() instanceof BhNodeView view
           && view.getModel().isPresent()) {
         Vec2D pos = view.getPositionManager().getPosOnWorkspace();
-        view.getPositionManager().setPosOnWorkspace(pos.x, pos.y);
+        view.getPositionManager().setTreePosOnWorkspace(pos.x, pos.y);
       }
     }
   }
@@ -545,40 +500,40 @@ public class UserOperation {
   }
 
   /** ワークスペースへのノードの追加を表すコマンド. */
-  private static class AddToWorkspaceCmd implements SubOperation {
+  private static class AddNodeTreeToWorkspaceCmd implements SubOperation {
 
-    /** ワークスペースに追加するノード. */
-    private final BhNode node;
-    /** {@link #node} を追加するワークスペース. */
+    /** ワークスペースに追加するノードツリーのルートノード. */
+    private final BhNode root;
+    /** {@link #root} 以下のノードを削除するワークスペース. */
     private final Workspace ws;
 
-    public AddToWorkspaceCmd(BhNode node, Workspace ws) {
-      this.node = node;
+    public AddNodeTreeToWorkspaceCmd(BhNode node, Workspace ws) {
+      this.root = node;
       this.ws = ws;
     }
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      ws.removeNode(node, inverseCmd);
+      ws.removeNodeTree(root, inverseCmd);
     }
   }
 
   /** ワークスペースからのノードの削除を表すコマンド. */
-  private static class RemoveFromWorkspaceCmd implements SubOperation {
+  private static class RemoveNodeTreeFromWorkspaceCmd implements SubOperation {
 
-    /** ワークスペースから削除するノード. */
-    private final BhNode node;
-    /** {@link #node} を削除するワークスペース. */
+    /** ワークスペースから削除するノードツリーのルートノード. */
+    private final BhNode root;
+    /** {@link #root} 以下のノードを削除するワークスペース. */
     private final Workspace ws;
 
-    public RemoveFromWorkspaceCmd(BhNode node, Workspace ws) {
-      this.node = node;
+    public RemoveNodeTreeFromWorkspaceCmd(BhNode node, Workspace ws) {
+      this.root = node;
       this.ws = ws;
     }
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      ws.addNode(node, inverseCmd);
+      ws.addNodeTree(root, inverseCmd);
     }
   }
 
@@ -737,7 +692,7 @@ public class UserOperation {
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      Parent parent = view.getParent();
+      Parent parent = view.getTreeManager().getParentGuiComponent();
       view.getTreeManager().removeFromGuiTree();
       inverseCmd.pushCmdOfRemoveFromGuiTree(view, parent);
     }
@@ -758,8 +713,13 @@ public class UserOperation {
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      view.getTreeManager().addToGuiTree(parent);
-      inverseCmd.pushCmdOfAddToGuiTree(view);
+      if (parent instanceof Group group) {
+        view.getTreeManager().addToGuiTree(group);  
+        inverseCmd.pushCmdOfAddToGuiTree(view);
+      } else if (parent instanceof Pane pane) {
+        view.getTreeManager().addToGuiTree(pane);  
+        inverseCmd.pushCmdOfAddToGuiTree(view);
+      }
     }
   }
 
@@ -840,6 +800,25 @@ public class UserOperation {
     public void doInverseOperation(UserOperation inverseCmd) {
       wss.addNodeToCutList(removed, inverseCmd);
       inverseCmd.pushCmdOfAddNodeToCutList(wss, removed);
+    }
+  }
+
+  /** ノードが属するワークスペースを変更する操作を表すコマンド. */
+  private static class SetWorkspaceCmd implements SubOperation {
+
+    /** {@link #node} が属していた変更前のワークスペース. */
+    private final Workspace oldWs;
+    /** ワークスペースが変更されたノード. */
+    private final BhNode node;
+
+    public SetWorkspaceCmd(Workspace oldWs, BhNode node) {
+      this.oldWs = oldWs;
+      this.node = node;
+    }
+
+    @Override
+    public void doInverseOperation(UserOperation inverseCmd) {
+      node.setWorkspace(oldWs, inverseCmd);
     }
   }
 }

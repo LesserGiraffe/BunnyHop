@@ -38,19 +38,23 @@ public class CallbackInvoker implements NodeViewProcessor {
   /** 外部ノードのみ巡る場合 true. */
   private final boolean visitOnlyOuter;
   /** 子要素を走査してからコールバック関数を呼ぶ場合 true. */
-  private final boolean callAfterSearch;
+  private final boolean depthFirst;
+  /** グループのみを巡る場合 true. */
+  private final boolean visitOnlyGroup;
 
   /** コンストラクタ. */
   private CallbackInvoker(
       Consumer<BhNodeView> callback,
       Consumer<BhNodeViewGroup> callbackForGroup,
       boolean visitOnlyOuter,
-      boolean callAfterSearch) {
+      boolean visitOnlyGroup,
+      boolean depthFirst) {
 
     this.callback = callback;
     this.callbackForGroup = callbackForGroup;
     this.visitOnlyOuter = visitOnlyOuter;
-    this.callAfterSearch = callAfterSearch;
+    this.visitOnlyGroup = visitOnlyGroup;
+    this.depthFirst = depthFirst;
   }
 
   /**
@@ -58,11 +62,22 @@ public class CallbackInvoker implements NodeViewProcessor {
    *
    * @param callback 呼び出すコールバック関数
    * @param nodeView これ以下のノードビューに対して, callback を呼び出す
-   * @param callAfterSearch 子要素を走査してから {@code callback} を呼ぶ場合 true.
    */
   public static void invoke(
-      Consumer<BhNodeView> callback, BhNodeView nodeView, boolean callAfterSearch) {
-    nodeView.accept(new CallbackInvoker(callback, g -> {}, false, callAfterSearch));
+      Consumer<BhNodeView> callback, BhNodeView nodeView) {
+    nodeView.accept(new CallbackInvoker(callback, g -> {}, false, false, false));
+  }
+
+  /**
+   * コールバック関数を呼び出す.
+   *
+   * @param callback 呼び出すコールバック関数
+   * @param nodeView これ以下のノードビューに対して, callback を呼び出す
+   * @param depthFirst 子要素を走査してから {@code callback} を呼ぶ場合 true.
+   */
+  public static void invoke(
+      Consumer<BhNodeView> callback, BhNodeView nodeView, boolean depthFirst) {
+    nodeView.accept(new CallbackInvoker(callback, g -> {}, false, false, depthFirst));
   }
 
   /**
@@ -71,16 +86,32 @@ public class CallbackInvoker implements NodeViewProcessor {
    * @param callbackForNode ノードビューに対して呼び出すコールバック関数
    * @param callbackForGroup ノードビューグループ呼び出すコールバック関数
    * @param nodeView これ以下のノードビューに対して, callback を呼び出す
-   * @param callAfterSearch 子要素を走査してから {@code callback} を呼ぶ場合 true.
+   */
+  public static void invoke(
+      Consumer<BhNodeView> callbackForNode,
+      Consumer<BhNodeViewGroup> callbackForGroup,
+      BhNodeView nodeView) {
+
+    nodeView.accept(
+        new CallbackInvoker(callbackForNode, callbackForGroup, false, false, false));
+  }
+
+  /**
+   * コールバック関数を呼び出す.
+   *
+   * @param callbackForNode ノードビューに対して呼び出すコールバック関数
+   * @param callbackForGroup ノードビューグループ呼び出すコールバック関数
+   * @param nodeView これ以下のノードビューに対して, callback を呼び出す
+   * @param depthFirst 子要素を走査してから {@code callback} を呼ぶ場合 true.
    */
   public static void invoke(
       Consumer<BhNodeView> callbackForNode,
       Consumer<BhNodeViewGroup> callbackForGroup,
       BhNodeView nodeView,
-      boolean callAfterSearch) {
+      boolean depthFirst) {
 
     nodeView.accept(
-        new CallbackInvoker(callbackForNode, callbackForGroup, false, callAfterSearch));
+        new CallbackInvoker(callbackForNode, callbackForGroup, false, false, depthFirst));
   }
 
   /**
@@ -88,35 +119,47 @@ public class CallbackInvoker implements NodeViewProcessor {
    *
    * @param callback 呼び出すコールバック関数
    * @param nodeView このノードから外部ノードのみを経由しながらコールバック関数を呼び出す.
-   * @param callAfterSearch 子要素を走査してから {@code callback} を呼ぶ場合 true.
    */
   public static void invokeForOuters(
-      Consumer<BhNodeView> callback, BhNodeView nodeView, boolean callAfterSearch) {
-    nodeView.accept(new CallbackInvoker(callback, g -> {}, true, callAfterSearch));
+      Consumer<BhNodeView> callback, BhNodeView nodeView) {
+    nodeView.accept(new CallbackInvoker(callback, g -> {}, true, false, false));
+  }
+
+  /**
+   * 外部ノードのみを経由しつつコールバック関数を呼び出す.
+   *
+   * @param callback 呼び出すコールバック関数
+   * @param nodeView このノードから他のノードを辿らずに辿れる {@linik BhNodeViewGroup} を経由しながら
+   *                 コールバック関数を呼び出す.
+   */
+  public static void invokeForGroups(Consumer<BhNodeViewGroup> callback, BhNodeView nodeView) {
+    nodeView.accept(new CallbackInvoker(n -> {}, callback, false, true, false));
   }
 
   @Override
   public void visit(BhNodeViewGroup group) {
-    if (!callAfterSearch) {
+    if (!depthFirst) {
       callbackForGroup.accept(group);
     }
-    group.sendToChildNode(this);
+    if (!visitOnlyGroup) {
+      group.sendToChildNode(this);
+    }
     group.sendToSubGroupList(this);
-    if (callAfterSearch) {
+    if (depthFirst) {
       callbackForGroup.accept(group);
     }
   }
 
   @Override
   public void visit(ConnectiveNodeView view) {
-    if (!callAfterSearch) {
+    if (!depthFirst && !visitOnlyGroup) {
       callback.accept(view);
     }
     if (!visitOnlyOuter) {
       view.sendToInnerGroup(this);
     }
     view.sendToOuterGroup(this);
-    if (callAfterSearch) {
+    if (depthFirst && !visitOnlyGroup) {
       callback.accept(view);
     }
   }

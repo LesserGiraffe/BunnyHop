@@ -137,14 +137,24 @@ public class Connector extends SyntaxSymbol {
    */
   public final void connectNode(BhNode node, UserOperation userOpe) {
     Objects.requireNonNull(node);
-    if (userOpe != null) {
-      userOpe.pushCmdOfConnectNode(connectedNode, this);
-    }
     if (connectedNode != null) {
-      connectedNode.setParentConnector(null);  //古いノードから親を消す
+      connectedNode.setParentConnector(null);
     }
+    BhNode oldNode = connectedNode;
     connectedNode = node;
-    node.setParentConnector(this);  //新しいノードの親をセット
+    node.setParentConnector(this);
+    // コネクタの接続の更新 -> ワークスペースへの登録 -> ノード入れ替え時のイベントハンドラ呼び出し
+    // の順に行う必要があるので, ここでワークスペースへの登録を行う.
+    if (oldNode != null && oldNode.getWorkspace() != null) {
+      oldNode.getWorkspace().addNodeTree(node, userOpe);
+    }
+    // redo 操作の定義されたこのメソッドからイベントハンドラを呼ぶ
+    if (oldNode != null) {
+      oldNode.getEventManager().invokeOnNodeReplaced(node, userOpe);
+    }
+    if (userOpe != null) {
+      userOpe.pushCmdOfConnectNode(oldNode, this);
+    }
   }
 
   /**

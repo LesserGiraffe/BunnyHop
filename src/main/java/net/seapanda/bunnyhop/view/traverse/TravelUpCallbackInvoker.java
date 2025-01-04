@@ -32,7 +32,7 @@ public class TravelUpCallbackInvoker {
   /** ノードグループに対して呼び出すコールバック関数. */
   private final Consumer<BhNodeViewGroup> callbackForGroup;
   /** 親要素の走査後にコールバック関数を呼び出すかどうか. */
-  private final boolean callAfterSearch;
+  private final boolean depthFirst;
 
   /**
    * コールバック関数を呼び出す.
@@ -40,17 +40,30 @@ public class TravelUpCallbackInvoker {
    * @param callbackForNode ノードビューに対して呼び出すコールバック関数
    * @param callbackForGroup ノードビューグループ呼び出すコールバック関数
    * @param nodeView これ以上のノードビューに対して callback を呼び出す
-   * @param callAfterSearch 親要素を走査してから {@code callback} を呼ぶ場合 true.
+   */
+  public static void invoke(
+      Consumer<BhNodeView> callbackForNode,
+      Consumer<BhNodeViewGroup> callbackForGroup,
+      BhNodeView nodeView) {
+    new TravelUpCallbackInvoker(callbackForNode, callbackForGroup, nodeView, false)
+        .visit(nodeView);
+  }
+
+  /**
+   * コールバック関数を呼び出す.
+   *
+   * @param callbackForNode ノードビューに対して呼び出すコールバック関数
+   * @param callbackForGroup ノードビューグループ呼び出すコールバック関数
+   * @param nodeView これ以上のノードビューに対して callback を呼び出す
+   * @param depthFirst 親要素を走査してから {@code callback} を呼ぶ場合 true.
    */
   public static void invoke(
       Consumer<BhNodeView> callbackForNode,
       Consumer<BhNodeViewGroup> callbackForGroup,
       BhNodeView nodeView,
-      boolean callAfterSearch) {
-
-    var invoker =
-        new TravelUpCallbackInvoker(callbackForNode, callbackForGroup, nodeView, callAfterSearch);
-    invoker.visit(nodeView);
+      boolean depthFirst) {
+    new TravelUpCallbackInvoker(callbackForNode, callbackForGroup, nodeView, depthFirst)
+        .visit(nodeView);
   }
 
   /**
@@ -58,40 +71,52 @@ public class TravelUpCallbackInvoker {
    *
    * @param callback ノードビューに対して呼び出すコールバック関数
    * @param nodeView これ以上のノードビューに対して callback を呼び出す
-   * @param callAfterSearch 親要素を走査してから {@code callback} を呼ぶ場合 true.
    */
   public static void invoke(
-      Consumer<BhNodeView> callback, BhNodeView nodeView, boolean callAfterSearch) {
-    var invoker = new TravelUpCallbackInvoker(callback, g -> {}, nodeView, callAfterSearch);
-    invoker.visit(nodeView);
+      Consumer<BhNodeView> callback, BhNodeView nodeView) {
+    new TravelUpCallbackInvoker(callback, g -> {}, nodeView, false)
+        .visit(nodeView);
+  }
+
+  /**
+   * コールバック関数を呼び出す.
+   *
+   * @param callback ノードビューに対して呼び出すコールバック関数
+   * @param nodeView これ以上のノードビューに対して callback を呼び出す
+   * @param depthFirst 親要素を走査してから {@code callback} を呼ぶ場合 true.
+   */
+  public static void invoke(
+      Consumer<BhNodeView> callback, BhNodeView nodeView, boolean depthFirst) {
+    new TravelUpCallbackInvoker(callback, g -> {}, nodeView, depthFirst)
+        .visit(nodeView);
   }
 
   private TravelUpCallbackInvoker(
       Consumer<BhNodeView> callbackForNode,
       Consumer<BhNodeViewGroup> callbackForGroup,
       BhNodeView nodeView,
-      boolean callAfterSearch) {
+      boolean depthFirst) {
 
     this.callbackForNode = callbackForNode;
     this.callbackForGroup = callbackForGroup;
-    this.callAfterSearch = callAfterSearch;
+    this.depthFirst = depthFirst;
   }
 
   private void visit(BhNodeView view) {
-    if (!callAfterSearch) {
+    if (!depthFirst) {
       callbackForNode.accept(view);
     }
     BhNodeViewGroup parentGroup = view.getTreeManager().getParentGroup();
     if (parentGroup != null) {
       visit(parentGroup);
     }
-    if (callAfterSearch) {
+    if (depthFirst) {
       callbackForNode.accept(view);
     }
   }
 
   private void visit(BhNodeViewGroup group) {
-    if (!callAfterSearch) {
+    if (!depthFirst) {
       callbackForGroup.accept(group);
     }
     BhNodeViewGroup parentGroup = group.getParentGroup();
@@ -100,7 +125,7 @@ public class TravelUpCallbackInvoker {
     } else {
       visit(group.getParentView());
     }
-    if (callAfterSearch) {
+    if (depthFirst) {
       callbackForGroup.accept(group);
     }
   }

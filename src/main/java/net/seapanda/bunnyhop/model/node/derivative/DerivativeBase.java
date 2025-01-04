@@ -16,7 +16,6 @@
 
 package net.seapanda.bunnyhop.model.node.derivative;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -131,7 +130,7 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
   }
 
   @Override
-  public Collection<T> getDerivatives() {
+  public Set<T> getDerivatives() {
     return new HashSet<>(derivatives);
   }
 
@@ -169,7 +168,7 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
     if (getState() != BhNode.State.CHILD) {
       return false;
     }
-    if (findRootNode().getState() != BhNode.State.ROOT_ON_WS) {
+    if (findRootNode().getState() != BhNode.State.ROOT) {
       return false;
     }
     // 同じ tree に含まれている場合置き換え不可

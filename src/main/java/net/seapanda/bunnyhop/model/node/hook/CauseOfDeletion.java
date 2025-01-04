@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.node.event;
+package net.seapanda.bunnyhop.model.node.hook;
 
 /**
  * ノードの削除原因.

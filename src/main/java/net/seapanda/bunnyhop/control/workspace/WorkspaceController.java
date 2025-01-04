@@ -72,6 +72,12 @@ public class WorkspaceController {
     view.addOnMousePressed(mouseEvent -> onMousePressed(mouseEvent, mousePressedPos));
     view.addOnMouseDragged(mouseEvent -> onMouseDragged(mouseEvent, mousePressedPos));
     view.addOnMouseReleased(mouseEvent -> onMouseReleased(mousePressedPos, mouseEvent));
+    model.getEventManager().addOnNodeAdded((ws, node, userOpe) -> addNodeView(node));
+    model.getEventManager().addOnNodeRemoved((ws, node, userOpe) -> removeNodeView(node));
+    model.getEventManager().addOnNodeTurnedIntoRoot(
+        (ws, node, userOpe) -> speficyNodeViewAsRoot(node));
+    model.getEventManager().addOnNodeTurnedIntoNotRoot(
+        (ws, node, userOpe) -> speficyNodeViewAsNotRoot(node));
   }
 
   /** 
@@ -83,14 +89,14 @@ public class WorkspaceController {
   private void onMousePressed(MouseEvent mouseEvent, Vec2D mousePressedPos) {
     // ワークスペースをクリックしたときにテキストフィールドのカーソルが消えなくなるので, マウスイベントを consume しない.
     if (!mouseEvent.isShiftDown()) {
-      BhService.getAppRoot().getNodeSelectionViewProxy().hideAll();
+      BhService.appRoot().getNodeSelectionViewProxy().hideAll();
       UserOperation userOpe = new UserOperation();
       for (BhNode selectedNode : model.getSelectedNodes()) {
         selectedNode.deselect(userOpe);
       }
       BhService.undoRedoAgent().pushUndoCommand(userOpe);
     }
-    BhNodeView.LookManager.removeShadow(model);
+    view.getRootNodeViews().forEach(nodeView -> nodeView.getLookManager().hideShadow());
     mousePressedPos.x = mouseEvent.getX();
     mousePressedPos.y = mouseEvent.getY();
     view.showSelectionRectangle(mousePressedPos, mousePressedPos);
@@ -178,6 +184,38 @@ public class WorkspaceController {
     }
   }
 
+  /** {@code node} のノードビューを {@link #view} に追加する. */
+  private void addNodeView(BhNode node) {
+    BhNodeView nodeView = node.getViewProxy().getView();
+    if (nodeView != null) {
+      view.addNodeView(nodeView);
+    }
+  }
+
+  /** {@code node} のノードビューを {@link #view} から削除する. */
+  private void removeNodeView(BhNode node) {
+    BhNodeView nodeView = node.getViewProxy().getView();
+    if (nodeView != null) {
+      view.removeNodeView(nodeView);
+    }
+  }
+
+  /** {@code node} をルートノードとしてワークスペースビューに設定する. */
+  private void speficyNodeViewAsRoot(BhNode node) {
+    BhNodeView nodeView = node.getViewProxy().getView();
+    if (nodeView != null) {
+      view.specifyNodeViewAsRoot(nodeView);
+    }
+  }
+
+  /** {@code node} を非ルートノードとしてワークスペースビューに設定する. */
+  private void speficyNodeViewAsNotRoot(BhNode node) {
+    BhNodeView nodeView = node.getViewProxy().getView();
+    if (nodeView != null) {
+      view.specifyNodeViewAsNotRoot(nodeView);
+    }
+  }
+
   //デバッグ用
   private void printDebugInfo() {
     //4 分木登録ノード数表示
@@ -205,38 +243,6 @@ public class WorkspaceController {
     @Override
     public WorkspaceView getView() {
       return view;
-    }
-
-    @Override
-    public void notifyNodeSpecifiedAsRoot(BhNode node) {
-      BhNodeView nodeView = node.getViewProxy().getView();
-      if (nodeView != null) {
-        view.specifyNodeViewAsRoot(nodeView);
-      }
-    }
-
-    @Override
-    public void notifyNodeSpecifiedAsNotRoot(BhNode node) {
-      BhNodeView nodeView = node.getViewProxy().getView();
-      if (nodeView != null) {
-        view.specifyNodeViewAsNotRoot(nodeView);
-      }
-    }
-
-    @Override
-    public void notifyNodeAdded(BhNode node) {
-      BhNodeView nodeView = node.getViewProxy().getView();
-      if (nodeView != null) {
-        view.addNodeView(nodeView);
-      }
-    }
-
-    @Override
-    public void notifyNodeRemoved(BhNode node) {
-      BhNodeView nodeView = node.getViewProxy().getView();
-      if (nodeView != null) {
-        view.removeNodeView(nodeView);
-      }
     }
 
     @Override

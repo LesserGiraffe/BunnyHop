@@ -52,7 +52,6 @@ public final class ConnectiveNodeView extends BhNodeView {
     this.model = model;
     innerGroup.buildSubGroup(viewStyle.connective.inner, viewStyle.nodeStyleId);
     outerGroup.buildSubGroup(viewStyle.connective.outer, viewStyle.nodeStyleId);
-    getPositionManager().setOnAbsPosUpdated(this::updateAbsPos);
     getLookManager().addCssClass(BhConstants.Css.CLASS_CONNECTIVE_NODE);
   }
 
@@ -78,39 +77,29 @@ public final class ConnectiveNodeView extends BhNodeView {
     }
   }
 
-  /**
-   * このノード以下のグループの絶対位置を更新する.
-   *
-   * @param posX ノードの絶対位置 X
-   * @param posY ノードの絶対位置 Y
-   */
-  private void updateAbsPos(double posX, double posY) {
+  @Override
+  protected void updatePosOnWorkspace(double posX, double posY) {
+    getPositionManager().setPosOnWorkspace(posX, posY);
+
     //内部ノード絶対位置更新
     Vec2D relativePos = innerGroup.getRelativePosFromParent();
-    innerGroup.updateAbsPos(posX + relativePos.x, posY + relativePos.y);
+    innerGroup.updateTreePosOnWorkspace(posX + relativePos.x, posY + relativePos.y);
 
     //外部ノード絶対位置更新
     Vec2D bodySize = getRegionManager().getBodySize(false);
     //外部ノードが右に繋がる
     if (viewStyle.connectorPos == ConnectorPos.LEFT) {
-      outerGroup.updateAbsPos(posX + bodySize.x, posY);
+      outerGroup.updateTreePosOnWorkspace(posX + bodySize.x, posY);
     //外部ノードが下に繋がる
     } else {
-      outerGroup.updateAbsPos(posX, posY + bodySize.y);
+      outerGroup.updateTreePosOnWorkspace(posX, posY + bodySize.y);
     }
-  }
-
-  @Override
-  protected void arrangeAndResize() {
-    getLookManager().updatePolygonShape();
-    updateChildRelativePos();
   }
 
   @Override
   protected Vec2D getBodySize(boolean includeCnctr) {
     Vec2D innerSize = innerGroup.getSize();
     Vec2D cnctrSize = viewStyle.getConnectorSize(isFixed());
-
     double bodyWidth = viewStyle.paddingLeft + innerSize.x + viewStyle.paddingRight;
     if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.LEFT)) {
       bodyWidth += cnctrSize.x;
@@ -124,7 +113,6 @@ public final class ConnectiveNodeView extends BhNodeView {
 
   @Override
   protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
-
     Vec2D bodySize = getBodySize(includeCnctr);
     Vec2D outerSize = outerGroup.getSize();
     double totalWidth = bodySize.x;
@@ -143,8 +131,10 @@ public final class ConnectiveNodeView extends BhNodeView {
   }
 
   /** ノードの親からの相対位置を更新する. */
-  private void updateChildRelativePos() {
+  @Override
+  protected void updateChildRelativePos() {
     innerGroup.setRelativePosFromParent(viewStyle.paddingLeft, viewStyle.paddingTop);
+    innerGroup.updateChildRelativePos();
     Vec2D bodySize = getRegionManager().getBodySize(false);
     // 外部ノードが右に繋がる
     if (viewStyle.connectorPos == ConnectorPos.LEFT) {
@@ -153,6 +143,7 @@ public final class ConnectiveNodeView extends BhNodeView {
     } else {                       
       outerGroup.setRelativePosFromParent(0.0, bodySize.y);
     }
+    outerGroup.updateChildRelativePos();
   }
 
   /** {@code visitor} を内部ノードを管理するグループに渡す. */

@@ -9,7 +9,7 @@
     'bhNodePlacer': bhNodePlacer
   };
 
-  // 入れ替わってワークスペースに移ったノードを末尾に再接続する
+  // newNode の外部末尾ノードに oldNode を接続できる場合, 接続する.
   function appendRemovedNode(newNode, oldNode, isSpecifiedDirectly, bhUserOpe) {
     let outerEnd = newNode.findOuterNode(-1);
     if (outerEnd.canBeReplacedWith(oldNode)

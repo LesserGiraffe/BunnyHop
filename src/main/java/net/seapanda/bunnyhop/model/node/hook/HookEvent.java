@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.node.event;
+package net.seapanda.bunnyhop.model.node.hook;
 
 /**
- * ノードに対して登録されたイベントの種類を表す列挙型.
+ * ノードに対して登録されたフック処理の種類を表す列挙型.
  *
  * @author K.Koike
  */
-public enum BhNodeEvent {
+public enum HookEvent {
 
   /** 子ノードからワークスペースに移されたときに発行されるイベント. */
   ON_MOVED_FROM_CHILD_TO_WS,

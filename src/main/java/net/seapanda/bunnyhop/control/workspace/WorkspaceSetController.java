@@ -30,7 +30,6 @@ import net.seapanda.bunnyhop.control.DebugBoardController;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
-import net.seapanda.bunnyhop.view.proxy.WorkspaceSetViewProxy;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
@@ -58,7 +57,6 @@ public class WorkspaceSetController {
    */
   public void initialize(WorkspaceSet wss) {
     model = wss;
-    wss.setViewProxy(new WorkspaceSetViewProxyImpl());
     setEventHandlers();
     workspaceSetViewBase.setDividerPositions(BhConstants.LnF.DEFAULT_VERTICAL_DIV_POS);
   }
@@ -67,6 +65,8 @@ public class WorkspaceSetController {
   private void setEventHandlers() {
     setMessageAreaEvenHandlers();
     setTabPaneEventHandlers();
+    model.getEventManager().addOnWorkspaceAdded((wss, ws, userOpe) -> addWorkspaceView(ws));
+    model.getEventManager().addOnWorkspaceRemoved((wss, ws, userOpe) -> removeWorkspaceView(ws));
   }
 
   /** 現在選択中のワークスペースを設定する. */
@@ -172,30 +172,27 @@ public class WorkspaceSetController {
     return trashboxController;
   }
 
-  private class WorkspaceSetViewProxyImpl implements WorkspaceSetViewProxy {
-    
-    @Override
-    public void notifyWorkspaceAdded(Workspace ws) {
-      WorkspaceView wsView = ws.getViewProxy().getView();
-      if (wsView == null) {
-        return;
-      }
-      workspaceSetTab.getTabs().add(wsView);
-      workspaceSetTab.getSelectionModel().select(wsView);
-      // ここで REORDER にしないと, undo でタブを戻した時, タブドラッグ時に例外が発生する
-      workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
-      wsView.addOnMousePressed(event -> debugBoardController.removeMarksIn(ws));
+  /** {@code ws} のワークスペースビューをワークスペースセットのビューに追加する. */
+  private void addWorkspaceView(Workspace ws) {
+    WorkspaceView wsView = ws.getViewProxy().getView();
+    if (wsView == null) {
+      return;
     }
+    workspaceSetTab.getTabs().add(wsView);
+    workspaceSetTab.getSelectionModel().select(wsView);
+    // ここで REORDER にしないと, undo でタブを戻した時, タブドラッグ時に例外が発生する
+    workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
+    wsView.addOnMousePressed(event -> debugBoardController.removeMarksIn(ws));
+  }
 
-    @Override
-    public void notifyWorkspaceRemoved(Workspace ws) {
-      WorkspaceView wsView = ws.getViewProxy().getView();
-      if (wsView == null) {
-        return;
-      }
-      workspaceSetTab.getTabs().remove(wsView);
-      // ここで REORDER にしないと, タブを消した後でタブドラッグすると例外が発生する
-      workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
+  /** {@code ws} のワークスペースビューをワークスペースセットのビューから削除する. */
+  private void removeWorkspaceView(Workspace ws) {
+    WorkspaceView wsView = ws.getViewProxy().getView();
+    if (wsView == null) {
+      return;
     }
+    workspaceSetTab.getTabs().remove(wsView);
+    // ここで REORDER にしないと, タブを消した後でタブドラッグすると例外が発生する
+    workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
   }
 }

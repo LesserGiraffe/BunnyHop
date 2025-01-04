@@ -31,7 +31,6 @@ import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
 import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.model.traverse.CallbackInvoker.CallbackRegistry;
 import net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
-import net.seapanda.bunnyhop.model.traverse.TextPrompter;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.TreeNode;
@@ -142,13 +141,13 @@ public final class BhNodeCategoryListView {
     UserOperation userOpe = new UserOperation();
     BhNode node = BhService.bhNodeFactory().create(bhNodeId, userOpe);
     NodeMvcBuilder.buildTemplate(node);  //MVC構築
-    TextPrompter.prompt(node);
-    CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
-        .setForAllNodes(bhNode -> bhNode.getEventAgent().execOnTemplateCreated(userOpe));
-    CallbackInvoker.invoke(registry, node);
-    // BhNode テンプレートリストパネルにBhNodeテンプレートを追加
+    // ノード選択ビューにテンプレートノードを追加
     model.getAppRoot().getNodeSelectionViewProxy().addNodeTree(
         category.categoryName, node, userOpe);
+    // ノード選択ビューに追加してからフック処理を呼ぶ
+    CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
+        .setForAllNodes(bhNode -> bhNode.getHookAgent().execOnTemplateCreated(userOpe));
+    CallbackInvoker.invoke(registry, node);
   }
 
   /** {@code category} に対応する {@link BhNodeSelectionView} オブジェクトを作成する. */

@@ -40,7 +40,7 @@ import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.ViewUtil;
-import net.seapanda.bunnyhop.view.node.BhNodeView.ViewRegionManager.BodyRange;
+import net.seapanda.bunnyhop.view.node.BhNodeView.RegionManager.BodyRange;
 
 /**
  * 複数ノードを同時に移動させるマルチノードシフタのビュー.

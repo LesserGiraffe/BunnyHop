@@ -16,10 +16,10 @@
 
 package net.seapanda.bunnyhop.model.traverse;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
@@ -46,7 +46,7 @@ public class DerivativeReplacer implements BhNodeWalker {
   /** このノードの派生ノードが置き換えられる可能性がある. */
   private BhNode orgOfOldDervs;
   /** 入れ替わった古い派生ノードと新しい派生ノードのペアのリスト. */
-  private List<Swapped> swappedNodes = new ArrayList<>();
+  private Set<Swapped> swappedNodes = new HashSet<>();
 
   /**
    * <pre>
@@ -58,7 +58,7 @@ public class DerivativeReplacer implements BhNodeWalker {
    * D(i) の子コネクタの中で r が指定してあるものがあれば, それを D_r(i) とする.  (i = 0, 1, 2, ..., m - 1)
    * D_r(i) の子ノードを C_r(i) とする.
    * 
-   * C_r(i) の子ノードを q と入れ替える. (q は入れ替える個数分作成する)
+   * C_r(i) を q と入れ替える. (q は入れ替える個数分作成する)
    * q が存在しない場合, C_r(i) ∈ E であったなら, その C_r(i) を取り除く.
    * </pre>
    *
@@ -66,7 +66,7 @@ public class DerivativeReplacer implements BhNodeWalker {
    * @param orgOfOldDervs このノードの派生ノードを取り除くまたは入れ替える.
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public static List<Swapped> replace(
+  public static Set<Swapped> replace(
       BhNode orgOfNewDervs, BhNode orgOfOldDervs, UserOperation userOpe) {
     var replacer = new DerivativeReplacer(orgOfOldDervs, userOpe);
     orgOfNewDervs.accept(replacer);

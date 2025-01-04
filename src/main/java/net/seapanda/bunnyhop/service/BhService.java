@@ -118,7 +118,7 @@ public class BhService {
     return textDatabase;
   }
 
-  public static AppRoot getAppRoot() {
+  public static AppRoot appRoot() {
     return appRoot;
   }
 

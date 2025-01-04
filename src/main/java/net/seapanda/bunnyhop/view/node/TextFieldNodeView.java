@@ -24,6 +24,7 @@ import javafx.event.Event;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
@@ -56,7 +57,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
       throws ViewInitializationException {
     super(model, viewStyle);
     this.model = model;
-    getTreeManager().addChild(textField);
+    addComponent(textField);
     textField.addEventFilter(MouseEvent.ANY, this::propagateEvent);
     textField.focusedProperty().addListener(
         (ov, oldVal, newVal) -> Platform.runLater(() -> selectText()));
@@ -92,10 +93,10 @@ public final class TextFieldNodeView extends TextInputNodeView {
     textField.setTranslateX(viewStyle.paddingLeft);
     textField.setTranslateY(viewStyle.paddingTop);
     textField.getStyleClass().add(viewStyle.textField.cssClass);
-    textField.heightProperty().addListener(observable -> notifySizeChange());
-    textField.widthProperty().addListener(observable -> notifySizeChange());
-    textField.setMaxWidth(USE_PREF_SIZE);
-    textField.setMinWidth(USE_PREF_SIZE);
+    textField.heightProperty().addListener(observable -> notifySizeChanged());
+    textField.widthProperty().addListener(observable -> notifySizeChanged());
+    textField.setMaxWidth(Region.USE_PREF_SIZE);
+    textField.setMinWidth(Region.USE_PREF_SIZE);
     setEditable(viewStyle.textField.editable);
     getLookManager().addCssClass(BhConstants.Css.CLASS_TEXT_FIELD_NODE);
   }
@@ -144,8 +145,8 @@ public final class TextFieldNodeView extends TextInputNodeView {
   }
 
   @Override
-  protected void arrangeAndResize() {
-    getLookManager().updatePolygonShape();
+  protected void updatePosOnWorkspace(double posX, double posY) {
+    getPositionManager().setPosOnWorkspace(posX, posY);
   }
 
   @Override
@@ -167,6 +168,9 @@ public final class TextFieldNodeView extends TextInputNodeView {
   protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
     return getBodySize(includeCnctr);
   }
+  
+  @Override
+  protected void updateChildRelativePos() {}
 
   @Override
   protected TextInputControl getTextInputControl() {

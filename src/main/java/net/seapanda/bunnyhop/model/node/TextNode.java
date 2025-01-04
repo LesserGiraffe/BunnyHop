@@ -27,7 +27,7 @@ import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
 import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
-import net.seapanda.bunnyhop.model.node.event.BhNodeEvent;
+import net.seapanda.bunnyhop.model.node.hook.HookEvent;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
@@ -60,11 +60,11 @@ public class TextNode extends DerivativeBase<TextNode> {
   public TextNode(
       Map<DerivationId, BhNodeId> derivationToDerivative, BhNodeAttributes attributes) {
     super(attributes, derivationToDerivative);
-    registerScriptName(BhNodeEvent.ON_TEXT_FORMATTING, attributes.onTextFormatting());
+    registerScriptName(HookEvent.ON_TEXT_FORMATTING, attributes.onTextFormatting());
     registerScriptName(
-        BhNodeEvent.ON_TEXT_CHECKING, attributes.onTextChecking());
+        HookEvent.ON_TEXT_CHECKING, attributes.onTextChecking());
     registerScriptName(
-        BhNodeEvent.ON_VIEW_OPTIONS_CREATING, attributes.onTextOptionsCreating());
+        HookEvent.ON_VIEW_OPTIONS_CREATING, attributes.onTextOptionsCreating());
     text = attributes.initialText();
   }
 
@@ -122,7 +122,7 @@ public class TextNode extends DerivativeBase<TextNode> {
    * @return 引数の文字列がセット可能だった
    */
   public boolean isTextAcceptable(String text) {
-    Optional<String> scriptName = getScriptName(BhNodeEvent.ON_TEXT_CHECKING);
+    Optional<String> scriptName = getScriptName(HookEvent.ON_TEXT_CHECKING);
     Script checker = scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (checker == null) {
       return true;
@@ -131,7 +131,7 @@ public class TextNode extends DerivativeBase<TextNode> {
         put(BhConstants.JsIdName.BH_TEXT, text);
       }};
     Context cx = Context.enter();
-    ScriptableObject scope = getEventAgent().createScriptScope(cx, nameToObj);
+    ScriptableObject scope = getHookAgent().createScriptScope(cx, nameToObj);
     try {
       return (Boolean) checker.exec(cx, scope);
     } catch (Exception e) {
@@ -152,7 +152,7 @@ public class TextNode extends DerivativeBase<TextNode> {
    *         v2 -> 整形した部分のテキスト.
    */
   public Pair<Boolean, String> formatText(String text, String addedText) {
-    Optional<String> scriptName = getScriptName(BhNodeEvent.ON_TEXT_FORMATTING);
+    Optional<String> scriptName = getScriptName(HookEvent.ON_TEXT_FORMATTING);
     Script formatter = scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     if (formatter == null) {
       return new Pair<Boolean, String>(false, addedText);
@@ -162,7 +162,7 @@ public class TextNode extends DerivativeBase<TextNode> {
         put(BhConstants.JsIdName.BH_ADDED_TEXT, addedText);
       }};
     Context cx = Context.enter();
-    ScriptableObject scope = getEventAgent().createScriptScope(cx, nameToObj);
+    ScriptableObject scope = getHookAgent().createScriptScope(cx, nameToObj);
     try {
       NativeObject jsObj = (NativeObject) formatter.exec(cx, scope);
       Boolean isEntireTextFormatted =
@@ -186,7 +186,7 @@ public class TextNode extends DerivativeBase<TextNode> {
    *           ... ]
    */
   public List<Pair<String, Object>> getOptions() {
-    Optional<String> scriptName = getScriptName(BhNodeEvent.ON_VIEW_OPTIONS_CREATING);
+    Optional<String> scriptName = getScriptName(HookEvent.ON_VIEW_OPTIONS_CREATING);
     Script creator =
         scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
     var options = new ArrayList<Pair<String, Object>>();
@@ -194,7 +194,7 @@ public class TextNode extends DerivativeBase<TextNode> {
       return options;
     }
     Context cx = Context.enter();
-    ScriptableObject scriptScope = getEventAgent().createScriptScope(cx);
+    ScriptableObject scriptScope = getHookAgent().createScriptScope(cx);
     try {
       List<?> contents = (List<?>) creator.exec(cx, scriptScope);
       for (Object content : contents) {

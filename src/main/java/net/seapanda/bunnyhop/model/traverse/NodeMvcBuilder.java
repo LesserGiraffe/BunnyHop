@@ -67,9 +67,7 @@ public class NodeMvcBuilder implements BhNodeWalker {
     }
     var builder = new NodeMvcBuilder(ControllerType.Default);
     node.accept(builder);
-    if (builder.root != null) {
-      builder.root.getLookManager().arrangeAndResize();
-    }
+    TextPrompter.prompt(node);
     return builder.root;
   }
 
@@ -85,7 +83,7 @@ public class NodeMvcBuilder implements BhNodeWalker {
     }
     var builder = new NodeMvcBuilder(ControllerType.Template);
     node.accept(builder);
-    builder.root.getLookManager().arrangeAndResize();
+    TextPrompter.prompt(node);
     return builder.root;
   }
 

@@ -52,7 +52,7 @@ import net.seapanda.bunnyhop.control.workspace.WorkspaceController;
 import net.seapanda.bunnyhop.model.NodeGraphSnapshot;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
-import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.node.hook.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.service.BhService;
@@ -265,12 +265,12 @@ public class MenuPanelController {
       UserOperation userOpe = new UserOperation();
       var candidates = currentWs.getSelectedNodes();
       var nodesToDelete = candidates.stream()
-          .filter(node -> node.getEventAgent().execOnDeletionRequested(
+          .filter(node -> node.getHookAgent().execOnDeletionRequested(
               candidates, CauseOfDeletion.SELECTED_FOR_DELETION, userOpe))
           .collect(Collectors.toCollection(ArrayList::new));
       List<Swapped> swappedNodes = BhService.bhNodePlacer().deleteNodes(nodesToDelete, userOpe);
       for (var swapped : swappedNodes) {
-        swapped.newNode().findParentNode().getEventAgent().execOnChildReplaced(
+        swapped.newNode().findParentNode().getHookAgent().execOnChildReplaced(
             swapped.oldNode(),
             swapped.newNode(),
             swapped.newNode().getParentConnector(),
@@ -610,16 +610,16 @@ public class MenuPanelController {
   /** ボタンの有効/無効状態を変化させるイベントハンドラを設定する. */
   private void setHandlersToChangeButtonEnable(WorkspaceSet wss) {
     pasteBtn.setDisable(true);
-    wss.addOnCopyNodeAdded(
-        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss), true);
-    wss.addOnCopyNodeRemoved(
-        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss), true);
-    wss.addOnCutNodeAdded(
-        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss), true);
-    wss.addOnCutNodeRemoved(
-        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss), true);
-    wss.addOnCurrentWorkspaceChanged(
-        (oldWs, newWs) -> jumpBtn.setDisable(findNodeToJumpTo(wss).isEmpty()), true);
+    wss.getEventManager().addOnCopyNodeAdded(
+        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss));
+    wss.getEventManager().addOnCopyNodeRemoved(
+        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss));
+    wss.getEventManager().addOnCutNodeAdded(
+        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss));
+    wss.getEventManager().addOnCutNodeRemoved(
+        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss));
+    wss.getEventManager().addOnNodeSelectionStateChanged(
+        (node, isSelected, userOpe) -> jumpBtn.setDisable(findNodeToJumpTo(wss).isEmpty()));
   }
 
   /** ペーストボタンの有効/無効を切り替える. */
@@ -636,8 +636,7 @@ public class MenuPanelController {
    */
   private Optional<BhNode> findNodeToJumpTo(WorkspaceSet wss) {
     Workspace currentWs = wss.getCurrentWorkspace();
-    if (currentWs == null || currentWs.getSelectedNodes().size() != 1) {
-      jumpBtn.setDisable(true);
+    if (currentWs == null || currentWs.getSelectedNodes().size() == 0) {
       return Optional.empty();
     }
     return Optional.ofNullable(currentWs.getSelectedNodes().getFirst().getOriginal());

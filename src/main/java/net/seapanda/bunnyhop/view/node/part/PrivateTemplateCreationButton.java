@@ -30,7 +30,6 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.model.traverse.CallbackInvoker.CallbackRegistry;
 import net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
-import net.seapanda.bunnyhop.model.traverse.TextPrompter;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.undo.UserOperation;
@@ -56,6 +55,15 @@ public final class PrivateTemplateCreationButton extends Button {
   public static Optional<PrivateTemplateCreationButton> create(
       BhNode node, BhNodeViewStyle.Button buttonStyle) {
     try {
+      node.getEventManager().addOnWorkspaceChanged((oldWs, newWs, userOpe) -> {
+        if (newWs == null) {
+          // 変数ノード配置 -> プライベートテンプレート表示 -> undo  で, 
+          // オリジナルノードがワークスペースに存在しない状況で, 派生ノードをワークスペースに配置できてしまうのを防ぐ.
+          // ただし, プライベートテンプレートノードの削除は行わない.
+          BhService.appRoot().getNodeSelectionViewProxy().hideAll();
+        }
+      });
+
       return Optional.of(new PrivateTemplateCreationButton(node, buttonStyle));
     } catch (IOException | ClassCastException e) {
       BhService.msgPrinter().errForDebug(
@@ -85,18 +93,23 @@ public final class PrivateTemplateCreationButton extends Button {
     ModelExclusiveControl.lockForModification();
     try {
       // 現在表示しているプライベートテンプレートを作ったボタンを押下した場合, プライベートテンプレートを閉じる
-      BhNodeSelectionViewProxy selectionViewProxy = 
-          node.getWorkspace().getWorkspaceSet().getAppRoot().getNodeSelectionViewProxy();
+      BhNodeSelectionViewProxy selectionViewProxy = BhService.appRoot().getNodeSelectionViewProxy();
       if (lastClicked.getAndSet(this) == this
           && selectionViewProxy.isShowed(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE)) {
         selectionViewProxy.hideAll();
       } else {
         UserOperation userOpe = new UserOperation();
+        deletePrivateTemplateNodes(userOpe);
+        selectionViewProxy.hideAll();
         String categoryName = BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE;
-        selectionViewProxy.getNodeTrees(categoryName).forEach(
-            templateNode -> BhService.bhNodePlacer().deleteNode(templateNode, userOpe));
-        createPrivateTemplates(node, userOpe).forEach(
-            templateNode -> selectionViewProxy.addNodeTree(categoryName, templateNode, userOpe));
+        SequencedSet<BhNode> templateNodes = createPrivateTemplates(node, userOpe);        
+        for (BhNode templateNode : templateNodes) {
+          selectionViewProxy.addNodeTree(categoryName, templateNode, userOpe);
+          // ノード選択ビューに追加してからフック処理を呼ぶ
+          CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
+              .setForAllNodes(bhNode -> bhNode.getHookAgent().execOnTemplateCreated(userOpe));
+          CallbackInvoker.invoke(registry, templateNode);
+        }
         selectionViewProxy.show(categoryName);
       }
       event.consume();
@@ -113,15 +126,20 @@ public final class PrivateTemplateCreationButton extends Button {
   private static SequencedSet<BhNode> createPrivateTemplates(BhNode node, UserOperation userOpe) {
     var privateTempladeNodes = new LinkedHashSet<BhNode>();
     for (var templateNode : node.genPrivateTemplateNodes(userOpe)) {
-      CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
-          .setForAllNodes(bhNode -> bhNode.getEventAgent().execOnTemplateCreated(userOpe));
-      CallbackInvoker.invoke(registry, templateNode);
       NodeMvcBuilder.buildTemplate(templateNode);
-      TextPrompter.prompt(templateNode);
       privateTempladeNodes.add(templateNode);
     }
     return privateTempladeNodes;
   }
+
+  /** プライベートテンプレートノードを全て消す. */
+  private static void deletePrivateTemplateNodes(UserOperation userOpe) {
+    BhNodeSelectionViewProxy selectionViewProxy = BhService.appRoot().getNodeSelectionViewProxy();
+    String categoryName = BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE;
+    selectionViewProxy.getNodeTrees(categoryName).forEach(
+        templateNode -> BhService.bhNodePlacer().deleteNode(templateNode, userOpe));
+  }
+
 
   /** 受付不能なマウスイベントを consume する. */
   private void consumeIfNotAcceptable(MouseEvent event) {

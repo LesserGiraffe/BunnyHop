@@ -33,15 +33,6 @@ public interface BhNodeViewProxy {
     return null;
   }
 
-  /**
-   * {@link BhNodeView} のをそのモデルが現在属しているワークスペースの四分木空間に追加する.
-   * このメソッドにより, {@link BhNodeView} が複数の四分木空間に同時に登録されることはない.
-   */
-  public default void addToQuadTreeSpace(UserOperation userOpe) {}
-
-  /** {@link BhNodeView} のをそのモデルが現在属しているワークスペースの四分木空間から削除する. */
-  public default void removeFromQuadTreeSpace(UserOperation userOpe) {}
-
   /** {@link BhNodeView} のワークスペース上の位置を取得する. */
   public default Vec2D getPosOnWorkspace() {
     return null;
@@ -61,9 +52,6 @@ public interface BhNodeViewProxy {
   public default Vec2D getSizeIncludingOuters(boolean includeCnctr) {
     return null;
   }
-
-  /** {@link BhNodeView} 以下のノードのワークスペース上での位置を再計算する. */
-  public default void updatePosOnWorkspace() {}
 
   /**
    * ビューの木構造上で, 制御対象の {@link BhNodeView} を {@code newNode} の {@link BhNodeView} と入れ替える.
@@ -92,11 +80,10 @@ public interface BhNodeViewProxy {
     return false;
   }
 
-  /** {@link BhNodeView} に対応する {@link BhNode} が選択されたことを通知する. */
-  public default void notifyNodeSelected() {}
-
-  /** {@link BhNodeView} に対応する {@link BhNode} の選択が解除されたことを通知する. */
-  public default void notifyNodeDeselected() {}
+  /** ビューを持っているか調べる. */
+  public default boolean hasView() {
+    return false;
+  }
 
   /**
    * {@link BhNodeView} をワークスペースの中央に表示する.

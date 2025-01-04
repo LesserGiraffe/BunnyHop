@@ -23,7 +23,6 @@ import javafx.scene.shape.Shape;
 import net.seapanda.bunnyhop.common.Rem;
 import net.seapanda.bunnyhop.utility.Pair;
 import net.seapanda.bunnyhop.utility.Vec2D;
-import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
@@ -181,14 +180,14 @@ public class ConnectionLine {
    * 始点 NodeView と終点 NodeView が同じワークスペースに無い場合は表示しない.
    */
   public void show() {
-    if (!startNode.getPositionManager().isInSameWorkspace(endNode)) {
+    if (!startNode.isInSameWorkspaceWith(endNode)) {
       shapeGroup.setVisible(false);
       return;
     }
 
     shapeGroup.setVisible(true);
-    Vec2D startPosOnWs = ViewUtil.getPosOnWorkspace(startNode);
-    Vec2D endPosOnWs = ViewUtil.getPosOnWorkspace(endNode);
+    Vec2D startPosOnWs = startNode.getPositionManager().getPosOnWorkspace();
+    Vec2D endPosOnWs = endNode.getPositionManager().getPosOnWorkspace();
     Vec2D startNodeSize = startNode.getRegionManager().getBodySize(false);
     Vec2D endNodeSize = endNode.getRegionManager().getBodySize(false);
 
