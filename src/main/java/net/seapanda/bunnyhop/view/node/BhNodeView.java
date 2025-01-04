@@ -60,7 +60,6 @@ import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.node.part.PrivateTemplateCreationButton;
 import net.seapanda.bunnyhop.view.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.view.traverse.NodeViewComponent;
-import net.seapanda.bunnyhop.view.traverse.TravelUpCallbackInvoker;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 import org.apache.commons.lang3.mutable.MutableDouble;
 
@@ -111,12 +110,12 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
   public abstract Optional<? extends BhNode> getModel();
   
   /**
-   * ボディ部分に末尾までの全外部ノードを加えた大きさを返す.
+   * このノードのボディ部分に末尾までの全外部ノードを加えた大きさを返す.
    *
    * @param includeCnctr コネクタ部分を含む大きさを返す場合 true.
    * @return 描画ノードの大きさ
    */
-  protected abstract Vec2D getNodeSizeIncludingOuter(boolean includeCnctr);
+  protected abstract Vec2D getNodeTreeSize(boolean includeCnctr);
 
   /**
    * 外部ノードを除くボディ部分の大きさを返す.
@@ -124,7 +123,7 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
    * @param includeCnctr コネクタ部分を含む大きさを返す場合true
    * @return 描画ノードの大きさ
    */
-  protected abstract Vec2D getBodySize(boolean includeCnctr);
+  protected abstract Vec2D getNodeSize(boolean includeCnctr);
 
   /** このノードビューより下のノードビューの親 {@link BhNodeViewGroup} からの相対位置を更新する. */
   protected abstract void updateChildRelativePos();
@@ -239,23 +238,6 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
     nodeBase.getChildren().add(node);
   }
 
-  /**
-   * このノードのサイズが変わったことを伝える.
-   * ノードのサイズが変わったときにサブクラスから呼ぶこと.
-   */
-  void notifySizeChanged() {
-    BhNodeView root = getTreeManager().getRootView();
-    root.updateChildRelativePos();
-    TravelUpCallbackInvoker.invoke(
-        nodeView -> nodeView.getLookManager().updatePolygonShape(),
-        BhNodeView.this);
-    Vec2D pos = root.getPositionManager().getPosOnWorkspace();
-    root.getPositionManager().setTreePosOnWorkspace(pos.x, pos.y);
-    TravelUpCallbackInvoker.invoke(
-        nodeView -> nodeView.getEventManager().invokeOnNodeSizeUpdated(),
-        BhNodeView.this);
-  }
-
   /** このビューに対応する BhNode が固定ノードであるか調べる.. */
   public boolean isFixed() {
     if (model == null) {
@@ -321,6 +303,10 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
 
     /** ボディの形を取得する関数オブジェクト. */
     private Supplier<BodyShape> fnGetBodyShape;
+    /** 現在描画されているノードのポリゴンの形状を決めているノードの大きさ. */
+    private final Vec2D currentPolygonSize = new Vec2D(Double.MIN_VALUE, Double.MIN_VALUE);
+    /** 現在描画されているノードのポリゴンの形状を決めているノードの大きさ. */
+    private boolean isArrangementRequested = false;
 
     /**
      * コンストラクタ.
@@ -362,7 +348,10 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
      * @param drawBody ボディを描画する場合 true
      */
     private void updatePolygonShape() {
-      Vec2D bodySize = getRegionManager().getBodySize(false);
+      Vec2D bodySize = getRegionManager().getNodeSize(false);
+      if (currentPolygonSize.equals(bodySize)) {
+        return;
+      }
       boolean isFixed = BhNodeView.this.isFixed();
       ConnectorShape cnctrShape =
           isFixed ? viewStyle.connectorShapeFixed.shape : viewStyle.connectorShape.shape;
@@ -385,6 +374,7 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
       shadowShape.getPoints().setAll(nodeShape.getPoints());
       compileErrorMark.setEndX(bodySize.x);
       compileErrorMark.setEndY(bodySize.y);
+      currentPolygonSize.set(bodySize);
     }
 
     /** このノードビュー以下のノードのワークスペース上の位置, 四分木空間上の位置, および配置を更新する. */
@@ -399,6 +389,25 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
           nodeView -> nodeView.getEventManager().invokeOnNodeSizeUpdated(),
           BhNodeView.this);
       getTreeManager().updateEvenFlag();
+    }
+
+    /**
+     * このノードビュー以下のノードのワークスペース上の位置, 四分木空間上の位置, および配置の更新を
+     * UI スレッドの処理としてキューイングする.
+     *
+     * <p>
+     * 大きなノードツリーをワークスペースに初めて配置したときに, 複数の子要素がサイズの更新を要求する.
+     * それらの更新要求を全てまとめて処理するために本メソッドを用意した.
+     * </p>
+     */
+    public void requestArrangement() {
+      if (!isArrangementRequested) {
+        Platform.runLater(() -> {
+          arrange();
+          isArrangementRequested = false;
+        });
+        isArrangementRequested = true;
+      }
     }
 
     /** このノード以下の可視性を変更する. */
@@ -496,7 +505,7 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
      * @param posY 本体部分左上のY位置
      */
     private void setPosOnQuadTreeSpace(double posX, double posY) {
-      Vec2D bodySize = getBodySize(false);
+      Vec2D bodySize = getNodeSize(false);
       double bodyUpperLeftX = posX;
       double bodyUpperLeftY = posY;
       double bodyLowerRightX = posX + bodySize.x;
@@ -535,23 +544,23 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
     }
 
     /**
-     * ボディ部分に末尾までの全外部ノードを加えた大きさを返す.
+     * このノードに末尾までの全外部ノードを加えた大きさを返す.
      *
      * @param includeCnctr コネクタ部分を含む大きさを返す場合 true.
      * @return 描画ノードの大きさ
      */
-    public Vec2D getNodeSizeIncludingOuters(boolean includeCnctr) {
-      return BhNodeView.this.getNodeSizeIncludingOuter(includeCnctr);
+    public Vec2D getNodeTreeSize(boolean includeCnctr) {
+      return BhNodeView.this.getNodeTreeSize(includeCnctr);
     }
 
     /**
-     * ボディ部分の大きさを返す.
+     * ノードの大きさを返す.
      *
      * @param includeCnctr コネクタ部分を含む大きさを返す場合 true
      * @return 描画ノードの大きさ
      */
-    public Vec2D getBodySize(boolean includeCnctr) {
-      return BhNodeView.this.getBodySize(includeCnctr);
+    public Vec2D getNodeSize(boolean includeCnctr) {
+      return BhNodeView.this.getNodeSize(includeCnctr);
     }
 
     /** ボディ部分のワークスペース上での範囲を取得する. */
@@ -586,7 +595,6 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
      * @param lowerRight 矩形領域の右下のワークスペース上での位置
      */
     public record BodyRange(Vec2D upperLeft, Vec2D lowerRight) { }
-
   }
 
   /** View の木構造を操作するクラス. */
@@ -635,15 +643,14 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
      * @param newNode このノードと入れ替えるノード.
      */
     public void replace(BhNodeView newNode) {
-      if (parent == null || newNode == null) {
+      if (parent == null || newNode == null || BhNodeView.this == newNode) {
         return;
       }
       parent.replace(BhNodeView.this, newNode);
-      newNode.notifySizeChanged();
-      newNode.getTreeManager().updateEvenFlag();
-      CallbackInvoker.invoke(
-          nodeView -> nodeView.getLookManager().updatePolygonShape(),
-          newNode);
+      BhNodeViewGroup group = newNode.getTreeManager().getParentGroup();
+      if (group != null) {
+        group.notifyChildSizeChanged();
+      }
       WorkspaceView wsView = newNode.getWorkspaceView();
       if (wsView != null) {
         wsView.moveToFront(newNode);

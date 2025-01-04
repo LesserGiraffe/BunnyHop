@@ -20,6 +20,7 @@ import java.util.Optional;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.SimpleCache;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
@@ -38,6 +39,15 @@ public final class ConnectiveNodeView extends BhNodeView {
   /** ノード外部に描画されるノードのGroup. */
   private final BhNodeViewGroup outerGroup = new BhNodeViewGroup(this, false);
   private ConnectiveNode model;
+
+  /** ノードのサイズのキャッシュデータ. (コネクタ部分: 含まない, 外部ノード, 含まない) */
+  private SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  /** ノードのサイズのキャッシュデータ. (コネクタ部分: 含む, 外部ノード, 含まない) */
+  private SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  /** ノードのサイズのキャッシュデータ. (コネクタ部分: 含まない, 外部ノード, 含む) */
+  private SimpleCache<Vec2D> nodeTreeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  /** ノードのサイズのキャッシュデータ. (コネクタ部分: 含む, 外部ノード, 含む) */
+  private SimpleCache<Vec2D> nodeTreeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
 
   /**
    * コンストラクタ.
@@ -77,6 +87,39 @@ public final class ConnectiveNodeView extends BhNodeView {
     }
   }
 
+  /** このグループに子要素のサイズが変わったことを伝える. */
+  void notifyChildSizeChanged() {
+    nodeSizeCache.setDirty(true);
+    nodeWithCnctrSizeCache.setDirty(true);
+    nodeTreeSizeCache.setDirty(true);
+    nodeTreeWithCnctrSizeCache.setDirty(true);
+    BhNodeViewGroup group = getTreeManager().getParentGroup();
+    if (group != null) {
+      group.notifyChildSizeChanged();
+    }
+    if (getTreeManager().isRootView()) {
+      getLookManager().requestArrangement();
+    }
+  }
+
+  /** ノードサイズのキャッシュ値を更新する. */
+  private void updateNodeSizeCache(boolean includeCnctr, Vec2D nodeSize) {
+    if (includeCnctr) {
+      nodeWithCnctrSizeCache.update(new Vec2D(nodeSize));
+    } else {
+      nodeSizeCache.update(new Vec2D(nodeSize));
+    }
+  }
+
+  /** ノードツリーサイズのキャッシュ値を更新する. */
+  private void updateNodeTreeSizeCache(boolean includeCnctr, Vec2D nodeSize) {
+    if (includeCnctr) {
+      nodeTreeWithCnctrSizeCache.update(new Vec2D(nodeSize));
+    } else {
+      nodeTreeSizeCache.update(new Vec2D(nodeSize));
+    }
+  }
+
   @Override
   protected void updatePosOnWorkspace(double posX, double posY) {
     getPositionManager().setPosOnWorkspace(posX, posY);
@@ -86,7 +129,7 @@ public final class ConnectiveNodeView extends BhNodeView {
     innerGroup.updateTreePosOnWorkspace(posX + relativePos.x, posY + relativePos.y);
 
     //外部ノード絶対位置更新
-    Vec2D bodySize = getRegionManager().getBodySize(false);
+    Vec2D bodySize = getRegionManager().getNodeSize(false);
     //外部ノードが右に繋がる
     if (viewStyle.connectorPos == ConnectorPos.LEFT) {
       outerGroup.updateTreePosOnWorkspace(posX + bodySize.x, posY);
@@ -97,7 +140,13 @@ public final class ConnectiveNodeView extends BhNodeView {
   }
 
   @Override
-  protected Vec2D getBodySize(boolean includeCnctr) {
+  protected Vec2D getNodeSize(boolean includeCnctr) {
+    if (includeCnctr && !nodeWithCnctrSizeCache.isDirty()) {
+      return new Vec2D(nodeWithCnctrSizeCache.getVal());
+    }
+    if (!includeCnctr && !nodeSizeCache.isDirty()) {
+      return new Vec2D(nodeSizeCache.getVal());
+    }
     Vec2D innerSize = innerGroup.getSize();
     Vec2D cnctrSize = viewStyle.getConnectorSize(isFixed());
     double bodyWidth = viewStyle.paddingLeft + innerSize.x + viewStyle.paddingRight;
@@ -108,12 +157,20 @@ public final class ConnectiveNodeView extends BhNodeView {
     if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.TOP)) {
       bodyHeight += cnctrSize.y;
     }
-    return new Vec2D(bodyWidth, bodyHeight);
+    var nodeSize = new Vec2D(bodyWidth, bodyHeight);
+    updateNodeSizeCache(includeCnctr, nodeSize);
+    return nodeSize;
   }
 
   @Override
-  protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
-    Vec2D bodySize = getBodySize(includeCnctr);
+  protected Vec2D getNodeTreeSize(boolean includeCnctr) {
+    if (includeCnctr && !nodeTreeWithCnctrSizeCache.isDirty()) {
+      return new Vec2D(nodeTreeWithCnctrSizeCache.getVal());
+    }
+    if (!includeCnctr && !nodeTreeSizeCache.isDirty()) {
+      return new Vec2D(nodeTreeSizeCache.getVal());
+    }
+    Vec2D bodySize = getNodeSize(includeCnctr);
     Vec2D outerSize = outerGroup.getSize();
     double totalWidth = bodySize.x;
     double totalHeight = bodySize.y;
@@ -127,7 +184,10 @@ public final class ConnectiveNodeView extends BhNodeView {
       totalWidth = Math.max(totalWidth, outerSize.x);
       totalHeight += outerSize.y;
     }
-    return new Vec2D(totalWidth, totalHeight);
+
+    var nodeTreeSize = new Vec2D(totalWidth, totalHeight);
+    updateNodeTreeSizeCache(includeCnctr, nodeTreeSize);
+    return nodeTreeSize;
   }
 
   /** ノードの親からの相対位置を更新する. */
@@ -135,7 +195,7 @@ public final class ConnectiveNodeView extends BhNodeView {
   protected void updateChildRelativePos() {
     innerGroup.setRelativePosFromParent(viewStyle.paddingLeft, viewStyle.paddingTop);
     innerGroup.updateChildRelativePos();
-    Vec2D bodySize = getRegionManager().getBodySize(false);
+    Vec2D bodySize = getRegionManager().getNodeSize(false);
     // 外部ノードが右に繋がる
     if (viewStyle.connectorPos == ConnectorPos.LEFT) {
       outerGroup.setRelativePosFromParent(bodySize.x, 0.0);

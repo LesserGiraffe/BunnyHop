@@ -148,9 +148,9 @@ public class WorkspaceController {
   }
 
   private int compareViewSize(BhNodeView viewA, BhNodeView viewB) {
-    Vec2D sizeA = viewA.getRegionManager().getBodySize(false);
+    Vec2D sizeA = viewA.getRegionManager().getNodeSize(false);
     double areaA = sizeA.x * sizeA.y;
-    Vec2D sizeB = viewB.getRegionManager().getBodySize(false);
+    Vec2D sizeB = viewB.getRegionManager().getNodeSize(false);
     double areaB = sizeB.x * sizeB.y;
     if (areaA < areaB) {
       return 1;

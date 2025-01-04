@@ -20,6 +20,7 @@ import java.util.Optional;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.SimpleCache;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
@@ -31,6 +32,10 @@ import net.seapanda.bunnyhop.view.traverse.NodeViewProcessor;
 public class NoContentNodeView extends BhNodeView {
 
   private final TextNode model;
+  /** コネクタ部分を含まないノードサイズのキャッシュデータ. */
+  private SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  /** コネクタ部分を含むノードサイズのキャッシュデータ. */
+  private SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
 
   /**
    * コンストラクタ.
@@ -50,6 +55,15 @@ public class NoContentNodeView extends BhNodeView {
     });
   }
 
+  /** ノードサイズのキャッシュ値を更新する. */
+  private void updateNodeSizeCache(boolean includeCnctr, Vec2D nodeSize) {
+    if (includeCnctr) {
+      nodeWithCnctrSizeCache.update(new Vec2D(nodeSize));
+    } else {
+      nodeSizeCache.update(new Vec2D(nodeSize));
+    }
+  }
+
   /**
    * このビューのモデルであるBhNodeを取得する.
    *
@@ -66,7 +80,14 @@ public class NoContentNodeView extends BhNodeView {
   }
 
   @Override
-  protected Vec2D getBodySize(boolean includeCnctr) {
+  protected Vec2D getNodeSize(boolean includeCnctr) {
+    if (includeCnctr && !nodeWithCnctrSizeCache.isDirty()) {
+      return new Vec2D(nodeWithCnctrSizeCache.getVal());
+    }
+    if (!includeCnctr && !nodeSizeCache.isDirty()) {
+      return new Vec2D(nodeSizeCache.getVal());
+    }
+
     double paddingLeft = 0.0;
     double paddingRight = 0.0;
     double paddingTop = 0.0;
@@ -89,12 +110,14 @@ public class NoContentNodeView extends BhNodeView {
     if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.TOP)) {
       bodyHeight += cnctrSize.y;
     }
-    return new Vec2D(bodyWidth, bodyHeight);
+    var nodeSize = new Vec2D(bodyWidth, bodyHeight);
+    updateNodeSizeCache(includeCnctr, nodeSize);
+    return nodeSize;
   }
 
   @Override
-  protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
-    return getBodySize(includeCnctr);
+  protected Vec2D getNodeTreeSize(boolean includeCnctr) {
+    return getNodeSize(includeCnctr);
   }
 
   @Override

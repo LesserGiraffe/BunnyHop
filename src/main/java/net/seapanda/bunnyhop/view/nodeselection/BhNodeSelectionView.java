@@ -208,12 +208,12 @@ public final class BhNodeSelectionView extends ScrollPane {
     final double bottomPadding = nodeSelectionPanel.getPadding().getBottom();
 
     for (BhNodeView nodeView : rootNodeViews) {
-      Vec2D wholeBodySize = nodeView.getRegionManager().getNodeSizeIncludingOuters(true);
-      Vec2D bodySize = nodeView.getRegionManager().getNodeSizeIncludingOuters(false);
-      double upperCnctrHeight = wholeBodySize.y - bodySize.y;
+      Vec2D treeSizeWithCnctr = nodeView.getRegionManager().getNodeTreeSize(true);
+      Vec2D treeSize = nodeView.getRegionManager().getNodeTreeSize(false);
+      double upperCnctrHeight = treeSizeWithCnctr.y - treeSize.y;
       nodeView.getPositionManager().setTreePosOnWorkspace(leftPadding, offset + upperCnctrHeight);
-      offset += wholeBodySize.y + BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_PANEL;
-      panelWidth = Math.max(panelWidth, wholeBodySize.x);
+      offset += treeSizeWithCnctr.y + BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_PANEL;
+      panelWidth = Math.max(panelWidth, treeSizeWithCnctr.x);
     }
     panelHeight =
         (offset - BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_PANEL) + topPadding + bottomPadding;

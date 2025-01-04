@@ -67,7 +67,7 @@ class BhNodeViewProxyImpl implements BhNodeViewProxy {
 
   @Override
   public Vec2D getSizeIncludingOuters(boolean includeCnctr) {
-    return view.getRegionManager().getNodeSizeIncludingOuters(includeCnctr);
+    return view.getRegionManager().getNodeTreeSize(includeCnctr);
   }
 
   @Override

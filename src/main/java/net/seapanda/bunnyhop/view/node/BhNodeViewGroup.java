@@ -29,6 +29,7 @@ import javafx.scene.layout.Pane;
 import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.utility.Showable;
+import net.seapanda.bunnyhop.utility.SimpleCache;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
@@ -58,9 +59,9 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
   /** このグループが子となる {@link BhNodeViewGroup} のリスト. */
   private final List<BhNodeViewGroup> subGroupList = new ArrayList<>();
   /** このグループを持つ {@link ConnectiveNodeView}. */
-  private ConnectiveNodeView parentView;
+  private final ConnectiveNodeView parentView;
   /** このグループを持つ {@link BhNodeViewGroup}. */
-  private BhNodeViewGroup parentGroup;
+  private final BhNodeViewGroup parentGroup;
   /** このグループが内部描画ノードを持つグループの場合 true. */
   public final boolean inner; 
   /** ノードの配置を決めるパラメータ. */
@@ -70,6 +71,8 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
   private final Vec2D relativePos = new Vec2D(0.0, 0.0);
   /** 疑似ビューの ID. */
   private int pseudoViewId = 0;
+  /** このグループのサイズのキャッシュデータ. */
+  private SimpleCache<Vec2D> sizeCache = new SimpleCache<Vec2D>(new Vec2D());
 
   /**
    * コンストラクタ.
@@ -79,6 +82,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
    */
   public BhNodeViewGroup(ConnectiveNodeView parentView, boolean inner) {
     this.parentView = parentView;
+    this.parentGroup = null;
     this.inner = inner;
   }
 
@@ -89,6 +93,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
    * @param inner このグループが内部描画ノードを持つグループの場合 true
    */
   public BhNodeViewGroup(BhNodeViewGroup parentGroup, boolean inner) {
+    this.parentView = null;
     this.parentGroup = parentGroup;
     this.inner = inner;
   }
@@ -258,7 +263,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       //outer はコネクタの大きさを考慮しない
       Vec2D cnctrSize = inner ? child.viewStyle.getConnectorSize(child.isFixed()) 
           : new Vec2D(0.0,  0.0);
-      Vec2D childNodeSize = child.getRegionManager().getNodeSizeIncludingOuters(false);
+      Vec2D childNodeSize = child.getRegionManager().getNodeTreeSize(false);
       // コネクタが上に付く && グループの中が縦並び
       if (child.viewStyle.connectorPos == BhNodeViewStyle.ConnectorPos.TOP
           && arrangeParams.arrangement == BhNodeViewStyle.ChildArrangement.COLUMN) {
@@ -310,6 +315,9 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
    * このグループのサイズを取得する.
    */
   public Vec2D getSize() {
+    if (!sizeCache.isDirty()) {
+      return new Vec2D(sizeCache.getVal());
+    }
     Vec2D cnctrOffset = calcOffsetOfCnctr();
     Vec2D childSumLen = calcChildSumLen();
     Vec2D childMaxLen = calcChildMaxLen();
@@ -325,6 +333,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       size.x += childSumLen.x + numSpace * arrangeParams.space + arrangeParams.paddingRight;
       size.y += cnctrOffset.y + childMaxLen.y + arrangeParams.paddingBottom;
     }
+    sizeCache.update(new Vec2D(size));
     return size;
   }
 
@@ -368,7 +377,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       // outer はコネクタの大きさを考慮しない
       Vec2D cnctrSize = inner ? child.viewStyle.getConnectorSize(child.isFixed()) :
           new Vec2D(0.0,  0.0);
-      Vec2D childNodeSize = child.getRegionManager().getNodeSizeIncludingOuters(false);
+      Vec2D childNodeSize = child.getRegionManager().getNodeTreeSize(false);
       //コネクタが上に付く
       if (child.viewStyle.connectorPos == BhNodeViewStyle.ConnectorPos.TOP) {
         childSumLen.add(childNodeSize.x, childNodeSize.y + cnctrSize.y);
@@ -392,7 +401,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
         continue;
       }
       // outer はコネクタの大きさを考慮しない
-      Vec2D childNodeSize = child.getRegionManager().getNodeSizeIncludingOuters(false);
+      Vec2D childNodeSize = child.getRegionManager().getNodeTreeSize(false);
       childMaxLen.updateIfGreater(childNodeSize.x, childNodeSize.y);
     }
     return childMaxLen;
@@ -507,6 +516,17 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       if (child != null && child.getModel().isEmpty()) {
         child.getTreeManager().removeFromGuiTree();
       }
+    }
+  }
+
+  /** このグループに子要素のサイズが変わったことを伝える. */
+  void notifyChildSizeChanged() {
+    sizeCache.setDirty(true);
+    if (parentGroup != null) {
+      parentGroup.notifyChildSizeChanged();
+    }
+    if (parentView != null) {
+      parentView.notifyChildSizeChanged();
     }
   }
 

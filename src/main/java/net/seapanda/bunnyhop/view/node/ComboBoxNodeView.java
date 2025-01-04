@@ -32,6 +32,7 @@ import javafx.scene.text.Font;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.SimpleCache;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.ViewUtil;
@@ -52,6 +53,10 @@ public final class ComboBoxNodeView extends BhNodeView {
   private final TextNode model;
   private final ListCell<SelectableItem> buttonCell = new ComboBoxNodeListCell();
   private final MutableBoolean dragging = new MutableBoolean(false);
+  /** コネクタ部分を含まないノードサイズのキャッシュデータ. */
+  private SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  /** コネクタ部分を含むノードサイズのキャッシュデータ. */
+  private SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
 
   /**
    * コンストラクタ.
@@ -85,8 +90,8 @@ public final class ComboBoxNodeView extends BhNodeView {
     comboBox.setTranslateX(viewStyle.paddingLeft);
     comboBox.setTranslateY(viewStyle.paddingTop);
     comboBox.getStyleClass().add(viewStyle.comboBox.cssClass);
-    comboBox.heightProperty().addListener(observable -> notifySizeChanged());
-    comboBox.widthProperty().addListener(observable -> notifySizeChanged());
+    comboBox.heightProperty().addListener(observable -> onNodeSizeChanged());
+    comboBox.widthProperty().addListener(observable -> onNodeSizeChanged());
     if (!comboBox.getItems().isEmpty()) {
       comboBox.setValue(comboBox.getItems().get(0));
     }
@@ -98,11 +103,33 @@ public final class ComboBoxNodeView extends BhNodeView {
     comboBox.setItems(FXCollections.observableArrayList(items));
   }
 
-  /** コンボぼっくに登録された選択肢を返す. */
+  /** コンボボックスに登録された選択肢を返す. */
   public List<SelectableItem> getItems() {
     return new ArrayList<>(comboBox.getItems());
   }
   
+  /** ノードサイズのキャッシュを dirty にして, ノードの大きさが変わったことを親グループに伝える. */
+  private void onNodeSizeChanged() {
+    nodeSizeCache.setDirty(true);
+    nodeWithCnctrSizeCache.setDirty(true);
+    BhNodeViewGroup group = getTreeManager().getParentGroup();
+    if (group != null) {
+      group.notifyChildSizeChanged();
+    }
+    if (getTreeManager().isRootView()) {
+      getLookManager().requestArrangement();
+    }
+  }
+
+  /** ノードサイズのキャッシュ値を更新する. */
+  private void updateNodeSizeCache(boolean includeCnctr, Vec2D nodeSize) {
+    if (includeCnctr) {
+      nodeWithCnctrSizeCache.update(new Vec2D(nodeSize));
+    } else {
+      nodeSizeCache.update(new Vec2D(nodeSize));
+    }
+  }
+
   /**
    * このビューのモデルであるBhNodeを取得する.
    *
@@ -140,7 +167,14 @@ public final class ComboBoxNodeView extends BhNodeView {
   }
 
   @Override
-  protected Vec2D getBodySize(boolean includeCnctr) {
+  protected Vec2D getNodeSize(boolean includeCnctr) {
+    if (includeCnctr && !nodeWithCnctrSizeCache.isDirty()) {
+      return new Vec2D(nodeWithCnctrSizeCache.getVal());
+    }
+    if (!includeCnctr && !nodeSizeCache.isDirty()) {
+      return new Vec2D(nodeSizeCache.getVal());
+    }
+
     Vec2D cnctrSize = viewStyle.getConnectorSize(isFixed());
     double bodyWidth = viewStyle.paddingLeft + comboBox.getWidth() + viewStyle.paddingRight;
     if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.LEFT)) {
@@ -150,12 +184,14 @@ public final class ComboBoxNodeView extends BhNodeView {
     if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.TOP)) {
       bodyHeight += cnctrSize.y;
     }
-    return new Vec2D(bodyWidth, bodyHeight);
+    var nodeSize = new Vec2D(bodyWidth, bodyHeight);
+    updateNodeSizeCache(includeCnctr, nodeSize);
+    return nodeSize;
   }
 
   @Override
-  protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
-    return getBodySize(includeCnctr);
+  protected Vec2D getNodeTreeSize(boolean includeCnctr) {
+    return getNodeSize(includeCnctr);
   }
 
   @Override

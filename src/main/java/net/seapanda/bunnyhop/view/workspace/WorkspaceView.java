@@ -77,6 +77,8 @@ public class WorkspaceView extends Tab {
 
   private static final double Z_POS_INTERVAL_BETWEEN_NODE_VIEW_TREES = -20000;
   private static final double MAX_Z_POS_OF_NODE_VIEW_TREES = -2e15;
+  private static final double Z_POS_OF_RECT_SEL_TOOL =
+      MAX_Z_POS_OF_NODE_VIEW_TREES + Z_POS_INTERVAL_BETWEEN_NODE_VIEW_TREES;
 
   /** 操作対象のビュー. */
   private @FXML ScrollPane wsScrollPane;
@@ -136,6 +138,7 @@ public class WorkspaceView extends Tab {
     quadTreeMngForConnector =
         new QuadTreeManager(BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
     drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
+    rectSelTool.setViewOrder(Z_POS_OF_RECT_SEL_TOOL);
   }
 
   /**
@@ -614,7 +617,7 @@ public class WorkspaceView extends Tab {
     // 全ノードの内の右端の最大の位置と下端の最大の位置
     Vec2D maxLowerRightPosOfNodes = rootNodeViews.stream()
         .map(nodeView -> {
-          Vec2D nodeSize = nodeView.getRegionManager().getNodeSizeIncludingOuters(false);
+          Vec2D nodeSize = nodeView.getRegionManager().getNodeTreeSize(false);
           Vec2D nodePos = nodeView.getPositionManager().getPosOnWorkspace();
           return new Vec2D(
             magX * (nodePos.x + nodeSize.x) + BhConstants.LnF.NODE_SCALE * 20,
@@ -654,7 +657,6 @@ public class WorkspaceView extends Tab {
     rectSelTool.getPoints().set(5, lowerRight.y);
     rectSelTool.getPoints().set(6, upperLeft.x);
     rectSelTool.getPoints().set(7, lowerRight.y);
-    rectSelTool.toFront();
   }
 
   /** 矩形選択ツールを非表示にする. */
@@ -701,7 +703,7 @@ public class WorkspaceView extends Tab {
   private Vec2D getCenterPosOnZoomedWorkspace(BhNodeView view) {
     double magX = wsPane.getTransforms().get(0).getMxx();
     double magY = wsPane.getTransforms().get(0).getMyy();
-    Vec2D nodeSize = view.getRegionManager().getBodySize(false);
+    Vec2D nodeSize = view.getRegionManager().getNodeSize(false);
     Vec2D nodePos = view.getPositionManager().getPosOnWorkspace();
     return new Vec2D(magX * (nodePos.x + nodeSize.x * 0.5), magY * (nodePos.y + nodeSize.y * 0.5));
   }

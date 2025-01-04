@@ -188,8 +188,8 @@ public class ConnectionLine {
     shapeGroup.setVisible(true);
     Vec2D startPosOnWs = startNode.getPositionManager().getPosOnWorkspace();
     Vec2D endPosOnWs = endNode.getPositionManager().getPosOnWorkspace();
-    Vec2D startNodeSize = startNode.getRegionManager().getBodySize(false);
-    Vec2D endNodeSize = endNode.getRegionManager().getBodySize(false);
+    Vec2D startNodeSize = startNode.getRegionManager().getNodeSize(false);
+    Vec2D endNodeSize = endNode.getRegionManager().getNodeSize(false);
 
     Pair<Double, Double> pointsX =
         calcConnectionPointsX(startPosOnWs, endPosOnWs, startNodeSize, endNodeSize);

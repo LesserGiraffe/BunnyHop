@@ -28,6 +28,11 @@ public class Vec2D implements Serializable {
   public double x;
   public double y;
 
+  public Vec2D() {
+    this.x = 0;
+    this.y = 0;
+  }
+
   public Vec2D(double x, double y) {
     this.x = x;
     this.y = y;
@@ -95,6 +100,18 @@ public class Vec2D implements Serializable {
   public void sub(double x, double y) {
     this.x -= x;
     this.y -= y;
+  }
+
+  /** 引数で指定した要素をこのオブジェクトに設定する. */
+  public void set(double x, double y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  /** 引数で指定した要素をこのオブジェクトに設定する. */
+  public void set(Vec2D val) {
+    this.x = val.x;
+    this.y = val.y;
   }
 
   @Override

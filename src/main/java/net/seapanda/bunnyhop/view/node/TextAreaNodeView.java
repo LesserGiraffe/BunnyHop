@@ -29,6 +29,7 @@ import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.utility.SimpleCache;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewInitializationException;
 import net.seapanda.bunnyhop.view.ViewUtil;
@@ -45,6 +46,10 @@ public final class TextAreaNodeView  extends TextInputNodeView {
 
   private TextArea textArea = new TextArea();
   private final TextNode model;
+  /** コネクタ部分を含まないノードサイズのキャッシュデータ. */
+  private SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  /** コネクタ部分を含むノードサイズのキャッシュデータ. */
+  private SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
 
   /**
    * コンストラクタ.
@@ -91,8 +96,8 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     textArea.setTranslateX(viewStyle.paddingLeft);
     textArea.setTranslateY(viewStyle.paddingTop);
     textArea.getStyleClass().add(viewStyle.textArea.cssClass);
-    textArea.heightProperty().addListener((observable, oldVal, newVal) -> notifySizeChanged());
-    textArea.widthProperty().addListener((observable, oldVal, newVal) -> notifySizeChanged());
+    textArea.heightProperty().addListener((observable, oldVal, newVal) -> onNodeSizeChanged());
+    textArea.widthProperty().addListener((observable, oldVal, newVal) -> onNodeSizeChanged());
     textArea.setWrapText(false);
     textArea.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
     textArea.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
@@ -152,6 +157,28 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     Platform.runLater(() -> textArea.requestLayout());
   }
 
+  /** ノードサイズのキャッシュを dirty にして, ノードの大きさが変わったことを親グループに伝える. */
+  private void onNodeSizeChanged() {
+    nodeSizeCache.setDirty(true);
+    nodeWithCnctrSizeCache.setDirty(true);
+    BhNodeViewGroup group = getTreeManager().getParentGroup();
+    if (group != null) {
+      group.notifyChildSizeChanged();
+    }
+    if (getTreeManager().isRootView()) {
+      getLookManager().requestArrangement();
+    }
+  }
+
+  /** ノードサイズのキャッシュ値を更新する. */
+  private void updateNodeSizeCache(boolean includeCnctr, Vec2D nodeSize) {
+    if (includeCnctr) {
+      nodeWithCnctrSizeCache.update(new Vec2D(nodeSize));
+    } else {
+      nodeSizeCache.update(new Vec2D(nodeSize));
+    }
+  }
+
   @Override
   public void show(int depth) {
     BhService.msgPrinter().println(
@@ -166,7 +193,14 @@ public final class TextAreaNodeView  extends TextInputNodeView {
   }
 
   @Override
-  protected Vec2D getBodySize(boolean includeCnctr) {
+  protected Vec2D getNodeSize(boolean includeCnctr) {
+    if (includeCnctr && !nodeWithCnctrSizeCache.isDirty()) {
+      return new Vec2D(nodeWithCnctrSizeCache.getVal());
+    }
+    if (!includeCnctr && !nodeSizeCache.isDirty()) {
+      return new Vec2D(nodeSizeCache.getVal());
+    }
+
     Vec2D cnctrSize = viewStyle.getConnectorSize(isFixed());
     // textField.getWidth() だと設定した値以外が返る場合がある
     double bodyWidth = viewStyle.paddingLeft + textArea.getPrefWidth() + viewStyle.paddingRight;
@@ -177,12 +211,14 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.TOP)) {
       bodyHeight += cnctrSize.y;
     }
-    return new Vec2D(bodyWidth, bodyHeight);
+    var nodeSize = new Vec2D(bodyWidth, bodyHeight);
+    updateNodeSizeCache(includeCnctr, nodeSize);
+    return nodeSize;
   }
 
   @Override
-  protected Vec2D getNodeSizeIncludingOuter(boolean includeCnctr) {
-    return getBodySize(includeCnctr);
+  protected Vec2D getNodeTreeSize(boolean includeCnctr) {
+    return getNodeSize(includeCnctr);
   }
 
   @Override
