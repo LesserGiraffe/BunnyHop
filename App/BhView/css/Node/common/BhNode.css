@@ -9,6 +9,10 @@
   -fx-stroke: gold;
 }
 
+.BhNode:shadow {
+  -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
+}
+
 .BhNode:highlightDerivative {
   -fx-stroke: gold;
   -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
@@ -32,8 +36,3 @@
   -fx-stroke-width: 0.30em;
   -fx-stroke: red;
 }
-
-#nodeViewShadowPane {
-  -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
-}
-

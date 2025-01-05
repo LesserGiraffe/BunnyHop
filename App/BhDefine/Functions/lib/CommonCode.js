@@ -26,6 +26,7 @@ let _anyObj = new _AnyNil();
 let _idxCallStack = 0;
 let _idxCurrentNodeInstId = 1;
 let _idxErrorMsgs = 2;
+let _threadContext = _createThreadContext();
 
 function _AnyNil() {
   this._toStr = function() {return '';}

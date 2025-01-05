@@ -85,8 +85,6 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
   protected final Pane nodeBase = new Pane();
   /** ノード描画用ポリゴン. */
   protected final Polygon nodeShape = new Polygon();
-  /** 影描画用ポリゴン. */
-  protected final Polygon shadowShape = new Polygon();
   /** コンパイルエラーノードであることを示す印. */
   protected final CompileErrorMark compileErrorMark = new CompileErrorMark(0.0, 0.0, 0.0, 0.0);
   /** ノードの見た目のパラメータオブジェクト. */
@@ -151,8 +149,6 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
     lookManager.addCssClass(viewStyle.cssClass);
     lookManager.addCssClass(BhConstants.Css.CLASS_BH_NODE);
     compileErrorMark.getStyleClass().add(BhConstants.Css.CLASS_BH_NODE_COMPILE_ERROR);
-    shadowShape.setVisible(false);
-    shadowShape.setMouseTransparent(true);    
     compileErrorMark.setMouseTransparent(true);
     addComponent(nodeShape);
     // model がない場合は controller も無いので, nodeShape に対するイベントは, 親に投げる.
@@ -346,11 +342,12 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
      * ノードを形作るポリゴンを更新する.
      *
      * @param drawBody ボディを描画する場合 true
+     * @return ポリゴンの大きさが変化した場合 true.
      */
-    private void updatePolygonShape() {
+    private boolean updatePolygonShape() {
       Vec2D bodySize = getRegionManager().getNodeSize(false);
       if (currentPolygonSize.equals(bodySize)) {
-        return;
+        return false;
       }
       boolean isFixed = BhNodeView.this.isFixed();
       ConnectorShape cnctrShape =
@@ -371,22 +368,24 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
               viewStyle.notchPos,
               viewStyle.notchWidth,
               viewStyle.notchHeight));
-      shadowShape.getPoints().setAll(nodeShape.getPoints());
       compileErrorMark.setEndX(bodySize.x);
       compileErrorMark.setEndY(bodySize.y);
       currentPolygonSize.set(bodySize);
+      return true;
     }
 
     /** このノードビュー以下のノードのワークスペース上の位置, 四分木空間上の位置, および配置を更新する. */
     public void arrange() {
       updateChildRelativePos();
-      CallbackInvoker.invoke(
-          nodeView -> nodeView.getLookManager().updatePolygonShape(),
-          BhNodeView.this);
       Vec2D pos = getPositionManager().getPosOnWorkspace();
       getPositionManager().setTreePosOnWorkspace(pos.x, pos.y);
       CallbackInvoker.invoke(
-          nodeView -> nodeView.getEventManager().invokeOnNodeSizeUpdated(),
+          nodeView -> {
+            boolean isSizeChanged = nodeView.getLookManager().updatePolygonShape();
+            if (isSizeChanged) {
+              nodeView.getEventManager().invokeOnNodeSizeChanged();
+            }
+          },
           BhNodeView.this);
       getTreeManager().updateEvenFlag();
     }
@@ -451,18 +450,44 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
       return fnGetBodyShape.get();
     }
 
-    /** このノードビューとそれから辿れる外部ノードに影を付ける. */
-    public void showShadow() {
-      CallbackInvoker.invokeForOuters(
-          nodeView -> nodeView.shadowShape.setVisible(true),
-          BhNodeView.this);
+    /**
+     * このノードビューとそれから辿れる外部ノードに影を付ける.
+     *
+     * @param onlyOuter 外部ノードのみを辿って影を付ける場合 true.
+     *                  内部ノードと外部ノードを辿って影を付ける場合 false.
+     */
+    public void showShadow(boolean onlyOuter) {
+      if (onlyOuter) {
+        CallbackInvoker.invokeForOuters(
+            nodeView -> nodeView.getLookManager().switchPseudoClassState(
+                BhConstants.Css.PSEUDO_SHADOW, true),
+            BhNodeView.this);
+      } else {
+        CallbackInvoker.invoke(
+            nodeView -> nodeView.getLookManager().switchPseudoClassState(
+              BhConstants.Css.PSEUDO_SHADOW, true),
+            BhNodeView.this);
+      }
     }
 
-    /** このノードビューとそれから辿れる外部ノードに影を消す. */
-    public void hideShadow() {
-      CallbackInvoker.invokeForOuters(
-          nodeView -> nodeView.shadowShape.setVisible(false),
-          BhNodeView.this);
+    /**
+     * このノードビューとそれから辿れるノードに影を消す.
+     *
+     * @param onlyOuter 外部ノードのみを辿って影を消す場合 true.
+     *                  内部ノードと外部ノードを辿って影を消す場合 false.
+     */
+    public void hideShadow(boolean onlyOuter) {
+      if (onlyOuter) {
+        CallbackInvoker.invokeForOuters(
+            nodeView -> nodeView.getLookManager().switchPseudoClassState(
+                BhConstants.Css.PSEUDO_SHADOW, false),
+            BhNodeView.this);
+      } else {
+        CallbackInvoker.invoke(
+            nodeView -> nodeView.getLookManager().switchPseudoClassState(
+              BhConstants.Css.PSEUDO_SHADOW, false),
+            BhNodeView.this);
+      }
     }
   }
 
@@ -683,11 +708,9 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
       if (parent instanceof Group group) {
         group.getChildren().remove(nodeBase);
         group.getChildren().remove(compileErrorMark);
-        group.getChildren().remove(shadowShape);
       } else if (parent instanceof Pane pane) {
         pane.getChildren().remove(nodeBase);
         pane.getChildren().remove(compileErrorMark);
-        pane.getChildren().remove(shadowShape);
       }
     }
 
@@ -731,14 +754,12 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
     private void addComponentsToParent(Group parent) {
       parent.getChildren().add(nodeBase);
       parent.getChildren().add(compileErrorMark);
-      parent.getChildren().add(shadowShape);
     }
 
     /** このノードの描画物 (ボディや影など) を {@link parent} に追加する. */
     private void addComponentsToParent(Pane parent) {
       parent.getChildren().add(nodeBase);
       parent.getChildren().add(compileErrorMark);
-      parent.getChildren().add(shadowShape);
     }
 
     /** このノード以下の奇偶フラグを更新する. */
@@ -868,8 +889,6 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
       nodeBase.setTranslateY(posY);
       compileErrorMark.setTranslateX(posX);
       compileErrorMark.setTranslateY(posY);
-      shadowShape.setTranslateX(posX);
-      shadowShape.setTranslateY(posY);
     }
 
     /**
@@ -891,7 +910,6 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
     private static void updateZpos(BhNodeView view, double posZ) {
       view.compileErrorMark.setViewOrder(posZ + COMPILE_ERR_MARK_VIEW_ORDER_OFFSET);
       view.nodeBase.setViewOrder(posZ + NODE_BASE_VIEW_ORDER_OFFSET);
-      view.shadowShape.setViewOrder(posZ + SHADOW_VIEW_ORDER_OFFSET);
     }
 
     /**
@@ -955,8 +973,8 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
     /** ノードビューをワークスペースビューから取り除いたときのイベントハンドラのリスト. */
     private SequencedSet<BiConsumer<? super WorkspaceView, ? super BhNodeView>>
         onRemovedFromWorkspaceView = new LinkedHashSet<>();
-    /** ノードのサイズが更新されたときのイベントハンドラのリスト. */
-    private SequencedSet<Consumer<? super BhNodeView>> onNodeSizeUpdated = new LinkedHashSet<>();
+    /** ノードのサイズが変更されたときのイベントハンドラのリスト. */
+    private SequencedSet<Consumer<? super BhNodeView>> onNodeSizeChanged = new LinkedHashSet<>();
     /** ノードが入れ替わったときのイベントハンドラのリスト. */
     private SequencedSet<BiConsumer<? super BhNodeView, ? super BhNodeView>> onNodeReplaced =
         new LinkedHashSet<>();
@@ -1090,22 +1108,21 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
     }
 
     /**
-     * ノードのサイズが更新されたときのイベントハンドラを追加する.
-     * 更新前と後でサイズに変更がなかった場合も呼ばれる.
+     * ノードのサイズが変更されたときのイベントハンドラを追加する.
      *
      * @param handler 追加するイベントハンドラ.
      */
-    public void addOnNodeSizeUpdated(Consumer<? super BhNodeView> handler) {
-      onNodeSizeUpdated.addLast(handler);
+    public void addOnNodeSizeChanged(Consumer<? super BhNodeView> handler) {
+      onNodeSizeChanged.addLast(handler);
     }
 
     /**
-     * ノードのサイズが更新されたときのイベントハンドラを削除する.
+     * ノードのサイズが変更されたときのイベントハンドラを削除する.
      *
      * @param handler 削除するイベントハンドラ.
      */
-    public void removeOnNodeSizeUpdated(Consumer<? super BhNodeView> handler) {
-      onNodeSizeUpdated.remove(handler);
+    public void removeOnNodeSizeChanged(Consumer<? super BhNodeView> handler) {
+      onNodeSizeChanged.remove(handler);
     }
 
     /**
@@ -1171,14 +1188,14 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
       onRemovedFromWorkspaceView.forEach(handler -> handler.accept(wsView, BhNodeView.this));
     }
 
-    /** ノードビューのサイズが更新されたときのイベントハンドラを実行する. */
-    private void invokeOnNodeSizeUpdated() {
+    /** ノードビューのサイズが変更されたときのイベントハンドラを実行する. */
+    private void invokeOnNodeSizeChanged() {
       if (!Platform.isFxApplicationThread()) {
         throw new IllegalStateException(
             Utility.getCurrentMethodName() 
             + " - a handler invoked in an inappropriate thread");
       }
-      onNodeSizeUpdated.forEach(handler -> handler.accept(BhNodeView.this));
+      onNodeSizeChanged.forEach(handler -> handler.accept(BhNodeView.this));
     }
 
     /** ノードビューが入れ替わったときのイベントハンドラを実行する. */

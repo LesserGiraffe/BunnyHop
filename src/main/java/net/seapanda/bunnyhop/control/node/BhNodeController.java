@@ -99,7 +99,9 @@ public class BhNodeController {
       if (ddInfo.userOpe == null) {
         ddInfo.userOpe = new UserOperation();
       }
-      view.getLookManager().showShadow();
+      view.getWorkspaceView().getRootNodeViews().forEach(
+          nodeView -> nodeView.getLookManager().hideShadow(false));
+      view.getLookManager().showShadow(true);
       toFront();
       selectNode(event);  //選択処理
       Vec2D mousePressedPos = new Vec2D(event.getSceneX(), event.getSceneY());

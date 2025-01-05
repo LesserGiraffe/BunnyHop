@@ -708,15 +708,6 @@ public class WorkspaceView extends Tab {
     return new Vec2D(magX * (nodePos.x + nodeSize.x * 0.5), magY * (nodePos.y + nodeSize.y * 0.5));
   }
 
-  /**
-   * このワークスペースビューの全てのノードビューの影を消す.
-   */
-  public void hideAllNodeShadows() {
-    for (BhNodeView root : rootNodeViews) {
-      root.getLookManager().hideShadow();
-    }
-  }
-
   /** このワークスペースビューが持つ全てのルートノードビューを取得する. */
   public SequencedSet<BhNodeView> getRootNodeViews() {
     return new LinkedHashSet<>(rootNodeViews);

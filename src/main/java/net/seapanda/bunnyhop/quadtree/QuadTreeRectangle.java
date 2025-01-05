@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import net.seapanda.bunnyhop.utility.Linkable;
+import net.seapanda.bunnyhop.utility.LinkNode;
 import net.seapanda.bunnyhop.utility.Vec2D;
 
 /**
@@ -28,7 +28,7 @@ import net.seapanda.bunnyhop.utility.Vec2D;
  *
  * @author K.Koike
  */
-public class QuadTreeRectangle extends Linkable<QuadTreeRectangle> {
+public class QuadTreeRectangle extends LinkNode<QuadTreeRectangle> {
 
   /** 現在属している 4 分木ノードのインデックス. */
   private int currentIdxInQuadTree = -1;

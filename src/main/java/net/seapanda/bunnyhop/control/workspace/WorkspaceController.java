@@ -96,7 +96,7 @@ public class WorkspaceController {
       }
       BhService.undoRedoAgent().pushUndoCommand(userOpe);
     }
-    view.getRootNodeViews().forEach(nodeView -> nodeView.getLookManager().hideShadow());
+    view.getRootNodeViews().forEach(nodeView -> nodeView.getLookManager().hideShadow(false));
     mousePressedPos.x = mouseEvent.getX();
     mousePressedPos.y = mouseEvent.getY();
     view.showSelectionRectangle(mousePressedPos, mousePressedPos);

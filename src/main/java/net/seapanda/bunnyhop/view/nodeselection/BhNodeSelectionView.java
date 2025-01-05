@@ -139,7 +139,7 @@ public final class BhNodeSelectionView extends ScrollPane {
     }
     nodeViews.add(view);
     view.getTreeManager().addToGuiTree(nodeSelectionPanel);
-    view.getEventManager().addOnNodeSizeUpdated(onNodeSizeUpdated);
+    view.getEventManager().addOnNodeSizeChanged(onNodeSizeUpdated);
   }
 
   /**
@@ -154,7 +154,7 @@ public final class BhNodeSelectionView extends ScrollPane {
     specifyNodeViewAsNotRoot(view);
     nodeViews.remove(view);
     view.getTreeManager().removeFromGuiTree();
-    view.getEventManager().removeOnNodeSizeUpdated(onNodeSizeUpdated);
+    view.getEventManager().removeOnNodeSizeChanged(onNodeSizeUpdated);
   }
 
   /** このオブジェクトが現在保持する {@link BhNodeView} のツリーの数を取得する. */
