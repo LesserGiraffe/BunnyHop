@@ -26,6 +26,7 @@ import javafx.scene.Parent;
 import javafx.scene.layout.Pane;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.Connector;
+import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
@@ -326,6 +327,16 @@ public class UserOperation {
    */
   public void pushCmdOfSetWorkspace(Workspace oldWs, BhNode node) {
     subOpeList.addLast(new SetWorkspaceCmd(oldWs, node));
+  }
+
+  /**
+   * {@link TextNode} にテキストを設定するする操作をコマンド化してサブ操作リストに加える.
+   *
+   * @param node テキストを設定するノード
+   * @param oldText {@code node} に設定してあったテキスト
+   */
+  public void pushCmdOfSetText(TextNode node, String oldText) {
+    subOpeList.addLast(new SetTextCmd(node, oldText));
   }
 
   /** {@link UserOperation} を構成するサブ操作. */
@@ -819,6 +830,24 @@ public class UserOperation {
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
       node.setWorkspace(oldWs, inverseCmd);
+    }
+  }
+
+  private static class SetTextCmd implements SubOperation {
+
+    /** テキストを設定するノード. */
+    private TextNode node;
+    /** {@link #node} に設定してあったテキスト. */
+    private String oldText;
+
+    public SetTextCmd(TextNode node, String oldText) {
+      this.node = node;
+      this.oldText = oldText;
+    }
+
+    @Override
+    public void doInverseOperation(UserOperation inverseCmd) {
+      node.setText(oldText, inverseCmd);
     }
   }
 }

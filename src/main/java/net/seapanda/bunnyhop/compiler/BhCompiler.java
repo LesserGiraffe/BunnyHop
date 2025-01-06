@@ -85,7 +85,7 @@ public class BhCompiler {
     Preprocessor.process(nodesToCompile);
     StringBuilder code = new StringBuilder();
     genCode(code, execNode, nodesToCompile, option);
-
+    
     Path logDir = Paths.get(Utility.execPath, BhConstants.Path.COMPILED_DIR);
     Path appFile = Paths.get(
         Utility.execPath, BhConstants.Path.COMPILED_DIR, BhConstants.Path.APP_FILE_NAME_JS);

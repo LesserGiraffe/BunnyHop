@@ -21,7 +21,6 @@ import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.view.node.TextAreaNodeView;
 import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
 import net.seapanda.bunnyhop.view.node.TextInputNodeView;
-import net.seapanda.bunnyhop.view.proxy.TextNodeViewProxy;
 
 /**
  * {@code TextFieldNodeView} のコントローラ.
@@ -38,7 +37,7 @@ public class TextInputNodeController extends BhNodeController {
     super(model, view);
     this.model = model;
     this.view = view;
-    model.setViewProxy(new TextNodeViewProxyImpl(view));
+    model.setViewProxy(new BhNodeViewProxyImpl(view, false));
     setEventHandlers(model, view);
   }
 
@@ -47,7 +46,7 @@ public class TextInputNodeController extends BhNodeController {
     super(model, view);
     this.model = model;
     this.view = view;
-    model.setViewProxy(new TextNodeViewProxyImpl(view));
+    model.setViewProxy(new BhNodeViewProxyImpl(view, false));
     setEventHandlers(model, view);
   }
 
@@ -66,6 +65,7 @@ public class TextInputNodeController extends BhNodeController {
     String initText = model.getText();
     view.setText(initText + " ");  //初期文字列が空文字だったときのため
     view.setText(initText);
+    model.getEventManager().addOnTextChanged((oldText, newText, userOpe) -> view.setText(newText));
   }
 
   /** {@code TextInputNodeView} のフォーカスが外れた時のイベントハンドラ. */
@@ -93,17 +93,5 @@ public class TextInputNodeController extends BhNodeController {
   /** {@code model} の持つ文字列に合わせて {@code view} の内容を変更する. */
   public static void matchViewToModel(TextNode model, TextInputNodeView view) {
     view.setText(model.getText());
-  }
-
-  private class TextNodeViewProxyImpl extends BhNodeViewProxyImpl implements TextNodeViewProxy {
-
-    public TextNodeViewProxyImpl(TextInputNodeView view) {
-      super(view, false);
-    }
-
-    @Override
-    public void matchViewContentToModel() {
-      view.setText(model.getText());
-    }
   }
 }

@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.control.node;
 
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
-import net.seapanda.bunnyhop.view.proxy.TextNodeViewProxy;
 
 /**
  * {@link LabelNodeView} のコントローラ.
@@ -35,7 +34,8 @@ public class LabelNodeController extends BhNodeController {
     super(model, view);
     this.model = model;
     this.view = view;
-    model.setViewProxy(new TextNodeViewProxyImpl(view));
+    model.setViewProxy(new BhNodeViewProxyImpl(view, false));
+    model.getEventManager().addOnTextChanged((oldText, newText, userOpe) -> view.setText(newText));
     setInitStr(model, view);
   }
 
@@ -54,17 +54,5 @@ public class LabelNodeController extends BhNodeController {
   /** {@code model} の持つ文字列に合わせて {@code view} の内容を変更する. */
   public static void matchViewToModel(TextNode model, LabelNodeView view) {
     view.setText(model.getText());
-  }
-
-  private class TextNodeViewProxyImpl extends BhNodeViewProxyImpl implements TextNodeViewProxy {
-
-    public TextNodeViewProxyImpl(LabelNodeView view) {
-      super(view, false);
-    }
-
-    @Override
-    public void matchViewContentToModel() {
-      view.setText(model.getText());
-    }
   }
 }

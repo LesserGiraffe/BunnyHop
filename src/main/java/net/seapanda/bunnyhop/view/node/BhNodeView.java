@@ -79,7 +79,6 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
   // 描画順序. 小さい値ほど手前に描画される.
   protected static final double COMPILE_ERR_MARK_VIEW_ORDER_OFFSET = -4000;
   protected static final double NODE_BASE_VIEW_ORDER_OFFSET = -2000;
-  protected static final double SHADOW_VIEW_ORDER_OFFSET = 0;
   protected static final double CHILD_VIEW_ORDER_OFFSET_FROM_PARENT = -1.0;
   /** ノード描画用ポリゴン, ボタン, コンパイルエラーマークを乗せるペイン. */
   protected final Pane nodeBase = new Pane();
@@ -457,16 +456,15 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
      *                  内部ノードと外部ノードを辿って影を付ける場合 false.
      */
     public void showShadow(boolean onlyOuter) {
+      Consumer<BhNodeView> fnShowShadow = (nodeView) -> {
+        if (nodeView.getLookManager().getBodyShape() != BodyShape.BODY_SHAPE_NONE) {
+          nodeView.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SHADOW, true);
+        }
+      };
       if (onlyOuter) {
-        CallbackInvoker.invokeForOuters(
-            nodeView -> nodeView.getLookManager().switchPseudoClassState(
-                BhConstants.Css.PSEUDO_SHADOW, true),
-            BhNodeView.this);
+        CallbackInvoker.invokeForOuters(fnShowShadow, BhNodeView.this);
       } else {
-        CallbackInvoker.invoke(
-            nodeView -> nodeView.getLookManager().switchPseudoClassState(
-              BhConstants.Css.PSEUDO_SHADOW, true),
-            BhNodeView.this);
+        CallbackInvoker.invoke(fnShowShadow, BhNodeView.this);
       }
     }
 
@@ -477,16 +475,12 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
      *                  内部ノードと外部ノードを辿って影を消す場合 false.
      */
     public void hideShadow(boolean onlyOuter) {
+      Consumer<BhNodeView> fnShowShadow = (nodeView) -> 
+          nodeView.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SHADOW, false);
       if (onlyOuter) {
-        CallbackInvoker.invokeForOuters(
-            nodeView -> nodeView.getLookManager().switchPseudoClassState(
-                BhConstants.Css.PSEUDO_SHADOW, false),
-            BhNodeView.this);
+        CallbackInvoker.invokeForOuters(fnShowShadow, BhNodeView.this);
       } else {
-        CallbackInvoker.invoke(
-            nodeView -> nodeView.getLookManager().switchPseudoClassState(
-              BhConstants.Css.PSEUDO_SHADOW, false),
-            BhNodeView.this);
+        CallbackInvoker.invoke(fnShowShadow, BhNodeView.this);
       }
     }
   }
@@ -901,7 +895,7 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
       CallbackInvoker.invoke(
           nodeView -> {
             updateZpos(nodeView, posZ.getValue());
-            posZ.subtract(1);
+            posZ.add(CHILD_VIEW_ORDER_OFFSET_FROM_PARENT);
           },
           BhNodeView.this);
     }

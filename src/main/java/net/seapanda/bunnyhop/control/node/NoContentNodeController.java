@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.control.node;
 
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.view.node.NoContentNodeView;
-import net.seapanda.bunnyhop.view.proxy.TextNodeViewProxy;
 
 /**
  * {@code NoContentNodeView} のコントローラ.
@@ -33,16 +32,6 @@ public class NoContentNodeController extends BhNodeController {
   public NoContentNodeController(TextNode model, NoContentNodeView view) {
     super(model, view);
     this.model = model;
-    model.setViewProxy(new TextNodeViewProxyImpl(view));
-  }
-
-  private class TextNodeViewProxyImpl extends BhNodeViewProxyImpl implements TextNodeViewProxy {
-
-    public TextNodeViewProxyImpl(NoContentNodeView view) {
-      super(view, false);
-    }
-
-    @Override
-    public void matchViewContentToModel() {}
+    model.setViewProxy(new BhNodeViewProxyImpl(view, false));
   }
 }

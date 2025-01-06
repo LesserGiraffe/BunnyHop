@@ -58,6 +58,7 @@ ext.jarLibName = 'Jlib'
 
 ext.bhRuntimeJarName = 'bhruntimelib.jar'
 ext.bhSimulatorJarName = 'bhsimulator.jar'
+ext.bhUtilityJarName = 'bhutility.jar'
 ext.bhRuntimeMainClass = 'net.seapanda.bunnyhop.runtime.AppMain'
 ext.bhProgramName = 'BhAppScript.js'
 
@@ -77,7 +78,9 @@ task prepareLibs(type: Copy) {
 
   doLast {
     ant.copy(todir: "$projectDir/../$appDirName/$jarLibName") {
-      fileset(dir: "$projectDir/..", includes: "$bhSimulatorJarName,$bhRuntimeJarName")
+      fileset(
+        dir: "$projectDir/../lib",
+        includes: "$bhSimulatorJarName,$bhRuntimeJarName,$bhUtilityJarName")
     }
   }
 }

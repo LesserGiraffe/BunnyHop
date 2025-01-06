@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.model.node;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
@@ -43,6 +44,8 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
   private Section childSection;
   /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクト. */
   private transient BhNodeViewProxy viewProxy = new BhNodeViewProxy() {};
+  /** このノードに登録されたイベントハンドラを管理するオブジェクト. */
+  private transient EventManager eventManager = new EventManager();
 
   /**
    * コンストラクタ.
@@ -123,6 +126,7 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
 
   /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクトを設定する. */
   public void setViewProxy(BhNodeViewProxy viewProxy) {
+    Objects.requireNonNull(viewProxy);
     this.viewProxy = viewProxy;
   }
 
@@ -166,6 +170,15 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
   @Override
   protected ConnectiveNode self() {
     return this;
+  }
+
+  @Override
+  public EventManager getEventManager() {
+    // シリアライズしたノードを操作したときに null が返るのを防ぐ.
+    if (eventManager == null) {
+      return new EventManager();
+    }
+    return eventManager;
   }
 
   @Override

@@ -18,9 +18,12 @@ package net.seapanda.bunnyhop.model.node;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.SequencedSet;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
@@ -34,7 +37,8 @@ import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Pair;
-import net.seapanda.bunnyhop.view.proxy.TextNodeViewProxy;
+import net.seapanda.bunnyhop.view.proxy.BhNodeViewProxy;
+import org.apache.commons.lang3.function.TriConsumer;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Script;
@@ -49,7 +53,9 @@ public class TextNode extends DerivativeBase<TextNode> {
 
   private String text = "";
   /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクト. */
-  private transient TextNodeViewProxy viewProxy = new TextNodeViewProxy() {};
+  private transient BhNodeViewProxy viewProxy = new BhNodeViewProxy() {};
+  /** このノードに登録されたイベントハンドラを管理するオブジェクト. */
+  private transient TextEventManager eventManager = new TextEventManager();
 
   /**
    * コンストラクタ.
@@ -79,7 +85,8 @@ public class TextNode extends DerivativeBase<TextNode> {
   }
 
   /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクトを設定する. */
-  public void setViewProxy(TextNodeViewProxy viewProxy) {
+  public void setViewProxy(BhNodeViewProxy viewProxy) {
+    Objects.requireNonNull(viewProxy);
     this.viewProxy = viewProxy;
   }
 
@@ -110,10 +117,24 @@ public class TextNode extends DerivativeBase<TextNode> {
    * @param text セットする文字列
    */
   public void setText(String text) {
-    this.text = text;
-    viewProxy.matchViewContentToModel();
+    setText(text, new UserOperation());
   }
 
+  /**
+   * 引数の文字列をセットする.
+   *
+   * @param text セットする文字列
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public void setText(String text, UserOperation userOpe) {
+    if (this.text.equals(text)) {
+      return;
+    }
+    String oldText = text;
+    this.text = text;
+    getEventManager().invokeOnTextChanged(oldText, userOpe);
+    userOpe.pushCmdOfSetText(this, oldText);
+  }
 
   /**
    * 引数の文字列がセット可能かどうか判断する.
@@ -255,13 +276,22 @@ public class TextNode extends DerivativeBase<TextNode> {
   }
 
   @Override
-  public TextNodeViewProxy getViewProxy() {
+  public BhNodeViewProxy getViewProxy() {
     return viewProxy;
   }
 
   @Override
   protected TextNode self() {
     return this;
+  }
+
+  @Override
+  public TextEventManager getEventManager() {
+    // シリアライズしたノードを操作したときに null が返るのを防ぐ.
+    if (eventManager == null) {
+      return new TextEventManager();
+    }
+    return eventManager;
   }
 
   @Override
@@ -279,5 +309,42 @@ public class TextNode extends DerivativeBase<TextNode> {
     BhService.msgPrinter().println(indent(depth + 1) + "<derivation>");
     getDerivatives().forEach(derv ->  BhService.msgPrinter().println(
         "%s<derivative>  %s".formatted(indent(depth + 2), derv.getInstanceId())));
+  }
+
+  /** イベントハンドラの管理を行うクラス. */
+  public class TextEventManager extends BhNode.EventManager {
+    private transient
+        SequencedSet<TriConsumer<? super String, ? super String, ? super UserOperation>>
+        onTextChangedList = new LinkedHashSet<>();
+    
+    /**
+     * ノードの選択状態が変更されたときのイベントハンドラを追加する.
+     *  <pre>
+     *  イベントハンドラの第 1 引数: 選択状態に変換のあった {@link BhNode}
+     *  イベントハンドラの第 2 引数: 選択状態. 選択されたなら true.
+     *  イベントハンドラの第 3 引数: undo 用コマンドオブジェクト
+     *  </pre>
+     *
+     * @param handler 追加するイベントハンドラ
+     */
+    public void addOnTextChanged(
+        TriConsumer<? super String, ? super String, ? super UserOperation> handler) {
+      onTextChangedList.addLast(handler);
+    }
+
+    /**
+     * ノードの選択状態が変更されたときのイベントハンドラを削除する.
+     *
+     * @param handler 削除するイベントハンドラ
+     */
+    public void removeOnTextChanged(
+        TriConsumer<? super String, ? super String, ? super UserOperation> handler) {
+      onTextChangedList.remove(handler);
+    }
+
+    /** 選択変更時のイベントハンドラを呼び出す. */
+    private void invokeOnTextChanged(String oldText, UserOperation userOpe) {
+      onTextChangedList.forEach(handler -> handler.accept(oldText, text, userOpe));
+    }
   }
 }

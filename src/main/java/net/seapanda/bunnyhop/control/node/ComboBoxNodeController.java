@@ -24,7 +24,6 @@ import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.part.SelectableItem;
-import net.seapanda.bunnyhop.view.proxy.TextNodeViewProxy;
 
 /**
  * {@link ComboBoxNodeView} のコントローラ.
@@ -42,7 +41,13 @@ public class ComboBoxNodeController extends BhNodeController {
     this.view = view;
     this.model = model;
     setEventHandlers(model, view);
-    model.setViewProxy(new TextNodeViewProxyImpl(view));
+    model.setViewProxy(new BhNodeViewProxyImpl(view, false));
+    model.getEventManager().addOnTextChanged((oldText, newText, userOpe) -> {
+      view.getItems().stream()
+          .filter(item -> item.getModelText().equals(newText))
+          .findFirst()
+          .ifPresent(view::setValue);
+    });
   }
 
   /**
@@ -103,20 +108,5 @@ public class ComboBoxNodeController extends BhNodeController {
         .filter(item -> item.getModelText().equals(model.getText()))
         .findFirst()
         .ifPresent(view::setValue);
-  }
-
-  private class TextNodeViewProxyImpl extends BhNodeViewProxyImpl implements TextNodeViewProxy {
-
-    public TextNodeViewProxyImpl(ComboBoxNodeView view) {
-      super(view, false);
-    }
-
-    @Override
-    public void matchViewContentToModel() {
-      view.getItems().stream()
-          .filter(item -> item.getModelText().equals(model.getText()))
-          .findFirst()
-          .ifPresent(view::setValue);
-    }
   }
 }

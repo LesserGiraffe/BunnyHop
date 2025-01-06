@@ -33,7 +33,6 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
 import net.seapanda.bunnyhop.view.node.TextInputNodeView;
-import net.seapanda.bunnyhop.view.proxy.TextNodeViewProxy;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 /**
@@ -69,8 +68,7 @@ public class TemplateNodeController {
 
     switch (model) {
       case TextNode textNode ->
-          textNode.setViewProxy(new TextNodeViewProxyImpl(view));
-
+          textNode.setViewProxy(new BhNodeViewProxyImpl(view, true));
       case ConnectiveNode connectiveNode ->
           connectiveNode.setViewProxy(new BhNodeViewProxyImpl(view, true));
       
@@ -103,6 +101,10 @@ public class TemplateNodeController {
         MouseEvent.ANY,
         mouseEvent -> consumeIfNotAcceptable(mouseEvent));
     model.getEventManager().addOnNodeReplaced((oldNode, newNode, userOpe) -> replaceView(newNode));
+    if (model instanceof TextNode textNode) {
+      textNode.getEventManager().addOnTextChanged(
+          (oldText, newText, userOpe) -> TemplateNodeController.matchViewToModel(textNode, view));
+    }
   }
 
   /** マウスボタン押下時のイベントハンドラ. */
@@ -203,15 +205,13 @@ public class TemplateNodeController {
     }
   }
 
-  private static void matchViewToModel(BhNode model, BhNodeView view) {
-    if (model instanceof TextNode textNode) {
-      if (view instanceof TextInputNodeView textInputView) {
-        TextInputNodeController.matchViewToModel(textNode, textInputView);
-      } else if (view instanceof LabelNodeView labelView) {
-        LabelNodeController.matchViewToModel(textNode, labelView);
-      } else if (view instanceof ComboBoxNodeView comboBoxView) {
-        ComboBoxNodeController.matchViewToModel(textNode, comboBoxView);
-      }
+  private static void matchViewToModel(TextNode node, BhNodeView view) {
+    if (view instanceof TextInputNodeView textInputView) {
+      TextInputNodeController.matchViewToModel(node, textInputView);
+    } else if (view instanceof LabelNodeView labelView) {
+      LabelNodeController.matchViewToModel(node, labelView);
+    } else if (view instanceof ComboBoxNodeView comboBoxView) {
+      ComboBoxNodeController.matchViewToModel(node, comboBoxView);
     }
   }
 
@@ -220,18 +220,6 @@ public class TemplateNodeController {
     if (newNode != null) {
       BhNodeView newNodeView = newNode.getViewProxy().getView();
       view.getTreeManager().replace(newNodeView);
-    }
-  }
-
-  private class TextNodeViewProxyImpl extends BhNodeViewProxyImpl implements TextNodeViewProxy {
-    
-    public TextNodeViewProxyImpl(BhNodeView view) {
-      super(view, true);
-    }
-
-    @Override
-    public void matchViewContentToModel() {
-      TemplateNodeController.matchViewToModel(model, view);
     }
   }
 }

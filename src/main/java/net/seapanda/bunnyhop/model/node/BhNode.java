@@ -72,8 +72,6 @@ public abstract class BhNode extends SyntaxSymbol {
   private Map<HookEvent, String> eventToScriptName = new HashMap<>();
   /** このノードに登録されたフック処理を実行するオブジェクト. */
   private transient HookAgent hookAgent = new HookAgent(this);
-  /** このノードに登録されたイベントハンドラを管理するオブジェクト. */
-  private transient EventManager eventManager = new EventManager();
   /** 最後にこのノードと入れ替わったノード. */
   private transient BhNode lastReplaced;
 
@@ -153,6 +151,14 @@ public abstract class BhNode extends SyntaxSymbol {
   public BhNode copy(UserOperation userOpe) {
     return copy(node -> true, userOpe);
   }
+
+  /**
+   * このノードに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
+   *
+   * @return このノードに対するイベントハンドラの追加と削除を行うオブジェクト
+   */
+  public abstract EventManager getEventManager();
+  
 
   /**
    * コンストラクタ.
@@ -370,7 +376,7 @@ public abstract class BhNode extends SyntaxSymbol {
     } else {
       instIdToNodeInWs.put(getInstanceId(), this);
     }
-    eventManager.invokeOnWorkspaceChanged(oldWs, userOpe);
+    getEventManager().invokeOnWorkspaceChanged(oldWs, userOpe);
     // undo 時に Workspace.addNode の逆操作とこのコマンドの逆操作が重複するが問題ない.
     // このメソッドの呼ばれ方によらず, このメソッドの逆操作をするために, ここで操作コマンドを追加する.
     userOpe.pushCmdOfSetWorkspace(oldWs, this);
@@ -427,7 +433,7 @@ public abstract class BhNode extends SyntaxSymbol {
   public void select(UserOperation userOpe) {
     if (!isSelected) {
       isSelected = true;
-      eventManager.invokeOnSelectionStateChanged(userOpe);
+      getEventManager().invokeOnSelectionStateChanged(userOpe);
       userOpe.pushCmdOfSelectNode(this);
     }
   }
@@ -436,7 +442,7 @@ public abstract class BhNode extends SyntaxSymbol {
   public void deselect(UserOperation userOpe) {
     if (isSelected) {
       isSelected = false;
-      eventManager.invokeOnSelectionStateChanged(userOpe);
+      getEventManager().invokeOnSelectionStateChanged(userOpe);
       userOpe.pushCmdOfDeselectNode(this);
     }
   }
@@ -555,15 +561,6 @@ public abstract class BhNode extends SyntaxSymbol {
    */
   public HookAgent getHookAgent() {
     return hookAgent;
-  }
-
-  /**
-   * このノードに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
-   *
-   * @return このノードに対するイベントハンドラの追加と削除を行うオブジェクト
-   */
-  public EventManager getEventManager() {
-    return eventManager;
   }
 
   /**
