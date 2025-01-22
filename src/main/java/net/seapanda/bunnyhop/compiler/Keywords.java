@@ -26,10 +26,10 @@ public class Keywords {
 
   /** 変数や関数に付く接頭辞. */
   public static class Prefix {
-    public static final String varPrefix = "_v";
-    public static final String lockVarPrefix = "_lockObj";
-    public static final String funcPrefix = "_f";
-    public static final String outArgPrefix = "_vo";
+    public static final String var = "_v";
+    public static final String lockVar = "_lockObj";
+    public static final String func = "_f";
+    public static final String outArg = "_vo";
   }
 
   /** JavaScript のキーワード. */

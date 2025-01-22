@@ -324,8 +324,8 @@ public class BhConstants {
     public static final int REMOTE_RUNTIME_TERMINATION_TIMEOUT = 10;
     /** リモートの BhRuntime 終了待ちのタイムアウト時間 (sec). */
     public static final int REMOTE_RUNTIME_TERMINATION_TIMEOUT_SHORT = 4;
-    /**  終了したプロセスの終了完了待ちタイムアウト時間 (sec). */
-    public static final int DEAD_PROC_END_TIMEOUT = 3;
+    /**  プロセスの終了完了待ちタイムアウト時間 (sec). */
+    public static final int PROC_END_TIMEOUT = 3;
     /** BhProgram 実行環境からの受信データ待ちタイムアウト (sec). */
     public static final int POP_RECV_DATA_TIMEOUT = 3;
     /** BhProgram 実行環境への送信データ待ちタイムアウト (sec). */

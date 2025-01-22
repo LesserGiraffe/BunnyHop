@@ -32,7 +32,7 @@ public class CommonCodeGenerator {
    * @return 変数名
    */
   public String genVarName(SyntaxSymbol varDecl) {
-    return Keywords.Prefix.varPrefix + varDecl.getInstanceId();
+    return Keywords.Prefix.var + varDecl.getInstanceId();
   }
 
   /**
@@ -42,7 +42,7 @@ public class CommonCodeGenerator {
    * @return 変数名
    */
   public String genOutArgName(SyntaxSymbol varDecl) {
-    return Keywords.Prefix.outArgPrefix + varDecl.getInstanceId();
+    return Keywords.Prefix.outArg + varDecl.getInstanceId();
   }
 
   /**
@@ -52,7 +52,7 @@ public class CommonCodeGenerator {
    * @return 関数名
    */
   public String genFuncName(SyntaxSymbol funcDef) {
-    return Keywords.Prefix.funcPrefix + funcDef.getInstanceId();
+    return Keywords.Prefix.func + funcDef.getInstanceId();
   }
 
   /**

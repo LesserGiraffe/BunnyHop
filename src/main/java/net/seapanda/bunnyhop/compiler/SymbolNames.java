@@ -133,6 +133,7 @@ public class SymbolNames {
             COLOR_EMPTY_LIST,
             SOUND_EMPTY_LIST));
 
+    /** 変数名を保持するノードが接続されるコネクタのリスト. */
     public static final HashSet<String> VAR_NAME_CNCTR_LIST =
         new HashSet<>(Arrays.asList(
             VAR_NAME,
@@ -210,34 +211,56 @@ public class SymbolNames {
     public static final String RIGHT_EXP = "RightExp";
     public static final String OPERATOR = "Operator";
 
+    public static final String OP_ADD = "add";
+    public static final String OP_SUB = "sub";
+    public static final String OP_DIV = "div";
+    public static final String OP_MUL = "mul";
+    public static final String OP_MOD = "mod";
+    public static final String OP_AND = "and";
+    public static final String OP_OR = "or";
+    public static final String OP_EQ = "eq";
+    public static final String OP_NEQ = "neq";
+    public static final String OP_LT = "lt";
+    public static final String OP_LTE = "lte";
+    public static final String OP_GT = "gt";
+    public static final String OP_GTE = "gte";
+
+    /** 二項演算のリスト. */
     public static final HashSet<String> LIST =
         new HashSet<>(Arrays.asList(
             FOUR_ARITH_EXP,
             MOD_EXP,
             BINARY_BOOL_EXP,
             NUM_COMP_EXP,
-            STR_COMP_EXP));  //二項演算子リスト
+            STR_COMP_EXP));
 
-    public static final HashSet<String> ARITH_EXCEPTION_EXP =
+    /** 論理二項演算のリスト. */
+    public static final HashSet<String> LOGICAL_LIST =
+        new HashSet<>(Arrays.asList(BINARY_BOOL_EXP));
+
+    /** 非論理二項演算のリスト. */
+    public static final HashSet<String> NONLOGICAL_LIST =
         new HashSet<>(Arrays.asList(
             FOUR_ARITH_EXP,
-            MOD_EXP));  // 算術演算例外を発生させる式のノード名
+            MOD_EXP,
+            NUM_COMP_EXP,
+            STR_COMP_EXP));
 
     public static final Map<String, String> OPERATOR_MAP =
         new HashMap<String, String>() {{
-            put("add", " + ");
-            put("sub", " - ");
-            put("div", " / ");
-            put("mul", " * ");
-            put("mod", " % ");
-            put("and", " && ");
-            put("or", " || ");
-            put("eq", " === ");
-            put("neq", " !== ");
-            put("lt", " < ");
-            put("lte", " <= ");
-            put("gt", " > ");
-            put("gte", " >= ");
+            put(OP_ADD, " + ");
+            put(OP_SUB, " - ");
+            put(OP_DIV, " / ");
+            put(OP_MUL, " * ");
+            put(OP_MOD, " % ");
+            put(OP_AND, " && ");
+            put(OP_OR,  " || ");
+            put(OP_EQ,  " === ");
+            put(OP_NEQ, " !== ");
+            put(OP_LT,  " < ");
+            put(OP_LTE, " <= ");
+            put(OP_GT,  " > ");
+            put(OP_GTE, " >= ");
           }};
   }
 
@@ -326,8 +349,8 @@ public class SymbolNames {
     public static final String OPT_SUPERSET = "superset";
     public static final String OPT_PROPER_SUPERSET = "properSuperset";
 
-    // 定義済み関数式のリスト
-    public static final HashSet<String> PREDEF_FUNC_CALL_EXP_LIST =
+    /** 定義済み関数式のリスト. */
+    public static final HashSet<String> EXP_LIST =
         new HashSet<>(Arrays.asList(
             STR_TO_NUM_EXP,
             ANY_TO_STR_EXP,
@@ -359,8 +382,8 @@ public class SymbolNames {
             Array.ANY_ARRAY_COMP_EXP,
             Array.ANY_SET_COMP_EXP));
 
-    // 定義済み関数文のリスト
-    public static final HashSet<String> PREDEF_FUNC_CALL_STAT_LIST =
+    /** 定義済み関数文のリスト. */
+    public static final HashSet<String> STAT_LIST =
         new HashSet<>(Arrays.asList(
             PRINT_STAT,
             MOVE_STAT,
@@ -385,7 +408,7 @@ public class SymbolNames {
             Array.ANY_ARRAY_REVERSE_STAT));
 
     //  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
-    public static final Map<FuncId, String> PREDEF_FUNC_NAME_MAP =
+    public static final Map<FuncId, String> NAME_MAP =
         new HashMap<FuncId, String>() {{
             put(FuncId.create(STR_TO_NUM_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
             put(FuncId.create(ANY_TO_STR_EXP), ScriptIdentifiers.Funcs.TO_STR);
@@ -489,13 +512,15 @@ public class SymbolNames {
     public static final String VOID_FUNC_DEF = "VoidFuncDef";
     public static final String VOID_FUNC_CALL = "VoidFuncCall";
 
-    public static final HashSet<String> USER_DEF_FUNC_LIST =
+    /** 関数定義ノードのリスト. */
+    public static final HashSet<String> LIST =
         new HashSet<>(Arrays.asList(
-            VOID_FUNC_DEF));  // 関数定義ノードのリスト
+            VOID_FUNC_DEF));
 
-    public static final HashSet<String> USER_DEF_FUNC_CALL_STAT_LIST =
+    /** ユーザ定義関数文のリスト. */
+    public static final HashSet<String> CALL_STAT_LIST =
         new HashSet<>(Arrays.asList(
-            VOID_FUNC_CALL));  // ユーザ定義関数文のリスト
+            VOID_FUNC_CALL));
   }
 
   /** イベントを発生させる処理に関するシンボル名. */
@@ -555,7 +580,7 @@ public class SymbolNames {
             MELODY_EXP_VOID,
             STR_CHAIN_LINK_VOID));
 
-    public static final HashSet<String> LITERAL_EXP_LIST =
+    public static final HashSet<String> EXP_LIST =
         new HashSet<>(Arrays.asList(
             STR_LITERAL_EXP,
             NEW_LINE,
@@ -627,6 +652,7 @@ public class SymbolNames {
         new HashSet<>(Arrays.asList(
             SYNC_TIMER_VAR));
 
+    /** グローバルデータの名前を保持するノードが接続されるコネクタのリスト. */
     public static final HashSet<String> DATA_NAME_CNCTR_LIST =
         new HashSet<>(Arrays.asList(
             MUTEX_BLOCK_NAME,

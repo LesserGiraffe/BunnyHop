@@ -61,9 +61,9 @@ public class StatCodeGenerator {
     }
     if (SymbolNames.AssignStat.LIST.contains(statSymbolName)) {
       genAssignStat(code, statementNode, nestLevel, option);
-    } else if (SymbolNames.UserDefFunc.USER_DEF_FUNC_CALL_STAT_LIST.contains(statSymbolName)) {
+    } else if (SymbolNames.UserDefFunc.CALL_STAT_LIST.contains(statSymbolName)) {
       expCodeGen.genUserDefFuncCallExp(code, statementNode, nestLevel, option, false);
-    } else if (SymbolNames.PreDefFunc.PREDEF_FUNC_CALL_STAT_LIST.contains(statSymbolName)) {
+    } else if (SymbolNames.PreDefFunc.STAT_LIST.contains(statSymbolName)) {
       expCodeGen.genPreDefFuncCallExp(code, statementNode, nestLevel, option, false);
     } else if (SymbolNames.ControlStat.LIST.contains(statSymbolName)) {
       genControlStat(code, statementNode, nestLevel, option);

@@ -58,7 +58,7 @@ public class FuncDefCodeGenerator {
       CompileOption option) {
 
     for (SyntaxSymbol symbol : compiledNodeList) {
-      if (SymbolNames.UserDefFunc.USER_DEF_FUNC_LIST.contains(symbol.getSymbolName())) {
+      if (SymbolNames.UserDefFunc.LIST.contains(symbol.getSymbolName())) {
         genFuncDef(symbol, code, nestLevel, option);
       }
     }

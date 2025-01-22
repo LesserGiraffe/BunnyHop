@@ -72,11 +72,11 @@ public class ExpCodeGenerator {
     } else if (SymbolNames.Literal.LIST.contains(expSymbolName)) {
       return genLiteral(code, expNode, nestLevel, option);
 
-    } else if (SymbolNames.Literal.LITERAL_EXP_LIST.contains(expSymbolName)) {
+    } else if (SymbolNames.Literal.EXP_LIST.contains(expSymbolName)) {
       return genExpression(
           code, expNode.findSymbolInDescendants("*", "Literal", "*"), nestLevel, option);
 
-    } else if (SymbolNames.PreDefFunc.PREDEF_FUNC_CALL_EXP_LIST.contains(expSymbolName)) {
+    } else if (SymbolNames.PreDefFunc.EXP_LIST.contains(expSymbolName)) {
       return genPreDefFuncCallExp(code, expNode, nestLevel, option, true);
 
     } else if (SymbolNames.ConstantValue.LIST.contains(expSymbolName)) {
@@ -99,6 +99,31 @@ public class ExpCodeGenerator {
       SyntaxSymbol binaryExpNode,
       int nestLevel,
       CompileOption option) {
+    
+    if (SymbolNames.BinaryExp.NONLOGICAL_LIST.contains(binaryExpNode.getSymbolName())) {
+      return genNonlogicalBinaryExp(code, binaryExpNode, nestLevel, option);
+    } else if (SymbolNames.BinaryExp.LOGICAL_LIST.contains(binaryExpNode.getSymbolName())) {
+      return genLogicalBinaryExp(code, binaryExpNode, nestLevel, option);
+    }
+    throw new AssertionError(
+        "Unknown binary expression.  (%s)".formatted(binaryExpNode.getSymbolName()));
+  }
+
+  /**
+   * 非論理二項演算式を作成する.
+   *
+   * @param code 途中式の格納先
+   * @param binaryExpNode 二項式のノード
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   * @return 式もしくは式の評価結果を格納した変数
+   */
+  private String genNonlogicalBinaryExp(
+      StringBuilder code,
+      SyntaxSymbol binaryExpNode,
+      int nestLevel,
+      CompileOption option) {
+    
     SyntaxSymbol leftExp =
         binaryExpNode.findSymbolInDescendants("*",  SymbolNames.BinaryExp.LEFT_EXP, "*");
     String leftExpCode = genExpression(code, leftExp, nestLevel, option);
@@ -110,9 +135,6 @@ public class ExpCodeGenerator {
     TextNode operator =
         (TextNode) binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.OPERATOR, "*");
     String operatorCode = SymbolNames.BinaryExp.OPERATOR_MAP.get(operator.getText());    
-    if (leftExp == null || rightExp == null) {
-      return null;
-    }
 
     String tmpVar = common.genVarName(binaryExpNode);
     // 実行中のノードをスレッドコンテキストに設定.
@@ -134,6 +156,60 @@ public class ExpCodeGenerator {
   }
 
   /**
+   * 論理二項演算式を作成する.
+   * 短絡評価をするため, 非論理二項演算式と分ける.
+   *
+   * @param code 途中式の格納先
+   * @param binaryExpNode 二項式のノード
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   * @return 式もしくは式の評価結果を格納した変数
+   */
+  private String genLogicalBinaryExp(
+      StringBuilder code,
+      SyntaxSymbol binaryExpNode,
+      int nestLevel,
+      CompileOption option) {
+    
+    SyntaxSymbol leftExp =
+        binaryExpNode.findSymbolInDescendants("*",  SymbolNames.BinaryExp.LEFT_EXP, "*");
+    String leftExpCode = genExpression(code, leftExp, nestLevel, option);
+    String tmpVar = common.genVarName(binaryExpNode);
+    TextNode operator =
+        (TextNode) binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.OPERATOR, "*");
+    String cond =
+        operator.getText().equals(SymbolNames.BinaryExp.OP_AND) ? tmpVar : ("!" + tmpVar);
+
+    code.append(common.indent(nestLevel))
+        .append(Keywords.Js._let_) // 再代入するので const 不可
+        .append(tmpVar)
+        .append(" = ")
+        .append(leftExpCode)
+        .append(";" + Keywords.newLine)
+        .append(common.indent(nestLevel))
+        .append(Keywords.Js._if_)
+        .append("(")
+        .append(cond)
+        .append(") {" + Keywords.newLine);
+
+    SyntaxSymbol rightExp =
+        binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
+    String rightExpCode = genExpression(code, rightExp, nestLevel + 1, option);
+    
+    code.append(common.indent(nestLevel + 1))
+        .append(tmpVar)
+        .append(" = ")
+        .append(tmpVar)
+        .append(SymbolNames.BinaryExp.OPERATOR_MAP.get(operator.getText()))
+        .append(rightExpCode)
+        .append(";" + Keywords.newLine)
+        .append(common.indent(nestLevel))
+        .append("}" + Keywords.newLine);
+
+    return tmpVar;
+  }
+
+  /**
    * 単項演算式を作成する.
    *
    * @param code 途中式の格納先
@@ -149,10 +225,6 @@ public class ExpCodeGenerator {
       CompileOption option) {
     SyntaxSymbol primaryExp =
         unaryExpNode.findSymbolInDescendants("*",  SymbolNames.UnaryExp.PRIMARY_EXP, "*");
-    if (primaryExp == null) {
-      return null;
-    }
-
     String primaryExpCode = genExpression(code, primaryExp, nestLevel, option);
     String operatorCode = SymbolNames.UnaryExp.OPERATOR_MAP.get(unaryExpNode.getSymbolName());
     String tmpVar = common.genVarName(unaryExpNode);
@@ -238,7 +310,7 @@ public class ExpCodeGenerator {
     List<String> outArgList = genPreDefFuncArgs(code, funcCallNode, true, nestLevel, option);
     argList.addAll(outArgList);
     FuncId funcIdentifier = createFuncId(funcCallNode);
-    String funcName = SymbolNames.PreDefFunc.PREDEF_FUNC_NAME_MAP.get(funcIdentifier);
+    String funcName = SymbolNames.PreDefFunc.NAME_MAP.get(funcIdentifier);
     String retValName = null;
     if (storeRetVal) {
       retValName = common.genVarName(funcCallNode);

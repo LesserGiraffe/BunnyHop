@@ -115,7 +115,7 @@ public class LocalBhRuntimeManager {
     boolean success = common.haltTransceiver();
     if (process != null) {
       success &= BhRuntimeManagerCommon.killProcess(
-          process, BhConstants.BhRuntime.DEAD_PROC_END_TIMEOUT);
+          process, BhConstants.BhRuntime.PROC_END_TIMEOUT);
     }
     process = null;
     if (!success) {

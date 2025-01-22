@@ -208,11 +208,9 @@ public class RemoteBhRuntimeManager {
         throw new Exception();
       }
       Optional<Integer> status = waitForChannelClosed(channel, timeout);
-      if (status.isEmpty()) {
-        throw new Exception();
-      }
-      if (status.get() != 0) {
-        BhService.msgPrinter().errForDebug("terminate status err  (%s)".formatted(status.get()));
+      int statusCode = status.orElseThrow(() -> new Exception());
+      if (statusCode != 0) {
+        BhService.msgPrinter().errForDebug("terminate status err  (%s)".formatted(statusCode));
         throw new Exception("");
       }
     } catch (Exception e) {
@@ -421,13 +419,13 @@ public class RemoteBhRuntimeManager {
   }
 
   /**
-   * SSHチャンネルが閉じるのを待つ.
+   * SSH チャンネルが閉じるのを待つ.
    *
    * @param channel 閉じるのを待つチャンネル
    * @param timeout タイムアウト(sec)
    * @return チャンネルで実行していたコマンドの終了コード. チャンネルのクローズに失敗した場合 Optiomal.empty.
    * */
-  private Optional<Integer> waitForChannelClosed(Channel channel, int timeout) {
+  private static Optional<Integer> waitForChannelClosed(Channel channel, int timeout) {
     long begin = System.currentTimeMillis();
     try {
       while (true) {
