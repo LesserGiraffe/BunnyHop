@@ -16,8 +16,8 @@
 
 package net.seapanda.bunnyhop.common;
 
-import net.seapanda.bunnyhop.export.AppVersion;
 import net.seapanda.bunnyhop.export.SaveDataVersion;
+import net.seapanda.bunnyhop.utility.AppVersion;
 
 /**
  * BunnyHop の定数一式をまとめたクラス.
