@@ -125,7 +125,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
         return;
       }
     }
-    for (Arrangement subGroupParams : arrangeParams.subGroup) {
+    for (Arrangement subGroupParams : arrangeParams.subGroups) {
       var subGroup = new BhNodeViewGroup(this, inner);
       subGroup.buildSubGroup(subGroupParams, styleId);
       subGroupList.add(subGroup);

@@ -252,7 +252,7 @@ public class BhConstants {
     public static final String KEY_CONNECTOR_SHIFT = "connectorShift";
     public static final String KEY_INNER = "inner";
     public static final String KEY_OUTER = "outer";
-    public static final String KEY_ARRANGEMENR = "arrangement";
+    public static final String KEY_ARRANGEMENT = "arrangement";
     public static final String KEY_SPACE = "space";
     public static final String KEY_CONNECTOR_LIST = "connectorList";
     public static final String KEY_SUB_GROUP = "subGroup";

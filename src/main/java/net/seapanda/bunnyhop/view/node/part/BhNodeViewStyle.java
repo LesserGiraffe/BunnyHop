@@ -18,6 +18,12 @@ package net.seapanda.bunnyhop.view.node.part;
 
 import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,7 +36,6 @@ import java.util.stream.Stream;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-import net.seapanda.bunnyhop.service.BhScriptManager;
 import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.Vec2D;
@@ -40,8 +45,6 @@ import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape.CnctrShape;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ConnectiveNodeView;
-import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.NativeObject;
 
 /**
  * 描画時の見た目 (大きさ, 色など) の情報を持つクラス.
@@ -112,7 +115,7 @@ public class BhNodeViewStyle {
     /** 子要素のノードとサブグループが並ぶ方向. */
     public ChildArrangement arrangement = ChildArrangement.COLUMN;
     public List<String> cnctrNameList = new ArrayList<>();
-    public List<Arrangement> subGroup = new ArrayList<>();
+    public List<Arrangement> subGroups = new ArrayList<>();
 
     /** コンストラクタ. */
     public Arrangement() {}
@@ -126,7 +129,7 @@ public class BhNodeViewStyle {
       paddingLeft = org.paddingLeft;
       arrangement = org.arrangement;
       cnctrNameList.addAll(org.cnctrNameList);
-      org.subGroup.forEach(subGrp -> subGroup.add(new Arrangement(subGrp)));
+      org.subGroups.forEach(subGrp -> subGroups.add(new Arrangement(subGrp)));
     }
   }
 
@@ -184,17 +187,102 @@ public class BhNodeViewStyle {
 
   /** コネクタの位置. */
   public enum ConnectorPos {
-    LEFT, TOP
+
+    LEFT(BhConstants.NodeStyleDef.VAL_LEFT),
+    TOP(BhConstants.NodeStyleDef.VAL_TOP);
+
+    private final String name;
+  
+    private ConnectorPos(String name) {
+      this.name = name;
+    }
+  
+    /** タイプ名から列挙子を得る. */
+    public static ConnectorPos of(String name) {
+      for (var val : ConnectorPos.values()) {
+        if (val.getName().equals(name)) {
+          return val;
+        }
+      }
+      throw new IllegalArgumentException(
+          "Unknown %s  (%s)".formatted(ChildArrangement.class.getSimpleName(), name));
+    }
+  
+    public String getName() {
+      return name;
+    }
+  
+    @Override
+    public String toString() {
+      return name;
+    }
+
   }
 
   /** 切り欠きの位置. */
   public enum NotchPos {
-    RIGHT, BOTTOM
+
+    RIGHT(BhConstants.NodeStyleDef.VAL_RIGHT),
+    BOTTOM(BhConstants.NodeStyleDef.VAL_BOTTOM);
+
+    private final String name;
+  
+    private NotchPos(String name) {
+      this.name = name;
+    }
+  
+    /** タイプ名から列挙子を得る. */
+    public static NotchPos of(String name) {
+      for (var val : NotchPos.values()) {
+        if (val.getName().equals(name)) {
+          return val;
+        }
+      }
+      throw new IllegalArgumentException(
+          "Unknown %s  (%s)".formatted(ChildArrangement.class.getSimpleName(), name));
+    }
+  
+    public String getName() {
+      return name;
+    }
+  
+    @Override
+    public String toString() {
+      return name;
+    }
   }
 
   /** 子ノードの描画方向. */
   public enum ChildArrangement {
-    ROW, COLUMN
+
+    ROW(BhConstants.NodeStyleDef.VAL_ROW),
+    COLUMN(BhConstants.NodeStyleDef.VAL_COLUMN);
+  
+    private final String name;
+  
+    private ChildArrangement(String name) {
+      this.name = name;
+    }
+  
+    /** タイプ名から列挙子を得る. */
+    public static ChildArrangement of(String name) {
+      for (var val : ChildArrangement.values()) {
+        if (val.getName().equals(name)) {
+          return val;
+        }
+      }
+      throw new IllegalArgumentException(
+          "Unknown %s  (%s)".formatted(ChildArrangement.class.getSimpleName(), name));
+    }
+  
+    public String getName() {
+      return name;
+    }
+  
+    @Override
+    public String toString() {
+      return name;
+    }
   }
 
   /** コンストラクタ. */
@@ -277,7 +365,6 @@ public class BhNodeViewStyle {
       BhService.msgPrinter().errForDebug("Directory not found.  (%s)".formatted(dirPath));
       return false;
     }
-
     boolean succes = paths.map(filePath -> registerNodeStyle(filePath)).allMatch(Boolean::valueOf);
     nodeStyleIdToNodeStyleTemplate.put(
         BhConstants.BhModelDef.ATTR_VAL_DEFAULT_NODE_STYLE_ID, new BhNodeViewStyle());
@@ -292,16 +379,19 @@ public class BhNodeViewStyle {
    * @return 成功した場合 true.
    */
   private static Boolean registerNodeStyle(Path filePath) {
-    Optional<NativeObject> jsonObj = BhScriptManager.parseJsonFile(filePath);
-    if (jsonObj.isEmpty()) {
+    var gson = new Gson();
+    try (var jr = gson.newJsonReader(new FileReader(filePath.toString()))) {
+      JsonObject jsonObj = gson.fromJson(jr, JsonObject.class);
+      String styleId = filePath.getFileName().toString();
+      Optional<BhNodeViewStyle> bhNodeViewStyle =
+          genBhNodeViewStyle(jsonObj, filePath.toAbsolutePath().toString(), styleId);
+      bhNodeViewStyle.ifPresent(
+          viewStyle -> nodeStyleIdToNodeStyleTemplate.put(viewStyle.nodeStyleId, viewStyle));
+      return bhNodeViewStyle.isPresent();
+    } catch (Exception e) {
+      BhService.msgPrinter().errForDebug(e.toString());
       return false;
     }
-    String styleId = filePath.getFileName().toString();
-    Optional<BhNodeViewStyle> bhNodeViewStyle =
-        genBhNodeViewStyle(jsonObj.get(), filePath.toAbsolutePath().toString(), styleId);
-    bhNodeViewStyle.ifPresent(
-        viewStyle -> nodeStyleIdToNodeStyleTemplate.put(viewStyle.nodeStyleId, viewStyle));
-    return bhNodeViewStyle.isPresent();
   }
 
   /**
@@ -312,172 +402,123 @@ public class BhNodeViewStyle {
    * @return BhNodeViewStyle (オプション)
    */
   private static Optional<BhNodeViewStyle> genBhNodeViewStyle(
-      NativeObject jsonObj, String fileName, String styleId) {
+      JsonObject jsonObj, String fileName, String styleId) {
     BhNodeViewStyle style = new BhNodeViewStyle();
-    //styleID
+
+    // styleID
     style.nodeStyleId = styleId;
 
-    //paddingTop
-    Optional<Object> val =
-        readValue(BhConstants.NodeStyleDef.KEY_PADDING_TOP, Number.class, jsonObj, fileName);
-    val.ifPresent(paddingTop ->
-        style.paddingTop = ((Number) paddingTop).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    // paddingTop
+    style.paddingTop = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_TOP, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.paddingTop);
 
-    //paddingBottom
-    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_BOTTOM, Number.class, jsonObj, fileName);
-    val.ifPresent(paddingBottom ->
-        style.paddingBottom = ((Number) paddingBottom).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    // paddingBottom
+    style.paddingBottom = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_BOTTOM, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.paddingBottom);
 
-    //paddingLeft
-    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_LEFT, Number.class, jsonObj, fileName);
-    val.ifPresent(paddingLeft ->
-        style.paddingLeft = ((Number) paddingLeft).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    // paddingLeft
+    style.paddingLeft = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_LEFT, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.paddingLeft);
 
-    //paddingRight
-    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_RIGHT, Number.class, jsonObj, fileName);
-    val.ifPresent(paddingRight ->
-        style.paddingRight = ((Number) paddingRight).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    // paddingRight
+    style.paddingRight = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_RIGHT, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.paddingRight);
 
-    //bodyShape
-    val = readValue(BhConstants.NodeStyleDef.KEY_BODY_SHAPE, String.class, jsonObj, fileName);
-    val.ifPresent(bodyShape -> {
-      String shapeStr = (String) bodyShape;
-      BodyShape shapeType = BodyShapeBase.getBodyTypeFromName(shapeStr, fileName);
-      style.bodyShape = shapeType;
-    });
+    // bodyShape
+    style.bodyShape = readString(BhConstants.NodeStyleDef.KEY_BODY_SHAPE, jsonObj, fileName)
+        .map(val -> BodyShapeBase.getBodyTypeFromName(val, fileName)).orElse(style.bodyShape);
 
-    //connectorPos
-    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_POS, String.class, jsonObj, fileName);
-    val.ifPresent(connectorPos -> {
-      String posStr = (String) connectorPos;
-      if (posStr.equals(BhConstants.NodeStyleDef.VAL_TOP)) {
-        style.connectorPos = ConnectorPos.TOP;
-      } else if (posStr.equals(BhConstants.NodeStyleDef.VAL_LEFT)) {
-        style.connectorPos = ConnectorPos.LEFT;
-      } else {
-        BhService.msgPrinter().errForDebug("'%s' (%s) format is invalid.  (%s)".formatted(
-            BhConstants.NodeStyleDef.KEY_CONNECTOR_POS, posStr, fileName));
-      }
-    });
+    // connectorPos
+    style.connectorPos = readString(BhConstants.NodeStyleDef.KEY_CONNECTOR_POS, jsonObj, fileName)
+        .map(val -> ConnectorPos.of(val)).orElse(style.connectorPos);
 
-    //connectorShift
-    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHIFT, Number.class, jsonObj, fileName);
-    val.ifPresent(connectorShift -> style.connectorShift = 
-        ((Number) connectorShift).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    // connectorShift
+    style.connectorShift =
+        readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHIFT, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.connectorShift);
 
-    //connectorWidth
-    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_WIDTH, Number.class, jsonObj, fileName);
-    val.ifPresent(connectorWidth -> style.connectorWidth =
-        ((Number) connectorWidth).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    // connectorWidth
+    style.connectorWidth =
+        readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_WIDTH, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.connectorWidth);
 
-    //connectorHeight
-    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_HEIGHT, Number.class, jsonObj, fileName);
-    val.ifPresent(connectorHeight -> style.connectorHeight =
-        ((Number) connectorHeight).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    // connectorHeight
+    style.connectorHeight =
+        readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_HEIGHT, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.connectorHeight);
 
-    //connectorShape
-    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHAPE, String.class, jsonObj, fileName);
-    val.ifPresent(shape -> {
-      String shapeStr = (String) shape;
-      CnctrShape shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
-      style.connectorShape = shapeType;
-    });
+    // connectorShape
+    style.connectorShape =
+        readString(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHAPE, jsonObj, fileName)
+        .map(val -> ConnectorShape.getConnectorTypeFromName(val, fileName))
+        .orElse(style.connectorShape);
 
-    //connectorShapeFixed
-    style.connectorShapeFixed = style.connectorShape;
-    val = readValue(
-        BhConstants.NodeStyleDef.KEY_CONNECTOR_SHAPE_FIXED, String.class, jsonObj, fileName);
-    val.ifPresent(shape -> {
-      String shapeStr = (String) shape;
-      CnctrShape shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
-      style.connectorShapeFixed = shapeType;
-    });
+    // connectorShapeFixed
+    style.connectorShapeFixed =
+        readString(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHAPE_FIXED, jsonObj, fileName)
+        .map(val -> ConnectorShape.getConnectorTypeFromName(val, fileName))
+        .orElse(style.connectorShape);  // fixed の場合の設定が存在しない場合は, 非 fixed の設定と同じにする.
 
-    //notchPos
-    val = readValue(BhConstants.NodeStyleDef.KEY_NOTCH_POS, String.class, jsonObj, fileName);
-    val.ifPresent(notchPos -> {
-      String posStr = (String) notchPos;
-      if (posStr.equals(BhConstants.NodeStyleDef.VAL_RIGHT)) {
-        style.notchPos = NotchPos.RIGHT;
-      } else if (posStr.equals(BhConstants.NodeStyleDef.VAL_BOTTOM)) {
-        style.notchPos = NotchPos.BOTTOM;
-      } else {
-        BhService.msgPrinter().errForDebug("'%s' (%s) format is invalid.  (%s)"
-            .formatted(BhConstants.NodeStyleDef.KEY_NOTCH_POS, posStr, fileName));
-      }
-    });
+    // notchPos
+    style.notchPos = readString(BhConstants.NodeStyleDef.KEY_NOTCH_POS, jsonObj, fileName)
+        .map(val -> NotchPos.of(val)).orElse(style.notchPos);
 
-    //notchWidth
-    val = readValue(BhConstants.NodeStyleDef.KEY_NOTCH_WIDTH, Number.class, jsonObj, fileName);
-    val.ifPresent(notchWidth ->
-        style.notchWidth = ((Number) notchWidth).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    // notchWidth
+    style.notchWidth = readNumber(BhConstants.NodeStyleDef.KEY_NOTCH_WIDTH, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.notchWidth);
 
-    //notchHeight
-    val = readValue(BhConstants.NodeStyleDef.KEY_NOTCH_HEIGHT, Number.class, jsonObj, fileName);
-    val.ifPresent(notchHeight ->
-        style.notchHeight = ((Number) notchHeight).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    // notchHeight
+    style.notchHeight = readNumber(BhConstants.NodeStyleDef.KEY_NOTCH_HEIGHT, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.notchHeight);
 
-    //notchShape
-    val = readValue(BhConstants.NodeStyleDef.KEY_NOTCH_SHAPE, String.class, jsonObj, fileName);
-    val.ifPresent(notchShape -> {
-      String shapeStr = (String) notchShape;
-      CnctrShape shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
-      style.notchShape = shapeType;
-    });
+    // notchShape
+    style.notchShape =
+        readString(BhConstants.NodeStyleDef.KEY_NOTCH_SHAPE, jsonObj, fileName)
+        .map(val -> ConnectorShape.getConnectorTypeFromName(val, fileName))
+        .orElse(style.notchShape);
 
-    //notchShapeFixed
-    style.notchShapeFixed = style.notchShape;
-    val = readValue(
-        BhConstants.NodeStyleDef.KEY_NOTCH_SHAPE_FIXED, String.class, jsonObj, fileName);
-    val.ifPresent(notchShape -> {
-      String shapeStr = (String) notchShape;
-      CnctrShape shapeType = ConnectorShape.getConnectorTypeFromName(shapeStr, fileName);
-      style.notchShapeFixed = shapeType;
-    });
+    // notchShapeFixed
+    style.notchShapeFixed =
+        readString(BhConstants.NodeStyleDef.KEY_NOTCH_SHAPE_FIXED, jsonObj, fileName)
+        .map(val -> ConnectorShape.getConnectorTypeFromName(val, fileName))
+        .orElse(style.notchShape); // fixed の場合の設定が存在しない場合は, 非 fixed の設定と同じにする.
 
-    //connectorBoundsRate
-    val = readValue(
-        BhConstants.NodeStyleDef.KEY_CONNECTOR_BOUNDS_RATE, Number.class, jsonObj, fileName);
-    val.ifPresent(connectorBoundsRate ->
-        style.connectorBoundsRate = ((Number) connectorBoundsRate).doubleValue());
+    // connectorBoundsRate
+    style.connectorBoundsRate =
+        readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_BOUNDS_RATE, jsonObj, fileName)
+        .map(val -> val.doubleValue()).orElse(style.connectorBoundsRate);
 
-    //bodyCssClass
-    val = readValue(BhConstants.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
-    val.ifPresent(bodyCssClass -> style.cssClass = (String) bodyCssClass);
+    // bodyCssClass
+    style.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(style.cssClass);
+    
+    // connective
+    readObject(BhConstants.NodeStyleDef.KEY_CONNECTIVE, jsonObj, fileName)
+        .ifPresent(obj -> fillConnectiveParams(style.connective, obj, fileName));
 
-    //connective
-    val = readValue(BhConstants.NodeStyleDef.KEY_CONNECTIVE, NativeObject.class, jsonObj, fileName);
-    val.ifPresent(
-        connective -> fillConnectiveParams(style.connective, (NativeObject) connective, fileName));
+    // textField
+    readObject(BhConstants.NodeStyleDef.KEY_TEXT_FIELD, jsonObj, fileName)
+        .ifPresent(obj -> fillTextFieldParams(style.textField, obj, fileName));
 
-    //textField
-    val = readValue(BhConstants.NodeStyleDef.KEY_TEXT_FIELD, NativeObject.class, jsonObj, fileName);
-    val.ifPresent(
-        textField -> fillTextFieldParams(style.textField, (NativeObject) textField, fileName));
+    // label
+    readObject(BhConstants.NodeStyleDef.KEY_LABEL, jsonObj, fileName)
+        .ifPresent(obj -> fillLabelParams(style.label, obj, fileName));
 
-    //label
-    val = readValue(BhConstants.NodeStyleDef.KEY_LABEL, NativeObject.class, jsonObj, fileName);
-    val.ifPresent(label -> fillLabelParams(style.label, (NativeObject) label, fileName));
+    // comboBox
+    readObject(BhConstants.NodeStyleDef.KEY_COMBO_BOX, jsonObj, fileName)
+        .ifPresent(obj -> fillComboBoxParams(style.comboBox, obj, fileName));
 
-    //comboBox
-    val = readValue(BhConstants.NodeStyleDef.KEY_COMBO_BOX, NativeObject.class, jsonObj, fileName);
-    val.ifPresent(
-        comboBox -> fillComboBoxParams(style.comboBox, (NativeObject) comboBox, fileName));
+    // textArea
+    readObject(BhConstants.NodeStyleDef.KEY_TEXT_AREA, jsonObj, fileName)
+        .ifPresent(obj -> fillTextAreaParams(style.textArea, obj, fileName));
 
-    //textArea
-    val = readValue(BhConstants.NodeStyleDef.KEY_TEXT_AREA, NativeObject.class, jsonObj, fileName);
-    val.ifPresent(
-        textArea -> fillTextAreaParams(style.textArea, (NativeObject) textArea, fileName));
+    // privateTemplate
+    readObject(BhConstants.NodeStyleDef.KEY_PRIVATE_TEMPLATE, jsonObj, fileName)
+        .ifPresent(obj -> fillButtonParams(style.privatTemplate, obj, fileName));
 
-    //privateTemplate
-    val = readValue(
-        BhConstants.NodeStyleDef.KEY_PRIVATE_TEMPLATE, NativeObject.class, jsonObj, fileName);
-    val.ifPresent(privateTemplate ->
-        fillButtonParams(style.privatTemplate, (NativeObject) privateTemplate, fileName));
-
-    //component
-    val = readValue(BhConstants.NodeStyleDef.KEY_COMPONENT, String.class, jsonObj, fileName);
-    val.ifPresent(type -> style.component = ComponentType.toType((String) type));
+    // component
+    style.component = readString(BhConstants.NodeStyleDef.KEY_COMPONENT, jsonObj, fileName)
+        .map(val -> ComponentType.of(val)).orElse(style.component);
     
     return Optional.of(style);
   }
@@ -489,20 +530,14 @@ public class BhNodeViewStyle {
    * @param fileName jsonObj が記述してある .JSON ファイルの名前
    */
   private static void fillConnectiveParams(
-      BhNodeViewStyle.Connective connectiveStyle,
-      NativeObject jsonObj,
-      String fileName) {
-        
+      BhNodeViewStyle.Connective connectiveStyle, JsonObject jsonObj, String fileName) {
     // inner
-    Optional<Object> val =
-        readValue(BhConstants.NodeStyleDef.KEY_INNER, NativeObject.class, jsonObj, fileName);
-    val.ifPresent(innerArrange -> 
-        fillArrangementParams(connectiveStyle.inner, (NativeObject) innerArrange, fileName));
+    readObject(BhConstants.NodeStyleDef.KEY_INNER, jsonObj, fileName)
+        .ifPresent(obj -> fillArrangementParams(connectiveStyle.inner, obj, fileName));
 
     // outer
-    val = readValue(BhConstants.NodeStyleDef.KEY_OUTER, NativeObject.class, jsonObj, fileName);
-    val.ifPresent(outerArrange -> 
-        fillArrangementParams(connectiveStyle.outer, (NativeObject) outerArrange, fileName));
+    readObject(BhConstants.NodeStyleDef.KEY_OUTER, jsonObj, fileName)
+        .ifPresent(obj -> fillArrangementParams(connectiveStyle.outer, obj, fileName));
   }
 
   /**
@@ -513,75 +548,57 @@ public class BhNodeViewStyle {
    * @param fileName jsonObj が記述してある .JSON ファイルの名前
    */
   private static void fillArrangementParams(
-      BhNodeViewStyle.Arrangement arrangement,
-      NativeObject jsonObj,
-      String fileName) {
+      BhNodeViewStyle.Arrangement arrangement, JsonObject jsonObj, String fileName) {
+    // space
+    arrangement.space = readNumber(BhConstants.NodeStyleDef.KEY_SPACE, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(arrangement.space);
 
-    //space
-    Optional<Object> val =
-        readValue(BhConstants.NodeStyleDef.KEY_SPACE, Number.class, jsonObj, fileName);
-    val.ifPresent(space -> {
-      arrangement.space = ((Number) space).doubleValue() * BhConstants.LnF.NODE_SCALE;
-    });
+    // paddingTop
+    arrangement.paddingTop = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_TOP, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(arrangement.paddingTop);
 
-    //paddingTop
-    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_TOP, Number.class, jsonObj, fileName);
-    val.ifPresent(paddingTop -> {
-      arrangement.paddingTop = ((Number) paddingTop).doubleValue() * BhConstants.LnF.NODE_SCALE;
-    });
+    // paddingRight
+    arrangement.paddingRight =
+        readNumber(BhConstants.NodeStyleDef.KEY_PADDING_RIGHT, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE)
+        .orElse(arrangement.paddingRight);
 
-    //paddingRight
-    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_RIGHT, Number.class, jsonObj, fileName);
-    val.ifPresent(paddingRight -> {
-      arrangement.paddingRight = ((Number) paddingRight).doubleValue() * BhConstants.LnF.NODE_SCALE;
-    });
+    // paddingBottom
+    arrangement.paddingBottom =
+        readNumber(BhConstants.NodeStyleDef.KEY_PADDING_BOTTOM, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE)
+        .orElse(arrangement.paddingBottom);
 
-    //paddingBottom
-    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_BOTTOM, Number.class, jsonObj, fileName);
-    val.ifPresent(paddingBottom -> arrangement.paddingBottom = 
-        ((Number) paddingBottom).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    // paddingLeft
+    arrangement.paddingLeft =
+        readNumber(BhConstants.NodeStyleDef.KEY_PADDING_LEFT, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE)
+        .orElse(arrangement.paddingLeft);
 
-    //paddingLeft
-    val = readValue(BhConstants.NodeStyleDef.KEY_PADDING_LEFT, Number.class, jsonObj, fileName);
-    val.ifPresent(paddingLeft -> {
-      arrangement.paddingLeft = ((Number) paddingLeft).doubleValue() * BhConstants.LnF.NODE_SCALE;
-    });
+    // arrangement
+    arrangement.arrangement =
+        readString(BhConstants.NodeStyleDef.KEY_ARRANGEMENT, jsonObj, fileName)
+        .map(val -> ChildArrangement.of(val)).orElse(arrangement.arrangement);
 
-    //arrangement
-    val = readValue(BhConstants.NodeStyleDef.KEY_ARRANGEMENR, String.class, jsonObj, fileName);
-    val.ifPresent(childArrange -> {
-      String arrangeStr = (String) childArrange;
-      if (arrangeStr.equals(BhConstants.NodeStyleDef.VAL_ROW)) {
-        arrangement.arrangement = ChildArrangement.ROW;
-      } else if (arrangeStr.equals(BhConstants.NodeStyleDef.VAL_COLUMN)) {
-        arrangement.arrangement = ChildArrangement.COLUMN;
-      } else {
-        BhService.msgPrinter().errForDebug("'%s' (%s) format is invalid.  (%s)"
-            .formatted(BhConstants.NodeStyleDef.KEY_ARRANGEMENR, arrangeStr, fileName));
-      }
-    });
+    // cnctrNameList
+    readArray(BhConstants.NodeStyleDef.KEY_CONNECTOR_LIST, jsonObj, fileName)
+        .ifPresent(vals ->
+            vals.asList().stream()
+                .filter(val -> val.isJsonPrimitive() && val.getAsJsonPrimitive().isString())
+                .map(val -> val.getAsJsonPrimitive().getAsString())
+                .forEach(val -> arrangement.cnctrNameList.add(val)));
 
-    //cnctrNameList
-    val = readValue(
-        BhConstants.NodeStyleDef.KEY_CONNECTOR_LIST, NativeArray.class, jsonObj, fileName);
-    val.ifPresent(cnctrs -> {
-      for (Object cnctrName : (NativeArray) cnctrs) {
-        arrangement.cnctrNameList.add(cnctrName.toString());
-      }
-    });
-
-    //subGroup
+    // subGroup
     int groupId = 0;
     while (true) {
       String subGroupKeyName = BhConstants.NodeStyleDef.KEY_SUB_GROUP + groupId;
-      val = readValue(subGroupKeyName, NativeObject.class, jsonObj, fileName);
-      if (val.isPresent()) {
-        Arrangement subGroup = new Arrangement();
-        fillArrangementParams(subGroup, (NativeObject) val.get(), fileName);
-        arrangement.subGroup.add(subGroup);
-      } else {
+      Optional<JsonObject> obj = readObject(subGroupKeyName, jsonObj, fileName);
+      if (obj.isEmpty()) {
         break;
       }
+      Arrangement subGroup = new Arrangement();
+      fillArrangementParams(subGroup, obj.get(), fileName);
+      arrangement.subGroups.add(subGroup);      
       ++groupId;
     }
   }
@@ -594,26 +611,18 @@ public class BhNodeViewStyle {
    * @param fileName jsonObj が記述してある .json ファイルの名前
    */
   private static void fillButtonParams(
-      BhNodeViewStyle.Button button,
-      NativeObject jsonObj,
-      String fileName) {
+      BhNodeViewStyle.Button button, JsonObject jsonObj, String fileName) {
+    // buttonPosX
+    button.buttonPosX = readNumber(BhConstants.NodeStyleDef.KEY_BUTTON_POS_X, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(button.buttonPosX);
 
-    //buttonPosX
-    Optional<Object> val =
-        readValue(BhConstants.NodeStyleDef.KEY_BUTTON_POS_X, Number.class, jsonObj, fileName);
-    val.ifPresent(btnPosX -> {
-      button.buttonPosX = ((Number) btnPosX).doubleValue() * BhConstants.LnF.NODE_SCALE;
-    });
+    // buttonPosY
+    button.buttonPosY = readNumber(BhConstants.NodeStyleDef.KEY_BUTTON_POS_Y, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(button.buttonPosY);
 
-    //buttonPosY
-    val = readValue(BhConstants.NodeStyleDef.KEY_BUTTON_POS_Y, Number.class, jsonObj, fileName);
-    val.ifPresent(btnPosY -> {
-      button.buttonPosY = ((Number) btnPosY).doubleValue() * BhConstants.LnF.NODE_SCALE;
-    });
-
-    //buttonCssClass
-    val = readValue(BhConstants.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
-    val.ifPresent(buttonCssClass -> button.cssClass = (String) buttonCssClass);
+    // buttonCssClass
+    button.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(button.cssClass);
   }
 
   /**
@@ -624,23 +633,18 @@ public class BhNodeViewStyle {
    * @param fileName jsonObj が記述してある .json ファイルの名前
    */
   private static void fillTextFieldParams(
-      BhNodeViewStyle.TextField textField,
-      NativeObject jsonObj,
-      String fileName) {
+      BhNodeViewStyle.TextField textField, JsonObject jsonObj, String fileName) {
+    // cssClass
+    textField.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+          .orElse(textField.cssClass);
 
-    //cssClass
-    Optional<Object> val =
-        readValue(BhConstants.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
-    val.ifPresent(textCssClass -> textField.cssClass = (String) textCssClass);
-
-    //minWidth
-    val = readValue(BhConstants.NodeStyleDef.KEY_MIN_WIDTH, Number.class, jsonObj, fileName);
-    val.ifPresent(minWidth ->
-        textField.minWidth = ((Number) minWidth).doubleValue() * BhConstants.LnF.NODE_SCALE);
-    
+    // minWidth
+    textField.minWidth = readNumber(BhConstants.NodeStyleDef.KEY_MIN_WIDTH, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(textField.minWidth);
+        
     // editable
-    val = readValue(BhConstants.NodeStyleDef.KEY_EDITABLE, Boolean.class, jsonObj, fileName);
-    val.ifPresent(editable -> textField.editable = ((Boolean) editable).booleanValue());
+    textField.editable = readBool(BhConstants.NodeStyleDef.KEY_EDITABLE, jsonObj, fileName)
+        .orElse(textField.editable);
   }
 
   /**
@@ -651,14 +655,10 @@ public class BhNodeViewStyle {
    * @param fileName jsonObj が記述してある .json ファイルの名前
    */
   private static void fillLabelParams(
-      BhNodeViewStyle.Label textField,
-      NativeObject jsonObj,
-      String fileName) {
-
-    //cssClass
-    Optional<Object> val =
-        readValue(BhConstants.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
-    val.ifPresent(textCssClass -> textField.cssClass = (String) textCssClass);
+      BhNodeViewStyle.Label label, JsonObject jsonObj, String fileName) {
+    // cssClass
+    label.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(label.cssClass);
   }
 
   /**
@@ -669,14 +669,10 @@ public class BhNodeViewStyle {
    * @param fileName jsonObj が記述してある .json ファイルの名前
    */
   private static void fillComboBoxParams(
-      BhNodeViewStyle.ComboBox comboBox,
-      NativeObject jsonObj,
-      String fileName) {
-
-    //cssClass
-    Optional<Object> val =
-        readValue(BhConstants.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
-    val.ifPresent(comboBoxCssClass -> comboBox.cssClass = (String) comboBoxCssClass);
+      BhNodeViewStyle.ComboBox comboBox, JsonObject jsonObj, String fileName) {
+    // cssClass
+    comboBox.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(comboBox.cssClass);
   }
 
   /**
@@ -687,57 +683,145 @@ public class BhNodeViewStyle {
    * @param fileName jsonObj が記述してある .json ファイルの名前
    */
   private static void fillTextAreaParams(
-      BhNodeViewStyle.TextArea textArea,
-      NativeObject jsonObj,
-      String fileName) {
+      BhNodeViewStyle.TextArea textArea, JsonObject jsonObj, String fileName) {
+    // cssClass
+    textArea.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(textArea.cssClass);
 
-    //cssClass
-    Optional<Object> val =
-        readValue(BhConstants.NodeStyleDef.KEY_CSS_CLASS, String.class, jsonObj, fileName);
-    val.ifPresent(textAreaCssClass -> textArea.cssClass = (String) textAreaCssClass);
+    // minWidth
+    textArea.minWidth = readNumber(BhConstants.NodeStyleDef.KEY_MIN_WIDTH, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(textArea.minWidth);
 
-    //minWidth
-    val = readValue(BhConstants.NodeStyleDef.KEY_MIN_WIDTH, Number.class, jsonObj, fileName);
-    val.ifPresent(minWidth ->
-        textArea.minWidth = ((Number) minWidth).doubleValue() * BhConstants.LnF.NODE_SCALE);
-
-    //minHeight
-    val = readValue(BhConstants.NodeStyleDef.KEY_MIN_HEIGHT, Number.class, jsonObj, fileName);
-    val.ifPresent(minHeight ->
-        textArea.minHeight = ((Number) minHeight).doubleValue() * BhConstants.LnF.NODE_SCALE);
+    // minHeight
+    textArea.minHeight = readNumber(BhConstants.NodeStyleDef.KEY_MIN_HEIGHT, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(textArea.minHeight);
 
     // editable
-    val = readValue(BhConstants.NodeStyleDef.KEY_EDITABLE, Boolean.class, jsonObj, fileName);
-    val.ifPresent(editable -> textArea.editable = ((Boolean) editable).booleanValue());
+    textArea.editable = readBool(BhConstants.NodeStyleDef.KEY_EDITABLE, jsonObj, fileName)
+        .orElse(textArea.editable);
   }
 
   /**
-   * {@code jsonObj} からエラーチェック付きで Value を読む.
+   * {@code jsonObj} の {@code keyName} の値を {@link Number} 型として読む.
    *
-   * @param keyName keyの名前
-   * @param valueType 想定される value の型 (String, Number, Boolean, NativeObject, ...)
-   * @param jsonObj key と value が格納されているJson オブジェクト
+   * @param key このキーの値を {@code jsonObj} から読む
+   * @param jsonObj この JSON オブジェクトから {@code key} の値を読む
    * @param fileName jsonObj を読み取ったファイルの名前
-   * @return JsonValue オブジェクト (オプション)
+   * @return Number オブジェクト. 読めなかった場合は empty を返す.
    */
-  private static Optional<Object> readValue(
-      String keyName,
-      Class<?> valueType,
-      NativeObject jsonObj,
-      String fileName) {
-
-    Object val = jsonObj.get(keyName);
-    if (val == null) {
+  private static Optional<Number> readNumber(String key, JsonObject jsonObj, String fileName) {
+    JsonElement elem = jsonObj.get(key);
+    if (elem == null) {
       return Optional.empty();
     }
-
-    if (!valueType.isAssignableFrom(val.getClass())) {
-      BhService.msgPrinter().errForDebug(
-          "The type of '%s' must be %s.\nThe actual type is %s.  (%s)".formatted(
-              keyName, valueType.getSimpleName(), val.getClass().getSimpleName(), fileName));
+    if (!elem.isJsonPrimitive()) {
+      BhService.msgPrinter().errForDebug(String.format(
+          "The type of '%s' must be Number. (%s)\n  %s", key, fileName, elem.toString()));
       return Optional.empty();
     }
-    return Optional.of(val);
+    JsonPrimitive primitive = elem.getAsJsonPrimitive();
+    if (!primitive.isNumber()) {
+      BhService.msgPrinter().errForDebug(String.format(
+          "The type of '%s' must be Number. (%s)\n  %s", key, fileName, primitive.toString()));
+      return Optional.empty();
+    }
+    return Optional.of(primitive.getAsNumber());
+  }
+
+  /**
+   * {@code jsonObj} の {@code keyName} の値を {@link String} 型として読む.
+   *
+   * @param key このキーの値を {@code jsonObj} から読む
+   * @param jsonObj この JSON オブジェクトから {@code key} の値を読む
+   * @param fileName jsonObj を読み取ったファイルの名前
+   * @return String オブジェクト. 読めなかった場合は empty を返す.
+   */
+  private static Optional<String> readString(String key, JsonObject jsonObj, String fileName) {
+    JsonElement elem = jsonObj.get(key);
+    if (elem == null) {
+      return Optional.empty();
+    }
+    if (!elem.isJsonPrimitive()) {
+      BhService.msgPrinter().errForDebug(String.format(
+          "The type of '%s' must be String. (%s)\n  %s", key, fileName, elem.toString()));
+      return Optional.empty();
+    }
+    JsonPrimitive primitive = elem.getAsJsonPrimitive();
+    if (!primitive.isString()) {
+      BhService.msgPrinter().errForDebug(String.format(
+          "The type of '%s' must be String. (%s)\n  %s", key, fileName, primitive.toString()));
+      return Optional.empty();
+    }
+    return Optional.of(primitive.getAsString());
+  }
+
+  /**
+   * {@code jsonObj} の {@code keyName} の値を {@link Boolean} 型として読む.
+   *
+   * @param key このキーの値を {@code jsonObj} から読む
+   * @param jsonObj この JSON オブジェクトから {@code key} の値を読む
+   * @param fileName jsonObj を読み取ったファイルの名前
+   * @return Boolean オブジェクト. 読めなかった場合は empty を返す.
+   */
+  private static Optional<Boolean> readBool(String key, JsonObject jsonObj, String fileName) {
+    JsonElement elem = jsonObj.get(key);
+    if (elem == null) {
+      return Optional.empty();
+    }
+    if (!elem.isJsonPrimitive()) {
+      BhService.msgPrinter().errForDebug(String.format(
+          "The type of '%s' must be Boolean. (%s)\n  %s", key, fileName, elem.toString()));
+      return Optional.empty();
+    }
+    JsonPrimitive primitive = elem.getAsJsonPrimitive();
+    if (!primitive.isBoolean()) {
+      BhService.msgPrinter().errForDebug(String.format(
+          "The type of '%s' must be Boolean. (%s)\n  %s", key, fileName, primitive.toString()));
+      return Optional.empty();
+    }
+    return Optional.of(primitive.getAsBoolean());
+  }
+
+  /**
+   * {@code jsonObj} の {@code keyName} の値を {@link JsonArray} 型として読む.
+   *
+   * @param key このキーの値を {@code jsonObj} から読む
+   * @param jsonObj この JSON オブジェクトから {@code key} の値を読む
+   * @param fileName jsonObj を読み取ったファイルの名前
+   * @return JsonArray オブジェクト. 読めなかった場合は empty を返す.
+   */
+  private static Optional<JsonArray> readArray(String key, JsonObject jsonObj, String fileName) {
+    JsonElement elem = jsonObj.get(key);
+    if (elem == null) {
+      return Optional.empty();
+    }
+    if (!elem.isJsonArray()) {
+      BhService.msgPrinter().errForDebug(String.format(
+          "The type of '%s' must be Array. (%s)\n  %s", key, fileName, elem.toString()));
+      return Optional.empty();
+    }
+    return Optional.of(elem.getAsJsonArray());
+  }
+
+  /**
+   * {@code jsonObj} の {@code keyName} の値を {@link JsonArray} 型として読む.
+   *
+   * @param key このキーの値を {@code jsonObj} から読む
+   * @param jsonObj この JSON オブジェクトから {@code key} の値を読む
+   * @param fileName jsonObj を読み取ったファイルの名前
+   * @return JsonArray オブジェクト. 読めなかった場合は empty を返す.
+   */
+  private static Optional<JsonObject> readObject(String key, JsonObject jsonObj, String fileName) {
+    JsonElement elem = jsonObj.get(key);
+    if (elem == null) {
+      return Optional.empty();
+    }
+    if (!elem.isJsonObject()) {
+      BhService.msgPrinter().errForDebug(String.format(
+          "The type of '%s' must be Object. (%s)\n  %s", key, fileName, elem.toString()));
+      return Optional.empty();
+    }
+    return Optional.of(elem.getAsJsonObject());
   }
 
   /**

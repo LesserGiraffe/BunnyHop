@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -35,7 +34,6 @@ import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.json.JsonParser;
 
 /**
  * JavaScript コードを管理するクラス.
@@ -183,33 +181,5 @@ public class BhScriptManager {
         .toArray(String[]::new);
 
     return allExist(fileName, scriptNamesFiltered);
-  }
-
-  /**
-   * Json ファイルをパースしてオブジェクトにして返す.
-   *
-   * @param filePath Json ファイルのパス
-   * @return Json ファイルをパースしてできたオブジェクト. 失敗した場合 empty.
-   */
-  public static Optional<NativeObject> parseJsonFile(Path filePath) {
-    Object jsonObj = null;
-    try {
-      byte[] contents = Files.readAllBytes(filePath);
-      String jsCode = new String(contents, StandardCharsets.UTF_8);
-      Context cx = ContextFactory.getGlobal().enterContext();
-      jsonObj = (new JsonParser(cx, cx.initStandardObjects())).parseValue(jsCode);
-      Context.exit();
-
-    } catch (Exception e) {
-      BhService.msgPrinter().errForDebug(
-          "Cannot read json file.  %s\n%s".formatted(filePath, e));
-      return Optional.empty();
-    }
-    if (!(jsonObj instanceof NativeObject)) {
-      BhService.msgPrinter().errForDebug(
-          "'%s' must be return a JSON object.".formatted(filePath));
-      return Optional.empty();
-    }
-    return Optional.of((NativeObject) jsonObj);
   }
 }

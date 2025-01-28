@@ -131,7 +131,7 @@ public class ProjectImporter {
    * @param filePath セーブデータのファイルパス.
    * @return {@code filePath} から復元したワークスペース一式
    */
-  public List<Workspace> load(Path filePath) throws
+  private List<Workspace> load(Path filePath) throws
       IOException,
       JsonIOException,
       JsonSyntaxException,

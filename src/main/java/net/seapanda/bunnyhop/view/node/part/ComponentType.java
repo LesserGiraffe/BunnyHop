@@ -31,14 +31,14 @@ public enum ComponentType {
   TEXT_AREA(BhConstants.NodeStyleDef.VAL_TEXT_AREA),
   NONE(BhConstants.NodeStyleDef.VAL_NONE);
 
-  private final String typeName;
+  private final String name;
 
-  private ComponentType(String typeName) {
-    this.typeName = typeName;
+  private ComponentType(String name) {
+    this.name = name;
   }
 
   /** タイプ名から列挙子を得る. */
-  public static ComponentType toType(String name) {
+  public static ComponentType of(String name) {
     for (var type : ComponentType.values()) {
       if (type.getName().equals(name)) {
         return type;
@@ -48,11 +48,11 @@ public enum ComponentType {
   }
 
   public String getName() {
-    return typeName;
+    return name;
   }
 
   @Override
   public String toString() {
-    return typeName;
+    return name;
   }
 }
