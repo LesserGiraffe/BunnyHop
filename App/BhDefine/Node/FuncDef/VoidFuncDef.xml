@@ -3,7 +3,7 @@
   bhNodeID="idVoidFuncDef"
   name="VoidFuncDef"
   nodeStyleID="VoidFuncDef.json"
-  onPrivateTemplateCreating="CreateVoidFuncPrivateTemplate.js"
+  onCompanionNodesCreating="CreateVoidFuncCompanions.js"
   version="bh-1.0">
 
   <Derivation derivationID="dervIdFuncCall" derivativeID="idVoidFuncCall"/>

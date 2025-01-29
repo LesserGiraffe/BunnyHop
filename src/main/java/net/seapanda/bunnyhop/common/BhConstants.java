@@ -160,7 +160,7 @@ public class BhConstants {
     public static final String ATTR_ON_DELETION_REQUESTED = "onDeletionRequested";
     public static final String ATTR_ON_CUT_REQUESTED = "onCutRequested";
     public static final String ATTR_ON_COPY_REQUESTED = "onCopyRequested";
-    public static final String ATTR_ON_PRIFVATE_TEMPLATE_CREATING = "onPrivateTemplateCreating";
+    public static final String ATTR_ON_COMPANION_NODES_CREATING = "onCompanionNodesCreating";
     public static final String ATTR_ON_TEST_OPTIONS_CREATING = "onTextOptionsCreating";
     public static final String ATTR_ON_TEMPLATE_CREATED = "onTemplateCreated";
     public static final String ATTR_ON_DRAG_STARTED = "onDragStarted";

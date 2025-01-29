@@ -287,7 +287,7 @@ public class BhNodeController {
 
   /** 同一ワークスペースへの移動処理. */
   private void toSameWorkspace() {
-    if (ddInfo.dragging && (model.getState() == BhNode.State.ROOT)) {
+    if (ddInfo.dragging && model.isRoot()) {
       ddInfo.userOpe.pushCmdOfSetNodePos(model, ddInfo.posOnWorkspace);
     }
   }

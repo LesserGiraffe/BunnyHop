@@ -41,7 +41,7 @@ public record BhNodeAttributes(
     String onCutRequested,
     String onCopyRequested,
     String onChildReplaced,
-    String onPrivateTemplateCreating,
+    String onFelloNodesCreating,
     String onCompileErrorChecking,
     String onTextOptionsCreating,
     String onTemplateCreated,
@@ -78,8 +78,8 @@ public record BhNodeAttributes(
     String onCutRequested = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_CUT_REQUESTED);
     String onCopyRequested = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_COPY_REQUESTED);
     String onChildReplaced = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_CHILD_REPLACED);
-    String onPrivateTemplateCreating =
-        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_PRIFVATE_TEMPLATE_CREATING);
+    String onCompanionNodesCreating =
+        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_COMPANION_NODES_CREATING);
     String onCompileErrorChecking =
         elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_COMPILE_ERROR_CHECKING);
     String onTextOptionsCreating = 
@@ -102,7 +102,7 @@ public record BhNodeAttributes(
         onCutRequested,
         onCopyRequested,
         onChildReplaced,
-        onPrivateTemplateCreating,
+        onCompanionNodesCreating,
         onCompileErrorChecking,
         onTextOptionsCreating,
         onTemplateCreated,

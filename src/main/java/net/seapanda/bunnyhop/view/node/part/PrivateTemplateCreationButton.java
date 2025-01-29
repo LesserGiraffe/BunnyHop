@@ -125,7 +125,7 @@ public final class PrivateTemplateCreationButton extends Button {
    */
   private static SequencedSet<BhNode> createPrivateTemplates(BhNode node, UserOperation userOpe) {
     var privateTempladeNodes = new LinkedHashSet<BhNode>();
-    for (var templateNode : node.genPrivateTemplateNodes(userOpe)) {
+    for (var templateNode : node.createCompanionNodes(userOpe)) {
       NodeMvcBuilder.buildTemplate(templateNode);
       privateTempladeNodes.add(templateNode);
     }

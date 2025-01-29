@@ -155,7 +155,7 @@ public abstract class BhNodeView implements NodeViewComponent, Showable {
       nodeShape.addEventFilter(Event.ANY, this::propagateEvent);
       return;
     }
-    if (model.hasPrivateTemplateNodes()) {
+    if (model.hasCompanionNodes()) {
       Button button = createPrivateTemplateButton(model);
       addComponent(button);
     }

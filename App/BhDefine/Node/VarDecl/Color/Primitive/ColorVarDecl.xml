@@ -3,7 +3,7 @@
   bhNodeID="idColorVarDecl"
   name="ColorVarDecl"
   nodeStyleID="ColorVarDecl.json"
-  onPrivateTemplateCreating="CreateVarDeclPrivateTemplate.js"
+  onCompanionNodesCreating="CreateVarDeclCompanions.js"
   onMovedFromChildToWS="OnVarDeclMovedToWS.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"

@@ -165,10 +165,10 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
 
   @Override
   public boolean canBeReplacedWith(BhNode node) {
-    if (getState() != BhNode.State.CHILD) {
+    if (!isChild()) {
       return false;
     }
-    if (findRootNode().getState() != BhNode.State.ROOT) {
+    if (!findRootNode().isRoot()) {
       return false;
     }
     // 同じ tree に含まれている場合置き換え不可

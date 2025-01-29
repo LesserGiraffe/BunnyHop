@@ -33,8 +33,8 @@ public enum HookEvent {
   ON_DELETION_REQUESTED,
   /** ユーザー操作により, このノードがカット&ペーストされるときに発行されるイベント. */
   ON_CUT_REQUESTED,
-  /** ノードごとのノードテンプレートを作成するときに発行されるイベント. */
-  ON_PRIVATE_TEMPLATE_CREATING,
+  /**コンパニオンノードを生成するときに発行されるイベント. */
+  ON_COMPANION_NODES_CREATING,
   /** ユーザー操作により, このノードがコピー&ペーストされるときに発行されるイベント. */
   ON_COPY_REQUESTED,
   /** コンパイルエラーをチェックするときに発行されるイベント. */

@@ -3,7 +3,7 @@
   bhNodeID="idMutexBlockDecl"
   name="MutexBlockDecl"
   nodeStyleID="MutexBlockDecl.json"
-  onPrivateTemplateCreating="CreateMutexBlockDeclPrivateTemplate.js"
+  onCompanionNodesCreating="CreateMutexBlockCompanions.js"
   onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"

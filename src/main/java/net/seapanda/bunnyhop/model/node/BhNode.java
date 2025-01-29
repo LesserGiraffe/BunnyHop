@@ -135,8 +135,8 @@ public abstract class BhNode extends SyntaxSymbol {
   /**
    * このノード以下のノードツリーのコピーを作成する.
    *
-   * @param fnIsNodeToBeCopied このノードの子ノードがコピーの対象かどうかを判別する関数.
-   *                         copy を呼んだノードは判定対象にならず, 必ずコピーされる.
+   * @param fnIsNodeToBeCopied このノードの子ノード以下のノードがコピーの対象かどうかを判別する関数.
+   *                           このノードは判定対象にならず, 必ずコピーされる.
    * @param userOpe undo 用コマンドオブジェクト
    * @return このノード以下のノードツリーのコピー
    */
@@ -176,7 +176,7 @@ public abstract class BhNode extends SyntaxSymbol {
     registerScriptName(HookEvent.ON_CUT_REQUESTED, attributes.onCutRequested());
     registerScriptName(HookEvent.ON_COPY_REQUESTED, attributes.onCopyRequested());
     registerScriptName(
-        HookEvent.ON_PRIVATE_TEMPLATE_CREATING, attributes.onPrivateTemplateCreating());
+        HookEvent.ON_COMPANION_NODES_CREATING, attributes.onFelloNodesCreating());
     registerScriptName(HookEvent.ON_SYNTAX_CHECKING, attributes.onCompileErrorChecking());
     registerScriptName(HookEvent.ON_TEMPLATE_CREATED, attributes.onTemplateCreated());
     registerScriptName(HookEvent.ON_DRAG_STARTED, attributes.onDragStarted());
@@ -333,12 +333,12 @@ public abstract class BhNode extends SyntaxSymbol {
   }
 
   /**
-   * このノード固有のテンプレートノードがあるかどうか調べる.
+   * このノードにコンパニオンノードがあるかどうか調べる.
    *
-   * @return このノード固有のテンプレートノードがある場合 true
+   * @return このノードにコンパニオンノードがある場合 true
    */
-  public boolean hasPrivateTemplateNodes() {
-    return getScriptName(HookEvent.ON_PRIVATE_TEMPLATE_CREATING).isPresent();
+  public boolean hasCompanionNodes() {
+    return getScriptName(HookEvent.ON_COMPANION_NODES_CREATING).isPresent();
   }
 
   /**
@@ -564,18 +564,15 @@ public abstract class BhNode extends SyntaxSymbol {
   }
 
   /**
-   * このノード固有のテンプレートノードを作成する.
-   *
-   * <p> 返されるノードの MVC は構築されていない. </p>
+   * このノードのコンパニオンノードを作成する.
    *
    * @param userOpe undo 用コマンドオブジェクト
-   * @return このノード固有のテンプレートノードのリスト. 固有のテンプレートノードを持たない場合, 空のリストを返す.
+   * @return このノードのコンパニオンノードのリスト. コンパニオンノードを持たない場合, 空のリストを返す.
    */
-  public Collection<BhNode> genPrivateTemplateNodes(UserOperation userOpe) {
-    Optional<String> scriptName = getScriptName(HookEvent.ON_PRIVATE_TEMPLATE_CREATING);
-    Script privateTemplateCreator =
-        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
-    if (privateTemplateCreator == null) {
+  public Collection<BhNode> createCompanionNodes(UserOperation userOpe) {
+    Optional<String> scriptName = getScriptName(HookEvent.ON_COMPANION_NODES_CREATING);
+    Script creator = scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
+    if (creator == null) {
       return new ArrayList<>();
     }
     Map<String, Object> nameToObj = new HashMap<>() {{
@@ -584,7 +581,7 @@ public abstract class BhNode extends SyntaxSymbol {
     Context cx = Context.enter();
     ScriptableObject scriptScope = getHookAgent().createScriptScope(cx, nameToObj);
     try {
-      return ((Collection<?>) privateTemplateCreator.exec(cx, scriptScope)).stream()
+      return ((Collection<?>) creator.exec(cx, scriptScope)).stream()
           .filter(elem -> elem instanceof BhNode)
           .map(elem -> (BhNode) elem)
           .collect(Collectors.toCollection(ArrayList::new));

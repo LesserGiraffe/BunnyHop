@@ -3,7 +3,7 @@
   bhNodeID="idSyncTimerDecl"
   name="SyncTimerDecl"
   nodeStyleID="SyncTimerDecl.json"
-  onPrivateTemplateCreating="CreateSyncTimerDeclPrivateTemplate.js"
+  onCompanionNodesCreating="CreateSyncTimerCompanions.js"
   onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"

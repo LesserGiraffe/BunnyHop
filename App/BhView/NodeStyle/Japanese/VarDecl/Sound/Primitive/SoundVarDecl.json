@@ -23,7 +23,7 @@
     
   },
   
-    "privateTemplate" : {
+  "privateTemplate" : {
     "buttonPosX" : 6.0,
     "buttonPosY" : 1.0
   }

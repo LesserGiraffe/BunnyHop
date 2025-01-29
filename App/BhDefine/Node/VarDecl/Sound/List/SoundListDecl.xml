@@ -3,7 +3,7 @@
   bhNodeID="idSoundListDecl"
   name="SoundListDecl"
   nodeStyleID="SoundListDecl.json"
-  onPrivateTemplateCreating="CreateListDeclPrivateTemplate.js"
+  onCompanionNodesCreating="CreateListDeclCompanions.js"
   onMovedFromChildToWS="OnVarDeclMovedToWS.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"

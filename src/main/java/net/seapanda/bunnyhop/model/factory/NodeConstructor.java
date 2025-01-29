@@ -252,7 +252,7 @@ public class NodeConstructor {
         nodeAttrs.onCutRequested(),
         nodeAttrs.onCopyRequested(),
         nodeAttrs.onCompileErrorChecking(),
-        nodeAttrs.onPrivateTemplateCreating(),
+        nodeAttrs.onFelloNodesCreating(),
         nodeAttrs.onTemplateCreated(),
         nodeAttrs.onDragStarted());
     if (!allScriptsFound) {
@@ -310,7 +310,7 @@ public class NodeConstructor {
         nodeAttrs.onCutRequested(),
         nodeAttrs.onCopyRequested(),
         nodeAttrs.onCompileErrorChecking(),
-        nodeAttrs.onPrivateTemplateCreating(),
+        nodeAttrs.onFelloNodesCreating(),
         nodeAttrs.onTextOptionsCreating(),
         nodeAttrs.onTemplateCreated(),
         nodeAttrs.onDragStarted());
