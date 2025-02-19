@@ -19,19 +19,20 @@ package net.seapanda.bunnyhop.model.traverse;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.Connector;
-import net.seapanda.bunnyhop.model.node.attribute.DerivativeJointId;
+import net.seapanda.bunnyhop.model.node.derivative.Derivative;
+import net.seapanda.bunnyhop.model.node.parameter.DerivativeJointId;
 import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.section.Subsection;
 
 /**
- * 派生ノード接続位置を指定し, そこに接続されている {@link BhNode} を見つけるクラス.
+ * 派生ノード接続位置を指定し, そこに接続されている {@link Derivative} を見つけるクラス.
  *
  * @author K.Koike
  */
 public class DerivativeFinder implements BhNodeWalker {
 
   /** 見つかったノード. */
-  private BhNode foundNode;
+  private Derivative foundNode;
   /** この ID を持つコネクタに接続されている {@link BhNode} を探す. */
   private DerivativeJointId joint;
   private boolean found = false;
@@ -43,7 +44,7 @@ public class DerivativeFinder implements BhNodeWalker {
    * @param joint 派生ノード接続位置.
    * @return 見つかったノード. 見つからなかった場合は null.
    */
-  public static BhNode find(BhNode node, DerivativeJointId joint) {
+  public static Derivative find(BhNode node, DerivativeJointId joint) {
     var finder = new DerivativeFinder(joint);
     node.accept(finder);
     return finder.foundNode;
@@ -52,7 +53,7 @@ public class DerivativeFinder implements BhNodeWalker {
   /**
    * コンストラクタ.
    *
-   * @param joint この派生ノード接続位置を持つコネクタに接続されている {@link BhNode} を見つける
+   * @param joint この派生ノード接続位置を持つコネクタに接続されている {@link Derivative} を見つける
    */
   private DerivativeFinder(DerivativeJointId joint) {
     this.joint = joint;
@@ -85,8 +86,10 @@ public class DerivativeFinder implements BhNodeWalker {
       return;
     }
     if (connector.getDerivativeJoint().equals(joint)) {
-      foundNode = connector.getConnectedNode();
-      found = true;
+      if (connector.getConnectedNode() instanceof Derivative derv) {
+        foundNode = derv;
+        found = true;
+      }
     }
   }
 }

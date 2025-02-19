@@ -16,10 +16,10 @@
 
 package net.seapanda.bunnyhop.control.node;
 
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.service.ModelExclusiveControl;
-import net.seapanda.bunnyhop.view.node.TextAreaNodeView;
-import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.TextInputNodeView;
 
 /**
@@ -27,40 +27,37 @@ import net.seapanda.bunnyhop.view.node.TextInputNodeView;
  *
  * @author K.Koike
  */
-public class TextInputNodeController extends BhNodeController {
+public class TextInputNodeController implements BhNodeController {
 
   private final TextNode model;
   private final TextInputNodeView view;
+  private final ModelAccessNotificationService notificationService;
 
   /** コンストラクタ. */
-  public TextInputNodeController(TextNode model, TextFieldNodeView view) {
-    super(model, view);
-    this.model = model;
-    this.view = view;
-    model.setViewProxy(new BhNodeViewProxyImpl(view, false));
-    setEventHandlers(model, view);
+  public TextInputNodeController(BhNodeController controller) {
+    if (controller.getModel() instanceof TextNode model) {
+      this.model = model;
+    } else {
+      throw new IllegalStateException(
+          "The model is not %s".formatted(TextNode.class.getSimpleName()));
+    }
+
+    if (controller.getView() instanceof TextInputNodeView view) {
+      this.view = view;
+    } else {
+      throw new IllegalStateException(
+          "The view is not %s".formatted(TextInputNodeView.class.getSimpleName()));
+    }
+    notificationService = controller.getNotificationService();
+    setEventHandlers();
   }
 
-  /** コンストラクタ. */
-  public TextInputNodeController(TextNode model, TextAreaNodeView view) {
-    super(model, view);
-    this.model = model;
-    this.view = view;
-    model.setViewProxy(new BhNodeViewProxyImpl(view, false));
-    setEventHandlers(model, view);
-  }
-
-  /**
-   * TextNodeView に対して文字列変更時のハンドラを登録する.
-   *
-   * @param model TextNodeView に対応する model
-   * @param view イベントハンドラを登録するview
-   */
-  public static void setEventHandlers(TextNode model, TextInputNodeView view) {
+  /** TextInputNodeView の文字列変更時のハンドラを登録する. */
+  private void setEventHandlers() {
     view.setTextFormatter(model::formatText);
     view.setTextChangeListener(model::isTextAcceptable);
     view.addFocusListener(
-        (observable, oldValue, newValue) -> onFocusChanged(model, view, !newValue));
+        (observable, oldValue, newValue) -> onFocusChanged(!newValue));
 
     String initText = model.getText();
     view.setText(initText + " ");  //初期文字列が空文字だったときのため
@@ -69,14 +66,12 @@ public class TextInputNodeController extends BhNodeController {
   }
 
   /** {@code TextInputNodeView} のフォーカスが外れた時のイベントハンドラ. */
-  private static void onFocusChanged(
-      TextNode model, TextInputNodeView view, Boolean isInputFinished) {
-    //テキストフィールドにフォーカスが移ったとき
-    if (!isInputFinished) {
-      return;
-    }
-    ModelExclusiveControl.lockForModification();
+  private void onFocusChanged(Boolean isInputFinished) {
     try {
+      notificationService.begin();
+      if (!isInputFinished) {
+        return;
+      }
       String currentGuiText = view.getText();
       boolean isValidFormat = model.isTextAcceptable(currentGuiText);
       if (isValidFormat) {  //正しいフォーマットの文字列が入力されていた場合
@@ -86,12 +81,22 @@ public class TextInputNodeController extends BhNodeController {
         view.setText(model.getText());  //view の文字列を変更前の文字列に戻す
       }
     } finally {
-      ModelExclusiveControl.unlockForModification();
+      notificationService.end();
     }
   }
 
-  /** {@code model} の持つ文字列に合わせて {@code view} の内容を変更する. */
-  public static void matchViewToModel(TextNode model, TextInputNodeView view) {
-    view.setText(model.getText());
+  @Override
+  public BhNode getModel() {
+    return model;
+  }
+
+  @Override
+  public BhNodeView getView() {
+    return view;
+  }
+
+  @Override
+  public ModelAccessNotificationService getNotificationService() {
+    return notificationService;
   }
 }

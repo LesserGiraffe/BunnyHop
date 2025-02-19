@@ -17,22 +17,24 @@
 package net.seapanda.bunnyhop.view.node;
 
 import java.util.Optional;
+import java.util.SequencedSet;
+import javafx.scene.Node;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
-import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.utility.SimpleCache;
 import net.seapanda.bunnyhop.utility.Vec2D;
-import net.seapanda.bunnyhop.view.ViewInitializationException;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
-import net.seapanda.bunnyhop.view.traverse.NodeViewProcessor;
+import net.seapanda.bunnyhop.view.ViewConstructionException;
+import net.seapanda.bunnyhop.view.factory.BhNodeViewFactory;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
+import net.seapanda.bunnyhop.view.traverse.NodeViewWalker;
 
 /**
  * {@link ConnectiveNode} に対応するビュークラス.
  *
  * @author K.Koike
  */
-public final class ConnectiveNodeView extends BhNodeView {
+public final class ConnectiveNodeView extends BhNodeViewBase {
 
   /** ノード内部に描画されるノードの Group. */
   private final BhNodeViewGroup innerGroup = new BhNodeViewGroup(this, true);
@@ -54,14 +56,20 @@ public final class ConnectiveNodeView extends BhNodeView {
    *
    * @param model このノードビューに対応するノード
    * @param viewStyle このノードビューのスタイル
-   * @throws ViewInitializationException ノードビューの初期化に失敗した
+   * @param components このノードビューに追加する GUI コンポーネント
+   * @param factory サブグループ内の疑似ビューを作成するのに使用するオブジェクト
+   * @throws ViewConstructionException ノードビューの初期化に失敗した
    */
-  public ConnectiveNodeView(ConnectiveNode model, BhNodeViewStyle viewStyle)
-      throws ViewInitializationException {
-    super(viewStyle, model);
+  public ConnectiveNodeView(
+      ConnectiveNode model,
+      BhNodeViewStyle viewStyle,
+      SequencedSet<Node> components,
+      BhNodeViewFactory factory)
+      throws ViewConstructionException {
+    super(viewStyle, model, components);
     this.model = model;
-    innerGroup.buildSubGroup(viewStyle.connective.inner, viewStyle.nodeStyleId);
-    outerGroup.buildSubGroup(viewStyle.connective.outer, viewStyle.nodeStyleId);
+    innerGroup.buildSubGroup(viewStyle.connective.inner, factory);
+    outerGroup.buildSubGroup(viewStyle.connective.outer, factory);
     getLookManager().addCssClass(BhConstants.Css.CLASS_CONNECTIVE_NODE);
   }
 
@@ -80,7 +88,7 @@ public final class ConnectiveNodeView extends BhNodeView {
    *
    * @param view ノード内部に描画されるノード
    */
-  public void addToGroup(BhNodeView view) {
+  public void addToGroup(BhNodeViewBase view) {
     // innerGroup に追加できなかったらouterGroupに入れる
     if (!innerGroup.addNodeView(view)) {
       outerGroup.addNodeView(view);
@@ -207,29 +215,29 @@ public final class ConnectiveNodeView extends BhNodeView {
   }
 
   /** {@code visitor} を内部ノードを管理するグループに渡す. */
-  public void sendToInnerGroup(NodeViewProcessor visitor) {
+  public void sendToInnerGroup(NodeViewWalker visitor) {
     innerGroup.accept(visitor);
   }
 
   /** {@code visitor} を外部ノードを管理するグループに渡す. */
-  public void sendToOuterGroup(NodeViewProcessor visitor) {
+  public void sendToOuterGroup(NodeViewWalker visitor) {
     outerGroup.accept(visitor);
   }
 
   @Override
-  public void accept(NodeViewProcessor visitor) {
+  public void accept(NodeViewWalker visitor) {
     visitor.visit(this);
   }
 
   @Override
   public void show(int depth) {
     try {
-      BhService.msgPrinter().println(
+      System.out.println(
           "%s<ConnectiveNodeView>  %s".formatted(indent(depth), hashCode()));
       innerGroup.show(depth + 1);
       outerGroup.show(depth + 1);
     } catch (Exception e) {
-      BhService.msgPrinter().println("connectiveNodeView show exception " + e);
+      System.out.println("connectiveNodeView show exception " + e);
     }
   }
 }

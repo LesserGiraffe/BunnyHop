@@ -22,9 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.NotchPos;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.NotchPos;
 
 /** {@link BhNodeView} のボディを描画するクラスの基底クラス. */
 public abstract class BodyShapeBase {

@@ -30,7 +30,7 @@ import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
  *
  * @author K.Koike
  */
-public class Preprocessor {
+class Preprocessor {
 
   private static final Map<String, Consumer<SyntaxSymbol>> NODE_NAME_TO_PREPROCESSOR =
       new HashMap<>() {{
@@ -43,7 +43,7 @@ public class Preprocessor {
    *
    * @param nodesToPreprocess 処理するノードのリスト
    */
-  public static void process(Collection<BhNode> nodesToPreprocess) {
+  static void process(Collection<BhNode> nodesToPreprocess) {
 
     // コールバック登録
     CallbackInvoker.CallbackRegistry callbacks = CallbackInvoker.newCallbackRegistry();

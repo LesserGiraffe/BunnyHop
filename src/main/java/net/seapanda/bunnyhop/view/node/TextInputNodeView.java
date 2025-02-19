@@ -16,27 +16,30 @@
 
 package net.seapanda.bunnyhop.view.node;
 
+import java.util.SequencedSet;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import javafx.beans.value.ChangeListener;
+import javafx.scene.Node;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.TextInputControl;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.utility.Pair;
-import net.seapanda.bunnyhop.view.ViewInitializationException;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import net.seapanda.bunnyhop.model.node.TextNode.FormatResult;
+import net.seapanda.bunnyhop.view.ViewConstructionException;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
 
 /**
  * テキスト入力可能な NodeView の基底クラス.
  *
  * @author K.Koike
  */
-public abstract class TextInputNodeView extends BhNodeView {
+public abstract class TextInputNodeView extends BhNodeViewBase {
 
-  protected TextInputNodeView(TextNode model, BhNodeViewStyle viewStyle)
-      throws ViewInitializationException {
-    super(viewStyle, model);
+  protected TextInputNodeView(
+      TextNode model, BhNodeViewStyle viewStyle, SequencedSet<Node> components)
+      throws ViewConstructionException {
+    super(viewStyle, model, components);
   }
 
   /** テキスト入力用GUIコンポーネントを取得する. */
@@ -72,7 +75,7 @@ public abstract class TextInputNodeView extends BhNodeView {
    *     </pre>
    */
   public final void setTextFormatter(
-      BiFunction<String, String, Pair<Boolean, String>> formatter) {
+      BiFunction<String, String, FormatResult> formatter) {
     TextInputControl control = getTextInputControl();
     control.setTextFormatter(new TextFormatter<Object>(
         change -> setFormattedText(formatter, control.getLength(), change)));
@@ -86,14 +89,12 @@ public abstract class TextInputNodeView extends BhNodeView {
    * @param change テキスト入力コンポーネントの変更を表すオブジェクト
    */
   private Change setFormattedText(
-      BiFunction<String, String, Pair<Boolean, String>> formatter, int textLen, Change change) {
-    Pair<Boolean, String> result = formatter.apply(change.getControlNewText(), change.getText());
-    boolean isEntireTextFormatted = result.v1;
-    String formattedText = result.v2;
-    if (isEntireTextFormatted) {
+      BiFunction<String, String, FormatResult> formatter, int textLen, Change change) {
+    FormatResult result = formatter.apply(change.getControlNewText(), change.getText());
+    if (result.isWholeFormatted()) {
       change.setRange(0, textLen);
     }
-    change.setText(formattedText);
+    change.setText(result.text());
     return change;
   }
 

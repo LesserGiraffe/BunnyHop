@@ -64,7 +64,7 @@ public class BhConstants {
     public static final double REPLACED_NODE_SHIFT = 2.5 * BhConstants.LnF.NODE_SCALE;
     /** BhNode 選択パネル上での BhNode 間のスペース. */
     public static final double BHNODE_SPACE_ON_SELECTION_PANEL = 2.0 * BhConstants.LnF.NODE_SCALE;
-    /** マルチノードシフタの大きさ. */
+    /** ノードシフタの大きさ. */
     public static final double NODE_SHIFTER_SIZE = Rem.VAL * 7.0;
   }
 
@@ -103,8 +103,8 @@ public class BhConstants {
     public static final String FOUNDATION_FXML = "Foundation.fxml";
     /** ワークスペース部分のビューが定義してあるfxmlファイルの名前. */
     public static final String WORKSPACE_FXML = "Workspace.fxml";
-    /** マルチノードシフタのビューが定義してあるfxmlファイルの名前. */
-    public static final String MULTI_NODE_SHIFTER_FXML = "MultiNodeShifter.fxml";
+    /** ノードシフタのビューが定義してあるfxmlファイルの名前. */
+    public static final String NODE_SHIFTER_FXML = "NodeShifter.fxml";
     /** BhNodeテンプレートリスト部分のビューが定義してあるfxmlの名前. */
     public static final String NODE_SELECTION_PANEL_FXML = "NodeSelectionPanel.fxml";
     /** プライベートテンプレートボタンが定義してあるfxmlの名前. */
@@ -155,14 +155,14 @@ public class BhConstants {
     public static final String ATTR_ON_CONNECTABILITY_CHECKING = "onConnectabilityChecking";
     public static final String ATTR_ON_COMPILE_ERROR_CHECKING = "onCompileErrorChecking";
     public static final String ATTR_ON_MOVED_FROM_CHILD_TO_WS = "onMovedFromChildToWS";
-    public static final String ATTR_ON_MOVED_TO_CHILD = "onMovedToChild";
+    public static final String ATTR_ON_MOVED_FROM_WS_TO_CHILD = "onMovedFromWsToChild";
     public static final String ATTR_ON_CHILD_REPLACED = "onChildReplaced";
     public static final String ATTR_ON_DELETION_REQUESTED = "onDeletionRequested";
     public static final String ATTR_ON_CUT_REQUESTED = "onCutRequested";
     public static final String ATTR_ON_COPY_REQUESTED = "onCopyRequested";
     public static final String ATTR_ON_COMPANION_NODES_CREATING = "onCompanionNodesCreating";
     public static final String ATTR_ON_TEST_OPTIONS_CREATING = "onTextOptionsCreating";
-    public static final String ATTR_ON_TEMPLATE_CREATED = "onTemplateCreated";
+    public static final String ATTR_ON_CREATED_AS_TEMPLATE = "onCreatedAsTemplate";
     public static final String ATTR_ON_DRAG_STARTED = "onDragStarted";
     public static final String ATTR_DERIVATIVE_ID = "derivativeID";
     public static final String ATTR_INITIAL_TEXT = "initialText";
@@ -205,7 +205,7 @@ public class BhConstants {
     public static final String BH_CAUSE_OF_DELETION = "bhCauseOfDeletion";
     public static final String BH_LIST_OF_NODES_TO_COMPILE = "bhListOfNodesToCompile";
     public static final String BH_PROGRAM_FILE_PATH = "bhProgramFilePath";
-    public static final String BH_IS_ENTIRE_TEXT_FORMATTED = "bhIsEntireTextFormatted";
+    public static final String BH_IS_WHOLE_TEXT_FORMATTED = "bhIsWholeTextFormatted";
     public static final String BH_FORMATTED_TEXT = "bhFormattedText";
     public static final String BH_TEXT_DB = "bhTextDb";
     public static final String BH_MOUSE_EVENT = "bhMouseEvent";
@@ -335,7 +335,7 @@ public class BhConstants {
     public static final int MAX_REMOTE_CMD_QUEUE_SIZE = 2048;
     /** BhProgram 実行環境との通信に使う RMI オブジェクトを探す際の TCP ポートに付けられる接尾辞. */
     public static final String RMI_TCP_PORT_SUFFIX = "@RmiTcpPort";
-    public static final String LOLCAL_HOST = "localhost";
+    public static final String LOCAL_HOST = "localhost";
     public static final int SSH_PORT = 22;
   }
 

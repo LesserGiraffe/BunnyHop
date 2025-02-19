@@ -40,7 +40,7 @@ public class FileCollector {
    * @param extension 集めるファイルの拡張子 (例: txt, xml, .xml)
    * @throws IOException ディレクトリの走査にしっぱ視した場合
    */
-  FileCollector(Path dirPath, String extension) throws IOException {
+  public FileCollector(Path dirPath, String extension) throws IOException {
     // 読み込むファイルパスリスト
     if (!extension.startsWith(".")) {
       extension = "." + extension;

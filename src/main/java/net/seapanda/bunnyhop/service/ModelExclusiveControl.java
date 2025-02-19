@@ -16,35 +16,34 @@
 
 package net.seapanda.bunnyhop.service;
 
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * モデル操作のための Lock 機構を提供するクラス.
+ * モデル操作のための Lock 機能を提供するクラス.
  *
  * @author K.Koike
  */
 public class ModelExclusiveControl {
 
-  private static ReadWriteLock lock = new ReentrantReadWriteLock();
+  private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
   /** Model 修正のためのロックをかける. */
-  public static void lockForModification() {
+  public void lockForModification() {
     lock.writeLock().lock();
   }
 
   /** Model 修正のためのロックを解放する. */
-  public static void unlockForModification() {
+  public void unlockForModification() {
     lock.writeLock().unlock();
   }
 
   /** Model 読み取りのためのロックをかける. */
-  public static void lockForRead() {
+  public void lockForRead() {
     lock.readLock().lock();
   }
 
   /** Model 読み取りのためのロックを解放する. */
-  public static void unlockForRead() {
+  public void unlockForRead() {
     lock.readLock().unlock();
   }
 }

@@ -29,7 +29,7 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 public interface WorkspaceViewProxy {
 
   /** 操作対象の {@link BhNodeView} を取得する. */
-  public default WorkspaceView getView() {
+  default WorkspaceView getView() {
     return null;
   }
 
@@ -38,11 +38,11 @@ public interface WorkspaceViewProxy {
    *
    * @param widen 広げる場合 true, 狭める場合 false
    */
-  public default void changeViewSize(boolean widen) {}
+  default void changeViewSize(boolean widen) {}
 
 
   /** {@link WorkspaceView} のサイズを取得する. */
-  public default Vec2D getViewSize() {
+  default Vec2D getViewSize() {
     return null;
   }
 
@@ -52,7 +52,7 @@ public interface WorkspaceViewProxy {
    * @param posOnScene {@link javafx.scene.Scene} 上の座標
    * @return {@code posOnScene} の {@link WorkspaceView} 上の座標.
    */
-  public default Vec2D sceneToWorkspace(Vec2D posOnScene) {
+  default Vec2D sceneToWorkspace(Vec2D posOnScene) {
     return null;
   }
 
@@ -61,8 +61,8 @@ public interface WorkspaceViewProxy {
    *
    * @param zoomIn 拡大する場合 true
    */
-  public default void zoom(boolean zoomIn) {}
+  default void zoom(boolean zoomIn) {}
 
   /** {@link WorkspaceView} の表示の拡大率を設定する. */
-  public default void setZoomLevel(int level) {}
+  default void setZoomLevel(int level) {}
 }

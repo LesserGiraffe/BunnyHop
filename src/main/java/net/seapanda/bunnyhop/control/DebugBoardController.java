@@ -36,7 +36,7 @@ import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.view.node.part.SelectableItem;
+import net.seapanda.bunnyhop.view.node.component.SelectableItem;
 
 /**
  * デバッグ情報を表示する UI コンポーネントのコントローラ.

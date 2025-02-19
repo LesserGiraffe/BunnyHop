@@ -31,25 +31,25 @@ import net.seapanda.bunnyhop.model.node.section.Subsection;
 public interface BhNodeWalker {
 
   /** {@link ConnectiveNode} に対する処理を行う. */
-  public default void visit(ConnectiveNode node) {
+  default void visit(ConnectiveNode node) {
     node.sendToSections(this);
   }
 
   /** {@link TextNode} に対する処理を行う. */
-  public default void visit(TextNode node) {}
+  default void visit(TextNode node) {}
 
   /** {@link Subsection} に対する処理を行う. */
-  public default void visit(Subsection section) {
+  default void visit(Subsection section) {
     section.sendToSubsections(this);
   }
 
   /** {@link ConnectorSection} に対する処理を行う. */
-  public default void visit(ConnectorSection section) {
+  default void visit(ConnectorSection section) {
     section.sendToConnectors(this);
   }
 
   /** {@link Connector} に対する処理を行う. */
-  public default void visit(Connector connector) {
+  default void visit(Connector connector) {
     connector.sendToConnectedNode(this);
   }
 }

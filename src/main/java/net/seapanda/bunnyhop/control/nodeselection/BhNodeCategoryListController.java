@@ -21,10 +21,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
 import net.seapanda.bunnyhop.common.Rem;
-import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
-import net.seapanda.bunnyhop.service.BhService;
-import net.seapanda.bunnyhop.view.ViewInitializationException;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryListView;
+import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategory;
+import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryTree;
+import net.seapanda.bunnyhop.service.LogManager;
+import net.seapanda.bunnyhop.view.ViewConstructionException;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeShowcaseBuilder;
 
 /**
  * BhNode のカテゴリ選択画面のコントローラ.
@@ -34,36 +35,28 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryListView;
 public class BhNodeCategoryListController {
 
   @FXML private ScrollPane nodeCategoryListViewBase;
-  @FXML private TreeView<BhNodeCategoryListView.BhNodeCategory> categoryTree;
-  private BhNodeCategoryList model;
-  private BhNodeCategoryListView view;
+  @FXML private TreeView<BhNodeCategory> categoryTree;
 
   /**
    * コントローラとビューの初期化を行う.
    *
-   * @param categoryList ノードカテゴリリストのモデル
+   * @param builder ノード選択ビューを構築するためのオブジェクト.
+   * @param categories カテゴリリストの情報を格納したオブジェクト
    */
-  public boolean initialize(BhNodeCategoryList categoryList) {
-    model = categoryList;
+  public boolean initialize(
+      BhNodeShowcaseBuilder builder, 
+      BhNodeCategoryTree categories) {
     try {
-      view = new BhNodeCategoryListView(categoryTree, model);
-    } catch (ViewInitializationException e) {
-      BhService.msgPrinter().errForDebug(e.toString());
+      categoryTree.setRoot(builder.buildFrom(categories.getRoot()));  
+    } catch (ViewConstructionException e) {
+      LogManager.logger().error(e.toString());
       return false;
     }
+    categoryTree.setShowRoot(false);
+    categoryTree.setCellFactory(templates -> builder.createBhNodeCategoryView());
     nodeCategoryListViewBase.setMinWidth(Region.USE_PREF_SIZE);
     nodeCategoryListViewBase.widthProperty().addListener(
         (obs, oldVal, newVal) -> nodeCategoryListViewBase.setMinWidth(Rem.VAL * 3));
-
     return true;
-  }
-
-  /**
-   * カテゴリリストのビューを返す.
-   *
-   * @return カテゴリリストのビュー
-   */
-  public BhNodeCategoryListView getView() {
-    return view;
   }
 }

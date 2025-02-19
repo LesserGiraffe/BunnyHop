@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.view.connectorshape;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 
 /**
  * コネクタ描画クラスの基底クラス.

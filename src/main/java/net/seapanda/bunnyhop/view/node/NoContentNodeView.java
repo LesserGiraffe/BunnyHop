@@ -17,19 +17,20 @@
 package net.seapanda.bunnyhop.view.node;
 
 import java.util.Optional;
+import java.util.SequencedSet;
+import javafx.scene.Node;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.utility.SimpleCache;
 import net.seapanda.bunnyhop.utility.Vec2D;
-import net.seapanda.bunnyhop.view.ViewInitializationException;
+import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
-import net.seapanda.bunnyhop.view.traverse.NodeViewProcessor;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
+import net.seapanda.bunnyhop.view.traverse.NodeViewWalker;
 
 /** 内部に何も表示しないノードビュー. */
-public class NoContentNodeView extends BhNodeView {
+public class NoContentNodeView extends BhNodeViewBase {
 
   private final TextNode model;
   /** コネクタ部分を含まないノードサイズのキャッシュデータ. */
@@ -43,9 +44,10 @@ public class NoContentNodeView extends BhNodeView {
    * @param model ビューに対応するモデル
    * @param viewStyle ビューのスタイル
    */
-  public NoContentNodeView(TextNode model, BhNodeViewStyle viewStyle) 
-      throws ViewInitializationException {
-    super(viewStyle, model);
+  public NoContentNodeView(
+      TextNode model, BhNodeViewStyle viewStyle, SequencedSet<Node> components) 
+      throws ViewConstructionException {
+    super(viewStyle, model, components);
     this.model = model;
     getLookManager().addCssClass(BhConstants.Css.CLASS_NO_CONTENT_NODE);
     nodeBase.setMouseTransparent(true);
@@ -124,13 +126,13 @@ public class NoContentNodeView extends BhNodeView {
   protected void updateChildRelativePos() {}
 
   @Override
-  public void accept(NodeViewProcessor visitor) {
+  public void accept(NodeViewWalker visitor) {
     visitor.visit(this);
   }
 
   @Override
   public void show(int depth) {
-    BhService.msgPrinter().println(
+    System.out.println(
         "%s<NoContentNodeView>  %s".formatted(indent(depth), hashCode()));
   }
 }

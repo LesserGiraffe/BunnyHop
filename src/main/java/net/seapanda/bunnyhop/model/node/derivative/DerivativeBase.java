@@ -20,10 +20,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
+import net.seapanda.bunnyhop.model.node.event.NodeEventInvoker;
+import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
+import net.seapanda.bunnyhop.model.node.parameter.BhNodeParameters;
+import net.seapanda.bunnyhop.model.node.parameter.DerivationId;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
@@ -56,8 +58,12 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
 
   /** コンストラクタ. */
   public DerivativeBase(
-      BhNodeAttributes attributes, Map<DerivationId, BhNodeId> derivationToDeivative) {
-    super(attributes);
+      BhNodeParameters params,
+      Map<DerivationId, BhNodeId> derivationToDeivative,
+      BhNodeFactory factory,
+      DerivativeReplacer replacer,
+      NodeEventInvoker invoker) {
+    super(params, factory, replacer, invoker);
     this.derivationToDerivative = derivationToDeivative;
     derivatives = new HashSet<>();
   }

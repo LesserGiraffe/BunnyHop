@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.control;
 
 import java.io.File;
 import java.util.Optional;
+import java.util.SequencedSet;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -28,9 +29,14 @@ import javafx.stage.FileChooser;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.common.TextDefs;
+import net.seapanda.bunnyhop.export.ProjectExporter;
+import net.seapanda.bunnyhop.export.ProjectImporter;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.service.BhService;
-import net.seapanda.bunnyhop.service.ModelExclusiveControl;
+import net.seapanda.bunnyhop.service.MessageService;
+import net.seapanda.bunnyhop.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.utility.Utility;
 
 /**
@@ -49,13 +55,26 @@ public class MenuBarController {
   @FXML private MenuItem focusSimulator;
   /** 現在保存対象になっているファイル. */
   private File currentSaveFile;
+  /** モデルへのアクセスの通知先となるオブジェクト. */
+  private ModelAccessNotificationService notificationService;
+  private UndoRedoAgent undoRedoAgent;
+  private ProjectImporter importer;
+  private ProjectExporter exporter;
+  private MessageService msgService;
 
-  /**
-   * 初期化する.
-   *
-   * @param wss ワークスペースセット
-   */
-  public void initialize(WorkspaceSet wss) {
+  /** 初期化する. */
+  public void initialize(
+      WorkspaceSet wss,
+      ModelAccessNotificationService notificationService,
+      UndoRedoAgent undoRedoAgent,
+      ProjectImporter importer,
+      ProjectExporter exporter,
+      MessageService msgService) {
+    this.notificationService = notificationService;
+    this.undoRedoAgent = undoRedoAgent;
+    this.importer = importer;
+    this.exporter = exporter;
+    this.msgService = msgService;
     saveAs.setOnAction(action -> saveAs(wss)); // セーブ(新規保存)
     save.setOnAction(action -> save(wss)); // 上書きセーブ
     load.setOnAction(action -> load(wss));
@@ -74,20 +93,25 @@ public class MenuBarController {
    * @return 保存した場合true
    */
   private boolean saveAs(WorkspaceSet wss) {
-    if (wss.getWorkspaces().isEmpty()) {
-      BhService.msgPrinter().alert(
-          Alert.AlertType.INFORMATION,
-          TextDefs.Export.InformNoWsToSave.title.get(),
-          null,
-          TextDefs.Export.InformNoWsToSave.body.get());
-      return false;
+    notificationService.begin();
+    try {
+      if (wss.getWorkspaces().isEmpty()) {
+        msgService.alert(
+            Alert.AlertType.INFORMATION,
+            TextDefs.Export.InformNoWsToSave.title.get(),
+            null,
+            TextDefs.Export.InformNoWsToSave.body.get());
+        return false;
+      }
+      Optional<File> fileToSave = getFileToSave();
+      boolean success = fileToSave.map(file -> exporter.export(file, wss)).orElse(false);
+      if (success) {
+        currentSaveFile = fileToSave.get();
+      }
+      return success;
+    } finally {
+      notificationService.end();
     }
-    Optional<File> fileToSave = getFileToSave();
-    boolean success = fileToSave.map(file -> wss.save(file)).orElse(false);
-    if (success) {
-      currentSaveFile = fileToSave.get();
-    }
-    return success;
   }
 
   /**
@@ -113,23 +137,28 @@ public class MenuBarController {
    * @return 保存した場合true
    */
   public boolean save(WorkspaceSet wss) {
-    if (wss.getWorkspaces().isEmpty()) {
-      BhService.msgPrinter().alert(
-          Alert.AlertType.INFORMATION,
-          TextDefs.Export.InformNoWsToSave.title.get(),
-          null,
-          TextDefs.Export.InformNoWsToSave.body.get());
-      return false;
-    }
+    notificationService.begin();
+    try {
+      if (wss.getWorkspaces().isEmpty()) {
+        msgService.alert(
+            Alert.AlertType.INFORMATION,
+            TextDefs.Export.InformNoWsToSave.title.get(),
+            null,
+            TextDefs.Export.InformNoWsToSave.body.get());
+        return false;
+      }
 
-    boolean fileExists = false;
-    if (currentSaveFile != null) {
-      fileExists = currentSaveFile.exists();
-    }
-    if (fileExists) {
-      return wss.save(currentSaveFile);
-    } else {
-      return saveAs(wss);  //保存対象のファイルが無い場合, 名前をつけて保存
+      boolean fileExists = false;
+      if (currentSaveFile != null) {
+        fileExists = currentSaveFile.exists();
+      }
+      if (fileExists) {
+        return exporter.export(currentSaveFile, wss);
+      } else {
+        return saveAs(wss);  //保存対象のファイルが無い場合, 名前をつけて保存
+      }
+    } finally {
+      notificationService.end();
     }
   }
 
@@ -145,10 +174,22 @@ public class MenuBarController {
     if (selectedFile == null) {
       return;
     }
-    boolean success =
-        askIfClearOldWs().map(clearWs -> wss.load(selectedFile, clearWs)).orElse(false);
-    if (success) {
-      currentSaveFile = selectedFile;
+    Optional<Boolean> clearWs = askIfClearOldWs();
+    if (clearWs.isEmpty()) {
+      return;
+    }
+    Context context = notificationService.begin();
+    try {
+      SequencedSet<Workspace> workspaces = wss.getWorkspaces();
+      boolean success = importer.imports(selectedFile, wss, context.userOpe());
+      if (success) {
+        currentSaveFile = selectedFile;
+        if (clearWs.get()) {
+          workspaces.forEach(ws ->  wss.removeWorkspace(ws, context.userOpe()));
+        }
+      }
+    } finally {
+      notificationService.end();
     }
   }
 
@@ -180,7 +221,7 @@ public class MenuBarController {
     String title = TextDefs.Import.AskIfClearOldWs.title.get();
     String body = TextDefs.Import.AskIfClearOldWs.body.get(
         ButtonType.YES.getText(), ButtonType.NO.getText());
-    Optional<ButtonType> buttonType = BhService.msgPrinter().alert(
+    Optional<ButtonType> buttonType = msgService.alert(
         AlertType.CONFIRMATION,
         title,
         null,
@@ -199,19 +240,19 @@ public class MenuBarController {
 
   /** アプリケーションが使用しているメモリを開放する. */
   private void freeMemory() {
-    ModelExclusiveControl.lockForModification();
+    notificationService.begin();
     try {
-      BhService.undoRedoAgent().deleteCommands();
-      BhService.msgPrinter().infoForUser(TextDefs.MenubarOps.freeMemory.get());
+      undoRedoAgent.deleteCommands();
+      msgService.info(TextDefs.MenubarOps.freeMemory.get());
       System.gc();
     } finally {
-      ModelExclusiveControl.unlockForModification();
+      notificationService.end();
     }
   }
 
   /** BunnyHopの基本情報を表示する. */
   private void showBunnyHopInfo() {
-    BhService.msgPrinter().alert(
+    msgService.alert(
         Alert.AlertType.INFORMATION,
         TextDefs.MenubarOps.bunnyHopDetails.get(),
         null,

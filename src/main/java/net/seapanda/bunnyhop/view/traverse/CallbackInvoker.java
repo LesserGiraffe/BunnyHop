@@ -31,9 +31,9 @@ import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
  *
  * @author K.Koike
  */
-public class CallbackInvoker implements NodeViewProcessor {
+public class CallbackInvoker implements NodeViewWalker {
 
-  private final Consumer<BhNodeView> callback;
+  private final Consumer<? super BhNodeView> callback;
   private final Consumer<BhNodeViewGroup> callbackForGroup;
   /** 外部ノードのみ巡る場合 true. */
   private final boolean visitOnlyOuter;
@@ -44,12 +44,11 @@ public class CallbackInvoker implements NodeViewProcessor {
 
   /** コンストラクタ. */
   private CallbackInvoker(
-      Consumer<BhNodeView> callback,
+      Consumer<? super BhNodeView> callback,
       Consumer<BhNodeViewGroup> callbackForGroup,
       boolean visitOnlyOuter,
       boolean visitOnlyGroup,
       boolean depthFirst) {
-
     this.callback = callback;
     this.callbackForGroup = callbackForGroup;
     this.visitOnlyOuter = visitOnlyOuter;
@@ -63,8 +62,7 @@ public class CallbackInvoker implements NodeViewProcessor {
    * @param callback 呼び出すコールバック関数
    * @param nodeView これ以下のノードビューに対して, callback を呼び出す
    */
-  public static void invoke(
-      Consumer<BhNodeView> callback, BhNodeView nodeView) {
+  public static void invoke(Consumer<? super BhNodeView> callback, BhNodeView nodeView) {
     nodeView.accept(new CallbackInvoker(callback, g -> {}, false, false, false));
   }
 
@@ -76,7 +74,9 @@ public class CallbackInvoker implements NodeViewProcessor {
    * @param depthFirst 子要素を走査してから {@code callback} を呼ぶ場合 true.
    */
   public static void invoke(
-      Consumer<BhNodeView> callback, BhNodeView nodeView, boolean depthFirst) {
+      Consumer<? super BhNodeView> callback,
+      BhNodeView nodeView,
+      boolean depthFirst) {
     nodeView.accept(new CallbackInvoker(callback, g -> {}, false, false, depthFirst));
   }
 
@@ -88,10 +88,9 @@ public class CallbackInvoker implements NodeViewProcessor {
    * @param nodeView これ以下のノードビューに対して, callback を呼び出す
    */
   public static void invoke(
-      Consumer<BhNodeView> callbackForNode,
+      Consumer<? super BhNodeView> callbackForNode,
       Consumer<BhNodeViewGroup> callbackForGroup,
       BhNodeView nodeView) {
-
     nodeView.accept(
         new CallbackInvoker(callbackForNode, callbackForGroup, false, false, false));
   }
@@ -105,11 +104,10 @@ public class CallbackInvoker implements NodeViewProcessor {
    * @param depthFirst 子要素を走査してから {@code callback} を呼ぶ場合 true.
    */
   public static void invoke(
-      Consumer<BhNodeView> callbackForNode,
+      Consumer<? super BhNodeView> callbackForNode,
       Consumer<BhNodeViewGroup> callbackForGroup,
       BhNodeView nodeView,
       boolean depthFirst) {
-
     nodeView.accept(
         new CallbackInvoker(callbackForNode, callbackForGroup, false, false, depthFirst));
   }
@@ -121,7 +119,7 @@ public class CallbackInvoker implements NodeViewProcessor {
    * @param nodeView このノードから外部ノードのみを経由しながらコールバック関数を呼び出す.
    */
   public static void invokeForOuters(
-      Consumer<BhNodeView> callback, BhNodeView nodeView) {
+      Consumer<? super BhNodeView> callback, BhNodeView nodeView) {
     nodeView.accept(new CallbackInvoker(callback, g -> {}, true, false, false));
   }
 
@@ -132,7 +130,8 @@ public class CallbackInvoker implements NodeViewProcessor {
    * @param nodeView このノードから他のノードを辿らずに辿れる {@linik BhNodeViewGroup} を経由しながら
    *                 コールバック関数を呼び出す.
    */
-  public static void invokeForGroups(Consumer<BhNodeViewGroup> callback, BhNodeView nodeView) {
+  public static void invokeForGroups(
+      Consumer<BhNodeViewGroup> callback, BhNodeView nodeView) {
     nodeView.accept(new CallbackInvoker(n -> {}, callback, false, true, false));
   }
 

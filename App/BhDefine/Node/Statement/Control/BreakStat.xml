@@ -5,7 +5,7 @@
   nodeStyleID="BreakStat.json"
   onCompileErrorChecking="BreakAndContinueChecker.js"
   onMovedFromChildToWS="OnStatMovedToWS.js"
-  onMovedToChild="OnStatMovedToChild.js"
+  onMovedFromWsToChild="OnStatMovedToChild.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
   version="bh-1.0">

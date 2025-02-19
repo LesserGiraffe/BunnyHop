@@ -29,11 +29,11 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
  *
  * @author K.Koike
  */
-public class VarDeclCodeGenerator {
+class VarDeclCodeGenerator {
 
   private final CommonCodeGenerator common;
 
-  public VarDeclCodeGenerator(CommonCodeGenerator common) {
+  VarDeclCodeGenerator(CommonCodeGenerator common) {
     this.common = common;
   }
 
@@ -45,7 +45,7 @@ public class VarDeclCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  public void genVarDecls(
+  void genVarDecls(
       Collection<? extends SyntaxSymbol> nodeListToCompile,
       StringBuilder code,
       int nestLevel,
@@ -68,7 +68,7 @@ public class VarDeclCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  public void genVarDecls(
+  void genVarDecls(
       SyntaxSymbol varDeclNode,
       StringBuilder code,
       int nestLevel,
@@ -110,7 +110,7 @@ public class VarDeclCodeGenerator {
    * @param option コンパイルオプション
    * @return 出力仮引数名のリスト
    */
-  public List<String> genParamList(
+  List<String> genParamList(
       List<String> commonParams,
       SyntaxSymbol paramNode,
       SyntaxSymbol outParamNode,
@@ -265,7 +265,7 @@ public class VarDeclCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  public void genOutArgs(
+  void genOutArgs(
       SyntaxSymbol varDeclNode,
       StringBuilder code,
       int nestLevel,
@@ -286,7 +286,7 @@ public class VarDeclCodeGenerator {
    *
    * @return [0] -> 変数, [1] -> 出力引数に代入するための変数.
    */
-  public List<String> genVarDeclAndOutVarArg(
+  List<String> genVarDeclAndOutVarArg(
       SyntaxSymbol symbol,
       String initVal,
       StringBuilder code,

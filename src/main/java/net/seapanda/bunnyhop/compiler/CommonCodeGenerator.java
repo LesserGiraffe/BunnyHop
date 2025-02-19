@@ -23,7 +23,7 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
  *
  * @author K.Koike
  */
-public class CommonCodeGenerator {
+class CommonCodeGenerator {
 
   /**
    * 変数定義から変数名を生成する.
@@ -31,7 +31,7 @@ public class CommonCodeGenerator {
    * @param varDecl 変数定義ノード
    * @return 変数名
    */
-  public String genVarName(SyntaxSymbol varDecl) {
+  String genVarName(SyntaxSymbol varDecl) {
     return Keywords.Prefix.var + varDecl.getInstanceId();
   }
 
@@ -41,7 +41,7 @@ public class CommonCodeGenerator {
    * @param varDecl 変数定義ノード
    * @return 変数名
    */
-  public String genOutArgName(SyntaxSymbol varDecl) {
+  String genOutArgName(SyntaxSymbol varDecl) {
     return Keywords.Prefix.outArg + varDecl.getInstanceId();
   }
 
@@ -51,7 +51,7 @@ public class CommonCodeGenerator {
    * @param funcDef 関数定義シンボル
    * @return 関数名
    */
-  public String genFuncName(SyntaxSymbol funcDef) {
+  String genFuncName(SyntaxSymbol funcDef) {
     return Keywords.Prefix.func + funcDef.getInstanceId();
   }
 
@@ -62,7 +62,7 @@ public class CommonCodeGenerator {
    * @param argNames 引数名のリスト
    * @return 関数呼び出しのコード
    */
-  public String genFuncCallCode(String funcName, String... argNames) {
+  String genFuncCallCode(String funcName, String... argNames) {
     StringBuilder code = new StringBuilder();
     code.append(funcName)
         .append("(");
@@ -86,7 +86,7 @@ public class CommonCodeGenerator {
    * @param thisObj call の第一引数
    * @return 関数呼び出しのコード
    */
-  public String genFuncPrototypeCallCode(String funcName, String thisObj, String... args) {
+  String genFuncPrototypeCallCode(String funcName, String thisObj, String... args) {
     String[] argList = new String[args.length + 1];
     argList[0] = thisObj;
     for (int i = 0; i < args.length; ++i) {
@@ -103,7 +103,7 @@ public class CommonCodeGenerator {
    * @param properties root の下に続くプロパティ名のリスト
    * @return プロパティアクセス式
    */
-  public String genPropertyAccessCode(String root, String... properties) {
+  String genPropertyAccessCode(String root, String... properties) {
     StringBuilder code = new StringBuilder(root);
     for (String prop : properties) {
       code.append(".").append(prop);
@@ -116,7 +116,7 @@ public class CommonCodeGenerator {
    *
    * @param funcCallNode 関数呼び出しノード
    */
-  public String genPushToCallStackCode(SyntaxSymbol funcCallNode) {
+  String genPushToCallStackCode(SyntaxSymbol funcCallNode) {
     return "%s[%s].%s(\"%s\")".formatted(
         ScriptIdentifiers.Vars.THREAD_CONTEXT,
         ScriptIdentifiers.Vars.IDX_CALL_STACK,
@@ -125,7 +125,7 @@ public class CommonCodeGenerator {
   }
 
   /** コールスタックから関数呼び出しノードのインスタンス ID を削除するコードを作成する. */
-  public String genPopFromCallStackCode() {
+  String genPopFromCallStackCode() {
     return "%s[%s].%s()".formatted(
         ScriptIdentifiers.Vars.THREAD_CONTEXT,
         ScriptIdentifiers.Vars.IDX_CALL_STACK,
@@ -133,7 +133,7 @@ public class CommonCodeGenerator {
   }
 
   /** 処理中のノードのインスタンス ID をスレッドコンテキストに設定するコードを作成する. */
-  public String genSetCurrentNodeInstIdCode(SyntaxSymbol currentNode) {
+  String genSetCurrentNodeInstIdCode(SyntaxSymbol currentNode) {
     return "%s[%s] = \"%s\"".formatted(
         ScriptIdentifiers.Vars.THREAD_CONTEXT,
         ScriptIdentifiers.Vars.IDX_CURRENT_NODE_INST_ID,
@@ -146,18 +146,18 @@ public class CommonCodeGenerator {
    * @param varDecl 変数宣言ノード
    * @return {@code varDecl} が出力引数である場合 true を返す.
    */
-  public boolean isOutputParam(SyntaxSymbol varDecl) {
+  boolean isOutputParam(SyntaxSymbol varDecl) {
     return varDecl.findSymbolInAncestors(SymbolNames.UserDefFunc.OUT_PARAM_DECL, 1, true) != null;
   }
 
   /** 出力引数の値を取得するコードを作成する. */
-  public String genGetOutputParamValCode(SyntaxSymbol varDecl) {
+  String genGetOutputParamValCode(SyntaxSymbol varDecl) {
     return genPropertyAccessCode(
         genVarName(varDecl), ScriptIdentifiers.Properties.OUT_PARAM_GETTER) + "()";
   }
 
   /** 出力引数に値を設定するコードを作成する. */
-  public String genSetOutputParamValCode(SyntaxSymbol varDecl, String val) {
+  String genSetOutputParamValCode(SyntaxSymbol varDecl, String val) {
     return genPropertyAccessCode(
         genVarName(varDecl), ScriptIdentifiers.Properties.OUT_PARAM_SETTER) + "(" + val + ")";
   }
@@ -165,12 +165,12 @@ public class CommonCodeGenerator {
   /**
    * 引数で指定した文字列を JavaScript の文字列リテラル表現に変換する.
    */
-  public String toJsString(String str) {
+  String toJsString(String str) {
     return "'" + str.replaceAll("\\\\", "\\\\\\\\").replaceAll("'", "\\\\'") + "'";
   }
 
   /** インデント分の空白を返す. */
-  public String indent(int depth) {
+  String indent(int depth) {
     switch (depth) {
       case 0: return "";
       case 1: return "  ";

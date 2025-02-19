@@ -34,5 +34,5 @@
     .replace(/Ｚ/g, 'Z').replace(/ｚ/g, 'z')
     .replace(/．/g, '.');
 
-  return {bhIsEntireTextFormatted: false, bhFormattedText: formatted};
+  return {bhIsWholeTextFormatted: false, bhFormattedText: formatted};
 })();

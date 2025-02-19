@@ -16,22 +16,35 @@
 
 package net.seapanda.bunnyhop.control.node;
 
-import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.view.node.NoContentNodeView;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * {@code NoContentNodeView} のコントローラ.
  *
  * @author K.Koike
  */
-public class NoContentNodeController extends BhNodeController {
+public class NoContentNodeController implements BhNodeController {
 
-  private final TextNode model;
+  private final BhNodeController wrapped;
 
-  /** コンストラクタ. */
-  public NoContentNodeController(TextNode model, NoContentNodeView view) {
-    super(model, view);
-    this.model = model;
-    model.setViewProxy(new BhNodeViewProxyImpl(view, false));
+  public NoContentNodeController(BhNodeController controller) {
+    wrapped = controller;
   }
+
+  @Override
+  public BhNode getModel() {
+    return wrapped.getModel();
+  }
+
+  @Override
+  public BhNodeView getView() {
+    return wrapped.getView();
+  }
+
+  @Override
+  public ModelAccessNotificationService getNotificationService() {
+    return wrapped.getNotificationService();
+  }  
 }

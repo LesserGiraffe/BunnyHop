@@ -26,14 +26,14 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
  *
  * @author K.Koike
  */
-public class FuncDefCodeGenerator {
+class FuncDefCodeGenerator {
 
   private final CommonCodeGenerator common;
   private final StatCodeGenerator statCodeGen;
   private final VarDeclCodeGenerator varDeclCodeGen;
 
   /** コンストラクタ. */
-  public FuncDefCodeGenerator(
+  FuncDefCodeGenerator(
       CommonCodeGenerator common,
       StatCodeGenerator statCodeGen,
       VarDeclCodeGenerator varDeclCodeGen) {
@@ -51,7 +51,7 @@ public class FuncDefCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  public void genFuncDefs(
+  void genFuncDefs(
       Collection<? extends SyntaxSymbol> compiledNodeList,
       StringBuilder code,
       int nestLevel,
@@ -72,7 +72,7 @@ public class FuncDefCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  private void genFuncDef(
+  void genFuncDef(
       SyntaxSymbol funcDefNode,
       StringBuilder code,
       int nestLevel,

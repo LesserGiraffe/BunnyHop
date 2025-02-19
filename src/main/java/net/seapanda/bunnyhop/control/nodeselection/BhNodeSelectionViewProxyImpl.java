@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017 K.Koike
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package net.seapanda.bunnyhop.control.nodeselection;
 
 import java.util.HashMap;
@@ -15,7 +31,7 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 
 /**
- * ノードの選択画面の操作を提供するクラス.
+ * ノードの選択ビューを操作するクラス.
  *
  * @author K.Koike
  */
@@ -46,7 +62,7 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
         (ws, root, userOpe) -> speficyNodeViewAsRoot(root, view));
     workspace.getEventManager().addOnNodeTurnedIntoNotRoot(
         (ws, root, userOpe) -> speficyNodeViewAsNotRoot(root, view));
-    view.addEventFilter(ScrollEvent.ANY, event -> onScrolled(event));
+    view.getRegion().addEventFilter(ScrollEvent.ANY, event -> onScrolled(event));
     fnAddNodeSelectionViewToGuiTree.accept(view);
   }
 
@@ -62,7 +78,7 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
   private void addNodeView(BhNode node, BhNodeSelectionView view) {
     BhNodeView nodeView = node.getViewProxy().getView();
     if (nodeView != null) {
-      view.addNodeView(nodeView);
+      view.addNodeViewTree(nodeView);
     }
   }
 
@@ -70,7 +86,10 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
   private void removeNodeView(BhNode node, BhNodeSelectionView view) {
     BhNodeView nodeView = node.getViewProxy().getView();
     if (nodeView != null) {
-      view.removeNodeView(nodeView);
+      view.removeNodeViewTree(nodeView);
+    }
+    if (view.getNumNodeViewTrees() == 0) {
+      view.hide();
     }
   }
 
@@ -154,6 +173,6 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
   @Override
   public boolean isAnyShowed() {
     return categoryNameToSelectionView.values().stream()
-        .anyMatch(view -> view.visibleProperty().get());
+        .anyMatch(view -> view.getRegion().visibleProperty().get());
   }
 }

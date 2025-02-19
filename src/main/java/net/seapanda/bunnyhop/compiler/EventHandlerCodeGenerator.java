@@ -29,7 +29,7 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
  *
  * @author K.Koike
  */
-public class EventHandlerCodeGenerator {
+class EventHandlerCodeGenerator {
 
   private final CommonCodeGenerator common;
   private final StatCodeGenerator statCodeGen;
@@ -85,7 +85,7 @@ public class EventHandlerCodeGenerator {
       };
 
   /** コンストラクタ. */
-  public EventHandlerCodeGenerator(
+  EventHandlerCodeGenerator(
       CommonCodeGenerator common,
       StatCodeGenerator statCodeGen,
       VarDeclCodeGenerator varDeclCodeGen) {
@@ -103,7 +103,7 @@ public class EventHandlerCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  public void genEventHandlers(
+  void genEventHandlers(
       Collection<? extends SyntaxSymbol> compiledNodeList,
       StringBuilder code,
       int nestLevel,
@@ -192,7 +192,7 @@ public class EventHandlerCodeGenerator {
    * @param lockVar ロックオブジェクトの変数
    * @param nestLevel ソースコードのネストレベル
    */
-  public void genHeaderSnippetOfEventCall(
+  void genHeaderSnippetOfEventCall(
       StringBuilder code,
       String funcName,
       String lockVar,
@@ -240,7 +240,7 @@ public class EventHandlerCodeGenerator {
    * @param lockVar ロックオブジェクトの変数
    * @param nestLevel ソースコードのネストレベル
    */
-  public void genFooterSnippetOfEventCall(
+  void genFooterSnippetOfEventCall(
       StringBuilder code,
       String lockVar,
       int nestLevel) {

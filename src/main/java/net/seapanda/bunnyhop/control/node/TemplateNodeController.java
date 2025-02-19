@@ -20,164 +20,151 @@ import java.util.Objects;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.control.MouseCtrlLock;
+import net.seapanda.bunnyhop.model.BhNodePlacer;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.ConnectiveNode;
-import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.service.BhService;
-import net.seapanda.bunnyhop.service.ModelExclusiveControl;
-import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
-import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
-import net.seapanda.bunnyhop.view.node.LabelNodeView;
-import net.seapanda.bunnyhop.view.node.TextInputNodeView;
-import org.apache.commons.lang3.mutable.MutableObject;
+import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 
 /**
  * ノード選択リストにあるノードのコントローラ.
  *
  * @author K.Koike
  */
-public class TemplateNodeController {
+public class TemplateNodeController implements BhNodeController {
 
   private final BhNode model;
-  /** テンプレートリストのビュー. */
   private final BhNodeView view;
-  /** 上のview ルートとなる view. */
-  private final BhNodeView rootView;
-  /** 現在、テンプレートのBhNodeView 上で発生したマウスイベントを送っているワークスペース上の view. */
-  private final MutableObject<BhNodeView> currentView = new MutableObject<>(null);
+  private final ModelAccessNotificationService notificationService;
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
+  private final DndEventInfo ddInfo = this.new DndEventInfo();
+  private final BhNodeFactory factory;
+  private final WorkspaceSet wss;
+  private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
   
   /**
    * コンストラクタ.
    *
    * @param model 管理するモデル
    * @param view 管理するビュー
+   * @param factory ノード生成用オブジェクト
+   * @param service モデルへのアクセスの通知先となるオブジェクト
+   * @param wss アプリケーション固有のワークスペースセット
+   * @param proxy ノード選択ビュー
    */
-  public TemplateNodeController(BhNode model, BhNodeView view, BhNodeView rootView) {
+  public TemplateNodeController(
+      BhNode model,
+      BhNodeView view,
+      BhNodeFactory factory,
+      ModelAccessNotificationService service,
+      WorkspaceSet wss,
+      BhNodeSelectionViewProxy proxy) {
     Objects.requireNonNull(model);
     Objects.requireNonNull(view);
-    Objects.requireNonNull(rootView);
+    Objects.requireNonNull(factory);
+    Objects.requireNonNull(service);
+    Objects.requireNonNull(wss);
+    Objects.requireNonNull(proxy);
     this.model = model;
     this.view = view;
-    this.rootView = rootView;
+    this.factory = factory;
+    this.notificationService = service;
+    this.wss = wss;
+    this.nodeSelectionViewProxy = proxy;
+    model.setViewProxy(new BhNodeViewProxyImpl(view, true));
     setEventHandlers();
-
-    switch (model) {
-      case TextNode textNode ->
-          textNode.setViewProxy(new BhNodeViewProxyImpl(view, true));
-      case ConnectiveNode connectiveNode ->
-          connectiveNode.setViewProxy(new BhNodeViewProxyImpl(view, true));
-      
-      default -> throw new IllegalArgumentException("Unknown BhNode  (%s)".formatted(model));
-    }
-
-    if (model instanceof TextNode textNode) {
-      switch (view) {
-        case TextInputNodeView textInputView ->
-            TextInputNodeController.setEventHandlers(textNode, textInputView);
-          
-        case ComboBoxNodeView comboBoxView ->
-            ComboBoxNodeController.setEventHandlers(textNode, comboBoxView);
-
-        case LabelNodeView labelView ->
-            LabelNodeController.setInitStr(textNode, labelView);
-        
-        default -> { /* do nothing */ }
-      }
-    }
   }
 
   /** 各種イベントハンドラをセットする. */
   private void setEventHandlers() {
-    view.getEventManager().setOnMousePressed(mouseEvent -> onMousePressed(mouseEvent));
-    view.getEventManager().setOnMouseDragged(mouseEvent -> onMouseDragged(mouseEvent));
-    view.getEventManager().setOnDragDetected(mouseEvent -> onDragDetected(mouseEvent));
-    view.getEventManager().setOnMouseReleased(mouseEvent -> onMouseReleased(mouseEvent));
+    view.getEventManager().setOnMousePressed(this::onMousePressed);
+    view.getEventManager().setOnMouseDragged(this::onMouseDragged);
+    view.getEventManager().setOnDragDetected(this::onDragDetected);
+    view.getEventManager().setOnMouseReleased(this::onMouseReleased);
     view.getEventManager().addEventFilter(
         MouseEvent.ANY,
         mouseEvent -> consumeIfNotAcceptable(mouseEvent));
     model.getEventManager().addOnNodeReplaced((oldNode, newNode, userOpe) -> replaceView(newNode));
-    if (model instanceof TextNode textNode) {
-      textNode.getEventManager().addOnTextChanged(
-          (oldText, newText, userOpe) -> TemplateNodeController.matchViewToModel(textNode, view));
-    }
   }
 
   /** マウスボタン押下時のイベントハンドラ. */
   private void onMousePressed(MouseEvent event) {
-    if (!mouseCtrlLock.tryLock(event.getButton())) {
-      return;
-    }
-    ModelExclusiveControl.lockForModification();
     try {
-      Workspace currentWs = BhService.appRoot().getWorkspaceSet().getCurrentWorkspace();
-      if (currentWs == null) {
+      if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
-      UserOperation userOpe = new UserOperation();
-      BhNode newNode = model.findRootNode().copy(userOpe);
-      BhNodeView nodeView = NodeMvcBuilder.build(newNode); //MVC構築
-      currentView.setValue(nodeView);
+      Context context = notificationService.begin();
+      Workspace currentWs = wss.getCurrentWorkspace();
+      BhNode newNode = model.findRootNode().copy(context.userOpe());
+      factory.setMvc(model, MvcType.DEFAULT);
+      ddInfo.currentView = factory.setMvc(newNode, MvcType.DEFAULT);
+      if (currentWs == null || ddInfo.currentView == null) {
+        terminateDnd();
+        return;
+      }
+  
+      ddInfo.isDndFinished = false;
       Vec2D posOnWs = calcClickPosOnWs(event, currentWs);
-      BhService.bhNodePlacer().moveToWs(currentWs, newNode, posOnWs.x, posOnWs.y, userOpe);
-      // undo 用コマンドセット
-      nodeView.getController().ifPresent(ctrl -> ctrl.setUserOpeCmdForDnd(userOpe));
-      currentView.getValue().getEventManager().propagateEvent(event);
-      BhService.appRoot().getNodeSelectionViewProxy().hideAll();
-      event.consume();
-    } catch (Exception e) {
-      mouseCtrlLock.unlock();
+      BhNodePlacer.moveToWs(currentWs, newNode, posOnWs.x, posOnWs.y, context.userOpe());
+      ddInfo.currentView.getEventManager().propagateEvent(event);
+      nodeSelectionViewProxy.hideAll();
+    } catch (Throwable e) {
+      terminateDnd();
+      throw e;
     } finally {
-      ModelExclusiveControl.unlockForModification();
+      event.consume();
     }
   }
 
   /** マウスドラッグ時のイベントハンドラ. */
   private void onMouseDragged(MouseEvent event) {
-    if (!mouseCtrlLock.isLockedBy(event.getButton()) || currentView.getValue() == null) {
-      return;
-    }
-    ModelExclusiveControl.lockForModification();
     try {
-      currentView.getValue().getEventManager().propagateEvent(event);
-    } catch (Exception e) {
-      mouseCtrlLock.unlock();
+      if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
+        return;
+      }
+      ddInfo.currentView.getEventManager().propagateEvent(event);
+    } catch (Throwable e) {
+      terminateDnd();
+      throw e;
     } finally {
-      ModelExclusiveControl.unlockForModification();
+      event.consume();
     }
   }
 
   /** マウスドラッグ検出検出時のイベントハンドラ. */
   private void onDragDetected(MouseEvent event) {
-    if (!mouseCtrlLock.isLockedBy(event.getButton()) || currentView.getValue() == null) {
-      return;
-    }
-    ModelExclusiveControl.lockForModification();
     try {
-      currentView.getValue().getEventManager().propagateEvent(event);
-    }  catch (Exception e) {
-      mouseCtrlLock.unlock();
+      if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
+        return;
+      }
+      ddInfo.currentView.getEventManager().propagateEvent(event);
+    } catch (Throwable e) {
+      terminateDnd();
+      throw e;
     } finally {
-      ModelExclusiveControl.unlockForModification();
+      event.consume();
     }
   }
 
   /** マウスボタンを離したときのイベントハンドラ. */
   private void onMouseReleased(MouseEvent event) {
-    if (!mouseCtrlLock.isLockedBy(event.getButton()) || currentView.getValue() == null) {
+    if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
+      event.consume();
+      // 余分に D&D の終了処理をしてしまうので terminateDnd を呼ばないこと.
       return;
     }
-    ModelExclusiveControl.lockForModification();
+
     try {
-      currentView.getValue().getEventManager().propagateEvent(event);
+      ddInfo.currentView.getEventManager().propagateEvent(event);
     } finally {
-      currentView.setValue(null);
-      mouseCtrlLock.unlock();
-      ModelExclusiveControl.unlockForModification();
+      event.consume();
+      terminateDnd();
     }
   }
 
@@ -195,23 +182,13 @@ public class TemplateNodeController {
   /** view の rootView からの相対位置を求める. */
   private Vec2D calcRelativePosFromRoot() {
     Vec2D pos = view.getPositionManager().localToScene(new Vec2D(0, 0));
-    return rootView.getPositionManager().sceneToLocal(pos);
+    return view.getTreeManager().getRootView().getPositionManager().sceneToLocal(pos);
   }
 
   /** 受付不能なマウスイベントを consume する. */
   private void consumeIfNotAcceptable(MouseEvent event) {
     if (event.getButton() != MouseButton.PRIMARY) {
       event.consume();
-    }
-  }
-
-  private static void matchViewToModel(TextNode node, BhNodeView view) {
-    if (view instanceof TextInputNodeView textInputView) {
-      TextInputNodeController.matchViewToModel(node, textInputView);
-    } else if (view instanceof LabelNodeView labelView) {
-      LabelNodeController.matchViewToModel(node, labelView);
-    } else if (view instanceof ComboBoxNodeView comboBoxView) {
-      ComboBoxNodeController.matchViewToModel(node, comboBoxView);
     }
   }
 
@@ -222,4 +199,42 @@ public class TemplateNodeController {
       view.getTreeManager().replace(newNodeView);
     }
   }
+
+  /** D&D を終えたときの処理. */
+  private void terminateDnd() {
+    mouseCtrlLock.unlock();
+    ddInfo.reset();
+    notificationService.end();
+  }
+
+  @Override
+  public BhNode getModel() {
+    return model;
+  }
+
+  @Override
+  public BhNodeView getView() {
+    return view;
+  }
+
+  @Override
+  public ModelAccessNotificationService getNotificationService() {
+    return notificationService;
+  }
+
+  /**
+   * D&D 操作で使用する一連のイベントハンドラがアクセスするデータをまとめたクラス.
+   */
+  private class DndEventInfo {
+    /** 現在、テンプレートの BhNodeView 上で発生したマウスイベントを送っているワークスペース上の view. */
+    private BhNodeView currentView = null;
+    /** D&D が終了しているかどうかのフラグ. */
+    private boolean isDndFinished = true;
+
+    /** D&Dイベント情報を初期化する. */
+    private void reset() {
+      currentView = null;
+      isDndFinished = true;
+    }
+  }  
 }

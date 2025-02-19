@@ -21,6 +21,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import net.seapanda.bunnyhop.common.Rem;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.utility.Pair;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
@@ -180,7 +181,9 @@ public class ConnectionLine {
    * 始点 NodeView と終点 NodeView が同じワークスペースに無い場合は表示しない.
    */
   public void show() {
-    if (!startNode.isInSameWorkspaceWith(endNode)) {
+    Workspace startNodeWs = startNode.getModel().map(node -> node.getWorkspace()).orElse(null);
+    Workspace endNodeWs = startNode.getModel().map(node -> node.getWorkspace()).orElse(null);
+    if (startNodeWs != null && startNodeWs == endNodeWs) {
       shapeGroup.setVisible(false);
       return;
     }

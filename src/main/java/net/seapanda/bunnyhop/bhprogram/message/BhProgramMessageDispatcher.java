@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.TurnLeftRas
 import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.TurnRightRaspiCarCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.InputTextResp;
-import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 
 /**
@@ -127,10 +127,10 @@ public class BhProgramMessageDispatcher {
   }
 
   private void notifyInvalidMsg(BhProgramMessage msg) {
-    BhService.msgPrinter().errForDebug("Received an invalid message.  (%s)".formatted(msg));
+    LogManager.logger().error("Received an invalid message.  (%s)".formatted(msg));
   }
 
   private void notifyInvalidResp(BhProgramResponse resp) {
-    BhService.msgPrinter().errForDebug("Received an invalid response.  (%s)".formatted(resp));
+    LogManager.logger().error("Received an invalid response.  (%s)".formatted(resp));
   }
 }

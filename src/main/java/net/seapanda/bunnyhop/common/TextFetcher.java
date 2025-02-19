@@ -16,9 +16,9 @@
 
 package net.seapanda.bunnyhop.common;
 
-import net.seapanda.bunnyhop.service.BhService;
-import net.seapanda.bunnyhop.utility.TextDatabase;
-import net.seapanda.bunnyhop.utility.TextDatabase.TextId;
+import net.seapanda.bunnyhop.utility.textdb.JsonTextDatabase;
+import net.seapanda.bunnyhop.utility.textdb.TextDatabase;
+import net.seapanda.bunnyhop.utility.textdb.TextId;
 
 /**
  * {@link TextDatabase} からテキストを取得するクラス.
@@ -27,6 +27,16 @@ import net.seapanda.bunnyhop.utility.TextDatabase.TextId;
  * @author K.Koike
  */
 public class TextFetcher {
+
+  private static volatile TextDatabase db = new JsonTextDatabase("{}");
+
+  /** テキストの取得元となるオブジェクトを設定する. */
+  public static void setTextDatabase(TextDatabase db) {
+    if (db == null) {
+      return;
+    }
+    TextFetcher.db = db;
+  }
 
   private TextId textId = TextId.NONE;
   private String[] path = new String[] {};
@@ -45,6 +55,6 @@ public class TextFetcher {
   public void setText(String text) { }
 
   public String getText() {
-    return BhService.textDb().get(textId);
+    return db.get(textId);
   }
 }

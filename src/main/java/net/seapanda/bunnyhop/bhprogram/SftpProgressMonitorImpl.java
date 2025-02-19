@@ -20,7 +20,8 @@ import com.jcraft.jsch.SftpProgressMonitor;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
 import net.seapanda.bunnyhop.common.TextDefs;
-import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.service.LogManager;
+import net.seapanda.bunnyhop.service.MessageService;
 
 /**
  * ファイル転送プロセス進捗管理クラス.
@@ -42,14 +43,17 @@ class SftpProgressMonitorImpl implements SftpProgressMonitor {
   private final AtomicReference<Boolean> fileCopyIsCancelled;
   /** ファイル転送キャンセルフラグ (ラッチされる). */
   private boolean fileCopyHasBeenCancelled = false;
+  /** アプリケーションユーザにメッセージを出力するためのオブジェクト. */
+  private MessageService msgService;
 
   /**
    * コンストラクタ.
    *
    * @param fileCopyIsCancelled ファイル転送キャンセルフラグ
    */
-  SftpProgressMonitorImpl(AtomicReference<Boolean> fileCopyIsCancelled) {
+  SftpProgressMonitorImpl(AtomicReference<Boolean> fileCopyIsCancelled, MessageService msgService) {
     this.fileCopyIsCancelled = fileCopyIsCancelled;
+    this.msgService = msgService;
   }
 
   @Override
@@ -60,11 +64,11 @@ class SftpProgressMonitorImpl implements SftpProgressMonitor {
     int newRateOfDataSent = (int) (100L * allByteSent / max);
 
     if (fileCopyHasBeenCancelled) {
-      BhService.msgPrinter().infoForUser(TextDefs.BhRuntime.FileTransfer.stopped.get(fileName));
-      BhService.msgPrinter().infoForDebug(
+      msgService.info(TextDefs.BhRuntime.FileTransfer.stopped.get(fileName));
+      LogManager.logger().info(
           "A transfer is cancelled\n   %s -> %s  (%s / %s)".formatted(src, dest, allByteSent, max));
     } else if (newRateOfDataSent >= rateOfDataSent + 4) {
-      BhService.msgPrinter().infoForUser(
+      msgService.info(
           TextDefs.BhRuntime.FileTransfer.transferring.get(fileName, newRateOfDataSent));
       rateOfDataSent = newRateOfDataSent;
     }
@@ -77,7 +81,7 @@ class SftpProgressMonitorImpl implements SftpProgressMonitor {
       return;
     }
     String fileName = Paths.get(src).getFileName().toString();
-    BhService.msgPrinter().infoForUser(TextDefs.BhRuntime.FileTransfer.complete.get(fileName));
+    msgService.info(TextDefs.BhRuntime.FileTransfer.complete.get(fileName));
   }
 
   @Override
@@ -85,7 +89,7 @@ class SftpProgressMonitorImpl implements SftpProgressMonitor {
     this.src = src;
     this.dest = dest;
     this.max = max;
-    BhService.msgPrinter().infoForUser(TextDefs.BhRuntime.FileTransfer.start.get(src, dest, max));
+    msgService.info(TextDefs.BhRuntime.FileTransfer.start.get(src, dest, max));
   }
 
   public boolean  isFileCopyCancelled() {

@@ -24,6 +24,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabDragPolicy;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.control.DebugBoardController;
@@ -99,8 +100,8 @@ public class WorkspaceSetController {
    */
   private void resizeNodeSelectionViewHeight(double tabViewHeight) {
     for (Node node : workspaceSetStackPane.getChildren()) {
-      if (node instanceof BhNodeSelectionView) {
-        ((BhNodeSelectionView) node).setMaxHeight(tabViewHeight - node.getTranslateY());
+      if (node instanceof BhNodeSelectionView view) {
+        view.getRegion().setMaxHeight(tabViewHeight - node.getTranslateY());
       }
     }
   }
@@ -125,18 +126,17 @@ public class WorkspaceSetController {
   /**
    * ノード選択ビューを追加する.
    *
-   * @param nodeSelectionView 表示するノードテンプレート
+   * @param view 追加するノード選択ビュー
    */
-  public void addNodeSelectionView(BhNodeSelectionView nodeSelectionView) {
-    workspaceSetStackPane.getChildren().add(nodeSelectionView);
-    nodeSelectionView.toFront();
-
+  public void addNodeSelectionView(BhNodeSelectionView view) {
+    Region region = view.getRegion();
+    workspaceSetStackPane.getChildren().add(region);
+    region.toFront();
     //タブの高さ分移動したときもノード選択ビューの高さを再計算する
-    nodeSelectionView.translateYProperty().addListener((observable, oldValue, newValue) -> {
-      nodeSelectionView.setMaxHeight(workspaceSetTab.getHeight() - newValue.doubleValue());
-    });
+    region.translateYProperty().addListener((observable, oldValue, newValue) -> 
+        region.setMaxHeight(workspaceSetTab.getHeight() - newValue.doubleValue()));
     workspaceSetTab.widthProperty().addListener((oldval, newval, obs) ->
-        Math.min(nodeSelectionView.getMaxWidth(), workspaceSetTab.getWidth() * 0.5));
+        Math.min(region.getMaxWidth(), workspaceSetTab.getWidth() * 0.5));
   }
 
   /**
@@ -146,6 +146,11 @@ public class WorkspaceSetController {
    */
   public TabPane getTabPane() {
     return workspaceSetTab;
+  }
+
+  /** このコントローラが管理する {@link WorkspaceSet} オブジェクトを返す. */
+  public WorkspaceSet getWorkspaceSet() {
+    return model;
   }
 
   /**
@@ -178,11 +183,13 @@ public class WorkspaceSetController {
     if (wsView == null) {
       return;
     }
-    workspaceSetTab.getTabs().add(wsView);
-    workspaceSetTab.getSelectionModel().select(wsView);
-    // ここで REORDER にしないと, undo でタブを戻した時, タブドラッグ時に例外が発生する
-    workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
-    wsView.addOnMousePressed(event -> debugBoardController.removeMarksIn(ws));
+    if (wsView instanceof Tab tab) {
+      workspaceSetTab.getTabs().add(tab);
+      workspaceSetTab.getSelectionModel().select(tab);
+      // ここで REORDER にしないと, undo でタブを戻した時, タブドラッグ時に例外が発生する
+      workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);  
+    }
+    wsView.getEventManager().addOnMousePressed(event -> debugBoardController.removeMarksIn(ws));
   }
 
   /** {@code ws} のワークスペースビューをワークスペースセットのビューから削除する. */

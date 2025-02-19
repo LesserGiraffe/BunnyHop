@@ -19,36 +19,35 @@ package net.seapanda.bunnyhop.control.workspace;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.image.ImageView;
+import net.seapanda.bunnyhop.view.Trashbox;
 
 /**
  * ノードを削除するゴミ箱のコントローラ.
  *
  * @author K.Koike
  */
-public class TrashboxController {
+public class TrashboxController implements Trashbox {
  
   @FXML private ImageView openedTrashboxIv;
   @FXML private ImageView closedTrashboxIv;
   
-  /** ゴミ箱を開ける. */
+  private boolean isOpened = false;
+  
+  @Override
   public void open() {
     openedTrashboxIv.setVisible(true);
     closedTrashboxIv.setVisible(false);
+    isOpened = true;
   }
  
-  /** ゴミ箱を閉じる. */
+  @Override
   public void close() {
     openedTrashboxIv.setVisible(false);
     closedTrashboxIv.setVisible(true);
+    isOpened = false;
   }
 
-  /**
-   * 引数で指定した位置がゴミ箱領域内ならゴミ箱を開く.
-   * それ以外の場合, ゴミ箱を閉じる.
-   *
-   * @param sceneX Scene 上でのX位置
-   * @param sceneY Scene 上でのY位置
-   */
+  @Override
   public void auto(double sceneX, double sceneY) {
     if (isPointInTrashBoxArea(sceneX, sceneY)) {
       open();
@@ -56,7 +55,17 @@ public class TrashboxController {
       close();
     }
   }
- 
+
+  @Override
+  public boolean isOpened() {
+    return isOpened;
+  }
+
+  @Override
+  public boolean isClosed() {
+    return !isOpened;
+  }
+
   /**
    * 引数で指定した位置がゴミ箱エリアにあるかどうか調べる.
    *
@@ -64,9 +73,8 @@ public class TrashboxController {
    * @param sceneY シーン上でのY位置
    * @return 引数で指定した位置がゴミ箱エリアにある場合true
    */
-  public boolean isPointInTrashBoxArea(double sceneX, double sceneY) {
+  private boolean isPointInTrashBoxArea(double sceneX, double sceneY) {
     Point2D localPos = closedTrashboxIv.sceneToLocal(sceneX, sceneY);
     return closedTrashboxIv.contains(localPos.getX(), localPos.getY());
   }
 }
- 

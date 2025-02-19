@@ -24,14 +24,14 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
  *
  * @author K.Koike
  */
-public class StatCodeGenerator {
+class StatCodeGenerator {
 
   private final CommonCodeGenerator common;
   private final ExpCodeGenerator expCodeGen;
   private final VarDeclCodeGenerator varDeclCodeGen;
 
   /** コンストラクタ. */
-  public StatCodeGenerator(
+  StatCodeGenerator(
       CommonCodeGenerator common,
       ExpCodeGenerator expCodeGen,
       VarDeclCodeGenerator varDeclCodeGen) {
@@ -49,7 +49,7 @@ public class StatCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  public void genStatement(
+  void genStatement(
       SyntaxSymbol statementNode,
       StringBuilder code,
       int nestLevel,

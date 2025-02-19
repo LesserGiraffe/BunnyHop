@@ -16,25 +16,20 @@
 
 package net.seapanda.bunnyhop.model.node;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.common.BhConstants;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-import net.seapanda.bunnyhop.model.node.attribute.ConnectorAttributes;
-import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
-import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
-import net.seapanda.bunnyhop.model.node.attribute.DerivativeJointId;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.model.node.event.ConnectorEventInvoker;
+import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
+import net.seapanda.bunnyhop.model.node.parameter.ConnectorId;
+import net.seapanda.bunnyhop.model.node.parameter.ConnectorParameters;
+import net.seapanda.bunnyhop.model.node.parameter.DerivationId;
+import net.seapanda.bunnyhop.model.node.parameter.DerivativeJointId;
 import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
-import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.ScriptableObject;
 
 /**
  * ノードとノードをつなぐコネクタのクラス.
@@ -43,56 +38,45 @@ import org.mozilla.javascript.ScriptableObject;
  */
 public class Connector extends SyntaxSymbol {
 
-  /** コネクタID (Connector タグの bhID). */
-  private final ConnectorId id;
+  // このコネクタの生成時のパラメータ
+  private final ConnectorParameters params;
   /** ノードが取り外されたときに変わりに繋がるノードのID (Connector タグの bhID). */
   private BhNodeId defaultNodeId;
   /** 接続中のノード. */
   private BhNode connectedNode;
   /** このオブジェクトを保持する ConnectorSection オブジェクト. */
   private final ConnectorSection parent;
-  /** このコネクタにつながる {@link BhNode} が手動で取り外しや入れ替えができない場合 true. */
-  private final boolean fixed;
   /** 外部描画ノードを接続するコネクタの場合true. */
   private boolean outer = false;
-  /** 作成する派生ノードを特定するための ID. */
-  private final DerivationId derivationId;
-  /** 派生ノードの接続位置の ID. */
-  private final DerivativeJointId derivativeJoint;
-  /** ノードを接続可能かどうかチェックするスクリプトの名前. */
-  private final String cnctCheckScriptName;
+  /** {@link BhNode} 生成用オブジェクト. */
+  private final transient BhNodeFactory factory;
+  /** このコネクタ対して定義されたイベントハンドラを呼び出すためのオブジェクト. */
+  private final transient ConnectorEventInvoker eventInvoker;
 
   @Override
-   public void accept(BhNodeWalker visitor) {
+  public void accept(BhNodeWalker visitor) {
     visitor.visit(this);
   }
 
-  /**
-   * コンストラクタ.
-   *
-   * @param attrs コネクタのパラメータ一式
-   */
-  public Connector(ConnectorAttributes attrs) {
-    super(attrs.name());
-    id = attrs.connectorId();
-    defaultNodeId = attrs.defaultNodeId();
-    derivationId = attrs.derivationId();
-    derivativeJoint = attrs.derivativeJoint();
-    fixed = attrs.fixed();
-    cnctCheckScriptName = attrs.onConnectabilityChecking();
+  /** コンストラクタ. */
+  public Connector(
+      ConnectorParameters params, BhNodeFactory factory, ConnectorEventInvoker invoker) {
+    super(params.name());
+    this.params = params;
+    this.factory = factory;
+    this.eventInvoker = invoker;
+    defaultNodeId = params.defaultNodeId();
     parent = null;
   }
 
   /** コピーコンストラクタ. */
   private Connector(Connector org, ConnectorSection parent) {
     super(org.getSymbolName());
-    id = org.id;
-    defaultNodeId = org.defaultNodeId;
-    derivationId = org.derivationId;
-    derivativeJoint = org.derivativeJoint;
-    fixed =  org.fixed;
-    cnctCheckScriptName = org.cnctCheckScriptName;
+    this.params = org.params;
+    this.factory = org.factory;
+    this.eventInvoker = org.eventInvoker;
     this.parent = parent;
+    defaultNodeId = org.defaultNodeId;
   }
 
   /**
@@ -108,11 +92,12 @@ public class Connector extends SyntaxSymbol {
       Predicate<? super BhNode> fnIsNodeToBeCopied,
       UserOperation userOpe) {
     BhNode newNode = null;
-    if (connectedNode != null && fnIsNodeToBeCopied.test(connectedNode)) {
+    if (connectedNode != null) {
       newNode = connectedNode.copy(fnIsNodeToBeCopied, userOpe);
-    } else {
-      // コピー対象のノードでない場合, デフォルトノードを新規作成して接続する
-      newNode = BhService.bhNodeFactory().create(defaultNodeId, userOpe);
+    }
+    // コピー対象のノードでない場合, デフォルトノードを新規作成して接続する
+    if (newNode == null) {
+      newNode = factory.create(defaultNodeId, userOpe);
       newNode.setDefault(true);
     }
     var newConnector = new Connector(this, parent);
@@ -175,7 +160,7 @@ public class Connector extends SyntaxSymbol {
    * @return このコネクタが固定コネクタの場合 true を返す.
    */
   public boolean isFixed() {
-    return fixed;
+    return params.fixed();
   }
   
   /**
@@ -185,32 +170,14 @@ public class Connector extends SyntaxSymbol {
    * @return 引数で指定したノードがこのコネクタに接続可能な場合, true を返す
    */
   public boolean isConnectableWith(BhNode node) {
-    if (fixed) {
+    if (isFixed()) {
       return false;
-    }
-    Script script = BhService.bhScriptManager().getCompiledScript(cnctCheckScriptName);
-    if (script == null) {
-      return false;
-    }
-    Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_CURRENT_NODE, connectedNode);
-        put(BhConstants.JsIdName.BH_NODE_TO_CONNECT, node);
-      }};
-    Context cx = Context.enter();
-    ScriptableObject scriptScope = createScriptScope(cx, nameToObj);
-    try {
-      return (Boolean) script.exec(cx, scriptScope);
-    } catch (Exception e) {
-      BhService.msgPrinter().errForDebug(
-          "'%s' must return a boolean value.\n%s".formatted(cnctCheckScriptName, e));
-    } finally {
-      Context.exit();
-    }
-    return false;
+    } // ここは残す
+    return eventInvoker.onConnectabilityChecking(this, node);
   }
 
   public ConnectorId getId() {
-    return id;
+    return params.connectorId();
   }
 
   /**
@@ -222,34 +189,18 @@ public class Connector extends SyntaxSymbol {
     return connectedNode;
   }
 
-  /** スクリプト実行時のスコープ変数を作成する. */
-  private ScriptableObject createScriptScope(Context cx, Map<String, Object> nameToObj) {
-    nameToObj = new HashMap<>(nameToObj);
-    nameToObj.put(BhConstants.JsIdName.BH_THIS, this);
-    nameToObj.put(BhConstants.JsIdName.BH_NODE_PLACER, BhService.bhNodePlacer());
-    nameToObj.put(BhConstants.JsIdName.BH_COMMON, BhService.bhScriptManager().getCommonJsObj());
-    nameToObj.put(BhConstants.JsIdName.BH_TEXT_DB, BhService.textDb());
-
-    ScriptableObject scope = cx.initStandardObjects();
-    for (String name : nameToObj.keySet()) {
-      Object val = Context.javaToJS(nameToObj.get(name), scope);
-      scope.put(name, scope, val);
-    }
-    return scope;
-  }
-
   /**
    * このコネクタと先祖コネクタの中に, DerivationId.NONE 以外の派生先 ID (派生ノードを特定するための ID) があればそれを返す.
    * なければ, DerivationId.NONE を返す.
    */
   DerivationId findDerivationIdUp() {    
-    if (derivationId.equals(DerivationId.NONE)) {
+    if (params.derivationId().equals(DerivationId.NONE)) {
       Connector parentCnctr = getParentNode().getParentConnector();
       if (parentCnctr != null) {
         return parentCnctr.findDerivationIdUp();
       }
     }
-    return derivationId;
+    return params.derivationId();
   }
 
   /**
@@ -258,7 +209,7 @@ public class Connector extends SyntaxSymbol {
    * @return 派生ノード接続位置の識別子
    */
   public DerivativeJointId getDerivativeJoint() {
-    return derivativeJoint;
+    return params.derivativeJointId();
   }
 
   /**
@@ -338,8 +289,12 @@ public class Connector extends SyntaxSymbol {
 
   @Override
   public void show(int depth) {
-    BhService.msgPrinter().println("%s<Connector bhID=%s nodeID=%s parent=%s>  %s".formatted(
-        indent(depth), id, connectedNode.getId(), parent.getInstanceId(), getInstanceId()));
+    System.out.println("%s<Connector bhID=%s nodeID=%s parent=%s>  %s".formatted(
+        indent(depth),
+        params.connectorId(),
+        connectedNode.getId(),
+        parent.getInstanceId(),
+        getInstanceId()));
     connectedNode.show(depth + 1);
   }
 }

@@ -24,5 +24,5 @@ package net.seapanda.bunnyhop.view.traverse;
 public interface NodeViewComponent {
 
   /** {@code visitor} にこのオブジェクトを渡す. */
-  public void accept(NodeViewProcessor visitor);
+  void accept(NodeViewWalker visitor);
 }

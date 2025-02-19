@@ -99,14 +99,6 @@ class BhNodeViewProxyImpl implements BhNodeViewProxy {
   }
 
   @Override
-  public void setCompileErrorVisibility(boolean visible, UserOperation userOpe) {
-    if (userOpe != null) {
-      userOpe.pushCmdOfSetCompileError(view, view.getLookManager().isCompileErrorVisible());
-    }
-    view.getLookManager().setCompileErrorVisibility(visible);
-  }
-
-  @Override
   public boolean isTemplateNode() {
     return isTemplateNode;
   }

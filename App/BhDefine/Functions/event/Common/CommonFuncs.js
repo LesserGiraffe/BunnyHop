@@ -1,9 +1,9 @@
 (function() {
 
-  let NodeMvcBuilder = net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
-  let BhNodeId = net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
+  let BhNodeId = net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
   let DerivativeBuilder = net.seapanda.bunnyhop.model.traverse.DerivativeBuilder;
-  let DerivationId = net.seapanda.bunnyhop.model.node.attribute.DerivationId;
+  let DerivationId = net.seapanda.bunnyhop.model.node.parameter.DerivationId;
+  let MvcType = net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
   let bhCommon = {
     'bhNodeFactory': bhNodeFactory,
     'bhNodePlacer': bhNodePlacer
@@ -29,7 +29,7 @@
    */
   function addNewNodeToWS(bhNodeId, workspace, pos, bhUserOpe) {
     let newNode = createBhNode(bhNodeId, bhUserOpe)    
-    NodeMvcBuilder.build(newNode);
+    bhNodeFactory.setMvc(newNode, MvcType.DEFAULT);
     bhNodePlacer.moveToWs(workspace, newNode, pos.x, pos.y, bhUserOpe);
     return newNode;
   }

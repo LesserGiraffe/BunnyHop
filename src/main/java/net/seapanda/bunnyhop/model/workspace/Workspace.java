@@ -97,6 +97,7 @@ public class Workspace implements Serializable {
     nodeList.add(node);
     node.setWorkspace(this, userOpe);
     node.getEventManager().addOnSelectionStateChanged(eventManager.onNodeSelectionStateChanged);
+    node.getEventManager().addOnCompileErrStateChanged(eventManager.onNodeCompileErrStateChanged);
     node.getEventManager().addOnNodeReplaced(eventManager.onNodeReplaced);
     eventManager.invokeOnNodeAdded(node, userOpe);
   }
@@ -135,6 +136,8 @@ public class Workspace implements Serializable {
       node.deselect(userOpe);
     }
     node.getEventManager().removeOnSelectionStateChanged(eventManager.onNodeSelectionStateChanged);
+    node.getEventManager().removeOnCompileErrStateChanged(
+        eventManager.onNodeCompileErrStateChanged);
     node.getEventManager().removeOnNodeReplaced(eventManager.onNodeReplaced);
     node.setWorkspace(null, userOpe);
     nodeList.remove(node);
@@ -257,6 +260,10 @@ public class Workspace implements Serializable {
     private transient
         SequencedSet<TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>>
         onNodeSelectionStateChangedList = new LinkedHashSet<>();
+    /** ノードのコンパイルエラー状態が変更されたときのイベントハンドラのセット. */
+    private transient
+        SequencedSet<TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>>
+        onNodeCompileErrStateChangedList = new LinkedHashSet<>();
     /** このワークスペースにノードが追加されたときのイベントハンドラのセット. */
     private transient
         SequencedSet<TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation>>
@@ -264,7 +271,7 @@ public class Workspace implements Serializable {
     /** このワークスペースからノードが削除されたときのイベントハンドラのセット. */
     private transient
         SequencedSet<TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation>>
-        onNodeRemoved = new LinkedHashSet<>();
+        onNodeRemovedList = new LinkedHashSet<>();
     /** このワークスペースのノードがルートノードとなったときのイベントハンドラのセット. */
     private transient
         SequencedSet<TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation>>
@@ -273,9 +280,12 @@ public class Workspace implements Serializable {
     private transient
         SequencedSet<TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation>>
         onNodeTurnedIntoNotRootList = new LinkedHashSet<>();
-    /** このワークスペースからノードが削除されたときのイベントハンドラを呼び出す関数オブジェクト. */
+    /** このワークスペースのノードが選択されたときのイベントハンドラを呼び出す関数オブジェクト. */
     private transient TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>
         onNodeSelectionStateChanged = this::invokeOnNodeSelectionStateChanged;
+    /** このワークスペースのコンパイルエラー状態が変更されたときのイベントハンドラを呼び出す関数オブジェクト. */
+    private transient TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>
+        onNodeCompileErrStateChanged = this::invokeOnNodeCompileErrStateChanged;
     /** このワークスペースのノードが他のノードと入れ替わったときのイベントハンドラを呼び出す関数オブジェクト. */
     private transient TriConsumer<? super BhNode, ? super BhNode, ? super UserOperation>
         onNodeReplaced = this::invokeOnNodeReplaced;
@@ -300,6 +310,45 @@ public class Workspace implements Serializable {
       onNodeSelectionStateChangedList.remove(handler);
     }
 
+    /** ノードの選択状態が変わったときのイベントハンドラを呼び出す. */
+    private void invokeOnNodeSelectionStateChanged(
+        BhNode node, boolean isSelected, UserOperation userOpe) {
+      if (isSelected) {
+        addToSelectedNodeList(node);
+      } else {
+        removeFromSelectedNodeList(node);
+      }
+      onNodeSelectionStateChangedList.forEach(handler -> handler.accept(node, isSelected, userOpe));
+    }
+
+    /**
+     * このワークスペースのノードのコンパイルエラー状態に変化があったときのイベントハンドラを追加する.
+     *
+     * @param handler 追加するイベントハンドラ
+     */
+    public void addOnNodeCompileErrStateChanged(
+        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
+      onNodeCompileErrStateChangedList.addLast(handler);
+    }
+
+    /**
+     * このワークスペースのノードのコンパイルエラー状態に変化があったときのイベントハンドラを削除する.
+     *
+     * @param handler 削除するイベントハンドラ
+     */
+    public void removeOnNodeCompileErrStateChanged(
+        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
+      onNodeCompileErrStateChangedList.remove(handler);
+    }
+
+    /** ノードのコンパイルエラー状態が変わったときのイベントハンドラを呼び出す. */
+    private void invokeOnNodeCompileErrStateChanged(
+        BhNode node, boolean hasCompileError, UserOperation userOpe) {
+      onNodeCompileErrStateChangedList.forEach(
+          handler -> handler.accept(node, hasCompileError, userOpe));
+    }
+  
+
     /**
      * このワークスペースにノードが追加されたときのイベントハンドラを追加する.
      *
@@ -320,6 +369,11 @@ public class Workspace implements Serializable {
       onNodeAddedList.remove(handler);
     }
 
+    /** このワークスペースにノードが追加されたときのイベントハンドラを呼び出す. */
+    private void invokeOnNodeAdded(BhNode node, UserOperation userOpe) {
+      onNodeAddedList.forEach(handler -> handler.accept(Workspace.this, node, userOpe));
+    }
+
     /**
      * このワークスペースからノードが削除されたときのイベントハンドラを追加する.
      *
@@ -327,7 +381,7 @@ public class Workspace implements Serializable {
      */
     public void addOnNodeRemoved(
         TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler) {
-      onNodeRemoved.addLast(handler);
+      onNodeRemovedList.addLast(handler);
     }
 
     /**
@@ -337,7 +391,12 @@ public class Workspace implements Serializable {
      */
     public void removeOnNodeRemoved(
         TriConsumer<? super Workspace, ? super BhNode, ? super UserOperation> handler) {
-      onNodeRemoved.remove(handler);
+      onNodeRemovedList.remove(handler);
+    }
+
+    /** このワークスペースからノードが削除されたときのイベントハンドラを呼び出す. */
+    private void invokeOnNodeRemoved(BhNode node, UserOperation userOpe) {
+      onNodeRemovedList.forEach(handler -> handler.accept(Workspace.this, node, userOpe));
     }
 
     /**
@@ -360,6 +419,11 @@ public class Workspace implements Serializable {
       onNodeTurnedIntoRootList.remove(handler);
     }
 
+    /** このワークスペースの非ルートノードがルートノードになったときのイベントハンドラを呼び出す. */
+    private void invokeOnNodeTurnedIntoRoot(BhNode node, UserOperation userOpe) {
+      onNodeTurnedIntoRootList.forEach(handler -> handler.accept(Workspace.this, node, userOpe));
+    }
+
     /**
      * このワークスペースのルートノードが非ルートノードとなったときのイベントハンドラを追加する.
      *
@@ -380,25 +444,9 @@ public class Workspace implements Serializable {
       onNodeTurnedIntoNotRootList.remove(handler);
     }
 
-    /** ノードの選択状態が変わったときのイベントハンドラを呼び出す. */
-    private void invokeOnNodeSelectionStateChanged(
-        BhNode node, boolean isSelected, UserOperation userOpe) {
-      if (isSelected) {
-        addToSelectedNodeList(node);
-      } else {
-        removeFromSelectedNodeList(node);
-      }
-      onNodeSelectionStateChangedList.forEach(handler -> handler.accept(node, isSelected, userOpe));
-    }
-
-    /** このワークスペースにノードが追加されたときのイベントハンドラを呼び出す. */
-    private void invokeOnNodeAdded(BhNode node, UserOperation userOpe) {
-      onNodeAddedList.forEach(handler -> handler.accept(Workspace.this, node, userOpe));
-    }
-
-    /** このワークスペースからノードが削除されたときのイベントハンドラを呼び出す. */
-    private void invokeOnNodeRemoved(BhNode node, UserOperation userOpe) {
-      onNodeRemoved.forEach(handler -> handler.accept(Workspace.this, node, userOpe));
+    /** このワークスペースのルートノードが非ルートノードになったときのイベントハンドラを呼び出す. */
+    private void invokeOnNodeTurnedIntoNotRoot(BhNode node, UserOperation userOpe) {
+      onNodeTurnedIntoNotRootList.forEach(handler -> handler.accept(Workspace.this, node, userOpe));
     }
 
     /** このワークスペースのノードが他のノードと入れ替わったときのイベントハンドラを呼び出す. */
@@ -414,16 +462,6 @@ public class Workspace implements Serializable {
         rootNodeList.remove(newNode);
         invokeOnNodeTurnedIntoNotRoot(newNode, userOpe);
       }
-    }
-
-    /** このワークスペースの非ルートノードがルートノードになったときのイベントハンドラを呼び出す. */
-    private void invokeOnNodeTurnedIntoRoot(BhNode node, UserOperation userOpe) {
-      onNodeTurnedIntoRootList.forEach(handler -> handler.accept(Workspace.this, node, userOpe));
-    }
-
-    /** このワークスペースのルートノードが非ルートノードになったときのイベントハンドラを呼び出す. */
-    private void invokeOnNodeTurnedIntoNotRoot(BhNode node, UserOperation userOpe) {
-      onNodeTurnedIntoNotRootList.forEach(handler -> handler.accept(Workspace.this, node, userOpe));
     }
   }
 }

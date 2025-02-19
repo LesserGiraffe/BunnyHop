@@ -21,10 +21,9 @@ import java.util.List;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.Connector;
-import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
+import net.seapanda.bunnyhop.model.node.parameter.ConnectorId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
-import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
@@ -134,7 +133,7 @@ public class ConnectorSection extends Section {
   public void show(int depth) {
     var parentInstId =
         (parentNode != null) ? parentNode.getInstanceId() : parentSection.getInstanceId();
-    BhService.msgPrinter().println("%s<ConnectorSection  name=%s  parent=%s>  %s"
+    System.out.println("%s<ConnectorSection  name=%s  parent=%s>  %s"
         .formatted(indent(depth), getSymbolName(), parentInstId, getInstanceId()));
     cnctrList.forEach(connector -> connector.show(depth + 1));
   }

@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.bhprogram;
 
 import com.jcraft.jsch.UserInfo;
-import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.service.MessageService;
 
 /**
  * SSH 接続時に必要な情報を返す機能を持つクラス.
@@ -29,6 +29,7 @@ class UserInfoImpl implements UserInfo {
   private final String uname;
   private final String host;
   private final String password;
+  private final MessageService msgService;
 
   /**
    * コンストラクタ.
@@ -36,18 +37,21 @@ class UserInfoImpl implements UserInfo {
    * @param host ホスト名.
    * @param uname ユーザー名.
    * @param password パスワード.
+   * @param msgService メッセージ出力用オブジェクト
    */
-  UserInfoImpl(String host, String uname, String password) {
+  UserInfoImpl(String host, String uname, String password, MessageService msgService) {
     this.host = host == null ? "" : host;
     this.uname = uname == null ? "" : uname;
     this.password = password == null ? "" : password;
+    this.msgService = msgService;
   }
 
   /** コピーコンストラクタ. */
-  UserInfoImpl(UserInfoImpl original) {
+  UserInfoImpl(UserInfoImpl original, MessageService msgService) {
     this.host = original.host;
     this.uname = original.uname;
     this.password = original.password;
+    this.msgService = msgService;
   }
 
   @Override
@@ -77,7 +81,7 @@ class UserInfoImpl implements UserInfo {
 
   @Override
   public void showMessage(String message) {
-    BhService.msgPrinter().infoForUser(message + "\n");
+    msgService.info(message + "\n");
   }
 
   public String getUname() {

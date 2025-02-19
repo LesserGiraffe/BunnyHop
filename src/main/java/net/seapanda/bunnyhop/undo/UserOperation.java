@@ -28,11 +28,12 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
+import net.seapanda.bunnyhop.model.workspace.CopyAndPaste;
+import net.seapanda.bunnyhop.model.workspace.CutAndPaste;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
-import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
@@ -74,7 +75,7 @@ public class UserOperation {
   /** for debug. */
   public void printSubOpeList() {
     for (SubOperation subope : subOpeList) {
-      BhService.msgPrinter().println("subope  " + subope);
+      System.out.println("subope  " + subope);
     }
   }
 
@@ -211,13 +212,13 @@ public class UserOperation {
   }
 
   /**
-   * ノードのコンパイルエラー設定をコマンド化してサブ操作リストに加える.
+   * ノードのコンパイルエラー状態の変更をコマンド化してサブ操作リストに加える.
    *
-   * @param nodeView ノードのコンパイルエラー設定を変更したノード
+   * @param node コンパイルエラー設定を変更したノード
    * @param oldVal 変更前の状態
    */
-  public void pushCmdOfSetCompileError(BhNodeView nodeView, boolean oldVal) {
-    subOpeList.addLast(new SetCompileErrorCmd(nodeView, oldVal));
+  public void pushCmdOfSetCompileError(BhNode node, boolean oldVal) {
+    subOpeList.addLast(new SetCompileErrorCmd(node, oldVal));
   }
 
   /**
@@ -282,41 +283,41 @@ public class UserOperation {
   /**
    * コピー予定のノードを追加する操作をコマンド化してサブ操作リストに加える.
    *
-   * @param wss コピー予定のノードを追加したワークスペースセット.
+   * @param cap コピー予定のノードを追加したワークスペースセット.
    * @param added 追加されたコピー予定のノード
    */
-  public void pushCmdOfAddNodeToCopyList(WorkspaceSet wss, BhNode added) {
-    subOpeList.addLast(new AddNodeToCopyListCmd(wss, added));
+  public void pushCmdOfAddNodeToCopyList(CopyAndPaste cap, BhNode added) {
+    subOpeList.addLast(new AddNodeToCopyListCmd(cap, added));
   }
 
   /**
    * コピー予定のノードを削除する操作をコマンド化してサブ操作リストに加える.
    *
-   * @param wss コピー予定のノードを削除したワークスペースセット.
+   * @param cap コピー予定のノードを削除した {@link CopyAndPaste} オブジェクト.
    * @param removed 削除されたコピー予定のノード
    */
-  public void pushCmdOfRemoveNodeFromCopyList(WorkspaceSet wss, BhNode removed) {
-    subOpeList.addLast(new RemoveNodeFromCopyListCmd(wss, removed));
+  public void pushCmdOfRemoveNodeFromCopyList(CopyAndPaste cap, BhNode removed) {
+    subOpeList.addLast(new RemoveNodeFromCopyListCmd(cap, removed));
   }
 
   /**
    * カット予定のノードを追加する操作をコマンド化してサブ操作リストに加える.
    *
-   * @param wss カット予定のノードを追加したワークスペースセット.
+   * @param cap カット予定のノードを追加した {@link CutAndPaste} オブジェクト.
    * @param added 追加されたカット予定のノード
    */
-  public void pushCmdOfAddNodeToCutList(WorkspaceSet wss, BhNode added) {
-    subOpeList.addLast(new AddNodeToCutListCmd(wss, added));
+  public void pushCmdOfAddNodeToCutList(CutAndPaste cap, BhNode added) {
+    subOpeList.addLast(new AddNodeToCutListCmd(cap, added));
   }
 
   /**
    * カット予定のノードを削除する操作をコマンド化してサブ操作リストに加える.
    *
-   * @param wss カット予定のノードを削除したワークスペースセット.
+   * @param cap カット予定のノードを削除した {@link CutAndPaste} オブジェクト.
    * @param removed 削除されたコピー予定のノード
    */
-  public void pushCmdOfRemoveNodeFromCutList(WorkspaceSet wss, BhNode removed) {
-    subOpeList.addLast(new RemoveNodeFromCutListCmd(wss, removed));
+  public void pushCmdOfRemoveNodeFromCutList(CutAndPaste cap, BhNode removed) {
+    subOpeList.addLast(new RemoveNodeFromCutListCmd(cap, removed));
   }
 
   /**
@@ -621,21 +622,21 @@ public class UserOperation {
   /** {@link BhNodeView} のコンパイルエラー表示の変更を表すコマンド. */
   private static class SetCompileErrorCmd implements SubOperation {
 
-    /** ノードのコンパイルエラー設定を変更したノード. */
-    private final BhNodeView nodeView;
+    /** コンパイルエラー状態を変更したノード. */
+    private final BhNode node;
     /** 変更前の状態. */
     private final boolean oldVal;
 
-    public SetCompileErrorCmd(BhNodeView nodeView, boolean oldVal) {
-      this.nodeView = nodeView;
+    public SetCompileErrorCmd(BhNode node, boolean oldVal) {
+      this.node = node;
       this.oldVal = oldVal;
     }
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      boolean curVal = nodeView.getLookManager().isCompileErrorVisible();
-      nodeView.getLookManager().setCompileErrorVisibility(oldVal);
-      inverseCmd.pushCmdOfSetCompileError(nodeView, curVal);
+      boolean curVal = node.getCompileErrState();
+      node.setCompileErrState(oldVal, inverseCmd);
+      inverseCmd.pushCmdOfSetCompileError(node, curVal);
     }
   }
 
@@ -737,80 +738,80 @@ public class UserOperation {
   /** コピー予定のノードをワークスペースセットに追加する操作を表すコマンド. */
   private static class AddNodeToCopyListCmd implements SubOperation {
     
-    /** コピー予定のノードを追加したワークスペースセット. */
-    private final WorkspaceSet wss;
+    /** コピー予定のノードを追加した {@link CopyAndPaste} オブジェクト. */
+    private final CopyAndPaste cap;
     /** 追加されたコピー予定のノード. */
     private final BhNode added;
 
-    public AddNodeToCopyListCmd(WorkspaceSet wss, BhNode added) {
-      this.wss = wss;
+    public AddNodeToCopyListCmd(CopyAndPaste cap, BhNode added) {
+      this.cap = cap;
       this.added = added;
     }
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      wss.removeNodeFromCopyList(added, inverseCmd);
-      inverseCmd.pushCmdOfRemoveNodeFromCopyList(wss, added);
+      cap.removeNodeFromList(added, inverseCmd);
+      inverseCmd.pushCmdOfRemoveNodeFromCopyList(cap, added);
     }
   }
 
   /** コピー予定のノードをワークスペースセットから削除する操作を表すコマンド. */
   private static class RemoveNodeFromCopyListCmd implements SubOperation {
     
-    /** コピー予定のノードを削除したワークスペースセット. */
-    private final WorkspaceSet wss;
+    /** コピー予定のノードを取り除いた {@link CopyAndPaste} オブジェクト. */
+    private final CopyAndPaste cap;
     /** 削除されたコピー予定のノード. */
     private final BhNode removed;
 
-    public RemoveNodeFromCopyListCmd(WorkspaceSet wss, BhNode removed) {
-      this.wss = wss;
+    public RemoveNodeFromCopyListCmd(CopyAndPaste cap, BhNode removed) {
+      this.cap = cap;
       this.removed = removed;
     }
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      wss.addNodeToCopyList(removed, inverseCmd);
-      inverseCmd.pushCmdOfAddNodeToCopyList(wss, removed);
+      cap.addNodeToList(removed, inverseCmd);
+      inverseCmd.pushCmdOfAddNodeToCopyList(cap, removed);
     }
   }
 
   /** カット予定のノードをワークスペースセットに追加する操作を表すコマンド. */
   private static class AddNodeToCutListCmd implements SubOperation {
   
-    /** カット予定のノードを追加したワークスペースセット. */
-    private final WorkspaceSet wss;
+    /** カット予定のノードを追加した {@link CutAndPaste} オブジェクト. */
+    private final CutAndPaste cap;
     /** 追加されたカット予定のノード. */
     private final BhNode added;
 
-    public AddNodeToCutListCmd(WorkspaceSet wss, BhNode added) {
-      this.wss = wss;
+    public AddNodeToCutListCmd(CutAndPaste cap, BhNode added) {
+      this.cap = cap;
       this.added = added;
     }
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      wss.removeNodeFromCutList(added, inverseCmd);
-      inverseCmd.pushCmdOfRemoveNodeFromCutList(wss, added);
+      cap.removeNodeFromList(added, inverseCmd);
+      inverseCmd.pushCmdOfRemoveNodeFromCutList(cap, added);
     }
   }
 
   /** カット予定のノードをワークスペースセットから削除する操作を表すコマンド. */
   private static class RemoveNodeFromCutListCmd implements SubOperation {
     
-    /** カット予定のノードを削除したワークスペースセット. */
-    private final WorkspaceSet wss;
+    /** カット予定のノードを取り除いた {@link CutAndPaste} オブジェクト. */
+    private final CutAndPaste cap;
     /** 削除されたカット予定のノード. */
     private final BhNode removed;
 
-    public RemoveNodeFromCutListCmd(WorkspaceSet wss, BhNode removed) {
-      this.wss = wss;
+    public RemoveNodeFromCutListCmd(CutAndPaste cap, BhNode removed) {
+      this.cap = cap;
       this.removed = removed;
     }
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      wss.addNodeToCutList(removed, inverseCmd);
-      inverseCmd.pushCmdOfAddNodeToCutList(wss, removed);
+      cap.addNodeToList(removed, inverseCmd);
+      inverseCmd.pushCmdOfAddNodeToCutList(cap, removed);
     }
   }
 

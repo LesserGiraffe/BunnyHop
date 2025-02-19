@@ -16,35 +16,32 @@
 
 package net.seapanda.bunnyhop.model.node;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.common.BhConstants;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeVersion;
-import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
-import net.seapanda.bunnyhop.model.node.hook.HookAgent;
-import net.seapanda.bunnyhop.model.node.hook.HookEvent;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
+import net.seapanda.bunnyhop.model.node.derivative.DerivativeReplacer;
+import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
+import net.seapanda.bunnyhop.model.node.event.MouseEventInfo;
+import net.seapanda.bunnyhop.model.node.event.NodeEventInvoker;
+import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
+import net.seapanda.bunnyhop.model.node.parameter.BhNodeParameters;
+import net.seapanda.bunnyhop.model.node.parameter.BhNodeVersion;
+import net.seapanda.bunnyhop.model.node.parameter.BhNodeViewStyleId;
+import net.seapanda.bunnyhop.model.node.parameter.DerivationId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.traverse.DerivativeReplacer;
-import net.seapanda.bunnyhop.model.traverse.NodeMvcBuilder;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.utility.TetraConsumer;
 import net.seapanda.bunnyhop.view.proxy.BhNodeViewProxy;
 import org.apache.commons.lang3.function.TriConsumer;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.ScriptableObject;
 
 /**
  * ノードの基底クラス.
@@ -56,10 +53,7 @@ public abstract class BhNode extends SyntaxSymbol {
   /** ワークスペースに存在しているノードとそのノードの {@link InstanceId} を value と key に持つマップ. */
   private static final Map<InstanceId, BhNode> instIdToNodeInWs = new ConcurrentHashMap<>();
 
-  /** ノード ID. */
-  private final BhNodeId bhId;
-  /** ノードのバージョン. */
-  private final BhNodeVersion version;
+  private final BhNodeParameters params;
   /** このノードを繋いでいるコネクタ. */
   protected Connector parentConnector;
   /** このノードがある WorkSpace. */
@@ -68,12 +62,18 @@ public abstract class BhNode extends SyntaxSymbol {
   private boolean isDefault = false;
   /** このノードが選択されているかどうかのフラグ. */
   private boolean isSelected = false;
-  /** フックイベント名とフック処理を記述したスクリプト名のマップ. */
-  private Map<HookEvent, String> eventToScriptName = new HashMap<>();
-  /** このノードに登録されたフック処理を実行するオブジェクト. */
-  private transient HookAgent hookAgent = new HookAgent(this);
+  /** このノードがコンパイルエラーを起こしているかどうかのフラグ. */
+  private boolean hasCompileError = false;
+  /** このノードに登録されたイベントハンドラを呼び出すオブジェクト. */
+  private final transient EventInvoker eventInvoker = this.new EventInvoker();
   /** 最後にこのノードと入れ替わったノード. */
   private transient BhNode lastReplaced;
+  /** 派生ノードの入れ替えを行うオブジェクト. */
+  private final transient DerivativeReplacer dervReplacer;
+  /** ノードの生成に関連する処理を行うオブジェクト. */
+  protected final transient BhNodeFactory factory;
+  /** イベントハンドラを呼び出すオブジェクト. */
+  protected final transient NodeEventInvoker nodeEventInvoker;
 
   /** BhNode がとり得る状態. */
   public enum State {
@@ -132,13 +132,15 @@ public abstract class BhNode extends SyntaxSymbol {
   /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクトを取得する. */
   public abstract BhNodeViewProxy getViewProxy();
 
+  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクトを設定する. */
+  public abstract void setViewProxy(BhNodeViewProxy viewProxy);
+
   /**
    * このノード以下のノードツリーのコピーを作成する.
    *
-   * @param fnIsNodeToBeCopied このノードの子ノード以下のノードがコピーの対象かどうかを判別する関数.
-   *                           このノードは判定対象にならず, 必ずコピーされる.
+   * @param fnIsNodeToBeCopied このノード以下のノードがコピーの対象かどうかを判別する関数.
    * @param userOpe undo 用コマンドオブジェクト
-   * @return このノード以下のノードツリーのコピー
+   * @return このノード以下のノードツリーのコピー. このノードがコピーの対象にならなかった場合 null.
    */
   public abstract BhNode copy(Predicate<? super BhNode> fnIsNodeToBeCopied, UserOperation userOpe);
 
@@ -160,26 +162,17 @@ public abstract class BhNode extends SyntaxSymbol {
   public abstract EventManager getEventManager();
   
 
-  /**
-   * コンストラクタ.
-   *
-   * @param type xml のtype属性
-   * @param attrbute ノードの設定情報
-   */
-  protected BhNode(BhNodeAttributes attributes) {
-    super(attributes.name());
-    this.bhId = attributes.bhNodeId();
-    this.version = attributes.version();
-    registerScriptName(HookEvent.ON_MOVED_FROM_CHILD_TO_WS, attributes.onMovedFromChildToWs());
-    registerScriptName(HookEvent.ON_MOVED_TO_CHILD, attributes.onMovedToChild());
-    registerScriptName(HookEvent.ON_DELETION_REQUESTED, attributes.onDeletionRequested());
-    registerScriptName(HookEvent.ON_CUT_REQUESTED, attributes.onCutRequested());
-    registerScriptName(HookEvent.ON_COPY_REQUESTED, attributes.onCopyRequested());
-    registerScriptName(
-        HookEvent.ON_COMPANION_NODES_CREATING, attributes.onFelloNodesCreating());
-    registerScriptName(HookEvent.ON_SYNTAX_CHECKING, attributes.onCompileErrorChecking());
-    registerScriptName(HookEvent.ON_TEMPLATE_CREATED, attributes.onTemplateCreated());
-    registerScriptName(HookEvent.ON_DRAG_STARTED, attributes.onDragStarted());
+  /** コンストラクタ. */
+  protected BhNode(
+      BhNodeParameters params,
+      BhNodeFactory factory,
+      DerivativeReplacer replacer,
+      NodeEventInvoker invoker) {
+    super(params.name());
+    this.params = params;
+    this.factory = factory;
+    this.dervReplacer = replacer;
+    this.nodeEventInvoker = invoker;
   }
 
   /**
@@ -189,23 +182,29 @@ public abstract class BhNode extends SyntaxSymbol {
    */
   protected BhNode(BhNode org) {
     super(org);
-    bhId = org.bhId;
-    version = org.version;
+    params = org.params;
+    dervReplacer = org.dervReplacer;
+    factory = org.factory;
+    nodeEventInvoker = org.nodeEventInvoker;
     isDefault = org.isDefault;
     parentConnector = null;
     workspace = null;
-    eventToScriptName = new HashMap<>(org.eventToScriptName);
     lastReplaced = null;
   }
 
   /** このノードの ID を取得する. */
   public BhNodeId getId() {
-    return bhId;
+    return params.nodeId();
+  }
+
+  /** このノードのスタイル ID を取得する. */
+  public BhNodeViewStyleId getStyleId() {
+    return params.styleId();
   }
 
   /** このノードのバージョンを取得する. */
   public BhNodeVersion getVersion() {
-    return version;
+    return params.version();
   }
 
   /**
@@ -239,7 +238,7 @@ public abstract class BhNode extends SyntaxSymbol {
     }
     setLastReplaced(newNode, userOpe);
     parentConnector.connectNode(newNode, userOpe);
-    swappedList.addAll(DerivativeReplacer.replace(newNode, this, userOpe));
+    swappedList.addAll(dervReplacer.replace(newNode, this, userOpe));
     return swappedList;
   }
 
@@ -262,8 +261,7 @@ public abstract class BhNode extends SyntaxSymbol {
     if (parentConnector == null) {
       return new LinkedHashSet<>();
     }
-    BhNode newNode =
-        BhService.bhNodeFactory().create(parentConnector.getDefaultNodeId(), userOpe);
+    BhNode newNode = factory.create(parentConnector.getDefaultNodeId(), userOpe);
     newNode.setDefault(true);
     return replace(newNode, userOpe);
   }
@@ -271,11 +269,8 @@ public abstract class BhNode extends SyntaxSymbol {
   /** {@code node} が対応するノードビューを持っていなかった場合, 作成する. */
   private void createMvcIfNotHaveView(BhNode node) {
     if (workspace != null && !node.getViewProxy().hasView()) {
-      if (getViewProxy().isTemplateNode()) {
-        NodeMvcBuilder.buildTemplate(node);
-      } else {
-        NodeMvcBuilder.build(node);
-      }
+      var type = getViewProxy().isTemplateNode() ? MvcType.TEMPLATE : MvcType.DEFAULT;
+      factory.setMvc(node, type);
     }
   }
 
@@ -338,7 +333,7 @@ public abstract class BhNode extends SyntaxSymbol {
    * @return このノードにコンパニオンノードがある場合 true
    */
   public boolean hasCompanionNodes() {
-    return getScriptName(HookEvent.ON_COMPANION_NODES_CREATING).isPresent();
+    return params.hasCompanionNodes();
   }
 
   /**
@@ -536,90 +531,47 @@ public abstract class BhNode extends SyntaxSymbol {
     return parentConnector.findSymbolInAncestors(symbolName, Math.max(0, generation - 1), toTop);
   }
 
-  /** 引数で指定したイベント名に対応するスクリプト名を返す. */
-  public Optional<String> getScriptName(HookEvent event) {
-    return Optional.ofNullable(eventToScriptName.get(event));
-  }
-
-  /**
-   * このノードに関連するスクリプト名をイベントとともに登録する.
-   *
-   * @param event スクリプトに対応するイベント
-   * @param scriptName 登録するスクリプト名.  null もしくは空文字の場合は登録しない.
-   */
-  protected void registerScriptName(HookEvent event, String scriptName) {
-    if (scriptName == null || scriptName.isEmpty()) {
-      return;
-    }
-    eventToScriptName.put(event, scriptName);
-  }
-
-  /**
-   * このノードに登録されたフック処理を実行するオブジェクトを返す.
-   *
-   * @return このノードに登録されたフック処理を実行するオブジェクト
-   */
-  public HookAgent getHookAgent() {
-    return hookAgent;
+  /** このノードに登録されたイベントハンドラを呼び出すオブジェクトを返す. */
+  public EventInvoker getEventInvoker() {
+    return eventInvoker;
   }
 
   /**
    * このノードのコンパニオンノードを作成する.
    *
+   * @param type コンパニオンノードに対して適用する MVC 構造
    * @param userOpe undo 用コマンドオブジェクト
    * @return このノードのコンパニオンノードのリスト. コンパニオンノードを持たない場合, 空のリストを返す.
    */
-  public Collection<BhNode> createCompanionNodes(UserOperation userOpe) {
-    Optional<String> scriptName = getScriptName(HookEvent.ON_COMPANION_NODES_CREATING);
-    Script creator = scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
-    if (creator == null) {
-      return new ArrayList<>();
+  public List<BhNode> createCompanionNodes(MvcType type, UserOperation userOpe) {
+    return nodeEventInvoker.onCompanionNodesCreating(this, type, userOpe);
+  }
+
+  /** このノードがコンパイルエラーを起こしているかどうかの状態を変更する. */
+  public void setCompileErrState(boolean val, UserOperation userOpe) {
+    if (val == hasCompileError) {
+      return;
     }
-    Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
-      }};
-    Context cx = Context.enter();
-    ScriptableObject scriptScope = getHookAgent().createScriptScope(cx, nameToObj);
-    try {
-      return ((Collection<?>) creator.exec(cx, scriptScope)).stream()
-          .filter(elem -> elem instanceof BhNode)
-          .map(elem -> (BhNode) elem)
-          .collect(Collectors.toCollection(ArrayList::new));
-    } catch (Exception e) {
-      BhService.msgPrinter().errForDebug(
-          "'%s' must return a collection of BhNode(s).\n%s".formatted(scriptName.get(), e));
-    } finally {
-      Context.exit();
-    }
-    return new ArrayList<>();
+    userOpe.pushCmdOfSetCompileError(this, hasCompileError);
+    hasCompileError = val;
+    getEventManager().invokeOnCompileErrStateChanged(userOpe);  
+  }
+
+  /** このノードがコンパイルエラーを起こしているかどうかの状態を取得する. */
+  public boolean getCompileErrState() {
+    return hasCompileError;
   }
 
   /**
-   * このノードに文法エラーがあるかどうか調べる.
+   * ノードにコンパイルエラーがあるかどうか調べる.
    *
-   * @return 文法エラーがある場合 true.  無い場合 false.
+   * @return コンパイルエラーがある場合 true.  無い場合 false.
    */
   public boolean hasCompileError() {
     if (isDeleted()) {
       return false;
     }
-    Optional<String> scriptName = getScriptName(HookEvent.ON_SYNTAX_CHECKING);
-    Script errorChecker =
-        scriptName.map(BhService.bhScriptManager()::getCompiledScript).orElse(null);
-    if (errorChecker == null) {
-      return false;
-    }
-    Context cx = Context.enter();
-    ScriptableObject scope = getHookAgent().createScriptScope(cx);
-    try {
-      return (Boolean) errorChecker.exec(cx, scope);
-    } catch (Exception e) {
-      BhService.msgPrinter().errForDebug(
-          "'%s' must return a boolean value.\n%s".formatted(scriptName.get(), e));
-    } finally {
-      Context.exit();
-    }
-    return false;
+    return nodeEventInvoker.onCompileErrChecking(this);
   }
 
   /**
@@ -644,23 +596,27 @@ public abstract class BhNode extends SyntaxSymbol {
   /** イベントハンドラの管理を行うクラス. */
   public class EventManager {
 
-    /** このノードが選択されたときに呼び出すメソッドと呼び出しスレッドのフラグ. */
+    /** このノードが選択されたときに呼び出すメソッドのリスト. */
     private transient
         SequencedSet<TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>>
         onSelectionStateChangedList = new LinkedHashSet<>();
-    /** このノードが他のノードと入れ替わったとき呼び出すメソッドと呼び出しスレッドのフラグ. */
+    /** このノードのコンパイルエラー状態が変更されたときに呼び出すメソッドのリスト. */
+    private transient
+        SequencedSet<TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>>
+        onCompileErrStateChangedList = new LinkedHashSet<>();
+    /** このノードが他のノードと入れ替わったとき呼び出すメソッドのリスト. */
     private transient
         SequencedSet<TriConsumer<? super BhNode, ? super BhNode, ? super UserOperation>>
         onNodeReplacedList = new LinkedHashSet<>();
-    /** このノードが属するワークスペースが変わったときに呼び出すメソッドと呼び出しスレッドのフラグ. */
-    private transient
-        SequencedSet<TriConsumer<? super Workspace, ? super Workspace, ? super UserOperation>>
+    /** このノードが属するワークスペースが変わったときに呼び出すメソッドのリスト. */
+    private transient SequencedSet<
+        TetraConsumer<? super BhNode, ? super Workspace, ? super Workspace, ? super UserOperation>>
         onWorkspaceChangedList = new LinkedHashSet<>();
 
     /**
      * ノードの選択状態が変更されたときのイベントハンドラを追加する.
      *  <pre>
-     *  イベントハンドラの第 1 引数: 選択状態に変換のあった {@link BhNode}
+     *  イベントハンドラの第 1 引数: 選択状態に変更のあった {@link BhNode}
      *  イベントハンドラの第 2 引数: 選択状態. 選択されたなら true.
      *  イベントハンドラの第 3 引数: undo 用コマンドオブジェクト
      *  </pre>
@@ -686,6 +642,37 @@ public abstract class BhNode extends SyntaxSymbol {
     private void invokeOnSelectionStateChanged(UserOperation userOpe) {
       onSelectionStateChangedList.forEach(
           handler -> handler.accept(BhNode.this, isSelected, userOpe));
+    }
+
+    /**
+     * ノードのコンパイルエラー状態が変更されたときのイベントハンドラを追加する.
+     *  <pre>
+     *  イベントハンドラの第 1 引数: コンパイルエラー状態に変更のあった {@link BhNode}
+     *  イベントハンドラの第 2 引数: コンパイルエラー状態.
+     *  イベントハンドラの第 3 引数: undo 用コマンドオブジェクト
+     *  </pre>
+     *
+     * @param handler 追加するイベントハンドラ
+     */
+    public void addOnCompileErrStateChanged(
+        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
+      onCompileErrStateChangedList.addLast(handler);
+    }
+
+    /**
+     * ノードのコンパイルエラー状態が変更されたときのイベントハンドラを削除する.
+     *
+     * @param handler 削除するイベントハンドラ
+     */
+    public void removeOnCompileErrStateChanged(
+        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
+      onCompileErrStateChangedList.remove(handler);
+    }
+
+    /** ノードのコンパイルエラー状態が変更されたときのイベントハンドラを呼び出す. */
+    private void invokeOnCompileErrStateChanged(UserOperation userOpe) {
+      onCompileErrStateChangedList.forEach(
+          handler -> handler.accept(BhNode.this, hasCompileError, userOpe));
     }
 
     /**
@@ -716,37 +703,154 @@ public abstract class BhNode extends SyntaxSymbol {
     /** ワークスペース変更時のイベントハンドラを呼び出す. */
     private void invokeOnWorkspaceChanged(Workspace oldWs, UserOperation userOpe) {
       onWorkspaceChangedList.forEach(
-          handler -> handler.accept(oldWs, workspace, userOpe));
+          handler -> handler.accept(BhNode.this, oldWs, workspace, userOpe));
     }
 
     /**
      * このノードが属するワークスペースが変わったときのイベントハンドラを追加する.
      *  <pre>
-     *  イベントハンドラの第 1 引数: 変更前のワークスペース
-     *  イベントハンドラの第 2 引数: 変更後のワークスペース
-     *  イベントハンドラの第 3 引数: undo 用コマンドオブジェクト
+     *  イベントハンドラの第 1 引数: このノード
+     *  イベントハンドラの第 2 引数: 変更前のワークスペース
+     *  イベントハンドラの第 3 引数: 変更後のワークスペース
+     *  イベントハンドラの第 4 引数: undo 用コマンドオブジェクト
      *  </pre>
      *
      * @param handler 追加するイベントハンドラ
      */
     public void addOnWorkspaceChanged(
-        TriConsumer<? super Workspace, ? super Workspace, ? super UserOperation> handler) {
+        TetraConsumer<? super BhNode, ? super Workspace, ? super Workspace, ? super UserOperation>
+        handler) {
       onWorkspaceChangedList.addLast(handler);
     }
 
     /**
      * このノードが属するワークスペースが変わったときのイベントハンドラを削除する.
      *
-     * @param handler 追加するイベントハンドラ
+     * @param handler 削除するイベントハンドラ
      */
     public void removeOnWorkspaceChanged(
-        TriConsumer<? super Workspace, ? super Workspace, ? super UserOperation> handler) {
+        TetraConsumer<? super BhNode, ? super Workspace, ? super Workspace, ? super UserOperation>
+        handler) {
       onWorkspaceChangedList.remove(handler);
     }
 
     /** ノード入れ替え時のイベントハンドラを呼び出す. */
     void invokeOnNodeReplaced(BhNode newNode, UserOperation userOpe) {
       onNodeReplacedList.forEach(handler -> handler.accept(BhNode.this, newNode, userOpe));
+    }
+  }
+
+  /**
+   * このノードのイベントハンドラを呼び出す機能を提供するクラス.
+   *
+   * <p>
+   * このオブジェクトと紐づく {@BhNode} オブジェクトを「ターゲットノード」と呼ぶ.
+   * </p>
+   */
+  public class EventInvoker {
+
+    /**
+     * ターゲットノードがワークスペースから子ノードに移ったときの処理を実行する.
+     *
+     * @param oldReplaced ターゲットノードがつながった位置に, 元々子ノードとしてつながっていたノード
+     * @param userOpe undo 用コマンドオブジェクト
+     */
+    public void onMovedFromWsToChild(BhNode oldReplaced, UserOperation userOpe) {
+      nodeEventInvoker.onMovedFromWsToChild(BhNode.this, oldReplaced, userOpe);
+    }
+
+    /**
+     * ターゲットノードが子ノードからワークスペースに移ったときの処理を実行する.
+     *
+     * @param oldParent 移る前にターゲットノードが接続されていた親ノード
+     * @param oldRoot 移る前にターゲットノードが所属していたノードツリーのルートノード
+     * @param newReplaced ワークスペースに移る際, ターゲットノードの替わりにつながったノード
+     * @param isSpecifiedDirectly ターゲットノードが, D&D やカット&ペーストで直接指定されてワークスペースに移動した場合 true
+     * @param userOpe undo 用コマンドオブジェクト
+     */
+    public void onMovedFromChildToWs(
+        ConnectiveNode oldParent,
+        BhNode oldRoot,
+        BhNode newReplaced,
+        Boolean isSpecifiedDirectly,
+        UserOperation userOpe) {
+      nodeEventInvoker.onMovedFromChildToWs(
+          BhNode.this, oldParent, oldRoot, newReplaced, isSpecifiedDirectly, userOpe);
+    }
+
+    /**
+     * ターゲットノードの子ノードが入れ替わったときの処理を実行する.
+     *
+     * @param oldChild 入れ替わった古いノード
+     * @param newChild 入れ替わった新しいノード
+     * @param parentCnctr 子が入れ替わったコネクタ
+     * @param userOpe undo 用コマンドオブジェクト
+     */
+    public void onChildReplaced(
+        BhNode oldChild,
+        BhNode newChild,
+        Connector parentCnctr,
+        UserOperation userOpe) {
+      nodeEventInvoker.onChildReplaced(BhNode.this, oldChild, newChild, parentCnctr, userOpe);
+    }
+
+    /**
+     * ターゲットノードの削除前に呼ばれる処理を実行する.
+     *
+     * @param nodesToDelete ターゲットノードと共に削除される予定のノード.
+     * @param causeOfDeletion ターゲットノードの削除原因
+     * @param userOpe undo 用コマンドオブジェクト
+     * @return 削除をキャンセルする場合 false. 続行する場合 true.
+     */
+    public boolean onDeletionRequested(
+        Collection<? extends BhNode> nodesToDelete,
+        CauseOfDeletion causeOfDeletion,
+        UserOperation userOpe) {
+      return nodeEventInvoker.onDeletionRequested(
+          BhNode.this, nodesToDelete, causeOfDeletion, userOpe);
+    }
+
+    /**
+     * ユーザー操作により, ターゲットノードがカット & ペーストされる直前に呼ばれる処理を実行する.
+     *
+     * @param nodesToCut ターゲットノードとともにカットされる予定のノード
+     * @param userOpe undo 用コマンドオブジェクト
+     * @return カットをキャンセルする場合 false.  続行する場合 true.
+     */
+    public boolean onCutRequested(
+        Collection<? extends BhNode> nodesToCut, UserOperation userOpe) {
+      return nodeEventInvoker.onCutRequested(BhNode.this, nodesToCut, userOpe);
+    }
+
+    /**
+     * ユーザー操作により, ターゲットノードがコピー & ペーストされる直前に呼ばれる処理を実行する.
+     *
+     * @param nodesToCopy ターゲットノードとともにコピーされる予定のノード
+     * @param userOpe undo 用コマンドオブジェクト
+     * @return {@link BhNode} を引数にとり, コピーするかどうかの boolean 値を返す関数.
+     */
+    public Predicate<? super BhNode> onCopyRequested(
+        Collection<? extends BhNode> nodesToCopy, UserOperation userOpe) {
+      return nodeEventInvoker.onCopyRequested(BhNode.this, nodesToCopy, userOpe);
+    }
+  
+    /**
+     * ターゲットノードがテンプレートノードとして作成されたときの処理を実行する.
+     *
+     * @param userOpe undo 用コマンドオブジェクト
+     */
+    public void onCreatedAsTemplate(UserOperation userOpe) {
+      nodeEventInvoker.onCreatedAsTemplate(BhNode.this, userOpe);
+    }
+
+    /**
+     * ターゲットノードのドラッグが始まったときの処理を実行する.
+     *
+     * @param eventInfo ドラッグ操作に関連するマウスイベントを格納したオブジェクト
+     * @param userOpe undo 用コマンドオブジェクト
+     */
+    public void onDragStarted(MouseEventInfo eventInfo, UserOperation userOpe) {
+      nodeEventInvoker.onDragStarted(BhNode.this, eventInfo, userOpe);
     }
   }
 }

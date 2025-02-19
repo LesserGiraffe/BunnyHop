@@ -26,15 +26,25 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
-import net.seapanda.bunnyhop.bhprogram.BhRuntimeService;
+import net.seapanda.bunnyhop.bhprogram.BhProgramController;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.control.nodeselection.BhNodeCategoryListController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
-import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryList;
+import net.seapanda.bunnyhop.export.ProjectExporter;
+import net.seapanda.bunnyhop.export.ProjectImporter;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.model.factory.WorkspaceFactory;
+import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryTree;
+import net.seapanda.bunnyhop.model.workspace.CopyAndPaste;
+import net.seapanda.bunnyhop.model.workspace.CutAndPaste;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.service.KeyCodeConverter;
+import net.seapanda.bunnyhop.service.MessageService;
+import net.seapanda.bunnyhop.undo.UndoRedoAgent;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeShowcaseBuilder;
+import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 
 /**
  * GUIの基底部分のコントローラ.
@@ -55,21 +65,45 @@ public class FoundationController {
 
   /** 押下状態のキー. */
   private Set<KeyCode> pressedKey = new HashSet<>();
+  private BhProgramController localCtrl;
+  private BhProgramController remoteCtrl;
 
-  /**
-   * 初期化する.
-   *
-   * @param wss ワークスペースセットのモデル
-   * @param nodeCategoryList ノードカテゴリリストのモデル
-   */
-  public boolean initialize(WorkspaceSet wss, BhNodeCategoryList nodeCategoryList) {
+  /** 初期化する. */
+  public boolean initialize(
+      WorkspaceSet wss,
+      BhNodeCategoryTree nodeCategoryList,
+      BhNodeShowcaseBuilder builder,
+      ModelAccessNotificationService notificationService,
+      WorkspaceFactory wsFactory,
+      UndoRedoAgent undoRedoAgent,
+      BhNodeSelectionViewProxy proxy,
+      BhProgramController localCtrl,
+      BhProgramController remoteCtrl,
+      ProjectImporter importer,
+      ProjectExporter exporter,
+      CopyAndPaste copyAndPaste,
+      CutAndPaste cutAndPaste,
+      MessageService msgService) {
+    this.localCtrl = localCtrl;
+    this.remoteCtrl = remoteCtrl;
     workspaceSetController.initialize(wss);
-    boolean success = nodeCategoryListController.initialize(nodeCategoryList);
-    success &= menuPanelController.initialize(wss, workspaceSetController.getTabPane());
+    boolean success = nodeCategoryListController.initialize(builder, nodeCategoryList);
+    success &= menuPanelController.initialize(
+      workspaceSetController,
+      notificationService,
+      wsFactory,
+      undoRedoAgent,
+      proxy,
+      localCtrl,
+      remoteCtrl,
+      copyAndPaste,
+      cutAndPaste,
+      msgService);
     if (!success) {
       return false;
     }
-    menuBarController.initialize(wss);
+    menuBarController.initialize(
+        wss, notificationService, undoRedoAgent, importer, exporter, msgService);
     setKeyEvents();
     return true;
   }
@@ -198,9 +232,9 @@ public class FoundationController {
     pressedKey.add(keyCode);
     var bhEvent = new BhProgramEvent(eventName, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
     if (menuPanelController.isLocalHost()) {
-      BhRuntimeService.local().sendAsync(bhEvent);
+      localCtrl.send(bhEvent);
     } else {
-      BhRuntimeService.remote().sendAsync(bhEvent);
+      remoteCtrl.send(bhEvent);
     }
   }
 

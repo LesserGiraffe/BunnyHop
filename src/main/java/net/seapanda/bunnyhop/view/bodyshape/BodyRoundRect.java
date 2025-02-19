@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
 
 /**
  * 丸角長方形ボディ.

@@ -4,7 +4,7 @@
   name="AnyAssignStat"
   nodeStyleID="AnyAssignStat.json"
   onMovedFromChildToWS="OnStatMovedToWS.js"
-  onMovedToChild="OnStatMovedToChild.js"
+  onMovedFromWsToChild="OnStatMovedToChild.js"
   onChildReplaced="OnChildOfPrimVarCtrlReplaced.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"

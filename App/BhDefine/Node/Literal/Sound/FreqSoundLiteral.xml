@@ -4,7 +4,7 @@
   name="FreqSoundLiteral"
   nodeStyleID="FreqSoundLiteral.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
-  onTemplateCreated="SetDefaultFreqSoundParams.js"
+  onCreatedAsTemplate="SetDefaultFreqSoundParams.js"
   version="bh-1.0">
   
   <ConnectorSection name="SoundExpSctn">

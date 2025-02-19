@@ -17,23 +17,24 @@
 package net.seapanda.bunnyhop.view.node;
 
 import java.util.Optional;
+import java.util.SequencedSet;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.utility.SimpleCache;
 import net.seapanda.bunnyhop.utility.Vec2D;
-import net.seapanda.bunnyhop.view.ViewInitializationException;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
-import net.seapanda.bunnyhop.view.traverse.NodeViewProcessor;
+import net.seapanda.bunnyhop.view.ViewConstructionException;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
+import net.seapanda.bunnyhop.view.traverse.NodeViewWalker;
 
 /**
  * ラベルを入力フォームに持つビュー.
  *
  * @author K.Koike
  */
-public final class LabelNodeView extends BhNodeView {
+public final class LabelNodeView extends BhNodeViewBase {
 
   private Label label = new Label();
   private final TextNode model;
@@ -47,11 +48,11 @@ public final class LabelNodeView extends BhNodeView {
    *
    * @param model このノードビューに対応するノード
    * @param viewStyle このノードビューのスタイル
-   * @throws ViewInitializationException ノードビューの初期化に失敗
+   * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public LabelNodeView(TextNode model, BhNodeViewStyle viewStyle)
-      throws ViewInitializationException {
-    super(viewStyle, model);
+  public LabelNodeView(TextNode model, BhNodeViewStyle viewStyle, SequencedSet<Node> components)
+      throws ViewConstructionException {
+    super(viewStyle, model, components);
     this.model = model;
     addComponent(label);
     initStyle();
@@ -61,11 +62,11 @@ public final class LabelNodeView extends BhNodeView {
    * コンストラクタ.
    *
    * @param viewStyle このノードビューのスタイル
-   * @throws ViewInitializationException ノードビューの初期化に失敗
+   * @throws ViewConstructionException ノードビューの初期化に失敗
    */
   public LabelNodeView(BhNodeViewStyle viewStyle)
-      throws ViewInitializationException {
-    this(null, viewStyle);
+      throws ViewConstructionException {
+    this(null, viewStyle, null);
   }
 
   private void initStyle() {
@@ -108,8 +109,8 @@ public final class LabelNodeView extends BhNodeView {
 
   @Override
   public void show(int depth) {
-    BhService.msgPrinter().println("%s<LabelView>  %s".formatted(indent(depth), hashCode()));
-    BhService.msgPrinter().println("%s<content>  %s".formatted(indent(depth + 1), label.getText()));
+    System.out.println("%s<LabelView>  %s".formatted(indent(depth), hashCode()));
+    System.out.println("%s<content>  %s".formatted(indent(depth + 1), label.getText()));
   }
 
   @Override
@@ -157,7 +158,7 @@ public final class LabelNodeView extends BhNodeView {
   }
 
   @Override
-  public void accept(NodeViewProcessor visitor) {
+  public void accept(NodeViewWalker visitor) {
     visitor.visit(this);
   }
 }

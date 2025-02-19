@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.view.connectorshape;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 
 /**
  * 非表示コネクタクラス.

@@ -1,0 +1,75 @@
+/*
+ * Copyright 2017 K.Koike
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package net.seapanda.bunnyhop.model.factory;
+
+import java.nio.file.Path;
+import net.seapanda.bunnyhop.control.workspace.WorkspaceController;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.model.workspace.Workspace;
+import net.seapanda.bunnyhop.service.MessageService;
+import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.view.ViewConstructionException;
+import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.view.workspace.FxmlWorkspaceView;
+import net.seapanda.bunnyhop.view.workspace.NodeShifterView;
+import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
+
+/**
+ * {@link Workspace} を作成する機能を提供するクラス.
+ *
+ * @author K.Koike
+ */
+public class WorkspaceFactoryImpl implements WorkspaceFactory {
+  
+  private final Path nodeShifterViewPath;
+  private final ModelAccessNotificationService notificationService;
+  private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
+  private final Path workspaceViewFilePath;
+  private final MessageService msgService;
+
+  /** コンストラクタ. */
+  public WorkspaceFactoryImpl(
+      Path workspaceViewFilePath,
+      Path nodeShifterViewPath,
+      ModelAccessNotificationService notificationService,
+      BhNodeSelectionViewProxy proxy,
+      MessageService msgService) {
+    this.workspaceViewFilePath = workspaceViewFilePath;
+    this.nodeShifterViewPath = nodeShifterViewPath;
+    this.notificationService = notificationService;
+    this.nodeSelectionViewProxy = proxy;
+    this.msgService = msgService;
+  }
+
+  @Override
+  public Workspace create(String name) {
+    return new Workspace(name);
+  }
+
+  @Override
+  public WorkspaceView setMvc(Workspace ws, Vec2D size) throws ViewConstructionException {
+    WorkspaceView view = new FxmlWorkspaceView(ws, size.x, size.y, workspaceViewFilePath);
+    new WorkspaceController(
+        ws,
+        view,
+        new NodeShifterView(nodeShifterViewPath),
+        notificationService,
+        nodeSelectionViewProxy,
+        msgService);
+    return view;
+  }
+}

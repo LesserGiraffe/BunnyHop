@@ -25,12 +25,12 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
  *
  * @author K.Koike
  */
-public class GlobalDataDeclCodeGenerator {
+class GlobalDataDeclCodeGenerator {
 
   private final CommonCodeGenerator common;
   private final ExpCodeGenerator expCodeGen;
 
-  public GlobalDataDeclCodeGenerator(CommonCodeGenerator common, ExpCodeGenerator expCodeGen) {
+  GlobalDataDeclCodeGenerator(CommonCodeGenerator common, ExpCodeGenerator expCodeGen) {
     this.common = common;
     this.expCodeGen = expCodeGen;
   }
@@ -43,7 +43,7 @@ public class GlobalDataDeclCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  public void genGlobalDataDecls(
+  void genGlobalDataDecls(
       Collection<? extends SyntaxSymbol> nodeListToCompile,
       StringBuilder code,
       int nestLevel,

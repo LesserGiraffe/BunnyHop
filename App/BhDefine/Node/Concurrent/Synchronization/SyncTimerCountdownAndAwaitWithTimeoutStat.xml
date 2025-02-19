@@ -4,7 +4,7 @@
   name="SyncTimerCountdownAndAwaitWithTimeoutStat"
   nodeStyleID="SyncTimerCountdownAndAwaitWithTimeoutStat.json"
   onMovedFromChildToWS="OnStatMovedToWS.js"
-  onMovedToChild="OnStatMovedToChild.js"
+  onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"

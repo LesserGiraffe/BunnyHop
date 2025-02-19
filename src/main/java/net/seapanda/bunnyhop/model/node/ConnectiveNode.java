@@ -20,17 +20,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
-import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
-import net.seapanda.bunnyhop.model.node.hook.HookEvent;
+import net.seapanda.bunnyhop.model.node.derivative.DerivativeReplacer;
+import net.seapanda.bunnyhop.model.node.event.NodeEventInvoker;
+import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
+import net.seapanda.bunnyhop.model.node.parameter.BhNodeParameters;
+import net.seapanda.bunnyhop.model.node.parameter.ConnectorId;
+import net.seapanda.bunnyhop.model.node.parameter.DerivationId;
 import net.seapanda.bunnyhop.model.node.section.Section;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
-import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.proxy.BhNodeViewProxy;
 
@@ -50,18 +51,23 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
   /**
    * コンストラクタ.
    *
+   * @param params ノードのパラメータ
    * @param childSection 子セクション
-   * @param derivationToDerivative このノードに紐づけられた派生ノードの ID ({@link BhNodeId})
-   *                               とそれを選択するための ID ({@link DerivationId})
-   * @param attributes ノードの設定情報
+   * @param derivationToDerivative このノードに紐づけられた派生ノードの ID ({@link BhNodeId}) と
+   *                               それを選択するための ID ({@link DerivationId}) のマップ
+   * @param factory ノードの生成に関連する処理を行うためのオブジェクト
+   * @param replacer 派生ノードを入れ替えるためのオブジェクト
+   * @param invoker ノードに対して定義されたイベントハンドラを呼び出すためのオブジェクト.
    */
   public ConnectiveNode(
+      BhNodeParameters params,
       Section childSection,
       Map<DerivationId, BhNodeId> derivationToDerivative,
-      BhNodeAttributes attributes) {
-    super(attributes, derivationToDerivative);
+      BhNodeFactory factory,
+      DerivativeReplacer replacer,
+      NodeEventInvoker invoker) {
+    super(params, derivationToDerivative, factory, replacer, invoker);
     this.childSection = childSection;
-    registerScriptName(HookEvent.ON_CHILD_REPLACED, attributes.onChildReplaced());
   }
 
   /**
@@ -77,9 +83,12 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
 
   @Override
   public ConnectiveNode copy(
-      Predicate<? super BhNode> isNodeToBeCopied, UserOperation userOpe) {
+      Predicate<? super BhNode> fnIsNodeToBeCopied, UserOperation userOpe) {
+    if (!fnIsNodeToBeCopied.test(this)) {
+      return null;
+    }
     ConnectiveNode newNode = new ConnectiveNode(this, userOpe);
-    newNode.childSection = childSection.copy(isNodeToBeCopied, userOpe);
+    newNode.childSection = childSection.copy(fnIsNodeToBeCopied, userOpe);
     newNode.childSection.setParent(newNode);
     return newNode;
   }
@@ -124,7 +133,7 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
     return childSection.findConnector(id);
   }
 
-  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクトを設定する. */
+  @Override
   public void setViewProxy(BhNodeViewProxy viewProxy) {
     Objects.requireNonNull(viewProxy);
     this.viewProxy = viewProxy;
@@ -153,7 +162,7 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
   @Override
   public ConnectiveNode createDerivative(DerivationId derivationId, UserOperation userOpe) {
     // 派生ノード作成
-    BhNode derivative = BhService.bhNodeFactory().create(getDerivativeIdOf(derivationId), userOpe);
+    BhNode derivative = factory.create(getDerivativeIdOf(derivationId), userOpe);
     if (derivative instanceof ConnectiveNode node) {
       // オリジナルと派生ノードの関連付け
       addDerivative(node, userOpe);
@@ -188,12 +197,12 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
     var lastReplacedInstId =
         (getLastReplaced() != null) ? getLastReplaced().getInstanceId() : InstanceId.NONE;
 
-    BhService.msgPrinter().println("%s<ConnectiveNode  bhID=%s  parent=%s>  %s"
+    System.out.println("%s<ConnectiveNode  bhID=%s  parent=%s>  %s"
         .formatted(indent(depth), getId(), parentinstId, getInstanceId()));
-    BhService.msgPrinter().println("%s<last replaced>  %s"
+    System.out.println("%s<last replaced>  %s"
         .formatted(indent(depth + 1), lastReplacedInstId));
-    BhService.msgPrinter().println(indent(depth + 1) + "<derivation>");
-    getDerivatives().forEach(derv -> BhService.msgPrinter().println(
+    System.out.println(indent(depth + 1) + "<derivation>");
+    getDerivatives().forEach(derv -> System.out.println(
         "%s<derivative>  %s".formatted(indent(depth + 2), derv.getInstanceId())));
     childSection.show(depth + 1);
   }

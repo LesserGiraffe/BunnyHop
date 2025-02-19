@@ -72,9 +72,6 @@ public interface BhNodeViewProxy {
   /** {@link BhNodeView} を GUI コンポーネントのツリーから取り除く. */
   public default void removeFromGuiTree() {}
 
-  /** コンパイルエラー表示の可視性を変更する. */
-  public default void setCompileErrorVisibility(boolean visible, UserOperation userOpe) {}
-
   /** テンプレートノードかどうか調べる. */
   public default boolean isTemplateNode() {
     return false;

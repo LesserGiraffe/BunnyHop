@@ -16,6 +16,11 @@
 
 package net.seapanda.bunnyhop.compiler;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.utility.Utility;
+
 /**
  * コンパイルオプションを格納するクラス.
  *
@@ -27,10 +32,13 @@ public class CompileOption {
   public final boolean isDebug;
   /** ソースコードにコメントを追加する場合 true. */
   public final boolean withComments;
+  /** 出力ファイルのパス. */
+  public final Path outFile;
 
   private CompileOption(Builder builder) {
     this.isDebug = builder.isDebug;
     this.withComments = builder.withComments;
+    this.outFile = builder.outFile;
   }
 
   /** {@link CompileOption} のビルダークラス. */
@@ -38,9 +46,16 @@ public class CompileOption {
 
     private boolean isDebug = true;
     private boolean withComments = true;
+    public Path outFile = Paths.get(
+        Utility.execPath, BhConstants.Path.COMPILED_DIR, BhConstants.Path.APP_FILE_NAME_JS);
 
     public Builder withComments(boolean withComments) {
       this.withComments = withComments;
+      return this;
+    }
+
+    public Builder outFile(Path outFile) {
+      this.outFile = outFile;
       return this;
     }
 

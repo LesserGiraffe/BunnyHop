@@ -34,7 +34,8 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
-import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.service.LogManager;
+import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.utility.SynchronizingTimer;
 
 /**
@@ -69,18 +70,24 @@ public class BhRuntimeTransceiver {
   private SynchronizingTimer connectionWait = new SynchronizingTimer(1, true);
   /**
    * BhProgramの実行環境と通信する用のRMIオブジェクト.
-   * BhProgramHandler はリモート側の特定のプロセスと紐付いており, RMI Server が同じ TCP ポートでも新しく起動したプロセスと通信することはない.
+   * BhProgramHandler はリモート側の特定のプロセスと紐付いており, 
+   * RMI Server が同じ TCP ポートでも新しく起動したプロセスと通信することはない.
    */
   private final BhProgramHandler programHandler;
+  /** アプリケーションユーザにメッセージを出力するためのオブジェクト. */
+  private final MessageService msgService;
   public final int id;
+
 
   /**
    * コンストラクタ.
    *
    * @param programHandler BhProgram と BunnyHop 間でデータを送受信するオブジェクト
+   * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
    */
-  public BhRuntimeTransceiver(BhProgramHandler programHandler) {
+  public BhRuntimeTransceiver(BhProgramHandler programHandler, MessageService msgService) {
     this.programHandler = programHandler;
+    this.msgService = msgService;
     id = nextId.getAndIncrement();
   }
 
@@ -95,12 +102,12 @@ public class BhRuntimeTransceiver {
       connectionWait.reset(0);
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
-      BhService.msgPrinter().errForUser(TextDefs.BhRuntime.Communication.failedToConnect.get());
-      BhService.msgPrinter().errForDebug("Failed to connect to BhRuntime.\n" + e);
+      msgService.error(TextDefs.BhRuntime.Communication.failedToConnect.get());
+      LogManager.logger().error("Failed to connect to BhRuntime.\n" + e);
       return false;
     }
     connected.set(true);
-    BhService.msgPrinter().infoForUser(TextDefs.BhRuntime.Communication.hasConnected.get());
+    msgService.info(TextDefs.BhRuntime.Communication.hasConnected.get());
     return true;
   }
 
@@ -115,12 +122,12 @@ public class BhRuntimeTransceiver {
       connectionWait.reset(1);
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
-      BhService.msgPrinter().errForUser(TextDefs.BhRuntime.Communication.failedToDisconnect.get());
-      BhService.msgPrinter().errForDebug("Failed to disconnect from BhRuntime\n" + e);
+      msgService.error(TextDefs.BhRuntime.Communication.failedToDisconnect.get());
+      LogManager.logger().error("Failed to disconnect from BhRuntime\n" + e);
       return false;
     }
     connected.set(false);
-    BhService.msgPrinter().infoForUser(TextDefs.BhRuntime.Communication.hasDisconnected.get());
+    msgService.info(TextDefs.BhRuntime.Communication.hasDisconnected.get());
     return true;
   }
 
@@ -154,7 +161,7 @@ public class BhRuntimeTransceiver {
       boolean res = future.cancel(true);
       success &= res;
       if (!res) {
-        BhService.msgPrinter().errForDebug(
+        LogManager.logger().error(
             "Failed to cancel '%s' task.".formatted(futures.toName(future)));
       }  
     }

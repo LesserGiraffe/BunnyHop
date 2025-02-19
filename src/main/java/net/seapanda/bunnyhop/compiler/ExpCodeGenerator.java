@@ -30,12 +30,12 @@ import net.seapanda.bunnyhop.utility.Utility;
  *
  * @author K.Koike
  */
-public class ExpCodeGenerator {
+class ExpCodeGenerator {
 
   private final CommonCodeGenerator common;
   private final VarDeclCodeGenerator varDeclCodeGen;
 
-  public ExpCodeGenerator(CommonCodeGenerator common, VarDeclCodeGenerator varDeclCodeGen) {
+  ExpCodeGenerator(CommonCodeGenerator common, VarDeclCodeGenerator varDeclCodeGen) {
     this.common = common;
     this.varDeclCodeGen = varDeclCodeGen;
   }
@@ -49,7 +49,7 @@ public class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 式もしくは式の評価結果を格納した変数. {@code expNode} に該当する式ノードが見つからなかった場合 null.
    */
-  public String genExpression(
+  String genExpression(
       StringBuilder code,
       SyntaxSymbol expNode,
       int nestLevel,
@@ -94,7 +94,7 @@ public class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 式もしくは式の評価結果を格納した変数
    */
-  private String genBinaryExp(
+  String genBinaryExp(
       StringBuilder code,
       SyntaxSymbol binaryExpNode,
       int nestLevel,
@@ -118,7 +118,7 @@ public class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 式もしくは式の評価結果を格納した変数
    */
-  private String genNonlogicalBinaryExp(
+  String genNonlogicalBinaryExp(
       StringBuilder code,
       SyntaxSymbol binaryExpNode,
       int nestLevel,
@@ -165,7 +165,7 @@ public class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 式もしくは式の評価結果を格納した変数
    */
-  private String genLogicalBinaryExp(
+  String genLogicalBinaryExp(
       StringBuilder code,
       SyntaxSymbol binaryExpNode,
       int nestLevel,
@@ -218,7 +218,7 @@ public class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 式もしくは式の評価結果を格納した変数
    */
-  private String genUnaryExp(
+  String genUnaryExp(
       StringBuilder code,
       SyntaxSymbol unaryExpNode,
       int nestLevel,
@@ -299,7 +299,7 @@ public class ExpCodeGenerator {
    * @param storeRetVal 戻り値を変数に格納するコードを出力する場合true.
    * @return 式もしくは式の評価結果を格納した変数. storeRetVal が false の場合は null.
    */
-  public String genPreDefFuncCallExp(
+  String genPreDefFuncCallExp(
       StringBuilder code,
       SyntaxSymbol funcCallNode,
       int nestLevel,
@@ -351,7 +351,7 @@ public class ExpCodeGenerator {
    * @param option コンパイルオプション
    * @return 実引数を格納したリスト
    */
-  private List<String> genPreDefFuncArgs(
+  List<String> genPreDefFuncArgs(
       StringBuilder code,
       SyntaxSymbol funcCallNode,
       boolean outArg,
@@ -382,7 +382,7 @@ public class ExpCodeGenerator {
    *
    * @return 関数ID
    */
-  private FuncId createFuncId(SyntaxSymbol funcCallNode) {
+  FuncId createFuncId(SyntaxSymbol funcCallNode) {
     //呼び出しオプションを探す
     int idOption = 0;
     List<String> funcIdentifier = new ArrayList<>(Arrays.asList(funcCallNode.getSymbolName()));
@@ -410,7 +410,7 @@ public class ExpCodeGenerator {
    * @param storeRetVal 戻り値を変数に格納するコードを出力する場合true.
    * @return 式もしくは式の評価結果を格納した変数. storeRetVal が false の場合は null.
    */
-  public String genUserDefFuncCallExp(
+  String genUserDefFuncCallExp(
       StringBuilder code,
       SyntaxSymbol funcCallNode,
       int nestLevel,

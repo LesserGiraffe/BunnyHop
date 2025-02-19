@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.undo;
 import java.util.Deque;
 import java.util.LinkedList;
 import net.seapanda.bunnyhop.common.BhConstants;
-import net.seapanda.bunnyhop.service.BhService;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 
 /**
  * undo/redo 時に {@link UserOperation} クラスを操作するクラス.
@@ -32,6 +32,11 @@ public class UndoRedoAgent {
   private final Deque<UserOperation> undoStack = new LinkedList<>();
   /** Redo できるコマンドのスタック. */
   private final Deque<UserOperation> redoStack = new LinkedList<>();
+  private final WorkspaceSet wss;
+
+  public UndoRedoAgent(WorkspaceSet wss) {
+    this.wss = wss;
+  }
 
   /**
    * Undo の対象になるコマンドを追加する.
@@ -46,9 +51,7 @@ public class UndoRedoAgent {
     if (undoStack.size() > BhConstants.NUM_TIMES_MAX_UNDO) {
       undoStack.removeFirst();
     }
-    if (BhService.appRoot() != null) {
-      BhService.appRoot().getWorkspaceSet().setDirty();
-    }
+    wss.setDirty(true);
     redoStack.clear();
   }
 
@@ -59,6 +62,7 @@ public class UndoRedoAgent {
     }
     UserOperation invCmd = undoStack.removeLast().doInverseOperation();
     redoStack.addLast(invCmd);
+    wss.setDirty(true);
   }
 
   /** Redo 操作を行う. */
@@ -68,6 +72,7 @@ public class UndoRedoAgent {
     }
     UserOperation invCmd = redoStack.removeLast().doInverseOperation();
     undoStack.addLast(invCmd);
+    wss.setDirty(true);
   }
 
   /** undo/redo 対象の操作を全て消す. */

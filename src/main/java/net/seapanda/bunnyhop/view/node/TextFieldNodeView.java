@@ -17,10 +17,12 @@
 package net.seapanda.bunnyhop.view.node;
 
 import java.util.Optional;
+import java.util.SequencedSet;
 import java.util.function.Function;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
+import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
@@ -28,14 +30,13 @@ import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.utility.SimpleCache;
 import net.seapanda.bunnyhop.utility.Vec2D;
-import net.seapanda.bunnyhop.view.ViewInitializationException;
+import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.ViewUtil;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle;
-import net.seapanda.bunnyhop.view.node.part.BhNodeViewStyle.ConnectorPos;
-import net.seapanda.bunnyhop.view.traverse.NodeViewProcessor;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
+import net.seapanda.bunnyhop.view.traverse.NodeViewWalker;
 
 /**
  * テキストフィールドを入力フォームに持つビュー.
@@ -56,11 +57,12 @@ public final class TextFieldNodeView extends TextInputNodeView {
    *
    * @param model このノードビューに対応するノード
    * @param viewStyle このノードビューのスタイル
-   * @throws ViewInitializationException ノードビューの初期化に失敗
+   * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public TextFieldNodeView(TextNode model, BhNodeViewStyle viewStyle)
-      throws ViewInitializationException {
-    super(model, viewStyle);
+  public TextFieldNodeView(
+      TextNode model, BhNodeViewStyle viewStyle, SequencedSet<Node> components)
+      throws ViewConstructionException {
+    super(model, viewStyle, components);
     this.model = model;
     addComponent(textField);
     textField.addEventFilter(MouseEvent.ANY, this::propagateEvent);
@@ -73,11 +75,11 @@ public final class TextFieldNodeView extends TextInputNodeView {
    * コンストラクタ.
    *
    * @param viewStyle このノードビューのスタイル
-   * @throws ViewInitializationException ノードビューの初期化に失敗
+   * @throws ViewConstructionException ノードビューの初期化に失敗
    */
   public TextFieldNodeView(BhNodeViewStyle viewStyle)
-      throws ViewInitializationException {
-    this(null, viewStyle);
+      throws ViewConstructionException {
+    this(null, viewStyle, null);
   }
 
   private void propagateEvent(Event event) {
@@ -214,15 +216,15 @@ public final class TextFieldNodeView extends TextInputNodeView {
   }
 
   @Override
-  public void accept(NodeViewProcessor visitor) {
+  public void accept(NodeViewWalker visitor) {
     visitor.visit(this);
   }
 
   @Override
   public void show(int depth) {
-    BhService.msgPrinter().println(
+    System.out.println(
         "%s<TextFieldNodeView>  %s".formatted(indent(depth), hashCode()));
-    BhService.msgPrinter().println(
+    System.out.println(
         "%s<content>  %s".formatted(indent(depth + 1), textField.getText()));
   }
 }

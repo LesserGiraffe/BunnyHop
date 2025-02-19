@@ -16,24 +16,37 @@
 
 package net.seapanda.bunnyhop.control.node;
 
-import net.seapanda.bunnyhop.model.node.ConnectiveNode;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ConnectiveNodeView;
 
 /**
- * {@link ConnectiveNodeView} のコントローラ. のコントローラ.
+ * {@link ConnectiveNodeView} のコントローラ.
  *
  * @author K.Koike
  */
-public class ConnectiveNodeController extends BhNodeController {
+public class ConnectiveNodeController implements BhNodeController {
 
-  /**
-   * コンストラクタ.
-   *
-   * @param model 管理するモデル
-   * @param view 管理するビュー
-   */
-  public ConnectiveNodeController(ConnectiveNode model, ConnectiveNodeView view) {
-    super(model, view);
-    model.setViewProxy(new BhNodeViewProxyImpl(view, false));
+  private final BhNodeController wrapped;
+
+  /** コンストラクタ. */
+  public ConnectiveNodeController(BhNodeController controller) {
+    wrapped = controller;
   }
+
+  @Override
+  public BhNode getModel() {
+    return wrapped.getModel();
+  }
+
+  @Override
+  public BhNodeView getView() {
+    return wrapped.getView();
+  }
+
+  @Override
+  public ModelAccessNotificationService getNotificationService() {
+    return wrapped.getNotificationService();
+  }  
 }

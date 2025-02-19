@@ -20,28 +20,42 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.service.ModelExclusiveControl;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.ComboBoxNodeView;
-import net.seapanda.bunnyhop.view.node.part.SelectableItem;
+import net.seapanda.bunnyhop.view.node.component.SelectableItem;
 
 /**
  * {@link ComboBoxNodeView} のコントローラ.
  *
  * @author K.Koike
  */
-public class ComboBoxNodeController extends BhNodeController {
+public class ComboBoxNodeController implements BhNodeController {
 
   private final TextNode model;
   private final ComboBoxNodeView view;
+  private final ModelAccessNotificationService notificationService;
 
   /** コンストラクタ. */
-  public ComboBoxNodeController(TextNode model, ComboBoxNodeView view) {
-    super(model, view);
-    this.view = view;
-    this.model = model;
-    setEventHandlers(model, view);
-    model.setViewProxy(new BhNodeViewProxyImpl(view, false));
+  public ComboBoxNodeController(BhNodeController controller) {
+    if (controller.getModel() instanceof TextNode model) {
+      this.model = model;
+    } else {
+      throw new IllegalStateException(
+          "The model is not %s".formatted(TextNode.class.getSimpleName()));
+    }
+
+    if (controller.getView() instanceof ComboBoxNodeView view) {
+      this.view = view;
+    } else {
+      throw new IllegalStateException(
+          "The view is not %s".formatted(ComboBoxNodeView.class.getSimpleName()));
+    }
+    notificationService = controller.getNotificationService();
+
+    setEventHandlers();
     model.getEventManager().addOnTextChanged((oldText, newText, userOpe) -> {
       view.getItems().stream()
           .filter(item -> item.getModelText().equals(newText))
@@ -50,18 +64,17 @@ public class ComboBoxNodeController extends BhNodeController {
     });
   }
 
-  /**
-   * ComboBoxView のアイテム変更時のイベントハンドラを登録する.
-   *
-   * @param model ComboBoxView に対応する model
-   * @param view イベントハンドラを登録するview
-   */
-  public static void setEventHandlers(TextNode model, ComboBoxNodeView view) {
-    List<SelectableItem> items = createItems(model);
+  private void setEventHandlers() {
+    model.getEventManager().addOnTextChanged((oldText, newText, userOpe) ->
+        view.getItems().stream()
+            .filter(item -> item.getModelText().equals(newText))
+            .findFirst()
+            .ifPresent(view::setValue));
+
+    List<SelectableItem> items = createItems();
     view.setItems(items);
     view.setTextChangeListener(
-        (observable, oldVal, newVal) -> checkAndSetContent(model, view, oldVal, newVal));
-
+        (observable, oldVal, newVal) -> checkAndSetContent(oldVal, newVal));
     view.getItemByModelText(model.getText())
         .ifPresentOrElse(
             item -> view.setValue(item),
@@ -72,13 +85,12 @@ public class ComboBoxNodeController extends BhNodeController {
   }
 
   /** 新しく選択されたコンボボックスのアイテムが適切かどうかを調べて, 適切ならビューとモデルに設定する. */
-  private static void checkAndSetContent(
-      TextNode model, ComboBoxNodeView view, SelectableItem oldItem, SelectableItem newItem) {
-    if (Objects.equals(newItem.getModelText(), model.getText())) {
-      return;
-    }
-    ModelExclusiveControl.lockForModification();
+  private void checkAndSetContent(SelectableItem oldItem, SelectableItem newItem) {
     try {
+      notificationService.begin();
+      if (Objects.equals(newItem.getModelText(), model.getText())) {
+        return;
+      }
       if (model.isTextAcceptable(newItem.getModelText())) {
         // model の文字列を ComboBox の選択アイテムに対応したものにする
         model.setText(newItem.getModelText());
@@ -87,14 +99,14 @@ public class ComboBoxNodeController extends BhNodeController {
         view.setValue(oldItem);
       }
     } finally {
-      ModelExclusiveControl.unlockForModification();
+      notificationService.end();
     }
   }
 
   /** コンボボックスの選択肢を作成する. */
-  private static List<SelectableItem> createItems(TextNode model) {
+  private List<SelectableItem> createItems() {
     ArrayList<SelectableItem> items = model.getOptions().stream()
-        .map(item -> new SelectableItem(item.v1, item.v2.toString()))
+        .map(item -> new SelectableItem(item.modelText(), item.viewObj().toString()))
         .collect(Collectors.toCollection(ArrayList::new));
     if (items.isEmpty()) {
       items.add(new SelectableItem(model.getText(), model.getText()));
@@ -102,11 +114,18 @@ public class ComboBoxNodeController extends BhNodeController {
     return items;
   }
 
-  /** {@code model} の持つ文字列に合わせて {@code view} の内容を変更する. */
-  public static void matchViewToModel(TextNode model, ComboBoxNodeView view) {
-    view.getItems().stream()
-        .filter(item -> item.getModelText().equals(model.getText()))
-        .findFirst()
-        .ifPresent(view::setValue);
+  @Override
+  public BhNode getModel() {
+    return model;
   }
+
+  @Override
+  public BhNodeView getView() {
+    return view;
+  }
+
+  @Override
+  public ModelAccessNotificationService getNotificationService() {
+    return notificationService;
+  }  
 }

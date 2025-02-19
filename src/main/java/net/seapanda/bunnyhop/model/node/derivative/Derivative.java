@@ -17,10 +17,12 @@
 package net.seapanda.bunnyhop.model.node.derivative;
 
 import java.util.Set;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeAttributes;
-import net.seapanda.bunnyhop.model.node.attribute.BhNodeId;
-import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
+import net.seapanda.bunnyhop.model.node.event.NodeEventInvoker;
+import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
+import net.seapanda.bunnyhop.model.node.parameter.BhNodeParameters;
+import net.seapanda.bunnyhop.model.node.parameter.DerivationId;
 
 /**
  * 派生ノードおよびオリジナルノードのインタフェース.
@@ -29,8 +31,12 @@ import net.seapanda.bunnyhop.model.node.attribute.DerivationId;
  */
 public abstract class Derivative extends BhNode {
 
-  protected Derivative(BhNodeAttributes attributes) {
-    super(attributes);
+  protected Derivative(
+      BhNodeParameters params,
+      BhNodeFactory factory,
+      DerivativeReplacer replacer,
+      NodeEventInvoker invoker) {
+    super(params, factory, replacer, invoker);
   }
 
   protected Derivative(Derivative org) {

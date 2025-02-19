@@ -20,20 +20,29 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseEvent;
+import net.seapanda.bunnyhop.common.TextDefs;
+import net.seapanda.bunnyhop.control.MouseCtrlLock;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
-import net.seapanda.bunnyhop.service.BhService;
-import net.seapanda.bunnyhop.service.ModelExclusiveControl;
+import net.seapanda.bunnyhop.service.LogManager;
+import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.view.proxy.WorkspaceViewProxy;
-import net.seapanda.bunnyhop.view.workspace.MultiNodeShifterView;
+import net.seapanda.bunnyhop.view.workspace.NodeShifterView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
@@ -45,9 +54,12 @@ public class WorkspaceController {
 
   private Workspace model;
   private WorkspaceView view;
-
-  /** コンストラクタ. */
-  public WorkspaceController() {}
+  /** モデルへのアクセスの通知先となるオブジェクト. */
+  private final ModelAccessNotificationService notificationService;
+  private final DndEventInfo ddInfo = new DndEventInfo();
+  private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
+  private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
+  private final MessageService msgService;
 
   /**
    * コンストラクタ.
@@ -55,23 +67,35 @@ public class WorkspaceController {
    * @param model 操作対象のモデル
    * @param view 操作対象のするビュー
    * @param nodeShifterView 操作対象のノードシフタビュー
+   * @param notificationService モデルへのアクセスの通知先となるオブジェクト
+   * @param proxy ノード選択ビューのプロキシオブジェクト
+   * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
    */
   public WorkspaceController(
-      Workspace model, WorkspaceView view, MultiNodeShifterView nodeShifterView) {
+      Workspace model,
+      WorkspaceView view,
+      NodeShifterView nodeShifterView,
+      ModelAccessNotificationService notificationService,
+      BhNodeSelectionViewProxy proxy,
+      MessageService msgService) {
     this.model = model;
     this.view = view;
+    this.notificationService = notificationService;
+    this.nodeSelectionViewProxy = proxy;
+    this.msgService = msgService;
     model.setViewProxy(new WorkspaceViewProxyImpl());
-    view.addtMultiNodeShifterView(nodeShifterView);
-    new MultiNodeShifterController(nodeShifterView, model);
+    view.addNodeShifterView(nodeShifterView);
+    new NodeShifterController(nodeShifterView, model, notificationService);
     setEventHandlers();
   }
 
   /** イベントハンドラを登録する. */
   private void setEventHandlers() {
-    Vec2D mousePressedPos = new Vec2D(0.0, 0.0);
-    view.addOnMousePressed(mouseEvent -> onMousePressed(mouseEvent, mousePressedPos));
-    view.addOnMouseDragged(mouseEvent -> onMouseDragged(mouseEvent, mousePressedPos));
-    view.addOnMouseReleased(mouseEvent -> onMouseReleased(mousePressedPos, mouseEvent));
+    view.getEventManager().addOnMousePressed(this::onMousePressed);
+    view.getEventManager().addOnMouseDragged(this::onMouseDragged);
+    view.getEventManager().addOnMouseReleased(this::onMouseReleased);
+    view.getEventManager().setOnCloseRequest(this::onCloseRequest);
+    view.getEventManager().addOnClosed(this::onClosed);
     model.getEventManager().addOnNodeAdded((ws, node, userOpe) -> addNodeView(node));
     model.getEventManager().addOnNodeRemoved((ws, node, userOpe) -> removeNodeView(node));
     model.getEventManager().addOnNodeTurnedIntoRoot(
@@ -80,65 +104,65 @@ public class WorkspaceController {
         (ws, node, userOpe) -> speficyNodeViewAsNotRoot(node));
   }
 
-  /** 
-   * マウスボタン押下時の処理.
-   *
-   * @param mouseEvent 発生したマウスイベント
-   * @param mousePressedPos マウスボタン押下時のカーソル位置の格納先
-   */
-  private void onMousePressed(MouseEvent mouseEvent, Vec2D mousePressedPos) {
-    // ワークスペースをクリックしたときにテキストフィールドのカーソルが消えなくなるので, マウスイベントを consume しない.
-    if (!mouseEvent.isShiftDown()) {
-      BhService.appRoot().getNodeSelectionViewProxy().hideAll();
-      UserOperation userOpe = new UserOperation();
-      for (BhNode selectedNode : model.getSelectedNodes()) {
-        selectedNode.deselect(userOpe);
-      }
-      BhService.undoRedoAgent().pushUndoCommand(userOpe);
-    }
-    view.getRootNodeViews().forEach(nodeView -> nodeView.getLookManager().hideShadow(false));
-    mousePressedPos.x = mouseEvent.getX();
-    mousePressedPos.y = mouseEvent.getY();
-    view.showSelectionRectangle(mousePressedPos, mousePressedPos);
-  }
-
-  /**
-   * マウスドラッグ時のイベントハンドラを登録する.
-   *
-   * @param mouseEvent 発生したマウスイベント
-   * @param mousePressedPos マウスボタン押下時のカーソル位置
-   */
-  private void onMouseDragged(MouseEvent mouseEvent, Vec2D mousePressedPos) {
-    view.showSelectionRectangle(
-        mousePressedPos, new Vec2D(mouseEvent.getX(), mouseEvent.getY()));
-  }
-
-  /**
-   * マウスボタンを離したときの処理.
-   *
-   * @param mouseEvent 発生したマウスイベント
-   * @param mousePressedPos マウスボタンを押下時のカーソル位置
-   */
-  private void onMouseReleased(Vec2D mousePressedPos, MouseEvent mouseEvent) {
-    view.hideSelectionRectangle();
-    double minX = Math.min(mousePressedPos.x, mouseEvent.getX());
-    double minY = Math.min(mousePressedPos.y, mouseEvent.getY());
-    double maxX = Math.max(mousePressedPos.x, mouseEvent.getX());
-    double maxY = Math.max(mousePressedPos.y, mouseEvent.getY());
-    var selectionRange = new QuadTreeRectangle(minX, minY, maxX, maxY, null);
-    List<BhNodeView> containedNodes =
-        view.searchForOverlappedNodeViews(selectionRange, true, OverlapOption.CONTAIN).stream()
-        .filter(WorkspaceController::isNodeSelectable)
-        .collect(Collectors.toCollection(ArrayList::new));
-    // 面積の大きい順にソート
-    containedNodes.sort(this::compareViewSize);
-    ModelExclusiveControl.lockForModification();
+  /** マウスボタン押下時の処理. */
+  private void onMousePressed(MouseEvent event) {
     try {
-      UserOperation userOpe = new UserOperation();
-      selectNodes(containedNodes, userOpe);
-      BhService.undoRedoAgent().pushUndoCommand(userOpe);
+      if (!mouseCtrlLock.tryLock(event.getButton())) {
+        return;
+      }
+      ddInfo.context = notificationService.begin();   
+      ddInfo.isDndFinished = false;
+      if (!event.isShiftDown()) {
+        nodeSelectionViewProxy.hideAll();
+        model.getSelectedNodes().forEach(node -> node.deselect(ddInfo.context.userOpe()));
+      }
+      view.getRootNodeViews().forEach(nodeView -> nodeView.getLookManager().hideShadow(false));
+      ddInfo.mousePressedPos = new Vec2D(event.getX(), event.getY());
+      view.showSelectionRectangle(ddInfo.mousePressedPos, ddInfo.mousePressedPos);
+    } catch (Throwable e) {
+      terminateDnd();
+      throw e;
+    }
+    // ワークスペースをクリックしたときにテキストフィールドのカーソルが消えなくなるので, マウスイベントを consume しない.
+  }
+
+  /** マウスドラッグ時のイベントハンドラを登録する. */
+  private void onMouseDragged(MouseEvent event) {
+    try {
+      if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
+        return;
+      }
+      view.showSelectionRectangle(
+          ddInfo.mousePressedPos, new Vec2D(event.getX(), event.getY()));
+    } catch (Throwable e) {
+      terminateDnd();
+      throw e;
+    }
+  }
+
+  /** マウスボタンを離したときの処理. */
+  private void onMouseReleased(MouseEvent event) {
+    if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
+      // 余分に D&D の終了処理をしてしまうので terminateDnd を呼ばないこと.
+      return;
+    }
+    try {
+      view.hideSelectionRectangle();
+      double minX = Math.min(ddInfo.mousePressedPos.x, event.getX());
+      double minY = Math.min(ddInfo.mousePressedPos.y, event.getY());
+      double maxX = Math.max(ddInfo.mousePressedPos.x, event.getX());
+      double maxY = Math.max(ddInfo.mousePressedPos.y, event.getY());
+      var selectionRange = new QuadTreeRectangle(minX, minY, maxX, maxY, null);
+      List<BhNodeView> containedNodes =
+          view.searchForOverlappedNodeViews(selectionRange, true, OverlapOption.CONTAIN).stream()
+          .filter(WorkspaceController::isNodeSelectable)
+          .collect(Collectors.toCollection(ArrayList::new));
+      // 面積の大きい順にソート
+      containedNodes.sort(this::compareViewSize);
+      selectNodes(containedNodes, ddInfo.context.userOpe());
     } finally {
-      ModelExclusiveControl.unlockForModification();
+      event.consume();
+      terminateDnd();
     }
   }
 
@@ -216,6 +240,58 @@ public class WorkspaceController {
     }
   }
 
+  /** D&D を終えたときの処理. */
+  private void terminateDnd() {
+    mouseCtrlLock.unlock();
+    ddInfo.reset();
+    notificationService.end();
+  }
+
+  /** ワークスペースビューの削除命令を受けた時の処理. */
+  private boolean onCloseRequest() {
+    // 空のワークスペースビュー削除時は警告なし
+    if (model.getRootNodes().isEmpty()) {
+      return true;
+    }
+    Optional<ButtonType> buttonType = msgService.alert(
+        Alert.AlertType.CONFIRMATION,
+        TextDefs.Workspace.AskIfDeleteWs.title.get(),
+        null,
+        TextDefs.Workspace.AskIfDeleteWs.body.get(model.getName()));
+    return buttonType.map(type -> type.equals(ButtonType.OK)).orElse(false);
+  }
+
+  /** ワークスペースビュー削除時の処理. */
+  private void onClosed() {
+    Context context = notificationService.begin();
+    try {
+      WorkspaceSet wss = model.getWorkspaceSet();
+      if (wss != null) {
+        wss.removeWorkspace(model, context.userOpe());
+      }
+    } finally {
+      notificationService.end();
+    }
+  }
+
+  /**
+   * D&D 操作で使用する一連のイベントハンドラがアクセスするデータをまとめたクラス.
+   */
+  private class DndEventInfo {
+    Vec2D mousePressedPos = null;
+    /** モデルの操作に伴うコンテキスト. */
+    ModelAccessNotificationService.Context context;
+    /** D&D が終了しているかどうかのフラグ. */
+    private boolean isDndFinished = true;
+
+    /** D&Dイベント情報を初期化する. */
+    private void reset() {
+      mousePressedPos = null;
+      context = null;
+      isDndFinished = true;
+    }
+  }
+
   //デバッグ用
   private void printDebugInfo() {
     //4 分木登録ノード数表示
@@ -225,16 +301,16 @@ public class WorkspaceController {
       f = c.getDeclaredField("quadTreeMngForConnector");
       f.setAccessible(true);
       QuadTreeManager quadTreeMngForConnector = (QuadTreeManager) f.get(view);
-      BhService.msgPrinter().println(
+      System.out.println(
           "num of QuadTreeNodes: " + quadTreeMngForConnector.calcRegisteredNodeNum());
     } catch (IllegalAccessException
         | IllegalArgumentException
         | NoSuchFieldException
         | SecurityException e) {
-      BhService.msgPrinter().errForDebug(e.toString());
+      LogManager.logger().error(e.toString());
     }
-    BhService.msgPrinter().println("num of root nodes: " + model.getRootNodes().size());
-    BhService.msgPrinter().println(
+    System.out.println("num of root nodes: " + model.getRootNodes().size());
+    System.out.println(
         "num of selected nodes: " + model.getSelectedNodes().size());
   }
 
@@ -252,7 +328,7 @@ public class WorkspaceController {
 
     @Override
     public Vec2D getViewSize() {
-      return view.getWorkspaceSize();
+      return view.getSize();
     }
 
     @Override

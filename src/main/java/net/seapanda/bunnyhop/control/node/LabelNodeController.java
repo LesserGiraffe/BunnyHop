@@ -16,7 +16,10 @@
 
 package net.seapanda.bunnyhop.control.node;
 
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.LabelNodeView;
 
 /**
@@ -24,35 +27,52 @@ import net.seapanda.bunnyhop.view.node.LabelNodeView;
  *
  * @author K.Koike
  */
-public class LabelNodeController extends BhNodeController {
+public class LabelNodeController implements BhNodeController {
 
   private final TextNode model;
   private final LabelNodeView view;
+  private final ModelAccessNotificationService notificationService;
 
   /** コンストラクタ. */
-  public LabelNodeController(TextNode model, LabelNodeView view) {
-    super(model, view);
-    this.model = model;
-    this.view = view;
-    model.setViewProxy(new BhNodeViewProxyImpl(view, false));
+  public LabelNodeController(BhNodeController controller) {
+    if (controller.getModel() instanceof TextNode model) {
+      this.model = model;
+    } else {
+      throw new IllegalStateException(
+          "The model is not %s".formatted(TextNode.class.getSimpleName()));
+    }
+    if (controller.getView() instanceof LabelNodeView view) {
+      this.view = view;
+    } else {
+      throw new IllegalStateException(
+          "The view is not %s".formatted(LabelNodeView.class.getSimpleName()));
+    }
+    notificationService = controller.getNotificationService();
     model.getEventManager().addOnTextChanged((oldText, newText, userOpe) -> view.setText(newText));
-    setInitStr(model, view);
+    setInitStr();
   }
 
   /**
-   * view に初期文字列をセットする.
-   *
-   * @param model セット初期文字列を持つTextNode
-   * @param view 初期文字列をセットするLabelNodeView
+   * {@link #view} に初期文字列をセットする.
    */
-  public static void setInitStr(TextNode model, LabelNodeView view) {
+  private void setInitStr() {
     String initText = model.getText();
     view.setText(initText + " ");  //初期文字列が空文字だったときのため
     view.setText(initText);
   }
 
-  /** {@code model} の持つ文字列に合わせて {@code view} の内容を変更する. */
-  public static void matchViewToModel(TextNode model, LabelNodeView view) {
-    view.setText(model.getText());
+  @Override
+  public BhNode getModel() {
+    return model;
   }
+
+  @Override
+  public BhNodeView getView() {
+    return view;
+  }
+
+  @Override
+  public ModelAccessNotificationService getNotificationService() {
+    return notificationService;
+  }  
 }

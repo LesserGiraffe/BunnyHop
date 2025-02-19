@@ -22,10 +22,9 @@ import java.util.List;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.Connector;
-import net.seapanda.bunnyhop.model.node.attribute.ConnectorId;
+import net.seapanda.bunnyhop.model.node.parameter.ConnectorId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
-import net.seapanda.bunnyhop.service.BhService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
@@ -130,7 +129,7 @@ public class Subsection extends Section {
   public void show(int depth) {
     var parentInstId =
         (parentNode != null) ? parentNode.getInstanceId() : parentSection.getInstanceId();
-    BhService.msgPrinter().println("%s<Subsection  name=%s  parent=%s>  %s"
+    System.out.println("%s<Subsection  name=%s  parent=%s>  %s"
         .formatted(indent(depth), getSymbolName(), parentInstId, getInstanceId()));        
     subsectionList.forEach((connector -> connector.show(depth + 1)));
   }

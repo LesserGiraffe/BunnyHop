@@ -34,8 +34,6 @@ public class DerivativeCache {
   /** インスタンス ID と派生ノードのマップ. */
   private final Map<Derivative, Set<Derivative>> orgToDerivatives = new HashMap<>();
 
-  DerivativeCache() {}
-
   /**
    * {@code derivative} で指定した派生ノードをキャッシュに格納する.
    * <p>
