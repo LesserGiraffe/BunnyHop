@@ -109,7 +109,7 @@ public class AppMain extends Application {
   @Override
   public void start(Stage stage) throws Exception {
     var msgService = new BhMessageService();
-    Path logDir = Paths.get(Utility.execPath, BhConstants.Path.LOG_DIR);
+    Path logDir = Paths.get(Utility.execPath, BhConstants.Path.LOG_DIR, BhConstants.APP_NAME);
     var logger = new FileLogger(
         logDir,
         BhConstants.Path.LOG_FILE_NAME,

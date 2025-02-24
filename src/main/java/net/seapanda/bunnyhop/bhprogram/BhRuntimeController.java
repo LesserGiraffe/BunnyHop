@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.bhprogram;
 
 import java.nio.file.Path;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 
 /**
  * BhRuntime (BhProgram の実行環境) の操作を規定したインタフェース.
@@ -70,10 +70,10 @@ public interface BhRuntimeController {
   boolean disconnect();
 
   /**
-   * 引数で指定した {@link BhProgramMessage} を BhProgram の実行環境に送る.
+   * 引数で指定した {@link BhProgramNotification} を BhProgram の実行環境に送る.
    *
-   * @param msg 送信データ
+   * @param notif 送信データ
    * @return ステータスコード
    */
-  BhRuntimeStatus send(BhProgramMessage msg);
+  BhRuntimeStatus send(BhProgramNotification notif);
 }

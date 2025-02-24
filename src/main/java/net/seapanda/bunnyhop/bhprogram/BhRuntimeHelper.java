@@ -29,10 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import net.seapanda.bunnyhop.bhprogram.common.BhProgramHandler;
+import net.seapanda.bunnyhop.bhprogram.common.BhRuntimeFacade;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent.Name;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessor;
 import net.seapanda.bunnyhop.bhprogram.message.BhRuntimeTransceiver;
@@ -105,14 +105,14 @@ class BhRuntimeHelper {
   }
 
   /**
-   * 引数で指定した {@link BhProgramMessage} を BhProgram の実行環境に送る.
+   * 引数で指定した {@link BhProgramNotification} を BhProgram の実行環境に送る.
    *
    * @param msg 送信データ
    * @return ステータスコード
    */
-  BhRuntimeStatus send(BhProgramMessage msg) {
+  BhRuntimeStatus send(BhProgramNotification notif) {
     return dispatcher.getTransceiver()
-        .map(xcvr -> xcvr.pushSendMsg(msg))
+        .map(xcvr -> xcvr.pushSendNotif(notif))
         .orElse(BhRuntimeStatus.SEND_WHEN_DISCONNECTED);
   }
 
@@ -177,12 +177,12 @@ class BhRuntimeHelper {
     msgService.info(TextDefs.BhRuntime.Communication.preparingToCommunicate.get());
     boolean success = true;
     try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-      BhProgramHandler programHandler = getBhProgramHandler(ipAddr, br);
-      var transceiver = new BhRuntimeTransceiver(programHandler, msgService);
+      BhRuntimeFacade facade = getBhRuntimeFacade(ipAddr, br);
+      var transceiver = new BhRuntimeTransceiver(facade, msgService);
       dispatcher.replaceTransceiver(transceiver).ifPresent(old -> old.halt());
       transceiver.start();
       success &= transceiver.connect();
-      success &= runScript(fileName, programHandler);
+      success &= runScript(fileName, facade);
     } catch (IOException | NotBoundException | NumberFormatException | TimeoutException e) {
       LogManager.logger().error("Failed to run BhProgram\n" + e);
       success &= false;
@@ -194,7 +194,7 @@ class BhRuntimeHelper {
   }
 
   /** BhProgram が公開する RMI オブジェクトを取得する. */
-  private BhProgramHandler getBhProgramHandler(String ipAddr, BufferedReader br)
+  private BhRuntimeFacade getBhRuntimeFacade(String ipAddr, BufferedReader br)
       throws IOException,
       TimeoutException, 
       MalformedURLException, 
@@ -206,17 +206,17 @@ class BhRuntimeHelper {
         BhConstants.BhRuntime.TCP_PORT_READ_TIMEOUT);
     int port = Integer.parseInt(portStr);
     // リモートオブジェクト取得
-    BhProgramHandler programHandler = (BhProgramHandler) findRemoteObj(
-        ipAddr, port, BhProgramHandler.class.getSimpleName());
-    return programHandler;
+    var facade = (BhRuntimeFacade) findRemoteObj(
+        ipAddr, port, BhRuntimeFacade.class.getSimpleName());
+    return facade;
   }
 
   /** BhProgram の main メソッドを実行する. */
-  private boolean runScript(String fileName, BhProgramHandler programHandler)
+  private boolean runScript(String fileName, BhRuntimeFacade facade)
       throws RemoteException {
     var startEvent = new BhProgramEvent(
         Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
-    return programHandler.runScript(fileName, startEvent);
+    return facade.runScript(fileName, startEvent);
   }
 
   /**

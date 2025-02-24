@@ -29,8 +29,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import net.seapanda.bunnyhop.bhprogram.BhRuntimeStatus;
-import net.seapanda.bunnyhop.bhprogram.common.BhProgramHandler;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
+import net.seapanda.bunnyhop.bhprogram.common.BhRuntimeFacade;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
@@ -48,32 +48,32 @@ public class BhRuntimeTransceiver {
   private static final AtomicInteger nextId = new AtomicInteger(0);
   /** 接続状態. */
   private final AtomicBoolean connected = new AtomicBoolean(false);
-  /** BhProgram の実行環境に送信する {@link BhProgramMessage} を格納する FIFO. */
-  private final BlockingQueue<BhProgramMessage> sendMsgList = 
+  /** BhProgram の実行環境に送信する {@link BhProgramNotification} を格納する FIFO. */
+  private final BlockingQueue<BhProgramNotification> sendNotifList = 
       new ArrayBlockingQueue<>(BhConstants.BhRuntime.MAX_REMOTE_CMD_QUEUE_SIZE);
   /** BhProgram の実行環境に送信する {@link BhProgramResponse} を格納する FIFO. */
   private final BlockingQueue<BhProgramResponse> sendRespList =
       new ArrayBlockingQueue<>(BhConstants.BhRuntime.MAX_REMOTE_CMD_QUEUE_SIZE);
   /** BhProgram との通信用 {@link ExecutorService} のセット. */
-  private ExecutorsSet executors = new ExecutorsSet(
+  private ExecutorSet executors = new ExecutorSet(
       Executors.newSingleThreadExecutor(),
       Executors.newSingleThreadExecutor(),
       Executors.newSingleThreadExecutor(),
       Executors.newSingleThreadExecutor());
   private FutureSet futures;
-  /** {@link BhProgramMessage} を受信したときに呼び出すメソッド. */
-  private AtomicReference<Consumer<BhProgramMessage>> onMsgReceived =
-      new AtomicReference<>(msg -> {});
+  /** {@link BhProgramNotification} を受信したときに呼び出すメソッド. */
+  private AtomicReference<Consumer<BhProgramNotification>> onNotifReceived =
+      new AtomicReference<>(notif -> {});
   /** {@link BhProgramResponse} を受信したときに呼び出すメソッド. */
   private AtomicReference<Consumer<BhProgramResponse>> onRespReceived =
-      new AtomicReference<>(msg -> {});
+      new AtomicReference<>(resp -> {});
   private SynchronizingTimer connectionWait = new SynchronizingTimer(1, true);
   /**
    * BhProgramの実行環境と通信する用のRMIオブジェクト.
-   * BhProgramHandler はリモート側の特定のプロセスと紐付いており, 
+   * BhRuntimeFacade はリモート側の特定のプロセスと紐付いており, 
    * RMI Server が同じ TCP ポートでも新しく起動したプロセスと通信することはない.
    */
-  private final BhProgramHandler programHandler;
+  private final BhRuntimeFacade runtimeFacade;
   /** アプリケーションユーザにメッセージを出力するためのオブジェクト. */
   private final MessageService msgService;
   public final int id;
@@ -82,11 +82,11 @@ public class BhRuntimeTransceiver {
   /**
    * コンストラクタ.
    *
-   * @param programHandler BhProgram と BunnyHop 間でデータを送受信するオブジェクト
+   * @param facade BhProgram と BunnyHop 間でデータを送受信するオブジェクト
    * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
    */
-  public BhRuntimeTransceiver(BhProgramHandler programHandler, MessageService msgService) {
-    this.programHandler = programHandler;
+  public BhRuntimeTransceiver(BhRuntimeFacade facade, MessageService msgService) {
+    this.runtimeFacade = facade;
     this.msgService = msgService;
     id = nextId.getAndIncrement();
   }
@@ -98,7 +98,7 @@ public class BhRuntimeTransceiver {
    */
   public synchronized boolean connect() {
     try {
-      programHandler.connect();
+      runtimeFacade.connect();
       connectionWait.reset(0);
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
@@ -118,7 +118,7 @@ public class BhRuntimeTransceiver {
    */
   public synchronized boolean disconnect() {
     try {
-      programHandler.disconnect();
+      runtimeFacade.disconnect();
       connectionWait.reset(1);
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
@@ -137,8 +137,8 @@ public class BhRuntimeTransceiver {
       return;
     }
     futures =  new FutureSet(
-        executors.recvMsgTask.submit(this::recvMsg),
-        executors.sendMsgTask.submit(this::sendMsg),
+        executors.recvMsgTask.submit(this::recvNotif),
+        executors.sendMsgTask.submit(this::sendNotif),
         executors.recvRespTask.submit(this::recvResp),
         executors.sendRespTask.submit(this::sendResp));
   }
@@ -169,14 +169,14 @@ public class BhRuntimeTransceiver {
     return success;
   }
 
-  /** BhProgram の実行環境から {@link BhProgramMessage} を受信し続ける. */
-  private void recvMsg() {
+  /** BhProgram の実行環境から {@link BhProgramNotification} を受信し続ける. */
+  private void recvNotif() {
     while (true) {
       try {
         connectionWait.awaitInterruptibly();
-        BhProgramMessage msg = programHandler.recvMsgFromScript();
-        if (msg != null) {
-          onMsgReceived.get().accept(msg);
+        BhProgramNotification notif = runtimeFacade.recvNotifFromRuntime();
+        if (notif != null) {
+          onNotifReceived.get().accept(notif);
         }
       } catch (RemoteException | InterruptedException e) {
         // 子プロセスを kill した場合, RemoteException で抜ける.
@@ -188,21 +188,21 @@ public class BhRuntimeTransceiver {
     }
   }
 
-  /** BhProgram の実行環境に {@link BhProgramMessage} を送信し続ける. */
-  private void sendMsg() {
+  /** BhProgram の実行環境に {@link BhProgramNotification} を送信し続ける. */
+  private void sendNotif() {
     while (true) {
-      BhProgramMessage msg = null;
+      BhProgramNotification notif = null;
       try {
-        msg = sendMsgList.poll(
+        notif = sendNotifList.poll(
             BhConstants.BhRuntime.POP_SEND_DATA_TIMEOUT, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
         break;
       }
-      if (msg == null) {
+      if (notif == null) {
         continue;
       }
       try {
-        programHandler.sendMsgToScript(msg);
+        runtimeFacade.sendNotifToRuntime(notif);
       } catch (RemoteException e) {
         // 子プロセスをkillした場合, ここで抜ける.
         break;
@@ -217,7 +217,7 @@ public class BhRuntimeTransceiver {
   private void recvResp() {
     while (true) {
       try {
-        BhProgramResponse resp = programHandler.recvRespFromScript();
+        BhProgramResponse resp = runtimeFacade.recvRespFromRuntime();
         if (resp != null) {
           onRespReceived.get().accept(resp);
         }
@@ -244,7 +244,7 @@ public class BhRuntimeTransceiver {
         continue;
       }
       try {
-        programHandler.sendRespToScript(resp);
+        runtimeFacade.sendRespToRuntime(resp);
       } catch (RemoteException e) {
         // 子プロセスをkillした場合, ここで抜ける.
         break;
@@ -256,16 +256,16 @@ public class BhRuntimeTransceiver {
   }
 
   /**
-   * 接続状態のとき, 引数で指定した {@link BhProgramMessage} を送信キューに追加する.
+   * 接続状態のとき, 引数で指定した {@link BhProgramNotification} を送信キューに追加する.
    *
-   * @param msg 送信データ
+   * @param notif 送信データ
    * @return ステータスコード
    */
-  public BhRuntimeStatus pushSendMsg(BhProgramMessage msg) {
+  public BhRuntimeStatus pushSendNotif(BhProgramNotification notif) {
     if (!connected.get()) {
       return BhRuntimeStatus.SEND_WHEN_DISCONNECTED;
     }
-    boolean success = sendMsgList.offer(msg);
+    boolean success = sendNotifList.offer(notif);
     if (!success) {
       return BhRuntimeStatus.SEND_QUEUE_FULL;
     }
@@ -286,23 +286,23 @@ public class BhRuntimeTransceiver {
     return BhRuntimeStatus.SUCCESS;
   }
 
-  /** このオブジェクトが {@link BhProgramMessage} を受信したときに, このオブジェクトが呼び出すメソッドを設定する. */
-  public void setOnMsgReceived(Consumer<BhProgramMessage> onMsgReceived) {
-    if (onMsgReceived == null) {
-      onMsgReceived = msg -> {};
+  /** このオブジェクトが {@link BhProgramNotification} を受信したときに, このオブジェクトが呼び出すメソッドを設定する. */
+  public void setOnNotifReceived(Consumer<BhProgramNotification> handler) {
+    if (handler == null) {
+      handler = notif -> {};
     }
-    this.onMsgReceived.set(onMsgReceived);
+    this.onNotifReceived.set(handler);
   }
 
   /**
    * このオブジェクトが {@link BhProgramResponse} を受信したときに,
    * このオブジェクトが呼び出すメソッドを設定する.
    */
-  public void setOnRespReceived(Consumer<BhProgramResponse> onRespReceived) {
-    if (onRespReceived == null) {
-      onRespReceived = resp -> {};
+  public void setOnRespReceived(Consumer<BhProgramResponse> handler) {
+    if (handler == null) {
+      handler = resp -> {};
     }
-    this.onRespReceived.set(onRespReceived);
+    this.onRespReceived.set(handler);
   }
 
   /** BhProgram と通信するタスクの {@link Future} オブジェクトのセット. */
@@ -338,7 +338,7 @@ public class BhRuntimeTransceiver {
    * @param recvRespTask レスポンス受信用.
    * @param sendRespTask レスポンス送信用.
    */
-  private record ExecutorsSet(
+  private record ExecutorSet(
       ExecutorService recvMsgTask,
       ExecutorService sendMsgTask,
       ExecutorService recvRespTask,

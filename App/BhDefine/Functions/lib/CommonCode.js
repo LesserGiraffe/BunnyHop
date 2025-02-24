@@ -43,7 +43,7 @@ function _createThreadContext() {
   // Java の long 型は JavaScript で使うと double 型に変換される. 
   // Java のスレッド ID は long 型 だが, Number.MAX_SAFE_INTEGER の範囲に入る保証がないので,
   // スレッド ID は Java のメソッド内部で取り扱う.
-  bhScriptHelper.util.setThreadData(threadContext);
+  bhScriptHelper.thread.setThreadData(threadContext);
   return threadContext;
 }
 
@@ -54,11 +54,11 @@ function _removeThreadContext(dest) {
     dest['_currentNodeInstId'] = threadContext[_idxCurrentNodeInstId];
     dest['_errorMsgs'] = threadContext[_idxErrorMsgs];
   }
-  bhScriptHelper.util.removeThreadData();
+  bhScriptHelper.thread.removeThreadData();
 }
 
 function _getThreadContext() {
-  return bhScriptHelper.util.getThreadData();
+  return bhScriptHelper.thread.getThreadData();
 }
 
 function _genLockObj(fair) {
@@ -269,7 +269,7 @@ function _newBhProgramExceptioin(msg) {
   let context = _getThreadContext();
   let currentNodeInstId = context[_idxCurrentNodeInstId];
   let callStack = context[_idxCallStack].concat(currentNodeInstId); // 'concat' returns a new array.
-  return bhScriptHelper.util.newBhProgramException(callStack, msg);
+  return bhScriptHelper.factory.newBhProgramException(callStack, msg);
 }
 
 //==================================================================
@@ -790,7 +790,7 @@ function _genSyncTimer(count, autoReset) {
     throw _newBhProgramExceptioin(
       'タイマーの初期値は 0 以上 65535 以下でなければなりません.  (' + count + ')');
 
-  return bhScriptHelper.util.newSyncTimer(count, autoReset);
+  return bhScriptHelper.factory.newSyncTimer(count, autoReset);
 }
 
 function _syncTimerCountdown(timer) {

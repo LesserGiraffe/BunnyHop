@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.utility.AppVersion;
  */
 public class BhConstants {
 
-  public static final String APPLICATION_NAME = "BunnyHop";
+  public static final String APP_NAME = "BunnyHop";
   /** アプリケーションのバージョン. */
   public static final AppVersion APP_VERSION = AppVersion.of("bh-2.0.0");
   /** セーブデータのバージョン. */
@@ -70,28 +70,28 @@ public class BhConstants {
 
   /** ファイルパス関連のパラメータ. */
   public static class Path {
-    /** fxmlとcssファイルのあるフォルダ名. */
+    /** fxmlとcssファイルのあるディレクトリ名. */
     public static final String VIEW_DIR = "BhView";
-    /** cssファイルのあるフォルダ名. */
+    /** cssファイルのあるディレクトリ名. */
     public static final String CSS_DIR = "css";
-    /** fxmlファイルのあるフォルダ名. */
+    /** fxmlファイルのあるディレクトリ名. */
     public static final String FXML_DIR = "fxml";
-    /** ノードやコネクタの定義フォルダがあるフォルダ名. */
+    /** ノードやコネクタの定義ディレクトリがあるディレクトリ名. */
     public static final String BH_DEF_DIR = "BhDefine";
-    /** ノード定義ファイルがあるフォルダ名. */
+    /** ノード定義ファイルがあるディレクトリ名. */
     public static final String NODE_DEF_DIR = "Node";
-    /** コネクタ定義ファイルがあるフォルダ名. */
+    /** コネクタ定義ファイルがあるディレクトリ名. */
     public static final String CONNECTOR_DEF_DIR = "Connector";
-    /** ノードのスタイル定義ファイルがあるフォルダ名. */
+    /** ノードのスタイル定義ファイルがあるディレクトリ名. */
     public static final String NODE_STYLE_DEF_DIR = "NodeStyle";
-    /** JavaScript コードが書かれたファイルのあるトップフォルダ. */
+    /** JavaScript コードが書かれたファイルのあるトップディレクトリ. */
     public static final String FUNCTIONS_DIR = "Functions";
-    /** ノードテンプレートの配置情報が書かれたファイルがあるフォルダ名. */
+    /** ノードテンプレートの配置情報が書かれたファイルがあるディレクトリ名. */
     public static final String TEMPLATE_LIST_DIR = "TemplateList";
-    /** アイコンなどの画像があるフォルダ名. */
+    /** アイコンなどの画像があるディレクトリ名. */
     public static final String IMAGES_DIR = "IMAGES";
     public static final String LOG_DIR = "Log";
-    /** メッセージ定義ファイルがあるフォルダ名. */
+    /** メッセージ定義ファイルがあるディレクトリ名. */
     public static final String MESSAGE_DIR = "Message";
     /** デフォルトメッセージプロパティファイル名. */
     public static final String DEFAULT_MESSAGE_FILE_NAME = "message";
@@ -123,9 +123,11 @@ public class BhConstants {
     public static final String REMOTE_KILL_CMD_GENERATOR_JS = "RemoteKillCmdGenerator.js";
     /** BunnyHopのアイコン画像名. */
     public static final String BUNNY_HOP_ICON = "BunnyHop16.png";
-    /** リモートのBhProgram実行環境が入ったフォルダ名. */
+    /** リモートの BhProgram 実行環境が入ったディレクトリ名. */
     public static final String REMOTE_BUNNYHOP_DIR = "BunnyHop";
-    /** BhProgramのファイルを格納するリモート実行環境の下のフォルダ名. */
+    /** リモートの BhProgram 実行環境の実行ファイルをまとめたディレクトリの名前. */
+    public static final String REMOTE_APP_DIR = "App";
+    /** BhProgramのファイルを格納するリモート実行環境の下のディレクトリ名. */
     public static final String REMOTE_COMPILED_DIR = "Compiled";
     /** 言語ファイルが格納されたディレクトリのパス. */
     public static final String LANGUAGE_DIR = "Language";

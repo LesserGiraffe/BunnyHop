@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessor;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhConstants.BhRuntime;
@@ -108,10 +108,10 @@ public class RemoteBhRuntimeController implements BhRuntimeController {
   /**
    * BhProgram を実行する.
    *
-   * @param filePath BhProgramのファイルパス
-   * @param ipAddr BhProgramを実行するマシンのIPアドレス
-   * @param uname BhProgramを実行するマシンにログインする際のユーザ名
-   * @param password BhProgramを実行するマシンにログインする際のパスワード
+   * @param filePath このパスのファイルをリモート環境にコピーして実行する
+   * @param ipAddr BhProgram を実行するマシンのIPアドレス
+   * @param uname BhProgram を実行するマシンにログインする際のユーザ名
+   * @param password BhProgram を実行するマシンにログインする際のパスワード
    * @param terminate 現在実行中のプログラムを停止する場合 true. 切断だけする場合 false.
    * @return BhProgram の実行処理でエラーが発生しなかった場合 true
    */
@@ -127,6 +127,7 @@ public class RemoteBhRuntimeController implements BhRuntimeController {
     try {
       var destPath = Paths.get(
           BhConstants.Path.REMOTE_BUNNYHOP_DIR,
+          BhConstants.Path.REMOTE_APP_DIR,
           BhConstants.Path.REMOTE_COMPILED_DIR,
           BhConstants.Path.APP_FILE_NAME_JS);
       boolean success = copyFile(ipAddr, uname, password, filePath.toString(), destPath.toString());
@@ -138,8 +139,10 @@ public class RemoteBhRuntimeController implements BhRuntimeController {
       if (channel == null) {
         throw new Exception();
       }
-      String fileName = filePath.getFileName().toString();
-      success = helper.runBhProgram(fileName, ipAddr, channel.getInputStream());  // BhProgram 実行
+      // BhRuntime の実行時パスからの相対パスで実行するスクリプトのパスを指定する.
+      String fileRelPath = Paths.get(
+          BhConstants.Path.REMOTE_COMPILED_DIR, BhConstants.Path.APP_FILE_NAME_JS).toString();
+      success = helper.runBhProgram(fileRelPath, ipAddr, channel.getInputStream());  // BhProgram 実行
       // チャンネルは開いたままだが切断する
       channel.disconnect();
       channel.getSession().disconnect();
@@ -234,8 +237,8 @@ public class RemoteBhRuntimeController implements BhRuntimeController {
   }
 
   @Override
-  public synchronized BhRuntimeStatus send(BhProgramMessage msg) {
-    return helper.send(msg);
+  public synchronized BhRuntimeStatus send(BhProgramNotification notif) {
+    return helper.send(notif);
   }
 
   /**

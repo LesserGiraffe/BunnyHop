@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.bhprogram.message;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.DetectColorCmd;
@@ -38,15 +38,15 @@ import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 
 /**
- * {@link BhProgramMessage} および {@link BhProgramResponse} を適切なクラスに渡す.
+ * {@link BhProgramMessage} を適切なクラスに渡す.
  *
  * @author K.Koike
  */
 public class BhProgramMessageDispatcher {
   
-  /** {@link BhProgramMessage} および {@link BhProgramResponse} を送受信するためのオブジェクト. */
+  /** {@link BhProgramMessage} を送受信するためのオブジェクト. */
   AtomicReference<BhRuntimeTransceiver> transceiver = new AtomicReference<>();
-  /** {@link BhSimulatorCmd} 以外の {@link BhProgramMessage} を処理するオブジェクト. */
+  /** {@link BhSimulatorCmd} 以外の {@link BhProgramNotification} を処理するオブジェクト. */
   private final BhProgramMessageProcessor msgProcessor;
   /** {@link BhSimulatorCmd} を処理するオブジェクト. */
   private final SimulatorCmdProcessor simCmdProcessor;
@@ -54,7 +54,7 @@ public class BhProgramMessageDispatcher {
   /**
    * コンストラクタ.
    *
-   * @param msgProcessor {@link BhSimulatorCmd} 以外の {@link BhProgramMessage} を処理するオブジェクト
+   * @param msgProcessor {@link BhSimulatorCmd} 以外の {@link BhProgramNotification} を処理するオブジェクト
    * @param simCmdProcessor {@link BhSimulatorCmd} を処理するオブジェクト
    */
   public BhProgramMessageDispatcher(
@@ -72,7 +72,7 @@ public class BhProgramMessageDispatcher {
    * @return このメソッドを呼び出す前に使用していた通信用オブジェクト.
    */
   public Optional<BhRuntimeTransceiver> replaceTransceiver(BhRuntimeTransceiver transceiver) {
-    transceiver.setOnMsgReceived(msg -> dispatch(transceiver, msg));
+    transceiver.setOnNotifReceived(msg -> dispatch(transceiver, msg));
     transceiver.setOnRespReceived(resp -> dispatch(resp));
     return Optional.ofNullable(this.transceiver.getAndSet(transceiver));
   }
@@ -86,10 +86,10 @@ public class BhProgramMessageDispatcher {
    * {@code msg} を適切なクラスへと渡す.
    *
    * @param transceiver {@code msg} を受信した {@link BhRuntimeTransceiver}.
-   * @param msg 処理するメッセージ.
+   * @param notification 処理する通知.
    */
-  private void dispatch(BhRuntimeTransceiver transceiver, BhProgramMessage msg) {
-    switch (msg) {
+  private void dispatch(BhRuntimeTransceiver transceiver, BhProgramNotification notif) {
+    switch (notif) {
       case OutputTextCmd
           cmd -> transceiver.pushSendResp(msgProcessor.process(cmd));
       case BhProgramException
@@ -114,7 +114,7 @@ public class BhProgramMessageDispatcher {
           cmd -> transceiver.pushSendResp(simCmdProcessor.process(cmd));
       case SetBothEyesColorCmd
           cmd -> transceiver.pushSendResp(simCmdProcessor.process(cmd));
-      default -> notifyInvalidMsg(msg);
+      default -> notifyInvalidNotif(notif);
     }
   }
 
@@ -126,8 +126,8 @@ public class BhProgramMessageDispatcher {
     }
   }
 
-  private void notifyInvalidMsg(BhProgramMessage msg) {
-    LogManager.logger().error("Received an invalid message.  (%s)".formatted(msg));
+  private void notifyInvalidNotif(BhProgramNotification notif) {
+    LogManager.logger().error("Received an invalid message.  (%s)".formatted(notif));
   }
 
   private void notifyInvalidResp(BhProgramResponse resp) {

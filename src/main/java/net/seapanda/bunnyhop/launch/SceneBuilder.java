@@ -134,7 +134,7 @@ public class SceneBuilder {
         BhConstants.Path.BUNNY_HOP_ICON).toUri().toString();
     stage.getIcons().add(new Image(iconPath));
     stage.setScene(scene);
-    stage.setTitle(BhConstants.APPLICATION_NAME);
+    stage.setTitle(BhConstants.APP_NAME);
     var wsName = TextDefs.Workspace.initialWsName.get();
     Workspace ws = wsFactory.create(wsName);
     Vec2D wsSize = new Vec2D(

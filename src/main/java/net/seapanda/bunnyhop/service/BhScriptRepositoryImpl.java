@@ -64,7 +64,7 @@ public class BhScriptRepositoryImpl implements BhScriptRepository {
   /**
    * JavaScript ファイルを読み込み、コンパイルする.
    *
-   * @param dirPaths このフォルダの下にある.jsファイルをコンパイルする
+   * @param dirPaths このディレクトリの下にある.jsファイルをコンパイルする
    * @return ひとつでもコンパイル不能なJSファイルがあった場合 false を返す
    */
   private void compile(Path... dirPaths) throws IOException {

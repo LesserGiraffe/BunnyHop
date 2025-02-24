@@ -20,8 +20,6 @@ package net.seapanda.bunnyhop.bhprogram.message;
 import java.util.List;
 import net.seapanda.bunnyhop.bhprogram.ThreadContext;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.InputTextResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.OutputTextResp;
@@ -31,7 +29,7 @@ import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
 
 /**
- * BhProgram の実行環境から受信した {@link BhProgramMessage} および {@link BhProgramResponse} を
+ * BhProgram の実行環境から受信した {@link BhProgramMessage} を
  * 処理する機能を規定したインタフェース.
  *
  * @author K.koike

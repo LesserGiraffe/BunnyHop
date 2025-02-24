@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessor;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
@@ -71,9 +71,8 @@ public class LocalBhRuntimeController implements BhRuntimeController {
       }
     }
     if (process != null) {
-      String fileName = filePath.getFileName().toString();
       success &= helper.runBhProgram(
-          fileName, BhConstants.BhRuntime.LOCAL_HOST, process.getInputStream());
+          filePath.toString(), BhConstants.BhRuntime.LOCAL_HOST, process.getInputStream());
     }
     if (!success) {  // リモートでのスクリプト実行失敗
       msgService.error(TextDefs.BhRuntime.Local.failedToRun.get());
@@ -119,8 +118,8 @@ public class LocalBhRuntimeController implements BhRuntimeController {
   }
 
   @Override
-  public synchronized BhRuntimeStatus send(BhProgramMessage msg) {
-    return helper.send(msg);
+  public synchronized BhRuntimeStatus send(BhProgramNotification notif) {
+    return helper.send(notif);
   }
 
   /**
@@ -131,12 +130,11 @@ public class LocalBhRuntimeController implements BhRuntimeController {
   private Process startRuntimeProcess() {
     // ""でパスを囲まない
     Process proc = null;
-    ProcessBuilder procBuilder = new ProcessBuilder(
+    var procBuilder = new ProcessBuilder(
         Utility.javaPath,
         "-cp",
         Paths.get(Utility.execPath, "Jlib").toString() + Utility.fs  + "*",
-        BhConstants.BhRuntime.BH_PROGRAM_EXEC_MAIN_CLASS,
-        "true");  // localFlag == true
+        BhConstants.BhRuntime.BH_PROGRAM_EXEC_MAIN_CLASS);
 
     procBuilder.redirectErrorStream(true);
     try {
