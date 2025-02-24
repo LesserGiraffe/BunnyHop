@@ -109,7 +109,6 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       ConnectiveNode oldParent,
       BhNode oldRoot,
       BhNode newReplaced,
-      Boolean isSpecifiedDirectly,
       UserOperation userOpe) {
     ScriptNameAndScript defined = getScript(target.getId(), EventType.ON_MOVED_FROM_CHILD_TO_WS);
     if (defined == null) {
@@ -119,7 +118,6 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
         put(BhConstants.JsIdName.BH_OLD_PARENT, oldParent);
         put(BhConstants.JsIdName.BH_OLD_ROOT, oldRoot);
         put(BhConstants.JsIdName.BH_REPLACED_NEW_NODE, newReplaced);
-        put(BhConstants.JsIdName.BH_IS_SPECIFIED_DIRECTLY, isSpecifiedDirectly);
       }};
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);

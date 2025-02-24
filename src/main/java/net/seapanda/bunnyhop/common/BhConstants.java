@@ -196,8 +196,6 @@ public class BhConstants {
     public static final String BH_NODE_TO_CONNECT = "bhNodeToConnect";
     public static final String BH_PARENT_CONNECTOR = "bhParentConnector";
     public static final String BH_NODE_TO_DELETE = "bhNodeToDelete";
-    /** D&D やカット&ペーストで, 直接指定されて子ノードからワークスペースに移動したかどうかのフラグ名. */
-    public static final String BH_IS_SPECIFIED_DIRECTLY = "bhIsSpecifiedDirectly";
     public static final String BH_NEXT_SYMBOL_NAME = "bhNextSymbolName";
     public static final String BH_USER_OPE = "bhUserOpe";
     public static final String BH_COMMON = "bhCommon";

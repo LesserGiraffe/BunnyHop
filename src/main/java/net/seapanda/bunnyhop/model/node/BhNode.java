@@ -765,17 +765,15 @@ public abstract class BhNode extends SyntaxSymbol {
      * @param oldParent 移る前にターゲットノードが接続されていた親ノード
      * @param oldRoot 移る前にターゲットノードが所属していたノードツリーのルートノード
      * @param newReplaced ワークスペースに移る際, ターゲットノードの替わりにつながったノード
-     * @param isSpecifiedDirectly ターゲットノードが, D&D やカット&ペーストで直接指定されてワークスペースに移動した場合 true
      * @param userOpe undo 用コマンドオブジェクト
      */
     public void onMovedFromChildToWs(
         ConnectiveNode oldParent,
         BhNode oldRoot,
         BhNode newReplaced,
-        Boolean isSpecifiedDirectly,
         UserOperation userOpe) {
       nodeEventInvoker.onMovedFromChildToWs(
-          BhNode.this, oldParent, oldRoot, newReplaced, isSpecifiedDirectly, userOpe);
+          BhNode.this, oldParent, oldRoot, newReplaced, userOpe);
     }
 
     /**

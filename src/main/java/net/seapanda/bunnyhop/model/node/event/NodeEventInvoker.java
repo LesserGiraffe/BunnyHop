@@ -51,7 +51,6 @@ public interface NodeEventInvoker {
    * @param oldParent 移る前に {@code target} が接続されていた親ノード
    * @param oldRoot 移る前に {@code target} が所属していたノードツリーのルートノード
    * @param newReplaced ワークスペースに移る際, {@code target} の替わりにつながったノード
-   * @param isSpecifiedDirectly  {@code target} が, D&D やカット&ペーストで直接指定されてワークスペースに移動した場合 true
    * @param userOpe undo 用コマンドオブジェクト
    */
   void onMovedFromChildToWs(
@@ -59,7 +58,6 @@ public interface NodeEventInvoker {
       ConnectiveNode oldParent,
       BhNode oldRoot,
       BhNode newReplaced,
-      Boolean isSpecifiedDirectly,
       UserOperation userOpe);
 
   /**

@@ -5,6 +5,7 @@
   nodeStyleID="MutexBlockDecl.json"
   onCompanionNodesCreating="CreateMutexBlockCompanions.js"
   onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
+  onMovedFromWsToChild="OnGlobalDataDeclMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"

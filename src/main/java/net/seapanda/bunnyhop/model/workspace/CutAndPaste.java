@@ -145,7 +145,6 @@ public class CutAndPaste {
           swappedNodes.getFirst().newNode().findParentNode(),
           swappedNodes.getFirst().newNode().findRootNode(),
           swappedNodes.getFirst().newNode(),
-          true,
           userOpe);
     }
     for (var swapped : swappedNodes) {

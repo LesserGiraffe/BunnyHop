@@ -5,6 +5,7 @@
   nodeStyleID="ColorListDecl.json"
   onCompanionNodesCreating="CreateListDeclCompanions.js"
   onMovedFromChildToWS="OnVarDeclMovedToWS.js"
+  onMovedFromWsToChild="OnVarDeclMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"

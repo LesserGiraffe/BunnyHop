@@ -9,13 +9,12 @@
     'bhNodePlacer': bhNodePlacer
   };
 
-  // newNode の外部末尾ノードに oldNode を接続できる場合, 接続する.
-  function appendRemovedNode(newNode, oldNode, isSpecifiedDirectly, bhUserOpe) {
-    let outerEnd = newNode.findOuterNode(-1);
-    if (outerEnd.canBeReplacedWith(oldNode)
-        && !isSpecifiedDirectly
-        && !newNode.equals(outerEnd)) { // return などの外部ノードを持たないノードは newNode == outerEnd となる.
-      bhNodePlacer.replaceChild(outerEnd, oldNode, bhUserOpe);
+  // nodeA の外部末尾ノードに nodeB を接続できる場合, 接続する.
+  function appendRemovedNode(nodeA, nodeB, bhUserOpe) {
+    let outerEnd = nodeA.findOuterNode(-1);
+    if (outerEnd.canBeReplacedWith(nodeB)
+        && !nodeA.equals(outerEnd)) { // return などの外部ノードを持たないノードは newNode == outerEnd となる.
+      bhNodePlacer.replaceChild(outerEnd, nodeB, bhUserOpe);
       bhNodePlacer.deleteNode(outerEnd, bhUserOpe);
     }
   }

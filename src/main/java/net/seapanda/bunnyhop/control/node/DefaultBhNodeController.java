@@ -243,7 +243,6 @@ public class DefaultBhNodeController implements BhNodeController {
         ddInfo.latestParent,
         ddInfo.latestRoot,
         model.getLastReplaced(),
-        true,
         ddInfo.context.userOpe());
   }
 
@@ -273,7 +272,7 @@ public class DefaultBhNodeController implements BhNodeController {
     oldChildNode.getViewProxy().setPosOnWorkspace(posOnWs, userOpe);
     // 接続変更時のスクリプト実行
     oldChildNode.getEventInvoker().onMovedFromChildToWs(
-        oldParentOfReplaced, oldRootOfReplaced, model, false, userOpe);
+        oldParentOfReplaced, oldRootOfReplaced, model, userOpe);
     // 子ノード入れ替え時のスクリプト実行
     for (var swapped : swappedNodes) {
       swapped.newNode().findParentNode().getEventInvoker().onChildReplaced(
