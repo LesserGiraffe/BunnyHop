@@ -67,6 +67,7 @@ public class BhNodePlacer {
     tmp.addAll(deleteNodes(derivatives, userOpe));
     SequencedSet<Swapped> swappedNodes = delete(node, userOpe);
     swappedNodes.addAll(tmp);
+    swappedNodes.removeIf(pair -> pair.newNode().isDeleted());
     return swappedNodes;
   }
 
@@ -85,6 +86,7 @@ public class BhNodePlacer {
     for (BhNode node : nodes) {
       swappedNodes.addAll(deleteNode(node, userOpe));
     }
+    swappedNodes.removeIf(pair -> pair.newNode().isDeleted());
     return swappedNodes;
   }
 
