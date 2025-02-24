@@ -176,6 +176,7 @@ public class MenuPanelController {
     this.remoteCtrl = remoteCtrl;
     this.copyAndPaste = copyAndPaste;
     this.cutAndPaste = cutAndPaste;
+    this.msgService = msgService;
     WorkspaceSet wss = wssCtrl.getWorkspaceSet();
     copyBtn.setOnAction(action -> copy(wss)); // コピー
     cutBtn.setOnAction(action -> cut(wss)); // カット

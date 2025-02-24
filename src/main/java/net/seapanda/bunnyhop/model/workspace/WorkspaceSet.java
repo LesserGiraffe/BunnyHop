@@ -395,6 +395,9 @@ public class WorkspaceSet {
 
     /** このワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを呼ぶ. */
     private void invokeOnNodeAdded(Workspace ws, BhNode node, UserOperation userOpe) {
+      if (node.getCompileErrState()) {
+        WorkspaceSet.this.compileErrNodes.addLast(node);
+      }
       onNodeAddedList.forEach(handler -> handler.accept(WorkspaceSet.this, ws, node, userOpe));
     }
 
@@ -422,6 +425,7 @@ public class WorkspaceSet {
 
     /** このワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを呼ぶ. */
     private void invokeOnNodeRemoved(Workspace ws, BhNode node, UserOperation userOpe) {
+      WorkspaceSet.this.compileErrNodes.remove(node);
       onNodeRemovedList.forEach(handler -> handler.accept(WorkspaceSet.this, ws, node, userOpe));
     }
 

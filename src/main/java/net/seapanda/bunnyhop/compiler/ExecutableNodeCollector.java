@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.compiler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.SequencedSet;
 import javafx.scene.control.Alert;
@@ -26,8 +28,11 @@ import net.seapanda.bunnyhop.bhprogram.ExecutableNodeSnapshot;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.model.BhNodePlacer;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
+import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
@@ -101,14 +106,35 @@ public class ExecutableNodeCollector {
     return btnType
         .map(type -> {
           if (type.equals(ButtonType.YES)) {
-            BhNodePlacer.deleteNodes(compileErrNodes, userOpe);
-            return true;
+            return deleteCompileErrorNodes(compileErrNodes, userOpe);
           }
           return false;
         })
         .orElse(false);
   }
 
+  /** コンパイルエラーノードを削除する. */
+  private boolean deleteCompileErrorNodes(SequencedSet<BhNode> nodes, UserOperation userOpe) {
+    var nodesToDelete = nodes.stream()
+        .filter(node -> node.getEventInvoker().onDeletionRequested(
+            new ArrayList<>(nodes), CauseOfDeletion.COMPILE_ERROR, userOpe))
+        .toList();
+    List<Swapped> swappedNodes = BhNodePlacer.deleteNodes(nodesToDelete, userOpe);
+    for (var swapped : swappedNodes) {
+      swapped.newNode().findParentNode().getEventInvoker().onChildReplaced(
+          swapped.oldNode(),
+          swapped.newNode(),
+          swapped.newNode().getParentConnector(),
+          userOpe);
+    }
+    if (nodesToDelete.size() != nodes.size()) {
+      LogManager.logger().error("Cannot delete compile error nodes");
+      msgService.error(TextDefs.Compile.cannotDeleteErrorNodes.get());
+      return false;
+    }
+    return true;
+  }
+  
   /**
    * 実行対象のノードを探す.
    *

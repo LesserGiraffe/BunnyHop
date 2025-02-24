@@ -44,7 +44,7 @@ class SftpProgressMonitorImpl implements SftpProgressMonitor {
   /** ファイル転送キャンセルフラグ (ラッチされる). */
   private boolean fileCopyHasBeenCancelled = false;
   /** アプリケーションユーザにメッセージを出力するためのオブジェクト. */
-  private MessageService msgService;
+  private final MessageService msgService;
 
   /**
    * コンストラクタ.

@@ -30,7 +30,7 @@ import net.seapanda.bunnyhop.service.MessageService;
   */
 public class JsonProjectExporter implements ProjectExporter {
 
-  private MessageService msgService;
+  private final MessageService msgService;
 
   /** コンストラクタ. */
   public JsonProjectExporter(MessageService msgService) {

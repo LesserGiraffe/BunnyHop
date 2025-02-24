@@ -266,6 +266,10 @@ public class TextDefs {
           TextId.of("msg", "compile", "inform-select-node-to-execute", "body"), params);
     }
 
+    /** コンパイルエラーノードの削除に失敗したときのメッセージ. */
+    public static Getter cannotDeleteErrorNodes = params -> db.get(
+        TextId.of("msg", "compile", "cannot-delete-error-nodes"), params);
+
     public static Getter succeeded = params -> db.get(
         TextId.of("msg", "compile", "succeeded"), params);
   }

@@ -88,19 +88,19 @@
       return;
     }
 
-    let toBeReaplced = findNodeWhoseParentIsNotInList(startNode, ignoredList);    
-    if (node === toBeReaplced) {
+    let toBeReplced = findNodeWhoseParentIsNotInList(startNode, ignoredList);    
+    if (node === toBeReplced) {
       return;
-    } else if (toBeReaplced === null) {
+    } else if (toBeReplced === null || !canConnect(toBeReplced.getParentConnector(), node)) {
       // 接続先が無い場合は, ワークスペースへ
       let posOnWS = node.getViewProxy().getPosOnWorkspace()      
       bhNodePlacer.moveToWs(node.getWorkspace(), node, posOnWS.x, posOnWS.y, userOpe);
     } else {
       let posOnWS = node.getViewProxy().getPosOnWorkspace()
       bhNodePlacer.moveToWs(node.getWorkspace(), node, posOnWS.x, posOnWS.y, userOpe);
-      bhNodePlacer.exchangeNodes(node, toBeReaplced, userOpe);
-      if (notToReconnect.indexOf(String(toBeReaplced.getSymbolName())) >= 0) {
-        bhNodePlacer.deleteNode(toBeReaplced, userOpe)
+      bhNodePlacer.exchangeNodes(node, toBeReplced, userOpe);
+      if (notToReconnect.indexOf(String(toBeReplced.getSymbolName())) >= 0) {
+        bhNodePlacer.deleteNode(toBeReplced, userOpe)
       }
     }
   }
@@ -119,6 +119,14 @@
     return node;
   }
   
+  /** cnctr に node が接続可能か調べる. */
+  function canConnect(cnctr, node) {
+    if (cnctr === null || node === null) {
+      return false;
+    }
+    return cnctr.isConnectableWith(node);
+  }
+
   /**
    * static-type の式である場合 true を返す.
    */
