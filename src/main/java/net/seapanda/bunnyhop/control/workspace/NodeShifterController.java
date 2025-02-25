@@ -164,7 +164,7 @@ public class NodeShifterController {
     if (nodeView == null || nodeView.getModel().isEmpty()) {
       return;
     }
-    updateMultiNodeShifter(nodeView.getModel().get());
+    updateNodeShifter(nodeView.getModel().get());
   }
 
   /**
@@ -173,11 +173,11 @@ public class NodeShifterController {
    * @param node 位置が変更されたノード
    */
   private void notifyNodeSelectionStateChanged(BhNode node) {
-    updateMultiNodeShifter(node);
+    updateNodeShifter(node);
   }
 
   /** ノードシフタの表示を更新する. */
-  private void updateMultiNodeShifter(BhNode node) {
+  private void updateNodeShifter(BhNode node) {
     if (node != null
         && node.getWorkspace() == ws
         && node.isRoot()

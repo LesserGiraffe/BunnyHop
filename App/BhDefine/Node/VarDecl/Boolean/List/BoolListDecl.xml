@@ -9,6 +9,7 @@
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
+  onDragStarted="OnVarDeclDragStarted.js"
   version="bh-1.0">
 
   <Derivation derivationID="dervIdIdentifierName" derivativeID="idBoolList"/>

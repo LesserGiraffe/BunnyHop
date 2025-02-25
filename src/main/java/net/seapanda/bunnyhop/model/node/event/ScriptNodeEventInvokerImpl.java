@@ -289,7 +289,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     try {
       defined.script().exec(cx, scope);
     } catch (Exception e) {
-      LogManager.logger().error(defined.name() + "\n" + e);
+      LogManager.logger().error(String.format(
+          "'%s' must return a function that returns a boolean value.\n%s", defined.name(), e));
     } finally {
       Context.exit();
     }

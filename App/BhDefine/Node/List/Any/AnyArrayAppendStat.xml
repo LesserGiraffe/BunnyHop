@@ -9,6 +9,7 @@
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
+  onDragStarted="OnStatDragStarted.js"
   version="bh-1.0">
 
   <ConnectorSection name="StatSctn">

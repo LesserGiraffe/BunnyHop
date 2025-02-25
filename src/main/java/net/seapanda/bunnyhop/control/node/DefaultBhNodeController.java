@@ -111,7 +111,6 @@ public class DefaultBhNodeController implements BhNodeController {
         propagateEvent(model.findParentNode(), event);
         return;
       }
-
       view.getWorkspaceView().getRootNodeViews().forEach(
           nodeView -> nodeView.getLookManager().hideShadow(false));
       view.getLookManager().showShadow(true);
@@ -177,11 +176,11 @@ public class DefaultBhNodeController implements BhNodeController {
         return;
       }
       ddInfo.dragging = true;
+      model.getEventInvoker().onDragStarted(toEventInfo(event), ddInfo.context.userOpe());
       // 子ノードでかつ取り外し可能 -> ワークスペースへ
       if (model.isRemovable()) {
         toWorkspace();
       }
-      model.getEventInvoker().onDragStarted(toEventInfo(event), ddInfo.context.userOpe());
       toFront();
     } catch (Throwable e) {
       terminateDnd();
@@ -264,13 +263,13 @@ public class DefaultBhNodeController implements BhNodeController {
     // 重なっているノードをこのノードと入れ替え
     final SequencedSet<Swapped> swappedNodes =
         BhNodePlacer.replaceChild(oldChildNode, model, userOpe);
-    // 接続変更時のスクリプト実行
-    model.getEventInvoker().onMovedFromWsToChild(oldChildNode, userOpe);
-
+    // ワークスペースに移ったノードの位置更新
     Vec2D posOnWs = oldChildNode.getViewProxy().getPosOnWorkspace();
     posOnWs.add(BhConstants.LnF.REPLACED_NODE_SHIFT, BhConstants.LnF.REPLACED_NODE_SHIFT);
     oldChildNode.getViewProxy().setPosOnWorkspace(posOnWs, userOpe);
-    // 接続変更時のスクリプト実行
+    // Workspace から 子ノードに移動したときのスクリプト実行
+    model.getEventInvoker().onMovedFromWsToChild(oldChildNode, userOpe);
+    // 子ノードから Workspace に移動したときのスクリプト実行
     oldChildNode.getEventInvoker().onMovedFromChildToWs(
         oldParentOfReplaced, oldRootOfReplaced, model, userOpe);
     // 子ノード入れ替え時のスクリプト実行
@@ -354,13 +353,15 @@ public class DefaultBhNodeController implements BhNodeController {
         model.select(userOpe);
       }
     } else if (model.isSelected()) {
-      // 末尾ノードまで一気に選択
-      BhNode outerNode = model.findOuterNode(-1);
-      while (outerNode != model) {
-        if (!outerNode.isSelected() && outerNode.isMovable()) {
-          outerNode.select(userOpe);
+      if (event.getClickCount() == 2) {
+        // 末尾ノードまで一気に選択
+        BhNode outerNode = model.findOuterNode(-1);
+        while (outerNode != model) {
+          if (!outerNode.isSelected() && outerNode.isMovable()) {
+            outerNode.select(userOpe);
+          }
+          outerNode = outerNode.findParentNode();
         }
-        outerNode = outerNode.findParentNode();
       }
     } else {
       model.getWorkspace().getSelectedNodes().forEach(selected -> selected.deselect(userOpe));

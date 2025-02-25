@@ -74,10 +74,12 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   private static final double MAX_Z_POS_OF_NODE_VIEW_TREES = -2e15;
   private static final double Z_POS_OF_RECT_SEL_TOOL =
       MAX_Z_POS_OF_NODE_VIEW_TREES + Z_POS_INTERVAL_BETWEEN_NODE_VIEW_TREES;
+  private static final double Z_POS_OF_NODE_SHIFTER =
+      MAX_Z_POS_OF_NODE_VIEW_TREES + Z_POS_INTERVAL_BETWEEN_NODE_VIEW_TREES - 1;
 
   /** 操作対象のビュー. */
   private @FXML ScrollPane wsScrollPane;
-  /** {@link BhNode} を保持するペイン. */
+  /** {@link BhNode} を置くペイン. */
   private @FXML WorkspaceViewPane wsPane;
   /** エラー情報表示用. */
   private @FXML WorkspaceViewPane errInfoPane;
@@ -464,6 +466,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
   @Override
   public void addNodeShifterView(NodeShifterView view) {
+    view.setViewOrder(Z_POS_OF_NODE_SHIFTER);
     wsPane.getChildren().add(view);
   }
 

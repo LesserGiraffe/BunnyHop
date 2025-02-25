@@ -86,7 +86,7 @@
         || ignoredList.indexOf(node) >= 0) {
       return;
     }
-
+    ignoredList = ignoredList || [];
     let toBeReplced = findNodeWhoseParentIsNotInList(startNode, ignoredList);    
     if (node === toBeReplced) {
       return;
@@ -188,6 +188,24 @@
     return findOuterNotSelected(outerNode);
   }
 
+  /**
+   * node とその先祖ノードを順にたどり, 親ノードが選択されていないノードを返す.
+   */
+  function findNodeWhoseParentIsNotSelected(node) {
+    if (node === null) {
+      return null;
+    }
+    let parent = node.findParentNode();
+    if (parent === null) {
+      return null;
+    }
+    if (parent.isSelected()) {
+      return findNodeWhoseParentIsNotSelected(parent);
+    }
+    return node;
+  }
+  
+
   bhCommon['appendRemovedNode'] = appendRemovedNode;
   bhCommon['addNewNodeToWS'] = addNewNodeToWS;
   bhCommon['replaceDescendant'] = replaceDescendant;
@@ -198,5 +216,6 @@
   bhCommon['createBhNode'] = createBhNode;
   bhCommon['changeDefaultNode'] = changeDefaultNode;
   bhCommon['findOuterNotSelected'] = findOuterNotSelected;
+  bhCommon['findNodeWhoseParentIsNotSelected'] = findNodeWhoseParentIsNotSelected;
   return bhCommon;
 })();
