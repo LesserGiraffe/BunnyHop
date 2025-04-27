@@ -185,7 +185,7 @@ public class TextNode extends DerivativeBase<TextNode> {
   }
 
   @Override
-  public void findSymbolInDescendants(
+  public void findDescendantOf(
       int generation,
       boolean toBottom,
       List<SyntaxSymbol> foundSymbolList,

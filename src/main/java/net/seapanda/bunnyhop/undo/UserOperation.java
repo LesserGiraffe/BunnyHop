@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.layout.Pane;
+import net.seapanda.bunnyhop.bhprogram.debugger.CallStackItem;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.TextNode;
@@ -190,6 +191,24 @@ public class UserOperation {
    */
   public void pushCmdOfDeselectNode(BhNode node) {
     subOpeList.addLast(new DeselectNodeCmd(node));
+  }
+
+  /**
+   * {@link CallStackItem} の選択をコマンド化してサブ操作リストに加える.
+   *
+   * @param item 選択されたコールスタックアイテム
+   */
+  public void pushCmdOfSelectCallStackItem(CallStackItem item) {
+    subOpeList.addLast(new SelectCallStackItemCmd(item));
+  }
+
+  /**
+   * {@link CallStackItem} の選択解除をコマンド化してサブ操作リストに加える.
+   *
+   * @param item 選択解除されたコールスタックアイテム
+   */
+  public void pushCmdOfDeselectCallStackItem(CallStackItem item) {
+    subOpeList.addLast(new DeselectCallStackItemCmd(item));
   }
 
   /**
@@ -578,6 +597,38 @@ public class UserOperation {
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
       node.select(inverseCmd);
+    }
+  }
+
+  /** {@link CallStackItem} の選択を表すコマンド. */
+  private static class SelectCallStackItemCmd implements SubOperation {
+
+    /** 選択されたコールスタックアイテム. */
+    private final CallStackItem item;
+
+    public SelectCallStackItemCmd(CallStackItem item) {
+      this.item = item;
+    }
+
+    @Override
+    public void doInverseOperation(UserOperation inverseCmd) {
+      item.deselect(inverseCmd);
+    }
+  }
+
+  /** {@link CallStackItem} の選択解除を表すコマンド. */
+  private static class DeselectCallStackItemCmd implements SubOperation {
+
+    /** 選択解除されたコールスタックアイテム. */
+    private final CallStackItem item;
+
+    public DeselectCallStackItemCmd(CallStackItem item) {
+      this.item = item;
+    }
+
+    @Override
+    public void doInverseOperation(UserOperation inverseCmd) {
+      item.select(inverseCmd);
     }
   }
 

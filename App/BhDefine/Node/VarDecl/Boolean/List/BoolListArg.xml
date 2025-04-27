@@ -3,6 +3,7 @@
   bhNodeID="idBoolListArg"
   name="BoolListArg"
   nodeStyleID="BoolListArg.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection>

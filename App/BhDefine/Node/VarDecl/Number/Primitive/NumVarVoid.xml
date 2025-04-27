@@ -4,4 +4,5 @@
   name="NumVarVoid"
   nodeStyleID="NumVarVoid.json"
   onMovedFromChildToWS="DeleteNode.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0"/>

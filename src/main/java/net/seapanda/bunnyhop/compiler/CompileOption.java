@@ -47,7 +47,7 @@ public class CompileOption {
     private boolean isDebug = true;
     private boolean withComments = true;
     public Path outFile = Paths.get(
-        Utility.execPath, BhConstants.Path.COMPILED_DIR, BhConstants.Path.APP_FILE_NAME_JS);
+        Utility.execPath, BhConstants.Path.Dir.COMPILED, BhConstants.Path.File.APP_FILE_NAME_JS);
 
     public Builder withComments(boolean withComments) {
       this.withComments = withComments;

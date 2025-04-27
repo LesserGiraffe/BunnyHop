@@ -1,6 +1,7 @@
 package net.seapanda.bunnyhop.bhprogram;
 
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
+import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
 
 /**
  * BhProgram に対する以下の操作を規定したインタフェース.

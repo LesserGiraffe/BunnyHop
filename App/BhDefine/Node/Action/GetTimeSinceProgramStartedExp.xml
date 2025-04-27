@@ -3,6 +3,7 @@
   bhNodeID="idGetTimeSinceProgramStartedExp"
   name="GetTimeSinceProgramStartedExp"
   nodeStyleID="GetTimeSinceProgramStartedExp.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <Section name="NumExpSctn"/>

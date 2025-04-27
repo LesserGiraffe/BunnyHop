@@ -55,7 +55,7 @@ public class WorkspaceController {
   private Workspace model;
   private WorkspaceView view;
   /** モデルへのアクセスの通知先となるオブジェクト. */
-  private final ModelAccessNotificationService notificationService;
+  private final ModelAccessNotificationService notifService;
   private final DndEventInfo ddInfo = new DndEventInfo();
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
   private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
@@ -67,7 +67,7 @@ public class WorkspaceController {
    * @param model 操作対象のモデル
    * @param view 操作対象のするビュー
    * @param nodeShifterView 操作対象のノードシフタビュー
-   * @param notificationService モデルへのアクセスの通知先となるオブジェクト
+   * @param notifService モデルへのアクセスの通知先となるオブジェクト
    * @param proxy ノード選択ビューのプロキシオブジェクト
    * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
    */
@@ -75,17 +75,17 @@ public class WorkspaceController {
       Workspace model,
       WorkspaceView view,
       NodeShifterView nodeShifterView,
-      ModelAccessNotificationService notificationService,
+      ModelAccessNotificationService notifService,
       BhNodeSelectionViewProxy proxy,
       MessageService msgService) {
     this.model = model;
     this.view = view;
-    this.notificationService = notificationService;
+    this.notifService = notifService;
     this.nodeSelectionViewProxy = proxy;
     this.msgService = msgService;
     model.setViewProxy(new WorkspaceViewProxyImpl());
     view.addNodeShifterView(nodeShifterView);
-    new NodeShifterController(nodeShifterView, model, notificationService);
+    new NodeShifterController(nodeShifterView, model, notifService);
     setEventHandlers();
   }
 
@@ -110,7 +110,7 @@ public class WorkspaceController {
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
-      ddInfo.context = notificationService.begin();   
+      ddInfo.context = notifService.begin();   
       ddInfo.isDndFinished = false;
       if (!event.isShiftDown()) {
         nodeSelectionViewProxy.hideAll();
@@ -244,7 +244,7 @@ public class WorkspaceController {
   private void terminateDnd() {
     mouseCtrlLock.unlock();
     ddInfo.reset();
-    notificationService.end();
+    notifService.end();
   }
 
   /** ワークスペースビューの削除命令を受けた時の処理. */
@@ -263,14 +263,14 @@ public class WorkspaceController {
 
   /** ワークスペースビュー削除時の処理. */
   private void onClosed() {
-    Context context = notificationService.begin();
+    Context context = notifService.begin();
     try {
       WorkspaceSet wss = model.getWorkspaceSet();
       if (wss != null) {
         wss.removeWorkspace(model, context.userOpe());
       }
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 

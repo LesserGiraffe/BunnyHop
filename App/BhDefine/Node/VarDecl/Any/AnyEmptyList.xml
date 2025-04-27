@@ -4,6 +4,7 @@
   name="AnyEmptyList"
   nodeStyleID="AnyEmptyList.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <Section name="AnyListSctn"/>

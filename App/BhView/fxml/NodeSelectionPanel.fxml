@@ -8,7 +8,7 @@
   type="ScrollPane"
   HbarPolicy="AS_NEEDED"
   VbarPolicy="AS_NEEDED"
-  StackPane.alignment="top_right"
+  StackPane.alignment="TOP_RIGHT"
   fx:id="nodeSelectionPanelBase">
   <Pane fx:id="nodeSelectionPanelWrapper">
     <Pane fx:id="nodeSelectionPanel"/>

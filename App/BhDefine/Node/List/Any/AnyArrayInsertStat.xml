@@ -10,6 +10,7 @@
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
   onDragStarted="OnStatDragStarted.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="StatSctn">
@@ -31,9 +32,8 @@
 
     <Connector
       bhConnectorID="idAnyArrayInsertStat.cnctr3"
-      name="Arg3"
-      defaultBhNodeID="idPositiveIntLiteralExp"
-      onConnectabilityChecking="NumExpCnct.js"/>
+      import="idNumExpCnctr"
+      name="Arg3"/>
     
     <Connector
       bhConnectorID="idAnyArrayInsertStat.cnctr4"

@@ -28,6 +28,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.BhProgramController;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
+import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.control.nodeselection.BhNodeCategoryListController;
@@ -43,6 +44,7 @@ import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.service.KeyCodeConverter;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.undo.UndoRedoAgent;
+import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeShowcaseBuilder;
 import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 
@@ -54,8 +56,8 @@ import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 public class FoundationController {
 
   //View
-  @FXML VBox foundationVbox;
-  @FXML SplitPane verticalSplitPane;
+  @FXML private VBox foundationVbox;
+  @FXML private SplitPane verticalSplitPane;
 
   //Controller
   @FXML private MenuPanelController menuPanelController;
@@ -73,8 +75,9 @@ public class FoundationController {
       WorkspaceSet wss,
       BhNodeCategoryTree nodeCategoryList,
       BhNodeShowcaseBuilder builder,
-      ModelAccessNotificationService notificationService,
+      ModelAccessNotificationService notifService,
       WorkspaceFactory wsFactory,
+      DebugViewFactory debugViewFactory,
       UndoRedoAgent undoRedoAgent,
       BhNodeSelectionViewProxy proxy,
       BhProgramController localCtrl,
@@ -83,14 +86,15 @@ public class FoundationController {
       ProjectExporter exporter,
       CopyAndPaste copyAndPaste,
       CutAndPaste cutAndPaste,
-      MessageService msgService) {
+      MessageService msgService,
+      Debugger debugger) {
     this.localCtrl = localCtrl;
     this.remoteCtrl = remoteCtrl;
-    workspaceSetController.initialize(wss);
+    workspaceSetController.initialize(wss, debugger, debugViewFactory);
     boolean success = nodeCategoryListController.initialize(builder, nodeCategoryList);
     success &= menuPanelController.initialize(
       workspaceSetController,
-      notificationService,
+      notifService,
       wsFactory,
       undoRedoAgent,
       proxy,
@@ -98,12 +102,13 @@ public class FoundationController {
       remoteCtrl,
       copyAndPaste,
       cutAndPaste,
-      msgService);
+      msgService,
+      debugger);
     if (!success) {
       return false;
     }
     menuBarController.initialize(
-        wss, notificationService, undoRedoAgent, importer, exporter, msgService);
+        wss, notifService, undoRedoAgent, importer, exporter, msgService);
     setKeyEvents();
     return true;
   }
@@ -137,7 +142,7 @@ public class FoundationController {
     }
     // スクロールペインが矢印やスペースキーでスクロールしないようにする。
     if (target instanceof ScrollPane) {
-      if (((ScrollPane) target).getId().equals(BhConstants.Fxml.ID_WS_SCROLL_PANE)) {
+      if (((ScrollPane) target).getId().equals(BhConstants.UiId.WS_SCROLL_PANE)) {
         return true;
       }
     }

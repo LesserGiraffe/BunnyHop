@@ -4,6 +4,7 @@
   name="BoolList"
   nodeStyleID="BoolList.json"
   onCompileErrorChecking="IsOutOfScope.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="BoolListSctn">

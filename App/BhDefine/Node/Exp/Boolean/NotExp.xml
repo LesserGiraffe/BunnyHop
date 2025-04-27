@@ -3,6 +3,7 @@
   bhNodeID="idNotExp"
   name="NotExp"
   nodeStyleID="NotExp.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="BoolExpSctn">

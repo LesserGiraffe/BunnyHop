@@ -19,10 +19,7 @@ package net.seapanda.bunnyhop.model.node;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.SequencedSet;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
@@ -35,7 +32,6 @@ import net.seapanda.bunnyhop.model.node.parameter.BhNodeParameters;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeVersion;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeViewStyleId;
 import net.seapanda.bunnyhop.model.node.parameter.DerivationId;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperation;
@@ -49,9 +45,6 @@ import org.apache.commons.lang3.function.TriConsumer;
  * @author K.Koike
  */
 public abstract class BhNode extends SyntaxSymbol {
-
-  /** ワークスペースに存在しているノードとそのノードの {@link InstanceId} を value と key に持つマップ. */
-  private static final Map<InstanceId, BhNode> instIdToNodeInWs = new ConcurrentHashMap<>();
 
   private final BhNodeParameters params;
   /** このノードを繋いでいるコネクタ. */
@@ -366,11 +359,6 @@ public abstract class BhNode extends SyntaxSymbol {
     }
     Workspace oldWs = this.workspace;
     this.workspace = workspace;
-    if (workspace == null) {
-      instIdToNodeInWs.remove(getInstanceId());
-    } else {
-      instIdToNodeInWs.put(getInstanceId(), this);
-    }
     getEventManager().invokeOnWorkspaceChanged(oldWs, userOpe);
     // undo 時に Workspace.addNode の逆操作とこのコマンドの逆操作が重複するが問題ない.
     // このメソッドの呼ばれ方によらず, このメソッドの逆操作をするために, ここで操作コマンドを追加する.
@@ -515,7 +503,7 @@ public abstract class BhNode extends SyntaxSymbol {
   }
 
   @Override
-  public SyntaxSymbol findSymbolInAncestors(String symbolName, int generation, boolean toTop) {
+  public SyntaxSymbol findAncestorOf(String symbolName, int generation, boolean toTop) {
     if (generation == 0) {
       if (symbolNameMatches(symbolName)) {
         return this;
@@ -528,7 +516,7 @@ public abstract class BhNode extends SyntaxSymbol {
     if (parentConnector == null) {
       return null;
     }
-    return parentConnector.findSymbolInAncestors(symbolName, Math.max(0, generation - 1), toTop);
+    return parentConnector.findAncestorOf(symbolName, Math.max(0, generation - 1), toTop);
   }
 
   /** このノードに登録されたイベントハンドラを呼び出すオブジェクトを返す. */
@@ -575,14 +563,12 @@ public abstract class BhNode extends SyntaxSymbol {
   }
 
   /**
-   * {@link InstanceId} が {@code id} である {@link BhNode} がワークスペース上にあれば, それを返す.
+   * このノードのエイリアスを取得する.
    *
-   * @param id この {@link InstanceId} を持つ {@link BhNode} をワークスペースから探す.
-   * @return {@link InstanceId} が {@code id} でかつワークスペース上にある {@link BhNode}.
-   *         存在しない場合は empty.
+   * @return このノードのエイリアス
    */
-  public static final Optional<BhNode> getBhNodeOf(InstanceId id) {
-    return Optional.ofNullable(instIdToNodeInWs.get(id));
+  public String getAlias() {
+    return nodeEventInvoker.onAliasAsked(this);
   }
 
   /**
@@ -686,7 +672,7 @@ public abstract class BhNode extends SyntaxSymbol {
      * @param handler 追加するイベントハンドラ
      */
     public void addOnNodeReplaced(
-        TriConsumer<? super BhNode, ? super BhNode, ? super UserOperation> handler) {
+        TriConsumer<? super BhNode, ? super BhNode, ? super UserOperation> handler) {      
       onNodeReplacedList.addLast(handler);
     }
 

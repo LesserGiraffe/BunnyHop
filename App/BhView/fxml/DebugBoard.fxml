@@ -10,21 +10,38 @@
 <Tab
   xmlns:fx="http://javafx.com/fxml"
   fx:id="debugTab"
-  fx:controller="net.seapanda.bunnyhop.control.DebugBoardController"
+  fx:controller="net.seapanda.bunnyhop.control.debugger.DebugBoardController"
   text="$debugBoardName.text">
   <fx:define>
     <TextFetcher fx:id="debugBoardName" textId="gui,noticeboards,debug-board-name"/>
   </fx:define>
-  <ScrollPane
-    fx:id="debugScrollPane"
-    HbarPolicy="AS_NEEDED"
-    VbarPolicy="AS_NEEDED"
-    FitToWidth="true"
-    FitToHeight="true">
-    <content>
-      <StackPane fx:id="debugStackPane">
-        <ComboBox fx:id="threadSelector" StackPane.Alignment="TOP_RIGHT"/>
-      </StackPane>
-    </content>
-  </ScrollPane>
+  <content>
+    <SplitPane
+      fx:id="debugBoardSplitPane">
+
+      <VBox fx:id="callStackVBox">
+        <ScrollPane
+          fx:id="callStackScrollPane"
+          HbarPolicy="AS_NEEDED"
+          VbarPolicy="NEVER"
+          FitToWidth="true"
+          FitToHeight="true"
+          VBox.vgrow="ALWAYS">    
+        </ScrollPane>
+      </VBox>
+
+      <HBox>
+        <ScrollPane
+          fx:id="variableScrollPane"
+          HbarPolicy="AS_NEEDED"
+          VbarPolicy="AS_NEEDED"
+          FitToWidth="true"
+          FitToHeight="true"
+          HBox.hgrow="ALWAYS">
+          <VBox fx:id="variablePane"/>
+        </ScrollPane>
+        <fx:include fx:id="threadSelector" source="ThreadSelector.fxml"/>
+      </HBox>
+    </SplitPane>
+  </content>
 </Tab>

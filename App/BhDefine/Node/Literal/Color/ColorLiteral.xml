@@ -4,6 +4,7 @@
   name="ColorLiteralExp"
   nodeStyleID="ColorLiteralExp.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="ColorExpSctn">

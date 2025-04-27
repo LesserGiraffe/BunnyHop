@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.Insets?>
+<?import net.seapanda.bunnyhop.common.*?>
+
+<HBox
+  xmlns:fx="http://javafx.com/fxml"
+  fx:id="searchBoxViewBase"
+  fx:controller="net.seapanda.bunnyhop.control.SearchBoxController">
+  <fx:define>
+    <Rem fx:id="searchWordFieldMargin" rem="0.3"/> 
+    <Rem fx:id="regexSwitchMargin" rem="0.2"/>
+    <Rem fx:id="caseSensitiveSwitchMargin" rem="0.2"/>
+    <Rem fx:id="findPrevButtonMargin" rem="0.5"/>
+    <Rem fx:id="findNextButtonMargin" rem="0.2"/>
+    <TextFetcher fx:id="close" textId="gui,search-box,close"/>
+    <TextFetcher fx:id="findNext" textId="gui,search-box,find-next"/>
+    <TextFetcher fx:id="findPrev" textId="gui,search-box,find-prev"/>
+  </fx:define>
+
+  <Button fx:id="searchBoxCloseButton" text="$close.text" styleClass="flatButton">
+  </Button>
+
+  <TextField fx:id="searchWordField">
+    <HBox.margin>
+      <Insets left="$searchWordFieldMargin.rem" />
+    </HBox.margin>
+  </TextField>
+
+  <ToggleButton
+    fx:id="regexButton"
+    text="[.*]"
+    styleClass="flatButton">
+    <HBox.margin>
+      <Insets left="$regexSwitchMargin.rem" />
+    </HBox.margin>
+  </ToggleButton>
+
+  <ToggleButton
+    fx:id="caseSensitiveButton"
+    text="[Aa]"
+    styleClass="flatButton">
+    <HBox.margin>
+      <Insets left="$caseSensitiveSwitchMargin.rem" />
+    </HBox.margin>
+  </ToggleButton>
+
+  <Button fx:id="findPrevButton" text="$findPrev.text" styleClass="flatButton">
+    <HBox.margin>
+      <Insets left="$findPrevButtonMargin.rem" />
+    </HBox.margin>
+  </Button>
+
+  <Button fx:id="findNextButton" text="$findNext.text" styleClass="flatButton">
+    <HBox.margin>
+      <Insets left="$findNextButtonMargin.rem" />
+    </HBox.margin>
+  </Button>
+
+</HBox>

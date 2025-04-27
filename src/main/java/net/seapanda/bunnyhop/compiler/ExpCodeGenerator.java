@@ -74,7 +74,7 @@ class ExpCodeGenerator {
 
     } else if (SymbolNames.Literal.EXP_LIST.contains(expSymbolName)) {
       return genExpression(
-          code, expNode.findSymbolInDescendants("*", "Literal", "*"), nestLevel, option);
+          code, expNode.findDescendantOf("*", "Literal", "*"), nestLevel, option);
 
     } else if (SymbolNames.PreDefFunc.EXP_LIST.contains(expSymbolName)) {
       return genPreDefFuncCallExp(code, expNode, nestLevel, option, true);
@@ -125,15 +125,15 @@ class ExpCodeGenerator {
       CompileOption option) {
     
     SyntaxSymbol leftExp =
-        binaryExpNode.findSymbolInDescendants("*",  SymbolNames.BinaryExp.LEFT_EXP, "*");
+        binaryExpNode.findDescendantOf("*",  SymbolNames.BinaryExp.LEFT_EXP, "*");
     String leftExpCode = genExpression(code, leftExp, nestLevel, option);
 
     SyntaxSymbol rightExp =
-        binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
+        binaryExpNode.findDescendantOf("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
     String rightExpCode = genExpression(code, rightExp, nestLevel, option);
 
     TextNode operator =
-        (TextNode) binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.OPERATOR, "*");
+        (TextNode) binaryExpNode.findDescendantOf("*", SymbolNames.BinaryExp.OPERATOR, "*");
     String operatorCode = SymbolNames.BinaryExp.OPERATOR_MAP.get(operator.getText());    
 
     String tmpVar = common.genVarName(binaryExpNode);
@@ -172,11 +172,11 @@ class ExpCodeGenerator {
       CompileOption option) {
     
     SyntaxSymbol leftExp =
-        binaryExpNode.findSymbolInDescendants("*",  SymbolNames.BinaryExp.LEFT_EXP, "*");
+        binaryExpNode.findDescendantOf("*",  SymbolNames.BinaryExp.LEFT_EXP, "*");
     String leftExpCode = genExpression(code, leftExp, nestLevel, option);
     String tmpVar = common.genVarName(binaryExpNode);
     TextNode operator =
-        (TextNode) binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.OPERATOR, "*");
+        (TextNode) binaryExpNode.findDescendantOf("*", SymbolNames.BinaryExp.OPERATOR, "*");
     String cond =
         operator.getText().equals(SymbolNames.BinaryExp.OP_AND) ? tmpVar : ("!" + tmpVar);
 
@@ -193,7 +193,7 @@ class ExpCodeGenerator {
         .append(") {" + Keywords.newLine);
 
     SyntaxSymbol rightExp =
-        binaryExpNode.findSymbolInDescendants("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
+        binaryExpNode.findDescendantOf("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
     String rightExpCode = genExpression(code, rightExp, nestLevel + 1, option);
     
     code.append(common.indent(nestLevel + 1))
@@ -224,7 +224,7 @@ class ExpCodeGenerator {
       int nestLevel,
       CompileOption option) {
     SyntaxSymbol primaryExp =
-        unaryExpNode.findSymbolInDescendants("*",  SymbolNames.UnaryExp.PRIMARY_EXP, "*");
+        unaryExpNode.findDescendantOf("*",  SymbolNames.UnaryExp.PRIMARY_EXP, "*");
     String primaryExpCode = genExpression(code, primaryExp, nestLevel, option);
     String operatorCode = SymbolNames.UnaryExp.OPERATOR_MAP.get(unaryExpNode.getSymbolName());
     String tmpVar = common.genVarName(unaryExpNode);
@@ -269,6 +269,8 @@ class ExpCodeGenerator {
     }
     switch (literalNode.getSymbolName()) {
       case SymbolNames.Literal.NUM_LITERAL:
+        return "(" + common.toJsNumber(inputText) + ")";
+
       case SymbolNames.Literal.BOOL_LITERAL:
       case SymbolNames.Literal.STR_CHAIN_LINK_VOID:
         return "(" + inputText + ")";
@@ -363,7 +365,7 @@ class ExpCodeGenerator {
     while (true) {
       String argCnctrName = outArg ? SymbolNames.PreDefFunc.OUT_ARG : SymbolNames.PreDefFunc.ARG;
       argCnctrName += idArg;
-      SyntaxSymbol argExp = funcCallNode.findSymbolInDescendants("*", argCnctrName, "*");
+      SyntaxSymbol argExp = funcCallNode.findDescendantOf("*", argCnctrName, "*");
       if (argExp == null) {
         break;
       }
@@ -388,7 +390,7 @@ class ExpCodeGenerator {
     List<String> funcIdentifier = new ArrayList<>(Arrays.asList(funcCallNode.getSymbolName()));
     while (true) {
       String optionCnctrName = SymbolNames.PreDefFunc.OPTION + idOption;
-      SyntaxSymbol optionExp = funcCallNode.findSymbolInDescendants("*", optionCnctrName, "*");
+      SyntaxSymbol optionExp = funcCallNode.findDescendantOf("*", optionCnctrName, "*");
       if (optionExp == null) {
         break;
       }
@@ -417,9 +419,9 @@ class ExpCodeGenerator {
       CompileOption option,
       boolean storeRetVal) {
 
-    SyntaxSymbol arg = funcCallNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.ARG, "*");
+    SyntaxSymbol arg = funcCallNode.findDescendantOf("*", SymbolNames.UserDefFunc.ARG, "*");
     SyntaxSymbol outArg =
-        funcCallNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.OUT_ARG, "*");
+        funcCallNode.findDescendantOf("*", SymbolNames.UserDefFunc.OUT_ARG, "*");
     List<String> argList = genArgList(code, arg, false, nestLevel, option);
     List<String> outArgList = genArgList(code, outArg, true, nestLevel, option);
 
@@ -431,8 +433,13 @@ class ExpCodeGenerator {
           .append(retValName)
           .append(";" + Keywords.newLine);
     }
-    // コールスタック push
+    
     if (option.isDebug) {
+      // 処理中のノードのインスタンス ID に無効な値を設定
+      code.append(common.indent(nestLevel))
+          .append(common.genNullifyCurrentNodeInstIdCode())
+          .append(";" + Keywords.newLine);
+      // コールスタック push
       code.append(common.indent(nestLevel))
           .append(common.genPushToCallStackCode(funcCallNode))
           .append(";" + Keywords.newLine);
@@ -477,13 +484,13 @@ class ExpCodeGenerator {
 
     LinkedList<String> argList;
     SyntaxSymbol nextArg =
-        argNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.NEXT_ARG, "*");
+        argNode.findDescendantOf("*", SymbolNames.UserDefFunc.NEXT_ARG, "*");
     if (nextArg != null && !nextArg.getSymbolName().equals(SymbolNames.UserDefFunc.ARG_VOID)) {
       argList = genArgList(code, nextArg, assignToOutParams, nestLevel, option);
     } else {
       argList = new LinkedList<>();
     }
-    SyntaxSymbol argument = argNode.findSymbolInDescendants("*", SymbolNames.UserDefFunc.ARG, "*");
+    SyntaxSymbol argument = argNode.findDescendantOf("*", SymbolNames.UserDefFunc.ARG, "*");
     if (argument != null) {
       if (assignToOutParams) {
         argList.addFirst(genOutArg(code, argument, nestLevel, option));
@@ -578,9 +585,9 @@ class ExpCodeGenerator {
       CompileOption option) {
 
     SyntaxSymbol durationNode =
-        freqSoundLiteralNode.findSymbolInDescendants("*", SymbolNames.Literal.Sound.DURATION, "*");
+        freqSoundLiteralNode.findDescendantOf("*", SymbolNames.Literal.Sound.DURATION, "*");
     SyntaxSymbol frequencyNode =
-        freqSoundLiteralNode.findSymbolInDescendants("*", SymbolNames.Literal.Sound.FREQUENCY, "*");
+        freqSoundLiteralNode.findDescendantOf("*", SymbolNames.Literal.Sound.FREQUENCY, "*");
     String duration = genExpression(code, durationNode, nestLevel, option);
     String frequency = genExpression(code, frequencyNode, nestLevel, option);
     // 音オブジェクト作成
@@ -611,11 +618,11 @@ class ExpCodeGenerator {
       int nestLevel,
       CompileOption option) {
         
-    SyntaxSymbol durationNode = scaleSoundLiteralNode.findSymbolInDescendants(
+    SyntaxSymbol durationNode = scaleSoundLiteralNode.findDescendantOf(
         "*", SymbolNames.Literal.Sound.DURATION, "*");
-    SyntaxSymbol octaveNode = scaleSoundLiteralNode.findSymbolInDescendants(
+    SyntaxSymbol octaveNode = scaleSoundLiteralNode.findDescendantOf(
         "*", SymbolNames.Literal.Sound.OCTAVE, "*");
-    SyntaxSymbol scaleSoundNode = scaleSoundLiteralNode.findSymbolInDescendants(
+    SyntaxSymbol scaleSoundNode = scaleSoundLiteralNode.findDescendantOf(
         "*", SymbolNames.Literal.Sound.SCALE_SOUND, "*");
 
     // 音階の音から周波数を計算する

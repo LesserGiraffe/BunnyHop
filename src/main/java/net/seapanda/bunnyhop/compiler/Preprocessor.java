@@ -61,11 +61,11 @@ class Preprocessor {
    * @param node AnyArrayToStrExp ノード
    */
   private static void procAnyArrayToStrExp(SyntaxSymbol node) {
-    SyntaxSymbol listNode = node.findSymbolInDescendants("*", "Arg0", "*");
+    SyntaxSymbol listNode = node.findDescendantOf("*", "Arg0", "*");
     SyntaxSymbol listNameNode =
-        listNode.findSymbolInDescendants("*", SymbolNames.VarDecl.LIST_NAME, "*");
+        listNode.findDescendantOf("*", SymbolNames.VarDecl.LIST_NAME, "*");
     if (listNameNode instanceof TextNode textNode) {
-      SyntaxSymbol dest = node.findSymbolInDescendants("*", "Arg1", "*");
+      SyntaxSymbol dest = node.findDescendantOf("*", "Arg1", "*");
       ((TextNode) dest).setText(textNode.getText());
     }
   }

@@ -44,9 +44,10 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
  */
 public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeSelectionView {
 
-  @FXML Pane nodeSelectionPanel;  //FXML で Pane 以外使わないこと
-  @FXML Pane nodeSelectionPanelWrapper;
-  @FXML ScrollPane nodeSelectionPanelBase;
+  @FXML private Pane nodeSelectionPanel;  // FXML で Pane 以外使わないこと
+  @FXML private Pane nodeSelectionPanelWrapper;
+  @FXML private ScrollPane nodeSelectionPanelBase;
+
   private final SequencedSet<BhNodeView> rootNodeViews = new LinkedHashSet<>();
   private final SequencedSet<BhNodeView> nodeViews = new LinkedHashSet<>();
   private int zoomLevel = 0;
@@ -214,7 +215,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     // スクロール時にスクロールバーの可動域が変わるようにする
     nodeSelectionPanelWrapper.setPrefSize(wrapperSizeX, wrapperSizeY);
     Node wsSetTab = Optional.ofNullable(nodeSelectionPanelBase.getScene())
-        .map(scene -> scene.lookup("#" + BhConstants.Fxml.ID_WORKSPACE_SET_TAB))
+        .map(scene -> scene.lookup("#" + BhConstants.UiId.WORKSPACE_SET_TAB))
         .orElse(null);
     double maxWidth = wrapperSizeX + nodeSelectionPanelBase.getPadding().getLeft()
         + nodeSelectionPanelBase.getPadding().getRight();

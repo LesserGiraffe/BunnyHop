@@ -3,6 +3,7 @@
   bhNodeID="idBinaryColorExp"
   name="BinaryColorExp"
   nodeStyleID="BinaryColorExp.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="ColorExpSctn">
@@ -18,7 +19,7 @@
       <Node
         type="text"
         bhNodeID="idBinaryColorExp.node1"
-        name="StrLiteral"
+        name="BinaryColorOpe"
         nodeStyleID="DefaultComboBox.json"
         onTextOptionsCreating="CreateAddSubOps.js"
         version="bh-1.0"/>

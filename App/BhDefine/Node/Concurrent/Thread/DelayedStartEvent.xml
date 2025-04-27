@@ -3,6 +3,7 @@
   bhNodeID="idDelayedStartEvent"
   name="DelayedStartEvent"
   nodeStyleID="DelayedStartEvent.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="EventSctn">

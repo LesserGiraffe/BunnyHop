@@ -3,6 +3,7 @@
   bhNodeID="idOutArgTestExp"
   name="OutArgTestExp"
   nodeStyleID="OutArgTestExp.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">

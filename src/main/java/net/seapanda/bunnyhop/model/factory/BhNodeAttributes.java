@@ -49,6 +49,7 @@ public record BhNodeAttributes(
     String onTextOptionsCreating,
     String onCreatedAsTemplate,
     String onDragStarted,
+    String onAliasAsked,
     String initialText) {
 
   private static Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
@@ -92,6 +93,7 @@ public record BhNodeAttributes(
     String onCreatedAsTemplate =
         elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_CREATED_AS_TEMPLATE);
     String onDragStarted = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_DRAG_STARTED);
+    String onAliasAsked = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_ALIAS_ASKED);
     String initialText = getInitialText(elem, textDb);
     var version = BhNodeVersion.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_VERSION));
 
@@ -113,6 +115,7 @@ public record BhNodeAttributes(
         onTextOptionsCreating,
         onCreatedAsTemplate,
         onDragStarted,
+        onAliasAsked,
         initialText);
   }
 

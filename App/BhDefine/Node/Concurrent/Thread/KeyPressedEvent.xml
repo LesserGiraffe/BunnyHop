@@ -3,6 +3,7 @@
   bhNodeID="idKeyPressedEvent"
   name="KeyPressedEvent"
   nodeStyleID="KeyPressedEvent.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="EventSctn">

@@ -26,7 +26,6 @@
         "connectorList" : ["Arg1", "${L2}{にする}"]
       }
     },
-
     "outer" : {
       "connectorList" : ["NextStat"]
     }

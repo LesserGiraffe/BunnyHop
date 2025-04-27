@@ -15,7 +15,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 2.0,
-      "connectorList" : ["${L2}{ロボットを停止させる}"]
+      "connectorList" : ["${L2}{ロボットを止める}"]
     },
     "outer" : {
       "connectorList" : ["NextStat"]

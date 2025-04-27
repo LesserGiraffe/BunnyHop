@@ -76,6 +76,6 @@ public class InstanceId implements Serializable {
 
   @Override
   public int hashCode() {
-    return  Objects.hashCode(this.id);
+    return Objects.hashCode(this.id);
   }
 }

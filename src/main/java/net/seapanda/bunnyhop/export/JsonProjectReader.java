@@ -189,6 +189,7 @@ public class JsonProjectReader {
     for (BhNodeImage nodeImage : wsImage.getRootNodes()) {
       BhNode root = genBhNode(nodeImage);
       if (root != null) {
+        nodeFactory.setMvc(root, MvcType.DEFAULT);
         BhNodePlacer.moveToWs(ws, root, nodeImage.pos.x, nodeImage.pos.y, userOpe);
       }
     }
@@ -217,7 +218,7 @@ public class JsonProjectReader {
         connectChild(parent, child, childImage.parentConnectorId);
       }
     }
-    nodeFactory.setMvc(node, MvcType.DEFAULT);
+
     if (node instanceof TextNode textNode) {
       textNode.setText(nodeImage.text);
     }

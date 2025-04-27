@@ -3,4 +3,5 @@
   bhNodeID="idArgVoid" 
   name="ArgVoid" 
   nodeStyleID="ArgVoid.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0"/>

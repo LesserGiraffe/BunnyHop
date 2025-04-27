@@ -15,8 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["${L1}{プログラムが始まってからの時間 (ミリ秒)}"]
+      "connectorList" : ["${L1}{プログラムが始まってからの秒数}"]
     }
   }
 }
-

@@ -38,10 +38,11 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import net.seapanda.bunnyhop.bhprogram.BhProgramControllerImpl;
-import net.seapanda.bunnyhop.bhprogram.LocalBhRuntimeController;
-import net.seapanda.bunnyhop.bhprogram.RemoteBhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
+import net.seapanda.bunnyhop.bhprogram.debugger.BhDebugger;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessorImpl;
+import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
+import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.common.ExclusiveSelection;
@@ -83,6 +84,7 @@ import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.log.FileLogger;
 import net.seapanda.bunnyhop.utility.textdb.JsonTextDatabase;
 import net.seapanda.bunnyhop.view.factory.BhNodeViewFactoryImpl;
+import net.seapanda.bunnyhop.view.factory.DebugViewFactoryImpl;
 import net.seapanda.bunnyhop.view.factory.PrivateTemplateButtonFactoryImpl;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyleFactory;
 import net.seapanda.bunnyhop.view.node.style.JsonBhNodeViewStyleFactory;
@@ -105,60 +107,64 @@ public class AppMain extends Application {
   private final ExecutorService simExecutor = Executors.newSingleThreadExecutor();
   /** BhSimulator 終了待ち用. */
   private Future<?> simFuture;
-
+  
   @Override
   public void start(Stage stage) throws Exception {
     var msgService = new BhMessageService();
-    Path logDir = Paths.get(Utility.execPath, BhConstants.Path.LOG_DIR, BhConstants.APP_NAME);
+    Path logDir = Paths.get(Utility.execPath, BhConstants.Path.Dir.LOG, BhConstants.APP_NAME);
     var logger = new FileLogger(
         logDir,
-        BhConstants.Path.LOG_FILE_NAME,
+        BhConstants.Path.File.LOG_MSG,
         BhConstants.Message.LOG_FILE_SIZE_LIMIT,
         BhConstants.Message.MAX_LOG_FILE_NUM);
     try {
       Path textDbFile = Paths.get(
           Utility.execPath,
-          BhConstants.Path.LANGUAGE_DIR,
+          BhConstants.Path.Dir.LANGUAGE,
           BhSettings.language,
-          BhConstants.Path.LANGUAGE_FILE);
+          BhConstants.Path.File.LANGUAGE_FILE);
       final var textDb = new JsonTextDatabase(textDbFile);
       TextDefs.setTextDatabase(textDb);
       TextFetcher.setTextDatabase(textDb);
       LogManager.initialize(logger);
 
       final Path fxmlDir =
-          Paths.get(Utility.execPath, BhConstants.Path.VIEW_DIR, BhConstants.Path.FXML_DIR);
+          Paths.get(Utility.execPath, BhConstants.Path.Dir.VIEW, BhConstants.Path.Dir.FXML);
       var fxmlCollector = new FileCollector(fxmlDir, "fxml");
-      final Path guiDefFile = fxmlCollector.getFilePath(BhConstants.Path.FOUNDATION_FXML);
-      final Path wsViewFile = fxmlCollector.getFilePath(BhConstants.Path.WORKSPACE_FXML);
-      final Path btnFile = fxmlCollector.getFilePath(BhConstants.Path.PRIVATE_TEMPLATE_BUTTON_FXML);
+      final Path guiDefFile = fxmlCollector.getFilePath(BhConstants.Path.File.FOUNDATION_FXML);
+      final Path wsViewFile = fxmlCollector.getFilePath(BhConstants.Path.File.WORKSPACE_FXML);
+      final Path btnFile =
+          fxmlCollector.getFilePath(BhConstants.Path.File.PRIVATE_TEMPLATE_BUTTON_FXML);
       final Path nodeShifterViewFile =
-          fxmlCollector.getFilePath(BhConstants.Path.NODE_SHIFTER_FXML);
+          fxmlCollector.getFilePath(BhConstants.Path.File.NODE_SHIFTER_FXML);
       final Path nodeSelectionViewFile =
-          fxmlCollector.getFilePath(BhConstants.Path.NODE_SELECTION_PANEL_FXML);
+          fxmlCollector.getFilePath(BhConstants.Path.File.NODE_SELECTION_PANEL_FXML);
+      final Path callStackVieFile =
+          fxmlCollector.getFilePath(BhConstants.Path.File.CALL_STACK_PANEL_FXML);
       final Path[] scriptDirs = new Path[] {
-        Paths.get(Utility.execPath, BhConstants.Path.BH_DEF_DIR, BhConstants.Path.FUNCTIONS_DIR),
         Paths.get(
-            Utility.execPath, BhConstants.Path.BH_DEF_DIR, BhConstants.Path.TEMPLATE_LIST_DIR),
-        Paths.get(Utility.execPath, BhConstants.Path.REMOTE_DIR)};
+            Utility.execPath, BhConstants.Path.Dir.BH_DEF, BhConstants.Path.Dir.EVENT_HANDLERS),
+        Paths.get(
+            Utility.execPath, BhConstants.Path.Dir.BH_DEF, BhConstants.Path.Dir.TEMPLATE_LIST),
+        Paths.get(Utility.execPath, BhConstants.Path.Dir.REMOTE)};
       final Path viewStyleDir = Paths.get(
           Utility.execPath,
-          BhConstants.Path.VIEW_DIR,
-          BhConstants.Path.NODE_STYLE_DEF_DIR,
+          BhConstants.Path.Dir.VIEW,
+          BhConstants.Path.Dir.NODE_STYLE_DEF,
           BhSettings.language);
       final Path nodeTemplateListFile = Paths.get(
           Utility.execPath,
-          BhConstants.Path.BH_DEF_DIR,
-          BhConstants.Path.TEMPLATE_LIST_DIR,
-          BhConstants.Path.NODE_TEMPLATE_LIST_JSON);
+          BhConstants.Path.Dir.BH_DEF,
+          BhConstants.Path.Dir.TEMPLATE_LIST,
+          BhConstants.Path.File.NODE_TEMPLATE_LIST_JSON);
       final Path nodeDir = Paths.get(
           Utility.execPath,
-          BhConstants.Path.BH_DEF_DIR,
-          BhConstants.Path.NODE_DEF_DIR);
+          BhConstants.Path.Dir.BH_DEF,
+          BhConstants.Path.Dir.NODE_DEF);
       final Path cnctrDir = Paths.get(
           Utility.execPath,
-          BhConstants.Path.BH_DEF_DIR,
-          BhConstants.Path.CONNECTOR_DEF_DIR);
+          BhConstants.Path.Dir.BH_DEF,
+          BhConstants.Path.Dir.CONNECTOR_DEF);
 
       final var sceneBuilder = new SceneBuilder(guiDefFile);
       msgService.setMainMsgArea(sceneBuilder.wssCtrl.getMsgArea());
@@ -180,6 +186,8 @@ public class AppMain extends Application {
       final var buttonFactory = new PrivateTemplateButtonFactoryImpl(
           btnFile, viewStyleFactory, mediator, nodeSelViewProxy);
       final var nodeViewFactory = new BhNodeViewFactoryImpl(viewStyleFactory, buttonFactory);
+      final var debugViewFactory = new DebugViewFactoryImpl(
+          callStackVieFile, mediator, sceneBuilder.searchBoxCtrl);
       final var nodeRepository = new XmlBhNodeRepository(scriptRepository);
       final var nodeFactory = new BhNodeFactoryImpl(
           nodeRepository,
@@ -203,7 +211,8 @@ public class AppMain extends Application {
           wsViewFile, nodeShifterViewFile, mediator, nodeSelViewProxy, msgService);
       final var localCompiler = genCompiler(true);
       final var remoteCompiler = genCompiler(false);
-      final var msgProcessor = new BhProgramMessageProcessorImpl(msgService);
+      final var debugger = new BhDebugger(wss, msgService);
+      final var msgProcessor = new BhProgramMessageProcessorImpl(msgService, debugger);
       final var localRuntimeCtrl = new LocalBhRuntimeController(
           msgProcessor, simulator.getCmdProcessor().get(), msgService);
       final var remoteRuntimeCtrl = new RemoteBhRuntimeController(
@@ -239,6 +248,7 @@ public class AppMain extends Application {
           nodeShowcaseBuilder,
           mediator,
           wsFactory,
+          debugViewFactory,
           undoRedoAgent,
           nodeSelViewProxy,
           localBhProgramCtrl,
@@ -247,7 +257,8 @@ public class AppMain extends Application {
           projExporter,
           copyAndPaste,
           cutAndPaste,
-          msgService);
+          msgService,
+          debugger);
       sceneBuilder.createWindow(stage, wsFactory);
       if (SplashScreen.getSplashScreen() != null) {
         SplashScreen.getSplashScreen().close();
@@ -396,21 +407,33 @@ public class AppMain extends Application {
 
   /** {@link BhCompiler} オブジェクトを作成する. */
   private BhCompiler genCompiler(boolean isLocal) throws IOException {
+    var languageFilePath = Paths.get(
+        Utility.execPath,
+        BhConstants.Path.Dir.BH_DEF,
+        BhConstants.Path.Dir.COMPILE,
+        BhConstants.Path.Dir.LIBS,
+        BhConstants.Path.Dir.LANGUAGE,
+        BhSettings.language,
+        BhConstants.Path.File.BhLibs.TEXT_DB_JS);
+
     var commonLibPath = Paths.get(
         Utility.execPath,
-        BhConstants.Path.BH_DEF_DIR,
-        BhConstants.Path.FUNCTIONS_DIR,
-        BhConstants.Path.lib,
-        BhConstants.Path.COMMON_CODE_JS);
-    
+        BhConstants.Path.Dir.BH_DEF,
+        BhConstants.Path.Dir.COMPILE,
+        BhConstants.Path.Dir.LIBS,
+        BhConstants.Path.File.BhLibs.COMMON_JS);
+  
+    var fileName = isLocal
+        ? BhConstants.Path.File.BhLibs.LOCAL_COMMON_JS
+        : BhConstants.Path.File.BhLibs.REMOTE_COMMON_JS;
     var localOrRemoteLibPath = Paths.get(
         Utility.execPath,
-        BhConstants.Path.BH_DEF_DIR,
-        BhConstants.Path.FUNCTIONS_DIR,
-        BhConstants.Path.lib,
-        isLocal ? BhConstants.Path.LOCAL_COMMON_CODE_JS : BhConstants.Path.REMOTE_COMMON_CODE_JS);
+        BhConstants.Path.Dir.BH_DEF,
+        BhConstants.Path.Dir.COMPILE,
+        BhConstants.Path.Dir.LIBS,
+        fileName);
     try {
-      return new BhCompilerImpl(commonLibPath, localOrRemoteLibPath);
+      return new BhCompilerImpl(languageFilePath, commonLibPath, localOrRemoteLibPath);
     } catch (IOException e) {
       LogManager.logger().error("Failed to initialize Compiler.\n%s".formatted(e));
       throw e;

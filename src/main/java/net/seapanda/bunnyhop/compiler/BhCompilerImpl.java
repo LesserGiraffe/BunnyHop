@@ -139,9 +139,7 @@ public class BhCompilerImpl implements BhCompiler {
   private void genCodeForProgramStart(StringBuilder code, int nestLevel, CompileOption option) {
     // プログラム開始時刻の更新
     code.append(common.indent(nestLevel))
-        .append(ScriptIdentifiers.Vars.PROGRAM_STARTING_TIME)
-        .append(" = ")
-        .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.CURRENT_TIME_MILLS))
+        .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.START_TIMER))
         .append(";" + Keywords.newLine);
   }
 }

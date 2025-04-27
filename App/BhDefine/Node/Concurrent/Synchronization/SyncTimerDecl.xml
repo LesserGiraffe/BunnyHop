@@ -10,6 +10,7 @@
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
   onDragStarted="OnGlobalDataDeclDragStarted.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <Derivation derivationID="dervIdSyncTimeVar" derivativeID="idSyncTimerVar"/>

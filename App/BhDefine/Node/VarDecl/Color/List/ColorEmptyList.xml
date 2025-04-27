@@ -4,6 +4,7 @@
   name="ColorEmptyList"
   nodeStyleID="ColorEmptyList.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <!-- ColorList と共通のセクションを持たせる -->

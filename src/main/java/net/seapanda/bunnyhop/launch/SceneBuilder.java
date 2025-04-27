@@ -33,10 +33,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.seapanda.bunnyhop.bhprogram.BhProgramController;
+import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.control.FoundationController;
 import net.seapanda.bunnyhop.control.MenuBarController;
+import net.seapanda.bunnyhop.control.SearchBoxController;
 import net.seapanda.bunnyhop.control.workspace.TrashboxController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
 import net.seapanda.bunnyhop.export.ProjectExporter;
@@ -55,6 +57,7 @@ import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
+import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeShowcaseBuilder;
 import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 
@@ -66,6 +69,7 @@ public class SceneBuilder {
   public final MenuBarController menuBarCtrl;
   public final WorkspaceSetController wssCtrl;
   public final TrashboxController trashboxCtrl;
+  public final SearchBoxController searchBoxCtrl;
   public final Scene scene;
 
   /**
@@ -82,10 +86,11 @@ public class SceneBuilder {
       wssCtrl = foundationCtrl.getWorkspaceSetController();
       menuBarCtrl = foundationCtrl.getMenuBarController();
       trashboxCtrl = wssCtrl.getTrashboxController();
+      searchBoxCtrl = wssCtrl.getSearchBoxController();
       scene = genScene(root);
     } catch (IOException e) {
       throw new AppInitializationException(
-          "Failed to load %s\n%s".formatted(BhConstants.Path.FOUNDATION_FXML, e));
+          "Failed to load %s\n%s".formatted(BhConstants.Path.File.FOUNDATION_FXML, e));
     }
   }
 
@@ -96,6 +101,7 @@ public class SceneBuilder {
       BhNodeShowcaseBuilder builder,
       ModelAccessNotificationService service,
       WorkspaceFactory wsFactory,
+      DebugViewFactory debugViewFactory,
       UndoRedoAgent undoRedoAgent,
       BhNodeSelectionViewProxy proxy,
       BhProgramController localCtrl,
@@ -104,13 +110,15 @@ public class SceneBuilder {
       ProjectExporter exporter,
       CopyAndPaste copyAndPaste,
       CutAndPaste cutAndPaste,
-      MessageService msgService) throws AppInitializationException {
+      MessageService msgService,
+      Debugger debugger) throws AppInitializationException {
     if (!foundationCtrl.initialize(
         wss,
         nodeCategoryList,
          builder,
          service,
          wsFactory,
+         debugViewFactory,
          undoRedoAgent,
          proxy,
          localCtrl,
@@ -119,7 +127,8 @@ public class SceneBuilder {
          exporter,
          copyAndPaste,
          cutAndPaste,
-         msgService)) {
+         msgService,
+         debugger)) {
       throw new AppInitializationException("Failed to initialize a FoundationController.");
     }
   }
@@ -129,9 +138,9 @@ public class SceneBuilder {
       throws ViewConstructionException {
     String iconPath = Paths.get(
         Utility.execPath,
-        BhConstants.Path.VIEW_DIR,
-        BhConstants.Path.IMAGES_DIR,
-        BhConstants.Path.BUNNY_HOP_ICON).toUri().toString();
+        BhConstants.Path.Dir.VIEW,
+        BhConstants.Path.Dir.IMAGES,
+        BhConstants.Path.File.BUNNY_HOP_ICON).toUri().toString();
     stage.getIcons().add(new Image(iconPath));
     stage.setScene(scene);
     stage.setTitle(BhConstants.APP_NAME);
@@ -156,7 +165,7 @@ public class SceneBuilder {
   /** css ファイルのパスをリストにして返す. */
   private Collection<String> collectCssPaths() {
     Path dirPath =
-        Paths.get(Utility.execPath, BhConstants.Path.VIEW_DIR, BhConstants.Path.CSS_DIR);
+        Paths.get(Utility.execPath, BhConstants.Path.Dir.VIEW, BhConstants.Path.Dir.CSS);
     List<Path> files = null;  //読み込むファイルパスリスト
     try {
       files = Files.walk(dirPath, FOLLOW_LINKS).filter(

@@ -4,6 +4,7 @@
   name="AnyArrayLengthExp"
   nodeStyleID="AnyArrayLengthExp.json"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">

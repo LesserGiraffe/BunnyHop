@@ -17,14 +17,12 @@
 package net.seapanda.bunnyhop.bhprogram.message;
 
 
-import java.util.List;
-import net.seapanda.bunnyhop.bhprogram.ThreadContext;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.InputTextResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.OutputTextResp;
+import net.seapanda.bunnyhop.bhprogram.debugger.DebugInfoReceiver;
 import net.seapanda.bunnyhop.common.TextDefs;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
 
@@ -37,14 +35,17 @@ import net.seapanda.bunnyhop.service.MessageService;
 public class BhProgramMessageProcessorImpl implements BhProgramMessageProcessor{
 
   private final MessageService msgService;
+  private final DebugInfoReceiver receiver;
 
   /**
    * コンストラクタ.
    *
    * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
+   * @param receiver このオブジェクトが受け取ったデバッグ情報を渡すオブジェクト.
    */
-  public BhProgramMessageProcessorImpl(MessageService msgService) {
+  public BhProgramMessageProcessorImpl(MessageService msgService, DebugInfoReceiver receiver) {
     this.msgService = msgService;
+    this.receiver = receiver;
   }
 
   @Override
@@ -63,12 +64,9 @@ public class BhProgramMessageProcessorImpl implements BhProgramMessageProcessor{
 
   @Override
   public void process(BhProgramException exception) {
+    String cause = (exception.getCause() == null) ? "" : exception.getCause().getMessage();
     LogManager.logger().error(
-        "%s\n%s".formatted(exception.getMessage(), exception.getScriptEngineMsg()));
-    List<InstanceId> callStack = exception.getCallStack().stream()
-        .map(id -> InstanceId.of(id.toString()))
-        .toList();
-    var context = new ThreadContext(
-        exception.getThreadId(), callStack, exception.getMessage(), true);
+        "%s\n%s".formatted(exception.getMessage(), cause));
+    receiver.receive(exception);
   }
 }

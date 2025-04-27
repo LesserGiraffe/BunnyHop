@@ -3,4 +3,5 @@
   bhNodeID="idUneditableIdentifierName"
   name="IdentifierName"
   nodeStyleID="UneditableIdentifier.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0"/>

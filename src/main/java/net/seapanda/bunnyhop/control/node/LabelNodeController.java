@@ -31,7 +31,7 @@ public class LabelNodeController implements BhNodeController {
 
   private final TextNode model;
   private final LabelNodeView view;
-  private final ModelAccessNotificationService notificationService;
+  private final ModelAccessNotificationService notifService;
 
   /** コンストラクタ. */
   public LabelNodeController(BhNodeController controller) {
@@ -47,7 +47,7 @@ public class LabelNodeController implements BhNodeController {
       throw new IllegalStateException(
           "The view is not %s".formatted(LabelNodeView.class.getSimpleName()));
     }
-    notificationService = controller.getNotificationService();
+    notifService = controller.getNotificationService();
     model.getEventManager().addOnTextChanged((oldText, newText, userOpe) -> view.setText(newText));
     setInitStr();
   }
@@ -73,6 +73,6 @@ public class LabelNodeController implements BhNodeController {
 
   @Override
   public ModelAccessNotificationService getNotificationService() {
-    return notificationService;
+    return notifService;
   }  
 }

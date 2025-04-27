@@ -49,7 +49,7 @@ public class DefaultBhNodeController implements BhNodeController {
 
   private final BhNode model;
   private final BhNodeView view;
-  private final ModelAccessNotificationService notificationService;
+  private final ModelAccessNotificationService notifService;
   private final Trashbox trashbox;
   private final DndEventInfo ddInfo = this.new DndEventInfo();
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
@@ -73,7 +73,7 @@ public class DefaultBhNodeController implements BhNodeController {
     Objects.requireNonNull(trashbox);
     this.model = model;
     this.view = view;
-    this.notificationService = service;
+    this.notifService = service;
     this.trashbox = trashbox;
     model.setViewProxy(new BhNodeViewProxyImpl(view, false));
     view.setController(this);
@@ -104,7 +104,7 @@ public class DefaultBhNodeController implements BhNodeController {
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
-      ddInfo.context = notificationService.begin();
+      ddInfo.context = notifService.begin();
       ddInfo.isDndFinished = false;
       if (!model.isMovable()) {
         ddInfo.propagateEvent = true;
@@ -400,7 +400,7 @@ public class DefaultBhNodeController implements BhNodeController {
     mouseCtrlLock.unlock();
     view.setMouseTransparent(false);
     ddInfo.reset();
-    notificationService.end();
+    notifService.end();
   }
 
   /** {@link MouseEvent} オブジェクトの情報を {@link MouseEventInfo} オブジェクトに格納して返す. */
@@ -455,7 +455,7 @@ public class DefaultBhNodeController implements BhNodeController {
 
   @Override
   public ModelAccessNotificationService getNotificationService() {
-    return notificationService;
+    return notifService;
   }
 
   /**

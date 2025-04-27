@@ -83,7 +83,7 @@ public class Subsection extends Section {
   }
 
   @Override
-  public void findSymbolInDescendants(
+  public void findDescendantOf(
       int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
     if (generation == 0) {
       for (String symbolName : symbolNames) {
@@ -98,7 +98,7 @@ public class Subsection extends Section {
 
     int childLevel = generation - 1;
     for (Section subsection : subsectionList) {
-      subsection.findSymbolInDescendants(
+      subsection.findDescendantOf(
           Math.max(0, childLevel), toBottom, foundSymbolList, symbolNames);
     }
   }

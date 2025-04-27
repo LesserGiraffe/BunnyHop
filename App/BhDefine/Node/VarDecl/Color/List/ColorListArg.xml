@@ -3,6 +3,7 @@
   bhNodeID="idColorListArg"
   name="ColorListArg"
   nodeStyleID="ColorListArg.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection>

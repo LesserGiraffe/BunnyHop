@@ -3,6 +3,7 @@
   bhNodeID="idAnyArrayCompExp"
   name="AnyArrayCompExp"
   nodeStyleID="AnyArrayCompExp.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="BoolExpSctn">

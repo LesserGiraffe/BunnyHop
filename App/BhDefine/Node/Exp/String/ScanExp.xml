@@ -4,6 +4,7 @@
   name="ScanExp"
   nodeStyleID="ScanExp.json"
   onCreatedAsTemplate="SetDefaultScanExpMsg.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="StrExpSctn">

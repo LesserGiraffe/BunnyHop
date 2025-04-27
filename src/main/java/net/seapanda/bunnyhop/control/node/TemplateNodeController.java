@@ -41,7 +41,7 @@ public class TemplateNodeController implements BhNodeController {
 
   private final BhNode model;
   private final BhNodeView view;
-  private final ModelAccessNotificationService notificationService;
+  private final ModelAccessNotificationService notifService;
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
   private final DndEventInfo ddInfo = this.new DndEventInfo();
   private final BhNodeFactory factory;
@@ -74,7 +74,7 @@ public class TemplateNodeController implements BhNodeController {
     this.model = model;
     this.view = view;
     this.factory = factory;
-    this.notificationService = service;
+    this.notifService = service;
     this.wss = wss;
     this.nodeSelectionViewProxy = proxy;
     model.setViewProxy(new BhNodeViewProxyImpl(view, true));
@@ -99,7 +99,7 @@ public class TemplateNodeController implements BhNodeController {
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
-      Context context = notificationService.begin();
+      Context context = notifService.begin();
       Workspace currentWs = wss.getCurrentWorkspace();
       BhNode newNode = model.findRootNode().copy(context.userOpe());
       factory.setMvc(model, MvcType.DEFAULT);
@@ -204,7 +204,7 @@ public class TemplateNodeController implements BhNodeController {
   private void terminateDnd() {
     mouseCtrlLock.unlock();
     ddInfo.reset();
-    notificationService.end();
+    notifService.end();
   }
 
   @Override
@@ -219,7 +219,7 @@ public class TemplateNodeController implements BhNodeController {
 
   @Override
   public ModelAccessNotificationService getNotificationService() {
-    return notificationService;
+    return notifService;
   }
 
   /**

@@ -162,7 +162,7 @@ class VarDeclCodeGenerator {
     }
     String comment =
         SymbolNames.VarDecl.VAR_NAME_CNCTR_LIST.stream()
-        .map(cnctrName -> (TextNode) varDeclNode.findSymbolInDescendants("*", cnctrName, "*"))
+        .map(cnctrName -> (TextNode) varDeclNode.findDescendantOf("*", cnctrName, "*"))
         .filter(node -> node != null)
         .findFirst()
         .map(node -> node.getText()).orElse("");
@@ -172,7 +172,7 @@ class VarDeclCodeGenerator {
     varDeclInfoList.add(new VarDeclInfo(varName, outArgName, initVal, comment));
 
     SyntaxSymbol nextVarDecl =
-        varDeclNode.findSymbolInDescendants("*", SymbolNames.VarDecl.NEXT_VAR_DECL, "*");
+        varDeclNode.findDescendantOf("*", SymbolNames.VarDecl.NEXT_VAR_DECL, "*");
     if (nextVarDecl != null) {
       genVarDeclInfos(nextVarDecl, varDeclInfoList);
     }

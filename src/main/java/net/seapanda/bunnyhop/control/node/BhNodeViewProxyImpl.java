@@ -110,8 +110,9 @@ class BhNodeViewProxyImpl implements BhNodeViewProxy {
 
   @Override
   public void lookAt() {
-    view.getModel()
-        .map(node -> node.getWorkspace().getViewProxy().getView())
-        .ifPresent(wsView -> wsView.lookAt(view));
+    if (view.getWorkspaceView() == null) {
+      return;
+    }
+    view.getWorkspaceView().lookAt(view);
   }
 }

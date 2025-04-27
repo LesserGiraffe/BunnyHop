@@ -4,6 +4,7 @@
   name="MelodyExp"
   nodeStyleID="MelodyExp.json"
   onChildReplaced="OnChildSoundExpReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="MelodyExpSctn">

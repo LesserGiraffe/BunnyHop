@@ -4,6 +4,7 @@
   name="NumEmptyList"
   nodeStyleID="NumEmptyList.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <!-- NumList と共通のセクションを持たせる -->

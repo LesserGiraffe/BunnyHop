@@ -51,4 +51,6 @@ public enum EventType {
   ON_DRAG_STARTED,
   /** コネクタにノードが接続可能か調べるときに発行されるイベント. */
   ON_CONNECTABILITY_CHECKING,
+  /** ノードのエイリアスを取得するときに発行されるイベント. */
+  ON_ALIAS_ASKED
 }

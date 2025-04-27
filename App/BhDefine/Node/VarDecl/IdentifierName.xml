@@ -5,6 +5,7 @@
   nodeStyleID="Identifier.json"
   onTextChecking="CheckIdentifierFormat.js"
   onCreatedAsTemplate="SetDefaultIdentifierName.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
   
   <Derivation derivationID="dervIdIdentifierName" derivativeID="idUneditableIdentifierName"/>

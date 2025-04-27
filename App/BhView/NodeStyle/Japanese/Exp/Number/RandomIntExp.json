@@ -15,7 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["Arg0", "${L1}{以上}", "Arg1", "${L1}{以下のランダムな整数}"]
+      "connectorList" : ["Arg0", "${L1}{から}", "Arg1", "${L1}{までのランダムな整数}"]
     }
   }
 }

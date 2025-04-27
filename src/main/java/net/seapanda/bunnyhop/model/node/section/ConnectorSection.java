@@ -94,7 +94,7 @@ public class ConnectorSection extends Section {
   }
 
   @Override
-  public void findSymbolInDescendants(
+  public void findDescendantOf(
       int generation, boolean toBottom, List<SyntaxSymbol> foundSymbolList, String... symbolNames) {
     if (generation == 0) {
       for (String symbolName : symbolNames) {
@@ -109,7 +109,7 @@ public class ConnectorSection extends Section {
 
     int childLevel = generation - 1;
     for (Connector cnctr : cnctrList) {
-      cnctr.findSymbolInDescendants(
+      cnctr.findDescendantOf(
           Math.max(0, childLevel), toBottom, foundSymbolList, symbolNames);
     }
   }

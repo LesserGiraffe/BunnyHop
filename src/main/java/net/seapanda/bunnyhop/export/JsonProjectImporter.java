@@ -118,11 +118,13 @@ public class JsonProjectImporter implements ProjectImporter {
       WorkspaceSet wss, List<Workspace> workspaces, UserOperation userOpe) {
     // ワークスペースから全てのルートノードを取り除く.
     var wsToRootNodes = new HashMap<Workspace, List<BhNode>>();
+    var tmp = new UserOperation();
     for (Workspace ws : workspaces) {
       var rootNodes = new ArrayList<BhNode>();
       for (BhNode root : ws.getRootNodes()) {
         rootNodes.add(root);
-        ws.removeNodeTree(root, userOpe);
+        // ワークスペースからのノードの削除は undo / redo の対象にしない.
+        ws.removeNodeTree(root, tmp);
       }
       wsToRootNodes.put(ws, rootNodes);
     }

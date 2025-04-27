@@ -440,7 +440,7 @@ public class SymbolNames {
             put(FuncId.create(BINARY_COLOR_EXP, OPT_SUB), ScriptIdentifiers.Funcs.SUB_COLOR);
             put(FuncId.create(DETECT_COLOR_EXP), ScriptIdentifiers.Funcs.DETECT_COLOR);
             put(FuncId.create(GET_TIME_SINCE_PROGRAM_STARTED_EXP),
-                ScriptIdentifiers.Funcs.GET_TIME_SINCE_PROGRAM_STARTED);
+                ScriptIdentifiers.Funcs.GET_TIMER_VAL);
             put(FuncId.create(STR_CHAIN_LINK_EXP), ScriptIdentifiers.Funcs.STRCAT);
             put(FuncId.create(STR_CHAIN_EXP), ScriptIdentifiers.Funcs.IDENTITY);
             put(FuncId.create(GET_SYNC_TIMER_COUNT_EXP),

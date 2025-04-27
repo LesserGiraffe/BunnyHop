@@ -3,6 +3,7 @@
   bhNodeID="idFourArithExp"
   name="FourArithExp"
   nodeStyleID="FourArithExp.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">

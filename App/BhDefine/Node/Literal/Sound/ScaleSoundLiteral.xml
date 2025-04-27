@@ -5,6 +5,7 @@
   nodeStyleID="ScaleSoundLiteral.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onCreatedAsTemplate="SetDefaultScaleSoundParams.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
   
   <ConnectorSection name="SoundExpSctn">

@@ -140,7 +140,7 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
   }
 
   @Override
-  public void findSymbolInDescendants(
+  public void findDescendantOf(
       int generation,
       boolean toBottom,
       List<SyntaxSymbol> foundSymbolList,
@@ -155,7 +155,7 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
         return;
       }
     }
-    childSection.findSymbolInDescendants(
+    childSection.findDescendantOf(
         Math.max(0, generation - 1), toBottom, foundSymbolList, symbolNames);
   }
 

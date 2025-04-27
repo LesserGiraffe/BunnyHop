@@ -21,7 +21,7 @@ public class ScriptIdentifiers {
 
   /** BhProgram で使用される関数名. (JavaScript の組み込み関数は除く) */
   public static class Funcs {
-    public static final String TO_STR = "_toStr";
+    public static final String TO_STR = "_str";
     public static final String STR_TO_NUM = "_strToNum";
     public static final String RANDOM_INT = "_randomInt";
     public static final String PRINTLN = "_println";
@@ -78,12 +78,12 @@ public class ScriptIdentifiers {
     public static final String CREATE_SOUND = "_createSound";
     public static final String CREATE_COLOR_FROM_NAME = "_createColorFromName";
     public static final String PUSH_SOUND = "_pushSound";
-    public static final String CURRENT_TIME_MILLS = "_currentTimeMillis";
-    public static final String GET_TIME_SINCE_PROGRAM_STARTED = "_getTimeSinceProgramStarted";
+    public static final String START_TIMER = "_startTimer";
+    public static final String GET_TIMER_VAL = "_getTimerVal";
     public static final String STRCAT = "_strcat";
     public static final String IDENTITY = "_identity";  //恒等写像 (実際に共通コード部には定義しない)
     public static final String SET_EXCEPTION_NODE_INFO = "_setExceptionNodeInfo";
-    public static final String NEW_BH_PROGRAM_EXCEPTION = "_newBhProgramExceptioin";
+    public static final String NEW_BH_PROGRAM_EXCEPTION = "_newBhProgramException";
     public static final String INIT_THIS_OBJ = "_initThisObj";
     public static final String CREATE_THREAD_CONTEXT = "_createThreadContext";
     public static final String REMOVE_THREAD_CONTEXT = "_removeThreadContext";

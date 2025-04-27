@@ -146,7 +146,7 @@ public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
       }
       case COMBO_BOX -> {
         var view = new ComboBoxNodeView(style);
-        view.setValue(new SelectableItem(text, text));
+        view.setValue(new SelectableItem<>(text, text));
         yield view;
       }
       case LABEL -> {

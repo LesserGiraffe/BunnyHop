@@ -56,7 +56,7 @@ public class MenuBarController {
   /** 現在保存対象になっているファイル. */
   private File currentSaveFile;
   /** モデルへのアクセスの通知先となるオブジェクト. */
-  private ModelAccessNotificationService notificationService;
+  private ModelAccessNotificationService notifService;
   private UndoRedoAgent undoRedoAgent;
   private ProjectImporter importer;
   private ProjectExporter exporter;
@@ -65,12 +65,12 @@ public class MenuBarController {
   /** 初期化する. */
   public void initialize(
       WorkspaceSet wss,
-      ModelAccessNotificationService notificationService,
+      ModelAccessNotificationService notifService,
       UndoRedoAgent undoRedoAgent,
       ProjectImporter importer,
       ProjectExporter exporter,
       MessageService msgService) {
-    this.notificationService = notificationService;
+    this.notifService = notifService;
     this.undoRedoAgent = undoRedoAgent;
     this.importer = importer;
     this.exporter = exporter;
@@ -93,7 +93,7 @@ public class MenuBarController {
    * @return 保存した場合true
    */
   private boolean saveAs(WorkspaceSet wss) {
-    notificationService.begin();
+    notifService.begin();
     try {
       if (wss.getWorkspaces().isEmpty()) {
         msgService.alert(
@@ -110,7 +110,7 @@ public class MenuBarController {
       }
       return success;
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
@@ -137,7 +137,7 @@ public class MenuBarController {
    * @return 保存した場合true
    */
   public boolean save(WorkspaceSet wss) {
-    notificationService.begin();
+    notifService.begin();
     try {
       if (wss.getWorkspaces().isEmpty()) {
         msgService.alert(
@@ -158,7 +158,7 @@ public class MenuBarController {
         return saveAs(wss);  //保存対象のファイルが無い場合, 名前をつけて保存
       }
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
@@ -178,7 +178,7 @@ public class MenuBarController {
     if (clearWs.isEmpty()) {
       return;
     }
-    Context context = notificationService.begin();
+    Context context = notifService.begin();
     try {
       SequencedSet<Workspace> workspaces = wss.getWorkspaces();
       boolean success = importer.imports(selectedFile, wss, context.userOpe());
@@ -189,7 +189,7 @@ public class MenuBarController {
         }
       }
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
@@ -240,13 +240,13 @@ public class MenuBarController {
 
   /** アプリケーションが使用しているメモリを開放する. */
   private void freeMemory() {
-    notificationService.begin();
+    notifService.begin();
     try {
       undoRedoAgent.deleteCommands();
       msgService.info(TextDefs.MenubarOps.freeMemory.get());
       System.gc();
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 

@@ -125,7 +125,7 @@ public abstract class Section extends SyntaxSymbol {
   }
 
   @Override
-  public SyntaxSymbol findSymbolInAncestors(String symbolName, int generation, boolean toTop) {
+  public SyntaxSymbol findAncestorOf(String symbolName, int generation, boolean toTop) {
     if (generation == 0) {
       if (symbolNameMatches(symbolName)) {
         return this;
@@ -136,8 +136,8 @@ public abstract class Section extends SyntaxSymbol {
     }
 
     if (parentNode != null) {
-      return parentNode.findSymbolInAncestors(symbolName, Math.max(0, generation - 1), toTop);
+      return parentNode.findAncestorOf(symbolName, Math.max(0, generation - 1), toTop);
     }
-    return parentSection.findSymbolInAncestors(symbolName, Math.max(0, generation - 1), toTop);
+    return parentSection.findAncestorOf(symbolName, Math.max(0, generation - 1), toTop);
   }
 }

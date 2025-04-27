@@ -35,13 +35,14 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.BhProgramController;
-import net.seapanda.bunnyhop.bhprogram.BhRuntimeStatus;
+import net.seapanda.bunnyhop.bhprogram.ExecutableNodeCollector;
 import net.seapanda.bunnyhop.bhprogram.ExecutableNodeSet;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.InputTextCmd;
+import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
+import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.common.TextDefs;
-import net.seapanda.bunnyhop.compiler.ExecutableNodeCollector;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
 import net.seapanda.bunnyhop.model.BhNodePlacer;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
@@ -69,53 +70,53 @@ import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 public class MenuPanelController {
 
   /** ボタンの基底ペイン. */
-  private @FXML VBox menuPanelBase;
+  @FXML private VBox menuPanelBase;
   /** コピーボタン. */
-  private @FXML Button copyBtn;
+  @FXML private Button copyBtn;
   /** カットボタン. */
-  private @FXML Button cutBtn;
+  @FXML private Button cutBtn;
   /** ペーストボタン. */
-  private @FXML Button pasteBtn;
+  @FXML private Button pasteBtn;
   /** デリートボタン. */
-  private @FXML Button deleteBtn;
+  @FXML private Button deleteBtn;
   /** アンドゥボタン. */
-  private @FXML Button undoBtn;
+  @FXML private Button undoBtn;
   /** リドゥボタン. */
-  private @FXML Button redoBtn;
+  @FXML private Button redoBtn;
   /** ズームインボタン. */
-  private @FXML Button zoomInBtn;
+  @FXML private Button zoomInBtn;
   /** ズームアウトボタン. */
-  private @FXML Button zoomOutBtn;
+  @FXML private Button zoomOutBtn;
   /** ワークスペース拡張ボタン. */
-  private @FXML Button widenBtn;
+  @FXML private Button widenBtn;
   /** ワークスペース縮小ボタン. */
-  private @FXML Button narrowBtn;
+  @FXML private Button narrowBtn;
   /** ワークスペース追加ボタン. */
-  private @FXML Button addWorkspaceBtn;
+  @FXML private Button addWorkspaceBtn;
   /** リモート/ローカル選択ボタン. */
-  private @FXML ToggleButton remotLocalSelectBtn;
+  @FXML private ToggleButton remotLocalSelectBtn;
   /** 実行ボタン. */
-  private @FXML Button executeBtn;
+  @FXML private Button executeBtn;
   /** 終了ボタン. */
-  private @FXML Button terminateBtn;
+  @FXML private Button terminateBtn;
   /** 接続ボタン. */
-  private @FXML Button connectBtn;
+  @FXML private Button connectBtn;
   /** 切断ボタン. */
-  private @FXML Button disconnectBtn;
+  @FXML private Button disconnectBtn;
   /** シミュレータフォーカスボタン. */
-  private @FXML Button focusSimBtn;
+  @FXML private Button focusSimBtn;
   /** ジャンプボタン. */
-  private @FXML Button jumpBtn;
+  @FXML private Button jumpBtn;
   /** IPアドレス入力欄. */
-  private @FXML TextField ipAddrTextField;
+  @FXML private TextField ipAddrTextField;
   /** ユーザ名. */
-  private @FXML TextField unameTextField;
+  @FXML private TextField unameTextField;
   /** ログインパスワード. */
-  private @FXML PasswordField passwordTextField;
+  @FXML private PasswordField passwordTextField;
   /** 送信ボタン. */
-  private @FXML Button sendBtn;
+  @FXML private Button sendBtn;
   /** 標準入力テキストフィールド. */
-  private @FXML TextField stdInTextField;
+  @FXML private TextField stdInTextField;
 
   /** BhProgramの実行環境準備中の場合 true. */
   private final AtomicBoolean executing = new AtomicBoolean(false);
@@ -126,7 +127,7 @@ public class MenuPanelController {
   /** 切断中の場合 true. */
   private final AtomicBoolean disconnecting = new AtomicBoolean(false);
   /** モデルへのアクセスの通知先となるオブジェクト. */
-  private ModelAccessNotificationService notificationService;
+  private ModelAccessNotificationService notifService;
   /** ワークスペース作成用オブジェクト. */
   private WorkspaceFactory wsFactory;
   /** Undo / Redo の実行に使用するオブジェクト. */
@@ -143,12 +144,14 @@ public class MenuPanelController {
   private CutAndPaste cutAndPaste;
   /** アプリケーションユーザにメッセージを出力するためのオブジェクト. */
   private MessageService msgService;
+  /** デバッガ. */
+  private Debugger debugger;
 
   /**
    * コントローラを初期化する.
    *
    * @param wssCtrl ワークスペースセットのコントローラオブジェクト
-   * @param notificationService モデルへのアクセスの通知先となるオブジェクト
+   * @param notifService モデルへのアクセスの通知先となるオブジェクト
    * @param wsFactory このオブジェクトを使ってワークスペースを作成する
    * @param undoRedoAgent Undo / Redo の実行に使用するオブジェクト
    * @param proxy このオブジェクトを使ってノード選択ビューを操作する
@@ -156,11 +159,12 @@ public class MenuPanelController {
    * @param remoteCtrl リモートマシン上での BhProgram の実行を制御するオブジェクト
    * @param copyAndPaste コピー & ペーストの処理に使用するオブジェクト
    * @param cutAndPaste カット & ペーストの処理に使用するオブジェクト
+   * @param debugger デバッガ
    * @return 成功した場合 true
    */
   public boolean initialize(
       WorkspaceSetController wssCtrl,
-      ModelAccessNotificationService notificationService,
+      ModelAccessNotificationService notifService,
       WorkspaceFactory wsFactory,
       UndoRedoAgent undoRedoAgent,
       BhNodeSelectionViewProxy proxy,
@@ -168,15 +172,18 @@ public class MenuPanelController {
       BhProgramController remoteCtrl,
       CopyAndPaste copyAndPaste,
       CutAndPaste cutAndPaste,
-      MessageService msgService) {
-    this.notificationService = notificationService;
+      MessageService msgService,
+      Debugger debugger) {
+    this.notifService = notifService;
     this.wsFactory = wsFactory;
     this.undoRedoAgent = undoRedoAgent;
+    this.proxy = proxy;
     this.localCtrl = localCtrl;
     this.remoteCtrl = remoteCtrl;
     this.copyAndPaste = copyAndPaste;
     this.cutAndPaste = cutAndPaste;
     this.msgService = msgService;
+    this.debugger = debugger;
     WorkspaceSet wss = wssCtrl.getWorkspaceSet();
     copyBtn.setOnAction(action -> copy(wss)); // コピー
     cutBtn.setOnAction(action -> cut(wss)); // カット
@@ -204,7 +211,7 @@ public class MenuPanelController {
 
   /** コピーボタン押下時の処理. */
   private void copy(WorkspaceSet wss) {
-    Context context = notificationService.begin();
+    Context context = notifService.begin();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -215,13 +222,13 @@ public class MenuPanelController {
       currentWs.getSelectedNodes().forEach(
           node -> copyAndPaste.addNodeToList(node, context.userOpe()));
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
   /** カットボタン押下時の処理. */
   private void cut(WorkspaceSet wss) {
-    Context context = notificationService.begin();
+    Context context = notifService.begin();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -232,13 +239,13 @@ public class MenuPanelController {
       currentWs.getSelectedNodes().forEach(
           node -> cutAndPaste.addNodeToList(node, context.userOpe()));
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
   /** ペーストボタン押下時の処理. */
   private void paste(WorkspaceSet wss, TabPane workspaceSetTab) {
-    Context context = notificationService.begin();
+    Context context = notifService.begin();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -254,13 +261,13 @@ public class MenuPanelController {
       copyAndPaste.paste(currentWs, pastePos, context.userOpe());
       cutAndPaste.paste(currentWs, pastePos, context.userOpe());
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
   /** デリートボタン押下時の処理. */
   private void delete(WorkspaceSet wss) {
-    Context context = notificationService.begin();
+    Context context = notifService.begin();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -280,13 +287,13 @@ public class MenuPanelController {
             context.userOpe());
       }
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
   /** ジャンプボタン押下時の処理. */
   private void jump(WorkspaceSet wss) {
-    Context context = notificationService.begin();
+    Context context = notifService.begin();
     try {
       findNodeToJumpTo(wss).ifPresent(node -> {
         node.getViewProxy().lookAt();
@@ -295,33 +302,33 @@ public class MenuPanelController {
         node.select(context.userOpe());
       });
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
   /** アンドゥボタン押下時の処理. */
   private void undo() {
-    notificationService.begin();
+    notifService.begin();
     try {
       undoRedoAgent.undo();
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
   /** リドゥボタン押下時の処理. */
   private void redo() {
-    notificationService.begin();
+    notifService.begin();
     try {
       undoRedoAgent.redo();
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
   /** ズームインボタン押下時の処理. */
   private void zoomIn(WorkspaceSet wss) {
-    notificationService.begin();
+    notifService.begin();
     try {
       if (proxy.isAnyShowed()) {
         proxy.zoom(true);
@@ -333,13 +340,13 @@ public class MenuPanelController {
       }
       currentWs.getViewProxy().zoom(true);
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
   /** ズームアウトボタン押下時の処理. */
   private void zoomOut(WorkspaceSet wss) {
-    notificationService.begin();
+    notifService.begin();
     try {
       if (proxy.isAnyShowed()) {
         proxy.zoom(false);
@@ -351,13 +358,13 @@ public class MenuPanelController {
       }
       currentWs.getViewProxy().zoom(false);
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
   /** ワークスペース拡大ボタン押下時の処理. */
   private void widen(WorkspaceSet wss) {
-    notificationService.begin();
+    notifService.begin();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -365,13 +372,13 @@ public class MenuPanelController {
       }
       currentWs.getViewProxy().changeViewSize(true);
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
   /** ワークスペース縮小ボタン押下時の処理. */
   private void narrow(WorkspaceSet wss) {
-    notificationService.begin();
+    notifService.begin();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -379,13 +386,13 @@ public class MenuPanelController {
       }
       currentWs.getViewProxy().changeViewSize(false);
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
   /** ワークスペース追加ボタン押下時の処理. */
   private void addWorkspace(WorkspaceSet wss) {
-    Context context = notificationService.begin();
+    Context context = notifService.begin();
     try {
       String wsName =
           TextDefs.Workspace.defaultWsName.get(wss.getWorkspaces().size() + 1);
@@ -400,7 +407,7 @@ public class MenuPanelController {
       }
       createWorkspace(wsName).ifPresent(ws -> wss.addWorkspace(ws, context.userOpe()));
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
@@ -428,6 +435,7 @@ public class MenuPanelController {
     if (nodeSet == null) {
       return;
     }
+    debugger.clear();
     executing.set(true);
     Supplier<Boolean> exec = () -> isLocalHost()
         ? localCtrl.execute(nodeSet)
@@ -448,14 +456,14 @@ public class MenuPanelController {
 
   /** {@code wss} から実行可能なノードを集める. */
   private ExecutableNodeSet collectExecutableNodes(WorkspaceSet wss) {
-    Context context = notificationService.begin();
+    Context context = notifService.begin();
     Optional<ExecutableNodeSet> nodeSet = Optional.empty();
     try {
       nodeSet = ExecutableNodeCollector.collect(wss, msgService, context.userOpe());
     } catch (Exception e) {
       LogManager.logger().error(e.toString());
     } finally {
-      notificationService.end();
+      notifService.end();
     }
     return nodeSet.orElse(null);
   }
@@ -537,12 +545,12 @@ public class MenuPanelController {
       ipAddrTextField.setDisable(false);
       unameTextField.setDisable(false);
       passwordTextField.setDisable(false);
-      remotLocalSelectBtn.setText(TextDefs.Gui.MenuPanel.remote.get());
+      remotLocalSelectBtn.setText(TextDefs.MenuPanel.remote.get());
     } else {
       ipAddrTextField.setDisable(true);
       unameTextField.setDisable(true);
       passwordTextField.setDisable(true);
-      remotLocalSelectBtn.setText(TextDefs.Gui.MenuPanel.local.get());
+      remotLocalSelectBtn.setText(TextDefs.MenuPanel.local.get());
     }
   }
 
@@ -632,20 +640,3 @@ public class MenuPanelController {
     REDO,
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

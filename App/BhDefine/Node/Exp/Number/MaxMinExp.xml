@@ -3,6 +3,7 @@
   bhNodeID="idMaxMinExp"
   name="MaxMinExp"
   nodeStyleID="MaxMinExp.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">

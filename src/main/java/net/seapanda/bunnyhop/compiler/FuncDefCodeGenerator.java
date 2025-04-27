@@ -84,13 +84,13 @@ class FuncDefCodeGenerator {
         .append(funcName)
         .append("(");
     if (option.withComments) {
-      TextNode funcNameNode = (TextNode) funcDefNode.findSymbolInDescendants(
+      TextNode funcNameNode = (TextNode) funcDefNode.findDescendantOf(
           "*", "*", SymbolNames.UserDefFunc.FUNC_NAME, "*");
       code.append(" /*").append(funcNameNode.getText()).append("*/");
     }
-    SyntaxSymbol param = funcDefNode.findSymbolInDescendants(
+    SyntaxSymbol param = funcDefNode.findDescendantOf(
         "*", "*", SymbolNames.UserDefFunc.PARAM_DECL, "*");
-    SyntaxSymbol outParam = funcDefNode.findSymbolInDescendants(
+    SyntaxSymbol outParam = funcDefNode.findDescendantOf(
         "*", "*", SymbolNames.UserDefFunc.OUT_PARAM_DECL, "*");
     var commonParams = List.of(ScriptIdentifiers.Vars.THREAD_CONTEXT);
     varDeclCodeGen.genParamList(commonParams, param, outParam, code, nestLevel + 1, option);
@@ -119,7 +119,7 @@ class FuncDefCodeGenerator {
         .append(ScriptIdentifiers.Label.end)
         .append(" : {" + Keywords.newLine);
     SyntaxSymbol stat =
-        funcDefNode.findSymbolInDescendants("*", "*", SymbolNames.Stat.STAT_LIST, "*");
+        funcDefNode.findDescendantOf("*", "*", SymbolNames.Stat.STAT_LIST, "*");
     statCodeGen.genStatement(stat, code, nestLevel + 1, option);
     code.append(common.indent(nestLevel))
         .append("}" + Keywords.newLine);

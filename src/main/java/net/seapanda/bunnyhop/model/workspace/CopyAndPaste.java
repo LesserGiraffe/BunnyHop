@@ -88,8 +88,7 @@ public class CopyAndPaste {
    * @param pasteBasePos 貼り付け基準位置
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public void paste(
-      Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperation userOpe) {
+  public void paste(Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperation userOpe) {
     if (readyToCopy.isEmpty()) {
       return;
     }

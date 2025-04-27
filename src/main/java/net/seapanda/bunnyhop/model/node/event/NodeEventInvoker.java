@@ -161,7 +161,7 @@ public interface NodeEventInvoker {
   List<TextOption> onTextOptionCreating(TextNode target);
 
   /**
-   * このノードのコンパニオンノードを作成する.
+   * {@code target} のコンパニオンノードを作成する.
    *
    * @param target イベントハンドラが定義されたノード
    * @param type コンパニオンノードに対して適用する MVC 構造
@@ -176,5 +176,12 @@ public interface NodeEventInvoker {
    * @param target イベントハンドラが定義されたノード
    * @return コンパイルエラーがある場合 true.  無い場合 false.
    */
-  boolean onCompileErrChecking(BhNode target);  
+  boolean onCompileErrChecking(BhNode target);
+
+  /**
+   * {@code target} のエイリアスを取得する.
+   *
+   * @return {@code target} のエイリアス.
+   */
+  String onAliasAsked(BhNode target);
 }

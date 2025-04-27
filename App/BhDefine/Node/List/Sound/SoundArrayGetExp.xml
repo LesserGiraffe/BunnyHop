@@ -4,6 +4,7 @@
   name="SoundArrayGetExp"
   nodeStyleID="SoundArrayGetExp.json"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="SoundExpSctn">
@@ -17,18 +18,5 @@
       bhConnectorID="idSoundArrayGetExp.cnctr1"
       import="idNumExpCnctr"
       name="Arg1"/>
-
-    <Connector
-      bhConnectorID="idSoundArrayGetExp.cnctr2"
-      name="Arg2"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idSoundArrayGetExp.node2"
-        name="NilSound"
-        initialText="_nilSound"
-        version="bh-1.0"/>
-    </Connector>
-
   </ConnectorSection>
 </Node>

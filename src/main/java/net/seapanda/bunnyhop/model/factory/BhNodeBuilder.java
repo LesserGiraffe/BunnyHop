@@ -230,7 +230,8 @@ class BhNodeBuilder {
         nodeAttrs.onCompileErrorChecking(),
         nodeAttrs.onCompanionNodesCreating(),
         nodeAttrs.onCreatedAsTemplate(),
-        nodeAttrs.onDragStarted());
+        nodeAttrs.onDragStarted(),
+        nodeAttrs.onAliasAsked());
     if (!allScriptsFound) {
       return Optional.empty();
     }
@@ -284,7 +285,8 @@ class BhNodeBuilder {
         nodeAttrs.onCompanionNodesCreating(),
         nodeAttrs.onTextOptionsCreating(),
         nodeAttrs.onCreatedAsTemplate(),
-        nodeAttrs.onDragStarted());
+        nodeAttrs.onDragStarted(),
+        nodeAttrs.onAliasAsked());
     if (!allScriptsFound) {
       return Optional.empty();
     }

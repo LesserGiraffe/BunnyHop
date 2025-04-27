@@ -4,6 +4,7 @@
   name="SoundEmptyList"
   nodeStyleID="SoundEmptyList.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <!-- SoundList と共通のセクションを持たせる -->

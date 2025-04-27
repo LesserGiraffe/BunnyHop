@@ -1,0 +1,29 @@
+<Node
+  type="connective"
+  bhNodeID="idNumArg"
+  name="NumArg"
+  nodeStyleID="NumArg.json"
+  onAliasAsked="OnAliasAsked.js"
+  version="bh-1.0">
+    
+  <ConnectorSection>
+    
+    <Connector
+      bhConnectorID="idNumArg.cnctr0"
+      import="idAnyFixedCnctr"
+      name="VarName"
+      derivativeJoint="dervJointVarName"/>
+
+    <Connector
+      bhConnectorID="idNumArg.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg"/>
+
+    <Connector
+      bhConnectorID="idNumArg.cnctr2"
+      import="idArgCnctr"
+      name="NextArg"
+      derivativeJoint="dervJointNextArg"/>
+
+  </ConnectorSection>    
+</Node>

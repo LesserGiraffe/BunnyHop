@@ -46,7 +46,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
    * @param foundSymbolList 見つかった {@link SyntaxSymbol} を格納するリスト
    * @param symbolNames シンボル名
    */
-  public abstract void findSymbolInDescendants(
+  public abstract void findDescendantOf(
       int generation,
       boolean toTerminal,
       List<SyntaxSymbol> foundSymbolList,
@@ -62,12 +62,12 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
    *      </pre>
    * @return 引数の最後のシンボル名を持つ SyntaxSymbol オブジェクト.  見つからなかった場合は null.
    */
-  public SyntaxSymbol findSymbolInDescendants(String... symbolNamePath) {
+  public SyntaxSymbol findDescendantOf(String... symbolNamePath) {
     if (symbolNamePath.length == 0) {
       throw new AssertionError("The symbol name path must not be empty.");
     }
     List<SyntaxSymbol> foundSymbolList = new ArrayList<>();
-    findSymbolInDescendants(
+    findDescendantOf(
         symbolNamePath.length, false, foundSymbolList, symbolNamePath[symbolNamePath.length - 1]);
     // symbolNamePath == (a,b,c)  => reverseSymbolNamePath == (b, a, thisSymbolName)
     String[] reverseSymbolNamePath = new String[symbolNamePath.length];
@@ -76,7 +76,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
     }
     reverseSymbolNamePath[reverseSymbolNamePath.length - 1] = symbolName;
     for (SyntaxSymbol foundSymbol : foundSymbolList) {
-      if (foundSymbol.findSymbolInAncestors(reverseSymbolNamePath) == this) {
+      if (foundSymbol.findAncestorOf(reverseSymbolNamePath) == this) {
         return foundSymbol;
       }
     }
@@ -92,7 +92,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
    * @param upToTop {@code generation} で指定した世代のみ探す場合 false. トップノードまで探す場合 true.
    * @return シンボル名を持つ {@link SyntaxSymbol} オブジェクト. 見つからなかった場合は null.
    */
-  public abstract SyntaxSymbol findSymbolInAncestors(
+  public abstract SyntaxSymbol findAncestorOf(
       String symbolName, int generation, boolean upToTop);
 
   /**
@@ -105,7 +105,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
    *      </pre>
    * @return 引数の最後のシンボル名を持つ SyntaxSymbol オブジェクト. 見つからなかった場合は null.
    */
-  public SyntaxSymbol findSymbolInAncestors(String... symbolNamePath) {
+  public SyntaxSymbol findAncestorOf(String... symbolNamePath) {
     if (symbolNamePath.length == 0) {
       throw new AssertionError("The symbol name path must not be empty.");
     }
@@ -115,7 +115,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
     while (idx < symbolNamePath.length) {
       String childName = symbolNamePath[idx];
       ++idx;
-      currentLevel = currentLevel.findSymbolInAncestors(childName, 1, false);
+      currentLevel = currentLevel.findAncestorOf(childName, 1, false);
       if (currentLevel == null) {
         break;
       }
@@ -138,14 +138,14 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
     if (syntaxSymbol.isDescendantOf(this)) {
       path.addFirst(syntaxSymbol.getSymbolName());
       SyntaxSymbol parent = syntaxSymbol;
-      while ((parent = parent.findSymbolInAncestors("*", 1, false)) != this) {
+      while ((parent = parent.findAncestorOf("*", 1, false)) != this) {
         path.addFirst(parent.getSymbolName());
       }
       return path.toArray(new String[path.size()]);
 
     } else if (this.isDescendantOf(syntaxSymbol)) {
       SyntaxSymbol parent = this;
-      while ((parent = parent.findSymbolInAncestors("*", 1, false)) != syntaxSymbol) {
+      while ((parent = parent.findAncestorOf("*", 1, false)) != syntaxSymbol) {
         path.addLast(parent.getSymbolName());
       }
       path.addLast(syntaxSymbol.getSymbolName());

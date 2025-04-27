@@ -1,0 +1,37 @@
+#csPanelName {
+  -fx-font-weight: bold;
+}
+
+#csHbox {
+  -fx-font-size: 1.1em;
+  -fx-font-family: "Meiryo UI";
+  -fx-padding: 0.25em 0 0.25em 0;
+  -fx-alignment: center-left;
+}
+
+#threadStatusText {
+  -fx-font-size: 1.1em;
+  -fx-font-family: "Meiryo UI";
+  -fx-padding: 0.25em 0 0 0;
+  -fx-fill: black;
+  -fx-underline: false;
+}
+
+#threadStatusText:error {
+  -fx-fill: rgb(0, 119, 255);
+  -fx-underline: true;
+}
+
+.callStackItem {
+  -fx-underline: false;
+}
+
+.callStackItem:textDecorate {
+  -fx-underline: true;
+}
+
+#bhRuntimeErrMsg {
+  -fx-font-size: 1.1em;
+  -fx-font-family: "Meiryo UI";
+  -fx-border-color: orange;
+}

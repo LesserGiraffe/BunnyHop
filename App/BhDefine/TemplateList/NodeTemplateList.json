@@ -36,6 +36,7 @@
       "idNewLine", 
       "idPrintStat", 
       "idScanExp", 
+      "idAnyToStrExp",
       "idStrRowChainExp",
       "idStrColumnChainExp",
       "idSayStat"]

@@ -3,6 +3,7 @@
   bhNodeID="idSoundListArg"
   name="SoundListArg"
   nodeStyleID="SoundListArg.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection>

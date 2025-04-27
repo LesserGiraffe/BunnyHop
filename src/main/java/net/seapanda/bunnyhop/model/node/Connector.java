@@ -246,7 +246,7 @@ public class Connector extends SyntaxSymbol {
   }
 
   @Override
-  public void findSymbolInDescendants(
+  public void findDescendantOf(
       int generationi,
       boolean toBottom,
       List<SyntaxSymbol> foundSymbolList,
@@ -261,12 +261,12 @@ public class Connector extends SyntaxSymbol {
         return;
       }
     }
-    connectedNode.findSymbolInDescendants(
+    connectedNode.findDescendantOf(
         Math.max(0, generationi - 1), toBottom, foundSymbolList, symbolNames);
   }
 
   @Override
-  public SyntaxSymbol findSymbolInAncestors(String symbolName, int generation, boolean toTop) {
+  public SyntaxSymbol findAncestorOf(String symbolName, int generation, boolean toTop) {
 
     if (generation == 0) {
       if (symbolNameMatches(symbolName)) {
@@ -276,7 +276,7 @@ public class Connector extends SyntaxSymbol {
         return null;
       }
     }
-    return parent.findSymbolInAncestors(symbolName, Math.max(0, generation - 1), toTop);
+    return parent.findAncestorOf(symbolName, Math.max(0, generation - 1), toTop);
   }
 
   @Override

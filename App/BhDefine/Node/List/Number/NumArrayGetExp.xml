@@ -4,6 +4,7 @@
   name="NumArrayGetExp"
   nodeStyleID="NumArrayGetExp.json"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="NumExpSctn">
@@ -17,18 +18,5 @@
       bhConnectorID="idNumArrayGetExp.cnctr1"
       import="idNumExpCnctr"
       name="Arg1"/>
-    
-    <Connector
-      bhConnectorID="idNumArrayGetExp.cnctr2"
-      name="Arg2"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idNumArrayGetExp.node2"
-        name="NumLiteral"
-        initialText="0"
-        version="bh-1.0"/>
-    </Connector>
-
   </ConnectorSection>
 </Node>

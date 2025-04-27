@@ -29,7 +29,7 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputControl;
 import javafx.util.Duration;
 
 /**
@@ -39,7 +39,7 @@ import javafx.util.Duration;
  */
 public class BhMessageService implements Closeable, MessageService {
 
-  private TextArea mainMsgArea;
+  private TextInputControl textInputCtrl;
   private Queue<String> messages = new LinkedList<>();
   private final Timeline msgPrintTimer;
   private Collection<String> style = new ArrayList<>();
@@ -54,24 +54,24 @@ public class BhMessageService implements Closeable, MessageService {
   }
 
   private synchronized void outputMsg() {
-    if (isClosed || mainMsgArea == null) {
+    if (isClosed || textInputCtrl == null) {
       return;
     }
     StringBuilder text = new StringBuilder("");
     messages.forEach(text::append);
     messages.clear();
     if (!text.isEmpty()) {
-      mainMsgArea.appendText(text.toString());
+      textInputCtrl.appendText(text.toString());
     }
   }
 
   @Override
   public synchronized void info(String msg) {
-    if (isClosed || mainMsgArea == null) {
+    if (isClosed || textInputCtrl == null) {
       return;
     }
     if (Platform.isFxApplicationThread()) {
-      mainMsgArea.appendText(msg);
+      textInputCtrl.appendText(msg);
     } else {
       messages.offer(msg);
     }
@@ -117,12 +117,12 @@ public class BhMessageService implements Closeable, MessageService {
   }
 
   /**
-   * メインのメッセージ出力エリアを登録する.
+   * メッセージ出力先を登録する.
    *
-   * @param mainMsgArea 登録するメインのメッセージ出力エリア
+   * @param ctrl メッセージ出力先
    */
-  public synchronized void setMainMsgArea(TextArea mainMsgArea) {
-    this.mainMsgArea = mainMsgArea;
+  public synchronized void setMainMsgArea(TextInputControl ctrl) {
+    this.textInputCtrl = ctrl;
   }
 
   /** ウィンドウを使うメッセージ出力のスタイルをセットする. */

@@ -36,7 +36,7 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 public class WorkspaceFactoryImpl implements WorkspaceFactory {
   
   private final Path nodeShifterViewPath;
-  private final ModelAccessNotificationService notificationService;
+  private final ModelAccessNotificationService notifService;
   private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
   private final Path workspaceViewFilePath;
   private final MessageService msgService;
@@ -45,12 +45,12 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
   public WorkspaceFactoryImpl(
       Path workspaceViewFilePath,
       Path nodeShifterViewPath,
-      ModelAccessNotificationService notificationService,
+      ModelAccessNotificationService notifService,
       BhNodeSelectionViewProxy proxy,
       MessageService msgService) {
     this.workspaceViewFilePath = workspaceViewFilePath;
     this.nodeShifterViewPath = nodeShifterViewPath;
-    this.notificationService = notificationService;
+    this.notifService = notifService;
     this.nodeSelectionViewProxy = proxy;
     this.msgService = msgService;
   }
@@ -67,7 +67,7 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
         ws,
         view,
         new NodeShifterView(nodeShifterViewPath),
-        notificationService,
+        notifService,
         nodeSelectionViewProxy,
         msgService);
     return view;

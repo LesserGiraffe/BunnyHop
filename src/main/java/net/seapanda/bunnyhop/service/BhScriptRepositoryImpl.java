@@ -80,7 +80,6 @@ public class BhScriptRepositoryImpl implements BhScriptRepository {
       }
       Context cx = ContextFactory.getGlobal().enterContext();
       cx.setLanguageVersion(Context.VERSION_ES6);
-      cx.setOptimizationLevel(9);
       for (Path path : jsFilePaths) {
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
           Script script = cx.compileReader(reader, path.getFileName().toString(), 1, null);

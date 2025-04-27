@@ -4,6 +4,7 @@
   name="StrEmptyList"
   nodeStyleID="StrEmptyList.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <!-- StrList と共通のセクションを持たせる -->

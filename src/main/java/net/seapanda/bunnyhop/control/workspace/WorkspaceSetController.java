@@ -26,10 +26,13 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.common.BhConstants;
-import net.seapanda.bunnyhop.control.DebugBoardController;
+import net.seapanda.bunnyhop.control.SearchBoxController;
+import net.seapanda.bunnyhop.control.debugger.DebugBoardController;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
@@ -50,16 +53,14 @@ public class WorkspaceSetController {
   /** ノード削除用のゴミ箱のコントローラ. */
   @FXML private TrashboxController trashboxController;
   @FXML private DebugBoardController debugBoardController;
+  @FXML private SearchBoxController searchBoxController;
 
-  /**
-   * モデルとイベントハンドラをセットする.
-   *
-   * @param wss ワークスペースセットのモデル
-   */
-  public void initialize(WorkspaceSet wss) {
+  /** 初期化する. */
+  public void initialize(WorkspaceSet wss, Debugger debugger, DebugViewFactory factory) {
     model = wss;
     setEventHandlers();
     workspaceSetViewBase.setDividerPositions(BhConstants.LnF.DEFAULT_VERTICAL_DIV_POS);
+    debugBoardController.initialize(debugger, factory);
   }
 
   /** イベントハンドラを登録する. */
@@ -177,6 +178,11 @@ public class WorkspaceSetController {
     return trashboxController;
   }
 
+  /** 検索ボックスのコントローラオブジェクトを取得する. */
+  public SearchBoxController getSearchBoxController() {
+    return searchBoxController;
+  }
+
   /** {@code ws} のワークスペースビューをワークスペースセットのビューに追加する. */
   private void addWorkspaceView(Workspace ws) {
     WorkspaceView wsView = ws.getViewProxy().getView();
@@ -189,17 +195,15 @@ public class WorkspaceSetController {
       // ここで REORDER にしないと, undo でタブを戻した時, タブドラッグ時に例外が発生する
       workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);  
     }
-    wsView.getEventManager().addOnMousePressed(event -> debugBoardController.removeMarksIn(ws));
   }
 
   /** {@code ws} のワークスペースビューをワークスペースセットのビューから削除する. */
   private void removeWorkspaceView(Workspace ws) {
     WorkspaceView wsView = ws.getViewProxy().getView();
-    if (wsView == null) {
-      return;
+    if (wsView instanceof Tab tab) {
+      workspaceSetTab.getTabs().remove(tab);
+      // ここで REORDER にしないと, タブを消した後でタブドラッグすると例外が発生する
+      workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
     }
-    workspaceSetTab.getTabs().remove(wsView);
-    // ここで REORDER にしないと, タブを消した後でタブドラッグすると例外が発生する
-    workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
   }
 }

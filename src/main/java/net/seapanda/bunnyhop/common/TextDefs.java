@@ -48,15 +48,45 @@ public class TextDefs {
     TextDefs.db = db;
   }
 
-  /** GUI 部品のテキスト. */
-  public static class Gui {
+  /** メニューパネルのテキスト. */
+  public static class MenuPanel {
+    public static Getter remote = params -> db.get(
+        TextId.of("gui", "menu-panel", "remote"), params);
+    public static Getter local = params -> db.get(
+        TextId.of("gui", "menu-panel", "local"), params);
+  }
 
-    /** メニューパネルのテキスト. */
-    public static class MenuPanel {
-      public static Getter remote = params -> db.get(
-          TextId.of("gui", "menu-panel", "remote"), params);
-      public static Getter local = params -> db.get(
-          TextId.of("gui", "menu-panel", "local"), params);
+  /** デバッガに表示されるテキスト. */
+  public static class Debugger {
+    public static Getter thread = params -> db.get(TextId.of("gui", "debugger", "thread"));
+    public static Getter notSelected = params -> db.get(
+        TextId.of("gui", "debugger", "not-selected"));
+    public static Getter stackOverflow = params -> db.get(
+        TextId.of("gui", "debugger", "stack-overflow"));
+    public static Getter outOfMemory = params -> db.get(
+        TextId.of("gui", "debugger", "out-of-memory"));
+    public static Getter runtimErrOccured = params -> db.get(
+        TextId.of("gui", "debugger", "runtime-error-occured"));
+    
+    /** スレッドの状態を表すテキスト. */
+    public static class ThreadStatus {
+      public static Getter status = params -> db.get(
+          TextId.of("gui", "debugger", "thread-status", "status"));
+      public static Getter error = params -> db.get(
+          TextId.of("gui", "debugger", "thread-status", "error"));
+      public static Getter running = params -> db.get(
+          TextId.of("gui", "debugger", "thread-status", "running"));
+      public static Getter stopped = params -> db.get(
+          TextId.of("gui", "debugger", "thread-status", "suspended"));
+    }
+
+    /** コールスタックに表示されるテキスト. */
+    public static class CallStack {
+      public static Getter ellipsis = params -> db.get(
+          TextId.of("gui", "debugger", "call-stack", "ellipsis"), params);
+        
+      public static Getter unknown = params -> db.get(
+          TextId.of("gui", "debugger", "call-stack", "unknown"), params);
     }
   }
 

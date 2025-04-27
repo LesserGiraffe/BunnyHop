@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.view;
 
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -95,7 +96,7 @@ public class ViewUtil {
    */
   public static Vec2D getPosOnWorkspace(Node node) {
     Parent parent = node.getParent();
-    while (parent != null && !BhConstants.Fxml.ID_WS_PANE.equals(parent.getId())) {
+    while (parent != null && !BhConstants.UiId.WS_PANE.equals(parent.getId())) {
       parent = parent.getParent();
     }
     if (parent != null) {
@@ -114,7 +115,7 @@ public class ViewUtil {
    */
   public static WorkspaceView getWorkspaceView(Node node) {
     Parent parent = node.getParent();
-    while (parent != null && !BhConstants.Fxml.ID_WS_PANE.equals(parent.getId())) {
+    while (parent != null && !BhConstants.UiId.WS_PANE.equals(parent.getId())) {
       parent = parent.getParent();
     }
     if (parent != null) {
@@ -151,5 +152,20 @@ public class ViewUtil {
     Text text = new Text(str);
     text.setFont(font);
     return text.getBoundsInLocal().getWidth();
+  }
+
+  /**
+   * 現在のスレッドが UI スレッドの場合, {@code handler} を実行してからコントロールを返す.
+   * そうでない場合, 後で UI スレッドで {@code handler} が実行されるようにする.
+   */
+  public static void runSafe(Runnable handler) {
+    if (handler == null) {
+      return;
+    }
+    if (Platform.isFxApplicationThread()) {
+      handler.run();
+    } else {
+      Platform.runLater(handler);
+    }
   }
 }

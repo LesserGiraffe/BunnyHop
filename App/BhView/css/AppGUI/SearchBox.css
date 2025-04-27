@@ -1,0 +1,18 @@
+#searchBoxViewBase {
+  -fx-padding: 0.4em 0.4em 0.4em 0.4em;
+  -fx-background-color: #bdbdbd;
+  -fx-font-size: 1.1em;
+  -fx-font-family: "Meiryo UI";
+}
+
+#searchBoxCloseButton {
+  -fx-text-fill: red;
+}
+
+#regexButton {
+  -fx-padding: 0.2em 0.1em 0.2em 0.1em;
+}
+
+#caseSensitiveButton {
+  -fx-padding: 0.2em 0.1em 0.2em 0.1em;
+}

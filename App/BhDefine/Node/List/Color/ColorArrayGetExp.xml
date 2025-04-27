@@ -4,6 +4,7 @@
   name="ColorArrayGetExp"
   nodeStyleID="ColorArrayGetExp.json"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="ColorExpSctn">
@@ -16,18 +17,5 @@
       bhConnectorID="idColorArrayGetExp.cnctr1"
       import="idNumExpCnctr"
       name="Arg1"/>
-        
-    <Connector
-      bhConnectorID="idColorArrayGetExp.cnctr2"
-      name="Arg2"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idColorArrayGetExp.node2"
-        name="NilColor"
-        initialText="_nilColor"
-        version="bh-1.0"/>
-    </Connector>
-
   </ConnectorSection>
 </Node>

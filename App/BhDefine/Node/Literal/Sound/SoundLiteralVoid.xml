@@ -1,6 +1,7 @@
 <Node
-    type="text"
-    bhNodeID="idSoundLiteralVoid" 
-    name="SoundLiteralVoid" 
-    nodeStyleID="SoundExpVoid.json"
-    version="bh-1.0"/>
+  type="text"
+  bhNodeID="idSoundLiteralVoid" 
+  name="SoundLiteralVoid" 
+  nodeStyleID="SoundExpVoid.json"
+  onAliasAsked="OnAliasAsked.js"
+  version="bh-1.0"/>

@@ -140,6 +140,13 @@ class CommonCodeGenerator {
         currentNode.getInstanceId().toString());    
   }
 
+  /** 処理中のノードのインスタンス ID をスレッドコンテキストに設定するコードを作成する. */
+  String genNullifyCurrentNodeInstIdCode() {
+    return "%s[%s] = null".formatted(
+        ScriptIdentifiers.Vars.THREAD_CONTEXT,
+        ScriptIdentifiers.Vars.IDX_CURRENT_NODE_INST_ID);
+  }
+
   /**
    * {@code varDecl} が出力引数であるかどうかチェックする.
    *
@@ -147,7 +154,7 @@ class CommonCodeGenerator {
    * @return {@code varDecl} が出力引数である場合 true を返す.
    */
   boolean isOutputParam(SyntaxSymbol varDecl) {
-    return varDecl.findSymbolInAncestors(SymbolNames.UserDefFunc.OUT_PARAM_DECL, 1, true) != null;
+    return varDecl.findAncestorOf(SymbolNames.UserDefFunc.OUT_PARAM_DECL, 1, true) != null;
   }
 
   /** 出力引数の値を取得するコードを作成する. */
@@ -167,6 +174,20 @@ class CommonCodeGenerator {
    */
   String toJsString(String str) {
     return "'" + str.replaceAll("\\\\", "\\\\\\\\").replaceAll("'", "\\\\'") + "'";
+  }
+
+  /** {@code numStr} で表される数値を Javasctipt の文字列リテラル表現に変換する. */
+  String toJsNumber(String numStr) {
+    if (numStr.equals("Infinity")) {
+      return "Number.POSITIVE_INFINITY";
+    }
+    if (numStr.equals("-Infinity")) {
+      return "Number.NEGATIVE_INFINITY";
+    }
+    if (numStr.equals("NaN")) {
+      return "Number.NaN";
+    }
+    return numStr;
   }
 
   /** インデント分の空白を返す. */

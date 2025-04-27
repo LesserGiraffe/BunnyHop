@@ -3,6 +3,7 @@
   bhNodeID="idAnyToStrExp"
   name="AnyToStrExp"
   nodeStyleID="ToStrExp.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="StrExpSctn">

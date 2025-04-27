@@ -31,7 +31,7 @@ public class TextInputNodeController implements BhNodeController {
 
   private final TextNode model;
   private final TextInputNodeView view;
-  private final ModelAccessNotificationService notificationService;
+  private final ModelAccessNotificationService notifService;
 
   /** コンストラクタ. */
   public TextInputNodeController(BhNodeController controller) {
@@ -48,7 +48,7 @@ public class TextInputNodeController implements BhNodeController {
       throw new IllegalStateException(
           "The view is not %s".formatted(TextInputNodeView.class.getSimpleName()));
     }
-    notificationService = controller.getNotificationService();
+    notifService = controller.getNotificationService();
     setEventHandlers();
   }
 
@@ -68,7 +68,7 @@ public class TextInputNodeController implements BhNodeController {
   /** {@code TextInputNodeView} のフォーカスが外れた時のイベントハンドラ. */
   private void onFocusChanged(Boolean isInputFinished) {
     try {
-      notificationService.begin();
+      notifService.begin();
       if (!isInputFinished) {
         return;
       }
@@ -81,7 +81,7 @@ public class TextInputNodeController implements BhNodeController {
         view.setText(model.getText());  //view の文字列を変更前の文字列に戻す
       }
     } finally {
-      notificationService.end();
+      notifService.end();
     }
   }
 
@@ -97,6 +97,6 @@ public class TextInputNodeController implements BhNodeController {
 
   @Override
   public ModelAccessNotificationService getNotificationService() {
-    return notificationService;
+    return notifService;
   }
 }

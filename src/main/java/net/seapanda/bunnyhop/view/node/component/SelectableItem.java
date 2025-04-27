@@ -23,37 +23,19 @@ import java.util.Objects;
  *
  * @author K.Koike
  */
-public class SelectableItem {
+public class SelectableItem<T, U> {
   
-  /** ビューが保持するオブジェクト. */
-  private final Object viewObject;
-  /** モデルが保持するテキスト. */
-  private final String modelText;
+  /** 選択アイテムのモデル. */
+  private final T model;
+  /** 選択アイテムのビュー. */
+  private final U view;
   
   /** コンストラクタ. */
-  public SelectableItem(String modelText, Object viewObj) {
-    Objects.requireNonNull(modelText);
-    Objects.requireNonNull(viewObj);
-    this.modelText = modelText;
-    this.viewObject = viewObj;
-  }
-    
-  /**
-   * ビューが保持するオブジェクトを取得する.
-   *
-   * @return ビューが保持するオブジェクト
-   */
-  public Object getViewObject() {
-    return viewObject;
-  }
-
-  /**
-   * ビューが保持するオブジェクトの文字列表現を取得する.
-   *
-   * @return ビューが保持するオブジェクトの文字列表現
-   */
-  public String getViewString() {
-    return viewObject.toString();
+  public SelectableItem(T model, U view) {
+    Objects.requireNonNull(model);
+    Objects.requireNonNull(view);
+    this.model = model;
+    this.view = view;
   }
 
   /**
@@ -61,13 +43,22 @@ public class SelectableItem {
    *
    * @return モデル側でのテキスト
    */
-  public String getModelText() {
-    return modelText;
+  public T getModel() {
+    return model;
   }
-  
+
+  /**
+   * ビューが保持するオブジェクトを取得する.
+   *
+   * @return ビューが保持するオブジェクト
+   */
+  public U getView() {
+    return view;
+  }
+
   @Override
   public String toString() {
-    return viewObject.toString();
+    return model.toString() + " : " + view.toString();
   }
   
   @Override
@@ -78,14 +69,14 @@ public class SelectableItem {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SelectableItem selectableItem = (SelectableItem) obj;
-    return Objects.equals(modelText, selectableItem.modelText)
-        && Objects.equals(viewObject, selectableItem.viewObject);
+    SelectableItem<?, ?> selectableItem = (SelectableItem<?, ?>) obj;
+    return Objects.equals(model, selectableItem.model)
+        && Objects.equals(view, selectableItem.view);
   }
 
   @Override
   public int hashCode() {
-    int hash = Objects.hashCode(this.viewObject);
-    return 31 * hash + Objects.hashCode(this.modelText);
+    int hash = Objects.hashCode(this.view);
+    return 31 * hash + Objects.hashCode(this.model);
   }
 }

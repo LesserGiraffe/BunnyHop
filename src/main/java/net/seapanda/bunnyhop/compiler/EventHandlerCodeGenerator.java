@@ -136,13 +136,16 @@ class EventHandlerCodeGenerator {
     // _sleep(...)
     if (eventNode.getSymbolName().equals(SymbolNames.Event.DELAYED_START_EVENT)) {
       TextNode delayTimeNode =
-          (TextNode) eventNode.findSymbolInDescendants("*", "*", SymbolNames.Event.DELAY_TIME);
-      code.append(common.indent(nestLevel + 4))
+          (TextNode) eventNode.findDescendantOf("*", "*", SymbolNames.Event.DELAY_TIME);
+      code.append(common.indent(nestLevel))
+          .append(common.genSetCurrentNodeInstIdCode(eventNode))
+          .append(";" + Keywords.newLine)
+          .append(common.indent(nestLevel + 4))
           .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.SLEEP, delayTimeNode.getText()))
           .append(";" + Keywords.newLine);
     }
 
-    SyntaxSymbol stat = eventNode.findSymbolInDescendants("*", SymbolNames.Stat.STAT_LIST, "*");
+    SyntaxSymbol stat = eventNode.findDescendantOf("*", SymbolNames.Stat.STAT_LIST, "*");
     statCodeGen.genStatement(stat, code, nestLevel + 4, option);
     genFooterSnippetOfEventCall(code, lockVar, nestLevel);
     // _addEvent(...);
@@ -174,7 +177,7 @@ class EventHandlerCodeGenerator {
     switch (eventNode.getSymbolName()) {
       case SymbolNames.Event.KEY_PRESS_EVENT:
         TextNode eventTypeNode =
-            (TextNode) eventNode.findSymbolInDescendants("*", "*", SymbolNames.Event.KEY_CODE);
+            (TextNode) eventNode.findDescendantOf("*", "*", SymbolNames.Event.KEY_CODE);
         return Optional.ofNullable(KEY_TO_KEYPRESSED_EVENT.get(eventTypeNode.getText()));
 
       case SymbolNames.Event.DELAYED_START_EVENT:

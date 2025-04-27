@@ -76,7 +76,7 @@ class GlobalDataDeclCodeGenerator {
     if (option.withComments) {
       SymbolNames.GlobalData.DATA_NAME_CNCTR_LIST.stream()
           .map(cnctrName ->
-              (TextNode) globalDataDeclNode.findSymbolInDescendants("*", cnctrName, "*"))
+              (TextNode) globalDataDeclNode.findDescendantOf("*", cnctrName, "*"))
           .filter(node -> node != null)
           .findFirst()
           .map(node -> node.getText())
@@ -99,7 +99,7 @@ class GlobalDataDeclCodeGenerator {
           .append(";").append(Keywords.newLine);
     }
 
-    SyntaxSymbol nextGlobalDataDecl = globalDataDeclNode.findSymbolInDescendants(
+    SyntaxSymbol nextGlobalDataDecl = globalDataDeclNode.findDescendantOf(
         "*", SymbolNames.GlobalData.NEXT_GLOBAL_DATA_DECL, "*");
     if (nextGlobalDataDecl != null) {
       genGlobalDataDecls(nextGlobalDataDecl, code, nestLevel, option);

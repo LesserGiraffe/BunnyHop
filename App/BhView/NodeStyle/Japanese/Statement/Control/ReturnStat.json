@@ -15,7 +15,7 @@
     "inner" : {
       "arrangement" : "Column",
       "space" : 1.5,
-      "connectorList" : ["${L1}{機能から抜ける}"]
+      "connectorList" : ["${L1}{関数から抜ける}"]
     }
   }
 }

@@ -3,6 +3,7 @@
   bhNodeID="idNumCompExp"
   name="NumCompExp"
   nodeStyleID="CompExp.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="BoolExpSctn">
@@ -19,7 +20,7 @@
       <Node
         type="text"
         bhNodeID="idNumCompExp.node1"
-        name="compOpe"
+        name="CompOpe"
         nodeStyleID="DefaultComboBox.json"
         onTextOptionsCreating="CreateOrderCompOps.js"
         version="bh-1.0"/>

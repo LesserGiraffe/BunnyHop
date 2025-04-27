@@ -4,6 +4,7 @@
   name="VoidFuncDef"
   nodeStyleID="VoidFuncDef.json"
   onCompanionNodesCreating="CreateVoidFuncCompanions.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <Derivation derivationID="dervIdFuncCall" derivativeID="idVoidFuncCall"/>

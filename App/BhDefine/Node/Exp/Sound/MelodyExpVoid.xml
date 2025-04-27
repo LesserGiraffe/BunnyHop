@@ -3,4 +3,5 @@
   bhNodeID="idMelodyExpVoid"
   name="MelodyExpVoid"
   nodeStyleID="MelodyExpVoid.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0"/>

@@ -3,6 +3,7 @@
   bhNodeID="idStrCompExp"
   name="StrCompExp"
   nodeStyleID="CompExp.json"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="BoolExpSctn">

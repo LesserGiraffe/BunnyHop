@@ -4,6 +4,7 @@
   name="BoolArrayGetExp"
   nodeStyleID="BoolArrayGetExp.json"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="BoolExpSctn">
@@ -17,18 +18,5 @@
       bhConnectorID="idBoolArrayGetExp.cnctr1"
       import="idNumExpCnctr"
       name="Arg1"/>
-    
-    <Connector
-      bhConnectorID="idBoolArrayGetExp.cnctr2"
-      name="Arg2"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idBoolArrayGetExp.node2"
-        name="BoolLiteral"
-        initialText="false"
-        version="bh-1.0"/>
-    </Connector>
-
   </ConnectorSection>
 </Node>

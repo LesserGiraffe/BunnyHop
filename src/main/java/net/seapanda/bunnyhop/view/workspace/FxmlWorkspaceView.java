@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.SequencedSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -78,19 +79,19 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
       MAX_Z_POS_OF_NODE_VIEW_TREES + Z_POS_INTERVAL_BETWEEN_NODE_VIEW_TREES - 1;
 
   /** 操作対象のビュー. */
-  private @FXML ScrollPane wsScrollPane;
+  @FXML private ScrollPane wsScrollPane;
   /** {@link BhNode} を置くペイン. */
-  private @FXML WorkspaceViewPane wsPane;
+  @FXML private WorkspaceViewPane wsPane;
   /** エラー情報表示用. */
-  private @FXML WorkspaceViewPane errInfoPane;
+  @FXML private WorkspaceViewPane errInfoPane;
   /** {@code wsPane} の親ペイン. */
-  private @FXML Pane wsWrapper;
+  @FXML private Pane wsWrapper;
   /** 矩形選択用ビュー. */
-  private @FXML Polygon rectSelTool;
+  @FXML private Polygon rectSelTool;
   /** タブ名ラベル. */
-  private @FXML Label tabNameLabel;
+  @FXML private Label tabNameLabel;
   /** タブ名入力テキストフィールド. */
-  private @FXML TextField tabNameTextField;
+  @FXML private TextField tabNameTextField;
 
   private final Workspace workspace;
   private final Vec2D minPaneSize;
@@ -123,6 +124,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
    */
   public FxmlWorkspaceView(Workspace workspace, double width, double height, Path filePath)
       throws ViewConstructionException {
+    Objects.requireNonNull(workspace);
     this.workspace = workspace;
     minPaneSize = new Vec2D(width, height);
     configurGuiComponents(filePath);
@@ -144,7 +146,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
       loader.load();
     } catch (IOException e) {
       throw new ViewConstructionException(
-        "Failed to initizlize %s.\n%s".formatted(getClass().getSimpleName(), e));
+        "Failed to initialize %s.\n%s".formatted(getClass().getSimpleName(), e));
     }
     configureWsPane();
     configureTabNameComponents();
@@ -490,11 +492,12 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
   @Override
   public void lookAt(BhNodeView view) {
-    if (!this.equals(view.getWorkspaceView())) {
+    if (!this.equals(view.getWorkspaceView())
+        || getTabPane() == null) {
       return;
     }
     getTabPane().getSelectionModel().select(this);
-    var zoomedWsSize = new Vec2D(wsWrapper.getPrefWidth(), wsWrapper.getPrefHeight());
+    var zoomedWsSize = new Vec2D(wsWrapper.getWidth(), wsWrapper.getHeight());
     var scrollPaneUpperLeftCenterPos =
         new Vec2D(wsScrollPane.getWidth() * 0.5, wsScrollPane.getHeight() * 0.5);
     var scrollPaneLowerRightCenterPos = new Vec2D(

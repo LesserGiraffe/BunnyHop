@@ -6,6 +6,7 @@
   onDeletionRequested="RejectDeletion.js"
   onCutRequested="RejectCut.js"
   onCopyRequested="RejectCopy.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="StatSctn">

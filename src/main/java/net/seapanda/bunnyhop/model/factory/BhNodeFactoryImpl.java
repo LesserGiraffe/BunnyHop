@@ -177,6 +177,9 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
 
     /** MVC のコントローラを作って {@link BhNode} と {@link BhNodeView} を渡す. */
     private BhNodeController connectMvc(BhNode node, BhNodeView nodeView) {
+      if (node.getViewProxy().hasView()) {
+        throw new AssertionError("Duplicated NodeView.  (BhNode = %s)".formatted(node.getId()));
+      }
       BhNodeController ctrl = createBaseController(node, nodeView);
       return switch (nodeView) {
         case TextFieldNodeView view -> new TextInputNodeController(ctrl);

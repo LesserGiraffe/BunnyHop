@@ -42,5 +42,16 @@ public class BhSettings {
     public static double maxWsTabSize = 32 * Rem.VAL;
     /** ワークスペースのタブの最小サイズ. */
     public static double minWsTabSize = 1 * Rem.VAL;
+    /** 検索ワードを入力するテキストフィールドの最小幅. */
+    public static double minSearchWordFieldWidth = 12 * Rem.VAL;
+    /** 検索ワードを入力するテキストフィールドの最大幅. */
+    public static double maxSearchWordFieldWidth = 60 * Rem.VAL;
+    /** コールスタックに表示するデフォルトの最大要素数. */
+    public static int maxCallStackItems = 32;
+  }
+
+  /** BunnyHop が出力するテキストメッセージに関するパラメータ. */
+  public static class Message {
+    public static final int maxErrMsgChars = 4096;
   }
 }

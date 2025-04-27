@@ -422,6 +422,25 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     return false;
   }
 
+  @Override
+  public String onAliasAsked(BhNode target) {
+    ScriptNameAndScript defined = getScript(target.getId(), EventType.ON_ALIAS_ASKED);
+    if (defined == null) {
+      return "";
+    }
+    Context cx = Context.enter();
+    ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
+    try {
+      return (String) defined.script().exec(cx, scope);
+    } catch (Exception e) {
+      LogManager.logger().error(
+          "'%s' must return a string value.\n%s".formatted(defined.name(), e));
+    } finally {
+      Context.exit();
+    }
+    return "";
+  }
+
   /**
    * スクリプト実行時のスコープ (スクリプトのトップレベルの変数から参照できるオブジェクト群) を作成する.
    *

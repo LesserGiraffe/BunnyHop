@@ -43,7 +43,7 @@ public class NodeShifterController {
   /** {@code view} が存在するワークスぺース. */
   private final Workspace ws;
   /** モデルへのアクセスの通知先となるオブジェクト. */
-  private final ModelAccessNotificationService notificationService;
+  private final ModelAccessNotificationService notifService;
   private final DndEventInfo ddInfo = this.new DndEventInfo();
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
 
@@ -58,7 +58,7 @@ public class NodeShifterController {
       NodeShifterView view, Workspace ws, ModelAccessNotificationService service) {
     this.view = view;
     this.ws = ws;
-    this.notificationService = service;
+    this.notifService = service;
     view.setOnMousePressed(mouseEvent -> onMousePressed(mouseEvent));
     view.setOnMouseDragged(mouseEvent -> onMouseDragged(mouseEvent));
     view.setOnMouseReleased(mouseEvent -> onMouseReleased(mouseEvent));
@@ -83,7 +83,7 @@ public class NodeShifterController {
         event.consume();
         return;
       }
-      ddInfo.context = notificationService.begin();
+      ddInfo.context = notifService.begin();
       ddInfo.isDndFinished = false;
       view.switchPseudoClassActivation(true, BhConstants.Css.PSEUDO_SELECTED);
       javafx.geometry.Point2D pos = view.sceneToLocal(event.getSceneX(), event.getSceneY());
@@ -201,7 +201,7 @@ public class NodeShifterController {
   private void terminateDnd() {
     mouseCtrlLock.unlock();
     ddInfo.reset();
-    notificationService.end();
+    notifService.end();
   }
 
   private class DndEventInfo {

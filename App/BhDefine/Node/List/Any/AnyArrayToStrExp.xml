@@ -4,6 +4,7 @@
   name="AnyArrayToStrExp"
   nodeStyleID="AnyArrayToStrExp.json"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
   version="bh-1.0">
 
   <ConnectorSection name="StrExpSctn">

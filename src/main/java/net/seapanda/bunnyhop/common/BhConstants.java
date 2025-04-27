@@ -70,69 +70,86 @@ public class BhConstants {
 
   /** ファイルパス関連のパラメータ. */
   public static class Path {
-    /** fxmlとcssファイルのあるディレクトリ名. */
-    public static final String VIEW_DIR = "BhView";
-    /** cssファイルのあるディレクトリ名. */
-    public static final String CSS_DIR = "css";
-    /** fxmlファイルのあるディレクトリ名. */
-    public static final String FXML_DIR = "fxml";
-    /** ノードやコネクタの定義ディレクトリがあるディレクトリ名. */
-    public static final String BH_DEF_DIR = "BhDefine";
-    /** ノード定義ファイルがあるディレクトリ名. */
-    public static final String NODE_DEF_DIR = "Node";
-    /** コネクタ定義ファイルがあるディレクトリ名. */
-    public static final String CONNECTOR_DEF_DIR = "Connector";
-    /** ノードのスタイル定義ファイルがあるディレクトリ名. */
-    public static final String NODE_STYLE_DEF_DIR = "NodeStyle";
-    /** JavaScript コードが書かれたファイルのあるトップディレクトリ. */
-    public static final String FUNCTIONS_DIR = "Functions";
-    /** ノードテンプレートの配置情報が書かれたファイルがあるディレクトリ名. */
-    public static final String TEMPLATE_LIST_DIR = "TemplateList";
-    /** アイコンなどの画像があるディレクトリ名. */
-    public static final String IMAGES_DIR = "IMAGES";
-    public static final String LOG_DIR = "Log";
-    /** メッセージ定義ファイルがあるディレクトリ名. */
-    public static final String MESSAGE_DIR = "Message";
-    /** デフォルトメッセージプロパティファイル名. */
-    public static final String DEFAULT_MESSAGE_FILE_NAME = "message";
-    public static final String LOG_FILE_NAME = "msg";
-    public static final String lib = "lib";
-    public static final String COMPILED_DIR = "Compiled";
-    public static final String REMOTE_DIR = "Remote";
-    /** アプリの基底部分のビューが定義してあるfxmlファイルの名前. */
-    public static final String FOUNDATION_FXML = "Foundation.fxml";
-    /** ワークスペース部分のビューが定義してあるfxmlファイルの名前. */
-    public static final String WORKSPACE_FXML = "Workspace.fxml";
-    /** ノードシフタのビューが定義してあるfxmlファイルの名前. */
-    public static final String NODE_SHIFTER_FXML = "NodeShifter.fxml";
-    /** BhNodeテンプレートリスト部分のビューが定義してあるfxmlの名前. */
-    public static final String NODE_SELECTION_PANEL_FXML = "NodeSelectionPanel.fxml";
-    /** プライベートテンプレートボタンが定義してあるfxmlの名前. */
-    public static final String PRIVATE_TEMPLATE_BUTTON_FXML = "PrivateTemplateButton.fxml";
-    /** ノードテンプレートの配置情報が書かれたファイルの名前. */
-    public static final String NODE_TEMPLATE_LIST_JSON = "NodeTemplateList.json";
-    public static final String COMMON_FUNCS_JS = "CommonFuncs.js";
-    public static final String COMMON_CODE_JS = "CommonCode.js";
-    public static final String LOCAL_COMMON_CODE_JS = "LocalCommonCode.js";
-    public static final String REMOTE_COMMON_CODE_JS = "RemoteCommonCode.js";
-    /** BunnyHop が作成した BhProgram のスクリプト名. */
-    public static final String APP_FILE_NAME_JS = "BhAppScript.js";
-    /** リモートのBhProgram実行環境をスタートさせるコマンドを生成するスクリプト名. */
-    public static final String REMOTE_EXEC_CMD_GENERATOR_JS = "RemoteExecCmdGenerator.js";
-    /** リモートのBhProgram実行環境を終わらせるコマンドを生成するスクリプト名. */
-    public static final String REMOTE_KILL_CMD_GENERATOR_JS = "RemoteKillCmdGenerator.js";
-    /** BunnyHopのアイコン画像名. */
-    public static final String BUNNY_HOP_ICON = "BunnyHop16.png";
-    /** リモートの BhProgram 実行環境が入ったディレクトリ名. */
-    public static final String REMOTE_BUNNYHOP_DIR = "BunnyHop";
-    /** リモートの BhProgram 実行環境の実行ファイルをまとめたディレクトリの名前. */
-    public static final String REMOTE_APP_DIR = "App";
-    /** BhProgramのファイルを格納するリモート実行環境の下のディレクトリ名. */
-    public static final String REMOTE_COMPILED_DIR = "Compiled";
-    /** 言語ファイルが格納されたディレクトリのパス. */
-    public static final String LANGUAGE_DIR = "Language";
-    /** 言語ファイルの名前. */
-    public static final String LANGUAGE_FILE = "BunnyHop.json";
+    /** ディレクトリ名のリスト. */
+    public static class Dir {
+
+      /** fxml と css ファイルがあるディレクトリ. */
+      public static final String VIEW = "BhView";
+      /** css ファイルがあるディレクトリ. */
+      public static final String CSS = "css";
+      /** fxmlファイルのあるディレクトリ. */
+      public static final String FXML = "fxml";
+      /** ノードやコネクタの定義ディレクトリがあるディレクトリ. */
+      public static final String BH_DEF = "BhDefine";
+      /** ノード定義ファイルがあるディレクトリ. */
+      public static final String NODE_DEF = "Node";
+      /** コネクタ定義ファイルがあるディレクトリ. */
+      public static final String CONNECTOR_DEF = "Connector";
+      /** ノードのスタイル定義ファイルがあるディレクトリ. */
+      public static final String NODE_STYLE_DEF = "NodeStyle";
+      /** ノードやコネクタのイベントハンドラが書かれたファイルがあるディレクトリ. */
+      public static final String EVENT_HANDLERS = "EventHandler";
+      /** ノードテンプレートの配置情報が書かれたファイルがあるディレクトリ. */
+      public static final String TEMPLATE_LIST = "TemplateList";
+      /** アイコンなどの画像があるディレクトリ. */
+      public static final String IMAGES = "IMAGES";
+      /** ログファイルを置くディレクトリ. */
+      public static final String LOG = "Log";
+      /** BhProgram で使用するライブラリがあるディレクトリ. */
+      public static final String LIBS = "Libs";
+      /** コンパイルに必要なファイルがあるディレクトリ. */
+      public static final String COMPILE = "Compile";
+      /** コンパイルしたファイルを置くディレクトリ. */
+      public static final String COMPILED = "Compiled";
+      public static final String REMOTE = "Remote";
+      /** リモートの BhProgram 実行環境の実行ファイルをまとめたディレクトリ. */
+      public static final String REMOTE_APP = "App";
+      /** BhProgramのファイルを格納するリモート実行環境の下のディレクトリ. */
+      public static final String REMOTE_COMPILED = "Compiled";
+      /** 言語ファイルが格納されたディレクトリ. */
+      public static final String LANGUAGE = "Language";
+      /** リモートの BhProgram 実行環境が入ったディレクトリ. */
+      public static final String REMOTE_BUNNYHOP = "BunnyHop";
+    }
+
+    /** ファイル名のリスト. */
+    public static class File {
+      /** ログファイルの接頭語. */
+      public static final String LOG_MSG = "msg";
+      /** アプリの基底部分のビューが定義してあるfxmlファイルの名前. */
+      public static final String FOUNDATION_FXML = "Foundation.fxml";
+      /** ワークスペース部分のビューが定義してあるfxmlファイルの名前. */
+      public static final String WORKSPACE_FXML = "Workspace.fxml";
+      /** ノードシフタのビューが定義してあるfxmlファイルの名前. */
+      public static final String NODE_SHIFTER_FXML = "NodeShifter.fxml";
+      /** BhNodeテンプレートリスト部分のビューが定義してあるfxmlの名前. */
+      public static final String NODE_SELECTION_PANEL_FXML = "NodeSelectionPanel.fxml";
+      /** プライベートテンプレートボタンが定義してあるfxmlの名前. */
+      public static final String PRIVATE_TEMPLATE_BUTTON_FXML = "PrivateTemplateButton.fxml";
+      /** コールスタックペインが定義してあるfxmlの名前. */
+      public static final String CALL_STACK_PANEL_FXML = "CallStackPanel.fxml";
+      /** ノードテンプレートの配置情報が書かれたファイルの名前. */
+      public static final String NODE_TEMPLATE_LIST_JSON = "NodeTemplateList.json";
+      public static final String COMMON_FUNCS_JS = "CommonFuncs.js";
+      /** BunnyHop が作成した BhProgram のスクリプト名. */
+      public static final String APP_FILE_NAME_JS = "BhAppScript.js";
+      /** リモートのBhProgram実行環境をスタートさせるコマンドを生成するスクリプト名. */
+      public static final String REMOTE_EXEC_CMD_GENERATOR_JS = "RemoteExecCmdGenerator.js";
+      /** リモートのBhProgram実行環境を終わらせるコマンドを生成するスクリプト名. */
+      public static final String REMOTE_KILL_CMD_GENERATOR_JS = "RemoteKillCmdGenerator.js";
+      /** BunnyHopのアイコン画像名. */
+      public static final String BUNNY_HOP_ICON = "BunnyHop16.png";
+      /** 言語ファイルの名前. */
+      public static final String LANGUAGE_FILE = "BunnyHop.json";
+
+      /** BhProgram のライブラリのパス. */
+      public static class BhLibs {
+        public static final String COMMON_JS = "Common.js";
+        public static final String LOCAL_COMMON_JS = "LocalCommon.js";
+        public static final String REMOTE_COMMON_JS = "RemoteCommon.js";
+        public static final String TEXT_DB_JS = "TextDb.js";
+      }
+    }
   }
 
   /** ノードやコネクタ定義のパラメータ. */
@@ -166,6 +183,7 @@ public class BhConstants {
     public static final String ATTR_ON_TEST_OPTIONS_CREATING = "onTextOptionsCreating";
     public static final String ATTR_ON_CREATED_AS_TEMPLATE = "onCreatedAsTemplate";
     public static final String ATTR_ON_DRAG_STARTED = "onDragStarted";
+    public static final String ATTR_ON_ALIAS_ASKED = "onAliasAsked";
     public static final String ATTR_DERIVATIVE_ID = "derivativeID";
     public static final String ATTR_INITIAL_TEXT = "initialText";
     public static final String ATTR_DETIVATION_ID = "derivationID";
@@ -284,11 +302,12 @@ public class BhConstants {
     public static final String SELECTION_VIEW_SPACE = "SelectionViewSpace";
   }
 
-  /** FXML ファイル使用されるキーワード. */
-  public static class Fxml {
-    public static final String ID_WS_PANE = "wsPane";
-    public static final String ID_WS_SCROLL_PANE = "wsScrollPane";
-    public static final String ID_WORKSPACE_SET_TAB = "workspaceSetTab";
+  /** UI コンポーネントの ID. */
+  public static class UiId {
+    public static final String WS_PANE = "wsPane";
+    public static final String WS_SCROLL_PANE = "wsScrollPane";
+    public static final String WORKSPACE_SET_TAB = "workspaceSetTab";
+    public static final String BH_RUNTIME_ERR_MSG = "bhRuntimeErrMsg";
   }
 
   /** CSS ファイルで使用されるキーワード. */
@@ -302,6 +321,7 @@ public class BhConstants {
     public static final String PSEUDO_IS_EVEN = "isEven";
     public static final String PSEUDO_CALLED = "called";
     public static final String PSEUDO_RUNTIME_ERR = "runtimeErr";
+    public static final String PSEUDO_TEXT_DECORATE = "textDecorate";
     public static final String CLASS_BH_NODE = "BhNode";
     public static final String CLASS_VOID_NODE = "voidNode";
     public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";
@@ -313,6 +333,7 @@ public class BhConstants {
     public static final String CLASS_BH_NODE_COMPILE_ERROR = "BhNode-CompileError";
     public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
     public static final String CLASS_PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
+    public static final String CALL_STACK_ITEM = "callStackItem";
   }
 
   /** BhProgram の実行環境に関するパラメータ. */
