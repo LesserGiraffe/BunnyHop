@@ -131,7 +131,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     this.model = model;
     nodeBase.setPickOnBounds(false);
     lookManager = this.new LookManagerBase(viewStyle.bodyShape);
-    lookManager.addCssClass(viewStyle.cssClass);
+    lookManager.addCssClass(viewStyle.cssClasses);
     lookManager.addCssClass(BhConstants.Css.CLASS_BH_NODE);
     compileErrorMark.getStyleClass().add(BhConstants.Css.CLASS_BH_NODE_COMPILE_ERROR);
     compileErrorMark.setMouseTransparent(true);
@@ -256,10 +256,22 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     /**
      * cssクラス名を追加する.
      *
-     * @param cssClassName css クラス名
+     * @param cssClassNames css クラス名
      */
-    void addCssClass(String cssClassName) {
-      nodeShape.getStyleClass().add(cssClassName);
+    void addCssClass(String... cssClassNames) {
+      for (var cssClassName : cssClassNames) {
+        nodeShape.getStyleClass().add(cssClassName);
+      }
+    }
+
+    /** 現在のノードの状態に応じて疑似クラスの状態を変更する. */
+    private void changePseudoClassState() {
+      boolean isUnfixedDefault = model != null
+          && model.isDefault()
+          && model.getParentConnector() != null
+          && !model.getParentConnector().isFixed();
+      BhNodeViewBase.this.getLookManager().switchPseudoClassState(
+          BhConstants.Css.PSEUDO_UNFIXED_DEFAULT, isUnfixedDefault);
     }
 
     /**
@@ -278,7 +290,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
           isFixed ? viewStyle.connectorShapeFixed.shape : viewStyle.connectorShape.shape;
       ConnectorShape notchShape =
           isFixed ? viewStyle.notchShapeFixed.shape : viewStyle.notchShape.shape;
-          
+  
       nodeShape.getPoints().setAll(
           getBodyShape().shape.createVertices(
               bodySize.x,
@@ -305,6 +317,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       getPositionManager().setTreePosOnWorkspace(pos.x, pos.y);
       NvbCallbackInvoker.invoke(
           nodeView -> {
+            nodeView.getLookManager().changePseudoClassState();
             boolean isSizeChanged = nodeView.getLookManager().updatePolygonShape();
             if (isSizeChanged) {
               nodeView.getEventManager().invokeOnNodeSizeChanged();

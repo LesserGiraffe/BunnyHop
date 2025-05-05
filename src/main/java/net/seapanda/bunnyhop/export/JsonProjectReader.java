@@ -171,8 +171,8 @@ public class JsonProjectReader {
   /** セーブデータのバージョンをチェックする. */
   void checkSaveDataVersion(SaveDataVersion version) throws IncompatibleSaveFormatException {
     if (version == null
-        || !version.compPrefix(BhConstants.SAVE_DATA_VERSION)
-        || !version.compMajor(BhConstants.SAVE_DATA_VERSION)) {
+        || !version.comparePrefix(BhConstants.SAVE_DATA_VERSION)
+        || !version.compareMajor(BhConstants.SAVE_DATA_VERSION)) {
       String msg = "Incompatible save data version : %s.\nSupported save data version: %s."
           .formatted(version, BhConstants.SAVE_DATA_VERSION);
       throw new IncompatibleSaveFormatException(msg, version);

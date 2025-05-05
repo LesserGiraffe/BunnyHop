@@ -81,7 +81,7 @@ public class ScriptIdentifiers {
     public static final String START_TIMER = "_startTimer";
     public static final String GET_TIMER_VAL = "_getTimerVal";
     public static final String STRCAT = "_strcat";
-    public static final String IDENTITY = "_identity";  //恒等写像 (実際に共通コード部には定義しない)
+    public static final String IDENTITY = "_identity";  // 恒等写像 (実際に共通コード部には定義しない)
     public static final String SET_EXCEPTION_NODE_INFO = "_setExceptionNodeInfo";
     public static final String NEW_BH_PROGRAM_EXCEPTION = "_newBhProgramException";
     public static final String INIT_THIS_OBJ = "_initThisObj";

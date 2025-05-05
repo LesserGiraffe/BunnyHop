@@ -24,7 +24,6 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.scene.control.Alert.AlertType;
@@ -58,9 +57,11 @@ public class RemoteBhRuntimeController implements BhRuntimeController {
   /** ファイルがコピー中の場合 true. */
   private AtomicReference<Boolean> fileCopyIsCancelled = new AtomicReference<>(true);
   /** BhRuntime を起動するコマンドを生成するスクリプト. */
-  private final Script startCmdGenerator;
+  private final Script genStartCmd;
   /** BhRuntime を終了するコマンドを生成するスクリプト. */
-  private final Script killCmdGenerator;
+  private final Script genKillCmd;
+  /** BhProgram のコピー先パスを生成するスクリプト. */
+  private final Script genDestPathCmd;
 
   /** コンストラクタ. */
   public RemoteBhRuntimeController(
@@ -72,15 +73,17 @@ public class RemoteBhRuntimeController implements BhRuntimeController {
     this.msgService = msgService;
     helper = new BhRuntimeHelper(msgProcessor, simCmdProcessor, msgService);
     boolean success = repository.allExist(
-        BhConstants.Path.File.REMOTE_EXEC_CMD_GENERATOR_JS,
-        BhConstants.Path.File.REMOTE_KILL_CMD_GENERATOR_JS);
+        BhConstants.Path.File.GEN_REMOTE_EXEC_CMD_JS,
+        BhConstants.Path.File.GEN_REMOTE_KILL_CMD_JS,
+        BhConstants.Path.File.GEN_REMOTE_DEST_PATH_JS);
     if (!success) {
       String msg = "Cannot find remote cmd scripts";
       LogManager.logger().error(msg);
       throw new IllegalStateException(msg);
     }
-    startCmdGenerator = repository.getScript(BhConstants.Path.File.REMOTE_EXEC_CMD_GENERATOR_JS);
-    killCmdGenerator = repository.getScript(BhConstants.Path.File.REMOTE_KILL_CMD_GENERATOR_JS);
+    genStartCmd = repository.getScript(BhConstants.Path.File.GEN_REMOTE_EXEC_CMD_JS);
+    genKillCmd = repository.getScript(BhConstants.Path.File.GEN_REMOTE_KILL_CMD_JS);
+    genDestPathCmd = repository.getScript(BhConstants.Path.File.GEN_REMOTE_DEST_PATH_JS);
   }
 
   @Override
@@ -122,14 +125,9 @@ public class RemoteBhRuntimeController implements BhRuntimeController {
       String password,
       boolean terminate) {
     terminateOrDisconnect(terminate);
-
     msgService.info(TextDefs.BhRuntime.Remote.preparingToRun.get());
     try {
-      var destPath = Paths.get(
-          BhConstants.Path.Dir.REMOTE_BUNNYHOP,
-          BhConstants.Path.Dir.REMOTE_APP,
-          BhConstants.Path.Dir.REMOTE_COMPILED,
-          BhConstants.Path.File.APP_FILE_NAME_JS);
+      String destPath = genCopyDestPath(uname);
       boolean success = copyFile(ipAddr, uname, password, filePath.toString(), destPath.toString());
       if (!success) {
         throw new Exception();
@@ -140,9 +138,7 @@ public class RemoteBhRuntimeController implements BhRuntimeController {
         throw new Exception();
       }
       // BhRuntime の実行時パスからの相対パスで実行するスクリプトのパスを指定する.
-      String fileRelPath = Paths.get(
-          BhConstants.Path.Dir.REMOTE_COMPILED, BhConstants.Path.File.APP_FILE_NAME_JS).toString();
-      success = helper.runBhProgram(fileRelPath, ipAddr, channel.getInputStream());  // BhProgram 実行
+      success = helper.runBhProgram(destPath, ipAddr, channel.getInputStream());  // BhProgram 実行
       // チャンネルは開いたままだが切断する
       channel.disconnect();
       channel.getSession().disconnect();
@@ -252,11 +248,11 @@ public class RemoteBhRuntimeController implements BhRuntimeController {
     try {
       String startCmd = genStartCmd(userInfo.getHost());
       if (startCmd == null) {
-        throw new Exception();
+        throw new Exception("Cannot generate a start command.");
       }
       channel = execCmd(startCmd, userInfo);
       if (channel == null) {
-        throw new Exception();
+        throw new Exception("Cannot start BhRuntime.");
       }
     } catch (Exception e) {
       LogManager.logger().error(
@@ -275,11 +271,11 @@ public class RemoteBhRuntimeController implements BhRuntimeController {
     Scriptable scope = cx.initStandardObjects();
     scope.put(BhConstants.JsIdName.IP_ADDR, scope, Context.javaToJS(host, scope));
     try {
-      return (String) startCmdGenerator.exec(cx, scope);
+      return (String) genStartCmd.exec(cx, scope);
     } catch (Exception e) {
       LogManager.logger().error(String.format(
           "Failed to generate BhProgram start command  (%s).\n%s",
-          BhConstants.Path.File.REMOTE_EXEC_CMD_GENERATOR_JS, e));
+          BhConstants.Path.File.GEN_REMOTE_EXEC_CMD_JS, e));
     } finally {
       Context.exit();
     }
@@ -294,11 +290,32 @@ public class RemoteBhRuntimeController implements BhRuntimeController {
   private String genKillCmd() {
     Context cx = Context.enter();
     try {
-      return (String) killCmdGenerator.exec(cx, cx.initStandardObjects());
+      return (String) genKillCmd.exec(cx, cx.initStandardObjects());
     } catch (Exception e) {
       LogManager.logger().error(String.format(
           "Failed to generate BhProgram kill command  (%s).\n%s",
-          BhConstants.Path.File.REMOTE_KILL_CMD_GENERATOR_JS, e));
+          BhConstants.Path.File.GEN_REMOTE_KILL_CMD_JS, e));
+    } finally {
+      Context.exit();
+    }
+    return null;
+  }
+
+  /**
+   * BhProgram のコピー先のパスを生成する.
+   *
+   * @param userName リモートマシン上で BhProgram を実行するユーザ名
+   * @return BhProgram のコピー先のパスを生成する.  パスの生成に失敗した場合 null.
+   */
+  private String genCopyDestPath(String userName) {
+    Context cx = Context.enter();
+    Scriptable scope = cx.initStandardObjects();
+    scope.put(BhConstants.JsIdName.UNAME, scope, Context.javaToJS(userName, scope));
+    try {
+      return (String) genDestPathCmd.exec(cx, scope);
+    } catch (Exception e) {
+      LogManager.logger().error(String.format(
+          "Failed to generate the destination path to which BhProgram shuld be copied (%s).\n%s"));
     } finally {
       Context.exit();
     }

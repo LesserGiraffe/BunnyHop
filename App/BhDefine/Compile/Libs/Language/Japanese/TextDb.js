@@ -15,7 +15,7 @@ let _textDb = {
     invalidMoveSpeed:
       (val) => `不正な速さ (= ${_str(val)}) が指定されました.`,
     invalidMoveTime:
-      (val) => `不正な時間 (= ${_str(val)}) が指定されました.`,
+      (val, min, max) => `不正な時間 (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
     invalidNumElems:
       (val, min, max) => `不正な個数 (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
     invalidArraySize:
@@ -23,12 +23,33 @@ let _textDb = {
     invalidListIdx:
       (val, min, max) => `不正なインデックス (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
     listIsEmpty:
-      () => `リストが空です.`
+      () => `リストが空です.`,
+    invalidDurationOfSound:
+      (val, min, max) => `不正な音の長さ (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
+    invalidPitchOfSound:
+      (val, min, max) => `不正な音の高さ (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
+    failedToCtrlHw:
+      (cmd) => `ハードウェアの制御に失敗しました.  (command = ${cmd})`
   },
   literal: {
     bool: {
       true: '真',
       false: '偽'
-    }
+    },
+    color: {
+      red: '赤',
+      green: '緑',
+      blue: '青',
+      cyan: '水色',
+      purple: 'むらさき',
+      yellow: 'きいろ',
+      white: '白',
+      black: '黒'
+    },
+    sound:
+      (hz, duration) => `高さ: ${hz} [ヘルツ],  長さ: ${duration} [秒]`
+  },
+  list: {
+    empty: '空リスト'
   }
 };

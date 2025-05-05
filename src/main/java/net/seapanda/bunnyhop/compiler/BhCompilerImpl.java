@@ -38,6 +38,7 @@ public class BhCompilerImpl implements BhCompiler {
 
   private final VarDeclCodeGenerator varDeclCodeGen;
   private final FuncDefCodeGenerator funcDefCodeGen;
+  private final ExpCodeGenerator expCodeGen;
   private final StatCodeGenerator statCodeGen;
   private final EventHandlerCodeGenerator eventHandlerCodeGen;
   private final CommonCodeGenerator common;
@@ -52,7 +53,7 @@ public class BhCompilerImpl implements BhCompiler {
   public BhCompilerImpl(Path... libs) throws IOException {
     common = new CommonCodeGenerator();
     varDeclCodeGen = new VarDeclCodeGenerator(common);
-    ExpCodeGenerator expCodeGen = new ExpCodeGenerator(common, varDeclCodeGen);
+    expCodeGen = new ExpCodeGenerator(common, varDeclCodeGen);
     statCodeGen = new StatCodeGenerator(common, expCodeGen, varDeclCodeGen);
     funcDefCodeGen = new FuncDefCodeGenerator(common, statCodeGen, varDeclCodeGen);
     eventHandlerCodeGen = new EventHandlerCodeGenerator(common, statCodeGen, varDeclCodeGen);
@@ -118,6 +119,7 @@ public class BhCompilerImpl implements BhCompiler {
     String lockVar = Keywords.Prefix.lockVar + ScriptIdentifiers.Funcs.BH_MAIN;
     eventHandlerCodeGen.genHeaderSnippetOfEventCall(
         code, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 1);
+    expCodeGen.genExpression(code, execNode, 5, option);
     statCodeGen.genStatement(execNode, code, 5, option);
     eventHandlerCodeGen.genFooterSnippetOfEventCall(code, lockVar, 1);
     String addEventCallStat = common.genFuncCallCode(

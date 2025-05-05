@@ -27,7 +27,7 @@
       "settings": "設定",
       "focus-simulator": "プログラム開始時にシミュレータを表示する",
       "help": "ヘルプ",
-      "about-bunnyhop": "BunnyHop について"
+      "version-info": "バージョン情報"
     },
 
     "noticeboards": {
@@ -188,8 +188,13 @@
 
     "menubar-ops": {
       "free-memory": "メモリを解放しました\n",
-      "bunnyhop-details": "BunnyHop の詳細"
-    }    
+      "version": {
+        "title": "バージョン一覧",
+        "system": "システム",
+        "runtime": "ランタイム",
+        "simulator": "シミュレータ"    
+      }
+    }
   },
 
   "node": {

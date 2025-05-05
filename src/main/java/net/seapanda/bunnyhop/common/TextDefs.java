@@ -332,7 +332,25 @@ public class TextDefs {
   public static class MenubarOps {
     public static Getter freeMemory = params -> db.get(
         TextId.of("msg", "menubar-ops", "free-memory"), params);
-    public static Getter bunnyHopDetails = params -> db.get(
-        TextId.of("msg", "menubar-ops", "bunnyhop-details"), params);
+    
+    /** バージョン画面のメッセージ. */
+    public static class Version {
+      public static Getter title = params -> db.get(
+          TextId.of("msg", "menubar-ops", "version", "title"), params);
+      public static Getter system = params -> db.get(
+          TextId.of("msg", "menubar-ops", "version", "system"), params);
+      public static Getter runtime = params -> db.get(
+          TextId.of("msg", "menubar-ops", "version", "runtime"), params);
+      public static Getter simulator = params -> db.get(
+          TextId.of("msg", "menubar-ops", "version", "simulator"), params);
+    }
+  }
+
+  /** バージョン情報の名前. */
+  public static class VersionInfo {
+    public static Getter runtime = params -> db.get(
+        TextId.of("msg", "subsystem", "runtime"), params);
+    public static Getter simulator = params -> db.get(
+        TextId.of("msg", "subsystem", "simulator"), params);
   }
 }

@@ -20,7 +20,7 @@
     <TextFetcher fx:id="settingsText" textId="gui,menu-bar,settings"/>
     <TextFetcher fx:id="focusSimulatorText" textId="gui,menu-bar,focus-simulator"/>
     <TextFetcher fx:id="helpText" textId="gui,menu-bar,help"/>
-    <TextFetcher fx:id="aboutBunnyHopText" textId="gui,menu-bar,about-bunnyhop"/>
+    <TextFetcher fx:id="versionInfoText" textId="gui,menu-bar,version-info"/>
   </fx:define>
   <menus>
     <Menu text="$fileText.text">
@@ -42,7 +42,7 @@
     </Menu>
     <Menu text="$helpText.text">
       <items>
-        <MenuItem fx:id="aboutBunnyHop" text="$aboutBunnyHopText.text"/>
+        <MenuItem fx:id="versionInfo" text="$versionInfoText.text"/>
       </items>
     </Menu>
   </menus>

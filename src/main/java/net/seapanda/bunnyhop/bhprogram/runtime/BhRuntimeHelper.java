@@ -211,9 +211,8 @@ class BhRuntimeHelper {
         BhConstants.BhRuntime.TCP_PORT_READ_TIMEOUT);
     int port = Integer.parseInt(portStr);
     // リモートオブジェクト取得
-    var facade = (BhRuntimeFacade) findRemoteObj(
+    return (BhRuntimeFacade) findRemoteObj(
         ipAddr, port, BhRuntimeFacade.class.getSimpleName());
-    return facade;
   }
 
   /** BhProgram の main メソッドを実行する. */

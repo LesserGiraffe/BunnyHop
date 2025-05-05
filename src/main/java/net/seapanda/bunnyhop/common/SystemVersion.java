@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.export;
+package net.seapanda.bunnyhop.common;
 
 import net.seapanda.bunnyhop.utility.Version;
 
 /**
- * セーブデータのバージョン.
- *
- * @author K.Koike
- */
-public class SaveDataVersion extends Version {
+  * システムのバージョン.
+  *
+  * @author K.Koike
+  */
+public class SystemVersion extends Version {
 
-  /** セーブデータのバージョンが存在しないことを表すオブジェクト. */
-  public static final SaveDataVersion NONE = new SaveDataVersion("");
+  /** システムのバージョンが存在しないことを表すオブジェクト. */
+  public static final SystemVersion NONE = new SystemVersion();
 
   /**
-   * {@link SaveDataVersion} オブジェクトを作成する.
+   * {@link SystemVersion} オブジェクトを作成する.
    *
    * @param id 識別子名
-   * @return {@link SaveDataVersion} オブジェクト
+   * @return {@link SystemVersion} オブジェクト
    */
-  public static SaveDataVersion of(String id) {
-    return new SaveDataVersion(id == null ? "" : id);
+  public static SystemVersion of(String id) {
+    return new SystemVersion(id == null ? "" : id);
   }
 
   /**
@@ -43,12 +43,13 @@ public class SaveDataVersion extends Version {
    *
    * @param version 識別子名
    */
-  private SaveDataVersion(String version) {
+  private SystemVersion(String version) {
     super(version);
   }
 
   /** デフォルトコンストラクタ. (デシリアライズ用) */
-  public SaveDataVersion() {
+  public SystemVersion() {
     super("");
   }
 }
+ 

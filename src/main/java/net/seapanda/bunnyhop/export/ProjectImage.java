@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.export;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import net.seapanda.bunnyhop.common.SystemVersion;
 import net.seapanda.bunnyhop.utility.AppVersion;
 
 /**
@@ -27,6 +28,8 @@ import net.seapanda.bunnyhop.utility.AppVersion;
  */
 class ProjectImage {
 
+  /** システムのバージョン. */
+  final SystemVersion sysVersion;
   /** アプリケーションのバージョン. */
   final AppVersion appVersion;
   /** セーブデータのバージョン. */
@@ -37,14 +40,17 @@ class ProjectImage {
   /**
    * コンストラクタ.
    *
+   * @param sysVersion このデータを作ったシステムのバージョン
    * @param appVersion このデータを作ったアプリケーションのバージョン
    * @param saveDataVersion セーブデータのバージョン
    * @param workspaceImages プロジェクトに含まれるワークスペースの保存用イメージ
    */
   ProjectImage(
+      SystemVersion sysVersion,
       AppVersion appVersion,
       SaveDataVersion saveDataVersion,
       Collection<WorkspaceImage> workspaceImages) {
+    this.sysVersion = sysVersion;
     this.appVersion = appVersion;
     this.saveDataVersion = saveDataVersion;
     this.workspaceImages = new ArrayList<>(workspaceImages);
@@ -52,6 +58,7 @@ class ProjectImage {
 
   /** デフォルトコンストラクタ. (デシリアライズ用) */
   public ProjectImage() {
+    sysVersion = SystemVersion.NONE;
     appVersion = AppVersion.NONE;
     saveDataVersion = SaveDataVersion.NONE;
     workspaceImages = new ArrayList<>();

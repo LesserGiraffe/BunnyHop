@@ -555,8 +555,8 @@ class ExpCodeGenerator {
       String soundVar = common.genVarName(soundLiteralNode);
       String rightExp = common.genFuncCallCode(ScriptIdentifiers.Funcs.CREATE_SOUND, "0", "0");
       code.append(common.indent(nestLevel))
-        .append(Keywords.Js._const_).append(soundVar).append(" = ").append(rightExp)
-        .append(";").append(Keywords.newLine);
+          .append(Keywords.Js._const_).append(soundVar).append(" = ").append(rightExp)
+          .append(";").append(Keywords.newLine);
       return soundVar;
     }
 
@@ -594,6 +594,9 @@ class ExpCodeGenerator {
     String soundVar = common.genVarName(freqSoundLiteralNode);
     String rightExp =
         common.genFuncCallCode(ScriptIdentifiers.Funcs.CREATE_SOUND, frequency, duration);
+    code.append(common.indent(nestLevel))
+        .append(common.genSetCurrentNodeInstIdCode(freqSoundLiteralNode))
+        .append(";" + Keywords.newLine);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(soundVar)
@@ -639,6 +642,9 @@ class ExpCodeGenerator {
     String soundVar = common.genVarName(scaleSoundLiteralNode);
     String rightExp = common.genFuncCallCode(
         ScriptIdentifiers.Funcs.CREATE_SOUND, "%.3f".formatted(frequency), duration);
+    code.append(common.indent(nestLevel))
+        .append(common.genSetCurrentNodeInstIdCode(scaleSoundLiteralNode))
+        .append(";" + Keywords.newLine);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(soundVar)

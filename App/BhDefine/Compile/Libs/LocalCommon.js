@@ -30,7 +30,7 @@ function _sayOnWindows(word) {
   word = word.replace(/"/g, '');
   word = bhScriptHelper.util.substringByBytes(word, 990, "Shift_JIS");
   let execPath = bhScriptHelper.util.getExecPath();
-  let wavFilePath = _jPaths.get(execPath, 'Actions', 'open_jtalk', _getSerialNo() + '.wav').toAbsolutePath();
+  let wavFilePath = _jPaths.get(execPath, 'Actions', 'open_jtalk', `${_getSerialNo()}.wav`).toAbsolutePath();
   let sayCmdPath = _jPaths.get(execPath, 'Actions', 'bhSay.cmd').toAbsolutePath();
   let procBuilder = new _jProcBuilder(sayCmdPath.toString(), '"' + word + '"', wavFilePath.toString());
   try {
@@ -79,6 +79,6 @@ function _lightEye(eyeSel, color) {
       bhScriptHelper.simulator.setLeftEyeColor(color.red, color.green, color.blue);
       break;
     default:
-      throw _newBhProgramException('invalid eye choice');
+      throw _newBhProgramException('invalid eye option');
   }
 }

@@ -71,7 +71,7 @@ public class BhNodeViewStyle {
   public ConnectorShape.CnctrShape notchShapeFixed =  ConnectorShape.CnctrShape.NONE;
   /** ドラッグ&ドロップ時などに適用されるコネクタの範囲. */
   public double connectorBoundsRate = 2.0;
-  public String cssClass = "defaultNode";
+  public String[] cssClasses = { "defaultNode" };
   /** {@link BhNodeView} の種類. */
   public ComponentType component = ComponentType.NONE;
   
@@ -291,7 +291,7 @@ public class BhNodeViewStyle {
     this.notchShapeFixed = org.notchShapeFixed;
     this.connective.inner = new Arrangement(org.connective.inner);
     this.connective.outer = new Arrangement(org.connective.outer);
-    this.cssClass = org.cssClass;
+    this.cssClasses = org.cssClasses;
     this.component = org.component;
     this.textField.minWidth = org.textField.minWidth;
     this.textField.cssClass = org.textField.cssClass;

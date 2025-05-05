@@ -379,7 +379,7 @@ function _checkNumAryElems(num) {
 
 function _aryToStr(ary, listName) {
   if (ary.length === 0)
-    return listName + ' = 空リスト';
+    return listName + ' = ' + _textDb.list.empty;
 
   let halfOfMaxElems = 256;
   let strBuilder = new _jStringBuilder();
@@ -622,7 +622,7 @@ let _jAudioSystem = javax.sound.sampled.AudioSystem;
 let isBigEndian = _jByteOrder.nativeOrder() === _jByteOrder.BIG_ENDIAN;
 let bytePerSample = 2;
 let samplingRate = 44100;    //44.1KHz
-let amplitude = 16384/2;
+let amplitude = 16384 / 2;
 let wave1Hz = _jReflectArray.newInstance(_jFloatType, samplingRate);
 let _nilSound = _createSound(0, 0);
 
@@ -711,7 +711,8 @@ function _playMelodies(soundList, reverse) {
     for (let i = 0; i < soundList.length; ++i)
       soundListCopy.push(_createSound(soundList[i].hz, soundList[i].duration));
   }
-  let waveBuf = _jReflectArray.newInstance(_jByteType, samplingRate * bytePerSample);
+  // waveBuf のサイズを大きくしすぎると RaspberryPi で正常に音が出なくなる.
+  let waveBuf = _jReflectArray.newInstance(_jByteType, samplingRate * bytePerSample / 2);
   let format = new _jAudioFormat(
     _jAudioFormat.Encoding.PCM_SIGNED,
     samplingRate,
@@ -787,6 +788,14 @@ function _Sound(hz, duration, amp) {
 }
 
 function _createSound(hz, duration) {
+  if (!_isInRange(duration, 0, Number.MAX_SAFE_INTEGER)) {
+    throw _newBhProgramException(
+      _textDb.errMsg.invalidDurationOfSound(duration, 0, Number.MAX_SAFE_INTEGER))
+  }
+  if (!_isInRange(hz, 0, Number.MAX_SAFE_INTEGER)) {
+    throw _newBhProgramException(
+      _textDb.errMsg.invalidPitchOfSound(hz, 0, Number.MAX_SAFE_INTEGER))
+  }
   return new _Sound(hz, duration, amplitude);
 }
 
@@ -800,7 +809,7 @@ function _sayOnLinux(word) {
   word = bhScriptHelper.util.substringByBytes(word, 990, "UTF-8");
   let path = _jPaths.get(bhScriptHelper.util.getExecPath(), 'Actions', 'bhSay.sh');
   let talkCmd = String(path.toAbsolutePath().toString());
-  let procBuilder = new _jProcBuilder('sh', talkCmd, '"' + word + '"');
+  let procBuilder = new _jProcBuilder(talkCmd, `"${word}"`, `${_getSerialNo()}.wav`);
   try {
     let process = procBuilder.start();
     _waitProcEnd(process, false, true);
@@ -884,26 +893,26 @@ String.prototype._str = function () {
 }
 
 _Sound.prototype._str = function () {
-  return '高さ: ' + this.hz + '[ヘルツ],  長さ: ' + Math.round(this.duration * 1000.0) + '[ミリ秒]';
+  return _textDb.literal.sound(this.hz, this.duration);
 }
 
 _Color.prototype._str = function () {
   if (this.red === 255 && this.green === 0 && this.blue === 0)
-    return '赤';
+    return _textDb.literal.color.red;
   else if (this.red === 0 && this.green === 255 && this.blue === 0)
-    return '緑';
+    return _textDb.literal.color.green;
   else if (this.red === 0 && this.green === 0 && this.blue === 255)
-    return '青';
+    return _textDb.literal.color.blue;
   else if (this.red === 0 && this.green === 255 && this.blue === 255)
-    return '水色';
+    return _textDb.literal.color.cyan;
   else if (this.red === 255 && this.green === 0 && this.blue === 255)
-    return 'むらさき';
+    return _textDb.literal.color.purple;
   else if (this.red === 255 && this.green === 255 && this.blue === 0)
-    return 'きいろ';
+    return _textDb.literal.color.yellow;
   else if (this.red === 255 && this.green === 255 && this.blue === 255)
-    return '白';
+    return _textDb.literal.color.white;
   else if (this.red === 0 && this.green === 0 && this.blue === 0)
-    return '黒';
+    return _textDb.literal.color.black;
 
   return '(red, green, blue) = (' + this.red + ', ' + this.green + ', ' + this.blue + ')'
 }
@@ -1010,17 +1019,17 @@ function _getSyncTimerCount(timer) {
   return timer.getCount();
 }
 
-let _MAX_SPEED = 9;
-let _MIN_SPEED = 0;
+let _MAX_SPEED = 10;
+let _MIN_SPEED = 1;
 
 function _clampSpeedAndTime(speed, time) {
   if (Number.isNaN(speed)) {
     throw new _newBhProgramException(_textDb.errMsg.invalidMoveSpeed(speed));
   }
-  if (Number.isNaN(time)) {
-    throw new _newBhProgramException(_textDb.errMsg.invalidMoveTime(time));
+  max_time = 0xFFFF_FFFF // hwctrl で正常に処理できる最大の動作時間
+  if (!_isInRange(time, 0, max_time)) {
+    throw new _newBhProgramException(_textDb.errMsg.invalidMoveTime(time, 0, max_time));
   }
-  time = _clamp(time, 0, Number.MAX_VALUE);
   speed = _clamp(speed, _MIN_SPEED, _MAX_SPEED);
   return [speed, time];
 }

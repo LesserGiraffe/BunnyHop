@@ -401,7 +401,7 @@ public class AppMain extends Application {
     };
     var config = new Lwjgl3ApplicationConfiguration();
     config.setWindowListener(windowListener);
-    config.setWindowedMode(800, 600);
+    config.setWindowedMode(1000, 750);
     new Lwjgl3Application(simulator, config);
   }
 

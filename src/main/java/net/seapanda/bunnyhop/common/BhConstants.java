@@ -16,8 +16,12 @@
 
 package net.seapanda.bunnyhop.common;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.stream.Stream;
 import net.seapanda.bunnyhop.export.SaveDataVersion;
 import net.seapanda.bunnyhop.utility.AppVersion;
+import net.seapanda.bunnyhop.utility.Utility;
 
 /**
  * BunnyHop の定数一式をまとめたクラス.
@@ -26,11 +30,26 @@ import net.seapanda.bunnyhop.utility.AppVersion;
  */
 public class BhConstants {
 
+  static {
+    var path = java.nio.file.Path.of(Utility.execPath, "version", "system");
+    String version = "";
+    try (Stream<String> stream = Files.lines(path)) {
+      version = stream.findFirst().orElse("");
+    } catch (IOException e) { /* do nothing */ }
+
+    if (version.isEmpty()) {
+      System.err.println("Cannot read the System version.");
+    }
+    SYS_VERSION = SystemVersion.of(version);
+  }
+
   public static final String APP_NAME = "BunnyHop";
+  /** システムのバージョン. */
+  public static final SystemVersion SYS_VERSION;
   /** アプリケーションのバージョン. */
-  public static final AppVersion APP_VERSION = AppVersion.of("bh-2.0.0");
+  public static final AppVersion APP_VERSION = AppVersion.of("bh-1.0.0");
   /** セーブデータのバージョン. */
-  public static final SaveDataVersion SAVE_DATA_VERSION = SaveDataVersion.of("bh-1.0");
+  public static final SaveDataVersion SAVE_DATA_VERSION = SaveDataVersion.of("bhsave-1.0.0");
   /** undo 可能な最大回数. */
   public static final int NUM_TIMES_MAX_UNDO = 128;
   /** ExecutorService のシャットダウンを待つ時間 (sec). */
@@ -108,8 +127,10 @@ public class BhConstants {
       public static final String REMOTE_COMPILED = "Compiled";
       /** 言語ファイルが格納されたディレクトリ. */
       public static final String LANGUAGE = "Language";
-      /** リモートの BhProgram 実行環境が入ったディレクトリ. */
-      public static final String REMOTE_BUNNYHOP = "BunnyHop";
+      /** リモートの BunnyHop 実行環境が入ったディレクトリ. */
+      public static final String BH_REMOTE = "BhRemote";
+      /** リモートの BunnyHop 実行環境のカスタム Java ランタイムが入ったディレクトリ. */
+      public static final String REMOTE_BH_RUNTIME = "BhRuntime";
     }
 
     /** ファイル名のリスト. */
@@ -133,10 +154,12 @@ public class BhConstants {
       public static final String COMMON_FUNCS_JS = "CommonFuncs.js";
       /** BunnyHop が作成した BhProgram のスクリプト名. */
       public static final String APP_FILE_NAME_JS = "BhAppScript.js";
-      /** リモートのBhProgram実行環境をスタートさせるコマンドを生成するスクリプト名. */
-      public static final String REMOTE_EXEC_CMD_GENERATOR_JS = "RemoteExecCmdGenerator.js";
-      /** リモートのBhProgram実行環境を終わらせるコマンドを生成するスクリプト名. */
-      public static final String REMOTE_KILL_CMD_GENERATOR_JS = "RemoteKillCmdGenerator.js";
+      /** リモートの BhProgram 実行環境をスタートさせるコマンドを生成するスクリプト名. */
+      public static final String GEN_REMOTE_EXEC_CMD_JS = "GenerateRemoteExecCmd.js";
+      /** リモートの BhProgram 実行環境を終わらせるコマンドを生成するスクリプト名. */
+      public static final String GEN_REMOTE_KILL_CMD_JS = "GenerateRemoteKillCmd.js";
+      /** BhProgram のコピー先パスを生成するスクリプト名. */
+      public static final String GEN_REMOTE_DEST_PATH_JS = "GenerateRemoteDestPath.js";
       /** BunnyHopのアイコン画像名. */
       public static final String BUNNY_HOP_ICON = "BunnyHop16.png";
       /** 言語ファイルの名前. */
@@ -322,6 +345,7 @@ public class BhConstants {
     public static final String PSEUDO_CALLED = "called";
     public static final String PSEUDO_RUNTIME_ERR = "runtimeErr";
     public static final String PSEUDO_TEXT_DECORATE = "textDecorate";
+    public static final String PSEUDO_UNFIXED_DEFAULT = "unfixedDefault";
     public static final String CLASS_BH_NODE = "BhNode";
     public static final String CLASS_VOID_NODE = "voidNode";
     public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";

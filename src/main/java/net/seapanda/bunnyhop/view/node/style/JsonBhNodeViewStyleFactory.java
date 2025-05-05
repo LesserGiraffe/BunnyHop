@@ -192,8 +192,9 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
         .map(val -> val.doubleValue()).orElse(style.connectorBoundsRate);
 
     // bodyCssClass
-    style.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
-        .orElse(style.cssClass);
+    style.cssClasses = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .map(clz -> clz.split(","))
+        .orElse(style.cssClasses);
     
     // connective
     JsonObject obj =

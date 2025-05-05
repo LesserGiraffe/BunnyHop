@@ -50,7 +50,7 @@ public class MenuBarController {
   @FXML private MenuItem load;
   @FXML private MenuItem save;
   @FXML private MenuItem saveAs;
-  @FXML private MenuItem aboutBunnyHop;
+  @FXML private MenuItem versionInfo;
   @FXML private MenuItem freeMemory;
   @FXML private MenuItem focusSimulator;
   /** 現在保存対象になっているファイル. */
@@ -79,7 +79,7 @@ public class MenuBarController {
     save.setOnAction(action -> save(wss)); // 上書きセーブ
     load.setOnAction(action -> load(wss));
     freeMemory.setOnAction(action -> freeMemory());
-    aboutBunnyHop.setOnAction(action -> showBunnyHopInfo());
+    versionInfo.setOnAction(action -> showBunnyVersion());
     focusSimulator.setOnAction(action -> switchSimFocusSetting());
     if (BhSettings.BhSimulator.focusOnStartBhProgram.get()) {
       focusSimulator.setText(focusSimulator.getText() + " ✓");
@@ -250,13 +250,26 @@ public class MenuBarController {
     }
   }
 
-  /** BunnyHopの基本情報を表示する. */
-  private void showBunnyHopInfo() {
+  /** BunnyHop のバージョン情報を表示する. */
+  private void showBunnyVersion() {
     msgService.alert(
         Alert.AlertType.INFORMATION,
-        TextDefs.MenubarOps.bunnyHopDetails.get(),
-        null,
-        "Version: " + BhConstants.APP_VERSION);
+        TextDefs.MenubarOps.Version.title.get(),
+        null, String.format(
+        """
+        %s: %s
+        %s: %s
+        %s: %s
+        %s: %s
+        """,
+        TextDefs.MenubarOps.Version.system.get(),
+        BhConstants.SYS_VERSION,
+        BhConstants.APP_NAME,
+        BhConstants.APP_VERSION,
+        TextDefs.MenubarOps.Version.runtime.get(),
+        net.seapanda.bunnyhop.runtime.BhConstants.APP_VERSION,
+        TextDefs.MenubarOps.Version.simulator.get(),
+        net.seapanda.bunnyhop.simulator.BhConstants.APP_VERSION));
   }
 
   /** BhProgram 実行時にシミュレータにフォーカスするかどうかを切り替える. */
