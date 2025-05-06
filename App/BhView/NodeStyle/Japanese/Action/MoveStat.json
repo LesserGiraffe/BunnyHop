@@ -13,28 +13,9 @@
 
   "connective" : {
     "inner" : {
-      "arrangement" : "Column",
+      "arrangement" : "Row",
       "space" : 1.5,
-      "subGroup0" : {
-        "arrangement" : "Row",
-        "space" : 1.0,
-        "connectorList" : ["${L2}{速さ}", "Arg0", "${L2}{(1～10) で}"]
-      },
-      "subGroup1" : {
-        "arrangement" : "Row",
-        "space" : 3.0,      
-
-        "subGroup0" : {
-          "arrangement" : "Row",
-          "space" : 1.0,
-          "connectorList" : ["Arg1", "${L2}{秒間}"]
-        },
-        "subGroup1" : {
-          "arrangement" : "Row",
-          "space" : 1.0,
-          "connectorList" : ["Option0", "${L2}{する}"]
-        }
-      }
+      "connectorList" : ["${L2}{速さ}", "Arg0", "${L2}{(1～10) で}", "Arg1", "${L2}{秒間}", "Option0", "${L2}{する}"]
     },
 
     "outer" : {

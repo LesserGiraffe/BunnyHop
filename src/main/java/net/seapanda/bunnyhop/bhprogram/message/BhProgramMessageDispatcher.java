@@ -96,15 +96,15 @@ public class BhProgramMessageDispatcher {
       case StopRaspiCarCmd
           cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
       case MeasureDistanceCmd
-          cmd -> carrier.pushSendResp(simCmdProcessor.process(cmd));
+          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
       case DetectColorCmd
-          cmd -> carrier.pushSendResp(simCmdProcessor.process(cmd));
+          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
       case SetLeftEyeColorCmd
-          cmd -> carrier.pushSendResp(simCmdProcessor.process(cmd));
+          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
       case SetRightEyeColorCmd
-          cmd -> carrier.pushSendResp(simCmdProcessor.process(cmd));
+          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
       case SetBothEyesColorCmd
-          cmd -> carrier.pushSendResp(simCmdProcessor.process(cmd));
+          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
       default -> notifyInvalidNotif(notif);
     }
   }

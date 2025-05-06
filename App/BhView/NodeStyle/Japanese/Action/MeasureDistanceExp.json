@@ -15,7 +15,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["${L1}{障害物までの距離 (cm)}"]
+      "connectorList" : ["${L1}{距離センサーの値 (cm)}"]
     }
   }
 }

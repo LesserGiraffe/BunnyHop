@@ -447,7 +447,7 @@ public class MenuPanelController {
     CompletableFuture
         .supplyAsync(exec)
         .thenAccept(success -> {
-          if (BhSettings.BhSimulator.focusOnStartBhProgram.get() && success) {
+          if (BhSettings.BhSimulator.focusOnStartBhProgram.get() && success && isLocalHost()) {
             focusSimulator(false);
           }
           executing.set(false);

@@ -260,10 +260,10 @@ public class AppMain extends Application {
           msgService,
           debugger);
       sceneBuilder.createWindow(stage, wsFactory);
+      undoRedoAgent.deleteCommands();
       if (SplashScreen.getSplashScreen() != null) {
         SplashScreen.getSplashScreen().close();
       }
-      undoRedoAgent.deleteCommands();
     } catch (Throwable e) {
       logger.error("Application Start Error.\n%s".formatted(e.toString()));
       msgService.alert(

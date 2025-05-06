@@ -137,7 +137,7 @@ class EventHandlerCodeGenerator {
     if (eventNode.getSymbolName().equals(SymbolNames.Event.DELAYED_START_EVENT)) {
       TextNode delayTimeNode =
           (TextNode) eventNode.findDescendantOf("*", "*", SymbolNames.Event.DELAY_TIME);
-      code.append(common.indent(nestLevel))
+      code.append(common.indent(nestLevel + 4))
           .append(common.genSetCurrentNodeInstIdCode(eventNode))
           .append(";" + Keywords.newLine)
           .append(common.indent(nestLevel + 4))
