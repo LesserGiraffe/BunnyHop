@@ -16,7 +16,6 @@
 
 package net.seapanda.bunnyhop.control.workspace;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,10 +31,8 @@ import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
-import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Vec2D;
@@ -290,28 +287,6 @@ public class WorkspaceController {
       context = null;
       isDndFinished = true;
     }
-  }
-
-  //デバッグ用
-  private void printDebugInfo() {
-    //4 分木登録ノード数表示
-    Class<WorkspaceView> c = WorkspaceView.class;
-    Field f = null;
-    try {
-      f = c.getDeclaredField("quadTreeMngForConnector");
-      f.setAccessible(true);
-      QuadTreeManager quadTreeMngForConnector = (QuadTreeManager) f.get(view);
-      System.out.println(
-          "num of QuadTreeNodes: " + quadTreeMngForConnector.calcRegisteredNodeNum());
-    } catch (IllegalAccessException
-        | IllegalArgumentException
-        | NoSuchFieldException
-        | SecurityException e) {
-      LogManager.logger().error(e.toString());
-    }
-    System.out.println("num of root nodes: " + model.getRootNodes().size());
-    System.out.println(
-        "num of selected nodes: " + model.getSelectedNodes().size());
   }
 
   private class WorkspaceViewProxyImpl implements WorkspaceViewProxy {

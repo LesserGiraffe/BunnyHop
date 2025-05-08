@@ -42,16 +42,11 @@ import net.seapanda.bunnyhop.view.traverse.NodeViewWalker;
  */
 public class BhNodeViewGroup implements NodeViewComponent, Showable {
 
-  private static Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
-  private static Pattern escapeRbrace = Pattern.compile(Pattern.quote("\\}"));
   /** `\\...\$` */
   private static Pattern escapeDollar = Pattern.compile("^(\\\\)+\\$");
   /** 疑似ビュー指定パターン `${a}{b}...{z}` */
   private static Pattern embeded =
       Pattern.compile("^\\$(\\{(((\\\\\\{)|(\\\\\\})|[^\\{\\}])*)\\}){2,}$");
-  /** 疑似ビュー指定パターン `${a}{b}...{z}` の (a, b, ..., z) を取り出す用. */
-  private static Pattern contents =
-      Pattern.compile("\\{((?:(?:\\\\\\{)|(?:\\\\\\})|[^\\{\\}])*)\\}");
 
   /** このグループが子となる {@link BhNodeViewGroup} のリスト. */
   private final List<BhNodeViewGroup> subGroupList = new ArrayList<>();
