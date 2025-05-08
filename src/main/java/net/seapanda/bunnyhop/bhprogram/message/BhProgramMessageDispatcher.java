@@ -84,6 +84,14 @@ public class BhProgramMessageDispatcher {
     }
   }
 
+  /** {@code resp} を適切なクラスへと渡す. */
+  private void dispatch(BhProgramResponse resp) {
+    switch (resp) {
+      case InputTextResp inputTestResp -> msgProcessor.process(inputTestResp);
+      default -> notifyInvalidResp(resp);
+    }
+  }
+
   /** {@link StrBhSimulatorCmd} をシミュレータに送る. */
   private void dispatchSimulatorCmd(StrBhSimulatorCmd cmd, BhProgramMessageCarrier carrier) {
     simCmdProcessor.process(
@@ -92,14 +100,6 @@ public class BhProgramMessageDispatcher {
             var response = new StrBhSimulatorResp(cmd.getId(), success, resp);
             carrier.pushSendResp(response);
         });
-  }
-
-  /** {@code resp} を適切なクラスへと渡す. */
-  private void dispatch(BhProgramResponse resp) {
-    switch (resp) {
-      case InputTextResp inputTestResp -> msgProcessor.process(inputTestResp);
-      default -> notifyInvalidResp(resp);
-    }
   }
 
   private void notifyInvalidNotif(BhProgramNotification notif) {
