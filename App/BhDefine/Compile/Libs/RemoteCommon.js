@@ -43,6 +43,21 @@ function _turnLeft(speed, time) {
   _moveAny(speed, time, _MOVE_CMD.COUNTERCLOCKWISE);
 }
 
+function _stopRaspiCar() {
+  try {
+    let command = ['move', _MOVE_CMD.STOP];
+    for (let i = 0; i < 3; ++i) {
+      let res = bhScriptHelper.hw.sendCmd(command);
+      if (_isCmdSuccessful(res)) {
+        return;
+      }
+    }
+    throw _newBhProgramEexception(_textDb.errMsg.failedToCtrlHw(command.join()));
+  } catch (e) {
+    throw e;
+  }
+}
+
 function _measureDistance() {
   try {
     let command = 'measure-distance';

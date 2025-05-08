@@ -5,7 +5,7 @@
   nodeStyleID="BoolLiteralExp.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <ConnectorSection name="BoolExpSctn">
 
@@ -19,7 +19,7 @@
         name="BoolLiteral"
         nodeStyleID="BoolLiteral.json"
         onTextOptionsCreating="CreateBoolLiteral.js"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
 
   </ConnectorSection>

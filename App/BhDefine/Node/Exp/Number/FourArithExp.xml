@@ -4,7 +4,7 @@
   name="FourArithExp"
   nodeStyleID="FourArithExp.json"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <ConnectorSection name="NumExpSctn">
     <Connector
@@ -22,7 +22,7 @@
         name="FourArithOpe"
         nodeStyleID="DefaultComboBox.json"
         onTextOptionsCreating="CreateFourArithOps.js"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
     
     <Connector

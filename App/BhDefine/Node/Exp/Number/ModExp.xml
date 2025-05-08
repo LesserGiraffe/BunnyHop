@@ -4,7 +4,7 @@
   name="ModExp"
   nodeStyleID="ModExp.json"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <ConnectorSection name="NumExpSctn">
 
@@ -27,7 +27,7 @@
         bhNodeID="idModExp.node2"
         name="ModOpe"
         initialText="mod"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
 
   </ConnectorSection>

@@ -10,7 +10,7 @@
   onCopyRequested="OnCopyRequested.js"
   onDragStarted="OnStatDragStarted.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <ConnectorSection name="StatSctn">
 
@@ -24,7 +24,7 @@
         name="Comment"
         nodeStyleID="DefaultTextArea.json"
         initialText="${node}{comment-part}{initial}"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
 
     <Connector

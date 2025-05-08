@@ -11,7 +11,7 @@
   onCopyRequested="OnCopyRequested.js"
   onDragStarted="OnVarDeclDragStarted.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <Derivation derivationID="dervIdIdentifierName" derivativeID="idBoolList"/>
   <Derivation derivationID="dervIdVarDeclToArg" derivativeID="idBoolListArg"/>

@@ -5,7 +5,7 @@
   nodeStyleID="NewLine.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <ConnectorSection name="StrExpSctn">
 
@@ -18,7 +18,7 @@
         bhNodeID="idNewLine.node0"
         name="LineFeed"
         initialText="('\n')"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
   </ConnectorSection>
 

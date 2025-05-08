@@ -4,4 +4,4 @@
     name="SelectionViewSpace" 
     nodeStyleID="SelectionViewSpace.json"
     onAliasAsked="OnAliasAsked.js"
-    version="bh-1.0"/>
+    version="bhn-1.0.0"/>

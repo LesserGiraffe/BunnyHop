@@ -4,7 +4,7 @@
   name="BinaryColorExp"
   nodeStyleID="BinaryColorExp.json"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <ConnectorSection name="ColorExpSctn">
     <Connector
@@ -22,7 +22,7 @@
         name="BinaryColorOpe"
         nodeStyleID="DefaultComboBox.json"
         onTextOptionsCreating="CreateAddSubOps.js"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
     
     <Connector

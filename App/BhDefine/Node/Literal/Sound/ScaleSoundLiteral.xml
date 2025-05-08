@@ -6,7 +6,7 @@
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onCreatedAsTemplate="SetDefaultScaleSoundParams.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
   
   <ConnectorSection name="SoundExpSctn">
 
@@ -25,7 +25,7 @@
         name="NumLiteral"
         nodeStyleID="WordComboBox.json"
         onTextOptionsCreating="CreateOctave.js"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
     
     <Connector
@@ -38,7 +38,7 @@
         name="NumLiteral"
         nodeStyleID="WordComboBox.json"
         onTextOptionsCreating="CreateMusicalScale.js"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
 
   </ConnectorSection>

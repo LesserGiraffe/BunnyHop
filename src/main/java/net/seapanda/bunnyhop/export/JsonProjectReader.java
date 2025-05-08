@@ -242,8 +242,8 @@ public class JsonProjectReader {
 
   /** {@link BhNodeImage} のバージョンと {@link BhNode} のバージョンに互換性があるか調べる. */
   private boolean checkNodeVersionCompatiblity(BhNodeImage nodeImage, BhNode node) {
-    boolean isCompatible = node.getVersion().compPrefix(nodeImage.version)
-        && node.getVersion().compMajor(nodeImage.version);
+    boolean isCompatible = node.getVersion().comparePrefix(nodeImage.version)
+        && node.getVersion().compareMajor(nodeImage.version);
 
     if (!isCompatible) {
       warnings.add(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION);
@@ -292,7 +292,7 @@ public class JsonProjectReader {
             unknownNodeId.getClass().getSimpleName(),
             unknownNodeId.toString()));
       }
-      //msg.append("\n");
+      msg.append("\n");
     }
     if (warnings.contains(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION)) {
       msg.append(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION.toString() + "\n");
@@ -303,7 +303,7 @@ public class JsonProjectReader {
             info.imageVer,
             info.nodeVer));
       }
-      //msg.append("\n");
+      msg.append("\n");
     }
     if (warnings.contains(ImportWarning.CONNECTOR_NOT_FOUND)) {
       msg.append(ImportWarning.CONNECTOR_NOT_FOUND.toString() + "\n");
@@ -313,7 +313,7 @@ public class JsonProjectReader {
             info.connectorId.getClass().getSimpleName(),
             info.connectorId));
       }
-      //msg.append("\n");
+      msg.append("\n");
     }
     if (warnings.contains(ImportWarning.DERIVATIVE_NOT_FOUND)) {
       msg.append(ImportWarning.DERIVATIVE_NOT_FOUND.toString() + "\n");
@@ -324,7 +324,7 @@ public class JsonProjectReader {
             info.orgInstId,
             info.dervInstId));
       }
-      //msg.append("\n");
+      msg.append("\n");
     }
     return msg.toString();
   }

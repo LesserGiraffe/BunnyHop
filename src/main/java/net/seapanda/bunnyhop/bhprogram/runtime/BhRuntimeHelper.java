@@ -36,13 +36,11 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent.Name;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
-import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessor;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
-import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 
 /**
  * BhProgram の実行環境を操作するクラスが共通で持つ機能と変数をまとめたクラス.
@@ -58,11 +56,11 @@ class BhRuntimeHelper {
   /** {@link BhProgramMessage} を送受信するためのオブジェクト. */
   private BhRuntimeTransceiver transceiver;
 
+  /** コンストラクタ. */
   public BhRuntimeHelper(
-      BhProgramMessageProcessor msgProcessor,
-      SimulatorCmdProcessor simCmdProcessor,
+      BhProgramMessageDispatcher dispatcher,
       MessageService msgService) {
-    dispatcher = new BhProgramMessageDispatcher(msgProcessor, simCmdProcessor);
+    this.dispatcher = dispatcher;
     this.msgService = msgService;
   }
 

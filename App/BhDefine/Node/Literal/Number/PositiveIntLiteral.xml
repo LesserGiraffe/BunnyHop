@@ -5,7 +5,7 @@
   nodeStyleID="NumLiteralExp.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <ConnectorSection name="NumExpSctn">
 
@@ -21,7 +21,7 @@
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckPositiveIntFormat.js"
         initialText="1"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
 
   </ConnectorSection>

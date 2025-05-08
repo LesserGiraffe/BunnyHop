@@ -11,7 +11,7 @@
   onCopyRequested="OnCopyRequested.js"
   onDragStarted="OnGlobalDataDeclDragStarted.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <Derivation derivationID="dervIdSyncTimeVar" derivativeID="idSyncTimerVar"/>
 
@@ -34,7 +34,7 @@
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
         onTextOptionsCreating="CreateSyncTimerOps.js"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
 
     <Connector
@@ -49,7 +49,7 @@
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckSyncTimerCount.js"
         initialText="1"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
 
     <Connector

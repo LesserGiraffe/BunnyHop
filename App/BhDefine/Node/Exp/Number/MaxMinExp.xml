@@ -4,7 +4,7 @@
   name="MaxMinExp"
   nodeStyleID="MaxMinExp.json"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <ConnectorSection name="NumExpSctn">
 
@@ -28,7 +28,7 @@
         name="MaxMinOpe"
         nodeStyleID="WordComboBox.json"
         onTextOptionsCreating="CreateMaxMinOps.js"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
 
   </ConnectorSection>

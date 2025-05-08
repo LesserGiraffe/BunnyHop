@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
+import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessor;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhConstants.BhRuntime;
@@ -71,7 +72,8 @@ public class RemoteBhRuntimeController implements BhRuntimeController {
       BhScriptRepository repository) 
       throws IllegalStateException {
     this.msgService = msgService;
-    helper = new BhRuntimeHelper(msgProcessor, simCmdProcessor, msgService);
+    var dispatcher = new BhProgramMessageDispatcher(msgProcessor, simCmdProcessor);
+    helper = new BhRuntimeHelper(dispatcher, msgService);
     boolean success = repository.allExist(
         BhConstants.Path.File.GEN_REMOTE_EXEC_CMD_JS,
         BhConstants.Path.File.GEN_REMOTE_KILL_CMD_JS,

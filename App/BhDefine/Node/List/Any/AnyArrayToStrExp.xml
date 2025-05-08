@@ -5,7 +5,7 @@
   nodeStyleID="AnyArrayToStrExp.json"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <ConnectorSection name="StrExpSctn">
     
@@ -22,7 +22,7 @@
         type="text"
         bhNodeID="idAnyArrayToStrExp.node1"
         name="StrLiteral"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
 
   </ConnectorSection>

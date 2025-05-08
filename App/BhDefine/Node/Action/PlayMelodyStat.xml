@@ -10,7 +10,7 @@
   onCopyRequested="OnCopyRequested.js"
   onDragStarted="OnStatDragStarted.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <ConnectorSection name="StatSctn">
     
@@ -28,7 +28,7 @@
         bhNodeID="idPlayMelodyStat.node1"
         name="BoolLiteral"
         initialText="true"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
     
     <Connector

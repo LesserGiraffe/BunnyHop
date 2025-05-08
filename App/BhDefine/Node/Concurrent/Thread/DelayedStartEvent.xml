@@ -4,7 +4,7 @@
   name="DelayedStartEvent"
   nodeStyleID="DelayedStartEvent.json"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <ConnectorSection name="EventSctn">
 
@@ -20,7 +20,7 @@
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckNumFormat.js"
         initialText="1"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
 
     <Connector

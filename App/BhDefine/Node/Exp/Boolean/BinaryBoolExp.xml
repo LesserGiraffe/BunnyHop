@@ -4,7 +4,7 @@
   name="BinaryBoolExp"
   nodeStyleID="BinaryBoolExp.json"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0">
+  version="bhn-1.0.0">
 
   <ConnectorSection name="BoolExpSctn">
     
@@ -23,7 +23,7 @@
         name="BinaryBoolOpe"
         nodeStyleID="WordComboBox.json"
         onTextOptionsCreating="CreateBinaryBoolOps.js"
-        version="bh-1.0"/>
+        version="bhn-1.0.0"/>
     </Connector>
     
     <Connector

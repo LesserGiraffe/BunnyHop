@@ -21,16 +21,8 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.DetectColorCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.MeasureDistanceCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.MoveBackwardRaspiCarCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.MoveForwardRaspiCarCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.SetBothEyesColorCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.SetLeftEyeColorCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.SetRightEyeColorCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.StopRaspiCarCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.TurnLeftRaspiCarCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.TurnRightRaspiCarCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.StrBhSimulatorCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorResp.StrBhSimulatorResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.InputTextResp;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeTransceiver;
@@ -85,28 +77,21 @@ public class BhProgramMessageDispatcher {
           cmd -> carrier.pushSendResp(msgProcessor.process(cmd));
       case BhProgramException
           exception -> msgProcessor.process(exception);
-      case MoveForwardRaspiCarCmd
-          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
-      case MoveBackwardRaspiCarCmd
-          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
-      case TurnRightRaspiCarCmd
-          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
-      case TurnLeftRaspiCarCmd
-          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
-      case StopRaspiCarCmd
-          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
-      case MeasureDistanceCmd
-          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
-      case DetectColorCmd
-          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
-      case SetLeftEyeColorCmd
-          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
-      case SetRightEyeColorCmd
-          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
-      case SetBothEyesColorCmd
-          cmd -> simCmdProcessor.process(cmd, resp -> carrier.pushSendResp(resp));
+      case StrBhSimulatorCmd
+          cmd ->  dispatchSimulatorCmd(cmd, carrier);
+
       default -> notifyInvalidNotif(notif);
     }
+  }
+
+  /** {@link StrBhSimulatorCmd} をシミュレータに送る. */
+  private void dispatchSimulatorCmd(StrBhSimulatorCmd cmd, BhProgramMessageCarrier carrier) {
+    simCmdProcessor.process(
+        cmd.getComponents(),
+        (success, resp) -> {
+            var response = new StrBhSimulatorResp(cmd.getId(), success, resp);
+            carrier.pushSendResp(response);
+        });
   }
 
   /** {@code resp} を適切なクラスへと渡す. */

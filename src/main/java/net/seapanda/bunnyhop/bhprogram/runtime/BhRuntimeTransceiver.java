@@ -124,7 +124,7 @@ public class BhRuntimeTransceiver {
     if (futures != null) {
       return;
     }
-    futures =  new FutureSet(
+    futures = new FutureSet(
         executors.recvMsgTask.submit(carrier::recvNotif),
         executors.sendMsgTask.submit(carrier::sendNotif),
         executors.recvRespTask.submit(carrier::recvResp),

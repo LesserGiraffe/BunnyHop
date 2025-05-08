@@ -5,4 +5,4 @@
   nodeStyleID="StrChainLinkExpVoid.json"
   initialText="''"
   onAliasAsked="OnAliasAsked.js"
-  version="bh-1.0"/>
+  version="bhn-1.0.0"/>

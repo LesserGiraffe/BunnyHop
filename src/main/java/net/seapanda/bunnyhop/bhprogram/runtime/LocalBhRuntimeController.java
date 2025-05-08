@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
+import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessor;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
@@ -38,6 +39,7 @@ public class LocalBhRuntimeController implements BhRuntimeController {
 
   private final MessageService msgService;
   private final BhRuntimeHelper helper;
+  private final SimulatorCmdProcessor simCmdProcessor;
   private Process process;
   /** プログラム実行中なら true. */
   private final AtomicReference<Boolean> programRunning = new AtomicReference<>(false);
@@ -48,7 +50,9 @@ public class LocalBhRuntimeController implements BhRuntimeController {
       SimulatorCmdProcessor simCmdProcessor,
       MessageService msgService) {
     this.msgService = msgService;
-    helper = new BhRuntimeHelper(msgProcessor, simCmdProcessor, msgService);
+    this.simCmdProcessor = simCmdProcessor;
+    var dispatcher = new BhProgramMessageDispatcher(msgProcessor, simCmdProcessor);
+    helper = new BhRuntimeHelper(dispatcher, msgService);
   }
 
   @Override
@@ -98,6 +102,7 @@ public class LocalBhRuntimeController implements BhRuntimeController {
       success &= BhRuntimeHelper.killProcess(process, BhConstants.BhRuntime.PROC_END_TIMEOUT);
     }
     process = null;
+    simCmdProcessor.halt();
     if (!success) {
       msgService.info(TextDefs.BhRuntime.Local.failedToEnd.get());
     } else {
