@@ -1,3 +1,3 @@
 (function() {
-  return '~/BhRemote/stop.sh 2>&1';
+  return '~/BhRemote/Scripts/stop.sh 2>&1';
 })();

@@ -21,7 +21,7 @@ function _moveAny(speed, time, cmd) {
         return;
       }
     }
-    throw _newBhProgramEexception(_textDb.errMsg.failedToCtrlHw(command.join()));
+    throw _newBhProgramException(_textDb.errMsg.failedToCtrlHw(command.join()));
   } catch (e) {
     throw e;
   }
@@ -52,7 +52,7 @@ function _stopRaspiCar() {
         return;
       }
     }
-    throw _newBhProgramEexception(_textDb.errMsg.failedToCtrlHw(command.join()));
+    throw _newBhProgramException(_textDb.errMsg.failedToCtrlHw(command.join()));
   } catch (e) {
     throw e;
   }
@@ -67,7 +67,7 @@ function _measureDistance() {
         return Number(String(res[2])) / 10000;
       }
     }
-    throw _newBhProgramEexception(_textDb.errMsg.failedToCtrlHw(command.join()));
+    throw _newBhProgramException(_textDb.errMsg.failedToCtrlHw(command.join()));
   } catch (e) {
     throw e;
   }
@@ -91,7 +91,7 @@ function _getColor() {
         return new _Color(Number(String(res[2])), Number(String(res[3])), Number(String(res[4])));
       }
     }
-    throw _newBhProgramEexception(_textDb.errMsg.failedToCtrlHw(command.join()));
+    throw _newBhProgramException(_textDb.errMsg.failedToCtrlHw(command.join()));
   } catch (e) {
     throw e;
   }
@@ -166,7 +166,7 @@ function _lightEye(eyeSel, color) {
     if (_isCmdSuccessful(res)) {
       return;
     }
-    throw _newBhProgramEexception(_textDb.errMsg.failedToCtrlHw(command.join()));
+    throw _newBhProgramException(_textDb.errMsg.failedToCtrlHw(command.join()));
   } catch (e) {
     throw e;
   }
