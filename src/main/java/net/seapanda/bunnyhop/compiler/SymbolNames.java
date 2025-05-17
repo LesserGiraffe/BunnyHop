@@ -291,6 +291,7 @@ public class SymbolNames {
 
     //ノード名
     public static final String STR_TO_NUM_EXP = "StrToNumExp";
+    public static final String STR_TO_NUM_WITH_DEFAULT_VAL_EXP = "StrToNumWithDefaultValExp";
     public static final String ANY_TO_STR_EXP = "AnyToStrExp";
     public static final String SCAM_EXP = "ScanExp";
     public static final String RAMDOM_INT_EXP = "RandomIntExp";
@@ -307,6 +308,9 @@ public class SymbolNames {
     public static final String STR_CHAIN_EXP = "StrChainExp";
     public static final String GET_SYNC_TIMER_COUNT_EXP = "GetSyncTimerCountExp";
     public static final String ANY_ARRAY_TO_STR_EXP = "AnyArrayToStrExp";
+    public static final String CHECK_NUM_TYPE_EXP = "CheckNumTypeExp";
+    public static final String NUM_POW_EXP = "NumPowExp";
+    public static final String NUM_CLAMP_EXP = "NumClampExp";
     public static final String OUT_ARG_TEST_EXP = "OutArgTestExp";
     public static final String PRINT_STAT = "PrintStat";
     public static final String MOVE_STAT = "MoveStat";
@@ -348,11 +352,17 @@ public class SymbolNames {
     public static final String OPT_PROPER_SUBSET = "properSubset";
     public static final String OPT_SUPERSET = "superset";
     public static final String OPT_PROPER_SUPERSET = "properSuperset";
+    public static final String OPT_FINITE = "finite";
+    public static final String OPT_INFINITE = "infinite";
+    public static final String OPT_NAN = "nan";
+    public static final String OPT_ASCENDING = "ascending";
+    public static final String OPT_DESCENDING = "descending";
 
     /** 定義済み関数式のリスト. */
     public static final HashSet<String> EXP_LIST =
         new HashSet<>(Arrays.asList(
             STR_TO_NUM_EXP,
+            STR_TO_NUM_WITH_DEFAULT_VAL_EXP,
             ANY_TO_STR_EXP,
             SCAM_EXP,
             NUM_ROUND_EXP,
@@ -369,10 +379,15 @@ public class SymbolNames {
             STR_CHAIN_EXP,
             GET_SYNC_TIMER_COUNT_EXP,
             ANY_ARRAY_TO_STR_EXP,
+            CHECK_NUM_TYPE_EXP,
+            NUM_POW_EXP,
+            NUM_CLAMP_EXP,
             OUT_ARG_TEST_EXP,
 
             Array.NUM_ARRAY_GET_EXP,
+            Array.NUM_ARRAY_MAX_MIN_EXP,
             Array.STR_ARRAY_GET_EXP,
+            Array.STR_ARRAY_MAX_MIN_EXP,
             Array.BOOL_ARRAY_GET_EXP,
             Array.COLOR_ARRAY_GET_EXP,
             Array.SOUND_ARRAY_GET_EXP,
@@ -405,12 +420,15 @@ public class SymbolNames {
             Array.ANY_ARRAY_INSERT_STAT,
             Array.ANY_ARRAY_SPLICE_STAT,
             Array.ANY_ARRAY_SET_STAT,
-            Array.ANY_ARRAY_REVERSE_STAT));
+            Array.ANY_ARRAY_REVERSE_STAT,
+            Array.ANY_ARRAY_SORT_STAT,
+            Array.NUM_ARRAY_SORT_STAT));
 
     //  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
     public static final Map<FuncId, String> NAME_MAP =
         new HashMap<FuncId, String>() {{
             put(FuncId.create(STR_TO_NUM_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
+            put(FuncId.create(STR_TO_NUM_WITH_DEFAULT_VAL_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
             put(FuncId.create(ANY_TO_STR_EXP), ScriptIdentifiers.Funcs.TO_STR);
             put(FuncId.create(PRINT_STAT), ScriptIdentifiers.Funcs.PRINTLN);
             put(FuncId.create(SYNC_TIMER_AWAIT_STAT), ScriptIdentifiers.Funcs.SYNC_TIMER_AWAIT);
@@ -446,6 +464,12 @@ public class SymbolNames {
             put(FuncId.create(GET_SYNC_TIMER_COUNT_EXP),
                 ScriptIdentifiers.Funcs.GET_SYNC_TIMER_COUNT);
             put(FuncId.create(ANY_ARRAY_TO_STR_EXP), ScriptIdentifiers.Funcs.ARY_TO_STR);
+            put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_FINITE), "Number.isFinite");
+            put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_INFINITE),
+                ScriptIdentifiers.Funcs.IS_NUM_INFINITE);
+            put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_NAN), "Number.isNaN");
+            put(FuncId.create(NUM_POW_EXP), "Math.pow");
+            put(FuncId.create(NUM_CLAMP_EXP), ScriptIdentifiers.Funcs.NUM_CLAMP);
             put(FuncId.create(OUT_ARG_TEST_EXP), ScriptIdentifiers.Funcs.OUT_ARG_TEST);
             put(FuncId.create(MOVE_STAT, OPT_MOVE_FORWARD), ScriptIdentifiers.Funcs.MOVE_FORWARD);
             put(FuncId.create(MOVE_STAT, OPT_MOVE_BACKWARD), ScriptIdentifiers.Funcs.MOVE_BACKWARD);
@@ -476,6 +500,8 @@ public class SymbolNames {
             put(FuncId.create(Array.ANY_ARRAY_INDEX_OF_EXP, OPT_LAST),
                 ScriptIdentifiers.Funcs.ARY_LAST_INDEX_OF);
             put(FuncId.create(Array.ANY_ARRAY_INCLUDES_EXP), ScriptIdentifiers.Funcs.ARY_INCLUDES);
+            put(FuncId.create(Array.ANY_ARRAY_SORT_STAT), ScriptIdentifiers.Funcs.ARY_SORT);
+            put(FuncId.create(Array.NUM_ARRAY_SORT_STAT), ScriptIdentifiers.Funcs.ARY_NUM_SORT);
             put(FuncId.create(Array.ANY_ARRAY_COMP_EXP, OPT_EQ), ScriptIdentifiers.Funcs.ARY_EQ);
             put(FuncId.create(Array.ANY_ARRAY_COMP_EXP, OPT_NEQ), ScriptIdentifiers.Funcs.ARY_NEQ);
 
@@ -491,7 +517,15 @@ public class SymbolNames {
             put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_NEQ), ScriptIdentifiers.Funcs.SET_NEQ);
 
             put(FuncId.create(Array.STR_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
+            put(FuncId.create(Array.STR_ARRAY_MAX_MIN_EXP, OPT_MAX),
+                ScriptIdentifiers.Funcs.ARY_MAX);
+            put(FuncId.create(Array.STR_ARRAY_MAX_MIN_EXP, OPT_MIN),
+                ScriptIdentifiers.Funcs.ARY_MIN);
             put(FuncId.create(Array.NUM_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
+            put(FuncId.create(Array.NUM_ARRAY_MAX_MIN_EXP, OPT_MAX),
+                ScriptIdentifiers.Funcs.ARY_NUM_MAX);
+            put(FuncId.create(Array.NUM_ARRAY_MAX_MIN_EXP, OPT_MIN),
+                ScriptIdentifiers.Funcs.ARY_NUM_MIN);
             put(FuncId.create(Array.BOOL_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
             put(FuncId.create(Array.COLOR_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
             put(FuncId.create(Array.SOUND_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
@@ -600,6 +634,7 @@ public class SymbolNames {
 
     /** 音リテラルに関するシンボル名. */
     public static class Sound {
+      public static final String VOLUME = "Volume";
       public static final String DURATION = "Duration";
       public static final String FREQUENCY = "Frequency";
       public static final String SCALE_SOUND = "ScaleSound";
@@ -621,11 +656,15 @@ public class SymbolNames {
     public static final String ANY_ARRAY_REVERSE_STAT = "AnyArrayReverseStat";
     public static final String ANY_ARRAY_INDEX_OF_EXP = "AnyArrayIndexOfExp";
     public static final String ANY_ARRAY_INCLUDES_EXP = "AnyArrayIncludesExp";
+    public static final String ANY_ARRAY_SORT_STAT = "AnyArraySortStat";
+    public static final String NUM_ARRAY_SORT_STAT = "NumArraySortStat";
     public static final String ANY_ARRAY_COMP_EXP = "AnyArrayCompExp";
     public static final String ANY_SET_COMP_EXP = "AnySetCompExp";
 
     public static final String STR_ARRAY_GET_EXP = "StrArrayGetExp";
+    public static final String STR_ARRAY_MAX_MIN_EXP = "StrArrayMaxMinExp";
     public static final String NUM_ARRAY_GET_EXP = "NumArrayGetExp";
+    public static final String NUM_ARRAY_MAX_MIN_EXP = "NumArrayMaxMinExp";
     public static final String BOOL_ARRAY_GET_EXP = "BoolArrayGetExp";
     public static final String COLOR_ARRAY_GET_EXP = "ColorArrayGetExp";
     public static final String SOUND_ARRAY_GET_EXP = "SoundArrayGetExp";

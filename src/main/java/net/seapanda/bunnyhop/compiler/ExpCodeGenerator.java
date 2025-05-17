@@ -553,7 +553,7 @@ class ExpCodeGenerator {
 
     if (soundLiteralNode.getSymbolName().equals(SymbolNames.Literal.SOUND_LITERAL_VOID)) {
       String soundVar = common.genVarName(soundLiteralNode);
-      String rightExp = common.genFuncCallCode(ScriptIdentifiers.Funcs.CREATE_SOUND, "0", "0");
+      String rightExp = ScriptIdentifiers.Vars.NIL_SOUND;
       code.append(common.indent(nestLevel))
           .append(Keywords.Js._const_).append(soundVar).append(" = ").append(rightExp)
           .append(";").append(Keywords.newLine);
@@ -584,16 +584,19 @@ class ExpCodeGenerator {
       int nestLevel,
       CompileOption option) {
 
+    SyntaxSymbol volumeNode = 
+        freqSoundLiteralNode.findDescendantOf("*", SymbolNames.Literal.Sound.VOLUME, "*");
     SyntaxSymbol durationNode =
         freqSoundLiteralNode.findDescendantOf("*", SymbolNames.Literal.Sound.DURATION, "*");
     SyntaxSymbol frequencyNode =
         freqSoundLiteralNode.findDescendantOf("*", SymbolNames.Literal.Sound.FREQUENCY, "*");
+    String volume = genExpression(code, volumeNode, nestLevel, option);
     String duration = genExpression(code, durationNode, nestLevel, option);
     String frequency = genExpression(code, frequencyNode, nestLevel, option);
     // 音オブジェクト作成
     String soundVar = common.genVarName(freqSoundLiteralNode);
-    String rightExp =
-        common.genFuncCallCode(ScriptIdentifiers.Funcs.CREATE_SOUND, frequency, duration);
+    String rightExp = common.genFuncCallCode(
+        ScriptIdentifiers.Funcs.CREATE_SOUND, volume, frequency, duration);
     code.append(common.indent(nestLevel))
         .append(common.genSetCurrentNodeInstIdCode(freqSoundLiteralNode))
         .append(";" + Keywords.newLine);
@@ -620,7 +623,8 @@ class ExpCodeGenerator {
       SyntaxSymbol scaleSoundLiteralNode,
       int nestLevel,
       CompileOption option) {
-        
+    SyntaxSymbol volumeNode = scaleSoundLiteralNode.findDescendantOf(
+        "*", SymbolNames.Literal.Sound.VOLUME, "*");
     SyntaxSymbol durationNode = scaleSoundLiteralNode.findDescendantOf(
         "*", SymbolNames.Literal.Sound.DURATION, "*");
     SyntaxSymbol octaveNode = scaleSoundLiteralNode.findDescendantOf(
@@ -629,6 +633,7 @@ class ExpCodeGenerator {
         "*", SymbolNames.Literal.Sound.SCALE_SOUND, "*");
 
     // 音階の音から周波数を計算する
+    final String volume = genExpression(code, volumeNode, nestLevel, option);
     final String duration = genExpression(code, durationNode, nestLevel, option);
     String octave = genExpression(code, octaveNode, nestLevel, option);
     String scaleSound = genExpression(code, scaleSoundNode, nestLevel, option);
@@ -636,12 +641,10 @@ class ExpCodeGenerator {
     scaleSound = scaleSound.replaceAll("[^\\d\\-]", "");
     double frequency =
         440 * Math.pow(2, (Double.parseDouble(octave) + Double.parseDouble(scaleSound)) / 12);
-    // frequency = Math.round(frequency);
-
     // 音オブジェクト作成
     String soundVar = common.genVarName(scaleSoundLiteralNode);
     String rightExp = common.genFuncCallCode(
-        ScriptIdentifiers.Funcs.CREATE_SOUND, "%.3f".formatted(frequency), duration);
+        ScriptIdentifiers.Funcs.CREATE_SOUND, volume, "(%.3f)".formatted(frequency), duration);
     code.append(common.indent(nestLevel))
         .append(common.genSetCurrentNodeInstIdCode(scaleSoundLiteralNode))
         .append(";" + Keywords.newLine);

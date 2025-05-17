@@ -29,7 +29,7 @@ function _measureDistance() {
 
 function _sayOnWindows(word) {
   word = word.replace(/"/g, '');
-  word = bhScriptHelper.util.substringByBytes(word, 990, "Shift_JIS");
+  word = bhScriptHelper.util.substringByBytes(word, 1000, "Shift_JIS");
   let execPath = bhScriptHelper.util.getExecPath();
   let wavFilePath = _jPaths.get(execPath, 'Actions', 'open_jtalk', `${_getSerialNo()}.wav`).toAbsolutePath();
   let sayCmdPath = _jPaths.get(execPath, 'Actions', 'bhSay.cmd').toAbsolutePath();

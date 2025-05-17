@@ -10,7 +10,7 @@
       "disconnect": "切断",
       "local": "ローカル",
       "remote": "リモート",
-      "ip-addr": "IPアドレス",
+      "hostname": "ホスト名",
       "username": "ユーザー名",
       "password": "パスワード",
       "stdin": "入力",
@@ -337,6 +337,16 @@
       "extract": "残す"
     },
 
+    "list-max-min-ops": {
+      "max": "最大値",
+      "min": "最小値"
+    },
+
+    "list-sort-ops": {
+      "ascending": "小さい順",
+      "descending": "大きい順"
+    },
+
     "bool-literal": {
       "true": "真",
       "false": "偽"
@@ -368,6 +378,12 @@
       "b": "シ"
     },
 
+    "num-type": {
+      "finite": "有限の数",
+      "infinite": "+/- 無限大",
+      "nan": "非数"
+    },
+
     "alias": {
       "AnyArrayAppendStat": "リストにリストの要素を全て挿入する",
       "AnyArrayCompExp": "リスト同士を比較する",
@@ -380,12 +396,18 @@
       "AnyArraySetStat": "リストの要素を置き換える",
       "AnyArraySpliceStat": "リストの要素を${option}",
       "AnyArrayToStrExp": "リストを文字列に変換する",
+      "AnyArraySortStat": "リストの要素を並べ替える",
+      "NumArraySortStat": "リストの要素を並べ替える",
       "AnySetCompExp": "リスト同士を集合として比較する",
       "BoolArrayGetExp": "リストの要素を取得する",
       "ColorArrayGetExp": "リストの要素を取得する",
       "NumArrayGetExp": "リストの要素を取得する",
+      "NumArrayMaxMinExp${max}": "リストから最大値を見つける",
+      "NumArrayMaxMinExp${min}": "リストから最小値を見つける",
       "SoundArrayGetExp": "リストの要素を取得する",
       "StrArrayGetExp": "リストの要素を取得する",
+      "StrArrayMaxMinExp${max}": "リストから最大値を見つける",
+      "StrArrayMaxMinExp${min}": "リストから最小値を見つける",
 
       "DetectColorExp": "色を検出する",
       "GetTimeSinceProgramStartedExp": "プログラム開始からの時間を取得する",
@@ -433,11 +455,14 @@
       "NumRoundExp${ceil}": "小数点以下を切り上げる",
       "NumRoundExp${round}": "小数点以下を四捨五入する",
       "NumRoundExp${trunc}": "小数点以下を削除する",
+      "NumPowExp": "べき乗",
+      "NumClampExp": "値の範囲を制限する",
       "RandomIntExp": "ランダムな整数",
       "ScanExp": "文字列の入力を待つ",
       "StrChainExp": "文字列の連結",
       "StrCompExp": "文字列の比較 (${option})",
       "StrToNumExp": "文字列の数値化",
+      "StrToNumWithDefaultValExp": "文字列の数値化",
       "BoolLiteralExp": "真偽値",
       "ColorLiteralExp": "色",
       "NumLiteralExp": "数値",
@@ -457,7 +482,9 @@
       "ReturnStat": "関数から抜ける",
       "WhileStat": "条件付きくり返しブロック",
       "PrintStat": "文字列を出力する",
-
+      "CheckNumTypeExp${finite}": "有限の値か調べる",
+      "CheckNumTypeExp${infinite}": "+/- 無限大の値か調べる",
+      "CheckNumTypeExp${nan}": "非数か調べる",
       "BoolEmptyList": "空の真偽値リスト",
       "BoolList": "真偽値リスト (${name})",
       "BoolListArg": "真偽値リストの入力ポート (${name})",

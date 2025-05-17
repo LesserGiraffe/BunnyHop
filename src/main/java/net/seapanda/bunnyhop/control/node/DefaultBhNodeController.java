@@ -320,7 +320,7 @@ public class DefaultBhNodeController implements BhNodeController {
           BhConstants.Css.PSEUDO_OVERLAPPED, false);
     }
     ddInfo.currentOverlapped = null;
-    List<BhNode> overlappedList = view.getRegionManager().searchForOverlappedModels();
+    List<BhNode> overlappedList = view.getRegionManager().searchForOverlappedNodes();
     for (BhNode overlapped : overlappedList) {
       if (overlapped.canBeReplacedWith(model)) {  //このノードと入れ替え可能
         // 今回重なっているものをライトオン

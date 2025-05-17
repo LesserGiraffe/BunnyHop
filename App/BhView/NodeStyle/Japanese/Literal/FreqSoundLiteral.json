@@ -13,9 +13,13 @@
     
   "connective" : {
     "inner" : {
-      "space" : 2.0,
+      "space" : 1.2,
       "arrangement" : "Row",
-      "connectorList" : ["Duration", "${L1}{秒間の}", "Frequency", "${L1}{ヘルツの音}"]
+      "connectorList" : [
+        "${L1}{大きさ}", "Volume", "${L1}{%  }",
+        "${L1}{長さ}", "Duration", "${L1}{秒  }",
+        "${L1}{高さ}", "Frequency", "${L1}{ヘルツの音}"
+      ]
     }
   }
 }

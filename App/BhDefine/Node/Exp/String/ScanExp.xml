@@ -3,7 +3,7 @@
   bhNodeID="idScanExp"
   name="ScanExp"
   nodeStyleID="ScanExp.json"
-  onCreatedAsTemplate="SetDefaultScanExpMsg.js"
+  onCreatedAsTemplate="OnScanExpCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 

@@ -17,7 +17,7 @@
   -fx-prompt-text-fill: #909090;
 }
 
-#ipAddrTextField {
+#hostNameTextField {
   -fx-pref-width: 11em;
   -fx-font-family: "Meiryo UI";
   -fx-font-size: 1.1em;

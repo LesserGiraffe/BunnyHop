@@ -23,6 +23,14 @@ let listDeclToEmptyList = {
   'SoundListDecl' : 'idSoundEmptyList'
 };
 
+let listDeclToMinMaxExp = {
+  'NumListDecl'   : 'idNumArrayMaxMinExp',
+  'StrListDecl'   : 'idStrArrayMaxMinExp'};
+
+let listDeclToSortStat = {
+  'NumListDecl'   : 'idNumArraySortStat',
+  'StrListDecl'   : 'idAnyArraySortStat'};
+
 function genNodeToReplace(symbolMaps) {
   nodes = [];
   for (let symbolMap of symbolMaps) {
@@ -64,6 +72,11 @@ function genAnyArrayControlNode(arrayCtrlNodeId, argNames, symbolMaps) {
 
   if (String(bhThis.getSymbolName()) === 'SoundListDecl') {
     templates.splice(2, 0, genAnyArrayControlNode('idPlaySoundListStat',[], []));
+  }
+  if (String(bhThis.getSymbolName()) === 'NumListDecl'
+    || String(bhThis.getSymbolName()) === 'StrListDecl') {
+    templates.push(genAnyArrayControlNode(listDeclToMinMaxExp[bhThis.getSymbolName()], [], []));
+    templates.push(genAnyArrayControlNode(listDeclToSortStat[bhThis.getSymbolName()], [], []));
   }
   return templates;
 })();

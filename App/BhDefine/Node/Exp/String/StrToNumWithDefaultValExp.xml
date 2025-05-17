@@ -1,0 +1,21 @@
+<Node
+  type="connective"
+  bhNodeID="idStrToNumWithDefaultValExp"
+  name="StrToNumWithDefaultValExp"
+  nodeStyleID="StrToNumWithDefaultValExp.json"
+  onCreatedAsTemplate="OnStrToNumExpCreatedAsTemplate.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-1.0.0">
+
+  <ConnectorSection name="NumExpSctn">
+    <Connector
+      bhConnectorID="idStrToNumWithDefaultValExp.cnctr0"
+      import="idStrExpCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idStrToNumWithDefaultValExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>      
+  </ConnectorSection>
+</Node>

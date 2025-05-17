@@ -407,7 +407,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
         = new QuadTreeRectangle(0.0, 0.0, 0.0, 0.0, BhNodeViewBase.this);
 
     @Override
-    public List<BhNode> searchForOverlappedModels() {
+    public List<BhNode> searchForOverlappedNodes() {
       List<QuadTreeRectangle> overlappedRectList =
           cnctrRange.searchOverlappedRects(OverlapOption.INTERSECT);
       return overlappedRectList.stream()

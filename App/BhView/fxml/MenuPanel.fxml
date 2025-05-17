@@ -28,7 +28,7 @@
     <TextFetcher fx:id="connectText" textId="gui,menu-panel,connect"/>
     <TextFetcher fx:id="disconnectText" textId="gui,menu-panel,disconnect"/>
     <TextFetcher fx:id="localText" textId="gui,menu-panel,local"/>
-    <TextFetcher fx:id="ipAddrText" textId="gui,menu-panel,ip-addr"/>
+    <TextFetcher fx:id="hostNameText" textId="gui,menu-panel,hostname"/>
     <TextFetcher fx:id="usernameText" textId="gui,menu-panel,username"/>
     <TextFetcher fx:id="passwordText" textId="gui,menu-panel,password"/>
     <TextFetcher fx:id="stdinText" textId="gui,menu-panel,stdin"/>
@@ -130,7 +130,7 @@
     fx:id="menuPanelLower"
     styleClass="menuPanelFlowPane">
     <ToggleButton fx:id="remotLocalSelectBtn" text="$localText.text"/> <!-- リモート/ローカル-->
-    <TextField fx:id="ipAddrTextField" disable="true" promptText="$ipAddrText.text"/>  <!-- IP アドレス -->
+    <TextField fx:id="hostNameTextField" disable="true" promptText="$hostNameText.text"/>  <!-- ホスト名 -->
     <TextField fx:id="unameTextField" disable="true" promptText="$usernameText.text"/> <!-- ユーザ名 -->
     <PasswordField fx:id="passwordTextField" disable="true" promptText="$passwordText.text"/> <!-- パスワード -->
     <Separator fx:id="menuSeparator4" orientation="VERTICAL" styleClass="menuPanelSeparator"/>

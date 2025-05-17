@@ -50,6 +50,12 @@ public class ScriptIdentifiers {
     public static final String ARY_INCLUDES = "_aryIncludes";
     public static final String ARY_EQ = "_aryEq";
     public static final String ARY_NEQ = "_aryNeq";
+    public static final String ARY_MAX = "_aryMax";
+    public static final String ARY_MIN = "_aryMin";
+    public static final String ARY_NUM_MAX = "_aryNumMax";
+    public static final String ARY_NUM_MIN = "_aryNumMin";
+    public static final String ARY_SORT = "_arySort";
+    public static final String ARY_NUM_SORT = "_aryNumSort";
     public static final String IS_SUBSET = "_isSubset";
     public static final String IS_PROPER_SUBSET = "_isProperSubset";
     public static final String IS_SUPERSET = "_isSuperset";
@@ -87,12 +93,13 @@ public class ScriptIdentifiers {
     public static final String INIT_THIS_OBJ = "_initThisObj";
     public static final String CREATE_THREAD_CONTEXT = "_createThreadContext";
     public static final String REMOVE_THREAD_CONTEXT = "_removeThreadContext";
+    public static final String IS_NUM_INFINITE = "_isNumInfinite";
+    public static final String NUM_CLAMP = "_numClamp";
     public static final String OUT_ARG_TEST = "_outArgTest";
   }
 
   /** JavaScript の組み込み関数名.  */
   public static class JsFuncs {
-    public static final String IS_FINITE = "isFinite";
     public static final String PUSH = "push";
     public static final String POP = "pop";
     public static final String CALL = "call";

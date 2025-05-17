@@ -107,8 +107,8 @@ public class MenuPanelController {
   @FXML private Button focusSimBtn;
   /** ジャンプボタン. */
   @FXML private Button jumpBtn;
-  /** IPアドレス入力欄. */
-  @FXML private TextField ipAddrTextField;
+  /** ホスト名入力欄. */
+  @FXML private TextField hostNameTextField;
   /** ユーザ名. */
   @FXML private TextField unameTextField;
   /** ログインパスワード. */
@@ -441,7 +441,7 @@ public class MenuPanelController {
         ? localCtrl.execute(nodeSet)
         : remoteCtrl.execute(
               nodeSet,
-              ipAddrTextField.getText(),
+              hostNameTextField.getText(),
               unameTextField.getText(),
               passwordTextField.getText());
     CompletableFuture
@@ -542,12 +542,12 @@ public class MenuPanelController {
   /** リモート/セレクトを切り替えた時の処理. */
   private void switchRemoteLocal(Boolean newVal) {
     if (newVal) {
-      ipAddrTextField.setDisable(false);
+      hostNameTextField.setDisable(false);
       unameTextField.setDisable(false);
       passwordTextField.setDisable(false);
       remotLocalSelectBtn.setText(TextDefs.MenuPanel.remote.get());
     } else {
-      ipAddrTextField.setDisable(true);
+      hostNameTextField.setDisable(true);
       unameTextField.setDisable(true);
       passwordTextField.setDisable(true);
       remotLocalSelectBtn.setText(TextDefs.MenuPanel.local.get());
@@ -589,7 +589,7 @@ public class MenuPanelController {
     return Optional.ofNullable(currentWs.getSelectedNodes().getFirst().getOriginal());
   }
 
-  /** IP アドレス入力欄にローカルホストが指定してある場合 true を返す. */
+  /** ホスト名入力欄にローカルホストが指定してある場合 true を返す. */
   public boolean isLocalHost() {
     return !remotLocalSelectBtn.isSelected();
   }

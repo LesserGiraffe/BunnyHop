@@ -20,11 +20,14 @@
       "idFourArithExp",
       "idModExp",
       "idStrToNumExp",
+      "idStrToNumWithDefaultValExp",
       "idNumRoundExp",
       "idRandomIntExp",
       "idAbsExp",
       "idNegExp",
       "idMaxMinExp",
+      "idNumPowExp",
+      "idNumClampExp",
       "idMeasureDistanceExp",
       "idGetTimeSinceProgramStartedExp"]
   },
@@ -52,7 +55,8 @@
       "idStrCompExp",
       "idAnyCompExp",
       "idAnyArrayCompExp",
-      "idAnySetCompExp"]
+      "idAnySetCompExp",
+      "idCheckNumTypeExp"]
   },
 
   "${node-category}{sound}": {

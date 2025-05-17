@@ -1,0 +1,21 @@
+<Node
+  type="connective"
+  bhNodeID="idNumPowExp"
+  name="NumPowExp"
+  nodeStyleID="NumPowExp.json"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-1.0.0">
+
+  <ConnectorSection name="NumExpSctn">
+    <Connector
+      bhConnectorID="idNumPowExp.cnctr0"
+      import="idNumExpCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idNumPowExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+
+  </ConnectorSection>
+</Node>

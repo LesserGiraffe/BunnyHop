@@ -1,47 +1,42 @@
 <Node
   type="connective"
-  bhNodeID="idMoveStat"
-  name="MoveStat"
-  nodeStyleID="MoveStat.json"
+  bhNodeID="idAnyArraySortStat"
+  name="AnyArraySortStat"
+  nodeStyleID="AnyArraySortStat.json"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
-  onCreatedAsTemplate="OnMoveStatCreatedAsTemplate.js"
   onDragStarted="OnStatDragStarted.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
   <ConnectorSection name="StatSctn">
-        
-    <Connector 
-      bhConnectorID="idMoveStat.cnctr0"
-      import="idNumExpCnctr"
-      name="Arg0"/>
-        
-    <Connector
-      bhConnectorID="idMoveStat.cnctr1"
-      import="idNumExpCnctr"
-      name="Arg1"/>
     
     <Connector
-      bhConnectorID="idMoveStat.cnctr2"
-      name="Option0"
+      bhConnectorID="idAnyArraySortStat.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idAnyArraySortStat.cnctr1"
+      name="Arg1"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idMoveStat.node2"
-        name="MoveOpe"
+        bhNodeID="idAnyArraySortStat.node1"
+        name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
-        onTextOptionsCreating="CreateMoveOps.js"
-        version="bhn-1.0.0">
-      </Node>
+        onTextOptionsCreating="CreateSortOrderOps.js"
+        version="bhn-1.0.0"/>
     </Connector>
     
     <Connector
-      bhConnectorID="idMoveStat.cnctr3"
+      bhConnectorID="idAnyArraySortStat.cnctr4"
       import="idStatCnctr"
       name="NextStat"/>
+
   </ConnectorSection>
 </Node>

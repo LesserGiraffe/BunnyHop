@@ -4,7 +4,7 @@
   name="IdentifierName"
   nodeStyleID="Identifier.json"
   onTextChecking="CheckIdentifierFormat.js"
-  onCreatedAsTemplate="SetDefaultIdentifierName.js"
+  onCreatedAsTemplate="OnIdentifierNameCreatedAsTeamplate.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
   

@@ -1,0 +1,30 @@
+<Node
+  type="connective"
+  bhNodeID="idCheckNumTypeExp"
+  name="CheckNumTypeExp"
+  nodeStyleID="CheckNumTypeExp.json"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-1.0.0">
+
+  <ConnectorSection name="BoolExpSctn">
+    
+    <Connector
+      bhConnectorID="idCheckNumTypeExp.cnctr0"
+      import="idNumExpCnctr"
+      name="Arg0"/>
+    
+    <Connector
+      bhConnectorID="idCheckNumTypeExp.cnctr1"
+      name="Option0"
+      fixed="true">
+      <Node
+        bhNodeID="idCheckNumTypeExp.node1"
+        type="text"
+        name="Function"
+        nodeStyleID="WordComboBox.json"
+        onTextOptionsCreating="CreateNumTypeCheckOps.js"
+        version="bhn-1.0.0"/>
+    </Connector>
+
+  </ConnectorSection>
+</Node>

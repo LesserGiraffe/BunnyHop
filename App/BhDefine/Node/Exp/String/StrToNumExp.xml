@@ -3,6 +3,7 @@
   bhNodeID="idStrToNumExp"
   name="StrToNumExp"
   nodeStyleID="StrToNumExp.json"
+  onCreatedAsTemplate="OnStrToNumExpCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
@@ -11,5 +12,17 @@
       bhConnectorID="idStrToNumExp.cnctr0"
       import="idStrExpCnctr"
       name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idStrToNumExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1">
+      <Node
+        type="text"
+        bhNodeID="idStrToNumExp.node1"
+        name="NumLiteral"
+        initialText="NaN"
+        version="bhn-1.0.0"/>
+    </Connector>
   </ConnectorSection>
 </Node>

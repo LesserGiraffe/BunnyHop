@@ -6,8 +6,6 @@ let _textDb = {
       (min, max, val) => `不正なリセット値 (= ${_str(val)}) が指定されました. (有効な値: ${_str(min)} ~ ${_str(max)})`,
     invalidSyncTimerWaitTime:
       (min, max, val) => `不正な待ち時間 (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
-    cannotConvertStrToNum:
-      (str) => `数値に変換できない文字列です.  (${_str(str)})`,
     invalidRandRange:
       (min, max, max_width) => `不正な乱数の範囲 (= ${_str(min)} ~ ${_str(max)}) が指定されました.\n上限 - 下限 ≦ ${_str(max_width)} を満たさなければなりません.`,
     invalidSleepTime:
@@ -24,12 +22,16 @@ let _textDb = {
       (val, min, max) => `不正なインデックス (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
     listIsEmpty:
       () => `リストが空です.`,
-    invalidDurationOfSound:
+    invalidSoundLength:
       (val, min, max) => `不正な音の長さ (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
-    invalidPitchOfSound:
+    invalidSoundPitch:
       (val, min, max) => `不正な音の高さ (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
+    invalidSoundVolume:
+      (val, min, max) => `不正な音の大きさ (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
     failedToCtrlHw:
-      (cmd) => `ハードウェアの制御に失敗しました.  (command = ${cmd})`
+      (cmd) => `ハードウェアの制御に失敗しました.  (command = ${cmd})`,
+    invalidClampRange:
+      (min, max) => `不正な数値の範囲 (= ${_str(min)} ~ ${_str(max)}) が指定されました.\n下限 ≦ 上限 を満たさなければなりません.`,
   },
   literal: {
     bool: {

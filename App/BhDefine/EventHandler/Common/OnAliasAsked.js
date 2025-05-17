@@ -1,11 +1,14 @@
 (function() {
 
   let nodeToSuffixPos = {
-    'BinaryBoolExp':  ['*', '*', 'BinaryBoolOpe'],
-    'BinaryColorExp': ['*', '*', 'BinaryColorOpe'],
-    'FourArithExp':   ['*', '*', 'FourArithOpe'],
-    'MaxMinExp':      ['*', '*', 'MaxMinOpe'],
-    'NumRoundExp':    ['*', '*', 'NumRoundOpe']
+    'BinaryBoolExp':      ['*', '*', 'BinaryBoolOpe'],
+    'BinaryColorExp':     ['*', '*', 'BinaryColorOpe'],
+    'FourArithExp':       ['*', '*', 'FourArithOpe'],
+    'MaxMinExp':          ['*', '*', 'MaxMinOpe'],
+    'NumRoundExp':        ['*', '*', 'NumRoundOpe'],
+    'CheckNumTypeExp':    ['*', '*', 'Function'],
+    "NumArrayMaxMinExp":  ['*', '*', 'MaxMinOpe'],
+    "StrArrayMaxMinExp":  ['*', '*', 'MaxMinOpe']
   };
 
   let nodeToNamePos = {

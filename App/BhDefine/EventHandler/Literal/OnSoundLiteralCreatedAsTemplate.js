@@ -1,6 +1,10 @@
 (function() {
+  let volume = bhThis.findDescendantOf('*', 'Volume', '*', '*', 'Literal', '*'); 
   let duration = bhThis.findDescendantOf('*', 'Duration', '*', '*', 'Literal', '*');
   let freq = bhThis.findDescendantOf('*', 'Frequency', '*', '*', 'Literal', '*');
+  volume.setText('50');
   duration.setText('1');
-  freq.setText('500');
+  if (freq !== null)  {
+    freq.setText('500');
+  }
 })();

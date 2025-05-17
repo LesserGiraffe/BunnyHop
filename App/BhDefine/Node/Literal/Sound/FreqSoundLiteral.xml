@@ -4,19 +4,24 @@
   name="FreqSoundLiteral"
   nodeStyleID="FreqSoundLiteral.json"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
-  onCreatedAsTemplate="SetDefaultFreqSoundParams.js"
+  onCreatedAsTemplate="OnSoundLiteralCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
   
   <ConnectorSection name="SoundExpSctn">
-    
+
     <Connector
-      bhConnectorID="idFreqSoundLiteral.cnctr0"
+      bhConnectorID="idFreqSoundLiteral.cnctr0" 
+      import="idNumExpCnctr"
+      name="Volume"/>
+
+    <Connector
+      bhConnectorID="idFreqSoundLiteral.cnctr1"
       import="idNumExpCnctr"
       name="Duration"/>
     
     <Connector
-      bhConnectorID="idFreqSoundLiteral.cnctr1"
+      bhConnectorID="idFreqSoundLiteral.cnctr2"
       import="idNumExpCnctr"
       name="Frequency"/>
 

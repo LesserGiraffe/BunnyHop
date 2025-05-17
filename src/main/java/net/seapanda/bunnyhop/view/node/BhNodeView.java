@@ -172,7 +172,7 @@ public interface BhNodeView extends NodeViewComponent {
      *
      * @return コネクタ部分が "target" のコネクタ部分に重なっているノードビューに対応するモデルのリスト
      */
-    List<BhNode> searchForOverlappedModels();
+    List<BhNode> searchForOverlappedNodes();
     
     /**
      * "target" のボディの領域を保持する {@link QuadTreeRectangle} と

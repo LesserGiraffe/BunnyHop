@@ -155,21 +155,16 @@ function _isInRange(num, min, max) {
   return (min <= num) && (num <= max);
 }
 
-function _strToNum(strVal) {
-  if (strVal === 'Infinity')
-    return Number.POSITIVE_INFINITY;
-  else if (strVal === '-Infinity')
-    return Number.NEGATIVE_INFINITY;
-  else if (strVal === 'NaN')
-    return Number.NaN;
-  
-  if (strVal !== '') {
-    let num = Number(strVal);
-    if (Number.isFinite(num))
-      return num;
+function _strToNum(strVal, defaultVal) {
+  if (strVal === '') {
+    return defaultVal;
   }
-  strVal = _truncateStr(strVal, 256, '...');
-  throw _newBhProgramException(_textDb.errMsg.cannotConvertStrToNum(strVal));
+
+  let num = Number(strVal);
+  if (Number.isNaN(num)) {
+    return defaultVal;
+  }
+  return num;
 }
 
 function _randomInt(min, max) {
@@ -184,13 +179,31 @@ function _randomInt(min, max) {
   throw _newBhProgramException(_textDb.errMsg.invalidRandRange(min, max, Number.MAX_SAFE_INTEGER));
 }
 
-function _clamp(v, min, max) {
-  if (v < min)
+function _clamp(val, min, max) {
+  if (val < min) {
     return min;
-  else if (v > max)
+  }
+  if (val > max) {
     return max;
+  }
+  return val;
+}
 
-  return v;
+function _numClamp(val, min, max) {
+  if (min <= max) {
+    if (val < min) {
+      return min;
+    }
+    if (val > max) {
+      return max;
+    }
+    return val;
+  }
+  throw _newBhProgramException(_textDb.errMsg.invalidClampRange(min, max));
+}
+
+function _isNumInfinite(num) {
+  return num === Number.POSITIVE_INFINITY || num === Number.NEGATIVE_INFINITY;
 }
 
 function _println(arg) {
@@ -539,6 +552,103 @@ function _aryNeq(aryA, aryB) {
   return !_aryEq(aryA, aryB);
 }
 
+function _aryNumMax(ary, defaultVal) {
+  if (ary.length === 0) {
+    return defaultVal;
+  }
+  let max = ary[0];
+  for (let i = 1; i < ary.length; ++i) {
+    if (ary[i] > max || Number.isNaN(max)) {
+      max = ary[i];
+    }
+  }
+  return max;
+}
+
+function _aryNumMin(ary, defaultVal) {
+  if (ary.length === 0) {
+    return defaultVal;
+  }
+  let min = ary[0];
+  for (let i = 1; i < ary.length; ++i) {
+    if (ary[i] < min || Number.isNaN(min)) {
+      min = ary[i];
+    }
+  }
+  return min;
+}
+
+function _aryMax(ary, defaultVal) {
+  if (ary.length === 0) {
+    return defaultVal;
+  }
+  let max = ary[0];
+  for (let i = 1; i < ary.length; ++i) {
+    if (ary[i] > max) {
+      max = ary[i];
+    }
+  }
+  return max;
+}
+
+function _aryMin(ary, defaultVal) {
+  if (ary.length === 0) {
+    return defaultVal;
+  }
+  let min = ary[0];
+  for (let i = 1; i < ary.length; ++i) {
+    if (ary[i] < min) {
+      min = ary[i];
+    }
+  }
+  return min;
+}
+
+function _ascComparator(a, b) {
+  return (a === b) ? 0 : (a < b ? -1 : 1);
+}
+
+function _descComparator(a, b) {
+  return (a === b) ? 0 : (a < b ? 1 : -1);
+}
+
+function _numAscComparator(a, b) {
+  if (Number.isNaN(a)) {
+    if (Number.isNaN(b)) {
+      return 0; // Rhino では必要
+    }
+    return 1;
+  }
+  if (Number.isNaN(b)) {
+    return -1;
+  }
+  // a = b = Infinity の場合を考慮して a === b の判定を行う
+  return (a === b) ? 0 : a - b;
+}
+
+function _numDescComparator(a, b) {
+  if (Number.isNaN(a)) {
+    if (Number.isNaN(b)) {
+      return 0;
+    }
+    return -1;
+  }
+  if (Number.isNaN(b)) {
+    return 1;
+  }
+  return (a === b) ? 0 : b - a;
+}
+
+function _arySort(ary, isAscending) {
+  let comp = isAscending ? _ascComparator : _descComparator;
+  ary.sort(comp);
+}
+
+function _aryNumSort(ary, isAscending) {
+  let comp = isAscending ? _numAscComparator : _numDescComparator;
+  ary.sort(comp);
+}
+
 function _delDuplicates(ary) {
   let set = [];
   for (let i = 0; i < ary.length; ++i)
@@ -619,16 +729,16 @@ function _setNeq(aryA, aryB) {
 let _jAudioFormat = javax.sound.sampled.AudioFormat;
 let _jDataLine = javax.sound.sampled.DataLine;
 let _jAudioSystem = javax.sound.sampled.AudioSystem;
-let isBigEndian = _jByteOrder.nativeOrder() === _jByteOrder.BIG_ENDIAN;
-let bytePerSample = 2;
-let samplingRate = 44100;    //44.1KHz
-let amplitude = 16384 / 2;
-let wave1Hz = _jReflectArray.newInstance(_jFloatType, samplingRate);
-let _nilSound = _createSound(0, 0);
+let _maxSoundAmplitude = 32767;
+let _isBigEndian = _jByteOrder.nativeOrder() === _jByteOrder.BIG_ENDIAN;
+let _bytesPerSample = 2;
+let _samplingRate = 44100;    //44.1KHz
+let _wave1Hz = _jReflectArray.newInstance(_jFloatType, _samplingRate);
+let _nilSound = _createSound(0, 0, 0);
 
 (function _initMusicPlayer() {
-  for (let i = 0; i < wave1Hz.length; ++i)
-    wave1Hz[i] = Math.cos(2.0 * Math.PI * i / samplingRate);
+  for (let i = 0; i < _wave1Hz.length; ++i)
+    _wave1Hz[i] = Math.cos(2.0 * Math.PI * i / _samplingRate);
 })();
 
 /**
@@ -643,13 +753,13 @@ let _nilSound = _createSound(0, 0);
  */
 function _genMonoFreqWave(waveBuf, bufBegin, bufEnd, hz, amp, samplePos) {
   hz = Math.round(hz);
-  if (hz < 0 || hz > (samplingRate / 2))
+  if (hz < 0 || hz > (_samplingRate / 2))
     hz = 0;
-  if (samplePos > (wave1Hz.length - 1))
+  if (samplePos > (_wave1Hz.length - 1))
     samplePos = 0;
-  for (let i = bufBegin; i < bufEnd; i += bytePerSample) {
-    let sample = Math.floor(amp * wave1Hz[samplePos]);
-    if (isBigEndian) {
+  for (let i = bufBegin; i < bufEnd; i += _bytesPerSample) {
+    let sample = Math.floor(amp * _wave1Hz[samplePos]);
+    if (_isBigEndian) {
       waveBuf[i+1] = bhScriptHelper.util.toByte(sample);
       waveBuf[i] = bhScriptHelper.util.toByte((sample >> 8));
     } else {
@@ -657,8 +767,8 @@ function _genMonoFreqWave(waveBuf, bufBegin, bufEnd, hz, amp, samplePos) {
       waveBuf[i+1] = bhScriptHelper.util.toByte((sample >> 8));
     }
     samplePos += hz;
-    if (samplePos > (wave1Hz.length - 1))
-      samplePos -= wave1Hz.length - 1;
+    if (samplePos > (_wave1Hz.length - 1))
+      samplePos -= _wave1Hz.length - 1;
   }
   return samplePos;
 }
@@ -676,9 +786,9 @@ function _genWave(waveBuf, soundList, vol, samplePos) {
   let waveBufRemains = waveBuf.length;
   while (soundList.length !== 0 && waveBufRemains !== 0) {
     let sound = soundList[soundList.length - 1];
-    let soundLen = Math.floor(sound.duration * samplingRate) * bytePerSample;
+    let soundLen = Math.floor(sound.duration * _samplingRate) * _bytesPerSample;
     if (soundLen > waveBufRemains) {
-      sound.duration -= waveBufRemains / bytePerSample / samplingRate;
+      sound.duration -= waveBufRemains / _bytesPerSample / _samplingRate;
       let bufEnd = bufBegin + waveBufRemains;
       samplePos = _genMonoFreqWave(waveBuf, bufBegin, bufEnd, sound.hz, sound.amp * vol, samplePos);
       bufBegin = bufEnd;
@@ -706,21 +816,21 @@ function _playMelodies(soundList, reverse) {
   let soundListCopy = [];
   if (!reverse) {
     for (let i = soundList.length - 1; i >= 0; --i)
-      soundListCopy.push(_createSound(soundList[i].hz, soundList[i].duration));
+      soundListCopy.push(soundList[i]);
   } else {
     for (let i = 0; i < soundList.length; ++i)
-      soundListCopy.push(_createSound(soundList[i].hz, soundList[i].duration));
+      soundListCopy.push(soundList[i]);
   }
   // waveBuf のサイズを大きくしすぎると RaspberryPi で正常に音が出なくなる.
-  let waveBuf = _jReflectArray.newInstance(_jByteType, samplingRate * bytePerSample / 2);
+  let waveBuf = _jReflectArray.newInstance(_jByteType, _samplingRate * _bytesPerSample / 2);
   let format = new _jAudioFormat(
     _jAudioFormat.Encoding.PCM_SIGNED,
-    samplingRate,
-    8 * bytePerSample,
+    _samplingRate,
+    8 * _bytesPerSample,
     1,
-    bytePerSample,
-    samplingRate,
-    isBigEndian);
+    _bytesPerSample,
+    _samplingRate,
+    _isBigEndian);
   let line = null;
   try {
     let dLineInfo = new _jDataLine.Info(_jClass.forName('javax.sound.sampled.SourceDataLine'), format);
@@ -787,15 +897,20 @@ function _Sound(hz, duration, amp) {
   this.amp = amp;
 }
 
-function _createSound(hz, duration) {
+function _createSound(volume, hz, duration) {
+  if (!_isInRange(volume, 0, 100)) {
+    throw _newBhProgramException(
+      _textDb.errMsg.invalidSoundVolume(volume, 0, 100))
+  }
   if (!_isInRange(duration, 0, Number.MAX_SAFE_INTEGER)) {
     throw _newBhProgramException(
-      _textDb.errMsg.invalidDurationOfSound(duration, 0, Number.MAX_SAFE_INTEGER))
+      _textDb.errMsg.invalidSoundLength(duration, 0, Number.MAX_SAFE_INTEGER))
   }
   if (!_isInRange(hz, 0, Number.MAX_SAFE_INTEGER)) {
     throw _newBhProgramException(
-      _textDb.errMsg.invalidPitchOfSound(hz, 0, Number.MAX_SAFE_INTEGER))
+      _textDb.errMsg.invalidSoundPitch(hz, 0, Number.MAX_SAFE_INTEGER))
   }
+  let amplitude = Math.floor(volume * _maxSoundAmplitude / 100);
   return new _Sound(hz, duration, amplitude);
 }
 
@@ -806,7 +921,7 @@ function _pushSound(sound, soundList) {
 
 function _sayOnLinux(word) {
   word = word.replace(/"/g, '');
-  word = bhScriptHelper.util.substringByBytes(word, 990, "UTF-8");
+  word = bhScriptHelper.util.substringByBytes(word, 1000, "UTF-8");
   let path = _jPaths.get(bhScriptHelper.util.getExecPath(), 'Actions', 'bhSay.sh');
   let talkCmd = String(path.toAbsolutePath().toString());
   let procBuilder = new _jProcBuilder(talkCmd, `"${word}"`, `${_getSerialNo()}.wav`);
@@ -918,6 +1033,9 @@ _Color.prototype._str = function () {
 }
 
 function _str(val) {
+  if (val === null || val === (void 0))
+    return String(val);
+
   let toStr = val._str || val.toString;
   return toStr.call(val);
 }
