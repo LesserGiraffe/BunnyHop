@@ -291,6 +291,7 @@ public class BhConstants {
     public static final String KEY_CONNECTOR_POS = "connectorPos";
     public static final String KEY_NOTCH_POS = "notchPos";
     public static final String KEY_CONNECTOR_SHIFT = "connectorShift";
+    public static final String KEY_CONNECTOR_ALIGNMENT = "connectorAlignment";
     public static final String KEY_INNER = "inner";
     public static final String KEY_OUTER = "outer";
     public static final String KEY_ARRANGEMENT = "arrangement";
@@ -313,6 +314,8 @@ public class BhConstants {
     public static final String VAL_TEXT_AREA = "TextArea";
     public static final String VAL_NO_VIEW = "NoView";
     public static final String VAL_NONE = "None";
+    public static final String VAL_CENTER = "Center";
+    public static final String VAL_EDGE = "Edge";
   }
 
   /** ノードテンプレートに関するキーワード. */

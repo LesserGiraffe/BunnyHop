@@ -187,7 +187,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
       return new Vec2D(nodeSizeCache.getVal());
     }
 
-    Vec2D cnctrSize = viewStyle.getConnectorSize(isFixed());
+    Vec2D cnctrSize = getRegionManager().getConnectorSize();
     // textField.getWidth() だと設定した値以外が返る場合がある
     double bodyWidth = viewStyle.paddingLeft + textField.getPrefWidth() + viewStyle.paddingRight;
     if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.LEFT)) {

@@ -32,6 +32,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
 import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.traverse.NodeViewComponent;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
@@ -156,6 +157,13 @@ public interface BhNodeView extends NodeViewComponent {
      *                  内部ノードビューと外部ノードビューを辿って影を消す場合 false.
      */
     void hideShadow(boolean onlyOuter);
+
+    /**
+     * "target" のコネクタの位置を取得する.
+     *
+     * @return "target" のコネクタの位置
+     */
+    ConnectorPos getConnectorPos();
   }
 
   /**
@@ -202,8 +210,18 @@ public interface BhNodeView extends NodeViewComponent {
      */
     Vec2D getNodeSize(boolean includeCnctr);
 
+    /**
+     * "target" のコネクタの大きさを返す.
+     *
+     * @return コネクタの大きさ
+     */
+    Vec2D getConnectorSize();
+
     /** "target" のボディ部分のワークスペース上での範囲を取得する. */
     BodyRange getBodyRange();
+
+    /** "target" のコネクタ部分のワークスペース上での範囲を取得する. */
+    BodyRange getConnectorRange();
 
     /**
      * "target" のボディの領域が引数のノードビューのボディの領域と重なっているかどうか調べる.
@@ -323,6 +341,14 @@ public interface BhNodeView extends NodeViewComponent {
      * @param posY 本体部分左上のワークスペース上での Y 位置
      */
     void setTreePosOnWorkspace(double posX, double posY);
+
+    /**
+     * "target" のコネクタの位置を指定して "target" 以下のノードビューのワークスペースの上での位置と 4 分木空間上での位置を更新する.
+     *
+     * @param posX コネクタ左上のワークスペース上での X 位置
+     * @param posY コネクタ左上のワークスペース上での Y 位置
+     */
+    void setTreePosOnWorkspaceByConnector(double posX, double posY);
 
     /**
      * "target" 以下のノードビューの Z 位置を設定する.

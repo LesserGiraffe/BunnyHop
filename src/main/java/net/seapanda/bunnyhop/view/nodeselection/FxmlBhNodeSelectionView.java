@@ -36,6 +36,7 @@ import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 
 /**
  * テンプレートノードを表示するビュー.
@@ -188,10 +189,14 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     final double bottomPadding = nodeSelectionPanel.getPadding().getBottom();
 
     for (BhNodeView nodeView : rootNodeViews) {
+      Vec2D cnctrSize = nodeView.getRegionManager().getConnectorSize();
+      if (nodeView.getLookManager().getConnectorPos() == ConnectorPos.TOP) {
+        nodeView.getPositionManager().setTreePosOnWorkspace(leftPadding, offset + cnctrSize.y);
+      } else if (nodeView.getLookManager().getConnectorPos() == ConnectorPos.LEFT) {
+        nodeView.getPositionManager().setTreePosOnWorkspaceByConnector(
+            leftPadding - cnctrSize.x, offset);
+      }
       Vec2D treeSizeWithCnctr = nodeView.getRegionManager().getNodeTreeSize(true);
-      Vec2D treeSize = nodeView.getRegionManager().getNodeTreeSize(false);
-      double upperCnctrHeight = treeSizeWithCnctr.y - treeSize.y;
-      nodeView.getPositionManager().setTreePosOnWorkspace(leftPadding, offset + upperCnctrHeight);
       offset += treeSizeWithCnctr.y + BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_PANEL;
       panelWidth = Math.max(panelWidth, treeSizeWithCnctr.x);
     }

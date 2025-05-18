@@ -1,14 +1,14 @@
 {
   "paddingTop" : 1.0,
   "paddingBottom" : 1.0,
-  "paddingLeft" : 7.5,
+  "paddingLeft" : 12.5,
   "paddingRight" : 1.5,
   "connectorPos" : "Top",
   "connectorShift" : 1.0,
-  "connectorWidth" : 3.5,
-  "connectorHeight" : 3.5,
+  "connectorWidth" : 4.25,
+  "connectorHeight" : 4.25,
   "connectorShape" : "INV_PENTAGON",
-  "connectorBoundsRate" : 1.25,
+  "connectorBoundsRate" : 1.95,
   "cssClass" : "concurrentType",
 
   "connective" : {
@@ -38,7 +38,7 @@
   },
 
   "privateTemplate" : {
-    "buttonPosX" : 1.5,
+    "buttonPosX" : 6.0,
     "buttonPosY" : 1.0
   }
 }

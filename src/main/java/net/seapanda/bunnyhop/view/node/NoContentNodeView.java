@@ -26,6 +26,7 @@ import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorAlignment;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.traverse.NodeViewWalker;
 
@@ -103,18 +104,67 @@ public class NoContentNodeView extends BhNodeViewBase {
       paddingBottom = viewStyle.paddingBottom;
     }
 
-    Vec2D cnctrSize = viewStyle.getConnectorSize(isFixed());
+    Vec2D cnctrSize = getRegionManager().getConnectorSize();
     double bodyWidth = paddingLeft + paddingRight;
-    if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.LEFT)) {
-      bodyWidth += cnctrSize.x;
-    }
     double bodyHeight = paddingTop + paddingBottom;
-    if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.TOP)) {
-      bodyHeight += cnctrSize.y;
+    
+    if (includeCnctr) {
+      var wholeSize = new Vec2D();
+      if (viewStyle.connectorPos == ConnectorPos.LEFT) {
+        wholeSize = calcSizeIncludingLeftConnector(bodyWidth, bodyHeight, cnctrSize);
+      } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
+        wholeSize = calcSizeIncludingTopConnector(bodyWidth, bodyHeight, cnctrSize);
+      }
+      bodyWidth = wholeSize.x;
+      bodyHeight = wholeSize.y;
     }
     var nodeSize = new Vec2D(bodyWidth, bodyHeight);
     updateNodeSizeCache(includeCnctr, nodeSize);
     return nodeSize;
+  }
+
+  /**
+   * 左にコネクタがついている場合のコネクタを含んだサイズを求める.
+   *
+   * @param bodyWidth ボディ部分の幅
+   * @param bodyHeight ボディ部分の高さ
+   * @param cnctrSize コネクタサイズ
+   * @return 左にコネクタがついている場合のコネクタを含んだサイズ
+   */
+  private Vec2D calcSizeIncludingLeftConnector(
+      double bodyWidth, double bodyHeight, Vec2D cnctrSize) {
+    double wholeWidth = bodyWidth + cnctrSize.x;
+    // ボディの左上を原点としたときのコネクタの上端の座標
+    double cnctrTopPos = viewStyle.connectorShift;
+    if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
+      cnctrTopPos += (bodyHeight - cnctrSize.y) / 2;
+    }
+    // ボディの左上を原点としたときのコネクタの下端の座標
+    double cnctrBottomPos = cnctrTopPos + cnctrSize.y;
+    double wholeHeight = Math.max(cnctrBottomPos, bodyHeight) - Math.min(cnctrTopPos, 0);
+    return new Vec2D(wholeWidth, wholeHeight);
+  }
+
+  /**
+   * 上にコネクタがついている場合のコネクタを含んだサイズを求める.
+   *
+   * @param bodyWidth ボディ部分の幅
+   * @param bodyHeight ボディ部分の高さ
+   * @param cnctrSize コネクタサイズ
+   * @return 左にコネクタがついている場合のコネクタを含んだサイズ
+   */
+  private Vec2D calcSizeIncludingTopConnector(
+      double bodyWidth, double bodyHeight, Vec2D cnctrSize) {
+    double wholeHeight = bodyHeight + cnctrSize.y;
+    // ボディの左上を原点としたときのコネクタの左端の座標
+    double cnctrLeftPos = viewStyle.connectorShift;
+    if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
+      cnctrLeftPos += (bodyWidth - cnctrSize.x) / 2;
+    }
+    // ボディの左上を原点としたときのコネクタの右端の座標
+    double cnctrRightPos = cnctrLeftPos + cnctrSize.x;
+    double wholeWidth = Math.max(cnctrRightPos, bodyWidth) - Math.min(cnctrLeftPos, 0);
+    return new Vec2D(wholeWidth, wholeHeight);
   }
 
   @Override

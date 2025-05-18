@@ -34,26 +34,24 @@ public class BodyNone extends BodyShapeBase {
 
   @Override
   public Collection<Double> createVertices(
+      BhNodeViewStyle style,
       double bodyWidth,
       double bodyHeight,
       ConnectorShape connector,
-      BhNodeViewStyle.ConnectorPos cnctrPos,
-      double cnctrWidth,
-      double cnctrHeight,
-      double cnctrShift,
-      ConnectorShape notch,
-      BhNodeViewStyle.NotchPos notchPos,
-      double notchWidth,
-      double notchHeight) {
+      ConnectorShape notch) {
+
+    double cnctrWidth = style.connectorWidth;
+    double cnctrHeight = style.connectorHeight;
+    double cnctrShift = style.connectorShift;
 
     if (connector instanceof ConnectorNone) {
       return new ArrayList<>();
     }
-    List<Double> vertices =
-        createConnectorVertices(connector, cnctrPos, cnctrWidth, cnctrHeight, cnctrShift);
-    if (cnctrPos == ConnectorPos.LEFT) {
+    List<Double> vertices = createConnectorVertices(
+        connector, style, cnctrWidth, cnctrHeight, cnctrShift, bodyWidth, bodyHeight);
+    if (style.connectorPos == ConnectorPos.LEFT) {
       vertices.addAll(Arrays.asList(0.0, cnctrShift + cnctrHeight * 0.5));
-    } else if (cnctrPos == ConnectorPos.TOP) {
+    } else if (style.connectorPos == ConnectorPos.TOP) {
       vertices.addAll(Arrays.asList(cnctrShift + cnctrWidth * 0.5, 0.0));
     }
     return vertices;

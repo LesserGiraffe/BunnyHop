@@ -33,17 +33,17 @@ public class BodyRoundRect extends BodyShapeBase {
 
   @Override
   public Collection<Double> createVertices(
+      BhNodeViewStyle style,
       double bodyWidth,
       double bodyHeight,
       ConnectorShape connector,
-      BhNodeViewStyle.ConnectorPos cnctrPos,
-      double cnctrWidth,
-      double cnctrHeight,
-      double cnctrShift,
-      ConnectorShape notch,
-      BhNodeViewStyle.NotchPos notchPos,
-      double notchWidth,
-      double notchHeight) {
+      ConnectorShape notch) {
+
+    double cnctrWidth = style.connectorWidth;
+    double cnctrHeight = style.connectorHeight;
+    double cnctrShift = style.connectorShift;
+    double notchWidth = style.notchWidth;
+    double notchHeight = style.notchHeight;
 
     ArrayList<Double> bodyVertices = null;
     bodyVertices = new ArrayList<>(Arrays.asList(
@@ -57,18 +57,18 @@ public class BodyRoundRect extends BodyShapeBase {
         0.0,                                       bodyHeight - 0.2 * BhConstants.LnF.NODE_SCALE));
 
     List<Double> notchVertices =
-        createNotchVertices(notch, notchPos, notchWidth, notchHeight, bodyWidth, bodyHeight);
-    if (notchPos == BhNodeViewStyle.NotchPos.RIGHT) {
+        createNotchVertices(notch, style.notchPos, notchWidth, notchHeight, bodyWidth, bodyHeight);
+    if (style.notchPos == BhNodeViewStyle.NotchPos.RIGHT) {
       bodyVertices.addAll(8, notchVertices);
-    } else if (notchPos == BhNodeViewStyle.NotchPos.BOTTOM) {
+    } else if (style.notchPos == BhNodeViewStyle.NotchPos.BOTTOM) {
       bodyVertices.addAll(12, notchVertices);
     }
 
-    List<Double> cnctrVertices =
-        createConnectorVertices(connector, cnctrPos, cnctrWidth, cnctrHeight, cnctrShift);
-    if (cnctrPos == BhNodeViewStyle.ConnectorPos.LEFT) {
+    List<Double> cnctrVertices = createConnectorVertices(
+        connector, style, cnctrWidth, cnctrHeight, cnctrShift, bodyWidth, bodyHeight);
+    if (style.connectorPos == BhNodeViewStyle.ConnectorPos.LEFT) {
       bodyVertices.addAll(cnctrVertices);
-    } else if (cnctrPos == BhNodeViewStyle.ConnectorPos.TOP) {
+    } else if (style.connectorPos == BhNodeViewStyle.ConnectorPos.TOP) {
       bodyVertices.addAll(4, cnctrVertices);
     }
     return bodyVertices;

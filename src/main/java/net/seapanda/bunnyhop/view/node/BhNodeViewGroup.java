@@ -310,7 +310,6 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
     if (!sizeCache.isDirty()) {
       return new Vec2D(sizeCache.getVal());
     }
-    Vec2D cnctrOffset = calcOffsetOfCnctr();
     Vec2D childSumLen = calcChildSumLen();
     Vec2D childMaxLen = calcChildMaxLen();
     var size = new Vec2D(arrangeParams.paddingLeft, arrangeParams.paddingTop);
@@ -318,12 +317,12 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
     
     //グループの中が縦並び
     if (arrangeParams.arrangement == BhNodeViewStyle.ChildArrangement.COLUMN) {
-      size.x += cnctrOffset.x + childMaxLen.x + arrangeParams.paddingRight;
+      size.x += childMaxLen.x + arrangeParams.paddingRight;
       size.y += childSumLen.y + numSpace * arrangeParams.space + arrangeParams.paddingBottom;
     // グループの中が横並び
     } else {    
       size.x += childSumLen.x + numSpace * arrangeParams.space + arrangeParams.paddingRight;
-      size.y += cnctrOffset.y + childMaxLen.y + arrangeParams.paddingBottom;
+      size.y += childMaxLen.y + arrangeParams.paddingBottom;
     }
     sizeCache.update(new Vec2D(size));
     return size;
@@ -392,8 +391,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       if (child == null) {
         continue;
       }
-      // outer はコネクタの大きさを考慮しない
-      Vec2D childNodeSize = child.getRegionManager().getNodeTreeSize(false);
+      Vec2D childNodeSize = child.getRegionManager().getNodeTreeSize(true);
       childMaxLen.updateIfGreater(childNodeSize.x, childNodeSize.y);
     }
     return childMaxLen;

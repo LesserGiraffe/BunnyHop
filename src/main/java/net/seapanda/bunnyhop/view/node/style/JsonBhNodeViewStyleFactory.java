@@ -39,6 +39,7 @@ import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.view.node.component.ComponentType;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.Arrangement;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ChildArrangement;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorAlignment;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.NotchPos;
 
@@ -105,7 +106,8 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
    * @return 作成した {@link BhNodeViewStyle} オブジェクト
    */
   private BhNodeViewStyle genBhNodeViewStyle(
-      JsonObject jsonObj, String fileName, BhNodeViewStyleId styleId) throws ViewConstructionException {
+      JsonObject jsonObj, String fileName, BhNodeViewStyleId styleId)
+      throws ViewConstructionException {
     BhNodeViewStyle style = new BhNodeViewStyle();
 
     // styleID
@@ -133,12 +135,17 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
 
     // connectorPos
     style.connectorPos = readString(BhConstants.NodeStyleDef.KEY_CONNECTOR_POS, jsonObj, fileName)
-        .map(val -> ConnectorPos.of(val)).orElse(style.connectorPos);
+        .map(ConnectorPos::of).orElse(style.connectorPos);
 
     // connectorShift
     style.connectorShift =
         readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHIFT, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.connectorShift);
+
+    // connectorShift
+    style.connectorAlignment =
+        readString(BhConstants.NodeStyleDef.KEY_CONNECTOR_ALIGNMENT, jsonObj, fileName)
+        .map(ConnectorAlignment::of).orElse(style.connectorAlignment);
 
     // connectorWidth
     style.connectorWidth =
@@ -164,7 +171,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
 
     // notchPos
     style.notchPos = readString(BhConstants.NodeStyleDef.KEY_NOTCH_POS, jsonObj, fileName)
-        .map(val -> NotchPos.of(val)).orElse(style.notchPos);
+        .map(NotchPos::of).orElse(style.notchPos);
 
     // notchWidth
     style.notchWidth = readNumber(BhConstants.NodeStyleDef.KEY_NOTCH_WIDTH, jsonObj, fileName)
@@ -235,7 +242,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
 
     // component
     style.component = readString(BhConstants.NodeStyleDef.KEY_COMPONENT, jsonObj, fileName)
-        .map(val -> ComponentType.of(val)).orElse(style.component);
+        .map(ComponentType::of).orElse(style.component);
     
     return style;
   }
@@ -302,7 +309,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
     // arrangement
     arrangement.arrangement =
         readString(BhConstants.NodeStyleDef.KEY_ARRANGEMENT, jsonObj, fileName)
-        .map(val -> ChildArrangement.of(val)).orElse(arrangement.arrangement);
+        .map(ChildArrangement::of).orElse(arrangement.arrangement);
 
     // cnctrNameList
     readArray(BhConstants.NodeStyleDef.KEY_CONNECTOR_LIST, jsonObj, fileName)

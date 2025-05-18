@@ -55,6 +55,8 @@ public class BhNodeViewStyle {
   public double connectorWidth = 1.5 * BhConstants.LnF.NODE_SCALE;
   /** コネクタ部分の高さ. */
   public double connectorHeight = 1.5 * BhConstants.LnF.NODE_SCALE;
+  /** コネクタをそろえる位置. */
+  public ConnectorAlignment connectorAlignment = ConnectorAlignment.EDGE;
   /** コネクタの形. */
   public ConnectorShape.CnctrShape connectorShape = ConnectorShape.CnctrShape.ARROW;
   /** 固定ノードのコネクタの形. */
@@ -182,7 +184,7 @@ public class BhNodeViewStyle {
         }
       }
       throw new IllegalArgumentException(
-          "Unknown %s  (%s)".formatted(ChildArrangement.class.getSimpleName(), name));
+          "Unknown %s  (%s)".formatted(ConnectorPos.class.getSimpleName(), name));
     }
   
     public String getName() {
@@ -193,7 +195,41 @@ public class BhNodeViewStyle {
     public String toString() {
       return name;
     }
+  }
 
+  /** コネクタをそろえる部分. */
+  public enum ConnectorAlignment {
+
+    /** コネクタの端をノードボディの端に合わせる. */
+    CENTER(BhConstants.NodeStyleDef.VAL_CENTER),
+    /** コネクタの中央をノードボディの中央に合わせる. */
+    EDGE(BhConstants.NodeStyleDef.VAL_EDGE);
+
+    private final String name;
+  
+    private ConnectorAlignment(String name) {
+      this.name = name;
+    }
+  
+    /** タイプ名から列挙子を得る. */
+    public static ConnectorAlignment of(String name) {
+      for (var val : ConnectorAlignment.values()) {
+        if (val.getName().equals(name)) {
+          return val;
+        }
+      }
+      throw new IllegalArgumentException(
+          "Unknown %s  (%s)".formatted(ConnectorAlignment.class.getSimpleName(), name));
+    }
+  
+    public String getName() {
+      return name;
+    }
+  
+    @Override
+    public String toString() {
+      return name;
+    }
   }
 
   /** 切り欠きの位置. */
@@ -216,7 +252,7 @@ public class BhNodeViewStyle {
         }
       }
       throw new IllegalArgumentException(
-          "Unknown %s  (%s)".formatted(ChildArrangement.class.getSimpleName(), name));
+          "Unknown %s  (%s)".formatted(NotchPos.class.getSimpleName(), name));
     }
   
     public String getName() {
@@ -279,6 +315,7 @@ public class BhNodeViewStyle {
     this.bodyShape = org.bodyShape;
     this.connectorPos = org.connectorPos;
     this.connectorShift = org.connectorShift;
+    this.connectorAlignment = org.connectorAlignment;
     this.connectorWidth = org.connectorWidth;
     this.connectorHeight = org.connectorHeight;
     this.connectorShape = org.connectorShape;

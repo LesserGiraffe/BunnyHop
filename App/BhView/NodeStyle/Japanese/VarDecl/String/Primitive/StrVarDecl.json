@@ -1,14 +1,14 @@
 {
   "paddingTop" : 1.0,
   "paddingBottom" : 1.0,
-  "paddingLeft" : 12.0,
+  "paddingLeft" : 12.7,
   "paddingRight" : 4.0,
   "connectorPos" : "Top",
   "connectorShift" : 1.0,
-  "connectorWidth" : 3.5,
-  "connectorHeight" : 3.5,
+  "connectorWidth" : 4.25,
+  "connectorHeight" : 4.25,
   "connectorShape" : "CHAR_T",
-  "connectorBoundsRate" : 1.25,
+  "connectorBoundsRate" : 1.95,
   "cssClass" : "strType",
 
   "connective" : {
@@ -21,7 +21,7 @@
   },
   
   "privateTemplate" : {
-    "buttonPosX" : 6.0,
+    "buttonPosX" : 6.7,
     "buttonPosY" : 1.0
   }
 }

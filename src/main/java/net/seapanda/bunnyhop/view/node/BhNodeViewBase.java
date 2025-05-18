@@ -55,6 +55,7 @@ import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorAlignment;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.traverse.NvbCallbackInvoker;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
@@ -293,17 +294,11 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   
       nodeShape.getPoints().setAll(
           getBodyShape().shape.createVertices(
+              viewStyle,
               bodySize.x,
               bodySize.y,
               cnctrShape,
-              viewStyle.connectorPos,
-              viewStyle.connectorWidth,
-              viewStyle.connectorHeight,
-              viewStyle.connectorShift,
-              notchShape,
-              viewStyle.notchPos,
-              viewStyle.notchWidth,
-              viewStyle.notchHeight));
+              notchShape));
       compileErrorMark.setEndX(bodySize.x);
       compileErrorMark.setEndY(bodySize.y);
       currentPolygonSize.set(bodySize);
@@ -395,12 +390,17 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
         NvbCallbackInvoker.invoke(fnShowShadow, BhNodeViewBase.this);
       }
     }
+
+    @Override
+    public ConnectorPos getConnectorPos() {
+      return viewStyle.connectorPos;
+    }
   }
 
   /** このノードの画面上での領域に関する処理を行うクラス. */
   public class RegionManagerBase implements RegionManager {
     /** ノード全体の範囲. */
-    private final QuadTreeRectangle wholeBodyRange =
+    private final QuadTreeRectangle bodyRange =
         new QuadTreeRectangle(0.0, 0.0, 0.0, 0.0, BhNodeViewBase.this);
     /** コネクタ部分の範囲. */
     private final QuadTreeRectangle cnctrRange
@@ -418,7 +418,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     @Override
     public Rectangles getRegions() {
-      return new Rectangles(wholeBodyRange, cnctrRange);
+      return new Rectangles(bodyRange, cnctrRange);
     }
 
     /**
@@ -437,25 +437,30 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       double cnctrUpperLeftY = 0.0;
       double cnctrLowerRightX = 0.0;
       double cnctrLowerRightY = 0.0;
-
       double boundsWidth = viewStyle.connectorWidth * viewStyle.connectorBoundsRate;
       double boundsHeight = viewStyle.connectorHeight * viewStyle.connectorBoundsRate;
+      double alignOffsetX = 0.0;
+      double alignOffsetY = 0.0;
 
+      if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
+        alignOffsetX = (bodySize.x - viewStyle.connectorWidth) / 2.0;
+        alignOffsetY = (bodySize.y - viewStyle.connectorHeight) / 2.0;
+      }
       if (viewStyle.connectorPos == ConnectorPos.LEFT) {
         cnctrUpperLeftX = posX - (boundsWidth + viewStyle.connectorWidth) / 2.0;
-        cnctrUpperLeftY =
-            posY - (boundsHeight - viewStyle.connectorHeight) / 2.0 + viewStyle.connectorShift;
+        cnctrUpperLeftY = (posY + alignOffsetY)
+            - (boundsHeight - viewStyle.connectorHeight) / 2.0 + viewStyle.connectorShift;
         cnctrLowerRightX = cnctrUpperLeftX + boundsWidth;
         cnctrLowerRightY = cnctrUpperLeftY + boundsHeight;
 
       } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
-        cnctrUpperLeftX =
-            posX - (boundsWidth - viewStyle.connectorWidth) / 2.0 + viewStyle.connectorShift;
+        cnctrUpperLeftX = (posX + alignOffsetX)
+            - (boundsWidth - viewStyle.connectorWidth) / 2.0 + viewStyle.connectorShift;
         cnctrUpperLeftY = posY - (boundsHeight + viewStyle.connectorHeight) / 2.0;
         cnctrLowerRightX = cnctrUpperLeftX + boundsWidth;
         cnctrLowerRightY = cnctrUpperLeftY + boundsHeight;
       }
-      wholeBodyRange.setPos(bodyUpperLeftX, bodyUpperLeftY, bodyLowerRightX, bodyLowerRightY);
+      bodyRange.setPos(bodyUpperLeftX, bodyUpperLeftY, bodyLowerRightX, bodyLowerRightY);
       cnctrRange.setPos(cnctrUpperLeftX, cnctrUpperLeftY, cnctrLowerRightX, cnctrLowerRightY);
     }
 
@@ -477,15 +482,24 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     }
 
     @Override
+    public Vec2D getConnectorSize() {
+      return viewStyle.getConnectorSize(isFixed());
+    }
+
+    @Override
     public BodyRange getBodyRange() {
-      QuadTreeRectangle bodyRange = getRegions().body();
       return new BodyRange(bodyRange.getUpperLeftPos(), bodyRange.getLowerRightPos());
+    }
+
+    @Override
+    public BodyRange getConnectorRange() {
+      return new BodyRange(cnctrRange.getUpperLeftPos(), cnctrRange.getLowerRightPos());
     }
 
     @Override
     public boolean overlapsWith(BhNodeView view, OverlapOption option) {
       if (view.getRegionManager() instanceof RegionManagerBase rm) {
-        return wholeBodyRange.overlapsWith(rm.wholeBodyRange, option);
+        return bodyRange.overlapsWith(rm.bodyRange, option);
       }
       return false;
     }
@@ -712,6 +726,26 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
             nodeView.getEventManager().invokeOnMoved(new Vec2D(pos.x, pos.y));
           },
           BhNodeViewBase.this);
+    }
+
+    @Override
+    public void setTreePosOnWorkspaceByConnector(double posX, double posY) {
+      // ボディの範囲とコネクタの範囲が確定していない状態でも適切な値を返せるように,
+      // コネクタの位置と大きさからオフセットを計算する.
+      Vec2D cnctrSize = regionManager.getConnectorSize();
+      setTreePosOnWorkspace(posX, posY);
+      if (viewStyle.connectorPos == ConnectorPos.LEFT) {
+        posX += cnctrSize.x;
+        if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
+          posY += (viewStyle.connectorHeight - regionManager.getNodeSize(false).y) / 2;
+        }
+      } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
+        posY += cnctrSize.y;
+        if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
+          posX += (viewStyle.connectorWidth - regionManager.getNodeSize(false).x) / 2;
+        }
+      }
+      setTreePosOnWorkspace(posX, posY);
     }
 
     /** GUI 部品のワークスペース上での位置を更新する. */

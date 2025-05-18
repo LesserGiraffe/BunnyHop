@@ -22,7 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorAlignment;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.NotchPos;
 
@@ -56,60 +58,56 @@ public abstract class BodyShapeBase {
   /**
    * ノードを形作る頂点を生成する.
    *
+   * @param style ノードビュースタイル
    * @param bodyWidth ボディの幅
    * @param bodyHeight ボディの高さ
    * @param connector 描画するコネクタ
-   * @param cnctrPos コネクタの位置 (Left, Top)
-   * @param cnctrWidth コネクタの幅
-   * @param cnctrHeight コネクタの高さ
-   * @param cnctrShift ノードの左上からのコネクタの位置
    * @param notch 描画する切り欠き
-   * @param notchPos 切り欠きの位置 (Right, Bottom)
-   * @param notchWidth 切り欠きの幅
-   * @param notchHeight 切り欠きの高さ
    * @return ノードを形成する頂点のリスト
    * */
   public abstract Collection<Double> createVertices(
+      BhNodeViewStyle style,
       double bodyWidth,
       double bodyHeight,
       ConnectorShape connector,
-      BhNodeViewStyle.ConnectorPos cnctrPos,
-      double cnctrWidth,
-      double cnctrHeight,
-      double cnctrShift,
-      ConnectorShape notch,
-      BhNodeViewStyle.NotchPos notchPos,
-      double notchWidth,
-      double notchHeight);
+      ConnectorShape notch);
 
   /**
    * コネクタ部分の頂点を作成する.
    *
    * @param connector 描画するコネクタオブジェクト
-   * @param cnctrPos コネクタの位置 (Top, Left)
+   * @param style ノードビュースタイル
    * @param cnctrWidth コネクタの幅
    * @param cnctrHeight コネクタの高さ
    * @param cnctrShift ノードの左上からのコネクタの位置
+   * @param bodyWidth ボディの幅
+   * @param bodyHeight ボディの高さ
    * @return コネクタ部分の頂点リスト
    */
   protected List<Double> createConnectorVertices(
       ConnectorShape connector,
-      BhNodeViewStyle.ConnectorPos cnctrPos,
+      BhNodeViewStyle style,
       double cnctrWidth,
       double cnctrHeight,
-      double cnctrShift) {
-
+      double cnctrShift,
+      double bodyWidth,
+      double bodyHeight) {
+    
     double offsetX = 0.0;  // 頂点に加算するオフセットX
     double offsetY = 0.0;  // 頂点に加算するオフセットY
 
-    if (cnctrPos == ConnectorPos.LEFT) {
+    if (style.connectorAlignment == ConnectorAlignment.CENTER) {
+      offsetX = (bodyWidth - cnctrWidth) / 2.0;
+      offsetY = (bodyHeight - cnctrHeight) / 2.0;
+    }
+    if (style.connectorPos == ConnectorPos.LEFT) {
       offsetX = -cnctrWidth;
-      offsetY = cnctrShift;
-    } else if (cnctrPos == ConnectorPos.TOP) {
-      offsetX = cnctrShift;
+      offsetY += cnctrShift;
+    } else if (style.connectorPos == ConnectorPos.TOP) {
+      offsetX += cnctrShift;
       offsetY = -cnctrHeight;
     }
-    return connector.createVertices(offsetX, offsetY, cnctrWidth, cnctrHeight, cnctrPos);
+    return connector.createVertices(offsetX, offsetY, cnctrWidth, cnctrHeight, style.connectorPos);
   }
 
   /**
