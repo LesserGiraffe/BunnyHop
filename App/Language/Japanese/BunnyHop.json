@@ -106,24 +106,35 @@
 
     "bh-runtime": {
       "local": {
-        "preparing-to-run": "-- プログラム実行準備中 (local) --\n",
-        "failed-to-run": "!! プログラムを開始できませんでした (local) !!\n",
-        "start-to-run": "-- プログラム実行開始 (local) --\n",
+        "preparing-to-start": "-- プログラム実行準備中 (local) --\n",
+        "failed-to-start": "!! プログラムを開始できませんでした (local) !!\n",
+        "has-started": "-- プログラム実行開始 (local) --\n",
         "has-already-ended": "!! プログラム終了済み (local) !!\n",
         "preparing-to-end": "-- プログラム終了準備中 (local)  --\n",
         "failed-to-end": "!! プログラムを終了できませんでした (local)  !!\n",
-        "has-teminated": "-- プログラム終了完了 (local)  --\n"
+        "has-ended": "-- プログラム終了完了 (local)  --\n",
+        "has-connected": "-- 接続完了 (local) --\n",
+        "failed-to-connect": "!! 接続失敗 (local)  !!\n",
+        "no-runtime-to-connect-to": "!! 接続失敗 (プログラムを実行していません) !!\n",        
+        "has-disconnected": "-- 切断完了 (local) --\n",
+        "failed-to-disconnect": "!! 切断失敗 (local)  !!\n",
+        "no-runtime-to-disconnect-from": "!! 切断失敗 (プログラムを実行していません) !!\n"
       },
       "remote": {
-        "preparing-to-run": "-- プログラム実行準備中 (remote) --\n",
-        "failed-to-run": "!! プログラムを開始できませんでした (remote) !!\n",
-        "start-to-run": "-- プログラム実行開始 (remote) --\n",
-        "has-already-ended": "!! プログラム終了済み (remote) !!\n",
+        "preparing-to-start": "-- プログラム実行準備中 (remote) --\n",
+        "failed-to-start": "!! プログラムを開始できませんでした (remote) !!\n",
+        "has-started": "-- プログラム実行開始 (remote) --\n",
         "preparing-to-end": "-- プログラム終了準備中 (remote)  --\n",
         "failed-to-end": "!! プログラムを終了できませんでした (remote)  !!\n",
-        "has-teminated": "-- プログラム終了完了 (remote)  --\n",
+        "has-ended": "-- プログラム終了完了 (remote)  --\n",
         "transferring": "-- プログラム転送中 --\n",
         "failed-to-transfer": "!! プログラム転送失敗 !!\n  %s\n",
+        "preparing-to-connect": "-- 接続準備中 (remote) --\n",
+        "has-connected": "-- 接続完了 (remote) --\n",
+        "failed-to-connect": "!! 接続失敗 (remote)  !!\n",
+        "preparing-to-disconnect": "-- 切断準備中 (remote) --\n",
+        "has-disconnected": "-- 切断完了 (remote) --\n",
+        "failed-to-disconnect": "!! 切断失敗 (remote)  !!\n",
         "ask-if-stop": {
           "title": "プログラム停止の確認",
           "body": "現在実行しているプログラムを停止しますか?"
@@ -142,15 +153,10 @@
         "start": "転送開始\n  %s -> %s (%s Bytes)\n"
       },
       "communication": {
-        "has-connected": "-- 接続完了 --\n",
-        "failed-to-connect": "!! 接続失敗 !!\n",
-        "no-runtime-to-connect-to": "!! 接続失敗 (プログラムを実行していません) !!\n",
-        "has-disconnected": "-- 切断完了 --\n",
-        "failed-to-disconnect": "!! 切断失敗 !!\n",
-        "no-runtime-to-disconnect-from": "!! 切断失敗 (プログラムを実行していません) !!\n",
         "preparing-to-communicate": "-- 通信準備中 --\n",
         "failed-to-establish-connection": "!! 実行環境との接続を確立できませんでした !!\n",
         "has-sent-text": "-- 送信完了 --\n",
+        "other-ops-are-in-progress": "!! 他の処理を実行中です !!\n",
         "failed-to-process-text": "!! テキストデータの処理に失敗しました.  (%s) !!\n",
         "failed-to-push-text": "!! テキストデータをこれ以上追加できません !!\n",
         "failed-to-send-text-for-no-connection": "!! 実行環境に接続していないのでテキストデータを送れません !!\n"

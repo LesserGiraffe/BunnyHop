@@ -53,6 +53,11 @@ public class BhProgramMessageDispatcher {
     this.msgProcessor = msgProcessor;
     this.simCmdProcessor = simCmdProcessor;
   }
+  
+  /** {@link BhSimulatorCmd} を処理するオブジェクトを取得する. */
+  public SimulatorCmdProcessor getSimCmdProcessor() {
+    return simCmdProcessor;
+  }
 
   /**
    * BhProgram との通信に使う {@link BhProgramMessageCarrier} を交換する.
@@ -78,7 +83,7 @@ public class BhProgramMessageDispatcher {
       case BhProgramException
           exception -> msgProcessor.process(exception);
       case StrBhSimulatorCmd
-          cmd ->  dispatchSimulatorCmd(cmd, carrier);
+          cmd -> dispatchSimulatorCmd(cmd, carrier);
 
       default -> notifyInvalidNotif(notif);
     }

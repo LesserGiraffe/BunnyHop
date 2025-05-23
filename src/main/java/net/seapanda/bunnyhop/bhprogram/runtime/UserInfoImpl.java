@@ -91,13 +91,4 @@ class UserInfoImpl implements UserInfo {
   public String getHost() {
     return host;
   }
-
-  /**
-   * このオブジェクトの接続先と同じかどうかを調べる.
-   *
-   * @return 引数の接続先がこのオブジェクトが表す接続先と同じ場合true
-   */
-  public boolean isSameAccessPoint(String host, String uname) {
-    return this.uname.equals(uname) && this.host.contentEquals(host);
-  }
 }

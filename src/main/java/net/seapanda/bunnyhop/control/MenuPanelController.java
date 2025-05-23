@@ -34,9 +34,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
-import net.seapanda.bunnyhop.bhprogram.BhProgramController;
 import net.seapanda.bunnyhop.bhprogram.ExecutableNodeCollector;
 import net.seapanda.bunnyhop.bhprogram.ExecutableNodeSet;
+import net.seapanda.bunnyhop.bhprogram.LocalBhProgramController;
+import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.InputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
@@ -135,9 +136,9 @@ public class MenuPanelController {
   /** ノード選択ビューを操作するときに使用するオブジェクト. */
   private BhNodeSelectionViewProxy proxy;
   /** ローカルマシン上での BhProgram の実行を制御するオブジェクト. */
-  private BhProgramController localCtrl;
+  private LocalBhProgramController localCtrl;
   /** リモートマシン上での BhProgram の実行を制御するオブジェクト. */
-  private BhProgramController remoteCtrl;
+  private RemoteBhProgramController remoteCtrl;
   /** コピー & ペーストの処理に使用するオブジェクト. */
   private CopyAndPaste copyAndPaste;
   /** カット & ペーストの処理に使用するオブジェクト. */
@@ -168,8 +169,8 @@ public class MenuPanelController {
       WorkspaceFactory wsFactory,
       UndoRedoAgent undoRedoAgent,
       BhNodeSelectionViewProxy proxy,
-      BhProgramController localCtrl,
-      BhProgramController remoteCtrl,
+      LocalBhProgramController localCtrl,
+      RemoteBhProgramController remoteCtrl,
       CopyAndPaste copyAndPaste,
       CutAndPaste cutAndPaste,
       MessageService msgService,
@@ -475,9 +476,14 @@ public class MenuPanelController {
       return;
     }
     terminating.set(true);
-    BhProgramController ctrl = isLocalHost() ? localCtrl : remoteCtrl;
+    Supplier<Boolean> terminate = () -> isLocalHost()
+        ? localCtrl.terminate()
+        : remoteCtrl.terminate(
+              hostNameTextField.getText(),
+              unameTextField.getText(),
+              passwordTextField.getText());
     CompletableFuture
-        .supplyAsync(() -> ctrl.terminate())
+        .supplyAsync(terminate)
         .thenAccept(success -> terminating.set(false));
   }
 
@@ -488,10 +494,12 @@ public class MenuPanelController {
       return;
     }
     disconnecting.set(true);
-    BhProgramController ctrl = isLocalHost() ? localCtrl : remoteCtrl;
+    Supplier<Boolean> discnonect = () -> isLocalHost()
+        ? localCtrl.disableCommunication()
+        : remoteCtrl.disableCommunication();
     CompletableFuture
-        .supplyAsync(() -> ctrl.disableCommunication())
-        .thenAccept(success -> disconnecting.set(false));    
+        .supplyAsync(discnonect)
+        .thenAccept(success -> disconnecting.set(false));
   }
 
   /** 接続ボタン押下時の処理. */
@@ -501,10 +509,15 @@ public class MenuPanelController {
       return;
     }
     connecting.set(true);
-    BhProgramController ctrl = isLocalHost() ? localCtrl : remoteCtrl;
+    Supplier<Boolean> connect = () -> isLocalHost()
+        ? localCtrl.enableCommunication()
+        : remoteCtrl.enableCommunication(
+              hostNameTextField.getText(),
+              unameTextField.getText(),
+              passwordTextField.getText());
     CompletableFuture
-        .supplyAsync(() -> ctrl.enableCommunication())
-        .thenAccept(success -> connecting.set(false));    
+        .supplyAsync(connect)
+        .thenAccept(success -> connecting.set(false));
   }
 
   /** シミュレータにフォーカスする. */
@@ -519,22 +532,21 @@ public class MenuPanelController {
   /** 送信ボタン押下時の処理. */
   private void send() throws AssertionError {
     var cmd = new InputTextCmd(stdInTextField.getText());
-    BhProgramController ctrl = isLocalHost() ? localCtrl : remoteCtrl;
-    BhRuntimeStatus status = ctrl.send(cmd);
+    BhRuntimeStatus status = isLocalHost() ? localCtrl.send(cmd) : remoteCtrl.send(cmd);
     switch (status) {
-      case SEND_QUEUE_FULL:
+      case SEND_QUEUE_FULL -> 
         msgService.error(TextDefs.BhRuntime.Communication.failedToPushText.get());
-        break;
-
-      case SEND_WHEN_DISCONNECTED:
+        
+      case SEND_WHEN_DISCONNECTED ->
         msgService.error(TextDefs.BhRuntime.Communication.failedToSendTextForNoConnection.get());
-        break;
 
-      case SUCCESS:
+      case SUCCESS ->
         msgService.info(TextDefs.BhRuntime.Communication.hasSentText.get());
-        break;
 
-      default:
+      case BUSY ->
+        msgService.info(TextDefs.BhRuntime.Communication.otherOpsAreInProgress.get());
+
+      default ->
         throw new AssertionError("Invalid status code" + status);
     }
   }

@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.Optional;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
-import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
+import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.CompileError;
@@ -44,10 +44,10 @@ import net.seapanda.bunnyhop.service.MessageService;
  *
  * @author K.Koike
  */
-public class BhProgramControllerImpl implements BhProgramController {
+public class LocalBhProgramControllerImpl implements LocalBhProgramController {
   
   private final BhCompiler compiler;
-  private final BhRuntimeController runtimeCtrl;
+  private final LocalBhRuntimeController runtimeCtrl;
   private final MessageService msgService;
 
   /**
@@ -57,9 +57,9 @@ public class BhProgramControllerImpl implements BhProgramController {
    * @param controller BhProgram の実行環境を操作するオブジェクト
    * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
    */
-  public BhProgramControllerImpl(
+  public LocalBhProgramControllerImpl(
       BhCompiler compiler,
-      BhRuntimeController controller,
+      LocalBhRuntimeController controller,
       MessageService msgService) {
     this.compiler = compiler;
     this.runtimeCtrl = controller;
@@ -67,16 +67,9 @@ public class BhProgramControllerImpl implements BhProgramController {
   }
 
   @Override
-  public boolean execute(ExecutableNodeSet nodeSet) {
-    return execute(nodeSet, "", "", "");
-  }
-
-  @Override
-  public synchronized boolean execute(
-      ExecutableNodeSet nodeSet, String ipAddr, String uname, String password)
-      throws UnsupportedOperationException {
+  public synchronized boolean execute(ExecutableNodeSet nodeSet) {
     return compile(nodeSet)
-        .map(srcPath -> startProgram(srcPath, ipAddr, uname, password))
+        .map(srcPath -> startProgram(srcPath))
         .orElse(false);
   }
 
@@ -106,11 +99,8 @@ public class BhProgramControllerImpl implements BhProgramController {
   }
 
   /** プログラムを実行する. */
-  private boolean startProgram(Path filePath, String ipAddr, String uname, String password) {
-    if (ipAddr.isEmpty()) {
-      return runtimeCtrl.start(filePath);
-    }
-    return runtimeCtrl.start(filePath, ipAddr, uname, password);
+  private boolean startProgram(Path filePath) {
+    return runtimeCtrl.start(filePath);
   }
 
   @Override

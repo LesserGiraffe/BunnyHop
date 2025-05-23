@@ -26,7 +26,8 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
-import net.seapanda.bunnyhop.bhprogram.BhProgramController;
+import net.seapanda.bunnyhop.bhprogram.LocalBhProgramController;
+import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -67,8 +68,8 @@ public class FoundationController {
 
   /** 押下状態のキー. */
   private Set<KeyCode> pressedKey = new HashSet<>();
-  private BhProgramController localCtrl;
-  private BhProgramController remoteCtrl;
+  private LocalBhProgramController localCtrl;
+  private RemoteBhProgramController remoteCtrl;
 
   /** 初期化する. */
   public boolean initialize(
@@ -80,8 +81,8 @@ public class FoundationController {
       DebugViewFactory debugViewFactory,
       UndoRedoAgent undoRedoAgent,
       BhNodeSelectionViewProxy proxy,
-      BhProgramController localCtrl,
-      BhProgramController remoteCtrl,
+      LocalBhProgramController localCtrl,
+      RemoteBhProgramController remoteCtrl,
       ProjectImporter importer,
       ProjectExporter exporter,
       CopyAndPaste copyAndPaste,

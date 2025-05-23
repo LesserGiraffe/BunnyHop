@@ -32,7 +32,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import net.seapanda.bunnyhop.bhprogram.BhProgramController;
+import net.seapanda.bunnyhop.bhprogram.LocalBhProgramController;
+import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
@@ -104,8 +105,8 @@ public class SceneBuilder {
       DebugViewFactory debugViewFactory,
       UndoRedoAgent undoRedoAgent,
       BhNodeSelectionViewProxy proxy,
-      BhProgramController localCtrl,
-      BhProgramController remoteCtrl,
+      LocalBhProgramController localCtrl,
+      RemoteBhProgramController remoteCtrl,
       ProjectImporter importer,
       ProjectExporter exporter,
       CopyAndPaste copyAndPaste,

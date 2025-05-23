@@ -158,6 +158,8 @@ public class BhConstants {
       public static final String GEN_REMOTE_EXEC_CMD_JS = "GenerateRemoteExecCmd.js";
       /** リモートの BhProgram 実行環境を終わらせるコマンドを生成するスクリプト名. */
       public static final String GEN_REMOTE_KILL_CMD_JS = "GenerateRemoteKillCmd.js";
+      /** リモートの BhProgram 実行環境の TCP ポートを取得するコマンドを生成するスクリプト名. */
+      public static final String GEN_GET_PORT_CMD_JS = "GenerateGetPortCmd.js";
       /** BhProgram のコピー先パスを生成するスクリプト名. */
       public static final String GEN_REMOTE_DEST_PATH_JS = "GenerateRemoteDestPath.js";
       /** BunnyHopのアイコン画像名. */
@@ -368,18 +370,29 @@ public class BhConstants {
     public static final String BH_PROGRAM_RUNTIME_JAR = "bhruntimelib.jar";
     public static final String BH_PROGRAM_EXEC_MAIN_CLASS = 
         "net.seapanda.bunnyhop.runtime.AppMain";
-    /** リモートの BhRuntime 終了待ちのタイムアウト時間 (sec). */
-    public static final int REMOTE_RUNTIME_TERMINATION_TIMEOUT = 10;
-    /** リモートの BhRuntime 終了待ちのタイムアウト時間 (sec). */
-    public static final int REMOTE_RUNTIME_TERMINATION_TIMEOUT_SHORT = 4;
-    /**  プロセスの終了完了待ちタイムアウト時間 (sec). */
-    public static final int PROC_END_TIMEOUT = 3;
-    /** BhProgram 実行環境からの受信データ待ちタイムアウト (sec). */
-    public static final int POP_RECV_DATA_TIMEOUT = 3;
-    /** BhProgram 実行環境への送信データ待ちタイムアウト (sec). */
-    public static final int POP_SEND_DATA_TIMEOUT = 3;
-    /** TCPポート読み取りのタイムアウト (sec). */
-    public static final int TCP_PORT_READ_TIMEOUT = 15;
+    
+    /** タイムアウト. */
+    public static class Timeout {
+      /** SSH 接続のタイムアウト時間. */
+      public static final int SSH_CONNECTION = 7;
+      /**  プロセスの終了完了待ちタイムアウト時間 (sec). */
+      public static final int PROC_END = 3;
+      /** BhRuntime への送信データ待ちタイムアウト (sec). */
+      public static final int SEND_DATA = 1;
+      /** リモートの BhRuntime の起動待ちのタイムアウト時間 (sec). */
+      public static final int REMOTE_START = 6;
+      /** リモートの BhRuntime との接続待ちのタイムアウト時間 (sec). */
+      public static final int REMOTE_CONNECT = 6;
+      /** リモートの BhRuntime との接続待ちのタイムアウト時間 (sec). */
+      public static final int HALT_TRANSCEIVER = 5;
+      /** リモートの BhRuntime 終了待ちのタイムアウト時間 (sec). */
+      public static final int REMOTE_TERMINATE = 6;
+      /** リモートの BhRuntime の起動待ちのタイムアウト時間 (sec). */
+      public static final int LOCAL_START = 5;
+      /** アプリケーション終了時にリモートの BhRuntime の終了処理を開始するまでの待ち時間 (sec). */
+      public static final int REMOTE_END_ON_EXIT = 3;
+    }
+
     public static final int MAX_REMOTE_CMD_QUEUE_SIZE = 2048;
     /** BhProgram 実行環境との通信に使う RMI オブジェクトを探す際の TCP ポートに付けられる接尾辞. */
     public static final String RMI_TCP_PORT_SUFFIX = "@RmiTcpPort";

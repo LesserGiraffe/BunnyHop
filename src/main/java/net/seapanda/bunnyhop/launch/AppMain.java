@@ -37,12 +37,14 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import net.seapanda.bunnyhop.bhprogram.BhProgramControllerImpl;
+import net.seapanda.bunnyhop.bhprogram.LocalBhProgramControllerImpl;
+import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramControllerImpl;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.debugger.BhDebugger;
+import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessorImpl;
-import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
-import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
+import net.seapanda.bunnyhop.bhprogram.runtime.RmiLocalBhRuntimeController;
+import net.seapanda.bunnyhop.bhprogram.runtime.RmiRemoteBhRuntimeController;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.common.ExclusiveSelection;
@@ -213,14 +215,17 @@ public class AppMain extends Application {
       final var remoteCompiler = genCompiler(false);
       final var debugger = new BhDebugger(wss, msgService);
       final var msgProcessor = new BhProgramMessageProcessorImpl(msgService, debugger);
-      final var localRuntimeCtrl = new LocalBhRuntimeController(
-          msgProcessor, simulator.getCmdProcessor().get(), msgService);
-      final var remoteRuntimeCtrl = new RemoteBhRuntimeController(
-          msgProcessor, simulator.getCmdProcessor().get(), msgService, scriptRepository);
+      final var localMsgDispatcher =
+          new BhProgramMessageDispatcher(msgProcessor, simulator.getCmdProcessor().get());
+      final var localRuntimeCtrl = new RmiLocalBhRuntimeController(localMsgDispatcher, msgService);
+      final var remoteMsgDispatcher =
+          new BhProgramMessageDispatcher(msgProcessor, simulator.getCmdProcessor().get());
+      final var remoteRuntimeCtrl =
+          new RmiRemoteBhRuntimeController(remoteMsgDispatcher, msgService, scriptRepository);
       final var localBhProgramCtrl =
-          new BhProgramControllerImpl(localCompiler, localRuntimeCtrl, msgService);
+          new LocalBhProgramControllerImpl(localCompiler, localRuntimeCtrl, msgService);
       final var remoteBhProgramCtrl =
-          new BhProgramControllerImpl(remoteCompiler, remoteRuntimeCtrl, msgService);
+          new RemoteBhProgramControllerImpl(remoteCompiler, remoteRuntimeCtrl, msgService);
       final var pastePosOffsetCount = new MutableInt(-2);
       final var copyAndPaste = new CopyAndPaste(nodeFactory, pastePosOffsetCount);
       final var cutAndPaste = new CutAndPaste(pastePosOffsetCount);
@@ -289,8 +294,8 @@ public class AppMain extends Application {
   /** シミュレータがフォーカスを持っているときにキーが押されたときの処理. */
   private void onKeyPressed(
       int keyCode,
-      LocalBhRuntimeController localCtrl,
-      RemoteBhRuntimeController remoteCtrl,
+      RmiLocalBhRuntimeController localCtrl,
+      RmiRemoteBhRuntimeController remoteCtrl,
       Supplier<Boolean> fnCheckIfBhRuntimeIsLocal) {
     var eventName = KeyCodeConverter.toBhProgramEventName(keyCode).orElse(null);
     var bhEvent = new BhProgramEvent(eventName, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
@@ -304,8 +309,8 @@ public class AppMain extends Application {
   /** 終了処理を登録する. */
   private void setOnCloseHandler(
       Stage stage,
-      LocalBhRuntimeController localCtrl,
-      RemoteBhRuntimeController remoteCtrl,
+      RmiLocalBhRuntimeController localCtrl,
+      RmiRemoteBhRuntimeController remoteCtrl,
       BhMessageService msgService,
       Supplier<Boolean> fnIsProgramRunning,
       Supplier<Boolean> fnCheckIfProjectIsDirty,
@@ -374,15 +379,15 @@ public class AppMain extends Application {
 
   /** BunnyHop の終了処理. */
   private void terminate(
-      LocalBhRuntimeController localCtrl,
-      RemoteBhRuntimeController remoteCtrl,
+      RmiLocalBhRuntimeController localCtrl,
+      RmiRemoteBhRuntimeController remoteCtrl,
       BhMessageService msgService,
       boolean killRemoteRuntime,
       Boolean oldVal,
       Boolean newVal) {
     if (oldVal == true && newVal == false) {
       localCtrl.end();
-      remoteCtrl.end(killRemoteRuntime);
+      remoteCtrl.end(killRemoteRuntime, BhConstants.BhRuntime.Timeout.REMOTE_END_ON_EXIT);
       msgService.close();
       Gdx.app.exit();
       try {

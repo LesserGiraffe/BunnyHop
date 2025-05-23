@@ -34,9 +34,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageCarrier;
 import net.seapanda.bunnyhop.common.BhConstants;
-import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.utility.SynchronizingTimer;
 
 /**
@@ -52,6 +50,7 @@ public class BhRuntimeTransceiver {
   /** BhProgram との通信用 {@link ExecutorService} のセット. */
   private ExecutorSet executors = new ExecutorSet();
   private FutureSet futures;
+  private TaskEndFlags endFlags = new TaskEndFlags(false, false, false, false);
   private SynchronizingTimer connectionWait = new SynchronizingTimer(1, true);
   /** {@link BhProgramMessage} を送受信するためのオブジェクト. */
   private final BhProgramMessageCarrierImpl carrier;
@@ -62,19 +61,15 @@ public class BhRuntimeTransceiver {
    * RMI Server が同じ TCP ポートでも新しく起動したプロセスと通信することはない.
    */
   private final BhRuntimeFacade runtimeFacade;
-  /** アプリケーションユーザにメッセージを出力するためのオブジェクト. */
-  private final MessageService msgService;
   public final int id;
 
   /**
    * コンストラクタ.
    *
    * @param facade BhProgram と BunnyHop 間でデータを送受信するオブジェクト
-   * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
    */
-  public BhRuntimeTransceiver(BhRuntimeFacade facade, MessageService msgService) {
+  public BhRuntimeTransceiver(BhRuntimeFacade facade) {
     this.runtimeFacade = facade;
-    this.msgService = msgService;
     id = nextId.getAndIncrement();
     carrier = new BhProgramMessageCarrierImpl();
   }
@@ -90,12 +85,10 @@ public class BhRuntimeTransceiver {
       connectionWait.reset(0);
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
-      msgService.error(TextDefs.BhRuntime.Communication.failedToConnect.get());
       LogManager.logger().error("Failed to connect to BhRuntime.\n" + e);
       return false;
     }
     connected.set(true);
-    msgService.info(TextDefs.BhRuntime.Communication.hasConnected.get());
     return true;
   }
 
@@ -110,12 +103,10 @@ public class BhRuntimeTransceiver {
       connectionWait.reset(1);
     } catch (RemoteException e) {
       // 接続中に BhRuntime を kill した場合, ここで抜ける
-      msgService.error(TextDefs.BhRuntime.Communication.failedToDisconnect.get());
       LogManager.logger().error("Failed to disconnect from BhRuntime\n" + e);
       return false;
     }
     connected.set(false);
-    msgService.info(TextDefs.BhRuntime.Communication.hasDisconnected.get());
     return true;
   }
 
@@ -125,8 +116,8 @@ public class BhRuntimeTransceiver {
       return;
     }
     futures = new FutureSet(
-        executors.recvMsgTask.submit(carrier::recvNotif),
-        executors.sendMsgTask.submit(carrier::sendNotif),
+        executors.recvNotifTask.submit(carrier::recvNotif),
+        executors.sendNotifTask.submit(carrier::sendNotif),
         executors.recvRespTask.submit(carrier::recvResp),
         executors.sendRespTask.submit(carrier::sendResp));
   }
@@ -144,17 +135,29 @@ public class BhRuntimeTransceiver {
     if (connected.get()) {
       disconnect();
     }
-    boolean success = true;
     for (Future<?> future : futures.toList()) {
-      boolean res = future.cancel(true);
-      success &= res;
-      if (!res) {
-        LogManager.logger().error(
-            "Failed to cancel '%s' task.".formatted(futures.toName(future)));
-      }  
+      future.cancel(true);
+    }
+    boolean success = waitForTasksCancelled(BhConstants.BhRuntime.Timeout.HALT_TRANSCEIVER);
+    if (!success) {
+      LogManager.logger().error("Failed to cancel tasks.".formatted());
     }
     futures = null;
     return success;
+  }
+
+  private boolean waitForTasksCancelled(int timeout) {
+    timeout *= 1000;
+    long begin = System.currentTimeMillis();
+    while (true) {
+      boolean allDone = endFlags.toList().stream().allMatch(AtomicBoolean::get);
+      if (allDone) {
+        return true;
+      }
+      if ((System.currentTimeMillis() - begin) > timeout) {
+        return false;
+      }
+    }
   }
 
   /** {@link BhProgramMessage} の送受信機能を持ったオブジェクトを返す. */
@@ -164,40 +167,47 @@ public class BhRuntimeTransceiver {
 
   /** BhProgram と通信するタスクの {@link Future} オブジェクトのセット. */
   private record FutureSet(
-      Future<?> recvMsgFuture,
-      Future<?> sendMsgFuture,
+      Future<?> recvNotifFuture,
+      Future<?> sendNotifFuture,
       Future<?> recvRespFuture,
       Future<?> sendRespFuture) {
     
     public List<Future<?>> toList() {
-      return List.of(recvMsgFuture, sendMsgFuture, recvRespFuture, sendRespFuture);
+      return List.of(recvNotifFuture, sendNotifFuture, recvRespFuture, sendRespFuture);
+    }
+  }
+
+  /** BhProgram と通信するタスクの終了フラグのセット. */
+  private record TaskEndFlags(
+      AtomicBoolean recvNotif,
+      AtomicBoolean sendNotif,
+      AtomicBoolean recvResp,
+      AtomicBoolean sendResp) {
+
+    public TaskEndFlags(boolean recvNotif, boolean sendNotif, boolean recvResp, boolean sendResp) {
+      this(
+          new AtomicBoolean(recvNotif),
+          new AtomicBoolean(sendNotif),
+          new AtomicBoolean(recvResp),
+          new AtomicBoolean(sendResp));
     }
 
-    public String toName(Future<?> future) {
-      if (future == recvMsgFuture) {
-        return "recv msg";
-      } else if (future == sendMsgFuture) {
-        return "send msg";
-      } else if (future == recvRespFuture) {
-        return "recv resp";
-      } else if (future == sendRespFuture) {
-        return "send resp";
-      }
-      return "";
+    public List<AtomicBoolean> toList() {
+      return List.of(recvNotif, sendNotif, recvResp, sendResp);
     }
   }
 
   /**
    * BhProgram と通信するタスクを実行する {@link ExecutorService} オブジェクト.
    *
-   * @param recvMsgTask コマンド受信用.
-   * @param sendMsgTask コマンド送信用.
+   * @param recvNotifTask コマンド受信用.
+   * @param sendNotifTask コマンド送信用.
    * @param recvRespTask レスポンス受信用.
    * @param sendRespTask レスポンス送信用.
    */
   private record ExecutorSet(
-      ExecutorService recvMsgTask,
-      ExecutorService sendMsgTask,
+      ExecutorService recvNotifTask,
+      ExecutorService sendNotifTask,
       ExecutorService recvRespTask,
       ExecutorService sendRespTask) {
 
@@ -243,6 +253,7 @@ public class BhRuntimeTransceiver {
           break;
         }
       }
+      endFlags.recvNotif().set(true);
     }
 
     /** BhProgram の実行環境に {@link BhProgramNotification} を送信し続ける. */
@@ -250,24 +261,23 @@ public class BhRuntimeTransceiver {
       while (true) {
         BhProgramNotification notif = null;
         try {
-          notif = sendNotifList.poll(
-              BhConstants.BhRuntime.POP_SEND_DATA_TIMEOUT, TimeUnit.SECONDS);
+          notif = sendNotifList.poll(BhConstants.BhRuntime.Timeout.SEND_DATA, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
           break;
         }
-        if (notif == null) {
-          continue;
-        }
-        try {
-          runtimeFacade.sendNotifToRuntime(notif);
-        } catch (RemoteException e) {
-          // 子プロセスをkillした場合, ここで抜ける.
-          break;
+        if (notif != null) {
+          try {
+            runtimeFacade.sendNotifToRuntime(notif);
+          } catch (RemoteException e) {
+            // 子プロセスをkillした場合, ここで抜ける.
+            break;
+          }
         }
         if (Thread.currentThread().isInterrupted()) {
           break;
         }
       }
+      endFlags.sendNotif().set(true);
     }
 
     /** BhProgram の実行環境から {@link BhProgramResponse} を受信し続ける. */
@@ -286,6 +296,7 @@ public class BhRuntimeTransceiver {
           break;
         }
       }
+      endFlags.recvResp().set(true);
     }
 
     /** BhProgram の実行環境に {@link BhProgramResponse} を送信し続ける. */
@@ -293,7 +304,7 @@ public class BhRuntimeTransceiver {
       while (true) {
         BhProgramResponse resp = null;
         try {
-          resp = sendRespList.poll(BhConstants.BhRuntime.POP_SEND_DATA_TIMEOUT, TimeUnit.SECONDS);
+          resp = sendRespList.poll(BhConstants.BhRuntime.Timeout.SEND_DATA, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
           break;
         }
@@ -310,6 +321,7 @@ public class BhRuntimeTransceiver {
           break;
         }
       }
+      endFlags.sendResp().set(true);
     }
 
     @Override

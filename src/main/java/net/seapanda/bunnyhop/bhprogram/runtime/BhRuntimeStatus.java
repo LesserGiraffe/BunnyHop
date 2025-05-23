@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.bhprogram.runtime;
 
 /**
- * BhProgram の実行環境に関するステータスコード.
+ * BhRuntime の操作に関するステータスコード.
  *
  * @author K.Koike
  */
@@ -28,4 +28,6 @@ public enum BhRuntimeStatus {
   SEND_WHEN_DISCONNECTED,
   /** 送信キューが満杯で送信できない. */
   SEND_QUEUE_FULL,
+  /** BhRuntime に対して別の操作を実行中. */
+  BUSY,
 }

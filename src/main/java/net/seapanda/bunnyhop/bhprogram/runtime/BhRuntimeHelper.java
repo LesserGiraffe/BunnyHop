@@ -18,8 +18,6 @@ package net.seapanda.bunnyhop.bhprogram.runtime;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -27,20 +25,14 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import net.seapanda.bunnyhop.bhprogram.common.BhRuntimeFacade;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent.Name;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
-import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.common.BhConstants;
-import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.MessageService;
 
 /**
  * BhProgram の実行環境を操作するクラスが共通で持つ機能と変数をまとめたクラス.
@@ -49,71 +41,17 @@ import net.seapanda.bunnyhop.service.MessageService;
  */
 class BhRuntimeHelper {
 
-  /** BhProgram の実行環境から受信したデータを処理するオブジェクト. */
-  private final BhProgramMessageDispatcher dispatcher;
-  /** アプリケーションユーザにメッセージを出力するためのオブジェクト. */
-  private final MessageService msgService;
-  /** {@link BhProgramMessage} を送受信するためのオブジェクト. */
-  private BhRuntimeTransceiver transceiver;
-
-  /** コンストラクタ. */
-  public BhRuntimeHelper(
-      BhProgramMessageDispatcher dispatcher,
-      MessageService msgService) {
-    this.dispatcher = dispatcher;
-    this.msgService = msgService;
-  }
-
   /**
    * RMI オブジェクトを探す.
    *
-   * @param ipAddr リモートオブジェクトのIPアドレス
+   * @param hostname リモートオブジェクトのIPアドレス
    * @param port RMIレジストリのポート
    * @param name オブジェクトバインド時の名前
    * @return Remoteオブジェクト
    */
-  Remote findRemoteObj(String ipAddr, int port, String name)
+  private static Remote findRemoteObj(String hostname, int port, String name)
       throws MalformedURLException, NotBoundException, RemoteException {
-    return Naming.lookup("rmi://%s:%s/%s".formatted(ipAddr, port, name));
-  }
-
-  /**
-   * BhProgram の実行環境と通信を行うようにする.
-   *
-   * @return 成功した場合 true
-   */
-  synchronized boolean connect() {
-    if (transceiver == null) {
-      msgService.error(TextDefs.BhRuntime.Communication.noRuntimeToConnectTo.get());
-      return false;
-    }
-    return transceiver.connect();
-  }
-
-  /**
-   * BhProgram の実行環境と通信を行わないようにする.
-   *
-   * @return 成功した場合 true
-   */
-  synchronized boolean disconnect() {
-    if (transceiver == null) {
-      msgService.error(TextDefs.BhRuntime.Communication.noRuntimeToDisconnectFrom.get());
-      return false;
-    }
-    return transceiver.disconnect();
-  }
-
-  /**
-   * 引数で指定した {@link BhProgramNotification} を BhProgram の実行環境に送る.
-   *
-   * @param msg 送信データ
-   * @return ステータスコード
-   */
-  synchronized BhRuntimeStatus send(BhProgramNotification notif) {
-    if (transceiver == null) {
-      return BhRuntimeStatus.SEND_WHEN_DISCONNECTED;
-    }
-    return transceiver.getMessageCarrier().pushSendNotif(notif);
+    return Naming.lookup("rmi://%s:%s/%s".formatted(hostname, port, name));
   }
 
   /**
@@ -155,49 +93,11 @@ class BhRuntimeHelper {
   }
 
   /**
-   * BhProgramTransceiver の処理を終了する.
+   * BhProgram が公開する RMI オブジェクトを取得する.
    *
-   * @return 終了処理が成功した場合 true. トランシーバが登録されていない場合も true を返す.
+   * @param timeout タイムアウト (sec)
    */
-  synchronized boolean haltTransceiver() {
-    if (transceiver == null) {
-      return true;
-    }
-    return transceiver.halt();
-  }
-
-  /**
-   * BhProgram の実行環境に BhProgram の開始を命令する.
-   *
-   * @param fileName BhProgram のファイル名
-   * @param ipAddr BhProgram の実行環境が動作しているマシンのIPアドレス
-   * @param is BhProgram 実行環境からの出力を受け取るための InputStream
-   * @return 正常に BhProgram を開始できた場合 true
-   */
-  synchronized boolean runBhProgram(String fileName, String ipAddr, InputStream is) {
-    msgService.info(TextDefs.BhRuntime.Communication.preparingToCommunicate.get());
-    boolean success = true;
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-      BhRuntimeFacade facade = getBhRuntimeFacade(ipAddr, br);
-      var oldTransceiver = Optional.ofNullable(transceiver);
-      transceiver = new BhRuntimeTransceiver(facade, msgService);
-      dispatcher.replaceMsgCarrier(transceiver.getMessageCarrier());
-      oldTransceiver.ifPresent(old -> old.halt());
-      transceiver.start();
-      success &= transceiver.connect();
-      success &= runScript(fileName, facade);
-    } catch (IOException | NotBoundException | NumberFormatException | TimeoutException e) {
-      LogManager.logger().error("Failed to run BhProgram\n" + e);
-      success &= false;
-    }
-    if (!success) {
-      msgService.info(TextDefs.BhRuntime.Communication.failedToEstablishConnection.get());
-    }
-    return success;
-  }
-
-  /** BhProgram が公開する RMI オブジェクトを取得する. */
-  private BhRuntimeFacade getBhRuntimeFacade(String ipAddr, BufferedReader br)
+  static BhRuntimeFacade getBhRuntimeFacade(String hostname, BufferedReader br, int timeout)
       throws IOException,
       TimeoutException, 
       MalformedURLException, 
@@ -206,15 +106,21 @@ class BhRuntimeHelper {
     String portStr = getSuffixedLine(
         br,
         BhConstants.BhRuntime.RMI_TCP_PORT_SUFFIX,
-        BhConstants.BhRuntime.TCP_PORT_READ_TIMEOUT);
+        timeout);
     int port = Integer.parseInt(portStr);
     // リモートオブジェクト取得
     return (BhRuntimeFacade) findRemoteObj(
-        ipAddr, port, BhRuntimeFacade.class.getSimpleName());
+        hostname, port, BhRuntimeFacade.class.getSimpleName());
   }
 
-  /** BhProgram の main メソッドを実行する. */
-  private boolean runScript(String fileName, BhRuntimeFacade facade)
+  /**
+   * BhProgram を実行する.
+   *
+   * @param fileName 実行するプログラムが書かれたファイルの名前
+   * @param facade BhRemote との通信用オブジェクト
+   * @return 成功した場合 true, 失敗した場合 false
+   */
+  public static boolean runScript(String fileName, BhRuntimeFacade facade)
       throws RemoteException {
     var startEvent = new BhProgramEvent(
         Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
@@ -246,7 +152,7 @@ class BhRuntimeHelper {
         if ((System.currentTimeMillis() - begin) > timeout) {
           throw new TimeoutException("getSuffixedLine timeout");
         }
-        if (br.ready()) {  //次の読み出し結果がEOFの場合 false
+        if (br.ready()) {  // 次の読み出し結果が EOF の場合 false
           int charCode = br.read();
           switch (charCode) {
             case '\r':
@@ -259,7 +165,7 @@ class BhRuntimeHelper {
               charCodeList.clear();
               break;
 
-            default:  //改行以外の文字コード
+            default:  // 改行以外の文字コード
               charCodeList.add((char) charCode);
               continue;
           }

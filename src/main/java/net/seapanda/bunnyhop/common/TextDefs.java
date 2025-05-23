@@ -169,41 +169,66 @@ public class TextDefs {
     /** ローカル環境で BhProgram を実行する際のメッセージ. */
     public static class Local {
       public static Getter preparingToRun = params -> db.get(
-          TextId.of("msg", "bh-runtime", "local", "preparing-to-run"), params);
+          TextId.of("msg", "bh-runtime", "local", "preparing-to-start"), params);
       public static Getter failedToRun = params -> db.get(
-          TextId.of("msg", "bh-runtime", "local", "failed-to-run"), params);
-      public static Getter startToRun = params -> db.get(
-          TextId.of("msg", "bh-runtime", "local", "start-to-run"), params);
+          TextId.of("msg", "bh-runtime", "local", "failed-to-start"), params);
+      public static Getter hasStarted = params -> db.get(
+          TextId.of("msg", "bh-runtime", "local", "has-started"), params);
       public static Getter hasAlreadyEnded = params -> db.get(
           TextId.of("msg", "bh-runtime", "local", "has-already-ended"), params);
       public static Getter preparingToEnd = params -> db.get(
           TextId.of("msg", "bh-runtime", "local", "preparing-to-end"), params);
       public static Getter failedToEnd = params -> db.get(
           TextId.of("msg", "bh-runtime", "local", "failed-to-end"), params);
-      public static Getter hasTeminated = params -> db.get(
-          TextId.of("msg", "bh-runtime", "local", "has-teminated"), params);
+      public static Getter hasEnded = params -> db.get(
+          TextId.of("msg", "bh-runtime", "local", "has-ended"), params);
+      public static Getter hasConnected = params -> db.get(
+          TextId.of("msg", "bh-runtime", "local", "has-connected"), params);    
+      public static Getter failedToConnect = params -> db.get(
+          TextId.of("msg", "bh-runtime", "local", "failed-to-connect"), params);
+      public static Getter noRuntimeToConnectTo = params -> db.get(
+          TextId.of("msg", "bh-runtime", "local", "no-runtime-to-connect-to"),
+          params);
+      public static Getter hasDisconnected = params -> db.get(
+          TextId.of("msg", "bh-runtime", "local", "has-disconnected"), params);    
+      public static Getter failedToDisconnect = params -> db.get(
+          TextId.of("msg", "bh-runtime", "local", "failed-to-disconnect"), params);      
+      public static Getter noRuntimeToDisconnectFrom = params -> db.get(
+          TextId.of("msg", "bh-runtime", "local", "no-runtime-to-disconnect-from"),
+          params);
+
     }
 
     /** リモート環境で BhProgram を実行する際のメッセージ. */
     public static class Remote {
       public static Getter preparingToRun = params -> db.get(
-          TextId.of("msg", "bh-runtime", "remote", "preparing-to-run"), params);
+          TextId.of("msg", "bh-runtime", "remote", "preparing-to-start"), params);
       public static Getter failedToRun = params -> db.get(
-          TextId.of("msg", "bh-runtime", "remote", "failed-to-run"), params);
-      public static Getter startToRun = params -> db.get(
-          TextId.of("msg", "bh-runtime", "remote", "start-to-run"), params);
-      public static Getter hasAlreadyEnded = params -> db.get(
-          TextId.of("msg", "bh-runtime", "remote", "has-already-ended"), params);
+          TextId.of("msg", "bh-runtime", "remote", "failed-to-start"), params);
+      public static Getter hasStarted = params -> db.get(
+          TextId.of("msg", "bh-runtime", "remote", "has-started"), params);
       public static Getter preparingToEnd = params -> db.get(
           TextId.of("msg", "bh-runtime", "remote", "preparing-to-end"), params);
       public static Getter failedToEnd = params -> db.get(
           TextId.of("msg", "bh-runtime", "remote", "failed-to-end"), params);
-      public static Getter hasTeminated = params -> db.get(
-          TextId.of("msg", "bh-runtime", "remote", "has-teminated"), params);
+      public static Getter hasEnded = params -> db.get(
+          TextId.of("msg", "bh-runtime", "remote", "has-ended"), params);
       public static Getter transferring = params -> db.get(
           TextId.of("msg", "bh-runtime", "remote", "transferring"), params);
       public static Getter failedToTransfer = params -> db.get(
-          TextId.of("msg", "bh-runtime", "remote", "failed-to-transfer"), params);
+          TextId.of("msg", "bh-runtime", "remote", "failed-to-transfer"), params);      
+      public static Getter preparingToConnect = params -> db.get(
+          TextId.of("msg", "bh-runtime", "remote", "preparing-to-connect"), params);
+      public static Getter hasConnected = params -> db.get(
+          TextId.of("msg", "bh-runtime", "remote", "has-connected"), params);    
+      public static Getter failedToConnect = params -> db.get(
+          TextId.of("msg", "bh-runtime", "remote", "failed-to-connect"), params);
+      public static Getter preparingToDisconnect = params -> db.get(
+          TextId.of("msg", "bh-runtime", "remote", "preparing-to-disconnect"), params);
+      public static Getter hasDisconnected = params -> db.get(
+          TextId.of("msg", "bh-runtime", "remote", "has-disconnected"), params);    
+      public static Getter failedToDisconnect = params -> db.get(
+          TextId.of("msg", "bh-runtime", "remote", "failed-to-disconnect"), params);
 
       /** リモート環境の BhProgram を停止するか確認する際のメッセージ. */
       public static class AskIfStop {
@@ -240,20 +265,6 @@ public class TextDefs {
 
     /** BhProgram の実行環境と通信する際のメッセージ. */
     public static class Communication {
-      public static Getter hasConnected = params -> db.get(
-          TextId.of("msg", "bh-runtime", "communication", "has-connected"), params);
-      public static Getter failedToConnect = params -> db.get(
-          TextId.of("msg", "bh-runtime", "communication", "failed-to-connect"), params);
-      public static Getter noRuntimeToConnectTo = params -> db.get(
-          TextId.of("msg", "bh-runtime", "communication", "no-runtime-to-connect-to"),
-          params);
-      public static Getter hasDisconnected = params -> db.get(
-          TextId.of("msg", "bh-runtime", "communication", "has-disconnected"), params);
-      public static Getter failedToDisconnect = params -> db.get(
-          TextId.of("msg", "bh-runtime", "communication", "failed-to-disconnect"), params);
-      public static Getter noRuntimeToDisconnectFrom = params -> db.get(
-          TextId.of("msg", "bh-runtime", "communication", "no-runtime-to-disconnect-from"),
-          params);
       public static Getter preparingToCommunicate = params -> db.get(
           TextId.of("msg", "bh-runtime", "communication", "preparing-to-communicate"), params);
       public static Getter failedToEstablishConnection = params -> db.get(
@@ -267,6 +278,9 @@ public class TextDefs {
           TextId.of("msg", "bh-runtime", "communication", "failed-to-push-text"), params);
       public static Getter failedToSendTextForNoConnection = params -> db.get(
           TextId.of("msg", "bh-runtime", "communication", "failed-to-send-text-for-no-connection"),
+          params);
+      public static Getter otherOpsAreInProgress = params -> db.get(
+          TextId.of("msg", "bh-runtime", "communication", "other-ops-are-in-progress"),
           params);
     }
   }

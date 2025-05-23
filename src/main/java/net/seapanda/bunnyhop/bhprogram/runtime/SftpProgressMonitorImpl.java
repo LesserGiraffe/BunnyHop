@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.bhprogram.runtime;
 
 import com.jcraft.jsch.SftpProgressMonitor;
 import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
@@ -40,7 +40,7 @@ class SftpProgressMonitorImpl implements SftpProgressMonitor {
   /** 転送されたデータのパーセンテージ. */
   private int rateOfDataSent = 0;
   /** ファイル転送キャンセルフラグ. */
-  private final AtomicReference<Boolean> fileCopyIsCancelled;
+  private final AtomicBoolean fileCopyIsCancelled;
   /** ファイル転送キャンセルフラグ (ラッチされる). */
   private boolean fileCopyHasBeenCancelled = false;
   /** アプリケーションユーザにメッセージを出力するためのオブジェクト. */
@@ -51,7 +51,7 @@ class SftpProgressMonitorImpl implements SftpProgressMonitor {
    *
    * @param fileCopyIsCancelled ファイル転送キャンセルフラグ
    */
-  SftpProgressMonitorImpl(AtomicReference<Boolean> fileCopyIsCancelled, MessageService msgService) {
+  SftpProgressMonitorImpl(AtomicBoolean fileCopyIsCancelled, MessageService msgService) {
     this.fileCopyIsCancelled = fileCopyIsCancelled;
     this.msgService = msgService;
   }
