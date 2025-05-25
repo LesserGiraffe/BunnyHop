@@ -47,7 +47,7 @@ public class BhConstants {
   /** システムのバージョン. */
   public static final SystemVersion SYS_VERSION;
   /** アプリケーションのバージョン. */
-  public static final AppVersion APP_VERSION = AppVersion.of("bh-1.0.0");
+  public static final AppVersion APP_VERSION = AppVersion.of("bh-0.7.0");
   /** セーブデータのバージョン. */
   public static final SaveDataVersion SAVE_DATA_VERSION = SaveDataVersion.of("bhsave-1.0.0");
   /** undo 可能な最大回数. */
@@ -373,24 +373,24 @@ public class BhConstants {
     
     /** タイムアウト. */
     public static class Timeout {
-      /** SSH 接続のタイムアウト時間. */
-      public static final int SSH_CONNECTION = 7;
-      /**  プロセスの終了完了待ちタイムアウト時間 (sec). */
-      public static final int PROC_END = 3;
-      /** BhRuntime への送信データ待ちタイムアウト (sec). */
-      public static final int SEND_DATA = 1;
-      /** リモートの BhRuntime の起動待ちのタイムアウト時間 (sec). */
-      public static final int REMOTE_START = 6;
-      /** リモートの BhRuntime との接続待ちのタイムアウト時間 (sec). */
-      public static final int REMOTE_CONNECT = 6;
-      /** リモートの BhRuntime との接続待ちのタイムアウト時間 (sec). */
-      public static final int HALT_TRANSCEIVER = 5;
-      /** リモートの BhRuntime 終了待ちのタイムアウト時間 (sec). */
-      public static final int REMOTE_TERMINATE = 6;
-      /** リモートの BhRuntime の起動待ちのタイムアウト時間 (sec). */
-      public static final int LOCAL_START = 5;
-      /** アプリケーション終了時にリモートの BhRuntime の終了処理を開始するまでの待ち時間 (sec). */
-      public static final int REMOTE_END_ON_EXIT = 3;
+      /** SSH 接続のタイムアウト時間. (ms) */
+      public static final int SSH_CONNECTION = 7000;
+      /**  プロセスの終了完了待ちタイムアウト時間 (ms). */
+      public static final int PROC_END = 3000;
+      /** BhRuntime への送信データ待ちタイムアウト (ms). */
+      public static final int SEND_DATA = 1000;
+      /** リモートの BhRuntime の起動待ちのタイムアウト時間 (ms). */
+      public static final int REMOTE_START = 6000;
+      /** リモートの BhRuntime との接続待ちのタイムアウト時間 (ms). */
+      public static final int REMOTE_CONNECT = 6000;
+      /** リモートの BhRuntime との接続待ちのタイムアウト時間 (ms). */
+      public static final int HALT_TRANSCEIVER = 5000;
+      /** リモートの BhRuntime 終了待ちのタイムアウト時間 (ms). */
+      public static final int REMOTE_TERMINATE = 6000;
+      /** リモートの BhRuntime の起動待ちのタイムアウト時間 (ms). */
+      public static final int LOCAL_START = 5000;
+      /** アプリケーション終了時にリモートの BhRuntime の終了処理を開始するまでの待ち時間 (ms). */
+      public static final int REMOTE_END_ON_EXIT = 3000;
     }
 
     public static final int MAX_REMOTE_CMD_QUEUE_SIZE = 2048;
