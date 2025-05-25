@@ -126,9 +126,10 @@ public class BhRuntimeTransceiver {
    * コマンド / レスポンスの送受信処理を終了する.
    * {@link #start} を呼んでいない場合は何もしない.
    *
+   * @param timeout トランシーバのタスクの終了を待つ時間 (ms).  0 を指定した場合, タスクの終了を待たない.
    * @return 正常に停止できた場合 true を返す.  送受信処理を開始していなかった場合も true を返す.
    */
-  public synchronized boolean halt() {
+  public synchronized boolean halt(int timeout) {
     if (futures == null) {
       return true;
     }
@@ -138,16 +139,20 @@ public class BhRuntimeTransceiver {
     for (Future<?> future : futures.toList()) {
       future.cancel(true);
     }
-    boolean success = waitForTasksCancelled(BhConstants.BhRuntime.Timeout.HALT_TRANSCEIVER);
-    if (!success) {
-      LogManager.logger().error("Failed to cancel tasks.".formatted());
+
+    boolean success = true;
+    timeout = Math.max(timeout, 0);
+    if (timeout > 0) {
+      success &= waitForTasksCancelled(timeout);
+      if (!success) {
+        LogManager.logger().error("Failed to cancel tasks.".formatted());
+      }
     }
     futures = null;
     return success;
   }
 
   private boolean waitForTasksCancelled(int timeout) {
-    timeout *= 1000;
     long begin = System.currentTimeMillis();
     while (true) {
       boolean allDone = endFlags.toList().stream().allMatch(AtomicBoolean::get);
@@ -261,7 +266,8 @@ public class BhRuntimeTransceiver {
       while (true) {
         BhProgramNotification notif = null;
         try {
-          notif = sendNotifList.poll(BhConstants.BhRuntime.Timeout.SEND_DATA, TimeUnit.SECONDS);
+          notif =
+              sendNotifList.poll(BhConstants.BhRuntime.Timeout.SEND_DATA, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
           break;
         }
@@ -304,7 +310,7 @@ public class BhRuntimeTransceiver {
       while (true) {
         BhProgramResponse resp = null;
         try {
-          resp = sendRespList.poll(BhConstants.BhRuntime.Timeout.SEND_DATA, TimeUnit.SECONDS);
+          resp = sendRespList.poll(BhConstants.BhRuntime.Timeout.SEND_DATA, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
           break;
         }

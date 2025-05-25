@@ -115,7 +115,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
           userInfo.getUname(), userInfo.getHost(), BhConstants.BhRuntime.SSH_PORT);
       session.setUserInfo(userInfo);
       session.setConfig("StrictHostKeyChecking", "no");
-      session.connect(BhConstants.BhRuntime.Timeout.SSH_CONNECTION * 1000);
+      session.connect(BhConstants.BhRuntime.Timeout.SSH_CONNECTION);
       return Optional.of(session);
     } catch (JSchException e) {
       msgService.error(TextDefs.BhRuntime.Communication.failedToEstablishConnection.get());
@@ -134,7 +134,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   private boolean execute(Session session, Path filePath) {
     msgService.info(TextDefs.BhRuntime.Remote.preparingToRun.get());
     try {
-      disconnectImpl();
+      disconnectImpl(0);
       String destPath = genCopyDestPath(session.getUserName()).orElseThrow();
       BhRuntimeFacade facade = prepareRemoteEnvironment(session, filePath, destPath).orElseThrow();
       var transceiver = new BhRuntimeTransceiver(facade);
@@ -155,7 +155,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       }
       throw new Exception();
     } catch (Exception e) {
-      disconnectImpl();
+      disconnectImpl(0);
       msgService.error(TextDefs.BhRuntime.Remote.failedToRun.get());
       LogManager.logger().error("Failed to run %s. (remote)".formatted(filePath.getFileName()));
     }
@@ -185,10 +185,10 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   private Optional<BhRuntimeFacade> startBhRuntime(Session session) {
     try {
       String startCmd = genStartCmd(session.getHost()).orElseThrow();
-      SshChannelAttr chAttr = execCmd(session, startCmd).orElseThrow();
+      CmdResultProvider provider = execCmd(session, startCmd).orElseThrow();
       Optional<BhRuntimeFacade> facade = getBhRuntimeFacade(
-          chAttr.inputStream(), session.getHost(), BhConstants.BhRuntime.Timeout.REMOTE_START);
-      chAttr.channel().disconnect();
+          provider.inputStream(), session.getHost(), BhConstants.BhRuntime.Timeout.REMOTE_START);
+      provider.channel().disconnect();
       return facade;
     } catch (Exception e) {
       return Optional.empty();
@@ -223,12 +223,12 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   private boolean terminate(Session session) {
     msgService.info(TextDefs.BhRuntime.Remote.preparingToEnd.get());
     try {
-      disconnectImpl();
+      disconnectImpl(0);
       String killCmd = genKillCmd().orElseThrow();
-      SshChannelAttr chAttr = execCmd(session, killCmd).orElseThrow();
+      CmdResultProvider provider = execCmd(session, killCmd).orElseThrow();
       Optional<Integer> status = waitForChannelClosed(
-          chAttr.channel(), BhConstants.BhRuntime.Timeout.REMOTE_TERMINATE);
-      chAttr.channel().disconnect();
+          provider.channel(), BhConstants.BhRuntime.Timeout.REMOTE_TERMINATE);
+      provider.channel().disconnect();
       int statusCode = status.orElseThrow();
       if (statusCode == 0) {
         msgService.info(TextDefs.BhRuntime.Remote.hasEnded.get());
@@ -253,7 +253,9 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     }
     msgService.info(TextDefs.BhRuntime.Remote.preparingToConnect.get());
     try {
-      disconnectImpl();
+      // 実行 -> 終了 (失敗) -> 接続 と操作したときに, 終了操作で停止したトランシーバが
+      // データを受信するのを避けるため, 接続時にトランシーバのタスク終了を待つ必要がある.
+      disconnectImpl(BhConstants.BhRuntime.Timeout.HALT_TRANSCEIVER);      
       var userInfo = new UserInfoImpl(hostname, uname, password, msgService);
       Session session = establishSshSession(userInfo).orElse(null);
       if (session != null) {
@@ -271,11 +273,11 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   private boolean connect(Session session) {
     try {
       String cmd = genGetRuntimePortCmd().orElseThrow();
-      SshChannelAttr chAttr = execCmd(session, cmd).orElseThrow();
+      CmdResultProvider provider = execCmd(session, cmd).orElseThrow();
       BhRuntimeFacade facade = getBhRuntimeFacade(
-          chAttr.inputStream(), session.getHost(), BhConstants.BhRuntime.Timeout.REMOTE_CONNECT)
+          provider.inputStream(), session.getHost(), BhConstants.BhRuntime.Timeout.REMOTE_CONNECT)
           .orElseThrow();
-      chAttr.channel().disconnect();
+      provider.channel().disconnect();
       var transceiver = new BhRuntimeTransceiver(facade);
       currentDestInfo = new DestinationInfo(
           session.getHost(),
@@ -291,7 +293,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       }
       throw new Exception();
     } catch (Exception e) {
-      disconnectImpl();
+      disconnectImpl(0);
       msgService.error(TextDefs.BhRuntime.Remote.failedToConnect.get());
       LogManager.logger().error("Failed to terminate BhRuntime. (remote)");
     }
@@ -304,7 +306,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       return false;
     }
     try {
-      boolean success = disconnectImpl();
+      boolean success = disconnectImpl(BhConstants.BhRuntime.Timeout.HALT_TRANSCEIVER);
       if (success) {
         msgService.info(TextDefs.BhRuntime.Remote.hasDisconnected.get());
       } else {
@@ -316,12 +318,16 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     }
   }
 
-  /** 現在接続中の BhRuntime から切断し, 接続先の情報を捨てる. */
-  private boolean disconnectImpl() {
+  /**
+   * 現在接続中の BhRuntime から切断し, 接続先の情報を捨てる.
+   *
+   * @param timeout トランシーバの終了処理のタイムアウト時間 (ms)
+   */
+  private boolean disconnectImpl(int timeout) {
     if (currentDestInfo == null) {
       return true;
     }
-    boolean success = currentDestInfo.transceiver().halt();
+    boolean success = currentDestInfo.transceiver().halt(timeout);
     currentDestInfo = null;
     return success;
   }
@@ -451,15 +457,15 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
    *
    * @param session SSH セッションオブジェクト
    * @param cmd 実行するコマンド
-   * @return コマンドを実行中のチャンネル.
+   * @return 実行したコマンドの結果を提供するオブジェクト.
    */
-  private Optional<SshChannelAttr> execCmd(Session session, String cmd) {
+  private Optional<CmdResultProvider> execCmd(Session session, String cmd) {
     try {
       ChannelExec channel = (ChannelExec) session.openChannel("exec");
-      var in = channel.getInputStream();
+      InputStream inputStream = channel.getInputStream();
       channel.setCommand(cmd);
-      channel.connect(BhConstants.BhRuntime.Timeout.SSH_CONNECTION * 1000);
-      return Optional.ofNullable(new SshChannelAttr(channel, in));
+      channel.connect(BhConstants.BhRuntime.Timeout.SSH_CONNECTION);
+      return Optional.ofNullable(new CmdResultProvider(channel, inputStream));
     } catch (IOException | JSchException e) {
       LogManager.logger().error("Failed to execute a cmd remotely (%s).\n%s".formatted(cmd, e));
     }
@@ -520,7 +526,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
         if (br.ready()) {
           br.read();
         }
-        if ((System.currentTimeMillis() - begin) > (timeout * 1000)) {
+        if ((System.currentTimeMillis() - begin) > timeout) {
           throw new Exception("timeout");
         }
       }
@@ -540,7 +546,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
    */
   public boolean end(boolean terminate, int timeout) {
     try {
-      if (!lock.tryLock(timeout, TimeUnit.SECONDS)) {
+      if (!lock.tryLock(timeout, TimeUnit.MILLISECONDS)) {
         return false;
       }
       if (!isProgramRunning()) {
@@ -552,7 +558,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
             currentDestInfo.uname(),
             currentDestInfo.password());
       }
-      return disconnectImpl();
+      return disconnectImpl(BhConstants.BhRuntime.Timeout.HALT_TRANSCEIVER);
     } catch (InterruptedException e) {
       return false;
     } finally {
@@ -585,6 +591,6 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   private record DestinationInfo(
       String hostname, String uname, String password, BhRuntimeTransceiver transceiver) {}
   
-  /** SSH チャネルとそれに付随する属性を格納したレコード. */
-  private record SshChannelAttr(Channel channel, InputStream inputStream) {}
+  /** SSH 越しに実行したコマンドの結果を提供するオブジェクトを格納したレコード. */
+  private record CmdResultProvider(Channel channel, InputStream inputStream) {}
 }

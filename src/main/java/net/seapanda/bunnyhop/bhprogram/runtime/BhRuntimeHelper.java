@@ -57,8 +57,8 @@ class BhRuntimeHelper {
   /**
    * 引数で指定したプロセスの終了処理を待つ.
    *
-   * @param process 終わらせるプロセスのオブジェクト (nullだめ)
-   * @param timeout 終了待ちタイムアウト時間 (sec)
+   * @param process 終わらせるプロセス (null 不可)
+   * @param timeout 終了待ちタイムアウト時間 (ms)
    * @return プロセスを正常に終了できた場合true.
    */
   static boolean killProcess(Process process, int timeout) {
@@ -84,7 +84,7 @@ class BhRuntimeHelper {
   private static boolean waitForProcessEnd(Process process, int timeout) {
     boolean success = true;
     try {
-      success = process.waitFor(timeout, TimeUnit.SECONDS);
+      success = process.waitFor(timeout, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       LogManager.logger().error("Failed to wait for the process to end.\n" + e);
@@ -95,7 +95,7 @@ class BhRuntimeHelper {
   /**
    * BhProgram が公開する RMI オブジェクトを取得する.
    *
-   * @param timeout タイムアウト (sec)
+   * @param timeout タイムアウト (ms)
    */
   static BhRuntimeFacade getBhRuntimeFacade(String hostname, BufferedReader br, int timeout)
       throws IOException,
@@ -136,14 +136,13 @@ class BhRuntimeHelper {
    *
    * @param br このオブジェクトからテキストを読み出す
    * @param suffix このサフィックスが付いた行を返す
-   * @param timeout 読み取りを試みる時間 (sec)
+   * @param timeout 読み取りを試みる時間 (ms)
    * @return 引数で指定したサフィックスが付いた1行からサフィックスを取り除いた文字列
    * @throws IOException 入出力エラーが発生した際の例外
    * @throws TimeoutException タイムアウトした際の例外
    */
   private static String getSuffixedLine(BufferedReader br, String suffix, long timeout)
       throws IOException, TimeoutException {
-    timeout *= 1000;
     String readStr = "";
     long begin = System.currentTimeMillis();
     List<Character> charCodeList = new ArrayList<>();

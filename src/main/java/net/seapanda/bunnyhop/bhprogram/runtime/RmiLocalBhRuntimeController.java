@@ -103,7 +103,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       return false;
     }
     msgService.info(TextDefs.BhRuntime.Local.preparingToEnd.get());
-    boolean success = discardTransceiver();
+    boolean success = discardTransceiver(0);
     if (process != null) {
       success &= BhRuntimeHelper.killProcess(process, BhConstants.BhRuntime.Timeout.PROC_END);
     }
@@ -169,12 +169,16 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
     return Optional.ofNullable(proc);
   }
 
-  /** {@link #transceiver} を破棄する. */
-  private boolean discardTransceiver() {
+  /**
+   * {@link #transceiver} を破棄する.
+   *
+   * @param timeout トランシーバの終了処理のタイムアウト時間 (ms)
+   */
+  private boolean discardTransceiver(int timeout) {
     if (transceiver == null) {
       return true;
     }
-    boolean success = transceiver.halt();
+    boolean success = transceiver.halt(timeout);
     transceiver = null;
     return success;
   }
