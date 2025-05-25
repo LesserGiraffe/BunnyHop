@@ -129,7 +129,7 @@ task runApp(type: Exec) {
 }
 
 task jlink(type: Exec) {
-  // dependsOn 'createJar'
+  dependsOn 'createJar'
 
   doFirst {
     // カスタムJRE作成
