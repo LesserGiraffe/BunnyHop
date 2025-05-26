@@ -32,6 +32,8 @@ let _textDb = {
       (cmd) => `ハードウェアの制御に失敗しました.  (command = ${cmd})`,
     invalidClampRange:
       (min, max) => `不正な数値の範囲 (= ${_str(min)} ~ ${_str(max)}) が指定されました.\n下限 ≦ 上限 を満たさなければなりません.`,
+    failedToGetBaselineColor:
+      () => 'カラーセンサーの基準値の取得に失敗しました.'
   },
   literal: {
     bool: {

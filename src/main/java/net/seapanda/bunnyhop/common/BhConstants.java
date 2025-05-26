@@ -47,7 +47,7 @@ public class BhConstants {
   /** システムのバージョン. */
   public static final SystemVersion SYS_VERSION;
   /** アプリケーションのバージョン. */
-  public static final AppVersion APP_VERSION = AppVersion.of("bh-0.7.0");
+  public static final AppVersion APP_VERSION = AppVersion.of("bh-0.7.1");
   /** セーブデータのバージョン. */
   public static final SaveDataVersion SAVE_DATA_VERSION = SaveDataVersion.of("bhsave-1.0.0");
   /** undo 可能な最大回数. */

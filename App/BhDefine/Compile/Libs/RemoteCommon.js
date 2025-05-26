@@ -97,7 +97,12 @@ function _getColor() {
   }
 }
 
-let _baseLineColor = _getColor();
+let _baseLineColor = _createColorFromName('black');
+try {
+  _baseLineColor = _getColor();
+} catch (e) {
+  _println(_textDb.errMsg.failedToGetBaselineColor());
+}
 
 function calcColorFeature(color) {
   let calibrated = new _Color(

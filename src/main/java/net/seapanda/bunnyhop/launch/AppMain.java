@@ -313,15 +313,15 @@ public class AppMain extends Application {
       RmiRemoteBhRuntimeController remoteCtrl,
       BhMessageService msgService,
       Supplier<Boolean> fnIsProgramRunning,
-      Supplier<Boolean> fnCheckIfProjectIsDirty,
+      Supplier<Boolean> fnIsProjectDirty,
       Supplier<Boolean> fnSave) {
-    MutableBoolean killRemoteProcess = new MutableBoolean(true);
+    MutableBoolean killRemoteProcess = new MutableBoolean(false);
     stage.setOnCloseRequest(event -> onCloseRequest(
         event,
         killRemoteProcess,
         msgService,
         fnIsProgramRunning,
-        fnCheckIfProjectIsDirty,
+        fnIsProjectDirty,
         fnSave));
     stage.showingProperty().addListener((observable, oldValue, newValue) -> terminate(
         localCtrl,
@@ -338,43 +338,57 @@ public class AppMain extends Application {
       MutableBoolean teminate,
       MessageService msgService, 
       Supplier<Boolean> fnIsProgramRunning,
-      Supplier<Boolean> fnCheckIfProjectIsDirty,
+      Supplier<Boolean> fnIsProjectDirty,
       Supplier<Boolean> fnSave) {
-    teminate.setTrue();
-    switch (askIfStopProgram(msgService, fnIsProgramRunning)) {
-      case NO -> teminate.setFalse();
-      case CANCEL -> event.consume();
+    switch (askIfSaveProject(msgService, fnIsProjectDirty)) {
+      case YES -> fnSave.get();
+      case CANCEL -> {
+        event.consume();
+        return;
+      }
       default -> { }
     }
-    if (!fnCheckIfProjectIsDirty.get()) {
-      return;
-    }
-    if (!askIfSaveProject(msgService, fnSave)) {
-      event.consume();
-    }
+
+    switch (askIfStopProgram(msgService, fnIsProgramRunning)) {
+      case YES -> teminate.setTrue(); 
+      case CANCEL -> {
+        event.consume();
+        return;
+      }
+      default -> { }
+    }    
   }
 
   /**
-   * アプリ終了の確認を行う.
+   * プロジェクトを保存するかどうかを訪ねる.
+   * プロジェクトがダーティでないない場合は何も尋ねない.
    *
-   * @return アプリの終了を許可する場合 true を返す.
+   * @retval YES プログラムを止める
+   * @retval NO プログラムを止めない
+   * @retval CANCEL キャンセルを選択
+   * @retval NONE_OF_THEM 何も尋ねなかった場合
    */
-  public boolean askIfSaveProject(MessageService messageService, Supplier<Boolean> fnSave) {
-    Optional<ButtonType> buttonType = messageService.alert(
+  public ExclusiveSelection askIfSaveProject(
+      MessageService messageService, Supplier<Boolean> fnIsProjectDirty) {
+    if (!fnIsProjectDirty.get()) {
+      return ExclusiveSelection.NONE_OF_THEM;
+    }
+    Optional<ButtonType> selected = messageService.alert(
         Alert.AlertType.CONFIRMATION,
         TextDefs.Export.AskIfSave.title.get(),
         null,
         TextDefs.Export.AskIfSave.body.get(),
         ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
-
-    return buttonType
-      .map(btnType -> {
-        if (btnType.equals(ButtonType.YES)) {
-          return fnSave.get();
-        }
-        return btnType.equals(ButtonType.NO);
-      })
-      .orElse(false);
+    
+    return selected.map(btnType -> {
+      if (btnType.equals(ButtonType.YES)) {
+        return ExclusiveSelection.YES;
+      } else if (btnType.equals(ButtonType.NO)) {
+        return ExclusiveSelection.NO;
+      } else {
+        return ExclusiveSelection.CANCEL;
+      }
+    }).orElse(ExclusiveSelection.NONE_OF_THEM);
   }
 
   /** BunnyHop の終了処理. */
@@ -469,24 +483,24 @@ public class AppMain extends Application {
    */
   public ExclusiveSelection askIfStopProgram(
       MessageService msgService, Supplier<Boolean> fnIsProgramRunning) {
-    if (fnIsProgramRunning.get()) {
-      Optional<ButtonType> selected = msgService.alert(
-          AlertType.CONFIRMATION,
-          TextDefs.BhRuntime.Remote.AskIfStop.title.get(),
-          null,
-          TextDefs.BhRuntime.Remote.AskIfStop.body.get(),
-          ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
-
-      return selected.map((btnType) -> {
-        if (btnType.equals(ButtonType.YES)) {
-          return ExclusiveSelection.YES;
-        } else if (btnType.equals(ButtonType.NO)) {
-          return ExclusiveSelection.NO;
-        } else {
-          return ExclusiveSelection.CANCEL;
-        }
-      }).orElse(ExclusiveSelection.YES);
+    if (!fnIsProgramRunning.get()) {
+      return ExclusiveSelection.NONE_OF_THEM;
     }
-    return ExclusiveSelection.NONE_OF_THEM;
+    Optional<ButtonType> selected = msgService.alert(
+        AlertType.CONFIRMATION,
+        TextDefs.BhRuntime.Remote.AskIfStop.title.get(),
+        null,
+        TextDefs.BhRuntime.Remote.AskIfStop.body.get(),
+        ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+
+    return selected.map((btnType) -> {
+      if (btnType.equals(ButtonType.YES)) {
+        return ExclusiveSelection.YES;
+      } else if (btnType.equals(ButtonType.NO)) {
+        return ExclusiveSelection.NO;
+      } else {
+        return ExclusiveSelection.CANCEL;
+      }
+    }).orElse(ExclusiveSelection.NONE_OF_THEM);
   }  
 }
