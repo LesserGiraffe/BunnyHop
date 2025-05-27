@@ -1,6 +1,4 @@
 .controlType {
-  //-fx-fill: derive(controlTypeCol, -10% );
-  //-fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, controlTypeCol 50%, derive(controlTypeCol, 40%) 0em);
   -fx-fill: controlTypeCol1;
 }
 

@@ -1,5 +1,5 @@
 .concurrentType {
-  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, concurrentTypeCol 50%, derive(concurrentTypeCol, 45%) 0mm);
+  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, concurrentTypeCol 50%, derive(concurrentTypeCol, 25%) 0mm);
 }
 
 .concurrentType:isEven {
@@ -7,9 +7,9 @@
 }
 
 .keyPressedEventType {
-    -fx-fill: linear-gradient(from 0em 0em to 0em 3.2em, concurrentTypeCol 99%, #f0f0f0 0em);
+  -fx-fill: linear-gradient(from 0em 0em to 0em 3.2em, concurrentTypeCol 99%, #f0f0f0 0em);
 }
 
 .delayedStartEventType {
-    -fx-fill: linear-gradient(from 0em 0em to 0em 4.0em, concurrentTypeCol 99%, #f0f0f0 0em);
+  -fx-fill: linear-gradient(from 0em 0em to 0em 4.0em, concurrentTypeCol 99%, #f0f0f0 0em);
 }
