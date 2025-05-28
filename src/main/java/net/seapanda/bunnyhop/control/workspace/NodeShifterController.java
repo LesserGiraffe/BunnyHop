@@ -29,7 +29,6 @@ import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.workspace.NodeShifterView;
-import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
  * 複数ノードを同時に移動させるノードシフタのコントローラ.
@@ -63,12 +62,11 @@ public class NodeShifterController {
     view.setOnMouseDragged(mouseEvent -> onMouseDragged(mouseEvent));
     view.setOnMouseReleased(mouseEvent -> onMouseReleased(mouseEvent));
     view.addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
-    WorkspaceView wsView = ws.getViewProxy().getView();
-    if (wsView != null) {
-      ws.getEventManager().addOnNodeSelectionStateChanged(
-          (node, isSelected, userOpe) -> notifyNodeSelectionStateChanged(node));
+    ws.getView().ifPresent(wsView -> {
+      ws.getEventManager().addOnNodeSelectionStateChanged((node, isSelected, userOpe) ->
+          node.getView().ifPresent(this::notifyNodeSelectionStateChanged));
       wsView.getEventManager().addOnNodeMoved((nodeView, pos) -> notifyNodeMoved(nodeView));
-    }
+    });
   }
 
   /**
@@ -90,7 +88,7 @@ public class NodeShifterController {
       ddInfo.mousePressedPos = new Vec2D(pos.getX(), pos.getY());
       view.toFront();
       view.getLinkedNodes().forEach(
-          node -> ddInfo.nodeToOrgPos.put(node, node.getViewProxy().getPosOnWorkspace()));
+          view -> ddInfo.viewToOrgPos.put(view, view.getPositionManager().getPosOnWorkspace()));
       ddInfo.dragging = true;
       event.consume();
     } catch (Throwable e) {
@@ -119,7 +117,7 @@ public class NodeShifterController {
         view.move(new Vec2D(diffX, diffY), wsSize, true);
       } else {
         Vec2D distance = view.move(new Vec2D(diffX, diffY), wsSize, false);
-        view.getLinkedNodes().forEach(node -> node.getViewProxy().move(distance));
+        view.getLinkedNodes().forEach(nodeView -> nodeView.getPositionManager().move(distance));
       }
       event.consume();
     } catch (Throwable e) {
@@ -140,7 +138,7 @@ public class NodeShifterController {
     try {
       view.switchPseudoClassActivation(false, BhConstants.Css.PSEUDO_SELECTED);
       event.consume();
-      ddInfo.nodeToOrgPos.forEach(ddInfo.context.userOpe()::pushCmdOfSetNodePos);
+      ddInfo.viewToOrgPos.forEach(ddInfo.context.userOpe()::pushCmdOfSetNodePos);
     } finally {
       event.consume();
       terminateDnd();
@@ -164,7 +162,7 @@ public class NodeShifterController {
     if (nodeView == null || nodeView.getModel().isEmpty()) {
       return;
     }
-    updateNodeShifter(nodeView.getModel().get());
+    updateNodeShifter(nodeView);
   }
 
   /**
@@ -172,29 +170,30 @@ public class NodeShifterController {
    *
    * @param node 位置が変更されたノード
    */
-  private void notifyNodeSelectionStateChanged(BhNode node) {
-    updateNodeShifter(node);
+  private void notifyNodeSelectionStateChanged(BhNodeView nodeView) {
+    updateNodeShifter(nodeView);
   }
 
   /** ノードシフタの表示を更新する. */
-  private void updateNodeShifter(BhNode node) {
+  private void updateNodeShifter(BhNodeView nodeView) {
+    BhNode node = nodeView.getModel().orElse(null);
     if (node != null
         && node.getWorkspace() == ws
         && node.isRoot()
         && node.isSelected()) {
-      if (view.isLinkedWith(node)) {
+      if (view.isLinkedWith(nodeView)) {
         if (ddInfo.dragging) {
-          view.updateLinkPos(node);
+          view.updateLinkPos(nodeView);
         } else {
           // undo 時にノードシフタの位置を更新する
           view.updateShifterAndAllLinkPositions();
         }
       } else {
-        view.createLink(node);
+        view.createLink(nodeView);
       }
       return;
     }
-    view.deleteLink(node);
+    view.deleteLink(nodeView);
   }
 
   /** D&D を終えたときの処理. */
@@ -207,7 +206,7 @@ public class NodeShifterController {
   private class DndEventInfo {
     private Vec2D mousePressedPos = null;
     /** ノードとノードシフタで移動させる前の位置のマップ. */
-    private final Map<BhNode, Vec2D> nodeToOrgPos = new HashMap<>();
+    private final Map<BhNodeView, Vec2D> viewToOrgPos = new HashMap<>();
     /** ドラッグ中のとき true. */
     private boolean dragging = false;
     /** モデルの操作に伴うコンテキスト. */
@@ -218,7 +217,7 @@ public class NodeShifterController {
     /** D&Dイベント情報を初期化する. */
     private void reset() {
       mousePressedPos = null;
-      nodeToOrgPos.clear();
+      viewToOrgPos.clear();
       dragging = false;
       context = null;
       isDndFinished = true;

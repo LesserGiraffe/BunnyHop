@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.control.node;
 
 import java.util.Objects;
+import java.util.Optional;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.control.MouseCtrlLock;
@@ -30,7 +31,7 @@ import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
-import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 
 /**
  * ノード選択リストにあるノードのコントローラ.
@@ -77,7 +78,8 @@ public class TemplateNodeController implements BhNodeController {
     this.notifService = service;
     this.wss = wss;
     this.nodeSelectionViewProxy = proxy;
-    model.setViewProxy(new BhNodeViewProxyImpl(view, true));
+    model.setView(view);
+    view.setController(this);
     setEventHandlers();
   }
 
@@ -112,7 +114,7 @@ public class TemplateNodeController implements BhNodeController {
       ddInfo.isDndFinished = false;
       Vec2D posOnWs = calcClickPosOnWs(event, currentWs);
       BhNodePlacer.moveToWs(currentWs, newNode, posOnWs.x, posOnWs.y, context.userOpe());
-      ddInfo.currentView.getEventManager().propagateEvent(event);
+      ddInfo.currentView.getEventManager().dispatch(event);
       nodeSelectionViewProxy.hideAll();
     } catch (Throwable e) {
       terminateDnd();
@@ -128,7 +130,7 @@ public class TemplateNodeController implements BhNodeController {
       if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
         return;
       }
-      ddInfo.currentView.getEventManager().propagateEvent(event);
+      ddInfo.currentView.getEventManager().dispatch(event);
     } catch (Throwable e) {
       terminateDnd();
       throw e;
@@ -143,7 +145,7 @@ public class TemplateNodeController implements BhNodeController {
       if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
         return;
       }
-      ddInfo.currentView.getEventManager().propagateEvent(event);
+      ddInfo.currentView.getEventManager().dispatch(event);
     } catch (Throwable e) {
       terminateDnd();
       throw e;
@@ -161,7 +163,7 @@ public class TemplateNodeController implements BhNodeController {
     }
 
     try {
-      ddInfo.currentView.getEventManager().propagateEvent(event);
+      ddInfo.currentView.getEventManager().dispatch(event);
     } finally {
       event.consume();
       terminateDnd();
@@ -174,7 +176,9 @@ public class TemplateNodeController implements BhNodeController {
     Vec2D posOnRootView = calcRelativePosFromRoot();
     posOnRootView.add(event.getX(), event.getY());
     var posOnScene = new Vec2D(event.getSceneX(), event.getSceneY());
-    Vec2D posOnWs = currentWs.getViewProxy().sceneToWorkspace(posOnScene);
+    Vec2D posOnWs = currentWs.getView()
+        .map(wsv -> wsv.sceneToWorkspace(posOnScene))
+        .orElse(new Vec2D());
     posOnWs.sub(posOnRootView);
     return posOnWs;
   }
@@ -194,10 +198,9 @@ public class TemplateNodeController implements BhNodeController {
 
   /** {@link #view} と {@code newNode} のノードビューを入れ替える. */
   private void replaceView(BhNode newNode) {
-    if (newNode != null) {
-      BhNodeView newNodeView = newNode.getViewProxy().getView();
-      view.getTreeManager().replace(newNodeView);
-    }
+    Optional.ofNullable(newNode)
+        .flatMap(BhNode::getView)
+        .ifPresent(view.getTreeManager()::replace);
   }
 
   /** D&D を終えたときの処理. */

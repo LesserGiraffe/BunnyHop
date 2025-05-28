@@ -32,6 +32,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.traverse.NodeImageBuilder;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
  * プロジェクト JSON 形式で保存する機能を提供するクラス.
@@ -63,8 +64,7 @@ public class JsonProjectWriter {
     Collection<BhNodeImage> nodeImages = workspace.getRootNodes().stream()
         .map(root -> NodeImageBuilder.build(root))
         .toList();
-    Vec2D size = workspace.getViewProxy().getViewSize();
-    size = (size == null) ? new Vec2D(0, 0) : size;
+    Vec2D size = workspace.getView().map(WorkspaceView::getSize).orElse(new Vec2D());
     return new WorkspaceImage(workspace.getName(), size, nodeImages);
   }
 }

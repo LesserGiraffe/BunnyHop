@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.model.node;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
@@ -33,7 +32,6 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.view.proxy.BhNodeViewProxy;
 
 /**
  * 子ノードと接続されるノード.
@@ -43,8 +41,6 @@ import net.seapanda.bunnyhop.view.proxy.BhNodeViewProxy;
 public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
 
   private Section childSection;
-  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクト. */
-  private transient BhNodeViewProxy viewProxy = new BhNodeViewProxy() {};
   /** このノードに登録されたイベントハンドラを管理するオブジェクト. */
   private transient EventManager eventManager = new EventManager();
 
@@ -133,11 +129,6 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
     return childSection.findConnector(id);
   }
 
-  @Override
-  public void setViewProxy(BhNodeViewProxy viewProxy) {
-    Objects.requireNonNull(viewProxy);
-    this.viewProxy = viewProxy;
-  }
 
   @Override
   public void findDescendantOf(
@@ -169,11 +160,6 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
       return node;
     }
     throw new AssertionError("derivative type inconsistency");
-  }
-
-  @Override
-  public BhNodeViewProxy getViewProxy() {
-    return viewProxy;
   }
 
   @Override

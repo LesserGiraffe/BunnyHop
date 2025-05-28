@@ -92,10 +92,10 @@
       return;
     } else if (toBeReplced === null || !canConnect(toBeReplced.getParentConnector(), node)) {
       // 接続先が無い場合は, ワークスペースへ
-      let posOnWS = node.getViewProxy().getPosOnWorkspace()      
+      let posOnWS = getPosOnWorkspace(node) ?? {x: 0, y: 0};
       bhNodePlacer.moveToWs(node.getWorkspace(), node, posOnWS.x, posOnWS.y, userOpe);
     } else {
-      let posOnWS = node.getViewProxy().getPosOnWorkspace()
+      let posOnWS = getPosOnWorkspace(node) ?? {x: 0, y: 0};
       bhNodePlacer.moveToWs(node.getWorkspace(), node, posOnWS.x, posOnWS.y, userOpe);
       bhNodePlacer.exchangeNodes(node, toBeReplced, userOpe);
       if (notToReconnect.indexOf(String(toBeReplced.getSymbolName())) >= 0) {
@@ -124,6 +124,11 @@
       return false;
     }
     return cnctr.isConnectableWith(node);
+  }
+
+  /** node のワークスペース上の位置を返す. node がビューを持たない場合は null  */
+  function getPosOnWorkspace(node) {
+    return node.getView().map(view => view.getPositionManager().getPosOnWorkspace()).orElse(null);
   }
 
   /**
@@ -217,5 +222,6 @@
   bhCommon['changeDefaultNode'] = changeDefaultNode;
   bhCommon['findOuterNotSelected'] = findOuterNotSelected;
   bhCommon['findNodeWhoseParentIsNotSelected'] = findNodeWhoseParentIsNotSelected;
+  bhCommon['getPosOnWorkspace'] = getPosOnWorkspace;
   return bhCommon;
 })();

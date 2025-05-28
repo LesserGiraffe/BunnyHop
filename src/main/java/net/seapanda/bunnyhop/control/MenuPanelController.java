@@ -61,7 +61,8 @@ import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
-import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 
 /**
  * 画面上部のボタンのコントローラクラス.
@@ -255,10 +256,10 @@ public class MenuPanelController {
       javafx.geometry.Point2D pos =
           workspaceSetTab.localToScene(0, workspaceSetTab.getHeight() / 3.0);
       var posOnScene = new Vec2D(pos.getX(), pos.getY());
-      Vec2D localPos = currentWs.getViewProxy().sceneToWorkspace(posOnScene);
-      double pastePosX = localPos.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
-      double pastePosY = localPos.y;
-      Vec2D pastePos = new Vec2D(pastePosX, pastePosY);
+      Vec2D pastePos =
+          currentWs.getView().map(wsv -> wsv.sceneToWorkspace(posOnScene))
+          .orElse(new Vec2D());
+      pastePos.add(BhConstants.LnF.REPLACED_NODE_SHIFT * 2, 0);
       copyAndPaste.paste(currentWs, pastePos, context.userOpe());
       cutAndPaste.paste(currentWs, pastePos, context.userOpe());
     } finally {
@@ -297,7 +298,9 @@ public class MenuPanelController {
     Context context = notifService.begin();
     try {
       findNodeToJumpTo(wss).ifPresent(node -> {
-        node.getViewProxy().lookAt();
+        node.getView()
+            .map(BhNodeView::getWorkspaceView)
+            .ifPresent(wsv -> wsv.lookAt(node.getView().get()));
         node.getWorkspace().getSelectedNodes().forEach(
             selected -> selected.deselect(context.userOpe()));
         node.select(context.userOpe());
@@ -335,11 +338,9 @@ public class MenuPanelController {
         proxy.zoom(true);
         return;
       }
-      Workspace currentWs = wss.getCurrentWorkspace();
-      if (currentWs == null) {
-        return;
-      }
-      currentWs.getViewProxy().zoom(true);
+      Optional.ofNullable(wss.getCurrentWorkspace())
+          .flatMap(Workspace::getView)
+          .ifPresent(wsv -> wsv.zoom(true));
     } finally {
       notifService.end();
     }
@@ -353,11 +354,9 @@ public class MenuPanelController {
         proxy.zoom(false);
         return;
       }
-      Workspace currentWs = wss.getCurrentWorkspace();
-      if (currentWs == null) {
-        return;
-      }
-      currentWs.getViewProxy().zoom(false);
+      Optional.ofNullable(wss.getCurrentWorkspace())
+          .flatMap(Workspace::getView)
+          .ifPresent(wsv -> wsv.zoom(false));
     } finally {
       notifService.end();
     }
@@ -367,11 +366,9 @@ public class MenuPanelController {
   private void widen(WorkspaceSet wss) {
     notifService.begin();
     try {
-      Workspace currentWs = wss.getCurrentWorkspace();
-      if (currentWs == null) {
-        return;
-      }
-      currentWs.getViewProxy().changeViewSize(true);
+      Optional.ofNullable(wss.getCurrentWorkspace())
+          .flatMap(Workspace::getView)
+          .ifPresent(wsv -> wsv.changeViewSize(true));
     } finally {
       notifService.end();
     }
@@ -381,11 +378,9 @@ public class MenuPanelController {
   private void narrow(WorkspaceSet wss) {
     notifService.begin();
     try {
-      Workspace currentWs = wss.getCurrentWorkspace();
-      if (currentWs == null) {
-        return;
-      }
-      currentWs.getViewProxy().changeViewSize(false);
+      Optional.ofNullable(wss.getCurrentWorkspace())
+          .flatMap(Workspace::getView)
+          .ifPresent(wsv -> wsv.changeViewSize(false));
     } finally {
       notifService.end();
     }

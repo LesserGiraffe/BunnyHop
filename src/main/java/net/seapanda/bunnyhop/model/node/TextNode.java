@@ -19,7 +19,6 @@ package net.seapanda.bunnyhop.model.node;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.SequencedSet;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
@@ -33,7 +32,6 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.view.proxy.BhNodeViewProxy;
 import org.apache.commons.lang3.function.TriConsumer;
 
 /**
@@ -44,8 +42,6 @@ import org.apache.commons.lang3.function.TriConsumer;
 public class TextNode extends DerivativeBase<TextNode> {
 
   private String text = "";
-  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクト. */
-  private transient BhNodeViewProxy viewProxy = new BhNodeViewProxy() {};
   /** このノードに登録されたイベントハンドラを管理するオブジェクト. */
   private transient TextEventManager eventManager = new TextEventManager();
 
@@ -79,13 +75,6 @@ public class TextNode extends DerivativeBase<TextNode> {
     super(org, userOpe);
     text = org.text;
   }
-
-  @Override
-  public void setViewProxy(BhNodeViewProxy viewProxy) {
-    Objects.requireNonNull(viewProxy);
-    this.viewProxy = viewProxy;
-  }
-
 
   @Override
   public TextNode copy(
@@ -210,11 +199,6 @@ public class TextNode extends DerivativeBase<TextNode> {
     TextNode derivative = (TextNode) node;
     addDerivative(derivative, userOpe);
     return derivative;
-  }
-
-  @Override
-  public BhNodeViewProxy getViewProxy() {
-    return viewProxy;
   }
 
   @Override

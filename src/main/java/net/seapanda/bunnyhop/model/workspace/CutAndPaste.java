@@ -125,7 +125,9 @@ public class CutAndPaste {
           pasteBasePos.x,
           pasteBasePos.y + pastePosOffsetCount.getValue() * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
           userOpe);
-      Vec2D size = node.getViewProxy().getSizeIncludingOuters(true);
+      Vec2D size = node.getView()
+          .map(view -> view.getRegionManager().getNodeTreeSize(true))
+          .orElse(new Vec2D());
       pasteBasePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
       execHookOnPaste(node, swappedNodes, userOpe);
     }

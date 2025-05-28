@@ -46,8 +46,8 @@ import net.seapanda.bunnyhop.service.KeyCodeConverter;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeShowcaseBuilder;
-import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 
 /**
  * GUIの基底部分のコントローラ.

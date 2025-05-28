@@ -5,7 +5,7 @@
   if (bhCommon.isPrimitiveTypeExp(bhReplacedNewNode)) {
 
     // 新文字列リンクノード作成
-    let posOnWS = bhThis.getViewProxy().getPosOnWorkspace()
+    let posOnWS = bhCommon.getPosOnWorkspace(bhThis) ?? {x: 0, y: 0};
     let newStrChainLinkExp = bhCommon.addNewNodeToWS(
       bhThis.getId(), bhThis.getWorkspace(), posOnWS, bhUserOpe);
     bhNodePlacer.exchangeNodes(nextStrChainLinkExp, newStrChainLinkExp, bhUserOpe);

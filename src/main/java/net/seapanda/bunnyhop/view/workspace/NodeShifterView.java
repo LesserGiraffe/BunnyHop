@@ -35,22 +35,22 @@ import javafx.scene.shape.Polygon;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhConstants.LnF;
 import net.seapanda.bunnyhop.common.Rem;
-import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.ViewUtil;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.BhNodeView.RegionManager.BodyRange;
 
 /**
- * 複数ノードを同時に移動させるノードシフタのビュー.
+ * ノードシフタ (複数のノードを同時に移動させるためのマニピュレータ) のビュー.
  *
  * @author K.Koike
  */
 public class NodeShifterView extends Pane {
 
-  /** ノードシフタが操作するノードとリンクのマップ.  */
-  private ObservableMap<BhNode, Line> nodeToLink =
-      FXCollections.observableMap(new HashMap<BhNode, Line>());
+  /** ノードシフタが操作するノードビューとリンクのマップ.  */
+  private ObservableMap<BhNodeView, Line> viewToLink =
+      FXCollections.observableMap(new HashMap<BhNodeView, Line>());
   @FXML private Pane shifterBase;
   @FXML private Circle shifterCircle;
   @FXML private Polygon shifterArrow;
@@ -75,7 +75,7 @@ public class NodeShifterView extends Pane {
     setPickOnBounds(false);
     shifterBase.setPickOnBounds(false);
     shifterArrow.setMouseTransparent(true);
-    nodeToLink.addListener((MapChangeListener<BhNode, Line>) (change -> {
+    viewToLink.addListener((MapChangeListener<BhNodeView, Line>) (change -> {
       if (change.getMap().size() >= 2) {
         setVisible(true);
         toFront();
@@ -88,15 +88,18 @@ public class NodeShifterView extends Pane {
   /**
    * 新しくリンクを作ってリンクとノードシフタの位置の更新を行う.
    *
-   * @param node 新しくマニピュレータとリンクするノード.
+   * @param view 新しくマニピュレータとリンクするノードビュー.
    *             既にリンクがあるノードは, リンクとノードシフタの位置の更新だけ行う.
    */
-  public void createLink(BhNode node) {
-    if (!nodeToLink.containsKey(node)) {
+  public void createLink(BhNodeView view) {
+    if (view == null) {
+      return;
+    }
+    if (!viewToLink.containsKey(view)) {
       var newLink = new Line(0.0, 0.0, 0.0, 0.0);
       newLink.getStyleClass().add(BhConstants.Css.CLASS_NODE_SHIFTER_LINK);
       newLink.setStrokeDashOffset(1.0);
-      nodeToLink.put(node, newLink);
+      viewToLink.put(view, newLink);
       getChildren().add(newLink);
       shifterBase.toFront();
     }
@@ -106,12 +109,12 @@ public class NodeShifterView extends Pane {
   /**
    * リンクを削除する.
    *
-   * @param node ノードシフタとのリンクを消すノード.
-   *             マニピュレータとリンクしていないノードを指定した場合, 何もしない.
+   * @param view ノードシフタとのリンクを消すノードビュー.
+   *             マニピュレータとリンクしていないノードビューを指定した場合, 何もしない.
    */
-  public void deleteLink(BhNode node) {
+  public void deleteLink(BhNodeView view) {
 
-    Line link = nodeToLink.remove(node);
+    Line link = viewToLink.remove(view);
     if (link != null) {
       getChildren().remove(link);
       updateShifterAndAllLinkPositions();
@@ -121,13 +124,13 @@ public class NodeShifterView extends Pane {
   /**
    * リンクの位置を更新する.
    *
-   * @param node このノードと繋がるリンクの位置を更新する.
-   *             マニピュレータとリンクしていないノードを指定した場合, 何もしない.
+   * @param view このノードビューと繋がるリンクの位置を更新する.
+   *             マニピュレータとリンクしていないノードビューを指定した場合, 何もしない.
    */
-  public void updateLinkPos(BhNode node) {
-    Line link = nodeToLink.get(node);
+  public void updateLinkPos(BhNodeView view) {
+    Line link = viewToLink.get(view);
     if (link != null) {
-      Point2D linkPos = calcLinkPosForNode(node);
+      Point2D linkPos = calcLinkPosFor(view);
       Point2D newPos = parentToLocal(linkPos);
       link.setEndX(newPos.getX());
       link.setEndY(newPos.getY());
@@ -137,35 +140,35 @@ public class NodeShifterView extends Pane {
 
   /** シフタと全リンクの位置を更新する. */
   public void updateShifterAndAllLinkPositions() {
-    if (nodeToLink.size() == 0) {
+    if (viewToLink.size() == 0) {
       return;
     }
     //ノードシフタの新しい位置を計算する
     double shifterX = 0.0;
     double shifterY = 0.0;
-    for (BhNode node : nodeToLink.keySet()) {
-      Point2D linkPos = calcLinkPosForNode(node);
+    for (BhNodeView view : viewToLink.keySet()) {
+      Point2D linkPos = calcLinkPosFor(view);
       shifterX += linkPos.getX();
       shifterY += linkPos.getY();
     }
-    shifterX = shifterX / nodeToLink.size() - shifterCircle.getRadius();
-    shifterY = shifterY / nodeToLink.size() - shifterCircle.getRadius();
+    shifterX = shifterX / viewToLink.size() - shifterCircle.getRadius();
+    shifterY = shifterY / viewToLink.size() - shifterCircle.getRadius();
     setPosOnWorkspace(shifterX, shifterY);
 
-    for (BhNode node : nodeToLink.keySet()) {
-      updateLinkPos(node);
+    for (BhNodeView view : viewToLink.keySet()) {
+      updateLinkPos(view);
     }
   }
 
   /**
-   * ノード側のリンクの端点位置を計算する.
+   * ノードビュー側のリンクの端点位置を計算する.
    *
-   * @param node このノードに繋がるリンクの端点位置を計算する
+   * @param view このノードビューに繋がるリンクの端点位置を計算する
    * @return リンクの端点位置
    */
-  private Point2D calcLinkPosForNode(BhNode node) {
+  private Point2D calcLinkPosFor(BhNodeView view) {
     final double yOffset = 0.5 * Rem.VAL;
-    BodyRange bodyRange = node.getViewProxy().getView().getRegionManager().getBodyRange();
+    BodyRange bodyRange = view.getRegionManager().getBodyRange();
     double linkPosX = (bodyRange.upperLeft().x + bodyRange.lowerRight().x) / 2;
     double linkPosY = bodyRange.upperLeft().y + yOffset;
     return new Point2D(linkPosX, linkPosY);
@@ -209,13 +212,13 @@ public class NodeShifterView extends Pane {
   }
 
   /**
-   * 引数のノードがノードシフタとリンクしているノードがどうか調べる.
+   * 引数のノードビューがノードシフタとリンクしているかどうか調べる.
    *
-   * @param node ノードシフタとリンクしているか調べるノード
-   * @return 引数のノードがノードシフタとリンクしているならtrue.
+   * @param view ノードシフタとリンクしているか調べるノードビュー
+   * @return {@code view} がノードシフタとリンクしている場合 true.
    */
-  public boolean isLinkedWith(BhNode node) {
-    return nodeToLink.containsKey(node);
+  public boolean isLinkedWith(BhNodeView view) {
+    return viewToLink.containsKey(view);
   }
 
   /**
@@ -230,8 +233,8 @@ public class NodeShifterView extends Pane {
     Vec2D distance = ViewUtil.distance(diff, wsSize, getPosOnWorkspace());
     setPosOnWorkspace(getTranslateX() + distance.x, getTranslateY() + distance.y);
     if (moveLink) {
-      for (BhNode node : nodeToLink.keySet()) {
-        updateLinkPos(node);
+      for (BhNodeView view : viewToLink.keySet()) {
+        updateLinkPos(view);
       }
     }
     return distance;
@@ -249,12 +252,12 @@ public class NodeShifterView extends Pane {
   }
 
   /**
-   * 現在リンクしているノードのリストを取得する.
+   * 現在リンクしているノードビューのリストを取得する.
    *
-   * @return 現在リンクしているノードのリスト
+   * @return 現在リンクしているノードビューのリスト
    */
-  public List<BhNode> getLinkedNodes() {
-    return new ArrayList<>(nodeToLink.keySet());
+  public List<BhNodeView> getLinkedNodes() {
+    return new ArrayList<>(viewToLink.keySet());
   }
 
   /** ノードシフタの形を作る. */
@@ -304,13 +307,13 @@ public class NodeShifterView extends Pane {
       shifterBase.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true);
       shifterCircle.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true);
       shifterArrow.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true);
-      nodeToLink.values().forEach(
+      viewToLink.values().forEach(
           link -> link.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true));
     } else {
       shifterBase.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), false);
       shifterCircle.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), false);
       shifterArrow.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), false);
-      nodeToLink.values().forEach(
+      viewToLink.values().forEach(
           link -> link.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), false));
     }
   }

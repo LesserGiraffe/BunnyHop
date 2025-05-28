@@ -65,8 +65,7 @@ public class BhProgramMessageProcessorImpl implements BhProgramMessageProcessor{
   @Override
   public void process(BhProgramException exception) {
     String cause = (exception.getCause() == null) ? "" : exception.getCause().getMessage();
-    LogManager.logger().error(
-        "%s\n%s".formatted(exception.getMessage(), cause));
+    LogManager.logger().error("%s\n%s".formatted(exception.getMessage(), cause));
     receiver.receive(exception);
   }
 }

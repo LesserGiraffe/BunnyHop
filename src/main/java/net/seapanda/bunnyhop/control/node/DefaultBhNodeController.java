@@ -20,6 +20,7 @@ package net.seapanda.bunnyhop.control.node;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.SequencedSet;
 import javafx.event.Event;
 import javafx.scene.input.MouseButton;
@@ -75,7 +76,7 @@ public class DefaultBhNodeController implements BhNodeController {
     this.view = view;
     this.notifService = service;
     this.trashbox = trashbox;
-    model.setViewProxy(new BhNodeViewProxyImpl(view, false));
+    model.setView(view);
     view.setController(this);
     setEventHandlers();
   }
@@ -107,8 +108,8 @@ public class DefaultBhNodeController implements BhNodeController {
       ddInfo.context = notifService.begin();
       ddInfo.isDndFinished = false;
       if (!model.isMovable()) {
-        ddInfo.propagateEvent = true;
-        propagateEvent(model.findParentNode(), event);
+        ddInfo.forwardEvent = true;
+        sendEvent(model.findParentNode(), event);
         return;
       }
       view.getWorkspaceView().getRootNodeViews().forEach(
@@ -134,8 +135,8 @@ public class DefaultBhNodeController implements BhNodeController {
       if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
         return;
       }
-      if (ddInfo.propagateEvent) {
-        propagateEvent(model.findParentNode(), event);
+      if (ddInfo.forwardEvent) {
+        sendEvent(model.findParentNode(), event);
         return;
       }
       if (event.isShiftDown()) {
@@ -168,8 +169,8 @@ public class DefaultBhNodeController implements BhNodeController {
       if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
         return;
       }
-      if (ddInfo.propagateEvent) {
-        propagateEvent(model.findParentNode(), event);
+      if (ddInfo.forwardEvent) {
+        sendEvent(model.findParentNode(), event);
         return;
       }
       if (event.isShiftDown()) {
@@ -198,18 +199,18 @@ public class DefaultBhNodeController implements BhNodeController {
       return;
     }
     try {
-      if (ddInfo.propagateEvent) {
-        propagateEvent(model.findParentNode(), event);
-        ddInfo.propagateEvent = false;
+      if (ddInfo.forwardEvent) {
+        sendEvent(model.findParentNode(), event);
+        ddInfo.forwardEvent = false;
         return;
       }
       if (ddInfo.currentOverlapped != null) {
-        ddInfo.currentOverlapped.getViewProxy().switchPseudoClassState(
-            BhConstants.Css.PSEUDO_OVERLAPPED, false);
+        ddInfo.currentOverlapped.getLookManager()
+            .switchPseudoClassState(BhConstants.Css.PSEUDO_OVERLAPPED, false);
       }
       if (ddInfo.currentOverlapped != null) {
         // ワークスペース -> 子ノード
-        toChildNode(ddInfo.currentOverlapped);
+        ddInfo.currentOverlapped.getModel().ifPresent(this::toChildNode);
       } else {
         //同一ワークスペース上で移動
         toSameWorkspace();
@@ -254,7 +255,7 @@ public class DefaultBhNodeController implements BhNodeController {
     UserOperation userOpe = ddInfo.context.userOpe();
     //ワークスペースから移動する場合
     if (model.isRoot()) {
-      userOpe.pushCmdOfSetNodePos(model, ddInfo.posOnWorkspace);
+      userOpe.pushCmdOfSetNodePos(view, ddInfo.posOnWorkspace);
     }
     // 入れ替えられるノードの親ノード
     final ConnectiveNode oldParentOfReplaced = oldChildNode.findParentNode();
@@ -264,9 +265,10 @@ public class DefaultBhNodeController implements BhNodeController {
     final SequencedSet<Swapped> swappedNodes =
         BhNodePlacer.replaceChild(oldChildNode, model, userOpe);
     // ワークスペースに移ったノードの位置更新
-    Vec2D posOnWs = oldChildNode.getViewProxy().getPosOnWorkspace();
-    posOnWs.add(BhConstants.LnF.REPLACED_NODE_SHIFT, BhConstants.LnF.REPLACED_NODE_SHIFT);
-    oldChildNode.getViewProxy().setPosOnWorkspace(posOnWs, userOpe);
+    oldChildNode.getView().ifPresent(oldChildView -> {
+      var len = BhConstants.LnF.REPLACED_NODE_SHIFT;
+      shift(oldChildView, new Vec2D(len, len), userOpe);
+    });     
     // Workspace から 子ノードに移動したときのスクリプト実行
     model.getEventInvoker().onMovedFromWsToChild(oldChildNode, userOpe);
     // 子ノードから Workspace に移動したときのスクリプト実行
@@ -282,10 +284,17 @@ public class DefaultBhNodeController implements BhNodeController {
     }
   }
 
+  /** {@code view} の位置を {@code amount} だけずらす. */
+  private static void shift(BhNodeView view, Vec2D amount, UserOperation userOpe) {
+    Vec2D pos = view.getPositionManager().getPosOnWorkspace();
+    view.getPositionManager().setTreePosOnWorkspace(pos.x + amount.x, pos.y + amount.y);
+    userOpe.pushCmdOfSetNodePos(view, pos);
+  }
+
   /** 同一ワークスペースへの移動処理. */
   private void toSameWorkspace() {
     if (ddInfo.dragging && model.isRoot()) {
-      ddInfo.context.userOpe().pushCmdOfSetNodePos(model, ddInfo.posOnWorkspace);
+      ddInfo.context.userOpe().pushCmdOfSetNodePos(view, ddInfo.posOnWorkspace);
     }
   }
 
@@ -316,15 +325,15 @@ public class DefaultBhNodeController implements BhNodeController {
   private void highlightOverlappedNode() {
     if (ddInfo.currentOverlapped != null) {
       // 前回重なっていたものをライトオフ
-      ddInfo.currentOverlapped.getViewProxy().switchPseudoClassState(
-          BhConstants.Css.PSEUDO_OVERLAPPED, false);
+      ddInfo.currentOverlapped.getLookManager()
+          .switchPseudoClassState(BhConstants.Css.PSEUDO_OVERLAPPED, false);
     }
     ddInfo.currentOverlapped = null;
-    List<BhNode> overlappedList = view.getRegionManager().searchForOverlappedNodes();
-    for (BhNode overlapped : overlappedList) {
-      if (overlapped.canBeReplacedWith(model)) {  //このノードと入れ替え可能
-        // 今回重なっているものをライトオン
-        overlapped.getViewProxy().switchPseudoClassState(BhConstants.Css.PSEUDO_OVERLAPPED, true);
+    List<BhNodeView> overlappedList = view.getRegionManager().searchForOverlapped();
+    for (BhNodeView overlapped : overlappedList) {
+      if (overlapped.getModel().map(node -> node.canBeReplacedWith(model)).orElse(false)) {
+        overlapped.getLookManager()
+            .switchPseudoClassState(BhConstants.Css.PSEUDO_OVERLAPPED, true);
         ddInfo.currentOverlapped = overlapped;
         break;
       }
@@ -352,16 +361,14 @@ public class DefaultBhNodeController implements BhNodeController {
       } else {
         model.select(userOpe);
       }
-    } else if (model.isSelected()) {
-      if (event.getClickCount() == 2) {
-        // 末尾ノードまで一気に選択
-        BhNode outerNode = model.findOuterNode(-1);
-        while (outerNode != model) {
-          if (!outerNode.isSelected() && outerNode.isMovable()) {
-            outerNode.select(userOpe);
-          }
-          outerNode = outerNode.findParentNode();
+    } else if (model.isSelected() && event.getClickCount() == 2) {
+      // 末尾ノードまで一気に選択
+      BhNode outerNode = model.findOuterNode(-1);
+      while (outerNode != model) {
+        if (!outerNode.isSelected() && outerNode.isMovable()) {
+          outerNode.select(userOpe);
         }
+        outerNode = outerNode.findParentNode();
       }
     } else {
       model.getWorkspace().getSelectedNodes().forEach(selected -> selected.deselect(userOpe));
@@ -370,20 +377,15 @@ public class DefaultBhNodeController implements BhNodeController {
   }
 
   /**
-   * 引数で指定したノードに対応するビューに GUI イベントを伝播する.
+   * {@code node} に対応するビューに {@code event} を送る.
    *
-   * @param node イベントを伝播したい {@link BhNodeView} に対応する {@link BhNode}
-   * @param event 伝播したいイベント
+   * @param node このノードのビューにイベントを送る
+   * @param event {@code node} に送るイベント
    */
-  private void propagateEvent(BhNode node, Event event) {
-    if (node == null) {
-      return;
-    }
-    BhNodeView nodeView = node.getViewProxy().getView();
-    if (nodeView == null) {
-      return;
-    }
-    nodeView.getEventManager().propagateEvent(event);
+  private static void sendEvent(BhNode node, Event event) {
+    Optional.ofNullable(node)
+        .flatMap(BhNode::getView)
+        .ifPresent(view -> view.getEventManager().dispatch(event));
   }
 
   /** 受付不能なマウスイベントを consume する. */
@@ -426,20 +428,18 @@ public class DefaultBhNodeController implements BhNodeController {
 
   /** {@link #view} と {@code newNode} のノードビューを入れ替える. */
   private void replaceView(BhNode newNode) {
-    if (newNode != null) {
-      BhNodeView newNodeView = newNode.getViewProxy().getView();
-      view.getTreeManager().replace(newNodeView);
-    }
+    Optional.ofNullable(newNode)
+        .flatMap(BhNode::getView)
+        .ifPresent(view.getTreeManager()::replace);
   }
 
   /** {@code node} の派生ノードを強調表示を切り返る. */
   private static void hilightDerivatives(BhNode node, boolean enable) {
     if (node instanceof Derivative orgNode) {
-      orgNode.getDerivatives().forEach(derivative -> derivative
-          .getViewProxy()
-          .getView()
-          .getLookManager()
-          .switchPseudoClassState(BhConstants.Css.PSEUDO_HIGHLIGHT_DERIVATIVE, enable));      
+      for (Derivative derv : orgNode.getDerivatives()) {
+        derv.getView().ifPresent(view -> view.getLookManager()
+            .switchPseudoClassState(BhConstants.Css.PSEUDO_HIGHLIGHT_DERIVATIVE, enable));
+      }
     }
   }
 
@@ -465,9 +465,9 @@ public class DefaultBhNodeController implements BhNodeController {
     private Vec2D mousePressedPos = null;
     private Vec2D posOnWorkspace = null;
     /** 現在重なっている View. */
-    private BhNode currentOverlapped = null;
-    /** イベントを親ノードに伝播する場合 true. */
-    private boolean propagateEvent = false;
+    private BhNodeView currentOverlapped = null;
+    /** イベントを親ノードに転送する場合 true. */
+    private boolean forwardEvent = false;
     /** ドラッグ中のとき true. */
     private boolean dragging = false;
     /** {@code model} に最後につながっていた親ノード. */
@@ -484,7 +484,7 @@ public class DefaultBhNodeController implements BhNodeController {
       mousePressedPos = null;
       posOnWorkspace = null;
       currentOverlapped = null;
-      propagateEvent = false;
+      forwardEvent = false;
       dragging = false;
       latestParent = null;
       latestRoot = null;

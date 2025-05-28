@@ -37,8 +37,7 @@ import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
-import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
-import net.seapanda.bunnyhop.view.proxy.WorkspaceViewProxy;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.view.workspace.NodeShifterView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
@@ -80,7 +79,7 @@ public class WorkspaceController {
     this.notifService = notifService;
     this.nodeSelectionViewProxy = proxy;
     this.msgService = msgService;
-    model.setViewProxy(new WorkspaceViewProxyImpl());
+    model.setView(view);
     view.addNodeShifterView(nodeShifterView);
     new NodeShifterController(nodeShifterView, model, notifService);
     setEventHandlers();
@@ -207,34 +206,22 @@ public class WorkspaceController {
 
   /** {@code node} のノードビューを {@link #view} に追加する. */
   private void addNodeView(BhNode node) {
-    BhNodeView nodeView = node.getViewProxy().getView();
-    if (nodeView != null) {
-      view.addNodeView(nodeView);
-    }
+    node.getView().ifPresent(view::addNodeView);
   }
 
   /** {@code node} のノードビューを {@link #view} から削除する. */
   private void removeNodeView(BhNode node) {
-    BhNodeView nodeView = node.getViewProxy().getView();
-    if (nodeView != null) {
-      view.removeNodeView(nodeView);
-    }
+    node.getView().ifPresent(view::removeNodeView);
   }
 
   /** {@code node} をルートノードとしてワークスペースビューに設定する. */
   private void speficyNodeViewAsRoot(BhNode node) {
-    BhNodeView nodeView = node.getViewProxy().getView();
-    if (nodeView != null) {
-      view.specifyNodeViewAsRoot(nodeView);
-    }
+    node.getView().ifPresent(view::specifyNodeViewAsRoot);
   }
 
   /** {@code node} を非ルートノードとしてワークスペースビューに設定する. */
   private void speficyNodeViewAsNotRoot(BhNode node) {
-    BhNodeView nodeView = node.getViewProxy().getView();
-    if (nodeView != null) {
-      view.specifyNodeViewAsNotRoot(nodeView);
-    }
+    node.getView().ifPresent(view::specifyNodeViewAsNotRoot);
   }
 
   /** D&D を終えたときの処理. */
@@ -286,42 +273,6 @@ public class WorkspaceController {
       mousePressedPos = null;
       context = null;
       isDndFinished = true;
-    }
-  }
-
-  private class WorkspaceViewProxyImpl implements WorkspaceViewProxy {
-
-    @Override
-    public WorkspaceView getView() {
-      return view;
-    }
-
-    @Override
-    public void changeViewSize(boolean widen) {
-      view.changeViewSize(widen);
-    }
-
-    @Override
-    public Vec2D getViewSize() {
-      return view.getSize();
-    }
-
-    @Override
-    public Vec2D sceneToWorkspace(Vec2D posOnScene) {
-      if (posOnScene == null) {
-        return null;
-      }
-      return view.sceneToWorkspace(posOnScene.x, posOnScene.y);
-    }
-
-    @Override
-    public void zoom(boolean zoomIn) {
-      view.zoom(zoomIn);
-    }
-
-    @Override
-    public void setZoomLevel(int level) {
-      view.setZoomLevel(level);
     }
   }
 }

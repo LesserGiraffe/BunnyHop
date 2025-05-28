@@ -314,24 +314,22 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
 
   /** コンボボックスに関連するイベントハンドラを設定する. */
   private void setComboBoxEventHandlers() {
-    comboBox.addEventFilter(Event.ANY, this::propagateEvent);
+    comboBox.addEventFilter(Event.ANY, this::forwardEvent);
     comboBox.setOnShowing(event -> fitComboBoxWidthToListWidth());
     comboBox.setOnHidden(event -> fitComboBoxWidthToContentWidth(
         comboBox.getValue().getView().toString(), buttonCell.getFont()));
   }
 
-  private void propagateEvent(Event event) {
+  private void forwardEvent(Event event) {
     BhNodeView view = (model == null) ? getTreeManager().getParentView() : this;
     if (view == null) {
       event.consume();
       return;
     }
-    view.getEventManager().propagateEvent(event);
-    view.getModel().ifPresent(node -> {
-      if (node.getViewProxy().isTemplateNode() || dragging.getValue()) {
-        event.consume();  
-      }
-    });
+    view.getEventManager().dispatch(event);
+    if (view.isTemplate() || dragging.getValue()) {
+      event.consume();
+    }
     if (event.getEventType().equals(MouseEvent.DRAG_DETECTED)) {
       dragging.setTrue();
     } else if (event.getEventType().equals(MouseEvent.MOUSE_RELEASED)) {

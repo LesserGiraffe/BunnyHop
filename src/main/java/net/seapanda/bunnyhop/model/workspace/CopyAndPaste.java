@@ -110,7 +110,9 @@ public class CopyAndPaste {
           pasteBasePos.y + pastePosOffsetCount.getValue() * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
           userOpe);
       //コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
-      Vec2D size = orgAndCopy.org().getViewProxy().getSizeIncludingOuters(true);
+      Vec2D size = orgAndCopy.org().getView()
+          .map(view -> view.getRegionManager().getNodeTreeSize(true))
+          .orElse(new Vec2D());
       pasteBasePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
     }
     if (pastePosOffsetCount.getValue() > 2) {

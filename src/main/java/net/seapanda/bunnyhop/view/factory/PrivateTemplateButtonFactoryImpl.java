@@ -25,7 +25,7 @@ import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.node.component.PrivateTemplateButton;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyleFactory;
-import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 
 /**
  * プライベートテンプレートボタンを作成する機能を提供するクラス.

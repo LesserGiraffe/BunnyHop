@@ -101,13 +101,13 @@ public class UserOperation {
   }
 
   /**
-   * ワークスペース上での {@link BhNode} の位置指定をコマンド化してサブ操作リストに加える.
+   * {@link BhNodeView} のワークスペース上の位置指定をコマンド化してサブ操作リストに加える.
    *
-   * @param node 位置を指定したノード
+   * @param view 位置を指定したノードビュー
    * @param oldPos 移動前の位置
    */
-  public void pushCmdOfSetNodePos(BhNode node, Vec2D oldPos) {
-    subOpeList.addLast(new SetNodePos(node, oldPos));
+  public void pushCmdOfSetNodePos(BhNodeView view, Vec2D oldPos) {
+    subOpeList.addLast(new SetNodePos(view, new Vec2D(oldPos)));
   }
 
   /**
@@ -122,17 +122,6 @@ public class UserOperation {
       QuadTreeManager oldManager,
       QuadTreeManager newManager) {
     subOpeList.addLast(new SetQtRectangleCmd(rect, oldManager, newManager));
-  }
-
-  /**
-   * {@link BhNodeView} の入れ替えをコマンド化してサブ操作リストに加える.
-   *
-   * @param oldNode 入れ替え前の古いView に対応するBhNode
-   * @param newNode 入れ替え後の新しいView に対応するBhNode
-   * @param newNodeHasParent 入れ替え前の newNode が親GUIコンポーネントを持っていた場合 true
-   */
-  public void pushCmdOfReplaceNodeView(BhNode oldNode, BhNode newNode, boolean newNodeHasParent) {
-    subOpeList.addLast(new ReplaceNodeViewCmd(oldNode, newNode, newNodeHasParent));
   }
 
   /**
@@ -407,22 +396,24 @@ public class UserOperation {
     }
   }
 
-  /** ワークスペース上での {@link BhNode} の位置指定を表すコマンド. */
+  /** {@link BhNode} のワークスペース上の位置指定を表すコマンド. */
   private static class SetNodePos implements SubOperation {
 
-    /** 位置を指定したノード. */
-    private final BhNode node;
+    /** 位置を指定したノードビュー. */
+    private final BhNodeView view;
     /** 移動前の位置. */
     private final Vec2D oldPos;
 
-    public SetNodePos(BhNode node, Vec2D oldPos) {
-      this.node = node;
+    public SetNodePos(BhNodeView view, Vec2D oldPos) {
+      this.view = view;
       this.oldPos = oldPos;
     }
 
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
-      node.getViewProxy().setPosOnWorkspace(oldPos, inverseCmd);
+      Vec2D pos = view.getPositionManager().getPosOnWorkspace();
+      view.getPositionManager().setTreePosOnWorkspace(oldPos.x, oldPos.y);
+      inverseCmd.pushCmdOfSetNodePos(view, pos);
     }
   }
   
@@ -461,33 +452,6 @@ public class UserOperation {
           && view.getModel().isPresent()) {
         Vec2D pos = view.getPositionManager().getPosOnWorkspace();
         view.getPositionManager().setTreePosOnWorkspace(pos.x, pos.y);
-      }
-    }
-  }
-
-  /** BhNodeView の入れ替えを表すコマンド. */
-  private static class ReplaceNodeViewCmd implements SubOperation {
-
-    /** 入れ替え前の古い View に対応する {@link BhNode}. */
-    private final BhNode oldNode;
-    /** 入れ替え後の新しい View に対応する {@link BhNode}. */
-    private final BhNode newNode;
-    /** 入れ替え前に newNode が親 GUI コンポーネントを持っていた場合 true. */
-    private final boolean newNodeHasParent;
-
-    public ReplaceNodeViewCmd(BhNode oldNode, BhNode newNode, boolean newNodeHasParent) {
-      this.oldNode = oldNode;
-      this.newNode = newNode;
-      this.newNodeHasParent = newNodeHasParent;
-    }
-
-    @Override
-    public void doInverseOperation(UserOperation inverseCmd) {
-      //元々付いていた古いViewに付け替える
-      newNode.getViewProxy().replace(oldNode, inverseCmd);
-      // 入れ替え前に newNode の親がなかった場合GUIツリーから消す.
-      if (!newNodeHasParent) {
-        newNode.getViewProxy().removeFromGuiTree();
       }
     }
   }

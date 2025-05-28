@@ -65,7 +65,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
     super(model, viewStyle, components);
     this.model = model;
     addComponent(textField);
-    textField.addEventFilter(MouseEvent.ANY, this::propagateEvent);
+    textField.addEventFilter(MouseEvent.ANY, this::forwardEvent);
     textField.focusedProperty().addListener(
         (ov, oldVal, newVal) -> Platform.runLater(() -> selectText()));
     initStyle();
@@ -82,18 +82,16 @@ public final class TextFieldNodeView extends TextInputNodeView {
     this(null, viewStyle, null);
   }
 
-  private void propagateEvent(Event event) {
+  private void forwardEvent(Event event) {
     BhNodeView view = (model == null) ? getTreeManager().getParentView() : this;
     if (view == null) {
       event.consume();
       return;
     }
-    view.getEventManager().propagateEvent(event);    
-    view.getModel().ifPresent(node -> {
-      if (node.getViewProxy().isTemplateNode()) {
-        event.consume();
-      }
-    });
+    view.getEventManager().dispatch(event);
+    if (view.isTemplate()) {
+      event.consume();
+    }
   }
 
   private void initStyle() {

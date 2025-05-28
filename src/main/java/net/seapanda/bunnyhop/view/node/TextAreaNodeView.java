@@ -65,7 +65,7 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     super(model, viewStyle, components);
     this.model = model;
     addComponent(textArea);
-    textArea.addEventFilter(MouseEvent.ANY, this::propagateEvent);
+    textArea.addEventFilter(MouseEvent.ANY, this::forwardEvent);
     initStyle();
   }
 
@@ -80,18 +80,16 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     this(null, viewStyle, null);
   }
 
-  private void propagateEvent(Event event) {
+  private void forwardEvent(Event event) {
     BhNodeView view = (model == null) ? getTreeManager().getParentView() : this;
     if (view == null) {
       event.consume();
       return;
     }
-    view.getEventManager().propagateEvent(event);    
-    view.getModel().ifPresent(node -> {
-      if (node.getViewProxy().isTemplateNode()) {
-        event.consume();
-      }
-    });
+    view.getEventManager().dispatch(event);    
+    if (view.isTemplate()) {
+      event.consume();
+    }
   }
 
   private void initStyle() {

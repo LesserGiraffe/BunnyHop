@@ -20,7 +20,6 @@ import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategory;
-import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 
 /**
  * ノード選択用 TreeView の各セルのビュークラス.

@@ -413,6 +413,11 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   }
 
   @Override
+  public Vec2D sceneToWorkspace(Vec2D pos) {
+    return sceneToWorkspace(pos.x, pos.y);
+  }
+
+  @Override
   public void zoom(boolean zoomIn) {
     if ((BhConstants.LnF.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn) {
       return;

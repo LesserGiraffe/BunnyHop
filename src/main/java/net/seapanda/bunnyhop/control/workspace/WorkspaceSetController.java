@@ -185,11 +185,7 @@ public class WorkspaceSetController {
 
   /** {@code ws} のワークスペースビューをワークスペースセットのビューに追加する. */
   private void addWorkspaceView(Workspace ws) {
-    WorkspaceView wsView = ws.getViewProxy().getView();
-    if (wsView == null) {
-      return;
-    }
-    if (wsView instanceof Tab tab) {
+    if (ws.getView().orElse(null) instanceof Tab tab) {
       workspaceSetTab.getTabs().add(tab);
       workspaceSetTab.getSelectionModel().select(tab);
       // ここで REORDER にしないと, undo でタブを戻した時, タブドラッグ時に例外が発生する
@@ -199,8 +195,7 @@ public class WorkspaceSetController {
 
   /** {@code ws} のワークスペースビューをワークスペースセットのビューから削除する. */
   private void removeWorkspaceView(Workspace ws) {
-    WorkspaceView wsView = ws.getViewProxy().getView();
-    if (wsView instanceof Tab tab) {
+    if (ws.getView().orElse(null) instanceof Tab tab) {
       workspaceSetTab.getTabs().remove(tab);
       // ここで REORDER にしないと, タブを消した後でタブドラッグすると例外が発生する
       workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);

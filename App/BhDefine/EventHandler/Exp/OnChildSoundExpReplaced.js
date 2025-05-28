@@ -8,9 +8,9 @@
 
   // 音挿入
   if (String(newNodeSectionName) === 'SoundExpSctn') {
-  
+
     // 新メロディノード作成
-    let posOnWS = bhThis.getViewProxy().getPosOnWorkspace()
+    let posOnWS = bhCommon.getPosOnWorkspace(bhThis) ?? {x: 0, y: 0};
     let newMelodyExp = bhCommon.addNewNodeToWS(
       'idMelodyExp', bhThis.getWorkspace(), posOnWS, bhUserOpe);
     bhNodePlacer.exchangeNodes(nextMelodyExp, newMelodyExp, bhUserOpe);

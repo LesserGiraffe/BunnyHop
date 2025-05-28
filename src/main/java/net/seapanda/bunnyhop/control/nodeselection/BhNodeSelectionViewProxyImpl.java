@@ -26,9 +26,8 @@ import javafx.scene.input.ScrollEvent;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
-import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 
 /**
  * ノードの選択ビューを操作するクラス.
@@ -76,18 +75,12 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
 
   /** {@code node} のノードビューをノード選択リストに追加する. */
   private void addNodeView(BhNode node, BhNodeSelectionView view) {
-    BhNodeView nodeView = node.getViewProxy().getView();
-    if (nodeView != null) {
-      view.addNodeViewTree(nodeView);
-    }
+    node.getView().ifPresent(view::addNodeViewTree);
   }
 
   /** {@code node} のノードビューをノード選択リストから削除する. */
   private void removeNodeView(BhNode node, BhNodeSelectionView view) {
-    BhNodeView nodeView = node.getViewProxy().getView();
-    if (nodeView != null) {
-      view.removeNodeViewTree(nodeView);
-    }
+    node.getView().ifPresent(view::removeNodeViewTree);
     if (view.getNumNodeViewTrees() == 0) {
       view.hide();
     }
@@ -95,18 +88,12 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
 
   /** {@code node} をルートノードとしてノード選択ビューに設定する. */
   private void speficyNodeViewAsRoot(BhNode node, BhNodeSelectionView view) {
-    BhNodeView nodeView = node.getViewProxy().getView();
-    if (nodeView != null) {
-      view.specifyNodeViewAsRoot(nodeView);
-    }
+    node.getView().ifPresent(view::specifyNodeViewAsRoot);
   }
 
   /** {@code node} を非ルートノードとしてノード選択ビューに設定する. */
   private void speficyNodeViewAsNotRoot(BhNode node, BhNodeSelectionView view) {
-    BhNodeView nodeView = node.getViewProxy().getView();
-    if (nodeView != null) {
-      view.specifyNodeViewAsNotRoot(nodeView);
-    }
+    node.getView().ifPresent(view::specifyNodeViewAsNotRoot);
   }
 
   @Override

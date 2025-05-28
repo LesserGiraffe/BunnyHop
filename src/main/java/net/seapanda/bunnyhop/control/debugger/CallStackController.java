@@ -37,6 +37,7 @@ import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.debugger.CallStackCell;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -134,7 +135,9 @@ public class CallStackController {
     if (node.isDeleted()) {
       return;
     }
-    node.getViewProxy().lookAt();
+    node.getView()
+        .map(BhNodeView::getWorkspaceView)
+        .ifPresent(wsv -> wsv.lookAt(node.getView().get()));
     node.getWorkspace().getSelectedNodes().forEach(seletedNode -> seletedNode.deselect(userOpe));
     node.select(userOpe);
   }

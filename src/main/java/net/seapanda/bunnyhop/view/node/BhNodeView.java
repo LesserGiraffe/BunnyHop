@@ -86,6 +86,9 @@ public interface BhNodeView extends NodeViewComponent {
   /** このノードビューに対応する BhNode が固定ノードであるか調べる.. */
   boolean isFixed();
 
+  /** このノードビューがテンプレート (ノード選択画面のノード) かどうか調べる. */
+  boolean isTemplate();
+
   /**
    * このノードビューが属している {@link WorkspaceView} を取得する.
    * 見つからない場合は null.
@@ -176,11 +179,11 @@ public interface BhNodeView extends NodeViewComponent {
   public interface RegionManager {
 
     /**
-     * コネクタ部分が "target" のコネクタ部分に重なっているノードビューに対応するモデルを探す.
+     * コネクタ部分が "target" のコネクタ部分に重なっているノードビューを探す.
      *
-     * @return コネクタ部分が "target" のコネクタ部分に重なっているノードビューに対応するモデルのリスト
+     * @return コネクタ部分が "target" のコネクタ部分に重なっているノードビューのリスト
      */
-    List<BhNode> searchForOverlappedNodes();
+    List<BhNodeView> searchForOverlapped();
     
     /**
      * "target" のボディの領域を保持する {@link QuadTreeRectangle} と
@@ -373,6 +376,13 @@ public interface BhNodeView extends NodeViewComponent {
     void move(double diffX, double diffY);
 
     /**
+     * "target"  以下のノードビューをワークスペースビューからはみ出さないように動かす.
+     *
+     * @param diff 移動量
+     */
+    void move(Vec2D diff);
+
+    /**
      * シーンの座標空間の位置 {@code pos} を "target" のローカル座標空間の位置に変換する.
      *
      * @param pos シーンの座標空間の位置
@@ -447,7 +457,7 @@ public interface BhNodeView extends NodeViewComponent {
      *
      * @param event "target" に伝えるイベント
      */
-    void propagateEvent(Event event);
+    void dispatch(Event event);
 
     /**
      * "target" の位置が変わったときのイベントハンドラを追加する.

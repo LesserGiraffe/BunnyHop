@@ -28,6 +28,8 @@ import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.parameter.ConnectorId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeView.PositionManager;
 
 /**
  * {@link BhNode} ツリーの保存用イメージを作成するクラス.
@@ -58,13 +60,14 @@ public class NodeImageBuilder implements BhNodeWalker {
   @Override
   public void visit(ConnectiveNode node) {
     List<InstanceId> derivationIds = node.getDerivatives().stream()
-        .filter(derivative -> !derivative.getViewProxy().isTemplateNode())
+        .filter(NodeImageBuilder::isNotTemplate)
         .map(derivative -> derivative.getInstanceId())
         .toList();
     Connector parentCnctr = node.getParentConnector();
     ConnectorId cnctrId = (parentCnctr == null) ? ConnectorId.NONE : parentCnctr.getId();
-    Vec2D pos = node.getViewProxy().getPosOnWorkspace();
-    pos = (pos == null) ? new Vec2D(0, 0) : pos; // View を持たない BhNode もある
+    Vec2D pos = node.getView()
+        .map(view -> view.getPositionManager().getPosOnWorkspace())
+        .orElse(new Vec2D());  // View を持たない BhNode もある
     var nodeImage = new BhNodeImage(
         node.getId(),
         node.getInstanceId(),
@@ -87,13 +90,15 @@ public class NodeImageBuilder implements BhNodeWalker {
   @Override
   public void visit(TextNode node) {
     List<InstanceId> derivationIds = node.getDerivatives().stream()
-        .filter(derivatie -> !derivatie.getViewProxy().isTemplateNode())
-        .map(derivatie -> derivatie.getInstanceId())
+        .filter(NodeImageBuilder::isNotTemplate)
+        .map(derivative -> derivative.getInstanceId())
         .toList();
     Connector parentCnctr = node.getParentConnector();
     ConnectorId cnctrId = (parentCnctr == null) ? ConnectorId.NONE : parentCnctr.getId();
-    Vec2D pos = node.getViewProxy().getPosOnWorkspace();
-    pos = (pos == null) ? new Vec2D(0, 0) : pos;
+    Vec2D pos = node.getView()
+        .map(BhNodeView::getPositionManager)
+        .map(PositionManager::getPosOnWorkspace)
+        .orElse(new Vec2D());  // View を持たない BhNode もある
     var nodeImage = new BhNodeImage(
         node.getId(),
         node.getInstanceId(),
@@ -109,4 +114,15 @@ public class NodeImageBuilder implements BhNodeWalker {
     }
     root = (parentCnctr == null) ? nodeImage : root;
   }
+
+  /** {@code node} がテンプレートノードか調べる. */
+  private static boolean isNotTemplate(BhNode node) {
+    while (node != null) {
+      if (node.getView().isPresent()) {
+        return !node.getView().get().isTemplate();
+      }
+      node = node.findParentNode();
+    }
+    return true;
+  }  
 }

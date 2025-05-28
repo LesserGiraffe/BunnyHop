@@ -23,7 +23,7 @@ import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
-import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.view.workspace.FxmlWorkspaceView;
 import net.seapanda.bunnyhop.view.workspace.NodeShifterView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;

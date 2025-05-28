@@ -28,6 +28,7 @@ import net.seapanda.bunnyhop.model.traverse.DerivativeRemover;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * {@link BhNode} の移動, 入れ替え, 削除, ワークスペースへの追加を行う機能を提供するクラス.
@@ -127,7 +128,11 @@ public class BhNodePlacer {
       swappedNodes.addAll(node.remove(userOpe));
     }
     ws.addNodeTree(node, userOpe);
-    node.getViewProxy().setPosOnWorkspace(new Vec2D(x, y), userOpe);
+    node.getView().ifPresent(view -> {
+      Vec2D oldPos = view.getPositionManager().getPosOnWorkspace();
+      view.getPositionManager().setTreePosOnWorkspace(x, y);
+      userOpe.pushCmdOfSetNodePos(view, oldPos);
+    });
     if (!swappedNodes.isEmpty()) {
       for (Swapped swapped : new ArrayList<>(swappedNodes).subList(1, swappedNodes.size())) {
         swappedNodes.addAll(deleteNode(swapped.oldNode(), userOpe));
@@ -193,8 +198,8 @@ public class BhNodePlacer {
       nodeB = tmp;
     }
 
-    Vec2D posA = nodeA.getViewProxy().getPosOnWorkspace();
-    Vec2D posB = nodeB.getViewProxy().getPosOnWorkspace();
+    Vec2D posA = nodeA.getView().map(BhNodePlacer::getPosOnWs).orElse(new Vec2D());
+    Vec2D posB = nodeB.getView().map(BhNodePlacer::getPosOnWs).orElse(new Vec2D());
     Workspace wsA = nodeB.getWorkspace();
     Workspace wsB = nodeB.getWorkspace();
 
@@ -219,5 +224,9 @@ public class BhNodePlacer {
       moveToWs(wsA, nodeB, posA.x, posA.y, userOpe);
       moveToWs(wsB, nodeA, posB.x, posB.y, userOpe);
     }
+  }
+
+  private static Vec2D getPosOnWs(BhNodeView view) {
+    return view.getPositionManager().getPosOnWorkspace();
   }
 }

@@ -32,7 +32,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.model.traverse.CallbackInvoker.CallbackRegistry;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 
 /**
  * ノード固有のテンプレートノードを作成するボタンのコントローラ.
@@ -83,10 +83,9 @@ public class PrivateTemplateButtonController {
    * @param event ボタン押下イベント
    */
   private void onTemplateCreating(ActionEvent event) {
-    if (node.getViewProxy().isTemplateNode() || node.isDeleted()) {
+    if (isTemplate(node) || node.isDeleted()) {
       return;
     }
-    
     try {
       Context context = service.begin();
       // 現在表示しているプライベートテンプレートを作ったボタンを押下した場合, プライベートテンプレートを閉じる
@@ -139,5 +138,16 @@ public class PrivateTemplateButtonController {
     if (event.getButton() != MouseButton.PRIMARY) {
       event.consume();
     }
+  }
+
+  /** {@code node} がテンプレートノードか調べる. */
+  private static boolean isTemplate(BhNode node) {
+    while (node != null) {
+      if (node.getView().isPresent()) {
+        return node.getView().get().isTemplate();
+      }
+      node = node.findParentNode();
+    }
+    return false;
   }
 }

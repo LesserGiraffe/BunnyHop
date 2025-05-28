@@ -59,8 +59,8 @@ import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeShowcaseBuilder;
-import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 
 /** GUI 画面のロードと初期化を行う. */
 public class SceneBuilder {

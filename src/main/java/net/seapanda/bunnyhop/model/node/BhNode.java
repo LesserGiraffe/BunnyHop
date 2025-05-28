@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.model.node;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
@@ -36,7 +37,7 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.TetraConsumer;
-import net.seapanda.bunnyhop.view.proxy.BhNodeViewProxy;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 import org.apache.commons.lang3.function.TriConsumer;
 
 /**
@@ -67,6 +68,8 @@ public abstract class BhNode extends SyntaxSymbol {
   protected final transient BhNodeFactory factory;
   /** イベントハンドラを呼び出すオブジェクト. */
   protected final transient NodeEventInvoker nodeEventInvoker;
+  /** このノードに対応するビュー. */
+  private transient BhNodeView view;
 
   /** BhNode がとり得る状態. */
   public enum State {
@@ -121,12 +124,6 @@ public abstract class BhNode extends SyntaxSymbol {
    * @return 外部ノード
    */
   public abstract BhNode findOuterNode(int generation);
-
-  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクトを取得する. */
-  public abstract BhNodeViewProxy getViewProxy();
-
-  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクトを設定する. */
-  public abstract void setViewProxy(BhNodeViewProxy viewProxy);
 
   /**
    * このノード以下のノードツリーのコピーを作成する.
@@ -261,9 +258,10 @@ public abstract class BhNode extends SyntaxSymbol {
 
   /** {@code node} が対応するノードビューを持っていなかった場合, 作成する. */
   private void createMvcIfNotHaveView(BhNode node) {
-    if (workspace != null && !node.getViewProxy().hasView()) {
-      var type = getViewProxy().isTemplateNode() ? MvcType.TEMPLATE : MvcType.DEFAULT;
-      factory.setMvc(node, type);
+    if (workspace != null && node.getView().isEmpty()) {
+      getView()
+          .map(view -> view.isTemplate() ? MvcType.TEMPLATE : MvcType.DEFAULT)
+          .ifPresent(type -> factory.setMvc(node, type));
     }
   }
 
@@ -569,6 +567,16 @@ public abstract class BhNode extends SyntaxSymbol {
    */
   public String getAlias() {
     return nodeEventInvoker.onAliasAsked(this);
+  }
+
+  /** このノードに対応するビューを設定する. */
+  public void setView(BhNodeView view) {
+    this.view = view;
+  }
+
+  /** このノードに対応するビューを取得する. */
+  public Optional<BhNodeView> getView() {
+    return Optional.ofNullable(view);
   }
 
   /**

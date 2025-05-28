@@ -18,11 +18,13 @@ package net.seapanda.bunnyhop.model.workspace;
 
 import java.io.Serializable;
 import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.SequencedSet;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.view.proxy.WorkspaceViewProxy;
+import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 import org.apache.commons.lang3.function.TriConsumer;
 
 /**
@@ -42,8 +44,8 @@ public class Workspace implements Serializable {
   private String name;
   /** このワークスペースを持つワークスペースセット. */
   private transient WorkspaceSet workspaceSet;
-  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクト. */
-  private transient WorkspaceViewProxy viewProxy = new WorkspaceViewProxy() {};
+  /** このワークスペースに対応するビュー. */
+  private transient WorkspaceView view;
   /** このワークスペースに登録されたイベントハンドラを管理するオブジェクト. */
   private transient EventManager eventManager = new EventManager();
 
@@ -234,14 +236,15 @@ public class Workspace implements Serializable {
     this.name = name;
   }
 
-  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクトを取得する. */
-  public WorkspaceViewProxy getViewProxy() {
-    return viewProxy;
+  /** このワークスペースに対応するビューを取得する. */
+  public Optional<WorkspaceView> getView() {
+    return Optional.ofNullable(view);
   }
 
-  /** このオブジェクトに対応するビューの処理を行うプロキシオブジェクトを設定する. */
-  public void setViewProxy(WorkspaceViewProxy viewProxy) {
-    this.viewProxy = viewProxy;
+  /** このワークスペースに対応するビューを設定する. */
+  public void setView(WorkspaceView view) {
+    Objects.requireNonNull(view);
+    this.view = view;
   }
 
   /**

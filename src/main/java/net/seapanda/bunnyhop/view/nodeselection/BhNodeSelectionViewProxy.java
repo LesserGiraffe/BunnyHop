@@ -1,11 +1,10 @@
-package net.seapanda.bunnyhop.view.proxy;
+package net.seapanda.bunnyhop.view.nodeselection;
 
 import java.util.LinkedHashSet;
 import java.util.SequencedSet;
 import net.seapanda.bunnyhop.control.node.TemplateNodeController;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 
 /**
  * ノードの選択ビューに対する操作を規定したインタフェース.

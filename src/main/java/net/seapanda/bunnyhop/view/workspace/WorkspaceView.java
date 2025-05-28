@@ -106,6 +106,14 @@ public interface WorkspaceView {
   Vec2D sceneToWorkspace(double x, double y);
 
   /**
+   * Scene上の座標をWorkspace上の位置に変換して返す.
+   *
+   * @param pos Scene 座標の変換したい位置
+   * @return 引数の座標のWorkspace上の位置
+   */
+  Vec2D sceneToWorkspace(Vec2D pos);
+
+  /**
    * ワークスペースビューのズーム処理を行う.
    *
    * @param zoomIn 拡大処理を行う場合true

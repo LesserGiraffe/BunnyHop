@@ -31,7 +31,6 @@ import net.seapanda.bunnyhop.model.traverse.CallbackInvoker.CallbackRegistry;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.TreeNode;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
-import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
 
 /**
  * ノードカテゴリ一覧とノード選択ビューを構築するメソッドを提供するクラス.

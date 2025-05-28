@@ -48,7 +48,7 @@ import net.seapanda.bunnyhop.view.node.LabelNodeView;
 import net.seapanda.bunnyhop.view.node.NoContentNodeView;
 import net.seapanda.bunnyhop.view.node.TextAreaNodeView;
 import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
-import net.seapanda.bunnyhop.view.proxy.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 
 /**
  * {@link BhNode} の作成と MVC 構造の作成処理を提供するクラス.
@@ -96,9 +96,8 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
 
   @Override
   public BhNodeView setMvc(BhNode node, MvcType type) {
-    BhNodeView view = node.getViewProxy().getView();
-    if (view != null) {
-      return view;
+    if (node.getView().isPresent()) {
+      return node.getView().get();
     }
     var mvcBuilder = this.new NodeMvcBuilder(type);
     node.accept(mvcBuilder);
@@ -177,7 +176,7 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
 
     /** MVC のコントローラを作って {@link BhNode} と {@link BhNodeView} を渡す. */
     private BhNodeController connectMvc(BhNode node, BhNodeView nodeView) {
-      if (node.getViewProxy().hasView()) {
+      if (node.getView().isPresent()) {
         throw new AssertionError("Duplicated NodeView.  (BhNode = %s)".formatted(node.getId()));
       }
       BhNodeController ctrl = createBaseController(node, nodeView);

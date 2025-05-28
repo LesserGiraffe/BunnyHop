@@ -42,6 +42,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.control.node.BhNodeController;
+import net.seapanda.bunnyhop.control.node.TemplateNodeController;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
@@ -137,11 +138,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     compileErrorMark.getStyleClass().add(BhConstants.Css.CLASS_BH_NODE_COMPILE_ERROR);
     compileErrorMark.setMouseTransparent(true);
     addComponent(nodeShape);
-    // model がない場合は controller も無いので, nodeShape に対するイベントは, 親に投げる.
-    if (model == null) {
-      nodeShape.addEventFilter(Event.ANY, this::propagateEvent);
-      return;
-    }
+    nodeShape.addEventFilter(Event.ANY, this::forwardEventIfNotHaveController);
     components.forEach(this::addComponent);
   }
 
@@ -197,17 +194,33 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   }
 
   @Override
+  public boolean isTemplate() {
+    BhNodeView view = this;
+    while (view != null) {
+      if (view.getController().isPresent()) {
+        return view.getController().get() instanceof TemplateNodeController;
+      }
+      view = view.getTreeManager().getParentView();
+    }
+    return false;
+  }
+
+  @Override
   public WorkspaceView getWorkspaceView() {
     return ViewUtil.getWorkspaceView(nodeBase);
   }
 
-  private void propagateEvent(Event event) {
+  /** このノードビューがコントローラを持たない場合, 親ノードビューにイベントを渡す. */
+  private void forwardEventIfNotHaveController(Event event) {
+    if (controller != null) {
+      return;
+    }
     BhNodeView view = getTreeManager().getParentView();
     if (view == null) {
       event.consume();
       return;
     }
-    view.getEventManager().propagateEvent(event);
+    view.getEventManager().dispatch(event);
     event.consume();
   }
 
@@ -407,12 +420,11 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
         = new QuadTreeRectangle(0.0, 0.0, 0.0, 0.0, BhNodeViewBase.this);
 
     @Override
-    public List<BhNode> searchForOverlappedNodes() {
+    public List<BhNodeView> searchForOverlapped() {
       List<QuadTreeRectangle> overlappedRectList =
           cnctrRange.searchOverlappedRects(OverlapOption.INTERSECT);
       return overlappedRectList.stream()
-          .map(rectangle -> rectangle.<BhNodeView>getUserData().getModel().orElse(null))
-          .filter(model -> model != null)
+          .map(rectangle -> rectangle.<BhNodeView>getUserData())
           .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -791,6 +803,11 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     }
 
     @Override
+    public void move(Vec2D diff) {
+      move(diff.x, diff.y);
+    }
+
+    @Override
     public Vec2D sceneToLocal(Vec2D pos) {
       var localPos = nodeBase.sceneToLocal(pos.x, pos.y);
       return new Vec2D(localPos.getX(), localPos.getY());
@@ -854,7 +871,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     }
 
     @Override
-    public void propagateEvent(Event event) {
+    public void dispatch(Event event) {
       nodeShape.fireEvent(event);
     }
 
