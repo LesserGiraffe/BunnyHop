@@ -22,7 +22,7 @@ import javafx.scene.Node;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.utility.SimpleCache;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.factory.BhNodeViewFactory;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;

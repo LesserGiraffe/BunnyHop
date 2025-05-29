@@ -22,7 +22,7 @@ import net.seapanda.bunnyhop.bhprogram.debugger.CallStackItem;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import org.apache.commons.lang3.function.TriConsumer;
+import net.seapanda.bunnyhop.utility.function.TriConsumer;
 
 /**
  * デバッガのコールスタックに表示される要素のビュー.

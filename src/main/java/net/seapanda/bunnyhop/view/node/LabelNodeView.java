@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.view.node;
 
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.SequencedSet;
 import javafx.scene.Node;
@@ -23,7 +24,7 @@ import javafx.scene.control.Label;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.utility.SimpleCache;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorAlignment;
@@ -67,7 +68,7 @@ public final class LabelNodeView extends BhNodeViewBase {
    */
   public LabelNodeView(BhNodeViewStyle viewStyle)
       throws ViewConstructionException {
-    this(null, viewStyle, null);
+    this(null, viewStyle, new LinkedHashSet<>());
   }
 
   private void initStyle() {

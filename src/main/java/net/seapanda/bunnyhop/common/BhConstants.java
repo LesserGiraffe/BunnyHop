@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.stream.Stream;
 import net.seapanda.bunnyhop.export.SaveDataVersion;
-import net.seapanda.bunnyhop.utility.AppVersion;
 import net.seapanda.bunnyhop.utility.Utility;
+import net.seapanda.bunnyhop.utility.version.AppVersion;
 
 /**
  * BunnyHop の定数一式をまとめたクラス.

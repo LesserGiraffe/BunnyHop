@@ -29,7 +29,7 @@ import net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 

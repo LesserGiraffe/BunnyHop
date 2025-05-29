@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.model.node.parameter;
 
-import net.seapanda.bunnyhop.utility.Version;
+import net.seapanda.bunnyhop.utility.version.Version;
 
 /**
  * BhNode のバージョン.

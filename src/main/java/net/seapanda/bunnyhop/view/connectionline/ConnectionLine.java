@@ -23,7 +23,7 @@ import javafx.scene.shape.Shape;
 import net.seapanda.bunnyhop.common.Rem;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.utility.Pair;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**

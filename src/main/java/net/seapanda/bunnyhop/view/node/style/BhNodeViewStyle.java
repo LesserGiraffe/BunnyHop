@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeViewStyleId;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape.CnctrShape;

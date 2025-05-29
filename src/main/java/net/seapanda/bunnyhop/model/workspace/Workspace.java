@@ -24,8 +24,8 @@ import java.util.SequencedSet;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.utility.function.TriConsumer;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
-import org.apache.commons.lang3.function.TriConsumer;
 
 /**
  * ワークスペースを表すクラス.

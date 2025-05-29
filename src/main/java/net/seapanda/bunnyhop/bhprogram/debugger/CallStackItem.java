@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.SequencedSet;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import org.apache.commons.lang3.function.TriConsumer;
+import net.seapanda.bunnyhop.utility.function.TriConsumer;
 
 /**
  * BhProgram のコールスタックの各要素 (コールスタックアイテム) を表すクラス.

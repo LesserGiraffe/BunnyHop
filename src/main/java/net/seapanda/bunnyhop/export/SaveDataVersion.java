@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.export;
 
-import net.seapanda.bunnyhop.utility.Version;
+import net.seapanda.bunnyhop.utility.version.Version;
 
 /**
  * セーブデータのバージョン.

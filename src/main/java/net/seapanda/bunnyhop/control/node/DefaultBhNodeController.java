@@ -36,7 +36,7 @@ import net.seapanda.bunnyhop.model.node.derivative.Derivative;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.node.event.MouseEventInfo;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.Trashbox;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;

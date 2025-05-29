@@ -59,7 +59,7 @@ import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.undo.UndoRedoAgent;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;

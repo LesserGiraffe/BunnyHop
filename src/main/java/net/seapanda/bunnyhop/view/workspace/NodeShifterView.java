@@ -35,7 +35,7 @@ import javafx.scene.shape.Polygon;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhConstants.LnF;
 import net.seapanda.bunnyhop.common.Rem;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.node.BhNodeView;

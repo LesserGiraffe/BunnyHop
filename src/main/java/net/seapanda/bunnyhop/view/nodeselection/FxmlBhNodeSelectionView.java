@@ -33,7 +33,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.transform.Scale;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;

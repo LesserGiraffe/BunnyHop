@@ -26,8 +26,8 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.TetraConsumer;
-import org.apache.commons.lang3.function.TriConsumer;
+import net.seapanda.bunnyhop.utility.function.TetraConsumer;
+import net.seapanda.bunnyhop.utility.function.TriConsumer;
 
 /**
  * ワークスペースの集合を保持、管理するクラス.

@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.quadtree;
 import java.util.ArrayList;
 import java.util.List;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
  * 4 分木空間を使って衝突を管理するクラス.

@@ -25,7 +25,7 @@ import net.seapanda.bunnyhop.control.MouseCtrlLock;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.workspace.NodeShifterView;

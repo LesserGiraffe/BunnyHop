@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.view.node;
 
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.function.Function;
@@ -31,7 +32,7 @@ import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.utility.SimpleCache;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
@@ -79,7 +80,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
    */
   public TextFieldNodeView(BhNodeViewStyle viewStyle)
       throws ViewConstructionException {
-    this(null, viewStyle, null);
+    this(null, viewStyle, new LinkedHashSet<>());
   }
 
   private void forwardEvent(Event event) {

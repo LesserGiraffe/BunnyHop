@@ -31,7 +31,7 @@ import net.seapanda.bunnyhop.control.node.BhNodeController;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.traverse.NodeViewComponent;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;

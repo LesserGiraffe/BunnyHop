@@ -29,9 +29,9 @@ import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.TetraConsumer;
-import net.seapanda.bunnyhop.utility.Vec2D;
-import org.apache.commons.lang3.function.TriConsumer;
+import net.seapanda.bunnyhop.utility.function.TetraConsumer;
+import net.seapanda.bunnyhop.utility.function.TriConsumer;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 /**

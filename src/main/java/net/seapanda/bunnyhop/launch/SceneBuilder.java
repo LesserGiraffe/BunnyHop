@@ -56,7 +56,7 @@ import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.Utility;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;

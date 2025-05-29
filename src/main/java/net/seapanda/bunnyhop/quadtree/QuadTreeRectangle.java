@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import net.seapanda.bunnyhop.utility.LinkNode;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
  * 4 分木空間に登録される矩形オブジェクト.

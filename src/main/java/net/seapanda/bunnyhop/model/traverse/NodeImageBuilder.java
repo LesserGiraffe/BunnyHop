@@ -27,7 +27,7 @@ import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.parameter.ConnectorId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.BhNodeView.PositionManager;
 

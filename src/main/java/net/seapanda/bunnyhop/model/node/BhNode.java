@@ -36,9 +36,10 @@ import net.seapanda.bunnyhop.model.node.parameter.DerivationId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.TetraConsumer;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.TetraConsumer;
+import net.seapanda.bunnyhop.utility.function.TriConsumer;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
-import org.apache.commons.lang3.function.TriConsumer;
 
 /**
  * ノードの基底クラス.
@@ -732,14 +733,86 @@ public abstract class BhNode extends SyntaxSymbol {
     void invokeOnNodeReplaced(BhNode newNode, UserOperation userOpe) {
       onNodeReplacedList.forEach(handler -> handler.accept(BhNode.this, newNode, userOpe));
     }
+
+    /** このノードが選択されたときに呼び出すメソッドを管理するオブジェクト. */
+    private transient ConsumerInvoker<SelectionEvent> onNodeSelectionStateChangedInvoker =
+        new ConsumerInvoker<SelectionEvent>();
+
+    /** このノードのコンパイルエラー状態が変更されたときに呼び出すメソッドを管理するオブジェクト. */
+    private transient ConsumerInvoker<CompileErrorEvent> onCompileErrStateChangedInvoker =
+        new ConsumerInvoker<CompileErrorEvent>();
+
+    /** このノードが他のノードと入れ替わったときに呼び出すメソッドを管理するオブジェクト. */
+    private transient ConsumerInvoker<ReplacementEvent> onNodeReplacedInvoker =
+        new ConsumerInvoker<ReplacementEvent>();
+
+    /** このノードが属するワークスペースが変わったときに呼び出すメソッドを管理するオブジェクト. */
+    private transient ConsumerInvoker<WorkspaceChangeEvent> onWsChangedInvoker =
+        new ConsumerInvoker<WorkspaceChangeEvent>();
+
+    /** ノードの選択状態が変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    public ConsumerInvoker<SelectionEvent>.Registry getSelectionEventHandlerRegistry() {
+      return onNodeSelectionStateChangedInvoker.getRegistry();
+    }
+
+    /** ノードのコンパイルエラー状態が変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    public ConsumerInvoker<CompileErrorEvent>.Registry getCompileErrorEventHandlerRegistry() {
+      return onCompileErrStateChangedInvoker.getRegistry();
+    }
+
+    /** ノードが入れ替わったときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    public ConsumerInvoker<ReplacementEvent>.Registry getReplacementEventHandlerRegistry() {
+      return onNodeReplacedInvoker.getRegistry();
+    }
+
+    /** ノードが属するワークスペースが変わったときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    public ConsumerInvoker<WorkspaceChangeEvent>.Registry getWorkspaceChangeEventHandlerRegistry() {
+      return onWsChangedInvoker.getRegistry();
+    }
+
+    /**
+     * ノードの選択状態が変わったときの情報を格納したレコード.
+     *
+     * @param target 選択状態が変更された {@link BhNode}
+     * @param isSelected {@code target} が選択された場合 true
+     * @param userOpe undo 用コマンドオブジェクト
+     */
+    public record SelectionEvent(BhNode target, Boolean isSelected, UserOperation userOpe) {}
+
+    /**
+     * ノードのコンパイルエラー状態が変更されたときの情報を格納したレコード.
+     *
+     * @param target コンパイルエラー状態が変更された {@link BhNode}
+     * @param hasError {@code target} がコンパイルエラーを起こした場合 true
+     * @param userOpe undo 用コマンドオブジェクト
+     */
+    public record CompileErrorEvent(BhNode target, Boolean hasError, UserOperation userOpe) {}
+
+    /**
+     * ノードが入れ替わったときの情報を格納したレコード.
+     *
+     * @param target {@code newNode} と入れ替わったノード
+     * @param newNode {@code target} が接続されていた位置に新しく接続されたノード
+     * @param userOpe undo 用コマンドオブジェクト
+     */
+    public record ReplacementEvent(BhNode target, BhNode newNode, UserOperation userOpe) {}
+
+    /**
+     * ノードが属するワークスペースが変わったときの情報を格納したレコード.
+     *
+     * @param target 所属するワークスペースが変わったノード
+     * @param oldWs {@code target} が所属していたワークスペース
+     * @param newWs {@code target} が現在所属しているワークスペース
+     * @param userOpe undo 用コマンドオブジェクト
+     */
+    public record WorkspaceChangeEvent(
+        BhNode target, Workspace oldWs, Workspace newWs, UserOperation userOpe) {}
   }
 
   /**
    * このノードのイベントハンドラを呼び出す機能を提供するクラス.
    *
-   * <p>
-   * このオブジェクトと紐づく {@BhNode} オブジェクトを「ターゲットノード」と呼ぶ.
-   * </p>
+   * <p>このオブジェクトと紐づく {@BhNode} オブジェクトを「ターゲットノード」と呼ぶ.
    */
   public class EventInvoker {
 
@@ -766,8 +839,7 @@ public abstract class BhNode extends SyntaxSymbol {
         BhNode oldRoot,
         BhNode newReplaced,
         UserOperation userOpe) {
-      nodeEventInvoker.onMovedFromChildToWs(
-          BhNode.this, oldParent, oldRoot, newReplaced, userOpe);
+      nodeEventInvoker.onMovedFromChildToWs(BhNode.this, oldParent, oldRoot, newReplaced, userOpe);
     }
 
     /**

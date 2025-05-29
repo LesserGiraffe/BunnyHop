@@ -22,7 +22,7 @@ import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeVersion;
 import net.seapanda.bunnyhop.model.node.parameter.ConnectorId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
  * BhNode を保存する際の情報を保持するクラス.

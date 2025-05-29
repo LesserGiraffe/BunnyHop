@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.view.node;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedSet;
@@ -33,7 +34,7 @@ import javafx.scene.text.Font;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.utility.SimpleCache;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.node.component.SelectableItem;
@@ -84,7 +85,7 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
    */
   public ComboBoxNodeView(BhNodeViewStyle viewStyle)
       throws ViewConstructionException {
-    this(null, viewStyle, null);
+    this(null, viewStyle, new LinkedHashSet<>());
   }
 
   private void initStyle() {

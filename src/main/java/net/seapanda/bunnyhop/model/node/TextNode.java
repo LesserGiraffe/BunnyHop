@@ -32,7 +32,7 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import org.apache.commons.lang3.function.TriConsumer;
+import net.seapanda.bunnyhop.utility.function.TriConsumer;
 
 /**
  * 文字情報を持つ終端 BhNode.

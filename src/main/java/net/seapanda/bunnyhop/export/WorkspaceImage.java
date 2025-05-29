@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.export;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import net.seapanda.bunnyhop.utility.Vec2D;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
  * ワークスペースの保存用イメージ.
