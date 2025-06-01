@@ -62,7 +62,7 @@ public class TextInputNodeController implements BhNodeController {
     String initText = model.getText();
     view.setText(initText + " ");  //初期文字列が空文字だったときのため
     view.setText(initText);
-    model.getEventManager().addOnTextChanged((oldText, newText, userOpe) -> view.setText(newText));
+    model.getCallbackRegistry().getOnTextChanged().add(event -> view.setText(event.newText()));
   }
 
   /** {@code TextInputNodeView} のフォーカスが外れた時のイベントハンドラ. */

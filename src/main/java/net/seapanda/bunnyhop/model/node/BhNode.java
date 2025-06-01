@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedSet;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
@@ -37,8 +38,6 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
-import net.seapanda.bunnyhop.utility.function.TetraConsumer;
-import net.seapanda.bunnyhop.utility.function.TriConsumer;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
@@ -150,7 +149,7 @@ public abstract class BhNode extends SyntaxSymbol {
    *
    * @return このノードに対するイベントハンドラの追加と削除を行うオブジェクト
    */
-  public abstract EventManager getEventManager();
+  public abstract CallbackRegistry getCallbackRegistry();
   
 
   /** コンストラクタ. */
@@ -334,6 +333,14 @@ public abstract class BhNode extends SyntaxSymbol {
    * @param parentConnector このノードと繋がるコネクタ
    */
   public void setParentConnector(Connector parentConnector) {
+    if (this.parentConnector != null) {
+      this.parentConnector.getCallbackRegistry().getOnNodeReplaced()
+          .remove(getCallbackRegistry().onNodeReplaced);
+    }
+    if (parentConnector != null) {
+      parentConnector.getCallbackRegistry().getOnNodeReplaced()
+          .add(getCallbackRegistry().onNodeReplaced);
+    }
     this.parentConnector = parentConnector;
   }
 
@@ -358,7 +365,8 @@ public abstract class BhNode extends SyntaxSymbol {
     }
     Workspace oldWs = this.workspace;
     this.workspace = workspace;
-    getEventManager().invokeOnWorkspaceChanged(oldWs, userOpe);
+    getCallbackRegistry().onWsChangedInvoker.invoke(
+        new WorkspaceChangeEvent(this, oldWs, workspace, userOpe));
     // undo 時に Workspace.addNode の逆操作とこのコマンドの逆操作が重複するが問題ない.
     // このメソッドの呼ばれ方によらず, このメソッドの逆操作をするために, ここで操作コマンドを追加する.
     userOpe.pushCmdOfSetWorkspace(oldWs, this);
@@ -415,7 +423,8 @@ public abstract class BhNode extends SyntaxSymbol {
   public void select(UserOperation userOpe) {
     if (!isSelected) {
       isSelected = true;
-      getEventManager().invokeOnSelectionStateChanged(userOpe);
+      getCallbackRegistry().onSelStateChangedInvoker.invoke(
+          new SelectionEvent(this, true, userOpe));
       userOpe.pushCmdOfSelectNode(this);
     }
   }
@@ -424,7 +433,8 @@ public abstract class BhNode extends SyntaxSymbol {
   public void deselect(UserOperation userOpe) {
     if (isSelected) {
       isSelected = false;
-      getEventManager().invokeOnSelectionStateChanged(userOpe);
+      getCallbackRegistry().onSelStateChangedInvoker.invoke(
+          new SelectionEvent(this, false, userOpe));
       userOpe.pushCmdOfDeselectNode(this);
     }
   }
@@ -541,7 +551,8 @@ public abstract class BhNode extends SyntaxSymbol {
     }
     userOpe.pushCmdOfSetCompileError(this, hasCompileError);
     hasCompileError = val;
-    getEventManager().invokeOnCompileErrStateChanged(userOpe);  
+    getCallbackRegistry().onCompileErrStateChangedInvoker.invoke(
+        new CompileErrorEvent(this, hasCompileError, userOpe));
   }
 
   /** このノードがコンパイルエラーを起こしているかどうかの状態を取得する. */
@@ -583,231 +594,100 @@ public abstract class BhNode extends SyntaxSymbol {
   /**
    * ノードの入れ替えの結果変化のあったノード一式.
    *
-   * @param oldNode 入れ替え前に子ノードであったノード
-   * @param newNode 入れ替え後に子ノードとなったノード
+   * @param disconnected 入れ替え前に子ノードであったノード
+   * @param connected 入れ替え後に子ノードとなったノード
    */
   public record Swapped(BhNode oldNode, BhNode newNode) {}
 
-  /** イベントハンドラの管理を行うクラス. */
-  public class EventManager {
+  /** {@link BhNode} に対するイベントハンドラの追加と削除を行うクラス. */
+  public class CallbackRegistry {
 
-    /** このノードが選択されたときに呼び出すメソッドのリスト. */
-    private transient
-        SequencedSet<TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>>
-        onSelectionStateChangedList = new LinkedHashSet<>();
-    /** このノードのコンパイルエラー状態が変更されたときに呼び出すメソッドのリスト. */
-    private transient
-        SequencedSet<TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>>
-        onCompileErrStateChangedList = new LinkedHashSet<>();
-    /** このノードが他のノードと入れ替わったとき呼び出すメソッドのリスト. */
-    private transient
-        SequencedSet<TriConsumer<? super BhNode, ? super BhNode, ? super UserOperation>>
-        onNodeReplacedList = new LinkedHashSet<>();
-    /** このノードが属するワークスペースが変わったときに呼び出すメソッドのリスト. */
-    private transient SequencedSet<
-        TetraConsumer<? super BhNode, ? super Workspace, ? super Workspace, ? super UserOperation>>
-        onWorkspaceChangedList = new LinkedHashSet<>();
-
-    /**
-     * ノードの選択状態が変更されたときのイベントハンドラを追加する.
-     *  <pre>
-     *  イベントハンドラの第 1 引数: 選択状態に変更のあった {@link BhNode}
-     *  イベントハンドラの第 2 引数: 選択状態. 選択されたなら true.
-     *  イベントハンドラの第 3 引数: undo 用コマンドオブジェクト
-     *  </pre>
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    public void addOnSelectionStateChanged(
-        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
-      onSelectionStateChangedList.addLast(handler);
-    }
-
-    /**
-     * ノードの選択状態が変更されたときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    public void removeOnSelectionStateChanged(
-        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
-      onSelectionStateChangedList.remove(handler);
-    }
-
-    /** 選択変更時のイベントハンドラを呼び出す. */
-    private void invokeOnSelectionStateChanged(UserOperation userOpe) {
-      onSelectionStateChangedList.forEach(
-          handler -> handler.accept(BhNode.this, isSelected, userOpe));
-    }
-
-    /**
-     * ノードのコンパイルエラー状態が変更されたときのイベントハンドラを追加する.
-     *  <pre>
-     *  イベントハンドラの第 1 引数: コンパイルエラー状態に変更のあった {@link BhNode}
-     *  イベントハンドラの第 2 引数: コンパイルエラー状態.
-     *  イベントハンドラの第 3 引数: undo 用コマンドオブジェクト
-     *  </pre>
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    public void addOnCompileErrStateChanged(
-        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
-      onCompileErrStateChangedList.addLast(handler);
-    }
-
-    /**
-     * ノードのコンパイルエラー状態が変更されたときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    public void removeOnCompileErrStateChanged(
-        TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation> handler) {
-      onCompileErrStateChangedList.remove(handler);
-    }
-
-    /** ノードのコンパイルエラー状態が変更されたときのイベントハンドラを呼び出す. */
-    private void invokeOnCompileErrStateChanged(UserOperation userOpe) {
-      onCompileErrStateChangedList.forEach(
-          handler -> handler.accept(BhNode.this, hasCompileError, userOpe));
-    }
-
-    /**
-     * ノードが入れ替わったときのイベントハンドラを追加する.
-     *  <pre>
-     *  イベントハンドラの第 1 引数: このノード
-     *  イベントハンドラの第 2 引数: このノードの代わりに, このノードがあった位置に接続されたノード
-     *  イベントハンドラの第 3 引数: undo 用コマンドオブジェクト
-     *  </pre>
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    public void addOnNodeReplaced(
-        TriConsumer<? super BhNode, ? super BhNode, ? super UserOperation> handler) {      
-      onNodeReplacedList.addLast(handler);
-    }
-
-    /**
-     * ノードが入れ替わったときのイベントハンドラを削除する.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    public void removeOnNodeReplaced(
-        TriConsumer<? super BhNode, ? super BhNode, ? super UserOperation> handler) {
-      onNodeReplacedList.remove(handler);
-    }
-
-    /** ワークスペース変更時のイベントハンドラを呼び出す. */
-    private void invokeOnWorkspaceChanged(Workspace oldWs, UserOperation userOpe) {
-      onWorkspaceChangedList.forEach(
-          handler -> handler.accept(BhNode.this, oldWs, workspace, userOpe));
-    }
-
-    /**
-     * このノードが属するワークスペースが変わったときのイベントハンドラを追加する.
-     *  <pre>
-     *  イベントハンドラの第 1 引数: このノード
-     *  イベントハンドラの第 2 引数: 変更前のワークスペース
-     *  イベントハンドラの第 3 引数: 変更後のワークスペース
-     *  イベントハンドラの第 4 引数: undo 用コマンドオブジェクト
-     *  </pre>
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    public void addOnWorkspaceChanged(
-        TetraConsumer<? super BhNode, ? super Workspace, ? super Workspace, ? super UserOperation>
-        handler) {
-      onWorkspaceChangedList.addLast(handler);
-    }
-
-    /**
-     * このノードが属するワークスペースが変わったときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    public void removeOnWorkspaceChanged(
-        TetraConsumer<? super BhNode, ? super Workspace, ? super Workspace, ? super UserOperation>
-        handler) {
-      onWorkspaceChangedList.remove(handler);
-    }
-
-    /** ノード入れ替え時のイベントハンドラを呼び出す. */
-    void invokeOnNodeReplaced(BhNode newNode, UserOperation userOpe) {
-      onNodeReplacedList.forEach(handler -> handler.accept(BhNode.this, newNode, userOpe));
-    }
-
-    /** このノードが選択されたときに呼び出すメソッドを管理するオブジェクト. */
-    private transient ConsumerInvoker<SelectionEvent> onNodeSelectionStateChangedInvoker =
-        new ConsumerInvoker<SelectionEvent>();
+    /** このノードの選択状態が変更されたときに呼び出すメソッドを管理するオブジェクト. */
+    private final ConsumerInvoker<SelectionEvent> onSelStateChangedInvoker =
+        new ConsumerInvoker<>();
 
     /** このノードのコンパイルエラー状態が変更されたときに呼び出すメソッドを管理するオブジェクト. */
-    private transient ConsumerInvoker<CompileErrorEvent> onCompileErrStateChangedInvoker =
-        new ConsumerInvoker<CompileErrorEvent>();
+    private final ConsumerInvoker<CompileErrorEvent> onCompileErrStateChangedInvoker =
+        new ConsumerInvoker<>();
 
-    /** このノードが他のノードと入れ替わったときに呼び出すメソッドを管理するオブジェクト. */
-    private transient ConsumerInvoker<ReplacementEvent> onNodeReplacedInvoker =
-        new ConsumerInvoker<ReplacementEvent>();
+    /** このノードが {@link Connector} に接続されたときに呼び出すメソッドを管理するオブジェクト. */
+    private final ConsumerInvoker<ConnectionEvent> onConnectedInvoker =
+        new ConsumerInvoker<>();
 
     /** このノードが属するワークスペースが変わったときに呼び出すメソッドを管理するオブジェクト. */
-    private transient ConsumerInvoker<WorkspaceChangeEvent> onWsChangedInvoker =
-        new ConsumerInvoker<WorkspaceChangeEvent>();
+    private final ConsumerInvoker<WorkspaceChangeEvent> onWsChangedInvoker =
+        new ConsumerInvoker<>();
 
-    /** ノードの選択状態が変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
-    public ConsumerInvoker<SelectionEvent>.Registry getSelectionEventHandlerRegistry() {
-      return onNodeSelectionStateChangedInvoker.getRegistry();
+    /** ノードが入れ替わったときのイベントハンドラ. */
+    private final Consumer<? super Connector.ReplacementEvent> onNodeReplaced =
+        this::onNodeReplaced;
+
+    /** このノードの選択状態が変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    public ConsumerInvoker<SelectionEvent>.Registry getOnSelectionStateChanged() {
+      return onSelStateChangedInvoker.getRegistry();
     }
 
-    /** ノードのコンパイルエラー状態が変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
-    public ConsumerInvoker<CompileErrorEvent>.Registry getCompileErrorEventHandlerRegistry() {
+    /** このノードのコンパイルエラー状態が変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    public ConsumerInvoker<CompileErrorEvent>.Registry getOnCompileErrorStateChanged() {
       return onCompileErrStateChangedInvoker.getRegistry();
     }
 
-    /** ノードが入れ替わったときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
-    public ConsumerInvoker<ReplacementEvent>.Registry getReplacementEventHandlerRegistry() {
-      return onNodeReplacedInvoker.getRegistry();
+    /** このノードが, {@link Connector} に接続されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    public ConsumerInvoker<ConnectionEvent>.Registry getOnConnected() {
+      return onConnectedInvoker.getRegistry();
     }
 
-    /** ノードが属するワークスペースが変わったときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
-    public ConsumerInvoker<WorkspaceChangeEvent>.Registry getWorkspaceChangeEventHandlerRegistry() {
+    /** このノードが属するワークスペースが変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    public ConsumerInvoker<WorkspaceChangeEvent>.Registry getOnWorkspaceChanged() {
       return onWsChangedInvoker.getRegistry();
     }
 
-    /**
-     * ノードの選択状態が変わったときの情報を格納したレコード.
-     *
-     * @param target 選択状態が変更された {@link BhNode}
-     * @param isSelected {@code target} が選択された場合 true
-     * @param userOpe undo 用コマンドオブジェクト
-     */
-    public record SelectionEvent(BhNode target, Boolean isSelected, UserOperation userOpe) {}
-
-    /**
-     * ノードのコンパイルエラー状態が変更されたときの情報を格納したレコード.
-     *
-     * @param target コンパイルエラー状態が変更された {@link BhNode}
-     * @param hasError {@code target} がコンパイルエラーを起こした場合 true
-     * @param userOpe undo 用コマンドオブジェクト
-     */
-    public record CompileErrorEvent(BhNode target, Boolean hasError, UserOperation userOpe) {}
-
-    /**
-     * ノードが入れ替わったときの情報を格納したレコード.
-     *
-     * @param target {@code newNode} と入れ替わったノード
-     * @param newNode {@code target} が接続されていた位置に新しく接続されたノード
-     * @param userOpe undo 用コマンドオブジェクト
-     */
-    public record ReplacementEvent(BhNode target, BhNode newNode, UserOperation userOpe) {}
-
-    /**
-     * ノードが属するワークスペースが変わったときの情報を格納したレコード.
-     *
-     * @param target 所属するワークスペースが変わったノード
-     * @param oldWs {@code target} が所属していたワークスペース
-     * @param newWs {@code target} が現在所属しているワークスペース
-     * @param userOpe undo 用コマンドオブジェクト
-     */
-    public record WorkspaceChangeEvent(
-        BhNode target, Workspace oldWs, Workspace newWs, UserOperation userOpe) {}
+    /** コネクタに接続されたノードが入れ替わったときに呼び出されるコールバック関数. */
+    private void onNodeReplaced(Connector.ReplacementEvent event) {
+      if (event.newNode() == BhNode.this) {
+        onConnectedInvoker.invoke(
+            new ConnectionEvent(event.oldNode(), BhNode.this, event.userOpe()));
+      }
+    }    
   }
+
+  /**
+   * ノードの選択状態が変更されたときの情報を格納したレコード.
+   *
+   * @param node 選択状態が変更されたノード
+   * @param isSelected {@code node} が選択された場合 true
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record SelectionEvent(BhNode node, boolean isSelected, UserOperation userOpe) {}
+
+  /**
+   * ノードのコンパイルエラー状態が変更されたときの情報を格納したレコード.
+   *
+   * @param node コンパイルエラー状態が変更されたノード
+   * @param hasError {@code node} がコンパイルエラーを起こした場合 true
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record CompileErrorEvent(BhNode node, boolean hasError, UserOperation userOpe) {}
+
+  /**
+   * 子ノードが入れ替わったときの情報を格納したレコード.
+   *
+   * @param disconnected {@code connected} が接続される前に接続されていたノード
+   * @param connected {@code disconnected} が接続されていた {@link Connector} に新しく接続されたノード
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record ConnectionEvent(BhNode disconnected, BhNode connected, UserOperation userOpe) {}
+
+  /**
+   * ノードが属するワークスペースが変更されたときの情報を格納したレコード.
+   *
+   * @param node 所属するワークスペースが変わったノード
+   * @param oldWs {@code node} が所属していたワークスペース
+   * @param newWs {@code node} が現在所属しているワークスペース
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record WorkspaceChangeEvent(
+      BhNode node, Workspace oldWs, Workspace newWs, UserOperation userOpe) {}
 
   /**
    * このノードのイベントハンドラを呼び出す機能を提供するクラス.

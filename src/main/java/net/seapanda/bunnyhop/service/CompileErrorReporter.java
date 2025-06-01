@@ -45,12 +45,11 @@ public class CompileErrorReporter {
    * @param wss このワークスペースセットにあるノードのコンパイルエラーを表示する.
    */
   public CompileErrorReporter(WorkspaceSet wss) {
-    wss.getEventManager().addOnNodeAdded((wsSet, ws, node, userOpe) -> startingPoints.add(node));
-    wss.getEventManager().addOnNodeRemoved((wsSet, ws, node, userOpe) -> startingPoints.add(node));
-    wss.getEventManager().addOnNodeTurnedIntoRoot(
-        (wsSet, ws, node, userOpe) -> startingPoints.add(node));
-    wss.getEventManager().addOnNodeTurnedIntoNotRoot(
-          (wsSet, ws, node, userOpe) -> startingPoints.add(node));
+    WorkspaceSet.CallbackRegistry registry = wss.getCallbackRegistry();
+    registry.getOnNodeAdded().add(event -> startingPoints.add(event.node()));
+    registry.getOnNodeRemoved().add(event -> startingPoints.add(event.node()));
+    registry.getOnRootNodeAdded().add(event -> startingPoints.add(event.node()));
+    registry.getOnRootNodeRemoved().add(event -> startingPoints.add(event.node()));
   }
 
   /**

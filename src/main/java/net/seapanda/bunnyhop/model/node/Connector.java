@@ -30,6 +30,7 @@ import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
 /**
  * ノードとノードをつなぐコネクタのクラス.
@@ -52,6 +53,8 @@ public class Connector extends SyntaxSymbol {
   private final transient BhNodeFactory factory;
   /** このコネクタ対して定義されたイベントハンドラを呼び出すためのオブジェクト. */
   private final transient ConnectorEventInvoker eventInvoker;
+  /** このコネクタ対して定義されたイベントハンドラの登録 / 削除を行う機能を提供するオブジェクト. */
+  private final transient CallbackRegistry cbRegistry = new CallbackRegistry();
 
   @Override
   public void accept(BhNodeWalker visitor) {
@@ -133,10 +136,8 @@ public class Connector extends SyntaxSymbol {
     if (oldNode != null && oldNode.getWorkspace() != null) {
       oldNode.getWorkspace().addNodeTree(node, userOpe);
     }
-    // redo 操作の定義されたこのメソッドからイベントハンドラを呼ぶ
-    if (oldNode != null) {
-      oldNode.getEventManager().invokeOnNodeReplaced(node, userOpe);
-    }
+    cbRegistry.onNodeReplaced.invoke(new ReplacementEvent(oldNode, node, userOpe));
+
     if (userOpe != null) {
       userOpe.pushCmdOfConnectNode(oldNode, this);
     }
@@ -245,6 +246,15 @@ public class Connector extends SyntaxSymbol {
     return defaultNodeId;
   }
 
+  /**
+   * このコネクタに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
+   *
+   * @return このコネクタに対するイベントハンドラの追加と削除を行うオブジェクト
+   */
+  CallbackRegistry getCallbackRegistry() {
+    return cbRegistry;
+  }
+
   @Override
   public void findDescendantOf(
       int generationi,
@@ -297,4 +307,26 @@ public class Connector extends SyntaxSymbol {
         getInstanceId()));
     connectedNode.show(depth + 1);
   }
+
+  /** イベントハンドラの登録 / 削除を行う機能を提供するクラス. */
+  class CallbackRegistry {
+
+    /** このノードが選択されたときに呼び出すメソッドを管理するオブジェクト. */
+    private transient ConsumerInvoker<ReplacementEvent> onNodeReplaced =
+        new ConsumerInvoker<ReplacementEvent>();
+    
+    /** このコネクタに接続されるノードが入れ替わったときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    ConsumerInvoker<ReplacementEvent>.Registry getOnNodeReplaced() {
+      return onNodeReplaced.getRegistry();
+    }
+  }
+
+  /**
+   * ノードが入れ替わったときの情報を格納したレコード.
+   *
+   * @param child {@code newNode} と入れ替わったノード
+   * @param connectednewNode {@code oldNode} の替わりに接続新しく接続されたノード
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  record ReplacementEvent(BhNode oldNode, BhNode newNode, UserOperation userOpe) {}  
 }

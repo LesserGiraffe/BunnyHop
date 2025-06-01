@@ -16,13 +16,12 @@
 
 package net.seapanda.bunnyhop.view.debugger;
 
+import java.util.function.Consumer;
 import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
 import net.seapanda.bunnyhop.bhprogram.debugger.CallStackItem;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.function.TriConsumer;
 
 /**
  * デバッガのコールスタックに表示される要素のビュー.
@@ -37,8 +36,8 @@ public class CallStackCell extends ListCell<CallStackItem> {
   private CallStackItem model;
   private boolean empty = true;
   /** {@link #model} に対応する {@link BhNode} の選択状態が変わったときのイベントハンドラ. */
-  private final TriConsumer<? super BhNode, ? super Boolean, ? super UserOperation>
-      onNodeSelectionStateChanged = (node, val, userOpe) -> decorateText(val);
+  private final Consumer<? super BhNode.SelectionEvent>
+      onNodeSelStateChanged = event -> decorateText(event.isSelected());
 
   /** コンストラクタ. */
   public CallStackCell() {
@@ -77,11 +76,11 @@ public class CallStackCell extends ListCell<CallStackItem> {
   private void setEventHandlers(CallStackItem item, boolean empty) {
     if ((empty || model != item) && model != null) {
       model.getNode().ifPresent(node ->
-          node.getEventManager().removeOnSelectionStateChanged(onNodeSelectionStateChanged));
+          node.getCallbackRegistry().getOnSelectionStateChanged().remove(onNodeSelStateChanged));
     }
     if (!empty && model != item && item != null) {
       item.getNode().ifPresent(node ->
-          node.getEventManager().addOnSelectionStateChanged(onNodeSelectionStateChanged));
+          node.getCallbackRegistry().getOnSelectionStateChanged().add(onNodeSelStateChanged));
     }
   }
 

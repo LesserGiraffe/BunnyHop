@@ -138,6 +138,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     compileErrorMark.getStyleClass().add(BhConstants.Css.CLASS_BH_NODE_COMPILE_ERROR);
     compileErrorMark.setMouseTransparent(true);
     addComponent(nodeShape);
+    components.forEach(this::addComponent);
     nodeShape.addEventFilter(Event.ANY, this::forwardEventIfNotHaveController);
   }
 

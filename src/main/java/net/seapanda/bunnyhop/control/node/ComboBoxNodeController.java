@@ -56,18 +56,18 @@ public class ComboBoxNodeController implements BhNodeController {
     notifService = controller.getNotificationService();
 
     setEventHandlers();
-    model.getEventManager().addOnTextChanged((oldText, newText, userOpe) -> {
+    model.getCallbackRegistry().getOnTextChanged().add(event -> {
       view.getItems().stream()
-          .filter(item -> item.getModel().equals(newText))
+          .filter(item -> item.getModel().equals(event.newText()))
           .findFirst()
           .ifPresent(view::setValue);
     });
   }
 
   private void setEventHandlers() {
-    model.getEventManager().addOnTextChanged((oldText, newText, userOpe) ->
+    model.getCallbackRegistry().getOnTextChanged().add(event ->
         view.getItems().stream()
-            .filter(item -> item.getModel().equals(newText))
+            .filter(item -> item.getModel().equals(event.newText()))
             .findFirst()
             .ifPresent(view::setValue));
 

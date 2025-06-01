@@ -92,7 +92,7 @@ public class TemplateNodeController implements BhNodeController {
     view.getEventManager().addEventFilter(
         MouseEvent.ANY,
         mouseEvent -> consumeIfNotAcceptable(mouseEvent));
-    model.getEventManager().addOnNodeReplaced((oldNode, newNode, userOpe) -> replaceView(newNode));
+    model.getCallbackRegistry().getOnConnected().add(event -> replaceView(event.disconnected()));
   }
 
   /** マウスボタン押下時のイベントハンドラ. */
@@ -196,11 +196,11 @@ public class TemplateNodeController implements BhNodeController {
     }
   }
 
-  /** {@link #view} と {@code newNode} のノードビューを入れ替える. */
-  private void replaceView(BhNode newNode) {
-    Optional.ofNullable(newNode)
+  /** {@link #view} と {@code oldNode} のノードビューを入れ替える. */
+  private void replaceView(BhNode oldNode) {
+    Optional.ofNullable(oldNode)
         .flatMap(BhNode::getView)
-        .ifPresent(view.getTreeManager()::replace);
+        .ifPresent(oldView -> oldView.getTreeManager().replace(view));
   }
 
   /** D&D を終えたときの処理. */

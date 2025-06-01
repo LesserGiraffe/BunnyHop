@@ -78,11 +78,11 @@ public class DefaultBhNodeController implements BhNodeController {
     this.trashbox = trashbox;
     model.setView(view);
     view.setController(this);
-    setEventHandlers();
+    setViewEventHandlers();
+    setNodeEventHandlers();
   }
 
-  /** 各種イベントハンドラをセットする. */
-  private void setEventHandlers() {
+  private void setViewEventHandlers() {
     view.getEventManager().setOnMousePressed(this::onMousePressed);
     view.getEventManager().setOnMouseDragged(this::onMouseDragged);
     view.getEventManager().setOnDragDetected(this::onMouseDragDetected);
@@ -90,13 +90,18 @@ public class DefaultBhNodeController implements BhNodeController {
     view.getEventManager().addEventFilter(
         MouseEvent.ANY,
         mouseEvent -> consumeIfNotAcceptable(mouseEvent));
-    model.getEventManager().addOnNodeReplaced((oldNode, newNode, userOpe) -> replaceView(newNode));
-    model.getEventManager().addOnSelectionStateChanged((node, isSelected, userOpe) -> {
+  }
+
+  private void setNodeEventHandlers() {
+    BhNode.CallbackRegistry registry = model.getCallbackRegistry();
+    registry.getOnConnected().add(event -> replaceView(event.disconnected()));
+    registry.getOnSelectionStateChanged().add(event -> {
+      boolean isSelected = event.isSelected();
       view.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SELECTED, isSelected);
       hilightDerivatives(model, isSelected);
     });
-    model.getEventManager().addOnCompileErrStateChanged((node, hasCompileError, userOpe) -> 
-        view.getLookManager().setCompileErrorVisibility(hasCompileError));
+    registry.getOnCompileErrorStateChanged().add(event -> 
+        view.getLookManager().setCompileErrorVisibility(event.hasError()));
   }
 
   /** マウスボタン押下時の処理. */
@@ -426,11 +431,11 @@ public class DefaultBhNodeController implements BhNodeController {
     }
   }
 
-  /** {@link #view} と {@code newNode} のノードビューを入れ替える. */
-  private void replaceView(BhNode newNode) {
-    Optional.ofNullable(newNode)
+  /** {@link #view} と {@code oldNode} のノードビューを入れ替える. */
+  private void replaceView(BhNode oldNode) {
+    Optional.ofNullable(oldNode)
         .flatMap(BhNode::getView)
-        .ifPresent(view.getTreeManager()::replace);
+        .ifPresent(oldView -> oldView.getTreeManager().replace(view));
   }
 
   /** {@code node} の派生ノードを強調表示を切り返る. */

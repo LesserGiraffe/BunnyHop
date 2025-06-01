@@ -55,12 +55,11 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
     String categoryName = view.getCategoryName();
     categoryNameToSelectionView.putIfAbsent(categoryName, view);
     Workspace workspace = categoryNameToWorkspace.computeIfAbsent(categoryName, Workspace::new);
-    workspace.getEventManager().addOnNodeAdded((ws, node, userOpe) -> addNodeView(node, view));
-    workspace.getEventManager().addOnNodeRemoved((ws, node, userOpe) -> removeNodeView(node, view));
-    workspace.getEventManager().addOnNodeTurnedIntoRoot(
-        (ws, root, userOpe) -> speficyNodeViewAsRoot(root, view));
-    workspace.getEventManager().addOnNodeTurnedIntoNotRoot(
-        (ws, root, userOpe) -> speficyNodeViewAsNotRoot(root, view));
+    Workspace.CallbackRegistry registry = workspace.getCallbackRegistry();
+    registry.getOnNodeAdded().add(event -> addNodeView(event.node(), view));
+    registry.getOnNodeRemoved().add(event -> removeNodeView(event.node(), view));
+    registry.getOnRootNodeAdded().add(event -> speficyNodeViewAsRoot(event.node(), view));
+    registry.getOnRootNodeRemoved().add(event -> speficyNodeViewAsNotRoot(event.node(), view));
     view.getRegion().addEventFilter(ScrollEvent.ANY, event -> onScrolled(event));
     fnAddNodeSelectionViewToGuiTree.accept(view);
   }

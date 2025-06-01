@@ -16,10 +16,8 @@
 
 package net.seapanda.bunnyhop.model.node;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.SequencedSet;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeBase;
@@ -32,7 +30,7 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.function.TriConsumer;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
 /**
  * 文字情報を持つ終端 BhNode.
@@ -43,7 +41,7 @@ public class TextNode extends DerivativeBase<TextNode> {
 
   private String text = "";
   /** このノードに登録されたイベントハンドラを管理するオブジェクト. */
-  private transient TextEventManager eventManager = new TextEventManager();
+  private final transient CallbackRegistry cbRegistry = new CallbackRegistry();
 
   /**
    * コンストラクタ.
@@ -120,7 +118,7 @@ public class TextNode extends DerivativeBase<TextNode> {
     }
     String oldText = text;
     this.text = text;
-    getEventManager().invokeOnTextChanged(oldText, userOpe);
+    cbRegistry.onTextChangedInvoker.invoke(new TextChangedEvent(oldText, text, userOpe));
     userOpe.pushCmdOfSetText(this, oldText);
   }
 
@@ -207,12 +205,12 @@ public class TextNode extends DerivativeBase<TextNode> {
   }
 
   @Override
-  public TextEventManager getEventManager() {
+  public CallbackRegistry getCallbackRegistry() {
     // シリアライズしたノードを操作したときに null が返るのを防ぐ.
-    if (eventManager == null) {
-      return new TextEventManager();
+    if (cbRegistry == null) {
+      return new CallbackRegistry();
     }
-    return eventManager;
+    return cbRegistry;
   }
 
   @Override
@@ -232,43 +230,27 @@ public class TextNode extends DerivativeBase<TextNode> {
         "%s<derivative>  %s".formatted(indent(depth + 2), derv.getInstanceId())));
   }
 
-  /** イベントハンドラの管理を行うクラス. */
-  public class TextEventManager extends BhNode.EventManager {
-    private transient
-        SequencedSet<TriConsumer<? super String, ? super String, ? super UserOperation>>
-        onTextChangedList = new LinkedHashSet<>();
-    
-    /**
-     * ノードの選択状態が変更されたときのイベントハンドラを追加する.
-     *  <pre>
-     *  イベントハンドラの第 1 引数: 選択状態に変換のあった {@link BhNode}
-     *  イベントハンドラの第 2 引数: 選択状態. 選択されたなら true.
-     *  イベントハンドラの第 3 引数: undo 用コマンドオブジェクト
-     *  </pre>
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    public void addOnTextChanged(
-        TriConsumer<? super String, ? super String, ? super UserOperation> handler) {
-      onTextChangedList.addLast(handler);
-    }
+  /** {@link TextNode} に対するイベントハンドラの追加と削除を行うクラス. */
+  public class CallbackRegistry extends BhNode.CallbackRegistry {
 
-    /**
-     * ノードの選択状態が変更されたときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    public void removeOnTextChanged(
-        TriConsumer<? super String, ? super String, ? super UserOperation> handler) {
-      onTextChangedList.remove(handler);
-    }
+    /** このノードのテキストが変更されたときに呼び出すメソッドを管理するオブジェクト. */
+    private final ConsumerInvoker<TextChangedEvent> onTextChangedInvoker = new ConsumerInvoker<>();
 
-    /** 選択変更時のイベントハンドラを呼び出す. */
-    private void invokeOnTextChanged(String oldText, UserOperation userOpe) {
-      onTextChangedList.forEach(handler -> handler.accept(oldText, text, userOpe));
+    /** このノードのテキストが変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    public ConsumerInvoker<TextChangedEvent>.Registry getOnTextChanged() {
+      return onTextChangedInvoker.getRegistry();
     }
   }
   
+  /**
+   * このノードのテキストが変更されたときの情報を格納したレコード.
+   *
+   * @param oldText 変更前のテキスト
+   * @param newText 変更後のテキスト
+   *  @param userOpe undo 用コマンドオブジェクト
+   */
+  public record TextChangedEvent(String oldText, String newText, UserOperation userOpe) {}
+
   /**
    * テキストをフォーマットした結果を格納するレコード.
    *

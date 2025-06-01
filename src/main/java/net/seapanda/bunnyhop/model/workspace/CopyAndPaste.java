@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.SequencedSet;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -29,8 +30,7 @@ import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.function.TetraConsumer;
-import net.seapanda.bunnyhop.utility.function.TriConsumer;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -43,7 +43,7 @@ public class CopyAndPaste {
  
   /** コピー予定のノード. */
   private final SequencedSet<BhNode> readyToCopy = new LinkedHashSet<>();
-  private final EventManager eventManager = this.new EventManager();
+  private final CallbackRegistry callbackRegistry = this.new CallbackRegistry();
   private final BhNodeFactory factory;
   /** ノードの貼り付け位置をずらすためのカウンタ. */
   private final MutableInt pastePosOffsetCount;
@@ -65,9 +65,9 @@ public class CopyAndPaste {
       return;
     }
     readyToCopy.add(toAdd);
-    eventManager.invokeOnCopyNodeAdded(toAdd, userOpe);
+    callbackRegistry.onNodeAddedInvoker.invoke(new NodeAddedEvent(this, toAdd));
     userOpe.pushCmdOfAddNodeToCopyList(this, toAdd);
-    toAdd.getEventManager().addOnWorkspaceChanged(eventManager.onWorkspaceChanged);
+    toAdd.getCallbackRegistry().getOnWorkspaceChanged().add(callbackRegistry.onWsChanged);
   }
 
   /**
@@ -148,9 +148,9 @@ public class CopyAndPaste {
   public void removeNodeFromList(BhNode toRemove, UserOperation userOpe) {
     if (readyToCopy.contains(toRemove)) {
       readyToCopy.remove(toRemove);
-      eventManager.invokeOnCopyNodeRemoved(toRemove, userOpe);
+      callbackRegistry.onNodeRemovedInvoker.invoke(new NodeRemovedEvent(this, toRemove));
       userOpe.pushCmdOfRemoveNodeFromCopyList(this, toRemove);
-      toRemove.getEventManager().removeOnWorkspaceChanged(eventManager.onWorkspaceChanged);
+      toRemove.getCallbackRegistry().getOnWorkspaceChanged().remove(callbackRegistry.onWsChanged);
     }
   }
 
@@ -175,81 +175,55 @@ public class CopyAndPaste {
    *
    * @return このオブジェクトに対するイベントハンドラの追加と削除を行うオブジェクト
    */
-  public EventManager getEventManager() {
-    return eventManager;
+  public CallbackRegistry getCallbackRegistry() {
+    return callbackRegistry;
   }
 
   /** コピー元とコピーされた {@link BhNode} のペア. */
   private record OriginalAndCopy(BhNode org, BhNode copy) {}
 
   /** イベントハンドラの管理を行うクラス. */
-  public class EventManager {
+  public class CallbackRegistry {
 
-    /** コピー予定ノードが追加されたときのイベントハンドラのセット. */
-    private final
-        SequencedSet<TriConsumer<? super CopyAndPaste, ? super BhNode, ? super UserOperation>>
-        onCopyNodeAddedList = new LinkedHashSet<>();
-    /** コピー予定ノードが削除されたときのイベントハンドラのセット. */
-    private final
-        SequencedSet<TriConsumer<? super CopyAndPaste, ? super BhNode, ? super UserOperation>>
-        onCopyNodeRemovedList = new LinkedHashSet<>();
-    /** 管理している {@link BhNode} のワークスペースが変わった時のイベントハンドラ. */
-    private final
-        TetraConsumer<? super BhNode, ? super Workspace, ? super Workspace, ? super UserOperation>
-        onWorkspaceChanged = (node, oldWs, newWs, userOpe) -> {
-          if (oldWs != newWs) {
-            CopyAndPaste.this.removeNodeFromList(node, userOpe);
-          }
-        };
+    /** コピー予定のノードが追加されたときに呼び出すメソッドを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker = 
+        new ConsumerInvoker<>();
 
-    /**
-     * ノードがコピー候補になったときのイベントハンドラを追加する.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    public void addOnCopyNodeAdded(
-        TriConsumer<? super CopyAndPaste, ? super BhNode, ? super UserOperation> handler) {
-      onCopyNodeAddedList.addLast(handler);
+    /** コピー予定のノードが削除されたときに呼び出すメソッドを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
+        new ConsumerInvoker<>();
+
+    /** 管理している {@link BhNode} のワークスペースが変わったときのイベントハンドラ. */
+    private final Consumer<? super BhNode.WorkspaceChangeEvent> onWsChanged = event -> {
+      if (event.oldWs() != event.newWs()) {
+        CopyAndPaste.this.removeNodeFromList(event.node(), event.userOpe());
+      }
+    };
+
+    /** コピー予定のノードが追加されたときに呼び出すメソッドを管理するオブジェクト. */
+    public ConsumerInvoker<NodeAddedEvent>.Registry getOnNodeAdded() {
+      return onNodeAddedInvoker.getRegistry();
     }
 
-    /**
-     * ノードがコピー候補になったときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    public void removeOnCopyNodeAdded(
-        TriConsumer<? super CopyAndPaste, ? super BhNode, ? super UserOperation> handler) {
-      onCopyNodeAddedList.remove(handler);
+    /** コピー予定のノードが削除されたときに呼び出すメソッドを管理するオブジェクト. */
+    public ConsumerInvoker<NodeRemovedEvent>.Registry getOnNodeRemoved() {
+      return onNodeRemovedInvoker.getRegistry();
     }
+  }
 
-    /** ノードがコピー候補になったときのイベントハンドラを呼び出す. */
-    private void invokeOnCopyNodeAdded(BhNode node, UserOperation userOpe) {
-      onCopyNodeAddedList.forEach(handler -> handler.accept(CopyAndPaste.this, node, userOpe));
-    }
+  /**
+   * {@link CopyAndPaste} にノードが追加されたときの情報を格納したレコード.
+   *
+   * @param copyAndPaste ノードが追加された {@link CopyAndPaste} オブジェクト
+   * @param added 追加されたノード
+   */
+  public record NodeAddedEvent(CopyAndPaste copyAndPaste, BhNode added) {}
 
-    /**
-     * ノードがコピー候補でなくなったときのイベントハンドラを追加する.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    public void addOnCopyNodeRemoved(
-        TriConsumer<? super CopyAndPaste, ? super BhNode, ? super UserOperation> handler) {
-      onCopyNodeRemovedList.addLast(handler);
-    }
-
-    /**
-     * ノードがコピー候補でなくなったときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    public void removeOnCopyNodeRemoved(
-        TriConsumer<? super CopyAndPaste, ? super BhNode, ? super UserOperation> handler) {
-      onCopyNodeRemovedList.remove(handler);
-    }
-
-    /** ノードがコピー候補でなくなったときのイベントハンドラを呼び出す. */
-    private void invokeOnCopyNodeRemoved(BhNode node, UserOperation userOpe) {
-      onCopyNodeRemovedList.forEach(handler -> handler.accept(CopyAndPaste.this, node, userOpe));
-    }
-  }  
+  /**
+   * {@link CopyAndPaste} からノードが削除されたときの情報を格納したレコード.
+   *
+   * @param copyAndPaste ノードが削除された {@link CopyAndPaste} オブジェクト
+   * @param removed 削除されたノード
+   */
+  public record NodeRemovedEvent(CopyAndPaste copyAndPaste, BhNode removed) {}  
 }

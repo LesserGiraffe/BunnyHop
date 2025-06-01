@@ -21,14 +21,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.SequencedSet;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.BhNodePlacer;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.function.TetraConsumer;
-import net.seapanda.bunnyhop.utility.function.TriConsumer;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -41,7 +41,7 @@ public class CutAndPaste {
   
   /** カット予定のノード. */
   private final SequencedSet<BhNode> readyToCut = new LinkedHashSet<>();
-  private final EventManager eventManager = this.new EventManager();
+  private final CallbackRegistry callbackRegistry = this.new CallbackRegistry();
   /** ノードの貼り付け位置をずらすためのカウンタ. */
   private final MutableInt pastePosOffsetCount;
 
@@ -62,9 +62,9 @@ public class CutAndPaste {
       return;
     }
     readyToCut.add(toAdd);
-    eventManager.invokeOnCutNodeAdded(toAdd, userOpe);
+    callbackRegistry.onNodeAddedInvoker.invoke(new NodeAddedEvent(this, toAdd));
     userOpe.pushCmdOfAddNodeToCutList(this, toAdd);
-    toAdd.getEventManager().addOnWorkspaceChanged(eventManager.onWorkspaceChanged);
+    toAdd.getCallbackRegistry().getOnWorkspaceChanged().add(callbackRegistry.onWsChanged);
   }
 
   /**
@@ -87,9 +87,9 @@ public class CutAndPaste {
   public void removeNodeFromList(BhNode toRemove, UserOperation userOpe) {
     if (readyToCut.contains(toRemove)) {
       readyToCut.remove(toRemove);
-      eventManager.invokeOnCutNodeRemoved(toRemove, userOpe);
+      callbackRegistry.onNodeRemovedInvoker.invoke(new NodeRemovedEvent(this, toRemove));
       userOpe.pushCmdOfRemoveNodeFromCutList(this, toRemove);
-      toRemove.getEventManager().removeOnWorkspaceChanged(eventManager.onWorkspaceChanged);
+      toRemove.getCallbackRegistry().getOnWorkspaceChanged().remove(callbackRegistry.onWsChanged);
     }
   }
 
@@ -170,82 +170,56 @@ public class CutAndPaste {
   }
 
   /**
-   * このオブジェクトに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
+   * {@link CutAndPaste} オブジェクトに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
    *
    * @return このオブジェクトに対するイベントハンドラの追加と削除を行うオブジェクト
    */
-  public EventManager getEventManager() {
-    return eventManager;
+  public CallbackRegistry getCallbackRegistry() {
+    return callbackRegistry;
   }
 
   /** イベントハンドラの管理を行うクラス. */
-  public class EventManager {
+  public class CallbackRegistry {
+    
+    /** カット予定のノードが追加されたときに呼び出すメソッドを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker = 
+        new ConsumerInvoker<>();
 
-    /** カット予定ノードが追加されたときのイベントハンドラのセット. */
-    private final
-        SequencedSet<TriConsumer<? super CutAndPaste, ? super BhNode, ? super UserOperation>>
-        onCutNodeAddedList = new LinkedHashSet<>();
-    /** カット予定ノードが削除されたときのイベントハンドラのセット. */
-    private final
-        SequencedSet<TriConsumer<? super CutAndPaste, ? super BhNode, ? super UserOperation>>
-        onCutNodeRemovedList = new LinkedHashSet<>();
-    /** 管理している {@link BhNode} のワークスペースが変わった時のイベントハンドラ. */
-    private final
-        TetraConsumer<? super BhNode, ? super Workspace, ? super Workspace, ? super UserOperation>
-        onWorkspaceChanged = (node, oldWs, newWs, userOpe) -> {
-          if (oldWs != newWs) {
-            CutAndPaste.this.removeNodeFromList(node, userOpe);
-          }
-        };
+    /** カット予定のノードが削除されたときに呼び出すメソッドを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
+        new ConsumerInvoker<>();
 
-    /**
-     * ノードがカット候補になったときのイベントハンドラを追加する.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    public void addOnCutNodeAdded(
-        TriConsumer<? super CutAndPaste, ? super BhNode, ? super UserOperation> handler) {
-      onCutNodeAddedList.addLast(handler);
+    /** 管理している {@link BhNode} のワークスペースが変わったときのイベントハンドラ. */
+    private final Consumer<? super BhNode.WorkspaceChangeEvent> onWsChanged = event -> {
+      if (event.oldWs() != event.newWs()) {
+        CutAndPaste.this.removeNodeFromList(event.node(), event.userOpe());
+      }
+    };
+
+    /** カット予定のノードが追加されたときに呼び出すメソッドを管理するオブジェクト. */
+    public ConsumerInvoker<NodeAddedEvent>.Registry getOnNodeAdded() {
+      return onNodeAddedInvoker.getRegistry();
     }
 
-    /**
-     * ノードがカット候補になったときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    public void removeOnCutNodeAdded(
-        TriConsumer<? super CutAndPaste, ? super BhNode, ? super UserOperation> handler) {
-      onCutNodeAddedList.remove(handler);
-    }
-
-    /** ノードがカット候補になったときときのイベントハンドラを呼び出す. */
-    private void invokeOnCutNodeAdded(BhNode node, UserOperation userOpe) {
-      onCutNodeAddedList.forEach(handler -> handler.accept(CutAndPaste.this, node, userOpe));
-    }
-
-    /**
-     * ノードがカット候補でなくなったときのイベントハンドラを追加する.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    public void addOnCutNodeRemoved(
-        TriConsumer<? super CutAndPaste, ? super BhNode, ? super UserOperation> handler) {
-      onCutNodeRemovedList.addLast(handler);
-    }
-
-    /**
-     * ノードがカット候補でなくなったときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    public void removeOnCutNodeRemoved(
-        TriConsumer<? super CutAndPaste, ? super BhNode, ? super UserOperation> handler) {
-      onCutNodeRemovedList.remove(handler);
-    }
-
-    /** ノードがカット候補でなくなったときのイベントハンドラを呼び出す. */
-    private void invokeOnCutNodeRemoved(BhNode node, UserOperation userOpe) {
-      onCutNodeRemovedList.forEach(handler -> handler.accept(CutAndPaste.this, node, userOpe));
+    /** カット予定のノードが削除されたときに呼び出すメソッドを管理するオブジェクト. */
+    public ConsumerInvoker<NodeRemovedEvent>.Registry getOnNodeRemoved() {
+      return onNodeRemovedInvoker.getRegistry();
     }
   }
+
+  /**
+   * {@link CutAndPaste} にノードが追加されたときの情報を格納したレコード.
+   *
+   * @param cutAndPaste ノードが追加された {@link CutAndPaste} オブジェクト
+   * @param added 追加されたノード
+   */
+  public record NodeAddedEvent(CutAndPaste cutAndPaste, BhNode added) {}
+
+  /**
+   * {@link CutAndPaste} からノードが削除されたときの情報を格納したレコード.
+   *
+   * @param cutAndPaste ノードが削除された {@link CutAndPaste} オブジェクト
+   * @param removed 削除されたノード
+   */
+  public record NodeRemovedEvent(CutAndPaste cutAndPaste, BhNode removed) {}
 }

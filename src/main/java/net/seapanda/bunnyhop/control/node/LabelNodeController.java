@@ -48,7 +48,7 @@ public class LabelNodeController implements BhNodeController {
           "The view is not %s".formatted(LabelNodeView.class.getSimpleName()));
     }
     notifService = controller.getNotificationService();
-    model.getEventManager().addOnTextChanged((oldText, newText, userOpe) -> view.setText(newText));
+    model.getCallbackRegistry().getOnTextChanged().add(event -> view.setText(event.newText()));
     setInitStr();
   }
 

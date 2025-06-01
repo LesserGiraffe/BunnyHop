@@ -67,8 +67,9 @@ public class WorkspaceSetController {
   private void setEventHandlers() {
     setMessageAreaEvenHandlers();
     setTabPaneEventHandlers();
-    model.getEventManager().addOnWorkspaceAdded((wss, ws, userOpe) -> addWorkspaceView(ws));
-    model.getEventManager().addOnWorkspaceRemoved((wss, ws, userOpe) -> removeWorkspaceView(ws));
+    WorkspaceSet.CallbackRegistry registry = model.getCallbackRegistry();
+    registry.getOnWorkspaceAdded().add(event -> addWorkspaceView(event.ws()));
+    registry.getOnWorkspaceRemoved().add(event -> removeWorkspaceView(event.ws()));
   }
 
   /** 現在選択中のワークスペースを設定する. */

@@ -34,10 +34,10 @@ public class BhDebugger implements Debugger, DebugInfoReceiver {
   /** コンストラクタ. */
   public BhDebugger(WorkspaceSet wss, MessageService msgService) {
     this.msgService = msgService;
-    wss.getEventManager().addOnNodeAdded((wsSet, ws, node, userOpe) -> 
-        instIdToNode.put(node.getInstanceId(), node));
-    wss.getEventManager().addOnNodeRemoved((wsSet, ws, node, userOpe) ->
-        instIdToNode.remove(node.getInstanceId()));
+    wss.getCallbackRegistry().getOnNodeAdded().add(
+        event -> instIdToNode.put(event.node().getInstanceId(), event.node()));
+    wss.getCallbackRegistry().getOnNodeRemoved().add(
+        event -> instIdToNode.remove(event.node().getInstanceId()));
   }
 
   @Override

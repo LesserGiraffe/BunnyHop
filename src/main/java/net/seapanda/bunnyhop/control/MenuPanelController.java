@@ -189,6 +189,7 @@ public class MenuPanelController {
     WorkspaceSet wss = wssCtrl.getWorkspaceSet();
     copyBtn.setOnAction(action -> copy(wss)); // コピー
     cutBtn.setOnAction(action -> cut(wss)); // カット
+    pasteBtn.setDisable(true);
     pasteBtn.setOnAction(action -> paste(wss, wssCtrl.getTabPane())); // ペースト
     deleteBtn.setOnAction(action -> delete(wss));
     jumpBtn.setOnAction(action -> jump(wss)); // ジャンプ
@@ -207,7 +208,12 @@ public class MenuPanelController {
     sendBtn.setOnAction(action -> send()); // 送信
     remotLocalSelectBtn.selectedProperty()
         .addListener((observable, oldVal, newVal) -> switchRemoteLocal(newVal));
-    setHandlersToChangeButtonEnable(wss);
+    copyAndPaste.getCallbackRegistry().getOnNodeAdded().add(event -> changePasteButtonState());
+    copyAndPaste.getCallbackRegistry().getOnNodeRemoved().add(event -> changePasteButtonState());
+    cutAndPaste.getCallbackRegistry().getOnNodeAdded().add(event -> changePasteButtonState());
+    cutAndPaste.getCallbackRegistry().getOnNodeRemoved().add(event -> changePasteButtonState());
+    wss.getCallbackRegistry().getOnNodeSelectionStateChanged()
+        .add(event -> jumpBtn.setDisable(findNodeToJumpTo(wss).isEmpty()));
     return true;
   }
 
@@ -561,23 +567,8 @@ public class MenuPanelController {
     }
   }
 
-  /** ボタンの有効/無効状態を変化させるイベントハンドラを設定する. */
-  private void setHandlersToChangeButtonEnable(WorkspaceSet wss) {
-    pasteBtn.setDisable(true);
-    copyAndPaste.getEventManager().addOnCopyNodeAdded(
-        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss));
-    copyAndPaste.getEventManager().addOnCopyNodeRemoved(
-        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss));
-    cutAndPaste.getEventManager().addOnCutNodeAdded(
-        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss));
-    cutAndPaste.getEventManager().addOnCutNodeRemoved(
-        (workspaceSet, node, userOpe) -> changePasteButtonEnable(wss));
-    wss.getEventManager().addOnNodeSelectionStateChanged(
-        (node, isSelected, userOpe) -> jumpBtn.setDisable(findNodeToJumpTo(wss).isEmpty()));
-  }
-
   /** ペーストボタンの有効/無効を切り替える. */
-  private void changePasteButtonEnable(WorkspaceSet wss) {
+  private void changePasteButtonState() {
     boolean disable = copyAndPaste.getList().isEmpty() && cutAndPaste.getList().isEmpty();
     pasteBtn.setDisable(disable);
   }

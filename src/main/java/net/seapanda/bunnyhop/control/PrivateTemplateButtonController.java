@@ -65,8 +65,8 @@ public class PrivateTemplateButtonController {
     this.service = service;
     this.proxy = proxy;
 
-    node.getEventManager().addOnWorkspaceChanged((bhNode, oldWs, newWs, userOpe) -> {
-      if (newWs == null) {
+    node.getCallbackRegistry().getOnWorkspaceChanged().add(event -> {
+      if (event.newWs() == null) {
         // 変数ノード配置 -> プライベートテンプレート表示 -> undo  で, 
         // オリジナルノードがワークスペースに存在しない状況で, 派生ノードをワークスペースに配置できてしまうのを防ぐ.
         // ただし, プライベートテンプレートノードの削除は行わない.

@@ -42,7 +42,7 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
 
   private Section childSection;
   /** このノードに登録されたイベントハンドラを管理するオブジェクト. */
-  private transient EventManager eventManager = new EventManager();
+  private final transient CallbackRegistry cbRegistry = new CallbackRegistry();
 
   /**
    * コンストラクタ.
@@ -168,12 +168,12 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
   }
 
   @Override
-  public EventManager getEventManager() {
+  public CallbackRegistry getCallbackRegistry() {
     // シリアライズしたノードを操作したときに null が返るのを防ぐ.
-    if (eventManager == null) {
-      return new EventManager();
+    if (cbRegistry == null) {
+      return new CallbackRegistry();
     }
-    return eventManager;
+    return cbRegistry;
   }
 
   @Override

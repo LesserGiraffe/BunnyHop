@@ -63,9 +63,9 @@ public class NodeShifterController {
     view.setOnMouseReleased(mouseEvent -> onMouseReleased(mouseEvent));
     view.addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
     ws.getView().ifPresent(wsView -> {
-      ws.getEventManager().addOnNodeSelectionStateChanged((node, isSelected, userOpe) ->
-          node.getView().ifPresent(this::notifyNodeSelectionStateChanged));
-      wsView.getEventManager().addOnNodeMoved((nodeView, pos) -> notifyNodeMoved(nodeView));
+      ws.getCallbackRegistry().getOnNodeSelectionStateChanged().add(
+          event -> event.node().getView().ifPresent(this::onNodeSelectionStateChanged));
+      wsView.getEventManager().addOnNodeMoved((nodeView, pos) -> onNodeMoved(nodeView));
     });
   }
 
@@ -154,11 +154,11 @@ public class NodeShifterController {
   }
 
   /**
-   * このノードシフタがあるワークスペースのノードの位置が変更されたことをこのオブジェクトに通知する.
+   * このノードシフタがあるワークスペースのノードの位置が変更されたときの処理.
    *
    * @param node 位置が変更されたノード
    */
-  private void notifyNodeMoved(BhNodeView nodeView) {
+  private void onNodeMoved(BhNodeView nodeView) {
     if (nodeView == null || nodeView.getModel().isEmpty()) {
       return;
     }
@@ -166,11 +166,11 @@ public class NodeShifterController {
   }
 
   /**
-   * このノードシフタがあるワークスペースのノードの選択状態が変更されたことをこのオブジェクトに通知する.
+   * このノードシフタがあるワークスペースのノードの選択状態が変更されたときの処理.
    *
-   * @param node 位置が変更されたノード
+   * @param node 選択状態が変更されたノード
    */
-  private void notifyNodeSelectionStateChanged(BhNodeView nodeView) {
+  private void onNodeSelectionStateChanged(BhNodeView nodeView) {
     updateNodeShifter(nodeView);
   }
 

@@ -82,22 +82,24 @@ public class WorkspaceController {
     model.setView(view);
     view.addNodeShifterView(nodeShifterView);
     new NodeShifterController(nodeShifterView, model, notifService);
-    setEventHandlers();
+    setViewEventHandlers();
+    setWorkspaceEventHandlers();
   }
 
-  /** イベントハンドラを登録する. */
-  private void setEventHandlers() {
+  private void setViewEventHandlers() {
     view.getEventManager().addOnMousePressed(this::onMousePressed);
     view.getEventManager().addOnMouseDragged(this::onMouseDragged);
     view.getEventManager().addOnMouseReleased(this::onMouseReleased);
     view.getEventManager().setOnCloseRequest(this::onCloseRequest);
     view.getEventManager().addOnClosed(this::onClosed);
-    model.getEventManager().addOnNodeAdded((ws, node, userOpe) -> addNodeView(node));
-    model.getEventManager().addOnNodeRemoved((ws, node, userOpe) -> removeNodeView(node));
-    model.getEventManager().addOnNodeTurnedIntoRoot(
-        (ws, node, userOpe) -> speficyNodeViewAsRoot(node));
-    model.getEventManager().addOnNodeTurnedIntoNotRoot(
-        (ws, node, userOpe) -> speficyNodeViewAsNotRoot(node));
+  }
+
+  private void setWorkspaceEventHandlers() {
+    Workspace.CallbackRegistry registry = model.getCallbackRegistry();
+    registry.getOnNodeAdded().add(event -> addNodeView(event.node()));
+    registry.getOnNodeRemoved().add(event -> removeNodeView(event.node()));
+    registry.getOnRootNodeAdded().add(event -> speficyNodeViewAsRoot(event.node()));
+    registry.getOnRootNodeRemoved().add(event -> speficyNodeViewAsNotRoot(event.node()));
   }
 
   /** マウスボタン押下時の処理. */
