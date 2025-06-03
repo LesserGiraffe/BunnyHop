@@ -36,6 +36,7 @@ import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeView.SizeChangedEvent;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 
 /**
@@ -53,12 +54,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
   private final SequencedSet<BhNodeView> nodeViews = new LinkedHashSet<>();
   private int zoomLevel = 0;
   private final String categoryName;
-  private final Consumer<? super BhNodeView> onNodeSizeUpdated =
-      nodeView -> {
-        if (isVisible()) {
-          arrange();
-        }
-      };
+  private final Consumer<? super SizeChangedEvent> onNodeSizeChanged = event -> arrangeIfVisible();
 
   /**
    * GUI コンポーネントを初期化する.
@@ -128,7 +124,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     }
     nodeViews.add(view);
     view.getTreeManager().addToGuiTree(nodeSelectionPanel);
-    view.getEventManager().addOnNodeSizeChanged(onNodeSizeUpdated);
+    view.getCallbackRegistry().getOnSizeChanged().add(onNodeSizeChanged);
   }
 
   @Override
@@ -139,7 +135,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     specifyNodeViewAsNotRoot(view);
     nodeViews.remove(view);
     view.getTreeManager().removeFromGuiTree();
-    view.getEventManager().removeOnNodeSizeChanged(onNodeSizeUpdated);
+    view.getCallbackRegistry().getOnSizeChanged().remove(onNodeSizeChanged);
   }
 
   @Override
@@ -209,10 +205,10 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
   }
 
   /**
-   * スクロールバーの可動域が変わるようにノード選択パネルのラッパーのサイズを変更する.
+   * スクロールバーの可動域が変わるようにノード選択ビューのラッパーのサイズを変更する.
    *
-   * @param panelWidth ノード選択パネルの幅
-   * @param panelHeight ノード選択パネルの高さ
+   * @param panelWidth ノード選択ビューの幅
+   * @param panelHeight ノード選択ビューの高さ
    */
   private void adjustWrapperSize(double panelWidth, double panelHeight) {
     double wrapperSizeX = panelWidth * nodeSelectionPanel.getTransforms().get(0).getMxx();
@@ -230,6 +226,13 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     nodeSelectionPanelBase.setMaxWidth(maxWidth);
     // 選択ビューの幅を設定後にレイアウトしないと適切な幅で表示されない
     Platform.runLater(nodeSelectionPanelBase::requestLayout);
+  }
+
+  /** このノード選択ビューが見えている場合, 保持しているノードビューの並べ替えを行う. */
+  private void arrangeIfVisible() {
+    if (isVisible()) {
+      arrange();
+    }
   }
 
   @Override

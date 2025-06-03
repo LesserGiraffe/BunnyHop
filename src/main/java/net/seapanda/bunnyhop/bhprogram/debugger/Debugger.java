@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
-import java.util.function.Consumer;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
 /**
  * BhProgram のデバッガが持つ機能を規定したインタフェース.
@@ -33,47 +33,34 @@ public interface Debugger {
    *
    * @return このデバッガに対するイベントハンドラの追加と削除を行うオブジェクト
    */
-  EventManager getEventManager();
+  CallbackRegistry getCallbackRegistry();
 
   // requestStackFrame
 
   // stopThread
 
-  /**
-   * デバッガに対するイベントハンドラの登録および削除操作を規定したインタフェース.
-   *
-   * <p>
-   * このオブジェクトが管理する {@link Debugger} を "target" と呼ぶ
-   * </p>
-   */
-  public interface EventManager {
+  /** デバッガに対するイベントハンドラの登録および削除操作を規定したインタフェース. */
+  public interface CallbackRegistry {
     
-    /**
-     * "target" が {@link ThreadContext} を取得したときのイベントハンドラを追加する.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    void addOnThreadContextGet(Consumer<? super ThreadContext> handler);
+    /** {@link ThreadContext} を取得したときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<ThreadContextGotEvent>.Registry getOnThreadContextGot();
 
-    /**
-     * "target" が {@link ThreadContext} を取得したときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    void removeOnThreadContextGet(Consumer<? super ThreadContext> handler);  
-
-    /**
-     * "target" の持つデバッグ情報がクリアされたときのイベントハンドラを追加する.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    void addOnCleared(Runnable handler);
-
-    /**
-     * "target" の持つデバッグ情報がクリアされたときのイベントハンドラを追加する.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    void removeOnCleared(Runnable handler);
+    /** {@link ThreadContext} を取得したときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<ClearEvent>.Registry getOnCleared();
   }
+
+  /**
+   * デバッガが {@link ThreadContext} を取得したときの情報を格納したレコード.
+   *
+   * @param debugger {@code context} を取得したデバッガ
+   * @param context {@code debugger} が取得した {@link ThreadContext}
+   */
+  public record ThreadContextGotEvent(Debugger debugger, ThreadContext context) {}
+
+  /**
+   * デバッガの持つ情報がクリアされたときの情報を格納したレコード.
+   *
+   * @param debugger 保持する情報をクリアされたデバッガ
+   */
+  public record ClearEvent(Debugger debugger) {}
 }

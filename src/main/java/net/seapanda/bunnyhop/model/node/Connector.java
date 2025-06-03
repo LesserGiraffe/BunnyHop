@@ -311,11 +311,11 @@ public class Connector extends SyntaxSymbol {
   /** イベントハンドラの登録 / 削除を行う機能を提供するクラス. */
   class CallbackRegistry {
 
-    /** このノードが選択されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** このノードが選択されたときのイベントハンドラをを管理するオブジェクト. */
     private transient ConsumerInvoker<ReplacementEvent> onNodeReplaced =
         new ConsumerInvoker<ReplacementEvent>();
     
-    /** このコネクタに接続されるノードが入れ替わったときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    /** このコネクタに接続されるノードが入れ替わったときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<ReplacementEvent>.Registry getOnNodeReplaced() {
       return onNodeReplaced.getRegistry();
     }

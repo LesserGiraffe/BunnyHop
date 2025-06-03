@@ -128,10 +128,10 @@ public interface NodeEventInvoker {
    * {@code target} のドラッグが始まったときの処理を実行する.
    *
    * @param target イベントハンドラが定義されたノード
-   * @param eventInfo ドラッグ操作に関連するマウスイベントを格納したオブジェクト
+   * @param event ドラッグ操作に関連する情報を格納したオブジェクト
    * @param userOpe undo 用コマンドオブジェクト
    */
-  void onDragStarted(BhNode target, MouseEventInfo eventInfo, UserOperation userOpe);
+  void onDragStarted(BhNode target, UiEvent event, UserOperation userOpe);
 
   /**
    * 引数の文字列が {@code target} にセット可能かどうか判断するときの処理を実行する.

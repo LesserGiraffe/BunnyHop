@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
 public class NvbCallbackInvoker implements NodeViewWalker {
 
   private final Consumer<? super BhNodeViewBase> callback;
-  private final Consumer<BhNodeViewGroup> callbackForGroup;
+  private final Consumer<? super BhNodeViewGroup> callbackForGroup;
   /** 外部ノードのみ巡る場合 true. */
   private final boolean visitOnlyOuter;
   /** 子要素を走査してからコールバック関数を呼ぶ場合 true. */
@@ -45,7 +45,7 @@ public class NvbCallbackInvoker implements NodeViewWalker {
   /** コンストラクタ. */
   private NvbCallbackInvoker(
       Consumer<? super BhNodeViewBase> callback,
-      Consumer<BhNodeViewGroup> callbackForGroup,
+      Consumer<? super BhNodeViewGroup> callbackForGroup,
       boolean visitOnlyOuter,
       boolean visitOnlyGroup,
       boolean depthFirst) {
@@ -105,7 +105,7 @@ public class NvbCallbackInvoker implements NodeViewWalker {
    */
   public static void invoke(
       Consumer<? super BhNodeViewBase> callbackForNode,
-      Consumer<BhNodeViewGroup> callbackForGroup,
+      Consumer<? super BhNodeViewGroup> callbackForGroup,
       BhNodeViewBase nodeView,
       boolean depthFirst) {
     nodeView.accept(
@@ -124,14 +124,13 @@ public class NvbCallbackInvoker implements NodeViewWalker {
   }
 
   /**
-   * 外部ノードのみを経由しつつコールバック関数を呼び出す.
+   * {@code nodeView} の子 {@link BhNodeViewGroup} を対象としてコールバック関数を呼び出す.
    *
    * @param callback 呼び出すコールバック関数
-   * @param nodeView このノードから他のノードを辿らずに辿れる {@linik BhNodeViewGroup} を経由しながら
-   *                 コールバック関数を呼び出す.
+   * @param nodeView このノードの子 {@link BhNodeViewGroup} を対象としてコールバック関数を呼び出す
    */
   public static void invokeForGroups(
-      Consumer<BhNodeViewGroup> callback, BhNodeViewBase nodeView) {
+      Consumer<? super BhNodeViewGroup> callback, BhNodeViewBase nodeView) {
     nodeView.accept(new NvbCallbackInvoker(n -> {}, callback, false, true, false));
   }
 

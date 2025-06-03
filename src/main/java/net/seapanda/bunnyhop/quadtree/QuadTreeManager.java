@@ -97,7 +97,7 @@ public class QuadTreeManager {
     quadTreeObj.setIdxInQuadTree(-1);  //無効な4 分木ノードインデックスを登録しておく
     unknownSpaceListHead.connectToNext(quadTreeObj);
     quadTreeObj.setCurrenManager(this);
-    quadTreeObj.setCallBackFuncs(this::registerWithQuadTree, this::searchOverlappedRects);
+    quadTreeObj.setCallbacks(this::registerWithQuadTree, this::searchOverlappedRects);
   }
 
   /**
@@ -109,7 +109,7 @@ public class QuadTreeManager {
     quadTreeObj.remove();
     quadTreeObj.setIdxInQuadTree(-1);
     quadTreeObj.setCurrenManager(null);
-    quadTreeObj.setCallBackFuncs(null, null);
+    quadTreeObj.setCallbacks(null, null);
   }
 
   /**

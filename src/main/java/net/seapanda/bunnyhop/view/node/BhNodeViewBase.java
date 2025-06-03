@@ -18,13 +18,11 @@ package net.seapanda.bunnyhop.view.node;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -36,7 +34,6 @@ import javafx.event.EventType;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
@@ -50,6 +47,7 @@ import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
 import net.seapanda.bunnyhop.utility.Showable;
 import net.seapanda.bunnyhop.utility.Utility;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.ViewUtil;
@@ -73,7 +71,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   protected static final double COMPILE_ERR_MARK_VIEW_ORDER_OFFSET = -4000;
   protected static final double NODE_BASE_VIEW_ORDER_OFFSET = -2000;
   protected static final double CHILD_VIEW_ORDER_OFFSET_FROM_PARENT = -1.0;
-  /** ノード描画用ポリゴン, ボタン, コンパイルエラーマークを乗せるペイン. */
+  /** ノード描画用ポリゴンやボタンなどを乗せるペイン. */
   protected final Pane nodeBase = new Pane();
   /** ノード描画用ポリゴン. */
   protected final Polygon nodeShape = new Polygon();
@@ -89,7 +87,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   private final RegionManagerBase regionManager = this.new RegionManagerBase();
   private final TreeManagerBase treeManager = this.new TreeManagerBase();
   private final PositionManagerBase positionManager = this.new PositionManagerBase();
-  private final EventManagerBase eventManager = this.new EventManagerBase();
+  private final CallbackRegistryBase cbRegistry = this.new CallbackRegistryBase();
   private final LookManagerBase lookManager;
 
   /**
@@ -168,8 +166,8 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   }
 
   @Override
-  public  EventManagerBase getEventManager() {
-    return eventManager;
+  public  CallbackRegistryBase getCallbackRegistry() {
+    return cbRegistry;
   }
 
   @Override
@@ -220,7 +218,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       event.consume();
       return;
     }
-    view.getEventManager().dispatch(event);
+    view.getCallbackRegistry().dispatch(event);
     event.consume();
   }
 
@@ -328,7 +326,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
             nodeView.getLookManager().changePseudoClassState();
             boolean isSizeChanged = nodeView.getLookManager().updatePolygonShape();
             if (isSizeChanged) {
-              nodeView.getEventManager().invokeOnNodeSizeChanged();
+              nodeView.getCallbackRegistry().onSizeChanged();
             }
           },
           BhNodeViewBase.this);
@@ -569,16 +567,13 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
         double posZ = BhNodeViewBase.this.getPositionManager().getZpos();
         newNode.getPositionManager().setTreeZpos(posZ);
       }
-      getEventManager().invokeOnNodeReplaced(newNode);
     }
 
     @Override
     public void removeFromGuiTree() {
-      WorkspaceView wsView = getWorkspaceView();
       // JDK-8205092 対策. view order を使うとノード削除後に NullPointerException が発生するのを防ぐ.
       nodeBase.setMouseTransparent(true);
       removeComponentsFromParent();
-      getEventManager().invokeOnRemovedFromWorkspaceView(wsView);
       NvbCallbackInvoker.invokeForGroups(
           group -> group.removePseudoViewFromGuiTree(),
           BhNodeViewBase.this);
@@ -604,7 +599,6 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       // JDK-8205092 対策
       nodeBase.setMouseTransparent(false);
       addComponentsToParent(parent);
-      getEventManager().invokeOnAddToWorkspaceView(getWorkspaceView());
       NvbCallbackInvoker.invokeForGroups(
           group -> group.addPseudoViewToGuiTree(parent),
           BhNodeViewBase.this);
@@ -618,7 +612,6 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       // JDK-8205092 対策
       nodeBase.setMouseTransparent(false);
       addComponentsToParent(parent);
-      getEventManager().invokeOnAddToWorkspaceView(getWorkspaceView());
       NvbCallbackInvoker.invokeForGroups(
           group -> group.addPseudoViewToGuiTree(parent),
           BhNodeViewBase.this);
@@ -733,10 +726,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
           },
           BhNodeViewBase.this);
       NvbCallbackInvoker.invoke(
-          nodeView -> {
-            Vec2D pos = nodeView.getPositionManager().getPosOnWorkspace();
-            nodeView.getEventManager().invokeOnMoved(new Vec2D(pos.x, pos.y));
-          },
+          nodeView -> nodeView.getCallbackRegistry().onMoved(),
           BhNodeViewBase.this);
     }
 
@@ -820,42 +810,68 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     }
   }
 
-  /** ノードビューのイベントハンドラの登録および削除操作を提供するクラス. */
-  public class EventManagerBase implements EventManager {
+  /** {@link BhNodeView} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
+  public class CallbackRegistryBase implements CallbackRegistry {
 
-    /** ノードビューの位置が変わったときのイベントハンドラのリスト. */
-    private SequencedSet<BiConsumer<? super BhNodeView, ? super Vec2D>> onMovedList
-        = new LinkedHashSet<>();
-    /** ノードビューをワークスペースビューに追加したときのイベントハンドラのリスト. */
-    private SequencedSet<BiConsumer<? super WorkspaceView, ? super BhNodeView>> onAddToWorkspaceView
-        = new LinkedHashSet<>();
-    /** ノードビューをワークスペースビューから取り除いたときのイベントハンドラのリスト. */
-    private SequencedSet<BiConsumer<? super WorkspaceView, ? super BhNodeView>>
-        onRemovedFromWorkspaceView = new LinkedHashSet<>();
-    /** ノードのサイズが変更されたときのイベントハンドラのリスト. */
-    private SequencedSet<Consumer<? super BhNodeView>> onNodeSizeChanged = new LinkedHashSet<>();
-    /** ノードが入れ替わったときのイベントハンドラのリスト. */
-    private SequencedSet<BiConsumer<? super BhNodeView, ? super BhNodeView>> onNodeReplaced =
-        new LinkedHashSet<>();
+    /** このノードビュー上でマウスボタンが押下されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<MouseEventInfo> onMousePressedInvoker = new ConsumerInvoker<>();
 
-    @Override
-    public void setOnMousePressed(EventHandler<? super MouseEvent> handler) {
-      nodeShape.setOnMousePressed(handler);
+    /** このノードビューがドラッグされたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<MouseEventInfo> onMouseDraggedInvoker = new ConsumerInvoker<>();
+
+    /** このノードビュー上でマウスのドラッグが検出されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<MouseEventInfo> onMouseDragDetectedInvoker =
+        new ConsumerInvoker<>();
+
+    /** このノードビュー上でマウスボタンが離されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<MouseEventInfo> onMouseReleasedInvoker = new ConsumerInvoker<>();
+
+    /** このノードビューの位置が変わったときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<MoveEvent> onMovedInvoker = new ConsumerInvoker<>();
+
+    /** このノードビューのサイズが変わったときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<SizeChangedEvent> onSizeChangedInvoker = new ConsumerInvoker<>();
+
+    /** コンストラクタ. */
+    private CallbackRegistryBase() {
+      nodeShape.setOnMousePressed(event -> onMousePressedInvoker.invoke(
+          new MouseEventInfo(BhNodeViewBase.this, event)));
+      nodeShape.setOnMouseDragged(event -> onMouseDraggedInvoker.invoke(
+          new MouseEventInfo(BhNodeViewBase.this, event)));
+      nodeShape.setOnDragDetected(event -> onMouseDragDetectedInvoker.invoke(
+          new MouseEventInfo(BhNodeViewBase.this, event)));
+      nodeShape.setOnMouseReleased(event -> onMouseReleasedInvoker.invoke(
+          new MouseEventInfo(BhNodeViewBase.this, event)));
     }
 
     @Override
-    public void setOnMouseDragged(EventHandler<? super MouseEvent> handler) {
-      nodeShape.setOnMouseDragged(handler);
+    public ConsumerInvoker<MouseEventInfo>.Registry getOnMousePressed() {
+      return onMousePressedInvoker.getRegistry();
     }
 
     @Override
-    public void setOnDragDetected(EventHandler<? super MouseEvent> handler) {
-      nodeShape.setOnDragDetected(handler);
+    public ConsumerInvoker<MouseEventInfo>.Registry getOnMouseDragged() {
+      return onMouseDraggedInvoker.getRegistry();
     }
 
     @Override
-    public void setOnMouseReleased(EventHandler<? super MouseEvent> handler) {
-      nodeShape.setOnMouseReleased(handler);
+    public ConsumerInvoker<MouseEventInfo>.Registry getOnMouseDragDetected() {
+      return onMouseDragDetectedInvoker.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<MouseEventInfo>.Registry getOnMouseReleased() {
+      return onMouseReleasedInvoker.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<MoveEvent>.Registry getOnMoved() {
+      return onMovedInvoker.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<SizeChangedEvent>.Registry getOnSizeChanged() {
+      return onSizeChangedInvoker.getRegistry();
     }
 
     @Override
@@ -875,118 +891,22 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       nodeShape.fireEvent(event);
     }
 
-    @Override
-    public void addOnMoved(BiConsumer<? super BhNodeView, ? super Vec2D> handler) {
-      onMovedList.addLast(handler);
-    }
-
-    @Override
-    public void removeOnMoved(BiConsumer<? super BhNodeView, ? super Vec2D> handler) {
-      onMovedList.remove(handler);
-    }
-
-    @Override
-    public void addOnAddedToWorkspaceView(
-        BiConsumer<? super WorkspaceView, ? super BhNodeView> handler) {
-      onAddToWorkspaceView.addLast(handler);
-    }
-
-    @Override
-    public void removeOnAddedToWorkspaceView(
-        BiConsumer<? super WorkspaceView, ? super BhNodeView> handler) {
-      onAddToWorkspaceView.remove(handler);
-    }
-
-    @Override
-    public void addOnRemovedFromWorkspaceView(
-        BiConsumer<? super WorkspaceView, ? super BhNodeView> handler) {
-      onRemovedFromWorkspaceView.addLast(handler);
-    }
-
-    @Override
-    public void removeOnRemovedFromWorkspaceView(
-        BiConsumer<? super WorkspaceView, ? super BhNodeView> handler) {
-      onRemovedFromWorkspaceView.remove(handler);
-    }
-
-    @Override
-    public void addOnNodeSizeChanged(Consumer<? super BhNodeView> handler) {
-      onNodeSizeChanged.addLast(handler);
-    }
-
-    @Override
-    public void removeOnNodeSizeChanged(Consumer<? super BhNodeView> handler) {
-      onNodeSizeChanged.remove(handler);
-    }
-
-    @Override
-    public void addOnNodeReplaced(BiConsumer<? super BhNodeView, ? super BhNodeView> handler) {
-      onNodeReplaced.addLast(handler);
-    }
-
-    @Override
-    public void removeOnNodeReplaced(BiConsumer<? super BhNodeView, ? super BhNodeView> handler) {
-      onNodeReplaced.remove(handler);
-    }
-
-    /**
-     * ノードビューの位置が変わったときのイベントハンドラを実行する.
-     *
-     * @param posOnWs 変更後のワークスペースビュー上での位置
-     */
-    private void invokeOnMoved(Vec2D posOnWs) {
+    /** ノードビューの位置が変わったときのイベントハンドラを呼び出す. */
+    private void onMoved() {
       if (!Platform.isFxApplicationThread()) {
         throw new IllegalStateException(
-            Utility.getCurrentMethodName() 
-            + " - a handler invoked in an inappropriate thread");
+            Utility.getCurrentMethodName() + " - a handler invoked in an inappropriate thread");
       }
-      onMovedList.forEach(handler -> handler.accept(BhNodeViewBase.this, posOnWs));
+      onMovedInvoker.invoke(new MoveEvent(BhNodeViewBase.this));
     }
 
-    /** ノードビューをワークスペースビューに追加したときのイベントハンドラを実行する. */
-    private void invokeOnAddToWorkspaceView(WorkspaceView wsView) {
+    /** ノードビューのサイズが変更されたときのイベントハンドラを呼び出す. */
+    private void onSizeChanged() {
       if (!Platform.isFxApplicationThread()) {
         throw new IllegalStateException(
-          Utility.getCurrentMethodName()
-          + " - a handler invoked in an inappropriate thread");
+            Utility.getCurrentMethodName() + " - a handler invoked in an inappropriate thread");
       }
-      if (wsView == null) {
-        return;
-      }
-      onAddToWorkspaceView.forEach(handler -> handler.accept(wsView, BhNodeViewBase.this));
-    }
-
-    /** ノードビューをワークスペースビューから取り除いたときのイベントハンドラを実行する. */
-    private void invokeOnRemovedFromWorkspaceView(WorkspaceView wsView) {
-      if (!Platform.isFxApplicationThread()) {
-        throw new IllegalStateException(
-            Utility.getCurrentMethodName() 
-            + " - a handler invoked in an inappropriate thread");
-      }
-      if (wsView == null) {
-        return;
-      }
-      onRemovedFromWorkspaceView.forEach(handler -> handler.accept(wsView, BhNodeViewBase.this));
-    }
-
-    /** ノードビューのサイズが変更されたときのイベントハンドラを実行する. */
-    private void invokeOnNodeSizeChanged() {
-      if (!Platform.isFxApplicationThread()) {
-        throw new IllegalStateException(
-            Utility.getCurrentMethodName() 
-            + " - a handler invoked in an inappropriate thread");
-      }
-      onNodeSizeChanged.forEach(handler -> handler.accept(BhNodeViewBase.this));
-    }
-
-    /** ノードビューが入れ替わったときのイベントハンドラを実行する. */
-    private void invokeOnNodeReplaced(BhNodeView newView) {
-      if (!Platform.isFxApplicationThread()) {
-        throw new IllegalStateException(
-            Utility.getCurrentMethodName() 
-            + " - a handler invoked in an inappropriate thread");
-      }
-      onNodeReplaced.forEach(handler -> handler.accept(BhNodeViewBase.this, newView));
+      onSizeChangedInvoker.invoke(new SizeChangedEvent(BhNodeViewBase.this));
     }
   }
 

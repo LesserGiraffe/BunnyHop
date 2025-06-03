@@ -258,36 +258,30 @@ public class Workspace implements Serializable {
     return cbRegistry;
   }
 
-  /** {@link Workspace} に対するイベントハンドラの追加と削除を行うクラス. */
+  /** {@link Workspace} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistry {
 
-    /** このワークスペースのノードの選択状態が変更されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するワークスペースのノードの選択状態が変更されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<NodeSelectionEvent> onNodeSelStateChangedInvoker =
         new ConsumerInvoker<>();
     
-    /** このワークスペースのノードのコンパイルエラー状態が変更されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するワークスペースのノードのコンパイルエラー状態が変更されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<NodeCompileErrorEvent>
         onNodeCompileErrStateChangedInvoker = new ConsumerInvoker<>();
 
-    /** このワークスペースにノードが追加されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するワークスペースにノードが追加されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker =
         new ConsumerInvoker<>();
 
-    /** このワークスペースからノードが削除されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するワークスペースからノードが削除されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
         new ConsumerInvoker<>();
 
-    /**
-     * このワークスペースのルートノード一式に新しくルートノードが追加されたときに
-     * 呼び出すメソッドを管理するオブジェクト.
-     */
+    /** 関連するワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<RootNodeAddedEvent> onRootNodeAddedInvoker =
         new ConsumerInvoker<>();
 
-    /**
-     * このワークスペースのルートノード一式からルートノードが削除されたときに
-     * 呼び出すメソッドを管理するオブジェクト.
-     */
+    /** 関連するワークスペースのルートノード一式からルートノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<RootNodeRemovedEvent> onRootNodeRemovedInvoker = 
         new ConsumerInvoker<>();
 
@@ -295,36 +289,36 @@ public class Workspace implements Serializable {
     private final Consumer<BhNode.ConnectionEvent> onNodeConnected =
         this::onNodeConnected;
 
-    /** このワークスペースのノードが選択されたときのイベントハンドラを呼び出す関数オブジェクト. */
+    /** 関連するワークスペースのノードが選択されたときのイベントハンドラ. */
     private final Consumer<? super BhNode.SelectionEvent> onNodeSelStateChanged =
         this::onNodeSelectionStateChanged;
 
-    /** このワークスペースのコンパイルエラー状態が変更されたときのイベントハンドラを呼び出す関数オブジェクト. */
+    /** 関連するワークスペースのコンパイルエラー状態が変更されたときのイベントハンドラ. */
     private final Consumer<? super BhNode.CompileErrorEvent> onNodeCompileErrStateChanged =
         this::onNodeCompileErrStateChanged;
 
-    /** このワークスペースのノードの選択状態が変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    /** 関連するワークスペースのノードの選択状態が変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<NodeSelectionEvent>.Registry getOnNodeSelectionStateChanged() {
       return onNodeSelStateChangedInvoker.getRegistry();
     }
 
-    /** このワークスペースのノードのコンパイルエラー状態が変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    /** 関連するワークスペースのノードのコンパイルエラー状態が変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<NodeCompileErrorEvent>.Registry getOnNodeCompileErrorStateChanged() {
       return onNodeCompileErrStateChangedInvoker.getRegistry();
     }
 
-    /** このワークスペースにノードが追加されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    /** 関連するワークスペースにノードが追加されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<NodeAddedEvent>.Registry getOnNodeAdded() {
       return onNodeAddedInvoker.getRegistry();
     }
 
-    /** このワークスペースからノードが削除されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    /** 関連するワークスペースからノードが削除されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<NodeRemovedEvent>.Registry getOnNodeRemoved() {
       return onNodeRemovedInvoker.getRegistry();
     }
 
     /**
-     * このワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラを
+     * 関連するワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<RootNodeAddedEvent>.Registry getOnRootNodeAdded() {
@@ -332,14 +326,14 @@ public class Workspace implements Serializable {
     }
 
     /**
-     * このワークスペースのルートノード一式からルートノードが削除されたときのイベントハンドラを
+     * 関連するワークスペースのルートノード一式からルートノードが削除されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<RootNodeRemovedEvent>.Registry getOnRootNodeRemoved() {
       return onRootNodeRemovedInvoker.getRegistry();
     }
 
-    /** このワークスペースのノードが他のノードと入れ替わったときのイベントハンドラを呼び出す. */
+    /** 関連するワークスペースのノードが他のノードと入れ替わったときのイベントハンドラを呼び出す. */
     private void onNodeConnected(BhNode.ConnectionEvent event) {
       if (event.disconnected() != null
           && event.disconnected().isRoot()
@@ -374,7 +368,7 @@ public class Workspace implements Serializable {
   }
 
   /**
-   * このワークスペースのノードの選択状態が変更されたときの情報を格納したレコード.
+   * ワークスペースのノードの選択状態が変更されたときの情報を格納したレコード.
    *
    * @param ws {@code node} を保持するワークスペース
    * @param node 選択状態が変更されたノード
@@ -385,7 +379,7 @@ public class Workspace implements Serializable {
       Workspace ws, BhNode node, boolean isSelected, UserOperation userOpe) {}
 
   /**
-   * このワークスペースのノードのコンパイルエラー状態が変更されたときの情報を格納したレコード.
+   * ワークスペースのノードのコンパイルエラー状態が変更されたときの情報を格納したレコード.
    *
    * @param ws {@code node} を保持するワークスペース
    * @param node コンパイルエラー状態が変更されたノード
@@ -396,7 +390,7 @@ public class Workspace implements Serializable {
       Workspace ws, BhNode node, boolean hasError, UserOperation userOpe) {}
 
   /**
-   * このワークスペースにノードが追加されたときの情報を格納したレコード.
+   * ワークスペースにノードが追加されたときの情報を格納したレコード.
    *
    * @param ws {@code node} が追加されたワークスペース
    * @param node {@code ws} に追加されたノード
@@ -405,7 +399,7 @@ public class Workspace implements Serializable {
   public record NodeAddedEvent(Workspace ws, BhNode node, UserOperation userOpe) {}
 
   /**
-   * このワークスペースからノードが削除されたときの情報を格納したレコード.
+   * ワークスペースからノードが削除されたときの情報を格納したレコード.
    *
    * @param ws {@code node} が削除されたワークスペース
    * @param node {@code ws} から削除されたノード
@@ -414,7 +408,7 @@ public class Workspace implements Serializable {
   public record NodeRemovedEvent(Workspace ws, BhNode node, UserOperation userOpe) {}
 
   /**
-   * このワークスペースのルートノード一式に新しくルートノードが追加されたときの情報を格納したレコード.
+   * ワークスペースのルートノード一式に新しくルートノードが追加されたときの情報を格納したレコード.
    *
    * @param ws {@code node} をルートノードとして保持するワークスペース
    * @param node {@code ws} 上でルートノードとなったノード
@@ -423,9 +417,9 @@ public class Workspace implements Serializable {
   public record RootNodeAddedEvent(Workspace ws, BhNode node, UserOperation userOpe) {}
 
   /**
-   * このワークスペースのルートノード一式からルートノードが削除されたときの情報を格納したレコード.
+   * ワークスペースのルートノード一式からルートノードが削除されたときの情報を格納したレコード.
    *
-   * @param ws このワークスペース上の {@code node} が非ルートノードとなった
+   * @param ws ワークスペース上の {@code node} が非ルートノードとなった
    * @param node 非ルートノードとなったノード
    * @param userOpe undo 用コマンドオブジェクト
    */  

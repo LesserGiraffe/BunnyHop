@@ -1,12 +1,9 @@
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.SequencedSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhCallStackItem;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
 import net.seapanda.bunnyhop.common.BhSettings;
@@ -15,6 +12,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.service.MessageService;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
 /**
  * BhProgram のデバッガクラス.
@@ -24,7 +22,7 @@ import net.seapanda.bunnyhop.service.MessageService;
 public class BhDebugger implements Debugger, DebugInfoReceiver {
   
   private final MessageService msgService;
-  private final EventManagerImpl eventManager = new EventManagerImpl();
+  private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
   /**
    * key: {@link BhNode} のインスタンス ID.
    * value: key に対応する {@link BhBode}.
@@ -42,12 +40,12 @@ public class BhDebugger implements Debugger, DebugInfoReceiver {
 
   @Override
   public void clear() {
-    eventManager.invokeOnCleared();
+    cbRegistry.onClearedInvoker.invoke(new ClearEvent(this));
   }
 
   @Override
-  public EventManager getEventManager() {
-    return eventManager;
+  public CallbackRegistry getCallbackRegistry() {
+    return cbRegistry;
   }
 
   @Override
@@ -59,9 +57,8 @@ public class BhDebugger implements Debugger, DebugInfoReceiver {
     String errMsg = getErrMsg(exception);
     String runtimeErrOccured = TextDefs.Debugger.runtimErrOccured.get();
     msgService.error("%s\n%s\n".formatted(runtimeErrOccured, errMsg));
-    var context = new ThreadContext(
-        exception.getThreadId(), callStack, errMsg, true);
-    eventManager.invokeOnThreadContextGet(context);
+    var context = new ThreadContext(exception.getThreadId(), callStack, errMsg, true);
+    cbRegistry.onThreadContextGotInvoker.invoke(new ThreadContextGotEvent(this, context));
   }
 
   /** {@code exception} からエラーメッセージを取得する. */
@@ -105,43 +102,23 @@ public class BhDebugger implements Debugger, DebugInfoReceiver {
   }
 
   /** イベントハンドラの管理を行うクラス. */
-  public class EventManagerImpl implements EventManager {
+  public class CallbackRegistryImpl implements CallbackRegistry {
 
-    /** {@link ThreadContext} を取得したときに呼び出すメソッドのリスト. */
-    private SequencedSet<Consumer<? super ThreadContext>> onThreadContextGet =
-        new LinkedHashSet<>();
+    /** {@link ThreadContext} を取得したときのイベントハンドラを管理するオブジェクト. */
+    private ConsumerInvoker<ThreadContextGotEvent> onThreadContextGotInvoker =
+        new ConsumerInvoker<>();
 
-    /** デバッグ情報をクリアしたときに呼び出すメソッドのリスト. */
-    private SequencedSet<Runnable> onCleared = new LinkedHashSet<>();
-
-    @Override
-    public void addOnThreadContextGet(Consumer<? super ThreadContext> handler) {
-      onThreadContextGet.addLast(handler);
-    }
+    /** デバッグ情報をクリアしたときのイベントハンドラを管理するオブジェクト. */
+    private ConsumerInvoker<ClearEvent> onClearedInvoker = new ConsumerInvoker<>();
 
     @Override
-    public void removeOnThreadContextGet(Consumer<? super ThreadContext> handler) {
-      onThreadContextGet.remove(handler);
+    public ConsumerInvoker<ThreadContextGotEvent>.Registry getOnThreadContextGot() {
+      return onThreadContextGotInvoker.getRegistry();
     }
 
     @Override
-    public void addOnCleared(Runnable handler) {
-      onCleared.addLast(handler);
-    }
-
-    @Override
-    public void removeOnCleared(Runnable handler) {
-      onCleared.remove(handler);
-    }
-
-    /** {@link ThreadContext} を取得したときのイベントハンドラを呼び出す. */
-    private void invokeOnThreadContextGet(ThreadContext context) {
-      onThreadContextGet.forEach(handler -> handler.accept(context));
-    }
-
-    /** デバッグ情報をクリアしたときのイベントハンドラを呼び出す. */
-    private void invokeOnCleared() {
-      onCleared.forEach(handler -> handler.run());
+    public ConsumerInvoker<ClearEvent>.Registry getOnCleared() {
+      return onClearedInvoker.getRegistry();
     }
   }
 }

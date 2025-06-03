@@ -87,7 +87,7 @@ public final class TextAreaNodeView  extends TextInputNodeView {
       event.consume();
       return;
     }
-    view.getEventManager().dispatch(event);    
+    view.getCallbackRegistry().dispatch(event);    
     if (view.isTemplate()) {
       event.consume();
     }

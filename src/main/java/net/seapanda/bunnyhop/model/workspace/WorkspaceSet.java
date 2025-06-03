@@ -43,7 +43,7 @@ public class WorkspaceSet {
   private boolean isDirty = false;
   private Workspace currentWorkspace;
   /** このワークスペースセットに登録されたイベントハンドラを管理するオブジェクト. */
-  private CallbackRegistry eventManager = new CallbackRegistry();
+  private CallbackRegistry cbRegistry = new CallbackRegistry();
 
   /** コンストラクタ. */
   public WorkspaceSet() {}
@@ -58,13 +58,13 @@ public class WorkspaceSet {
     workspaceSet.add(workspace);
     workspace.setWorkspaceSet(this);
     Workspace.CallbackRegistry registry = workspace.getCallbackRegistry();
-    registry.getOnNodeSelectionStateChanged().add(eventManager.onNodeSelectionStateChanged);
-    registry.getOnNodeCompileErrorStateChanged().add(eventManager.onNodeCompileErrStateChanged);
-    registry.getOnNodeAdded().add(eventManager.onNodeAdded);
-    registry.getOnNodeRemoved().add(eventManager.onNodeRemoved);
-    registry.getOnRootNodeAdded().add(eventManager.onRootNodeAdded);
-    registry.getOnRootNodeRemoved().add(eventManager.onRootNodeRemoved);
-    eventManager.onWsAddedInvoker.invoke(new WorkspaceAddedEvent(this, workspace, userOpe));
+    registry.getOnNodeSelectionStateChanged().add(cbRegistry.onNodeSelectionStateChanged);
+    registry.getOnNodeCompileErrorStateChanged().add(cbRegistry.onNodeCompileErrStateChanged);
+    registry.getOnNodeAdded().add(cbRegistry.onNodeAdded);
+    registry.getOnNodeRemoved().add(cbRegistry.onNodeRemoved);
+    registry.getOnRootNodeAdded().add(cbRegistry.onRootNodeAdded);
+    registry.getOnRootNodeRemoved().add(cbRegistry.onRootNodeRemoved);
+    cbRegistry.onWsAddedInvoker.invoke(new WorkspaceAddedEvent(this, workspace, userOpe));
     userOpe.pushCmdOfAddWorkspace(workspace);
   }
 
@@ -79,13 +79,14 @@ public class WorkspaceSet {
     workspace.setWorkspaceSet(null);
     deleteNodesInWorkspace(workspace, userOpe);
     Workspace.CallbackRegistry registry = workspace.getCallbackRegistry();
-    registry.getOnNodeSelectionStateChanged().remove(eventManager.onNodeSelectionStateChanged);
-    registry.getOnNodeCompileErrorStateChanged().remove(eventManager.onNodeCompileErrStateChanged);
-    registry.getOnNodeAdded().remove(eventManager.onNodeAdded);
-    registry.getOnNodeRemoved().remove(eventManager.onNodeRemoved);
-    registry.getOnRootNodeAdded().remove(eventManager.onRootNodeAdded);
-    registry.getOnRootNodeRemoved().remove(eventManager.onRootNodeRemoved);
-    eventManager.onWsRemovedInvoker.invoke(new WorkspaceRemovedEvent(this, workspace, userOpe));
+    registry.getOnNodeSelectionStateChanged().remove(cbRegistry.onNodeSelectionStateChanged);
+    registry.getOnNodeCompileErrorStateChanged()
+        .remove(cbRegistry.onNodeCompileErrStateChanged);
+    registry.getOnNodeAdded().remove(cbRegistry.onNodeAdded);
+    registry.getOnNodeRemoved().remove(cbRegistry.onNodeRemoved);
+    registry.getOnRootNodeAdded().remove(cbRegistry.onRootNodeAdded);
+    registry.getOnRootNodeRemoved().remove(cbRegistry.onRootNodeRemoved);
+    cbRegistry.onWsRemovedInvoker.invoke(new WorkspaceRemovedEvent(this, workspace, userOpe));
     userOpe.pushCmdOfRemoveWorkspace(workspace, this);
   }
 
@@ -139,7 +140,8 @@ public class WorkspaceSet {
   public void setCurrentWorkspace(Workspace ws) {
     Workspace old = currentWorkspace;
     currentWorkspace = ws;
-    eventManager.onCurrentWsChangedInvoker.invoke(new CurrentWorkspaceChangedEvent(this, old, ws));
+    cbRegistry.onCurrentWsChangedInvoker.invoke(
+        new CurrentWorkspaceChangedEvent(this, old, ws));
   }
 
   /**
@@ -167,51 +169,51 @@ public class WorkspaceSet {
    * @return このワークスペースセットに対するイベントハンドラの追加と削除を行うオブジェクト
    */
   public CallbackRegistry getCallbackRegistry() {
-    return eventManager;
+    return cbRegistry;
   }
 
-  /** {@link WorkspaceSet} に対するイベントハンドラの追加と削除を行うクラス. */
+  /** {@link WorkspaceSet} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistry {
 
-    /** このワークスペースセット以下のノードの選択状態が変更されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するワークスペースセット以下のノードの選択状態が変更されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<NodeSelectionEvent> onNodeSelStateChangedInvoker =
         new ConsumerInvoker<>();
     
-    /** このワークスペースセット以下のノードのコンパイルエラー状態が変更されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するワークスペースセット以下のノードのコンパイルエラー状態が変更されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<NodeCompileErrorEvent>
         onNodeCompileErrStateChangedInvoker = new ConsumerInvoker<>();
 
-    /** このワークスペースセットのワークスペースにノードが追加されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker =
         new ConsumerInvoker<>();
 
-    /** このワークスペースセットのワークスペースからノードが削除されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
         new ConsumerInvoker<>();
 
     /**
-     * このワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときに
-     * 呼び出すメソッドを管理するオブジェクト.
+     * 関連するワークスペースセットのワークスペースのルートノード一式に
+     * 新しくルートノードが追加されたときのイベントハンドラを管理するオブジェクト.
      */
     private final ConsumerInvoker<RootNodeAddedEvent> onRootNodeAddedInvoker =
         new ConsumerInvoker<>();
 
     /**
-     * このワークスペースセットのワークスペースのルートノード一式からルートノードが削除されたときに
-     * 呼び出すメソッドを管理するオブジェクト.
+     * 関連するワークスペースセットのワークスペースのルートノード一式から
+     * ルートノードが削除されたときのイベントハンドラをを管理するオブジェクト.
      */
     private final ConsumerInvoker<RootNodeRemovedEvent> onRootNodeRemovedInvoker = 
         new ConsumerInvoker<>();
     
-    /** このワークスペースセットにワークスペースが追加されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するワークスペースセットにワークスペースが追加されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceAddedEvent> onWsAddedInvoker =
         new ConsumerInvoker<>();
 
-    /** このワークスペースセットからワークスペースが削除されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するワークスペースセットからワークスペースが削除されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceRemovedEvent> onWsRemovedInvoker =
         new ConsumerInvoker<>();
 
-    /** このワークスペースセットで操作対象のワークスペースが変わったときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するワークスペースセットで操作対象のワークスペースが変わったときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<CurrentWorkspaceChangedEvent> onCurrentWsChangedInvoker =
         new ConsumerInvoker<>();
 
@@ -223,22 +225,22 @@ public class WorkspaceSet {
     private final Consumer<? super Workspace.NodeCompileErrorEvent> onNodeCompileErrStateChanged =
         this::onNodeCompileErrStateChanged;
 
-    /** このワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラ. */
+    /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラ. */
     private final Consumer<? super Workspace.NodeAddedEvent> onNodeAdded = this::onNodeAdded;
 
-    /** このワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラ. */
+    /** 関連するワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラ. */
     private final Consumer<? super Workspace.NodeRemovedEvent> onNodeRemoved = this::onNodeRemoved;
 
-    /** このワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラ. */
+    /** 関連するワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラ. */
     private final Consumer<? super Workspace.RootNodeAddedEvent> onRootNodeAdded =
         this::onRootNodeAdded;
 
-    /** このワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラ. */
+    /** 関連するワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラ. */
     private final Consumer<? super Workspace.RootNodeRemovedEvent> onRootNodeRemoved =
         this::onRootNodeRemoved;
 
     /**
-     * このワークスペースセット以下のノードの選択状態が変更されたときのイベントハンドラを
+     * 関連するワークスペースセット以下のノードの選択状態が変更されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<NodeSelectionEvent>.Registry getOnNodeSelectionStateChanged() {
@@ -246,7 +248,7 @@ public class WorkspaceSet {
     }
 
     /**
-     * このワークスペースセット以下のノードのコンパイルエラー状態が変更されたときのイベントハンドラを
+     * 関連するワークスペースセット以下のノードのコンパイルエラー状態が変更されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<NodeCompileErrorEvent>.Registry getOnNodeCompileErrStateChanged() {
@@ -254,7 +256,7 @@ public class WorkspaceSet {
     }
 
     /**
-     * このワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを
+     * 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<NodeAddedEvent>.Registry getOnNodeAdded() {
@@ -262,7 +264,7 @@ public class WorkspaceSet {
     }
 
     /**
-     * このワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを
+     * 関連するワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<NodeRemovedEvent>.Registry getOnNodeRemoved() {
@@ -270,23 +272,23 @@ public class WorkspaceSet {
     }
 
     /**
-     * このワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときの
-     * イベントハンドラを登録 / 削除するためのオブジェクトを取得する.
+     * 関連するワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときの
+     * イベントハンドラのレジストリを取得する.
      */
     public ConsumerInvoker<RootNodeAddedEvent>.Registry getOnRootNodeAdded() {
       return onRootNodeAddedInvoker.getRegistry();
     }
 
     /**
-     * このワークスペースセットのワークスペースのルートノード一式からルートノードが削除されたときの
-     * イベントハンドラを登録 / 削除するためのオブジェクトを取得する.
+     * 関連するワークスペースセットのワークスペースのルートノード一式からルートノードが削除されたときの
+     * イベントハンドラのレジストリを取得する.
      */
     public ConsumerInvoker<RootNodeRemovedEvent>.Registry getOnRootNodeRemoved() {
       return onRootNodeRemovedInvoker.getRegistry();
     }
 
     /**
-     * このワークスペースセットにワークスペースが追加されたときのイベントハンドラを
+     * 関連するワークスペースセットにワークスペースが追加されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<WorkspaceAddedEvent>.Registry getOnWorkspaceAdded() {
@@ -294,7 +296,7 @@ public class WorkspaceSet {
     }
 
     /**
-     * このワークスペースセットからワークスペースが削除されたときのイベントハンドラを
+     * 関連するワークスペースセットからワークスペースが削除されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */    
     public ConsumerInvoker<WorkspaceRemovedEvent>.Registry getOnWorkspaceRemoved() {
@@ -302,7 +304,7 @@ public class WorkspaceSet {
     }
 
     /**
-     * このワークスペースセットで操作対象のワークスペースが変わったときのイベントハンドラを
+     * 関連するワークスペースセットで操作対象のワークスペースが変わったときのイベントハンドラを
      * 登録 / 削除するためのイブジェクトを取得する.
      */
     public ConsumerInvoker<CurrentWorkspaceChangedEvent>.Registry getOnCurrentWorkspaceChanged() {
@@ -326,7 +328,7 @@ public class WorkspaceSet {
           WorkspaceSet.this, event.ws(), event.node(), event.hasError(), event.userOpe()));
     }
 
-    /** このワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを呼ぶ. */
+    /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを呼ぶ. */
     private void onNodeAdded(Workspace.NodeAddedEvent event) {
       if (event.node().getCompileErrState()) {
         WorkspaceSet.this.compileErrNodes.addLast(event.node());
@@ -335,20 +337,20 @@ public class WorkspaceSet {
           new NodeAddedEvent(WorkspaceSet.this, event.ws(), event.node(), event.userOpe()));
     }
 
-    /** このワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを呼ぶ. */
+    /** 関連するワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを呼ぶ. */
     private void onNodeRemoved(Workspace.NodeRemovedEvent event) {
       WorkspaceSet.this.compileErrNodes.remove(event.node());
       onNodeRemovedInvoker.invoke(
           new NodeRemovedEvent(WorkspaceSet.this, event.ws(), event.node(), event.userOpe()));
     }
 
-    /** このワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラを呼ぶ.*/
+    /** 関連するワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラを呼ぶ.*/
     private void onRootNodeAdded(Workspace.RootNodeAddedEvent event) {
       onRootNodeAddedInvoker.invoke(
           new RootNodeAddedEvent(WorkspaceSet.this, event.ws(), event.node(), event.userOpe()));
     }
 
-    /** このワークスペースセットのワークスペースのルートノード一式からルートノードが削除されたときのイベントハンドラを呼ぶ.*/
+    /** 関連するワークスペースセットのワークスペースのルートノード一式からルートノードが削除されたときのイベントハンドラを呼ぶ.*/
     private void onRootNodeRemoved(Workspace.RootNodeRemovedEvent event) {
       onRootNodeRemovedInvoker.invoke(
           new RootNodeRemovedEvent(WorkspaceSet.this, event.ws(), event.node(), event.userOpe()));
@@ -356,7 +358,7 @@ public class WorkspaceSet {
   }
 
   /**
-   * このワークスペースセット以下のノードの選択状態が変更されたときの情報を格納したレコード.
+   * ワークスペースセット以下のノードの選択状態が変更されたときの情報を格納したレコード.
    *
    * @param wss {@code ws} を保持するワークスペースセット
    * @param ws {@code node} を保持するワークスペース
@@ -372,7 +374,7 @@ public class WorkspaceSet {
       UserOperation userOpe) {}
 
   /**
-   * このワークスペースセット以下のノードのコンパイルエラー状態が変更されたときの情報を格納したレコード.
+   * ワークスペースセット以下のノードのコンパイルエラー状態が変更されたときの情報を格納したレコード.
    *
    * @param wss {@code ws} を保持するワークスペースセット
    * @param ws {@code node} を保持するワークスペース
@@ -388,7 +390,7 @@ public class WorkspaceSet {
       UserOperation userOpe) {}
 
   /**
-   * このワークスペースセットのワークスペースにノードが追加されたときの情報を格納したレコード.
+   * ワークスペースセットのワークスペースにノードが追加されたときの情報を格納したレコード.
    *
    * @param wss {@code ws} を保持するワークスペースセット
    * @param ws {@code node} が追加されたワークスペース
@@ -399,7 +401,7 @@ public class WorkspaceSet {
       WorkspaceSet wss, Workspace ws, BhNode node, UserOperation userOpe) {}
 
   /**
-   * このワークスペースセットのワークスペースからノードが削除されたときの情報を格納したレコード.
+   * ワークスペースセットのワークスペースからノードが削除されたときの情報を格納したレコード.
    *
    * @param wss {@code ws} を保持するワークスペースセット
    * @param ws {@code node} が削除されたワークスペース
@@ -410,7 +412,7 @@ public class WorkspaceSet {
       WorkspaceSet wss, Workspace ws, BhNode node, UserOperation userOpe) {}
 
   /**
-   * このワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときの情報を格納したレコード.
+   * ワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときの情報を格納したレコード.
    *
    * @param wss {@code ws} を保持するワークスペースセット
    * @param ws {@code node} をルートノードとして保持するワークスペース
@@ -421,7 +423,7 @@ public class WorkspaceSet {
       WorkspaceSet wss, Workspace ws, BhNode node, UserOperation userOpe) {}
 
   /**
-   * このワークスペースセットのワークスペースのルートノード一式からルートノードが削除されたときの情報を格納したレコード.
+   * ワークスペースセットのワークスペースのルートノード一式からルートノードが削除されたときの情報を格納したレコード.
    *
    * @param wss {@code ws} を保持するワークスペースセット
    * @param ws このワークスペース上の {@code node} が非ルートノードとなった
@@ -432,7 +434,7 @@ public class WorkspaceSet {
       WorkspaceSet wss, Workspace ws, BhNode node, UserOperation userOpe) {}
 
   /**
-   * このワークスペースセットにワークスペースが追加されたときの情報を格納したレコード.
+   * ワークスペースセットにワークスペースが追加されたときの情報を格納したレコード.
    *
    * @param wss {@code ws} が追加されたワークスペースセット
    * @param ws {@code wss} に追加されたワークスペース
@@ -441,7 +443,7 @@ public class WorkspaceSet {
   public record WorkspaceAddedEvent(WorkspaceSet wss, Workspace ws, UserOperation userOpe) {}
 
   /**
-   * このワークスペースセットからワークスペースが削除されたときの情報を格納したレコード.
+   * ワークスペースセットからワークスペースが削除されたときの情報を格納したレコード.
    *
    * @param wss {@code ws} が削除されたワークスペースセット
    * @param ws {@code wss} から削除されたワークスペース
@@ -450,7 +452,7 @@ public class WorkspaceSet {
   public record WorkspaceRemovedEvent(WorkspaceSet wss, Workspace ws, UserOperation userOpe) {}
 
   /**
-   * このワークスペースセットで操作対象のワークスペースが変更されたときの情報を格納したレコード.
+   * ワークスペースセットで操作対象のワークスペースが変更されたときの情報を格納したレコード.
    *
    * @param wss 操作対象のワークスペースが変更されたワークスペースセット
    * @param oldWs {@code newWs} の前に操作対象であったワークスペース

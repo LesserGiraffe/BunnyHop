@@ -230,24 +230,24 @@ public class TextNode extends DerivativeBase<TextNode> {
         "%s<derivative>  %s".formatted(indent(depth + 2), derv.getInstanceId())));
   }
 
-  /** {@link TextNode} に対するイベントハンドラの追加と削除を行うクラス. */
+  /** {@link TextNode} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistry extends BhNode.CallbackRegistry {
 
-    /** このノードのテキストが変更されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するノードのテキストが変更されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<TextChangedEvent> onTextChangedInvoker = new ConsumerInvoker<>();
 
-    /** このノードのテキストが変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    /** 関連するノードのテキストが変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<TextChangedEvent>.Registry getOnTextChanged() {
       return onTextChangedInvoker.getRegistry();
     }
   }
   
   /**
-   * このノードのテキストが変更されたときの情報を格納したレコード.
+   * ノードのテキストが変更されたときの情報を格納したレコード.
    *
    * @param oldText 変更前のテキスト
    * @param newText 変更後のテキスト
-   *  @param userOpe undo 用コマンドオブジェクト
+   * @param userOpe undo 用コマンドオブジェクト
    */
   public record TextChangedEvent(String oldText, String newText, UserOperation userOpe) {}
 

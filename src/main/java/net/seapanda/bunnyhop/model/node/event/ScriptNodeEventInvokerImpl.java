@@ -276,13 +276,13 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
   }
 
   @Override
-  public void onDragStarted(BhNode target, MouseEventInfo eventInfo, UserOperation userOpe) {
+  public void onDragStarted(BhNode target, UiEvent event, UserOperation userOpe) {
     ScriptNameAndScript defined = getScript(target.getId(), EventType.ON_DRAG_STARTED);
     if (defined == null) {
       return;
     }
     Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_MOUSE_EVENT, eventInfo);
+        put(BhConstants.JsIdName.BH_UI_EVENT, event);
       }};
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);

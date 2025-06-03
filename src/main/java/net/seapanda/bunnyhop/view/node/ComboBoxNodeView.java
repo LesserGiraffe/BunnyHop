@@ -327,7 +327,7 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
       event.consume();
       return;
     }
-    view.getEventManager().dispatch(event);
+    view.getCallbackRegistry().dispatch(event);
     if (view.isTemplate() || dragging.getValue()) {
       event.consume();
     }

@@ -234,10 +234,10 @@ public class BhRuntimeTransceiver {
     /** BhProgram の実行環境に送信する {@link BhProgramResponse} を格納する FIFO. */
     private final BlockingQueue<BhProgramResponse> sendRespList =
         new ArrayBlockingQueue<>(BhConstants.BhRuntime.MAX_REMOTE_CMD_QUEUE_SIZE);
-    /** {@link BhProgramNotification} を受信したときに呼び出すメソッド. */
+    /** {@link BhProgramNotification} を受信したときのイベントハンドラを. */
     private AtomicReference<Consumer<BhProgramNotification>> onNotifReceived =
         new AtomicReference<>(notif -> {});
-    /** {@link BhProgramResponse} を受信したときに呼び出すメソッド. */
+    /** {@link BhProgramResponse} を受信したときのイベントハンドラを. */
     private AtomicReference<Consumer<BhProgramResponse>> onRespReceived =
         new AtomicReference<>(resp -> {});
 

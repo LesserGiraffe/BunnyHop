@@ -43,7 +43,7 @@ public class CopyAndPaste {
  
   /** コピー予定のノード. */
   private final SequencedSet<BhNode> readyToCopy = new LinkedHashSet<>();
-  private final CallbackRegistry callbackRegistry = this.new CallbackRegistry();
+  private final CallbackRegistry cbRegistry = this.new CallbackRegistry();
   private final BhNodeFactory factory;
   /** ノードの貼り付け位置をずらすためのカウンタ. */
   private final MutableInt pastePosOffsetCount;
@@ -65,9 +65,9 @@ public class CopyAndPaste {
       return;
     }
     readyToCopy.add(toAdd);
-    callbackRegistry.onNodeAddedInvoker.invoke(new NodeAddedEvent(this, toAdd));
+    cbRegistry.onNodeAddedInvoker.invoke(new NodeAddedEvent(this, toAdd));
     userOpe.pushCmdOfAddNodeToCopyList(this, toAdd);
-    toAdd.getCallbackRegistry().getOnWorkspaceChanged().add(callbackRegistry.onWsChanged);
+    toAdd.getCallbackRegistry().getOnWorkspaceChanged().add(cbRegistry.onWsChanged);
   }
 
   /**
@@ -148,9 +148,9 @@ public class CopyAndPaste {
   public void removeNodeFromList(BhNode toRemove, UserOperation userOpe) {
     if (readyToCopy.contains(toRemove)) {
       readyToCopy.remove(toRemove);
-      callbackRegistry.onNodeRemovedInvoker.invoke(new NodeRemovedEvent(this, toRemove));
+      cbRegistry.onNodeRemovedInvoker.invoke(new NodeRemovedEvent(this, toRemove));
       userOpe.pushCmdOfRemoveNodeFromCopyList(this, toRemove);
-      toRemove.getCallbackRegistry().getOnWorkspaceChanged().remove(callbackRegistry.onWsChanged);
+      toRemove.getCallbackRegistry().getOnWorkspaceChanged().remove(cbRegistry.onWsChanged);
     }
   }
 
@@ -176,20 +176,20 @@ public class CopyAndPaste {
    * @return このオブジェクトに対するイベントハンドラの追加と削除を行うオブジェクト
    */
   public CallbackRegistry getCallbackRegistry() {
-    return callbackRegistry;
+    return cbRegistry;
   }
 
   /** コピー元とコピーされた {@link BhNode} のペア. */
   private record OriginalAndCopy(BhNode org, BhNode copy) {}
 
-  /** イベントハンドラの管理を行うクラス. */
+  /** {@link CopyAndPaste} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistry {
 
-    /** コピー予定のノードが追加されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** コピー予定のノードが追加されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker = 
         new ConsumerInvoker<>();
 
-    /** コピー予定のノードが削除されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** コピー予定のノードが削除されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
         new ConsumerInvoker<>();
 
@@ -200,12 +200,12 @@ public class CopyAndPaste {
       }
     };
 
-    /** コピー予定のノードが追加されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** コピー予定のノードが追加されたときのイベントハンドラをを管理するオブジェクト. */
     public ConsumerInvoker<NodeAddedEvent>.Registry getOnNodeAdded() {
       return onNodeAddedInvoker.getRegistry();
     }
 
-    /** コピー予定のノードが削除されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** コピー予定のノードが削除されたときのイベントハンドラをを管理するオブジェクト. */
     public ConsumerInvoker<NodeRemovedEvent>.Registry getOnNodeRemoved() {
       return onNodeRemovedInvoker.getRegistry();
     }

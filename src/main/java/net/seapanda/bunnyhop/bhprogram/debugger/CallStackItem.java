@@ -16,12 +16,10 @@
 
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
-import java.util.LinkedHashSet;
 import java.util.Optional;
-import java.util.SequencedSet;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.function.TriConsumer;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
 /**
  * BhProgram のコールスタックの各要素 (コールスタックアイテム) を表すクラス.
@@ -38,7 +36,7 @@ public class CallStackItem {
   /** このコールスタックアイテムが選択されているかどうかのフラグ. */
   private boolean isSelected = false;
   /** このコールスタックアイテムに登録されたイベントハンドラを管理するオブジェクト. */
-  private EventManager eventManager = new EventManager();
+  private CallbackRegistry cbRegistry = new CallbackRegistry();
 
   /**
    * コンストラクタ.
@@ -91,8 +89,8 @@ public class CallStackItem {
    *
    * @return このコールスタックアイテムに対するイベントハンドラの追加と削除を行うオブジェクト
    */
-  public EventManager getEventManager() {
-    return eventManager;
+  public CallbackRegistry getCallbackRegistry() {
+    return cbRegistry;
   }
 
   /**
@@ -108,7 +106,8 @@ public class CallStackItem {
   public void select(UserOperation userOpe) {
     if (!isSelected) {
       isSelected = true;
-      getEventManager().invokeOnSelectionStateChanged(userOpe);
+      cbRegistry.onSelectionStateChangedInvoker.invoke(
+          new SelectionEvent(this, isSelected, userOpe));
       userOpe.pushCmdOfSelectCallStackItem(this);
     }
   }
@@ -117,48 +116,31 @@ public class CallStackItem {
   public void deselect(UserOperation userOpe) {
     if (isSelected) {
       isSelected = false;
-      getEventManager().invokeOnSelectionStateChanged(userOpe);
+      cbRegistry.onSelectionStateChangedInvoker.invoke(
+          new SelectionEvent(this, isSelected, userOpe));
       userOpe.pushCmdOfDeselectCallStackItem(this);
     }
   }
 
-  /** イベントハンドラの管理を行うクラス. */
-  public class EventManager {
+  /** {@link CallStackItem} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
+  public class CallbackRegistry {
     
-    /** このノードが選択されたときに呼び出すメソッドのリスト. */
-    private transient
-        SequencedSet<TriConsumer<? super CallStackItem, ? super Boolean, ? super UserOperation>>
-        onSelectionStateChangedList = new LinkedHashSet<>();
+    /** 関連する {@link CallStackItem} が選択されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<SelectionEvent> onSelectionStateChangedInvoker =
+        new ConsumerInvoker<>();
 
-    /**
-     * コールスタックアイテムの選択状態が変更されたときのイベントハンドラを追加する.
-     *  <pre>
-     *  イベントハンドラの第 1 引数: 選択状態に変更のあった {@link CallStackItem}
-     *  イベントハンドラの第 2 引数: 選択状態. 選択されたなら true.
-     *  イベントハンドラの第 3 引数: undo 用コマンドオブジェクト
-     *  </pre>
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    public void addOnSelectionStateChanged(
-        TriConsumer<? super CallStackItem, ? super Boolean, ? super UserOperation> handler) {
-      onSelectionStateChangedList.addLast(handler);
+    /** 関連する {@link CallStackItem} の選択状態が変更されたときのイベントハンドラのレジストリを取得する. */
+    public ConsumerInvoker<SelectionEvent>.Registry getOnSelectionStateChanged() {
+      return onSelectionStateChangedInvoker.getRegistry();
     }
+  }
 
-    /**
-     * コールスタックアイテムの選択状態が変更されたときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    public void removeOnSelectionStateChanged(
-        TriConsumer<? super CallStackItem, ? super Boolean, ? super UserOperation> handler) {
-      onSelectionStateChangedList.remove(handler);
-    }
-
-    /** 選択変更時のイベントハンドラを呼び出す. */
-    private void invokeOnSelectionStateChanged(UserOperation userOpe) {
-      onSelectionStateChangedList.forEach(
-          handler -> handler.accept(CallStackItem.this, isSelected, userOpe));
-    }
-  }  
+  /**
+   * {@link CallStackItem} の選択状態が変更されたときの情報を格納したレコード.
+   *
+   * @param item 選択状態が変更された {@link CallStackItem}
+   * @param isSelected {@code item} が選択された場合 true
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record SelectionEvent(CallStackItem item, boolean isSelected, UserOperation userOpe) {}
 }

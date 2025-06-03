@@ -277,8 +277,7 @@ public class AppMain extends Application {
           null,
           e.toString(),
           ButtonType.OK);
-      throw e;
-      // System.exit(-1);
+      System.exit(-1);
     }
   }
 

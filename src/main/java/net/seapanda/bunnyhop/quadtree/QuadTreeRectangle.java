@@ -16,7 +16,6 @@
 
 package net.seapanda.bunnyhop.quadtree;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -36,10 +35,10 @@ public class QuadTreeRectangle extends LinkNode<QuadTreeRectangle> {
   private Vec2D upperLeftPos;
   /** 矩形の右下座標. */
   private Vec2D lowerRightPos;
-  /** 位置が更新されたときに呼び出すメソッド. */
-  Consumer<QuadTreeRectangle> fnUpdatePos;
-  /** このオブジェクトの矩形領域に重なっているQuadTreeRectangleを探すときに呼び出すメソッド. */
-  BiFunction<QuadTreeRectangle, OverlapOption, ArrayList<QuadTreeRectangle>>
+  /** 位置が更新されたときのイベントハンドラを. */
+  Consumer<? super QuadTreeRectangle> fnUpdatePos;
+  /** このオブジェクトの矩形領域に重なっている {@link QuadTreeRectangle} を探すときのイベントハンドラ. */
+  BiFunction<? super QuadTreeRectangle, ? super OverlapOption, ? extends List<QuadTreeRectangle>>
       fnSearchOverlapped;
   /** この矩形に関連するオブジェクト. */
   private final Object userData;
@@ -117,12 +116,14 @@ public class QuadTreeRectangle extends LinkNode<QuadTreeRectangle> {
    * コールバック関数を登録する.
    *
    * @param fnUpdatePos 位置更新時に呼び出すメソッド
-   * @param fnSearchOverlapped このオブジェクトの矩形領域に重なっている {@link QuadTreeRectangle} を探すときに呼び出すメソッド
+   * @param fnSearchOverlapped このオブジェクトの矩形領域に重なっている {@link QuadTreeRectangle} を探すときのイベントハンドラを
    */
-  public void setCallBackFuncs(
-      Consumer<QuadTreeRectangle> fnUpdatePos,
-      BiFunction<QuadTreeRectangle, OverlapOption, ArrayList<QuadTreeRectangle>>
-          fnSearchOverlapped) {
+  public void setCallbacks(
+      Consumer<? super QuadTreeRectangle> fnUpdatePos,
+      BiFunction<
+          ? super QuadTreeRectangle,
+          ? super OverlapOption,
+          ? extends List<QuadTreeRectangle>> fnSearchOverlapped) {
 
     this.fnUpdatePos = fnUpdatePos;
     this.fnSearchOverlapped = fnSearchOverlapped;
@@ -191,7 +192,6 @@ public class QuadTreeRectangle extends LinkNode<QuadTreeRectangle> {
         && upperLeftPos.y  <= rectangle.lowerRightPos.y
         && lowerRightPos.y >= rectangle.upperLeftPos.y;
   }
-
 
   /**
    * この矩形に重なっている {@link QuadTreeRectangle} オブジェクトを 4 分木空間から探す.

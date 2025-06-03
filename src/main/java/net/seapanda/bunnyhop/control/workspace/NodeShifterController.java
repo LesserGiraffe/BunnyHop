@@ -65,7 +65,7 @@ public class NodeShifterController {
     ws.getView().ifPresent(wsView -> {
       ws.getCallbackRegistry().getOnNodeSelectionStateChanged().add(
           event -> event.node().getView().ifPresent(this::onNodeSelectionStateChanged));
-      wsView.getEventManager().addOnNodeMoved((nodeView, pos) -> onNodeMoved(nodeView));
+      wsView.getCallbackRegistry().getOnNodeMoved().add(event -> onNodeMoved(event.nodeView()));
     });
   }
 

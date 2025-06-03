@@ -17,36 +17,36 @@
 package net.seapanda.bunnyhop.model.node.event;
 
 /**
- * マウスイベントに関連する情報を格納するクラス.
+ * UI 操作に関連する情報を格納するクラス.
  *
  * @author K.Koike
  */
-public class MouseEventInfo {
+public class UiEvent {
 
-  public final boolean isFromPrimaryButton;
-  public final boolean isFromSecondaryButton;
-  public final boolean isFromMiddleButton;
-  public final boolean isFromBackButton;
-  public final boolean isFromforwardButton;
+  public final boolean isPrimaryButtonDown;
+  public final boolean isSecondaryButtonDown;
+  public final boolean isMiddleButtonDown;
+  public final boolean isBackButtonDown;
+  public final boolean isForwardButtonDown;
   public final boolean isShiftDown;
   public final boolean isCtrlDown;
   public final boolean isAltDown;
   
   /** コンストラクタ. */
-  public MouseEventInfo(
-      boolean isFromPrimaryButton,
-      boolean isFromSecondaryButton,
-      boolean isFromMiddleButton,
-      boolean isFromBackButton,
-      boolean isFromforwardButton,
+  public UiEvent(
+      boolean isPrimaryButtonDown,
+      boolean isSecondaryButtonDown,
+      boolean isMiddleButtonDown,
+      boolean isBackButtonDown,
+      boolean isForwardButtonDown,
       boolean isShiftDown,
       boolean isCtrlDown,
       boolean isAltDown) {
-    this.isFromPrimaryButton = isFromPrimaryButton;
-    this.isFromSecondaryButton = isFromSecondaryButton;
-    this.isFromMiddleButton = isFromMiddleButton;
-    this.isFromBackButton = isFromBackButton;
-    this.isFromforwardButton = isFromforwardButton;
+    this.isPrimaryButtonDown = isPrimaryButtonDown;
+    this.isSecondaryButtonDown = isSecondaryButtonDown;
+    this.isMiddleButtonDown = isMiddleButtonDown;
+    this.isBackButtonDown = isBackButtonDown;
+    this.isForwardButtonDown = isForwardButtonDown;
     this.isShiftDown = isShiftDown;
     this.isCtrlDown = isCtrlDown;
     this.isAltDown = isAltDown;

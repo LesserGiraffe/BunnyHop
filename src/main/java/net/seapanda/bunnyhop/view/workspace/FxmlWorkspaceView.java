@@ -25,13 +25,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.SequencedSet;
 import java.util.Set;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.collections.ListChangeListener;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -58,6 +57,7 @@ import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.ViewUtil;
@@ -112,7 +112,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   private int workspaceSizeLevel = 0;
   /** 最前面の Z 位置. */
   private double frontZpos = 0;
-  private EventManagerImpl eventManager = new EventManagerImpl();
+  private CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
 
   /**
    * コンストラクタ.
@@ -128,6 +128,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     this.workspace = workspace;
     minPaneSize = new Vec2D(width, height);
     configurGuiComponents(filePath);
+    seEventHandlers();
     quadTreeMngForBody =
         new QuadTreeManager(BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
     quadTreeMngForConnector =
@@ -151,9 +152,21 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     configureWsPane();
     configureTabNameComponents();
     rectSelTool.getPoints().addAll(Stream.generate(() -> 0.0).limit(8).toArray(Double[]::new));
+  }
+
+  private void seEventHandlers() {
     wsScrollPane.addEventFilter(ScrollEvent.ANY, this::onScroll);
-    setOnCloseRequest(eventManager::invokeOnCloseRequest);
-    setOnCloseRequest(eventManager::invokeOnClosed);
+    setOnCloseRequest(cbRegistry::onCloseRequested);
+    setOnClosed(cbRegistry::onClosed);
+    wsPane.addEventHandler(
+        MouseEvent.MOUSE_PRESSED,
+        event -> cbRegistry.onMousePressedInvoker.invoke(new MouseEventInfo(this, event)));
+    wsPane.addEventHandler(
+        MouseEvent.MOUSE_DRAGGED,
+        event -> cbRegistry.onMouseDraggedInvoker.invoke(new MouseEventInfo(this, event)));
+    wsPane.addEventHandler(
+        MouseEvent.MOUSE_RELEASED,
+        event -> cbRegistry.onMouseReleasedInvoker.invoke(new MouseEventInfo(this, event)));
   }
 
   /** スクロール時の処理. */
@@ -293,7 +306,8 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     }
     nodeViews.add(view);
     view.getTreeManager().addToGuiTree(wsPane);
-    view.getEventManager().addOnMoved(eventManager.onBhNodeViewMoved);
+    view.getCallbackRegistry().getOnMoved().add(cbRegistry.onNodeMoved);
+    view.getCallbackRegistry().getOnSizeChanged().add(cbRegistry.onNodeSizeChanged);
     addRectToQuadTreeSpace(view);
   }
 
@@ -305,7 +319,8 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     specifyNodeViewAsNotRoot(view);
     nodeViews.remove(view);
     view.getTreeManager().removeFromGuiTree();
-    view.getEventManager().removeOnMoved(eventManager.onBhNodeViewMoved);
+    view.getCallbackRegistry().getOnMoved().remove(cbRegistry.onNodeMoved);
+    view.getCallbackRegistry().getOnSizeChanged().remove(cbRegistry.onNodeSizeChanged);
     view.getRegionManager().removeQuadTreeRect();
   }
 
@@ -556,85 +571,84 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     }
   }
 
-  /**
-   * このワークスペースビューに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
-   *
-   * @return このワークスペースビューに対するイベントハンドラの追加と削除を行うオブジェクト
-   */
-  public EventManager getEventManager() {
-    return eventManager;
+  @Override
+  public CallbackRegistry getCallbackRegistry() {
+    return cbRegistry;
   }
 
-  /** イベントハンドラの管理を行うクラス. */
-  public class EventManagerImpl implements EventManager {
+  /** {@link WorkspaceView} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
+  public class CallbackRegistryImpl implements CallbackRegistry {
 
-    /** このワークスペースビュー内の {@link BhNodeView} が移動したときに呼ぶイベントハンドラのリスト. */
-    private final SequencedSet<BiConsumer<? super BhNodeView, ? super Vec2D>> onBhNodeViewMovedList
-        = new LinkedHashSet<>();
-    /** このワークスペースビュー内の {@link BhNodeView} が移動したときのイベントハンドラを呼ぶ関数オブジェクト. */
-    private final BiConsumer<? super BhNodeView, ? super Vec2D> onBhNodeViewMoved =
-        this::invokeOnNodeMoved;
-    /** このワークスペースビューを閉じるリクエストを受け取ったときのイベントハンドラ. */
-    private Supplier<? extends Boolean> onCloseRequest = () -> true;
-    /** このワークスペースビューが閉じられたときに呼ぶイベントハンドラのリスト. */
-    private final SequencedSet<Runnable> onClosedList = new LinkedHashSet<>();
-    
+    /** 関連するワークスペースビュー上でマウスボタンが押下されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<MouseEventInfo> onMousePressedInvoker = new ConsumerInvoker<>();
+
+    /** 関連するワークスペースビュー上でマウスがドラッグされたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<MouseEventInfo> onMouseDraggedInvoker = new ConsumerInvoker<>();
+
+    /** 関連するワークスペースビュー上でマウスボタンが離されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<MouseEventInfo> onMouseReleasedInvoker = new ConsumerInvoker<>();
+
+    /** 関連するワークスペースビューのノードビューの位置が変更されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeMoveEvent> onNodeMovedInvoker = new ConsumerInvoker<>();
+
+    /** 関連するワークスペースビューのノードビューのサイズが変更されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeSizeChangedEvent> onNodeSizeChangedInvoke =
+        new ConsumerInvoker<>();
+
+    /** 関連するワークスペースビューが閉じられたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<CloseEvent> onClosedInvoker = new ConsumerInvoker<>();
+
+    /** 関連するワークスペースビューを閉じるリクエストを受け取ったときのイベントハンドラ. */
+    private Supplier<? extends Boolean> onCloseRequested = () -> true;
+
+    /** 関連するワークスペースビュー上でノードビューが移動したときのイベントハンドラ. */
+    private final Consumer<? super BhNodeView.MoveEvent> onNodeMoved = this::onNodeMoved;
+
+    /** 関連するワークスペースビュー上でノードビューのサイズが変更されたときのイベントハンドラ. */
+    private final Consumer<? super BhNodeView.SizeChangedEvent> onNodeSizeChanged =
+        this::onNodeSizeChanged;
+
     @Override
-    public void addOnMousePressed(EventHandler<? super MouseEvent> handler) {
-      wsPane.addEventHandler(MouseEvent.MOUSE_PRESSED, handler);
+    public ConsumerInvoker<MouseEventInfo>.Registry getOnMousePressed() {
+      return onMousePressedInvoker.getRegistry();
     }
 
     @Override
-    public void removeOnMousePressed(EventHandler<? super MouseEvent> handler) {
-      wsPane.removeEventHandler(MouseEvent.MOUSE_PRESSED, handler);
+    public ConsumerInvoker<MouseEventInfo>.Registry getOnMouseDragged() {
+      return onMouseDraggedInvoker.getRegistry();
     }
 
     @Override
-    public void addOnMouseDragged(EventHandler<? super MouseEvent> handler) {
-      wsPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, handler);
+    public ConsumerInvoker<MouseEventInfo>.Registry getOnMouseReleased() {
+      return onMouseReleasedInvoker.getRegistry();
     }
 
     @Override
-    public void removeOnMouseDragged(EventHandler<? super MouseEvent> handler) {
-      wsPane.removeEventHandler(MouseEvent.MOUSE_DRAGGED, handler);
+    public ConsumerInvoker<NodeMoveEvent>.Registry getOnNodeMoved() {
+      return onNodeMovedInvoker.getRegistry();
     }
 
     @Override
-    public void addOnMouseReleased(EventHandler<? super MouseEvent> handler) {
-      wsPane.addEventHandler(MouseEvent.MOUSE_RELEASED, handler);
+    public ConsumerInvoker<NodeSizeChangedEvent>.Registry getOnNodeSizeChanged() {
+      return onNodeSizeChangedInvoke.getRegistry();
     }
 
     @Override
-    public void removeOnMouseReleased(EventHandler<? super MouseEvent> handler) {
-      wsPane.removeEventHandler(MouseEvent.MOUSE_RELEASED, handler);
+    public ConsumerInvoker<CloseEvent>.Registry getOnClosed() {
+      return onClosedInvoker.getRegistry();
     }
 
     @Override
-    public void addOnNodeMoved(BiConsumer<? super BhNodeView, ? super Vec2D> handler) {
-      onBhNodeViewMovedList.add(handler);
-    }
-
-    @Override
-    public void removeOnNodeMoved(BiConsumer<? super BhNodeView, ? super Vec2D> handler) {
-      onBhNodeViewMovedList.remove(handler);
-    }
-
-    /** ワークスペースビュー内で {@link BhNodeView} が移動したときのイベントハンドラを呼び出す. */
-    private void invokeOnNodeMoved(BhNodeView view, Vec2D posOnWs) {
-      onBhNodeViewMovedList.forEach(handler -> handler.accept(view, posOnWs));
-    }
-
-    @Override
-    public void setOnCloseRequest(Supplier<? extends Boolean> handler) {
+    public void setOnCloseRequested(Supplier<? extends Boolean> handler) {
       if (handler == null) {
-        onCloseRequest = () -> true;
+        onCloseRequested = () -> true;
       }
-      onCloseRequest = handler;
+      onCloseRequested = handler;
     }
 
-    /** ワークスペースビュー内で {@link BhNodeView} が移動したときのイベントハンドラを呼び出す. */
-    private void invokeOnCloseRequest(Event event) {
-      if (!onCloseRequest.get()) {
+    /** 関連するワークスペースビューを閉じるリクエストを受け取ったときのイベントハンドラ. */
+    private void onCloseRequested(Event event) {
+      if (!onCloseRequested.get()) {
         event.consume();
       }
       TabPane tabPane = getTabPane();
@@ -645,19 +659,20 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
       }
     }
 
-    @Override
-    public void addOnClosed(Runnable handler) {
-      onClosedList.add(handler);
+    /** 関連するワークスペースビュー上で {@link BhNodeView} が移動したときのイベントハンドラを呼び出す. */
+    private void onNodeMoved(BhNodeView.MoveEvent event) {
+      onNodeMovedInvoker.invoke(new NodeMoveEvent(FxmlWorkspaceView.this, event.view()));
     }
 
-    @Override
-    public void removeOnClosed(Runnable handler) {
-      onClosedList.remove(handler);
+    /** 関連するワークスペースビュー上で {@link BhNodeView} が移動したときのイベントハンドラを呼び出す. */
+    private void onNodeSizeChanged(BhNodeView.SizeChangedEvent event) {
+      onNodeSizeChangedInvoke.invoke(
+          new NodeSizeChangedEvent(FxmlWorkspaceView.this, event.view()));
     }
 
     /** ワークスペースビューが閉じられたときのイベントハンドラを呼び出す. */
-    private void invokeOnClosed(Event event) {
-      onClosedList.forEach(handler -> handler.run());
+    private void onClosed(Event event) {
+      onClosedInvoker.invoke(new CloseEvent(FxmlWorkspaceView.this));
     }
   }
 }

@@ -45,8 +45,9 @@ public class DebugBoardController {
   /** 初期化する. */
   public synchronized void initialize(Debugger debugger, DebugViewFactory factory) {
     this.factory = factory;
-    debugger.getEventManager().addOnThreadContextGet(this::addThreadContext);
-    debugger.getEventManager().addOnCleared(this::clear);
+    Debugger.CallbackRegistry registry = debugger.getCallbackRegistry();
+    registry.getOnThreadContextGot().add(event -> addThreadContext(event.context()));
+    registry.getOnCleared().add(event -> clear());
     threadSelectorController.setOnThreadSelected(
         threadId -> showCallStackView(threadIdToCallStackView.get(threadId)));
   }

@@ -251,7 +251,7 @@ public class BhConstants {
     public static final String BH_IS_WHOLE_TEXT_FORMATTED = "bhIsWholeTextFormatted";
     public static final String BH_FORMATTED_TEXT = "bhFormattedText";
     public static final String BH_TEXT_DB = "bhTextDb";
-    public static final String BH_MOUSE_EVENT = "bhMouseEvent";
+    public static final String BH_UI_EVENT = "bhUiEvent";
     public static final String IP_ADDR = "ipAddr";
     public static final String UNAME = "uname";
     public static final String PASSWORD = "password";

@@ -87,11 +87,12 @@ public class WorkspaceController {
   }
 
   private void setViewEventHandlers() {
-    view.getEventManager().addOnMousePressed(this::onMousePressed);
-    view.getEventManager().addOnMouseDragged(this::onMouseDragged);
-    view.getEventManager().addOnMouseReleased(this::onMouseReleased);
-    view.getEventManager().setOnCloseRequest(this::onCloseRequest);
-    view.getEventManager().addOnClosed(this::onClosed);
+    WorkspaceView.CallbackRegistry registry = view.getCallbackRegistry();
+    registry.getOnMousePressed().add(info -> onMousePressed(info.event()));
+    registry.getOnMouseDragged().add(info -> onMouseDragged(info.event()));
+    registry.getOnMouseReleased().add(info -> onMouseReleased(info.event()));
+    registry.setOnCloseRequested(this::onCloseRequest);
+    registry.getOnClosed().add(event -> onClosed());
   }
 
   private void setWorkspaceEventHandlers() {

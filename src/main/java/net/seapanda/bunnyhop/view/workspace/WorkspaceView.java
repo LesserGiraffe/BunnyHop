@@ -18,13 +18,12 @@ package net.seapanda.bunnyhop.view.workspace;
 
 import java.util.List;
 import java.util.SequencedSet;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
-import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
@@ -164,90 +163,67 @@ public interface WorkspaceView {
    *
    * @return このワークスペースビューに対するイベントハンドラの追加と削除を行うオブジェクト
    */
-  EventManager getEventManager();
+  CallbackRegistry getCallbackRegistry();
 
-  /** このワークスペースビューのイベントハンドラの管理を行うクラス. */
-  public interface EventManager {
+  /** {@link WorkspaceView} に対してイベントハンドラを追加または削除する機能を規定したインタフェース. */
+  public interface CallbackRegistry {
     
-    /**
-     * ワークスペースビュー内でマウスが押されたときのイベントハンドラを追加する.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    void addOnMousePressed(EventHandler<? super MouseEvent> handler);
+    /** 関連するワークスペースビュー上でマウスボタンが押下されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<MouseEventInfo>.Registry getOnMousePressed();
+
+    /** 関連するワークスペースビュー上でマウスがドラッグされたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<MouseEventInfo>.Registry getOnMouseDragged();
+
+    /** 関連するワークスペースビュー上でマウスボタンが離されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<MouseEventInfo>.Registry getOnMouseReleased();
+
+    /** 関連するワークスペースビューのノードビューの位置が変更されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<NodeMoveEvent>.Registry getOnNodeMoved();
+
+    /** 関連するワークスペースビューのノードビューのサイズが変更されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<NodeSizeChangedEvent>.Registry getOnNodeSizeChanged();
 
     /**
-     * ワークスペースビュー内でマウスが押されたときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    void removeOnMousePressed(EventHandler<? super MouseEvent> handler);
-
-    /**
-     * ワークスペースビュー内でマウスがドラッグされたときのイベントハンドラを追加する.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    void addOnMouseDragged(EventHandler<? super MouseEvent> handler);
-
-    /**
-     * ワークスペースビュー内でマウスがドラッグされたときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    void removeOnMouseDragged(EventHandler<? super MouseEvent> handler);
-
-    /**
-     * ワークスペースビュー内でマウスが離されたときのイベントハンドラを追加する.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    void addOnMouseReleased(EventHandler<? super MouseEvent> handler);
-
-    /**
-     * ワークスペースビュー内でマウスが離されたときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    void removeOnMouseReleased(EventHandler<? super MouseEvent> handler);
-
-    /**
-     * ワークスペースビュー内で {@link BhNodeView} が移動したときのイベントハンドラを追加する.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    void addOnNodeMoved(BiConsumer<? super BhNodeView, ? super Vec2D> handler);
-
-    /**
-     * ワークスペースビュー内で {@link BhNodeView} が移動したときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    void removeOnNodeMoved(BiConsumer<? super BhNodeView, ? super Vec2D> handler);
-
-    /**
-     * このワークスペースビューを閉じるリクエストを受け取ったときに呼ぶイベントハンドラを設定する.
+     * 関連するワークスペースビューを閉じるリクエストを受け取ったときに呼ぶイベントハンドラを設定する.
      * 
-     * <p>
-     * イベントハンドラの戻り値が false であった場合, ワークスペースビューを閉じるリクエストをキャンセルする.
-     * </p>
+     * <p>イベントハンドラの戻り値が false であった場合, ワークスペースビューを閉じるリクエストをキャンセルする.
      *
      * @param handler 設定するイベントハンドラ (nullable)
      */
-    void setOnCloseRequest(Supplier<? extends Boolean> handler);
+    void setOnCloseRequested(Supplier<? extends Boolean> handler);
 
-    /**
-     * ワークスペースビューが閉じられたときのイベントハンドラを追加する.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    void addOnClosed(Runnable handler);
+    /** 関連するワークスペースビューが閉じられたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<CloseEvent>.Registry getOnClosed();
+  }
 
-    /**
-     * ワークスペースビューが閉じられたときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    void removeOnClosed(Runnable handler);
-  }  
+  /**
+   * ワークスペースビュー上でのマウス操作の情報を格納したレコード.
+   *
+   * @param view マウス操作が行われたワークスペースビュー
+   * @param event マウス操作の情報を格納したオブジェクト
+   */
+  record MouseEventInfo(WorkspaceView view, MouseEvent event) {}
+
+  /**
+   * ワークスペースビュー上でノードビューの位置が変更されたときの情報を格納したレコード.
+   *
+   * @param wsView {@code nodeView } を保持するワークスペースビュー
+   * @param nodeView 位置が変更されたノードビュー
+   */
+  record NodeMoveEvent(WorkspaceView wsView, BhNodeView nodeView) {}
+
+  /**
+   * ワークスペースビュー上でノードビューのサイズが変更されたときの情報を格納したレコード.
+   *
+   * @param wsView {@code nodeView } を保持するワークスペースビュー
+   * @param nodeView サイズが変更されたノードビュー
+   */
+  record NodeSizeChangedEvent(WorkspaceView wsView, BhNodeView nodeView) {}
+
+  /**
+   * ワークスペースビューが閉じられたときの情報を格納したレコード.
+   *
+   * @param view 閉じられたワークスペースビュー
+   */
+  record CloseEvent(WorkspaceView view) {}
 }

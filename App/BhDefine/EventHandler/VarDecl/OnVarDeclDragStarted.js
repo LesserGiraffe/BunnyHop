@@ -1,5 +1,5 @@
 (function () {
-  if (!bhMouseEvent.isFromSecondaryButton) {
+  if (!bhUiEvent.isSecondaryButtonDown) {
     return;
   }
   let toReconnect = bhCommon.findOuterNotSelected(bhThis);

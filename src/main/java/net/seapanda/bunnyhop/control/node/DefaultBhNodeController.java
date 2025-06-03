@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.derivative.Derivative;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
-import net.seapanda.bunnyhop.model.node.event.MouseEventInfo;
+import net.seapanda.bunnyhop.model.node.event.UiEvent;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.Trashbox;
@@ -83,13 +83,12 @@ public class DefaultBhNodeController implements BhNodeController {
   }
 
   private void setViewEventHandlers() {
-    view.getEventManager().setOnMousePressed(this::onMousePressed);
-    view.getEventManager().setOnMouseDragged(this::onMouseDragged);
-    view.getEventManager().setOnDragDetected(this::onMouseDragDetected);
-    view.getEventManager().setOnMouseReleased(this::onMouseReleased);
-    view.getEventManager().addEventFilter(
-        MouseEvent.ANY,
-        mouseEvent -> consumeIfNotAcceptable(mouseEvent));
+    BhNodeView.CallbackRegistry registry = view.getCallbackRegistry();
+    registry.getOnMousePressed().setFirst(info -> onMousePressed(info.event()));
+    registry.getOnMouseDragged().setFirst(info -> onMouseDragged(info.event()));
+    registry.getOnMouseDragDetected().setFirst(info -> onMouseDragDetected(info.event()));
+    registry.getOnMouseReleased().setLast(info -> onMouseReleased(info.event()));
+    registry.addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
   }
 
   private void setNodeEventHandlers() {
@@ -390,7 +389,7 @@ public class DefaultBhNodeController implements BhNodeController {
   private static void sendEvent(BhNode node, Event event) {
     Optional.ofNullable(node)
         .flatMap(BhNode::getView)
-        .ifPresent(view -> view.getEventManager().dispatch(event));
+        .ifPresent(view -> view.getCallbackRegistry().dispatch(event));
   }
 
   /** 受付不能なマウスイベントを consume する. */
@@ -410,14 +409,14 @@ public class DefaultBhNodeController implements BhNodeController {
     notifService.end();
   }
 
-  /** {@link MouseEvent} オブジェクトの情報を {@link MouseEventInfo} オブジェクトに格納して返す. */
-  private MouseEventInfo toEventInfo(MouseEvent event) {
-    return new MouseEventInfo(
-        event.getButton() == MouseButton.PRIMARY,
-        event.getButton() == MouseButton.SECONDARY,
-        event.getButton() == MouseButton.MIDDLE,
-        event.getButton() == MouseButton.BACK,
-        event.getButton() == MouseButton.FORWARD,
+  /** {@link MouseEvent} オブジェクトの情報を {@link UiEvent} オブジェクトに格納して返す. */
+  private UiEvent toEventInfo(MouseEvent event) {
+    return new UiEvent(
+        event.isPrimaryButtonDown(),
+        event.isSecondaryButtonDown(),
+        event.isMiddleButtonDown(),
+        event.isBackButtonDown(),
+        event.isForwardButtonDown(),
         event.isShiftDown(),
         event.isControlDown(),
         event.isAltDown());

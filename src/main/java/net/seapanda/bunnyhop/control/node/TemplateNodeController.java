@@ -85,13 +85,12 @@ public class TemplateNodeController implements BhNodeController {
 
   /** 各種イベントハンドラをセットする. */
   private void setEventHandlers() {
-    view.getEventManager().setOnMousePressed(this::onMousePressed);
-    view.getEventManager().setOnMouseDragged(this::onMouseDragged);
-    view.getEventManager().setOnDragDetected(this::onDragDetected);
-    view.getEventManager().setOnMouseReleased(this::onMouseReleased);
-    view.getEventManager().addEventFilter(
-        MouseEvent.ANY,
-        mouseEvent -> consumeIfNotAcceptable(mouseEvent));
+    BhNodeView.CallbackRegistry registry = view.getCallbackRegistry();
+    registry.getOnMousePressed().setFirst(info -> onMousePressed(info.event()));
+    registry.getOnMouseDragged().setFirst(info -> onMouseDragged(info.event()));
+    registry.getOnMouseDragDetected().setFirst(info -> onMouseDragDetected(info.event()));
+    registry.getOnMouseReleased().setLast(info -> onMouseReleased(info.event()));
+    registry.addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
     model.getCallbackRegistry().getOnConnected().add(event -> replaceView(event.disconnected()));
   }
 
@@ -114,7 +113,7 @@ public class TemplateNodeController implements BhNodeController {
       ddInfo.isDndFinished = false;
       Vec2D posOnWs = calcClickPosOnWs(event, currentWs);
       BhNodePlacer.moveToWs(currentWs, newNode, posOnWs.x, posOnWs.y, context.userOpe());
-      ddInfo.currentView.getEventManager().dispatch(event);
+      ddInfo.currentView.getCallbackRegistry().dispatch(event);
       nodeSelectionViewProxy.hideAll();
     } catch (Throwable e) {
       terminateDnd();
@@ -130,7 +129,7 @@ public class TemplateNodeController implements BhNodeController {
       if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
         return;
       }
-      ddInfo.currentView.getEventManager().dispatch(event);
+      ddInfo.currentView.getCallbackRegistry().dispatch(event);
     } catch (Throwable e) {
       terminateDnd();
       throw e;
@@ -140,12 +139,12 @@ public class TemplateNodeController implements BhNodeController {
   }
 
   /** マウスドラッグ検出検出時のイベントハンドラ. */
-  private void onDragDetected(MouseEvent event) {
+  private void onMouseDragDetected(MouseEvent event) {
     try {
       if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
         return;
       }
-      ddInfo.currentView.getEventManager().dispatch(event);
+      ddInfo.currentView.getCallbackRegistry().dispatch(event);
     } catch (Throwable e) {
       terminateDnd();
       throw e;
@@ -163,7 +162,7 @@ public class TemplateNodeController implements BhNodeController {
     }
 
     try {
-      ddInfo.currentView.getEventManager().dispatch(event);
+      ddInfo.currentView.getCallbackRegistry().dispatch(event);
     } finally {
       event.consume();
       terminateDnd();

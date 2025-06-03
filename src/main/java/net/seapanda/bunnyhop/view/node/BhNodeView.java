@@ -18,8 +18,6 @@ package net.seapanda.bunnyhop.view.node;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -31,6 +29,7 @@ import net.seapanda.bunnyhop.control.node.BhNodeController;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.traverse.NodeViewComponent;
@@ -69,8 +68,8 @@ public interface BhNodeView extends NodeViewComponent {
   /** このノードビューの位置に関する処理を行うオブジェクト返す. */
   PositionManager getPositionManager();
 
-  /** このノードビューにイベントハンドラ登録する機能を提供するオブジェクトを返す. */
-  EventManager getEventManager();
+  /** このノードビューに対するイベントハンドラの登録 / 削除機能を提供するオブジェクトを返す. */
+  CallbackRegistry getCallbackRegistry();
 
   /** このノードビューの外観を変更する処理を行うオブジェクトを返す. */
   LookManager getLookManager();
@@ -97,28 +96,22 @@ public interface BhNodeView extends NodeViewComponent {
    */
   WorkspaceView getWorkspaceView();
 
-  /**
-   * ノードビューの外観を変更する機能を規定したインタフェース.
-   *
-   * <p>
-   * このオブジェクトが管理する {@link BhNodeView} を "target" と呼ぶ
-   * </p>
-   */
+  /** ノードビューの外観を変更する機能を規定したインタフェース. */
   public interface LookManager {
 
     /**
-     * "target" の CSS の擬似クラスの有効無効を切り替える.
+     * ノードビューの CSS の擬似クラスの有効無効を切り替える.
      *
      * @param className 有効/無効を切り替える擬似クラス名
      * @param enable 擬似クラスを有効にする場合true
      */
     void switchPseudoClassState(String className, boolean enable);
 
-    /** "target" 以下のノードビューのワークスペース上の位置, 四分木空間上の位置, および配置を更新する. */
+    /** 関連するノードビュー以下のノードビューのワークスペース上の位置, 四分木空間上の位置, および配置を更新する. */
     void arrange();
 
     /**
-     * "target" 以下のノードビューのワークスペース上の位置, 四分木空間上の位置, および配置の更新を
+     * 関連するノードビュー以下のノードビューのワークスペース上の位置, 四分木空間上の位置, および配置の更新を
      * UI スレッドの処理としてキューイングする.
      *
      * <p>
@@ -128,25 +121,25 @@ public interface BhNodeView extends NodeViewComponent {
      */
     void requestArrangement();
     
-    /** "target" 以下の可視性を変更する. */
+    /** 関連するノードビュー以下の可視性を変更する. */
     void setVisible(boolean visible);
 
     /**
-     * "target" のコンパイルエラー表示の可視性を切り替える.
+     * 関連するノードビューのコンパイルエラー表示の可視性を切り替える.
      *
      * @param visible コンパイルエラー表示を有効にする場合 true. 無効にする場合 false.
      */
     void setCompileErrorVisibility(boolean visible);
 
     /**
-     * "target" のコンパイルエラー表示の状態を調べる.
+     * 関連するノードビューのコンパイルエラー表示の状態を調べる.
      *
      * @return コンパイルエラー表示されている場合 true.
      */
     boolean isCompileErrorVisible();
 
     /**
-     * "target" とそれから辿れる外部ノードビューに影を付ける.
+     * 関連するノードビューとそれから辿れる外部ノードビューに影を付ける.
      *
      * @param onlyOuter 外部ノードビューのみを辿って影を付ける場合 true.
      *                  内部ノードビューと外部ノードビューを辿って影を付ける場合 false.
@@ -154,7 +147,7 @@ public interface BhNodeView extends NodeViewComponent {
     void showShadow(boolean onlyOuter);
 
     /**
-     * "target" とそれから辿れるノードビューの影を消す.
+     * 関連するノードビューとそれから辿れるノードビューの影を消す.
      *
      * @param onlyOuter 外部ノードビューのみを辿って影を消す場合 true.
      *                  内部ノードビューと外部ノードビューを辿って影を消す場合 false.
@@ -162,43 +155,37 @@ public interface BhNodeView extends NodeViewComponent {
     void hideShadow(boolean onlyOuter);
 
     /**
-     * "target" のコネクタの位置を取得する.
+     * 関連するノードビューのコネクタの位置を取得する.
      *
-     * @return "target" のコネクタの位置
+     * @return 関連するノードビューのコネクタの位置
      */
     ConnectorPos getConnectorPos();
   }
 
-  /**
-   * ノードビューの領域に関する操作を規定したインタフェース.
-   *
-   * <p>
-   * このオブジェクトが管理する {@link BhNodeView} を "target" と呼ぶ
-   * </p>
-   */
+  /** ノードビューの領域に関する操作を規定したインタフェース.　*/
   public interface RegionManager {
 
     /**
-     * コネクタ部分が "target" のコネクタ部分に重なっているノードビューを探す.
+     * コネクタ部分が 関連するノードビューのコネクタ部分に重なっているノードビューを探す.
      *
-     * @return コネクタ部分が "target" のコネクタ部分に重なっているノードビューのリスト
+     * @return コネクタ部分が 関連するノードビューのコネクタ部分に重なっているノードビューのリスト
      */
     List<BhNodeView> searchForOverlapped();
     
     /**
-     * "target" のボディの領域を保持する {@link QuadTreeRectangle} と
+     * 関連するノードビューのボディの領域を保持する {@link QuadTreeRectangle} と
      *  コネクタの領域を保持する {@link QuadTreeRectangle} を返す.
      *
-     * @return "target" のボディの領域を保持する {@link QuadTreeRectangle} と
+     * @return 関連するノードビューのボディの領域を保持する {@link QuadTreeRectangle} と
      *         コネクタの領域を保持する {@link QuadTreeRectangle}
      */
     Rectangles getRegions();
 
-    /** "target" をそれが現在所属している 4 分木空間から消す. */
+    /** 関連するノードビューをそれが現在所属している 4 分木空間から消す. */
     void removeQuadTreeRect();
 
     /**
-     * "target" に末尾までの全外部ノードビューを加えた大きさを返す.
+     * 関連するノードビューに末尾までの全外部ノードビューを加えた大きさを返す.
      *
      * @param includeCnctr コネクタ部分を含む大きさを返す場合 true.
      * @return ノードビューの大きさ
@@ -206,7 +193,7 @@ public interface BhNodeView extends NodeViewComponent {
     Vec2D getNodeTreeSize(boolean includeCnctr);
 
     /**
-     * "target" の大きさを返す.
+     * 関連するノードビューの大きさを返す.
      *
      * @param includeCnctr コネクタ部分を含む大きさを返す場合 true
      * @return ノードビューの大きさ
@@ -214,24 +201,24 @@ public interface BhNodeView extends NodeViewComponent {
     Vec2D getNodeSize(boolean includeCnctr);
 
     /**
-     * "target" のコネクタの大きさを返す.
+     * 関連するノードビューのコネクタの大きさを返す.
      *
      * @return コネクタの大きさ
      */
     Vec2D getConnectorSize();
 
-    /** "target" のボディ部分のワークスペース上での範囲を取得する. */
+    /** 関連するノードビューのボディ部分のワークスペース上での範囲を取得する. */
     BodyRange getBodyRange();
 
-    /** "target" のコネクタ部分のワークスペース上での範囲を取得する. */
+    /** 関連するノードビューのコネクタ部分のワークスペース上での範囲を取得する. */
     BodyRange getConnectorRange();
 
     /**
-     * "target" のボディの領域が引数のノードビューのボディの領域と重なっているかどうか調べる.
+     * 関連するノードビューのボディの領域が引数のノードビューのボディの領域と重なっているかどうか調べる.
      *
-     * @param view "target" とのボディ部分の重なりを調べるノード
+     * @param view 関連するノードビューとのボディ部分の重なりを調べるノード
      * @param option 重なり具合を判定するオプション
-     * @return このノードビューのボディの領域が引数のノードビューのボディと重なっている場合 true.
+     * @return 関連するノードビューのボディの領域が引数のノードビューのボディと重なっている場合 true.
      * */
     boolean overlapsWith(BhNodeView view, OverlapOption option);
 
@@ -252,93 +239,81 @@ public interface BhNodeView extends NodeViewComponent {
     public record BodyRange(Vec2D upperLeft, Vec2D lowerRight) { }
   }
 
-  /**
-   * ノードビューの GUI ツリーに関する操作を規定したインタフェース.
-   *
-   * <p>
-   * このオブジェクトが管理する {@link BhNodeView} を "target" と呼ぶ
-   * </p>
-   */
+  /** ノードビューの GUI ツリーに関する操作を規定したインタフェース. */
   public interface TreeManager {
 
     /**
-     * "target" の親グループを取得する.
+     * 関連するノードビューの親グループを取得する.
      *
-     * @return "target" の親グループ. 存在しない場合は null.
+     * @return 関連するノードビューの親グループ. 存在しない場合は null.
      */
     BhNodeViewGroup getParentGroup();
 
     /**
-     * "target" の親ノードビューを取得する.
+     * 関連するノードビューの親ノードビューを取得する.
      *
-     * @return "target" の親となるノードビュー.  "target" がルートノードビューの場合は null.
+     * @return 関連するノードビューの親となるノードビュー.  関連するノードビューがルートノードビューの場合は null.
      */
     ConnectiveNodeView getParentView();
 
     /**
-     * {@link BhNodeViewGroup} の中で "target" を引数のノードビューと入れ替える.
+     * {@link BhNodeViewGroup} の中で 関連するノードビューを引数のノードビューと入れ替える.
      * GUI ツリーからは取り除かない.
      *
-     * @param newNode "target" と入れ替えるノードビュー.
+     * @param newNode 関連するノードビューと入れ替えるノードビュー.
      */
     void replace(BhNodeView newNode);
 
     /**
-     * "target" 以下のノードビューを GUI ツリーから取り除く.
+     * 関連するノードビュー以下のノードビューを GUI ツリーから取り除く.
      * {@link BhNodeViewGroup} からは取り除かない.
      */
     void removeFromGuiTree();
 
     /**
-     * "target" を {@code parent} に子要素として追加する.
+     * 関連するノードビューを {@code parent} に子要素として追加する.
      *
      * @param parent 親となる GUI コンポーネント.
      */
     void addToGuiTree(Group parent);
 
     /**
-     * "target" を {@code parent} に子要素として追加する.
+     * 関連するノードビューを {@code parent} に子要素として追加する.
      *
      * @param parent 親となる GUI コンポーネント.
      */
     void addToGuiTree(Pane parent);
 
-    /** "target" のルートノードビューを返す. */
+    /** 関連するノードビューのルートノードビューを返す. */
     BhNodeView getRootView();
 
     /**
-     * "target" がルートノードビューかどうか調べる.
+     * 関連するノードビューがルートノードビューかどうか調べる.
      *
-     * @return "target" がルートノードビューの場合 true
+     * @return 関連するノードビューがルートノードビューの場合 true
      */
     boolean isRootView();
 
     /**
-     * "target" を保持する GUI コンポーネントを取得する.
+     * 関連するノードビューを保持する GUI コンポーネントを取得する.
      *
-     * @return "target" 保持する GUI コンポーネント.
+     * @return 関連するノードビュー保持する GUI コンポーネント.
      */
     Parent getParentGuiComponent();
   }
 
-  /**
-   * ノードビューの位置の変更, 取得に関する操作を規定したインタフェース.
-   *
-   * <p>
-   * このオブジェクトが管理する {@link BhNodeView} を "target" と呼ぶ
-   * </p>
-   */
+  /** ノードビューの位置の変更, 取得に関する操作を規定したインタフェース. */
   public interface PositionManager {
 
     /**
-     * ワークスペース上での位置を返す.
+     * 関連するノードビューのワークスペース上での位置を返す.
      *
-     * @return ワークスペース上での位置
+     * @return 関連するノードビューのワークスペース上での位置
      */
     Vec2D getPosOnWorkspace();
 
     /**
-     * "target" 以下のノードビューのワークスペースの上での位置と 4 分木空間上での位置を更新する.
+     * 関連するノードビュー以下のノードビューのワークスペースの上での位置と 4 分木空間上での位置を更新する.
      *
      * @param posX 本体部分左上のワークスペース上での X 位置
      * @param posY 本体部分左上のワークスペース上での Y 位置
@@ -346,7 +321,7 @@ public interface BhNodeView extends NodeViewComponent {
     void setTreePosOnWorkspace(double posX, double posY);
 
     /**
-     * "target" のコネクタの位置を指定して "target" 以下のノードビューのワークスペースの上での位置と 4 分木空間上での位置を更新する.
+     * 関連するノードビューのコネクタの位置を指定して 関連するノードビュー以下のノードビューのワークスペースの上での位置と 4 分木空間上での位置を更新する.
      *
      * @param posX コネクタ左上のワークスペース上での X 位置
      * @param posY コネクタ左上のワークスペース上での Y 位置
@@ -354,21 +329,21 @@ public interface BhNodeView extends NodeViewComponent {
     void setTreePosOnWorkspaceByConnector(double posX, double posY);
 
     /**
-     * "target" 以下のノードビューの Z 位置を設定する.
+     * 関連するノードビュー以下のノードビューの Z 位置を設定する.
      *
-     * @param pos "target" の Z 位置
+     * @param pos 関連するノードビューの Z 位置
      */
     void setTreeZpos(double pos);
 
     /**
-     * "target" の Z 位置を取得する.
+     * 関連するノードビューの Z 位置を取得する.
      *
-     * @return "target" の Z 位置
+     * @return 関連するノードビューの Z 位置
      */
     double getZpos();
 
     /**
-     * "target"  以下のノードビューをワークスペースビューからはみ出さないように動かす.
+     * 関連するノードビュー 以下のノードビューをワークスペースビューからはみ出さないように動かす.
      *
      * @param diffX X 方向移動量
      * @param diffY Y 方向移動量
@@ -376,14 +351,14 @@ public interface BhNodeView extends NodeViewComponent {
     void move(double diffX, double diffY);
 
     /**
-     * "target"  以下のノードビューをワークスペースビューからはみ出さないように動かす.
+     * 関連するノードビュー 以下のノードビューをワークスペースビューからはみ出さないように動かす.
      *
      * @param diff 移動量
      */
     void move(Vec2D diff);
 
     /**
-     * シーンの座標空間の位置 {@code pos} を "target" のローカル座標空間の位置に変換する.
+     * シーンの座標空間の位置 {@code pos} を 関連するノードビューのローカル座標空間の位置に変換する.
      *
      * @param pos シーンの座標空間の位置
      * @return {@code pos} のローカル座標空間における位置.
@@ -391,53 +366,37 @@ public interface BhNodeView extends NodeViewComponent {
     Vec2D sceneToLocal(Vec2D pos);
 
     /**
-     * "target"  のローカル座標空間の位置 {@code pos} をシーンの座標空間の位置に変換する.
+     * 関連するノードビューのローカル座標空間の位置 {@code pos} をシーンの座標空間の位置に変換する.
      *
-     * @param pos "target" のローカル座標空間の位置
+     * @param pos 関連するノードビューのローカル座標空間の位置
      * @return {@code pos} のシーンの座標空間の位置
      */
     Vec2D localToScene(Vec2D pos);
   }
 
-  /**
-   * ノードビューのイベントハンドラの登録および削除操作を規定したインタフェース.
-   *
-   * <p>
-   * このオブジェクトが管理する {@link BhNodeView} を "target" と呼ぶ
-   * </p>
-   */
-  public interface EventManager {
+  /** {@link BhNodeView} に対してイベントハンドラを追加または削除する機能を規定したインタフェース. */
+  public interface CallbackRegistry {
+
+    /** 関連するノードビュー上でマウスボタンが押下されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<MouseEventInfo>.Registry getOnMousePressed();
+
+    /** 関連するノードビューがドラッグされたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<MouseEventInfo>.Registry getOnMouseDragged();
+
+    /** 関連するノードビュー上でマウスのドラッグが検出されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<MouseEventInfo>.Registry getOnMouseDragDetected();
+
+    /** 関連するノードビュー上でマウスボタンが離されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<MouseEventInfo>.Registry getOnMouseReleased();
+
+    /** 関連するノードビューの位置が変わったときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<MoveEvent>.Registry getOnMoved();
+
+    /** 関連するノードビューのサイズが変わったときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<SizeChangedEvent>.Registry getOnSizeChanged();
 
     /**
-     * "target" 上でマウスを押下したときのイベントハンドラを登録する.
-     *
-     * @param handler 登録するイベントハンドラ
-     */
-    void setOnMousePressed(EventHandler<? super MouseEvent> handler);
-
-    /**
-     * "target" をドラッグしたときのイベントハンドラを登録する.
-     *
-     * @param handler 登録するイベントハンドラ
-     */
-    void setOnMouseDragged(EventHandler<? super MouseEvent> handler);
-
-    /**
-     * "target" に対するマウスドラッグを検出したときのイベントハンドラを登録する.
-     *
-     * @param handler 登録するイベントハンドラ
-     */
-    void setOnDragDetected(EventHandler<? super MouseEvent> handler);
-
-    /**
-     * "target" 上でマウスボタンを離したときのイベントハンドラを登録する.
-     *
-     * @param handler 登録するイベントハンドラ
-     */
-    void setOnMouseReleased(EventHandler<? super MouseEvent> handler);
-
-    /**
-     * "target" にイベントフィルタを登録する.
+     * 関連するノードビューにイベントフィルタを登録する.
      *
      * @param type イベントフィルタが受け取るイベントの種類
      * @param handler 登録するイベントフィルタ
@@ -445,7 +404,7 @@ public interface BhNodeView extends NodeViewComponent {
     <T extends Event> void addEventFilter(EventType<T> type, EventHandler<? super T> handler);
 
     /**
-     * "target" のイベントフィルタを削除する.
+     * 関連するノードビューのイベントフィルタを削除する.
      *
      * @param type イベントフィルタを取り除くイベントの種類
      * @param handler 削除するイベントフィルタ
@@ -453,91 +412,32 @@ public interface BhNodeView extends NodeViewComponent {
     <T extends Event> void removeEventFilter(EventType<T> type, EventHandler<? super T> handler);
 
     /**
-     * "target" にイベントを伝える.
+     * 関連するノードビューにイベントを伝える.
      *
-     * @param event "target" に伝えるイベント
+     * @param event 関連するノードビューに伝えるイベント
      */
     void dispatch(Event event);
-
-    /**
-     * "target" の位置が変わったときのイベントハンドラを追加する.
-     * 登録したハンドラは, GUIスレッド上で実行される.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    void addOnMoved(BiConsumer<? super BhNodeView, ? super Vec2D> handler);
-
-    /**
-     * "target" の位置が変わったときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    void removeOnMoved(BiConsumer<? super BhNodeView, ? super Vec2D> handler);
-
-    /**
-     * "target" をワークスペースビューに追加したときのイベントハンドラを追加する.
-     * 登録したハンドラは, GUIスレッド上で実行される.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    void addOnAddedToWorkspaceView(BiConsumer<? super WorkspaceView, ? super BhNodeView> handler);
-
-    /**
-     * "target" をワークスペースビューに追加したときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    void removeOnAddedToWorkspaceView(
-        BiConsumer<? super WorkspaceView, ? super BhNodeView> handler);
-
-    /**
-     * "target" をワークスペースビューから取り除いたときのイベントハンドラを追加する.
-     * 登録したハンドラは, GUIスレッド上で実行される.
-     *
-     * @param handler 追加するイベントハンドラ
-     */
-    void addOnRemovedFromWorkspaceView(
-        BiConsumer<? super WorkspaceView, ? super BhNodeView> handler);
-
-    /**
-     * "target" をワークスペースビューから取り除いたときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ
-     */
-    void removeOnRemovedFromWorkspaceView(
-        BiConsumer<? super WorkspaceView, ? super BhNodeView> handler);
-
-    /**
-     * "target" のサイズが変更されたときのイベントハンドラを追加する.
-     *
-     * @param handler 追加するイベントハンドラ.
-     */
-    public void addOnNodeSizeChanged(Consumer<? super BhNodeView> handler);
-
-    /**
-     * "target" のサイズが変更されたときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ.
-     */
-    public void removeOnNodeSizeChanged(Consumer<? super BhNodeView> handler);
-
-    /**
-     * "target" が他のノードビューと入れ替わったときのイベントハンドラを追加する.
-     * 
-     * <pre>
-     * イベントハンドラの第 1 引数 : このノードビュー.
-     * イベントハンドラの第 2 引数 : このノードビューの代わりに接続されたノードビュー.
-     * </pre>
-     *
-     * @param handler 追加するイベントハンドラ.
-     */
-    public void addOnNodeReplaced(BiConsumer<? super BhNodeView, ? super BhNodeView> handler);
-
-    /**
-     * "target" が他のノードビューと入れ替わったときのイベントハンドラを削除する.
-     *
-     * @param handler 削除するイベントハンドラ.
-     */
-    public void removeOnNodeReplaced(BiConsumer<? super BhNodeView, ? super BhNodeView> handler);
   }
+
+  /**
+   * ノードビューがマウスで操作されたときの情報を格納したレコード.
+   *
+   * @param view マウスで操作されたノードビュー
+   * @param event マウス操作の情報を格納したオブジェクト
+   */
+  record MouseEventInfo(BhNodeView view, MouseEvent event) {}
+
+  /**
+   * ノードビューの位置が変更されたときの情報を格納したレコード.
+   *
+   * @param view 位置が変更されたノードビュー
+   */
+  record MoveEvent(BhNodeView view) {}
+
+  /**
+   * ノードビューのサイズが変更されたときの情報を格納したレコード.
+   *
+   * @param view サイズが変更されたノードビュー
+   */
+  record SizeChangedEvent(BhNodeView view) {}
 }

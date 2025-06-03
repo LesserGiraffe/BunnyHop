@@ -27,8 +27,8 @@ import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.model.node.derivative.DerivativeReplacer;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
-import net.seapanda.bunnyhop.model.node.event.MouseEventInfo;
 import net.seapanda.bunnyhop.model.node.event.NodeEventInvoker;
+import net.seapanda.bunnyhop.model.node.event.UiEvent;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeParameters;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeVersion;
@@ -599,22 +599,22 @@ public abstract class BhNode extends SyntaxSymbol {
    */
   public record Swapped(BhNode oldNode, BhNode newNode) {}
 
-  /** {@link BhNode} に対するイベントハンドラの追加と削除を行うクラス. */
+  /** {@link BhNode} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistry {
 
-    /** このノードの選択状態が変更されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するノードの選択状態が変更されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<SelectionEvent> onSelStateChangedInvoker =
         new ConsumerInvoker<>();
 
-    /** このノードのコンパイルエラー状態が変更されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するノードのコンパイルエラー状態が変更されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<CompileErrorEvent> onCompileErrStateChangedInvoker =
         new ConsumerInvoker<>();
 
-    /** このノードが {@link Connector} に接続されたときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するノードが {@link Connector} に接続されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<ConnectionEvent> onConnectedInvoker =
         new ConsumerInvoker<>();
 
-    /** このノードが属するワークスペースが変わったときに呼び出すメソッドを管理するオブジェクト. */
+    /** 関連するノードが属するワークスペースが変わったときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceChangeEvent> onWsChangedInvoker =
         new ConsumerInvoker<>();
 
@@ -622,22 +622,22 @@ public abstract class BhNode extends SyntaxSymbol {
     private final Consumer<? super Connector.ReplacementEvent> onNodeReplaced =
         this::onNodeReplaced;
 
-    /** このノードの選択状態が変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    /** 関連するノードの選択状態が変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<SelectionEvent>.Registry getOnSelectionStateChanged() {
       return onSelStateChangedInvoker.getRegistry();
     }
 
-    /** このノードのコンパイルエラー状態が変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    /** 関連するノードのコンパイルエラー状態が変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<CompileErrorEvent>.Registry getOnCompileErrorStateChanged() {
       return onCompileErrStateChangedInvoker.getRegistry();
     }
 
-    /** このノードが, {@link Connector} に接続されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    /** 関連するノードが, {@link Connector} に接続されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<ConnectionEvent>.Registry getOnConnected() {
       return onConnectedInvoker.getRegistry();
     }
 
-    /** このノードが属するワークスペースが変更されたときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    /** 関連するノードが属するワークスペースが変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<WorkspaceChangeEvent>.Registry getOnWorkspaceChanged() {
       return onWsChangedInvoker.getRegistry();
     }
@@ -689,17 +689,13 @@ public abstract class BhNode extends SyntaxSymbol {
   public record WorkspaceChangeEvent(
       BhNode node, Workspace oldWs, Workspace newWs, UserOperation userOpe) {}
 
-  /**
-   * このノードのイベントハンドラを呼び出す機能を提供するクラス.
-   *
-   * <p>このオブジェクトと紐づく {@BhNode} オブジェクトを「ターゲットノード」と呼ぶ.
-   */
+  /** ノードのイベントハンドラを呼び出す機能を提供するクラス. */
   public class EventInvoker {
 
     /**
-     * ターゲットノードがワークスペースから子ノードに移ったときの処理を実行する.
+     * 関連するノードがワークスペースから子ノードに移ったときの処理を実行する.
      *
-     * @param oldReplaced ターゲットノードがつながった位置に, 元々子ノードとしてつながっていたノード
+     * @param oldReplaced 関連するノードがつながった位置に, 元々子ノードとしてつながっていたノード
      * @param userOpe undo 用コマンドオブジェクト
      */
     public void onMovedFromWsToChild(BhNode oldReplaced, UserOperation userOpe) {
@@ -707,11 +703,11 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * ターゲットノードが子ノードからワークスペースに移ったときの処理を実行する.
+     * 関連するノードが子ノードからワークスペースに移ったときの処理を実行する.
      *
-     * @param oldParent 移る前にターゲットノードが接続されていた親ノード
-     * @param oldRoot 移る前にターゲットノードが所属していたノードツリーのルートノード
-     * @param newReplaced ワークスペースに移る際, ターゲットノードの替わりにつながったノード
+     * @param oldParent 移る前に関連するノードが接続されていた親ノード
+     * @param oldRoot 移る前に関連するノードが所属していたノードツリーのルートノード
+     * @param newReplaced ワークスペースに移る際, 関連するノードの替わりにつながったノード
      * @param userOpe undo 用コマンドオブジェクト
      */
     public void onMovedFromChildToWs(
@@ -723,7 +719,7 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * ターゲットノードの子ノードが入れ替わったときの処理を実行する.
+     * 関連するノードの子ノードが入れ替わったときの処理を実行する.
      *
      * @param oldChild 入れ替わった古いノード
      * @param newChild 入れ替わった新しいノード
@@ -739,10 +735,10 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * ターゲットノードの削除前に呼ばれる処理を実行する.
+     * 関連するノードの削除前に呼ばれる処理を実行する.
      *
-     * @param nodesToDelete ターゲットノードと共に削除される予定のノード.
-     * @param causeOfDeletion ターゲットノードの削除原因
+     * @param nodesToDelete 関連するノードと共に削除される予定のノード.
+     * @param causeOfDeletion 関連するノードの削除原因
      * @param userOpe undo 用コマンドオブジェクト
      * @return 削除をキャンセルする場合 false. 続行する場合 true.
      */
@@ -755,9 +751,9 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * ユーザー操作により, ターゲットノードがカット & ペーストされる直前に呼ばれる処理を実行する.
+     * ユーザー操作により, 関連するノードがカット & ペーストされる直前に呼ばれる処理を実行する.
      *
-     * @param nodesToCut ターゲットノードとともにカットされる予定のノード
+     * @param nodesToCut 関連するノードとともにカットされる予定のノード
      * @param userOpe undo 用コマンドオブジェクト
      * @return カットをキャンセルする場合 false.  続行する場合 true.
      */
@@ -767,9 +763,9 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * ユーザー操作により, ターゲットノードがコピー & ペーストされる直前に呼ばれる処理を実行する.
+     * ユーザー操作により, 関連するノードがコピー & ペーストされる直前に呼ばれる処理を実行する.
      *
-     * @param nodesToCopy ターゲットノードとともにコピーされる予定のノード
+     * @param nodesToCopy 関連するノードとともにコピーされる予定のノード
      * @param userOpe undo 用コマンドオブジェクト
      * @return {@link BhNode} を引数にとり, コピーするかどうかの boolean 値を返す関数.
      */
@@ -779,7 +775,7 @@ public abstract class BhNode extends SyntaxSymbol {
     }
   
     /**
-     * ターゲットノードがテンプレートノードとして作成されたときの処理を実行する.
+     * 関連するノードがテンプレートノードとして作成されたときの処理を実行する.
      *
      * @param userOpe undo 用コマンドオブジェクト
      */
@@ -788,12 +784,12 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * ターゲットノードのドラッグが始まったときの処理を実行する.
+     * 関連するノードのドラッグが始まったときの処理を実行する.
      *
      * @param eventInfo ドラッグ操作に関連するマウスイベントを格納したオブジェクト
      * @param userOpe undo 用コマンドオブジェクト
      */
-    public void onDragStarted(MouseEventInfo eventInfo, UserOperation userOpe) {
+    public void onDragStarted(UiEvent eventInfo, UserOperation userOpe) {
       nodeEventInvoker.onDragStarted(BhNode.this, eventInfo, userOpe);
     }
   }
