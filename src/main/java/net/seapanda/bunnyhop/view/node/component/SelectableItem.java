@@ -39,9 +39,9 @@ public class SelectableItem<T, U> {
   }
 
   /**
-   * モデルが保持するテキストを取得する.
+   * モデルが保持するオブジェクトを取得する.
    *
-   * @return モデル側でのテキスト
+   * @return モデルが保持するオブジェクト
    */
   public T getModel() {
     return model;

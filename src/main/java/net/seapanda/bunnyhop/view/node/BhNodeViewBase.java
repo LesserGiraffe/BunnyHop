@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.view.node;
 
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,11 +30,10 @@ import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
@@ -834,14 +834,22 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     /** コンストラクタ. */
     private CallbackRegistryBase() {
-      nodeShape.setOnMousePressed(event -> onMousePressedInvoker.invoke(
-          new MouseEventInfo(BhNodeViewBase.this, event)));
-      nodeShape.setOnMouseDragged(event -> onMouseDraggedInvoker.invoke(
-          new MouseEventInfo(BhNodeViewBase.this, event)));
-      nodeShape.setOnDragDetected(event -> onMouseDragDetectedInvoker.invoke(
-          new MouseEventInfo(BhNodeViewBase.this, event)));
-      nodeShape.setOnMouseReleased(event -> onMouseReleasedInvoker.invoke(
-          new MouseEventInfo(BhNodeViewBase.this, event)));
+      nodeShape.setOnMousePressed(event -> {
+        onMousePressedInvoker.invoke(new MouseEventInfo(BhNodeViewBase.this, event));
+        consume(event);
+      });
+      nodeShape.setOnMouseDragged(event -> {
+        onMouseDraggedInvoker.invoke(new MouseEventInfo(BhNodeViewBase.this, event));
+        consume(event);
+      });
+      nodeShape.setOnDragDetected(event -> {
+        onMouseDragDetectedInvoker.invoke(new MouseEventInfo(BhNodeViewBase.this, event));
+        consume(event);
+      });
+      nodeShape.setOnMouseReleased(event -> {
+        onMouseReleasedInvoker.invoke(new MouseEventInfo(BhNodeViewBase.this, event));
+        consume(event);
+      });
     }
 
     @Override
@@ -875,18 +883,6 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     }
 
     @Override
-    public <T extends Event> void addEventFilter(
-        EventType<T> type, EventHandler<? super T> handler) {
-      nodeShape.addEventFilter(type, handler);
-    }
-
-    @Override
-    public <T extends Event> void removeEventFilter(
-        EventType<T> type, EventHandler<? super T> handler) {
-      nodeShape.removeEventFilter(type, handler);
-    }
-
-    @Override
     public void dispatch(Event event) {
       nodeShape.fireEvent(event);
     }
@@ -907,6 +903,13 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
             Utility.getCurrentMethodName() + " - a handler invoked in an inappropriate thread");
       }
       onSizeChangedInvoker.invoke(new SizeChangedEvent(BhNodeViewBase.this));
+    }
+
+    /** {@code event} のターゲットが {@link #nodeShape} であった場合 {@code event} を consume する. */
+    private void consume(MouseEvent event) {
+      if (event.getTarget() == nodeShape) {
+        event.consume();
+      }
     }
   }
 

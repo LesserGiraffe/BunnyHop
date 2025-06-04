@@ -29,6 +29,7 @@ import javafx.scene.layout.StackPane;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.control.SearchBoxController;
+import net.seapanda.bunnyhop.control.debugger.BreakpointBoardController;
 import net.seapanda.bunnyhop.control.debugger.DebugBoardController;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
@@ -53,6 +54,7 @@ public class WorkspaceSetController {
   /** ノード削除用のゴミ箱のコントローラ. */
   @FXML private TrashboxController trashboxController;
   @FXML private DebugBoardController debugBoardController;
+  @FXML private BreakpointBoardController breakpointBoardController;
   @FXML private SearchBoxController searchBoxController;
 
   /** 初期化する. */
@@ -61,6 +63,7 @@ public class WorkspaceSetController {
     setEventHandlers();
     workspaceSetViewBase.setDividerPositions(BhConstants.LnF.DEFAULT_VERTICAL_DIV_POS);
     debugBoardController.initialize(debugger, factory);
+    breakpointBoardController.initialize(wss, debugger);
   }
 
   /** イベントハンドラを登録する. */

@@ -19,8 +19,6 @@ package net.seapanda.bunnyhop.view.node;
 import java.util.List;
 import java.util.Optional;
 import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
@@ -394,22 +392,6 @@ public interface BhNodeView extends NodeViewComponent {
 
     /** 関連するノードビューのサイズが変わったときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<SizeChangedEvent>.Registry getOnSizeChanged();
-
-    /**
-     * 関連するノードビューにイベントフィルタを登録する.
-     *
-     * @param type イベントフィルタが受け取るイベントの種類
-     * @param handler 登録するイベントフィルタ
-     */
-    <T extends Event> void addEventFilter(EventType<T> type, EventHandler<? super T> handler);
-
-    /**
-     * 関連するノードビューのイベントフィルタを削除する.
-     *
-     * @param type イベントフィルタを取り除くイベントの種類
-     * @param handler 削除するイベントフィルタ
-     */
-    <T extends Event> void removeEventFilter(EventType<T> type, EventHandler<? super T> handler);
 
     /**
      * 関連するノードビューにイベントを伝える.

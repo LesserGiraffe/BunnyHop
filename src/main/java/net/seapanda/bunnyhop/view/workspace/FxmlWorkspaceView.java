@@ -128,7 +128,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     this.workspace = workspace;
     minPaneSize = new Vec2D(width, height);
     configurGuiComponents(filePath);
-    seEventHandlers();
+    setEventHandlers();
     quadTreeMngForBody =
         new QuadTreeManager(BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
     quadTreeMngForConnector =
@@ -154,19 +154,11 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     rectSelTool.getPoints().addAll(Stream.generate(() -> 0.0).limit(8).toArray(Double[]::new));
   }
 
-  private void seEventHandlers() {
+  private void setEventHandlers() {
     wsScrollPane.addEventFilter(ScrollEvent.ANY, this::onScroll);
     setOnCloseRequest(cbRegistry::onCloseRequested);
     setOnClosed(cbRegistry::onClosed);
-    wsPane.addEventHandler(
-        MouseEvent.MOUSE_PRESSED,
-        event -> cbRegistry.onMousePressedInvoker.invoke(new MouseEventInfo(this, event)));
-    wsPane.addEventHandler(
-        MouseEvent.MOUSE_DRAGGED,
-        event -> cbRegistry.onMouseDraggedInvoker.invoke(new MouseEventInfo(this, event)));
-    wsPane.addEventHandler(
-        MouseEvent.MOUSE_RELEASED,
-        event -> cbRegistry.onMouseReleasedInvoker.invoke(new MouseEventInfo(this, event)));
+    cbRegistry.setEventHandlers();
   }
 
   /** スクロール時の処理. */
@@ -608,6 +600,27 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     private final Consumer<? super BhNodeView.SizeChangedEvent> onNodeSizeChanged =
         this::onNodeSizeChanged;
 
+    private void setEventHandlers() {
+      wsPane.addEventHandler(
+          MouseEvent.MOUSE_PRESSED,
+          event -> {
+            onMousePressedInvoker.invoke(new MouseEventInfo(FxmlWorkspaceView.this, event));
+            consume(event);
+          });
+      wsPane.addEventHandler(
+          MouseEvent.MOUSE_DRAGGED,
+          event -> {
+            onMouseDraggedInvoker.invoke(new MouseEventInfo(FxmlWorkspaceView.this, event));
+            consume(event);
+          });
+      wsPane.addEventHandler(
+          MouseEvent.MOUSE_RELEASED,
+          event -> {
+            onMouseReleasedInvoker.invoke(new MouseEventInfo(FxmlWorkspaceView.this, event));
+            consume(event);
+          });
+    }
+
     @Override
     public ConsumerInvoker<MouseEventInfo>.Registry getOnMousePressed() {
       return onMousePressedInvoker.getRegistry();
@@ -674,5 +687,12 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     private void onClosed(Event event) {
       onClosedInvoker.invoke(new CloseEvent(FxmlWorkspaceView.this));
     }
+
+    /** {@code event} のターゲットが {@link #wsPane} であった場合 {@code event} を consume する. */
+    private void consume(MouseEvent event) {
+      if (event.getTarget() == wsPane) {
+        event.consume();
+      }
+    }    
   }
 }

@@ -27,6 +27,7 @@
         <TextArea  fx:id="mainMsgArea" VBox.vgrow="ALWAYS"/>
       </Tab>
       <fx:include fx:id="debugBoard" source="DebugBoard.fxml"/>
+      <fx:include fx:id="breakpointBoard" source="BreakpointBoard.fxml"/>
     </TabPane>
     <fx:include
       fx:id="searchBox"

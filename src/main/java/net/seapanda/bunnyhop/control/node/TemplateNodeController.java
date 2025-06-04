@@ -43,7 +43,7 @@ public class TemplateNodeController implements BhNodeController {
   private final BhNode model;
   private final BhNodeView view;
   private final ModelAccessNotificationService notifService;
-  private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
+  private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock(MouseButton.PRIMARY);
   private final DndEventInfo ddInfo = this.new DndEventInfo();
   private final BhNodeFactory factory;
   private final WorkspaceSet wss;
@@ -90,7 +90,6 @@ public class TemplateNodeController implements BhNodeController {
     registry.getOnMouseDragged().setFirst(info -> onMouseDragged(info.event()));
     registry.getOnMouseDragDetected().setFirst(info -> onMouseDragDetected(info.event()));
     registry.getOnMouseReleased().setLast(info -> onMouseReleased(info.event()));
-    registry.addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
     model.getCallbackRegistry().getOnConnected().add(event -> replaceView(event.disconnected()));
   }
 
@@ -118,8 +117,6 @@ public class TemplateNodeController implements BhNodeController {
     } catch (Throwable e) {
       terminateDnd();
       throw e;
-    } finally {
-      event.consume();
     }
   }
 
@@ -133,8 +130,6 @@ public class TemplateNodeController implements BhNodeController {
     } catch (Throwable e) {
       terminateDnd();
       throw e;
-    } finally {
-      event.consume();
     }
   }
 
@@ -148,15 +143,12 @@ public class TemplateNodeController implements BhNodeController {
     } catch (Throwable e) {
       terminateDnd();
       throw e;
-    } finally {
-      event.consume();
     }
   }
 
   /** マウスボタンを離したときのイベントハンドラ. */
   private void onMouseReleased(MouseEvent event) {
     if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
-      event.consume();
       // 余分に D&D の終了処理をしてしまうので terminateDnd を呼ばないこと.
       return;
     }
@@ -164,7 +156,6 @@ public class TemplateNodeController implements BhNodeController {
     try {
       ddInfo.currentView.getCallbackRegistry().dispatch(event);
     } finally {
-      event.consume();
       terminateDnd();
     }
   }
@@ -186,13 +177,6 @@ public class TemplateNodeController implements BhNodeController {
   private Vec2D calcRelativePosFromRoot() {
     Vec2D pos = view.getPositionManager().localToScene(new Vec2D(0, 0));
     return view.getTreeManager().getRootView().getPositionManager().sceneToLocal(pos);
-  }
-
-  /** 受付不能なマウスイベントを consume する. */
-  private void consumeIfNotAcceptable(MouseEvent event) {
-    if (event.getButton() != MouseButton.PRIMARY) {
-      event.consume();
-    }
   }
 
   /** {@link #view} と {@code oldNode} のノードビューを入れ替える. */

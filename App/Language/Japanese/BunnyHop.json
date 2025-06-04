@@ -32,7 +32,8 @@
 
     "noticeboards": {
       "msg-board-name": "メッセージ",
-      "debug-board-name": "デバッグ"
+      "debug-board-name": "デバッグ",
+      "breakpoint-board-name": "ブレークポイント"
     },
 
     "debugger": {

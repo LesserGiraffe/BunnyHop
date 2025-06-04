@@ -53,7 +53,8 @@ public class DefaultBhNodeController implements BhNodeController {
   private final ModelAccessNotificationService notifService;
   private final Trashbox trashbox;
   private final DndEventInfo ddInfo = this.new DndEventInfo();
-  private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
+  private final MouseCtrlLock mouseCtrlLock =
+      new MouseCtrlLock(MouseButton.PRIMARY, MouseButton.SECONDARY);
 
   /**
    * コンストラクタ.
@@ -88,7 +89,6 @@ public class DefaultBhNodeController implements BhNodeController {
     registry.getOnMouseDragged().setFirst(info -> onMouseDragged(info.event()));
     registry.getOnMouseDragDetected().setFirst(info -> onMouseDragDetected(info.event()));
     registry.getOnMouseReleased().setLast(info -> onMouseReleased(info.event()));
-    registry.addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
   }
 
   private void setNodeEventHandlers() {
@@ -128,8 +128,6 @@ public class DefaultBhNodeController implements BhNodeController {
     } catch (Throwable e) {
       terminateDnd();
       throw e;
-    } finally {
-      event.consume();
     }
   }
 
@@ -159,8 +157,6 @@ public class DefaultBhNodeController implements BhNodeController {
     } catch (Throwable e) {
       terminateDnd();
       throw e;
-    } finally {
-      event.consume();
     }
   }
 
@@ -190,15 +186,12 @@ public class DefaultBhNodeController implements BhNodeController {
     } catch (Throwable e) {
       terminateDnd();
       throw e;
-    } finally {
-      event.consume();
     }
   }
 
   /** マウスボタンを離したときの処理. */
   private void onMouseReleased(MouseEvent event) {
     if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
-      event.consume();
       // 余分に D&D の終了処理をしてしまうので terminateDnd を呼ばないこと.
       return;
     }
@@ -221,7 +214,6 @@ public class DefaultBhNodeController implements BhNodeController {
       }
       deleteTrashedNode(event);
     } finally {
-      event.consume();
       terminateDnd();
     }
   }
@@ -390,14 +382,6 @@ public class DefaultBhNodeController implements BhNodeController {
     Optional.ofNullable(node)
         .flatMap(BhNode::getView)
         .ifPresent(view -> view.getCallbackRegistry().dispatch(event));
-  }
-
-  /** 受付不能なマウスイベントを consume する. */
-  private void consumeIfNotAcceptable(MouseEvent event) {
-    MouseButton button = event.getButton();
-    if (button != MouseButton.PRIMARY && button != MouseButton.SECONDARY) {
-      event.consume();
-    }
   }
 
   /** D&D を終えたときの処理. */

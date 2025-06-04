@@ -16,6 +16,9 @@
 
 package net.seapanda.bunnyhop.control;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javafx.scene.input.MouseButton;
 
 /**
@@ -32,14 +35,26 @@ import javafx.scene.input.MouseButton;
 public class MouseCtrlLock {
   private boolean isLocked = false;
   private MouseButton button = null;
+  private final Set<MouseButton> acceptables;
     
+  /**
+   * コンストラクタ.
+   *
+   * @param acceptables ロックの取得に使えるボタン.  何も指定しなかった場合は全てのボタンでロックを取得可能となる.
+   */
+  public MouseCtrlLock(MouseButton... acceptables) {
+    this.acceptables = Stream.of(acceptables)
+        .filter(btn -> btn != null)
+        .collect(Collectors.toSet());
+  }
+
   /**
    * {@code button} に関連付けて, このオブジェクトを lock 状態にする.
    *
    * @return lock 状態になった場合 true
    */
   public synchronized boolean tryLock(MouseButton button) {
-    if (isLocked || button == null) {
+    if (isLocked || (!acceptables.isEmpty() && !acceptables.contains(button))) {
       return false;
     }
     this.button = button;

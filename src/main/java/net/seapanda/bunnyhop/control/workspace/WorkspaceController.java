@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.control.MouseCtrlLock;
@@ -53,7 +54,7 @@ public class WorkspaceController {
   /** モデルへのアクセスの通知先となるオブジェクト. */
   private final ModelAccessNotificationService notifService;
   private final DndEventInfo ddInfo = new DndEventInfo();
-  private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
+  private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock(MouseButton.PRIMARY);
   private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
   private final MessageService msgService;
 
@@ -160,7 +161,6 @@ public class WorkspaceController {
       containedNodes.sort(this::compareViewSize);
       selectNodes(containedNodes, ddInfo.context.userOpe());
     } finally {
-      event.consume();
       terminateDnd();
     }
   }
