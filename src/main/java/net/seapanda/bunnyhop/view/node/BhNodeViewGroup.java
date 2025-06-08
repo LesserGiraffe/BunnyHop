@@ -460,7 +460,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
     }
   }
 
-  /** このグループに子要素のサイズが変わったことを伝える. */
+  /** このグループのサイズが変わったことを親要素に伝える. */
   void notifyChildSizeChanged() {
     sizeCache.setDirty(true);
     if (parentGroup != null) {

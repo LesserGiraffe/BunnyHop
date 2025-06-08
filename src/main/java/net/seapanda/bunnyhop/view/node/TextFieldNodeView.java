@@ -36,6 +36,7 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorAlignment;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.traverse.NodeViewWalker;
 
@@ -65,7 +66,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
       throws ViewConstructionException {
     super(model, viewStyle, components);
     this.model = model;
-    addComponent(textField);
+    setComponent(textField);
     textField.addEventFilter(MouseEvent.ANY, this::forwardEvent);
     textField.focusedProperty().addListener(
         (ov, oldVal, newVal) -> Platform.runLater(() -> selectText()));
@@ -96,11 +97,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
   }
 
   private void initStyle() {
-    textField.setTranslateX(viewStyle.paddingLeft);
-    textField.setTranslateY(viewStyle.paddingTop);
     textField.getStyleClass().add(viewStyle.textField.cssClass);
-    textField.heightProperty().addListener(observable -> onNodeSizeChanged());
-    textField.widthProperty().addListener(observable -> onNodeSizeChanged());
     textField.setMaxWidth(Region.USE_PREF_SIZE);
     textField.setMinWidth(Region.USE_PREF_SIZE);
     setEditable(viewStyle.textField.editable);
@@ -111,6 +108,12 @@ public final class TextFieldNodeView extends TextInputNodeView {
     if (textField.isFocused() && !textField.getText().isEmpty()) {
       textField.selectAll();
     }
+  }
+
+  @Override
+  protected void onNodeSizeChanged() {
+    nodeSizeCache.setDirty(true);
+    nodeWithCnctrSizeCache.setDirty(true);
   }
 
   @Override
@@ -150,19 +153,6 @@ public final class TextFieldNodeView extends TextInputNodeView {
         PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR), !acceptable);
   }
 
-  /** ノードサイズのキャッシュを dirty にして, ノードの大きさが変わったことを親グループに伝える. */
-  private void onNodeSizeChanged() {
-    nodeSizeCache.setDirty(true);
-    nodeWithCnctrSizeCache.setDirty(true);
-    BhNodeViewGroup group = getTreeManager().getParentGroup();
-    if (group != null) {
-      group.notifyChildSizeChanged();
-    }
-    if (getTreeManager().isRootView()) {
-      getLookManager().requestArrangement();
-    }
-  }
-
   /** ノードサイズのキャッシュ値を更新する. */
   private void updateNodeSizeCache(boolean includeCnctr, Vec2D nodeSize) {
     if (includeCnctr) {
@@ -186,19 +176,76 @@ public final class TextFieldNodeView extends TextInputNodeView {
       return new Vec2D(nodeSizeCache.getVal());
     }
 
-    Vec2D cnctrSize = getRegionManager().getConnectorSize();
-    // textField.getWidth() だと設定した値以外が返る場合がある
-    double bodyWidth = viewStyle.paddingLeft + textField.getPrefWidth() + viewStyle.paddingRight;
-    if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.LEFT)) {
-      bodyWidth += cnctrSize.x;
+    Vec2D nodeSize = calcBodySize();
+    if (includeCnctr) {
+      Vec2D cnctrSize = getRegionManager().getConnectorSize();
+      if (viewStyle.connectorPos == ConnectorPos.LEFT) {
+        nodeSize = calcSizeIncludingLeftConnector(nodeSize, cnctrSize);
+      } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
+        nodeSize = calcSizeIncludingTopConnector(nodeSize, cnctrSize);
+      }
     }
-    double bodyHeight = viewStyle.paddingTop + textField.getHeight() + viewStyle.paddingBottom;
-    if (includeCnctr && (viewStyle.connectorPos == ConnectorPos.TOP)) {
-      bodyHeight += cnctrSize.y;
-    }
-    var nodeSize = new Vec2D(bodyWidth, bodyHeight);
     updateNodeSizeCache(includeCnctr, nodeSize);
     return nodeSize;
+  }
+
+  /** ノードのボディ部分のサイズを求める. */
+  private Vec2D calcBodySize() {
+    Vec2D commonPartSize = getRegionManager().getCommonPartSize();
+    Vec2D innerSize = switch (viewStyle.baseArrangement) {
+      case ROW ->
+        // textField.getWidth() だと設定した値以外が返る場合がある
+        new Vec2D(
+            commonPartSize.x + textField.getPrefWidth(),
+            Math.max(commonPartSize.y, textField.getHeight()));
+      case COLUMN ->
+        new Vec2D(
+            Math.max(commonPartSize.x, textField.getPrefWidth()),
+            commonPartSize.y + textField.getHeight());
+    };
+    return new Vec2D(
+        viewStyle.paddingLeft + innerSize.x + viewStyle.paddingRight,
+        viewStyle.paddingTop + innerSize.y + viewStyle.paddingBottom);
+  }
+
+  /**
+   * 左にコネクタがついている場合のコネクタを含んだサイズを求める.
+   *
+   * @param bodySize ボディ部分のサイズ
+   * @param cnctrSize コネクタサイズ
+   * @return 左にコネクタがついている場合のコネクタを含んだサイズ
+   */
+  private Vec2D calcSizeIncludingLeftConnector(Vec2D bodySize, Vec2D cnctrSize) {
+    double wholeWidth = bodySize.x + cnctrSize.x;
+    // ボディの左上を原点としたときのコネクタの上端の座標
+    double cnctrTopPos = viewStyle.connectorShift;
+    if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
+      cnctrTopPos += (bodySize.y - cnctrSize.y) / 2;
+    }
+    // ボディの左上を原点としたときのコネクタの下端の座標
+    double cnctrBottomPos = cnctrTopPos + cnctrSize.y;
+    double wholeHeight = Math.max(cnctrBottomPos, bodySize.y) - Math.min(cnctrTopPos, 0);
+    return new Vec2D(wholeWidth, wholeHeight);
+  }
+
+  /**
+   * 上にコネクタがついている場合のコネクタを含んだサイズを求める.
+   *
+   * @param bodySize ボディ部分のサイズ
+   * @param cnctrSize コネクタサイズ
+   * @return 左にコネクタがついている場合のコネクタを含んだサイズ
+   */
+  private Vec2D calcSizeIncludingTopConnector(Vec2D bodySize, Vec2D cnctrSize) {
+    double wholeHeight = bodySize.y + cnctrSize.y;
+    // ボディの左上を原点としたときのコネクタの左端の座標
+    double cnctrLeftPos = viewStyle.connectorShift;
+    if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
+      cnctrLeftPos += (bodySize.x - cnctrSize.x) / 2;
+    }
+    // ボディの左上を原点としたときのコネクタの右端の座標
+    double cnctrRightPos = cnctrLeftPos + cnctrSize.x;
+    double wholeWidth = Math.max(cnctrRightPos, bodySize.x) - Math.min(cnctrLeftPos, 0);
+    return new Vec2D(wholeWidth, wholeHeight);
   }
 
   @Override

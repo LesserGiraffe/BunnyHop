@@ -1,0 +1,6 @@
+.defaultBreakpoint {
+  -fx-fill: red;
+  -fx-stroke: white;
+  -fx-stroke-width: 0.2em;
+  -fx-stroke-type: inside;
+}

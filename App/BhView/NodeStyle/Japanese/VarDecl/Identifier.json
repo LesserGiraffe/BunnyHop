@@ -12,6 +12,11 @@
   "connectorBoundsRate" : 0.0,
   "cssClass" : "Identifier",
 
+  "specificPart" : {
+    "cssClass" : "def"
+  },
+
+
   "textField" : {
     "minWidth": 4.0
   }

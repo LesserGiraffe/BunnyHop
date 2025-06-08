@@ -36,7 +36,15 @@
   -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
 }
 
-.BhNode-CompileError {
-  -fx-stroke-width: 0.30em;
-  -fx-stroke: red;
+.defaultCommonPart {
+  -fx-alignment: center;
+  -fx-spacing: 0.4em;
+}
+
+.defaultCommonPart:row {
+  -fx-padding: 0.0em 0.5em 0.0em 0.0em;
+}
+
+.defaultCommonPart:column {
+  -fx-padding: 0.0em 0.0em 0.5em 0.0em;
 }

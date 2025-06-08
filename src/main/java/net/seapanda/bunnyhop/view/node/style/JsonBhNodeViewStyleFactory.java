@@ -73,8 +73,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
     } catch (ViewConstructionException e) {
       throw e;
     } catch (IOException e) {
-      throw new ViewConstructionException(
-          "Directory not found.  (%s)\n %s".formatted(dirPath, e));
+      throw new ViewConstructionException("Directory not found.  (%s)\n %s".formatted(dirPath, e));
     }
   }
 
@@ -101,8 +100,8 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
   /**
    * jsonオブジェクト から {@link BhNodeViewStyle} オブジェクトを作成する.
    *
-   * @param jsonObj .JSON ファイルを読み込んで作ったトップレベルオブジェクト
-   * @param fileName jsonObj が記述してある .JSON ファイルのファイル名
+   * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
+   * @param fileName {@code jsonObj} が記述してある .JSON ファイルのファイル名
    * @return 作成した {@link BhNodeViewStyle} オブジェクト
    */
   private BhNodeViewStyle genBhNodeViewStyle(
@@ -198,16 +197,37 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
         readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_BOUNDS_RATE, jsonObj, fileName)
         .map(val -> val.doubleValue()).orElse(style.connectorBoundsRate);
 
-    // bodyCssClass
+    // cssClass
     style.cssClasses = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
         .map(clz -> clz.split(","))
         .orElse(style.cssClasses);
     
+    // component
+    style.component = readString(BhConstants.NodeStyleDef.KEY_COMPONENT, jsonObj, fileName)
+        .map(ComponentType::of).orElse(style.component);
+
+    // baseArrangement
+    style.baseArrangement = 
+        readString(BhConstants.NodeStyleDef.KEY_BASE_ARRANGEMENT, jsonObj, fileName)
+        .map(ChildArrangement::of).orElse(style.baseArrangement);
+
     // connective
     JsonObject obj =
         readObject(BhConstants.NodeStyleDef.KEY_CONNECTIVE, jsonObj, fileName).orElse(null);
     if (obj != null) {
       fillConnectiveParams(style.connective, obj, fileName);
+    }
+
+    // commonPart
+    obj = readObject(BhConstants.NodeStyleDef.KEY_COMMON_PART, jsonObj, fileName).orElse(null);
+    if (obj != null) {
+      fillCommonPartParams(style.commonPart, obj, fileName);
+    }
+
+    // specificPart
+    obj = readObject(BhConstants.NodeStyleDef.KEY_SPECIFIC_PART, jsonObj, fileName).orElse(null);
+    if (obj != null) {
+      fillSpecificPartParams(style.specificPart, obj, fileName);
     }
 
     // textField
@@ -234,24 +254,23 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       fillTextAreaParams(style.textArea, obj, fileName);
     }
 
-    // privateTemplate
-    obj = readObject(BhConstants.NodeStyleDef.KEY_PRIVATE_TEMPLATE, jsonObj, fileName).orElse(null);
-    if (obj != null) {
-      fillButtonParams(style.privatTemplate, obj, fileName);
-    }
-
     // component
     style.component = readString(BhConstants.NodeStyleDef.KEY_COMPONENT, jsonObj, fileName)
         .map(ComponentType::of).orElse(style.component);
-    
+
+    // baseArrangement
+    style.baseArrangement = 
+        readString(BhConstants.NodeStyleDef.KEY_BASE_ARRANGEMENT, jsonObj, fileName)
+        .map(ChildArrangement::of).orElse(style.baseArrangement);
+
     return style;
   }
 
   /**
    * {@link BhNodeViewStyle.Connective} にスタイル情報を格納する.
    *
-   * @param jsonObj key = "connective" の value であるオブジェクト
-   * @param fileName jsonObj が記述してある .JSON ファイルの名前
+   * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
+   * @param fileName {@code jsonObj} が記述してある .JSON ファイルの名前
    */
   private void fillConnectiveParams(
       BhNodeViewStyle.Connective connectiveStyle, JsonObject jsonObj, String fileName)
@@ -274,8 +293,8 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
    * {@link BhNodeViewStyle.Arrangement} にスタイル情報を格納する.
    *
    * @param arrangement 並べ方に関するパラメータの格納先
-   * @param jsonObj key = "inner" または "outer" の value であるオブジェクト
-   * @param fileName jsonObj が記述してある .JSON ファイルの名前
+   * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
+   * @param fileName {@code jsonObj} が記述してある .JSON ファイルの名前
    */
   private void fillArrangementParams(
       BhNodeViewStyle.Arrangement arrangement, JsonObject jsonObj, String fileName)
@@ -335,6 +354,54 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
   }
 
   /**
+   * {@link BhNodeViewStyle.CommonPart} にスタイル情報を格納する.
+   *
+   * @param commonPart パラメータの格納先
+   * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
+   * @param fileName {@code jsonObj} が記述してある .JSON ファイルの名前
+   */
+  private void fillCommonPartParams(
+      BhNodeViewStyle.CommonPart commonPart, JsonObject jsonObj, String fileName)
+      throws ViewConstructionException {
+    // cssClass
+    commonPart.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(commonPart.cssClass);
+    
+    // arrangement
+    commonPart.arrangement = 
+        readString(BhConstants.NodeStyleDef.KEY_ARRANGEMENT, jsonObj, fileName)
+        .map(ChildArrangement::of).orElse(commonPart.arrangement);
+    
+    // privateTemplate
+    JsonObject obj =
+        readObject(BhConstants.NodeStyleDef.KEY_PRIVATE_TEMPLATE, jsonObj, fileName).orElse(null);
+    if (obj != null) {
+      fillButtonParams(commonPart.privatTemplate, obj, fileName);
+    }
+
+    // breakpoint
+    obj = readObject(BhConstants.NodeStyleDef.KEY_BREAK_POINT, jsonObj, fileName).orElse(null);
+    if (obj != null) {
+      fillBreakpointParams(commonPart.breakpoint, obj, fileName);
+    }    
+  }
+
+  /**
+   * {@link BhNodeViewStyle.SpecificPart} にスタイル情報を格納する.
+   *
+   * @param specificPart パラメータの格納先
+   * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
+   * @param fileName {@code jsonObj} が記述してある .JSON ファイルの名前
+   */
+  private void fillSpecificPartParams(
+      BhNodeViewStyle.SpecificPart specificPart, JsonObject jsonObj, String fileName)
+      throws ViewConstructionException {
+    // cssClass
+    specificPart.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(specificPart.cssClass);
+  }
+
+  /**
    * {@link BhNodeViewStyle.Button} にスタイル情報を格納する.
    *
    * @param button jsonObj の情報を格納するオブジェクト
@@ -344,17 +411,28 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
   private void fillButtonParams(
       BhNodeViewStyle.Button button, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
-    // buttonPosX
-    button.buttonPosX = readNumber(BhConstants.NodeStyleDef.KEY_BUTTON_POS_X, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(button.buttonPosX);
-
-    // buttonPosY
-    button.buttonPosY = readNumber(BhConstants.NodeStyleDef.KEY_BUTTON_POS_Y, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(button.buttonPosY);
-
-    // buttonCssClass
+    // cssClass
     button.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(button.cssClass);
+  }
+
+  /**
+   * {@link BhNodeViewStyle.Breakpoint} にスタイル情報を格納する.
+   *
+   * @param breakpoint jsonObj の情報を格納するオブジェクト
+   * @param jsonObj ブレークポイントのパラメータが格納されたオブジェクト
+   * @param fileName jsonObj が記述してある .json ファイルの名前
+   */
+  private void fillBreakpointParams(
+      BhNodeViewStyle.Breakpoint breakpoint, JsonObject jsonObj, String fileName)
+      throws ViewConstructionException {
+    // buttonCssClass
+    breakpoint.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(breakpoint.cssClass);
+
+    // radius
+    breakpoint.radius = readNumber(BhConstants.NodeStyleDef.KEY_RADIUS, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(breakpoint.radius);
   }
 
   /**

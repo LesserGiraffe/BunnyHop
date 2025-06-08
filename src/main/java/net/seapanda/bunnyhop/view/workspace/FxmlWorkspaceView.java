@@ -604,6 +604,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
       wsPane.addEventHandler(
           MouseEvent.MOUSE_PRESSED,
           event -> {
+            wsPane.requestFocus();
             onMousePressedInvoker.invoke(new MouseEventInfo(FxmlWorkspaceView.this, event));
             consume(event);
           });

@@ -56,7 +56,7 @@ public class PrivateTemplateButtonFactoryImpl implements PrivateTemplateButtonFa
     BhNodeViewStyle style = viewStyleFactory.canCreateStyleOf(node.getStyleId())
         ? viewStyleFactory.createStyleOf(node.getStyleId())
         : new BhNodeViewStyle();
-    var button = new PrivateTemplateButton(buttonFilePath, style.privatTemplate);
+    var button = new PrivateTemplateButton(buttonFilePath, style.commonPart.privatTemplate);
     new PrivateTemplateButtonController(node, button, service, proxy);
     return button;
   }

@@ -26,6 +26,7 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.factory.BhNodeViewFactory;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ChildArrangement;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorAlignment;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.traverse.NodeViewWalker;
@@ -96,21 +97,6 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
     }
   }
 
-  /** このグループに子要素のサイズが変わったことを伝える. */
-  void notifyChildSizeChanged() {
-    nodeSizeCache.setDirty(true);
-    nodeWithCnctrSizeCache.setDirty(true);
-    nodeTreeSizeCache.setDirty(true);
-    nodeTreeWithCnctrSizeCache.setDirty(true);
-    BhNodeViewGroup group = getTreeManager().getParentGroup();
-    if (group != null) {
-      group.notifyChildSizeChanged();
-    }
-    if (getTreeManager().isRootView()) {
-      getLookManager().requestArrangement();
-    }
-  }
-
   /** ノードサイズのキャッシュ値を更新する. */
   private void updateNodeSizeCache(boolean includeCnctr, Vec2D nodeSize) {
     if (includeCnctr) {
@@ -127,6 +113,14 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
     } else {
       nodeTreeSizeCache.update(new Vec2D(nodeSize));
     }
+  }
+
+  @Override
+  protected void onNodeSizeChanged() {
+    nodeSizeCache.setDirty(true);
+    nodeWithCnctrSizeCache.setDirty(true);
+    nodeTreeSizeCache.setDirty(true);
+    nodeTreeWithCnctrSizeCache.setDirty(true);
   }
 
   @Override
@@ -157,67 +151,75 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
       return new Vec2D(nodeSizeCache.getVal());
     }
 
-    Vec2D cnctrSize = getRegionManager().getConnectorSize();
-    Vec2D innerSize = innerGroup.getSize();
-    double bodyWidth = viewStyle.paddingLeft + innerSize.x + viewStyle.paddingRight;
-    double bodyHeight = viewStyle.paddingTop + innerSize.y + viewStyle.paddingBottom;
-
+    Vec2D nodeSize = calcBodySize();
     if (includeCnctr) {
-      var wholeSize = new Vec2D();
+      Vec2D cnctrSize = getRegionManager().getConnectorSize();
       if (viewStyle.connectorPos == ConnectorPos.LEFT) {
-        wholeSize = calcSizeIncludingLeftConnector(bodyWidth, bodyHeight, cnctrSize);
+        nodeSize = calcSizeIncludingLeftConnector(nodeSize, cnctrSize);
       } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
-        wholeSize = calcSizeIncludingTopConnector(bodyWidth, bodyHeight, cnctrSize);
+        nodeSize = calcSizeIncludingTopConnector(nodeSize, cnctrSize);
       }
-      bodyWidth = wholeSize.x;
-      bodyHeight = wholeSize.y;
     } 
-    var nodeSize = new Vec2D(bodyWidth, bodyHeight);
     updateNodeSizeCache(includeCnctr, nodeSize);
     return nodeSize;
+  }
+
+  /** ノードのボディ部分のサイズを求める. */
+  private Vec2D calcBodySize() {
+    Vec2D commonPartSize = getRegionManager().getCommonPartSize();
+    Vec2D groupSize = innerGroup.getSize();
+    Vec2D innerSize = switch (viewStyle.baseArrangement) {
+      case ROW ->
+        new Vec2D(
+            commonPartSize.x + groupSize.x,
+            Math.max(commonPartSize.y, groupSize.y));
+      case COLUMN ->
+        new Vec2D(
+            Math.max(commonPartSize.x, groupSize.x),
+            commonPartSize.y + groupSize.y);
+    };
+    return new Vec2D(
+        viewStyle.paddingLeft + innerSize.x + viewStyle.paddingRight,
+        viewStyle.paddingTop + innerSize.y + viewStyle.paddingBottom);
   }
 
   /**
    * 左にコネクタがついている場合のコネクタを含んだサイズを求める.
    *
-   * @param bodyWidth ボディ部分の幅
-   * @param bodyHeight ボディ部分の高さ
+   * @param bodySize ボディ部分のサイズ
    * @param cnctrSize コネクタサイズ
    * @return 左にコネクタがついている場合のコネクタを含んだサイズ
    */
-  private Vec2D calcSizeIncludingLeftConnector(
-      double bodyWidth, double bodyHeight, Vec2D cnctrSize) {
-    double wholeWidth = bodyWidth + cnctrSize.x;
+  private Vec2D calcSizeIncludingLeftConnector(Vec2D bodySize, Vec2D cnctrSize) {
+    double wholeWidth = bodySize.x + cnctrSize.x;
     // ボディの左上を原点としたときのコネクタの上端の座標
     double cnctrTopPos = viewStyle.connectorShift;
     if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
-      cnctrTopPos += (bodyHeight - cnctrSize.y) / 2;
+      cnctrTopPos += (bodySize.y - cnctrSize.y) / 2;
     }
     // ボディの左上を原点としたときのコネクタの下端の座標
     double cnctrBottomPos = cnctrTopPos + cnctrSize.y;
-    double wholeHeight = Math.max(cnctrBottomPos, bodyHeight) - Math.min(cnctrTopPos, 0);
+    double wholeHeight = Math.max(cnctrBottomPos, bodySize.y) - Math.min(cnctrTopPos, 0);
     return new Vec2D(wholeWidth, wholeHeight);
   }
 
   /**
    * 上にコネクタがついている場合のコネクタを含んだサイズを求める.
    *
-   * @param bodyWidth ボディ部分の幅
-   * @param bodyHeight ボディ部分の高さ
+   * @param bodySize ボディ部分のサイズ
    * @param cnctrSize コネクタサイズ
    * @return 左にコネクタがついている場合のコネクタを含んだサイズ
    */
-  private Vec2D calcSizeIncludingTopConnector(
-      double bodyWidth, double bodyHeight, Vec2D cnctrSize) {
-    double wholeHeight = bodyHeight + cnctrSize.y;
+  private Vec2D calcSizeIncludingTopConnector(Vec2D bodySize, Vec2D cnctrSize) {
+    double wholeHeight = bodySize.y + cnctrSize.y;
     // ボディの左上を原点としたときのコネクタの左端の座標
     double cnctrLeftPos = viewStyle.connectorShift;
     if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
-      cnctrLeftPos += (bodyWidth - cnctrSize.x) / 2;
+      cnctrLeftPos += (bodySize.x - cnctrSize.x) / 2;
     }
     // ボディの左上を原点としたときのコネクタの右端の座標
     double cnctrRightPos = cnctrLeftPos + cnctrSize.x;
-    double wholeWidth = Math.max(cnctrRightPos, bodyWidth) - Math.min(cnctrLeftPos, 0);
+    double wholeWidth = Math.max(cnctrRightPos, bodySize.x) - Math.min(cnctrLeftPos, 0);
     return new Vec2D(wholeWidth, wholeHeight);
   }
 
@@ -252,14 +254,22 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
   /** ノードの親からの相対位置を更新する. */
   @Override
   protected void updateChildRelativePos() {
-    innerGroup.setRelativePosFromParent(viewStyle.paddingLeft, viewStyle.paddingTop);
+    Vec2D innerRelPos = new Vec2D(viewStyle.paddingLeft, viewStyle.paddingTop);
+    Vec2D commonPartSize = getRegionManager().getCommonPartSize();
+    if (viewStyle.baseArrangement == ChildArrangement.ROW) {
+      innerRelPos.x += commonPartSize.x;
+    } else if (viewStyle.baseArrangement == ChildArrangement.COLUMN) {
+      innerRelPos.y += commonPartSize.y;
+    }
+    innerGroup.setRelativePosFromParent(innerRelPos.x, innerRelPos.y);
     innerGroup.updateChildRelativePos();
+
     Vec2D bodySize = getRegionManager().getNodeSize(false);
     // 外部ノードが右に繋がる
     if (viewStyle.connectorPos == ConnectorPos.LEFT) {
       outerGroup.setRelativePosFromParent(bodySize.x, 0.0);
     // 外部ノードが下に繋がる
-    } else {                       
+    } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
       outerGroup.setRelativePosFromParent(0.0, bodySize.y);
     }
     outerGroup.updateChildRelativePos();

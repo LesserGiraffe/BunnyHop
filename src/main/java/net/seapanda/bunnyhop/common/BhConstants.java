@@ -278,6 +278,7 @@ public class BhConstants {
     public static final String KEY_CSS_CLASS = "cssClass";
     public static final String KEY_CONNECTIVE = "connective";
     public static final String KEY_PRIVATE_TEMPLATE = "privateTemplate";
+    public static final String KEY_BREAK_POINT = "breakpoint";
     public static final String KEY_BUTTON_POS_X = "buttonPosX";
     public static final String KEY_BUTTON_POS_Y = "buttonPosY";
     public static final String KEY_TEXT_FIELD = "textField";
@@ -297,11 +298,15 @@ public class BhConstants {
     public static final String KEY_INNER = "inner";
     public static final String KEY_OUTER = "outer";
     public static final String KEY_ARRANGEMENT = "arrangement";
+    public static final String KEY_BASE_ARRANGEMENT = "baseArrangement";
     public static final String KEY_SPACE = "space";
     public static final String KEY_CONNECTOR_LIST = "connectorList";
     public static final String KEY_SUB_GROUP = "subGroup";
     public static final String KEY_COMPONENT = "component";
     public static final String KEY_EDITABLE = "editable";
+    public static final String KEY_COMMON_PART = "commonPart";
+    public static final String KEY_SPECIFIC_PART = "specificPart";
+    public static final String KEY_RADIUS = "radius";
     public static final String VAL_ROW = "Row";
     public static final String VAL_COLUMN = "Column";
     public static final String VAL_LEFT = "Left";
@@ -351,6 +356,8 @@ public class BhConstants {
     public static final String PSEUDO_RUNTIME_ERR = "runtimeErr";
     public static final String PSEUDO_TEXT_DECORATE = "textDecorate";
     public static final String PSEUDO_UNFIXED_DEFAULT = "unfixedDefault";
+    public static final String PSEUDO_COLUMN = "column";
+    public static final String PSEUDO_ROW = "row";
     public static final String CLASS_BH_NODE = "BhNode";
     public static final String CLASS_VOID_NODE = "voidNode";
     public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";
@@ -359,7 +366,7 @@ public class BhConstants {
     public static final String CLASS_LABEL_NODE = "labelNode";
     public static final String CLASS_NO_CONTENT_NODE = "labelNode";
     public static final String CLASS_CONNECTIVE_NODE = "ConnectiveNode";
-    public static final String CLASS_BH_NODE_COMPILE_ERROR = "BhNode-CompileError";
+    public static final String CLASS_COMPILE_ERROR_MARK = "compileErrorMark";
     public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
     public static final String CLASS_PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
     public static final String CALL_STACK_ITEM = "callStackItem";

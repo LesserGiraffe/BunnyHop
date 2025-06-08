@@ -28,6 +28,7 @@ import net.seapanda.bunnyhop.view.node.TextFieldNodeView;
 
 /**
  * 登録されたコールバック関数を呼び出す Visitor クラス.
+ * nvb = node view base
  *
  * @author K.Koike
  */

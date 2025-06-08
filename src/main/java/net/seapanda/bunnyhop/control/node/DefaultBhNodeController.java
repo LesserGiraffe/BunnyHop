@@ -113,7 +113,7 @@ public class DefaultBhNodeController implements BhNodeController {
       ddInfo.isDndFinished = false;
       if (!model.isMovable()) {
         ddInfo.forwardEvent = true;
-        sendEvent(model.findParentNode(), event);
+        dispatchEvent(model.findParentNode(), event);
         return;
       }
       view.getWorkspaceView().getRootNodeViews().forEach(
@@ -138,7 +138,7 @@ public class DefaultBhNodeController implements BhNodeController {
         return;
       }
       if (ddInfo.forwardEvent) {
-        sendEvent(model.findParentNode(), event);
+        dispatchEvent(model.findParentNode(), event);
         return;
       }
       if (event.isShiftDown()) {
@@ -170,7 +170,7 @@ public class DefaultBhNodeController implements BhNodeController {
         return;
       }
       if (ddInfo.forwardEvent) {
-        sendEvent(model.findParentNode(), event);
+        dispatchEvent(model.findParentNode(), event);
         return;
       }
       if (event.isShiftDown()) {
@@ -197,7 +197,7 @@ public class DefaultBhNodeController implements BhNodeController {
     }
     try {
       if (ddInfo.forwardEvent) {
-        sendEvent(model.findParentNode(), event);
+        dispatchEvent(model.findParentNode(), event);
         ddInfo.forwardEvent = false;
         return;
       }
@@ -378,7 +378,7 @@ public class DefaultBhNodeController implements BhNodeController {
    * @param node このノードのビューにイベントを送る
    * @param event {@code node} に送るイベント
    */
-  private static void sendEvent(BhNode node, Event event) {
+  private static void dispatchEvent(BhNode node, Event event) {
     Optional.ofNullable(node)
         .flatMap(BhNode::getView)
         .ifPresent(view -> view.getCallbackRegistry().dispatch(event));

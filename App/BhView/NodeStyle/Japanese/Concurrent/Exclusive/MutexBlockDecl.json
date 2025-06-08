@@ -1,7 +1,7 @@
 {
   "paddingTop" : 1.0,
   "paddingBottom" : 1.0,
-  "paddingLeft" : 12.5,
+  "paddingLeft" : 6.25,
   "paddingRight" : 1.5,
   "connectorPos" : "Top",
   "connectorShift" : 1.0,
@@ -29,10 +29,5 @@
     "outer" : {
       "connectorList" : ["NextGlobalDataDecl"]
     }
-  },
-  
-  "privateTemplate" : {
-    "buttonPosX" : 6.0,
-    "buttonPosY" : 1.0
   }
 }

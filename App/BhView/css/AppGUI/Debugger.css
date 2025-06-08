@@ -5,14 +5,14 @@
 #csHbox {
   -fx-font-size: 1.1em;
   -fx-font-family: "Meiryo UI";
-  -fx-padding: 0.25em 0 0.25em 0;
+  -fx-padding: 0.25em 0.0em 0.25em 0.0em;
   -fx-alignment: center-left;
 }
 
 #threadStatusText {
   -fx-font-size: 1.1em;
   -fx-font-family: "Meiryo UI";
-  -fx-padding: 0.25em 0 0 0;
+  -fx-padding: 0.25em 0.0em 0.0em 0.0em;
   -fx-fill: black;
   -fx-underline: false;
 }

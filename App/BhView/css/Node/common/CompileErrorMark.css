@@ -1,0 +1,4 @@
+.compileErrorMark {
+  -fx-stroke-width: 0.30em;
+  -fx-stroke: red;
+}

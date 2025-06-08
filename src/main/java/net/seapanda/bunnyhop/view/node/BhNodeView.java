@@ -29,6 +29,10 @@ import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import net.seapanda.bunnyhop.view.node.BhNodeView.PositionManager;
+import net.seapanda.bunnyhop.view.node.BhNodeView.RegionManager.BodyRange;
+import net.seapanda.bunnyhop.view.node.BhNodeView.RegionManager.Rectangles;
+import net.seapanda.bunnyhop.view.node.BhNodeView.TreeManager;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.traverse.NodeViewComponent;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
@@ -158,6 +162,20 @@ public interface BhNodeView extends NodeViewComponent {
      * @return 関連するノードビューのコネクタの位置
      */
     ConnectorPos getConnectorPos();
+
+    /**
+     * ブレークポイントの可視性を変更する.
+     *
+     * @param visible ブレークポイントを表示する場合 true.  非表示する場合 false
+     */
+    void setBreakpointVisibility(boolean visible);
+
+    /**
+     * ブレークポイントの可視性を調べる.
+     *
+     * @return ブレークポイントが表示されている場合 true.
+     */
+    boolean isBreakpointVisible();
   }
 
   /** ノードビューの領域に関する操作を規定したインタフェース.　*/
@@ -217,8 +235,15 @@ public interface BhNodeView extends NodeViewComponent {
      * @param view 関連するノードビューとのボディ部分の重なりを調べるノード
      * @param option 重なり具合を判定するオプション
      * @return 関連するノードビューのボディの領域が引数のノードビューのボディと重なっている場合 true.
-     * */
+     */
     boolean overlapsWith(BhNodeView view, OverlapOption option);
+
+    /**
+     * ノードの共通部分のサイズを取得する.
+     *
+     * @return ノードの共通部分のサイズ
+     */
+    public Vec2D getCommonPartSize();
 
     /**
      * ノードビューのボディとコネクタ部分の領域に対応する {@link QuadTreeRectangle} をまとめたレコード.

@@ -43,8 +43,6 @@ public final class PrivateTemplateButton extends Button {
       loader.setController(this);
       loader.setRoot(this);
       loader.load();
-      this.setTranslateX(style.buttonPosX);
-      this.setTranslateY(style.buttonPosY);
       this.getStyleClass().add(style.cssClass);
     } catch (Exception e) {
       throw new ViewConstructionException(

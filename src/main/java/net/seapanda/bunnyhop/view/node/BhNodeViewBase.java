@@ -34,7 +34,10 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -54,6 +57,7 @@ import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.bodyshape.BodyShapeBase.BodyShape;
 import net.seapanda.bunnyhop.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle;
+import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ChildArrangement;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorAlignment;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.view.traverse.NvbCallbackInvoker;
@@ -71,23 +75,25 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   protected static final double COMPILE_ERR_MARK_VIEW_ORDER_OFFSET = -4000;
   protected static final double NODE_BASE_VIEW_ORDER_OFFSET = -2000;
   protected static final double CHILD_VIEW_ORDER_OFFSET_FROM_PARENT = -1.0;
-  /** ノード描画用ポリゴンやボタンなどを乗せるペイン. */
-  protected final Pane nodeBase = new Pane();
-  /** ノード描画用ポリゴン. */
-  protected final Polygon nodeShape = new Polygon();
-  /** コンパイルエラーノードであることを示す印. */
-  protected final CompileErrorMark compileErrorMark = new CompileErrorMark(0.0, 0.0, 0.0, 0.0);
+  /** GUI コンポーネントを乗せるペイン一式. */
+  private final Panes panes;
+  /** ノードビューの描画に必要な図形オブジェクト一式. */
+  private final Shapes shapes;
   /** ノードの見た目のパラメータオブジェクト. */
   protected final BhNodeViewStyle viewStyle;
-  private final BhNode model;
-  private BhNodeController controller;
   /** このノードビューを保持する親グループ.  このノードビューがルートノードビューの場合は null. */
   protected BhNodeViewGroup parent;
+  /** このノードビューに対応するノード. */
+  private final BhNode model;
+  /** このノードビューに対応するコントローラ. */
+  private BhNodeController controller;
+  /** ノードのサイズ変更が通知されたことを示すフラグ. */
+  private boolean isSizeChangeNotified = false;
 
   private final RegionManagerBase regionManager = this.new RegionManagerBase();
   private final TreeManagerBase treeManager = this.new TreeManagerBase();
   private final PositionManagerBase positionManager = this.new PositionManagerBase();
-  private final CallbackRegistryBase cbRegistry = this.new CallbackRegistryBase();
+  private final CallbackRegistryBase cbRegistry;
   private final LookManagerBase lookManager;
 
   /**
@@ -118,26 +124,30 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   protected abstract void updatePosOnWorkspace(double posX, double posY);
 
   /**
+   * ノードのサイズに変更があったときの処理を行う.
+   *
+   * <p>ノードのサイズに変更があったときに自動的に呼ばれるので, サブクラスで呼ばないこと.
+   */
+  protected abstract void onNodeSizeChanged();
+
+  /**
    * コンストラクタ.
    *
-   * @param viewStyle ノードの見た目を決めるパラメータオブジェクト
+   * @param style ノードの見た目を決めるパラメータオブジェクト
    * @param model ビューが表すモデル
    * @param components このノードビューの子要素に追加するコンポーネントのリスト
    */
   protected BhNodeViewBase(
-      BhNodeViewStyle viewStyle, DerivativeBase<?> model, SequencedSet<Node> components)
+      BhNodeViewStyle style, DerivativeBase<?> model, SequencedSet<Node> components)
       throws ViewConstructionException {
-    this.viewStyle = viewStyle;
+    this.viewStyle = style;
     this.model = model;
-    nodeBase.setPickOnBounds(false);
-    lookManager = this.new LookManagerBase(viewStyle.bodyShape);
-    lookManager.addCssClass(viewStyle.cssClasses);
+    shapes = createShapes(style);
+    panes = createPanes(style, components);
+    cbRegistry = this.new CallbackRegistryBase();
+    lookManager = this.new LookManagerBase(style.bodyShape);
+    lookManager.addCssClass(style.cssClasses);
     lookManager.addCssClass(BhConstants.Css.CLASS_BH_NODE);
-    compileErrorMark.getStyleClass().add(BhConstants.Css.CLASS_BH_NODE_COMPILE_ERROR);
-    compileErrorMark.setMouseTransparent(true);
-    addComponent(nodeShape);
-    components.forEach(this::addComponent);
-    nodeShape.addEventFilter(Event.ANY, this::forwardEventIfNotHaveController);
   }
 
   @Override
@@ -177,7 +187,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
   @Override
   public void setMouseTransparent(boolean value) {
-    nodeBase.setMouseTransparent(value);
+    panes.root.setMouseTransparent(value);
   }
 
   @Override
@@ -205,7 +215,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
   @Override
   public WorkspaceView getWorkspaceView() {
-    return ViewUtil.getWorkspaceView(nodeBase);
+    return ViewUtil.getWorkspaceView(panes.root);
   }
 
   /** このノードビューがコントローラを持たない場合, 親ノードビューにイベントを渡す. */
@@ -222,13 +232,90 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     event.consume();
   }
 
+  /** このノードビューの子要素のサイズが変更されたときにサブクラスから呼ぶこと. */
+  protected void notifyChildSizeChanged() {
+    onNodeSizeChanged();
+    if (isSizeChangeNotified) {
+      return;
+    }
+    BhNodeViewGroup group = getTreeManager().getParentGroup();
+    if (group != null) {
+      group.notifyChildSizeChanged();
+    }
+    if (getTreeManager().isRootView()) {
+      getLookManager().requestArrangement();
+    }
+    isSizeChangeNotified = true;
+  }
+
   /**
    * このビューに GUI コンポーネントを追加する.
    *
-   * @param node 追加するコンポーネント.
+   * @param node 追加するコンポーネント. (nullable)
    */
-  protected void addComponent(Node node) {
-    nodeBase.getChildren().add(node);
+  protected void setComponent(Node node) {
+    if (node == null) {
+      panes.specific.getChildren().clear();  
+    }
+    panes.specific.getChildren().setAll(node);
+  }
+
+  /** ノードビューの描画に必要な図形オブジェクトを作成する. */
+  private Shapes createShapes(BhNodeViewStyle style) {
+    var compileErrorMark = new CompileErrorMark(0, 0, 0, 0);
+    compileErrorMark.getStyleClass().add(BhConstants.Css.CLASS_COMPILE_ERROR_MARK);
+    compileErrorMark.setMouseTransparent(true);
+    var nodeShape = new Polygon();
+    nodeShape.addEventFilter(Event.ANY, this::forwardEventIfNotHaveController);
+    double radius = style.commonPart.breakpoint.radius;
+    var circle = new Circle(radius, radius, radius);
+    circle.setMouseTransparent(true);
+    circle.setVisible(false);
+    circle.getStyleClass().add(style.commonPart.breakpoint.cssClass);
+    return new Shapes(nodeShape, compileErrorMark, circle);
+  }
+
+  /** GUI コンポーネントを乗せるペインを作成する. */
+  private Panes createPanes(BhNodeViewStyle style, SequencedSet<Node> components) {
+    boolean isBaseArrangementRow = (style.baseArrangement == ChildArrangement.ROW);
+    Pane root = new Pane();
+    Pane compBase = isBaseArrangementRow ? new HBox() : new VBox();
+    Pane common = (style.commonPart.arrangement == ChildArrangement.ROW) ? new HBox() : new VBox();
+    Pane specific = new HBox();
+    root.getChildren().addAll(shapes.nodeShape, compBase);
+    root.setPickOnBounds(false);
+    
+    compBase.getChildren().addAll(common, specific);
+    compBase.setPickOnBounds(false);
+    compBase.widthProperty().addListener((obs, oldVal, newVal) -> notifyChildSizeChanged());
+    compBase.heightProperty().addListener((obs, oldVal, newVal) -> notifyChildSizeChanged());
+    compBase.setTranslateX(style.paddingLeft);
+    compBase.setTranslateY(style.paddingTop);
+    
+    common.setPickOnBounds(false);
+    common.getStyleClass().add(style.commonPart.cssClass);
+    common.getChildren().add(shapes.breakpoint);
+    common.getChildren().addAll(components);
+    common.getChildren().forEach(child -> {
+      child.managedProperty().bind(child.visibleProperty());
+      child.visibleProperty().addListener((obs, oldVal, newVal) -> changeCommonPartValidity());
+    });
+    var pseudoClass = PseudoClass.getPseudoClass(
+        isBaseArrangementRow ? BhConstants.Css.PSEUDO_ROW : BhConstants.Css.PSEUDO_COLUMN);
+    common.pseudoClassStateChanged(pseudoClass, true);
+    boolean anyVisible = common.getChildren().stream().anyMatch(Node::isVisible);
+    common.setManaged(anyVisible);
+
+    specific.setPickOnBounds(false);
+    specific.pseudoClassStateChanged(pseudoClass, true);
+    specific.getStyleClass().add(style.specificPart.cssClass);
+    return new Panes(root, compBase, common, specific);
+  }
+
+  /** 共通部分が持つ UI コンポーネントの可視性に応じて, 共通部分の UI ツリー上での有効性を変更する. */
+  private void changeCommonPartValidity() {
+    boolean anyVisible = panes.common.getChildren().stream().anyMatch(Node::isVisible);
+    panes.common.setManaged(anyVisible);
   }
 
   /** ノードビューの外観を変更する機能を提供するクラス. */
@@ -257,11 +344,11 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     @Override
     public void switchPseudoClassState(String className, boolean enable) {
       if (enable) {
-        nodeShape.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), true);
-        nodeBase.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), true);
+        shapes.nodeShape.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), true);
+        panes.root.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), true);
       } else {
-        nodeShape.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), false);
-        nodeBase.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), false);
+        shapes.nodeShape.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), false);
+        panes.root.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), false);
       }
     }
 
@@ -272,7 +359,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
      */
     void addCssClass(String... cssClassNames) {
       for (var cssClassName : cssClassNames) {
-        nodeShape.getStyleClass().add(cssClassName);
+        shapes.nodeShape.getStyleClass().add(cssClassName);
       }
     }
 
@@ -303,15 +390,15 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       ConnectorShape notchShape =
           isFixed ? viewStyle.notchShapeFixed.shape : viewStyle.notchShape.shape;
   
-      nodeShape.getPoints().setAll(
+      shapes.nodeShape.getPoints().setAll(
           getBodyShape().shape.createVertices(
               viewStyle,
               bodySize.x,
               bodySize.y,
               cnctrShape,
               notchShape));
-      compileErrorMark.setEndX(bodySize.x);
-      compileErrorMark.setEndY(bodySize.y);
+      shapes.compileError.setEndX(bodySize.x);
+      shapes.compileError.setEndY(bodySize.y);
       currentPolygonSize.set(bodySize);
       return true;
     }
@@ -328,6 +415,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
             if (isSizeChanged) {
               nodeView.getCallbackRegistry().onSizeChanged();
             }
+            nodeView.isSizeChangeNotified = false;
           },
           BhNodeViewBase.this);
       getTreeManager().updateEvenFlag();
@@ -347,7 +435,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     @Override
     public void setVisible(boolean visible) {
       NvbCallbackInvoker.invoke(
-          view -> ((BhNodeViewBase) view).nodeShape.setVisible(visible),
+          view -> ((BhNodeViewBase) view).shapes.nodeShape.setVisible(visible),
           BhNodeViewBase.this);
     }
 
@@ -360,12 +448,12 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     @Override
     public void setCompileErrorVisibility(boolean visible) {
-      BhNodeViewBase.this.compileErrorMark.setVisible(visible);
+      shapes.compileError.setVisible(visible);
     }
 
     @Override
     public boolean isCompileErrorVisible() {
-      return BhNodeViewBase.this.compileErrorMark.isVisible();
+      return shapes.compileError.isVisible();
     }
 
     /**
@@ -406,6 +494,16 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     public ConnectorPos getConnectorPos() {
       return viewStyle.connectorPos;
     }
+
+    @Override
+    public void setBreakpointVisibility(boolean visible) {
+      shapes.breakpoint.setVisible(visible);
+    }
+
+    @Override
+    public boolean isBreakpointVisible() {
+      return shapes.breakpoint.isVisible();
+    }    
   }
 
   /** このノードの画面上での領域に関する処理を行うクラス. */
@@ -513,6 +611,14 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       }
       return false;
     }
+
+    @Override
+    public Vec2D getCommonPartSize() {
+      if (!panes.common.isManaged()) {
+        return new Vec2D();
+      }
+      return new Vec2D(panes.common.getWidth(), panes.common.getHeight());
+    }
   }
 
   /** ノードビューの GUI ツリーに関する操作を提供するクラス. */
@@ -572,7 +678,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     @Override
     public void removeFromGuiTree() {
       // JDK-8205092 対策. view order を使うとノード削除後に NullPointerException が発生するのを防ぐ.
-      nodeBase.setMouseTransparent(true);
+      panes.root.setMouseTransparent(true);
       removeComponentsFromParent();
       NvbCallbackInvoker.invokeForGroups(
           group -> group.removePseudoViewFromGuiTree(),
@@ -581,13 +687,13 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     /** このノードの描画物 (ボディや影など) をそれぞれの親要素から取り除く. */
     private void removeComponentsFromParent() {
-      Parent parent = nodeBase.getParent();
+      Parent parent = panes.root.getParent();
       if (parent instanceof Group group) {
-        group.getChildren().remove(nodeBase);
-        group.getChildren().remove(compileErrorMark);
+        group.getChildren().remove(panes.root);
+        group.getChildren().remove(shapes.compileError);
       } else if (parent instanceof Pane pane) {
-        pane.getChildren().remove(nodeBase);
-        pane.getChildren().remove(compileErrorMark);
+        pane.getChildren().remove(panes.root);
+        pane.getChildren().remove(shapes.compileError);
       }
     }
 
@@ -597,7 +703,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
         return;
       }
       // JDK-8205092 対策
-      nodeBase.setMouseTransparent(false);
+      panes.root.setMouseTransparent(false);
       addComponentsToParent(parent);
       NvbCallbackInvoker.invokeForGroups(
           group -> group.addPseudoViewToGuiTree(parent),
@@ -610,7 +716,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
         return;
       }
       // JDK-8205092 対策
-      nodeBase.setMouseTransparent(false);
+      panes.root.setMouseTransparent(false);
       addComponentsToParent(parent);
       NvbCallbackInvoker.invokeForGroups(
           group -> group.addPseudoViewToGuiTree(parent),
@@ -619,14 +725,14 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     /** このノードの描画物 (ボディや影など) を {@link parent} に追加する. */
     private void addComponentsToParent(Group parent) {
-      parent.getChildren().add(nodeBase);
-      parent.getChildren().add(compileErrorMark);
+      parent.getChildren().add(panes.root);
+      parent.getChildren().add(shapes.compileError);
     }
 
     /** このノードの描画物 (ボディや影など) を {@link parent} に追加する. */
     private void addComponentsToParent(Pane parent) {
-      parent.getChildren().add(nodeBase);
-      parent.getChildren().add(compileErrorMark);
+      parent.getChildren().add(panes.root);
+      parent.getChildren().add(shapes.compileError);
     }
 
     /** このノード以下の奇偶フラグを更新する. */
@@ -669,7 +775,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     @Override
     public Parent getParentGuiComponent() {
-      return nodeBase.getParent();
+      return panes.root.getParent();
     }
   }
 
@@ -752,10 +858,10 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     /** GUI 部品のワークスペース上での位置を更新する. */
     private void setComponentPosOnWorkspace(double posX, double posY) {
-      nodeBase.setTranslateX(posX);
-      nodeBase.setTranslateY(posY);
-      compileErrorMark.setTranslateX(posX);
-      compileErrorMark.setTranslateY(posY);
+      panes.root.setTranslateX(posX);
+      panes.root.setTranslateY(posY);
+      shapes.compileError.setTranslateX(posX);
+      shapes.compileError.setTranslateY(posY);
     }
 
     @Override
@@ -771,13 +877,13 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     /** {@code view} の Z 位置を更新する. */
     private static void updateZpos(BhNodeViewBase view, double posZ) {
-      view.compileErrorMark.setViewOrder(posZ + COMPILE_ERR_MARK_VIEW_ORDER_OFFSET);
-      view.nodeBase.setViewOrder(posZ + NODE_BASE_VIEW_ORDER_OFFSET);
+      view.shapes.compileError.setViewOrder(posZ + COMPILE_ERR_MARK_VIEW_ORDER_OFFSET);
+      view.panes.root.setViewOrder(posZ + NODE_BASE_VIEW_ORDER_OFFSET);
     }
 
     @Override
     public double getZpos() {
-      return nodeBase.getViewOrder();
+      return panes.root.getViewOrder();
     }
 
     @Override
@@ -799,13 +905,13 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     @Override
     public Vec2D sceneToLocal(Vec2D pos) {
-      var localPos = nodeBase.sceneToLocal(pos.x, pos.y);
+      var localPos = panes.root.sceneToLocal(pos.x, pos.y);
       return new Vec2D(localPos.getX(), localPos.getY());
     }
 
     @Override
     public Vec2D localToScene(Vec2D pos) {
-      var scenePos = nodeBase.localToScene(pos.x, pos.y);
+      var scenePos = panes.root.localToScene(pos.x, pos.y);
       return new Vec2D(scenePos.getX(), scenePos.getY());
     }
   }
@@ -834,19 +940,19 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     /** コンストラクタ. */
     private CallbackRegistryBase() {
-      nodeShape.setOnMousePressed(event -> {
+      shapes.nodeShape.setOnMousePressed(event -> {
         onMousePressedInvoker.invoke(new MouseEventInfo(BhNodeViewBase.this, event));
         consume(event);
       });
-      nodeShape.setOnMouseDragged(event -> {
+      shapes.nodeShape.setOnMouseDragged(event -> {
         onMouseDraggedInvoker.invoke(new MouseEventInfo(BhNodeViewBase.this, event));
         consume(event);
       });
-      nodeShape.setOnDragDetected(event -> {
+      shapes.nodeShape.setOnDragDetected(event -> {
         onMouseDragDetectedInvoker.invoke(new MouseEventInfo(BhNodeViewBase.this, event));
         consume(event);
       });
-      nodeShape.setOnMouseReleased(event -> {
+      shapes.nodeShape.setOnMouseReleased(event -> {
         onMouseReleasedInvoker.invoke(new MouseEventInfo(BhNodeViewBase.this, event));
         consume(event);
       });
@@ -884,7 +990,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     @Override
     public void dispatch(Event event) {
-      nodeShape.fireEvent(event);
+      shapes.nodeShape.fireEvent(event);
     }
 
     /** ノードビューの位置が変わったときのイベントハンドラを呼び出す. */
@@ -907,7 +1013,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     /** {@code event} のターゲットが {@link #nodeShape} であった場合 {@code event} を consume する. */
     private void consume(MouseEvent event) {
-      if (event.getTarget() == nodeShape) {
+      if (event.getTarget() == shapes.nodeShape) {
         event.consume();
       }
     }
@@ -921,4 +1027,27 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       this.setViewOrder(COMPILE_ERR_MARK_VIEW_ORDER_OFFSET);
     }
   }
+
+  /**
+   * 各種 GUI コンポーネントを配置するペインをまとめたレコード.
+   *
+   * @param root ノードビューの基底部分となるペイン
+   * @param componentBase {@code common} と {@code specific} を乗せるペイン
+   * @param common ノードビューが共通で持つコンポーネントを乗せるペイン
+   * @param specific ノードビューの種類ごとに異なるコンポーネント (テキストフィールドやコンボボックスなど) を乗せるペイン
+   */
+  private record Panes(
+      Pane root,
+      Pane componentBase,
+      Pane common,
+      Pane specific) {}
+
+  /**
+   * ノードビューの描画に必要な図形オブジェクトをまとめたレコード.
+   *
+   * @param nodeShape ノード本体を描画するためのポリゴン
+   * @param compileError コンパイルエラーが発生していることを示す印
+   * @param breakpoint ブレークポイントが設定されていることを示す印
+   */
+  private record Shapes(Polygon nodeShape, CompileErrorMark compileError, Circle breakpoint) {}
 }

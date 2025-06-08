@@ -76,8 +76,14 @@ public class BhNodeViewStyle {
   public String[] cssClasses = { "defaultNode" };
   /** {@link BhNodeView} の種類. */
   public ComponentType component = ComponentType.NONE;
-  
+  /** 共通部分と特有部分の並べ方. */
+  public ChildArrangement baseArrangement = ChildArrangement.ROW;
+  /** {@link ConnectiveNodeView} のパラメータ. */
   public Connective connective = new Connective();
+  /** ノードの共通部分のパラメータ.  */
+  public CommonPart commonPart = new CommonPart();
+  /** ノードの固有部分のパラメータ. */
+  public SpecificPart specificPart = new SpecificPart();
 
   /** {@link ConnectiveNodeView} に特有のパラメータ. */
   public static class Connective {
@@ -151,17 +157,52 @@ public class BhNodeViewStyle {
     public String cssClass = "defaultTextArea";
   }
 
-  public Button privatTemplate = new Button("defaultPrivateTemplateButton");
-
   /** ボタンのパラメータ. */
   public static class Button {
-    public double buttonPosX = 0.5 * BhConstants.LnF.NODE_SCALE;
-    public double buttonPosY = 0.5 * BhConstants.LnF.NODE_SCALE;
-    public String cssClass = "defaultPrivateTemplateButton";
-
+    public String cssClass;
+    
     public Button(String cssClass) {
       this.cssClass = cssClass;
     }
+  }
+
+  /** ブレークポイントのパラメータ. */
+  public static class Breakpoint {
+    public double radius = 1.8 * BhConstants.LnF.NODE_SCALE;
+    public String cssClass;
+
+    public Breakpoint(String cssClass) {
+      this.cssClass = cssClass;
+    }
+  }
+
+  /** ノードビューの共通部分のパラメータ. */
+  public static class CommonPart {
+    /** 共通部分のペインに適用される css クラス. */
+    public String cssClass = "defaultCommonPart";
+    /** 共通部分の子要素を並べる方向. */
+    public ChildArrangement arrangement = ChildArrangement.ROW;
+    /** プライベートテンプレートボタンのパラメータ. */
+    public Button privatTemplate = new Button("defaultPrivateTemplateButton");
+    /** ブレークポイントのパラメータ. */
+    public Breakpoint breakpoint = new Breakpoint("defaultBreakpoint");
+    
+    /** コンストラクタ. */
+    public CommonPart() {}
+
+    /** コピーコンストラクタ. */
+    public CommonPart(CommonPart org) {
+      this.arrangement = org.arrangement;
+      this.cssClass = org.cssClass;
+      this.privatTemplate.cssClass = org.privatTemplate.cssClass;
+      this.breakpoint.radius = org.breakpoint.radius;
+      this.breakpoint.cssClass = org.breakpoint.cssClass;
+    }
+  }
+
+  /** ノードビューの種類によって固有のコンポーネントが乗る部分のパラメータ. */
+  public static class SpecificPart {
+    public String cssClass = "defaultSpecificPart";
   }
 
   /** コネクタの位置. */
@@ -265,7 +306,7 @@ public class BhNodeViewStyle {
     }
   }
 
-  /** 子ノードの描画方向. */
+  /** 子要素の描画方向. */
   public enum ChildArrangement {
 
     ROW(BhConstants.NodeStyleDef.VAL_ROW),
@@ -330,6 +371,7 @@ public class BhNodeViewStyle {
     this.connective.outer = new Arrangement(org.connective.outer);
     this.cssClasses = org.cssClasses;
     this.component = org.component;
+    this.baseArrangement = org.baseArrangement;
     this.textField.minWidth = org.textField.minWidth;
     this.textField.cssClass = org.textField.cssClass;
     this.textField.editable = org.textField.editable;
@@ -339,9 +381,8 @@ public class BhNodeViewStyle {
     this.textArea.minHeight = org.textArea.minHeight;
     this.textArea.editable = org.textArea.editable;
     this.textArea.cssClass = org.textArea.cssClass;
-    this.privatTemplate.cssClass = org.privatTemplate.cssClass;
-    this.privatTemplate.buttonPosX = org.privatTemplate.buttonPosX;
-    this.privatTemplate.buttonPosY = org.privatTemplate.buttonPosY;
+    this.commonPart = new CommonPart(org.commonPart);
+    this.specificPart.cssClass = org.specificPart.cssClass;
   }
 
   /**

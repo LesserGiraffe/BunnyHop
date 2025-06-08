@@ -4,11 +4,11 @@
 }
 
 .defaultComboBox > .arrow-button {
-  -fx-padding: 0.0 0.2em 0.0 0.0;
+  -fx-padding: 0.0em 0.2em 0.0em 0.0em;
 }
 
 .defaultComboBox > .list-cell {
-    -fx-padding: 0.0 0.2em 0.0 0.2em;
+    -fx-padding: 0.0em 0.2em 0.0em 0.2em;
   -fx-alignment: center;
 }
 
@@ -18,11 +18,11 @@
 }
 
 .wordComboBox > .arrow-button {
-  -fx-padding: 0.0 0.2em 0.0 0.0;
+  -fx-padding: 0.0em 0.2em 0.0em 0.0em;
 }
 
 .wordComboBox > .list-cell {
-    -fx-padding: 0.0 0.2em 0.0 0.2em;
+    -fx-padding: 0.0em 0.2em 0.0em 0.2em;
   -fx-alignment: center;
 }
 
