@@ -3,6 +3,7 @@
   bhNodeID="idStrLiteralExp"
   name="StrLiteralExp"
   nodeStyleID="StrLiteralExp.json"
+  breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
@@ -18,6 +19,7 @@
         bhNodeID="idStrLiteralExp.node0"
         name="StrLiteral"
         nodeStyleID="StrLiteral.json"
+        breakpoint="specifyParent"
         onTextChecking="CheckTextFormat.js"
         initialText="${node}{str-literal}{initial}"
         version="bhn-1.0.0"/>

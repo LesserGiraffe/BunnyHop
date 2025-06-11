@@ -3,6 +3,7 @@
   bhNodeID="idReturnStat"
   name="ReturnStat"
   nodeStyleID="ReturnStat.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onCutRequested="OnCutRequested.js"

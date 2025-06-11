@@ -3,6 +3,7 @@
   bhNodeID="idStrRowChainLinkExp"
   name="StrChainLinkExp"
   nodeStyleID="StrRowChainLinkExp.json"
+  breakpoint="specifyParent"
   onChildReplaced="OnChildStrExpInChainReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

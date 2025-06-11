@@ -3,6 +3,7 @@
   bhNodeID="idNewLine"
   name="NewLine"
   nodeStyleID="NewLine.json"
+  breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
@@ -17,6 +18,7 @@
         type="text"
         bhNodeID="idNewLine.node0"
         name="LineFeed"
+        breakpoint="specifyParent"
         initialText="('\n')"
         version="bhn-1.0.0"/>
     </Connector>

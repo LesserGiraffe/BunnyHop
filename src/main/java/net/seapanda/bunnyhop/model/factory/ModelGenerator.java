@@ -65,7 +65,8 @@ public class ModelGenerator {
         attributes.name(),
         attributes.nodeStyleId(),
         attributes.version(),
-        !attributes.onCompanionNodesCreating().isEmpty());
+        !attributes.onCompanionNodesCreating().isEmpty(),
+        attributes.breakpointSetting());
     registerEventHandlers(attributes);
     return new ConnectiveNode(
         params,
@@ -85,7 +86,8 @@ public class ModelGenerator {
         attributes.name(),
         attributes.nodeStyleId(),
         attributes.version(),
-        !attributes.onCompanionNodesCreating().isEmpty());
+        !attributes.onCompanionNodesCreating().isEmpty(),
+        attributes.breakpointSetting());
     registerEventHandlers(attributes);
     return new TextNode(
         params,

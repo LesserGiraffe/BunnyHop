@@ -3,6 +3,7 @@
   bhNodeID="idAnyArrayReverseStat"
   name="AnyArrayReverseStat"
   nodeStyleID="AnyArrayReverseStat.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"

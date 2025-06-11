@@ -33,6 +33,7 @@ import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeParameters;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeVersion;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeViewStyleId;
+import net.seapanda.bunnyhop.model.node.parameter.BreakpointSetting;
 import net.seapanda.bunnyhop.model.node.parameter.DerivationId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
@@ -190,6 +191,11 @@ public abstract class BhNode extends SyntaxSymbol {
   /** このノードのスタイル ID を取得する. */
   public BhNodeViewStyleId getStyleId() {
     return params.styleId();
+  }
+
+  /** ブレークポイントが指定された時の設定を取得する. */
+  public BreakpointSetting getBreakpointSetting() {
+    return params.breakpointSetting();
   }
 
   /** このノードのバージョンを取得する. */

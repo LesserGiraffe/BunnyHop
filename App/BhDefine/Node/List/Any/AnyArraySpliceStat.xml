@@ -3,6 +3,7 @@
   bhNodeID="idAnyArraySpliceStat"
   name="AnyArraySpliceStat"
   nodeStyleID="AnyArraySpliceStat.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
@@ -40,6 +41,7 @@
         bhNodeID="idAnyArraySpliceStat.node3"
         name="Function"
         nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateListSpliceOps.js"
         version="bhn-1.0.0"/>
     </Connector>

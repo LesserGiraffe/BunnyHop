@@ -3,6 +3,7 @@
   bhNodeID="idPositiveIntLiteralExp"
   name="NumLiteralExp"
   nodeStyleID="NumLiteralExp.json"
+  breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
@@ -18,6 +19,7 @@
         bhNodeID="idPositiveIntLiteral"
         name="NumLiteral"
         nodeStyleID="NumLiteral.json"
+        breakpoint="specifyParent"
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckPositiveIntFormat.js"
         initialText="1"

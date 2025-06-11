@@ -3,6 +3,7 @@
   bhNodeID="idStrVar"
   name="StrVar"
   nodeStyleID="StrVar.json"
+  breakpoint="ignore"
   onCompileErrorChecking="IsOutOfScope.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

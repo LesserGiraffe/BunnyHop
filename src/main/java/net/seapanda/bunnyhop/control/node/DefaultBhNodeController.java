@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.SequencedSet;
-import javafx.event.Event;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -39,6 +38,7 @@ import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.Trashbox;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeView.MouseEventInfo;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
@@ -85,10 +85,10 @@ public class DefaultBhNodeController implements BhNodeController {
 
   private void setViewEventHandlers() {
     BhNodeView.CallbackRegistry registry = view.getCallbackRegistry();
-    registry.getOnMousePressed().setFirst(info -> onMousePressed(info.event()));
-    registry.getOnMouseDragged().setFirst(info -> onMouseDragged(info.event()));
-    registry.getOnMouseDragDetected().setFirst(info -> onMouseDragDetected(info.event()));
-    registry.getOnMouseReleased().setLast(info -> onMouseReleased(info.event()));
+    registry.getOnMousePressed().setFirst(this::onMousePressed);
+    registry.getOnMouseDragged().setFirst(this::onMouseDragged);
+    registry.getOnMouseDragDetected().setFirst(this::onMouseDragDetected);
+    registry.getOnMouseReleased().setLast(this::onMouseReleased);
   }
 
   private void setNodeEventHandlers() {
@@ -104,7 +104,8 @@ public class DefaultBhNodeController implements BhNodeController {
   }
 
   /** マウスボタン押下時の処理. */
-  private void onMousePressed(MouseEvent event) {
+  private void onMousePressed(BhNodeView.MouseEventInfo info) {
+    MouseEvent event = info.event();
     try {
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
@@ -113,7 +114,7 @@ public class DefaultBhNodeController implements BhNodeController {
       ddInfo.isDndFinished = false;
       if (!model.isMovable()) {
         ddInfo.forwardEvent = true;
-        dispatchEvent(model.findParentNode(), event);
+        dispatchEvent(model.findParentNode(), info);
         return;
       }
       view.getWorkspaceView().getRootNodeViews().forEach(
@@ -132,13 +133,14 @@ public class DefaultBhNodeController implements BhNodeController {
   }
 
   /** マウスドラッグ時の処理. */
-  private void onMouseDragged(MouseEvent event) {
+  private void onMouseDragged(MouseEventInfo info) {
+    MouseEvent event = info.event();
     try {
       if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
         return;
       }
       if (ddInfo.forwardEvent) {
-        dispatchEvent(model.findParentNode(), event);
+        dispatchEvent(model.findParentNode(), info);
         return;
       }
       if (event.isShiftDown()) {
@@ -164,13 +166,14 @@ public class DefaultBhNodeController implements BhNodeController {
    * マウスドラッグを検出した時の処理.
    * 先に {@code onMouseDragged} が呼ばれ, ある程度ドラッグしたときにこれが呼ばれる.
    */
-  private void onMouseDragDetected(MouseEvent event) {
+  private void onMouseDragDetected(MouseEventInfo info) {
+    MouseEvent event = info.event();
     try {
       if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
         return;
       }
       if (ddInfo.forwardEvent) {
-        dispatchEvent(model.findParentNode(), event);
+        dispatchEvent(model.findParentNode(), info);
         return;
       }
       if (event.isShiftDown()) {
@@ -190,14 +193,15 @@ public class DefaultBhNodeController implements BhNodeController {
   }
 
   /** マウスボタンを離したときの処理. */
-  private void onMouseReleased(MouseEvent event) {
+  private void onMouseReleased(MouseEventInfo info) {
+    MouseEvent event = info.event();
     if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
       // 余分に D&D の終了処理をしてしまうので terminateDnd を呼ばないこと.
       return;
     }
     try {
       if (ddInfo.forwardEvent) {
-        dispatchEvent(model.findParentNode(), event);
+        dispatchEvent(model.findParentNode(), info);
         ddInfo.forwardEvent = false;
         return;
       }
@@ -376,12 +380,12 @@ public class DefaultBhNodeController implements BhNodeController {
    * {@code node} に対応するビューに {@code event} を送る.
    *
    * @param node このノードのビューにイベントを送る
-   * @param event {@code node} に送るイベント
+   * @param info {@code node} に送るイベント
    */
-  private static void dispatchEvent(BhNode node, Event event) {
+  private static void dispatchEvent(BhNode node, BhNodeView.MouseEventInfo info) {
     Optional.ofNullable(node)
         .flatMap(BhNode::getView)
-        .ifPresent(view -> view.getCallbackRegistry().dispatch(event));
+        .ifPresent(view -> view.getCallbackRegistry().forward(info));
   }
 
   /** D&D を終えたときの処理. */

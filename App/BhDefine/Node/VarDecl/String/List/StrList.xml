@@ -3,6 +3,7 @@
   bhNodeID="idStrList"
   name="StrList"
   nodeStyleID="StrList.json"
+  breakpoint="ignore"
   onCompileErrorChecking="IsOutOfScope.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

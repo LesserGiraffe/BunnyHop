@@ -3,6 +3,7 @@
   bhNodeID="idBinaryColorExp"
   name="BinaryColorExp"
   nodeStyleID="BinaryColorExp.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
@@ -21,6 +22,7 @@
         bhNodeID="idBinaryColorExp.node1"
         name="BinaryColorOpe"
         nodeStyleID="DefaultComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateAddSubOps.js"
         version="bhn-1.0.0"/>
     </Connector>

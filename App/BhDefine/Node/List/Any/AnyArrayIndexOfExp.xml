@@ -3,6 +3,7 @@
   bhNodeID="idAnyArrayIndexOfExp"
   name="AnyArrayIndexOfExp"
   nodeStyleID="AnyArrayIndexOfExp.json"
+  breakpoint="ignore"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
@@ -23,6 +24,7 @@
         bhNodeID="idAnyArrayIndexOfExp.node1"
         name="Position"
         nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateArrayIndexOfOps.js"
         version="bhn-1.0.0"/>
     </Connector>

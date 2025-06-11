@@ -3,6 +3,7 @@
   bhNodeID="idSayStat"
   name="SayStat"
   nodeStyleID="SayStat.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"

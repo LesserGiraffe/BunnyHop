@@ -3,6 +3,7 @@
   bhNodeID="idFourArithExp"
   name="FourArithExp"
   nodeStyleID="FourArithExp.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
@@ -21,6 +22,7 @@
         bhNodeID="idFourArithExp.node1"
         name="FourArithOpe"
         nodeStyleID="DefaultComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateFourArithOps.js"
         version="bhn-1.0.0"/>
     </Connector>

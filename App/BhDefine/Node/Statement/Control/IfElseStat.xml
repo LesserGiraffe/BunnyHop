@@ -3,6 +3,7 @@
   bhNodeID="idIfElseStat"
   name="IfElseStat"
   nodeStyleID="IfElseStat.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"

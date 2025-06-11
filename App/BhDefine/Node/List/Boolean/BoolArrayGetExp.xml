@@ -3,6 +3,7 @@
   bhNodeID="idBoolArrayGetExp"
   name="BoolArrayGetExp"
   nodeStyleID="BoolArrayGetExp.json"
+  breakpoint="ignore"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

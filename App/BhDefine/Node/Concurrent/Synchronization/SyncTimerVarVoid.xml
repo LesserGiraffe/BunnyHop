@@ -3,6 +3,7 @@
   bhNodeID="idSyncTimerVarVoid" 
   name="SyncTimerVarVoid" 
   nodeStyleID="SyncTimerVarVoid.json"
+  breakpoint="ignore"
   initialText="_syncTimer.nil"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"

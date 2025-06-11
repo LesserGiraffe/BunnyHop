@@ -3,6 +3,7 @@
   bhNodeID="idScaleSoundLiteral"
   name="ScaleSoundLiteral"
   nodeStyleID="ScaleSoundLiteral.json"
+  breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onCreatedAsTemplate="OnSoundLiteralCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"
@@ -29,6 +30,7 @@
         bhNodeID="idScaleSoundLiteral.node2"
         name="NumLiteral"
         nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateOctave.js"
         version="bhn-1.0.0"/>
     </Connector>
@@ -42,6 +44,7 @@
         bhNodeID="idScaleSoundLiteral.node3"
         name="NumLiteral"
         nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateMusicalScale.js"
         version="bhn-1.0.0"/>
     </Connector>

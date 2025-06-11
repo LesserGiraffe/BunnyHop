@@ -3,6 +3,7 @@
   bhNodeID="idAnyArrayLengthExp"
   name="AnyArrayLengthExp"
   nodeStyleID="AnyArrayLengthExp.json"
+  breakpoint="ignore"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

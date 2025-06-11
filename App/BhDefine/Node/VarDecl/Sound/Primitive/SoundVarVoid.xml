@@ -3,6 +3,7 @@
   bhNodeID="idSoundVarVoid"
   name="SoundVarVoid"
   nodeStyleID="SoundVarVoid.json"
+  breakpoint="ignore"
   onMovedFromChildToWS="DeleteNode.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0"/>

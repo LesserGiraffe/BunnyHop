@@ -3,6 +3,7 @@
   bhNodeID="idNotExp"
   name="NotExp"
   nodeStyleID="NotExp.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 

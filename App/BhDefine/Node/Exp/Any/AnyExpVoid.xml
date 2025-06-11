@@ -3,6 +3,7 @@
   bhNodeID="idAnyExpVoid"
   name="AnyExpVoid"
   nodeStyleID="AnyExpVoid.json"
+  breakpoint="ignore"
   initialText="_nil"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"

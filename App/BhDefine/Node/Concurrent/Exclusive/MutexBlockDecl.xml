@@ -3,6 +3,7 @@
   bhNodeID="idMutexBlockDecl"
   name="MutexBlockDecl"
   nodeStyleID="MutexBlockDecl.json"
+  breakpoint="ignore"
   onCompanionNodesCreating="CreateMutexBlockCompanions.js"
   onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
   onMovedFromWsToChild="OnGlobalDataDeclMovedToChild.js"
@@ -33,6 +34,7 @@
         bhNodeID="idMutexBlockDecl.node1"
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateMutexBlockOps.js"
         version="bhn-1.0.0">
       </Node>

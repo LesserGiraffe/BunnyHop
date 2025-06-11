@@ -3,6 +3,7 @@
   bhNodeID="idIdentifierName"
   name="IdentifierName"
   nodeStyleID="Identifier.json"
+  breakpoint="specifyParent"
   onTextChecking="CheckIdentifierFormat.js"
   onCreatedAsTemplate="OnIdentifierNameCreatedAsTeamplate.js"
   onAliasAsked="OnAliasAsked.js"

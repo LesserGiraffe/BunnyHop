@@ -3,6 +3,7 @@
   bhNodeID="idBoolLiteralExp"
   name="BoolLiteralExp"
   nodeStyleID="BoolLiteralExp.json"
+  breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
@@ -18,6 +19,7 @@
         bhNodeID="idBoolLiteralExp.node0"
         name="BoolLiteral"
         nodeStyleID="BoolLiteral.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateBoolLiteral.js"
         version="bhn-1.0.0"/>
     </Connector>

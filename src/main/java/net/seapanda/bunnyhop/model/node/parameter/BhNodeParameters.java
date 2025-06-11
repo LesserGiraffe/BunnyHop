@@ -35,4 +35,5 @@ public record BhNodeParameters(
     String name,
     BhNodeViewStyleId styleId,
     BhNodeVersion version,
-    boolean hasCompanionNodes) implements Serializable {}
+    boolean hasCompanionNodes,
+    BreakpointSetting breakpointSetting) implements Serializable {}

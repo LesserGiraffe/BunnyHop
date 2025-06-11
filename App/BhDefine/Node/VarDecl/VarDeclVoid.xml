@@ -3,6 +3,7 @@
   bhNodeID="idVarDeclVoid" 
   name="VarDeclVoid" 
   nodeStyleID="VarDeclVoid.json"
+  breakpoint="ignore"
   onMovedFromChildToWS="DeleteNode.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0"/>

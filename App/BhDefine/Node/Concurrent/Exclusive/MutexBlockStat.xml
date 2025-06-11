@@ -3,6 +3,7 @@
   bhNodeID="idMutexBlockStat"
   name="MutexBlockStat"
   nodeStyleID="MutexBlockStat.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"

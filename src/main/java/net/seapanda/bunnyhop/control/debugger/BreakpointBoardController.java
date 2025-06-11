@@ -16,10 +16,19 @@
 
 package net.seapanda.bunnyhop.control.debugger;
 
+
+import java.util.Optional;
+import java.util.function.Consumer;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.input.MouseButton;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
+import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.parameter.BreakpointSetting;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * ブレークポイントを表示する UI コンポーネントのコントローラ.
@@ -30,9 +39,69 @@ public class BreakpointBoardController {
 
   @FXML private ListView<String> bpListView;
   @FXML private WorkspaceSelectorController bpWsSelectorController;
+  private ToggleButton breakpointBtn;
+
+  /** マウスボタンが押されたときのイベントハンドラ. */
+  private Consumer<BhNodeView.MouseEventInfo> onMousePressed = this::toggleBreakpoint;
 
   /** 初期化する. */
   public void initialize(WorkspaceSet wss, Debugger debugger) {
     bpWsSelectorController.initialize(wss);
-  }  
+    wss.getCallbackRegistry().getOnNodeAdded().add(
+        event -> event.node().getView().ifPresent(this::addEventHandlerTo));
+    wss.getCallbackRegistry().getOnNodeRemoved().add(
+        event -> event.node().getView().ifPresent(this::removeEventHandlerFrom));
+  }
+
+  /** ブレークポイントの設定が有効かどうか調べる. */
+  private boolean isBreakpointSettingEnabled() {
+    if (breakpointBtn == null) {
+      breakpointBtn =
+          (ToggleButton) bpListView.getScene().lookup("#" + BhConstants.UiId.BREAKPOINT_BTN);
+    }
+    return breakpointBtn.isSelected();
+  }
+
+  /** ノードビューにイベントハンドラを設定する. */
+  private void addEventHandlerTo(BhNodeView view) {
+    view.getCallbackRegistry().getOnMousePressed().add(onMousePressed);
+  }
+
+  /** ノードビューからイベントハンドラを削除する. */
+  private void removeEventHandlerFrom(BhNodeView view) {
+    view.getCallbackRegistry().getOnMousePressed().remove(onMousePressed);
+  }
+
+  /** ブレークポイントの有効 / 無効を切り替える. */
+  private void toggleBreakpoint(BhNodeView.MouseEventInfo info) {
+    info.view();
+
+    if (isBreakpointSettingEnabled()
+        && info.src() == null
+        && info.event().getButton() == MouseButton.PRIMARY) {
+      info.view().getModel()
+          .flatMap(BreakpointBoardController::findNodeToSetBreakpointTo)
+          .flatMap(BhNode::getView)
+          .ifPresent(view -> view.getLookManager().setBreakpointVisibility(
+              !view.getLookManager().isBreakpointVisible()));
+    }
+  }
+
+  private static Optional<BhNode> findNodeToSetBreakpointTo(BhNode node) {
+    if (node == null) {
+      return Optional.empty();
+    }
+    while (true) {
+      if (node.getBreakpointSetting() == BreakpointSetting.SET) {
+        return Optional.of(node);
+      }
+      if (node.getBreakpointSetting() == BreakpointSetting.IGNORE) {
+        return Optional.empty();
+      }
+      if (node.getBreakpointSetting() == BreakpointSetting.SPECIFY_PARENT) {
+        return findNodeToSetBreakpointTo(node.findParentNode());
+      }
+      return Optional.empty();
+    }
+  }
 }

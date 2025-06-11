@@ -3,6 +3,7 @@
   bhNodeID="idSoundVarDecl"
   name="SoundVarDecl"
   nodeStyleID="SoundVarDecl.json"
+  breakpoint="ignore"
   onCompanionNodesCreating="CreateVarDeclCompanions.js"
   onMovedFromChildToWS="OnVarDeclMovedToWS.js"
   onMovedFromWsToChild="OnVarDeclMovedToChild.js"

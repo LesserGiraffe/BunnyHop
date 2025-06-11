@@ -3,6 +3,7 @@
   bhNodeID="idAnyArrayPushStat"
   name="AnyArrayPushStat"
   nodeStyleID="AnyArrayPushStat.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"

@@ -3,5 +3,6 @@
   bhNodeID="idArgVoid" 
   name="ArgVoid" 
   nodeStyleID="ArgVoid.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0"/>

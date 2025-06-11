@@ -23,6 +23,8 @@ import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeVersion;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeViewStyleId;
+import net.seapanda.bunnyhop.model.node.parameter.BreakpointSetting;
+import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.utility.textdb.TextDatabase;
 import org.w3c.dom.Element;
 
@@ -36,6 +38,7 @@ public record BhNodeAttributes(
     String name,
     BhNodeVersion version,
     BhNodeViewStyleId nodeStyleId,
+    BreakpointSetting breakpointSetting,
     String onMovedFromChildToWs,
     String onMovedFromWsToChild,
     String onChildReplaced,
@@ -73,6 +76,7 @@ public record BhNodeAttributes(
     String name = elem.getAttribute(BhConstants.BhModelDef.ATTR_NAME);
     BhNodeViewStyleId nodeStyleId = BhNodeViewStyleId.of(
         elem.getAttribute(BhConstants.BhModelDef.ATTR_NODE_STYLE_ID));
+    BreakpointSetting breakpointSetting = getBreakpointSetting(elem);
     String onMovedFromChildToWs =
         elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_MOVED_FROM_CHILD_TO_WS);
     String onMovedFromWsToChild =
@@ -102,6 +106,7 @@ public record BhNodeAttributes(
         name,
         version,
         nodeStyleId,
+        breakpointSetting,
         onMovedFromChildToWs,
         onMovedFromWsToChild,
         onChildReplaced,
@@ -136,5 +141,27 @@ public record BhNodeAttributes(
     }
 
     return value;
+  }
+
+  private static BreakpointSetting getBreakpointSetting(Element elem) {
+    String setting = elem.getAttribute(BhConstants.BhModelDef.ATTR_BREAKPOINT);
+    if (setting.isEmpty()) {
+      setting = BhConstants.BhModelDef.ATTR_VAL_SPECIFY_PARENT;
+    }
+    if (!setting.equals(BhConstants.BhModelDef.ATTR_VAL_SET)
+        && !setting.equals(BhConstants.BhModelDef.ATTR_VAL_IGNORE)
+        && !setting.equals(BhConstants.BhModelDef.ATTR_VAL_SPECIFY_PARENT)) {
+      LogManager.logger().error(String.format(
+          "The value of a '%s' attribute must be '%s', '%s' or '%s'.    '%s=%s' is ignored.\n%s",
+          BhConstants.BhModelDef.ATTR_BREAKPOINT,
+          BhConstants.BhModelDef.ATTR_VAL_SET,
+          BhConstants.BhModelDef.ATTR_VAL_IGNORE,
+          BhConstants.BhModelDef.ATTR_VAL_SPECIFY_PARENT,
+          BhConstants.BhModelDef.ATTR_FIXED,
+          setting,
+          elem.getOwnerDocument().getBaseURI()));
+      setting = BhConstants.BhModelDef.ATTR_VAL_SPECIFY_PARENT;
+    }
+    return BreakpointSetting.of(setting);
   }
 }

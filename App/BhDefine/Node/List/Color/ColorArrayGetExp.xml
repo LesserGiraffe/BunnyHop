@@ -3,6 +3,7 @@
   bhNodeID="idColorArrayGetExp"
   name="ColorArrayGetExp"
   nodeStyleID="ColorArrayGetExp.json"
+  breakpoint="ignore"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

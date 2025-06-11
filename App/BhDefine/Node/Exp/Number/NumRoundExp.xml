@@ -3,6 +3,7 @@
   bhNodeID="idNumRoundExp"
   name="NumRoundExp"
   nodeStyleID="NumRoundExp.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
@@ -22,6 +23,7 @@
         bhNodeID="idNumRoundExp.node1"
         name="NumRoundOpe"
         nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateNumRoundOps.js"
         version="bhn-1.0.0"/>
     </Connector>

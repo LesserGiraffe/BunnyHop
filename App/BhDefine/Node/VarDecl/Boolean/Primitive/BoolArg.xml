@@ -3,6 +3,7 @@
   bhNodeID="idBoolArg"
   name="BoolArg"
   nodeStyleID="BoolArg.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
     

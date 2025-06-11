@@ -214,13 +214,16 @@ public class BhConstants {
     public static final String ATTR_DETIVATION_ID = "derivationID";
     public static final String ATTR_DERIVATIVE_JOINT = "derivativeJoint";
     public static final String ATTR_IMPORT = "import";
-    public static final String ATTR_VALUE = "value";
+    public static final String ATTR_BREAKPOINT = "breakpoint";
     public static final String ATTR_VAL_TRUE = "true";
     public static final String ATTR_VAL_FALSE = "false";
     public static final String ATTR_VAL_DEFAULT_NODE_STYLE_ID = "";
     public static final String ATTR_VAL_TAG_REFER_TO_PARENT = "tagReferToParent";
     public static final String ATTR_VAL_CONNECTIVE = "connective";
     public static final String ATTR_VAL_TEXT = "text";
+    public static final String ATTR_VAL_SET = "set";
+    public static final String ATTR_VAL_IGNORE = "ignore";
+    public static final String ATTR_VAL_SPECIFY_PARENT = "specifyParent";
   }
 
   /** JavaScript のコードで使う識別子名. */
@@ -341,6 +344,7 @@ public class BhConstants {
     public static final String WS_SCROLL_PANE = "wsScrollPane";
     public static final String WORKSPACE_SET_TAB = "workspaceSetTab";
     public static final String BH_RUNTIME_ERR_MSG = "bhRuntimeErrMsg";
+    public static final String BREAKPOINT_BTN = "breakpointBtn";
   }
 
   /** CSS ファイルで使用されるキーワード. */

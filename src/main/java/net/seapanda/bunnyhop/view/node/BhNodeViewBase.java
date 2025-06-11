@@ -19,6 +19,8 @@ package net.seapanda.bunnyhop.view.node;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedSet;
@@ -919,41 +921,48 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   /** {@link BhNodeView} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistryBase implements CallbackRegistry {
 
-    /** このノードビュー上でマウスボタンが押下されたときのイベントハンドラを管理するオブジェクト. */
+    /** 関連するノードビュー上でマウスボタンが押下されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<MouseEventInfo> onMousePressedInvoker = new ConsumerInvoker<>();
 
-    /** このノードビューがドラッグされたときのイベントハンドラを管理するオブジェクト. */
+    /** 関連するノードビューがドラッグされたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<MouseEventInfo> onMouseDraggedInvoker = new ConsumerInvoker<>();
 
-    /** このノードビュー上でマウスのドラッグが検出されたときのイベントハンドラを管理するオブジェクト. */
+    /** 関連するノードビュー上でマウスのドラッグが検出されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<MouseEventInfo> onMouseDragDetectedInvoker =
         new ConsumerInvoker<>();
 
-    /** このノードビュー上でマウスボタンが離されたときのイベントハンドラを管理するオブジェクト. */
+    /** 関連するノードビュー上でマウスボタンが離されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<MouseEventInfo> onMouseReleasedInvoker = new ConsumerInvoker<>();
 
-    /** このノードビューの位置が変わったときのイベントハンドラを管理するオブジェクト. */
+    /** 関連するノードビューの位置が変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<MoveEvent> onMovedInvoker = new ConsumerInvoker<>();
 
-    /** このノードビューのサイズが変わったときのイベントハンドラを管理するオブジェクト. */
+    /** 関連するノードビューのサイズが変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<SizeChangedEvent> onSizeChangedInvoker = new ConsumerInvoker<>();
+
+    /** {@link #dispatch} で送られたイベントを区別するためのフラグ. */
+    private Deque<MouseEventInfo> eventStack = new LinkedList<>();
 
     /** コンストラクタ. */
     private CallbackRegistryBase() {
       shapes.nodeShape.setOnMousePressed(event -> {
-        onMousePressedInvoker.invoke(new MouseEventInfo(BhNodeViewBase.this, event));
+        onMousePressedInvoker.invoke(
+            new MouseEventInfo(BhNodeViewBase.this, event, eventStack.peekLast()));
         consume(event);
       });
       shapes.nodeShape.setOnMouseDragged(event -> {
-        onMouseDraggedInvoker.invoke(new MouseEventInfo(BhNodeViewBase.this, event));
+        onMouseDraggedInvoker.invoke(
+            new MouseEventInfo(BhNodeViewBase.this, event, eventStack.peekLast()));
         consume(event);
       });
       shapes.nodeShape.setOnDragDetected(event -> {
-        onMouseDragDetectedInvoker.invoke(new MouseEventInfo(BhNodeViewBase.this, event));
+        onMouseDragDetectedInvoker.invoke(
+            new MouseEventInfo(BhNodeViewBase.this, event, eventStack.peekLast()));
         consume(event);
       });
       shapes.nodeShape.setOnMouseReleased(event -> {
-        onMouseReleasedInvoker.invoke(new MouseEventInfo(BhNodeViewBase.this, event));
+        onMouseReleasedInvoker.invoke(
+            new MouseEventInfo(BhNodeViewBase.this, event, eventStack.peekLast()));
         consume(event);
       });
     }
@@ -992,6 +1001,28 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     public void dispatch(Event event) {
       shapes.nodeShape.fireEvent(event);
     }
+
+    @Override
+    public void forward(MouseEventInfo info) {
+      if (info == null) {
+        return;
+      }
+      eventStack.addLast(info);
+      shapes.nodeShape.fireEvent(info.event());
+      eventStack.removeLast();
+    }
+
+    /**
+     * 関連するノードビューにイベントを伝える.
+     * 
+     * <p>このメソッドでイベントを伝えたとき, イベントハンドラに渡される
+     * {@link BhNodeView.EventInfo} の {@code isDispatched} は false となる.
+     *
+     * @param event 関連するノードビューに伝えるイベント
+     */
+    // protected void forward(Event event) {
+    //   shapes.nodeShape.fireEvent(event);
+    // }
 
     /** ノードビューの位置が変わったときのイベントハンドラを呼び出す. */
     private void onMoved() {

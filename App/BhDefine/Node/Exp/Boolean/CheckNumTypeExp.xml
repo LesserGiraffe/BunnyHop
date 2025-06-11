@@ -3,6 +3,7 @@
   bhNodeID="idCheckNumTypeExp"
   name="CheckNumTypeExp"
   nodeStyleID="CheckNumTypeExp.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
@@ -22,6 +23,7 @@
         type="text"
         name="Function"
         nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateNumTypeCheckOps.js"
         version="bhn-1.0.0"/>
     </Connector>

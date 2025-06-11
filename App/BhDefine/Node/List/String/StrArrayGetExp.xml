@@ -3,6 +3,7 @@
   bhNodeID="idStrArrayGetExp"
   name="StrArrayGetExp"
   nodeStyleID="StrArrayGetExp.json"
+  breakpoint="ignore"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

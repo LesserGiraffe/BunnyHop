@@ -3,6 +3,7 @@
   bhNodeID="idOutArgTestExp"
   name="OutArgTestExp"
   nodeStyleID="OutArgTestExp.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
@@ -17,6 +18,7 @@
         bhNodeID="idOutArgTestExp.node0"
         name="OutArgTest"
         nodeStyleID="L1.json"
+        breakpoint="specifyParent"
         initialText="OutArgTest"
         version="bhn-1.0.0"/>
     </Connector>

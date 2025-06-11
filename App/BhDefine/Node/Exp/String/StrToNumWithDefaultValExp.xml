@@ -3,6 +3,7 @@
   bhNodeID="idStrToNumWithDefaultValExp"
   name="StrToNumWithDefaultValExp"
   nodeStyleID="StrToNumWithDefaultValExp.json"
+  breakpoint="ignore"
   onCreatedAsTemplate="OnStrToNumExpCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

@@ -3,6 +3,7 @@
   bhNodeID="idAnyArrayCompExp"
   name="AnyArrayCompExp"
   nodeStyleID="AnyArrayCompExp.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
@@ -22,6 +23,7 @@
         bhNodeID="idAnyArrayCompExp.node1"
         name="StrLiteral"
         nodeStyleID="DefaultComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateEqualityCompOps.js"
         version="bhn-1.0.0"/>
     </Connector>

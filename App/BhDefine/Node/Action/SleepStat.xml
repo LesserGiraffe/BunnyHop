@@ -3,6 +3,7 @@
   bhNodeID="idSleepStat"
   name="SleepStat"
   nodeStyleID="SleepStat.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"

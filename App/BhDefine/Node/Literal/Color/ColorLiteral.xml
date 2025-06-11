@@ -3,6 +3,7 @@
   bhNodeID="idColorLiteralExp"
   name="ColorLiteralExp"
   nodeStyleID="ColorLiteralExp.json"
+  breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
@@ -18,6 +19,7 @@
         bhNodeID="idColorLiteralExp.node0"
         name="ColorLiteral"
         nodeStyleID="ColorLiteral.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateColorLiteral.js"
         version="bhn-1.0.0"/>
     </Connector>

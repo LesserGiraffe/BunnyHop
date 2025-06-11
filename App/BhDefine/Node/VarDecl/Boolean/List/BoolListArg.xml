@@ -3,6 +3,7 @@
   bhNodeID="idBoolListArg"
   name="BoolListArg"
   nodeStyleID="BoolListArg.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 

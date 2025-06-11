@@ -3,6 +3,7 @@
   bhNodeID="idWhileStat"
   name="WhileStat"
   nodeStyleID="WhileStat.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"

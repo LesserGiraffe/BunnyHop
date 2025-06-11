@@ -3,5 +3,6 @@
   bhNodeID="idMelodyExpVoid"
   name="MelodyExpVoid"
   nodeStyleID="MelodyExpVoid.json"
+  breakpoint="specifyParent"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0"/>

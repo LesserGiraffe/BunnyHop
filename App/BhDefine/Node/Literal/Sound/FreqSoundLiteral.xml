@@ -3,6 +3,7 @@
   bhNodeID="idFreqSoundLiteral"
   name="FreqSoundLiteral"
   nodeStyleID="FreqSoundLiteral.json"
+  breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onCreatedAsTemplate="OnSoundLiteralCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"

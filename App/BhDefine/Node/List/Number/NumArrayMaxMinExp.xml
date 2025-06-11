@@ -3,6 +3,7 @@
   bhNodeID="idNumArrayMaxMinExp"
   name="NumArrayMaxMinExp"
   nodeStyleID="NumArrayMaxMinExp.json"
+  breakpoint="ignore"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
@@ -28,6 +29,7 @@
         bhNodeID="idNumArrayMaxMinExp.node2"
         name="MaxMinOpe"
         nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateListMaxMinOps.js"
         version="bhn-1.0.0"/>
     </Connector>

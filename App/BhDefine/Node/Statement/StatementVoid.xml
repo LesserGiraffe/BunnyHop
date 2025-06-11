@@ -3,6 +3,7 @@
   bhNodeID="idVoidStat" 
   name="VoidStat" 
   nodeStyleID="VoidStat.json"
+  breakpoint="ignore"
   onMovedFromChildToWS="DeleteNode.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0"/>

@@ -3,6 +3,7 @@
   bhNodeID="idKeyPressedEvent"
   name="KeyPressedEvent"
   nodeStyleID="KeyPressedEvent.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
@@ -17,6 +18,7 @@
         bhNodeID="idKeyPressedEvent.node0"
         name="KeyCode"
         nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateKeyPressedEvents.js"
         version="bhn-1.0.0"/>
     </Connector>

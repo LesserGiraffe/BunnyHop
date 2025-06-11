@@ -3,6 +3,7 @@
   bhNodeID="idDetectColorExp"
   name="DetectColorExp"
   nodeStyleID="DetectColorExp.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 

@@ -3,6 +3,7 @@
   bhNodeID="idVoidFuncCall"
   name="VoidFuncCall"
   nodeStyleID="VoidFuncCall.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"

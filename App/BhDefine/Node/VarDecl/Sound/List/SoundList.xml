@@ -3,6 +3,7 @@
   bhNodeID="idSoundList"
   name="SoundList"
   nodeStyleID="SoundList.json"
+  breakpoint="ignore"
   onCompileErrorChecking="IsOutOfScope.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

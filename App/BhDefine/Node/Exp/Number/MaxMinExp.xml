@@ -3,6 +3,7 @@
   bhNodeID="idMaxMinExp"
   name="MaxMinExp"
   nodeStyleID="MaxMinExp.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
@@ -27,6 +28,7 @@
         bhNodeID="idMaxMinExp.node2"
         name="MaxMinOpe"
         nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateMaxMinOps.js"
         version="bhn-1.0.0"/>
     </Connector>

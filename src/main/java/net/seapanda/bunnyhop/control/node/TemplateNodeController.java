@@ -31,6 +31,7 @@ import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeView.MouseEventInfo;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 
 /**
@@ -86,16 +87,17 @@ public class TemplateNodeController implements BhNodeController {
   /** 各種イベントハンドラをセットする. */
   private void setEventHandlers() {
     BhNodeView.CallbackRegistry registry = view.getCallbackRegistry();
-    registry.getOnMousePressed().setFirst(info -> onMousePressed(info.event()));
-    registry.getOnMouseDragged().setFirst(info -> onMouseDragged(info.event()));
-    registry.getOnMouseDragDetected().setFirst(info -> onMouseDragDetected(info.event()));
-    registry.getOnMouseReleased().setLast(info -> onMouseReleased(info.event()));
+    registry.getOnMousePressed().setFirst(this::onMousePressed);
+    registry.getOnMouseDragged().setFirst(this::onMouseDragged);
+    registry.getOnMouseDragDetected().setFirst(this::onMouseDragDetected);
+    registry.getOnMouseReleased().setLast(this::onMouseReleased);
     model.getCallbackRegistry().getOnConnected().add(event -> replaceView(event.disconnected()));
   }
 
   /** マウスボタン押下時のイベントハンドラ. */
-  private void onMousePressed(MouseEvent event) {
+  private void onMousePressed(MouseEventInfo info) {
     try {
+      MouseEvent event = info.event();
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
@@ -112,7 +114,7 @@ public class TemplateNodeController implements BhNodeController {
       ddInfo.isDndFinished = false;
       Vec2D posOnWs = calcClickPosOnWs(event, currentWs);
       BhNodePlacer.moveToWs(currentWs, newNode, posOnWs.x, posOnWs.y, context.userOpe());
-      ddInfo.currentView.getCallbackRegistry().dispatch(event);
+      ddInfo.currentView.getCallbackRegistry().forward(info);
       nodeSelectionViewProxy.hideAll();
     } catch (Throwable e) {
       terminateDnd();
@@ -121,12 +123,13 @@ public class TemplateNodeController implements BhNodeController {
   }
 
   /** マウスドラッグ時のイベントハンドラ. */
-  private void onMouseDragged(MouseEvent event) {
+  private void onMouseDragged(MouseEventInfo info) {
     try {
+      MouseEvent event = info.event();
       if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
         return;
       }
-      ddInfo.currentView.getCallbackRegistry().dispatch(event);
+      ddInfo.currentView.getCallbackRegistry().forward(info);
     } catch (Throwable e) {
       terminateDnd();
       throw e;
@@ -134,12 +137,13 @@ public class TemplateNodeController implements BhNodeController {
   }
 
   /** マウスドラッグ検出検出時のイベントハンドラ. */
-  private void onMouseDragDetected(MouseEvent event) {
+  private void onMouseDragDetected(MouseEventInfo info) {
     try {
+      MouseEvent event = info.event();
       if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
         return;
       }
-      ddInfo.currentView.getCallbackRegistry().dispatch(event);
+      ddInfo.currentView.getCallbackRegistry().forward(info);
     } catch (Throwable e) {
       terminateDnd();
       throw e;
@@ -147,14 +151,15 @@ public class TemplateNodeController implements BhNodeController {
   }
 
   /** マウスボタンを離したときのイベントハンドラ. */
-  private void onMouseReleased(MouseEvent event) {
+  private void onMouseReleased(MouseEventInfo info) {
+    MouseEvent event = info.event();
     if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
       // 余分に D&D の終了処理をしてしまうので terminateDnd を呼ばないこと.
       return;
     }
 
     try {
-      ddInfo.currentView.getCallbackRegistry().dispatch(event);
+      ddInfo.currentView.getCallbackRegistry().forward(info);
     } finally {
       terminateDnd();
     }

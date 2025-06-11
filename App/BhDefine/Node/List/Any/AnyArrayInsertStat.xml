@@ -3,6 +3,7 @@
   bhNodeID="idAnyArrayInsertStat"
   name="AnyArrayInsertStat"
   nodeStyleID="AnyArrayInsertStat.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"

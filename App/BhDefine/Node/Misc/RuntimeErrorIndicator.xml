@@ -3,6 +3,7 @@
   bhNodeID="idRuntimeErrorIndicator"
   name="RuntimeErrorIndicator"
   nodeStyleID="RuntimeErrorIndicator.json"
+  breakpoint="ignore"
   onDeletionRequested="RejectDeletion.js"
   onCutRequested="RejectCut.js"
   onCopyRequested="RejectCopy.js"
@@ -19,6 +20,7 @@
         type="text"
         bhNodeID="idRuntimeErrorIndicator.node0"
         name="Error"
+        breakpoint="specifyParent"
         nodeStyleID="L2.json"
         version="bhn-1.0.0"/>
     </Connector>
@@ -31,6 +33,7 @@
         type="text"
         bhNodeID="idRuntimeErrorIndicator.node1"
         name="ErrorDetails"
+        breakpoint="specifyParent"
         nodeStyleID="DefaultTextArea.json"
         version="bhn-1.0.0"/>
     </Connector>

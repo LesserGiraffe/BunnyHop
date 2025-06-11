@@ -3,6 +3,7 @@
   bhNodeID="idMeasureDistanceExp"
   name="MeasureDistanceExp"
   nodeStyleID="MeasureDistanceExp.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 

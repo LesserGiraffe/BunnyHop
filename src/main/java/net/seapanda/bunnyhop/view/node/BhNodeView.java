@@ -421,9 +421,16 @@ public interface BhNodeView extends NodeViewComponent {
     /**
      * 関連するノードビューにイベントを伝える.
      *
-     * @param event 関連するノードビューに伝えるイベント
+     * @param event 伝えるイベント
      */
     void dispatch(Event event);
+
+    /**
+     * イベントを関連するノードビューに転送する.
+     *
+     * @param event 転送するイベント
+     */
+    void forward(MouseEventInfo event);
   }
 
   /**
@@ -431,8 +438,11 @@ public interface BhNodeView extends NodeViewComponent {
    *
    * @param view マウスで操作されたノードビュー
    * @param event マウス操作の情報を格納したオブジェクト
+   * @param src このイベントが {@link CallbackRegistry#forward} により発生したものであった場合, 
+   *            元となったイベントが格納される.
+   *            元となったイベントが存在しない場合は null.
    */
-  record MouseEventInfo(BhNodeView view, MouseEvent event) {}
+  record MouseEventInfo(BhNodeView view, MouseEvent event, MouseEventInfo src) {}
 
   /**
    * ノードビューの位置が変更されたときの情報を格納したレコード.

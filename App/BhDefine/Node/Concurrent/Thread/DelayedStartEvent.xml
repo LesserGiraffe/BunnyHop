@@ -3,6 +3,7 @@
   bhNodeID="idDelayedStartEvent"
   name="DelayedStartEvent"
   nodeStyleID="DelayedStartEvent.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
@@ -17,6 +18,7 @@
         bhNodeID="idDelayedStartEvent.node0"
         name="DelayTime"
         nodeStyleID="FixedNumLiteral.json"
+        breakpoint="specifyParent"
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckNumFormat.js"
         initialText="1"

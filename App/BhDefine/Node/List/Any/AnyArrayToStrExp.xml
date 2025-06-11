@@ -3,6 +3,7 @@
   bhNodeID="idAnyArrayToStrExp"
   name="AnyArrayToStrExp"
   nodeStyleID="AnyArrayToStrExp.json"
+  breakpoint="ignore"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
@@ -22,6 +23,7 @@
         type="text"
         bhNodeID="idAnyArrayToStrExp.node1"
         name="StrLiteral"
+        breakpoint="specifyParent"
         version="bhn-1.0.0"/>
     </Connector>
 

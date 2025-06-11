@@ -3,6 +3,7 @@
   bhNodeID="idStrVarDecl"
   name="StrVarDecl"
   nodeStyleID="StrVarDecl.json"
+  breakpoint="ignore"
   onCompanionNodesCreating="CreateVarDeclCompanions.js"
   onMovedFromChildToWS="OnVarDeclMovedToWS.js"
   onMovedFromWsToChild="OnVarDeclMovedToChild.js"

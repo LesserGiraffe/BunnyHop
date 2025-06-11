@@ -3,6 +3,7 @@
   bhNodeID="idVoidFuncDef"
   name="VoidFuncDef"
   nodeStyleID="VoidFuncDef.json"
+  breakpoint="ignore"
   onCompanionNodesCreating="CreateVoidFuncCompanions.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

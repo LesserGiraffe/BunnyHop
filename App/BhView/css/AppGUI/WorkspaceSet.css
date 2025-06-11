@@ -49,7 +49,7 @@
 }
 
 .flatButton:selected {
-  -fx-background-color: #5c74b6;
+  -fx-background-color: #398dee;
   -fx-text-fill: white;
 }
 

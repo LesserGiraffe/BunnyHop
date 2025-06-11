@@ -18,15 +18,16 @@
     <Rem fx:id="undoRedoSize" rem="2.0"/>
     <Rem fx:id="startSize" rem="2.0"/>
     <Rem fx:id="stopSize" rem="2.0"/>
+    <Rem fx:id="connectSize" rem="2.0"/>
+    <Rem fx:id="disconnectSize" rem="2.0"/>
     <Rem fx:id="focusSimSize" rem="2.0"/>
+    <Rem fx:id="breakpointSize" rem="2.0"/>
     <Rem fx:id="addWsSize" rem="2.0"/>
     <TextFetcher fx:id="copyText" textId="gui,menu-panel,copy"/>
     <TextFetcher fx:id="cutText" textId="gui,menu-panel,cut"/>
     <TextFetcher fx:id="pasteText" textId="gui,menu-panel,paste"/>
     <TextFetcher fx:id="deleteText" textId="gui,menu-panel,delete"/>
     <TextFetcher fx:id="jumpText" textId="gui,menu-panel,jump"/>
-    <TextFetcher fx:id="connectText" textId="gui,menu-panel,connect"/>
-    <TextFetcher fx:id="disconnectText" textId="gui,menu-panel,disconnect"/>
     <TextFetcher fx:id="localText" textId="gui,menu-panel,local"/>
     <TextFetcher fx:id="hostNameText" textId="gui,menu-panel,hostname"/>
     <TextFetcher fx:id="usernameText" textId="gui,menu-panel,username"/>
@@ -106,26 +107,48 @@
         </ImageView>
       </graphic>
     </Button>
-    <Button fx:id="terminateBtn" styleClass="flatButton">
+    <Button fx:id="terminateBtn" styleClass="flatButton"> <!-- 停止 -->
       <graphic>
         <ImageView>
           <Image url="@../images/stop.png" smooth="true" requestedWidth="$stopSize.rem" requestedHeight="$stopSize.rem"/>
         </ImageView>
       </graphic>
-    </Button> <!-- 停止 -->
-    
-    <Button text="$connectText.text" fx:id="connectBtn" styleClass="flatButton"/>
-    <Button text="$disconnectText.text" fx:id="disconnectBtn" styleClass="flatButton"/>
+    </Button>
+
+    <Button fx:id="connectBtn" styleClass="flatButton"> <!-- 接続 -->
+      <graphic>
+        <ImageView>
+          <Image url="@../images/connect.png" smooth="true" requestedWidth="$connectSize.rem" requestedHeight="$connectSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+    <Button fx:id="disconnectBtn" styleClass="flatButton"> <!-- 切断 -->
+      <graphic>
+        <ImageView>
+          <Image url="@../images/disconnect.png" smooth="true" requestedWidth="$disconnectSize.rem" requestedHeight="$disconnectSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+
     <Separator fx:id="menuPanelSeparator4" orientation="VERTICAL" styleClass="menuPanelSeparator"/>
-    <Button fx:id="focusSimBtn" styleClass="flatButton">
+    <Button fx:id="focusSimBtn" styleClass="flatButton"> <!-- シミュレータにフォーカス -->
       <graphic>
         <ImageView>
           <Image url="@../images/focusSimulator.png" smooth="true" requestedWidth="$focusSimSize.rem" requestedHeight="$focusSimSize.rem"/>
         </ImageView>
       </graphic>
-    </Button> <!-- シミュレータにフォーカス -->
+    </Button>
+
+    <Separator fx:id="menuPanelSeparator5" orientation="VERTICAL" styleClass="menuPanelSeparator"/>
+    <ToggleButton fx:id="breakpointBtn" styleClass="flatButton"> <!-- ブレークポイント -->
+      <graphic>
+        <ImageView>
+          <Image url="@../images/breakpoint.png" smooth="true" requestedWidth="$breakpointSize.rem" requestedHeight="$breakpointSize.rem"/>
+        </ImageView>
+      </graphic>
+    </ToggleButton>
   </FlowPane>
-  
+
   <FlowPane
     fx:id="menuPanelLower"
     styleClass="menuPanelFlowPane">

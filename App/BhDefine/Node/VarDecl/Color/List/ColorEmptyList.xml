@@ -3,6 +3,7 @@
   bhNodeID="idColorEmptyList"
   name="ColorEmptyList"
   nodeStyleID="ColorEmptyList.json"
+  breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

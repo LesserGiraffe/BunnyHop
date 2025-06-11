@@ -3,6 +3,7 @@
   bhNodeID="idModExp"
   name="ModExp"
   nodeStyleID="ModExp.json"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
@@ -26,6 +27,7 @@
         type="text"
         bhNodeID="idModExp.node2"
         name="ModOpe"
+        breakpoint="specifyParent"
         initialText="mod"
         version="bhn-1.0.0"/>
     </Connector>

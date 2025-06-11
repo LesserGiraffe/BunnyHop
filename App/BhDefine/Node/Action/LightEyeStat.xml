@@ -3,6 +3,7 @@
   bhNodeID="idLightEyeStat"
   name="LightEyeStat"
   nodeStyleID="LightEyeStat.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
@@ -22,6 +23,7 @@
         bhNodeID="idLightEyeStat.node0"
         name="StrLiteral"
         nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
         onTextOptionsCreating="CreateEyeOps.js"
         version="bhn-1.0.0">
       </Node>

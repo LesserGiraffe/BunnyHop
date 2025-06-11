@@ -3,6 +3,7 @@
   bhNodeID="idBoolEmptyList"
   name="BoolEmptyList"
   nodeStyleID="BoolEmptyList.json"
+  breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

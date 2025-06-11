@@ -3,6 +3,7 @@
   bhNodeID="idBoolVarDecl"
   name="BoolVarDecl"
   nodeStyleID="BoolVarDecl.json"
+  breakpoint="ignore"
   onCompanionNodesCreating="CreateVarDeclCompanions.js"
   onMovedFromChildToWS="OnVarDeclMovedToWS.js"
   onMovedFromWsToChild="OnVarDeclMovedToChild.js"

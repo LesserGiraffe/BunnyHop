@@ -3,6 +3,7 @@
   bhNodeID="idSyncTimerAwaitWithTimeoutStat"
   name="SyncTimerAwaitWithTimeoutStat"
   nodeStyleID="SyncTimerAwaitWithTimeoutStat.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"

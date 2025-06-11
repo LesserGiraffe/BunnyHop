@@ -3,6 +3,7 @@
   bhNodeID="idBoolVar"
   name="BoolVar"
   nodeStyleID="BoolVar.json"
+  breakpoint="ignore"
   onCompileErrorChecking="IsOutOfScope.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

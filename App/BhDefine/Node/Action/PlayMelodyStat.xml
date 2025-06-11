@@ -3,6 +3,7 @@
   bhNodeID="idPlayMelodyStat"
   name="PlayMelodyStat"
   nodeStyleID="PlayMelodyStat.json"
+  breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
@@ -27,6 +28,7 @@
         type="text"
         bhNodeID="idPlayMelodyStat.node1"
         name="BoolLiteral"
+        breakpoint="specifyParent"
         initialText="true"
         version="bhn-1.0.0"/>
     </Connector>
