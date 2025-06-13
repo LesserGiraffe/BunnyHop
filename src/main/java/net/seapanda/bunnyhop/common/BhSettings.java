@@ -35,17 +35,8 @@ public class BhSettings {
     public static AtomicBoolean focusOnStartBhProgram = new AtomicBoolean(true);
   }
 
-  
   /** Look & Feel. */
   public static class LnF {
-    /** ワークスペースのタブの最大サイズ. */
-    public static double maxWsTabSize = 32 * Rem.VAL;
-    /** ワークスペースのタブの最小サイズ. */
-    public static double minWsTabSize = 1 * Rem.VAL;
-    /** 検索ワードを入力するテキストフィールドの最小幅. */
-    public static double minSearchWordFieldWidth = 12 * Rem.VAL;
-    /** 検索ワードを入力するテキストフィールドの最大幅. */
-    public static double maxSearchWordFieldWidth = 60 * Rem.VAL;
     /** コールスタックに表示するデフォルトの最大要素数. */
     public static int maxCallStackItems = 32;
   }

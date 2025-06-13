@@ -62,7 +62,7 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
 
   @Override
   public WorkspaceView setMvc(Workspace ws, Vec2D size) throws ViewConstructionException {
-    WorkspaceView view = new FxmlWorkspaceView(ws, size.x, size.y, workspaceViewFilePath);
+    WorkspaceView view = new FxmlWorkspaceView(ws, size, workspaceViewFilePath, notifService);
     new WorkspaceController(
         ws,
         view,

@@ -50,8 +50,9 @@ import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import net.seapanda.bunnyhop.common.BhConstants;
-import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.common.Rem;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
@@ -112,21 +113,28 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   private int workspaceSizeLevel = 0;
   /** 最前面の Z 位置. */
   private double frontZpos = 0;
+  /** モデルへのアクセスの通知先となるオブジェクト. */
+  private final ModelAccessNotificationService notifService;
   private CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
 
   /**
    * コンストラクタ.
    *
    * @param workspace 管理するモデル.
-   * @param width ワークスペースビューの初期幅
-   * @param height ワークスペースビューの初期高さ
+   * @param size ワークスペースの初期サイズ
    * @param filePath ワークスペースビューが定義された fxml ファイルのパス
+   * @param service モデルへのアクセスの通知先となるオブジェクト
    */
-  public FxmlWorkspaceView(Workspace workspace, double width, double height, Path filePath)
+  public FxmlWorkspaceView(
+      Workspace workspace,
+      Vec2D size,
+      Path filePath,
+      ModelAccessNotificationService service)
       throws ViewConstructionException {
     Objects.requireNonNull(workspace);
     this.workspace = workspace;
-    minPaneSize = new Vec2D(width, height);
+    minPaneSize = new Vec2D(size);
+    this.notifService = service;
     configurGuiComponents(filePath);
     setEventHandlers();
     quadTreeMngForBody =
@@ -158,6 +166,8 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     wsScrollPane.addEventFilter(ScrollEvent.ANY, this::onScroll);
     setOnCloseRequest(cbRegistry::onCloseRequested);
     setOnClosed(cbRegistry::onClosed);
+    workspace.getCallbackRegistry().getOnNameChanged().add(
+        event -> setTabNameNotEditable(event.newName()));
     cbRegistry.setEventHandlers();
   }
 
@@ -205,20 +215,13 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     tabNameTextField.setMaxWidth(Region.USE_PREF_SIZE);
     tabNameTextField.setMinWidth(Region.USE_PREF_SIZE);
     tabNameTextField.setPrefWidth(1);
-    tabNameLabel.setMaxWidth(BhSettings.LnF.maxWsTabSize);
-    tabNameLabel.setMinWidth(BhSettings.LnF.minWsTabSize);
-
     tabNameTextField.textProperty().addListener((observable, oldVal, newVal) -> {
       updateTabNameWidth();
     });
-    tabNameTextField.setOnAction(event -> {
-      workspace.setName(tabNameTextField.getText());
-      setTabNameNotEditable(workspace.getName());      
-    });
+    tabNameTextField.setOnAction(event -> tabNameTextField.setVisible(false));
     tabNameTextField.focusedProperty().addListener((observable, oldValue, newValue) -> {
       if (!newValue) {
-        workspace.setName(tabNameTextField.getText());
-        setTabNameNotEditable(workspace.getName());      
+        changeWsName();
       }
     });
     tabNameLabel.setOnMouseClicked(event -> {
@@ -228,6 +231,16 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     });
 
     setTabNameNotEditable(workspace.getName());
+  }
+
+  /** ワークスペース名を {@link #tabNameTextField} のテキストに変更する. */
+  private void changeWsName() {
+    Context context = notifService.begin();
+    try {
+      workspace.setName(tabNameTextField.getText(), context.userOpe());
+    } finally {
+      notifService.end();  
+    }
   }
 
   /** タブ名の幅をその文字列に応じて変える. */
@@ -258,11 +271,11 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     tabNameLabel.setDisable(true);
   }
 
-  /** タブ名を編集不可能な状態にする. */
-  private void setTabNameNotEditable(String tabName) {
+  /** タブ名を {@code tabName} に変更した上で編集不可能な状態にする. */
+  private void setTabNameNotEditable(String name) {
     tabNameLabel.setVisible(true);
     tabNameLabel.setDisable(false);
-    tabNameLabel.setText(tabName);
+    tabNameLabel.setText(name);
     tabNameTextField.setVisible(false);
     tabNameTextField.setDisable(true);
     tabNameTextField.setText("");

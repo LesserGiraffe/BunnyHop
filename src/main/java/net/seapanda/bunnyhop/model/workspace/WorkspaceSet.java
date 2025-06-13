@@ -64,6 +64,7 @@ public class WorkspaceSet {
     registry.getOnNodeRemoved().add(cbRegistry.onNodeRemoved);
     registry.getOnRootNodeAdded().add(cbRegistry.onRootNodeAdded);
     registry.getOnRootNodeRemoved().add(cbRegistry.onRootNodeRemoved);
+    registry.getOnNameChanged().add(cbRegistry.onWsNamechanged);
     cbRegistry.onWsAddedInvoker.invoke(new WorkspaceAddedEvent(this, workspace, userOpe));
     userOpe.pushCmdOfAddWorkspace(workspace);
   }
@@ -86,6 +87,7 @@ public class WorkspaceSet {
     registry.getOnNodeRemoved().remove(cbRegistry.onNodeRemoved);
     registry.getOnRootNodeAdded().remove(cbRegistry.onRootNodeAdded);
     registry.getOnRootNodeRemoved().remove(cbRegistry.onRootNodeRemoved);
+    registry.getOnNameChanged().remove(cbRegistry.onWsNamechanged);
     cbRegistry.onWsRemovedInvoker.invoke(new WorkspaceRemovedEvent(this, workspace, userOpe));
     userOpe.pushCmdOfRemoveWorkspace(workspace, this);
   }
@@ -217,6 +219,10 @@ public class WorkspaceSet {
     private final ConsumerInvoker<CurrentWorkspaceChangedEvent> onCurrentWsChangedInvoker =
         new ConsumerInvoker<>();
 
+    /* 関連するワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<WorkspaceNameChangedEvent> onWsNameChangedInvoker =
+        new ConsumerInvoker<>();
+
     /** ノードの選択状態が変わったときのイベントハンドラ. */
     private final Consumer<? super Workspace.NodeSelectionEvent> onNodeSelectionStateChanged =
         this::onNodeSelectionStateChanged;
@@ -238,6 +244,10 @@ public class WorkspaceSet {
     /** 関連するワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラ. */
     private final Consumer<? super Workspace.RootNodeRemovedEvent> onRootNodeRemoved =
         this::onRootNodeRemoved;
+
+    /** 関連するワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラ. */
+    private final Consumer<? super Workspace.NameChangedEvent> onWsNamechanged =
+        this::onWsNameChanger;
 
     /**
      * 関連するワークスペースセット以下のノードの選択状態が変更されたときのイベントハンドラを
@@ -305,10 +315,18 @@ public class WorkspaceSet {
 
     /**
      * 関連するワークスペースセットで操作対象のワークスペースが変わったときのイベントハンドラを
-     * 登録 / 削除するためのイブジェクトを取得する.
+     * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<CurrentWorkspaceChangedEvent>.Registry getOnCurrentWorkspaceChanged() {
       return onCurrentWsChangedInvoker.getRegistry();
+    }
+
+    /**
+     * 関連するワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラを
+     * 登録 / 削除するためのオブジェクトを取得する.
+     */
+    public ConsumerInvoker<WorkspaceNameChangedEvent>.Registry getOnWorkspaceNameChanged() {
+      return onWsNameChangedInvoker.getRegistry();
     }
 
     /** ノードの選択状態に変化があった時のイベントハンドラを呼ぶ. */
@@ -354,6 +372,12 @@ public class WorkspaceSet {
     private void onRootNodeRemoved(Workspace.RootNodeRemovedEvent event) {
       onRootNodeRemovedInvoker.invoke(
           new RootNodeRemovedEvent(WorkspaceSet.this, event.ws(), event.node(), event.userOpe()));
+    }
+
+    /** 関連するワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラを呼ぶ */
+    private void onWsNameChanger(Workspace.NameChangedEvent event) {
+      onWsNameChangedInvoker.invoke(new WorkspaceNameChangedEvent(
+          WorkspaceSet.this, event.ws(), event.oldName(), event.newName()));
     }
   }
 
@@ -459,4 +483,15 @@ public class WorkspaceSet {
    * @param newWs 新しく操作対象となったワークスペース
    */
   public record CurrentWorkspaceChangedEvent(WorkspaceSet wss, Workspace oldWs, Workspace newWs) {}
+
+  /**
+   * ワークスペースの名前が変更されたときの情報を格納したレコード.
+   *
+   * @param wss 名前が変更されたワークスペースを含むワークスペースセット
+   * @param ws 名前が変更されたワークスペース
+   * @param oldName 変更前の名前
+   * @param newNmae 変更後の名前
+   */
+  public record WorkspaceNameChangedEvent(
+      WorkspaceSet wss, Workspace ws, String oldName, String newName) {}
 }

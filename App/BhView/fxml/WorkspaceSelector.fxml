@@ -9,5 +9,6 @@
 <VBox
   xmlns:fx="http://javafx.com/fxml"
   fx:controller="net.seapanda.bunnyhop.control.debugger.WorkspaceSelectorController">
+
   <ComboBox fx:id="wsComboBox"/>
 </VBox>

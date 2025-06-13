@@ -88,6 +88,12 @@ public class TextDefs {
       public static Getter unknown = params -> db.get(
           TextId.of("gui", "debugger", "call-stack", "unknown"), params);
     }
+
+    /** ワークスペース選択コンポーネントに表示されるテキスト. */
+    public static class WorkspaceSelector {
+      public static Getter allWs = params -> db.get(
+          TextId.of("gui", "debugger", "workspace-selector", "all-ws"), params);
+    }
   }
 
   /** プロジェクトのセーブに関するメッセージ. */

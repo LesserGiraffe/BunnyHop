@@ -63,6 +63,7 @@
   -fx-background-color: white;
 }
     
-.flatCheckBox:selected .box {    
+.flatCheckBox:selected .box {
+  -fx-font-family: "Meiryo UI";
   -fx-background-color: #398dee;
 }

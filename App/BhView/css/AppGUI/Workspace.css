@@ -9,4 +9,9 @@
   -fx-fill: rgba(255, 252, 107, 0.5);
 }
 
+#tabNameLabel {
+  -fx-min-width: 1em;
+  -fx-max-width: 32em;
+}
+
 

@@ -35,3 +35,7 @@
   -fx-font-family: "Meiryo UI";
   -fx-border-color: orange;
 }
+
+#wsComboBox {
+  -fx-max-width: 32em;
+}

@@ -24,13 +24,10 @@ import java.util.SequencedSet;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
-import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.ScrollBar;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.text.Font;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.utility.SimpleCache;
@@ -53,9 +50,7 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
 
   private ComboBox<SelectableItem<String, Object>> comboBox = new ComboBox<>();
   private final TextNode model;
-  private final ListCell<SelectableItem<String, Object>> buttonCell =
-      new ComboBoxNodeListCell(true);
-  private final MutableBoolean dragging = new MutableBoolean(false);
+  private final MutableBoolean dragging = new MutableBoolean();
   /** コネクタ部分を含まないノードサイズのキャッシュデータ. */
   private SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
   /** コネクタ部分を含むノードサイズのキャッシュデータ. */
@@ -74,7 +69,6 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
     this.model = model;
     setComponent(comboBox);
     initStyle();
-    setComboBoxEventHandlers();
   }
 
   /**
@@ -89,12 +83,14 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
   }
 
   private void initStyle() {
-    comboBox.setButtonCell(buttonCell);
     comboBox.getStyleClass().add(viewStyle.comboBox.cssClass);
     if (!comboBox.getItems().isEmpty()) {
       comboBox.setValue(comboBox.getItems().get(0));
     }
-    comboBox.setCellFactory(items -> new ComboBoxNodeListCell(false));
+    comboBox.addEventFilter(Event.ANY, this::forwardEvent);
+    comboBox.setButtonCell(new ComboBoxNodeListCell());
+    comboBox.setCellFactory(items -> new ComboBoxNodeListCell());
+    ViewUtil.enableAutoResize(comboBox, item -> item.getView().toString());
     getLookManager().addCssClass(BhConstants.Css.CLASS_COMBO_BOX_NODE);
   }
 
@@ -280,44 +276,6 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
     comboBox.setValue(item);
   }
 
-  /** コンボボックスの垂直スクロールバーを取得する. */
-  private ScrollBar getVerticalScrollbar() {
-    ScrollBar result = null;
-    for (Node node : buttonCell.getListView().lookupAll(".scroll-bar")) {
-      if (node instanceof ScrollBar) {
-        ScrollBar bar = (ScrollBar) node;
-        if (bar.getOrientation().equals(Orientation.VERTICAL)) {
-          result = bar;
-        }
-      }
-    }
-    return result;
-  }
-
-  /**
-   * 引数で指定した文字列のリストの最大幅を求める.
-   *
-   * @param items 文字列のリスト
-   * @param font 文字列の幅を求める際のフォント
-   * @return 引数で指定した文字列のリストの最大幅
-   */
-  private double calcMaxStrWidth(List<String> strList, Font font) {
-    double width = 0.0;
-    for (String str : strList) {
-      double strWidth = ViewUtil.calcStrWidth(str, font);
-      width = Math.max(width, strWidth);
-    }
-    return width;
-  }
-
-  /** コンボボックスに関連するイベントハンドラを設定する. */
-  private void setComboBoxEventHandlers() {
-    comboBox.addEventFilter(Event.ANY, this::forwardEvent);
-    comboBox.setOnShowing(event -> fitComboBoxWidthToListWidth());
-    comboBox.setOnHidden(event -> fitComboBoxWidthToContentWidth(
-        comboBox.getValue().getView().toString(), buttonCell.getFont()));
-  }
-
   private void forwardEvent(Event event) {
     BhNodeView view = (model == null) ? getTreeManager().getParentView() : this;
     if (view == null) {
@@ -335,28 +293,6 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
     }
   }
 
-  /** コンボボックスの幅を表示されているリストの幅に合わせる. */
-  private void fitComboBoxWidthToListWidth() {
-    List<String> itemTextList = new ArrayList<>();
-    comboBox.getItems().forEach(item -> itemTextList.add(item.getView().toString()));
-    double maxWidth = calcMaxStrWidth(itemTextList, buttonCell.fontProperty().get());
-    ScrollBar scrollBar = getVerticalScrollbar();
-    if (scrollBar != null) {
-      maxWidth += scrollBar.getWidth();
-    }
-    maxWidth += buttonCell.getInsets().getLeft() + buttonCell.getInsets().getRight();
-    maxWidth += buttonCell.getPadding().getLeft() + buttonCell.getPadding().getRight();
-    buttonCell.getListView().setPrefWidth(maxWidth);
-  }
-
-  /** コンボボックスの幅を表示されている文字の幅に合わせる. */
-  private void fitComboBoxWidthToContentWidth(String currentStr, Font font) {
-    double width = ViewUtil.calcStrWidth(currentStr, font);
-    width += buttonCell.getInsets().getLeft() + buttonCell.getInsets().getRight();
-    width += buttonCell.getPadding().getLeft() + buttonCell.getPadding().getRight();
-    buttonCell.getListView().setPrefWidth(width);
-  }
-
   @Override
   public void accept(NodeViewWalker visitor) {
     visitor.visit(this);
@@ -365,25 +301,11 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
   /** このノードビューが持つコンボボックスのアイテムの View. */
   private class ComboBoxNodeListCell extends ListCell<SelectableItem<String, Object>> {
 
-    private final boolean isButtonCell;
-    
-    /**
-     * コンストラクタ.
-     *
-     * @param isButtonCell コンボボックスのボタン領域の描画に使用する {@link ListCell} の場合 true
-     */
-    public ComboBoxNodeListCell(boolean isButtonCell) {
-      this.isButtonCell = isButtonCell;
-    }
-
     @Override
     protected void updateItem(SelectableItem<String, Object> item, boolean empty) {
       super.updateItem(item, empty);
       if (!empty && item != null) {
         setText(item.getView().toString());
-        if (isButtonCell) {
-          fitComboBoxWidthToContentWidth(item.getView().toString(), getFont());
-        }
       } else {
         setText(null);
       }

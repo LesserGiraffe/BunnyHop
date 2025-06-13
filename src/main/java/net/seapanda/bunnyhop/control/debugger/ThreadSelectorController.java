@@ -132,13 +132,13 @@ public class ThreadSelectorController {
       threadStatusText.pseudoClassStateChanged(pseudo, false);
       threadStatusText.setOnMousePressed(null);
 
-    } else if (context.errorOccured()) {
+    } else {
       errMsgTooltip.setText(truncateErrMsg(context.msg()));
       
       threadStatusText.setText("%s: %s".formatted(
           TextDefs.Debugger.ThreadStatus.status.get(), TextDefs.Debugger.ThreadStatus.error.get()));
       threadStatusText.pseudoClassStateChanged(pseudo, true);
-      threadStatusText.setOnMousePressed(event -> toggleErrToolTipVisibility());
+      threadStatusText.setOnMousePressed(event -> toggleErrTooltipVisibility());
     }
   }
 
@@ -159,7 +159,7 @@ public class ThreadSelectorController {
   }
 
   /** エラーメッセージの可視性を切り替える. */
-  private void toggleErrToolTipVisibility() {
+  private void toggleErrTooltipVisibility() {
     if (errMsgTooltip.isShowing()) {
       errMsgTooltip.hide(); 
     } else {

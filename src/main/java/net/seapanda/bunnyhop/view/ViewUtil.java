@@ -16,10 +16,15 @@
 
 package net.seapanda.bunnyhop.view;
 
+import java.util.function.Function;
 import javafx.application.Platform;
+import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
@@ -167,5 +172,76 @@ public class ViewUtil {
     } else {
       Platform.runLater(handler);
     }
+  }
+
+  /**
+   * {@code comboBox} のサイズをコンテンツに応じて自動的に変更するようにする.
+   *
+   * @param comboBox サイズの自動変更を有効にするコンボボックス
+   * @param fnConvertToStr コンボボックスのアイテムを引数にとり, それが表示されたときの文字列を返す関数オブジェクト
+   */
+  public static <T> void enableAutoResize(
+      ComboBox<? extends T> comboBox,
+      Function<? super T, ? extends String> fnConvertToStr) {
+    comboBox.setOnShowing(event -> fitComboBoxWidthToListWidth(comboBox, fnConvertToStr));
+    comboBox.setOnHidden(event -> fitComboBoxWidthToContentWidth(comboBox));
+    comboBox.getButtonCell().itemProperty().addListener((obs, oldWs, newWs) -> {
+      if (newWs != null) {
+        fitComboBoxWidthToContentWidth(comboBox);
+      }
+    });    
+  }
+
+  /**
+   * コンボボックスの幅を表示されているリストの幅に合わせる.
+   *
+   * @param comboBox 幅を操作するコンボボックス
+   * @param fnConvertToStr コンボボックスのアイテムを引数にとり, それが表示されたときの文字列を返す関数オブジェクト
+   */
+  private static <T> void fitComboBoxWidthToListWidth(
+      ComboBox<? extends T> comboBox,
+      Function<? super T, ? extends String> fnConvertToStr) {
+    ListCell<? extends T> buttonCell = comboBox.getButtonCell();
+    Font font = buttonCell.fontProperty().get();
+    double maxWidth = comboBox.getItems().stream()
+        .map(fnConvertToStr::apply)
+        .mapToDouble(str -> ViewUtil.calcStrWidth(str, font))
+        .max().orElse(0);
+    
+    ScrollBar scrollBar = getVerticalScrollbarOf(buttonCell.getListView());
+    if (scrollBar != null) {
+      maxWidth += scrollBar.getWidth();
+    }
+    maxWidth += buttonCell.getInsets().getLeft() + buttonCell.getInsets().getRight();
+    maxWidth += buttonCell.getPadding().getLeft() + buttonCell.getPadding().getRight();
+    buttonCell.getListView().setPrefWidth(maxWidth);
+    buttonCell.setMinWidth(maxWidth);
+  }
+
+  /**
+   * コンボボックスの幅を表示されている文字の幅に合わせる.
+   *
+   * @param comboBox 幅を操作するコンボボックス
+   */
+  private static void fitComboBoxWidthToContentWidth(ComboBox<?> comboBox) {
+    ListCell<?> buttonCell = comboBox.getButtonCell();
+    double width = ViewUtil.calcStrWidth(buttonCell.getText(), buttonCell.getFont());
+    width += buttonCell.getInsets().getLeft() + buttonCell.getInsets().getRight();
+    width += buttonCell.getPadding().getLeft() + buttonCell.getPadding().getRight();
+    buttonCell.getListView().setPrefWidth(width);
+    buttonCell.setMinWidth(width);
+  }
+
+  /** コンボボックスの垂直スクロールバーを取得する. */
+  private static ScrollBar getVerticalScrollbarOf(Node node) {
+    ScrollBar result = null;
+    for (Node content : node.lookupAll(".scroll-bar")) {
+      if (content instanceof ScrollBar bar) {
+        if (bar.getOrientation().equals(Orientation.VERTICAL)) {
+          result = bar;
+        }
+      }
+    }
+    return result;
   }
 }

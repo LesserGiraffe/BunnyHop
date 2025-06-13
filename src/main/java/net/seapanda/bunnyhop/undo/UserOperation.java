@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.function.Consumer;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.layout.Pane;
@@ -346,6 +347,15 @@ public class UserOperation {
    */
   public void pushCmdOfSetText(TextNode node, String oldText) {
     subOpeList.addLast(new SetTextCmd(node, oldText));
+  }
+
+  /**
+   * 特定の操作をコマンド化してサブ操作リストに加える.
+   *
+   * @param inverseCmd コマンド化した操作の逆の操作を行う関数オブジェクト.
+   */
+  public void pushCmd(Consumer<UserOperation> inverseCmd) {
+    subOpeList.addLast(new AnonymousCmd(inverseCmd));
   }
 
   /** {@link UserOperation} を構成するサブ操作. */
@@ -864,6 +874,27 @@ public class UserOperation {
     @Override
     public void doInverseOperation(UserOperation inverseCmd) {
       node.setText(oldText, inverseCmd);
+    }
+  }
+
+  /** 特定の操作の逆の操作を関数オブジェクトとして保持するクラス. */
+  private static class AnonymousCmd implements SubOperation {
+
+    /** 逆操作. */
+    private final Consumer<UserOperation> fnInvert;
+
+    /**
+     * コンストラクタ.
+     *
+     * @param fnInvert 逆操作を行う関数オブジェクト
+     */
+    public AnonymousCmd(Consumer<UserOperation> fnInvert) {
+      this.fnInvert = fnInvert;
+    }
+
+    @Override
+    public void doInverseOperation(UserOperation inverseCmd) {
+      fnInvert.accept(inverseCmd);
     }
   }
 }

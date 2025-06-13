@@ -16,3 +16,8 @@
 #caseSensitiveButton {
   -fx-padding: 0.2em 0.1em 0.2em 0.1em;
 }
+
+#searchWordField {
+  -fx-min-width: 12em;
+  -fx-max-width: 60em;
+}

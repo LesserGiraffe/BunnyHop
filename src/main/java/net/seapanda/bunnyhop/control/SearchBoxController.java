@@ -25,7 +25,6 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
-import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.view.ViewUtil;
 
 /**
@@ -53,10 +52,8 @@ public class SearchBoxController implements SearchBox {
    */
   public void initialize() {
     searchBoxViewBase.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-    searchWordField.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-    searchWordField.setPrefWidth(BhSettings.LnF.minSearchWordFieldWidth);
     searchWordField.textProperty().addListener(
-        (observable, oldVal, newVal) -> updateSearchWordFieldLength());
+        (obs, oldVal, newVal) -> updateSearchWordFieldLength());
     searchBoxCloseButton.setOnAction(event -> disable());
     findPrevButton.setOnAction(event -> onSearchRequested.accept(
         new Query(
@@ -81,8 +78,7 @@ public class SearchBoxController implements SearchBox {
     }
     // 正確な文字部分の境界を取得するため, GUI 部品内部の Text の境界は使わない.
     double newWidth = ViewUtil.calcStrWidth(textPart.getText(), textPart.getFont());
-    newWidth = Math.clamp(
-        newWidth, BhSettings.LnF.minSearchWordFieldWidth, BhSettings.LnF.maxSearchWordFieldWidth);
+    newWidth = Math.clamp(newWidth, searchWordField.getMinWidth(), searchWordField.getMaxWidth());
     // 幅を (文字幅 + パディング) にするとキャレットの移動時に文字が左右に移動するので定数 3 を足す.
     // この定数はフォントやパディングが違っても機能する.
     newWidth +=

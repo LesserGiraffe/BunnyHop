@@ -232,10 +232,14 @@ public class Workspace implements Serializable {
    * ワークスペース名を設定する.
    *
    * @param name 設定するワークスペース名
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void setName(String name) {
+  public void setName(String name, UserOperation userOpe) {
     name = (name == null) ? "" : name;
+    var oldName = this.name;
     this.name = name;
+    userOpe.pushCmd(ope -> setName(oldName, ope));
+    cbRegistry.onNameChangedInvoker.invoke(new NameChangedEvent(this, oldName, name));
   }
 
   /** このワークスペースに対応するビューを取得する. */
@@ -285,6 +289,10 @@ public class Workspace implements Serializable {
     private final ConsumerInvoker<RootNodeRemovedEvent> onRootNodeRemovedInvoker = 
         new ConsumerInvoker<>();
 
+    /** 関連するワークスペースの名前が変わったときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NameChangedEvent> onNameChangedInvoker =
+        new ConsumerInvoker<>();
+
     /** ノードがコネクタに接続されたときのイベントハンドラ. */
     private final Consumer<BhNode.ConnectionEvent> onNodeConnected =
         this::onNodeConnected;
@@ -331,6 +339,11 @@ public class Workspace implements Serializable {
      */
     public ConsumerInvoker<RootNodeRemovedEvent>.Registry getOnRootNodeRemoved() {
       return onRootNodeRemovedInvoker.getRegistry();
+    }
+
+    /** 関連するワークスペースの名前が変わったときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    public ConsumerInvoker<NameChangedEvent>.Registry getOnNameChanged() {
+      return onNameChangedInvoker.getRegistry();
     }
 
     /** 関連するワークスペースのノードが他のノードと入れ替わったときのイベントハンドラを呼び出す. */
@@ -419,9 +432,18 @@ public class Workspace implements Serializable {
   /**
    * ワークスペースのルートノード一式からルートノードが削除されたときの情報を格納したレコード.
    *
-   * @param ws ワークスペース上の {@code node} が非ルートノードとなった
+   * @param ws このワークスペースの {@code node} が非ルートノードとなった
    * @param node 非ルートノードとなったノード
    * @param userOpe undo 用コマンドオブジェクト
    */  
   public record RootNodeRemovedEvent(Workspace ws, BhNode node, UserOperation userOpe) {}
+
+  /**
+   * ワークスペース名が変わったときの情報を格納したレコード.
+   *
+   * @param ws 名前が変わったワークスペース
+   * @param oldName 変更前のワークスペース名
+   * @param newNmae 変更後のワークスペース名
+   */
+  public record NameChangedEvent(Workspace ws, String oldName, String newName) {}
 }
