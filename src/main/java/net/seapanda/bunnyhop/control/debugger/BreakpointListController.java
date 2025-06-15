@@ -20,6 +20,8 @@ package net.seapanda.bunnyhop.control.debugger;
 import java.util.Optional;
 import java.util.function.Consumer;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.MouseButton;
@@ -35,10 +37,12 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
  *
  * @author K.Koike
  */
-public class BreakpointBoardController {
+public class BreakpointListController {
 
   @FXML private ListView<String> bpListView;
   @FXML private WorkspaceSelectorController bpWsSelectorController;
+  @FXML private Button bpSearchButton;
+  @FXML private CheckBox bpJumpCheckBox;
   private ToggleButton breakpointBtn;
 
   /** マウスボタンが押されたときのイベントハンドラ. */
@@ -59,6 +63,7 @@ public class BreakpointBoardController {
       breakpointBtn =
           (ToggleButton) bpListView.getScene().lookup("#" + BhConstants.UiId.BREAKPOINT_BTN);
     }
+    bpListView.getItems().addLast(null);
     return breakpointBtn.isSelected();
   }
 
@@ -74,13 +79,11 @@ public class BreakpointBoardController {
 
   /** ブレークポイントの有効 / 無効を切り替える. */
   private void toggleBreakpoint(BhNodeView.MouseEventInfo info) {
-    info.view();
-
     if (isBreakpointSettingEnabled()
         && info.src() == null
         && info.event().getButton() == MouseButton.PRIMARY) {
       info.view().getModel()
-          .flatMap(BreakpointBoardController::findNodeToSetBreakpointTo)
+          .flatMap(BreakpointListController::findNodeToSetBreakpointTo)
           .flatMap(BhNode::getView)
           .ifPresent(view -> view.getLookManager().setBreakpointVisibility(
               !view.getLookManager().isBreakpointVisible()));

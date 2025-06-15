@@ -33,7 +33,7 @@ import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
  *
  * @author K.Koike
  */
-public class DebugBoardController {
+public class DebugViewController {
   
   @FXML private ScrollPane callStackScrollPane;
   @FXML private ThreadSelectorController threadSelectorController;

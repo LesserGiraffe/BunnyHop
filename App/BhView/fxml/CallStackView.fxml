@@ -10,31 +10,20 @@
   xmlns:fx="http://javafx.com/fxml"
   type="VBox">
   <fx:define>
-    <Rem fx:id="csPanelNameLeftMargin" rem="0.5"/>
-    <Rem fx:id="csPanelNameRightMargin" rem="2.5"/>
-    <Rem fx:id="csShowAllCheckBoxMargin" rem="2.5"/>
-    <Rem fx:id="csJumpCheckBoxMargin" rem="1.2"/>
-    <Rem fx:id="csSearchButtonMargin" rem="1.2"/>
-    <TextFetcher fx:id="callStackPanelName" textId="gui,debugger,call-stack,name"/>
+    <TextFetcher fx:id="callStackViewName" textId="gui,debugger,call-stack,name"/>
     <TextFetcher fx:id="showAll" textId="gui,debugger,call-stack,show-all"/>
     <TextFetcher fx:id="jump" textId="gui,debugger,call-stack,jump"/>
     <TextFetcher fx:id="search" textId="gui,debugger,call-stack,search"/>
   </fx:define>
 
   <HBox fx:id="csHbox">
-    <Label fx:id="csPanelName" text="$callStackPanelName.text">
-      <HBox.margin>
-        <Insets left="$csPanelNameLeftMargin.rem" right="$csPanelNameRightMargin.rem"/>
-      </HBox.margin>
+    <Label fx:id="csViewName" text="$callStackViewName.text">
     </Label>
 
     <CheckBox
       fx:id="csShowAllCheckBox"
       styleClass="flatCheckBox"
       text="$showAll.text">
-      <HBox.margin>
-        <Insets right="$csShowAllCheckBoxMargin.rem" />
-      </HBox.margin>
     </CheckBox>
 
     <CheckBox
@@ -42,15 +31,9 @@
       styleClass="flatCheckBox"
       selected="true"
       text="$jump.text">
-      <HBox.margin>
-        <Insets right="$csJumpCheckBoxMargin.rem" />
-      </HBox.margin>
     </CheckBox>
 
     <Button fx:id="csSearchButton" text="$search.text" styleClass="flatButton">
-      <HBox.margin>
-        <Insets left="$csSearchButtonMargin.rem" />
-      </HBox.margin>
     </Button>
 
   </HBox>

@@ -1,6 +1,6 @@
 {
   "gui": {
-    "menu-panel": {
+    "menu-view": {
       "copy": "コピー",
       "cut": "カット",
       "paste": "貼り付け",
@@ -30,10 +30,10 @@
       "version-info": "バージョン情報"
     },
 
-    "noticeboards": {
-      "msg-board-name": "メッセージ",
-      "debug-board-name": "デバッグ",
-      "breakpoint-board-name": "ブレークポイント"
+    "notification-view": {
+      "msg-view-name": "メッセージ",
+      "debug-view-name": "デバッグ",
+      "breakpoint-list-view-name": "ブレークポイント"
     },
 
     "debugger": {
@@ -56,6 +56,10 @@
         "search": "🔍",
         "jump": "ジャンプ",
         "not-selected": "未選択"
+      },
+      "breakpoint": {
+        "search": "🔍",
+        "jump": "ジャンプ"
       },
       "workspace-selector": {
         "all-ws": "すべてのワークスペース"

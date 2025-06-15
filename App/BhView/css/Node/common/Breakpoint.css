@@ -4,3 +4,11 @@
   -fx-stroke-width: 0.2em;
   -fx-stroke-type: inside;
 }
+
+#bpHbox {
+  -fx-font-size: 1.1em;
+  -fx-font-family: "Meiryo UI";  
+  -fx-alignment: center-left;
+  -fx-padding: 0.2em;
+  -fx-spacing: 1.8em;
+}

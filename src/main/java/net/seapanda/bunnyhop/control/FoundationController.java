@@ -61,7 +61,7 @@ public class FoundationController {
   @FXML private SplitPane verticalSplitPane;
 
   //Controller
-  @FXML private MenuPanelController menuPanelController;
+  @FXML private MenuViewController menuViewController;
   @FXML private WorkspaceSetController workspaceSetController;
   @FXML private BhNodeCategoryListController nodeCategoryListController;
   @FXML private MenuBarController menuBarController;
@@ -93,7 +93,7 @@ public class FoundationController {
     this.remoteCtrl = remoteCtrl;
     workspaceSetController.initialize(wss, debugger, debugViewFactory);
     boolean success = nodeCategoryListController.initialize(builder, nodeCategoryList);
-    success &= menuPanelController.initialize(
+    success &= menuViewController.initialize(
       workspaceSetController,
       notifService,
       wsFactory,
@@ -175,31 +175,31 @@ public class FoundationController {
     switch (event.getCode()) {
       case C:
         if (event.isControlDown()) {
-          menuPanelController.fireEvent(MenuPanelController.MenuOperation.COPY);
+          menuViewController.fireEvent(MenuViewController.MenuOperation.COPY);
         }
         break;
 
       case X:
         if (event.isControlDown()) {
-          menuPanelController.fireEvent(MenuPanelController.MenuOperation.CUT);
+          menuViewController.fireEvent(MenuViewController.MenuOperation.CUT);
         }
         break;
 
       case V:
         if (event.isControlDown()) {
-          menuPanelController.fireEvent(MenuPanelController.MenuOperation.PASTE);
+          menuViewController.fireEvent(MenuViewController.MenuOperation.PASTE);
         }
         break;
 
       case Z:
         if (event.isControlDown()) {
-          menuPanelController.fireEvent(MenuPanelController.MenuOperation.UNDO);
+          menuViewController.fireEvent(MenuViewController.MenuOperation.UNDO);
         }
         break;
 
       case Y:
         if (event.isControlDown()) {
-          menuPanelController.fireEvent(MenuPanelController.MenuOperation.REDO);
+          menuViewController.fireEvent(MenuViewController.MenuOperation.REDO);
         }
         break;
 
@@ -218,7 +218,7 @@ public class FoundationController {
         break;
 
       case DELETE:
-        menuPanelController.fireEvent(MenuPanelController.MenuOperation.DELETE);
+        menuViewController.fireEvent(MenuViewController.MenuOperation.DELETE);
         break;
 
       default:
@@ -237,7 +237,7 @@ public class FoundationController {
     }
     pressedKey.add(keyCode);
     var bhEvent = new BhProgramEvent(eventName, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
-    if (menuPanelController.isLocalHost()) {
+    if (menuViewController.isLocalHost()) {
       localCtrl.send(bhEvent);
     } else {
       remoteCtrl.send(bhEvent);
@@ -246,7 +246,7 @@ public class FoundationController {
 
   /** 現在選択されている BhProgram の実行環境がローカルかリモートか調べる. */
   public boolean isBhRuntimeLocal() {
-    return menuPanelController.isLocalHost();
+    return menuViewController.isLocalHost();
   }
 
   /** ワークスペースセットのコントローラを返す. */

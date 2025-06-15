@@ -48,12 +48,12 @@ public class TextDefs {
     TextDefs.db = db;
   }
 
-  /** メニューパネルのテキスト. */
-  public static class MenuPanel {
+  /** メニュービューのテキスト. */
+  public static class MenuView {
     public static Getter remote = params -> db.get(
-        TextId.of("gui", "menu-panel", "remote"), params);
+        TextId.of("gui", "menu-view", "remote"), params);
     public static Getter local = params -> db.get(
-        TextId.of("gui", "menu-panel", "local"), params);
+        TextId.of("gui", "menu-view", "local"), params);
   }
 
   /** デバッガに表示されるテキスト. */

@@ -29,8 +29,8 @@ import javafx.scene.layout.StackPane;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.control.SearchBoxController;
-import net.seapanda.bunnyhop.control.debugger.BreakpointBoardController;
-import net.seapanda.bunnyhop.control.debugger.DebugBoardController;
+import net.seapanda.bunnyhop.control.debugger.BreakpointListController;
+import net.seapanda.bunnyhop.control.debugger.DebugViewController;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
@@ -53,8 +53,8 @@ public class WorkspaceSetController {
   @FXML private TextArea mainMsgArea;
   /** ノード削除用のゴミ箱のコントローラ. */
   @FXML private TrashboxController trashboxController;
-  @FXML private DebugBoardController debugBoardController;
-  @FXML private BreakpointBoardController breakpointBoardController;
+  @FXML private DebugViewController debugViewController;
+  @FXML private BreakpointListController breakpointListController;
   @FXML private SearchBoxController searchBoxController;
 
   /** 初期化する. */
@@ -62,8 +62,8 @@ public class WorkspaceSetController {
     model = wss;
     setEventHandlers();
     workspaceSetViewBase.setDividerPositions(BhConstants.LnF.DEFAULT_VERTICAL_DIV_POS);
-    debugBoardController.initialize(debugger, factory);
-    breakpointBoardController.initialize(wss, debugger);
+    debugViewController.initialize(debugger, factory);
+    breakpointListController.initialize(wss, debugger);
   }
 
   /** イベントハンドラを登録する. */

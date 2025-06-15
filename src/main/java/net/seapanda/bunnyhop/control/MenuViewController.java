@@ -69,10 +69,10 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
  *
  * @author K.Koike
  */
-public class MenuPanelController {
+public class MenuViewController {
 
   /** ボタンの基底ペイン. */
-  @FXML private VBox menuPanelBase;
+  @FXML private VBox menuViewBase;
   /** コピーボタン. */
   @FXML private Button copyBtn;
   /** カットボタン. */
@@ -402,7 +402,7 @@ public class MenuPanelController {
       dialog.setTitle(TextDefs.Workspace.PromptToNameWs.title.get());
       dialog.setHeaderText(null);
       dialog.setContentText(TextDefs.Workspace.PromptToNameWs.body.get());
-      dialog.getDialogPane().getStylesheets().addAll(menuPanelBase.getScene().getStylesheets());
+      dialog.getDialogPane().getStylesheets().addAll(menuViewBase.getScene().getStylesheets());
       wsName = dialog.showAndWait().orElse(null);
       if (wsName == null) {
         return;
@@ -558,12 +558,12 @@ public class MenuPanelController {
       hostNameTextField.setDisable(false);
       unameTextField.setDisable(false);
       passwordTextField.setDisable(false);
-      remotLocalSelectBtn.setText(TextDefs.MenuPanel.remote.get());
+      remotLocalSelectBtn.setText(TextDefs.MenuView.remote.get());
     } else {
       hostNameTextField.setDisable(true);
       unameTextField.setDisable(true);
       passwordTextField.setDisable(true);
-      remotLocalSelectBtn.setText(TextDefs.MenuPanel.local.get());
+      remotLocalSelectBtn.setText(TextDefs.MenuView.local.get());
     }
   }
 

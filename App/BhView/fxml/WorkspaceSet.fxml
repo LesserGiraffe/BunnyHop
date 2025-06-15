@@ -11,7 +11,7 @@
   fx:id="workspaceSetViewBase"
   fx:controller="net.seapanda.bunnyhop.control.workspace.WorkspaceSetController">
   <fx:define>
-    <TextFetcher fx:id="msgBoardName" textId="gui,noticeboards,msg-board-name"/>
+    <TextFetcher fx:id="msgViewName" textId="gui,notification-view,msg-view-name"/>
   </fx:define>
   <StackPane fx:id="workspaceSetStackPane">
     <TabPane fx:id="workspaceSetTab" tabClosingPolicy="ALL_TABS" tabDragPolicy="REORDER"/>
@@ -20,14 +20,14 @@
   
   <StackPane>
     <TabPane
-      fx:id="noticeboardBase"
+      fx:id="notificationViewBase"
       tabClosingPolicy="UNAVAILABLE"
       tabDragPolicy="REORDER">
-      <Tab fx:id="messageTab" text="$msgBoardName.text">
+      <Tab fx:id="messageTab" text="$msgViewName.text">
         <TextArea  fx:id="mainMsgArea" VBox.vgrow="ALWAYS"/>
       </Tab>
-      <fx:include fx:id="debugBoard" source="DebugBoard.fxml"/>
-      <fx:include fx:id="breakpointBoard" source="BreakpointBoard.fxml"/>
+      <fx:include fx:id="debugView" source="DebugView.fxml"/>
+      <fx:include fx:id="breakpointList" source="BreakpointListView.fxml"/>
     </TabPane>
     <fx:include
       fx:id="searchBox"

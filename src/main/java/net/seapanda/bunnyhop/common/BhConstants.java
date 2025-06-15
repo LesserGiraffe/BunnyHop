@@ -82,7 +82,7 @@ public class BhConstants {
     /** 入れ替えられたノードがワークスペースに移ったときの元の位置に対する位置 (rem). */
     public static final double REPLACED_NODE_SHIFT = 2.5 * BhConstants.LnF.NODE_SCALE;
     /** BhNode 選択パネル上での BhNode 間のスペース. */
-    public static final double BHNODE_SPACE_ON_SELECTION_PANEL = 2.0 * BhConstants.LnF.NODE_SCALE;
+    public static final double BHNODE_SPACE_ON_SELECTION_VIEW = 2.0 * BhConstants.LnF.NODE_SCALE;
     /** ノードシフタの大きさ. */
     public static final double NODE_SHIFTER_SIZE = Rem.VAL * 7.0;
   }
@@ -144,11 +144,11 @@ public class BhConstants {
       /** ノードシフタのビューが定義してあるfxmlファイルの名前. */
       public static final String NODE_SHIFTER_FXML = "NodeShifter.fxml";
       /** BhNodeテンプレートリスト部分のビューが定義してあるfxmlの名前. */
-      public static final String NODE_SELECTION_PANEL_FXML = "NodeSelectionPanel.fxml";
+      public static final String NODE_SELECTION_VIEW_FXML = "NodeSelectionView.fxml";
       /** プライベートテンプレートボタンが定義してあるfxmlの名前. */
       public static final String PRIVATE_TEMPLATE_BUTTON_FXML = "PrivateTemplateButton.fxml";
       /** コールスタックペインが定義してあるfxmlの名前. */
-      public static final String CALL_STACK_PANEL_FXML = "CallStackPanel.fxml";
+      public static final String CALL_STACK_VIEW_FXML = "CallStackView.fxml";
       /** ノードテンプレートの配置情報が書かれたファイルの名前. */
       public static final String NODE_TEMPLATE_LIST_JSON = "NodeTemplateList.json";
       public static final String COMMON_FUNCS_JS = "CommonFuncs.js";

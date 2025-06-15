@@ -46,9 +46,9 @@ import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyle.ConnectorPos;
  */
 public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeSelectionView {
 
-  @FXML private Pane nodeSelectionPanel;  // FXML で Pane 以外使わないこと
-  @FXML private Pane nodeSelectionPanelWrapper;
-  @FXML private ScrollPane nodeSelectionPanelBase;
+  @FXML private Pane nodeSelectionView;  // FXML で Pane 以外使わないこと
+  @FXML private Pane nodeSelectionViewWrapper;
+  @FXML private ScrollPane nodeSelectionViewBase;
 
   private final SequencedSet<BhNodeView> rootNodeViews = new LinkedHashSet<>();
   private final SequencedSet<BhNodeView> nodeViews = new LinkedHashSet<>();
@@ -80,11 +80,11 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
           "Failed to initialize " + BhNodeSelectionView.class.getSimpleName());
     }
 
-    nodeSelectionPanel.getTransforms().add(new Scale());
+    nodeSelectionView.getTransforms().add(new Scale());
     getStyleClass().add(cssClass);
-    nodeSelectionPanel.getStyleClass().add(cssClass);
-    nodeSelectionPanelWrapper.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
-    nodeSelectionPanelWrapper.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
+    nodeSelectionView.getStyleClass().add(cssClass);
+    nodeSelectionViewWrapper.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
+    nodeSelectionViewWrapper.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
     visibleProperty().addListener((observable, oldVal, newVal) -> arrange());
     hide();
   }
@@ -123,7 +123,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
       return;
     }
     nodeViews.add(view);
-    view.getTreeManager().addToGuiTree(nodeSelectionPanel);
+    view.getTreeManager().addToGuiTree(nodeSelectionView);
     view.getCallbackRegistry().getOnSizeChanged().add(onNodeSizeChanged);
   }
 
@@ -169,20 +169,20 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     double mag = Math.pow(BhConstants.LnF.ZOOM_MAGNIFICATION, zoomLevel);
     scale.setX(mag);
     scale.setY(mag);
-    nodeSelectionPanel.getTransforms().clear();
-    nodeSelectionPanel.getTransforms().add(scale);
-    adjustWrapperSize(nodeSelectionPanel.getWidth(), nodeSelectionPanel.getHeight());
+    nodeSelectionView.getTransforms().clear();
+    nodeSelectionView.getTransforms().add(scale);
+    adjustWrapperSize(nodeSelectionView.getWidth(), nodeSelectionView.getHeight());
   }
 
   @Override
   public void arrange() {
-    double panelWidth = 0.0;
-    double panelHeight = 0.0;
-    double offset = nodeSelectionPanel.getPadding().getTop();
-    final double leftPadding = nodeSelectionPanel.getPadding().getLeft();
-    final double rightPadding = nodeSelectionPanel.getPadding().getRight();
-    final double topPadding = nodeSelectionPanel.getPadding().getTop();
-    final double bottomPadding = nodeSelectionPanel.getPadding().getBottom();
+    double width = 0.0;
+    double height = 0.0;
+    double offset = nodeSelectionView.getPadding().getTop();
+    final double leftPadding = nodeSelectionView.getPadding().getLeft();
+    final double rightPadding = nodeSelectionView.getPadding().getRight();
+    final double topPadding = nodeSelectionView.getPadding().getTop();
+    final double bottomPadding = nodeSelectionView.getPadding().getBottom();
 
     for (BhNodeView nodeView : rootNodeViews) {
       Vec2D cnctrSize = nodeView.getRegionManager().getConnectorSize();
@@ -193,39 +193,39 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
             leftPadding - cnctrSize.x, offset);
       }
       Vec2D treeSizeWithCnctr = nodeView.getRegionManager().getNodeTreeSize(true);
-      offset += treeSizeWithCnctr.y + BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_PANEL;
-      panelWidth = Math.max(panelWidth, treeSizeWithCnctr.x);
+      offset += treeSizeWithCnctr.y + BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_VIEW;
+      width = Math.max(width, treeSizeWithCnctr.x);
     }
-    panelHeight =
-        (offset - BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_PANEL) + topPadding + bottomPadding;
-    panelWidth += rightPadding + leftPadding;
-    nodeSelectionPanel.setMinSize(panelWidth, panelHeight);
+    height =
+        (offset - BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_VIEW) + topPadding + bottomPadding;
+    width += rightPadding + leftPadding;
+    nodeSelectionView.setMinSize(width, height);
     //バインディングではなく, ここでこのメソッドを呼ばないとスクロールバーの稼働域が変わらない
-    adjustWrapperSize(panelWidth, panelHeight);
+    adjustWrapperSize(width, height);
   }
 
   /**
    * スクロールバーの可動域が変わるようにノード選択ビューのラッパーのサイズを変更する.
    *
-   * @param panelWidth ノード選択ビューの幅
-   * @param panelHeight ノード選択ビューの高さ
+   * @param width ノード選択ビューの幅
+   * @param height ノード選択ビューの高さ
    */
-  private void adjustWrapperSize(double panelWidth, double panelHeight) {
-    double wrapperSizeX = panelWidth * nodeSelectionPanel.getTransforms().get(0).getMxx();
-    double wrapperSizeY = panelHeight * nodeSelectionPanel.getTransforms().get(0).getMyy();
+  private void adjustWrapperSize(double width, double height) {
+    double wrapperSizeX = width * nodeSelectionView.getTransforms().get(0).getMxx();
+    double wrapperSizeY = height * nodeSelectionView.getTransforms().get(0).getMyy();
     // スクロール時にスクロールバーの可動域が変わるようにする
-    nodeSelectionPanelWrapper.setPrefSize(wrapperSizeX, wrapperSizeY);
-    Node wsSetTab = Optional.ofNullable(nodeSelectionPanelBase.getScene())
+    nodeSelectionViewWrapper.setPrefSize(wrapperSizeX, wrapperSizeY);
+    Node wsSetTab = Optional.ofNullable(nodeSelectionViewBase.getScene())
         .map(scene -> scene.lookup("#" + BhConstants.UiId.WORKSPACE_SET_TAB))
         .orElse(null);
-    double maxWidth = wrapperSizeX + nodeSelectionPanelBase.getPadding().getLeft()
-        + nodeSelectionPanelBase.getPadding().getRight();
+    double maxWidth = wrapperSizeX + nodeSelectionViewBase.getPadding().getLeft()
+        + nodeSelectionViewBase.getPadding().getRight();
     if (wsSetTab != null) {
       maxWidth = Math.min(maxWidth, ((TabPane) wsSetTab).getWidth() * 0.5);
     }
-    nodeSelectionPanelBase.setMaxWidth(maxWidth);
+    nodeSelectionViewBase.setMaxWidth(maxWidth);
     // 選択ビューの幅を設定後にレイアウトしないと適切な幅で表示されない
-    Platform.runLater(nodeSelectionPanelBase::requestLayout);
+    Platform.runLater(nodeSelectionViewBase::requestLayout);
   }
 
   /** このノード選択ビューが見えている場合, 保持しているノードビューの並べ替えを行う. */

@@ -140,9 +140,9 @@ public class AppMain extends Application {
       final Path nodeShifterViewFile =
           fxmlCollector.getFilePath(BhConstants.Path.File.NODE_SHIFTER_FXML);
       final Path nodeSelectionViewFile =
-          fxmlCollector.getFilePath(BhConstants.Path.File.NODE_SELECTION_PANEL_FXML);
+          fxmlCollector.getFilePath(BhConstants.Path.File.NODE_SELECTION_VIEW_FXML);
       final Path callStackVieFile =
-          fxmlCollector.getFilePath(BhConstants.Path.File.CALL_STACK_PANEL_FXML);
+          fxmlCollector.getFilePath(BhConstants.Path.File.CALL_STACK_VIEW_FXML);
       final Path[] scriptDirs = new Path[] {
         Paths.get(
             Utility.execPath, BhConstants.Path.Dir.BH_DEF, BhConstants.Path.Dir.EVENT_HANDLERS),

@@ -9,8 +9,8 @@
   HbarPolicy="AS_NEEDED"
   VbarPolicy="AS_NEEDED"
   StackPane.alignment="TOP_RIGHT"
-  fx:id="nodeSelectionPanelBase">
-  <Pane fx:id="nodeSelectionPanelWrapper">
-    <Pane fx:id="nodeSelectionPanel"/>
+  fx:id="nodeSelectionViewBase">
+  <Pane fx:id="nodeSelectionViewWrapper">
+    <Pane fx:id="nodeSelectionView"/>
   </Pane>
 </fx:root>

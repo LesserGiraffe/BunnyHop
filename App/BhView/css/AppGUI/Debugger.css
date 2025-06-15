@@ -1,4 +1,4 @@
-#csPanelName {
+#csViewName {
   -fx-font-weight: bold;
 }
 
@@ -38,4 +38,12 @@
 
 #wsComboBox {
   -fx-max-width: 32em;
+}
+
+#csHbox {
+  -fx-font-size: 1.1em;
+  -fx-font-family: "Meiryo UI";  
+  -fx-alignment: center-left;
+  -fx-padding: 0.2em;
+  -fx-spacing: 1.8em;
 }

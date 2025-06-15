@@ -10,14 +10,14 @@
 <Tab
   xmlns:fx="http://javafx.com/fxml"
   fx:id="debugTab"
-  fx:controller="net.seapanda.bunnyhop.control.debugger.DebugBoardController"
-  text="$debugBoardName.text">
+  fx:controller="net.seapanda.bunnyhop.control.debugger.DebugViewController"
+  text="$debugViewName.text">
   <fx:define>
-    <TextFetcher fx:id="debugBoardName" textId="gui,noticeboards,debug-board-name"/>
+    <TextFetcher fx:id="debugViewName" textId="gui,notification-view,debug-view-name"/>
   </fx:define>
   <content>
     <SplitPane
-      fx:id="debugBoardSplitPane">
+      fx:id="debugViewSplitPane">
 
       <VBox fx:id="callStackVBox">
         <ScrollPane
