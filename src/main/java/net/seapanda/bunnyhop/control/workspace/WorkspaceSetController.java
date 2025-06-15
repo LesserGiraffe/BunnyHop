@@ -18,22 +18,14 @@ package net.seapanda.bunnyhop.control.workspace;
 
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabDragPolicy;
-import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
-import net.seapanda.bunnyhop.common.BhConstants;
-import net.seapanda.bunnyhop.control.SearchBoxController;
-import net.seapanda.bunnyhop.control.debugger.BreakpointListController;
-import net.seapanda.bunnyhop.control.debugger.DebugViewController;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
@@ -45,30 +37,21 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 public class WorkspaceSetController {
 
   private WorkspaceSet model;
-  @FXML private SplitPane workspaceSetViewBase;
-  @FXML private StackPane workspaceSetStackPane;
+  @FXML private StackPane workspaceSetViewBase;
+  @FXML private Pane trashbox;
   /** ワークスペース表示タブ. */
   @FXML private TabPane workspaceSetTab;
-  @FXML private Pane trashbox;
-  @FXML private TextArea mainMsgArea;
   /** ノード削除用のゴミ箱のコントローラ. */
   @FXML private TrashboxController trashboxController;
-  @FXML private DebugViewController debugViewController;
-  @FXML private BreakpointListController breakpointListController;
-  @FXML private SearchBoxController searchBoxController;
 
   /** 初期化する. */
-  public void initialize(WorkspaceSet wss, Debugger debugger, DebugViewFactory factory) {
+  public void initialize(WorkspaceSet wss) {
     model = wss;
     setEventHandlers();
-    workspaceSetViewBase.setDividerPositions(BhConstants.LnF.DEFAULT_VERTICAL_DIV_POS);
-    debugViewController.initialize(debugger, factory);
-    breakpointListController.initialize(wss, debugger);
   }
 
   /** イベントハンドラを登録する. */
   private void setEventHandlers() {
-    setMessageAreaEvenHandlers();
     setTabPaneEventHandlers();
     WorkspaceSet.CallbackRegistry registry = model.getCallbackRegistry();
     registry.getOnWorkspaceAdded().add(event -> addWorkspaceView(event.ws()));
@@ -104,28 +87,11 @@ public class WorkspaceSetController {
    * @param tabViewHeight タブペインの高さ
    */
   private void resizeNodeSelectionViewHeight(double tabViewHeight) {
-    for (Node node : workspaceSetStackPane.getChildren()) {
+    for (Node node : workspaceSetViewBase.getChildren()) {
       if (node instanceof BhNodeSelectionView view) {
         view.getRegion().setMaxHeight(tabViewHeight - node.getTranslateY());
       }
     }
-  }
-
-  /** メッセージエリアのイベントハンドラを登録する. */
-  private void setMessageAreaEvenHandlers() {
-    mainMsgArea.textProperty().addListener((observable, oldVal, newVal) -> {
-      if (newVal.length() > BhConstants.Message.MAX_MAIN_MSG_AREA_CHARS) {
-        int numDeleteChars = newVal.length() - BhConstants.Message.MAX_MAIN_MSG_AREA_CHARS;
-        mainMsgArea.deleteText(0, numDeleteChars);
-      }
-      mainMsgArea.setScrollTop(Double.MAX_VALUE);
-    });
-
-    mainMsgArea.scrollTopProperty().addListener((observable, oldVal, newVal) -> {
-      if (oldVal.doubleValue() == Double.MAX_VALUE && newVal.doubleValue() == 0.0) {
-        mainMsgArea.setScrollTop(Double.MAX_VALUE);
-      }
-    });
   }
 
   /**
@@ -135,7 +101,7 @@ public class WorkspaceSetController {
    */
   public void addNodeSelectionView(BhNodeSelectionView view) {
     Region region = view.getRegion();
-    workspaceSetStackPane.getChildren().add(region);
+    workspaceSetViewBase.getChildren().add(region);
     region.toFront();
     //タブの高さ分移動したときもノード選択ビューの高さを再計算する
     region.translateYProperty().addListener((observable, oldValue, newValue) -> 
@@ -172,19 +138,9 @@ public class WorkspaceSetController {
     return newWorkspaceView.getWorkspace();
   }
 
-  /** アプリケーションのメッセージを表示する TextArea を取得する. */
-  public TextArea getMsgArea() {
-    return mainMsgArea;
-  }
-
   /** ノード削除用のゴミ箱のコントローラオブジェクトを取得する. */
   public TrashboxController getTrashboxController() {
     return trashboxController;
-  }
-
-  /** 検索ボックスのコントローラオブジェクトを取得する. */
-  public SearchBoxController getSearchBoxController() {
-    return searchBoxController;
   }
 
   /** {@code ws} のワークスペースビューをワークスペースセットのビューに追加する. */

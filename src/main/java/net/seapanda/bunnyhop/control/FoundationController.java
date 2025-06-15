@@ -22,7 +22,6 @@ import javafx.event.EventTarget;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
@@ -58,13 +57,13 @@ public class FoundationController {
 
   //View
   @FXML private VBox foundationVbox;
-  @FXML private SplitPane verticalSplitPane;
 
   //Controller
   @FXML private MenuViewController menuViewController;
   @FXML private WorkspaceSetController workspaceSetController;
   @FXML private BhNodeCategoryListController nodeCategoryListController;
   @FXML private MenuBarController menuBarController;
+  @FXML private NotificationViewController notifViewController;
 
   /** 押下状態のキー. */
   private Set<KeyCode> pressedKey = new HashSet<>();
@@ -91,7 +90,7 @@ public class FoundationController {
       Debugger debugger) {
     this.localCtrl = localCtrl;
     this.remoteCtrl = remoteCtrl;
-    workspaceSetController.initialize(wss, debugger, debugViewFactory);
+    workspaceSetController.initialize(wss);
     boolean success = nodeCategoryListController.initialize(builder, nodeCategoryList);
     success &= menuViewController.initialize(
       workspaceSetController,
@@ -110,12 +109,17 @@ public class FoundationController {
     }
     menuBarController.initialize(
         wss, notifService, undoRedoAgent, importer, exporter, msgService);
+    notifViewController.initialize(wss, debugger, debugViewFactory);
     setKeyEvents();
     return true;
   }
 
   public MenuBarController getMenuBarController() {
     return menuBarController;
+  }
+
+  public NotificationViewController getNotificationViewController() {
+    return notifViewController;
   }
 
   /** キーボード押下時のイベントを登録する. */

@@ -1,0 +1,43 @@
+#horizontalSplitPane {
+  -fx-orientation: vertical;
+}
+
+.flatButton {
+  -fx-border-color: transparent;
+  -fx-border-width: 1;
+  -fx-background-radius: 0;
+  -fx-background-color: transparent;
+  -fx-font-family:"Meiryo UI";
+  -fx-font-size: 1.1em;
+}
+
+.flatButton:hover {
+  -fx-border-color: black;
+  -fx-border-width: 1;
+  -fx-border-radius: 0;
+  -fx-border-style: solid;
+}
+
+.flatButton:pressed {
+  -fx-background-color: #D0D0D0;
+}
+
+.flatButton:selected {
+  -fx-background-color: #398dee;
+  -fx-text-fill: white;
+}
+
+.flatCheckBox .box {
+  -fx-background-color: white;
+  -fx-border-color:grey;
+  -fx-border-radius:3px;
+}
+    
+.flatCheckBox:selected .mark {
+  -fx-background-color: white;
+}
+    
+.flatCheckBox:selected .box {
+  -fx-font-family: "Meiryo UI";
+  -fx-background-color: #398dee;
+}

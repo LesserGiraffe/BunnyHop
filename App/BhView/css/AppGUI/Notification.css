@@ -1,0 +1,5 @@
+#mainMsgArea {
+  -fx-min-height: 1em;
+  -fx-font-family: "Meiryo UI";
+  -fx-font-size: 1.1em;
+}

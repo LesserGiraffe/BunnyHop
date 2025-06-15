@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import net.seapanda.bunnyhop.common.*?>
+
+<Tab
+  xmlns:fx="http://javafx.com/fxml"
+  fx:id="messageTab"
+  text="$msgViewName.text">
+  <fx:define>
+    <TextFetcher fx:id="msgViewName" textId="gui,notification-view,msg-view-name"/>
+  </fx:define>
+
+  <TextArea  fx:id="mainMsgArea" VBox.vgrow="ALWAYS"/>
+</Tab>

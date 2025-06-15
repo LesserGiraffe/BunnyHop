@@ -6,33 +6,10 @@
 <?import net.seapanda.bunnyhop.common.*?>
 <?import javafx.scene.control.TabPane.TabDragPolicy?>
 
-<SplitPane
+<StackPane
   xmlns:fx="http://javafx.com/fxml"
   fx:id="workspaceSetViewBase"
   fx:controller="net.seapanda.bunnyhop.control.workspace.WorkspaceSetController">
-  <fx:define>
-    <TextFetcher fx:id="msgViewName" textId="gui,notification-view,msg-view-name"/>
-  </fx:define>
-  <StackPane fx:id="workspaceSetStackPane">
-    <TabPane fx:id="workspaceSetTab" tabClosingPolicy="ALL_TABS" tabDragPolicy="REORDER"/>
-    <fx:include fx:id="trashbox" source="Trashbox.fxml" MouseTransparent="true"/>
-  </StackPane>
-  
-  <StackPane>
-    <TabPane
-      fx:id="notificationViewBase"
-      tabClosingPolicy="UNAVAILABLE"
-      tabDragPolicy="REORDER">
-      <Tab fx:id="messageTab" text="$msgViewName.text">
-        <TextArea  fx:id="mainMsgArea" VBox.vgrow="ALWAYS"/>
-      </Tab>
-      <fx:include fx:id="debugView" source="DebugView.fxml"/>
-      <fx:include fx:id="breakpointList" source="BreakpointListView.fxml"/>
-    </TabPane>
-    <fx:include
-      fx:id="searchBox"
-      source="SearchBox.fxml"
-      visible="false"
-      StackPane.Alignment="BOTTOM_RIGHT"/>
-  </StackPane>
-</SplitPane>
+  <TabPane fx:id="workspaceSetTab" tabClosingPolicy="ALL_TABS" tabDragPolicy="REORDER"/>
+  <fx:include fx:id="trashbox" source="Trashbox.fxml" MouseTransparent="true"/>
+</StackPane>

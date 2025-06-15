@@ -345,6 +345,7 @@ public class BhConstants {
     public static final String WORKSPACE_SET_TAB = "workspaceSetTab";
     public static final String BH_RUNTIME_ERR_MSG = "bhRuntimeErrMsg";
     public static final String BREAKPOINT_BTN = "breakpointBtn";
+    public static final String MAIN_MSG_AREA = "mainMsgArea";
   }
 
   /** CSS ファイルで使用されるキーワード. */

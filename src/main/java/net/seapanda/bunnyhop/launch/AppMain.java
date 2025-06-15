@@ -169,7 +169,7 @@ public class AppMain extends Application {
           BhConstants.Path.Dir.CONNECTOR_DEF);
 
       final var sceneBuilder = new SceneBuilder(guiDefFile);
-      msgService.setMainMsgArea(sceneBuilder.wssCtrl.getMsgArea());
+      msgService.setMainMsgArea(sceneBuilder.notifViewCtrl.getMsgArea());
       msgService.setWindowStyle(sceneBuilder.scene.getStylesheets());
 
       final var simulator = createSimulator();

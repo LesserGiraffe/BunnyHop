@@ -39,6 +39,7 @@ import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.control.FoundationController;
 import net.seapanda.bunnyhop.control.MenuBarController;
+import net.seapanda.bunnyhop.control.NotificationViewController;
 import net.seapanda.bunnyhop.control.SearchBoxController;
 import net.seapanda.bunnyhop.control.workspace.TrashboxController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
@@ -69,6 +70,7 @@ public class SceneBuilder {
   public final FoundationController foundationCtrl;
   public final MenuBarController menuBarCtrl;
   public final WorkspaceSetController wssCtrl;
+  public final NotificationViewController notifViewCtrl;
   public final TrashboxController trashboxCtrl;
   public final SearchBoxController searchBoxCtrl;
   public final Scene scene;
@@ -85,9 +87,10 @@ public class SceneBuilder {
       root = loader.load();
       foundationCtrl = loader.getController();
       wssCtrl = foundationCtrl.getWorkspaceSetController();
+      notifViewCtrl = foundationCtrl.getNotificationViewController();
       menuBarCtrl = foundationCtrl.getMenuBarController();
       trashboxCtrl = wssCtrl.getTrashboxController();
-      searchBoxCtrl = wssCtrl.getSearchBoxController();
+      searchBoxCtrl = notifViewCtrl.getSearchBoxController();
       scene = genScene(root);
     } catch (IOException e) {
       throw new AppInitializationException(
