@@ -38,6 +38,7 @@ import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeView.LookManager.EffectTarget;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.view.workspace.NodeShifterView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
@@ -116,7 +117,8 @@ public class WorkspaceController {
         nodeSelectionViewProxy.hideAll();
         model.getSelectedNodes().forEach(node -> node.deselect(ddInfo.context.userOpe()));
       }
-      view.getRootNodeViews().forEach(nodeView -> nodeView.getLookManager().hideShadow(false));
+      view.getRootNodeViews().forEach(
+          nodeView -> nodeView.getLookManager().hideShadow(EffectTarget.CHILDREN));
       ddInfo.mousePressedPos = new Vec2D(event.getX(), event.getY());
       view.showSelectionRectangle(ddInfo.mousePressedPos, ddInfo.mousePressedPos);
     } catch (Throwable e) {

@@ -143,18 +143,16 @@ public interface BhNodeView extends NodeViewComponent {
     /**
      * 関連するノードビューとそれから辿れる外部ノードビューに影を付ける.
      *
-     * @param onlyOuter 外部ノードビューのみを辿って影を付ける場合 true.
-     *                  内部ノードビューと外部ノードビューを辿って影を付ける場合 false.
+     * @param target 影をつける対象
      */
-    void showShadow(boolean onlyOuter);
+    void showShadow(EffectTarget target);
 
     /**
      * 関連するノードビューとそれから辿れるノードビューの影を消す.
      *
-     * @param onlyOuter 外部ノードビューのみを辿って影を消す場合 true.
-     *                  内部ノードビューと外部ノードビューを辿って影を消す場合 false.
+     * @param target 影を消す対象
      */
-    void hideShadow(boolean onlyOuter);
+    void hideShadow(EffectTarget target);
 
     /**
      * 関連するノードビューのコネクタの位置を取得する.
@@ -176,9 +174,19 @@ public interface BhNodeView extends NodeViewComponent {
      * @return ブレークポイントが表示されている場合 true.
      */
     boolean isBreakpointVisible();
+
+    /** エフェクトを付ける対象. */
+    enum EffectTarget {
+      /** 関連するノードビュー. */
+      SELF,
+      /** 関連するノードビューとその全ての子要素. */
+      CHILDREN,
+      /** 関連するノードビューとそこから外部ノードビューのみを辿って到達できる全てのノードビュー. */
+      OUTERS
+    }
   }
 
-  /** ノードビューの領域に関する操作を規定したインタフェース.　*/
+  /** ノードビューの領域に関する操作を規定したインタフェース. */
   public interface RegionManager {
 
     /**

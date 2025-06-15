@@ -23,6 +23,7 @@ import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.control.debugger.BreakpointListController;
 import net.seapanda.bunnyhop.control.debugger.DebugViewController;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
 
@@ -40,9 +41,13 @@ public class NotificationViewController {
   @FXML private SearchBoxController searchBoxController;
 
   /** 初期化する. */
-  public void initialize(WorkspaceSet wss, Debugger debugger, DebugViewFactory factory) {
+  public void initialize(
+      WorkspaceSet wss,
+      Debugger debugger,
+      DebugViewFactory factory,
+      ModelAccessNotificationService norifService) {
     debugViewController.initialize(debugger, factory);
-    breakpointListController.initialize(wss, debugger);
+    breakpointListController.initialize(wss, debugger, norifService, searchBoxController);
     setMessageAreaEvenHandlers();
   }
 

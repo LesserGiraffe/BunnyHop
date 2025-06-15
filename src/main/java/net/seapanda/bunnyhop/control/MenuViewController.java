@@ -61,7 +61,8 @@ import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
-import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.ViewUtil;
+import net.seapanda.bunnyhop.view.node.BhNodeView.LookManager.EffectTarget;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 
 /**
@@ -304,9 +305,7 @@ public class MenuViewController {
     Context context = notifService.begin();
     try {
       findNodeToJumpTo(wss).ifPresent(node -> {
-        node.getView()
-            .map(BhNodeView::getWorkspaceView)
-            .ifPresent(wsv -> wsv.lookAt(node.getView().get()));
+        node.getView().ifPresent(view -> ViewUtil.jump(view, true, EffectTarget.SELF));
         node.getWorkspace().getSelectedNodes().forEach(
             selected -> selected.deselect(context.userOpe()));
         node.select(context.userOpe());

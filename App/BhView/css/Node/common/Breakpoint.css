@@ -12,3 +12,11 @@
   -fx-padding: 0.2em;
   -fx-spacing: 1.8em;
 }
+
+.breakpointListItem {
+  -fx-underline: false;
+}
+
+.breakpointListItem:textDecorate {
+  -fx-underline: true;
+}

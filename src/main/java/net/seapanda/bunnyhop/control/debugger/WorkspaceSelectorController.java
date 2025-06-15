@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.control.debugger;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -35,6 +36,8 @@ public class WorkspaceSelectorController {
   @FXML private ComboBox<Workspace> wsComboBox;
   /** 全ワークスペースを表す選択肢に対応する {@link Workspace}. */
   private final Workspace allWs;
+  /** スレッドが選択されたときのイベントハンドラ. */
+  private Consumer<? super WorkspaceSelectionEvent> onWsSelected = event -> {};
 
   /** コンストラクタ. */
   public WorkspaceSelectorController() {
@@ -48,6 +51,8 @@ public class WorkspaceSelectorController {
     wsComboBox.setCellFactory(items -> new WorkspaceSelectorListCell());
     wsComboBox.getItems().add(allWs);
     wsComboBox.getSelectionModel().selectFirst();
+    wsComboBox.valueProperty().addListener((obs, oldVal, newVal) -> 
+        onWsSelected.accept(new WorkspaceSelectionEvent(oldVal, newVal, newVal == allWs)));
     ViewUtil.enableAutoResize(wsComboBox, Workspace::getName);
     wss.getWorkspaces().forEach(wsComboBox.getItems()::add);    
     wss.getCallbackRegistry().getOnWorkspaceAdded().add(
@@ -66,6 +71,31 @@ public class WorkspaceSelectorController {
     wsComboBox.setValue(selected);
   }
 
+  /**
+   * 現在選択中のワークスペースを返す. 
+   *
+   * @return 現在選択中のワークスペース. 何も選択されていない場合は null.
+   */
+  public Workspace getSelected() {
+    return wsComboBox.getValue();
+  }
+
+  /** 「すべてのワークスペース」が選択されている場合 true を返す. */
+  public boolean isAllSelected() {
+    return wsComboBox.getValue() == allWs;
+  }
+
+  /**
+   * スレッドが選択されたときのイベントハンドラを登録する.
+   *
+   * @param handler 登録するイベントハンドラ.
+   */
+  void setOnWorkspaceSelected(Consumer<? super WorkspaceSelectionEvent> handler) {
+    if (handler != null) {
+      onWsSelected = handler;
+    }
+  }
+
   private class WorkspaceSelectorListCell extends ListCell<Workspace> {
 
     @Override
@@ -77,5 +107,14 @@ public class WorkspaceSelectorController {
         setText(null);
       }
     }
-  }    
+  }
+  
+  /**
+   * ワークスペースが選択されたときの情報を格納したレコード.
+   *
+   * @param oldWs {@code newWs} の前に選択されていたワークスペース.
+   * @param newWs 新しく選択されたワークスペース.
+   * @param isAllSelected 「すべてのワークスペース」が選択された場合 true
+   */
+  public record WorkspaceSelectionEvent(Workspace oldWs, Workspace newWs, boolean isAllSelected) {}
 }

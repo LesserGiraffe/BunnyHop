@@ -375,6 +375,7 @@ public class BhConstants {
     public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
     public static final String CLASS_PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
     public static final String CALL_STACK_ITEM = "callStackItem";
+    public static final String BREAKPOINT_LIST_ITEM = "breakpointListItem";
   }
 
   /** BhProgram の実行環境に関するパラメータ. */

@@ -30,6 +30,8 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeView.LookManager.EffectTarget;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceViewPane;
 
@@ -243,5 +245,32 @@ public class ViewUtil {
       }
     }
     return result;
+  }
+
+  /**
+   * {@code view} をワークスペースビュー中央に表示して影をつける.
+   *
+   * @param view ワークスペースビュー中央に表示するノードビュー
+   * @param hideShadow {@code view} が属するワークスペースのノードビューの全ての影を消す場合 true
+   * @param target 影をつける対象. null を指定すると影をつけない.
+   */
+  public static void jump(BhNodeView view, boolean hideShadow, EffectTarget target) {
+    if (view == null) {
+      throw new IllegalArgumentException();
+    }
+    WorkspaceView wsView = view.getWorkspaceView();
+    if (wsView == null) {
+      return;
+    }
+
+    wsView.lookAt(view);
+    if (hideShadow) {
+      wsView.getRootNodeViews().forEach(
+          nodeView -> nodeView.getLookManager().hideShadow(EffectTarget.CHILDREN));
+    }
+    wsView.moveNodeViewToFront(view);
+    if (target != null) {
+      view.getLookManager().showShadow(EffectTarget.SELF);
+    }
   }
 }

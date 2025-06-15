@@ -19,26 +19,25 @@ package net.seapanda.bunnyhop.view.debugger;
 import java.util.function.Consumer;
 import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
-import net.seapanda.bunnyhop.bhprogram.debugger.CallStackItem;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
 
 /**
- * デバッガのコールスタックに表示される要素のビュー.
+ * ブレークポイント一覧に表示される要素のビュー.
  *
  * @author K.Koike
  */
-public class CallStackCell extends ListCell<CallStackItem> {
+public class BreakpointListCell extends ListCell<BhNode> {
 
-  private CallStackItem model;
+  private BhNode model;
   private boolean empty = true;
   /** {@link #model} に対応する {@link BhNode} の選択状態が変わったときのイベントハンドラ. */
   private final Consumer<? super BhNode.SelectionEvent>
       onNodeSelStateChanged = event -> decorateText(event.isSelected());
 
   /** コンストラクタ. */
-  public CallStackCell() {
-    getStyleClass().add(BhConstants.Css.CALL_STACK_ITEM);
+  public BreakpointListCell() {
+    getStyleClass().add(BhConstants.Css.BREAKPOINT_LIST_ITEM);
     setOnMousePressed(event -> clearSelectionIfEmpty());
   }
 
@@ -49,35 +48,30 @@ public class CallStackCell extends ListCell<CallStackItem> {
   }
 
   @Override
-  protected void updateItem(CallStackItem item, boolean empty) {
+  protected void updateItem(BhNode item, boolean empty) {
     super.updateItem(item, empty);
     setText(getText(item, empty));
     setEventHandlers(item, empty);
     if (item != null) {
-      decorateText(item.getNode().map(BhNode::isSelected).orElse(false));
+      decorateText(item.isSelected());
     }
     model = item;
     this.empty = empty;
   }
 
-  private String getText(CallStackItem item, boolean empty) {
+  private String getText(BhNode item, boolean empty) {
     if (empty || item == null) {
       return null;
     }
-    if (item.getId() < 0) {
-      return "      %s".formatted(item.getName());
-    }
-    return "[%s]    %s".formatted(item.getId(), item.getName());
+    return item.getAlias();
   }
 
-  private void setEventHandlers(CallStackItem item, boolean empty) {
+  private void setEventHandlers(BhNode item, boolean empty) {
     if ((empty || model != item) && model != null) {
-      model.getNode().ifPresent(node ->
-          node.getCallbackRegistry().getOnSelectionStateChanged().remove(onNodeSelStateChanged));
+      model.getCallbackRegistry().getOnSelectionStateChanged().remove(onNodeSelStateChanged);
     }
     if (!empty && model != item && item != null) {
-      item.getNode().ifPresent(node ->
-          node.getCallbackRegistry().getOnSelectionStateChanged().add(onNodeSelStateChanged));
+      item.getCallbackRegistry().getOnSelectionStateChanged().add(onNodeSelStateChanged);
     }
   }
 

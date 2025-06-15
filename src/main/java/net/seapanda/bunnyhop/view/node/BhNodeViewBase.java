@@ -468,27 +468,31 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     }
 
     @Override
-    public void showShadow(boolean onlyOuter) {
+    public void showShadow(EffectTarget target) {
       Consumer<? super BhNodeViewBase> fnShowShadow = nodeView -> {
         if (nodeView.getLookManager().getBodyShape() != BodyShape.BODY_SHAPE_NONE) {
           nodeView.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SHADOW, true);
         }
       };
-      if (onlyOuter) {
-        NvbCallbackInvoker.invokeForOuters(fnShowShadow, BhNodeViewBase.this);
-      } else {
-        NvbCallbackInvoker.invoke(fnShowShadow, BhNodeViewBase.this);
+      switch (target) {
+        case SELF -> fnShowShadow.accept(BhNodeViewBase.this);
+        case CHILDREN -> NvbCallbackInvoker.invoke(fnShowShadow, BhNodeViewBase.this);
+        case OUTERS -> NvbCallbackInvoker.invokeForOuters(fnShowShadow, BhNodeViewBase.this);
+        default ->
+            throw new IllegalArgumentException("Invalid Rendering Target {%s}".formatted(target));
       }
     }
 
     @Override
-    public void hideShadow(boolean onlyOuter) {
+    public void hideShadow(EffectTarget target) {
       Consumer<? super BhNodeViewBase> fnShowShadow = nodeView -> 
           nodeView.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SHADOW, false);
-      if (onlyOuter) {
-        NvbCallbackInvoker.invokeForOuters(fnShowShadow, BhNodeViewBase.this);
-      } else {
-        NvbCallbackInvoker.invoke(fnShowShadow, BhNodeViewBase.this);
+      switch (target) {
+        case SELF -> fnShowShadow.accept(BhNodeViewBase.this);
+        case CHILDREN -> NvbCallbackInvoker.invoke(fnShowShadow, BhNodeViewBase.this);
+        case OUTERS -> NvbCallbackInvoker.invokeForOuters(fnShowShadow, BhNodeViewBase.this);
+        default ->
+            throw new IllegalArgumentException("Invalid Rendering Target {%s}".formatted(target));
       }
     }
 

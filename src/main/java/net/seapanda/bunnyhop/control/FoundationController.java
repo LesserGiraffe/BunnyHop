@@ -109,7 +109,7 @@ public class FoundationController {
     }
     menuBarController.initialize(
         wss, notifService, undoRedoAgent, importer, exporter, msgService);
-    notifViewController.initialize(wss, debugger, debugViewFactory);
+    notifViewController.initialize(wss, debugger, debugViewFactory, notifService);
     setKeyEvents();
     return true;
   }

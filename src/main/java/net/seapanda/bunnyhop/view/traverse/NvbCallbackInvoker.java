@@ -61,7 +61,7 @@ public class NvbCallbackInvoker implements NodeViewWalker {
    * コールバック関数を呼び出す.
    *
    * @param callback 呼び出すコールバック関数
-   * @param nodeView これ以下のノードビューに対して, callback を呼び出す
+   * @param nodeView これ以下のノードビューに対して callback を呼び出す
    */
   public static void invoke(Consumer<? super BhNodeViewBase> callback, BhNodeViewBase nodeView) {
     nodeView.accept(new NvbCallbackInvoker(callback, g -> {}, false, false, false));
@@ -71,7 +71,7 @@ public class NvbCallbackInvoker implements NodeViewWalker {
    * コールバック関数を呼び出す.
    *
    * @param callback 呼び出すコールバック関数
-   * @param nodeView これ以下のノードビューに対して, callback を呼び出す
+   * @param nodeView これ以下のノードビューに対して callback を呼び出す
    * @param depthFirst 子要素を走査してから {@code callback} を呼ぶ場合 true.
    */
   public static void invoke(
@@ -86,7 +86,7 @@ public class NvbCallbackInvoker implements NodeViewWalker {
    *
    * @param callbackForNode ノードビューに対して呼び出すコールバック関数
    * @param callbackForGroup ノードビューグループ呼び出すコールバック関数
-   * @param nodeView これ以下のノードビューに対して, callback を呼び出す
+   * @param nodeView これ以下のノードビューに対して callback を呼び出す
    */
   public static void invoke(
       Consumer<? super BhNodeViewBase> callbackForNode,
@@ -101,7 +101,7 @@ public class NvbCallbackInvoker implements NodeViewWalker {
    *
    * @param callbackForNode ノードビューに対して呼び出すコールバック関数
    * @param callbackForGroup ノードビューグループ呼び出すコールバック関数
-   * @param nodeView これ以下のノードビューに対して, callback を呼び出す
+   * @param nodeView これ以下のノードビューに対して callback を呼び出す
    * @param depthFirst 子要素を走査してから {@code callback} を呼ぶ場合 true.
    */
   public static void invoke(

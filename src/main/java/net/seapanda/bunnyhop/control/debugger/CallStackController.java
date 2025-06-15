@@ -36,8 +36,10 @@ import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.debugger.CallStackCell;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeView.LookManager.EffectTarget;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -74,9 +76,8 @@ public class CallStackController {
 
   /**
    * このコントローラを初期化する.
-   * <p>
-   * GUI コンポーネントのインジェクション後に FXMLLoader から呼ばれることを期待する.
-   * </p>
+   *
+   * <p>GUI コンポーネントのインジェクション後に FXMLLoader から呼ばれることを期待する.
    */
   public void initialize() {
     callStackListView.setCellFactory(stack -> new CallStackCell());
@@ -131,18 +132,17 @@ public class CallStackController {
   }
 
   /** {@code node} を選択して, これを画面中央に表示する. */
-  private void jump(BhNode node, UserOperation userOpe) {
-    if (node.isDeleted()) {
+  private static void jump(BhNode node, UserOperation userOpe) {
+    BhNodeView nodeView = node.getView().orElse(null);
+    if (node.isDeleted() || nodeView == null) {
       return;
     }
-    node.getView()
-        .map(BhNodeView::getWorkspaceView)
-        .ifPresent(wsv -> wsv.lookAt(node.getView().get()));
+    ViewUtil.jump(nodeView, true, EffectTarget.SELF);
     node.getWorkspace().getSelectedNodes().forEach(seletedNode -> seletedNode.deselect(userOpe));
     node.select(userOpe);
   }
 
-  /** コールスタックから {@link csSearchWord} で指定された文字列に一致する {@link CallStackItem} を探して選択する. */
+  /** コールスタックから {@code query} に一致する要素を探して選択する. */
   private void selectItem(Query query) {
     CallStackItem item = null;
     if (StringUtils.isEmpty(query.word())) {

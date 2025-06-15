@@ -38,6 +38,7 @@ import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.Trashbox;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
+import net.seapanda.bunnyhop.view.node.BhNodeView.LookManager.EffectTarget;
 import net.seapanda.bunnyhop.view.node.BhNodeView.MouseEventInfo;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
@@ -118,8 +119,8 @@ public class DefaultBhNodeController implements BhNodeController {
         return;
       }
       view.getWorkspaceView().getRootNodeViews().forEach(
-          nodeView -> nodeView.getLookManager().hideShadow(false));
-      view.getLookManager().showShadow(true);
+          nodeView -> nodeView.getLookManager().hideShadow(EffectTarget.CHILDREN));
+      view.getLookManager().showShadow(EffectTarget.OUTERS);
       toFront();
       selectNode(event);
       Vec2D mousePressedPos = new Vec2D(event.getSceneX(), event.getSceneY());
