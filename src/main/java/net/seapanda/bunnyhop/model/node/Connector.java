@@ -303,8 +303,8 @@ public class Connector extends SyntaxSymbol {
         indent(depth),
         params.connectorId(),
         connectedNode.getId(),
-        parent.getInstanceId(),
-        getInstanceId()));
+        parent.getSerialNo(),
+        getSerialNo()));
     connectedNode.show(depth + 1);
   }
 

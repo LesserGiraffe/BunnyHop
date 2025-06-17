@@ -1016,18 +1016,6 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       eventStack.removeLast();
     }
 
-    /**
-     * 関連するノードビューにイベントを伝える.
-     * 
-     * <p>このメソッドでイベントを伝えたとき, イベントハンドラに渡される
-     * {@link BhNodeView.EventInfo} の {@code isDispatched} は false となる.
-     *
-     * @param event 関連するノードビューに伝えるイベント
-     */
-    // protected void forward(Event event) {
-    //   shapes.nodeShape.fireEvent(event);
-    // }
-
     /** ノードビューの位置が変わったときのイベントハンドラを呼び出す. */
     private void onMoved() {
       if (!Platform.isFxApplicationThread()) {

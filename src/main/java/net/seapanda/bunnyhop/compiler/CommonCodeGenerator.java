@@ -32,7 +32,7 @@ class CommonCodeGenerator {
    * @return 変数名
    */
   String genVarName(SyntaxSymbol varDecl) {
-    return Keywords.Prefix.var + varDecl.getInstanceId();
+    return Keywords.Prefix.var + varDecl.getSerialNo().hexStr();
   }
 
   /**
@@ -42,7 +42,7 @@ class CommonCodeGenerator {
    * @return 変数名
    */
   String genOutArgName(SyntaxSymbol varDecl) {
-    return Keywords.Prefix.outArg + varDecl.getInstanceId();
+    return Keywords.Prefix.outArg + varDecl.getSerialNo().hexStr();
   }
 
   /**
@@ -52,7 +52,7 @@ class CommonCodeGenerator {
    * @return 関数名
    */
   String genFuncName(SyntaxSymbol funcDef) {
-    return Keywords.Prefix.func + funcDef.getInstanceId();
+    return Keywords.Prefix.func + funcDef.getSerialNo().hexStr();
   }
 
   /**
@@ -140,7 +140,7 @@ class CommonCodeGenerator {
         currentNode.getInstanceId().toString());    
   }
 
-  /** 処理中のノードのインスタンス ID をスレッドコンテキストに設定するコードを作成する. */
+  /** 処理中のノードのインスタンス ID をスレッドコンテキストから削除するコードを作成する. */
   String genNullifyCurrentNodeInstIdCode() {
     return "%s[%s] = null".formatted(
         ScriptIdentifiers.Vars.THREAD_CONTEXT,

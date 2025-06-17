@@ -152,7 +152,6 @@ public abstract class BhNode extends SyntaxSymbol {
    */
   public abstract CallbackRegistry getCallbackRegistry();
   
-
   /** コンストラクタ. */
   protected BhNode(
       BhNodeParameters params,

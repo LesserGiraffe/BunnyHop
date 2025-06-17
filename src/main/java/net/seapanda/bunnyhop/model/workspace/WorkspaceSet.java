@@ -374,7 +374,7 @@ public class WorkspaceSet {
           new RootNodeRemovedEvent(WorkspaceSet.this, event.ws(), event.node(), event.userOpe()));
     }
 
-    /** 関連するワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラを呼ぶ */
+    /** 関連するワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラを呼ぶ. */
     private void onWsNameChanger(Workspace.NameChangedEvent event) {
       onWsNameChangedInvoker.invoke(new WorkspaceNameChangedEvent(
           WorkspaceSet.this, event.ws(), event.oldName(), event.newName()));

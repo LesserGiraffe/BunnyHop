@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.model.node.syntaxsymbol;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.UUID;
 
 /**
  * 各 {@link SyntaxSymbol} オブジェクト固有の ID.
@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class InstanceId implements Serializable {
 
-  private static AtomicLong sequentialID = new AtomicLong(0);
   private final String id;
 
   /** この ID が存在しないことを表すオブジェクト. */
@@ -37,9 +36,8 @@ public class InstanceId implements Serializable {
    * {@link InstanceId} を作成する.
    * このメソッドで作った {@link InstanceId} は重複しないことが保証される.
    */
-  static InstanceId newId() {
-    long id = sequentialID.addAndGet(1);
-    return new InstanceId(Long.toHexString(id));
+  public static InstanceId newId() {
+    return new InstanceId(UUID.randomUUID().toString());
   }
 
   /**

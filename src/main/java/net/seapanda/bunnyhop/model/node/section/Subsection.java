@@ -128,9 +128,9 @@ public class Subsection extends Section {
   @Override
   public void show(int depth) {
     var parentInstId =
-        (parentNode != null) ? parentNode.getInstanceId() : parentSection.getInstanceId();
+        (parentNode != null) ? parentNode.getSerialNo() : parentSection.getSerialNo();
     System.out.println("%s<Subsection  name=%s  parent=%s>  %s"
-        .formatted(indent(depth), getSymbolName(), parentInstId, getInstanceId()));        
+        .formatted(indent(depth), getSymbolName(), parentInstId, getSerialNo()));
     subsectionList.forEach((connector -> connector.show(depth + 1)));
   }
 }

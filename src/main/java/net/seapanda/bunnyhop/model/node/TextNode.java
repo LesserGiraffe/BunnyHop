@@ -216,18 +216,18 @@ public class TextNode extends DerivativeBase<TextNode> {
   @Override
   public void show(int depth) {
     var parentinstId =
-        (parentConnector != null) ? parentConnector.getInstanceId() : InstanceId.NONE;
+        (parentConnector != null) ? parentConnector.getSerialNo() : InstanceId.NONE;
     var lastReplacedInstId =
-        (getLastReplaced() != null) ? getLastReplaced().getInstanceId() : InstanceId.NONE;
+        (getLastReplaced() != null) ? getLastReplaced().getSerialNo() : InstanceId.NONE;
 
     System.out.println("%s<TextNode text=%s  bhID=%s  parent=%s>  %s"
-        .formatted(indent(depth), text, getId(), parentinstId, getInstanceId()));
+        .formatted(indent(depth), text, getId(), parentinstId, getSerialNo()));
     System.out.println("%s<ws>  %s".formatted(indent(depth + 1), workspace));
     System.out.println(
         "%s<last replaced>  %s".formatted(indent(depth + 1), lastReplacedInstId));
     System.out.println(indent(depth + 1) + "<derivation>");
     getDerivatives().forEach(derv ->  System.out.println(
-        "%s<derivative>  %s".formatted(indent(depth + 2), derv.getInstanceId())));
+        "%s<derivative>  %s".formatted(indent(depth + 2), derv.getSerialNo())));
   }
 
   /** {@link TextNode} に対してイベントハンドラを追加または削除する機能を提供するクラス. */

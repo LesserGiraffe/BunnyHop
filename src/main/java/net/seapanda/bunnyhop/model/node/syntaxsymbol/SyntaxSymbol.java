@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.utility.SerialNumber;
 import net.seapanda.bunnyhop.utility.Showable;
 
 /**
@@ -34,8 +35,8 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
 
   /** 終端, 非終端記号名. */
   private final String symbolName;
-  /** {@link SyntaxSymbol} オブジェクトを識別する ID. */
   private InstanceId instanceId = InstanceId.newId();
+  private final SerialNumber serialNo = SerialNumber.newNumber();
 
   /**
    * 引数で指定したシンボル名を持つ {@link SyntaxSymbol} を {@code generation} もしくは
@@ -178,7 +179,7 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
    * @param org コピー元オブジェクト
    */
   protected SyntaxSymbol(SyntaxSymbol org) {
-    symbolName = org.symbolName;
+    this(org.symbolName);
   }
 
   /**
@@ -191,12 +192,30 @@ public abstract class SyntaxSymbol implements Showable, Serializable {
   }
 
   /**
+   * オブジェクト固有の ID を設定する.
+   *
+   * @param id 設定する ID
+   */
+  public void setInstanceId(InstanceId id) {
+    instanceId = id;
+  }
+
+  /**
    * オブジェクト固有の ID を取得する.
    *
    * @return インスタンス ID
    */
   public InstanceId getInstanceId() {
     return instanceId;
+  }
+
+  /**
+   * オブジェクトのシリアルナンバーを取得する.
+   *
+   * @return シリアルナンバー
+   */
+  public SerialNumber getSerialNo() {
+    return serialNo;
   }
 
   /**

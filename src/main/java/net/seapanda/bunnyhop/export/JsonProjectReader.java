@@ -59,23 +59,23 @@ public class JsonProjectReader {
   /** ロードしたファイルのパス. */
   private Path filePath;
   /** 復元対象となった {@link BhNode} と元となった {@link BhNodeImage} の対応一覧. */
-  private Map<BhNode, BhNodeImage> nodeToImage = new HashMap<>();
+  private final Map<BhNode, BhNodeImage> nodeToImage = new HashMap<>();
   /**
    * {@link BhNodeImage} が保持していた {@link InstanceId} と, 
    * その {@link BhNodeImage} から復元された {@link BhNode} の対応一覧を取得する.
    */
-  private Map<InstanceId, BhNode> instIdToNode = new HashMap<>();
+  private final Map<InstanceId, BhNode> instIdToNode = new HashMap<>();
   /** ロード中に発生した警告一覧. */
-  private EnumSet<ImportWarning> warnings = EnumSet.noneOf(ImportWarning.class);
+  private final EnumSet<ImportWarning> warnings = EnumSet.noneOf(ImportWarning.class);
   /** 復元対象となった {@link BhNode} の接続先のコネクタが見つからなかったときのエラー情報一覧. */
-  private Collection<ConnectorNotFoundInfo> cnctrNotFoundInfoList = new ArrayList<>();
+  private final Collection<ConnectorNotFoundInfo> cnctrNotFoundInfoList = new ArrayList<>();
   /**
    * 復元もとの {@link BhNodeImage} が保持していた {@link BhNodeId} の内,
    * 現バージョンのアプリケーションでサポートしていない ID の一覧.
    */
-  private Collection<BhNodeId> unknownNodeIds = new ArrayList<>();
+  private final Collection<BhNodeId> unknownNodeIds = new ArrayList<>();
   /** 復元対象の {@link BhNode} の {@link BhNodeVersion} が, 現在の同種のノードのバージョンと互換性が無いときのエラー情報一覧. */
-  private Collection<IncompatibleNodeVersionInfo> incompatibleNodeVersionInfoList =
+  private final Collection<IncompatibleNodeVersionInfo> incompatibleNodeVersionInfoList =
       new ArrayList<>();
   /** 派生ノードが見つからなかったときのエラー情報一覧. */
   private Collection<DerivativeNotFoundInfo> dervNotFoundInfoList = new ArrayList<>();
@@ -204,10 +204,11 @@ public class JsonProjectReader {
    * @return {@code Image} から復元したノード.
    */
   private BhNode genBhNode(BhNodeImage nodeImage) throws CorruptedSaveDataException {
-    if (!canCreateNode(nodeImage)) {
+    if (!canCreateNodeOf(nodeImage)) {
       return null;
     }
     BhNode node = nodeFactory.create(nodeImage.nodeId, new UserOperation());
+    node.setInstanceId(nodeImage.instanceId);
     node.setDefault(nodeImage.isDefault);
     if (!checkNodeVersionCompatiblity(nodeImage, node)) {
       return null;
@@ -231,7 +232,7 @@ public class JsonProjectReader {
   }
 
   /** {@code nodeImage} で指定した {@link BhNode} が作成可能か調べる. */
-  private boolean canCreateNode(BhNodeImage nodeImage) {
+  private boolean canCreateNodeOf(BhNodeImage nodeImage) {
     boolean canCreate = nodeFactory.canCreate(nodeImage.nodeId);
     if (!canCreate) {
       warnings.add(ImportWarning.UNKNOWN_BH_NODE_ID);

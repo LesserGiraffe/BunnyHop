@@ -179,17 +179,17 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
   @Override
   public void show(int depth) {
     var parentinstId =
-        (parentConnector != null) ? parentConnector.getInstanceId() : InstanceId.NONE;
+        (parentConnector != null) ? parentConnector.getSerialNo() : InstanceId.NONE;
     var lastReplacedInstId =
-        (getLastReplaced() != null) ? getLastReplaced().getInstanceId() : InstanceId.NONE;
+        (getLastReplaced() != null) ? getLastReplaced().getSerialNo() : InstanceId.NONE;
 
     System.out.println("%s<ConnectiveNode  bhID=%s  parent=%s>  %s"
-        .formatted(indent(depth), getId(), parentinstId, getInstanceId()));
+        .formatted(indent(depth), getId(), parentinstId, getSerialNo()));
     System.out.println("%s<last replaced>  %s"
         .formatted(indent(depth + 1), lastReplacedInstId));
     System.out.println(indent(depth + 1) + "<derivation>");
     getDerivatives().forEach(derv -> System.out.println(
-        "%s<derivative>  %s".formatted(indent(depth + 2), derv.getInstanceId())));
+        "%s<derivative>  %s".formatted(indent(depth + 2), derv.getSerialNo())));
     childSection.show(depth + 1);
   }
 }

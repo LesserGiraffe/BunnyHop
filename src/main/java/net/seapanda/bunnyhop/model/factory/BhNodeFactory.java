@@ -31,7 +31,7 @@ public interface BhNodeFactory {
   /**
    * ノード ID から {@link BhNode} を新しく作る.
    *
-   * @param id 取得したいノードの ID
+   * @param id 作成したいノードの ID
    * @param userOpe undo 用コマンドオブジェクト
    * @return {@code id} で指定した {@link BhNode} のオブジェクト.  
    *         {@code id} に対応するノードが見つからなかった場合は null.
@@ -41,7 +41,7 @@ public interface BhNodeFactory {
   /**
    * ノード ID から {@link BhNode} を新しく作る.
    *
-   * @param id 取得したいノードの ID
+   * @param id 作成したいノードの ID
    * @param type 作成したノードに対して適用する MVC 構造
    * @param userOpe undo 用コマンドオブジェクト
    * @return {@code id} で指定した {@link BhNode} のオブジェクト.
