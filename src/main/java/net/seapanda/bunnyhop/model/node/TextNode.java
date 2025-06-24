@@ -118,7 +118,7 @@ public class TextNode extends DerivativeBase<TextNode> {
     }
     String oldText = text;
     this.text = text;
-    cbRegistry.onTextChangedInvoker.invoke(new TextChangedEvent(oldText, text, userOpe));
+    getCallbackRegistry().onTextChangedInvoker.invoke(new TextChangedEvent(oldText, text, userOpe));
     userOpe.pushCmdOfSetText(this, oldText);
   }
 

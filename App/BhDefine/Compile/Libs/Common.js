@@ -24,6 +24,7 @@ let _nil = new _Nil();
 let _idxCallStack = 0;
 let _idxCurrentNodeInstId = 1;
 let _idxErrorMsgs = 2;
+let _idxVarStack = 3;
 let _threadContext = _createThreadContext();
 let _syncTimer = (function() {
   let nilTimer = bhScriptHelper.factory.newSyncTimer(0, true);
@@ -48,7 +49,8 @@ function _createThreadContext() {
   let threadContext = [
     [],   // call stack
     null, // current node instance id,
-    []    // error messages
+    [],   // error messages
+    [],   // variable stack (変数のアクセサオブジェクトを保存するスタック)
   ];
   // Java の long 型は JavaScript で使うと double 型に変換される. 
   // Java のスレッド ID は long 型 だが, Number.MAX_SAFE_INTEGER の範囲に入る保証がないので,
@@ -395,27 +397,21 @@ function _aryToStr(ary, listName) {
     return listName + ' = ' + _textDb.list.empty;
 
   let halfOfMaxElems = 256;
-  let strBuilder = new _jStringBuilder();
+  let list = [];
   if (ary.length > halfOfMaxElems * 2) {
     for (let i = 0; i < halfOfMaxElems; ++i) {
-      strBuilder
-      .append(listName)
-      .append(_jString.format('[%.0f] = %s\n', i, ary[i]._str()));
+      list[list.length] = _jString.format('%s[%.0f] = %s', listName, i, ary[i]._str());
     }
-    strBuilder.append('  ...  \n');
+    list[list.length] = '  ...  ';
     for (let i = ary.length - halfOfMaxElems; i < ary.length; ++i) {
-      strBuilder
-      .append(listName)
-      .append(_jString.format('[%.0f] = %s\n', i, ary[i]._str()));
+      list[list.length] = _jString.format('%s[%.0f] = %s', listName, i, ary[i]._str());
     }
   } else {
     for (let i = 0; i < ary.length; ++i) {
-      strBuilder
-      .append(listName)
-      .append(_jString.format('[%.0f] = %s\n', i, ary[i]._str()));
+      list[list.length] = _jString.format('%s[%.0f] = %s', listName, i, ary[i]._str());
     }
   }
-  return String(strBuilder);
+  return String(_jString.join('\n', list));
 }
 
 function _aryPush(ary, val, num) {

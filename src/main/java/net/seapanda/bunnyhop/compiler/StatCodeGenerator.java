@@ -16,6 +16,9 @@
 
 package net.seapanda.bunnyhop.compiler;
 
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.SequencedCollection;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 
@@ -29,16 +32,18 @@ class StatCodeGenerator {
   private final CommonCodeGenerator common;
   private final ExpCodeGenerator expCodeGen;
   private final VarDeclCodeGenerator varDeclCodeGen;
+  /** for, while 文の内側で宣言された変数の個数を保持するスタック. */
+  private final Deque<Integer> numLocalVarsStack = new LinkedList<>();
 
   /** コンストラクタ. */
   StatCodeGenerator(
       CommonCodeGenerator common,
       ExpCodeGenerator expCodeGen,
       VarDeclCodeGenerator varDeclCodeGen) {
-
     this.common = common;
     this.expCodeGen = expCodeGen;
     this.varDeclCodeGen = varDeclCodeGen;
+    numLocalVarsStack.addLast(0);
   }
 
   /**
@@ -55,7 +60,7 @@ class StatCodeGenerator {
       int nestLevel,
       CompileOption option) {
     String statSymbolName = statementNode.getSymbolName();
-    // void がつながっているときは, そこで文終了
+    // void がつながっているときは, そこで文は終了する
     if (statSymbolName.equals(SymbolNames.Stat.VOID_STAT)) {
       return;
     }
@@ -97,6 +102,8 @@ class StatCodeGenerator {
       int nestLevel,
       CompileOption option) {
 
+    // 右辺の値が無い代入文でブレークが指定されたときのために, ここでインスタンス ID を保存する.
+    common.genSetCurrentNodeInstId(code, assignStatNode.getInstanceId(), nestLevel, option);
     SyntaxSymbol rightExp = 
         assignStatNode.findDescendantOf("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
     String rightExpCode = expCodeGen.genExpression(code, rightExp, nestLevel, option);
@@ -131,20 +138,14 @@ class StatCodeGenerator {
       CompileOption option) {
     if (!SymbolNames.VarDecl.VAR_LIST.contains(varSymbol.getSymbolName())) {
       return;
-    }    
-    // 実行中のノードをスレッドコンテキストに設定.
-    if (option.isDebug) {
-      code.append(common.indent(nestLevel))
-          .append(common.genSetCurrentNodeInstIdCode(assignStatNode))
-          .append(";" + Keywords.newLine);
     }
     BhNode varDecl = ((BhNode) varSymbol).getOriginal();
     if (common.isOutputParam(varDecl)) {
       if (isAddAssign) {
-        rightExp = "(%s + %s)".formatted(common.genGetOutputParamValCode(varDecl), rightExp);
+        rightExp = "(%s + %s)".formatted(common.genGetOutputParamVal(varDecl), rightExp);
       }
       code.append(common.indent(nestLevel))
-          .append(common.genSetOutputParamValCode(varDecl, rightExp))
+          .append(common.genSetOutputParamVal(varDecl, rightExp))
           .append(";" + Keywords.newLine);
     } else {
       String varName = common.genVarName(varDecl);
@@ -174,17 +175,14 @@ class StatCodeGenerator {
       CompileOption option) {
 
     String symbolName = controlStatNode.getSymbolName();
+    common.genSetCurrentNodeInstId(code, controlStatNode.getInstanceId(), nestLevel, option);
     switch (symbolName) {
       case SymbolNames.ControlStat.BREAK_STAT:
-        code.append(common.indent(nestLevel))
-            .append(Keywords.Js._break)
-            .append(";" + Keywords.newLine);
+        genBreakStat(code, nestLevel, option);
         break;
 
       case SymbolNames.ControlStat.CONTINUE_STAT:
-        code.append(common.indent(nestLevel))
-            .append(Keywords.Js._continue)
-            .append(";" + Keywords.newLine);
+        genContinueStat(code, nestLevel, option);
         break;
 
       case SymbolNames.ControlStat.IF_ELSE_STAT:
@@ -205,10 +203,7 @@ class StatCodeGenerator {
         break;
 
       case SymbolNames.ControlStat.RETURN_STAT:
-        code.append(common.indent(nestLevel))
-            .append(Keywords.Js._break_)
-            .append(ScriptIdentifiers.Label.end)
-            .append(";" + Keywords.newLine);
+        genReturnStat(code, nestLevel, option);
         break;
 
       case SymbolNames.ControlStat.MUTEX_BLOCK_STAT:
@@ -265,7 +260,7 @@ class StatCodeGenerator {
   }
 
   /**
-   * While文のコードを生成する.
+   * while 文のコードを生成する.
    *
    * @param code 生成したコードの格納先
    * @param whileStatNode while文のノード
@@ -302,7 +297,9 @@ class StatCodeGenerator {
     //loop part
     SyntaxSymbol loopStat =
         whileStatNode.findDescendantOf("*", SymbolNames.ControlStat.LOOP_STAT, "*");
+    numLocalVarsStack.addLast(0);
     genStatement(loopStat, code, nestLevel + 1, option);
+    numLocalVarsStack.removeLast();
     code.append(common.indent(nestLevel))
         .append("}" + Keywords.newLine);
   }
@@ -325,16 +322,21 @@ class StatCodeGenerator {
         .append("{" + Keywords.newLine);
     SyntaxSymbol param = compoundStatNode.findDescendantOf(
         "*", "*", SymbolNames.ControlStat.LOCAL_VAR_DECL, "*");
-    varDeclCodeGen.genVarDecls(param, code, nestLevel + 1, option);
-    SyntaxSymbol stat = compoundStatNode.findDescendantOf(
-        "*", "*", SymbolNames.Stat.STAT_LIST, "*");
+    SequencedCollection<SyntaxSymbol> varDecls =
+        varDeclCodeGen.genVarDecls(param, code, nestLevel + 1, option);
+    common.genPushToVarFrame(varDecls, code, nestLevel + 1, option);
+    SyntaxSymbol stat =
+        compoundStatNode.findDescendantOf("*", "*", SymbolNames.Stat.STAT_LIST, "*");
+    numLocalVarsStack.addLast(numLocalVarsStack.removeLast() + varDecls.size());
     genStatement(stat, code, nestLevel + 1, option);
+    numLocalVarsStack.addLast(numLocalVarsStack.removeLast() - varDecls.size());
+    common.genPopFromVarFrame(varDecls.size(), code, nestLevel + 1, option);
     code.append(common.indent(nestLevel))
         .append("}" + Keywords.newLine);
   }
 
   /**
-   * Repeat文のコードを生成する.
+   * Repeat 文のコードを生成する.
    *
    * @param code 生成したコードの格納先
    * @param repeatStatNode Repeat文のノード
@@ -379,7 +381,9 @@ class StatCodeGenerator {
     //loop part
     SyntaxSymbol loopStat =
         repeatStatNode.findDescendantOf("*", SymbolNames.ControlStat.LOOP_STAT, "*");
+    numLocalVarsStack.addLast(0);
     genStatement(loopStat, code, nestLevel + 1, option);
+    numLocalVarsStack.removeLast();
     code.append(common.indent(nestLevel))
         .append("}" + Keywords.newLine);
   }
@@ -407,7 +411,7 @@ class StatCodeGenerator {
 
     // lock
     code.append(common.indent(nestLevel + 1))
-        .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.LOCK, lockVar))
+        .append(common.genFuncCall(ScriptIdentifiers.Funcs.LOCK, lockVar))
         .append(";" + Keywords.newLine);
 
     SyntaxSymbol exclusiveStat =
@@ -422,7 +426,58 @@ class StatCodeGenerator {
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._finally_)
         .append("{ ")
-        .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.UNLOCK, lockVar))
+        .append(common.genFuncCall(ScriptIdentifiers.Funcs.UNLOCK, lockVar))
         .append("; }" + Keywords.newLine);
   }
+
+  /**
+   * break 文を作成する.
+   *
+   * @param code 生成したコードの格納先
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   */  
+  private void genBreakStat(
+      StringBuilder code,
+      int nestLevel,
+      CompileOption option) {
+    common.genPopFromVarFrame(numLocalVarsStack.peekLast(), code, nestLevel, option);
+    code.append(common.indent(nestLevel))
+        .append(Keywords.Js._break)
+        .append(";" + Keywords.newLine);
+  }
+
+  /**
+   * continue 文を作成する.
+   *
+   * @param code 生成したコードの格納先
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   */  
+  private void genContinueStat(
+      StringBuilder code,
+      int nestLevel,
+      CompileOption option) {
+    common.genPopFromVarFrame(numLocalVarsStack.peekLast(), code, nestLevel, option);
+    code.append(common.indent(nestLevel))
+        .append(Keywords.Js._continue)
+        .append(";" + Keywords.newLine);
+  }
+
+  /**
+   * return 文を作成する.
+   *
+   * @param code 生成したコードの格納先
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   */  
+  private void genReturnStat(
+      StringBuilder code,
+      int nestLevel,
+      CompileOption option) {
+    code.append(common.indent(nestLevel))
+        .append(Keywords.Js._break_)
+        .append(ScriptIdentifiers.Label.end)
+        .append(";" + Keywords.newLine);
+  }    
 }

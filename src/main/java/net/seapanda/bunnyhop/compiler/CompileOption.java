@@ -28,15 +28,24 @@ import net.seapanda.bunnyhop.utility.Utility;
  */
 public class CompileOption {
 
-  /** デバッグ用コードを追加する場合 true. */
-  public final boolean isDebug;
+  /** 処理中のノードのインスタンス ID をスレッドコンテキストに設定するコードを追加する. */
+  public final boolean addNodeInstIdToContext;
+
+  /** コールスタックに関数呼び出しノードのインスタンス ID を追加および削除するコードを追加する. */
+  public final boolean addNodeInstIdToCallStack;
+
+  /** 変数スタックに変数に対するアクセサを追加および削除するコードを追加する. */
+  public final boolean addVarAccesorToVarStack;
+
   /** ソースコードにコメントを追加する場合 true. */
   public final boolean withComments;
   /** 出力ファイルのパス. */
   public final Path outFile;
 
   private CompileOption(Builder builder) {
-    this.isDebug = builder.isDebug;
+    addNodeInstIdToContext = builder.isDebug;
+    addNodeInstIdToCallStack = builder.isDebug;    
+    addVarAccesorToVarStack = builder.isDebug;
     this.withComments = builder.withComments;
     this.outFile = builder.outFile;
   }

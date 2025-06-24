@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 
 /**
@@ -132,34 +133,32 @@ class EventHandlerCodeGenerator {
 
     String lockVar = Keywords.Prefix.lockVar + eventNode.getSerialNo().hexStr();
     String funcName = common.genFuncName(eventNode);
-    genHeaderSnippetOfEventCall(code, funcName, lockVar, nestLevel);
+    genHeaderSnippetOfEventCall(
+        code, eventNode.getInstanceId(), funcName, lockVar, nestLevel, option);
     // _sleep(...)
     if (eventNode.getSymbolName().equals(SymbolNames.Event.DELAYED_START_EVENT)) {
       TextNode delayTimeNode =
           (TextNode) eventNode.findDescendantOf("*", "*", SymbolNames.Event.DELAY_TIME);
       code.append(common.indent(nestLevel + 4))
-          .append(common.genSetCurrentNodeInstIdCode(eventNode))
-          .append(";" + Keywords.newLine)
-          .append(common.indent(nestLevel + 4))
-          .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.SLEEP, delayTimeNode.getText()))
+          .append(common.genFuncCall(ScriptIdentifiers.Funcs.SLEEP, delayTimeNode.getText()))
           .append(";" + Keywords.newLine);
     }
-
     SyntaxSymbol stat = eventNode.findDescendantOf("*", SymbolNames.Stat.STAT_LIST, "*");
     statCodeGen.genStatement(stat, code, nestLevel + 4, option);
-    genFooterSnippetOfEventCall(code, lockVar, nestLevel);
+    genFooterSnippetOfEventCall(code, lockVar, nestLevel, option);
     // _addEvent(...);
     getEventType(eventNode).ifPresent(
         event -> genAddEventFuncCall(event, funcName, code, nestLevel));
   }
 
+  /** イベントとそれに対応するメソッドを追加する関数を呼ぶコードを生成する. */
   private void genAddEventFuncCall(
       BhProgramEvent.Name event,
       String funcName,
       StringBuilder code,
       int nestLevel) {
 
-    String addEventCallStat = common.genFuncCallCode(
+    String addEventCallStat = common.genFuncCall(
         ScriptIdentifiers.Funcs.ADD_EVENT,
         funcName,
         "'%s'".formatted(event));
@@ -192,14 +191,18 @@ class EventHandlerCodeGenerator {
    * イベントハンドラ呼び出しの前の定型文を生成する.
    *
    * @param code 生成したコードの格納先
+   * @param eventInstId イベントハンドラノードの {@link InstanceId}
    * @param lockVar ロックオブジェクトの変数
    * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
    */
   void genHeaderSnippetOfEventCall(
       StringBuilder code,
+      InstanceId eventInstId,
       String funcName,
       String lockVar,
-      int nestLevel) {
+      int nestLevel,
+      CompileOption option) {
     // let lockVar = new _genLockObj();
     varDeclCodeGen.genVarDeclStat(
         code, lockVar, ScriptIdentifiers.Funcs.GEN_LOCK_OBJ + "(false)", nestLevel);
@@ -214,7 +217,7 @@ class EventHandlerCodeGenerator {
     code.append(common.indent(nestLevel + 1))
         .append(Keywords.Js._if_)
         .append("(")
-        .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.TRY_LOCK, lockVar))
+        .append(common.genFuncCall(ScriptIdentifiers.Funcs.TRY_LOCK, lockVar))
         .append(") {" + Keywords.newLine);
 
     //try {
@@ -222,18 +225,30 @@ class EventHandlerCodeGenerator {
         .append(Keywords.Js._try_)
         .append("{" + Keywords.newLine);
 
+    // let _threadContext = _createThreadContext();
+    code.append(common.indent(nestLevel + 3))
+        .append(Keywords.Js._const_)
+        .append(ScriptIdentifiers.Vars.THREAD_CONTEXT)
+        .append(" = ")
+        .append(common.genFuncCall(ScriptIdentifiers.Funcs.CREATE_THREAD_CONTEXT))
+        .append(";" + Keywords.newLine);
+
+    // _threadContext[_idxCurrentNodeInstId] = 'event-handler-instance-id';
+    common.genSetCurrentNodeInstId(code, eventInstId, nestLevel + 3, option);
+
+    // let _callStack = _threadContext[_idxCallStack];
+    // _callStack[_callStack.length] = _threadContext[_idxCurrentNodeInstId];
+    common.genPushToCallStack(code, nestLevel + 3, option);
+
+    // let _varStack = _threadContext[_idxVarStack];
+    // let _varFrame = [];
+    // _varStack[_varStack.length] = _varFrame;
+    common.genPushToVarStack(code, nestLevel + 3, option);
+
     // _end : {...
     code.append(common.indent(nestLevel + 3))
         .append(ScriptIdentifiers.Label.end)
         .append(" : {" + Keywords.newLine);
-
-    // let _threadContext = _createThreadContext();
-    code.append(common.indent(nestLevel + 4))
-        .append(Keywords.Js._const_)
-        .append(ScriptIdentifiers.Vars.THREAD_CONTEXT)
-        .append(" = ")
-        .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.CREATE_THREAD_CONTEXT))
-        .append(";" + Keywords.newLine);
   }
 
   /**
@@ -242,15 +257,23 @@ class EventHandlerCodeGenerator {
    * @param code 生成したコードの格納先
    * @param lockVar ロックオブジェクトの変数
    * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
    */
   void genFooterSnippetOfEventCall(
       StringBuilder code,
       String lockVar,
-      int nestLevel) {
+      int nestLevel,
+      CompileOption option) {
     // end of "_end : {..."
     code.append(common.indent(nestLevel + 3))
         .append("}" + Keywords.newLine);
+    
+    // _varStack.pop();
+    common.genPopFromVarStack(code, nestLevel + 3, option);
 
+    // _callStack.pop();
+    common.genPopFromCallStack(code, nestLevel + 3, option);
+    
     // end of "try {"
     code.append(common.indent(nestLevel + 2))
         .append("}" + Keywords.newLine);
@@ -262,11 +285,11 @@ class EventHandlerCodeGenerator {
         .append(Keywords.Js._finally_)
         .append("{" + Keywords.newLine)
         .append(common.indent(nestLevel + 3))
-        .append(common.genFuncCallCode(
+        .append(common.genFuncCall(
             ScriptIdentifiers.Funcs.REMOVE_THREAD_CONTEXT, Keywords.Js._this))
         .append(";" + Keywords.newLine)
         .append(common.indent(nestLevel + 3))
-        .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.UNLOCK, lockVar))
+        .append(common.genFuncCall(ScriptIdentifiers.Funcs.UNLOCK, lockVar))
         .append(";" + Keywords.newLine)
         .append(common.indent(nestLevel + 2))
         .append("}" + Keywords.newLine);

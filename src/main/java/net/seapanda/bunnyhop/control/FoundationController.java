@@ -24,6 +24,7 @@ import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramController;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
@@ -141,18 +142,23 @@ public class FoundationController {
   /** 基底ペインに転送すべきキーイベントかどうかを判断する. */
   private boolean isKeyEventToForward(KeyEvent event) {
     EventTarget target = event.getTarget();
+    if (target instanceof Pane pane) {
+      if (pane.getId().equals(BhConstants.UiId.WS_PANE)) {
+        return true;
+      }
+    }
     // タブペインが矢印キーで切り替わらないようにする
     if (target == workspaceSetController.getTabPane()) {
       return true;
     }
     // スクロールペインが矢印やスペースキーでスクロールしないようにする。
-    if (target instanceof ScrollPane) {
-      if (((ScrollPane) target).getId().equals(BhConstants.UiId.WS_SCROLL_PANE)) {
+    if (target instanceof ScrollPane scrollPane) {
+      if (scrollPane.getId().equals(BhConstants.UiId.WS_SCROLL_PANE)) {
         return true;
       }
     }
     // ボタンが矢印やスぺーキーイベントを受け付けないようにする
-    if (event.getTarget() instanceof ButtonBase) {
+    if (target instanceof ButtonBase) {
       return true;
     }
     return false;

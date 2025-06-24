@@ -5,7 +5,16 @@
   -fx-stroke-type: inside;
 }
 
-.numType:unfixedDefault,.strType:unfixedDefault,.boolType:unfixedDefault,.soundType:unfixedDefault,.colorType:unfixedDefault,.numVarType:unfixedDefault,.strVarType:unfixedDefault,.boolVarType:unfixedDefault,.soundVarType:unfixedDefault,.colorVarType:unfixedDefault {
+.numType:unfixedDefault,
+.strType:unfixedDefault,
+.boolType:unfixedDefault,
+.soundType:unfixedDefault,
+.colorType:unfixedDefault,
+.numVarType:unfixedDefault,
+.strVarType:unfixedDefault,
+.boolVarType:unfixedDefault,
+.soundVarType:unfixedDefault,
+.colorVarType:unfixedDefault {
   -fx-stroke: white;
 }
 

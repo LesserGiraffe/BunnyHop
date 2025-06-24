@@ -137,12 +137,7 @@ class ExpCodeGenerator {
     String operatorCode = SymbolNames.BinaryExp.OPERATOR_MAP.get(operator.getText());    
 
     String tmpVar = common.genVarName(binaryExpNode);
-    // 実行中のノードをスレッドコンテキストに設定.
-    if (option.isDebug) {
-      code.append(common.indent(nestLevel))
-          .append(common.genSetCurrentNodeInstIdCode(binaryExpNode))
-          .append(";" + Keywords.newLine);
-    }
+    common.genSetCurrentNodeInstId(code, binaryExpNode.getInstanceId(), nestLevel, option);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(tmpVar)
@@ -195,7 +190,7 @@ class ExpCodeGenerator {
     SyntaxSymbol rightExp =
         binaryExpNode.findDescendantOf("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
     String rightExpCode = genExpression(code, rightExp, nestLevel + 1, option);
-    
+    common.genSetCurrentNodeInstId(code, binaryExpNode.getInstanceId(), nestLevel, option);
     code.append(common.indent(nestLevel + 1))
         .append(tmpVar)
         .append(" = ")
@@ -228,12 +223,7 @@ class ExpCodeGenerator {
     String primaryExpCode = genExpression(code, primaryExp, nestLevel, option);
     String operatorCode = SymbolNames.UnaryExp.OPERATOR_MAP.get(unaryExpNode.getSymbolName());
     String tmpVar = common.genVarName(unaryExpNode);
-    // 実行中のノードをスレッドコンテキストに設定.
-    if (option.isDebug) {
-      code.append(common.indent(nestLevel))
-          .append(common.genSetCurrentNodeInstIdCode(unaryExpNode))
-          .append(";" + Keywords.newLine);
-    }
+    common.genSetCurrentNodeInstId(code, unaryExpNode.getInstanceId(), nestLevel, option);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(tmpVar)
@@ -321,19 +311,14 @@ class ExpCodeGenerator {
           .append(retValName)
           .append(";" + Keywords.newLine);
     }
-    // 実行中のノードをスレッドコンテキストに設定.
-    if (option.isDebug) {
-      code.append(common.indent(nestLevel))
-          .append(common.genSetCurrentNodeInstIdCode(funcCallNode))
-          .append(";" + Keywords.newLine);
-    }
+    common.genSetCurrentNodeInstId(code, funcCallNode.getInstanceId(), nestLevel, option);
     String[] argArray = argList.toArray(new String[argList.size()]);
     String funcCallCode;
     // 恒等写像は最初の引数を結果の変数に代入するだけ
     if (funcName.equals(ScriptIdentifiers.Funcs.IDENTITY)) {
       funcCallCode = argArray[0];
     } else {
-      funcCallCode = common.genFuncCallCode(funcName, argArray);
+      funcCallCode = common.genFuncCall(funcName, argArray);
     }
     code.append(common.indent(nestLevel));
     if (storeRetVal) {
@@ -344,7 +329,7 @@ class ExpCodeGenerator {
   }
 
   /**
-   * 定義済み関数の実引数部分を作成する.
+   * 定義済み関数を呼ぶコードの実引数部分を作成する.
    *
    * @param code 関数呼び出し式の格納先
    * @param funcCallNode 関数呼び出し式のノード
@@ -433,22 +418,12 @@ class ExpCodeGenerator {
           .append(retValName)
           .append(";" + Keywords.newLine);
     }
-    
-    if (option.isDebug) {
-      // 処理中のノードのインスタンス ID に無効な値を設定
-      code.append(common.indent(nestLevel))
-          .append(common.genNullifyCurrentNodeInstIdCode())
-          .append(";" + Keywords.newLine);
-      // コールスタック push
-      code.append(common.indent(nestLevel))
-          .append(common.genPushToCallStackCode(funcCallNode))
-          .append(";" + Keywords.newLine);
-    }
+    common.genSetCurrentNodeInstId(code, funcCallNode.getInstanceId(), nestLevel, option);
     argList.addAll(outArgList);
     argList.addFirst(ScriptIdentifiers.Vars.THREAD_CONTEXT);
     String funcName = common.genFuncName(((BhNode) funcCallNode).getOriginal());
     String[] argArray = argList.toArray(new String[argList.size()]);
-    String funcCallCode = common.genFuncCallCode(funcName, argArray);
+    String funcCallCode = common.genFuncCall(funcName, argArray);
 
     code.append(common.indent(nestLevel));
     if (storeRetVal) {
@@ -456,12 +431,6 @@ class ExpCodeGenerator {
     }
     code.append(funcCallCode)
         .append(";" + Keywords.newLine);
-    // コールスタック pop
-    if (option.isDebug) {
-      code.append(common.indent(nestLevel))
-          .append(common.genPopFromCallStackCode())
-          .append(";" + Keywords.newLine);
-    }
     return retValName;
   }
 
@@ -502,7 +471,7 @@ class ExpCodeGenerator {
   }
 
   /**
-   * 出力変数を作成する.
+   * 出力実引数を作成する.
    *
    * @param code 生成したコードの格納先
    * @param varNode 変数ノード
@@ -521,11 +490,11 @@ class ExpCodeGenerator {
       if (common.isOutputParam(varDecl)) {
         return common.genVarName(varDecl); // out -> out
       } else {
-        return common.genOutArgName(varDecl); // in -> out
+        return common.genVarAccesorName(varDecl); // in -> out
       }
     } else if (SymbolNames.VarDecl.VAR_VOID_LIST.contains(varNode.getSymbolName())) {
-      //出力引数に変数指定がなかった場合
-      List<String> vars = varDeclCodeGen.genVarDeclAndOutVarArg(
+      // 出力引数に変数指定がなかった場合
+      List<String> vars = varDeclCodeGen.genVarDeclAndAccessor(
           varNode,
           SymbolNames.VarDecl.INIT_VAL_MAP.get(varNode.getSymbolName()),
           code,
@@ -595,11 +564,10 @@ class ExpCodeGenerator {
     String frequency = genExpression(code, frequencyNode, nestLevel, option);
     // 音オブジェクト作成
     String soundVar = common.genVarName(freqSoundLiteralNode);
-    String rightExp = common.genFuncCallCode(
+    String rightExp = common.genFuncCall(
         ScriptIdentifiers.Funcs.CREATE_SOUND, volume, frequency, duration);
-    code.append(common.indent(nestLevel))
-        .append(common.genSetCurrentNodeInstIdCode(freqSoundLiteralNode))
-        .append(";" + Keywords.newLine);
+    common.genSetCurrentNodeInstId(
+        code, freqSoundLiteralNode.getInstanceId(), nestLevel, option);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(soundVar)
@@ -643,11 +611,10 @@ class ExpCodeGenerator {
         440 * Math.pow(2, (Double.parseDouble(octave) + Double.parseDouble(scaleSound)) / 12);
     // 音オブジェクト作成
     String soundVar = common.genVarName(scaleSoundLiteralNode);
-    String rightExp = common.genFuncCallCode(
+    String rightExp = common.genFuncCall(
         ScriptIdentifiers.Funcs.CREATE_SOUND, volume, "(%.3f)".formatted(frequency), duration);
-    code.append(common.indent(nestLevel))
-        .append(common.genSetCurrentNodeInstIdCode(scaleSoundLiteralNode))
-        .append(";" + Keywords.newLine);
+    common.genSetCurrentNodeInstId(
+        code, scaleSoundLiteralNode.getInstanceId(), nestLevel, option);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(soundVar)
@@ -674,7 +641,7 @@ class ExpCodeGenerator {
 
     String colorName = "'" + ((TextNode) colorLiteralNode).getText() + "'";
     String colorVar = common.genVarName(colorLiteralNode);
-    String rightExp = common.genFuncCallCode(
+    String rightExp = common.genFuncCall(
         ScriptIdentifiers.Funcs.CREATE_COLOR_FROM_NAME, colorName);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
@@ -707,7 +674,7 @@ class ExpCodeGenerator {
   private String genVarExp(SyntaxSymbol expNode) {
     var varNode = (BhNode) expNode;
     if (common.isOutputParam(varNode.getOriginal())) {
-      return "(" + common.genGetOutputParamValCode(varNode.getOriginal()) + ")";
+      return "(" + common.genGetOutputParamVal(varNode.getOriginal()) + ")";
     } else {
       return common.genVarName(varNode.getOriginal());
     }

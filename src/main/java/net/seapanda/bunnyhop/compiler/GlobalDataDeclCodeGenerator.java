@@ -96,7 +96,7 @@ class GlobalDataDeclCodeGenerator {
           .append(thisVarName)
           .append(" = ")
           .append(varName)
-          .append(";").append(Keywords.newLine);
+          .append(";" + Keywords.newLine);
     }
 
     SyntaxSymbol nextGlobalDataDecl = globalDataDeclNode.findDescendantOf(

@@ -48,7 +48,7 @@ public class Workspace implements Serializable {
   /** このワークスペースに対応するビュー. */
   private transient WorkspaceView view;
   /** このワークスペースに登録されたイベントハンドラを管理するオブジェクト. */
-  private transient CallbackRegistry cbRegistry = new CallbackRegistry();
+  private final transient CallbackRegistry cbRegistry = new CallbackRegistry();
 
   /**
    * コンストラクタ.
@@ -82,7 +82,7 @@ public class Workspace implements Serializable {
     CallbackInvoker.invoke(callbacks, root);
     if (!rootNodes.contains(root) && root.isRoot()) {
       rootNodes.add(root);
-      cbRegistry.onRootNodeAddedInvoker.invoke(new RootNodeAddedEvent(this, root, userOpe));
+      getCallbackRegistry().onRootNodeAddedInvoker.invoke(new RootNodeAddedEvent(this, root, userOpe));
     }
     userOpe.pushCmdOfAddNodeTreeToWorkspace(root, this);
   }
@@ -100,6 +100,7 @@ public class Workspace implements Serializable {
     nodeList.add(node);
     node.setWorkspace(this, userOpe);
     BhNode.CallbackRegistry registry = node.getCallbackRegistry();
+    var cbRegistry = getCallbackRegistry();
     registry.getOnSelectionStateChanged().add(cbRegistry.onNodeSelStateChanged);
     registry.getOnCompileErrorStateChanged().add(cbRegistry.onNodeCompileErrStateChanged);
     registry.getOnConnected().add(cbRegistry.onNodeConnected);
@@ -118,7 +119,8 @@ public class Workspace implements Serializable {
     }
     if (rootNodes.contains(root)) {
       rootNodes.remove(root);
-      cbRegistry.onRootNodeRemovedInvoker.invoke(new RootNodeRemovedEvent(this, root, userOpe));
+      getCallbackRegistry().onRootNodeRemovedInvoker.invoke(
+          new RootNodeRemovedEvent(this, root, userOpe));
     }
     CallbackInvoker.CallbackRegistry callbacks = CallbackInvoker.newCallbackRegistry();
     callbacks.setForAllNodes(bhNode -> removeNode(bhNode, userOpe));
@@ -140,6 +142,7 @@ public class Workspace implements Serializable {
       node.deselect(userOpe);
     }
     BhNode.CallbackRegistry registry = node.getCallbackRegistry();
+    var cbRegistry = getCallbackRegistry();
     registry.getOnSelectionStateChanged().remove(cbRegistry.onNodeSelStateChanged);
     registry.getOnCompileErrorStateChanged().remove(cbRegistry.onNodeCompileErrStateChanged);
     registry.getOnConnected().remove(cbRegistry.onNodeConnected);
@@ -239,7 +242,7 @@ public class Workspace implements Serializable {
     var oldName = this.name;
     this.name = name;
     userOpe.pushCmd(ope -> setName(oldName, ope));
-    cbRegistry.onNameChangedInvoker.invoke(new NameChangedEvent(this, oldName, name));
+    getCallbackRegistry().onNameChangedInvoker.invoke(new NameChangedEvent(this, oldName, name));
   }
 
   /** このワークスペースに対応するビューを取得する. */
@@ -259,6 +262,10 @@ public class Workspace implements Serializable {
    * @return このワークスペースに対するイベントハンドラの追加と削除を行うオブジェクト
    */
   public CallbackRegistry getCallbackRegistry() {
+    // シリアライズしたノードを操作したときに null が返るのを防ぐ.
+    if (cbRegistry == null) {
+      return new CallbackRegistry();
+    }
     return cbRegistry;
   }
 
@@ -352,12 +359,12 @@ public class Workspace implements Serializable {
           && event.disconnected().isRoot()
           && event.disconnected().getWorkspace() == Workspace.this) {
         rootNodes.add(event.disconnected());
-        cbRegistry.onRootNodeAddedInvoker.invoke(
+        onRootNodeAddedInvoker.invoke(
             new RootNodeAddedEvent(Workspace.this, event.disconnected(), event.userOpe()));
       }
       if (rootNodes.contains(event.connected())) {
         rootNodes.remove(event.connected());
-        cbRegistry.onRootNodeRemovedInvoker.invoke(
+        onRootNodeRemovedInvoker.invoke(
             new RootNodeRemovedEvent(Workspace.this, event.connected(), event.userOpe()));
       }
     }

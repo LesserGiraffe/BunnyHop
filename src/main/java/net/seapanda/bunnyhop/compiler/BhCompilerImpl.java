@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 
 /**
  * BhNode をコンパイルするクラス.
@@ -44,6 +45,7 @@ public class BhCompilerImpl implements BhCompiler {
   private final CommonCodeGenerator common;
   private final GlobalDataDeclCodeGenerator globalDataDeclCodeGen;
   private final List<String> commonCodeList;
+  private final InstanceId startupRoutineId = InstanceId.of(ScriptIdentifiers.Funcs.BH_MAIN);
 
   /**
    * コンストラクタ.
@@ -110,25 +112,47 @@ public class BhCompilerImpl implements BhCompiler {
       Collection<BhNode> nodeListToCompile,
       CompileOption option) {
     String libCode = commonCodeList.stream().reduce("", (a, b) -> a + b);
-    code.append(libCode);
-    varDeclCodeGen.genVarDecls(nodeListToCompile, code, 1, option);
-    globalDataDeclCodeGen.genGlobalDataDecls(nodeListToCompile, code, 1, option);
+    code.append(libCode).append(Keywords.newLine);
+    varDeclCodeGen.genVarDecls(nodeListToCompile, code, 0, option);
+    globalDataDeclCodeGen.genGlobalDataDecls(nodeListToCompile, code, 0, option);
     code.append(Keywords.newLine);
-    funcDefCodeGen.genFuncDefs(nodeListToCompile, code, 1, option);
-    eventHandlerCodeGen.genEventHandlers(nodeListToCompile, code, 1, option);
+    funcDefCodeGen.genFuncDefs(nodeListToCompile, code, 0, option);
+    eventHandlerCodeGen.genEventHandlers(nodeListToCompile, code, 0, option);
+    genMainMethod(code, execNode, option);
+    genAddEventFuncCall(
+        BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.BH_MAIN, code, 0);
+    genCodeForProgramStart(code, 0, option);
+  }
+
+  /**
+   * メインメソッドのコードを生成する.
+   *
+   * @param code 生成したソースコードの格納先
+   * @param execNode メインメソッドで実行する最初のノード
+   * @param option コンパイルオプション
+   */
+  private void genMainMethod(StringBuilder code, BhNode execNode, CompileOption option) {
     String lockVar = Keywords.Prefix.lockVar + ScriptIdentifiers.Funcs.BH_MAIN;
     eventHandlerCodeGen.genHeaderSnippetOfEventCall(
-        code, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 1);
-    expCodeGen.genExpression(code, execNode, 5, option);
-    statCodeGen.genStatement(execNode, code, 5, option);
-    eventHandlerCodeGen.genFooterSnippetOfEventCall(code, lockVar, 1);
-    String addEventCallStat = common.genFuncCallCode(
+        code, startupRoutineId, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 0, option);
+    expCodeGen.genExpression(code, execNode, 4, option);
+    statCodeGen.genStatement(execNode, code, 4, option);
+    eventHandlerCodeGen.genFooterSnippetOfEventCall(code, lockVar, 0, option);
+  }
+
+  /** イベントとそれに対応するメソッドを追加する関数を呼ぶコードを生成する. */
+  private void genAddEventFuncCall(
+      BhProgramEvent.Name event,
+      String funcName,
+      StringBuilder code,
+      int nestLevel) {
+    String addEventCallStat = common.genFuncCall(
         ScriptIdentifiers.Funcs.ADD_EVENT,
-        ScriptIdentifiers.Funcs.BH_MAIN,
-        "'%s'".formatted(BhProgramEvent.Name.PROGRAM_START));
-    addEventCallStat += ";" + Keywords.newLine;
-    code.append(common.indent(1)).append(addEventCallStat).append(Keywords.newLine);
-    genCodeForProgramStart(code, 1, option);
+        funcName,
+        "'%s'".formatted(event));
+    code.append(common.indent(nestLevel))
+        .append(addEventCallStat + ";")
+        .append(Keywords.newLine.repeat(2));
   }
 
   /**
@@ -141,7 +165,12 @@ public class BhCompilerImpl implements BhCompiler {
   private void genCodeForProgramStart(StringBuilder code, int nestLevel, CompileOption option) {
     // プログラム開始時刻の更新
     code.append(common.indent(nestLevel))
-        .append(common.genFuncCallCode(ScriptIdentifiers.Funcs.START_TIMER))
+        .append(common.genFuncCall(ScriptIdentifiers.Funcs.START_TIMER))
         .append(";" + Keywords.newLine);
+  }
+
+  @Override
+  public InstanceId startupRoutineId() {
+    return startupRoutineId;
   }
 }

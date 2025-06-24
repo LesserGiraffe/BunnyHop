@@ -103,12 +103,19 @@ public class ScriptIdentifiers {
     public static final String PUSH = "push";
     public static final String POP = "pop";
     public static final String CALL = "call";
+    public static final String SPLICE = "splice";
+  }
+
+  /** JavaScript の組み込みプロパティ名.  */
+  public static class JsProperties {
+    public static final String LENGTH = "length";
   }
 
   /** BhProgram で使用されるプロパティ名. */
   public static class Properties {
-    public static final String OUT_PARAM_SETTER = "_set";
-    public static final String OUT_PARAM_GETTER = "_get";
+    public static final String SET = "_set";
+    public static final String GET = "_get";
+    public static final String ID = "_id";
   }
 
   /** BhProgram で使用される変数名. */
@@ -117,8 +124,12 @@ public class ScriptIdentifiers {
     public static final String NIL_COLOR = "_nilColor";
     public static final String PROGRAM_STARTING_TIME = "_programStartingTime";
     public static final String THREAD_CONTEXT = "_threadContext";
+    public static final String CALL_STACK = "_callStack";
+    public static final String VAR_STACK = "_varStack";
+    public static final String VAR_FRAME = "_varFrame";
     public static final String IDX_CALL_STACK = "_idxCallStack";
     public static final String IDX_CURRENT_NODE_INST_ID = "_idxCurrentNodeInstId";
+    public static final String IDX_VAR_STACK = "_idxVarStack";
   }
 
   /** BhProgram で使用されるラベル名. */

@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.compiler;
 import java.nio.file.Path;
 import java.util.Collection;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 
 /**
  * BhNode をコンパイル機能を規定したインタフェース.
@@ -39,4 +40,7 @@ public interface BhCompiler {
    */
   Path compile(BhNode entryPoint, Collection<BhNode> nodesToCompile, CompileOption option)
       throws CompileError;
+
+  /** エントリポイントとなるノードの処理を呼ぶ関数の ID. */
+  InstanceId startupRoutineId();
 }

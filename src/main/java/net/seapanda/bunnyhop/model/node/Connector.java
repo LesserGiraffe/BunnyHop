@@ -136,7 +136,7 @@ public class Connector extends SyntaxSymbol {
     if (oldNode != null && oldNode.getWorkspace() != null) {
       oldNode.getWorkspace().addNodeTree(node, userOpe);
     }
-    cbRegistry.onNodeReplaced.invoke(new ReplacementEvent(oldNode, node, userOpe));
+    getCallbackRegistry().onNodeReplaced.invoke(new ReplacementEvent(oldNode, node, userOpe));
 
     if (userOpe != null) {
       userOpe.pushCmdOfConnectNode(oldNode, this);
@@ -252,6 +252,10 @@ public class Connector extends SyntaxSymbol {
    * @return このコネクタに対するイベントハンドラの追加と削除を行うオブジェクト
    */
   CallbackRegistry getCallbackRegistry() {
+    // シリアライズしたノードを操作したときに null が返るのを防ぐ.
+    if (cbRegistry == null) {
+      return new CallbackRegistry();
+    }
     return cbRegistry;
   }
 

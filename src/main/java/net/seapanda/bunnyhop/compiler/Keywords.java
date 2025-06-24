@@ -55,5 +55,7 @@ public class Keywords {
     public static final String _catch_ = "catch ";
     public static final String _finally_ = "finally ";
     public static final String _throw_ = "throw ";
+    public static final String _null = "null";
+    public static final String _delete_ = "delete ";
   }
 }
