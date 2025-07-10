@@ -429,7 +429,7 @@ public class SymbolNames {
         new HashMap<FuncId, String>() {{
             put(FuncId.create(STR_TO_NUM_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
             put(FuncId.create(STR_TO_NUM_WITH_DEFAULT_VAL_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
-            put(FuncId.create(ANY_TO_STR_EXP), ScriptIdentifiers.Funcs.TO_STR);
+            put(FuncId.create(ANY_TO_STR_EXP), ScriptIdentifiers.Funcs.STR);
             put(FuncId.create(PRINT_STAT), ScriptIdentifiers.Funcs.PRINTLN);
             put(FuncId.create(SYNC_TIMER_AWAIT_STAT), ScriptIdentifiers.Funcs.SYNC_TIMER_AWAIT);
             put(FuncId.create(SYNC_TIMER_AWAIT_WITH_TIMEOUT_STAT),

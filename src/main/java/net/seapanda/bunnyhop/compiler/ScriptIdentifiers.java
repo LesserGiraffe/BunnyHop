@@ -21,7 +21,7 @@ public class ScriptIdentifiers {
 
   /** BhProgram で使用される関数名. (JavaScript の組み込み関数は除く) */
   public static class Funcs {
-    public static final String TO_STR = "_str";
+    public static final String STR = "_str";
     public static final String STR_TO_NUM = "_strToNum";
     public static final String RANDOM_INT = "_randomInt";
     public static final String PRINTLN = "_println";
@@ -92,7 +92,9 @@ public class ScriptIdentifiers {
     public static final String NEW_BH_PROGRAM_EXCEPTION = "_newBhProgramException";
     public static final String INIT_THIS_OBJ = "_initThisObj";
     public static final String CREATE_THREAD_CONTEXT = "_createThreadContext";
-    public static final String REMOVE_THREAD_CONTEXT = "_removeThreadContext";
+    public static final String NOTIFY_THREAD_START = "_notifyThreadStart";
+    public static final String NOTIFY_THREAD_END = "_notifyThreadEnd";
+    public static final String SET_GLOBAL_VARIABLES = "_setGlobalVariables";
     public static final String IS_NUM_INFINITE = "_isNumInfinite";
     public static final String NUM_CLAMP = "_numClamp";
     public static final String OUT_ARG_TEST = "_outArgTest";
@@ -128,7 +130,7 @@ public class ScriptIdentifiers {
     public static final String VAR_STACK = "_varStack";
     public static final String VAR_FRAME = "_varFrame";
     public static final String IDX_CALL_STACK = "_idxCallStack";
-    public static final String IDX_CURRENT_NODE_INST_ID = "_idxCurrentNodeInstId";
+    public static final String IDX_NEXT_NODE_INST_ID = "_idxNextNodeInstId";
     public static final String IDX_VAR_STACK = "_idxVarStack";
   }
 

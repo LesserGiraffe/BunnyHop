@@ -232,12 +232,19 @@ class EventHandlerCodeGenerator {
         .append(" = ")
         .append(common.genFuncCall(ScriptIdentifiers.Funcs.CREATE_THREAD_CONTEXT))
         .append(";" + Keywords.newLine);
+    
+    // _notifyThreadStart(_threadContext);
+    code.append(common.indent(nestLevel + 3))
+        .append(common.genFuncCall(
+            ScriptIdentifiers.Funcs.NOTIFY_THREAD_START,
+            ScriptIdentifiers.Vars.THREAD_CONTEXT))
+        .append(";" + Keywords.newLine);
 
-    // _threadContext[_idxCurrentNodeInstId] = 'event-handler-instance-id';
-    common.genSetCurrentNodeInstId(code, eventInstId, nestLevel + 3, option);
+    // _threadContext[_idxNextNodeInstId] = 'event-handler-instance-id';
+    common.genSetNextNodeInstId(code, eventInstId, nestLevel + 3, option);
 
     // let _callStack = _threadContext[_idxCallStack];
-    // _callStack[_callStack.length] = _threadContext[_idxCurrentNodeInstId];
+    // _callStack[_callStack.length] = _threadContext[_idxNextNodeInstId];
     common.genPushToCallStack(code, nestLevel + 3, option);
 
     // let _varStack = _threadContext[_idxVarStack];
@@ -273,7 +280,12 @@ class EventHandlerCodeGenerator {
 
     // _callStack.pop();
     common.genPopFromCallStack(code, nestLevel + 3, option);
-    
+
+    // _notifyThreadEnd();
+    code.append(common.indent(nestLevel + 3))
+        .append(common.genFuncCall(ScriptIdentifiers.Funcs.NOTIFY_THREAD_END))
+        .append(";" + Keywords.newLine);
+
     // end of "try {"
     code.append(common.indent(nestLevel + 2))
         .append("}" + Keywords.newLine);
@@ -284,10 +296,6 @@ class EventHandlerCodeGenerator {
     code.append(common.indent(nestLevel + 2))
         .append(Keywords.Js._finally_)
         .append("{" + Keywords.newLine)
-        .append(common.indent(nestLevel + 3))
-        .append(common.genFuncCall(
-            ScriptIdentifiers.Funcs.REMOVE_THREAD_CONTEXT, Keywords.Js._this))
-        .append(";" + Keywords.newLine)
         .append(common.indent(nestLevel + 3))
         .append(common.genFuncCall(ScriptIdentifiers.Funcs.UNLOCK, lockVar))
         .append(";" + Keywords.newLine)

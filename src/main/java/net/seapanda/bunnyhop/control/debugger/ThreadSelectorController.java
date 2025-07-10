@@ -29,6 +29,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.bhprogram.debugger.ThreadContext;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhSettings;
@@ -127,13 +128,13 @@ public class ThreadSelectorController {
    */
   private void showThreadStatus(ThreadContext context) {
     PseudoClass pseudo = PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR);
-    if (context == null || !context.errorOccured()) {
+    if (context == null || context.state() != BhThreadState.ERROR) {
       threadStatusText.setText("");
       threadStatusText.pseudoClassStateChanged(pseudo, false);
       threadStatusText.setOnMousePressed(null);
-
-    } else {
-      errMsgTooltip.setText(truncateErrMsg(context.msg()));
+    } else if (context.state() == BhThreadState.ERROR) {
+      String errMsg = (context.exception() == null) ? "" : context.exception().getMessage();
+      errMsgTooltip.setText(truncateErrMsg(errMsg));
       
       threadStatusText.setText("%s: %s".formatted(
           TextDefs.Debugger.ThreadStatus.status.get(), TextDefs.Debugger.ThreadStatus.error.get()));

@@ -28,10 +28,11 @@ import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
  */
 public class CallStackItem {
   
-  private final long id;
+  private final int idx;
   private final long threadId;
   private final String name;
   private final BhNode node;
+  private final boolean isNotCalled;
 
   /** このコールスタックアイテムが選択されているかどうかのフラグ. */
   private boolean isSelected = false;
@@ -41,32 +42,35 @@ public class CallStackItem {
   /**
    * コンストラクタ.
    *
-   * @param id このコールスタックアイテムの ID
+   * @param idx このコールスタックアイテムのインデックス
    * @param threadId このコールスタックアイテムに対応する関数呼び出しを行ったスレッドの ID
    * @param name このコールスタックアイテムの名前
    * @param node このコールスタックアイテムに対応するノード
+   * @param isNotCalled このコールスタックアイテムに対応する関数呼び出しをまだ行っていない場合 true
    */
-  public CallStackItem(long id, long threadId, String name, BhNode node) {
-    this.id = id;
+  public CallStackItem(int idx, long threadId, String name, BhNode node, boolean isNotCalled) {
+    this.idx = idx;
     this.threadId = threadId;
     this.name = name;
     this.node = node;
+    this.isNotCalled = isNotCalled;
   }
 
   /**
    * コンストラクタ.
    *
-   * @param id このコールスタックアイテムの ID
+   * @param idx このコールスタックアイテムのインデックス
    * @param threadId このコールスタックアイテムに対応する関数呼び出しを行ったスレッドの ID
    * @param name このコールスタックアイテムの名前
+   * @param isNotCalled このコールスタックアイテムに対応する関数呼び出しをまだ行っていない場合 true
    */
-  public CallStackItem(long id, long threadId, String name) {
-    this(id, threadId, name, null);
+  public CallStackItem(int idx, long threadId, String name, boolean isNotCalled) {
+    this(idx, threadId, name, null, isNotCalled);
   }
 
-  /** このコールスタックアイテムの ID を取得する. */
-  public long getId() {
-    return id;
+  /** このコールスタックアイテムのインデックスを取得する. */
+  public int getIdx() {
+    return idx;
   }
 
   /** このコールスタックアイテムに対応する関数呼び出しを行ったスレッドの ID を取得する. */
@@ -82,6 +86,11 @@ public class CallStackItem {
   /** このコールスタックアイテムに対応する {@link BhNode} を取得する. */
   public Optional<BhNode> getNode() {
     return Optional.ofNullable(node);
+  }
+
+  /** このコールスタックアイテムに対応する関数呼び出しをまだ行っていない場合 true を返す. */
+  public boolean isNotCalled() {
+    return isNotCalled;
   }
 
   /**

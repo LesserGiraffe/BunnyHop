@@ -101,7 +101,7 @@ public class CallStackController {
       for (int i = 0; i < len; ++i) {
         items.add(callStack.get(callStack.size() - 1 - i));
       }
-      items.add(new CallStackItem(-1, -1, TextDefs.Debugger.CallStack.ellipsis.get()));
+      items.add(new CallStackItem(-1, -1, TextDefs.Debugger.CallStack.ellipsis.get(), false));
 
       len = BhSettings.LnF.maxCallStackItems - len;
       for (int i = len - 1; i >= 0; --i) {
@@ -119,6 +119,9 @@ public class CallStackController {
       var userOpe = new UserOperation(); // コールスタックの選択は undo / redo の対象にしない
       if (deselected != null) {
         deselected.deselect(userOpe);
+        if (csJumpCheckBox.isSelected()) {
+          deselected.getNode().ifPresent(node -> node.deselect(context.userOpe()));
+        }
       }
       if (selected != null) {
         selected.select(userOpe);

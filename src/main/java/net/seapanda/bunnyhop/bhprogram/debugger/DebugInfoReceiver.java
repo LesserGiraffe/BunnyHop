@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
+import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
 
 /**
  * デバッグ情報を受け取る機能を規定したインタフェース.
@@ -26,9 +26,9 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
 public interface DebugInfoReceiver {
 
   /**
-   * デバッガにスレッドの例外情報を追加する.
+   * デバッガにスレッドコンテキストを渡す.
    *
-   * @param exception 追加する例外情報
+   * @param context スレッドコンテキスト
    */
-  void receive(BhProgramException exception);
+  void receive(BhThreadContext context);
 }

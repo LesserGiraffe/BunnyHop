@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.compiler;
 
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -26,9 +27,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.SequencedCollection;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 
 /**
  * BhNode をコンパイルするクラス.
@@ -73,12 +76,15 @@ public class BhCompilerImpl implements BhCompiler {
   }
 
   @Override
-  public Path compile(
-      BhNode entryPoint, Collection<BhNode> nodesToCompile, CompileOption option)
+  public Path compile(BhNode entryPoint, Collection<BhNode> targets, CompileOption option)
       throws CompileError {
-    Preprocessor.process(nodesToCompile);
+    targets = new ArrayList<>(targets);
+    if (entryPoint != null && !targets.contains(entryPoint)) {
+      targets.add(entryPoint);
+    }
+    Preprocessor.process(targets);
     StringBuilder code = new StringBuilder();
-    genCode(code, entryPoint, nodesToCompile, option);
+    genCode(code, entryPoint, targets, option);
 
     try {
       new File(option.outFile.getParent().toAbsolutePath().toString()).mkdirs();
@@ -102,41 +108,47 @@ public class BhCompilerImpl implements BhCompiler {
    * プログラム全体のコードを生成する.
    *
    * @param code 生成したソースコードの格納先
-   * @param execNode 実行するノード
-   * @param nodeListToCompile コンパイル対象のノードリスト (execNode を含む)
+   * @param entryPoint プログラム開始時に実行する最初のノード
+   * @param targets コンパイル対象のノードリスト
    * @param option コンパイルオプション
    */
   private void genCode(
       StringBuilder code,
-      BhNode execNode,
-      Collection<BhNode> nodeListToCompile,
+      BhNode entryPoint,
+      Collection<BhNode> targets,
       CompileOption option) {
     String libCode = commonCodeList.stream().reduce("", (a, b) -> a + b);
     code.append(libCode).append(Keywords.newLine);
-    varDeclCodeGen.genVarDecls(nodeListToCompile, code, 0, option);
-    globalDataDeclCodeGen.genGlobalDataDecls(nodeListToCompile, code, 0, option);
+    SequencedCollection<SyntaxSymbol> globalVars =
+        varDeclCodeGen.genVarDecls(targets, code, 0, option);
+    genSetGlobalVars(code, globalVars, 0, option);
+    globalDataDeclCodeGen.genGlobalDataDecls(targets, code, 0, option);
     code.append(Keywords.newLine);
-    funcDefCodeGen.genFuncDefs(nodeListToCompile, code, 0, option);
-    eventHandlerCodeGen.genEventHandlers(nodeListToCompile, code, 0, option);
-    genMainMethod(code, execNode, option);
+    funcDefCodeGen.genFuncDefs(targets, code, 0, option);
+    eventHandlerCodeGen.genEventHandlers(targets, code, 0, option);
+    genMainMethod(code, entryPoint, option);
     genAddEventFuncCall(
         BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.BH_MAIN, code, 0);
-    genCodeForProgramStart(code, 0, option);
+    genFooterSnippet(code, 0, option);
   }
 
   /**
-   * メインメソッドのコードを生成する.
+   * エントリポイントのコードを生成する.
    *
    * @param code 生成したソースコードの格納先
-   * @param execNode メインメソッドで実行する最初のノード
+   * @param entryPoint プログラム開始時に実行する最初のノード
    * @param option コンパイルオプション
    */
-  private void genMainMethod(StringBuilder code, BhNode execNode, CompileOption option) {
+  private void genMainMethod(StringBuilder code, BhNode entryPoint, CompileOption option) {
+    if (entryPoint == null) {
+      code.append("function %s() {}".formatted(ScriptIdentifiers.Funcs.BH_MAIN));
+      return;
+    }
     String lockVar = Keywords.Prefix.lockVar + ScriptIdentifiers.Funcs.BH_MAIN;
     eventHandlerCodeGen.genHeaderSnippetOfEventCall(
         code, startupRoutineId, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 0, option);
-    expCodeGen.genExpression(code, execNode, 4, option);
-    statCodeGen.genStatement(execNode, code, 4, option);
+    expCodeGen.genExpression(code, entryPoint, 4, option);
+    statCodeGen.genStatement(entryPoint, code, 4, option);
     eventHandlerCodeGen.genFooterSnippetOfEventCall(code, lockVar, 0, option);
   }
 
@@ -156,17 +168,46 @@ public class BhCompilerImpl implements BhCompiler {
   }
 
   /**
-   * プログラム開始前の初期化用コードを生成する.
+   * プログラムの末尾に付くコードを生成する.
    *
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  private void genCodeForProgramStart(StringBuilder code, int nestLevel, CompileOption option) {
+  private void genFooterSnippet(StringBuilder code, int nestLevel, CompileOption option) {
     // プログラム開始時刻の更新
     code.append(common.indent(nestLevel))
         .append(common.genFuncCall(ScriptIdentifiers.Funcs.START_TIMER))
         .append(";" + Keywords.newLine);
+
+    // グローバル変数初期化スレッドのスレッドコンテキストをデバッガから削除する
+    code.append(common.indent(nestLevel))
+        .append(common.genFuncCall(ScriptIdentifiers.Funcs.NOTIFY_THREAD_END))
+        .append(";" + Keywords.newLine);
+  }
+
+  /**
+   * グローバル変数のアクセサをデバッガに追加するコードを生成する.
+   *
+   * @param code 生成したソースコードの格納先
+   * @param variables グローバル変数の変数定義ノード一覧
+   * @param option コンパイルオプション
+   */
+  private void genSetGlobalVars(
+      StringBuilder code,
+      SequencedCollection<SyntaxSymbol> variables,
+      int nestLevel,
+      CompileOption option) {
+    if (!option.addVarAccesorToVarStack) {
+      return;
+    }
+    List<String> varAccessors = variables.stream().map(common::genVarAccesorName).toList();
+    String accessorElems = String.join(", ", varAccessors);
+    if (!accessorElems.isEmpty()) {
+      code.append(common.indent(nestLevel))
+          .append(ScriptIdentifiers.Funcs.SET_GLOBAL_VARIABLES)
+          .append("([%s]);%s".formatted(accessorElems, Keywords.newLine));
+    }
   }
 
   @Override

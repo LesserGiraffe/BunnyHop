@@ -38,7 +38,7 @@ import net.seapanda.bunnyhop.bhprogram.ExecutableNodeCollector;
 import net.seapanda.bunnyhop.bhprogram.ExecutableNodeSet;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramController;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.InputTextCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
 import net.seapanda.bunnyhop.common.BhConstants;

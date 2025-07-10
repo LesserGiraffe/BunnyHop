@@ -17,10 +17,10 @@
 package net.seapanda.bunnyhop.bhprogram.message;
 
 
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.OutputTextCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.InputTextResp;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.OutputTextResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
 
 /**
  * BhProgram の実行環境から受信した {@link BhProgramMessage} を
@@ -46,9 +46,9 @@ public interface BhProgramMessageProcessor {
   public void process(InputTextResp resp);
 
   /**
-   * {@link BhProgramException} を処理する.
+   * {@link BhThreadContext} を処理する.
    *
-   * @param exception 処理する例外
+   * @param context 処理するスレッドコンテキスト
    */
-  public void process(BhProgramException exception);
+  public void process(BhThreadContext context);
 }

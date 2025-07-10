@@ -87,6 +87,9 @@ public class TextDefs {
         
       public static Getter unknown = params -> db.get(
           TextId.of("gui", "debugger", "call-stack", "unknown"), params);
+      
+      public static Getter next = params -> db.get(
+          TextId.of("gui", "debugger", "call-stack", "next"), params);
     }
 
     /** ワークスペース選択コンポーネントに表示されるテキスト. */

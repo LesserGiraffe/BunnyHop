@@ -22,7 +22,7 @@ let _eventHandlers = {};
 let _executor = _jExecutors.newFixedThreadPool(16);
 let _nil = new _Nil();
 let _idxCallStack = 0;
-let _idxCurrentNodeInstId = 1;
+let _idxNextNodeInstId = 1;
 let _idxErrorMsgs = 2;
 let _idxVarStack = 3;
 let _threadContext = _createThreadContext();
@@ -40,6 +40,8 @@ let _nearestLongMin = -_nearestLongMax;
 let _maxArraySize = 0xFFFF_FFFF;
 let _programStartingTime = 0;
 
+bhScriptHelper.debug.setStringGenerator(_str);
+_notifyThreadStart(_threadContext);
 
 function _Nil() {}
 
@@ -48,29 +50,41 @@ function _createThreadContext() {
   // アクセス高速のため配列に格納する.
   let threadContext = [
     [],   // call stack
-    null, // current node instance id,
+    null, // next node instance id,
     [],   // error messages
     [],   // variable stack (変数のアクセサオブジェクトを保存するスタック)
   ];
-  // Java の long 型は JavaScript で使うと double 型に変換される. 
-  // Java のスレッド ID は long 型 だが, Number.MAX_SAFE_INTEGER の範囲に入る保証がないので,
-  // スレッド ID は Java のメソッド内部で取り扱う.
-  bhScriptHelper.thread.setThreadData(threadContext);
   return threadContext;
 }
 
-function _removeThreadContext(dest) {
-  let threadContext = _getThreadContext();
-  if (dest && threadContext) {
-    dest['_callStack'] = threadContext[_idxCallStack];
-    dest['_currentNodeInstId'] = threadContext[_idxCurrentNodeInstId];
-    dest['_errorMsgs'] = threadContext[_idxErrorMsgs];
+function _notifyThreadStart(threadContext) {
+  threadContext = bhScriptHelper.factory.newScriptThreadContext(
+      threadContext, 
+      _idxCallStack,
+      _idxNextNodeInstId,
+      _idxErrorMsgs,
+      _idxVarStack);
+  bhScriptHelper.debug.notifyThreadStart(threadContext);
+}
+
+function _notifyThreadEnd(exception) {
+  if (!exception) {
+    bhScriptHelper.debug.notifyThreadEnd();
+  } else {
+    bhScriptHelper.debug.notifyThreadEnd(exception);
   }
-  bhScriptHelper.thread.removeThreadData();
 }
 
 function _getThreadContext() {
-  return bhScriptHelper.thread.getThreadData();
+  let context = bhScriptHelper.debug.getThreadContext();
+  if (context !== null) {
+    return context.getRaw();
+  }
+  return null;
+}
+
+function _setGlobalVariables(vars) {
+  bhScriptHelper.debug.setGlobalVariables(vars);
 }
 
 function _genLockObj(fair) {
@@ -347,16 +361,14 @@ function _waitProcEnd(process, getStdinStr, checkExitVal) {
 //              例外処理
 //==================================================================
 function _addExceptionMsg(msg) {
-  _getThreadContext()[_idxErrorMsgs].push(String(msg));
+  let context = _getThreadContext();
+  if (context !== null) {
+    context[_idxErrorMsgs].push(String(msg));
+  }
 }
 
 function _newBhProgramException(msg) {
-  let context = _getThreadContext();
-  let currentNodeInstId = context[_idxCurrentNodeInstId];
-  let callStack = (currentNodeInstId !== null)
-      ? context[_idxCallStack].concat(currentNodeInstId) // 'concat' returns a new array.
-      : context[_idxCallStack];
-  return bhScriptHelper.factory.newBhProgramException(callStack, msg);
+  return bhScriptHelper.factory.newBhProgramException(msg);
 }
 
 //==================================================================

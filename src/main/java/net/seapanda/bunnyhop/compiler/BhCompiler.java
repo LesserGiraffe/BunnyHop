@@ -31,14 +31,13 @@ public interface BhCompiler {
   /**
    * {@link BhNode} をコンパイルし, 作成されたファイルのパスを返す.
    *
-   * @param entryPoint プログラム開始時に実行するノード
-   * @param nodesToCompile このコレクションの各ノード以下のノードをコンパイル対象とする (execNode を含む)
+   * @param entryPoint プログラム開始時に実行するノード (nullable)
+   * @param nodes このコレクションの各ノード以下のノードをコンパイル対象とする
    * @param option コンパイルオプション
-   * @return コンパイルした結果作成されたファイルのパス(コンパイルできた場合).
-   *         コンパイルできなかった場合は Optional.empty
+   * @return コンパイルした結果作成されたファイルのパス
    * @throws CompileError コンパイル中にエラーが発生した場合
    */
-  Path compile(BhNode entryPoint, Collection<BhNode> nodesToCompile, CompileOption option)
+  Path compile(BhNode entryPoint, Collection<BhNode> nodes, CompileOption option)
       throws CompileError;
 
   /** エントリポイントとなるノードの処理を呼ぶ関数の ID. */

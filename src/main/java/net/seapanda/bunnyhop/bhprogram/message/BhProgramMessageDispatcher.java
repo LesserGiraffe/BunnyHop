@@ -16,15 +16,15 @@
 
 package net.seapanda.bunnyhop.bhprogram.message;
 
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorCmd.StrBhSimulatorCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhSimulatorResp.StrBhSimulatorResp;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.OutputTextCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.InputTextResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.simulator.BhSimulatorCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.simulator.StringBhSimulatorCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.simulator.StringBhSimulatorResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeTransceiver;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
@@ -80,9 +80,9 @@ public class BhProgramMessageDispatcher {
     switch (notif) {
       case OutputTextCmd
           cmd -> carrier.pushSendResp(msgProcessor.process(cmd));
-      case BhProgramException
-          exception -> msgProcessor.process(exception);
-      case StrBhSimulatorCmd
+      case BhThreadContext
+          context -> msgProcessor.process(context);
+      case StringBhSimulatorCmd
           cmd -> dispatchSimulatorCmd(cmd, carrier);
 
       default -> notifyInvalidNotif(notif);
@@ -97,12 +97,12 @@ public class BhProgramMessageDispatcher {
     }
   }
 
-  /** {@link StrBhSimulatorCmd} をシミュレータに送る. */
-  private void dispatchSimulatorCmd(StrBhSimulatorCmd cmd, BhProgramMessageCarrier carrier) {
+  /** {@link StringBhSimulatorCmd} をシミュレータに送る. */
+  private void dispatchSimulatorCmd(StringBhSimulatorCmd cmd, BhProgramMessageCarrier carrier) {
     simCmdProcessor.process(
         cmd.getComponents(),
         (success, resp) -> {
-            var response = new StrBhSimulatorResp(cmd.getId(), success, resp);
+            var response = new StringBhSimulatorResp(cmd.getId(), success, resp);
             carrier.pushSendResp(response);
         });
   }

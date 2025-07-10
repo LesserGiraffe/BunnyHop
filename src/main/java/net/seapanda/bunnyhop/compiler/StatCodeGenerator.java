@@ -103,7 +103,7 @@ class StatCodeGenerator {
       CompileOption option) {
 
     // 右辺の値が無い代入文でブレークが指定されたときのために, ここでインスタンス ID を保存する.
-    common.genSetCurrentNodeInstId(code, assignStatNode.getInstanceId(), nestLevel, option);
+    common.genSetNextNodeInstId(code, assignStatNode.getInstanceId(), nestLevel, option);
     SyntaxSymbol rightExp = 
         assignStatNode.findDescendantOf("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
     String rightExpCode = expCodeGen.genExpression(code, rightExp, nestLevel, option);
@@ -175,7 +175,7 @@ class StatCodeGenerator {
       CompileOption option) {
 
     String symbolName = controlStatNode.getSymbolName();
-    common.genSetCurrentNodeInstId(code, controlStatNode.getInstanceId(), nestLevel, option);
+    common.genSetNextNodeInstId(code, controlStatNode.getInstanceId(), nestLevel, option);
     switch (symbolName) {
       case SymbolNames.ControlStat.BREAK_STAT:
         genBreakStat(code, nestLevel, option);

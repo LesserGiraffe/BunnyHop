@@ -322,12 +322,12 @@ class VarDeclCodeGenerator {
         .append(";")
         .append(Keywords.newLine);
 
-    String outArgName = common.genVarAccesorName(varDecl);
+    String accessorName = common.genVarAccesorName(varDecl);
     genVarAccessor(
         code,
-        new VarDeclInfo(varName, outArgName, "", varDecl.getInstanceId(), ""),
+        new VarDeclInfo(varName, accessorName, "", varDecl.getInstanceId(), ""),
         nestLevel,
         option);
-    return List.of(varName, outArgName);
+    return List.of(varName, accessorName);
   }
 }

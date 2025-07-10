@@ -169,7 +169,7 @@ class CommonCodeGenerator {
         ScriptIdentifiers.Vars.CALL_STACK,
         ScriptIdentifiers.JsProperties.LENGTH,
         ScriptIdentifiers.Vars.THREAD_CONTEXT,
-        ScriptIdentifiers.Vars.IDX_CURRENT_NODE_INST_ID);
+        ScriptIdentifiers.Vars.IDX_NEXT_NODE_INST_ID);
   }
 
   /** スレッドコンテキストからコールスタックを取り出して, 専用の変数に格納するコードを作成する. */
@@ -215,23 +215,23 @@ class CommonCodeGenerator {
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  void genSetCurrentNodeInstId(
+  void genSetNextNodeInstId(
       StringBuilder code,
       InstanceId id,
       int nestLevel,
       CompileOption option) {
     if (option.addNodeInstIdToContext) {
       code.append(indent(nestLevel))
-          .append(genSetCurrentNodeInstId(id))
+          .append(genNextNodeInstId(id))
           .append(";" + Keywords.newLine);
     }
   }
 
   /** 次に処理するノードのインスタンス ID をスレッドコンテキストに設定するコードを作成する. */
-  private String genSetCurrentNodeInstId(InstanceId id) {
+  private String genNextNodeInstId(InstanceId id) {
     return "%s[%s] = '%s'".formatted(
         ScriptIdentifiers.Vars.THREAD_CONTEXT,
-        ScriptIdentifiers.Vars.IDX_CURRENT_NODE_INST_ID,
+        ScriptIdentifiers.Vars.IDX_NEXT_NODE_INST_ID,
         id);
   }
 

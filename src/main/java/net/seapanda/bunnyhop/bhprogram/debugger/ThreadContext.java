@@ -17,32 +17,33 @@
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.SequencedCollection;
+import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
+import net.seapanda.bunnyhop.bhprogram.common.message.exception.BhProgramException;
 
 /**
- * BhProgram の特定のスレッドの特定の時点における情報を格納するレコード.
+ * BhProgram のスレッドに関連する情報を格納するクラス.
  *
- * @param callStack コールスタック. 呼び出した順番が古いメソッドを前に格納すること.
- * @param msg {@code callStack} このコンテキストに付随するメッセージ (例外発生時のエラーメッセージなど)
- * @param threadId {@code callStack} のメソッドを実行したスレッドの ID
- * @param errorOccured スレッドが実行した処理でエラーが発生したことを示すフラグ.
+ * @param threadId スレッド ID
+ * @param state スレッドの状態
+ * @param callStack コールスタック
+ * @param exception スレッドで発生した例外
  */
 public record ThreadContext(
     long threadId,
+    BhThreadState state,
     SequencedCollection<CallStackItem> callStack,
-    String msg,
-    boolean errorOccured) {
+    BhProgramException exception) {
   
   /** コンストラクタ. */
   public ThreadContext(
       long threadId,
+      BhThreadState state,
       SequencedCollection<CallStackItem> callStack,
-      String msg,
-      boolean errorOccured) {
-    this.callStack = (callStack == null) ? new LinkedList<>() : new ArrayList<>(callStack);
-    this.msg = (msg == null) ? "" : msg;
+      BhProgramException exception) {
     this.threadId = threadId;
-    this.errorOccured = errorOccured;
-  }
+    this.state = state;
+    this.callStack = new ArrayList<>(callStack);
+    this.exception = exception;
+  }  
 }

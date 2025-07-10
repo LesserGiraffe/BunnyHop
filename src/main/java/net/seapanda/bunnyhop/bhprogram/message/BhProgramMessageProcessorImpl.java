@@ -17,10 +17,10 @@
 package net.seapanda.bunnyhop.bhprogram.message;
 
 
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramException;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoCmd.OutputTextCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.InputTextResp;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhTextIoResp.OutputTextResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
 import net.seapanda.bunnyhop.bhprogram.debugger.DebugInfoReceiver;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.service.LogManager;
@@ -63,9 +63,21 @@ public class BhProgramMessageProcessorImpl implements BhProgramMessageProcessor{
   }
 
   @Override
-  public void process(BhProgramException exception) {
-    String cause = (exception.getCause() == null) ? "" : exception.getCause().getMessage();
-    LogManager.logger().error("%s\n%s".formatted(exception.getMessage(), cause));
-    receiver.receive(exception);
+  public void process(BhThreadContext context) {
+    logErrMsg(context.getException());
+    receiver.receive(context);
+  }
+
+  private void logErrMsg(Exception exception) {
+    String errMsg = "";
+    if (exception != null) {
+      errMsg = exception.getMessage();
+      if (exception.getCause() != null) {
+        errMsg += "\n" + exception.getCause().getMessage();
+      }
+    }
+    if (!errMsg.isEmpty()) {
+      LogManager.logger().error(errMsg);
+    }
   }
 }

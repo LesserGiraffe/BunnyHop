@@ -21,6 +21,7 @@ import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
 import net.seapanda.bunnyhop.bhprogram.debugger.CallStackItem;
 import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.model.node.BhNode;
 
 /**
@@ -64,10 +65,13 @@ public class CallStackCell extends ListCell<CallStackItem> {
     if (empty || item == null) {
       return null;
     }
-    if (item.getId() < 0) {
+    if (item.isNotCalled()) {
+      return "[%s]    %s".formatted(TextDefs.Debugger.CallStack.next.get(), item.getName());
+    }
+    if (item.getIdx() < 0) {
       return "      %s".formatted(item.getName());
     }
-    return "[%s]    %s".formatted(item.getId(), item.getName());
+    return "[%s]    %s".formatted(item.getIdx(), item.getName());
   }
 
   private void setEventHandlers(CallStackItem item, boolean empty) {
