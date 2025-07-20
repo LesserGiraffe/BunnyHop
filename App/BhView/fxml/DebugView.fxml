@@ -40,7 +40,11 @@
           HBox.hgrow="ALWAYS">
           <VBox fx:id="variablePane"/>
         </ScrollPane>
-        <fx:include fx:id="threadSelector" source="ThreadSelector.fxml"/>
+        <VBox fx:id="threadSelVbox">
+          <fx:include fx:id="threadSelector" source="ThreadSelector.fxml"/>
+          <fx:include fx:id="threadStateView" source="ThreadStateView.fxml"/>
+          <fx:include fx:id="stepExecutionView" source="StepExecutionView.fxml"/>
+        </VBox>
       </HBox>
     </SplitPane>
   </content>

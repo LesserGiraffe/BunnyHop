@@ -87,6 +87,10 @@ function _setGlobalVariables(vars) {
   bhScriptHelper.debug.setGlobalVariables(vars);
 }
 
+function _condWait(stepId) {
+  bhScriptHelper.debug.conditionalWait(stepId);
+}
+
 function _genLockObj(fair) {
   return new _jLock(fair);
 }

@@ -19,16 +19,16 @@ package net.seapanda.bunnyhop.bhprogram.debugger;
 import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
 
 /**
- * デバッグ情報を受け取る機能を規定したインタフェース.
+ * デバッグ情報を処理する機能を規定したインタフェース.
  *
  * @author K.Koike
  */
-public interface DebugInfoReceiver {
+public interface DebugMessageProcessor {
 
   /**
-   * デバッガにスレッドコンテキストを渡す.
+   * スレッドコンテキストを受け取る.
    *
    * @param context スレッドコンテキスト
    */
-  void receive(BhThreadContext context);
+  void process(BhThreadContext context);
 }

@@ -6,7 +6,7 @@
 <?import javafx.scene.text.*?>
 <?import net.seapanda.bunnyhop.common.*?>
 
-<ComboBox
+<Text
   xmlns:fx="http://javafx.com/fxml"
-  fx:id="threadComboBox"
-  fx:controller="net.seapanda.bunnyhop.control.debugger.ThreadSelectorController"/>
+  fx:id="threadStateText"
+  fx:controller="net.seapanda.bunnyhop.control.debugger.ThreadStateViewController"/>

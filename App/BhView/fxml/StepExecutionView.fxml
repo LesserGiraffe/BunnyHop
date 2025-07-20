@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.*?>
+<?import net.seapanda.bunnyhop.common.Rem?>
+<?import net.seapanda.bunnyhop.common.TextFetcher?>
+
+<VBox
+  xmlns:fx="http://javafx.com/fxml"
+  fx:id="stepExecutionViewBase"
+  fx:controller="net.seapanda.bunnyhop.control.debugger.StepExecutionViewController">
+  <fx:define>
+    <Rem fx:id="btnSize" rem="2.5"/>
+  </fx:define>
+
+  <HBox>
+    <Button fx:id="resumeBtn" styleClass="flatButton,padding-4px">
+      <graphic>
+        <ImageView>
+          <Image url="@../images/resume.png" smooth="true" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+
+    <Button fx:id="suspendBtn" styleClass="flatButton,padding-4px">
+      <graphic>
+        <ImageView>
+          <Image url="@../images/suspend.png" smooth="true" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+
+    <Button fx:id="reloadBtn" styleClass="flatButton,padding-4px">
+      <graphic>
+        <ImageView>
+          <Image url="@../images/reload.png" smooth="true" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+  </HBox>
+
+  <HBox>
+    <Button fx:id="stepOverBtn" styleClass="flatButton,padding-4px">
+      <graphic>
+        <ImageView>
+          <Image url="@../images/stepOver.png" smooth="false" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+
+    <Button fx:id="stepIntoBtn" styleClass="flatButton,padding-4px">
+      <graphic>
+        <ImageView>
+          <Image url="@../images/stepInto.png" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+
+    <Button fx:id="stepOutBtn" styleClass="flatButton,padding-4px">
+      <graphic>
+        <ImageView>
+          <Image url="@../images/stepOut.png" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+  </HBox>
+
+</VBox>

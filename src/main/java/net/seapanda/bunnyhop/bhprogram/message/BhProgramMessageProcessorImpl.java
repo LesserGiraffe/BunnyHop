@@ -21,7 +21,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
-import net.seapanda.bunnyhop.bhprogram.debugger.DebugInfoReceiver;
+import net.seapanda.bunnyhop.bhprogram.debugger.DebugMessageProcessor;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
@@ -32,20 +32,21 @@ import net.seapanda.bunnyhop.service.MessageService;
  *
  * @author K.koike
  */
-public class BhProgramMessageProcessorImpl implements BhProgramMessageProcessor{
+public class BhProgramMessageProcessorImpl implements BhProgramMessageProcessor {
 
   private final MessageService msgService;
-  private final DebugInfoReceiver receiver;
+  private final DebugMessageProcessor debugMsgProcessor;
 
   /**
    * コンストラクタ.
    *
    * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
-   * @param receiver このオブジェクトが受け取ったデバッグ情報を渡すオブジェクト.
+   * @param debugMsgProcessor このオブジェクトが受け取ったデバッグ情報を処理するオブジェクト.
    */
-  public BhProgramMessageProcessorImpl(MessageService msgService, DebugInfoReceiver receiver) {
+  public BhProgramMessageProcessorImpl(
+      MessageService msgService, DebugMessageProcessor debugMsgProcessor) {
     this.msgService = msgService;
-    this.receiver = receiver;
+    this.debugMsgProcessor = debugMsgProcessor;
   }
 
   @Override
@@ -65,7 +66,7 @@ public class BhProgramMessageProcessorImpl implements BhProgramMessageProcessor{
   @Override
   public void process(BhThreadContext context) {
     logErrMsg(context.getException());
-    receiver.receive(context);
+    debugMsgProcessor.process(context);
   }
 
   private void logErrMsg(Exception exception) {

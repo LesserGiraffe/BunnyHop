@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.control.debugger;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.function.Consumer;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -35,24 +36,24 @@ public class WorkspaceSelectorController {
 
   @FXML private ComboBox<Workspace> wsComboBox;
   /** 全ワークスペースを表す選択肢に対応する {@link Workspace}. */
-  private final Workspace allWs;
+  private final Workspace wsForAll;
   /** スレッドが選択されたときのイベントハンドラ. */
   private Consumer<? super WorkspaceSelectionEvent> onWsSelected = event -> {};
 
   /** コンストラクタ. */
   public WorkspaceSelectorController() {
     String allWsName = TextDefs.Debugger.WorkspaceSelector.allWs.get();
-    allWs = new Workspace(allWsName);
+    wsForAll = new Workspace(allWsName);
   }
 
   /** 初期化する. */
   public void initialize(WorkspaceSet wss) {
     wsComboBox.setButtonCell(new WorkspaceSelectorListCell());
     wsComboBox.setCellFactory(items -> new WorkspaceSelectorListCell());
-    wsComboBox.getItems().add(allWs);
+    wsComboBox.getItems().add(wsForAll);
     wsComboBox.getSelectionModel().selectFirst();
     wsComboBox.valueProperty().addListener((obs, oldVal, newVal) -> 
-        onWsSelected.accept(new WorkspaceSelectionEvent(oldVal, newVal, newVal == allWs)));
+        onWsSelected.accept(new WorkspaceSelectionEvent(oldVal, newVal, newVal == wsForAll)));
     ViewUtil.enableAutoResize(wsComboBox, Workspace::getName);
     wss.getWorkspaces().forEach(wsComboBox.getItems()::add);    
     wss.getCallbackRegistry().getOnWorkspaceAdded().add(
@@ -62,7 +63,7 @@ public class WorkspaceSelectorController {
     wss.getCallbackRegistry().getOnWorkspaceNameChanged().add(event -> reregisterItems());
   }
 
-  /** 現在 {@link #wsComboBox} が持つアイテムを再度設定する. */
+  /** 現在 {@link #wsComboBox} が持つアイテムを設定する. */
   private void reregisterItems() {
     Workspace selected = wsComboBox.getValue();
     var wslist = new ArrayList<>(wsComboBox.getItems());
@@ -74,15 +75,19 @@ public class WorkspaceSelectorController {
   /**
    * 現在選択中のワークスペースを返す. 
    *
-   * @return 現在選択中のワークスペース. 何も選択されていない場合は null.
+   * @return 現在選択中のワークスペース. 特定のワークスペースが選択されていない場合は Optional.empty.
    */
-  public Workspace getSelected() {
-    return wsComboBox.getValue();
+  synchronized Optional<Workspace> getSelected() {
+    Workspace selected = wsComboBox.getValue();
+    if (selected == wsForAll) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(selected);
   }
 
   /** 「すべてのワークスペース」が選択されている場合 true を返す. */
-  public boolean isAllSelected() {
-    return wsComboBox.getValue() == allWs;
+  synchronized boolean isAllSelected() {
+    return wsComboBox.getValue() == wsForAll;
   }
 
   /**

@@ -40,6 +40,7 @@ import javafx.stage.WindowEvent;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramControllerImpl;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramControllerImpl;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
+import net.seapanda.bunnyhop.bhprogram.debugger.BhDebugMessageProcessor;
 import net.seapanda.bunnyhop.bhprogram.debugger.BhDebugger;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessorImpl;
@@ -213,8 +214,9 @@ public class AppMain extends Application {
           wsViewFile, nodeShifterViewFile, mediator, nodeSelViewProxy, msgService);
       final var localCompiler = genCompiler(true);
       final var remoteCompiler = genCompiler(false);
-      final var debugger = new BhDebugger(wss, msgService);
-      final var msgProcessor = new BhProgramMessageProcessorImpl(msgService, debugger);
+      final var debugger = new BhDebugger(msgService);
+      final var debugMsgProcessor = new BhDebugMessageProcessor(wss, debugger);
+      final var msgProcessor = new BhProgramMessageProcessorImpl(msgService, debugMsgProcessor);
       final var localMsgDispatcher =
           new BhProgramMessageDispatcher(msgProcessor, simulator.getCmdProcessor().get());
       final var localRuntimeCtrl = new RmiLocalBhRuntimeController(localMsgDispatcher, msgService);

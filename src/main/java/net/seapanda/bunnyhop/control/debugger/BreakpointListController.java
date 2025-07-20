@@ -261,7 +261,7 @@ public class BreakpointListController {
   private synchronized void addBreakpoint(BhNode node) {
     breakpointNodes.add(node);
     Workspace ws = node.getWorkspace();
-    if ((ws != null && ws == bpWsSelectorController.getSelected())
+    if (bpWsSelectorController.getSelected().map(selected -> selected == ws).orElse(false)
         || bpWsSelectorController.isAllSelected()) {
       ViewUtil.runSafe(() -> bpListView.getItems().add(node));
     }

@@ -41,3 +41,7 @@
   -fx-font-family: "Meiryo UI";
   -fx-background-color: #398dee;
 }
+
+.padding-4px {
+  -fx-padding: 4px;
+}

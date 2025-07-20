@@ -59,8 +59,8 @@ public class TextDefs {
   /** デバッガに表示されるテキスト. */
   public static class Debugger {
     public static Getter thread = params -> db.get(TextId.of("gui", "debugger", "thread"));
-    public static Getter notSelected = params -> db.get(
-        TextId.of("gui", "debugger", "not-selected"));
+    public static Getter allThreads = params -> db.get(
+        TextId.of("gui", "debugger", "all-threads"));
     public static Getter stackOverflow = params -> db.get(
         TextId.of("gui", "debugger", "stack-overflow"));
     public static Getter outOfMemory = params -> db.get(
@@ -76,8 +76,10 @@ public class TextDefs {
           TextId.of("gui", "debugger", "thread-status", "error"));
       public static Getter running = params -> db.get(
           TextId.of("gui", "debugger", "thread-status", "running"));
-      public static Getter stopped = params -> db.get(
+      public static Getter suspended = params -> db.get(
           TextId.of("gui", "debugger", "thread-status", "suspended"));
+      public static Getter finished = params -> db.get(
+          TextId.of("gui", "debugger", "thread-status", "finished"));
     }
 
     /** コールスタックに表示されるテキスト. */

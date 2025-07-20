@@ -25,6 +25,9 @@ import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
  */
 public interface Debugger {
 
+  /** {@link context} の情報を出力する. */
+  void output(ThreadContext context);
+
   /** デバッガが持つ全ての情報をクリアする. */
   void clear();
 
@@ -43,7 +46,7 @@ public interface Debugger {
   public interface CallbackRegistry {
     
     /** {@link ThreadContext} を取得したときのイベントハンドラのレジストリを取得する. */
-    ConsumerInvoker<ThreadContextGotEvent>.Registry getOnThreadContextGot();
+    ConsumerInvoker<ThreadContextReceivedEvent>.Registry getOnThreadContextReceived();
 
     /** {@link ThreadContext} を取得したときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<ClearEvent>.Registry getOnCleared();
@@ -55,7 +58,7 @@ public interface Debugger {
    * @param debugger {@code context} を取得したデバッガ
    * @param context {@code debugger} が取得した {@link ThreadContext}
    */
-  public record ThreadContextGotEvent(Debugger debugger, ThreadContext context) {}
+  public record ThreadContextReceivedEvent(Debugger debugger, ThreadContext context) {}
 
   /**
    * デバッガの持つ情報がクリアされたときの情報を格納したレコード.
