@@ -146,7 +146,7 @@ public class BhCompilerImpl implements BhCompiler {
     }
     String lockVar = Keywords.Prefix.lockVar + ScriptIdentifiers.Funcs.BH_MAIN;
     eventHandlerCodeGen.genHeaderSnippetOfEventCall(
-        code, startupRoutineId, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 0, option);
+        code, startupRoutineId, false, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 0, option);
     expCodeGen.genExpression(code, entryPoint, 4, option);
     statCodeGen.genStatement(entryPoint, code, 4, option);
     eventHandlerCodeGen.genFooterSnippetOfEventCall(code, lockVar, 0, option);

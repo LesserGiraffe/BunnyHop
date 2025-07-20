@@ -421,6 +421,30 @@ class CommonCodeGenerator {
   }
 
   /**
+   * 条件付きで一時停止するコードを生成する.
+   *
+   * <p>本メソッドで生成されるコードは, ブレークポイントなどで一時停止するための機能を実現する.
+   *
+   * @param stepId 一時停止可能なシンボルの {@link InstanceId}
+   * @param code 生成したコードの格納先
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   */
+  void genConditionalWait(
+      InstanceId stepId,
+      StringBuilder code,
+      int nestLevel,
+      CompileOption option) {
+    // _condWait('step-id');
+    if (option.addConditionalWait) {
+      code.append(indent(nestLevel))
+          .append(genFuncCall(
+              ScriptIdentifiers.Funcs.COND_WAIT, "'" + stepId.toString() + "'"))
+          .append(";" + Keywords.newLine);
+    }
+  }
+
+  /**
    * 引数で指定した文字列を JavaScript の文字列リテラル表現に変換する.
    */
   String toJsString(String str) {

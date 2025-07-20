@@ -20,6 +20,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.SequencedCollection;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.parameter.BreakpointSetting;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 
 /**
@@ -101,9 +102,9 @@ class StatCodeGenerator {
       SyntaxSymbol assignStatNode,
       int nestLevel,
       CompileOption option) {
-
     // 右辺の値が無い代入文でブレークが指定されたときのために, ここでインスタンス ID を保存する.
     common.genSetNextNodeInstId(code, assignStatNode.getInstanceId(), nestLevel, option);
+    genConditionalWait(code, assignStatNode, nestLevel, option);
     SyntaxSymbol rightExp = 
         assignStatNode.findDescendantOf("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
     String rightExpCode = expCodeGen.genExpression(code, rightExp, nestLevel, option);
@@ -173,9 +174,10 @@ class StatCodeGenerator {
       SyntaxSymbol controlStatNode,
       int nestLevel,
       CompileOption option) {
-
     String symbolName = controlStatNode.getSymbolName();
     common.genSetNextNodeInstId(code, controlStatNode.getInstanceId(), nestLevel, option);
+    genConditionalWait(code, controlStatNode, nestLevel, option);
+
     switch (symbolName) {
       case SymbolNames.ControlStat.BREAK_STAT:
         genBreakStat(code, nestLevel, option);
@@ -228,7 +230,6 @@ class StatCodeGenerator {
       SyntaxSymbol ifElseStatNode,
       int nestLevel,
       CompileOption option) {
-
     //conditional part
     SyntaxSymbol condExp =
         ifElseStatNode.findDescendantOf("*", SymbolNames.ControlStat.COND_EXP, "*");
@@ -272,7 +273,6 @@ class StatCodeGenerator {
       SyntaxSymbol whileStatNode,
       int nestLevel,
       CompileOption option) {
-
     //conditional part
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._while_)
@@ -317,7 +317,6 @@ class StatCodeGenerator {
       SyntaxSymbol compoundStatNode,
       int nestLevel,
       CompileOption option) {
-
     code.append(common.indent(nestLevel))
         .append("{" + Keywords.newLine);
     SyntaxSymbol param = compoundStatNode.findDescendantOf(
@@ -348,7 +347,6 @@ class StatCodeGenerator {
       SyntaxSymbol repeatStatNode,
       int nestLevel,
       CompileOption option) {
-
     SyntaxSymbol condExp =
         repeatStatNode.findDescendantOf("*", SymbolNames.ControlStat.COND_EXP, "*");
     String condExpCode = expCodeGen.genExpression(code, condExp, nestLevel, option);
@@ -401,7 +399,6 @@ class StatCodeGenerator {
       SyntaxSymbol mutexBlockNode,
       int nestLevel,
       CompileOption option) {
-
     BhNode lockVarNode = ((BhNode) mutexBlockNode).getOriginal();
     String lockVar = common.genVarName(lockVarNode);
     // try {
@@ -479,5 +476,25 @@ class StatCodeGenerator {
         .append(Keywords.Js._break_)
         .append(ScriptIdentifiers.Label.end)
         .append(";" + Keywords.newLine);
-  }    
+  }
+
+  /**
+   * {@code symbol} が一時停止可能なノードである場合, 一時停止するコードを生成する.
+   *
+   * @param code 生成したコードの格納先
+   * @param symbol このシンボルが一時停止可能なノードである場合, 一時停止するコードを生成する.
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   */
+  private void genConditionalWait(
+      StringBuilder code,
+      SyntaxSymbol symbol,
+      int nestLevel,
+      CompileOption option) {
+    if (symbol instanceof BhNode node) {
+      if (node.getBreakpointSetting().equals(BreakpointSetting.SET)) {
+        common.genConditionalWait(node.getInstanceId(), code, nestLevel, option);
+      }
+    }
+  }  
 }

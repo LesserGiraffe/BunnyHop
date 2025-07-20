@@ -21,7 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.node.parameter.BreakpointSetting;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 
@@ -109,7 +111,6 @@ class EventHandlerCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-
     for (SyntaxSymbol symbol : compiledNodeList) {
       if (SymbolNames.Event.LIST.contains(symbol.getSymbolName())) {
         genEventHandler(symbol, code, nestLevel, option);
@@ -130,11 +131,11 @@ class EventHandlerCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-
     String lockVar = Keywords.Prefix.lockVar + eventNode.getSerialNo().hexStr();
     String funcName = common.genFuncName(eventNode);
+    boolean genCondWait = checkIfGenerateConditionalWait(eventNode);
     genHeaderSnippetOfEventCall(
-        code, eventNode.getInstanceId(), funcName, lockVar, nestLevel, option);
+        code, eventNode.getInstanceId(), genCondWait, funcName, lockVar, nestLevel, option);
     // _sleep(...)
     if (eventNode.getSymbolName().equals(SymbolNames.Event.DELAYED_START_EVENT)) {
       TextNode delayTimeNode =
@@ -157,7 +158,6 @@ class EventHandlerCodeGenerator {
       String funcName,
       StringBuilder code,
       int nestLevel) {
-
     String addEventCallStat = common.genFuncCall(
         ScriptIdentifiers.Funcs.ADD_EVENT,
         funcName,
@@ -193,12 +193,15 @@ class EventHandlerCodeGenerator {
    * @param code 生成したコードの格納先
    * @param eventInstId イベントハンドラノードの {@link InstanceId}
    * @param lockVar ロックオブジェクトの変数
+   * @param genConditionalWait 条件付き一時停止コードを生成する場合 true
+   * @param funcName イベントハンドラの名前
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   void genHeaderSnippetOfEventCall(
       StringBuilder code,
       InstanceId eventInstId,
+      boolean genConditionalWait,
       String funcName,
       String lockVar,
       int nestLevel,
@@ -242,6 +245,11 @@ class EventHandlerCodeGenerator {
 
     // _threadContext[_idxNextNodeInstId] = 'event-handler-instance-id';
     common.genSetNextNodeInstId(code, eventInstId, nestLevel + 3, option);
+    
+    // _condWait('step-id');
+    if (genConditionalWait) {
+      common.genConditionalWait(eventInstId, code, nestLevel + 3, option);
+    }
 
     // let _callStack = _threadContext[_idxCallStack];
     // _callStack[_callStack.length] = _threadContext[_idxNextNodeInstId];
@@ -309,5 +317,14 @@ class EventHandlerCodeGenerator {
     // end of "function funcName() {..."
     code.append(common.indent(nestLevel))
         .append("}" + Keywords.newLine);
+  }
+
+  private boolean checkIfGenerateConditionalWait(SyntaxSymbol symbol) {
+    if (symbol instanceof BhNode node) {
+      if (node.getBreakpointSetting().equals(BreakpointSetting.SET)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
