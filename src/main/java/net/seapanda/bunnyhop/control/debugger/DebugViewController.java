@@ -40,6 +40,7 @@ public class DebugViewController {
   @FXML private ScrollPane callStackScrollPane;
   @FXML private ThreadSelectorController threadSelectorController;
   @FXML private ThreadStateViewController threadStateViewController;
+  @FXML private StepExecutionViewController stepExecutionViewController;
   
   /** スレッド ID とコールスタックビューのマップ. */
   private final Map<Long, Node> threadIdToCallStackView = new HashMap<>();
@@ -50,6 +51,7 @@ public class DebugViewController {
   /** 初期化する. */
   public synchronized void initialize(Debugger debugger, DebugViewFactory factory) {
     this.factory = factory;
+    stepExecutionViewController.initialize(debugger, threadSelectorController);
     Debugger.CallbackRegistry registry = debugger.getCallbackRegistry();
     registry.getOnThreadContextReceived().add(event -> addThreadContext(event.context()));
     registry.getOnCleared().add(event -> clear());
@@ -84,8 +86,10 @@ public class DebugViewController {
         .map(selected -> selected == context.threadId())
         .orElse(false);
     if (isSelectedThread) {
-      callStackScrollPane.setContent(callStackView);
-      threadStateViewController.showThreadState(context);
+      ViewUtil.runSafe(() -> {
+        callStackScrollPane.setContent(callStackView);
+        threadStateViewController.showThreadState(context);
+      });
     }
   }
 

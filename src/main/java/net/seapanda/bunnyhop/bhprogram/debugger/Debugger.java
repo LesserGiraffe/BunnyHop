@@ -38,9 +38,40 @@ public interface Debugger {
    */
   CallbackRegistry getCallbackRegistry();
 
-  // requestStackFrame
+  /**
+   * {@code threadId} で指定した BhProgram のスレッドを停止可能位置で一時停止するようにする.
+   */
+  void suspend(long threadId);
 
-  // stopThread
+  /** 動作中の全ての BhProgram のスレッドを停止可能位置で一時停止するようにする. */
+  void suspendAll();
+
+  /** {@code threadId} で指定した BhProgram のスレッドが一時停止中であった場合, 動作を再開させる. */
+  void resume(long threadId);
+
+  /** 一時停止中の全ての BhProgram のスレッドの動作を再開させる. */
+  void resumeAll();
+
+  /**
+   * {@code threadId} で指定した BhProgram のスレッドが一時停止中であった場合, 次に停止可能な位置まで処理を進める.
+   *
+   * <p>次の処理が関数呼び出しであった場合, その中では止まらず, 関数呼び出し終了後の次に停止可能な位置で止まる.
+   */
+  void stepOver(long threadId);
+
+  /**
+   * {@code threadId} で指定した BhProgram のスレッドが一時停止中であった場合, 次に停止可能な位置まで処理を進める.
+   *
+   * <p>次の処理が関数呼び出しであった場合, その中に停止可能な位置があれば止まる.
+   */
+  void stepInto(long threadId);
+
+  /**
+   * {@code threadId} で指定した BhProgram のスレッドが一時停止中であった場合,
+   * 現在実行している関数の呼び出し元の関数の中で次に停止可能な位置まで処理を進める.
+   */
+  void stepOut(long threadId);
+
 
   /** デバッガに対するイベントハンドラの登録および削除操作を規定したインタフェース. */
   public interface CallbackRegistry {

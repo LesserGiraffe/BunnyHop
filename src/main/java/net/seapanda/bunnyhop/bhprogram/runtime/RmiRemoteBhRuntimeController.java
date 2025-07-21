@@ -32,13 +32,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import net.seapanda.bunnyhop.bhprogram.common.BhRuntimeFacade;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
-import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.service.BhScriptRepository;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
@@ -51,7 +51,9 @@ import org.mozilla.javascript.Scriptable;
 public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   
   private final MessageService msgService;
-  private final BhProgramMessageDispatcher msgDispatcher;
+  private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
+  /** BhRuntime との通信用オブジェクト. */
+  private BhRuntimeTransceiver transceiver;
   /** 現在の接続先に関する情報. */
   private volatile DestinationInfo currentDestInfo;
   /** ファイルがコピーのキャンセルフラグ. */
@@ -61,12 +63,10 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
 
   /** コンストラクタ. */
   public RmiRemoteBhRuntimeController(
-      BhProgramMessageDispatcher msgDispatcher,
       MessageService msgService,
       BhScriptRepository repository) 
       throws IllegalStateException {
     this.msgService = msgService;
-    this.msgDispatcher = msgDispatcher;
     boolean success = repository.allExist(
         BhConstants.Path.File.GEN_REMOTE_EXEC_CMD_JS,
         BhConstants.Path.File.GEN_REMOTE_KILL_CMD_JS,
@@ -137,13 +137,15 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       disconnectImpl(0);
       String destPath = genCopyDestPath(session.getUserName()).orElseThrow();
       BhRuntimeFacade facade = prepareRemoteEnvironment(session, filePath, destPath).orElseThrow();
-      var transceiver = new BhRuntimeTransceiver(facade);
+      var oldCarrier = (transceiver == null) ? null : transceiver.getMessageCarrier();
+      transceiver = new BhRuntimeTransceiver(facade);
       currentDestInfo = new DestinationInfo(
           session.getHost(),
           session.getUserName(),
           session.getUserInfo().getPassword(),
           transceiver);
-      msgDispatcher.replaceMsgCarrier(transceiver.getMessageCarrier());
+      var event = new MessageCarrierRenewedEvent(this, oldCarrier, transceiver.getMessageCarrier());
+      cbRegistry.onMsgCarrierRenewed.invoke(event);
       transceiver.start();
       boolean success = transceiver.connect();
       if (success) {
@@ -278,13 +280,16 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
           provider.inputStream(), session.getHost(), BhConstants.BhRuntime.Timeout.REMOTE_CONNECT)
           .orElseThrow();
       provider.channel().disconnect();
-      var transceiver = new BhRuntimeTransceiver(facade);
+      BhRuntimeTransceiver oldTransceiver = transceiver;
+      transceiver = new BhRuntimeTransceiver(facade);
       currentDestInfo = new DestinationInfo(
           session.getHost(),
           session.getUserName(),
           session.getUserInfo().getPassword(),
           transceiver);
-      msgDispatcher.replaceMsgCarrier(transceiver.getMessageCarrier());
+      var event = new MessageCarrierRenewedEvent(
+          this, oldTransceiver.getMessageCarrier(), transceiver.getMessageCarrier());
+      cbRegistry.onMsgCarrierRenewed.invoke(event);
       transceiver.start();
       boolean success = transceiver.connect();
       if (success) {
@@ -333,7 +338,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   }
 
   @Override
-  public BhRuntimeStatus send(BhProgramNotification notif) {
+  public BhRuntimeStatus send(BhProgramMessage message) {
     if (!lock.tryLock()) {
       return BhRuntimeStatus.BUSY;
     }
@@ -341,7 +346,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       if (currentDestInfo == null) {
         return BhRuntimeStatus.SEND_WHEN_DISCONNECTED;
       }
-      return currentDestInfo.transceiver().getMessageCarrier().pushSendNotif(notif);
+      return currentDestInfo.transceiver().getMessageCarrier().pushMessage(message);
     } finally {
       lock.unlock();
     }
@@ -566,6 +571,11 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     }
   }
 
+  @Override
+  public CallbackRegistry getCallbackRegistry() {
+    return cbRegistry;
+  }
+
   /**
    * リモート環境の操作に必要なコマンドを生成するスクリプトを格納するレコード.
    *
@@ -593,4 +603,17 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   
   /** SSH 越しに実行したコマンドの結果を提供するオブジェクトを格納したレコード. */
   private record CmdResultProvider(Channel channel, InputStream inputStream) {}
+
+  /** {@link RemoteBhRuntimeController} に対するイベントハンドラの登録および削除操作を提供するクラス. */
+  public class CallbackRegistryImpl implements RemoteBhRuntimeController.CallbackRegistry {
+    
+    /** BhRuntime との通信用オブジェクトが置き換わったときのイベントハンドラをを管理するオブジェクト. */
+    private final ConsumerInvoker<MessageCarrierRenewedEvent> onMsgCarrierRenewed =
+        new ConsumerInvoker<>();
+
+    @Override
+    public ConsumerInvoker<MessageCarrierRenewedEvent>.Registry getOnMsgCarrierRenewed() {
+      return onMsgCarrierRenewed.getRegistry();
+    }
+  }
 }

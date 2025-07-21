@@ -16,6 +16,12 @@
 
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
+import net.seapanda.bunnyhop.bhprogram.BhProgramMessenger;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.ResumeThreadCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepIntoCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepOutCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepOverCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.SuspendThreadCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.exception.BhProgramException;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.service.MessageService;
@@ -30,9 +36,11 @@ public class BhDebugger implements Debugger {
   
   private final MessageService msgService;
   private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
+  private final BhProgramMessenger messenger;
 
   /** コンストラクタ. */
-  public BhDebugger(MessageService msgService) {
+  public BhDebugger(BhProgramMessenger messenger, MessageService msgService) {
+    this.messenger = messenger;
     this.msgService = msgService;
   }
 
@@ -59,6 +67,41 @@ public class BhDebugger implements Debugger {
     String errMsg = DebugUtil.getErrMsg(exception);
     String runtimeErrOccured = TextDefs.Debugger.runtimErrOccured.get();
     msgService.error("%s\n%s\n".formatted(runtimeErrOccured, errMsg));
+  }
+
+  @Override
+  public void suspend(long threadId) {
+    messenger.send(new SuspendThreadCmd(threadId));
+  }
+
+  @Override
+  public void suspendAll() {
+    messenger.send(new SuspendThreadCmd(SuspendThreadCmd.ALL_THREADS));
+  }
+
+  @Override
+  public void resume(long threadId) {
+    messenger.send(new ResumeThreadCmd(threadId));
+  }
+
+  @Override
+  public void resumeAll() {
+    messenger.send(new ResumeThreadCmd(ResumeThreadCmd.ALL_THREADS));
+  }
+
+  @Override
+  public void stepOver(long threadId) {
+    messenger.send(new StepOverCmd(threadId));
+  }
+
+  @Override
+  public void stepInto(long threadId) {
+    messenger.send(new StepIntoCmd(threadId));
+  }
+
+  @Override
+  public void stepOut(long threadId) {
+    messenger.send(new StepOutCmd(threadId));
   }
 
   /** イベントハンドラの管理を行うクラス. */

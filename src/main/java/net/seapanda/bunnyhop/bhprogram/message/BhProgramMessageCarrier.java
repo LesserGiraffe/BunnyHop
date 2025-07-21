@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.bhprogram.message;
 
 import java.util.function.Consumer;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
@@ -34,7 +35,7 @@ public interface BhProgramMessageCarrier {
    * @param notif 送信データ
    * @return ステータスコード
    */
-  BhRuntimeStatus pushSendNotif(BhProgramNotification notif);
+  BhRuntimeStatus pushNotification(BhProgramNotification notif);
 
   /**
    * 引数で指定した {@link BhProgramResponse} を送信キューに追加する.
@@ -42,7 +43,23 @@ public interface BhProgramMessageCarrier {
    * @param resp 送信データ
    * @return ステータスコード
    */
-  BhRuntimeStatus pushSendResp(BhProgramResponse resp);
+  BhRuntimeStatus pushResponse(BhProgramResponse resp);
+
+  /**
+   * {@code message} の型により {@link #pushNotification} か {@link #pushResponse} を呼ぶ.
+   *
+   * @param message 送信データ
+   * @return ステータスコード
+   * @throws IllegalArgumentException {@link msg} が不正なデータであった場合.
+   */
+  default BhRuntimeStatus pushMessage(BhProgramMessage message) {
+    if (message instanceof BhProgramNotification notif) {
+      return pushNotification(notif);
+    } else if (message instanceof BhProgramResponse resp) {
+      return pushResponse(resp);
+    }
+    throw new IllegalArgumentException("Failed to send an invalid message.\n%s".formatted(message));
+  }
 
   /** このオブジェクトが {@link BhProgramNotification} を受信したときのイベントハンドラを設定する. */
   void setOnNotifReceived(Consumer<BhProgramNotification> handler);

@@ -24,13 +24,14 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import net.seapanda.bunnyhop.bhprogram.common.BhRuntimeFacade;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
-import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
+import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.utility.Utility;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
 /**
  * ローカル環境で動作する BhRuntime 操作を行うクラス.
@@ -40,8 +41,10 @@ import net.seapanda.bunnyhop.utility.Utility;
 public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
 
   private final MessageService msgService;
-  private final BhProgramMessageDispatcher msgDispatcher;
+  private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
+  private final SimulatorCmdProcessor simCmdProcessor;
   private Process process;
+  /** BhRuntime との通信用オブジェクト. */
   private volatile BhRuntimeTransceiver transceiver;
   /** BhProgram を実行中かどうかを表すフラグ. */
   private final AtomicReference<Boolean> programRunning = new AtomicReference<>(false);
@@ -49,9 +52,9 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
 
   /** コンストラクタ. */
   public RmiLocalBhRuntimeController(
-      BhProgramMessageDispatcher msgDispatcher, MessageService msgService) {
+      SimulatorCmdProcessor simCmdProcessor, MessageService msgService) {
+    this.simCmdProcessor = simCmdProcessor;
     this.msgService = msgService;
-    this.msgDispatcher = msgDispatcher;
   }
 
   @Override
@@ -63,8 +66,10 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
     try {
       process = startRuntimeProcess().orElseThrow();
       BhRuntimeFacade facade = getBhRuntimeFacade().orElseThrow();
+      var oldCarrier = (transceiver == null) ? null : transceiver.getMessageCarrier();
       transceiver = new BhRuntimeTransceiver(facade);
-      msgDispatcher.replaceMsgCarrier(transceiver.getMessageCarrier());
+      var event = new MessageCarrierRenewedEvent(this, oldCarrier, transceiver.getMessageCarrier());
+      cbRegistry.onMsgCarrierRenewed.invoke(event);
       transceiver.start();
       boolean success = transceiver.connect();
       if (success) {
@@ -108,7 +113,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       success &= BhRuntimeHelper.killProcess(process, BhConstants.BhRuntime.Timeout.PROC_END);
     }
     process = null;
-    msgDispatcher.getSimCmdProcessor().halt();
+    simCmdProcessor.halt();
     if (!success) {
       msgService.error(TextDefs.BhRuntime.Local.failedToEnd.get());
     } else {
@@ -139,11 +144,16 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
   }
 
   @Override
-  public synchronized BhRuntimeStatus send(BhProgramNotification notif) {
+  public synchronized BhRuntimeStatus send(BhProgramMessage message) {
     if (transceiver == null) {
       return BhRuntimeStatus.SEND_WHEN_DISCONNECTED;
     }
-    return transceiver.getMessageCarrier().pushSendNotif(notif);
+    return transceiver.getMessageCarrier().pushMessage(message);
+  }
+
+  @Override
+  public CallbackRegistry getCallbackRegistry() {
+    return cbRegistry;
   }
 
   /**
@@ -190,5 +200,18 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
    */
   public boolean end() {
     return terminate();
+  }
+
+  /** {@link RmiLocalBhRuntimeController} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
+  public class CallbackRegistryImpl implements LocalBhRuntimeController.CallbackRegistry {
+    
+    /** BhRuntime との通信用オブジェクトが置き換わったときのイベントハンドラをを管理するオブジェクト. */
+    private final ConsumerInvoker<MessageCarrierRenewedEvent> onMsgCarrierRenewed =
+        new ConsumerInvoker<>();
+
+    @Override
+    public ConsumerInvoker<MessageCarrierRenewedEvent>.Registry getOnMsgCarrierRenewed() {
+      return onMsgCarrierRenewed.getRegistry();
+    }        
   }
 }

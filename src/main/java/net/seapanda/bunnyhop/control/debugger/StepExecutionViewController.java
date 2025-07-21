@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.control.debugger;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 
 /**
  * デバッガのスレッド制御コンポーネントのコントローラ.
@@ -32,4 +33,25 @@ public class StepExecutionViewController {
   @FXML private Button stepOverBtn;
   @FXML private Button stepIntoBtn;
   @FXML private Button stepOutBtn;
+
+  /** 初期化する. */
+  public void initialize(Debugger debugger, ThreadSelectorController threadSelCtrl) {
+    resumeBtn.setOnAction(event -> {
+      if (threadSelCtrl.isAllSelected()) {
+        debugger.resumeAll();
+      } else {
+        threadSelCtrl.getSelected().ifPresent(debugger::resume);
+      }
+    });
+    suspendBtn.setOnAction(event -> {
+      if (threadSelCtrl.isAllSelected()) {
+        debugger.suspendAll();
+      } else {
+        threadSelCtrl.getSelected().ifPresent(debugger::suspend);
+      }
+    });
+    stepOverBtn.setOnAction(event -> threadSelCtrl.getSelected().ifPresent(debugger::stepOver));
+    stepIntoBtn.setOnAction(event -> threadSelCtrl.getSelected().ifPresent(debugger::stepInto));
+    stepOutBtn.setOnAction(event -> threadSelCtrl.getSelected().ifPresent(debugger::stepOut));
+  }  
 }

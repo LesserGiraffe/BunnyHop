@@ -1,7 +1,5 @@
 package net.seapanda.bunnyhop.bhprogram;
 
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
-import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
 
 /**
  * BhProgram に対する以下の操作を規定したインタフェース.
@@ -17,7 +15,7 @@ import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
  *
  * @author K.Koike
  */
-public interface LocalBhProgramController {
+public interface LocalBhProgramController extends BhProgramMessenger {
   
   /**
    * BhProgram をローカルマシン上で実行する.
@@ -48,12 +46,4 @@ public interface LocalBhProgramController {
    * @return 成功した場合 true
    */
   boolean disableCommunication();
-
-  /**
-   * 現在通信が有効になっている BhProgram に {@code notif} を送る.
-   *
-   * @param notif 送信データ
-   * @return ステータスコード
-   */
-  BhRuntimeStatus send(BhProgramNotification notif);
 }

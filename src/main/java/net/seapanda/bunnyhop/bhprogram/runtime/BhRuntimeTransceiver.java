@@ -331,7 +331,7 @@ public class BhRuntimeTransceiver {
     }
 
     @Override
-    public BhRuntimeStatus pushSendNotif(BhProgramNotification notif) {
+    public BhRuntimeStatus pushNotification(BhProgramNotification notif) {
       if (!connected.get()) {
         return BhRuntimeStatus.SEND_WHEN_DISCONNECTED;
       }
@@ -343,7 +343,7 @@ public class BhRuntimeTransceiver {
     }
 
     @Override
-    public BhRuntimeStatus pushSendResp(BhProgramResponse resp) {
+    public BhRuntimeStatus pushResponse(BhProgramResponse resp) {
       boolean success = sendRespList.offer(resp);
       if (!success) {
         return BhRuntimeStatus.SEND_QUEUE_FULL;

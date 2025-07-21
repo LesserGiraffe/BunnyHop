@@ -37,6 +37,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import net.seapanda.bunnyhop.bhprogram.BhProgramMessenger;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramControllerImpl;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramControllerImpl;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
@@ -82,6 +83,7 @@ import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.service.ModelAccessMediator;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.simulator.BhSimulator;
+import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.log.FileLogger;
@@ -214,20 +216,25 @@ public class AppMain extends Application {
           wsViewFile, nodeShifterViewFile, mediator, nodeSelViewProxy, msgService);
       final var localCompiler = genCompiler(true);
       final var remoteCompiler = genCompiler(false);
-      final var debugger = new BhDebugger(msgService);
-      final var debugMsgProcessor = new BhDebugMessageProcessor(wss, debugger);
-      final var msgProcessor = new BhProgramMessageProcessorImpl(msgService, debugMsgProcessor);
-      final var localMsgDispatcher =
-          new BhProgramMessageDispatcher(msgProcessor, simulator.getCmdProcessor().get());
-      final var localRuntimeCtrl = new RmiLocalBhRuntimeController(localMsgDispatcher, msgService);
-      final var remoteMsgDispatcher =
-          new BhProgramMessageDispatcher(msgProcessor, simulator.getCmdProcessor().get());
-      final var remoteRuntimeCtrl =
-          new RmiRemoteBhRuntimeController(remoteMsgDispatcher, msgService, scriptRepository);
+      final SimulatorCmdProcessor simCmdProcessor = simulator.getCmdProcessor().get();
+      final var localRuntimeCtrl = new RmiLocalBhRuntimeController(simCmdProcessor, msgService);
       final var localBhProgramCtrl =
-          new LocalBhProgramControllerImpl(localCompiler, localRuntimeCtrl, msgService);
+          new LocalBhProgramControllerImpl(localCompiler, localRuntimeCtrl, msgService);          
+      final var remoteRuntimeCtrl =
+          new RmiRemoteBhRuntimeController(msgService, scriptRepository);
       final var remoteBhProgramCtrl =
           new RemoteBhProgramControllerImpl(remoteCompiler, remoteRuntimeCtrl, msgService);
+      BhProgramMessenger messenger =
+          createBhProgramMessenger(sceneBuilder, localBhProgramCtrl, remoteBhProgramCtrl);
+      final var debugger = new BhDebugger(messenger, msgService);
+      final var debugMsgProcessor = new BhDebugMessageProcessor(wss, debugger);
+      final var msgProcessor = new BhProgramMessageProcessorImpl(msgService, debugMsgProcessor);
+      final var localMsgDispatcher = new BhProgramMessageDispatcher(msgProcessor, simCmdProcessor);
+      final var remoteMsgDispatcher = new BhProgramMessageDispatcher(msgProcessor, simCmdProcessor);
+      localRuntimeCtrl.getCallbackRegistry().getOnMsgCarrierRenewed()
+          .add(event -> localMsgDispatcher.replaceMsgCarrier(event.newCarrier()));
+      remoteRuntimeCtrl.getCallbackRegistry().getOnMsgCarrierRenewed()
+          .add(event -> remoteMsgDispatcher.replaceMsgCarrier(event.newCarrier()));
       final var pastePosOffsetCount = new MutableInt(-2);
       final var copyAndPaste = new CopyAndPaste(nodeFactory, pastePosOffsetCount);
       final var cutAndPaste = new CutAndPaste(pastePosOffsetCount);
@@ -281,6 +288,18 @@ public class AppMain extends Application {
           ButtonType.OK);
       System.exit(-1);
     }
+  }
+
+  private BhProgramMessenger createBhProgramMessenger(
+      SceneBuilder sceneBuilder,
+      LocalBhProgramControllerImpl localBhProgramCtrl,
+      RemoteBhProgramControllerImpl remoteBhProgramCtrl) {
+    return (msg) -> {
+      if (sceneBuilder.foundationCtrl.isBhRuntimeLocal()) {
+        return localBhProgramCtrl.send(msg);
+      }
+      return remoteBhProgramCtrl.send(msg);
+    };
   }
 
   private BhSimulator createSimulator() throws AppInitializationException {

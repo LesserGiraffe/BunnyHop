@@ -19,6 +19,8 @@ package net.seapanda.bunnyhop.bhprogram.message;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.ResumeThreadResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.SuspendThreadResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.simulator.BhSimulatorCmd;
@@ -54,11 +56,6 @@ public class BhProgramMessageDispatcher {
     this.simCmdProcessor = simCmdProcessor;
   }
   
-  /** {@link BhSimulatorCmd} を処理するオブジェクトを取得する. */
-  public SimulatorCmdProcessor getSimCmdProcessor() {
-    return simCmdProcessor;
-  }
-
   /**
    * BhProgram との通信に使う {@link BhProgramMessageCarrier} を交換する.
    * 既に設定済みのものは使用されなくなる.
@@ -79,7 +76,7 @@ public class BhProgramMessageDispatcher {
   private void dispatch(BhProgramMessageCarrier carrier, BhProgramNotification notif) {
     switch (notif) {
       case OutputTextCmd
-          cmd -> carrier.pushSendResp(msgProcessor.process(cmd));
+          cmd -> carrier.pushResponse(msgProcessor.process(cmd));
       case BhThreadContext
           context -> msgProcessor.process(context);
       case StringBhSimulatorCmd
@@ -90,10 +87,12 @@ public class BhProgramMessageDispatcher {
   }
 
   /** {@code resp} を適切なクラスへと渡す. */
-  private void dispatch(BhProgramResponse resp) {
-    switch (resp) {
-      case InputTextResp inputTestResp -> msgProcessor.process(inputTestResp);
-      default -> notifyInvalidResp(resp);
+  private void dispatch(BhProgramResponse response) {
+    switch (response) {
+      case InputTextResp resp -> msgProcessor.process(resp);
+      case SuspendThreadResp resp -> { }
+      case ResumeThreadResp resp -> { }
+      default -> notifyInvalidResp(response);
     }
   }
 
@@ -103,7 +102,7 @@ public class BhProgramMessageDispatcher {
         cmd.getComponents(),
         (success, resp) -> {
             var response = new StringBhSimulatorResp(cmd.getId(), success, resp);
-            carrier.pushSendResp(response);
+            carrier.pushResponse(response);
         });
   }
 

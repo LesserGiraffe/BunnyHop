@@ -20,7 +20,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
 import javafx.scene.control.Alert;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
 import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.common.TextDefs;
@@ -119,7 +119,7 @@ public class LocalBhProgramControllerImpl implements LocalBhProgramController {
   }
 
   @Override
-  public synchronized BhRuntimeStatus send(BhProgramNotification notif) {
-    return runtimeCtrl.send(notif);
+  public synchronized BhRuntimeStatus send(BhProgramMessage message) {
+    return runtimeCtrl.send(message);
   }
 }
