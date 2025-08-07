@@ -33,6 +33,8 @@ public class BhSettings {
     public static int initTimeout = 5;
     /** BhProgram の開始時に BhSimulator をフォーカスするかどうか. */
     public static AtomicBoolean focusOnStartBhProgram = new AtomicBoolean(true);
+    /** BhSimulator に変化があったとき BhSimulator をフォーカスするかどうか. */
+    public static AtomicBoolean focusOnChanged = new AtomicBoolean(true);
   }
 
   /** Look & Feel. */

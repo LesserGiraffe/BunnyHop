@@ -107,7 +107,7 @@ public class MenuViewController {
   /** 切断ボタン. */
   @FXML private Button disconnectBtn;
   /** シミュレータフォーカスボタン. */
-  @FXML private Button focusSimBtn;
+  @FXML private ToggleButton focusSimBtn;
   /** ジャンプボタン. */
   @FXML private Button jumpBtn;
   /** ホスト名入力欄. */
@@ -205,7 +205,8 @@ public class MenuViewController {
     terminateBtn.setOnAction(action -> terminate()); // プログラム終了
     connectBtn.setOnAction(action -> connect()); // 接続
     disconnectBtn.setOnAction(action -> disconnect()); // 切断
-    focusSimBtn.setOnAction(action -> focusSimulator(true)); // シミュレータにフォーカス
+    focusSimBtn.setOnAction(action ->
+        BhSettings.BhSimulator.focusOnChanged.set(focusSimBtn.isSelected())); // シミュレータにフォーカス
     sendBtn.setOnAction(action -> send()); // 送信
     remotLocalSelectBtn.selectedProperty()
         .addListener((observable, oldVal, newVal) -> switchRemoteLocal(newVal));

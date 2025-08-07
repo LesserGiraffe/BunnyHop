@@ -131,13 +131,13 @@
     </Button>
 
     <Separator fx:id="menuViewSeparator4" orientation="VERTICAL" styleClass="menuViewSeparator"/>
-    <Button fx:id="focusSimBtn" styleClass="flatButton"> <!-- シミュレータにフォーカス -->
+    <ToggleButton fx:id="focusSimBtn" styleClass="flatButton"> <!-- シミュレータにフォーカス -->
       <graphic>
         <ImageView>
           <Image url="@../images/focusSimulator.png" smooth="true" requestedWidth="$focusSimSize.rem" requestedHeight="$focusSimSize.rem"/>
         </ImageView>
       </graphic>
-    </Button>
+    </ToggleButton>
 
     <Separator fx:id="menuViewSeparator5" orientation="VERTICAL" styleClass="menuViewSeparator"/>
     <ToggleButton fx:id="breakpointBtn" styleClass="flatButton"> <!-- ブレークポイント -->

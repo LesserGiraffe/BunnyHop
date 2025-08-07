@@ -19,6 +19,8 @@ package net.seapanda.bunnyhop.launch;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener;
 import java.awt.SplashScreen;
@@ -84,6 +86,7 @@ import net.seapanda.bunnyhop.service.ModelAccessMediator;
 import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.simulator.BhSimulator;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
+import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor.CmdProcessingEvent;
 import net.seapanda.bunnyhop.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.log.FileLogger;
@@ -309,7 +312,17 @@ public class AppMain extends Application {
         || simulator.getCmdProcessor().isEmpty()) {
       throw new AppInitializationException("Failed to initialize the simulator");  
     }
+    simulator.getCmdProcessor().get().getCallbackRegistry().getOnCmdProcessing()
+        .add((CmdProcessingEvent event) -> focusSimulator());
     return simulator;
+  }
+
+  private void focusSimulator() {
+    Lwjgl3Window window = ((Lwjgl3Graphics) Gdx.app.getGraphics()).getWindow();
+    if (!window.isIconified() && BhSettings.BhSimulator.focusOnChanged.get()) {
+      window.restoreWindow();
+      window.focusWindow();
+    }
   }
 
   /** シミュレータがフォーカスを持っているときにキーが押されたときの処理. */

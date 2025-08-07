@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.control;
 import java.io.File;
 import java.util.Optional;
 import java.util.SequencedSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -53,6 +54,7 @@ public class MenuBarController {
   @FXML private MenuItem versionInfo;
   @FXML private MenuItem freeMemory;
   @FXML private MenuItem focusSimulator;
+  @FXML private MenuItem focusSimulatorOnChanged;
   /** 現在保存対象になっているファイル. */
   private File currentSaveFile;
   /** モデルへのアクセスの通知先となるオブジェクト. */
@@ -80,9 +82,15 @@ public class MenuBarController {
     load.setOnAction(action -> load(wss));
     freeMemory.setOnAction(action -> freeMemory());
     versionInfo.setOnAction(action -> showBunnyVersion());
-    focusSimulator.setOnAction(action -> switchSimFocusSetting());
+    focusSimulator.setOnAction(action ->
+        switchMenuSetting(focusSimulator, BhSettings.BhSimulator.focusOnStartBhProgram));
     if (BhSettings.BhSimulator.focusOnStartBhProgram.get()) {
       focusSimulator.setText(focusSimulator.getText() + " ✓");
+    }
+    focusSimulatorOnChanged.setOnAction(action ->
+        switchMenuSetting(focusSimulatorOnChanged, BhSettings.BhSimulator.focusOnChanged));
+    if (BhSettings.BhSimulator.focusOnChanged.get()) {
+      focusSimulatorOnChanged.setText(focusSimulatorOnChanged.getText() + " ✓");
     }
   }
 
@@ -272,14 +280,14 @@ public class MenuBarController {
         net.seapanda.bunnyhop.simulator.BhConstants.APP_VERSION));
   }
 
-  /** BhProgram 実行時にシミュレータにフォーカスするかどうかを切り替える. */
-  private void switchSimFocusSetting() {
-    var val = BhSettings.BhSimulator.focusOnStartBhProgram.get();
-    BhSettings.BhSimulator.focusOnStartBhProgram.set(!val);
+  /** 有効/無効を切り替え可能なメニューの設定を変更する. */
+  private static void switchMenuSetting(MenuItem menu, AtomicBoolean setting) {
+    var val = setting.get();
+    setting.set(!val);
     if (val) {
-      focusSimulator.setText(focusSimulator.getText().replace("✓", ""));
+      menu.setText(menu.getText().replace("✓", ""));
     } else {
-      focusSimulator.setText(focusSimulator.getText() + " ✓");
+      menu.setText(menu.getText() + " ✓");
     }
   }
 

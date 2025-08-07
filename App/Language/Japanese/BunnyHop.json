@@ -26,6 +26,7 @@
       "free-memory": "メモリ解放",
       "settings": "設定",
       "focus-simulator": "プログラム開始時にシミュレータを表示する",
+      "focus-simulator-on-changed": "シミュレータに変化があったときシミュレータを表示する",
       "help": "ヘルプ",
       "version-info": "バージョン情報"
     },
