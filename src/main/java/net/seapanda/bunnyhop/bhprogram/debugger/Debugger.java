@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
+import net.seapanda.bunnyhop.bhprogram.ThreadSelection;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
 /**
@@ -72,6 +73,19 @@ public interface Debugger {
    */
   void stepOut(long threadId);
 
+  /**
+   * スレッドの選択状態を設定する.
+   *
+   * @param selection スレッドの選択状態
+   */
+  void setThreadSelection(ThreadSelection selection);
+
+  /**
+   * スレッドの選択状態を取得する.
+   *
+   * @return スレッドの選択状態.
+   */
+  ThreadSelection getThreadSelection();
 
   /** デバッガに対するイベントハンドラの登録および削除操作を規定したインタフェース. */
   public interface CallbackRegistry {
@@ -81,6 +95,9 @@ public interface Debugger {
 
     /** {@link ThreadContext} を取得したときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<ClearEvent>.Registry getOnCleared();
+
+    /** スレッドの選択状態が変わったときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<ThreadSelectionEvent>.Registry getOnThreadSelectionChanged();
   }
 
   /**
@@ -97,4 +114,14 @@ public interface Debugger {
    * @param debugger 保持する情報をクリアされたデバッガ
    */
   public record ClearEvent(Debugger debugger) {}
+
+  /**
+   * スレッドの選択状態が変わったときのイベント.
+   *
+   * @param debugger スレッドの選択状態を変更されたデバッガ
+   * @param oldVal 変更前のスレッドの選択状態
+   * @param newVal 変更後のスレッドの選択状態
+   */
+  public record ThreadSelectionEvent(
+      Debugger debugger, ThreadSelection oldVal, ThreadSelection newVal) {}
 }

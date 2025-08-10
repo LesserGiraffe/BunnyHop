@@ -149,6 +149,8 @@ public class BhConstants {
       public static final String PRIVATE_TEMPLATE_BUTTON_FXML = "PrivateTemplateButton.fxml";
       /** コールスタックペインが定義してあるfxmlの名前. */
       public static final String CALL_STACK_VIEW_FXML = "CallStackView.fxml";
+      /** デバッグウィンドウの基底部分のビューが定義してあるfxmlファイルの名前. */
+      public static final String DEBUG_WINDOW_FXML = "DebugWindow.fxml";
       /** ノードテンプレートの配置情報が書かれたファイルの名前. */
       public static final String NODE_TEMPLATE_LIST_JSON = "NodeTemplateList.json";
       public static final String COMMON_FUNCS_JS = "CommonFuncs.js";

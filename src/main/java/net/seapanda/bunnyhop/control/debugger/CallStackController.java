@@ -95,15 +95,15 @@ public class CallStackController {
   /** {@link #callStackListView} に設定するアイテムを作成する. */
   private ObservableList<CallStackItem> createCallStackItem() {
     if (!csShowAllCheckBox.isSelected()
-        && callStack.size() > BhSettings.LnF.maxCallStackItems)  {
+        && callStack.size() > BhSettings.Debug.maxCallStackItems)  {
       var items = new ArrayList<CallStackItem>();
-      int len = BhSettings.LnF.maxCallStackItems / 2;
+      int len = BhSettings.Debug.maxCallStackItems / 2;
       for (int i = 0; i < len; ++i) {
         items.add(callStack.get(callStack.size() - 1 - i));
       }
       items.add(new CallStackItem(-1, -1, TextDefs.Debugger.CallStack.ellipsis.get(), false));
 
-      len = BhSettings.LnF.maxCallStackItems - len;
+      len = BhSettings.Debug.maxCallStackItems - len;
       for (int i = len - 1; i >= 0; --i) {
         items.add(callStack.get(i));
       }

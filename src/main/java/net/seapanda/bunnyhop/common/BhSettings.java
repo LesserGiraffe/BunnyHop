@@ -34,17 +34,17 @@ public class BhSettings {
     /** BhProgram の開始時に BhSimulator をフォーカスするかどうか. */
     public static AtomicBoolean focusOnStartBhProgram = new AtomicBoolean(true);
     /** BhSimulator に変化があったとき BhSimulator をフォーカスするかどうか. */
-    public static AtomicBoolean focusOnChanged = new AtomicBoolean(true);
-  }
-
-  /** Look & Feel. */
-  public static class LnF {
-    /** コールスタックに表示するデフォルトの最大要素数. */
-    public static int maxCallStackItems = 32;
+    public static AtomicBoolean focusOnChanged = new AtomicBoolean(false);
   }
 
   /** BunnyHop が出力するテキストメッセージに関するパラメータ. */
   public static class Message {
     public static final int maxErrMsgChars = 4096;
+  }
+
+  /** デバッグに関するパラメータ. */
+  public static class Debug {
+    /** コールスタックに表示するデフォルトの最大要素数. */
+    public static int maxCallStackItems = 32;
   }
 }

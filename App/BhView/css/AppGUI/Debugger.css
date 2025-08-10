@@ -47,3 +47,18 @@
   -fx-padding: 0.2em;
   -fx-spacing: 1.8em;
 }
+
+#debugWindowBase {
+  -fx-spacing: 0.5em;
+  -fx-padding: 0.5em;
+  -fx-alignment: center;
+  -fx-border-color: black;
+}
+
+#stepExecutionViewBase {
+  -fx-alignment: center;
+}
+
+.stepExecutionHbox {
+  -fx-alignment: center;
+}

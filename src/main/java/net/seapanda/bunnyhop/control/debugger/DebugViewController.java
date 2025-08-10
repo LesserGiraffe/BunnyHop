@@ -21,10 +21,11 @@ import java.util.Map;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import net.seapanda.bunnyhop.bhprogram.ThreadSelection;
 import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
+import net.seapanda.bunnyhop.bhprogram.debugger.Debugger.ThreadSelectionEvent;
 import net.seapanda.bunnyhop.bhprogram.debugger.ThreadContext;
-import net.seapanda.bunnyhop.control.debugger.ThreadSelectorController.ThreadSelectionEvent;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.ViewUtil;
@@ -38,27 +39,24 @@ import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
 public class DebugViewController {
   
   @FXML private ScrollPane callStackScrollPane;
-  @FXML private ThreadSelectorController threadSelectorController;
-  @FXML private ThreadStateViewController threadStateViewController;
-  @FXML private StepExecutionViewController stepExecutionViewController;
   
   /** スレッド ID とコールスタックビューのマップ. */
   private final Map<Long, Node> threadIdToCallStackView = new HashMap<>();
   /** スレッド ID とスレッドコンテキストのマップ. */
   private final Map<Long, ThreadContext> threadIdToContext = new HashMap<>();
   private DebugViewFactory factory;
+  private Debugger debugger;
   
   /** 初期化する. */
-  public synchronized void initialize(Debugger debugger, DebugViewFactory factory) {
+  public synchronized void initialize(
+      Debugger debugger, DebugViewFactory factory) {
     this.factory = factory;
-    stepExecutionViewController.initialize(debugger, threadSelectorController);
+    this.debugger = debugger;
     Debugger.CallbackRegistry registry = debugger.getCallbackRegistry();
     registry.getOnThreadContextReceived().add(event -> addThreadContext(event.context()));
     registry.getOnCleared().add(event -> clear());
-    threadSelectorController.setOnThreadSelected(event -> {
-      showCallStackView(event);
-      showThreadState(event);
-    });
+    debugger.getCallbackRegistry().getOnThreadSelectionChanged()
+      .add(event -> showCallStackView(event));
   }
 
   /**
@@ -81,15 +79,10 @@ public class DebugViewController {
     }
     threadIdToCallStackView.put(threadId, callStackView);
     threadIdToContext.put(threadId, context);
-    threadSelectorController.addToSelection(threadId);
-    boolean isSelectedThread = threadSelectorController.getSelected()
-        .map(selected -> selected == context.threadId())
-        .orElse(false);
+    boolean isSelectedThread =
+        debugger.getThreadSelection().equals(ThreadSelection.of(context.threadId()));
     if (isSelectedThread) {
-      ViewUtil.runSafe(() -> {
-        callStackScrollPane.setContent(callStackView);
-        threadStateViewController.showThreadState(context);
-      });
+      ViewUtil.runSafe(() -> callStackScrollPane.setContent(callStackView));
     }
   }
 
@@ -106,20 +99,11 @@ public class DebugViewController {
   /** コールスタックビューを表示する. */
   private void showCallStackView(ThreadSelectionEvent event) {
     Node callStackView = null;
-    if (!event.isAllSelected() && event.newThreadId() != null) {
-      callStackView = threadIdToCallStackView.get(event.newThreadId());
+    if (!event.newVal().equals(ThreadSelection.ALL)
+        && !event.newVal().equals(ThreadSelection.NONE)) {
+      callStackView = threadIdToCallStackView.get(event.newVal().getThreadId());
     }
     callStackScrollPane.setContent(callStackView);
-  }
-
-  /** スレッドの状態を表示する. */
-  private void showThreadState(ThreadSelectionEvent event) {
-    if (event.isAllSelected() || event.newThreadId() == null) {
-      threadStateViewController.hideThreadState();
-      return;
-    }
-    ThreadContext context = threadIdToContext.get(event.newThreadId());
-    threadStateViewController.showThreadState(context);
   }
 
   /** デバッグ情報をクリアする. */
@@ -127,8 +111,6 @@ public class DebugViewController {
     ViewUtil.runSafe(() -> {
       threadIdToCallStackView.clear();
       threadIdToContext.clear();
-      threadSelectorController.reset();
-      threadStateViewController.reset();
     });
   }
 }

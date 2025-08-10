@@ -19,7 +19,6 @@
     <TextFetcher fx:id="freeMemoryText" textId="gui,menu-bar,free-memory"/>
     <TextFetcher fx:id="settingsText" textId="gui,menu-bar,settings"/>
     <TextFetcher fx:id="focusSimulatorText" textId="gui,menu-bar,focus-simulator"/>
-    <TextFetcher fx:id="focusSimulatorOnChangedText" textId="gui,menu-bar,focus-simulator-on-changed"/>
     <TextFetcher fx:id="helpText" textId="gui,menu-bar,help"/>
     <TextFetcher fx:id="versionInfoText" textId="gui,menu-bar,version-info"/>
   </fx:define>
@@ -39,9 +38,6 @@
       <Menu text="$settingsText.text">
       <items>
         <MenuItem fx:id="focusSimulator" text="$focusSimulatorText.text"/>
-      </items>
-      <items>
-        <MenuItem fx:id="focusSimulatorOnChanged" text="$focusSimulatorOnChangedText.text"/>
       </items>
     </Menu>
     <Menu text="$helpText.text">

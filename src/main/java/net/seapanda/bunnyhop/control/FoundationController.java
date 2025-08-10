@@ -32,6 +32,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
+import net.seapanda.bunnyhop.control.debugger.DebugWindowController;
 import net.seapanda.bunnyhop.control.nodeselection.BhNodeCategoryListController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
 import net.seapanda.bunnyhop.export.ProjectExporter;
@@ -88,23 +89,25 @@ public class FoundationController {
       CopyAndPaste copyAndPaste,
       CutAndPaste cutAndPaste,
       MessageService msgService,
-      Debugger debugger) {
+      Debugger debugger,
+      DebugWindowController debugWindowCtrl) {
     this.localCtrl = localCtrl;
     this.remoteCtrl = remoteCtrl;
     workspaceSetController.initialize(wss);
     boolean success = nodeCategoryListController.initialize(builder, nodeCategoryList);
     success &= menuViewController.initialize(
-      workspaceSetController,
-      notifService,
-      wsFactory,
-      undoRedoAgent,
-      proxy,
-      localCtrl,
-      remoteCtrl,
-      copyAndPaste,
-      cutAndPaste,
-      msgService,
-      debugger);
+        workspaceSetController,
+        notifService,
+        wsFactory,
+        undoRedoAgent,
+        proxy,
+        localCtrl,
+        remoteCtrl,
+        copyAndPaste,
+        cutAndPaste,
+        msgService,
+        debugger,
+        debugWindowCtrl);
     if (!success) {
       return false;
     }

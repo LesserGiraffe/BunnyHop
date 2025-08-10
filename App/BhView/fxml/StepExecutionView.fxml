@@ -17,7 +17,7 @@
     <Rem fx:id="btnSize" rem="2.5"/>
   </fx:define>
 
-  <HBox>
+  <HBox styleClass="stepExecutionHbox">
     <Button fx:id="resumeBtn" styleClass="flatButton,padding-4px">
       <graphic>
         <ImageView>
@@ -43,7 +43,7 @@
     </Button>
   </HBox>
 
-  <HBox>
+  <HBox styleClass="stepExecutionHbox">
     <Button fx:id="stepOverBtn" styleClass="flatButton,padding-4px">
       <graphic>
         <ImageView>

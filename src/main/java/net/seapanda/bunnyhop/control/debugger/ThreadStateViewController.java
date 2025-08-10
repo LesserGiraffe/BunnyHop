@@ -24,6 +24,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.bhprogram.debugger.DebugUtil;
+import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.bhprogram.debugger.ThreadContext;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.Rem;
@@ -43,10 +44,11 @@ public class ThreadStateViewController {
   private final Tooltip errMsgTooltip = new Tooltip();
 
   /** 初期化する. */
-  public void initialize() {
+  public void initialize(Debugger debugger) {
     errMsgTooltip.setId(BhConstants.UiId.BH_RUNTIME_ERR_MSG);
     errMsgTooltip.setAutoHide(false);
     errMsgTooltip.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> errMsgTooltip.hide());
+    debugger.getCallbackRegistry().getOnCleared().add(event -> reset());
   }
 
   /**
@@ -83,7 +85,8 @@ public class ThreadStateViewController {
     });
   }
 
-  public synchronized void reset() {
+  /** このコントローラの管理するコンポーネントを初期状態に戻す. */
+  private synchronized void reset() {
     hideThreadState();
   }
 

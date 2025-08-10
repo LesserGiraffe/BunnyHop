@@ -22,6 +22,7 @@
     <Rem fx:id="disconnectSize" rem="2.0"/>
     <Rem fx:id="focusSimSize" rem="2.0"/>
     <Rem fx:id="breakpointSize" rem="2.0"/>
+    <Rem fx:id="debugSize" rem="2.0"/>
     <Rem fx:id="addWsSize" rem="2.0"/>
     <TextFetcher fx:id="copyText" textId="gui,menu-view,copy"/>
     <TextFetcher fx:id="cutText" textId="gui,menu-view,cut"/>
@@ -144,6 +145,14 @@
       <graphic>
         <ImageView>
           <Image url="@../images/breakpoint.png" smooth="true" requestedWidth="$breakpointSize.rem" requestedHeight="$breakpointSize.rem"/>
+        </ImageView>
+      </graphic>
+    </ToggleButton>
+
+    <ToggleButton fx:id="debugBtn" styleClass="flatButton"> <!-- デバッグウィンドウの表示 -->
+      <graphic>
+        <ImageView>
+          <Image url="@../images/debug.png" smooth="true" requestedWidth="$debugSize.rem" requestedHeight="$debugSize.rem"/>
         </ImageView>
       </graphic>
     </ToggleButton>

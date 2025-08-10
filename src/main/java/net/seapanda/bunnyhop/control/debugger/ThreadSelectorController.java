@@ -16,11 +16,11 @@
 
 package net.seapanda.bunnyhop.control.debugger;
 
-import java.util.Optional;
-import java.util.function.Consumer;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
+import net.seapanda.bunnyhop.bhprogram.ThreadSelection;
+import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.view.ViewUtil;
 
@@ -33,41 +33,28 @@ public class ThreadSelectorController {
   
   @FXML private ComboBox<Long> threadComboBox;
 
-  /** スレッドが選択されたときのイベントハンドラ. */
-  private Consumer<? super ThreadSelectionEvent> onThreadSelected = threadId -> {};
   /** 全スレッドを表す選択肢に対応するスレッド ID. */
   private final Long threadIdForAll = -1L;
 
   /** 初期化する. */
-  public void initialize() {
+  public void initialize(Debugger debugger) {
     threadComboBox.setButtonCell(new ThreadSelectorListCell());
     threadComboBox.setCellFactory(items -> new ThreadSelectorListCell());
     threadComboBox.valueProperty().addListener((observable, oldVal, newVal) -> {
-      onThreadSelected.accept(new ThreadSelectionEvent(oldVal, newVal, isAllSelected()));
+      if (newVal == null) {
+        debugger.setThreadSelection(ThreadSelection.NONE);
+      } else if (newVal == threadIdForAll) {
+        debugger.setThreadSelection(ThreadSelection.ALL);
+      } else {
+        debugger.setThreadSelection(ThreadSelection.of(newVal));
+      }
     });
+    debugger.getCallbackRegistry().getOnCleared().add(event -> reset());
     reset();
   }
 
-  /**
-   * 現在選択中のスレッドを返す. 
-   *
-   * @return 現在選択中のスレッド. 特定のスレッドが選択されていない場合は Optional.empty.
-   */
-  synchronized Optional<Long> getSelected() {
-    Long selected = threadComboBox.getValue();
-    if (threadIdForAll.equals(selected)) {
-      return Optional.empty();
-    }
-    return Optional.ofNullable(selected);
-  }
-
-  /** 「すべてのスレッド」が選択されている場合 true を返す. */
-  synchronized boolean isAllSelected() {
-    return threadIdForAll.equals(threadComboBox.getValue());
-  }
-
   /** このコントローラの管理するコンポーネントを初期状態に戻す. */
-  synchronized void reset() {
+  private synchronized void reset() {
     ViewUtil.runSafe(() -> {
       threadComboBox.getItems().clear();
       threadComboBox.getItems().add(threadIdForAll);
@@ -85,11 +72,12 @@ public class ThreadSelectorController {
       return;
     }
     ViewUtil.runSafe(() -> {
-      if (!threadComboBox.getItems().contains(threadId)) {
+      boolean isNewThreadId = !threadComboBox.getItems().contains(threadId);
+      if (isNewThreadId) {
         threadComboBox.getItems().addLast(threadId);
       }
       Long selected = threadComboBox.getValue();
-      if (selected != null && selected < 0L) {
+      if (threadIdForAll.equals(selected) && isNewThreadId) {
         selectThread(threadId);
       }
     });
@@ -118,17 +106,6 @@ public class ThreadSelectorController {
     }
   }
 
-  /**
-   * スレッドが選択されたときのイベントハンドラを登録する.
-   *
-   * @param handler 登録するイベントハンドラ.
-   */
-  void setOnThreadSelected(Consumer<? super ThreadSelectionEvent> handler) {
-    if (handler != null) {
-      onThreadSelected = handler;
-    }
-  }
-
   /** スレッド選択コンボボックスのアイテムの View. */
   private class ThreadSelectorListCell extends ListCell<Long> {
     @Override
@@ -145,14 +122,4 @@ public class ThreadSelectorController {
       }
     }
   }
-
-  /**
-   * スレッドが選択されたときの情報を格納したレコード.
-   *
-   * @param oldThreadId {@code newThread} の前に選択されていたスレッドの ID
-   * @param newThreadId 新しく選択されたスレッドの ID
-   * @param isAllSelected 「すべてのスレッド」が選択された場合 true
-   */
-  public record ThreadSelectionEvent(
-      Long oldThreadId, Long newThreadId, boolean isAllSelected) {}
 }

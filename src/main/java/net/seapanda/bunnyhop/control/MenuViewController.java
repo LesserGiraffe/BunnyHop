@@ -44,6 +44,7 @@ import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.common.TextDefs;
+import net.seapanda.bunnyhop.control.debugger.DebugWindowController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
 import net.seapanda.bunnyhop.model.BhNodePlacer;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
@@ -108,6 +109,8 @@ public class MenuViewController {
   @FXML private Button disconnectBtn;
   /** シミュレータフォーカスボタン. */
   @FXML private ToggleButton focusSimBtn;
+  /** デバッグウィンドウ表示ボタン. */
+  @FXML private ToggleButton debugBtn;
   /** ジャンプボタン. */
   @FXML private Button jumpBtn;
   /** ホスト名入力欄. */
@@ -120,6 +123,7 @@ public class MenuViewController {
   @FXML private Button sendBtn;
   /** 標準入力テキストフィールド. */
   @FXML private TextField stdInTextField;
+  
 
   /** BhProgramの実行環境準備中の場合 true. */
   private final AtomicBoolean executing = new AtomicBoolean(false);
@@ -163,6 +167,7 @@ public class MenuViewController {
    * @param copyAndPaste コピー & ペーストの処理に使用するオブジェクト
    * @param cutAndPaste カット & ペーストの処理に使用するオブジェクト
    * @param debugger デバッガ
+   * @param debugWindowCtrl デバッグウィンドウのコントローラ
    * @return 成功した場合 true
    */
   public boolean initialize(
@@ -176,7 +181,8 @@ public class MenuViewController {
       CopyAndPaste copyAndPaste,
       CutAndPaste cutAndPaste,
       MessageService msgService,
-      Debugger debugger) {
+      Debugger debugger,
+      DebugWindowController debugWindowCtrl) {
     this.notifService = notifService;
     this.wsFactory = wsFactory;
     this.undoRedoAgent = undoRedoAgent;
@@ -206,7 +212,8 @@ public class MenuViewController {
     connectBtn.setOnAction(action -> connect()); // 接続
     disconnectBtn.setOnAction(action -> disconnect()); // 切断
     focusSimBtn.setOnAction(action ->
-        BhSettings.BhSimulator.focusOnChanged.set(focusSimBtn.isSelected())); // シミュレータにフォーカス
+        BhSettings.BhSimulator.focusOnChanged.set(focusSimBtn.isSelected()));
+    debugBtn.setOnAction(action -> debugWindowCtrl.setVisibility(debugBtn.isSelected()));
     sendBtn.setOnAction(action -> send()); // 送信
     remotLocalSelectBtn.selectedProperty()
         .addListener((observable, oldVal, newVal) -> switchRemoteLocal(newVal));

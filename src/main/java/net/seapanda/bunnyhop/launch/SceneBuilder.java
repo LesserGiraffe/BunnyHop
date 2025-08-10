@@ -32,6 +32,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramController;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
@@ -41,6 +43,7 @@ import net.seapanda.bunnyhop.control.FoundationController;
 import net.seapanda.bunnyhop.control.MenuBarController;
 import net.seapanda.bunnyhop.control.NotificationViewController;
 import net.seapanda.bunnyhop.control.SearchBoxController;
+import net.seapanda.bunnyhop.control.debugger.DebugWindowController;
 import net.seapanda.bunnyhop.control.workspace.TrashboxController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
 import net.seapanda.bunnyhop.export.ProjectExporter;
@@ -63,27 +66,34 @@ import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeShowcaseBuilder;
 
-/** GUI 画面のロードと初期化を行う. */
+/**
+ * GUI 画面のロードと初期化を行う.
+ *
+ * @author K.Koike
+ */
 public class SceneBuilder {
 
-  /** BhNode 選択用画面のモデル. */
   public final FoundationController foundationCtrl;
   public final MenuBarController menuBarCtrl;
   public final WorkspaceSetController wssCtrl;
   public final NotificationViewController notifViewCtrl;
   public final TrashboxController trashboxCtrl;
   public final SearchBoxController searchBoxCtrl;
+  public final DebugWindowController debugWindowCtrl;
   public final Scene scene;
+  private final Scene debugScene;
 
   /**
    * コンストラクタ.
    *
-   * @param rootComponentFxml アプリケーションの GUI のルート要素が定義された FXML のパス.
+   * @param mainWindowFxml アプリケーションの GUI のルート要素が定義された FXML のパス.
+   * @param debugWindowFxml デバッグウィンドウのルート要素が定義された FXML のパス.
    */
-  public SceneBuilder(Path rootComponentFxml) throws AppInitializationException {
+  public SceneBuilder(
+      Path mainWindowFxml, Path debugWindowFxml) throws AppInitializationException {
     VBox root;
     try {
-      FXMLLoader loader = new FXMLLoader(rootComponentFxml.toUri().toURL());
+      FXMLLoader loader = new FXMLLoader(mainWindowFxml.toUri().toURL());
       root = loader.load();
       foundationCtrl = loader.getController();
       wssCtrl = foundationCtrl.getWorkspaceSetController();
@@ -91,10 +101,18 @@ public class SceneBuilder {
       menuBarCtrl = foundationCtrl.getMenuBarController();
       trashboxCtrl = wssCtrl.getTrashboxController();
       searchBoxCtrl = notifViewCtrl.getSearchBoxController();
-      scene = genScene(root);
+      scene = genMainScene(root);
     } catch (IOException e) {
-      throw new AppInitializationException(
-          "Failed to load %s\n%s".formatted(BhConstants.Path.File.FOUNDATION_FXML, e));
+      throw new AppInitializationException("Failed to load %s\n%s".formatted(mainWindowFxml, e));
+    }
+    try {
+      FXMLLoader loader = new FXMLLoader(debugWindowFxml.toUri().toURL());
+      root = loader.load();
+      debugWindowCtrl = loader.getController();
+      debugScene = new Scene(root);
+      debugScene.getStylesheets().addAll(scene.getStylesheets());
+    } catch (IOException e) {
+      throw new AppInitializationException("Failed to load %s\n%s".formatted(debugWindowFxml, e));
     }
   }
 
@@ -132,9 +150,11 @@ public class SceneBuilder {
          copyAndPaste,
          cutAndPaste,
          msgService,
-         debugger)) {
+         debugger,
+         debugWindowCtrl)) {
       throw new AppInitializationException("Failed to initialize a FoundationController.");
     }
+    debugWindowCtrl.initialize(debugger);
   }
 
   /** メインウィンドウを作成する. */
@@ -148,16 +168,28 @@ public class SceneBuilder {
     stage.getIcons().add(new Image(iconPath));
     stage.setScene(scene);
     stage.setTitle(BhConstants.APP_NAME);
+    var debugStage = new Stage();
+    debugStage.setScene(debugScene);
+    debugStage.initOwner(stage);
+    debugStage.initStyle(StageStyle.UTILITY);
+    debugStage.setOnCloseRequest(WindowEvent::consume);
+    createInitialWorkspace(wsFactory);
+    stage.show();
+    debugStage.show();
+    debugWindowCtrl.setVisibility(false);
+  }
+
+  /** 初期ワークスペースを作成する. */
+  private void createInitialWorkspace(WorkspaceFactory wsFactory) throws ViewConstructionException {
     var wsName = TextDefs.Workspace.initialWsName.get();
     Workspace ws = wsFactory.create(wsName);
     Vec2D wsSize = new Vec2D(
         BhConstants.LnF.DEFAULT_WORKSPACE_WIDTH, BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT);
     wsFactory.setMvc(ws, wsSize);
     wssCtrl.getWorkspaceSet().addWorkspace(ws, new UserOperation());
-    stage.show();
   }
 
-  private Scene genScene(VBox root) {
+  private Scene genMainScene(VBox root) {
     Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
     double width = primaryScreenBounds.getWidth() * BhConstants.LnF.DEFAULT_APP_WIDTH_RATE;
     double height = primaryScreenBounds.getHeight() * BhConstants.LnF.DEFAULT_APP_HEIGHT_RATE;

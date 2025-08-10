@@ -54,7 +54,6 @@ public class MenuBarController {
   @FXML private MenuItem versionInfo;
   @FXML private MenuItem freeMemory;
   @FXML private MenuItem focusSimulator;
-  @FXML private MenuItem focusSimulatorOnChanged;
   /** 現在保存対象になっているファイル. */
   private File currentSaveFile;
   /** モデルへのアクセスの通知先となるオブジェクト. */
@@ -86,11 +85,6 @@ public class MenuBarController {
         switchMenuSetting(focusSimulator, BhSettings.BhSimulator.focusOnStartBhProgram));
     if (BhSettings.BhSimulator.focusOnStartBhProgram.get()) {
       focusSimulator.setText(focusSimulator.getText() + " ✓");
-    }
-    focusSimulatorOnChanged.setOnAction(action ->
-        switchMenuSetting(focusSimulatorOnChanged, BhSettings.BhSimulator.focusOnChanged));
-    if (BhSettings.BhSimulator.focusOnChanged.get()) {
-      focusSimulatorOnChanged.setText(focusSimulatorOnChanged.getText() + " ✓");
     }
   }
 

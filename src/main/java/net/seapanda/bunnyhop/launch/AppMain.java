@@ -140,6 +140,7 @@ public class AppMain extends Application {
           Paths.get(Utility.execPath, BhConstants.Path.Dir.VIEW, BhConstants.Path.Dir.FXML);
       var fxmlCollector = new FileCollector(fxmlDir, "fxml");
       final Path guiDefFile = fxmlCollector.getFilePath(BhConstants.Path.File.FOUNDATION_FXML);
+      final Path debugDefFile = fxmlCollector.getFilePath(BhConstants.Path.File.DEBUG_WINDOW_FXML);
       final Path wsViewFile = fxmlCollector.getFilePath(BhConstants.Path.File.WORKSPACE_FXML);
       final Path btnFile =
           fxmlCollector.getFilePath(BhConstants.Path.File.PRIVATE_TEMPLATE_BUTTON_FXML);
@@ -174,7 +175,7 @@ public class AppMain extends Application {
           BhConstants.Path.Dir.BH_DEF,
           BhConstants.Path.Dir.CONNECTOR_DEF);
 
-      final var sceneBuilder = new SceneBuilder(guiDefFile);
+      final var sceneBuilder = new SceneBuilder(guiDefFile, debugDefFile);
       msgService.setMainMsgArea(sceneBuilder.notifViewCtrl.getMsgArea());
       msgService.setWindowStyle(sceneBuilder.scene.getStylesheets());
 

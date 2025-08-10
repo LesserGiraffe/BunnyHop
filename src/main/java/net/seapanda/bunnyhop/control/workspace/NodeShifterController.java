@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.control.workspace;
 
 import java.util.HashMap;
 import java.util.Map;
+import javafx.geometry.Point2D;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -84,7 +85,7 @@ public class NodeShifterController {
       ddInfo.context = notifService.begin();
       ddInfo.isDndFinished = false;
       view.switchPseudoClassActivation(true, BhConstants.Css.PSEUDO_SELECTED);
-      javafx.geometry.Point2D pos = view.sceneToLocal(event.getSceneX(), event.getSceneY());
+      Point2D pos = view.sceneToLocal(event.getSceneX(), event.getSceneY());
       ddInfo.mousePressedPos = new Vec2D(pos.getX(), pos.getY());
       view.toFront();
       view.getLinkedNodes().forEach(

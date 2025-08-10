@@ -16,7 +16,9 @@
 
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
+import java.util.Objects;
 import net.seapanda.bunnyhop.bhprogram.BhProgramMessenger;
+import net.seapanda.bunnyhop.bhprogram.ThreadSelection;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.ResumeThreadCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepIntoCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepOutCmd;
@@ -37,6 +39,7 @@ public class BhDebugger implements Debugger {
   private final MessageService msgService;
   private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
   private final BhProgramMessenger messenger;
+  private ThreadSelection threadSelection = ThreadSelection.NONE;
 
   /** コンストラクタ. */
   public BhDebugger(BhProgramMessenger messenger, MessageService msgService) {
@@ -104,6 +107,21 @@ public class BhDebugger implements Debugger {
     messenger.send(new StepOutCmd(threadId));
   }
 
+  @Override
+  public void setThreadSelection(ThreadSelection selection) {
+    Objects.nonNull(selection);
+    if (!threadSelection.equals(selection)) {
+      var event = new ThreadSelectionEvent(this, threadSelection, selection);
+      threadSelection = selection;
+      cbRegistry.onThreadSelectionChanged.invoke(event);
+    }
+  }
+
+  @Override
+  public ThreadSelection getThreadSelection() {
+    return threadSelection;
+  }
+
   /** イベントハンドラの管理を行うクラス. */
   public class CallbackRegistryImpl implements CallbackRegistry {
 
@@ -114,6 +132,10 @@ public class BhDebugger implements Debugger {
     /** デバッグ情報をクリアしたときのイベントハンドラを管理するオブジェクト. */
     private ConsumerInvoker<ClearEvent> onClearedInvoker = new ConsumerInvoker<>();
 
+    /** スレッドの選択状態が変わったときのイベントハンドラを管理するオブジェクト. */
+    private ConsumerInvoker<ThreadSelectionEvent> onThreadSelectionChanged =
+        new ConsumerInvoker<>();
+
     @Override
     public ConsumerInvoker<ThreadContextReceivedEvent>.Registry getOnThreadContextReceived() {
       return onThreadContextReceivedInvoker.getRegistry();
@@ -122,6 +144,11 @@ public class BhDebugger implements Debugger {
     @Override
     public ConsumerInvoker<ClearEvent>.Registry getOnCleared() {
       return onClearedInvoker.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<ThreadSelectionEvent>.Registry getOnThreadSelectionChanged() {
+      return onThreadSelectionChanged.getRegistry();
     }
   }
 }
