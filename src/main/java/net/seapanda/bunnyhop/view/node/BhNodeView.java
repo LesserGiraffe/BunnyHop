@@ -160,7 +160,7 @@ public interface BhNodeView extends NodeViewComponent {
     /**
      * ブレークポイントの可視性を変更する.
      *
-     * @param visible ブレークポイントを表示する場合 true.  非表示する場合 false
+     * @param visible ブレークポイントを表示する場合 true.  非表示にする場合 false
      */
     void setBreakpointVisibility(boolean visible);
 
@@ -170,6 +170,21 @@ public interface BhNodeView extends NodeViewComponent {
      * @return ブレークポイントが表示されている場合 true.
      */
     boolean isBreakpointVisible();
+
+    /**
+     * 次に実行するステップであることを表すマークの可視性を変更する.
+     *
+     * @param visible マークを表示する場合 true.  非表示にする場合 false
+     */
+    void setNextStepMarkVisibility(boolean visible);
+
+    /**
+     * 次に実行するステップであることを表すマークの可視性を調べる.
+     *
+     * @return マークが表示されている場合 true.
+     */
+    boolean isNextStepMarkVisible();
+
 
     /** エフェクトを付ける対象. */
     enum EffectTarget {

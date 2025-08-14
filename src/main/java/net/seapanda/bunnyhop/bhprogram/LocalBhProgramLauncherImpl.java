@@ -20,8 +20,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
 import javafx.scene.control.Alert;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
-import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
 import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
@@ -32,19 +30,11 @@ import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
 
 /**
- * BhProgram に対する以下の操作を実装したクラス.
- *
- * <pre>
- * - BhProgram の実行
- * - BhProgram の終了
- * - BhProgram とのデータ通信の有効化
- * - BhProgram とのデータ通信の無効化
- * - BhProgram へのデータ送信
- * </pre>
+ * BhProgram の起動とその実行環境の制御用オブジェクトを取得する機能を提供するクラス.
  *
  * @author K.Koike
  */
-public class LocalBhProgramControllerImpl implements LocalBhProgramController {
+public class LocalBhProgramLauncherImpl implements LocalBhProgramLauncher {
   
   private final BhCompiler compiler;
   private final LocalBhRuntimeController runtimeCtrl;
@@ -57,7 +47,7 @@ public class LocalBhProgramControllerImpl implements LocalBhProgramController {
    * @param controller BhProgram の実行環境を操作するオブジェクト
    * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
    */
-  public LocalBhProgramControllerImpl(
+  public LocalBhProgramLauncherImpl(
       BhCompiler compiler,
       LocalBhRuntimeController controller,
       MessageService msgService) {
@@ -67,17 +57,14 @@ public class LocalBhProgramControllerImpl implements LocalBhProgramController {
   }
 
   @Override
-  public synchronized boolean execute(ExecutableNodeSet nodeSet) {
-    return compile(nodeSet)
-        .map(srcPath -> startProgram(srcPath))
-        .orElse(false);
+  public synchronized boolean launch(ExecutableNodeSet nodeSet) {
+    return compile(nodeSet).map(this::startProgram).orElse(false);
   }
 
   /**
    * ノードをコンパイルする.
    *
    * @param nodeSet コンパイル対象のノードのリスト
-   * @param entryPoint プログラム開始時に実行されるノード
    * @return ノードをコンパイルしてできたソースファイルのパス
    */
   private Optional<Path> compile(ExecutableNodeSet nodeSet) {
@@ -104,22 +91,7 @@ public class LocalBhProgramControllerImpl implements LocalBhProgramController {
   }
 
   @Override
-  public synchronized boolean terminate() {
-    return runtimeCtrl.terminate();
-  }
-
-  @Override
-  public synchronized boolean enableCommunication() {
-    return runtimeCtrl.connect();
-  }
-
-  @Override
-  public synchronized boolean disableCommunication() {
-    return runtimeCtrl.disconnect();
-  }
-
-  @Override
-  public synchronized BhRuntimeStatus send(BhProgramMessage message) {
-    return runtimeCtrl.send(message);
+  public LocalBhRuntimeController getBhRuntimeCtrl() {
+    return runtimeCtrl;
   }
 }

@@ -57,7 +57,7 @@ public record ConnectorAttribute(
     var defaultNodeId =
         BhNodeId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID));
     var derivationId =
-        DerivationId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_DETIVATION_ID));
+        DerivationId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_DERIVATION_ID));
     var derivativeId =
         BhNodeId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_DERIVATIVE_ID));
     var derivativeJoint =

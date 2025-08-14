@@ -48,15 +48,13 @@ public class DebugViewController {
   private Debugger debugger;
   
   /** 初期化する. */
-  public synchronized void initialize(
-      Debugger debugger, DebugViewFactory factory) {
+  public synchronized void initialize(Debugger debugger, DebugViewFactory factory) {
     this.factory = factory;
     this.debugger = debugger;
     Debugger.CallbackRegistry registry = debugger.getCallbackRegistry();
     registry.getOnThreadContextReceived().add(event -> addThreadContext(event.context()));
     registry.getOnCleared().add(event -> clear());
-    debugger.getCallbackRegistry().getOnThreadSelectionChanged()
-      .add(event -> showCallStackView(event));
+    debugger.getCallbackRegistry().getOnThreadSelectionChanged().add(this::showCallStackView);
   }
 
   /**

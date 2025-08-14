@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.view.node.BhNodeView.PositionManager;
 /**
  * {@link BhNode} ツリーの保存用イメージを作成するクラス.
  *
- * @author K.koike
+ * @author K.Koike
  */
 public class NodeImageBuilder implements BhNodeWalker {
  

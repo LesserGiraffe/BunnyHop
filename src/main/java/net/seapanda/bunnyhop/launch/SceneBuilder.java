@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.stream.Stream;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -34,7 +34,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
-import net.seapanda.bunnyhop.bhprogram.LocalBhProgramController;
+import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncher;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -117,7 +117,7 @@ public class SceneBuilder {
   }
 
   /** GUI を構築するオブジェクトを初期化する. */
-  public void initialze(
+  public void initialize(
       WorkspaceSet wss,
       BhNodeCategoryTree nodeCategoryList,
       BhNodeShowcaseBuilder builder,
@@ -126,7 +126,7 @@ public class SceneBuilder {
       DebugViewFactory debugViewFactory,
       UndoRedoAgent undoRedoAgent,
       BhNodeSelectionViewProxy proxy,
-      LocalBhProgramController localCtrl,
+      LocalBhProgramLauncher localCtrl,
       RemoteBhProgramController remoteCtrl,
       ProjectImporter importer,
       ProjectExporter exporter,
@@ -200,16 +200,16 @@ public class SceneBuilder {
 
   /** css ファイルのパスをリストにして返す. */
   private Collection<String> collectCssPaths() {
-    Path dirPath =
-        Paths.get(Utility.execPath, BhConstants.Path.Dir.VIEW, BhConstants.Path.Dir.CSS);
-    List<Path> files = null;  //読み込むファイルパスリスト
-    try {
-      files = Files.walk(dirPath, FOLLOW_LINKS).filter(
-          filePath -> filePath.toString().toLowerCase().endsWith(".css")).toList();
+    Path dirPath = Paths.get(Utility.execPath, BhConstants.Path.Dir.VIEW, BhConstants.Path.Dir.CSS);
+    try (Stream<Path> paths = Files.walk(dirPath, FOLLOW_LINKS)) {
+      return paths.filter(filePath -> filePath.toString()
+          .toLowerCase()
+          .endsWith(".css"))
+          .map(file -> file.toUri().toString())
+          .toList();
     } catch (IOException e) {
       LogManager.logger().error("Directory not found.  (%s)".formatted(dirPath));
       return new ArrayList<>();
     }
-    return files.stream().map(file -> file.toUri().toString()).toList();
   }
 }

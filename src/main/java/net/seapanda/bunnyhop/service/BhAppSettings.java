@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
+package net.seapanda.bunnyhop.service;
 
-package net.seapanda.bunnyhop.bhprogram;
-
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
-import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
+import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
+import net.seapanda.bunnyhop.common.BhSettings;
 
 /**
- * 現在通信が有効になっている BhProgram に {@link BhProgramMessage} を送る機能を規定したクラス.
+ * アプリケーションの現在の設定を取得する機能を提供するクラス.
  *
  * @author K.Koike
  */
-@FunctionalInterface
-public interface BhProgramMessenger {
+public class BhAppSettings implements AppSettings {
 
-  /**
-   * 現在通信が有効になっている BhProgram に {@code message} を送る.
-   *
-   * @param message 送信データ
-   * @return ステータスコード
-   */
-  BhRuntimeStatus send(BhProgramMessage message);
+  @Override
+  public boolean isBreakpointSettingEnabled() {
+    return BhSettings.Debug.isBreakpointSettingEnabled;
+  }
+
+  @Override
+  public BhRuntimeType getBhRuntimeType() {
+    return BhSettings.BhRuntime.currentBhRuntimeType;
+  }
 }

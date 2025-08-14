@@ -39,12 +39,12 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import net.seapanda.bunnyhop.bhprogram.BhProgramMessenger;
-import net.seapanda.bunnyhop.bhprogram.LocalBhProgramControllerImpl;
+import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncherImpl;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramControllerImpl;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.debugger.BhDebugMessageProcessor;
 import net.seapanda.bunnyhop.bhprogram.debugger.BhDebugger;
+import net.seapanda.bunnyhop.bhprogram.debugger.BreakpointRegistry;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessorImpl;
 import net.seapanda.bunnyhop.bhprogram.runtime.RmiLocalBhRuntimeController;
@@ -74,6 +74,7 @@ import net.seapanda.bunnyhop.model.nodeselection.JsonBhNodeCategoryTree;
 import net.seapanda.bunnyhop.model.workspace.CopyAndPaste;
 import net.seapanda.bunnyhop.model.workspace.CutAndPaste;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.service.BhAppSettings;
 import net.seapanda.bunnyhop.service.BhMessageService;
 import net.seapanda.bunnyhop.service.BhScriptRepositoryImpl;
 import net.seapanda.bunnyhop.service.CompileErrorReporter;
@@ -179,6 +180,7 @@ public class AppMain extends Application {
       msgService.setMainMsgArea(sceneBuilder.notifViewCtrl.getMsgArea());
       msgService.setWindowStyle(sceneBuilder.scene.getStylesheets());
 
+      final var appSettings = new BhAppSettings();
       final var simulator = createSimulator();
       final var nodeSelViewProxy =
           new BhNodeSelectionViewProxyImpl(sceneBuilder.wssCtrl::addNodeSelectionView);
@@ -197,6 +199,7 @@ public class AppMain extends Application {
       final var nodeViewFactory = new BhNodeViewFactoryImpl(viewStyleFactory, buttonFactory);
       final var debugViewFactory = new DebugViewFactoryImpl(
           callStackVieFile, mediator, sceneBuilder.searchBoxCtrl);
+      final var breakpointRegistry = new BreakpointRegistry();
       final var nodeRepository = new XmlBhNodeRepository(scriptRepository);
       final var nodeFactory = new BhNodeFactoryImpl(
           nodeRepository,
@@ -204,7 +207,8 @@ public class AppMain extends Application {
           mediator,
           sceneBuilder.trashboxCtrl,
           wss,
-          nodeSelViewProxy);
+          nodeSelViewProxy,
+          appSettings);
       final var commonDataSupplier = new CommonDataSupplier(scriptRepository, nodeFactory, textDb);
       final var modelGenerator = new ModelGenerator(
           nodeFactory,
@@ -223,22 +227,19 @@ public class AppMain extends Application {
       final SimulatorCmdProcessor simCmdProcessor = simulator.getCmdProcessor().get();
       final var localRuntimeCtrl = new RmiLocalBhRuntimeController(simCmdProcessor, msgService);
       final var localBhProgramCtrl =
-          new LocalBhProgramControllerImpl(localCompiler, localRuntimeCtrl, msgService);          
+          new LocalBhProgramLauncherImpl(localCompiler, localRuntimeCtrl, msgService);
       final var remoteRuntimeCtrl =
           new RmiRemoteBhRuntimeController(msgService, scriptRepository);
       final var remoteBhProgramCtrl =
           new RemoteBhProgramControllerImpl(remoteCompiler, remoteRuntimeCtrl, msgService);
-      BhProgramMessenger messenger =
-          createBhProgramMessenger(sceneBuilder, localBhProgramCtrl, remoteBhProgramCtrl);
-      final var debugger = new BhDebugger(messenger, msgService);
+      final var debugger = new BhDebugger(
+          msgService, appSettings, localRuntimeCtrl, remoteRuntimeCtrl, breakpointRegistry);
       final var debugMsgProcessor = new BhDebugMessageProcessor(wss, debugger);
       final var msgProcessor = new BhProgramMessageProcessorImpl(msgService, debugMsgProcessor);
-      final var localMsgDispatcher = new BhProgramMessageDispatcher(msgProcessor, simCmdProcessor);
-      final var remoteMsgDispatcher = new BhProgramMessageDispatcher(msgProcessor, simCmdProcessor);
-      localRuntimeCtrl.getCallbackRegistry().getOnMsgCarrierRenewed()
-          .add(event -> localMsgDispatcher.replaceMsgCarrier(event.newCarrier()));
-      remoteRuntimeCtrl.getCallbackRegistry().getOnMsgCarrierRenewed()
-          .add(event -> remoteMsgDispatcher.replaceMsgCarrier(event.newCarrier()));
+      final var localMsgDispatcher =
+          new BhProgramMessageDispatcher(msgProcessor, simCmdProcessor, localRuntimeCtrl);
+      final var remoteMsgDispatcher =
+          new BhProgramMessageDispatcher(msgProcessor, simCmdProcessor, remoteRuntimeCtrl);
       final var pastePosOffsetCount = new MutableInt(-2);
       final var copyAndPaste = new CopyAndPaste(nodeFactory, pastePosOffsetCount);
       final var cutAndPaste = new CutAndPaste(pastePosOffsetCount);
@@ -247,20 +248,21 @@ public class AppMain extends Application {
       if (!checkNodeIdAndNodeTemplate(nodeRepository, viewStyleFactory)) {
         return;
       }
+
       setOnCloseHandler(
           stage,
           localRuntimeCtrl,
           remoteRuntimeCtrl,
           msgService,
-          () -> remoteRuntimeCtrl.isProgramRunning(),
-          () -> wss.isDirty(),
+          remoteRuntimeCtrl::isProgramRunning,
+          wss::isDirty,
           () -> sceneBuilder.menuBarCtrl.save(wss));
       simulator.setOnKeyPressed(keyCode -> onKeyPressed(
           keyCode,
           localRuntimeCtrl,
           remoteRuntimeCtrl,
-          () -> sceneBuilder.foundationCtrl.isBhRuntimeLocal()));     
-      sceneBuilder.initialze(
+          sceneBuilder.foundationCtrl::isBhRuntimeLocal));
+      sceneBuilder.initialize(
           wss,
           categoryTree,
           nodeShowcaseBuilder,
@@ -277,6 +279,7 @@ public class AppMain extends Application {
           cutAndPaste,
           msgService,
           debugger);
+      setEventHandlers(wss, breakpointRegistry);
       sceneBuilder.createWindow(stage, wsFactory);
       undoRedoAgent.deleteCommands();
       if (SplashScreen.getSplashScreen() != null) {
@@ -294,18 +297,6 @@ public class AppMain extends Application {
     }
   }
 
-  private BhProgramMessenger createBhProgramMessenger(
-      SceneBuilder sceneBuilder,
-      LocalBhProgramControllerImpl localBhProgramCtrl,
-      RemoteBhProgramControllerImpl remoteBhProgramCtrl) {
-    return (msg) -> {
-      if (sceneBuilder.foundationCtrl.isBhRuntimeLocal()) {
-        return localBhProgramCtrl.send(msg);
-      }
-      return remoteBhProgramCtrl.send(msg);
-    };
-  }
-
   private BhSimulator createSimulator() throws AppInitializationException {
     var simulator = new BhSimulator();
     simFuture = simExecutor.submit(() -> startSimulator(simulator));
@@ -320,7 +311,7 @@ public class AppMain extends Application {
 
   private void focusSimulator() {
     Lwjgl3Window window = ((Lwjgl3Graphics) Gdx.app.getGraphics()).getWindow();
-    if (!window.isIconified() && BhSettings.BhSimulator.focusOnChanged.get()) {
+    if (!window.isIconified() && BhSettings.BhSimulator.focusOnChanged) {
       window.restoreWindow();
       window.focusWindow();
     }
@@ -398,10 +389,10 @@ public class AppMain extends Application {
    * プロジェクトを保存するかどうかを訪ねる.
    * プロジェクトがダーティでないない場合は何も尋ねない.
    *
-   * @retval YES プログラムを止める
-   * @retval NO プログラムを止めない
-   * @retval CANCEL キャンセルを選択
-   * @retval NONE_OF_THEM 何も尋ねなかった場合
+   * @return YES プロジェクトを保存する <br>
+   *        NO プロジェクトを保存しない <br>
+   *        CANCEL キャンセルを選択 <br>
+   *        NONE_OF_THEM 何も尋ねなかった場合
    */
   public ExclusiveSelection askIfSaveProject(
       MessageService messageService, Supplier<Boolean> fnIsProjectDirty) {
@@ -511,12 +502,12 @@ public class AppMain extends Application {
    * 現在実行中のプログラムを止めるかどうかを訪ねる.
    * プログラムを実行中でない場合は何も尋ねない.
    *
-   * @retval YES プログラムを止める
-   * @retval NO プログラムを止めない
-   * @retval CANCEL キャンセルを選択
-   * @retval NONE_OF_THEM 何も尋ねなかった場合
+   * @return YES プログラムを止める <br>
+   *         NO プログラムを止めない <br>
+   *         CANCEL キャンセルを選択 <br>
+   *         NONE_OF_THEM 何も尋ねなかった場合
    */
-  public ExclusiveSelection askIfStopProgram(
+  private ExclusiveSelection askIfStopProgram(
       MessageService msgService, Supplier<Boolean> fnIsProgramRunning) {
     if (!fnIsProgramRunning.get()) {
       return ExclusiveSelection.NONE_OF_THEM;
@@ -537,5 +528,27 @@ public class AppMain extends Application {
         return ExclusiveSelection.CANCEL;
       }
     }).orElse(ExclusiveSelection.NONE_OF_THEM);
-  }  
+  }
+
+  /** イベントハンドラを設定する. */
+  private void setEventHandlers(WorkspaceSet wss, BreakpointRegistry breakpointRegistry) {
+    wss.getCallbackRegistry().getOnNodeAdded()
+        .add(event -> {
+          if (event.node().isBreakpointSet()) {
+            breakpointRegistry.addBreakpointNode(event.node(), event.userOpe());
+          }
+        });
+
+    wss.getCallbackRegistry().getOnNodeRemoved()
+        .add(event -> breakpointRegistry.removeBreakpointNode(event.node(), event.userOpe()));
+
+    wss.getCallbackRegistry().getOnNodeBreakpointSetEvent()
+        .add(event -> {
+          if (event.node().isBreakpointSet()) {
+            breakpointRegistry.addBreakpointNode(event.node(), event.userOpe());
+          } else {
+            breakpointRegistry.removeBreakpointNode(event.node(), event.userOpe());
+          }
+        });
+  }
 }

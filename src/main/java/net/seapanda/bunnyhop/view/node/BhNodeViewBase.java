@@ -18,14 +18,11 @@ package net.seapanda.bunnyhop.view.node;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedSet;
-import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -38,6 +35,7 @@ import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -274,7 +272,51 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     circle.setMouseTransparent(true);
     circle.setVisible(false);
     circle.getStyleClass().add(style.commonPart.breakpoint.cssClass);
-    return new Shapes(nodeShape, compileErrorMark, circle);
+    double size = style.commonPart.nextStepMark.size;
+    Polygon star = createStarPolygon(size, size);
+    star.setMouseTransparent(true);
+    star.setVisible(false);
+    star.getStyleClass().add(style.commonPart.nextStepMark.cssClass);
+    return new Shapes(nodeShape, compileErrorMark, circle, star);
+  }
+
+  /**
+   * 指定された幅と高さの矩形に収まる星のポリゴンを作成する.
+   *
+   * @param width            星を収める矩形の幅
+   * @param height           星を収める矩形の高さ
+   * @return 星型のポリゴン
+   */
+  private Polygon createStarPolygon(double width, double height) {
+    double innerRadiusRatio = 0.5; // 内側の半径と外側の半径の比率（0.0-1.0）
+    int numConvexPoints = 4; // 凸部分の超点数
+    Polygon star = new Polygon();
+    double centerX = width / 2.0;
+    double centerY = height / 2.0;
+    double outerRadiusX = width / 2.0;
+    double outerRadiusY = height / 2.0;
+    double innerRadiusX = outerRadiusX * innerRadiusRatio;
+    double innerRadiusY = outerRadiusY * innerRadiusRatio;
+    double angleStep = Math.PI / numConvexPoints; // 外側と内側の頂点間の角度
+    double startAngle = -Math.PI / 2.0;
+
+    for (int i = 0; i < numConvexPoints * 2; ++i) {
+      double angle = startAngle + i * angleStep;
+      double radiusX;
+      double radiusY;
+      // 偶数インデックスは外側の頂点、奇数インデックスは内側の頂点
+      if (i % 2 == 0) {
+        radiusX = outerRadiusX;
+        radiusY = outerRadiusY;
+      } else {
+        radiusX = innerRadiusX;
+        radiusY = innerRadiusY;
+      }
+      double x = centerX + radiusX * Math.cos(angle);
+      double y = centerY + radiusY * Math.sin(angle);
+      star.getPoints().addAll(x, y);
+    }
+    return star;
   }
 
   /** GUI コンポーネントを乗せるペインを作成する. */
@@ -296,6 +338,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     
     common.setPickOnBounds(false);
     common.getStyleClass().add(style.commonPart.cssClass);
+    common.getChildren().add(shapes.nextStep);
     common.getChildren().add(shapes.breakpoint);
     common.getChildren().addAll(components);
     common.getChildren().forEach(child -> {
@@ -318,14 +361,14 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   private void changeCommonPartValidity() {
     boolean anyVisible = panes.common.getChildren().stream().anyMatch(Node::isVisible);
     panes.common.setManaged(anyVisible);
+    // undo / redo でノードをワークスペースに戻したときに componentBase 内部のレイアウトが崩れないようにするために必要
+    if (panes.componentBase instanceof Region region) {
+      region.resize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+    }
   }
 
   /** ノードビューの外観を変更する機能を提供するクラス. */
   public class LookManagerBase implements LookManager {
-
-    /** 影付きノードリスト. */
-    public static final Set<BhNodeView> shadowNodes = 
-        Collections.newSetFromMap(new WeakHashMap<BhNodeView, Boolean>());
 
     /** ボディの形を取得する関数オブジェクト. */
     private Supplier<BodyShape> fnGetBodyShape;
@@ -378,7 +421,6 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     /**
      * ノードを形作るポリゴンを更新する.
      *
-     * @param drawBody ボディを描画する場合 true
      * @return ポリゴンの大きさが変化した場合 true.
      */
     private boolean updatePolygonShape() {
@@ -437,7 +479,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     @Override
     public void setVisible(boolean visible) {
       NvbCallbackInvoker.invoke(
-          view -> ((BhNodeViewBase) view).shapes.nodeShape.setVisible(visible),
+          view -> view.shapes.nodeShape.setVisible(visible),
           BhNodeViewBase.this);
     }
 
@@ -474,23 +516,28 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
           nodeView.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SHADOW, true);
         }
       };
-      switch (target) {
-        case SELF -> fnShowShadow.accept(BhNodeViewBase.this);
-        case CHILDREN -> NvbCallbackInvoker.invoke(fnShowShadow, BhNodeViewBase.this);
-        case OUTERS -> NvbCallbackInvoker.invokeForOuters(fnShowShadow, BhNodeViewBase.this);
-        default ->
-            throw new IllegalArgumentException("Invalid Rendering Target {%s}".formatted(target));
-      }
+      applyEffectRenderer(target, fnShowShadow);
     }
 
     @Override
     public void hideShadow(EffectTarget target) {
-      Consumer<? super BhNodeViewBase> fnShowShadow = nodeView -> 
+      Consumer<? super BhNodeViewBase> fnHideShadow = nodeView ->
           nodeView.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SHADOW, false);
+      applyEffectRenderer(target, fnHideShadow);
+    }
+
+    /**
+     * {@code target} で指定した対象にエフェクトを描画する処理を適用する.
+     *
+     * @param target エフェクトを適用するターゲット
+     * @param renderer エフェクトを描画するメソッド
+     */
+    private void applyEffectRenderer(
+        EffectTarget target, Consumer<? super BhNodeViewBase> renderer) {
       switch (target) {
-        case SELF -> fnShowShadow.accept(BhNodeViewBase.this);
-        case CHILDREN -> NvbCallbackInvoker.invoke(fnShowShadow, BhNodeViewBase.this);
-        case OUTERS -> NvbCallbackInvoker.invokeForOuters(fnShowShadow, BhNodeViewBase.this);
+        case SELF -> renderer.accept(BhNodeViewBase.this);
+        case CHILDREN -> NvbCallbackInvoker.invoke(renderer, BhNodeViewBase.this);
+        case OUTERS -> NvbCallbackInvoker.invokeForOuters(renderer, BhNodeViewBase.this);
         default ->
             throw new IllegalArgumentException("Invalid Rendering Target {%s}".formatted(target));
       }
@@ -509,7 +556,19 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     @Override
     public boolean isBreakpointVisible() {
       return shapes.breakpoint.isVisible();
-    }    
+    }
+
+    @Override
+    public void setNextStepMarkVisibility(boolean visible) {
+      BhNodeViewBase.this.getLookManager()
+          .switchPseudoClassState(BhConstants.Css.PSEUDO_NEXT_STEP, visible);
+      shapes.nextStep.setVisible(visible);
+    }
+
+    @Override
+    public boolean isNextStepMarkVisible() {
+      return shapes.nextStep.isVisible();
+    }
   }
 
   /** このノードの画面上での領域に関する処理を行うクラス. */
@@ -518,15 +577,15 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     private final QuadTreeRectangle bodyRange =
         new QuadTreeRectangle(0.0, 0.0, 0.0, 0.0, BhNodeViewBase.this);
     /** コネクタ部分の範囲. */
-    private final QuadTreeRectangle cnctrRange
-        = new QuadTreeRectangle(0.0, 0.0, 0.0, 0.0, BhNodeViewBase.this);
+    private final QuadTreeRectangle cnctrRange =
+        new QuadTreeRectangle(0.0, 0.0, 0.0, 0.0, BhNodeViewBase.this);
 
     @Override
     public List<BhNodeView> searchForOverlapped() {
       List<QuadTreeRectangle> overlappedRectList =
           cnctrRange.searchOverlappedRects(OverlapOption.INTERSECT);
       return overlappedRectList.stream()
-          .map(rectangle -> rectangle.<BhNodeView>getUserData())
+          .map(QuadTreeRectangle::<BhNodeView>getUserData)
           .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -543,8 +602,6 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
      */
     private void setPosOnQuadTreeSpace(double posX, double posY) {
       Vec2D bodySize = getNodeSize(false);
-      double bodyUpperLeftX = posX;
-      double bodyUpperLeftY = posY;
       double bodyLowerRightX = posX + bodySize.x;
       double bodyLowerRightY = posY + bodySize.y;
       double cnctrUpperLeftX = 0.0;
@@ -574,7 +631,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
         cnctrLowerRightX = cnctrUpperLeftX + boundsWidth;
         cnctrLowerRightY = cnctrUpperLeftY + boundsHeight;
       }
-      bodyRange.setPos(bodyUpperLeftX, bodyUpperLeftY, bodyLowerRightX, bodyLowerRightY);
+      bodyRange.setPos(posX, posY, bodyLowerRightX, bodyLowerRightY);
       cnctrRange.setPos(cnctrUpperLeftX, cnctrUpperLeftY, cnctrLowerRightX, cnctrLowerRightY);
     }
 
@@ -661,7 +718,6 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     @Override
     public void replace(BhNodeView newNode) {
       if (parent == null
-          || newNode == null
           || BhNodeViewBase.this == newNode
           || !(newNode instanceof BhNodeViewBase)) {
         return;
@@ -687,7 +743,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       panes.root.setMouseTransparent(true);
       removeComponentsFromParent();
       NvbCallbackInvoker.invokeForGroups(
-          group -> group.removePseudoViewFromGuiTree(),
+          BhNodeViewGroup::removePseudoViewFromGuiTree,
           BhNodeViewBase.this);
     }
 
@@ -729,13 +785,13 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
           BhNodeViewBase.this);
     }
 
-    /** このノードの描画物 (ボディや影など) を {@link parent} に追加する. */
+    /** このノードの描画物 (ボディや影など) を {@code parent} に追加する. */
     private void addComponentsToParent(Group parent) {
       parent.getChildren().add(panes.root);
       parent.getChildren().add(shapes.compileError);
     }
 
-    /** このノードの描画物 (ボディや影など) を {@link parent} に追加する. */
+    /** このノードの描画物 (ボディや影など) を {@code parent} に追加する. */
     private void addComponentsToParent(Pane parent) {
       parent.getChildren().add(panes.root);
       parent.getChildren().add(shapes.compileError);
@@ -744,7 +800,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     /** このノード以下の奇偶フラグを更新する. */
     private void updateEvenFlag() {
       NvbCallbackInvoker.invoke(
-          view -> updateEvenFlag(view),
+          TreeManagerBase::updateEvenFlag,
           BhNodeViewBase.this);
     }
 
@@ -945,7 +1001,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     private final ConsumerInvoker<SizeChangedEvent> onSizeChangedInvoker = new ConsumerInvoker<>();
 
     /** {@link #dispatch} で送られたイベントを区別するためのフラグ. */
-    private Deque<MouseEventInfo> eventStack = new LinkedList<>();
+    private final Deque<MouseEventInfo> eventStack = new LinkedList<>();
 
     /** コンストラクタ. */
     private CallbackRegistryBase() {
@@ -1034,7 +1090,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       onSizeChangedInvoker.invoke(new SizeChangedEvent(BhNodeViewBase.this));
     }
 
-    /** {@code event} のターゲットが {@link #nodeShape} であった場合 {@code event} を consume する. */
+    /** {@code event} のターゲットがノード本体を描画するポリゴンであった場合 {@code event} を consume する. */
     private void consume(MouseEvent event) {
       if (event.getTarget() == shapes.nodeShape) {
         event.consume();
@@ -1042,7 +1098,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     }
   }
 
-  private class CompileErrorMark extends Line {
+  private static class CompileErrorMark extends Line {
     CompileErrorMark(double startX, double startY, double endX, double endY) {
       super(startX, startY, endX, endY);
       this.setVisible(false);
@@ -1071,6 +1127,11 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
    * @param nodeShape ノード本体を描画するためのポリゴン
    * @param compileError コンパイルエラーが発生していることを示す印
    * @param breakpoint ブレークポイントが設定されていることを示す印
+   * @param nextStep 次に実行されるノードであることを示す印
    */
-  private record Shapes(Polygon nodeShape, CompileErrorMark compileError, Circle breakpoint) {}
+  private record Shapes(
+      Polygon nodeShape,
+      CompileErrorMark compileError,
+      Circle breakpoint,
+      Polygon nextStep) {}
 }

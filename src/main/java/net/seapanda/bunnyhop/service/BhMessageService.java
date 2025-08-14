@@ -40,7 +40,7 @@ import javafx.util.Duration;
 public class BhMessageService implements Closeable, MessageService {
 
   private TextInputControl textInputCtrl;
-  private Queue<String> messages = new LinkedList<>();
+  private final Queue<String> messages = new LinkedList<>();
   private final Timeline msgPrintTimer;
   private Collection<String> style = new ArrayList<>();
   private boolean isClosed = false;

@@ -1,0 +1,6 @@
+.defaultNextStepMark {
+  -fx-fill: gold;
+  -fx-stroke: black;
+  -fx-stroke-width: 0.2em;
+  -fx-stroke-type: inside;
+}

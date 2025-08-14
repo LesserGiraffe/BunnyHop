@@ -41,7 +41,7 @@
       "all-threads": "すべてのスレッド",
       "stack-overflow": "スタックオーバーフロー",
       "out-of-memory": "メモリ不足",
-      "runtime-error-occured": "-- プログラムの実行中にエラーが発生しました --",
+      "runtime-error-occurred": "-- プログラムの実行中にエラーが発生しました --",
       "thread-status": {
         "status": "状態",
         "error": "エラー",

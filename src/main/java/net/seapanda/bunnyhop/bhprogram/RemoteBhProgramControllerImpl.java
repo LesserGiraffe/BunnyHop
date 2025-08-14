@@ -20,8 +20,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
 import javafx.scene.control.Alert;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
-import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
 import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
@@ -32,15 +30,7 @@ import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
 
 /**
- * BhProgram に対する以下の操作を実装したクラス.
- *
- * <pre>
- * - BhProgram の実行
- * - BhProgram の終了
- * - BhProgram とのデータ通信の有効化
- * - BhProgram とのデータ通信の無効化
- * - BhProgram へのデータ送信
- * </pre>
+ * BhProgram の起動とその実行環境の制御用オブジェクトを取得する機能を提供するクラス.
  *
  * @author K.Koike
  */
@@ -67,7 +57,7 @@ public class RemoteBhProgramControllerImpl implements RemoteBhProgramController 
   }
 
   @Override
-  public synchronized boolean execute(
+  public synchronized boolean launch(
       ExecutableNodeSet nodeSet, String hostname, String uname, String password) {
     return compile(nodeSet)
         .map(srcPath -> startProgram(srcPath, hostname, uname, password))
@@ -78,7 +68,6 @@ public class RemoteBhProgramControllerImpl implements RemoteBhProgramController 
    * ノードをコンパイルする.
    *
    * @param nodeSet コンパイル対象のノードのリスト
-   * @param entryPoint プログラム開始時に実行されるノード
    * @return ノードをコンパイルしてできたソースファイルのパス
    */
   private Optional<Path> compile(ExecutableNodeSet nodeSet) {
@@ -105,22 +94,7 @@ public class RemoteBhProgramControllerImpl implements RemoteBhProgramController 
   }
 
   @Override
-  public synchronized boolean terminate(String hostname, String uname, String password) {
-    return runtimeCtrl.terminate(hostname, uname, password);
-  }
-
-  @Override
-  public synchronized boolean enableCommunication(String hostname, String uname, String password) {
-    return runtimeCtrl.connect(hostname, uname, password);
-  }
-
-  @Override
-  public synchronized boolean disableCommunication() {
-    return runtimeCtrl.disconnect();
-  }
-
-  @Override
-  public synchronized BhRuntimeStatus send(BhProgramMessage message) {
-    return runtimeCtrl.send(message);
+  public RemoteBhRuntimeController getBhRuntimeCtrl() {
+    return runtimeCtrl;
   }
 }

@@ -52,8 +52,6 @@ public class BhConstants {
   public static final SaveDataVersion SAVE_DATA_VERSION = SaveDataVersion.of("bhsave-1.0.0");
   /** undo 可能な最大回数. */
   public static final int NUM_TIMES_MAX_UNDO = 128;
-  /** ExecutorService のシャットダウンを待つ時間 (sec). */
-  public static final int EXECUTOR_SHUTDOWN_TIMEOUT = 5;
 
   /** Look & Feel. */
   public static class LnF {
@@ -63,8 +61,6 @@ public class BhConstants {
     public static final double DEFAULT_APP_HEIGHT_RATE = 0.7;
     public static final double DEFAULT_WORKSPACE_WIDTH = 200 * Rem.VAL;
     public static final double DEFAULT_WORKSPACE_HEIGHT = 200 * Rem.VAL;
-    /** ワークスペースとメッセージエリアを分けるディバイダの初期位置. */
-    public static final double DEFAULT_VERTICAL_DIV_POS = 0.85;
     /** ctrl + マウスホイールや拡大, 縮小ボタンを押したときの拡大縮小倍率. */
     public static final double ZOOM_MAGNIFICATION = 1.05;
     /** 拡大レベルの最大値. */
@@ -121,16 +117,8 @@ public class BhConstants {
       /** コンパイルしたファイルを置くディレクトリ. */
       public static final String COMPILED = "Compiled";
       public static final String REMOTE = "Remote";
-      /** リモートの BhProgram 実行環境の実行ファイルをまとめたディレクトリ. */
-      public static final String REMOTE_APP = "App";
-      /** BhProgramのファイルを格納するリモート実行環境の下のディレクトリ. */
-      public static final String REMOTE_COMPILED = "Compiled";
       /** 言語ファイルが格納されたディレクトリ. */
       public static final String LANGUAGE = "Language";
-      /** リモートの BunnyHop 実行環境が入ったディレクトリ. */
-      public static final String BH_REMOTE = "BhRemote";
-      /** リモートの BunnyHop 実行環境のカスタム Java ランタイムが入ったディレクトリ. */
-      public static final String REMOTE_BH_RUNTIME = "BhRuntime";
     }
 
     /** ファイル名のリスト. */
@@ -213,14 +201,13 @@ public class BhConstants {
     public static final String ATTR_ON_ALIAS_ASKED = "onAliasAsked";
     public static final String ATTR_DERIVATIVE_ID = "derivativeID";
     public static final String ATTR_INITIAL_TEXT = "initialText";
-    public static final String ATTR_DETIVATION_ID = "derivationID";
+    public static final String ATTR_DERIVATION_ID = "derivationID";
     public static final String ATTR_DERIVATIVE_JOINT = "derivativeJoint";
     public static final String ATTR_IMPORT = "import";
     public static final String ATTR_BREAKPOINT = "breakpoint";
     public static final String ATTR_VAL_TRUE = "true";
     public static final String ATTR_VAL_FALSE = "false";
     public static final String ATTR_VAL_DEFAULT_NODE_STYLE_ID = "";
-    public static final String ATTR_VAL_TAG_REFER_TO_PARENT = "tagReferToParent";
     public static final String ATTR_VAL_CONNECTIVE = "connective";
     public static final String ATTR_VAL_TEXT = "text";
     public static final String ATTR_VAL_SET = "set";
@@ -243,23 +230,17 @@ public class BhConstants {
     public static final String BH_CURRENT_NODE = "bhCurrentNode";
     public static final String BH_NODE_TO_CONNECT = "bhNodeToConnect";
     public static final String BH_PARENT_CONNECTOR = "bhParentConnector";
-    public static final String BH_NODE_TO_DELETE = "bhNodeToDelete";
-    public static final String BH_NEXT_SYMBOL_NAME = "bhNextSymbolName";
     public static final String BH_USER_OPE = "bhUserOpe";
     public static final String BH_COMMON = "bhCommon";
     public static final String BH_NODE_FACTORY = "bhNodeFactory";
     public static final String BH_CANDIDATE_NODE_LIST = "bhCandidateNodeList";
-    public static final String BH_NODES_TO_DELETE = "bhNodesToDelete";
     public static final String BH_CAUSE_OF_DELETION = "bhCauseOfDeletion";
-    public static final String BH_LIST_OF_NODES_TO_COMPILE = "bhListOfNodesToCompile";
-    public static final String BH_PROGRAM_FILE_PATH = "bhProgramFilePath";
     public static final String BH_IS_WHOLE_TEXT_FORMATTED = "bhIsWholeTextFormatted";
     public static final String BH_FORMATTED_TEXT = "bhFormattedText";
     public static final String BH_TEXT_DB = "bhTextDb";
     public static final String BH_UI_EVENT = "bhUiEvent";
     public static final String IP_ADDR = "ipAddr";
     public static final String UNAME = "uname";
-    public static final String PASSWORD = "password";
   }
 
   /** ノードのスタイル定義のパラメータ. */
@@ -268,8 +249,6 @@ public class BhConstants {
     public static final String KEY_PADDING_BOTTOM = "paddingBottom";
     public static final String KEY_PADDING_LEFT = "paddingLeft";
     public static final String KEY_PADDING_RIGHT = "paddingRight";
-    public static final String KEY_WIDTH = "width";
-    public static final String KEY_HEIGHT = "height";
     public static final String KEY_CONNECTOR_WIDTH = "connectorWidth";
     public static final String KEY_CONNECTOR_HEIGHT = "connectorHeight";
     public static final String KEY_CONNECTOR_SHAPE = "connectorShape";
@@ -278,23 +257,18 @@ public class BhConstants {
     public static final String KEY_NOTCH_SHAPE_FIXED = "notchShapeFixed";
     public static final String KEY_NOTCH_HEIGHT = "notchHeight";
     public static final String KEY_NOTCH_WIDTH = "notchWidth";
-    public static final String KEY_GRABBER_SIZE = "grabberSize";
     public static final String KEY_CONNECTOR_BOUNDS_RATE = "connectorBoundsRate";
     public static final String KEY_CSS_CLASS = "cssClass";
     public static final String KEY_CONNECTIVE = "connective";
     public static final String KEY_PRIVATE_TEMPLATE = "privateTemplate";
     public static final String KEY_BREAK_POINT = "breakpoint";
-    public static final String KEY_BUTTON_POS_X = "buttonPosX";
-    public static final String KEY_BUTTON_POS_Y = "buttonPosY";
+    public static final String KEY_NEXT_STEP = "nextStep";
     public static final String KEY_TEXT_FIELD = "textField";
     public static final String KEY_LABEL = "label";
     public static final String KEY_COMBO_BOX = "comboBox";
     public static final String KEY_TEXT_AREA = "textArea";
     public static final String KEY_MIN_WIDTH = "minWidth";
     public static final String KEY_MIN_HEIGHT = "minHeight";
-    public static final String KEY_BACK_GROUND_COLOR = "backGroundColor";
-    public static final String KEY_FONT_SIZE = "fontSize";
-    public static final String KEY_FONT_FAMILY = "fontFamily";
     public static final String KEY_BODY_SHAPE = "bodyShape";
     public static final String KEY_CONNECTOR_POS = "connectorPos";
     public static final String KEY_NOTCH_POS = "notchPos";
@@ -312,19 +286,17 @@ public class BhConstants {
     public static final String KEY_COMMON_PART = "commonPart";
     public static final String KEY_SPECIFIC_PART = "specificPart";
     public static final String KEY_RADIUS = "radius";
+    public static final String KEY_SIZE = "size";
     public static final String VAL_ROW = "Row";
     public static final String VAL_COLUMN = "Column";
     public static final String VAL_LEFT = "Left";
     public static final String VAL_RIGHT = "Right";
     public static final String VAL_TOP = "Top";
     public static final String VAL_BOTTOM = "Bottom";
-    public static final String VAL_RIGHT_TRIANGULAR_NOTCH = "RIGHT_TRIANGULAR_NOTCH";
-    public static final String VAL_CONNECTIVE = "Connective";
     public static final String VAL_TEXT_FIELD = "TextField";
     public static final String VAL_COMBO_BOX = "ComboBox";
     public static final String VAL_LABEL = "Label";
     public static final String VAL_TEXT_AREA = "TextArea";
-    public static final String VAL_NO_VIEW = "NoView";
     public static final String VAL_NONE = "None";
     public static final String VAL_CENTER = "Center";
     public static final String VAL_EDGE = "Edge";
@@ -359,14 +331,12 @@ public class BhConstants {
     public static final String PSEUDO_EMPTY = "empty";
     public static final String PSEUDO_ERROR = "error";
     public static final String PSEUDO_IS_EVEN = "isEven";
-    public static final String PSEUDO_CALLED = "called";
-    public static final String PSEUDO_RUNTIME_ERR = "runtimeErr";
     public static final String PSEUDO_TEXT_DECORATE = "textDecorate";
     public static final String PSEUDO_UNFIXED_DEFAULT = "unfixedDefault";
     public static final String PSEUDO_COLUMN = "column";
     public static final String PSEUDO_ROW = "row";
+    public static final String PSEUDO_NEXT_STEP = "nextStep";
     public static final String CLASS_BH_NODE = "BhNode";
-    public static final String CLASS_VOID_NODE = "voidNode";
     public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";
     public static final String CLASS_TEXT_FIELD_NODE = "textFieldNode";
     public static final String CLASS_TEXT_AREA_NODE = "textAreaNode";
@@ -382,8 +352,7 @@ public class BhConstants {
 
   /** BhProgram の実行環境に関するパラメータ. */
   public static class BhRuntime {
-    public static final String BH_PROGRAM_RUNTIME_JAR = "bhruntimelib.jar";
-    public static final String BH_PROGRAM_EXEC_MAIN_CLASS = 
+    public static final String BH_PROGRAM_EXEC_MAIN_CLASS =
         "net.seapanda.bunnyhop.runtime.AppMain";
     
     /** タイムアウト. */
@@ -419,8 +388,6 @@ public class BhConstants {
   public static class Message {
     /** メインメッセージエリアの最大表示文字数. */
     public static final int MAX_MAIN_MSG_AREA_CHARS = 131072;
-    /** メインメッセージエリアの表示文字列バッファサイズ. */
-    public static final int MAX_MAIN_MSG_QUEUE_SIZE = 2048;
     /** ログファイルの最大個数. */
     public static final int MAX_LOG_FILE_NUM = 4;
     /** ログファイル1つあたりの最大バイト数. */

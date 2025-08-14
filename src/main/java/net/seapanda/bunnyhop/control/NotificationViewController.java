@@ -45,9 +45,10 @@ public class NotificationViewController {
       WorkspaceSet wss,
       Debugger debugger,
       DebugViewFactory factory,
-      ModelAccessNotificationService norifService) {
+      ModelAccessNotificationService notifService) {
     debugViewController.initialize(debugger, factory);
-    breakpointListController.initialize(wss, debugger, norifService, searchBoxController);
+    breakpointListController.initialize(
+        wss, notifService, searchBoxController, debugger.getBreakpointRegistry());
     setMessageAreaEvenHandlers();
   }
 

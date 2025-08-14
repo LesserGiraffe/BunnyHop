@@ -17,11 +17,7 @@
 package net.seapanda.bunnyhop.control.debugger;
 
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javafx.fxml.FXML;
@@ -29,15 +25,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.input.MouseButton;
-import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
+import net.seapanda.bunnyhop.bhprogram.debugger.BreakpointRegistry;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.control.SearchBox;
 import net.seapanda.bunnyhop.control.SearchBox.Query;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.parameter.BreakpointSetting;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.undo.UserOperation;
@@ -61,38 +55,29 @@ public class BreakpointListController {
   private ToggleButton breakpointBtn;
 
   /** マウスボタンが押されたときのイベントハンドラ. */
-  private Consumer<BhNodeView.MouseEventInfo> onMousePressed = this::toggleBreakpoint;
   private ModelAccessNotificationService notifService;
   private SearchBox searchBox;
-  /** ブレークポイントが指定されているノード一覧. */
-  private Set<BhNode> breakpointNodes = new HashSet<>();
+  private BreakpointRegistry breakpointRegistry;
 
   /** 初期化する. */
   public void initialize(
       WorkspaceSet wss,
-      Debugger debugger, 
       ModelAccessNotificationService notifService,
-      SearchBox searchBox) {
+      SearchBox searchBox,
+      BreakpointRegistry breakpointRegistry) {
     this.notifService = notifService;
     this.searchBox = searchBox;
+    this.breakpointRegistry = breakpointRegistry;
     bpWsSelectorController.initialize(wss);
-    setEventHandlers(wss);
+    setEventHandlers();
   }
 
   /** イベントハンドラを設定する. */
-  private void setEventHandlers(WorkspaceSet wss) {
-    wss.getCallbackRegistry().getOnNodeAdded().add(
-        event -> {
-          event.node().getView().ifPresent(this::addEventHandlerTo);
-          if (isSpecifiedAsBreakpoint(event.node())) {
-            addBreakpoint(event.node());
-          }
-        });
-    wss.getCallbackRegistry().getOnNodeRemoved().add(
-        event -> {
-          event.node().getView().ifPresent(this::removeEventHandlerFrom);
-          removeBreakpoint(event.node());
-        });
+  private void setEventHandlers() {
+    breakpointRegistry.getCallbackRegistry()
+        .getOnBreakpointAdded().add(event -> addBreakpointToList(event.breakpoint()));
+    breakpointRegistry.getCallbackRegistry()
+        .getOnBreakpointRemoved().add(event -> removeBreakpointFromList(event.breakpoint()));
 
     bpListView.setCellFactory(stack -> new BreakpointListCell());
     bpListView.getSelectionModel().selectedItemProperty().addListener(
@@ -112,56 +97,6 @@ public class BreakpointListController {
           (ToggleButton) bpListView.getScene().lookup("#" + BhConstants.UiId.BREAKPOINT_BTN);
     }
     return breakpointBtn.isSelected();
-  }
-
-  /** ノードビューにイベントハンドラを設定する. */
-  private void addEventHandlerTo(BhNodeView view) {
-    view.getCallbackRegistry().getOnMousePressed().add(onMousePressed);
-  }
-
-  /** ノードビューからイベントハンドラを削除する. */
-  private void removeEventHandlerFrom(BhNodeView view) {
-    view.getCallbackRegistry().getOnMousePressed().remove(onMousePressed);
-  }
-
-  /** ブレークポイントの有効 / 無効を切り替える. */
-  private void toggleBreakpoint(BhNodeView.MouseEventInfo info) {
-    if (!isBreakpointSettingEnabled()
-        || info.src() != null
-        || info.event().getButton() != MouseButton.PRIMARY) {
-      return;
-    }
-    BhNode breakpointNode = info.view().getModel()
-        .flatMap(BreakpointListController::findNodeToSetBreakpointTo)
-        .orElse(null);
-    if (breakpointNode == null || breakpointNode.getView().isEmpty()) {
-      return;
-    }
-    boolean isBreakpointToBeSet = !isSpecifiedAsBreakpoint(breakpointNode);
-    breakpointNode.getView().get().getLookManager().setBreakpointVisibility(isBreakpointToBeSet);
-    if (isBreakpointToBeSet) {
-      addBreakpoint(breakpointNode);
-    } else {
-      removeBreakpoint(breakpointNode);
-    }
-  }
-
-  private static Optional<BhNode> findNodeToSetBreakpointTo(BhNode node) {
-    if (node == null) {
-      return Optional.empty();
-    }
-    while (true) {
-      if (node.getBreakpointSetting() == BreakpointSetting.SET) {
-        return Optional.of(node);
-      }
-      if (node.getBreakpointSetting() == BreakpointSetting.IGNORE) {
-        return Optional.empty();
-      }
-      if (node.getBreakpointSetting() == BreakpointSetting.SPECIFY_PARENT) {
-        return findNodeToSetBreakpointTo(node.findParentNode());
-      }
-      return Optional.empty();
-    }
   }
 
   /** ブレークポイント一覧のブレークポイントが選択されたときのイベントハンドラ. */
@@ -189,11 +124,11 @@ public class BreakpointListController {
       return;
     }
     ViewUtil.jump(nodeView, true, EffectTarget.SELF);
-    node.getWorkspace().getSelectedNodes().forEach(seletedNode -> seletedNode.deselect(userOpe));
+    node.getWorkspace().getSelectedNodes().forEach(selectedNode -> selectedNode.deselect(userOpe));
     node.select(userOpe);
   }
 
-  /** コールスタックから {@link csSearchWord} で指定された文字列に一致する要素を探して選択する. */
+  /** コールスタックから {@code query} で指定された文字列に一致する要素を探して選択する. */
   private void selectItem(Query query) {
     BhNode node = null;
     if (StringUtils.isEmpty(query.word())) {
@@ -252,14 +187,8 @@ public class BreakpointListController {
     return null;
   }
 
-  /** {@code node} がブレークポイントとして指定されているか調べる. */
-  private static boolean isSpecifiedAsBreakpoint(BhNode node) {
-    return node.getView().map(view -> view.getLookManager().isBreakpointVisible()).orElse(false);
-  }
-
   /** {@code node} をブレークポイント一覧に加える. */
-  private synchronized void addBreakpoint(BhNode node) {
-    breakpointNodes.add(node);
+  private synchronized void addBreakpointToList(BhNode node) {
     Workspace ws = node.getWorkspace();
     if (bpWsSelectorController.getSelected().map(selected -> selected == ws).orElse(false)
         || bpWsSelectorController.isAllSelected()) {
@@ -268,8 +197,7 @@ public class BreakpointListController {
   }
 
   /** {@code node} をブレークポイント一覧から削除する. */
-  private synchronized void removeBreakpoint(BhNode node) {
-    breakpointNodes.remove(node);
+  private synchronized void removeBreakpointFromList(BhNode node) {
     ViewUtil.runSafe(() -> bpListView.getItems().remove(node));
   }
 
@@ -279,7 +207,7 @@ public class BreakpointListController {
     if (ws == null && !isAllSelected) {
       return;
     }
-    List<BhNode> bpNodes = breakpointNodes.stream()
+    List<BhNode> bpNodes = breakpointRegistry.getBreakpointNodes().stream()
         .filter(node -> node.getWorkspace() == ws || isAllSelected)
         .toList();
     bpListView.getItems().addAll(bpNodes);

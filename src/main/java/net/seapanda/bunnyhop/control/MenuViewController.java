@@ -36,11 +36,11 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.ExecutableNodeCollector;
 import net.seapanda.bunnyhop.bhprogram.ExecutableNodeSet;
-import net.seapanda.bunnyhop.bhprogram.LocalBhProgramController;
+import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncher;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextCmd;
-import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
+import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.common.TextDefs;
@@ -98,7 +98,7 @@ public class MenuViewController {
   /** ワークスペース追加ボタン. */
   @FXML private Button addWorkspaceBtn;
   /** リモート/ローカル選択ボタン. */
-  @FXML private ToggleButton remotLocalSelectBtn;
+  @FXML private ToggleButton remoteLocalSelBtn;
   /** 実行ボタン. */
   @FXML private Button executeBtn;
   /** 終了ボタン. */
@@ -109,6 +109,8 @@ public class MenuViewController {
   @FXML private Button disconnectBtn;
   /** シミュレータフォーカスボタン. */
   @FXML private ToggleButton focusSimBtn;
+  /** ブレークポイントの設定の有効 / 無効切り替えボタン. */
+  @FXML private ToggleButton breakpointBtn;
   /** デバッグウィンドウ表示ボタン. */
   @FXML private ToggleButton debugBtn;
   /** ジャンプボタン. */
@@ -142,7 +144,7 @@ public class MenuViewController {
   /** ノード選択ビューを操作するときに使用するオブジェクト. */
   private BhNodeSelectionViewProxy proxy;
   /** ローカルマシン上での BhProgram の実行を制御するオブジェクト. */
-  private LocalBhProgramController localCtrl;
+  private LocalBhProgramLauncher localCtrl;
   /** リモートマシン上での BhProgram の実行を制御するオブジェクト. */
   private RemoteBhProgramController remoteCtrl;
   /** コピー & ペーストの処理に使用するオブジェクト. */
@@ -151,8 +153,6 @@ public class MenuViewController {
   private CutAndPaste cutAndPaste;
   /** アプリケーションユーザにメッセージを出力するためのオブジェクト. */
   private MessageService msgService;
-  /** デバッガ. */
-  private Debugger debugger;
 
   /**
    * コントローラを初期化する.
@@ -166,7 +166,6 @@ public class MenuViewController {
    * @param remoteCtrl リモートマシン上での BhProgram の実行を制御するオブジェクト
    * @param copyAndPaste コピー & ペーストの処理に使用するオブジェクト
    * @param cutAndPaste カット & ペーストの処理に使用するオブジェクト
-   * @param debugger デバッガ
    * @param debugWindowCtrl デバッグウィンドウのコントローラ
    * @return 成功した場合 true
    */
@@ -176,12 +175,11 @@ public class MenuViewController {
       WorkspaceFactory wsFactory,
       UndoRedoAgent undoRedoAgent,
       BhNodeSelectionViewProxy proxy,
-      LocalBhProgramController localCtrl,
+      LocalBhProgramLauncher localCtrl,
       RemoteBhProgramController remoteCtrl,
       CopyAndPaste copyAndPaste,
       CutAndPaste cutAndPaste,
       MessageService msgService,
-      Debugger debugger,
       DebugWindowController debugWindowCtrl) {
     this.notifService = notifService;
     this.wsFactory = wsFactory;
@@ -192,7 +190,6 @@ public class MenuViewController {
     this.copyAndPaste = copyAndPaste;
     this.cutAndPaste = cutAndPaste;
     this.msgService = msgService;
-    this.debugger = debugger;
     WorkspaceSet wss = wssCtrl.getWorkspaceSet();
     copyBtn.setOnAction(action -> copy(wss)); // コピー
     cutBtn.setOnAction(action -> cut(wss)); // カット
@@ -211,11 +208,13 @@ public class MenuViewController {
     terminateBtn.setOnAction(action -> terminate()); // プログラム終了
     connectBtn.setOnAction(action -> connect()); // 接続
     disconnectBtn.setOnAction(action -> disconnect()); // 切断
-    focusSimBtn.setOnAction(action ->
-        BhSettings.BhSimulator.focusOnChanged.set(focusSimBtn.isSelected()));
+    focusSimBtn.setOnAction(
+        action -> BhSettings.BhSimulator.focusOnChanged = focusSimBtn.isSelected());
+    breakpointBtn.setOnAction(
+        action -> BhSettings.Debug.isBreakpointSettingEnabled  = breakpointBtn.isSelected() );
     debugBtn.setOnAction(action -> debugWindowCtrl.setVisibility(debugBtn.isSelected()));
     sendBtn.setOnAction(action -> send()); // 送信
-    remotLocalSelectBtn.selectedProperty()
+    remoteLocalSelBtn.selectedProperty()
         .addListener((observable, oldVal, newVal) -> switchRemoteLocal(newVal));
     copyAndPaste.getCallbackRegistry().getOnNodeAdded().add(event -> changePasteButtonState());
     copyAndPaste.getCallbackRegistry().getOnNodeRemoved().add(event -> changePasteButtonState());
@@ -444,11 +443,10 @@ public class MenuViewController {
     if (nodeSet == null) {
       return;
     }
-    debugger.clear();
     executing.set(true);
     Supplier<Boolean> exec = () -> isLocalHost()
-        ? localCtrl.execute(nodeSet)
-        : remoteCtrl.execute(
+        ? localCtrl.launch(nodeSet)
+        : remoteCtrl.launch(
               nodeSet,
               hostNameTextField.getText(),
               unameTextField.getText(),
@@ -456,7 +454,7 @@ public class MenuViewController {
     CompletableFuture
         .supplyAsync(exec)
         .thenAccept(success -> {
-          if (BhSettings.BhSimulator.focusOnStartBhProgram.get() && success && isLocalHost()) {
+          if (BhSettings.BhSimulator.focusOnStartBhProgram && success && isLocalHost()) {
             focusSimulator(false);
           }
           executing.set(false);
@@ -485,8 +483,8 @@ public class MenuViewController {
     }
     terminating.set(true);
     Supplier<Boolean> terminate = () -> isLocalHost()
-        ? localCtrl.terminate()
-        : remoteCtrl.terminate(
+        ? localCtrl.getBhRuntimeCtrl().terminate()
+        : remoteCtrl.getBhRuntimeCtrl().terminate(
               hostNameTextField.getText(),
               unameTextField.getText(),
               passwordTextField.getText());
@@ -503,8 +501,8 @@ public class MenuViewController {
     }
     disconnecting.set(true);
     Supplier<Boolean> discnonect = () -> isLocalHost()
-        ? localCtrl.disableCommunication()
-        : remoteCtrl.disableCommunication();
+        ? localCtrl.getBhRuntimeCtrl().disconnect()
+        : remoteCtrl.getBhRuntimeCtrl().disconnect();
     CompletableFuture
         .supplyAsync(discnonect)
         .thenAccept(success -> disconnecting.set(false));
@@ -518,8 +516,8 @@ public class MenuViewController {
     }
     connecting.set(true);
     Supplier<Boolean> connect = () -> isLocalHost()
-        ? localCtrl.enableCommunication()
-        : remoteCtrl.enableCommunication(
+        ? localCtrl.getBhRuntimeCtrl().connect()
+        : remoteCtrl.getBhRuntimeCtrl().connect(
               hostNameTextField.getText(),
               unameTextField.getText(),
               passwordTextField.getText());
@@ -540,19 +538,20 @@ public class MenuViewController {
   /** 送信ボタン押下時の処理. */
   private void send() throws AssertionError {
     var cmd = new InputTextCmd(stdInTextField.getText());
-    BhRuntimeStatus status = isLocalHost() ? localCtrl.send(cmd) : remoteCtrl.send(cmd);
+    BhRuntimeStatus status = isLocalHost()
+        ? localCtrl.getBhRuntimeCtrl().send(cmd) : remoteCtrl.getBhRuntimeCtrl().send(cmd);
     switch (status) {
       case SEND_QUEUE_FULL -> 
-        msgService.error(TextDefs.BhRuntime.Communication.failedToPushText.get());
+          msgService.error(TextDefs.BhRuntime.Communication.failedToPushText.get());
         
       case SEND_WHEN_DISCONNECTED ->
-        msgService.error(TextDefs.BhRuntime.Communication.failedToSendTextForNoConnection.get());
+          msgService.error(TextDefs.BhRuntime.Communication.failedToSendTextForNoConnection.get());
 
       case SUCCESS ->
-        msgService.info(TextDefs.BhRuntime.Communication.hasSentText.get());
+          msgService.info(TextDefs.BhRuntime.Communication.hasSentText.get());
 
       case BUSY ->
-        msgService.info(TextDefs.BhRuntime.Communication.otherOpsAreInProgress.get());
+          msgService.info(TextDefs.BhRuntime.Communication.otherOpsAreInProgress.get());
 
       default ->
         throw new AssertionError("Invalid status code" + status);
@@ -560,17 +559,19 @@ public class MenuViewController {
   }
 
   /** リモート/セレクトを切り替えた時の処理. */
-  private void switchRemoteLocal(Boolean newVal) {
-    if (newVal) {
+  private void switchRemoteLocal(boolean isRemote) {
+    if (isRemote) {
       hostNameTextField.setDisable(false);
       unameTextField.setDisable(false);
       passwordTextField.setDisable(false);
-      remotLocalSelectBtn.setText(TextDefs.MenuView.remote.get());
+      remoteLocalSelBtn.setText(TextDefs.MenuView.remote.get());
+      BhSettings.BhRuntime.currentBhRuntimeType = BhRuntimeType.REMOTE;
     } else {
       hostNameTextField.setDisable(true);
       unameTextField.setDisable(true);
       passwordTextField.setDisable(true);
-      remotLocalSelectBtn.setText(TextDefs.MenuView.local.get());
+      remoteLocalSelBtn.setText(TextDefs.MenuView.local.get());
+      BhSettings.BhRuntime.currentBhRuntimeType = BhRuntimeType.LOCAL;
     }
   }
 
@@ -584,11 +585,11 @@ public class MenuViewController {
    * ジャンプ先のノードを探す.
    *
    * @param wss このワークスペースセットの中からジャンプ先ノードを探す
-   * @retun ジャンプ先ノード
+   * @return ジャンプ先ノード
    */
   private Optional<BhNode> findNodeToJumpTo(WorkspaceSet wss) {
     Workspace currentWs = wss.getCurrentWorkspace();
-    if (currentWs == null || currentWs.getSelectedNodes().size() == 0) {
+    if (currentWs == null || currentWs.getSelectedNodes().isEmpty()) {
       return Optional.empty();
     }
     return Optional.ofNullable(currentWs.getSelectedNodes().getFirst().getOriginal());
@@ -596,7 +597,7 @@ public class MenuViewController {
 
   /** ホスト名入力欄にローカルホストが指定してある場合 true を返す. */
   public boolean isLocalHost() {
-    return !remotLocalSelectBtn.isSelected();
+    return !remoteLocalSelBtn.isSelected();
   }
 
   /**

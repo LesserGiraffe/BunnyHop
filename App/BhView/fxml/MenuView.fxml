@@ -161,7 +161,7 @@
   <FlowPane
     fx:id="menuViewLower"
     styleClass="menuViewFlowPane">
-    <ToggleButton fx:id="remotLocalSelectBtn" text="$localText.text"/> <!-- リモート/ローカル-->
+    <ToggleButton fx:id="remoteLocalSelBtn" text="$localText.text"/> <!-- リモート/ローカル-->
     <TextField fx:id="hostNameTextField" disable="true" promptText="$hostNameText.text"/>  <!-- ホスト名 -->
     <TextField fx:id="unameTextField" disable="true" promptText="$usernameText.text"/> <!-- ユーザ名 -->
     <PasswordField fx:id="passwordTextField" disable="true" promptText="$passwordText.text"/> <!-- パスワード -->

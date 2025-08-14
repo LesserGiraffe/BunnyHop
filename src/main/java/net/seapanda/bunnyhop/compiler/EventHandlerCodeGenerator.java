@@ -23,7 +23,6 @@ import java.util.Optional;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.parameter.BreakpointSetting;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 
@@ -38,7 +37,7 @@ class EventHandlerCodeGenerator {
   private final StatCodeGenerator statCodeGen;
   private final VarDeclCodeGenerator varDeclCodeGen;
 
-  private static final Map<String, BhProgramEvent.Name> KEY_TO_KEYPRESSED_EVENT =
+  private static final Map<String, BhProgramEvent.Name> KEY_TO_PRESSED_EVENT =
       new HashMap<>() {{
           put("LEFT",   BhProgramEvent.Name.KEY_LEFT_PRESSED);
           put("RIGHT",  BhProgramEvent.Name.KEY_RIGHT_PRESSED);
@@ -173,18 +172,15 @@ class EventHandlerCodeGenerator {
    * @return イベントの種類
    * */
   private Optional<BhProgramEvent.Name> getEventType(SyntaxSymbol eventNode) {
-    switch (eventNode.getSymbolName()) {
-      case SymbolNames.Event.KEY_PRESS_EVENT:
+    return switch (eventNode.getSymbolName()) {
+      case SymbolNames.Event.KEY_PRESS_EVENT -> {
         TextNode eventTypeNode =
             (TextNode) eventNode.findDescendantOf("*", "*", SymbolNames.Event.KEY_CODE);
-        return Optional.ofNullable(KEY_TO_KEYPRESSED_EVENT.get(eventTypeNode.getText()));
-
-      case SymbolNames.Event.DELAYED_START_EVENT:
-        return Optional.of(BhProgramEvent.Name.PROGRAM_START);
-
-      default:
-    }
-    return Optional.empty();
+        yield Optional.ofNullable(KEY_TO_PRESSED_EVENT.get(eventTypeNode.getText()));
+      }
+      case SymbolNames.Event.DELAYED_START_EVENT -> Optional.of(BhProgramEvent.Name.PROGRAM_START);
+      default -> Optional.empty();
+    };
   }
 
   /**
@@ -321,9 +317,7 @@ class EventHandlerCodeGenerator {
 
   private boolean checkIfGenerateConditionalWait(SyntaxSymbol symbol) {
     if (symbol instanceof BhNode node) {
-      if (node.getBreakpointSetting().equals(BreakpointSetting.SET)) {
-        return true;
-      }
+      return node.isBreakpointGroupLeader();
     }
     return false;
   }

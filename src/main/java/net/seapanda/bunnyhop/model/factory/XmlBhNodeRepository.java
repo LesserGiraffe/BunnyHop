@@ -262,7 +262,7 @@ public class XmlBhNodeRepository implements BhNodeRepository {
             "Cannot find '%s' with the '%s' matching the '%s' %s that is defined in %s.",
             BhConstants.BhModelDef.ELEM_NODE,
             BhConstants.BhModelDef.ATTR_BH_NODE_ID,
-            BhConstants.BhModelDef.ATTR_DETIVATION_ID,
+            BhConstants.BhModelDef.ATTR_DERIVATION_ID,
             pair.derivative(),
             pair.original()));
         allValid = false;

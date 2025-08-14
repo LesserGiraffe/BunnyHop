@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.bhprogram.message;
 
+import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
@@ -51,9 +52,12 @@ public class BhProgramMessageDispatcher {
    */
   public BhProgramMessageDispatcher(
       BhProgramMessageProcessor msgProcessor,
-      SimulatorCmdProcessor simCmdProcessor) {
+      SimulatorCmdProcessor simCmdProcessor,
+      BhRuntimeController runtimeCtrl) {
     this.msgProcessor = msgProcessor;
     this.simCmdProcessor = simCmdProcessor;
+    runtimeCtrl.getCallbackRegistry().getOnMsgCarrierRenewed()
+        .add(event -> replaceMsgCarrier(event.newCarrier()));
   }
   
   /**
@@ -62,16 +66,16 @@ public class BhProgramMessageDispatcher {
    *
    * @param carrier 新しく設定する通信用オブジェクト.
    */
-  public void replaceMsgCarrier(BhProgramMessageCarrier carrier) {
+  private void replaceMsgCarrier(BhProgramMessageCarrier carrier) {
     carrier.setOnNotifReceived(msg -> dispatch(carrier, msg));
-    carrier.setOnRespReceived(resp -> dispatch(resp));
+    carrier.setOnRespReceived(this::dispatch);
   }
 
   /**
    * {@code msg} を適切なクラスへと渡す.
    *
    * @param carrier {@code msg} を受信した {@link BhRuntimeTransceiver}.
-   * @param notification 処理する通知.
+   * @param notif 処理する通知.
    */
   private void dispatch(BhProgramMessageCarrier carrier, BhProgramNotification notif) {
     switch (notif) {

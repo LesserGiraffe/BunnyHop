@@ -39,7 +39,7 @@ public class BhDebugMessageProcessor implements DebugMessageProcessor {
   private final Debugger debugger;
   /**
    * key: {@link BhNode} のインスタンス ID.
-   * value: key に対応する {@link BhBode}.
+   * value: key に対応する {@link BhNode}.
    */
   private final Map<InstanceId, BhNode> instIdToNode = new ConcurrentHashMap<>();
 
@@ -60,7 +60,7 @@ public class BhDebugMessageProcessor implements DebugMessageProcessor {
             item.symbolId(), item.frameIdx(), context.getThreadId(), false, cache))
         .collect(Collectors.toCollection(ArrayList::new));    
     if (!context.getNextStep().equals(BhSymbolId.NONE)) {
-      int frameIdx = (callStack.size() > 0) ? callStack.getLast().getIdx() + 1 : 0;
+      int frameIdx = !callStack.isEmpty() ? callStack.getLast().getIdx() + 1 : 0;
       CallStackItem item = createCallStackItem(
           context.getNextStep(), frameIdx, context.getThreadId(), true, cache);
       callStack.addLast(item);

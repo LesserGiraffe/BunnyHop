@@ -37,7 +37,7 @@ public class CallStackItem {
   /** このコールスタックアイテムが選択されているかどうかのフラグ. */
   private boolean isSelected = false;
   /** このコールスタックアイテムに登録されたイベントハンドラを管理するオブジェクト. */
-  private CallbackRegistry cbRegistry = new CallbackRegistry();
+  private final CallbackRegistry cbRegistry = new CallbackRegistry();
 
   /**
    * コンストラクタ.
@@ -115,8 +115,7 @@ public class CallStackItem {
   public void select(UserOperation userOpe) {
     if (!isSelected) {
       isSelected = true;
-      cbRegistry.onSelectionStateChangedInvoker.invoke(
-          new SelectionEvent(this, isSelected, userOpe));
+      cbRegistry.onSelectionStateChangedInvoker.invoke(new SelectionEvent(this, true, userOpe));
       userOpe.pushCmdOfSelectCallStackItem(this);
     }
   }
@@ -125,8 +124,7 @@ public class CallStackItem {
   public void deselect(UserOperation userOpe) {
     if (isSelected) {
       isSelected = false;
-      cbRegistry.onSelectionStateChangedInvoker.invoke(
-          new SelectionEvent(this, isSelected, userOpe));
+      cbRegistry.onSelectionStateChangedInvoker.invoke(new SelectionEvent(this, false, userOpe));
       userOpe.pushCmdOfDeselectCallStackItem(this);
     }
   }

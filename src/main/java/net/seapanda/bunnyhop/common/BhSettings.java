@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.common;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
 
 /**
  * BunnyHop の設定一式をまとめたクラス.
@@ -32,9 +32,9 @@ public class BhSettings {
     /** BhSimulator 初期化待ちタイムアウト (sec). */
     public static int initTimeout = 5;
     /** BhProgram の開始時に BhSimulator をフォーカスするかどうか. */
-    public static AtomicBoolean focusOnStartBhProgram = new AtomicBoolean(true);
+    public static volatile boolean focusOnStartBhProgram = true;
     /** BhSimulator に変化があったとき BhSimulator をフォーカスするかどうか. */
-    public static AtomicBoolean focusOnChanged = new AtomicBoolean(false);
+    public static volatile boolean focusOnChanged = false;
   }
 
   /** BunnyHop が出力するテキストメッセージに関するパラメータ. */
@@ -46,5 +46,15 @@ public class BhSettings {
   public static class Debug {
     /** コールスタックに表示するデフォルトの最大要素数. */
     public static int maxCallStackItems = 32;
+    /** ブレークポイントの設定が有効かどうか. */
+    public static volatile boolean isBreakpointSettingEnabled = false;
+
+  }
+
+  /** BhRuntime に関するパラメータ. */
+  public static class BhRuntime {
+
+    /** 現在制御対象になっている BhRuntime の種類. */
+    public static volatile BhRuntimeType currentBhRuntimeType = BhRuntimeType.LOCAL;
   }
 }

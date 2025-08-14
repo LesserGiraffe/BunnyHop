@@ -141,12 +141,12 @@ class BhNodeBuilder {
         getElementsByTagNameFromChild(elem, BhConstants.BhModelDef.ELEM_DERIVATION);
     for (Element derivationElem : derivationElems) {
       DerivationId derivationId =
-          DerivationId.of(derivationElem.getAttribute(BhConstants.BhModelDef.ATTR_DETIVATION_ID));
+          DerivationId.of(derivationElem.getAttribute(BhConstants.BhModelDef.ATTR_DERIVATION_ID));
       if (derivationId.equals(DerivationId.NONE)) {
         LogManager.logger().error(String.format(
             "A '%s' element must have a '%s' attribute.\n%s",
             BhConstants.BhModelDef.ELEM_DERIVATION,
-            BhConstants.BhModelDef.ATTR_DETIVATION_ID,
+            BhConstants.BhModelDef.ATTR_DERIVATION_ID,
             elem.getBaseURI()));
         success &= false;
         continue;

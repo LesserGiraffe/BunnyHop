@@ -43,7 +43,7 @@ public class WorkspaceSet {
   private boolean isDirty = false;
   private Workspace currentWorkspace;
   /** このワークスペースセットに登録されたイベントハンドラを管理するオブジェクト. */
-  private CallbackRegistry cbRegistry = new CallbackRegistry();
+  private final CallbackRegistry cbRegistry = new CallbackRegistry();
 
   /** コンストラクタ. */
   public WorkspaceSet() {}
@@ -60,6 +60,7 @@ public class WorkspaceSet {
     Workspace.CallbackRegistry registry = workspace.getCallbackRegistry();
     registry.getOnNodeSelectionStateChanged().add(cbRegistry.onNodeSelectionStateChanged);
     registry.getOnNodeCompileErrorStateChanged().add(cbRegistry.onNodeCompileErrStateChanged);
+    registry.getOnNodeBreakpointSet().add(cbRegistry.onNodeBreakpointSet);
     registry.getOnNodeAdded().add(cbRegistry.onNodeAdded);
     registry.getOnNodeRemoved().add(cbRegistry.onNodeRemoved);
     registry.getOnRootNodeAdded().add(cbRegistry.onRootNodeAdded);
@@ -81,8 +82,8 @@ public class WorkspaceSet {
     deleteNodesInWorkspace(workspace, userOpe);
     Workspace.CallbackRegistry registry = workspace.getCallbackRegistry();
     registry.getOnNodeSelectionStateChanged().remove(cbRegistry.onNodeSelectionStateChanged);
-    registry.getOnNodeCompileErrorStateChanged()
-        .remove(cbRegistry.onNodeCompileErrStateChanged);
+    registry.getOnNodeCompileErrorStateChanged().remove(cbRegistry.onNodeCompileErrStateChanged);
+    registry.getOnNodeBreakpointSet().remove(cbRegistry.onNodeBreakpointSet);
     registry.getOnNodeAdded().remove(cbRegistry.onNodeAdded);
     registry.getOnNodeRemoved().remove(cbRegistry.onNodeRemoved);
     registry.getOnRootNodeAdded().remove(cbRegistry.onRootNodeAdded);
@@ -92,7 +93,7 @@ public class WorkspaceSet {
     userOpe.pushCmdOfRemoveWorkspace(workspace, this);
   }
 
-  /** {@link ws} の中のノードを全て消す. */
+  /** {@code ws} の中のノードを全て消す. */
   private void deleteNodesInWorkspace(Workspace ws, UserOperation userOpe) {
     SequencedSet<BhNode> rootNodes = ws.getRootNodes();
     var nodesToDelete = rootNodes.stream()
@@ -181,9 +182,13 @@ public class WorkspaceSet {
     private final ConsumerInvoker<NodeSelectionEvent> onNodeSelStateChangedInvoker =
         new ConsumerInvoker<>();
     
-    /** 関連するワークスペースセット以下のノードのコンパイルエラー状態が変更されたときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するワークスペースセット以下のノードのコンパイルエラー状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeCompileErrorEvent>
         onNodeCompileErrStateChangedInvoker = new ConsumerInvoker<>();
+
+    /** 関連するワークスペースセット以下のノードのブレークポイントの状態が変更されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeBreakpointSetEvent>
+        onNodeBreakpointSetInvoker = new ConsumerInvoker<>();
 
     /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker =
@@ -231,6 +236,10 @@ public class WorkspaceSet {
     private final Consumer<? super Workspace.NodeCompileErrorEvent> onNodeCompileErrStateChanged =
         this::onNodeCompileErrStateChanged;
 
+    /** ノードのブレークポイントの状態が変わったときのイベントハンドラ. */
+    private final Consumer<? super Workspace.NodeBreakpointSetEvent> onNodeBreakpointSet =
+        this::onNodeBreakpointSetEvent;
+
     /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラ. */
     private final Consumer<? super Workspace.NodeAddedEvent> onNodeAdded = this::onNodeAdded;
 
@@ -263,6 +272,14 @@ public class WorkspaceSet {
      */
     public ConsumerInvoker<NodeCompileErrorEvent>.Registry getOnNodeCompileErrStateChanged() {
       return onNodeCompileErrStateChangedInvoker.getRegistry();
+    }
+
+    /**
+     * 関連するワークスペースセット以下のノードのブレークポイントの状態が変更されたときのイベントハンドラを
+     * 登録 / 削除するためのオブジェクトを取得する.
+     */
+    public ConsumerInvoker<NodeBreakpointSetEvent>.Registry getOnNodeBreakpointSetEvent() {
+      return onNodeBreakpointSetInvoker.getRegistry();
     }
 
     /**
@@ -329,13 +346,13 @@ public class WorkspaceSet {
       return onWsNameChangedInvoker.getRegistry();
     }
 
-    /** ノードの選択状態に変化があった時のイベントハンドラを呼ぶ. */
+    /** ノードの選択状態に変化があったときのイベントハンドラを呼ぶ. */
     private void onNodeSelectionStateChanged(Workspace.NodeSelectionEvent event) {
       onNodeSelStateChangedInvoker.invoke(new NodeSelectionEvent(
           WorkspaceSet.this, event.ws(), event.node(), event.isSelected(), event.userOpe()));
     }
 
-    /** ノードのコンパイルエラー状態に変化があった時のイベントハンドラを呼ぶ. */
+    /** ノードのコンパイルエラー状態に変化があったときのイベントハンドラを呼ぶ. */
     private void onNodeCompileErrStateChanged(Workspace.NodeCompileErrorEvent event) {
       if (event.hasError()) {
         WorkspaceSet.this.compileErrNodes.addLast(event.node());
@@ -344,6 +361,12 @@ public class WorkspaceSet {
       } 
       onNodeCompileErrStateChangedInvoker.invoke(new NodeCompileErrorEvent(
           WorkspaceSet.this, event.ws(), event.node(), event.hasError(), event.userOpe()));
+    }
+
+    /** ノードのブレークポイントの状態に変化があったときのイベントハンドラを呼ぶ. */
+    private void onNodeBreakpointSetEvent(Workspace.NodeBreakpointSetEvent event) {
+      onNodeBreakpointSetInvoker.invoke(new NodeBreakpointSetEvent(
+          WorkspaceSet.this, event.ws(), event.node(), event.isBreakpointSet(), event.userOpe()));
     }
 
     /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを呼ぶ. */
@@ -411,6 +434,22 @@ public class WorkspaceSet {
       Workspace ws,
       BhNode node,
       boolean hasError,
+      UserOperation userOpe) {}
+
+  /**
+   * ワークスペースセット以下のノードのコンパイルエラー状態が変更されたときの情報を格納したレコード.
+   *
+   * @param wss {@code ws} を保持するワークスペースセット
+   * @param ws {@code node} を保持するワークスペース
+   * @param node ブレークポイントの状態が変更されたノード
+   * @param isBreakpointSet ブレークポイントが設定された場合 true, 設定が解除された場合 false
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record NodeBreakpointSetEvent(
+      WorkspaceSet wss,
+      Workspace ws,
+      BhNode node,
+      boolean isBreakpointSet,
       UserOperation userOpe) {}
 
   /**
@@ -490,7 +529,7 @@ public class WorkspaceSet {
    * @param wss 名前が変更されたワークスペースを含むワークスペースセット
    * @param ws 名前が変更されたワークスペース
    * @param oldName 変更前の名前
-   * @param newNmae 変更後の名前
+   * @param newName 変更後の名前
    */
   public record WorkspaceNameChangedEvent(
       WorkspaceSet wss, Workspace ws, String oldName, String newName) {}

@@ -14,31 +14,16 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.nodeselection;
+package net.seapanda.bunnyhop.bhprogram.runtime;
 
 /**
- * ノードカテゴリを表す TreeView の各セルのモデルクラス.
+ * BhRuntime の種類を定義した列挙型.
  *
  * @author K.Koike
  */
-public class BhNodeCategory {
-  public final String categoryName;
-  private String cssClass = "";
-
-  public BhNodeCategory(String category) {
-    this.categoryName = category;
-  }
-
-  @Override
-  public String toString() {
-    return categoryName == null ? "" : categoryName;
-  }
-
-  public void setCssClass(String cssClass) {
-    this.cssClass = cssClass;
-  }
-
-  public String getCssClass() {
-    return cssClass;
-  }
+public enum BhRuntimeType {
+  /** ローカルマシン上で動作する BhRuntime. */
+  LOCAL,
+  /** リモートマシン上で動作する BhRuntime. */
+  REMOTE
 }

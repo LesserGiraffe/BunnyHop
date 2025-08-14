@@ -48,10 +48,10 @@ public class BhRuntimeTransceiver {
   /** 接続状態. */
   private final AtomicBoolean connected = new AtomicBoolean(false);
   /** BhProgram との通信用 {@link ExecutorService} のセット. */
-  private ExecutorSet executors = new ExecutorSet();
+  private final ExecutorSet executors = new ExecutorSet();
   private FutureSet futures;
-  private TaskEndFlags endFlags = new TaskEndFlags(false, false, false, false);
-  private SynchronizingTimer connectionWait = new SynchronizingTimer(1, true);
+  private final TaskEndFlags endFlags = new TaskEndFlags(false, false, false, false);
+  private final SynchronizingTimer connectionWait = new SynchronizingTimer(1, true);
   /** {@link BhProgramMessage} を送受信するためのオブジェクト. */
   private final BhProgramMessageCarrierImpl carrier;
 
@@ -143,9 +143,9 @@ public class BhRuntimeTransceiver {
     boolean success = true;
     timeout = Math.max(timeout, 0);
     if (timeout > 0) {
-      success &= waitForTasksCancelled(timeout);
+      success = waitForTasksCancelled(timeout);
       if (!success) {
-        LogManager.logger().error("Failed to cancel tasks.".formatted());
+        LogManager.logger().error("Failed to cancel tasks.");
       }
     }
     futures = null;
@@ -235,10 +235,10 @@ public class BhRuntimeTransceiver {
     private final BlockingQueue<BhProgramResponse> sendRespList =
         new ArrayBlockingQueue<>(BhConstants.BhRuntime.MAX_REMOTE_CMD_QUEUE_SIZE);
     /** {@link BhProgramNotification} を受信したときのイベントハンドラを. */
-    private AtomicReference<Consumer<BhProgramNotification>> onNotifReceived =
+    private final AtomicReference<Consumer<BhProgramNotification>> onNotifReceived =
         new AtomicReference<>(notif -> {});
     /** {@link BhProgramResponse} を受信したときのイベントハンドラを. */
-    private AtomicReference<Consumer<BhProgramResponse>> onRespReceived =
+    private final AtomicReference<Consumer<BhProgramResponse>> onRespReceived =
         new AtomicReference<>(resp -> {});
 
     /** BhProgram の実行環境から {@link BhProgramNotification} を受信し続ける. */
@@ -264,7 +264,7 @@ public class BhRuntimeTransceiver {
     /** BhProgram の実行環境に {@link BhProgramNotification} を送信し続ける. */
     void sendNotif() {
       while (true) {
-        BhProgramNotification notif = null;
+        BhProgramNotification notif;
         try {
           notif =
               sendNotifList.poll(BhConstants.BhRuntime.Timeout.SEND_DATA, TimeUnit.MILLISECONDS);
@@ -308,7 +308,7 @@ public class BhRuntimeTransceiver {
     /** BhProgram の実行環境に {@link BhProgramResponse} を送信し続ける. */
     void sendResp() {
       while (true) {
-        BhProgramResponse resp = null;
+        BhProgramResponse resp;
         try {
           resp = sendRespList.poll(BhConstants.BhRuntime.Timeout.SEND_DATA, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {

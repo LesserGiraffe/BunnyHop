@@ -26,7 +26,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import net.seapanda.bunnyhop.bhprogram.LocalBhProgramController;
+import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncher;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
@@ -69,7 +69,7 @@ public class FoundationController {
 
   /** 押下状態のキー. */
   private Set<KeyCode> pressedKey = new HashSet<>();
-  private LocalBhProgramController localCtrl;
+  private LocalBhProgramLauncher localCtrl;
   private RemoteBhProgramController remoteCtrl;
 
   /** 初期化する. */
@@ -82,7 +82,7 @@ public class FoundationController {
       DebugViewFactory debugViewFactory,
       UndoRedoAgent undoRedoAgent,
       BhNodeSelectionViewProxy proxy,
-      LocalBhProgramController localCtrl,
+      LocalBhProgramLauncher localCtrl,
       RemoteBhProgramController remoteCtrl,
       ProjectImporter importer,
       ProjectExporter exporter,
@@ -106,7 +106,6 @@ public class FoundationController {
         copyAndPaste,
         cutAndPaste,
         msgService,
-        debugger,
         debugWindowCtrl);
     if (!success) {
       return false;
@@ -161,10 +160,7 @@ public class FoundationController {
       }
     }
     // ボタンが矢印やスぺーキーイベントを受け付けないようにする
-    if (target instanceof ButtonBase) {
-      return true;
-    }
-    return false;
+    return target instanceof ButtonBase;
   }
 
   /** 引数で指定したイベントを基底ペインに転送する. */
@@ -251,9 +247,9 @@ public class FoundationController {
     pressedKey.add(keyCode);
     var bhEvent = new BhProgramEvent(eventName, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
     if (menuViewController.isLocalHost()) {
-      localCtrl.send(bhEvent);
+      localCtrl.getBhRuntimeCtrl().send(bhEvent);
     } else {
-      remoteCtrl.send(bhEvent);
+      remoteCtrl.getBhRuntimeCtrl().send(bhEvent);
     }
   }
 

@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
  */
 public interface Debugger {
 
-  /** {@link context} の情報を出力する. */
+  /** {@code context} の情報を出力する. */
   void output(ThreadContext context);
 
   /** デバッガが持つ全ての情報をクリアする. */
@@ -87,8 +87,15 @@ public interface Debugger {
    */
   ThreadSelection getThreadSelection();
 
+  /**
+   * ブレークポイントの登録および削除を行うためのオブジェクトを取得する.
+   *
+   * @return ブレークポイントの登録および削除を行うためのオブジェクト
+   */
+  BreakpointRegistry getBreakpointRegistry();
+
   /** デバッガに対するイベントハンドラの登録および削除操作を規定したインタフェース. */
-  public interface CallbackRegistry {
+  interface CallbackRegistry {
     
     /** {@link ThreadContext} を取得したときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<ThreadContextReceivedEvent>.Registry getOnThreadContextReceived();
@@ -106,14 +113,14 @@ public interface Debugger {
    * @param debugger {@code context} を取得したデバッガ
    * @param context {@code debugger} が取得した {@link ThreadContext}
    */
-  public record ThreadContextReceivedEvent(Debugger debugger, ThreadContext context) {}
+  record ThreadContextReceivedEvent(Debugger debugger, ThreadContext context) {}
 
   /**
    * デバッガの持つ情報がクリアされたときの情報を格納したレコード.
    *
    * @param debugger 保持する情報をクリアされたデバッガ
    */
-  public record ClearEvent(Debugger debugger) {}
+  record ClearEvent(Debugger debugger) {}
 
   /**
    * スレッドの選択状態が変わったときのイベント.
@@ -122,6 +129,6 @@ public interface Debugger {
    * @param oldVal 変更前のスレッドの選択状態
    * @param newVal 変更後のスレッドの選択状態
    */
-  public record ThreadSelectionEvent(
+  record ThreadSelectionEvent(
       Debugger debugger, ThreadSelection oldVal, ThreadSelection newVal) {}
 }

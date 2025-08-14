@@ -176,6 +176,16 @@ public class BhNodeViewStyle {
     }
   }
 
+  /** 次に実行するノードであることを表す印のパラメータ. */
+  public static class NextStepMark {
+    public double size = 5.5 * BhConstants.LnF.NODE_SCALE;
+    public String cssClass;
+
+    public NextStepMark(String cssClass) {
+      this.cssClass = cssClass;
+    }
+  }
+
   /** ノードビューの共通部分のパラメータ. */
   public static class CommonPart {
     /** 共通部分のペインに適用される css クラス. */
@@ -183,10 +193,12 @@ public class BhNodeViewStyle {
     /** 共通部分の子要素を並べる方向. */
     public ChildArrangement arrangement = ChildArrangement.ROW;
     /** プライベートテンプレートボタンのパラメータ. */
-    public Button privatTemplate = new Button("defaultPrivateTemplateButton");
+    public Button privateTemplate = new Button("defaultPrivateTemplateButton");
     /** ブレークポイントのパラメータ. */
     public Breakpoint breakpoint = new Breakpoint("defaultBreakpoint");
-    
+    /** 次に実行するノードであることを表す印のパラメータ. */
+    public NextStepMark nextStepMark = new NextStepMark("defaultNextStepMark");
+
     /** コンストラクタ. */
     public CommonPart() {}
 
@@ -194,9 +206,11 @@ public class BhNodeViewStyle {
     public CommonPart(CommonPart org) {
       this.arrangement = org.arrangement;
       this.cssClass = org.cssClass;
-      this.privatTemplate.cssClass = org.privatTemplate.cssClass;
+      this.privateTemplate.cssClass = org.privateTemplate.cssClass;
       this.breakpoint.radius = org.breakpoint.radius;
       this.breakpoint.cssClass = org.breakpoint.cssClass;
+      this.nextStepMark.size = org.nextStepMark.size;
+      this.nextStepMark.cssClass = org.nextStepMark.cssClass;
     }
   }
 

@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.common.BhRuntimeFacade;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -57,7 +58,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   /** 現在の接続先に関する情報. */
   private volatile DestinationInfo currentDestInfo;
   /** ファイルがコピーのキャンセルフラグ. */
-  private AtomicBoolean fileCopyIsCancelled = new AtomicBoolean(true);
+  private final AtomicBoolean fileCopyIsCancelled = new AtomicBoolean(true);
   private final CmdGenScripts scripts;
   private final ReentrantLock lock = new ReentrantLock();
 
@@ -149,7 +150,9 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       transceiver.start();
       boolean success = transceiver.connect();
       if (success) {
-        success &= BhRuntimeHelper.runScript(destPath, facade);
+        // BhProgram の開始前に実行したい処理に対応するため, イベントハンドラをここで呼ぶ
+        cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, true));
+        success = BhRuntimeHelper.runScript(destPath, facade);
       }
       if (success) {
         msgService.info(TextDefs.BhRuntime.Remote.hasStarted.get());
@@ -293,6 +296,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       transceiver.start();
       boolean success = transceiver.connect();
       if (success) {
+        cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, true));
         msgService.info(TextDefs.BhRuntime.Remote.hasConnected.get());
         return true;
       }
@@ -334,6 +338,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     }
     boolean success = currentDestInfo.transceiver().halt(timeout);
     currentDestInfo = null;
+    cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, true));
     return success;
   }
 
@@ -470,7 +475,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       InputStream inputStream = channel.getInputStream();
       channel.setCommand(cmd);
       channel.connect(BhConstants.BhRuntime.Timeout.SSH_CONNECTION);
-      return Optional.ofNullable(new CmdResultProvider(channel, inputStream));
+      return Optional.of(new CmdResultProvider(channel, inputStream));
     } catch (IOException | JSchException e) {
       LogManager.logger().error("Failed to execute a cmd remotely (%s).\n%s".formatted(cmd, e));
     }
@@ -524,10 +529,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   private Optional<Integer> waitForChannelClosed(Channel channel, int timeout) {
     long begin = System.currentTimeMillis();
     try (var br = new BufferedReader(new InputStreamReader(channel.getInputStream()))) {
-      while (true) {
-        if (channel.isClosed()) {
-          break;
-        }
+      while (!channel.isClosed()) {
         if (br.ready()) {
           br.read();
         }
@@ -604,16 +606,24 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   /** SSH 越しに実行したコマンドの結果を提供するオブジェクトを格納したレコード. */
   private record CmdResultProvider(Channel channel, InputStream inputStream) {}
 
-  /** {@link RemoteBhRuntimeController} に対するイベントハンドラの登録および削除操作を提供するクラス. */
-  public class CallbackRegistryImpl implements RemoteBhRuntimeController.CallbackRegistry {
-    
+  /** {@link BhRuntimeController} に対するイベントハンドラの登録および削除操作を提供するクラス. */
+  public class CallbackRegistryImpl implements BhRuntimeController.CallbackRegistry {
+
     /** BhRuntime との通信用オブジェクトが置き換わったときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<MessageCarrierRenewedEvent> onMsgCarrierRenewed =
         new ConsumerInvoker<>();
 
+    /** BhRuntime との通信が有効または無効になったときのイベントハンドラをを管理するオブジェクト. */
+    private final ConsumerInvoker<ConnectionEvent> onConnCondChanged = new ConsumerInvoker<>();
+
     @Override
     public ConsumerInvoker<MessageCarrierRenewedEvent>.Registry getOnMsgCarrierRenewed() {
       return onMsgCarrierRenewed.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<ConnectionEvent>.Registry getOnConnectionConditionChanged() {
+      return onConnCondChanged.getRegistry();
     }
   }
 }

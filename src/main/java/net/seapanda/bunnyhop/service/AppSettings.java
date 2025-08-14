@@ -14,31 +14,20 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.nodeselection;
+package net.seapanda.bunnyhop.service;
+
+import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
 
 /**
- * ノードカテゴリを表す TreeView の各セルのモデルクラス.
+ * アプリケーションの現在の設定を取得する機能を提供するクラスのインタフェース.
  *
  * @author K.Koike
  */
-public class BhNodeCategory {
-  public final String categoryName;
-  private String cssClass = "";
+public interface AppSettings {
 
-  public BhNodeCategory(String category) {
-    this.categoryName = category;
-  }
+  /** ブレークポイントの設定が有効かどうかを返す. */
+  boolean isBreakpointSettingEnabled();
 
-  @Override
-  public String toString() {
-    return categoryName == null ? "" : categoryName;
-  }
-
-  public void setCssClass(String cssClass) {
-    this.cssClass = cssClass;
-  }
-
-  public String getCssClass() {
-    return cssClass;
-  }
+  /** 現在制御対象になっている BhRuntime の種類を返す. */
+  BhRuntimeType getBhRuntimeType();
 }

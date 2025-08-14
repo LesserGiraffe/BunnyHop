@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.common.BhRuntimeFacade;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -73,7 +74,9 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       transceiver.start();
       boolean success = transceiver.connect();
       if (success) {
-        success &= BhRuntimeHelper.runScript(filePath.toAbsolutePath().toString(), facade);
+        // BhProgram の開始前に実行したい処理に対応するため, イベントハンドラをここで呼ぶ
+        cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, true));
+        success = BhRuntimeHelper.runScript(filePath.toAbsolutePath().toString(), facade);
       }
       if (success) {
         msgService.info(TextDefs.BhRuntime.Local.hasStarted.get());
@@ -130,7 +133,11 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       return false;
     }
     msgService.info(TextDefs.BhRuntime.Remote.hasConnected.get());
-    return transceiver.connect();
+    boolean success = transceiver.connect();
+    if (success) {
+      cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, true));
+    }
+    return success;
   }
 
   @Override
@@ -140,7 +147,11 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       return false;
     }
     msgService.info(TextDefs.BhRuntime.Remote.hasDisconnected.get());
-    return transceiver.disconnect();
+    boolean success = transceiver.disconnect();
+    if (success) {
+      cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, false));
+    }
+    return success;
   }
 
   @Override
@@ -190,6 +201,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
     }
     boolean success = transceiver.halt(timeout);
     transceiver = null;
+    cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, false));
     return success;
   }
 
@@ -202,16 +214,24 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
     return terminate();
   }
 
-  /** {@link RmiLocalBhRuntimeController} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
-  public class CallbackRegistryImpl implements LocalBhRuntimeController.CallbackRegistry {
+  /** {@link BhRuntimeController} に対するイベントハンドラの登録および削除操作を提供するクラス. */
+  public class CallbackRegistryImpl implements BhRuntimeController.CallbackRegistry {
     
     /** BhRuntime との通信用オブジェクトが置き換わったときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<MessageCarrierRenewedEvent> onMsgCarrierRenewed =
         new ConsumerInvoker<>();
 
+    /** BhRuntime との通信が有効または無効になったときのイベントハンドラをを管理するオブジェクト. */
+    private final ConsumerInvoker<ConnectionEvent> onConnCondChanged = new ConsumerInvoker<>();
+
     @Override
     public ConsumerInvoker<MessageCarrierRenewedEvent>.Registry getOnMsgCarrierRenewed() {
       return onMsgCarrierRenewed.getRegistry();
-    }        
+    }
+
+    @Override
+    public ConsumerInvoker<ConnectionEvent>.Registry getOnConnectionConditionChanged() {
+      return onConnCondChanged.getRegistry();
+    }
   }
 }

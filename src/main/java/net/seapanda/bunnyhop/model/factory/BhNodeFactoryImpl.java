@@ -35,6 +35,7 @@ import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
 import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.model.traverse.DerivativeTextSetter;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.service.AppSettings;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.Trashbox;
@@ -63,6 +64,8 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
   private final Trashbox trashbox;
   private final WorkspaceSet wss;
   private final BhNodeSelectionViewProxy proxy;
+  private final AppSettings appSettings;
+
 
   /** コンストラクタ. */
   public BhNodeFactoryImpl(
@@ -71,13 +74,15 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
       ModelAccessNotificationService service,
       Trashbox trashbox,
       WorkspaceSet wss,
-      BhNodeSelectionViewProxy proxy) {
+      BhNodeSelectionViewProxy proxy,
+      AppSettings appSettings) {
     this.repository = repository;
     this.viewFactory = viewFactory;
     this.service = service;
     this.trashbox = trashbox;
     this.wss = wss;
     this.proxy = proxy;
+    this.appSettings = appSettings;
   }
 
   @Override
@@ -194,9 +199,8 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
 
     private BhNodeController createBaseController(BhNode node, BhNodeView nodeView) {
       return type == MvcType.DEFAULT
-          ? new DefaultBhNodeController(node, nodeView, service, trashbox)
-          : new TemplateNodeController(
-              node, nodeView, BhNodeFactoryImpl.this, service, wss, proxy);
+          ? new DefaultBhNodeController(node, nodeView, service, trashbox, appSettings)
+          : new TemplateNodeController(node, nodeView, BhNodeFactoryImpl.this, service, wss, proxy);
     }
   }  
 }

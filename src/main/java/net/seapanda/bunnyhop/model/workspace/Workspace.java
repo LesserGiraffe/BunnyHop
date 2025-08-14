@@ -103,6 +103,7 @@ public class Workspace implements Serializable {
     var cbRegistry = getCallbackRegistry();
     registry.getOnSelectionStateChanged().add(cbRegistry.onNodeSelStateChanged);
     registry.getOnCompileErrorStateChanged().add(cbRegistry.onNodeCompileErrStateChanged);
+    registry.getOnBreakpointSet().add(cbRegistry.onNodeBreakpointSet);
     registry.getOnConnected().add(cbRegistry.onNodeConnected);
     cbRegistry.onNodeAddedInvoker.invoke(new NodeAddedEvent(this, node, userOpe));
   }
@@ -145,6 +146,7 @@ public class Workspace implements Serializable {
     var cbRegistry = getCallbackRegistry();
     registry.getOnSelectionStateChanged().remove(cbRegistry.onNodeSelStateChanged);
     registry.getOnCompileErrorStateChanged().remove(cbRegistry.onNodeCompileErrStateChanged);
+    registry.getOnBreakpointSet().remove(cbRegistry.onNodeBreakpointSet);
     registry.getOnConnected().remove(cbRegistry.onNodeConnected);
     node.setWorkspace(null, userOpe);
     nodeList.remove(node);
@@ -191,7 +193,6 @@ public class Workspace implements Serializable {
    * {@code toSelect} を選択済みノードリストに追加する.
    *
    * @param toAdd 選択済みノードリストに追加するノード
-   * @param userOpe undo 用コマンドオブジェクト
    */
   private void addToSelectedNodeList(BhNode toAdd) {
     if (selectedList.contains(toAdd)) {
@@ -201,10 +202,9 @@ public class Workspace implements Serializable {
   }
 
   /**
-   * {@link toRemove} を選択済みノードリストから削除する.
+   * {@code toRemove} を選択済みノードリストから削除する.
    *
    * @param toRemove 選択済みリストから削除する {@link BhNode}
-   * @param userOpe undo 用コマンドオブジェクト
    */
   private void removeFromSelectedNodeList(BhNode toRemove) {
     if (!selectedList.contains(toRemove)) {
@@ -276,9 +276,13 @@ public class Workspace implements Serializable {
     private final ConsumerInvoker<NodeSelectionEvent> onNodeSelStateChangedInvoker =
         new ConsumerInvoker<>();
     
-    /** 関連するワークスペースのノードのコンパイルエラー状態が変更されたときのイベントハンドラをを管理するオブジェクト. */
-    private final ConsumerInvoker<NodeCompileErrorEvent>
-        onNodeCompileErrStateChangedInvoker = new ConsumerInvoker<>();
+    /** 関連するワークスペースのノードのコンパイルエラー状態が変更されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeCompileErrorEvent> onNodeCompileErrStateChangedInvoker =
+        new ConsumerInvoker<>();
+
+    /** 関連するワークスペースのノードのブレークポイントの設定が変更されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeBreakpointSetEvent> onNodeBreakpointSetInvoker =
+        new ConsumerInvoker<>();
 
     /** 関連するワークスペースにノードが追加されたときのイベントハンドラをを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker =
@@ -308,9 +312,13 @@ public class Workspace implements Serializable {
     private final Consumer<? super BhNode.SelectionEvent> onNodeSelStateChanged =
         this::onNodeSelectionStateChanged;
 
-    /** 関連するワークスペースのコンパイルエラー状態が変更されたときのイベントハンドラ. */
+    /** 関連するワークスペースのノードのコンパイルエラー状態が変更されたときのイベントハンドラ. */
     private final Consumer<? super BhNode.CompileErrorEvent> onNodeCompileErrStateChanged =
         this::onNodeCompileErrStateChanged;
+
+    /** 関連するワークスペースのノードのブレークポイントの設定が変更されたときのイベントハンドラ. */
+    private final Consumer<? super BhNode.BreakpointSetEvent> onNodeBreakpointSet =
+        this::onNodeBreakpointSet;
 
     /** 関連するワークスペースのノードの選択状態が変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<NodeSelectionEvent>.Registry getOnNodeSelectionStateChanged() {
@@ -320,6 +328,11 @@ public class Workspace implements Serializable {
     /** 関連するワークスペースのノードのコンパイルエラー状態が変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<NodeCompileErrorEvent>.Registry getOnNodeCompileErrorStateChanged() {
       return onNodeCompileErrStateChangedInvoker.getRegistry();
+    }
+
+    /** 関連するワークスペースのノードのブレークポイントの設定が変更されたときのイベントハンドラのレジストリを取得する. */
+    public ConsumerInvoker<NodeBreakpointSetEvent>.Registry getOnNodeBreakpointSet() {
+      return onNodeBreakpointSetInvoker.getRegistry();
     }
 
     /** 関連するワークスペースにノードが追加されたときのイベントハンドラのレジストリを取得する. */
@@ -385,6 +398,12 @@ public class Workspace implements Serializable {
       onNodeCompileErrStateChangedInvoker.invoke(new NodeCompileErrorEvent(
           Workspace.this, event.node(), event.hasError(), event.userOpe()));
     }
+
+    /** ノードのブレークポイントの設定が変わったときのイベントハンドラを呼び出す. */
+    private void onNodeBreakpointSet(BhNode.BreakpointSetEvent event) {
+      onNodeBreakpointSetInvoker.invoke(new  NodeBreakpointSetEvent(
+          Workspace.this, event.node(), event.isBreakpointSet(), event.userOpe()));
+    }
   }
 
   /**
@@ -405,9 +424,20 @@ public class Workspace implements Serializable {
    * @param node コンパイルエラー状態が変更されたノード
    * @param hasError {@code node} がコンパイルエラーを起こした場合 true
    * @param userOpe undo 用コマンドオブジェクト
-   */      
+   */
   public record NodeCompileErrorEvent(
       Workspace ws, BhNode node, boolean hasError, UserOperation userOpe) {}
+
+  /**
+   * ワークスペースのノードのブレークポイントの設定が変更されたときの情報を格納したレコード.
+   *
+   * @param ws {@code node} を保持するワークスペース
+   * @param node ブレークポイントの状態が変更されたノード
+   * @param isBreakpointSet ブレークポイントが設定された場合 true, 設定が解除された場合 false
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record NodeBreakpointSetEvent(
+      Workspace ws, BhNode node, boolean isBreakpointSet, UserOperation userOpe) {}
 
   /**
    * ワークスペースにノードが追加されたときの情報を格納したレコード.
@@ -450,7 +480,7 @@ public class Workspace implements Serializable {
    *
    * @param ws 名前が変わったワークスペース
    * @param oldName 変更前のワークスペース名
-   * @param newNmae 変更後のワークスペース名
+   * @param newName 変更後のワークスペース名
    */
   public record NameChangedEvent(Workspace ws, String oldName, String newName) {}
 }

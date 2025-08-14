@@ -51,8 +51,6 @@ public class ConnectorSection extends Section {
    * コピーコンストラクタ.
    *
    * @param org コピー元オブジェクト
-   * @param parentNode このセクションを保持する ConnectiveNode オブジェクト
-   * @param parentSection このセクションを保持している Subsection オブジェクト
    */
   private ConnectorSection(ConnectorSection org) {
     super(org);
@@ -133,8 +131,8 @@ public class ConnectorSection extends Section {
   public void show(int depth) {
     var parentInstId =
         (parentNode != null) ? parentNode.getSerialNo() : parentSection.getSerialNo();
-    System.out.println("%s<ConnectorSection  name=%s  parent=%s>  %s"
-        .formatted(indent(depth), getSymbolName(), parentInstId, getSerialNo()));
+    System.out.printf("%s<ConnectorSection  name=%s  parent=%s>  %s%n",
+        indent(depth), getSymbolName(), parentInstId, getSerialNo());
     cnctrList.forEach(connector -> connector.show(depth + 1));
   }
 }

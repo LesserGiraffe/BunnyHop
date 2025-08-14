@@ -65,8 +65,8 @@ public class TextDefs {
         TextId.of("gui", "debugger", "stack-overflow"));
     public static Getter outOfMemory = params -> db.get(
         TextId.of("gui", "debugger", "out-of-memory"));
-    public static Getter runtimErrOccured = params -> db.get(
-        TextId.of("gui", "debugger", "runtime-error-occured"));
+    public static Getter runtimeErrOccurred = params -> db.get(
+        TextId.of("gui", "debugger", "runtime-error-occurred"));
     
     /** スレッドの状態を表すテキスト. */
     public static class ThreadStatus {

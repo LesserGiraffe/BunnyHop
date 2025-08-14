@@ -4,6 +4,7 @@
 .classpath
 .project
 .vscode
+.idea
 google-java-format_windows-x86-64.exe
 /build
 /BunnyHop
@@ -16,3 +17,5 @@ google-java-format_windows-x86-64.exe
 /App/BhProgramExecEnvironment.jar
 /App/Jlib
 /misc
+/out
+/BunnyHop.iml

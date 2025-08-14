@@ -16,18 +16,34 @@
 
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
-import java.util.Objects;
-import net.seapanda.bunnyhop.bhprogram.BhProgramMessenger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.ThreadSelection;
+import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.AddBreakpointsCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.RemoveBreakpointsCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.ResumeThreadCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.SetBreakpointsCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepIntoCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepOutCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepOverCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.SuspendThreadCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.exception.BhProgramException;
+import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
+import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
 import net.seapanda.bunnyhop.common.TextDefs;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.service.AppSettings;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * BhProgram のデバッガクラス.
@@ -38,18 +54,58 @@ public class BhDebugger implements Debugger {
   
   private final MessageService msgService;
   private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
-  private final BhProgramMessenger messenger;
-  private ThreadSelection threadSelection = ThreadSelection.NONE;
+  /** このデバッガに対し指定されたスレッドの選択状態. */
+  private volatile ThreadSelection threadSelection = ThreadSelection.NONE;
+  /** 次に実行するノードのビューのセット. */
+  private final Set<BhNodeView> nextStepView = new HashSet<>();
+  /** スレッド ID とスレッドコンテキストのマップ. */
+  private final Map<Long, ThreadContext> threadIdToContext = new HashMap<>();
+  private final AppSettings appSettings;
+  private final LocalBhRuntimeController localBhRuntimeCtrl;
+  private final RemoteBhRuntimeController remoteBhRuntimeCtrl;
+  private final BreakpointRegistry breakpointRegistry;
 
   /** コンストラクタ. */
-  public BhDebugger(BhProgramMessenger messenger, MessageService msgService) {
-    this.messenger = messenger;
+  public BhDebugger(
+      MessageService msgService,
+      AppSettings appSettings,
+      LocalBhRuntimeController localBhRuntimeCtrl,
+      RemoteBhRuntimeController remoteBhRuntimeCtrl,
+      BreakpointRegistry breakpointRegistry) {
     this.msgService = msgService;
+    this.appSettings = appSettings;
+    this.localBhRuntimeCtrl = localBhRuntimeCtrl;
+    this.remoteBhRuntimeCtrl = remoteBhRuntimeCtrl;
+    this.breakpointRegistry = breakpointRegistry;
+    setEventHandlers();
+  }
+
+  private void setEventHandlers() {
+    localBhRuntimeCtrl.getCallbackRegistry().getOnConnectionConditionChanged()
+        .add(event -> {
+          if (event.isConnected()) {
+            setBreakpoints(breakpointRegistry.getBreakpointNodes().toArray(new BhNode[0]));
+          }
+          clear();
+        });
+    remoteBhRuntimeCtrl.getCallbackRegistry().getOnConnectionConditionChanged()
+        .add(event -> {
+          if (event.isConnected()) {
+            setBreakpoints(breakpointRegistry.getBreakpointNodes().toArray(new BhNode[0]));
+          }
+          clear();
+        });
+    breakpointRegistry.getCallbackRegistry().getOnBreakpointAdded()
+        .add(event -> addBreakpoints(event.breakpoint()));
+    breakpointRegistry.getCallbackRegistry().getOnBreakpointRemoved()
+        .add(event -> removeBreakpoints(event.breakpoint()));
   }
 
   @Override
   public void clear() {
     cbRegistry.onClearedInvoker.invoke(new ClearEvent(this));
+    threadIdToContext.clear();
+    nextStepView.forEach(view -> view.getLookManager().setNextStepMarkVisibility(false));
   }
 
   @Override
@@ -58,82 +114,155 @@ public class BhDebugger implements Debugger {
   }
 
   @Override
-  public void output(ThreadContext context) {
+  public synchronized void output(ThreadContext context) {
+    threadIdToContext.put(context.threadId(), context);
+    showNextStepMarks();
     if (context.exception() != null) {
       outputErrMsg(context.exception());
     }
-    cbRegistry.onThreadContextReceivedInvoker.invoke(new ThreadContextReceivedEvent(this, context));
+    var event = new ThreadContextReceivedEvent(this, context);
+    cbRegistry.onThreadContextReceivedInvoker.invoke(event);
   }
 
   /** {@code exception} が持つエラーメッセージを出力する. */
   private void outputErrMsg(BhProgramException exception) {
     String errMsg = DebugUtil.getErrMsg(exception);
-    String runtimeErrOccured = TextDefs.Debugger.runtimErrOccured.get();
-    msgService.error("%s\n%s\n".formatted(runtimeErrOccured, errMsg));
+    String runtimeErrOccurred = TextDefs.Debugger.runtimeErrOccurred.get();
+    msgService.error("%s\n%s\n".formatted(runtimeErrOccurred, errMsg));
   }
 
   @Override
-  public void suspend(long threadId) {
-    messenger.send(new SuspendThreadCmd(threadId));
+  public synchronized void suspend(long threadId) {
+    getBhRuntimeCtrl().send(new SuspendThreadCmd(threadId));
   }
 
   @Override
-  public void suspendAll() {
-    messenger.send(new SuspendThreadCmd(SuspendThreadCmd.ALL_THREADS));
+  public synchronized void suspendAll() {
+    getBhRuntimeCtrl().send(new SuspendThreadCmd(SuspendThreadCmd.ALL_THREADS));
   }
 
   @Override
-  public void resume(long threadId) {
-    messenger.send(new ResumeThreadCmd(threadId));
+  public synchronized void resume(long threadId) {
+    getBhRuntimeCtrl().send(new ResumeThreadCmd(threadId));
   }
 
   @Override
-  public void resumeAll() {
-    messenger.send(new ResumeThreadCmd(ResumeThreadCmd.ALL_THREADS));
+  public synchronized void resumeAll() {
+    getBhRuntimeCtrl().send(new ResumeThreadCmd(ResumeThreadCmd.ALL_THREADS));
   }
 
   @Override
-  public void stepOver(long threadId) {
-    messenger.send(new StepOverCmd(threadId));
+  public synchronized void stepOver(long threadId) {
+    getBhRuntimeCtrl().send(new StepOverCmd(threadId));
   }
 
   @Override
-  public void stepInto(long threadId) {
-    messenger.send(new StepIntoCmd(threadId));
+  public synchronized void stepInto(long threadId) {
+    getBhRuntimeCtrl().send(new StepIntoCmd(threadId));
   }
 
   @Override
-  public void stepOut(long threadId) {
-    messenger.send(new StepOutCmd(threadId));
+  public synchronized void stepOut(long threadId) {
+    getBhRuntimeCtrl().send(new StepOutCmd(threadId));
   }
 
   @Override
-  public void setThreadSelection(ThreadSelection selection) {
-    Objects.nonNull(selection);
+  public synchronized void setThreadSelection(ThreadSelection selection) {
     if (!threadSelection.equals(selection)) {
       var event = new ThreadSelectionEvent(this, threadSelection, selection);
       threadSelection = selection;
+      showNextStepMarks();
       cbRegistry.onThreadSelectionChanged.invoke(event);
     }
   }
 
   @Override
-  public ThreadSelection getThreadSelection() {
+  public synchronized ThreadSelection getThreadSelection() {
     return threadSelection;
+  }
+
+
+  @Override
+  public BreakpointRegistry getBreakpointRegistry() {
+    return breakpointRegistry;
+  }
+
+  /** 現在操作対象になっている BhRuntime のコントローラオブジェクトを返す. */
+  private BhRuntimeController getBhRuntimeCtrl() {
+    return switch (appSettings.getBhRuntimeType()) {
+      case LOCAL ->  localBhRuntimeCtrl;
+      case REMOTE ->  remoteBhRuntimeCtrl;
+    };
+  }
+
+  /** {@link #threadSelection} で指定されたスレッドで次に実行されるノードに, そのことを示すマークを付ける. */
+  private void showNextStepMarks() {
+    if (threadSelection.equals(ThreadSelection.NONE)) {
+      return;
+    }
+    Set<ThreadContext> contexts = new HashSet<>();
+    if (threadSelection.equals(ThreadSelection.ALL)) {
+      contexts.addAll(threadIdToContext.values());
+    } else if (threadIdToContext.containsKey(threadSelection.getThreadId())) {
+      contexts.add(threadIdToContext.get(threadSelection.getThreadId()));
+    }
+    nextStepView.forEach(view -> view.getLookManager().setNextStepMarkVisibility(false));
+
+    for (ThreadContext context : contexts) {
+      if (context.callStack().isEmpty()) {
+        continue;
+      }
+      CallStackItem top = context.callStack().getLast();
+      if (!top.isNotCalled()) {
+        continue;
+      }
+      if (top.getNode().flatMap(BhNode::getView).orElse(null) instanceof BhNodeView view) {
+        view.getLookManager().setNextStepMarkVisibility(true);
+        nextStepView.add(view);
+      }
+    }
+  }
+
+  /**
+   * BhRuntime にブレークポイントを設定する.
+   *
+   * <p>追加済みのブレークポイントは削除される.
+   */
+  private void setBreakpoints(BhNode... nodes) {
+    Collection<BhSymbolId> breakpoints = Arrays.stream(nodes)
+        .map(node -> BhSymbolId.of(node.getInstanceId().toString()))
+        .collect(Collectors.toCollection(ArrayList::new));
+    getBhRuntimeCtrl().send(new SetBreakpointsCmd(breakpoints));
+  }
+
+  /** BhRuntime にブレークポイントを追加する. */
+  private void addBreakpoints(BhNode... nodes) {
+    Collection<BhSymbolId> breakpoints = Arrays.stream(nodes)
+        .map(node -> BhSymbolId.of(node.getInstanceId().toString()))
+        .collect(Collectors.toCollection(ArrayList::new));
+    getBhRuntimeCtrl().send(new AddBreakpointsCmd(breakpoints));
+  }
+
+  /** BhRuntime からブレークポイントを削除する. */
+  private void removeBreakpoints(BhNode... nodes) {
+    Collection<BhSymbolId> breakpoints = Arrays.stream(nodes)
+        .map(node -> BhSymbolId.of(node.getInstanceId().toString()))
+        .collect(Collectors.toCollection(ArrayList::new));
+    getBhRuntimeCtrl().send(new RemoveBreakpointsCmd(breakpoints));
   }
 
   /** イベントハンドラの管理を行うクラス. */
   public class CallbackRegistryImpl implements CallbackRegistry {
 
     /** {@link ThreadContext} を取得したときのイベントハンドラを管理するオブジェクト. */
-    private ConsumerInvoker<ThreadContextReceivedEvent> onThreadContextReceivedInvoker =
+    private final ConsumerInvoker<ThreadContextReceivedEvent> onThreadContextReceivedInvoker =
         new ConsumerInvoker<>();
 
     /** デバッグ情報をクリアしたときのイベントハンドラを管理するオブジェクト. */
-    private ConsumerInvoker<ClearEvent> onClearedInvoker = new ConsumerInvoker<>();
+    private final ConsumerInvoker<ClearEvent> onClearedInvoker = new ConsumerInvoker<>();
 
     /** スレッドの選択状態が変わったときのイベントハンドラを管理するオブジェクト. */
-    private ConsumerInvoker<ThreadSelectionEvent> onThreadSelectionChanged =
+    private final ConsumerInvoker<ThreadSelectionEvent> onThreadSelectionChanged =
         new ConsumerInvoker<>();
 
     @Override

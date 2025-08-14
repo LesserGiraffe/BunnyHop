@@ -27,10 +27,9 @@ import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
 
 /**
- * BhProgram の実行環境から受信した {@link BhProgramMessage} を
- * 処理する機能を規定したインタフェース.
+ * BhProgram の実行環境から受信したメッセージを処理する機能を提供するクラス.
  *
- * @author K.koike
+ * @author K.Koike
  */
 public class BhProgramMessageProcessorImpl implements BhProgramMessageProcessor {
 

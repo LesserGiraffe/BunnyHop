@@ -23,10 +23,9 @@ import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
 
 /**
- * BhProgram の実行環境から受信した {@link BhProgramMessage} を
- * 処理する機能を規定したインタフェース.
+ * BhProgram の実行環境から受信したメッセージを処理する機能を規定したインタフェース.
  *
- * @author K.koike
+ * @author K.Koike
  */
 public interface BhProgramMessageProcessor {
 

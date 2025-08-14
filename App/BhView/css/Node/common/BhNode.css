@@ -36,12 +36,12 @@
 }
 
 .BhNode:runtimeErr {
-  -fx-stroke: red;
+  -fx-stroke: linear-gradient(from 0mm 0mm to 3mm 3mm, repeat, red 50%, black 0mm);
   -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
 }
 
-.BhNode:called {
-  -fx-stroke: linear-gradient(from 0mm 0mm to 3mm 3mm, repeat, limegreen 50%, black 0mm);
+.BhNode:nextStep {
+  -fx-stroke: linear-gradient(from 0mm 0mm to 3mm 3mm, repeat, gold 50%, black 0mm);
   -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
 }
 

@@ -20,7 +20,6 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.SequencedCollection;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.parameter.BreakpointSetting;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 
 /**
@@ -492,7 +491,7 @@ class StatCodeGenerator {
       int nestLevel,
       CompileOption option) {
     if (symbol instanceof BhNode node) {
-      if (node.getBreakpointSetting().equals(BreakpointSetting.SET)) {
+      if (node.isBreakpointGroupLeader()) {
         common.genConditionalWait(node.getInstanceId(), code, nestLevel, option);
       }
     }

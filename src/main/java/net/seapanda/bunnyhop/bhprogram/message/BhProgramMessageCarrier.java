@@ -25,7 +25,7 @@ import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
 /**
  * BhProgramMessage を送受信する機能を規定したインタフェース.
  *
- * @author K.koike
+ * @author K.Koike
  */
 public interface BhProgramMessageCarrier {
 

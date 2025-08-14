@@ -59,6 +59,8 @@ public abstract class BhNode extends SyntaxSymbol {
   private boolean isSelected = false;
   /** このノードがコンパイルエラーを起こしているかどうかのフラグ. */
   private boolean hasCompileError = false;
+  /** ブレークポイントが設定されているかどうかのフラグ. */
+  private boolean isBreakpointSet = false;
   /** このノードに登録されたイベントハンドラを呼び出すオブジェクト. */
   private final transient EventInvoker eventInvoker = this.new EventInvoker();
   /** 最後にこのノードと入れ替わったノード. */
@@ -192,9 +194,65 @@ public abstract class BhNode extends SyntaxSymbol {
     return params.styleId();
   }
 
-  /** ブレークポイントが指定された時の設定を取得する. */
-  public BreakpointSetting getBreakpointSetting() {
-    return params.breakpointSetting();
+  /**
+   * このノードを含むブレークポイントグループのリーダーとなるノードを取得する.
+   *
+   * <p>ブレークポイントグループとは, ブレークの対象となる処理を構成する複数のノードを含むグループである.
+   * 各ブレークポイントグループは, グループのリーダーとなるノード持つ.
+   */
+  public Optional<BhNode> findBreakpointGroupLeader() {
+    return findBreakpointGroupLeader(this);
+  }
+
+  /** {@code node} を含むブレークポイントグループのリーダーとなるノードを取得する. */
+  private static Optional<BhNode> findBreakpointGroupLeader(BhNode node) {
+    if (node == null) {
+      return Optional.empty();
+    }
+    if (node.params.breakpointSetting() == BreakpointSetting.SET) {
+      return Optional.of(node);
+    }
+    if (node.params.breakpointSetting() == BreakpointSetting.IGNORE) {
+      return Optional.empty();
+    }
+    if (node.params.breakpointSetting() == BreakpointSetting.SPECIFY_PARENT) {
+      return findBreakpointGroupLeader(node.findParentNode());
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * このノードがブレークポイントグループのリーダかどうか調べる.
+   *
+   * @return このノードがブレークポイントグループのリーダである場合 true.
+   */
+  public boolean isBreakpointGroupLeader() {
+    return params.breakpointSetting() == BreakpointSetting.SET;
+  }
+
+  /**
+   * このノードのブレークポイントの設定を変更する.
+   *
+   * @param val このノードにブレークポイントを設定する場合 true.  <br>
+   *            このノードにブレークポイントを設定しない場合 false
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public void setBreakpoint(boolean val, UserOperation userOpe) {
+    if (val != isBreakpointSet) {
+      isBreakpointSet = val;
+      getCallbackRegistry().onBreakpointSetInvoker.invoke(
+          new BreakpointSetEvent(this, isBreakpointSet, userOpe));
+      userOpe.pushCmd(ope -> setBreakpoint(!val, ope));
+    }
+  }
+
+  /**
+   * このノードにブレークポイントが設定されているか調べる.
+   *
+   * @return このノードにブレークポイントが設定されている場合 true.
+   */
+  public boolean isBreakpointSet() {
+    return isBreakpointSet;
   }
 
   /** このノードのバージョンを取得する. */
@@ -273,9 +331,9 @@ public abstract class BhNode extends SyntaxSymbol {
   /**
    * ノードの状態を取得する.
    *
-   * @retval State.DELETED 削除済みノード.
-   * @retval State.ROOT ルートノード.
-   * @retval State.CHILD 子ノード.
+   * @return State.DELETED 削除済みノード. <br>
+   *         State.ROOT ルートノード. <br>
+   *         State.CHILD 子ノード.
    */
   public State getState() {
     if (workspace == null) {
@@ -461,7 +519,7 @@ public abstract class BhNode extends SyntaxSymbol {
   /**
    * このノードが外部ノードかどうか調べる.
    *
-   * @retrun このノードが外部ノードの場合 true
+   * @return このノードが外部ノードの場合 true
    */
   public boolean isOuter() {
     if (parentConnector == null) {
@@ -599,8 +657,8 @@ public abstract class BhNode extends SyntaxSymbol {
   /**
    * ノードの入れ替えの結果変化のあったノード一式.
    *
-   * @param disconnected 入れ替え前に子ノードであったノード
-   * @param connected 入れ替え後に子ノードとなったノード
+   * @param oldNode 入れ替え前に子ノードであったノード
+   * @param newNode 入れ替え後に子ノードとなったノード
    */
   public record Swapped(BhNode oldNode, BhNode newNode) {}
 
@@ -619,8 +677,12 @@ public abstract class BhNode extends SyntaxSymbol {
     private final ConsumerInvoker<ConnectionEvent> onConnectedInvoker =
         new ConsumerInvoker<>();
 
-    /** 関連するノードが属するワークスペースが変わったときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するノードが属するワークスペースが変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceChangeEvent> onWsChangedInvoker =
+        new ConsumerInvoker<>();
+
+    /** 関連するノードのブレークポイントの設定が変わったときのイベントハンドラのを管理するオブジェクト. */
+    private final ConsumerInvoker<BreakpointSetEvent> onBreakpointSetInvoker =
         new ConsumerInvoker<>();
 
     /** ノードが入れ替わったときのイベントハンドラ. */
@@ -645,6 +707,11 @@ public abstract class BhNode extends SyntaxSymbol {
     /** 関連するノードが属するワークスペースが変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<WorkspaceChangeEvent>.Registry getOnWorkspaceChanged() {
       return onWsChangedInvoker.getRegistry();
+    }
+
+    /** 関連するノードのブレークポイントの設定が変わったときのイベントハンドラのレジストリを取得する. */
+    public ConsumerInvoker<BreakpointSetEvent>.Registry getOnBreakpointSet() {
+      return onBreakpointSetInvoker.getRegistry();
     }
 
     /** コネクタに接続されたノードが入れ替わったときに呼び出されるコールバック関数. */
@@ -693,6 +760,15 @@ public abstract class BhNode extends SyntaxSymbol {
    */
   public record WorkspaceChangeEvent(
       BhNode node, Workspace oldWs, Workspace newWs, UserOperation userOpe) {}
+
+  /**
+   * ノードのブレークポイントの設定が変更されたときの情報を格納したレコード.
+   *
+   * @param node ブレークポイントの設定が変更されたノード
+   * @param isBreakpointSet ブレークポイントが設定された場合 true, 設定が解除された場合 false
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record BreakpointSetEvent(BhNode node, boolean isBreakpointSet, UserOperation userOpe) {}
 
   /** ノードのイベントハンドラを呼び出す機能を提供するクラス. */
   public class EventInvoker {

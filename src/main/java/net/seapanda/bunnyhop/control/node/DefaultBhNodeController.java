@@ -34,6 +34,7 @@ import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.derivative.Derivative;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.node.event.UiEvent;
+import net.seapanda.bunnyhop.service.AppSettings;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.Trashbox;
@@ -53,7 +54,8 @@ public class DefaultBhNodeController implements BhNodeController {
   private final BhNodeView view;
   private final ModelAccessNotificationService notifService;
   private final Trashbox trashbox;
-  private final DndEventInfo ddInfo = this.new DndEventInfo();
+  private final AppSettings appSettings;
+  private final DndEventInfo ddInfo = new DndEventInfo();
   private final MouseCtrlLock mouseCtrlLock =
       new MouseCtrlLock(MouseButton.PRIMARY, MouseButton.SECONDARY);
 
@@ -64,12 +66,14 @@ public class DefaultBhNodeController implements BhNodeController {
    * @param view 管理するビュー
    * @param service モデルへのアクセスの通知先となるオブジェクト
    * @param trashbox ゴミ箱のビューを操作するためのオブジェクト
+   * @param appSettings アプリケーションの現在の設定を提供するオブジェクト
    */
   public DefaultBhNodeController(
       BhNode model,
       BhNodeView view,
       ModelAccessNotificationService service,
-      Trashbox trashbox) {
+      Trashbox trashbox,
+      AppSettings appSettings) {
     Objects.requireNonNull(model);
     Objects.requireNonNull(view);
     Objects.requireNonNull(service);
@@ -78,6 +82,7 @@ public class DefaultBhNodeController implements BhNodeController {
     this.view = view;
     this.notifService = service;
     this.trashbox = trashbox;
+    this.appSettings = appSettings;
     model.setView(view);
     view.setController(this);
     setViewEventHandlers();
@@ -98,10 +103,12 @@ public class DefaultBhNodeController implements BhNodeController {
     registry.getOnSelectionStateChanged().add(event -> {
       boolean isSelected = event.isSelected();
       view.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SELECTED, isSelected);
-      hilightDerivatives(model, isSelected);
+      highlightDerivatives(model, isSelected);
     });
-    registry.getOnCompileErrorStateChanged().add(event -> 
-        view.getLookManager().setCompileErrorVisibility(event.hasError()));
+    registry.getOnCompileErrorStateChanged()
+        .add(event -> view.getLookManager().setCompileErrorVisibility(event.hasError()));
+    registry.getOnBreakpointSet()
+        .add(event -> view.getLookManager().setBreakpointVisibility(event.isBreakpointSet()));
   }
 
   /** マウスボタン押下時の処理. */
@@ -123,6 +130,7 @@ public class DefaultBhNodeController implements BhNodeController {
       view.getLookManager().showShadow(EffectTarget.OUTERS);
       toFront();
       selectNode(event);
+      setBreakpoint(ddInfo.context.userOpe());
       Vec2D mousePressedPos = new Vec2D(event.getSceneX(), event.getSceneY());
       ddInfo.mousePressedPos = view.getPositionManager().sceneToLocal(mousePressedPos);
       ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
@@ -303,7 +311,7 @@ public class DefaultBhNodeController implements BhNodeController {
   private void deleteTrashedNode(MouseEvent event) {
     if (model.isRoot() && trashbox.isOpened()) {
       boolean canDelete = model.getEventInvoker().onDeletionRequested(
-          new ArrayList<BhNode>() {{
+          new ArrayList<>() {{
             add(model);
           }},
           CauseOfDeletion.TRASH_BOX,
@@ -341,11 +349,7 @@ public class DefaultBhNodeController implements BhNodeController {
     }
   }
 
-  /**
-   * ノードの選択処理を行う.
-   *
-   * @param isShiftDown シフトボタンが押されている場合 true
-   */
+  /** ノードの選択処理を行う. */
   private void selectNode(MouseEvent event) {
     UserOperation userOpe = ddInfo.context.userOpe();
     // 右クリック
@@ -426,8 +430,20 @@ public class DefaultBhNodeController implements BhNodeController {
         .ifPresent(oldView -> oldView.getTreeManager().replace(view));
   }
 
+  /**
+   * ブレークポイントの設定が有効でかつ {@link #model} がブレークポイントグループに含まれている場合,
+   * そのブレークポイントグループのリーダノードにブレークポイントを設定する.
+   */
+  private void setBreakpoint(UserOperation userOpe) {
+    if (!appSettings.isBreakpointSettingEnabled()) {
+      return;
+    }
+    model.findBreakpointGroupLeader()
+        .ifPresent(node -> node.setBreakpoint(!node.isBreakpointSet(), userOpe));
+  }
+
   /** {@code node} の派生ノードを強調表示を切り返る. */
-  private static void hilightDerivatives(BhNode node, boolean enable) {
+  private static void highlightDerivatives(BhNode node, boolean enable) {
     if (node instanceof Derivative orgNode) {
       for (Derivative derv : orgNode.getDerivatives()) {
         derv.getView().ifPresent(view -> view.getLookManager()
@@ -454,7 +470,7 @@ public class DefaultBhNodeController implements BhNodeController {
   /**
    * D&D 操作で使用する一連のイベントハンドラがアクセスするデータをまとめたクラス.
    */
-  private class DndEventInfo {
+  private static class DndEventInfo {
     private Vec2D mousePressedPos = null;
     private Vec2D posOnWorkspace = null;
     /** 現在重なっている View. */
