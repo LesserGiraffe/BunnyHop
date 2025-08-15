@@ -78,7 +78,7 @@ public class DebugViewController {
     threadIdToCallStackView.put(threadId, callStackView);
     threadIdToContext.put(threadId, context);
     boolean isSelectedThread =
-        debugger.getThreadSelection().equals(ThreadSelection.of(context.threadId()));
+        debugger.getSelectedThread().equals(ThreadSelection.of(context.threadId()));
     if (isSelectedThread) {
       ViewUtil.runSafe(() -> callStackScrollPane.setContent(callStackView));
     }

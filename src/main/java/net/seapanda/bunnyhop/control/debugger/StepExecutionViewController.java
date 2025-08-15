@@ -38,7 +38,7 @@ public class StepExecutionViewController {
   /** 初期化する. */
   public void initialize(Debugger debugger) {
     resumeBtn.setOnAction(event -> {
-      ThreadSelection selection = debugger.getThreadSelection();
+      ThreadSelection selection = debugger.getSelectedThread();
       if (selection.equals(ThreadSelection.ALL)) {
         debugger.resumeAll();
       } else if (!selection.equals(ThreadSelection.NONE)) {
@@ -46,34 +46,36 @@ public class StepExecutionViewController {
       }
     });
     suspendBtn.setOnAction(event -> {
-      ThreadSelection selection = debugger.getThreadSelection();
+      ThreadSelection selection = debugger.getSelectedThread();
       if (selection.equals(ThreadSelection.ALL)) {
         debugger.suspendAll();
       } else if (!selection.equals(ThreadSelection.NONE)) {
         debugger.suspend(selection.getThreadId());
       }
     });
+    reloadBtn.setOnAction(event -> debugger.requireThreadContexts());
+
     stepOverBtn.setOnAction(event -> {
-      ThreadSelection selection = debugger.getThreadSelection();
+      ThreadSelection selection = debugger.getSelectedThread();
       if (isParticularThreadSelected(selection)) {
         debugger.stepOver(selection.getThreadId());
       }
     });
     stepIntoBtn.setOnAction(event -> {
-      ThreadSelection selection = debugger.getThreadSelection();
+      ThreadSelection selection = debugger.getSelectedThread();
       if (isParticularThreadSelected(selection)) {
         debugger.stepInto(selection.getThreadId());
       }
     });
     stepOutBtn.setOnAction(event -> {
-      ThreadSelection selection = debugger.getThreadSelection();
+      ThreadSelection selection = debugger.getSelectedThread();
       if (isParticularThreadSelected(selection)) {
         debugger.stepOut(selection.getThreadId());
       }
     });
     debugger.getCallbackRegistry().getOnThreadSelectionChanged().add(
         event -> setStepButtonsEnable(isParticularThreadSelected(event.newVal())));
-    setStepButtonsEnable(isParticularThreadSelected(debugger.getThreadSelection()));
+    setStepButtonsEnable(isParticularThreadSelected(debugger.getSelectedThread()));
   }
 
   /** 特定のスレッドが選択されているかどうかを調べる. */

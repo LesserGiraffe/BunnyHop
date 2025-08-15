@@ -44,7 +44,6 @@ import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramControllerImpl;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.debugger.BhDebugMessageProcessor;
 import net.seapanda.bunnyhop.bhprogram.debugger.BhDebugger;
-import net.seapanda.bunnyhop.bhprogram.debugger.BreakpointRegistry;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessorImpl;
 import net.seapanda.bunnyhop.bhprogram.runtime.RmiLocalBhRuntimeController;
@@ -199,7 +198,6 @@ public class AppMain extends Application {
       final var nodeViewFactory = new BhNodeViewFactoryImpl(viewStyleFactory, buttonFactory);
       final var debugViewFactory = new DebugViewFactoryImpl(
           callStackVieFile, mediator, sceneBuilder.searchBoxCtrl);
-      final var breakpointRegistry = new BreakpointRegistry();
       final var nodeRepository = new XmlBhNodeRepository(scriptRepository);
       final var nodeFactory = new BhNodeFactoryImpl(
           nodeRepository,
@@ -232,8 +230,8 @@ public class AppMain extends Application {
           new RmiRemoteBhRuntimeController(msgService, scriptRepository);
       final var remoteBhProgramCtrl =
           new RemoteBhProgramControllerImpl(remoteCompiler, remoteRuntimeCtrl, msgService);
-      final var debugger = new BhDebugger(
-          msgService, appSettings, localRuntimeCtrl, remoteRuntimeCtrl, breakpointRegistry);
+      final var debugger =
+          new BhDebugger(msgService, appSettings, localRuntimeCtrl, remoteRuntimeCtrl, wss);
       final var debugMsgProcessor = new BhDebugMessageProcessor(wss, debugger);
       final var msgProcessor = new BhProgramMessageProcessorImpl(msgService, debugMsgProcessor);
       final var localMsgDispatcher =
@@ -279,7 +277,6 @@ public class AppMain extends Application {
           cutAndPaste,
           msgService,
           debugger);
-      setEventHandlers(wss, breakpointRegistry);
       sceneBuilder.createWindow(stage, wsFactory);
       undoRedoAgent.deleteCommands();
       if (SplashScreen.getSplashScreen() != null) {
@@ -528,27 +525,5 @@ public class AppMain extends Application {
         return ExclusiveSelection.CANCEL;
       }
     }).orElse(ExclusiveSelection.NONE_OF_THEM);
-  }
-
-  /** イベントハンドラを設定する. */
-  private void setEventHandlers(WorkspaceSet wss, BreakpointRegistry breakpointRegistry) {
-    wss.getCallbackRegistry().getOnNodeAdded()
-        .add(event -> {
-          if (event.node().isBreakpointSet()) {
-            breakpointRegistry.addBreakpointNode(event.node(), event.userOpe());
-          }
-        });
-
-    wss.getCallbackRegistry().getOnNodeRemoved()
-        .add(event -> breakpointRegistry.removeBreakpointNode(event.node(), event.userOpe()));
-
-    wss.getCallbackRegistry().getOnNodeBreakpointSetEvent()
-        .add(event -> {
-          if (event.node().isBreakpointSet()) {
-            breakpointRegistry.addBreakpointNode(event.node(), event.userOpe());
-          } else {
-            breakpointRegistry.removeBreakpointNode(event.node(), event.userOpe());
-          }
-        });
   }
 }

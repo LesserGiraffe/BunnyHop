@@ -28,6 +28,7 @@ import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.ThreadSelection;
 import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.AddBreakpointsCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetThreadContextsCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.RemoveBreakpointsCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.ResumeThreadCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.SetBreakpointsCmd;
@@ -40,6 +41,7 @@ import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.service.AppSettings;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
@@ -63,7 +65,7 @@ public class BhDebugger implements Debugger {
   private final AppSettings appSettings;
   private final LocalBhRuntimeController localBhRuntimeCtrl;
   private final RemoteBhRuntimeController remoteBhRuntimeCtrl;
-  private final BreakpointRegistry breakpointRegistry;
+  private final BreakpointRegistry breakpointRegistry = new BreakpointRegistry();
 
   /** コンストラクタ. */
   public BhDebugger(
@@ -71,16 +73,32 @@ public class BhDebugger implements Debugger {
       AppSettings appSettings,
       LocalBhRuntimeController localBhRuntimeCtrl,
       RemoteBhRuntimeController remoteBhRuntimeCtrl,
-      BreakpointRegistry breakpointRegistry) {
+      WorkspaceSet wss) {
     this.msgService = msgService;
     this.appSettings = appSettings;
     this.localBhRuntimeCtrl = localBhRuntimeCtrl;
     this.remoteBhRuntimeCtrl = remoteBhRuntimeCtrl;
-    this.breakpointRegistry = breakpointRegistry;
-    setEventHandlers();
+    setEventHandlers(wss);
   }
 
-  private void setEventHandlers() {
+  private void setEventHandlers(WorkspaceSet wss) {
+    wss.getCallbackRegistry().getOnNodeAdded()
+        .add(event -> {
+          if (event.node().isBreakpointSet()) {
+            breakpointRegistry.addBreakpointNode(event.node(), event.userOpe());
+          }
+        });
+    wss.getCallbackRegistry().getOnNodeRemoved()
+        .add(event -> breakpointRegistry.removeBreakpointNode(event.node(), event.userOpe()));
+    wss.getCallbackRegistry().getOnNodeBreakpointSetEvent()
+        .add(event -> {
+          if (event.node().isBreakpointSet()) {
+            breakpointRegistry.addBreakpointNode(event.node(), event.userOpe());
+          } else {
+            breakpointRegistry.removeBreakpointNode(event.node(), event.userOpe());
+          }
+        });
+
     localBhRuntimeCtrl.getCallbackRegistry().getOnConnectionConditionChanged()
         .add(event -> {
           if (event.isConnected()) {
@@ -167,7 +185,12 @@ public class BhDebugger implements Debugger {
   }
 
   @Override
-  public synchronized void setThreadSelection(ThreadSelection selection) {
+  public synchronized void requireThreadContexts() {
+    getBhRuntimeCtrl().send(new GetThreadContextsCmd());
+  }
+
+  @Override
+  public synchronized void selectThread(ThreadSelection selection) {
     if (!threadSelection.equals(selection)) {
       var event = new ThreadSelectionEvent(this, threadSelection, selection);
       threadSelection = selection;
@@ -177,10 +200,9 @@ public class BhDebugger implements Debugger {
   }
 
   @Override
-  public synchronized ThreadSelection getThreadSelection() {
+  public synchronized ThreadSelection getSelectedThread() {
     return threadSelection;
   }
-
 
   @Override
   public BreakpointRegistry getBreakpointRegistry() {

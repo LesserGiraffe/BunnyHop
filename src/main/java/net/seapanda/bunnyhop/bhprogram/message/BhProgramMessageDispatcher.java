@@ -94,8 +94,8 @@ public class BhProgramMessageDispatcher {
   private void dispatch(BhProgramResponse response) {
     switch (response) {
       case InputTextResp resp -> msgProcessor.process(resp);
-      case SuspendThreadResp resp -> { }
-      case ResumeThreadResp resp -> { }
+      case SuspendThreadResp ignored -> { }
+      case ResumeThreadResp ignored -> { }
       default -> notifyInvalidResp(response);
     }
   }

@@ -66,7 +66,7 @@ public class DebugWindowController {
     threadIdToContext.put(threadId, context);
     threadSelectorController.addToSelection(threadId);
     boolean isSelectedThread =
-        debugger.getThreadSelection().equals(ThreadSelection.of(context.threadId()));
+        debugger.getSelectedThread().equals(ThreadSelection.of(context.threadId()));
     if (isSelectedThread) {
       threadStateViewController.showThreadState(context);
     }

@@ -42,11 +42,11 @@ public class ThreadSelectorController {
     threadComboBox.setCellFactory(items -> new ThreadSelectorListCell());
     threadComboBox.valueProperty().addListener((observable, oldVal, newVal) -> {
       if (newVal == null) {
-        debugger.setThreadSelection(ThreadSelection.NONE);
+        debugger.selectThread(ThreadSelection.NONE);
       } else if (newVal == threadIdForAll) {
-        debugger.setThreadSelection(ThreadSelection.ALL);
+        debugger.selectThread(ThreadSelection.ALL);
       } else {
-        debugger.setThreadSelection(ThreadSelection.of(newVal));
+        debugger.selectThread(ThreadSelection.of(newVal));
       }
     });
     debugger.getCallbackRegistry().getOnCleared().add(event -> reset());

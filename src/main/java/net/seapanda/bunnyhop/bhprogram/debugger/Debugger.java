@@ -73,19 +73,22 @@ public interface Debugger {
    */
   void stepOut(long threadId);
 
-  /**
-   * スレッドの選択状態を設定する.
-   *
-   * @param selection スレッドの選択状態
-   */
-  void setThreadSelection(ThreadSelection selection);
+  /** BhRuntime にスレッドコンテキストの送信を要求する. */
+  void requireThreadContexts();
 
   /**
-   * スレッドの選択状態を取得する.
+   * デバッグ情報を表示するスレッドを選択する.
    *
-   * @return スレッドの選択状態.
+   * @param selection スレッドの選択状態を表すオブジェクト
    */
-  ThreadSelection getThreadSelection();
+  void selectThread(ThreadSelection selection);
+
+  /**
+   * 現在デバッグ情報を表示しているスレッドを取得する.
+   *
+   * @return 現在デバッグ情報を表示しているスレッドの情報を格納したオブジェクト.
+   */
+  ThreadSelection getSelectedThread();
 
   /**
    * ブレークポイントの登録および削除を行うためのオブジェクトを取得する.

@@ -66,9 +66,9 @@ public class WorkspaceSelectorController {
   /** 現在 {@link #wsComboBox} が持つアイテムを設定する. */
   private void reregisterItems() {
     Workspace selected = wsComboBox.getValue();
-    var wslist = new ArrayList<>(wsComboBox.getItems());
+    var wsList = new ArrayList<>(wsComboBox.getItems());
     wsComboBox.getItems().clear();
-    wsComboBox.getItems().addAll(wslist);
+    wsComboBox.getItems().addAll(wsList);
     wsComboBox.setValue(selected);
   }
 
@@ -101,7 +101,7 @@ public class WorkspaceSelectorController {
     }
   }
 
-  private class WorkspaceSelectorListCell extends ListCell<Workspace> {
+  private static class WorkspaceSelectorListCell extends ListCell<Workspace> {
 
     @Override
     protected void updateItem(Workspace item, boolean empty) {

@@ -40,7 +40,7 @@ public class BhProgramMessageProcessorImpl implements BhProgramMessageProcessor 
    * コンストラクタ.
    *
    * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
-   * @param debugMsgProcessor このオブジェクトが受け取ったデバッグ情報を処理するオブジェクト.
+   * @param debugMsgProcessor デバッグ情報を処理するオブジェクト.
    */
   public BhProgramMessageProcessorImpl(
       MessageService msgService, DebugMessageProcessor debugMsgProcessor) {
