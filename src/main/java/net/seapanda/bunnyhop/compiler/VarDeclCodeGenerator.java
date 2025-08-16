@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.compiler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.SequencedCollection;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.model.node.TextNode;
@@ -162,11 +163,11 @@ class VarDeclCodeGenerator {
     String comment =
         SymbolNames.VarDecl.VAR_NAME_CNCTR_LIST.stream()
         .map(cnctrName -> (TextNode) varDecl.findDescendantOf("*", cnctrName, "*"))
-        .filter(node -> node != null)
+        .filter(Objects::nonNull)
         .findFirst()
-        .map(node -> node.getText()).orElse("");
+        .map(TextNode::getText).orElse("");
     String varName = common.genVarName(varDecl);
-    String outArgName = common.genVarAccesorName(varDecl);
+    String outArgName = common.genVarAccessorName(varDecl);
     String initVal = SymbolNames.VarDecl.INIT_VAL_MAP.get(varDecl.getSymbolName());
     return new VarDeclInfo(varName, outArgName, initVal, varDecl.getInstanceId(), comment);
   }
@@ -220,7 +221,31 @@ class VarDeclCodeGenerator {
         .append(ScriptIdentifiers.Properties.GET + ": () => ")
         .append(varDeclInfo.varName);
 
-    if (option.addVarAccesorToVarStack) {
+    if (option.addVarAccessorToVarStack) {
+      code.append(", ")
+          .append(ScriptIdentifiers.Properties.ID + ": ")
+          .append("'%s'".formatted(varDeclInfo.instId()));
+    }
+    code.append("};" + Keywords.newLine);
+  }
+
+  /** 出力変数用のアクセサを定義するコードを生成する. */
+  private void genOutParamAccessor(
+      StringBuilder code,
+      VarDeclInfo varDeclInfo,
+      int nestLevel,
+      CompileOption option) {
+
+    code.append(common.indent(nestLevel))
+        .append(Keywords.Js._const_)
+        .append(varDeclInfo.outArgName)
+        .append(" = {")
+        .append(ScriptIdentifiers.Properties.SET + ": ")
+        .append("%s.%s, ".formatted(varDeclInfo.varName, ScriptIdentifiers.Properties.SET))
+        .append(ScriptIdentifiers.Properties.GET + ": ")
+        .append("%s.%s".formatted(varDeclInfo.varName, ScriptIdentifiers.Properties.GET));
+
+    if (option.addVarAccessorToVarStack) {
       code.append(", ")
           .append(ScriptIdentifiers.Properties.ID + ": ")
           .append("'%s'".formatted(varDeclInfo.instId()));
@@ -301,6 +326,25 @@ class VarDeclCodeGenerator {
   }
 
   /**
+   * 出力変数用のアクセサを定義するコードを生成する.
+   *
+   * @param outParam 出力変数宣言ノード
+   * @param code 生成したコードの格納先
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   */
+  void genOutParamAccessors(
+      SyntaxSymbol outParam,
+      StringBuilder code,
+      int nestLevel,
+      CompileOption option) {
+
+    collectVarDecls(outParam).stream()
+        .map(this::toVarDeclInfo)
+        .forEach(varDeclInfo -> genOutParamAccessor(code, varDeclInfo, nestLevel, option));
+  }
+
+  /**
    * 変数を定義するコードとそのアクセサオブジェクトを定義するコードを作成する.
    *
    * @return [0] -> {@code varDecl} から作成した変数の名前 <br>
@@ -322,7 +366,7 @@ class VarDeclCodeGenerator {
         .append(";")
         .append(Keywords.newLine);
 
-    String accessorName = common.genVarAccesorName(varDecl);
+    String accessorName = common.genVarAccessorName(varDecl);
     genVarAccessor(
         code,
         new VarDeclInfo(varName, accessorName, "", varDecl.getInstanceId(), ""),

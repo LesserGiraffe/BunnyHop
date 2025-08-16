@@ -483,7 +483,7 @@ class ExpCodeGenerator {
       if (common.isOutputParam(varDecl)) {
         return common.genVarName(varDecl); // out -> out
       } else {
-        return common.genVarAccesorName(varDecl); // in -> out
+        return common.genVarAccessorName(varDecl); // in -> out
       }
     } else if (SymbolNames.VarDecl.VAR_VOID_LIST.contains(varNode.getSymbolName())) {
       // 出力引数に変数指定がなかった場合

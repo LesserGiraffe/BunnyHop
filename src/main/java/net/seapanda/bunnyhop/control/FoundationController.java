@@ -68,7 +68,7 @@ public class FoundationController {
   @FXML private NotificationViewController notifViewController;
 
   /** 押下状態のキー. */
-  private Set<KeyCode> pressedKey = new HashSet<>();
+  private final Set<KeyCode> pressedKey = new HashSet<>();
   private LocalBhProgramLauncher localCtrl;
   private RemoteBhProgramController remoteCtrl;
 

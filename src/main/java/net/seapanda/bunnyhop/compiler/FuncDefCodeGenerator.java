@@ -98,9 +98,13 @@ class FuncDefCodeGenerator {
         varDeclCodeGen.genParamList(commonParams, param, outParam, code, nestLevel + 1, option);
     code.append(") {" + Keywords.newLine);
     varDeclCodeGen.genVarAccessors(param, code, nestLevel + 1, option);
+    // 変数アクセサを変数スタックに積む必要がないなら, 出力変数のアクセサは作る必要がない.
+    if (option.addVarAccessorToVarStack) {
+      varDeclCodeGen.genOutParamAccessors(outParam, code, nestLevel + 1, option);
+    }
+
     common.genPushToCallStack(code, nestLevel + 1, option);
-    common.genPushToVarStack(
-        params.inParams(), params.outParams(), code, nestLevel + 1, option);
+    common.genPushToVarStack(params.inParams(), params.outParams(), code, nestLevel + 1, option);
     genFuncDefInner(funcDefNode, code, nestLevel + 1, option);
     common.genPopFromVarStack(code, nestLevel + 1, option);
     common.genPopFromCallStack(code, nestLevel + 1, option);    

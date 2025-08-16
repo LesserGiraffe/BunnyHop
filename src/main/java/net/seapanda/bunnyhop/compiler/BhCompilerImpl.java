@@ -198,10 +198,10 @@ public class BhCompilerImpl implements BhCompiler {
       SequencedCollection<SyntaxSymbol> variables,
       int nestLevel,
       CompileOption option) {
-    if (!option.addVarAccesorToVarStack) {
+    if (!option.addVarAccessorToVarStack) {
       return;
     }
-    List<String> varAccessors = variables.stream().map(common::genVarAccesorName).toList();
+    List<String> varAccessors = variables.stream().map(common::genVarAccessorName).toList();
     String accessorElems = String.join(", ", varAccessors);
     if (!accessorElems.isEmpty()) {
       code.append(common.indent(nestLevel))

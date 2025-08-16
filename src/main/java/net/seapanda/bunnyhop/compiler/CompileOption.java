@@ -33,7 +33,7 @@ public class CompileOption {
   /** コールスタックに関数呼び出しノードのインスタンス ID を追加および削除するコードを追加する. */
   public final boolean addNodeInstIdToCallStack;
   /** 変数スタックに変数に対するアクセサを追加および削除するコードを追加する. */
-  public final boolean addVarAccesorToVarStack;
+  public final boolean addVarAccessorToVarStack;
   /** 条件付きで一時停止するコードを追加する. */
   public final boolean addConditionalWait;
   /** ソースコードにコメントを追加する場合 true. */
@@ -44,7 +44,7 @@ public class CompileOption {
   private CompileOption(Builder builder) {
     addNodeInstIdToContext = builder.isDebug;
     addNodeInstIdToCallStack = builder.isDebug;    
-    addVarAccesorToVarStack = builder.isDebug;
+    addVarAccessorToVarStack = builder.isDebug;
     addConditionalWait = builder.isDebug;
     this.withComments = builder.withComments;
     this.outFile = builder.outFile;

@@ -44,7 +44,7 @@ class CommonCodeGenerator {
    * @param varDecl この {@link SyntaxSymbol} に対応する変数名を作成する
    * @return 変数名
    */
-  String genVarAccesorName(SyntaxSymbol varDecl) {
+  String genVarAccessorName(SyntaxSymbol varDecl) {
     return Keywords.Prefix.outArg + varDecl.getSerialNo().hexStr();
   }
 
@@ -158,11 +158,7 @@ class CommonCodeGenerator {
     }
   }
 
-  /**
-   * コールスタックに関数呼び出しノードのインスタンス ID を追加するコードを作成する.
-   *
-   * @param funcCallNode 関数呼び出しノード
-   */
+  /** コールスタックに関数呼び出しノードのインスタンス ID を追加するコードを作成する. */
   private String genPushToCallStack() {
     return "%s[%s.%s] = %s[%s]".formatted(
         ScriptIdentifiers.Vars.CALL_STACK,
@@ -264,15 +260,15 @@ class CommonCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    if (!option.addVarAccesorToVarStack) {
+    if (!option.addVarAccessorToVarStack) {
       return;
     }
     var varAccessors = new ArrayList<String>();
     for (SyntaxSymbol varDecl : varDecls) {
-      varAccessors.add("%s".formatted(genVarAccesorName(varDecl)));
+      varAccessors.add("%s".formatted(genVarAccessorName(varDecl)));
     }
     for (SyntaxSymbol outParam : outParams) {
-      varAccessors.add("%s".formatted(genVarName(outParam)));
+      varAccessors.add("%s".formatted(genVarAccessorName(outParam)));
     }
     // let _varFrame = [_vo123, ... ];
     code.append(indent(nestLevel))
@@ -293,11 +289,7 @@ class CommonCodeGenerator {
         .append(";" + Keywords.newLine);
   }
 
-  /**
-   * 変数スタックに変数フレームを追加するコードを作成する.
-   *
-   * @param funcCallNode 関数呼び出しノード
-   */
+  /** 変数スタックに変数フレームを追加するコードを作成する. */
   private String genPushToVarStack() {
     return "%s[%s.%s] = %s".formatted(
         ScriptIdentifiers.Vars.VAR_STACK,
@@ -319,8 +311,6 @@ class CommonCodeGenerator {
   /**
    * 変数スタックから要素を取り除くコードを作成する.
    *
-   * @param varDecls 変数宣言ノードのリスト
-   * @param outParams 出力パラメータのリスト
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
@@ -329,7 +319,7 @@ class CommonCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    if (!option.addVarAccesorToVarStack) {
+    if (!option.addVarAccessorToVarStack) {
       return;
     }
     code.append(indent(nestLevel))
@@ -357,7 +347,7 @@ class CommonCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    if (!option.addVarAccesorToVarStack || varDecls.size() == 0) {
+    if (!option.addVarAccessorToVarStack || varDecls.size() == 0) {
       return;
     }
     code.append(indent(nestLevel))
@@ -372,11 +362,11 @@ class CommonCodeGenerator {
           ScriptIdentifiers.Vars.VAR_FRAME,
           ScriptIdentifiers.Vars.VAR_FRAME,
           ScriptIdentifiers.JsProperties.LENGTH,
-          genVarAccesorName(varDecls.getFirst()));
+          genVarAccessorName(varDecls.getFirst()));
     }
     var varAccessors = new ArrayList<String>();
     for (SyntaxSymbol varDecl : varDecls) {
-      varAccessors.add("%s".formatted(genVarAccesorName(varDecl)));
+      varAccessors.add("%s".formatted(genVarAccessorName(varDecl)));
     }
     return "%s.%s(%s)".formatted(
         ScriptIdentifiers.Vars.VAR_FRAME,
@@ -398,7 +388,7 @@ class CommonCodeGenerator {
       int nestLevel,
       CompileOption option) {
     // _varFrame.splice(_varFrame.length - n, n);
-    if (!option.addVarAccesorToVarStack || numVars == 0) {
+    if (!option.addVarAccessorToVarStack || numVars == 0) {
       return;
     }
     code.append(indent(nestLevel))

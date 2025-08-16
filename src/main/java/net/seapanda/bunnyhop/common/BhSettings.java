@@ -30,7 +30,7 @@ public class BhSettings {
   /** BhSimulator に関するパラメータ. */
   public static class BhSimulator {
     /** BhSimulator 初期化待ちタイムアウト (sec). */
-    public static int initTimeout = 5;
+    public static volatile int initTimeout = 5;
     /** BhProgram の開始時に BhSimulator をフォーカスするかどうか. */
     public static volatile boolean focusOnStartBhProgram = true;
     /** BhSimulator に変化があったとき BhSimulator をフォーカスするかどうか. */
@@ -39,13 +39,13 @@ public class BhSettings {
 
   /** BunnyHop が出力するテキストメッセージに関するパラメータ. */
   public static class Message {
-    public static final int maxErrMsgChars = 4096;
+    public static volatile int maxErrMsgChars = 4096;
   }
 
   /** デバッグに関するパラメータ. */
   public static class Debug {
     /** コールスタックに表示するデフォルトの最大要素数. */
-    public static int maxCallStackItems = 32;
+    public static volatile int maxCallStackItems = 32;
     /** ブレークポイントの設定が有効かどうか. */
     public static volatile boolean isBreakpointSettingEnabled = false;
 

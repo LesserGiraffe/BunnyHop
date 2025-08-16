@@ -25,6 +25,7 @@ import java.util.SequencedSet;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.control.MouseCtrlLock;
 import net.seapanda.bunnyhop.model.BhNodePlacer;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
@@ -34,7 +35,6 @@ import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.derivative.Derivative;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.node.event.UiEvent;
-import net.seapanda.bunnyhop.service.AppSettings;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.Trashbox;
@@ -54,7 +54,6 @@ public class DefaultBhNodeController implements BhNodeController {
   private final BhNodeView view;
   private final ModelAccessNotificationService notifService;
   private final Trashbox trashbox;
-  private final AppSettings appSettings;
   private final DndEventInfo ddInfo = new DndEventInfo();
   private final MouseCtrlLock mouseCtrlLock =
       new MouseCtrlLock(MouseButton.PRIMARY, MouseButton.SECONDARY);
@@ -66,14 +65,12 @@ public class DefaultBhNodeController implements BhNodeController {
    * @param view 管理するビュー
    * @param service モデルへのアクセスの通知先となるオブジェクト
    * @param trashbox ゴミ箱のビューを操作するためのオブジェクト
-   * @param appSettings アプリケーションの現在の設定を提供するオブジェクト
    */
   public DefaultBhNodeController(
       BhNode model,
       BhNodeView view,
       ModelAccessNotificationService service,
-      Trashbox trashbox,
-      AppSettings appSettings) {
+      Trashbox trashbox) {
     Objects.requireNonNull(model);
     Objects.requireNonNull(view);
     Objects.requireNonNull(service);
@@ -82,7 +79,6 @@ public class DefaultBhNodeController implements BhNodeController {
     this.view = view;
     this.notifService = service;
     this.trashbox = trashbox;
-    this.appSettings = appSettings;
     model.setView(view);
     view.setController(this);
     setViewEventHandlers();
@@ -435,7 +431,7 @@ public class DefaultBhNodeController implements BhNodeController {
    * そのブレークポイントグループのリーダノードにブレークポイントを設定する.
    */
   private void setBreakpoint(UserOperation userOpe) {
-    if (!appSettings.isBreakpointSettingEnabled()) {
+    if (!BhSettings.Debug.isBreakpointSettingEnabled) {
       return;
     }
     model.findBreakpointGroupLeader()

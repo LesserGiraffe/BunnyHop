@@ -73,7 +73,6 @@ import net.seapanda.bunnyhop.model.nodeselection.JsonBhNodeCategoryTree;
 import net.seapanda.bunnyhop.model.workspace.CopyAndPaste;
 import net.seapanda.bunnyhop.model.workspace.CutAndPaste;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.service.BhAppSettings;
 import net.seapanda.bunnyhop.service.BhMessageService;
 import net.seapanda.bunnyhop.service.BhScriptRepositoryImpl;
 import net.seapanda.bunnyhop.service.CompileErrorReporter;
@@ -179,7 +178,6 @@ public class AppMain extends Application {
       msgService.setMainMsgArea(sceneBuilder.notifViewCtrl.getMsgArea());
       msgService.setWindowStyle(sceneBuilder.scene.getStylesheets());
 
-      final var appSettings = new BhAppSettings();
       final var simulator = createSimulator();
       final var nodeSelViewProxy =
           new BhNodeSelectionViewProxyImpl(sceneBuilder.wssCtrl::addNodeSelectionView);
@@ -205,8 +203,7 @@ public class AppMain extends Application {
           mediator,
           sceneBuilder.trashboxCtrl,
           wss,
-          nodeSelViewProxy,
-          appSettings);
+          nodeSelViewProxy);
       final var commonDataSupplier = new CommonDataSupplier(scriptRepository, nodeFactory, textDb);
       final var modelGenerator = new ModelGenerator(
           nodeFactory,
@@ -231,7 +228,7 @@ public class AppMain extends Application {
       final var remoteBhProgramCtrl =
           new RemoteBhProgramControllerImpl(remoteCompiler, remoteRuntimeCtrl, msgService);
       final var debugger =
-          new BhDebugger(msgService, appSettings, localRuntimeCtrl, remoteRuntimeCtrl, wss);
+          new BhDebugger(msgService, localRuntimeCtrl, remoteRuntimeCtrl, wss);
       final var debugMsgProcessor = new BhDebugMessageProcessor(wss, debugger);
       final var msgProcessor = new BhProgramMessageProcessorImpl(msgService, debugMsgProcessor);
       final var localMsgDispatcher =

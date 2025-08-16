@@ -39,10 +39,10 @@ import net.seapanda.bunnyhop.bhprogram.common.message.debug.SuspendThreadCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.exception.BhProgramException;
 import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
+import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.service.AppSettings;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
@@ -62,7 +62,6 @@ public class BhDebugger implements Debugger {
   private final Set<BhNodeView> nextStepView = new HashSet<>();
   /** スレッド ID とスレッドコンテキストのマップ. */
   private final Map<Long, ThreadContext> threadIdToContext = new HashMap<>();
-  private final AppSettings appSettings;
   private final LocalBhRuntimeController localBhRuntimeCtrl;
   private final RemoteBhRuntimeController remoteBhRuntimeCtrl;
   private final BreakpointRegistry breakpointRegistry = new BreakpointRegistry();
@@ -70,12 +69,10 @@ public class BhDebugger implements Debugger {
   /** コンストラクタ. */
   public BhDebugger(
       MessageService msgService,
-      AppSettings appSettings,
       LocalBhRuntimeController localBhRuntimeCtrl,
       RemoteBhRuntimeController remoteBhRuntimeCtrl,
       WorkspaceSet wss) {
     this.msgService = msgService;
-    this.appSettings = appSettings;
     this.localBhRuntimeCtrl = localBhRuntimeCtrl;
     this.remoteBhRuntimeCtrl = remoteBhRuntimeCtrl;
     setEventHandlers(wss);
@@ -211,7 +208,7 @@ public class BhDebugger implements Debugger {
 
   /** 現在操作対象になっている BhRuntime のコントローラオブジェクトを返す. */
   private BhRuntimeController getBhRuntimeCtrl() {
-    return switch (appSettings.getBhRuntimeType()) {
+    return switch (BhSettings.BhRuntime.currentBhRuntimeType) {
       case LOCAL ->  localBhRuntimeCtrl;
       case REMOTE ->  remoteBhRuntimeCtrl;
     };

@@ -115,7 +115,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   private double frontZpos = 0;
   /** モデルへのアクセスの通知先となるオブジェクト. */
   private final ModelAccessNotificationService notifService;
-  private CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
+  private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
 
   /**
    * コンストラクタ.
