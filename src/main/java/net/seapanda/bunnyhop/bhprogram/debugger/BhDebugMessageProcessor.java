@@ -67,7 +67,7 @@ public class BhDebugMessageProcessor implements DebugMessageProcessor {
     }
     var threadContext = new ThreadContext(
         context.getThreadId(), context.getState(), callStack, context.getException());
-    debugger.output(threadContext);
+    debugger.add(threadContext);
   }
   
   /**

@@ -6,11 +6,11 @@ import javafx.fxml.FXML;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
-import net.seapanda.bunnyhop.bhprogram.ThreadSelection;
 import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
-import net.seapanda.bunnyhop.bhprogram.debugger.Debugger.ThreadSelectionEvent;
+import net.seapanda.bunnyhop.bhprogram.debugger.Debugger.CurrentThreadChangedEvent;
 import net.seapanda.bunnyhop.bhprogram.debugger.ThreadContext;
+import net.seapanda.bunnyhop.bhprogram.debugger.ThreadSelection;
 
 /**
  * デバッグのための操作を提供するする UI コンポーネントのコントローラ.
@@ -35,9 +35,9 @@ public class DebugWindowController {
     threadStateViewController.initialize(debugger);
     stepExecutionViewController.initialize(debugger);
     Debugger.CallbackRegistry registry = debugger.getCallbackRegistry();
-    registry.getOnThreadContextReceived().add(event -> addThreadContext(event.context()));
+    registry.getOnThreadContextAdded().add(event -> addThreadContext(event.context()));
     registry.getOnCleared().add(event -> clear());
-    debugger.getCallbackRegistry().getOnThreadSelectionChanged().add(this::showThreadState);
+    debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(this::showThreadState);
     debugWindowBase.addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
   }
 
@@ -66,7 +66,7 @@ public class DebugWindowController {
     threadIdToContext.put(threadId, context);
     threadSelectorController.addToSelection(threadId);
     boolean isSelectedThread =
-        debugger.getSelectedThread().equals(ThreadSelection.of(context.threadId()));
+        debugger.getCurrentThread().equals(ThreadSelection.of(context.threadId()));
     if (isSelectedThread) {
       threadStateViewController.showThreadState(context);
     }
@@ -78,7 +78,7 @@ public class DebugWindowController {
   }
 
   /** スレッドの状態を表示する. */
-  private void showThreadState(ThreadSelectionEvent event) {
+  private void showThreadState(CurrentThreadChangedEvent event) {
     if (event.newVal().equals(ThreadSelection.ALL) 
         || event.newVal().equals(ThreadSelection.NONE)) {
       threadStateViewController.hideThreadState();

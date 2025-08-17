@@ -16,7 +16,8 @@
 
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
-import net.seapanda.bunnyhop.bhprogram.ThreadSelection;
+import net.seapanda.bunnyhop.bhprogram.debugger.variable.VariableInfo;
+import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
 /**
@@ -26,8 +27,11 @@ import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
  */
 public interface Debugger {
 
-  /** {@code context} の情報を出力する. */
-  void output(ThreadContext context);
+  /** デバッガに {@link ThreadContext} を追加する. */
+  void add(ThreadContext context);
+
+  /** デバッガに変数情報を追加する. */
+  void add(VariableInfo variableInfo);
 
   /** デバッガが持つ全ての情報をクリアする. */
   void clear();
@@ -40,55 +44,114 @@ public interface Debugger {
   CallbackRegistry getCallbackRegistry();
 
   /**
-   * {@code threadId} で指定した BhProgram のスレッドを停止可能位置で一時停止するようにする.
+   * 「現在のスレッド」を停止可能位置で一時停止するようにする.
+   *
+   * @return 成功した場合 true.  失敗したか「現在のスレッド」が選択されていない場合 false.
    */
-  void suspend(long threadId);
-
-  /** 動作中の全ての BhProgram のスレッドを停止可能位置で一時停止するようにする. */
-  void suspendAll();
-
-  /** {@code threadId} で指定した BhProgram のスレッドが一時停止中であった場合, 動作を再開させる. */
-  void resume(long threadId);
-
-  /** 一時停止中の全ての BhProgram のスレッドの動作を再開させる. */
-  void resumeAll();
+  boolean suspend();
 
   /**
-   * {@code threadId} で指定した BhProgram のスレッドが一時停止中であった場合, 次に停止可能な位置まで処理を進める.
+   * 「現在のスレッド」が一時停止中であった場合, 動作を再開させる.
+   *
+   * @return 成功した場合 true.  失敗したか「現在のスレッド」が選択されていない場合 false.
+   */
+  boolean resume();
+
+  /**
+   * 「現在のスレッド」が一時停止中であった場合, 次に停止可能な位置まで処理を進める.
    *
    * <p>次の処理が関数呼び出しであった場合, その中では止まらず, 関数呼び出し終了後の次に停止可能な位置で止まる.
+   *
+   * @return 成功した場合 true.  失敗したか「現在のスレッド」として 1 つのスレッドが選択されていない場合 false.
    */
-  void stepOver(long threadId);
+  boolean stepOver();
 
   /**
-   * {@code threadId} で指定した BhProgram のスレッドが一時停止中であった場合, 次に停止可能な位置まで処理を進める.
+   * 「現在のスレッド」が一時停止中であった場合, 次に停止可能な位置まで処理を進める.
    *
    * <p>次の処理が関数呼び出しであった場合, その中に停止可能な位置があれば止まる.
+   *
+   * @return 成功した場合 true.  失敗したか「現在のスレッド」として 1 つのスレッドが選択されていない場合 false.
    */
-  void stepInto(long threadId);
+  boolean stepInto();
 
   /**
-   * {@code threadId} で指定した BhProgram のスレッドが一時停止中であった場合,
+   * 「現在のスレッド」が一時停止中であった場合,
    * 現在実行している関数の呼び出し元の関数の中で次に停止可能な位置まで処理を進める.
+   *
+   * @return 成功した場合 true.  失敗したか「現在のスレッド」として 1 つのスレッドが選択されていない場合 false.
    */
-  void stepOut(long threadId);
-
-  /** BhRuntime にスレッドコンテキストの送信を要求する. */
-  void requireThreadContexts();
+  boolean stepOut();
 
   /**
-   * デバッグ情報を表示するスレッドを選択する.
+   * BhRuntime にスレッドコンテキストの送信を要求する.
    *
-   * @param selection スレッドの選択状態を表すオブジェクト
+   * @return 成功した場合 true.
    */
-  void selectThread(ThreadSelection selection);
+  boolean requestThreadContexts();
 
   /**
-   * 現在デバッグ情報を表示しているスレッドを取得する.
+   * BhRuntime に「現在のスタックフレーム」の変数の送信を要求する.
    *
-   * @return 現在デバッグ情報を表示しているスレッドの情報を格納したオブジェクト.
+   * @return 成功した場合 true.  失敗したか「現在のスタックフレーム」が選択されていない場合 false.
    */
-  ThreadSelection getSelectedThread();
+  boolean requestLocalVars();
+
+  /**
+   * BhRuntime にグローバル変数の情報の送信を要求する.
+   *
+   * @return 成功した場合 true.
+   */
+  boolean requestGlobalVars();
+
+  /**
+   * BhRuntime に「現在のスタックフレーム」のリスト変数の値の送信を要求する.
+   *
+   * @param node この {@link BhNode} に対応するリストの値を取得する
+   * @param startIdx 値を取得する範囲のスタートインデックス
+   * @param length 値を取得する範囲の要素数
+   * @return 成功した場合 true.   失敗したか「現在のスタックフレーム」が選択されていない場合 false.
+   */
+  boolean requestLocalListVals(BhNode node, long startIdx, long length);
+
+  /**
+   * BhRuntime にグローバルリスト変数の値の送信を要求する.
+   *
+   * @param node この {@link BhNode} に対応するリストの値を取得する
+   * @return 成功した場合 true.
+   */
+  boolean requestGlobalListVals(BhNode node, long startIdx, long length);
+
+
+  /**
+   * デバッガの「現在のスレッド」となるスレッドを選択する.
+   *
+   * <p>「現在のスレッド」が変わると, 「現在のスタックフレーム」は未選択状態になる.
+   *
+   * @param selection このオブジェクトのスレッドを「現在のスレッド」として選択する
+   */
+  void selectCurrentThread(ThreadSelection selection);
+
+  /**
+   * デバッガの「現在のスレッド」を取得する.
+   *
+   * @return 「現在のスレッド」として選択されているスレッドの情報を格納したオブジェクト
+   */
+  ThreadSelection getCurrentThread();
+
+  /**
+   * デバッガの「現在のスタックフレーム」となるスタックフレームを選択する.
+   *
+   * @param selection スタックフレームの選択状態を表すオブジェクト
+   */
+  void selectCurrentStackFrame(StackFrameSelection selection);
+
+  /** 
+   * デバッガの「現在のスタックフレーム」を取得する.
+   *
+   * @return 「現在のスタックフレーム」として選択されているスタックフレームの情報を格納したオブジェクト
+   */
+  StackFrameSelection getCurrentStackFrame();
 
   /**
    * ブレークポイントの登録および削除を行うためのオブジェクトを取得する.
@@ -100,14 +163,20 @@ public interface Debugger {
   /** デバッガに対するイベントハンドラの登録および削除操作を規定したインタフェース. */
   interface CallbackRegistry {
     
-    /** {@link ThreadContext} を取得したときのイベントハンドラのレジストリを取得する. */
-    ConsumerInvoker<ThreadContextReceivedEvent>.Registry getOnThreadContextReceived();
+    /** {@link ThreadContext} が追加されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<ThreadContextAddedEvent>.Registry getOnThreadContextAdded();
 
-    /** {@link ThreadContext} を取得したときのイベントハンドラのレジストリを取得する. */
+    /** {@link VariableInfo} が追加されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<VariableInfoAddedEvent>.Registry getOnVariableInfoAdded();
+
+    /** デバッガの設定をクリアしたときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<ClearEvent>.Registry getOnCleared();
 
-    /** スレッドの選択状態が変わったときのイベントハンドラのレジストリを取得する. */
-    ConsumerInvoker<ThreadSelectionEvent>.Registry getOnThreadSelectionChanged();
+    /** 「現在のスレッド」が変わったときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<CurrentThreadChangedEvent>.Registry getOnCurrentThreadChanged();
+
+    /** 「現在のスタックフレーム」が変わったときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<CurrentStackFrameChangedEvent>.Registry getOnCurrentStackFrameChanged();
   }
 
   /**
@@ -116,7 +185,15 @@ public interface Debugger {
    * @param debugger {@code context} を取得したデバッガ
    * @param context {@code debugger} が取得した {@link ThreadContext}
    */
-  record ThreadContextReceivedEvent(Debugger debugger, ThreadContext context) {}
+  record ThreadContextAddedEvent(Debugger debugger, ThreadContext context) {}
+
+  /**
+   * デバッガが {@link VariableInfo} を取得したときの情報を格納したレコード.
+   *
+   * @param debugger {@code info} を取得したデバッガ
+   * @param info {@code debugger} が取得した {@link VariableInfo}
+   */
+  record VariableInfoAddedEvent(Debugger debugger, VariableInfo info) {}
 
   /**
    * デバッガの持つ情報がクリアされたときの情報を格納したレコード.
@@ -126,12 +203,23 @@ public interface Debugger {
   record ClearEvent(Debugger debugger) {}
 
   /**
-   * スレッドの選択状態が変わったときのイベント.
+   * 「現在のスレッド」が変わったときのイベント.
    *
-   * @param debugger スレッドの選択状態を変更されたデバッガ
+   * @param debugger 「現在のスレッド」が変わったデバッガ
    * @param oldVal 変更前のスレッドの選択状態
    * @param newVal 変更後のスレッドの選択状態
    */
-  record ThreadSelectionEvent(
+  record CurrentThreadChangedEvent(
       Debugger debugger, ThreadSelection oldVal, ThreadSelection newVal) {}
+
+  /**
+   * 「現在のスタックフレーム」が変わったときのイベント.
+   *
+   * @param debugger 「現在のスタックフレーム」が変わったデバッガ
+   * @param currentThread {@code debugger} の「現在のスレッド」
+   * @param oldVal 変更前のスタックフレームの選択状態
+   * @param newVal 変更後のスタックフレームの選択状態
+   */
+  record CurrentStackFrameChangedEvent(
+      Debugger debugger, ThreadSelection currentThread, StackFrameSelection oldVal, StackFrameSelection newVal) {}
 }

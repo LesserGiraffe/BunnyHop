@@ -25,9 +25,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
-import net.seapanda.bunnyhop.bhprogram.ThreadSelection;
 import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.AddBreakpointsCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalListValsCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalVarsCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetLocalListValsCmd;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetLocalVarsCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetThreadContextsCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.RemoveBreakpointsCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.ResumeThreadCmd;
@@ -37,6 +40,8 @@ import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepOutCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepOverCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.SuspendThreadCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.exception.BhProgramException;
+import net.seapanda.bunnyhop.bhprogram.debugger.variable.VariableInfo;
+import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
 import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
 import net.seapanda.bunnyhop.common.BhSettings;
@@ -56,8 +61,10 @@ public class BhDebugger implements Debugger {
   
   private final MessageService msgService;
   private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
-  /** このデバッガに対し指定されたスレッドの選択状態. */
-  private volatile ThreadSelection threadSelection = ThreadSelection.NONE;
+  /** 「現在のスレッド」として選択されたスレッド. */
+  private volatile ThreadSelection currentThread = ThreadSelection.NONE;
+  /** 「現在のスタックフレーム」として選択されたスタックフレーム. */
+  private volatile StackFrameSelection currentStackFrame = StackFrameSelection.NONE;
   /** 次に実行するノードのビューのセット. */
   private final Set<BhNodeView> nextStepView = new HashSet<>();
   /** スレッド ID とスレッドコンテキストのマップ. */
@@ -129,14 +136,20 @@ public class BhDebugger implements Debugger {
   }
 
   @Override
-  public synchronized void output(ThreadContext context) {
+  public synchronized void add(ThreadContext context) {
     threadIdToContext.put(context.threadId(), context);
     showNextStepMarks();
     if (context.exception() != null) {
       outputErrMsg(context.exception());
     }
-    var event = new ThreadContextReceivedEvent(this, context);
-    cbRegistry.onThreadContextReceivedInvoker.invoke(event);
+    var event = new ThreadContextAddedEvent(this, context);
+    cbRegistry.onThreadContextAddedInvoker.invoke(event);
+  }
+
+  @Override
+  public synchronized void add(VariableInfo variableInfo) {
+    var event = new VariableInfoAddedEvent(this, variableInfo);
+    cbRegistry.onVariableInfoAddedInvoker.invoke(event);
   }
 
   /** {@code exception} が持つエラーメッセージを出力する. */
@@ -147,58 +160,133 @@ public class BhDebugger implements Debugger {
   }
 
   @Override
-  public synchronized void suspend(long threadId) {
-    getBhRuntimeCtrl().send(new SuspendThreadCmd(threadId));
+  public synchronized boolean suspend() {
+    BhRuntimeStatus status = null;
+    if (currentThread.equals(ThreadSelection.ALL)) {
+      status = getBhRuntimeCtrl().send(new SuspendThreadCmd(SuspendThreadCmd.ALL_THREADS));
+    } else if (!currentThread.equals(ThreadSelection.NONE)) {
+      status = getBhRuntimeCtrl().send(new SuspendThreadCmd(currentThread.getThreadId()));
+    }
+    return status == BhRuntimeStatus.SUCCESS;
   }
 
   @Override
-  public synchronized void suspendAll() {
-    getBhRuntimeCtrl().send(new SuspendThreadCmd(SuspendThreadCmd.ALL_THREADS));
+  public synchronized boolean resume() {
+    BhRuntimeStatus status = null;
+    if (currentThread.equals(ThreadSelection.ALL)) {
+      status = getBhRuntimeCtrl().send(new ResumeThreadCmd(ResumeThreadCmd.ALL_THREADS));
+    } else if (!currentThread.equals(ThreadSelection.NONE)) {
+      status = getBhRuntimeCtrl().send(new ResumeThreadCmd(currentThread.getThreadId()));
+    }
+    return status == BhRuntimeStatus.SUCCESS;
   }
 
   @Override
-  public synchronized void resume(long threadId) {
-    getBhRuntimeCtrl().send(new ResumeThreadCmd(threadId));
+  public synchronized boolean stepOver() {
+    BhRuntimeStatus status = null;
+    if (isParticularThreadSelected()) {
+      status = getBhRuntimeCtrl().send(new StepOverCmd(currentThread.getThreadId()));
+    }
+    return status == BhRuntimeStatus.SUCCESS;
   }
 
   @Override
-  public synchronized void resumeAll() {
-    getBhRuntimeCtrl().send(new ResumeThreadCmd(ResumeThreadCmd.ALL_THREADS));
+  public synchronized boolean stepInto() {
+    BhRuntimeStatus status = null;
+    if (isParticularThreadSelected()) {
+      status = getBhRuntimeCtrl().send(new StepIntoCmd(currentThread.getThreadId()));
+    }
+    return status == BhRuntimeStatus.SUCCESS;
   }
 
   @Override
-  public synchronized void stepOver(long threadId) {
-    getBhRuntimeCtrl().send(new StepOverCmd(threadId));
+  public synchronized boolean stepOut() {
+    BhRuntimeStatus status = null;
+    if (isParticularThreadSelected()) {
+      status = getBhRuntimeCtrl().send(new StepOutCmd(currentThread.getThreadId()));
+    }
+    return status == BhRuntimeStatus.SUCCESS;
   }
 
   @Override
-  public synchronized void stepInto(long threadId) {
-    getBhRuntimeCtrl().send(new StepIntoCmd(threadId));
+  public synchronized boolean requestThreadContexts() {
+    return getBhRuntimeCtrl().send(new GetThreadContextsCmd()) == BhRuntimeStatus.SUCCESS;
   }
 
   @Override
-  public synchronized void stepOut(long threadId) {
-    getBhRuntimeCtrl().send(new StepOutCmd(threadId));
+  public synchronized boolean requestLocalVars() {
+    if (isParticularThreadSelected() && !currentStackFrame.equals(StackFrameSelection.NONE)) {
+      var cmd = new GetLocalVarsCmd(currentThread.getThreadId(), currentStackFrame.getIndex());
+      BhRuntimeStatus status = getBhRuntimeCtrl().send(cmd);
+      return status == BhRuntimeStatus.SUCCESS;
+    }
+    return false;
   }
 
   @Override
-  public synchronized void requireThreadContexts() {
-    getBhRuntimeCtrl().send(new GetThreadContextsCmd());
+  public synchronized boolean requestGlobalVars() {
+    if (isParticularThreadSelected() && !currentStackFrame.equals(StackFrameSelection.NONE)) {
+      BhRuntimeStatus status = getBhRuntimeCtrl().send(new GetGlobalVarsCmd());
+      return status == BhRuntimeStatus.SUCCESS;
+    }
+    return false;
   }
 
   @Override
-  public synchronized void selectThread(ThreadSelection selection) {
-    if (!threadSelection.equals(selection)) {
-      var event = new ThreadSelectionEvent(this, threadSelection, selection);
-      threadSelection = selection;
+  public synchronized boolean requestLocalListVals(BhNode node, long startIdx, long length) {
+    if (isParticularThreadSelected() && !currentStackFrame.equals(StackFrameSelection.NONE)) {
+      var cmd = new GetLocalListValsCmd(
+          currentThread.getThreadId(),
+          currentStackFrame.getIndex(),
+          BhSymbolId.of(node.getInstanceId().toString()),
+          startIdx,
+          length);
+      BhRuntimeStatus status = getBhRuntimeCtrl().send(cmd);
+      return status == BhRuntimeStatus.SUCCESS;
+    }
+    return false;
+  }
+
+  @Override
+  public synchronized boolean requestGlobalListVals(BhNode node, long startIdx, long length) {
+    if (isParticularThreadSelected() && !currentStackFrame.equals(StackFrameSelection.NONE)) {
+      var symbolId = BhSymbolId.of(node.getInstanceId().toString());
+      var cmd = new GetGlobalListValsCmd(symbolId, startIdx, length);
+      BhRuntimeStatus status = getBhRuntimeCtrl().send(cmd);
+      return status == BhRuntimeStatus.SUCCESS;
+    }
+    return false;
+  }
+
+  @Override
+  public synchronized void selectCurrentThread(ThreadSelection selection) {
+    if (!currentThread.equals(selection)) {
+      final var event = new CurrentThreadChangedEvent(this, currentThread, selection);
+      currentThread = selection;
+      selectCurrentStackFrame(StackFrameSelection.NONE);
       showNextStepMarks();
-      cbRegistry.onThreadSelectionChanged.invoke(event);
+      cbRegistry.onCurrentThreadChanged.invoke(event);
     }
   }
 
   @Override
-  public synchronized ThreadSelection getSelectedThread() {
-    return threadSelection;
+  public synchronized ThreadSelection getCurrentThread() {
+    return currentThread;
+  }
+
+  @Override
+  public synchronized void selectCurrentStackFrame(StackFrameSelection selection) {
+    if (!currentStackFrame.equals(selection)) {
+      final var event =
+          new CurrentStackFrameChangedEvent(this, currentThread, currentStackFrame, selection);
+      currentStackFrame = selection;
+      cbRegistry.onCurrentStackFrameChanged.invoke(event);
+    }
+  }
+
+  @Override
+  public synchronized StackFrameSelection getCurrentStackFrame() {
+    return currentStackFrame;
   }
 
   @Override
@@ -214,16 +302,16 @@ public class BhDebugger implements Debugger {
     };
   }
 
-  /** {@link #threadSelection} で指定されたスレッドで次に実行されるノードに, そのことを示すマークを付ける. */
+  /** {@link #currentThread} で指定されたスレッドで次に実行されるノードに, そのことを示すマークを付ける. */
   private void showNextStepMarks() {
-    if (threadSelection.equals(ThreadSelection.NONE)) {
+    if (currentThread.equals(ThreadSelection.NONE)) {
       return;
     }
     Set<ThreadContext> contexts = new HashSet<>();
-    if (threadSelection.equals(ThreadSelection.ALL)) {
+    if (currentThread.equals(ThreadSelection.ALL)) {
       contexts.addAll(threadIdToContext.values());
-    } else if (threadIdToContext.containsKey(threadSelection.getThreadId())) {
-      contexts.add(threadIdToContext.get(threadSelection.getThreadId()));
+    } else if (threadIdToContext.containsKey(currentThread.getThreadId())) {
+      contexts.add(threadIdToContext.get(currentThread.getThreadId()));
     }
     nextStepView.forEach(view -> view.getLookManager().setNextStepMarkVisibility(false));
 
@@ -270,23 +358,43 @@ public class BhDebugger implements Debugger {
     getBhRuntimeCtrl().send(new RemoveBreakpointsCmd(breakpoints));
   }
 
+  /** 特定のスレッドが選択されているかどうかを調べる. */
+  private boolean isParticularThreadSelected() {
+    return !currentThread.equals(ThreadSelection.ALL)
+        && !currentThread.equals(ThreadSelection.NONE);
+  }
+
+
   /** イベントハンドラの管理を行うクラス. */
   public class CallbackRegistryImpl implements CallbackRegistry {
 
     /** {@link ThreadContext} を取得したときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<ThreadContextReceivedEvent> onThreadContextReceivedInvoker =
+    private final ConsumerInvoker<ThreadContextAddedEvent> onThreadContextAddedInvoker =
+        new ConsumerInvoker<>();
+
+    /** {@link VariableInfoAddedEvent} を取得したときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<VariableInfoAddedEvent> onVariableInfoAddedInvoker =
         new ConsumerInvoker<>();
 
     /** デバッグ情報をクリアしたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<ClearEvent> onClearedInvoker = new ConsumerInvoker<>();
 
-    /** スレッドの選択状態が変わったときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<ThreadSelectionEvent> onThreadSelectionChanged =
+    /** 「現在のスレッド」が変わったときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<CurrentThreadChangedEvent> onCurrentThreadChanged =
+        new ConsumerInvoker<>();
+
+    /** 「現在のスタックフレーム」が変わったときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<CurrentStackFrameChangedEvent> onCurrentStackFrameChanged =
         new ConsumerInvoker<>();
 
     @Override
-    public ConsumerInvoker<ThreadContextReceivedEvent>.Registry getOnThreadContextReceived() {
-      return onThreadContextReceivedInvoker.getRegistry();
+    public ConsumerInvoker<ThreadContextAddedEvent>.Registry getOnThreadContextAdded() {
+      return onThreadContextAddedInvoker.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<VariableInfoAddedEvent>.Registry getOnVariableInfoAdded() {
+      return onVariableInfoAddedInvoker.getRegistry();
     }
 
     @Override
@@ -295,8 +403,13 @@ public class BhDebugger implements Debugger {
     }
 
     @Override
-    public ConsumerInvoker<ThreadSelectionEvent>.Registry getOnThreadSelectionChanged() {
-      return onThreadSelectionChanged.getRegistry();
+    public ConsumerInvoker<CurrentThreadChangedEvent>.Registry getOnCurrentThreadChanged() {
+      return onCurrentThreadChanged.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<CurrentStackFrameChangedEvent>.Registry getOnCurrentStackFrameChanged() {
+      return onCurrentStackFrameChanged.getRegistry();
     }
   }
 }

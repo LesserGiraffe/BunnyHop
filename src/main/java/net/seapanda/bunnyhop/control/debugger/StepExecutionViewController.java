@@ -18,8 +18,8 @@ package net.seapanda.bunnyhop.control.debugger;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import net.seapanda.bunnyhop.bhprogram.ThreadSelection;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
+import net.seapanda.bunnyhop.bhprogram.debugger.ThreadSelection;
 
 /**
  * デバッガのスレッド制御コンポーネントのコントローラ.
@@ -37,45 +37,15 @@ public class StepExecutionViewController {
 
   /** 初期化する. */
   public void initialize(Debugger debugger) {
-    resumeBtn.setOnAction(event -> {
-      ThreadSelection selection = debugger.getSelectedThread();
-      if (selection.equals(ThreadSelection.ALL)) {
-        debugger.resumeAll();
-      } else if (!selection.equals(ThreadSelection.NONE)) {
-        debugger.resume(selection.getThreadId());
-      }
-    });
-    suspendBtn.setOnAction(event -> {
-      ThreadSelection selection = debugger.getSelectedThread();
-      if (selection.equals(ThreadSelection.ALL)) {
-        debugger.suspendAll();
-      } else if (!selection.equals(ThreadSelection.NONE)) {
-        debugger.suspend(selection.getThreadId());
-      }
-    });
-    reloadBtn.setOnAction(event -> debugger.requireThreadContexts());
-
-    stepOverBtn.setOnAction(event -> {
-      ThreadSelection selection = debugger.getSelectedThread();
-      if (isParticularThreadSelected(selection)) {
-        debugger.stepOver(selection.getThreadId());
-      }
-    });
-    stepIntoBtn.setOnAction(event -> {
-      ThreadSelection selection = debugger.getSelectedThread();
-      if (isParticularThreadSelected(selection)) {
-        debugger.stepInto(selection.getThreadId());
-      }
-    });
-    stepOutBtn.setOnAction(event -> {
-      ThreadSelection selection = debugger.getSelectedThread();
-      if (isParticularThreadSelected(selection)) {
-        debugger.stepOut(selection.getThreadId());
-      }
-    });
-    debugger.getCallbackRegistry().getOnThreadSelectionChanged().add(
+    resumeBtn.setOnAction(event -> debugger.resume());
+    suspendBtn.setOnAction(event -> debugger.suspend());
+    reloadBtn.setOnAction(event -> debugger.requestThreadContexts());
+    stepOverBtn.setOnAction(event -> debugger.stepOver());
+    stepIntoBtn.setOnAction(event -> debugger.stepInto());
+    stepOutBtn.setOnAction(event -> debugger.stepOut());
+    debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(
         event -> setStepButtonsEnable(isParticularThreadSelected(event.newVal())));
-    setStepButtonsEnable(isParticularThreadSelected(debugger.getSelectedThread()));
+    setStepButtonsEnable(isParticularThreadSelected(debugger.getCurrentThread()));
   }
 
   /** 特定のスレッドが選択されているかどうかを調べる. */

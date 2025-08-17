@@ -19,8 +19,8 @@ package net.seapanda.bunnyhop.control.debugger;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
-import net.seapanda.bunnyhop.bhprogram.ThreadSelection;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
+import net.seapanda.bunnyhop.bhprogram.debugger.ThreadSelection;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.view.ViewUtil;
 
@@ -42,11 +42,11 @@ public class ThreadSelectorController {
     threadComboBox.setCellFactory(items -> new ThreadSelectorListCell());
     threadComboBox.valueProperty().addListener((observable, oldVal, newVal) -> {
       if (newVal == null) {
-        debugger.selectThread(ThreadSelection.NONE);
+        debugger.selectCurrentThread(ThreadSelection.NONE);
       } else if (newVal == threadIdForAll) {
-        debugger.selectThread(ThreadSelection.ALL);
+        debugger.selectCurrentThread(ThreadSelection.ALL);
       } else {
-        debugger.selectThread(ThreadSelection.of(newVal));
+        debugger.selectCurrentThread(ThreadSelection.of(newVal));
       }
     });
     debugger.getCallbackRegistry().getOnCleared().add(event -> reset());

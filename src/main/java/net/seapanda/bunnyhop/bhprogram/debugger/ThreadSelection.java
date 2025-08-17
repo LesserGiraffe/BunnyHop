@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram;
+package net.seapanda.bunnyhop.bhprogram.debugger;
 
 import java.util.Objects;
 
 /**
- * スレッドの選択を表すクラス.
+ * スレッドの選択状態を表すクラス.
  *
  * @author K.Koike
  */

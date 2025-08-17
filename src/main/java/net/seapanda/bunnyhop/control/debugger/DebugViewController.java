@@ -21,11 +21,11 @@ import java.util.Map;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import net.seapanda.bunnyhop.bhprogram.ThreadSelection;
 import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
-import net.seapanda.bunnyhop.bhprogram.debugger.Debugger.ThreadSelectionEvent;
+import net.seapanda.bunnyhop.bhprogram.debugger.Debugger.CurrentThreadChangedEvent;
 import net.seapanda.bunnyhop.bhprogram.debugger.ThreadContext;
+import net.seapanda.bunnyhop.bhprogram.debugger.ThreadSelection;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.ViewUtil;
@@ -52,9 +52,9 @@ public class DebugViewController {
     this.factory = factory;
     this.debugger = debugger;
     Debugger.CallbackRegistry registry = debugger.getCallbackRegistry();
-    registry.getOnThreadContextReceived().add(event -> addThreadContext(event.context()));
+    registry.getOnThreadContextAdded().add(event -> addThreadContext(event.context()));
     registry.getOnCleared().add(event -> clear());
-    debugger.getCallbackRegistry().getOnThreadSelectionChanged().add(this::showCallStackView);
+    debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(this::showCallStackView);
   }
 
   /**
@@ -78,7 +78,7 @@ public class DebugViewController {
     threadIdToCallStackView.put(threadId, callStackView);
     threadIdToContext.put(threadId, context);
     boolean isSelectedThread =
-        debugger.getSelectedThread().equals(ThreadSelection.of(context.threadId()));
+        debugger.getCurrentThread().equals(ThreadSelection.of(context.threadId()));
     if (isSelectedThread) {
       ViewUtil.runSafe(() -> callStackScrollPane.setContent(callStackView));
     }
@@ -95,7 +95,7 @@ public class DebugViewController {
   }
 
   /** コールスタックビューを表示する. */
-  private void showCallStackView(ThreadSelectionEvent event) {
+  private void showCallStackView(CurrentThreadChangedEvent event) {
     Node callStackView = null;
     if (!event.newVal().equals(ThreadSelection.ALL)
         && !event.newVal().equals(ThreadSelection.NONE)) {
