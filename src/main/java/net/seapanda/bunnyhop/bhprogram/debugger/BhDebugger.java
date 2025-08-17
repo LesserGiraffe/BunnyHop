@@ -19,10 +19,6 @@ package net.seapanda.bunnyhop.bhprogram.debugger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
@@ -39,18 +35,14 @@ import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepIntoCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepOutCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.StepOverCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.SuspendThreadCmd;
-import net.seapanda.bunnyhop.bhprogram.common.message.exception.BhProgramException;
 import net.seapanda.bunnyhop.bhprogram.debugger.variable.VariableInfo;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
 import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
 import net.seapanda.bunnyhop.common.BhSettings;
-import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
-import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
  * BhProgram のデバッガクラス.
@@ -59,27 +51,20 @@ import net.seapanda.bunnyhop.view.node.BhNodeView;
  */
 public class BhDebugger implements Debugger {
   
-  private final MessageService msgService;
   private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
   /** 「現在のスレッド」として選択されたスレッド. */
   private volatile ThreadSelection currentThread = ThreadSelection.NONE;
   /** 「現在のスタックフレーム」として選択されたスタックフレーム. */
   private volatile StackFrameSelection currentStackFrame = StackFrameSelection.NONE;
-  /** 次に実行するノードのビューのセット. */
-  private final Set<BhNodeView> nextStepView = new HashSet<>();
-  /** スレッド ID とスレッドコンテキストのマップ. */
-  private final Map<Long, ThreadContext> threadIdToContext = new HashMap<>();
   private final LocalBhRuntimeController localBhRuntimeCtrl;
   private final RemoteBhRuntimeController remoteBhRuntimeCtrl;
   private final BreakpointRegistry breakpointRegistry = new BreakpointRegistry();
 
   /** コンストラクタ. */
   public BhDebugger(
-      MessageService msgService,
       LocalBhRuntimeController localBhRuntimeCtrl,
       RemoteBhRuntimeController remoteBhRuntimeCtrl,
       WorkspaceSet wss) {
-    this.msgService = msgService;
     this.localBhRuntimeCtrl = localBhRuntimeCtrl;
     this.remoteBhRuntimeCtrl = remoteBhRuntimeCtrl;
     setEventHandlers(wss);
@@ -126,8 +111,6 @@ public class BhDebugger implements Debugger {
   @Override
   public void clear() {
     cbRegistry.onClearedInvoker.invoke(new ClearEvent(this));
-    threadIdToContext.clear();
-    nextStepView.forEach(view -> view.getLookManager().setNextStepMarkVisibility(false));
   }
 
   @Override
@@ -137,26 +120,13 @@ public class BhDebugger implements Debugger {
 
   @Override
   public synchronized void add(ThreadContext context) {
-    threadIdToContext.put(context.threadId(), context);
-    showNextStepMarks();
-    if (context.exception() != null) {
-      outputErrMsg(context.exception());
-    }
-    var event = new ThreadContextAddedEvent(this, context);
-    cbRegistry.onThreadContextAddedInvoker.invoke(event);
+    cbRegistry.onThreadContextAddedInvoker.invoke(new ThreadContextAddedEvent(this, context));
   }
 
   @Override
   public synchronized void add(VariableInfo variableInfo) {
     var event = new VariableInfoAddedEvent(this, variableInfo);
     cbRegistry.onVariableInfoAddedInvoker.invoke(event);
-  }
-
-  /** {@code exception} が持つエラーメッセージを出力する. */
-  private void outputErrMsg(BhProgramException exception) {
-    String errMsg = DebugUtil.getErrMsg(exception);
-    String runtimeErrOccurred = TextDefs.Debugger.runtimeErrOccurred.get();
-    msgService.error("%s\n%s\n".formatted(runtimeErrOccurred, errMsg));
   }
 
   @Override
@@ -264,7 +234,6 @@ public class BhDebugger implements Debugger {
       final var event = new CurrentThreadChangedEvent(this, currentThread, selection);
       currentThread = selection;
       selectCurrentStackFrame(StackFrameSelection.NONE);
-      showNextStepMarks();
       cbRegistry.onCurrentThreadChanged.invoke(event);
     }
   }
@@ -300,34 +269,6 @@ public class BhDebugger implements Debugger {
       case LOCAL ->  localBhRuntimeCtrl;
       case REMOTE ->  remoteBhRuntimeCtrl;
     };
-  }
-
-  /** {@link #currentThread} で指定されたスレッドで次に実行されるノードに, そのことを示すマークを付ける. */
-  private void showNextStepMarks() {
-    if (currentThread.equals(ThreadSelection.NONE)) {
-      return;
-    }
-    Set<ThreadContext> contexts = new HashSet<>();
-    if (currentThread.equals(ThreadSelection.ALL)) {
-      contexts.addAll(threadIdToContext.values());
-    } else if (threadIdToContext.containsKey(currentThread.getThreadId())) {
-      contexts.add(threadIdToContext.get(currentThread.getThreadId()));
-    }
-    nextStepView.forEach(view -> view.getLookManager().setNextStepMarkVisibility(false));
-
-    for (ThreadContext context : contexts) {
-      if (context.callStack().isEmpty()) {
-        continue;
-      }
-      CallStackItem top = context.callStack().getLast();
-      if (!top.isNotCalled()) {
-        continue;
-      }
-      if (top.getNode().flatMap(BhNode::getView).orElse(null) instanceof BhNodeView view) {
-        view.getLookManager().setNextStepMarkVisibility(true);
-        nextStepView.add(view);
-      }
-    }
   }
 
   /**

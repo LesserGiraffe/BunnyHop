@@ -56,6 +56,7 @@ import net.seapanda.bunnyhop.common.TextFetcher;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.BhCompilerImpl;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
+import net.seapanda.bunnyhop.control.debugger.ThreadContextPresenter;
 import net.seapanda.bunnyhop.control.nodeselection.BhNodeSelectionViewProxyImpl;
 import net.seapanda.bunnyhop.export.JsonProjectExporter;
 import net.seapanda.bunnyhop.export.JsonProjectImporter;
@@ -227,8 +228,8 @@ public class AppMain extends Application {
           new RmiRemoteBhRuntimeController(msgService, scriptRepository);
       final var remoteBhProgramCtrl =
           new RemoteBhProgramControllerImpl(remoteCompiler, remoteRuntimeCtrl, msgService);
-      final var debugger =
-          new BhDebugger(msgService, localRuntimeCtrl, remoteRuntimeCtrl, wss);
+      final var debugger = new BhDebugger(localRuntimeCtrl, remoteRuntimeCtrl, wss);
+      new ThreadContextPresenter(debugger, msgService);
       final var debugMsgProcessor = new BhDebugMessageProcessor(wss, debugger);
       final var msgProcessor = new BhProgramMessageProcessorImpl(msgService, debugMsgProcessor);
       final var localMsgDispatcher =
