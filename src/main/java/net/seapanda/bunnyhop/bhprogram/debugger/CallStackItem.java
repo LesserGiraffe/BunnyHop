@@ -45,7 +45,7 @@ public class CallStackItem {
    * @param idx このコールスタックアイテムのインデックス
    * @param threadId このコールスタックアイテムに対応する関数呼び出しを行ったスレッドの ID
    * @param name このコールスタックアイテムの名前
-   * @param node このコールスタックアイテムに対応するノード
+   * @param node このコールスタックアイテムに対応するノード (nullable)
    * @param isNotCalled このコールスタックアイテムに対応する関数呼び出しをまだ行っていない場合 true
    */
   public CallStackItem(int idx, long threadId, String name, BhNode node, boolean isNotCalled) {

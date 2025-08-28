@@ -28,6 +28,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import net.seapanda.bunnyhop.bhprogram.debugger.CallStackItem;
+import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
+import net.seapanda.bunnyhop.bhprogram.debugger.StackFrameSelection;
 import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.control.SearchBox;
@@ -57,6 +59,7 @@ public class CallStackController {
   private final List<CallStackItem> callStack;
   private final ModelAccessNotificationService notifService;
   private final SearchBox searchBox;
+  private final Debugger debugger;
 
   /**
    * コンストラクタ.
@@ -68,10 +71,12 @@ public class CallStackController {
   public CallStackController(
       SequencedCollection<CallStackItem> callStack,
       ModelAccessNotificationService notifService,
-      SearchBox searchBox) {
+      SearchBox searchBox,
+      Debugger debugger) {
     this.notifService = notifService;
     this.callStack = new ArrayList<CallStackItem>(callStack);
     this.searchBox = searchBox;
+    this.debugger = debugger;
   }
 
   /**
@@ -118,16 +123,17 @@ public class CallStackController {
     try {
       var userOpe = new UserOperation(); // コールスタックの選択は undo / redo の対象にしない
       if (deselected != null) {
-        deselected.deselect(userOpe);
         if (csJumpCheckBox.isSelected()) {
           deselected.getNode().ifPresent(node -> node.deselect(context.userOpe()));
         }
       }
       if (selected != null) {
-        selected.select(userOpe);
+        debugger.selectCurrentStackFrame(StackFrameSelection.of(selected.getIdx()));
         if (csJumpCheckBox.isSelected()) {
           selected.getNode().ifPresent(node -> jump(node, context.userOpe()));
         }
+      } else {
+        debugger.selectCurrentStackFrame(StackFrameSelection.NONE);
       }
     } finally {
       notifService.end();

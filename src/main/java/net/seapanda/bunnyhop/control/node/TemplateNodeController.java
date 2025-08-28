@@ -84,7 +84,7 @@ public class TemplateNodeController implements BhNodeController {
     setEventHandlers();
   }
 
-  /** 各種イベントハンドラをセットする. */
+  /** イベントハンドラをセットする. */
   private void setEventHandlers() {
     BhNodeView.CallbackRegistry registry = view.getCallbackRegistry();
     registry.getOnMousePressed().setFirst(this::onMousePressed);
@@ -115,7 +115,7 @@ public class TemplateNodeController implements BhNodeController {
       Vec2D posOnWs = calcClickPosOnWs(event, currentWs);
       BhNodePlacer.moveToWs(currentWs, newNode, posOnWs.x, posOnWs.y, context.userOpe());
       ddInfo.currentView.getCallbackRegistry().forward(info);
-      nodeSelectionViewProxy.hideAll();
+      nodeSelectionViewProxy.hideCurrentView();
     } catch (Throwable e) {
       terminateDnd();
       throw e;

@@ -178,7 +178,7 @@ public class WorkspaceSet {
   /** {@link WorkspaceSet} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistry {
 
-    /** 関連するワークスペースセット以下のノードの選択状態が変更されたときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するワークスペースセット以下のノードの選択状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeSelectionEvent> onNodeSelStateChangedInvoker =
         new ConsumerInvoker<>();
     
@@ -190,11 +190,11 @@ public class WorkspaceSet {
     private final ConsumerInvoker<NodeBreakpointSetEvent>
         onNodeBreakpointSetInvoker = new ConsumerInvoker<>();
 
-    /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker =
         new ConsumerInvoker<>();
 
-    /** 関連するワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
         new ConsumerInvoker<>();
 
@@ -207,20 +207,20 @@ public class WorkspaceSet {
 
     /**
      * 関連するワークスペースセットのワークスペースのルートノード一式から
-     * ルートノードが削除されたときのイベントハンドラをを管理するオブジェクト.
+     * ルートノードが削除されたときのイベントハンドラを管理するオブジェクト.
      */
     private final ConsumerInvoker<RootNodeRemovedEvent> onRootNodeRemovedInvoker = 
         new ConsumerInvoker<>();
     
-    /** 関連するワークスペースセットにワークスペースが追加されたときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するワークスペースセットにワークスペースが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceAddedEvent> onWsAddedInvoker =
         new ConsumerInvoker<>();
 
-    /** 関連するワークスペースセットからワークスペースが削除されたときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するワークスペースセットからワークスペースが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceRemovedEvent> onWsRemovedInvoker =
         new ConsumerInvoker<>();
 
-    /** 関連するワークスペースセットで操作対象のワークスペースが変わったときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するワークスペースセットで操作対象のワークスペースが変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<CurrentWorkspaceChangedEvent> onCurrentWsChangedInvoker =
         new ConsumerInvoker<>();
 

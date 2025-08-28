@@ -87,10 +87,6 @@ public class CallStackCell extends ListCell<CallStackItem> {
 
   private void decorateText(boolean val) {
     PseudoClass cls = PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_TEXT_DECORATE);
-    if (val) {
-      pseudoClassStateChanged(cls, true);
-    } else {
-      pseudoClassStateChanged(cls, false);
-    }
+    pseudoClassStateChanged(cls, val);
   }
 }

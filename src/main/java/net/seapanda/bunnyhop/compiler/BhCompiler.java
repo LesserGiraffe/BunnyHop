@@ -41,5 +41,5 @@ public interface BhCompiler {
       throws CompileError;
 
   /** エントリポイントとなるノードの処理を呼ぶ関数の ID. */
-  InstanceId startupRoutineId();
+  InstanceId mainRoutineId();
 }

@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.control.nodeselection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ import javafx.scene.input.ScrollEvent;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 
@@ -39,6 +41,9 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
   private final Map<String, BhNodeSelectionView> categoryNameToSelectionView = new HashMap<>();
   private final Map<String, Workspace> categoryNameToWorkspace = new HashMap<>();
   private final Consumer<BhNodeSelectionView> fnAddNodeSelectionViewToGuiTree;
+  private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
+  /** 現在表示している BhNode のカテゴリ. */
+  private String currentCategory = null;
 
   /**
    * コンストラクタ.
@@ -58,8 +63,8 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
     Workspace.CallbackRegistry registry = workspace.getCallbackRegistry();
     registry.getOnNodeAdded().add(event -> addNodeView(event.node(), view));
     registry.getOnNodeRemoved().add(event -> removeNodeView(event.node(), view));
-    registry.getOnRootNodeAdded().add(event -> speficyNodeViewAsRoot(event.node(), view));
-    registry.getOnRootNodeRemoved().add(event -> speficyNodeViewAsNotRoot(event.node(), view));
+    registry.getOnRootNodeAdded().add(event -> specifyNodeViewAsRoot(event.node(), view));
+    registry.getOnRootNodeRemoved().add(event -> specifyNodeViewAsNotRoot(event.node(), view));
     view.getRegion().addEventFilter(ScrollEvent.ANY, event -> onScrolled(event));
     fnAddNodeSelectionViewToGuiTree.accept(view);
   }
@@ -80,18 +85,22 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
   /** {@code node} のノードビューをノード選択リストから削除する. */
   private void removeNodeView(BhNode node, BhNodeSelectionView view) {
     node.getView().ifPresent(view::removeNodeViewTree);
-    if (view.getNumNodeViewTrees() == 0) {
+    if (view.getNumNodeViewTrees() == 0 && view.isShowed()) {
       view.hide();
+      String oldCategory = currentCategory;
+      currentCategory = null;
+      cbRegistry.onCurrentCategoryChangedInvoker
+          .invoke(new CurrentCategoryChangedEvent(this, oldCategory, null));
     }
   }
 
   /** {@code node} をルートノードとしてノード選択ビューに設定する. */
-  private void speficyNodeViewAsRoot(BhNode node, BhNodeSelectionView view) {
+  private void specifyNodeViewAsRoot(BhNode node, BhNodeSelectionView view) {
     node.getView().ifPresent(view::specifyNodeViewAsRoot);
   }
 
   /** {@code node} を非ルートノードとしてノード選択ビューに設定する. */
-  private void speficyNodeViewAsNotRoot(BhNode node, BhNodeSelectionView view) {
+  private void specifyNodeViewAsNotRoot(BhNode node, BhNodeSelectionView view) {
     node.getView().ifPresent(view::specifyNodeViewAsNotRoot);
   }
 
@@ -113,11 +122,11 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
 
   @Override
   public SequencedSet<BhNode> getNodeTrees(String categoryName) {
-    BhNodeSelectionView selectionView = categoryNameToSelectionView.get(categoryName);
-    if (selectionView == null) {
+    BhNodeSelectionView view = categoryNameToSelectionView.get(categoryName);
+    if (view == null) {
       return new LinkedHashSet<>();
     }
-    return selectionView.getNodeViewList().stream()
+    return view.getNodeViewList().stream()
         .filter(nodeView -> nodeView.getModel().isPresent())
         .map(nodeView -> nodeView.getModel().get())
         .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -134,31 +143,50 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
     if (view == null) {
       return;
     }
-    hideAll();
+    Optional.ofNullable(currentCategory)
+        .map(categoryNameToSelectionView::get)
+        .ifPresent(BhNodeSelectionView::hide);
     view.show();
+
+    String oldCategory = currentCategory;
+    currentCategory = categoryName;
+    cbRegistry.onCurrentCategoryChangedInvoker
+        .invoke(new CurrentCategoryChangedEvent(this, oldCategory, categoryName));
   }
 
   @Override
-  public void hideAll() {
-    for (BhNodeSelectionView view : categoryNameToSelectionView.values()) {
-      if (view.isShowed()) {
-        view.hide();
-      }
+  public void hideCurrentView() {
+    if (currentCategory == null) {
+      return;
     }
+    BhNodeSelectionView view = categoryNameToSelectionView.get(currentCategory);
+    view.hide();
+    String oldCategory = currentCategory;
+    currentCategory = null;
+    cbRegistry.onCurrentCategoryChangedInvoker
+        .invoke(new CurrentCategoryChangedEvent(this, oldCategory, null));
   }
 
   @Override
-  public boolean isShowed(String categoryName) {
-    BhNodeSelectionView view = categoryNameToSelectionView.get(categoryName);
-    if (view == null) {
-      return false;
+  public Optional<String> getCurrentCategoryName() {
+    return Optional.ofNullable(currentCategory);
+  }
+
+  @Override
+  public CallbackRegistry getCallbackRegistry() {
+    return cbRegistry;
+  }
+
+  /** {@link BhNodeSelectionViewProxy} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
+  class CallbackRegistryImpl implements CallbackRegistry {
+
+    /** 選択中の BhNode のカテゴリが変更されたときのイベントハンドラを管理するオブジェクト. */
+    ConsumerInvoker<CurrentCategoryChangedEvent> onCurrentCategoryChangedInvoker =
+        new ConsumerInvoker<>();
+
+    @Override
+    public ConsumerInvoker<CurrentCategoryChangedEvent>.Registry getOnCurrentCategoryChanged() {
+      return onCurrentCategoryChangedInvoker.getRegistry();
     }
-    return view.isShowed();
-  }
-
-  @Override
-  public boolean isAnyShowed() {
-    return categoryNameToSelectionView.values().stream()
-        .anyMatch(view -> view.getRegion().visibleProperty().get());
   }
 }

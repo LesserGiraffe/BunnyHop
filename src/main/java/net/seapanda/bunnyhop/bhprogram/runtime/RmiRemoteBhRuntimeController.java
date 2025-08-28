@@ -609,11 +609,11 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   /** {@link BhRuntimeController} に対するイベントハンドラの登録および削除操作を提供するクラス. */
   public class CallbackRegistryImpl implements BhRuntimeController.CallbackRegistry {
 
-    /** BhRuntime との通信用オブジェクトが置き換わったときのイベントハンドラをを管理するオブジェクト. */
+    /** BhRuntime との通信用オブジェクトが置き換わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<MessageCarrierRenewedEvent> onMsgCarrierRenewed =
         new ConsumerInvoker<>();
 
-    /** BhRuntime との通信が有効または無効になったときのイベントハンドラをを管理するオブジェクト. */
+    /** BhRuntime との通信が有効または無効になったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<ConnectionEvent> onConnCondChanged = new ConsumerInvoker<>();
 
     @Override

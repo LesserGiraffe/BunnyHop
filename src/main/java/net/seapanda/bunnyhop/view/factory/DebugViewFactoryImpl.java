@@ -23,8 +23,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.debugger.CallStackItem;
+import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
+import net.seapanda.bunnyhop.bhprogram.debugger.variable.VariableInfo;
 import net.seapanda.bunnyhop.control.SearchBox;
 import net.seapanda.bunnyhop.control.debugger.CallStackController;
+import net.seapanda.bunnyhop.control.debugger.VariableInspectionController;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 
@@ -36,17 +39,23 @@ import net.seapanda.bunnyhop.view.ViewConstructionException;
 public class DebugViewFactoryImpl implements DebugViewFactory {
   
   private final Path callStackViewFilePath;
+  private final Path varInspectionViewFilePath;
   private final ModelAccessNotificationService service;
   private final SearchBox searchBox;
+  private final Debugger debugger;
   
   /** コンストラクタ. */
   public DebugViewFactoryImpl(
       Path callStackViewFilePath,
+      Path varInspectionViewFilePath,
       ModelAccessNotificationService service,
-      SearchBox searchBox) {
+      SearchBox searchBox,
+      Debugger debugger) {
     this.callStackViewFilePath = callStackViewFilePath;
+    this.varInspectionViewFilePath = varInspectionViewFilePath;
     this.service = service;
     this.searchBox = searchBox;
+    this.debugger = debugger;
   }
 
   @Override
@@ -54,7 +63,7 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
       throws ViewConstructionException {
     try {
       var root = new VBox();
-      var ctrl = new CallStackController(items, service, searchBox);
+      var ctrl = new CallStackController(items, service, searchBox, debugger);
       FXMLLoader loader = new FXMLLoader(callStackViewFilePath.toUri().toURL());
       loader.setRoot(root);
       loader.setController(ctrl);
@@ -64,6 +73,25 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
       throw new ViewConstructionException(String.format(
           "Failed to initialize call stack view (%s).\n%s",
           callStackViewFilePath.toAbsolutePath(),
+          e));
+    }
+  }
+
+  @Override
+  public Node createVariableInspectionView(VariableInfo varInfo, String viewName)
+      throws ViewConstructionException {
+    try {
+      var root = new VBox();
+      var ctrl = new VariableInspectionController(varInfo, viewName, service, searchBox, debugger);
+      FXMLLoader loader = new FXMLLoader(varInspectionViewFilePath.toUri().toURL());
+      loader.setRoot(root);
+      loader.setController(ctrl);
+      loader.load();
+      return root;
+    } catch (IOException e) {
+      throw new ViewConstructionException(String.format(
+          "Failed to initialize call stack view (%s).\n%s",
+          varInspectionViewFilePath.toAbsolutePath(),
           e));
     }
   }

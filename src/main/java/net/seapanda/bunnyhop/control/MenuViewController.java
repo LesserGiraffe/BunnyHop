@@ -346,7 +346,7 @@ public class MenuViewController {
   private void zoomIn(WorkspaceSet wss) {
     notifService.begin();
     try {
-      if (proxy.isAnyShowed()) {
+      if (proxy.getCurrentCategoryName().isPresent()) {
         proxy.zoom(true);
         return;
       }
@@ -362,7 +362,7 @@ public class MenuViewController {
   private void zoomOut(WorkspaceSet wss) {
     notifService.begin();
     try {
-      if (proxy.isAnyShowed()) {
+      if (proxy.getCurrentCategoryName().isPresent()) {
         proxy.zoom(false);
         return;
       }

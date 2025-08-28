@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.view.factory;
 import java.util.SequencedCollection;
 import javafx.scene.Node;
 import net.seapanda.bunnyhop.bhprogram.debugger.CallStackItem;
+import net.seapanda.bunnyhop.bhprogram.debugger.variable.VariableInfo;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 
 /**
@@ -36,5 +37,16 @@ public interface DebugViewFactory {
    * @throws ViewConstructionException ビューの初期化に失敗した場合
    */
   Node createCallStackView(SequencedCollection<CallStackItem> items)
+      throws ViewConstructionException;
+
+
+  /**
+   * 変数情報を表示するビューを作成する.
+   *
+   * @param varInfo 表示する変数情報を格納したオブジェクト
+   * @return 変数情報を表示するビューのルート要素.
+   * @throws ViewConstructionException ビューの初期化に失敗した場合
+   */
+  Node createVariableInspectionView(VariableInfo varInfo, String viewName)
       throws ViewConstructionException;
 }

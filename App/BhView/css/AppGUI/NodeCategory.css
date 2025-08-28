@@ -107,7 +107,6 @@
 
 #categoryTree .funcDef:hover {
   -fx-background: derive(voidFuncTypeCol, 50% );
-  -fx-border-color: black;
 }
 
 /*-------------------VarListOpe-----------------*/
@@ -119,7 +118,6 @@
 
 #categoryTree .varAndListOpe:hover {
   -fx-background: linear-gradient(from 0em 0em to 0.0em 0.5em, repeat, #F0F0F0 70%, #FFFFFF 0em);
-  -fx-border-color: black;
 }
 /*-------------------var and list ---------------*/
 
@@ -130,19 +128,17 @@
 
 #categoryTree .varAndList:hover {
   -fx-background: linear-gradient(to right, #FFA0A0, #A0FFA0, #A0A0FF);
-  -fx-border-color: black;
 }
 
 /*------------------- concurrent ---------------*/
-#categoryTree .concurrent {
+#categoryTree .event {
   -fx-background: derive(concurrentTypeCol, 0%);
   -fx-border-color: black;
   -fx-text-fill: white;
 }
 
-#categoryTree .concurrent:hover {
+#categoryTree .event:hover {
   -fx-background: derive(concurrentTypeCol, 50%);
-  -fx-border-color: black;
 }
 
 /*------------------- misc ---------------*/
@@ -154,7 +150,6 @@
 
 #categoryTree .misc:hover {
   -fx-background: derive(miscTypeCol, 50%);
-  -fx-border-color: black;
 }
 
 

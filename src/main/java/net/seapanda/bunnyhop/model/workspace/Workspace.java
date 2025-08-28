@@ -272,7 +272,7 @@ public class Workspace implements Serializable {
   /** {@link Workspace} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistry {
 
-    /** 関連するワークスペースのノードの選択状態が変更されたときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するワークスペースのノードの選択状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeSelectionEvent> onNodeSelStateChangedInvoker =
         new ConsumerInvoker<>();
     
@@ -284,11 +284,11 @@ public class Workspace implements Serializable {
     private final ConsumerInvoker<NodeBreakpointSetEvent> onNodeBreakpointSetInvoker =
         new ConsumerInvoker<>();
 
-    /** 関連するワークスペースにノードが追加されたときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するワークスペースにノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker =
         new ConsumerInvoker<>();
 
-    /** 関連するワークスペースからノードが削除されたときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するワークスペースからノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
         new ConsumerInvoker<>();
 

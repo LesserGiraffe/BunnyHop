@@ -181,11 +181,11 @@ public class CutAndPaste {
   /** {@link CutAndPaste} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistry {
     
-    /** カット予定のノードが追加されたときのイベントハンドラをを管理するオブジェクト. */
+    /** カット予定のノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker = 
         new ConsumerInvoker<>();
 
-    /** カット予定のノードが削除されたときのイベントハンドラをを管理するオブジェクト. */
+    /** カット予定のノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
         new ConsumerInvoker<>();
 
@@ -196,12 +196,12 @@ public class CutAndPaste {
       }
     };
 
-    /** カット予定のノードが追加されたときのイベントハンドラをを管理するオブジェクト. */
+    /** カット予定のノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     public ConsumerInvoker<NodeAddedEvent>.Registry getOnNodeAdded() {
       return onNodeAddedInvoker.getRegistry();
     }
 
-    /** カット予定のノードが削除されたときのイベントハンドラをを管理するオブジェクト. */
+    /** カット予定のノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     public ConsumerInvoker<NodeRemovedEvent>.Registry getOnNodeRemoved() {
       return onNodeRemovedInvoker.getRegistry();
     }

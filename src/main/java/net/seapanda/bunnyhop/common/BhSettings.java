@@ -48,7 +48,8 @@ public class BhSettings {
     public static volatile int maxCallStackItems = 32;
     /** ブレークポイントの設定が有効かどうか. */
     public static volatile boolean isBreakpointSettingEnabled = false;
-
+    /** リスト変数を階層表示する際に, 各階層で表示可能な最大の子要素の数. */
+    public static volatile int maxListTreeChildren = 100;
   }
 
   /** BhRuntime に関するパラメータ. */

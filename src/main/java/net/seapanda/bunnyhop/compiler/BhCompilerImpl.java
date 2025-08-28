@@ -48,7 +48,7 @@ public class BhCompilerImpl implements BhCompiler {
   private final CommonCodeGenerator common;
   private final GlobalDataDeclCodeGenerator globalDataDeclCodeGen;
   private final List<String> commonCodeList;
-  private final InstanceId startupRoutineId = InstanceId.of(ScriptIdentifiers.Funcs.BH_MAIN);
+  private final InstanceId mainRoutineId = InstanceId.of(ScriptIdentifiers.Funcs.BH_MAIN);
 
   /**
    * コンストラクタ.
@@ -146,7 +146,7 @@ public class BhCompilerImpl implements BhCompiler {
     }
     String lockVar = Keywords.Prefix.lockVar + ScriptIdentifiers.Funcs.BH_MAIN;
     eventHandlerCodeGen.genHeaderSnippetOfEventCall(
-        code, startupRoutineId, false, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 0, option);
+        code, mainRoutineId, false, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 0, option);
     expCodeGen.genExpression(code, entryPoint, 4, option);
     statCodeGen.genStatement(entryPoint, code, 4, option);
     eventHandlerCodeGen.genFooterSnippetOfEventCall(code, lockVar, 0, option);
@@ -211,7 +211,7 @@ public class BhCompilerImpl implements BhCompiler {
   }
 
   @Override
-  public InstanceId startupRoutineId() {
-    return startupRoutineId;
+  public InstanceId mainRoutineId() {
+    return mainRoutineId;
   }
 }

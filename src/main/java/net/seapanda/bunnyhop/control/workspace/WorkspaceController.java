@@ -114,7 +114,7 @@ public class WorkspaceController {
       ddInfo.context = notifService.begin();   
       ddInfo.isDndFinished = false;
       if (!event.isShiftDown()) {
-        nodeSelectionViewProxy.hideAll();
+		nodeSelectionViewProxy.hideCurrentView();
         model.getSelectedNodes().forEach(node -> node.deselect(ddInfo.context.userOpe()));
       }
       view.getRootNodeViews().forEach(

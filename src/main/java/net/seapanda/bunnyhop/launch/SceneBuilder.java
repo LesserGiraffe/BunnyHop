@@ -50,7 +50,6 @@ import net.seapanda.bunnyhop.export.ProjectExporter;
 import net.seapanda.bunnyhop.export.ProjectImporter;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.model.factory.WorkspaceFactory;
-import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryTree;
 import net.seapanda.bunnyhop.model.workspace.CopyAndPaste;
 import net.seapanda.bunnyhop.model.workspace.CutAndPaste;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
@@ -63,8 +62,8 @@ import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryProvider;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeShowcaseBuilder;
 
 /**
  * GUI 画面のロードと初期化を行う.
@@ -119,8 +118,7 @@ public class SceneBuilder {
   /** GUI を構築するオブジェクトを初期化する. */
   public void initialize(
       WorkspaceSet wss,
-      BhNodeCategoryTree nodeCategoryList,
-      BhNodeShowcaseBuilder builder,
+      BhNodeCategoryProvider nodeCategoryProvider,
       ModelAccessNotificationService service,
       WorkspaceFactory wsFactory,
       DebugViewFactory debugViewFactory,
@@ -136,22 +134,21 @@ public class SceneBuilder {
       Debugger debugger) throws AppInitializationException {
     if (!foundationCtrl.initialize(
         wss,
-        nodeCategoryList,
-         builder,
-         service,
-         wsFactory,
-         debugViewFactory,
-         undoRedoAgent,
-         proxy,
-         localCtrl,
-         remoteCtrl,
-         importer,
-         exporter,
-         copyAndPaste,
-         cutAndPaste,
-         msgService,
-         debugger,
-         debugWindowCtrl)) {
+        nodeCategoryProvider,
+        service,
+        wsFactory,
+        debugViewFactory,
+        undoRedoAgent,
+        proxy,
+        localCtrl,
+        remoteCtrl,
+        importer,
+        exporter,
+        copyAndPaste,
+        cutAndPaste,
+        msgService,
+        debugger,
+        debugWindowCtrl)) {
       throw new AppInitializationException("Failed to initialize a FoundationController.");
     }
     debugWindowCtrl.initialize(debugger);

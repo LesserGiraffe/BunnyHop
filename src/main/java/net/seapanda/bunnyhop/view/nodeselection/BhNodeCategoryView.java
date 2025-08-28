@@ -18,14 +18,16 @@ package net.seapanda.bunnyhop.view.nodeselection;
 
 import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
+import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategory;
 
 /**
  * ノード選択用 TreeView の各セルのビュークラス.
- * <p>
- * TreeView のモデルとビューの結びつきは動的に変わる.
- * </p>
+ *
+ * <p>TreeView のモデルとビューの結びつきは動的に変わる.
+ *
+ * @author K.Koike
  */
 public class BhNodeCategoryView extends TreeCell<BhNodeCategory> {
 
@@ -33,38 +35,39 @@ public class BhNodeCategoryView extends TreeCell<BhNodeCategory> {
 
   /** コンストラクタ. */
   public BhNodeCategoryView(BhNodeSelectionViewProxy proxy) {
-    // BhNode のカテゴリクリック時の処理
-    setOnMousePressed(event -> {
-      // カテゴリ名の無い TreeCell がクリックされた場合と表示済みカテゴリを再度クリックした場合はそれを隠す
-      if (isEmpty() || proxy.isShowed(model.categoryName)) {
-        proxy.hideAll();
-        select(false);
-      } else {
-        proxy.show(model.categoryName);
-        select(true);
+    selectedProperty().addListener((obs, oldVal, newVal) -> onSelected(newVal));
+
+    addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+      String categoryName = (model == null) ? null : model.name;
+      boolean isModelSelected = proxy.getCurrentCategoryName()
+          .map(category -> category.equals(categoryName))
+          .orElse(false);
+      if (isModelSelected) {
+        proxy.hideCurrentView();
+        event.consume();
       }
     });
   }
 
-  /** TreeItemの選択状態を解除する. */
-  private void select(boolean select) {
-    pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_SELECTED), select);
+  private void onSelected(boolean isSelected) {
+    pseudoClassStateChanged(
+        PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_SELECTED), isSelected);
   }
-  
+
   @Override
   protected void updateItem(BhNodeCategory category, boolean empty) {
-    model = category;
     super.updateItem(category, empty);
+    if (model != null) {
+      getStyleClass().removeLast();
+    }
     if (empty || category == null) {
-      select(false);
-      getStyleClass().clear();
-      getStyleClass().add("tree-cell");
       pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_EMPTY), true);
       setText(null);
     } else {
-      getStyleClass().add(model.getCssClass());
+      getStyleClass().add(category.getCssClass());
       pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_EMPTY), false);
       setText(category.toString());
     }
+    model = category;
   }
 }

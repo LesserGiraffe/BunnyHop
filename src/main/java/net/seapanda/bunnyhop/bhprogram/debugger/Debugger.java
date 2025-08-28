@@ -221,5 +221,8 @@ public interface Debugger {
    * @param newVal 変更後のスタックフレームの選択状態
    */
   record CurrentStackFrameChangedEvent(
-      Debugger debugger, ThreadSelection currentThread, StackFrameSelection oldVal, StackFrameSelection newVal) {}
+      Debugger debugger,
+      ThreadSelection currentThread,
+      StackFrameSelection oldVal,
+      StackFrameSelection newVal) {}
 }

@@ -42,7 +42,7 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 public class PrivateTemplateButtonController {
   
   /** 最後にプライベートテンプレートを作成したノード. */
-  private static AtomicReference<BhNode> lastClicked = new AtomicReference<>();
+  private static final AtomicReference<BhNode> lastClicked = new AtomicReference<>();
 
   private final BhNode node;
   private final ModelAccessNotificationService service;
@@ -70,10 +70,10 @@ public class PrivateTemplateButtonController {
         // 変数ノード配置 -> プライベートテンプレート表示 -> undo  で, 
         // オリジナルノードがワークスペースに存在しない状況で, 派生ノードをワークスペースに配置できてしまうのを防ぐ.
         // ただし, プライベートテンプレートノードの削除は行わない.
-        proxy.hideAll();
+        proxy.hideCurrentView();
       }
     });
-    button.setOnAction(event -> onTemplateCreating(event));
+    button.setOnAction(this::onTemplateCreating);
     button.addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
   }
 
@@ -88,14 +88,16 @@ public class PrivateTemplateButtonController {
     }
     try {
       Context context = service.begin();
+      boolean isPrivateTemplateShowed = proxy.getCurrentCategoryName()
+          .map(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE::equals)
+          .orElse(false);
       // 現在表示しているプライベートテンプレートを作ったボタンを押下した場合, プライベートテンプレートを閉じる
-      if (lastClicked.getAndSet(node) == node
-          && proxy.isShowed(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE)) {
-        proxy.hideAll();
+      if (lastClicked.getAndSet(node) == node && isPrivateTemplateShowed) {
+        proxy.hideCurrentView();
       } else {
         UserOperation userOpe = context.userOpe();
         deletePrivateTemplateNodes(userOpe);
-        proxy.hideAll();
+        proxy.hideCurrentView();
         String categoryName = BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE;
         SequencedSet<BhNode> templateNodes = createPrivateTemplates(userOpe);
         for (BhNode templateNode : templateNodes) {
@@ -113,17 +115,9 @@ public class PrivateTemplateButtonController {
     }
   }
 
-  /**
-   * 引数で指定したノード固有のテンプレートを作成する.
-   *
-   * @param model このノードのテンプレートノードを作成する.
-   */
+  /** {@link #node} のテンプレートを作成する. */
   private SequencedSet<BhNode> createPrivateTemplates(UserOperation userOpe) {
-    var privateTempladeNodes = new LinkedHashSet<BhNode>();
-    for (var templateNode : node.createCompanionNodes(MvcType.TEMPLATE, userOpe)) {
-      privateTempladeNodes.add(templateNode);
-    }
-    return privateTempladeNodes;
+    return new LinkedHashSet<BhNode>(node.createCompanionNodes(MvcType.TEMPLATE, userOpe));
   }
 
   /** プライベートテンプレートノードを全て消す. */

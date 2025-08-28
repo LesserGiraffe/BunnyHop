@@ -30,17 +30,27 @@
         </ScrollPane>
       </VBox>
 
-      <HBox>
+      <VBox>
         <ScrollPane
-          fx:id="variableScrollPane"
+          fx:id="localVarScrollPane"
           HbarPolicy="AS_NEEDED"
           VbarPolicy="AS_NEEDED"
           FitToWidth="true"
           FitToHeight="true"
           HBox.hgrow="ALWAYS">
-          <VBox fx:id="variablePane"/>
         </ScrollPane>
-      </HBox>
+      </VBox>
+
+      <VBox>
+        <ScrollPane
+          fx:id="globalVarScrollPane"
+          HbarPolicy="AS_NEEDED"
+          VbarPolicy="AS_NEEDED"
+          FitToWidth="true"
+          FitToHeight="true"
+          HBox.hgrow="ALWAYS">
+        </ScrollPane>
+      </VBox>
     </SplitPane>
   </content>
 </Tab>

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.SequencedCollection;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
 /**
  * 変数情報とそれに関連するスレッド, コールスタックの情報を保持するクラス.
@@ -34,6 +35,7 @@ public class VariableInfo {
   public final long threadId;
   public final int frameIdx;
   private final Map<BhNode, Variable> nodeToVar;
+  private final CallbackRegistry cbRegistry = new CallbackRegistry();
 
   /**
    * コンストラクタ.
@@ -74,7 +76,7 @@ public class VariableInfo {
   /**
    * このオブジェクトが持つ変数情報を返す.
    */
-  public SequencedCollection<Variable> getVariables() {
+  public synchronized SequencedCollection<Variable> getVariables() {
     return new ArrayList<>(nodeToVar.values());
   }
 
@@ -108,16 +110,20 @@ public class VariableInfo {
    *
    * <p>追加された変数情報が {@link ListVariable} でかつ, 既に同じ {@link BhNode} を持つ
    * {@link ListVariable} が存在していた場合, 既存の {@link ListVariable} に新しい要素が追加される.
-   * その際, 重複インデックスの値は追加した変数情報のもので置き換えられる.
+   * その際, 重複したインデックスの値は追加した変数情報のもので置き換えられる.
    */
-  public void addVariables(List<Variable> variables) {
+  public synchronized void addVariables(List<Variable> variables) {
+    List<Variable> newVars = new ArrayList<>();
     for (Variable variable : variables) {
-      Variable existing = this.nodeToVar.get(variable.node);
+      Variable existing = nodeToVar.get(variable.node);
       switch (existing) {
-        case null -> nodeToVar.put(variable.node, variable);
+        case null -> {
+          nodeToVar.put(variable.node, variable);
+          newVars.add(variable);
+        }
         case ScalarVariable registered
             when variable instanceof ScalarVariable added ->
-            registered.setValue(added.getValue());
+            registered.setValue(added.getValue().orElse(null));
         case ListVariable registered
             when variable instanceof ListVariable added ->
             registered.addItems(added.getItems());
@@ -126,5 +132,37 @@ public class VariableInfo {
         }
       }
     }
+    if (!newVars.isEmpty()) {
+      cbRegistry.onVarsAddedInvoker.invoke(new VariablesAddedEvent(this, newVars));
+    }
   }
+
+  /**
+   * このオブジェクトに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
+   *
+   * @return このデバッガに対するイベントハンドラの追加と削除を行うオブジェクト
+   */
+  public CallbackRegistry getCallbackRegistry() {
+    return cbRegistry;
+  }
+
+  /** {@link VariableInfo} に対するイベントハンドラの登録および削除操作を提供するクラス. */
+  public class CallbackRegistry {
+
+    /** 関連する {@link VariableInfo} に変数情報が追加されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<VariablesAddedEvent> onVarsAddedInvoker = new ConsumerInvoker<>();
+
+    /** 関連する {@link VariableInfo} に変数情報が追加されたときのイベントハンドラのレジストリを取得する. */
+    public ConsumerInvoker<VariablesAddedEvent>.Registry getOnVariablesAdded() {
+      return onVarsAddedInvoker.getRegistry();
+    }
+  }
+
+  /**
+   * {@link VariableInfo} に変数情報が追加されたときの情報を格納したレコード.
+   *
+   * @param varInfo {@code context} を取得したデバッガ
+   * @param added 追加された変数情報
+   */
+  public record VariablesAddedEvent(VariableInfo varInfo, List<Variable> added) {}
 }

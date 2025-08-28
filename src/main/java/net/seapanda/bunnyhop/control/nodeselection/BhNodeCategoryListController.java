@@ -16,16 +16,18 @@
 
 package net.seapanda.bunnyhop.control.nodeselection;
 
+import java.util.HashMap;
+import java.util.Map;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
 import net.seapanda.bunnyhop.common.Rem;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategory;
-import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryTree;
-import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.view.ViewConstructionException;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeShowcaseBuilder;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryProvider;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryView;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 
 /**
  * BhNode のカテゴリ選択画面のコントローラ.
@@ -37,26 +39,53 @@ public class BhNodeCategoryListController {
   @FXML private ScrollPane nodeCategoryListViewBase;
   @FXML private TreeView<BhNodeCategory> categoryTree;
 
-  /**
-   * コントローラとビューの初期化を行う.
-   *
-   * @param builder ノード選択ビューを構築するためのオブジェクト.
-   * @param categories カテゴリリストの情報を格納したオブジェクト
-   */
-  public boolean initialize(
-      BhNodeShowcaseBuilder builder, 
-      BhNodeCategoryTree categories) {
-    try {
-      categoryTree.setRoot(builder.buildFrom(categories.getRoot()));  
-    } catch (ViewConstructionException e) {
-      LogManager.logger().error(e.toString());
-      return false;
-    }
+  /** カテゴリ名と対応する {@link TreeItem} のマップ. */
+  private final Map<String, TreeItem<BhNodeCategory>> nameToCategory = new HashMap<>();
+  private BhNodeSelectionViewProxy proxy;
+
+  /** このコントローラを初期化する. */
+  public boolean initialize(BhNodeCategoryProvider provider, BhNodeSelectionViewProxy proxy) {
+    this.proxy = proxy;
+    TreeItem<BhNodeCategory> root = provider.getCategoryRoot();
+    collectCategories(root);
+    categoryTree.setRoot(root);
     categoryTree.setShowRoot(false);
-    categoryTree.setCellFactory(templates -> builder.createBhNodeCategoryView());
+    categoryTree.setCellFactory(templates -> new BhNodeCategoryView(proxy));
+    setEventHandlers();
+    return true;
+  }
+
+  /** イベントハンドラをセットする. */
+  private void setEventHandlers() {
+    categoryTree.getSelectionModel().selectedItemProperty().addListener(
+        (obs, oldVal, newVal) -> {
+            String categoryName = (newVal == null || newVal.getValue() == null)
+                ? null : newVal.getValue().name;
+            proxy.show(categoryName);
+        });
     nodeCategoryListViewBase.setMinWidth(Region.USE_PREF_SIZE);
     nodeCategoryListViewBase.widthProperty().addListener(
         (obs, oldVal, newVal) -> nodeCategoryListViewBase.setMinWidth(Rem.VAL * 3));
-    return true;
+    proxy.getCallbackRegistry().getOnCurrentCategoryChanged()
+        .add(event -> selectViewItem(event.newVal()));
+  }
+
+  /** {@code categoryName} に対応する {@link #categoryTree} のアイテムを選択する. */
+  private void selectViewItem(String categoryName) {
+    if (categoryName == null) {
+      categoryTree.getSelectionModel().clearSelection();
+      return;
+    }
+    TreeItem<BhNodeCategory> category = nameToCategory.get(categoryName);
+    if (category == null) {
+      categoryTree.getSelectionModel().clearSelection();
+      return;
+    }
+    categoryTree.getSelectionModel().select(category);
+  }
+
+  private void collectCategories(TreeItem<BhNodeCategory> item) {
+    nameToCategory.put(item.getValue().name, item);
+    item.getChildren().forEach(this::collectCategories);
   }
 }

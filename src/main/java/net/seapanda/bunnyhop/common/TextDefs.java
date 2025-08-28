@@ -92,12 +92,30 @@ public class TextDefs {
       
       public static Getter next = params -> db.get(
           TextId.of("gui", "debugger", "call-stack", "next"), params);
+
+      public static Getter mainRoutine = params -> db.get(
+          TextId.of("gui", "debugger", "call-stack", "main-routine"), params);
     }
 
     /** ワークスペース選択コンポーネントに表示されるテキスト. */
     public static class WorkspaceSelector {
       public static Getter allWs = params -> db.get(
           TextId.of("gui", "debugger", "workspace-selector", "all-ws"), params);
+    }
+
+    /** 変数検査ビューに表示されるテキスト. */
+    public static class VarInspection {
+      public static Getter valueNotFound = params -> db.get(
+          TextId.of("gui", "debugger", "variable-inspection", "variable-not-found"), params);
+
+      public static Getter emptyString = params -> db.get(
+          TextId.of("gui", "debugger", "variable-inspection", "empty-string"), params);
+
+      public static Getter localVars = params -> db.get(
+          TextId.of("gui", "debugger", "variable-inspection", "local-vars"), params);
+
+      public static Getter globalVars = params -> db.get(
+          TextId.of("gui", "debugger", "variable-inspection", "global-vars"), params);
     }
   }
 

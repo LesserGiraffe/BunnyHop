@@ -233,7 +233,7 @@ public class TextNode extends DerivativeBase<TextNode> {
   /** {@link TextNode} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistry extends BhNode.CallbackRegistry {
 
-    /** 関連するノードのテキストが変更されたときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するノードのテキストが変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<TextChangedEvent> onTextChangedInvoker = new ConsumerInvoker<>();
 
     /** 関連するノードのテキストが変更されたときのイベントハンドラのレジストリを取得する. */

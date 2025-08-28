@@ -14,36 +14,31 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.nodeselection;
+package net.seapanda.bunnyhop.view.debugger;
+
+import javafx.scene.control.TreeCell;
+import net.seapanda.bunnyhop.bhprogram.debugger.VariableListItem;
 
 /**
- * ノードカテゴリを表す TreeView の各セルのモデルクラス.
+ * デバッガの変数一覧に表示される要素のビュー.
  *
  * @author K.Koike
  */
-public class BhNodeCategory {
-  public final String name;
-  private String cssClass = "";
+public class VariableListCell extends TreeCell<VariableListItem> {
 
-  /**
-   * コンストラクタ.
-   *
-   * @param name カテゴリ名
-   */
-  public BhNodeCategory(String name) {
-    this.name = name;
-  }
+  private VariableListItem model;
+
+
 
   @Override
-  public String toString() {
-    return name == null ? "" : name;
-  }
+  protected void updateItem(VariableListItem entry, boolean empty) {
+    super.updateItem(entry, empty);
+    if (empty || entry == null) {
+      setText(null);
+    } else {
 
-  public void setCssClass(String cssClass) {
-    this.cssClass = cssClass;
+      setText(entry.toString());
+    }
   }
-
-  public String getCssClass() {
-    return cssClass;
-  }
+  // BreakpointListCell を参考にする
 }

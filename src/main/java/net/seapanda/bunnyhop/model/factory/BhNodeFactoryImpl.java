@@ -175,12 +175,12 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
     }
 
     /** MVC のコントローラを作って {@link BhNode} と {@link BhNodeView} を渡す. */
-    private BhNodeController connectMvc(BhNode node, BhNodeView nodeView) {
+    private void connectMvc(BhNode node, BhNodeView nodeView) {
       if (node.getView().isPresent()) {
         throw new AssertionError("Duplicated NodeView.  (BhNode = %s)".formatted(node.getId()));
       }
       BhNodeController ctrl = createBaseController(node, nodeView);
-      return switch (nodeView) {
+      switch (nodeView) {
         case TextFieldNodeView view -> new TextInputNodeController(ctrl);
         case ComboBoxNodeView view -> new ComboBoxNodeController(ctrl);
         case LabelNodeView view -> new LabelNodeController(ctrl);

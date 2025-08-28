@@ -110,7 +110,7 @@
   },
   
   "${node-category}{event}" : {
-    "cssClass":"concurrent",
+    "cssClass":"event",
     "contents":[
       "idKeyPressedEvent",
       "idDelayedStartEvent",

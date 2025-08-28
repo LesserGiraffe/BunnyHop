@@ -135,8 +135,10 @@ public class BhConstants {
       public static final String NODE_SELECTION_VIEW_FXML = "NodeSelectionView.fxml";
       /** プライベートテンプレートボタンが定義してあるfxmlの名前. */
       public static final String PRIVATE_TEMPLATE_BUTTON_FXML = "PrivateTemplateButton.fxml";
-      /** コールスタックペインが定義してあるfxmlの名前. */
+      /** コールスタックビューが定義してあるfxmlの名前. */
       public static final String CALL_STACK_VIEW_FXML = "CallStackView.fxml";
+      /** 変数検査ビューが定義してあるfxmlの名前. */
+      public static final String VARIABLE_INSPECTION_VIEW_FXML = "VariableInspectionView.fxml";
       /** デバッグウィンドウの基底部分のビューが定義してあるfxmlファイルの名前. */
       public static final String DEBUG_WINDOW_FXML = "DebugWindow.fxml";
       /** ノードテンプレートの配置情報が書かれたファイルの名前. */

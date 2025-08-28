@@ -39,7 +39,6 @@ import net.seapanda.bunnyhop.export.ProjectExporter;
 import net.seapanda.bunnyhop.export.ProjectImporter;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.model.factory.WorkspaceFactory;
-import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategoryTree;
 import net.seapanda.bunnyhop.model.workspace.CopyAndPaste;
 import net.seapanda.bunnyhop.model.workspace.CutAndPaste;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
@@ -47,8 +46,8 @@ import net.seapanda.bunnyhop.service.KeyCodeConverter;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryProvider;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeShowcaseBuilder;
 
 /**
  * GUIの基底部分のコントローラ.
@@ -75,8 +74,7 @@ public class FoundationController {
   /** 初期化する. */
   public boolean initialize(
       WorkspaceSet wss,
-      BhNodeCategoryTree nodeCategoryList,
-      BhNodeShowcaseBuilder builder,
+      BhNodeCategoryProvider nodeCategoryProvider,
       ModelAccessNotificationService notifService,
       WorkspaceFactory wsFactory,
       DebugViewFactory debugViewFactory,
@@ -94,7 +92,7 @@ public class FoundationController {
     this.localCtrl = localCtrl;
     this.remoteCtrl = remoteCtrl;
     workspaceSetController.initialize(wss);
-    boolean success = nodeCategoryListController.initialize(builder, nodeCategoryList);
+    boolean success = nodeCategoryListController.initialize(nodeCategoryProvider, proxy);
     success &= menuViewController.initialize(
         workspaceSetController,
         notifService,

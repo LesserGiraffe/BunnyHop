@@ -17,7 +17,9 @@
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,15 +39,22 @@ import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 public class BhDebugMessageProcessor implements DebugMessageProcessor {
 
   private final Debugger debugger;
+  private final Collection<InstanceId> mainRoutineIds;
   /**
    * key: {@link BhNode} のインスタンス ID.
    * value: key に対応する {@link BhNode}.
    */
   private final Map<InstanceId, BhNode> instIdToNode = new ConcurrentHashMap<>();
 
-  /** コンストラクタ. */
-  public BhDebugMessageProcessor(WorkspaceSet wss, Debugger debugger) {
+  /**
+   * コンストラクタ.
+   *
+   * @param mainRoutineIds BhProgram のエントリポイントとなるノードの処理を呼ぶ関数の ID 一覧.
+   */
+  public BhDebugMessageProcessor(
+      WorkspaceSet wss, Debugger debugger, Collection<InstanceId> mainRoutineIds) {
     this.debugger = debugger;
+    this.mainRoutineIds = new HashSet<>(mainRoutineIds);
     wss.getCallbackRegistry().getOnNodeAdded().add(
         event -> instIdToNode.put(event.node().getInstanceId(), event.node()));
     wss.getCallbackRegistry().getOnNodeRemoved().add(
@@ -58,9 +67,11 @@ public class BhDebugMessageProcessor implements DebugMessageProcessor {
     List<CallStackItem> callStack = context.getCallStack().stream()
         .map(item -> createCallStackItem(
             item.symbolId(), item.frameIdx(), context.getThreadId(), false, cache))
-        .collect(Collectors.toCollection(ArrayList::new));    
+        .collect(Collectors.toCollection(ArrayList::new));
+
     if (!context.getNextStep().equals(BhSymbolId.NONE)) {
-      int frameIdx = !callStack.isEmpty() ? callStack.getLast().getIdx() + 1 : 0;
+      // 次に処理するノードのスタックフレームインデックスは, トップのインデックスと同じにする.
+      int frameIdx = callStack.isEmpty() ? 0 : callStack.getLast().getIdx();
       CallStackItem item = createCallStackItem(
           context.getNextStep(), frameIdx, context.getThreadId(), true, cache);
       callStack.addLast(item);
@@ -85,16 +96,30 @@ public class BhDebugMessageProcessor implements DebugMessageProcessor {
       long threadId,
       boolean isNotCalled,
       Map<InstanceId, String> aliasCache) {
-    BhNode node = instIdToNode.get(InstanceId.of(symbolId.toString()));
+    var instId = InstanceId.of(symbolId.toString());
+    BhNode node = instIdToNode.get(instId);
+    String alias = getAlias(node, instId, aliasCache);
+    return new CallStackItem(frameIdx, threadId, alias, node, isNotCalled);
+  }
+
+  /**
+   * {@code node} のエイリアスを取得する.
+   *
+   * <p>{@code node} が null の場合, {@code instId} が {@link #mainRoutineIds} に含まれていれば,
+   * メインルーチンのエイリアスを返す.
+   * 一致しない場合, 不明なノードの共通のエイリアスを返す.
+   */
+  private String getAlias(BhNode node, InstanceId instId, Map<InstanceId, String> aliasCache) {
     if (node == null) {
-      return new CallStackItem(
-          frameIdx, threadId, TextDefs.Debugger.CallStack.unknown.get(), isNotCalled);
+      return mainRoutineIds.contains(instId)
+          ? TextDefs.Debugger.CallStack.mainRoutine.get()
+          : TextDefs.Debugger.CallStack.unknown.get();
     }
     String alias = aliasCache.get(node.getInstanceId());
     if (alias == null) {
       alias = node.getAlias();
       aliasCache.put(node.getInstanceId(), alias);
     }
-    return new CallStackItem(frameIdx, threadId, alias, node, isNotCalled);
+    return alias;
   }
 }

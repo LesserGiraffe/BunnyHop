@@ -665,15 +665,15 @@ public abstract class BhNode extends SyntaxSymbol {
   /** {@link BhNode} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistry {
 
-    /** 関連するノードの選択状態が変更されたときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するノードの選択状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<SelectionEvent> onSelStateChangedInvoker =
         new ConsumerInvoker<>();
 
-    /** 関連するノードのコンパイルエラー状態が変更されたときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するノードのコンパイルエラー状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<CompileErrorEvent> onCompileErrStateChangedInvoker =
         new ConsumerInvoker<>();
 
-    /** 関連するノードが {@link Connector} に接続されたときのイベントハンドラをを管理するオブジェクト. */
+    /** 関連するノードが {@link Connector} に接続されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<ConnectionEvent> onConnectedInvoker =
         new ConsumerInvoker<>();
 

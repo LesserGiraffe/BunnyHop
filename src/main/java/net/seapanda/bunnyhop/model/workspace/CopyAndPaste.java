@@ -185,11 +185,11 @@ public class CopyAndPaste {
   /** {@link CopyAndPaste} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistry {
 
-    /** コピー予定のノードが追加されたときのイベントハンドラをを管理するオブジェクト. */
+    /** コピー予定のノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker = 
         new ConsumerInvoker<>();
 
-    /** コピー予定のノードが削除されたときのイベントハンドラをを管理するオブジェクト. */
+    /** コピー予定のノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
         new ConsumerInvoker<>();
 
@@ -200,12 +200,12 @@ public class CopyAndPaste {
       }
     };
 
-    /** コピー予定のノードが追加されたときのイベントハンドラをを管理するオブジェクト. */
+    /** コピー予定のノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     public ConsumerInvoker<NodeAddedEvent>.Registry getOnNodeAdded() {
       return onNodeAddedInvoker.getRegistry();
     }
 
-    /** コピー予定のノードが削除されたときのイベントハンドラをを管理するオブジェクト. */
+    /** コピー予定のノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     public ConsumerInvoker<NodeRemovedEvent>.Registry getOnNodeRemoved() {
       return onNodeRemovedInvoker.getRegistry();
     }

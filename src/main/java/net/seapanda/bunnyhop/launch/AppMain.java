@@ -27,6 +27,7 @@ import java.awt.SplashScreen;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -96,7 +97,7 @@ import net.seapanda.bunnyhop.view.factory.DebugViewFactoryImpl;
 import net.seapanda.bunnyhop.view.factory.PrivateTemplateButtonFactoryImpl;
 import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyleFactory;
 import net.seapanda.bunnyhop.view.node.style.JsonBhNodeViewStyleFactory;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeShowcaseBuilderImpl;
+import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryBuilder;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -148,8 +149,10 @@ public class AppMain extends Application {
           fxmlCollector.getFilePath(BhConstants.Path.File.NODE_SHIFTER_FXML);
       final Path nodeSelectionViewFile =
           fxmlCollector.getFilePath(BhConstants.Path.File.NODE_SELECTION_VIEW_FXML);
-      final Path callStackVieFile =
+      final Path callStackViewFile =
           fxmlCollector.getFilePath(BhConstants.Path.File.CALL_STACK_VIEW_FXML);
+      final Path varInspectionViewFilePath =
+          fxmlCollector.getFilePath(BhConstants.Path.File.VARIABLE_INSPECTION_VIEW_FXML);
       final Path[] scriptDirs = new Path[] {
         Paths.get(
             Utility.execPath, BhConstants.Path.Dir.BH_DEF, BhConstants.Path.Dir.EVENT_HANDLERS),
@@ -195,8 +198,6 @@ public class AppMain extends Application {
       final var buttonFactory = new PrivateTemplateButtonFactoryImpl(
           btnFile, viewStyleFactory, mediator, nodeSelViewProxy);
       final var nodeViewFactory = new BhNodeViewFactoryImpl(viewStyleFactory, buttonFactory);
-      final var debugViewFactory = new DebugViewFactoryImpl(
-          callStackVieFile, mediator, sceneBuilder.searchBoxCtrl);
       final var nodeRepository = new XmlBhNodeRepository(scriptRepository);
       final var nodeFactory = new BhNodeFactoryImpl(
           nodeRepository,
@@ -214,8 +215,8 @@ public class AppMain extends Application {
       nodeRepository.collect(nodeDir, cnctrDir, modelGenerator, textDb);
       final var categoryTree =
           new JsonBhNodeCategoryTree(nodeTemplateListFile, nodeFactory, textDb);
-      final var nodeShowcaseBuilder = new BhNodeShowcaseBuilderImpl(
-          nodeFactory, nodeSelViewProxy, nodeSelectionViewFile);
+      final var nodeCategoryBuilder = new BhNodeCategoryBuilder(
+          nodeFactory, nodeSelViewProxy, nodeSelectionViewFile, categoryTree.getRoot());
       final var wsFactory = new WorkspaceFactoryImpl(
           wsViewFile, nodeShifterViewFile, mediator, nodeSelViewProxy, msgService);
       final var localCompiler = genCompiler(true);
@@ -229,8 +230,16 @@ public class AppMain extends Application {
       final var remoteBhProgramCtrl =
           new RemoteBhProgramControllerImpl(remoteCompiler, remoteRuntimeCtrl, msgService);
       final var debugger = new BhDebugger(localRuntimeCtrl, remoteRuntimeCtrl, wss);
+      final var debugViewFactory = new DebugViewFactoryImpl(
+          callStackViewFile,
+          varInspectionViewFilePath,
+          mediator,
+          sceneBuilder.searchBoxCtrl,
+          debugger);
       new ThreadContextPresenter(debugger, msgService);
-      final var debugMsgProcessor = new BhDebugMessageProcessor(wss, debugger);
+      final var mainRoutineIds =
+          List.of(localCompiler.mainRoutineId(), remoteCompiler.mainRoutineId());
+      final var debugMsgProcessor = new BhDebugMessageProcessor(wss, debugger, mainRoutineIds);
       final var msgProcessor = new BhProgramMessageProcessorImpl(msgService, debugMsgProcessor);
       final var localMsgDispatcher =
           new BhProgramMessageDispatcher(msgProcessor, simCmdProcessor, localRuntimeCtrl);
@@ -260,8 +269,7 @@ public class AppMain extends Application {
           sceneBuilder.foundationCtrl::isBhRuntimeLocal));
       sceneBuilder.initialize(
           wss,
-          categoryTree,
-          nodeShowcaseBuilder,
+          nodeCategoryBuilder,
           mediator,
           wsFactory,
           debugViewFactory,

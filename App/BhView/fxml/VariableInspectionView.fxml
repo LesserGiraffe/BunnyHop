@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+<?import net.seapanda.bunnyhop.common.*?>
+
+<fx:root
+  xmlns:fx="http://javafx.com/fxml"
+  type="VBox">
+  <fx:define>
+    <TextFetcher fx:id="jump" textId="gui,debugger,call-stack,jump"/>
+    <TextFetcher fx:id="search" textId="gui,debugger,call-stack,search"/>
+    <Rem fx:id="btnSize" rem="1.25"/>
+  </fx:define>
+
+  <HBox fx:id="viHbox">
+    <Label fx:id="viViewName"> </Label>
+
+    <CheckBox
+      fx:id="viJumpCheckBox"
+      styleClass="flatCheckBox"
+      selected="true"
+      text="$jump.text">
+    </CheckBox>
+
+    <Button fx:id="viSearchButton" text="$search.text" styleClass="flatButton"> </Button>
+
+    <Button fx:id="reloadBtn" styleClass="flatButton,padding-4px">
+      <graphic>
+        <ImageView>
+          <Image url="@../images/reload.png" smooth="true" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>
+        </ImageView>
+      </graphic>
+    </Button>
+
+  </HBox>
+  <TreeView fx:id="variableTreeView"/>
+</fx:root>

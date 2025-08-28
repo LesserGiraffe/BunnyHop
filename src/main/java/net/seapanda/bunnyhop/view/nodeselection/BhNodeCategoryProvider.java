@@ -14,36 +14,22 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.nodeselection;
+package net.seapanda.bunnyhop.view.nodeselection;
+
+import javafx.scene.control.TreeItem;
+import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategory;
 
 /**
- * ノードカテゴリを表す TreeView の各セルのモデルクラス.
+ * ノードカテゴリ一覧を提供する機能を規定したインタフェース.
  *
  * @author K.Koike
  */
-public class BhNodeCategory {
-  public final String name;
-  private String cssClass = "";
+public interface BhNodeCategoryProvider {
 
   /**
-   * コンストラクタ.
+   * BhNode のカテゴリ一覧を構成する木のルート要素を返す.
    *
-   * @param name カテゴリ名
+   * @return BhNode のカテゴリ一覧を構成する木のルート要素
    */
-  public BhNodeCategory(String name) {
-    this.name = name;
-  }
-
-  @Override
-  public String toString() {
-    return name == null ? "" : name;
-  }
-
-  public void setCssClass(String cssClass) {
-    this.cssClass = cssClass;
-  }
-
-  public String getCssClass() {
-    return cssClass;
-  }
+  TreeItem<BhNodeCategory> getCategoryRoot();
 }

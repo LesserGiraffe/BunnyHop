@@ -315,7 +315,7 @@ public class Connector extends SyntaxSymbol {
   /** イベントハンドラの登録 / 削除を行う機能を提供するクラス. */
   class CallbackRegistry {
 
-    /** このノードが選択されたときのイベントハンドラをを管理するオブジェクト. */
+    /** このノードが選択されたときのイベントハンドラを管理するオブジェクト. */
     private transient ConsumerInvoker<ReplacementEvent> onNodeReplaced =
         new ConsumerInvoker<ReplacementEvent>();
     
