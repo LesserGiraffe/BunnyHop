@@ -299,7 +299,7 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
   }
 
   /** このノードビューが持つコンボボックスのアイテムの View. */
-  private class ComboBoxNodeListCell extends ListCell<SelectableItem<String, Object>> {
+  private static class ComboBoxNodeListCell extends ListCell<SelectableItem<String, Object>> {
 
     @Override
     protected void updateItem(SelectableItem<String, Object> item, boolean empty) {

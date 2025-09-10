@@ -17,26 +17,33 @@
 package net.seapanda.bunnyhop.control.debugger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.SequencedCollection;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.debugger.CallStackItem;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.bhprogram.debugger.StackFrameSelection;
+import net.seapanda.bunnyhop.bhprogram.debugger.ThreadContext;
+import net.seapanda.bunnyhop.bhprogram.debugger.ThreadSelection;
 import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.control.SearchBox;
 import net.seapanda.bunnyhop.control.SearchBox.Query;
-import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
-import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.debugger.CallStackCell;
@@ -51,32 +58,37 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class CallStackController {
 
+  @FXML private VBox callStackViewBase;
   @FXML private CheckBox csShowAllCheckBox;
   @FXML private ListView<CallStackItem> callStackListView;
   @FXML private Button csSearchButton;
   @FXML private CheckBox csJumpCheckBox;
 
-  private final List<CallStackItem> callStack;
-  private final ModelAccessNotificationService notifService;
+  private final ThreadContext threadContext;
   private final SearchBox searchBox;
   private final Debugger debugger;
+  private final WorkspaceSet wss;
+  private final Map<BhNode, Set<CallStackCell>> nodeToCallStackCell = new HashMap<>();
+  private final Consumer<Debugger.CurrentThreadChangedEvent> onCurrentThreadChanged =
+      event -> onCurrentDebugThreadChanged();
+  private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
+      event -> updateCellDecoration(event.node());
 
   /**
    * コンストラクタ.
    *
-   * @param callStack コールスタックに表示する内容
-   * @param notifService モデルへのアクセスの通知先となるオブジェクト
+   * @param threadContext このコントローラが管理するコールスタックに関連するスレッドの情報を格納したオブジェクト
    * @param searchBox 検索クエリを受け取る UI コンポーネントのインタフェース
    */
   public CallStackController(
-      SequencedCollection<CallStackItem> callStack,
-      ModelAccessNotificationService notifService,
+      ThreadContext threadContext,
       SearchBox searchBox,
-      Debugger debugger) {
-    this.notifService = notifService;
-    this.callStack = new ArrayList<CallStackItem>(callStack);
+      Debugger debugger,
+      WorkspaceSet wss) {
+    this.threadContext = threadContext;
     this.searchBox = searchBox;
     this.debugger = debugger;
+    this.wss = wss;
   }
 
   /**
@@ -85,28 +97,50 @@ public class CallStackController {
    * <p>GUI コンポーネントのインジェクション後に FXMLLoader から呼ばれることを期待する.
    */
   public void initialize() {
-    callStackListView.setCellFactory(stack -> new CallStackCell());
+    callStackListView.setCellFactory(stack -> new CallStackCell(nodeToCallStackCell));
     callStackListView.setItems(createCallStackItem());
     callStackListView.getSelectionModel().selectedItemProperty().addListener(
-        (observable, oldVal, newVal) -> onCallStackItemSelected(oldVal, newVal));
+        (observable, oldVal, newVal) -> onCallStackCellSelected(oldVal, newVal));
     csShowAllCheckBox.selectedProperty().addListener(
         (observable, oldVal, newVal) -> callStackListView.setItems(createCallStackItem()));
     csSearchButton.setOnAction(action -> {
       searchBox.setOnSearchRequested(this::selectItem);
       searchBox.enable();
     });
+    debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(onCurrentThreadChanged);
+    wss.getCallbackRegistry().getOnNodeSelectionStateChanged().add(onNodeSelStateChanged);
+    Consumer<CallStackItem.SelectionEvent> selectItem = this::onCallStackItemSelected;
+    threadContext.callStack.forEach(
+        item -> item.getCallbackRegistry().getOnSelectionStateChanged().add(selectItem));
+  }
+
+  /** このコントローラが管理するビューのルート要素を返す. */
+  public Node getView() {
+    return callStackViewBase;
+  }
+
+  /** このコントローラが管理するコールスタックに関連するスレッドの情報を返す. */
+  public ThreadContext getThreadContext() {
+    return threadContext;
+  }
+
+  /** このコントローラを破棄するときに呼ぶこと. */
+  public void discard() {
+    debugger.getCallbackRegistry().getOnCurrentThreadChanged().remove(onCurrentThreadChanged);
+    wss.getCallbackRegistry().getOnNodeSelectionStateChanged().remove(onNodeSelStateChanged);
   }
 
   /** {@link #callStackListView} に設定するアイテムを作成する. */
   private ObservableList<CallStackItem> createCallStackItem() {
-    if (!csShowAllCheckBox.isSelected()
-        && callStack.size() > BhSettings.Debug.maxCallStackItems)  {
+    var callStack = new ArrayList<>(threadContext.callStack);
+    if (!csShowAllCheckBox.isSelected() && callStack.size() > BhSettings.Debug.maxCallStackItems) {
       var items = new ArrayList<CallStackItem>();
       int len = BhSettings.Debug.maxCallStackItems / 2;
       for (int i = 0; i < len; ++i) {
+        CallStackItem item = callStack.get(callStack.size() - 1 - i);
         items.add(callStack.get(callStack.size() - 1 - i));
       }
-      items.add(new CallStackItem(-1, -1, TextDefs.Debugger.CallStack.ellipsis.get(), false));
+      items.add(new CallStackItem(-1, -1, TextDefs.Debugger.CallStack.ellipsis.get()));
 
       len = BhSettings.Debug.maxCallStackItems - len;
       for (int i = len - 1; i >= 0; --i) {
@@ -117,38 +151,69 @@ public class CallStackController {
     return FXCollections.observableArrayList(callStack.reversed());
   }
 
-  /** コールスタックの要素が選択されたときのイベントハンドラ. */
-  private void onCallStackItemSelected(CallStackItem deselected, CallStackItem selected) {
-    Context context = notifService.begin();
-    try {
-      var userOpe = new UserOperation(); // コールスタックの選択は undo / redo の対象にしない
-      if (deselected != null) {
+  /** コールスタックの UI 要素が選択されたときのイベントハンドラ. */
+  private void onCallStackCellSelected(CallStackItem deselected, CallStackItem selected) {
+    var tmpUserOpe = new UserOperation();
+    if (deselected != null) {
+      deselected.deselect(tmpUserOpe);
+    }
+    if (selected != null) {
+      selected.select(tmpUserOpe);
+    }
+  }
+
+  /** {@link CallStackItem} が選択されたときのイベントハンドラ. */
+  private void onCallStackItemSelected(CallStackItem.SelectionEvent event) {
+    if (event.isSelected()) {
+      callStackListView.getSelectionModel().select(event.item());
+      if (isThisThreadSameAsDebugThread()) {
         if (csJumpCheckBox.isSelected()) {
-          deselected.getNode().ifPresent(node -> node.deselect(context.userOpe()));
+          getNextItemOf(event.item())
+              .flatMap(CallStackItem::getNode)
+              .ifPresent(CallStackController::jump);
         }
+        debugger.selectCurrentStackFrame(StackFrameSelection.of(event.item().getIdx()));
       }
-      if (selected != null) {
-        debugger.selectCurrentStackFrame(StackFrameSelection.of(selected.getIdx()));
-        if (csJumpCheckBox.isSelected()) {
-          selected.getNode().ifPresent(node -> jump(node, context.userOpe()));
-        }
-      } else {
+    } else {
+      callStackListView.getSelectionModel().clearSelection();
+      if (isThisThreadSameAsDebugThread()) {
         debugger.selectCurrentStackFrame(StackFrameSelection.NONE);
       }
-    } finally {
-      notifService.end();
     }
   }
 
   /** {@code node} を選択して, これを画面中央に表示する. */
-  private static void jump(BhNode node, UserOperation userOpe) {
+  private static void jump(BhNode node) {
     BhNodeView nodeView = node.getView().orElse(null);
     if (node.isDeleted() || nodeView == null) {
       return;
     }
     ViewUtil.jump(nodeView, true, EffectTarget.SELF);
-    node.getWorkspace().getSelectedNodes().forEach(seletedNode -> seletedNode.deselect(userOpe));
-    node.select(userOpe);
+  }
+
+  /**
+   * {@code item} の次の {@link CallStackItem} を {@link #threadContext} のコールスタックから探す.
+   */
+  private Optional<CallStackItem> getNextItemOf(CallStackItem item) {
+    if (threadContext.callStack.isEmpty()) {
+      return Optional.empty();
+    }
+    if (threadContext.callStack.getLast().getIdx() == item.getIdx()) {
+      return threadContext.getNextStep();
+    }
+    return threadContext.getCallStackItem(item.getIdx() + 1);
+  }
+
+  /** デバッガの現在のスレッドが変わったときの処理. */
+  private void onCurrentDebugThreadChanged() {
+    if (!isThisThreadSameAsDebugThread()) {
+      return;
+    }
+    CallStackItem selected = callStackListView.getSelectionModel().getSelectedItem();
+    StackFrameSelection stackFrameSel = (selected == null)
+        ? StackFrameSelection.NONE
+        : StackFrameSelection.of(selected.getIdx());
+    debugger.selectCurrentStackFrame(stackFrameSel);
   }
 
   /** コールスタックから {@code query} に一致する要素を探して選択する. */
@@ -210,5 +275,23 @@ public class CallStackController {
       }
     }
     return null;
+  }
+
+  /** デバッガの現在のスレッド ID が, このコントローラが保持するスレッドコンテキストのスレッド ID と同じか調べる. */
+  private boolean isThisThreadSameAsDebugThread() {
+    ThreadSelection thisThread = ThreadSelection.of(threadContext.threadId);
+    ThreadSelection debugThread = debugger.getCurrentThread();
+    return !debugThread.equals(ThreadSelection.NONE)
+          && !debugThread.equals(ThreadSelection.ALL)
+          && debugThread.equals(thisThread);
+  }
+
+  /** {@code node} に対応する {@link CallStackCell} の装飾を変更する. */
+  private void updateCellDecoration(BhNode node) {
+    synchronized (nodeToCallStackCell) {
+      if (nodeToCallStackCell.containsKey(node)) {
+        nodeToCallStackCell.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
+      }
+    }
   }
 }

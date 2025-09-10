@@ -16,10 +16,10 @@
 
 package net.seapanda.bunnyhop.view.factory;
 
-import java.util.SequencedCollection;
-import javafx.scene.Node;
-import net.seapanda.bunnyhop.bhprogram.debugger.CallStackItem;
+import net.seapanda.bunnyhop.bhprogram.debugger.ThreadContext;
 import net.seapanda.bunnyhop.bhprogram.debugger.variable.VariableInfo;
+import net.seapanda.bunnyhop.control.debugger.CallStackController;
+import net.seapanda.bunnyhop.control.debugger.VariableInspectionController;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 
 /**
@@ -32,11 +32,11 @@ public interface DebugViewFactory {
   /**
    * コールスタックを表示するビューを作成する.
    *
-   * @param items コールスタックに表示する内容
-   * @return コールスタックを表示するビューのルート要素.
+   * @param context コールスタックほ保持する ThreadCotext オブジェクト
+   * @return コールスタックを表示するビューのコントローラ.
    * @throws ViewConstructionException ビューの初期化に失敗した場合
    */
-  Node createCallStackView(SequencedCollection<CallStackItem> items)
+  CallStackController createCallStackView(ThreadContext context)
       throws ViewConstructionException;
 
 
@@ -44,9 +44,10 @@ public interface DebugViewFactory {
    * 変数情報を表示するビューを作成する.
    *
    * @param varInfo 表示する変数情報を格納したオブジェクト
-   * @return 変数情報を表示するビューのルート要素.
+   * @return 変数情報を表示するビューのコントローラ
    * @throws ViewConstructionException ビューの初期化に失敗した場合
    */
-  Node createVariableInspectionView(VariableInfo varInfo, String viewName)
+  VariableInspectionController createVariableInspectionView(
+      VariableInfo varInfo, String viewName)
       throws ViewConstructionException;
 }

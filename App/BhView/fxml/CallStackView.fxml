@@ -8,6 +8,7 @@
 
 <fx:root
   xmlns:fx="http://javafx.com/fxml"
+  fx:id="callStackViewBase"
   type="VBox">
   <fx:define>
     <TextFetcher fx:id="callStackViewName" textId="gui,debugger,call-stack,name"/>
@@ -37,5 +38,7 @@
     </Button>
 
   </HBox>
-  <ListView fx:id="callStackListView"/>
+  <ListView
+    fx:id="callStackListView"
+    VBox.vgrow="ALWAYS"/>
 </fx:root>

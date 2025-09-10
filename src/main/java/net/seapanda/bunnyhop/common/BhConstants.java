@@ -201,6 +201,7 @@ public class BhConstants {
     public static final String ATTR_ON_CREATED_AS_TEMPLATE = "onCreatedAsTemplate";
     public static final String ATTR_ON_DRAG_STARTED = "onDragStarted";
     public static final String ATTR_ON_ALIAS_ASKED = "onAliasAsked";
+    public static final String ATTR_ON_USER_DEFINED_NAME_ASKED = "onUserDefinedNameAsked";
     public static final String ATTR_DERIVATIVE_ID = "derivativeID";
     public static final String ATTR_INITIAL_TEXT = "initialText";
     public static final String ATTR_DERIVATION_ID = "derivationID";
@@ -264,7 +265,7 @@ public class BhConstants {
     public static final String KEY_CONNECTIVE = "connective";
     public static final String KEY_PRIVATE_TEMPLATE = "privateTemplate";
     public static final String KEY_BREAK_POINT = "breakpoint";
-    public static final String KEY_NEXT_STEP = "nextStep";
+    public static final String KEY_EXEC_STEP = "nxecStep";
     public static final String KEY_TEXT_FIELD = "textField";
     public static final String KEY_LABEL = "label";
     public static final String KEY_COMBO_BOX = "comboBox";
@@ -337,7 +338,7 @@ public class BhConstants {
     public static final String PSEUDO_UNFIXED_DEFAULT = "unfixedDefault";
     public static final String PSEUDO_COLUMN = "column";
     public static final String PSEUDO_ROW = "row";
-    public static final String PSEUDO_NEXT_STEP = "nextStep";
+    public static final String PSEUDO_EXEC_STEP = "nxecStep";
     public static final String CLASS_BH_NODE = "BhNode";
     public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";
     public static final String CLASS_TEXT_FIELD_NODE = "textFieldNode";
@@ -349,6 +350,7 @@ public class BhConstants {
     public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
     public static final String CLASS_PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
     public static final String CALL_STACK_ITEM = "callStackItem";
+    public static final String VARIABLE_LIST_ITEM = "variableListItem";
     public static final String BREAKPOINT_LIST_ITEM = "breakpointListItem";
   }
 

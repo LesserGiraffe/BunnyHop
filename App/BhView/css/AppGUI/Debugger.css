@@ -2,11 +2,8 @@
   -fx-font-weight: bold;
 }
 
-#csHbox {
-  -fx-font-size: 1.1em;
-  -fx-font-family: "Meiryo UI";
-  -fx-padding: 0.25em 0.0em 0.25em 0.0em;
-  -fx-alignment: center-left;
+#viViewName {
+  -fx-font-weight: bold;
 }
 
 #threadStatusText {
@@ -30,6 +27,14 @@
   -fx-underline: true;
 }
 
+.variableListItem {
+  -fx-underline: false;
+}
+
+.variableListItem:textDecorate {
+  -fx-underline: true;
+}
+
 #bhRuntimeErrMsg {
   -fx-font-size: 1.1em;
   -fx-font-family: "Meiryo UI";
@@ -43,6 +48,14 @@
 #csHbox {
   -fx-font-size: 1.1em;
   -fx-font-family: "Meiryo UI";  
+  -fx-alignment: center-left;
+  -fx-padding: 0.2em;
+  -fx-spacing: 1.8em;
+}
+
+#viHbox {
+  -fx-font-size: 1.1em;
+  -fx-font-family: "Meiryo UI";
   -fx-alignment: center-left;
   -fx-padding: 0.2em;
   -fx-spacing: 1.8em;

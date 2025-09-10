@@ -41,15 +41,16 @@ public class NotificationViewController {
   @FXML private SearchBoxController searchBoxController;
 
   /** 初期化する. */
-  public void initialize(
+  public boolean initialize(
       WorkspaceSet wss,
       Debugger debugger,
       DebugViewFactory factory,
       ModelAccessNotificationService notifService) {
-    debugViewController.initialize(debugger, factory);
+    boolean success = debugViewController.initialize(debugger, factory);
     breakpointListController.initialize(
         wss, notifService, searchBoxController, debugger.getBreakpointRegistry());
     setMessageAreaEvenHandlers();
+    return success;
   }
 
   /** メッセージエリアのイベントハンドラを登録する. */

@@ -385,10 +385,10 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       fillBreakpointParams(commonPart.breakpoint, obj, fileName);
     }
 
-    // nextStepMark
-    obj = readObject(BhConstants.NodeStyleDef.KEY_NEXT_STEP, jsonObj, fileName).orElse(null);
+    // nxecStepMark
+    obj = readObject(BhConstants.NodeStyleDef.KEY_EXEC_STEP, jsonObj, fileName).orElse(null);
     if (obj != null) {
-      fillNextStepMarkParams(commonPart.nextStepMark, obj, fileName);
+      fillExecStepMarkParams(commonPart.nxecStepMark, obj, fileName);
     }
   }
 
@@ -442,22 +442,22 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
   }
 
   /**
-   * {@link BhNodeViewStyle.NextStepMark} にスタイル情報を格納する.
+   * {@link BhNodeViewStyle.ExecStepMark} にスタイル情報を格納する.
    *
-   * @param nextStepMark jsonObj の情報を格納するオブジェクト
+   * @param nxecStepMark jsonObj の情報を格納するオブジェクト
    * @param jsonObj ブレークポイントのパラメータが格納されたオブジェクト
    * @param fileName jsonObj が記述してある .json ファイルの名前
    */
-  private void fillNextStepMarkParams(
-      BhNodeViewStyle.NextStepMark nextStepMark, JsonObject jsonObj, String fileName)
+  private void fillExecStepMarkParams(
+      BhNodeViewStyle.ExecStepMark nxecStepMark, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // buttonCssClass
-    nextStepMark.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
-        .orElse(nextStepMark.cssClass);
+    nxecStepMark.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(nxecStepMark.cssClass);
 
     // size
-    nextStepMark.size = readNumber(BhConstants.NodeStyleDef.KEY_SIZE, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(nextStepMark.size);
+    nxecStepMark.size = readNumber(BhConstants.NodeStyleDef.KEY_SIZE, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(nxecStepMark.size);
   }
 
   /**

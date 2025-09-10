@@ -141,6 +141,8 @@ public class ModelGenerator {
         attr.bhNodeId(), EventType.ON_COMPILE_ERR_CHECKING, attr.onCompileErrorChecking());
     nodeEventInvoker.register(
         attr.bhNodeId(), EventType.ON_ALIAS_ASKED, attr.onAliasAsked());
+    nodeEventInvoker.register(
+        attr.bhNodeId(), EventType.ON_USER_DEFINED_NAME_ASKED, attr.onUserDefinedNameAsked());
   }
 
   private void registerEventHandlers(ConnectorAttribute attr) {

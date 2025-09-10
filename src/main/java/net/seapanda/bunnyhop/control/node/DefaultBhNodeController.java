@@ -126,7 +126,7 @@ public class DefaultBhNodeController implements BhNodeController {
       view.getLookManager().showShadow(EffectTarget.OUTERS);
       toFront();
       selectNode(event);
-      setBreakpoint(ddInfo.context.userOpe());
+      setBreakpoint(event, ddInfo.context.userOpe());
       Vec2D mousePressedPos = new Vec2D(event.getSceneX(), event.getSceneY());
       ddInfo.mousePressedPos = view.getPositionManager().sceneToLocal(mousePressedPos);
       ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
@@ -430,8 +430,9 @@ public class DefaultBhNodeController implements BhNodeController {
    * ブレークポイントの設定が有効でかつ {@link #model} がブレークポイントグループに含まれている場合,
    * そのブレークポイントグループのリーダノードにブレークポイントを設定する.
    */
-  private void setBreakpoint(UserOperation userOpe) {
-    if (!BhSettings.Debug.isBreakpointSettingEnabled) {
+  private void setBreakpoint(MouseEvent event, UserOperation userOpe) {
+    if (!BhSettings.Debug.isBreakpointSettingEnabled
+        || event.getButton() != MouseButton.SECONDARY) {
       return;
     }
     model.findBreakpointGroupLeader()

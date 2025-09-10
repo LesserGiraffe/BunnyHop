@@ -52,5 +52,7 @@ public enum EventType {
   /** コネクタにノードが接続可能か調べるときに発行されるイベント. */
   ON_CONNECTABILITY_CHECKING,
   /** ノードのエイリアスを取得するときに発行されるイベント. */
-  ON_ALIAS_ASKED
+  ON_ALIAS_ASKED,
+  /** ノードのユーザ定義名を取得するときに発行されるイベント. */
+  ON_USER_DEFINED_NAME_ASKED
 }

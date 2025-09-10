@@ -31,7 +31,6 @@ public class VariableListItem {
 
   private final CallbackRegistry cbRegistry = new CallbackRegistry();
   public final Variable variable;
-  private final String alias;
   public final long startIdx;
   public final long endIdx;
 
@@ -42,7 +41,6 @@ public class VariableListItem {
    */
   public VariableListItem(ScalarVariable variable) {
     this.variable = variable;
-    this.alias = variable.node.getAlias();
     this.startIdx = -1L;
     this.endIdx = -1L;
     variable.getCallbackRegistry().getOnValueChanged().add(event -> {
@@ -60,7 +58,6 @@ public class VariableListItem {
    */
   public VariableListItem(ListVariable variable, long startIdx, long endIdx) {
     this.variable = variable;
-    this.alias = variable.node.getAlias();
     this.startIdx = startIdx;
     this.endIdx = endIdx;
     if (startIdx == endIdx) {
@@ -74,7 +71,9 @@ public class VariableListItem {
   @Override
   public String toString() {
     if (variable instanceof ScalarVariable scalar) {
-      return "%s = %s".formatted(alias, scalar.getValue());
+      return "%s = %s".formatted(
+          variable.name,
+          scalar.getValue().orElse(TextDefs.Debugger.VarInspection.valueNotFound.get()));
     }
 
     if (variable instanceof ListVariable list) {
@@ -82,12 +81,15 @@ public class VariableListItem {
         String val = list.getItem(startIdx).map(ListVariable.Item::val).orElse(null);
         if (val == null) {
           return "%s[%s] : %s".formatted(
-              alias, startIdx, TextDefs.Debugger.VarInspection.valueNotFound.get());
+              variable.name, startIdx, TextDefs.Debugger.VarInspection.valueNotFound.get());
         }
         val = val.isEmpty() ? TextDefs.Debugger.VarInspection.emptyString.get() : val;
-        return "%s[%s] = %s".formatted(alias, startIdx, val);
+        return "%s[%s] = %s".formatted(variable.name, startIdx, val);
       }
-      return "%s[%s ... %s]".formatted(alias, startIdx, endIdx);
+      if (startIdx < endIdx) {
+        return "%s[%s ... %s]".formatted(variable.name, startIdx, endIdx);
+      }
+      return "%s[ ]".formatted(variable.name);
     }
     return "";
   }

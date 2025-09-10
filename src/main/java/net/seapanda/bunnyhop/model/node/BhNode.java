@@ -644,6 +644,15 @@ public abstract class BhNode extends SyntaxSymbol {
     return nodeEventInvoker.onAliasAsked(this);
   }
 
+  /**
+   * このノードにユーザが定義した名前がある場合, それを取得する.
+   *
+   * @return このノードにつけられたユーザ定義名
+   */
+  public Optional<String> getUserDefinedName() {
+    return nodeEventInvoker.onUserDefinedNameAsked(this);
+  }
+
   /** このノードに対応するビューを設定する. */
   public void setView(BhNodeView view) {
     this.view = view;

@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.view;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
@@ -177,6 +178,28 @@ public class ViewUtil {
   }
 
   /**
+   * 現在のスレッドが UI スレッドの場合, {@code handler} を実行してからコントロールを返す.
+   * そうでない場合, UI スレッドで {@code handler} を実行し, 終了してからコントロールを返す.
+   */
+  public static void runSafeSync(Runnable handler) {
+    if (handler == null) {
+      return;
+    }
+    if (Platform.isFxApplicationThread()) {
+      handler.run();
+    } else {
+      CountDownLatch latch = new CountDownLatch(1);
+      Platform.runLater(() -> {
+        handler.run();
+        latch.countDown();
+      });
+      try {
+        latch.await();
+      } catch (InterruptedException ignored) { /*Do nothing*/ }
+    }
+  }
+
+  /**
    * {@code comboBox} のサイズをコンテンツに応じて自動的に変更するようにする.
    *
    * @param comboBox サイズの自動変更を有効にするコンボボックス
@@ -255,6 +278,16 @@ public class ViewUtil {
    * @param target 影をつける対象. null を指定すると影をつけない.
    */
   public static void jump(BhNodeView view, boolean hideShadow, EffectTarget target) {
+    runSafe(() -> jumpImpl(view, hideShadow, target));
+  }
+  /**
+   * {@code view} をワークスペースビュー中央に表示して影をつける.
+   *
+   * @param view ワークスペースビュー中央に表示するノードビュー
+   * @param hideShadow {@code view} が属するワークスペースのノードビューの全ての影を消す場合 true
+   * @param target 影をつける対象. null を指定すると影をつけない.
+   */
+  private static void jumpImpl(BhNodeView view, boolean hideShadow, EffectTarget target) {
     if (view == null) {
       throw new IllegalArgumentException();
     }

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -439,6 +440,25 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       Context.exit();
     }
     return "";
+  }
+
+  @Override
+  public Optional<String> onUserDefinedNameAsked(BhNode target) {
+    ScriptNameAndScript defined = getScript(target.getId(), EventType.ON_USER_DEFINED_NAME_ASKED);
+    if (defined == null) {
+      return Optional.empty();
+    }
+    Context cx = Context.enter();
+    ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
+    try {
+      return Optional.of((String) defined.script().exec(cx, scope));
+    } catch (Exception e) {
+      LogManager.logger().error(
+          "'%s' must return a string value.\n%s".formatted(defined.name(), e));
+    } finally {
+      Context.exit();
+    }
+    return Optional.empty();
   }
 
   /**

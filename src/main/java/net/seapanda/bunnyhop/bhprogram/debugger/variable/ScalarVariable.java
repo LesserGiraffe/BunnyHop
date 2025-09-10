@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.bhprogram.debugger.variable;
 
 import java.util.Objects;
 import java.util.Optional;
+import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
@@ -30,25 +31,29 @@ public class ScalarVariable extends Variable {
 
   private final CallbackRegistry cbRegistry = new CallbackRegistry();
   /** 変数の値. */
-  private String val;
+  private volatile String val;
 
   /**
    * コンストラクタ.
    *
-   * @param node スカラ変数に対応する {@link BhNode}
+   * @param id 変数の ID
+   * @param name 変数名
+   * @param node 変数に対応する {@link BhNode}. (nullable)
    */
-  public ScalarVariable(BhNode node) {
-    this(node, null);
+  public ScalarVariable(BhSymbolId id, String name, BhNode node) {
+    this(id, name, node, null);
   }
 
   /**
    * コンストラクタ.
    *
-   * @param node スカラ変数に対応する {@link BhNode}
-   * @param val スカラ変数の値 (nullable)
+   * @param id 変数の ID
+   * @param name 変数名
+   * @param node 変数に対応する {@link BhNode}. (nullable)
+   * @param val 変数の値. (nullable)
    */
-  public ScalarVariable(BhNode node, String val) {
-    super(node);
+  public ScalarVariable(BhSymbolId id, String name, BhNode node, String val) {
+    super(id, name, node);
     this.val = val;
   }
 

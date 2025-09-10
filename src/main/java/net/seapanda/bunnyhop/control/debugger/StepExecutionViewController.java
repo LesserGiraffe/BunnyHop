@@ -18,6 +18,9 @@ package net.seapanda.bunnyhop.control.debugger;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.bhprogram.debugger.ThreadSelection;
 
@@ -27,7 +30,8 @@ import net.seapanda.bunnyhop.bhprogram.debugger.ThreadSelection;
  * @author K.Koike
  */
 public class StepExecutionViewController {
-  
+
+  @FXML private VBox stepExecutionViewBase;
   @FXML private Button resumeBtn;
   @FXML private Button suspendBtn;
   @FXML private Button reloadBtn;
@@ -46,6 +50,7 @@ public class StepExecutionViewController {
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(
         event -> setStepButtonsEnable(isParticularThreadSelected(event.newVal())));
     setStepButtonsEnable(isParticularThreadSelected(debugger.getCurrentThread()));
+    stepExecutionViewBase.addEventFilter(MouseEvent.MOUSE_PRESSED, this::consumeIfNotAcceptable);
   }
 
   /** 特定のスレッドが選択されているかどうかを調べる. */
@@ -57,5 +62,12 @@ public class StepExecutionViewController {
     stepOverBtn.setDisable(!enable);
     stepIntoBtn.setDisable(!enable);
     stepOutBtn.setDisable(!enable);
+  }
+
+  /** 受付不能なマウスイベントを consume する. */
+  private void consumeIfNotAcceptable(MouseEvent event) {
+    if (event.getButton() != MouseButton.PRIMARY) {
+      event.consume();
+    }
   }
 }

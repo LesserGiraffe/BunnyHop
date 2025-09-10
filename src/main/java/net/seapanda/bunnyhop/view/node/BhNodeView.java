@@ -172,18 +172,18 @@ public interface BhNodeView extends NodeViewComponent {
     boolean isBreakpointVisible();
 
     /**
-     * 次に実行するステップであることを表すマークの可視性を変更する.
+     * 実行中もしくは次に実行するステップであることを表すマークの可視性を変更する.
      *
      * @param visible マークを表示する場合 true.  非表示にする場合 false
      */
-    void setNextStepMarkVisibility(boolean visible);
+    void setExecStepMarkVisibility(boolean visible);
 
     /**
      * 次に実行するステップであることを表すマークの可視性を調べる.
      *
      * @return マークが表示されている場合 true.
      */
-    boolean isNextStepMarkVisible();
+    boolean isExecStepMarkVisible();
 
 
     /** エフェクトを付ける対象. */

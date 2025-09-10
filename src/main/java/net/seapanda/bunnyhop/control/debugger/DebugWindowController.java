@@ -3,8 +3,6 @@ package net.seapanda.bunnyhop.control.debugger;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.fxml.FXML;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
@@ -18,7 +16,7 @@ import net.seapanda.bunnyhop.bhprogram.debugger.ThreadSelection;
  * @author K.Koike
  */
 public class DebugWindowController {
-  
+
   @FXML private VBox debugWindowBase;
   @FXML private ThreadSelectorController threadSelectorController;
   @FXML private ThreadStateViewController threadStateViewController;
@@ -38,15 +36,6 @@ public class DebugWindowController {
     registry.getOnThreadContextAdded().add(event -> addThreadContext(event.context()));
     registry.getOnCleared().add(event -> clear());
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(this::showThreadState);
-    debugWindowBase.addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
-  }
-
-  /** 受付不能なマウスイベントを consume する. */
-  private void consumeIfNotAcceptable(MouseEvent event) {
-    MouseButton button = event.getButton();
-    if (button != MouseButton.PRIMARY) {
-      event.consume();
-    }
   }
 
   /**
@@ -55,18 +44,18 @@ public class DebugWindowController {
    * @param context 追加するスレッドの情報
    */
   private synchronized void addThreadContext(ThreadContext context) {
-    long threadId = context.threadId();
+    long threadId = context.threadId;
     if (threadId < 1) {
       return;
     }
-    if (context.state() == BhThreadState.FINISHED
-        && !threadIdToContext.containsKey(context.threadId())) {
+    if (context.state == BhThreadState.FINISHED
+        && !threadIdToContext.containsKey(threadId)) {
       return;
     }
     threadIdToContext.put(threadId, context);
     threadSelectorController.addToSelection(threadId);
     boolean isSelectedThread =
-        debugger.getCurrentThread().equals(ThreadSelection.of(context.threadId()));
+        debugger.getCurrentThread().equals(ThreadSelection.of(threadId));
     if (isSelectedThread) {
       threadStateViewController.showThreadState(context);
     }

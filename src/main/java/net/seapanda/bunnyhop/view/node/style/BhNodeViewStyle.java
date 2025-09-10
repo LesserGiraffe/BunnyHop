@@ -177,11 +177,11 @@ public class BhNodeViewStyle {
   }
 
   /** 次に実行するノードであることを表す印のパラメータ. */
-  public static class NextStepMark {
+  public static class ExecStepMark {
     public double size = 5.5 * BhConstants.LnF.NODE_SCALE;
     public String cssClass;
 
-    public NextStepMark(String cssClass) {
+    public ExecStepMark(String cssClass) {
       this.cssClass = cssClass;
     }
   }
@@ -197,7 +197,7 @@ public class BhNodeViewStyle {
     /** ブレークポイントのパラメータ. */
     public Breakpoint breakpoint = new Breakpoint("defaultBreakpoint");
     /** 次に実行するノードであることを表す印のパラメータ. */
-    public NextStepMark nextStepMark = new NextStepMark("defaultNextStepMark");
+    public ExecStepMark nxecStepMark = new ExecStepMark("defaultExecStepMark");
 
     /** コンストラクタ. */
     public CommonPart() {}
@@ -209,8 +209,8 @@ public class BhNodeViewStyle {
       this.privateTemplate.cssClass = org.privateTemplate.cssClass;
       this.breakpoint.radius = org.breakpoint.radius;
       this.breakpoint.cssClass = org.breakpoint.cssClass;
-      this.nextStepMark.size = org.nextStepMark.size;
-      this.nextStepMark.cssClass = org.nextStepMark.cssClass;
+      this.nxecStepMark.size = org.nxecStepMark.size;
+      this.nxecStepMark.cssClass = org.nxecStepMark.cssClass;
     }
   }
 

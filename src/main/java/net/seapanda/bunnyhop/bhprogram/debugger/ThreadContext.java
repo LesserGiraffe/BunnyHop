@@ -17,33 +17,64 @@
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.SequencedCollection;
 import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.bhprogram.common.message.exception.BhProgramException;
 
-/**
- * BhProgram のスレッドに関連する情報を格納するクラス.
- *
- * @param threadId スレッド ID
- * @param state スレッドの状態
- * @param callStack コールスタック
- * @param exception スレッドで発生した例外
- */
-public record ThreadContext(
-    long threadId,
-    BhThreadState state,
-    SequencedCollection<CallStackItem> callStack,
-    BhProgramException exception) {
+/** BhProgram のスレッドに関連する情報を格納するクラス. */
+public class ThreadContext {
+
+  /** スレッド ID. */
+  public final long threadId;
+  /** スレッドの状態. */
+  public final BhThreadState state;
+  /** コールスタック. */
+  public final SequencedCollection<CallStackItem> callStack;
+  /** 次に実行するステップの情報を格納した {@link CallStackItem} オブジェクト. */
+  private final CallStackItem nextStep;
+  /** スレッドで発生した例外. */
+  private final BhProgramException exception;
+  /** スタックフレームのインデックスとそのインデックスを持つ {@link CallStackItem} のマップ. */
+  private final Map<Integer, CallStackItem> frameIdxToCallStackItem = new HashMap<>();
   
   /** コンストラクタ. */
   public ThreadContext(
       long threadId,
       BhThreadState state,
       SequencedCollection<CallStackItem> callStack,
+      CallStackItem nextStep,
       BhProgramException exception) {
     this.threadId = threadId;
     this.state = state;
-    this.callStack = new ArrayList<>(callStack);
+    this.callStack = Collections.unmodifiableSequencedCollection(new ArrayList<>(callStack));
+    this.nextStep = nextStep;
     this.exception = exception;
-  }  
+    callStack.forEach(item -> frameIdxToCallStackItem.put(item.getIdx(), item));
+  }
+
+  /** コンストラクタ. */
+  public ThreadContext(long threadId) {
+    this(threadId, BhThreadState.FINISHED, new ArrayList<>(), null, null);
+  }
+
+  /**
+   * {@link #callStack} からスタックフレームのインデックスが {@code frameIdx} である {@link CallStackItem} を返す.
+   */
+  public Optional<CallStackItem> getCallStackItem(int frameIdx) {
+    return Optional.ofNullable(frameIdxToCallStackItem.get(frameIdx));
+  }
+
+  /** スレッドで発生した例外を返す. */
+  public Optional<BhProgramException> getException() {
+    return Optional.ofNullable(exception);
+  }
+
+  /** 次に実行するステップの情報を格納した {@link CallStackItem} オブジェクトを返す. */
+  public Optional<CallStackItem> getNextStep() {
+    return Optional.ofNullable(nextStep);
+  }
 }

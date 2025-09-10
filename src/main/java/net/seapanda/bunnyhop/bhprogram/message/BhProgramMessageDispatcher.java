@@ -20,16 +20,18 @@ import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
-import net.seapanda.bunnyhop.bhprogram.common.message.debug.ResumeThreadResp;
-import net.seapanda.bunnyhop.bhprogram.common.message.debug.SuspendThreadResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalListValsResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalVarsResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetLocalListValsResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetLocalVarsResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.simulator.BhSimulatorCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.simulator.StringBhSimulatorCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.simulator.StringBhSimulatorResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
+import net.seapanda.bunnyhop.bhprogram.debugger.DebugMessageProcessor;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeTransceiver;
-import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 
 /**
@@ -39,22 +41,26 @@ import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
  */
 public class BhProgramMessageDispatcher {
   
-  /** {@link BhSimulatorCmd} 以外の {@link BhProgramNotification} を処理するオブジェクト. */
-  private final BhProgramMessageProcessor msgProcessor;
+  /** BhProgram とやりとりする IO メッセージを処理するオブジェクト. */
+  private final IoMessageProcessor ioMsgProcessor;
+  /** BhProgram とやりとりするデバッグメッセージを処理するオブジェクト. */
+  private final DebugMessageProcessor debugMsgProcessor;
   /** {@link BhSimulatorCmd} を処理するオブジェクト. */
   private final SimulatorCmdProcessor simCmdProcessor;
 
   /**
    * コンストラクタ.
    *
-   * @param msgProcessor {@link BhSimulatorCmd} 以外の {@link BhProgramNotification} を処理するオブジェクト
+   * @param ioMessageProcessor {@link BhSimulatorCmd} 以外の {@link BhProgramNotification} を処理するオブジェクト
    * @param simCmdProcessor {@link BhSimulatorCmd} を処理するオブジェクト
    */
   public BhProgramMessageDispatcher(
-      BhProgramMessageProcessor msgProcessor,
+      IoMessageProcessor ioMessageProcessor,
+      DebugMessageProcessor debugMsgProcessor,
       SimulatorCmdProcessor simCmdProcessor,
       BhRuntimeController runtimeCtrl) {
-    this.msgProcessor = msgProcessor;
+    this.ioMsgProcessor = ioMessageProcessor;
+    this.debugMsgProcessor = debugMsgProcessor;
     this.simCmdProcessor = simCmdProcessor;
     runtimeCtrl.getCallbackRegistry().getOnMsgCarrierRenewed()
         .add(event -> replaceMsgCarrier(event.newCarrier()));
@@ -80,23 +86,24 @@ public class BhProgramMessageDispatcher {
   private void dispatch(BhProgramMessageCarrier carrier, BhProgramNotification notif) {
     switch (notif) {
       case OutputTextCmd
-          cmd -> carrier.pushResponse(msgProcessor.process(cmd));
+          cmd -> carrier.pushResponse(ioMsgProcessor.process(cmd));
       case BhThreadContext
-          context -> msgProcessor.process(context);
+          context -> debugMsgProcessor.process(context);
       case StringBhSimulatorCmd
           cmd -> dispatchSimulatorCmd(cmd, carrier);
-
-      default -> notifyInvalidNotif(notif);
+      default -> { }
     }
   }
 
   /** {@code resp} を適切なクラスへと渡す. */
   private void dispatch(BhProgramResponse response) {
     switch (response) {
-      case InputTextResp resp -> msgProcessor.process(resp);
-      case SuspendThreadResp ignored -> { }
-      case ResumeThreadResp ignored -> { }
-      default -> notifyInvalidResp(response);
+      case InputTextResp resp -> ioMsgProcessor.process(resp);
+      case GetLocalVarsResp resp -> debugMsgProcessor.process(resp);
+      case GetLocalListValsResp resp -> debugMsgProcessor.process(resp);
+      case GetGlobalVarsResp resp -> debugMsgProcessor.process(resp);
+      case GetGlobalListValsResp resp -> debugMsgProcessor.process(resp);
+      default -> { }
     }
   }
 
@@ -108,13 +115,5 @@ public class BhProgramMessageDispatcher {
             var response = new StringBhSimulatorResp(cmd.getId(), success, resp);
             carrier.pushResponse(response);
         });
-  }
-
-  private void notifyInvalidNotif(BhProgramNotification notif) {
-    LogManager.logger().error("Received an invalid message.  (%s)".formatted(notif));
-  }
-
-  private void notifyInvalidResp(BhProgramResponse resp) {
-    LogManager.logger().error("Received an invalid response.  (%s)".formatted(resp));
   }
 }

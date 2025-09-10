@@ -16,12 +16,15 @@
 
 package net.seapanda.bunnyhop.view.debugger;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
 import net.seapanda.bunnyhop.bhprogram.debugger.CallStackItem;
 import net.seapanda.bunnyhop.common.BhConstants;
-import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.model.node.BhNode;
 
 /**
@@ -36,9 +39,11 @@ public class CallStackCell extends ListCell<CallStackItem> {
   /** {@link #model} に対応する {@link BhNode} の選択状態が変わったときのイベントハンドラ. */
   private final Consumer<? super BhNode.SelectionEvent>
       onNodeSelStateChanged = event -> decorateText(event.isSelected());
+  private final Map<BhNode, Set<CallStackCell>> nodeToCells;
 
   /** コンストラクタ. */
-  public CallStackCell() {
+  public CallStackCell(Map<BhNode, Set<CallStackCell>> nodeToCells) {
+    this.nodeToCells = nodeToCells;
     getStyleClass().add(BhConstants.Css.CALL_STACK_ITEM);
     setOnMousePressed(event -> clearSelectionIfEmpty());
   }
@@ -53,7 +58,7 @@ public class CallStackCell extends ListCell<CallStackItem> {
   protected void updateItem(CallStackItem item, boolean empty) {
     super.updateItem(item, empty);
     setText(getText(item, empty));
-    setEventHandlers(item, empty);
+    mapCellToNode(item, empty);
     if (item != null) {
       decorateText(item.getNode().map(BhNode::isSelected).orElse(false));
     }
@@ -65,27 +70,35 @@ public class CallStackCell extends ListCell<CallStackItem> {
     if (empty || item == null) {
       return null;
     }
-    if (item.isNotCalled()) {
-      return "[%s]    %s".formatted(TextDefs.Debugger.CallStack.next.get(), item.getName());
-    }
     if (item.getIdx() < 0) {
       return "      %s".formatted(item.getName());
     }
     return "[%s]    %s".formatted(item.getIdx(), item.getName());
   }
 
-  private void setEventHandlers(CallStackItem item, boolean empty) {
-    if ((empty || model != item) && model != null) {
-      model.getNode().ifPresent(node ->
-          node.getCallbackRegistry().getOnSelectionStateChanged().remove(onNodeSelStateChanged));
-    }
-    if (!empty && model != item && item != null) {
-      item.getNode().ifPresent(node ->
-          node.getCallbackRegistry().getOnSelectionStateChanged().add(onNodeSelStateChanged));
+  /** {@code item} が持つ {@link BhNode} とこのセルを {@link #nodeToCells} の中で対応付ける. */
+  private void mapCellToNode(CallStackItem item, boolean empty) {
+    synchronized (nodeToCells) {
+      if ((empty || model != item) && model != null) {
+        model.getNode().ifPresent(node -> {
+          if (nodeToCells.containsKey(node)) {
+            nodeToCells.get(node).remove(this);
+          }
+        });
+      }
+      if (!empty && model != item && item != null) {
+        item.getNode().ifPresent(node -> {
+          nodeToCells.computeIfAbsent(
+                  node,
+                  key -> Collections.<CallStackCell>newSetFromMap(new WeakHashMap<>()))
+              .add(this);
+        });
+      }
     }
   }
 
-  private void decorateText(boolean val) {
+  /** このセルに描画される文字を装飾する. */
+  public void decorateText(boolean val) {
     PseudoClass cls = PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_TEXT_DECORATE);
     pseudoClassStateChanged(cls, val);
   }

@@ -54,7 +54,11 @@ public class ThreadSelection {
    * @return {@link ThreadSelection} オブジェクト.
    */
   public static ThreadSelection of(long id) {
-    if (id <= 0) {
+    if (id == NONE.id) {
+      return NONE;
+    } else if (id == ALL.id) {
+      return ALL;
+    } else if (id <= 0) {
       throw new AssertionError("Invalid thread id (%s)".formatted(id));
     }
     return new ThreadSelection(id);

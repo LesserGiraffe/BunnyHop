@@ -6,6 +6,7 @@
   breakpoint="ignore"
   onCompileErrorChecking="IsOutOfScope.js"
   onAliasAsked="OnAliasAsked.js"
+  onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
   version="bhn-1.0.0">
 
   <ConnectorSection name="NumExpSctn">

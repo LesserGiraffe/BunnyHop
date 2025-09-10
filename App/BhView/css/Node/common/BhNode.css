@@ -40,7 +40,7 @@
   -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
 }
 
-.BhNode:nextStep {
+.BhNode:nxecStep {
   -fx-stroke: linear-gradient(from 0mm 0mm to 3mm 3mm, repeat, gold 50%, black 0mm);
   -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
 }

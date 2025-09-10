@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.model.node.event;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.model.node.BhNode;
@@ -184,4 +185,11 @@ public interface NodeEventInvoker {
    * @return {@code target} のエイリアス.
    */
   String onAliasAsked(BhNode target);
+
+  /**
+   * {@code target} にユーザ定義名がある場合, それを取得する.
+   *
+   * @return {@code target} のユーザ定義名.
+   */
+  Optional<String> onUserDefinedNameAsked(BhNode target);
 }

@@ -20,8 +20,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.SequencedCollection;
+import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
@@ -32,31 +34,42 @@ import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
  */
 public class VariableInfo {
 
-  public final long threadId;
-  public final int frameIdx;
-  private final Map<BhNode, Variable> nodeToVar;
+  /** このオブジェクトが特定のスタックフレームの変数情報を保持する場合, そのスタックフレームの ID を保持する. */
+  private final StackFrameId stackFrameId;
+  private final Map<BhSymbolId, Variable> varIdToVar = new LinkedHashMap<>();
   private final CallbackRegistry cbRegistry = new CallbackRegistry();
 
   /**
    * コンストラクタ.
    *
-   * @param threadId {@code variables} を持つコールスタックと関連するスレッドの ID
-   * @param frameIdx {@code variables} を持つスタックフレームの ID
+   * @param stackFrameId {@code variables} を持つスタックフレームの ID
    * @param variables このオブジェクトに格納する変数情報
    */
-  public VariableInfo(long threadId, int frameIdx, SequencedCollection<Variable> variables) {
-    if (threadId <= 0) {
-      throw new IllegalArgumentException("Invalid Thread ID (%s)".formatted(threadId));
-    }
-    if (frameIdx <= -1) {
-      throw new IllegalArgumentException("Invalid Frame Index (%s)".formatted(frameIdx));
-    }
-    this.threadId = threadId;
-    this.frameIdx = frameIdx;
-    nodeToVar = new LinkedHashMap<>();
+  public VariableInfo(StackFrameId stackFrameId, SequencedCollection<Variable> variables) {
+    Objects.requireNonNull(stackFrameId, "stackFrameId cannot be null");
+    this.stackFrameId = stackFrameId;
     for (Variable variable : variables) {
-      nodeToVar.put(variable.node, variable);
+      varIdToVar.put(variable.id, variable);
     }
+  }
+
+  /**
+   * コンストラクタ.
+   *
+   * @param stackFrameId {@code variable} を持つスタックフレームの ID
+   * @param variable このオブジェクトに格納する変数情報
+   */
+  public VariableInfo(StackFrameId stackFrameId, Variable variable) {
+    this(stackFrameId, List.of(variable));
+  }
+
+  /**
+   * コンストラクタ.
+   *
+   * @param stackFrameId {@code variable} を持つスタックフレームの ID
+   */
+  public VariableInfo(StackFrameId stackFrameId) {
+    this(stackFrameId, new ArrayList<>());
   }
 
   /**
@@ -65,41 +78,34 @@ public class VariableInfo {
    * @param variables このオブジェクトに格納する変数情報
    */
   public VariableInfo(SequencedCollection<Variable> variables) {
-    this.threadId = -1;
-    this.frameIdx = -1;
-    nodeToVar = new LinkedHashMap<>();
+    stackFrameId = null;
     for (Variable variable : variables) {
-      nodeToVar.put(variable.node, variable);
+      varIdToVar.put(variable.id, variable);
     }
   }
 
   /**
-   * このオブジェクトが持つ変数情報を返す.
+   * コンストラクタ.
+   *
+   * @param variable このオブジェクトに格納する変数情報
    */
+  public VariableInfo(Variable variable) {
+    this(List.of(variable));
+  }
+
+  /** コンストラクタ. */
+  public VariableInfo() {
+    this(new ArrayList<>());
+  }
+
+  /** このオブジェクトが持つ変数情報を返す. */
   public synchronized SequencedCollection<Variable> getVariables() {
-    return new ArrayList<>(nodeToVar.values());
+    return new ArrayList<>(varIdToVar.values());
   }
 
-  /**
-   * このオブジェクトが持つ変数情報がローカル変数のものであった場合, 関連するスレッドの ID を返す. <br>
-   * このオブジェクトが持つ変数情報がグローバル変数のものであった場合は empty を返す.
-   */
-  public Optional<Long> getThreadId() {
-    if (threadId < 0) {
-      return Optional.empty();
-    }
-    return Optional.of(threadId);
-  }
-
-  /**
-   * このオブジェクトが持つ変数情報がローカル変数のものであった場合, 関連するスタックフレームのインデックスを返す. <br>
-   * このオブジェクトが持つ変数情報がグローバル変数のものであった場合は empty を返す.
-   */
-  public Optional<Integer> getFrameIdx() {
-    if (frameIdx < 0) {
-      return Optional.empty();
-    }
-    return Optional.of(frameIdx);
+  /** このオブジェクトが特定のスタックフレームの変数情報を保持する場合, そのスタックフレームの ID を返す. */
+  public Optional<StackFrameId> getStackFrameId() {
+    return Optional.ofNullable(stackFrameId);
   }
 
   /**
@@ -112,13 +118,13 @@ public class VariableInfo {
    * {@link ListVariable} が存在していた場合, 既存の {@link ListVariable} に新しい要素が追加される.
    * その際, 重複したインデックスの値は追加した変数情報のもので置き換えられる.
    */
-  public synchronized void addVariables(List<Variable> variables) {
+  public synchronized void addVariables(SequencedCollection<Variable> variables) {
     List<Variable> newVars = new ArrayList<>();
     for (Variable variable : variables) {
-      Variable existing = nodeToVar.get(variable.node);
+      Variable existing = varIdToVar.get(variable.id);
       switch (existing) {
         case null -> {
-          nodeToVar.put(variable.node, variable);
+          varIdToVar.put(variable.id, variable);
           newVars.add(variable);
         }
         case ScalarVariable registered
@@ -164,5 +170,5 @@ public class VariableInfo {
    * @param varInfo {@code context} を取得したデバッガ
    * @param added 追加された変数情報
    */
-  public record VariablesAddedEvent(VariableInfo varInfo, List<Variable> added) {}
+  public record VariablesAddedEvent(VariableInfo varInfo, SequencedCollection<Variable> added) {}
 }

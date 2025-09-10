@@ -231,7 +231,8 @@ class BhNodeBuilder {
         nodeAttrs.onCompanionNodesCreating(),
         nodeAttrs.onCreatedAsTemplate(),
         nodeAttrs.onDragStarted(),
-        nodeAttrs.onAliasAsked());
+        nodeAttrs.onAliasAsked(),
+        nodeAttrs.onUserDefinedNameAsked());
     if (!allScriptsFound) {
       return Optional.empty();
     }
@@ -242,14 +243,7 @@ class BhNodeBuilder {
             derivationToDerivative, nodeAttrs));
   }
 
-  /**
-   * {@link TextNode} を構築する.
-   *
-   * @param elem Node エレメント
-   * @param type 関連する BhNodeView の種類
-   * @param checkViewComponent GUI部品の有無をチェックする場合true
-   * @return {@link TextNode} オブジェクト
-   */
+  /** {@link TextNode} を構築する. */
   private Optional<TextNode> genTextNode(Element elem) {
     BhNodeAttributes nodeAttrs = BhNodeAttributes.create(elem, textDb);
 
@@ -286,7 +280,8 @@ class BhNodeBuilder {
         nodeAttrs.onTextOptionsCreating(),
         nodeAttrs.onCreatedAsTemplate(),
         nodeAttrs.onDragStarted(),
-        nodeAttrs.onAliasAsked());
+        nodeAttrs.onAliasAsked(),
+        nodeAttrs.onUserDefinedNameAsked());
     if (!allScriptsFound) {
       return Optional.empty();
     }

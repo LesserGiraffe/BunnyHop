@@ -16,10 +16,14 @@
 
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalListValsResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalVarsResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetLocalListValsResp;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetLocalVarsResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
 
 /**
- * デバッグ情報を処理する機能を規定したインタフェース.
+ * BhProgram とやりとりするデバッグ情報を処理する機能を規定したインタフェース.
  *
  * @author K.Koike
  */
@@ -31,4 +35,32 @@ public interface DebugMessageProcessor {
    * @param context スレッドコンテキスト
    */
   void process(BhThreadContext context);
+
+  /**
+   * {@link GetLocalVarsResp} を処理する.
+   *
+   * @param resp 処理するレスポンス.
+   */
+  void process(GetLocalVarsResp resp);
+
+  /**
+   * {@link GetLocalListValsResp} を処理する.
+   *
+   * @param resp 処理するレスポンス.
+   */
+  void process(GetLocalListValsResp resp);
+
+  /**
+   * {@link GetGlobalVarsResp} を処理する.
+   *
+   * @param resp 処理するレスポンス.
+   */
+  void process(GetGlobalVarsResp resp);
+
+  /**
+   * {@link GetGlobalListValsResp} を処理する.
+   *
+   * @param resp 処理するレスポンス.
+   */
+  void process(GetGlobalListValsResp resp);
 }

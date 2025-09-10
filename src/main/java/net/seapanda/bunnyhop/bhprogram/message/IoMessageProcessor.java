@@ -20,14 +20,13 @@ package net.seapanda.bunnyhop.bhprogram.message;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextResp;
-import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
 
 /**
  * BhProgram の実行環境から受信したメッセージを処理する機能を規定したインタフェース.
  *
  * @author K.Koike
  */
-public interface BhProgramMessageProcessor {
+public interface IoMessageProcessor {
 
   /**
    * {@link OutputTextCmd} を処理する.
@@ -35,19 +34,12 @@ public interface BhProgramMessageProcessor {
    * @param cmd 処理するコマンド
    * @return {@code cmd} に対応する応答データ
    */
-  public OutputTextResp process(OutputTextCmd cmd);
+  OutputTextResp process(OutputTextCmd cmd);
 
   /**
    * {@link InputTextResp} を処理する.
    *
    * @param resp 処理するレスポンス.
    */
-  public void process(InputTextResp resp);
-
-  /**
-   * {@link BhThreadContext} を処理する.
-   *
-   * @param context 処理するスレッドコンテキスト
-   */
-  public void process(BhThreadContext context);
+  void process(InputTextResp resp);
 }

@@ -56,10 +56,10 @@ public class WorkspaceSelectorController {
         onWsSelected.accept(new WorkspaceSelectionEvent(oldVal, newVal, newVal == wsForAll)));
     ViewUtil.enableAutoResize(wsComboBox, Workspace::getName);
     wss.getWorkspaces().forEach(wsComboBox.getItems()::add);    
-    wss.getCallbackRegistry().getOnWorkspaceAdded().add(
-        event -> wsComboBox.getItems().add(event.ws()));
-    wss.getCallbackRegistry().getOnWorkspaceRemoved().add(
-        event -> wsComboBox.getItems().remove(event.ws()));
+    wss.getCallbackRegistry().getOnWorkspaceAdded()
+        .add(event -> wsComboBox.getItems().add(event.ws()));
+    wss.getCallbackRegistry().getOnWorkspaceRemoved()
+        .add(event -> wsComboBox.getItems().remove(event.ws()));
     wss.getCallbackRegistry().getOnWorkspaceNameChanged().add(event -> reregisterItems());
   }
 

@@ -20,8 +20,6 @@ package net.seapanda.bunnyhop.bhprogram.message;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextResp;
-import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
-import net.seapanda.bunnyhop.bhprogram.debugger.DebugMessageProcessor;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
@@ -31,21 +29,17 @@ import net.seapanda.bunnyhop.service.MessageService;
  *
  * @author K.Koike
  */
-public class BhProgramMessageProcessorImpl implements BhProgramMessageProcessor {
+public class IoMessageProcessorImpl implements IoMessageProcessor {
 
   private final MessageService msgService;
-  private final DebugMessageProcessor debugMsgProcessor;
 
   /**
    * コンストラクタ.
    *
    * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
-   * @param debugMsgProcessor デバッグ情報を処理するオブジェクト.
    */
-  public BhProgramMessageProcessorImpl(
-      MessageService msgService, DebugMessageProcessor debugMsgProcessor) {
+  public IoMessageProcessorImpl(MessageService msgService) {
     this.msgService = msgService;
-    this.debugMsgProcessor = debugMsgProcessor;
   }
 
   @Override
@@ -59,25 +53,6 @@ public class BhProgramMessageProcessorImpl implements BhProgramMessageProcessor 
     if (!resp.success) {
       msgService.info(TextDefs.BhRuntime.Communication.failedToProcessText.get(resp.text));
       LogManager.logger().error("Failed to process a text data.  (%s)".formatted(resp.text));
-    }
-  }
-
-  @Override
-  public void process(BhThreadContext context) {
-    logErrMsg(context.getException());
-    debugMsgProcessor.process(context);
-  }
-
-  private void logErrMsg(Exception exception) {
-    String errMsg = "";
-    if (exception != null) {
-      errMsg = exception.getMessage();
-      if (exception.getCause() != null) {
-        errMsg += "\n" + exception.getCause().getMessage();
-      }
-    }
-    if (!errMsg.isEmpty()) {
-      LogManager.logger().error(errMsg);
     }
   }
 }

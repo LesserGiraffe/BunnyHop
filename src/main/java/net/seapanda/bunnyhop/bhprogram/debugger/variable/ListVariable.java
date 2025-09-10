@@ -23,7 +23,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import net.seapanda.bunnyhop.bhprogram.common.message.variable.ListVariable.Slice;
+import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
+import net.seapanda.bunnyhop.bhprogram.common.message.variable.BhListVariable.Slice;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
@@ -43,23 +44,28 @@ public class ListVariable extends Variable {
   /**
    * コンストラクタ.
    *
-   * @param node リスト変数に対応する {@link BhNode}
+   * @param id 変数の ID
+   * @param name 変数名
+   * @param node 変数に対応する {@link BhNode}. (nullable)
    * @param length リストの長さ
    */
-  public ListVariable(BhNode node, int length) {
-    super(node);
+  public ListVariable(BhSymbolId id, String name, BhNode node, int length) {
+    super(id, name, node);
     this.length = length;
   }
 
   /**
    * コンストラクタ.
    *
-   * @param node リスト変数に対応する {@link BhNode}
+   * @param id 変数の ID
+   * @param name 変数名
+   * @param node 変数に対応する {@link BhNode}. (nullable)
    * @param length リストの長さ
    * @param slices リストが保持する要素. (一部でも良い)
    */
-  public ListVariable(BhNode node, int length, Collection<Slice> slices) {
-    super(node);
+  public ListVariable(
+      BhSymbolId id, String name, BhNode node, int length, Collection<Slice> slices) {
+    super(id, name, node);
     this.length = length;
     for (Slice slice : slices) {
       for (int i = 0; i < slice.vals().size(); ++i) {

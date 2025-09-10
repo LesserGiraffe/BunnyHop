@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.bhprogram.debugger.variable;
 
+import java.util.Optional;
+import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
 import net.seapanda.bunnyhop.model.node.BhNode;
 
 /**
@@ -25,10 +27,37 @@ import net.seapanda.bunnyhop.model.node.BhNode;
  */
 public abstract class Variable {
 
+  /** 変数の ID. */
+  public final BhSymbolId id;
+  /** 変数名. */
+  public final String name;
   /** 変数に対応する {@link BhNode}. */
-  public final BhNode node;
+  private volatile BhNode node;
 
-  Variable(BhNode node) {
+  /**
+   * コンストラクタ.
+   *
+   * @param id 変数の ID
+   * @param name 変数名
+   * @param node 変数に対応する {@link BhNode}. (nullable)
+   */
+  Variable(BhSymbolId id, String name, BhNode node) {
+    this.id = id;
+    this.name = name;
+    this.node = node;
+  }
+
+  /** このオブジェクトが情報を保持する変数に対応する {@link BhNode} を取得する. */
+  public Optional<BhNode> getNode() {
+    return Optional.ofNullable(node);
+  }
+
+  /**
+   * このオブジェクトの変数に対応する {@link BhNode} を設定する.
+   *
+   * @param node 設定する {@link BhNode}. (nullable)
+   */
+  public void setNode(BhNode node) {
     this.node = node;
   }
 }

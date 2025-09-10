@@ -142,6 +142,8 @@ public interface Debugger {
   /**
    * デバッガの「現在のスタックフレーム」となるスタックフレームを選択する.
    *
+   * <p>デバッガの「現在のスレッド」として特定の ID を持つスレッドが選択されていない場合はなにもしない.
+   *
    * @param selection スタックフレームの選択状態を表すオブジェクト
    */
   void selectCurrentStackFrame(StackFrameSelection selection);

@@ -12,6 +12,7 @@
   onCopyRequested="OnCopyRequested.js"
   onDragStarted="OnGlobalDataDeclDragStarted.js"
   onAliasAsked="OnAliasAsked.js"
+  onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
   version="bhn-1.0.0">
 
   <Derivation derivationID="dervIdMutexBlockStat" derivativeID="idMutexBlockStat"/>

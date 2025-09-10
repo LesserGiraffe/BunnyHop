@@ -62,12 +62,12 @@ public class ThreadStateViewController {
     }
     ViewUtil.runSafe(() -> {
       PseudoClass pseudo = PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR);
-      threadStateText.setText(getThreadStateText(context.state()));
-      if (context.state() != BhThreadState.ERROR) {
+      threadStateText.setText(getThreadStateText(context.state));
+      if (context.state != BhThreadState.ERROR) {
         threadStateText.pseudoClassStateChanged(pseudo, false);
         threadStateText.setOnMousePressed(null);
-      } else if (context.state() == BhThreadState.ERROR) {
-        String errMsg = DebugUtil.getErrMsg(context.exception());
+      } else {
+        String errMsg = context.getException().map(DebugUtil::getErrMsg).orElse("");
         errMsgTooltip.setText(errMsg);
         threadStateText.pseudoClassStateChanged(pseudo, true);
         threadStateText.setOnMousePressed(event -> toggleErrTooltipVisibility());

@@ -43,10 +43,10 @@ import javafx.stage.WindowEvent;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncherImpl;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramControllerImpl;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
-import net.seapanda.bunnyhop.bhprogram.debugger.BhDebugMessageProcessor;
 import net.seapanda.bunnyhop.bhprogram.debugger.BhDebugger;
+import net.seapanda.bunnyhop.bhprogram.debugger.DebugMessageProcessorImpl;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
-import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageProcessorImpl;
+import net.seapanda.bunnyhop.bhprogram.message.IoMessageProcessorImpl;
 import net.seapanda.bunnyhop.bhprogram.runtime.RmiLocalBhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.runtime.RmiRemoteBhRuntimeController;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -233,18 +233,18 @@ public class AppMain extends Application {
       final var debugViewFactory = new DebugViewFactoryImpl(
           callStackViewFile,
           varInspectionViewFilePath,
-          mediator,
           sceneBuilder.searchBoxCtrl,
-          debugger);
+          debugger,
+          wss);
       new ThreadContextPresenter(debugger, msgService);
       final var mainRoutineIds =
           List.of(localCompiler.mainRoutineId(), remoteCompiler.mainRoutineId());
-      final var debugMsgProcessor = new BhDebugMessageProcessor(wss, debugger, mainRoutineIds);
-      final var msgProcessor = new BhProgramMessageProcessorImpl(msgService, debugMsgProcessor);
-      final var localMsgDispatcher =
-          new BhProgramMessageDispatcher(msgProcessor, simCmdProcessor, localRuntimeCtrl);
-      final var remoteMsgDispatcher =
-          new BhProgramMessageDispatcher(msgProcessor, simCmdProcessor, remoteRuntimeCtrl);
+      final var debugMsgProcessor = new DebugMessageProcessorImpl(wss, debugger, mainRoutineIds);
+      final var msgProcessor = new IoMessageProcessorImpl(msgService);
+      final var localMsgDispatcher = new BhProgramMessageDispatcher(
+          msgProcessor, debugMsgProcessor, simCmdProcessor, localRuntimeCtrl);
+      final var remoteMsgDispatcher = new BhProgramMessageDispatcher(
+          msgProcessor, debugMsgProcessor, simCmdProcessor, remoteRuntimeCtrl);
       final var pastePosOffsetCount = new MutableInt(-2);
       final var copyAndPaste = new CopyAndPaste(nodeFactory, pastePosOffsetCount);
       final var cutAndPaste = new CutAndPaste(pastePosOffsetCount);

@@ -5,6 +5,7 @@
   nodeStyleID="ColorArg.json"
   breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
+  onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
   version="bhn-1.0.0">
 
   <ConnectorSection>

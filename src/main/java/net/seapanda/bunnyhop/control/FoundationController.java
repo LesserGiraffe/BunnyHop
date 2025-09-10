@@ -105,14 +105,10 @@ public class FoundationController {
         cutAndPaste,
         msgService,
         debugWindowCtrl);
-    if (!success) {
-      return false;
-    }
-    menuBarController.initialize(
-        wss, notifService, undoRedoAgent, importer, exporter, msgService);
-    notifViewController.initialize(wss, debugger, debugViewFactory, notifService);
+    menuBarController.initialize(wss, notifService, undoRedoAgent, importer, exporter, msgService);
+    success &= notifViewController.initialize(wss, debugger, debugViewFactory, notifService);
     setKeyEvents();
-    return true;
+    return success;
   }
 
   public MenuBarController getMenuBarController() {

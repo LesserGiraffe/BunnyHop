@@ -272,11 +272,11 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     circle.setMouseTransparent(true);
     circle.setVisible(false);
     circle.getStyleClass().add(style.commonPart.breakpoint.cssClass);
-    double size = style.commonPart.nextStepMark.size;
+    double size = style.commonPart.nxecStepMark.size;
     Polygon star = createStarPolygon(size, size);
     star.setMouseTransparent(true);
     star.setVisible(false);
-    star.getStyleClass().add(style.commonPart.nextStepMark.cssClass);
+    star.getStyleClass().add(style.commonPart.nxecStepMark.cssClass);
     return new Shapes(nodeShape, compileErrorMark, circle, star);
   }
 
@@ -338,7 +338,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     
     common.setPickOnBounds(false);
     common.getStyleClass().add(style.commonPart.cssClass);
-    common.getChildren().add(shapes.nextStep);
+    common.getChildren().add(shapes.nxecStep);
     common.getChildren().add(shapes.breakpoint);
     common.getChildren().addAll(components);
     common.getChildren().forEach(child -> {
@@ -559,15 +559,15 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     }
 
     @Override
-    public void setNextStepMarkVisibility(boolean visible) {
+    public void setExecStepMarkVisibility(boolean visible) {
       BhNodeViewBase.this.getLookManager()
-          .switchPseudoClassState(BhConstants.Css.PSEUDO_NEXT_STEP, visible);
-      shapes.nextStep.setVisible(visible);
+          .switchPseudoClassState(BhConstants.Css.PSEUDO_EXEC_STEP, visible);
+      shapes.nxecStep.setVisible(visible);
     }
 
     @Override
-    public boolean isNextStepMarkVisible() {
-      return shapes.nextStep.isVisible();
+    public boolean isExecStepMarkVisible() {
+      return shapes.nxecStep.isVisible();
     }
   }
 
@@ -1127,11 +1127,11 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
    * @param nodeShape ノード本体を描画するためのポリゴン
    * @param compileError コンパイルエラーが発生していることを示す印
    * @param breakpoint ブレークポイントが設定されていることを示す印
-   * @param nextStep 次に実行されるノードであることを示す印
+   * @param nxecStep 次に実行されるノードであることを示す印
    */
   private record Shapes(
       Polygon nodeShape,
       CompileErrorMark compileError,
       Circle breakpoint,
-      Polygon nextStep) {}
+      Polygon nxecStep) {}
 }
