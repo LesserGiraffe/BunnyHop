@@ -36,18 +36,32 @@ public class ThreadSelectorController {
 
   @FXML private ComboBox<Long> threadComboBox;
 
-  /** 初期化する. */
-  public void initialize(Debugger debugger) {
+  private final Debugger debugger;
+
+  /** コンストラクタ. */
+  public ThreadSelectorController(Debugger debugger) {
+    this.debugger = debugger;
+  }
+
+  /** このコントローラの UI 要素を初期化する. */
+  @FXML
+  public void initialize() {
+    setEventHandlers();
+    reset();
+  }
+
+  /** イベントハンドラを設定する. */
+  private void setEventHandlers() {
+    Debugger.CallbackRegistry cbRegistry = debugger.getCallbackRegistry();
+    cbRegistry.getOnCleared().add(event -> reset());
+    cbRegistry.getOnCurrentThreadChanged().add(this::onCurrentThreadChanged);
     threadComboBox.setButtonCell(new ThreadSelectorListCell());
     threadComboBox.setCellFactory(items -> new ThreadSelectorListCell());
     threadComboBox.valueProperty().addListener(
         (observable, oldVal, newVal) -> selectCurrentThread(debugger, newVal));
-    Debugger.CallbackRegistry cbRegistry = debugger.getCallbackRegistry();
-    cbRegistry.getOnCleared().add(event -> reset());
-    cbRegistry.getOnCurrentThreadChanged().add(this::onCurrentThreadChanged);
     threadComboBox.addEventFilter(MouseEvent.MOUSE_RELEASED, this::consumeIfNotAcceptable);
-    reset();
   }
+
 
   /** {@code newVal} に応じて {@code debugger} の現在のスレッドを変更する. */
   private static void selectCurrentThread(Debugger debugger, Long newVal) {

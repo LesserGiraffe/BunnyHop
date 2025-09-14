@@ -37,7 +37,7 @@ import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.model.node.event.UiEvent;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
-import net.seapanda.bunnyhop.view.Trashbox;
+import net.seapanda.bunnyhop.view.TrashCan;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 import net.seapanda.bunnyhop.view.node.BhNodeView.LookManager.EffectTarget;
 import net.seapanda.bunnyhop.view.node.BhNodeView.MouseEventInfo;
@@ -53,7 +53,7 @@ public class DefaultBhNodeController implements BhNodeController {
   private final BhNode model;
   private final BhNodeView view;
   private final ModelAccessNotificationService notifService;
-  private final Trashbox trashbox;
+  private final TrashCan trashCan;
   private final DndEventInfo ddInfo = new DndEventInfo();
   private final MouseCtrlLock mouseCtrlLock =
       new MouseCtrlLock(MouseButton.PRIMARY, MouseButton.SECONDARY);
@@ -64,21 +64,21 @@ public class DefaultBhNodeController implements BhNodeController {
    * @param model 管理するモデル
    * @param view 管理するビュー
    * @param service モデルへのアクセスの通知先となるオブジェクト
-   * @param trashbox ゴミ箱のビューを操作するためのオブジェクト
+   * @param trashCan ゴミ箱のビューを操作するためのオブジェクト
    */
   public DefaultBhNodeController(
       BhNode model,
       BhNodeView view,
       ModelAccessNotificationService service,
-      Trashbox trashbox) {
+      TrashCan trashCan) {
     Objects.requireNonNull(model);
     Objects.requireNonNull(view);
     Objects.requireNonNull(service);
-    Objects.requireNonNull(trashbox);
+    Objects.requireNonNull(trashCan);
     this.model = model;
     this.view = view;
     this.notifService = service;
-    this.trashbox = trashbox;
+    this.trashCan = trashCan;
     model.setView(view);
     view.setController(this);
     setViewEventHandlers();
@@ -159,7 +159,7 @@ public class DefaultBhNodeController implements BhNodeController {
         // ドラッグ検出されていない場合, 強調は行わない.
         // 子ノードがワークスペース直下にいないのに, 重なったノード (入れ替え候補) が検出されるのを防ぐ
         highlightOverlappedNode();
-        trashbox.auto(event.getSceneX(), event.getSceneY());
+        trashCan.auto(event.getSceneX(), event.getSceneY());
       }
     } catch (Throwable e) {
       terminateDnd();
@@ -305,12 +305,12 @@ public class DefaultBhNodeController implements BhNodeController {
 
   /** ゴミ箱に入れられたノードを削除する. */
   private void deleteTrashedNode(MouseEvent event) {
-    if (model.isRoot() && trashbox.isOpened()) {
+    if (model.isRoot() && trashCan.isOpened()) {
       boolean canDelete = model.getEventInvoker().onDeletionRequested(
           new ArrayList<>() {{
             add(model);
           }},
-          CauseOfDeletion.TRASH_BOX,
+          CauseOfDeletion.TRASH_CAN,
           ddInfo.context.userOpe());
       if (!canDelete) {
         return;
@@ -391,7 +391,7 @@ public class DefaultBhNodeController implements BhNodeController {
 
   /** D&D を終えたときの処理. */
   private void terminateDnd() {
-    trashbox.close();
+    trashCan.close();
     mouseCtrlLock.unlock();
     view.setMouseTransparent(false);
     ddInfo.reset();

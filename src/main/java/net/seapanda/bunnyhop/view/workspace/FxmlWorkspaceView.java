@@ -135,7 +135,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     this.workspace = workspace;
     minPaneSize = new Vec2D(size);
     this.notifService = service;
-    configurGuiComponents(filePath);
+    configureGuiComponents(filePath);
     setEventHandlers();
     quadTreeMngForBody =
         new QuadTreeManager(BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
@@ -146,7 +146,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   }
 
   /** GUI 部品の設定を行う. */
-  private void configurGuiComponents(Path filePath)
+  private void configureGuiComponents(Path filePath)
       throws ViewConstructionException {
     try {
       FXMLLoader loader = new FXMLLoader(filePath.toUri().toURL());

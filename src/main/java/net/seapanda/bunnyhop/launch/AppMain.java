@@ -33,6 +33,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 import javafx.application.Application;
 import javafx.scene.control.Alert;
@@ -47,6 +48,7 @@ import net.seapanda.bunnyhop.bhprogram.debugger.BhDebugger;
 import net.seapanda.bunnyhop.bhprogram.debugger.DebugMessageProcessorImpl;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.IoMessageProcessorImpl;
+import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
 import net.seapanda.bunnyhop.bhprogram.runtime.RmiLocalBhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.runtime.RmiRemoteBhRuntimeController;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -57,8 +59,11 @@ import net.seapanda.bunnyhop.common.TextFetcher;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.BhCompilerImpl;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
+import net.seapanda.bunnyhop.control.SearchBoxController;
 import net.seapanda.bunnyhop.control.debugger.ThreadContextPresenter;
 import net.seapanda.bunnyhop.control.nodeselection.BhNodeSelectionViewProxyImpl;
+import net.seapanda.bunnyhop.control.workspace.TrashCanController;
+import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
 import net.seapanda.bunnyhop.export.JsonProjectExporter;
 import net.seapanda.bunnyhop.export.JsonProjectImporter;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactoryImpl;
@@ -178,34 +183,24 @@ public class AppMain extends Application {
           BhConstants.Path.Dir.BH_DEF,
           BhConstants.Path.Dir.CONNECTOR_DEF);
 
-      final var sceneBuilder = new SceneBuilder(guiDefFile, debugDefFile);
-      msgService.setMainMsgArea(sceneBuilder.notifViewCtrl.getMsgArea());
-      msgService.setWindowStyle(sceneBuilder.scene.getStylesheets());
-
-      final var simulator = createSimulator();
-      final var nodeSelViewProxy =
-          new BhNodeSelectionViewProxyImpl(sceneBuilder.wssCtrl::addNodeSelectionView);
-      final var derivativeCache = new DerivativeCache();
       final var wss = new WorkspaceSet();
+      final var wssCtrl = new WorkspaceSetController(wss);
+      final var nodeSelViewProxy = new BhNodeSelectionViewProxyImpl(
+          nodeSelectionViewFile, wssCtrl::addNodeSelectionView);
+      final var derivativeCache = new DerivativeCache();
       final var undoRedoAgent = new UndoRedoAgent(wss);
+      final var compileErrReporter = new CompileErrorReporter(wss);
       final var mediator = new ModelAccessMediator(
-          new ModelExclusiveControl(),
-          derivativeCache,
-          new CompileErrorReporter(wss),
-          undoRedoAgent);
+          new ModelExclusiveControl(), derivativeCache, compileErrReporter, undoRedoAgent);
       final var scriptRepository = new BhScriptRepositoryImpl(scriptDirs);
       final var viewStyleFactory = new JsonBhNodeViewStyleFactory(viewStyleDir);
       final var buttonFactory = new PrivateTemplateButtonFactoryImpl(
           btnFile, viewStyleFactory, mediator, nodeSelViewProxy);
       final var nodeViewFactory = new BhNodeViewFactoryImpl(viewStyleFactory, buttonFactory);
       final var nodeRepository = new XmlBhNodeRepository(scriptRepository);
+      final var trashCanCtrl = new TrashCanController();
       final var nodeFactory = new BhNodeFactoryImpl(
-          nodeRepository,
-          nodeViewFactory,
-          mediator,
-          sceneBuilder.trashboxCtrl,
-          wss,
-          nodeSelViewProxy);
+          nodeRepository, nodeViewFactory, mediator, trashCanCtrl, wss, nodeSelViewProxy);
       final var commonDataSupplier = new CommonDataSupplier(scriptRepository, nodeFactory, textDb);
       final var modelGenerator = new ModelGenerator(
           nodeFactory,
@@ -215,12 +210,12 @@ public class AppMain extends Application {
       nodeRepository.collect(nodeDir, cnctrDir, modelGenerator, textDb);
       final var categoryTree =
           new JsonBhNodeCategoryTree(nodeTemplateListFile, nodeFactory, textDb);
-      final var nodeCategoryBuilder = new BhNodeCategoryBuilder(
-          nodeFactory, nodeSelViewProxy, nodeSelectionViewFile, categoryTree.getRoot());
+      final var nodeCategoryBuilder = new BhNodeCategoryBuilder(categoryTree.getRoot());
       final var wsFactory = new WorkspaceFactoryImpl(
           wsViewFile, nodeShifterViewFile, mediator, nodeSelViewProxy, msgService);
       final var localCompiler = genCompiler(true);
       final var remoteCompiler = genCompiler(false);
+      final var simulator = createSimulator();
       final SimulatorCmdProcessor simCmdProcessor = simulator.getCmdProcessor().get();
       final var localRuntimeCtrl = new RmiLocalBhRuntimeController(simCmdProcessor, msgService);
       final var localBhProgramCtrl =
@@ -229,21 +224,24 @@ public class AppMain extends Application {
           new RmiRemoteBhRuntimeController(msgService, scriptRepository);
       final var remoteBhProgramCtrl =
           new RemoteBhProgramControllerImpl(remoteCompiler, remoteRuntimeCtrl, msgService);
+      final var searchBoxCtrl = new SearchBoxController();
       final var debugger = new BhDebugger(localRuntimeCtrl, remoteRuntimeCtrl, wss);
+      final var debugLock = new ReentrantLock();
       final var debugViewFactory = new DebugViewFactoryImpl(
           callStackViewFile,
           varInspectionViewFilePath,
-          sceneBuilder.searchBoxCtrl,
+          searchBoxCtrl,
           debugger,
-          wss);
+          wss,
+          debugLock);
       new ThreadContextPresenter(debugger, msgService);
       final var mainRoutineIds =
           List.of(localCompiler.mainRoutineId(), remoteCompiler.mainRoutineId());
       final var debugMsgProcessor = new DebugMessageProcessorImpl(wss, debugger, mainRoutineIds);
       final var msgProcessor = new IoMessageProcessorImpl(msgService);
-      final var localMsgDispatcher = new BhProgramMessageDispatcher(
+      new BhProgramMessageDispatcher(
           msgProcessor, debugMsgProcessor, simCmdProcessor, localRuntimeCtrl);
-      final var remoteMsgDispatcher = new BhProgramMessageDispatcher(
+      new BhProgramMessageDispatcher(
           msgProcessor, debugMsgProcessor, simCmdProcessor, remoteRuntimeCtrl);
       final var pastePosOffsetCount = new MutableInt(-2);
       final var copyAndPaste = new CopyAndPaste(nodeFactory, pastePosOffsetCount);
@@ -253,24 +251,13 @@ public class AppMain extends Application {
       if (!checkNodeIdAndNodeTemplate(nodeRepository, viewStyleFactory)) {
         return;
       }
-
-      setOnCloseHandler(
-          stage,
-          localRuntimeCtrl,
-          remoteRuntimeCtrl,
-          msgService,
-          remoteRuntimeCtrl::isProgramRunning,
-          wss::isDirty,
-          () -> sceneBuilder.menuBarCtrl.save(wss));
-      simulator.setOnKeyPressed(keyCode -> onKeyPressed(
-          keyCode,
-          localRuntimeCtrl,
-          remoteRuntimeCtrl,
-          sceneBuilder.foundationCtrl::isBhRuntimeLocal));
-      sceneBuilder.initialize(
+      final var sceneBuilder = new SceneBuilder(
+          guiDefFile,
+          debugDefFile,
           wss,
-          nodeCategoryBuilder,
+          nodeCategoryBuilder.getCategoryRoot(),
           mediator,
+          nodeFactory,
           wsFactory,
           debugViewFactory,
           undoRedoAgent,
@@ -282,9 +269,26 @@ public class AppMain extends Application {
           copyAndPaste,
           cutAndPaste,
           msgService,
-          debugger);
-      sceneBuilder.createWindow(stage, wsFactory);
+          debugger,
+          wssCtrl,
+          searchBoxCtrl,
+          trashCanCtrl);
+
+      setOnCloseHandler(
+          stage,
+          localRuntimeCtrl,
+          remoteRuntimeCtrl,
+          msgService,
+          remoteRuntimeCtrl::isProgramRunning,
+          wss::isDirty,
+          () -> sceneBuilder.menuBarCtrl.save(wss));
+      simulator.setOnKeyPressed(
+          keyCode -> onKeyPressed(keyCode, localRuntimeCtrl, remoteRuntimeCtrl));
+      msgService.setWindowStyle(sceneBuilder.scene.getStylesheets());
+      msgService.setMainMsgArea(sceneBuilder.msgViewCtrl.getMsgArea());
       undoRedoAgent.deleteCommands();
+      sceneBuilder.createWindow(stage, wsFactory);
+
       if (SplashScreen.getSplashScreen() != null) {
         SplashScreen.getSplashScreen().close();
       }
@@ -324,15 +328,16 @@ public class AppMain extends Application {
   private void onKeyPressed(
       int keyCode,
       RmiLocalBhRuntimeController localCtrl,
-      RmiRemoteBhRuntimeController remoteCtrl,
-      Supplier<Boolean> fnCheckIfBhRuntimeIsLocal) {
-    var eventName = KeyCodeConverter.toBhProgramEventName(keyCode).orElse(null);
-    var bhEvent = new BhProgramEvent(eventName, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
-    if (fnCheckIfBhRuntimeIsLocal.get()) {
-      localCtrl.send(bhEvent);
-    } else {
-      remoteCtrl.send(bhEvent);
-    }
+      RmiRemoteBhRuntimeController remoteCtrl) {
+    KeyCodeConverter.toBhProgramEventName(keyCode)
+        .map(name -> new BhProgramEvent(name, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES))
+        .ifPresent(bhEvent -> {
+          if (BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.LOCAL) {
+            localCtrl.send(bhEvent);
+          } else {
+            remoteCtrl.send(bhEvent);
+          }
+        });
   }
 
   /** 終了処理を登録する. */

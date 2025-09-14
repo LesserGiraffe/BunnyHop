@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.view.factory;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.locks.ReentrantLock;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
@@ -41,6 +42,7 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
   private final SearchBox searchBox;
   private final Debugger debugger;
   private final WorkspaceSet wss;
+  private final ReentrantLock debugLock;
   
   /** コンストラクタ. */
   public DebugViewFactoryImpl(
@@ -48,12 +50,14 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
       Path varInspectionViewFilePath,
       SearchBox searchBox,
       Debugger debugger,
-      WorkspaceSet wss) {
+      WorkspaceSet wss,
+      ReentrantLock debugLock) {
     this.callStackViewFilePath = callStackViewFilePath;
     this.varInspectionViewFilePath = varInspectionViewFilePath;
     this.searchBox = searchBox;
     this.debugger = debugger;
     this.wss = wss;
+    this.debugLock = debugLock;
   }
 
   @Override
@@ -61,7 +65,7 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
       throws ViewConstructionException {
     try {
       var root = new VBox();
-      var ctrl = new CallStackController(context, searchBox, debugger, wss);
+      var ctrl = new CallStackController(context, searchBox, debugger, wss, debugLock);
       FXMLLoader loader = new FXMLLoader(callStackViewFilePath.toUri().toURL());
       loader.setRoot(root);
       loader.setController(ctrl);

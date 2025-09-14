@@ -62,20 +62,41 @@ public class DebugViewController {
   private CallStackController emptyCallStackCtrl;
   /** 空の変数情報を表示する変数検査ビューのコントローラ. */
   private VariableInspectionController emptyVarInspCtrl;
-  private DebugViewFactory factory;
-  private Debugger debugger;
+  private final DebugViewFactory factory;
+  private final Debugger debugger;
 
-  /** 初期化する. */
-  public synchronized boolean initialize(Debugger debugger, DebugViewFactory factory) {
+  /** コンストラクタ. */
+  public DebugViewController(Debugger debugger, DebugViewFactory factory) {
     this.factory = factory;
     this.debugger = debugger;
+  }
+
+  /** イベントハンドラを設定する. */
+  private void setEventHandlers() {
     Debugger.CallbackRegistry registry = debugger.getCallbackRegistry();
     registry.getOnThreadContextAdded().add(event -> addThreadContext(event.context()));
     registry.getOnCurrentThreadChanged().add(this::showCallStackView);
     registry.getOnVariableInfoAdded().add(event -> addVariableInfo(event.info()));
     registry.getOnCurrentStackFrameChanged().add(this::showVariableInspectionView);
     registry.getOnCleared().add(event -> resetContents());
-    return createEmptyCtrl() && resetContents();
+  }
+
+  /**
+   * このコントローラの UI 要素を初期化する.
+   *
+   * @throws ViewConstructionException このコントローラが管理するビューの初期化に失敗したとき.
+   */
+  @FXML
+  public void initialize() throws ViewConstructionException {
+    setEventHandlers();
+    boolean success = createEmptyCtrl();
+    if (!success) {
+      throw new ViewConstructionException("Could not create empty view.");
+    }
+    success = resetContents();
+    if (!success) {
+      throw new ViewConstructionException("Could not reset view.");
+    }
   }
 
   /** 空の情報を表示するビューとコントローラを作成する. */

@@ -135,41 +135,31 @@ public class MenuViewController {
   private final AtomicBoolean connecting = new AtomicBoolean(false);
   /** 切断中の場合 true. */
   private final AtomicBoolean disconnecting = new AtomicBoolean(false);
+  /** {@link WorkspaceSet} のコントローラオブジェクト. */
+  private final WorkspaceSetController wssCtrl;
   /** モデルへのアクセスの通知先となるオブジェクト. */
-  private ModelAccessNotificationService notifService;
+  private final ModelAccessNotificationService notifService;
   /** ワークスペース作成用オブジェクト. */
-  private WorkspaceFactory wsFactory;
+  private final WorkspaceFactory wsFactory;
   /** Undo / Redo の実行に使用するオブジェクト. */
-  private UndoRedoAgent undoRedoAgent;
+  private final UndoRedoAgent undoRedoAgent;
   /** ノード選択ビューを操作するときに使用するオブジェクト. */
-  private BhNodeSelectionViewProxy proxy;
+  private final BhNodeSelectionViewProxy proxy;
   /** ローカルマシン上での BhProgram の実行を制御するオブジェクト. */
-  private LocalBhProgramLauncher localCtrl;
+  private final LocalBhProgramLauncher localCtrl;
   /** リモートマシン上での BhProgram の実行を制御するオブジェクト. */
-  private RemoteBhProgramController remoteCtrl;
+  private final RemoteBhProgramController remoteCtrl;
   /** コピー & ペーストの処理に使用するオブジェクト. */
-  private CopyAndPaste copyAndPaste;
+  private final CopyAndPaste copyAndPaste;
   /** カット & ペーストの処理に使用するオブジェクト. */
-  private CutAndPaste cutAndPaste;
+  private final CutAndPaste cutAndPaste;
   /** アプリケーションユーザにメッセージを出力するためのオブジェクト. */
-  private MessageService msgService;
+  private final MessageService msgService;
+  /** デバッグウィンドウのコントローラ. */
+  private final DebugWindowController debugWindowCtrl;
 
-  /**
-   * コントローラを初期化する.
-   *
-   * @param wssCtrl ワークスペースセットのコントローラオブジェクト
-   * @param notifService モデルへのアクセスの通知先となるオブジェクト
-   * @param wsFactory このオブジェクトを使ってワークスペースを作成する
-   * @param undoRedoAgent Undo / Redo の実行に使用するオブジェクト
-   * @param proxy このオブジェクトを使ってノード選択ビューを操作する
-   * @param localCtrl ローカルマシン上での BhProgram の実行を制御するオブジェクト
-   * @param remoteCtrl リモートマシン上での BhProgram の実行を制御するオブジェクト
-   * @param copyAndPaste コピー & ペーストの処理に使用するオブジェクト
-   * @param cutAndPaste カット & ペーストの処理に使用するオブジェクト
-   * @param debugWindowCtrl デバッグウィンドウのコントローラ
-   * @return 成功した場合 true
-   */
-  public boolean initialize(
+  /** コンストラクタ. */
+  public MenuViewController(
       WorkspaceSetController wssCtrl,
       ModelAccessNotificationService notifService,
       WorkspaceFactory wsFactory,
@@ -181,6 +171,7 @@ public class MenuViewController {
       CutAndPaste cutAndPaste,
       MessageService msgService,
       DebugWindowController debugWindowCtrl) {
+    this.wssCtrl = wssCtrl;
     this.notifService = notifService;
     this.wsFactory = wsFactory;
     this.undoRedoAgent = undoRedoAgent;
@@ -190,6 +181,18 @@ public class MenuViewController {
     this.copyAndPaste = copyAndPaste;
     this.cutAndPaste = cutAndPaste;
     this.msgService = msgService;
+    this.debugWindowCtrl = debugWindowCtrl;
+  }
+
+  /** このコントローラを初期化する. */
+  @FXML
+  public void initialize() {
+    setEventHandlers();
+    switchRemoteLocal(BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.REMOTE);
+  }
+
+  /** イベントハンドラを登録する. */
+  private void setEventHandlers() {
     WorkspaceSet wss = wssCtrl.getWorkspaceSet();
     copyBtn.setOnAction(action -> copy(wss)); // コピー
     cutBtn.setOnAction(action -> cut(wss)); // カット
@@ -222,7 +225,6 @@ public class MenuViewController {
     cutAndPaste.getCallbackRegistry().getOnNodeRemoved().add(event -> changePasteButtonState());
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged()
         .add(event -> jumpBtn.setDisable(findNodeToJumpTo(wss).isEmpty()));
-    return true;
   }
 
   /** コピーボタン押下時の処理. */
@@ -595,9 +597,9 @@ public class MenuViewController {
     return Optional.ofNullable(currentWs.getSelectedNodes().getFirst().getOriginal());
   }
 
-  /** ホスト名入力欄にローカルホストが指定してある場合 true を返す. */
-  public boolean isLocalHost() {
-    return !remoteLocalSelBtn.isSelected();
+  /** 現在制御対象になっている BhRuntime の種類を返す. */
+  private boolean isLocalHost() {
+    return BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.LOCAL;
   }
 
   /**

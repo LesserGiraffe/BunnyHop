@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.control.nodeselection;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -28,8 +29,10 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
+import net.seapanda.bunnyhop.view.nodeselection.FxmlBhNodeSelectionView;
 
 /**
  * ノードの選択ビューを操作するクラス.
@@ -42,8 +45,10 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
   private final Map<String, Workspace> categoryNameToWorkspace = new HashMap<>();
   private final Consumer<BhNodeSelectionView> fnAddNodeSelectionViewToGuiTree;
   private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
+  private final Path nodeSelectionViewFilePath;
   /** 現在表示している BhNode のカテゴリ. */
   private String currentCategory = null;
+
 
   /**
    * コンストラクタ.
@@ -51,23 +56,26 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
    * @param fnAddNodeSelectionViewToGuiTree ノード選択ビューを GUI ツリーに追加する関数オブジェクト
    */
   public BhNodeSelectionViewProxyImpl(
+      Path nodeSelectionViewFilePath,
       Consumer<BhNodeSelectionView> fnAddNodeSelectionViewToGuiTree) {
+    this.nodeSelectionViewFilePath = nodeSelectionViewFilePath;
     this.fnAddNodeSelectionViewToGuiTree = fnAddNodeSelectionViewToGuiTree;
   }
 
   @Override
-  public void addNodeSelectionView(BhNodeSelectionView view) {
-    String categoryName = view.getCategoryName();
-    categoryNameToSelectionView.putIfAbsent(categoryName, view);
-    Workspace workspace = categoryNameToWorkspace.computeIfAbsent(categoryName, Workspace::new);
+  public void addNodeSelectionView(String name, String cssClass) throws ViewConstructionException {
+    var view = new FxmlBhNodeSelectionView(nodeSelectionViewFilePath, name, cssClass);
+    categoryNameToSelectionView.putIfAbsent(name, view);
+    Workspace workspace = categoryNameToWorkspace.computeIfAbsent(name, Workspace::new);
     Workspace.CallbackRegistry registry = workspace.getCallbackRegistry();
     registry.getOnNodeAdded().add(event -> addNodeView(event.node(), view));
     registry.getOnNodeRemoved().add(event -> removeNodeView(event.node(), view));
     registry.getOnRootNodeAdded().add(event -> specifyNodeViewAsRoot(event.node(), view));
     registry.getOnRootNodeRemoved().add(event -> specifyNodeViewAsNotRoot(event.node(), view));
-    view.getRegion().addEventFilter(ScrollEvent.ANY, event -> onScrolled(event));
+    view.getRegion().addEventFilter(ScrollEvent.ANY, this::onScrolled);
     fnAddNodeSelectionViewToGuiTree.accept(view);
   }
+
 
   private void onScrolled(ScrollEvent event) {
     if (event.isControlDown() && event.getDeltaY() != 0) {

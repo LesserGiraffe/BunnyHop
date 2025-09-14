@@ -17,10 +17,9 @@
 package net.seapanda.bunnyhop.control.debugger;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.bhprogram.common.message.exception.BhProgramException;
 import net.seapanda.bunnyhop.bhprogram.debugger.CallStackItem;
 import net.seapanda.bunnyhop.bhprogram.debugger.DebugUtil;
@@ -44,8 +43,11 @@ public class ThreadContextPresenter {
   private final MessageService msgService;
   /** スレッド ID とスレッドコンテキストのマップ. */
   private final Map<Long, ThreadContext> threadIdToContext = new HashMap<>();
-  /** 次に実行するノードのビューのセット. */
-  private final Set<BhNodeView> execStepView = new HashSet<>();
+  /**
+   * key : 止まっているスレッドの ID のセット. <br>
+   * value : key のスレッドが次に実行するノードのビュー.
+   */
+  private final Map<Long, BhNodeView> threadIdToExecStepView = new HashMap<>();
 
   /** コンストラクタ. */
   public ThreadContextPresenter(Debugger debugger, MessageService msgService) {
@@ -58,8 +60,9 @@ public class ThreadContextPresenter {
     Debugger.CallbackRegistry cbRegistry = debugger.getCallbackRegistry();
     cbRegistry.getOnCleared().add(event -> {
       threadIdToContext.clear();
-      execStepView.forEach(view -> view.getLookManager().setExecStepMarkVisibility(false));
-      execStepView.clear();
+      threadIdToExecStepView.values()
+          .forEach(view -> view.getLookManager().setExecStepMarkVisibility(false));
+      threadIdToExecStepView.clear();
     });
     cbRegistry.getOnCurrentStackFrameChanged()
         .add(event -> showExecStepMarks(event.currentThread(), event.newVal()));
@@ -67,7 +70,33 @@ public class ThreadContextPresenter {
       ThreadContext context = event.context();
       threadIdToContext.put(context.threadId, context);
       context.getException().ifPresent(this::outputErrMsg);
+      updateExecStepMark(context);
     });
+  }
+
+  /** {@code context} のスレッドの状態とデバッガの現在のスレッドに基づいて次に実行するノードのマークを変更する. */
+  private void updateExecStepMark(ThreadContext context) {
+    if (context.state != BhThreadState.SUSPENDED) {
+      BhNodeView view = threadIdToExecStepView.remove(context.threadId);
+      if (view != null && !threadIdToExecStepView.containsValue(view)) {
+        view.getLookManager().setExecStepMarkVisibility(false);
+      }
+      return;
+    }
+
+    var threadId = ThreadSelection.of(context.threadId);
+    if (!debugger.getCurrentThread().equals(threadId)
+        && !debugger.getCurrentThread().equals(ThreadSelection.ALL)) {
+      return;
+    }
+    context.getNextStep()
+        .flatMap(CallStackItem::getNode)
+        .flatMap(BhNode::getView)
+        .ifPresent(
+            view -> {
+              view.getLookManager().setExecStepMarkVisibility(true);
+              threadIdToExecStepView.put(context.threadId, view);
+            });
   }
 
   /** {@code exception} が持つエラーメッセージを出力する. */
@@ -77,13 +106,14 @@ public class ThreadContextPresenter {
     msgService.error("%s\n%s\n".formatted(runtimeErrOccurred, errMsg));
   }
 
-  /** {@code selection} で指定されたスレッドで次に実行されるノードに, そのことを示すマークを付ける. */
+  /** {@code threadSelection} で指定されたスレッドで次に実行されるノードに, そのことを示すマークを付ける. */
   private void showExecStepMarks(
       ThreadSelection threadSelection, StackFrameSelection stackFrameSelection) {
     if (threadSelection.equals(ThreadSelection.NONE)) {
       return;
     }
-    execStepView.forEach(view -> view.getLookManager().setExecStepMarkVisibility(false));
+    threadIdToExecStepView.values()
+        .forEach(view -> view.getLookManager().setExecStepMarkVisibility(false));
     if (threadSelection.equals(ThreadSelection.ALL)) {
       setExecStepMarksOnCallStackTopNodes();
     } else if (threadIdToContext.containsKey(threadSelection.getThreadId())) {
@@ -94,13 +124,16 @@ public class ThreadContextPresenter {
   /** 全てのスレッドに対して, 次に実行するノードにそのことを示すマークをつける. */
   private void setExecStepMarksOnCallStackTopNodes() {
     for (ThreadContext context : threadIdToContext.values()) {
+      if (context.state != BhThreadState.SUSPENDED) {
+        continue;
+      }
       context.getNextStep()
           .flatMap(CallStackItem::getNode)
           .flatMap(BhNode::getView)
           .ifPresent(
             view -> {
               view.getLookManager().setExecStepMarkVisibility(true);
-              execStepView.add(view);
+              threadIdToExecStepView.put(context.threadId, view);
             });
     }
   }
@@ -117,6 +150,9 @@ public class ThreadContextPresenter {
 
     Optional.ofNullable(threadIdToContext.get(threadSelection.getThreadId()))
         .flatMap(context -> {
+          if (context.state != BhThreadState.SUSPENDED) {
+            return Optional.empty();
+          }
           if (isCallStackItemTop(context, stackFrameSelection)) {
             return context.getNextStep();
           }
@@ -125,7 +161,7 @@ public class ThreadContextPresenter {
         .flatMap(callStackItem -> callStackItem.getNode().flatMap(BhNode::getView))
         .ifPresent(view -> {
           view.getLookManager().setExecStepMarkVisibility(true);
-          execStepView.add(view);
+          threadIdToExecStepView.put(threadSelection.getThreadId(), view);
         });
   }
 

@@ -21,7 +21,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabDragPolicy;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
@@ -36,24 +35,26 @@ import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
  */
 public class WorkspaceSetController {
 
-  private WorkspaceSet model;
   @FXML private StackPane workspaceSetViewBase;
-  @FXML private Pane trashbox;
-  /** ワークスペース表示タブ. */
   @FXML private TabPane workspaceSetTab;
-  /** ノード削除用のゴミ箱のコントローラ. */
-  @FXML private TrashboxController trashboxController;
 
-  /** 初期化する. */
-  public void initialize(WorkspaceSet wss) {
-    model = wss;
+  private final WorkspaceSet wss;
+
+  /** コンストラクタ. */
+  public WorkspaceSetController(WorkspaceSet wss) {
+    this.wss = wss;
+  }
+
+  /** このコントローラを初期化する. */
+  @FXML
+  public void initialize() {
     setEventHandlers();
   }
 
   /** イベントハンドラを登録する. */
   private void setEventHandlers() {
     setTabPaneEventHandlers();
-    WorkspaceSet.CallbackRegistry registry = model.getCallbackRegistry();
+    WorkspaceSet.CallbackRegistry registry = wss.getCallbackRegistry();
     registry.getOnWorkspaceAdded().add(event -> addWorkspaceView(event.ws()));
     registry.getOnWorkspaceRemoved().add(event -> removeWorkspaceView(event.ws()));
   }
@@ -61,9 +62,9 @@ public class WorkspaceSetController {
   /** 現在選択中のワークスペースを設定する. */
   private void setCurrentWorkspace(Tab newTab) {
     if (newTab instanceof WorkspaceView wsView) {
-      model.setCurrentWorkspace(wsView.getWorkspace());
+      wss.setCurrentWorkspace(wsView.getWorkspace());
     } else {
-      model.setCurrentWorkspace(null);
+      wss.setCurrentWorkspace(null);
     }
   }
 
@@ -106,8 +107,6 @@ public class WorkspaceSetController {
     //タブの高さ分移動したときもノード選択ビューの高さを再計算する
     region.translateYProperty().addListener((observable, oldValue, newValue) -> 
         region.setMaxHeight(workspaceSetTab.getHeight() - newValue.doubleValue()));
-    workspaceSetTab.widthProperty().addListener((oldval, newval, obs) ->
-        Math.min(region.getMaxWidth(), workspaceSetTab.getWidth() * 0.5));
   }
 
   /**
@@ -121,7 +120,7 @@ public class WorkspaceSetController {
 
   /** このコントローラが管理する {@link WorkspaceSet} オブジェクトを返す. */
   public WorkspaceSet getWorkspaceSet() {
-    return model;
+    return wss;
   }
 
   /**
@@ -136,11 +135,6 @@ public class WorkspaceSetController {
       return null;
     }
     return newWorkspaceView.getWorkspace();
-  }
-
-  /** ノード削除用のゴミ箱のコントローラオブジェクトを取得する. */
-  public TrashboxController getTrashboxController() {
-    return trashboxController;
   }
 
   /** {@code ws} のワークスペースビューをワークスペースセットのビューに追加する. */

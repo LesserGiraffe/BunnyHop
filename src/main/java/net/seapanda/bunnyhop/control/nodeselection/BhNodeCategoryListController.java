@@ -23,9 +23,15 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
+import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.Rem;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
 import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategory;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryProvider;
+import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
+import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryView;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 
@@ -41,33 +47,56 @@ public class BhNodeCategoryListController {
 
   /** カテゴリ名と対応する {@link TreeItem} のマップ. */
   private final Map<String, TreeItem<BhNodeCategory>> nameToCategory = new HashMap<>();
-  private BhNodeSelectionViewProxy proxy;
+  private final TreeItem<BhNodeCategory> root;
+  private final BhNodeSelectionViewProxy proxy;
+  private final BhNodeFactory factory;
 
-  /** このコントローラを初期化する. */
-  public boolean initialize(BhNodeCategoryProvider provider, BhNodeSelectionViewProxy proxy) {
+  /**
+   * コンストラクタ.
+   *
+   * @param root BhNode の一覧を格納した木のルート要素
+   */
+  public BhNodeCategoryListController(
+      TreeItem<BhNodeCategory> root, BhNodeSelectionViewProxy proxy, BhNodeFactory factory) {
+    this.root = root;
     this.proxy = proxy;
-    TreeItem<BhNodeCategory> root = provider.getCategoryRoot();
+    this.factory = factory;
     collectCategories(root);
+  }
+
+  /** このコントローラの UI 要素を初期化する. */
+  @FXML
+  public void initialize() throws ViewConstructionException {
     categoryTree.setRoot(root);
     categoryTree.setShowRoot(false);
     categoryTree.setCellFactory(templates -> new BhNodeCategoryView(proxy));
+    nodeCategoryListViewBase.setMinWidth(Region.USE_PREF_SIZE);
     setEventHandlers();
-    return true;
+    buildNodeSelView();
+    registerPrivateTemplateView();
+    for (int i = 0; i < Math.abs(BhConstants.LnF.INITIAL_ZOOM_LEVEL); ++i) {
+      proxy.zoom(BhConstants.LnF.INITIAL_ZOOM_LEVEL > 0);
+    }
   }
 
   /** イベントハンドラをセットする. */
   private void setEventHandlers() {
+    proxy.getCallbackRegistry().getOnCurrentCategoryChanged()
+        .add(event -> selectViewItem(event.newVal()));
+
     categoryTree.getSelectionModel().selectedItemProperty().addListener(
         (obs, oldVal, newVal) -> {
             String categoryName = (newVal == null || newVal.getValue() == null)
                 ? null : newVal.getValue().name;
             proxy.show(categoryName);
         });
-    nodeCategoryListViewBase.setMinWidth(Region.USE_PREF_SIZE);
+
     nodeCategoryListViewBase.widthProperty().addListener(
         (obs, oldVal, newVal) -> nodeCategoryListViewBase.setMinWidth(Rem.VAL * 3));
-    proxy.getCallbackRegistry().getOnCurrentCategoryChanged()
-        .add(event -> selectViewItem(event.newVal()));
+
+    root.addEventHandler(
+        TreeItem.branchCollapsedEvent(),
+        event -> event.getTreeItem().setExpanded(true));
   }
 
   /** {@code categoryName} に対応する {@link #categoryTree} のアイテムを選択する. */
@@ -84,8 +113,43 @@ public class BhNodeCategoryListController {
     categoryTree.getSelectionModel().select(category);
   }
 
+  /** {@code item} 以下のカテゴリを {@link #nameToCategory} に格納する. */
   private void collectCategories(TreeItem<BhNodeCategory> item) {
+    item.setExpanded(true);
     nameToCategory.put(item.getValue().name, item);
     item.getChildren().forEach(this::collectCategories);
+  }
+
+  /** ノード選択ビューを作成する. */
+  private void buildNodeSelView() throws ViewConstructionException {
+    for (TreeItem<BhNodeCategory> category : nameToCategory.values()) {
+      proxy.addNodeSelectionView(category.getValue().name, category.getValue().getCssClass());
+      addBhNodes(category.getValue());
+    }
+  }
+
+  /**
+   * {@code category} に属する {@link BhNode} を作成してノード選択ビューに追加する.
+   *
+   * @param category このカテゴリのノードを作成する
+   */
+  private void addBhNodes(BhNodeCategory category) {
+    UserOperation userOpe = new UserOperation();
+    for (BhNodeId id : category.getNodeIds()) {
+      BhNode node = factory.create(id, BhNodeFactory.MvcType.TEMPLATE, userOpe);
+      // ノード選択ビューにテンプレートノードを追加
+      proxy.addNodeTree(category.name, node, userOpe);
+      // ノード選択ビューに追加してからイベントハンドラを呼ぶ
+      CallbackInvoker.CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
+          .setForAllNodes(bhNode -> bhNode.getEventInvoker().onCreatedAsTemplate(userOpe));
+      CallbackInvoker.invoke(registry, node);
+    }
+  }
+
+  /** コンパニオンノード用の選択ビューを登録する. */
+  private void registerPrivateTemplateView() throws ViewConstructionException {
+    proxy.addNodeSelectionView(
+        BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE,
+        BhConstants.Css.CLASS_PRIVATE_NODE_TEMPLATE);
   }
 }

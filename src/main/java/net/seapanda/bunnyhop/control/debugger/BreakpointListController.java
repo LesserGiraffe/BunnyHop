@@ -24,16 +24,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ToggleButton;
 import net.seapanda.bunnyhop.bhprogram.debugger.BreakpointRegistry;
-import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.control.SearchBox;
 import net.seapanda.bunnyhop.control.SearchBox.Query;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.debugger.BreakpointListCell;
@@ -52,23 +49,25 @@ public class BreakpointListController {
   @FXML private ListView<BhNode> bpListView;
   @FXML private Button bpSearchButton;
   @FXML private CheckBox bpJumpCheckBox;
-  private ToggleButton breakpointBtn;
 
   /** マウスボタンが押されたときのイベントハンドラ. */
-  private ModelAccessNotificationService notifService;
-  private SearchBox searchBox;
-  private BreakpointRegistry breakpointRegistry;
+  private final ModelAccessNotificationService notifService;
+  private final SearchBox searchBox;
+  private final BreakpointRegistry breakpointRegistry;
 
-  /** 初期化する. */
-  public void initialize(
-      WorkspaceSet wss,
+  /** コンストラクタ. */
+  public BreakpointListController(
       ModelAccessNotificationService notifService,
       SearchBox searchBox,
       BreakpointRegistry breakpointRegistry) {
     this.notifService = notifService;
     this.searchBox = searchBox;
     this.breakpointRegistry = breakpointRegistry;
-    bpWsSelectorController.initialize(wss);
+  }
+
+  /** このコントローラの UI 要素を初期化する. */
+  @FXML
+  public void initialize() {
     setEventHandlers();
   }
 
@@ -88,15 +87,6 @@ public class BreakpointListController {
     });
     bpWsSelectorController.setOnWorkspaceSelected(
         event -> showBreakpoints(event.newWs(), event.isAllSelected()));
-  }
-
-  /** ブレークポイントの設定が有効かどうか調べる. */
-  private boolean isBreakpointSettingEnabled() {
-    if (breakpointBtn == null) {
-      breakpointBtn =
-          (ToggleButton) bpListView.getScene().lookup("#" + BhConstants.UiId.BREAKPOINT_BTN);
-    }
-    return breakpointBtn.isSelected();
   }
 
   /** ブレークポイント一覧のブレークポイントが選択されたときのイベントハンドラ. */

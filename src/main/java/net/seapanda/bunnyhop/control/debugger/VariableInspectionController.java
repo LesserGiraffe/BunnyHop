@@ -112,11 +112,8 @@ public class VariableInspectionController {
     return new TreeItem<>(item);
   }
 
-  /**
-   * このコントローラを初期化する.
-   *
-   * <p>GUI コンポーネントのインジェクション後に FXMLLoader から呼ばれることを期待する.
-   */
+  /** このコントローラの UI 要素を初期化する. */
+  @FXML
   public void initialize() {
     viViewName.setText(viewName);
     variableTreeView.setShowRoot(false);

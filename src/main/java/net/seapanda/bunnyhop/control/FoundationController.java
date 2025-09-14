@@ -29,25 +29,12 @@ import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncher;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
-import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
+import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
 import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
-import net.seapanda.bunnyhop.control.debugger.DebugWindowController;
-import net.seapanda.bunnyhop.control.nodeselection.BhNodeCategoryListController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
-import net.seapanda.bunnyhop.export.ProjectExporter;
-import net.seapanda.bunnyhop.export.ProjectImporter;
-import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
-import net.seapanda.bunnyhop.model.factory.WorkspaceFactory;
-import net.seapanda.bunnyhop.model.workspace.CopyAndPaste;
-import net.seapanda.bunnyhop.model.workspace.CutAndPaste;
-import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.service.KeyCodeConverter;
-import net.seapanda.bunnyhop.service.MessageService;
-import net.seapanda.bunnyhop.undo.UndoRedoAgent;
-import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryProvider;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 
 /**
  * GUIの基底部分のコントローラ.
@@ -62,65 +49,27 @@ public class FoundationController {
   //Controller
   @FXML private MenuViewController menuViewController;
   @FXML private WorkspaceSetController workspaceSetController;
-  @FXML private BhNodeCategoryListController nodeCategoryListController;
   @FXML private MenuBarController menuBarController;
-  @FXML private NotificationViewController notifViewController;
 
   /** 押下状態のキー. */
   private final Set<KeyCode> pressedKey = new HashSet<>();
-  private LocalBhProgramLauncher localCtrl;
-  private RemoteBhProgramController remoteCtrl;
+  private final LocalBhProgramLauncher localCtrl;
+  private final RemoteBhProgramController remoteCtrl;
 
-  /** 初期化する. */
-  public boolean initialize(
-      WorkspaceSet wss,
-      BhNodeCategoryProvider nodeCategoryProvider,
-      ModelAccessNotificationService notifService,
-      WorkspaceFactory wsFactory,
-      DebugViewFactory debugViewFactory,
-      UndoRedoAgent undoRedoAgent,
-      BhNodeSelectionViewProxy proxy,
-      LocalBhProgramLauncher localCtrl,
-      RemoteBhProgramController remoteCtrl,
-      ProjectImporter importer,
-      ProjectExporter exporter,
-      CopyAndPaste copyAndPaste,
-      CutAndPaste cutAndPaste,
-      MessageService msgService,
-      Debugger debugger,
-      DebugWindowController debugWindowCtrl) {
+  public FoundationController(
+      LocalBhProgramLauncher localCtrl, RemoteBhProgramController remoteCtrl) {
     this.localCtrl = localCtrl;
     this.remoteCtrl = remoteCtrl;
-    workspaceSetController.initialize(wss);
-    boolean success = nodeCategoryListController.initialize(nodeCategoryProvider, proxy);
-    success &= menuViewController.initialize(
-        workspaceSetController,
-        notifService,
-        wsFactory,
-        undoRedoAgent,
-        proxy,
-        localCtrl,
-        remoteCtrl,
-        copyAndPaste,
-        cutAndPaste,
-        msgService,
-        debugWindowCtrl);
-    menuBarController.initialize(wss, notifService, undoRedoAgent, importer, exporter, msgService);
-    success &= notifViewController.initialize(wss, debugger, debugViewFactory, notifService);
-    setKeyEvents();
-    return success;
   }
 
-  public MenuBarController getMenuBarController() {
-    return menuBarController;
+  /** このコントローラを初期化する. */
+  @FXML
+  public void initialize() {
+    setEventHandlers();
   }
 
-  public NotificationViewController getNotificationViewController() {
-    return notifViewController;
-  }
-
-  /** キーボード押下時のイベントを登録する. */
-  private void setKeyEvents() {
+  /** イベントハンドラを設定する. */
+  private void setEventHandlers() {
     foundationVbox.addEventFilter(KeyEvent.ANY, event -> {
       if (isKeyEventToForward(event)) {
         event.consume();
@@ -240,20 +189,10 @@ public class FoundationController {
     }
     pressedKey.add(keyCode);
     var bhEvent = new BhProgramEvent(eventName, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
-    if (menuViewController.isLocalHost()) {
+    if (BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.LOCAL) {
       localCtrl.getBhRuntimeCtrl().send(bhEvent);
     } else {
       remoteCtrl.getBhRuntimeCtrl().send(bhEvent);
     }
-  }
-
-  /** 現在選択されている BhProgram の実行環境がローカルかリモートか調べる. */
-  public boolean isBhRuntimeLocal() {
-    return menuViewController.isLocalHost();
-  }
-
-  /** ワークスペースセットのコントローラを返す. */
-  public WorkspaceSetController getWorkspaceSetController() {
-    return workspaceSetController;
   }
 }

@@ -1,5 +1,6 @@
 package net.seapanda.bunnyhop.control.debugger;
 
+
 import java.util.HashMap;
 import java.util.Map;
 import javafx.fxml.FXML;
@@ -20,18 +21,24 @@ public class DebugWindowController {
   @FXML private VBox debugWindowBase;
   @FXML private ThreadSelectorController threadSelectorController;
   @FXML private ThreadStateViewController threadStateViewController;
-  @FXML private StepExecutionViewController stepExecutionViewController;
-  private Debugger debugger;
+  private final Debugger debugger;
 
   /** スレッド ID とスレッドコンテキストのマップ. */
   private final Map<Long, ThreadContext> threadIdToContext = new HashMap<>();
 
-  /** 初期化する. */
-  public synchronized void initialize(Debugger debugger) {
+  /** コンストラクタ. */
+  public DebugWindowController(Debugger debugger) {
     this.debugger = debugger;
-    threadSelectorController.initialize(debugger);
-    threadStateViewController.initialize(debugger);
-    stepExecutionViewController.initialize(debugger);
+  }
+
+  /** このコントローラを初期化する. */
+  @FXML
+  public void initialize() {
+    setEventHandlers();
+  }
+
+  /** イベントハンドラを登録する. */
+  private void setEventHandlers() {
     Debugger.CallbackRegistry registry = debugger.getCallbackRegistry();
     registry.getOnThreadContextAdded().add(event -> addThreadContext(event.context()));
     registry.getOnCleared().add(event -> clear());

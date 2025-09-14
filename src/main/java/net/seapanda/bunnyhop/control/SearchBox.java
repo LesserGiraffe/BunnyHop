@@ -32,6 +32,14 @@ public interface SearchBox {
    */
   void setOnSearchRequested(Consumer<Query> handler);
 
+  /**
+   * 検索クエリを受け取ったときに実行するイベントハンドラを解除する.
+   *
+   * @param handler このハンドラがこのオブジェクトに設定されている場合, 設定を解除する.
+   *                そうでない場合何もしない.
+   */
+  void unsetOnSearchRequested(Consumer<Query> handler);
+
   /** 検索クエリの入力を有効化する. */
   void enable();
 

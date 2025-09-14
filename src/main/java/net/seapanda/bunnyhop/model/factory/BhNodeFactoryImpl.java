@@ -37,7 +37,7 @@ import net.seapanda.bunnyhop.model.traverse.DerivativeTextSetter;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.undo.UserOperation;
-import net.seapanda.bunnyhop.view.Trashbox;
+import net.seapanda.bunnyhop.view.TrashCan;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.factory.BhNodeViewFactory;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
@@ -59,8 +59,8 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
   
   private final BhNodeRepository repository;
   private final BhNodeViewFactory viewFactory;
-  private final ModelAccessNotificationService service;
-  private final Trashbox trashbox;
+  private final ModelAccessNotificationService notifService;
+  private final TrashCan trashCan;
   private final WorkspaceSet wss;
   private final BhNodeSelectionViewProxy proxy;
 
@@ -68,14 +68,14 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
   public BhNodeFactoryImpl(
       BhNodeRepository repository,
       BhNodeViewFactory viewFactory,
-      ModelAccessNotificationService service,
-      Trashbox trashbox,
+      ModelAccessNotificationService notifService,
+      TrashCan trashCan,
       WorkspaceSet wss,
       BhNodeSelectionViewProxy proxy) {
     this.repository = repository;
     this.viewFactory = viewFactory;
-    this.service = service;
-    this.trashbox = trashbox;
+    this.notifService = notifService;
+    this.trashCan = trashCan;
     this.wss = wss;
     this.proxy = proxy;
   }
@@ -194,8 +194,8 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
 
     private BhNodeController createBaseController(BhNode node, BhNodeView nodeView) {
       return type == MvcType.DEFAULT
-          ? new DefaultBhNodeController(node, nodeView, service, trashbox)
-          : new TemplateNodeController(node, nodeView, BhNodeFactoryImpl.this, service, wss, proxy);
+          ? new DefaultBhNodeController(node, nodeView, notifService, trashCan)
+          : new TemplateNodeController(node, nodeView, BhNodeFactoryImpl.this, notifService, wss, proxy);
     }
   }  
 }

@@ -11,5 +11,5 @@
   fx:id="workspaceSetViewBase"
   fx:controller="net.seapanda.bunnyhop.control.workspace.WorkspaceSetController">
   <TabPane fx:id="workspaceSetTab" tabClosingPolicy="ALL_TABS" tabDragPolicy="REORDER"/>
-  <fx:include fx:id="trashbox" source="Trashbox.fxml" MouseTransparent="true"/>
+  <fx:include fx:id="trashCan" source="TrashCan.fxml" MouseTransparent="true"/>
 </StackPane>

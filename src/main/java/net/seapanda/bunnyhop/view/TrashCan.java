@@ -21,7 +21,7 @@ package net.seapanda.bunnyhop.view;
  *
  * @author K.Koike
  */
-public interface Trashbox {
+public interface TrashCan {
   
   /** ゴミ箱を開ける. */
   void open();

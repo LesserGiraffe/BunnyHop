@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -68,31 +69,36 @@ public class CallStackController {
   private final SearchBox searchBox;
   private final Debugger debugger;
   private final WorkspaceSet wss;
+  private final ReentrantLock debugLock;
   private final Map<BhNode, Set<CallStackCell>> nodeToCallStackCell = new HashMap<>();
   private final Consumer<Debugger.CurrentThreadChangedEvent> onCurrentThreadChanged =
       event -> onCurrentDebugThreadChanged();
   private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
       event -> updateCellDecoration(event.node());
+  private final Consumer<Query> onSearchRequested = this::selectItem;
 
   /**
    * コンストラクタ.
    *
    * @param threadContext このコントローラが管理するコールスタックに関連するスレッドの情報を格納したオブジェクト
    * @param searchBox 検索クエリを受け取る UI コンポーネントのインタフェース
+   * @param debugLock デバッガを使用する一連の処理に適用するロック
    */
   public CallStackController(
       ThreadContext threadContext,
       SearchBox searchBox,
       Debugger debugger,
-      WorkspaceSet wss) {
+      WorkspaceSet wss,
+      ReentrantLock debugLock) {
     this.threadContext = threadContext;
     this.searchBox = searchBox;
     this.debugger = debugger;
     this.wss = wss;
+    this.debugLock = debugLock;
   }
 
   /**
-   * このコントローラを初期化する.
+   * このコントローラの UI 要素を初期化する.
    *
    * <p>GUI コンポーネントのインジェクション後に FXMLLoader から呼ばれることを期待する.
    */
@@ -104,7 +110,7 @@ public class CallStackController {
     csShowAllCheckBox.selectedProperty().addListener(
         (observable, oldVal, newVal) -> callStackListView.setItems(createCallStackItem()));
     csSearchButton.setOnAction(action -> {
-      searchBox.setOnSearchRequested(this::selectItem);
+      searchBox.setOnSearchRequested(onSearchRequested);
       searchBox.enable();
     });
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(onCurrentThreadChanged);
@@ -128,6 +134,7 @@ public class CallStackController {
   public void discard() {
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().remove(onCurrentThreadChanged);
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().remove(onNodeSelStateChanged);
+    searchBox.unsetOnSearchRequested(onSearchRequested);
   }
 
   /** {@link #callStackListView} に設定するアイテムを作成する. */
@@ -137,7 +144,6 @@ public class CallStackController {
       var items = new ArrayList<CallStackItem>();
       int len = BhSettings.Debug.maxCallStackItems / 2;
       for (int i = 0; i < len; ++i) {
-        CallStackItem item = callStack.get(callStack.size() - 1 - i);
         items.add(callStack.get(callStack.size() - 1 - i));
       }
       items.add(new CallStackItem(-1, -1, TextDefs.Debugger.CallStack.ellipsis.get()));
@@ -153,12 +159,17 @@ public class CallStackController {
 
   /** コールスタックの UI 要素が選択されたときのイベントハンドラ. */
   private void onCallStackCellSelected(CallStackItem deselected, CallStackItem selected) {
-    var tmpUserOpe = new UserOperation();
-    if (deselected != null) {
-      deselected.deselect(tmpUserOpe);
-    }
-    if (selected != null) {
-      selected.select(tmpUserOpe);
+    debugLock.lock();
+    try {
+      var tmpUserOpe = new UserOperation();
+      if (deselected != null) {
+        deselected.deselect(tmpUserOpe);
+      }
+      if (selected != null) {
+        selected.select(tmpUserOpe);
+      }
+    } finally {
+      debugLock.unlock();
     }
   }
 

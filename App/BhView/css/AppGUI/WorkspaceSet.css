@@ -8,12 +8,12 @@
   -fx-font-size: 1.1em;
 }
 
-#closedTrashboxIv {
+#closedTrashCanIv {
   -fx-translate-x: -2em;
   -fx-translate-y: -2em;
 }
 
-#openedTrashboxIv {
+#openedTrashCanIv {
   -fx-translate-x: -2em;
   -fx-translate-y: -2em;
 }

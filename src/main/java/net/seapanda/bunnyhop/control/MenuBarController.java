@@ -53,28 +53,40 @@ public class MenuBarController {
   @FXML private MenuItem versionInfo;
   @FXML private MenuItem freeMemory;
   @FXML private MenuItem focusSimulator;
+
+  private final WorkspaceSet wss;
+  private final ModelAccessNotificationService notifService;
+  private final UndoRedoAgent undoRedoAgent;
+  private final ProjectImporter importer;
+  private final ProjectExporter exporter;
+  private final MessageService msgService;
   /** 現在保存対象になっているファイル. */
   private File currentSaveFile;
-  /** モデルへのアクセスの通知先となるオブジェクト. */
-  private ModelAccessNotificationService notifService;
-  private UndoRedoAgent undoRedoAgent;
-  private ProjectImporter importer;
-  private ProjectExporter exporter;
-  private MessageService msgService;
 
   /** 初期化する. */
-  public void initialize(
+  public MenuBarController(
       WorkspaceSet wss,
       ModelAccessNotificationService notifService,
       UndoRedoAgent undoRedoAgent,
       ProjectImporter importer,
       ProjectExporter exporter,
       MessageService msgService) {
+    this.wss = wss;
     this.notifService = notifService;
     this.undoRedoAgent = undoRedoAgent;
     this.importer = importer;
     this.exporter = exporter;
     this.msgService = msgService;
+  }
+
+  /** このコントローラを初期化する. */
+  @FXML
+  public void initialize() {
+    setEventHandlers();
+  }
+
+  /** イベントハンドラを設定する. */
+  private void setEventHandlers() {
     saveAs.setOnAction(action -> saveAs(wss)); // セーブ(新規保存)
     save.setOnAction(action -> save(wss)); // 上書きセーブ
     load.setOnAction(action -> load(wss));
@@ -291,20 +303,10 @@ public class MenuBarController {
    */
   public void fireEvent(MenuBarItem op) {
     switch (op) {
-      case SAVE:
-        save.fire();
-        break;
-
-      case SAVE_AS:
-        saveAs.fire();
-        break;
-
-      case FREE_MEMORY:
-        freeMemory.fire();
-        break;
-
-      default:
-        throw new AssertionError("Invalid menu bar operation " + op);
+      case SAVE -> save.fire();
+      case SAVE_AS -> saveAs.fire();
+      case FREE_MEMORY -> freeMemory.fire();
+      default -> throw new AssertionError("Invalid menu bar operation " + op);
     }
   }
 

@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
@@ -41,15 +42,25 @@ import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.control.FoundationController;
 import net.seapanda.bunnyhop.control.MenuBarController;
-import net.seapanda.bunnyhop.control.NotificationViewController;
+import net.seapanda.bunnyhop.control.MenuViewController;
+import net.seapanda.bunnyhop.control.MessageViewController;
 import net.seapanda.bunnyhop.control.SearchBoxController;
+import net.seapanda.bunnyhop.control.debugger.BreakpointListController;
+import net.seapanda.bunnyhop.control.debugger.DebugViewController;
 import net.seapanda.bunnyhop.control.debugger.DebugWindowController;
-import net.seapanda.bunnyhop.control.workspace.TrashboxController;
+import net.seapanda.bunnyhop.control.debugger.StepExecutionViewController;
+import net.seapanda.bunnyhop.control.debugger.ThreadSelectorController;
+import net.seapanda.bunnyhop.control.debugger.ThreadStateViewController;
+import net.seapanda.bunnyhop.control.debugger.WorkspaceSelectorController;
+import net.seapanda.bunnyhop.control.nodeselection.BhNodeCategoryListController;
+import net.seapanda.bunnyhop.control.workspace.TrashCanController;
 import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
 import net.seapanda.bunnyhop.export.ProjectExporter;
 import net.seapanda.bunnyhop.export.ProjectImporter;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.factory.WorkspaceFactory;
+import net.seapanda.bunnyhop.model.nodeselection.BhNodeCategory;
 import net.seapanda.bunnyhop.model.workspace.CopyAndPaste;
 import net.seapanda.bunnyhop.model.workspace.CutAndPaste;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
@@ -62,7 +73,6 @@ import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryProvider;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 
 /**
@@ -72,15 +82,29 @@ import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
  */
 public class SceneBuilder {
 
-  public final FoundationController foundationCtrl;
-  public final MenuBarController menuBarCtrl;
-  public final WorkspaceSetController wssCtrl;
-  public final NotificationViewController notifViewCtrl;
-  public final TrashboxController trashboxCtrl;
-  public final SearchBoxController searchBoxCtrl;
-  public final DebugWindowController debugWindowCtrl;
   public final Scene scene;
   private final Scene debugScene;
+  private final WorkspaceSetController wssCtrl;
+  private final DebugWindowController debugWindowCtrl;
+
+  private final WorkspaceSet wss;
+  private final TreeItem<BhNodeCategory> nodeCategoryRoot;
+  private final ModelAccessNotificationService notifService;
+  private final BhNodeFactory nodeFactory;
+  private final WorkspaceFactory wsFactory;
+  private final DebugViewFactory debugViewFactory;
+  private final UndoRedoAgent undoRedoAgent;
+  private final BhNodeSelectionViewProxy nodeSelProxy;
+  private final LocalBhProgramLauncher localCtrl;
+  private final RemoteBhProgramController remoteCtrl;
+  private final CopyAndPaste copyAndPaste;
+  private final CutAndPaste cutAndPaste;
+  private final MessageService msgService;
+  private final Debugger debugger;
+  private final SearchBoxController searchBoxCtrl;
+  private final TrashCanController trashCanCtrl;
+  public final MenuBarController menuBarCtrl;
+  public final MessageViewController msgViewCtrl;
 
   /**
    * コンストラクタ.
@@ -89,41 +113,16 @@ public class SceneBuilder {
    * @param debugWindowFxml デバッグウィンドウのルート要素が定義された FXML のパス.
    */
   public SceneBuilder(
-      Path mainWindowFxml, Path debugWindowFxml) throws AppInitializationException {
-    VBox root;
-    try {
-      FXMLLoader loader = new FXMLLoader(mainWindowFxml.toUri().toURL());
-      root = loader.load();
-      foundationCtrl = loader.getController();
-      wssCtrl = foundationCtrl.getWorkspaceSetController();
-      notifViewCtrl = foundationCtrl.getNotificationViewController();
-      menuBarCtrl = foundationCtrl.getMenuBarController();
-      trashboxCtrl = wssCtrl.getTrashboxController();
-      searchBoxCtrl = notifViewCtrl.getSearchBoxController();
-      scene = genMainScene(root);
-    } catch (IOException e) {
-      throw new AppInitializationException("Failed to load %s\n%s".formatted(mainWindowFxml, e));
-    }
-    try {
-      FXMLLoader loader = new FXMLLoader(debugWindowFxml.toUri().toURL());
-      root = loader.load();
-      debugWindowCtrl = loader.getController();
-      debugScene = new Scene(root);
-      debugScene.getStylesheets().addAll(scene.getStylesheets());
-    } catch (IOException e) {
-      throw new AppInitializationException("Failed to load %s\n%s".formatted(debugWindowFxml, e));
-    }
-  }
-
-  /** GUI を構築するオブジェクトを初期化する. */
-  public void initialize(
+      Path mainWindowFxml,
+      Path debugWindowFxml,
       WorkspaceSet wss,
-      BhNodeCategoryProvider nodeCategoryProvider,
-      ModelAccessNotificationService service,
+      TreeItem<BhNodeCategory> nodeCategoryRoot,
+      ModelAccessNotificationService notifService,
+      BhNodeFactory nodeFactory,
       WorkspaceFactory wsFactory,
       DebugViewFactory debugViewFactory,
       UndoRedoAgent undoRedoAgent,
-      BhNodeSelectionViewProxy proxy,
+      BhNodeSelectionViewProxy nodeSelProxy,
       LocalBhProgramLauncher localCtrl,
       RemoteBhProgramController remoteCtrl,
       ProjectImporter importer,
@@ -131,27 +130,113 @@ public class SceneBuilder {
       CopyAndPaste copyAndPaste,
       CutAndPaste cutAndPaste,
       MessageService msgService,
-      Debugger debugger) throws AppInitializationException {
-    if (!foundationCtrl.initialize(
-        wss,
-        nodeCategoryProvider,
-        service,
-        wsFactory,
-        debugViewFactory,
-        undoRedoAgent,
-        proxy,
-        localCtrl,
-        remoteCtrl,
-        importer,
-        exporter,
-        copyAndPaste,
-        cutAndPaste,
-        msgService,
-        debugger,
-        debugWindowCtrl)) {
-      throw new AppInitializationException("Failed to initialize a FoundationController.");
+      Debugger debugger,
+      WorkspaceSetController wssCtrl,
+      SearchBoxController searchBoxCtrl,
+      TrashCanController trashCanCtrl)
+      throws AppInitializationException {
+    this.wss = wss;
+    this.nodeCategoryRoot = nodeCategoryRoot;
+    this.notifService = notifService;
+    this.nodeFactory = nodeFactory;
+    this.wsFactory = wsFactory;
+    this.debugViewFactory = debugViewFactory;
+    this.undoRedoAgent = undoRedoAgent;
+    this.nodeSelProxy = nodeSelProxy;
+    this.localCtrl = localCtrl;
+    this.remoteCtrl = remoteCtrl;
+    this.copyAndPaste = copyAndPaste;
+    this.cutAndPaste = cutAndPaste;
+    this.msgService = msgService;
+    this.debugger = debugger;
+    this.searchBoxCtrl = searchBoxCtrl;
+    this.trashCanCtrl = trashCanCtrl;
+    this.wssCtrl = wssCtrl;
+    this.debugWindowCtrl = new DebugWindowController(debugger);
+    this.menuBarCtrl = new MenuBarController(
+        wss, notifService, undoRedoAgent, importer, exporter, msgService);
+    this.msgViewCtrl = new MessageViewController();
+
+    VBox root;
+    try {
+      FXMLLoader loader = new FXMLLoader(mainWindowFxml.toUri().toURL());
+      loader.setControllerFactory(this::createController);
+      root = loader.load();
+      scene = genMainScene(root);
+    } catch (Exception e) {
+      throw new AppInitializationException("Failed to load %s\n%s".formatted(mainWindowFxml, e));
     }
-    debugWindowCtrl.initialize(debugger);
+    try {
+      FXMLLoader loader = new FXMLLoader(debugWindowFxml.toUri().toURL());
+      loader.setControllerFactory(this::createController);
+      root = loader.load();
+      debugScene = new Scene(root);
+      debugScene.getStylesheets().addAll(scene.getStylesheets());
+    } catch (Exception e) {
+      throw new AppInitializationException("Failed to load %s\n%s".formatted(debugWindowFxml, e));
+    }
+  }
+
+  /** 各種ビューのコントローラを作成する. */
+  private Object createController(Class<?> type) {
+    if (type == ThreadSelectorController.class) {
+      return new ThreadSelectorController(debugger);
+    }
+    if (type == ThreadStateViewController.class) {
+      return new ThreadStateViewController(debugger);
+    }
+    if (type == StepExecutionViewController.class) {
+      return new StepExecutionViewController(debugger);
+    }
+    if (type == DebugWindowController.class) {
+      return debugWindowCtrl;
+    }
+    if (type == WorkspaceSelectorController.class) {
+      return new WorkspaceSelectorController(wss);
+    }
+    if (type == BreakpointListController.class) {
+      return new BreakpointListController(
+          notifService, searchBoxCtrl, debugger.getBreakpointRegistry());
+    }
+    if (type == DebugViewController.class) {
+      return new DebugViewController(debugger, debugViewFactory);
+    }
+    if (type == BhNodeCategoryListController.class) {
+      return new BhNodeCategoryListController(nodeCategoryRoot, nodeSelProxy, nodeFactory);
+    }
+    if (type == SearchBoxController.class) {
+      return searchBoxCtrl;
+    }
+    if (type == TrashCanController.class) {
+      return trashCanCtrl;
+    }
+    if (type == MessageViewController.class) {
+      return msgViewCtrl;
+    }
+    if (type == MenuBarController.class) {
+      return menuBarCtrl;
+    }
+    if (type == MenuViewController.class) {
+      return new MenuViewController(
+          wssCtrl,
+          notifService,
+          wsFactory,
+          undoRedoAgent,
+          nodeSelProxy,
+          localCtrl,
+          remoteCtrl,
+          copyAndPaste,
+          cutAndPaste,
+          msgService,
+          debugWindowCtrl);
+    }
+    if (type == WorkspaceSetController.class) {
+      return wssCtrl;
+    }
+    if (type == FoundationController.class) {
+      return new FoundationController(localCtrl, remoteCtrl);
+    }
+    return null;
   }
 
   /** メインウィンドウを作成する. */

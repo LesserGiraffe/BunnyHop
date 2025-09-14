@@ -231,10 +231,18 @@ public class BhDebugger implements Debugger {
   @Override
   public synchronized void selectCurrentThread(ThreadSelection selection) {
     if (!currentThread.equals(selection)) {
-      final var event = new CurrentThreadChangedEvent(this, currentThread, selection);
+      final var oldThread = currentThread;
       currentThread = selection;
-      deselectCurrentStackFrame();
-      cbRegistry.onCurrentThreadChanged.invoke(event);
+      final var oldStackFrame = currentStackFrame;
+      currentStackFrame = StackFrameSelection.NONE;
+
+      // スレッドが変わったときにも必ず, スタックフレーム変更時のイベントハンドラを呼び出す.
+      var stackFrameChangedEvent = new CurrentStackFrameChangedEvent(
+          this, currentThread, oldStackFrame, StackFrameSelection.NONE);
+      cbRegistry.onCurrentStackFrameChanged.invoke(stackFrameChangedEvent);
+
+      var threadChangedEvent = new CurrentThreadChangedEvent(this, oldThread, selection);
+      cbRegistry.onCurrentThreadChanged.invoke(threadChangedEvent);
     }
   }
 
@@ -248,17 +256,6 @@ public class BhDebugger implements Debugger {
     if (currentThread.equals(ThreadSelection.NONE) || currentThread.equals(ThreadSelection.ALL)) {
       return;
     }
-    if (!currentStackFrame.equals(selection)) {
-      final var event =
-          new CurrentStackFrameChangedEvent(this, currentThread, currentStackFrame, selection);
-      currentStackFrame = selection;
-      cbRegistry.onCurrentStackFrameChanged.invoke(event);
-    }
-  }
-
-  /** 「現在のスタックフレーム」を未選択にする. */
-  private void deselectCurrentStackFrame() {
-    var selection = StackFrameSelection.NONE;
     if (!currentStackFrame.equals(selection)) {
       final var event =
           new CurrentStackFrameChangedEvent(this, currentThread, currentStackFrame, selection);

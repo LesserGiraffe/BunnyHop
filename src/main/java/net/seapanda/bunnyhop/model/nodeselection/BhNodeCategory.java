@@ -16,6 +16,10 @@
 
 package net.seapanda.bunnyhop.model.nodeselection;
 
+import java.util.LinkedHashSet;
+import java.util.SequencedSet;
+import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
+
 /**
  * ノードカテゴリを表す TreeView の各セルのモデルクラス.
  *
@@ -24,6 +28,7 @@ package net.seapanda.bunnyhop.model.nodeselection;
 public class BhNodeCategory {
   public final String name;
   private String cssClass = "";
+  private final SequencedSet<BhNodeId> nodeIds = new LinkedHashSet<>();
 
   /**
    * コンストラクタ.
@@ -45,5 +50,19 @@ public class BhNodeCategory {
 
   public String getCssClass() {
     return cssClass;
+  }
+
+  /**
+   * このカテゴリが保持するノードの ID 一覧に ID を追加する.
+   *
+   * @param id 追加する ID
+   */
+  public void addNodeId(BhNodeId id) {
+    nodeIds.add(id);
+  }
+
+  /** このカテゴリが保持するノードの ID 一覧を返す. */
+  public SequencedSet<BhNodeId> getNodeIds() {
+    return new LinkedHashSet<>(nodeIds);
   }
 }

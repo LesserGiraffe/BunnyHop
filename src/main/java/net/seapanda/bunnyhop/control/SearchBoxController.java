@@ -44,14 +44,16 @@ public class SearchBoxController implements SearchBox {
 
   Consumer<Query> onSearchRequested = query -> {};
 
-  /**
-   * このコントローラを初期化する.
-   * <p>
-   * GUI コンポーネントのインジェクション後に FXMLLoader から呼ばれることを期待する.
-   * </p>
-   */
+  /** このコントローラの UI 要素を初期化する. */
+  @FXML
   public void initialize() {
     searchBoxViewBase.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+    setEventHandlers();
+    Platform.runLater(this::updateSearchWordFieldLength);
+  }
+
+  /** イベントハンドラをセットする. */
+  private void setEventHandlers() {
     searchWordField.textProperty().addListener(
         (obs, oldVal, newVal) -> updateSearchWordFieldLength());
     searchBoxCloseButton.setOnAction(event -> disable());
@@ -67,7 +69,6 @@ public class SearchBoxController implements SearchBox {
             regexButton.isSelected(),
             caseSensitiveButton.isSelected(),
             true)));
-    Platform.runLater(() -> updateSearchWordFieldLength());
   }
 
   /** 検索ワード入力フィールドの幅をテキストの長さに応じて帰る. */
@@ -89,6 +90,13 @@ public class SearchBoxController implements SearchBox {
   @Override
   public void setOnSearchRequested(Consumer<Query> handler) {
     onSearchRequested = (handler == null) ? query -> {} : handler;
+  }
+
+  @Override
+  public void unsetOnSearchRequested(Consumer<Query> handler) {
+    if (onSearchRequested == handler) {
+      onSearchRequested = query -> {};
+    }
   }
 
   @Override

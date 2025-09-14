@@ -6,6 +6,7 @@ import net.seapanda.bunnyhop.control.node.TemplateNodeController;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.view.ViewConstructionException;
 
 /**
  * ノードの選択ビューに対する操作を規定したインタフェース.
@@ -17,9 +18,10 @@ public interface BhNodeSelectionViewProxy {
   /**
    * ノード選択ビューを登録する.
    *
-   * @param view 登録するビュー.
+   * @param name ノード選択ビューの名前
+   * @param cssClass ノード選択ビューに適用する css クラス
    */
-  void addNodeSelectionView(BhNodeSelectionView view);
+  void addNodeSelectionView(String name, String cssClass) throws ViewConstructionException;
 
   /**
    * 引数で指定したカテゴリに {@code root} 以下のノードを全て追加する.

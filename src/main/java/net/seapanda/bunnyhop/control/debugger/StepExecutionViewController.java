@@ -39,17 +39,30 @@ public class StepExecutionViewController {
   @FXML private Button stepIntoBtn;
   @FXML private Button stepOutBtn;
 
-  /** 初期化する. */
-  public void initialize(Debugger debugger) {
+  private final Debugger debugger;
+
+  /** コンストラクタ. */
+  public StepExecutionViewController(Debugger debugger) {
+    this.debugger = debugger;
+  }
+
+  /** このコントローラの UI 要素を初期化する. */
+  @FXML
+  public void initialize() {
+    setEventHandlers();
+    setStepButtonsEnable(isParticularThreadSelected(debugger.getCurrentThread()));
+  }
+
+  /** イベントハンドラをセットする. */
+  private void setEventHandlers() {
+    debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(
+        event -> setStepButtonsEnable(isParticularThreadSelected(event.newVal())));
     resumeBtn.setOnAction(event -> debugger.resume());
     suspendBtn.setOnAction(event -> debugger.suspend());
     reloadBtn.setOnAction(event -> debugger.requestThreadContexts());
     stepOverBtn.setOnAction(event -> debugger.stepOver());
     stepIntoBtn.setOnAction(event -> debugger.stepInto());
     stepOutBtn.setOnAction(event -> debugger.stepOut());
-    debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(
-        event -> setStepButtonsEnable(isParticularThreadSelected(event.newVal())));
-    setStepButtonsEnable(isParticularThreadSelected(debugger.getCurrentThread()));
     stepExecutionViewBase.addEventFilter(MouseEvent.MOUSE_PRESSED, this::consumeIfNotAcceptable);
   }
 

@@ -42,13 +42,19 @@ public class ThreadStateViewController {
 
   /** エラーメッセージを表示するツールチップ. */
   private final Tooltip errMsgTooltip = new Tooltip();
+  private final Debugger debugger;
 
-  /** 初期化する. */
-  public void initialize(Debugger debugger) {
+  /** コンストラクタ. */
+  public ThreadStateViewController(Debugger debugger) {
+    this.debugger = debugger;
+  }
+
+  /** このコントローラの UI 要素を初期化する. */
+  public void initialize() {
+    debugger.getCallbackRegistry().getOnCleared().add(event -> reset());
     errMsgTooltip.setId(BhConstants.UiId.BH_RUNTIME_ERR_MSG);
     errMsgTooltip.setAutoHide(false);
     errMsgTooltip.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> errMsgTooltip.hide());
-    debugger.getCallbackRegistry().getOnCleared().add(event -> reset());
   }
 
   /**

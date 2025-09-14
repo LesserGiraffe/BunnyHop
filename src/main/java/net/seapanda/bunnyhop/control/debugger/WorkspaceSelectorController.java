@@ -35,41 +35,48 @@ import net.seapanda.bunnyhop.view.ViewUtil;
 public class WorkspaceSelectorController {
 
   @FXML private ComboBox<Workspace> wsComboBox;
+
+  private final WorkspaceSet wss;
   /** 全ワークスペースを表す選択肢に対応する {@link Workspace}. */
   private final Workspace wsForAll;
   /** スレッドが選択されたときのイベントハンドラ. */
   private Consumer<? super WorkspaceSelectionEvent> onWsSelected = event -> {};
 
   /** コンストラクタ. */
-  public WorkspaceSelectorController() {
-    String allWsName = TextDefs.Debugger.WorkspaceSelector.allWs.get();
-    wsForAll = new Workspace(allWsName);
+  public WorkspaceSelectorController(WorkspaceSet wss) {
+    this.wss = wss;
+    wsForAll = new Workspace(TextDefs.Debugger.WorkspaceSelector.allWs.get());
   }
 
-  /** 初期化する. */
-  public void initialize(WorkspaceSet wss) {
-    wsComboBox.setButtonCell(new WorkspaceSelectorListCell());
-    wsComboBox.setCellFactory(items -> new WorkspaceSelectorListCell());
-    wsComboBox.getItems().add(wsForAll);
-    wsComboBox.getSelectionModel().selectFirst();
-    wsComboBox.valueProperty().addListener((obs, oldVal, newVal) -> 
-        onWsSelected.accept(new WorkspaceSelectionEvent(oldVal, newVal, newVal == wsForAll)));
+  /** {@link #wsComboBox} が持つアイテムを再設定する. */
+  private void reregisterItems() {
+    Workspace selected = wsComboBox.getValue();
+    var wsList = new ArrayList<>(wsComboBox.getItems());
+    wsComboBox.getItems().setAll(wsList);
+    wsComboBox.setValue(selected);
+  }
+
+  /** このコントローラの UI 要素を初期化する. */
+  @FXML
+  public void initialize() {
+    setEventHandlers();
+    wss.getWorkspaces().forEach(wsComboBox.getItems()::add);
     ViewUtil.enableAutoResize(wsComboBox, Workspace::getName);
-    wss.getWorkspaces().forEach(wsComboBox.getItems()::add);    
+  }
+
+  /** イベントハンドラを設定する. */
+  private void setEventHandlers() {
     wss.getCallbackRegistry().getOnWorkspaceAdded()
         .add(event -> wsComboBox.getItems().add(event.ws()));
     wss.getCallbackRegistry().getOnWorkspaceRemoved()
         .add(event -> wsComboBox.getItems().remove(event.ws()));
     wss.getCallbackRegistry().getOnWorkspaceNameChanged().add(event -> reregisterItems());
-  }
-
-  /** 現在 {@link #wsComboBox} が持つアイテムを設定する. */
-  private void reregisterItems() {
-    Workspace selected = wsComboBox.getValue();
-    var wsList = new ArrayList<>(wsComboBox.getItems());
-    wsComboBox.getItems().clear();
-    wsComboBox.getItems().addAll(wsList);
-    wsComboBox.setValue(selected);
+    wsComboBox.setButtonCell(new WorkspaceSelectorListCell());
+    wsComboBox.setCellFactory(items -> new WorkspaceSelectorListCell());
+    wsComboBox.getItems().add(wsForAll);
+    wsComboBox.getSelectionModel().selectFirst();
+    wsComboBox.valueProperty().addListener((obs, oldVal, newVal) ->
+        onWsSelected.accept(new WorkspaceSelectionEvent(oldVal, newVal, newVal == wsForAll)));
   }
 
   /**

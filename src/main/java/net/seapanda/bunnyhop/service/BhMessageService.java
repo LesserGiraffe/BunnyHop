@@ -57,7 +57,7 @@ public class BhMessageService implements Closeable, MessageService {
     if (isClosed || textInputCtrl == null) {
       return;
     }
-    StringBuilder text = new StringBuilder("");
+    StringBuilder text = new StringBuilder();
     messages.forEach(text::append);
     messages.clear();
     if (!text.isEmpty()) {
