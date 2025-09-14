@@ -17,11 +17,11 @@
 package net.seapanda.bunnyhop.control.debugger;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -70,7 +70,7 @@ public class CallStackController {
   private final Debugger debugger;
   private final WorkspaceSet wss;
   private final ReentrantLock debugLock;
-  private final Map<BhNode, Set<CallStackCell>> nodeToCallStackCell = new HashMap<>();
+  private final Map<BhNode, Set<CallStackCell>> nodeToCallStackCell = new WeakHashMap<>();
   private final Consumer<Debugger.CurrentThreadChangedEvent> onCurrentThreadChanged =
       event -> onCurrentDebugThreadChanged();
   private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
@@ -135,6 +135,10 @@ public class CallStackController {
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().remove(onCurrentThreadChanged);
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().remove(onNodeSelStateChanged);
     searchBox.unsetOnSearchRequested(onSearchRequested);
+    ViewUtil.runSafe(() -> {
+      callStackListView.getItems().clear();
+      nodeToCallStackCell.clear();
+    });
   }
 
   /** {@link #callStackListView} に設定するアイテムを作成する. */

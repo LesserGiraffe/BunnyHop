@@ -16,7 +16,10 @@
 
 package net.seapanda.bunnyhop.view.debugger;
 
-import java.util.function.Consumer;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
 import net.seapanda.bunnyhop.common.BhConstants;
@@ -31,12 +34,11 @@ public class BreakpointListCell extends ListCell<BhNode> {
 
   private BhNode model;
   private boolean empty = true;
-  /** {@link #model} に対応する {@link BhNode} の選択状態が変わったときのイベントハンドラ. */
-  private final Consumer<? super BhNode.SelectionEvent>
-      onNodeSelStateChanged = event -> decorateText(event.isSelected());
+  private final Map<BhNode, Set<BreakpointListCell>> nodeToCells;
 
   /** コンストラクタ. */
-  public BreakpointListCell() {
+  public BreakpointListCell(Map<BhNode, Set<BreakpointListCell>> nodeToCells) {
+    this.nodeToCells = nodeToCells;
     getStyleClass().add(BhConstants.Css.BREAKPOINT_LIST_ITEM);
     setOnMousePressed(event -> clearSelectionIfEmpty());
   }
@@ -51,7 +53,7 @@ public class BreakpointListCell extends ListCell<BhNode> {
   protected void updateItem(BhNode item, boolean empty) {
     super.updateItem(item, empty);
     setText(getText(item, empty));
-    setEventHandlers(item, empty);
+    mapNodeToCell(item, empty);
     if (item != null) {
       decorateText(item.isSelected());
     }
@@ -66,16 +68,25 @@ public class BreakpointListCell extends ListCell<BhNode> {
     return item.getAlias();
   }
 
-  private void setEventHandlers(BhNode item, boolean empty) {
-    if ((empty || model != item) && model != null) {
-      model.getCallbackRegistry().getOnSelectionStateChanged().remove(onNodeSelStateChanged);
-    }
-    if (!empty && model != item && item != null) {
-      item.getCallbackRegistry().getOnSelectionStateChanged().add(onNodeSelStateChanged);
+  /** {@code node} とこのセルを {@link #nodeToCells} の中で対応付ける. */
+  private void mapNodeToCell(BhNode node, boolean empty) {
+    synchronized (nodeToCells) {
+      if ((empty || model != node) && model != null) {
+        if (nodeToCells.containsKey(model)) {
+          nodeToCells.get(model).remove(this);
+        }
+      }
+      if (!empty && model != node && node != null) {
+        nodeToCells.computeIfAbsent(
+            node,
+            key -> Collections.<BreakpointListCell>newSetFromMap(new WeakHashMap<>()))
+            .add(this);
+      }
     }
   }
 
-  private void decorateText(boolean val) {
+  /** このセルに描画される文字を装飾する. */
+  public void decorateText(boolean val) {
     PseudoClass cls = PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_TEXT_DECORATE);
     pseudoClassStateChanged(cls, val);
   }

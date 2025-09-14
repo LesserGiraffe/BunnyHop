@@ -16,10 +16,10 @@
 
 package net.seapanda.bunnyhop.control.debugger;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.SequencedCollection;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -38,6 +38,7 @@ import net.seapanda.bunnyhop.bhprogram.debugger.variable.VariableInfo;
 import net.seapanda.bunnyhop.control.SearchBox;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.debugger.CallStackCell;
 import net.seapanda.bunnyhop.view.debugger.VariableListCell;
 
@@ -60,8 +61,9 @@ public class VariableInspectionController {
   private final WorkspaceSet wss;
   private final String viewName;
   private final TreeItem<VariableListItem> rootVarItem;
-  private final Map<VariableListItem, Set<VariableListCell>> varItemToVarCells = new HashMap<>();
-  private final Map<BhNode, Set<VariableListCell>> nodeToVarCells = new HashMap<>();
+  private final Map<VariableListItem, Set<VariableListCell>> varItemToVarCells =
+      new WeakHashMap<>();
+  private final Map<BhNode, Set<VariableListCell>> nodeToVarCells = new WeakHashMap<>();
   private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
       event -> updateCellDecoration(event.node());
 
@@ -83,7 +85,7 @@ public class VariableInspectionController {
     this.searchBox = searchBox;
     this.debugger = debugger;
     this.wss = wss;
-    this.rootVarItem = new TreeItem<VariableListItem>();
+    this.rootVarItem = new TreeItem<>();
     rootVarItem.setExpanded(false);
     varInfo.getCallbackRegistry().getOnVariablesAdded().add(event -> addVarInfo(event.added()));
     addVarInfo(varInfo.getVariables());
@@ -136,6 +138,15 @@ public class VariableInspectionController {
   /** このコントローラを破棄するときに呼ぶこと. */
   public void discard() {
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().remove(onNodeSelStateChanged);
+    ViewUtil.runSafeSync(() -> {
+      variableTreeView.setRoot(null);
+      synchronized (varItemToVarCells) {
+        varItemToVarCells.clear();
+      }
+      synchronized (nodeToVarCells) {
+        nodeToVarCells.clear();
+      }
+    });
   }
 
   /** {@code varItem} に対応する {@link CallStackCell} の内容を変更する. */

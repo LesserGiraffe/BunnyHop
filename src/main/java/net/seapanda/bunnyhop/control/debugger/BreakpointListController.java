@@ -18,6 +18,9 @@ package net.seapanda.bunnyhop.control.debugger;
 
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javafx.fxml.FXML;
@@ -31,6 +34,7 @@ import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
+import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.debugger.BreakpointListCell;
@@ -50,16 +54,19 @@ public class BreakpointListController {
   @FXML private Button bpSearchButton;
   @FXML private CheckBox bpJumpCheckBox;
 
-  /** マウスボタンが押されたときのイベントハンドラ. */
+  private final WorkspaceSet wss;
   private final ModelAccessNotificationService notifService;
   private final SearchBox searchBox;
   private final BreakpointRegistry breakpointRegistry;
+  private final Map<BhNode, Set<BreakpointListCell>> nodeToCallBpListCell = new WeakHashMap<>();
 
   /** コンストラクタ. */
   public BreakpointListController(
+      WorkspaceSet wss,
       ModelAccessNotificationService notifService,
       SearchBox searchBox,
       BreakpointRegistry breakpointRegistry) {
+    this.wss = wss;
     this.notifService = notifService;
     this.searchBox = searchBox;
     this.breakpointRegistry = breakpointRegistry;
@@ -78,7 +85,7 @@ public class BreakpointListController {
     breakpointRegistry.getCallbackRegistry()
         .getOnBreakpointRemoved().add(event -> removeBreakpointFromList(event.breakpoint()));
 
-    bpListView.setCellFactory(stack -> new BreakpointListCell());
+    bpListView.setCellFactory(stack -> new BreakpointListCell(nodeToCallBpListCell));
     bpListView.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldVal, newVal) -> onBreakpointSelected(oldVal, newVal));
     bpSearchButton.setOnAction(action -> {
@@ -87,6 +94,8 @@ public class BreakpointListController {
     });
     bpWsSelectorController.setOnWorkspaceSelected(
         event -> showBreakpoints(event.newWs(), event.isAllSelected()));
+    wss.getCallbackRegistry().getOnNodeSelectionStateChanged()
+        .add(event -> updateCellDecoration(event.node()));
   }
 
   /** ブレークポイント一覧のブレークポイントが選択されたときのイベントハンドラ. */
@@ -188,7 +197,12 @@ public class BreakpointListController {
 
   /** {@code node} をブレークポイント一覧から削除する. */
   private synchronized void removeBreakpointFromList(BhNode node) {
-    ViewUtil.runSafe(() -> bpListView.getItems().remove(node));
+    ViewUtil.runSafe(() -> {
+      bpListView.getItems().remove(node);
+      synchronized (nodeToCallBpListCell) {
+        nodeToCallBpListCell.remove(node);
+      }
+    });
   }
 
   /** {@code ws} 上にある, ブレークポイントを指定されたノードを表示する. */
@@ -201,5 +215,14 @@ public class BreakpointListController {
         .filter(node -> node.getWorkspace() == ws || isAllSelected)
         .toList();
     bpListView.getItems().addAll(bpNodes);
+  }
+
+  /** {@code node} に対応する {@link BreakpointListCell} の装飾を変更する. */
+  private void updateCellDecoration(BhNode node) {
+    synchronized (nodeToCallBpListCell) {
+      if (nodeToCallBpListCell.containsKey(node)) {
+        nodeToCallBpListCell.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
+      }
+    }
   }
 }

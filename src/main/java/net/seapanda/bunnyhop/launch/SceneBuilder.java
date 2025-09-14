@@ -196,7 +196,7 @@ public class SceneBuilder {
     }
     if (type == BreakpointListController.class) {
       return new BreakpointListController(
-          notifService, searchBoxCtrl, debugger.getBreakpointRegistry());
+          wss, notifService, searchBoxCtrl, debugger.getBreakpointRegistry());
     }
     if (type == DebugViewController.class) {
       return new DebugViewController(debugger, debugViewFactory);

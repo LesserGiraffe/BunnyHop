@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.function.Consumer;
 import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
 import net.seapanda.bunnyhop.bhprogram.debugger.CallStackItem;
@@ -36,9 +35,6 @@ public class CallStackCell extends ListCell<CallStackItem> {
 
   private CallStackItem model;
   private boolean empty = true;
-  /** {@link #model} に対応する {@link BhNode} の選択状態が変わったときのイベントハンドラ. */
-  private final Consumer<? super BhNode.SelectionEvent>
-      onNodeSelStateChanged = event -> decorateText(event.isSelected());
   private final Map<BhNode, Set<CallStackCell>> nodeToCells;
 
   /** コンストラクタ. */
@@ -58,7 +54,7 @@ public class CallStackCell extends ListCell<CallStackItem> {
   protected void updateItem(CallStackItem item, boolean empty) {
     super.updateItem(item, empty);
     setText(getText(item, empty));
-    mapCellToNode(item, empty);
+    mapNodeToCell(item, empty);
     if (item != null) {
       decorateText(item.getNode().map(BhNode::isSelected).orElse(false));
     }
@@ -77,7 +73,7 @@ public class CallStackCell extends ListCell<CallStackItem> {
   }
 
   /** {@code item} が持つ {@link BhNode} とこのセルを {@link #nodeToCells} の中で対応付ける. */
-  private void mapCellToNode(CallStackItem item, boolean empty) {
+  private void mapNodeToCell(CallStackItem item, boolean empty) {
     synchronized (nodeToCells) {
       if ((empty || model != item) && model != null) {
         model.getNode().ifPresent(node -> {

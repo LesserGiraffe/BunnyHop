@@ -53,7 +53,7 @@ public class VariableListCell extends TreeCell<VariableListItem> {
   protected void updateItem(VariableListItem item, boolean empty) {
     super.updateItem(item, empty);
     setText(getText(item, empty));
-    mapCellToItem(item, empty);
+    mapItemToCell(item, empty);
     mapCellToNode(item, empty);
     model = item;
   }
@@ -66,7 +66,7 @@ public class VariableListCell extends TreeCell<VariableListItem> {
   }
 
   /** {@code item} とこのセルを {@link #itemToCells} の中で対応付ける. */
-  private void mapCellToItem(VariableListItem item, boolean empty) {
+  private void mapItemToCell(VariableListItem item, boolean empty) {
     synchronized (itemToCells) {
       if ((empty || model != item) && model != null) {
         if (itemToCells.containsKey(item)) {
