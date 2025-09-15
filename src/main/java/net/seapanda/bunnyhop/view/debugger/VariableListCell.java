@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
+import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
 import net.seapanda.bunnyhop.bhprogram.debugger.VariableListItem;
@@ -55,6 +56,9 @@ public class VariableListCell extends TreeCell<VariableListItem> {
     setText(getText(item, empty));
     mapItemToCell(item, empty);
     mapCellToNode(item, empty);
+    if (item != null) {
+      decorateText(item.variable.getNode().map(BhNode::isSelected).orElse(false));
+    }
     model = item;
   }
 
@@ -106,7 +110,7 @@ public class VariableListCell extends TreeCell<VariableListItem> {
   /** このセルが表示する値を更新する. */
   public void updateValue() {
     if (model != null) {
-      setText(model.toString());
+      Platform.runLater(() -> setText(model.toString()));
     }
   }
 

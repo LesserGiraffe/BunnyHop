@@ -16,11 +16,13 @@
 
 package net.seapanda.bunnyhop.control.debugger;
 
+import java.util.List;
 import java.util.Map;
 import java.util.SequencedCollection;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -35,6 +37,7 @@ import net.seapanda.bunnyhop.bhprogram.debugger.variable.ListVariable;
 import net.seapanda.bunnyhop.bhprogram.debugger.variable.ScalarVariable;
 import net.seapanda.bunnyhop.bhprogram.debugger.variable.Variable;
 import net.seapanda.bunnyhop.bhprogram.debugger.variable.VariableInfo;
+import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.control.SearchBox;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
@@ -98,6 +101,9 @@ public class VariableInspectionController {
         rootVarItem.getChildren().add(createTreeItem(scalar));
       } else if (variable instanceof ListVariable list) {
         rootVarItem.getChildren().add(createTreeItem(list));
+        if (list.length == 1) {
+          list.getNode().ifPresent(node -> debugger.requestLocalListVals(node, 0, 1));
+        }
       }
     }
   }
@@ -105,13 +111,65 @@ public class VariableInspectionController {
   private TreeItem<VariableListItem> createTreeItem(ScalarVariable scalar) {
     var item = new VariableListItem(scalar);
     item.getCallbackRegistry().getOnValueChanged().add(event -> updateCellValues(event.item()));
-    return new TreeItem<>(item);
+    return createTreeItem(item);
   }
 
   private TreeItem<VariableListItem> createTreeItem(ListVariable list) {
     var item = new VariableListItem(list, 0, list.length - 1);
     item.getCallbackRegistry().getOnValueChanged().add(event -> updateCellValues(event.item()));
-    return new TreeItem<>(item);
+    return createTreeItem(item);
+  }
+
+  private TreeItem<VariableListItem> createTreeItem(VariableListItem item) {
+    return new TreeItem<>(item) {
+
+      private final boolean isLeaf;
+      private boolean isFirstTimeChildren = true;
+
+      {
+        isLeaf = item.numValues <= 1;
+      }
+
+      @Override
+      public ObservableList<TreeItem<VariableListItem>> getChildren() {
+        if (isFirstTimeChildren) {
+          isFirstTimeChildren = false;
+          List<VariableListItem> subItems = item.createSubItems();
+          setEventHandlers(subItems);
+          requestListValues(subItems);
+          var children = subItems.stream().map(subItem -> createTreeItem(subItem)).toList();
+          super.getChildren().setAll(children);
+        }
+        return super.getChildren();
+      }
+
+      private void setEventHandlers(List<VariableListItem> items) {
+        for (VariableListItem item : items) {
+          item.getCallbackRegistry().getOnValueChanged()
+              .add(event -> updateCellValues(event.item()));
+        }
+      }
+
+      /** リスト変数の値の取得をデバッガに命令する. */
+      private void requestListValues(List<VariableListItem> subItems) {
+        if (item.numValues <= BhSettings.Debug.maxListTreeChildren) {
+          item.variable.getNode().ifPresent(
+              node -> debugger.requestLocalListVals(node, item.startIdx, item.numValues));
+          return;
+        }
+        for (VariableListItem subItem : subItems) {
+          if (subItem.numValues == 1) {
+            subItem.variable.getNode().ifPresent(
+                node -> debugger.requestLocalListVals(node, subItem.startIdx, subItem.numValues));
+          }
+        }
+      }
+
+      @Override
+      public boolean isLeaf() {
+        return isLeaf;
+      }
+    };
   }
 
   /** このコントローラの UI 要素を初期化する. */

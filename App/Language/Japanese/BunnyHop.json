@@ -67,10 +67,9 @@
         "all-ws": "すべてのワークスペース"
       },
       "variable-inspection": {
-        "value-not-found": "値が見つかりません",
-        "empty-string": "-- 空の文字列 --",
         "local-vars": "ローカル変数",
-        "global-vars": "グローバル変数"
+        "global-vars": "グローバル変数",
+        "empty-list": "空"
       }
     },
 

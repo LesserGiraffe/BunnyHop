@@ -16,9 +16,12 @@
 
 package net.seapanda.bunnyhop.bhprogram.debugger;
 
+import java.util.ArrayList;
+import java.util.List;
 import net.seapanda.bunnyhop.bhprogram.debugger.variable.ListVariable;
 import net.seapanda.bunnyhop.bhprogram.debugger.variable.ScalarVariable;
 import net.seapanda.bunnyhop.bhprogram.debugger.variable.Variable;
+import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
@@ -33,16 +36,22 @@ public class VariableListItem {
   public final Variable variable;
   public final long startIdx;
   public final long endIdx;
+  /**
+   * このオブジェクトが {@link ListVariable} を保持する場合, 対応するリストの範囲に含まれる要素数. <br>
+   * このオブジェクトが{@link ScalarVariable} を保持する場合 1.
+   */
+  public final long numValues;
 
   /**
    * コンストラクタ.
    *
-   * @param variable このエントリに関連する変数情報
+   * @param variable このオブジェクトに関連する変数情報
    */
   public VariableListItem(ScalarVariable variable) {
     this.variable = variable;
     this.startIdx = -1L;
     this.endIdx = -1L;
+    this.numValues = 1L;
     variable.getCallbackRegistry().getOnValueChanged().add(event -> {
       var valChangedEvent = new ValueChangedEvent(this, event.oldVal(), event.newVal());
       cbRegistry.onValueChanged.invoke(valChangedEvent);
@@ -52,14 +61,15 @@ public class VariableListItem {
   /**
    * コンストラクタ.
    *
-   * @param variable このエントリに関連する変数情報
-   * @param startIdx このエントリが保持するリストの範囲の先頭インデックス
-   * @param endIdx このエントリが保持するリストの範囲の終端インデックス
+   * @param variable このオブジェクトに関連する変数情報
+   * @param startIdx このオブジェクトが保持するリストの範囲の先頭インデックス
+   * @param endIdx このオブジェクトが保持するリストの範囲の終端インデックス
    */
   public VariableListItem(ListVariable variable, long startIdx, long endIdx) {
     this.variable = variable;
     this.startIdx = startIdx;
     this.endIdx = endIdx;
+    this.numValues = Math.max(endIdx - startIdx + 1, 0);
     if (startIdx == endIdx) {
       variable.getCallbackRegistry().getOnValueChanged(startIdx).add(event -> {
         var valChangedEvent = new ValueChangedEvent(this, event.oldVal(), event.newVal());
@@ -68,28 +78,46 @@ public class VariableListItem {
     }
   }
 
+  /**
+   * このオブジェクトが {@link ListVariable} を保持する場合, 対応するリストの範囲を分割した区間
+   * を保持する {@link VariableListItem} を作成する.
+   *
+   * @return 作成した {@link VariableListItem} オブジェクトのリスト
+   */
+  public List<VariableListItem> createSubItems() {
+    if (!(variable instanceof  ListVariable list) || numValues <= 0)  {
+      return new ArrayList<>();
+    }
+    var maxChildren = BhSettings.Debug.maxListTreeChildren;
+    long interval = (long) Math.pow(
+        maxChildren,
+        Math.floor(Math.log10(numValues - 1) / Math.log10(maxChildren)));
+    long numChildren = (numValues + interval - 1) / interval;
+    var children = new ArrayList<VariableListItem>((int) numChildren);
+    for (long i = 0; i < numChildren; ++i) {
+      long start = startIdx + i * interval;
+      long end = Math.min(start + interval - 1, endIdx);
+      children.add(new VariableListItem(list, start, end));
+    }
+    return children;
+  }
+
   @Override
   public String toString() {
     if (variable instanceof ScalarVariable scalar) {
-      return "%s = %s".formatted(
-          variable.name,
-          scalar.getValue().orElse(TextDefs.Debugger.VarInspection.valueNotFound.get()));
+      String val = scalar.getValue().orElse("");
+      return "%s = %s".formatted(variable.name, val);
     }
 
     if (variable instanceof ListVariable list) {
       if (startIdx == endIdx) {
-        String val = list.getItem(startIdx).map(ListVariable.Item::val).orElse(null);
-        if (val == null) {
-          return "%s[%s] : %s".formatted(
-              variable.name, startIdx, TextDefs.Debugger.VarInspection.valueNotFound.get());
-        }
-        val = val.isEmpty() ? TextDefs.Debugger.VarInspection.emptyString.get() : val;
-        return "%s[%s] = %s".formatted(variable.name, startIdx, val);
+        String val = list.getItem(startIdx).map(ListVariable.Item::val).orElse("");
+        return "%s [%s] = %s".formatted(variable.name, startIdx, val);
       }
       if (startIdx < endIdx) {
-        return "%s[%s ... %s]".formatted(variable.name, startIdx, endIdx);
+        return "%s [%s ... %s]".formatted(variable.name, startIdx, endIdx);
       }
-      return "%s[ ]".formatted(variable.name);
+      return "%s (%s)".formatted(variable.name, TextDefs.Debugger.VarInspection.emptyList.get());
     }
     return "";
   }

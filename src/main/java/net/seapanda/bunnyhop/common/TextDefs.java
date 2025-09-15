@@ -105,17 +105,14 @@ public class TextDefs {
 
     /** 変数検査ビューに表示されるテキスト. */
     public static class VarInspection {
-      public static Getter valueNotFound = params -> db.get(
-          TextId.of("gui", "debugger", "variable-inspection", "variable-not-found"), params);
-
-      public static Getter emptyString = params -> db.get(
-          TextId.of("gui", "debugger", "variable-inspection", "empty-string"), params);
-
       public static Getter localVars = params -> db.get(
           TextId.of("gui", "debugger", "variable-inspection", "local-vars"), params);
 
       public static Getter globalVars = params -> db.get(
           TextId.of("gui", "debugger", "variable-inspection", "global-vars"), params);
+
+      public static Getter emptyList = params -> db.get(
+          TextId.of("gui", "debugger", "variable-inspection", "empty-list"), params);
     }
   }
 

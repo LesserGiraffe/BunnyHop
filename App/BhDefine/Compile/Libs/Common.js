@@ -40,7 +40,7 @@ let _nearestLongMin = -_nearestLongMax;
 let _maxArraySize = 0xFFFF_FFFF;
 let _programStartingTime = 0;
 
-bhScriptHelper.debug.setStringGenerator(_str);
+bhScriptHelper.debug.setStringGenerator(_debugStr);
 _notifyThreadStart(_threadContext);
 
 function _Nil() {}
@@ -1048,8 +1048,18 @@ function _str(val) {
   if (val === null || val === (void 0))
     return String(val);
 
-  let toStr = val._str || val.toString;
-  return toStr.call(val);
+  if (val._str)
+    return val._str();
+
+  return val.toString();
+}
+
+function _debugStr(val) {
+  let str = _str(val);
+  if (typeof(val) === 'string' || val instanceof String) {
+    return '"' + str + '"';
+  }
+  return str;
 }
 
 function _strcat(valA, valB) {

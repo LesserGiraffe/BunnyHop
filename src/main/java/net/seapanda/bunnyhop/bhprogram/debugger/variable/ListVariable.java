@@ -37,7 +37,7 @@ public class ListVariable extends Variable {
 
   private final CallbackRegistry cbRegistry = new CallbackRegistry();
   /** リストの長さ. */
-  public final int length;
+  public final long length;
   /** リストのインデックスと値のマップ. */
   private final Map<Long, Item> idxToItem = new HashMap<>();
 
@@ -49,7 +49,7 @@ public class ListVariable extends Variable {
    * @param node 変数に対応する {@link BhNode}. (nullable)
    * @param length リストの長さ
    */
-  public ListVariable(BhSymbolId id, String name, BhNode node, int length) {
+  public ListVariable(BhSymbolId id, String name, BhNode node, long length) {
     super(id, name, node);
     this.length = length;
   }
@@ -64,7 +64,7 @@ public class ListVariable extends Variable {
    * @param slices リストが保持する要素. (一部でも良い)
    */
   public ListVariable(
-      BhSymbolId id, String name, BhNode node, int length, Collection<Slice> slices) {
+      BhSymbolId id, String name, BhNode node, long length, Collection<Slice> slices) {
     super(id, name, node);
     this.length = length;
     for (Slice slice : slices) {

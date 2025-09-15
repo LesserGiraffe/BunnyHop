@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger.CurrentThreadChangedEvent;
@@ -91,9 +92,9 @@ public class DebugWindowController {
    */
   public void setVisibility(boolean visible) {
     if (visible) {
-      debugWindowBase.getScene().getWindow().setOpacity(1.0);
+      ((Stage) debugWindowBase.getScene().getWindow()).show();
     } else {
-      debugWindowBase.getScene().getWindow().setOpacity(0);
+      debugWindowBase.getScene().getWindow().hide();
     }
   }
 }
