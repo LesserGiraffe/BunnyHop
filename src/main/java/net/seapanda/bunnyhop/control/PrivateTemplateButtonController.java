@@ -29,8 +29,8 @@ import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
-import net.seapanda.bunnyhop.model.traverse.CallbackInvoker.CallbackRegistry;
+import net.seapanda.bunnyhop.model.node.traverse.CallbackInvoker;
+import net.seapanda.bunnyhop.model.node.traverse.CallbackInvoker.CallbackRegistry;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
 

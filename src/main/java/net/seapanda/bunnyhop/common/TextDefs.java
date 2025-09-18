@@ -87,8 +87,8 @@ public class TextDefs {
       public static Getter ellipsis = params -> db.get(
           TextId.of("gui", "debugger", "call-stack", "ellipsis"), params);
         
-      public static Getter unknown = params -> db.get(
-          TextId.of("gui", "debugger", "call-stack", "unknown"), params);
+      public static Getter unknownNode = params -> db.get(
+          TextId.of("gui", "debugger", "call-stack", "unknown-node"), params);
       
       public static Getter next = params -> db.get(
           TextId.of("gui", "debugger", "call-stack", "next"), params);
@@ -113,6 +113,9 @@ public class TextDefs {
 
       public static Getter emptyList = params -> db.get(
           TextId.of("gui", "debugger", "variable-inspection", "empty-list"), params);
+
+      public static Getter unknownVar = params -> db.get(
+          TextId.of("gui", "debugger", "variable-inspection", "unknown-var"), params);
     }
   }
 
@@ -160,6 +163,11 @@ public class TextDefs {
           TextId.of("msg", "import", "ask-if-continue", "title"), params);
       public static Getter body = params -> db.get(
           TextId.of("msg", "import", "ask-if-continue", "body"), params);
+      public static Getter someNodesAreMissing = params -> db.get(
+          TextId.of("msg", "import", "ask-if-continue", "some-nodes-are-missing"), params);
+      public static Getter overwroteDuplicateInstIds = params -> db.get(
+          TextId.of("msg", "import", "ask-if-continue", "changed-duplicate-instance-ids"),
+          params);
     }
 
     /** 既存のワークスペースを削除するか確認するときのメッセージ. */

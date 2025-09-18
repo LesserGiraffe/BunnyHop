@@ -36,4 +36,7 @@ public enum ImportWarning {
    * オリジナルノードと派生ノードの型が異なる場合も見つからなかったと見なす.
    */
   DERIVATIVE_NOT_FOUND,
+
+  /** 既存の BhNode のインスタンス ID とロードした BhNode のインスタンス ID が重複した. */
+  DUPLICATE_INSTANCE_ID,
 }

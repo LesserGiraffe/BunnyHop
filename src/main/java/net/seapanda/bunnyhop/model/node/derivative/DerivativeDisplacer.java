@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.traverse;
+package net.seapanda.bunnyhop.model.node.derivative;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -24,11 +24,12 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.derivative.Derivative;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
 import net.seapanda.bunnyhop.model.node.parameter.DerivationId;
 import net.seapanda.bunnyhop.model.node.parameter.DerivativeJointId;
-import net.seapanda.bunnyhop.model.traverse.CallbackInvoker.CallbackRegistry;
+import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.model.node.traverse.CallbackInvoker;
+import net.seapanda.bunnyhop.model.node.traverse.CallbackInvoker.CallbackRegistry;
 import net.seapanda.bunnyhop.service.DerivativeCache;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import org.apache.commons.lang3.mutable.MutableBoolean;

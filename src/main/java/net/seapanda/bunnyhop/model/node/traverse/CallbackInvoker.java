@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.traverse;
+package net.seapanda.bunnyhop.model.node.traverse;
 
 import java.util.HashMap;
 import java.util.Map;

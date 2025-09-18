@@ -28,7 +28,7 @@ import net.seapanda.bunnyhop.model.node.parameter.DerivationId;
 import net.seapanda.bunnyhop.model.node.parameter.DerivativeJointId;
 import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 

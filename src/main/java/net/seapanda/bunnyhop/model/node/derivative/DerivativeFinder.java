@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.traverse;
+package net.seapanda.bunnyhop.model.node.derivative;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.Connector;
-import net.seapanda.bunnyhop.model.node.derivative.Derivative;
 import net.seapanda.bunnyhop.model.node.parameter.DerivativeJointId;
 import net.seapanda.bunnyhop.model.node.section.ConnectorSection;
 import net.seapanda.bunnyhop.model.node.section.Subsection;
+import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
 
 /**
  * 派生ノード接続位置を指定し, そこに接続されている {@link Derivative} を見つけるクラス.

@@ -19,7 +19,6 @@ package net.seapanda.bunnyhop.model.node.derivative;
 import java.util.Set;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
-import net.seapanda.bunnyhop.model.traverse.DerivativeDisplacer;
 import net.seapanda.bunnyhop.service.DerivativeCache;
 import net.seapanda.bunnyhop.undo.UserOperation;
 

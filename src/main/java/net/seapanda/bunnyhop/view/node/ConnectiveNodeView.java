@@ -42,16 +42,16 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
   private final BhNodeViewGroup innerGroup = new BhNodeViewGroup(this, true);
   /** ノード外部に描画されるノードのGroup. */
   private final BhNodeViewGroup outerGroup = new BhNodeViewGroup(this, false);
-  private ConnectiveNode model;
+  private final ConnectiveNode model;
 
   /** ノードのサイズのキャッシュデータ. (コネクタ部分: 含まない, 外部ノード, 含まない) */
-  private SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
   /** ノードのサイズのキャッシュデータ. (コネクタ部分: 含む, 外部ノード, 含まない) */
-  private SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
   /** ノードのサイズのキャッシュデータ. (コネクタ部分: 含まない, 外部ノード, 含む) */
-  private SimpleCache<Vec2D> nodeTreeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeTreeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
   /** ノードのサイズのキャッシュデータ. (コネクタ部分: 含む, 外部ノード, 含む) */
-  private SimpleCache<Vec2D> nodeTreeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeTreeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
 
   /**
    * コンストラクタ.

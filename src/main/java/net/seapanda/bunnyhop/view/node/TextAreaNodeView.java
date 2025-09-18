@@ -47,12 +47,12 @@ import net.seapanda.bunnyhop.view.traverse.NodeViewWalker;
  */
 public final class TextAreaNodeView  extends TextInputNodeView {
 
-  private TextArea textArea = new TextArea();
+  private final TextArea textArea = new TextArea();
   private final TextNode model;
   /** コネクタ部分を含まないノードサイズのキャッシュデータ. */
-  private SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
   /** コネクタ部分を含むノードサイズのキャッシュデータ. */
-  private SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
 
   /**
    * コンストラクタ.

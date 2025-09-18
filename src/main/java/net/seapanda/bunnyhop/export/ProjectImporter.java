@@ -32,8 +32,10 @@ public interface ProjectImporter {
    *
    * @param saveFile このファイルからプロジェクト情報を読みだす
    * @param wss このワークスペースセットに読みだしたプロジェクトを追加する
+   * @param replaceAll 既存のワークスペースを全て破棄して, 読み込んだワークスペースで置き換える場合 true. <br>
+   *                   既存のワークスペースはそのままにして, 読み込んだワークスペースを追加する場合 false
    * @param useOpe undo 用コマンドオブジェクト
    * @return プロジェクトをワークスペースセットに追加できた場合 true
    */
-  boolean imports(File saveFile, WorkspaceSet wss, UserOperation useOpe);
+  boolean imports(File saveFile, WorkspaceSet wss, boolean replaceAll, UserOperation useOpe);
 }

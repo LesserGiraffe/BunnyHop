@@ -1,7 +1,7 @@
 (function() {
 
   let BhNodeId = net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
-  let DerivativeBuilder = net.seapanda.bunnyhop.model.traverse.DerivativeBuilder;
+  let DerivativeBuilder = net.seapanda.bunnyhop.model.node.derivative.DerivativeBuilder;
   let DerivationId = net.seapanda.bunnyhop.model.node.parameter.DerivationId;
   let MvcType = net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
   let bhCommon = {

@@ -83,7 +83,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   protected final BhNodeViewStyle viewStyle;
   /** このノードビューを保持する親グループ.  このノードビューがルートノードビューの場合は null. */
   protected BhNodeViewGroup parent;
-  /** このノードビューに対応するノード. */
+  /** このノードビューに対応するノード. (nullable) */
   private final BhNode model;
   /** このノードビューに対応するコントローラ. */
   private BhNodeController controller;
@@ -134,7 +134,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
    * コンストラクタ.
    *
    * @param style ノードの見た目を決めるパラメータオブジェクト
-   * @param model ビューが表すモデル
+   * @param model ビューが表すモデル (nullable)
    * @param components このノードビューの子要素に追加するコンポーネントのリスト
    */
   protected BhNodeViewBase(
@@ -142,12 +142,17 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       throws ViewConstructionException {
     this.viewStyle = style;
     this.model = model;
-    shapes = createShapes(style);
+    boolean isBreakpointVisible =
+        Optional.ofNullable(model).map(BhNode::isBreakpointSet).orElse(false);
+    shapes = createShapes(style, isBreakpointVisible);
     panes = createPanes(style, components);
     cbRegistry = this.new CallbackRegistryBase();
     lookManager = this.new LookManagerBase(style.bodyShape);
     lookManager.addCssClass(style.cssClasses);
     lookManager.addCssClass(BhConstants.Css.CLASS_BH_NODE);
+    if (model != null) {
+      lookManager.setBreakpointVisibility(model.isBreakpointSet());
+    }
   }
 
   @Override
@@ -261,7 +266,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   }
 
   /** ノードビューの描画に必要な図形オブジェクトを作成する. */
-  private Shapes createShapes(BhNodeViewStyle style) {
+  private Shapes createShapes(BhNodeViewStyle style, boolean isBreakpointVisible) {
     var compileErrorMark = new CompileErrorMark(0, 0, 0, 0);
     compileErrorMark.getStyleClass().add(BhConstants.Css.CLASS_COMPILE_ERROR_MARK);
     compileErrorMark.setMouseTransparent(true);
@@ -270,7 +275,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     double radius = style.commonPart.breakpoint.radius;
     var circle = new Circle(radius, radius, radius);
     circle.setMouseTransparent(true);
-    circle.setVisible(false);
+    circle.setVisible(isBreakpointVisible);
     circle.getStyleClass().add(style.commonPart.breakpoint.cssClass);
     double size = style.commonPart.nxecStepMark.size;
     Polygon star = createStarPolygon(size, size);
@@ -338,7 +343,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     
     common.setPickOnBounds(false);
     common.getStyleClass().add(style.commonPart.cssClass);
-    common.getChildren().add(shapes.nxecStep);
+    common.getChildren().add(shapes.nextStep);
     common.getChildren().add(shapes.breakpoint);
     common.getChildren().addAll(components);
     common.getChildren().forEach(child -> {
@@ -562,12 +567,12 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     public void setExecStepMarkVisibility(boolean visible) {
       BhNodeViewBase.this.getLookManager()
           .switchPseudoClassState(BhConstants.Css.PSEUDO_EXEC_STEP, visible);
-      shapes.nxecStep.setVisible(visible);
+      shapes.nextStep.setVisible(visible);
     }
 
     @Override
     public boolean isExecStepMarkVisible() {
-      return shapes.nxecStep.isVisible();
+      return shapes.nextStep.isVisible();
     }
   }
 
@@ -1127,11 +1132,11 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
    * @param nodeShape ノード本体を描画するためのポリゴン
    * @param compileError コンパイルエラーが発生していることを示す印
    * @param breakpoint ブレークポイントが設定されていることを示す印
-   * @param nxecStep 次に実行されるノードであることを示す印
+   * @param nextStep 次に実行されるノードであることを示す印
    */
   private record Shapes(
       Polygon nodeShape,
       CompileErrorMark compileError,
       Circle breakpoint,
-      Polygon nxecStep) {}
+      Polygon nextStep) {}
 }

@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.SequencedSet;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.traverse.NodeImageBuilder;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;

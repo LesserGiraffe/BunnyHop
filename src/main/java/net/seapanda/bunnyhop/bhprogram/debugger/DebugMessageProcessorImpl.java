@@ -171,7 +171,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
     if (node == null) {
       return mainRoutineIds.contains(instId)
           ? TextDefs.Debugger.CallStack.mainRoutine.get()
-          : TextDefs.Debugger.CallStack.unknown.get();
+          : TextDefs.Debugger.CallStack.unknownNode.get();
     }
     String name = cache.get(node.getInstanceId());
     if (name == null) {
@@ -197,7 +197,9 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
   /** {@link BhVariable} オブジェクトから {@link Variable} オブジェクトを作成する. */
   private Variable createVariable(BhVariable bhVar) {
     BhNode node = instIdToNode.get(InstanceId.of(bhVar.id.toString()));
-    String name = node.getUserDefinedName().orElse("");
+    String name = (node == null)
+        ? TextDefs.Debugger.VarInspection.unknownVar.get()
+        : node.getUserDefinedName().orElse("");
     if (bhVar instanceof BhListVariable bhListVar) {
       return new ListVariable(bhVar.id, name, node, bhListVar.length, bhListVar.slices);
     } else if (bhVar instanceof BhScalarVariable bhScalarVar) {

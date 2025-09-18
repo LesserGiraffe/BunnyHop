@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.traverse;
+package net.seapanda.bunnyhop.model.node.derivative;
 
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
+import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
 
 /**
  * {@link TextNode} 型の派生ノードにオリジナルのテキストをセットするクラス.

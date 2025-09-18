@@ -39,16 +39,16 @@ import net.seapanda.bunnyhop.utility.textdb.TextDatabase;
  */
 public class JsonBhNodeCategoryTree implements BhNodeCategoryTree {
 
-  private static Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
-  private static Pattern escapeRbrace = Pattern.compile(Pattern.quote("\\}"));
-  /** `\\...\$` */
-  private static Pattern escapeDollar = Pattern.compile("^(\\\\)+\\$");
-  /** テキスト DB 参照パターン `${a}{b}...{z}` */
-  private static Pattern embeded =
-      Pattern.compile("^\\$(\\{(((\\\\\\{)|(\\\\\\})|[^\\{\\}])*)\\})+$");
+  private static final Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
+  private static final Pattern escapeRbrace = Pattern.compile(Pattern.quote("\\}"));
+  /** `\\...\$`/ */
+  private static final Pattern escapeDollar = Pattern.compile("^(\\\\)+\\$");
+  /** テキスト DB 参照パターン `${a}{b}...{z}`. */
+  private static final Pattern embedded =
+      Pattern.compile("^\\$(\\{(((\\\\\\{)|(\\\\})|[^{}])*)})+$");
   /** テキスト DB 参照パターン `${a}{b}...{z}` の (a, b, ..., z) を取り出す用. */
-  private static Pattern contents =
-      Pattern.compile("\\{((?:(?:\\\\\\{)|(?:\\\\\\})|[^\\{\\}])*)\\}");
+  private static final Pattern contents =
+      Pattern.compile("\\{((?:\\\\\\{|\\\\}|[^{}])*)}");
 
   private final TreeNode<String> root;
   private final BhNodeFactory factory;
@@ -79,7 +79,7 @@ public class JsonBhNodeCategoryTree implements BhNodeCategoryTree {
   private void addChildren(JsonObject jsonObj, TreeNode<String> parent, String fileName)
       throws ModelConstructionException {
     for (String key : jsonObj.keySet()) {
-      if (!(key instanceof String)) {
+      if (key == null) {
         continue;
       }
       JsonElement val = jsonObj.get(key);
@@ -116,7 +116,6 @@ public class JsonBhNodeCategoryTree implements BhNodeCategoryTree {
    *
    * @param bhNodeIdList BhNode の ID のリスト
    * @param parent ID を子ノードとして追加する親ノード
-   * @return 各 ID に対応する BhNode がすべて見つかった場合true
    */
   private void addBhNodeId(JsonArray bhNodeIdList, TreeNode<String> parent, String fileName)
       throws ModelConstructionException {
@@ -137,7 +136,7 @@ public class JsonBhNodeCategoryTree implements BhNodeCategoryTree {
 
   /** {@code str} をノードカテゴリ名に変換する. */
   private String toCategoryName(String str) {
-    if (embeded.matcher(str).find()) {
+    if (embedded.matcher(str).find()) {
       Matcher matcher = contents.matcher(str);
       List<String> textId = matcher.results().map(
           result -> {  

@@ -24,7 +24,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.parameter.ConnectorId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**

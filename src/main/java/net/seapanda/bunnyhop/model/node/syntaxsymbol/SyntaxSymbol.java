@@ -22,7 +22,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.utility.SerialNumber;
 import net.seapanda.bunnyhop.utility.Showable;
 

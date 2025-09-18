@@ -211,6 +211,7 @@ public class DebugViewController {
   private synchronized void showVariableInspectionView(CurrentStackFrameChangedEvent event) {
     if (event.newVal().equals(StackFrameSelection.NONE)) {
       ViewUtil.runSafe(() -> localVarScrollPane.setContent(emptyVarInspCtrl.getView()));
+      return;
     }
     var stackFrameId =
         new StackFrameId(event.currentThread().getThreadId(), event.newVal().getIndex());

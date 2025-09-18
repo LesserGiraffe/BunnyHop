@@ -30,7 +30,7 @@ import net.seapanda.bunnyhop.model.node.parameter.DerivationId;
 import net.seapanda.bunnyhop.model.node.section.Section;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
-import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**

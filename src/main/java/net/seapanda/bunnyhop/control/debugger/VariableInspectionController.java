@@ -42,7 +42,6 @@ import net.seapanda.bunnyhop.control.SearchBox;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.view.ViewUtil;
-import net.seapanda.bunnyhop.view.debugger.CallStackCell;
 import net.seapanda.bunnyhop.view.debugger.VariableListCell;
 
 /**
@@ -67,6 +66,7 @@ public class VariableInspectionController {
   private final Map<VariableListItem, Set<VariableListCell>> varItemToVarCells =
       new WeakHashMap<>();
   private final Map<BhNode, Set<VariableListCell>> nodeToVarCells = new WeakHashMap<>();
+  private boolean isDiscarded = false;
   private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
       event -> updateCellDecoration(event.node());
 
@@ -132,7 +132,7 @@ public class VariableInspectionController {
 
       @Override
       public ObservableList<TreeItem<VariableListItem>> getChildren() {
-        if (isFirstTimeChildren) {
+        if (!isDiscarded && isFirstTimeChildren) {
           isFirstTimeChildren = false;
           List<VariableListItem> subItems = item.createSubItems();
           setEventHandlers(subItems);
@@ -195,8 +195,12 @@ public class VariableInspectionController {
 
   /** このコントローラを破棄するときに呼ぶこと. */
   public void discard() {
+    if (isDiscarded) {
+      return;
+    }
+    isDiscarded = true;
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().remove(onNodeSelStateChanged);
-    ViewUtil.runSafeSync(() -> {
+    ViewUtil.runSafe(() -> {
       variableTreeView.setRoot(null);
       synchronized (varItemToVarCells) {
         varItemToVarCells.clear();
@@ -207,8 +211,11 @@ public class VariableInspectionController {
     });
   }
 
-  /** {@code varItem} に対応する {@link CallStackCell} の内容を変更する. */
+  /** {@code varItem} に対応する {@link VariableListCell} の内容を変更する. */
   private void updateCellValues(VariableListItem varItem) {
+    if (isDiscarded) {
+      return;
+    }
     synchronized (varItemToVarCells) {
       if (varItemToVarCells.containsKey(varItem)) {
         varItemToVarCells.get(varItem).forEach(VariableListCell::updateValue);
@@ -216,8 +223,11 @@ public class VariableInspectionController {
     }
   }
 
-  /** {@code node} に対応する {@link CallStackCell} の装飾を変更する. */
+  /** {@code node} に対応する {@link VariableListCell} の装飾を変更する. */
   private void updateCellDecoration(BhNode node) {
+    if (isDiscarded) {
+      return;
+    }
     synchronized (nodeToVarCells) {
       if (nodeToVarCells.containsKey(node)) {
         nodeToVarCells.get(node).forEach(cell -> cell.decorateText(node.isSelected()));

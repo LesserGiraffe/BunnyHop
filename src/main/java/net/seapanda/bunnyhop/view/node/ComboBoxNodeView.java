@@ -48,13 +48,13 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
  */
 public final class ComboBoxNodeView extends BhNodeViewBase {
 
-  private ComboBox<SelectableItem<String, Object>> comboBox = new ComboBox<>();
+  private final ComboBox<SelectableItem<String, Object>> comboBox = new ComboBox<>();
   private final TextNode model;
   private final MutableBoolean dragging = new MutableBoolean();
   /** コネクタ部分を含まないノードサイズのキャッシュデータ. */
-  private SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
   /** コネクタ部分を含むノードサイズのキャッシュデータ. */
-  private SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
 
   /**
    * コンストラクタ.

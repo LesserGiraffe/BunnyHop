@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.control;
 
 import java.io.File;
 import java.util.Optional;
-import java.util.SequencedSet;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -33,7 +32,6 @@ import net.seapanda.bunnyhop.export.ProjectExporter;
 import net.seapanda.bunnyhop.export.ProjectImporter;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
-import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.undo.UndoRedoAgent;
@@ -195,13 +193,9 @@ public class MenuBarController {
     }
     Context context = notifService.begin();
     try {
-      SequencedSet<Workspace> workspaces = wss.getWorkspaces();
-      boolean success = importer.imports(selectedFile, wss, context.userOpe());
+      boolean success = importer.imports(selectedFile, wss, clearWs.get(), context.userOpe());
       if (success) {
         currentSaveFile = selectedFile;
-        if (clearWs.get()) {
-          workspaces.forEach(ws ->  wss.removeWorkspace(ws, context.userOpe()));
-        }
       }
     } finally {
       notifService.end();

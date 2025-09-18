@@ -45,11 +45,11 @@ import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyleFactory;
  */
 public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
   
-  private static Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
-  private static Pattern escapeRbrace = Pattern.compile(Pattern.quote("\\}"));
+  private static final Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
+  private static final Pattern escapeRbrace = Pattern.compile(Pattern.quote("\\}"));
   /** 疑似ビュー指定パターン `${a}{b}...{z}` の (a, b, ..., z) を取り出す用. */
-  private static Pattern contents =
-      Pattern.compile("\\{((?:(?:\\\\\\{)|(?:\\\\\\})|[^\\{\\}])*)\\}");
+  private static final Pattern contents =
+      Pattern.compile("\\{((?:\\\\\\{|\\\\}|[^{}])*)}");
 
   private final BhNodeViewStyleFactory nodeStyleFactory;
   PrivateTemplateButtonFactory buttonFactory;

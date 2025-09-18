@@ -56,16 +56,16 @@ public record BhNodeAttributes(
     String onUserDefinedNameAsked,
     String initialText) {
 
-  private static Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
-  private static Pattern escapeRbrace = Pattern.compile(Pattern.quote("\\}"));
-  /** `\\...\$` */
-  private static Pattern escapeDollar = Pattern.compile("^(\\\\)+\\$");
-  /** テキスト DB 参照パターン `${a}{b}...{z}` */
-  private static Pattern embeded =
-      Pattern.compile("^\\$(\\{(((\\\\\\{)|(\\\\\\})|[^\\{\\}])*)\\})+$");
+  private static final Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
+  private static final Pattern escapeRbrace = Pattern.compile(Pattern.quote("\\}"));
+  /** `\\...\$`. */
+  private static final Pattern escapeDollar = Pattern.compile("^(\\\\)+\\$");
+  /** テキスト DB 参照パターン `${a}{b}...{z}`. */
+  private static final Pattern embedded =
+      Pattern.compile("^\\$(\\{(((\\\\\\{)|(\\\\})|[^{}])*)})+$");
   /** テキスト DB 参照パターン `${a}{b}...{z}` の (a, b, ..., z) を取り出す用. */
-  private static Pattern contents =
-      Pattern.compile("\\{((?:(?:\\\\\\{)|(?:\\\\\\})|[^\\{\\}])*)\\}");
+  private static final Pattern contents =
+      Pattern.compile("\\{((?:\\\\\\{|\\\\}|[^{}])*)}");
 
   /**
    * Node タグが持つ属性一覧を読み取る.
@@ -130,7 +130,7 @@ public record BhNodeAttributes(
 
   private static String getInitialText(Element elem, TextDatabase textDb) {
     String value = elem.getAttribute(BhConstants.BhModelDef.ATTR_INITIAL_TEXT);
-    if (embeded.matcher(value).find()) {
+    if (embedded.matcher(value).find()) {
       Matcher matcher = contents.matcher(value);
       List<String> textId = matcher.results().map(
           result -> {  

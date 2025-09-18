@@ -71,6 +71,7 @@ public class CallStackController {
   private final WorkspaceSet wss;
   private final ReentrantLock debugLock;
   private final Map<BhNode, Set<CallStackCell>> nodeToCallStackCell = new WeakHashMap<>();
+  private boolean isDiscarded = false;
   private final Consumer<Debugger.CurrentThreadChangedEvent> onCurrentThreadChanged =
       event -> onCurrentDebugThreadChanged();
   private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
@@ -104,15 +105,16 @@ public class CallStackController {
    */
   public void initialize() {
     callStackListView.setCellFactory(stack -> new CallStackCell(nodeToCallStackCell));
-    callStackListView.setItems(createCallStackItem());
+    callStackListView.setItems(createCallStackItems());
     callStackListView.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldVal, newVal) -> onCallStackCellSelected(oldVal, newVal));
     csShowAllCheckBox.selectedProperty().addListener(
-        (observable, oldVal, newVal) -> callStackListView.setItems(createCallStackItem()));
-    csSearchButton.setOnAction(action -> {
-      searchBox.setOnSearchRequested(onSearchRequested);
-      searchBox.enable();
-    });
+        (observable, oldVal, newVal) -> {
+          if (!isDiscarded) {
+            callStackListView.setItems(createCallStackItems());
+          }
+        });
+    csSearchButton.setOnAction(action ->  prepareSearchUi());
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(onCurrentThreadChanged);
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().add(onNodeSelStateChanged);
     Consumer<CallStackItem.SelectionEvent> selectItem = this::onCallStackItemSelected;
@@ -132,6 +134,10 @@ public class CallStackController {
 
   /** このコントローラを破棄するときに呼ぶこと. */
   public void discard() {
+    if (isDiscarded) {
+      return;
+    }
+    isDiscarded = true;
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().remove(onCurrentThreadChanged);
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().remove(onNodeSelStateChanged);
     searchBox.unsetOnSearchRequested(onSearchRequested);
@@ -142,7 +148,7 @@ public class CallStackController {
   }
 
   /** {@link #callStackListView} に設定するアイテムを作成する. */
-  private ObservableList<CallStackItem> createCallStackItem() {
+  private ObservableList<CallStackItem> createCallStackItems() {
     var callStack = new ArrayList<>(threadContext.callStack);
     if (!csShowAllCheckBox.isSelected() && callStack.size() > BhSettings.Debug.maxCallStackItems) {
       var items = new ArrayList<CallStackItem>();
@@ -163,22 +169,23 @@ public class CallStackController {
 
   /** コールスタックの UI 要素が選択されたときのイベントハンドラ. */
   private void onCallStackCellSelected(CallStackItem deselected, CallStackItem selected) {
-    debugLock.lock();
-    try {
-      var tmpUserOpe = new UserOperation();
-      if (deselected != null) {
-        deselected.deselect(tmpUserOpe);
-      }
-      if (selected != null) {
-        selected.select(tmpUserOpe);
-      }
-    } finally {
-      debugLock.unlock();
+    if (isDiscarded) {
+      return;
+    }
+    var tmpUserOpe = new UserOperation();
+    if (deselected != null) {
+      deselected.deselect(tmpUserOpe);
+    }
+    if (selected != null) {
+      selected.select(tmpUserOpe);
     }
   }
 
   /** {@link CallStackItem} が選択されたときのイベントハンドラ. */
   private void onCallStackItemSelected(CallStackItem.SelectionEvent event) {
+    if (isDiscarded) {
+      return;
+    }
     if (event.isSelected()) {
       callStackListView.getSelectionModel().select(event.item());
       if (isThisThreadSameAsDebugThread()) {
@@ -221,7 +228,7 @@ public class CallStackController {
 
   /** デバッガの現在のスレッドが変わったときの処理. */
   private void onCurrentDebugThreadChanged() {
-    if (!isThisThreadSameAsDebugThread()) {
+    if (isDiscarded || !isThisThreadSameAsDebugThread()) {
       return;
     }
     CallStackItem selected = callStackListView.getSelectionModel().getSelectedItem();
@@ -233,10 +240,10 @@ public class CallStackController {
 
   /** コールスタックから {@code query} に一致する要素を探して選択する. */
   private void selectItem(Query query) {
-    CallStackItem item = null;
-    if (StringUtils.isEmpty(query.word())) {
+    if (isDiscarded || StringUtils.isEmpty(query.word())) {
       return;
     }
+    CallStackItem item = null;
     if (query.isRegex()) {
       try {
         int regexFlag = query.isCaseSensitive() ? 0 : Pattern.CASE_INSENSITIVE;
@@ -303,10 +310,22 @@ public class CallStackController {
 
   /** {@code node} に対応する {@link CallStackCell} の装飾を変更する. */
   private void updateCellDecoration(BhNode node) {
+    if (isDiscarded) {
+      return;
+    }
     synchronized (nodeToCallStackCell) {
       if (nodeToCallStackCell.containsKey(node)) {
         nodeToCallStackCell.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
       }
     }
+  }
+
+  /** 検索 UI の準備をする. */
+  private void prepareSearchUi() {
+    if (isDiscarded) {
+      return;
+    }
+    searchBox.setOnSearchRequested(onSearchRequested);
+    searchBox.enable();
   }
 }

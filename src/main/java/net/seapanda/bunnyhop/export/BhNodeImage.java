@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeVersion;
-import net.seapanda.bunnyhop.model.node.parameter.ConnectorId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
@@ -30,15 +29,16 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
  * @author K.Koike
  */
 public class BhNodeImage {
+
   final BhNodeId nodeId;
   final InstanceId instanceId;
   final ArrayList<InstanceId> derivativeIds;
   final String text;
   final boolean isDefault;
-  final ConnectorId parentConnectorId;
+  final boolean isBreakpointSet;
   final BhNodeVersion version;
   final Vec2D pos;
-  private final ArrayList<BhNodeImage> children = new ArrayList<>();
+  private final ArrayList<ConnectorImage> children;
 
   /**
    * コンストラクタ.
@@ -49,7 +49,7 @@ public class BhNodeImage {
    * @param derivativeIds 対象の BhNode が持つ派生ノードのインスタンス ID
    * @param text 対象の BhNode が TextNode の場合に持っているテキスト
    * @param isDefault 対象の BhNode がデフォルトノードである場合 true
-   * @param parentConnectorId 対象の BhNode がつながれているコネクタの ID
+   * @param isBreakpointSet 対象の BhNode にブレークポイントが設定されている場合 true
    * @param version 対象の BhNode のバージョン
    * @param pos このノードのワークスペース上での位置
    */
@@ -59,7 +59,7 @@ public class BhNodeImage {
       Collection<InstanceId> derivativeIds,
       String text,
       boolean isDefault,
-      ConnectorId parentConnectorId,
+      boolean isBreakpointSet,
       BhNodeVersion version,
       Vec2D pos) {
     this.nodeId = nodeId;
@@ -67,9 +67,10 @@ public class BhNodeImage {
     this.derivativeIds = new ArrayList<>(derivativeIds);
     this.text = (text == null) ? "" : text;
     this.isDefault = isDefault;
-    this.parentConnectorId = parentConnectorId;
+    this.isBreakpointSet = isBreakpointSet;
     this.version = version;
     this.pos = pos;
+    children = new ArrayList<>();
   }
 
   /** デフォルトコンストラクタ (デシリアライズ用). */
@@ -79,18 +80,19 @@ public class BhNodeImage {
     this.derivativeIds = new ArrayList<>();
     this.text = "";
     this.isDefault = false;
-    this.parentConnectorId = ConnectorId.NONE;
+    this.isBreakpointSet = false;
     this.version = BhNodeVersion.NONE;
     this.pos = new Vec2D(0, 0);
+    this.children = new ArrayList<>();
   }
 
-  /** 子要素を追加する. */
-  public void addChild(BhNodeImage child) {
+  /** 子要素のコネクタを追加する. */
+  public void addChild(ConnectorImage child) {
     children.add(child);
   }
 
-  /** 子要素を取得する. */
-  public Collection<BhNodeImage> getChildren() {
+  /** 子要素のコネクタを取得する. */
+  public Collection<ConnectorImage> getChildren() {
     return new ArrayList<>(children);
   }
 }

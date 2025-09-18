@@ -25,7 +25,7 @@ import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.Connector;
 import net.seapanda.bunnyhop.model.node.TextNode;
 import net.seapanda.bunnyhop.model.node.derivative.Derivative;
-import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.undo.UserOperation;
 

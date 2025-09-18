@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
+import net.seapanda.bunnyhop.model.node.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -58,13 +58,12 @@ public class ExecutableNodeSnapshot implements ExecutableNodeSet {
 
   /** ルートノードを集めて返す. */
   private HashSet<BhNode> collectRootNodes(WorkspaceSet wss) {
-    var rootNodes = wss.getWorkspaces().stream()
+    return wss.getWorkspaces().stream()
         .flatMap(ws -> ws.getRootNodes().stream())
-        .collect(Collectors.toSet());
-    return new HashSet<BhNode>(rootNodes);
+        .collect(Collectors.toCollection(HashSet::new));
   }
 
-  /** {@link rootNodeList} から辿れるノードをインスタンス ID と共に集めて返す. */
+  /** {@code rootNodeList} から辿れるノードをインスタンス ID と共に集めて返す. */
   private Map<InstanceId, BhNode> collectNode(Collection<BhNode> rootNodeList) {
     var symbolIdToNode = new HashMap<InstanceId, BhNode>();
     var registry = CallbackInvoker.newCallbackRegistry().setForAllNodes(

@@ -16,12 +16,19 @@
 
 package net.seapanda.bunnyhop.export;
 
+import static net.seapanda.bunnyhop.export.JsonProjectReader.Result;
+
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.SequencedSet;
+import java.util.Set;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -30,6 +37,8 @@ import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.model.factory.WorkspaceFactory;
 import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.model.node.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.service.LogManager;
@@ -58,18 +67,27 @@ public class JsonProjectImporter implements ProjectImporter {
   }
 
   @Override
-  public boolean imports(File saveFile, WorkspaceSet wss, UserOperation userOpe) {
+  public boolean imports(
+      File saveFile, WorkspaceSet wss, boolean replaceAll, UserOperation userOpe) {
     try {
-      JsonProjectReader.Result result = 
-          JsonProjectReader.imports(saveFile.toPath(), nodeFactory, wsFactory);
+      Result tmp = JsonProjectReader.imports(saveFile.toPath(), nodeFactory, wsFactory);
+      Result result = tmp;
+      if (!replaceAll) {
+        result = replaceDuplicateInstIds(wss, tmp.instanceIdToNode())
+            .map(msg -> new Result(tmp, msg, ImportWarning.DUPLICATE_INSTANCE_ID))
+            .orElse(tmp);
+      }
       if (!result.warnings().isEmpty()) {
         LogManager.logger().error(result.warningMsg());
       }
-      boolean continueLoading = result.warnings().isEmpty() || askIfContinueLoading();
+      boolean continueLoading = result.warnings().isEmpty()
+          || askIfContinueLoading(createWarningMsg(result.warnings()));
       if (!continueLoading) {
         return false;
       }
+      SequencedSet<Workspace> workspaces = replaceAll ? wss.getWorkspaces() : new LinkedHashSet<>();
       addModelsInOrder(wss, result.workspaces(), userOpe);
+      workspaces.forEach(ws -> wss.removeWorkspace(ws, userOpe));
       return true;
 
     } catch (IncompatibleSaveFormatException e) {
@@ -91,19 +109,19 @@ public class JsonProjectImporter implements ProjectImporter {
   }
 
   /**
-   * ロードを中断するか確認する.
+   * ロードを続けるか確認する.
    *
-   * @retval true ロードを中断する
-   * @retval false 既存のワークスペースにロードしたワークスペースを追加
+   * @param warningMsg 警告の詳細な情報
+   * @return ロードを続ける 場合 true, 止める場合 false
    */
-  private Boolean askIfContinueLoading() {
+  private Boolean askIfContinueLoading(String warningMsg) {
     String title = TextDefs.Import.AskIfContinue.title.get();
     String body = TextDefs.Import.AskIfContinue.body.get(
         ButtonType.YES.getText(), ButtonType.NO.getText());
     Optional<ButtonType> buttonType = msgService.alert(
         AlertType.CONFIRMATION,
         title,
-        null,
+        warningMsg,
         body,
         ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 
@@ -141,5 +159,86 @@ public class JsonProjectImporter implements ProjectImporter {
     String title = TextDefs.Import.Error.title.get();
     LogManager.logger().error(e.toString());
     msgService.alert(Alert.AlertType.INFORMATION, title, null, msg);
-  }  
+  }
+
+  /**
+   *  {@code instIdToNode} のキーが {@code wss} に存在する {@link BhNode} の {@link InstanceId} と一致する場合,
+   *  {@code instIdToNode} 上でそのキーに対応する {@link BhNode} の {@link InstanceId} を新規作成したものに変更する.
+   *
+   * @return {@link InstanceId} の重複があった場合, その詳細なメッセージ.  そうでない場合 empty.
+   */
+  private static Optional<String> replaceDuplicateInstIds(
+      WorkspaceSet wss, Map<InstanceId, BhNode> instIdToNode) {
+    Set<InstanceId> instanceIds = collectInstIds(wss);
+    Map<InstanceId, BhNode> orgInstIdToNode = replaceDuplicateInstIds(instanceIds, instIdToNode);
+    if (orgInstIdToNode.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(createDuplicateInstIdWarnDetails(orgInstIdToNode));
+  }
+
+  /**
+   *  {@code instIdToNode} のキーが {@code existing} に含まれる場合,
+   * そのキーに対応する {@link BhNode} の {@link InstanceId} を新規作成したものに変更する.
+   *
+   * @return 変更前の {@link InstanceId} と {@link InstanceId} を変更された {@link BhNode} のマップ.
+   */
+  private static Map<InstanceId, BhNode> replaceDuplicateInstIds(
+      Set<InstanceId> existing, Map<InstanceId, BhNode> instIdToNode) {
+    var orgInstIdToNode = new HashMap<InstanceId, BhNode>();
+    for (Map.Entry<InstanceId, BhNode> instIdAndNode : instIdToNode.entrySet()) {
+      if (existing.contains(instIdAndNode.getKey())) {
+        instIdAndNode.getValue().setInstanceId(InstanceId.newId());
+        orgInstIdToNode.put(instIdAndNode.getKey(), instIdAndNode.getValue());
+      }
+    }
+    return orgInstIdToNode;
+  }
+
+  /** {@code wss} に存在する全ての {@link BhNode} の {@link InstanceId} を取得する. */
+  private static Set<InstanceId> collectInstIds(WorkspaceSet wss) {
+    var symbolIds = new HashSet<InstanceId>();
+    var registry = CallbackInvoker.newCallbackRegistry()
+        .setForAllNodes(node -> symbolIds.add(node.getInstanceId()));
+
+    wss.getWorkspaces().stream()
+        .flatMap(ws -> ws.getRootNodes().stream())
+        .forEach(rootNode -> CallbackInvoker.invoke(registry, rootNode));
+    return symbolIds;
+  }
+
+  /**
+   * {@link InstanceId} の重複に関する詳細を作成する.
+   *
+   * @param instIdToNode 重複した {@link InstanceId} とそれを保持していた {@link BhNode} のマップ.
+   * @return {@link InstanceId} の重複に関する詳細
+   */
+  private static String createDuplicateInstIdWarnDetails(Map<InstanceId, BhNode> instIdToNode) {
+    if (instIdToNode.isEmpty()) {
+      return "";
+    }
+    StringBuilder msg = new StringBuilder();
+    msg.append(ImportWarning.DUPLICATE_INSTANCE_ID.toString() + "\n");
+    for (Map.Entry<InstanceId, BhNode> orgInstIdAndNode : instIdToNode.entrySet()) {
+      msg.append("  instance id: %s,  node id %s\n".formatted(
+          orgInstIdAndNode.getKey(), orgInstIdAndNode.getValue().getId()));
+    }
+    msg.append("\n");
+    return msg.toString();
+  }
+
+  /** ロード時にユーザに表示する警告メッセージを作成する. */
+  private static String createWarningMsg(Set<ImportWarning> warnings) {
+    var msgs = new ArrayList<String>();
+    if (warnings.contains(ImportWarning.UNKNOWN_BH_NODE_ID)
+        || warnings.contains(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION)
+        || warnings.contains(ImportWarning.CONNECTOR_NOT_FOUND)
+        || warnings.contains(ImportWarning.DERIVATIVE_NOT_FOUND)) {
+      msgs.add(TextDefs.Import.AskIfContinue.someNodesAreMissing.get());
+    }
+    if (warnings.contains(ImportWarning.DUPLICATE_INSTANCE_ID)) {
+      msgs.add(TextDefs.Import.AskIfContinue.overwroteDuplicateInstIds.get());
+    }
+    return String.join("\n", msgs);
+  }
 }

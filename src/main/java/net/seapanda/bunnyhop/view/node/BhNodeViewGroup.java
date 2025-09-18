@@ -42,11 +42,11 @@ import net.seapanda.bunnyhop.view.traverse.NodeViewWalker;
  */
 public class BhNodeViewGroup implements NodeViewComponent, Showable {
 
-  /** `\\...\$` */
-  private static Pattern escapeDollar = Pattern.compile("^(\\\\)+\\$");
-  /** 疑似ビュー指定パターン `${a}{b}...{z}` */
-  private static Pattern embeded =
-      Pattern.compile("^\\$(\\{(((\\\\\\{)|(\\\\\\})|[^\\{\\}])*)\\}){2,}$");
+  /** `\\...\$`. */
+  private static final Pattern escapeDollar = Pattern.compile("^(\\\\)+\\$");
+  /** 疑似ビュー指定パターン `${a}{b}...{z}`. */
+  private static final Pattern embedded =
+      Pattern.compile("^\\$(\\{(((\\\\\\{)|(\\\\})|[^{}])*)}){2,}$");
 
   /** このグループが子となる {@link BhNodeViewGroup} のリスト. */
   private final List<BhNodeViewGroup> subGroupList = new ArrayList<>();
@@ -64,7 +64,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
   /** 疑似ビューの ID. */
   private int pseudoViewId = 0;
   /** このグループのサイズのキャッシュデータ. */
-  private SimpleCache<Vec2D> sizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> sizeCache = new SimpleCache<Vec2D>(new Vec2D());
 
   /**
    * コンストラクタ.
@@ -104,7 +104,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       String childName = cnctrName;
       BhNodeViewBase childView = null;
       // 疑似ビュー指定パターン
-      if (embeded.matcher(cnctrName).find()) {
+      if (embedded.matcher(cnctrName).find()) {
         childName = "$" + pseudoViewId++;
         childView = createPseudoView(cnctrName, factory);
       } else if (escapeDollar.matcher(cnctrName).find()) {

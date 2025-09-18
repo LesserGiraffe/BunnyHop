@@ -53,7 +53,7 @@
         "name": "コールスタック",
         "show-all": "全て表示",
         "ellipsis": "...",
-        "unknown": "不明なノード",
+        "unknown-node": "不明なノード",
         "next": "次",
         "search": "🔍",
         "jump": "ジャンプ",
@@ -69,7 +69,8 @@
       "variable-inspection": {
         "local-vars": "ローカル変数",
         "global-vars": "グローバル変数",
-        "empty-list": "空"
+        "empty-list": "空",
+        "unknown-var": "不明な変数"
       }
     },
 
@@ -102,7 +103,9 @@
     "import": {
       "ask-if-continue": {
         "title": "警告",
-        "body": "一部のノードが正しく読み込めませんでした.\nロードを続けますか?\n続ける場合は [%s]    止める場合は [%s]"
+        "body": "ロードを続けますか?\n続ける場合は [%s]    止める場合は [%s]",
+        "some-nodes-are-missing": "一部のノードが欠落しています.",
+        "changed-duplicate-instance-ids": "重複するインスタンス ID が書き換えられました."
       },
       "ask-if-keep-existing-ws": {
         "title": "既存のワークスペースを残しますか?",

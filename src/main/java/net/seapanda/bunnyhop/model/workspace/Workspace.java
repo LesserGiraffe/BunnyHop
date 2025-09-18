@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.function.Consumer;
 import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.traverse.CallbackInvoker;
+import net.seapanda.bunnyhop.model.node.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;

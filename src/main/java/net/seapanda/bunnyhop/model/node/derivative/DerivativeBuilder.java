@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.traverse;
+package net.seapanda.bunnyhop.model.node.derivative;
 
 import java.util.Deque;
 import java.util.LinkedList;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.derivative.Derivative;
 import net.seapanda.bunnyhop.model.node.parameter.DerivationId;
+import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**

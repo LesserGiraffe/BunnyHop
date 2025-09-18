@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.model.traverse;
+package net.seapanda.bunnyhop.model.node.derivative;
 
 import java.util.HashSet;
 import java.util.Set;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.ConnectiveNode;
 import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.derivative.Derivative;
+import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
 
 /**
  * 走査したノードが保持する派生ノードを集めるクラス.

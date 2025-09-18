@@ -29,6 +29,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.model.BhNodePlacer;
@@ -43,7 +44,7 @@ import net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
 import net.seapanda.bunnyhop.model.node.parameter.BhNodeVersion;
 import net.seapanda.bunnyhop.model.node.parameter.ConnectorId;
 import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.undo.UserOperation;
@@ -78,7 +79,7 @@ public class JsonProjectReader {
   private final Collection<IncompatibleNodeVersionInfo> incompatibleNodeVersionInfoList =
       new ArrayList<>();
   /** 派生ノードが見つからなかったときのエラー情報一覧. */
-  private Collection<DerivativeNotFoundInfo> dervNotFoundInfoList = new ArrayList<>();
+  private final Collection<DerivativeNotFoundInfo> dervNotFoundInfoList = new ArrayList<>();
   /** ノードの作成に使用するオブジェクト. */
   private final BhNodeFactory nodeFactory;
   /** ワークスペースの作成に使用するオブジェクト. */
@@ -207,16 +208,21 @@ public class JsonProjectReader {
     if (!canCreateNodeOf(nodeImage)) {
       return null;
     }
-    BhNode node = nodeFactory.create(nodeImage.nodeId, new UserOperation());
+    var userOpe = new UserOperation();
+    BhNode node = nodeFactory.create(nodeImage.nodeId, userOpe);
     node.setInstanceId(nodeImage.instanceId);
     node.setDefault(nodeImage.isDefault);
-    if (!checkNodeVersionCompatiblity(nodeImage, node)) {
+    if (node.isBreakpointGroupLeader()) {
+      node.setBreakpoint(nodeImage.isBreakpointSet, userOpe);
+    }
+    if (!checkNodeVersionCompatibility(nodeImage, node)) {
       return null;
     }
-    for (BhNodeImage childImage : nodeImage.getChildren()) {
-      BhNode child = genBhNode(childImage);
+    for (ConnectorImage cnctrImage : nodeImage.getChildren()) {
+      BhNode child = genBhNode(cnctrImage.connectedNode);
       if (child != null && node instanceof ConnectiveNode parent) {
-        connectChild(parent, child, childImage.parentConnectorId);
+        connectChild(parent, child, cnctrImage.connectorId)
+            .ifPresent(cnctr -> cnctr.setDefaultNodeId(cnctrImage.defaultNodeId));
       }
     }
 
@@ -242,7 +248,7 @@ public class JsonProjectReader {
   }
 
   /** {@link BhNodeImage} のバージョンと {@link BhNode} のバージョンに互換性があるか調べる. */
-  private boolean checkNodeVersionCompatiblity(BhNodeImage nodeImage, BhNode node) {
+  private boolean checkNodeVersionCompatibility(BhNodeImage nodeImage, BhNode node) {
     boolean isCompatible = node.getVersion().comparePrefix(nodeImage.version)
         && node.getVersion().compareMajor(nodeImage.version);
 
@@ -254,7 +260,12 @@ public class JsonProjectReader {
     return isCompatible;
   }
 
-  /** {@link BhNodeImage} の {@link InstanceId} が適切かチェックする. */
+  /**
+   * {@link BhNodeImage} の {@link InstanceId} が適切かチェックする.
+   *
+   * <p>本メソッドでは, セーブデータ内部の {@link InstanceId} 同士が重複していないかチェックするが,
+   * 既存の {@link InstanceId} との重複はチェックしない.
+   */
   private void checkNodeImageInstanceId(BhNodeImage image) throws CorruptedSaveDataException {
     if (instIdToNode.containsKey(image.instanceId)) {
       throw new CorruptedSaveDataException(
@@ -270,17 +281,17 @@ public class JsonProjectReader {
    * @param parent 親ノード
    * @param child 子ノード
    * @param id {@code parent} の下にあって, この ID を持つコネクタの下に {@code child} を接続する
-   * @return 成功した場合 true
+   * @return {@code parent} と {@code child} を接続するコネクタ.  {@code id} に対応するコネクタが見つからなかった場合 empty.
    */
-  private boolean connectChild(ConnectiveNode parent, BhNode child, ConnectorId id) {
+  private Optional<Connector> connectChild(ConnectiveNode parent, BhNode child, ConnectorId id) {
     Connector cnctr = parent.findConnector(id);
     if (cnctr != null) {
       cnctr.connectNode(child, new UserOperation());
-      return true;
+      return Optional.of(cnctr);
     }
     warnings.add(ImportWarning.CONNECTOR_NOT_FOUND);
     cnctrNotFoundInfoList.add(new ConnectorNotFoundInfo(parent.getId(), id));
-    return false;
+    return Optional.empty();
   }
 
   /** ロード中に発生した全ての警告のメッセージを取得する. */
@@ -359,7 +370,32 @@ public class JsonProjectReader {
       Collection<IncompatibleNodeVersionInfo> incompatibleNodeVersionInfoList,
       Collection<DerivativeNotFoundInfo> derivativeNotFoundInfoList,
       String warningMsg,
-      Path filePath) {}
+      Path filePath) {
+
+    /** 既存の {@link Result} に警告を追加した新しい {@link Result} を作るためのコンストラクタ. */
+    public Result(
+        Result result, String additionalWarningMsg, ImportWarning... additionalWarnings) {
+      this(
+          result.workspaces,
+          result.nodeToImage,
+          result.instanceIdToNode,
+          createWarningsSet(result.warnings, List.of(additionalWarnings)),
+          result.cnctrNotFoundInfoList,
+          result.unknownNodeIds,
+          result.incompatibleNodeVersionInfoList,
+          result.derivativeNotFoundInfoList,
+          result.warningMsg + additionalWarningMsg,
+          result.filePath);
+    }
+
+    private static Set<ImportWarning> createWarningsSet(
+        Set<ImportWarning> original, Collection<ImportWarning> additional) {
+      var warnings = EnumSet.noneOf(ImportWarning.class);
+      warnings.addAll(original);
+      warnings.addAll(additional);
+      return warnings;
+    }
+  }
 
   /**
    * コネクタが見つからなかった場合ののエラー情報を格納するレコード.
