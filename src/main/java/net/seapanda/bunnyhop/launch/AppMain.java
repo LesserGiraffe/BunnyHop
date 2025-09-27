@@ -305,15 +305,23 @@ public class AppMain extends Application {
   }
 
   private BhSimulator createSimulator() throws AppInitializationException {
-    var simulator = new BhSimulator();
+    BhSimulator simulator = newSimulator();
     simFuture = simExecutor.submit(() -> startSimulator(simulator));
     if (!simulator.waitForInitialization(BhSettings.BhSimulator.initTimeout)
         || simulator.getCmdProcessor().isEmpty()) {
-      throw new AppInitializationException("Failed to initialize the simulator");  
+      throw new AppInitializationException("Failed to initialize the simulator.");
     }
     simulator.getCmdProcessor().get().getCallbackRegistry().getOnCmdProcessing()
         .add((CmdProcessingEvent event) -> focusSimulator());
     return simulator;
+  }
+
+  private BhSimulator newSimulator() throws AppInitializationException {
+    try {
+      return new BhSimulator();
+    } catch (Exception e) {
+      throw new AppInitializationException("Failed to instantiate a simulator object.", e);
+    }
   }
 
   private void focusSimulator() {

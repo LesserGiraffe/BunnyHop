@@ -24,7 +24,7 @@ function _stopRaspiCar() {
 
 function _measureDistance() {
   let resp = bhScriptHelper.simulator.sendCmd('measure-distance');
-  return Number(resp[0]);
+  return Number(resp[0]) * 100;
 }
 
 function _sayOnWindows(word) {

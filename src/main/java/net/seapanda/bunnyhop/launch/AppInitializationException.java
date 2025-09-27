@@ -25,4 +25,8 @@ public class AppInitializationException extends Exception {
   public AppInitializationException(String msg) {
     super(msg);
   }
+
+  public AppInitializationException(String msg, Throwable cause) {
+    super(msg, cause);
+  }
 }

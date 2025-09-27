@@ -278,7 +278,7 @@ public class MenuBarController {
         TextDefs.MenubarOps.Version.runtime.get(),
         net.seapanda.bunnyhop.runtime.BhConstants.APP_VERSION,
         TextDefs.MenubarOps.Version.simulator.get(),
-        net.seapanda.bunnyhop.simulator.BhConstants.APP_VERSION));
+        net.seapanda.bunnyhop.simulator.common.BhSimConstants.APP_VERSION));
   }
 
   /** 有効/無効を切り替え可能なメニューの設定を変更する. */
