@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.bhprogram.debugger.variable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,6 +145,29 @@ public class VariableInfo {
   }
 
   /**
+   * このスタックフレームが持つ数情報を削除する.
+   *
+   * @param variables 削除する変数一覧
+   */
+  public synchronized void removeVariables(Collection<Variable> variables) {
+    List<Variable> removedVars = new ArrayList<>();
+    for (Variable variable : variables) {
+      Variable removed = varIdToVar.remove(variable.id);
+      if (removed != null) {
+        removedVars.add(removed);
+      }
+    }
+    if (!removedVars.isEmpty()) {
+      cbRegistry.onVarsRemovedInvoker.invoke(new VariablesRemovedEvent(this, removedVars));
+    }
+  }
+
+  /** このスタックフレームが持つ数情報を全て削除する. */
+  public synchronized void clearVariables() {
+    removeVariables(new ArrayList<>(varIdToVar.values()));
+  }
+
+  /**
    * このオブジェクトに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
    *
    * @return このデバッガに対するイベントハンドラの追加と削除を行うオブジェクト
@@ -158,17 +182,34 @@ public class VariableInfo {
     /** 関連する {@link VariableInfo} に変数情報が追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<VariablesAddedEvent> onVarsAddedInvoker = new ConsumerInvoker<>();
 
+    /** 関連する {@link VariableInfo} から変数情報が削除されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<VariablesRemovedEvent> onVarsRemovedInvoker =
+        new ConsumerInvoker<>();
+
     /** 関連する {@link VariableInfo} に変数情報が追加されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<VariablesAddedEvent>.Registry getOnVariablesAdded() {
       return onVarsAddedInvoker.getRegistry();
+    }
+
+    /** 関連する {@link VariableInfo} に変数情報が追加されたときのイベントハンドラのレジストリを取得する. */
+    public ConsumerInvoker<VariablesRemovedEvent>.Registry getOnVariablesRemoved() {
+      return onVarsRemovedInvoker.getRegistry();
     }
   }
 
   /**
    * {@link VariableInfo} に変数情報が追加されたときの情報を格納したレコード.
    *
-   * @param varInfo {@code context} を取得したデバッガ
+   * @param varInfo 変数情報が追加された {@link VariableInfo}
    * @param added 追加された変数情報
    */
   public record VariablesAddedEvent(VariableInfo varInfo, SequencedCollection<Variable> added) {}
+
+  /**
+   * {@link VariableInfo} が持つ変数情報が削除されたときの情報を格納したレコード.
+   *
+   * @param varInfo 変数情報が削除された {@link VariableInfo}
+   * @param removed 削除された変数情報
+   */
+  public record VariablesRemovedEvent(VariableInfo varInfo, Collection<Variable> removed) {}
 }

@@ -462,7 +462,8 @@ public class AppMain extends Application {
     };
     var config = new Lwjgl3ApplicationConfiguration();
     config.setWindowListener(windowListener);
-    config.setWindowedMode(1000, 750);
+    config.setWindowedMode(1200, 900);
+    config.setForegroundFPS(60);
     new Lwjgl3Application(simulator, config);
   }
 

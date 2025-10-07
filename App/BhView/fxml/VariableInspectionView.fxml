@@ -29,7 +29,7 @@
 
     <Button fx:id="viSearchButton" text="$search.text" styleClass="flatButton"> </Button>
 
-    <Button fx:id="reloadBtn" styleClass="flatButton">
+    <Button fx:id="viReloadBtn" styleClass="flatButton">
       <graphic>
         <ImageView>
           <Image url="@../images/reload.png" smooth="true" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>

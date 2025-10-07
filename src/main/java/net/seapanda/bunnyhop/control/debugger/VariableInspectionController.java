@@ -16,12 +16,15 @@
 
 package net.seapanda.bunnyhop.control.debugger;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SequencedCollection;
 import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -43,6 +46,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
 import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.debugger.VariableListCell;
+import org.apache.commons.lang3.function.TriConsumer;
 
 /**
  * 変数情報を表示するビューのコントローラ.
@@ -56,6 +60,7 @@ public class VariableInspectionController {
   @FXML private TreeView<VariableListItem> variableTreeView;
   @FXML private Button viSearchButton;
   @FXML private CheckBox viJumpCheckBox;
+  @FXML private Button viReloadBtn;
 
   private final VariableInfo varInfo;
   private final SearchBox searchBox;
@@ -63,9 +68,7 @@ public class VariableInspectionController {
   private final WorkspaceSet wss;
   private final String viewName;
   private final TreeItem<VariableListItem> rootVarItem;
-  private final Map<VariableListItem, Set<VariableListCell>> varItemToVarCells =
-      new WeakHashMap<>();
-  private final Map<BhNode, Set<VariableListCell>> nodeToVarCells = new WeakHashMap<>();
+  private final DataStore dataStore;
   private boolean isDiscarded = false;
   private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
       event -> updateCellDecoration(event.node());
@@ -89,12 +92,15 @@ public class VariableInspectionController {
     this.debugger = debugger;
     this.wss = wss;
     this.rootVarItem = new TreeItem<>();
+    this.dataStore = new DataStore();
     rootVarItem.setExpanded(false);
     varInfo.getCallbackRegistry().getOnVariablesAdded().add(event -> addVarInfo(event.added()));
+    varInfo.getCallbackRegistry().getOnVariablesRemoved()
+        .add(event -> removeVarInfo(event.removed()));
     addVarInfo(varInfo.getVariables());
   }
 
-  /** 変数情報をビューに追加する. */
+  /** ビューに変数情報を追加する. */
   private void addVarInfo(SequencedCollection<Variable> variables) {
     for (Variable variable : variables) {
       if (variable instanceof ScalarVariable scalar) {
@@ -105,6 +111,16 @@ public class VariableInspectionController {
           list.getNode().ifPresent(node -> debugger.requestLocalListVals(node, 0, 1));
         }
       }
+    }
+  }
+
+  /** ビューから変数情報を削除する. */
+  private void removeVarInfo(Collection<Variable> variables) {
+    Map<Variable, TreeItem<VariableListItem>> varItemToTreeItem = rootVarItem.getChildren().stream()
+        .collect(Collectors.toMap(item -> item.getValue().variable, UnaryOperator.identity()));
+    for (Variable variable : variables) {
+      TreeItem<VariableListItem> treeItem = varItemToTreeItem.get(variable);
+      treeItem.getParent().getChildren().remove(treeItem);
     }
   }
 
@@ -152,15 +168,18 @@ public class VariableInspectionController {
 
       /** リスト変数の値の取得をデバッガに命令する. */
       private void requestListValues(List<VariableListItem> subItems) {
+        TriConsumer<BhNode, Long, Long> requestListVals = varInfo.getStackFrameId().isPresent()
+            ? debugger::requestLocalListVals : debugger::requestGlobalListVals;
+
         if (item.numValues <= BhSettings.Debug.maxListTreeChildren) {
           item.variable.getNode().ifPresent(
-              node -> debugger.requestLocalListVals(node, item.startIdx, item.numValues));
+              node -> requestListVals.accept(node, item.startIdx, item.numValues));
           return;
         }
         for (VariableListItem subItem : subItems) {
           if (subItem.numValues == 1) {
             subItem.variable.getNode().ifPresent(
-                node -> debugger.requestLocalListVals(node, subItem.startIdx, subItem.numValues));
+                node -> requestListVals.accept(node, subItem.startIdx, subItem.numValues));
           }
         }
       }
@@ -179,7 +198,8 @@ public class VariableInspectionController {
     variableTreeView.setShowRoot(false);
     variableTreeView.setRoot(rootVarItem);
     variableTreeView.setCellFactory(
-        items -> new VariableListCell(varItemToVarCells, nodeToVarCells));
+        items -> new VariableListCell(dataStore.varItemToVarCells, dataStore.nodeToVarCells));
+    viReloadBtn.setOnAction(event -> reloadVarInfo());
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().add(onNodeSelStateChanged);
   }
 
@@ -200,15 +220,10 @@ public class VariableInspectionController {
     }
     isDiscarded = true;
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().remove(onNodeSelStateChanged);
-    ViewUtil.runSafe(() -> {
-      variableTreeView.setRoot(null);
-      synchronized (varItemToVarCells) {
-        varItemToVarCells.clear();
-      }
-      synchronized (nodeToVarCells) {
-        nodeToVarCells.clear();
-      }
-    });
+    synchronized (dataStore) {
+      dataStore.clear();
+    }
+    ViewUtil.runSafe(() -> variableTreeView.setRoot(null));
   }
 
   /** {@code varItem} に対応する {@link VariableListCell} の内容を変更する. */
@@ -216,9 +231,9 @@ public class VariableInspectionController {
     if (isDiscarded) {
       return;
     }
-    synchronized (varItemToVarCells) {
-      if (varItemToVarCells.containsKey(varItem)) {
-        varItemToVarCells.get(varItem).forEach(VariableListCell::updateValue);
+    synchronized (dataStore) {
+      if (dataStore.varItemToVarCells.containsKey(varItem)) {
+        dataStore.varItemToVarCells.get(varItem).forEach(VariableListCell::updateValue);
       }
     }
   }
@@ -228,10 +243,36 @@ public class VariableInspectionController {
     if (isDiscarded) {
       return;
     }
-    synchronized (nodeToVarCells) {
-      if (nodeToVarCells.containsKey(node)) {
-        nodeToVarCells.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
+    synchronized (dataStore) {
+      if (dataStore.nodeToVarCells.containsKey(node)) {
+        dataStore.nodeToVarCells.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
       }
+    }
+  }
+
+  /** 変数情報を再取得する. */
+  private void reloadVarInfo() {
+    varInfo.clearVariables();
+    if (varInfo.getStackFrameId().isPresent()) {
+      debugger.requestLocalVars();
+    } else {
+      debugger.requestGlobalVars();
+    }
+  }
+
+  /** {@link VariableInspectionController} が高速にデータにアクセスするための Map を集めたレコード. */
+  private record DataStore(
+      Map<VariableListItem, Set<VariableListCell>> varItemToVarCells,
+      Map<BhNode, Set<VariableListCell>> nodeToVarCells) {
+
+    public DataStore() {
+      this(new HashMap<>(), new HashMap<>());
+    }
+
+    /** このオブジェクトが持つデータをクリアする. */
+    public void clear() {
+      varItemToVarCells.clear();
+      nodeToVarCells.clear();
     }
   }
 }
