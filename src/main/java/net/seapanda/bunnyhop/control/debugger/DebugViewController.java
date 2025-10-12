@@ -36,7 +36,6 @@ import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
-import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.factory.DebugViewFactory;
 
 /**
@@ -78,7 +77,7 @@ public class DebugViewController {
     registry.getOnCurrentThreadChanged().add(this::showCallStackView);
     registry.getOnVariableInfoAdded().add(event -> addVariableInfo(event.info()));
     registry.getOnCurrentStackFrameChanged().add(this::showVariableInspectionView);
-    registry.getOnCleared().add(event -> resetContents());
+    registry.getOnCleared().add(event -> resetDebugState());
   }
 
   /**
@@ -93,7 +92,7 @@ public class DebugViewController {
     if (!success) {
       throw new ViewConstructionException("Could not create empty view.");
     }
-    success = resetContents();
+    success = resetDebugState();
     if (!success) {
       throw new ViewConstructionException("Could not reset view.");
     }
@@ -107,7 +106,7 @@ public class DebugViewController {
     var stackFrameId =
         new StackFrameId(ThreadSelection.NONE.getThreadId(), StackFrameSelection.NONE.getIndex());
     var varInfo = new VariableInfo(stackFrameId);
-    emptyVarInspCtrl = createVarInspectionCtrl(varInfo, true).orElse(null);
+    emptyVarInspCtrl = createVariableInspectionCtrl(varInfo, true).orElse(null);
 
     return emptyCallStackCtrl != null && emptyVarInspCtrl != null;
   }
@@ -117,7 +116,7 @@ public class DebugViewController {
    *
    * @param context 追加するスレッドの情報
    */
-  private synchronized void addThreadContext(ThreadContext context) {
+  private void addThreadContext(ThreadContext context) {
     long threadId = context.threadId;
     if (threadId < 1) {
       return;
@@ -150,7 +149,7 @@ public class DebugViewController {
       callStackCtrl.getThreadContext().callStack.getLast().select(new UserOperation());
     }
     if (isContextThreadSameAsDebugThread) {
-      ViewUtil.runSafe(() -> callStackScrollPane.setContent(callStackCtrl.getView()));
+      callStackScrollPane.setContent(callStackCtrl.getView());
     }
   }
 
@@ -165,12 +164,12 @@ public class DebugViewController {
   }
 
   /** コールスタックビューを表示する. */
-  private synchronized void showCallStackView(CurrentThreadChangedEvent event) {
+  private void showCallStackView(CurrentThreadChangedEvent event) {
     long currentThreadId = event.newVal().getThreadId();
     Node callStackView = threadIdToCallStackCtrl.containsKey(currentThreadId)
         ? threadIdToCallStackCtrl.get(currentThreadId).getView()
         : emptyCallStackCtrl.getView();
-    ViewUtil.runSafe(() -> callStackScrollPane.setContent(callStackView));
+    callStackScrollPane.setContent(callStackView);
   }
 
   /**
@@ -178,7 +177,7 @@ public class DebugViewController {
    *
    * @param varInfo 追加する変数情報
    */
-  private synchronized void addVariableInfo(VariableInfo varInfo) {
+  private void addVariableInfo(VariableInfo varInfo) {
     StackFrameId stackFrameId = varInfo.getStackFrameId().orElse(null);
     if (stackFrameId == null) {
       globalVarInspCtrl.getModel().addVariables(varInfo.getVariables());
@@ -194,7 +193,7 @@ public class DebugViewController {
   }
 
   /** {@code varInfo} から変数検査ビューを作成する. */
-  private Optional<VariableInspectionController> createVarInspectionCtrl(
+  private Optional<VariableInspectionController> createVariableInspectionCtrl(
       VariableInfo varInfo, boolean isLocal) {
     try {
       String viewName = isLocal
@@ -208,9 +207,9 @@ public class DebugViewController {
   }
 
   /** 変数検査ビューを表示する. */
-  private synchronized void showVariableInspectionView(CurrentStackFrameChangedEvent event) {
+  private void showVariableInspectionView(CurrentStackFrameChangedEvent event) {
     if (event.newVal().equals(StackFrameSelection.NONE)) {
-      ViewUtil.runSafe(() -> localVarScrollPane.setContent(emptyVarInspCtrl.getView()));
+      localVarScrollPane.setContent(emptyVarInspCtrl.getView());
       return;
     }
     var stackFrameId =
@@ -219,8 +218,8 @@ public class DebugViewController {
     if (isNewStackFrame) {
       localVarInspCtrlRegistry.register(new VariableInfo(stackFrameId));
     }
-    localVarInspCtrlRegistry.get(stackFrameId).ifPresent(varInspCtrl ->
-        ViewUtil.runSafe(() -> localVarScrollPane.setContent(varInspCtrl.getView())));
+    localVarInspCtrlRegistry.get(stackFrameId)
+        .ifPresent(varInspCtrl -> localVarScrollPane.setContent(varInspCtrl.getView()));
     if  (isNewStackFrame) {
       debugger.requestLocalVars();
     }
@@ -230,7 +229,7 @@ public class DebugViewController {
    * 既存の {@link CallStackController} と {@link VariableInspectionController} を全て破棄して
    * このオブジェクトが管理するデバッグ情報を初期状態に戻す.
    */
-  private boolean resetContents() {
+  private boolean resetDebugState() {
     threadIdToContext.clear();
     threadIdToCallStackCtrl.values().forEach(CallStackController::discard);
     threadIdToCallStackCtrl.clear();
@@ -238,15 +237,13 @@ public class DebugViewController {
     if (globalVarInspCtrl != null) {
       globalVarInspCtrl.discard();
     }
-    globalVarInspCtrl = createVarInspectionCtrl(new VariableInfo(), false).orElse(null);
+    globalVarInspCtrl = createVariableInspectionCtrl(new VariableInfo(), false).orElse(null);
     if (globalVarInspCtrl == null) {
       return false;
     }
-    ViewUtil.runSafe(() -> {
-      callStackScrollPane.setContent(emptyCallStackCtrl.getView());
-      localVarScrollPane.setContent(emptyVarInspCtrl.getView());
-      globalVarScrollPane.setContent(globalVarInspCtrl.getView());
-    });
+    callStackScrollPane.setContent(emptyCallStackCtrl.getView());
+    localVarScrollPane.setContent(emptyVarInspCtrl.getView());
+    globalVarScrollPane.setContent(globalVarInspCtrl.getView());
     return true;
   }
 
@@ -274,7 +271,7 @@ public class DebugViewController {
       if (stackFrameId == null) {
         return Optional.empty();
       }
-      var varInspCtrl = createVarInspectionCtrl(varInfo, true).orElse(null);
+      var varInspCtrl = createVariableInspectionCtrl(varInfo, true).orElse(null);
       if (varInspCtrl == null) {
         return Optional.empty();
       }

@@ -51,6 +51,7 @@ import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
 import net.seapanda.bunnyhop.utility.Showable;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.ViewUtil;
@@ -987,23 +988,27 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   public class CallbackRegistryBase implements CallbackRegistry {
 
     /** 関連するノードビュー上でマウスボタンが押下されたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<MouseEventInfo> onMousePressedInvoker = new ConsumerInvoker<>();
+    private final ConsumerInvoker<MouseEventInfo> onMousePressedInvoker =
+        new SimpleConsumerInvoker<>();
 
     /** 関連するノードビューがドラッグされたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<MouseEventInfo> onMouseDraggedInvoker = new ConsumerInvoker<>();
+    private final ConsumerInvoker<MouseEventInfo> onMouseDraggedInvoker =
+        new SimpleConsumerInvoker<>();
 
     /** 関連するノードビュー上でマウスのドラッグが検出されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<MouseEventInfo> onMouseDragDetectedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するノードビュー上でマウスボタンが離されたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<MouseEventInfo> onMouseReleasedInvoker = new ConsumerInvoker<>();
+    private final ConsumerInvoker<MouseEventInfo> onMouseReleasedInvoker =
+        new SimpleConsumerInvoker<>();
 
     /** 関連するノードビューの位置が変わったときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<MoveEvent> onMovedInvoker = new ConsumerInvoker<>();
+    private final ConsumerInvoker<MoveEvent> onMovedInvoker = new SimpleConsumerInvoker<>();
 
     /** 関連するノードビューのサイズが変わったときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<SizeChangedEvent> onSizeChangedInvoker = new ConsumerInvoker<>();
+    private final ConsumerInvoker<SizeChangedEvent> onSizeChangedInvoker =
+        new SimpleConsumerInvoker<>();
 
     /** {@link #dispatch} で送られたイベントを区別するためのフラグ. */
     private final Deque<MouseEventInfo> eventStack = new LinkedList<>();

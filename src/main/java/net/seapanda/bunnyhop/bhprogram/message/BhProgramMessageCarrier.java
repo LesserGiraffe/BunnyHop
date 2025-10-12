@@ -50,7 +50,7 @@ public interface BhProgramMessageCarrier {
    *
    * @param message 送信データ
    * @return ステータスコード
-   * @throws IllegalArgumentException {@link msg} が不正なデータであった場合.
+   * @throws IllegalArgumentException {@code message} が不正なデータであった場合.
    */
   default BhRuntimeStatus pushMessage(BhProgramMessage message) {
     if (message instanceof BhProgramNotification notif) {
@@ -61,9 +61,17 @@ public interface BhProgramMessageCarrier {
     throw new IllegalArgumentException("Failed to send an invalid message.\n%s".formatted(message));
   }
 
-  /** このオブジェクトが {@link BhProgramNotification} を受信したときのイベントハンドラを設定する. */
+  /**
+   * このオブジェクトが {@link BhProgramNotification} を受信したときのイベントハンドラを設定する.
+   *
+   * @param handler 設定するイベントハンドラ.  null を指定した場合, イベントハンドラの設定を解除する.
+   */
   void setOnNotifReceived(Consumer<BhProgramNotification> handler);
 
-  /** このオブジェクトが {@link BhProgramResponse} を受信したときのイベントハンドラを設定する. */
+  /**
+   * このオブジェクトが {@link BhProgramResponse} を受信したときのイベントハンドラを設定する.
+   *
+   * @param handler 設定するイベントハンドラ.  null を指定した場合, イベントハンドラの設定を解除する.
+   */
   void setOnRespReceived(Consumer<BhProgramResponse> handler);
 }

@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -69,7 +68,6 @@ public class CallStackController {
   private final SearchBox searchBox;
   private final Debugger debugger;
   private final WorkspaceSet wss;
-  private final ReentrantLock debugLock;
   private final Map<BhNode, Set<CallStackCell>> nodeToCallStackCell = new WeakHashMap<>();
   private boolean isDiscarded = false;
   private final Consumer<Debugger.CurrentThreadChangedEvent> onCurrentThreadChanged =
@@ -83,19 +81,16 @@ public class CallStackController {
    *
    * @param threadContext このコントローラが管理するコールスタックに関連するスレッドの情報を格納したオブジェクト
    * @param searchBox 検索クエリを受け取る UI コンポーネントのインタフェース
-   * @param debugLock デバッガを使用する一連の処理に適用するロック
    */
   public CallStackController(
       ThreadContext threadContext,
       SearchBox searchBox,
       Debugger debugger,
-      WorkspaceSet wss,
-      ReentrantLock debugLock) {
+      WorkspaceSet wss) {
     this.threadContext = threadContext;
     this.searchBox = searchBox;
     this.debugger = debugger;
     this.wss = wss;
-    this.debugLock = debugLock;
   }
 
   /**
@@ -141,10 +136,8 @@ public class CallStackController {
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().remove(onCurrentThreadChanged);
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().remove(onNodeSelStateChanged);
     searchBox.unsetOnSearchRequested(onSearchRequested);
-    ViewUtil.runSafe(() -> {
-      callStackListView.getItems().clear();
-      nodeToCallStackCell.clear();
-    });
+    callStackListView.getItems().clear();
+    nodeToCallStackCell.clear();
   }
 
   /** {@link #callStackListView} に設定するアイテムを作成する. */
@@ -313,10 +306,8 @@ public class CallStackController {
     if (isDiscarded) {
       return;
     }
-    synchronized (nodeToCallStackCell) {
-      if (nodeToCallStackCell.containsKey(node)) {
-        nodeToCallStackCell.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
-      }
+    if (nodeToCallStackCell.containsKey(node)) {
+      nodeToCallStackCell.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
     }
   }
 

@@ -106,7 +106,7 @@ public class MenuBarController {
    * @return 保存した場合true
    */
   private boolean saveAs(WorkspaceSet wss) {
-    notifService.begin();
+    notifService.beginWrite();
     try {
       if (wss.getWorkspaces().isEmpty()) {
         msgService.alert(
@@ -123,7 +123,7 @@ public class MenuBarController {
       }
       return success;
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
@@ -150,7 +150,7 @@ public class MenuBarController {
    * @return 保存した場合true
    */
   public boolean save(WorkspaceSet wss) {
-    notifService.begin();
+    notifService.beginWrite();
     try {
       if (wss.getWorkspaces().isEmpty()) {
         msgService.alert(
@@ -171,7 +171,7 @@ public class MenuBarController {
         return saveAs(wss);  //保存対象のファイルが無い場合, 名前をつけて保存
       }
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
@@ -191,14 +191,14 @@ public class MenuBarController {
     if (clearWs.isEmpty()) {
       return;
     }
-    Context context = notifService.begin();
+    Context context = notifService.beginWrite();
     try {
       boolean success = importer.imports(selectedFile, wss, clearWs.get(), context.userOpe());
       if (success) {
         currentSaveFile = selectedFile;
       }
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
@@ -249,13 +249,13 @@ public class MenuBarController {
 
   /** アプリケーションが使用しているメモリを開放する. */
   private void freeMemory() {
-    notifService.begin();
+    notifService.beginWrite();
     try {
       undoRedoAgent.deleteCommands();
       msgService.info(TextDefs.MenubarOps.freeMemory.get());
       System.gc();
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 

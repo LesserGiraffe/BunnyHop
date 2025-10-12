@@ -36,12 +36,13 @@ public class DerivativeCache {
 
   /**
    * {@code derivative} で指定した派生ノードをキャッシュに格納する.
+   *
    * <p>
    * 格納された派生ノードは, {@link #get} メソッドで {@code derivative} のオリジナルノードを指定することで取得できる.
    * {@code derivative} が派生ノードでなかった場合, 何もしない.
    * </p>
    */
-  public synchronized void put(Derivative derivative) {
+  public void put(Derivative derivative) {
     if (derivative.getLastOriginal() instanceof Derivative derv) {
       orgToDerivatives.putIfAbsent(derv, new HashSet<>());
       orgToDerivatives.get(derv).add(derivative);
@@ -49,27 +50,27 @@ public class DerivativeCache {
   }
 
   /** {@code original} の派生ノードとして格納されたノード一式を取得する.*/
-  public synchronized Set<Derivative> get(Derivative original) {
+  public Set<Derivative> get(Derivative original) {
     return new HashSet<>(orgToDerivatives.getOrDefault(original, new HashSet<>()));
   }
 
   /** {@code original} の派生ノードとして格納されたノード一式を取得する.*/
   @SuppressWarnings("unchecked")
-  public synchronized <T extends DerivativeBase<T>> Set<T> get(T original) {
+  public <T extends DerivativeBase<T>> Set<T> get(T original) {
     return new HashSet<>(orgToDerivatives.getOrDefault(original, new HashSet<>())).stream()
         .map(derv -> (T) derv)
         .collect(Collectors.toCollection(HashSet::new));
   }
 
   /** {@code derivative} で指定した派生ノードをキャッシュから削除する. */
-  public synchronized void remove(Derivative derivative) {
+  public void remove(Derivative derivative) {
     for (Set<Derivative> dervs : orgToDerivatives.values()) {
       dervs.remove(derivative);
     }
   }
 
   /** キャッシュされている派生ノードを全て消す. */
-  public synchronized void clearAll() {
+  public void clearAll() {
     orgToDerivatives.clear();
   }
 }

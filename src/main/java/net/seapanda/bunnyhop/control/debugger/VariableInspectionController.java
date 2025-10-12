@@ -44,7 +44,6 @@ import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.control.SearchBox;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.view.ViewUtil;
 import net.seapanda.bunnyhop.view.debugger.VariableListCell;
 import org.apache.commons.lang3.function.TriConsumer;
 
@@ -127,68 +126,13 @@ public class VariableInspectionController {
   private TreeItem<VariableListItem> createTreeItem(ScalarVariable scalar) {
     var item = new VariableListItem(scalar);
     item.getCallbackRegistry().getOnValueChanged().add(event -> updateCellValues(event.item()));
-    return createTreeItem(item);
+    return new VariableListTreeItem(item);
   }
 
   private TreeItem<VariableListItem> createTreeItem(ListVariable list) {
     var item = new VariableListItem(list, 0, list.length - 1);
     item.getCallbackRegistry().getOnValueChanged().add(event -> updateCellValues(event.item()));
-    return createTreeItem(item);
-  }
-
-  private TreeItem<VariableListItem> createTreeItem(VariableListItem item) {
-    return new TreeItem<>(item) {
-
-      private final boolean isLeaf;
-      private boolean isFirstTimeChildren = true;
-
-      {
-        isLeaf = item.numValues <= 1;
-      }
-
-      @Override
-      public ObservableList<TreeItem<VariableListItem>> getChildren() {
-        if (!isDiscarded && isFirstTimeChildren) {
-          isFirstTimeChildren = false;
-          List<VariableListItem> subItems = item.createSubItems();
-          setEventHandlers(subItems);
-          requestListValues(subItems);
-          var children = subItems.stream().map(subItem -> createTreeItem(subItem)).toList();
-          super.getChildren().setAll(children);
-        }
-        return super.getChildren();
-      }
-
-      private void setEventHandlers(List<VariableListItem> items) {
-        for (VariableListItem item : items) {
-          item.getCallbackRegistry().getOnValueChanged()
-              .add(event -> updateCellValues(event.item()));
-        }
-      }
-
-      /** リスト変数の値の取得をデバッガに命令する. */
-      private void requestListValues(List<VariableListItem> subItems) {
-        TriConsumer<BhNode, Long, Long> requestListVals = varInfo.getStackFrameId().isPresent()
-            ? debugger::requestLocalListVals : debugger::requestGlobalListVals;
-
-        if (item.numValues <= BhSettings.Debug.maxListTreeChildren) {
-          item.variable.getNode().ifPresent(
-              node -> requestListVals.accept(node, item.startIdx, item.numValues));
-          return;
-        }
-        for (VariableListItem subItem : subItems) {
-          if (subItem.numValues == 1) {
-            subItem.variable.getNode().ifPresent(
-                node -> requestListVals.accept(node, subItem.startIdx, subItem.numValues));
-          }
-        }
-      }
-
-      @Override
-      public boolean isLeaf() {
-        return isLeaf;
-      }
-    };
+    return new VariableListTreeItem(item);
   }
 
   /** このコントローラの UI 要素を初期化する. */
@@ -220,10 +164,8 @@ public class VariableInspectionController {
     }
     isDiscarded = true;
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().remove(onNodeSelStateChanged);
-    synchronized (dataStore) {
-      dataStore.clear();
-    }
-    ViewUtil.runSafe(() -> variableTreeView.setRoot(null));
+    dataStore.clear();
+    variableTreeView.setRoot(null);
   }
 
   /** {@code varItem} に対応する {@link VariableListCell} の内容を変更する. */
@@ -231,10 +173,8 @@ public class VariableInspectionController {
     if (isDiscarded) {
       return;
     }
-    synchronized (dataStore) {
-      if (dataStore.varItemToVarCells.containsKey(varItem)) {
-        dataStore.varItemToVarCells.get(varItem).forEach(VariableListCell::updateValue);
-      }
+    if (dataStore.varItemToVarCells.containsKey(varItem)) {
+      dataStore.varItemToVarCells.get(varItem).forEach(VariableListCell::updateValue);
     }
   }
 
@@ -243,10 +183,8 @@ public class VariableInspectionController {
     if (isDiscarded) {
       return;
     }
-    synchronized (dataStore) {
-      if (dataStore.nodeToVarCells.containsKey(node)) {
-        dataStore.nodeToVarCells.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
-      }
+    if (dataStore.nodeToVarCells.containsKey(node)) {
+      dataStore.nodeToVarCells.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
     }
   }
 
@@ -273,6 +211,63 @@ public class VariableInspectionController {
     public void clear() {
       varItemToVarCells.clear();
       nodeToVarCells.clear();
+    }
+  }
+
+  /** 変数情報を表示する {@link TreeView} がの各要素のモデル. */
+  private class VariableListTreeItem extends TreeItem<VariableListItem> {
+
+    private final VariableListItem item;
+    private final boolean isLeaf;
+    private boolean isFirstTimeChildren = true;
+
+    VariableListTreeItem(VariableListItem item) {
+      super(item);
+      this.item = item;
+      isLeaf = item.numValues <= 1;
+    }
+
+    @Override
+    public ObservableList<TreeItem<VariableListItem>> getChildren() {
+      if (!isDiscarded && isFirstTimeChildren) {
+        isFirstTimeChildren = false;
+        List<VariableListItem> subItems = item.createSubItems();
+        setEventHandlers(subItems);
+        requestListValues(subItems);
+        var children = subItems.stream().map(VariableListTreeItem::new).toList();
+        super.getChildren().setAll(children);
+      }
+      return super.getChildren();
+    }
+
+    private void setEventHandlers(List<VariableListItem> items) {
+      for (VariableListItem item : items) {
+        item.getCallbackRegistry().getOnValueChanged()
+            .add(event -> updateCellValues(event.item()));
+      }
+    }
+
+    /** リスト変数の値の取得をデバッガに命令する. */
+    private void requestListValues(List<VariableListItem> subItems) {
+      TriConsumer<BhNode, Long, Long> requestListVals = varInfo.getStackFrameId().isPresent()
+          ? debugger::requestLocalListVals : debugger::requestGlobalListVals;
+
+      if (item.numValues <= BhSettings.Debug.maxListTreeChildren) {
+        item.variable.getNode().ifPresent(
+            node -> requestListVals.accept(node, item.startIdx, item.numValues));
+        return;
+      }
+      for (VariableListItem subItem : subItems) {
+        if (subItem.numValues == 1) {
+          subItem.variable.getNode().ifPresent(
+              node -> requestListVals.accept(node, subItem.startIdx, subItem.numValues));
+        }
+      }
+    }
+
+    @Override
+    public boolean isLeaf() {
+      return isLeaf;
     }
   }
 }

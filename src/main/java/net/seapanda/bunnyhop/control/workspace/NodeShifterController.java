@@ -74,7 +74,6 @@ public class NodeShifterController {
    * マウスボタン押下時の処理.
    *
    * @param event 発生したマウスイベント.
-   * @param mousePressedPos マウスボタン押下時のカーソル位置の格納先
    */
   private void onMousePressed(MouseEvent event) {
     try {
@@ -82,7 +81,7 @@ public class NodeShifterController {
         event.consume();
         return;
       }
-      ddInfo.context = notifService.begin();
+      ddInfo.context = notifService.beginWrite();
       ddInfo.isDndFinished = false;
       view.switchPseudoClassActivation(true, BhConstants.Css.PSEUDO_SELECTED);
       Point2D pos = view.sceneToLocal(event.getSceneX(), event.getSceneY());
@@ -104,7 +103,6 @@ public class NodeShifterController {
    * マウスドラッグ時の処理.
    *
    * @param event 発生したマウスイベント.
-   * @param mousePressedPos マウスボタン押下時のカーソル位置
    */
   private void onMouseDragged(MouseEvent event) {
     try {
@@ -157,7 +155,7 @@ public class NodeShifterController {
   /**
    * このノードシフタがあるワークスペースのノードの位置が変更されたときの処理.
    *
-   * @param node 位置が変更されたノード
+   * @param nodeView 位置が変更されたノードのビュー
    */
   private void onNodeMoved(BhNodeView nodeView) {
     if (nodeView == null || nodeView.getModel().isEmpty()) {
@@ -169,7 +167,7 @@ public class NodeShifterController {
   /**
    * このノードシフタがあるワークスペースのノードの選択状態が変更されたときの処理.
    *
-   * @param node 選択状態が変更されたノード
+   * @param nodeView 選択状態が変更されたノードのビュー
    */
   private void onNodeSelectionStateChanged(BhNodeView nodeView) {
     updateNodeShifter(nodeView);
@@ -201,7 +199,7 @@ public class NodeShifterController {
   private void terminateDnd() {
     mouseCtrlLock.unlock();
     ddInfo.reset();
-    notifService.end();
+    notifService.endWrite();
   }
 
   private class DndEventInfo {

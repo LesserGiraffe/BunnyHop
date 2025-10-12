@@ -32,7 +32,9 @@ import net.seapanda.bunnyhop.bhprogram.common.message.simulator.StringBhSimulato
 import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
 import net.seapanda.bunnyhop.bhprogram.debugger.DebugMessageProcessor;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeTransceiver;
+import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
+import net.seapanda.bunnyhop.view.ViewUtil;
 
 /**
  * {@link BhProgramMessage} を適切なクラスに渡す.
@@ -47,6 +49,8 @@ public class BhProgramMessageDispatcher {
   private final DebugMessageProcessor debugMsgProcessor;
   /** {@link BhSimulatorCmd} を処理するオブジェクト. */
   private final SimulatorCmdProcessor simCmdProcessor;
+  /** モデルへのアクセスの通知先となるオブジェクト. */
+  private final ModelAccessNotificationService notifService;
 
   /**
    * コンストラクタ.
@@ -58,51 +62,58 @@ public class BhProgramMessageDispatcher {
       IoMessageProcessor ioMessageProcessor,
       DebugMessageProcessor debugMsgProcessor,
       SimulatorCmdProcessor simCmdProcessor,
-      BhRuntimeController runtimeCtrl) {
+      BhRuntimeController runtimeCtrl,
+      ModelAccessNotificationService notifService) {
     this.ioMsgProcessor = ioMessageProcessor;
     this.debugMsgProcessor = debugMsgProcessor;
     this.simCmdProcessor = simCmdProcessor;
+    this.notifService = notifService;
     runtimeCtrl.getCallbackRegistry().getOnMsgCarrierRenewed()
-        .add(event -> replaceMsgCarrier(event.newCarrier()));
+        .add(event -> replaceMsgCarrier(event.oldCarrier(), event.newCarrier()));
   }
   
   /**
    * BhProgram との通信に使う {@link BhProgramMessageCarrier} を交換する.
-   * 既に設定済みのものは使用されなくなる.
    *
-   * @param carrier 新しく設定する通信用オブジェクト.
+   * @param oldCarrier 古い通信用オブジェクト.  このオブジェクトに登録したイベントハンドラを登録解除する.
+   * @param newCarrier 新しい通信用オブジェクト.  このオブジェクトにイベントハンドラを登録する.
    */
-  private void replaceMsgCarrier(BhProgramMessageCarrier carrier) {
-    carrier.setOnNotifReceived(msg -> dispatch(carrier, msg));
-    carrier.setOnRespReceived(this::dispatch);
+  private synchronized void replaceMsgCarrier(
+      BhProgramMessageCarrier oldCarrier, BhProgramMessageCarrier newCarrier) {
+    if (oldCarrier != null) {
+      oldCarrier.setOnNotifReceived(null);
+      oldCarrier.setOnRespReceived(null);
+    }
+    newCarrier.setOnNotifReceived(msg -> dispatchNotifAsync(newCarrier, msg));
+    newCarrier.setOnRespReceived(this::dispatchRespAsync);
   }
 
   /**
-   * {@code msg} を適切なクラスへと渡す.
+   * {@code notif} を適切なクラスへと渡す.
    *
    * @param carrier {@code msg} を受信した {@link BhRuntimeTransceiver}.
    * @param notif 処理する通知.
    */
-  private void dispatch(BhProgramMessageCarrier carrier, BhProgramNotification notif) {
-    switch (notif) {
-      case OutputTextCmd
-          cmd -> carrier.pushResponse(ioMsgProcessor.process(cmd));
-      case BhThreadContext
-          context -> debugMsgProcessor.process(context);
-      case StringBhSimulatorCmd
-          cmd -> dispatchSimulatorCmd(cmd, carrier);
-      default -> { }
-    }
+  private synchronized void dispatchNotifAsync(
+      BhProgramMessageCarrier carrier, BhProgramNotification notif) {
+    ViewUtil.runSafe(() -> {
+      notifService.beginWrite();
+      try {
+        dispatchNotif(carrier, notif);
+      } finally {
+        notifService.endWrite();
+      }
+    });
   }
 
-  /** {@code resp} を適切なクラスへと渡す. */
-  private void dispatch(BhProgramResponse response) {
-    switch (response) {
-      case InputTextResp resp -> ioMsgProcessor.process(resp);
-      case GetLocalVarsResp resp -> debugMsgProcessor.process(resp);
-      case GetLocalListValsResp resp -> debugMsgProcessor.process(resp);
-      case GetGlobalVarsResp resp -> debugMsgProcessor.process(resp);
-      case GetGlobalListValsResp resp -> debugMsgProcessor.process(resp);
+  private void dispatchNotif(BhProgramMessageCarrier carrier, BhProgramNotification notif) {
+    switch (notif) {
+      case OutputTextCmd
+               cmd -> carrier.pushResponse(ioMsgProcessor.process(cmd));
+      case BhThreadContext
+               context -> debugMsgProcessor.process(context);
+      case StringBhSimulatorCmd
+               cmd -> dispatchSimulatorCmd(cmd, carrier);
       default -> { }
     }
   }
@@ -112,8 +123,31 @@ public class BhProgramMessageDispatcher {
     simCmdProcessor.process(
         cmd.getComponents(),
         (success, resp) -> {
-            var response = new StringBhSimulatorResp(cmd.getId(), success, resp);
-            carrier.pushResponse(response);
+          var response = new StringBhSimulatorResp(cmd.getId(), success, resp);
+          carrier.pushResponse(response);
         });
+  }
+
+  /** {@code resp} を適切なクラスへと渡す. */
+  private synchronized void dispatchRespAsync(BhProgramResponse response) {
+    ViewUtil.runSafe(() -> {
+      notifService.beginWrite();
+      try {
+        dispatchResp(response);
+      } finally {
+        notifService.endWrite();
+      }
+    });
+  }
+
+  private void dispatchResp(BhProgramResponse response) {
+    switch (response) {
+      case InputTextResp resp -> ioMsgProcessor.process(resp);
+      case GetLocalVarsResp resp -> debugMsgProcessor.process(resp);
+      case GetLocalListValsResp resp -> debugMsgProcessor.process(resp);
+      case GetGlobalVarsResp resp -> debugMsgProcessor.process(resp);
+      case GetGlobalListValsResp resp -> debugMsgProcessor.process(resp);
+      default -> { }
+    }
   }
 }

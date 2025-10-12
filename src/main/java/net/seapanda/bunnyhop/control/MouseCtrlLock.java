@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.control;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,6 +30,9 @@ import javafx.scene.input.MouseButton;
  * このオブジェクトが unlock 状態のとき, 特定のマウスボタンを指定して {@link #tryLock} で {@code lock} 状態にできる.
  * lock 状態のとき, {@link #tryLock} で指定したマウスボタンを指定して {@link #unlock} で {@code unlock} 状態にできる.
  * </p>
+ *
+ * <p>本クラスはスレッド間で排他制御を行うものではない.
+ * 単一のスレッド上で, マウスボタンの同時押しによる操作を却下する目的で使用することを想定している.
  *
  * @author K.Koike
  */
@@ -44,7 +48,7 @@ public class MouseCtrlLock {
    */
   public MouseCtrlLock(MouseButton... acceptables) {
     this.acceptables = Stream.of(acceptables)
-        .filter(btn -> btn != null)
+        .filter(Objects::nonNull)
         .collect(Collectors.toSet());
   }
 
@@ -53,7 +57,7 @@ public class MouseCtrlLock {
    *
    * @return lock 状態になった場合 true
    */
-  public synchronized boolean tryLock(MouseButton button) {
+  public boolean tryLock(MouseButton button) {
     if (isLocked || (!acceptables.isEmpty() && !acceptables.contains(button))) {
       return false;
     }
@@ -68,7 +72,7 @@ public class MouseCtrlLock {
    *
    * @return unlock 状態になった場合 true
    */
-  public synchronized boolean unlock(MouseButton button) {
+  public boolean unlock(MouseButton button) {
     if (isLockedBy(button)) {
       button = null;
       isLocked = false;
@@ -82,7 +86,7 @@ public class MouseCtrlLock {
    *
    * @return unlock 状態になった場合 true
    */
-  public synchronized boolean unlock() {
+  public boolean unlock() {
     if (isLocked) {
       button = null;
       isLocked = false;
@@ -92,7 +96,7 @@ public class MouseCtrlLock {
   }
 
   /** このオブジェクトが {@code button} に関連付けられて {@code lock} 状態になっている場合 true を返す. */
-  public synchronized boolean isLockedBy(MouseButton button) {
+  public boolean isLockedBy(MouseButton button) {
     if (button == null) {
       return false;
     }
@@ -100,7 +104,7 @@ public class MouseCtrlLock {
   }
 
   /** このオブジェクトが lock 状態である場合 true を返す. */
-  public synchronized boolean isLocked() {
+  public boolean isLocked() {
     return isLocked;
   }
 }

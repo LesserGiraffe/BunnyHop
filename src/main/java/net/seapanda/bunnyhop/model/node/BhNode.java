@@ -39,6 +39,7 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.view.node.BhNodeView;
 
 /**
@@ -676,23 +677,23 @@ public abstract class BhNode extends SyntaxSymbol {
 
     /** 関連するノードの選択状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<SelectionEvent> onSelStateChangedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するノードのコンパイルエラー状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<CompileErrorEvent> onCompileErrStateChangedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するノードが {@link Connector} に接続されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<ConnectionEvent> onConnectedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するノードが属するワークスペースが変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceChangeEvent> onWsChangedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するノードのブレークポイントの設定が変わったときのイベントハンドラのを管理するオブジェクト. */
     private final ConsumerInvoker<BreakpointSetEvent> onBreakpointSetInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** ノードが入れ替わったときのイベントハンドラ. */
     private final Consumer<? super Connector.ReplacementEvent> onNodeReplaced =

@@ -31,6 +31,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputControl;
 import javafx.util.Duration;
+import net.seapanda.bunnyhop.view.ViewUtil;
 
 /**
  * アプリケーションユーザ向けにメッセージを出力する機能を提供するクラス.
@@ -42,8 +43,8 @@ public class BhMessageService implements Closeable, MessageService {
   private TextInputControl textInputCtrl;
   private final Queue<String> messages = new LinkedList<>();
   private final Timeline msgPrintTimer;
-  private Collection<String> style = new ArrayList<>();
-  private boolean isClosed = false;
+  private volatile Collection<String> style = new ArrayList<>();
+  private volatile boolean isClosed = false;
 
   /** コンストラクタ. */
   public BhMessageService() throws IOException {
@@ -104,11 +105,7 @@ public class BhMessageService implements Closeable, MessageService {
       return alert.showAndWait();
     });
 
-    if (Platform.isFxApplicationThread()) {
-      alertTask.run();
-    } else {
-      Platform.runLater(alertTask);
-    }
+    ViewUtil.runSafe(alertTask);
     Optional<ButtonType> buttonType = Optional.empty();
     try {
       buttonType = alertTask.get();

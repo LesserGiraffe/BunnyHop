@@ -57,7 +57,7 @@ public class CompileErrorReporter {
    *
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public synchronized void report(UserOperation userOpe) {
+  public void report(UserOperation userOpe) {
     Set<BhNode> nodesToCheckErr = collectRelatedNodes();
     for (BhNode node : nodesToCheckErr) {
       node.setCompileErrState(node.hasCompileError(), userOpe);

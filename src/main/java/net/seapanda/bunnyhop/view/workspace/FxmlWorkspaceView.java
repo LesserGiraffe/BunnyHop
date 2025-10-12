@@ -59,6 +59,7 @@ import net.seapanda.bunnyhop.quadtree.QuadTreeManager;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle;
 import net.seapanda.bunnyhop.quadtree.QuadTreeRectangle.OverlapOption;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.ViewUtil;
@@ -235,11 +236,11 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
   /** ワークスペース名を {@link #tabNameTextField} のテキストに変更する. */
   private void changeWsName() {
-    Context context = notifService.begin();
+    Context context = notifService.beginWrite();
     try {
       workspace.setName(tabNameTextField.getText(), context.userOpe());
     } finally {
-      notifService.end();  
+      notifService.endWrite();
     }
   }
 
@@ -585,23 +586,27 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   public class CallbackRegistryImpl implements CallbackRegistry {
 
     /** 関連するワークスペースビュー上でマウスボタンが押下されたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<MouseEventInfo> onMousePressedInvoker = new ConsumerInvoker<>();
+    private final ConsumerInvoker<MouseEventInfo> onMousePressedInvoker =
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースビュー上でマウスがドラッグされたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<MouseEventInfo> onMouseDraggedInvoker = new ConsumerInvoker<>();
+    private final ConsumerInvoker<MouseEventInfo> onMouseDraggedInvoker =
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースビュー上でマウスボタンが離されたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<MouseEventInfo> onMouseReleasedInvoker = new ConsumerInvoker<>();
+    private final ConsumerInvoker<MouseEventInfo> onMouseReleasedInvoker =
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースビューのノードビューの位置が変更されたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<NodeMoveEvent> onNodeMovedInvoker = new ConsumerInvoker<>();
+    private final ConsumerInvoker<NodeMoveEvent> onNodeMovedInvoker =
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースビューのノードビューのサイズが変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeSizeChangedEvent> onNodeSizeChangedInvoke =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースビューが閉じられたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<CloseEvent> onClosedInvoker = new ConsumerInvoker<>();
+    private final ConsumerInvoker<CloseEvent> onClosedInvoker = new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースビューを閉じるリクエストを受け取ったときのイベントハンドラ. */
     private Supplier<? extends Boolean> onCloseRequested = () -> true;

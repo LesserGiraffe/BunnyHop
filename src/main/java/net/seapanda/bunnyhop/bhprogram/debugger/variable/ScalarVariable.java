@@ -21,6 +21,7 @@ import java.util.Optional;
 import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 
 /**
  * スカラ変数の情報を格納するクラス.
@@ -62,7 +63,7 @@ public class ScalarVariable extends Variable {
    *
    * @param val 設定するスカラ変数の値. (nullable)
    */
-  public synchronized void setValue(String val) {
+  public void setValue(String val) {
     if (Objects.equals(this.val, val)) {
       return;
     }
@@ -72,7 +73,7 @@ public class ScalarVariable extends Variable {
   }
 
   /** スカラ変数の値を取得する. */
-  public synchronized Optional<String> getValue() {
+  public Optional<String> getValue() {
     return Optional.ofNullable(val);
   }
 
@@ -89,7 +90,7 @@ public class ScalarVariable extends Variable {
   public class CallbackRegistry {
 
     /** 関連する {@link ScalarVariable} の値が変わったときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<ValueChangedEvent> onValueChanged = new ConsumerInvoker<>();
+    private final ConsumerInvoker<ValueChangedEvent> onValueChanged = new SimpleConsumerInvoker<>();
 
     /** 関連する {@link ScalarVariable} の値が変わったときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<ValueChangedEvent>.Registry getOnValueChanged() {

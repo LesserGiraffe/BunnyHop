@@ -111,10 +111,10 @@ public class WorkspaceController {
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
-      ddInfo.context = notifService.begin();   
+      ddInfo.context = notifService.beginWrite();
       ddInfo.isDndFinished = false;
       if (!event.isShiftDown()) {
-		nodeSelectionViewProxy.hideCurrentView();
+        nodeSelectionViewProxy.hideCurrentView();
         model.getSelectedNodes().forEach(node -> node.deselect(ddInfo.context.userOpe()));
       }
       view.getRootNodeViews().forEach(
@@ -233,7 +233,7 @@ public class WorkspaceController {
   private void terminateDnd() {
     mouseCtrlLock.unlock();
     ddInfo.reset();
-    notifService.end();
+    notifService.endWrite();
   }
 
   /** ワークスペースビューの削除命令を受けた時の処理. */
@@ -252,14 +252,14 @@ public class WorkspaceController {
 
   /** ワークスペースビュー削除時の処理. */
   private void onClosed() {
-    Context context = notifService.begin();
+    Context context = notifService.beginWrite();
     try {
       WorkspaceSet wss = model.getWorkspaceSet();
       if (wss != null) {
         wss.removeWorkspace(model, context.userOpe());
       }
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 

@@ -27,6 +27,7 @@ import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
 import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 
 /**
  * ワークスペースの集合を保持、管理するクラス.
@@ -180,53 +181,53 @@ public class WorkspaceSet {
 
     /** 関連するワークスペースセット以下のノードの選択状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeSelectionEvent> onNodeSelStateChangedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
     
     /** 関連するワークスペースセット以下のノードのコンパイルエラー状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeCompileErrorEvent>
-        onNodeCompileErrStateChangedInvoker = new ConsumerInvoker<>();
+        onNodeCompileErrStateChangedInvoker = new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースセット以下のノードのブレークポイントの状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeBreakpointSetEvent>
-        onNodeBreakpointSetInvoker = new ConsumerInvoker<>();
+        onNodeBreakpointSetInvoker = new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /**
      * 関連するワークスペースセットのワークスペースのルートノード一式に
      * 新しくルートノードが追加されたときのイベントハンドラを管理するオブジェクト.
      */
     private final ConsumerInvoker<RootNodeAddedEvent> onRootNodeAddedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /**
      * 関連するワークスペースセットのワークスペースのルートノード一式から
      * ルートノードが削除されたときのイベントハンドラを管理するオブジェクト.
      */
     private final ConsumerInvoker<RootNodeRemovedEvent> onRootNodeRemovedInvoker = 
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
     
     /** 関連するワークスペースセットにワークスペースが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceAddedEvent> onWsAddedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースセットからワークスペースが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceRemovedEvent> onWsRemovedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースセットで操作対象のワークスペースが変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<CurrentWorkspaceChangedEvent> onCurrentWsChangedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /* 関連するワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceNameChangedEvent> onWsNameChangedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** ノードの選択状態が変わったときのイベントハンドラ. */
     private final Consumer<? super Workspace.NodeSelectionEvent> onNodeSelectionStateChanged =

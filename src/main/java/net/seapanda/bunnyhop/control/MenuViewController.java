@@ -229,7 +229,7 @@ public class MenuViewController {
 
   /** コピーボタン押下時の処理. */
   private void copy(WorkspaceSet wss) {
-    Context context = notifService.begin();
+    Context context = notifService.beginWrite();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -240,13 +240,13 @@ public class MenuViewController {
       currentWs.getSelectedNodes().forEach(
           node -> copyAndPaste.addNodeToList(node, context.userOpe()));
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
   /** カットボタン押下時の処理. */
   private void cut(WorkspaceSet wss) {
-    Context context = notifService.begin();
+    Context context = notifService.beginWrite();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -257,13 +257,13 @@ public class MenuViewController {
       currentWs.getSelectedNodes().forEach(
           node -> cutAndPaste.addNodeToList(node, context.userOpe()));
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
   /** ペーストボタン押下時の処理. */
   private void paste(WorkspaceSet wss, TabPane workspaceSetTab) {
-    Context context = notifService.begin();
+    Context context = notifService.beginWrite();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -279,13 +279,13 @@ public class MenuViewController {
       copyAndPaste.paste(currentWs, pastePos, context.userOpe());
       cutAndPaste.paste(currentWs, pastePos, context.userOpe());
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
   /** デリートボタン押下時の処理. */
   private void delete(WorkspaceSet wss) {
-    Context context = notifService.begin();
+    Context context = notifService.beginWrite();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -305,13 +305,13 @@ public class MenuViewController {
             context.userOpe());
       }
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
   /** ジャンプボタン押下時の処理. */
   private void jump(WorkspaceSet wss) {
-    Context context = notifService.begin();
+    Context context = notifService.beginWrite();
     try {
       findNodeToJumpTo(wss).ifPresent(node -> {
         node.getView().ifPresent(view -> ViewUtil.jump(view, true, EffectTarget.SELF));
@@ -320,33 +320,33 @@ public class MenuViewController {
         node.select(context.userOpe());
       });
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
   /** アンドゥボタン押下時の処理. */
   private void undo() {
-    notifService.begin();
+    notifService.beginWrite();
     try {
       undoRedoAgent.undo();
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
   /** リドゥボタン押下時の処理. */
   private void redo() {
-    notifService.begin();
+    notifService.beginWrite();
     try {
       undoRedoAgent.redo();
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
   /** ズームインボタン押下時の処理. */
   private void zoomIn(WorkspaceSet wss) {
-    notifService.begin();
+    notifService.beginWrite();
     try {
       if (proxy.getCurrentCategoryName().isPresent()) {
         proxy.zoom(true);
@@ -356,13 +356,13 @@ public class MenuViewController {
           .flatMap(Workspace::getView)
           .ifPresent(wsv -> wsv.zoom(true));
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
   /** ズームアウトボタン押下時の処理. */
   private void zoomOut(WorkspaceSet wss) {
-    notifService.begin();
+    notifService.beginWrite();
     try {
       if (proxy.getCurrentCategoryName().isPresent()) {
         proxy.zoom(false);
@@ -372,37 +372,37 @@ public class MenuViewController {
           .flatMap(Workspace::getView)
           .ifPresent(wsv -> wsv.zoom(false));
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
   /** ワークスペース拡大ボタン押下時の処理. */
   private void widen(WorkspaceSet wss) {
-    notifService.begin();
+    notifService.beginWrite();
     try {
       Optional.ofNullable(wss.getCurrentWorkspace())
           .flatMap(Workspace::getView)
           .ifPresent(wsv -> wsv.changeViewSize(true));
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
   /** ワークスペース縮小ボタン押下時の処理. */
   private void narrow(WorkspaceSet wss) {
-    notifService.begin();
+    notifService.beginWrite();
     try {
       Optional.ofNullable(wss.getCurrentWorkspace())
           .flatMap(Workspace::getView)
           .ifPresent(wsv -> wsv.changeViewSize(false));
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
   /** ワークスペース追加ボタン押下時の処理. */
   private void addWorkspace(WorkspaceSet wss) {
-    Context context = notifService.begin();
+    Context context = notifService.beginWrite();
     try {
       String wsName =
           TextDefs.Workspace.defaultWsName.get(wss.getWorkspaces().size() + 1);
@@ -417,7 +417,7 @@ public class MenuViewController {
       }
       createWorkspace(wsName).ifPresent(ws -> wss.addWorkspace(ws, context.userOpe()));
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
@@ -465,14 +465,14 @@ public class MenuViewController {
 
   /** {@code wss} から実行可能なノードを集める. */
   private ExecutableNodeSet collectExecutableNodes(WorkspaceSet wss) {
-    Context context = notifService.begin();
+    Context context = notifService.beginWrite();
     Optional<ExecutableNodeSet> nodeSet = Optional.empty();
     try {
       nodeSet = ExecutableNodeCollector.collect(wss, msgService, context.userOpe());
     } catch (Exception e) {
       LogManager.logger().error(e.toString());
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
     return nodeSet.orElse(null);
   }

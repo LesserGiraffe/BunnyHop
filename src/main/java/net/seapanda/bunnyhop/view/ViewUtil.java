@@ -280,6 +280,7 @@ public class ViewUtil {
   public static void jump(BhNodeView view, boolean hideShadow, EffectTarget target) {
     runSafe(() -> jumpImpl(view, hideShadow, target));
   }
+
   /**
    * {@code view} をワークスペースビュー中央に表示して影をつける.
    *

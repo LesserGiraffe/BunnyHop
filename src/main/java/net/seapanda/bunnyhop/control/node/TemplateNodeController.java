@@ -101,7 +101,7 @@ public class TemplateNodeController implements BhNodeController {
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
-      Context context = notifService.begin();
+      Context context = notifService.beginWrite();
       Workspace currentWs = wss.getCurrentWorkspace();
       BhNode newNode = model.findRootNode().copy(context.userOpe());
       factory.setMvc(model, MvcType.DEFAULT);
@@ -195,7 +195,7 @@ public class TemplateNodeController implements BhNodeController {
   private void terminateDnd() {
     mouseCtrlLock.unlock();
     ddInfo.reset();
-    notifService.end();
+    notifService.endWrite();
   }
 
   @Override

@@ -32,6 +32,7 @@ import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.utility.Utility;
+import net.seapanda.bunnyhop.utility.concurrent.function.ConcurrentConsumerInvoker;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
 
 /**
@@ -219,10 +220,11 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
     
     /** BhRuntime との通信用オブジェクトが置き換わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<MessageCarrierRenewedEvent> onMsgCarrierRenewed =
-        new ConsumerInvoker<>();
+        new ConcurrentConsumerInvoker<>();
 
     /** BhRuntime との通信が有効または無効になったときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<ConnectionEvent> onConnCondChanged = new ConsumerInvoker<>();
+    private final ConsumerInvoker<ConnectionEvent> onConnCondChanged =
+        new ConcurrentConsumerInvoker<>();
 
     @Override
     public ConsumerInvoker<MessageCarrierRenewedEvent>.Registry getOnMsgCarrierRenewed() {

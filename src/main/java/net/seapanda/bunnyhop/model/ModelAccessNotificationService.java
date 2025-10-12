@@ -19,19 +19,35 @@ package net.seapanda.bunnyhop.model;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
 /**
- * モデル (ノード, ワークスペース等) へのアクセスの開始と終了を通知するメソッドを定義したインタフェース.
- * {@link #begin} と {@link #end} は対で呼ぶこと.
+ * モデル (ノード, ワークスペース等) へのアクセスの開始と終了を通知するメソッドを定義したインタフェース. <br>
+ * {@link #beginWrite} と {@link #endWrite} は対で呼ぶこと. <br>
+ * {@link #beginRead} と {@link #endRead} は対で呼ぶこと.
+ *
+ * <pre>-- スレッドと処理の設計方針 --
+ * モデルを変更する可能性のある処理は必ず UI スレッドで行う.
+ * これは, モデルの変更に伴って起きる UI 要素の変更をモデルの変更と不可分に行うためである.
+ * UI スレッドで行うべきではない重い処理は Future パターンなどを用いて別のスレッドで行い, UI スレッドを適宜開放する.
+ * その際, 複数のスレッドに分割した処理と排他的に実行しなければならない処理が存在しないか注意する.
+ * UI スレッド以外はモデルの参照のみ行う.
+ * </pre>
  *
  * @author K.Koike
  */
 public interface ModelAccessNotificationService {
 
-  /** モデルへのアクセス開始をこのオブジェクトに通知する. */
-  Context begin();
+  /** モデルの変更開始をこのオブジェクトに通知する. */
+  Context beginWrite();
 
-  /** モデルへのアクセス終了をこのオブジェクトに通知する. */
-  void end();
+  /** モデルの変更終了をこのオブジェクトに通知する. */
+  void endWrite();
 
-  /** モデルへアクセスする処理に紐づく情報. */
+  /** モデルの参照開始をこのオブジェクトに通知する. */
+  void beginRead();
+
+  /** モデルの参照終了をこのオブジェクトに通知する. */
+  void endRead();
+
+
+  /** モデルの変更に紐づく情報. */
   record Context(UserOperation userOpe) { }
 }

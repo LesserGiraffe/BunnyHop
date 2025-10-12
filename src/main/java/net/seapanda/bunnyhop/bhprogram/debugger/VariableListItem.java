@@ -24,6 +24,7 @@ import net.seapanda.bunnyhop.bhprogram.debugger.variable.Variable;
 import net.seapanda.bunnyhop.common.BhSettings;
 import net.seapanda.bunnyhop.common.TextDefs;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 
 /**
  * デバッガの変数一覧の各要素を表すクラス.
@@ -138,7 +139,7 @@ public class VariableListItem {
      * {@link VariableListItem} が保持する {@link Variable} の値が
      * 変わったときのイベントハンドラを管理するオブジェクト.
      */
-    private final ConsumerInvoker<ValueChangedEvent> onValueChanged = new ConsumerInvoker<>();
+    private final ConsumerInvoker<ValueChangedEvent> onValueChanged = new SimpleConsumerInvoker<>();
 
     /**
      * {@link VariableListItem} が保持する {@link Variable} の値が

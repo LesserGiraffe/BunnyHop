@@ -27,6 +27,7 @@ import java.util.SequencedCollection;
 import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 
 /**
  * 変数情報とそれに関連するスレッド, コールスタックの情報を保持するクラス.
@@ -100,7 +101,7 @@ public class VariableInfo {
   }
 
   /** このオブジェクトが持つ変数情報を返す. */
-  public synchronized SequencedCollection<Variable> getVariables() {
+  public SequencedCollection<Variable> getVariables() {
     return new ArrayList<>(varIdToVar.values());
   }
 
@@ -119,7 +120,7 @@ public class VariableInfo {
    * {@link ListVariable} が存在していた場合, 既存の {@link ListVariable} に新しい要素が追加される.
    * その際, 重複したインデックスの値は追加した変数情報のもので置き換えられる.
    */
-  public synchronized void addVariables(SequencedCollection<Variable> variables) {
+  public void addVariables(SequencedCollection<Variable> variables) {
     List<Variable> newVars = new ArrayList<>();
     for (Variable variable : variables) {
       Variable existing = varIdToVar.get(variable.id);
@@ -149,7 +150,7 @@ public class VariableInfo {
    *
    * @param variables 削除する変数一覧
    */
-  public synchronized void removeVariables(Collection<Variable> variables) {
+  public void removeVariables(Collection<Variable> variables) {
     List<Variable> removedVars = new ArrayList<>();
     for (Variable variable : variables) {
       Variable removed = varIdToVar.remove(variable.id);
@@ -163,7 +164,7 @@ public class VariableInfo {
   }
 
   /** このスタックフレームが持つ数情報を全て削除する. */
-  public synchronized void clearVariables() {
+  public void clearVariables() {
     removeVariables(new ArrayList<>(varIdToVar.values()));
   }
 
@@ -180,11 +181,12 @@ public class VariableInfo {
   public class CallbackRegistry {
 
     /** 関連する {@link VariableInfo} に変数情報が追加されたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<VariablesAddedEvent> onVarsAddedInvoker = new ConsumerInvoker<>();
+    private final ConsumerInvoker<VariablesAddedEvent> onVarsAddedInvoker =
+        new SimpleConsumerInvoker<>();
 
     /** 関連する {@link VariableInfo} から変数情報が削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<VariablesRemovedEvent> onVarsRemovedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連する {@link VariableInfo} に変数情報が追加されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<VariablesAddedEvent>.Registry getOnVariablesAdded() {

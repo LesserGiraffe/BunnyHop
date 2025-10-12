@@ -31,6 +31,7 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 
 /**
  * ノードとノードをつなぐコネクタのクラス.
@@ -316,8 +317,8 @@ public class Connector extends SyntaxSymbol {
   class CallbackRegistry {
 
     /** このノードが選択されたときのイベントハンドラを管理するオブジェクト. */
-    private transient ConsumerInvoker<ReplacementEvent> onNodeReplaced =
-        new ConsumerInvoker<ReplacementEvent>();
+    private final transient ConsumerInvoker<ReplacementEvent> onNodeReplaced =
+        new SimpleConsumerInvoker<ReplacementEvent>();
     
     /** このコネクタに接続されるノードが入れ替わったときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<ReplacementEvent>.Registry getOnNodeReplaced() {
@@ -328,8 +329,8 @@ public class Connector extends SyntaxSymbol {
   /**
    * ノードが入れ替わったときの情報を格納したレコード.
    *
-   * @param child {@code newNode} と入れ替わったノード
-   * @param connectednewNode {@code oldNode} の替わりに接続新しく接続されたノード
+   * @param oldNode {@code newNode} と入れ替わったノード
+   * @param newNode {@code oldNode} の替わりに接続新しく接続されたノード
    * @param userOpe undo 用コマンドオブジェクト
    */
   record ReplacementEvent(BhNode oldNode, BhNode newNode, UserOperation userOpe) {}  

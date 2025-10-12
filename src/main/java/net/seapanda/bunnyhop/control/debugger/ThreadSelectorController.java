@@ -16,7 +16,6 @@
 
 package net.seapanda.bunnyhop.control.debugger;
 
-import java.util.List;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -25,7 +24,6 @@ import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.bhprogram.debugger.Debugger;
 import net.seapanda.bunnyhop.bhprogram.debugger.ThreadSelection;
 import net.seapanda.bunnyhop.common.TextDefs;
-import net.seapanda.bunnyhop.view.ViewUtil;
 
 /**
  * デバッガのスレッド選択コンポーネントのコントローラ.
@@ -82,15 +80,22 @@ public class ThreadSelectorController {
   private void onCurrentThreadChanged(Debugger.CurrentThreadChangedEvent event) {
     Long threadId =
         event.newVal().equals(ThreadSelection.NONE) ? null : event.newVal().getThreadId();
-    ViewUtil.runSafe(() -> threadComboBox.setValue(threadId));
+    if (threadId != null) {
+      addToOptions(threadId);
+    }
+    threadComboBox.setValue(threadId);
   }
 
   /** このコントローラの管理するコンポーネントを初期状態に戻す. */
-  private synchronized void reset() {
-    ViewUtil.runSafe(() -> {
-      threadComboBox.getItems().setAll(List.of(ThreadSelection.ALL.getThreadId()));
-      threadComboBox.getSelectionModel().selectFirst();
-    });
+  private void reset() {
+    int numItems = threadComboBox.getItems().size();
+    if (numItems == 0) {
+      threadComboBox.getItems().add(ThreadSelection.ALL.getThreadId());
+    } else {
+      // ThreadSelection.NONE を経由せずに ThreadSelection.ALL を選択したい
+      threadComboBox.getItems().remove(1, numItems);
+    }
+    threadComboBox.getSelectionModel().selectFirst();
   }
 
   /**
@@ -98,12 +103,11 @@ public class ThreadSelectorController {
    *
    * @param threadId 選択肢に追加するスレッドの ID
    */
-  synchronized void addToSelection(long threadId) {
+  void addToOptions(long threadId) {
     if (threadId < 1) {
       return;
     }
-    boolean isNewThreadId = !threadComboBox.getItems().contains(threadId);
-    if (isNewThreadId) {
+    if (!threadComboBox.getItems().contains(threadId)) {
       threadComboBox.getItems().addLast(threadId);
     }
   }
@@ -113,15 +117,11 @@ public class ThreadSelectorController {
    *
    * @param threadId 選択肢から削除するスレッドの ID
    */
-  synchronized void removeFromSelection(long threadId) {
+  void removeFromOptions(long threadId) {
     if (threadId < 1) {
       return;
     }
-    ViewUtil.runSafe(() -> {
-      if (!threadComboBox.getItems().contains(threadId)) {
-        threadComboBox.getItems().remove(threadId);
-      }
-    });
+    threadComboBox.getItems().remove(threadId);
   }
 
   /** 受付不能なマウスイベントを consume する. */
@@ -132,7 +132,7 @@ public class ThreadSelectorController {
   }
 
   /** スレッド選択コンボボックスのアイテムの View. */
-  private class ThreadSelectorListCell extends ListCell<Long> {
+  private static class ThreadSelectorListCell extends ListCell<Long> {
 
     @Override
     protected void updateItem(Long item, boolean empty) {

@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
-import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
 import net.seapanda.bunnyhop.bhprogram.debugger.VariableListItem;
@@ -71,46 +70,44 @@ public class VariableListCell extends TreeCell<VariableListItem> {
 
   /** {@code item} とこのセルを {@link #itemToCells} の中で対応付ける. */
   private void mapItemToCell(VariableListItem item, boolean empty) {
-    synchronized (itemToCells) {
-      if ((empty || model != item) && model != null) {
-        if (itemToCells.containsKey(item)) {
-          itemToCells.get(item).remove(this);
-        }
+    if ((empty || model != item) && model != null) {
+      if (itemToCells.containsKey(item)) {
+        itemToCells.get(item).remove(this);
       }
-      if (!empty && model != item && item != null) {
-        itemToCells.computeIfAbsent(
-            item,
-            key -> Collections.<VariableListCell>newSetFromMap(new WeakHashMap<>()))
-            .add(this);
-      }
+    }
+    if (!empty && model != item && item != null) {
+      itemToCells
+          .computeIfAbsent(
+              item,
+              key -> Collections.<VariableListCell>newSetFromMap(new WeakHashMap<>()))
+          .add(this);
     }
   }
 
   /** {@code item} に対応する {@link BhNode} とこのセルを {@link #nodeToCells} の中で対応付ける. */
   private void mapCellToNode(VariableListItem item, boolean empty) {
-    synchronized (nodeToCells) {
-      if ((empty || model != item) && model != null) {
-        model.variable.getNode().ifPresent(node -> {
-          if (nodeToCells.containsKey(node)) {
-            nodeToCells.get(node).remove(this);
-          }
-        });
-      }
-      if (!empty && model != item && item != null) {
-        item.variable.getNode().ifPresent(node -> {
-          nodeToCells.computeIfAbsent(
-                  node,
-                  key -> Collections.<VariableListCell>newSetFromMap(new WeakHashMap<>()))
-              .add(this);
-        });
-      }
+    if ((empty || model != item) && model != null) {
+      model.variable.getNode().ifPresent(node -> {
+        if (nodeToCells.containsKey(node)) {
+          nodeToCells.get(node).remove(this);
+        }
+      });
+    }
+    if (!empty && model != item && item != null) {
+      item.variable.getNode().ifPresent(node -> {
+        nodeToCells
+            .computeIfAbsent(
+                node,
+                key -> Collections.<VariableListCell>newSetFromMap(new WeakHashMap<>()))
+            .add(this);
+      });
     }
   }
 
   /** このセルが表示する値を更新する. */
   public void updateValue() {
     if (model != null) {
-      Platform.runLater(() -> setText(model.toString()));
+      setText(model.toString());
     }
   }
 

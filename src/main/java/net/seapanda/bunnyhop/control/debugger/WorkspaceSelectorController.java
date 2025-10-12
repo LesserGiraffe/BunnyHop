@@ -84,7 +84,7 @@ public class WorkspaceSelectorController {
    *
    * @return 現在選択中のワークスペース. 特定のワークスペースが選択されていない場合は Optional.empty.
    */
-  synchronized Optional<Workspace> getSelected() {
+  Optional<Workspace> getSelected() {
     Workspace selected = wsComboBox.getValue();
     if (selected == wsForAll) {
       return Optional.empty();
@@ -93,7 +93,7 @@ public class WorkspaceSelectorController {
   }
 
   /** 「すべてのワークスペース」が選択されている場合 true を返す. */
-  synchronized boolean isAllSelected() {
+  boolean isAllSelected() {
     return wsComboBox.getValue() == wsForAll;
   }
 

@@ -70,18 +70,17 @@ public class BreakpointListCell extends ListCell<BhNode> {
 
   /** {@code node} とこのセルを {@link #nodeToCells} の中で対応付ける. */
   private void mapNodeToCell(BhNode node, boolean empty) {
-    synchronized (nodeToCells) {
-      if ((empty || model != node) && model != null) {
-        if (nodeToCells.containsKey(model)) {
-          nodeToCells.get(model).remove(this);
-        }
+    if ((empty || model != node) && model != null) {
+      if (nodeToCells.containsKey(model)) {
+        nodeToCells.get(model).remove(this);
       }
-      if (!empty && model != node && node != null) {
-        nodeToCells.computeIfAbsent(
-            node,
-            key -> Collections.<BreakpointListCell>newSetFromMap(new WeakHashMap<>()))
-            .add(this);
-      }
+    }
+    if (!empty && model != node && node != null) {
+      nodeToCells
+          .computeIfAbsent(
+              node,
+              key -> Collections.<BreakpointListCell>newSetFromMap(new WeakHashMap<>()))
+          .add(this);
     }
   }
 

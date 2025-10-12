@@ -20,6 +20,7 @@ import java.util.Optional;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 
 /**
  * BhProgram のコールスタックの各要素 (コールスタックアイテム) を表すクラス.
@@ -125,7 +126,7 @@ public class CallStackItem {
     
     /** 関連する {@link CallStackItem} が選択されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<SelectionEvent> onSelectionStateChangedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連する {@link CallStackItem} の選択状態が変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<SelectionEvent>.Registry getOnSelectionStateChanged() {

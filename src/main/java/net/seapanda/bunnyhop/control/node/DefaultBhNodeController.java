@@ -114,7 +114,7 @@ public class DefaultBhNodeController implements BhNodeController {
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
-      ddInfo.context = notifService.begin();
+      ddInfo.context = notifService.beginWrite();
       ddInfo.isDndFinished = false;
       if (!model.isMovable()) {
         ddInfo.forwardEvent = true;
@@ -395,7 +395,7 @@ public class DefaultBhNodeController implements BhNodeController {
     mouseCtrlLock.unlock();
     view.setMouseTransparent(false);
     ddInfo.reset();
-    notifService.end();
+    notifService.endWrite();
   }
 
   /** {@link MouseEvent} オブジェクトの情報を {@link UiEvent} オブジェクトに格納して返す. */

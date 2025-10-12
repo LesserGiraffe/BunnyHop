@@ -74,22 +74,21 @@ public class CallStackCell extends ListCell<CallStackItem> {
 
   /** {@code item} が持つ {@link BhNode} とこのセルを {@link #nodeToCells} の中で対応付ける. */
   private void mapNodeToCell(CallStackItem item, boolean empty) {
-    synchronized (nodeToCells) {
-      if ((empty || model != item) && model != null) {
-        model.getNode().ifPresent(node -> {
-          if (nodeToCells.containsKey(node)) {
-            nodeToCells.get(node).remove(this);
-          }
-        });
-      }
-      if (!empty && model != item && item != null) {
-        item.getNode().ifPresent(node -> {
-          nodeToCells.computeIfAbsent(
-                  node,
-                  key -> Collections.<CallStackCell>newSetFromMap(new WeakHashMap<>()))
-              .add(this);
-        });
-      }
+    if ((empty || model != item) && model != null) {
+      model.getNode().ifPresent(node -> {
+        if (nodeToCells.containsKey(node)) {
+          nodeToCells.get(node).remove(this);
+        }
+      });
+    }
+    if (!empty && model != item && item != null) {
+      item.getNode().ifPresent(node -> {
+        nodeToCells
+            .computeIfAbsent(
+                node,
+                key -> Collections.<CallStackCell>newSetFromMap(new WeakHashMap<>()))
+            .add(this);
+      });
     }
   }
 

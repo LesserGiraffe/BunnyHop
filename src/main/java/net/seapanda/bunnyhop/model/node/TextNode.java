@@ -31,6 +31,7 @@ import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 
 /**
  * 文字情報を持つ終端 BhNode.
@@ -234,7 +235,8 @@ public class TextNode extends DerivativeBase<TextNode> {
   public class CallbackRegistry extends BhNode.CallbackRegistry {
 
     /** 関連するノードのテキストが変更されたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<TextChangedEvent> onTextChangedInvoker = new ConsumerInvoker<>();
+    private final ConsumerInvoker<TextChangedEvent> onTextChangedInvoker =
+        new SimpleConsumerInvoker<>();
 
     /** 関連するノードのテキストが変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<TextChangedEvent>.Registry getOnTextChanged() {

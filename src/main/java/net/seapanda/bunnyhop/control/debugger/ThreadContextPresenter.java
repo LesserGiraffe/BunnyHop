@@ -44,7 +44,7 @@ public class ThreadContextPresenter {
   /** スレッド ID とスレッドコンテキストのマップ. */
   private final Map<Long, ThreadContext> threadIdToContext = new HashMap<>();
   /**
-   * key : 止まっているスレッドの ID のセット. <br>
+   * key : 止まっているスレッドの ID. <br>
    * value : key のスレッドが次に実行するノードのビュー.
    */
   private final Map<Long, BhNodeView> threadIdToExecStepView = new HashMap<>();
@@ -58,12 +58,8 @@ public class ThreadContextPresenter {
 
   private void setEventHandlers() {
     Debugger.CallbackRegistry cbRegistry = debugger.getCallbackRegistry();
-    cbRegistry.getOnCleared().add(event -> {
-      threadIdToContext.clear();
-      threadIdToExecStepView.values()
-          .forEach(view -> view.getLookManager().setExecStepMarkVisibility(false));
-      threadIdToExecStepView.clear();
-    });
+    
+    cbRegistry.getOnCleared().add(event -> clearThreadContexts());
     cbRegistry.getOnCurrentStackFrameChanged()
         .add(event -> showExecStepMarks(event.currentThread(), event.newVal()));
     cbRegistry.getOnThreadContextAdded().add(event -> {
@@ -72,6 +68,14 @@ public class ThreadContextPresenter {
       context.getException().ifPresent(this::outputErrMsg);
       updateExecStepMark(context);
     });
+  }
+
+  /** スレッドコンテキストと実行ステップマークをすべてクリアする. */
+  private void clearThreadContexts() {
+    threadIdToContext.clear();
+    threadIdToExecStepView.values()
+        .forEach(view -> view.getLookManager().setExecStepMarkVisibility(false));
+    threadIdToExecStepView.clear();
   }
 
   /** {@code context} のスレッドの状態とデバッガの現在のスレッドに基づいて次に実行するノードのマークを変更する. */
@@ -85,8 +89,8 @@ public class ThreadContextPresenter {
     }
 
     var threadId = ThreadSelection.of(context.threadId);
-    if (!debugger.getCurrentThread().equals(threadId)
-        && !debugger.getCurrentThread().equals(ThreadSelection.ALL)) {
+    ThreadSelection currentThread = debugger.getCurrentThread();
+    if (!currentThread.equals(threadId) && !currentThread.equals(ThreadSelection.ALL)) {
       return;
     }
     context.getNextStep()

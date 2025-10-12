@@ -16,8 +16,8 @@
 
 package net.seapanda.bunnyhop.service;
 
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
-import net.seapanda.bunnyhop.model.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.undo.UserOperation;
 
@@ -27,31 +27,30 @@ import net.seapanda.bunnyhop.undo.UserOperation;
  * @author K.Koike
  */
 public class ModelAccessMediator implements ModelAccessNotificationService {
-   
-  private final ModelExclusiveControl exclusiveCtrl;
+
+  private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
   private final DerivativeCache cache;
   private final CompileErrorReporter reporter;
   private final UndoRedoAgent undoRedoAgent;
   /** 現在使用中の {@link Context} オブジェクト. */
   private Context context;
-  /** {@link #begin} が連続して呼ばれた回数. */
+  /** {@link #beginWrite} が連続して呼ばれた回数. */
   private int nestingLevel = 0;
+
 
   /** コンストラクタ. */
   public ModelAccessMediator(
-      ModelExclusiveControl exclusiveCtrl,
       DerivativeCache cache,
       CompileErrorReporter reporter,
       UndoRedoAgent undoRedoAgent) {
-    this.exclusiveCtrl = exclusiveCtrl;
     this.cache = cache;
     this.reporter = reporter;
     this.undoRedoAgent = undoRedoAgent;
   }
 
   @Override
-  public synchronized Context begin() {
-    exclusiveCtrl.lockForModification();
+  public Context beginWrite() {
+    lock.writeLock().lock();
     ++nestingLevel;
     if (nestingLevel != 1) {
       return context;
@@ -61,7 +60,7 @@ public class ModelAccessMediator implements ModelAccessNotificationService {
   }
  
   @Override
-  public synchronized void end() {
+  public void endWrite() {
     if (nestingLevel == 0) {
       return;
     }
@@ -69,8 +68,18 @@ public class ModelAccessMediator implements ModelAccessNotificationService {
       cache.clearAll();
       reporter.report(context.userOpe());
       undoRedoAgent.pushUndoCommand(context.userOpe());
-      exclusiveCtrl.unlockForModification();
+      lock.writeLock().unlock();
     }
     --nestingLevel;
+  }
+
+  @Override
+  public void beginRead() {
+    lock.readLock().lock();
+  }
+
+  @Override
+  public void endRead() {
+    lock.readLock().unlock();
   }
 }

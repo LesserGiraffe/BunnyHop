@@ -26,6 +26,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.node.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
 
 /**
@@ -274,35 +275,35 @@ public class Workspace implements Serializable {
 
     /** 関連するワークスペースのノードの選択状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeSelectionEvent> onNodeSelStateChangedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
     
     /** 関連するワークスペースのノードのコンパイルエラー状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeCompileErrorEvent> onNodeCompileErrStateChangedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースのノードのブレークポイントの設定が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeBreakpointSetEvent> onNodeBreakpointSetInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースにノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースからノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<RootNodeAddedEvent> onRootNodeAddedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースのルートノード一式からルートノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<RootNodeRemovedEvent> onRootNodeRemovedInvoker = 
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースの名前が変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NameChangedEvent> onNameChangedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** ノードがコネクタに接続されたときのイベントハンドラ. */
     private final Consumer<BhNode.ConnectionEvent> onNodeConnected =

@@ -356,7 +356,7 @@ public class BhRuntimeTransceiver {
       if (handler == null) {
         handler = notif -> {};
       }
-      this.onNotifReceived.set(handler);
+      onNotifReceived.set(handler);
     }
 
     @Override
@@ -364,7 +364,7 @@ public class BhRuntimeTransceiver {
       if (handler == null) {
         handler = resp -> {};
       }
-      this.onRespReceived.set(handler);
+      onRespReceived.set(handler);
     }
   }
 }

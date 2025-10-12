@@ -29,6 +29,7 @@ import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.model.workspace.Workspace;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.view.ViewConstructionException;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionView;
 import net.seapanda.bunnyhop.view.nodeselection.BhNodeSelectionViewProxy;
@@ -190,7 +191,7 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
 
     /** 選択中の BhNode のカテゴリが変更されたときのイベントハンドラを管理するオブジェクト. */
     ConsumerInvoker<CurrentCategoryChangedEvent> onCurrentCategoryChangedInvoker =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     @Override
     public ConsumerInvoker<CurrentCategoryChangedEvent>.Registry getOnCurrentCategoryChanged() {

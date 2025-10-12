@@ -88,7 +88,7 @@ public class ComboBoxNodeController implements BhNodeController {
   private void checkAndSetContent(
       SelectableItem<String, Object> oldItem, SelectableItem<String, Object> newItem) {
     try {
-      notifService.begin();
+      notifService.beginWrite();
       if (Objects.equals(newItem.getModel(), model.getText())) {
         return;
       }
@@ -100,7 +100,7 @@ public class ComboBoxNodeController implements BhNodeController {
         view.setValue(oldItem);
       }
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 

@@ -100,7 +100,7 @@ public class BreakpointListController {
 
   /** ブレークポイント一覧のブレークポイントが選択されたときのイベントハンドラ. */
   private void onBreakpointSelected(BhNode deselected, BhNode selected) {
-    Context context = notifService.begin();
+    Context context = notifService.beginWrite();
     try {
       var userOpe = new UserOperation(); // コールスタックの選択は undo / redo の対象にしない
       if (deselected != null) {
@@ -112,7 +112,7 @@ public class BreakpointListController {
         }
       }
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 
@@ -187,26 +187,22 @@ public class BreakpointListController {
   }
 
   /** {@code node} をブレークポイント一覧に加える. */
-  private synchronized void addBreakpointToList(BhNode node) {
+  private void addBreakpointToList(BhNode node) {
     Workspace ws = node.getWorkspace();
     if (bpWsSelectorController.getSelected().map(selected -> selected == ws).orElse(false)
         || bpWsSelectorController.isAllSelected()) {
-      ViewUtil.runSafe(() -> bpListView.getItems().add(node));
+      bpListView.getItems().add(node);
     }
   }
 
   /** {@code node} をブレークポイント一覧から削除する. */
-  private synchronized void removeBreakpointFromList(BhNode node) {
-    ViewUtil.runSafe(() -> {
-      bpListView.getItems().remove(node);
-      synchronized (nodeToCallBpListCell) {
-        nodeToCallBpListCell.remove(node);
-      }
-    });
+  private void removeBreakpointFromList(BhNode node) {
+    bpListView.getItems().remove(node);
+    nodeToCallBpListCell.remove(node);
   }
 
   /** {@code ws} 上にある, ブレークポイントを指定されたノードを表示する. */
-  private synchronized void showBreakpoints(Workspace ws, boolean isAllSelected) {
+  private void showBreakpoints(Workspace ws, boolean isAllSelected) {
     bpListView.getItems().clear();
     if (ws == null && !isAllSelected) {
       return;
@@ -219,10 +215,8 @@ public class BreakpointListController {
 
   /** {@code node} に対応する {@link BreakpointListCell} の装飾を変更する. */
   private void updateCellDecoration(BhNode node) {
-    synchronized (nodeToCallBpListCell) {
-      if (nodeToCallBpListCell.containsKey(node)) {
-        nodeToCallBpListCell.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
-      }
+    if (nodeToCallBpListCell.containsKey(node)) {
+      nodeToCallBpListCell.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
     }
   }
 }

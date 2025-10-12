@@ -68,7 +68,7 @@ public class TextInputNodeController implements BhNodeController {
   /** {@code TextInputNodeView} のフォーカスが外れた時のイベントハンドラ. */
   private void onFocusChanged(Boolean isInputFinished) {
     try {
-      notifService.begin();
+      notifService.beginWrite();
       if (!isInputFinished) {
         return;
       }
@@ -81,7 +81,7 @@ public class TextInputNodeController implements BhNodeController {
         view.setText(model.getText());  //view の文字列を変更前の文字列に戻す
       }
     } finally {
-      notifService.end();
+      notifService.endWrite();
     }
   }
 

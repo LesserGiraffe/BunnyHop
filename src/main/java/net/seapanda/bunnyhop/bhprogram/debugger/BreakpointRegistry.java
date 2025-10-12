@@ -22,6 +22,7 @@ import java.util.Set;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 
 /**
  * ブレークポイントが指定されているノード一覧を提供するクラス.
@@ -42,7 +43,7 @@ public class BreakpointRegistry {
    * @param node 登録する {@link BhNode}
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public synchronized void addBreakpointNode(BhNode node, UserOperation userOpe) {
+  public void addBreakpointNode(BhNode node, UserOperation userOpe) {
     boolean success = breakpointNodes.add(node);
     if (success) {
       userOpe.pushCmd(ope -> removeBreakpointNode(node, ope));
@@ -58,7 +59,7 @@ public class BreakpointRegistry {
    * @param node 削除する {@link BhNode}
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public synchronized void removeBreakpointNode(BhNode node, UserOperation userOpe) {
+  public void removeBreakpointNode(BhNode node, UserOperation userOpe) {
     boolean success = breakpointNodes.remove(node);
     if (success) {
       userOpe.pushCmd(ope -> addBreakpointNode(node, ope));
@@ -67,7 +68,7 @@ public class BreakpointRegistry {
   }
 
   /** このレジストリに登録されたブレークポイントとなるノードを全て取得する. */
-  public synchronized Collection<BhNode> getBreakpointNodes() {
+  public Collection<BhNode> getBreakpointNodes() {
     return new HashSet<>(breakpointNodes);
   }
 
@@ -76,7 +77,7 @@ public class BreakpointRegistry {
    *
    * @return このレジストリに対するイベントハンドラの追加と削除を行うオブジェクト
    */
-  public synchronized CallbackRegistry getCallbackRegistry() {
+  public CallbackRegistry getCallbackRegistry() {
     return cbRegistry;
   }
 
@@ -85,11 +86,11 @@ public class BreakpointRegistry {
 
     /** {@link BreakpointRegistry} にブレークポイントとなるノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<BreakpointAddedEvent> onBreakpointAdded =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** {@link BreakpointRegistry} からブレークポイントとなるノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<BreakpointRemovedEvent> onBreakpointRemoved =
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** {@link BreakpointRegistry} にブレークポイントとなるノードが追加されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<BreakpointAddedEvent>.Registry getOnBreakpointAdded() {

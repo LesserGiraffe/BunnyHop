@@ -33,7 +33,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 import javafx.application.Application;
 import javafx.scene.control.Alert;
@@ -89,7 +88,6 @@ import net.seapanda.bunnyhop.service.KeyCodeConverter;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.service.ModelAccessMediator;
-import net.seapanda.bunnyhop.service.ModelExclusiveControl;
 import net.seapanda.bunnyhop.simulator.BhSimulator;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor.CmdProcessingEvent;
@@ -190,8 +188,8 @@ public class AppMain extends Application {
       final var derivativeCache = new DerivativeCache();
       final var undoRedoAgent = new UndoRedoAgent(wss);
       final var compileErrReporter = new CompileErrorReporter(wss);
-      final var mediator = new ModelAccessMediator(
-          new ModelExclusiveControl(), derivativeCache, compileErrReporter, undoRedoAgent);
+      final var mediator =
+          new ModelAccessMediator(derivativeCache, compileErrReporter, undoRedoAgent);
       final var scriptRepository = new BhScriptRepositoryImpl(scriptDirs);
       final var viewStyleFactory = new JsonBhNodeViewStyleFactory(viewStyleDir);
       final var buttonFactory = new PrivateTemplateButtonFactoryImpl(
@@ -226,23 +224,21 @@ public class AppMain extends Application {
           new RemoteBhProgramControllerImpl(remoteCompiler, remoteRuntimeCtrl, msgService);
       final var searchBoxCtrl = new SearchBoxController();
       final var debugger = new BhDebugger(localRuntimeCtrl, remoteRuntimeCtrl, wss);
-      final var debugLock = new ReentrantLock();
       final var debugViewFactory = new DebugViewFactoryImpl(
           callStackViewFile,
           varInspectionViewFilePath,
           searchBoxCtrl,
           debugger,
-          wss,
-          debugLock);
+          wss);
       new ThreadContextPresenter(debugger, msgService);
       final var mainRoutineIds =
           List.of(localCompiler.mainRoutineId(), remoteCompiler.mainRoutineId());
       final var debugMsgProcessor = new DebugMessageProcessorImpl(wss, debugger, mainRoutineIds);
       final var msgProcessor = new IoMessageProcessorImpl(msgService);
       new BhProgramMessageDispatcher(
-          msgProcessor, debugMsgProcessor, simCmdProcessor, localRuntimeCtrl);
+          msgProcessor, debugMsgProcessor, simCmdProcessor, localRuntimeCtrl, mediator);
       new BhProgramMessageDispatcher(
-          msgProcessor, debugMsgProcessor, simCmdProcessor, remoteRuntimeCtrl);
+          msgProcessor, debugMsgProcessor, simCmdProcessor, remoteRuntimeCtrl, mediator);
       final var pastePosOffsetCount = new MutableInt(-2);
       final var copyAndPaste = new CopyAndPaste(nodeFactory, pastePosOffsetCount);
       final var cutAndPaste = new CutAndPaste(pastePosOffsetCount);

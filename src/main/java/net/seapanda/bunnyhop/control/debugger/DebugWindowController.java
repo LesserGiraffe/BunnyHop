@@ -51,7 +51,7 @@ public class DebugWindowController {
    *
    * @param context 追加するスレッドの情報
    */
-  private synchronized void addThreadContext(ThreadContext context) {
+  private void addThreadContext(ThreadContext context) {
     long threadId = context.threadId;
     if (threadId < 1) {
       return;
@@ -61,7 +61,7 @@ public class DebugWindowController {
       return;
     }
     threadIdToContext.put(threadId, context);
-    threadSelectorController.addToSelection(threadId);
+    threadSelectorController.addToOptions(threadId);
     boolean isSelectedThread =
         debugger.getCurrentThread().equals(ThreadSelection.of(threadId));
     if (isSelectedThread) {
@@ -70,7 +70,7 @@ public class DebugWindowController {
   }
 
   /** デバッグ情報をクリアする. */
-  private synchronized void clear() {
+  private void clear() {
     threadIdToContext.clear();
   }
 

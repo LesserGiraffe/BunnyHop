@@ -29,7 +29,6 @@ import net.seapanda.bunnyhop.bhprogram.debugger.ThreadContext;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.Rem;
 import net.seapanda.bunnyhop.common.TextDefs;
-import net.seapanda.bunnyhop.view.ViewUtil;
 
 /**
  * スレッドの状態を表示するコンポーネントのコントローラ.
@@ -62,37 +61,33 @@ public class ThreadStateViewController {
    *
    * @param context 表示するスレッドの状態を格納したオブジェクト
    */
-  synchronized void showThreadState(ThreadContext context) {
+  void showThreadState(ThreadContext context) {
     if (context == null) {
       return;
     }
-    ViewUtil.runSafe(() -> {
-      PseudoClass pseudo = PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR);
-      threadStateText.setText(getThreadStateText(context.state));
-      if (context.state != BhThreadState.ERROR) {
-        threadStateText.pseudoClassStateChanged(pseudo, false);
-        threadStateText.setOnMousePressed(null);
-      } else {
-        String errMsg = context.getException().map(DebugUtil::getErrMsg).orElse("");
-        errMsgTooltip.setText(errMsg);
-        threadStateText.pseudoClassStateChanged(pseudo, true);
-        threadStateText.setOnMousePressed(event -> toggleErrTooltipVisibility());
-      }
-      errMsgTooltip.hide();
-    });
+    PseudoClass pseudo = PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR);
+    threadStateText.setText(getThreadStateText(context.state));
+    if (context.state != BhThreadState.ERROR) {
+      threadStateText.pseudoClassStateChanged(pseudo, false);
+      threadStateText.setOnMousePressed(null);
+    } else {
+      String errMsg = context.getException().map(DebugUtil::getErrMsg).orElse("");
+      errMsgTooltip.setText(errMsg);
+      threadStateText.pseudoClassStateChanged(pseudo, true);
+      threadStateText.setOnMousePressed(event -> toggleErrTooltipVisibility());
+    }
+    errMsgTooltip.hide();
   }
 
   /** スレッドの状態を非表示にする. */
-  synchronized void hideThreadState() {
-    ViewUtil.runSafe(() -> {
-      threadStateText.setText("");
-      errMsgTooltip.setText("");
-      errMsgTooltip.hide();
-    });
+  void hideThreadState() {
+    threadStateText.setText("");
+    errMsgTooltip.setText("");
+    errMsgTooltip.hide();
   }
 
   /** このコントローラの管理するコンポーネントを初期状態に戻す. */
-  private synchronized void reset() {
+  private void reset() {
     hideThreadState();
   }
 

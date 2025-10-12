@@ -87,7 +87,7 @@ public class PrivateTemplateButtonController {
       return;
     }
     try {
-      Context context = service.begin();
+      Context context = service.beginWrite();
       boolean isPrivateTemplateShowed = proxy.getCurrentCategoryName()
           .map(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE::equals)
           .orElse(false);
@@ -111,7 +111,7 @@ public class PrivateTemplateButtonController {
       }
       event.consume();
     } finally {
-      service.end();
+      service.endWrite();
     }
   }
 

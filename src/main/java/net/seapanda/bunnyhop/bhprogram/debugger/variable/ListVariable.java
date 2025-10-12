@@ -27,6 +27,7 @@ import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
 import net.seapanda.bunnyhop.bhprogram.common.message.variable.BhListVariable.Slice;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 
 /**
  * リスト変数の情報を格納するクラス.
@@ -80,7 +81,7 @@ public class ListVariable extends Variable {
    *
    * <p>必ずしも, リストの全ての要素を返す訳ではないことに注意.
    */
-  public synchronized Collection<Item> getItems() {
+  public Collection<Item> getItems() {
     return new ArrayList<>(idxToItem.values());
   }
 
@@ -91,7 +92,7 @@ public class ListVariable extends Variable {
    * @return リストの {@code idx} 番目の要素に対応する {@link Item} オブジェクト.  <br>
    *         このオブジェクトが {@code idx} 番目の情報を持たない場合 empty.
    */
-  public synchronized Optional<Item> getItem(long idx) {
+  public Optional<Item> getItem(long idx) {
     if (!idxToItem.containsKey(idx)) {
       return Optional.empty();
     }
@@ -105,7 +106,7 @@ public class ListVariable extends Variable {
    *
    * @param items 追加する要素.
    */
-  public synchronized void addItems(Collection<Item> items) {
+  public void addItems(Collection<Item> items) {
     var events = new ArrayList<ValueChangedEvent>();
     for (Item item : items) {
       Item curretItem = idxToItem.get(item.idx);
@@ -153,7 +154,7 @@ public class ListVariable extends Variable {
     /** 関連する {@link ListVariable} の {@code idx} 番目の要素の値が変わったときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<ValueChangedEvent>.Registry getOnValueChanged(long idx) {
       if (!idxToOnValueChanged.containsKey(idx)) {
-        idxToOnValueChanged.put(idx, new ConsumerInvoker<>());
+        idxToOnValueChanged.put(idx, new SimpleConsumerInvoker<>());
       }
       return idxToOnValueChanged.get(idx).getRegistry();
     }

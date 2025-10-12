@@ -31,6 +31,7 @@ import net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.model.node.BhNode;
 import net.seapanda.bunnyhop.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -187,11 +188,11 @@ public class CopyAndPaste {
 
     /** コピー予定のノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker = 
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** コピー予定のノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
-        new ConsumerInvoker<>();
+        new SimpleConsumerInvoker<>();
 
     /** 管理している {@link BhNode} のワークスペースが変わったときのイベントハンドラ. */
     private final Consumer<? super BhNode.WorkspaceChangeEvent> onWsChanged = event -> {
