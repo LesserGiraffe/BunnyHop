@@ -106,10 +106,14 @@ public class BhDebugger implements Debugger {
 
   /** {@link BhRuntimeController} のコネクションの状態が変更されたときの処理. */
   private void onRuntimeConnCondChanged(boolean isConnected) {
+    final Collection<BhNode> breakpointNodes = new ArrayList<>();
+    ViewUtil.runSafeSync(() -> {
+      clear();
+      breakpointNodes.addAll(breakpointRegistry.getBreakpointNodes());
+    });
     if (isConnected) {
-      setBreakpoints(breakpointRegistry.getBreakpointNodes().toArray(new BhNode[0]));
+      setBreakpoints(breakpointNodes.toArray(new BhNode[0]));
     }
-    ViewUtil.runSafeSync(this::clear);
   }
 
   @Override

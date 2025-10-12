@@ -33,9 +33,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.common.BhRuntimeFacade;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
+import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.service.BhScriptRepository;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
@@ -153,9 +155,13 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       if (success) {
         // BhProgram の開始前に実行したい処理に対応するため, イベントハンドラをここで呼ぶ
         cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, true));
-        success = BhRuntimeHelper.runScript(destPath, facade);
+        success = facade.runScript(destPath);
       }
       if (success) {
+        var startEvent = new BhProgramEvent(
+            BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
+        // プログラムスタートイベントを送信する
+        send(startEvent);
         msgService.info(TextDefs.BhRuntime.Remote.hasStarted.get());
         return true;
       }

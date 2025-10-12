@@ -25,9 +25,11 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.common.BhRuntimeFacade;
+import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.common.BhConstants;
 import net.seapanda.bunnyhop.common.TextDefs;
+import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.MessageService;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
@@ -77,9 +79,12 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       if (success) {
         // BhProgram の開始前に実行したい処理に対応するため, イベントハンドラをここで呼ぶ
         cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, true));
-        success = BhRuntimeHelper.runScript(filePath.toAbsolutePath().toString(), facade);
+        success = facade.runScript(filePath.toAbsolutePath().toString());
       }
       if (success) {
+        var startEvent = new BhProgramEvent(
+            BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
+        send(startEvent);
         msgService.info(TextDefs.BhRuntime.Local.hasStarted.get());
         programRunning.set(true);
         return true;

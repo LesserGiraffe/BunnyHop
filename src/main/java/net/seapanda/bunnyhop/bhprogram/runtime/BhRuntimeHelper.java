@@ -28,10 +28,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import net.seapanda.bunnyhop.bhprogram.common.BhRuntimeFacade;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
-import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent.Name;
 import net.seapanda.bunnyhop.common.BhConstants;
-import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.service.LogManager;
 
 /**
@@ -111,20 +108,6 @@ class BhRuntimeHelper {
     // リモートオブジェクト取得
     return (BhRuntimeFacade) findRemoteObj(
         hostname, port, BhRuntimeFacade.class.getSimpleName());
-  }
-
-  /**
-   * BhProgram を実行する.
-   *
-   * @param fileName 実行するプログラムが書かれたファイルの名前
-   * @param facade BhRemote との通信用オブジェクト
-   * @return 成功した場合 true, 失敗した場合 false
-   */
-  public static boolean runScript(String fileName, BhRuntimeFacade facade)
-      throws RemoteException {
-    var startEvent = new BhProgramEvent(
-        Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
-    return facade.runScript(fileName, startEvent);
   }
 
   /**
