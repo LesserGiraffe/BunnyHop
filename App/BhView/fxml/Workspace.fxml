@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
-<?import net.seapanda.bunnyhop.view.workspace.*?>
+<?import net.seapanda.bunnyhop.workspace.view.WorkspaceViewPane?>
 
 <fx:root
   xmlns:fx="http://javafx.com/fxml"

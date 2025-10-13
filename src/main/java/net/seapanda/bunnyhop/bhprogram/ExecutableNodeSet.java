@@ -18,8 +18,8 @@ package net.seapanda.bunnyhop.bhprogram;
 
 import java.util.Collection;
 import java.util.Map;
-import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 
 /**
  * 実行可能なノードの一覧を保持するクラスのインタフェース.

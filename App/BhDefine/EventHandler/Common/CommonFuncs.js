@@ -1,9 +1,9 @@
 (function() {
 
-  let BhNodeId = net.seapanda.bunnyhop.model.node.parameter.BhNodeId;
-  let DerivativeBuilder = net.seapanda.bunnyhop.model.node.derivative.DerivativeBuilder;
-  let DerivationId = net.seapanda.bunnyhop.model.node.parameter.DerivationId;
-  let MvcType = net.seapanda.bunnyhop.model.factory.BhNodeFactory.MvcType;
+  let BhNodeId = net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
+  let DerivativeBuilder = net.seapanda.bunnyhop.node.model.derivative.DerivativeBuilder;
+  let DerivationId = net.seapanda.bunnyhop.node.model.parameter.DerivationId;
+  let MvcType = net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
   let bhCommon = {
     'bhNodeFactory': bhNodeFactory,
     'bhNodePlacer': bhNodePlacer
@@ -22,6 +22,7 @@
   /**
    * 引数で指定したノードを作成し, ワークスペースに追加する
    * @param bhNodeId 作成するノードのID
+   * @param workspace ノードを追加するワークスペース
    * @param pos 追加時のワークスペース上の位置
    * @param bhUserOpe undo/redo用コマンドオブジェクト
    * @return 新規作成したノード

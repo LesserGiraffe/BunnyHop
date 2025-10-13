@@ -29,9 +29,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SequencedCollection;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
-import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * BhNode をコンパイルするクラス.

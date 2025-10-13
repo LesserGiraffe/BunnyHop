@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
 <?import javafx.scene.text.*?>
-<?import net.seapanda.bunnyhop.common.*?>
 
 <Text
   xmlns:fx="http://javafx.com/fxml"
   fx:id="threadStateText"
-  fx:controller="net.seapanda.bunnyhop.control.debugger.ThreadStateViewController"/>
+  fx:controller="net.seapanda.bunnyhop.debugger.control.ThreadStateViewController"/>

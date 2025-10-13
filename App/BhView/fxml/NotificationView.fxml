@@ -2,8 +2,6 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.*?>
 
 <StackPane
   xmlns:fx="http://javafx.com/fxml"

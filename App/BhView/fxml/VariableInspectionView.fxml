@@ -2,10 +2,9 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
 <?import javafx.scene.image.*?>
-<?import javafx.geometry.Insets?>
-<?import net.seapanda.bunnyhop.common.*?>
+<?import net.seapanda.bunnyhop.common.text.TextFetcher?>
+<?import net.seapanda.bunnyhop.ui.view.Rem?>
 
 <fx:root
   xmlns:fx="http://javafx.com/fxml"

@@ -27,11 +27,11 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.SequencedSet;
-import net.seapanda.bunnyhop.common.BhConstants;
-import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.workspace.Workspace;
+import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
-import net.seapanda.bunnyhop.view.workspace.WorkspaceView;
+import net.seapanda.bunnyhop.workspace.model.Workspace;
+import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 
 /**
  * プロジェクト JSON 形式で保存する機能を提供するクラス.

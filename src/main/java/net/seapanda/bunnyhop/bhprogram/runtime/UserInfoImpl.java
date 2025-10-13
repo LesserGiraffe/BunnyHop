@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.bhprogram.runtime;
 
 import com.jcraft.jsch.UserInfo;
-import net.seapanda.bunnyhop.service.MessageService;
+import net.seapanda.bunnyhop.service.message.MessageService;
 
 /**
  * SSH 接続時に必要な情報を返す機能を持つクラス.

@@ -18,8 +18,8 @@ package net.seapanda.bunnyhop.compiler;
 
 import java.util.ArrayList;
 import java.util.SequencedCollection;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * 式や文のコード生成に必要な共通の機能を持つクラス.

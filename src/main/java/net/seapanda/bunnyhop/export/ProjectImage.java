@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.export;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import net.seapanda.bunnyhop.common.SystemVersion;
+import net.seapanda.bunnyhop.common.configuration.SystemVersion;
 import net.seapanda.bunnyhop.utility.version.AppVersion;
 
 /**

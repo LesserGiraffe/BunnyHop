@@ -2,14 +2,11 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.*?>
-<?import javafx.scene.control.TabPane.TabDragPolicy?>
 
 <StackPane
   xmlns:fx="http://javafx.com/fxml"
   fx:id="workspaceSetViewBase"
-  fx:controller="net.seapanda.bunnyhop.control.workspace.WorkspaceSetController">
+  fx:controller="net.seapanda.bunnyhop.workspace.control.WorkspaceSetController">
   <TabPane fx:id="workspaceSetTab" tabClosingPolicy="ALL_TABS" tabDragPolicy="REORDER"/>
   <fx:include fx:id="trashCan" source="TrashCan.fxml" MouseTransparent="true"/>
 </StackPane>

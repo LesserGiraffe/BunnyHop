@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.*?>
-<?import javafx.scene.control.TabPane.TabDragPolicy?>
-<?import javafx.scene.control.Tab?>
 
 <VBox
   xmlns:fx="http://javafx.com/fxml"
   fx:id="debugWindowBase"
-  fx:controller="net.seapanda.bunnyhop.control.debugger.DebugWindowController">
+  fx:controller="net.seapanda.bunnyhop.debugger.control.DebugWindowController">
   <fx:include fx:id="threadSelector" source="ThreadSelector.fxml"/>
   <fx:include fx:id="threadStateView" source="ThreadStateView.fxml"/>
   <fx:include fx:id="stepExecutionView" source="StepExecutionView.fxml"/>  

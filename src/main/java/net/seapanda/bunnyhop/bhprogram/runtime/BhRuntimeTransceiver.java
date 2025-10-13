@@ -33,7 +33,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageCarrier;
-import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.utility.concurrent.SynchronizingTimer;
 

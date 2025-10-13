@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.TextFetcher?>
+<?import net.seapanda.bunnyhop.common.text.TextFetcher?>
 
 <MenuBar 
   xmlns:fx="http://javafx.com/fxml"
-  fx:controller="net.seapanda.bunnyhop.control.MenuBarController"
+  fx:controller="net.seapanda.bunnyhop.ui.control.MenuBarController"
   fx:id="menuBar">
   <fx:define>
     <TextFetcher fx:id="fileText" textId="gui,menu-bar,file"/>

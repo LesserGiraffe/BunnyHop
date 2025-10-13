@@ -2,13 +2,10 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.text.*?>
-<?import net.seapanda.bunnyhop.common.*?>
 
 <VBox
   xmlns:fx="http://javafx.com/fxml"
-  fx:controller="net.seapanda.bunnyhop.control.debugger.WorkspaceSelectorController">
+  fx:controller="net.seapanda.bunnyhop.debugger.control.WorkspaceSelectorController">
 
   <ComboBox fx:id="wsComboBox"/>
 </VBox>

@@ -2,16 +2,13 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.Rem?>
-<?import net.seapanda.bunnyhop.common.TextFetcher?>
+<?import net.seapanda.bunnyhop.ui.view.Rem?>
 
 <VBox
   xmlns:fx="http://javafx.com/fxml"
   fx:id="stepExecutionViewBase"
-  fx:controller="net.seapanda.bunnyhop.control.debugger.StepExecutionViewController">
+  fx:controller="net.seapanda.bunnyhop.debugger.control.StepExecutionViewController">
   <fx:define>
     <Rem fx:id="btnSize" rem="2.5"/>
   </fx:define>

@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * {@link SyntaxSymbol} が持つシンボル名の定義.

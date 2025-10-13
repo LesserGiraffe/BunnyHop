@@ -19,8 +19,8 @@ package net.seapanda.bunnyhop.compiler;
 import java.util.Collection;
 import java.util.List;
 import net.seapanda.bunnyhop.compiler.VarDeclCodeGenerator.ParamList;
-import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.TextNode;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * 関数定義のコード生成を行うクラス.

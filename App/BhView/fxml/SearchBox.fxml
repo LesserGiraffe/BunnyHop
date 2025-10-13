@@ -2,14 +2,14 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
 <?import javafx.geometry.Insets?>
-<?import net.seapanda.bunnyhop.common.*?>
+<?import net.seapanda.bunnyhop.common.text.TextFetcher?>
+<?import net.seapanda.bunnyhop.ui.view.Rem?>
 
 <HBox
   xmlns:fx="http://javafx.com/fxml"
   fx:id="searchBoxViewBase"
-  fx:controller="net.seapanda.bunnyhop.control.SearchBoxController">
+  fx:controller="net.seapanda.bunnyhop.ui.control.SearchBoxController">
   <fx:define>
     <Rem fx:id="searchWordFieldMargin" rem="0.3"/> 
     <Rem fx:id="regexSwitchMargin" rem="0.2"/>

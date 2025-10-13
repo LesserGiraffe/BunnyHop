@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 
 <ScrollPane
   xmlns:fx="http://javafx.com/fxml"
   fx:id="nodeCategoryListViewBase"
-  fx:controller="net.seapanda.bunnyhop.control.nodeselection.BhNodeCategoryListController"
+  fx:controller="net.seapanda.bunnyhop.nodeselection.control.BhNodeCategoryListController"
   HbarPolicy="AS_NEEDED"
   VbarPolicy="AS_NEEDED"
   FitToWidth="true"
   FitToHeight="true">
-  <content>
-    <TreeView
-      fx:id="categoryTree">
-    </TreeView>
-  </content>
+  <TreeView
+    fx:id="categoryTree">
+  </TreeView>
 </ScrollPane>

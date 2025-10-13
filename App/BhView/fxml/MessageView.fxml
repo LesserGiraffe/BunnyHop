@@ -2,13 +2,12 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.*?>
+<?import net.seapanda.bunnyhop.common.text.TextFetcher?>
 
 <Tab
   xmlns:fx="http://javafx.com/fxml"
   fx:id="messageTab"
-  fx:controller="net.seapanda.bunnyhop.control.MessageViewController"
+  fx:controller="net.seapanda.bunnyhop.ui.control.MessageViewController"
   text="$msgViewName.text">
   <fx:define>
     <TextFetcher fx:id="msgViewName" textId="gui,notification-view,msg-view-name"/>

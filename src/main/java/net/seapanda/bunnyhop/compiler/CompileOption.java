@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.compiler;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.utility.Utility;
 
 /**

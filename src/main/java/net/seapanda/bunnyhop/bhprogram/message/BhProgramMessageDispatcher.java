@@ -30,11 +30,11 @@ import net.seapanda.bunnyhop.bhprogram.common.message.simulator.BhSimulatorCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.simulator.StringBhSimulatorCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.simulator.StringBhSimulatorResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
-import net.seapanda.bunnyhop.bhprogram.debugger.DebugMessageProcessor;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeTransceiver;
-import net.seapanda.bunnyhop.model.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.debugger.model.DebugMessageProcessor;
+import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
-import net.seapanda.bunnyhop.view.ViewUtil;
+import net.seapanda.bunnyhop.ui.view.ViewUtil;
 
 /**
  * {@link BhProgramMessage} を適切なクラスに渡す.

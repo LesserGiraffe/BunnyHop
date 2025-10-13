@@ -2,59 +2,54 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.*?>
-<?import javafx.scene.control.TabPane.TabDragPolicy?>
-<?import javafx.scene.control.Tab?>
+<?import net.seapanda.bunnyhop.common.text.TextFetcher?>
 
 <Tab
   xmlns:fx="http://javafx.com/fxml"
   fx:id="debugTab"
-  fx:controller="net.seapanda.bunnyhop.control.debugger.DebugViewController"
+  fx:controller="net.seapanda.bunnyhop.debugger.control.DebugViewController"
   text="$debugViewName.text">
   <fx:define>
     <TextFetcher fx:id="debugViewName" textId="gui,notification-view,debug-view-name"/>
   </fx:define>
-  <content>
-    <SplitPane
-      fx:id="debugViewSplitPane"
-      dividerPositions="0.33,0.66">
+  <SplitPane
+    fx:id="debugViewSplitPane"
+    dividerPositions="0.33,0.66">
 
-      <VBox fx:id="callStackVBox">
-        <ScrollPane
-          fx:id="callStackScrollPane"
-          HbarPolicy="AS_NEEDED"
-          VbarPolicy="NEVER"
-          FitToWidth="true"
-          FitToHeight="true"
-          VBox.vgrow="ALWAYS"
-          HBox.hgrow="ALWAYS">
-        </ScrollPane>
-      </VBox>
+    <VBox fx:id="callStackVBox">
+      <ScrollPane
+        fx:id="callStackScrollPane"
+        HbarPolicy="AS_NEEDED"
+        VbarPolicy="NEVER"
+        FitToWidth="true"
+        FitToHeight="true"
+        VBox.vgrow="ALWAYS"
+        HBox.hgrow="ALWAYS">
+      </ScrollPane>
+    </VBox>
 
-      <VBox>
-        <ScrollPane
-          fx:id="localVarScrollPane"
-          HbarPolicy="AS_NEEDED"
-          VbarPolicy="AS_NEEDED"
-          FitToWidth="true"
-          FitToHeight="true"
-          VBox.vgrow="ALWAYS"
-          HBox.hgrow="ALWAYS">
-        </ScrollPane>
-      </VBox>
+    <VBox>
+      <ScrollPane
+        fx:id="localVarScrollPane"
+        HbarPolicy="AS_NEEDED"
+        VbarPolicy="AS_NEEDED"
+        FitToWidth="true"
+        FitToHeight="true"
+        VBox.vgrow="ALWAYS"
+        HBox.hgrow="ALWAYS">
+      </ScrollPane>
+    </VBox>
 
-      <VBox>
-        <ScrollPane
-          fx:id="globalVarScrollPane"
-          HbarPolicy="AS_NEEDED"
-          VbarPolicy="AS_NEEDED"
-          FitToWidth="true"
-          FitToHeight="true"
-          VBox.vgrow="ALWAYS"
-          HBox.hgrow="ALWAYS">
-        </ScrollPane>
-      </VBox>
-    </SplitPane>
-  </content>
+    <VBox>
+      <ScrollPane
+        fx:id="globalVarScrollPane"
+        HbarPolicy="AS_NEEDED"
+        VbarPolicy="AS_NEEDED"
+        FitToWidth="true"
+        FitToHeight="true"
+        VBox.vgrow="ALWAYS"
+        HBox.hgrow="ALWAYS">
+      </ScrollPane>
+    </VBox>
+  </SplitPane>
 </Tab>

@@ -24,10 +24,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.model.node.traverse.CallbackInvoker;
-import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
+import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 import org.apache.commons.lang3.SerializationUtils;
 
 /**

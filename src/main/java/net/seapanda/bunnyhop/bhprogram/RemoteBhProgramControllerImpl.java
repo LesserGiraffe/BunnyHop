@@ -21,13 +21,13 @@ import java.util.Collection;
 import java.util.Optional;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
-import net.seapanda.bunnyhop.common.TextDefs;
+import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.CompileError;
 import net.seapanda.bunnyhop.compiler.CompileOption;
-import net.seapanda.bunnyhop.model.node.BhNode;
+import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.MessageService;
+import net.seapanda.bunnyhop.service.message.MessageService;
 
 /**
  * BhProgram の起動とその実行環境の制御用オブジェクトを取得する機能を提供するクラス.

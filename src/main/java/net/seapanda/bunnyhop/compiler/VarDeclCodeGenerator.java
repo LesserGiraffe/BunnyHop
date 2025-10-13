@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.SequencedCollection;
 import java.util.stream.Collectors;
-import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.TextNode;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * 変数宣言のコードを生成するクラス.

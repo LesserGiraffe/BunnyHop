@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import net.seapanda.bunnyhop.bhprogram.common.BhRuntimeFacade;
-import net.seapanda.bunnyhop.common.BhConstants;
+import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.service.LogManager;
 
 /**

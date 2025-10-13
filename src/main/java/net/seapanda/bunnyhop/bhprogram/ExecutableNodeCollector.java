@@ -23,16 +23,16 @@ import java.util.SequencedSet;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import net.seapanda.bunnyhop.common.TextDefs;
-import net.seapanda.bunnyhop.model.BhNodePlacer;
-import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.BhNode.Swapped;
-import net.seapanda.bunnyhop.model.node.event.CauseOfDeletion;
-import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
+import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
+import net.seapanda.bunnyhop.node.service.BhNodePlacer;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.MessageService;
-import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.service.message.MessageService;
+import net.seapanda.bunnyhop.service.undo.UserOperation;
+import net.seapanda.bunnyhop.workspace.model.Workspace;
+import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
 /**
  * {@link WorkspaceSet} から実行可能なノード一式のスナップショットを作成する.

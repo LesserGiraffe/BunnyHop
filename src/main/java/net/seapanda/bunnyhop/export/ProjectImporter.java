@@ -17,8 +17,8 @@
 package net.seapanda.bunnyhop.export;
 
 import java.io.File;
-import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.service.undo.UserOperation;
+import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
 /**
  * プロジェクトをワークスペースセットに追加する機能を規定したインタフェース.

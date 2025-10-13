@@ -2,14 +2,13 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.Rem?>
-<?import net.seapanda.bunnyhop.common.TextFetcher?>
+<?import net.seapanda.bunnyhop.ui.view.Rem?>
+<?import net.seapanda.bunnyhop.common.text.TextFetcher?>
 
 <VBox
   xmlns:fx="http://javafx.com/fxml"
-  fx:controller="net.seapanda.bunnyhop.control.MenuViewController"
+  fx:controller="net.seapanda.bunnyhop.ui.control.MenuViewController"
   fx:id="menuViewBase">
   <fx:define>
     <Rem fx:id="widenSize" rem="2.0"/>

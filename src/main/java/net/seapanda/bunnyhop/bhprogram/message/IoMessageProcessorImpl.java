@@ -20,9 +20,9 @@ package net.seapanda.bunnyhop.bhprogram.message;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.OutputTextResp;
-import net.seapanda.bunnyhop.common.TextDefs;
+import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.MessageService;
+import net.seapanda.bunnyhop.service.message.MessageService;
 
 /**
  * BhProgram の実行環境から受信したメッセージを処理する機能を提供するクラス.

@@ -20,15 +20,15 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.ConnectiveNode;
-import net.seapanda.bunnyhop.model.node.Connector;
-import net.seapanda.bunnyhop.model.node.TextNode;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.model.node.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.model.ConnectiveNode;
+import net.seapanda.bunnyhop.node.model.Connector;
+import net.seapanda.bunnyhop.node.model.TextNode;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
-import net.seapanda.bunnyhop.view.node.BhNodeView;
-import net.seapanda.bunnyhop.view.node.BhNodeView.PositionManager;
+import net.seapanda.bunnyhop.node.view.BhNodeView;
+import net.seapanda.bunnyhop.node.view.BhNodeView.PositionManager;
 
 /**
  * {@link BhNode} ツリーの保存用イメージを作成するクラス.

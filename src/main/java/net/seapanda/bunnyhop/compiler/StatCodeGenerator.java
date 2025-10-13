@@ -19,8 +19,8 @@ package net.seapanda.bunnyhop.compiler;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.SequencedCollection;
-import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 
 /**
  * 文のコード生成を行うクラス.

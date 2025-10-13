@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.*?>
+<?import net.seapanda.bunnyhop.ui.view.Rem?>
 
 <StackPane
   xmlns:fx="http://javafx.com/fxml"
   fx:id="trashCanViewBase"
-  fx:controller="net.seapanda.bunnyhop.control.workspace.TrashCanController">
+  fx:controller="net.seapanda.bunnyhop.workspace.control.TrashCanController">
   <fx:define>
     <Rem fx:id="trashCanWidth" rem="5"/>
     <Rem fx:id="trashCanHeight" rem="8.9"/>

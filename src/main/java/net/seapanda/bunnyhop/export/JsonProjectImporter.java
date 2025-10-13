@@ -32,18 +32,18 @@ import java.util.Set;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import net.seapanda.bunnyhop.common.BhConstants;
-import net.seapanda.bunnyhop.common.TextDefs;
-import net.seapanda.bunnyhop.model.factory.BhNodeFactory;
-import net.seapanda.bunnyhop.model.factory.WorkspaceFactory;
-import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
-import net.seapanda.bunnyhop.model.node.traverse.CallbackInvoker;
-import net.seapanda.bunnyhop.model.workspace.Workspace;
-import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.MessageService;
-import net.seapanda.bunnyhop.undo.UserOperation;
+import net.seapanda.bunnyhop.service.message.MessageService;
+import net.seapanda.bunnyhop.service.undo.UserOperation;
+import net.seapanda.bunnyhop.workspace.model.Workspace;
+import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
+import net.seapanda.bunnyhop.workspace.model.factory.WorkspaceFactory;
 
 /**
  * JSON ファイルからプロジェクトを読みだして, ワークスペースセットに追加する機能を規定したインタフェース.

@@ -18,8 +18,8 @@ package net.seapanda.bunnyhop.compiler;
 
 import java.nio.file.Path;
 import java.util.Collection;
-import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 
 /**
  * BhNode をコンパイル機能を規定したインタフェース.

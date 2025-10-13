@@ -18,10 +18,10 @@ package net.seapanda.bunnyhop.export;
 
 import java.io.File;
 import javafx.scene.control.Alert;
-import net.seapanda.bunnyhop.common.TextDefs;
-import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.MessageService;
+import net.seapanda.bunnyhop.service.message.MessageService;
+import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
 /**
   * ワークスペースセットの情報を JSON 形式で出力する機能を規定したインタフェース.

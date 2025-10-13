@@ -2,36 +2,31 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
-<?import net.seapanda.bunnyhop.common.*?>
-<?import javafx.scene.control.TabPane.TabDragPolicy?>
-<?import javafx.scene.control.Tab?>
+<?import net.seapanda.bunnyhop.common.text.TextFetcher?>
 
 <Tab
   xmlns:fx="http://javafx.com/fxml"
   fx:id="breakpointTab"
-  fx:controller="net.seapanda.bunnyhop.control.debugger.BreakpointListController"
+  fx:controller="net.seapanda.bunnyhop.debugger.control.BreakpointListController"
   text="$breakpointListViewName.text">
   <fx:define>
     <TextFetcher fx:id="breakpointListViewName" textId="gui,notification-view,breakpoint-list-view-name"/>
     <TextFetcher fx:id="jump" textId="gui,debugger,breakpoint,jump"/>
     <TextFetcher fx:id="search" textId="gui,debugger,breakpoint,search"/>
   </fx:define>
-  <content>
-    <VBox>
-      <HBox fx:id="bpHbox">
-        <CheckBox
-          fx:id="bpJumpCheckBox"
-          styleClass="flatCheckBox"
-          selected="true"
-          text="$jump.text"/>
-        <Button fx:id="bpSearchButton" text="$search.text" styleClass="flatButton"/>
-      </HBox>
+  <VBox>
+    <HBox fx:id="bpHbox">
+      <CheckBox
+         fx:id="bpJumpCheckBox"
+         styleClass="flatCheckBox"
+         selected="true"
+         text="$jump.text"/>
+      <Button fx:id="bpSearchButton" text="$search.text" styleClass="flatButton"/>
+    </HBox>
 
-      <HBox>
-        <ListView fx:id="bpListView" HBox.hgrow="ALWAYS"/>
-        <fx:include fx:id="bpWsSelector" source="WorkspaceSelector.fxml"/>
-      </HBox>
-    </VBox>
-  </content>
+    <HBox>
+      <ListView fx:id="bpListView" HBox.hgrow="ALWAYS"/>
+      <fx:include fx:id="bpWsSelector" source="WorkspaceSelector.fxml"/>
+    </HBox>
+  </VBox>
 </Tab>

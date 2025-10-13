@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.export;
 
 import java.io.File;
-import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
+import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
 /**
   * ワークスペースセットの情報をプロジェクトとして出力する機能を規定したインタフェース.

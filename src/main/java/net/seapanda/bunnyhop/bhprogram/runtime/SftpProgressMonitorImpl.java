@@ -19,9 +19,9 @@ package net.seapanda.bunnyhop.bhprogram.runtime;
 import com.jcraft.jsch.SftpProgressMonitor;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
-import net.seapanda.bunnyhop.common.TextDefs;
+import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.MessageService;
+import net.seapanda.bunnyhop.service.message.MessageService;
 
 /**
  * ファイル転送プロセス進捗管理クラス.

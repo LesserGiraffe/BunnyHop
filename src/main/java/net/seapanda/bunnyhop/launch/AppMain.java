@@ -43,64 +43,64 @@ import javafx.stage.WindowEvent;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncherImpl;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramControllerImpl;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
-import net.seapanda.bunnyhop.bhprogram.debugger.BhDebugger;
-import net.seapanda.bunnyhop.bhprogram.debugger.DebugMessageProcessorImpl;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageDispatcher;
 import net.seapanda.bunnyhop.bhprogram.message.IoMessageProcessorImpl;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
 import net.seapanda.bunnyhop.bhprogram.runtime.RmiLocalBhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.runtime.RmiRemoteBhRuntimeController;
-import net.seapanda.bunnyhop.common.BhConstants;
-import net.seapanda.bunnyhop.common.BhSettings;
-import net.seapanda.bunnyhop.common.ExclusiveSelection;
-import net.seapanda.bunnyhop.common.TextDefs;
-import net.seapanda.bunnyhop.common.TextFetcher;
+import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.common.configuration.BhSettings;
+import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.common.text.TextFetcher;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.BhCompilerImpl;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
-import net.seapanda.bunnyhop.control.SearchBoxController;
-import net.seapanda.bunnyhop.control.debugger.ThreadContextPresenter;
-import net.seapanda.bunnyhop.control.nodeselection.BhNodeSelectionViewProxyImpl;
-import net.seapanda.bunnyhop.control.workspace.TrashCanController;
-import net.seapanda.bunnyhop.control.workspace.WorkspaceSetController;
+import net.seapanda.bunnyhop.debugger.model.BhDebugger;
+import net.seapanda.bunnyhop.debugger.model.DebugMessageProcessorImpl;
+import net.seapanda.bunnyhop.debugger.service.ThreadContextPresenter;
+import net.seapanda.bunnyhop.debugger.view.factory.DebugViewFactoryImpl;
 import net.seapanda.bunnyhop.export.JsonProjectExporter;
 import net.seapanda.bunnyhop.export.JsonProjectImporter;
-import net.seapanda.bunnyhop.model.factory.BhNodeFactoryImpl;
-import net.seapanda.bunnyhop.model.factory.BhNodeRepository;
-import net.seapanda.bunnyhop.model.factory.ModelGenerator;
-import net.seapanda.bunnyhop.model.factory.WorkspaceFactoryImpl;
-import net.seapanda.bunnyhop.model.factory.XmlBhNodeRepository;
-import net.seapanda.bunnyhop.model.node.BhNode;
-import net.seapanda.bunnyhop.model.node.derivative.DerivativeReplacerWithCache;
-import net.seapanda.bunnyhop.model.node.event.CommonDataSupplier;
-import net.seapanda.bunnyhop.model.node.event.ScriptConnectorEventInvokerImpl;
-import net.seapanda.bunnyhop.model.node.event.ScriptNodeEventInvokerImpl;
-import net.seapanda.bunnyhop.model.nodeselection.JsonBhNodeCategoryTree;
-import net.seapanda.bunnyhop.model.workspace.CopyAndPaste;
-import net.seapanda.bunnyhop.model.workspace.CutAndPaste;
-import net.seapanda.bunnyhop.model.workspace.WorkspaceSet;
-import net.seapanda.bunnyhop.service.BhMessageService;
-import net.seapanda.bunnyhop.service.BhScriptRepositoryImpl;
-import net.seapanda.bunnyhop.service.CompileErrorReporter;
-import net.seapanda.bunnyhop.service.DerivativeCache;
+import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.model.derivative.DerivativeReplacerWithCache;
+import net.seapanda.bunnyhop.node.model.event.CommonDataSupplier;
+import net.seapanda.bunnyhop.node.model.event.ScriptConnectorEventInvokerImpl;
+import net.seapanda.bunnyhop.node.model.event.ScriptNodeEventInvokerImpl;
+import net.seapanda.bunnyhop.node.model.factory.BhNodeFactoryImpl;
+import net.seapanda.bunnyhop.node.model.factory.BhNodeRepository;
+import net.seapanda.bunnyhop.node.model.factory.ModelGenerator;
+import net.seapanda.bunnyhop.node.model.factory.XmlBhNodeRepository;
+import net.seapanda.bunnyhop.node.service.CompileErrorReporter;
+import net.seapanda.bunnyhop.node.service.DerivativeCache;
+import net.seapanda.bunnyhop.node.view.factory.BhNodeViewFactoryImpl;
+import net.seapanda.bunnyhop.node.view.factory.PrivateTemplateButtonFactoryImpl;
+import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleFactory;
+import net.seapanda.bunnyhop.node.view.style.JsonBhNodeViewStyleFactory;
+import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewProxyImpl;
+import net.seapanda.bunnyhop.nodeselection.model.JsonBhNodeCategoryTree;
+import net.seapanda.bunnyhop.nodeselection.view.BhNodeCategoryBuilder;
 import net.seapanda.bunnyhop.service.FileCollector;
 import net.seapanda.bunnyhop.service.KeyCodeConverter;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.MessageService;
-import net.seapanda.bunnyhop.service.ModelAccessMediator;
+import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessMediator;
+import net.seapanda.bunnyhop.service.message.BhMessageService;
+import net.seapanda.bunnyhop.service.message.MessageService;
+import net.seapanda.bunnyhop.service.script.BhScriptRepositoryImpl;
+import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.simulator.BhSimulator;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor.CmdProcessingEvent;
-import net.seapanda.bunnyhop.undo.UndoRedoAgent;
+import net.seapanda.bunnyhop.ui.control.SearchBoxController;
+import net.seapanda.bunnyhop.ui.model.ExclusiveSelection;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.log.FileLogger;
 import net.seapanda.bunnyhop.utility.textdb.JsonTextDatabase;
-import net.seapanda.bunnyhop.view.factory.BhNodeViewFactoryImpl;
-import net.seapanda.bunnyhop.view.factory.DebugViewFactoryImpl;
-import net.seapanda.bunnyhop.view.factory.PrivateTemplateButtonFactoryImpl;
-import net.seapanda.bunnyhop.view.node.style.BhNodeViewStyleFactory;
-import net.seapanda.bunnyhop.view.node.style.JsonBhNodeViewStyleFactory;
-import net.seapanda.bunnyhop.view.nodeselection.BhNodeCategoryBuilder;
+import net.seapanda.bunnyhop.workspace.control.TrashCanController;
+import net.seapanda.bunnyhop.workspace.control.WorkspaceSetController;
+import net.seapanda.bunnyhop.workspace.model.CopyAndPaste;
+import net.seapanda.bunnyhop.workspace.model.CutAndPaste;
+import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
+import net.seapanda.bunnyhop.workspace.model.factory.WorkspaceFactoryImpl;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -214,7 +214,8 @@ public class AppMain extends Application {
       final var localCompiler = genCompiler(true);
       final var remoteCompiler = genCompiler(false);
       final var simulator = createSimulator();
-      final SimulatorCmdProcessor simCmdProcessor = simulator.getCmdProcessor().get();
+      final SimulatorCmdProcessor simCmdProcessor = simulator.getCmdProcessor().orElseThrow(
+          () -> new AppInitializationException("Simulator Command Processor not found."));
       final var localRuntimeCtrl = new RmiLocalBhRuntimeController(simCmdProcessor, msgService);
       final var localBhProgramCtrl =
           new LocalBhProgramLauncherImpl(localCompiler, localRuntimeCtrl, msgService);
@@ -373,7 +374,7 @@ public class AppMain extends Application {
   /** BunnyHop を閉じる前の処理. */
   private void onCloseRequest(
       WindowEvent event,
-      MutableBoolean teminate,
+      MutableBoolean terminate,
       MessageService msgService, 
       Supplier<Boolean> fnIsProgramRunning,
       Supplier<Boolean> fnIsProjectDirty,
@@ -388,11 +389,8 @@ public class AppMain extends Application {
     }
 
     switch (askIfStopProgram(msgService, fnIsProgramRunning)) {
-      case YES -> teminate.setTrue(); 
-      case CANCEL -> {
-        event.consume();
-        return;
-      }
+      case YES -> terminate.setTrue();
+      case CANCEL -> event.consume();
       default -> { }
     }    
   }
