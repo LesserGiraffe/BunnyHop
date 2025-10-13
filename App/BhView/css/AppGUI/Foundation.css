@@ -45,3 +45,10 @@
 .padding-4px {
   -fx-padding: 4px;
 }
+
+.uiFunctionTooltip {
+  -fx-font-family:"Meiryo UI";
+  -fx-font-size: 0.9em;
+  -fx-show-delay: 800ms;
+  -fx-show-duration: indefinite;
+}

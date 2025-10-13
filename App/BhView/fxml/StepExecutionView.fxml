@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 <?import net.seapanda.bunnyhop.ui.view.Rem?>
+<?import net.seapanda.bunnyhop.common.text.TextFetcher?>
 
 <VBox
   xmlns:fx="http://javafx.com/fxml"
@@ -11,6 +12,12 @@
   fx:controller="net.seapanda.bunnyhop.debugger.control.StepExecutionViewController">
   <fx:define>
     <Rem fx:id="btnSize" rem="2.5"/>
+    <TextFetcher fx:id="resumeTooltip" textId="gui,debugger,step-execution,tooltip,resume"/>
+    <TextFetcher fx:id="suspendTooltip" textId="gui,debugger,step-execution,tooltip,suspend"/>
+    <TextFetcher fx:id="reloadTooltip" textId="gui,debugger,step-execution,tooltip,reload"/>
+    <TextFetcher fx:id="stepOverTooltip" textId="gui,debugger,step-execution,tooltip,step-over"/>
+    <TextFetcher fx:id="stepIntoTooltip" textId="gui,debugger,step-execution,tooltip,step-into"/>
+    <TextFetcher fx:id="stepOutTooltip" textId="gui,debugger,step-execution,tooltip,step-out"/>
   </fx:define>
 
   <HBox styleClass="stepExecutionHbox">
@@ -20,6 +27,9 @@
           <Image url="@../images/resume.png" smooth="true" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$resumeTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
 
     <Button fx:id="suspendBtn" styleClass="flatButton,padding-4px">
@@ -28,6 +38,9 @@
           <Image url="@../images/suspend.png" smooth="true" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$suspendTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
 
     <Button fx:id="reloadBtn" styleClass="flatButton,padding-4px">
@@ -36,6 +49,9 @@
           <Image url="@../images/reload.png" smooth="true" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$reloadTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
   </HBox>
 
@@ -46,6 +62,9 @@
           <Image url="@../images/stepOver.png" smooth="false" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$stepOverTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
 
     <Button fx:id="stepIntoBtn" styleClass="flatButton,padding-4px">
@@ -54,6 +73,9 @@
           <Image url="@../images/stepInto.png" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$stepIntoTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
 
     <Button fx:id="stepOutBtn" styleClass="flatButton,padding-4px">
@@ -62,6 +84,9 @@
           <Image url="@../images/stepOut.png" requestedWidth="$btnSize.rem" requestedHeight="$btnSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$stepOutTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
   </HBox>
 </VBox>

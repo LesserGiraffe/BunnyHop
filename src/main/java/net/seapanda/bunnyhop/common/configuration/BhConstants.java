@@ -63,7 +63,7 @@ public class BhConstants {
     public static final double DEFAULT_WORKSPACE_WIDTH = 200 * Rem.VAL;
     public static final double DEFAULT_WORKSPACE_HEIGHT = 200 * Rem.VAL;
     /** ctrl + マウスホイールや拡大, 縮小ボタンを押したときの拡大縮小倍率. */
-    public static final double ZOOM_MAGNIFICATION = 1.05;
+    public static final double ZOOM_MAGNIFICATION = 1.065;
     /** 拡大レベルの最大値. */
     public static final double MAX_ZOOM_LEVEL = 30;
     /** 拡大レベルの最小値. */

@@ -98,7 +98,7 @@ public class MenuViewController {
   /** ワークスペース追加ボタン. */
   @FXML private Button addWorkspaceBtn;
   /** リモート/ローカル選択ボタン. */
-  @FXML private ToggleButton remoteLocalSelBtn;
+  @FXML private ToggleButton bhRuntimeSelBtn;
   /** 実行ボタン. */
   @FXML private Button executeBtn;
   /** 終了ボタン. */
@@ -188,7 +188,7 @@ public class MenuViewController {
   @FXML
   public void initialize() {
     setEventHandlers();
-    switchRemoteLocal(BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.REMOTE);
+    switchBhRuntime(BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.REMOTE);
   }
 
   /** イベントハンドラを登録する. */
@@ -217,8 +217,8 @@ public class MenuViewController {
         action -> BhSettings.Debug.isBreakpointSettingEnabled  = breakpointBtn.isSelected() );
     debugBtn.setOnAction(action -> debugWindowCtrl.setVisibility(debugBtn.isSelected()));
     sendBtn.setOnAction(action -> send()); // 送信
-    remoteLocalSelBtn.selectedProperty()
-        .addListener((observable, oldVal, newVal) -> switchRemoteLocal(newVal));
+    bhRuntimeSelBtn.selectedProperty()
+        .addListener((observable, oldVal, newVal) -> switchBhRuntime(newVal));
     copyAndPaste.getCallbackRegistry().getOnNodeAdded().add(event -> changePasteButtonState());
     copyAndPaste.getCallbackRegistry().getOnNodeRemoved().add(event -> changePasteButtonState());
     cutAndPaste.getCallbackRegistry().getOnNodeAdded().add(event -> changePasteButtonState());
@@ -560,19 +560,19 @@ public class MenuViewController {
     }
   }
 
-  /** リモート/セレクトを切り替えた時の処理. */
-  private void switchRemoteLocal(boolean isRemote) {
+  /** BhRuntime (ローカル or リモート) を切り替えた時の処理. */
+  private void switchBhRuntime(boolean isRemote) {
     if (isRemote) {
       hostNameTextField.setDisable(false);
       unameTextField.setDisable(false);
       passwordTextField.setDisable(false);
-      remoteLocalSelBtn.setText(TextDefs.MenuView.remote.get());
+      bhRuntimeSelBtn.setText(TextDefs.MenuView.remote.get());
       BhSettings.BhRuntime.currentBhRuntimeType = BhRuntimeType.REMOTE;
     } else {
       hostNameTextField.setDisable(true);
       unameTextField.setDisable(true);
       passwordTextField.setDisable(true);
-      remoteLocalSelBtn.setText(TextDefs.MenuView.local.get());
+      bhRuntimeSelBtn.setText(TextDefs.MenuView.local.get());
       BhSettings.BhRuntime.currentBhRuntimeType = BhRuntimeType.LOCAL;
     }
   }

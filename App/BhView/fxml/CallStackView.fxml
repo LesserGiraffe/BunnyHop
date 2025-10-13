@@ -13,6 +13,7 @@
     <TextFetcher fx:id="showAll" textId="gui,debugger,call-stack,show-all"/>
     <TextFetcher fx:id="jump" textId="gui,debugger,call-stack,jump"/>
     <TextFetcher fx:id="search" textId="gui,debugger,call-stack,search"/>
+    <TextFetcher fx:id="searchTooltip" textId="gui,debugger,call-stack,tooltip,search"/>
   </fx:define>
 
   <HBox fx:id="csHbox">
@@ -33,6 +34,9 @@
     </CheckBox>
 
     <Button fx:id="csSearchButton" text="$search.text" styleClass="flatButton">
+      <tooltip>
+        <Tooltip text="$searchTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
 
   </HBox>

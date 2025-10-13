@@ -15,8 +15,8 @@
     <Rem fx:id="narrowSize" rem="2.0"/>
     <Rem fx:id="zoomSize" rem="2.0"/>
     <Rem fx:id="undoRedoSize" rem="2.0"/>
-    <Rem fx:id="startSize" rem="2.0"/>
-    <Rem fx:id="stopSize" rem="2.0"/>
+    <Rem fx:id="executeSize" rem="2.0"/>
+    <Rem fx:id="terminateSize" rem="2.0"/>
     <Rem fx:id="connectSize" rem="2.0"/>
     <Rem fx:id="disconnectSize" rem="2.0"/>
     <Rem fx:id="focusSimSize" rem="2.0"/>
@@ -34,30 +34,86 @@
     <TextFetcher fx:id="passwordText" textId="gui,menu-view,password"/>
     <TextFetcher fx:id="stdinText" textId="gui,menu-view,stdin"/>
     <TextFetcher fx:id="sendText" textId="gui,menu-view,send"/>
+    <TextFetcher fx:id="copyTooltip" textId="gui,menu-view,tooltip,copy"/>
+    <TextFetcher fx:id="cutTooltip" textId="gui,menu-view,tooltip,cut"/>
+    <TextFetcher fx:id="pasteTooltip" textId="gui,menu-view,tooltip,paste"/>
+    <TextFetcher fx:id="deleteTooltip" textId="gui,menu-view,tooltip,delete"/>
+    <TextFetcher fx:id="jumpTooltip" textId="gui,menu-view,tooltip,jump"/>
+    <TextFetcher fx:id="undoTooltip" textId="gui,menu-view,tooltip,undo"/>
+    <TextFetcher fx:id="redoTooltip" textId="gui,menu-view,tooltip,redo"/>
+    <TextFetcher fx:id="zoomInTooltip" textId="gui,menu-view,tooltip,zoom-in"/>
+    <TextFetcher fx:id="zoomOutTooltip" textId="gui,menu-view,tooltip,zoom-out"/>
+    <TextFetcher fx:id="addWsTooltip" textId="gui,menu-view,tooltip,add-workspace"/>
+    <TextFetcher fx:id="widenTooltip" textId="gui,menu-view,tooltip,widen"/>
+    <TextFetcher fx:id="narrowTooltip" textId="gui,menu-view,tooltip,narrow"/>
+    <TextFetcher fx:id="executeTooltip" textId="gui,menu-view,tooltip,execute"/>
+    <TextFetcher fx:id="terminateTooltip" textId="gui,menu-view,tooltip,terminate"/>
+    <TextFetcher fx:id="connectTooltip" textId="gui,menu-view,tooltip,connect"/>
+    <TextFetcher fx:id="disconnectTooltip" textId="gui,menu-view,tooltip,disconnect"/>
+    <TextFetcher fx:id="focusSimTooltip" textId="gui,menu-view,tooltip,focus-on-simulator"/>
+    <TextFetcher fx:id="breakpointTooltip" textId="gui,menu-view,tooltip,breakpoint"/>
+    <TextFetcher fx:id="debugTooltip" textId="gui,menu-view,tooltip,debug"/>
+    <TextFetcher fx:id="selectRuntimeTooltip" textId="gui,menu-view,tooltip,select-runtime"/>
+    <TextFetcher fx:id="sendTextTooltip" textId="gui,menu-view,tooltip,send"/>
   </fx:define>
   <FlowPane
     fx:id="menuViewUpper"
     styleClass="menuViewFlowPane">
-    <Button text="$copyText.text" fx:id="copyBtn" styleClass="flatButton"/> <!-- コピー -->
-    <Button text="$cutText.text" fx:id="cutBtn" styleClass="flatButton"/> <!-- カット -->
-    <Button text="$pasteText.text" fx:id="pasteBtn" styleClass="flatButton"/> <!-- 貼り付け -->
-    <Button text="$deleteText.text" fx:id="deleteBtn" styleClass="flatButton"/> <!-- 削除 -->
-    <Button text="$jumpText.text" fx:id="jumpBtn" styleClass="flatButton"/> <!-- ジャンプ -->
+
+    <Button text="$copyText.text" fx:id="copyBtn" styleClass="flatButton"> <!-- コピー -->
+      <tooltip>
+        <Tooltip text="$copyTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
+    </Button>
+
+    <Button text="$cutText.text" fx:id="cutBtn" styleClass="flatButton"> <!-- カット -->
+      <tooltip>
+        <Tooltip text="$cutTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
+    </Button>
+
+    <Button text="$pasteText.text" fx:id="pasteBtn" styleClass="flatButton"> <!-- 貼り付け -->
+      <tooltip>
+        <Tooltip text="$pasteTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
+    </Button>
+
+    <Button text="$deleteText.text" fx:id="deleteBtn" styleClass="flatButton"> <!-- 削除 -->
+      <tooltip>
+        <Tooltip text="$deleteTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
+    </Button>
+
+    <Button text="$jumpText.text" fx:id="jumpBtn" styleClass="flatButton"> <!-- ジャンプ -->
+      <tooltip>
+        <Tooltip text="$jumpTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
+    </Button>
+
     <Separator fx:id="menuViewSeparator0" orientation="VERTICAL" styleClass="menuViewSeparator"/>
+
     <Button fx:id="undoBtn" styleClass="flatButton"> <!-- 元に戻す -->
       <graphic>
         <ImageView>
           <Image url="@../images/undo.png" smooth="true" requestedWidth="$zoomSize.rem" requestedHeight="$zoomSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$undoTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
+
     <Button fx:id="redoBtn" styleClass="flatButton"> <!-- やり直す -->
       <graphic>
         <ImageView>
           <Image url="@../images/redo.png" smooth="true" requestedWidth="$zoomSize.rem" requestedHeight="$zoomSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$redoTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
+
     <Separator fx:id="menuViewSeparator1" orientation="VERTICAL" styleClass="menuViewSeparator"/>
     
     <Button fx:id="zoomInBtn" styleClass="flatButton"> <!-- 拡大 -->
@@ -66,14 +122,22 @@
           <Image url="@../images/zoomIn.png" smooth="true" requestedWidth="$zoomSize.rem" requestedHeight="$zoomSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$zoomInTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
+
     <Button fx:id="zoomOutBtn" styleClass="flatButton"> <!-- 縮小 -->
       <graphic>
         <ImageView>
           <Image url="@../images/zoomOut.png" smooth="true" requestedWidth="$zoomSize.rem" requestedHeight="$zoomSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$zoomOutTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
+
     <Separator fx:id="menuViewSeparator2" orientation="VERTICAL" styleClass="menuViewSeparator"/>
     
     <Button fx:id="addWorkspaceBtn" styleClass="flatButton"> <!-- ワークスペースの追加 -->
@@ -82,6 +146,9 @@
           <Image url="@../images/addWorkspace.png" requestedWidth="$addWsSize.rem" requestedHeight="$addWsSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$addWsTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
 
     <Button fx:id="widenBtn" styleClass="flatButton"> <!-- 広げる -->
@@ -90,29 +157,44 @@
           <Image url="@../images/widen.png" requestedWidth="$widenSize.rem" requestedHeight="$widenSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$widenTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
+
     <Button fx:id="narrowBtn" styleClass="flatButton"> <!-- 狭める -->
       <graphic>
         <ImageView>
           <Image url="@../images/narrow.png" requestedWidth="$narrowSize.rem" requestedHeight="$narrowSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$narrowTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
+
     <Separator fx:id="menuViewSeparator3" orientation="VERTICAL" styleClass="menuViewSeparator"/>
     
     <Button fx:id="executeBtn" styleClass="flatButton"> <!-- 実行 -->
       <graphic>
         <ImageView>
-          <Image url="@../images/start.png" smooth="true" requestedWidth="$startSize.rem" requestedHeight="$startSize.rem"/>
+          <Image url="@../images/start.png" smooth="true" requestedWidth="$executeSize.rem" requestedHeight="$executeSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$executeTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
+
     <Button fx:id="terminateBtn" styleClass="flatButton"> <!-- 停止 -->
       <graphic>
         <ImageView>
-          <Image url="@../images/stop.png" smooth="true" requestedWidth="$stopSize.rem" requestedHeight="$stopSize.rem"/>
+          <Image url="@../images/stop.png" smooth="true" requestedWidth="$terminateSize.rem" requestedHeight="$terminateSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$terminateTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
 
     <Button fx:id="connectBtn" styleClass="flatButton"> <!-- 接続 -->
@@ -121,13 +203,20 @@
           <Image url="@../images/connect.png" smooth="true" requestedWidth="$connectSize.rem" requestedHeight="$connectSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$connectTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
+
     <Button fx:id="disconnectBtn" styleClass="flatButton"> <!-- 切断 -->
       <graphic>
         <ImageView>
           <Image url="@../images/disconnect.png" smooth="true" requestedWidth="$disconnectSize.rem" requestedHeight="$disconnectSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$disconnectTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </Button>
 
     <Separator fx:id="menuViewSeparator4" orientation="VERTICAL" styleClass="menuViewSeparator"/>
@@ -137,15 +226,22 @@
           <Image url="@../images/focusSimulator.png" smooth="true" requestedWidth="$focusSimSize.rem" requestedHeight="$focusSimSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$focusSimTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </ToggleButton>
 
     <Separator fx:id="menuViewSeparator5" orientation="VERTICAL" styleClass="menuViewSeparator"/>
+
     <ToggleButton fx:id="breakpointBtn" styleClass="flatButton"> <!-- ブレークポイント -->
       <graphic>
         <ImageView>
           <Image url="@../images/breakpoint.png" smooth="true" requestedWidth="$breakpointSize.rem" requestedHeight="$breakpointSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$breakpointTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </ToggleButton>
 
     <ToggleButton fx:id="debugBtn" styleClass="flatButton"> <!-- デバッグウィンドウの表示 -->
@@ -154,18 +250,33 @@
           <Image url="@../images/debug.png" smooth="true" requestedWidth="$debugSize.rem" requestedHeight="$debugSize.rem"/>
         </ImageView>
       </graphic>
+      <tooltip>
+        <Tooltip text="$debugTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
     </ToggleButton>
   </FlowPane>
 
   <FlowPane
     fx:id="menuViewLower"
     styleClass="menuViewFlowPane">
-    <ToggleButton fx:id="remoteLocalSelBtn" text="$localText.text"/> <!-- リモート/ローカル-->
+
+    <ToggleButton fx:id="bhRuntimeSelBtn" text="$localText.text"> <!-- リモート/ローカル-->
+      <tooltip>
+        <Tooltip text="$selectRuntimeTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
+    </ToggleButton>
+
     <TextField fx:id="hostNameTextField" disable="true" promptText="$hostNameText.text"/>  <!-- ホスト名 -->
     <TextField fx:id="unameTextField" disable="true" promptText="$usernameText.text"/> <!-- ユーザ名 -->
     <PasswordField fx:id="passwordTextField" disable="true" promptText="$passwordText.text"/> <!-- パスワード -->
     <Separator fx:id="menuSeparator4" orientation="VERTICAL" styleClass="menuViewSeparator"/>
     <TextField fx:id="stdInTextField" promptText="$stdinText.text"/> <!-- 標準入力 -->
-    <Button text="$sendText.text" fx:id="sendBtn"/> <!-- 送信 -->
+
+    <Button text="$sendText.text" fx:id="sendBtn"> <!-- 送信 -->
+      <tooltip>
+        <Tooltip text="$sendTextTooltip.text" styleClass="uiFunctionTooltip"/>
+      </tooltip>
+    </Button>
+
   </FlowPane>
 </VBox>

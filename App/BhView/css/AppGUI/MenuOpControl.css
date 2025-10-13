@@ -17,6 +17,11 @@
   -fx-prompt-text-fill: #909090;
 }
 
+#bhRuntimeSelBtn {
+  -fx-font-family: "Meiryo UI";
+  -fx-font-size: 1.1em;
+}
+
 #hostNameTextField {
   -fx-pref-width: 11em;
   -fx-font-family: "Meiryo UI";
@@ -35,14 +40,13 @@
   -fx-font-size: 1.1em;
 }
 
-.loginInfoLabel {
-  -fx-font-size: 1.1em;
-  -fx-font-family: "Meiryo UI";
-}
-
-
 #stdInTextField {
   -fx-pref-width: 18em;
+  -fx-font-family: "Meiryo UI";
+  -fx-font-size: 1.1em;
+}
+
+#sendBtn {
   -fx-font-family: "Meiryo UI";
   -fx-font-size: 1.1em;
 }

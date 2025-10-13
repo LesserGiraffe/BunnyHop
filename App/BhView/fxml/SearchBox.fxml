@@ -17,11 +17,24 @@
     <Rem fx:id="findPrevButtonMargin" rem="0.5"/>
     <Rem fx:id="findNextButtonMargin" rem="0.2"/>
     <TextFetcher fx:id="close" textId="gui,search-box,close"/>
-    <TextFetcher fx:id="findNext" textId="gui,search-box,find-next"/>
+    <TextFetcher fx:id="regex" textId="gui,search-box,regex"/>
+    <TextFetcher fx:id="caseSensitive" textId="gui,search-box,case-sensitive"/>
     <TextFetcher fx:id="findPrev" textId="gui,search-box,find-prev"/>
+    <TextFetcher fx:id="findNext" textId="gui,search-box,find-next"/>
+    <TextFetcher fx:id="closeTooltip" textId="gui,search-box,tooltip,close"/>
+    <TextFetcher fx:id="regexTooltip" textId="gui,search-box,tooltip,regex"/>
+    <TextFetcher fx:id="caseSensitiveTooltip" textId="gui,search-box,tooltip,case-sensitive"/>
+    <TextFetcher fx:id="findPrevTooltip" textId="gui,search-box,tooltip,find-prev"/>
+    <TextFetcher fx:id="findNextTooltip" textId="gui,search-box,tooltip,find-next"/>
   </fx:define>
 
-  <Button fx:id="searchBoxCloseButton" text="$close.text" styleClass="flatButton">
+  <Button
+    fx:id="searchBoxCloseButton"
+    text="$close.text"
+    styleClass="flatButton">
+    <tooltip>
+      <Tooltip text="$closeTooltip.text" styleClass="uiFunctionTooltip"/>
+    </tooltip>
   </Button>
 
   <TextField fx:id="searchWordField">
@@ -32,32 +45,43 @@
 
   <ToggleButton
     fx:id="regexButton"
-    text="[.*]"
+    text="$regex.text"
     styleClass="flatButton">
     <HBox.margin>
       <Insets left="$regexSwitchMargin.rem" />
     </HBox.margin>
+    <tooltip>
+      <Tooltip text="$regexTooltip.text" styleClass="uiFunctionTooltip"/>
+    </tooltip>
   </ToggleButton>
 
   <ToggleButton
     fx:id="caseSensitiveButton"
-    text="[Aa]"
+    text="$caseSensitive.text"
     styleClass="flatButton">
     <HBox.margin>
       <Insets left="$caseSensitiveSwitchMargin.rem" />
     </HBox.margin>
+    <tooltip>
+      <Tooltip text="$caseSensitiveTooltip.text" styleClass="uiFunctionTooltip"/>
+    </tooltip>
   </ToggleButton>
 
   <Button fx:id="findPrevButton" text="$findPrev.text" styleClass="flatButton">
     <HBox.margin>
       <Insets left="$findPrevButtonMargin.rem" />
     </HBox.margin>
+    <tooltip>
+      <Tooltip text="$findPrevTooltip.text" styleClass="uiFunctionTooltip"/>
+    </tooltip>
   </Button>
 
   <Button fx:id="findNextButton" text="$findNext.text" styleClass="flatButton">
     <HBox.margin>
       <Insets left="$findNextButtonMargin.rem" />
     </HBox.margin>
+    <tooltip>
+      <Tooltip text="$findNextTooltip.text" styleClass="uiFunctionTooltip"/>
+    </tooltip>
   </Button>
-
 </HBox>

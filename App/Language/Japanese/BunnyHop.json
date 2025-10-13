@@ -14,7 +14,31 @@
       "username": "ユーザー名",
       "password": "パスワード",
       "stdin": "入力",
-      "send": "送信"
+      "send": "送信",
+
+      "tooltip": {
+        "copy": "ノードをコピーする",
+        "cut": "ノードをカットする",
+        "paste": "コピーまたはカットしたノードを貼り付ける",
+        "delete": "ノードを削除する",
+        "jump": "関連するノードにジャンプする",
+        "undo": "元に戻す",
+        "redo": "やり直す",
+        "zoom-in": "ワークスペースを拡大する",
+        "zoom-out": "ワークスペースを縮小する",
+        "add-workspace": "ワークスペースを追加する",
+        "widen": "ワークスペースを大きくする",
+        "narrow": "ワークスペースを小さくする",
+        "execute": "プログラムを開始する",
+        "terminate": "プログラムを終了する",
+        "connect": "実行環境との通信を有効にする",
+        "disconnect": "実行環境との通信を無効にする",
+        "focus-on-simulator": "シミュレータに変化があったとき自動で前面に表示する",
+        "breakpoint": "ブレークポイントを設定できるようにする",
+        "debug": "デバッグウィンドウを表示する",
+        "select-runtime": "実行環境を切り替える",
+        "send": "実行環境に文字列を送信する"
+      }
     },
 
     "menu-bar": {
@@ -57,27 +81,58 @@
         "next": "次",
         "search": "🔍",
         "jump": "ジャンプ",
-        "main-routine": "プログラムスタート"
+        "main-routine": "プログラムスタート",
+        "tooltip": {
+          "search": "スタックフレームを検索する"
+        }
       },
       "breakpoint": {
         "search": "🔍",
-        "jump": "ジャンプ"
+        "jump": "ジャンプ",
+        "tooltip": {
+          "search": "ブレークポイントを検索する"
+        }
       },
       "workspace-selector": {
         "all-ws": "すべてのワークスペース"
       },
       "variable-inspection": {
+        "search": "🔍",
+        "jump": "ジャンプ",
         "local-vars": "ローカル変数",
         "global-vars": "グローバル変数",
         "empty-list": "空",
-        "unknown-var": "不明な変数"
+        "unknown-var": "不明な変数",
+        "tooltip": {
+          "search": "変数を検索する",
+          "reload": "変数情報を更新する"
+        }
+      },
+      "step-execution": {
+        "tooltip": {
+          "resume": "プログラムを再開する",
+          "suspend": "プログラムを一時停止する",
+          "reload": "スレッド情報を取得する",
+          "step-over": "ステップオーバー",
+          "step-into": "ステップイン",
+          "step-out": "ステップアウト"
+        }
       }
     },
 
     "search-box": {
       "close": "❌",
+      "regex": "[.*]",
+      "case-sensitive": "[Aa]",
       "find-prev": "▲",
-      "find-next": "▼"
+      "find-next": "▼",
+      "tooltip": {
+        "close": "閉じる",
+        "regex": "正規表現を使う",
+        "case-sensitive": "大文字と小文字を区別する",
+        "find-prev": "前を検索する",
+        "find-next": "次を検索する"
+      }
     }
   },
 

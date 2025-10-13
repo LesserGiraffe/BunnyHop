@@ -6,7 +6,7 @@
   -fx-font-weight: bold;
 }
 
-#threadStatusText {
+#threadStateText {
   -fx-font-size: 1.1em;
   -fx-font-family: "Meiryo UI";
   -fx-padding: 0.25em 0.0em 0.0em 0.0em;
@@ -14,7 +14,7 @@
   -fx-underline: false;
 }
 
-#threadStatusText:error {
+#threadStateText:error {
   -fx-fill: rgb(0, 119, 255);
   -fx-underline: true;
 }
