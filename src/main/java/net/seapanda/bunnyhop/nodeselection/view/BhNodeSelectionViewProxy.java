@@ -6,7 +6,7 @@ import net.seapanda.bunnyhop.node.control.TemplateNodeController;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 
 /**
  * ノードの選択ビューに対する操作を規定したインタフェース.

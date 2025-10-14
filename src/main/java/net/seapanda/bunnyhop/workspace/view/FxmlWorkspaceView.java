@@ -58,8 +58,8 @@ import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationServic
 import net.seapanda.bunnyhop.ui.view.Rem;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
-import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeManager;

@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.workspace.view.quadtree;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import net.seapanda.bunnyhop.utility.LinkNode;
+import net.seapanda.bunnyhop.utility.ListNode;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
@@ -27,7 +27,7 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
  *
  * @author K.Koike
  */
-public class QuadTreeRectangle extends LinkNode<QuadTreeRectangle> {
+public class QuadTreeRectangle extends ListNode<QuadTreeRectangle> {
 
   /** 現在属している 4 分木ノードのインデックス. */
   private int currentIdxInQuadTree = -1;
@@ -155,22 +155,17 @@ public class QuadTreeRectangle extends LinkNode<QuadTreeRectangle> {
    * @return 引数のオブジェクトとこのオブジェクトが重なっていた場合 true
    */
   public boolean overlapsWith(QuadTreeRectangle rectangle, OverlapOption option) {
-    switch (option) {
-      case CONTAIN:
-        return contains(rectangle);
-
-      case INTERSECT:
-        return intersects(rectangle);
-
-      default:
-        throw new AssertionError("Invalid search option " + option);
-    }
+    return switch (option) {
+      case CONTAIN -> contains(rectangle);
+      case INTERSECT -> intersects(rectangle);
+      default -> throw new AssertionError("Invalid search option " + option);
+    };
   }
 
   /**
    * 引数のオブジェクトをこのオブジェクトが完全に覆っているか判定する.
    *
-   * @param retangle 重なりを判定するオブジェクト
+   * @param rectangle 重なりを判定するオブジェクト
    * @return 引数のオブジェクトをこのオブジェクトが完全に覆っている場合 true
    */
   private boolean contains(QuadTreeRectangle rectangle) {

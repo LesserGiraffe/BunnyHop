@@ -47,8 +47,8 @@ import net.seapanda.bunnyhop.debugger.model.variable.VariableInfo;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
-import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
 /**

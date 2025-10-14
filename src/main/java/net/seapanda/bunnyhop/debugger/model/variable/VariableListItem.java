@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
-import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 
 /**
  * デバッガの変数一覧の各要素を表すクラス.

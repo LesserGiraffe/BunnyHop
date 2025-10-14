@@ -26,8 +26,8 @@ import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.service.BhNodePlacer;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
-import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 
 /**
  * ワークスペースの集合を保持、管理するクラス.

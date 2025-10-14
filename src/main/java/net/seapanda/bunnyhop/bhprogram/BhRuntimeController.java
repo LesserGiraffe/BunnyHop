@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.bhprogram;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageCarrier;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 
 /**
  * BhRuntime (BhProgram の実行環境) の操作を規定したインタフェース.

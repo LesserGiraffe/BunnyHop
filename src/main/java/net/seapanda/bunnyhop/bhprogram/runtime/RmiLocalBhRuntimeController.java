@@ -34,8 +34,8 @@ import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.utility.Utility;
-import net.seapanda.bunnyhop.utility.concurrent.function.ConcurrentConsumerInvoker;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.concurrent.event.ConcurrentConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 
 /**
  * ローカル環境で動作する BhRuntime 操作を行うクラス.

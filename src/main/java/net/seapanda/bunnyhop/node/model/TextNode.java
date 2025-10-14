@@ -30,8 +30,8 @@ import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
-import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 
 /**
  * 文字情報を持つ終端 BhNode.

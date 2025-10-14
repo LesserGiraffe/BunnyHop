@@ -38,8 +38,8 @@ import net.seapanda.bunnyhop.node.model.parameter.DerivationId;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
-import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 
 /**

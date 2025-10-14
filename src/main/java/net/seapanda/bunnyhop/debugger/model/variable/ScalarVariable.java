@@ -20,8 +20,8 @@ import java.util.Objects;
 import java.util.Optional;
 import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
-import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 
 /**
  * スカラ変数の情報を格納するクラス.

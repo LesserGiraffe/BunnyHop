@@ -21,7 +21,7 @@ import java.util.SequencedSet;
 import java.util.function.Supplier;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeRectangle;

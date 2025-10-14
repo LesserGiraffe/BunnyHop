@@ -22,7 +22,7 @@ import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadSelection;
 import net.seapanda.bunnyhop.debugger.model.variable.VariableInfo;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 
 /**
  * BhProgram のデバッガが持つ機能を規定したインタフェース.

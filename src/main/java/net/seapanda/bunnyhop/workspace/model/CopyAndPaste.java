@@ -30,8 +30,8 @@ import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.node.service.BhNodePlacer;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
-import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import org.apache.commons.lang3.mutable.MutableInt;
 

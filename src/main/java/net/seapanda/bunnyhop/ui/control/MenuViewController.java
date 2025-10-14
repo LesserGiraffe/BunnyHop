@@ -26,6 +26,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javafx.animation.Animation;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
@@ -33,7 +36,9 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import net.seapanda.bunnyhop.bhprogram.ExecutableNodeCollector;
 import net.seapanda.bunnyhop.bhprogram.ExecutableNodeSet;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncher;
@@ -202,8 +207,8 @@ public class MenuViewController {
     jumpBtn.setOnAction(action -> jump(wss)); // ジャンプ
     undoBtn.setOnAction(action -> undo()); // アンドゥ
     redoBtn.setOnAction(action -> redo()); // リドゥ
-    zoomInBtn.setOnAction(action -> zoomIn(wss)); // ズームイン
-    zoomOutBtn.setOnAction(action -> zoomOut(wss)); // ズームアウト
+    setZoomEventHandler(zoomInBtn, () -> zoomIn(wss));
+    setZoomEventHandler(zoomOutBtn, () -> zoomOut(wss));
     widenBtn.setOnAction(action -> widen(wss)); // ワークスペースの領域拡大
     narrowBtn.setOnAction(action -> narrow(wss)); // ワークスペースの領域縮小
     addWorkspaceBtn.setOnAction(action -> addWorkspace(wss)); // ワークスペース追加
@@ -374,6 +379,25 @@ public class MenuViewController {
     } finally {
       notifService.endWrite();
     }
+  }
+
+  /** {@code zoomBtn} の押下した時と押しっぱなしにした時に {@code fnZoom} を実行するようにイベントハンドラを設定する. */
+  private static void setZoomEventHandler(Button zoomBtn, Runnable fnZoom) {
+    var pause = new PauseTransition(Duration.millis(50));
+    pause.setOnFinished(event -> fnZoom.run());
+    var seqTransition = new SequentialTransition(pause);
+    seqTransition.setCycleCount(Animation.INDEFINITE);
+    seqTransition.setDelay(Duration.millis(500));
+    zoomBtn.setOnMousePressed(event -> seqTransition.play());
+    zoomBtn.addEventHandler(MouseEvent.ANY, event -> {
+      var eventType = event.getEventType();
+      if (eventType == MouseEvent.MOUSE_PRESSED) {
+        fnZoom.run();
+        seqTransition.play();
+      } else if (eventType == MouseEvent.MOUSE_RELEASED || eventType == MouseEvent.MOUSE_EXITED) {
+        seqTransition.stop();
+      }
+    });
   }
 
   /** ワークスペース拡大ボタン押下時の処理. */

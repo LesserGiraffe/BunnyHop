@@ -21,8 +21,8 @@ import java.util.HashSet;
 import java.util.Set;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
-import net.seapanda.bunnyhop.utility.function.ConsumerInvoker;
-import net.seapanda.bunnyhop.utility.function.SimpleConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 
 /**
  * ブレークポイントが指定されているノード一覧を提供するクラス.
