@@ -1,0 +1,7 @@
+#mvHbox {
+  -fx-font-size: 1.1em;
+  -fx-font-family: "Meiryo UI";
+  -fx-alignment: center-left;
+  -fx-padding: 0.2em 0.2em 0.2em 1.0em;
+  -fx-spacing: 1.8em;
+}

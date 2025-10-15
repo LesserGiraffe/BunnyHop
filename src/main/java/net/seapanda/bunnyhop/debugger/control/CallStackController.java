@@ -241,10 +241,10 @@ public class CallStackController {
       try {
         int regexFlag = query.isCaseSensitive() ? 0 : Pattern.CASE_INSENSITIVE;
         Pattern pattern = Pattern.compile(query.word(), regexFlag);
-        item = searchCallStackFor(pattern, query.findNext());
+        item = findCallStackItem(pattern, query.findNext());
       } catch (PatternSyntaxException e) { /* do nothing. */ }
     } else {
-      item = searchCallStackFor(query.word(), query.findNext(), query.isCaseSensitive());
+      item = findCallStackItem(query.word(), query.findNext(), query.isCaseSensitive());
     }
     if (item != null) {
       callStackListView.getSelectionModel().select(item);
@@ -253,7 +253,7 @@ public class CallStackController {
   }
 
   /** コールスタックから {@code word} に一致する {@link CallStackItem} を探す. */
-  private CallStackItem searchCallStackFor(String word, boolean findNext, boolean caseSensitive) {
+  private CallStackItem findCallStackItem(String word, boolean findNext, boolean caseSensitive) {
     if (!caseSensitive) {
       word = word.toLowerCase();
     }
@@ -275,7 +275,7 @@ public class CallStackController {
   }
 
   /** コールスタックから {@code pattern} に一致する {@link CallStackItem} を探す. */
-  private CallStackItem searchCallStackFor(Pattern pattern, boolean findNext) {
+  private CallStackItem findCallStackItem(Pattern pattern, boolean findNext) {
     int size = callStackListView.getItems().size();
     int diff = findNext ? 1 : -1;
     int startIdx = callStackListView.getSelectionModel().getSelectedIndex();

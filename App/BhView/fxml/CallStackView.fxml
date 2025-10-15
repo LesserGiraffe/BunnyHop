@@ -17,8 +17,7 @@
   </fx:define>
 
   <HBox fx:id="csHbox">
-    <Label fx:id="csViewName" text="$callStackViewName.text">
-    </Label>
+    <Label fx:id="csViewName" text="$callStackViewName.text"/>
 
     <CheckBox
       fx:id="csShowAllCheckBox"

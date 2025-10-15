@@ -60,6 +60,13 @@
       "breakpoint-list-view-name": "ブレークポイント"
     },
 
+    "msg-view": {
+      "search": "🔍",
+      "tooltip": {
+        "search": "メッセージを検索する"
+      }
+    },
+
     "debugger": {
       "thread": "スレッド",
       "all-threads": "すべてのスレッド",

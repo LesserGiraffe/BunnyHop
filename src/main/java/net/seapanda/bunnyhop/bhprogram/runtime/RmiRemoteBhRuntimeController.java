@@ -123,7 +123,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       return Optional.of(session);
     } catch (JSchException e) {
       msgService.error(TextDefs.BhRuntime.Communication.failedToEstablishConnection.get());
-      LogManager.logger().error("Failed to establiesh SSH session.\n%s".formatted(e));
+      LogManager.logger().error("Failed to establish SSH session.\n%s".formatted(e));
     }
     return Optional.empty();
   }

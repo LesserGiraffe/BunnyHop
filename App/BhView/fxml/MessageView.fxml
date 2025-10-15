@@ -11,7 +11,18 @@
   text="$msgViewName.text">
   <fx:define>
     <TextFetcher fx:id="msgViewName" textId="gui,notification-view,msg-view-name"/>
+    <TextFetcher fx:id="search" textId="gui,msg-view,search"/>
+    <TextFetcher fx:id="searchTooltip" textId="gui,msg-view,tooltip,search"/>
   </fx:define>
 
-  <TextArea  fx:id="mainMsgArea" VBox.vgrow="ALWAYS"/>
+  <VBox fx:id="mvVbox">
+    <HBox fx:id="mvHbox">
+      <Button fx:id="mvSearchButton" text="$search.text" styleClass="flatButton">
+        <tooltip>
+          <Tooltip text="$searchTooltip.text" styleClass="uiFunctionTooltip"/>
+        </tooltip>
+      </Button>
+    </HBox>
+    <TextArea  fx:id="mainMsgArea" VBox.vgrow="ALWAYS"/>
+  </VBox>
 </Tab>

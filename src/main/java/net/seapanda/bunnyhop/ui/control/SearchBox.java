@@ -30,7 +30,7 @@ public interface SearchBox {
    *
    * @param handler  検索クエリを受け取ったときに実行するイベントハンドラ.
    */
-  void setOnSearchRequested(Consumer<Query> handler);
+  void setOnSearchRequested(Consumer<? super Query> handler);
 
   /**
    * 検索クエリを受け取ったときに実行するイベントハンドラを解除する.
@@ -38,13 +38,22 @@ public interface SearchBox {
    * @param handler このハンドラがこのオブジェクトに設定されている場合, 設定を解除する.
    *                そうでない場合何もしない.
    */
-  void unsetOnSearchRequested(Consumer<Query> handler);
+  void unsetOnSearchRequested(Consumer<? super Query> handler);
 
   /** 検索クエリの入力を有効化する. */
   void enable();
 
   /** 検索クエリの入力を無効化する. */
   void disable();
+
+  /**
+   * 同じ検索ハンドラと検索クエリ (次 or 前は除く) で連続して検索された回数を取得する.
+   *
+   * <p>検索クエリの入力を無効化された場合, この回数はリセットされる.
+   *
+   * @return 同じ検索ハンドラと検索クエリで連続して検索された回数.
+   */
+  long getNumSameRequests();
 
   /**
    * 検索クエリ.
@@ -54,5 +63,20 @@ public interface SearchBox {
    * @param isCaseSensitive {@code word} の大文字, 小文字を区別する場合 true
    * @param findNext 次の一致項目を検索する場合 true
    */
-  public record Query(String word, boolean isRegex, boolean isCaseSensitive, boolean findNext) {}
+  record Query(
+      String word,
+      boolean isRegex,
+      boolean isCaseSensitive,
+      boolean findNext) {
+
+    /** {@code findNext} を考慮しない比較. */
+    boolean isEqualTo(Query other) {
+      if (other == null) {
+        return false;
+      }
+      return word.equals(other.word)
+          && isRegex == other.isRegex
+          && isCaseSensitive == other.isCaseSensitive;
+    }
+  }
 }

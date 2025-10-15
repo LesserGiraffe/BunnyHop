@@ -42,7 +42,10 @@ public class SearchBoxController implements SearchBox {
   @FXML private Button findPrevButton;
   @FXML private Button findNextButton;
 
-  Consumer<Query> onSearchRequested = query -> {};
+  private Consumer<? super Query> onSearchRequested = query -> {};
+  /** 同じ検索クエリと検索ハンドラで検索された回数. */
+  private long countSameRequests = 0;
+  private Query previousQuery;
 
   /** このコントローラの UI 要素を初期化する. */
   @FXML
@@ -57,18 +60,8 @@ public class SearchBoxController implements SearchBox {
     searchWordField.textProperty().addListener(
         (obs, oldVal, newVal) -> updateSearchWordFieldLength());
     searchBoxCloseButton.setOnAction(event -> disable());
-    findPrevButton.setOnAction(event -> onSearchRequested.accept(
-        new Query(
-            searchWordField.getText(),
-            regexButton.isSelected(),
-            caseSensitiveButton.isSelected(),
-            false)));
-    findNextButton.setOnAction(event -> onSearchRequested.accept(
-        new Query(
-            searchWordField.getText(),
-            regexButton.isSelected(),
-            caseSensitiveButton.isSelected(),
-            true)));
+    findPrevButton.setOnAction(event -> onSearchRequested(false));
+    findNextButton.setOnAction(event -> onSearchRequested(true));
   }
 
   /** 検索ワード入力フィールドの幅をテキストの長さに応じて帰る. */
@@ -87,15 +80,44 @@ public class SearchBoxController implements SearchBox {
     searchWordField.setPrefWidth(newWidth);
   }
 
-  @Override
-  public void setOnSearchRequested(Consumer<Query> handler) {
-    onSearchRequested = (handler == null) ? query -> {} : handler;
+  /** UI の状態と引数をもとに {@link Query} オブジェクトを作成する. */
+  private Query createQuery(boolean findNext) {
+    return new Query(
+        searchWordField.getText(),
+        regexButton.isSelected(),
+        caseSensitiveButton.isSelected(),
+        findNext);
+  }
+
+  /** 検索がリスエストされたときの処理. */
+  private void onSearchRequested(boolean findNext) {
+    var currentQuery = createQuery(findNext);
+    if (!currentQuery.isEqualTo(previousQuery)) {
+      countSameRequests = 0;
+    }
+    ++countSameRequests;
+    onSearchRequested.accept(currentQuery);
+    previousQuery = currentQuery;
   }
 
   @Override
-  public void unsetOnSearchRequested(Consumer<Query> handler) {
+  public void setOnSearchRequested(Consumer<? super Query> handler) {
+    if (handler == null) {
+      onSearchRequested = query -> {};
+      countSameRequests = 0;
+      return;
+    }
+    if (onSearchRequested != handler) {
+      onSearchRequested = handler;
+      countSameRequests = 0;
+    }
+  }
+
+  @Override
+  public void unsetOnSearchRequested(Consumer<? super Query> handler) {
     if (onSearchRequested == handler) {
       onSearchRequested = query -> {};
+      countSameRequests = 0;
     }
   }
 
@@ -107,5 +129,11 @@ public class SearchBoxController implements SearchBox {
   @Override
   public void disable() {
     searchBoxViewBase.visibleProperty().set(false);
+    countSameRequests = 0;
+  }
+
+  @Override
+  public long getNumSameRequests() {
+    return countSameRequests;
   }
 }

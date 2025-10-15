@@ -155,7 +155,7 @@ public class SceneBuilder {
     this.debugWindowCtrl = new DebugWindowController(debugger);
     this.menuBarCtrl = new MenuBarController(
         wss, notifService, undoRedoAgent, importer, exporter, msgService);
-    this.msgViewCtrl = new MessageViewController();
+    this.msgViewCtrl = new MessageViewController(searchBoxCtrl);
 
     VBox root;
     try {
