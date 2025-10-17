@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -36,8 +34,11 @@ import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationServic
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
-import net.seapanda.bunnyhop.ui.control.SearchBox.Query;
+import net.seapanda.bunnyhop.ui.model.SearchQuery;
+import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
+import net.seapanda.bunnyhop.ui.service.search.ItemSearcher;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
+import net.seapanda.bunnyhop.utility.collection.ImmutableCircularList;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +60,7 @@ public class BreakpointListController {
   private final SearchBox searchBox;
   private final BreakpointRegistry breakpointRegistry;
   private final Map<BhNode, Set<BreakpointListCell>> nodeToCallBpListCell = new WeakHashMap<>();
+  private ImmutableCircularList<BhNode> searchResult;
 
   /** コンストラクタ. */
   public BreakpointListController(
@@ -88,6 +90,8 @@ public class BreakpointListController {
     bpListView.setCellFactory(stack -> new BreakpointListCell(nodeToCallBpListCell));
     bpListView.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldVal, newVal) -> onBreakpointSelected(oldVal, newVal));
+    bpListView.itemsProperty().addListener((obs, oldVal, newVal) -> searchResult = null);
+
     bpSearchButton.setOnAction(action -> {
       searchBox.setOnSearchRequested(this::selectItem);
       searchBox.enable();
@@ -128,62 +132,22 @@ public class BreakpointListController {
   }
 
   /** コールスタックから {@code query} で指定された文字列に一致する要素を探して選択する. */
-  private void selectItem(Query query) {
-    BhNode node = null;
+  private SearchQueryResult selectItem(SearchQuery query) {
     if (StringUtils.isEmpty(query.word())) {
-      return;
+      return new SearchQueryResult(0, 0);
     }
-    if (query.isRegex()) {
-      try {
-        int regexFlag = query.isCaseSensitive() ? 0 : Pattern.CASE_INSENSITIVE;
-        Pattern pattern = Pattern.compile(query.word(), regexFlag);
-        node = searchCallStackFor(pattern, query.findNext());
-      } catch (PatternSyntaxException e) { /* do nothing. */ }
+    BhNode found = null;
+    if (searchBox.getNumConsecutiveSameRequests() >= 2 && searchResult != null) {
+      found = query.findNext() ? searchResult.getNext() : searchResult.getPrevious();
     } else {
-      node = searchCallStackFor(query.word(), query.findNext(), query.isCaseSensitive());
+      searchResult = ItemSearcher.<BhNode>search(query, bpListView.getItems(), BhNode::getAlias);
+      found = searchResult.getCurrent();
     }
-    if (node != null) {
-      bpListView.getSelectionModel().select(node);
-      bpListView.scrollTo(node);  
+    if (found != null) {
+      bpListView.getSelectionModel().select(found);
+      bpListView.scrollTo(found);
     }
-  }
-
-  /** コールスタックから {@code query} に一致する {@link BhNode} を探して選択する. */
-  private BhNode searchCallStackFor(String word, boolean findNext, boolean caseSensitive) {
-    if (!caseSensitive) {
-      word = word.toLowerCase();
-    }
-    int size = bpListView.getItems().size();
-    int diff = findNext ? 1 : -1;
-    int startIdx = bpListView.getSelectionModel().getSelectedIndex();
-    startIdx = (startIdx < 0) ? 0 : (startIdx + diff + size) % size;
-    startIdx = findNext ? startIdx : size - 1 - startIdx;
-    List<BhNode> nodes = findNext ? bpListView.getItems() : bpListView.getItems().reversed();
-    for (int i = 0; i < nodes.size(); ++i) {
-      BhNode node = nodes.get((i + startIdx) % nodes.size());
-      String itemName = caseSensitive ? node.getAlias() : node.getAlias().toLowerCase();
-      if (itemName.contains(word)) {
-        return node;
-      }
-    }
-    return null;
-  }
-
-  /** コールスタックから {@code pattern} に一致する {@link BhNode} を探す. */
-  private BhNode searchCallStackFor(Pattern pattern, boolean findNext) {
-    int size = bpListView.getItems().size();
-    int diff = findNext ? 1 : -1;
-    int startIdx = bpListView.getSelectionModel().getSelectedIndex();
-    startIdx = (startIdx < 0) ? 0 : (startIdx + diff + size) % size;
-    startIdx = findNext ? startIdx : size - 1 - startIdx;
-    List<BhNode> nodes = findNext ? bpListView.getItems() : bpListView.getItems().reversed();
-    for (int i = 0; i < nodes.size(); ++i) {
-      BhNode node = nodes.get((i + startIdx) % nodes.size());
-      if (pattern.matcher(node.getAlias()).find()) {
-        return node;
-      }
-    }
-    return null;
+    return new SearchQueryResult(searchResult.getPointer(), searchResult.size());
   }
 
   /** {@code node} をブレークポイント一覧に加える. */

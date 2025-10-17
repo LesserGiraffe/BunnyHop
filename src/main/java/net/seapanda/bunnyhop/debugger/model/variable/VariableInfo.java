@@ -112,7 +112,7 @@ public class VariableInfo {
   }
 
   /**
-   * このスタックフレームに変数情報を追加する.
+   * このオブジェクトに変数情報を追加する.
    *
    * <p>追加された変数情報が {@link ScalarVariable} でかつ, 既に同じ {@link BhNode} を持つ
    * {@link ScalarVariable} が存在していた場合, 新しい値で上書きされる.
@@ -123,31 +123,49 @@ public class VariableInfo {
    */
   public void addVariables(SequencedCollection<Variable> variables) {
     List<Variable> newVars = new ArrayList<>();
+    List<Variable> valChangedVars = new ArrayList<>();
     for (Variable variable : variables) {
-      Variable existing = varIdToVar.get(variable.id);
-      switch (existing) {
-        case null -> {
-          varIdToVar.put(variable.id, variable);
-          newVars.add(variable);
-        }
-        case ScalarVariable registered
-            when variable instanceof ScalarVariable added ->
-            registered.setValue(added.getValue().orElse(null));
-        case ListVariable registered
-            when variable instanceof ListVariable added ->
-            registered.addItems(added.getItems());
-        default -> {
-          throw new AssertionError("Unknown variable type");
-        }
-      }
+      addVariable(variable, newVars, valChangedVars);
     }
     if (!newVars.isEmpty()) {
       cbRegistry.onVarsAddedInvoker.invoke(new VariablesAddedEvent(this, newVars));
     }
+    if (!valChangedVars.isEmpty()) {
+      cbRegistry.onValueChangedInvoker.invoke(new ValueChangedEvent(this, valChangedVars));
+    }
   }
 
   /**
-   * このスタックフレームが持つ数情報を削除する.
+   * {@code variable} と同じ ID の {@link Variable} がこのオブジェクトに存在しない場合, 追加する.
+   * 存在する場合, 既存の {@link Variable} の内容を {@code variable} の内容で上書きする.
+   */
+  private void addVariable(
+      Variable variable, List<Variable> newVars, List<Variable> valChangedVars) {
+    Variable existing = varIdToVar.get(variable.id);
+    switch (existing) {
+      case null -> {
+        varIdToVar.put(variable.id, variable);
+        newVars.add(variable);
+      }
+      case ScalarVariable registered
+          when variable instanceof ScalarVariable added ->
+          registered.setValue(added.getValue().orElse(null))
+              .ifPresent(swapped -> valChangedVars.add(registered));
+
+      case ListVariable registered
+          when variable instanceof ListVariable added -> {
+        if (!registered.addItems(added.getItems()).isEmpty()) {
+          valChangedVars.add(registered);
+        }
+      }
+      default -> {
+        throw new AssertionError("Unknown variable type");
+      }
+    }
+  }
+
+  /**
+   * このオブジェクトが持つ数情報を削除する.
    *
    * @param variables 削除する変数一覧
    */
@@ -164,7 +182,7 @@ public class VariableInfo {
     }
   }
 
-  /** このスタックフレームが持つ数情報を全て削除する. */
+  /** このオブジェクトが持つ数情報を全て削除する. */
   public void clearVariables() {
     removeVariables(new ArrayList<>(varIdToVar.values()));
   }
@@ -181,38 +199,55 @@ public class VariableInfo {
   /** {@link VariableInfo} に対するイベントハンドラの登録および削除操作を提供するクラス. */
   public class CallbackRegistry {
 
-    /** 関連する {@link VariableInfo} に変数情報が追加されたときのイベントハンドラを管理するオブジェクト. */
+    /** 関連する {@link VariableInfo} に新しく変数が追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<VariablesAddedEvent> onVarsAddedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連する {@link VariableInfo} から変数情報が削除されたときのイベントハンドラを管理するオブジェクト. */
+    /** 関連する {@link VariableInfo} から変数が削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<VariablesRemovedEvent> onVarsRemovedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連する {@link VariableInfo} に変数情報が追加されたときのイベントハンドラのレジストリを取得する. */
+    /** 関連する {@link VariableInfo} の変数の値が変更されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<ValueChangedEvent> onValueChangedInvoker =
+        new SimpleConsumerInvoker<>();
+
+    /** 関連する {@link VariableInfo} に新しく変数が追加されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<VariablesAddedEvent>.Registry getOnVariablesAdded() {
       return onVarsAddedInvoker.getRegistry();
     }
 
-    /** 関連する {@link VariableInfo} に変数情報が追加されたときのイベントハンドラのレジストリを取得する. */
+    /** 関連する {@link VariableInfo} から変数が削除されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<VariablesRemovedEvent>.Registry getOnVariablesRemoved() {
       return onVarsRemovedInvoker.getRegistry();
+    }
+
+    /** 関連する  {@link VariableInfo} の変数の値が変更されたときのイベントハンドラのレジストリを取得する. */
+    public ConsumerInvoker<ValueChangedEvent>.Registry getOnValueChanged() {
+      return onValueChangedInvoker.getRegistry();
     }
   }
 
   /**
-   * {@link VariableInfo} に変数情報が追加されたときの情報を格納したレコード.
+   * {@link VariableInfo} に新しく変数が追加されたときの情報を格納したレコード.
    *
-   * @param varInfo 変数情報が追加された {@link VariableInfo}
+   * @param varInfo 新しく変数が追加された {@link VariableInfo}
    * @param added 追加された変数情報
    */
   public record VariablesAddedEvent(VariableInfo varInfo, SequencedCollection<Variable> added) {}
 
   /**
-   * {@link VariableInfo} が持つ変数情報が削除されたときの情報を格納したレコード.
+   * {@link VariableInfo} から変数が削除されたときの情報を格納したレコード.
    *
    * @param varInfo 変数情報が削除された {@link VariableInfo}
    * @param removed 削除された変数情報
    */
   public record VariablesRemovedEvent(VariableInfo varInfo, Collection<Variable> removed) {}
+
+  /**
+   * {@link VariableInfo} の変数の値が変更されたときの情報を格納したレコード.
+   *
+   * @param varInfo この {@link VariableInfo} の変数の値が変更された
+   * @param variables 値が変更された {@link Variable} 一覧
+   */
+  public record ValueChangedEvent(VariableInfo varInfo, Collection<Variable> variables) {}
 }

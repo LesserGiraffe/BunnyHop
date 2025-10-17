@@ -16,15 +16,19 @@
 
 package net.seapanda.bunnyhop.ui.control;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
+import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.ui.model.SearchQuery;
+import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 
 /**
@@ -41,11 +45,13 @@ public class SearchBoxController implements SearchBox {
   @FXML private Button searchBoxCloseButton;
   @FXML private Button findPrevButton;
   @FXML private Button findNextButton;
+  @FXML private Label searchResultLabel;
 
-  private Consumer<? super Query> onSearchRequested = query -> {};
+  private Function<? super SearchQuery, ? extends SearchQueryResult> onSearchRequested =
+      query -> null;
   /** 同じ検索クエリと検索ハンドラで検索された回数. */
-  private long countSameRequests = 0;
-  private Query previousQuery;
+  private long countConsecutiveSameRequests = 0;
+  private SearchQuery previousQuery;
 
   /** このコントローラの UI 要素を初期化する. */
   @FXML
@@ -80,9 +86,9 @@ public class SearchBoxController implements SearchBox {
     searchWordField.setPrefWidth(newWidth);
   }
 
-  /** UI の状態と引数をもとに {@link Query} オブジェクトを作成する. */
-  private Query createQuery(boolean findNext) {
-    return new Query(
+  /** UI の状態と引数をもとに {@link SearchQuery} オブジェクトを作成する. */
+  private SearchQuery createQuery(boolean findNext) {
+    return new SearchQuery(
         searchWordField.getText(),
         regexButton.isSelected(),
         caseSensitiveButton.isSelected(),
@@ -91,34 +97,42 @@ public class SearchBoxController implements SearchBox {
 
   /** 検索がリスエストされたときの処理. */
   private void onSearchRequested(boolean findNext) {
+    clearSearchResult();
     var currentQuery = createQuery(findNext);
     if (!currentQuery.isEqualTo(previousQuery)) {
-      countSameRequests = 0;
+      countConsecutiveSameRequests = 0;
     }
-    ++countSameRequests;
-    onSearchRequested.accept(currentQuery);
+    ++countConsecutiveSameRequests;
+    SearchQueryResult result = onSearchRequested.apply(currentQuery);
+    showSearchResult(result);
     previousQuery = currentQuery;
   }
 
   @Override
-  public void setOnSearchRequested(Consumer<? super Query> handler) {
+  public void setOnSearchRequested(
+      Function<? super SearchQuery, ? extends SearchQueryResult> handler) {
     if (handler == null) {
-      onSearchRequested = query -> {};
-      countSameRequests = 0;
+      onSearchRequested = query -> null;
+      countConsecutiveSameRequests = 0;
+      clearSearchResult();
       return;
     }
     if (onSearchRequested != handler) {
       onSearchRequested = handler;
-      countSameRequests = 0;
+      countConsecutiveSameRequests = 0;
+      clearSearchResult();
     }
   }
 
   @Override
-  public void unsetOnSearchRequested(Consumer<? super Query> handler) {
+  public boolean unsetOnSearchRequested(Object handler) {
     if (onSearchRequested == handler) {
-      onSearchRequested = query -> {};
-      countSameRequests = 0;
+      onSearchRequested = query -> null;
+      countConsecutiveSameRequests = 0;
+      clearSearchResult();
+      return true;
     }
+    return false;
   }
 
   @Override
@@ -129,11 +143,31 @@ public class SearchBoxController implements SearchBox {
   @Override
   public void disable() {
     searchBoxViewBase.visibleProperty().set(false);
-    countSameRequests = 0;
+    countConsecutiveSameRequests = 0;
+    clearSearchResult();
   }
 
   @Override
-  public long getNumSameRequests() {
-    return countSameRequests;
+  public long getNumConsecutiveSameRequests() {
+    return countConsecutiveSameRequests;
+  }
+
+  /** 検索結果を表示する. */
+  private void showSearchResult(SearchQueryResult result) {
+    if (result == null) {
+      clearSearchResult();
+      return;
+    }
+    if (result.numFound() == 0 || result.currentIdx() < 0) {
+      searchResultLabel.setText(TextDefs.SearchBox.resultCount.get(result.numFound()));
+    } else {
+      String text = "%s / %s".formatted(result.currentIdx() + 1, result.numFound());
+      searchResultLabel.setText(TextDefs.SearchBox.result.get(text));
+    }
+  }
+
+  @Override
+  public void clearSearchResult() {
+    searchResultLabel.setText("");
   }
 }

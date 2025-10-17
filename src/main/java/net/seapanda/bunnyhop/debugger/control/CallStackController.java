@@ -17,14 +17,12 @@
 package net.seapanda.bunnyhop.debugger.control;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+import java.util.function.Function;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -46,8 +44,11 @@ import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.LookManager.EffectTarget;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
-import net.seapanda.bunnyhop.ui.control.SearchBox.Query;
+import net.seapanda.bunnyhop.ui.model.SearchQuery;
+import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
+import net.seapanda.bunnyhop.ui.service.search.ItemSearcher;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
+import net.seapanda.bunnyhop.utility.collection.ImmutableCircularList;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 import org.apache.commons.lang3.StringUtils;
 
@@ -74,7 +75,8 @@ public class CallStackController {
       event -> onCurrentDebugThreadChanged();
   private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
       event -> updateCellDecoration(event.node());
-  private final Consumer<Query> onSearchRequested = this::selectItem;
+  private final Function<SearchQuery, SearchQueryResult> onSearchRequested = this::selectItem;
+  private ImmutableCircularList<CallStackItem> searchResult;
 
   /**
    * コンストラクタ.
@@ -93,16 +95,19 @@ public class CallStackController {
     this.wss = wss;
   }
 
-  /**
-   * このコントローラの UI 要素を初期化する.
-   *
-   * <p>GUI コンポーネントのインジェクション後に FXMLLoader から呼ばれることを期待する.
-   */
+  /** このコントローラの UI 要素を初期化する. */
+  @FXML
   public void initialize() {
+    setEventHandlers();
+  }
+
+  /** イベントハンドラを設定する. */
+  private void setEventHandlers() {
     callStackListView.setCellFactory(stack -> new CallStackCell(nodeToCallStackCell));
     callStackListView.setItems(createCallStackItems());
     callStackListView.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldVal, newVal) -> onCallStackCellSelected(oldVal, newVal));
+    callStackListView.itemsProperty().addListener((obs, oldVal, newVal) -> searchResult = null);
     csShowAllCheckBox.selectedProperty().addListener(
         (observable, oldVal, newVal) -> {
           if (!isDiscarded) {
@@ -135,7 +140,9 @@ public class CallStackController {
     isDiscarded = true;
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().remove(onCurrentThreadChanged);
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().remove(onNodeSelStateChanged);
-    searchBox.unsetOnSearchRequested(onSearchRequested);
+    if (searchBox.unsetOnSearchRequested(onSearchRequested)) {
+      searchBox.disable();
+    }
     callStackListView.getItems().clear();
     nodeToCallStackCell.clear();
   }
@@ -232,64 +239,23 @@ public class CallStackController {
   }
 
   /** コールスタックから {@code query} に一致する要素を探して選択する. */
-  private void selectItem(Query query) {
+  private SearchQueryResult selectItem(SearchQuery query) {
     if (isDiscarded || StringUtils.isEmpty(query.word())) {
-      return;
+      return new SearchQueryResult(0, 0);
     }
-    CallStackItem item = null;
-    if (query.isRegex()) {
-      try {
-        int regexFlag = query.isCaseSensitive() ? 0 : Pattern.CASE_INSENSITIVE;
-        Pattern pattern = Pattern.compile(query.word(), regexFlag);
-        item = findCallStackItem(pattern, query.findNext());
-      } catch (PatternSyntaxException e) { /* do nothing. */ }
+    CallStackItem found = null;
+    if (searchBox.getNumConsecutiveSameRequests() >= 2 && searchResult != null) {
+      found = query.findNext() ? searchResult.getNext() : searchResult.getPrevious();
     } else {
-      item = findCallStackItem(query.word(), query.findNext(), query.isCaseSensitive());
+      searchResult = ItemSearcher.<CallStackItem>search(
+          query, callStackListView.getItems(), CallStackItem::getName);
+      found = searchResult.getCurrent();
     }
-    if (item != null) {
-      callStackListView.getSelectionModel().select(item);
-      callStackListView.scrollTo(item);  
+    if (found != null) {
+      callStackListView.getSelectionModel().select(found);
+      callStackListView.scrollTo(found);
     }
-  }
-
-  /** コールスタックから {@code word} に一致する {@link CallStackItem} を探す. */
-  private CallStackItem findCallStackItem(String word, boolean findNext, boolean caseSensitive) {
-    if (!caseSensitive) {
-      word = word.toLowerCase();
-    }
-    int size = callStackListView.getItems().size();
-    int diff = findNext ? 1 : -1;
-    int startIdx = callStackListView.getSelectionModel().getSelectedIndex();
-    startIdx = (startIdx < 0) ? 0 : (startIdx + diff + size) % size;
-    startIdx = findNext ? startIdx : size - 1 - startIdx;
-    List<CallStackItem> items =
-        findNext ? callStackListView.getItems() : callStackListView.getItems().reversed();
-    for (int i = 0; i < items.size(); ++i) {
-      CallStackItem item = items.get((i + startIdx) % items.size());
-      String itemName = caseSensitive ? item.getName() : item.getName().toLowerCase();
-      if (itemName.contains(word)) {
-        return item;
-      }
-    }
-    return null;
-  }
-
-  /** コールスタックから {@code pattern} に一致する {@link CallStackItem} を探す. */
-  private CallStackItem findCallStackItem(Pattern pattern, boolean findNext) {
-    int size = callStackListView.getItems().size();
-    int diff = findNext ? 1 : -1;
-    int startIdx = callStackListView.getSelectionModel().getSelectedIndex();
-    startIdx = (startIdx < 0) ? 0 : (startIdx + diff + size) % size;
-    startIdx = findNext ? startIdx : size - 1 - startIdx;
-    List<CallStackItem> items =
-        findNext ? callStackListView.getItems() : callStackListView.getItems().reversed();
-    for (int i = 0; i < items.size(); ++i) {
-      CallStackItem item = items.get((i + startIdx) % items.size());
-      if (pattern.matcher(item.getName()).find()) {
-        return item;
-      }
-    }
-    return null;
+    return new SearchQueryResult(searchResult.getPointer(), searchResult.size());
   }
 
   /** デバッガの現在のスレッド ID が, このコントローラが保持するスレッドコンテキストのスレッド ID と同じか調べる. */

@@ -394,6 +394,14 @@ public class TextDefs {
     }
   }
 
+  /** 検索ボックスに表示されるテキスト. */
+  public static class SearchBox {
+    public static Getter result = params -> db.get(
+        TextId.of("gui", "search-box", "result"), params);
+    public static Getter resultCount = params -> db.get(
+        TextId.of("gui", "search-box", "result-count"), params);
+  }
+
   /** バージョン情報の名前. */
   public static class VersionInfo {
     public static Getter runtime = params -> db.get(

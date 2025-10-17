@@ -30,7 +30,7 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.factory.NodeConstructionException;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
-import net.seapanda.bunnyhop.utility.TreeNode;
+import net.seapanda.bunnyhop.utility.collection.TreeNode;
 import net.seapanda.bunnyhop.utility.textdb.TextDatabase;
 
 /**

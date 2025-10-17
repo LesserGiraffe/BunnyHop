@@ -16,6 +16,7 @@
     <Rem fx:id="caseSensitiveSwitchMargin" rem="0.2"/>
     <Rem fx:id="findPrevButtonMargin" rem="0.5"/>
     <Rem fx:id="findNextButtonMargin" rem="0.2"/>
+    <Rem fx:id="searchResultLabelMargin" rem="0.5"/>
     <TextFetcher fx:id="close" textId="gui,search-box,close"/>
     <TextFetcher fx:id="regex" textId="gui,search-box,regex"/>
     <TextFetcher fx:id="caseSensitive" textId="gui,search-box,case-sensitive"/>
@@ -84,4 +85,10 @@
       <Tooltip text="$findNextTooltip.text" styleClass="uiFunctionTooltip"/>
     </tooltip>
   </Button>
+
+  <Label fx:id="searchResultLabel">
+    <HBox.margin>
+      <Insets left="$searchResultLabelMargin.rem"/>
+    </HBox.margin>
+  </Label>
 </HBox>

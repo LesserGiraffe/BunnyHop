@@ -32,7 +32,7 @@ public class ScalarVariable extends Variable {
 
   private final CallbackRegistry cbRegistry = new CallbackRegistry();
   /** 変数の値. */
-  private volatile String val;
+  private String val;
 
   /**
    * コンストラクタ.
@@ -62,14 +62,16 @@ public class ScalarVariable extends Variable {
    * スカラ変数の値を設定する.
    *
    * @param val 設定するスカラ変数の値. (nullable)
+   * @return 変更前と変更後の値を格納したオブジェクト.
    */
-  public void setValue(String val) {
+  public Optional<Swapped> setValue(String val) {
     if (Objects.equals(this.val, val)) {
-      return;
+      return Optional.empty();
     }
     String oldVal = this.val;
     this.val = val;
     cbRegistry.onValueChanged.invoke(new ValueChangedEvent(this, oldVal, val));
+    return Optional.of(new Swapped(oldVal, val));
   }
 
   /** スカラ変数の値を取得する. */
@@ -85,6 +87,14 @@ public class ScalarVariable extends Variable {
   public CallbackRegistry getCallbackRegistry() {
     return cbRegistry;
   }
+
+  /**
+   * 値の変更結果.
+   *
+   * @param oldVal 変更前の値.  存在しない場合 null.
+   * @param newVal 変更後の値.  存在しない場合 null.
+   */
+  public record Swapped(String oldVal, String newVal) {}
 
   /** {@link ScalarVariable} に対するイベントハンドラの登録および削除操作を提供するクラス. */
   public class CallbackRegistry {

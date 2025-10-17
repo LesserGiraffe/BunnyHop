@@ -3,6 +3,7 @@
   -fx-background-color: #bdbdbd;
   -fx-font-size: 1.1em;
   -fx-font-family: "Meiryo UI";
+  -fx-alignment: center-left;
 }
 
 #searchBoxCloseButton {
@@ -21,3 +22,9 @@
   -fx-min-width: 12em;
   -fx-max-width: 60em;
 }
+
+#searchResultLabel {
+  -fx-font-size: 1.1em;
+  -fx-font-family: "Meiryo UI";
+}
+

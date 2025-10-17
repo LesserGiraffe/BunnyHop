@@ -83,7 +83,7 @@ public class VariableListItem {
    * @return 作成した {@link VariableListItem} オブジェクトのリスト
    */
   public List<VariableListItem> createSubItems() {
-    if (!(variable instanceof  ListVariable list) || numValues <= 0)  {
+    if (!(variable instanceof  ListVariable list) || numValues <= 1)  {
       return new ArrayList<>();
     }
     var maxChildren = BhSettings.Debug.maxListTreeChildren;

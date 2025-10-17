@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.debugger.model.variable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -105,15 +106,18 @@ public class ListVariable extends Variable {
    * <p>既に存在するインデックスの値は {@code items} の値で上書きされる.
    *
    * @param items 追加する要素.
+   * @return 追加または上書きのあった要素の {@link Item} のコレクション.
    */
-  public void addItems(Collection<Item> items) {
+  public Collection<Swapped> addItems(Collection<Item> items) {
     var events = new ArrayList<ValueChangedEvent>();
+    var newItems = new ArrayList<Swapped>();
     for (Item item : items) {
       Item curretItem = idxToItem.get(item.idx);
       if (curretItem != null && Objects.equals(curretItem.val, item.val)) {
         continue;
       }
       idxToItem.put(item.idx(), item);
+      newItems.add(new Swapped(curretItem, item));
       String oldVal = (curretItem == null) ? null : curretItem.val;
       events.add(new ValueChangedEvent(this, item.idx, oldVal, item.val));
     }
@@ -122,6 +126,10 @@ public class ListVariable extends Variable {
         cbRegistry.idxToOnValueChanged.get(event.idx).invoke(event);
       }
     }
+    if (!events.isEmpty()) {
+      cbRegistry.onAnyValueChanged.invoke(events);
+    }
+    return newItems;
   }
 
   /**
@@ -131,6 +139,14 @@ public class ListVariable extends Variable {
    * @param val 要素の値
    */
   public record Item(long idx, String val) {}
+
+  /**
+   * 特定のインデックスの値の変更に伴う {@link Item} の入れ替え結果.
+   *
+   * @param oldItem 変更前の値を保持する {@link Item}.  存在しない場合 null.
+   * @param newItem 変更後の値を保持する {@link Item}.  存在しない場合 null.
+   */
+  public record Swapped(Item oldItem, Item newItem) {}
 
   /**
    * このオブジェクトに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
@@ -151,12 +167,21 @@ public class ListVariable extends Variable {
     private final Map<Long, ConsumerInvoker<ValueChangedEvent>> idxToOnValueChanged =
         new ConcurrentHashMap<>();
 
+    /** リストの何れかの要素の値が変わったときのイベントハンドラを管理するオブジェクト.. */
+    private final ConsumerInvoker<List<ValueChangedEvent>> onAnyValueChanged =
+        new SimpleConsumerInvoker<>();
+
     /** 関連する {@link ListVariable} の {@code idx} 番目の要素の値が変わったときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<ValueChangedEvent>.Registry getOnValueChanged(long idx) {
       if (!idxToOnValueChanged.containsKey(idx)) {
         idxToOnValueChanged.put(idx, new SimpleConsumerInvoker<>());
       }
       return idxToOnValueChanged.get(idx).getRegistry();
+    }
+
+    /** 関連する {@link ListVariable} の何れかの要素の値が変わったときのイベントハンドラのレジストリを取得する. */
+    public ConsumerInvoker<List<ValueChangedEvent>>.Registry getOnValueChanged() {
+      return onAnyValueChanged.getRegistry();
     }
   }
 

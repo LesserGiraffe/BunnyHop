@@ -133,6 +133,8 @@
       "case-sensitive": "[Aa]",
       "find-prev": "▲",
       "find-next": "▼",
+      "result": "結果: %s",
+      "result-count": "結果 %s 件",
       "tooltip": {
         "close": "閉じる",
         "regex": "正規表現を使う",

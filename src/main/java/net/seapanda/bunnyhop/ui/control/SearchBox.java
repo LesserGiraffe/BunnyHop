@@ -16,7 +16,9 @@
 
 package net.seapanda.bunnyhop.ui.control;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
+import net.seapanda.bunnyhop.ui.model.SearchQuery;
+import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
 
 /**
  * 検索クエリを受け取る UI コンポーネントのインタフェース.
@@ -30,15 +32,16 @@ public interface SearchBox {
    *
    * @param handler  検索クエリを受け取ったときに実行するイベントハンドラ.
    */
-  void setOnSearchRequested(Consumer<? super Query> handler);
+  void setOnSearchRequested(Function<? super SearchQuery, ? extends SearchQueryResult> handler);
 
   /**
    * 検索クエリを受け取ったときに実行するイベントハンドラを解除する.
    *
    * @param handler このハンドラがこのオブジェクトに設定されている場合, 設定を解除する.
    *                そうでない場合何もしない.
+   * @return 設定を解除した場合 true, 何もしなかった場合 false
    */
-  void unsetOnSearchRequested(Consumer<? super Query> handler);
+  boolean unsetOnSearchRequested(Object handler);
 
   /** 検索クエリの入力を有効化する. */
   void enable();
@@ -53,30 +56,8 @@ public interface SearchBox {
    *
    * @return 同じ検索ハンドラと検索クエリで連続して検索された回数.
    */
-  long getNumSameRequests();
+  long getNumConsecutiveSameRequests();
 
-  /**
-   * 検索クエリ.
-   *
-   * @param word 検索ワード
-   * @param isRegex {@code word} を正規表現として解釈する場合 true
-   * @param isCaseSensitive {@code word} の大文字, 小文字を区別する場合 true
-   * @param findNext 次の一致項目を検索する場合 true
-   */
-  record Query(
-      String word,
-      boolean isRegex,
-      boolean isCaseSensitive,
-      boolean findNext) {
-
-    /** {@code findNext} を考慮しない比較. */
-    boolean isEqualTo(Query other) {
-      if (other == null) {
-        return false;
-      }
-      return word.equals(other.word)
-          && isRegex == other.isRegex
-          && isCaseSensitive == other.isCaseSensitive;
-    }
-  }
+  /** 検索結果をクリアする. */
+  void clearSearchResult();
 }

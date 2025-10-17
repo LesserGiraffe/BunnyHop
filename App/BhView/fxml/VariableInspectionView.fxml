@@ -24,7 +24,7 @@
     <CheckBox
       fx:id="viJumpCheckBox"
       styleClass="flatCheckBox"
-      selected="true"
+      selected="false"
       text="$jump.text">
     </CheckBox>
 

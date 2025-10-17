@@ -100,8 +100,8 @@ public final class LabelNodeView extends BhNodeViewBase {
 
   @Override
   public void show(int depth) {
-    System.out.println("%s<LabelView>  %s".formatted(indent(depth), hashCode()));
-    System.out.println("%s<content>  %s".formatted(indent(depth + 1), label.getText()));
+    System.out.printf("%s<LabelView>  %s%n", indent(depth), hashCode());
+    System.out.printf("%s<content>  %s%n", indent(depth + 1), label.getText());
   }
 
   @Override

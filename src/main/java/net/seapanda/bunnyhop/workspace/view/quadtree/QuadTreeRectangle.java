@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.workspace.view.quadtree;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import net.seapanda.bunnyhop.utility.ListNode;
+import net.seapanda.bunnyhop.utility.collection.ListNode;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**

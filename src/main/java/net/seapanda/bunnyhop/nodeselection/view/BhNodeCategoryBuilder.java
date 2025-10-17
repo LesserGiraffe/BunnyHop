@@ -23,7 +23,7 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.nodeselection.model.BhNodeCategory;
-import net.seapanda.bunnyhop.utility.TreeNode;
+import net.seapanda.bunnyhop.utility.collection.TreeNode;
 
 /**
  * ノードカテゴリ一覧を作成するクラス.

@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.nodeselection.model;
-
-import net.seapanda.bunnyhop.utility.collection.TreeNode;
+package net.seapanda.bunnyhop.ui.model;
 
 /**
- * ノードのカテゴリ一覧を提供する機能を規定したインタフェース.
+ * 検索処理の結果を格納するレコード.
  *
- * @author K.Koike
+ * @param currentIdx 現在注目している検索結果のインデックス. <br>
+ *                   負の数のとき, 注目している検索結果が存在しなことを示す.
+ * @param numFound 検索結果の個数.
  */
-public interface BhNodeCategoryTree {
-  
-  /**
-   * ノードのカテゴリ一覧を格納した木のルートノードを返す.
-   *
-   * @return ノードのカテゴリ一覧を格納した木のルートノード
-   */
-  TreeNode<String> getRoot();
-}
+public record SearchQueryResult(int currentIdx, int numFound) {}
