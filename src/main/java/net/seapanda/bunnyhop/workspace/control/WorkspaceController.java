@@ -101,8 +101,8 @@ public class WorkspaceController {
     Workspace.CallbackRegistry registry = model.getCallbackRegistry();
     registry.getOnNodeAdded().add(event -> addNodeView(event.node()));
     registry.getOnNodeRemoved().add(event -> removeNodeView(event.node()));
-    registry.getOnRootNodeAdded().add(event -> speficyNodeViewAsRoot(event.node()));
-    registry.getOnRootNodeRemoved().add(event -> speficyNodeViewAsNotRoot(event.node()));
+    registry.getOnRootNodeAdded().add(event -> specifyNodeViewAsRoot(event.node()));
+    registry.getOnRootNodeRemoved().add(event -> specifyNodeViewAsNotRoot(event.node()));
   }
 
   /** マウスボタン押下時の処理. */
@@ -194,18 +194,13 @@ public class WorkspaceController {
   private void selectNodes(List<BhNodeView> candidates, UserOperation userOpe) {
     // 親ノードが選択候補でかつ, 親ノードのボディの領域に包含されているノードは選択対象としない.
     LinkedList<BhNodeView> nodesToSelect = new LinkedList<>(candidates);
-    while (nodesToSelect.size() != 0) {
+    while (!nodesToSelect.isEmpty()) {
       BhNodeView larger = nodesToSelect.pop();
       larger.getModel().get().select(userOpe); // ノード選択
-      var iter = nodesToSelect.iterator();
-      while (iter.hasNext()) {
-        BhNodeView smaller = iter.next();
-        // 子孫 - 先祖関係にあってかつ領域が包含関係にある -> 矩形選択の対象としない
-        if (larger.getRegionManager().overlapsWith(smaller, OverlapOption.CONTAIN)
-            && smaller.getModel().get().isDescendantOf(larger.getModel().get())) {
-          iter.remove();
-        }
-      }
+      // 子孫 - 先祖関係にあってかつ領域が包含関係にある -> 矩形選択の対象としない
+      nodesToSelect.removeIf(
+          smaller -> larger.getRegionManager().overlapsWith(smaller, OverlapOption.CONTAIN)
+            && smaller.getModel().get().isDescendantOf(larger.getModel().get()));
     }
   }
 
@@ -220,12 +215,12 @@ public class WorkspaceController {
   }
 
   /** {@code node} をルートノードとしてワークスペースビューに設定する. */
-  private void speficyNodeViewAsRoot(BhNode node) {
+  private void specifyNodeViewAsRoot(BhNode node) {
     node.getView().ifPresent(view::specifyNodeViewAsRoot);
   }
 
   /** {@code node} を非ルートノードとしてワークスペースビューに設定する. */
-  private void speficyNodeViewAsNotRoot(BhNode node) {
+  private void specifyNodeViewAsNotRoot(BhNode node) {
     node.getView().ifPresent(view::specifyNodeViewAsNotRoot);
   }
 

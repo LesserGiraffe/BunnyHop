@@ -81,7 +81,7 @@ public class BhDebugger implements Debugger {
     wss.getCallbackRegistry().getOnNodeAdded()
         .add(event -> updateBreakpointRegistration(event.node(), event.userOpe()));
     wss.getCallbackRegistry().getOnNodeRemoved()
-        .add(event -> updateBreakpointRegistration(event.node(), event.userOpe()));
+        .add(event -> breakpointRegistry.removeBreakpointNode(event.node(), event.userOpe()));
     wss.getCallbackRegistry().getOnNodeBreakpointSetEvent()
         .add(event -> updateBreakpointRegistration(event.node(), event.userOpe()));
 

@@ -131,21 +131,19 @@ public class WorkspaceSet {
 
   /**
    * 操作対象のワークスペースを設定する.
-   * 
-   * <pre>
-   * この操作は undo の対象にしない.
-   * 理由は, この操作はワークスペースのタブ切り替え時は単一の undo 操作となるが,
-   * ワークスペースの追加 (redo によるものも含む) 時には, これに付随する undo 操作となるので
-   * 本メソッドに渡すべき {@link UserOperation} オブジェクトの選択が複雑になる.
-   * </pre>
    *
    * @param ws 操作対象のワークスペース
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public void setCurrentWorkspace(Workspace ws) {
+  public void setCurrentWorkspace(Workspace ws, UserOperation userOpe) {
+    if (currentWorkspace == ws) {
+      return;
+    }
     Workspace old = currentWorkspace;
     currentWorkspace = ws;
+    userOpe.pushCmd(ope -> setCurrentWorkspace(old, ope));
     cbRegistry.onCurrentWsChangedInvoker.invoke(
-        new CurrentWorkspaceChangedEvent(this, old, ws));
+        new CurrentWorkspaceChangedEvent(this, old, ws, userOpe));
   }
 
   /**
@@ -521,8 +519,10 @@ public class WorkspaceSet {
    * @param wss 操作対象のワークスペースが変更されたワークスペースセット
    * @param oldWs {@code newWs} の前に操作対象であったワークスペース
    * @param newWs 新しく操作対象となったワークスペース
+   * @param userOpe undo 用コマンドオブジェクト
    */
-  public record CurrentWorkspaceChangedEvent(WorkspaceSet wss, Workspace oldWs, Workspace newWs) {}
+  public record CurrentWorkspaceChangedEvent(
+      WorkspaceSet wss, Workspace oldWs, Workspace newWs, UserOperation userOpe) {}
 
   /**
    * ワークスペースの名前が変更されたときの情報を格納したレコード.

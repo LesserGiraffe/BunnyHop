@@ -106,7 +106,7 @@ public class BreakpointListController {
   private void onBreakpointSelected(BhNode deselected, BhNode selected) {
     Context context = notifService.beginWrite();
     try {
-      var userOpe = new UserOperation(); // コールスタックの選択は undo / redo の対象にしない
+      var userOpe = new UserOperation();
       if (deselected != null) {
         deselected.deselect(userOpe);
       }

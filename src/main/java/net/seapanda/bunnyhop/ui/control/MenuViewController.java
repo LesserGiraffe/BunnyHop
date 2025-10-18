@@ -331,20 +331,26 @@ public class MenuViewController {
 
   /** アンドゥボタン押下時の処理. */
   private void undo() {
-    notifService.beginWrite();
+    Context contex = notifService.beginWrite();
     try {
       undoRedoAgent.undo();
     } finally {
+      // Undo 中に context の UserOperation に追加されたサブコマンドは Undo の対象にしない.
+      // 一部の操作 (ワークスペースタブの切り替えなど) は Undo の実行中にサブコマンドをこの context の UserOperation に
+      // 追加するが, Undo 中の当該操作の逆操作はサブコマンドの実行中に自動的に作られるので,
+      // この context の UserOperation を Undo の対象にする必要はない.
+      contex.userOpe().clearCmds();
       notifService.endWrite();
     }
   }
 
   /** リドゥボタン押下時の処理. */
   private void redo() {
-    notifService.beginWrite();
+    Context contex = notifService.beginWrite();
     try {
       undoRedoAgent.redo();
     } finally {
+      contex.userOpe().clearCmds();
       notifService.endWrite();
     }
   }

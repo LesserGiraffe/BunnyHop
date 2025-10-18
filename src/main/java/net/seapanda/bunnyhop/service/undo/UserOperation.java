@@ -358,6 +358,11 @@ public class UserOperation {
     subOpeList.addLast(new AnonymousCmd(inverseCmd));
   }
 
+  /** このコマンドに追加された全てのサブ操作を削除する. */
+  public void clearCmds() {
+    subOpeList.clear();
+  }
+
   /** {@link UserOperation} を構成するサブ操作. */
   interface SubOperation {
     /**

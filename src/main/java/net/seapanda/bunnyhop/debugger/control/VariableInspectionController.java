@@ -169,6 +169,8 @@ public class VariableInspectionController {
         items -> new VariableListCell(dataStore.varItemToVarCells, dataStore.nodeToVarCells));
     variableTreeView.getSelectionModel().selectedItemProperty().addListener(
         (obs, oldVal, newVal) -> onVariableSelected(newVal));
+    variableTreeView.focusedProperty().addListener(
+        (obs, oldVal, newVal) -> onFocusChanged(newVal));
 
     viReloadBtn.setOnAction(event -> reloadVarInfo());
     viSearchButton.setOnAction(action -> prepareSearchUi());
@@ -179,17 +181,25 @@ public class VariableInspectionController {
     registry.getOnValueChanged().add(event -> searchResult = null);
   }
 
+
   /** 変数が選択された時の処理. */
-  private void onVariableSelected(TreeItem<VariableListItem> newVal) {
+  private void onVariableSelected(TreeItem<VariableListItem> item) {
     if (!viJumpCheckBox.isSelected()) {
       return;
     }
-    Optional.ofNullable(newVal)
+    Optional.ofNullable(item)
         .map(TreeItem::getValue)
         .map(varListItem -> varListItem.variable)
         .flatMap(Variable::getNode)
         .flatMap(BhNode::getView)
         .ifPresent(view -> ViewUtil.jump(view, true, BhNodeView.LookManager.EffectTarget.SELF));
+  }
+
+  /** フォーカスが変更されたときの処理. */
+  private void onFocusChanged(Boolean isFocused) {
+    if (!isFocused) {
+      variableTreeView.getSelectionModel().clearSelection();
+    }
   }
 
   /** このコントローラが管理するビューのルート要素を返す. */

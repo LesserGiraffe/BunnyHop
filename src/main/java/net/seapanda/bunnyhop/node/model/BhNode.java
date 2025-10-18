@@ -241,9 +241,9 @@ public abstract class BhNode extends SyntaxSymbol {
   public void setBreakpoint(boolean val, UserOperation userOpe) {
     if (val != isBreakpointSet) {
       isBreakpointSet = val;
+      userOpe.pushCmd(ope -> setBreakpoint(!val, ope));
       getCallbackRegistry().onBreakpointSetInvoker.invoke(
           new BreakpointSetEvent(this, isBreakpointSet, userOpe));
-      userOpe.pushCmd(ope -> setBreakpoint(!val, ope));
     }
   }
 

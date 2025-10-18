@@ -182,14 +182,14 @@ public class AppMain extends Application {
           BhConstants.Path.Dir.CONNECTOR_DEF);
 
       final var wss = new WorkspaceSet();
-      final var wssCtrl = new WorkspaceSetController(wss);
-      final var nodeSelViewProxy = new BhNodeSelectionViewProxyImpl(
-          nodeSelectionViewFile, wssCtrl::addNodeSelectionView);
-      final var derivativeCache = new DerivativeCache();
-      final var undoRedoAgent = new UndoRedoAgent(wss);
       final var compileErrReporter = new CompileErrorReporter(wss);
+      final var undoRedoAgent = new UndoRedoAgent(wss);
+      final var derivativeCache = new DerivativeCache();
       final var mediator =
           new ModelAccessMediator(derivativeCache, compileErrReporter, undoRedoAgent);
+      final var wssCtrl = new WorkspaceSetController(wss, mediator);
+      final var nodeSelViewProxy =
+          new BhNodeSelectionViewProxyImpl(nodeSelectionViewFile, wssCtrl::addNodeSelectionView);
       final var scriptRepository = new BhScriptRepositoryImpl(scriptDirs);
       final var viewStyleFactory = new JsonBhNodeViewStyleFactory(viewStyleDir);
       final var buttonFactory = new PrivateTemplateButtonFactoryImpl(

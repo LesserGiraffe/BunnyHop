@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.workspace.control;
 
+import java.util.Optional;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
@@ -24,6 +25,9 @@ import javafx.scene.control.TabPane.TabDragPolicy;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionView;
+import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService.Context;
+import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
@@ -39,10 +43,12 @@ public class WorkspaceSetController {
   @FXML private TabPane workspaceSetTab;
 
   private final WorkspaceSet wss;
+  private final ModelAccessNotificationService notifService;
 
   /** コンストラクタ. */
-  public WorkspaceSetController(WorkspaceSet wss) {
+  public WorkspaceSetController(WorkspaceSet wss, ModelAccessNotificationService notifService) {
     this.wss = wss;
+    this.notifService = notifService;
   }
 
   /** このコントローラを初期化する. */
@@ -57,29 +63,31 @@ public class WorkspaceSetController {
     WorkspaceSet.CallbackRegistry registry = wss.getCallbackRegistry();
     registry.getOnWorkspaceAdded().add(event -> addWorkspaceView(event.ws()));
     registry.getOnWorkspaceRemoved().add(event -> removeWorkspaceView(event.ws()));
-  }
-
-  /** 現在選択中のワークスペースを設定する. */
-  private void setCurrentWorkspace(Tab newTab) {
-    if (newTab instanceof WorkspaceView wsView) {
-      wss.setCurrentWorkspace(wsView.getWorkspace());
-    } else {
-      wss.setCurrentWorkspace(null);
-    }
+    registry.getOnCurrentWorkspaceChanged().add(event -> selectTabOf(event.newWs()));
   }
 
   /** ワークスペースを表示するタブペインに関連するイベントハンドラを登録する. */
   private void setTabPaneEventHandlers() {
     //ワークスペースセットの大きさ変更時にノード選択ビューの高さを再計算する
     workspaceSetTab.heightProperty().addListener(
-        (observable, oldValue, newValue) -> resizeNodeSelectionViewHeight(newValue.doubleValue()));
+        (obs, oldValue, newValue) -> resizeNodeSelectionViewHeight(newValue.doubleValue()));
 
     // タブクローズイベントで TabDragPolicy.FIXED にするので, クリック時に再度 REORDER に変更する必要がある
     workspaceSetTab.setOnMousePressed(
         event -> workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER));
     
     workspaceSetTab.getSelectionModel().selectedItemProperty().addListener(
-        (observable, oldTab, newTab) -> setCurrentWorkspace(newTab));
+        (obs, oldTab, newTab) -> onTabSelected(newTab));
+  }
+
+  /** 新しくタブが選択されたときの処理. */
+  private void onTabSelected(Tab newTab) {
+    Context context = notifService.beginWrite();
+    try {
+      setCurrentWorkspace(newTab, context.userOpe());
+    } finally {
+      notifService.endWrite();
+    }
   }
 
   /**
@@ -154,5 +162,26 @@ public class WorkspaceSetController {
       // ここで REORDER にしないと, タブを消した後でタブドラッグすると例外が発生する
       workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
     }
+  }
+
+  /** 現在選択中のワークスペースを設定する. */
+  private void setCurrentWorkspace(Tab tab, UserOperation userOpe) {
+    if (tab instanceof WorkspaceView wsView) {
+      wss.setCurrentWorkspace(wsView.getWorkspace(), userOpe);
+    } else {
+      wss.setCurrentWorkspace(null, userOpe);
+    }
+  }
+
+  /** {@code ws} に対応する {@link Tab} オブジェクトを選択する. */
+  private void selectTabOf(Workspace workspace) {
+    Optional.ofNullable(workspace)
+        .flatMap(Workspace::getView)
+        .map(wsView -> (wsView instanceof Tab tab) ? tab : null)
+        .ifPresent(tab -> {
+          if (workspaceSetTab.getTabs().contains(tab)) {
+            workspaceSetTab.getSelectionModel().select(tab);
+          }
+        });
   }
 }
