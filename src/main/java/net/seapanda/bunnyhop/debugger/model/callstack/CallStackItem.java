@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.debugger.model.callstack;
 
 import java.util.Optional;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 
@@ -104,20 +103,18 @@ public class CallStackItem {
   }
 
   /** このコールスタックアイテムを選択状態にする. */
-  public void select(UserOperation userOpe) {
+  public void select() {
     if (!isSelected) {
       isSelected = true;
-      cbRegistry.onSelectionStateChangedInvoker.invoke(new SelectionEvent(this, true, userOpe));
-      userOpe.pushCmdOfSelectCallStackItem(this);
+      cbRegistry.onSelectionStateChangedInvoker.invoke(new SelectionEvent(this, true));
     }
   }
 
   /** このコールスタックアイテムを非選択状態にする. */
-  public void deselect(UserOperation userOpe) {
+  public void deselect() {
     if (isSelected) {
       isSelected = false;
-      cbRegistry.onSelectionStateChangedInvoker.invoke(new SelectionEvent(this, false, userOpe));
-      userOpe.pushCmdOfDeselectCallStackItem(this);
+      cbRegistry.onSelectionStateChangedInvoker.invoke(new SelectionEvent(this, false));
     }
   }
 
@@ -139,7 +136,6 @@ public class CallStackItem {
    *
    * @param item 選択状態が変更された {@link CallStackItem}
    * @param isSelected {@code item} が選択された場合 true
-   * @param userOpe undo 用コマンドオブジェクト
    */
-  public record SelectionEvent(CallStackItem item, boolean isSelected, UserOperation userOpe) {}
+  public record SelectionEvent(CallStackItem item, boolean isSelected) {}
 }

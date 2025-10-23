@@ -105,7 +105,7 @@ public class Connector extends SyntaxSymbol {
       newNode.setDefault(true);
     }
     var newConnector = new Connector(this, parent);
-    newConnector.connectNode(newNode, null);
+    newConnector.connectNode(newNode);
     return newConnector;
   }
 
@@ -137,11 +137,17 @@ public class Connector extends SyntaxSymbol {
     if (oldNode != null && oldNode.getWorkspace() != null) {
       oldNode.getWorkspace().addNodeTree(node, userOpe);
     }
+    userOpe.pushCmd(ope -> connectNode(oldNode, ope));
     getCallbackRegistry().onNodeReplaced.invoke(new ReplacementEvent(oldNode, node, userOpe));
+  }
 
-    if (userOpe != null) {
-      userOpe.pushCmdOfConnectNode(oldNode, this);
-    }
+  /**
+   * ノードを接続する.
+   *
+   * @param node 接続されるノード.  (null 不可)
+   */
+  public final void connectNode(BhNode node) {
+    connectNode(node, new UserOperation());
   }
 
   /**
@@ -155,9 +161,8 @@ public class Connector extends SyntaxSymbol {
 
   /**
    * 固定コネクタかどうかを調べる.
-   * <p>
-   * 固定コネクタ: 接続されたノードの入れ替えと取り外しができないコネクタ
-   * </p>
+   *
+   * <p>固定コネクタ: 接続されたノードの入れ替えと取り外しができないコネクタ
    *
    * @return このコネクタが固定コネクタの場合 true を返す.
    */

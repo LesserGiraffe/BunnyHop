@@ -44,6 +44,9 @@ public class BreakpointRegistry {
    * @param userOpe undo 用コマンドオブジェクト
    */
   public void addBreakpointNode(BhNode node, UserOperation userOpe) {
+    if (!node.isInWorkspace()) {
+      return;
+    }
     boolean success = breakpointNodes.add(node);
     if (success) {
       userOpe.pushCmd(ope -> removeBreakpointNode(node, ope));

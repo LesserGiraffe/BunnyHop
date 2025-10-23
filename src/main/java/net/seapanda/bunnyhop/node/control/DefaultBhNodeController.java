@@ -39,6 +39,7 @@ import net.seapanda.bunnyhop.node.view.BhNodeView.MouseEventInfo;
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.control.MouseCtrlLock;
+import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.view.TrashCan;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
@@ -221,7 +222,7 @@ public class DefaultBhNodeController implements BhNodeController {
         //同一ワークスペース上で移動
         toSameWorkspace();
       }
-      deleteTrashedNode(event);
+      deleteTrashedNode();
     } finally {
       terminateDnd();
     }
@@ -260,7 +261,7 @@ public class DefaultBhNodeController implements BhNodeController {
     UserOperation userOpe = ddInfo.context.userOpe();
     //ワークスペースから移動する場合
     if (model.isRoot()) {
-      userOpe.pushCmdOfSetNodePos(view, ddInfo.posOnWorkspace);
+      ViewUtil.pushReverseMoveCmd(view, ddInfo.posOnWorkspace, userOpe);
     }
     // 入れ替えられるノードの親ノード
     final ConnectiveNode oldParentOfReplaced = oldChildNode.findParentNode();
@@ -293,18 +294,18 @@ public class DefaultBhNodeController implements BhNodeController {
   private static void shift(BhNodeView view, Vec2D amount, UserOperation userOpe) {
     Vec2D pos = view.getPositionManager().getPosOnWorkspace();
     view.getPositionManager().setTreePosOnWorkspace(pos.x + amount.x, pos.y + amount.y);
-    userOpe.pushCmdOfSetNodePos(view, pos);
+    ViewUtil.pushReverseMoveCmd(view, pos, userOpe);
   }
 
   /** 同一ワークスペースへの移動処理. */
   private void toSameWorkspace() {
     if (ddInfo.dragging && model.isRoot()) {
-      ddInfo.context.userOpe().pushCmdOfSetNodePos(view, ddInfo.posOnWorkspace);
+      ViewUtil.pushReverseMoveCmd(view, ddInfo.posOnWorkspace, ddInfo.context.userOpe());
     }
   }
 
   /** ゴミ箱に入れられたノードを削除する. */
-  private void deleteTrashedNode(MouseEvent event) {
+  private void deleteTrashedNode() {
     if (model.isRoot() && trashCan.isOpened()) {
       boolean canDelete = model.getEventInvoker().onDeletionRequested(
           new ArrayList<>() {{

@@ -53,7 +53,7 @@ public class NoContentNodeView extends BhNodeViewBase {
     getLookManager().addCssClass(BhConstants.Css.CLASS_NO_CONTENT_NODE);
     setMouseTransparent(true);
     getLookManager().setBodyShapeGetter(() -> {
-      boolean inner = (parent == null) ? true : parent.inner;
+      boolean inner = parent == null || parent.inner;
       return inner ? viewStyle.bodyShape : BodyShape.BODY_SHAPE_NONE;
     });
   }

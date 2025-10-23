@@ -117,10 +117,10 @@ public class TextNode extends DerivativeBase<TextNode> {
     if (this.text.equals(text)) {
       return;
     }
-    String oldText = text;
+    String oldText = this.text;
     this.text = text;
+    userOpe.pushCmd(ope -> setText(oldText, ope));
     getCallbackRegistry().onTextChangedInvoker.invoke(new TextChangedEvent(oldText, text, userOpe));
-    userOpe.pushCmdOfSetText(this, oldText);
   }
 
   /**

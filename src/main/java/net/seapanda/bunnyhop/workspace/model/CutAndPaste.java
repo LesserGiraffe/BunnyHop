@@ -63,8 +63,8 @@ public class CutAndPaste {
       return;
     }
     readyToCut.add(toAdd);
+    userOpe.pushCmd(ope -> removeNodeFromList(toAdd, ope));
     cbRegistry.onNodeAddedInvoker.invoke(new NodeAddedEvent(this, toAdd));
-    userOpe.pushCmdOfAddNodeToCutList(this, toAdd);
     toAdd.getCallbackRegistry().getOnWorkspaceChanged().add(cbRegistry.onWsChanged);
   }
 
@@ -74,7 +74,7 @@ public class CutAndPaste {
    * @param userOpe undo 用コマンドオブジェクト
    */
   public void clearList(UserOperation userOpe) {
-    while (readyToCut.size() != 0) {
+    while (!readyToCut.isEmpty()) {
       removeNodeFromList(readyToCut.getFirst(), userOpe);
     }    
   }
@@ -88,8 +88,8 @@ public class CutAndPaste {
   public void removeNodeFromList(BhNode toRemove, UserOperation userOpe) {
     if (readyToCut.contains(toRemove)) {
       readyToCut.remove(toRemove);
+      userOpe.pushCmd(ope -> addNodeToList(toRemove, ope));
       cbRegistry.onNodeRemovedInvoker.invoke(new NodeRemovedEvent(this, toRemove));
-      userOpe.pushCmdOfRemoveNodeFromCutList(this, toRemove);
       toRemove.getCallbackRegistry().getOnWorkspaceChanged().remove(cbRegistry.onWsChanged);
     }
   }

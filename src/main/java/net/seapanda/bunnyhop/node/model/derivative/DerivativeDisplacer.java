@@ -219,8 +219,8 @@ public class DerivativeDisplacer implements BhNodeWalker {
    * {@code root} 以下のノードが全て削除済みであるかどうか調べる.
    *
    * @param root このノード以下のノードが全て削除済みであるかどうか調べる
-   * @retval true {@code root} 以下のノードが全て削除済みであった
-   * @retval false {@code root} 以下に削除されていないノードがあった
+   * @return true {@code root} 以下のノードが全て削除済みであった. <br>
+   *         false {@code root} 以下に削除されていないノードがあった.
    */
   private boolean allDeleted(BhNode root) {
     MutableBoolean allDeleted = new MutableBoolean(true);

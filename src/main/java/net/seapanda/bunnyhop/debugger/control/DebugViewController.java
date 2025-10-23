@@ -35,7 +35,6 @@ import net.seapanda.bunnyhop.debugger.model.thread.ThreadSelection;
 import net.seapanda.bunnyhop.debugger.model.variable.VariableInfo;
 import net.seapanda.bunnyhop.debugger.view.factory.DebugViewFactory;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 
 /**
@@ -146,7 +145,7 @@ public class DebugViewController {
     }
     // 最初にコールスタックのトップを選択しておく.
     if (!callStackCtrl.getThreadContext().callStack.isEmpty()) {
-      callStackCtrl.getThreadContext().callStack.getLast().select(new UserOperation());
+      callStackCtrl.getThreadContext().callStack.getLast().select();
     }
     if (isContextThreadSameAsDebugThread) {
       callStackScrollPane.setContent(callStackCtrl.getView());

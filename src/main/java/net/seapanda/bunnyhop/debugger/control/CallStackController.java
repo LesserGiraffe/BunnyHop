@@ -42,7 +42,6 @@ import net.seapanda.bunnyhop.debugger.view.CallStackCell;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.LookManager.EffectTarget;
-import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.model.SearchQuery;
 import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
@@ -172,12 +171,11 @@ public class CallStackController {
     if (isDiscarded) {
       return;
     }
-    var tmpUserOpe = new UserOperation();
     if (deselected != null) {
-      deselected.deselect(tmpUserOpe);
+      deselected.deselect();
     }
     if (selected != null) {
-      selected.select(tmpUserOpe);
+      selected.select();
     }
   }
 

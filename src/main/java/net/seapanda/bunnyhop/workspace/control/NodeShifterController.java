@@ -137,7 +137,8 @@ public class NodeShifterController {
     try {
       view.switchPseudoClassActivation(false, BhConstants.Css.PSEUDO_SELECTED);
       event.consume();
-      ddInfo.viewToOrgPos.forEach(ddInfo.context.userOpe()::pushCmdOfSetNodePos);
+      ddInfo.viewToOrgPos.forEach(
+          (view, pos) -> ViewUtil.pushReverseMoveCmd(view, pos, ddInfo.context.userOpe()));
     } finally {
       event.consume();
       terminateDnd();

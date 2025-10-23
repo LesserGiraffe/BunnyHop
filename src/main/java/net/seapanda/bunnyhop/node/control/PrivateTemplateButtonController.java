@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.node.control;
 
 import java.util.LinkedHashSet;
 import java.util.SequencedSet;
-import java.util.concurrent.atomic.AtomicReference;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseButton;
@@ -41,8 +40,8 @@ import net.seapanda.bunnyhop.service.undo.UserOperation;
  */
 public class PrivateTemplateButtonController {
   
-  /** 最後にプライベートテンプレートを作成したノード. */
-  private static final AtomicReference<BhNode> lastClicked = new AtomicReference<>();
+  /** 最後にテンプレートノードを作成したノード. */
+  private static BhNode currentProducerNode = null;
 
   private final BhNode node;
   private final ModelAccessNotificationService service;
@@ -66,10 +65,10 @@ public class PrivateTemplateButtonController {
     this.proxy = proxy;
 
     node.getCallbackRegistry().getOnWorkspaceChanged().add(event -> {
-      if (event.newWs() == null) {
-        // 変数ノード配置 -> プライベートテンプレート表示 -> undo  で, 
-        // オリジナルノードがワークスペースに存在しない状況で, 派生ノードをワークスペースに配置できてしまうのを防ぐ.
-        // ただし, プライベートテンプレートノードの削除は行わない.
+      if (event.newWs() == null && isPrivateTemplateShowed() && currentProducerNode == node) {
+        // ノード配置 -> 配置したノードのテンプレートノードを表示 -> undo という操作で,
+        // 元のノードがワークスペースに存在しない状況で, テンプレートノードがワークスペースに配置できてしまうのを防ぐ.
+        // ただし, テンプレートノードの削除は行わない.
         proxy.hideCurrentView();
       }
     });
@@ -86,33 +85,46 @@ public class PrivateTemplateButtonController {
     if (isTemplate(node) || node.isDeleted()) {
       return;
     }
+    if (currentProducerNode == node) {
+      updateTemplateVisibility();
+      return;
+    }
     try {
       Context context = service.beginWrite();
-      boolean isPrivateTemplateShowed = proxy.getCurrentCategoryName()
-          .map(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE::equals)
-          .orElse(false);
-      // 現在表示しているプライベートテンプレートを作ったボタンを押下した場合, プライベートテンプレートを閉じる
-      if (lastClicked.getAndSet(node) == node && isPrivateTemplateShowed) {
-        proxy.hideCurrentView();
-      } else {
-        UserOperation userOpe = context.userOpe();
-        deletePrivateTemplateNodes(userOpe);
-        proxy.hideCurrentView();
-        String categoryName = BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE;
-        SequencedSet<BhNode> templateNodes = createPrivateTemplates(userOpe);
-        for (BhNode templateNode : templateNodes) {
-          proxy.addNodeTree(categoryName, templateNode, userOpe);
-          // ノード選択ビューに追加してからイベントハンドラを呼ぶ
-          CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
-              .setForAllNodes(bhNode -> bhNode.getEventInvoker().onCreatedAsTemplate(userOpe));
-          CallbackInvoker.invoke(registry, templateNode);
-        }
-        proxy.show(categoryName);
+      UserOperation userOpe = context.userOpe();
+      deletePrivateTemplateNodes(userOpe);
+      proxy.hideCurrentView();
+      String categoryName = BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE;
+      SequencedSet<BhNode> templateNodes = createPrivateTemplates(userOpe);
+      for (BhNode templateNode : templateNodes) {
+        proxy.addNodeTree(categoryName, templateNode, userOpe);
+        // ノード選択ビューに追加してからイベントハンドラを呼ぶ
+        CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
+            .setForAllNodes(bhNode -> bhNode.getEventInvoker().onCreatedAsTemplate(userOpe));
+        CallbackInvoker.invoke(registry, templateNode);
       }
+      proxy.show(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE);
+      setCurrentProducerNode(node, userOpe);
       event.consume();
     } finally {
       service.endWrite();
     }
+  }
+
+  /** ノード固有のテンプレートノードを表示するノード選択ビューの可視性を変更する. */
+  private void updateTemplateVisibility() {
+    if (isPrivateTemplateShowed()) {
+      proxy.hideCurrentView();
+    } else {
+      proxy.show(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE);
+    }
+  }
+
+  /** 最後にノード固有のテンプレートノードを作成したノードを設定する. */
+  private void setCurrentProducerNode(BhNode node, UserOperation userOpe) {
+    BhNode oldCurrentProducerNode = currentProducerNode;
+    currentProducerNode = node;
+    userOpe.pushCmd(ope -> setCurrentProducerNode(oldCurrentProducerNode, ope));
   }
 
   /** {@link #node} のテンプレートを作成する. */
@@ -120,7 +132,7 @@ public class PrivateTemplateButtonController {
     return new LinkedHashSet<BhNode>(node.createCompanionNodes(MvcType.TEMPLATE, userOpe));
   }
 
-  /** プライベートテンプレートノードを全て消す. */
+  /** 現在ノード選択ビューに存在するノード固有のテンプレートノードを全て消す. */
   private void deletePrivateTemplateNodes(UserOperation userOpe) {
     String categoryName = BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE;
     proxy.getNodeTrees(categoryName).forEach(
@@ -143,5 +155,12 @@ public class PrivateTemplateButtonController {
       node = node.findParentNode();
     }
     return false;
+  }
+
+  /** 現在表示されているノード選択ビューがノード固有のテンプレートを表示するためのものであるか調べる. */
+  private boolean isPrivateTemplateShowed() {
+    return proxy.getCurrentCategoryName()
+        .map(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE::equals)
+        .orElse(false);
   }
 }

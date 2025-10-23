@@ -38,7 +38,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TabPane.TabDragPolicy;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -687,7 +686,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
       if (tabPane != null) {
         // このイベントハンドラを抜けるとき, TabDragPolicy.FIXED にしないと
         // タブ消しをキャンセルした後, そのタブが使えなくなる.
-        getTabPane().setTabDragPolicy(TabDragPolicy.FIXED);
+        tabPane.setTabDragPolicy(TabPane.TabDragPolicy.FIXED);
       }
     }
 

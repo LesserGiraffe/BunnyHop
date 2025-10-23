@@ -81,11 +81,12 @@ public class Workspace implements Serializable {
     CallbackInvoker.CallbackRegistry callbacks = CallbackInvoker.newCallbackRegistry();
     callbacks.setForAllNodes(bhNode -> addNode(bhNode, userOpe));
     CallbackInvoker.invoke(callbacks, root);
-    if (!rootNodes.contains(root) && root.isRoot()) {
+    boolean shouldAddRoot = !rootNodes.contains(root) && root.isRoot();
+    if (shouldAddRoot) {
       rootNodes.add(root);
-      getCallbackRegistry().onRootNodeAddedInvoker.invoke(new RootNodeAddedEvent(this, root, userOpe));
     }
-    userOpe.pushCmdOfAddNodeTreeToWorkspace(root, this);
+    userOpe.pushCmd(ope -> removeNodeTree(root, ope));
+    invokeOnNodeAdded(root, shouldAddRoot, userOpe);
   }
 
   /**
@@ -106,7 +107,19 @@ public class Workspace implements Serializable {
     registry.getOnCompileErrorStateChanged().add(cbRegistry.onNodeCompileErrStateChanged);
     registry.getOnBreakpointSet().add(cbRegistry.onNodeBreakpointSet);
     registry.getOnConnected().add(cbRegistry.onNodeConnected);
-    cbRegistry.onNodeAddedInvoker.invoke(new NodeAddedEvent(this, node, userOpe));
+  }
+
+  /** ノードツリーの追加に伴うコールバック関数を呼ぶ. */
+  private void invokeOnNodeAdded(BhNode root, boolean invokeOnRootAdded, UserOperation userOpe) {
+    var cbRegistry = getCallbackRegistry();
+    CallbackInvoker.CallbackRegistry callbacks = CallbackInvoker.newCallbackRegistry();
+    callbacks.setForAllNodes(
+        node -> cbRegistry.onNodeAddedInvoker.invoke(new NodeAddedEvent(this, node, userOpe)));
+    CallbackInvoker.invoke(callbacks, root);
+
+    if (invokeOnRootAdded) {
+      cbRegistry.onRootNodeAddedInvoker.invoke(new RootNodeAddedEvent(this, root, userOpe));
+    }
   }
 
   /**
@@ -119,15 +132,15 @@ public class Workspace implements Serializable {
     if (root.getWorkspace() != this) {
       return;
     }
-    if (rootNodes.contains(root)) {
+    boolean shouldRemoveRoot = rootNodes.contains(root);
+    if (shouldRemoveRoot) {
       rootNodes.remove(root);
-      getCallbackRegistry().onRootNodeRemovedInvoker.invoke(
-          new RootNodeRemovedEvent(this, root, userOpe));
     }
     CallbackInvoker.CallbackRegistry callbacks = CallbackInvoker.newCallbackRegistry();
     callbacks.setForAllNodes(bhNode -> removeNode(bhNode, userOpe));
     CallbackInvoker.invoke(callbacks, root);
-    userOpe.pushCmdOfRemoveNodeTreeFromWorkspace(root, this);
+    userOpe.pushCmd(ope -> addNodeTree(root, ope));
+    invokeOnNodeRemoved(root, shouldRemoveRoot, userOpe);
   }
 
   /**
@@ -151,7 +164,20 @@ public class Workspace implements Serializable {
     registry.getOnConnected().remove(cbRegistry.onNodeConnected);
     node.setWorkspace(null, userOpe);
     nodeList.remove(node);
-    cbRegistry.onNodeRemovedInvoker.invoke(new NodeRemovedEvent(this, node, userOpe));
+  }
+
+  /** ノードツリーの削除に伴うコールバック関数を呼ぶ. */
+  private void invokeOnNodeRemoved(
+      BhNode root, boolean invokeOnRootRemoved, UserOperation userOpe) {
+    var cbRegistry = getCallbackRegistry();
+    if (invokeOnRootRemoved) {
+      cbRegistry.onRootNodeRemovedInvoker.invoke(new RootNodeRemovedEvent(this, root, userOpe));
+    }
+
+    CallbackInvoker.CallbackRegistry callbacks = CallbackInvoker.newCallbackRegistry();
+    callbacks.setForAllNodes(
+        node -> cbRegistry.onNodeRemovedInvoker.invoke(new NodeRemovedEvent(this, node, userOpe)));
+    CallbackInvoker.invoke(callbacks, root);
   }
 
   /**

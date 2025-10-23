@@ -27,6 +27,7 @@ import net.seapanda.bunnyhop.node.model.derivative.DerivativeCollector;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeRemover;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
+import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 
@@ -131,7 +132,7 @@ public class BhNodePlacer {
     node.getView().ifPresent(view -> {
       Vec2D oldPos = view.getPositionManager().getPosOnWorkspace();
       view.getPositionManager().setTreePosOnWorkspace(x, y);
-      userOpe.pushCmdOfSetNodePos(view, oldPos);
+      ViewUtil.pushReverseMoveCmd(view, oldPos, userOpe);
     });
     if (!swappedNodes.isEmpty()) {
       for (Swapped swapped : new ArrayList<>(swappedNodes).subList(1, swappedNodes.size())) {

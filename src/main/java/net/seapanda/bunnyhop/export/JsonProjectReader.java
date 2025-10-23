@@ -286,7 +286,7 @@ public class JsonProjectReader {
   private Optional<Connector> connectChild(ConnectiveNode parent, BhNode child, ConnectorId id) {
     Connector cnctr = parent.findConnector(id);
     if (cnctr != null) {
-      cnctr.connectNode(child, new UserOperation());
+      cnctr.connectNode(child);
       return Optional.of(cnctr);
     }
     warnings.add(ImportWarning.CONNECTOR_NOT_FOUND);

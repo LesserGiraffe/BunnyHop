@@ -69,7 +69,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
     setComponent(textField);
     textField.addEventFilter(MouseEvent.ANY, this::forwardEvent);
     textField.focusedProperty().addListener(
-        (ov, oldVal, newVal) -> Platform.runLater(() -> selectText()));
+        (ov, oldVal, newVal) -> Platform.runLater(this::selectText));
     initStyle();
   }
 

@@ -117,9 +117,11 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
    * @param userOpe undo 用コマンドオブジェクト
    */
   public void addDerivative(T derivative, UserOperation userOpe) {
-    derivatives.add(derivative);
-    derivative.setOriginal(self());
-    userOpe.pushCmdOfAddDerivative(derivative, self());
+    if (!derivatives.contains(derivative)) {
+      derivatives.add(derivative);
+      derivative.setOriginal(self());
+      userOpe.pushCmd(ope -> removeDerivative(derivative, userOpe));
+    }
   }
 
   /**
@@ -130,9 +132,11 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
    * @param userOpe undo 用コマンドオブジェクト
    */
   public void removeDerivative(T derivative, UserOperation userOpe) {
-    derivatives.remove(derivative);
-    derivative.setOriginal(null);
-    userOpe.pushCmdOfRemoveDerivative(derivative, self());
+    if (derivatives.contains((derivative))) {
+      derivatives.remove(derivative);
+      derivative.setOriginal(null);
+      userOpe.pushCmd(ope -> addDerivative(derivative, ope));
+    }
   }
 
   @Override

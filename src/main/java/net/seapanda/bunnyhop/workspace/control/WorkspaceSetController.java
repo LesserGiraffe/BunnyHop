@@ -21,7 +21,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TabPane.TabDragPolicy;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionView;
@@ -74,7 +73,7 @@ public class WorkspaceSetController {
 
     // タブクローズイベントで TabDragPolicy.FIXED にするので, クリック時に再度 REORDER に変更する必要がある
     workspaceSetTab.setOnMousePressed(
-        event -> workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER));
+        event -> workspaceSetTab.setTabDragPolicy(TabPane.TabDragPolicy.REORDER));
     
     workspaceSetTab.getSelectionModel().selectedItemProperty().addListener(
         (obs, oldTab, newTab) -> onTabSelected(newTab));
@@ -151,7 +150,7 @@ public class WorkspaceSetController {
       workspaceSetTab.getTabs().add(tab);
       workspaceSetTab.getSelectionModel().select(tab);
       // ここで REORDER にしないと, undo でタブを戻した時, タブドラッグ時に例外が発生する
-      workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);  
+      workspaceSetTab.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
     }
   }
 
@@ -160,7 +159,7 @@ public class WorkspaceSetController {
     if (ws.getView().orElse(null) instanceof Tab tab) {
       workspaceSetTab.getTabs().remove(tab);
       // ここで REORDER にしないと, タブを消した後でタブドラッグすると例外が発生する
-      workspaceSetTab.setTabDragPolicy(TabDragPolicy.REORDER);
+      workspaceSetTab.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
     }
   }
 

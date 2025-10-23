@@ -66,8 +66,8 @@ public class CopyAndPaste {
       return;
     }
     readyToCopy.add(toAdd);
+    userOpe.pushCmd(ope -> removeNodeFromList(toAdd, ope));
     cbRegistry.onNodeAddedInvoker.invoke(new NodeAddedEvent(this, toAdd));
-    userOpe.pushCmdOfAddNodeToCopyList(this, toAdd);
     toAdd.getCallbackRegistry().getOnWorkspaceChanged().add(cbRegistry.onWsChanged);
   }
 
@@ -77,7 +77,7 @@ public class CopyAndPaste {
    * @param userOpe undo 用コマンドオブジェクト
    */
   public void clearList(UserOperation userOpe) {
-    while (readyToCopy.size() != 0) {
+    while (!readyToCopy.isEmpty()) {
       removeNodeFromList(readyToCopy.getFirst(), userOpe);
     }
   }
@@ -126,7 +126,7 @@ public class CopyAndPaste {
   /**
    * {@code target} をコピーする.
    *
-   * <p> 返されるノードの MVC は構築されない. </p>
+   * <p>返されるノードの MVC は構築されない.
    *
    * @param target コピー対象のノード
    * @param nodesToCopy {@code target} ノードとともにコピーされるノード
@@ -149,8 +149,8 @@ public class CopyAndPaste {
   public void removeNodeFromList(BhNode toRemove, UserOperation userOpe) {
     if (readyToCopy.contains(toRemove)) {
       readyToCopy.remove(toRemove);
+      userOpe.pushCmd(ope -> addNodeToList(toRemove, ope));
       cbRegistry.onNodeRemovedInvoker.invoke(new NodeRemovedEvent(this, toRemove));
-      userOpe.pushCmdOfRemoveNodeFromCopyList(this, toRemove);
       toRemove.getCallbackRegistry().getOnWorkspaceChanged().remove(cbRegistry.onWsChanged);
     }
   }

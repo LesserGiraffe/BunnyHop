@@ -67,8 +67,8 @@ public class WorkspaceSet {
     registry.getOnRootNodeAdded().add(cbRegistry.onRootNodeAdded);
     registry.getOnRootNodeRemoved().add(cbRegistry.onRootNodeRemoved);
     registry.getOnNameChanged().add(cbRegistry.onWsNamechanged);
+    userOpe.pushCmd(ope -> removeWorkspace(workspace, ope));
     cbRegistry.onWsAddedInvoker.invoke(new WorkspaceAddedEvent(this, workspace, userOpe));
-    userOpe.pushCmdOfAddWorkspace(workspace);
   }
 
   /**
@@ -90,8 +90,8 @@ public class WorkspaceSet {
     registry.getOnRootNodeAdded().remove(cbRegistry.onRootNodeAdded);
     registry.getOnRootNodeRemoved().remove(cbRegistry.onRootNodeRemoved);
     registry.getOnNameChanged().remove(cbRegistry.onWsNamechanged);
+    userOpe.pushCmd(ope -> addWorkspace(workspace, ope));
     cbRegistry.onWsRemovedInvoker.invoke(new WorkspaceRemovedEvent(this, workspace, userOpe));
-    userOpe.pushCmdOfRemoveWorkspace(workspace, this);
   }
 
   /** {@code ws} の中のノードを全て消す. */

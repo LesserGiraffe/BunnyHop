@@ -28,11 +28,7 @@ import javafx.scene.control.ListView;
 import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointRegistry;
 import net.seapanda.bunnyhop.debugger.view.BreakpointListCell;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.LookManager.EffectTarget;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService.Context;
-import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.model.SearchQuery;
 import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
@@ -56,7 +52,6 @@ public class BreakpointListController {
   @FXML private CheckBox bpJumpCheckBox;
 
   private final WorkspaceSet wss;
-  private final ModelAccessNotificationService notifService;
   private final SearchBox searchBox;
   private final BreakpointRegistry breakpointRegistry;
   private final Map<BhNode, Set<BreakpointListCell>> nodeToCallBpListCell = new WeakHashMap<>();
@@ -65,11 +60,9 @@ public class BreakpointListController {
   /** コンストラクタ. */
   public BreakpointListController(
       WorkspaceSet wss,
-      ModelAccessNotificationService notifService,
       SearchBox searchBox,
       BreakpointRegistry breakpointRegistry) {
     this.wss = wss;
-    this.notifService = notifService;
     this.searchBox = searchBox;
     this.breakpointRegistry = breakpointRegistry;
   }
@@ -89,7 +82,7 @@ public class BreakpointListController {
 
     bpListView.setCellFactory(stack -> new BreakpointListCell(nodeToCallBpListCell));
     bpListView.getSelectionModel().selectedItemProperty().addListener(
-        (observable, oldVal, newVal) -> onBreakpointSelected(oldVal, newVal));
+        (observable, oldVal, newVal) -> onBreakpointSelected(newVal));
     bpListView.itemsProperty().addListener((obs, oldVal, newVal) -> searchResult = null);
 
     bpSearchButton.setOnAction(action -> {
@@ -103,35 +96,13 @@ public class BreakpointListController {
   }
 
   /** ブレークポイント一覧のブレークポイントが選択されたときのイベントハンドラ. */
-  private void onBreakpointSelected(BhNode deselected, BhNode selected) {
-    Context context = notifService.beginWrite();
-    try {
-      var userOpe = new UserOperation();
-      if (deselected != null) {
-        deselected.deselect(userOpe);
-      }
-      if (selected != null) {
-        if (bpJumpCheckBox.isSelected()) {
-          jump(selected, context.userOpe());
-        }
-      }
-    } finally {
-      notifService.endWrite();
+  private void onBreakpointSelected(BhNode selected) {
+    if (selected != null && bpJumpCheckBox.isSelected()) {
+      selected.getView().ifPresent(view -> ViewUtil.jump(view, true, EffectTarget.SELF));
     }
   }
 
-  /** {@code node} を選択して, これを画面中央に表示する. */
-  private static void jump(BhNode node, UserOperation userOpe) {
-    BhNodeView nodeView = node.getView().orElse(null);
-    if (node.isDeleted() || nodeView == null) {
-      return;
-    }
-    ViewUtil.jump(nodeView, true, EffectTarget.SELF);
-    node.getWorkspace().getSelectedNodes().forEach(selectedNode -> selectedNode.deselect(userOpe));
-    node.select(userOpe);
-  }
-
-  /** コールスタックから {@code query} で指定された文字列に一致する要素を探して選択する. */
+  /** ブレークポイント一覧から {@code query} で指定された文字列に一致する要素を探して選択する. */
   private SearchQueryResult selectItem(SearchQuery query) {
     if (StringUtils.isEmpty(query.word())) {
       return new SearchQueryResult(0, 0);

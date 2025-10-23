@@ -61,7 +61,7 @@ public class JsonProjectWriter {
   /** {@code workspace} に対応する {@link WorkspaceImage} を作成する. */
   private static WorkspaceImage convertToImage(Workspace workspace) {
     Collection<BhNodeImage> nodeImages = workspace.getRootNodes().stream()
-        .map(root -> NodeImageBuilder.build(root))
+        .map(NodeImageBuilder::build)
         .toList();
     Vec2D size = workspace.getView().map(WorkspaceView::getSize).orElse(new Vec2D());
     return new WorkspaceImage(workspace.getName(), size, nodeImages);

@@ -429,11 +429,11 @@ public abstract class BhNode extends SyntaxSymbol {
     }
     Workspace oldWs = this.workspace;
     this.workspace = workspace;
-    getCallbackRegistry().onWsChangedInvoker.invoke(
-        new WorkspaceChangeEvent(this, oldWs, workspace, userOpe));
     // undo 時に Workspace.addNode の逆操作とこのコマンドの逆操作が重複するが問題ない.
     // このメソッドの呼ばれ方によらず, このメソッドの逆操作をするために, ここで操作コマンドを追加する.
-    userOpe.pushCmdOfSetWorkspace(oldWs, this);
+    userOpe.pushCmd(ope -> setWorkspace(oldWs, ope));
+    getCallbackRegistry().onWsChangedInvoker.invoke(
+        new WorkspaceChangeEvent(this, oldWs, workspace, userOpe));
   }
 
   /**
@@ -461,8 +461,9 @@ public abstract class BhNode extends SyntaxSymbol {
    * @param userOpe undo 用コマンドオブジェクト
    */
   public void setLastReplaced(BhNode lastReplaced, UserOperation userOpe) {
-    userOpe.pushCmdOfSetLastReplaced(this.lastReplaced, this);
+    BhNode oldLastReplaced = this.lastReplaced;
     this.lastReplaced = lastReplaced;
+    userOpe.pushCmd(ope -> setLastReplaced(oldLastReplaced, ope));
   }
 
   /**
@@ -487,9 +488,9 @@ public abstract class BhNode extends SyntaxSymbol {
   public void select(UserOperation userOpe) {
     if (!isSelected) {
       isSelected = true;
+      userOpe.pushCmd(this::deselect);
       getCallbackRegistry().onSelStateChangedInvoker.invoke(
           new SelectionEvent(this, true, userOpe));
-      userOpe.pushCmdOfSelectNode(this);
     }
   }
 
@@ -497,9 +498,9 @@ public abstract class BhNode extends SyntaxSymbol {
   public void deselect(UserOperation userOpe) {
     if (isSelected) {
       isSelected = false;
+      userOpe.pushCmd(this::select);
       getCallbackRegistry().onSelStateChangedInvoker.invoke(
           new SelectionEvent(this, false, userOpe));
-      userOpe.pushCmdOfDeselectNode(this);
     }
   }
 
@@ -613,8 +614,9 @@ public abstract class BhNode extends SyntaxSymbol {
     if (val == hasCompileError) {
       return;
     }
-    userOpe.pushCmdOfSetCompileError(this, hasCompileError);
+    boolean oldVal = hasCompileError;
     hasCompileError = val;
+    userOpe.pushCmd(ope -> setCompileErrState(oldVal, ope));
     getCallbackRegistry().onCompileErrStateChangedInvoker.invoke(
         new CompileErrorEvent(this, hasCompileError, userOpe));
   }

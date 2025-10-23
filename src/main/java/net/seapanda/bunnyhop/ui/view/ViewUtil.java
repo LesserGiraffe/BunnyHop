@@ -32,6 +32,7 @@ import javafx.scene.text.TextBoundsType;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.LookManager.EffectTarget;
+import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceViewPane;
@@ -306,5 +307,21 @@ public class ViewUtil {
     if (target != null) {
       view.getLookManager().showShadow(EffectTarget.SELF);
     }
+  }
+
+  /**
+   * {@link BhNodeView} を移動を開始する前の位置に戻すコマンドを {@link UserOperation} に追加する.
+   *
+   * @param view 移動前の位置に戻すノードビュー
+   * @param pos 移動前の位置
+   * @param userOpe undo 用コマンドオブジェクト.
+   */
+  public static void pushReverseMoveCmd(BhNodeView view, Vec2D pos, UserOperation userOpe) {
+    userOpe.pushCmd(
+        ope -> {
+          Vec2D currentPos = view.getPositionManager().getPosOnWorkspace();
+          view.getPositionManager().setTreePosOnWorkspace(pos.x, pos.y);
+          pushReverseMoveCmd(view, currentPos, ope);
+        });
   }
 }
