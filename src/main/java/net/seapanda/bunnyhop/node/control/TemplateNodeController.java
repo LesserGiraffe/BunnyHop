@@ -49,7 +49,7 @@ public class TemplateNodeController implements BhNodeController {
   private final BhNodeFactory factory;
   private final WorkspaceSet wss;
   private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
-  
+
   /**
    * コンストラクタ.
    *
@@ -227,5 +227,5 @@ public class TemplateNodeController implements BhNodeController {
       currentView = null;
       isDndFinished = true;
     }
-  }  
+  }
 }

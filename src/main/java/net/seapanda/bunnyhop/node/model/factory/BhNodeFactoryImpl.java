@@ -195,7 +195,8 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
     private BhNodeController createBaseController(BhNode node, BhNodeView nodeView) {
       return type == MvcType.DEFAULT
           ? new DefaultBhNodeController(node, nodeView, notifService, trashCan)
-          : new TemplateNodeController(node, nodeView, BhNodeFactoryImpl.this, notifService, wss, proxy);
+          : new TemplateNodeController(
+              node, nodeView, BhNodeFactoryImpl.this, notifService, wss, proxy);
     }
   }  
 }

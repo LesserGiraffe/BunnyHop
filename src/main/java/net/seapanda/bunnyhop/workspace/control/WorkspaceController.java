@@ -25,6 +25,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Modality;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
@@ -237,8 +238,13 @@ public class WorkspaceController {
     if (model.getRootNodes().isEmpty()) {
       return true;
     }
+    // ワークスペースタブの削除確認ダイアログはマウスイベントを起点とするイベントハンドラの中で表示される.
+    // マウスイベントを起点とするイベントハンドラ内で通常のダイアログウィンドウを表示すると, その後のマウスイベントが正常に取得できない.
+    // 例えば, ノードをドラッグしても Drag Detected イベントが発生しないなどの現象が発生する.
+    // しかし, Modality.NONE を指定してダイアログを表示するとこの不具合を回避可能なので, ここではそれを使用する.
     Optional<ButtonType> buttonType = msgService.alert(
         Alert.AlertType.CONFIRMATION,
+        Modality.NONE,
         TextDefs.Workspace.AskIfDeleteWs.title.get(),
         null,
         TextDefs.Workspace.AskIfDeleteWs.body.get(model.getName()));

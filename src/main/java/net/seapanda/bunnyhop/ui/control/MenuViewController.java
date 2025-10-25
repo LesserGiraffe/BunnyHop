@@ -16,9 +16,6 @@
 
 package net.seapanda.bunnyhop.ui.control;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -61,6 +58,7 @@ import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationServic
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
+import net.seapanda.bunnyhop.ui.service.window.WindowManager;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
@@ -162,6 +160,8 @@ public class MenuViewController {
   private final MessageService msgService;
   /** デバッグウィンドウのコントローラ. */
   private final DebugWindowController debugWindowCtrl;
+  /** アプリケーションのウィンドウを操作するためのオブジェクト */
+  private final WindowManager windowManager;
 
   /** コンストラクタ. */
   public MenuViewController(
@@ -175,7 +175,8 @@ public class MenuViewController {
       CopyAndPaste copyAndPaste,
       CutAndPaste cutAndPaste,
       MessageService msgService,
-      DebugWindowController debugWindowCtrl) {
+      DebugWindowController debugWindowCtrl,
+      WindowManager windowManager) {
     this.wssCtrl = wssCtrl;
     this.notifService = notifService;
     this.wsFactory = wsFactory;
@@ -187,6 +188,7 @@ public class MenuViewController {
     this.cutAndPaste = cutAndPaste;
     this.msgService = msgService;
     this.debugWindowCtrl = debugWindowCtrl;
+    this.windowManager = windowManager;
   }
 
   /** このコントローラを初期化する. */
@@ -487,7 +489,7 @@ public class MenuViewController {
         .supplyAsync(exec)
         .thenAccept(success -> {
           if (BhSettings.BhSimulator.focusOnStartBhProgram && success && isLocalHost()) {
-            focusSimulator(false);
+            windowManager.focusSimulator();
           }
           executing.set(false);
         });
@@ -556,15 +558,6 @@ public class MenuViewController {
     CompletableFuture
         .supplyAsync(connect)
         .thenAccept(success -> connecting.set(false));
-  }
-
-  /** シミュレータにフォーカスする. */
-  private void focusSimulator(boolean doForcibly) {
-    Lwjgl3Window window = ((Lwjgl3Graphics) Gdx.app.getGraphics()).getWindow();
-    if (!window.isIconified() || doForcibly) {
-      window.restoreWindow();
-      window.focusWindow();
-    }
   }
 
   /** 送信ボタン押下時の処理. */

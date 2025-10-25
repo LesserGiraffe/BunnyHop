@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.service.message;
 import java.util.Optional;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.stage.Modality;
 
 /**
  * アプリケーションユーザ向けにメッセージを出力する機能を規定したインタフェース.
@@ -45,6 +46,25 @@ public interface MessageService {
    */
   Optional<ButtonType> alert(
       Alert.AlertType type,
+      String title,
+      String header,
+      String content,
+      ButtonType ... buttonTypes);
+
+  /**
+   * アラーウィンドウでメッセージを出力する.
+   *
+   * @param type アラートの種類
+   * @param modality アラーウィンドウのモダリティ
+   * @param title アラートウィンドウのタイトル (nullable)
+   * @param header アラートウィンドウのヘッダ (nullable)
+   * @param content アラートウィンドウの本文 (nullable)
+   * @param buttonTypes 表示するボタン (nullable)
+   * @return メッセージに対して選択されたボタン
+   */
+  Optional<ButtonType> alert(
+      Alert.AlertType type,
+      Modality modality,
       String title,
       String header,
       String content,

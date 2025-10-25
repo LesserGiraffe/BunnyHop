@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.debugger.model;
 import net.seapanda.bunnyhop.bhprogram.common.message.exception.BhProgramException;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * デバッガの実装で必要となる共通の処理をまとめたクラス.
@@ -37,15 +38,21 @@ public class DebugUtil {
       return "";
     }
     String msg = exception.getMessage();
-    if (exception.getCause() == null) {
+    Throwable cause = exception.getCause();
+    if (cause == null) {
       return truncateErrMsg(msg);
     }
-    String errMsg = switch (exception.getCause()) {
+    String errMsg = switch (cause) {
       case StackOverflowError e -> TextDefs.Debugger.stackOverflow.get();
       case OutOfMemoryError e -> TextDefs.Debugger.outOfMemory.get();
+      case BhProgramException e -> {
+        msg += StringUtils.isEmpty(msg) ? "" : "\n";
+        yield msg + getErrMsg(e);
+      }
       default -> {
-        msg += msg.isEmpty() ? "" : "\n";
-        yield msg + exception.getCause().getMessage();
+        msg += StringUtils.isEmpty(msg) ? "" : "\n";
+        msg += StringUtils.isEmpty(cause.getMessage()) ? "" : "%s  ".formatted(cause.getMessage());
+        yield msg + "(%s)".formatted(cause.getClass().getName());
       }
     };
     return truncateErrMsg(errMsg);

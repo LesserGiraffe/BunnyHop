@@ -182,7 +182,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   }
 
   @Override
-  public  CallbackRegistryBase getCallbackRegistry() {
+  public CallbackRegistryBase getCallbackRegistry() {
     return cbRegistry;
   }
 
@@ -759,9 +759,13 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       if (parent instanceof Group group) {
         group.getChildren().remove(panes.root);
         group.getChildren().remove(shapes.compileError);
+        cbRegistry.onParentViewChangedInvoker.invoke(
+            new ParentViewChangedEvent(BhNodeViewBase.this, group, null));
       } else if (parent instanceof Pane pane) {
         pane.getChildren().remove(panes.root);
         pane.getChildren().remove(shapes.compileError);
+        cbRegistry.onParentViewChangedInvoker.invoke(
+            new ParentViewChangedEvent(BhNodeViewBase.this, pane, null));
       }
     }
 
@@ -793,14 +797,24 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     /** このノードの描画物 (ボディや影など) を {@code parent} に追加する. */
     private void addComponentsToParent(Group parent) {
-      parent.getChildren().add(panes.root);
-      parent.getChildren().add(shapes.compileError);
+      Parent oldParent = panes.root.getParent();
+      if (oldParent != parent) {
+        parent.getChildren().add(panes.root);
+        parent.getChildren().add(shapes.compileError);
+        cbRegistry.onParentViewChangedInvoker.invoke(
+            new ParentViewChangedEvent(BhNodeViewBase.this, oldParent, parent));
+      }
     }
 
     /** このノードの描画物 (ボディや影など) を {@code parent} に追加する. */
     private void addComponentsToParent(Pane parent) {
-      parent.getChildren().add(panes.root);
-      parent.getChildren().add(shapes.compileError);
+      Parent oldParent = panes.root.getParent();
+      if (oldParent != parent) {
+        parent.getChildren().add(panes.root);
+        parent.getChildren().add(shapes.compileError);
+        cbRegistry.onParentViewChangedInvoker.invoke(
+            new ParentViewChangedEvent(BhNodeViewBase.this, oldParent, parent));
+      }
     }
 
     /** このノード以下の奇偶フラグを更新する. */
@@ -1010,6 +1024,10 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     private final ConsumerInvoker<SizeChangedEvent> onSizeChangedInvoker =
         new SimpleConsumerInvoker<>();
 
+    /** 関連するノードビューの GUI ツリー上の親要素が変わったときのイベントハンドラ. */
+    private final ConsumerInvoker<ParentViewChangedEvent> onParentViewChangedInvoker =
+        new SimpleConsumerInvoker<>();
+
     /** {@link #dispatch} で送られたイベントを区別するためのフラグ. */
     private final Deque<MouseEventInfo> eventStack = new LinkedList<>();
 
@@ -1065,6 +1083,11 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     @Override
     public ConsumerInvoker<SizeChangedEvent>.Registry getOnSizeChanged() {
       return onSizeChangedInvoker.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<ParentViewChangedEvent>.Registry getOnParentViewChanged() {
+      return onParentViewChangedInvoker.getRegistry();
     }
 
     @Override

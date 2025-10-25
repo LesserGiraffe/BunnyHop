@@ -56,7 +56,7 @@ import net.seapanda.bunnyhop.nodeselection.model.BhNodeCategory;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
-import net.seapanda.bunnyhop.service.message.MessageService;
+import net.seapanda.bunnyhop.service.message.BhMessageService;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.control.FoundationController;
@@ -64,6 +64,7 @@ import net.seapanda.bunnyhop.ui.control.MenuBarController;
 import net.seapanda.bunnyhop.ui.control.MenuViewController;
 import net.seapanda.bunnyhop.ui.control.MessageViewController;
 import net.seapanda.bunnyhop.ui.control.SearchBoxController;
+import net.seapanda.bunnyhop.ui.service.window.WindowManager;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
@@ -99,10 +100,11 @@ public class SceneBuilder {
   private final RemoteBhProgramController remoteCtrl;
   private final CopyAndPaste copyAndPaste;
   private final CutAndPaste cutAndPaste;
-  private final MessageService msgService;
+  private final BhMessageService msgService;
   private final Debugger debugger;
   private final SearchBoxController searchBoxCtrl;
   private final TrashCanController trashCanCtrl;
+  private final WindowManager windowManager;
   public final MenuBarController menuBarCtrl;
   public final MessageViewController msgViewCtrl;
 
@@ -129,11 +131,12 @@ public class SceneBuilder {
       ProjectExporter exporter,
       CopyAndPaste copyAndPaste,
       CutAndPaste cutAndPaste,
-      MessageService msgService,
+      BhMessageService msgService,
       Debugger debugger,
       WorkspaceSetController wssCtrl,
       SearchBoxController searchBoxCtrl,
-      TrashCanController trashCanCtrl)
+      TrashCanController trashCanCtrl,
+      WindowManager windowManager)
       throws AppInitializationException {
     this.wss = wss;
     this.nodeCategoryRoot = nodeCategoryRoot;
@@ -151,6 +154,7 @@ public class SceneBuilder {
     this.debugger = debugger;
     this.searchBoxCtrl = searchBoxCtrl;
     this.trashCanCtrl = trashCanCtrl;
+    this.windowManager = windowManager;
     this.wssCtrl = wssCtrl;
     this.debugWindowCtrl = new DebugWindowController(debugger);
     this.menuBarCtrl = new MenuBarController(
@@ -227,7 +231,8 @@ public class SceneBuilder {
           copyAndPaste,
           cutAndPaste,
           msgService,
-          debugWindowCtrl);
+          debugWindowCtrl,
+          windowManager);
     }
     if (type == WorkspaceSetController.class) {
       return wssCtrl;
@@ -254,6 +259,7 @@ public class SceneBuilder {
     debugStage.initOwner(stage);
     debugStage.initStyle(StageStyle.UTILITY);
     debugStage.setOnCloseRequest(WindowEvent::consume);
+    msgService.setAppStages(stage, debugStage);
     createInitialWorkspace(wsFactory);
     stage.show();
     debugStage.show();

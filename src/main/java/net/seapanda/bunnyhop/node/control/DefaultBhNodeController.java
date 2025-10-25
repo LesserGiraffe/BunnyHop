@@ -131,7 +131,6 @@ public class DefaultBhNodeController implements BhNodeController {
       Vec2D mousePressedPos = new Vec2D(event.getSceneX(), event.getSceneY());
       ddInfo.mousePressedPos = view.getPositionManager().sceneToLocal(mousePressedPos);
       ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
-      view.setMouseTransparent(true);
     } catch (Throwable e) {
       terminateDnd();
       throw e;
@@ -394,7 +393,6 @@ public class DefaultBhNodeController implements BhNodeController {
   private void terminateDnd() {
     trashCan.close();
     mouseCtrlLock.unlock();
-    view.setMouseTransparent(false);
     ddInfo.reset();
     notifService.endWrite();
   }

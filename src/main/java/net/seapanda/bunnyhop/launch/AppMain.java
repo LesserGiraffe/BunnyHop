@@ -20,7 +20,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener;
 import java.awt.SplashScreen;
@@ -89,9 +88,9 @@ import net.seapanda.bunnyhop.service.script.BhScriptRepositoryImpl;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.simulator.BhSimulator;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
-import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor.CmdProcessingEvent;
 import net.seapanda.bunnyhop.ui.control.SearchBoxController;
 import net.seapanda.bunnyhop.ui.model.ExclusiveSelection;
+import net.seapanda.bunnyhop.ui.service.window.BhWindowManager;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.log.FileLogger;
 import net.seapanda.bunnyhop.utility.textdb.JsonTextDatabase;
@@ -181,6 +180,13 @@ public class AppMain extends Application {
           BhConstants.Path.Dir.BH_DEF,
           BhConstants.Path.Dir.CONNECTOR_DEF);
 
+      final var simulator = createSimulator();
+      final var windowManager =
+          new BhWindowManager(stage, ((Lwjgl3Graphics) Gdx.app.getGraphics()).getWindow());
+      setOnSimulatorCmdProcessing(simulator, windowManager);
+      final SimulatorCmdProcessor simCmdProcessor = simulator.getCmdProcessor().orElseThrow(
+          () -> new AppInitializationException("Simulator Command Processor not found."));
+
       final var wss = new WorkspaceSet();
       final var compileErrReporter = new CompileErrorReporter(wss);
       final var undoRedoAgent = new UndoRedoAgent(wss);
@@ -198,7 +204,12 @@ public class AppMain extends Application {
       final var nodeRepository = new XmlBhNodeRepository(scriptRepository);
       final var trashCanCtrl = new TrashCanController();
       final var nodeFactory = new BhNodeFactoryImpl(
-          nodeRepository, nodeViewFactory, mediator, trashCanCtrl, wss, nodeSelViewProxy);
+          nodeRepository,
+          nodeViewFactory,
+          mediator,
+          trashCanCtrl,
+          wss,
+          nodeSelViewProxy);
       final var commonDataSupplier = new CommonDataSupplier(scriptRepository, nodeFactory, textDb);
       final var modelGenerator = new ModelGenerator(
           nodeFactory,
@@ -213,9 +224,8 @@ public class AppMain extends Application {
           wsViewFile, nodeShifterViewFile, mediator, nodeSelViewProxy, msgService);
       final var localCompiler = genCompiler(true);
       final var remoteCompiler = genCompiler(false);
-      final var simulator = createSimulator();
-      final SimulatorCmdProcessor simCmdProcessor = simulator.getCmdProcessor().orElseThrow(
-          () -> new AppInitializationException("Simulator Command Processor not found."));
+
+
       final var localRuntimeCtrl = new RmiLocalBhRuntimeController(simCmdProcessor, msgService);
       final var localBhProgramCtrl =
           new LocalBhProgramLauncherImpl(localCompiler, localRuntimeCtrl, msgService);
@@ -269,7 +279,8 @@ public class AppMain extends Application {
           debugger,
           wssCtrl,
           searchBoxCtrl,
-          trashCanCtrl);
+          trashCanCtrl,
+          windowManager);
 
       setOnCloseHandler(
           stage,
@@ -308,8 +319,6 @@ public class AppMain extends Application {
         || simulator.getCmdProcessor().isEmpty()) {
       throw new AppInitializationException("Failed to initialize the simulator.");
     }
-    simulator.getCmdProcessor().get().getCallbackRegistry().getOnCmdProcessing()
-        .add((CmdProcessingEvent event) -> focusSimulator());
     return simulator;
   }
 
@@ -321,12 +330,15 @@ public class AppMain extends Application {
     }
   }
 
-  private void focusSimulator() {
-    Lwjgl3Window window = ((Lwjgl3Graphics) Gdx.app.getGraphics()).getWindow();
-    if (!window.isIconified() && BhSettings.BhSimulator.focusOnChanged) {
-      window.restoreWindow();
-      window.focusWindow();
-    }
+  /** シミュレータコマンドを処理する前のイベントハンドラを登録する. */
+  private static void setOnSimulatorCmdProcessing(
+      BhSimulator simulator, BhWindowManager windowManager) {
+    simulator.getCmdProcessor().get().getCallbackRegistry().getOnCmdProcessing()
+        .add((SimulatorCmdProcessor.CmdProcessingEvent event) -> {
+          if (BhSettings.BhSimulator.focusOnChanged) {
+            windowManager.focusSimulator();
+          }
+        });
   }
 
   /** シミュレータがフォーカスを持っているときにキーが押されたときの処理. */

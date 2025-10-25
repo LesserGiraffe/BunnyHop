@@ -267,7 +267,7 @@ public interface BhNodeView extends NodeViewComponent {
     /**
      * ノードビューのボディとコネクタ部分の領域に対応する {@link QuadTreeRectangle} をまとめたレコード.
      *
-     * @param bodyId ボディ部分の矩形領域に対応する {@link QuadTreeRectangle} オブジェクト
+     * @param body ボディ部分の矩形領域に対応する {@link QuadTreeRectangle} オブジェクト
      * @param cnctr コネクタ部分の矩形領域に対応する {@link QuadTreeRectangle} オブジェクト
      */
     public record Rectangles(QuadTreeRectangle body, QuadTreeRectangle cnctr) { }
@@ -417,7 +417,7 @@ public interface BhNodeView extends NodeViewComponent {
   }
 
   /** {@link BhNodeView} に対してイベントハンドラを追加または削除する機能を規定したインタフェース. */
-  public interface CallbackRegistry {
+  interface CallbackRegistry {
 
     /** 関連するノードビュー上でマウスボタンが押下されたときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<MouseEventInfo>.Registry getOnMousePressed();
@@ -436,6 +436,9 @@ public interface BhNodeView extends NodeViewComponent {
 
     /** 関連するノードビューのサイズが変わったときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<SizeChangedEvent>.Registry getOnSizeChanged();
+
+    /** 関連するノードビューの GUI ツリー上の親要素が変わったときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<ParentViewChangedEvent>.Registry getOnParentViewChanged();
 
     /**
      * 関連するノードビューにイベントを伝える.
@@ -476,4 +479,13 @@ public interface BhNodeView extends NodeViewComponent {
    * @param view サイズが変更されたノードビュー
    */
   record SizeChangedEvent(BhNodeView view) {}
+
+  /**
+   * ノードビューの GUI ツリー上の親要素が変わったときの情報を格納したレコード.
+   *
+   * @param view 親要素が変わったノードビュー
+   * @param oldParent 変更前の親要素.  存在しない場合 null.
+   * @param newParent 変更後の親要素.  存在しない場合 null.
+   */
+  record ParentViewChangedEvent(BhNodeView view, Parent oldParent, Parent newParent) {}
 }
