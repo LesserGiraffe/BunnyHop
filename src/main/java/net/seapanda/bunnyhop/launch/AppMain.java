@@ -181,8 +181,9 @@ public class AppMain extends Application {
           BhConstants.Path.Dir.CONNECTOR_DEF);
 
       final var simulator = createSimulator();
-      final var windowManager =
-          new BhWindowManager(stage, ((Lwjgl3Graphics) Gdx.app.getGraphics()).getWindow());
+      final var debugStage = new Stage();
+      final var windowManager = new BhWindowManager(
+          stage, debugStage, ((Lwjgl3Graphics) Gdx.app.getGraphics()).getWindow());
       setOnSimulatorCmdProcessing(simulator, windowManager);
       final SimulatorCmdProcessor simCmdProcessor = simulator.getCmdProcessor().orElseThrow(
           () -> new AppInitializationException("Simulator Command Processor not found."));
@@ -295,7 +296,7 @@ public class AppMain extends Application {
       msgService.setWindowStyle(sceneBuilder.scene.getStylesheets());
       msgService.setMainMsgArea(sceneBuilder.msgViewCtrl.getMsgArea());
       undoRedoAgent.deleteCommands();
-      sceneBuilder.createWindow(stage, wsFactory);
+      sceneBuilder.createWindow(stage, debugStage, wsFactory);
 
       if (SplashScreen.getSplashScreen() != null) {
         SplashScreen.getSplashScreen().close();

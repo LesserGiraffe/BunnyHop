@@ -244,7 +244,7 @@ public class SceneBuilder {
   }
 
   /** メインウィンドウを作成する. */
-  public void createWindow(Stage stage, WorkspaceFactory wsFactory)
+  public void createWindow(Stage stage, Stage debugStage, WorkspaceFactory wsFactory)
       throws ViewConstructionException {
     String iconPath = Paths.get(
         Utility.execPath,
@@ -254,9 +254,7 @@ public class SceneBuilder {
     stage.getIcons().add(new Image(iconPath));
     stage.setScene(scene);
     stage.setTitle(BhConstants.APP_NAME);
-    var debugStage = new Stage();
     debugStage.setScene(debugScene);
-    debugStage.initOwner(stage);
     debugStage.initStyle(StageStyle.UTILITY);
     debugStage.setOnCloseRequest(WindowEvent::consume);
     msgService.setAppStages(stage, debugStage);

@@ -33,6 +33,7 @@ import net.seapanda.bunnyhop.ui.view.ViewUtil;
 public class BhWindowManager implements WindowManager {
 
   private final Stage primaryStage;
+  private final Stage debugStage;
   private final Lwjgl3Window simulatorWindow;
   private final Deque<MouseEvent> mousePressedEvents = new LinkedList<>();
   /** マウスボタンが押されているかどうかのフラグ. */
@@ -54,14 +55,22 @@ public class BhWindowManager implements WindowManager {
    * コンストラクタ.
    *
    * @param primaryStage アプリケーションのメインウィンドウに対応する {@link Stage}.
+   * @param debugStage デバッガの操作 UI を保持する {@link Stage}
    * @param simulatorWindow シミュレータを表示するウィンドウに対応する {@link Lwjgl3Window}
    */
-  public BhWindowManager(Stage primaryStage, Lwjgl3Window simulatorWindow) {
+  public BhWindowManager(Stage primaryStage, Stage debugStage, Lwjgl3Window simulatorWindow) {
     this.primaryStage = primaryStage;
+    this.debugStage = debugStage;
     this.simulatorWindow = simulatorWindow;
-    primaryStage.focusedProperty().addListener(
-        (obs, oldVal, newVal) -> handleWindowFocusLoss(!newVal));
+    setEventHandlers();
+  }
 
+  private void setEventHandlers() {
+    primaryStage.focusedProperty().addListener(
+        (obs, oldVal, newVal) -> {
+          handleWindowFocusLoss(!newVal);
+          debugStage.setAlwaysOnTop(newVal);
+        });
     primaryStage.addEventFilter(MouseEvent.ANY, this::onMouseEventsDetected);
   }
 
