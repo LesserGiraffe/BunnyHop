@@ -406,15 +406,9 @@ public class BhNodeViewStyle {
    * @return コネクタの大きさ
    */
   public Vec2D getConnectorSize(boolean isFixed) {
-    double cnctrWidth = 0.0;
     CnctrShape shape = isFixed ? connectorShapeFixed : connectorShape;
-    if (shape != CnctrShape.NONE) {
-      cnctrWidth = connectorWidth;
-    }
-    double cnctrHeight = 0.0;
-    if (shape != CnctrShape.NONE) {
-      cnctrHeight = connectorHeight;
-    }
+    double cnctrWidth = (shape == CnctrShape.NONE) ? 0 : connectorWidth;
+    double cnctrHeight = (shape == CnctrShape.NONE) ? 0 : connectorHeight;
     return new Vec2D(cnctrWidth, cnctrHeight);
   }
 }

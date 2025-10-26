@@ -170,13 +170,13 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
     Vec2D groupSize = innerGroup.getSize();
     Vec2D innerSize = switch (viewStyle.baseArrangement) {
       case ROW ->
-        new Vec2D(
-            commonPartSize.x + groupSize.x,
-            Math.max(commonPartSize.y, groupSize.y));
+          new Vec2D(
+              commonPartSize.x + groupSize.x,
+              Math.max(commonPartSize.y, groupSize.y));
       case COLUMN ->
-        new Vec2D(
-            Math.max(commonPartSize.x, groupSize.x),
-            commonPartSize.y + groupSize.y);
+          new Vec2D(
+              Math.max(commonPartSize.x, groupSize.x),
+              commonPartSize.y + groupSize.y);
     };
     return new Vec2D(
         viewStyle.paddingLeft + innerSize.x + viewStyle.paddingRight,

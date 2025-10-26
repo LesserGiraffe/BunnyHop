@@ -20,10 +20,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.SequencedMap;
 import java.util.regex.Pattern;
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
+import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.view.factory.BhNodeViewFactory;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
@@ -131,7 +133,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
    * @return 追加に成功した場合 true. 失敗した場合 false.
    */
   boolean addNodeView(BhNodeViewBase view) {
-    Connector cnctr = view.getModel().map(model -> model.getParentConnector()).orElse(null);
+    Connector cnctr = view.getModel().map(BhNode::getParentConnector).orElse(null);
     if (cnctr != null) {
       String cnctrName = cnctr.getSymbolName();
       // このグループ内に追加すべき場所が見つかった
@@ -172,7 +174,7 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
   /**
    * このグループの親ノードを返す.
    *
-   * <p> このグループが別のグループのサブグループでも, その上にある親ノードビューを返す. </p>
+   * <p>このグループが別のグループのサブグループでも, その上にある親ノードビューを返す.
    *
    * @return このグループの親ノードビュー
    */
@@ -311,18 +313,17 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       return new Vec2D(sizeCache.getVal());
     }
     Vec2D childSumLen = calcChildSumLen();
-    Vec2D childMaxLen = calcChildMaxLen();
     var size = new Vec2D(arrangeParams.paddingLeft, arrangeParams.paddingTop);
     int numSpace = Math.max(0, childNameToNodeView.size() + subGroupList.size() - 1);
     
-    //グループの中が縦並び
+    // グループの中が縦並び
     if (arrangeParams.arrangement == BhNodeViewStyle.ChildArrangement.COLUMN) {
-      size.x += childMaxLen.x + arrangeParams.paddingRight;
+      size.x += calcChildMaxWidth() + arrangeParams.paddingRight;
       size.y += childSumLen.y + numSpace * arrangeParams.space + arrangeParams.paddingBottom;
     // グループの中が横並び
-    } else {    
+    } else {
       size.x += childSumLen.x + numSpace * arrangeParams.space + arrangeParams.paddingRight;
-      size.y += childMaxLen.y + arrangeParams.paddingBottom;
+      size.y += calcChildMaxHeight() + arrangeParams.paddingBottom;
     }
     sizeCache.update(new Vec2D(size));
     return size;
@@ -380,21 +381,50 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
     return childSumLen;
   }
 
-  /** 子要素の縦横の長さの最大値を求める. */
-  private Vec2D calcChildMaxLen() {
-    var childMaxLen = new Vec2D(0, 0);
+  /** 子要素の幅の最大値を求める. */
+  private double calcChildMaxWidth() {
+    double maxSubGroupWidth = 0;
     for (BhNodeViewGroup subGroup : subGroupList) {
-      childMaxLen.updateIfGreter(subGroup.getSize());
+      maxSubGroupWidth = Math.max(maxSubGroupWidth, subGroup.getSize().x);
     }
 
-    for (BhNodeView child : childNameToNodeView.values()) {
+    double maxCnctrWidth = 0;
+    double maxBodyWidth = 0;
+    for (BhNodeViewBase child : childNameToNodeView.values()) {
       if (child == null) {
         continue;
       }
-      Vec2D childNodeSize = child.getRegionManager().getNodeTreeSize(true);
-      childMaxLen.updateIfGreater(childNodeSize.x, childNodeSize.y);
+      Vec2D childBodySize = child.getRegionManager().getNodeTreeSize(false);
+      maxBodyWidth = Math.max(maxBodyWidth, childBodySize.x);
+      if (child.viewStyle.connectorPos == BhNodeViewStyle.ConnectorPos.LEFT) {
+        Vec2D cnctrSize = child.getRegionManager().getConnectorSize();
+        maxCnctrWidth = Math.max(cnctrSize.x, maxCnctrWidth);
+      }
     }
-    return childMaxLen;
+    return Math.max(maxSubGroupWidth, maxCnctrWidth + maxBodyWidth);
+  }
+
+  /** 子要素の幅の最大値を求める. */
+  private double calcChildMaxHeight() {
+    double maxSubGroupHeight = 0;
+    for (BhNodeViewGroup subGroup : subGroupList) {
+      maxSubGroupHeight = Math.max(maxSubGroupHeight, subGroup.getSize().y);
+    }
+
+    double maxCnctrHeight = 0;
+    double maxBodyHeight = 0;
+    for (BhNodeViewBase child : childNameToNodeView.values()) {
+      if (child == null) {
+        continue;
+      }
+      Vec2D childBodySize = child.getRegionManager().getNodeTreeSize(false);
+      maxBodyHeight = Math.max(maxBodyHeight, childBodySize.y);
+      if (child.viewStyle.connectorPos == BhNodeViewStyle.ConnectorPos.TOP) {
+        Vec2D cnctrSize = child.getRegionManager().getConnectorSize();
+        maxCnctrHeight = Math.max(cnctrSize.y, maxCnctrHeight);
+      }
+    }
+    return Math.max(maxSubGroupHeight, maxCnctrHeight + maxBodyHeight);
   }
 
   /**
@@ -479,11 +509,10 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
   @Override
   public void show(int depth) {
     try {
-      System.out.println(
-          "%s<BhNodeViewGroup>  %s".formatted(indent(depth), hashCode()));
+      System.out.printf("%s<BhNodeViewGroup>  %s%n", indent(depth), hashCode());
       System.out.println(indent(depth + 1) + (inner ? "<inner>" : "<outer>"));
       childNameToNodeView.values().stream()
-          .filter(childNodeView -> childNodeView != null)
+          .filter(Objects::nonNull)
           .forEachOrdered(childNodeView -> childNodeView.show(depth + 1));
       subGroupList.forEach(subGroup -> subGroup.show(depth + 1));
     } catch (Exception e) {
