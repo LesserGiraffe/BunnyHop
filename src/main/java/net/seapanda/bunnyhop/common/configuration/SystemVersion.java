@@ -35,7 +35,7 @@ public class SystemVersion extends Version {
    * @return {@link SystemVersion} オブジェクト
    */
   public static SystemVersion of(String id) {
-    return new SystemVersion(id == null ? "" : id);
+    return new SystemVersion(id);
   }
 
   /**
@@ -49,6 +49,6 @@ public class SystemVersion extends Version {
 
   /** デフォルトコンストラクタ. (デシリアライズ用) */
   public SystemVersion() {
-    super("");
+    super();
   }
 }

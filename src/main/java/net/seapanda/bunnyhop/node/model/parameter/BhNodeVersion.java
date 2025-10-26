@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.utility.version.Version;
 public class BhNodeVersion extends Version {
 
   /** BhNode のバージョンが存在しないことを表すオブジェクト. */
-  public static final BhNodeVersion NONE = new BhNodeVersion("");
+  public static final BhNodeVersion NONE = new BhNodeVersion();
 
   /**
    * {@link BhNodeVersion} オブジェクトを作成する.
@@ -35,7 +35,7 @@ public class BhNodeVersion extends Version {
    * @return {@link BhNodeVersion} オブジェクト
    */
   public static BhNodeVersion of(String id) {
-    return new BhNodeVersion(id == null ? "" : id);
+    return new BhNodeVersion(id);
   }
 
   /**
@@ -49,6 +49,6 @@ public class BhNodeVersion extends Version {
 
   /** デフォルトコンストラクタ. (デシリアライズ用) */
   public BhNodeVersion() {
-    super("");
+    super();
   }
 }

@@ -172,8 +172,9 @@ public class JsonProjectReader {
   /** セーブデータのバージョンをチェックする. */
   void checkSaveDataVersion(SaveDataVersion version) throws IncompatibleSaveFormatException {
     if (version == null
-        || !version.comparePrefix(BhConstants.SAVE_DATA_VERSION)
-        || !version.compareMajor(BhConstants.SAVE_DATA_VERSION)) {
+        || version.comparePrefix(BhConstants.SAVE_DATA_VERSION) != 0
+        || version.compareMajor(BhConstants.SAVE_DATA_VERSION) != 0
+        || version.compareMinor(BhConstants.SAVE_DATA_VERSION) > 0) {
       String msg = "Incompatible save data version : %s.\nSupported save data version: %s."
           .formatted(version, BhConstants.SAVE_DATA_VERSION);
       throw new IncompatibleSaveFormatException(msg, version);
@@ -249,8 +250,11 @@ public class JsonProjectReader {
 
   /** {@link BhNodeImage} のバージョンと {@link BhNode} のバージョンに互換性があるか調べる. */
   private boolean checkNodeVersionCompatibility(BhNodeImage nodeImage, BhNode node) {
-    boolean isCompatible = node.getVersion().comparePrefix(nodeImage.version)
-        && node.getVersion().compareMajor(nodeImage.version);
+    BhNodeVersion imageVersion = nodeImage.version;
+    boolean isCompatible =
+        imageVersion.comparePrefix(node.getVersion()) == 0
+        && imageVersion.compareMajor(node.getVersion()) == 0
+        && imageVersion.compareMinor(node.getVersion()) <= 0;
 
     if (!isCompatible) {
       warnings.add(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION);

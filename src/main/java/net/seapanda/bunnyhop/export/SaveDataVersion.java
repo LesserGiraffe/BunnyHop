@@ -26,7 +26,7 @@ import net.seapanda.bunnyhop.utility.version.Version;
 public class SaveDataVersion extends Version {
 
   /** セーブデータのバージョンが存在しないことを表すオブジェクト. */
-  public static final SaveDataVersion NONE = new SaveDataVersion("");
+  public static final SaveDataVersion NONE = new SaveDataVersion();
 
   /**
    * {@link SaveDataVersion} オブジェクトを作成する.
@@ -35,7 +35,7 @@ public class SaveDataVersion extends Version {
    * @return {@link SaveDataVersion} オブジェクト
    */
   public static SaveDataVersion of(String id) {
-    return new SaveDataVersion(id == null ? "" : id);
+    return new SaveDataVersion(id);
   }
 
   /**
@@ -49,6 +49,6 @@ public class SaveDataVersion extends Version {
 
   /** デフォルトコンストラクタ. (デシリアライズ用) */
   public SaveDataVersion() {
-    super("");
+    super();
   }
 }
