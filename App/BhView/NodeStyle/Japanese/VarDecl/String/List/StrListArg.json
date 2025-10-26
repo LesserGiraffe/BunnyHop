@@ -13,9 +13,18 @@
 
   "connective" : {
     "inner" : {
-      "arrangement" : "Row",
+      "arrangement" : "Column",
       "space" : 2.0,
-      "connectorList" : ["ListName", "${L1}{[...]}", "Arg"]
+
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "connectorList" : ["ListName"]
+      },
+
+      "subGroup1" : {
+        "arrangement" : "Row",
+        "connectorList" : ["Arg"]
+      }
     },
     "outer" : {
       "connectorList" : ["NextArg"]

@@ -11,15 +11,23 @@
   "connectorBoundsRate" : 0.0,
   "cssClass" : "soundType",
     
-    "connective" : {
+  "connective" : {
     "inner" : {
-      "arrangement" : "Row",
+      "arrangement" : "Column",
       "space" : 2.0,
-      "connectorList" : ["VarName", "Arg"]
+
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "connectorList" : ["VarName"]
+      },
+
+      "subGroup1" : {
+        "arrangement" : "Row",
+        "connectorList" : ["Arg"]
+      }
     },
     "outer" : {
       "connectorList" : ["NextArg"]
     }
-    
   }
 }
