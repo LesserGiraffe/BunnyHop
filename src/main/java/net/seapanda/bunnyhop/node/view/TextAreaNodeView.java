@@ -24,6 +24,7 @@ import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
 import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
@@ -132,7 +133,6 @@ public final class TextAreaNodeView  extends TextInputNodeView {
    * テキストエリアの見た目を変える.
    *
    * @param fnCheckFormat テキストのフォーマットをチェックする関数
-   * @param text このテキストに基づいてテキストエリアの見た目を変える
    */
   private void updateTextAreaLooks(Function<String, Boolean> fnCheckFormat) {
     Text textPart = (Text) textArea.lookup(".text");
@@ -140,7 +140,6 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     if (textPart == null || content == null) {
       return;
     }
-
     // 正確な文字部分の境界を取得するため, GUI部品内部のTextの境界は使わない.
     Vec2D textBounds = ViewUtil.calcStrBounds(
         textPart.getText(),
@@ -157,8 +156,9 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     boolean acceptable = fnCheckFormat.apply(textPart.getText());
     textArea.pseudoClassStateChanged(
         PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR), !acceptable);
-    // textArea.requestLayout() を呼ばないと, newWidth の値によってはノード選択ビューでサイズが更新されない.
-    Platform.runLater(() -> textArea.requestLayout());
+    disableTextAreaCache();
+    // textArea.requestLayout() を呼ばないと, newWidth の値によってはノード選択ビューでサイズが更新されない
+    Platform.runLater(textArea::requestLayout);
   }
 
   /** ノードサイズのキャッシュ値を更新する. */
@@ -172,10 +172,8 @@ public final class TextAreaNodeView  extends TextInputNodeView {
 
   @Override
   public void show(int depth) {
-    System.out.println(
-        "%s<TextAreaNodeView>  %s".formatted(indent(depth), hashCode()));
-    System.out.println(
-        "%s<content>  %s".formatted(indent(depth + 1), textArea.getText()));
+    System.out.printf("%s<TextAreaNodeView>  %s%n", indent(depth), hashCode());
+    System.out.printf("%s<content>  %s%n", indent(depth + 1), textArea.getText());
   }
 
   @Override
@@ -210,14 +208,14 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     Vec2D commonPartSize = getRegionManager().getCommonPartSize();
     Vec2D innerSize = switch (viewStyle.baseArrangement) {
       case ROW ->
-        // textField.getWidth() だと設定した値以外が返る場合がある
-        new Vec2D(
-            commonPartSize.x + textArea.getPrefWidth(),
-            Math.max(commonPartSize.y, textArea.getPrefHeight()));
+          // textField.getWidth() だと設定した値以外が返る場合がある
+          new Vec2D(
+              commonPartSize.x + textArea.getPrefWidth(),
+              Math.max(commonPartSize.y, textArea.getPrefHeight()));
       case COLUMN ->
-        new Vec2D(
-            Math.max(commonPartSize.x, textArea.getPrefWidth()),
-            commonPartSize.y + textArea.getPrefHeight());
+          new Vec2D(
+              Math.max(commonPartSize.x, textArea.getPrefWidth()),
+              commonPartSize.y + textArea.getPrefHeight());
     };
     return new Vec2D(
         viewStyle.paddingLeft + innerSize.x + viewStyle.paddingRight,
@@ -262,6 +260,21 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     double cnctrRightPos = cnctrLeftPos + cnctrSize.x;
     double wholeWidth = Math.max(cnctrRightPos, bodySize.x) - Math.min(cnctrLeftPos, 0);
     return new Vec2D(wholeWidth, wholeHeight);
+  }
+
+  /**
+   * テキストエリアの描画データのキャッシュを無効化する.
+   *
+   * <p>この無効化を行わない場合, テキストエリアの文字がにじむ.
+   */
+  private void disableTextAreaCache() {
+    textArea.setCache(false);
+    if (textArea.getChildrenUnmodifiable().getFirst() instanceof ScrollPane sp) {
+      sp.setCache(false);
+      for (Node child : sp.getChildrenUnmodifiable()) {
+        child.setCache(false);
+      }
+    }
   }
 
   @Override

@@ -438,21 +438,21 @@ class CommonCodeGenerator {
    * 引数で指定した文字列を JavaScript の文字列リテラル表現に変換する.
    */
   String toJsString(String str) {
-    return "'" + str.replaceAll("\\\\", "\\\\\\\\").replaceAll("'", "\\\\'") + "'";
+    return "'" + str
+        .replaceAll("\\\\", "\\\\\\\\")
+        .replaceAll("'", "\\\\'")
+        .replaceAll("\n", "\\\\n")
+        + "'";
   }
 
   /** {@code numStr} で表される数値を Javasctipt の文字列リテラル表現に変換する. */
   String toJsNumber(String numStr) {
-    if (numStr.equals("Infinity")) {
-      return "Number.POSITIVE_INFINITY";
-    }
-    if (numStr.equals("-Infinity")) {
-      return "Number.NEGATIVE_INFINITY";
-    }
-    if (numStr.equals("NaN")) {
-      return "Number.NaN";
-    }
-    return numStr;
+    return switch (numStr) {
+      case "Infinity" -> "Number.POSITIVE_INFINITY";
+      case "-Infinity" -> "Number.NEGATIVE_INFINITY";
+      case "NaN" -> "Number.NaN";
+      default -> numStr;
+    };
   }
 
   /** インデント分の空白を返す. */
