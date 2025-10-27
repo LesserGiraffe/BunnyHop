@@ -62,6 +62,12 @@ public abstract class BhNode extends SyntaxSymbol {
   private boolean hasCompileError = false;
   /** ブレークポイントが設定されているかどうかのフラグ. */
   private boolean isBreakpointSet = false;
+  /**
+   * このノードが破損しているかどうかのフラグ.
+   * ロード時に必要な子ノードが見つからなかったり,
+   * 現在のシステムと互換性のないバージョンのノードから復元された場合, 破損したものとして扱う.
+   */
+  private boolean isCorrupted = false;
   /** このノードに登録されたイベントハンドラを呼び出すオブジェクト. */
   private final transient EventInvoker eventInvoker = this.new EventInvoker();
   /** 最後にこのノードと入れ替わったノード. */
@@ -254,6 +260,39 @@ public abstract class BhNode extends SyntaxSymbol {
    */
   public boolean isBreakpointSet() {
     return isBreakpointSet;
+  }
+
+  /**
+   * このノードが破損しているかどうかを設定する.
+   *
+   * @param val このノードが破損している場合 true.
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public void setCorrupted(boolean val, UserOperation userOpe) {
+    if (val != isCorrupted) {
+      isCorrupted = val;
+      userOpe.pushCmd(ope -> setCorrupted(!val, ope));
+      getCallbackRegistry().onCorruptionStateChangedInvoker.invoke(
+          new CorruptionStateChangedEvent(this, isCorrupted, userOpe));
+    }
+  }
+
+  /**
+   * このノードが破損しているかどうかを設定する.
+   *
+   * @param val このノードが破損している場合 true.
+   */
+  public void setCorrupted(boolean val) {
+    setCorrupted(val, new UserOperation());
+  }
+
+  /**
+   * このノードが破損しているかどうかを調べる.
+   *
+   * @return このノードが破損している場合 true.
+   */
+  public boolean isCorrupted() {
+    return isCorrupted;
   }
 
   /** このノードのバージョンを取得する. */
@@ -693,8 +732,12 @@ public abstract class BhNode extends SyntaxSymbol {
     private final ConsumerInvoker<WorkspaceChangeEvent> onWsChangedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するノードのブレークポイントの設定が変わったときのイベントハンドラのを管理するオブジェクト. */
+    /** 関連するノードのブレークポイントの設定が変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<BreakpointSetEvent> onBreakpointSetInvoker =
+        new SimpleConsumerInvoker<>();
+
+    /** 関連するノードの破損の有無が変わったときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<CorruptionStateChangedEvent> onCorruptionStateChangedInvoker =
         new SimpleConsumerInvoker<>();
 
     /** ノードが入れ替わったときのイベントハンドラ. */
@@ -724,6 +767,11 @@ public abstract class BhNode extends SyntaxSymbol {
     /** 関連するノードのブレークポイントの設定が変わったときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<BreakpointSetEvent>.Registry getOnBreakpointSet() {
       return onBreakpointSetInvoker.getRegistry();
+    }
+
+    /** 関連するノードの破損の有無が変わったときのイベントハンドラのレジストリを取得する. */
+    public ConsumerInvoker<CorruptionStateChangedEvent>.Registry getOnCorruptionStateChanged() {
+      return onCorruptionStateChangedInvoker.getRegistry();
     }
 
     /** コネクタに接続されたノードが入れ替わったときに呼び出されるコールバック関数. */
@@ -781,6 +829,16 @@ public abstract class BhNode extends SyntaxSymbol {
    * @param userOpe undo 用コマンドオブジェクト
    */
   public record BreakpointSetEvent(BhNode node, boolean isBreakpointSet, UserOperation userOpe) {}
+
+  /**
+   * ノードの破損の有無が変更されたときの情報を格納したレコード.
+   *
+   * @param node 破損の有無が変更されたノード
+   * @param isCorrupted このノードが破損している場合 true.
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record CorruptionStateChangedEvent(
+      BhNode node, boolean isCorrupted, UserOperation userOpe) {}
 
   /** ノードのイベントハンドラを呼び出す機能を提供するクラス. */
   public class EventInvoker {

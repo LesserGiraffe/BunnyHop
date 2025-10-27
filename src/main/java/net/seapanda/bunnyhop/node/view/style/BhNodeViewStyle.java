@@ -186,6 +186,16 @@ public class BhNodeViewStyle {
     }
   }
 
+  /** ノードが破損していることを表す印のパラメータ. */
+  public static class CorruptionMark {
+    public double size = 5.5 * BhConstants.LnF.NODE_SCALE;
+    public String cssClass;
+
+    public CorruptionMark(String cssClass) {
+      this.cssClass = cssClass;
+    }
+  }
+
   /** ノードビューの共通部分のパラメータ. */
   public static class CommonPart {
     /** 共通部分のペインに適用される css クラス. */
@@ -197,7 +207,10 @@ public class BhNodeViewStyle {
     /** ブレークポイントのパラメータ. */
     public Breakpoint breakpoint = new Breakpoint("defaultBreakpoint");
     /** 次に実行するノードであることを表す印のパラメータ. */
-    public ExecStepMark nxecStepMark = new ExecStepMark("defaultExecStepMark");
+    public ExecStepMark execStepMark = new ExecStepMark("defaultExecStepMark");
+    /** ノードが破損していることを表す印のパラメータ. */
+    public CorruptionMark corruptionMark = new CorruptionMark("defaultCorruptionMark");
+
 
     /** コンストラクタ. */
     public CommonPart() {}
@@ -209,8 +222,10 @@ public class BhNodeViewStyle {
       this.privateTemplate.cssClass = org.privateTemplate.cssClass;
       this.breakpoint.radius = org.breakpoint.radius;
       this.breakpoint.cssClass = org.breakpoint.cssClass;
-      this.nxecStepMark.size = org.nxecStepMark.size;
-      this.nxecStepMark.cssClass = org.nxecStepMark.cssClass;
+      this.execStepMark.size = org.execStepMark.size;
+      this.execStepMark.cssClass = org.execStepMark.cssClass;
+      this.corruptionMark.size = org.corruptionMark.size;
+      this.corruptionMark.cssClass = org.corruptionMark.cssClass;
     }
   }
 

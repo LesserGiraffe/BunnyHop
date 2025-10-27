@@ -1,0 +1,4 @@
+.noContentNode.defaultNode {
+  -fx-stroke: rgba(0, 0, 0, 0);
+  -fx-fill: rgba(0, 0, 0, 0);
+}

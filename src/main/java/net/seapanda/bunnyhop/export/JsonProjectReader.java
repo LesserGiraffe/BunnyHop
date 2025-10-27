@@ -80,6 +80,8 @@ public class JsonProjectReader {
       new ArrayList<>();
   /** 派生ノードが見つからなかったときのエラー情報一覧. */
   private final Collection<DerivativeNotFoundInfo> dervNotFoundInfoList = new ArrayList<>();
+  /** {@link BhNodeImage} の破損フラグが立っていたノード一覧. */
+  private final Collection<BhNode> corruptedNodes = new ArrayList<>();
   /** ノードの作成に使用するオブジェクト. */
   private final BhNodeFactory nodeFactory;
   /** ワークスペースの作成に使用するオブジェクト. */
@@ -106,6 +108,7 @@ public class JsonProjectReader {
     var importer = new JsonProjectReader(nodeFactory, wsFactory);
     try {
       List<Workspace> workspaces = importer.load(filePath);
+      setCorrupted(importer);
       return new Result(
           workspaces,
           importer.nodeToImage,
@@ -124,6 +127,13 @@ public class JsonProjectReader {
       }
       throw e;
     }
+  }
+
+  /** 読み込みに失敗したノードに破損フラグを設定する. */
+  private static void setCorrupted(JsonProjectReader importer) {
+    importer.cnctrNotFoundInfoList.forEach(info -> info.node.setCorrupted(true));
+    importer.incompatibleNodeVersionInfoList.forEach(info -> info.node.setCorrupted(true));
+    importer.dervNotFoundInfoList.forEach(info -> info.orgNode.setCorrupted(true));
   }
 
   private JsonProjectReader(BhNodeFactory nodeFactory, WorkspaceFactory wsFactory) {
@@ -189,7 +199,7 @@ public class JsonProjectReader {
     // ルートノードの追加
     var userOpe = new UserOperation();
     for (BhNodeImage nodeImage : wsImage.getRootNodes()) {
-      BhNode root = genBhNode(nodeImage);
+      BhNode root = createBhNode(nodeImage);
       if (root != null) {
         nodeFactory.setMvc(root, MvcType.DEFAULT);
         BhNodePlacer.moveToWs(ws, root, nodeImage.pos.x, nodeImage.pos.y, userOpe);
@@ -200,12 +210,12 @@ public class JsonProjectReader {
 
   /**
    * {@code nodeImage} から元となった {@link BhNode} を復元する.
-   * {@code nodeImage} の子要素も復元される.
+   * {@code nodeImage} の子孫要素も復元される.
    *
    * @param nodeImage このオブジェクトから {@link BhNode} を復元する.
    * @return {@code Image} から復元したノード.
    */
-  private BhNode genBhNode(BhNodeImage nodeImage) throws CorruptedSaveDataException {
+  private BhNode createBhNode(BhNodeImage nodeImage) throws CorruptedSaveDataException {
     if (!canCreateNodeOf(nodeImage)) {
       return null;
     }
@@ -216,16 +226,10 @@ public class JsonProjectReader {
     if (node.isBreakpointGroupLeader()) {
       node.setBreakpoint(nodeImage.isBreakpointSet, userOpe);
     }
-    if (!checkNodeVersionCompatibility(nodeImage, node)) {
-      return null;
-    }
-    for (ConnectorImage cnctrImage : nodeImage.getChildren()) {
-      BhNode child = genBhNode(cnctrImage.connectedNode);
-      if (child != null && node instanceof ConnectiveNode parent) {
-        connectChild(parent, child, cnctrImage.connectorId)
-            .ifPresent(cnctr -> cnctr.setDefaultNodeId(cnctrImage.defaultNodeId));
-      }
-    }
+    // ノードの互換性のチェックは行うが, 互換性がない場合でもノード復元は止めない.
+    checkNodeVersionCompatibility(nodeImage, node);
+    checkIfCorrupted(nodeImage, node);
+    buildDescendant(nodeImage, node);
 
     if (node instanceof TextNode textNode) {
       textNode.setText(nodeImage.text);
@@ -236,6 +240,19 @@ public class JsonProjectReader {
     instIdToNode.put(nodeImage.instanceId, node);
     nodeToImage.put(node, nodeImage);
     return node;
+  }
+
+  /** {@code node} 以下の子孫要素を {@code nodeImage} をもとに復元する. */
+  private void buildDescendant(BhNodeImage nodeImage, BhNode node)
+      throws CorruptedSaveDataException {
+    for (ConnectorImage cnctrImage : nodeImage.getChildren()) {
+      BhNode child = createBhNode(cnctrImage.connectedNode);
+      if (child == null || !(node instanceof ConnectiveNode parent)) {
+        continue;
+      }
+      connectChild(parent, child, cnctrImage.connectorId)
+          .ifPresent(cnctr -> cnctr.setDefaultNodeId(cnctrImage.defaultNodeId));
+    }
   }
 
   /** {@code nodeImage} で指定した {@link BhNode} が作成可能か調べる. */
@@ -259,9 +276,18 @@ public class JsonProjectReader {
     if (!isCompatible) {
       warnings.add(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION);
       incompatibleNodeVersionInfoList.add(
-          new IncompatibleNodeVersionInfo(node.getId(), nodeImage.version, node.getVersion()));
+          new IncompatibleNodeVersionInfo(node, nodeImage.version, node.getVersion()));
     }
     return isCompatible;
+  }
+
+  /** 破損フラグをチェックする. */
+  private void checkIfCorrupted(BhNodeImage nodeImage, BhNode node) {
+    if (nodeImage.isCorrupted) {
+      warnings.add(ImportWarning.CORRUPTED_NODE);
+      node.setCorrupted(true);
+      corruptedNodes.add(node);
+    }
   }
 
   /**
@@ -294,7 +320,7 @@ public class JsonProjectReader {
       return Optional.of(cnctr);
     }
     warnings.add(ImportWarning.CONNECTOR_NOT_FOUND);
-    cnctrNotFoundInfoList.add(new ConnectorNotFoundInfo(parent.getId(), id));
+    cnctrNotFoundInfoList.add(new ConnectorNotFoundInfo(parent, id));
     return Optional.empty();
   }
 
@@ -302,7 +328,7 @@ public class JsonProjectReader {
   public String getWarningMsg() {
     StringBuilder msg = new StringBuilder();
     if (warnings.contains(ImportWarning.UNKNOWN_BH_NODE_ID)) {
-      msg.append(ImportWarning.UNKNOWN_BH_NODE_ID.toString() + "\n");
+      msg.append(ImportWarning.UNKNOWN_BH_NODE_ID + "\n");
       for (BhNodeId unknownNodeId : unknownNodeIds) {
         msg.append("  %s: %s\n".formatted(
             unknownNodeId.getClass().getSimpleName(),
@@ -311,34 +337,43 @@ public class JsonProjectReader {
       msg.append("\n");
     }
     if (warnings.contains(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION)) {
-      msg.append(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION.toString() + "\n");
+      msg.append(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION + "\n");
       for (IncompatibleNodeVersionInfo info : incompatibleNodeVersionInfoList) {
         msg.append("  %s: %s,  image version: %s,  node version: %s\n".formatted(
-            info.nodeId.getClass().getSimpleName(),
-            info.nodeId,
+            info.node.getId().getClass().getSimpleName(),
+            info.node.getId(),
             info.imageVer,
             info.nodeVer));
       }
       msg.append("\n");
     }
     if (warnings.contains(ImportWarning.CONNECTOR_NOT_FOUND)) {
-      msg.append(ImportWarning.CONNECTOR_NOT_FOUND.toString() + "\n");
+      msg.append(ImportWarning.CONNECTOR_NOT_FOUND + "\n");
       for (ConnectorNotFoundInfo info : cnctrNotFoundInfoList) {
         msg.append("  connective node id: %s,  %s: %s\n".formatted(
-            info.nodeId,
+            info.node.getId(),
             info.connectorId.getClass().getSimpleName(),
             info.connectorId));
       }
       msg.append("\n");
     }
     if (warnings.contains(ImportWarning.DERIVATIVE_NOT_FOUND)) {
-      msg.append(ImportWarning.DERIVATIVE_NOT_FOUND.toString() + "\n");
+      msg.append(ImportWarning.DERIVATIVE_NOT_FOUND + "\n");
       for (DerivativeNotFoundInfo info : dervNotFoundInfoList) {
         msg.append("  %s: %s,  original instance id: %s,  derivative instance id: %s\n".formatted(
-            info.orgNodeId.getClass().getSimpleName(),
-            info.orgNodeId,
-            info.orgInstId,
+            info.orgNode.getId().getClass().getSimpleName(),
+            info.orgNode.getId(),
+            info.orgNode.getId(),
             info.dervInstId));
+      }
+      msg.append("\n");
+    }
+    if (warnings.contains(ImportWarning.CORRUPTED_NODE)) {
+      msg.append(ImportWarning.CORRUPTED_NODE + "\n");
+      for (BhNode node : corruptedNodes) {
+        msg.append("  %s: %s\n".formatted(
+            node.getId().getClass().getSimpleName(),
+            node.getId().toString()));
       }
       msg.append("\n");
     }
@@ -404,30 +439,28 @@ public class JsonProjectReader {
   /**
    * コネクタが見つからなかった場合ののエラー情報を格納するレコード.
    *
-   * @param nodeId この ID のノード以下からコネクタを探した
+   * @param node このノード以下からコネクタを探した
    * @param connectorId 探したコネクタの ID
    */
-  private record ConnectorNotFoundInfo(BhNodeId nodeId, ConnectorId connectorId) {}
+  private record ConnectorNotFoundInfo(BhNode node, ConnectorId connectorId) {}
 
   /**
    * {@link BhNode} のバージョンに互換性が無かった場合のエラー情報を格納するレコード.
    *
-   * @param nodeId バージョンが一致しなかった {@link BhNode} の ID
+   * @param node バージョンに互換性がなかった {@link BhNode}
    * @param imageVer {@link BhNode} の復元に使った {@link BhNodeImage} に格納されていた {@link BhNodeVersion}
    * @param nodeVer {@code imageVer} を元に作成した {@link BhNode} のバージョン
    */
   private record IncompatibleNodeVersionInfo(
-      BhNodeId nodeId, BhNodeVersion imageVer, BhNodeVersion nodeVer) {}
+      BhNode node, BhNodeVersion imageVer, BhNodeVersion nodeVer) {}
 
   /**
    * 派生ノードが見つからなかった場合のエラー情報を格納するレコード.
    *
-   * @param orgNodeId 保持すべき派生ノードが見つからなかったオリジナルノードの {@link BhNodeId}
-   * @param orgInstId 保持すべき派生ノードが見つからなかったオリジナルノードの {@link InstanceId}
+   * @param orgNode 保持すべき派生ノードが見つからなかったオリジナルノード
    * @param dervInstId 見つからなかった派生ノードの {@link InstanceId}
    */
-  private record DerivativeNotFoundInfo(
-      BhNodeId orgNodeId, InstanceId orgInstId, InstanceId dervInstId) {}
+  private record DerivativeNotFoundInfo(BhNode orgNode, InstanceId dervInstId) {}
 
   /**
    * オリジナルノードに派生ノードを割り当てるクラス.
@@ -457,8 +490,7 @@ public class JsonProjectReader {
           original.addDerivative(connective, userOpe);
         } else {
           importer.warnings.add(ImportWarning.DERIVATIVE_NOT_FOUND);
-          importer.dervNotFoundInfoList.add(
-              new DerivativeNotFoundInfo(original.getId(), original.getInstanceId(), dervInstId));
+          importer.dervNotFoundInfoList.add(new DerivativeNotFoundInfo(original, dervInstId));
         }
       }
     }
@@ -477,8 +509,7 @@ public class JsonProjectReader {
           original.addDerivative(textNode, userOpe);
         } else {
           importer.warnings.add(ImportWarning.DERIVATIVE_NOT_FOUND);
-          importer.dervNotFoundInfoList.add(
-              new DerivativeNotFoundInfo(original.getId(), original.getInstanceId(), dervInstId));
+          importer.dervNotFoundInfoList.add(new DerivativeNotFoundInfo(original, dervInstId));
         }
       }
     }

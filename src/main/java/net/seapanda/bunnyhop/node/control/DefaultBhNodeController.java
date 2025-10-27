@@ -106,6 +106,8 @@ public class DefaultBhNodeController implements BhNodeController {
         .add(event -> view.getLookManager().setCompileErrorVisibility(event.hasError()));
     registry.getOnBreakpointSet()
         .add(event -> view.getLookManager().setBreakpointVisibility(event.isBreakpointSet()));
+    registry.getOnCorruptionStateChanged()
+        .add(event -> view.getLookManager().setCorruptionMarkVisibility(event.isCorrupted()));
   }
 
   /** マウスボタン押下時の処理. */

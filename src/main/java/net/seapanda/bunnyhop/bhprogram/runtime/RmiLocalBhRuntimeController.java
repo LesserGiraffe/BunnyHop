@@ -138,7 +138,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       msgService.error(TextDefs.BhRuntime.Local.noRuntimeToConnectTo.get());
       return false;
     }
-    msgService.info(TextDefs.BhRuntime.Remote.hasConnected.get());
+    msgService.info(TextDefs.BhRuntime.Local.hasConnected.get());
     boolean success = transceiver.connect();
     if (success) {
       cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, true));
@@ -152,7 +152,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       msgService.error(TextDefs.BhRuntime.Local.noRuntimeToDisconnectFrom.get());
       return false;
     }
-    msgService.info(TextDefs.BhRuntime.Remote.hasDisconnected.get());
+    msgService.info(TextDefs.BhRuntime.Local.hasDisconnected.get());
     boolean success = transceiver.disconnect();
     if (success) {
       cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, false));
@@ -184,7 +184,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
     var procBuilder = new ProcessBuilder(
         Utility.javaPath,
         "-cp",
-        Paths.get(Utility.execPath, "Jlib").toString() + Utility.fs  + "*",
+        Paths.get(Utility.execPath, "Jlib") + Utility.fs  + "*",
         BhConstants.BhRuntime.BH_PROGRAM_EXEC_MAIN_CLASS);
 
     procBuilder.redirectErrorStream(true);

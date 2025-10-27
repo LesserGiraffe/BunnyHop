@@ -89,9 +89,6 @@ public class TextDefs {
         
       public static Getter unknownNode = params -> db.get(
           TextId.of("gui", "debugger", "call-stack", "unknown-node"), params);
-      
-      public static Getter next = params -> db.get(
-          TextId.of("gui", "debugger", "call-stack", "next"), params);
 
       public static Getter mainRoutine = params -> db.get(
           TextId.of("gui", "debugger", "call-stack", "main-routine"), params);
@@ -165,9 +162,12 @@ public class TextDefs {
           TextId.of("msg", "import", "ask-if-continue", "body"), params);
       public static Getter someNodesAreMissing = params -> db.get(
           TextId.of("msg", "import", "ask-if-continue", "some-nodes-are-missing"), params);
+      public static Getter loadedIncompatibleNodes = params -> db.get(
+          TextId.of("msg", "import", "ask-if-continue", "loaded-incompatible-nodes"), params);
+      public static Getter loadedCorruptedNodes = params -> db.get(
+          TextId.of("msg", "import", "ask-if-continue", "loaded-corrupted-nodes"), params);
       public static Getter overwroteDuplicateInstIds = params -> db.get(
-          TextId.of("msg", "import", "ask-if-continue", "changed-duplicate-instance-ids"),
-          params);
+          TextId.of("msg", "import", "ask-if-continue", "changed-duplicate-instance-ids"), params);
     }
 
     /** 既存のワークスペースを削除するか確認するときのメッセージ. */
@@ -217,19 +217,17 @@ public class TextDefs {
       public static Getter hasEnded = params -> db.get(
           TextId.of("msg", "bh-runtime", "local", "has-ended"), params);
       public static Getter hasConnected = params -> db.get(
-          TextId.of("msg", "bh-runtime", "local", "has-connected"), params);    
+          TextId.of("msg", "bh-runtime", "local", "has-connected"), params);
       public static Getter failedToConnect = params -> db.get(
           TextId.of("msg", "bh-runtime", "local", "failed-to-connect"), params);
       public static Getter noRuntimeToConnectTo = params -> db.get(
-          TextId.of("msg", "bh-runtime", "local", "no-runtime-to-connect-to"),
-          params);
+          TextId.of("msg", "bh-runtime", "local", "no-runtime-to-connect-to"), params);
       public static Getter hasDisconnected = params -> db.get(
-          TextId.of("msg", "bh-runtime", "local", "has-disconnected"), params);    
+          TextId.of("msg", "bh-runtime", "local", "has-disconnected"), params);
       public static Getter failedToDisconnect = params -> db.get(
-          TextId.of("msg", "bh-runtime", "local", "failed-to-disconnect"), params);      
+          TextId.of("msg", "bh-runtime", "local", "failed-to-disconnect"), params);
       public static Getter noRuntimeToDisconnectFrom = params -> db.get(
-          TextId.of("msg", "bh-runtime", "local", "no-runtime-to-disconnect-from"),
-          params);
+          TextId.of("msg", "bh-runtime", "local", "no-runtime-to-disconnect-from"), params);
 
     }
 
@@ -400,13 +398,5 @@ public class TextDefs {
         TextId.of("gui", "search-box", "result"), params);
     public static Getter resultCount = params -> db.get(
         TextId.of("gui", "search-box", "result-count"), params);
-  }
-
-  /** バージョン情報の名前. */
-  public static class VersionInfo {
-    public static Getter runtime = params -> db.get(
-        TextId.of("msg", "subsystem", "runtime"), params);
-    public static Getter simulator = params -> db.get(
-        TextId.of("msg", "subsystem", "simulator"), params);
   }
 }

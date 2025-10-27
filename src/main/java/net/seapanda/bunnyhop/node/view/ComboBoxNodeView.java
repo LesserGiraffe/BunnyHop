@@ -68,7 +68,9 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
     super(viewStyle, model, components);
     this.model = model;
     setComponent(comboBox);
+    setEventHandlers();
     initStyle();
+    updateNodeStatusVisibility();
   }
 
   /**
@@ -84,14 +86,17 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
 
   private void initStyle() {
     comboBox.getStyleClass().add(viewStyle.comboBox.cssClass);
+    getLookManager().addCssClass(BhConstants.Css.CLASS_COMBO_BOX_NODE);
     if (!comboBox.getItems().isEmpty()) {
-      comboBox.setValue(comboBox.getItems().get(0));
+      comboBox.setValue(comboBox.getItems().getFirst());
     }
+  }
+
+  private void setEventHandlers() {
     comboBox.addEventFilter(Event.ANY, this::forwardEvent);
     comboBox.setButtonCell(new ComboBoxNodeListCell());
     comboBox.setCellFactory(items -> new ComboBoxNodeListCell());
     ViewUtil.enableAutoResize(comboBox, item -> item.getView().toString());
-    getLookManager().addCssClass(BhConstants.Css.CLASS_COMBO_BOX_NODE);
   }
 
   /** コンボボックスの選択肢を登録する. */
@@ -103,7 +108,7 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
   public List<SelectableItem<String, Object>> getItems() {
     return new ArrayList<>(comboBox.getItems());
   }
-  
+
   /** ノードサイズのキャッシュ値を更新する. */
   private void updateNodeSizeCache(boolean includeCnctr, Vec2D nodeSize) {
     if (includeCnctr) {

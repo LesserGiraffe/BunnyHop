@@ -70,6 +70,7 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     setComponent(textArea);
     textArea.addEventFilter(MouseEvent.ANY, this::forwardEvent);
     initStyle();
+    updateNodeStatusVisibility();
   }
 
   /**

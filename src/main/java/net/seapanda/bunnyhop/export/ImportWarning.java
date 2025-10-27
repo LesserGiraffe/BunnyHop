@@ -39,4 +39,7 @@ public enum ImportWarning {
 
   /** 既存の BhNode のインスタンス ID とロードした BhNode のインスタンス ID が重複した. */
   DUPLICATE_INSTANCE_ID,
+
+  /** 破損フラグの立っているノードをロードした. */
+  CORRUPTED_NODE,
 }

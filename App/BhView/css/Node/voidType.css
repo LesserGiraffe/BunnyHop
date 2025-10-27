@@ -1,7 +1,9 @@
 .voidType {
   -fx-fill: voidTypeCol;
+  -fx-stroke: black;
 }
 
 .voidVarType {
   -fx-fill: voidTypeCol;
+  -fx-stroke: black;
 }

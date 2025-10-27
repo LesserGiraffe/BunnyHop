@@ -1,0 +1,11 @@
+.defaultCorruptionMark .triangle {
+  -fx-fill: yellow;
+}
+
+.defaultCorruptionMark .exclamationBar {
+  -fx-fill: black;
+}
+
+.defaultCorruptionMark .exclamationDot {
+  -fx-fill: black;
+}

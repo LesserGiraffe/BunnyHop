@@ -56,6 +56,7 @@ public class NoContentNodeView extends BhNodeViewBase {
       boolean inner = parent == null || parent.inner;
       return inner ? viewStyle.bodyShape : BodyShape.BODY_SHAPE_NONE;
     });
+    updateNodeStatusVisibility();
   }
 
   /** ノードサイズのキャッシュ値を更新する. */
@@ -177,7 +178,6 @@ public class NoContentNodeView extends BhNodeViewBase {
 
   @Override
   public void show(int depth) {
-    System.out.println(
-        "%s<NoContentNodeView>  %s".formatted(indent(depth), hashCode()));
+    System.out.printf("%s<NoContentNodeView>  %s%n", indent(depth), hashCode());
   }
 }

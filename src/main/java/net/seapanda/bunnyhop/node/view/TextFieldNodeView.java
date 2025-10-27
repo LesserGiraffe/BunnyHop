@@ -71,6 +71,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
     textField.focusedProperty().addListener(
         (ov, oldVal, newVal) -> Platform.runLater(this::selectText));
     initStyle();
+    updateNodeStatusVisibility();
   }
 
   /**
@@ -194,14 +195,14 @@ public final class TextFieldNodeView extends TextInputNodeView {
     Vec2D commonPartSize = getRegionManager().getCommonPartSize();
     Vec2D innerSize = switch (viewStyle.baseArrangement) {
       case ROW ->
-        // textField.getWidth() だと設定した値以外が返る場合がある
-        new Vec2D(
-            commonPartSize.x + textField.getPrefWidth(),
-            Math.max(commonPartSize.y, textField.getHeight()));
+          // textField.getWidth() だと設定した値以外が返る場合がある
+          new Vec2D(
+              commonPartSize.x + textField.getPrefWidth(),
+              Math.max(commonPartSize.y, textField.getHeight()));
       case COLUMN ->
-        new Vec2D(
-            Math.max(commonPartSize.x, textField.getPrefWidth()),
-            commonPartSize.y + textField.getHeight());
+          new Vec2D(
+              Math.max(commonPartSize.x, textField.getPrefWidth()),
+              commonPartSize.y + textField.getHeight());
     };
     return new Vec2D(
         viewStyle.paddingLeft + innerSize.x + viewStyle.paddingRight,
@@ -268,9 +269,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
 
   @Override
   public void show(int depth) {
-    System.out.println(
-        "%s<TextFieldNodeView>  %s".formatted(indent(depth), hashCode()));
-    System.out.println(
-        "%s<content>  %s".formatted(indent(depth + 1), textField.getText()));
+    System.out.printf("%s<TextFieldNodeView>  %s%n", indent(depth), hashCode());
+    System.out.printf("%s<content>  %s%n", indent(depth + 1), textField.getText());
   }
 }

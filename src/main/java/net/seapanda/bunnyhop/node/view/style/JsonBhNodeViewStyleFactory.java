@@ -385,10 +385,16 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       fillBreakpointParams(commonPart.breakpoint, obj, fileName);
     }
 
-    // nxecStepMark
+    // execStepMark
     obj = readObject(BhConstants.NodeStyleDef.KEY_EXEC_STEP, jsonObj, fileName).orElse(null);
     if (obj != null) {
-      fillExecStepMarkParams(commonPart.nxecStepMark, obj, fileName);
+      fillExecStepMarkParams(commonPart.execStepMark, obj, fileName);
+    }
+
+    // corruptionMark
+    obj = readObject(BhConstants.NodeStyleDef.KEY_CORRUPTION, jsonObj, fileName).orElse(null);
+    if (obj != null) {
+      fillCorruptionMarkParams(commonPart.corruptionMark, obj, fileName);
     }
   }
 
@@ -432,7 +438,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
   private void fillBreakpointParams(
       BhNodeViewStyle.Breakpoint breakpoint, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
-    // buttonCssClass
+    // cssClass
     breakpoint.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(breakpoint.cssClass);
 
@@ -444,20 +450,39 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
   /**
    * {@link BhNodeViewStyle.ExecStepMark} にスタイル情報を格納する.
    *
-   * @param nxecStepMark jsonObj の情報を格納するオブジェクト
-   * @param jsonObj ブレークポイントのパラメータが格納されたオブジェクト
+   * @param execStepMark jsonObj の情報を格納するオブジェクト
+   * @param jsonObj 次に実行するノードであることを表す印のパラメータが格納されたオブジェクト
    * @param fileName jsonObj が記述してある .json ファイルの名前
    */
   private void fillExecStepMarkParams(
-      BhNodeViewStyle.ExecStepMark nxecStepMark, JsonObject jsonObj, String fileName)
+      BhNodeViewStyle.ExecStepMark execStepMark, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
-    // buttonCssClass
-    nxecStepMark.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
-        .orElse(nxecStepMark.cssClass);
+    // cssClass
+    execStepMark.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(execStepMark.cssClass);
 
     // size
-    nxecStepMark.size = readNumber(BhConstants.NodeStyleDef.KEY_SIZE, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(nxecStepMark.size);
+    execStepMark.size = readNumber(BhConstants.NodeStyleDef.KEY_SIZE, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(execStepMark.size);
+  }
+
+  /**
+   * {@link BhNodeViewStyle.CorruptionMark} にスタイル情報を格納する.
+   *
+   * @param corruptionMark jsonObj の情報を格納するオブジェクト
+   * @param jsonObj 破損マークのパラメータが格納されたオブジェクト
+   * @param fileName jsonObj が記述してある .json ファイルの名前
+   */
+  private void fillCorruptionMarkParams(
+      BhNodeViewStyle.CorruptionMark corruptionMark, JsonObject jsonObj, String fileName)
+      throws ViewConstructionException {
+    // cssClass
+    corruptionMark.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(corruptionMark.cssClass);
+
+    // size
+    corruptionMark.size = readNumber(BhConstants.NodeStyleDef.KEY_SIZE, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(corruptionMark.size);
   }
 
   /**

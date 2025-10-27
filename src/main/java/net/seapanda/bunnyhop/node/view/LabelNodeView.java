@@ -58,6 +58,7 @@ public final class LabelNodeView extends BhNodeViewBase {
     this.model = model;
     setComponent(label);
     initStyle();
+    updateNodeStatusVisibility();
   }
 
   /**

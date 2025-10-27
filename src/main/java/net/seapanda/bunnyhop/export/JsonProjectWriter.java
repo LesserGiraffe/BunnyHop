@@ -52,7 +52,7 @@ public class JsonProjectWriter {
     List<WorkspaceImage> wsi = workspaces.stream().map(JsonProjectWriter::convertToImage).toList();
     var image = new ProjectImage(
         BhConstants.SYS_VERSION, BhConstants.APP_VERSION, BhConstants.SAVE_DATA_VERSION, wsi);
-    Gson gson = new GsonBuilder().create();
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
     try (var jw = gson.newJsonWriter(new FileWriter(filePath.toString()))) {
       gson.toJson(image, new TypeToken<ProjectImage>(){}.getType(), jw);
     }

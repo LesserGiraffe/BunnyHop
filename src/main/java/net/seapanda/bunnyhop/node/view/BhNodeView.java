@@ -185,6 +185,20 @@ public interface BhNodeView extends NodeViewComponent {
      */
     boolean isExecStepMarkVisible();
 
+    /**
+     * 破損マークの可視性を変更する.
+     *
+     * @param visible 破損マークを表示する場合 true.  非表示にする場合 false
+     */
+    void setCorruptionMarkVisibility(boolean visible);
+
+    /**
+     * 破損マークの可視性を調べる.
+     *
+     * @return 破損マークが表示されている場合 true.
+     */
+    boolean isCorruptionMarkVisible();
+
 
     /** エフェクトを付ける対象. */
     enum EffectTarget {

@@ -218,7 +218,7 @@ public class JsonProjectImporter implements ProjectImporter {
       return "";
     }
     StringBuilder msg = new StringBuilder();
-    msg.append(ImportWarning.DUPLICATE_INSTANCE_ID.toString() + "\n");
+    msg.append(ImportWarning.DUPLICATE_INSTANCE_ID + "\n");
     for (Map.Entry<InstanceId, BhNode> orgInstIdAndNode : instIdToNode.entrySet()) {
       msg.append("  instance id: %s,  node id %s\n".formatted(
           orgInstIdAndNode.getKey(), orgInstIdAndNode.getValue().getId()));
@@ -231,10 +231,15 @@ public class JsonProjectImporter implements ProjectImporter {
   private static String createWarningMsg(Set<ImportWarning> warnings) {
     var msgs = new ArrayList<String>();
     if (warnings.contains(ImportWarning.UNKNOWN_BH_NODE_ID)
-        || warnings.contains(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION)
         || warnings.contains(ImportWarning.CONNECTOR_NOT_FOUND)
         || warnings.contains(ImportWarning.DERIVATIVE_NOT_FOUND)) {
       msgs.add(TextDefs.Import.AskIfContinue.someNodesAreMissing.get());
+    }
+    if (warnings.contains(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION)) {
+      msgs.add(TextDefs.Import.AskIfContinue.loadedIncompatibleNodes.get());
+    }
+    if (warnings.contains(ImportWarning.CORRUPTED_NODE)) {
+      msgs.add(TextDefs.Import.AskIfContinue.loadedCorruptedNodes.get());
     }
     if (warnings.contains(ImportWarning.DUPLICATE_INSTANCE_ID)) {
       msgs.add(TextDefs.Import.AskIfContinue.overwroteDuplicateInstIds.get());

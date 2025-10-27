@@ -36,6 +36,7 @@ public class BhNodeImage {
   final String text;
   final boolean isDefault;
   final boolean isBreakpointSet;
+  final boolean isCorrupted;
   final BhNodeVersion version;
   final Vec2D pos;
   private final ArrayList<ConnectorImage> children;
@@ -50,6 +51,7 @@ public class BhNodeImage {
    * @param text 対象の BhNode が TextNode の場合に持っているテキスト
    * @param isDefault 対象の BhNode がデフォルトノードである場合 true
    * @param isBreakpointSet 対象の BhNode にブレークポイントが設定されている場合 true
+   * @param isCorrupted 対象の BhNode が破損している場合 true
    * @param version 対象の BhNode のバージョン
    * @param pos このノードのワークスペース上での位置
    */
@@ -60,6 +62,7 @@ public class BhNodeImage {
       String text,
       boolean isDefault,
       boolean isBreakpointSet,
+      boolean isCorrupted,
       BhNodeVersion version,
       Vec2D pos) {
     this.nodeId = nodeId;
@@ -68,6 +71,7 @@ public class BhNodeImage {
     this.text = (text == null) ? "" : text;
     this.isDefault = isDefault;
     this.isBreakpointSet = isBreakpointSet;
+    this.isCorrupted = isCorrupted;
     this.version = version;
     this.pos = pos;
     children = new ArrayList<>();
@@ -81,6 +85,7 @@ public class BhNodeImage {
     this.text = "";
     this.isDefault = false;
     this.isBreakpointSet = false;
+    this.isCorrupted = false;
     this.version = BhNodeVersion.NONE;
     this.pos = new Vec2D(0, 0);
     this.children = new ArrayList<>();

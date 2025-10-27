@@ -85,7 +85,6 @@
         "show-all": "全て表示",
         "ellipsis": "...",
         "unknown-node": "不明なノード",
-        "next": "次",
         "search": "🔍",
         "jump": "ジャンプ",
         "main-routine": "プログラムスタート",
@@ -168,7 +167,9 @@
       "ask-if-continue": {
         "title": "警告",
         "body": "ロードを続けますか?\n続ける場合は [%s]    止める場合は [%s]",
-        "some-nodes-are-missing": "一部のノードが欠落しています.",
+        "some-nodes-are-missing": "一部のノードが見つかりませんでした.",
+        "loaded-incompatible-nodes": "互換性のないノードを読み込みました.",
+        "loaded-corrupted-nodes": "破損したノードを読み込みました.",
         "changed-duplicate-instance-ids": "重複するインスタンス ID が書き換えられました."
       },
       "ask-if-keep-existing-ws": {
@@ -197,7 +198,7 @@
         "has-ended": "-- プログラム終了完了 (local)  --\n",
         "has-connected": "-- 接続完了 (local) --\n",
         "failed-to-connect": "!! 接続失敗 (local)  !!\n",
-        "no-runtime-to-connect-to": "!! 接続失敗 (プログラムを実行していません) !!\n",        
+        "no-runtime-to-connect-to": "!! 接続失敗 (プログラムを実行していません) !!\n",
         "has-disconnected": "-- 切断完了 (local) --\n",
         "failed-to-disconnect": "!! 切断失敗 (local)  !!\n",
         "no-runtime-to-disconnect-from": "!! 切断失敗 (プログラムを実行していません) !!\n"

@@ -46,6 +46,8 @@ import net.seapanda.bunnyhop.node.control.TemplateNodeController;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeBase.BodyShape;
+import net.seapanda.bunnyhop.node.view.component.Star;
+import net.seapanda.bunnyhop.node.view.component.WarningIcon;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ChildArrangement;
@@ -143,17 +145,12 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       throws ViewConstructionException {
     this.viewStyle = style;
     this.model = model;
-    boolean isBreakpointVisible =
-        Optional.ofNullable(model).map(BhNode::isBreakpointSet).orElse(false);
-    shapes = createShapes(style, isBreakpointVisible);
+    shapes = createShapes(style);
     panes = createPanes(style, components);
     cbRegistry = this.new CallbackRegistryBase();
     lookManager = this.new LookManagerBase(style.bodyShape);
     lookManager.addCssClass(style.cssClasses);
     lookManager.addCssClass(BhConstants.Css.CLASS_BH_NODE);
-    if (model != null) {
-      lookManager.setBreakpointVisibility(model.isBreakpointSet());
-    }
   }
 
   @Override
@@ -194,6 +191,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   @Override
   public void setMouseTransparent(boolean value) {
     panes.root.setMouseTransparent(value);
+    shapes.nodeShape.setMouseTransparent(value);
   }
 
   @Override
@@ -266,63 +264,38 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     panes.specific.getChildren().setAll(node);
   }
 
+  /** ノードの状態を表すインジケータの可視性を更新する. */
+  protected void updateNodeStatusVisibility() {
+    if (model != null) {
+      lookManager.setCompileErrorVisibility(model.hasCompileError());
+      lookManager.setBreakpointVisibility(model.isBreakpointSet());
+      lookManager.setCorruptionMarkVisibility(model.isCorrupted());
+    }
+  }
+
   /** ノードビューの描画に必要な図形オブジェクトを作成する. */
-  private Shapes createShapes(BhNodeViewStyle style, boolean isBreakpointVisible) {
+  private Shapes createShapes(BhNodeViewStyle style) {
     var compileErrorMark = new CompileErrorMark(0, 0, 0, 0);
     compileErrorMark.getStyleClass().add(BhConstants.Css.CLASS_COMPILE_ERROR_MARK);
-    compileErrorMark.setMouseTransparent(true);
+
     var nodeShape = new Polygon();
     nodeShape.addEventFilter(Event.ANY, this::forwardEventIfNotHaveController);
+
     double radius = style.commonPart.breakpoint.radius;
     var circle = new Circle(radius, radius, radius);
     circle.setMouseTransparent(true);
-    circle.setVisible(isBreakpointVisible);
+    circle.setVisible(false);
     circle.getStyleClass().add(style.commonPart.breakpoint.cssClass);
-    double size = style.commonPart.nxecStepMark.size;
-    Polygon star = createStarPolygon(size, size);
-    star.setMouseTransparent(true);
-    star.setVisible(false);
-    star.getStyleClass().add(style.commonPart.nxecStepMark.cssClass);
-    return new Shapes(nodeShape, compileErrorMark, circle, star);
-  }
 
-  /**
-   * 指定された幅と高さの矩形に収まる星のポリゴンを作成する.
-   *
-   * @param width            星を収める矩形の幅
-   * @param height           星を収める矩形の高さ
-   * @return 星型のポリゴン
-   */
-  private Polygon createStarPolygon(double width, double height) {
-    double innerRadiusRatio = 0.5; // 内側の半径と外側の半径の比率（0.0-1.0）
-    int numConvexPoints = 4; // 凸部分の超点数
-    Polygon star = new Polygon();
-    double centerX = width / 2.0;
-    double centerY = height / 2.0;
-    double outerRadiusX = width / 2.0;
-    double outerRadiusY = height / 2.0;
-    double innerRadiusX = outerRadiusX * innerRadiusRatio;
-    double innerRadiusY = outerRadiusY * innerRadiusRatio;
-    double angleStep = Math.PI / numConvexPoints; // 外側と内側の頂点間の角度
-    double startAngle = -Math.PI / 2.0;
+    double size = style.commonPart.execStepMark.size;
+    Polygon execMark = new Star(size, size, 4, style.commonPart.execStepMark.cssClass);
+    execMark.setVisible(false);
 
-    for (int i = 0; i < numConvexPoints * 2; ++i) {
-      double angle = startAngle + i * angleStep;
-      double radiusX;
-      double radiusY;
-      // 偶数インデックスは外側の頂点、奇数インデックスは内側の頂点
-      if (i % 2 == 0) {
-        radiusX = outerRadiusX;
-        radiusY = outerRadiusY;
-      } else {
-        radiusX = innerRadiusX;
-        radiusY = innerRadiusY;
-      }
-      double x = centerX + radiusX * Math.cos(angle);
-      double y = centerY + radiusY * Math.sin(angle);
-      star.getPoints().addAll(x, y);
-    }
-    return star;
+    size = style.commonPart.corruptionMark.size;
+    var corruption = new WarningIcon(size, size, style.commonPart.corruptionMark.cssClass);
+    corruption.setVisible(false);
+
+    return new Shapes(nodeShape, compileErrorMark, circle, execMark, corruption);
   }
 
   /** GUI コンポーネントを乗せるペインを作成する. */
@@ -334,18 +307,19 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     Pane specific = new HBox();
     root.getChildren().addAll(shapes.nodeShape, compBase);
     root.setPickOnBounds(false);
-    
+
     compBase.getChildren().addAll(common, specific);
     compBase.setPickOnBounds(false);
     compBase.widthProperty().addListener((obs, oldVal, newVal) -> notifyChildSizeChanged());
     compBase.heightProperty().addListener((obs, oldVal, newVal) -> notifyChildSizeChanged());
     compBase.setTranslateX(style.paddingLeft);
     compBase.setTranslateY(style.paddingTop);
-    
+
     common.setPickOnBounds(false);
     common.getStyleClass().add(style.commonPart.cssClass);
     common.getChildren().add(shapes.nextStep);
     common.getChildren().add(shapes.breakpoint);
+    common.getChildren().add(shapes.corruption);
     common.getChildren().addAll(components);
     common.getChildren().forEach(child -> {
       child.managedProperty().bind(child.visibleProperty());
@@ -574,6 +548,16 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     @Override
     public boolean isExecStepMarkVisible() {
       return shapes.nextStep.isVisible();
+    }
+
+    @Override
+    public void setCorruptionMarkVisibility(boolean visible) {
+      shapes.corruption.setVisible(visible);
+    }
+
+    @Override
+    public boolean isCorruptionMarkVisible() {
+      return shapes.corruption.isVisible();
     }
   }
 
@@ -1161,10 +1145,12 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
    * @param compileError コンパイルエラーが発生していることを示す印
    * @param breakpoint ブレークポイントが設定されていることを示す印
    * @param nextStep 次に実行されるノードであることを示す印
+   * @param corruption ノードが破損していることを示す印
    */
   private record Shapes(
       Polygon nodeShape,
       CompileErrorMark compileError,
       Circle breakpoint,
-      Polygon nextStep) {}
+      Polygon nextStep,
+      Group corruption) {}
 }

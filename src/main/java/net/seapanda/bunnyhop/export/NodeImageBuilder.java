@@ -26,9 +26,9 @@ import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
-import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.PositionManager;
+import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
  * {@link BhNode} ツリーの保存用イメージを作成するクラス.
@@ -68,6 +68,7 @@ public class NodeImageBuilder implements BhNodeWalker {
         "",
         node.isDefault(),
         node.isBreakpointSet(),
+        node.isCorrupted(),
         node.getVersion(),
         pos);
     nodeStack.addLast(nodeImage);
@@ -92,6 +93,7 @@ public class NodeImageBuilder implements BhNodeWalker {
         node.getText(),
         node.isDefault(),
         node.isBreakpointSet(),
+        node.isCorrupted(),
         node.getVersion(),
         pos);
     nodeStack.addLast(nodeImage);

@@ -266,7 +266,8 @@ public class BhConstants {
     public static final String KEY_CONNECTIVE = "connective";
     public static final String KEY_PRIVATE_TEMPLATE = "privateTemplate";
     public static final String KEY_BREAK_POINT = "breakpoint";
-    public static final String KEY_EXEC_STEP = "nxecStep";
+    public static final String KEY_EXEC_STEP = "execStep";
+    public static final String KEY_CORRUPTION = "corruption";
     public static final String KEY_TEXT_FIELD = "textField";
     public static final String KEY_LABEL = "label";
     public static final String KEY_COMBO_BOX = "comboBox";
@@ -339,15 +340,19 @@ public class BhConstants {
     public static final String PSEUDO_UNFIXED_DEFAULT = "unfixedDefault";
     public static final String PSEUDO_COLUMN = "column";
     public static final String PSEUDO_ROW = "row";
-    public static final String PSEUDO_EXEC_STEP = "nxecStep";
+    public static final String PSEUDO_EXEC_STEP = "execStep";
     public static final String CLASS_BH_NODE = "BhNode";
     public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";
     public static final String CLASS_TEXT_FIELD_NODE = "textFieldNode";
     public static final String CLASS_TEXT_AREA_NODE = "textAreaNode";
     public static final String CLASS_LABEL_NODE = "labelNode";
-    public static final String CLASS_NO_CONTENT_NODE = "labelNode";
+    public static final String CLASS_NO_CONTENT_NODE = "noContentNode";
     public static final String CLASS_CONNECTIVE_NODE = "ConnectiveNode";
     public static final String CLASS_COMPILE_ERROR_MARK = "compileErrorMark";
+    public static final String CLASS_TRIANGLE = "triangle";
+    public static final String CLASS_EXCLAMATION_BAR = "exclamationBar";
+    public static final String CLASS_EXCLAMATION_DOT = "exclamationDot";
+
     public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
     public static final String CLASS_PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
     public static final String CALL_STACK_ITEM = "callStackItem";

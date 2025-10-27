@@ -321,6 +321,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     if (!lock.tryLock()) {
       return false;
     }
+    msgService.info(TextDefs.BhRuntime.Remote.preparingToDisconnect.get());
     try {
       boolean success = disconnectImpl(BhConstants.BhRuntime.Timeout.HALT_TRANSCEIVER);
       if (success) {
