@@ -16,6 +16,8 @@ google-java-format_windows-x86-64.exe
 /App/net.seapanda.bunnyhop.jar
 /App/BhProgramExecEnvironment.jar
 /App/Jlib
+/App/UserData/Text
+/App/UserData/Audio
 /misc
 /out
 /BunnyHop.iml

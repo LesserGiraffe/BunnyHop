@@ -1,0 +1,33 @@
+<Node
+  type="connective"
+  bhNodeID="idSaveTextStat"
+  name="SaveTextStat"
+  nodeStyleID="SaveTextStat.json"
+  breakpoint="set"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedFromWsToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js"
+  onDragStarted="OnStatDragStarted.js"
+  onCreatedAsTemplate="OnSaveTextStatCreatedAsTemplate.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-1.0.0">
+
+  <ConnectorSection name="StatSctn">
+    <Connector
+      bhConnectorID="idSaveTextStat.cnctr0"
+      import="idStrExpCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idSaveTextStat.cnctr1"
+      import="idStrExpCnctr"
+      name="Arg1"/>
+
+    <Connector
+      bhConnectorID="idSaveTextStat.cnctr2"
+      import="idStatCnctr"
+      name="NextStat"/>
+  </ConnectorSection>
+</Node>

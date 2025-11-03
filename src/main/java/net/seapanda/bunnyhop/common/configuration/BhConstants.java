@@ -105,8 +105,8 @@ public class BhConstants {
       public static final String NODE_STYLE_DEF = "NodeStyle";
       /** ノードやコネクタのイベントハンドラが書かれたファイルがあるディレクトリ. */
       public static final String EVENT_HANDLERS = "EventHandler";
-      /** ノードテンプレートの配置情報が書かれたファイルがあるディレクトリ. */
-      public static final String TEMPLATE_LIST = "TemplateList";
+      /** テンプレートノードの配置情報が書かれたファイルがあるディレクトリ. */
+      public static final String TEMPLATE_NODE_LIST = "TemplateNodeList";
       /** アイコンなどの画像があるディレクトリ. */
       public static final String IMAGES = "IMAGES";
       /** ログファイルを置くディレクトリ. */
@@ -142,8 +142,8 @@ public class BhConstants {
       public static final String VARIABLE_INSPECTION_VIEW_FXML = "VariableInspectionView.fxml";
       /** デバッグウィンドウの基底部分のビューが定義してあるfxmlファイルの名前. */
       public static final String DEBUG_WINDOW_FXML = "DebugWindow.fxml";
-      /** ノードテンプレートの配置情報が書かれたファイルの名前. */
-      public static final String NODE_TEMPLATE_LIST_JSON = "NodeTemplateList.json";
+      /** テンプレートノードの配置情報が書かれたファイルの名前. */
+      public static final String TEMPLATE_NODE_LIST_JSON = "TemplateNodeList.json";
       public static final String COMMON_FUNCS_JS = "CommonFuncs.js";
       /** BunnyHop が作成した BhProgram のスクリプト名. */
       public static final String APP_FILE_NAME_JS = "BhAppScript.js";
@@ -307,12 +307,12 @@ public class BhConstants {
     public static final String VAL_EDGE = "Edge";
   }
 
-  /** ノードテンプレートに関するキーワード. */
-  public static class NodeTemplate {
+  /** ノード選択ビューに関するキーワード. */
+  public static class NodeSelection {
     public static final String KEY_CSS_CLASS = "cssClass";
     public static final String KEY_CONTENTS = "contents";
     /** ノード固有のノード選択ビューのカテゴリ名. */
-    public static final String PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
+    public static final String PRIVATE_TEMPLATE_NODE = "privateTemplateNode";
     /** ノード選択ビューのスペースを表すノードの名前. */
     public static final String SELECTION_VIEW_SPACE = "SelectionViewSpace";
   }

@@ -8,5 +8,18 @@
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
-  <Section name="AnyListSctn"/>
+  <ConnectorSection name="AnyListSctn">
+    <Connector
+      bhConnectorID="idAnyEmptyList.cnctr0"
+      name="ListName"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyEmptyList.node0"
+        name="ListName"
+        breakpoint="ignore"
+        initialText="${node}{nameless-list}{initial}"
+        version="bhn-1.0.0"/>
+    </Connector>
+  </ConnectorSection>
 </Node>

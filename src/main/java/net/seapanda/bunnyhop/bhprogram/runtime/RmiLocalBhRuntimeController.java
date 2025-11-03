@@ -82,10 +82,10 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
         success = facade.runScript(filePath.toAbsolutePath().toString());
       }
       if (success) {
+        msgService.info(TextDefs.BhRuntime.Local.hasStarted.get());
         var startEvent = new BhProgramEvent(
             BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
         send(startEvent);
-        msgService.info(TextDefs.BhRuntime.Local.hasStarted.get());
         programRunning.set(true);
         return true;
       }

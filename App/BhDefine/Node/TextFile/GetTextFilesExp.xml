@@ -1,0 +1,25 @@
+<Node
+  type="connective"
+  bhNodeID="idGetTextFilesExp"
+  name="GetTextFilesExp"
+  nodeStyleID="GetTextFilesExp.json"
+  breakpoint="ignore"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-1.0.0">
+
+  <ConnectorSection name="StrListSctn">
+    <Connector
+      bhConnectorID="idGetTextFilesExp.cnctr0"
+      name="ListName"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idGetTextFilesExp.node0"
+        name="ListName"
+        breakpoint="ignore"
+        initialText="${node}{get-text-files}{initial}"
+        version="bhn-1.0.0">
+      </Node>
+    </Connector>
+  </ConnectorSection>
+</Node>

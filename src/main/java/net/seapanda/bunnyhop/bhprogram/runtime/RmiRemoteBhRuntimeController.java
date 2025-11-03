@@ -158,11 +158,11 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
         success = facade.runScript(destPath);
       }
       if (success) {
+        msgService.info(TextDefs.BhRuntime.Remote.hasStarted.get());
         var startEvent = new BhProgramEvent(
             BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
         // プログラムスタートイベントを送信する
         send(startEvent);
-        msgService.info(TextDefs.BhRuntime.Remote.hasStarted.get());
         return true;
       }
       throw new Exception();

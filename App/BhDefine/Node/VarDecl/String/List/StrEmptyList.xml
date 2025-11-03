@@ -9,5 +9,18 @@
   version="bhn-1.0.0">
 
   <!-- StrList と共通のセクションを持たせる -->
-  <Section name="StrListSctn"/>
+  <ConnectorSection name="StrListSctn">
+    <Connector
+      bhConnectorID="idStrEmptyList.cnctr0"
+      name="ListName"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idStrEmptyList.node0"
+        name="ListName"
+        breakpoint="ignore"
+        initialText="${node}{nameless-list}{initial}"
+        version="bhn-1.0.0"/>
+    </Connector>
+  </ConnectorSection>
 </Node>

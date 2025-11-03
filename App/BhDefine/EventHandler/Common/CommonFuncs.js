@@ -132,22 +132,34 @@
     return node.getView().map(view => view.getPositionManager().getPosOnWorkspace()).orElse(null);
   }
 
-  /**
-   * static-type の式である場合 true を返す.
-   */
+  /** プリミティブ型の式である場合 true を返す. */
   function isPrimitiveTypeExp(node) {
     let section = node.findDescendantOf('*');
     let sectionName = null;
     if (section !== null)
       sectionName = String(section.getSymbolName());
-    
-    return sectionName === 'NumExpSctn' ||
-        sectionName === 'StrExpSctn'    ||
-        sectionName === 'BoolExpSctn'   ||
-        sectionName === 'SoundExpSctn'  ||
-        sectionName === 'ColorExpSctn';
+
+    return sectionName === 'NumExpSctn'
+        || sectionName === 'StrExpSctn'
+        || sectionName === 'BoolExpSctn'
+        || sectionName === 'SoundExpSctn'
+        || sectionName === 'ColorExpSctn';
   }
-  
+
+  /** リスト型の式である場合 true を返す. */
+  function isListTypeExp(node) {
+    let section = node.findDescendantOf('*');
+    let sectionName = null;
+    if (section !== null)
+      sectionName = String(section.getSymbolName());
+
+    return sectionName === 'NumListSctn'
+        || sectionName === 'StrListSctn'
+        || sectionName === 'BoolListSctn'
+        || sectionName === 'SoundListSctn'
+        || sectionName === 'ColorListSctn';
+  }
+
   /**
    * 派生ノードを作成する
    * @param node このノードの派生ノードを作成する
@@ -211,12 +223,12 @@
     return node;
   }
   
-
   bhCommon['appendRemovedNode'] = appendRemovedNode;
   bhCommon['addNewNodeToWS'] = addNewNodeToWS;
   bhCommon['replaceDescendant'] = replaceDescendant;
   bhCommon['moveDescendant'] = moveDescendant;
   bhCommon['isPrimitiveTypeExp'] = isPrimitiveTypeExp;
+  bhCommon['isListTypeExp'] = isListTypeExp;
   bhCommon['reconnect'] = reconnect;
   bhCommon['buildDerivative'] = buildDerivative;
   bhCommon['createBhNode'] = createBhNode;

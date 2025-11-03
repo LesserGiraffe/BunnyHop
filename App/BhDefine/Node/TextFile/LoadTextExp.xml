@@ -1,0 +1,17 @@
+<Node
+  type="connective"
+  bhNodeID="idLoadTextExp"
+  name="LoadTextExp"
+  nodeStyleID="LoadTextExp.json"
+  breakpoint="ignore"
+  onCreatedAsTemplate="OnLoadTextExpCreatedAsTemplate.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-1.0.0">
+
+  <ConnectorSection name="StrExpSctn">
+    <Connector
+      bhConnectorID="idLoadTextExp.cnctr0"
+      import="idStrExpCnctr"
+      name="Arg0"/>
+  </ConnectorSection>
+</Node>

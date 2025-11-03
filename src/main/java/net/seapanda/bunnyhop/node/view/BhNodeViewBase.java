@@ -942,9 +942,9 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     }
 
     /** {@code view} の Z 位置を更新する. */
-    private static void updateZpos(BhNodeViewBase view, double posZ) {
-      view.shapes.compileError.setViewOrder(posZ + COMPILE_ERR_MARK_VIEW_ORDER_OFFSET);
-      view.panes.root.setViewOrder(posZ + NODE_BASE_VIEW_ORDER_OFFSET);
+    private static void updateZpos(BhNodeViewBase view, double pos) {
+      view.shapes.compileError.setViewOrder(pos + COMPILE_ERR_MARK_VIEW_ORDER_OFFSET);
+      view.panes.root.setViewOrder(pos + NODE_BASE_VIEW_ORDER_OFFSET);
     }
 
     @Override

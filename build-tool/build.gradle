@@ -144,7 +144,8 @@ task jlink(type: Exec) {
     delete fileTree("$projectDir/../$projName/$appDirName/Log"){}
     delete fileTree("$projectDir/../$projName/$appDirName/BhExecEnvLog"){}
     delete fileTree("$projectDir/../$projName/$appDirName/Compiled"){}
-    delete fileTree("$projectDir/../$projName/$appDirName/Compiled"){}
+    delete fileTree("$projectDir/../$projName/$appDirName/UserData/Text"){}
+    delete fileTree("$projectDir/../$projName/$appDirName/UserData/Audio"){}
     delete files("$projectDir/../$projName/release")
   }
 }

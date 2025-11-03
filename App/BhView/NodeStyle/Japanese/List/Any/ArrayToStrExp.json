@@ -1,0 +1,21 @@
+{
+  "paddingTop" : 1.0,
+  "paddingBottom" : 1.0,
+  "paddingLeft" : 2.5,
+  "paddingRight" : 4.5,
+  "connectorPos" : "Left",
+  "connectorShift" : 0.0,
+  "connectorWidth" : 4.25,
+  "connectorHeight" : 4.25,
+  "connectorShape" : "INV_TRIANGLE",
+  "connectorBoundsRate" : 1.95,
+  "cssClass" : "strType",
+
+  "connective" : {
+    "inner" : {
+      "space" : 2.0,
+      "arrangement" : "Row",
+      "connectorList" : ["Arg0"]
+    }
+  }
+}

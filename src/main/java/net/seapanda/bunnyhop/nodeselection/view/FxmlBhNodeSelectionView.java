@@ -148,7 +148,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
   /** {@code view} が空白を開けるための {@link BhNodeView} であるかどうか調べる. */
   private boolean isSpaceNodeView(BhNodeView view) {
     return view.getModel().map(
-        model -> model.getSymbolName().equals(BhConstants.NodeTemplate.SELECTION_VIEW_SPACE))
+        model -> model.getSymbolName().equals(BhConstants.NodeSelection.SELECTION_VIEW_SPACE))
         .orElse(false);
   }
 

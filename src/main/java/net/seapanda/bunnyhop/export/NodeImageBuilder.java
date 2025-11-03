@@ -59,7 +59,7 @@ public class NodeImageBuilder implements BhNodeWalker {
         .toList();
     Vec2D pos = node.getView()
         .map(view -> view.getPositionManager().getPosOnWorkspace())
-        .orElse(new Vec2D());  // View を持たない BhNode もある
+        .orElse(new Vec2D());
 
     var nodeImage = new BhNodeImage(
         node.getId(),
@@ -84,7 +84,7 @@ public class NodeImageBuilder implements BhNodeWalker {
     Vec2D pos = node.getView()
         .map(BhNodeView::getPositionManager)
         .map(PositionManager::getPosOnWorkspace)
-        .orElse(new Vec2D());  // View を持たない BhNode もある
+        .orElse(new Vec2D());
 
     var nodeImage = new BhNodeImage(
         node.getId(),

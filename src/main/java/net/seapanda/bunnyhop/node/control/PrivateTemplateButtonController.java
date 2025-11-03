@@ -94,7 +94,7 @@ public class PrivateTemplateButtonController {
       UserOperation userOpe = context.userOpe();
       deletePrivateTemplateNodes(userOpe);
       proxy.hideCurrentView();
-      String categoryName = BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE;
+      String categoryName = BhConstants.NodeSelection.PRIVATE_TEMPLATE_NODE;
       SequencedSet<BhNode> templateNodes = createPrivateTemplates(userOpe);
       for (BhNode templateNode : templateNodes) {
         proxy.addNodeTree(categoryName, templateNode, userOpe);
@@ -103,7 +103,7 @@ public class PrivateTemplateButtonController {
             .setForAllNodes(bhNode -> bhNode.getEventInvoker().onCreatedAsTemplate(userOpe));
         CallbackInvoker.invoke(registry, templateNode);
       }
-      proxy.show(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE);
+      proxy.show(BhConstants.NodeSelection.PRIVATE_TEMPLATE_NODE);
       setCurrentProducerNode(node, userOpe);
       event.consume();
     } finally {
@@ -116,7 +116,7 @@ public class PrivateTemplateButtonController {
     if (isPrivateTemplateShowed()) {
       proxy.hideCurrentView();
     } else {
-      proxy.show(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE);
+      proxy.show(BhConstants.NodeSelection.PRIVATE_TEMPLATE_NODE);
     }
   }
 
@@ -134,7 +134,7 @@ public class PrivateTemplateButtonController {
 
   /** 現在ノード選択ビューに存在するノード固有のテンプレートノードを全て消す. */
   private void deletePrivateTemplateNodes(UserOperation userOpe) {
-    String categoryName = BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE;
+    String categoryName = BhConstants.NodeSelection.PRIVATE_TEMPLATE_NODE;
     proxy.getNodeTrees(categoryName).forEach(
         templateNode -> BhNodePlacer.deleteNode(templateNode, userOpe));
   }
@@ -160,7 +160,7 @@ public class PrivateTemplateButtonController {
   /** 現在表示されているノード選択ビューがノード固有のテンプレートを表示するためのものであるか調べる. */
   private boolean isPrivateTemplateShowed() {
     return proxy.getCurrentCategoryName()
-        .map(BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE::equals)
+        .map(BhConstants.NodeSelection.PRIVATE_TEMPLATE_NODE::equals)
         .orElse(false);
   }
 }

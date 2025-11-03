@@ -68,8 +68,8 @@ public class ScriptIdentifiers {
     public static final String TURN_LEFT = "_turnLeft";
     public static final String STOP_RASPI_CAR = "_stopRaspiCar";
     public static final String MEASURE_DISTANCE = "_measureDistance";
-    public static final String GEN_LOCK_OBJ = "_genLockObj";
-    public static final String GEN_SYNC_TIMER = "_genSyncTimer";
+    public static final String NEW_LOCK_OBJ = "_newLockObj";
+    public static final String NEW_SYNC_TIMER = "_newSyncTimer";
     public static final String SYNC_TIMER_COUNTDOWN = "_syncTimerCountdown";
     public static final String SYNC_TIMER_AWAIT = "_syncTimerAwait";
     public static final String SYNC_TIMER_COUNTDOWN_AND_AWAIT = "_syncTimerCountdownAndAwait";
@@ -88,9 +88,6 @@ public class ScriptIdentifiers {
     public static final String GET_TIMER_VAL = "_getTimerVal";
     public static final String STRCAT = "_strcat";
     public static final String IDENTITY = "_identity";  // 恒等写像 (実際に共通コード部には定義しない)
-    public static final String SET_EXCEPTION_NODE_INFO = "_setExceptionNodeInfo";
-    public static final String NEW_BH_PROGRAM_EXCEPTION = "_newBhProgramException";
-    public static final String INIT_THIS_OBJ = "_initThisObj";
     public static final String CREATE_THREAD_CONTEXT = "_createThreadContext";
     public static final String NOTIFY_THREAD_START = "_notifyThreadStart";
     public static final String NOTIFY_THREAD_END = "_notifyThreadEnd";
@@ -99,6 +96,11 @@ public class ScriptIdentifiers {
     public static final String IS_NUM_INFINITE = "_isNumInfinite";
     public static final String NUM_CLAMP = "_numClamp";
     public static final String OUT_ARG_TEST = "_outArgTest";
+    public static final String SAVE_TEXT = "_saveText";
+    public static final String LOAD_TEXT = "_loadText";
+    public static final String GET_TEXT_FILES = "_getTextFiles";
+    public static final String DELETE_TEXT_FILE = "_deleteTextFile";
+    public static final String DELETE_TEXT_FILES = "_deleteTextFiles";
   }
 
   /** JavaScript の組み込み関数名.  */
@@ -125,7 +127,6 @@ public class ScriptIdentifiers {
   public static class Vars {
     public static final String NIL_SOUND  = "_nilSound";
     public static final String NIL_COLOR = "_nilColor";
-    public static final String PROGRAM_STARTING_TIME = "_programStartingTime";
     public static final String THREAD_CONTEXT = "_threadContext";
     public static final String CALL_STACK = "_callStack";
     public static final String VAR_STACK = "_varStack";

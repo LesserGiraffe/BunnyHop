@@ -149,7 +149,7 @@ public class BhNodeCategoryListController {
   /** コンパニオンノード用の選択ビューを登録する. */
   private void registerPrivateTemplateView() throws ViewConstructionException {
     proxy.addNodeSelectionView(
-        BhConstants.NodeTemplate.PRIVATE_NODE_TEMPLATE,
+        BhConstants.NodeSelection.PRIVATE_TEMPLATE_NODE,
         BhConstants.Css.CLASS_PRIVATE_NODE_TEMPLATE);
   }
 }

@@ -42,7 +42,13 @@
       "idAnyToStrExp",
       "idStrRowChainExp",
       "idStrColumnChainExp",
-      "idSayStat"]
+      "idSayStat",
+      "idArrayToStrExp",
+      "idSaveTextStat",
+      "idLoadTextExp",
+      "idGetTextFilesExp",
+      "idDeleteTextFileStat",
+      "idDeleteTextFilesStat"]
   },
   
   "${node-category}{boolean}": {

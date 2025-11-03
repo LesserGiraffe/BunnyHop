@@ -129,7 +129,7 @@ public class BhCompilerImpl implements BhCompiler {
     genMainMethod(code, entryPoint, option);
     genAddEventFuncCall(
         BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.BH_MAIN, code, 0);
-    genFooterSnippet(code, 0, option);
+    genFooterSnippet(code, 0);
   }
 
   /**
@@ -172,9 +172,8 @@ public class BhCompilerImpl implements BhCompiler {
    *
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
-   * @param option コンパイルオプション
    */
-  private void genFooterSnippet(StringBuilder code, int nestLevel, CompileOption option) {
+  private void genFooterSnippet(StringBuilder code, int nestLevel) {
     // プログラム開始時刻の更新
     code.append(common.indent(nestLevel))
         .append(common.genFuncCall(ScriptIdentifiers.Funcs.START_TIMER))

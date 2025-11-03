@@ -1,0 +1,28 @@
+<Node
+  type="connective"
+  bhNodeID="idDeleteTextFilesStat"
+  name="DeleteTextFilesStat"
+  nodeStyleID="DeleteTextFilesStat.json"
+  breakpoint="set"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedFromWsToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js"
+  onDragStarted="OnStatDragStarted.js"
+  onCreatedAsTemplate="OnDeleteTextFilesStatCreatedAsTemplate.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-1.0.0">
+
+  <ConnectorSection name="StatSctn">
+    <Connector
+      bhConnectorID="idDeleteTextFilesStat.cnctr0"
+      import="idStrListCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idDeleteTextFilesStat.cnctr2"
+      import="idStatCnctr"
+      name="NextStat"/>
+  </ConnectorSection>
+</Node>

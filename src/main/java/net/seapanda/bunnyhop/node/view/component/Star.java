@@ -60,6 +60,7 @@ public class Star extends Polygon {
       double y = centerY + radiusY * Math.sin(angle);
       getPoints().addAll(x, y);
     }
+    getStyleClass().add(styleClass);
     setMouseTransparent(true);
   }
 }

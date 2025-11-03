@@ -33,7 +33,15 @@ let _textDb = {
     invalidClampRange:
       (min, max) => `不正な数値の範囲 (= ${_str(min)} ~ ${_str(max)}) が指定されました.\n下限 ≦ 上限 を満たさなければなりません.`,
     failedToGetBaselineColor:
-      () => 'カラーセンサーの基準値の取得に失敗しました.'
+      () => 'カラーセンサーの基準値の取得に失敗しました.',
+    filePathIncludesIllegalChars:
+      (path) => `ファイル名には英数字, 「_」, 「/」 以外の半角文字は使えません.  (${_str(path)})`,
+    filePathStartsWithSlash:
+      (path) => `「/」から始まるファイル名は使えません.  (${_str(path)})`,
+    invalidFilePathSize:
+      (path, val, max) => `ファイル名は UTF-8 で 1 ~ ${_str(max)} バイトでなければなりません.  (${_str(path)},  ${_str(val)} バイト)`,
+    fileNotFound:
+      (path) => `ファイルが見つかりませんでした.  (${_str(path)})`
   },
   literal: {
     bool: {

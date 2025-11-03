@@ -9,5 +9,18 @@
   version="bhn-1.0.0">
 
   <!-- BoolList と共通のセクションを持たせる -->
-  <Section name="BoolListSctn"/>
+  <ConnectorSection name="BoolListSctn">
+    <Connector
+      bhConnectorID="idBoolEmptyList.cnctr0"
+      name="ListName"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idBoolEmptyList.node0"
+        name="ListName"
+        breakpoint="ignore"
+        initialText="${node}{nameless-list}{initial}"
+        version="bhn-1.0.0"/>
+    </Connector>
+  </ConnectorSection>
 </Node>

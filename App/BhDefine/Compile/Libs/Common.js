@@ -2,6 +2,7 @@ let _jString = java.lang.String;
 let _jExecutors = java.util.concurrent.Executors;
 let _jThread = java.lang.Thread;
 let _jLock = java.util.concurrent.locks.ReentrantLock;
+let _jRwLock = java.util.concurrent.locks.ReentrantReadWriteLock;
 let _jByteOrder = java.nio.ByteOrder;
 let _jByteType = java.lang.Byte.TYPE;
 let _jFloatType = java.lang.Float.TYPE;
@@ -18,6 +19,7 @@ let _jCyclicBarrier = java.util.concurrent.CyclicBarrier;
 let _jStringBuilder = java.lang.StringBuilder;
 let _jTimeUnit = java.util.concurrent.TimeUnit;
 let _jTimeoutException = java.util.concurrent.TimeoutException;
+let _jNoSuchFileException = java.nio.file.NoSuchFileException;
 let _eventHandlers = {};
 let _executor = _jExecutors.newFixedThreadPool(16);
 let _nil = new _Nil();
@@ -39,6 +41,9 @@ let _nearestLongMax = Number(0x7FFFFFFFFFFFFC00n);
 let _nearestLongMin = -_nearestLongMax;
 let _maxArraySize = 0xFFFF_FFFF;
 let _programStartingTime = 0;
+let _maxFilePathLength = 250; // bytes
+// ファイルパスに使えない文字列を探すための正規表現.  (英数字, アンダースコア, スラッシュ以外の半角文字にマッチ)
+let illegalFilePathChars = /[\x00-\x2E\x3A-\x40\x5B-\x5E\x60\x7B-\x7F]/g;
 
 bhScriptHelper.debug.setStringGenerator(_debugStr);
 _notifyThreadStart(_threadContext);
@@ -91,7 +96,7 @@ function _condWait(stepId) {
   bhScriptHelper.debug.conditionalWait(stepId);
 }
 
-function _genLockObj(fair) {
+function _newLockObj(fair) {
   return new _jLock(fair);
 }
 
@@ -240,8 +245,7 @@ function _sleep(sec) {
   try {
     _jThread.sleep(millis);
   } catch (e) {
-    _addExceptionMsg('_sleep()');
-    throw e;
+    throw _newBhProgramException('_sleep', e);
   }
 }
 
@@ -364,15 +368,19 @@ function _waitProcEnd(process, getStdinStr, checkExitVal) {
 //==================================================================
 //              例外処理
 //==================================================================
-function _addExceptionMsg(msg) {
-  let context = _getThreadContext();
-  if (context !== null) {
-    context[_idxErrorMsgs].push(String(msg));
+function _newBhProgramException(msg, cause) {
+  if (!msg) {
+    msg = '';
   }
-}
-
-function _newBhProgramException(msg) {
-  return bhScriptHelper.factory.newBhProgramException(msg);
+  if (!cause) {
+    return bhScriptHelper.factory.newBhProgramException(msg);
+  } else if (cause.javaException) {
+    // JavaScript から呼び出した Java で例外を投げた場合,
+    // JavaScript は org.mozilla.javascript.NativeErro オブジェクトをキャッチするので, 元の例外を取り出す.
+    return bhScriptHelper.factory.newBhProgramException(msg, cause.javaException);
+  } else {
+    return bhScriptHelper.factory.newBhProgramException(msg, cause);
+  }
 }
 
 //==================================================================
@@ -856,8 +864,7 @@ function _playMelodies(soundList, reverse) {
       line.write(waveBuf, 0, ret.waveLen);
     }
   } catch (e) {
-    _addExceptionMsg('_playMelodies()');
-    throw e;
+    throw _newBhProgramException('_playMelodies', e);
   } finally {
     if (line !== null) {
       line.drain();
@@ -887,8 +894,7 @@ function _playWavFile(path) {
       line.write(waveBuf, 0, byteRead);
     }
   } catch (e) {
-    _addExceptionMsg('_playWavFile()');
-    throw e;
+    throw _newBhProgramException('_playWavFile', e);
   } finally {
     if (line !== null) {
       line.drain();
@@ -941,8 +947,7 @@ function _sayOnLinux(word) {
     let process = procBuilder.start();
     _waitProcEnd(process, false, true);
   } catch (e) {
-    _addExceptionMsg('_sayOnLinux()');
-    throw e;
+    throw _newBhProgramException('_sayOnLinux', e);
   }
 }
 
@@ -1069,7 +1074,7 @@ function _strcat(valA, valB) {
 //==================================================================
 //              同期/排他
 //==================================================================
-function _genSyncTimer(count, autoReset) {
+function _newSyncTimer(count, autoReset) {
   if (!_isIntInRange(count, _syncTimer.minCount, _syncTimer.maxCount))
     throw _newBhProgramException(
       _textDb.errMsg.invalidSyncTimerInitVal(_syncTimer.minCount, _syncTimer.maxCount, count));
@@ -1106,8 +1111,7 @@ function _syncTimerCountdownAndAwait(timer, timeout) {
     timer.countdownAndAwaitInterruptibly(millis, _jTimeUnit.MILLISECONDS);
   } catch (e) {
     if (!(e.javaException instanceof _jTimeoutException)) {
-      _addExceptionMsg('_syncTimerCountdownAndAwait()');
-      throw e;
+      throw _newBhProgramException('_syncTimerCountdownAndAwait', e);
     }
   }
 }
@@ -1135,8 +1139,7 @@ function _syncTimerAwait(timer, timeout) {
     timer.awaitInterruptibly(millis, _jTimeUnit.MILLISECONDS);
   } catch (e) {
     if (!(e.javaException instanceof _jTimeoutException)) {
-      _addExceptionMsg('_syncTimerAwait()');
-      throw e;
+      throw _newBhProgramException('_syncTimerAwait', e);
     }
   }
 }
@@ -1159,6 +1162,8 @@ function _getSyncTimerCount(timer) {
   return timer.getCount();
 }
 
+//==================================================================
+
 let _MAX_SPEED = 10;
 let _MIN_SPEED = 1;
 
@@ -1166,10 +1171,81 @@ function _clampSpeedAndTime(speed, time) {
   if (Number.isNaN(speed)) {
     throw new _newBhProgramException(_textDb.errMsg.invalidMoveSpeed(speed));
   }
-  max_time = 0xFFFF_FFFF // hwctrl で正常に処理できる最大の動作時間
-  if (!_isInRange(time, 0, max_time)) {
-    throw new _newBhProgramException(_textDb.errMsg.invalidMoveTime(time, 0, max_time));
+  let maxTime = 0xFFFF_FFFF // hwctrl で正常に処理できる最大の動作時間
+  if (!_isInRange(time, 0, maxTime)) {
+    throw new _newBhProgramException(_textDb.errMsg.invalidMoveTime(time, 0, maxTime));
   }
   speed = _clamp(speed, _MIN_SPEED, _MAX_SPEED);
   return [speed, time];
+}
+
+/** ファイルパスが正常か調べる. */
+function checkFilePath(filePath) {
+  if (filePath.startsWith('/')) {
+    throw _newBhProgramException(_textDb.errMsg.filePathStartsWithSlash(filePath));
+  }
+  if (illegalFilePathChars.test(filePath)) {
+    throw _newBhProgramException(_textDb.errMsg.filePathIncludesIllegalChars(filePath));
+  }
+  let filePathSize = new _jString(filePath).getBytes('UTF-8').length;
+  if (filePathSize <= 0 || filePathSize > _maxFilePathLength) {
+    throw _newBhProgramException(_textDb.errMsg.invalidFilePathSize(filePath, filePathSize, _maxFilePathLength));
+  }
+}
+
+//==================================================================
+//              テキストデータの保存 / 読み出し
+//==================================================================
+
+function _saveText(text, path) {
+  try {
+    checkFilePath(path);
+    bhScriptHelper.file.text.save(text, path + '.txt');
+  } catch (e) {
+    throw e.isBhProgramException ? e : _newBhProgramException('_saveText', e);
+  }
+}
+
+function _loadText(path) {
+  try {
+    checkFilePath(path);
+    return String(bhScriptHelper.file.text.load(path + '.txt'));
+  } catch (e) {
+    if (e.javaException instanceof _jNoSuchFileException) {
+      throw _newBhProgramException(_textDb.errMsg.fileNotFound(path));
+    }
+    throw e.isBhProgramException ? e : _newBhProgramException('_loadText', e);
+  }
+}
+
+function _getTextFiles() {
+  try {
+    let paths = [];
+    for (let filePath of bhScriptHelper.file.text.getFiles()) {
+      filePath = String(filePath);
+      if (!filePath.endsWith('.txt')) {
+        continue;
+      }
+      filePath = filePath.substring(0, filePath.lastIndexOf(".txt")).replaceAll('\\', '/');
+      paths.push(String(filePath));
+    }
+    return paths;
+  } catch (e) {
+    throw _newBhProgramException('_getTextFiles', e);
+  }
+}
+
+function _deleteTextFile(path) {
+  try {
+    checkFilePath(path);
+    bhScriptHelper.file.text.delete(path + '.txt');
+  } catch (e) {
+    throw e.isBhProgramException ? e : _newBhProgramException('_deleteTextFile', e);
+  }
+}
+
+function _deleteTextFiles(paths) {
+  for (let path of paths) {
+    _deleteTextFile(path);
+  }
 }

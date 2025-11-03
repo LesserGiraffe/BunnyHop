@@ -85,17 +85,17 @@ public class JsonBhNodeCategoryTree implements BhNodeCategoryTree {
       }
       JsonElement val = jsonObj.get(key);
       switch (key) {
-        case BhConstants.NodeTemplate.KEY_CSS_CLASS:  //cssクラスのキー
+        case BhConstants.NodeSelection.KEY_CSS_CLASS:  //cssクラスのキー
           if (val.isJsonPrimitive() && val.getAsJsonPrimitive().isString()) {
-            TreeNode<String> cssClass = new TreeNode<>(BhConstants.NodeTemplate.KEY_CSS_CLASS);
+            TreeNode<String> cssClass = new TreeNode<>(BhConstants.NodeSelection.KEY_CSS_CLASS);
             cssClass.addChild(new TreeNode<>(val.getAsString()));
             parent.addChild(cssClass);
           }
           break;
 
-        case BhConstants.NodeTemplate.KEY_CONTENTS:  //ノード ID の配列のキー
+        case BhConstants.NodeSelection.KEY_CONTENTS:  //ノード ID の配列のキー
           if (val.isJsonArray()) {
-            TreeNode<String> contents = new TreeNode<>(BhConstants.NodeTemplate.KEY_CONTENTS);
+            TreeNode<String> contents = new TreeNode<>(BhConstants.NodeSelection.KEY_CONTENTS);
             addBhNodeId(val.getAsJsonArray(), contents, fileName);
             parent.addChild(contents);
           }

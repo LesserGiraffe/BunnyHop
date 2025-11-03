@@ -312,6 +312,8 @@ public class SymbolNames {
     public static final String NUM_POW_EXP = "NumPowExp";
     public static final String NUM_CLAMP_EXP = "NumClampExp";
     public static final String OUT_ARG_TEST_EXP = "OutArgTestExp";
+    public static final String LOAD_TEXT_EXP = "LoadTextExp";
+    public static final String GET_TEXT_FILES = "GetTextFilesExp";
     public static final String PRINT_STAT = "PrintStat";
     public static final String MOVE_STAT = "MoveStat";
     public static final String STOP_RASPI_CAR_STAT = "StopRaspiCarStat";
@@ -328,6 +330,9 @@ public class SymbolNames {
     public static final String SYNC_TIMER_AWAIT_STAT = "SyncTimerAwaitStat";
     public static final String RESET_SYNC_TIMER_STAT = "ResetSyncTimerStat";
     public static final String SYNC_TIMER_COUNTDOWN_STAT = "SyncTimerCountdownStat";
+    public static final String SAVE_TEXT_STAT = "SaveTextStat";
+    public static final String DELETE_TEXT_FILE_STAT = "DeleteTextFileStat";
+    public static final String DELETE_TEXT_FILES_STAT = "DeleteTextFilesStat";
 
     //オプション名
     public static final String OPT_ROUND = "round";
@@ -355,8 +360,6 @@ public class SymbolNames {
     public static final String OPT_FINITE = "finite";
     public static final String OPT_INFINITE = "infinite";
     public static final String OPT_NAN = "nan";
-    public static final String OPT_ASCENDING = "ascending";
-    public static final String OPT_DESCENDING = "descending";
 
     /** 定義済み関数式のリスト. */
     public static final HashSet<String> EXP_LIST =
@@ -383,6 +386,8 @@ public class SymbolNames {
             NUM_POW_EXP,
             NUM_CLAMP_EXP,
             OUT_ARG_TEST_EXP,
+            LOAD_TEXT_EXP,
+            GET_TEXT_FILES,
 
             Array.NUM_ARRAY_GET_EXP,
             Array.NUM_ARRAY_MAX_MIN_EXP,
@@ -414,6 +419,9 @@ public class SymbolNames {
             SYNC_TIMER_COUNTDOWN_AND_AWAIT_WITH_TIMEOUT_STAT,
             RESET_SYNC_TIMER_STAT,
             SYNC_TIMER_COUNTDOWN_STAT,
+            SAVE_TEXT_STAT,
+            DELETE_TEXT_FILE_STAT,
+            DELETE_TEXT_FILES_STAT,
 
             Array.ANY_ARRAY_PUSH_STAT,
             Array.ANY_ARRAY_APPEND_STAT,
@@ -470,6 +478,8 @@ public class SymbolNames {
             put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_NAN), "Number.isNaN");
             put(FuncId.create(NUM_POW_EXP), "Math.pow");
             put(FuncId.create(NUM_CLAMP_EXP), ScriptIdentifiers.Funcs.NUM_CLAMP);
+            put(FuncId.create(LOAD_TEXT_EXP), ScriptIdentifiers.Funcs.LOAD_TEXT);
+            put(FuncId.create(GET_TEXT_FILES), ScriptIdentifiers.Funcs.GET_TEXT_FILES);
             put(FuncId.create(OUT_ARG_TEST_EXP), ScriptIdentifiers.Funcs.OUT_ARG_TEST);
             put(FuncId.create(MOVE_STAT, OPT_MOVE_FORWARD), ScriptIdentifiers.Funcs.MOVE_FORWARD);
             put(FuncId.create(MOVE_STAT, OPT_MOVE_BACKWARD), ScriptIdentifiers.Funcs.MOVE_BACKWARD);
@@ -481,9 +491,11 @@ public class SymbolNames {
             put(FuncId.create(PLAY_SOUND_LIST_STAT), ScriptIdentifiers.Funcs.PLAY_MELODIES);
             put(FuncId.create(SAY_STAT), ScriptIdentifiers.Funcs.SAY);
             put(FuncId.create(LIGHT_EYE_STAT), ScriptIdentifiers.Funcs.LIGHT_EYE);
-            put(FuncId.create(GlobalData.MUTEX_BLOCK_DECL),
-                ScriptIdentifiers.Funcs.GEN_LOCK_OBJ);
-            put(FuncId.create(GlobalData.SYNC_TIMER_DECL), ScriptIdentifiers.Funcs.GEN_SYNC_TIMER);
+            put(FuncId.create(GlobalData.MUTEX_BLOCK_DECL), ScriptIdentifiers.Funcs.NEW_LOCK_OBJ);
+            put(FuncId.create(GlobalData.SYNC_TIMER_DECL), ScriptIdentifiers.Funcs.NEW_SYNC_TIMER);
+            put(FuncId.create(SAVE_TEXT_STAT), ScriptIdentifiers.Funcs.SAVE_TEXT);
+            put(FuncId.create(DELETE_TEXT_FILE_STAT), ScriptIdentifiers.Funcs.DELETE_TEXT_FILE);
+            put(FuncId.create(DELETE_TEXT_FILES_STAT), ScriptIdentifiers.Funcs.DELETE_TEXT_FILES);
 
             put(FuncId.create(Array.ANY_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
             put(FuncId.create(Array.ANY_ARRAY_LEN_EXP), ScriptIdentifiers.Funcs.ARY_LEN);
@@ -539,7 +551,6 @@ public class SymbolNames {
     public static final String OUT_ARG = "OutArg";
     public static final String NEXT_ARG = "NextArg";
     public static final String ARG_VOID = "ArgVoid";
-    public static final String FUNC_DEF_SCTN = "FuncDefSctn";
     public static final String PARAM_DECL = "ParamDecl";
     public static final String OUT_PARAM_DECL = "OutParamDecl";
     public static final String FUNC_NAME = "FuncName";
@@ -589,7 +600,7 @@ public class SymbolNames {
     public static final String BOOL_EMPTY_LIST = VarDecl.BOOL_EMPTY_LIST;
     public static final String COLOR_EMPTY_LIST = VarDecl.COLOR_EMPTY_LIST;
     public static final String SOUND_EMPTY_LIST = VarDecl.SOUND_EMPTY_LIST;
-    public static final String ANY_ENPTY_LIST = "AnyEmptyList";
+    public static final String ANY_EMPTY_LIST = "AnyEmptyList";
 
     public static final String STR_LITERAL_EXP = "StrLiteralExp";
     public static final String NUM_LITERAL_EXP = "NumLiteralExp";
@@ -610,7 +621,7 @@ public class SymbolNames {
             BOOL_EMPTY_LIST,
             COLOR_EMPTY_LIST,
             SOUND_EMPTY_LIST,
-            ANY_ENPTY_LIST,
+            ANY_EMPTY_LIST,
             MELODY_EXP_VOID,
             STR_CHAIN_LINK_VOID));
 
@@ -628,7 +639,7 @@ public class SymbolNames {
             NUM_EMPTY_LIST,
             BOOL_EMPTY_LIST,
             COLOR_EMPTY_LIST,
-            ANY_ENPTY_LIST,
+            ANY_EMPTY_LIST,
             SOUND_EMPTY_LIST,
             MELODY_EXP_VOID));
 
@@ -644,8 +655,6 @@ public class SymbolNames {
 
   /** リストに関するシンボル名. */
   public static class Array {
-    public static final String ARRAY = "Array";
-    public static final String INDEX = "Index";
 
     public static final String ANY_ARRAY_PUSH_STAT = "AnyArrayPushStat";
     public static final String ANY_ARRAY_LEN_EXP = "AnyArrayLengthExp";

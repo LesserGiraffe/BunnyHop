@@ -1,3 +1,9 @@
 (function() {
-  return 'SoundList' === String(bhNodeToConnect.getSymbolName());
+  let section = bhNodeToConnect.findDescendantOf('*');
+  let sectionName = null;
+  if (section !== null) {
+    sectionName = String(section.getSymbolName());
+  }
+
+  return sectionName === 'SoundListSctn';
 })();

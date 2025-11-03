@@ -159,18 +159,18 @@ public class AppMain extends Application {
         Paths.get(
             Utility.execPath, BhConstants.Path.Dir.BH_DEF, BhConstants.Path.Dir.EVENT_HANDLERS),
         Paths.get(
-            Utility.execPath, BhConstants.Path.Dir.BH_DEF, BhConstants.Path.Dir.TEMPLATE_LIST),
+            Utility.execPath, BhConstants.Path.Dir.BH_DEF, BhConstants.Path.Dir.TEMPLATE_NODE_LIST),
         Paths.get(Utility.execPath, BhConstants.Path.Dir.REMOTE)};
       final Path viewStyleDir = Paths.get(
           Utility.execPath,
           BhConstants.Path.Dir.VIEW,
           BhConstants.Path.Dir.NODE_STYLE_DEF,
           BhSettings.language);
-      final Path nodeTemplateListFile = Paths.get(
+      final Path nodeSelectionFile = Paths.get(
           Utility.execPath,
           BhConstants.Path.Dir.BH_DEF,
-          BhConstants.Path.Dir.TEMPLATE_LIST,
-          BhConstants.Path.File.NODE_TEMPLATE_LIST_JSON);
+          BhConstants.Path.Dir.TEMPLATE_NODE_LIST,
+          BhConstants.Path.File.TEMPLATE_NODE_LIST_JSON);
       final Path nodeDir = Paths.get(
           Utility.execPath,
           BhConstants.Path.Dir.BH_DEF,
@@ -219,13 +219,12 @@ public class AppMain extends Application {
           new ScriptConnectorEventInvokerImpl(scriptRepository, commonDataSupplier, textDb));
       nodeRepository.collect(nodeDir, cnctrDir, modelGenerator, textDb);
       final var categoryTree =
-          new JsonBhNodeCategoryTree(nodeTemplateListFile, nodeFactory, textDb);
+          new JsonBhNodeCategoryTree(nodeSelectionFile, nodeFactory, textDb);
       final var nodeCategoryBuilder = new BhNodeCategoryBuilder(categoryTree.getRoot());
       final var wsFactory = new WorkspaceFactoryImpl(
           wsViewFile, nodeShifterViewFile, mediator, nodeSelViewProxy, msgService);
       final var localCompiler = genCompiler(true);
       final var remoteCompiler = genCompiler(false);
-
 
       final var localRuntimeCtrl = new RmiLocalBhRuntimeController(simCmdProcessor, msgService);
       final var localBhProgramCtrl =
@@ -256,7 +255,7 @@ public class AppMain extends Application {
       final var cutAndPaste = new CutAndPaste(pastePosOffsetCount);
       final var projImporter = new JsonProjectImporter(nodeFactory, wsFactory, msgService);
       final var projExporter = new JsonProjectExporter(msgService);
-      if (!checkNodeIdAndNodeTemplate(nodeRepository, viewStyleFactory)) {
+      if (!validateNodeViewStyles(nodeRepository, viewStyleFactory)) {
         return;
       }
       final var sceneBuilder = new SceneBuilder(
@@ -509,7 +508,7 @@ public class AppMain extends Application {
     }
   }
 
-  private boolean checkNodeIdAndNodeTemplate(
+  private boolean validateNodeViewStyles(
       BhNodeRepository repository, BhNodeViewStyleFactory factory) {
     boolean allExist = true;
     for (BhNode node : repository.getAll()) {

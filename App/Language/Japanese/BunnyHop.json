@@ -473,6 +473,30 @@
       "nan": "非数"
     },
 
+    "nameless-list": {
+      "initial": "無名リスト"
+    },
+
+    "save-text": {
+      "file": "ファイル"
+    },
+
+    "load-text": {
+      "file": "ファイル"
+    },
+
+    "get-text-files": {
+      "initial": "保存されたテキストファイル一覧"
+    },
+
+    "delete-text-file": {
+      "file": "ファイル"
+    },
+
+    "delete-text-files": {
+      "file": "ファイル"
+    },
+
     "alias": {
       "AnyArrayAppendStat": "リストにリストの要素を全て挿入する",
       "AnyArrayCompExp": "リスト同士を比較する",
@@ -574,6 +598,12 @@
       "CheckNumTypeExp${finite}": "有限の値か調べる",
       "CheckNumTypeExp${infinite}": "+/- 無限大の値か調べる",
       "CheckNumTypeExp${nan}": "非数か調べる",
+      "SaveTextStat": "テキストデータをファイルに保存する",
+      "LoadTextExp": "テキストデータをファイルから読みだす",
+      "GetTextFilesExp": "テキストファイルの一覧を取得する",
+      "DeleteTextFileStat": "テキストファイルを削除する",
+      "DeleteTextFilesStat": "複数のテキストファイルを削除する",
+
       "BoolEmptyList": "空の真偽値リスト",
       "BoolList": "真偽値リスト (${name})",
       "BoolListArg": "真偽値リストの入力ポート (${name})",

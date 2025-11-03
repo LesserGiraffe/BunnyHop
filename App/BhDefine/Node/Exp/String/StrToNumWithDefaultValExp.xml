@@ -17,6 +17,6 @@
     <Connector
       bhConnectorID="idStrToNumWithDefaultValExp.cnctr1"
       import="idNumExpCnctr"
-      name="Arg1"/>      
+      name="Arg1"/>
   </ConnectorSection>
 </Node>

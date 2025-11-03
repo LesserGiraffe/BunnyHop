@@ -4,4 +4,3 @@
   moveSpeed.setText('2');
   moveTime.setText('1');
 })();
-  

@@ -267,11 +267,11 @@ public class Connector extends SyntaxSymbol {
 
   @Override
   public void findDescendantOf(
-      int generationi,
+      int generation,
       boolean toBottom,
       List<SyntaxSymbol> foundSymbolList,
       String... symbolNames) {
-    if (generationi == 0) {
+    if (generation == 0) {
       for (String symbolName : symbolNames) {
         if (symbolNameMatches(symbolName)) {
           foundSymbolList.add(this);
@@ -282,7 +282,7 @@ public class Connector extends SyntaxSymbol {
       }
     }
     connectedNode.findDescendantOf(
-        Math.max(0, generationi - 1), toBottom, foundSymbolList, symbolNames);
+        Math.max(0, generation - 1), toBottom, foundSymbolList, symbolNames);
   }
 
   @Override

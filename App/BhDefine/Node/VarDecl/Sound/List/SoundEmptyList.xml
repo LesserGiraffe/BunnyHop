@@ -9,5 +9,18 @@
   version="bhn-1.0.0">
 
   <!-- SoundList と共通のセクションを持たせる -->
-  <Section name="SoundListSctn"/>
+  <ConnectorSection name="SoundListSctn">
+    <Connector
+      bhConnectorID="idSoundEmptyList.cnctr0"
+      name="ListName"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idSoundEmptyList.node0"
+        name="ListName"
+        breakpoint="ignore"
+        initialText="${node}{nameless-list}{initial}"
+        version="bhn-1.0.0"/>
+    </Connector>
+  </ConnectorSection>
 </Node>

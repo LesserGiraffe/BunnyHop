@@ -9,5 +9,18 @@
   version="bhn-1.0.0">
 
   <!-- ColorList と共通のセクションを持たせる -->
-  <Section name="ColorListSctn"/>
+  <ConnectorSection name="ColorListSctn">
+    <Connector
+      bhConnectorID="idColorEmptyList.cnctr0"
+      name="ListName"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idColorEmptyList.node0"
+        name="ListName"
+        breakpoint="ignore"
+        initialText="${node}{nameless-list}{initial}"
+        version="bhn-1.0.0"/>
+    </Connector>
+  </ConnectorSection>
 </Node>

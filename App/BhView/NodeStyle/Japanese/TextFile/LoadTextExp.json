@@ -2,7 +2,7 @@
   "paddingTop" : 1.0,
   "paddingBottom" : 1.0,
   "paddingLeft" : 2.5,
-  "paddingRight" : 2.5,
+  "paddingRight" : 1.5,
   "connectorPos" : "Left",
   "connectorShift" : 0.0,
   "connectorWidth" : 4.25,
@@ -13,10 +13,12 @@
 
   "connective" : {
     "inner" : {
-      "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["Arg0"]
+      "space" : 2.0,
+      "connectorList" : ["Arg0", "${L1}{に保存されたテキスト}"]
+    },
+    "outer" : {
+      "connectorList" : ["NextStat"]
     }
   }
 }
-

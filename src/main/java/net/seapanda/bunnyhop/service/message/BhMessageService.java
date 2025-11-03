@@ -28,7 +28,6 @@ import java.util.SequencedCollection;
 import java.util.concurrent.FutureTask;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -78,11 +77,7 @@ public class BhMessageService implements Closeable, MessageService {
     if (isClosed || textInputCtrl == null) {
       return;
     }
-    if (Platform.isFxApplicationThread()) {
-      textInputCtrl.appendText(msg);
-    } else {
-      messages.offer(msg);
-    }
+    messages.offer(msg);
   }
 
   @Override

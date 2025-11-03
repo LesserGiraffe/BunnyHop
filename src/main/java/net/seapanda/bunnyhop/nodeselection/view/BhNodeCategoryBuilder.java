@@ -56,12 +56,12 @@ public final class BhNodeCategoryBuilder {
   private void addChildren(TreeNode<String> parent, TreeItem<BhNodeCategory> parentItem) {
     for (TreeNode<String> child : parent.getChildren()) {
       switch (child.content) {
-        case BhConstants.NodeTemplate.KEY_CSS_CLASS:
+        case BhConstants.NodeSelection.KEY_CSS_CLASS:
           String cssClass = child.getChildAt(0).content;
           parentItem.getValue().setCssClass(cssClass);
           break;
 
-        case BhConstants.NodeTemplate.KEY_CONTENTS:
+        case BhConstants.NodeSelection.KEY_CONTENTS:
           for (TreeNode<String> id : child.getChildren()) {
             parentItem.getValue().addNodeId(BhNodeId.of(id.content));
           }

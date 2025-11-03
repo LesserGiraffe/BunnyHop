@@ -9,5 +9,18 @@
   version="bhn-1.0.0">
 
   <!-- NumList と共通のセクションを持たせる -->
-  <Section name="NumListSctn"/>
+  <ConnectorSection name="NumListSctn">
+    <Connector
+      bhConnectorID="idNumEmptyList.cnctr0"
+      name="ListName"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNumEmptyList.node0"
+        name="ListName"
+        breakpoint="ignore"
+        initialText="${node}{nameless-list}{initial}"
+        version="bhn-1.0.0"/>
+    </Connector>
+  </ConnectorSection>
 </Node>

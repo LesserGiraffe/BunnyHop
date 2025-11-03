@@ -39,8 +39,7 @@ function _sayOnWindows(word) {
     _waitProcEnd(process, false, true);
     _playWavFile(wavFilePath);
   } catch (e) {
-    _addExceptionMsg('_sayOnWindows()');
-    throw e;
+    throw _newBhProgramException('_sayOnWindows', e);
   }
 
   procBuilder = new _jProcBuilder('cmd', '/C', 'del', '/F', wavFilePath.toString());
@@ -48,8 +47,7 @@ function _sayOnWindows(word) {
     let process = procBuilder.start();
     _waitProcEnd(process, false, true);
   } catch (e) {
-    _addExceptionMsg('_sayOnWindows() del');
-    throw e;
+    throw _newBhProgramException('_sayOnWindows del', e);
   }
 }
 

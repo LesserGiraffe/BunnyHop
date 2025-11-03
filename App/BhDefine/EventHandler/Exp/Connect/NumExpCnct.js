@@ -6,6 +6,5 @@
     sectionName = String(section.getSymbolName());
   }
 
-  return sectionName === 'NumExpSctn' ||
-       sectionName === 'AnyExpSctn';
+  return sectionName === 'NumExpSctn';
 })();

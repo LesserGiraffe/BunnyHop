@@ -1,0 +1,31 @@
+<Node
+  type="connective"
+  bhNodeID="idArrayToStrExp"
+  name="AnyArrayToStrExp"
+  nodeStyleID="ArrayToStrExp.json"
+  breakpoint="ignore"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-1.0.0">
+
+  <ConnectorSection name="StrExpSctn">
+    
+    <Connector
+      bhConnectorID="idArrayToStrExp.cnctr0"
+      import="idAnyListCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idArrayToStrExp.cnctr1"
+      name="Arg1"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idArrayToStrExp.node1"
+        name="StrLiteral"
+        breakpoint="specifyParent"
+        version="bhn-1.0.0"/>
+    </Connector>
+
+  </ConnectorSection>
+</Node>
+<!-- リスト定義のコンパニオンノードではない方 -->
