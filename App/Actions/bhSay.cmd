@@ -6,5 +6,5 @@ echo %1 | ^
 -m .\open_jtalk\takumi_normal.htsvoice ^
 -x .\open_jtalk\sjis_dic ^
 -ow %2 ^
--g 2 ^
+-g 15 ^
 -fm 1 ^

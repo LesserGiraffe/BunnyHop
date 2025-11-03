@@ -101,6 +101,15 @@ public class ScriptIdentifiers {
     public static final String GET_TEXT_FILES = "_getTextFiles";
     public static final String DELETE_TEXT_FILE = "_deleteTextFile";
     public static final String DELETE_TEXT_FILES = "_deleteTextFiles";
+    public static final String SET_AUDIO_VOLUME = "_setAudioVolume";
+    public static final String GET_AUDIO_VOLUME = "_getAudioVolume";
+    public static final String RECORD_AUDIO = "_recordAudio";
+    public static final String PLAY_AUDIO = "_playAudio";
+    public static final String GET_AUDIO_FILES = "_getAudioFiles";
+    public static final String DELETE_AUDIO_FILE = "_deleteAudioFile";
+    public static final String DELETE_AUDIO_FILES = "_deleteAudioFiles";
+    public static final String FIND_SOUND_PRESSURE_PEAK = "_findSoundPressurePeak";
+    public static final String FIND_SOUND_PRESSURE_AVERAGE = "_findSoundPressureAverage";
   }
 
   /** JavaScript の組み込み関数名.  */

@@ -313,7 +313,10 @@ public class SymbolNames {
     public static final String NUM_CLAMP_EXP = "NumClampExp";
     public static final String OUT_ARG_TEST_EXP = "OutArgTestExp";
     public static final String LOAD_TEXT_EXP = "LoadTextExp";
-    public static final String GET_TEXT_FILES = "GetTextFilesExp";
+    public static final String GET_TEXT_FILES_EXP = "GetTextFilesExp";
+    public static final String GET_AUDIO_FILES_EXP = "GetAudioFilesExp";
+    public static final String GET_AUDIO_VOLUME_EXP = "GetAudioVolumeExp";
+    public static final String MEASURE_SOUND_PRESSURE_EXP = "MeasureSoundPressureExp";
     public static final String PRINT_STAT = "PrintStat";
     public static final String MOVE_STAT = "MoveStat";
     public static final String STOP_RASPI_CAR_STAT = "StopRaspiCarStat";
@@ -333,6 +336,11 @@ public class SymbolNames {
     public static final String SAVE_TEXT_STAT = "SaveTextStat";
     public static final String DELETE_TEXT_FILE_STAT = "DeleteTextFileStat";
     public static final String DELETE_TEXT_FILES_STAT = "DeleteTextFilesStat";
+    public static final String RECORD_AUDIO_STAT = "RecordAudioStat";
+    public static final String PLAY_AUDIO_STAT = "PlayAudioStat";
+    public static final String SET_AUDIO_VOLUME_STAT = "SetAudioVolumeStat";
+    public static final String DELETE_AUDIO_FILE_STAT = "DeleteAudioFileStat";
+    public static final String DELETE_AUDIO_FILES_STAT = "DeleteAudioFilesStat";
 
     //オプション名
     public static final String OPT_ROUND = "round";
@@ -341,6 +349,8 @@ public class SymbolNames {
     public static final String OPT_TRUNC = "trunc";
     public static final String OPT_MAX = "max";
     public static final String OPT_MIN = "min";
+    public static final String OPT_PEAK = "peak";
+    public static final String OPT_AVERAGE = "average";
     public static final String OPT_MOVE_FORWARD = "moveForward";
     public static final String OPT_MOVE_BACKWARD = "moveBackward";
     public static final String OPT_TURN_RIGHT = "turnRight";
@@ -387,7 +397,10 @@ public class SymbolNames {
             NUM_CLAMP_EXP,
             OUT_ARG_TEST_EXP,
             LOAD_TEXT_EXP,
-            GET_TEXT_FILES,
+            GET_TEXT_FILES_EXP,
+            GET_AUDIO_VOLUME_EXP,
+            GET_AUDIO_FILES_EXP,
+            MEASURE_SOUND_PRESSURE_EXP,
 
             Array.NUM_ARRAY_GET_EXP,
             Array.NUM_ARRAY_MAX_MIN_EXP,
@@ -422,6 +435,11 @@ public class SymbolNames {
             SAVE_TEXT_STAT,
             DELETE_TEXT_FILE_STAT,
             DELETE_TEXT_FILES_STAT,
+            SET_AUDIO_VOLUME_STAT,
+            RECORD_AUDIO_STAT,
+            PLAY_AUDIO_STAT,
+            DELETE_AUDIO_FILE_STAT,
+            DELETE_AUDIO_FILES_STAT,
 
             Array.ANY_ARRAY_PUSH_STAT,
             Array.ANY_ARRAY_APPEND_STAT,
@@ -479,7 +497,13 @@ public class SymbolNames {
             put(FuncId.create(NUM_POW_EXP), "Math.pow");
             put(FuncId.create(NUM_CLAMP_EXP), ScriptIdentifiers.Funcs.NUM_CLAMP);
             put(FuncId.create(LOAD_TEXT_EXP), ScriptIdentifiers.Funcs.LOAD_TEXT);
-            put(FuncId.create(GET_TEXT_FILES), ScriptIdentifiers.Funcs.GET_TEXT_FILES);
+            put(FuncId.create(GET_TEXT_FILES_EXP), ScriptIdentifiers.Funcs.GET_TEXT_FILES);
+            put(FuncId.create(GET_AUDIO_VOLUME_EXP), ScriptIdentifiers.Funcs.GET_AUDIO_VOLUME);
+            put(FuncId.create(GET_AUDIO_FILES_EXP), ScriptIdentifiers.Funcs.GET_AUDIO_FILES);
+            put(FuncId.create(MEASURE_SOUND_PRESSURE_EXP, OPT_PEAK),
+                ScriptIdentifiers.Funcs.FIND_SOUND_PRESSURE_PEAK);
+            put(FuncId.create(MEASURE_SOUND_PRESSURE_EXP, OPT_AVERAGE),
+                ScriptIdentifiers.Funcs.FIND_SOUND_PRESSURE_AVERAGE);
             put(FuncId.create(OUT_ARG_TEST_EXP), ScriptIdentifiers.Funcs.OUT_ARG_TEST);
             put(FuncId.create(MOVE_STAT, OPT_MOVE_FORWARD), ScriptIdentifiers.Funcs.MOVE_FORWARD);
             put(FuncId.create(MOVE_STAT, OPT_MOVE_BACKWARD), ScriptIdentifiers.Funcs.MOVE_BACKWARD);
@@ -496,6 +520,11 @@ public class SymbolNames {
             put(FuncId.create(SAVE_TEXT_STAT), ScriptIdentifiers.Funcs.SAVE_TEXT);
             put(FuncId.create(DELETE_TEXT_FILE_STAT), ScriptIdentifiers.Funcs.DELETE_TEXT_FILE);
             put(FuncId.create(DELETE_TEXT_FILES_STAT), ScriptIdentifiers.Funcs.DELETE_TEXT_FILES);
+            put(FuncId.create(SET_AUDIO_VOLUME_STAT), ScriptIdentifiers.Funcs.SET_AUDIO_VOLUME);
+            put(FuncId.create(RECORD_AUDIO_STAT), ScriptIdentifiers.Funcs.RECORD_AUDIO);
+            put(FuncId.create(PLAY_AUDIO_STAT), ScriptIdentifiers.Funcs.PLAY_AUDIO);
+            put(FuncId.create(DELETE_AUDIO_FILE_STAT), ScriptIdentifiers.Funcs.DELETE_AUDIO_FILE);
+            put(FuncId.create(DELETE_AUDIO_FILES_STAT), ScriptIdentifiers.Funcs.DELETE_AUDIO_FILES);
 
             put(FuncId.create(Array.ANY_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
             put(FuncId.create(Array.ANY_ARRAY_LEN_EXP), ScriptIdentifiers.Funcs.ARY_LEN);

@@ -21,7 +21,7 @@
         nodeStyleID="StrLiteral.json"
         breakpoint="specifyParent"
         onTextChecking="CheckTextFormat.js"
-        initialText="${node}{str-literal}{initial}"
+        initialText="${node}{str-literal}{text}"
         version="bhn-1.0.0"/>
     </Connector>
 

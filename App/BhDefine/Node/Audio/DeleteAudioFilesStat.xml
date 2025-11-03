@@ -1,8 +1,8 @@
 <Node
   type="connective"
-  bhNodeID="idDeleteTextFilesStat"
-  name="DeleteTextFilesStat"
-  nodeStyleID="DeleteTextFilesStat.json"
+  bhNodeID="idDeleteAudioFilesStat"
+  name="DeleteAudioFilesStat"
+  nodeStyleID="DeleteAudioFilesStat.json"
   breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
@@ -15,12 +15,12 @@
 
   <ConnectorSection name="StatSctn">
     <Connector
-      bhConnectorID="idDeleteTextFilesStat.cnctr0"
+      bhConnectorID="idDeleteAudioFilesStat.cnctr0"
       import="idStrListCnctr"
       name="Arg0"/>
 
     <Connector
-      bhConnectorID="idDeleteTextFilesStat.cnctr2"
+      bhConnectorID="idDeleteAudioFilesStat.cnctr2"
       import="idStatCnctr"
       name="NextStat"/>
   </ConnectorSection>

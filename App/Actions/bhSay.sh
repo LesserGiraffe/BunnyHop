@@ -1,10 +1,9 @@
 #!/bin/sh
 cd `dirname $0`
-echo $@ \
+echo $1 \
 | ./open_jtalk/open_jtalk \
--m ./open_jtalk/nitech_jp_atr503_m001.htsvoice \
--x ./open_jtalk/utf8_dic \
--ow /dev/stdout \
--r 1.0 \
+-m ./open_jtalk/takumi_normal.htsvoice \
+-x ./open_jtalk/naist-jdic \
+-ow $2 \
 -g 15 \
-| aplay --quiet
+-fm 1

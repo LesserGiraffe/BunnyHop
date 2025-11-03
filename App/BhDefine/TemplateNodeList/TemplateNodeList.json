@@ -38,11 +38,11 @@
       "idStrLiteralExp", 
       "idNewLine", 
       "idPrintStat", 
-      "idScanExp", 
+      "idScanExp",
+      "idSayStat",
       "idAnyToStrExp",
       "idStrRowChainExp",
       "idStrColumnChainExp",
-      "idSayStat",
       "idArrayToStrExp",
       "idSaveTextStat",
       "idLoadTextExp",
@@ -70,7 +70,15 @@
     "contents":[
       "idScaleSoundLiteral",
       "idFreqSoundLiteral",
-      "idPlayMelodyStat"]
+      "idPlayMelodyStat",
+      "idSetAudioVolumeStat",
+      "idGetAudioVolumeExp",
+      "idRecordAudioStat",
+      "idPlayAudioStat",
+      "idGetAudioFilesExp",
+      "idDeleteAudioFileStat",
+      "idDeleteAudioFilesStat",
+      "idMeasureSoundPressureExp"]
   },
   
   "${node-category}{color}": {

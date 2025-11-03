@@ -9,6 +9,7 @@ let _jFloatType = java.lang.Float.TYPE;
 let _jFile = java.io.File;
 let _jFiles = java.nio.file.Files;
 let _jPaths = java.nio.file.Paths;
+let _jAtomicInt = java.util.concurrent.atomic.AtomicInteger;
 let _jAtomicLong = java.util.concurrent.atomic.AtomicLong;
 let _jProcBuilder = java.lang.ProcessBuilder;
 let _jBufferedInputStream = java.io.BufferedInputStream;
@@ -20,6 +21,8 @@ let _jStringBuilder = java.lang.StringBuilder;
 let _jTimeUnit = java.util.concurrent.TimeUnit;
 let _jTimeoutException = java.util.concurrent.TimeoutException;
 let _jNoSuchFileException = java.nio.file.NoSuchFileException;
+let _jFileNotFoundException = java.io.FileNotFoundException;
+let _jLineUnavailableException = javax.sound.sampled.LineUnavailableException;
 let _eventHandlers = {};
 let _executor = _jExecutors.newFixedThreadPool(16);
 let _nil = new _Nil();
@@ -43,7 +46,7 @@ let _maxArraySize = 0xFFFF_FFFF;
 let _programStartingTime = 0;
 let _maxFilePathLength = 250; // bytes
 // ファイルパスに使えない文字列を探すための正規表現.  (英数字, アンダースコア, スラッシュ以外の半角文字にマッチ)
-let illegalFilePathChars = /[\x00-\x2E\x3A-\x40\x5B-\x5E\x60\x7B-\x7F]/g;
+let _illegalFilePathChars = /[\x00-\x2E\x3A-\x40\x5B-\x5E\x60\x7B-\x7F]/g;
 
 bhScriptHelper.debug.setStringGenerator(_debugStr);
 _notifyThreadStart(_threadContext);
@@ -749,12 +752,29 @@ function _setNeq(aryA, aryB) {
 let _jAudioFormat = javax.sound.sampled.AudioFormat;
 let _jDataLine = javax.sound.sampled.DataLine;
 let _jAudioSystem = javax.sound.sampled.AudioSystem;
-let _maxSoundAmplitude = 32767;
+let _maxSoundAmplitude = 32000;
 let _isBigEndian = _jByteOrder.nativeOrder() === _jByteOrder.BIG_ENDIAN;
 let _bytesPerSample = 2;
 let _samplingRate = 44100;    //44.1KHz
 let _wave1Hz = _jReflectArray.newInstance(_jFloatType, _samplingRate);
 let _nilSound = _createSound(0, 0, 0);
+
+let _minAudioVolume = 0;
+let _maxAudioVolume = 100;
+let _audioVolume = new _jAtomicInt(80);
+
+function _setAudioVolume(val) {
+  val = Math.round(_clamp(val, _minAudioVolume, _maxAudioVolume));
+  _audioVolume.set(val);
+}
+
+function _getAudioVolume() {
+  return _audioVolume.doubleValue();
+}
+
+function _getNormalizedAudioVolume() {
+  return _audioVolume.doubleValue() / _maxAudioVolume;
+}
 
 (function _initMusicPlayer() {
   for (let i = 0; i < _wave1Hz.length; ++i)
@@ -831,7 +851,7 @@ function _genWave(waveBuf, soundList, vol, samplePos) {
  * メロディ再生
  * @param soundList 再生する音のリスト
  * @param reverse 音リストの末尾から順に再生する場合true
- * */
+ */
 function _playMelodies(soundList, reverse) {
   let soundListCopy = [];
   if (!reverse) {
@@ -856,6 +876,7 @@ function _playMelodies(soundList, reverse) {
     let dLineInfo = new _jDataLine.Info(_jClass.forName('javax.sound.sampled.SourceDataLine'), format);
     line = _jAudioSystem.getLine(dLineInfo);
     line.open(format, waveBuf.length);
+    controlAudioVolume(_getNormalizedAudioVolume(), line);
     line.start();
     let samplePos = 0;
     while (soundListCopy.length !== 0) {
@@ -870,6 +891,18 @@ function _playMelodies(soundList, reverse) {
       line.drain();
       line.close();
     }
+  }
+}
+
+/** 音量を調整する. */
+function controlAudioVolume(volume, sourceLine) {
+  let _jFloatCtrl = javax.sound.sampled.FloatControl;
+  if (sourceLine.isControlSupported(_jFloatCtrl.Type.MASTER_GAIN)) {
+    volume = _clamp(volume, 0, 1);
+    let volumeControl = sourceLine.getControl(_jFloatCtrl.Type.MASTER_GAIN);
+    let range = volumeControl.getMaximum() - volumeControl.getMinimum();
+    let gain = (range * volume) + volumeControl.getMinimum();
+    volumeControl.setValue(gain);
   }
 }
 
@@ -928,7 +961,7 @@ function _createSound(volume, hz, duration) {
     throw _newBhProgramException(
       _textDb.errMsg.invalidSoundPitch(hz, 0, Number.MAX_SAFE_INTEGER))
   }
-  let amplitude = Math.floor(volume * _maxSoundAmplitude / 100);
+  let amplitude = Math.pow(10, (volume - 100) / 50) * _maxSoundAmplitude;
   return new _Sound(hz, duration, amplitude);
 }
 
@@ -937,17 +970,30 @@ function _pushSound(sound, soundList) {
   return soundList;
 }
 
-function _sayOnLinux(word) {
+function _say(word) {
+  word = word.replace(/\r?\n/g, ' ');
+  if (word === '')
+    return;
+  if (bhScriptHelper.util.platform.isWindows())
+    _runSayCmd(word, 'bhSay.cmd', 'Shift_JIS');
+  else if (bhScriptHelper.util.platform.isLinux())
+    _runSayCmd(word, 'bhSay.sh', 'UTF-8');
+}
+
+function _runSayCmd(word, cmd, charset) {
   word = word.replace(/"/g, '');
-  word = bhScriptHelper.util.substringByBytes(word, 1000, "UTF-8");
-  let path = _jPaths.get(bhScriptHelper.util.getExecPath(), 'Actions', 'bhSay.sh');
-  let talkCmd = String(path.toAbsolutePath().toString());
-  let procBuilder = new _jProcBuilder(talkCmd, `"${word}"`, `${_getSerialNo()}.wav`);
+  word = bhScriptHelper.util.substringByBytes(word, 1000, charset);
+  let execPath = bhScriptHelper.util.getExecPath();
+  let wavFilePath = _jPaths.get(execPath, 'Actions', 'open_jtalk', `${_getSerialNo()}.wav`).toAbsolutePath();
+  let sayCmdPath = _jPaths.get(execPath, 'Actions', cmd).toAbsolutePath();
+  let procBuilder = new _jProcBuilder(sayCmdPath.toString(), `"${word}"`, wavFilePath.toString());
   try {
     let process = procBuilder.start();
     _waitProcEnd(process, false, true);
+    bhScriptHelper.audio.play(wavFilePath, _getNormalizedAudioVolume());
+    _jFiles.delete(wavFilePath);
   } catch (e) {
-    throw _newBhProgramException('_sayOnLinux', e);
+    throw _newBhProgramException('_say', e);
   }
 }
 
@@ -1184,7 +1230,7 @@ function checkFilePath(filePath) {
   if (filePath.startsWith('/')) {
     throw _newBhProgramException(_textDb.errMsg.filePathStartsWithSlash(filePath));
   }
-  if (illegalFilePathChars.test(filePath)) {
+  if (_illegalFilePathChars.test(filePath)) {
     throw _newBhProgramException(_textDb.errMsg.filePathIncludesIllegalChars(filePath));
   }
   let filePathSize = new _jString(filePath).getBytes('UTF-8').length;
@@ -1211,7 +1257,8 @@ function _loadText(path) {
     checkFilePath(path);
     return String(bhScriptHelper.file.text.load(path + '.txt'));
   } catch (e) {
-    if (e.javaException instanceof _jNoSuchFileException) {
+    if (e.javaException instanceof _jNoSuchFileException
+        || e.javaException instanceof _jFileNotFoundException) {
       throw _newBhProgramException(_textDb.errMsg.fileNotFound(path));
     }
     throw e.isBhProgramException ? e : _newBhProgramException('_loadText', e);
@@ -1247,5 +1294,102 @@ function _deleteTextFile(path) {
 function _deleteTextFiles(paths) {
   for (let path of paths) {
     _deleteTextFile(path);
+  }
+}
+
+//==================================================================
+//              音声データの保存 / 再生
+//==================================================================
+let _minRecordTime = 0;
+let _maxRecordTime = 200;
+
+function _recordAudio(path, time) {
+  try {
+    checkFilePath(path);
+    if (!_isInRange(time, _minRecordTime, _maxRecordTime)) {
+      throw _newBhProgramException(_textDb.errMsg.invalidRecordTime(time, _minRecordTime, _maxRecordTime));
+    }
+    bhScriptHelper.audio.record(path + '.wav', time);
+  } catch (e) {
+    if (e.javaException instanceof _jLineUnavailableException) {
+      throw _newBhProgramException(_textDb.errMsg.audioInputDeviceNotFound());
+    }
+    throw e.isBhProgramException ? e : _newBhProgramException('_recordAudio', e);
+  }
+}
+
+function _playAudio(path) {
+  try {
+    checkFilePath(path);
+    bhScriptHelper.audio.play(path + '.wav', _getNormalizedAudioVolume());
+  } catch (e) {
+    if (e.javaException instanceof _jNoSuchFileException
+        || e.javaException instanceof _jFileNotFoundException) {
+      throw _newBhProgramException(_textDb.errMsg.fileNotFound(path));
+    }
+    if (e.javaException instanceof _jLineUnavailableException) {
+      throw _newBhProgramException(_textDb.errMsg.audioOutputDeviceNotFound());
+    }
+    throw e.isBhProgramException ? e : _newBhProgramException('_playAudio', e);
+  }
+}
+
+function _getAudioFiles() {
+  try {
+    let paths = [];
+    for (let filePath of bhScriptHelper.audio.getFiles()) {
+      filePath = String(filePath);
+      if (!filePath.endsWith('.wav')) {
+        continue;
+      }
+      filePath = filePath.substring(0, filePath.lastIndexOf(".wav")).replaceAll('\\', '/');
+      paths.push(String(filePath));
+    }
+    return paths;
+  } catch (e) {
+    throw _newBhProgramException('_getAudioFiles', e);
+  }
+}
+
+function _deleteAudioFile(path) {
+  try {
+    checkFilePath(path);
+    bhScriptHelper.audio.delete(path + '.wav');
+  } catch (e) {
+    throw e.isBhProgramException ? e : _newBhProgramException('_deleteAudioFile', e);
+  }
+}
+
+function _deleteAudioFiles(paths) {
+  for (let path of paths) {
+    _deleteAudioFile(path);
+  }
+}
+
+function _findSoundPressureAverage(time) {
+  try {
+    if (!_isInRange(time, _minRecordTime, 0xFFFF_FFFF)) {
+      throw _newBhProgramException(_textDb.errMsg.invalidMeasurementTime(time, _minRecordTime, 0xFFFF_FFFF));
+    }
+    return bhScriptHelper.audio.findSoundPressureAverage(time);
+  } catch (e) {
+    if (e.javaException instanceof _jLineUnavailableException) {
+      throw _newBhProgramException(_textDb.errMsg.audioInputDeviceNotFound());
+    }
+    throw e.isBhProgramException ? e : _newBhProgramException('_findSoundPressureAverage', e);
+  }
+}
+
+function _findSoundPressurePeak(time) {
+  try {
+    if (!_isInRange(time, _minRecordTime, 0xFFFF_FFFF)) {
+      throw _newBhProgramException(_textDb.errMsg.invalidMeasurementTime(time, _minRecordTime, 0xFFFF_FFFF));
+    }
+    return bhScriptHelper.audio.findSoundPressurePeak(time);
+  } catch (e) {
+    if (e.javaException instanceof _jLineUnavailableException) {
+      throw _newBhProgramException(_textDb.errMsg.audioInputDeviceNotFound());
+    }
+    throw e.isBhProgramException ? e : _newBhProgramException('_findSoundPressurePeak', e);
   }
 }

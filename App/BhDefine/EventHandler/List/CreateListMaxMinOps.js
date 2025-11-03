@@ -1,6 +1,6 @@
 (function() {
   return [
-    ['max', bhTextDb.get('node', 'list-max-min-ops', 'max')],
-    ['min', bhTextDb.get('node', 'list-max-min-ops', 'min')]
+    ['max', bhTextDb.get('node', 'list-statistics', 'max')],
+    ['min', bhTextDb.get('node', 'list-statistics', 'min')]
   ];
 })();

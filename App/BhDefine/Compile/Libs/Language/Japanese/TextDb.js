@@ -41,7 +41,15 @@ let _textDb = {
     invalidFilePathSize:
       (path, val, max) => `ファイル名は UTF-8 で 1 ~ ${_str(max)} バイトでなければなりません.  (${_str(path)},  ${_str(val)} バイト)`,
     fileNotFound:
-      (path) => `ファイルが見つかりませんでした.  (${_str(path)})`
+      (path) => `ファイルが見つかりませんでした.  (${_str(path)})`,
+    invalidRecordTime:
+      (val, min, max) => `不正な録音時間 (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
+    audioInputDeviceNotFound:
+      () => '音声入力デバイスが見つかりませんでした',
+    audioOutputDeviceNotFound:
+      () => '音声出力デバイスが見つかりませんでした',
+    invalidMeasurementTime:
+        (val, min, max) => `不正な測定時間 (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
   },
   literal: {
     bool: {
@@ -62,6 +70,6 @@ let _textDb = {
       (hz, duration) => `高さ: ${hz} [ヘルツ],  長さ: ${duration} [秒]`
   },
   list: {
-    empty: '空リスト'
+    empty: '[ 空リスト ]'
   }
 };

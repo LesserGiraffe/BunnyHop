@@ -73,13 +73,6 @@ function _measureDistance() {
   }
 }
 
-function _say(word) {
-  word = word.replace(/\r?\n/g, ' ');
-  if (word === '')
-    return;
-  _sayOnLinux(word);
-}
-
 // 色センサ値を取得
 function _getColor() {
   try {

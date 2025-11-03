@@ -1,26 +1,33 @@
 <Node
   type="connective"
-  bhNodeID="idDeleteTextFilesStat"
-  name="DeleteTextFilesStat"
-  nodeStyleID="DeleteTextFilesStat.json"
+  bhNodeID="idRecordAudioStat"
+  name="RecordAudioStat"
+  nodeStyleID="RecordAudioStat.json"
   breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
+  onCreatedAsTemplate="OnRecordAudioStatCreatedAsTemplate.js"
   onDragStarted="OnStatDragStarted.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
   <ConnectorSection name="StatSctn">
+
     <Connector
-      bhConnectorID="idDeleteTextFilesStat.cnctr0"
-      import="idStrListCnctr"
+      bhConnectorID="idRecordAudioStat.cnctr0"
+      import="idStrExpCnctr"
       name="Arg0"/>
 
     <Connector
-      bhConnectorID="idDeleteTextFilesStat.cnctr2"
+      bhConnectorID="idRecordAudioStat.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+
+    <Connector
+      bhConnectorID="idRecordAudioStat.cnctr2"
       import="idStatCnctr"
       name="NextStat"/>
   </ConnectorSection>

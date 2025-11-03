@@ -384,11 +384,11 @@
     },
 
     "str-literal": {
-      "initial": "テキスト"
+      "text": "テキスト"
     },
 
     "comment-part": {
-      "initial": "説明"
+      "text": "説明"
     },
 
     "default-identifier-name": {
@@ -426,9 +426,11 @@
       "extract": "残す"
     },
 
-    "list-max-min-ops": {
+    "list-statistics": {
       "max": "最大値",
-      "min": "最小値"
+      "min": "最小値",
+      "average": "平均値",
+      "peak": "ピーク値"
     },
 
     "list-sort-ops": {
@@ -474,7 +476,7 @@
     },
 
     "nameless-list": {
-      "initial": "無名リスト"
+      "text": "無名リスト"
     },
 
     "save-text": {
@@ -486,7 +488,7 @@
     },
 
     "get-text-files": {
-      "initial": "保存されたテキストファイル一覧"
+      "text": "テキストファイル一覧"
     },
 
     "delete-text-file": {
@@ -494,6 +496,26 @@
     },
 
     "delete-text-files": {
+      "file": "ファイル"
+    },
+
+    "record-audio": {
+      "file": "ファイル"
+    },
+
+    "play-audio": {
+      "file": "ファイル"
+    },
+
+    "get-audio-files": {
+      "text": "音声ファイル一覧"
+    },
+
+    "delete-audio-file": {
+      "file": "ファイル"
+    },
+
+    "delete-audio-files": {
       "file": "ファイル"
     },
 
@@ -603,6 +625,15 @@
       "GetTextFilesExp": "テキストファイルの一覧を取得する",
       "DeleteTextFileStat": "テキストファイルを削除する",
       "DeleteTextFilesStat": "複数のテキストファイルを削除する",
+      "SetAudioVolumeStat": "音量を設定する",
+      "GetAudioVolumeExp": "音量を取得する",
+      "RecordAudioStat": "録音する",
+      "PlayAudioStat": "音声データを再生する",
+      "GetAudioFilesExp": "音声ファイルの一覧を取得する",
+      "DeleteAudioFileStat": "音声ファイルを削除する",
+      "DeleteAudioFilesStat": "複数の音声ファイルを削除する",
+      "MeasureSoundPressureExp${peak}": "音量のピーク値を測定する",
+      "MeasureSoundPressureExp${average}": "音量の平均値を計算する",
 
       "BoolEmptyList": "空の真偽値リスト",
       "BoolList": "真偽値リスト (${name})",

@@ -1,0 +1,32 @@
+<Node
+  type="connective"
+  bhNodeID="idMeasureSoundPressureExp"
+  name="MeasureSoundPressureExp"
+  nodeStyleID="MeasureSoundPressureExp.json"
+  breakpoint="ignore"
+  onCreatedAsTemplate="OnMeasureSoundPressureExpCreatedAsTemplate.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-1.0.0">
+
+  <ConnectorSection name="NumExpSctn">
+
+    <Connector
+      bhConnectorID="idMeasureSoundPressureExp.cnctr0"
+      import="idNumExpCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idMeasureSoundPressureExp.cnctr1"
+      name="Option0"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idMeasureSoundPressureExp.node1"
+        name="MeasureOpe"
+        nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
+        onTextOptionsCreating="CreateSoundPressureOps.js"
+        version="bhn-1.0.0"/>
+    </Connector>
+  </ConnectorSection>
+</Node>

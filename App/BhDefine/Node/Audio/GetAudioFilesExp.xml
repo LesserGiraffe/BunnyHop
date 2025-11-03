@@ -1,23 +1,23 @@
 <Node
   type="connective"
-  bhNodeID="idGetTextFilesExp"
-  name="GetTextFilesExp"
-  nodeStyleID="GetTextFilesExp.json"
+  bhNodeID="idGetAudioFilesExp"
+  name="GetAudioFilesExp"
+  nodeStyleID="GetAudioFilesExp.json"
   breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
   <ConnectorSection name="StrListSctn">
     <Connector
-      bhConnectorID="idGetTextFilesExp.cnctr0"
+      bhConnectorID="idGetAudioFilesExp.cnctr0"
       name="ListName"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idGetTextFilesExp.node0"
+        bhNodeID="idGetAudioFilesExp.node0"
         name="ListName"
         breakpoint="ignore"
-        initialText="${node}{get-text-files}{text}"
+        initialText="${node}{get-audio-files}{text}"
         version="bhn-1.0.0">
       </Node>
     </Connector>

@@ -1,0 +1,11 @@
+<Node
+  type="connective"
+  bhNodeID="idGetAudioVolumeExp"
+  name="GetAudioVolumeExp"
+  nodeStyleID="GetAudioVolumeExp.json"
+  breakpoint="ignore"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-1.0.0">
+
+  <Section name="NumExpSctn"/>
+</Node>

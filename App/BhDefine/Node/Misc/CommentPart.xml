@@ -25,7 +25,7 @@
         name="Comment"
         nodeStyleID="DefaultTextArea.json"
         breakpoint="specifyParent"
-        initialText="${node}{comment-part}{initial}"
+        initialText="${node}{comment-part}{text}"
         version="bhn-1.0.0"/>
     </Connector>
 
