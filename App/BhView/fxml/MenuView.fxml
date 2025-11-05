@@ -27,7 +27,6 @@
     <TextFetcher fx:id="cutText" textId="gui,menu-view,cut"/>
     <TextFetcher fx:id="pasteText" textId="gui,menu-view,paste"/>
     <TextFetcher fx:id="deleteText" textId="gui,menu-view,delete"/>
-    <TextFetcher fx:id="jumpText" textId="gui,menu-view,jump"/>
     <TextFetcher fx:id="localText" textId="gui,menu-view,local"/>
     <TextFetcher fx:id="hostNameText" textId="gui,menu-view,hostname"/>
     <TextFetcher fx:id="usernameText" textId="gui,menu-view,username"/>
@@ -38,7 +37,6 @@
     <TextFetcher fx:id="cutTooltip" textId="gui,menu-view,tooltip,cut"/>
     <TextFetcher fx:id="pasteTooltip" textId="gui,menu-view,tooltip,paste"/>
     <TextFetcher fx:id="deleteTooltip" textId="gui,menu-view,tooltip,delete"/>
-    <TextFetcher fx:id="jumpTooltip" textId="gui,menu-view,tooltip,jump"/>
     <TextFetcher fx:id="undoTooltip" textId="gui,menu-view,tooltip,undo"/>
     <TextFetcher fx:id="redoTooltip" textId="gui,menu-view,tooltip,redo"/>
     <TextFetcher fx:id="zoomInTooltip" textId="gui,menu-view,tooltip,zoom-in"/>
@@ -81,12 +79,6 @@
     <Button text="$deleteText.text" fx:id="deleteBtn" styleClass="flatButton"> <!-- 削除 -->
       <tooltip>
         <Tooltip text="$deleteTooltip.text" styleClass="uiFunctionTooltip"/>
-      </tooltip>
-    </Button>
-
-    <Button text="$jumpText.text" fx:id="jumpBtn" styleClass="flatButton"> <!-- ジャンプ -->
-      <tooltip>
-        <Tooltip text="$jumpTooltip.text" styleClass="uiFunctionTooltip"/>
       </tooltip>
     </Button>
 
