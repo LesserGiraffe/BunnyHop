@@ -5,7 +5,7 @@
   nodeStyleID="GetAudioFilesExp.json"
   breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
-  version="bhn-1.0.0">
+  version="bhn-0.1.0">
 
   <ConnectorSection name="StrListSctn">
     <Connector
@@ -18,7 +18,7 @@
         name="ListName"
         breakpoint="ignore"
         text="${node}{get-audio-files}{text}"
-        version="bhn-1.0.0">
+        version="bhn-0.1.0">
       </Node>
     </Connector>
   </ConnectorSection>

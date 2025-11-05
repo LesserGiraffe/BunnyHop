@@ -6,7 +6,7 @@
   breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bhn-1.0.0">
+  version="bhn-0.1.0">
 
   <ConnectorSection name="NumExpSctn">
 
@@ -23,7 +23,7 @@
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckNumFormat.js"
         text="0"
-        version="bhn-1.0.0"/>
+        version="bhn-0.1.0"/>
     </Connector>
 
   </ConnectorSection>

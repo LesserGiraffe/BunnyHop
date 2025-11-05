@@ -5,7 +5,7 @@
   nodeStyleID="AnySetCompExp.json"
   breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
-  version="bhn-1.0.0">
+  version="bhn-0.1.0">
 
   <ConnectorSection name="BoolExpSctn">
     <Connector
@@ -24,7 +24,7 @@
         nodeStyleID="DefaultComboBox.json"
         breakpoint="specifyParent"
         onTextOptionsCreating="CreateSetCompOps.js"
-        version="bhn-1.0.0"/>
+        version="bhn-0.1.0"/>
     </Connector>
 
     <Connector

@@ -6,7 +6,7 @@
   breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bhn-1.0.0">
+  version="bhn-0.1.0">
 
   <ConnectorSection name="StrExpSctn">
 
@@ -22,7 +22,7 @@
         breakpoint="specifyParent"
         onTextChecking="CheckTextFormat.js"
         text="${node}{str-literal}{text}"
-        version="bhn-1.0.0"/>
+        version="bhn-0.1.0"/>
     </Connector>
 
   </ConnectorSection>

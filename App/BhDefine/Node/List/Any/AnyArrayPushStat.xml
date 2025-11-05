@@ -13,7 +13,7 @@
   onCreatedAsTemplate="OnAnyArrayPushStatCreatedAsTemplate.js"
   onDragStarted="OnStatDragStarted.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bhn-1.0.0">
+  version="bhn-0.1.0">
 
   <ConnectorSection name="StatSctn">
     

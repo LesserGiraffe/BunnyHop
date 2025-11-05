@@ -6,7 +6,7 @@
   breakpoint="ignore"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bhn-1.0.0">
+  version="bhn-0.1.0">
 
   <ConnectorSection name="NumExpSctn">
 
@@ -31,7 +31,7 @@
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
         onTextOptionsCreating="CreateListMaxMinOps.js"
-        version="bhn-1.0.0"/>
+        version="bhn-0.1.0"/>
     </Connector>
 
   </ConnectorSection>

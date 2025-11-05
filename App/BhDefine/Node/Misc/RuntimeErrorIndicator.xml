@@ -8,7 +8,7 @@
   onCutRequested="RejectCut.js"
   onCopyRequested="RejectCopy.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bhn-1.0.0">
+  version="bhn-0.1.0">
 
   <ConnectorSection name="StatSctn">
   
@@ -22,7 +22,7 @@
         name="Error"
         breakpoint="specifyParent"
         nodeStyleID="L2.json"
-        version="bhn-1.0.0"/>
+        version="bhn-0.1.0"/>
     </Connector>
   
     <Connector
@@ -35,7 +35,7 @@
         name="ErrorDetails"
         breakpoint="specifyParent"
         nodeStyleID="DefaultTextArea.json"
-        version="bhn-1.0.0"/>
+        version="bhn-0.1.0"/>
     </Connector>
 
   </ConnectorSection>

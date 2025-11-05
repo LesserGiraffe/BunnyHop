@@ -6,7 +6,7 @@
   breakpoint="ignore"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bhn-1.0.0">
+  version="bhn-0.1.0">
 
   <ConnectorSection name="StrExpSctn">
     
@@ -24,7 +24,7 @@
         bhNodeID="idAnyArrayToStrExp.node1"
         name="StrLiteral"
         breakpoint="specifyParent"
-        version="bhn-1.0.0"/>
+        version="bhn-0.1.0"/>
     </Connector>
 
   </ConnectorSection>

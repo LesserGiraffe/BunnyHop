@@ -7,7 +7,7 @@
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onCreatedAsTemplate="OnSoundLiteralCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bhn-1.0.0">
+  version="bhn-0.1.0">
   
   <ConnectorSection name="SoundExpSctn">
 
@@ -32,7 +32,7 @@
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
         onTextOptionsCreating="CreateOctave.js"
-        version="bhn-1.0.0"/>
+        version="bhn-0.1.0"/>
     </Connector>
     
     <Connector
@@ -46,7 +46,7 @@
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
         onTextOptionsCreating="CreateMusicalScale.js"
-        version="bhn-1.0.0"/>
+        version="bhn-0.1.0"/>
     </Connector>
 
   </ConnectorSection>

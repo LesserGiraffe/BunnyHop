@@ -13,7 +13,7 @@
   onDragStarted="OnGlobalDataDeclDragStarted.js"
   onAliasAsked="OnAliasAsked.js"
   onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
-  version="bhn-1.0.0">
+  version="bhn-0.1.0">
 
   <Derivation derivationID="dervIdSyncTimeVar" derivativeID="idSyncTimerVar"/>
 
@@ -37,7 +37,7 @@
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
         onTextOptionsCreating="CreateSyncTimerOps.js"
-        version="bhn-1.0.0"/>
+        version="bhn-0.1.0"/>
     </Connector>
 
     <Connector
@@ -53,7 +53,7 @@
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckSyncTimerCount.js"
         text="1"
-        version="bhn-1.0.0"/>
+        version="bhn-0.1.0"/>
     </Connector>
 
     <Connector

@@ -7,4 +7,4 @@
   text="_syncTimer.nil"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bhn-1.0.0"/>
+  version="bhn-0.1.0"/>

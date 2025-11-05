@@ -13,7 +13,7 @@
   onDragStarted="OnGlobalDataDeclDragStarted.js"
   onAliasAsked="OnAliasAsked.js"
   onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
-  version="bhn-1.0.0">
+  version="bhn-0.1.0">
 
   <Derivation derivationID="dervIdMutexBlockStat" derivativeID="idMutexBlockStat"/>
 
@@ -37,7 +37,7 @@
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
         onTextOptionsCreating="CreateMutexBlockOps.js"
-        version="bhn-1.0.0">
+        version="bhn-0.1.0">
       </Node>
     </Connector>
 

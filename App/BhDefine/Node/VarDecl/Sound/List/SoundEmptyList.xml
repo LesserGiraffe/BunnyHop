@@ -6,7 +6,7 @@
   breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
-  version="bhn-1.0.0">
+  version="bhn-0.1.0">
 
   <!-- SoundList と共通のセクションを持たせる -->
   <ConnectorSection name="SoundListSctn">
@@ -20,7 +20,7 @@
         name="ListName"
         breakpoint="ignore"
         text="${node}{nameless-list}{text}"
-        version="bhn-1.0.0"/>
+        version="bhn-0.1.0"/>
     </Connector>
   </ConnectorSection>
 </Node>

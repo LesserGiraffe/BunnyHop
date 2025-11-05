@@ -13,7 +13,7 @@
   onDragStarted="OnVarDeclDragStarted.js"
   onAliasAsked="OnAliasAsked.js"
   onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
-  version="bhn-1.0.0">
+  version="bhn-0.1.0">
 
   <Derivation derivationID="dervIdIdentifierName" derivativeID="idBoolList"/>
   <Derivation derivationID="dervIdVarDeclToArg" derivativeID="idBoolListArg"/>
