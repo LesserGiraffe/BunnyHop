@@ -91,7 +91,7 @@ public class ModelGenerator {
     registerEventHandlers(attributes);
     return new TextNode(
         params,
-        attributes.initialText(),
+        attributes.text(),
         derivationToDerivative,
         factory,
         replacer,

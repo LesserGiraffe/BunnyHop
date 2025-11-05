@@ -19,7 +19,7 @@
         bhNodeID="idNumEmptyList.node0"
         name="ListName"
         breakpoint="ignore"
-        initialText="${node}{nameless-list}{text}"
+        text="${node}{nameless-list}{text}"
         version="bhn-1.0.0"/>
     </Connector>
   </ConnectorSection>

@@ -19,7 +19,7 @@
         name="OutArgTest"
         nodeStyleID="L1.json"
         breakpoint="specifyParent"
-        initialText="OutArgTest"
+        text="OutArgTest"
         version="bhn-1.0.0"/>
     </Connector>
 

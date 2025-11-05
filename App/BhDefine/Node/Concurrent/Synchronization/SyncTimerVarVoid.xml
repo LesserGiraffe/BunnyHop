@@ -4,7 +4,7 @@
   name="SyncTimerVarVoid" 
   nodeStyleID="SyncTimerVarVoid.json"
   breakpoint="ignore"
-  initialText="_syncTimer.nil"
+  text="_syncTimer.nil"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0"/>

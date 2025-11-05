@@ -4,6 +4,6 @@
   name="StrChainLinkVoid"
   nodeStyleID="StrChainLinkExpVoid.json"
   breakpoint="specifyParent"
-  initialText="''"
+  text="''"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0"/>

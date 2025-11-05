@@ -19,7 +19,7 @@
         bhNodeID="idNewLine.node0"
         name="LineFeed"
         breakpoint="specifyParent"
-        initialText="('\n')"
+        text="('\n')"
         version="bhn-1.0.0"/>
     </Connector>
   </ConnectorSection>

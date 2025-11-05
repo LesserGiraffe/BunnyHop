@@ -28,7 +28,7 @@
         bhNodeID="idModExp.node2"
         name="ModOpe"
         breakpoint="specifyParent"
-        initialText="mod"
+        text="mod"
         version="bhn-1.0.0"/>
     </Connector>
 

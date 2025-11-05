@@ -21,7 +21,7 @@
         breakpoint="specifyParent"
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckNumFormat.js"
-        initialText="1"
+        text="1"
         version="bhn-1.0.0"/>
     </Connector>
 

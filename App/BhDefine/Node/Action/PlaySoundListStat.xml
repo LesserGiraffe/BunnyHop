@@ -30,7 +30,7 @@
         bhNodeID="idPlaySoundListStat.node1"
         name="BoolLiteral"
         breakpoint="specifyParent"
-        initialText="false"
+        text="false"
         version="bhn-1.0.0"/>
     </Connector>
       

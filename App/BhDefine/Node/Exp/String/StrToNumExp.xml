@@ -23,7 +23,7 @@
         bhNodeID="idStrToNumExp.node1"
         name="NumLiteral"
         breakpoint="specifyParent"
-        initialText="NaN"
+        text="NaN"
         version="bhn-1.0.0"/>
     </Connector>
   </ConnectorSection>

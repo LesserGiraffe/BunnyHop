@@ -17,7 +17,7 @@
         bhNodeID="idGetTextFilesExp.node0"
         name="ListName"
         breakpoint="ignore"
-        initialText="${node}{get-text-files}{text}"
+        text="${node}{get-text-files}{text}"
         version="bhn-1.0.0">
       </Node>
     </Connector>

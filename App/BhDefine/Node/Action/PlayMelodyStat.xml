@@ -29,7 +29,7 @@
         bhNodeID="idPlayMelodyStat.node1"
         name="BoolLiteral"
         breakpoint="specifyParent"
-        initialText="true"
+        text="true"
         version="bhn-1.0.0"/>
     </Connector>
     

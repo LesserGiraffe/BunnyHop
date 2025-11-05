@@ -204,7 +204,7 @@ public class BhConstants {
     public static final String ATTR_ON_ALIAS_ASKED = "onAliasAsked";
     public static final String ATTR_ON_USER_DEFINED_NAME_ASKED = "onUserDefinedNameAsked";
     public static final String ATTR_DERIVATIVE_ID = "derivativeID";
-    public static final String ATTR_INITIAL_TEXT = "initialText";
+    public static final String ATTR_TEXT = "text";
     public static final String ATTR_DERIVATION_ID = "derivationID";
     public static final String ATTR_DERIVATIVE_JOINT = "derivativeJoint";
     public static final String ATTR_IMPORT = "import";
@@ -323,8 +323,6 @@ public class BhConstants {
     public static final String WS_SCROLL_PANE = "wsScrollPane";
     public static final String WORKSPACE_SET_TAB = "workspaceSetTab";
     public static final String BH_RUNTIME_ERR_MSG = "bhRuntimeErrMsg";
-    public static final String BREAKPOINT_BTN = "breakpointBtn";
-    public static final String MAIN_MSG_AREA = "mainMsgArea";
   }
 
   /** CSS ファイルで使用されるキーワード. */

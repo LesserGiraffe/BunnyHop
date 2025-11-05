@@ -22,7 +22,7 @@
         breakpoint="specifyParent"
         onTextFormatting="FullWidthToHalfWidth.js"
         onTextChecking="CheckPositiveIntFormat.js"
-        initialText="1"
+        text="1"
         version="bhn-1.0.0"/>
     </Connector>
 

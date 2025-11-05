@@ -54,7 +54,7 @@ public record BhNodeAttributes(
     String onDragStarted,
     String onAliasAsked,
     String onUserDefinedNameAsked,
-    String initialText) {
+    String text) {
 
   private static final Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
   private static final Pattern escapeRbrace = Pattern.compile(Pattern.quote("\\}"));
@@ -101,7 +101,7 @@ public record BhNodeAttributes(
     String onAliasAsked = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_ALIAS_ASKED);
     String onUserDefinedNameAsked =
         elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_USER_DEFINED_NAME_ASKED);
-    String initialText = getInitialText(elem, textDb);
+    String text = getText(elem, textDb);
     var version = BhNodeVersion.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_VERSION));
 
     return new BhNodeAttributes(
@@ -125,11 +125,11 @@ public record BhNodeAttributes(
         onDragStarted,
         onAliasAsked,
         onUserDefinedNameAsked,
-        initialText);
+        text);
   }
 
-  private static String getInitialText(Element elem, TextDatabase textDb) {
-    String value = elem.getAttribute(BhConstants.BhModelDef.ATTR_INITIAL_TEXT);
+  private static String getText(Element elem, TextDatabase textDb) {
+    String value = elem.getAttribute(BhConstants.BhModelDef.ATTR_TEXT);
     if (embedded.matcher(value).find()) {
       Matcher matcher = contents.matcher(value);
       List<String> textId = matcher.results().map(
