@@ -47,8 +47,7 @@ class Preprocessor {
 
     // コールバック登録
     CallbackInvoker.CallbackRegistry callbacks = CallbackInvoker.newCallbackRegistry();
-    NODE_NAME_TO_PREPROCESSOR.entrySet().forEach(
-        nodeIdAndFunc -> callbacks.set(nodeIdAndFunc.getKey(), nodeIdAndFunc.getValue()));
+    NODE_NAME_TO_PREPROCESSOR.forEach(callbacks::set);
 
     // コールバック呼び出し
     nodesToPreprocess.forEach(node -> CallbackInvoker.invoke(callbacks, node));

@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import net.seapanda.bunnyhop.common.text.TextFetcher?>
 
-<MenuBar 
+<MenuBar
   xmlns:fx="http://javafx.com/fxml"
   fx:controller="net.seapanda.bunnyhop.ui.control.MenuBarController"
   fx:id="menuBar">
@@ -16,31 +16,23 @@
     <TextFetcher fx:id="freeMemoryText" textId="gui,menu-bar,free-memory"/>
     <TextFetcher fx:id="settingsText" textId="gui,menu-bar,settings"/>
     <TextFetcher fx:id="focusSimulatorText" textId="gui,menu-bar,focus-simulator"/>
+    <TextFetcher fx:id="mustSpecifyEntryPointText" textId="gui,menu-bar,must-specify-entry-point"/>
     <TextFetcher fx:id="helpText" textId="gui,menu-bar,help"/>
     <TextFetcher fx:id="versionInfoText" textId="gui,menu-bar,version-info"/>
   </fx:define>
-  <menus>
-    <Menu text="$fileText.text">
-      <items>
-        <MenuItem fx:id="load" text="$loadText.text"/>
-        <MenuItem fx:id="save" text="$saveText.text"/>
-        <MenuItem fx:id="saveAs" text="$saveAsText.text"/>
-      </items>
-    </Menu>
-    <Menu text="$operationText.text">
-      <items>
-        <MenuItem fx:id="freeMemory" text="$freeMemoryText.text"/>
-      </items>
-    </Menu>
-      <Menu text="$settingsText.text">
-      <items>
-        <MenuItem fx:id="focusSimulator" text="$focusSimulatorText.text"/>
-      </items>
-    </Menu>
-    <Menu text="$helpText.text">
-      <items>
-        <MenuItem fx:id="versionInfo" text="$versionInfoText.text"/>
-      </items>
-    </Menu>
-  </menus>
+  <Menu text="$fileText.text">
+    <MenuItem fx:id="load" text="$loadText.text"/>
+    <MenuItem fx:id="save" text="$saveText.text"/>
+    <MenuItem fx:id="saveAs" text="$saveAsText.text"/>
+  </Menu>
+  <Menu text="$operationText.text">
+    <MenuItem fx:id="freeMemory" text="$freeMemoryText.text"/>
+  </Menu>
+  <Menu text="$settingsText.text">
+    <MenuItem fx:id="focusSimulator" text="$focusSimulatorText.text"/>
+    <MenuItem fx:id="mustSpecifyEntryPoint" text="$mustSpecifyEntryPointText.text"/>
+  </Menu>
+  <Menu text="$helpText.text">
+    <MenuItem fx:id="versionInfo" text="$versionInfoText.text"/>
+  </Menu>
 </MenuBar>

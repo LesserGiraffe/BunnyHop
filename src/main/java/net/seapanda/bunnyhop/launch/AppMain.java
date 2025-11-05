@@ -294,8 +294,8 @@ public class AppMain extends Application {
           keyCode -> onKeyPressed(keyCode, localRuntimeCtrl, remoteRuntimeCtrl));
       msgService.setWindowStyle(sceneBuilder.scene.getStylesheets());
       msgService.setMainMsgArea(sceneBuilder.msgViewCtrl.getMsgArea());
-      undoRedoAgent.deleteCommands();
       sceneBuilder.createWindow(stage, debugStage, wsFactory);
+      undoRedoAgent.deleteCommands();
 
       if (SplashScreen.getSplashScreen() != null) {
         SplashScreen.getSplashScreen().close();

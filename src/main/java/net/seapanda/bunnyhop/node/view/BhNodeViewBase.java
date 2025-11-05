@@ -368,13 +368,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     @Override
     public void switchPseudoClassState(String className, boolean enable) {
-      if (enable) {
-        shapes.nodeShape.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), true);
-        panes.root.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), true);
-      } else {
-        shapes.nodeShape.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), false);
-        panes.root.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), false);
-      }
+      shapes.nodeShape.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), enable);
     }
 
     /**

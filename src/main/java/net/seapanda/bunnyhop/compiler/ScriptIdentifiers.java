@@ -25,6 +25,7 @@ public class ScriptIdentifiers {
     public static final String STR_TO_NUM = "_strToNum";
     public static final String RANDOM_INT = "_randomInt";
     public static final String PRINTLN = "_println";
+    public static final String PRINT = "_print";
     public static final String SLEEP = "_sleep";
     public static final String PLAY_MELODIES = "_playMelodies";
     public static final String ANY_EQ = "_anyEq";
@@ -87,6 +88,7 @@ public class ScriptIdentifiers {
     public static final String START_TIMER = "_startTimer";
     public static final String GET_TIMER_VAL = "_getTimerVal";
     public static final String STRCAT = "_strcat";
+    public static final String STRCAT_LF = "_strcatLf";
     public static final String IDENTITY = "_identity";  // 恒等写像 (実際に共通コード部には定義しない)
     public static final String CREATE_THREAD_CONTEXT = "_createThreadContext";
     public static final String NOTIFY_THREAD_START = "_notifyThreadStart";

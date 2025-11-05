@@ -2,7 +2,7 @@
   "paddingTop" : 0.0,
   "paddingBottom" : 0.0,
   "paddingLeft" : 0.0,
-  "paddingRight" : 0.0,
+  "paddingRight" : 1.0,
   "bodyShape" : "NONE",
   "connectorPos" : "Top",
   "connectorShift" : 0.0,
@@ -14,11 +14,11 @@
 
   "connective" : {
     "inner" : {
-      "space" : 0.0,
-      "arrangement" : "Column",
+      "space" : 1.0,
+      "arrangement" : "Row",
       "connectorList" : ["${SignLabel}{＋}", "Arg0"]
     },
-
+    
     "outer" : {
       "connectorList" : ["Arg1"]
     }

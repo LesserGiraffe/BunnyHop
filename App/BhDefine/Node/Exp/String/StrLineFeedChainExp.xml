@@ -1,17 +1,17 @@
 <Node
   type="connective"
-  bhNodeID="idStrColumnChainExp"
+  bhNodeID="idStrLineFeedChainExp"
   name="StrChainExp"
-  nodeStyleID="StrChainExp.json"
+  nodeStyleID="StrLineFeedChainExp.json"
   breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">
 
   <ConnectorSection name="StrExpSctn">
     <Connector
-      bhConnectorID="idStrColumnChainExp.cnctr0"
+      bhConnectorID="idStrLineFeedChainExp.cnctr0"
       name="Arg0"
-      defaultBhNodeID="idStrColumnChainLinkExp"
+      defaultBhNodeID="idStrLineFeedChainLinkExp"
       fixed="true"/>
   </ConnectorSection>
 </Node>

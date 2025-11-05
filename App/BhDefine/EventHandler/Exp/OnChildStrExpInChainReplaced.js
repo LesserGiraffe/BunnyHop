@@ -25,7 +25,8 @@
   }
   // 文字列取り外し
   else if (String(bhReplacedNewNode.getSymbolName()) === 'AnyExpVoid') {
-    if (String(nextStrChainLinkExp.getSymbolName()) === 'StrChainLinkExp') {
+    let strChainLinkName = String(nextStrChainLinkExp.getSymbolName())
+    if (strChainLinkName === 'StrChainLinkExp' || strChainLinkName === 'StrLineFeedChainLinkExp') {
       bhNodePlacer.moveToWs(bhThis.getWorkspace(), nextStrChainLinkExp, 0, 0, bhUserOpe);
       bhNodePlacer.replaceChild(bhThis, nextStrChainLinkExp, bhUserOpe);
       bhNodePlacer.deleteNode(bhThis, bhUserOpe);

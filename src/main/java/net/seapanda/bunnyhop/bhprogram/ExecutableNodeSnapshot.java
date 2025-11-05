@@ -49,7 +49,9 @@ public class ExecutableNodeSnapshot implements ExecutableNodeSet {
     HashSet<BhNode> originalRootNodeSet = collectRootNodes(wss);
     rootNodeSet = SerializationUtils.clone(originalRootNodeSet);
     symbolIdToNode = collectNode(rootNodeSet);
-    if (symbolIdToNode.containsKey(entryPoint.getInstanceId())) {
+    if (entryPoint == null) {
+      this.entryPoint = null;
+    } else if (symbolIdToNode.containsKey(entryPoint.getInstanceId())) {
       this.entryPoint = symbolIdToNode.get(entryPoint.getInstanceId());  
     } else {
       this.entryPoint = SerializationUtils.clone(entryPoint);
@@ -78,7 +80,7 @@ public class ExecutableNodeSnapshot implements ExecutableNodeSet {
   }
 
   @Override
-  public Map<InstanceId, BhNode> getMapOfSymbolIdToNode() {
+  public Map<InstanceId, BhNode> getSymbolIdToNode() {
     return new HashMap<>(symbolIdToNode);
   }
 

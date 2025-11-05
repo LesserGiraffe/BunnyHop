@@ -55,10 +55,10 @@ public class WorkspaceController {
   private WorkspaceView view;
   /** モデルへのアクセスの通知先となるオブジェクト. */
   private final ModelAccessNotificationService notifService;
-  private final DndEventInfo ddInfo = new DndEventInfo();
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock(MouseButton.PRIMARY);
   private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
   private final MessageService msgService;
+  private DndEventInfo ddInfo = new DndEventInfo();
 
   /**
    * コンストラクタ.
@@ -228,7 +228,7 @@ public class WorkspaceController {
   /** D&D を終えたときの処理. */
   private void terminateDnd() {
     mouseCtrlLock.unlock();
-    ddInfo.reset();
+    ddInfo = new DndEventInfo();
     notifService.endWrite();
   }
 
@@ -267,18 +267,11 @@ public class WorkspaceController {
   /**
    * D&D 操作で使用する一連のイベントハンドラがアクセスするデータをまとめたクラス.
    */
-  private class DndEventInfo {
-    Vec2D mousePressedPos = null;
+  private static class DndEventInfo {
+    Vec2D mousePressedPos = new Vec2D();
     /** モデルの操作に伴うコンテキスト. */
-    ModelAccessNotificationService.Context context;
+    ModelAccessNotificationService.Context context = null;
     /** D&D が終了しているかどうかのフラグ. */
     private boolean isDndFinished = true;
-
-    /** D&Dイベント情報を初期化する. */
-    private void reset() {
-      mousePressedPos = null;
-      context = null;
-      isDndFinished = true;
-    }
   }
 }

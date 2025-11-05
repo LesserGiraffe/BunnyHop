@@ -36,16 +36,16 @@ public interface ExecutableNodeSet {
   BhNode getEntryPoint();
 
   /**
-   * 全ルートノードのスナップショットを返す.
+   * 実行可能なノードの全てのルートノードを返す.
    *
-   * @return 全ルートノードのスナップショット
+   * @return 実行可能なノードの全てのルートノード
    */
   Collection<BhNode> getRootNodeList();
 
   /**
-   * インスタンス ID とそれに対応するノード (スナップショット) のマップを返す.
+   * インスタンス ID とそれに対応するノードのマップを返す.
    *
-   * @return インスタンス ID とそれに対応するノード (スナップショット) のマップ
+   * @return インスタンス ID とそれに対応するノードのマップ
    */
-  Map<InstanceId, BhNode> getMapOfSymbolIdToNode();
+  Map<InstanceId, BhNode> getSymbolIdToNode();
 }

@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.SequencedSet;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
@@ -76,8 +76,16 @@ public class ExecutableNodeCollector {
     if (!deleteCompileErrorNodes()) {
       return Optional.empty();
     }
-    return findNodeToExecute(wss.getCurrentWorkspace())
-        .map(nodeToExec -> new ExecutableNodeSnapshot(wss, nodeToExec));
+    BhNode entryPoint = findEntryPointNode(wss.getCurrentWorkspace());
+    if (BhSettings.BhProgram.entryPointMustExist && entryPoint == null) {
+      msgService.alert(
+          Alert.AlertType.ERROR,
+          TextDefs.Compile.InformSelectNodeToExecute.title.get(),
+          null,
+          TextDefs.Compile.InformSelectNodeToExecute.body.get());
+      return Optional.empty();
+    }
+    return Optional.of(new ExecutableNodeSnapshot(wss, entryPoint));
   }
 
   /**
@@ -134,30 +142,23 @@ public class ExecutableNodeCollector {
   }
   
   /**
-   * 実行対象のノードを探す.
+   * プログラム開始時に実行するノードを探す.
    *
    * @param ws このワークスペースに実行対象があるかどうかチェックする.
-   * @return 実行対象のノード
+   * @return プログラム開始時に実行するノード.  存在しない場合 null.
    */
-  private Optional<BhNode> findNodeToExecute(Workspace ws) {
+  private BhNode findEntryPointNode(Workspace ws) {
     if (ws == null) {
-      return Optional.empty();
+      return null;
     }
     SequencedSet<BhNode> selectedNodeList = ws.getSelectedNodes();
     if (selectedNodeList.isEmpty()) {
-      msgService.alert(
-          AlertType.ERROR,
-          TextDefs.Compile.InformSelectNodeToExecute.title.get(),
-          null,
-          TextDefs.Compile.InformSelectNodeToExecute.body.get());
-      return Optional.empty();
+      return null;
     }
     // 実行対象以外を非選択に.
-    BhNode nodeToExec = selectedNodeList.getFirst().findRootNode();
-    for (BhNode selectedNode : ws.getSelectedNodes()) {
-      selectedNode.deselect(userOpe);
-    }
-    nodeToExec.select(userOpe);
-    return Optional.of(nodeToExec);
+    BhNode entryPoint = selectedNodeList.getFirst().findRootNode();
+    ws.getSelectedNodes().forEach(node -> node.deselect(userOpe));
+    entryPoint.select(userOpe);
+    return entryPoint;
   }
 }

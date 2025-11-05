@@ -5,7 +5,6 @@
       "cut": "カット",
       "paste": "貼り付け",
       "delete": "削除",
-      "jump": "ジャンプ",
       "connect": "接続",
       "disconnect": "切断",
       "local": "ローカル",
@@ -21,7 +20,6 @@
         "cut": "ノードをカットする",
         "paste": "コピーまたはカットしたノードを貼り付ける",
         "delete": "ノードを削除する",
-        "jump": "関連するノードにジャンプする",
         "undo": "元に戻す",
         "redo": "やり直す",
         "zoom-in": "ワークスペースを拡大する",
@@ -50,6 +48,7 @@
       "free-memory": "メモリ解放",
       "settings": "設定",
       "focus-simulator": "プログラム開始時にシミュレータを表示する",
+      "must-specify-entry-point": "エントリポイントの指定を強制する",
       "help": "ヘルプ",
       "version-info": "バージョン情報"
     },
@@ -254,9 +253,9 @@
       "inform-failed-to-write": {
         "title": "ファイル書き込みエラー"
       },
-      "inform-select-node-to-execute": {
-        "title": "実行対象の選択",
-        "body": "実行対象を一つ選択してください"
+      "inform-entry-point-not-selected": {
+        "title": "エントリポイントの選択",
+        "body": "プログラムの開始時に実行されるノードを一つ選択してください."
       },
       "cannot-delete-error-nodes": "コンパイルエラーノードを削除できませんでした.\n実行を中止します.",
       "succeeded": "\n-- コンパイル成功 --\n"
@@ -320,6 +319,11 @@
     "sync-timer-ops": {
       "true": "する",
       "false": "しない"
+    },
+
+    "print-stat-ops": {
+      "with-line-break": "改行あり",
+      "without-line-break": "改行なし"
     },
 
     "key-pressed-events": {
@@ -608,6 +612,7 @@
       "CommentPart": "コメント",
       "AnyAssignStat": "代入する",
       "NumAddAssignStat": "数値を足し込む",
+      "StrAddAssignStat": "文字列を追加する",
       "BreakStat": "くり返しを抜ける",
       "CompoundStat": "複合ブロック",
       "ContinueStat": "くり返しの初めに戻る",

@@ -42,7 +42,7 @@
       "idSayStat",
       "idAnyToStrExp",
       "idStrRowChainExp",
-      "idStrColumnChainExp",
+      "idStrLineFeedChainExp",
       "idArrayToStrExp",
       "idSaveTextStat",
       "idLoadTextExp",

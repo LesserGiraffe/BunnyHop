@@ -1,0 +1,35 @@
+<Node
+  type="connective"
+  bhNodeID="idStrAddAssignStat"
+  name="StrAddAssignStat"
+  nodeStyleID="StrAddAssignStat.json"
+  breakpoint="set"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedFromWsToChild="OnStatMovedToChild.js"
+  onChildReplaced="OnChildOfPrimVarCtrlReplaced.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js"
+  onDragStarted="OnStatDragStarted.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-1.0.0">
+
+  <ConnectorSection name="StatSctn">
+    
+    <Connector
+      bhConnectorID="idStrAddAssignStat.cnctr0"
+      import="idAnyFixedCnctr"
+      name="LeftVar"/>
+    
+    <Connector
+      bhConnectorID="idStrAddAssignStat.cnctr1"
+      import="idStrExpCnctr"
+      name="RightExp"/>
+        
+    <Connector
+      bhConnectorID="idStrAddAssignStat.cnctr2"
+      import="idStatCnctr"
+      name="NextStat"/>
+
+  </ConnectorSection>
+</Node>

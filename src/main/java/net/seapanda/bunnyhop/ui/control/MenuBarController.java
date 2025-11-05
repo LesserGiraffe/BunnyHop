@@ -51,6 +51,7 @@ public class MenuBarController {
   @FXML private MenuItem versionInfo;
   @FXML private MenuItem freeMemory;
   @FXML private MenuItem focusSimulator;
+  @FXML private MenuItem mustSpecifyEntryPoint;
 
   private final WorkspaceSet wss;
   private final ModelAccessNotificationService notifService;
@@ -96,6 +97,13 @@ public class MenuBarController {
     });
     if (BhSettings.BhSimulator.focusOnStartBhProgram) {
       focusSimulator.setText(focusSimulator.getText() + " ✓");
+    }
+    mustSpecifyEntryPoint.setOnAction(action -> {
+      switchMenuSetting(mustSpecifyEntryPoint, BhSettings.BhProgram.entryPointMustExist);
+      BhSettings.BhProgram.entryPointMustExist = !BhSettings.BhProgram.entryPointMustExist;
+    });
+    if (BhSettings.BhProgram.entryPointMustExist) {
+      mustSpecifyEntryPoint.setText(mustSpecifyEntryPoint.getText() + " ✓");
     }
   }
 

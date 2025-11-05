@@ -116,8 +116,6 @@ public class MenuViewController {
   @FXML private ToggleButton breakpointBtn;
   /** デバッグウィンドウ表示ボタン. */
   @FXML private ToggleButton debugBtn;
-  /** ジャンプボタン. */
-  @FXML private Button jumpBtn;
   /** ホスト名入力欄. */
   @FXML private TextField hostNameTextField;
   /** ユーザ名. */
@@ -206,9 +204,8 @@ public class MenuViewController {
     pasteBtn.setDisable(true);
     pasteBtn.setOnAction(action -> paste(wss, wssCtrl.getTabPane())); // ペースト
     deleteBtn.setOnAction(action -> delete(wss));
-    jumpBtn.setOnAction(action -> jump(wss)); // ジャンプ
-    undoBtn.setOnAction(action -> undo()); // アンドゥ
-    redoBtn.setOnAction(action -> redo()); // リドゥ
+    setUndoRedoEventHandler(undoBtn, this::undo, () -> undoRedoAgent.getUndoCount() != 0);
+    setUndoRedoEventHandler(redoBtn, this::redo, () -> undoRedoAgent.getRedoCount() != 0);
     setZoomEventHandler(zoomInBtn, () -> zoomIn(wss));
     setZoomEventHandler(zoomOutBtn, () -> zoomOut(wss));
     widenBtn.setOnAction(action -> widen(wss)); // ワークスペースの領域拡大
@@ -221,17 +218,15 @@ public class MenuViewController {
     focusSimBtn.setOnAction(
         action -> BhSettings.BhSimulator.focusOnChanged = focusSimBtn.isSelected());
     breakpointBtn.setOnAction(
-        action -> BhSettings.Debug.isBreakpointSettingEnabled  = breakpointBtn.isSelected() );
+        action -> BhSettings.Debug.isBreakpointSettingEnabled  = breakpointBtn.isSelected());
     debugBtn.setOnAction(action -> debugWindowCtrl.setVisibility(debugBtn.isSelected()));
     sendBtn.setOnAction(action -> send()); // 送信
-    bhRuntimeSelBtn.selectedProperty()
-        .addListener((observable, oldVal, newVal) -> switchBhRuntime(newVal));
+    bhRuntimeSelBtn.selectedProperty().addListener(
+        (observable, oldVal, newVal) -> switchBhRuntime(newVal));
     copyAndPaste.getCallbackRegistry().getOnNodeAdded().add(event -> changePasteButtonState());
     copyAndPaste.getCallbackRegistry().getOnNodeRemoved().add(event -> changePasteButtonState());
     cutAndPaste.getCallbackRegistry().getOnNodeAdded().add(event -> changePasteButtonState());
     cutAndPaste.getCallbackRegistry().getOnNodeRemoved().add(event -> changePasteButtonState());
-    wss.getCallbackRegistry().getOnNodeSelectionStateChanged()
-        .add(event -> jumpBtn.setDisable(findNodeToJumpTo(wss).isEmpty()));
   }
 
   /** コピーボタン押下時の処理. */
@@ -396,11 +391,39 @@ public class MenuViewController {
     var seqTransition = new SequentialTransition(pause);
     seqTransition.setCycleCount(Animation.INDEFINITE);
     seqTransition.setDelay(Duration.millis(500));
-    zoomBtn.setOnMousePressed(event -> seqTransition.play());
     zoomBtn.addEventHandler(MouseEvent.ANY, event -> {
       var eventType = event.getEventType();
       if (eventType == MouseEvent.MOUSE_PRESSED) {
         fnZoom.run();
+        seqTransition.play();
+      } else if (eventType == MouseEvent.MOUSE_RELEASED || eventType == MouseEvent.MOUSE_EXITED) {
+        seqTransition.stop();
+      }
+    });
+  }
+
+  /**
+   * Undo / Redo ボタンのイベントハンドラを設定する.
+   *
+   * @param button Undo または Redo ボタン
+   * @param fnUndoRedo Undo または Redo を実行する関数
+   * @param fnCanUndoRedo Undo または Redo が実行可能かどうかを返す関数
+   */
+  private void setUndoRedoEventHandler(
+      Button button, Runnable fnUndoRedo, Supplier<Boolean> fnCanUndoRedo) {
+    button.setDisable(!fnCanUndoRedo.get());
+    undoRedoAgent.getCallbackRegistry().getOnUndoStackChanged().add(
+        event -> button.setDisable(!fnCanUndoRedo.get()));
+
+    var pause = new PauseTransition(Duration.millis(50));
+    pause.setOnFinished(event -> fnUndoRedo.run());
+    var seqTransition = new SequentialTransition(pause);
+    seqTransition.setCycleCount(Animation.INDEFINITE);
+    seqTransition.setDelay(Duration.millis(500));
+    button.addEventHandler(MouseEvent.ANY, event -> {
+      var eventType = event.getEventType();
+      if (eventType == MouseEvent.MOUSE_PRESSED) {
+        fnUndoRedo.run();
         seqTransition.play();
       } else if (eventType == MouseEvent.MOUSE_RELEASED || eventType == MouseEvent.MOUSE_EXITED) {
         seqTransition.stop();

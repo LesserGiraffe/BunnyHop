@@ -44,8 +44,8 @@ public class NodeShifterController {
   private final Workspace ws;
   /** モデルへのアクセスの通知先となるオブジェクト. */
   private final ModelAccessNotificationService notifService;
-  private final DndEventInfo ddInfo = this.new DndEventInfo();
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
+  private DndEventInfo ddInfo = new DndEventInfo();
 
   /**
    * コンストラクタ.
@@ -199,28 +199,19 @@ public class NodeShifterController {
   /** D&D を終えたときの処理. */
   private void terminateDnd() {
     mouseCtrlLock.unlock();
-    ddInfo.reset();
+    ddInfo = new DndEventInfo();
     notifService.endWrite();
   }
 
-  private class DndEventInfo {
-    private Vec2D mousePressedPos = null;
+  private static class DndEventInfo {
+    private Vec2D mousePressedPos = new Vec2D();
     /** ノードとノードシフタで移動させる前の位置のマップ. */
     private final Map<BhNodeView, Vec2D> viewToOrgPos = new HashMap<>();
     /** ドラッグ中のとき true. */
     private boolean dragging = false;
     /** モデルの操作に伴うコンテキスト. */
-    private ModelAccessNotificationService.Context context;
+    private ModelAccessNotificationService.Context context = null;
     /** D&D が終了しているかどうかのフラグ. */
     private boolean isDndFinished = true;
-
-    /** D&Dイベント情報を初期化する. */
-    private void reset() {
-      mousePressedPos = null;
-      viewToOrgPos.clear();
-      dragging = false;
-      context = null;
-      isDndFinished = true;
-    }
   }
 }

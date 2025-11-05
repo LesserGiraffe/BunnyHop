@@ -1,8 +1,8 @@
 <Node
   type="connective"
-  bhNodeID="idStrColumnChainLinkExp"
-  name="StrChainLinkExp"
-  nodeStyleID="StrColumnChainLinkExp.json"
+  bhNodeID="idStrLineFeedChainLinkExp"
+  name="StrLineFeedChainLinkExp"
+  nodeStyleID="StrLineFeedChainLinkExp.json"
   breakpoint="specifyParent"
   onChildReplaced="OnChildStrExpInChainReplaced.js"
   onAliasAsked="OnAliasAsked.js"
@@ -11,12 +11,12 @@
   <ConnectorSection name="StrChainLinkSctn">
 
     <Connector
-      bhConnectorID="idStrColumnChainLinkExp.cnctr0"
+      bhConnectorID="idStrLineFeedChainLinkExp.cnctr0"
       import="idAnyExpCnctr"
       name="Arg0"/>
 
     <Connector
-      bhConnectorID="idStrColumnChainLinkExp.cnctr1"
+      bhConnectorID="idStrLineFeedChainLinkExp.cnctr1"
       name="Arg1"
       fixed="true"
       defaultBhNodeID="idStrChainLinkVoid"/>

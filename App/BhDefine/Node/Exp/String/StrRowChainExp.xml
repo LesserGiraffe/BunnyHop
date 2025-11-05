@@ -2,7 +2,7 @@
   type="connective"
   bhNodeID="idStrRowChainExp"
   name="StrChainExp"
-  nodeStyleID="StrChainExp.json"
+  nodeStyleID="StrRowChainExp.json"
   breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-1.0.0">

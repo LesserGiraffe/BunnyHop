@@ -53,6 +53,8 @@ public final class TextFieldNodeView extends TextInputNodeView {
   private final SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
   /** コネクタ部分を含むノードサイズのキャッシュデータ. */
   private final SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  /** クリック時にテキストを選択するかどうかのフラグ. */
+  private boolean shouldSelectText = true;
 
   /**
    * コンストラクタ.
@@ -68,8 +70,8 @@ public final class TextFieldNodeView extends TextInputNodeView {
     this.model = model;
     setComponent(textField);
     textField.addEventFilter(MouseEvent.ANY, this::forwardEvent);
-    textField.focusedProperty().addListener(
-        (ov, oldVal, newVal) -> Platform.runLater(this::selectText));
+    textField.setOnMouseClicked(event -> Platform.runLater(this::selectText));
+    textField.focusedProperty().addListener((obs, oldVal, newVal) -> onFocusChanged(newVal));
     initStyle();
     updateNodeStatusVisibility();
   }
@@ -106,10 +108,19 @@ public final class TextFieldNodeView extends TextInputNodeView {
   }
 
   private void selectText() {
-    if (textField.isFocused() && !textField.getText().isEmpty()) {
+    if (textField.isFocused() && shouldSelectText) {
       textField.selectAll();
+      shouldSelectText = false;
     }
   }
+
+  private void onFocusChanged(boolean focused) {
+    if (!focused) {
+      textField.deselect();
+      shouldSelectText = true;
+    }
+  }
+
 
   @Override
   protected void onNodeSizeChanged() {

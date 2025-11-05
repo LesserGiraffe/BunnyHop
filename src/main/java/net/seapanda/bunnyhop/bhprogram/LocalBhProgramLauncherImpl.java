@@ -69,9 +69,9 @@ public class LocalBhProgramLauncherImpl implements LocalBhProgramLauncher {
    */
   private Optional<Path> compile(ExecutableNodeSet nodeSet) {
     CompileOption option = new CompileOption.Builder().build();
-    Collection<BhNode> nodesToCompile = nodeSet.getRootNodeList();
+    Collection<BhNode> rootNodes = nodeSet.getRootNodeList();
     try {
-      Path outFile = compiler.compile(nodeSet.getEntryPoint(), nodesToCompile, option);
+      Path outFile = compiler.compile(nodeSet.getEntryPoint(), rootNodes, option);
       msgService.info(TextDefs.Compile.succeeded.get());
       return Optional.of(outFile);
     } catch (CompileError e) {

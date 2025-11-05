@@ -21,22 +21,27 @@ function genAssignStat() {
   return assignStat;
 }
 
-function genNumAddAssignStat() {
+function genAddAssignStat(addAssignStatId, text) {
   let variable = bhCommon.buildDerivative(bhThis, dervIdIdentifierName, bhUserOpe);
-  let numAddAssignStat = bhCommon.createBhNode('idNumAddAssignStat', bhUserOpe);
-  let leftVar = numAddAssignStat.findDescendantOf('*', 'LeftVar', '*');
+  let addAssignStat = bhCommon.createBhNode(addAssignStatId, bhUserOpe);
+  let leftVar = addAssignStat.findDescendantOf('*', 'LeftVar', '*');
   leftVar.replace(variable, bhUserOpe);
   
-  let rightLiteral = numAddAssignStat.findDescendantOf('*', 'RightExp', '*', '*', 'Literal', '*');
-  rightLiteral.setText(1);
-  return numAddAssignStat;
+  let rightLiteral = addAssignStat.findDescendantOf('*', 'RightExp', '*', '*', 'Literal', '*');
+  if (text) {
+    rightLiteral.setText(text);
+  }
+  return addAssignStat;
 }
 
 (function() {
   let variable = bhCommon.buildDerivative(bhThis, dervIdIdentifierName, bhUserOpe);
-  templates = [variable, genAssignStat()];
-  if (String(bhThis.getSymbolName()) === 'NumVarDecl')
-    templates.push(genNumAddAssignStat());
-  
+  let templates = [variable, genAssignStat()];
+  let varDeclName = String(bhThis.getSymbolName());
+  if (varDeclName === 'NumVarDecl')
+    templates.push(genAddAssignStat('idNumAddAssignStat', 1));
+  else if (varDeclName === 'StrVarDecl')
+    templates.push(genAddAssignStat('idStrAddAssignStat'));
+
   return templates;
 })();

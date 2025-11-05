@@ -1,6 +1,6 @@
 (function() {
   return [
-    ['peak',    bhTextDb.get('node', 'list-statistics', 'peak')],
-    ['average', bhTextDb.get('node', 'list-statistics', 'average')]
+    ['average', bhTextDb.get('node', 'list-statistics', 'average')],
+    ['peak',    bhTextDb.get('node', 'list-statistics', 'peak')]
   ];
 })();

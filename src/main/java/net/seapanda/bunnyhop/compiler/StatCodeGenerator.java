@@ -112,8 +112,10 @@ class StatCodeGenerator {
     }
     SyntaxSymbol varSymbol = 
         assignStatNode.findDescendantOf("*", SymbolNames.AssignStat.LEFT_VAR, "*");
+    String addAssignStatName = assignStatNode.getSymbolName();
     boolean isAddAssign =
-        assignStatNode.getSymbolName().equals(SymbolNames.AssignStat.NUM_ADD_ASSIGN_STAT);
+        addAssignStatName.equals(SymbolNames.AssignStat.NUM_ADD_ASSIGN_STAT)
+        || addAssignStatName.equals(SymbolNames.AssignStat.STR_ADD_ASSIGN_STAT);
     genAssignCode(code, assignStatNode, varSymbol, rightExpCode, isAddAssign, nestLevel, option);
   }
 

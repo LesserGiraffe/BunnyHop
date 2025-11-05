@@ -238,6 +238,10 @@ function _println(arg) {
   bhScriptHelper.io.println(_str(arg));
 }
 
+function _print(arg) {
+  bhScriptHelper.io.print(_str(arg));
+}
+
 function _sleep(sec) {
   let max = Math.floor(_nearestLongMax / 1024);
   if (!_isInRange(sec, 0, max)) {
@@ -1115,6 +1119,16 @@ function _debugStr(val) {
 
 function _strcat(valA, valB) {
   return valA._str() + valB._str();
+}
+
+function _strcatLf(valA, valB) {
+  if (valA === _nil) {
+    return valB._str();
+  }
+  if (valB === _nil) {
+    return valA._str();
+  }
+  return valA._str() + '\n' + valB._str();
 }
 
 //==================================================================

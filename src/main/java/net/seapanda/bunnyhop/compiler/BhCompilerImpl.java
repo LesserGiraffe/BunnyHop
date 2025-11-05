@@ -141,7 +141,7 @@ public class BhCompilerImpl implements BhCompiler {
    */
   private void genMainMethod(StringBuilder code, BhNode entryPoint, CompileOption option) {
     if (entryPoint == null) {
-      code.append("function %s() {}".formatted(ScriptIdentifiers.Funcs.BH_MAIN));
+      code.append("function %s() {}\n".formatted(ScriptIdentifiers.Funcs.BH_MAIN));
       return;
     }
     String lockVar = Keywords.Prefix.lockVar + ScriptIdentifiers.Funcs.BH_MAIN;

@@ -160,12 +160,14 @@ public class SymbolNames {
   public static class AssignStat {
 
     public static final String NUM_ADD_ASSIGN_STAT = "NumAddAssignStat";
+    public static final String STR_ADD_ASSIGN_STAT = "StrAddAssignStat";
     public static final String ANY_ASSIGN_STAT = "AnyAssignStat";
     public static final String LEFT_VAR = "LeftVar";
     public static final HashSet<String> LIST =
         new HashSet<>(Arrays.asList(
             ANY_ASSIGN_STAT,
-            NUM_ADD_ASSIGN_STAT));
+            NUM_ADD_ASSIGN_STAT,
+            STR_ADD_ASSIGN_STAT));
   }
 
   /** 制御文に関するシンボル名. */
@@ -305,6 +307,7 @@ public class SymbolNames {
     public static final String DETECT_COLOR_EXP = "DetectColorExp";
     public static final String GET_TIME_SINCE_PROGRAM_STARTED_EXP = "GetTimeSinceProgramStartedExp";
     public static final String STR_CHAIN_LINK_EXP = "StrChainLinkExp";
+    public static final String STR_LINE_FEED_CHAIN_LINK_EXP = "StrLineFeedChainLinkExp";
     public static final String STR_CHAIN_EXP = "StrChainExp";
     public static final String GET_SYNC_TIMER_COUNT_EXP = "GetSyncTimerCountExp";
     public static final String ANY_ARRAY_TO_STR_EXP = "AnyArrayToStrExp";
@@ -370,6 +373,8 @@ public class SymbolNames {
     public static final String OPT_FINITE = "finite";
     public static final String OPT_INFINITE = "infinite";
     public static final String OPT_NAN = "nan";
+    public static final String OPT_WITH_LINE_BREAK = "withLineBreak";
+    public static final String OPT_WITHOUT_LINE_BREAK = "withoutLineBreak";
 
     /** 定義済み関数式のリスト. */
     public static final HashSet<String> EXP_LIST =
@@ -389,6 +394,7 @@ public class SymbolNames {
             DETECT_COLOR_EXP,
             GET_TIME_SINCE_PROGRAM_STARTED_EXP,
             STR_CHAIN_LINK_EXP,
+            STR_LINE_FEED_CHAIN_LINK_EXP,
             STR_CHAIN_EXP,
             GET_SYNC_TIMER_COUNT_EXP,
             ANY_ARRAY_TO_STR_EXP,
@@ -456,7 +462,8 @@ public class SymbolNames {
             put(FuncId.create(STR_TO_NUM_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
             put(FuncId.create(STR_TO_NUM_WITH_DEFAULT_VAL_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
             put(FuncId.create(ANY_TO_STR_EXP), ScriptIdentifiers.Funcs.STR);
-            put(FuncId.create(PRINT_STAT), ScriptIdentifiers.Funcs.PRINTLN);
+            put(FuncId.create(PRINT_STAT, OPT_WITH_LINE_BREAK), ScriptIdentifiers.Funcs.PRINTLN);
+            put(FuncId.create(PRINT_STAT, OPT_WITHOUT_LINE_BREAK), ScriptIdentifiers.Funcs.PRINT);
             put(FuncId.create(SYNC_TIMER_AWAIT_STAT), ScriptIdentifiers.Funcs.SYNC_TIMER_AWAIT);
             put(FuncId.create(SYNC_TIMER_AWAIT_WITH_TIMEOUT_STAT),
                 ScriptIdentifiers.Funcs.SYNC_TIMER_AWAIT);
@@ -486,6 +493,7 @@ public class SymbolNames {
             put(FuncId.create(GET_TIME_SINCE_PROGRAM_STARTED_EXP),
                 ScriptIdentifiers.Funcs.GET_TIMER_VAL);
             put(FuncId.create(STR_CHAIN_LINK_EXP), ScriptIdentifiers.Funcs.STRCAT);
+            put(FuncId.create(STR_LINE_FEED_CHAIN_LINK_EXP), ScriptIdentifiers.Funcs.STRCAT_LF);
             put(FuncId.create(STR_CHAIN_EXP), ScriptIdentifiers.Funcs.IDENTITY);
             put(FuncId.create(GET_SYNC_TIMER_COUNT_EXP),
                 ScriptIdentifiers.Funcs.GET_SYNC_TIMER_COUNT);

@@ -45,10 +45,10 @@ public class TemplateNodeController implements BhNodeController {
   private final BhNodeView view;
   private final ModelAccessNotificationService notifService;
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock(MouseButton.PRIMARY);
-  private final DndEventInfo ddInfo = this.new DndEventInfo();
   private final BhNodeFactory factory;
   private final WorkspaceSet wss;
   private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
+  private DndEventInfo ddInfo = new DndEventInfo();
 
   /**
    * コンストラクタ.
@@ -194,7 +194,7 @@ public class TemplateNodeController implements BhNodeController {
   /** D&D を終えたときの処理. */
   private void terminateDnd() {
     mouseCtrlLock.unlock();
-    ddInfo.reset();
+    ddInfo = new DndEventInfo();
     notifService.endWrite();
   }
 
@@ -216,16 +216,10 @@ public class TemplateNodeController implements BhNodeController {
   /**
    * D&D 操作で使用する一連のイベントハンドラがアクセスするデータをまとめたクラス.
    */
-  private class DndEventInfo {
-    /** 現在、テンプレートの BhNodeView 上で発生したマウスイベントを送っているワークスペース上の view. */
+  private static class DndEventInfo {
+    /** 現在 テンプレートの BhNodeView 上で発生したマウスイベントを送っているワークスペース上の view. */
     private BhNodeView currentView = null;
     /** D&D が終了しているかどうかのフラグ. */
     private boolean isDndFinished = true;
-
-    /** D&Dイベント情報を初期化する. */
-    private void reset() {
-      currentView = null;
-      isDndFinished = true;
-    }
   }
 }

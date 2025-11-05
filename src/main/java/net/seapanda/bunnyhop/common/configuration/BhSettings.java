@@ -54,8 +54,13 @@ public class BhSettings {
 
   /** BhRuntime に関するパラメータ. */
   public static class BhRuntime {
-
     /** 現在制御対象になっている BhRuntime の種類. */
     public static volatile BhRuntimeType currentBhRuntimeType = BhRuntimeType.LOCAL;
+  }
+
+  /** BhProgram に関するパラメータ. */
+  public static class BhProgram {
+    /** エントリポイントが存在しないプログラムを禁止する場合 true. */
+    public static volatile boolean entryPointMustExist = true;
   }
 }

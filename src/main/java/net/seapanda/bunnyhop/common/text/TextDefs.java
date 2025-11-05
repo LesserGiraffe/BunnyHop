@@ -337,9 +337,9 @@ public class TextDefs {
     /** 実行するノードを選択しなかったときのメッセージ. */
     public static class InformSelectNodeToExecute {
       public static Getter title = params -> db.get(
-          TextId.of("msg", "compile", "inform-select-node-to-execute", "title"), params);
+          TextId.of("msg", "compile", "inform-entry-point-not-selected", "title"), params);
       public static Getter body = params -> db.get(
-          TextId.of("msg", "compile", "inform-select-node-to-execute", "body"), params);
+          TextId.of("msg", "compile", "inform-entry-point-not-selected", "body"), params);
     }
 
     /** コンパイルエラーノードの削除に失敗したときのメッセージ. */

@@ -54,6 +54,8 @@ public final class TextAreaNodeView  extends TextInputNodeView {
   private final SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
   /** コネクタ部分を含むノードサイズのキャッシュデータ. */
   private final SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  /** クリック時にテキストを選択するかどうかのフラグ. */
+  private boolean shouldSelectText = true;
 
   /**
    * コンストラクタ.
@@ -69,6 +71,8 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     this.model = model;
     setComponent(textArea);
     textArea.addEventFilter(MouseEvent.ANY, this::forwardEvent);
+    textArea.setOnMouseClicked(event -> Platform.runLater(this::selectText));
+    textArea.focusedProperty().addListener((obs, oldVal, newVal) -> onFocusChanged(newVal));
     initStyle();
     updateNodeStatusVisibility();
   }
@@ -79,8 +83,7 @@ public final class TextAreaNodeView  extends TextInputNodeView {
    * @param viewStyle このノードビューのスタイル
    * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public TextAreaNodeView(BhNodeViewStyle viewStyle)
-      throws ViewConstructionException {
+  public TextAreaNodeView(BhNodeViewStyle viewStyle) throws ViewConstructionException {
     this(null, viewStyle, new LinkedHashSet<>());
   }
 
@@ -103,6 +106,20 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     textArea.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
     setEditable(viewStyle.textArea.editable);
     getLookManager().addCssClass(BhConstants.Css.CLASS_TEXT_AREA_NODE);
+  }
+
+  private void selectText() {
+    if (textArea.isFocused() && shouldSelectText) {
+      textArea.selectAll();
+      shouldSelectText = false;
+    }
+  }
+
+  private void onFocusChanged(boolean focused) {
+    if (!focused) {
+      textArea.deselect();
+      shouldSelectText = true;
+    }
   }
 
   @Override

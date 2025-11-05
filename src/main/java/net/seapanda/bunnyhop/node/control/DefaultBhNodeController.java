@@ -55,9 +55,9 @@ public class DefaultBhNodeController implements BhNodeController {
   private final BhNodeView view;
   private final ModelAccessNotificationService notifService;
   private final TrashCan trashCan;
-  private final DndEventInfo ddInfo = new DndEventInfo();
   private final MouseCtrlLock mouseCtrlLock =
       new MouseCtrlLock(MouseButton.PRIMARY, MouseButton.SECONDARY);
+  private DndEventInfo ddInfo = new DndEventInfo();
 
   /**
    * コンストラクタ.
@@ -119,6 +119,11 @@ public class DefaultBhNodeController implements BhNodeController {
       }
       ddInfo.context = notifService.beginWrite();
       ddInfo.isDndFinished = false;
+      if (shouldSetBreakpoint(event)) {
+        setBreakpoint(event, ddInfo.context.userOpe());
+        ddInfo.isBreakpointOperation = true;
+        return;
+      }
       if (!model.isMovable()) {
         ddInfo.forwardEvent = true;
         dispatchEvent(model.findParentNode(), info);
@@ -129,7 +134,6 @@ public class DefaultBhNodeController implements BhNodeController {
       view.getLookManager().showShadow(EffectTarget.OUTERS);
       toFront();
       selectNode(event);
-      setBreakpoint(event, ddInfo.context.userOpe());
       Vec2D mousePressedPos = new Vec2D(event.getSceneX(), event.getSceneY());
       ddInfo.mousePressedPos = view.getPositionManager().sceneToLocal(mousePressedPos);
       ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
@@ -143,15 +147,13 @@ public class DefaultBhNodeController implements BhNodeController {
   private void onMouseDragged(MouseEventInfo info) {
     MouseEvent event = info.event();
     try {
-      if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
+      if (!mouseCtrlLock.isLockedBy(event.getButton())
+          || ddInfo.isDndFinished
+          || ddInfo.isBreakpointOperation) {
         return;
       }
       if (ddInfo.forwardEvent) {
         dispatchEvent(model.findParentNode(), info);
-        return;
-      }
-      if (event.isShiftDown()) {
-        event.setDragDetect(false);
         return;
       }
       if (ddInfo.dragging) {
@@ -176,14 +178,13 @@ public class DefaultBhNodeController implements BhNodeController {
   private void onMouseDragDetected(MouseEventInfo info) {
     MouseEvent event = info.event();
     try {
-      if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
+      if (!mouseCtrlLock.isLockedBy(event.getButton())
+          || ddInfo.isDndFinished
+          || ddInfo.isBreakpointOperation) {
         return;
       }
       if (ddInfo.forwardEvent) {
         dispatchEvent(model.findParentNode(), info);
-        return;
-      }
-      if (event.isShiftDown()) {
         return;
       }
       ddInfo.dragging = true;
@@ -207,6 +208,9 @@ public class DefaultBhNodeController implements BhNodeController {
       return;
     }
     try {
+      if (ddInfo.isBreakpointOperation) {
+        return;
+      }
       if (ddInfo.forwardEvent) {
         dispatchEvent(model.findParentNode(), info);
         ddInfo.forwardEvent = false;
@@ -352,7 +356,7 @@ public class DefaultBhNodeController implements BhNodeController {
     UserOperation userOpe = ddInfo.context.userOpe();
     // 右クリック
     if (event.getButton() == MouseButton.SECONDARY) {
-      if (!model.isSelected()) {
+      if (!BhSettings.Debug.isBreakpointSettingEnabled && !model.isSelected()) {
         model.select(userOpe);
       }
       return;
@@ -365,17 +369,21 @@ public class DefaultBhNodeController implements BhNodeController {
         model.select(userOpe);
       }
     } else if (model.isSelected() && event.getClickCount() == 2) {
-      // 末尾ノードまで一気に選択
-      BhNode outerNode = model.findOuterNode(-1);
-      while (outerNode != model) {
-        if (!outerNode.isSelected() && outerNode.isMovable()) {
-          outerNode.select(userOpe);
-        }
-        outerNode = outerNode.findParentNode();
-      }
+      selectToOutermost(userOpe);
     } else {
       model.getWorkspace().getSelectedNodes().forEach(selected -> selected.deselect(userOpe));
       model.select(userOpe);
+    }
+  }
+
+  /** 外部ノードの末尾まで選択する. */
+  private void selectToOutermost(UserOperation userOpe) {
+    BhNode outerNode = model.findOuterNode(-1);
+    while (outerNode != model) {
+      if (!outerNode.isSelected() && outerNode.isMovable()) {
+        outerNode.select(userOpe);
+      }
+      outerNode = outerNode.findParentNode();
     }
   }
 
@@ -395,7 +403,7 @@ public class DefaultBhNodeController implements BhNodeController {
   private void terminateDnd() {
     trashCan.close();
     mouseCtrlLock.unlock();
-    ddInfo.reset();
+    ddInfo = new DndEventInfo();
     notifService.endWrite();
   }
 
@@ -432,12 +440,8 @@ public class DefaultBhNodeController implements BhNodeController {
    * そのブレークポイントグループのリーダノードにブレークポイントを設定する.
    */
   private void setBreakpoint(MouseEvent event, UserOperation userOpe) {
-    if (!BhSettings.Debug.isBreakpointSettingEnabled
-        || event.getButton() != MouseButton.SECONDARY) {
-      return;
-    }
-    model.findBreakpointGroupLeader()
-        .ifPresent(node -> node.setBreakpoint(!node.isBreakpointSet(), userOpe));
+    model.findBreakpointGroupLeader().ifPresent(
+        node -> node.setBreakpoint(!node.isBreakpointSet(), userOpe));
   }
 
   /** {@code node} の派生ノードを強調表示を切り返る. */
@@ -448,6 +452,12 @@ public class DefaultBhNodeController implements BhNodeController {
             .switchPseudoClassState(BhConstants.Css.PSEUDO_HIGHLIGHT_DERIVATIVE, enable));
       }
     }
+  }
+
+  /** マウスイベントとアプリケーションの設定からブレークポイントをセットする操作かどうか判別する. */
+  private boolean shouldSetBreakpoint(MouseEvent event) {
+    return BhSettings.Debug.isBreakpointSettingEnabled
+        && event.getButton() == MouseButton.SECONDARY;
   }
 
   @Override
@@ -469,8 +479,8 @@ public class DefaultBhNodeController implements BhNodeController {
    * D&D 操作で使用する一連のイベントハンドラがアクセスするデータをまとめたクラス.
    */
   private static class DndEventInfo {
-    private Vec2D mousePressedPos = null;
-    private Vec2D posOnWorkspace = null;
+    private Vec2D mousePressedPos = new Vec2D();
+    private Vec2D posOnWorkspace = new Vec2D();
     /** 現在重なっている View. */
     private BhNodeView currentOverlapped = null;
     /** イベントを親ノードに転送する場合 true. */
@@ -485,18 +495,7 @@ public class DefaultBhNodeController implements BhNodeController {
     private ModelAccessNotificationService.Context context;
     /** D&D が終了しているかどうかのフラグ. */
     private boolean isDndFinished = true;
-
-    /** D&Dイベント情報を初期化する. */
-    private void reset() {
-      mousePressedPos = null;
-      posOnWorkspace = null;
-      currentOverlapped = null;
-      forwardEvent = false;
-      dragging = false;
-      latestParent = null;
-      latestRoot = null;
-      context = null;
-      isDndFinished = true;
-    }
+    /** 今回の操作が, ブレークポイントの設定を行うためのものであるかどうかのフラグ. */
+    private boolean isBreakpointOperation = false;
   }
 }

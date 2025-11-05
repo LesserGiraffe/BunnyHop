@@ -9,13 +9,13 @@
   "connectorHeight" : 4.25,
   "connectorShape" : "ARROW",
   "connectorBoundsRate" : 1.95,
-  "cssClass" : "strType",
+  "cssClass" : "anyType",
 
   "connective" : {
     "inner" : {
       "arrangement" : "Row",
       "space" : 2.0,
-      "connectorList" : ["Arg0", "${L1}{を}", "Option0", "${L1}{で出力する}"]
+      "connectorList" : ["LeftVar", "${L1}{に}", "RightExp", "${L1}{を追加する}"]
     },
     "outer" : {
       "connectorList" : ["NextStat"]
