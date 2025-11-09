@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.node.model.parameter;
 
 import java.io.Serializable;
 import java.util.Objects;
+import net.seapanda.bunnyhop.node.view.BhNodeView;
 
 /**
  * {@link BhNodeView} のスタイルの ID.

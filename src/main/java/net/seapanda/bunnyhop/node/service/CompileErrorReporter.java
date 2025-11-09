@@ -60,7 +60,7 @@ public class CompileErrorReporter {
   public void report(UserOperation userOpe) {
     Set<BhNode> nodesToCheckErr = collectRelatedNodes();
     for (BhNode node : nodesToCheckErr) {
-      node.setCompileErrState(node.hasCompileError(), userOpe);
+      node.setCompileErr(node.checkCompileError(), userOpe);
     }
     startingPoints.clear();
   }

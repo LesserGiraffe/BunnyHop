@@ -877,8 +877,8 @@ function _playMelodies(soundList, reverse) {
     _isBigEndian);
   let line = null;
   try {
-    let dLineInfo = new _jDataLine.Info(_jClass.forName('javax.sound.sampled.SourceDataLine'), format);
-    line = _jAudioSystem.getLine(dLineInfo);
+    let info = new _jDataLine.Info(_jClass.forName('javax.sound.sampled.SourceDataLine'), format);
+    line = bhScriptHelper.audio.findSourceDataLine(info);
     line.open(format, waveBuf.length);
     controlAudioVolume(_getNormalizedAudioVolume(), line);
     line.start();
@@ -907,41 +907,6 @@ function controlAudioVolume(volume, sourceLine) {
     let range = volumeControl.getMaximum() - volumeControl.getMinimum();
     let gain = (range * volume) + volumeControl.getMinimum();
     volumeControl.setValue(gain);
-  }
-}
-
-/**
- * wavファイル再生
- * @param path 再生したいファイルのパス (java.nio.file.Path オブジェクト)
- */
-function _playWavFile(path) {
-  let line = null;
-  let bis = null;
-  let ais = null;
-  try {
-    bis = new _jBufferedInputStream(_jFiles.newInputStream(path, _jStandardOpenOption.READ));
-    ais = _jAudioSystem.getAudioInputStream(bis);
-    let dLineInfo = new _jDataLine.Info(_jClass.forName('javax.sound.sampled.SourceDataLine'), ais.getFormat());
-    line = _jAudioSystem.getLine(dLineInfo);
-    line.open();
-    line.start();
-    let waveBuf = _jReflectArray.newInstance(_jByteType, line.getBufferSize());
-    let byteRead = -1;
-    while((byteRead = ais.read(waveBuf)) !== -1) {
-      line.write(waveBuf, 0, byteRead);
-    }
-  } catch (e) {
-    throw _newBhProgramException('_playWavFile', e);
-  } finally {
-    if (line !== null) {
-      line.drain();
-      line.stop();
-      line.close();
-    }
-    if (ais !== null)
-      ais.close();
-    if (bis !== null)
-      bis.close();
   }
 }
 

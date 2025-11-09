@@ -649,19 +649,19 @@ public abstract class BhNode extends SyntaxSymbol {
   }
 
   /** このノードがコンパイルエラーを起こしているかどうかの状態を変更する. */
-  public void setCompileErrState(boolean val, UserOperation userOpe) {
+  public void setCompileErr(boolean val, UserOperation userOpe) {
     if (val == hasCompileError) {
       return;
     }
     boolean oldVal = hasCompileError;
     hasCompileError = val;
-    userOpe.pushCmd(ope -> setCompileErrState(oldVal, ope));
+    userOpe.pushCmd(ope -> setCompileErr(oldVal, ope));
     getCallbackRegistry().onCompileErrStateChangedInvoker.invoke(
         new CompileErrorEvent(this, hasCompileError, userOpe));
   }
 
   /** このノードがコンパイルエラーを起こしているかどうかの状態を取得する. */
-  public boolean getCompileErrState() {
+  public boolean hasCompileErr() {
     return hasCompileError;
   }
 
@@ -670,7 +670,7 @@ public abstract class BhNode extends SyntaxSymbol {
    *
    * @return コンパイルエラーがある場合 true.  無い場合 false.
    */
-  public boolean hasCompileError() {
+  public boolean checkCompileError() {
     if (isDeleted()) {
       return false;
     }

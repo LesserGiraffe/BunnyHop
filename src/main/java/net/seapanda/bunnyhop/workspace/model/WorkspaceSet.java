@@ -370,7 +370,7 @@ public class WorkspaceSet {
 
     /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを呼ぶ. */
     private void onNodeAdded(Workspace.NodeAddedEvent event) {
-      if (event.node().getCompileErrState()) {
+      if (event.node().hasCompileErr()) {
         WorkspaceSet.this.compileErrNodes.addLast(event.node());
       }
       onNodeAddedInvoker.invoke(

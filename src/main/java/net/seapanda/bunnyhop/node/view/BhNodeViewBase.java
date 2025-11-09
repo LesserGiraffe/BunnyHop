@@ -267,7 +267,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   /** ノードの状態を表すインジケータの可視性を更新する. */
   protected void updateNodeStatusVisibility() {
     if (model != null) {
-      lookManager.setCompileErrorVisibility(model.hasCompileError());
+      lookManager.setCompileErrorVisibility(model.checkCompileError());
       lookManager.setBreakpointVisibility(model.isBreakpointSet());
       lookManager.setCorruptionMarkVisibility(model.isCorrupted());
     }
