@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.service.accesscontrol;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import net.seapanda.bunnyhop.node.service.CompileErrorReporter;
+import net.seapanda.bunnyhop.linter.model.CompileErrorChecker;
 import net.seapanda.bunnyhop.node.service.DerivativeCache;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -31,7 +31,7 @@ public class ModelAccessMediator implements ModelAccessNotificationService {
 
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
   private final DerivativeCache cache;
-  private final CompileErrorReporter reporter;
+  private final CompileErrorChecker reporter;
   private final UndoRedoAgent undoRedoAgent;
   /** 現在使用中の {@link Context} オブジェクト. */
   private Context context;
@@ -42,7 +42,7 @@ public class ModelAccessMediator implements ModelAccessNotificationService {
   /** コンストラクタ. */
   public ModelAccessMediator(
       DerivativeCache cache,
-      CompileErrorReporter reporter,
+      CompileErrorChecker reporter,
       UndoRedoAgent undoRedoAgent) {
     this.cache = cache;
     this.reporter = reporter;
@@ -67,7 +67,7 @@ public class ModelAccessMediator implements ModelAccessNotificationService {
     }
     if (nestingLevel == 1) {
       cache.clearAll();
-      reporter.report(context.userOpe());
+      reporter.check(context.userOpe());
       undoRedoAgent.pushUndoCommand(context.userOpe());
       lock.writeLock().unlock();
     }

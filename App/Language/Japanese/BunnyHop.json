@@ -56,7 +56,8 @@
     "notification-view": {
       "msg-view-name": "メッセージ",
       "debug-view-name": "デバッグ",
-      "breakpoint-list-view-name": "ブレークポイント"
+      "breakpoint-list-view-name": "ブレークポイント",
+      "error-node-list-view-name": "エラーノード"
     },
 
     "msg-view": {
@@ -680,6 +681,11 @@
       "StrVar": "文字列変数 (${name})",
       "StrArg": "文字列の入力ポート (${name})",
       "StrVarDecl": "文字列変数の定義 (${name})"
+    },
+
+    "compile-error": {
+      "out-of-scope": "スコープの外にあります",
+      "out-of-loop": "繰り返しノードの外にあります"
     }
   },
 

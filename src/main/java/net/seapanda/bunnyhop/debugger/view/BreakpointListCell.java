@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.debugger.view;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 import javafx.css.PseudoClass;
@@ -61,26 +62,42 @@ public class BreakpointListCell extends ListCell<BhNode> {
     this.empty = empty;
   }
 
-  private String getText(BhNode item, boolean empty) {
+  private static String getText(BhNode item, boolean empty) {
     if (empty || item == null) {
       return null;
     }
     return item.getAlias();
   }
 
+  /** {@link BreakpointListCell} オブジェクトが {@code item} と紐づく場合に UI に表示される文字列を返す. */
+  public static String getText(BhNode item) {
+    String text = getText(item, false);
+    return text == null ? "" : text;
+  }
+
   /** {@code node} とこのセルを {@link #nodeToCells} の中で対応付ける. */
   private void mapNodeToCell(BhNode node, boolean empty) {
-    if ((empty || model != node) && model != null) {
-      if (nodeToCells.containsKey(model)) {
-        nodeToCells.get(model).remove(this);
-      }
-    }
-    if (!empty && model != node && node != null) {
-      nodeToCells
-          .computeIfAbsent(
-              node,
-              key -> Collections.<BreakpointListCell>newSetFromMap(new WeakHashMap<>()))
-          .add(this);
+    Optional.ofNullable(model)
+        .filter(model -> empty || model != node)
+        .filter(nodeToCells::containsKey)
+        .ifPresent(model -> nodeToCells.get(model).remove(this));
+
+    Optional.ofNullable(node)
+        .filter(bhNode -> !empty)
+        .filter(bhNode -> model != bhNode)
+        .ifPresent(bhNode -> {
+          nodeToCells
+              .computeIfAbsent(
+                  node,
+                  key -> Collections.<BreakpointListCell>newSetFromMap(new WeakHashMap<>()))
+              .add(this);
+        });
+  }
+
+  /** このセルが表示する値を更新する. */
+  public void updateValue() {
+    if (model != null) {
+      setText(getText(model, false));
     }
   }
 

@@ -4,7 +4,7 @@
   name="BreakStat"
   nodeStyleID="BreakStat.json"
   breakpoint="set"
-  onCompileErrorChecking="BreakAndContinueChecker.js"
+  onCompileErrorChecking="CheckCompileErrorOfLoopCtrlStat.js"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onCutRequested="OnCutRequested.js"

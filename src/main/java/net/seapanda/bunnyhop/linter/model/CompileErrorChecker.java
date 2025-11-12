@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.node.service;
+package net.seapanda.bunnyhop.linter.model;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -30,21 +30,21 @@ import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
 /**
- * コンパイルエラーの詳細をアプリケーションユーザに知らせるクラス.
+ * ワークスペースセットのノードのコンパイルエラーを調べる機能を提供するクラス.
  *
  * @author K.Koike
  */
-public class CompileErrorReporter {
+public class CompileErrorChecker {
 
   /** これらのノードから親子関係または派生関係でたどれるノード群を, コンパイルエラーが発生しているか調べる対象とする. */
   private final Set<BhNode> startingPoints = new HashSet<>();
-  
+
   /**
    * コンストラクタ.
    *
-   * @param wss このワークスペースセットにあるノードのコンパイルエラーを表示する.
+   * @param wss このワークスペースセットにあるノードのコンパイルエラーを調べる.
    */
-  public CompileErrorReporter(WorkspaceSet wss) {
+  public CompileErrorChecker(WorkspaceSet wss) {
     WorkspaceSet.CallbackRegistry registry = wss.getCallbackRegistry();
     registry.getOnNodeAdded().add(event -> startingPoints.add(event.node()));
     registry.getOnNodeRemoved().add(event -> startingPoints.add(event.node()));
@@ -53,37 +53,38 @@ public class CompileErrorReporter {
   }
 
   /**
-   * アプリケーションユーザにコンパイルエラーの詳細を知らせる.
+   * ワークスペースセットのノードのコンパイルエラーの状態を更新する.
    *
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public void report(UserOperation userOpe) {
-    Set<BhNode> nodesToCheckErr = collectRelatedNodes();
-    for (BhNode node : nodesToCheckErr) {
-      node.setCompileErr(node.checkCompileError(), userOpe);
+  public void check(UserOperation userOpe) {
+    Set<BhNode> targetNodes = collectTargetNodes();
+    for (BhNode node : targetNodes) {
+      node.checkCompileError(userOpe);
     }
     startingPoints.clear();
   }
 
   /** {@link #startingPoints} から親子関係または派生関係でたどれるノード群を取得する. */
-  private Set<BhNode> collectRelatedNodes() {
-    SequencedSet<BhNode> searched = new LinkedHashSet<>();
+  private Set<BhNode> collectTargetNodes() {
+    SequencedSet<BhNode> collection = new LinkedHashSet<>();
     for (BhNode node : startingPoints) {
-      search(node, searched);
+      search(node, collection);
     }
-    return searched;
+    return collection;
   }
 
-  private void search(BhNode node, SequencedSet<BhNode> searched) {
-    if (node == null || searched.contains(node)) {
+  /** {@code node} から親子関係または派生関係でたどれるノードを探査して, {@code collection} に格納する. */
+  private void search(BhNode node, SequencedSet<BhNode> collection) {
+    if (node == null || collection.contains(node)) {
       return;
     }
-    searched.add(node);
-    getChildNodes(node).forEach(child -> search(child, searched));
-    search(getParentNode(node), searched);
-    search(node.getOriginal(), searched);
+    collection.add(node);
+    getChildNodes(node).forEach(child -> search(child, collection));
+    search(getParentNode(node), collection);
+    search(node.getOriginal(), collection);
     if (node instanceof Derivative derivative) {
-      derivative.getDerivatives().forEach(derv -> search(derv, searched));
+      derivative.getDerivatives().forEach(derv -> search(derv, collection));
     }
   }
 

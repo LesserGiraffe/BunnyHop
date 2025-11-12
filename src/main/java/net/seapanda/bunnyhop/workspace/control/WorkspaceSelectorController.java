@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.debugger.control;
+package net.seapanda.bunnyhop.workspace.control;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -84,7 +84,7 @@ public class WorkspaceSelectorController {
    *
    * @return 現在選択中のワークスペース. 特定のワークスペースが選択されていない場合は Optional.empty.
    */
-  Optional<Workspace> getSelected() {
+  public Optional<Workspace> getSelected() {
     Workspace selected = wsComboBox.getValue();
     if (selected == wsForAll) {
       return Optional.empty();
@@ -93,7 +93,7 @@ public class WorkspaceSelectorController {
   }
 
   /** 「すべてのワークスペース」が選択されている場合 true を返す. */
-  boolean isAllSelected() {
+  public boolean isAllSelected() {
     return wsComboBox.getValue() == wsForAll;
   }
 
@@ -102,7 +102,7 @@ public class WorkspaceSelectorController {
    *
    * @param handler 登録するイベントハンドラ.
    */
-  void setOnWorkspaceSelected(Consumer<? super WorkspaceSelectionEvent> handler) {
+  public void setOnWorkspaceSelected(Consumer<? super WorkspaceSelectionEvent> handler) {
     if (handler != null) {
       onWsSelected = handler;
     }

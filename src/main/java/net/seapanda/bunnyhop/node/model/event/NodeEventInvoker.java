@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.node.model.event;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.SequencedCollection;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.ConnectiveNode;
@@ -175,9 +176,10 @@ public interface NodeEventInvoker {
    * {@code target} にコンパイルエラーがあるかどうか調べる.
    *
    * @param target イベントハンドラが定義されたノード
-   * @return コンパイルエラーがある場合 true.  無い場合 false.
+   * @return コンパイルエラーがある場合, エラーメッセージが格納されたリストを返す.
+   *         コンパイルエラーが無い場合, 空のリストを返す.
    */
-  boolean onCompileErrChecking(BhNode target);
+  SequencedCollection<String> onCompileErrChecking(BhNode target);
 
   /**
    * {@code target} のエイリアスを取得する.

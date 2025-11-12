@@ -356,6 +356,7 @@ public class BhConstants {
     public static final String CALL_STACK_ITEM = "callStackItem";
     public static final String VARIABLE_LIST_ITEM = "variableListItem";
     public static final String BREAKPOINT_LIST_ITEM = "breakpointListItem";
+    public static final String ERROR_NODE_LIST_ITEM = "errorNodeListItem";
   }
 
   /** BhProgram の実行環境に関するパラメータ. */

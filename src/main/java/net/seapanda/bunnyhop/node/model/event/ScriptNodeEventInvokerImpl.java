@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.SequencedCollection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
@@ -405,22 +406,23 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
   }
 
   @Override
-  public boolean onCompileErrChecking(BhNode target) {
+  public SequencedCollection<String> onCompileErrChecking(BhNode target) {
     ScriptNameAndScript defined = getScript(target.getId(), EventType.ON_COMPILE_ERR_CHECKING);
     if (defined == null) {
-      return false;
+      return new ArrayList<>();
     }
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
     try {
-      return (Boolean) defined.script().exec(cx, scope);
+      return ((Collection<?>) defined.script().exec(cx, scope)).stream()
+          .map(Object::toString)
+          .collect(Collectors.toCollection(ArrayList::new));
     } catch (Exception e) {
-      LogManager.logger().error(
-          "'%s' must return a boolean value.\n%s".formatted(defined.name(), e));
+      LogManager.logger().error("'%s' must return a collection.\n%s".formatted(defined.name(), e));
     } finally {
       Context.exit();
     }
-    return false;
+    return new ArrayList<>();
   }
 
   @Override

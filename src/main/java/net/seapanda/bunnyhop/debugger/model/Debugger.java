@@ -16,7 +16,6 @@
 
 package net.seapanda.bunnyhop.debugger.model;
 
-import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointRegistry;
 import net.seapanda.bunnyhop.debugger.model.callstack.StackFrameSelection;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadSelection;
@@ -158,13 +157,6 @@ public interface Debugger {
    * @return 「現在のスタックフレーム」として選択されているスタックフレームの情報を格納したオブジェクト
    */
   StackFrameSelection getCurrentStackFrame();
-
-  /**
-   * ブレークポイントの登録および削除を行うためのオブジェクトを取得する.
-   *
-   * @return ブレークポイントの登録および削除を行うためのオブジェクト
-   */
-  BreakpointRegistry getBreakpointRegistry();
 
   /** デバッガに対するイベントハンドラの登録および削除操作を規定したインタフェース. */
   interface CallbackRegistry {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.debugger.view;
+package net.seapanda.bunnyhop.linter.view;
 
 import java.util.Collections;
 import java.util.Map;
@@ -24,7 +24,7 @@ import java.util.WeakHashMap;
 import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
-import net.seapanda.bunnyhop.debugger.model.variable.VariableListItem;
+import net.seapanda.bunnyhop.linter.model.ErrorNodeListItem;
 import net.seapanda.bunnyhop.node.model.BhNode;
 
 /**
@@ -32,80 +32,57 @@ import net.seapanda.bunnyhop.node.model.BhNode;
  *
  * @author K.Koike
  */
-public class VariableListCell extends TreeCell<VariableListItem> {
+public class ErrorNodeListCell extends TreeCell<ErrorNodeListItem> {
 
-  private VariableListItem model;
-  private final Map<VariableListItem, Set<VariableListCell>> itemToCells;
-  private final Map<BhNode, Set<VariableListCell>> nodeToCells;
+  private ErrorNodeListItem model;
+  private final Map<BhNode, Set<ErrorNodeListCell>> nodeToCells;
 
   /** コンストラクタ. */
-  public VariableListCell(
-      Map<VariableListItem, Set<VariableListCell>> itemToCells,
-      Map<BhNode, Set<VariableListCell>> nodeToCells) {
-    this.itemToCells = itemToCells;
+  public ErrorNodeListCell(Map<BhNode, Set<ErrorNodeListCell>> nodeToCells) {
     this.nodeToCells = nodeToCells;
-    getStyleClass().add(BhConstants.Css.VARIABLE_LIST_ITEM);
+    getStyleClass().add(BhConstants.Css.ERROR_NODE_LIST_ITEM);
   }
 
   @Override
-  protected void updateItem(VariableListItem item, boolean empty) {
+  protected void updateItem(ErrorNodeListItem item, boolean empty) {
     super.updateItem(item, empty);
     setText(getText(item, empty));
-    mapItemToCell(item, empty);
     mapCellToNode(item, empty);
-    if (item != null) {
-      decorateText(item.variable.getNode().map(BhNode::isSelected).orElse(false));
+    if (item != null && item.node() != null) {
+      decorateText(item.node().isSelected());
     }
     model = item;
   }
 
-  private static String getText(VariableListItem item, boolean empty) {
+  private static String getText(ErrorNodeListItem item, boolean empty) {
     if (empty || item == null) {
       return null;
     }
     return item.toString();
   }
 
-  /** {@link VariableListCell} オブジェクトが {@code item} と紐づく場合に UI に表示される文字列を返す. */
-  public static String getText(VariableListItem item) {
+  /** {@link ErrorNodeListCell} オブジェクトが {@code item} と紐づく場合に UI に表示される文字列を返す. */
+  public static String getText(ErrorNodeListItem item) {
     String text = getText(item, false);
     return text == null ? "" : text;
   }
 
-  /** {@code item} とこのセルを {@link #itemToCells} の中で対応付ける. */
-  private void mapItemToCell(VariableListItem item, boolean empty) {
-    Optional.ofNullable(model)
-        .filter(model -> empty || model != item)
-        .filter(itemToCells::containsKey)
-        .ifPresent(model -> itemToCells.get(model).remove(this));
-
-    Optional.ofNullable(item)
-        .filter(itm -> !empty)
-        .filter(itm -> model != itm)
-        .ifPresent(itm -> {
-          itemToCells
-              .computeIfAbsent(
-                  itm, key -> Collections.<VariableListCell>newSetFromMap(new WeakHashMap<>()))
-              .add(this);
-        });
-  }
-
   /** {@code item} に対応する {@link BhNode} とこのセルを {@link #nodeToCells} の中で対応付ける. */
-  private void mapCellToNode(VariableListItem item, boolean empty) {
+  private void mapCellToNode(ErrorNodeListItem item, boolean empty) {
     Optional.ofNullable(model)
         .filter(model -> empty || model != item)
-        .flatMap(model -> model.variable.getNode())
+        .map(ErrorNodeListItem::node)
         .filter(nodeToCells::containsKey)
         .ifPresent(node -> nodeToCells.get(node).remove(this));
 
     Optional.ofNullable(item)
         .filter(itm -> !empty)
         .filter(itm -> model != itm)
-        .flatMap(model -> model.variable.getNode())
+        .map(ErrorNodeListItem::node)
         .ifPresent(node -> {
           nodeToCells
               .computeIfAbsent(
-                  node, key -> Collections.<VariableListCell>newSetFromMap(new WeakHashMap<>()))
+                  node, key -> Collections.<ErrorNodeListCell>newSetFromMap(new WeakHashMap<>()))
               .add(this);
         });
   }
@@ -123,3 +100,4 @@ public class VariableListCell extends TreeCell<VariableListItem> {
     pseudoClassStateChanged(cls, val);
   }
 }
+

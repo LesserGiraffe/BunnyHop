@@ -158,8 +158,10 @@ public class MenuViewController {
   private final MessageService msgService;
   /** デバッグウィンドウのコントローラ. */
   private final DebugWindowController debugWindowCtrl;
-  /** アプリケーションのウィンドウを操作するためのオブジェクト */
+  /** アプリケーションのウィンドウを操作するためのオブジェクト. */
   private final WindowManager windowManager;
+  /** 実行可能なノードを集めるためのオブジェクト. */
+  private final ExecutableNodeCollector executableNodeCollector;
 
   /** コンストラクタ. */
   public MenuViewController(
@@ -174,7 +176,8 @@ public class MenuViewController {
       CutAndPaste cutAndPaste,
       MessageService msgService,
       DebugWindowController debugWindowCtrl,
-      WindowManager windowManager) {
+      WindowManager windowManager,
+      ExecutableNodeCollector executableNodeCollector) {
     this.wssCtrl = wssCtrl;
     this.notifService = notifService;
     this.wsFactory = wsFactory;
@@ -187,6 +190,7 @@ public class MenuViewController {
     this.msgService = msgService;
     this.debugWindowCtrl = debugWindowCtrl;
     this.windowManager = windowManager;
+    this.executableNodeCollector = executableNodeCollector;
   }
 
   /** このコントローラを初期化する. */
@@ -523,7 +527,7 @@ public class MenuViewController {
     Context context = notifService.beginWrite();
     Optional<ExecutableNodeSet> nodeSet = Optional.empty();
     try {
-      nodeSet = ExecutableNodeCollector.collect(wss, msgService, context.userOpe());
+      nodeSet = executableNodeCollector.collect(context.userOpe());
     } catch (Exception e) {
       LogManager.logger().error(e.toString());
     } finally {

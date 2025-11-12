@@ -16,10 +16,12 @@
 
 package net.seapanda.bunnyhop.node.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.SequencedCollection;
 import java.util.SequencedSet;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -58,8 +60,8 @@ public abstract class BhNode extends SyntaxSymbol {
   private boolean isDefault = false;
   /** このノードが選択されているかどうかのフラグ. */
   private boolean isSelected = false;
-  /** このノードがコンパイルエラーを起こしているかどうかのフラグ. */
-  private boolean hasCompileError = false;
+  /** このノードがコンパイルエラーを持つ場合のエラーメッセージ一覧. */
+  private SequencedCollection<String> compileErrorMessages = new ArrayList<>();
   /** ブレークポイントが設定されているかどうかのフラグ. */
   private boolean isBreakpointSet = false;
   /**
@@ -648,33 +650,41 @@ public abstract class BhNode extends SyntaxSymbol {
     return nodeEventInvoker.onCompanionNodesCreating(this, type, userOpe);
   }
 
-  /** このノードがコンパイルエラーを起こしているかどうかの状態を変更する. */
-  public void setCompileErr(boolean val, UserOperation userOpe) {
-    if (val == hasCompileError) {
-      return;
-    }
-    boolean oldVal = hasCompileError;
-    hasCompileError = val;
-    userOpe.pushCmd(ope -> setCompileErr(oldVal, ope));
-    getCallbackRegistry().onCompileErrStateChangedInvoker.invoke(
-        new CompileErrorEvent(this, hasCompileError, userOpe));
-  }
-
   /** このノードがコンパイルエラーを起こしているかどうかの状態を取得する. */
   public boolean hasCompileErr() {
+    return !compileErrorMessages.isEmpty();
+  }
+
+  /**
+   * このノードにコンパイルエラーがあるかどうの状態を更新する.
+   *
+   * <p>{@link #hasCompileErr} が返すコンパイルエラーの有無と {@link #getCompileErrorMessages} が返すメッセージが更新される.
+   *
+   * @return 更新後にコンパイルエラーがある場合 true.  無い場合 false.
+   */
+  public boolean checkCompileError(UserOperation userOpe) {
+    boolean hadCompileError = hasCompileErr();
+    if (isDeleted()) {
+      compileErrorMessages = new ArrayList<>();
+    } else {
+      compileErrorMessages = new ArrayList<>(nodeEventInvoker.onCompileErrChecking(this));
+    }
+    boolean hasCompileError = hasCompileErr();
+    // エラーメッセージが変わったかは確認せずに, 更新前か後のどちらか一方でもエラー状態であればイベントハンドラを呼ぶ.
+    if (hadCompileError || hasCompileError) {
+      getCallbackRegistry().onCompileErrStateUpdatedInvoker.invoke(
+          new CompileErrorEvent(this, hasCompileError, userOpe));
+    }
     return hasCompileError;
   }
 
   /**
-   * ノードにコンパイルエラーがあるかどうか調べる.
+   * このノードのコンパイルエラーメッセージを返す.
    *
-   * @return コンパイルエラーがある場合 true.  無い場合 false.
+   * @return このノードのコンパイルエラーメッセージ.  このノードにコンパイルエラーがない場合は空のリスト.
    */
-  public boolean checkCompileError() {
-    if (isDeleted()) {
-      return false;
-    }
-    return nodeEventInvoker.onCompileErrChecking(this);
+  public SequencedCollection<String> getCompileErrorMessages() {
+    return new ArrayList<>(compileErrorMessages);
   }
 
   /**
@@ -721,7 +731,7 @@ public abstract class BhNode extends SyntaxSymbol {
         new SimpleConsumerInvoker<>();
 
     /** 関連するノードのコンパイルエラー状態が変更されたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<CompileErrorEvent> onCompileErrStateChangedInvoker =
+    private final ConsumerInvoker<CompileErrorEvent> onCompileErrStateUpdatedInvoker =
         new SimpleConsumerInvoker<>();
 
     /** 関連するノードが {@link Connector} に接続されたときのイベントハンドラを管理するオブジェクト. */
@@ -749,9 +759,9 @@ public abstract class BhNode extends SyntaxSymbol {
       return onSelStateChangedInvoker.getRegistry();
     }
 
-    /** 関連するノードのコンパイルエラー状態が変更されたときのイベントハンドラのレジストリを取得する. */
-    public ConsumerInvoker<CompileErrorEvent>.Registry getOnCompileErrorStateChanged() {
-      return onCompileErrStateChangedInvoker.getRegistry();
+    /** 関連するノードのコンパイルエラー状態が更新されたときのイベントハンドラのレジストリを取得する. */
+    public ConsumerInvoker<CompileErrorEvent>.Registry getOnCompileErrorStateUpdated() {
+      return onCompileErrStateUpdatedInvoker.getRegistry();
     }
 
     /** 関連するノードが, {@link Connector} に接続されたときのイベントハンドラのレジストリを取得する. */
@@ -793,10 +803,10 @@ public abstract class BhNode extends SyntaxSymbol {
   public record SelectionEvent(BhNode node, boolean isSelected, UserOperation userOpe) {}
 
   /**
-   * ノードのコンパイルエラー状態が変更されたときの情報を格納したレコード.
+   * ノードのコンパイルエラー状態が更新されたときの情報を格納したレコード.
    *
-   * @param node コンパイルエラー状態が変更されたノード
-   * @param hasError {@code node} がコンパイルエラーを起こした場合 true
+   * @param node コンパイルエラー状態が更新されたノード
+   * @param hasError {@code node} がコンパイルエラーを持つ場合 true
    * @param userOpe undo 用コマンドオブジェクト
    */
   public record CompileErrorEvent(BhNode node, boolean hasError, UserOperation userOpe) {}

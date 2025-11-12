@@ -38,8 +38,6 @@ public class WorkspaceSet {
 
   /** 全てのワークスペース. */
   private final SequencedSet<Workspace> workspaceSet = new LinkedHashSet<>();
-  /** コンパイルエラーを起こしている全てのノード. */
-  private final SequencedSet<BhNode> compileErrNodes = new LinkedHashSet<>();
   /** 保存後に変更されたかどうかのフラグ. */
   private boolean isDirty = false;
   private Workspace currentWorkspace;
@@ -60,7 +58,7 @@ public class WorkspaceSet {
     workspace.setWorkspaceSet(this);
     Workspace.CallbackRegistry registry = workspace.getCallbackRegistry();
     registry.getOnNodeSelectionStateChanged().add(cbRegistry.onNodeSelectionStateChanged);
-    registry.getOnNodeCompileErrorStateChanged().add(cbRegistry.onNodeCompileErrStateChanged);
+    registry.getOnNodeCompileErrorStateUpdated().add(cbRegistry.onNodeCompileErrStateUpdated);
     registry.getOnNodeBreakpointSet().add(cbRegistry.onNodeBreakpointSet);
     registry.getOnNodeAdded().add(cbRegistry.onNodeAdded);
     registry.getOnNodeRemoved().add(cbRegistry.onNodeRemoved);
@@ -83,7 +81,7 @@ public class WorkspaceSet {
     deleteNodesInWorkspace(workspace, userOpe);
     Workspace.CallbackRegistry registry = workspace.getCallbackRegistry();
     registry.getOnNodeSelectionStateChanged().remove(cbRegistry.onNodeSelectionStateChanged);
-    registry.getOnNodeCompileErrorStateChanged().remove(cbRegistry.onNodeCompileErrStateChanged);
+    registry.getOnNodeCompileErrorStateUpdated().remove(cbRegistry.onNodeCompileErrStateUpdated);
     registry.getOnNodeBreakpointSet().remove(cbRegistry.onNodeBreakpointSet);
     registry.getOnNodeAdded().remove(cbRegistry.onNodeAdded);
     registry.getOnNodeRemoved().remove(cbRegistry.onNodeRemoved);
@@ -109,15 +107,6 @@ public class WorkspaceSet {
           swapped.newNode().getParentConnector(),
           userOpe);
     }
-  }
-
-  /**
-   * コンパイルエラーを起こしている全てのノードを取得する.
-   *
-   * @return コンパイルエラーを起こしている全てのノード
-   */
-  public SequencedSet<BhNode> getCompileErrNodes() {
-    return new LinkedHashSet<>(compileErrNodes);
   }
 
   /**
@@ -181,9 +170,9 @@ public class WorkspaceSet {
     private final ConsumerInvoker<NodeSelectionEvent> onNodeSelStateChangedInvoker =
         new SimpleConsumerInvoker<>();
     
-    /** 関連するワークスペースセット以下のノードのコンパイルエラー状態が変更されたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<NodeCompileErrorEvent>
-        onNodeCompileErrStateChangedInvoker = new SimpleConsumerInvoker<>();
+    /** 関連するワークスペースセット以下のノードのコンパイルエラー状態が更新されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeCompileErrorEvent> onNodeCompileErrStateUpdatedInvoker =
+        new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースセット以下のノードのブレークポイントの状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeBreakpointSetEvent>
@@ -231,9 +220,9 @@ public class WorkspaceSet {
     private final Consumer<? super Workspace.NodeSelectionEvent> onNodeSelectionStateChanged =
         this::onNodeSelectionStateChanged;
 
-    /** ノードのコンパイルエラー状態が変わったときのイベントハンドラ. */
-    private final Consumer<? super Workspace.NodeCompileErrorEvent> onNodeCompileErrStateChanged =
-        this::onNodeCompileErrStateChanged;
+    /** ノードのコンパイルエラー状態が更新されたときのイベントハンドラ. */
+    private final Consumer<? super Workspace.NodeCompileErrorEvent> onNodeCompileErrStateUpdated =
+        this::onNodeCompileErrStateUpdated;
 
     /** ノードのブレークポイントの状態が変わったときのイベントハンドラ. */
     private final Consumer<? super Workspace.NodeBreakpointSetEvent> onNodeBreakpointSet =
@@ -266,11 +255,11 @@ public class WorkspaceSet {
     }
 
     /**
-     * 関連するワークスペースセット以下のノードのコンパイルエラー状態が変更されたときのイベントハンドラを
+     * 関連するワークスペースセット以下のノードのコンパイルエラー状態が更新されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
-    public ConsumerInvoker<NodeCompileErrorEvent>.Registry getOnNodeCompileErrStateChanged() {
-      return onNodeCompileErrStateChangedInvoker.getRegistry();
+    public ConsumerInvoker<NodeCompileErrorEvent>.Registry getOnNodeCompileErrStateUpdated() {
+      return onNodeCompileErrStateUpdatedInvoker.getRegistry();
     }
 
     /**
@@ -351,14 +340,9 @@ public class WorkspaceSet {
           WorkspaceSet.this, event.ws(), event.node(), event.isSelected(), event.userOpe()));
     }
 
-    /** ノードのコンパイルエラー状態に変化があったときのイベントハンドラを呼ぶ. */
-    private void onNodeCompileErrStateChanged(Workspace.NodeCompileErrorEvent event) {
-      if (event.hasError()) {
-        WorkspaceSet.this.compileErrNodes.addLast(event.node());
-      } else {
-        WorkspaceSet.this.compileErrNodes.remove(event.node());
-      } 
-      onNodeCompileErrStateChangedInvoker.invoke(new NodeCompileErrorEvent(
+    /** ノードのコンパイルエラー状態が更新されたときのイベントハンドラを呼ぶ. */
+    private void onNodeCompileErrStateUpdated(Workspace.NodeCompileErrorEvent event) {
+      onNodeCompileErrStateUpdatedInvoker.invoke(new NodeCompileErrorEvent(
           WorkspaceSet.this, event.ws(), event.node(), event.hasError(), event.userOpe()));
     }
 
@@ -370,16 +354,12 @@ public class WorkspaceSet {
 
     /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを呼ぶ. */
     private void onNodeAdded(Workspace.NodeAddedEvent event) {
-      if (event.node().hasCompileErr()) {
-        WorkspaceSet.this.compileErrNodes.addLast(event.node());
-      }
       onNodeAddedInvoker.invoke(
           new NodeAddedEvent(WorkspaceSet.this, event.ws(), event.node(), event.userOpe()));
     }
 
     /** 関連するワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを呼ぶ. */
     private void onNodeRemoved(Workspace.NodeRemovedEvent event) {
-      WorkspaceSet.this.compileErrNodes.remove(event.node());
       onNodeRemovedInvoker.invoke(
           new NodeRemovedEvent(WorkspaceSet.this, event.ws(), event.node(), event.userOpe()));
     }
@@ -420,12 +400,12 @@ public class WorkspaceSet {
       UserOperation userOpe) {}
 
   /**
-   * ワークスペースセット以下のノードのコンパイルエラー状態が変更されたときの情報を格納したレコード.
+   * ワークスペースセット以下のノードのコンパイルエラー状態が更新されたときの情報を格納したレコード.
    *
    * @param wss {@code ws} を保持するワークスペースセット
    * @param ws {@code node} を保持するワークスペース
-   * @param node コンパイルエラー状態が変更されたノード
-   * @param hasError {@code node} がコンパイルエラーを起こした場合 true
+   * @param node コンパイルエラー状態が更新されたノード
+   * @param hasError {@code node} がコンパイルエラーを持つ場合 true
    * @param userOpe undo 用コマンドオブジェクト
    */      
   public record NodeCompileErrorEvent(
@@ -436,7 +416,7 @@ public class WorkspaceSet {
       UserOperation userOpe) {}
 
   /**
-   * ワークスペースセット以下のノードのコンパイルエラー状態が変更されたときの情報を格納したレコード.
+   * ワークスペースセット以下のノードのブレークポイントの設定が変更されたときの情報を格納したレコード.
    *
    * @param wss {@code ws} を保持するワークスペースセット
    * @param ws {@code node} を保持するワークスペース

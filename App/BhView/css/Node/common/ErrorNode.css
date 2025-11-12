@@ -1,0 +1,15 @@
+#enHbox {
+  -fx-font-size: 1.1em;
+  -fx-font-family: "Meiryo UI";  
+  -fx-alignment: center-left;
+  -fx-padding: 0.2em;
+  -fx-spacing: 1.8em;
+}
+
+.errorNodeListItem {
+  -fx-underline: false;
+}
+
+.errorNodeListItem:textDecorate {
+  -fx-underline: true;
+}

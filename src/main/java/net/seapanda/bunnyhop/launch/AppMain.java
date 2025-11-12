@@ -39,6 +39,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import net.seapanda.bunnyhop.bhprogram.ExecutableNodeCollector;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncherImpl;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramControllerImpl;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
@@ -56,10 +57,13 @@ import net.seapanda.bunnyhop.compiler.BhCompilerImpl;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.debugger.model.BhDebugger;
 import net.seapanda.bunnyhop.debugger.model.DebugMessageProcessorImpl;
+import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointCache;
 import net.seapanda.bunnyhop.debugger.service.ThreadContextPresenter;
 import net.seapanda.bunnyhop.debugger.view.factory.DebugViewFactoryImpl;
 import net.seapanda.bunnyhop.export.JsonProjectExporter;
 import net.seapanda.bunnyhop.export.JsonProjectImporter;
+import net.seapanda.bunnyhop.linter.model.CompileErrorChecker;
+import net.seapanda.bunnyhop.linter.model.CompileErrorNodeCache;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeReplacerWithCache;
 import net.seapanda.bunnyhop.node.model.event.CommonDataSupplier;
@@ -69,7 +73,6 @@ import net.seapanda.bunnyhop.node.model.factory.BhNodeFactoryImpl;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeRepository;
 import net.seapanda.bunnyhop.node.model.factory.ModelGenerator;
 import net.seapanda.bunnyhop.node.model.factory.XmlBhNodeRepository;
-import net.seapanda.bunnyhop.node.service.CompileErrorReporter;
 import net.seapanda.bunnyhop.node.service.DerivativeCache;
 import net.seapanda.bunnyhop.node.view.factory.BhNodeViewFactoryImpl;
 import net.seapanda.bunnyhop.node.view.factory.PrivateTemplateButtonFactoryImpl;
@@ -189,11 +192,14 @@ public class AppMain extends Application {
           () -> new AppInitializationException("Simulator Command Processor not found."));
 
       final var wss = new WorkspaceSet();
-      final var compileErrReporter = new CompileErrorReporter(wss);
+      final var compileErrorNodeCache = new CompileErrorNodeCache(wss);
+      final var executableNodeCollector =
+          new ExecutableNodeCollector(wss, compileErrorNodeCache, msgService);
+      final var compileErrChecker = new CompileErrorChecker(wss);
       final var undoRedoAgent = new UndoRedoAgent(wss);
       final var derivativeCache = new DerivativeCache();
       final var mediator =
-          new ModelAccessMediator(derivativeCache, compileErrReporter, undoRedoAgent);
+          new ModelAccessMediator(derivativeCache, compileErrChecker, undoRedoAgent);
       final var wssCtrl = new WorkspaceSetController(wss, mediator);
       final var nodeSelViewProxy =
           new BhNodeSelectionViewProxyImpl(nodeSelectionViewFile, wssCtrl::addNodeSelectionView);
@@ -234,7 +240,8 @@ public class AppMain extends Application {
       final var remoteBhProgramCtrl =
           new RemoteBhProgramControllerImpl(remoteCompiler, remoteRuntimeCtrl, msgService);
       final var searchBoxCtrl = new SearchBoxController();
-      final var debugger = new BhDebugger(localRuntimeCtrl, remoteRuntimeCtrl, wss);
+      final var breakpointCache = new BreakpointCache(wss);
+      final var debugger = new BhDebugger(localRuntimeCtrl, remoteRuntimeCtrl, breakpointCache);
       final var debugViewFactory = new DebugViewFactoryImpl(
           callStackViewFile,
           varInspectionViewFilePath,
@@ -276,7 +283,10 @@ public class AppMain extends Application {
           copyAndPaste,
           cutAndPaste,
           msgService,
+          breakpointCache,
+          compileErrorNodeCache,
           debugger,
+          executableNodeCollector,
           wssCtrl,
           searchBoxCtrl,
           trashCanCtrl,

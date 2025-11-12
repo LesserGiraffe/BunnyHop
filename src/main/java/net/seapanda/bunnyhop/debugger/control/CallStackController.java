@@ -17,10 +17,10 @@
 package net.seapanda.bunnyhop.debugger.control;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import javafx.collections.FXCollections;
@@ -68,7 +68,7 @@ public class CallStackController {
   private final SearchBox searchBox;
   private final Debugger debugger;
   private final WorkspaceSet wss;
-  private final Map<BhNode, Set<CallStackCell>> nodeToCallStackCell = new WeakHashMap<>();
+  private final Map<BhNode, Set<CallStackCell>> nodeToCell = new HashMap<>();
   private boolean isDiscarded = false;
   private final Consumer<Debugger.CurrentThreadChangedEvent> onCurrentThreadChanged =
       event -> onCurrentDebugThreadChanged();
@@ -102,7 +102,7 @@ public class CallStackController {
 
   /** イベントハンドラを設定する. */
   private void setEventHandlers() {
-    callStackListView.setCellFactory(stack -> new CallStackCell(nodeToCallStackCell));
+    callStackListView.setCellFactory(stack -> new CallStackCell(nodeToCell));
     callStackListView.setItems(createCallStackItems());
     callStackListView.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldVal, newVal) -> onCallStackCellSelected(oldVal, newVal));
@@ -113,7 +113,7 @@ public class CallStackController {
             callStackListView.setItems(createCallStackItems());
           }
         });
-    csSearchButton.setOnAction(action ->  prepareSearchUi());
+    csSearchButton.setOnAction(action ->  prepareForSearch());
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(onCurrentThreadChanged);
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().add(onNodeSelStateChanged);
     Consumer<CallStackItem.SelectionEvent> selectItem = this::onCallStackItemSelected;
@@ -143,7 +143,7 @@ public class CallStackController {
       searchBox.disable();
     }
     callStackListView.getItems().clear();
-    nodeToCallStackCell.clear();
+    nodeToCell.clear();
   }
 
   /** {@link #callStackListView} に設定するアイテムを作成する. */
@@ -246,7 +246,7 @@ public class CallStackController {
       found = query.findNext() ? searchResult.getNext() : searchResult.getPrevious();
     } else {
       searchResult = ItemSearcher.<CallStackItem>search(
-          query, callStackListView.getItems(), CallStackItem::getName);
+          query, callStackListView.getItems(), CallStackCell::getText);
       found = searchResult.getCurrent();
     }
     if (found != null) {
@@ -270,13 +270,13 @@ public class CallStackController {
     if (isDiscarded) {
       return;
     }
-    if (nodeToCallStackCell.containsKey(node)) {
-      nodeToCallStackCell.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
+    if (nodeToCell.containsKey(node)) {
+      nodeToCell.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
     }
   }
 
-  /** 検索 UI の準備をする. */
-  private void prepareSearchUi() {
+  /** 検索の準備をする. */
+  private void prepareForSearch() {
     if (isDiscarded) {
       return;
     }

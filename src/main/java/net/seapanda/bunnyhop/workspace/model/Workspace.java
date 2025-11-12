@@ -104,7 +104,7 @@ public class Workspace implements Serializable {
     BhNode.CallbackRegistry registry = node.getCallbackRegistry();
     var cbRegistry = getCallbackRegistry();
     registry.getOnSelectionStateChanged().add(cbRegistry.onNodeSelStateChanged);
-    registry.getOnCompileErrorStateChanged().add(cbRegistry.onNodeCompileErrStateChanged);
+    registry.getOnCompileErrorStateUpdated().add(cbRegistry.onNodeCompileErrStateUpdated);
     registry.getOnBreakpointSet().add(cbRegistry.onNodeBreakpointSet);
     registry.getOnConnected().add(cbRegistry.onNodeConnected);
   }
@@ -159,7 +159,7 @@ public class Workspace implements Serializable {
     BhNode.CallbackRegistry registry = node.getCallbackRegistry();
     var cbRegistry = getCallbackRegistry();
     registry.getOnSelectionStateChanged().remove(cbRegistry.onNodeSelStateChanged);
-    registry.getOnCompileErrorStateChanged().remove(cbRegistry.onNodeCompileErrStateChanged);
+    registry.getOnCompileErrorStateUpdated().remove(cbRegistry.onNodeCompileErrStateUpdated);
     registry.getOnBreakpointSet().remove(cbRegistry.onNodeBreakpointSet);
     registry.getOnConnected().remove(cbRegistry.onNodeConnected);
     node.setWorkspace(null, userOpe);
@@ -303,8 +303,8 @@ public class Workspace implements Serializable {
     private final ConsumerInvoker<NodeSelectionEvent> onNodeSelStateChangedInvoker =
         new SimpleConsumerInvoker<>();
     
-    /** 関連するワークスペースのノードのコンパイルエラー状態が変更されたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<NodeCompileErrorEvent> onNodeCompileErrStateChangedInvoker =
+    /** 関連するワークスペースのノードのコンパイルエラー状態が更新されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeCompileErrorEvent> onNodeCompileErrStateUpdatedInvoker =
         new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースのノードのブレークポイントの設定が変更されたときのイベントハンドラを管理するオブジェクト. */
@@ -339,9 +339,9 @@ public class Workspace implements Serializable {
     private final Consumer<? super BhNode.SelectionEvent> onNodeSelStateChanged =
         this::onNodeSelectionStateChanged;
 
-    /** 関連するワークスペースのノードのコンパイルエラー状態が変更されたときのイベントハンドラ. */
-    private final Consumer<? super BhNode.CompileErrorEvent> onNodeCompileErrStateChanged =
-        this::onNodeCompileErrStateChanged;
+    /** 関連するワークスペースのノードのコンパイルエラー状態が更新されたときのイベントハンドラ. */
+    private final Consumer<? super BhNode.CompileErrorEvent> onNodeCompileErrStateUpdated =
+        this::onNodeCompileErrStateUpdated;
 
     /** 関連するワークスペースのノードのブレークポイントの設定が変更されたときのイベントハンドラ. */
     private final Consumer<? super BhNode.BreakpointSetEvent> onNodeBreakpointSet =
@@ -352,9 +352,9 @@ public class Workspace implements Serializable {
       return onNodeSelStateChangedInvoker.getRegistry();
     }
 
-    /** 関連するワークスペースのノードのコンパイルエラー状態が変更されたときのイベントハンドラのレジストリを取得する. */
-    public ConsumerInvoker<NodeCompileErrorEvent>.Registry getOnNodeCompileErrorStateChanged() {
-      return onNodeCompileErrStateChangedInvoker.getRegistry();
+    /** 関連するワークスペースのノードのコンパイルエラー状態が更新されたときのイベントハンドラのレジストリを取得する. */
+    public ConsumerInvoker<NodeCompileErrorEvent>.Registry getOnNodeCompileErrorStateUpdated() {
+      return onNodeCompileErrStateUpdatedInvoker.getRegistry();
     }
 
     /** 関連するワークスペースのノードのブレークポイントの設定が変更されたときのイベントハンドラのレジストリを取得する. */
@@ -420,9 +420,9 @@ public class Workspace implements Serializable {
           Workspace.this, event.node(), event.isSelected(), event.userOpe()));
     }
 
-    /** ノードのコンパイルエラー状態が変わったときのイベントハンドラを呼び出す. */
-    private void onNodeCompileErrStateChanged(BhNode.CompileErrorEvent event) {
-      onNodeCompileErrStateChangedInvoker.invoke(new NodeCompileErrorEvent(
+    /** ノードのコンパイルエラー状態が更新されたときのイベントハンドラを呼び出す. */
+    private void onNodeCompileErrStateUpdated(BhNode.CompileErrorEvent event) {
+      onNodeCompileErrStateUpdatedInvoker.invoke(new NodeCompileErrorEvent(
           Workspace.this, event.node(), event.hasError(), event.userOpe()));
     }
 
@@ -445,11 +445,11 @@ public class Workspace implements Serializable {
       Workspace ws, BhNode node, boolean isSelected, UserOperation userOpe) {}
 
   /**
-   * ワークスペースのノードのコンパイルエラー状態が変更されたときの情報を格納したレコード.
+   * ワークスペースのノードのコンパイルエラー状態が更新されたときの情報を格納したレコード.
    *
    * @param ws {@code node} を保持するワークスペース
-   * @param node コンパイルエラー状態が変更されたノード
-   * @param hasError {@code node} がコンパイルエラーを起こした場合 true
+   * @param node コンパイルエラー状態が更新されたノード
+   * @param hasError  {@code node} がコンパイルエラーを持つ場合 true.
    * @param userOpe undo 用コマンドオブジェクト
    */
   public record NodeCompileErrorEvent(

@@ -4,7 +4,7 @@
   name="ColorVar"
   nodeStyleID="ColorVar.json"
   breakpoint="ignore"
-  onCompileErrorChecking="IsOutOfScope.js"
+  onCompileErrorChecking="CheckCompileErrorOfVariable.js"
   onAliasAsked="OnAliasAsked.js"
   onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
   version="bhn-0.1.0">

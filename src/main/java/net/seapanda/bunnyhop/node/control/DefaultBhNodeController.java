@@ -102,7 +102,7 @@ public class DefaultBhNodeController implements BhNodeController {
       view.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SELECTED, isSelected);
       highlightDerivatives(model, isSelected);
     });
-    registry.getOnCompileErrorStateChanged()
+    registry.getOnCompileErrorStateUpdated()
         .add(event -> view.getLookManager().setCompileErrorVisibility(event.hasError()));
     registry.getOnBreakpointSet()
         .add(event -> view.getLookManager().setBreakpointVisibility(event.isBreakpointSet()));

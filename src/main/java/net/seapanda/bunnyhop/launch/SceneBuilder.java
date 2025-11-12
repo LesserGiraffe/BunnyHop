@@ -35,6 +35,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import net.seapanda.bunnyhop.bhprogram.ExecutableNodeCollector;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncher;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
@@ -45,11 +46,13 @@ import net.seapanda.bunnyhop.debugger.control.DebugWindowController;
 import net.seapanda.bunnyhop.debugger.control.StepExecutionViewController;
 import net.seapanda.bunnyhop.debugger.control.ThreadSelectorController;
 import net.seapanda.bunnyhop.debugger.control.ThreadStateViewController;
-import net.seapanda.bunnyhop.debugger.control.WorkspaceSelectorController;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
+import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointCache;
 import net.seapanda.bunnyhop.debugger.view.factory.DebugViewFactory;
 import net.seapanda.bunnyhop.export.ProjectExporter;
 import net.seapanda.bunnyhop.export.ProjectImporter;
+import net.seapanda.bunnyhop.linter.control.ErrorNodeListController;
+import net.seapanda.bunnyhop.linter.model.CompileErrorNodeCache;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.nodeselection.control.BhNodeCategoryListController;
 import net.seapanda.bunnyhop.nodeselection.model.BhNodeCategory;
@@ -69,6 +72,7 @@ import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.control.TrashCanController;
+import net.seapanda.bunnyhop.workspace.control.WorkspaceSelectorController;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSetController;
 import net.seapanda.bunnyhop.workspace.model.CopyAndPaste;
 import net.seapanda.bunnyhop.workspace.model.CutAndPaste;
@@ -101,7 +105,10 @@ public class SceneBuilder {
   private final CopyAndPaste copyAndPaste;
   private final CutAndPaste cutAndPaste;
   private final BhMessageService msgService;
+  private final BreakpointCache breakpointCache;
+  private final CompileErrorNodeCache compileErrorNodeCache;
   private final Debugger debugger;
+  private final ExecutableNodeCollector executableNodeCollector;
   private final SearchBoxController searchBoxCtrl;
   private final TrashCanController trashCanCtrl;
   private final WindowManager windowManager;
@@ -132,7 +139,10 @@ public class SceneBuilder {
       CopyAndPaste copyAndPaste,
       CutAndPaste cutAndPaste,
       BhMessageService msgService,
+      BreakpointCache breakpointCache,
+      CompileErrorNodeCache compileErrorNodeCache,
       Debugger debugger,
+      ExecutableNodeCollector executableNodeCollector,
       WorkspaceSetController wssCtrl,
       SearchBoxController searchBoxCtrl,
       TrashCanController trashCanCtrl,
@@ -151,7 +161,10 @@ public class SceneBuilder {
     this.copyAndPaste = copyAndPaste;
     this.cutAndPaste = cutAndPaste;
     this.msgService = msgService;
+    this.breakpointCache = breakpointCache;
+    this.compileErrorNodeCache = compileErrorNodeCache;
     this.debugger = debugger;
+    this.executableNodeCollector = executableNodeCollector;
     this.searchBoxCtrl = searchBoxCtrl;
     this.trashCanCtrl = trashCanCtrl;
     this.windowManager = windowManager;
@@ -199,7 +212,10 @@ public class SceneBuilder {
       return new WorkspaceSelectorController(wss);
     }
     if (type == BreakpointListController.class) {
-      return new BreakpointListController(wss, searchBoxCtrl, debugger.getBreakpointRegistry());
+      return new BreakpointListController(wss, breakpointCache, searchBoxCtrl);
+    }
+    if (type == ErrorNodeListController.class) {
+      return new ErrorNodeListController(wss, compileErrorNodeCache, searchBoxCtrl);
     }
     if (type == DebugViewController.class) {
       return new DebugViewController(debugger, debugViewFactory);
@@ -232,7 +248,8 @@ public class SceneBuilder {
           cutAndPaste,
           msgService,
           debugWindowCtrl,
-          windowManager);
+          windowManager,
+          executableNodeCollector);
     }
     if (type == WorkspaceSetController.class) {
       return wssCtrl;

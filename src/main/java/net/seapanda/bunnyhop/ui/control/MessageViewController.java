@@ -56,7 +56,7 @@ public class MessageViewController {
       }
     });
 
-    mvSearchButton.setOnAction(action -> prepareSearchUi());
+    mvSearchButton.setOnAction(action -> prepareForSearch());
   }
 
   /** {@link #mainMsgArea} のテキストが変わったときの処理. */
@@ -82,8 +82,8 @@ public class MessageViewController {
     return mainMsgArea;
   }
 
-  /** 検索 UI の準備をする. */
-  private void prepareSearchUi() {
+  /** 検索の準備をする. */
+  private void prepareForSearch() {
     searchBox.setOnSearchRequested(this::highlightText);
     searchBox.enable();
   }

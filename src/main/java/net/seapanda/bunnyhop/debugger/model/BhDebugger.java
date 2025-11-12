@@ -39,17 +39,15 @@ import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
 import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.runtime.RemoteBhRuntimeController;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
-import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointRegistry;
+import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointCache;
 import net.seapanda.bunnyhop.debugger.model.callstack.StackFrameSelection;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadSelection;
 import net.seapanda.bunnyhop.debugger.model.variable.VariableInfo;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
-import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
 /**
  * BhProgram のデバッガクラス.
@@ -65,47 +63,28 @@ public class BhDebugger implements Debugger {
   private volatile StackFrameSelection currentStackFrame = StackFrameSelection.NONE;
   private final LocalBhRuntimeController localBhRuntimeCtrl;
   private final RemoteBhRuntimeController remoteBhRuntimeCtrl;
-  private final BreakpointRegistry breakpointRegistry = new BreakpointRegistry();
+  private final BreakpointCache breakpointCache;
 
   /** コンストラクタ. */
   public BhDebugger(
       LocalBhRuntimeController localBhRuntimeCtrl,
       RemoteBhRuntimeController remoteBhRuntimeCtrl,
-      WorkspaceSet wss) {
+      BreakpointCache breakpointCache) {
     this.localBhRuntimeCtrl = localBhRuntimeCtrl;
     this.remoteBhRuntimeCtrl = remoteBhRuntimeCtrl;
-    setEventHandlers(wss);
+    this.breakpointCache = breakpointCache;
+    setEventHandlers();
   }
 
-  private void setEventHandlers(WorkspaceSet wss) {
-    wss.getCallbackRegistry().getOnNodeAdded()
-        .add(event -> updateBreakpointRegistration(event.node(), event.userOpe()));
-    wss.getCallbackRegistry().getOnNodeRemoved()
-        .add(event -> breakpointRegistry.removeBreakpointNode(event.node(), event.userOpe()));
-    wss.getCallbackRegistry().getOnNodeBreakpointSetEvent()
-        .add(event -> updateBreakpointRegistration(event.node(), event.userOpe()));
+  private void setEventHandlers() {
+    BreakpointCache.CallbackRegistry cbRegistry = breakpointCache.getCallbackRegistry();
+    cbRegistry.getOnNodeAdded().add(event -> addBreakpoints(event.added()));
+    cbRegistry.getOnNodeRemoved().add(event -> removeBreakpoints(event.removed()));
 
-    localBhRuntimeCtrl.getCallbackRegistry().getOnConnectionConditionChanged()
-        .add(event -> onRuntimeConnCondChanged(event.isConnected()));
-    remoteBhRuntimeCtrl.getCallbackRegistry().getOnConnectionConditionChanged()
-        .add(event -> onRuntimeConnCondChanged(event.isConnected()));
-
-    breakpointRegistry.getCallbackRegistry().getOnBreakpointAdded()
-        .add(event -> addBreakpoints(event.breakpoint()));
-    breakpointRegistry.getCallbackRegistry().getOnBreakpointRemoved()
-        .add(event -> removeBreakpoints(event.breakpoint()));
-  }
-
-  /**
-   * {@code node} のブレークポイントの状態に応じて, {@link BreakpointRegistry} に
-   * ブレークポイントを登録または登録解除する.
-   */
-  private void updateBreakpointRegistration(BhNode node, UserOperation userOpe) {
-    if (node.isBreakpointSet()) {
-      breakpointRegistry.addBreakpointNode(node, userOpe);
-    } else {
-      breakpointRegistry.removeBreakpointNode(node, userOpe);
-    }
+    localBhRuntimeCtrl.getCallbackRegistry().getOnConnectionConditionChanged().add(
+        event -> onRuntimeConnCondChanged(event.isConnected()));
+    remoteBhRuntimeCtrl.getCallbackRegistry().getOnConnectionConditionChanged().add(
+        event -> onRuntimeConnCondChanged(event.isConnected()));
   }
 
   /** {@link BhRuntimeController} のコネクションの状態が変更されたときの処理. */
@@ -113,7 +92,7 @@ public class BhDebugger implements Debugger {
     final Collection<BhNode> breakpointNodes = new ArrayList<>();
     ViewUtil.runSafeSync(() -> {
       clear();
-      breakpointNodes.addAll(breakpointRegistry.getBreakpointNodes());
+      breakpointNodes.addAll(breakpointCache.getBreakpoints());
     });
     if (isConnected) {
       setBreakpoints(breakpointNodes.toArray(new BhNode[0]));
@@ -280,12 +259,7 @@ public class BhDebugger implements Debugger {
   public StackFrameSelection getCurrentStackFrame() {
     return currentStackFrame;
   }
-
-  @Override
-  public BreakpointRegistry getBreakpointRegistry() {
-    return breakpointRegistry;
-  }
-
+  
   /** 現在操作対象になっている BhRuntime のコントローラオブジェクトを返す. */
   private BhRuntimeController getBhRuntimeCtrl() {
     return switch (BhSettings.BhRuntime.currentBhRuntimeType) {

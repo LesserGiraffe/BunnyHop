@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import net.seapanda.bunnyhop.common.text.TextFetcher?>
+
+<Tab
+  xmlns:fx="http://javafx.com/fxml"
+  fx:id="errorNodeTab"
+  fx:controller="net.seapanda.bunnyhop.linter.control.ErrorNodeListController"
+  text="$errorNodeListViewName.text">
+  <fx:define>
+    <TextFetcher fx:id="errorNodeListViewName" textId="gui,notification-view,error-node-list-view-name"/>
+    <TextFetcher fx:id="jump" textId="gui,debugger,breakpoint,jump"/>
+    <TextFetcher fx:id="search" textId="gui,debugger,breakpoint,search"/>
+    <TextFetcher fx:id="searchTooltip" textId="gui,debugger,breakpoint,tooltip,search"/>
+  </fx:define>
+  <VBox>
+    <HBox fx:id="enHbox">
+      <CheckBox
+         fx:id="enJumpCheckBox"
+         styleClass="flatCheckBox"
+         selected="true"
+         text="$jump.text"/>
+      <Button fx:id="enSearchButton" text="$search.text" styleClass="flatButton">
+        <tooltip>
+          <Tooltip text="$searchTooltip.text" styleClass="uiFunctionTooltip"/>
+        </tooltip>
+      </Button>
+    </HBox>
+
+    <HBox>
+      <TreeView fx:id="enTreeView" HBox.hgrow="ALWAYS"/>
+      <fx:include fx:id="enWsSelector" source="WorkspaceSelector.fxml"/>
+    </HBox>
+  </VBox>
+</Tab>

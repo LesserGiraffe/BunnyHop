@@ -166,14 +166,14 @@ public class VariableInspectionController {
     variableTreeView.setShowRoot(false);
     variableTreeView.setRoot(rootVarItem);
     variableTreeView.setCellFactory(
-        items -> new VariableListCell(dataStore.varItemToVarCells, dataStore.nodeToVarCells));
+        view -> new VariableListCell(dataStore.itemToCells, dataStore.nodeToCells));
     variableTreeView.getSelectionModel().selectedItemProperty().addListener(
         (obs, oldVal, newVal) -> onVariableSelected(newVal));
     variableTreeView.focusedProperty().addListener(
         (obs, oldVal, newVal) -> onFocusChanged(newVal));
 
     viReloadBtn.setOnAction(event -> reloadVarInfo());
-    viSearchButton.setOnAction(action -> prepareSearchUi());
+    viSearchButton.setOnAction(action -> prepareForSearch());
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().add(onNodeSelStateChanged);
     VariableInfo.CallbackRegistry registry = varInfo.getCallbackRegistry();
     registry.getOnVariablesAdded().add(event -> addVarInfo(event.added()));
@@ -226,13 +226,13 @@ public class VariableInspectionController {
     variableTreeView.setRoot(null);
   }
 
-  /** {@code varItem} に対応する {@link VariableListCell} の内容を変更する. */
+  /** {@code varItem} に対応する {@link VariableListCell} の内容を更新する. */
   private void updateCellValues(VariableListItem varItem) {
     if (isDiscarded) {
       return;
     }
-    if (dataStore.varItemToVarCells.containsKey(varItem)) {
-      dataStore.varItemToVarCells.get(varItem).forEach(VariableListCell::updateValue);
+    if (dataStore.itemToCells.containsKey(varItem)) {
+      dataStore.itemToCells.get(varItem).forEach(VariableListCell::updateValue);
     }
   }
 
@@ -241,8 +241,8 @@ public class VariableInspectionController {
     if (isDiscarded) {
       return;
     }
-    if (dataStore.nodeToVarCells.containsKey(node)) {
-      dataStore.nodeToVarCells.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
+    if (dataStore.nodeToCells.containsKey(node)) {
+      dataStore.nodeToCells.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
     }
   }
 
@@ -256,24 +256,8 @@ public class VariableInspectionController {
     }
   }
 
-  /** {@link VariableInspectionController} が高速にデータにアクセスするための Map を集めたレコード. */
-  private record DataStore(
-      Map<VariableListItem, Set<VariableListCell>> varItemToVarCells,
-      Map<BhNode, Set<VariableListCell>> nodeToVarCells) {
-
-    public DataStore() {
-      this(new HashMap<>(), new HashMap<>());
-    }
-
-    /** このオブジェクトが持つデータをクリアする. */
-    public void clear() {
-      varItemToVarCells.clear();
-      nodeToVarCells.clear();
-    }
-  }
-
-  /** 検索 UI の準備をする. */
-  private void prepareSearchUi() {
+  /** 検索の準備をする. */
+  private void prepareForSearch() {
     if (isDiscarded) {
       return;
     }
@@ -291,7 +275,9 @@ public class VariableInspectionController {
       found = query.findNext() ? searchResult.getNext() : searchResult.getPrevious();
     } else {
       searchResult = ItemSearcher.<VariableTreeItem>search(
-          query, rootVarItem.collectDescendants(), VariableTreeItem::toString);
+          query,
+          rootVarItem.collectDescendants(),
+          treeItem -> VariableListCell.getText(treeItem.getValue()));
       found = searchResult.getCurrent();
     }
     if (found != null) {
@@ -309,6 +295,22 @@ public class VariableInspectionController {
     while (parent != null) {
       parent.setExpanded(true);
       parent = parent.getParent();
+    }
+  }
+
+  /** {@link VariableInspectionController} が高速にデータにアクセスするための Map を集めたレコード. */
+  private record DataStore(
+      Map<VariableListItem, Set<VariableListCell>> itemToCells,
+      Map<BhNode, Set<VariableListCell>> nodeToCells) {
+
+    public DataStore() {
+      this(new HashMap<>(), new HashMap<>());
+    }
+
+    /** このオブジェクトが持つデータをクリアする. */
+    public void clear() {
+      itemToCells.clear();
+      nodeToCells.clear();
     }
   }
 
