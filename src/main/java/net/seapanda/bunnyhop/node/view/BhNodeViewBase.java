@@ -19,10 +19,12 @@ package net.seapanda.bunnyhop.node.view;
 
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -354,8 +356,8 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     private Supplier<BodyShape> fnGetBodyShape;
     /** 現在描画されているノードのポリゴンの形状を決めているノードの大きさ. */
     private final Vec2D currentPolygonSize = new Vec2D(Double.MIN_VALUE, Double.MIN_VALUE);
-    /** 現在描画されているノードのポリゴンの形状を決めているノードの大きさ. */
-    private boolean isArrangementRequested = false;
+    /** ノードの整列を待っている {@link BhNodeView} のセット. */
+    private static final Set<BhNodeView> viewsAwaitingArrangement = new HashSet<>();
 
     /**
      * コンストラクタ.
@@ -441,13 +443,13 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     @Override
     public void requestArrangement() {
-      if (!isArrangementRequested) {
+      if (viewsAwaitingArrangement.isEmpty()) {
         Platform.runLater(() -> {
-          arrange();
-          isArrangementRequested = false;
+          viewsAwaitingArrangement.forEach(view -> view.getLookManager().arrange());
+          viewsAwaitingArrangement.clear();
         });
-        isArrangementRequested = true;
       }
+      viewsAwaitingArrangement.add(BhNodeViewBase.this);
     }
 
     @Override

@@ -26,7 +26,6 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
-import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker.CallbackRegistry;
 import net.seapanda.bunnyhop.node.service.BhNodePlacer;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
@@ -99,7 +98,7 @@ public class PrivateTemplateButtonController {
       for (BhNode templateNode : templateNodes) {
         proxy.addNodeTree(categoryName, templateNode, userOpe);
         // ノード選択ビューに追加してからイベントハンドラを呼ぶ
-        CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
+        CallbackInvoker.CallbackRegistry registry = CallbackInvoker.newCallbackRegistry()
             .setForAllNodes(bhNode -> bhNode.getEventInvoker().onCreatedAsTemplate(userOpe));
         CallbackInvoker.invoke(registry, templateNode);
       }

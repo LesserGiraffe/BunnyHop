@@ -54,7 +54,10 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
   private final SequencedSet<BhNodeView> nodeViews = new LinkedHashSet<>();
   private int zoomLevel = 0;
   private final String categoryName;
-  private final Consumer<? super SizeChangedEvent> onNodeSizeChanged = event -> arrangeIfVisible();
+  private final Consumer<? super SizeChangedEvent> onNodeSizeChanged =
+      event -> requestArrangementIfVisible();
+  /** ノードの整列を要求されている状態かどうかのフラグ. */
+  private boolean isArrangementRequested = false;
 
   /**
    * GUI コンポーネントを初期化する.
@@ -104,9 +107,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     if (!nodeViews.contains(view)) {
       return;
     }
-    if (rootNodeViews.contains(view)) {
-      rootNodeViews.remove(view);
-    }
+    rootNodeViews.remove(view);
     rootNodeViews.addLast(view);
     view.getLookManager().arrange();
     view.getPositionManager().setTreeZpos(0);
@@ -200,7 +201,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
         (offset - BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_VIEW) + topPadding + bottomPadding;
     width += rightPadding + leftPadding;
     nodeSelectionView.setMinSize(width, height);
-    //バインディングではなく, ここでこのメソッドを呼ばないとスクロールバーの稼働域が変わらない
+    // バインディングではなく, ここでこのメソッドを呼ばないとスクロールバーの稼働域が変わらない
     adjustWrapperSize(width, height);
   }
 
@@ -211,8 +212,8 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
    * @param height ノード選択ビューの高さ
    */
   private void adjustWrapperSize(double width, double height) {
-    double wrapperSizeX = width * nodeSelectionView.getTransforms().get(0).getMxx();
-    double wrapperSizeY = height * nodeSelectionView.getTransforms().get(0).getMyy();
+    double wrapperSizeX = width * nodeSelectionView.getTransforms().getFirst().getMxx();
+    double wrapperSizeY = height * nodeSelectionView.getTransforms().getFirst().getMyy();
     // スクロール時にスクロールバーの可動域が変わるようにする
     nodeSelectionViewWrapper.setPrefSize(wrapperSizeX, wrapperSizeY);
     Node wsSetTab = Optional.ofNullable(nodeSelectionViewBase.getScene())
@@ -228,10 +229,15 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     Platform.runLater(nodeSelectionViewBase::requestLayout);
   }
 
-  /** このノード選択ビューが見えている場合, 保持しているノードビューの並べ替えを行う. */
-  private void arrangeIfVisible() {
-    if (isVisible()) {
-      arrange();
+
+  /** このノード選択ビューが見えている場合, 保持しているノードビューの並べ替えをリクエストする. */
+  private void requestArrangementIfVisible() {
+    if (isVisible() && !isArrangementRequested) {
+      Platform.runLater(() -> {
+        arrange();
+        isArrangementRequested = false;
+      });
+      isArrangementRequested = true;
     }
   }
 
