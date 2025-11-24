@@ -102,12 +102,11 @@ public class CutAndPaste {
   /**
    * カット予定リストのノードを引数で指定したワークスペースに移動する.
    *
-   * @param wsToPasteIn 貼り付け先のワークスペース
-   * @param pasteBasePos 貼り付け基準位置
+   * @param destination 貼り付け先のワークスペース
+   * @param basePos 貼り付け基準位置
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public void paste(
-      Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperation userOpe) {
+  public void paste(Workspace destination, Vec2D basePos, UserOperation userOpe) {
     if (readyToCut.isEmpty()) {
       return;
     }
@@ -121,15 +120,15 @@ public class CutAndPaste {
     // 貼り付け処理
     for (var node : nodesToPaste) {
       SequencedSet<Swapped> swappedNodes = BhNodePlacer.moveToWs(
-          wsToPasteIn,
+          destination,
           node,
-          pasteBasePos.x,
-          pasteBasePos.y + pastePosOffsetCount.getValue() * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
+          basePos.x,
+          basePos.y + pastePosOffsetCount.getValue() * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
           userOpe);
       Vec2D size = node.getView()
           .map(view -> view.getRegionManager().getNodeTreeSize(true))
           .orElse(new Vec2D());
-      pasteBasePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
+      basePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
       execHookOnPaste(node, swappedNodes, userOpe);
     }
     if (pastePosOffsetCount.getValue() > 2) {

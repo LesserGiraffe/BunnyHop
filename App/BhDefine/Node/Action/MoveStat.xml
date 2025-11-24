@@ -10,7 +10,7 @@
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
   onCreatedAsTemplate="OnMoveStatCreatedAsTemplate.js"
-  onDragStarted="OnStatDragStarted.js"
+  onUiEventReceived="OnUiEventReceivedByStat.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 

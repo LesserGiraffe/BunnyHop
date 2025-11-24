@@ -47,11 +47,9 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.debugger.control.DebugWindowController;
-import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.service.BhNodePlacer;
-import net.seapanda.bunnyhop.node.view.BhNodeView.LookManager.EffectTarget;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
@@ -60,7 +58,6 @@ import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.ui.service.window.WindowManager;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
-import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSetController;
 import net.seapanda.bunnyhop.workspace.model.CopyAndPaste;
@@ -310,21 +307,6 @@ public class MenuViewController {
             swapped.newNode().getParentConnector(),
             context.userOpe());
       }
-    } finally {
-      notifService.endWrite();
-    }
-  }
-
-  /** ジャンプボタン押下時の処理. */
-  private void jump(WorkspaceSet wss) {
-    Context context = notifService.beginWrite();
-    try {
-      findNodeToJumpTo(wss).ifPresent(node -> {
-        node.getView().ifPresent(view -> ViewUtil.jump(view, true, EffectTarget.SELF));
-        node.getWorkspace().getSelectedNodes().forEach(
-            selected -> selected.deselect(context.userOpe()));
-        node.select(context.userOpe());
-      });
     } finally {
       notifService.endWrite();
     }
@@ -631,20 +613,6 @@ public class MenuViewController {
   private void changePasteButtonState() {
     boolean disable = copyAndPaste.getList().isEmpty() && cutAndPaste.getList().isEmpty();
     pasteBtn.setDisable(disable);
-  }
-
-  /**
-   * ジャンプ先のノードを探す.
-   *
-   * @param wss このワークスペースセットの中からジャンプ先ノードを探す
-   * @return ジャンプ先ノード
-   */
-  private Optional<BhNode> findNodeToJumpTo(WorkspaceSet wss) {
-    Workspace currentWs = wss.getCurrentWorkspace();
-    if (currentWs == null || currentWs.getSelectedNodes().isEmpty()) {
-      return Optional.empty();
-    }
-    return Optional.ofNullable(currentWs.getSelectedNodes().getFirst().getOriginal());
   }
 
   /** 現在制御対象になっている BhRuntime の種類を返す. */

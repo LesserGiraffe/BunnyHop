@@ -51,7 +51,7 @@ public record BhNodeAttributes(
     String onCompileErrorChecking,
     String onTextOptionsCreating,
     String onCreatedAsTemplate,
-    String onDragStarted,
+    String onUiEventReceived,
     String onAliasAsked,
     String onUserDefinedNameAsked,
     String text) {
@@ -97,7 +97,7 @@ public record BhNodeAttributes(
         elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_TEST_OPTIONS_CREATING);
     String onCreatedAsTemplate =
         elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_CREATED_AS_TEMPLATE);
-    String onDragStarted = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_DRAG_STARTED);
+    String onUiEventReceived = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_UI_EVENT_RECEIVED);
     String onAliasAsked = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_ALIAS_ASKED);
     String onUserDefinedNameAsked =
         elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_USER_DEFINED_NAME_ASKED);
@@ -122,7 +122,7 @@ public record BhNodeAttributes(
         onCompileErrorChecking,
         onTextOptionsCreating,
         onCreatedAsTemplate,
-        onDragStarted,
+        onUiEventReceived,
         onAliasAsked,
         onUserDefinedNameAsked,
         text);

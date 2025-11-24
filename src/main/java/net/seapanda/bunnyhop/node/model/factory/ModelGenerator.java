@@ -128,7 +128,7 @@ public class ModelGenerator {
     nodeEventInvoker.register(
         attr.bhNodeId(), EventType.ON_CREATED_AS_TEMPLATE, attr.onCreatedAsTemplate());
     nodeEventInvoker.register(
-        attr.bhNodeId(), EventType.ON_DRAG_STARTED, attr.onDragStarted());
+        attr.bhNodeId(), EventType.ON_UI_EVENT_RECEIVED, attr.onUiEventReceived());
     nodeEventInvoker.register(
         attr.bhNodeId(), EventType.ON_TEXT_CHECKING, attr.onTextChecking());
     nodeEventInvoker.register(

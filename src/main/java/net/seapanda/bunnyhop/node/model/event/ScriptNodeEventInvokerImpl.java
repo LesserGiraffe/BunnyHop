@@ -278,21 +278,22 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
   }
 
   @Override
-  public void onDragStarted(BhNode target, UiEvent event, UserOperation userOpe) {
-    ScriptNameAndScript defined = getScript(target.getId(), EventType.ON_DRAG_STARTED);
+  public void onUiEventReceived(
+      BhNode target, UiEvent event, boolean isEventTarget, UserOperation userOpe) {
+    ScriptNameAndScript defined = getScript(target.getId(), EventType.ON_UI_EVENT_RECEIVED);
     if (defined == null) {
       return;
     }
     Map<String, Object> nameToObj = new HashMap<>() {{
         put(BhConstants.JsIdName.BH_UI_EVENT, event);
+        put(BhConstants.JsIdName.BH_IS_EVENT_TARGET, isEventTarget);
       }};
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
     try {
       defined.script().exec(cx, scope);
     } catch (Exception e) {
-      LogManager.logger().error(String.format(
-          "'%s' must return a function that returns a boolean value.\n%s", defined.name(), e));
+      LogManager.logger().error(defined.name() + "\n" + e);
     } finally {
       Context.exit();
     }

@@ -945,13 +945,14 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * 関連するノードのドラッグが始まったときの処理を実行する.
+     * 関連するノードが UI イベントを受け取ったときの処理を実行する.
      *
-     * @param eventInfo ドラッグ操作に関連するマウスイベントを格納したオブジェクト
+     * @param eventInfo UI イベントに関連する情報を格納したオブジェクト
+     * @param isEventTarget 関連するノードが UI イベントの適用対象である場合 true
      * @param userOpe undo 用コマンドオブジェクト
      */
-    public void onDragStarted(UiEvent eventInfo, UserOperation userOpe) {
-      nodeEventInvoker.onDragStarted(BhNode.this, eventInfo, userOpe);
+    public void onUiEventReceived(UiEvent eventInfo, boolean isEventTarget, UserOperation userOpe) {
+      nodeEventInvoker.onUiEventReceived(BhNode.this, eventInfo, isEventTarget, userOpe);
     }
   }
 }

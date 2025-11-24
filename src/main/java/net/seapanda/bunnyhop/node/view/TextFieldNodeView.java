@@ -108,7 +108,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
   }
 
   private void selectText() {
-    if (textField.isFocused() && shouldSelectText) {
+    if (textField.isFocused() && textField.isEditable() && shouldSelectText) {
       textField.selectAll();
       shouldSelectText = false;
     }

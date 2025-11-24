@@ -85,11 +85,11 @@ public class CopyAndPaste {
   /**
    * コピー予定リストのノードをコピーして引数で指定したワークスペースに貼り付ける.
    *
-   * @param wsToPasteIn 貼り付け先のワークスペース
-   * @param pasteBasePos 貼り付け基準位置
+   * @param destination 貼り付け先のワークスペース
+   * @param basePos 貼り付け基準位置
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public void paste(Workspace wsToPasteIn, Vec2D pasteBasePos, UserOperation userOpe) {
+  public void paste(Workspace destination, Vec2D basePos, UserOperation userOpe) {
     if (readyToCopy.isEmpty()) {
       return;
     }
@@ -105,16 +105,16 @@ public class CopyAndPaste {
     for (var orgAndCopy : listOfOrgAndCopy) {
       factory.setMvc(orgAndCopy.copy(), MvcType.DEFAULT);
       BhNodePlacer.moveToWs(
-          wsToPasteIn,
+          destination,
           orgAndCopy.copy(),
-          pasteBasePos.x,
-          pasteBasePos.y + pastePosOffsetCount.getValue() * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
+          basePos.x,
+          basePos.y + pastePosOffsetCount.getValue() * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
           userOpe);
       //コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
       Vec2D size = orgAndCopy.org().getView()
           .map(view -> view.getRegionManager().getNodeTreeSize(true))
           .orElse(new Vec2D());
-      pasteBasePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
+      basePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
     }
     if (pastePosOffsetCount.getValue() > 2) {
       pastePosOffsetCount.setValue(-2);

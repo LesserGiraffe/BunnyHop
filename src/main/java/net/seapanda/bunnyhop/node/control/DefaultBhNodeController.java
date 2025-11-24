@@ -32,6 +32,7 @@ import net.seapanda.bunnyhop.node.model.ConnectiveNode;
 import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.model.event.UiEvent;
+import net.seapanda.bunnyhop.node.model.event.UiEventType;
 import net.seapanda.bunnyhop.node.service.BhNodePlacer;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.LookManager.EffectTarget;
@@ -111,7 +112,7 @@ public class DefaultBhNodeController implements BhNodeController {
   }
 
   /** マウスボタン押下時の処理. */
-  private void onMousePressed(BhNodeView.MouseEventInfo info) {
+  private void onMousePressed(MouseEventInfo info) {
     MouseEvent event = info.event();
     try {
       if (!mouseCtrlLock.tryLock(event.getButton())) {
@@ -119,16 +120,19 @@ public class DefaultBhNodeController implements BhNodeController {
       }
       ddInfo.context = notifService.beginWrite();
       ddInfo.isDndFinished = false;
-      if (shouldSetBreakpoint(event)) {
-        setBreakpoint(event, ddInfo.context.userOpe());
-        ddInfo.isBreakpointOperation = true;
+      ddInfo.isBreakpointOperation = shouldSetBreakpoint(event);
+      ddInfo.forwardEvent = !model.isMovable();
+      if (ddInfo.isBreakpointOperation) {
+        invokeOnUiEventReceived(event, false);
+        setBreakpoint(ddInfo.context.userOpe());
         return;
       }
-      if (!model.isMovable()) {
-        ddInfo.forwardEvent = true;
+      if (ddInfo.forwardEvent) {
+        invokeOnUiEventReceived(event, false);
         dispatchEvent(model.findParentNode(), info);
         return;
       }
+      invokeOnUiEventReceived(event, true);
       view.getWorkspaceView().getRootNodeViews().forEach(
           nodeView -> nodeView.getLookManager().hideShadow(EffectTarget.CHILDREN));
       view.getLookManager().showShadow(EffectTarget.OUTERS);
@@ -178,17 +182,20 @@ public class DefaultBhNodeController implements BhNodeController {
   private void onMouseDragDetected(MouseEventInfo info) {
     MouseEvent event = info.event();
     try {
-      if (!mouseCtrlLock.isLockedBy(event.getButton())
-          || ddInfo.isDndFinished
-          || ddInfo.isBreakpointOperation) {
+      if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
+        return;
+      }
+      if (ddInfo.isBreakpointOperation) {
+        invokeOnUiEventReceived(event, false);
         return;
       }
       if (ddInfo.forwardEvent) {
+        invokeOnUiEventReceived(event, false);
         dispatchEvent(model.findParentNode(), info);
         return;
       }
+      invokeOnUiEventReceived(event, true);
       ddInfo.dragging = true;
-      model.getEventInvoker().onDragStarted(toEventInfo(event), ddInfo.context.userOpe());
       // 子ノードでかつ取り外し可能 -> ワークスペースへ
       if (model.isRemovable()) {
         toWorkspace();
@@ -209,13 +216,15 @@ public class DefaultBhNodeController implements BhNodeController {
     }
     try {
       if (ddInfo.isBreakpointOperation) {
+        invokeOnUiEventReceived(event, false);
         return;
       }
       if (ddInfo.forwardEvent) {
+        invokeOnUiEventReceived(event, false);
         dispatchEvent(model.findParentNode(), info);
-        ddInfo.forwardEvent = false;
         return;
       }
+      invokeOnUiEventReceived(event, true);
       if (ddInfo.currentOverlapped != null) {
         ddInfo.currentOverlapped.getLookManager()
             .switchPseudoClassState(BhConstants.Css.PSEUDO_OVERLAPPED, false);
@@ -407,19 +416,6 @@ public class DefaultBhNodeController implements BhNodeController {
     notifService.endWrite();
   }
 
-  /** {@link MouseEvent} オブジェクトの情報を {@link UiEvent} オブジェクトに格納して返す. */
-  private UiEvent toEventInfo(MouseEvent event) {
-    return new UiEvent(
-        event.isPrimaryButtonDown(),
-        event.isSecondaryButtonDown(),
-        event.isMiddleButtonDown(),
-        event.isBackButtonDown(),
-        event.isForwardButtonDown(),
-        event.isShiftDown(),
-        event.isControlDown(),
-        event.isAltDown());
-  }
-
   /** {@link #view} を最前面に移動させる. */
   private void toFront() {
     WorkspaceView wsView = view.getWorkspaceView();
@@ -439,7 +435,7 @@ public class DefaultBhNodeController implements BhNodeController {
    * ブレークポイントの設定が有効でかつ {@link #model} がブレークポイントグループに含まれている場合,
    * そのブレークポイントグループのリーダノードにブレークポイントを設定する.
    */
-  private void setBreakpoint(MouseEvent event, UserOperation userOpe) {
+  private void setBreakpoint(UserOperation userOpe) {
     model.findBreakpointGroupLeader().ifPresent(
         node -> node.setBreakpoint(!node.isBreakpointSet(), userOpe));
   }
@@ -459,6 +455,37 @@ public class DefaultBhNodeController implements BhNodeController {
     return BhSettings.Debug.isBreakpointSettingEnabled
         && event.getButton() == MouseButton.SECONDARY;
   }
+
+  /** {@link #model} が UI イベントを受け取ったときのフック処理を呼ぶ. */
+  private void invokeOnUiEventReceived(MouseEvent event, boolean isEventTarget) {
+    UiEvent uiEvent = toEventInfo(event);
+    model.getEventInvoker().onUiEventReceived(uiEvent, isEventTarget, ddInfo.context.userOpe());
+  }
+
+  /** {@link MouseEvent} オブジェクトの情報を {@link UiEvent} オブジェクトに格納して返す. */
+  private UiEvent toEventInfo(MouseEvent event) {
+    UiEventType eventType = null;
+    if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
+      eventType = UiEventType.MOUSE_PRESSED;
+    } else if (event.getEventType() == MouseEvent.DRAG_DETECTED) {
+      eventType = UiEventType.DRAG_DETECTED;
+    } else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
+      eventType = UiEventType.MOUSE_RELEASED;
+    } else {
+      throw new AssertionError("Invalid Mouse Event");
+    }
+    return new UiEvent(
+        eventType,
+        event.isPrimaryButtonDown(),
+        event.isSecondaryButtonDown(),
+        event.isMiddleButtonDown(),
+        event.isBackButtonDown(),
+        event.isForwardButtonDown(),
+        event.isShiftDown(),
+        event.isControlDown(),
+        event.isAltDown());
+  }
+
 
   @Override
   public BhNode getModel() {

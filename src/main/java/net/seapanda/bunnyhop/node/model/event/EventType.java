@@ -48,7 +48,7 @@ public enum EventType {
   /** テンプレートノードが作成されたときに発行されるイベント. */
   ON_CREATED_AS_TEMPLATE,
   /** ノードのドラッグ操作が始まったときに発行されるイベント. */
-  ON_DRAG_STARTED,
+  ON_UI_EVENT_RECEIVED,
   /** コネクタにノードが接続可能か調べるときに発行されるイベント. */
   ON_CONNECTABILITY_CHECKING,
   /** ノードのエイリアスを取得するときに発行されるイベント. */

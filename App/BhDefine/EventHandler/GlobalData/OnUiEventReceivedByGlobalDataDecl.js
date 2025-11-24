@@ -1,5 +1,7 @@
 (function () {
-  if (!bhUiEvent.isSecondaryButtonDown) {
+  if (!bhIsEventTarget
+    || !bhUiEvent.type.isDragDetected
+    || !bhUiEvent.isSecondaryButtonDown) {
     return;
   }
   let toReconnect = bhCommon.findOuterNotSelected(bhThis);

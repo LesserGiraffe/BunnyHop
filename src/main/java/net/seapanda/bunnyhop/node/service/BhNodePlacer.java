@@ -65,8 +65,7 @@ public class BhNodePlacer {
       return new LinkedHashSet<>();
     }
     var derivatives = DerivativeCollector.collect(node);
-    var tmp = new LinkedHashSet<Swapped>();
-    tmp.addAll(deleteNodes(derivatives, userOpe));
+    var tmp = new LinkedHashSet<Swapped>(deleteNodes(derivatives, userOpe));
     SequencedSet<Swapped> swappedNodes = delete(node, userOpe);
     swappedNodes.addAll(tmp);
     swappedNodes.removeIf(pair -> pair.newNode().isDeleted());

@@ -127,13 +127,15 @@ public interface NodeEventInvoker {
   void onCreatedAsTemplate(BhNode target, UserOperation userOpe);
 
   /**
-   * {@code target} のドラッグが始まったときの処理を実行する.
+   * {@code target} が UI イベントを受け取ったときの処理を実行する.
    *
    * @param target イベントハンドラが定義されたノード
-   * @param event ドラッグ操作に関連する情報を格納したオブジェクト
+   * @param event UI イベントに関連する情報を格納したオブジェクト
+   * @param isEventTarget {@code target} が UI イベントの適用対象である場合 true
    * @param userOpe undo 用コマンドオブジェクト
    */
-  void onDragStarted(BhNode target, UiEvent event, UserOperation userOpe);
+  void onUiEventReceived(
+      BhNode target, UiEvent event, boolean isEventTarget, UserOperation userOpe);
 
   /**
    * 引数の文字列が {@code target} にセット可能かどうか判断するときの処理を実行する.

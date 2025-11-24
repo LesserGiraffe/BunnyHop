@@ -59,15 +59,25 @@ public class NodeShifterController {
     this.view = view;
     this.ws = ws;
     this.notifService = service;
-    view.setOnMousePressed(mouseEvent -> onMousePressed(mouseEvent));
-    view.setOnMouseDragged(mouseEvent -> onMouseDragged(mouseEvent));
-    view.setOnMouseReleased(mouseEvent -> onMouseReleased(mouseEvent));
+    setEventHandlers();
+  }
+
+  private void setEventHandlers() {
+    view.setOnMousePressed(this::onMousePressed);
+    view.setOnMouseDragged(this::onMouseDragged);
+    view.setOnMouseReleased(this::onMouseReleased);
     view.addEventFilter(MouseEvent.ANY, this::consumeIfNotAcceptable);
-    ws.getView().ifPresent(wsView -> {
-      ws.getCallbackRegistry().getOnNodeSelectionStateChanged().add(
-          event -> event.node().getView().ifPresent(this::onNodeSelectionStateChanged));
-      wsView.getCallbackRegistry().getOnNodeMoved().add(event -> onNodeMoved(event.nodeView()));
-    });
+    if (ws.getView().isEmpty()) {
+      return;
+    }
+    ws.getCallbackRegistry().getOnNodeSelectionStateChanged().add(
+        event -> event.node().getView().ifPresent(this::updateNodeShifter));
+    ws.getCallbackRegistry().getOnNodeAdded().add(
+        event -> event.node().getView().ifPresent(this::updateNodeShifter));
+    ws.getCallbackRegistry().getOnNodeRemoved().add(
+        event -> event.node().getView().ifPresent(this::updateNodeShifter));
+    ws.getView().get().getCallbackRegistry().getOnNodeMoved().add(
+        event -> onNodeMoved(event.nodeView()));
   }
 
   /**
@@ -162,15 +172,6 @@ public class NodeShifterController {
     if (nodeView == null || nodeView.getModel().isEmpty()) {
       return;
     }
-    updateNodeShifter(nodeView);
-  }
-
-  /**
-   * このノードシフタがあるワークスペースのノードの選択状態が変更されたときの処理.
-   *
-   * @param nodeView 選択状態が変更されたノードのビュー
-   */
-  private void onNodeSelectionStateChanged(BhNodeView nodeView) {
     updateNodeShifter(nodeView);
   }
 

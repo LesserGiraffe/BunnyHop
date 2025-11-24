@@ -9,7 +9,7 @@
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
-  onDragStarted="OnStatDragStarted.js"
+  onUiEventReceived="OnUiEventReceivedByStat.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 

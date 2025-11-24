@@ -200,7 +200,7 @@ public class BhConstants {
     public static final String ATTR_ON_COMPANION_NODES_CREATING = "onCompanionNodesCreating";
     public static final String ATTR_ON_TEST_OPTIONS_CREATING = "onTextOptionsCreating";
     public static final String ATTR_ON_CREATED_AS_TEMPLATE = "onCreatedAsTemplate";
-    public static final String ATTR_ON_DRAG_STARTED = "onDragStarted";
+    public static final String ATTR_ON_UI_EVENT_RECEIVED = "onUiEventReceived";
     public static final String ATTR_ON_ALIAS_ASKED = "onAliasAsked";
     public static final String ATTR_ON_USER_DEFINED_NAME_ASKED = "onUserDefinedNameAsked";
     public static final String ATTR_DERIVATIVE_ID = "derivativeID";
@@ -243,6 +243,7 @@ public class BhConstants {
     public static final String BH_FORMATTED_TEXT = "bhFormattedText";
     public static final String BH_TEXT_DB = "bhTextDb";
     public static final String BH_UI_EVENT = "bhUiEvent";
+    public static final String BH_IS_EVENT_TARGET = "bhIsEventTarget";
     public static final String IP_ADDR = "ipAddr";
     public static final String UNAME = "uname";
   }

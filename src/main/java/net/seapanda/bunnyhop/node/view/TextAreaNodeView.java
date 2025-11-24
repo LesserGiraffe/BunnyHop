@@ -109,7 +109,7 @@ public final class TextAreaNodeView  extends TextInputNodeView {
   }
 
   private void selectText() {
-    if (textArea.isFocused() && shouldSelectText) {
+    if (textArea.isFocused() && textArea.isEditable() && shouldSelectText) {
       textArea.selectAll();
       shouldSelectText = false;
     }

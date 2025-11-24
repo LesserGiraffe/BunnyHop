@@ -17,12 +17,13 @@
 package net.seapanda.bunnyhop.node.model.event;
 
 /**
- * UI 操作に関連する情報を格納するクラス.
+ * ノードをターゲットとする UI 操作に関する情報を格納するクラス.
  *
  * @author K.Koike
  */
 public class UiEvent {
 
+  public final Type type;
   public final boolean isPrimaryButtonDown;
   public final boolean isSecondaryButtonDown;
   public final boolean isMiddleButtonDown;
@@ -31,9 +32,10 @@ public class UiEvent {
   public final boolean isShiftDown;
   public final boolean isCtrlDown;
   public final boolean isAltDown;
-  
+
   /** コンストラクタ. */
   public UiEvent(
+      UiEventType eventType,
       boolean isPrimaryButtonDown,
       boolean isSecondaryButtonDown,
       boolean isMiddleButtonDown,
@@ -42,6 +44,7 @@ public class UiEvent {
       boolean isShiftDown,
       boolean isCtrlDown,
       boolean isAltDown) {
+    this.type = new Type(eventType);
     this.isPrimaryButtonDown = isPrimaryButtonDown;
     this.isSecondaryButtonDown = isSecondaryButtonDown;
     this.isMiddleButtonDown = isMiddleButtonDown;
@@ -50,5 +53,24 @@ public class UiEvent {
     this.isShiftDown = isShiftDown;
     this.isCtrlDown = isCtrlDown;
     this.isAltDown = isAltDown;
+  }
+
+  /**
+   * UI イベント識別用のフィールドを定義したクラス.
+   *
+   * <p>boolean 型の各フィールドは外部スクリプトで簡便にイベントの種類を識別するために存在する.
+   */
+  public static class Type {
+    public final UiEventType eventType;
+    public final boolean isMousePressed;
+    public final boolean isDragDetected;
+    public final boolean isMouseReleased;
+
+    private Type(UiEventType eventType) {
+      this.eventType = eventType;
+      this.isMousePressed = eventType == UiEventType.MOUSE_PRESSED;
+      this.isDragDetected = eventType == UiEventType.DRAG_DETECTED;
+      this.isMouseReleased = eventType == UiEventType.MOUSE_RELEASED;
+    }
   }
 }

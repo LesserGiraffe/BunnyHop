@@ -282,6 +282,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     var nodeShape = new Polygon();
     nodeShape.addEventFilter(Event.ANY, this::forwardEventIfNotHaveController);
+    nodeShape.setCache(true);
 
     double radius = style.commonPart.breakpoint.radius;
     var circle = new Circle(radius, radius, radius);

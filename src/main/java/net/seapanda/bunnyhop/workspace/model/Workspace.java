@@ -99,6 +99,9 @@ public class Workspace implements Serializable {
     if (nodeList.contains(node)) {
       return;
     }
+    if (node.isSelected()) {
+      selectedList.add(node);
+    }
     nodeList.add(node);
     node.setWorkspace(this, userOpe);
     BhNode.CallbackRegistry registry = node.getCallbackRegistry();
@@ -153,9 +156,7 @@ public class Workspace implements Serializable {
     if (!nodeList.contains(node)) {
       return;
     }
-    if (node.isSelected()) {
-      node.deselect(userOpe);
-    }
+    selectedList.remove(node);
     BhNode.CallbackRegistry registry = node.getCallbackRegistry();
     var cbRegistry = getCallbackRegistry();
     registry.getOnSelectionStateChanged().remove(cbRegistry.onNodeSelStateChanged);
