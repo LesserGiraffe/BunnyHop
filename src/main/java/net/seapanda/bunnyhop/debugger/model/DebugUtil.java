@@ -59,8 +59,8 @@ public class DebugUtil {
   }
 
   private static String truncateErrMsg(String errMsg) {
-    return (errMsg.length() > BhSettings.Message.maxErrMsgChars)
-        ? errMsg.substring(0, BhSettings.Message.maxErrMsgChars) + "..."
+    return (errMsg.length() > BhSettings.Debug.maxErrMsgChars)
+        ? errMsg.substring(0, BhSettings.Debug.maxErrMsgChars) + "..."
         : errMsg;
   }  
 }

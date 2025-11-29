@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.SequencedSet;
+import java.util.function.BiFunction;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
@@ -37,6 +38,7 @@ import net.seapanda.bunnyhop.node.service.BhNodePlacer;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.LookManager.EffectTarget;
 import net.seapanda.bunnyhop.node.view.BhNodeView.MouseEventInfo;
+import net.seapanda.bunnyhop.node.view.common.BhNodeLocation;
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.control.MouseCtrlLock;
@@ -138,9 +140,7 @@ public class DefaultBhNodeController implements BhNodeController {
       view.getLookManager().showShadow(EffectTarget.OUTERS);
       toFront();
       selectNode(event);
-      Vec2D mousePressedPos = new Vec2D(event.getSceneX(), event.getSceneY());
-      ddInfo.mousePressedPos = view.getPositionManager().sceneToLocal(mousePressedPos);
-      ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
+      savePositions(event);
     } catch (Throwable e) {
       terminateDnd();
       throw e;
@@ -160,7 +160,7 @@ public class DefaultBhNodeController implements BhNodeController {
         dispatchEvent(model.findParentNode(), info);
         return;
       }
-      if (ddInfo.dragging) {
+      if (ddInfo.isDragDetected) {
         double diffX = event.getX() - ddInfo.mousePressedPos.x;
         double diffY = event.getY() - ddInfo.mousePressedPos.y;
         view.getPositionManager().move(diffX, diffY);
@@ -195,7 +195,7 @@ public class DefaultBhNodeController implements BhNodeController {
         return;
       }
       invokeOnUiEventReceived(event, true);
-      ddInfo.dragging = true;
+      ddInfo.isDragDetected = true;
       // 子ノードでかつ取り外し可能 -> ワークスペースへ
       if (model.isRemovable()) {
         toWorkspace();
@@ -237,6 +237,7 @@ public class DefaultBhNodeController implements BhNodeController {
         toSameWorkspace();
       }
       deleteTrashedNode();
+      pushViewpointChangeCmd(info);
     } finally {
       terminateDnd();
     }
@@ -286,7 +287,7 @@ public class DefaultBhNodeController implements BhNodeController {
         BhNodePlacer.replaceChild(oldChildNode, model, userOpe);
     // ワークスペースに移ったノードの位置更新
     oldChildNode.getView().ifPresent(oldChildView -> {
-      var len = BhConstants.LnF.REPLACED_NODE_SHIFT;
+      var len = BhConstants.Ui.REPLACED_NODE_SHIFT;
       shift(oldChildView, new Vec2D(len, len), userOpe);
     });     
     // Workspace から 子ノードに移動したときのスクリプト実行
@@ -313,7 +314,7 @@ public class DefaultBhNodeController implements BhNodeController {
 
   /** 同一ワークスペースへの移動処理. */
   private void toSameWorkspace() {
-    if (ddInfo.dragging && model.isRoot()) {
+    if (ddInfo.isDragDetected && model.isRoot()) {
       ViewUtil.pushReverseMoveCmd(view, ddInfo.posOnWorkspace, ddInfo.context.userOpe());
     }
   }
@@ -486,6 +487,30 @@ public class DefaultBhNodeController implements BhNodeController {
         event.isAltDown());
   }
 
+  /** D&D 操作に必要な位置を {@link #ddInfo} に保存する. */
+  private void savePositions(MouseEvent event) {
+    Vec2D mousePressedPos = new Vec2D(event.getSceneX(), event.getSceneY());
+    ddInfo.mousePressedPos = view.getPositionManager().sceneToLocal(mousePressedPos);
+    ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
+    ddInfo.nodeLocation = new BhNodeLocation(model);
+  }
+
+  /** ワークスペース上の注視点を変更するコマンドを追加する. */
+  private void pushViewpointChangeCmd(MouseEventInfo info) {
+    BiFunction<WorkspaceView, Vec2D, Boolean> fnShouldChange
+        = (wsView, pos) -> wsView.getWorkspace().isCurrentWorkspace()
+        ? BhSettings.Ui.trackNodeInCurrentWorkspace : BhSettings.Ui.trackNodeInInactiveWorkspace;
+    var oldLocation =
+        info.getRootEventInfo().view().isTemplate() ? new BhNodeLocation() : ddInfo.nodeLocation;
+    var newLocation = model.isDeleted() ? new BhNodeLocation() : new BhNodeLocation(model);
+    ViewUtil.pushViewpointChangeCmd(
+        oldLocation.wsView,
+        oldLocation.center,
+        newLocation.wsView,
+        newLocation.center,
+        fnShouldChange,
+        ddInfo.context.userOpe());
+  }
 
   @Override
   public BhNode getModel() {
@@ -508,12 +533,13 @@ public class DefaultBhNodeController implements BhNodeController {
   private static class DndEventInfo {
     private Vec2D mousePressedPos = new Vec2D();
     private Vec2D posOnWorkspace = new Vec2D();
+    private BhNodeLocation nodeLocation = new BhNodeLocation();
     /** 現在重なっている View. */
     private BhNodeView currentOverlapped = null;
     /** イベントを親ノードに転送する場合 true. */
     private boolean forwardEvent = false;
     /** ドラッグ中のとき true. */
-    private boolean dragging = false;
+    private boolean isDragDetected = false;
     /** {@code model} に最後につながっていた親ノード. */
     private ConnectiveNode latestParent = null;
     /** {@code latestParent} のルートノード. */

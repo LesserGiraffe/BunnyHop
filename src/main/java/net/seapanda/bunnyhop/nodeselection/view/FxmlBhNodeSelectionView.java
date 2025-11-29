@@ -155,10 +155,10 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
 
   @Override
   public void zoom(boolean zoomIn) {
-    if ((BhConstants.LnF.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn) {
+    if ((BhConstants.Ui.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn) {
       return;
     }
-    if ((BhConstants.LnF.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn) {
+    if ((BhConstants.Ui.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn) {
       return;
     }
     Scale scale = new Scale();
@@ -167,7 +167,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     } else {
       --zoomLevel;
     }
-    double mag = Math.pow(BhConstants.LnF.ZOOM_MAGNIFICATION, zoomLevel);
+    double mag = Math.pow(BhConstants.Ui.ZOOM_MAGNIFICATION, zoomLevel);
     scale.setX(mag);
     scale.setY(mag);
     nodeSelectionView.getTransforms().clear();
@@ -194,11 +194,11 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
             leftPadding - cnctrSize.x, offset);
       }
       Vec2D treeSizeWithCnctr = nodeView.getRegionManager().getNodeTreeSize(true);
-      offset += treeSizeWithCnctr.y + BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_VIEW;
+      offset += treeSizeWithCnctr.y + BhConstants.Ui.BHNODE_SPACE_ON_SELECTION_VIEW;
       width = Math.max(width, treeSizeWithCnctr.x);
     }
     height =
-        (offset - BhConstants.LnF.BHNODE_SPACE_ON_SELECTION_VIEW) + topPadding + bottomPadding;
+        (offset - BhConstants.Ui.BHNODE_SPACE_ON_SELECTION_VIEW) + topPadding + bottomPadding;
     width += rightPadding + leftPadding;
     nodeSelectionView.setMinSize(width, height);
     // バインディングではなく, ここでこのメソッドを呼ばないとスクロールバーの稼働域が変わらない

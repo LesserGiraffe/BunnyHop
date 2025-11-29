@@ -147,6 +147,13 @@ public interface WorkspaceView {
    */
   void lookAt(BhNodeView view);
 
+  /**
+   * {@code pos} が中央に表示されるようにスクロールする.
+   *
+   * @param pos 中央に表示するワークスペース上の位置
+   */
+  void lookAt(Vec2D pos);
+
   /** このワークスペースビューが持つ全てのルートノードビューを取得する. */
   SequencedSet<BhNodeView> getRootNodeViews();
 
@@ -157,6 +164,16 @@ public interface WorkspaceView {
    * @param view このノードビューを含むノードビューツリー全体をこのワークスペースビュー上で最前に移動させる.
    */
   void moveNodeViewToFront(BhNodeView view);
+
+  /**
+   * {@code pos} で示したワークスペースビュー上の位置が現在の可視領域に含まれているかどうか調べる.
+   *
+   * <p>このビューのワークスペースがカレントワークスペースであるかどうかは結果に影響しない.
+   *
+   * @param pos 現在の可視領域に含まれているかどうか調べるワークスペース上の位置
+   * @return {@code pos} が現在の可視領域に含まれている場合 true.
+   */
+  boolean isPosInViewport(Vec2D pos);
 
   /**
    * このワークスペースビューに対するイベントハンドラの追加と削除を行うオブジェクトを返す.

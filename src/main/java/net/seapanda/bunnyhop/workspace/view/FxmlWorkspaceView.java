@@ -33,6 +33,7 @@ import javafx.collections.ListChangeListener;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -138,9 +139,9 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     configureGuiComponents(filePath);
     setEventHandlers();
     quadTreeMngForBody =
-        new QuadTreeManager(BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
+        new QuadTreeManager(BhConstants.Ui.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
     quadTreeMngForConnector =
-        new QuadTreeManager(BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
+        new QuadTreeManager(BhConstants.Ui.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
     drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
     rectSelTool.setViewOrder(Z_POS_OF_RECT_SEL_TOOL);
   }
@@ -215,9 +216,8 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     tabNameTextField.setMaxWidth(Region.USE_PREF_SIZE);
     tabNameTextField.setMinWidth(Region.USE_PREF_SIZE);
     tabNameTextField.setPrefWidth(1);
-    tabNameTextField.textProperty().addListener((observable, oldVal, newVal) -> {
-      updateTabNameWidth();
-    });
+    tabNameTextField.textProperty().addListener(
+        (observable, oldVal, newVal) -> updateTabNameWidth());
     tabNameTextField.setOnAction(event -> tabNameTextField.setVisible(false));
     tabNameTextField.focusedProperty().addListener((observable, oldValue, newValue) -> {
       if (!newValue) {
@@ -286,9 +286,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     if (!nodeViews.contains(view)) {
       return;
     }
-    if (rootNodeViews.contains(view)) {
-      rootNodeViews.remove(view);
-    }
+    rootNodeViews.remove(view);
     rootNodeViews.addLast(view);
     view.getLookManager().arrange();
     if (MAX_Z_POS_OF_NODE_VIEW_TREES < frontZpos) {
@@ -353,7 +351,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   public List<BhNodeView> searchForOverlappedNodeViews(
       QuadTreeRectangle rect, boolean overlapWithBodyPart, OverlapOption option) {
     if (rect == null) {
-      return new ArrayList<BhNodeView>();
+      return new ArrayList<>();
     }
     if (overlapWithBodyPart) {
       quadTreeMngForBody.addQuadTreeObj(rect);
@@ -365,7 +363,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     QuadTreeManager.removeQuadTreeObj(rect);
 
     return overlappedRectList.stream()
-        .map(rectangle -> rectangle.<BhNodeView>getUserData())
+        .map(QuadTreeRectangle::<BhNodeView>getUserData)
         .collect(Collectors.toCollection(ArrayList::new));
   }
 
@@ -381,10 +379,10 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
   @Override
   public void changeViewSize(boolean widen) {
-    if ((workspaceSizeLevel == BhConstants.LnF.MIN_WORKSPACE_SIZE_LEVEL) && !widen) {
+    if ((workspaceSizeLevel == BhConstants.Ui.MIN_WORKSPACE_SIZE_LEVEL) && !widen) {
       return;
     }
-    if ((workspaceSizeLevel == BhConstants.LnF.MAX_WORKSPACE_SIZE_LEVEL) && widen) {
+    if ((workspaceSizeLevel == BhConstants.Ui.MAX_WORKSPACE_SIZE_LEVEL) && widen) {
       return;
     }
     workspaceSizeLevel = widen ? workspaceSizeLevel + 1 : workspaceSizeLevel - 1;
@@ -395,9 +393,9 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     wsPane.setMinSize(newWsWidth, newWsHeight);
     wsPane.setMaxSize(newWsWidth, newWsHeight);
     quadTreeMngForBody = new QuadTreeManager(
-        quadTreeMngForBody, BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
+        quadTreeMngForBody, BhConstants.Ui.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
     quadTreeMngForConnector = new QuadTreeManager(
-        quadTreeMngForConnector, BhConstants.LnF.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
+        quadTreeMngForConnector, BhConstants.Ui.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
 
     //全ノードの位置更新
     for (BhNodeView rootView : rootNodeViews) {
@@ -418,11 +416,11 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     removedList.forEach(line -> wsPane.getChildren().remove(line));
     for (int i = 0; i < numDiv; ++i) {
       int x = (int) ((width / numDiv) * i);
-      wsPane.getChildren().add(0, new Line(x, 0, x, height));
+      wsPane.getChildren().addFirst(new Line(x, 0, x, height));
     }
     for (int i = 0; i < numDiv; ++i) {
       int y = (int) ((height / numDiv) * i);
-      wsPane.getChildren().add(0, new Line(0, y, width, y));
+      wsPane.getChildren().addFirst(new Line(0, y, width, y));
     }
   }
 
@@ -439,10 +437,10 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
   @Override
   public void zoom(boolean zoomIn) {
-    if ((BhConstants.LnF.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn) {
+    if ((BhConstants.Ui.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn) {
       return;
     }
-    if ((BhConstants.LnF.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn) {
+    if ((BhConstants.Ui.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn) {
       return;
     }
     Scale scale = new Scale();
@@ -451,7 +449,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     } else {
       --zoomLevel;
     }
-    double mag = Math.pow(BhConstants.LnF.ZOOM_MAGNIFICATION, zoomLevel);
+    double mag = Math.pow(BhConstants.Ui.ZOOM_MAGNIFICATION, zoomLevel);
     scale.setX(mag);
     scale.setY(mag);
     wsPane.getTransforms().clear();
@@ -470,16 +468,16 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
   /** スクロール可能な範囲を再計算する. */
   private void recalculateScrollableRange() {
-    double magX = wsPane.getTransforms().get(0).getMxx();
-    double magY = wsPane.getTransforms().get(0).getMyy();
+    double magX = wsPane.getTransforms().getFirst().getMxx();
+    double magY = wsPane.getTransforms().getFirst().getMyy();
     // 全ノードの内の右端の最大の位置と下端の最大の位置
     Vec2D maxLowerRightPosOfNodes = rootNodeViews.stream()
         .map(nodeView -> {
           Vec2D nodeSize = nodeView.getRegionManager().getNodeTreeSize(false);
           Vec2D nodePos = nodeView.getPositionManager().getPosOnWorkspace();
           return new Vec2D(
-            magX * (nodePos.x + nodeSize.x) + BhConstants.LnF.NODE_SCALE * 20,
-            magY * (nodePos.y + nodeSize.y) + BhConstants.LnF.NODE_SCALE * 20);
+            magX * (nodePos.x + nodeSize.x) + BhConstants.Ui.NODE_SCALE * 20,
+            magY * (nodePos.y + nodeSize.y) + BhConstants.Ui.NODE_SCALE * 20);
         })
         .reduce(
           new Vec2D(0.0, 0.0),
@@ -517,42 +515,42 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
   @Override
   public void lookAt(BhNodeView view) {
-    if (!this.equals(view.getWorkspaceView())
-        || getTabPane() == null) {
+    if (!this.equals(view.getWorkspaceView())) {
       return;
     }
-    getTabPane().getSelectionModel().select(this);
-    var zoomedWsSize = new Vec2D(wsWrapper.getWidth(), wsWrapper.getHeight());
-    var scrollPaneUpperLeftCenterPos =
-        new Vec2D(wsScrollPane.getWidth() * 0.5, wsScrollPane.getHeight() * 0.5);
-    var scrollPaneLowerRightCenterPos = new Vec2D(
-        zoomedWsSize.x - scrollPaneUpperLeftCenterPos.x,
-        zoomedWsSize.y - scrollPaneUpperLeftCenterPos.y);
-    var scrollableRange = new Vec2D(
-        Math.max(1.0, scrollPaneLowerRightCenterPos.x - scrollPaneUpperLeftCenterPos.x),
-        Math.max(1.0, scrollPaneLowerRightCenterPos.y - scrollPaneUpperLeftCenterPos.y));
-    var nodeViewCenterPos = getCenterPosOnZoomedWorkspace(view);
-    var scrollBarPos = new Vec2D(
-        (nodeViewCenterPos.x - scrollPaneUpperLeftCenterPos.x) / scrollableRange.x,
-        (nodeViewCenterPos.y - scrollPaneUpperLeftCenterPos.y) / scrollableRange.y);
-
-    scrollBarPos.x = scrollBarPos.x * (wsScrollPane.getHmax() - wsScrollPane.getHmin())
-        + wsScrollPane.getHmin();
-    scrollBarPos.y = scrollBarPos.y * (wsScrollPane.getVmax() - wsScrollPane.getVmin())
-        + wsScrollPane.getVmin();
-    wsScrollPane.setHvalue(
-        Math.clamp(scrollBarPos.x, wsScrollPane.getHmin(), wsScrollPane.getHmax()));
-    wsScrollPane.setVvalue(
-        Math.clamp(scrollBarPos.y, wsScrollPane.getVmin(), wsScrollPane.getVmax()));
+    Bounds nodeBounds = view.getPositionManager().getBounds();
+    lookAt(new Vec2D(nodeBounds.getCenterX(), nodeBounds.getCenterY()));
   }
 
-  /** ズームしたワークスペースビュー上でのノードビューの中心位置を返す. */
-  private Vec2D getCenterPosOnZoomedWorkspace(BhNodeView view) {
-    double magX = wsPane.getTransforms().get(0).getMxx();
-    double magY = wsPane.getTransforms().get(0).getMyy();
-    Vec2D nodeSize = view.getRegionManager().getNodeSize(false);
-    Vec2D nodePos = view.getPositionManager().getPosOnWorkspace();
-    return new Vec2D(magX * (nodePos.x + nodeSize.x * 0.5), magY * (nodePos.y + nodeSize.y * 0.5));
+  @Override
+  public void lookAt(Vec2D pos) {
+    if (getTabPane() == null) {
+      return;
+    }
+    // スクロールバーを左上に移動させたときに, ワークスペースビューの中心が指すワークスペース上の位置
+    var viewCenterAtMinScroll = new Vec2D(
+        wsScrollPane.getWidth() * 0.5,
+        wsScrollPane.getHeight() * 0.5);
+    // スクロールバーを右下に移動させたときに, ワークスペースビューの中心が指すワークスペース上の位置
+    var viewCenterAtMaxScroll = new Vec2D(
+        wsWrapper.getWidth() - viewCenterAtMinScroll.x,
+        wsWrapper.getHeight() - viewCenterAtMinScroll.y);
+    var scrollDistance = new Vec2D(
+        Math.max(1.0, viewCenterAtMaxScroll.x - viewCenterAtMinScroll.x),
+        Math.max(1.0, viewCenterAtMaxScroll.y - viewCenterAtMinScroll.y));
+
+    double magX = wsPane.getTransforms().getFirst().getMxx();
+    double magY = wsPane.getTransforms().getFirst().getMyy();
+    var scrollBarPos = new Vec2D(
+        Math.clamp((pos.x * magX - viewCenterAtMinScroll.x) / scrollDistance.x, 0, 1),
+        Math.clamp((pos.y * magY - viewCenterAtMinScroll.y) / scrollDistance.y, 0, 1));
+    scrollBarPos = new Vec2D(
+        scrollBarPos.x * (wsScrollPane.getHmax() - wsScrollPane.getHmin()) + wsScrollPane.getHmin(),
+        scrollBarPos.y * (wsScrollPane.getVmax() - wsScrollPane.getVmin()) + wsScrollPane.getVmin()
+    );
+    wsScrollPane.setHvalue(scrollBarPos.x);
+    wsScrollPane.setVvalue(scrollBarPos.y);
+    getTabPane().getSelectionModel().select(this);
   }
 
   @Override
@@ -574,6 +572,23 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
       root.getPositionManager().setTreeZpos(frontZpos);
       frontZpos += Z_POS_INTERVAL_BETWEEN_NODE_VIEW_TREES;
     }
+  }
+
+  @Override
+  public boolean isPosInViewport(Vec2D pos) {
+    var viewOriginAtMaxScroll = new Vec2D(
+        Math.max(0, wsWrapper.getWidth() - wsScrollPane.getWidth()),
+        Math.max(0, wsWrapper.getHeight() - wsScrollPane.getHeight()));
+
+    double visibleLeft = viewOriginAtMaxScroll.x * wsScrollPane.getHvalue();
+    double visibleTop = viewOriginAtMaxScroll.y * wsScrollPane.getVvalue();
+    double visibleRight = visibleLeft + wsScrollPane.getWidth();
+    double visibleBottom = visibleTop + wsScrollPane.getHeight();
+    double magX = wsPane.getTransforms().getFirst().getMxx();
+    double magY = wsPane.getTransforms().getFirst().getMyy();
+    var magPos = new Vec2D(pos.x * magX, pos.y * magY);
+    return visibleLeft <= magPos.x && magPos.x <= visibleRight
+        && visibleTop <= magPos.y && magPos.y <= visibleBottom;
   }
 
   @Override
@@ -673,6 +688,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     public void setOnCloseRequested(Supplier<? extends Boolean> handler) {
       if (handler == null) {
         onCloseRequested = () -> true;
+        return;
       }
       onCloseRequested = handler;
     }

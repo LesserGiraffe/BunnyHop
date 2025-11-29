@@ -285,6 +285,19 @@ public class Workspace implements Serializable {
   }
 
   /**
+   * このワークスペースが現在操作対象となっているワークスペースかどうか調べる.
+   *
+   * @return このワークスペースが現在操作対象となっているワークスペースの場合 true.
+   */
+  public boolean isCurrentWorkspace() {
+    WorkspaceSet wss = getWorkspaceSet();
+    if (wss == null) {
+      return false;
+    }
+    return wss.getCurrentWorkspace() == this;
+  }
+
+  /**
    * このワークスペースに対するイベントハンドラの追加と削除を行うオブジェクトを返す.
    *
    * @return このワークスペースに対するイベントハンドラの追加と削除を行うオブジェクト

@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.ui.view;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
@@ -323,5 +324,52 @@ public class ViewUtil {
           view.getPositionManager().setTreePosOnWorkspace(pos.x, pos.y);
           pushReverseMoveCmd(view, currentPos, ope);
         });
+  }
+
+  /**
+   * ワークスペース上での視点の変更をコマンド化して {@link UserOperation} オブジェクトに追加する.
+   *
+   * @param oldWsView 変更前の視点で見ていた {@link WorkspaceView}. <br>
+   *                  null を指定した場合, その視点への視点変更を行わない.
+   * @param oldFocusPoint 変更前の視点で見ていたワークスペースの位置. <br>
+   *                      null を指定した場合, その視点への視点変更を行わない.
+   * @param newWsView 変更後の視点で見ている {@link WorkspaceView}. <br>
+   *                  null を指定した場合, その視点への視点変更を行わない.
+   * @param newFocusPoint 変更後の視点で見ているワークスペースの位置. <br>
+   *                      null を指定した場合, その視点への視点変更を行わない.
+   * @param fnShouldChange 視点変更コマンドの処理を実行するかどうかを判定するための関数オブジェクト. <br>
+   *                       これが true を返したとき視点変更が行われる. <br>
+   *                       null を指定した場合, 常にに視点変更を行う. <br>
+   *                       この関数オブジェクトには, 視点の変更先となるワークスペースビューと注視点が引数として渡される. <br>
+   *                       ただし, 引数のどちらか片方でも null であった場合はこの関数オブジェクトは呼ばれない.
+   *
+   * @param userOpe このオブジェクトに視点変更コマンドを追加する.
+   */
+  public static void pushViewpointChangeCmd(
+      WorkspaceView oldWsView,
+      Vec2D oldFocusPoint,
+      WorkspaceView newWsView,
+      Vec2D newFocusPoint,
+      BiFunction<WorkspaceView, Vec2D, Boolean> fnShouldChange,
+      UserOperation userOpe) {
+    if (oldWsView == null && oldFocusPoint == null && newWsView == null && newFocusPoint == null) {
+      return;
+    }
+    BiFunction<WorkspaceView, Vec2D, Boolean> shouldChange =
+        (fnShouldChange == null) ? (wsView, point) -> true : fnShouldChange;;
+    userOpe.pushCmd(
+        ope -> {
+          if (oldWsView != null
+              && oldFocusPoint != null
+              && shouldChange.apply(oldWsView, oldFocusPoint)) {
+            if (!oldWsView.getWorkspace().isCurrentWorkspace()
+                || !oldWsView.isPosInViewport(oldFocusPoint)) {
+              oldWsView.lookAt(oldFocusPoint);
+            }
+          }
+          pushViewpointChangeCmd(
+              newWsView, newFocusPoint, oldWsView, oldFocusPoint, shouldChange, ope);
+        }
+    );
   }
 }

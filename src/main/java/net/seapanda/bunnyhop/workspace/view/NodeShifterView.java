@@ -33,7 +33,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
-import net.seapanda.bunnyhop.common.configuration.BhConstants.LnF;
+import net.seapanda.bunnyhop.common.configuration.BhConstants.Ui;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.RegionManager.BodyRange;
 import net.seapanda.bunnyhop.ui.view.Rem;
@@ -262,7 +262,7 @@ public class NodeShifterView extends Pane {
 
   /** ノードシフタの形を作る. */
   private void createShape() {
-    var radius = LnF.NODE_SHIFTER_SIZE / 2.0;
+    var radius = Ui.NODE_SHIFTER_SIZE / 2.0;
     shifterCircle.setRadius(radius);
     shifterCircle.setCenterX(0);
     shifterCircle.setCenterY(0);
@@ -270,30 +270,30 @@ public class NodeShifterView extends Pane {
     double l = 0.3;
     double k = 0.42;
     shifterArrow.getPoints().addAll(
-              0.5 * LnF.NODE_SHIFTER_SIZE - radius,  0.0 - radius,
-        (1.0 - l) * LnF.NODE_SHIFTER_SIZE - radius, (0.5 - l) * LnF.NODE_SHIFTER_SIZE - radius,
-        (1.0 - k) * LnF.NODE_SHIFTER_SIZE - radius, (0.5 - l) * LnF.NODE_SHIFTER_SIZE - radius,
-        (1.0 - k) * LnF.NODE_SHIFTER_SIZE - radius,         k * LnF.NODE_SHIFTER_SIZE - radius,
-        (0.5 + l) * LnF.NODE_SHIFTER_SIZE - radius,         k * LnF.NODE_SHIFTER_SIZE - radius,
-        (0.5 + l) * LnF.NODE_SHIFTER_SIZE - radius,         l * LnF.NODE_SHIFTER_SIZE - radius,
-                    LnF.NODE_SHIFTER_SIZE - radius,       0.5 * LnF.NODE_SHIFTER_SIZE - radius,
-        (0.5 + l) * LnF.NODE_SHIFTER_SIZE - radius, (1.0 - l) * LnF.NODE_SHIFTER_SIZE - radius,
-        (0.5 + l) * LnF.NODE_SHIFTER_SIZE - radius, (1.0 - k) * LnF.NODE_SHIFTER_SIZE - radius,
-        (1.0 - k) * LnF.NODE_SHIFTER_SIZE - radius, (1.0 - k) * LnF.NODE_SHIFTER_SIZE - radius,
-        (1.0 - k) * LnF.NODE_SHIFTER_SIZE - radius, (0.5 + l) * LnF.NODE_SHIFTER_SIZE - radius,
-        (1.0 - l) * LnF.NODE_SHIFTER_SIZE - radius, (0.5 + l) * LnF.NODE_SHIFTER_SIZE - radius,
-              0.5 * LnF.NODE_SHIFTER_SIZE - radius,             LnF.NODE_SHIFTER_SIZE - radius,
-                l * LnF.NODE_SHIFTER_SIZE - radius, (0.5 + l) * LnF.NODE_SHIFTER_SIZE - radius,
-                k * LnF.NODE_SHIFTER_SIZE - radius, (0.5 + l) * LnF.NODE_SHIFTER_SIZE - radius,
-                k * LnF.NODE_SHIFTER_SIZE - radius, (1.0 - k) * LnF.NODE_SHIFTER_SIZE - radius,
-        (0.5 - l) * LnF.NODE_SHIFTER_SIZE - radius, (1.0 - k) * LnF.NODE_SHIFTER_SIZE - radius,
-        (0.5 - l) * LnF.NODE_SHIFTER_SIZE - radius, (1.0 - l) * LnF.NODE_SHIFTER_SIZE - radius,
-                                      0.0 - radius,       0.5 * LnF.NODE_SHIFTER_SIZE - radius,
-        (0.5 - l) * LnF.NODE_SHIFTER_SIZE - radius,         l * LnF.NODE_SHIFTER_SIZE - radius,
-        (0.5 - l) * LnF.NODE_SHIFTER_SIZE - radius,         k * LnF.NODE_SHIFTER_SIZE - radius,
-                k * LnF.NODE_SHIFTER_SIZE - radius,         k * LnF.NODE_SHIFTER_SIZE - radius,
-                k * LnF.NODE_SHIFTER_SIZE - radius, (0.5 - l) * LnF.NODE_SHIFTER_SIZE - radius,
-                l * LnF.NODE_SHIFTER_SIZE - radius, (0.5 - l) * LnF.NODE_SHIFTER_SIZE - radius);
+              0.5 * Ui.NODE_SHIFTER_SIZE - radius,  0.0 - radius,
+        (1.0 - l) * Ui.NODE_SHIFTER_SIZE - radius, (0.5 - l) * Ui.NODE_SHIFTER_SIZE - radius,
+        (1.0 - k) * Ui.NODE_SHIFTER_SIZE - radius, (0.5 - l) * Ui.NODE_SHIFTER_SIZE - radius,
+        (1.0 - k) * Ui.NODE_SHIFTER_SIZE - radius,         k * Ui.NODE_SHIFTER_SIZE - radius,
+        (0.5 + l) * Ui.NODE_SHIFTER_SIZE - radius,         k * Ui.NODE_SHIFTER_SIZE - radius,
+        (0.5 + l) * Ui.NODE_SHIFTER_SIZE - radius,         l * Ui.NODE_SHIFTER_SIZE - radius,
+                    Ui.NODE_SHIFTER_SIZE - radius,       0.5 * Ui.NODE_SHIFTER_SIZE - radius,
+        (0.5 + l) * Ui.NODE_SHIFTER_SIZE - radius, (1.0 - l) * Ui.NODE_SHIFTER_SIZE - radius,
+        (0.5 + l) * Ui.NODE_SHIFTER_SIZE - radius, (1.0 - k) * Ui.NODE_SHIFTER_SIZE - radius,
+        (1.0 - k) * Ui.NODE_SHIFTER_SIZE - radius, (1.0 - k) * Ui.NODE_SHIFTER_SIZE - radius,
+        (1.0 - k) * Ui.NODE_SHIFTER_SIZE - radius, (0.5 + l) * Ui.NODE_SHIFTER_SIZE - radius,
+        (1.0 - l) * Ui.NODE_SHIFTER_SIZE - radius, (0.5 + l) * Ui.NODE_SHIFTER_SIZE - radius,
+              0.5 * Ui.NODE_SHIFTER_SIZE - radius,             Ui.NODE_SHIFTER_SIZE - radius,
+                l * Ui.NODE_SHIFTER_SIZE - radius, (0.5 + l) * Ui.NODE_SHIFTER_SIZE - radius,
+                k * Ui.NODE_SHIFTER_SIZE - radius, (0.5 + l) * Ui.NODE_SHIFTER_SIZE - radius,
+                k * Ui.NODE_SHIFTER_SIZE - radius, (1.0 - k) * Ui.NODE_SHIFTER_SIZE - radius,
+        (0.5 - l) * Ui.NODE_SHIFTER_SIZE - radius, (1.0 - k) * Ui.NODE_SHIFTER_SIZE - radius,
+        (0.5 - l) * Ui.NODE_SHIFTER_SIZE - radius, (1.0 - l) * Ui.NODE_SHIFTER_SIZE - radius,
+                                      0.0 - radius,       0.5 * Ui.NODE_SHIFTER_SIZE - radius,
+        (0.5 - l) * Ui.NODE_SHIFTER_SIZE - radius,         l * Ui.NODE_SHIFTER_SIZE - radius,
+        (0.5 - l) * Ui.NODE_SHIFTER_SIZE - radius,         k * Ui.NODE_SHIFTER_SIZE - radius,
+                k * Ui.NODE_SHIFTER_SIZE - radius,         k * Ui.NODE_SHIFTER_SIZE - radius,
+                k * Ui.NODE_SHIFTER_SIZE - radius, (0.5 - l) * Ui.NODE_SHIFTER_SIZE - radius,
+                l * Ui.NODE_SHIFTER_SIZE - radius, (0.5 - l) * Ui.NODE_SHIFTER_SIZE - radius);
   }
 
   /**

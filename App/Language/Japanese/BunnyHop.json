@@ -49,6 +49,9 @@
       "settings": "設定",
       "focus-simulator": "プログラム開始時にシミュレータを表示する",
       "must-specify-entry-point": "エントリポイントの指定を強制する",
+      "undo-redo": "元に戻す / やり直す",
+      "track-node-in-current-workspace": "選択中のワークスぺースで移動したノードに注目する",
+      "track-node-in-inactive-workspace": "選択していないワークスぺースで移動したノードに注目する",
       "help": "ヘルプ",
       "version-info": "バージョン情報"
     },

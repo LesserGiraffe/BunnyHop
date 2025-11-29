@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -882,6 +884,12 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     @Override
     public Vec2D getPosOnWorkspace() {
       return new Vec2D(posOnWorkspace);
+    }
+
+    @Override
+    public Bounds getBounds() {
+      Vec2D nodeSize = getNodeSize(false);
+      return new BoundingBox(posOnWorkspace.x, posOnWorkspace.y, nodeSize.x, nodeSize.y);
     }
 
     @Override

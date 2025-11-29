@@ -20,17 +20,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.SequencedSet;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.service.BhNodePlacer;
+import net.seapanda.bunnyhop.node.view.common.BhNodeLocation;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
+import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
@@ -113,22 +119,24 @@ public class CutAndPaste {
     Collection<BhNode> candidates = readyToCut.stream()
         .filter(this::canCut).collect(Collectors.toCollection(HashSet::new));
 
-    Collection<BhNode> nodesToPaste = candidates.stream()
+    List<BhNode> nodesToPaste = candidates.stream()
         .filter(node -> node.getEventInvoker().onCutRequested(candidates, userOpe))
         .collect(Collectors.toCollection(ArrayList::new));
 
+    var oldLocation = nodesToPaste.isEmpty()
+        ? new BhNodeLocation() : new BhNodeLocation(nodesToPaste.getLast());
     // 貼り付け処理
     for (var node : nodesToPaste) {
       SequencedSet<Swapped> swappedNodes = BhNodePlacer.moveToWs(
           destination,
           node,
           basePos.x,
-          basePos.y + pastePosOffsetCount.getValue() * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
+          basePos.y + pastePosOffsetCount.getValue() * BhConstants.Ui.REPLACED_NODE_SHIFT * 2,
           userOpe);
       Vec2D size = node.getView()
           .map(view -> view.getRegionManager().getNodeTreeSize(true))
           .orElse(new Vec2D());
-      basePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
+      basePos.x += size.x + BhConstants.Ui.REPLACED_NODE_SHIFT * 2;
       execHookOnPaste(node, swappedNodes, userOpe);
     }
     if (pastePosOffsetCount.getValue() > 2) {
@@ -136,6 +144,7 @@ public class CutAndPaste {
     } else {
       pastePosOffsetCount.increment();
     }
+    pushViewpointChangeCmd(userOpe, oldLocation);
     clearList(userOpe);
   }
 
@@ -167,6 +176,21 @@ public class CutAndPaste {
   private boolean canCut(BhNode node) {
     return (node.isChild() && node.findRootNode().isRoot())
         || node.isRoot();
+  }
+
+  /** ワークスペース上の注視点を変更するコマンドを追加する. */
+  private static void pushViewpointChangeCmd(UserOperation userOpe, BhNodeLocation oldLocation) {
+    BiFunction<WorkspaceView, Vec2D, Boolean> fnShouldChange
+        = (wsView, pos) -> wsView.getWorkspace().isCurrentWorkspace()
+        ? BhSettings.Ui.trackNodeInCurrentWorkspace : BhSettings.Ui.trackNodeInInactiveWorkspace;
+    var newLocation = new BhNodeLocation(oldLocation.node);
+    ViewUtil.pushViewpointChangeCmd(
+        oldLocation.wsView,
+        oldLocation.center,
+        newLocation.wsView,
+        newLocation.center,
+        fnShouldChange,
+        userOpe);
   }
 
   /**

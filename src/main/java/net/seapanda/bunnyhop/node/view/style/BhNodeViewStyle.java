@@ -39,22 +39,22 @@ public class BhNodeViewStyle {
   /** ノードスタイルに付けられたID. */
   public BhNodeViewStyleId id = BhNodeViewStyleId.NONE;
   /** ノード上部の余白. */
-  public double paddingTop = 2.5 * BhConstants.LnF.NODE_SCALE;
+  public double paddingTop = 2.5 * BhConstants.Ui.NODE_SCALE;
   /** ノード下部の余白. */
-  public double paddingBottom = 2.5 * BhConstants.LnF.NODE_SCALE;
+  public double paddingBottom = 2.5 * BhConstants.Ui.NODE_SCALE;
   /** ノード左部の余白. */
-  public double paddingLeft = 2.5 * BhConstants.LnF.NODE_SCALE;
+  public double paddingLeft = 2.5 * BhConstants.Ui.NODE_SCALE;
   /** ノード右部の余白. */
-  public double paddingRight = 2.5 * BhConstants.LnF.NODE_SCALE;
+  public double paddingRight = 2.5 * BhConstants.Ui.NODE_SCALE;
   public BodyShape bodyShape = BodyShape.BODY_SHAPE_ROUND_RECT;
   /** コネクタの位置. */
   public ConnectorPos connectorPos = ConnectorPos.TOP;
   /** ノードの左上からのコネクタの位置. */
-  public double connectorShift = 0.5 * BhConstants.LnF.NODE_SCALE;
+  public double connectorShift = 0.5 * BhConstants.Ui.NODE_SCALE;
   /** コネクタ部分の幅. */
-  public double connectorWidth = 1.5 * BhConstants.LnF.NODE_SCALE;
+  public double connectorWidth = 1.5 * BhConstants.Ui.NODE_SCALE;
   /** コネクタ部分の高さ. */
-  public double connectorHeight = 1.5 * BhConstants.LnF.NODE_SCALE;
+  public double connectorHeight = 1.5 * BhConstants.Ui.NODE_SCALE;
   /** コネクタをそろえる位置. */
   public ConnectorAlignment connectorAlignment = ConnectorAlignment.EDGE;
   /** コネクタの形. */
@@ -64,9 +64,9 @@ public class BhNodeViewStyle {
   /** 切り欠きの位置. */
   public NotchPos notchPos = NotchPos.RIGHT;
   /** コネクタ部分の幅. */
-  public double notchWidth = 1.5 * BhConstants.LnF.NODE_SCALE;
+  public double notchWidth = 1.5 * BhConstants.Ui.NODE_SCALE;
   /** コネクタ部分の高さ. */
-  public double notchHeight = 1.5 * BhConstants.LnF.NODE_SCALE;
+  public double notchHeight = 1.5 * BhConstants.Ui.NODE_SCALE;
   /** 切り欠きの形. */
   public ConnectorShape.CnctrShape notchShape =  ConnectorShape.CnctrShape.NONE;
   /** 固定ノードの切り欠きの形. */
@@ -94,7 +94,7 @@ public class BhNodeViewStyle {
   /** ノードの内部に描画するノードの並べ方のパラメータ. */
   public static class Arrangement {
     /** ノード内部に描画するノード同士の間隔. */
-    public double space = 2.5 * BhConstants.LnF.NODE_SCALE;
+    public double space = 2.5 * BhConstants.Ui.NODE_SCALE;
     /** 内部ノード上部の余白. */
     public double paddingTop = 0;
     /** 内部ノード右部の余白. */
@@ -128,7 +128,7 @@ public class BhNodeViewStyle {
 
   /** テキストフィールドのパラメータ. */
   public static class TextField {
-    public double minWidth = 0 * BhConstants.LnF.NODE_SCALE;
+    public double minWidth = 0 * BhConstants.Ui.NODE_SCALE;
     public boolean editable = true;
     public String cssClass = "defaultTextField";
   }
@@ -151,8 +151,8 @@ public class BhNodeViewStyle {
 
   /** テキストエリアのパラメータ. */
   public static class TextArea {
-    public double minWidth = 4 * BhConstants.LnF.NODE_SCALE;
-    public double minHeight = 3 * BhConstants.LnF.NODE_SCALE;
+    public double minWidth = 4 * BhConstants.Ui.NODE_SCALE;
+    public double minHeight = 3 * BhConstants.Ui.NODE_SCALE;
     public boolean editable = true;
     public String cssClass = "defaultTextArea";
   }
@@ -168,7 +168,7 @@ public class BhNodeViewStyle {
 
   /** ブレークポイントのパラメータ. */
   public static class Breakpoint {
-    public double radius = 1.8 * BhConstants.LnF.NODE_SCALE;
+    public double radius = 1.8 * BhConstants.Ui.NODE_SCALE;
     public String cssClass;
 
     public Breakpoint(String cssClass) {
@@ -178,7 +178,7 @@ public class BhNodeViewStyle {
 
   /** 次に実行するノードであることを表す印のパラメータ. */
   public static class ExecStepMark {
-    public double size = 5.5 * BhConstants.LnF.NODE_SCALE;
+    public double size = 5.5 * BhConstants.Ui.NODE_SCALE;
     public String cssClass;
 
     public ExecStepMark(String cssClass) {
@@ -188,7 +188,7 @@ public class BhNodeViewStyle {
 
   /** ノードが破損していることを表す印のパラメータ. */
   public static class CorruptionMark {
-    public double size = 5.5 * BhConstants.LnF.NODE_SCALE;
+    public double size = 5.5 * BhConstants.Ui.NODE_SCALE;
     public String cssClass;
 
     public CorruptionMark(String cssClass) {

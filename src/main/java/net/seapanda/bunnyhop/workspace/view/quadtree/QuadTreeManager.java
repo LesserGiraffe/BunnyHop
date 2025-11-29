@@ -29,21 +29,21 @@ import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeRectangle.OverlapOp
 public class QuadTreeManager {
 
   /** 再帰的に分割する回数. */
-  private int numRecursive;
+  private final int numRecursive;
   /** 縦と横の分割数. */
   private int numPartitions;
   /** 分割する空間横幅. */
-  private double width;
+  private final double width;
   /** 分割する空間の縦幅. */
-  private double height;
+  private final double height;
   /** 分割された空間の横幅. */
-  private double cellWidth;
+  private final double cellWidth;
   /** 分割された空間の縦幅. */
-  private double cellHeight;
+  private final double cellHeight;
   /** 4 分木. */
-  private ArrayList<QuadTreeRectangle> quadTree;
+  private final ArrayList<QuadTreeRectangle> quadTree;
   /** 4 分木空間上での位置が決まっていない 4 分木オブジェクトのリストの先頭. */
-  private QuadTreeRectangle unknownSpaceListHead = new QuadTreeRectangle();
+  private final QuadTreeRectangle unknownSpaceListHead = new QuadTreeRectangle();
 
   /**
    * コンストラクタ.
@@ -174,7 +174,7 @@ public class QuadTreeManager {
    * 点の位置からモートン番号を求める.
    *
    * @param pos モートン番号を求める位置
-   * @rteurn モートン番号
+   * @return モートン番号
    */
   private int getMortonNumber(Vec2D pos) {
     int adjustedX = (int) Math.min(width - 1,  Math.max(0, pos.x));

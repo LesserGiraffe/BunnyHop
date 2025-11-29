@@ -74,8 +74,8 @@ public class BhNodeCategoryListController {
     setEventHandlers();
     buildNodeSelView();
     registerPrivateTemplateView();
-    for (int i = 0; i < Math.abs(BhConstants.LnF.INITIAL_ZOOM_LEVEL); ++i) {
-      proxy.zoom(BhConstants.LnF.INITIAL_ZOOM_LEVEL > 0);
+    for (int i = 0; i < Math.abs(BhConstants.Ui.INITIAL_ZOOM_LEVEL); ++i) {
+      proxy.zoom(BhConstants.Ui.INITIAL_ZOOM_LEVEL > 0);
     }
   }
 

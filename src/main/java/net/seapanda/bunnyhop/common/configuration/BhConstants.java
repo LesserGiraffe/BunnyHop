@@ -54,8 +54,8 @@ public class BhConstants {
   /** undo 可能な最大回数. */
   public static final int NUM_TIMES_MAX_UNDO = 128;
 
-  /** Look & Feel. */
-  public static class LnF {
+  /** UI に関するパラメータ. */
+  public static class Ui {
     /** 起動時の画面幅のディスプレイに対する割合. */
     public static final double DEFAULT_APP_WIDTH_RATE = 0.7;
     /** 起動時の画面高さのディスプレイに対する割合. */
@@ -77,11 +77,11 @@ public class BhConstants {
     public static final double MIN_WORKSPACE_SIZE_LEVEL = -1;
     public static final double NODE_SCALE = 0.5 * Rem.VAL;
     /** 入れ替えられたノードがワークスペースに移ったときの元の位置に対する位置 (rem). */
-    public static final double REPLACED_NODE_SHIFT = 2.5 * BhConstants.LnF.NODE_SCALE;
+    public static final double REPLACED_NODE_SHIFT = 2.5 * Ui.NODE_SCALE;
     /** BhNode 選択パネル上での BhNode 間のスペース. */
-    public static final double BHNODE_SPACE_ON_SELECTION_VIEW = 2.0 * BhConstants.LnF.NODE_SCALE;
+    public static final double BHNODE_SPACE_ON_SELECTION_VIEW = 2.0 * Ui.NODE_SCALE;
     /** ノードシフタの大きさ. */
-    public static final double NODE_SHIFTER_SIZE = Rem.VAL * 7.0;
+    public static final double NODE_SHIFTER_SIZE = Rem.VAL * 5.6;
   }
 
   /** ファイルパス関連のパラメータ. */
@@ -219,7 +219,7 @@ public class BhConstants {
     public static final String ATTR_VAL_SPECIFY_PARENT = "specifyParent";
   }
 
-  /** JavaScript のコードで使う識別子名. */
+  /** 外部スクリプトで使う識別子名. */
   public static class JsIdName {
     /** スクリプトの呼び出し元オブジェクト. */
     public static final String BH_THIS = "bhThis";

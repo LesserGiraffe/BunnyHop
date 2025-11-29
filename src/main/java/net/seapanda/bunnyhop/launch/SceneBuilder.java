@@ -286,15 +286,15 @@ public class SceneBuilder {
     var wsName = TextDefs.Workspace.initialWsName.get();
     Workspace ws = wsFactory.create(wsName);
     Vec2D wsSize = new Vec2D(
-        BhConstants.LnF.DEFAULT_WORKSPACE_WIDTH, BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT);
+        BhConstants.Ui.DEFAULT_WORKSPACE_WIDTH, BhConstants.Ui.DEFAULT_WORKSPACE_HEIGHT);
     wsFactory.setMvc(ws, wsSize);
     wssCtrl.getWorkspaceSet().addWorkspace(ws, new UserOperation());
   }
 
   private Scene genMainScene(VBox root) {
     Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-    double width = primaryScreenBounds.getWidth() * BhConstants.LnF.DEFAULT_APP_WIDTH_RATE;
-    double height = primaryScreenBounds.getHeight() * BhConstants.LnF.DEFAULT_APP_HEIGHT_RATE;
+    double width = primaryScreenBounds.getWidth() * BhConstants.Ui.DEFAULT_APP_WIDTH_RATE;
+    double height = primaryScreenBounds.getHeight() * BhConstants.Ui.DEFAULT_APP_HEIGHT_RATE;
     var scene =  new Scene(root, width, height);
     scene.getStylesheets().addAll(collectCssPaths());
     return scene;

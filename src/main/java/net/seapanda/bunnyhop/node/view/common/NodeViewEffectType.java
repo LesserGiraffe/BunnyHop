@@ -15,7 +15,7 @@
  *
  */
 
-package net.seapanda.bunnyhop.node.view.effect;
+package net.seapanda.bunnyhop.node.view.common;
 
 /**
  * ノードビューに適用可能な視覚効果一覧.

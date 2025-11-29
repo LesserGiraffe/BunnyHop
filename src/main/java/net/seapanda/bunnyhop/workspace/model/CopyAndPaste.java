@@ -20,19 +20,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.SequencedSet;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.node.service.BhNodePlacer;
+import net.seapanda.bunnyhop.node.view.common.BhNodeLocation;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
+import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
@@ -96,7 +102,7 @@ public class CopyAndPaste {
     Collection<BhNode> candidates = readyToCopy.stream()
         .filter(this::canCopy).collect(Collectors.toCollection(HashSet::new));
 
-    Collection<OriginalAndCopy> listOfOrgAndCopy = candidates.stream()
+    List<OriginalAndCopy> listOfOrgAndCopy = candidates.stream()
         .map(node -> new OriginalAndCopy(node, genCopyNode(node, candidates, userOpe)))
         .filter(orgAndCopy -> orgAndCopy.copy() != null)
         .collect(Collectors.toCollection(ArrayList::new));
@@ -108,18 +114,21 @@ public class CopyAndPaste {
           destination,
           orgAndCopy.copy(),
           basePos.x,
-          basePos.y + pastePosOffsetCount.getValue() * BhConstants.LnF.REPLACED_NODE_SHIFT * 2,
+          basePos.y + pastePosOffsetCount.getValue() * BhConstants.Ui.REPLACED_NODE_SHIFT * 2,
           userOpe);
       //コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
       Vec2D size = orgAndCopy.org().getView()
           .map(view -> view.getRegionManager().getNodeTreeSize(true))
           .orElse(new Vec2D());
-      basePos.x += size.x + BhConstants.LnF.REPLACED_NODE_SHIFT * 2;
+      basePos.x += size.x + BhConstants.Ui.REPLACED_NODE_SHIFT * 2;
     }
     if (pastePosOffsetCount.getValue() > 2) {
       pastePosOffsetCount.setValue(-2);
     } else {
       pastePosOffsetCount.increment();
+    }
+    if (!listOfOrgAndCopy.isEmpty()) {
+      pushViewpointChangeCmd(userOpe, new BhNodeLocation(listOfOrgAndCopy.getLast().copy()));
     }
   }
 
@@ -169,6 +178,20 @@ public class CopyAndPaste {
   private boolean canCopy(BhNode node) {
     return (node.isChild() && node.findRootNode().isRoot())
         || node.isRoot();
+  }
+
+  /** ワークスペース上の注視点を変更するコマンドを追加する. */
+  private static void pushViewpointChangeCmd(UserOperation userOpe, BhNodeLocation location) {
+    BiFunction<WorkspaceView, Vec2D, Boolean> fnShouldChange
+        = (wsView, pos) -> wsView.getWorkspace().isCurrentWorkspace()
+        ? BhSettings.Ui.trackNodeInCurrentWorkspace : BhSettings.Ui.trackNodeInInactiveWorkspace;
+    ViewUtil.pushViewpointChangeCmd(
+        null,
+        null,
+        location.wsView,
+        location.center,
+        fnShouldChange,
+        userOpe);
   }
 
   /**

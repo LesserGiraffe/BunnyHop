@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.node.view;
 import java.util.List;
 import java.util.Optional;
 import javafx.event.Event;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
@@ -95,7 +96,7 @@ public interface BhNodeView extends NodeViewComponent {
   WorkspaceView getWorkspaceView();
 
   /** ノードビューの外観を変更する機能を規定したインタフェース. */
-  public interface LookManager {
+  interface LookManager {
 
     /**
      * ノードビューの CSS の擬似クラスの有効無効を切り替える.
@@ -212,7 +213,7 @@ public interface BhNodeView extends NodeViewComponent {
   }
 
   /** ノードビューの領域に関する操作を規定したインタフェース. */
-  public interface RegionManager {
+  interface RegionManager {
 
     /**
      * コネクタ部分が 関連するノードビューのコネクタ部分に重なっているノードビューを探す.
@@ -276,7 +277,7 @@ public interface BhNodeView extends NodeViewComponent {
      *
      * @return ノードの共通部分のサイズ
      */
-    public Vec2D getCommonPartSize();
+    Vec2D getCommonPartSize();
 
     /**
      * ノードビューのボディとコネクタ部分の領域に対応する {@link QuadTreeRectangle} をまとめたレコード.
@@ -284,7 +285,7 @@ public interface BhNodeView extends NodeViewComponent {
      * @param body ボディ部分の矩形領域に対応する {@link QuadTreeRectangle} オブジェクト
      * @param cnctr コネクタ部分の矩形領域に対応する {@link QuadTreeRectangle} オブジェクト
      */
-    public record Rectangles(QuadTreeRectangle body, QuadTreeRectangle cnctr) { }
+    record Rectangles(QuadTreeRectangle body, QuadTreeRectangle cnctr) { }
 
     /**
      * ノードビューのボディ部分の矩形領域.
@@ -292,11 +293,11 @@ public interface BhNodeView extends NodeViewComponent {
      * @param upperLeft 矩形領域の左上のワークスペース上での位置
      * @param lowerRight 矩形領域の右下のワークスペース上での位置
      */
-    public record BodyRange(Vec2D upperLeft, Vec2D lowerRight) { }
+    record BodyRange(Vec2D upperLeft, Vec2D lowerRight) { }
   }
 
   /** ノードビューの GUI ツリーに関する操作を規定したインタフェース. */
-  public interface TreeManager {
+  interface TreeManager {
 
     /**
      * 関連するノードビューの親グループを取得する.
@@ -359,7 +360,7 @@ public interface BhNodeView extends NodeViewComponent {
   }
 
   /** ノードビューの位置の変更, 取得に関する操作を規定したインタフェース. */
-  public interface PositionManager {
+  interface PositionManager {
 
     /**
      * 関連するノードビューのワークスペース上での位置を返す.
@@ -367,6 +368,13 @@ public interface BhNodeView extends NodeViewComponent {
      * @return 関連するノードビューのワークスペース上での位置
      */
     Vec2D getPosOnWorkspace();
+
+    /**
+     * 関連するノードビューのボディ部分のワークスペース上での範囲を返す.
+     *
+     * @return 関連するノードビューのボディ部分のワークスペース上での範囲
+     */
+    Bounds getBounds();
 
     /**
      * 関連するノードビュー以下のノードビューのワークスペースの上での位置と 4 分木空間上での位置を更新する.
@@ -478,7 +486,20 @@ public interface BhNodeView extends NodeViewComponent {
    *            元となったイベントが格納される.
    *            元となったイベントが存在しない場合は null.
    */
-  record MouseEventInfo(BhNodeView view, MouseEvent event, MouseEventInfo src) {}
+  record MouseEventInfo(BhNodeView view, MouseEvent event, MouseEventInfo src) {
+
+    /**
+     * このオブジェクトのマウスイベントを発生させた
+     * 大元のマウスイベントに対応する {@link MouseEventInfo} を取得する.
+     */
+    public MouseEventInfo getRootEventInfo() {
+      MouseEventInfo info = this;
+      while (info.src != null) {
+        info = info.src;
+      }
+      return info;
+    }
+  }
 
   /**
    * ノードビューの位置が変更されたときの情報を格納したレコード.

@@ -130,7 +130,6 @@ public class WorkspaceSet {
     }
     Workspace old = currentWorkspace;
     currentWorkspace = ws;
-    userOpe.pushCmd(ope -> setCurrentWorkspace(old, ope));
     cbRegistry.onCurrentWsChangedInvoker.invoke(
         new CurrentWorkspaceChangedEvent(this, old, ws, userOpe));
   }

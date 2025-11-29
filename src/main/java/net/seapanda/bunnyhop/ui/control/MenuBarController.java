@@ -52,6 +52,8 @@ public class MenuBarController {
   @FXML private MenuItem freeMemory;
   @FXML private MenuItem focusSimulator;
   @FXML private MenuItem mustSpecifyEntryPoint;
+  @FXML private MenuItem trackNodeInCurrentWs;
+  @FXML private MenuItem trackNodeInInactiveWs;
 
   private final WorkspaceSet wss;
   private final ModelAccessNotificationService notifService;
@@ -91,6 +93,7 @@ public class MenuBarController {
     load.setOnAction(action -> load(wss));
     freeMemory.setOnAction(action -> freeMemory());
     versionInfo.setOnAction(action -> showBunnyVersion());
+
     focusSimulator.setOnAction(action -> {
       switchMenuSetting(focusSimulator, BhSettings.BhSimulator.focusOnStartBhProgram);
       BhSettings.BhSimulator.focusOnStartBhProgram = !BhSettings.BhSimulator.focusOnStartBhProgram;
@@ -98,12 +101,29 @@ public class MenuBarController {
     if (BhSettings.BhSimulator.focusOnStartBhProgram) {
       focusSimulator.setText(focusSimulator.getText() + " ✓");
     }
+
     mustSpecifyEntryPoint.setOnAction(action -> {
       switchMenuSetting(mustSpecifyEntryPoint, BhSettings.BhProgram.entryPointMustExist);
       BhSettings.BhProgram.entryPointMustExist = !BhSettings.BhProgram.entryPointMustExist;
     });
     if (BhSettings.BhProgram.entryPointMustExist) {
       mustSpecifyEntryPoint.setText(mustSpecifyEntryPoint.getText() + " ✓");
+    }
+
+    trackNodeInCurrentWs.setOnAction(action -> {
+      switchMenuSetting(trackNodeInCurrentWs, BhSettings.Ui.trackNodeInCurrentWorkspace);
+      BhSettings.Ui.trackNodeInCurrentWorkspace = !BhSettings.Ui.trackNodeInCurrentWorkspace;
+    });
+    if (BhSettings.Ui.trackNodeInCurrentWorkspace) {
+      trackNodeInCurrentWs.setText(trackNodeInCurrentWs.getText() + " ✓");
+    }
+
+    trackNodeInInactiveWs.setOnAction(action -> {
+      switchMenuSetting(trackNodeInInactiveWs, BhSettings.Ui.trackNodeInInactiveWorkspace);
+      BhSettings.Ui.trackNodeInInactiveWorkspace = !BhSettings.Ui.trackNodeInInactiveWorkspace;
+    });
+    if (BhSettings.Ui.trackNodeInInactiveWorkspace) {
+      trackNodeInInactiveWs.setText(trackNodeInInactiveWs.getText() + " ✓");
     }
   }
 

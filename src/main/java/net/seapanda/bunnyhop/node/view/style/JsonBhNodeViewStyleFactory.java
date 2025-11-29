@@ -114,19 +114,19 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
 
     // paddingTop
     style.paddingTop = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_TOP, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.paddingTop);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(style.paddingTop);
 
     // paddingBottom
     style.paddingBottom = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_BOTTOM, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.paddingBottom);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(style.paddingBottom);
 
     // paddingLeft
     style.paddingLeft = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_LEFT, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.paddingLeft);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(style.paddingLeft);
 
     // paddingRight
     style.paddingRight = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_RIGHT, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.paddingRight);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(style.paddingRight);
 
     // bodyShape
     style.bodyShape = readString(BhConstants.NodeStyleDef.KEY_BODY_SHAPE, jsonObj, fileName)
@@ -139,7 +139,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
     // connectorShift
     style.connectorShift =
         readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHIFT, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.connectorShift);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(style.connectorShift);
 
     // connectorShift
     style.connectorAlignment =
@@ -149,12 +149,12 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
     // connectorWidth
     style.connectorWidth =
         readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_WIDTH, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.connectorWidth);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(style.connectorWidth);
 
     // connectorHeight
     style.connectorHeight =
         readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_HEIGHT, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.connectorHeight);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(style.connectorHeight);
 
     // connectorShape
     style.connectorShape =
@@ -174,11 +174,11 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
 
     // notchWidth
     style.notchWidth = readNumber(BhConstants.NodeStyleDef.KEY_NOTCH_WIDTH, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.notchWidth);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(style.notchWidth);
 
     // notchHeight
     style.notchHeight = readNumber(BhConstants.NodeStyleDef.KEY_NOTCH_HEIGHT, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(style.notchHeight);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(style.notchHeight);
 
     // notchShape
     style.notchShape =
@@ -301,28 +301,28 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       throws ViewConstructionException {
     // space
     arrangement.space = readNumber(BhConstants.NodeStyleDef.KEY_SPACE, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(arrangement.space);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(arrangement.space);
 
     // paddingTop
     arrangement.paddingTop = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_TOP, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(arrangement.paddingTop);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(arrangement.paddingTop);
 
     // paddingRight
     arrangement.paddingRight =
         readNumber(BhConstants.NodeStyleDef.KEY_PADDING_RIGHT, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE)
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(arrangement.paddingRight);
 
     // paddingBottom
     arrangement.paddingBottom =
         readNumber(BhConstants.NodeStyleDef.KEY_PADDING_BOTTOM, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE)
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(arrangement.paddingBottom);
 
     // paddingLeft
     arrangement.paddingLeft =
         readNumber(BhConstants.NodeStyleDef.KEY_PADDING_LEFT, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE)
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(arrangement.paddingLeft);
 
     // arrangement
@@ -444,7 +444,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
 
     // radius
     breakpoint.radius = readNumber(BhConstants.NodeStyleDef.KEY_RADIUS, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(breakpoint.radius);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(breakpoint.radius);
   }
 
   /**
@@ -463,7 +463,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
 
     // size
     execStepMark.size = readNumber(BhConstants.NodeStyleDef.KEY_SIZE, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(execStepMark.size);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(execStepMark.size);
   }
 
   /**
@@ -482,7 +482,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
 
     // size
     corruptionMark.size = readNumber(BhConstants.NodeStyleDef.KEY_SIZE, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(corruptionMark.size);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(corruptionMark.size);
   }
 
   /**
@@ -501,7 +501,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
 
     // minWidth
     textField.minWidth = readNumber(BhConstants.NodeStyleDef.KEY_MIN_WIDTH, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(textField.minWidth);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(textField.minWidth);
         
     // editable
     textField.editable = readBool(BhConstants.NodeStyleDef.KEY_EDITABLE, jsonObj, fileName)
@@ -554,11 +554,11 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
 
     // minWidth
     textArea.minWidth = readNumber(BhConstants.NodeStyleDef.KEY_MIN_WIDTH, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(textArea.minWidth);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(textArea.minWidth);
 
     // minHeight
     textArea.minHeight = readNumber(BhConstants.NodeStyleDef.KEY_MIN_HEIGHT, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.LnF.NODE_SCALE).orElse(textArea.minHeight);
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(textArea.minHeight);
 
     // editable
     textArea.editable = readBool(BhConstants.NodeStyleDef.KEY_EDITABLE, jsonObj, fileName)

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javafx.animation.Animation;
@@ -50,14 +51,17 @@ import net.seapanda.bunnyhop.debugger.control.DebugWindowController;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.service.BhNodePlacer;
+import net.seapanda.bunnyhop.node.view.common.BhNodeLocation;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService.Context;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
+import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.service.window.WindowManager;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
+import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSetController;
 import net.seapanda.bunnyhop.workspace.model.CopyAndPaste;
@@ -65,6 +69,7 @@ import net.seapanda.bunnyhop.workspace.model.CutAndPaste;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 import net.seapanda.bunnyhop.workspace.model.factory.WorkspaceFactory;
+import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 
 /**
  * 画面上部のボタンのコントローラクラス.
@@ -278,7 +283,7 @@ public class MenuViewController {
       Vec2D pastePos =
           currentWs.getView().map(wsv -> wsv.sceneToWorkspace(posOnScene))
           .orElse(new Vec2D());
-      pastePos.add(BhConstants.LnF.REPLACED_NODE_SHIFT * 2, 0);
+      pastePos.add(BhConstants.Ui.REPLACED_NODE_SHIFT * 2, 0);
       copyAndPaste.paste(currentWs, pastePos, context.userOpe());
       cutAndPaste.paste(currentWs, pastePos, context.userOpe());
     } finally {
@@ -299,6 +304,10 @@ public class MenuViewController {
           .filter(node -> node.getEventInvoker().onDeletionRequested(
               candidates, CauseOfDeletion.SELECTED_FOR_DELETION, context.userOpe()))
           .collect(Collectors.toCollection(ArrayList::new));
+      BhNodeLocation location = new BhNodeLocation();
+      if (!nodesToDelete.isEmpty()) {
+        location = new BhNodeLocation(nodesToDelete.getLast());
+      }
       List<Swapped> swappedNodes = BhNodePlacer.deleteNodes(nodesToDelete, context.userOpe());
       for (var swapped : swappedNodes) {
         swapped.newNode().findParentNode().getEventInvoker().onChildReplaced(
@@ -307,6 +316,7 @@ public class MenuViewController {
             swapped.newNode().getParentConnector(),
             context.userOpe());
       }
+      pushViewpointChangeCmd(context.userOpe(), location);
     } finally {
       notifService.endWrite();
     }
@@ -467,7 +477,7 @@ public class MenuViewController {
     Workspace ws = wsFactory.create(name);
     try {
       Vec2D size = new Vec2D(
-          BhConstants.LnF.DEFAULT_WORKSPACE_WIDTH, BhConstants.LnF.DEFAULT_WORKSPACE_HEIGHT);
+          BhConstants.Ui.DEFAULT_WORKSPACE_WIDTH, BhConstants.Ui.DEFAULT_WORKSPACE_HEIGHT);
       wsFactory.setMvc(ws, size);
     } catch (ViewConstructionException e) {
       LogManager.logger().error(e.toString());
@@ -618,6 +628,20 @@ public class MenuViewController {
   /** 現在制御対象になっている BhRuntime の種類を返す. */
   private boolean isLocalHost() {
     return BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.LOCAL;
+  }
+
+  /** ワークスペース上の注視点を変更するコマンドを追加する. */
+  private static void pushViewpointChangeCmd(UserOperation userOpe, BhNodeLocation location) {
+    BiFunction<WorkspaceView, Vec2D, Boolean> fnShouldChange
+        = (wsView, pos) -> wsView.getWorkspace().isCurrentWorkspace()
+        ? BhSettings.Ui.trackNodeInCurrentWorkspace : BhSettings.Ui.trackNodeInInactiveWorkspace;
+    ViewUtil.pushViewpointChangeCmd(
+        location.wsView,
+        location.center,
+        null,
+        null,
+        fnShouldChange,
+        userOpe);
   }
 
   /**

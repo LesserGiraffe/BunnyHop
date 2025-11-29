@@ -17,6 +17,9 @@
     <TextFetcher fx:id="settingsText" textId="gui,menu-bar,settings"/>
     <TextFetcher fx:id="focusSimulatorText" textId="gui,menu-bar,focus-simulator"/>
     <TextFetcher fx:id="mustSpecifyEntryPointText" textId="gui,menu-bar,must-specify-entry-point"/>
+    <TextFetcher fx:id="undoRedoText" textId="gui,menu-bar,undo-redo"/>
+    <TextFetcher fx:id="trackNodeInCurrentWsText" textId="gui,menu-bar,track-node-in-current-workspace"/>
+    <TextFetcher fx:id="trackNodeInInactiveWsText" textId="gui,menu-bar,track-node-in-inactive-workspace"/>
     <TextFetcher fx:id="helpText" textId="gui,menu-bar,help"/>
     <TextFetcher fx:id="versionInfoText" textId="gui,menu-bar,version-info"/>
   </fx:define>
@@ -31,6 +34,10 @@
   <Menu text="$settingsText.text">
     <MenuItem fx:id="focusSimulator" text="$focusSimulatorText.text"/>
     <MenuItem fx:id="mustSpecifyEntryPoint" text="$mustSpecifyEntryPointText.text"/>
+    <Menu text="$undoRedoText.text">
+      <MenuItem fx:id="trackNodeInCurrentWs" text="$trackNodeInCurrentWsText.text"/>
+      <MenuItem fx:id="trackNodeInInactiveWs" text="$trackNodeInInactiveWsText.text"/>
+    </Menu>
   </Menu>
   <Menu text="$helpText.text">
     <MenuItem fx:id="versionInfo" text="$versionInfoText.text"/>
