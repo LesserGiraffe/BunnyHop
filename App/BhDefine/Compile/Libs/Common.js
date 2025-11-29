@@ -349,7 +349,7 @@ function readStream(stream) {
   for (let i = 0; i < readByte.length; ++i)
     byteArray[i] = bhScriptHelper.util.toByte(readByte[i]);
 
-  return new _jString(byteArray);
+  return String(new _jString(byteArray));
 }
 
 function _waitProcEnd(process, getStdinStr, checkExitVal) {
@@ -360,10 +360,11 @@ function _waitProcEnd(process, getStdinStr, checkExitVal) {
       retStr = readStream(is);
     } else {
       while (is.read() !== -1);
-        process.waitFor();
+      process.waitFor();
     }
-    if (checkExitVal && (process.exitValue() !== 0))
+    if (checkExitVal && (process.exitValue() !== 0)) {
       throw _newBhProgramException('abnormal process end');
+    }
   } finally {
     process.getErrorStream().close();
     process.getInputStream().close();
@@ -940,17 +941,26 @@ function _pushSound(sound, soundList) {
 }
 
 function _say(word) {
-  word = word.replace(/\r?\n/g, ' ');
-  if (word === '')
+  // `` で文字列を区切る.  Rhino では後読みが指定できないので Java の split を使う.
+  let lines = new _jString(word).split('(?<!`)``(?!`)', 0);
+  for (let line of lines) {
+    _sayLine(String(line));
+  }
+}
+
+function _sayLine(line) {
+  line = line.replace(/\r?\n/g, ' ');
+  if (line === '') {
     return;
-  if (bhScriptHelper.util.platform.isWindows())
-    _runSayCmd(word, 'bhSay.cmd', 'Shift_JIS');
-  else if (bhScriptHelper.util.platform.isLinux())
-    _runSayCmd(word, 'bhSay.sh', 'UTF-8');
+  }
+  if (bhScriptHelper.util.platform.isWindows()) {
+    _runSayCmd(line, 'bhSay.cmd', 'Shift_JIS');
+  } else if (bhScriptHelper.util.platform.isLinux()) {
+    _runSayCmd(line, 'bhSay.sh', 'UTF-8');
+  }
 }
 
 function _runSayCmd(word, cmd, charset) {
-  word = word.replace(/"/g, '');
   word = bhScriptHelper.util.substringByBytes(word, 1000, charset);
   let execPath = bhScriptHelper.util.getExecPath();
   let wavFilePath = _jPaths.get(execPath, 'Actions', 'open_jtalk', `${_getSerialNo()}.wav`).toAbsolutePath();
@@ -959,12 +969,18 @@ function _runSayCmd(word, cmd, charset) {
   try {
     let process = procBuilder.start();
     _waitProcEnd(process, false, true);
+  } catch (e) {
+    // 音声合成に失敗した場合は音声を再生しない.
+    return;
+  }
+  try {
     bhScriptHelper.audio.play(wavFilePath, _getNormalizedAudioVolume());
     _jFiles.delete(wavFilePath);
   } catch (e) {
     throw _newBhProgramException('_say', e);
   }
 }
+
 
 // 色クラス
 function _Color(red, green, blue) {
