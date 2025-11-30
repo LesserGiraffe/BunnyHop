@@ -10,9 +10,7 @@ function genSyncTimerDeclTemplateNode(nodeID) {
   return [
     genSyncTimerDeclTemplateNode('idSyncTimerCountdownStat'),
     genSyncTimerDeclTemplateNode('idSyncTimerAwaitStat'),
-    genSyncTimerDeclTemplateNode('idSyncTimerAwaitWithTimeoutStat'),
-    genSyncTimerDeclTemplateNode('idSyncTimerCountdownAndAwaitStat'),
-    genSyncTimerDeclTemplateNode('idSyncTimerCountdownAndAwaitWithTimeoutStat'),
+    genSyncTimerDeclTemplateNode('idSyncTimerTimedAwaitExp'),
     genSyncTimerDeclTemplateNode('idResetSyncTimerStat'),
     genSyncTimerDeclTemplateNode('idGetSyncTimerCountExp')];
 })();

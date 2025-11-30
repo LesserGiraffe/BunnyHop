@@ -73,7 +73,10 @@ public class ScriptIdentifiers {
     public static final String NEW_SYNC_TIMER = "_newSyncTimer";
     public static final String SYNC_TIMER_COUNTDOWN = "_syncTimerCountdown";
     public static final String SYNC_TIMER_AWAIT = "_syncTimerAwait";
+    public static final String SYNC_TIMER_TIMED_AWAIT = "_syncTimerTimedAwait";
     public static final String SYNC_TIMER_COUNTDOWN_AND_AWAIT = "_syncTimerCountdownAndAwait";
+    public static final String SYNC_TIMER_COUNTDOWN_AND_TIMED_AWAIT
+        = "_syncTimerCountdownAndTimedAwait";
     public static final String RESET_SYNC_TIMER = "_resetSyncTimer";
     public static final String GET_SYNC_TIMER_COUNT = "_getSyncTimerCount";
     public static final String TRY_LOCK = "_tryLock";

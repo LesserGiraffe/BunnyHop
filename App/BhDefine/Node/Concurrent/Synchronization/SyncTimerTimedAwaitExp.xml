@@ -1,0 +1,38 @@
+<Node
+  type="connective"
+  bhNodeID="idSyncTimerTimedAwaitExp"
+  name="SyncTimerTimedAwaitExp"
+  nodeStyleID="SyncTimerTimedAwaitExp.json"
+  breakpoint="set"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="BoolExpSctn">
+
+    <Connector
+      bhConnectorID="idSyncTimerTimedAwaitExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idSyncTimerTimedAwaitExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+
+    <Connector
+      bhConnectorID="idSyncTimerTimedAwaitExp.cnctr2"
+      name="Option0"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idSyncTimerTimedAwaitExp.node2"
+        name="CountdownOption"
+        nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
+        onTextOptionsCreating="CreateCountdownOps.js"
+        version="bhn-0.1.0">
+      </Node>
+    </Connector>
+
+  </ConnectorSection>
+</Node>

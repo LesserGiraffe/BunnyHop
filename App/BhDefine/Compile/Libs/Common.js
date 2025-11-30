@@ -19,7 +19,6 @@ let _jClass = java.lang.Class;
 let _jCyclicBarrier = java.util.concurrent.CyclicBarrier;
 let _jStringBuilder = java.lang.StringBuilder;
 let _jTimeUnit = java.util.concurrent.TimeUnit;
-let _jTimeoutException = java.util.concurrent.TimeoutException;
 let _jNoSuchFileException = java.nio.file.NoSuchFileException;
 let _jFileNotFoundException = java.io.FileNotFoundException;
 let _jLineUnavailableException = javax.sound.sampled.LineUnavailableException;
@@ -1116,90 +1115,87 @@ function _strcatLf(valA, valB) {
 //              同期/排他
 //==================================================================
 function _newSyncTimer(count, autoReset) {
-  if (!_isIntInRange(count, _syncTimer.minCount, _syncTimer.maxCount))
+  if (!_isIntInRange(count, _syncTimer.minCount, _syncTimer.maxCount)) {
     throw _newBhProgramException(
-      _textDb.errMsg.invalidSyncTimerInitVal(_syncTimer.minCount, _syncTimer.maxCount, count));
-
+        _textDb.errMsg.invalidSyncTimerInitVal(_syncTimer.minCount, _syncTimer.maxCount, count));
+  }
   return bhScriptHelper.factory.newSyncTimer(count, autoReset);
 }
 
 function _syncTimerCountdown(timer) {
-  if (timer === _syncTimer.nil)
+  if (timer === _syncTimer.nil) {
     return;
+  }
   timer.countdown();
 }
 
-/**
- * カウントダウンしてタイマーが 0 になるのを待つ
- * @param timer 同期タイマーオブジェクト
- * @param timeout タイムアウト値 (sec).
- */
-function _syncTimerCountdownAndAwait(timer, timeout) {
+/** カウントダウンしてタイマーが 0 になるのを待つ. */
+function _syncTimerCountdownAndAwait(timer) {
   if (timer === _syncTimer.nil) {
     return;
   }
-  if (timeout === (void 0) || timeout === null) {
-    timer.countdownAndAwait();
+  timer.countdownAndAwait();
+}
+
+/** タイマーが 0 になるのを待つ. */
+function _syncTimerAwait(timer) {
+  if (timer === _syncTimer.nil) {
     return;
   }
-
-  let max = Math.floor(_nearestLongMax / 1024);
-  if (!_isInRange(timeout, 0, max)) {
-    throw _newBhProgramException(_textDb.errMsg.invalidSyncTimerWaitTime(0, max, timeout));
-  }
-  let millis = Math.round(timeout * 1000);
-  try {
-    timer.countdownAndAwaitInterruptibly(millis, _jTimeUnit.MILLISECONDS);
-  } catch (e) {
-    if (!(e.javaException instanceof _jTimeoutException)) {
-      throw _newBhProgramException('_syncTimerCountdownAndAwait', e);
-    }
-  }
+  timer.await();
 }
 
 /**
- * タイマーが 0 になるのを待つ
+ * タイマーが 0 になるのを待つ.
  * @param timer 同期タイマーオブジェクト
- * @param timeout タイムアウト値 (sec).
+ * @param timeout タイムアウト値 (sec)
+ * @return @return タイマーのカウントが 0 に達した場合 true
  */
-function _syncTimerAwait(timer, timeout) {
+function _syncTimerTimedAwait(timer, timeout) {
   if (timer === _syncTimer.nil) {
-    return;
+    return false;
   }
-  if (timeout === (void 0) || timeout === null) {
-    timer.await();
-    return;
-  }
-
   let max = Math.floor(_nearestLongMax / 1024);
   if (!_isInRange(timeout, 0, max)) {
     throw _newBhProgramException(_textDb.errMsg.invalidSyncTimerWaitTime(0, max, timeout));
   }
   let millis = Math.round(timeout * 1000);
-  try {
-    timer.awaitInterruptibly(millis, _jTimeUnit.MILLISECONDS);
-  } catch (e) {
-    if (!(e.javaException instanceof _jTimeoutException)) {
-      throw _newBhProgramException('_syncTimerAwait', e);
-    }
+  return timer.await(millis, _jTimeUnit.MILLISECONDS);
+}
+
+/**
+ * カウントダウンしてタイマーが 0 になるのを待つ.
+ * @param timer 同期タイマーオブジェクト
+ * @param timeout タイムアウト値 (sec)
+ * @return @return タイマーのカウントが 0 に達した場合 true
+ */
+function _syncTimerCountdownAndTimedAwait(timer, timeout) {
+  if (timer === _syncTimer.nil) {
+    return false;
   }
+  let max = Math.floor(_nearestLongMax / 1024);
+  if (!_isInRange(timeout, 0, max)) {
+    throw _newBhProgramException(_textDb.errMsg.invalidSyncTimerWaitTime(0, max, timeout));
+  }
+  let millis = Math.round(timeout * 1000);
+  return timer.countdownAndAwait(millis, _jTimeUnit.MILLISECONDS);
 }
 
 function _resetSyncTimer(timer, count) {
-  if (timer === _syncTimer.nil)
+  if (timer === _syncTimer.nil) {
     return;
-
-  if (!_isIntInRange(count, _syncTimer.minCount, _syncTimer.maxCount))
+  }
+  if (!_isIntInRange(count, _syncTimer.minCount, _syncTimer.maxCount)) {
     throw _newBhProgramException(
-      _textDb.errMsg.invalidSyncTimerResetVal(_syncTimer.minCount, _syncTimer.maxCount, count));
-  
+        _textDb.errMsg.invalidSyncTimerResetVal(_syncTimer.minCount, _syncTimer.maxCount, count));
+  }
   timer.reset(count);
 }
 
 function _getSyncTimerCount(timer) {
-  if (timer === _syncTimer.nil)
+  if (timer === _syncTimer.nil) {
     return 0;
-
+  }
   return timer.getCount();
 }
 

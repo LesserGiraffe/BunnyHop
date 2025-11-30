@@ -310,6 +310,7 @@ public class SymbolNames {
     public static final String STR_LINE_FEED_CHAIN_LINK_EXP = "StrLineFeedChainLinkExp";
     public static final String STR_CHAIN_EXP = "StrChainExp";
     public static final String GET_SYNC_TIMER_COUNT_EXP = "GetSyncTimerCountExp";
+    public static final String SYNC_TIMER_TIMED_AWAIT_EXP = "SyncTimerTimedAwaitExp";
     public static final String ANY_ARRAY_TO_STR_EXP = "AnyArrayToStrExp";
     public static final String CHECK_NUM_TYPE_EXP = "CheckNumTypeExp";
     public static final String NUM_POW_EXP = "NumPowExp";
@@ -328,11 +329,6 @@ public class SymbolNames {
     public static final String PLAY_SOUND_LIST_STAT = "PlaySoundListStat";
     public static final String SAY_STAT = "SayStat";
     public static final String LIGHT_EYE_STAT = "LightEyeStat";
-    public static final String SYNC_TIMER_AWAIT_WITH_TIMEOUT_STAT = "SyncTimerAwaitWithTimeoutStat";
-    public static final String SYNC_TIMER_COUNTDOWN_AND_AWAIT_STAT = 
-        "SyncTimerCountdownAndAwaitStat";
-    public static final String SYNC_TIMER_COUNTDOWN_AND_AWAIT_WITH_TIMEOUT_STAT = 
-        "SyncTimerCountdownAndAwaitWithTimeoutStat";
     public static final String SYNC_TIMER_AWAIT_STAT = "SyncTimerAwaitStat";
     public static final String RESET_SYNC_TIMER_STAT = "ResetSyncTimerStat";
     public static final String SYNC_TIMER_COUNTDOWN_STAT = "SyncTimerCountdownStat";
@@ -375,6 +371,8 @@ public class SymbolNames {
     public static final String OPT_NAN = "nan";
     public static final String OPT_WITH_LINE_BREAK = "withLineBreak";
     public static final String OPT_WITHOUT_LINE_BREAK = "withoutLineBreak";
+    public static final String OPT_WITH_COUNTDOWN = "withCountdown";
+    public static final String OPT_WITHOUT_COUNTDOWN = "withoutCountdown";
 
     /** 定義済み関数式のリスト. */
     public static final HashSet<String> EXP_LIST =
@@ -397,6 +395,7 @@ public class SymbolNames {
             STR_LINE_FEED_CHAIN_LINK_EXP,
             STR_CHAIN_EXP,
             GET_SYNC_TIMER_COUNT_EXP,
+            SYNC_TIMER_TIMED_AWAIT_EXP,
             ANY_ARRAY_TO_STR_EXP,
             CHECK_NUM_TYPE_EXP,
             NUM_POW_EXP,
@@ -433,9 +432,6 @@ public class SymbolNames {
             SAY_STAT,
             LIGHT_EYE_STAT,
             SYNC_TIMER_AWAIT_STAT,
-            SYNC_TIMER_AWAIT_WITH_TIMEOUT_STAT,
-            SYNC_TIMER_COUNTDOWN_AND_AWAIT_STAT,
-            SYNC_TIMER_COUNTDOWN_AND_AWAIT_WITH_TIMEOUT_STAT,
             RESET_SYNC_TIMER_STAT,
             SYNC_TIMER_COUNTDOWN_STAT,
             SAVE_TEXT_STAT,
@@ -464,13 +460,10 @@ public class SymbolNames {
             put(FuncId.create(ANY_TO_STR_EXP), ScriptIdentifiers.Funcs.STR);
             put(FuncId.create(PRINT_STAT, OPT_WITH_LINE_BREAK), ScriptIdentifiers.Funcs.PRINTLN);
             put(FuncId.create(PRINT_STAT, OPT_WITHOUT_LINE_BREAK), ScriptIdentifiers.Funcs.PRINT);
-            put(FuncId.create(SYNC_TIMER_AWAIT_STAT), ScriptIdentifiers.Funcs.SYNC_TIMER_AWAIT);
-            put(FuncId.create(SYNC_TIMER_AWAIT_WITH_TIMEOUT_STAT),
+            put(FuncId.create(SYNC_TIMER_AWAIT_STAT, OPT_WITH_COUNTDOWN),
+                ScriptIdentifiers.Funcs.SYNC_TIMER_COUNTDOWN_AND_AWAIT);
+            put(FuncId.create(SYNC_TIMER_AWAIT_STAT, OPT_WITHOUT_COUNTDOWN),
                 ScriptIdentifiers.Funcs.SYNC_TIMER_AWAIT);
-            put(FuncId.create(SYNC_TIMER_COUNTDOWN_AND_AWAIT_STAT),
-                ScriptIdentifiers.Funcs.SYNC_TIMER_COUNTDOWN_AND_AWAIT);
-            put(FuncId.create(SYNC_TIMER_COUNTDOWN_AND_AWAIT_WITH_TIMEOUT_STAT),
-                ScriptIdentifiers.Funcs.SYNC_TIMER_COUNTDOWN_AND_AWAIT);
             put(FuncId.create(RESET_SYNC_TIMER_STAT), ScriptIdentifiers.Funcs.RESET_SYNC_TIMER);
             put(FuncId.create(SYNC_TIMER_COUNTDOWN_STAT),
                 ScriptIdentifiers.Funcs.SYNC_TIMER_COUNTDOWN);
@@ -497,6 +490,10 @@ public class SymbolNames {
             put(FuncId.create(STR_CHAIN_EXP), ScriptIdentifiers.Funcs.IDENTITY);
             put(FuncId.create(GET_SYNC_TIMER_COUNT_EXP),
                 ScriptIdentifiers.Funcs.GET_SYNC_TIMER_COUNT);
+            put(FuncId.create(SYNC_TIMER_TIMED_AWAIT_EXP, OPT_WITH_COUNTDOWN),
+                ScriptIdentifiers.Funcs.SYNC_TIMER_COUNTDOWN_AND_TIMED_AWAIT);
+            put(FuncId.create(SYNC_TIMER_TIMED_AWAIT_EXP, OPT_WITHOUT_COUNTDOWN),
+                ScriptIdentifiers.Funcs.SYNC_TIMER_TIMED_AWAIT);
             put(FuncId.create(ANY_ARRAY_TO_STR_EXP), ScriptIdentifiers.Funcs.ARY_TO_STR);
             put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_FINITE), "Number.isFinite");
             put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_INFINITE),

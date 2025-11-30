@@ -19,9 +19,24 @@
       bhConnectorID="idSyncTimerAwaitStat.cnctr0"
       import="idAnyFixedCnctr"
       name="Arg0"/>
-    
+
     <Connector
       bhConnectorID="idSyncTimerAwaitStat.cnctr1"
+      name="Option0"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idSyncTimerAwaitStat.node1"
+        name="CountdownOption"
+        nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
+        onTextOptionsCreating="CreateCountdownOps.js"
+        version="bhn-0.1.0">
+      </Node>
+    </Connector>
+
+    <Connector
+      bhConnectorID="idSyncTimerAwaitStat.cnctr2"
       import="idStatCnctr"
       name="NextStat"/>
 

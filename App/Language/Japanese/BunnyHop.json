@@ -320,9 +320,14 @@
       "false": "待たない"
     },
 
-    "sync-timer-ops": {
+    "sync-timer-reset-ops": {
       "true": "する",
       "false": "しない"
+    },
+
+    "sync-timer-countdown-ops": {
+      "true": "減らす",
+      "false": "減らさない"
     },
 
     "print-stat-ops": {
@@ -569,9 +574,7 @@
       "GetSyncTimerCountExp": "処理待ちタイマーの現在のカウントを取得する",
       "ResetSyncTimerStat": "処理待ちタイマーのカウントを変更する",
       "SyncTimerAwaitStat": "処理待ちタイマーのカウントが 0 になるまで待つ",
-      "SyncTimerAwaitWithTimeoutStat": "処理待ちタイマーのカウントが 0 になるまで待つ (タイムアウト付き)",
-      "SyncTimerCountdownAndAwaitStat": "処理待ちタイマーのカウントを 1 減らしてから, カウントが 0 になるまで待つ",
-      "SyncTimerCountdownAndAwaitWithTimeoutStat": "処理待ちタイマーのカウントを 1 減らしてから, カウントが 0 になるまで待つ (タイムアウト付き)",
+      "SyncTimerTimedAwaitExp": "処理待ちタイマーのカウントが 0 になるまで待つ (タイムアウト付)",
       "SyncTimerCountdownStat": "処理待ちタイマーのカウントを 1 減らす",
       "SyncTimerDecl": "処理待ちタイマー定義 (${name})",
       "SyncTimerVar": "処理待ちタイマー (${name})",

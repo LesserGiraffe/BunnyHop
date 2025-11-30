@@ -1,34 +1,31 @@
 {
   "paddingTop" : 1.0,
   "paddingBottom" : 1.0,
-  "paddingLeft" : 6.25,
+  "paddingLeft" : 2.5,
   "paddingRight" : 1.5,
-  "connectorPos" : "Top",
-  "connectorShift" : 1.0,
+  "connectorPos" : "Left",
+  "connectorShift" : 0.0,
   "connectorWidth" : 4.25,
   "connectorHeight" : 4.25,
-  "connectorShape" : "ARROW",
+  "connectorShape" : "CROSS",
   "connectorBoundsRate" : 1.95,
-  "cssClass" : "concurrentType",
+  "cssClass" : "boolType",
 
   "connective" : {
     "inner" : {
+
       "arrangement" : "Column",
       "space" : 1.5,
       "subGroup0" : {
         "space" : 2.0,
         "arrangement" : "Row",
-        "connectorList" : ["Arg0", "${L2}{のカウントを 1 減らしてから}"]
+        "connectorList" :["Arg0", "${L1}{のカウントが}", "Arg1", "${L1}{秒以内に 0 になった}"]
       },
       "subGroup1" : {
         "space" : 2.0,
         "arrangement" : "Row",
-        "connectorList" : ["${L2}{カウントが 0 になるまで、最大}", "Arg1", "${L2}{秒間待つ}"]
+        "connectorList" : ["${L1}{( 最初にカウントを 1}", "Option0", "${L1}{)}"]
       }
-    },
-
-    "outer" : {
-      "connectorList" : ["NextStat"]
     }
   }
 }
