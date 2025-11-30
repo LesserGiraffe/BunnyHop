@@ -188,6 +188,9 @@ public class SymbolNames {
     public static final String RETURN_STAT = "ReturnStat";
     public static final String MUTEX_BLOCK_STAT = "MutexBlockStat";
     public static final String EXCLUSIVE_STAT = "ExclusiveStat";
+    public static final String EXP_ADAPTER_STAT = "ExpAdapterStat";
+    public static final String ARRAY_ADAPTER_STAT = "ArrayAdapterStat";
+    public static final String TARGET = "Target";
     public static final HashSet<String> LIST =
         new HashSet<>(Arrays.asList(
             IF_STAT,
@@ -198,7 +201,9 @@ public class SymbolNames {
             CONTINUE_STAT,
             BREAK_STAT,
             RETURN_STAT,
-            MUTEX_BLOCK_STAT));
+            MUTEX_BLOCK_STAT,
+            EXP_ADAPTER_STAT,
+            ARRAY_ADAPTER_STAT));
   }
 
   /** 二項演算式に関するシンボル名. */

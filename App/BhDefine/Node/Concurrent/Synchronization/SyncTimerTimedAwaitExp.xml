@@ -3,7 +3,7 @@
   bhNodeID="idSyncTimerTimedAwaitExp"
   name="SyncTimerTimedAwaitExp"
   nodeStyleID="SyncTimerTimedAwaitExp.json"
-  breakpoint="set"
+  breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 

@@ -213,6 +213,11 @@ class StatCodeGenerator {
         genMutexBlockStat(code, controlStatNode, nestLevel, option);
         break;
 
+      case SymbolNames.ControlStat.EXP_ADAPTER_STAT:
+      case SymbolNames.ControlStat.ARRAY_ADAPTER_STAT:
+        genAdapterStat(code, controlStatNode, nestLevel, option);
+        break;
+
       default:
         throw new AssertionError("Invalid control stat " + symbolName);
     }
@@ -391,7 +396,7 @@ class StatCodeGenerator {
    * 排他制御区間のコードを生成する.
    *
    * @param code 生成したコードの格納先
-   * @param mutexBlockNode クリティカルセクションのノード
+   * @param mutexBlockNode 排他区間のノード
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
@@ -480,6 +485,24 @@ class StatCodeGenerator {
   }
 
   /**
+   * 式を文に変換するコードを作成する.
+   *
+   * @param code 生成したコードの格納先
+   * @param adapterStatNode 式を文に変換するノード
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   */
+  private void genAdapterStat(
+      StringBuilder code,
+      SyntaxSymbol adapterStatNode,
+      int nestLevel,
+      CompileOption option) {
+    SyntaxSymbol exp =
+        adapterStatNode.findDescendantOf("*", SymbolNames.ControlStat.TARGET, "*");
+    expCodeGen.genExpression(code, exp, nestLevel, option);
+  }
+
+  /**
    * {@code symbol} が一時停止可能なノードである場合, 一時停止するコードを生成する.
    *
    * @param code 生成したコードの格納先
@@ -497,5 +520,5 @@ class StatCodeGenerator {
         common.genConditionalWait(node.getInstanceId(), code, nestLevel, option);
       }
     }
-  }  
+  }
 }

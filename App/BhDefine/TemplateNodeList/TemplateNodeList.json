@@ -5,7 +5,7 @@
       "idMoveStat",
       "idMeasureDistanceExp",
       "idDetectColorExp",
-      "idPlayMelodyStat",
+      "idMeasureSoundPressureExp",
       "idSleepStat",
       "idSayStat",
       "idLightEyeStat",
@@ -99,7 +99,9 @@
       "idWhileStat",
       "idBreakStat", 
       "idContinueStat",
-      "idCompoundStat"]
+      "idCompoundStat",
+      "idExpAdapterStat",
+      "idArrayAdapterStat"]
   },
   
   "${node-category}{variable}": {

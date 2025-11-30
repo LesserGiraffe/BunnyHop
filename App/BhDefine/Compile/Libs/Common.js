@@ -1292,7 +1292,7 @@ function _deleteTextFiles(paths) {
 //              音声データの保存 / 再生
 //==================================================================
 let _minRecordTime = 0;
-let _maxRecordTime = 200;
+let _maxRecordTime = 300;
 
 function _recordAudio(path, time) {
   try {
