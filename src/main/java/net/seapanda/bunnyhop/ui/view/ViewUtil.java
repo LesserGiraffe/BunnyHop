@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.ui.view;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -32,7 +34,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.node.view.BhNodeView.LookManager.EffectTarget;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
@@ -273,41 +274,17 @@ public class ViewUtil {
   }
 
   /**
-   * {@code view} をワークスペースビュー中央に表示して影をつける.
+   * {@code view} をワークスペース中央に表示する.
    *
-   * @param view ワークスペースビュー中央に表示するノードビュー
-   * @param hideShadow {@code view} が属するワークスペースのノードビューの全ての影を消す場合 true
-   * @param target 影をつける対象. null を指定すると影をつけない.
-   */
-  public static void jump(BhNodeView view, boolean hideShadow, EffectTarget target) {
-    runSafe(() -> jumpImpl(view, hideShadow, target));
-  }
-
-  /**
-   * {@code view} をワークスペースビュー中央に表示して影をつける.
+   * <p>{@code view} がワークスペースに属さない場合何もしない.
    *
-   * @param view ワークスペースビュー中央に表示するノードビュー
-   * @param hideShadow {@code view} が属するワークスペースのノードビューの全ての影を消す場合 true
-   * @param target 影をつける対象. null を指定すると影をつけない.
+   * @param view ワークスペース中央に表示するノードビュー
    */
-  private static void jumpImpl(BhNodeView view, boolean hideShadow, EffectTarget target) {
-    if (view == null) {
-      throw new IllegalArgumentException();
-    }
-    WorkspaceView wsView = view.getWorkspaceView();
-    if (wsView == null) {
-      return;
-    }
-
-    wsView.lookAt(view);
-    if (hideShadow) {
-      wsView.getRootNodeViews().forEach(
-          nodeView -> nodeView.getLookManager().hideShadow(EffectTarget.CHILDREN));
-    }
-    wsView.moveNodeViewToFront(view);
-    if (target != null) {
-      view.getLookManager().showShadow(EffectTarget.SELF);
-    }
+  public static void jump(BhNodeView view) {
+    Objects.requireNonNull(view);
+    runSafe(() ->
+        Optional.ofNullable(view.getWorkspaceView())
+            .ifPresent(wsView -> wsView.lookAt(view)));
   }
 
   /**

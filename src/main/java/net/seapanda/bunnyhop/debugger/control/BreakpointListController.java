@@ -20,6 +20,7 @@ package net.seapanda.bunnyhop.debugger.control;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -28,7 +29,9 @@ import javafx.scene.control.ListView;
 import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointCache;
 import net.seapanda.bunnyhop.debugger.view.BreakpointListCell;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.view.BhNodeView.LookManager.EffectTarget;
+import net.seapanda.bunnyhop.node.view.BhNodeView;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.model.SearchQuery;
 import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
@@ -54,6 +57,7 @@ public class BreakpointListController {
 
   private final WorkspaceSet wss;
   private final BreakpointCache breakpointCache;
+  private final VisualEffectManager effectManager;
   private final SearchBox searchBox;
 
   private final Map<BhNode, Set<BreakpointListCell>> nodeToCells = new HashMap<>();
@@ -61,10 +65,14 @@ public class BreakpointListController {
 
   /** コンストラクタ. */
   public BreakpointListController(
-      WorkspaceSet wss, BreakpointCache breakpointCache, SearchBox searchBox) {
+      WorkspaceSet wss,
+      BreakpointCache breakpointCache,
+      SearchBox searchBox,
+      VisualEffectManager visualEffectManager) {
     this.wss = wss;
     this.breakpointCache = breakpointCache;
     this.searchBox = searchBox;
+    this.effectManager = visualEffectManager;
   }
 
   /** このコントローラの UI 要素を初期化する. */
@@ -95,9 +103,13 @@ public class BreakpointListController {
 
   /** ブレークポイント一覧のブレークポイントが選択されたときのイベントハンドラ. */
   private void onBreakpointSelected(BhNode selected) {
-    if (selected != null && bpJumpCheckBox.isSelected()) {
-      selected.getView().ifPresent(view -> ViewUtil.jump(view, true, EffectTarget.SELF));
+    if (!bpJumpCheckBox.isSelected()) {
+      return;
     }
+    Optional.ofNullable(selected)
+        .filter(BhNode::isInWorkspace)
+        .flatMap(BhNode::getView)
+        .ifPresent(this::jumpTo);
   }
 
   /** フォーカスが変更されたときの処理. */
@@ -144,6 +156,10 @@ public class BreakpointListController {
 
   /** {@code node} をブレークポイント一覧から削除する. */
   private void removeBreakpoint(BhNode node) {
+    // ブレークポイントを削除したときに別のブレークポイントが自動的に選択されるのを防ぐ
+    if (bpListView.getSelectionModel().getSelectedItem() == node) {
+      bpListView.getSelectionModel().clearSelection();
+    }
     bpListView.getItems().remove(node);
     nodeToCells.remove(node);
   }
@@ -176,5 +192,12 @@ public class BreakpointListController {
     if (nodeToCells.containsKey(node)) {
       nodeToCells.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
     }
+  }
+
+  /** {@code view} にジャンプし, ジャンプ先となった際の視覚効果をつける. */
+  private void jumpTo(BhNodeView view) {
+    ViewUtil.jump(view);
+    effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
+    effectManager.setEffectEnabled(view, true, VisualEffectType.JUMP_TARGET);
   }
 }

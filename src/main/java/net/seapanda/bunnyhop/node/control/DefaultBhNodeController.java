@@ -17,6 +17,14 @@
 package net.seapanda.bunnyhop.node.control;
 
 
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectTarget.OUTERS;
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.BREAKPOINT;
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.COMPILE_ERROR;
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.CORRUPTION;
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.MOVE_GROUP;
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.OVERLAP;
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.SELECTION;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,15 +38,14 @@ import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.ConnectiveNode;
-import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.model.event.UiEvent;
 import net.seapanda.bunnyhop.node.model.event.UiEventType;
-import net.seapanda.bunnyhop.node.service.BhNodePlacer;
+import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.node.view.BhNodeView.LookManager.EffectTarget;
 import net.seapanda.bunnyhop.node.view.BhNodeView.MouseEventInfo;
-import net.seapanda.bunnyhop.node.view.common.BhNodeLocation;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
+import net.seapanda.bunnyhop.node.view.service.BhNodeLocation;
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.control.MouseCtrlLock;
@@ -58,6 +65,7 @@ public class DefaultBhNodeController implements BhNodeController {
   private final BhNodeView view;
   private final ModelAccessNotificationService notifService;
   private final TrashCan trashCan;
+  private final VisualEffectManager effectManager;
   private final MouseCtrlLock mouseCtrlLock =
       new MouseCtrlLock(MouseButton.PRIMARY, MouseButton.SECONDARY);
   private DndEventInfo ddInfo = new DndEventInfo();
@@ -74,15 +82,18 @@ public class DefaultBhNodeController implements BhNodeController {
       BhNode model,
       BhNodeView view,
       ModelAccessNotificationService service,
-      TrashCan trashCan) {
+      TrashCan trashCan,
+      VisualEffectManager  visualEffectManager) {
     Objects.requireNonNull(model);
     Objects.requireNonNull(view);
     Objects.requireNonNull(service);
     Objects.requireNonNull(trashCan);
+    Objects.requireNonNull(visualEffectManager);
     this.model = model;
     this.view = view;
     this.notifService = service;
     this.trashCan = trashCan;
+    this.effectManager = visualEffectManager;
     model.setView(view);
     view.setController(this);
     setViewEventHandlers();
@@ -100,17 +111,19 @@ public class DefaultBhNodeController implements BhNodeController {
   private void setNodeEventHandlers() {
     BhNode.CallbackRegistry registry = model.getCallbackRegistry();
     registry.getOnConnected().add(event -> replaceView(event.disconnected()));
-    registry.getOnSelectionStateChanged().add(event -> {
-      boolean isSelected = event.isSelected();
-      view.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SELECTED, isSelected);
-      highlightDerivatives(model, isSelected);
-    });
-    registry.getOnCompileErrorStateUpdated()
-        .add(event -> view.getLookManager().setCompileErrorVisibility(event.hasError()));
-    registry.getOnBreakpointSet()
-        .add(event -> view.getLookManager().setBreakpointVisibility(event.isBreakpointSet()));
-    registry.getOnCorruptionStateChanged()
-        .add(event -> view.getLookManager().setCorruptionMarkVisibility(event.isCorrupted()));
+    registry.getOnSelectionStateChanged().add(
+        event -> effectManager.setEffectEnabled(view, event.isSelected(), SELECTION));
+    registry.getOnCompileErrorStateUpdated().add(
+        event -> effectManager.setEffectEnabled(view, event.hasError(), COMPILE_ERROR));
+    registry.getOnBreakpointSet().add(
+        event -> effectManager.setEffectEnabled(view, event.isBreakpointSet(), BREAKPOINT));
+    registry.getOnCorruptionStateChanged().add(
+        event -> effectManager.setEffectEnabled(view, event.isCorrupted(), CORRUPTION));
+
+    effectManager.setEffectEnabled(view, model.isSelected(), SELECTION);
+    effectManager.setEffectEnabled(view, model.hasCompileErr(), COMPILE_ERROR);
+    effectManager.setEffectEnabled(view, model.isBreakpointSet(), BREAKPOINT);
+    effectManager.setEffectEnabled(view, model.isCorrupted(), CORRUPTION);
   }
 
   /** マウスボタン押下時の処理. */
@@ -135,9 +148,9 @@ public class DefaultBhNodeController implements BhNodeController {
         return;
       }
       invokeOnUiEventReceived(event, true);
-      view.getWorkspaceView().getRootNodeViews().forEach(
-          nodeView -> nodeView.getLookManager().hideShadow(EffectTarget.CHILDREN));
-      view.getLookManager().showShadow(EffectTarget.OUTERS);
+      effectManager.disableEffects(
+          model.getWorkspace(), MOVE_GROUP, ddInfo.context.userOpe());
+      effectManager.setEffectEnabled(view, true, MOVE_GROUP, OUTERS, ddInfo.context.userOpe());
       toFront();
       selectNode(event);
       savePositions(event);
@@ -226,8 +239,7 @@ public class DefaultBhNodeController implements BhNodeController {
       }
       invokeOnUiEventReceived(event, true);
       if (ddInfo.currentOverlapped != null) {
-        ddInfo.currentOverlapped.getLookManager()
-            .switchPseudoClassState(BhConstants.Css.PSEUDO_OVERLAPPED, false);
+        effectManager.setEffectEnabled(ddInfo.currentOverlapped, false, OVERLAP);
       }
       if (ddInfo.currentOverlapped != null) {
         // ワークスペース -> 子ノード
@@ -345,16 +357,14 @@ public class DefaultBhNodeController implements BhNodeController {
   /** view と重なっている BhNodeView を強調する. */
   private void highlightOverlappedNode() {
     if (ddInfo.currentOverlapped != null) {
-      // 前回重なっていたものをライトオフ
-      ddInfo.currentOverlapped.getLookManager()
-          .switchPseudoClassState(BhConstants.Css.PSEUDO_OVERLAPPED, false);
+      // 前回重なっていたノードの強調を止める
+      effectManager.setEffectEnabled(ddInfo.currentOverlapped, false, OVERLAP);
     }
     ddInfo.currentOverlapped = null;
     List<BhNodeView> overlappedList = view.getRegionManager().searchForOverlapped();
     for (BhNodeView overlapped : overlappedList) {
       if (overlapped.getModel().map(node -> node.canBeReplacedWith(model)).orElse(false)) {
-        overlapped.getLookManager()
-            .switchPseudoClassState(BhConstants.Css.PSEUDO_OVERLAPPED, true);
+        effectManager.setEffectEnabled(overlapped, true, OVERLAP);
         ddInfo.currentOverlapped = overlapped;
         break;
       }
@@ -441,16 +451,6 @@ public class DefaultBhNodeController implements BhNodeController {
         node -> node.setBreakpoint(!node.isBreakpointSet(), userOpe));
   }
 
-  /** {@code node} の派生ノードを強調表示を切り返る. */
-  private static void highlightDerivatives(BhNode node, boolean enable) {
-    if (node instanceof Derivative orgNode) {
-      for (Derivative derv : orgNode.getDerivatives()) {
-        derv.getView().ifPresent(view -> view.getLookManager()
-            .switchPseudoClassState(BhConstants.Css.PSEUDO_HIGHLIGHT_DERIVATIVE, enable));
-      }
-    }
-  }
-
   /** マウスイベントとアプリケーションの設定からブレークポイントをセットする操作かどうか判別する. */
   private boolean shouldSetBreakpoint(MouseEvent event) {
     return BhSettings.Debug.isBreakpointSettingEnabled
@@ -458,13 +458,13 @@ public class DefaultBhNodeController implements BhNodeController {
   }
 
   /** {@link #model} が UI イベントを受け取ったときのフック処理を呼ぶ. */
-  private void invokeOnUiEventReceived(MouseEvent event, boolean isEventTarget) {
-    UiEvent uiEvent = toEventInfo(event);
-    model.getEventInvoker().onUiEventReceived(uiEvent, isEventTarget, ddInfo.context.userOpe());
+  private void invokeOnUiEventReceived(MouseEvent event, boolean isDndTarget) {
+    UiEvent uiEvent = toEventInfo(event, isDndTarget);
+    model.getEventInvoker().onUiEventReceived(uiEvent, ddInfo.context.userOpe());
   }
 
   /** {@link MouseEvent} オブジェクトの情報を {@link UiEvent} オブジェクトに格納して返す. */
-  private UiEvent toEventInfo(MouseEvent event) {
+  private UiEvent toEventInfo(MouseEvent event, boolean isDndTarget) {
     UiEventType eventType = null;
     if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
       eventType = UiEventType.MOUSE_PRESSED;
@@ -484,7 +484,9 @@ public class DefaultBhNodeController implements BhNodeController {
         event.isForwardButtonDown(),
         event.isShiftDown(),
         event.isControlDown(),
-        event.isAltDown());
+        event.isAltDown(),
+        isDndTarget,
+        event.getClickCount());
   }
 
   /** D&D 操作に必要な位置を {@link #ddInfo} に保存する. */

@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.workspace.control;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javafx.scene.control.Alert;
@@ -29,7 +30,8 @@ import javafx.stage.Modality;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.node.view.BhNodeView.LookManager.EffectTarget;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService.Context;
@@ -51,12 +53,13 @@ import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeRectangle.OverlapOp
  */
 public class WorkspaceController {
 
-  private Workspace model;
-  private WorkspaceView view;
+  private final Workspace model;
+  private final WorkspaceView view;
   /** モデルへのアクセスの通知先となるオブジェクト. */
   private final ModelAccessNotificationService notifService;
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock(MouseButton.PRIMARY);
   private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
+  private final VisualEffectManager effectManager;
   private final MessageService msgService;
   private DndEventInfo ddInfo = new DndEventInfo();
 
@@ -69,6 +72,7 @@ public class WorkspaceController {
    * @param notifService モデルへのアクセスの通知先となるオブジェクト
    * @param proxy ノード選択ビューのプロキシオブジェクト
    * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト.
+   * @param visualEffectManager ノードに視覚効果を設定するためのオブジェクト
    */
   public WorkspaceController(
       Workspace model,
@@ -76,11 +80,20 @@ public class WorkspaceController {
       NodeShifterView nodeShifterView,
       ModelAccessNotificationService notifService,
       BhNodeSelectionViewProxy proxy,
-      MessageService msgService) {
+      MessageService msgService,
+      VisualEffectManager visualEffectManager) {
+    Objects.requireNonNull(model);
+    Objects.requireNonNull(view);
+    Objects.requireNonNull(nodeShifterView);
+    Objects.requireNonNull(notifService);
+    Objects.requireNonNull(proxy);
+    Objects.requireNonNull(visualEffectManager);
+    Objects.requireNonNull(msgService);
     this.model = model;
     this.view = view;
     this.notifService = notifService;
     this.nodeSelectionViewProxy = proxy;
+    this.effectManager = visualEffectManager;
     this.msgService = msgService;
     model.setView(view);
     view.addNodeShifterView(nodeShifterView);
@@ -118,8 +131,7 @@ public class WorkspaceController {
         nodeSelectionViewProxy.hideCurrentView();
         model.getSelectedNodes().forEach(node -> node.deselect(ddInfo.context.userOpe()));
       }
-      view.getRootNodeViews().forEach(
-          nodeView -> nodeView.getLookManager().hideShadow(EffectTarget.CHILDREN));
+      disableVisualEffects();
       ddInfo.mousePressedPos = new Vec2D(event.getX(), event.getY());
       view.showSelectionRectangle(ddInfo.mousePressedPos, ddInfo.mousePressedPos);
     } catch (Throwable e) {
@@ -158,10 +170,10 @@ public class WorkspaceController {
       var selectionRange = new QuadTreeRectangle(minX, minY, maxX, maxY, null);
       List<BhNodeView> containedNodes =
           view.searchForOverlappedNodeViews(selectionRange, true, OverlapOption.CONTAIN).stream()
-          .filter(WorkspaceController::isNodeSelectable)
-          .collect(Collectors.toCollection(ArrayList::new));
+              .filter(WorkspaceController::isNodeSelectable)
+              .sorted(this::compareViewSize)
+              .collect(Collectors.toCollection(ArrayList::new));
       // 面積の大きい順にソート
-      containedNodes.sort(this::compareViewSize);
       selectNodes(containedNodes, ddInfo.context.userOpe());
     } finally {
       terminateDnd();
@@ -223,6 +235,13 @@ public class WorkspaceController {
   /** {@code node} を非ルートノードとしてワークスペースビューに設定する. */
   private void specifyNodeViewAsNotRoot(BhNode node) {
     node.getView().ifPresent(view::specifyNodeViewAsNotRoot);
+  }
+
+  /** ノードの視覚効果を無効化する. */
+  private void disableVisualEffects() {
+    effectManager.disableEffects(model, VisualEffectType.MOVE_GROUP, ddInfo.context.userOpe());
+    effectManager.disableEffects(VisualEffectType.DERIVATION_GROUP, ddInfo.context.userOpe());
+    effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
   }
 
   /** D&D を終えたときの処理. */

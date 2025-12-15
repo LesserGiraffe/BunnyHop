@@ -196,6 +196,16 @@ public class BhNodeViewStyle {
     }
   }
 
+  /** ノードがエントリポイントであることを表す印のパラメータ. */
+  public static class EntryPointMark {
+    public double radius = 1.8 * BhConstants.Ui.NODE_SCALE;
+    public String cssClass;
+
+    public EntryPointMark(String cssClass) {
+      this.cssClass = cssClass;
+    }
+  }
+
   /** ノードビューの共通部分のパラメータ. */
   public static class CommonPart {
     /** 共通部分のペインに適用される css クラス. */
@@ -210,15 +220,16 @@ public class BhNodeViewStyle {
     public ExecStepMark execStepMark = new ExecStepMark("defaultExecStepMark");
     /** ノードが破損していることを表す印のパラメータ. */
     public CorruptionMark corruptionMark = new CorruptionMark("defaultCorruptionMark");
-
+    /** ノードがエントリポイントであることを表す印のパラメータ. */
+    public EntryPointMark entryPointMark = new EntryPointMark("defaultEntryPointMark");
 
     /** コンストラクタ. */
     public CommonPart() {}
 
     /** コピーコンストラクタ. */
     public CommonPart(CommonPart org) {
-      this.arrangement = org.arrangement;
       this.cssClass = org.cssClass;
+      this.arrangement = org.arrangement;
       this.privateTemplate.cssClass = org.privateTemplate.cssClass;
       this.breakpoint.radius = org.breakpoint.radius;
       this.breakpoint.cssClass = org.breakpoint.cssClass;
@@ -226,6 +237,8 @@ public class BhNodeViewStyle {
       this.execStepMark.cssClass = org.execStepMark.cssClass;
       this.corruptionMark.size = org.corruptionMark.size;
       this.corruptionMark.cssClass = org.corruptionMark.cssClass;
+      this.entryPointMark.radius = org.entryPointMark.radius;
+      this.entryPointMark.cssClass = org.entryPointMark.cssClass;
     }
   }
 

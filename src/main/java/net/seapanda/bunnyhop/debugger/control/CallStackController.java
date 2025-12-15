@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -40,8 +41,6 @@ import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadSelection;
 import net.seapanda.bunnyhop.debugger.view.CallStackCell;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.node.view.BhNodeView.LookManager.EffectTarget;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.model.SearchQuery;
 import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
@@ -68,6 +67,7 @@ public class CallStackController {
   private final SearchBox searchBox;
   private final Debugger debugger;
   private final WorkspaceSet wss;
+  private final BooleanProperty sharedJumpFlag;
   private final Map<BhNode, Set<CallStackCell>> nodeToCell = new HashMap<>();
   private boolean isDiscarded = false;
   private final Consumer<Debugger.CurrentThreadChangedEvent> onCurrentThreadChanged =
@@ -82,16 +82,21 @@ public class CallStackController {
    *
    * @param threadContext このコントローラが管理するコールスタックに関連するスレッドの情報を格納したオブジェクト
    * @param searchBox 検索クエリを受け取る UI コンポーネントのインタフェース
+   * @param sharedJumpFlag スタックフレームが選択されたときに対応するノードへジャンプするかどうかのフラグ.
+   *                       同じ {@link BooleanProperty} オブジェクトが指定された
+   *                       {@link CallStackController} は全て同じフラグ値を共有する.
    */
   public CallStackController(
       ThreadContext threadContext,
       SearchBox searchBox,
       Debugger debugger,
-      WorkspaceSet wss) {
+      WorkspaceSet wss,
+      BooleanProperty sharedJumpFlag) {
     this.threadContext = threadContext;
     this.searchBox = searchBox;
     this.debugger = debugger;
     this.wss = wss;
+    this.sharedJumpFlag = sharedJumpFlag;
   }
 
   /** このコントローラの UI 要素を初期化する. */
@@ -114,6 +119,7 @@ public class CallStackController {
           }
         });
     csSearchButton.setOnAction(action ->  prepareForSearch());
+    csJumpCheckBox.selectedProperty().bindBidirectional(sharedJumpFlag);
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(onCurrentThreadChanged);
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().add(onNodeSelStateChanged);
     Consumer<CallStackItem.SelectionEvent> selectItem = this::onCallStackItemSelected;
@@ -144,6 +150,7 @@ public class CallStackController {
     }
     callStackListView.getItems().clear();
     nodeToCell.clear();
+    csJumpCheckBox.selectedProperty().unbindBidirectional(sharedJumpFlag);
   }
 
   /** {@link #callStackListView} に設定するアイテムを作成する. */
@@ -190,7 +197,9 @@ public class CallStackController {
         if (csJumpCheckBox.isSelected()) {
           getNextItemOf(event.item())
               .flatMap(CallStackItem::getNode)
-              .ifPresent(CallStackController::jump);
+              .filter(BhNode::isInWorkspace)
+              .flatMap(BhNode::getView)
+              .ifPresent(ViewUtil::jump);
         }
         debugger.selectCurrentStackFrame(StackFrameSelection.of(event.item().getIdx()));
       }
@@ -200,15 +209,6 @@ public class CallStackController {
         debugger.selectCurrentStackFrame(StackFrameSelection.NONE);
       }
     }
-  }
-
-  /** {@code node} を選択して, これを画面中央に表示する. */
-  private static void jump(BhNode node) {
-    BhNodeView nodeView = node.getView().orElse(null);
-    if (node.isDeleted() || nodeView == null) {
-      return;
-    }
-    ViewUtil.jump(nodeView, true, EffectTarget.SELF);
   }
 
   /**

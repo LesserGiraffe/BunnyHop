@@ -12,13 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package net.seapanda.bunnyhop.node.service;
+package net.seapanda.bunnyhop.node.view.effect;
 
 /**
- * 最後に操作した {@link BhNodeView} に注目する機能を提供するクラス.
+ * ノードビューの視覚効果を適用する対象の選択肢.
+ *
+ * @author K.Koike
  */
-public class BhNodeViewTracker {
-
+public enum VisualEffectTarget {
+  /** 指定したノードビュー自身. */
+  SELF,
+  /** 指定したノードビューとその全ての子要素. */
+  CHILDREN,
+  /** 指定したノードビューとそこから外部ノードビューのみを辿って到達できる全てのノードビュー. */
+  OUTERS
 }

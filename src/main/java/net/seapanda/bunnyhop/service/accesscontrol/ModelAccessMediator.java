@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.service.accesscontrol;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import net.seapanda.bunnyhop.linter.model.CompileErrorChecker;
-import net.seapanda.bunnyhop.node.service.DerivativeCache;
+import net.seapanda.bunnyhop.node.model.service.DerivativeCache;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 

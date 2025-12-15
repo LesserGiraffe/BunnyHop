@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.bhprogram;
 
+import java.nio.file.Path;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.message.BhProgramMessageCarrier;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeStatus;
@@ -44,13 +45,19 @@ public interface BhRuntimeController {
   CallbackRegistry getCallbackRegistry();
 
   /** {@link BhRuntimeController} に対するイベントハンドラの登録および削除操作を規定したインタフェース. */
-  public interface CallbackRegistry {
+  interface CallbackRegistry {
 
     /** BhRuntime との通信用オブジェクトが置き換わったときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<MessageCarrierRenewedEvent>.Registry getOnMsgCarrierRenewed();
 
     /** BhRuntime との通信が有効または無効になったときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<ConnectionEvent>.Registry getOnConnectionConditionChanged();
+
+    /** BhProgram を開始したときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<StartEvent>.Registry getOnBhProgramStarted();
+
+    /** BhProgram を終了したときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<TerminationEvent>.Registry getOnBhProgramTerminated();
   }
 
   /**
@@ -60,7 +67,7 @@ public interface BhRuntimeController {
    * @param oldCarrier {@code newCarrier} と置き換わる前の通信用オブジェクト
    * @param newCarrier {@code oldCarrier} と置き換わった通信用オブジェクト
    */
-  public record MessageCarrierRenewedEvent(
+  record MessageCarrierRenewedEvent(
       BhRuntimeController ctrl,
       BhProgramMessageCarrier oldCarrier,
       BhProgramMessageCarrier newCarrier) {}
@@ -68,8 +75,23 @@ public interface BhRuntimeController {
   /**
    * BhRuntime との通信が有効または無効になったときの情報を格納したレコード.
    *
-   * @param ctrl 通信が有効または無効になった BhRuntimeController オブジェクト
+   * @param ctrl 通信が有効または無効になった {@link BhRuntimeController} オブジェクト
    * @param isConnected BhRuntime との通信が有効になった場合 true, 無効になった場合 false.
    */
-  public record ConnectionEvent(BhRuntimeController ctrl, boolean isConnected) {}
+  record ConnectionEvent(BhRuntimeController ctrl, boolean isConnected) {}
+
+  /**
+   * BhProgram が開始されたときの情報を格納したレコード.
+   *
+   * @param ctrl BhProgram を開始した {@link BhRuntimeController} オブジェクト
+   * @param path 開始された BhProgram のファイルパス.
+   */
+  record StartEvent(BhRuntimeController ctrl, Path path) {}
+
+  /**
+   * BhProgram を終了したときの情報を格納したレコード.
+   *
+   * @param ctrl BhProgram を終了した {@link BhRuntimeController} オブジェクト
+   */
+  record TerminationEvent(BhRuntimeController ctrl) {}
 }

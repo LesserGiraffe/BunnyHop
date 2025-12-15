@@ -41,6 +41,7 @@ import net.seapanda.bunnyhop.node.view.LabelNodeView;
 import net.seapanda.bunnyhop.node.view.NoContentNodeView;
 import net.seapanda.bunnyhop.node.view.TextAreaNodeView;
 import net.seapanda.bunnyhop.node.view.TextFieldNodeView;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.factory.BhNodeViewFactory;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.LogManager;
@@ -63,6 +64,7 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
   private final TrashCan trashCan;
   private final WorkspaceSet wss;
   private final BhNodeSelectionViewProxy proxy;
+  private final VisualEffectManager effectManager;
 
   /** コンストラクタ. */
   public BhNodeFactoryImpl(
@@ -71,13 +73,15 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
       ModelAccessNotificationService notifService,
       TrashCan trashCan,
       WorkspaceSet wss,
-      BhNodeSelectionViewProxy proxy) {
+      BhNodeSelectionViewProxy proxy,
+      VisualEffectManager visualEffectManager) {
     this.repository = repository;
     this.viewFactory = viewFactory;
     this.notifService = notifService;
     this.trashCan = trashCan;
     this.wss = wss;
     this.proxy = proxy;
+    this.effectManager = visualEffectManager;
   }
 
   @Override
@@ -194,7 +198,7 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
 
     private BhNodeController createBaseController(BhNode node, BhNodeView nodeView) {
       return type == MvcType.DEFAULT
-          ? new DefaultBhNodeController(node, nodeView, notifService, trashCan)
+          ? new DefaultBhNodeController(node, nodeView, notifService, trashCan, effectManager)
           : new TemplateNodeController(
               node, nodeView, BhNodeFactoryImpl.this, notifService, wss, proxy);
     }

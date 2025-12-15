@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.node.model.event;
 
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
-import net.seapanda.bunnyhop.node.service.BhNodePlacer;
+import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.script.BhScriptRepository;
 import net.seapanda.bunnyhop.utility.textdb.TextDatabase;

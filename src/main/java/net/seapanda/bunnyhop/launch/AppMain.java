@@ -73,9 +73,10 @@ import net.seapanda.bunnyhop.node.model.factory.BhNodeFactoryImpl;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeRepository;
 import net.seapanda.bunnyhop.node.model.factory.ModelGenerator;
 import net.seapanda.bunnyhop.node.model.factory.XmlBhNodeRepository;
-import net.seapanda.bunnyhop.node.service.DerivativeCache;
+import net.seapanda.bunnyhop.node.model.service.DerivativeCache;
 import net.seapanda.bunnyhop.node.view.factory.BhNodeViewFactoryImpl;
 import net.seapanda.bunnyhop.node.view.factory.PrivateTemplateButtonFactoryImpl;
+import net.seapanda.bunnyhop.node.view.service.BhNodeViewSupervisor;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleFactory;
 import net.seapanda.bunnyhop.node.view.style.JsonBhNodeViewStyleFactory;
 import net.seapanda.bunnyhop.nodeselection.control.BhNodeSelectionViewProxyImpl;
@@ -198,6 +199,7 @@ public class AppMain extends Application {
       final var compileErrChecker = new CompileErrorChecker(wss);
       final var undoRedoAgent = new UndoRedoAgent(wss);
       final var derivativeCache = new DerivativeCache();
+      final var nodeViewSuperVisor = new BhNodeViewSupervisor(wss);
       final var mediator =
           new ModelAccessMediator(derivativeCache, compileErrChecker, undoRedoAgent);
       final var wssCtrl = new WorkspaceSetController(wss, mediator);
@@ -216,7 +218,8 @@ public class AppMain extends Application {
           mediator,
           trashCanCtrl,
           wss,
-          nodeSelViewProxy);
+          nodeSelViewProxy,
+          nodeViewSuperVisor);
       final var commonDataSupplier = new CommonDataSupplier(scriptRepository, nodeFactory, textDb);
       final var modelGenerator = new ModelGenerator(
           nodeFactory,
@@ -228,7 +231,12 @@ public class AppMain extends Application {
           new JsonBhNodeCategoryTree(nodeSelectionFile, nodeFactory, textDb);
       final var nodeCategoryBuilder = new BhNodeCategoryBuilder(categoryTree.getRoot());
       final var wsFactory = new WorkspaceFactoryImpl(
-          wsViewFile, nodeShifterViewFile, mediator, nodeSelViewProxy, msgService);
+          wsViewFile,
+          nodeShifterViewFile,
+          mediator,
+          nodeSelViewProxy,
+          msgService,
+          nodeViewSuperVisor);
       final var localCompiler = genCompiler(true);
       final var remoteCompiler = genCompiler(false);
 
@@ -247,8 +255,9 @@ public class AppMain extends Application {
           varInspectionViewFilePath,
           searchBoxCtrl,
           debugger,
-          wss);
-      new ThreadContextPresenter(debugger, msgService);
+          wss,
+          nodeViewSuperVisor);
+      new ThreadContextPresenter(debugger, msgService, nodeViewSuperVisor);
       final var mainRoutineIds =
           List.of(localCompiler.mainRoutineId(), remoteCompiler.mainRoutineId());
       final var debugMsgProcessor = new DebugMessageProcessorImpl(wss, debugger, mainRoutineIds);
@@ -290,7 +299,8 @@ public class AppMain extends Application {
           wssCtrl,
           searchBoxCtrl,
           trashCanCtrl,
-          windowManager);
+          windowManager,
+          nodeViewSuperVisor);
 
       setOnCloseHandler(
           stage,

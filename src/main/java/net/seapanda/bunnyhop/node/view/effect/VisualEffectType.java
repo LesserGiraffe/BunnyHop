@@ -15,14 +15,14 @@
  *
  */
 
-package net.seapanda.bunnyhop.node.view.common;
+package net.seapanda.bunnyhop.node.view.effect;
 
 /**
  * ノードビューに適用可能な視覚効果一覧.
  *
  * @author K.Koike
  */
-public enum NodeViewEffectType {
+public enum VisualEffectType {
   /** ノードが選択されていることを示す視覚効果. */
   SELECTION,
   /** まとまって移動するノード群であることを示す視覚効果. */
@@ -37,6 +37,10 @@ public enum NodeViewEffectType {
   BREAKPOINT,
   /** 破損したノードであることを示す視覚効果. */
   CORRUPTION,
-  /** 何らかの理由で注目されていること示す視覚効果. */
-  MISC_FOCUSED,
+  /** ノードがエントリポイントとなったことを示す視覚効果. */
+  ENTRY_POINT,
+  /** ジャンプ先として指定されたことを示す視覚効果. */
+  JUMP_TARGET,
+  /** ノードがコンパイルエラーを起こしていることを表す視覚効果. */
+  COMPILE_ERROR,
 }

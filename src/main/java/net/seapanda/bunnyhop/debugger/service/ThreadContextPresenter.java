@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.debugger.service;
 
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.EXEC_STEP;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +32,7 @@ import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadSelection;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
 
 /**
@@ -41,6 +44,7 @@ public class ThreadContextPresenter {
 
   private final Debugger debugger;
   private final MessageService msgService;
+  private final VisualEffectManager effectManager;
   /** スレッド ID とスレッドコンテキストのマップ. */
   private final Map<Long, ThreadContext> threadIdToContext = new HashMap<>();
   /**
@@ -50,9 +54,13 @@ public class ThreadContextPresenter {
   private final Map<Long, BhNodeView> threadIdToExecStepView = new HashMap<>();
 
   /** コンストラクタ. */
-  public ThreadContextPresenter(Debugger debugger, MessageService msgService) {
+  public ThreadContextPresenter(
+      Debugger debugger,
+      MessageService msgService,
+      VisualEffectManager visualEffectManager) {
     this.debugger = debugger;
     this.msgService = msgService;
+    this.effectManager = visualEffectManager;
     setEventHandlers();
   }
 
@@ -73,8 +81,8 @@ public class ThreadContextPresenter {
   /** スレッドコンテキストと実行ステップマークをすべてクリアする. */
   private void clearThreadContexts() {
     threadIdToContext.clear();
-    threadIdToExecStepView.values()
-        .forEach(view -> view.getLookManager().setExecStepMarkVisibility(false));
+    threadIdToExecStepView.values().forEach(
+        view -> effectManager.setEffectEnabled(view, false, EXEC_STEP));
     threadIdToExecStepView.clear();
   }
 
@@ -83,7 +91,7 @@ public class ThreadContextPresenter {
     if (context.state != BhThreadState.SUSPENDED) {
       BhNodeView view = threadIdToExecStepView.remove(context.threadId);
       if (view != null && !threadIdToExecStepView.containsValue(view)) {
-        view.getLookManager().setExecStepMarkVisibility(false);
+        effectManager.setEffectEnabled(view, false, EXEC_STEP);
       }
       return;
     }
@@ -98,7 +106,7 @@ public class ThreadContextPresenter {
         .flatMap(BhNode::getView)
         .ifPresent(
             view -> {
-              view.getLookManager().setExecStepMarkVisibility(true);
+              effectManager.setEffectEnabled(view, true, EXEC_STEP);
               threadIdToExecStepView.put(context.threadId, view);
             });
   }
@@ -116,8 +124,8 @@ public class ThreadContextPresenter {
     if (threadSelection.equals(ThreadSelection.NONE)) {
       return;
     }
-    threadIdToExecStepView.values()
-        .forEach(view -> view.getLookManager().setExecStepMarkVisibility(false));
+    threadIdToExecStepView.values().forEach(
+        view -> effectManager.setEffectEnabled(view, false, EXEC_STEP));
     if (threadSelection.equals(ThreadSelection.ALL)) {
       setExecStepMarksOnCallStackTopNodes();
     } else if (threadIdToContext.containsKey(threadSelection.getThreadId())) {
@@ -136,7 +144,7 @@ public class ThreadContextPresenter {
           .flatMap(BhNode::getView)
           .ifPresent(
             view -> {
-              view.getLookManager().setExecStepMarkVisibility(true);
+              effectManager.setEffectEnabled(view, true, EXEC_STEP);
               threadIdToExecStepView.put(context.threadId, view);
             });
     }
@@ -164,7 +172,7 @@ public class ThreadContextPresenter {
         })
         .flatMap(callStackItem -> callStackItem.getNode().flatMap(BhNode::getView))
         .ifPresent(view -> {
-          view.getLookManager().setExecStepMarkVisibility(true);
+          effectManager.setEffectEnabled(view, true, EXEC_STEP);
           threadIdToExecStepView.put(threadSelection.getThreadId(), view);
         });
   }

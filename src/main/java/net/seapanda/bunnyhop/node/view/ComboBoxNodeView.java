@@ -70,7 +70,6 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
     setComponent(comboBox);
     setEventHandlers();
     initStyle();
-    updateNodeStatusVisibility();
   }
 
   /**
@@ -187,13 +186,13 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
     Vec2D commonPartSize = getRegionManager().getCommonPartSize();
     Vec2D innerSize = switch (viewStyle.baseArrangement) {
       case ROW ->
-        new Vec2D(
-            commonPartSize.x + comboBox.getWidth(),
-            Math.max(commonPartSize.y, comboBox.getHeight()));
+          new Vec2D(
+              commonPartSize.x + comboBox.getWidth(),
+              Math.max(commonPartSize.y, comboBox.getHeight()));
       case COLUMN ->
-        new Vec2D(
-            Math.max(commonPartSize.x, comboBox.getWidth()),
-            commonPartSize.y + comboBox.getHeight());
+          new Vec2D(
+              Math.max(commonPartSize.x, comboBox.getWidth()),
+              commonPartSize.y + comboBox.getHeight());
     };
     return new Vec2D(
         viewStyle.paddingLeft + innerSize.x + viewStyle.paddingRight,

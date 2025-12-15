@@ -302,7 +302,7 @@ public class NodeShifterView extends Pane {
    * @param activate 擬似クラスを有効にする場合true
    * @param pseudoClassName 有効/無効を切り替える擬似クラス名
    */
-  public void switchPseudoClassActivation(boolean activate, String pseudoClassName) {
+  public void setPseudoClassState(boolean activate, String pseudoClassName) {
     if (activate) {
       shifterBase.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true);
       shifterCircle.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), true);

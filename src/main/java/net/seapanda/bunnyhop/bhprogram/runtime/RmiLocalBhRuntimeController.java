@@ -87,13 +87,13 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
             BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
         send(startEvent);
         programRunning.set(true);
+        cbRegistry.onBhProgramStarted.invoke(new StartEvent(this, filePath));
         return true;
       }
       throw new Exception();
     } catch (Exception e) {
       msgService.error(TextDefs.BhRuntime.Local.failedToRun.get());
-      LogManager.logger().error(
-          "Failed to run %s. (local)".formatted(filePath.getFileName()));
+      LogManager.logger().error("Failed to run %s. (local)".formatted(filePath.getFileName()));
       terminate();
     }
     return false;
@@ -128,6 +128,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
     } else {
       msgService.info(TextDefs.BhRuntime.Local.hasEnded.get());
       programRunning.set(false);
+      cbRegistry.onBhProgramTerminated.invoke(new TerminationEvent(this));
     }
     return success;
   }
@@ -231,6 +232,14 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
     private final ConsumerInvoker<ConnectionEvent> onConnCondChanged =
         new ConcurrentConsumerInvoker<>();
 
+    /** BhProgram を開始したときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<StartEvent> onBhProgramStarted =
+        new ConcurrentConsumerInvoker<>();
+
+    /** BhProgram を終了したときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<TerminationEvent> onBhProgramTerminated =
+        new ConcurrentConsumerInvoker<>();
+
     @Override
     public ConsumerInvoker<MessageCarrierRenewedEvent>.Registry getOnMsgCarrierRenewed() {
       return onMsgCarrierRenewed.getRegistry();
@@ -239,6 +248,16 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
     @Override
     public ConsumerInvoker<ConnectionEvent>.Registry getOnConnectionConditionChanged() {
       return onConnCondChanged.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<StartEvent>.Registry getOnBhProgramStarted() {
+      return onBhProgramStarted.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<TerminationEvent>.Registry getOnBhProgramTerminated() {
+      return onBhProgramTerminated.getRegistry();
     }
   }
 }

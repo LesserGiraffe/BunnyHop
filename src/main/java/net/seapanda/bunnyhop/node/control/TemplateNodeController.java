@@ -23,7 +23,7 @@ import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
-import net.seapanda.bunnyhop.node.service.BhNodePlacer;
+import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.MouseEventInfo;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;

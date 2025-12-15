@@ -50,8 +50,8 @@ import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.debugger.control.DebugWindowController;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
-import net.seapanda.bunnyhop.node.service.BhNodePlacer;
-import net.seapanda.bunnyhop.node.view.common.BhNodeLocation;
+import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
+import net.seapanda.bunnyhop.node.view.service.BhNodeLocation;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
@@ -553,11 +553,11 @@ public class MenuViewController {
       return;
     }
     disconnecting.set(true);
-    Supplier<Boolean> discnonect = () -> isLocalHost()
+    Supplier<Boolean> disconnect = () -> isLocalHost()
         ? localCtrl.getBhRuntimeCtrl().disconnect()
         : remoteCtrl.getBhRuntimeCtrl().disconnect();
     CompletableFuture
-        .supplyAsync(discnonect)
+        .supplyAsync(disconnect)
         .thenAccept(success -> disconnecting.set(false));
   }
 

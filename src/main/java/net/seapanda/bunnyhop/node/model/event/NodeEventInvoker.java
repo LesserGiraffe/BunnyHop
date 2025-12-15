@@ -131,11 +131,9 @@ public interface NodeEventInvoker {
    *
    * @param target イベントハンドラが定義されたノード
    * @param event UI イベントに関連する情報を格納したオブジェクト
-   * @param isEventTarget {@code target} が UI イベントの適用対象である場合 true
    * @param userOpe undo 用コマンドオブジェクト
    */
-  void onUiEventReceived(
-      BhNode target, UiEvent event, boolean isEventTarget, UserOperation userOpe);
+  void onUiEventReceived(BhNode target, UiEvent event, UserOperation userOpe);
 
   /**
    * 引数の文字列が {@code target} にセット可能かどうか判断するときの処理を実行する.

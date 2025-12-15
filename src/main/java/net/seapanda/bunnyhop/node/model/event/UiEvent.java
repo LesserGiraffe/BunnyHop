@@ -32,6 +32,8 @@ public class UiEvent {
   public final boolean isShiftDown;
   public final boolean isCtrlDown;
   public final boolean isAltDown;
+  public final boolean isDragAndDropTarget;
+  public final int clickCount;
 
   /** コンストラクタ. */
   public UiEvent(
@@ -43,7 +45,9 @@ public class UiEvent {
       boolean isForwardButtonDown,
       boolean isShiftDown,
       boolean isCtrlDown,
-      boolean isAltDown) {
+      boolean isAltDown,
+      boolean isDragAndDropTarget,
+      int clickCount) {
     this.type = new Type(eventType);
     this.isPrimaryButtonDown = isPrimaryButtonDown;
     this.isSecondaryButtonDown = isSecondaryButtonDown;
@@ -53,6 +57,8 @@ public class UiEvent {
     this.isShiftDown = isShiftDown;
     this.isCtrlDown = isCtrlDown;
     this.isAltDown = isAltDown;
+    this.isDragAndDropTarget = isDragAndDropTarget;
+    this.clickCount = clickCount;
   }
 
   /**

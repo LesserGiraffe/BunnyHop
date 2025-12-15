@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.node.service;
+package net.seapanda.bunnyhop.node.model.service;
 
 import java.util.ArrayList;
 import java.util.Collection;

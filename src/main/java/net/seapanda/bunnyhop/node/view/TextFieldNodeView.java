@@ -73,7 +73,6 @@ public final class TextFieldNodeView extends TextInputNodeView {
     textField.setOnMouseClicked(event -> Platform.runLater(this::selectText));
     textField.focusedProperty().addListener((obs, oldVal, newVal) -> onFocusChanged(newVal));
     initStyle();
-    updateNodeStatusVisibility();
   }
 
   /**

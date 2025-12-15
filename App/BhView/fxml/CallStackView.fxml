@@ -28,7 +28,6 @@
     <CheckBox
       fx:id="csJumpCheckBox"
       styleClass="flatCheckBox"
-      selected="true"
       text="$jump.text">
     </CheckBox>
 

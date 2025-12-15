@@ -27,10 +27,10 @@ import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.parameter.DerivationId;
 import net.seapanda.bunnyhop.node.model.parameter.DerivativeJointId;
+import net.seapanda.bunnyhop.node.model.service.DerivativeCache;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker.CallbackRegistry;
-import net.seapanda.bunnyhop.node.service.DerivativeCache;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 

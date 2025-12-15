@@ -243,7 +243,6 @@ public class BhConstants {
     public static final String BH_FORMATTED_TEXT = "bhFormattedText";
     public static final String BH_TEXT_DB = "bhTextDb";
     public static final String BH_UI_EVENT = "bhUiEvent";
-    public static final String BH_IS_EVENT_TARGET = "bhIsEventTarget";
     public static final String IP_ADDR = "ipAddr";
     public static final String UNAME = "uname";
   }
@@ -269,6 +268,7 @@ public class BhConstants {
     public static final String KEY_BREAK_POINT = "breakpoint";
     public static final String KEY_EXEC_STEP = "execStep";
     public static final String KEY_CORRUPTION = "corruption";
+    public static final String KEY_ENTRY_POINT = "entryPoint";
     public static final String KEY_TEXT_FIELD = "textField";
     public static final String KEY_LABEL = "label";
     public static final String KEY_COMBO_BOX = "comboBox";
@@ -330,7 +330,6 @@ public class BhConstants {
   public static class Css {
     public static final String PSEUDO_SELECTED = "selected";
     public static final String PSEUDO_SHADOW = "shadow";
-    public static final String PSEUDO_HIGHLIGHT_DERIVATIVE = "highlightDerivative";
     public static final String PSEUDO_OVERLAPPED = "overlapped";
     public static final String PSEUDO_EMPTY = "empty";
     public static final String PSEUDO_ERROR = "error";
@@ -339,7 +338,7 @@ public class BhConstants {
     public static final String PSEUDO_UNFIXED_DEFAULT = "unfixedDefault";
     public static final String PSEUDO_COLUMN = "column";
     public static final String PSEUDO_ROW = "row";
-    public static final String PSEUDO_EXEC_STEP = "execStep";
+    public static final String PSEUDO_JUMP_TARGET = "jumpTarget";
     public static final String CLASS_BH_NODE = "BhNode";
     public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";
     public static final String CLASS_TEXT_FIELD_NODE = "textFieldNode";
@@ -351,6 +350,7 @@ public class BhConstants {
     public static final String CLASS_TRIANGLE = "triangle";
     public static final String CLASS_EXCLAMATION_BAR = "exclamationBar";
     public static final String CLASS_EXCLAMATION_DOT = "exclamationDot";
+    public static final String CLASS_CIRCLE = "circle";
 
     public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
     public static final String CLASS_PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";

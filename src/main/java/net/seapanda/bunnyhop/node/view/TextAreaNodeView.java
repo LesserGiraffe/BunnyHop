@@ -74,7 +74,6 @@ public final class TextAreaNodeView  extends TextInputNodeView {
     textArea.setOnMouseClicked(event -> Platform.runLater(this::selectText));
     textArea.focusedProperty().addListener((obs, oldVal, newVal) -> onFocusChanged(newVal));
     initStyle();
-    updateNodeStatusVisibility();
   }
 
   /**

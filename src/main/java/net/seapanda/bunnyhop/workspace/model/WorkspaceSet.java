@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
-import net.seapanda.bunnyhop.node.service.BhNodePlacer;
+import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;

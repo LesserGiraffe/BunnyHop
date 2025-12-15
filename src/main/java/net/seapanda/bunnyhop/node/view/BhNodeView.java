@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.node.view;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javafx.event.Event;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
@@ -26,6 +27,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import net.seapanda.bunnyhop.node.control.BhNodeController;
 import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ConnectorPos;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewComponent;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
@@ -98,14 +100,6 @@ public interface BhNodeView extends NodeViewComponent {
   /** ノードビューの外観を変更する機能を規定したインタフェース. */
   interface LookManager {
 
-    /**
-     * ノードビューの CSS の擬似クラスの有効無効を切り替える.
-     *
-     * @param className 有効/無効を切り替える擬似クラス名
-     * @param enable 擬似クラスを有効にする場合true
-     */
-    void switchPseudoClassState(String className, boolean enable);
-
     /** 関連するノードビュー以下のノードビューのワークスペース上の位置, 四分木空間上の位置, および配置を更新する. */
     void arrange();
 
@@ -124,34 +118,6 @@ public interface BhNodeView extends NodeViewComponent {
     void setVisible(boolean visible);
 
     /**
-     * 関連するノードビューのコンパイルエラー表示の可視性を切り替える.
-     *
-     * @param visible コンパイルエラー表示を有効にする場合 true. 無効にする場合 false.
-     */
-    void setCompileErrorVisibility(boolean visible);
-
-    /**
-     * 関連するノードビューのコンパイルエラー表示の状態を調べる.
-     *
-     * @return コンパイルエラー表示されている場合 true.
-     */
-    boolean isCompileErrorVisible();
-
-    /**
-     * 関連するノードビューとそれから辿れる外部ノードビューに影を付ける.
-     *
-     * @param target 影をつける対象
-     */
-    void showShadow(EffectTarget target);
-
-    /**
-     * 関連するノードビューとそれから辿れるノードビューの影を消す.
-     *
-     * @param target 影を消す対象
-     */
-    void hideShadow(EffectTarget target);
-
-    /**
      * 関連するノードビューのコネクタの位置を取得する.
      *
      * @return 関連するノードビューのコネクタの位置
@@ -159,57 +125,26 @@ public interface BhNodeView extends NodeViewComponent {
     ConnectorPos getConnectorPos();
 
     /**
-     * ブレークポイントの可視性を変更する.
+     * 関連するノードビューの視覚効果の有効 / 無効を切り替える.
      *
-     * @param visible ブレークポイントを表示する場合 true.  非表示にする場合 false
+     * @param enable 視覚効果を有効にする場合 true
+     * @param type 有効または無効にする視覚効果の種類
      */
-    void setBreakpointVisibility(boolean visible);
+    void setEffectEnabled(boolean enable, VisualEffectType type);
 
     /**
-     * ブレークポイントの可視性を調べる.
+     * 現在適用されている視覚効果の一覧を取得する.
      *
-     * @return ブレークポイントが表示されている場合 true.
+     * @return 現在適用されている視覚効果の一覧
      */
-    boolean isBreakpointVisible();
+    Set<VisualEffectType> getAppliedEffects();
 
     /**
-     * 実行中もしくは次に実行するステップであることを表すマークの可視性を変更する.
+     * 関連するノードビューに {@code effect} で指定した視覚効果が適用されているかどうか調べる.
      *
-     * @param visible マークを表示する場合 true.  非表示にする場合 false
+     * @return 視覚効果が適用されている場合 true
      */
-    void setExecStepMarkVisibility(boolean visible);
-
-    /**
-     * 次に実行するステップであることを表すマークの可視性を調べる.
-     *
-     * @return マークが表示されている場合 true.
-     */
-    boolean isExecStepMarkVisible();
-
-    /**
-     * 破損マークの可視性を変更する.
-     *
-     * @param visible 破損マークを表示する場合 true.  非表示にする場合 false
-     */
-    void setCorruptionMarkVisibility(boolean visible);
-
-    /**
-     * 破損マークの可視性を調べる.
-     *
-     * @return 破損マークが表示されている場合 true.
-     */
-    boolean isCorruptionMarkVisible();
-
-
-    /** エフェクトを付ける対象. */
-    enum EffectTarget {
-      /** 関連するノードビュー. */
-      SELF,
-      /** 関連するノードビューとその全ての子要素. */
-      CHILDREN,
-      /** 関連するノードビューとそこから外部ノードビューのみを辿って到達できる全てのノードビュー. */
-      OUTERS
-    }
+    boolean isEffectEnabled(VisualEffectType effect);
   }
 
   /** ノードビューの領域に関する操作を規定したインタフェース. */

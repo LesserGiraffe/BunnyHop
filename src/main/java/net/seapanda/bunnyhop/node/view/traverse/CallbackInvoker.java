@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.node.view.TextFieldNodeView;
 public class CallbackInvoker implements NodeViewWalker {
 
   private final Consumer<? super BhNodeView> callback;
-  private final Consumer<BhNodeViewGroup> callbackForGroup;
+  private final Consumer<? super BhNodeViewGroup> callbackForGroup;
   /** 外部ノードのみ巡る場合 true. */
   private final boolean visitOnlyOuter;
   /** 子要素を走査してからコールバック関数を呼ぶ場合 true. */
@@ -45,7 +45,7 @@ public class CallbackInvoker implements NodeViewWalker {
   /** コンストラクタ. */
   private CallbackInvoker(
       Consumer<? super BhNodeView> callback,
-      Consumer<BhNodeViewGroup> callbackForGroup,
+      Consumer<? super BhNodeViewGroup> callbackForGroup,
       boolean visitOnlyOuter,
       boolean visitOnlyGroup,
       boolean depthFirst) {
@@ -89,7 +89,7 @@ public class CallbackInvoker implements NodeViewWalker {
    */
   public static void invoke(
       Consumer<? super BhNodeView> callbackForNode,
-      Consumer<BhNodeViewGroup> callbackForGroup,
+      Consumer<? super BhNodeViewGroup> callbackForGroup,
       BhNodeView nodeView) {
     nodeView.accept(
         new CallbackInvoker(callbackForNode, callbackForGroup, false, false, false));
@@ -105,7 +105,7 @@ public class CallbackInvoker implements NodeViewWalker {
    */
   public static void invoke(
       Consumer<? super BhNodeView> callbackForNode,
-      Consumer<BhNodeViewGroup> callbackForGroup,
+      Consumer<? super BhNodeViewGroup> callbackForGroup,
       BhNodeView nodeView,
       boolean depthFirst) {
     nodeView.accept(
@@ -124,14 +124,14 @@ public class CallbackInvoker implements NodeViewWalker {
   }
 
   /**
-   * 外部ノードのみを経由しつつコールバック関数を呼び出す.
+   * {@code nodeView} の子 {@link BhNodeViewGroup} を対象としてコールバック関数を呼び出す.
    *
    * @param callback 呼び出すコールバック関数
-   * @param nodeView このノードから他のノードを辿らずに辿れる {@linik BhNodeViewGroup} を経由しながら
+   * @param nodeView このノードから他のノードを辿らずに辿れる {@link BhNodeViewGroup} を経由しながら
    *                 コールバック関数を呼び出す.
    */
   public static void invokeForGroups(
-      Consumer<BhNodeViewGroup> callback, BhNodeView nodeView) {
+      Consumer<? super BhNodeViewGroup> callback, BhNodeView nodeView) {
     nodeView.accept(new CallbackInvoker(n -> {}, callback, false, true, false));
   }
 

@@ -195,7 +195,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
     // connectorBoundsRate
     style.connectorBoundsRate =
         readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_BOUNDS_RATE, jsonObj, fileName)
-        .map(val -> val.doubleValue()).orElse(style.connectorBoundsRate);
+        .map(Number::doubleValue).orElse(style.connectorBoundsRate);
 
     // cssClass
     style.cssClasses = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
@@ -396,6 +396,12 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
     if (obj != null) {
       fillCorruptionMarkParams(commonPart.corruptionMark, obj, fileName);
     }
+
+    // entryPointMark
+    obj = readObject(BhConstants.NodeStyleDef.KEY_ENTRY_POINT, jsonObj, fileName).orElse(null);
+    if (obj != null) {
+      fillEntryPointMarkParams(commonPart.entryPointMark, obj, fileName);
+    }
   }
 
   /**
@@ -483,6 +489,25 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
     // size
     corruptionMark.size = readNumber(BhConstants.NodeStyleDef.KEY_SIZE, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(corruptionMark.size);
+  }
+
+  /**
+   * {@link BhNodeViewStyle.EntryPointMark} にスタイル情報を格納する.
+   *
+   * @param entryPoint jsonObj の情報を格納するオブジェクト
+   * @param jsonObj ブレークポイントのパラメータが格納されたオブジェクト
+   * @param fileName jsonObj が記述してある .json ファイルの名前
+   */
+  private void fillEntryPointMarkParams(
+      BhNodeViewStyle.EntryPointMark entryPoint, JsonObject jsonObj, String fileName)
+      throws ViewConstructionException {
+    // cssClass
+    entryPoint.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(entryPoint.cssClass);
+
+    // radius
+    entryPoint.radius = readNumber(BhConstants.NodeStyleDef.KEY_RADIUS, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE).orElse(entryPoint.radius);
   }
 
   /**

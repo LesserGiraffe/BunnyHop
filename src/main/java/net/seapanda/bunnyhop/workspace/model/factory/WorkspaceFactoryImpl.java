@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.workspace.model.factory;
 
 import java.nio.file.Path;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
 import net.seapanda.bunnyhop.service.message.MessageService;
@@ -40,6 +41,7 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
   private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
   private final Path workspaceViewFilePath;
   private final MessageService msgService;
+  private final VisualEffectManager effectManager;
 
   /** コンストラクタ. */
   public WorkspaceFactoryImpl(
@@ -47,12 +49,14 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
       Path nodeShifterViewPath,
       ModelAccessNotificationService notifService,
       BhNodeSelectionViewProxy proxy,
-      MessageService msgService) {
+      MessageService msgService,
+      VisualEffectManager visualEffectManager) {
     this.workspaceViewFilePath = workspaceViewFilePath;
     this.nodeShifterViewPath = nodeShifterViewPath;
     this.notifService = notifService;
     this.nodeSelectionViewProxy = proxy;
     this.msgService = msgService;
+    this.effectManager = visualEffectManager;
   }
 
   @Override
@@ -69,7 +73,8 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
         new NodeShifterView(nodeShifterViewPath),
         notifService,
         nodeSelectionViewProxy,
-        msgService);
+        msgService,
+        effectManager);
     return view;
   }
 }

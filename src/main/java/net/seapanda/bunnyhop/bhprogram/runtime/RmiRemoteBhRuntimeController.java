@@ -163,6 +163,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
             BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
         // プログラムスタートイベントを送信する
         send(startEvent);
+        cbRegistry.onBhProgramStarted.invoke(new StartEvent(this, filePath));
         return true;
       }
       throw new Exception();
@@ -219,6 +220,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       if (session != null) {
         boolean success = terminate(session);
         session.disconnect();
+        cbRegistry.onBhProgramTerminated.invoke(new TerminationEvent(this));
         return success;
       }
       return false;
@@ -625,6 +627,14 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     private final ConsumerInvoker<ConnectionEvent> onConnCondChanged =
         new ConcurrentConsumerInvoker<>();
 
+    /** BhProgram を開始したときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<StartEvent> onBhProgramStarted =
+        new ConcurrentConsumerInvoker<>();
+
+    /** BhProgram を終了したときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<TerminationEvent> onBhProgramTerminated =
+        new ConcurrentConsumerInvoker<>();
+
     @Override
     public ConsumerInvoker<MessageCarrierRenewedEvent>.Registry getOnMsgCarrierRenewed() {
       return onMsgCarrierRenewed.getRegistry();
@@ -633,6 +643,16 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     @Override
     public ConsumerInvoker<ConnectionEvent>.Registry getOnConnectionConditionChanged() {
       return onConnCondChanged.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<StartEvent>.Registry getOnBhProgramStarted() {
+      return onBhProgramStarted.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<TerminationEvent>.Registry getOnBhProgramTerminated() {
+      return onBhProgramTerminated.getRegistry();
     }
   }
 }

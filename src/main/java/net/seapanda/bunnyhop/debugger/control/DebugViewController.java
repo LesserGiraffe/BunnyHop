@@ -24,7 +24,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
-import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
 import net.seapanda.bunnyhop.debugger.model.Debugger.CurrentStackFrameChangedEvent;
 import net.seapanda.bunnyhop.debugger.model.Debugger.CurrentThreadChangedEvent;
@@ -195,10 +194,7 @@ public class DebugViewController {
   private Optional<VariableInspectionController> createVariableInspectionCtrl(
       VariableInfo varInfo, boolean isLocal) {
     try {
-      String viewName = isLocal
-          ? TextDefs.Debugger.VarInspection.localVars.get()
-          : TextDefs.Debugger.VarInspection.globalVars.get();
-      return Optional.ofNullable(factory.createVariableInspectionView(varInfo, viewName));
+      return Optional.ofNullable(factory.createVariableInspectionView(varInfo, isLocal));
     } catch (ViewConstructionException e) {
       LogManager.logger().error(e.toString());
     }

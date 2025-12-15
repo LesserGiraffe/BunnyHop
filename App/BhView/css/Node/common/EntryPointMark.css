@@ -1,0 +1,8 @@
+.defaultEntryPointMark .circle {
+  -fx-fill: #427ef5;
+  -fx-stroke: white;
+}
+
+.defaultEntryPointMark .triangle {
+  -fx-fill: white;
+}

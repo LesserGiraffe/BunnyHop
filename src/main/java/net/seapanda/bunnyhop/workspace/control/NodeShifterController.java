@@ -93,7 +93,7 @@ public class NodeShifterController {
       }
       ddInfo.context = notifService.beginWrite();
       ddInfo.isDndFinished = false;
-      view.switchPseudoClassActivation(true, BhConstants.Css.PSEUDO_SELECTED);
+      view.setPseudoClassState(true, BhConstants.Css.PSEUDO_SELECTED);
       Point2D pos = view.sceneToLocal(event.getSceneX(), event.getSceneY());
       ddInfo.mousePressedPos = new Vec2D(pos.getX(), pos.getY());
       view.toFront();
@@ -145,7 +145,7 @@ public class NodeShifterController {
       return;
     }
     try {
-      view.switchPseudoClassActivation(false, BhConstants.Css.PSEUDO_SELECTED);
+      view.setPseudoClassState(false, BhConstants.Css.PSEUDO_SELECTED);
       event.consume();
       ddInfo.viewToOrgPos.forEach(
           (view, pos) -> ViewUtil.pushReverseMoveCmd(view, pos, ddInfo.context.userOpe()));

@@ -54,6 +54,7 @@ import net.seapanda.bunnyhop.export.ProjectImporter;
 import net.seapanda.bunnyhop.linter.control.ErrorNodeListController;
 import net.seapanda.bunnyhop.linter.model.CompileErrorNodeCache;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.nodeselection.control.BhNodeCategoryListController;
 import net.seapanda.bunnyhop.nodeselection.model.BhNodeCategory;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
@@ -112,6 +113,7 @@ public class SceneBuilder {
   private final SearchBoxController searchBoxCtrl;
   private final TrashCanController trashCanCtrl;
   private final WindowManager windowManager;
+  private final VisualEffectManager effectManager;
   public final MenuBarController menuBarCtrl;
   public final MessageViewController msgViewCtrl;
 
@@ -146,7 +148,8 @@ public class SceneBuilder {
       WorkspaceSetController wssCtrl,
       SearchBoxController searchBoxCtrl,
       TrashCanController trashCanCtrl,
-      WindowManager windowManager)
+      WindowManager windowManager,
+      VisualEffectManager visualEffectManager)
       throws AppInitializationException {
     this.wss = wss;
     this.nodeCategoryRoot = nodeCategoryRoot;
@@ -168,6 +171,7 @@ public class SceneBuilder {
     this.searchBoxCtrl = searchBoxCtrl;
     this.trashCanCtrl = trashCanCtrl;
     this.windowManager = windowManager;
+    this.effectManager = visualEffectManager;
     this.wssCtrl = wssCtrl;
     this.debugWindowCtrl = new DebugWindowController(debugger);
     this.menuBarCtrl = new MenuBarController(
@@ -212,10 +216,10 @@ public class SceneBuilder {
       return new WorkspaceSelectorController(wss);
     }
     if (type == BreakpointListController.class) {
-      return new BreakpointListController(wss, breakpointCache, searchBoxCtrl);
+      return new BreakpointListController(wss, breakpointCache, searchBoxCtrl, effectManager);
     }
     if (type == ErrorNodeListController.class) {
-      return new ErrorNodeListController(wss, compileErrorNodeCache, searchBoxCtrl);
+      return new ErrorNodeListController(wss, compileErrorNodeCache, searchBoxCtrl, effectManager);
     }
     if (type == DebugViewController.class) {
       return new DebugViewController(debugger, debugViewFactory);

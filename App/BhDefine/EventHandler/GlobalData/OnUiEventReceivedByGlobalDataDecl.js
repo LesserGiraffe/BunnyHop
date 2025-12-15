@@ -1,5 +1,6 @@
 (function () {
-  if (!bhIsEventTarget
+  // 右クリックでドラッグしたとき, ノードを 1 つだけ抜き出す
+  if (!bhUiEvent.isDragAndDropTarget
     || !bhUiEvent.type.isDragDetected
     || !bhUiEvent.isSecondaryButtonDown) {
     return;

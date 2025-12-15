@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -47,6 +48,8 @@ import net.seapanda.bunnyhop.debugger.model.variable.VariableListItem;
 import net.seapanda.bunnyhop.debugger.view.VariableListCell;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.model.SearchQuery;
 import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
@@ -74,6 +77,7 @@ public class VariableInspectionController {
   private final SearchBox searchBox;
   private final Debugger debugger;
   private final WorkspaceSet wss;
+  private final VisualEffectManager effectManager;
   private final String viewName;
   private final VariableTreeItem rootVarItem;
   private final DataStore dataStore;
@@ -82,6 +86,11 @@ public class VariableInspectionController {
       event -> updateCellDecoration(event.node());
   private final Function<SearchQuery, SearchQueryResult> onSearchRequested = this::selectItem;
   private ImmutableCircularList<VariableTreeItem> searchResult;
+  /**
+   * 変数情報を選択したときに対応するノードにジャンプするかどうかのフラグを
+   * 複数の {@link VariableInspectionController} で共有するためのオブジェクト.
+   */
+  private final BooleanProperty sharedJumpFlag;
 
   /**
    * コンストラクタ.
@@ -95,12 +104,16 @@ public class VariableInspectionController {
       String viewName,
       SearchBox searchBox,
       Debugger debugger,
-      WorkspaceSet wss) {
+      WorkspaceSet wss,
+      VisualEffectManager visualEffectManager,
+      BooleanProperty sharedJumpFlag) {
     this.viewName = (viewName == null) ? "" : viewName;
     this.varInfo = varInfo;
     this.searchBox = searchBox;
     this.debugger = debugger;
     this.wss = wss;
+    this.effectManager = visualEffectManager;
+    this.sharedJumpFlag = sharedJumpFlag;
     this.rootVarItem = new VariableTreeItem();
     this.dataStore = new DataStore();
     rootVarItem.setExpanded(false);
@@ -133,6 +146,13 @@ public class VariableInspectionController {
 
   /** ビューから変数情報を削除する. */
   private void removeVarInfo(Collection<Variable> variables) {
+    // 変数情報を削除したときに別の変数情報が自動的に選択されるのを防ぐ
+    Optional.ofNullable(variableTreeView.getSelectionModel().getSelectedItem())
+        .map(TreeItem::getValue)
+        .map(varListItem -> varListItem.variable)
+        .filter(variables::contains)
+        .ifPresent(variable -> variableTreeView.getSelectionModel().clearSelection());
+
     Map<Variable, TreeItem<VariableListItem>> varItemToTreeItem = rootVarItem.getChildren().stream()
         .collect(Collectors.toMap(item -> item.getValue().variable, UnaryOperator.identity()));
     for (Variable variable : variables) {
@@ -179,6 +199,7 @@ public class VariableInspectionController {
     registry.getOnVariablesAdded().add(event -> addVarInfo(event.added()));
     registry.getOnVariablesRemoved().add(event -> removeVarInfo(event.removed()));
     registry.getOnValueChanged().add(event -> searchResult = null);
+    viJumpCheckBox.selectedProperty().bindBidirectional(sharedJumpFlag);
   }
 
 
@@ -191,8 +212,9 @@ public class VariableInspectionController {
         .map(TreeItem::getValue)
         .map(varListItem -> varListItem.variable)
         .flatMap(Variable::getNode)
+        .filter(BhNode::isInWorkspace)
         .flatMap(BhNode::getView)
-        .ifPresent(view -> ViewUtil.jump(view, true, BhNodeView.LookManager.EffectTarget.SELF));
+        .ifPresent(this::jumpTo);
   }
 
   /** フォーカスが変更されたときの処理. */
@@ -224,6 +246,7 @@ public class VariableInspectionController {
     }
     dataStore.clear();
     variableTreeView.setRoot(null);
+    viJumpCheckBox.selectedProperty().unbindBidirectional(sharedJumpFlag);
   }
 
   /** {@code varItem} に対応する {@link VariableListCell} の内容を更新する. */
@@ -296,6 +319,13 @@ public class VariableInspectionController {
       parent.setExpanded(true);
       parent = parent.getParent();
     }
+  }
+
+  /** {@code view} にジャンプし, ジャンプ先となった際の視覚効果をつける. */
+  private void jumpTo(BhNodeView view) {
+    ViewUtil.jump(view);
+    effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
+    effectManager.setEffectEnabled(view, true, VisualEffectType.JUMP_TARGET);
   }
 
   /** {@link VariableInspectionController} が高速にデータにアクセスするための Map を集めたレコード. */

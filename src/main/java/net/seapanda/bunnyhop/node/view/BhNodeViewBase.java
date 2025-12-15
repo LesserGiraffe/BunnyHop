@@ -36,11 +36,16 @@ import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
@@ -50,9 +55,12 @@ import net.seapanda.bunnyhop.node.control.TemplateNodeController;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeBase;
 import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeBase.BodyShape;
+import net.seapanda.bunnyhop.node.view.component.PlayIcon;
 import net.seapanda.bunnyhop.node.view.component.Star;
 import net.seapanda.bunnyhop.node.view.component.WarningIcon;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectTarget;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ChildArrangement;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ConnectorAlignment;
@@ -100,6 +108,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   private final RegionManagerBase regionManager = this.new RegionManagerBase();
   private final TreeManagerBase treeManager = this.new TreeManagerBase();
   private final PositionManagerBase positionManager = this.new PositionManagerBase();
+  private final EffectManager effectManager = this.new EffectManager();
   private final CallbackRegistryBase cbRegistry;
   private final LookManagerBase lookManager;
 
@@ -263,24 +272,15 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
    */
   protected void setComponent(Node node) {
     if (node == null) {
-      panes.specific.getChildren().clear();  
+      panes.specific.getChildren().clear();
     }
     panes.specific.getChildren().setAll(node);
   }
 
-  /** ノードの状態を表すインジケータの可視性を更新する. */
-  protected void updateNodeStatusVisibility() {
-    if (model != null) {
-      lookManager.setCompileErrorVisibility(model.hasCompileErr());
-      lookManager.setBreakpointVisibility(model.isBreakpointSet());
-      lookManager.setCorruptionMarkVisibility(model.isCorrupted());
-    }
-  }
-
   /** ノードビューの描画に必要な図形オブジェクトを作成する. */
   private Shapes createShapes(BhNodeViewStyle style) {
-    var compileErrorMark = new CompileErrorMark(0, 0, 0, 0);
-    compileErrorMark.getStyleClass().add(BhConstants.Css.CLASS_COMPILE_ERROR_MARK);
+    var compileError = new CompileErrorMark(0, 0, 0, 0);
+    compileError.getStyleClass().add(BhConstants.Css.CLASS_COMPILE_ERROR_MARK);
 
     var nodeShape = new Polygon();
     nodeShape.addEventFilter(Event.ANY, this::forwardEventIfNotHaveController);
@@ -293,14 +293,24 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     circle.getStyleClass().add(style.commonPart.breakpoint.cssClass);
 
     double size = style.commonPart.execStepMark.size;
-    Polygon execMark = new Star(size, size, 4, style.commonPart.execStepMark.cssClass);
-    execMark.setVisible(false);
+    Polygon execute = new Star(size, size, 4, style.commonPart.execStepMark.cssClass);
+    execute.setVisible(false);
 
     size = style.commonPart.corruptionMark.size;
     var corruption = new WarningIcon(size, size, style.commonPart.corruptionMark.cssClass);
     corruption.setVisible(false);
 
-    return new Shapes(nodeShape, compileErrorMark, circle, execMark, corruption);
+    radius = style.commonPart.entryPointMark.radius;
+    var entryPoint = new PlayIcon(radius, style.commonPart.entryPointMark.cssClass);
+    entryPoint.setVisible(false);
+
+    return new Shapes(
+        nodeShape,
+        compileError,
+        circle,
+        execute,
+        corruption,
+        entryPoint);
   }
 
   /** GUI コンポーネントを乗せるペインを作成する. */
@@ -325,6 +335,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     common.getChildren().add(shapes.nextStep);
     common.getChildren().add(shapes.breakpoint);
     common.getChildren().add(shapes.corruption);
+    common.getChildren().add(shapes.entryPoint);
     common.getChildren().addAll(components);
     common.getChildren().forEach(child -> {
       child.managedProperty().bind(child.visibleProperty());
@@ -371,11 +382,6 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       this.fnGetBodyShape = () -> bodyShape;
     }
 
-    @Override
-    public void switchPseudoClassState(String className, boolean enable) {
-      shapes.nodeShape.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), enable);
-    }
-
     /**
      * cssクラス名を追加する.
      *
@@ -393,8 +399,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
           && model.isDefault()
           && model.getParentConnector() != null
           && !model.getParentConnector().isFixed();
-      BhNodeViewBase.this.getLookManager().switchPseudoClassState(
-          BhConstants.Css.PSEUDO_UNFIXED_DEFAULT, isUnfixedDefault);
+      effectManager.setPseudoClassState(isUnfixedDefault, BhConstants.Css.PSEUDO_UNFIXED_DEFAULT);
     }
 
     /**
@@ -412,7 +417,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
           isFixed ? viewStyle.connectorShapeFixed.shape : viewStyle.connectorShape.shape;
       ConnectorShape notchShape =
           isFixed ? viewStyle.notchShapeFixed.shape : viewStyle.notchShape.shape;
-  
+
       shapes.nodeShape.getPoints().setAll(
           getBodyShape().shape.createVertices(
               viewStyle,
@@ -469,16 +474,6 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       }
     }
 
-    @Override
-    public void setCompileErrorVisibility(boolean visible) {
-      shapes.compileError.setVisible(visible);
-    }
-
-    @Override
-    public boolean isCompileErrorVisible() {
-      return shapes.compileError.isVisible();
-    }
-
     /**
      * このノードビューのボディの形状の種類を取得する.
      *
@@ -489,30 +484,23 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     }
 
     @Override
-    public void showShadow(EffectTarget target) {
-      Consumer<? super BhNodeViewBase> fnShowShadow = nodeView -> {
-        if (nodeView.getLookManager().getBodyShape() != BodyShape.BODY_SHAPE_NONE) {
-          nodeView.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SHADOW, true);
-        }
-      };
-      applyEffectRenderer(target, fnShowShadow);
+    public ConnectorPos getConnectorPos() {
+      return viewStyle.connectorPos;
     }
 
     @Override
-    public void hideShadow(EffectTarget target) {
-      Consumer<? super BhNodeViewBase> fnHideShadow = nodeView ->
-          nodeView.getLookManager().switchPseudoClassState(BhConstants.Css.PSEUDO_SHADOW, false);
-      applyEffectRenderer(target, fnHideShadow);
+    public void setEffectEnabled(boolean enable, VisualEffectType type) {
+      effectManager.setEffectState(enable, type);
     }
 
     /**
-     * {@code target} で指定した対象にエフェクトを描画する処理を適用する.
+     * {@code target} で指定した対象に視覚効果を与える処理を適用する.
      *
      * @param target エフェクトを適用するターゲット
      * @param renderer エフェクトを描画するメソッド
      */
     private void applyEffectRenderer(
-        EffectTarget target, Consumer<? super BhNodeViewBase> renderer) {
+        VisualEffectTarget target, Consumer<? super BhNodeViewBase> renderer) {
       switch (target) {
         case SELF -> renderer.accept(BhNodeViewBase.this);
         case CHILDREN -> NvbCallbackInvoker.invoke(renderer, BhNodeViewBase.this);
@@ -523,40 +511,165 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     }
 
     @Override
-    public ConnectorPos getConnectorPos() {
-      return viewStyle.connectorPos;
+    public Set<VisualEffectType> getAppliedEffects() {
+      return effectManager.getAppliedEffects();
     }
 
     @Override
-    public void setBreakpointVisibility(boolean visible) {
-      shapes.breakpoint.setVisible(visible);
+    public boolean isEffectEnabled(VisualEffectType effect) {
+      return effectManager.isEffectEnabled(effect);
+    }
+  }
+
+  private class EffectManager {
+
+    /** 現在適用されあている視覚効果. */
+    private final Set<VisualEffectType> appliedEffects = new HashSet<>();
+    private final DropShadow shadow;
+    private final Lighting lighting;
+
+    private boolean isShadowVisible = false;
+    private boolean isLightTunedOn = false;
+
+    private EffectManager() {
+      shadow = createShadow();
+      lighting = createLighting();
     }
 
-    @Override
-    public boolean isBreakpointVisible() {
-      return shapes.breakpoint.isVisible();
+    private DropShadow createShadow() {
+      final DropShadow shadow;
+      shadow = new DropShadow();
+      shadow.setBlurType(BlurType.TWO_PASS_BOX);
+      shadow.setColor(Color.valueOf("#606060"));
+      shadow.setRadius(10);
+      shadow.setSpread(0.3);
+      shadow.setOffsetX(6);
+      shadow.setOffsetY(6);
+      return shadow;
     }
 
-    @Override
-    public void setExecStepMarkVisibility(boolean visible) {
-      BhNodeViewBase.this.getLookManager()
-          .switchPseudoClassState(BhConstants.Css.PSEUDO_EXEC_STEP, visible);
-      shapes.nextStep.setVisible(visible);
+    private Lighting createLighting() {
+      Light.Distant light = new Light.Distant();
+      light.setAzimuth(-135.0);
+      light.setElevation(55.0);
+
+      var lighting = new Lighting();
+      lighting.setLight(light);
+      lighting.setSurfaceScale(4.0);
+      lighting.setSpecularConstant(1.2);
+      lighting.setSpecularExponent(40);
+      lighting.setDiffuseConstant(1.2);
+      return lighting;
     }
 
-    @Override
-    public boolean isExecStepMarkVisible() {
-      return shapes.nextStep.isVisible();
+    /** 影の視覚効果の有効 / 無効を切り替える. */
+    private void setShadow(boolean val) {
+      if (getLookManager().getBodyShape() != BodyShape.BODY_SHAPE_NONE) {
+        isShadowVisible = val;
+        updateEffect();
+      }
     }
 
-    @Override
-    public void setCorruptionMarkVisibility(boolean visible) {
-      shapes.corruption.setVisible(visible);
+    /** ライトの視覚効果の有効 / 無効を切り替える. */
+    private void setLight(boolean val) {
+      if (getLookManager().getBodyShape() != BodyShape.BODY_SHAPE_NONE) {
+        isLightTunedOn = val;
+        updateEffect();
+      }
     }
 
-    @Override
-    public boolean isCorruptionMarkVisible() {
-      return shapes.corruption.isVisible();
+    /** ノードに適用する {@link javafx.scene.effect.Effect} を更新する. */
+    private void updateEffect() {
+      if (isShadowVisible && isLightTunedOn) {
+        shadow.setInput(lighting);
+        shapes.nodeShape.setEffect(shadow);
+      } else if (!isShadowVisible && isLightTunedOn) {
+        shapes.nodeShape.setEffect(lighting);
+      } else if (isShadowVisible) {
+        shadow.setInput(null);
+        shapes.nodeShape.setEffect(shadow);
+      } else {
+        shapes.nodeShape.setEffect(null);
+      }
+    }
+
+    /**
+     * ノードビューの CSS の擬似クラスの有効無効を切り替える.
+     *
+     * @param enable 擬似クラスを有効にする場合 true
+     * @param className 有効/無効を切り替える擬似クラス名
+     */
+    void setPseudoClassState(boolean enable, String className) {
+      shapes.nodeShape.pseudoClassStateChanged(PseudoClass.getPseudoClass(className), enable);
+    }
+
+    /**
+     * {@code type} で指定した視覚効果の有効 / 無効を切り替える.
+     *
+     * @param enable 視覚効果を有効にする場合 true
+     * @param type 有効 / 無効を切り替える視覚効果の種類
+     */
+    void setEffectState(boolean enable, VisualEffectType type) {
+      if (enable) {
+        enableEffect(type);
+      } else {
+        disableEffect(type);
+      }
+    }
+
+    /** {@code type} で指定した視覚効果を有効にする. */
+    private void enableEffect(VisualEffectType type) {
+      appliedEffects.add(type);
+      switch (type) {
+        case SELECTION -> setPseudoClassState(true, BhConstants.Css.PSEUDO_SELECTED);
+        case MOVE_GROUP -> setShadow(true);
+        case OVERLAP -> setPseudoClassState(true, BhConstants.Css.PSEUDO_OVERLAPPED);
+        case EXEC_STEP -> {
+          shapes.nextStep.setVisible(true);
+          setLight(true);
+        }
+        case DERIVATION_GROUP -> setLight(true);
+        case JUMP_TARGET -> setPseudoClassState(true, BhConstants.Css.PSEUDO_JUMP_TARGET);
+        case BREAKPOINT -> shapes.breakpoint.setVisible(true);
+        case CORRUPTION -> shapes.corruption.setVisible(true);
+        case ENTRY_POINT -> shapes.entryPoint.setVisible(true);
+        case COMPILE_ERROR -> shapes.compileError.setVisible(true);
+        default -> throw new AssertionError("Invalid Visual Effect " + type);
+      }
+    }
+
+    /** {@code type} で指定した視覚効果を無効にする. */
+    private void disableEffect(VisualEffectType type) {
+      appliedEffects.remove(type);
+      if (!appliedEffects.contains(VisualEffectType.EXEC_STEP)
+          && !appliedEffects.contains(VisualEffectType.DERIVATION_GROUP)) {
+        setLight(false);
+      }
+      switch (type) {
+        case SELECTION -> setPseudoClassState(false, BhConstants.Css.PSEUDO_SELECTED);
+        case MOVE_GROUP -> setShadow(false);
+        case OVERLAP -> setPseudoClassState(false, BhConstants.Css.PSEUDO_OVERLAPPED);
+        case EXEC_STEP -> {
+          shapes.nextStep.setVisible(false);
+        }
+        case DERIVATION_GROUP -> { /* Do nothing.*/ }
+        case JUMP_TARGET -> setPseudoClassState(false, BhConstants.Css.PSEUDO_JUMP_TARGET);
+        case BREAKPOINT -> shapes.breakpoint.setVisible(false);
+        case CORRUPTION -> shapes.corruption.setVisible(false);
+        case ENTRY_POINT -> shapes.entryPoint.setVisible(false);
+        case COMPILE_ERROR -> shapes.compileError.setVisible(false);
+        default -> throw new AssertionError("Invalid Visual Effect " + type);
+      }
+    }
+
+    /** 現在適用されている視覚効果の一覧を取得する. */
+    Set<VisualEffectType> getAppliedEffects() {
+      return new HashSet<>(appliedEffects);
+    }
+
+    /** {@code effect} で指定した視覚効果が適用されているかどうか調べる. */
+    boolean isEffectEnabled(VisualEffectType effect) {
+      return appliedEffects.contains(effect);
     }
   }
 
@@ -820,8 +933,8 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       } else {
         view.getTreeManager().isEven = true;  //ルートは even
       }
-      view.getLookManager().switchPseudoClassState(
-          BhConstants.Css.PSEUDO_IS_EVEN, view.getTreeManager().isEven);
+      view.effectManager.setPseudoClassState(
+          view.getTreeManager().isEven, BhConstants.Css.PSEUDO_IS_EVEN);
     }
 
     @Override
@@ -1157,5 +1270,6 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       CompileErrorMark compileError,
       Circle breakpoint,
       Polygon nextStep,
-      Group corruption) {}
+      Group corruption,
+      Group entryPoint) {}
 }

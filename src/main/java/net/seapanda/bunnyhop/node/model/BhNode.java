@@ -948,11 +948,10 @@ public abstract class BhNode extends SyntaxSymbol {
      * 関連するノードが UI イベントを受け取ったときの処理を実行する.
      *
      * @param eventInfo UI イベントに関連する情報を格納したオブジェクト
-     * @param isEventTarget 関連するノードが UI イベントの適用対象である場合 true
      * @param userOpe undo 用コマンドオブジェクト
      */
-    public void onUiEventReceived(UiEvent eventInfo, boolean isEventTarget, UserOperation userOpe) {
-      nodeEventInvoker.onUiEventReceived(BhNode.this, eventInfo, isEventTarget, userOpe);
+    public void onUiEventReceived(UiEvent eventInfo, UserOperation userOpe) {
+      nodeEventInvoker.onUiEventReceived(BhNode.this, eventInfo, userOpe);
     }
   }
 }

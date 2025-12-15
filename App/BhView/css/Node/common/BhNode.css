@@ -22,27 +22,13 @@
   -fx-stroke: gold;
 }
 
-.BhNode:shadow {
-  -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
-}
-
-.BhNode:highlightDerivative {
-  -fx-stroke: gold;
-  -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
-}
-
 .BhNode:overlapped {
   -fx-stroke: magenta;
 }
 
-.BhNode:runtimeErr {
-  -fx-stroke: linear-gradient(from 0mm 0mm to 3mm 3mm, repeat, red 50%, black 0mm);
-  -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
-}
-
-.BhNode:execStep {
-  -fx-stroke: linear-gradient(from 0mm 0mm to 3mm 3mm, repeat, gold 50%, black 0mm);
-  -fx-effect: dropshadow( two-pass-box , #606060 , 10, 0.3, 6 , 6);
+.BhNode:jumpTarget {
+  -fx-stroke: linear-gradient(from 0mm 0mm to 3mm 3mm, repeat, black 50%, yellow 0mm);
+  -fx-stroke-width: 0.2em;
 }
 
 .defaultCommonPart {

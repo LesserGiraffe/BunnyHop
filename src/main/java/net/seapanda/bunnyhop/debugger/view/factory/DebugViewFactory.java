@@ -44,10 +44,10 @@ public interface DebugViewFactory {
    * 変数情報を表示するビューを作成する.
    *
    * @param varInfo 表示する変数情報を格納したオブジェクト
+   * @param isLocal ローカル変数の情報を表示するビューを作成する場合 true.
    * @return 変数情報を表示するビューのコントローラ
    * @throws ViewConstructionException ビューの初期化に失敗した場合
    */
-  VariableInspectionController createVariableInspectionView(
-      VariableInfo varInfo, String viewName)
+  VariableInspectionController createVariableInspectionView(VariableInfo varInfo, boolean isLocal)
       throws ViewConstructionException;
 }

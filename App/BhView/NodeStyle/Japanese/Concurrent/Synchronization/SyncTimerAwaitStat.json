@@ -24,7 +24,7 @@
       "subGroup1" : {
         "space" : 2.0,
         "arrangement" : "Row",
-        "connectorList" : ["${L1}{( 最初にカウントを 1}", "Option0", "${L1}{)}"]
+        "connectorList" : ["${L2}{( 最初にカウントを 1}", "Option0", "${L1}{)}"]
       }
     },
 

@@ -37,7 +37,7 @@ import net.seapanda.bunnyhop.node.model.TextNode.TextOption;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
-import net.seapanda.bunnyhop.node.service.BhNodePlacer;
+import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.script.BhScriptRepository;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -278,15 +278,13 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
   }
 
   @Override
-  public void onUiEventReceived(
-      BhNode target, UiEvent event, boolean isEventTarget, UserOperation userOpe) {
+  public void onUiEventReceived(BhNode target, UiEvent event, UserOperation userOpe) {
     ScriptNameAndScript defined = getScript(target.getId(), EventType.ON_UI_EVENT_RECEIVED);
     if (defined == null) {
       return;
     }
     Map<String, Object> nameToObj = new HashMap<>() {{
         put(BhConstants.JsIdName.BH_UI_EVENT, event);
-        put(BhConstants.JsIdName.BH_IS_EVENT_TARGET, isEventTarget);
       }};
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);

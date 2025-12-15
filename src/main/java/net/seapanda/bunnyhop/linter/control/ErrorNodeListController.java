@@ -37,6 +37,8 @@ import net.seapanda.bunnyhop.linter.model.ErrorNodeListItem;
 import net.seapanda.bunnyhop.linter.view.ErrorNodeListCell;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.model.SearchQuery;
 import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
@@ -62,6 +64,7 @@ public class ErrorNodeListController {
 
   private final WorkspaceSet wss;
   private final CompileErrorNodeCache compileErrorNodeCache;
+  private final VisualEffectManager effectManager;
   private final SearchBox searchBox;
   private final ErrorNodeTreeItem rootErrorNodeItem;
   private final DataStore dataStore;
@@ -70,13 +73,16 @@ public class ErrorNodeListController {
   private final Function<SearchQuery, SearchQueryResult> onSearchRequested = this::selectItem;
   private ImmutableCircularList<ErrorNodeTreeItem> searchResult;
 
-
   /** コンストラクタ. */
   public ErrorNodeListController(
-      WorkspaceSet wss, CompileErrorNodeCache compileErrorNodeCache, SearchBox searchBox) {
+      WorkspaceSet wss,
+      CompileErrorNodeCache compileErrorNodeCache,
+      SearchBox searchBox,
+      VisualEffectManager visualEffectManager) {
     this.wss = wss;
     this.compileErrorNodeCache = compileErrorNodeCache;
     this.searchBox = searchBox;
+    this.effectManager = visualEffectManager;
     this.rootErrorNodeItem = new ErrorNodeTreeItem();
     this.dataStore = new DataStore();
     rootErrorNodeItem.setExpanded(false);
@@ -132,6 +138,13 @@ public class ErrorNodeListController {
 
   /** エラーノード情報を一覧から削除する. */
   private void removeErrorNode(BhNode node) {
+    // エラーノードを削除したときに別のエラーノードが自動的に選択されるのを防ぐ
+    Optional.ofNullable(enTreeView.getSelectionModel().getSelectedItem())
+        .map(TreeItem::getValue)
+        .map(ErrorNodeListItem::node)
+        .filter(selected -> selected == node)
+        .ifPresent(selected -> enTreeView.getSelectionModel().clearSelection());
+
     dataStore.nodeToCells.remove(node);
     ErrorNodeTreeItem nodeTreeItem = dataStore.nodeToTreeItem.remove(node);
     if (nodeTreeItem.getParent() != null) {
@@ -162,8 +175,9 @@ public class ErrorNodeListController {
     Optional.ofNullable(item)
         .map(TreeItem::getValue)
         .map(ErrorNodeListItem::node)
+        .filter(BhNode::isInWorkspace)
         .flatMap(BhNode::getView)
-        .ifPresent(view -> ViewUtil.jump(view, true, BhNodeView.LookManager.EffectTarget.SELF));
+        .ifPresent(this::jumpTo);
   }
 
   /** フォーカスが変更されたときの処理. */
@@ -240,6 +254,13 @@ public class ErrorNodeListController {
     public DataStore() {
       this(new HashMap<>(), new HashMap<>());
     }
+  }
+
+  /** {@code view} にジャンプし, ジャンプ先となった際の視覚効果をつける. */
+  private void jumpTo(BhNodeView view) {
+    ViewUtil.jump(view);
+    effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
+    effectManager.setEffectEnabled(view, true, VisualEffectType.JUMP_TARGET);
   }
 
   /** 変数情報を表示する {@link TreeView} がの各要素のモデル. */

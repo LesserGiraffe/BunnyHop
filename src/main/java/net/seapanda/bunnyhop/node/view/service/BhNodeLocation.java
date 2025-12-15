@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.node.view.common;
+package net.seapanda.bunnyhop.node.view.service;
 
 import java.util.Optional;
 import javafx.geometry.Bounds;

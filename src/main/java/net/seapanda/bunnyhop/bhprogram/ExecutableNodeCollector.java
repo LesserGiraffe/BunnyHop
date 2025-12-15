@@ -29,7 +29,7 @@ import net.seapanda.bunnyhop.linter.model.CompileErrorNodeCache;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
-import net.seapanda.bunnyhop.node.service.BhNodePlacer;
+import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.undo.UserOperation;

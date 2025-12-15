@@ -73,7 +73,6 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
     innerGroup.buildSubGroup(viewStyle.connective.inner, factory);
     outerGroup.buildSubGroup(viewStyle.connective.outer, factory);
     getLookManager().addCssClass(BhConstants.Css.CLASS_CONNECTIVE_NODE);
-    updateNodeStatusVisibility();
   }
 
   /**
