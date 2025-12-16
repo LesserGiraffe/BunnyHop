@@ -16,10 +16,11 @@
 
 package net.seapanda.bunnyhop.compiler;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 
 /**
@@ -70,8 +71,8 @@ public class SymbolNames {
     public static final String LIST_NAME = "ListName";
     public static final String NEXT_VAR_DECL = "NextVarDecl";
 
-    public static final HashSet<String> LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> LIST =
+        new HashSet<>(List.of(
             NUM_VAR_DECL,
             NUM_LIST_DECL,
             STR_VAR_DECL,
@@ -83,8 +84,8 @@ public class SymbolNames {
             SOUND_VAR_DECL,
             SOUND_LIST_DECL));
 
-    public static final HashSet<String> VAR_LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> VAR_LIST =
+        new HashSet<>(List.of(
             NUM_VAR,
             NUM_LIST,
             STR_VAR,
@@ -120,8 +121,8 @@ public class SymbolNames {
             put(SOUND_EMPTY_LIST, "[]");
           }};
 
-    public static final HashSet<String> VAR_VOID_LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> VAR_VOID_LIST =
+        new HashSet<>(List.of(
             NUM_VAR_VOID,
             STR_VAR_VOID,
             BOOL_VAR_VOID,
@@ -134,8 +135,8 @@ public class SymbolNames {
             SOUND_EMPTY_LIST));
 
     /** 変数名を保持するノードが接続されるコネクタのリスト. */
-    public static final HashSet<String> VAR_NAME_CNCTR_LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> VAR_NAME_CNCTR_LIST =
+        new HashSet<>(List.of(
             VAR_NAME,
             LIST_NAME));
   }
@@ -151,8 +152,8 @@ public class SymbolNames {
   public static class StatToBeIgnored {
     public static final String COMMENT_PART = "CommentPart";
 
-    public static final HashSet<String> LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> LIST =
+        new HashSet<>(List.of(
             COMMENT_PART));
   }
 
@@ -163,8 +164,9 @@ public class SymbolNames {
     public static final String STR_ADD_ASSIGN_STAT = "StrAddAssignStat";
     public static final String ANY_ASSIGN_STAT = "AnyAssignStat";
     public static final String LEFT_VAR = "LeftVar";
-    public static final HashSet<String> LIST =
-        new HashSet<>(Arrays.asList(
+
+    public static final Set<String> LIST =
+        new HashSet<>(List.of(
             ANY_ASSIGN_STAT,
             NUM_ADD_ASSIGN_STAT,
             STR_ADD_ASSIGN_STAT));
@@ -191,8 +193,9 @@ public class SymbolNames {
     public static final String EXP_ADAPTER_STAT = "ExpAdapterStat";
     public static final String ARRAY_ADAPTER_STAT = "ArrayAdapterStat";
     public static final String TARGET = "Target";
-    public static final HashSet<String> LIST =
-        new HashSet<>(Arrays.asList(
+
+    public static final Set<String> LIST =
+        new HashSet<>(List.of(
             IF_STAT,
             IF_ELSE_STAT,
             WHILE_STAT,
@@ -233,8 +236,8 @@ public class SymbolNames {
     public static final String OP_GTE = "gte";
 
     /** 二項演算のリスト. */
-    public static final HashSet<String> LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> LIST =
+        new HashSet<>(List.of(
             FOUR_ARITH_EXP,
             MOD_EXP,
             BINARY_BOOL_EXP,
@@ -242,12 +245,12 @@ public class SymbolNames {
             STR_COMP_EXP));
 
     /** 論理二項演算のリスト. */
-    public static final HashSet<String> LOGICAL_LIST =
-        new HashSet<>(Arrays.asList(BINARY_BOOL_EXP));
+    public static final Set<String> LOGICAL_LIST =
+        new HashSet<>(List.of(BINARY_BOOL_EXP));
 
     /** 非論理二項演算のリスト. */
-    public static final HashSet<String> NONLOGICAL_LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> NONLOGICAL_LIST =
+        new HashSet<>(List.of(
             FOUR_ARITH_EXP,
             MOD_EXP,
             NUM_COMP_EXP,
@@ -277,8 +280,8 @@ public class SymbolNames {
     public static final String NOT_EXP = "NotExp";
     public static final String NEG_EXP = "NegExp";
     public static final String PRIMARY_EXP = "PrimaryExp";
-    public static final HashSet<String> LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> LIST =
+        new HashSet<>(List.of(
             NOT_EXP,
             NEG_EXP));
 
@@ -301,7 +304,7 @@ public class SymbolNames {
     public static final String STR_TO_NUM_WITH_DEFAULT_VAL_EXP = "StrToNumWithDefaultValExp";
     public static final String ANY_TO_STR_EXP = "AnyToStrExp";
     public static final String SCAM_EXP = "ScanExp";
-    public static final String RAMDOM_INT_EXP = "RandomIntExp";
+    public static final String RANDOM_INT_EXP = "RandomIntExp";
     public static final String NUM_ROUND_EXP = "NumRoundExp";
     public static final String ABS_EXP = "AbsExp";
     public static final String MAX_MIN_EXP = "MaxMinExp";
@@ -380,14 +383,14 @@ public class SymbolNames {
     public static final String OPT_WITHOUT_COUNTDOWN = "withoutCountdown";
 
     /** 定義済み関数式のリスト. */
-    public static final HashSet<String> EXP_LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> EXP_LIST =
+        new HashSet<>(List.of(
             STR_TO_NUM_EXP,
             STR_TO_NUM_WITH_DEFAULT_VAL_EXP,
             ANY_TO_STR_EXP,
             SCAM_EXP,
             NUM_ROUND_EXP,
-            RAMDOM_INT_EXP,
+            RANDOM_INT_EXP,
             ABS_EXP,
             MAX_MIN_EXP,
             MEASURE_DISTANCE_EXP,
@@ -426,8 +429,8 @@ public class SymbolNames {
             Array.ANY_SET_COMP_EXP));
 
     /** 定義済み関数文のリスト. */
-    public static final HashSet<String> STAT_LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> STAT_LIST =
+        new HashSet<>(List.of(
             PRINT_STAT,
             MOVE_STAT,
             STOP_RASPI_CAR_STAT,
@@ -480,7 +483,7 @@ public class SymbolNames {
             put(FuncId.create(ABS_EXP), "Math.abs");
             put(FuncId.create(MAX_MIN_EXP, OPT_MAX), "Math.max");
             put(FuncId.create(MAX_MIN_EXP, OPT_MIN), "Math.min");
-            put(FuncId.create(RAMDOM_INT_EXP), ScriptIdentifiers.Funcs.RANDOM_INT);
+            put(FuncId.create(RANDOM_INT_EXP), ScriptIdentifiers.Funcs.RANDOM_INT);
             put(FuncId.create(MEASURE_DISTANCE_EXP), ScriptIdentifiers.Funcs.MEASURE_DISTANCE);
             put(FuncId.create(MELODY_EXP), ScriptIdentifiers.Funcs.PUSH_SOUND);
             put(FuncId.create(ANY_COMP_EXP, OPT_EQ), ScriptIdentifiers.Funcs.ANY_EQ);
@@ -597,13 +600,13 @@ public class SymbolNames {
     public static final String VOID_FUNC_CALL = "VoidFuncCall";
 
     /** 関数定義ノードのリスト. */
-    public static final HashSet<String> LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> LIST =
+        new HashSet<>(List.of(
             VOID_FUNC_DEF));
 
     /** ユーザ定義関数文のリスト. */
-    public static final HashSet<String> CALL_STAT_LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> CALL_STAT_LIST =
+        new HashSet<>(List.of(
             VOID_FUNC_CALL));
   }
 
@@ -616,8 +619,8 @@ public class SymbolNames {
     public static final String DELAY_TIME = "DelayTime";
 
     /** イベントノードのリスト. */
-    public static final HashSet<String> LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> LIST =
+        new HashSet<>(List.of(
             KEY_PRESS_EVENT,
             DELAYED_START_EVENT));
   }
@@ -646,8 +649,8 @@ public class SymbolNames {
     public static final String BOOL_LITERAL_EXP = "BoolLiteralExp";
     public static final String COLOR_LITERAL_EXP = "ColorLiteralExp";
     
-    public static final HashSet<String> LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> LIST =
+        new HashSet<>(List.of(
             STR_LITERAL,
             NUM_LITERAL,
             BOOL_LITERAL,
@@ -664,16 +667,16 @@ public class SymbolNames {
             MELODY_EXP_VOID,
             STR_CHAIN_LINK_VOID));
 
-    public static final HashSet<String> EXP_LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> EXP_LIST =
+        new HashSet<>(List.of(
             STR_LITERAL_EXP,
             NEW_LINE,
             NUM_LITERAL_EXP,
             BOOL_LITERAL_EXP,
             COLOR_LITERAL_EXP));
 
-    public static final HashSet<String> ARRAY_TYPES =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> ARRAY_TYPES =
+        new HashSet<>(List.of(
             STR_EMPTY_LIST,
             NUM_EMPTY_LIST,
             BOOL_EMPTY_LIST,
@@ -729,36 +732,57 @@ public class SymbolNames {
     public static final String SYNC_TIMER_NAME = "SyncTimerName";
     public static final String NEXT_GLOBAL_DATA_DECL = "NextGlobalDataDecl";
 
-    public static final HashSet<String> LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> LIST =
+        new HashSet<>(List.of(
             MUTEX_BLOCK_DECL,
             SYNC_TIMER_DECL,
             NEXT_GLOBAL_DATA_DECL));
 
-    public static final HashSet<String> VAR_LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> VAR_LIST =
+        new HashSet<>(List.of(
             SYNC_TIMER_VAR));
 
     /** グローバルデータの名前を保持するノードが接続されるコネクタのリスト. */
-    public static final HashSet<String> DATA_NAME_CNCTR_LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> DATA_NAME_CNCTR_LIST =
+        new HashSet<>(List.of(
             MUTEX_BLOCK_NAME,
             SYNC_TIMER_NAME));
   }
 
-  /** BhProgram に定義された定数に関するシンボル名. */
+  /** BhProgram に定義されたシンボル名. */
   public static class ConstantValue {
     public static final String NIL_COLOR = "NilColor";
     public static final String NIL_SOUND = "NilSound";
     public static final String ANY_EXP_VOID = "AnyExpVoid";
     public static final String LINE_FEED = "LineFeed";
     public static final String SYNC_TIMER_VAR_VOID = "SyncTimerVarVoid";
-    public static final HashSet<String> LIST =
-        new HashSet<>(Arrays.asList(
+    public static final Set<String> LIST =
+        new HashSet<>(List.of(
             NIL_COLOR,
             NIL_SOUND,
             ANY_EXP_VOID,
             LINE_FEED,
             SYNC_TIMER_VAR_VOID));
   }
+
+  /** エントリポイントに関するシンボル一覧. */
+  public static class EntryPoint {
+
+    /** メインエントリポイント (プログラム開始時に自動で実行される処理) として指定可能なシンボル一覧. */
+    public static final Set<String> MAIN_LIST = new HashSet<>() {{
+        addAll(StatToBeIgnored.LIST);
+        addAll(AssignStat.LIST);
+        addAll(ControlStat.LIST);
+        addAll(BinaryExp.LIST);
+        addAll(UnaryExp.LIST);
+        addAll(PreDefFunc.EXP_LIST);
+        addAll(PreDefFunc.STAT_LIST);
+        add(UserDefFunc.VOID_FUNC_CALL);
+      }};
+
+    /** ワークスペースに存在していると自動的にエントリポイントとなるシンボル一覧. */
+    public static final Set<String> AUTO_LIST = new HashSet<>() {{
+        addAll(Event.LIST);
+      }};
+  };
 }

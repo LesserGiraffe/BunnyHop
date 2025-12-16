@@ -20,6 +20,7 @@ import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramMessage;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramNotification;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramResponse;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetEntryPointsResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalListValsResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalVarsResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetLocalListValsResp;
@@ -147,6 +148,7 @@ public class BhProgramMessageDispatcher {
       case GetLocalListValsResp resp -> debugMsgProcessor.process(resp);
       case GetGlobalVarsResp resp -> debugMsgProcessor.process(resp);
       case GetGlobalListValsResp resp -> debugMsgProcessor.process(resp);
+      case GetEntryPointsResp resp -> debugMsgProcessor.process(resp);
       default -> { }
     }
   }

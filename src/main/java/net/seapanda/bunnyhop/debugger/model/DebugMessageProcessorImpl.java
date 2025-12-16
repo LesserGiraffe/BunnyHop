@@ -26,6 +26,7 @@ import java.util.SequencedCollection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetEntryPointsResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalListValsResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalVarsResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetLocalListValsResp;
@@ -42,6 +43,7 @@ import net.seapanda.bunnyhop.debugger.model.variable.ListVariable;
 import net.seapanda.bunnyhop.debugger.model.variable.ScalarVariable;
 import net.seapanda.bunnyhop.debugger.model.variable.Variable;
 import net.seapanda.bunnyhop.debugger.model.variable.VariableInfo;
+import net.seapanda.bunnyhop.debugger.service.EntryPointPresenter;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.service.LogManager;
@@ -55,6 +57,7 @@ import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 public class DebugMessageProcessorImpl implements DebugMessageProcessor {
 
   private final Debugger debugger;
+  private final EntryPointPresenter entryPointPresenter;
   private final Collection<InstanceId> mainRoutineIds;
   /**
    * key: {@link BhNode} のインスタンス ID.
@@ -68,9 +71,13 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
    * @param mainRoutineIds BhProgram のエントリポイントとなるノードの処理を呼ぶ関数の ID 一覧.
    */
   public DebugMessageProcessorImpl(
-      WorkspaceSet wss, Debugger debugger, Collection<InstanceId> mainRoutineIds) {
+      WorkspaceSet wss,
+      Debugger debugger,
+      EntryPointPresenter presenter,
+      Collection<InstanceId> mainRoutineIds) {
     this.debugger = debugger;
     this.mainRoutineIds = new HashSet<>(mainRoutineIds);
+    this.entryPointPresenter = presenter;
     wss.getCallbackRegistry().getOnNodeAdded().add(
         event -> instIdToNode.put(event.node().getInstanceId(), event.node()));
     wss.getCallbackRegistry().getOnNodeRemoved().add(
@@ -141,6 +148,11 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
     }
     Variable variable = createVariable(resp.variable);
     debugger.add(new VariableInfo(variable));
+  }
+
+  @Override
+  public void process(GetEntryPointsResp resp) {
+    entryPointPresenter.present(resp);
   }
 
   /**

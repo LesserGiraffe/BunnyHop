@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.debugger.model;
 
+import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetEntryPointsResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalListValsResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalVarsResp;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetLocalListValsResp;
@@ -63,4 +64,11 @@ public interface DebugMessageProcessor {
    * @param resp 処理するレスポンス.
    */
   void process(GetGlobalListValsResp resp);
+
+  /**
+   * {@link GetEntryPointsResp} を処理する.
+   *
+   * @param resp 処理するレスポンス.
+   */
+  void process(GetEntryPointsResp resp);
 }

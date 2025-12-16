@@ -39,7 +39,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import net.seapanda.bunnyhop.bhprogram.ExecutableNodeCollector;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncherImpl;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramControllerImpl;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
@@ -55,9 +54,11 @@ import net.seapanda.bunnyhop.common.text.TextFetcher;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.BhCompilerImpl;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
+import net.seapanda.bunnyhop.compiler.nodecollector.SourceNodeCollector;
 import net.seapanda.bunnyhop.debugger.model.BhDebugger;
 import net.seapanda.bunnyhop.debugger.model.DebugMessageProcessorImpl;
 import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointCache;
+import net.seapanda.bunnyhop.debugger.service.EntryPointPresenter;
 import net.seapanda.bunnyhop.debugger.service.ThreadContextPresenter;
 import net.seapanda.bunnyhop.debugger.view.factory.DebugViewFactoryImpl;
 import net.seapanda.bunnyhop.export.JsonProjectExporter;
@@ -195,7 +196,7 @@ public class AppMain extends Application {
       final var wss = new WorkspaceSet();
       final var compileErrorNodeCache = new CompileErrorNodeCache(wss);
       final var executableNodeCollector =
-          new ExecutableNodeCollector(wss, compileErrorNodeCache, msgService);
+          new SourceNodeCollector(wss, compileErrorNodeCache, msgService);
       final var compileErrChecker = new CompileErrorChecker(wss);
       final var undoRedoAgent = new UndoRedoAgent(wss);
       final var derivativeCache = new DerivativeCache();
@@ -258,9 +259,12 @@ public class AppMain extends Application {
           wss,
           nodeViewSuperVisor);
       new ThreadContextPresenter(debugger, msgService, nodeViewSuperVisor);
+      final var entryPointPresenter = new EntryPointPresenter(
+          wss, localRuntimeCtrl, remoteRuntimeCtrl, nodeViewSuperVisor);
       final var mainRoutineIds =
           List.of(localCompiler.mainRoutineId(), remoteCompiler.mainRoutineId());
-      final var debugMsgProcessor = new DebugMessageProcessorImpl(wss, debugger, mainRoutineIds);
+      final var debugMsgProcessor =
+          new DebugMessageProcessorImpl(wss, debugger, entryPointPresenter, mainRoutineIds);
       final var msgProcessor = new IoMessageProcessorImpl(msgService);
       new BhProgramMessageDispatcher(
           msgProcessor, debugMsgProcessor, simCmdProcessor, localRuntimeCtrl, mediator);

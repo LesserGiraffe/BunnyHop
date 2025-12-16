@@ -14,40 +14,45 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram;
+package net.seapanda.bunnyhop.compiler.nodecollector;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.compiler.SourceSet;
+import net.seapanda.bunnyhop.compiler.SymbolNames;
 import net.seapanda.bunnyhop.linter.model.CompileErrorNodeCache;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
-import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
 /**
- * {@link WorkspaceSet} から実行可能なノード一式のスナップショットを作成する.
+ * {@link WorkspaceSet} からコンパイルの対象となるノード一式のスナップショットを作成する.
  *
  * @author K.Koike
  */
-public class ExecutableNodeCollector {
+public class SourceNodeCollector {
 
   /** このワークスペースセットからコンパイル対象ノードを集める. */
   private final WorkspaceSet wss;
   private final CompileErrorNodeCache compileErrorNodeCache;
   private final MessageService msgService;
-
+  private final SequencedSet<BhNode> selectedNodes = new LinkedHashSet<>();
 
   /**
    * コンストラクタ.
@@ -56,13 +61,26 @@ public class ExecutableNodeCollector {
    * @param compileErrorNodeCache コンパイルエラーノードを管理するオブジェクト
    * @param msgService アプリケーションユーザにメッセージを出力するためのオブジェクト
    */
-  public ExecutableNodeCollector(
+  public SourceNodeCollector(
       WorkspaceSet wss,
       CompileErrorNodeCache compileErrorNodeCache,
       MessageService msgService) {
     this.wss = wss;
     this.compileErrorNodeCache = compileErrorNodeCache;
     this.msgService = msgService;
+    setEventHandlers();
+  }
+
+  private void setEventHandlers() {
+    WorkspaceSet.CallbackRegistry cbRegistry = wss.getCallbackRegistry();
+    cbRegistry.getOnNodeSelectionStateChanged().add(event -> {
+      if (event.isSelected()) {
+        selectedNodes.add(event.node());
+      } else {
+        selectedNodes.remove(event.node());
+      }
+    });
+    cbRegistry.getOnNodeRemoved().add(event -> selectedNodes.remove(event.node()));
   }
 
   /**
@@ -72,21 +90,24 @@ public class ExecutableNodeCollector {
    * @param userOpe undo 用コマンドオブジェクト
    * @return コンパイル対象の全ノードとプログラム開始時に実行されるノードのセット
    */
-  public Optional<ExecutableNodeSet> collect(UserOperation userOpe) {
+  public Optional<SourceSet> collect(UserOperation userOpe) {
     return collectNodes(userOpe);
   }
 
-  /**
-   * コンパイル対象のノードを集める.
-   *
-   * @return コンパイル対象ノードと実行対象ノードのペア
-   */
-  private Optional<ExecutableNodeSet> collectNodes(UserOperation userOpe) {
+  /** コンパイルの対象となるノード一式のスナップショットを作成する. */
+  private Optional<SourceSet> collectNodes(UserOperation userOpe) {
     if (!deleteCompileErrorNodes(userOpe)) {
       return Optional.empty();
     }
-    BhNode entryPoint = findEntryPointNode(wss.getCurrentWorkspace(), userOpe);
-    if (BhSettings.BhProgram.entryPointMustExist && entryPoint == null) {
+    BhNode mainEntryPoint = findMainEntryPoint();
+    Set<BhNode> rootNodes = collectRootNodes(wss);
+    boolean executableNodesExist =
+        mainEntryPoint != null
+        || rootNodes.stream()
+        .map(SyntaxSymbol::getSymbolName)
+        .anyMatch(SymbolNames.EntryPoint.AUTO_LIST::contains);
+
+    if (!executableNodesExist) {
       msgService.alert(
           Alert.AlertType.ERROR,
           TextDefs.Compile.InformSelectNodeToExecute.title.get(),
@@ -94,7 +115,8 @@ public class ExecutableNodeCollector {
           TextDefs.Compile.InformSelectNodeToExecute.body.get());
       return Optional.empty();
     }
-    return Optional.of(new ExecutableNodeSnapshot(wss, entryPoint));
+    InstanceId mainEntryPointId = (mainEntryPoint == null) ? null : mainEntryPoint.getInstanceId();
+    return Optional.of(new SourceSetSnapshot(mainEntryPointId, rootNodes));
   }
 
   /**
@@ -153,22 +175,21 @@ public class ExecutableNodeCollector {
   /**
    * プログラム開始時に実行するノードを探す.
    *
-   * @param ws このワークスペースに実行対象があるかどうかチェックする.
-   * @param userOpe undo 用コマンドオブジェクト
    * @return プログラム開始時に実行するノード.  存在しない場合 null.
    */
-  private BhNode findEntryPointNode(Workspace ws, UserOperation userOpe) {
-    if (ws == null) {
+  private BhNode findMainEntryPoint() {
+    if (selectedNodes.isEmpty()) {
       return null;
     }
-    SequencedSet<BhNode> selectedNodeList = ws.getSelectedNodes();
-    if (selectedNodeList.isEmpty()) {
-      return null;
-    }
-    // 実行対象以外を非選択に.
-    BhNode entryPoint = selectedNodeList.getFirst().findRootNode();
-    ws.getSelectedNodes().forEach(node -> node.deselect(userOpe));
-    entryPoint.select(userOpe);
-    return entryPoint;
+    BhNode rootOfLastSelected = selectedNodes.getLast().findRootNode();
+    return SymbolNames.EntryPoint.MAIN_LIST.contains(rootOfLastSelected.getSymbolName())
+        ? rootOfLastSelected : null;
+  }
+
+  /** {@code wss} 以下のルートノードを集めて返す. */
+  private Set<BhNode> collectRootNodes(WorkspaceSet wss) {
+    return wss.getWorkspaces().stream()
+        .flatMap(ws -> ws.getRootNodes().stream())
+        .collect(Collectors.toCollection(HashSet::new));
   }
 }

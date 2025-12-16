@@ -25,9 +25,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.SequencedCollection;
+import java.util.Set;
+import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
@@ -76,15 +79,16 @@ public class BhCompilerImpl implements BhCompiler {
   }
 
   @Override
-  public Path compile(BhNode entryPoint, Collection<BhNode> targets, CompileOption option)
+  public Path compile(SourceSet sourceSet, CompileOption option)
       throws CompileError {
-    targets = new ArrayList<>(targets);
-    if (entryPoint != null && !targets.contains(entryPoint)) {
-      targets.add(entryPoint);
+    var targets = new ArrayList<>(sourceSet.getRootNodes());
+    BhNode mainEntryPoint = sourceSet.getMainEntryPoint();
+    if (mainEntryPoint != null && !targets.contains(mainEntryPoint)) {
+      targets.add(mainEntryPoint);
     }
     Preprocessor.process(targets);
     StringBuilder code = new StringBuilder();
-    genCode(code, entryPoint, targets, option);
+    genCode(sourceSet, code, option);
 
     try {
       new File(option.outFile.getParent().toAbsolutePath().toString()).mkdirs();
@@ -107,48 +111,48 @@ public class BhCompilerImpl implements BhCompiler {
   /**
    * プログラム全体のコードを生成する.
    *
-   * @param code 生成したソースコードの格納先
-   * @param entryPoint プログラム開始時に実行する最初のノード
-   * @param targets コンパイル対象のノードリスト
+   * @param sourceSet コンパイルの対象となる {@link BhNode} を提供するオブジェクト
    * @param option コンパイルオプション
    */
   private void genCode(
+      SourceSet sourceSet,
       StringBuilder code,
-      BhNode entryPoint,
-      Collection<BhNode> targets,
       CompileOption option) {
     String libCode = commonCodeList.stream().reduce("", (a, b) -> a + b);
     code.append(libCode).append(Keywords.newLine);
+    var targets = sourceSet.getRootNodes();
     SequencedCollection<SyntaxSymbol> globalVars =
         varDeclCodeGen.genVarDecls(targets, code, 0, option);
-    genSetGlobalVars(code, globalVars, 0, option);
+    genSetGlobalVars(globalVars, code, 0, option);
     globalDataDeclCodeGen.genGlobalDataDecls(targets, code, 0, option);
+    genSetEntryPointIds(sourceSet, code, 0);
     code.append(Keywords.newLine);
     funcDefCodeGen.genFuncDefs(targets, code, 0, option);
     eventHandlerCodeGen.genEventHandlers(targets, code, 0, option);
-    genMainMethod(code, entryPoint, option);
+    genMainMethod(sourceSet.getMainEntryPoint(), code, option);
     genAddEventFuncCall(
         BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.BH_MAIN, code, 0);
     genFooterSnippet(code, 0);
+
   }
 
   /**
-   * エントリポイントのコードを生成する.
+   * メインエントリポイントのコードを生成する.
    *
+   * @param mainEntryPoint プログラム開始時に実行する最初のノード.  (nullable)
    * @param code 生成したソースコードの格納先
-   * @param entryPoint プログラム開始時に実行する最初のノード
    * @param option コンパイルオプション
    */
-  private void genMainMethod(StringBuilder code, BhNode entryPoint, CompileOption option) {
-    if (entryPoint == null) {
+  private void genMainMethod(BhNode mainEntryPoint, StringBuilder code, CompileOption option) {
+    if (mainEntryPoint == null) {
       code.append("function %s() {}\n".formatted(ScriptIdentifiers.Funcs.BH_MAIN));
       return;
     }
     String lockVar = Keywords.Prefix.lockVar + ScriptIdentifiers.Funcs.BH_MAIN;
     eventHandlerCodeGen.genHeaderSnippetOfEventCall(
         code, mainRoutineId, false, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 0, option);
-    expCodeGen.genExpression(code, entryPoint, 4, option);
-    statCodeGen.genStatement(entryPoint, code, 4, option);
+    expCodeGen.genExpression(mainEntryPoint, code, 4, option);
+    statCodeGen.genStatement(mainEntryPoint, code, 4, option);
     eventHandlerCodeGen.genFooterSnippetOfEventCall(code, lockVar, 0, option);
   }
 
@@ -188,13 +192,14 @@ public class BhCompilerImpl implements BhCompiler {
   /**
    * グローバル変数のアクセサをデバッガに追加するコードを生成する.
    *
-   * @param code 生成したソースコードの格納先
    * @param variables グローバル変数の変数定義ノード一覧
+   * @param code 生成したソースコードの格納先
+   * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   private void genSetGlobalVars(
-      StringBuilder code,
       SequencedCollection<SyntaxSymbol> variables,
+      StringBuilder code,
       int nestLevel,
       CompileOption option) {
     if (!option.addVarAccessorToVarStack) {
@@ -207,6 +212,34 @@ public class BhCompilerImpl implements BhCompiler {
           .append(ScriptIdentifiers.Funcs.SET_GLOBAL_VARIABLES)
           .append("([%s]);%s".formatted(accessorElems, Keywords.newLine));
     }
+  }
+
+  /**
+   * イベントハンドラ一覧をデバッガに追加するコードを生成する.
+   *
+   * <p>この処理はデバッグオプションに関係なく行う.
+   *
+   * @param sourceSet コンパイルの対象となる {@link BhNode} を提供するオブジェクト
+   * @param code 生成したソースコードの格納先
+   * @param nestLevel ソースコードのネストレベル
+   */
+  private void genSetEntryPointIds(
+      SourceSet sourceSet,
+      StringBuilder code,
+      int nestLevel) {
+    Set<BhNode> entryPoints = sourceSet.getRootNodes().stream()
+        .filter(node -> SymbolNames.EntryPoint.AUTO_LIST.contains(node.getSymbolName()))
+        .collect(Collectors.toCollection(HashSet::new));
+    Optional.ofNullable(sourceSet.getMainEntryPoint()).ifPresent(entryPoints::add);
+
+    String entryPointIds = entryPoints.stream()
+        .map(node -> "'" + node.getInstanceId() + "'")
+        .reduce((a, b) -> a + ", " + b)
+        .orElse("");
+
+    code.append(common.indent(nestLevel))
+        .append(ScriptIdentifiers.Funcs.SET_ENTRY_POINT_IDS)
+        .append("([%s]);%s".formatted(entryPointIds, Keywords.newLine));
   }
 
   @Override

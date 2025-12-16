@@ -17,7 +17,6 @@
 package net.seapanda.bunnyhop.bhprogram;
 
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Optional;
 import javafx.scene.control.Alert;
 import net.seapanda.bunnyhop.bhprogram.runtime.LocalBhRuntimeController;
@@ -25,7 +24,7 @@ import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.compiler.BhCompiler;
 import net.seapanda.bunnyhop.compiler.CompileError;
 import net.seapanda.bunnyhop.compiler.CompileOption;
-import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.compiler.SourceSet;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.message.MessageService;
 
@@ -57,21 +56,20 @@ public class LocalBhProgramLauncherImpl implements LocalBhProgramLauncher {
   }
 
   @Override
-  public synchronized boolean launch(ExecutableNodeSet nodeSet) {
-    return compile(nodeSet).map(this::startProgram).orElse(false);
+  public synchronized boolean launch(SourceSet sourceSet) {
+    return compile(sourceSet).map(this::startProgram).orElse(false);
   }
 
   /**
    * ノードをコンパイルする.
    *
-   * @param nodeSet コンパイル対象のノードのリスト
+   * @param sourceSet コンパイル対象となるノード一覧を提供するオブジェクト
    * @return ノードをコンパイルしてできたソースファイルのパス
    */
-  private Optional<Path> compile(ExecutableNodeSet nodeSet) {
+  private Optional<Path> compile(SourceSet sourceSet) {
     CompileOption option = new CompileOption.Builder().build();
-    Collection<BhNode> rootNodes = nodeSet.getRootNodeList();
     try {
-      Path outFile = compiler.compile(nodeSet.getEntryPoint(), rootNodes, option);
+      Path outFile = compiler.compile(sourceSet, option);
       msgService.info(TextDefs.Compile.succeeded.get());
       return Optional.of(outFile);
     } catch (CompileError e) {

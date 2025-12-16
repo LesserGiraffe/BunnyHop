@@ -334,12 +334,12 @@ public class TextDefs {
           TextId.of("msg", "compile", "inform-failed-to-write", "title"), params);
     }
 
-    /** 実行するノードを選択しなかったときのメッセージ. */
+    /** 実行可能なノードが存在しないときのメッセージ. */
     public static class InformSelectNodeToExecute {
       public static Getter title = params -> db.get(
-          TextId.of("msg", "compile", "inform-entry-point-not-selected", "title"), params);
+          TextId.of("msg", "compile", "inform-no-entry-points", "title"), params);
       public static Getter body = params -> db.get(
-          TextId.of("msg", "compile", "inform-entry-point-not-selected", "body"), params);
+          TextId.of("msg", "compile", "inform-no-entry-points", "body"), params);
     }
 
     /** コンパイルエラーノードの削除に失敗したときのメッセージ. */

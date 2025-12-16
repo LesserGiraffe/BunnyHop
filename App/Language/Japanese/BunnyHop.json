@@ -48,7 +48,6 @@
       "free-memory": "メモリ解放",
       "settings": "設定",
       "focus-simulator": "プログラム開始時にシミュレータを表示する",
-      "must-specify-entry-point": "エントリポイントの指定を強制する",
       "undo-redo": "元に戻す / やり直す",
       "track-node-in-current-workspace": "選択中のワークスぺースで移動したノードに注目する",
       "track-node-in-inactive-workspace": "選択していないワークスぺースで移動したノードに注目する",
@@ -257,9 +256,9 @@
       "inform-failed-to-write": {
         "title": "ファイル書き込みエラー"
       },
-      "inform-entry-point-not-selected": {
-        "title": "エントリポイントの選択",
-        "body": "プログラムの開始時に実行されるノードを一つ選択してください."
+      "inform-no-entry-points": {
+        "title": "実行するノードの選択",
+        "body": "実行可能なノードが選択されていません."
       },
       "cannot-delete-error-nodes": "コンパイルエラーノードを削除できませんでした.\n実行を中止します.",
       "succeeded": "\n-- コンパイル成功 --\n"

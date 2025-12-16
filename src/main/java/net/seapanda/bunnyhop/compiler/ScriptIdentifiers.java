@@ -97,6 +97,7 @@ public class ScriptIdentifiers {
     public static final String NOTIFY_THREAD_START = "_notifyThreadStart";
     public static final String NOTIFY_THREAD_END = "_notifyThreadEnd";
     public static final String SET_GLOBAL_VARIABLES = "_setGlobalVariables";
+    public static final String SET_ENTRY_POINT_IDS = "_setEntryPointIds";
     public static final String COND_WAIT = "_condWait";
     public static final String IS_NUM_INFINITE = "_isNumInfinite";
     public static final String NUM_CLAMP = "_numClamp";

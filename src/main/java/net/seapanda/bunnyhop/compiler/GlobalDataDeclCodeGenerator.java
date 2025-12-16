@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.compiler;
 
 import java.util.Collection;
+import java.util.Objects;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 
@@ -48,7 +49,6 @@ class GlobalDataDeclCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-
     nodeListToCompile.forEach(node -> {
       if (SymbolNames.GlobalData.LIST.contains(node.getSymbolName())) {
         genGlobalDataDecls(node, code, nestLevel, option);
@@ -69,7 +69,6 @@ class GlobalDataDeclCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-
     if (!SymbolNames.GlobalData.LIST.contains(globalDataDeclNode.getSymbolName())) {
       return;
     }
@@ -77,9 +76,9 @@ class GlobalDataDeclCodeGenerator {
       SymbolNames.GlobalData.DATA_NAME_CNCTR_LIST.stream()
           .map(cnctrName ->
               (TextNode) globalDataDeclNode.findDescendantOf("*", cnctrName, "*"))
-          .filter(node -> node != null)
+          .filter(Objects::nonNull)
           .findFirst()
-          .map(node -> node.getText())
+          .map(TextNode::getText)
           .ifPresent(comment -> {
             code.append(common.indent(nestLevel))
                 .append(" /*")
@@ -89,7 +88,7 @@ class GlobalDataDeclCodeGenerator {
     }
 
     String varName =
-        expCodeGen.genPreDefFuncCallExp(code, globalDataDeclNode, nestLevel, option, true);
+        expCodeGen.genPreDefFuncCallExp(globalDataDeclNode, code, nestLevel, option, true);
     String thisVarName = common.genVarName(globalDataDeclNode);
     if (!varName.equals(thisVarName)) {
       code.append(common.indent(nestLevel))

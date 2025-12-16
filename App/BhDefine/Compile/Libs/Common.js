@@ -98,6 +98,10 @@ function _condWait(stepId) {
   bhScriptHelper.debug.conditionalWait(stepId);
 }
 
+function _setEntryPointIds(ids) {
+  bhScriptHelper.debug.setEntryPointIds(ids);
+}
+
 function _newLockObj(fair) {
   return new _jLock(fair);
 }

@@ -37,8 +37,6 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import net.seapanda.bunnyhop.bhprogram.ExecutableNodeCollector;
-import net.seapanda.bunnyhop.bhprogram.ExecutableNodeSet;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncher;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
 import net.seapanda.bunnyhop.bhprogram.common.message.io.InputTextCmd;
@@ -47,6 +45,8 @@ import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.compiler.SourceSet;
+import net.seapanda.bunnyhop.compiler.nodecollector.SourceNodeCollector;
 import net.seapanda.bunnyhop.debugger.control.DebugWindowController;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
@@ -163,7 +163,7 @@ public class MenuViewController {
   /** アプリケーションのウィンドウを操作するためのオブジェクト. */
   private final WindowManager windowManager;
   /** 実行可能なノードを集めるためのオブジェクト. */
-  private final ExecutableNodeCollector executableNodeCollector;
+  private final SourceNodeCollector executableNodeCollector;
 
   /** コンストラクタ. */
   public MenuViewController(
@@ -179,7 +179,7 @@ public class MenuViewController {
       MessageService msgService,
       DebugWindowController debugWindowCtrl,
       WindowManager windowManager,
-      ExecutableNodeCollector executableNodeCollector) {
+      SourceNodeCollector executableNodeCollector) {
     this.wssCtrl = wssCtrl;
     this.notifService = notifService;
     this.wsFactory = wsFactory;
@@ -492,7 +492,7 @@ public class MenuViewController {
       msgService.info(TextDefs.BhRuntime.AlreadyDoing.execution.get());
       return;
     }
-    ExecutableNodeSet nodeSet = collectExecutableNodes(wss);
+    SourceSet nodeSet = collectExecutableNodes(wss);
     if (nodeSet == null) {
       return;
     }
@@ -515,9 +515,9 @@ public class MenuViewController {
   }
 
   /** {@code wss} から実行可能なノードを集める. */
-  private ExecutableNodeSet collectExecutableNodes(WorkspaceSet wss) {
+  private SourceSet collectExecutableNodes(WorkspaceSet wss) {
     Context context = notifService.beginWrite();
-    Optional<ExecutableNodeSet> nodeSet = Optional.empty();
+    Optional<SourceSet> nodeSet = Optional.empty();
     try {
       nodeSet = executableNodeCollector.collect(context.userOpe());
     } catch (Exception e) {

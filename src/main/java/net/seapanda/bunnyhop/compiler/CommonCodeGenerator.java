@@ -92,9 +92,7 @@ class CommonCodeGenerator {
   String genFuncPrototypeCall(String funcName, String thisObj, String... args) {
     String[] argList = new String[args.length + 1];
     argList[0] = thisObj;
-    for (int i = 0; i < args.length; ++i) {
-      argList[i + 1] = args[i];
-    }
+    System.arraycopy(args, 0, argList, 1, args.length);
     String funcCall = genPropertyAccess(funcName, ScriptIdentifiers.JsFuncs.CALL);
     return genFuncCall(funcCall, argList);
   }

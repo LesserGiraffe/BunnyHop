@@ -14,38 +14,29 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.bhprogram;
+package net.seapanda.bunnyhop.compiler;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.Set;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 
 /**
- * 実行可能なノードの一覧を保持するクラスのインタフェース.
+ * コンパイルの対象となるノード一覧を提供する機能を規定したインタフェース.
  *
  * @author K.Koike
  */
-public interface ExecutableNodeSet {
+public interface SourceSet {
   
   /**
    * プログラム開始時に実行されるノードを取得する.
    *
    * @return プログラム開始時に実行されるノード.  存在しない場合は null.
    */
-  BhNode getEntryPoint();
+  BhNode getMainEntryPoint();
 
   /**
-   * 実行可能なノードの全てのルートノードを返す.
+   * コンパイルの対象となるノード群のうち, ルートノードであるものの一覧を取得する.
    *
-   * @return 実行可能なノードの全てのルートノード
+   * @return コンパイルの対象となるノード群うち, ルートノードであるものの一覧
    */
-  Collection<BhNode> getRootNodeList();
-
-  /**
-   * インスタンス ID とそれに対応するノードのマップを返す.
-   *
-   * @return インスタンス ID とそれに対応するノードのマップ
-   */
-  Map<InstanceId, BhNode> getSymbolIdToNode();
+  Set<BhNode> getRootNodes();
 }

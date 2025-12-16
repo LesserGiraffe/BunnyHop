@@ -65,11 +65,11 @@ class StatCodeGenerator {
       return;
     }
     if (SymbolNames.AssignStat.LIST.contains(statSymbolName)) {
-      genAssignStat(code, statementNode, nestLevel, option);
+      genAssignStat(statementNode, code, nestLevel, option);
     } else if (SymbolNames.UserDefFunc.CALL_STAT_LIST.contains(statSymbolName)) {
-      expCodeGen.genUserDefFuncCallExp(code, statementNode, nestLevel, option, false);
+      expCodeGen.genUserDefFuncCallExp(statementNode, code, nestLevel, option, false);
     } else if (SymbolNames.PreDefFunc.STAT_LIST.contains(statSymbolName)) {
-      expCodeGen.genPreDefFuncCallExp(code, statementNode, nestLevel, option, false);
+      expCodeGen.genPreDefFuncCallExp(statementNode, code, nestLevel, option, false);
     } else if (SymbolNames.ControlStat.LIST.contains(statSymbolName)) {
       genControlStat(code, statementNode, nestLevel, option);
     } else if (SymbolNames.StatToBeIgnored.LIST.contains(statSymbolName)) {
@@ -91,22 +91,22 @@ class StatCodeGenerator {
   /**
    * 代入文のコードを生成する.
    *
-   * @param code 生成したコードの格納先
    * @param assignStatNode 代入文のノード
+   * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   private void genAssignStat(
-      StringBuilder code,
       SyntaxSymbol assignStatNode,
+      StringBuilder code,
       int nestLevel,
       CompileOption option) {
     // 右辺の値が無い代入文でブレークが指定されたときのために, ここでインスタンス ID を保存する.
     common.genSetNextNodeInstId(code, assignStatNode.getInstanceId(), nestLevel, option);
-    genConditionalWait(code, assignStatNode, nestLevel, option);
+    genConditionalWait(assignStatNode, code, nestLevel, option);
     SyntaxSymbol rightExp = 
         assignStatNode.findDescendantOf("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
-    String rightExpCode = expCodeGen.genExpression(code, rightExp, nestLevel, option);
+    String rightExpCode = expCodeGen.genExpression(rightExp, code, nestLevel, option);
     if (rightExpCode == null) {
       return;
     }
@@ -116,28 +116,24 @@ class StatCodeGenerator {
     boolean isAddAssign =
         addAssignStatName.equals(SymbolNames.AssignStat.NUM_ADD_ASSIGN_STAT)
         || addAssignStatName.equals(SymbolNames.AssignStat.STR_ADD_ASSIGN_STAT);
-    genAssignCode(code, assignStatNode, varSymbol, rightExpCode, isAddAssign, nestLevel, option);
+    genAssignCode(code, varSymbol, rightExpCode, isAddAssign, nestLevel);
   }
 
   /**
    * 代入文のコードを生成する.
    *
    * @param code 生成したコードの格納先
-   * @param assignStatNode 代入文のノード
    * @param varSymbol 代入先の変数ノード
    * @param rightExp 右辺のコード
    * @param isAddAssign += 代入文を生成する場合 true
    * @param nestLevel ソースコードのネストレベル
-   * @param option コンパイルオプション
    */
   private void genAssignCode(
       StringBuilder code,
-      SyntaxSymbol assignStatNode,
       SyntaxSymbol varSymbol,
       String rightExp,
       boolean isAddAssign,
-      int nestLevel,
-      CompileOption option) {
+      int nestLevel) {
     if (!SymbolNames.VarDecl.VAR_LIST.contains(varSymbol.getSymbolName())) {
       return;
     }
@@ -177,7 +173,7 @@ class StatCodeGenerator {
       CompileOption option) {
     String symbolName = controlStatNode.getSymbolName();
     common.genSetNextNodeInstId(code, controlStatNode.getInstanceId(), nestLevel, option);
-    genConditionalWait(code, controlStatNode, nestLevel, option);
+    genConditionalWait(controlStatNode, code, nestLevel, option);
 
     switch (symbolName) {
       case SymbolNames.ControlStat.BREAK_STAT:
@@ -190,19 +186,19 @@ class StatCodeGenerator {
 
       case SymbolNames.ControlStat.IF_ELSE_STAT:
       case SymbolNames.ControlStat.IF_STAT:
-        genIfElseStat(code, controlStatNode, nestLevel, option);
+        genIfElseStat(controlStatNode, code, nestLevel, option);
         break;
 
       case SymbolNames.ControlStat.WHILE_STAT:
-        genWhileStat(code, controlStatNode, nestLevel, option);
+        genWhileStat(controlStatNode, code, nestLevel, option);
         break;
 
       case SymbolNames.ControlStat.COMPOUND_STAT:
-        genCompoundStat(code, controlStatNode, nestLevel, option);
+        genCompoundStat(controlStatNode, code, nestLevel, option);
         break;
 
       case SymbolNames.ControlStat.REPEAT_STAT:
-        genRepeatStat(code, controlStatNode, nestLevel, option);
+        genRepeatStat(controlStatNode, code, nestLevel, option);
         break;
 
       case SymbolNames.ControlStat.RETURN_STAT:
@@ -210,12 +206,12 @@ class StatCodeGenerator {
         break;
 
       case SymbolNames.ControlStat.MUTEX_BLOCK_STAT:
-        genMutexBlockStat(code, controlStatNode, nestLevel, option);
+        genMutexBlockStat(controlStatNode, code, nestLevel, option);
         break;
 
       case SymbolNames.ControlStat.EXP_ADAPTER_STAT:
       case SymbolNames.ControlStat.ARRAY_ADAPTER_STAT:
-        genAdapterStat(code, controlStatNode, nestLevel, option);
+        genAdapterStat(controlStatNode, code, nestLevel, option);
         break;
 
       default:
@@ -226,20 +222,20 @@ class StatCodeGenerator {
   /**
    * 条件分岐文のコードを生成する.
    *
-   * @param code 生成したコードの格納先
    * @param ifElseStatNode 制御文のノード
+   * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   private void genIfElseStat(
-      StringBuilder code,
       SyntaxSymbol ifElseStatNode,
+      StringBuilder code,
       int nestLevel,
       CompileOption option) {
     //conditional part
     SyntaxSymbol condExp =
         ifElseStatNode.findDescendantOf("*", SymbolNames.ControlStat.COND_EXP, "*");
-    String condExpCode = expCodeGen.genExpression(code, condExp, nestLevel, option);
+    String condExpCode = expCodeGen.genExpression(condExp, code, nestLevel, option);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._if_)
         .append("(")
@@ -269,14 +265,14 @@ class StatCodeGenerator {
   /**
    * while 文のコードを生成する.
    *
-   * @param code 生成したコードの格納先
    * @param whileStatNode while文のノード
+   * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   private void genWhileStat(
-      StringBuilder code,
       SyntaxSymbol whileStatNode,
+      StringBuilder code,
       int nestLevel,
       CompileOption option) {
     //conditional part
@@ -288,7 +284,7 @@ class StatCodeGenerator {
 
     SyntaxSymbol condExp =
         whileStatNode.findDescendantOf("*", SymbolNames.ControlStat.COND_EXP, "*");
-    String condExpCode = expCodeGen.genExpression(code, condExp, nestLevel + 1, option);
+    String condExpCode = expCodeGen.genExpression(condExp, code, nestLevel + 1, option);
     code.append(common.indent(nestLevel + 1))
         .append(Keywords.Js._if_)
         .append("(!")
@@ -313,14 +309,14 @@ class StatCodeGenerator {
   /**
    * ブロック文のコードを生成する.
    *
-   * @param code 生成したコードの格納先
    * @param compoundStatNode block文のノード
+   * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   private void genCompoundStat(
-      StringBuilder code,
       SyntaxSymbol compoundStatNode,
+      StringBuilder code,
       int nestLevel,
       CompileOption option) {
     code.append(common.indent(nestLevel))
@@ -343,19 +339,19 @@ class StatCodeGenerator {
   /**
    * Repeat 文のコードを生成する.
    *
-   * @param code 生成したコードの格納先
    * @param repeatStatNode Repeat文のノード
+   * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   private void genRepeatStat(
-      StringBuilder code,
       SyntaxSymbol repeatStatNode,
+      StringBuilder code,
       int nestLevel,
       CompileOption option) {
     SyntaxSymbol condExp =
         repeatStatNode.findDescendantOf("*", SymbolNames.ControlStat.COND_EXP, "*");
-    String condExpCode = expCodeGen.genExpression(code, condExp, nestLevel, option);
+    String condExpCode = expCodeGen.genExpression(condExp, code, nestLevel, option);
     String loopCounter = common.genVarName(repeatStatNode);
     String numRepetitionVar = "_" + loopCounter;
     code.append(common.indent(nestLevel))
@@ -395,14 +391,14 @@ class StatCodeGenerator {
   /**
    * 排他制御区間のコードを生成する.
    *
-   * @param code 生成したコードの格納先
    * @param mutexBlockNode 排他区間のノード
+   * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   private void genMutexBlockStat(
-      StringBuilder code,
       SyntaxSymbol mutexBlockNode,
+      StringBuilder code,
       int nestLevel,
       CompileOption option) {
     BhNode lockVarNode = ((BhNode) mutexBlockNode).getOriginal();
@@ -487,32 +483,32 @@ class StatCodeGenerator {
   /**
    * 式を文に変換するコードを作成する.
    *
-   * @param code 生成したコードの格納先
    * @param adapterStatNode 式を文に変換するノード
+   * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   private void genAdapterStat(
-      StringBuilder code,
       SyntaxSymbol adapterStatNode,
+      StringBuilder code,
       int nestLevel,
       CompileOption option) {
     SyntaxSymbol exp =
         adapterStatNode.findDescendantOf("*", SymbolNames.ControlStat.TARGET, "*");
-    expCodeGen.genExpression(code, exp, nestLevel, option);
+    expCodeGen.genExpression(exp, code, nestLevel, option);
   }
 
   /**
    * {@code symbol} が一時停止可能なノードである場合, 一時停止するコードを生成する.
    *
-   * @param code 生成したコードの格納先
    * @param symbol このシンボルが一時停止可能なノードである場合, 一時停止するコードを生成する.
+   * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
   private void genConditionalWait(
-      StringBuilder code,
       SyntaxSymbol symbol,
+      StringBuilder code,
       int nestLevel,
       CompileOption option) {
     if (symbol instanceof BhNode node) {

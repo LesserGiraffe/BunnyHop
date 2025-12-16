@@ -75,11 +75,10 @@ class VarDeclCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-
-    List<SyntaxSymbol> varDelcs = collectVarDecls(varDecl);
-    List<VarDeclInfo> varDeclInfoList = varDelcs.stream().map(this::toVarDeclInfo).toList();
-    genVarDecls(code, varDeclInfoList, nestLevel, option);
-    return varDelcs;
+    List<SyntaxSymbol> varDecls = collectVarDecls(varDecl);
+    List<VarDeclInfo> varDeclInfoList = varDecls.stream().map(this::toVarDeclInfo).toList();
+    genVarDecls(varDeclInfoList, code, nestLevel, option);
+    return varDecls;
   }
 
   /**
@@ -91,8 +90,8 @@ class VarDeclCodeGenerator {
    * @param option コンパイルオプション
    */
   private void genVarDecls(
-      StringBuilder code,
       List<VarDeclInfo> varDeclInfoList,
+      StringBuilder code,
       int nestLevel,
       CompileOption option) {
 
@@ -132,7 +131,7 @@ class VarDeclCodeGenerator {
     paramList.addAll(varDeclInfoList);
     paramList.addAll(outVarDeclInfoList);
 
-    if (paramList.size() >= 1) {
+    if (!paramList.isEmpty()) {
       code.append(Keywords.newLine);
     }
     for (int i = 0; i < paramList.size(); ++i) {
@@ -262,7 +261,7 @@ class VarDeclCodeGenerator {
    * @param instId 変数宣言ノードの {@link InstanceId}
    * @param comment コメント (デバッグ用)
    */
-  private static record VarDeclInfo(
+  private record VarDeclInfo(
       String varName,
       String outArgName,
       String initVal,
@@ -275,7 +274,7 @@ class VarDeclCodeGenerator {
    * @param inParams 仮引数のリスト
    * @param outParams 出力引数のリスト
    */
-  static record ParamList(
+  record ParamList(
       SequencedCollection<SyntaxSymbol> inParams,
       SequencedCollection<SyntaxSymbol> outParams) {}
 

@@ -35,11 +35,11 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
-import net.seapanda.bunnyhop.bhprogram.ExecutableNodeCollector;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncher;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.compiler.nodecollector.SourceNodeCollector;
 import net.seapanda.bunnyhop.debugger.control.BreakpointListController;
 import net.seapanda.bunnyhop.debugger.control.DebugViewController;
 import net.seapanda.bunnyhop.debugger.control.DebugWindowController;
@@ -109,7 +109,7 @@ public class SceneBuilder {
   private final BreakpointCache breakpointCache;
   private final CompileErrorNodeCache compileErrorNodeCache;
   private final Debugger debugger;
-  private final ExecutableNodeCollector executableNodeCollector;
+  private final SourceNodeCollector executableNodeCollector;
   private final SearchBoxController searchBoxCtrl;
   private final TrashCanController trashCanCtrl;
   private final WindowManager windowManager;
@@ -144,7 +144,7 @@ public class SceneBuilder {
       BreakpointCache breakpointCache,
       CompileErrorNodeCache compileErrorNodeCache,
       Debugger debugger,
-      ExecutableNodeCollector executableNodeCollector,
+      SourceNodeCollector executableNodeCollector,
       WorkspaceSetController wssCtrl,
       SearchBoxController searchBoxCtrl,
       TrashCanController trashCanCtrl,

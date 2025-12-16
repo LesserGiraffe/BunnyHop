@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
+import net.seapanda.bunnyhop.bhprogram.BhRuntimeController.ConnectionEvent;
 import net.seapanda.bunnyhop.bhprogram.common.BhSymbolId;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.AddBreakpointsCmd;
 import net.seapanda.bunnyhop.bhprogram.common.message.debug.GetGlobalListValsCmd;
@@ -81,20 +82,21 @@ public class BhDebugger implements Debugger {
     cbRegistry.getOnNodeAdded().add(event -> addBreakpoints(event.added()));
     cbRegistry.getOnNodeRemoved().add(event -> removeBreakpoints(event.removed()));
 
-    localBhRuntimeCtrl.getCallbackRegistry().getOnConnectionConditionChanged().add(
-        event -> onRuntimeConnCondChanged(event.isConnected()));
-    remoteBhRuntimeCtrl.getCallbackRegistry().getOnConnectionConditionChanged().add(
-        event -> onRuntimeConnCondChanged(event.isConnected()));
+    BhRuntimeController.CallbackRegistry rcCbRegistry = localBhRuntimeCtrl.getCallbackRegistry();
+    rcCbRegistry.getOnConnectionConditionChanged().add(this::onRuntimeConnCondChanged);
+
+    rcCbRegistry = remoteBhRuntimeCtrl.getCallbackRegistry();
+    rcCbRegistry.getOnConnectionConditionChanged().add(this::onRuntimeConnCondChanged);
   }
 
   /** {@link BhRuntimeController} のコネクションの状態が変更されたときの処理. */
-  private void onRuntimeConnCondChanged(boolean isConnected) {
+  private void onRuntimeConnCondChanged(ConnectionEvent event) {
     final Collection<BhNode> breakpointNodes = new ArrayList<>();
     ViewUtil.runSafeSync(() -> {
       clear();
       breakpointNodes.addAll(breakpointCache.getBreakpoints());
     });
-    if (isConnected) {
+    if (event.isConnected()) {
       setBreakpoints(breakpointNodes.toArray(new BhNode[0]));
     }
   }

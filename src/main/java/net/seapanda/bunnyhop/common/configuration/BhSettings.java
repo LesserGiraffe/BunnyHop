@@ -55,12 +55,6 @@ public class BhSettings {
     public static volatile BhRuntimeType currentBhRuntimeType = BhRuntimeType.LOCAL;
   }
 
-  /** BhProgram に関するパラメータ. */
-  public static class BhProgram {
-    /** エントリポイントが存在しないプログラムを禁止する場合 true. */
-    public static volatile boolean entryPointMustExist = true;
-  }
-
   /** UI に関するパラメータ. */
   public static class Ui {
     /** 現在選択されているワークスペースでノードが移動したとき, それに視点を合わせる. */
