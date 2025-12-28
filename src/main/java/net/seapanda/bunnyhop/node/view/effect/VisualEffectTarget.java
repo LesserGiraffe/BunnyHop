@@ -28,5 +28,10 @@ public enum VisualEffectTarget {
   /** 指定したノードビューとその全ての子要素. */
   CHILDREN,
   /** 指定したノードビューとそこから外部ノードビューのみを辿って到達できる全てのノードビュー. */
-  OUTERS
+  OUTERS;
+
+  /** 外部スクリプトから列挙子にアクセスするための変数. */
+  public static final VisualEffectTarget T_SELF = SELF;
+  public static final VisualEffectTarget T_CHILDREN = CHILDREN;
+  public static final VisualEffectTarget T_OUTERS = OUTERS;
 }

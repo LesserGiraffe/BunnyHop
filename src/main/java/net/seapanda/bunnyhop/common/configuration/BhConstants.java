@@ -203,6 +203,7 @@ public class BhConstants {
     public static final String ATTR_ON_UI_EVENT_RECEIVED = "onUiEventReceived";
     public static final String ATTR_ON_ALIAS_ASKED = "onAliasAsked";
     public static final String ATTR_ON_USER_DEFINED_NAME_ASKED = "onUserDefinedNameAsked";
+    public static final String ATTR_ON_RELATED_NODES_REQUIRED = "onRelatedNodesRequired";
     public static final String ATTR_DERIVATIVE_ID = "derivativeID";
     public static final String ATTR_TEXT = "text";
     public static final String ATTR_DERIVATION_ID = "derivationID";
@@ -237,12 +238,15 @@ public class BhConstants {
     public static final String BH_USER_OPE = "bhUserOpe";
     public static final String BH_COMMON = "bhCommon";
     public static final String BH_NODE_FACTORY = "bhNodeFactory";
-    public static final String BH_CANDIDATE_NODE_LIST = "bhCandidateNodeList";
+    public static final String BH_TARGET_NODES = "bhTargetNodes";
     public static final String BH_CAUSE_OF_DELETION = "bhCauseOfDeletion";
     public static final String BH_IS_WHOLE_TEXT_FORMATTED = "bhIsWholeTextFormatted";
     public static final String BH_FORMATTED_TEXT = "bhFormattedText";
     public static final String BH_TEXT_DB = "bhTextDb";
     public static final String BH_UI_EVENT = "bhUiEvent";
+    public static final String BH_VISUAL_EFFECT_MANAGER = "bhVisualEffectManager";
+    public static final String BH_VISUAL_EFFECT_TYPE = "bhVisualEffectType";
+    public static final String BH_VISUAL_EFFECT_TARGET = "bhVisualEffectTarget";
     public static final String IP_ADDR = "ipAddr";
     public static final String UNAME = "uname";
   }
@@ -329,8 +333,11 @@ public class BhConstants {
   /** CSS ファイルで使用されるキーワード. */
   public static class Css {
     public static final String PSEUDO_SELECTED = "selected";
-    public static final String PSEUDO_SHADOW = "shadow";
     public static final String PSEUDO_OVERLAPPED = "overlapped";
+    public static final String PSEUDO_JUMP_TARGET = "jumpTarget";
+    public static final String PSEUDO_RELATED_NODE_GROUP = "relatedNodeGroup";
+    public static final String PSEUDO_EXEC_STEP = "execStep";
+    public static final String PSEUDO_MOVE_GROUP = "moveGroup";
     public static final String PSEUDO_EMPTY = "empty";
     public static final String PSEUDO_ERROR = "error";
     public static final String PSEUDO_IS_EVEN = "isEven";
@@ -338,7 +345,6 @@ public class BhConstants {
     public static final String PSEUDO_UNFIXED_DEFAULT = "unfixedDefault";
     public static final String PSEUDO_COLUMN = "column";
     public static final String PSEUDO_ROW = "row";
-    public static final String PSEUDO_JUMP_TARGET = "jumpTarget";
     public static final String CLASS_BH_NODE = "BhNode";
     public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";
     public static final String CLASS_TEXT_FIELD_NODE = "textFieldNode";

@@ -240,7 +240,7 @@ public class WorkspaceController {
   /** ノードの視覚効果を無効化する. */
   private void disableVisualEffects() {
     effectManager.disableEffects(model, VisualEffectType.MOVE_GROUP, ddInfo.context.userOpe());
-    effectManager.disableEffects(VisualEffectType.DERIVATION_GROUP, ddInfo.context.userOpe());
+    effectManager.disableEffects(VisualEffectType.RELATED_NODE_GROUP, ddInfo.context.userOpe());
     effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
   }
 

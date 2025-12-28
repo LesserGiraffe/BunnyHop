@@ -54,5 +54,7 @@ public enum EventType {
   /** ノードのエイリアスを取得するときに発行されるイベント. */
   ON_ALIAS_ASKED,
   /** ノードのユーザ定義名を取得するときに発行されるイベント. */
-  ON_USER_DEFINED_NAME_ASKED
+  ON_USER_DEFINED_NAME_ASKED,
+  /** あるノードに関連するノード群を強調表示するときに発行されるイベント. */
+  ON_RELATED_NODES_REQUIRED,
 }

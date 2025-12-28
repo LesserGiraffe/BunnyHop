@@ -60,7 +60,6 @@ public class BhNodeViewSupervisor implements VisualEffectManager {
     setEffectEnabled(view, enable, type, target, new UserOperation());
   }
 
-
   @Override
   public void setEffectEnabled(
       BhNodeView view, boolean enable, VisualEffectType type, UserOperation userOpe) {

@@ -611,6 +611,9 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     private final ConsumerInvoker<MouseEventInfo> onMouseReleasedInvoker =
         new SimpleConsumerInvoker<>();
 
+    /** 関連するワークスペースビューのイベントフィルタを管理するオブジェクト. */
+    private final ConsumerInvoker<UiEventInfo> eventFilters = new SimpleConsumerInvoker<>();
+
     /** 関連するワークスペースビューのノードビューの位置が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeMoveEvent> onNodeMovedInvoker =
         new SimpleConsumerInvoker<>();
@@ -652,6 +655,9 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
             onMouseReleasedInvoker.invoke(new MouseEventInfo(FxmlWorkspaceView.this, event));
             consume(event);
           });
+      wsPane.addEventFilter(
+          Event.ANY,
+          event -> eventFilters.invoke(new UiEventInfo(FxmlWorkspaceView.this, event)));
     }
 
     @Override
@@ -667,6 +673,11 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     @Override
     public ConsumerInvoker<MouseEventInfo>.Registry getOnMouseReleased() {
       return onMouseReleasedInvoker.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<UiEventInfo>.Registry eventFilters() {
+      return eventFilters.getRegistry();
     }
 
     @Override

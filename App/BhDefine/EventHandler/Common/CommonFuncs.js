@@ -9,11 +9,15 @@
     'bhNodePlacer': bhNodePlacer
   };
 
-  // nodeA の外部末尾ノードに nodeB を接続できる場合, 接続する.
-  function appendRemovedNode(nodeA, nodeB, bhUserOpe) {
+  /**
+   * nodeA の外部末尾ノードのシンボル名が symbolName であった場合, nodeA の外部末尾ノードと nodeB を入れ替える.
+   * nodeA の外部末尾ノードは入れ替え後, 削除される.
+   */
+  function connectToOuterEnd(nodeA, nodeB, symbolName, bhUserOpe) {
     let outerEnd = nodeA.findOuterNode(-1);
-    if (outerEnd.canBeReplacedWith(nodeB)
-        && !nodeA.equals(outerEnd)) { // return などの外部ノードを持たないノードは newNode == outerEnd となる.
+    if (outerEnd !== null
+        && outerEnd !== nodeA // return などの外部ノードを持たないノードは nodeA == outerEnd となる.
+        && String(outerEnd.getSymbolName()) === symbolName) {
       bhNodePlacer.replaceChild(outerEnd, nodeB, bhUserOpe);
       bhNodePlacer.deleteNode(outerEnd, bhUserOpe);
     }
@@ -24,7 +28,7 @@
    * @param bhNodeId 作成するノードのID
    * @param workspace ノードを追加するワークスペース
    * @param pos 追加時のワークスペース上の位置
-   * @param bhUserOpe undo/redo用コマンドオブジェクト
+   * @param bhUserOpe undo / redo 用コマンドオブジェクト
    * @return 新規作成したノード
    */
   function addNewNodeToWS(bhNodeId, workspace, pos, bhUserOpe) {
@@ -39,7 +43,7 @@
    * @param rootNode このノードの子孫ノードを入れ替える
    * @param descendantPath 入れ替えられる子孫ノードの rootNode からのパス
    * @param newNode 入れ替える新しいノード
-   * @param bhUserOpe undo/redo用コマンドオブジェクト
+   * @param bhUserOpe undo / redo 用コマンドオブジェクト
    */
   function replaceDescendant(rootNode, descendantPath, newNode, bhUserOpe) {
     let oldNode = rootNode.findDescendantOf(descendantPath);
@@ -53,7 +57,7 @@
    * @param to from の descendantPath の位置にあるノードをこのノードの descendantPath の位置に移す
    * @param from このノードの descendantPath の位置のノードを to の位置の descendantPath の位置に移す
    * @param descendantPath 移し元および移し先のノードのパス
-   * @param bhUserOpe undo/redo用コマンドオブジェクト
+   * @param bhUserOpe undo / redo 用コマンドオブジェクト
    */
   function moveDescendant(from, to, descendantPath, bhUserOpe) {
     let childToBeMoved = from.findDescendantOf(descendantPath);
@@ -63,45 +67,51 @@
   }
   
   /**
-   * startNode とその先祖ノード全体を A とする.
-   * B = { a ∈ A | a の親ノードが ignoredList の含まれていない }
-   * としたとき, B の中で親子関係が最も startNode に近いノードを b とする.
-   * 
-   * ignoredList の中に node が含まれていない場合 b と入れ替える.
-   * startNode が null の場合や b が存在しない場合は node をワークスペースに移動する.
-   * 
-   * node が 'VarDeclVoid', 'GlobalDataDeclVoid', 'VoidStat' のいずれかであった場合は何もしない.
-   * node === b であった場合も何もしない.
-   * 
-   * b が 'VarDeclVoid', 'GlobalDataDeclVoid', 'VoidStat' のいずれかであった場合削除される.
+   * ancestorSearchStart とその先祖ノード全体を A とする.
+   * B = { a ∈ A | a の親ノードが nodesToExclude  に含まれていない }
+   * としたとき, B の中で親子関係が最も ancestorSearchStart に近いノードを b とする.
+   *
+   * node をワークスペースに移す.
+   * b が存在してかつ, b と node が入れ替え可能な場合 b と node を入れ替える.
+   * 入れ替え後, b のシンボル名が symbolsToExclude に含まれている場合, b を削除する.
+   *
+   * ただし, 以下の条件のいずれかを満たす場合この関数は何もしない.
+   *   - node が null である
+   *   - node が nodesToExclude に含まれている
+   *   - node のシンボル名が symbolsToExclude に含まれている
+   *   - node = b である
+   *
+   * @param node ワークスペースに移動後, 可能なら b と入れ替えるノード (nullable)
+   * @param ancestorSearchStart このノードまたはその先祖ノードから b を探す  (nullable)
+   * @param nodesToExclude 移動の対象にならないノードのリスト
+   * @param symbolsToExclude node のシンボル名がこのリストに含まれている場合, この関数は何もしない.
+   *                         b と node を入れ替えた後, b のシンボル名がこのリストに含まれている場合 b を削除する.
+   * @param userOpe undo / redo 用コマンドオブジェクト
    */
-  function reconnect(node, startNode, ignoredList, userOpe) {
-    if (node === null) {
-      return;
-    }
-    // 繋ぎ換える必要がないノード
-    let notToReconnect = ['VarDeclVoid', 'GlobalDataDeclVoid', 'VoidStat'];
+  function moveNodeToAncestor(
+      node, ancestorSearchStart, nodesToExclude, symbolsToExclude, userOpe) {
     // Java のリストに対して, Array.prototype.includes は定義されていないので, 代わりに indexOf を使う.
     // indexOf は Java のリストに対しても呼び出すことができる.
-    if (notToReconnect.indexOf(String(node.getSymbolName())) >= 0
-        || ignoredList.indexOf(node) >= 0) {
+    if (node === null
+        || nodesToExclude.indexOf(node) >= 0
+        || symbolsToExclude.indexOf(String(node.getSymbolName())) >= 0) {
       return;
     }
-    ignoredList = ignoredList || [];
-    let toBeReplced = findNodeWhoseParentIsNotInList(startNode, ignoredList);    
-    if (node === toBeReplced) {
+    let toBeReplaced = findNodeWhoseParentIsNotInList(ancestorSearchStart, nodesToExclude);
+    if (node === toBeReplaced) {
       return;
-    } else if (toBeReplced === null || !canConnect(toBeReplced.getParentConnector(), node)) {
-      // 接続先が無い場合は, ワークスペースへ
-      let posOnWS = getPosOnWorkspace(node) ?? {x: 0, y: 0};
-      bhNodePlacer.moveToWs(node.getWorkspace(), node, posOnWS.x, posOnWS.y, userOpe);
-    } else {
-      let posOnWS = getPosOnWorkspace(node) ?? {x: 0, y: 0};
-      bhNodePlacer.moveToWs(node.getWorkspace(), node, posOnWS.x, posOnWS.y, userOpe);
-      bhNodePlacer.exchangeNodes(node, toBeReplced, userOpe);
-      if (notToReconnect.indexOf(String(toBeReplced.getSymbolName())) >= 0) {
-        bhNodePlacer.deleteNode(toBeReplced, userOpe)
-      }
+    }
+    // node をワークスペースに移動
+    let posOnWS = getPosOnWorkspace(node) ?? {x: 0, y: 0};
+    bhNodePlacer.moveToWs(node.getWorkspace(), node, posOnWS.x, posOnWS.y, userOpe);
+    // node と toBeReplaced が入れ替え可能かチェック
+    if (toBeReplaced === null || !canConnect(toBeReplaced.getParentConnector(), node)) {
+      return;
+    }
+    // node と toBeReplaced を入れ替え
+    bhNodePlacer.exchangeNodes(node, toBeReplaced, userOpe);
+    if (symbolsToExclude.indexOf(String(toBeReplaced.getSymbolName())) >= 0) {
+      bhNodePlacer.deleteNode(toBeReplaced, userOpe)
     }
   }
 
@@ -164,7 +174,7 @@
    * 派生ノードを作成する
    * @param node このノードの派生ノードを作成する
    * @param derivationId この ID に対応する派生ノードを作成する ID (文字列)
-   * @param userOpe undo/redo用コマンドオブジェクト
+   * @param userOpe undo / redo 用コマンドオブジェクト
    * @return node の派生ノード
    */
   function buildDerivative(node, derivationId, userOpe) {
@@ -173,18 +183,18 @@
   
   /**
    * BhNode を新規作成する
-   * @param nodeID 作成するノードのID
-   * @param bhUserOpe undo/redo用コマンドオブジェクト
+   * @param nodeId 作成するノードのID
+   * @param bhUserOpe undo / redo 用コマンドオブジェクト
    */
-  function createBhNode(bhNodeId, bhUserOpe) {
-    return bhNodeFactory.create(BhNodeId.of(bhNodeId), bhUserOpe);
+  function createBhNode(nodeId, bhUserOpe) {
+    return bhNodeFactory.create(BhNodeId.of(nodeId), bhUserOpe);
   }
 
   /**
    * コネクタのデフォルトノードを変更して, 接続されているノードを変更後のデフォルトノードにする.
-   * @prarm connector デフォルトノードを変更するコネクタ
-   * @param defulatNodeID connector に設定するデフォルトノードの ID
-   * @param bhUserOpe undo/redo用コマンドオブジェクト
+   * @param connector デフォルトノードを変更するコネクタ
+   * @param defaultNodeId connector に設定するデフォルトノードの ID
+   * @param bhUserOpe undo / redo 用コマンドオブジェクト
    */
   function changeDefaultNode(connector, defaultNodeId, bhUserOpe) {
     connector.setDefaultNodeId(BhNodeId.of(defaultNodeId));
@@ -206,9 +216,7 @@
     return findOuterNotSelected(outerNode);
   }
 
-  /**
-   * node とその先祖ノードを順にたどり, 親ノードが選択されていないノードを返す.
-   */
+  /** node とその先祖ノードを順にたどり, 親ノードが選択されていないノードを返す. */
   function findNodeWhoseParentIsNotSelected(node) {
     if (node === null) {
       return null;
@@ -222,19 +230,73 @@
     }
     return node;
   }
-  
-  bhCommon['appendRemovedNode'] = appendRemovedNode;
+
+  /** node から辿れるの外部ノードのうちシンボル名が symbolsToExclude に含まれていないものを全て選択する. */
+  function selectToOutermost(node, symbolsToExclude, bhUserOpe) {
+    let outerNode = node.findOuterNode(-1);
+    while (outerNode !== node) {
+      if (!outerNode.isSelected() 
+          && symbolsToExclude.indexOf(String(outerNode.getSymbolName())) < 0) {
+        outerNode.select(bhUserOpe);
+      }
+      outerNode = outerNode.findParentNode();
+    }
+  }
+
+  /**
+   * node から [オリジナル - 派生] の関係で推移可能なノードを全て取得する.
+   */
+  function collectDerivationFamily(node) {
+    let original = findOriginalRoot(node);
+    if (original === null) {
+      return [];
+    }
+    let derivatives = [];
+    collectDerivatives(original, derivatives);
+    return derivatives;
+  }
+
+  /**
+   * node から推移的に辿れるオリジナルノードのルート要素を探す.
+   * node のオリジナルノードがない場合は node を返す.
+   */
+  function findOriginalRoot(node) {
+    if (node === null) {
+      return null;
+    }
+    let original = node.getOriginal();
+    if (original === null) {
+      return node;
+    }
+    return findOriginalRoot(original);
+  }
+
+  /** node から推移的に辿れる全ての派生ノードを dest に格納する. */
+  function collectDerivatives(node, dest) {
+    let view = node.getView();
+    // node.getView().map(...).orElse(false) は真偽値を返さないので使用しない
+    if (view.isPresent() && !view.get().isTemplate()) {
+      dest.push(node);
+    }
+    for (let derivative of node.getDerivatives()) {
+      collectDerivatives(derivative, dest);
+    }
+  }
+
+  bhCommon['connectToOuterEnd'] = connectToOuterEnd;
   bhCommon['addNewNodeToWS'] = addNewNodeToWS;
   bhCommon['replaceDescendant'] = replaceDescendant;
   bhCommon['moveDescendant'] = moveDescendant;
   bhCommon['isPrimitiveTypeExp'] = isPrimitiveTypeExp;
   bhCommon['isListTypeExp'] = isListTypeExp;
-  bhCommon['reconnect'] = reconnect;
+  bhCommon['moveNodeToAncestor'] = moveNodeToAncestor;
   bhCommon['buildDerivative'] = buildDerivative;
   bhCommon['createBhNode'] = createBhNode;
   bhCommon['changeDefaultNode'] = changeDefaultNode;
   bhCommon['findOuterNotSelected'] = findOuterNotSelected;
   bhCommon['findNodeWhoseParentIsNotSelected'] = findNodeWhoseParentIsNotSelected;
+  bhCommon['selectToOutermost'] = selectToOutermost;
   bhCommon['getPosOnWorkspace'] = getPosOnWorkspace;
+  bhCommon['collectDerivationFamily'] = collectDerivationFamily;
   return bhCommon;
 })();

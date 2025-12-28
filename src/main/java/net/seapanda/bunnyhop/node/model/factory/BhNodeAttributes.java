@@ -54,6 +54,7 @@ public record BhNodeAttributes(
     String onUiEventReceived,
     String onAliasAsked,
     String onUserDefinedNameAsked,
+    String onRelatedNodesRequired,
     String text) {
 
   private static final Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
@@ -101,6 +102,8 @@ public record BhNodeAttributes(
     String onAliasAsked = elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_ALIAS_ASKED);
     String onUserDefinedNameAsked =
         elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_USER_DEFINED_NAME_ASKED);
+    String onRelatedNodesRequired =
+        elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_RELATED_NODES_REQUIRED);
     String text = getText(elem, textDb);
     var version = BhNodeVersion.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_VERSION));
 
@@ -125,6 +128,7 @@ public record BhNodeAttributes(
         onUiEventReceived,
         onAliasAsked,
         onUserDefinedNameAsked,
+        onRelatedNodesRequired,
         text);
   }
 

@@ -49,7 +49,7 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
 public class NodeShifterView extends Pane {
 
   /** ノードシフタが操作するノードビューとリンクのマップ.  */
-  private ObservableMap<BhNodeView, Line> viewToLink =
+  private final ObservableMap<BhNodeView, Line> viewToLink =
       FXCollections.observableMap(new HashMap<BhNodeView, Line>());
   @FXML private Pane shifterBase;
   @FXML private Circle shifterCircle;
@@ -140,7 +140,7 @@ public class NodeShifterView extends Pane {
 
   /** シフタと全リンクの位置を更新する. */
   public void updateShifterAndAllLinkPositions() {
-    if (viewToLink.size() == 0) {
+    if (viewToLink.isEmpty()) {
       return;
     }
     //ノードシフタの新しい位置を計算する

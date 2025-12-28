@@ -97,7 +97,7 @@ public class TemplateNodeController implements BhNodeController {
   /** マウスボタン押下時のイベントハンドラ. */
   private void onMousePressed(MouseEventInfo info) {
     try {
-      MouseEvent event = info.event();
+      MouseEvent event = info.event;
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
@@ -125,7 +125,7 @@ public class TemplateNodeController implements BhNodeController {
   /** マウスドラッグ時のイベントハンドラ. */
   private void onMouseDragged(MouseEventInfo info) {
     try {
-      MouseEvent event = info.event();
+      MouseEvent event = info.event;
       if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
         return;
       }
@@ -139,7 +139,7 @@ public class TemplateNodeController implements BhNodeController {
   /** マウスドラッグ検出検出時のイベントハンドラ. */
   private void onMouseDragDetected(MouseEventInfo info) {
     try {
-      MouseEvent event = info.event();
+      MouseEvent event = info.event;
       if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
         return;
       }
@@ -152,7 +152,7 @@ public class TemplateNodeController implements BhNodeController {
 
   /** マウスボタンを離したときのイベントハンドラ. */
   private void onMouseReleased(MouseEventInfo info) {
-    MouseEvent event = info.event();
+    MouseEvent event = info.event;
     if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
       // 余分に D&D の終了処理をしてしまうので terminateDnd を呼ばないこと.
       return;

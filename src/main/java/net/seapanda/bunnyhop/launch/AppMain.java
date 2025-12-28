@@ -221,12 +221,14 @@ public class AppMain extends Application {
           wss,
           nodeSelViewProxy,
           nodeViewSuperVisor);
-      final var commonDataSupplier = new CommonDataSupplier(scriptRepository, nodeFactory, textDb);
+      final var commonDataSupplier =
+          new CommonDataSupplier(scriptRepository, nodeFactory, textDb, nodeViewSuperVisor);
       final var modelGenerator = new ModelGenerator(
           nodeFactory,
           new DerivativeReplacerWithCache(derivativeCache),
-          new ScriptNodeEventInvokerImpl(scriptRepository, commonDataSupplier, nodeFactory, textDb),
-          new ScriptConnectorEventInvokerImpl(scriptRepository, commonDataSupplier, textDb));
+          new ScriptNodeEventInvokerImpl(
+              scriptRepository, commonDataSupplier, nodeFactory, textDb, nodeViewSuperVisor),
+          new ScriptConnectorEventInvokerImpl(scriptRepository, commonDataSupplier));
       nodeRepository.collect(nodeDir, cnctrDir, modelGenerator, textDb);
       final var categoryTree =
           new JsonBhNodeCategoryTree(nodeSelectionFile, nodeFactory, textDb);

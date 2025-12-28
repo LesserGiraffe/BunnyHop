@@ -194,4 +194,11 @@ public interface NodeEventInvoker {
    * @return {@code target} のユーザ定義名.
    */
   Optional<String> onUserDefinedNameAsked(BhNode target);
+
+  /**
+   * {@code target} と関連するノード一覧を取得する.
+   *
+   * @return {@code target} と関連するノード一覧
+   */
+  Collection<BhNode> onRelatedNodesRequired(BhNode target);
 }

@@ -38,6 +38,9 @@ import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectTarget;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.script.BhScriptRepository;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -60,17 +63,21 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
   private final CommonDataSupplier supplier;
   private final BhNodeFactory factory;
   private final TextDatabase textDb;
+  private final VisualEffectManager effectManager;
+  private final BhNodePlacer nodePlacer = new BhNodePlacer();
 
   /** コンストラクタ. */
   public ScriptNodeEventInvokerImpl(
       BhScriptRepository repository,
       CommonDataSupplier supplier,
       BhNodeFactory factory,
-      TextDatabase textDb) {
+      TextDatabase textDb,
+      VisualEffectManager visualEffectManager) {
     this.repository = repository;
     this.supplier = supplier;
     this.factory = factory;
     this.textDb = textDb;
+    this.effectManager = visualEffectManager;
   }
 
   @Override
@@ -170,7 +177,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       return true;
     }
     Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_CANDIDATE_NODE_LIST, new ArrayList<>(nodesToDelete));
+        put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToDelete));
         put(BhConstants.JsIdName.BH_CAUSE_OF_DELETION, causeOfDeletion);
       }};
     Context cx = Context.enter();
@@ -193,7 +200,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       return true;
     }
     Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_CANDIDATE_NODE_LIST, new ArrayList<>(nodesToCut));
+        put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToCut));
       }};
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
@@ -218,7 +225,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       return node -> true;
     }
     Map<String, Object> nameToObj = new HashMap<>() {{
-        put(BhConstants.JsIdName.BH_CANDIDATE_NODE_LIST, new ArrayList<>(nodesToCopy));
+        put(BhConstants.JsIdName.BH_TARGET_NODES, new ArrayList<>(nodesToCopy));
       }};
     Context cx = Context.enter();
     ScriptableObject scope = createScriptScope(cx, target, userOpe, nameToObj);
@@ -462,6 +469,28 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     return Optional.empty();
   }
 
+  @Override
+  public Collection<BhNode> onRelatedNodesRequired(BhNode target) {
+    ScriptNameAndScript defined = getScript(target.getId(), EventType.ON_RELATED_NODES_REQUIRED);
+    if (defined == null) {
+      return new ArrayList<>();
+    }
+    Context cx = Context.enter();
+    ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
+    try {
+      return ((Collection<?>) defined.script().exec(cx, scope)).stream()
+          .filter(obj -> obj instanceof BhNode)
+          .map(obj -> (BhNode) obj)
+          .collect(Collectors.toCollection(ArrayList::new));
+    } catch (Exception e) {
+      LogManager.logger().error(
+          "'%s' must return a collection of BhNode(s).\n%s".formatted(defined.name(), e));
+    } finally {
+      Context.exit();
+    }
+    return new ArrayList<>();
+  }
+
   /**
    * スクリプト実行時のスコープ (スクリプトのトップレベルの変数から参照できるオブジェクト群) を作成する.
    *
@@ -484,20 +513,21 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
    */
   private ScriptableObject createScriptScope(
       Context cx, BhNode target, UserOperation userOpe, Map<String, Object> nameToObj) {
-    nameToObj = new HashMap<>(nameToObj);
-    nameToObj.put(BhConstants.JsIdName.BH_THIS, target);
-    nameToObj.put(BhConstants.JsIdName.BH_NODE_PLACER, new BhNodePlacer());
-    nameToObj.put(BhConstants.JsIdName.BH_COMMON, supplier.getCommonObj());
-    nameToObj.put(BhConstants.JsIdName.BH_NODE_FACTORY, factory);
-    nameToObj.put(BhConstants.JsIdName.BH_TEXT_DB, textDb);
-    if (userOpe != null) {
-      nameToObj.put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
-    }
     ScriptableObject scope = cx.initStandardObjects();
-    for (String name : nameToObj.keySet()) {
-      Object val = Context.javaToJS(nameToObj.get(name), scope);
-      scope.put(name, scope, val);
-    }
+    new HashMap<>(nameToObj) {{
+        put(BhConstants.JsIdName.BH_THIS, target);
+        put(BhConstants.JsIdName.BH_NODE_PLACER, nodePlacer);
+        put(BhConstants.JsIdName.BH_COMMON, supplier.getCommonObj());
+        put(BhConstants.JsIdName.BH_NODE_FACTORY, factory);
+        put(BhConstants.JsIdName.BH_TEXT_DB, textDb);
+        put(BhConstants.JsIdName.BH_VISUAL_EFFECT_MANAGER, effectManager);
+        put(BhConstants.JsIdName.BH_VISUAL_EFFECT_TYPE, VisualEffectType.SELECTION);
+        put(BhConstants.JsIdName.BH_VISUAL_EFFECT_TARGET, VisualEffectTarget.SELF);
+        if (userOpe != null) {
+          put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
+        }
+      }}
+      .forEach((key, val) -> scope.put(key, scope, Context.javaToJS(val, scope)));
     return scope;
   }
 

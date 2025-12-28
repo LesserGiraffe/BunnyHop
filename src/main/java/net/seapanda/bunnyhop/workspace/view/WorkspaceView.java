@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.workspace.view;
 import java.util.List;
 import java.util.SequencedSet;
 import java.util.function.Supplier;
+import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
@@ -119,7 +120,7 @@ public interface WorkspaceView {
    */
   void zoom(boolean zoomIn);
 
-  /**ワークスペースビューの表示の拡大率を設定する. */
+  /** ワークスペースビューの表示の拡大率を設定する. */
   void setZoomLevel(int level);
 
   /** 
@@ -183,7 +184,7 @@ public interface WorkspaceView {
   CallbackRegistry getCallbackRegistry();
 
   /** {@link WorkspaceView} に対してイベントハンドラを追加または削除する機能を規定したインタフェース. */
-  public interface CallbackRegistry {
+  interface CallbackRegistry {
     
     /** 関連するワークスペースビュー上でマウスボタンが押下されたときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<MouseEventInfo>.Registry getOnMousePressed();
@@ -193,6 +194,9 @@ public interface WorkspaceView {
 
     /** 関連するワークスペースビュー上でマウスボタンが離されたときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<MouseEventInfo>.Registry getOnMouseReleased();
+
+    /** 関連するワークスペースビューにイベントフィルタを設定するためのレジストリを取得する. */
+    ConsumerInvoker<UiEventInfo>.Registry eventFilters();
 
     /** 関連するワークスペースビューのノードビューの位置が変更されたときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<NodeMoveEvent>.Registry getOnNodeMoved();
@@ -243,4 +247,7 @@ public interface WorkspaceView {
    * @param view 閉じられたワークスペースビュー
    */
   record CloseEvent(WorkspaceView view) {}
+
+  /** UI の操作に伴うイベントを格納したレコード. */
+  record UiEventInfo(WorkspaceView view, Event event) {}
 }

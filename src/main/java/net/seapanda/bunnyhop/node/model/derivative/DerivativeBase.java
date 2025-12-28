@@ -86,12 +86,6 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
     }
   }
 
-  /**
-   * このノードのオリジナルノードを返す.
-   *
-   * @return このノードのオリジナルノード.
-   *         このノードが派生ノードではない場合 null.
-   */
   @Override
   public final T getOriginal() {
     return original;
@@ -147,6 +141,11 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
   @Override
   public boolean isDerivative() {
     return original != null;
+  }
+
+  @Override
+  public boolean hasDerivatives() {
+    return !derivatives.isEmpty();
   }
 
   @Override

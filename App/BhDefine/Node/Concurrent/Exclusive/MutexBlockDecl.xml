@@ -10,6 +10,7 @@
   onDeletionRequested="OnDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
+  onRelatedNodesRequired="GetDerivationFamily.js"
   onUiEventReceived="OnUiEventReceivedByGlobalDataDecl.js"
   onAliasAsked="OnAliasAsked.js"
   onUserDefinedNameAsked="OnUserDefinedNameAsked.js"

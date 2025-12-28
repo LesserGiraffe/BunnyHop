@@ -1,7 +1,11 @@
 (function() {
   if (bhCauseOfDeletion.isSelectedForDeletion() || bhCauseOfDeletion.isCompileError()) {
-    bhCommon.reconnect(
-      bhThis.findOuterNode(1), bhThis, bhCandidateNodeList, bhUserOpe);
+    bhCommon.moveNodeToAncestor(
+        bhThis.findOuterNode(1),
+        bhThis,
+        bhTargetNodes,
+        ['VarDeclVoid', 'GlobalDataDeclVoid', 'VoidStat'],
+        bhUserOpe);
   }
   return true;
 })();

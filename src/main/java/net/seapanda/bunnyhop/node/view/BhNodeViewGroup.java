@@ -140,7 +140,6 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       if (childNameToNodeView.containsKey(cnctrName)) {
         childNameToNodeView.put(cnctrName, view);
         view.getTreeManager().setParentGroup(this);
-        cnctr.setOuterFlag(!inner);
         return true;
       } else {
         //サブグループに追加する
@@ -499,6 +498,15 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
     if (parentView != null) {
       parentView.notifyChildSizeChanged();
     }
+  }
+
+  /**
+   * このグループが外部描画ノードを持つグループかどうか調べる.
+   *
+   * @return このグループが外部描画ノードを持つグループである場合 true.
+   */
+  boolean isOuter() {
+    return !inner;
   }
 
   @Override

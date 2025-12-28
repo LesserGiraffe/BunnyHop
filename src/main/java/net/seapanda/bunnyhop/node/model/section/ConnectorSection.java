@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.node.model.section;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.Connector;
@@ -115,8 +116,12 @@ public class ConnectorSection extends Section {
   @Override
   public BhNode findOuterNode(int generation) {
     for (int i = cnctrList.size() - 1; i >= 0; --i) {
-      if (cnctrList.get(i).isOuter()) {
-        return cnctrList.get(i).getConnectedNode().findOuterNode(Math.max(generation - 1, -1));
+      BhNode outerNode = Optional.ofNullable(cnctrList.get(i).getConnectedNode())
+          .filter(BhNode::isOuter)
+          .map(node -> node.findOuterNode(Math.max(generation - 1, -1)))
+          .orElse(null);
+      if (outerNode != null) {
+        return outerNode;
       }
     }
     return null;

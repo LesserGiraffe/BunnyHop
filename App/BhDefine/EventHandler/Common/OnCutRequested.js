@@ -1,10 +1,15 @@
 (function() {
-  bhCommon.reconnect(bhThis.findOuterNode(1), bhThis, bhCandidateNodeList, bhUserOpe);
+  bhCommon.moveNodeToAncestor(
+      bhThis.findOuterNode(1),
+      bhThis,
+      bhTargetNodes,
+      ['VarDeclVoid', 'GlobalDataDeclVoid', 'VoidStat'],
+      bhUserOpe);
 
   let parent = bhThis.findParentNode();
-  if (parent === null)
+  if (parent === null) {
     return true;
-  
+  }
   // 親もカット候補なら親だけカットして, このノードはカットしない (false)
-  return !bhCandidateNodeList.contains(parent);
+  return !bhTargetNodes.contains(parent);
 })();

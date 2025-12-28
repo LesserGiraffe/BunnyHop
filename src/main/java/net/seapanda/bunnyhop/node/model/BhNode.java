@@ -565,10 +565,7 @@ public abstract class BhNode extends SyntaxSymbol {
    * @return このノードが外部ノードの場合 true
    */
   public boolean isOuter() {
-    if (parentConnector == null) {
-      return false;
-    }
-    return parentConnector.isOuter();
+    return getView().map(view -> view.getTreeManager().isOuter()).orElse(false);
   }
 
   /**
@@ -952,6 +949,15 @@ public abstract class BhNode extends SyntaxSymbol {
      */
     public void onUiEventReceived(UiEvent eventInfo, UserOperation userOpe) {
       nodeEventInvoker.onUiEventReceived(BhNode.this, eventInfo, userOpe);
+    }
+
+    /**
+     * 関連するノードと関係のあるノード一覧を取得する.
+     *
+     * @return 関連するノードと関係のあるノード一覧
+     */
+    public Collection<BhNode> onRelatedNodesRequired() {
+      return nodeEventInvoker.onRelatedNodesRequired(BhNode.this);
     }
   }
 }

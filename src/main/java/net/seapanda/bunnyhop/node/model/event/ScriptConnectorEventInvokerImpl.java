@@ -25,7 +25,6 @@ import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.parameter.ConnectorId;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.script.BhScriptRepository;
-import net.seapanda.bunnyhop.utility.textdb.TextDatabase;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
@@ -40,14 +39,12 @@ public class ScriptConnectorEventInvokerImpl implements ScriptConnectorEventInvo
   private final Map<ConnectorId, Map<EventType, String>> eventHandlerMap = new HashMap<>();
   private final BhScriptRepository repository;
   private final CommonDataSupplier supplier;
-  private final TextDatabase textDb;
 
   /** コンストラクタ. */
   public ScriptConnectorEventInvokerImpl(
-      BhScriptRepository repository, CommonDataSupplier supplier, TextDatabase textDb) {
+      BhScriptRepository repository, CommonDataSupplier supplier) {
     this.repository = repository;
     this.supplier = supplier;
-    this.textDb = textDb;
   }
 
   @Override
@@ -94,15 +91,12 @@ public class ScriptConnectorEventInvokerImpl implements ScriptConnectorEventInvo
    */
   private ScriptableObject createScriptScope(
       Context cx, Connector target, Map<String, Object> nameToObj) {
-    nameToObj = new HashMap<>(nameToObj);
-    nameToObj.put(BhConstants.JsIdName.BH_THIS, target);
-    nameToObj.put(BhConstants.JsIdName.BH_COMMON, supplier.getCommonObj());
-    nameToObj.put(BhConstants.JsIdName.BH_TEXT_DB, textDb);
     ScriptableObject scope = cx.initStandardObjects();
-    for (String name : nameToObj.keySet()) {
-      Object val = Context.javaToJS(nameToObj.get(name), scope);
-      scope.put(name, scope, val);
-    }
+    new HashMap<>(nameToObj) {{
+        put(BhConstants.JsIdName.BH_THIS, target);
+        put(BhConstants.JsIdName.BH_COMMON, supplier.getCommonObj());
+      }}
+      .forEach((key, val) -> scope.put(key, scope, Context.javaToJS(val, scope)));
     return scope;
   }
 

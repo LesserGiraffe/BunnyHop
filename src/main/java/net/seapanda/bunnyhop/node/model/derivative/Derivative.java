@@ -17,9 +17,9 @@
 package net.seapanda.bunnyhop.node.model.derivative;
 
 import java.util.Set;
-import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.event.NodeEventInvoker;
+import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeParameters;
 import net.seapanda.bunnyhop.node.model.parameter.DerivationId;
@@ -44,11 +44,16 @@ public abstract class Derivative extends BhNode {
   }
 
   /**
-   * 派生ノードであった場合 true を返す.
+   * このノードが派生ノードであった場合 true を返す.
    *
    * @return 派生ノードであった場合true を返す
    */
   public abstract boolean isDerivative();
+
+  /**
+   * このノードが派生ノードを 1 つ以上持つ場合 true を返す.
+   */
+  public abstract boolean hasDerivatives();
 
   /**
    * 引数で指定した派生先 ID に対応する派生ノード ID がある場合 true を返す.

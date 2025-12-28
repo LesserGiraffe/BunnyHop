@@ -220,24 +220,6 @@ public class Connector extends SyntaxSymbol {
   }
 
   /**
-   * 外部描画ノードかどうかを示すフラグをセットする.
-   *
-   * @param outer このコネクタが外部描画ノードを接続する場合true
-   */
-  public void setOuterFlag(boolean outer) {
-    this.outer = outer;
-  }
-
-  /**
-   * 外部描画ノードをつなぐコネクタかどうかを調べる.
-   *
-   * @return 外部描画ノードをコネクタの場合true
-   */
-  public boolean isOuter() {
-    return outer;
-  }
-
-  /**
    * ノードが取り外されたときに変わりに繋がるノードの ID (= デフォルトノード) を設定する.
    *
    * @param nodeId このコネクタに設定するデフォルトノードの ID

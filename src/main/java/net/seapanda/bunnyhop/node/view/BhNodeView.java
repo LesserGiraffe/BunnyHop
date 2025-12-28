@@ -280,11 +280,20 @@ public interface BhNodeView extends NodeViewComponent {
     BhNodeView getRootView();
 
     /**
-     * 関連するノードビューがルートノードビューかどうか調べる.
+     * 関連するノードビューが外部ノードかどうか調べる.
      *
      * @return 関連するノードビューがルートノードビューの場合 true
      */
     boolean isRootView();
+
+    /**
+     * 関連するノードビューが外部ノードかどうか調べる.
+     *
+     * <p>外部ノードとは他のノードの外部に描画されるノードのことである.
+     *
+     * @return 関連するノードビューが外部ノードである場合 true
+     */
+    boolean isOuter();
 
     /**
      * 関連するノードビューを保持する GUI コンポーネントを取得する.
@@ -414,14 +423,27 @@ public interface BhNodeView extends NodeViewComponent {
 
   /**
    * ノードビューがマウスで操作されたときの情報を格納したレコード.
-   *
-   * @param view マウスで操作されたノードビュー
-   * @param event マウス操作の情報を格納したオブジェクト
-   * @param src このイベントが {@link CallbackRegistry#forward} により発生したものであった場合, 
-   *            元となったイベントが格納される.
-   *            元となったイベントが存在しない場合は null.
    */
-  record MouseEventInfo(BhNodeView view, MouseEvent event, MouseEventInfo src) {
+  class MouseEventInfo {
+
+    /** マウスで操作されたノードビュー. */
+    public final BhNodeView view;
+    /** マウス操作の情報を格納したオブジェクト. */
+    public final MouseEvent event;
+    /**
+     * このイベントが {@link CallbackRegistry#forward} により発生したものであった場合,
+     * 元となったイベントが格納される.
+     * 元となったイベントが存在しない場合は null.
+     */
+    public final MouseEventInfo src;
+    private Object userData;
+
+    /** コンストラクタ. */
+    public MouseEventInfo(BhNodeView view, MouseEvent event, MouseEventInfo src) {
+      this.view = view;
+      this.event = event;
+      this.src = src;
+    }
 
     /**
      * このオブジェクトのマウスイベントを発生させた
@@ -433,6 +455,16 @@ public interface BhNodeView extends NodeViewComponent {
         info = info.src;
       }
       return info;
+    }
+
+    /** このオブジェクトに対しユーザデータを設定する. */
+    public void setUserData(Object userData) {
+      this.userData = userData;
+    }
+
+    /** {@link #setUserData} で設定したデータを取得する. */
+    public Object getUserData() {
+      return userData;
     }
   }
 

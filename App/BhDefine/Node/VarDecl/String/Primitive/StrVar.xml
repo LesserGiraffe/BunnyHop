@@ -4,6 +4,7 @@
   name="StrVar"
   nodeStyleID="StrVar.json"
   breakpoint="ignore"
+  onRelatedNodesRequired="GetDerivationFamily.js"
   onCompileErrorChecking="CheckCompileErrorOfVariable.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">

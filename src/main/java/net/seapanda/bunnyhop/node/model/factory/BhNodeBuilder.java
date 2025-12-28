@@ -232,7 +232,8 @@ class BhNodeBuilder {
         nodeAttrs.onCreatedAsTemplate(),
         nodeAttrs.onUiEventReceived(),
         nodeAttrs.onAliasAsked(),
-        nodeAttrs.onUserDefinedNameAsked());
+        nodeAttrs.onUserDefinedNameAsked(),
+        nodeAttrs.onRelatedNodesRequired());
     if (!allScriptsFound) {
       return Optional.empty();
     }
@@ -281,7 +282,8 @@ class BhNodeBuilder {
         nodeAttrs.onCreatedAsTemplate(),
         nodeAttrs.onUiEventReceived(),
         nodeAttrs.onAliasAsked(),
-        nodeAttrs.onUserDefinedNameAsked());
+        nodeAttrs.onUserDefinedNameAsked(),
+        nodeAttrs.onRelatedNodesRequired());
     if (!allScriptsFound) {
       return Optional.empty();
     }

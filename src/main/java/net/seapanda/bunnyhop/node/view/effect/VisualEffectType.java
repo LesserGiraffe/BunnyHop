@@ -31,8 +31,8 @@ public enum VisualEffectType {
   OVERLAP,
   /** 実行中もしくは次に実行するノードであることを示す視覚効果. */
   EXEC_STEP,
-  /** オリジナル - 派生関係にあるノード群であることを示す視覚効果. */
-  DERIVATION_GROUP,
+  /** あるノードと関連のあるノード群であることを示す視覚効果. */
+  RELATED_NODE_GROUP,
   /** ブレークポイントが指定されていることを示す視覚効果. */
   BREAKPOINT,
   /** 破損したノードであることを示す視覚効果. */
@@ -42,5 +42,5 @@ public enum VisualEffectType {
   /** ジャンプ先として指定されたことを示す視覚効果. */
   JUMP_TARGET,
   /** ノードがコンパイルエラーを起こしていることを表す視覚効果. */
-  COMPILE_ERROR,
+  COMPILE_ERROR;
 }

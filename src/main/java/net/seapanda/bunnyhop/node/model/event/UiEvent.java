@@ -24,11 +24,11 @@ package net.seapanda.bunnyhop.node.model.event;
 public class UiEvent {
 
   public final Type type;
-  public final boolean isPrimaryButtonDown;
-  public final boolean isSecondaryButtonDown;
-  public final boolean isMiddleButtonDown;
-  public final boolean isBackButtonDown;
-  public final boolean isForwardButtonDown;
+  public final boolean isPrimaryButtonPressed;
+  public final boolean isSecondaryButtonPressed;
+  public final boolean isMiddleButtonPressed;
+  public final boolean isBackButtonPressed;
+  public final boolean isForwardButtonPressed;
   public final boolean isShiftDown;
   public final boolean isCtrlDown;
   public final boolean isAltDown;
@@ -38,22 +38,22 @@ public class UiEvent {
   /** コンストラクタ. */
   public UiEvent(
       UiEventType eventType,
-      boolean isPrimaryButtonDown,
-      boolean isSecondaryButtonDown,
-      boolean isMiddleButtonDown,
-      boolean isBackButtonDown,
-      boolean isForwardButtonDown,
+      boolean isPrimaryButtonPressed,
+      boolean isSecondaryButtonPressed,
+      boolean isMiddleButtonPressed,
+      boolean isBackButtonPressed,
+      boolean isForwardButtonPressed,
       boolean isShiftDown,
       boolean isCtrlDown,
       boolean isAltDown,
       boolean isDragAndDropTarget,
       int clickCount) {
     this.type = new Type(eventType);
-    this.isPrimaryButtonDown = isPrimaryButtonDown;
-    this.isSecondaryButtonDown = isSecondaryButtonDown;
-    this.isMiddleButtonDown = isMiddleButtonDown;
-    this.isBackButtonDown = isBackButtonDown;
-    this.isForwardButtonDown = isForwardButtonDown;
+    this.isPrimaryButtonPressed = isPrimaryButtonPressed;
+    this.isSecondaryButtonPressed = isSecondaryButtonPressed;
+    this.isMiddleButtonPressed = isMiddleButtonPressed;
+    this.isBackButtonPressed = isBackButtonPressed;
+    this.isForwardButtonPressed = isForwardButtonPressed;
     this.isShiftDown = isShiftDown;
     this.isCtrlDown = isCtrlDown;
     this.isAltDown = isAltDown;

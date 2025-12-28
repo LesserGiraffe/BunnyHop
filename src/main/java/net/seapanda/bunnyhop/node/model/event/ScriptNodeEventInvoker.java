@@ -35,5 +35,5 @@ public interface ScriptNodeEventInvoker extends NodeEventInvoker {
    * @param scriptName {@code type} に対応するイベントハンドラが定義されたファイル名.
    *                   からの文字列を指定した場合は, 何も登録しない.
    */
-  public void register(BhNodeId nodeId, EventType type, String scriptName);
+  void register(BhNodeId nodeId, EventType type, String scriptName);
 }

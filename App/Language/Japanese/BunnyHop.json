@@ -414,9 +414,9 @@
       "bool-list": "論理リスト",
       "color-list": "色リスト",
       "sound-list": "音リスト",
-      "mutex-block": "区間名",
-      "sync-timer": "タイマー名",
-      "void-func-def": "関数名"
+      "mutex-block": "区間A",
+      "sync-timer": "タイマーA",
+      "void-func-def": "関数A"
     },
 
     "scan-exp": {
