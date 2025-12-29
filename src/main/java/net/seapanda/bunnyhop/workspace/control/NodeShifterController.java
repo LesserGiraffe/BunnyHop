@@ -24,7 +24,8 @@ import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.ui.control.MouseCtrlLock;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
@@ -43,7 +44,7 @@ public class NodeShifterController {
   /** {@code view} が存在するワークスぺース. */
   private final Workspace ws;
   /** モデルへのアクセスの通知先となるオブジェクト. */
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock();
   private DndEventInfo ddInfo = new DndEventInfo();
 
@@ -55,7 +56,7 @@ public class NodeShifterController {
    * @param service モデルへのアクセスの通知先となるオブジェクト
    */
   public NodeShifterController(
-      NodeShifterView view, Workspace ws, ModelAccessNotificationService service) {
+      NodeShifterView view, Workspace ws, TransactionNotificationService service) {
     this.view = view;
     this.ws = ws;
     this.notifService = service;
@@ -91,7 +92,7 @@ public class NodeShifterController {
         event.consume();
         return;
       }
-      ddInfo.context = notifService.beginWrite();
+      ddInfo.context = notifService.begin();
       ddInfo.isDndFinished = false;
       view.setPseudoClassState(true, BhConstants.Css.PSEUDO_SELECTED);
       Point2D pos = view.sceneToLocal(event.getSceneX(), event.getSceneY());
@@ -201,7 +202,7 @@ public class NodeShifterController {
   private void terminateDnd() {
     mouseCtrlLock.unlock();
     ddInfo = new DndEventInfo();
-    notifService.endWrite();
+    notifService.end();
   }
 
   private static class DndEventInfo {
@@ -211,7 +212,7 @@ public class NodeShifterController {
     /** ドラッグ中のとき true. */
     private boolean dragging = false;
     /** モデルの操作に伴うコンテキスト. */
-    private ModelAccessNotificationService.Context context = null;
+    private TransactionContext context = null;
     /** D&D が終了しているかどうかのフラグ. */
     private boolean isDndFinished = true;
   }

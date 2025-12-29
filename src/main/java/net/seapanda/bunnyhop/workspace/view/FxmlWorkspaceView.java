@@ -53,8 +53,8 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.RegionManager.Rectangles;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService.Context;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.ui.view.Rem;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
@@ -115,7 +115,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   /** 最前面の Z 位置. */
   private double frontZpos = 0;
   /** モデルへのアクセスの通知先となるオブジェクト. */
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
   private final CallbackRegistryImpl cbRegistry = new CallbackRegistryImpl();
 
   /**
@@ -130,7 +130,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
       Workspace workspace,
       Vec2D size,
       Path filePath,
-      ModelAccessNotificationService service)
+      TransactionNotificationService service)
       throws ViewConstructionException {
     Objects.requireNonNull(workspace);
     this.workspace = workspace;
@@ -235,11 +235,11 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
   /** ワークスペース名を {@link #tabNameTextField} のテキストに変更する. */
   private void changeWsName() {
-    Context context = notifService.beginWrite();
+    TransactionContext context = notifService.begin();
     try {
       workspace.setName(tabNameTextField.getText(), context.userOpe());
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 

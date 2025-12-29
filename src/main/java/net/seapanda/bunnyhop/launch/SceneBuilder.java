@@ -59,7 +59,7 @@ import net.seapanda.bunnyhop.nodeselection.control.BhNodeCategoryListController;
 import net.seapanda.bunnyhop.nodeselection.model.BhNodeCategory;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.message.BhMessageService;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -95,7 +95,7 @@ public class SceneBuilder {
 
   private final WorkspaceSet wss;
   private final TreeItem<BhNodeCategory> nodeCategoryRoot;
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
   private final BhNodeFactory nodeFactory;
   private final WorkspaceFactory wsFactory;
   private final DebugViewFactory debugViewFactory;
@@ -128,7 +128,7 @@ public class SceneBuilder {
       Path debugWindowFxml,
       WorkspaceSet wss,
       TreeItem<BhNodeCategory> nodeCategoryRoot,
-      ModelAccessNotificationService notifService,
+      TransactionNotificationService notifService,
       BhNodeFactory nodeFactory,
       WorkspaceFactory wsFactory,
       DebugViewFactory debugViewFactory,

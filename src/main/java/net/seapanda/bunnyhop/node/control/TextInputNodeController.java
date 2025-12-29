@@ -20,7 +20,7 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.TextInputNodeView;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 
 /**
  * {@code TextFieldNodeView} のコントローラ.
@@ -31,7 +31,7 @@ public class TextInputNodeController implements BhNodeController {
 
   private final TextNode model;
   private final TextInputNodeView view;
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
 
   /** コンストラクタ. */
   public TextInputNodeController(BhNodeController controller) {
@@ -68,7 +68,7 @@ public class TextInputNodeController implements BhNodeController {
   /** {@code TextInputNodeView} のフォーカスが外れた時のイベントハンドラ. */
   private void onFocusChanged(Boolean isInputFinished) {
     try {
-      notifService.beginWrite();
+      notifService.begin();
       if (!isInputFinished) {
         return;
       }
@@ -81,7 +81,7 @@ public class TextInputNodeController implements BhNodeController {
         view.setText(model.getText());  //view の文字列を変更前の文字列に戻す
       }
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 
@@ -96,7 +96,7 @@ public class TextInputNodeController implements BhNodeController {
   }
 
   @Override
-  public ModelAccessNotificationService getNotificationService() {
+  public TransactionNotificationService getNotificationService() {
     return notifService;
   }
 }

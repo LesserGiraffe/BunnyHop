@@ -24,8 +24,8 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionView;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService.Context;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
@@ -42,10 +42,10 @@ public class WorkspaceSetController {
   @FXML private TabPane workspaceSetTab;
 
   private final WorkspaceSet wss;
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
 
   /** コンストラクタ. */
-  public WorkspaceSetController(WorkspaceSet wss, ModelAccessNotificationService notifService) {
+  public WorkspaceSetController(WorkspaceSet wss, TransactionNotificationService notifService) {
     this.wss = wss;
     this.notifService = notifService;
   }
@@ -81,11 +81,11 @@ public class WorkspaceSetController {
 
   /** 新しくタブが選択されたときの処理. */
   private void onTabSelected(Tab newTab) {
-    Context context = notifService.beginWrite();
+    TransactionContext context = notifService.begin();
     try {
       setCurrentWorkspace(newTab, context.userOpe());
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 

@@ -74,7 +74,7 @@ public class MouseCtrlLock {
    */
   public boolean unlock(MouseButton button) {
     if (isLockedBy(button)) {
-      button = null;
+      this.button = null;
       isLocked = false;
       return true;
     }
@@ -83,16 +83,10 @@ public class MouseCtrlLock {
 
   /**
    * このオブジェクトが {@code lock} 状態である場合, {@code unlock} 状態にする.
-   *
-   * @return unlock 状態になった場合 true
    */
-  public boolean unlock() {
-    if (isLocked) {
-      button = null;
-      isLocked = false;
-      return true;
-    }
-    return false;
+  public void unlock() {
+    button = null;
+    isLocked = false;
   }
 
   /** このオブジェクトが {@code button} に関連付けられて {@code lock} 状態になっている場合 true を返す. */

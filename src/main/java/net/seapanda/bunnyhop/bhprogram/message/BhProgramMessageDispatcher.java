@@ -33,7 +33,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.simulator.StringBhSimulato
 import net.seapanda.bunnyhop.bhprogram.common.message.thread.BhThreadContext;
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeTransceiver;
 import net.seapanda.bunnyhop.debugger.model.DebugMessageProcessor;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 
@@ -51,7 +51,7 @@ public class BhProgramMessageDispatcher {
   /** {@link BhSimulatorCmd} を処理するオブジェクト. */
   private final SimulatorCmdProcessor simCmdProcessor;
   /** モデルへのアクセスの通知先となるオブジェクト. */
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
 
   /**
    * コンストラクタ.
@@ -64,7 +64,7 @@ public class BhProgramMessageDispatcher {
       DebugMessageProcessor debugMsgProcessor,
       SimulatorCmdProcessor simCmdProcessor,
       BhRuntimeController runtimeCtrl,
-      ModelAccessNotificationService notifService) {
+      TransactionNotificationService notifService) {
     this.ioMsgProcessor = ioMessageProcessor;
     this.debugMsgProcessor = debugMsgProcessor;
     this.simCmdProcessor = simCmdProcessor;
@@ -98,11 +98,11 @@ public class BhProgramMessageDispatcher {
   private synchronized void dispatchNotifAsync(
       BhProgramMessageCarrier carrier, BhProgramNotification notif) {
     ViewUtil.runSafe(() -> {
-      notifService.beginWrite();
+      notifService.begin();
       try {
         dispatchNotif(carrier, notif);
       } finally {
-        notifService.endWrite();
+        notifService.end();
       }
     });
   }
@@ -110,11 +110,11 @@ public class BhProgramMessageDispatcher {
   private void dispatchNotif(BhProgramMessageCarrier carrier, BhProgramNotification notif) {
     switch (notif) {
       case OutputTextCmd
-               cmd -> carrier.pushResponse(ioMsgProcessor.process(cmd));
+          cmd -> carrier.pushResponse(ioMsgProcessor.process(cmd));
       case BhThreadContext
-               context -> debugMsgProcessor.process(context);
+          context -> debugMsgProcessor.process(context);
       case StringBhSimulatorCmd
-               cmd -> dispatchSimulatorCmd(cmd, carrier);
+          cmd -> dispatchSimulatorCmd(cmd, carrier);
       default -> { }
     }
   }
@@ -132,11 +132,11 @@ public class BhProgramMessageDispatcher {
   /** {@code resp} を適切なクラスへと渡す. */
   private synchronized void dispatchRespAsync(BhProgramResponse response) {
     ViewUtil.runSafe(() -> {
-      notifService.beginWrite();
+      notifService.begin();
       try {
         dispatchResp(response);
       } finally {
-        notifService.endWrite();
+        notifService.end();
       }
     });
   }

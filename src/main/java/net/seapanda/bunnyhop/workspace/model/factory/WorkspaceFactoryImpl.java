@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.workspace.model.factory;
 import java.nio.file.Path;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
@@ -37,7 +37,7 @@ import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 public class WorkspaceFactoryImpl implements WorkspaceFactory {
   
   private final Path nodeShifterViewPath;
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
   private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
   private final Path workspaceViewFilePath;
   private final MessageService msgService;
@@ -47,7 +47,7 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
   public WorkspaceFactoryImpl(
       Path workspaceViewFilePath,
       Path nodeShifterViewPath,
-      ModelAccessNotificationService notifService,
+      TransactionNotificationService notifService,
       BhNodeSelectionViewProxy proxy,
       MessageService msgService,
       VisualEffectManager visualEffectManager) {

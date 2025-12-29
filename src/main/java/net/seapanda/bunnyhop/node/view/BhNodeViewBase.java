@@ -539,7 +539,8 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
           shapes.nextStep.setVisible(true);
           setPseudoClassState(true, BhConstants.Css.PSEUDO_EXEC_STEP);
         }
-        case RELATED_NODE_GROUP -> setPseudoClassState(true, BhConstants.Css.PSEUDO_RELATED_NODE_GROUP);
+        case RELATED_NODE_GROUP ->
+            setPseudoClassState(true, BhConstants.Css.PSEUDO_RELATED_NODE_GROUP);
         case JUMP_TARGET -> setPseudoClassState(true, BhConstants.Css.PSEUDO_JUMP_TARGET);
         case BREAKPOINT -> shapes.breakpoint.setVisible(true);
         case CORRUPTION -> shapes.corruption.setVisible(true);

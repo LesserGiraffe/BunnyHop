@@ -48,7 +48,9 @@ import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.MouseEventInfo;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.service.BhNodeLocation;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.ExclusionId;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.control.MouseCtrlLock;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
@@ -65,7 +67,7 @@ public class DefaultBhNodeController implements BhNodeController {
 
   private final BhNode model;
   private final BhNodeView view;
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
   private final TrashCan trashCan;
   private final VisualEffectManager effectManager;
   private final MouseCtrlLock mouseCtrlLock =
@@ -84,7 +86,7 @@ public class DefaultBhNodeController implements BhNodeController {
   public DefaultBhNodeController(
       BhNode model,
       BhNodeView view,
-      ModelAccessNotificationService service,
+      TransactionNotificationService service,
       TrashCan trashCan,
       VisualEffectManager  visualEffectManager) {
     Objects.requireNonNull(model);
@@ -137,8 +139,11 @@ public class DefaultBhNodeController implements BhNodeController {
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
-      ddInfo.context = notifService.beginWrite();
-      ddInfo.isDndFinished = false;
+      ddInfo.context = beginTransaction(info);
+      if (ddInfo.context == null) {
+        mouseCtrlLock.unlock();
+        return;
+      }
       ddInfo.isBreakpointOperation = shouldSetBreakpoint(event);
       ddInfo.forwardEvent = !model.isMovable();
       if (ddInfo.isBreakpointOperation) {
@@ -159,7 +164,7 @@ public class DefaultBhNodeController implements BhNodeController {
       selectNode(event);
       savePositions(event);
     } catch (Throwable e) {
-      terminateDnd();
+      terminateDnd(info);
       throw e;
     }
   }
@@ -170,7 +175,6 @@ public class DefaultBhNodeController implements BhNodeController {
     MouseEvent event = info.event;
     try {
       if (!mouseCtrlLock.isLockedBy(event.getButton())
-          || ddInfo.isDndFinished
           || ddInfo.isBreakpointOperation) {
         return;
       }
@@ -188,7 +192,7 @@ public class DefaultBhNodeController implements BhNodeController {
         trashCan.auto(event.getSceneX(), event.getSceneY());
       }
     } catch (Throwable e) {
-      terminateDnd();
+      terminateDnd(info);
       throw e;
     }
   }
@@ -201,7 +205,7 @@ public class DefaultBhNodeController implements BhNodeController {
     setUserData(info);
     MouseEvent event = info.event;
     try {
-      if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
+      if (!mouseCtrlLock.isLockedBy(event.getButton())) {
         return;
       }
       if (ddInfo.isBreakpointOperation) {
@@ -221,7 +225,7 @@ public class DefaultBhNodeController implements BhNodeController {
       }
       toFront();
     } catch (Throwable e) {
-      terminateDnd();
+      terminateDnd(info);
       throw e;
     }
   }
@@ -230,7 +234,7 @@ public class DefaultBhNodeController implements BhNodeController {
   private void onMouseReleased(MouseEventInfo info) {
     setUserData(info);
     MouseEvent event = info.event;
-    if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
+    if (!mouseCtrlLock.isLockedBy(event.getButton())) {
       // 余分に D&D の終了処理をしてしまうので terminateDnd を呼ばないこと.
       return;
     }
@@ -259,7 +263,7 @@ public class DefaultBhNodeController implements BhNodeController {
       deleteTrashedNode();
       pushViewpointChangeCmd(info);
     } finally {
-      terminateDnd();
+      terminateDnd(info);
     }
   }
 
@@ -389,10 +393,10 @@ public class DefaultBhNodeController implements BhNodeController {
     }
     Collection<BhNode> relatedNodes = model.getEventInvoker().onRelatedNodesRequired();
     commonEventInfo.isRelatedNodeHighlighted = !relatedNodes.isEmpty();
-    model.getEventInvoker().onRelatedNodesRequired().stream()
+    relatedNodes.stream()
         .filter(node -> node.getView().isPresent())
-        .forEach(
-            node -> effectManager.setEffectEnabled(node.getView().get(), true, RELATED_NODE_GROUP));
+        .forEach(node -> effectManager.setEffectEnabled(
+            node.getView().get(), true, RELATED_NODE_GROUP, ddInfo.context.userOpe()));
   }
 
   /** ノードの選択処理を行う. */
@@ -431,12 +435,12 @@ public class DefaultBhNodeController implements BhNodeController {
   }
 
   /** D&D を終えたときの処理. */
-  private void terminateDnd() {
+  private void terminateDnd(MouseEventInfo info) {
     trashCan.close();
     mouseCtrlLock.unlock();
     ddInfo = new DndEventInfo();
     commonEventInfo = new CommonEventInfo(false, false);
-    notifService.endWrite();
+    endTransaction(info);
   }
 
   /** {@link #view} を最前面に移動させる. */
@@ -539,6 +543,24 @@ public class DefaultBhNodeController implements BhNodeController {
     info.setUserData(commonEventInfo);
   }
 
+  /** {@link TransactionNotificationService} にトランザクションの開始を通知する. */
+  private TransactionContext beginTransaction(MouseEventInfo info) {
+    if (info.src == null) {
+      return notifService.begin(ExclusionId.NODE_MANIPULATION).orElse(null);
+    } else {
+      return notifService.begin();
+    }
+  }
+
+  /** {@link TransactionNotificationService} にトランザクションの終了を通知する. */
+  private void endTransaction(MouseEventInfo info) {
+    if (info.src == null) {
+      notifService.end(ExclusionId.NODE_MANIPULATION);
+    } else {
+      notifService.end();
+    }
+  }
+
   @Override
   public BhNode getModel() {
     return model;
@@ -550,7 +572,7 @@ public class DefaultBhNodeController implements BhNodeController {
   }
 
   @Override
-  public ModelAccessNotificationService getNotificationService() {
+  public TransactionNotificationService getNotificationService() {
     return notifService;
   }
 
@@ -572,9 +594,7 @@ public class DefaultBhNodeController implements BhNodeController {
     /** {@code latestParent} のルートノード. */
     private BhNode latestRoot = null;
     /** モデルの操作に伴うコンテキスト. */
-    private ModelAccessNotificationService.Context context;
-    /** D&D が終了しているかどうかのフラグ. */
-    private boolean isDndFinished = true;
+    private TransactionContext context;
     /** 今回の操作が, ブレークポイントの設定を行うためのものであるかどうかのフラグ. */
     private boolean isBreakpointOperation = false;
   }
@@ -584,9 +604,9 @@ public class DefaultBhNodeController implements BhNodeController {
    */
   private static class CommonEventInfo {
     /** 関連するノードの強調表示が完了している場合 true. */
-    private boolean isRelatedNodeHighlighted = false;
+    private boolean isRelatedNodeHighlighted;
     /** マウスドラッグを検出済みのとき true. */
-    private boolean isDragDetected = false;
+    private boolean isDragDetected;
 
     /** コンストラクタ. */
     public CommonEventInfo(boolean isRelatedNodeHighlighted, boolean isDragDetected) {

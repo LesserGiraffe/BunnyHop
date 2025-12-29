@@ -16,6 +16,10 @@
 
 package net.seapanda.bunnyhop.service.accesscontrol;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import net.seapanda.bunnyhop.linter.model.CompileErrorChecker;
 import net.seapanda.bunnyhop.node.model.service.DerivativeCache;
@@ -23,24 +27,22 @@ import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 
 /**
- * モデル (ノード, ワークスペース等) へアクセスする際に実行すべき処理を呼び出すクラス.
+ * {@link TransactionNotificationService} の実装クラス.
  *
  * @author K.Koike
  */
-public class ModelAccessMediator implements ModelAccessNotificationService {
+public class TransactionNotificationServiceImpl implements TransactionNotificationService {
 
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
   private final DerivativeCache cache;
   private final CompileErrorChecker reporter;
   private final UndoRedoAgent undoRedoAgent;
-  /** 現在使用中の {@link Context} オブジェクト. */
-  private Context context;
-  /** {@link #beginWrite} が連続して呼ばれた回数. */
-  private int nestingLevel = 0;
-
+  private final Set<ExclusionId> currentExclusionIds = new HashSet<>();
+  /** 現在使用中の {@link TransactionContext} オブジェクト. */
+  private TransactionContext context;
 
   /** コンストラクタ. */
-  public ModelAccessMediator(
+  public TransactionNotificationServiceImpl(
       DerivativeCache cache,
       CompileErrorChecker reporter,
       UndoRedoAgent undoRedoAgent) {
@@ -50,37 +52,42 @@ public class ModelAccessMediator implements ModelAccessNotificationService {
   }
 
   @Override
-  public Context beginWrite() {
-    lock.writeLock().lock();
-    ++nestingLevel;
-    if (nestingLevel != 1) {
-      return context;
+  public Optional<TransactionContext> begin(ExclusionId... ids) {
+    synchronized (this) {
+      var newIds = List.of(ids);
+      boolean isIdConflicted = currentExclusionIds.stream().anyMatch(newIds::contains);
+      if (isIdConflicted) {
+        return Optional.empty();
+      }
+      currentExclusionIds.addAll(newIds);
     }
-    context = new Context(new UserOperation());
+    return Optional.of(begin());
+  }
+
+  @Override
+  public TransactionContext begin() {
+    lock.writeLock().lock();
+    if (lock.getWriteHoldCount() == 1) {
+      context = new TransactionContext(new UserOperation());
+    }
     return context;
   }
- 
+
   @Override
-  public void endWrite() {
-    if (nestingLevel == 0) {
-      return;
+  public void end(ExclusionId... ids) {
+    synchronized (this) {
+      List.of(ids).forEach(currentExclusionIds::remove);
     }
-    if (nestingLevel == 1) {
+    end();
+  }
+
+  @Override
+  public void end() {
+    if (lock.getWriteHoldCount() == 1) {
       cache.clearAll();
       reporter.check(context.userOpe());
       undoRedoAgent.pushUndoCommand(context.userOpe());
-      lock.writeLock().unlock();
     }
-    --nestingLevel;
-  }
-
-  @Override
-  public void beginRead() {
-    lock.readLock().lock();
-  }
-
-  @Override
-  public void endRead() {
-    lock.readLock().unlock();
+    lock.writeLock().unlock();
   }
 }

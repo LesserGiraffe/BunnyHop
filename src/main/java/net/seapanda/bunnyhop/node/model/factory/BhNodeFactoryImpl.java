@@ -45,7 +45,7 @@ import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.factory.BhNodeViewFactory;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
@@ -60,7 +60,7 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
   
   private final BhNodeRepository repository;
   private final BhNodeViewFactory viewFactory;
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
   private final TrashCan trashCan;
   private final WorkspaceSet wss;
   private final BhNodeSelectionViewProxy proxy;
@@ -70,7 +70,7 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
   public BhNodeFactoryImpl(
       BhNodeRepository repository,
       BhNodeViewFactory viewFactory,
-      ModelAccessNotificationService notifService,
+      TransactionNotificationService notifService,
       TrashCan trashCan,
       WorkspaceSet wss,
       BhNodeSelectionViewProxy proxy,

@@ -25,7 +25,7 @@ import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.ComboBoxNodeView;
 import net.seapanda.bunnyhop.node.view.component.SelectableItem;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 
 /**
  * {@link ComboBoxNodeView} のコントローラ.
@@ -36,7 +36,7 @@ public class ComboBoxNodeController implements BhNodeController {
 
   private final TextNode model;
   private final ComboBoxNodeView view;
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
 
   /** コンストラクタ. */
   public ComboBoxNodeController(BhNodeController controller) {
@@ -88,7 +88,7 @@ public class ComboBoxNodeController implements BhNodeController {
   private void checkAndSetContent(
       SelectableItem<String, Object> oldItem, SelectableItem<String, Object> newItem) {
     try {
-      notifService.beginWrite();
+      notifService.begin();
       if (Objects.equals(newItem.getModel(), model.getText())) {
         return;
       }
@@ -100,7 +100,7 @@ public class ComboBoxNodeController implements BhNodeController {
         view.setValue(oldItem);
       }
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 
@@ -127,7 +127,7 @@ public class ComboBoxNodeController implements BhNodeController {
   }
 
   @Override
-  public ModelAccessNotificationService getNotificationService() {
+  public TransactionNotificationService getNotificationService() {
     return notifService;
   }  
 }

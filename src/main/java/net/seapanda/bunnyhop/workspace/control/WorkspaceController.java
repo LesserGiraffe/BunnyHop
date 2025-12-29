@@ -33,8 +33,8 @@ import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService.Context;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.control.MouseCtrlLock;
@@ -56,7 +56,7 @@ public class WorkspaceController {
   private final Workspace model;
   private final WorkspaceView view;
   /** モデルへのアクセスの通知先となるオブジェクト. */
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock(MouseButton.PRIMARY);
   private final BhNodeSelectionViewProxy nodeSelectionViewProxy;
   private final VisualEffectManager effectManager;
@@ -78,7 +78,7 @@ public class WorkspaceController {
       Workspace model,
       WorkspaceView view,
       NodeShifterView nodeShifterView,
-      ModelAccessNotificationService notifService,
+      TransactionNotificationService notifService,
       BhNodeSelectionViewProxy proxy,
       MessageService msgService,
       VisualEffectManager visualEffectManager) {
@@ -125,7 +125,7 @@ public class WorkspaceController {
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
-      ddInfo.context = notifService.beginWrite();
+      ddInfo.context = notifService.begin();
       ddInfo.isDndFinished = false;
       if (!event.isShiftDown()) {
         nodeSelectionViewProxy.hideCurrentView();
@@ -248,7 +248,7 @@ public class WorkspaceController {
   private void terminateDnd() {
     mouseCtrlLock.unlock();
     ddInfo = new DndEventInfo();
-    notifService.endWrite();
+    notifService.end();
   }
 
   /** ワークスペースビューの削除命令を受けた時の処理. */
@@ -272,14 +272,14 @@ public class WorkspaceController {
 
   /** ワークスペースビュー削除時の処理. */
   private void onClosed() {
-    Context context = notifService.beginWrite();
+    TransactionContext context = notifService.begin();
     try {
       WorkspaceSet wss = model.getWorkspaceSet();
       if (wss != null) {
         wss.removeWorkspace(model, context.userOpe());
       }
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 
@@ -289,7 +289,7 @@ public class WorkspaceController {
   private static class DndEventInfo {
     Vec2D mousePressedPos = new Vec2D();
     /** モデルの操作に伴うコンテキスト. */
-    ModelAccessNotificationService.Context context = null;
+    TransactionContext context = null;
     /** D&D が終了しているかどうかのフラグ. */
     private boolean isDndFinished = true;
   }

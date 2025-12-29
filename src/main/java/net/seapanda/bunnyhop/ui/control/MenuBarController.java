@@ -30,8 +30,8 @@ import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.export.ProjectExporter;
 import net.seapanda.bunnyhop.export.ProjectImporter;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService.Context;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.utility.Utility;
@@ -55,7 +55,7 @@ public class MenuBarController {
   @FXML private MenuItem trackNodeInInactiveWs;
 
   private final WorkspaceSet wss;
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
   private final UndoRedoAgent undoRedoAgent;
   private final ProjectImporter importer;
   private final ProjectExporter exporter;
@@ -66,7 +66,7 @@ public class MenuBarController {
   /** 初期化する. */
   public MenuBarController(
       WorkspaceSet wss,
-      ModelAccessNotificationService notifService,
+      TransactionNotificationService notifService,
       UndoRedoAgent undoRedoAgent,
       ProjectImporter importer,
       ProjectExporter exporter,
@@ -125,7 +125,7 @@ public class MenuBarController {
    * @return 保存した場合true
    */
   private boolean saveAs(WorkspaceSet wss) {
-    notifService.beginWrite();
+    notifService.begin();
     try {
       if (wss.getWorkspaces().isEmpty()) {
         msgService.alert(
@@ -142,7 +142,7 @@ public class MenuBarController {
       }
       return success;
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 
@@ -169,7 +169,7 @@ public class MenuBarController {
    * @return 保存した場合true
    */
   public boolean save(WorkspaceSet wss) {
-    notifService.beginWrite();
+    notifService.begin();
     try {
       if (wss.getWorkspaces().isEmpty()) {
         msgService.alert(
@@ -190,7 +190,7 @@ public class MenuBarController {
         return saveAs(wss);  //保存対象のファイルが無い場合, 名前をつけて保存
       }
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 
@@ -210,14 +210,14 @@ public class MenuBarController {
     if (clearWs.isEmpty()) {
       return;
     }
-    Context context = notifService.beginWrite();
+    TransactionContext context = notifService.begin();
     try {
       boolean success = importer.imports(selectedFile, wss, clearWs.get(), context.userOpe());
       if (success) {
         currentSaveFile = selectedFile;
       }
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 
@@ -268,13 +268,13 @@ public class MenuBarController {
 
   /** アプリケーションが使用しているメモリを開放する. */
   private void freeMemory() {
-    notifService.beginWrite();
+    notifService.begin();
     try {
       undoRedoAgent.deleteCommands();
       msgService.info(TextDefs.MenubarOps.freeMemory.get());
       System.gc();
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 
@@ -316,9 +316,9 @@ public class MenuBarController {
    */
   public void fireEvent(MenuBarItem op) {
     switch (op) {
-      case SAVE -> save.fire();
-      case SAVE_AS -> saveAs.fire();
-      case FREE_MEMORY -> freeMemory.fire();
+      case SAVE -> save(wss);
+      case SAVE_AS -> saveAs(wss);
+      case FREE_MEMORY -> freeMemory();
       default -> throw new AssertionError("Invalid menu bar operation " + op);
     }
   }

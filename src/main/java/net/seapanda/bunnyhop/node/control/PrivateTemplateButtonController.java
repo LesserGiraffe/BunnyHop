@@ -28,8 +28,8 @@ import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService.Context;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 
 /**
@@ -43,7 +43,7 @@ public class PrivateTemplateButtonController {
   private static BhNode currentProducerNode = null;
 
   private final BhNode node;
-  private final ModelAccessNotificationService service;
+  private final TransactionNotificationService service;
   private final BhNodeSelectionViewProxy proxy;
 
   /**
@@ -57,7 +57,7 @@ public class PrivateTemplateButtonController {
   public PrivateTemplateButtonController(
       BhNode node,
       Button button,
-      ModelAccessNotificationService service,
+      TransactionNotificationService service,
       BhNodeSelectionViewProxy proxy) {
     this.node = node;
     this.service = service;
@@ -89,7 +89,7 @@ public class PrivateTemplateButtonController {
       return;
     }
     try {
-      Context context = service.beginWrite();
+      TransactionContext context = service.begin();
       UserOperation userOpe = context.userOpe();
       deletePrivateTemplateNodes(userOpe);
       proxy.hideCurrentView();
@@ -106,7 +106,7 @@ public class PrivateTemplateButtonController {
       setCurrentProducerNode(node, userOpe);
       event.consume();
     } finally {
-      service.endWrite();
+      service.end();
     }
   }
 

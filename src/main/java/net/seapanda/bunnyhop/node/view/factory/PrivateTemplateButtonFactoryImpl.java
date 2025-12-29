@@ -24,7 +24,7 @@ import net.seapanda.bunnyhop.node.view.component.PrivateTemplateButton;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleFactory;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 
 /**
@@ -36,14 +36,14 @@ public class PrivateTemplateButtonFactoryImpl implements PrivateTemplateButtonFa
   
   private final Path buttonFilePath;
   private final BhNodeViewStyleFactory viewStyleFactory;
-  private final ModelAccessNotificationService service;
+  private final TransactionNotificationService service;
   private final BhNodeSelectionViewProxy proxy;
 
   /** コンストラクタ. */
   public PrivateTemplateButtonFactoryImpl(
       Path buttonFilePath,
       BhNodeViewStyleFactory viewStyleFactory,
-      ModelAccessNotificationService service,
+      TransactionNotificationService service,
       BhNodeSelectionViewProxy proxy) {
     this.buttonFilePath = buttonFilePath;
     this.viewStyleFactory = viewStyleFactory;

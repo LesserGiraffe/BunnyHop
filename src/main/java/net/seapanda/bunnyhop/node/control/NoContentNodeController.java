@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.node.control;
 
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 
 /**
  * {@code NoContentNodeView} のコントローラ.
@@ -44,7 +44,7 @@ public class NoContentNodeController implements BhNodeController {
   }
 
   @Override
-  public ModelAccessNotificationService getNotificationService() {
+  public TransactionNotificationService getNotificationService() {
     return wrapped.getNotificationService();
   }  
 }

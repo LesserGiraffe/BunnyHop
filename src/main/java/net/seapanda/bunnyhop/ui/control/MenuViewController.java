@@ -54,8 +54,9 @@ import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.node.view.service.BhNodeLocation;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.LogManager;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService.Context;
+import net.seapanda.bunnyhop.service.accesscontrol.ExclusionId;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.service.message.MessageService;
 import net.seapanda.bunnyhop.service.undo.UndoRedoAgent;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -141,7 +142,7 @@ public class MenuViewController {
   /** {@link WorkspaceSet} のコントローラオブジェクト. */
   private final WorkspaceSetController wssCtrl;
   /** モデルへのアクセスの通知先となるオブジェクト. */
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
   /** ワークスペース作成用オブジェクト. */
   private final WorkspaceFactory wsFactory;
   /** Undo / Redo の実行に使用するオブジェクト. */
@@ -168,7 +169,7 @@ public class MenuViewController {
   /** コンストラクタ. */
   public MenuViewController(
       WorkspaceSetController wssCtrl,
-      ModelAccessNotificationService notifService,
+      TransactionNotificationService notifService,
       WorkspaceFactory wsFactory,
       UndoRedoAgent undoRedoAgent,
       BhNodeSelectionViewProxy proxy,
@@ -217,7 +218,7 @@ public class MenuViewController {
     widenBtn.setOnAction(action -> widen(wss)); // ワークスペースの領域拡大
     narrowBtn.setOnAction(action -> narrow(wss)); // ワークスペースの領域縮小
     addWorkspaceBtn.setOnAction(action -> addWorkspace(wss)); // ワークスペース追加
-    executeBtn.setOnAction(action -> execute(wss)); // プログラム実行
+    executeBtn.setOnAction(action -> execute()); // プログラム実行
     terminateBtn.setOnAction(action -> terminate()); // プログラム終了
     connectBtn.setOnAction(action -> connect()); // 接続
     disconnectBtn.setOnAction(action -> disconnect()); // 切断
@@ -237,7 +238,7 @@ public class MenuViewController {
 
   /** コピーボタン押下時の処理. */
   private void copy(WorkspaceSet wss) {
-    Context context = notifService.beginWrite();
+    TransactionContext context = notifService.begin();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -248,13 +249,13 @@ public class MenuViewController {
       currentWs.getSelectedNodes().forEach(
           node -> copyAndPaste.addNodeToList(node, context.userOpe()));
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 
   /** カットボタン押下時の処理. */
   private void cut(WorkspaceSet wss) {
-    Context context = notifService.beginWrite();
+    TransactionContext context = notifService.begin();
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -265,13 +266,16 @@ public class MenuViewController {
       currentWs.getSelectedNodes().forEach(
           node -> cutAndPaste.addNodeToList(node, context.userOpe()));
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 
   /** ペーストボタン押下時の処理. */
   private void paste(WorkspaceSet wss, TabPane workspaceSetTab) {
-    Context context = notifService.beginWrite();
+    TransactionContext context = notifService.begin(ExclusionId.NODE_MANIPULATION).orElse(null);
+    if (context == null) {
+      return;
+    }
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -287,13 +291,16 @@ public class MenuViewController {
       copyAndPaste.paste(currentWs, pastePos, context.userOpe());
       cutAndPaste.paste(currentWs, pastePos, context.userOpe());
     } finally {
-      notifService.endWrite();
+      notifService.end(ExclusionId.NODE_MANIPULATION);
     }
   }
 
   /** デリートボタン押下時の処理. */
   private void delete(WorkspaceSet wss) {
-    Context context = notifService.beginWrite();
+    TransactionContext context = notifService.begin(ExclusionId.NODE_MANIPULATION).orElse(null);
+    if (context == null) {
+      return;
+    }
     try {
       Workspace currentWs = wss.getCurrentWorkspace();
       if (currentWs == null) {
@@ -318,13 +325,16 @@ public class MenuViewController {
       }
       pushViewpointChangeCmd(context.userOpe(), location);
     } finally {
-      notifService.endWrite();
+      notifService.end(ExclusionId.NODE_MANIPULATION);
     }
   }
 
   /** アンドゥボタン押下時の処理. */
   private void undo() {
-    Context contex = notifService.beginWrite();
+    TransactionContext context = notifService.begin(ExclusionId.NODE_MANIPULATION).orElse(null);
+    if (context == null) {
+      return;
+    }
     try {
       undoRedoAgent.undo();
     } finally {
@@ -332,70 +342,23 @@ public class MenuViewController {
       // 一部の操作 (ワークスペースタブの切り替えなど) は Undo の実行中にサブコマンドをこの context の UserOperation に
       // 追加するが, Undo 中の当該操作の逆操作はサブコマンドの実行中に自動的に作られるので,
       // この context の UserOperation を Undo の対象にする必要はない.
-      contex.userOpe().clearCmds();
-      notifService.endWrite();
+      context.userOpe().clearCmds();
+      notifService.end(ExclusionId.NODE_MANIPULATION);
     }
   }
 
   /** リドゥボタン押下時の処理. */
   private void redo() {
-    Context contex = notifService.beginWrite();
+    TransactionContext context = notifService.begin(ExclusionId.NODE_MANIPULATION).orElse(null);
+    if (context == null) {
+      return;
+    }
     try {
       undoRedoAgent.redo();
     } finally {
-      contex.userOpe().clearCmds();
-      notifService.endWrite();
+      context.userOpe().clearCmds();
+      notifService.end(ExclusionId.NODE_MANIPULATION);
     }
-  }
-
-  /** ズームインボタン押下時の処理. */
-  private void zoomIn(WorkspaceSet wss) {
-    notifService.beginWrite();
-    try {
-      if (proxy.getCurrentCategoryName().isPresent()) {
-        proxy.zoom(true);
-        return;
-      }
-      Optional.ofNullable(wss.getCurrentWorkspace())
-          .flatMap(Workspace::getView)
-          .ifPresent(wsv -> wsv.zoom(true));
-    } finally {
-      notifService.endWrite();
-    }
-  }
-
-  /** ズームアウトボタン押下時の処理. */
-  private void zoomOut(WorkspaceSet wss) {
-    notifService.beginWrite();
-    try {
-      if (proxy.getCurrentCategoryName().isPresent()) {
-        proxy.zoom(false);
-        return;
-      }
-      Optional.ofNullable(wss.getCurrentWorkspace())
-          .flatMap(Workspace::getView)
-          .ifPresent(wsv -> wsv.zoom(false));
-    } finally {
-      notifService.endWrite();
-    }
-  }
-
-  /** {@code zoomBtn} の押下した時と押しっぱなしにした時に {@code fnZoom} を実行するようにイベントハンドラを設定する. */
-  private static void setZoomEventHandler(Button zoomBtn, Runnable fnZoom) {
-    var pause = new PauseTransition(Duration.millis(50));
-    pause.setOnFinished(event -> fnZoom.run());
-    var seqTransition = new SequentialTransition(pause);
-    seqTransition.setCycleCount(Animation.INDEFINITE);
-    seqTransition.setDelay(Duration.millis(500));
-    zoomBtn.addEventHandler(MouseEvent.ANY, event -> {
-      var eventType = event.getEventType();
-      if (eventType == MouseEvent.MOUSE_PRESSED) {
-        fnZoom.run();
-        seqTransition.play();
-      } else if (eventType == MouseEvent.MOUSE_RELEASED || eventType == MouseEvent.MOUSE_EXITED) {
-        seqTransition.stop();
-      }
-    });
   }
 
   /**
@@ -427,33 +390,83 @@ public class MenuViewController {
     });
   }
 
+  /** ズームインボタン押下時の処理. */
+  private void zoomIn(WorkspaceSet wss) {
+    notifService.begin();
+    try {
+      if (proxy.getCurrentCategoryName().isPresent()) {
+        proxy.zoom(true);
+        return;
+      }
+      Optional.ofNullable(wss.getCurrentWorkspace())
+          .flatMap(Workspace::getView)
+          .ifPresent(wsv -> wsv.zoom(true));
+    } finally {
+      notifService.end();
+    }
+  }
+
+  /** ズームアウトボタン押下時の処理. */
+  private void zoomOut(WorkspaceSet wss) {
+    notifService.begin();
+    try {
+      if (proxy.getCurrentCategoryName().isPresent()) {
+        proxy.zoom(false);
+        return;
+      }
+      Optional.ofNullable(wss.getCurrentWorkspace())
+          .flatMap(Workspace::getView)
+          .ifPresent(wsv -> wsv.zoom(false));
+    } finally {
+      notifService.end();
+    }
+  }
+
+  /** {@code zoomBtn} の押下した時と押しっぱなしにした時に {@code fnZoom} を実行するようにイベントハンドラを設定する. */
+  private static void setZoomEventHandler(Button zoomBtn, Runnable fnZoom) {
+    var pause = new PauseTransition(Duration.millis(50));
+    pause.setOnFinished(event -> fnZoom.run());
+    var seqTransition = new SequentialTransition(pause);
+    seqTransition.setCycleCount(Animation.INDEFINITE);
+    seqTransition.setDelay(Duration.millis(500));
+    zoomBtn.addEventHandler(MouseEvent.ANY, event -> {
+      var eventType = event.getEventType();
+      if (eventType == MouseEvent.MOUSE_PRESSED) {
+        fnZoom.run();
+        seqTransition.play();
+      } else if (eventType == MouseEvent.MOUSE_RELEASED || eventType == MouseEvent.MOUSE_EXITED) {
+        seqTransition.stop();
+      }
+    });
+  }
+
   /** ワークスペース拡大ボタン押下時の処理. */
   private void widen(WorkspaceSet wss) {
-    notifService.beginWrite();
+    notifService.begin();
     try {
       Optional.ofNullable(wss.getCurrentWorkspace())
           .flatMap(Workspace::getView)
           .ifPresent(wsv -> wsv.changeViewSize(true));
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 
   /** ワークスペース縮小ボタン押下時の処理. */
   private void narrow(WorkspaceSet wss) {
-    notifService.beginWrite();
+    notifService.begin();
     try {
       Optional.ofNullable(wss.getCurrentWorkspace())
           .flatMap(Workspace::getView)
           .ifPresent(wsv -> wsv.changeViewSize(false));
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 
   /** ワークスペース追加ボタン押下時の処理. */
   private void addWorkspace(WorkspaceSet wss) {
-    Context context = notifService.beginWrite();
+    TransactionContext context = notifService.begin();
     try {
       String wsName =
           TextDefs.Workspace.defaultWsName.get(wss.getWorkspaces().size() + 1);
@@ -468,7 +481,7 @@ public class MenuViewController {
       }
       createWorkspace(wsName).ifPresent(ws -> wss.addWorkspace(ws, context.userOpe()));
     } finally {
-      notifService.endWrite();
+      notifService.end();
     }
   }
 
@@ -487,12 +500,12 @@ public class MenuViewController {
   }
 
   /** 実行ボタン押下時の処理. */
-  private void execute(WorkspaceSet wss) {
+  private void execute() {
     if (executing.get()) {
       msgService.info(TextDefs.BhRuntime.AlreadyDoing.execution.get());
       return;
     }
-    SourceSet nodeSet = collectExecutableNodes(wss);
+    SourceSet nodeSet = collectExecutableNodes();
     if (nodeSet == null) {
       return;
     }
@@ -514,16 +527,19 @@ public class MenuViewController {
         });
   }
 
-  /** {@code wss} から実行可能なノードを集める. */
-  private SourceSet collectExecutableNodes(WorkspaceSet wss) {
-    Context context = notifService.beginWrite();
+  /** 実行可能なノードを集める. */
+  private SourceSet collectExecutableNodes() {
+    TransactionContext context = notifService.begin(ExclusionId.NODE_MANIPULATION).orElse(null);
+    if (context == null) {
+      return null;
+    }
     Optional<SourceSet> nodeSet = Optional.empty();
     try {
       nodeSet = executableNodeCollector.collect(context.userOpe());
     } catch (Exception e) {
       LogManager.logger().error(e.toString());
     } finally {
-      notifService.endWrite();
+      notifService.end(ExclusionId.NODE_MANIPULATION);
     }
     return nodeSet.orElse(null);
   }
@@ -651,32 +667,13 @@ public class MenuViewController {
    */
   public void fireEvent(MenuOperation op) {
     switch (op) {
-      case COPY:
-        copyBtn.fire();
-        break;
-
-      case CUT:
-        cutBtn.fire();
-        break;
-
-      case PASTE:
-        pasteBtn.fire();
-        break;
-
-      case DELETE:
-        deleteBtn.fire();
-        break;
-
-      case UNDO:
-        undoBtn.fire();
-        break;
-
-      case REDO:
-        redoBtn.fire();
-        break;
-
-      default:
-        throw new AssertionError("Invalid menu operation " + op);
+      case COPY -> copy(wssCtrl.getWorkspaceSet());
+      case CUT -> cut(wssCtrl.getWorkspaceSet());
+      case PASTE -> paste(wssCtrl.getWorkspaceSet(), wssCtrl.getTabPane());
+      case DELETE -> delete(wssCtrl.getWorkspaceSet());
+      case UNDO -> undo();
+      case REDO -> redo();
+      default -> throw new AssertionError("Invalid menu operation " + op);
     }
   }
 

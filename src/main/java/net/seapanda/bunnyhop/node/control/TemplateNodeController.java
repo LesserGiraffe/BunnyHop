@@ -27,8 +27,9 @@ import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.MouseEventInfo;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService;
-import net.seapanda.bunnyhop.service.accesscontrol.ModelAccessNotificationService.Context;
+import net.seapanda.bunnyhop.service.accesscontrol.ExclusionId;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
+import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.ui.control.MouseCtrlLock;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
@@ -43,7 +44,7 @@ public class TemplateNodeController implements BhNodeController {
 
   private final BhNode model;
   private final BhNodeView view;
-  private final ModelAccessNotificationService notifService;
+  private final TransactionNotificationService notifService;
   private final MouseCtrlLock mouseCtrlLock = new MouseCtrlLock(MouseButton.PRIMARY);
   private final BhNodeFactory factory;
   private final WorkspaceSet wss;
@@ -64,7 +65,7 @@ public class TemplateNodeController implements BhNodeController {
       BhNode model,
       BhNodeView view,
       BhNodeFactory factory,
-      ModelAccessNotificationService service,
+      TransactionNotificationService service,
       WorkspaceSet wss,
       BhNodeSelectionViewProxy proxy) {
     Objects.requireNonNull(model);
@@ -101,23 +102,26 @@ public class TemplateNodeController implements BhNodeController {
       if (!mouseCtrlLock.tryLock(event.getButton())) {
         return;
       }
-      Context context = notifService.beginWrite();
+      TransactionContext context = beginTransaction(info);
+      if (context == null) {
+        mouseCtrlLock.unlock();
+        return;
+      }
       Workspace currentWs = wss.getCurrentWorkspace();
       BhNode newNode = model.findRootNode().copy(context.userOpe());
       factory.setMvc(model, MvcType.DEFAULT);
       ddInfo.currentView = factory.setMvc(newNode, MvcType.DEFAULT);
       if (currentWs == null || ddInfo.currentView == null) {
-        terminateDnd();
+        terminateDnd(info);
         return;
       }
-  
-      ddInfo.isDndFinished = false;
+
       Vec2D posOnWs = calcClickPosOnWs(event, currentWs);
       BhNodePlacer.moveToWs(currentWs, newNode, posOnWs.x, posOnWs.y, context.userOpe());
       ddInfo.currentView.getCallbackRegistry().forward(info);
       nodeSelectionViewProxy.hideCurrentView();
     } catch (Throwable e) {
-      terminateDnd();
+      terminateDnd(info);
       throw e;
     }
   }
@@ -126,12 +130,12 @@ public class TemplateNodeController implements BhNodeController {
   private void onMouseDragged(MouseEventInfo info) {
     try {
       MouseEvent event = info.event;
-      if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
+      if (!mouseCtrlLock.isLockedBy(event.getButton())) {
         return;
       }
       ddInfo.currentView.getCallbackRegistry().forward(info);
     } catch (Throwable e) {
-      terminateDnd();
+      terminateDnd(info);
       throw e;
     }
   }
@@ -140,12 +144,12 @@ public class TemplateNodeController implements BhNodeController {
   private void onMouseDragDetected(MouseEventInfo info) {
     try {
       MouseEvent event = info.event;
-      if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
+      if (!mouseCtrlLock.isLockedBy(event.getButton())) {
         return;
       }
       ddInfo.currentView.getCallbackRegistry().forward(info);
     } catch (Throwable e) {
-      terminateDnd();
+      terminateDnd(info);
       throw e;
     }
   }
@@ -153,7 +157,7 @@ public class TemplateNodeController implements BhNodeController {
   /** マウスボタンを離したときのイベントハンドラ. */
   private void onMouseReleased(MouseEventInfo info) {
     MouseEvent event = info.event;
-    if (!mouseCtrlLock.isLockedBy(event.getButton()) || ddInfo.isDndFinished) {
+    if (!mouseCtrlLock.isLockedBy(event.getButton())) {
       // 余分に D&D の終了処理をしてしまうので terminateDnd を呼ばないこと.
       return;
     }
@@ -161,7 +165,7 @@ public class TemplateNodeController implements BhNodeController {
     try {
       ddInfo.currentView.getCallbackRegistry().forward(info);
     } finally {
-      terminateDnd();
+      terminateDnd(info);
     }
   }
 
@@ -192,10 +196,28 @@ public class TemplateNodeController implements BhNodeController {
   }
 
   /** D&D を終えたときの処理. */
-  private void terminateDnd() {
+  private void terminateDnd(MouseEventInfo info) {
     mouseCtrlLock.unlock();
     ddInfo = new DndEventInfo();
-    notifService.endWrite();
+    endTransaction(info);
+  }
+
+  /** {@link TransactionNotificationService} にトランザクションの開始を通知する. */
+  private TransactionContext beginTransaction(MouseEventInfo info) {
+    if (info.src == null) {
+      return notifService.begin(ExclusionId.NODE_MANIPULATION).orElse(null);
+    } else {
+      return notifService.begin();
+    }
+  }
+
+  /** {@link TransactionNotificationService} にトランザクションの終了を通知する. */
+  private void endTransaction(MouseEventInfo info) {
+    if (info.src == null) {
+      notifService.end(ExclusionId.NODE_MANIPULATION);
+    } else {
+      notifService.end();
+    }
   }
 
   @Override
@@ -209,7 +231,7 @@ public class TemplateNodeController implements BhNodeController {
   }
 
   @Override
-  public ModelAccessNotificationService getNotificationService() {
+  public TransactionNotificationService getNotificationService() {
     return notifService;
   }
 
@@ -219,7 +241,5 @@ public class TemplateNodeController implements BhNodeController {
   private static class DndEventInfo {
     /** 現在 テンプレートの BhNodeView 上で発生したマウスイベントを送っているワークスペース上の view. */
     private BhNodeView currentView = null;
-    /** D&D が終了しているかどうかのフラグ. */
-    private boolean isDndFinished = true;
   }
 }
