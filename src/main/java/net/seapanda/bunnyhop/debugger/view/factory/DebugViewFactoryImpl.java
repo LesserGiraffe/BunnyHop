@@ -71,7 +71,8 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
       throws ViewConstructionException {
     try {
       var root = new VBox();
-      var ctrl = new CallStackController(context, searchBox, debugger, wss, callStackCtrlJumpFlag);
+      var ctrl = new CallStackController(
+          context, searchBox, debugger, wss, callStackCtrlJumpFlag, effectManager);
       FXMLLoader loader = new FXMLLoader(callStackViewFilePath.toUri().toURL());
       loader.setRoot(root);
       loader.setController(ctrl);

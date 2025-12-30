@@ -41,6 +41,8 @@ import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadSelection;
 import net.seapanda.bunnyhop.debugger.view.CallStackCell;
 import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.model.SearchQuery;
 import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
@@ -68,6 +70,7 @@ public class CallStackController {
   private final Debugger debugger;
   private final WorkspaceSet wss;
   private final BooleanProperty sharedJumpFlag;
+  private final VisualEffectManager effectManager;
   private final Map<BhNode, Set<CallStackCell>> nodeToCell = new HashMap<>();
   private boolean isDiscarded = false;
   private final Consumer<Debugger.CurrentThreadChangedEvent> onCurrentThreadChanged =
@@ -91,12 +94,14 @@ public class CallStackController {
       SearchBox searchBox,
       Debugger debugger,
       WorkspaceSet wss,
-      BooleanProperty sharedJumpFlag) {
+      BooleanProperty sharedJumpFlag,
+      VisualEffectManager visualEffectManager) {
     this.threadContext = threadContext;
     this.searchBox = searchBox;
     this.debugger = debugger;
     this.wss = wss;
     this.sharedJumpFlag = sharedJumpFlag;
+    this.effectManager = visualEffectManager;
   }
 
   /** このコントローラの UI 要素を初期化する. */
@@ -199,7 +204,11 @@ public class CallStackController {
               .flatMap(CallStackItem::getNode)
               .filter(BhNode::isInWorkspace)
               .flatMap(BhNode::getView)
-              .ifPresent(ViewUtil::jump);
+              .ifPresent(view -> {
+                ViewUtil.jump(view);
+                effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
+                effectManager.setEffectEnabled(view, true, VisualEffectType.JUMP_TARGET);
+              });
         }
         debugger.selectCurrentStackFrame(StackFrameSelection.of(event.item().getIdx()));
       }
