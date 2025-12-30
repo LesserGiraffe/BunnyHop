@@ -16,6 +16,7 @@
     'idSoundListDecl': bhTextDb.get('node', 'default-identifier-name', 'sound-list'),
     'idMutexBlockDecl': bhTextDb.get('node', 'default-identifier-name', 'mutex-block'),
     'idSyncTimerDecl': bhTextDb.get('node', 'default-identifier-name', 'sync-timer'),
+    'idSemaphoreDecl': bhTextDb.get('node', 'default-identifier-name', 'semaphore'),
     'idVoidFuncDef': bhTextDb.get('node', 'default-identifier-name', 'void-func-def'),
   };
   let parentSymbolId = String(parent.getId());

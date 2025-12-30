@@ -1,0 +1,19 @@
+<Node
+  type="connective"
+  bhNodeID="idSemaphoreVar"
+  name="SemaphoreVar"
+  nodeStyleID="SemaphoreVar.json"
+  breakpoint="ignore"
+  onRelatedNodesRequired="GetDerivationFamily.js"
+  onAliasAsked="OnAliasAsked.js"
+  onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="SemaphoreExpSctn">    
+    <Connector
+      bhConnectorID="idSemaphoreVar.cnctr0"
+      import="idAnyFixedCnctr"
+      name="SemaphoreName"
+      derivativeJoint="dervJointVarName"/>
+  </ConnectorSection>
+</Node>

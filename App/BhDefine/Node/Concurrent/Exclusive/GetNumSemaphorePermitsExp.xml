@@ -1,0 +1,16 @@
+<Node
+  type="connective"
+  bhNodeID="idGetNumSemaphorePermitsExp"
+  name="GetNumSemaphorePermitsExp"
+  nodeStyleID="GetNumSemaphorePermitsExp.json"
+  breakpoint="ignore"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="NumExpSctn">
+    <Connector
+      bhConnectorID="idGetNumSemaphorePermitsExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+  </ConnectorSection>
+</Node>

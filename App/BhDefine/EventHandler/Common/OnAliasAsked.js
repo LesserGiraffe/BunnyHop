@@ -19,6 +19,9 @@
     'MutexBlockStat': ['*', 'MutexBlockName', '*'],
     'SyncTimerDecl':  ['*', 'SyncTimerName', '*'],
     'SyncTimerVar':   ['*', 'SyncTimerName', '*'],
+    'SemaphoreDecl':  ['*', 'SemaphoreName', '*'],
+    'SemaphoreVar':   ['*', 'SemaphoreName', '*'],
+
 
     'BoolList':       ['*', 'ListName', '*'],
     'BoolListArg':    ['*', 'ListName', '*'],

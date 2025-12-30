@@ -1,10 +1,10 @@
 <Node
   type="connective"
-  bhNodeID="idSyncTimerDecl"
-  name="SyncTimerDecl"
-  nodeStyleID="SyncTimerDecl.json"
+  bhNodeID="idSemaphoreDecl"
+  name="SemaphoreDecl"
+  nodeStyleID="SemaphoreDecl.json"
   breakpoint="ignore"
-  onCompanionNodesCreating="CreateSyncTimerCompanions.js"
+  onCompanionNodesCreating="CreateSemaphoreCompanions.js"
   onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
   onMovedFromWsToChild="OnGlobalDataDeclMovedToChild.js"
   onDeletionRequested="OnDeletionRequested.js"
@@ -16,49 +16,49 @@
   onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
   version="bhn-0.1.0">
 
-  <Derivation derivationID="dervIdSyncTimerVar" derivativeID="idSyncTimerVar"/>
+  <Derivation derivationID="dervIdSemaphoreVar" derivativeID="idSemaphoreVar"/>
 
   <ConnectorSection name="GlobalDataDeclSctn">
 
     <Connector
-      bhConnectorID="idSyncTimerDecl.cnctr0"
+      bhConnectorID="idSemaphoreDecl.cnctr0"
       import="idIdentifierNameCnctr"
-      name="SyncTimerName"
+      name="SemaphoreName"
       derivationID="dervIdIdentifierName"
       derivativeJoint="dervJointVarName"/>
 
     <Connector
-      bhConnectorID="idSyncTimerDecl.cnctr1"
+      bhConnectorID="idSemaphoreDecl.cnctr1"
       name="Arg1"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idSyncTimerDecl.node1"
+        bhNodeID="idSemaphoreDecl.node1"
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateSyncTimerOps.js"
+        onTextOptionsCreating="CreateSemaphoreOps.js"
         version="bhn-0.1.0"/>
     </Connector>
 
     <Connector
-      bhConnectorID="idSyncTimerDecl.cnctr2"
+      bhConnectorID="idSemaphoreDecl.cnctr2"
       name="Arg0"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idSyncTimerDecl.node2"
+        bhNodeID="idSemaphoreDecl.node2"
         name="NumLiteral"
         nodeStyleID="FixedNumLiteral.json"
         breakpoint="specifyParent"
         onTextFormatting="FullWidthToHalfWidth.js"
-        onTextChecking="CheckSyncTimerCount.js"
+        onTextChecking="CheckSemaphorePermit.js"
         text="1"
         version="bhn-0.1.0"/>
     </Connector>
 
     <Connector
-      bhConnectorID="idSyncTimerDecl.cnctr3"
+      bhConnectorID="idSemaphoreDecl.cnctr3"
       import="idGlobalDataDeclCnctr"
       name="NextGlobalDataDecl"/>
 

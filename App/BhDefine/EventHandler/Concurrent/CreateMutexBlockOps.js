@@ -1,6 +1,6 @@
 (function() {
-    return [
-      ['true', bhTextDb.get('node', 'mutex-block-ops', 'true')],
-      ['false', bhTextDb.get('node', 'mutex-block-ops', 'false')]
-    ];
+  return [
+    ['true', bhTextDb.get('node', 'mutex-block-wait-ops', 'true')],
+    ['false', bhTextDb.get('node', 'mutex-block-wait-ops', 'false')]
+  ];
 })();

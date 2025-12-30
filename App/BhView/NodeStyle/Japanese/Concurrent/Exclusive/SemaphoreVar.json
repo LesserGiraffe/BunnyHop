@@ -1,0 +1,22 @@
+{
+  "paddingTop" : 1.0,
+  "paddingBottom" : 1.0,
+  "paddingLeft" : 1.5,
+  "paddingRight" : 1.5,
+  "connectorPos" : "Top",
+  "connectorShift" : 1.0,
+  "connectorWidth" : 4.25,
+  "connectorHeight" : 4.25,
+  "connectorShape" : "SANDGLASS",
+  "connectorShapeFixed" : "NONE",
+  "connectorBoundsRate" : 1.95,
+  "cssClass" : "concurrentType",
+
+  "connective" : {
+    "inner" : {
+      "space" : 2.0,
+      "arrangement" : "Row",
+      "connectorList" : ["${L2}{チケットボックス}", "SemaphoreName"]
+    }
+  }
+}

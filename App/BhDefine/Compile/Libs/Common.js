@@ -1,41 +1,43 @@
 let _jString = java.lang.String;
-let _jExecutors = java.util.concurrent.Executors;
 let _jThread = java.lang.Thread;
 let _jLock = java.util.concurrent.locks.ReentrantLock;
-let _jRwLock = java.util.concurrent.locks.ReentrantReadWriteLock;
 let _jByteOrder = java.nio.ByteOrder;
 let _jByteType = java.lang.Byte.TYPE;
 let _jFloatType = java.lang.Float.TYPE;
-let _jFile = java.io.File;
 let _jFiles = java.nio.file.Files;
 let _jPaths = java.nio.file.Paths;
 let _jAtomicInt = java.util.concurrent.atomic.AtomicInteger;
 let _jAtomicLong = java.util.concurrent.atomic.AtomicLong;
 let _jProcBuilder = java.lang.ProcessBuilder;
-let _jBufferedInputStream = java.io.BufferedInputStream;
-let _jStandardOpenOption = java.nio.file.StandardOpenOption;
 let _jReflectArray = java.lang.reflect.Array;
 let _jClass = java.lang.Class;
-let _jCyclicBarrier = java.util.concurrent.CyclicBarrier;
-let _jStringBuilder = java.lang.StringBuilder;
 let _jTimeUnit = java.util.concurrent.TimeUnit;
 let _jNoSuchFileException = java.nio.file.NoSuchFileException;
 let _jFileNotFoundException = java.io.FileNotFoundException;
 let _jLineUnavailableException = javax.sound.sampled.LineUnavailableException;
+let _jSemaphore = java.util.concurrent.Semaphore;
+let _jSynchronizer = Packages.org.mozilla.javascript.Synchronizer;
 let _eventHandlers = {};
-let _executor = _jExecutors.newFixedThreadPool(16);
 let _nil = new _Nil();
 let _idxCallStack = 0;
 let _idxNextNodeInstId = 1;
 let _idxErrorMsgs = 2;
 let _idxVarStack = 3;
 let _threadContext = _createThreadContext();
-let _syncTimer = (function() {
+let _syncTimer = (function () {
   let nilTimer = bhScriptHelper.factory.newSyncTimer(0, true);
   return {
     nil: nilTimer,
     minCount: nilTimer.MIN_COUNT,
     maxCount: nilTimer.MAX_COUNT
+  };
+})();
+let _semaphore = (function () {
+  let nilSemaphore = new _jSemaphore(0, false);
+  return {
+    nil: nilSemaphore,
+    minPermits: 0,
+    maxPermits: 0x7FFF_FFFF
   };
 })();
 // 倍精度浮動小数点数で表現可能な値の中で long 型の最大値を超えない最大の値.
@@ -1118,6 +1120,8 @@ function _strcatLf(valA, valB) {
 //==================================================================
 //              同期/排他
 //==================================================================
+
+// -------- Synchronizing Timer --------
 function _newSyncTimer(count, autoReset) {
   if (!_isIntInRange(count, _syncTimer.minCount, _syncTimer.maxCount)) {
     throw _newBhProgramException(
@@ -1153,7 +1157,7 @@ function _syncTimerAwait(timer) {
  * タイマーが 0 になるのを待つ.
  * @param timer 同期タイマーオブジェクト
  * @param timeout タイムアウト値 (sec)
- * @return @return タイマーのカウントが 0 に達した場合 true
+ * @return タイマーのカウントが 0 に達した場合 true
  */
 function _syncTimerTimedAwait(timer, timeout) {
   if (timer === _syncTimer.nil) {
@@ -1171,7 +1175,7 @@ function _syncTimerTimedAwait(timer, timeout) {
  * カウントダウンしてタイマーが 0 になるのを待つ.
  * @param timer 同期タイマーオブジェクト
  * @param timeout タイムアウト値 (sec)
- * @return @return タイマーのカウントが 0 に達した場合 true
+ * @return タイマーのカウントが 0 に達した場合 true
  */
 function _syncTimerCountdownAndTimedAwait(timer, timeout) {
   if (timer === _syncTimer.nil) {
@@ -1201,6 +1205,81 @@ function _getSyncTimerCount(timer) {
     return 0;
   }
   return timer.getCount();
+}
+
+// -------- Semaphore --------
+function _newSemaphore(numPermits, faire) {
+  if (!_isIntInRange(numPermits, _semaphore.minPermits, _semaphore.maxPermits)) {
+    throw _newBhProgramException(_textDb.errMsg.invalidSemaphorePermits(
+        _semaphore.minPermits, _semaphore.maxPermits, numPermits));
+  }
+  return new _jSemaphore(numPermits, faire);
+}
+
+function _semaphoreAcquire(semaphore, numPermits) {
+  if (semaphore === _semaphore.nil) {
+    return;
+  }
+  if (!_isIntInRange(numPermits, _semaphore.minPermits, _semaphore.maxPermits)) {
+    throw _newBhProgramException(_textDb.errMsg.invalidSemaphorePermits(
+        _semaphore.minPermits, _semaphore.maxPermits, numPermits));
+  }
+  semaphore.acquire(numPermits);
+}
+
+/**
+ * セマフォからパーミットを取得する
+ * @param semaphore セマフォオブジェクト
+ * @param numPermits セマフォから取得するパーミットの数
+ * @param timeout タイムアウト値 (sec)
+ * @return セマフォからパーミットが取得できた場合 true
+ */
+function _semaphoreTryAcquire(semaphore, numPermits, timeout) {
+  if (semaphore === _semaphore.nil) {
+    return false;
+  }
+  if (!_isIntInRange(numPermits, _semaphore.minPermits, _semaphore.maxPermits)) {
+    throw _newBhProgramException(_textDb.errMsg.invalidSemaphorePermits(
+        _semaphore.minPermits, _semaphore.maxPermits, numPermits));
+  }
+  let max = Math.floor(_nearestLongMax / 1024);
+  if (!_isInRange(timeout, 0, max)) {
+    throw _newBhProgramException(_textDb.errMsg.invalidSemaphoreWaitTime(0, max, timeout));
+  }
+  let millis = Math.round(timeout * 1000);
+  return semaphore.tryAcquire(numPermits, millis, _jTimeUnit.MILLISECONDS);
+}
+
+function _getNumSemaphorePermits(semaphore) {
+  if (semaphore === _semaphore.nil) {
+    return 0;
+  }
+  return semaphore.availablePermits();
+}
+
+// Semaphore オブジェクトごとにロックをかけて呼び出すためのメソッド.
+let _semaphoreReleaseSync = new _jSynchronizer(
+    function (semaphore, numPermits) {
+      if (semaphore === _semaphore.nil) {
+        return 0;
+      }
+      if (!_isIntInRange(numPermits, _semaphore.minPermits, _semaphore.maxPermits)) {
+        throw _newBhProgramException(_textDb.errMsg.invalidSemaphorePermits(
+            _semaphore.minPermits, _semaphore.maxPermits, numPermits));
+      }
+      let numAvailablePermits = semaphore.availablePermits();
+      if (numAvailablePermits + numPermits > _semaphore.maxPermits) {
+        throw _newBhProgramException(_textDb.errMsg.tryToReleaseTooManySemaphorePermits(
+            numAvailablePermits, numPermits, _semaphore.maxPermits));
+      }
+      semaphore.release(numPermits);
+    }
+);
+
+function _semaphoreRelease(semaphore, numPermits) {
+  // 以下の Java の記述と等価な処理となる
+  // synchronized (semaphore) { _semaphoreReleaseSync(semaphore, numPermits); }
+  _semaphoreReleaseSync.call(semaphore, semaphore, numPermits);
 }
 
 //==================================================================

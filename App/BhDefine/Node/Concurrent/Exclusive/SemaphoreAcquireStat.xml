@@ -1,0 +1,35 @@
+<Node
+  type="connective"
+  bhNodeID="idSemaphoreAcquireStat"
+  name="SemaphoreAcquireStat"
+  nodeStyleID="SemaphoreAcquireStat.json"
+  breakpoint="set"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedFromWsToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js"
+  onCreatedAsTemplate="OnSemaphoreCtrlCreatedAsTemplate.js"
+  onUiEventReceived="OnUiEventReceivedByStat.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="StatSctn">
+    
+    <Connector
+      bhConnectorID="idSemaphoreAcquireStat.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idSemaphoreAcquireStat.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+
+    <Connector
+      bhConnectorID="idSemaphoreAcquireStat.cnctr2"
+      import="idStatCnctr"
+      name="NextStat"/>
+
+  </ConnectorSection>
+</Node>

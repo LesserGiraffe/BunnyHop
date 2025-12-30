@@ -314,7 +314,7 @@
       "turnLeft": "左回転"
     },
 
-    "mutex-block-ops": {
+    "mutex-block-wait-ops": {
       "true": "待つ",
       "false": "待たない"
     },
@@ -327,6 +327,11 @@
     "sync-timer-countdown-ops": {
       "true": "減らす",
       "false": "減らさない"
+    },
+
+    "semaphore-wait-ops": {
+      "true": "待つ",
+      "false": "待たない"
     },
 
     "print-stat-ops": {
@@ -416,6 +421,7 @@
       "sound-list": "音リスト",
       "mutex-block": "区間A",
       "sync-timer": "タイマーA",
+      "semaphore": "ボックスA",
       "void-func-def": "関数A"
     },
 
@@ -577,6 +583,12 @@
       "SyncTimerCountdownStat": "処理待ちタイマーのカウントを 1 減らす",
       "SyncTimerDecl": "処理待ちタイマー定義 (${name})",
       "SyncTimerVar": "処理待ちタイマー (${name})",
+      "SemaphoreAcquireStat": "チケットボックスからチケットを取る",
+      "SemaphoreTryAcquireExp": "チケットボックスからチケットを取る (タイムアウト付)",
+      "SemaphoreReleaseStat": "チケットボックスにチケットを追加する",
+      "GetNumSemaphorePermitExp": "チケットボックスのチケットの枚数を取得する",
+      "SemaphoreDecl": "チケットボックス定義 (${name})",
+      "SemaphoreVar": "チケットボックス (${name})",
       "DelayedStartEvent": "指定した時間だけ待って処理を始める",
       "KeyPressedEvent": "キーを押したとき処理を始める",
       "AnyCompExp": "値の比較 (${option})",

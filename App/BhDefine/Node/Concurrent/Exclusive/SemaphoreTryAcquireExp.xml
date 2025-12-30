@@ -1,0 +1,29 @@
+<Node
+  type="connective"
+  bhNodeID="idSemaphoreTryAcquireExp"
+  name="SemaphoreTryAcquireExp"
+  nodeStyleID="SemaphoreTryAcquireExp.json"
+  breakpoint="ignore"
+  onCreatedAsTemplate="OnSemaphoreCtrlCreatedAsTemplate.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="BoolExpSctn">
+
+    <Connector
+      bhConnectorID="idSemaphoreTryAcquireExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idSemaphoreTryAcquireExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+
+    <Connector
+      bhConnectorID="idSemaphoreTryAcquireExp.cnctr2"
+      import="idNumExpCnctr"
+      name="Arg2"/>
+
+  </ConnectorSection>
+</Node>

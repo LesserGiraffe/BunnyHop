@@ -79,6 +79,11 @@ public class ScriptIdentifiers {
         = "_syncTimerCountdownAndTimedAwait";
     public static final String RESET_SYNC_TIMER = "_resetSyncTimer";
     public static final String GET_SYNC_TIMER_COUNT = "_getSyncTimerCount";
+    public static final String NEW_SEMAPHORE = "_newSemaphore";
+    public static final String SEMAPHORE_ACQUIRE = "_semaphoreAcquire";
+    public static final String SEMAPHORE_TRY_ACQUIRE = "_semaphoreTryAcquire";
+    public static final String GET_NUM_SEMAPHORE_PERMITS = "_getNumSemaphorePermits";
+    public static final String SEMAPHORE_RELEASE = "_semaphoreRelease";
     public static final String TRY_LOCK = "_tryLock";
     public static final String LOCK = "_lock";
     public static final String UNLOCK = "_unlock";

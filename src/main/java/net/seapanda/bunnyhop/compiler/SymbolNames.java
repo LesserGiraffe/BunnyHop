@@ -340,6 +340,10 @@ public class SymbolNames {
     public static final String SYNC_TIMER_AWAIT_STAT = "SyncTimerAwaitStat";
     public static final String RESET_SYNC_TIMER_STAT = "ResetSyncTimerStat";
     public static final String SYNC_TIMER_COUNTDOWN_STAT = "SyncTimerCountdownStat";
+    public static final String SEMAPHORE_ACQUIRE_STAT = "SemaphoreAcquireStat";
+    public static final String SEMAPHORE_TRY_ACQUIRE_EXP = "SemaphoreTryAcquireExp";
+    public static final String SEMAPHORE_RELEASE_STAT = "SemaphoreReleaseStat";
+    public static final String GET_NUM_SEMAPHORE_PERMITS_EXP = "GetNumSemaphorePermitsExp";
     public static final String SAVE_TEXT_STAT = "SaveTextStat";
     public static final String DELETE_TEXT_FILE_STAT = "DeleteTextFileStat";
     public static final String DELETE_TEXT_FILES_STAT = "DeleteTextFilesStat";
@@ -404,6 +408,8 @@ public class SymbolNames {
             STR_CHAIN_EXP,
             GET_SYNC_TIMER_COUNT_EXP,
             SYNC_TIMER_TIMED_AWAIT_EXP,
+            SEMAPHORE_TRY_ACQUIRE_EXP,
+            GET_NUM_SEMAPHORE_PERMITS_EXP,
             ANY_ARRAY_TO_STR_EXP,
             CHECK_NUM_TYPE_EXP,
             NUM_POW_EXP,
@@ -442,6 +448,8 @@ public class SymbolNames {
             SYNC_TIMER_AWAIT_STAT,
             RESET_SYNC_TIMER_STAT,
             SYNC_TIMER_COUNTDOWN_STAT,
+            SEMAPHORE_ACQUIRE_STAT,
+            SEMAPHORE_RELEASE_STAT,
             SAVE_TEXT_STAT,
             DELETE_TEXT_FILE_STAT,
             DELETE_TEXT_FILES_STAT,
@@ -475,6 +483,8 @@ public class SymbolNames {
             put(FuncId.create(RESET_SYNC_TIMER_STAT), ScriptIdentifiers.Funcs.RESET_SYNC_TIMER);
             put(FuncId.create(SYNC_TIMER_COUNTDOWN_STAT),
                 ScriptIdentifiers.Funcs.SYNC_TIMER_COUNTDOWN);
+            put(FuncId.create(SEMAPHORE_ACQUIRE_STAT), ScriptIdentifiers.Funcs.SEMAPHORE_ACQUIRE);
+            put(FuncId.create(SEMAPHORE_RELEASE_STAT), ScriptIdentifiers.Funcs.SEMAPHORE_RELEASE);
             put(FuncId.create(SCAM_EXP), ScriptIdentifiers.Funcs.SCAN);
             put(FuncId.create(NUM_ROUND_EXP, OPT_ROUND), "Math.round");
             put(FuncId.create(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
@@ -502,6 +512,10 @@ public class SymbolNames {
                 ScriptIdentifiers.Funcs.SYNC_TIMER_COUNTDOWN_AND_TIMED_AWAIT);
             put(FuncId.create(SYNC_TIMER_TIMED_AWAIT_EXP, OPT_WITHOUT_COUNTDOWN),
                 ScriptIdentifiers.Funcs.SYNC_TIMER_TIMED_AWAIT);
+            put(FuncId.create(SEMAPHORE_TRY_ACQUIRE_EXP),
+                ScriptIdentifiers.Funcs.SEMAPHORE_TRY_ACQUIRE);
+            put(FuncId.create(GET_NUM_SEMAPHORE_PERMITS_EXP),
+                ScriptIdentifiers.Funcs.GET_NUM_SEMAPHORE_PERMITS);
             put(FuncId.create(ANY_ARRAY_TO_STR_EXP), ScriptIdentifiers.Funcs.ARY_TO_STR);
             put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_FINITE), "Number.isFinite");
             put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_INFINITE),
@@ -530,6 +544,7 @@ public class SymbolNames {
             put(FuncId.create(LIGHT_EYE_STAT), ScriptIdentifiers.Funcs.LIGHT_EYE);
             put(FuncId.create(GlobalData.MUTEX_BLOCK_DECL), ScriptIdentifiers.Funcs.NEW_LOCK_OBJ);
             put(FuncId.create(GlobalData.SYNC_TIMER_DECL), ScriptIdentifiers.Funcs.NEW_SYNC_TIMER);
+            put(FuncId.create(GlobalData.SEMAPHORE_DECL), ScriptIdentifiers.Funcs.NEW_SEMAPHORE);
             put(FuncId.create(SAVE_TEXT_STAT), ScriptIdentifiers.Funcs.SAVE_TEXT);
             put(FuncId.create(DELETE_TEXT_FILE_STAT), ScriptIdentifiers.Funcs.DELETE_TEXT_FILE);
             put(FuncId.create(DELETE_TEXT_FILES_STAT), ScriptIdentifiers.Funcs.DELETE_TEXT_FILES);
@@ -727,26 +742,32 @@ public class SymbolNames {
     public static final String MUTEX_BLOCK_DECL = "MutexBlockDecl";
     public static final String SYNC_TIMER_DECL = "SyncTimerDecl";
     public static final String SYNC_TIMER_VAR = "SyncTimerVar";
+    public static final String SEMAPHORE_DECL = "SemaphoreDecl";
+    public static final String SEMAPHORE_VAR = "SemaphoreVar";
 
     public static final String MUTEX_BLOCK_NAME = "MutexBlockName";
     public static final String SYNC_TIMER_NAME = "SyncTimerName";
+    public static final String SEMAPHORE_NAME = "SemaphoreName";
     public static final String NEXT_GLOBAL_DATA_DECL = "NextGlobalDataDecl";
 
     public static final Set<String> LIST =
         new HashSet<>(List.of(
             MUTEX_BLOCK_DECL,
             SYNC_TIMER_DECL,
+            SEMAPHORE_DECL,
             NEXT_GLOBAL_DATA_DECL));
 
     public static final Set<String> VAR_LIST =
         new HashSet<>(List.of(
-            SYNC_TIMER_VAR));
+            SYNC_TIMER_VAR,
+            SEMAPHORE_VAR));
 
     /** グローバルデータの名前を保持するノードが接続されるコネクタのリスト. */
     public static final Set<String> DATA_NAME_CNCTR_LIST =
         new HashSet<>(List.of(
             MUTEX_BLOCK_NAME,
-            SYNC_TIMER_NAME));
+            SYNC_TIMER_NAME,
+            SEMAPHORE_NAME));
   }
 
   /** BhProgram に定義されたシンボル名. */
@@ -756,13 +777,15 @@ public class SymbolNames {
     public static final String ANY_EXP_VOID = "AnyExpVoid";
     public static final String LINE_FEED = "LineFeed";
     public static final String SYNC_TIMER_VAR_VOID = "SyncTimerVarVoid";
+    public static final String SEMAPHORE_VAR_VOID = "SemaphoreVarVoid";
     public static final Set<String> LIST =
         new HashSet<>(List.of(
             NIL_COLOR,
             NIL_SOUND,
             ANY_EXP_VOID,
             LINE_FEED,
-            SYNC_TIMER_VAR_VOID));
+            SYNC_TIMER_VAR_VOID,
+            SEMAPHORE_VAR_VOID));
   }
 
   /** エントリポイントに関するシンボル一覧. */

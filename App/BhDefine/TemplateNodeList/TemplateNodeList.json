@@ -131,7 +131,8 @@
       "idKeyPressedEvent",
       "idDelayedStartEvent",
       "idMutexBlockDecl",
-      "idSyncTimerDecl"]
+      "idSyncTimerDecl",
+      "idSemaphoreDecl"]
   },
   
   "${node-category}{misc}" : {

@@ -1,11 +1,17 @@
 let _textDb = {
   errMsg: {
     invalidSyncTimerInitVal:
-      (min, max, val) => `不正な初期値 (= ${_str(val)}) が設定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
+      (min, max, val) => `不正な初期値 (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
     invalidSyncTimerResetVal:
       (min, max, val) => `不正なリセット値 (= ${_str(val)}) が指定されました. (有効な値: ${_str(min)} ~ ${_str(max)})`,
     invalidSyncTimerWaitTime:
       (min, max, val) => `不正な待ち時間 (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
+    invalidSemaphorePermits:
+      (min, max, val) => `不正なチケットの枚数 (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
+    tryToReleaseTooManySemaphorePermits:
+      (cur, add, max) => `チケットボックスに入れようとしたチケットが多すぎます.  (現在の枚数 : ${_str(cur)},  追加しようとした枚数 : ${_str(add)},  保持できる枚数 : ${_str(max)})`,
+    invalidSemaphoreWaitTime:
+        (min, max, val) => `不正な待ち時間 (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
     invalidRandRange:
       (min, max, max_width) => `不正な乱数の範囲 (= ${_str(min)} ~ ${_str(max)}) が指定されました.\n上限 - 下限 ≦ ${_str(max_width)} を満たさなければなりません.`,
     invalidSleepTime:
@@ -31,7 +37,7 @@ let _textDb = {
     failedToCtrlHw:
       (cmd) => `ハードウェアの制御に失敗しました.  (command = ${cmd})`,
     invalidClampRange:
-      (min, max) => `不正な数値の範囲 (= ${_str(min)} ~ ${_str(max)}) が指定されました.\n下限 ≦ 上限 を満たさなければなりません.`,
+      (min, max) => `不正な範囲 (= ${_str(min)} ~ ${_str(max)}) が指定されました.\n下限 ≦ 上限 でなければなりません.`,
     failedToGetBaselineColor:
       () => 'カラーセンサーの基準値の取得に失敗しました.',
     filePathIncludesIllegalChars:
@@ -49,7 +55,7 @@ let _textDb = {
     audioOutputDeviceNotFound:
       () => '音声出力デバイスが見つかりませんでした',
     invalidMeasurementTime:
-        (val, min, max) => `不正な測定時間 (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
+      (val, min, max) => `不正な測定時間 (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
   },
   literal: {
     bool: {
