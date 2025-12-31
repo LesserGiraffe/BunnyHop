@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javafx.event.EventTarget;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
@@ -34,6 +35,7 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.service.KeyCodeConverter;
+import net.seapanda.bunnyhop.ui.model.NodeManipulationMode;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSetController;
 
 /**
@@ -75,10 +77,12 @@ public class FoundationController {
         event.consume();
         forwardKeyEvent(event);
       }
+      changeNodeManipMode(event);
     });
     foundationVbox.setOnKeyPressed(event -> {
       fireBhOpEvent(event);
       sendKeyEventToBhProgram(event.getCode());
+      changeNodeManipMode(event);
       event.consume();
     });
     foundationVbox.setOnKeyReleased(event ->  pressedKey.remove(event.getCode()));
@@ -193,6 +197,39 @@ public class FoundationController {
       localCtrl.getBhRuntimeCtrl().send(bhEvent);
     } else {
       remoteCtrl.getBhRuntimeCtrl().send(bhEvent);
+    }
+  }
+
+  /** ノードの操作モードを変更する. */
+  private void changeNodeManipMode(KeyEvent event) {
+    if (event.getEventType() == KeyEvent.KEY_PRESSED) {
+      switch (event.getCode()) {
+        case SHIFT -> {
+          BhSettings.Ui.nodeManipMode = NodeManipulationMode.MODE_1;
+          foundationVbox.getScene().setCursor(Cursor.HAND);
+        }
+        case CONTROL -> {
+          BhSettings.Ui.nodeManipMode = NodeManipulationMode.MODE_2;
+          foundationVbox.getScene().setCursor(Cursor.CROSSHAIR);
+        }
+        default -> { /* Do nothing. */ }
+      }
+    } else if (event.getEventType() == KeyEvent.KEY_RELEASED) {
+      switch (event.getCode()) {
+        case SHIFT -> {
+          if (BhSettings.Ui.nodeManipMode == NodeManipulationMode.MODE_1) {
+            BhSettings.Ui.nodeManipMode = NodeManipulationMode.MODE_0;
+            foundationVbox.getScene().setCursor(Cursor.DEFAULT);
+          }
+        }
+        case CONTROL -> {
+          if (BhSettings.Ui.nodeManipMode == NodeManipulationMode.MODE_2) {
+            BhSettings.Ui.nodeManipMode = NodeManipulationMode.MODE_0;
+            foundationVbox.getScene().setCursor(Cursor.DEFAULT);
+          }
+        }
+        default -> { /* Do nothing. */ }
+      }
     }
   }
 }

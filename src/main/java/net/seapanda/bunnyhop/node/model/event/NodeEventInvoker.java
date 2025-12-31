@@ -201,4 +201,11 @@ public interface NodeEventInvoker {
    * @return {@code target} と関連するノード一覧
    */
   Collection<BhNode> onRelatedNodesRequired(BhNode target);
+
+  /**
+   * {@code target} と関連するノード一覧を取得する.
+   *
+   * @return {@code target} と関連するノード一覧.  存在しない場合 null.
+   */
+  BhNode onJumpTargetRequired(BhNode target);
 }

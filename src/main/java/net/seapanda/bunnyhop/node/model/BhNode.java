@@ -959,5 +959,14 @@ public abstract class BhNode extends SyntaxSymbol {
     public Collection<BhNode> onRelatedNodesRequired() {
       return nodeEventInvoker.onRelatedNodesRequired(BhNode.this);
     }
+
+    /**
+     * 関連するノードからジャンプするノードを取得する.
+     *
+     * @return 関連するノードからジャンプするノード.  存在しない場合 null.
+     */
+    public BhNode onJumpTargetRequired() {
+      return nodeEventInvoker.onJumpTargetRequired(BhNode.this);
+    }
   }
 }

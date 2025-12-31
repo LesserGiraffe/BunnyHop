@@ -5,6 +5,7 @@
   nodeStyleID="SoundArg.json"
   breakpoint="ignore"
   onRelatedNodesRequired="GetDerivationFamily.js"
+  onJumpTargetRequired="GetOriginalNode.js"
   onAliasAsked="OnAliasAsked.js"
   onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
   version="bhn-0.1.0">

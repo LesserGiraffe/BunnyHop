@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.node.model.event;
 
+import net.seapanda.bunnyhop.ui.model.NodeManipulationMode;
+
 /**
  * ノードをターゲットとする UI 操作に関する情報を格納するクラス.
  *
@@ -24,6 +26,7 @@ package net.seapanda.bunnyhop.node.model.event;
 public class UiEvent {
 
   public final Type type;
+  public final NodeManipulationMode nodeManipMode;
   public final boolean isPrimaryButtonPressed;
   public final boolean isSecondaryButtonPressed;
   public final boolean isMiddleButtonPressed;
@@ -38,6 +41,7 @@ public class UiEvent {
   /** コンストラクタ. */
   public UiEvent(
       UiEventType eventType,
+      NodeManipulationMode nodeManipMode,
       boolean isPrimaryButtonPressed,
       boolean isSecondaryButtonPressed,
       boolean isMiddleButtonPressed,
@@ -49,6 +53,7 @@ public class UiEvent {
       boolean isDragAndDropTarget,
       int clickCount) {
     this.type = new Type(eventType);
+    this.nodeManipMode = nodeManipMode;
     this.isPrimaryButtonPressed = isPrimaryButtonPressed;
     this.isSecondaryButtonPressed = isSecondaryButtonPressed;
     this.isMiddleButtonPressed = isMiddleButtonPressed;

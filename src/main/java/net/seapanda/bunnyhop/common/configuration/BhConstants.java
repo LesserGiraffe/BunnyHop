@@ -204,6 +204,7 @@ public class BhConstants {
     public static final String ATTR_ON_ALIAS_ASKED = "onAliasAsked";
     public static final String ATTR_ON_USER_DEFINED_NAME_ASKED = "onUserDefinedNameAsked";
     public static final String ATTR_ON_RELATED_NODES_REQUIRED = "onRelatedNodesRequired";
+    public static final String ATTR_ON_JUMP_TARGET_REQUIRED = "onJumpTargetRequired";
     public static final String ATTR_DERIVATIVE_ID = "derivativeID";
     public static final String ATTR_TEXT = "text";
     public static final String ATTR_DERIVATION_ID = "derivationID";
@@ -244,9 +245,7 @@ public class BhConstants {
     public static final String BH_FORMATTED_TEXT = "bhFormattedText";
     public static final String BH_TEXT_DB = "bhTextDb";
     public static final String BH_UI_EVENT = "bhUiEvent";
-    public static final String BH_VISUAL_EFFECT_MANAGER = "bhVisualEffectManager";
-    public static final String BH_VISUAL_EFFECT_TYPE = "bhVisualEffectType";
-    public static final String BH_VISUAL_EFFECT_TARGET = "bhVisualEffectTarget";
+    public static final String BH_NODE_MANIP_MODE = "bhNodeManipMode";
     public static final String IP_ADDR = "ipAddr";
     public static final String UNAME = "uname";
   }

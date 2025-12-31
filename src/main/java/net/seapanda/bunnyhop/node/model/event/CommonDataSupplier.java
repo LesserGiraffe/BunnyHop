@@ -20,9 +20,6 @@ import java.util.HashMap;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
-import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
-import net.seapanda.bunnyhop.node.view.effect.VisualEffectTarget;
-import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.script.BhScriptRepository;
 import net.seapanda.bunnyhop.utility.textdb.TextDatabase;
@@ -40,7 +37,6 @@ public class CommonDataSupplier {
   private final BhScriptRepository repository;
   private final BhNodeFactory factory;
   private final TextDatabase textDb;
-  private final VisualEffectManager effectManager;
   /** 外部スクリプトが共通で使う Javascript オブジェクト. */
   private volatile Object commonObj = null;
 
@@ -48,12 +44,10 @@ public class CommonDataSupplier {
   public CommonDataSupplier(
       BhScriptRepository repository,
       BhNodeFactory factory,
-      TextDatabase textDb,
-      VisualEffectManager visualEffectManager) {
+      TextDatabase textDb) {
     this.repository = repository;
     this.factory = factory;
     this.textDb = textDb;
-    this.effectManager = visualEffectManager;
   }
 
   /** 外部スクリプトが共通で使うオブジェクトを返す. */
@@ -96,9 +90,6 @@ public class CommonDataSupplier {
         put(BhConstants.JsIdName.BH_NODE_FACTORY, factory);
         put(BhConstants.JsIdName.BH_NODE_PLACER, new BhNodePlacer());
         put(BhConstants.JsIdName.BH_TEXT_DB, textDb);
-        put(BhConstants.JsIdName.BH_VISUAL_EFFECT_MANAGER, effectManager);
-        put(BhConstants.JsIdName.BH_VISUAL_EFFECT_TYPE, VisualEffectType.SELECTION);
-        put(BhConstants.JsIdName.BH_VISUAL_EFFECT_TARGET, VisualEffectTarget.SELF);
       }}
       .forEach((key, val) -> scope.put(key, scope, Context.javaToJS(val, scope)));
     return scope;

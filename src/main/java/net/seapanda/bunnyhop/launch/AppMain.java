@@ -222,12 +222,12 @@ public class AppMain extends Application {
           nodeSelViewProxy,
           nodeViewSuperVisor);
       final var commonDataSupplier =
-          new CommonDataSupplier(scriptRepository, nodeFactory, textDb, nodeViewSuperVisor);
+          new CommonDataSupplier(scriptRepository, nodeFactory, textDb);
       final var modelGenerator = new ModelGenerator(
           nodeFactory,
           new DerivativeReplacerWithCache(derivativeCache),
           new ScriptNodeEventInvokerImpl(
-              scriptRepository, commonDataSupplier, nodeFactory, textDb, nodeViewSuperVisor),
+              scriptRepository, commonDataSupplier, nodeFactory, textDb),
           new ScriptConnectorEventInvokerImpl(scriptRepository, commonDataSupplier));
       nodeRepository.collect(nodeDir, cnctrDir, modelGenerator, textDb);
       final var categoryTree =
@@ -423,13 +423,13 @@ public class AppMain extends Application {
         event.consume();
         return;
       }
-      default -> { }
+      default -> { /* Do nothing. */ }
     }
 
     switch (askIfStopProgram(msgService, fnIsProgramRunning)) {
       case YES -> terminate.setTrue();
       case CANCEL -> event.consume();
-      default -> { }
+      default -> { /* Do nothing. */ }
     }    
   }
 

@@ -12,21 +12,32 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package net.seapanda.bunnyhop.node.view.effect;
+package net.seapanda.bunnyhop.ui.model;
 
 /**
- * ノードビューの視覚効果を適用する対象の選択肢.
- *
- * @author K.Koike
+ * ノードの操作モードを定義した列挙型.
  */
-public enum VisualEffectTarget {
-  /** 指定したノードビュー自身. */
-  SELF,
-  /** 指定したノードビューとその全ての子要素. */
-  CHILDREN,
-  /** 指定したノードビューとそこから外部ノードビューのみを辿って到達できる全てのノードビュー. */
-  OUTERS
+public enum NodeManipulationMode {
+
+  /** デフォルトのモード. */
+  MODE_0,
+  /** ノードを複数選択するモード. */
+  MODE_1,
+  /** ノードに付随する情報を参照するモード. */
+  MODE_2;
+
+  // 外部スクリプトから参照するためのメソッド
+  public boolean isMode0() {
+    return this == MODE_0;
+  }
+
+  public boolean isMode1() {
+    return this == MODE_1;
+  }
+
+  public boolean isMode2() {
+    return this == MODE_2;
+  }
 }

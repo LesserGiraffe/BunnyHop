@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.common.configuration;
 
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
+import net.seapanda.bunnyhop.ui.model.NodeManipulationMode;
 
 /**
  * BunnyHop の設定一式をまとめたクラス.
@@ -57,6 +58,7 @@ public class BhSettings {
 
   /** UI に関するパラメータ. */
   public static class Ui {
+    public static volatile NodeManipulationMode nodeManipMode = NodeManipulationMode.MODE_0;
     /** 現在選択されているワークスペースでノードが移動したとき, それに視点を合わせる. */
     public static volatile boolean trackNodeInCurrentWorkspace = false;
     /** 現在選択されていないワークスペースでノードが移動したとき, それに視点を合わせる. */

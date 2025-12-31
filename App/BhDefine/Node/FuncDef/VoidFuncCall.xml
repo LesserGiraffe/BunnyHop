@@ -10,6 +10,7 @@
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
   onRelatedNodesRequired="GetDerivationFamily.js"
+  onJumpTargetRequired="GetOriginalNode.js"
   onUiEventReceived="OnUiEventReceivedByStat.js"
   onAliasAsked="OnAliasAsked.js"
   onUserDefinedNameAsked="OnUserDefinedNameAsked.js"

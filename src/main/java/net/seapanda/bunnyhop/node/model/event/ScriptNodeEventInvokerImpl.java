@@ -38,9 +38,6 @@ import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
-import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
-import net.seapanda.bunnyhop.node.view.effect.VisualEffectTarget;
-import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.service.script.BhScriptRepository;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -63,7 +60,6 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
   private final CommonDataSupplier supplier;
   private final BhNodeFactory factory;
   private final TextDatabase textDb;
-  private final VisualEffectManager effectManager;
   private final BhNodePlacer nodePlacer = new BhNodePlacer();
 
   /** コンストラクタ. */
@@ -71,13 +67,11 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       BhScriptRepository repository,
       CommonDataSupplier supplier,
       BhNodeFactory factory,
-      TextDatabase textDb,
-      VisualEffectManager visualEffectManager) {
+      TextDatabase textDb) {
     this.repository = repository;
     this.supplier = supplier;
     this.factory = factory;
     this.textDb = textDb;
-    this.effectManager = visualEffectManager;
   }
 
   @Override
@@ -491,6 +485,26 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     return new ArrayList<>();
   }
 
+  @Override
+  public BhNode onJumpTargetRequired(BhNode target) {
+    ScriptNameAndScript defined = getScript(target.getId(), EventType.ON_JUMP_TARGET_REQUIRED);
+    if (defined == null) {
+      return null;
+    }
+    Context cx = Context.enter();
+    ScriptableObject scope = createScriptScope(cx, target, new HashMap<>());
+    try {
+      // 外部スクリプトが null を返した場合 null が返る.
+      return (BhNode) Context.jsToJava(defined.script().exec(cx, scope), BhNode.class);
+    } catch (Exception e) {
+      LogManager.logger().error(
+          "'%s' must return a BhNode or null.\n%s".formatted(defined.name(), e));
+    } finally {
+      Context.exit();
+    }
+    return null;
+  }
+
   /**
    * スクリプト実行時のスコープ (スクリプトのトップレベルの変数から参照できるオブジェクト群) を作成する.
    *
@@ -520,9 +534,6 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
         put(BhConstants.JsIdName.BH_COMMON, supplier.getCommonObj());
         put(BhConstants.JsIdName.BH_NODE_FACTORY, factory);
         put(BhConstants.JsIdName.BH_TEXT_DB, textDb);
-        put(BhConstants.JsIdName.BH_VISUAL_EFFECT_MANAGER, effectManager);
-        put(BhConstants.JsIdName.BH_VISUAL_EFFECT_TYPE, VisualEffectType.SELECTION);
-        put(BhConstants.JsIdName.BH_VISUAL_EFFECT_TARGET, VisualEffectTarget.SELF);
         if (userOpe != null) {
           put(BhConstants.JsIdName.BH_USER_OPE, userOpe);
         }

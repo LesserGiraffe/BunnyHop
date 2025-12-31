@@ -115,7 +115,7 @@ public class BhProgramMessageDispatcher {
           context -> debugMsgProcessor.process(context);
       case StringBhSimulatorCmd
           cmd -> dispatchSimulatorCmd(cmd, carrier);
-      default -> { }
+      default -> { /* Do nothing. */ }
     }
   }
 
@@ -149,7 +149,7 @@ public class BhProgramMessageDispatcher {
       case GetGlobalVarsResp resp -> debugMsgProcessor.process(resp);
       case GetGlobalListValsResp resp -> debugMsgProcessor.process(resp);
       case GetEntryPointsResp resp -> debugMsgProcessor.process(resp);
-      default -> { }
+      default -> { /* Do nothing. */ }
     }
   }
 }

@@ -57,4 +57,6 @@ public enum EventType {
   ON_USER_DEFINED_NAME_ASKED,
   /** あるノードに関連するノード群を強調表示するときに発行されるイベント. */
   ON_RELATED_NODES_REQUIRED,
+  /** あるノードに関連するノードにジャンプするときに発行されるイベント. */
+  ON_JUMP_TARGET_REQUIRED,
 }
