@@ -16,8 +16,13 @@
 
 package net.seapanda.bunnyhop.node.view.service;
 
-import java.util.LinkedHashSet;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectTarget;
@@ -26,7 +31,6 @@ import net.seapanda.bunnyhop.node.view.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
-import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 
 /**
  * 複数の {@link BhNodeView} を対象にする操作を提供するクラス.
@@ -36,10 +40,37 @@ import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 public class BhNodeViewSupervisor implements VisualEffectManager {
 
   private final WorkspaceSet wss;
+  /**
+   * 視覚効果ごとにそれが適用されているノードを格納するマップ.
+   * 視覚効果の無効化を高速に行うために導入する.
+   */
+  private final Map<VisualEffectType, Set<BhNodeView>> effectToNodes = new HashMap<>();
 
   /** コンストラクタ. */
   public BhNodeViewSupervisor(WorkspaceSet wss) {
     this.wss = wss;
+    Arrays.stream(VisualEffectType.values())
+        .forEach(type -> effectToNodes.put(type, new HashSet<>()));
+    setEventHandlers();
+  }
+
+  private void setEventHandlers() {
+    wss.getCallbackRegistry().getOnNodeAdded().add(
+        event -> event.node().getView().ifPresent(this::registerNodeByEffect));
+    wss.getCallbackRegistry().getOnNodeRemoved().add(
+        event -> event.node().getView().ifPresent(this::deregisterNodeByEffect));
+  }
+
+  /** {@link #effectToNodes} に {@code view} を追加する. */
+  private void registerNodeByEffect(BhNodeView view) {
+    view.getLookManager().getAppliedEffects()
+        .forEach(effect -> effectToNodes.get(effect).add(view));
+  }
+
+  /** {@link #effectToNodes} から {@code view} を削除する. */
+  private void deregisterNodeByEffect(BhNodeView view) {
+    view.getLookManager().getAppliedEffects()
+        .forEach(effect -> effectToNodes.get(effect).remove(view));
   }
 
   @Override
@@ -67,6 +98,11 @@ public class BhNodeViewSupervisor implements VisualEffectManager {
       return;
     }
     view.getLookManager().setEffectEnabled(enable, type);
+    if (enable) {
+      effectToNodes.get(type).add(view);
+    } else {
+      effectToNodes.get(type).remove(view);
+    }
     userOpe.pushCmd(ope -> setEffectEnabled(view, !enable, type, ope));
   }
 
@@ -77,13 +113,13 @@ public class BhNodeViewSupervisor implements VisualEffectManager {
 
   @Override
   public void disableEffects(Workspace ws, VisualEffectType type, UserOperation userOpe) {
-    ws.getView()
-        .map(WorkspaceView::getRootNodeViews)
-        .orElse(new LinkedHashSet<>())
-        .forEach(nodeView -> {
-          Consumer<BhNodeView> renderer = view -> setEffectEnabled(view, false, type, userOpe);
-          applyVisualEffect(nodeView, VisualEffectTarget.CHILDREN, renderer);
-        });
+    Set<BhNodeView> nodeViews = effectToNodes.get(type).stream()
+        .filter(view -> nodeViewBelongsToWorkspace(view, ws))
+        .collect(Collectors.toSet());
+    for (BhNodeView view : nodeViews) {
+      view.getLookManager().setEffectEnabled(false, type);
+    }
+    effectToNodes.get(type).removeAll(nodeViews);
   }
 
   @Override
@@ -93,13 +129,13 @@ public class BhNodeViewSupervisor implements VisualEffectManager {
 
   @Override
   public void disableEffects(VisualEffectType type, UserOperation userOpe) {
-    wss.getWorkspaces().forEach(ws -> disableEffects(ws, type, userOpe));
+    effectToNodes.get(type).forEach(view -> view.getLookManager().setEffectEnabled(false, type));
+    effectToNodes.get(type).clear();
   }
 
   @Override
   public void disableEffects(VisualEffectType type) {
-    var userOpe = new UserOperation();
-    wss.getWorkspaces().forEach(ws -> disableEffects(ws, type, userOpe));
+    disableEffects(type, new UserOperation());
   }
 
   /**
@@ -118,5 +154,12 @@ public class BhNodeViewSupervisor implements VisualEffectManager {
       default ->
           throw new IllegalArgumentException("Invalid Rendering Target {%s}".formatted(target));
     }
+  }
+
+  /** {@code view} が所属しているワークスペースが {@code ws} と一致するか調べる. */
+  private static boolean nodeViewBelongsToWorkspace(BhNodeView view, Workspace ws) {
+    return view.getModel()
+        .map(node -> node.getWorkspace() == ws)
+        .orElse(false);
   }
 }

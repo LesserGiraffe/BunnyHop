@@ -76,7 +76,7 @@ public class TransactionNotificationServiceImpl implements TransactionNotificati
   @Override
   public void end(ExclusionId... ids) {
     synchronized (this) {
-      List.of(ids).forEach(currentExclusionIds::remove);
+      currentExclusionIds.removeAll(Set.of(ids));
     }
     end();
   }
