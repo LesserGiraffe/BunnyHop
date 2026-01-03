@@ -21,6 +21,7 @@
     <TextFetcher fx:id="trackNodeInInactiveWsText" textId="gui,menu-bar,track-node-in-inactive-workspace"/>
     <TextFetcher fx:id="helpText" textId="gui,menu-bar,help"/>
     <TextFetcher fx:id="versionInfoText" textId="gui,menu-bar,version-info"/>
+    <TextFetcher fx:id="licenseText" textId="gui,menu-bar,license"/>
   </fx:define>
   <Menu text="$fileText.text">
     <MenuItem fx:id="load" text="$loadText.text"/>
@@ -39,5 +40,6 @@
   </Menu>
   <Menu text="$helpText.text">
     <MenuItem fx:id="versionInfo" text="$versionInfoText.text"/>
+    <MenuItem fx:id="license" text="$licenseText.text"/>
   </Menu>
 </MenuBar>

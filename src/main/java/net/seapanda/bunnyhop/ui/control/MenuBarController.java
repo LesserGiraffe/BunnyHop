@@ -16,7 +16,10 @@
 
 package net.seapanda.bunnyhop.ui.control;
 
+import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Optional;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -49,6 +52,7 @@ public class MenuBarController {
   @FXML private MenuItem save;
   @FXML private MenuItem saveAs;
   @FXML private MenuItem versionInfo;
+  @FXML private MenuItem license;
   @FXML private MenuItem freeMemory;
   @FXML private MenuItem focusSimulator;
   @FXML private MenuItem trackNodeInCurrentWs;
@@ -92,6 +96,7 @@ public class MenuBarController {
     load.setOnAction(action -> load(wss));
     freeMemory.setOnAction(action -> freeMemory());
     versionInfo.setOnAction(action -> showBunnyVersion());
+    license.setOnAction(action -> openLicenseFolder());
 
     focusSimulator.setOnAction(action -> {
       switchMenuSetting(focusSimulator, BhSettings.BhSimulator.focusOnStartBhProgram);
@@ -298,6 +303,15 @@ public class MenuBarController {
         net.seapanda.bunnyhop.runtime.BhConstants.APP_VERSION,
         TextDefs.MenubarOps.Version.simulator.get(),
         net.seapanda.bunnyhop.simulator.common.BhSimConstants.APP_VERSION));
+  }
+
+  private void openLicenseFolder() {
+    try {
+      File licenseDir = Paths.get(Utility.execPath, BhConstants.Path.Dir.LICENSE).toFile();
+      Desktop.getDesktop().open(licenseDir);
+    } catch (IOException e) {
+      /* Do nothing. */
+    }
   }
 
   /** 有効/無効を切り替え可能なメニューの設定を変更する. */

@@ -120,6 +120,9 @@ public class BhConstants {
       public static final String REMOTE = "Remote";
       /** 言語ファイルが格納されたディレクトリ. */
       public static final String LANGUAGE = "Language";
+      /** ライセンスファイルが格納されたディレクトリ. */
+      public static final String LICENSE = "License";
+
     }
 
     /** ファイル名のリスト. */

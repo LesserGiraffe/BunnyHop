@@ -52,7 +52,8 @@
       "track-node-in-current-workspace": "選択中のワークスぺースで移動したノードに注目する",
       "track-node-in-inactive-workspace": "選択していないワークスぺースで移動したノードに注目する",
       "help": "ヘルプ",
-      "version-info": "バージョン情報"
+      "version-info": "バージョン情報",
+      "license": "ライセンス"
     },
 
     "notification-view": {

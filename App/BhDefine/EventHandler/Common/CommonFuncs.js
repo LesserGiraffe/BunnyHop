@@ -4,7 +4,6 @@
   let DerivativeBuilder = net.seapanda.bunnyhop.node.model.derivative.DerivativeBuilder;
   let DerivationId = net.seapanda.bunnyhop.node.model.parameter.DerivationId;
   let MvcType = net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
-  let jfxPlatform = Packages.javafx.application.Platform;
   let bhCommon = {
     'bhNodeFactory': bhNodeFactory,
     'bhNodePlacer': bhNodePlacer
