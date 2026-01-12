@@ -21,10 +21,10 @@ import java.util.SequencedSet;
 import javafx.scene.Node;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.TextNode;
-import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeBase.BodyShape;
+import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeType;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ConnectorAlignment;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorAlignment;
+import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.SimpleCache;
@@ -54,7 +54,7 @@ public class NoContentNodeView extends BhNodeViewBase {
     setMouseTransparent(true);
     getLookManager().setBodyShapeGetter(() -> {
       boolean inner = parent == null || parent.inner;
-      return inner ? viewStyle.bodyShape : BodyShape.BODY_SHAPE_NONE;
+      return inner ? viewStyle.bodyShape : BodyShapeType.BODY_SHAPE_NONE;
     });
   }
 

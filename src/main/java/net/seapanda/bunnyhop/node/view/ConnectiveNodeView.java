@@ -23,9 +23,9 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.ConnectiveNode;
 import net.seapanda.bunnyhop.node.view.factory.BhNodeViewFactory;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ChildArrangement;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ConnectorAlignment;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ChildArrangement;
+import net.seapanda.bunnyhop.node.view.style.ConnectorAlignment;
+import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.SimpleCache;
@@ -293,8 +293,7 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
   @Override
   public void show(int depth) {
     try {
-      System.out.println(
-          "%s<ConnectiveNodeView>  %s".formatted(indent(depth), hashCode()));
+      System.out.printf("%s<ConnectiveNodeView>  %s%n", indent(depth), hashCode());
       innerGroup.show(depth + 1);
       outerGroup.show(depth + 1);
     } catch (Exception e) {

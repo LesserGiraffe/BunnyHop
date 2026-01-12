@@ -23,14 +23,13 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeViewStyleId;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.ConnectiveNodeView;
-import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeBase.BodyShape;
+import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeType;
 import net.seapanda.bunnyhop.node.view.component.ComponentType;
-import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape;
-import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape.CnctrShape;
+import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShapeType;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
- * 描画時の見た目 (大きさ, 色など) の情報を持つクラス.
+ * ノードの見た目 (大きさ, 色など) の情報を持つクラス.
  *
  * @author K.Koike
  */
@@ -46,7 +45,7 @@ public class BhNodeViewStyle {
   public double paddingLeft = 2.5 * BhConstants.Ui.NODE_SCALE;
   /** ノード右部の余白. */
   public double paddingRight = 2.5 * BhConstants.Ui.NODE_SCALE;
-  public BodyShape bodyShape = BodyShape.BODY_SHAPE_ROUND_RECT;
+  public BodyShapeType bodyShape = BodyShapeType.BODY_SHAPE_ROUND_RECT;
   /** コネクタの位置. */
   public ConnectorPos connectorPos = ConnectorPos.TOP;
   /** ノードの左上からのコネクタの位置. */
@@ -58,9 +57,9 @@ public class BhNodeViewStyle {
   /** コネクタをそろえる位置. */
   public ConnectorAlignment connectorAlignment = ConnectorAlignment.EDGE;
   /** コネクタの形. */
-  public ConnectorShape.CnctrShape connectorShape = ConnectorShape.CnctrShape.ARROW;
+  public ConnectorShapeType connectorShape = ConnectorShapeType.ARROW;
   /** 固定ノードのコネクタの形. */
-  public ConnectorShape.CnctrShape connectorShapeFixed = ConnectorShape.CnctrShape.ARROW;
+  public ConnectorShapeType connectorShapeFixed = ConnectorShapeType.ARROW;
   /** 切り欠きの位置. */
   public NotchPos notchPos = NotchPos.RIGHT;
   /** コネクタ部分の幅. */
@@ -68,9 +67,9 @@ public class BhNodeViewStyle {
   /** コネクタ部分の高さ. */
   public double notchHeight = 1.5 * BhConstants.Ui.NODE_SCALE;
   /** 切り欠きの形. */
-  public ConnectorShape.CnctrShape notchShape =  ConnectorShape.CnctrShape.NONE;
+  public ConnectorShapeType notchShape =  ConnectorShapeType.NONE;
   /** 固定ノードの切り欠きの形. */
-  public ConnectorShape.CnctrShape notchShapeFixed =  ConnectorShape.CnctrShape.NONE;
+  public ConnectorShapeType notchShapeFixed =  ConnectorShapeType.NONE;
   /** ドラッグ&ドロップ時などに適用されるコネクタの範囲. */
   public double connectorBoundsRate = 2.0;
   public String[] cssClasses = { "defaultNode" };
@@ -84,11 +83,78 @@ public class BhNodeViewStyle {
   public CommonPart commonPart = new CommonPart();
   /** ノードの固有部分のパラメータ. */
   public SpecificPart specificPart = new SpecificPart();
+  public TextField textField = new TextField();
+  public Label label = new Label();
+  public ComboBox comboBox = new ComboBox();
+  public TextArea textArea = new TextArea();
+
+
+  /** コンストラクタ. */
+  public BhNodeViewStyle() {}
+
+  /**
+   * コピーコンストラクタ.
+   *
+   * @param org コピー元
+   */
+  BhNodeViewStyle(BhNodeViewStyle org) {
+    id = org.id;
+    paddingTop = org.paddingTop;
+    paddingBottom = org.paddingBottom;
+    paddingLeft = org.paddingLeft;
+    paddingRight = org.paddingRight;
+    bodyShape = org.bodyShape;
+    connectorPos = org.connectorPos;
+    connectorShift = org.connectorShift;
+    connectorAlignment = org.connectorAlignment;
+    connectorWidth = org.connectorWidth;
+    connectorHeight = org.connectorHeight;
+    connectorShape = org.connectorShape;
+    connectorShapeFixed = org.connectorShapeFixed;
+    connectorBoundsRate = org.connectorBoundsRate;
+    notchPos = org.notchPos;
+    notchWidth = org.notchWidth;
+    notchHeight = org.notchHeight;
+    notchShape = org.notchShape;
+    notchShapeFixed = org.notchShapeFixed;
+    connective = new Connective(org.connective);
+    cssClasses = org.cssClasses.clone();
+    component = org.component;
+    baseArrangement = org.baseArrangement;
+    textField = new TextField(org.textField);
+    label = new Label(org.label);
+    comboBox = new ComboBox(org.comboBox);
+    textArea = new TextArea(org.textArea);
+    commonPart = new CommonPart(org.commonPart);
+    specificPart = new SpecificPart(org.specificPart);
+  }
+
+  /**
+   * コネクタの大きさを取得する.
+   *
+   * @param isFixed 描画対象が固定ノードの場合 true を指定すること.
+   * @return コネクタの大きさ
+   */
+  public Vec2D getConnectorSize(boolean isFixed) {
+    ConnectorShapeType
+        shape = isFixed ? connectorShapeFixed : connectorShape;
+    double cnctrWidth = (shape == ConnectorShapeType.NONE) ? 0 : connectorWidth;
+    double cnctrHeight = (shape == ConnectorShapeType.NONE) ? 0 : connectorHeight;
+    return new Vec2D(cnctrWidth, cnctrHeight);
+  }
 
   /** {@link ConnectiveNodeView} に特有のパラメータ. */
   public static class Connective {
     public Arrangement inner = new Arrangement();
     public Arrangement outer = new Arrangement();
+
+    private Connective() {}
+
+    /** コピーコンストラクタ. */
+    private Connective(Connective org) {
+      inner = new Arrangement(org.inner);
+      outer = new Arrangement(org.outer);
+    }
   }
 
   /** ノードの内部に描画するノードの並べ方のパラメータ. */
@@ -105,7 +171,7 @@ public class BhNodeViewStyle {
     public double paddingLeft = 0;
     /** 子要素のノードとサブグループが並ぶ方向. */
     public ChildArrangement arrangement = ChildArrangement.COLUMN;
-    public List<String> cnctrNameList = new ArrayList<>();
+    public List<String> cnctrNames = new ArrayList<>();
     public List<Arrangement> subGroups = new ArrayList<>();
 
     /** コンストラクタ. */
@@ -119,35 +185,48 @@ public class BhNodeViewStyle {
       paddingBottom = org.paddingBottom;
       paddingLeft = org.paddingLeft;
       arrangement = org.arrangement;
-      cnctrNameList.addAll(org.cnctrNameList);
+      cnctrNames.addAll(org.cnctrNames);
       org.subGroups.forEach(subGrp -> subGroups.add(new Arrangement(subGrp)));
     }
   }
-
-  public TextField textField = new TextField();
 
   /** テキストフィールドのパラメータ. */
   public static class TextField {
     public double minWidth = 0 * BhConstants.Ui.NODE_SCALE;
     public boolean editable = true;
     public String cssClass = "defaultTextField";
-  }
 
-  public Label label = new Label();
+    private TextField() {}
+
+    private TextField(TextField org) {
+      minWidth = org.minWidth;
+      editable = org.editable;
+      cssClass = org.cssClass;
+    }
+  }
 
   /** ラベルのパラメータ. */
   public static class Label {
     public String cssClass = "defaultLabel";
-  }
 
-  public ComboBox comboBox = new ComboBox();
+    private Label() {}
+
+    /** コピーコンストラクタ. */
+    private Label(Label org) {
+      cssClass = org.cssClass;
+    }
+  }
 
   /** コンボボックスのパラメータ. */
   public static class ComboBox {
     public String cssClass = "defaultComboBox";
-  }
 
-  public TextArea textArea = new TextArea();
+    private ComboBox() {}
+
+    private ComboBox(ComboBox org) {
+      cssClass = org.cssClass;
+    }
+  }
 
   /** テキストエリアのパラメータ. */
   public static class TextArea {
@@ -155,54 +234,77 @@ public class BhNodeViewStyle {
     public double minHeight = 3 * BhConstants.Ui.NODE_SCALE;
     public boolean editable = true;
     public String cssClass = "defaultTextArea";
+
+    private TextArea() {}
+
+    private TextArea(TextArea org) {
+      minWidth = org.minWidth;
+      minHeight = org.minHeight;
+      editable = org.editable;
+      cssClass = org.cssClass;
+    }
   }
 
   /** ボタンのパラメータ. */
   public static class Button {
-    public String cssClass;
-    
-    public Button(String cssClass) {
-      this.cssClass = cssClass;
+    public String cssClass = "defaultPrivateTemplateButton";
+
+    private Button() {}
+
+    private Button(Button org) {
+      cssClass = org.cssClass;
     }
   }
 
   /** ブレークポイントのパラメータ. */
   public static class Breakpoint {
     public double radius = 1.8 * BhConstants.Ui.NODE_SCALE;
-    public String cssClass;
+    public String cssClass = "defaultBreakpoint";
 
-    public Breakpoint(String cssClass) {
-      this.cssClass = cssClass;
+    private Breakpoint() {}
+
+    private Breakpoint(Breakpoint org) {
+      radius = org.radius;
+      cssClass = org.cssClass;
     }
   }
 
   /** 次に実行するノードであることを表す印のパラメータ. */
   public static class ExecStepMark {
     public double size = 5.5 * BhConstants.Ui.NODE_SCALE;
-    public String cssClass;
+    public String cssClass = "defaultExecStepMark";
 
-    public ExecStepMark(String cssClass) {
-      this.cssClass = cssClass;
+    private ExecStepMark() {}
+
+    private ExecStepMark(ExecStepMark org) {
+      size = org.size;
+      cssClass = org.cssClass;
     }
   }
 
   /** ノードが破損していることを表す印のパラメータ. */
   public static class CorruptionMark {
     public double size = 5.5 * BhConstants.Ui.NODE_SCALE;
-    public String cssClass;
+    public String cssClass = "defaultCorruptionMark";
 
-    public CorruptionMark(String cssClass) {
-      this.cssClass = cssClass;
+    private CorruptionMark() {}
+
+    private CorruptionMark(CorruptionMark org) {
+      size = org.size;
+      cssClass = org.cssClass;
     }
   }
 
   /** ノードがエントリポイントであることを表す印のパラメータ. */
   public static class EntryPointMark {
     public double radius = 1.8 * BhConstants.Ui.NODE_SCALE;
-    public String cssClass;
+    public String cssClass = "defaultEntryPointMark";
 
-    public EntryPointMark(String cssClass) {
-      this.cssClass = cssClass;
+    private EntryPointMark() {}
+
+    private EntryPointMark(EntryPointMark org) {
+      radius = org.radius;
+      cssClass = org.cssClass;
     }
   }
 
@@ -213,230 +315,39 @@ public class BhNodeViewStyle {
     /** 共通部分の子要素を並べる方向. */
     public ChildArrangement arrangement = ChildArrangement.ROW;
     /** プライベートテンプレートボタンのパラメータ. */
-    public Button privateTemplate = new Button("defaultPrivateTemplateButton");
+    public Button privateTemplate = new Button();
     /** ブレークポイントのパラメータ. */
-    public Breakpoint breakpoint = new Breakpoint("defaultBreakpoint");
+    public Breakpoint breakpoint = new Breakpoint();
     /** 次に実行するノードであることを表す印のパラメータ. */
-    public ExecStepMark execStepMark = new ExecStepMark("defaultExecStepMark");
+    public ExecStepMark execStepMark = new ExecStepMark();
     /** ノードが破損していることを表す印のパラメータ. */
-    public CorruptionMark corruptionMark = new CorruptionMark("defaultCorruptionMark");
+    public CorruptionMark corruptionMark = new CorruptionMark();
     /** ノードがエントリポイントであることを表す印のパラメータ. */
-    public EntryPointMark entryPointMark = new EntryPointMark("defaultEntryPointMark");
+    public EntryPointMark entryPointMark = new EntryPointMark();
 
     /** コンストラクタ. */
-    public CommonPart() {}
+    private CommonPart() {}
 
     /** コピーコンストラクタ. */
-    public CommonPart(CommonPart org) {
-      this.cssClass = org.cssClass;
-      this.arrangement = org.arrangement;
-      this.privateTemplate.cssClass = org.privateTemplate.cssClass;
-      this.breakpoint.radius = org.breakpoint.radius;
-      this.breakpoint.cssClass = org.breakpoint.cssClass;
-      this.execStepMark.size = org.execStepMark.size;
-      this.execStepMark.cssClass = org.execStepMark.cssClass;
-      this.corruptionMark.size = org.corruptionMark.size;
-      this.corruptionMark.cssClass = org.corruptionMark.cssClass;
-      this.entryPointMark.radius = org.entryPointMark.radius;
-      this.entryPointMark.cssClass = org.entryPointMark.cssClass;
+    private CommonPart(CommonPart org) {
+      cssClass = org.cssClass;
+      arrangement = org.arrangement;
+      privateTemplate = new Button(org.privateTemplate);
+      breakpoint = new Breakpoint(org.breakpoint);
+      execStepMark = new ExecStepMark(org.execStepMark);
+      corruptionMark = new CorruptionMark(org.corruptionMark);
+      entryPointMark = new EntryPointMark(org.entryPointMark);
     }
   }
 
   /** ノードビューの種類によって固有のコンポーネントが乗る部分のパラメータ. */
   public static class SpecificPart {
     public String cssClass = "defaultSpecificPart";
-  }
 
-  /** コネクタの位置. */
-  public enum ConnectorPos {
+    private SpecificPart() {}
 
-    LEFT(BhConstants.NodeStyleDef.VAL_LEFT),
-    TOP(BhConstants.NodeStyleDef.VAL_TOP);
-
-    private final String name;
-  
-    private ConnectorPos(String name) {
-      this.name = name;
+    private SpecificPart(SpecificPart org) {
+      cssClass = org.cssClass;
     }
-  
-    /** タイプ名から列挙子を得る. */
-    public static ConnectorPos of(String name) {
-      for (var val : ConnectorPos.values()) {
-        if (val.getName().equals(name)) {
-          return val;
-        }
-      }
-      throw new IllegalArgumentException(
-          "Unknown %s  (%s)".formatted(ConnectorPos.class.getSimpleName(), name));
-    }
-  
-    public String getName() {
-      return name;
-    }
-  
-    @Override
-    public String toString() {
-      return name;
-    }
-  }
-
-  /** コネクタをそろえる部分. */
-  public enum ConnectorAlignment {
-
-    /** コネクタの端をノードボディの端に合わせる. */
-    CENTER(BhConstants.NodeStyleDef.VAL_CENTER),
-    /** コネクタの中央をノードボディの中央に合わせる. */
-    EDGE(BhConstants.NodeStyleDef.VAL_EDGE);
-
-    private final String name;
-  
-    private ConnectorAlignment(String name) {
-      this.name = name;
-    }
-  
-    /** タイプ名から列挙子を得る. */
-    public static ConnectorAlignment of(String name) {
-      for (var val : ConnectorAlignment.values()) {
-        if (val.getName().equals(name)) {
-          return val;
-        }
-      }
-      throw new IllegalArgumentException(
-          "Unknown %s  (%s)".formatted(ConnectorAlignment.class.getSimpleName(), name));
-    }
-  
-    public String getName() {
-      return name;
-    }
-  
-    @Override
-    public String toString() {
-      return name;
-    }
-  }
-
-  /** 切り欠きの位置. */
-  public enum NotchPos {
-
-    RIGHT(BhConstants.NodeStyleDef.VAL_RIGHT),
-    BOTTOM(BhConstants.NodeStyleDef.VAL_BOTTOM);
-
-    private final String name;
-  
-    private NotchPos(String name) {
-      this.name = name;
-    }
-  
-    /** タイプ名から列挙子を得る. */
-    public static NotchPos of(String name) {
-      for (var val : NotchPos.values()) {
-        if (val.getName().equals(name)) {
-          return val;
-        }
-      }
-      throw new IllegalArgumentException(
-          "Unknown %s  (%s)".formatted(NotchPos.class.getSimpleName(), name));
-    }
-  
-    public String getName() {
-      return name;
-    }
-  
-    @Override
-    public String toString() {
-      return name;
-    }
-  }
-
-  /** 子要素の描画方向. */
-  public enum ChildArrangement {
-
-    ROW(BhConstants.NodeStyleDef.VAL_ROW),
-    COLUMN(BhConstants.NodeStyleDef.VAL_COLUMN);
-  
-    private final String name;
-  
-    private ChildArrangement(String name) {
-      this.name = name;
-    }
-  
-    /** タイプ名から列挙子を得る. */
-    public static ChildArrangement of(String name) {
-      for (var val : ChildArrangement.values()) {
-        if (val.getName().equals(name)) {
-          return val;
-        }
-      }
-      throw new IllegalArgumentException(
-          "Unknown %s  (%s)".formatted(ChildArrangement.class.getSimpleName(), name));
-    }
-  
-    public String getName() {
-      return name;
-    }
-  
-    @Override
-    public String toString() {
-      return name;
-    }
-  }
-
-  /** コンストラクタ. */
-  public BhNodeViewStyle() {}
-
-  /**
-   * コピーコンストラクタ.
-   *
-   * @param org コピー元
-   */
-  BhNodeViewStyle(BhNodeViewStyle org) {
-    this.id = org.id;
-    this.paddingTop = org.paddingTop;
-    this.paddingBottom = org.paddingBottom;
-    this.paddingLeft = org.paddingLeft;
-    this.paddingRight = org.paddingRight;
-    this.bodyShape = org.bodyShape;
-    this.connectorPos = org.connectorPos;
-    this.connectorShift = org.connectorShift;
-    this.connectorAlignment = org.connectorAlignment;
-    this.connectorWidth = org.connectorWidth;
-    this.connectorHeight = org.connectorHeight;
-    this.connectorShape = org.connectorShape;
-    this.connectorShapeFixed = org.connectorShapeFixed;
-    this.connectorBoundsRate = org.connectorBoundsRate;
-    this.notchPos = org.notchPos;
-    this.notchWidth = org.notchWidth;
-    this.notchHeight = org.notchHeight;
-    this.notchShape = org.notchShape;
-    this.notchShapeFixed = org.notchShapeFixed;
-    this.connective.inner = new Arrangement(org.connective.inner);
-    this.connective.outer = new Arrangement(org.connective.outer);
-    this.cssClasses = org.cssClasses;
-    this.component = org.component;
-    this.baseArrangement = org.baseArrangement;
-    this.textField.minWidth = org.textField.minWidth;
-    this.textField.cssClass = org.textField.cssClass;
-    this.textField.editable = org.textField.editable;
-    this.label.cssClass = org.label.cssClass;
-    this.comboBox.cssClass = org.comboBox.cssClass;
-    this.textArea.minWidth = org.textArea.minWidth;
-    this.textArea.minHeight = org.textArea.minHeight;
-    this.textArea.editable = org.textArea.editable;
-    this.textArea.cssClass = org.textArea.cssClass;
-    this.commonPart = new CommonPart(org.commonPart);
-    this.specificPart.cssClass = org.specificPart.cssClass;
-  }
-
-  /**
-   * コネクタの大きさを取得する.
-   *
-   * @param isFixed 描画対象が固定ノードの場合 true を指定すること.
-   * @return コネクタの大きさ
-   */
-  public Vec2D getConnectorSize(boolean isFixed) {
-    CnctrShape shape = isFixed ? connectorShapeFixed : connectorShape;
-    double cnctrWidth = (shape == CnctrShape.NONE) ? 0 : connectorWidth;
-    double cnctrHeight = (shape == CnctrShape.NONE) ? 0 : connectorHeight;
-    return new Vec2D(cnctrWidth, cnctrHeight);
   }
 }

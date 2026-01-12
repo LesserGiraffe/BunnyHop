@@ -499,11 +499,11 @@
     },
 
     "save-text": {
-      "file": "ファイル"
+      "file": "ファイルA"
     },
 
     "load-text": {
-      "file": "ファイル"
+      "file": "ファイルA"
     },
 
     "get-text-files": {
@@ -511,19 +511,15 @@
     },
 
     "delete-text-file": {
-      "file": "ファイル"
-    },
-
-    "delete-text-files": {
-      "file": "ファイル"
+      "file": "ファイルA"
     },
 
     "record-audio": {
-      "file": "ファイル"
+      "file": "ファイルB"
     },
 
     "play-audio": {
-      "file": "ファイル"
+      "file": "ファイルB"
     },
 
     "get-audio-files": {
@@ -531,11 +527,7 @@
     },
 
     "delete-audio-file": {
-      "file": "ファイル"
-    },
-
-    "delete-audio-files": {
-      "file": "ファイル"
+      "file": "ファイルB"
     },
 
     "alias": {

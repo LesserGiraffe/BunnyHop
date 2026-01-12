@@ -23,13 +23,15 @@ import java.util.List;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
+import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.NotchPos;
 
 /**
  * 丸角長方形ボディ.
  *
  * @author K.Koike
  */
-public class BodyRoundRect extends BodyShapeBase {
+public class BodyRoundRect extends BodyShape {
 
   @Override
   public Collection<Double> createVertices(
@@ -58,17 +60,17 @@ public class BodyRoundRect extends BodyShapeBase {
 
     List<Double> notchVertices =
         createNotchVertices(notch, style.notchPos, notchWidth, notchHeight, bodyWidth, bodyHeight);
-    if (style.notchPos == BhNodeViewStyle.NotchPos.RIGHT) {
+    if (style.notchPos == NotchPos.RIGHT) {
       bodyVertices.addAll(8, notchVertices);
-    } else if (style.notchPos == BhNodeViewStyle.NotchPos.BOTTOM) {
+    } else if (style.notchPos == NotchPos.BOTTOM) {
       bodyVertices.addAll(12, notchVertices);
     }
 
     List<Double> cnctrVertices = createConnectorVertices(
         connector, style, cnctrWidth, cnctrHeight, cnctrShift, bodyWidth, bodyHeight);
-    if (style.connectorPos == BhNodeViewStyle.ConnectorPos.LEFT) {
+    if (style.connectorPos == ConnectorPos.LEFT) {
       bodyVertices.addAll(cnctrVertices);
-    } else if (style.connectorPos == BhNodeViewStyle.ConnectorPos.TOP) {
+    } else if (style.connectorPos == ConnectorPos.TOP) {
       bodyVertices.addAll(4, cnctrVertices);
     }
     return bodyVertices;

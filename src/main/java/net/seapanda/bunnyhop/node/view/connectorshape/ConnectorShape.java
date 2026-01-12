@@ -16,10 +16,8 @@
 
 package net.seapanda.bunnyhop.node.view.connectorshape;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
 
 /**
  * コネクタ描画クラスの基底クラス.
@@ -40,64 +38,6 @@ public abstract class ConnectorShape {
   public abstract List<Double> createVertices(
       double offsetX, double offsetY, double width, double height, ConnectorPos pos);
 
-  /** コネクタの形の識別子を定義した列挙型. */
-  public enum CnctrShape {
-    ARROW("ARROW", new ConnectorArrow()),
-    CHAR_T("CHAR_T", new ConnectorCharT()),
-    CHAR_U("CHAR_U", new ConnectorCharU()),
-    CHAR_V("CHAR_V", new ConnectorCharV()),
-    CROSS("CROSS", new ConnectorCross()),
-    DIAMOND("DIAMOND", new ConnectorDiamond()),
-    HEXAGON("HEXAGON", new ConnectorHexagon()),
-    INV_PENTAGON("INV_PENTAGON", new ConnectorInvPentagon()),
-    INV_TRAPEZOID("INV_TRAPEZOID", new ConnectorInvTrapezoid()),
-    INV_TRIANGLE("INV_TRIANGLE", new ConnectorInvTriangle()),
-    NONE("NONE", new ConnectorNone()),
-    OCTAGON("OCTAGON", new ConnectorOctagon()),
-    PENTAGON("PENTAGON", new ConnectorPentagon()),
-    SQUARE("SQUARE", new ConnectorSquare()),
-    STAR("STAR", new ConnectorStar()),
-    TRAPEZOID("TRAPEZOID", new ConnectorTrapezoid()),
-    TRIANGLE("TRIANGLE", new ConnectorTriangle()),
-    LIGHTNING("LIGHTNING", new ConnectorLightning()),
-    SANDGLASS("SANDGLASS", new ConnectorSandglass());
-
-    public final String name;
-    public final ConnectorShape shape;
-    private static final Map<String, CnctrShape> shapeNameToConnectorShape =
-        new HashMap<>() {{
-            put(CnctrShape.ARROW.name, CnctrShape.ARROW);
-            put(CnctrShape.CHAR_T.name, CnctrShape.CHAR_T);
-            put(CnctrShape.CHAR_U.name, CnctrShape.CHAR_U);
-            put(CnctrShape.CHAR_V.name, CnctrShape.CHAR_V);
-            put(CnctrShape.CROSS.name, CnctrShape.CROSS);
-            put(CnctrShape.DIAMOND.name, CnctrShape.DIAMOND);
-            put(CnctrShape.HEXAGON.name, CnctrShape.HEXAGON);
-            put(CnctrShape.INV_PENTAGON.name, CnctrShape.INV_PENTAGON);
-            put(CnctrShape.INV_TRAPEZOID.name, CnctrShape.INV_TRAPEZOID);
-            put(CnctrShape.INV_TRIANGLE.name, CnctrShape.INV_TRIANGLE);
-            put(CnctrShape.NONE.name, CnctrShape.NONE);
-            put(CnctrShape.OCTAGON.name, CnctrShape.OCTAGON);
-            put(CnctrShape.PENTAGON.name, CnctrShape.PENTAGON);
-            put(CnctrShape.SQUARE.name, CnctrShape.SQUARE);
-            put(CnctrShape.STAR.name, CnctrShape.STAR);
-            put(CnctrShape.TRAPEZOID.name, CnctrShape.TRAPEZOID);
-            put(CnctrShape.TRIANGLE.name,  CnctrShape.TRIANGLE);
-            put(CnctrShape.LIGHTNING.name,  CnctrShape.LIGHTNING);
-            put(CnctrShape.SANDGLASS.name,  CnctrShape.SANDGLASS);
-          }};
-
-    private CnctrShape(String shapeName, ConnectorShape shape) {
-      name = shapeName;
-      this.shape = shape;
-    }
-
-    /** コネクタ名からコネクタの識別子を取得する. */
-    public static CnctrShape getByName(String name) {
-      return CnctrShape.shapeNameToConnectorShape.get(name);
-    }
-  }
-
   /**
    * コネクタ名から対応する CNCTR_SHAPE を返す.
    *
@@ -105,8 +45,8 @@ public abstract class ConnectorShape {
    * @param fileName コネクタの形が記述してあるjsonファイルの名前 (nullable)
    * @return shapeStrに対応する CNCTR_SHAPE 列挙子 (オプション)
    */
-  public static CnctrShape getConnectorTypeFromName(String cnctrShapeName, String fileName) {
-    CnctrShape type = CnctrShape.getByName(cnctrShapeName);
+  public static ConnectorShapeType getConnectorTypeFromName(String cnctrShapeName, String fileName) {
+    ConnectorShapeType type = ConnectorShapeType.getByName(cnctrShapeName);
     if (type == null) {
       throw new IllegalArgumentException(
           "Invalid connector shape name %s  (%s)".formatted(cnctrShapeName, fileName));

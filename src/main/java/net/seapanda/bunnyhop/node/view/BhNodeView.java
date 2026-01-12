@@ -28,7 +28,7 @@ import javafx.scene.layout.Pane;
 import net.seapanda.bunnyhop.node.control.BhNodeController;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewComponent;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;

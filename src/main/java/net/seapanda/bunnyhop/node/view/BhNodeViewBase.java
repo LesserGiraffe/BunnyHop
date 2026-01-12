@@ -48,16 +48,16 @@ import net.seapanda.bunnyhop.node.control.BhNodeController;
 import net.seapanda.bunnyhop.node.control.TemplateNodeController;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeBase;
-import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeBase.BodyShape;
+import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeType;
 import net.seapanda.bunnyhop.node.view.component.PlayIcon;
 import net.seapanda.bunnyhop.node.view.component.Star;
 import net.seapanda.bunnyhop.node.view.component.WarningIcon;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ChildArrangement;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ConnectorAlignment;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ChildArrangement;
+import net.seapanda.bunnyhop.node.view.style.ConnectorAlignment;
+import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
 import net.seapanda.bunnyhop.node.view.traverse.NvbCallbackInvoker;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
@@ -360,7 +360,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   public class LookManagerBase implements LookManager {
 
     /** ボディの形を取得する関数オブジェクト. */
-    private Supplier<BodyShape> fnGetBodyShape;
+    private Supplier<BodyShapeType> fnGetBodyShape;
     /** 現在描画されているノードのポリゴンの形状を決めているノードの大きさ. */
     private final Vec2D currentPolygonSize = new Vec2D(Double.MIN_VALUE, Double.MIN_VALUE);
     /** ノードの整列を待っている {@link BhNodeView} のセット. */
@@ -371,7 +371,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
      *
      * @param bodyShape 本体部分の形
      */
-    public LookManagerBase(BodyShape bodyShape) {
+    public LookManagerBase(BodyShapeType bodyShape) {
       this.fnGetBodyShape = () -> bodyShape;
     }
 
@@ -461,7 +461,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     }
 
     /** ボディの形をセットする関数を設定する. */
-    void setBodyShapeGetter(Supplier<BodyShape> fnGetBodyShape) {
+    void setBodyShapeGetter(Supplier<BodyShapeType> fnGetBodyShape) {
       if (fnGetBodyShape != null) {
         this.fnGetBodyShape = fnGetBodyShape;
       }
@@ -472,7 +472,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
      *
      * @return このノードビューのボディの形状の種類
      */
-    BodyShape getBodyShape() {
+    BodyShapeType getBodyShape() {
       return fnGetBodyShape.get();
     }
 
@@ -834,8 +834,8 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     private static void updateEvenFlag(BhNodeViewBase view) {
       BhNodeViewBase parentView = view.getTreeManager().getParentView();
       if (parentView != null) {
-        BodyShape bodyShape = parentView.getLookManager().getBodyShape();
-        if (view.parent.inner && !bodyShape.equals(BodyShape.BODY_SHAPE_NONE)) {
+        BodyShapeType bodyShape = parentView.getLookManager().getBodyShape();
+        if (view.parent.inner && !bodyShape.equals(BodyShapeType.BODY_SHAPE_NONE)) {
           view.getTreeManager().isEven = !parentView.getTreeManager().isEven;
         } else {
           view.getTreeManager().isEven = parentView.getTreeManager().isEven;

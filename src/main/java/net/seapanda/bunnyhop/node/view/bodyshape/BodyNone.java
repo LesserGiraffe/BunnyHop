@@ -23,14 +23,14 @@ import java.util.List;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorNone;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
 
 /**
  * 何も描画しないボディ.
  *
  * @author K.Koike
  */
-public class BodyNone extends BodyShapeBase {
+public class BodyNone extends BodyShape {
 
   @Override
   public Collection<Double> createVertices(

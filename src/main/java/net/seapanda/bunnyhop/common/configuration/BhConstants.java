@@ -255,6 +255,7 @@ public class BhConstants {
 
   /** ノードのスタイル定義のパラメータ. */
   public static class NodeStyleDef {
+    public static final String KEY_IMPORT = "import";
     public static final String KEY_PADDING_TOP = "paddingTop";
     public static final String KEY_PADDING_BOTTOM = "paddingBottom";
     public static final String KEY_PADDING_LEFT = "paddingLeft";

@@ -18,42 +18,16 @@ package net.seapanda.bunnyhop.node.view.bodyshape;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ConnectorAlignment;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ConnectorPos;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.NotchPos;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape;
+import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
+import net.seapanda.bunnyhop.node.view.style.ConnectorAlignment;
+import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.NotchPos;
 
 /** {@link BhNodeView} のボディを描画するクラスの基底クラス. */
-public abstract class BodyShapeBase {
-
-  /** ボディの形の識別子を定義した列挙型. */
-  public enum BodyShape {
-    BODY_SHAPE_ROUND_RECT("ROUND_RECT", new BodyRoundRect()),
-    BODY_SHAPE_NONE("NONE", new BodyNone());
-
-    public final String name;
-    public final BodyShapeBase shape;
-    private static final Map<String, BodyShape> shapeNameToBodyShape =
-        new HashMap<>() {{
-            put(BodyShape.BODY_SHAPE_ROUND_RECT.name, BodyShape.BODY_SHAPE_ROUND_RECT);
-            put(BodyShape.BODY_SHAPE_NONE.name, BodyShape.BODY_SHAPE_NONE);
-          }};
-
-    private BodyShape(String shapeName, BodyShapeBase shape) {
-      name = shapeName;
-      this.shape = shape;
-    }
-
-    /** ボディ名からボディの識別子を取得する. */
-    public static BodyShape getByName(String name) {
-      return BodyShape.shapeNameToBodyShape.get(name);
-    }
-  }
+public abstract class BodyShape {
 
   /**
    * ノードを形作る頂点を生成する.
@@ -123,7 +97,7 @@ public abstract class BodyShapeBase {
    */
   protected List<Double> createNotchVertices(
       ConnectorShape notch,
-      BhNodeViewStyle.NotchPos notchPos,
+      NotchPos notchPos,
       double notchWidth,
       double notchHeight,
       double bodyWidth,
@@ -131,7 +105,7 @@ public abstract class BodyShapeBase {
 
     double offsetX = 0.0;
     double offsetY = 0.0;
-    BhNodeViewStyle.ConnectorPos cnctrPos = ConnectorPos.LEFT;
+    ConnectorPos cnctrPos = ConnectorPos.LEFT;
 
     if (notchPos == NotchPos.RIGHT) {
       offsetX = bodyWidth - notchWidth;
@@ -161,8 +135,8 @@ public abstract class BodyShapeBase {
    * @param fileName ボディの形が記述してあるjsonファイルの名前 (nullable)
    * @return shapeStrに対応する CNCTR_SHAPE 列挙子 (オプション)
    */
-  public static BodyShape getBodyTypeFromName(String bodyShapeName, String fileName) {
-    BodyShape type = BodyShape.getByName(bodyShapeName);
+  public static BodyShapeType getBodyTypeFromName(String bodyShapeName, String fileName) {
+    BodyShapeType type = BodyShapeType.getByName(bodyShapeName);
     if (type == null) {
       throw new IllegalArgumentException(
           "Invalid body shape name %s (%s)".formatted(bodyShapeName, fileName));
