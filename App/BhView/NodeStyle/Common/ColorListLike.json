@@ -1,0 +1,5 @@
+{
+  "import" : ["./List.json"],
+  "connectorShape" : "CharV",
+  "cssClass" : "colorType"
+}

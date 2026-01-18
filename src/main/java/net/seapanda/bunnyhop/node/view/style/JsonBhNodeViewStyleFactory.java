@@ -118,7 +118,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       snippet.addSubSnippets(importSubStyleSnippets(jsonObj, filePath));
       return snippet;
     } catch (Exception e) {
-      throw new ViewConstructionException(e.toString());
+      throw new ViewConstructionException(e + "\n" + filePath);
     }
   }
 
@@ -149,7 +149,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
           }));
       return styles;
     } catch (Exception e) {
-      throw new ViewConstructionException(e.toString());
+      throw new ViewConstructionException(e + "\n" + filePath);
     }
   }
 
@@ -185,10 +185,17 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.paddingRight);
 
-    // bodyShape
-    snippet.bodyShape = readString(BhConstants.NodeStyleDef.KEY_BODY_SHAPE, jsonObj, fileName)
+    // bodyShapeInner
+    snippet.bodyShapeInner =
+        readString(BhConstants.NodeStyleDef.KEY_BODY_SHAPE_INNER, jsonObj, fileName)
         .map(val -> BodyShape.getBodyTypeFromName(val, fileName))
-        .orElse(snippet.bodyShape);
+        .orElse(snippet.bodyShapeInner);
+
+    // bodyShapeOuter
+    snippet.bodyShapeOuter =
+        readString(BhConstants.NodeStyleDef.KEY_BODY_SHAPE_OUTER, jsonObj, fileName)
+        .map(val -> BodyShape.getBodyTypeFromName(val, fileName))
+        .orElse(snippet.bodyShapeOuter);
 
     // connectorPos
     snippet.connectorPos = readString(BhConstants.NodeStyleDef.KEY_CONNECTOR_POS, jsonObj, fileName)
@@ -229,7 +236,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
     snippet.connectorShapeFixed =
         readString(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHAPE_FIXED, jsonObj, fileName)
         .map(val -> ConnectorShape.getConnectorTypeFromName(val, fileName))
-        .orElse(snippet.connectorShape);  // fixed の場合の設定が存在しない場合は, 非 fixed の設定と同じにする.
+        .orElse(snippet.connectorShapeFixed);
 
     // notchPos
     snippet.notchPos = readString(BhConstants.NodeStyleDef.KEY_NOTCH_POS, jsonObj, fileName)
@@ -256,7 +263,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
     snippet.notchShapeFixed =
         readString(BhConstants.NodeStyleDef.KEY_NOTCH_SHAPE_FIXED, jsonObj, fileName)
         .map(val -> ConnectorShape.getConnectorTypeFromName(val, fileName))
-        .orElse(snippet.notchShape); // fixed の場合の設定が存在しない場合は, 非 fixed の設定と同じにする.
+        .orElse(snippet.notchShapeFixed);
 
     // connectorBoundsRate
     snippet.connectorBoundsRate =
@@ -333,6 +340,11 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
         .map(ThrowingFunction.unchecked(
             obj -> populateArrangementStyle(new ArrangementSnippet(), obj, fileName)))
         .orElse(snippet.outer);
+
+    // outerOffset
+    snippet.outerOffset = readNumber(BhConstants.NodeStyleDef.KEY_OUTER_OFFSET, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
+        .orElse(snippet.outerOffset);
   }
 
   /**

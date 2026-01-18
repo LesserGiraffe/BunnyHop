@@ -224,8 +224,10 @@ public class MenuViewController {
     disconnectBtn.setOnAction(action -> disconnect()); // 切断
     focusSimBtn.setOnAction(
         action -> BhSettings.BhSimulator.focusOnChanged = focusSimBtn.isSelected());
+    focusSimBtn.setSelected(BhSettings.BhSimulator.focusOnChanged);
     breakpointBtn.setOnAction(
         action -> BhSettings.Debug.isBreakpointSettingEnabled  = breakpointBtn.isSelected());
+    breakpointBtn.setSelected(BhSettings.Debug.isBreakpointSettingEnabled);
     debugBtn.setOnAction(action -> debugWindowCtrl.setVisibility(debugBtn.isSelected()));
     sendBtn.setOnAction(action -> send()); // 送信
     bhRuntimeSelBtn.selectedProperty().addListener(

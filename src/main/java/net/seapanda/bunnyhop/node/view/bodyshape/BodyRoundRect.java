@@ -40,23 +40,22 @@ public class BodyRoundRect extends BodyShape {
       double bodyHeight,
       ConnectorShape connector,
       ConnectorShape notch) {
-
     double cnctrWidth = style.connectorWidth;
     double cnctrHeight = style.connectorHeight;
     double cnctrShift = style.connectorShift;
     double notchWidth = style.notchWidth;
     double notchHeight = style.notchHeight;
 
-    ArrayList<Double> bodyVertices = null;
-    bodyVertices = new ArrayList<>(Arrays.asList(
-       0.0,                                        0.0 + 0.2 * BhConstants.Ui.NODE_SCALE,
-       0.0 + 0.2 * BhConstants.Ui.NODE_SCALE,        0.0,
-       bodyWidth - 0.2 * BhConstants.Ui.NODE_SCALE,  0.0,
-       bodyWidth,                                  0.0 + 0.2 * BhConstants.Ui.NODE_SCALE,
-       bodyWidth,                                  bodyHeight - 0.2 * BhConstants.Ui.NODE_SCALE,
-       bodyWidth - 0.2 * BhConstants.Ui.NODE_SCALE,  bodyHeight,
-        0.0 + 0.2 * BhConstants.Ui.NODE_SCALE,       bodyHeight,
-        0.0,                                       bodyHeight - 0.2 * BhConstants.Ui.NODE_SCALE));
+    double p = 0.2 * BhConstants.Ui.NODE_SCALE;
+    ArrayList<Double> bodyVertices = new ArrayList<>(Arrays.asList(
+         0.0,            0.0 + p,
+         0.0 + p,        0.0,
+         bodyWidth - p,  0.0,
+         bodyWidth,      0.0 + p,
+         bodyWidth,      bodyHeight - p,
+         bodyWidth - p,  bodyHeight,
+          0.0 + p,       bodyHeight,
+          0.0,           bodyHeight - p));
 
     List<Double> notchVertices =
         createNotchVertices(notch, style.notchPos, notchWidth, notchHeight, bodyWidth, bodyHeight);

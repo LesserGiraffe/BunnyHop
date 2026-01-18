@@ -1,8 +1,7 @@
 <Node
   type="text"
   bhNodeID="idSyncTimerVarVoid" 
-  name="SyncTimerVarVoid" 
-  nodeStyleID="SyncTimerVarVoid.json"
+  name="SyncTimerVarVoid"
   breakpoint="ignore"
   text="_syncTimer.nil"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"

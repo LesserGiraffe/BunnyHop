@@ -1,14 +1,5 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 6.25,
-  "paddingRight" : 2.5,
-  "connectorPos" : "Top",
-  "connectorShift" : 1.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "CHAR_T",
-  "connectorBoundsRate" : 1.95,
+  "import" : ["../../../../Common/VarDecl.json"],
   "cssClass" : "colorType",
 
   "connective" : {
@@ -16,9 +7,6 @@
       "arrangement" : "Row",
       "space" : 2.0,
       "connectorList" : ["ListName", "${L2}{[...]}"]
-    },
-    "outer" : {
-      "connectorList" : ["NextVarDecl"]
     }
   }
 }

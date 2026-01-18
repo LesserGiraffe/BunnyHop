@@ -1,8 +1,7 @@
 <Node
   type="text"
   bhNodeID="idSemaphoreVarVoid" 
-  name="SemaphoreVarVoid" 
-  nodeStyleID="SemaphoreVarVoid.json"
+  name="SemaphoreVarVoid"
   breakpoint="ignore"
   text="_semaphore.nil"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"

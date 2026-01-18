@@ -1,14 +1,5 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 6.25,
-  "paddingRight" : 1.5,
-  "connectorPos" : "Top",
-  "connectorShift" : 1.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "ARROW",
-  "connectorBoundsRate" : 1.95,
+  "import" : ["../../../Common/Statement.json"],
   "cssClass" : "strType",
 
   "connective" : {
@@ -16,9 +7,6 @@
       "arrangement" : "Row",
       "space" : 2.0,
       "connectorList" : ["Arg0", "${L1}{を}", "Option0", "${L1}{で出力する}"]
-    },
-    "outer" : {
-      "connectorList" : ["NextStat"]
     }
   }
 }

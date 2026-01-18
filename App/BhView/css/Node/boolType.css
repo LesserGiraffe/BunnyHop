@@ -5,11 +5,3 @@
 .boolType:isEven {
   -fx-fill: boolTypeCol;
 }
-
-.boolVarType {
-  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, boolTypeCol 50%, derive(boolTypeCol, 25%) 0mm);
-}
-
-.boolVarType:isEven {
-  -fx-fill: boolTypeCol;
-}

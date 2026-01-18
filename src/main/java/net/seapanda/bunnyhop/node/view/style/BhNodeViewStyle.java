@@ -38,40 +38,43 @@ public class BhNodeViewStyle {
   /** ノードスタイルに付けられたID. */
   public BhNodeViewStyleId id = BhNodeViewStyleId.NONE;
   /** ノード上部の余白. */
-  public double paddingTop = 2.5 * BhConstants.Ui.NODE_SCALE;
+  public double paddingTop = 0;
   /** ノード下部の余白. */
-  public double paddingBottom = 2.5 * BhConstants.Ui.NODE_SCALE;
+  public double paddingBottom = 0;
   /** ノード左部の余白. */
-  public double paddingLeft = 2.5 * BhConstants.Ui.NODE_SCALE;
+  public double paddingLeft = 0;
   /** ノード右部の余白. */
-  public double paddingRight = 2.5 * BhConstants.Ui.NODE_SCALE;
-  public BodyShapeType bodyShape = BodyShapeType.BODY_SHAPE_ROUND_RECT;
+  public double paddingRight = 0;
+  /** ノードが内部ノードであるときのボディの形. */
+  public BodyShapeType bodyShapeInner = BodyShapeType.NONE;
+  /** ノードが外部ノードであるときのボディの形. */
+  public BodyShapeType bodyShapeOuter = BodyShapeType.NONE;
   /** コネクタの位置. */
   public ConnectorPos connectorPos = ConnectorPos.TOP;
   /** ノードの左上からのコネクタの位置. */
-  public double connectorShift = 0.5 * BhConstants.Ui.NODE_SCALE;
+  public double connectorShift = 0;
   /** コネクタ部分の幅. */
-  public double connectorWidth = 1.5 * BhConstants.Ui.NODE_SCALE;
+  public double connectorWidth = 0;
   /** コネクタ部分の高さ. */
-  public double connectorHeight = 1.5 * BhConstants.Ui.NODE_SCALE;
+  public double connectorHeight = 0;
   /** コネクタをそろえる位置. */
   public ConnectorAlignment connectorAlignment = ConnectorAlignment.EDGE;
   /** コネクタの形. */
-  public ConnectorShapeType connectorShape = ConnectorShapeType.ARROW;
+  public ConnectorShapeType connectorShape = ConnectorShapeType.NONE;
   /** 固定ノードのコネクタの形. */
-  public ConnectorShapeType connectorShapeFixed = ConnectorShapeType.ARROW;
+  public ConnectorShapeType connectorShapeFixed = ConnectorShapeType.NONE;
   /** 切り欠きの位置. */
   public NotchPos notchPos = NotchPos.RIGHT;
   /** コネクタ部分の幅. */
-  public double notchWidth = 1.5 * BhConstants.Ui.NODE_SCALE;
+  public double notchWidth = 0;
   /** コネクタ部分の高さ. */
-  public double notchHeight = 1.5 * BhConstants.Ui.NODE_SCALE;
+  public double notchHeight = 0;
   /** 切り欠きの形. */
   public ConnectorShapeType notchShape =  ConnectorShapeType.NONE;
   /** 固定ノードの切り欠きの形. */
   public ConnectorShapeType notchShapeFixed =  ConnectorShapeType.NONE;
   /** ドラッグ&ドロップ時などに適用されるコネクタの範囲. */
-  public double connectorBoundsRate = 2.0;
+  public double connectorBoundsRate = 0;
   public String[] cssClasses = { "defaultNode" };
   /** {@link BhNodeView} の種類. */
   public ComponentType component = ComponentType.NONE;
@@ -103,7 +106,8 @@ public class BhNodeViewStyle {
     paddingBottom = org.paddingBottom;
     paddingLeft = org.paddingLeft;
     paddingRight = org.paddingRight;
-    bodyShape = org.bodyShape;
+    bodyShapeInner = org.bodyShapeInner;
+    bodyShapeOuter = org.bodyShapeOuter;
     connectorPos = org.connectorPos;
     connectorShift = org.connectorShift;
     connectorAlignment = org.connectorAlignment;
@@ -136,17 +140,42 @@ public class BhNodeViewStyle {
    * @return コネクタの大きさ
    */
   public Vec2D getConnectorSize(boolean isFixed) {
-    ConnectorShapeType
-        shape = isFixed ? connectorShapeFixed : connectorShape;
-    double cnctrWidth = (shape == ConnectorShapeType.NONE) ? 0 : connectorWidth;
-    double cnctrHeight = (shape == ConnectorShapeType.NONE) ? 0 : connectorHeight;
-    return new Vec2D(cnctrWidth, cnctrHeight);
+    ConnectorShapeType shape = isFixed ? connectorShapeFixed : connectorShape;
+    double width = (shape == ConnectorShapeType.NONE) ? 0 : connectorWidth;
+    double height = (shape == ConnectorShapeType.NONE) ? 0 : connectorHeight;
+    return new Vec2D(width, height);
   }
+
+  /**
+   * 切り欠きの大きさを取得する.
+   *
+   * @param isFixed 描画対象が固定ノードの場合 true を指定すること.
+   * @return 切り欠きの大きさ
+   */
+  public Vec2D getNotchSize(boolean isFixed) {
+    ConnectorShapeType shape = isFixed ? notchShapeFixed : notchShape;
+    double width = (shape == ConnectorShapeType.NONE) ? 0 : notchWidth;
+    double height = (shape == ConnectorShapeType.NONE) ? 0 : notchHeight;
+    return new Vec2D(width, height);
+  }
+
+  /**
+   * ボディの形状を取得する.
+   *
+   * @param isInner 描画対象が内部ノードの場合 true を指定すること.
+   * @return ボディの形状
+   */
+  public BodyShapeType getBodyShape(boolean isInner) {
+    return isInner ? bodyShapeInner : bodyShapeOuter;
+  }
+
 
   /** {@link ConnectiveNodeView} に特有のパラメータ. */
   public static class Connective {
     public Arrangement inner = new Arrangement();
     public Arrangement outer = new Arrangement();
+    /** ノードの外部に描画するノードグループのノードの下端または右端からのオフセット. */
+    public double outerOffset = 0.0;
 
     private Connective() {}
 
@@ -154,13 +183,14 @@ public class BhNodeViewStyle {
     private Connective(Connective org) {
       inner = new Arrangement(org.inner);
       outer = new Arrangement(org.outer);
+      outerOffset = org.outerOffset;
     }
   }
 
   /** ノードの内部に描画するノードの並べ方のパラメータ. */
   public static class Arrangement {
     /** ノード内部に描画するノード同士の間隔. */
-    public double space = 2.5 * BhConstants.Ui.NODE_SCALE;
+    public double space = 0;
     /** 内部ノード上部の余白. */
     public double paddingTop = 0;
     /** 内部ノード右部の余白. */
@@ -192,7 +222,7 @@ public class BhNodeViewStyle {
 
   /** テキストフィールドのパラメータ. */
   public static class TextField {
-    public double minWidth = 0 * BhConstants.Ui.NODE_SCALE;
+    public double minWidth = 0;
     public boolean editable = true;
     public String cssClass = "defaultTextField";
 
@@ -230,8 +260,8 @@ public class BhNodeViewStyle {
 
   /** テキストエリアのパラメータ. */
   public static class TextArea {
-    public double minWidth = 4 * BhConstants.Ui.NODE_SCALE;
-    public double minHeight = 3 * BhConstants.Ui.NODE_SCALE;
+    public double minWidth = 0;
+    public double minHeight = 0;
     public boolean editable = true;
     public String cssClass = "defaultTextArea";
 

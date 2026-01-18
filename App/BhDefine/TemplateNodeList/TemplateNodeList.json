@@ -73,12 +73,12 @@
       "idPlayMelodyStat",
       "idSetAudioVolumeStat",
       "idGetAudioVolumeExp",
+      "idMeasureSoundPressureExp",
       "idRecordAudioStat",
       "idPlayAudioStat",
       "idGetAudioFilesExp",
       "idDeleteAudioFileStat",
-      "idDeleteAudioFilesStat",
-      "idMeasureSoundPressureExp"]
+      "idDeleteAudioFilesStat"]
   },
   
   "${node-category}{color}": {

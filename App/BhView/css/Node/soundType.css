@@ -5,11 +5,3 @@
 .soundType:isEven {
   -fx-fill: soundTypeCol;
 }
-
-.soundVarType {
-  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, soundTypeCol 50%, derive(soundTypeCol, 20%) 0mm);
-}
-
-.soundVarType:isEven {
-  -fx-fill: soundTypeCol;
-}

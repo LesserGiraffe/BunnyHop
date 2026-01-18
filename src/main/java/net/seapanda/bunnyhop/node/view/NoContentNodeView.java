@@ -25,6 +25,7 @@ import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeType;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.ConnectorAlignment;
 import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.NotchPos;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.SimpleCache;
@@ -35,9 +36,9 @@ public class NoContentNodeView extends BhNodeViewBase {
 
   private final TextNode model;
   /** コネクタ部分を含まないノードサイズのキャッシュデータ. */
-  private final SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<>(new Vec2D());
   /** コネクタ部分を含むノードサイズのキャッシュデータ. */
-  private final SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<>(new Vec2D());
 
   /**
    * コンストラクタ.
@@ -52,10 +53,18 @@ public class NoContentNodeView extends BhNodeViewBase {
     this.model = model;
     getLookManager().addCssClass(BhConstants.Css.CLASS_NO_CONTENT_NODE);
     setMouseTransparent(true);
-    getLookManager().setBodyShapeGetter(() -> {
-      boolean inner = parent == null || parent.inner;
-      return inner ? viewStyle.bodyShape : BodyShapeType.BODY_SHAPE_NONE;
-    });
+    // 親グループに依存してノードの大きさが変わるので, 親グループが変わったときにキャッシュを無効化する
+    if (viewStyle.bodyShapeInner != viewStyle.bodyShapeOuter) {
+      getCallbackRegistry().getOnParentGroupChanged().add(event -> {
+        if (event.oldParent() != null
+            && event.newParent() != null
+            && event.oldParent().inner == event.newParent().inner) {
+          return;
+        }
+        nodeSizeCache.setDirty(true);
+        nodeWithCnctrSizeCache.setDirty(true);
+      });
+    }
   }
 
   /** ノードサイズのキャッシュ値を更新する. */
@@ -98,6 +107,7 @@ public class NoContentNodeView extends BhNodeViewBase {
     }
 
     var nodeSize = calcBodySize();
+    updateNodeSizeCache(false, nodeSize);
     if (includeCnctr) {
       Vec2D cnctrSize = getRegionManager().getConnectorSize();
       if (viewStyle.connectorPos == ConnectorPos.LEFT) {
@@ -105,21 +115,40 @@ public class NoContentNodeView extends BhNodeViewBase {
       } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
         nodeSize = calcSizeIncludingTopConnector(nodeSize, cnctrSize);
       }
+      updateNodeSizeCache(true, nodeSize);
     }
-    updateNodeSizeCache(includeCnctr, nodeSize);
     return nodeSize;
   }
 
   /** ノードのボディ部分のサイズを求める. */
   private Vec2D calcBodySize() {
-    boolean inner = (parent == null) ? true : parent.inner;
-    if (inner) {
-      Vec2D commonPartSize = getRegionManager().getCommonPartSize();
-      return new Vec2D(
-          viewStyle.paddingLeft + commonPartSize.x + viewStyle.paddingRight,
-          viewStyle.paddingTop + commonPartSize.y + viewStyle.paddingBottom);
+    if (!nodeSizeCache.isDirty()) {
+      return new Vec2D(nodeSizeCache.getVal());
     }
-    return new Vec2D();
+    Vec2D commonPartSize = getRegionManager().getCommonPartSize();
+    return addPaddingAndNotch(commonPartSize);
+  }
+
+  /**
+   * {@param size} にパディングと切り欠き部分の大きさを加えて返す.
+   *
+   * @param size このサイズにパディングと切り欠き部分の大きさを加える
+   */
+  private Vec2D addPaddingAndNotch(Vec2D size) {
+    if (getLookManager().getBodyShape() == BodyShapeType.NONE) {
+      return size;
+    }
+    double width = viewStyle.paddingLeft + size.x + viewStyle.paddingRight;
+    double height = viewStyle.paddingTop + size.y + viewStyle.paddingBottom;
+    Vec2D notchSize = getRegionManager().getNotchSize();
+    if (viewStyle.notchPos == NotchPos.RIGHT) {
+      width += notchSize.x;
+      height = Math.max(height, notchSize.y);
+    } else if (viewStyle.notchPos == NotchPos.BOTTOM) {
+      width = Math.max(width, notchSize.x);
+      height += notchSize.y;
+    }
+    return new Vec2D(width, height);
   }
 
   /**

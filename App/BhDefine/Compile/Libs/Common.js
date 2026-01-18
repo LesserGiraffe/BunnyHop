@@ -239,6 +239,14 @@ function _isNumInfinite(num) {
   return num === Number.POSITIVE_INFINITY || num === Number.NEGATIVE_INFINITY;
 }
 
+function _isNumPosInf(num) {
+  return num === Number.POSITIVE_INFINITY;
+}
+
+function _isNumNegInf(num) {
+  return num === Number.NEGATIVE_INFINITY;
+}
+
 function _println(arg) {
   bhScriptHelper.io.println(_str(arg));
 }
@@ -866,10 +874,10 @@ function _playMelodies(soundList, reverse) {
   let soundListCopy = [];
   if (!reverse) {
     for (let i = soundList.length - 1; i >= 0; --i)
-      soundListCopy.push(soundList[i]);
+      soundListCopy.push(soundList[i]._clone());
   } else {
     for (let i = 0; i < soundList.length; ++i)
-      soundListCopy.push(soundList[i]);
+      soundListCopy.push(soundList[i]._clone());
   }
   // waveBuf のサイズを大きくしすぎると RaspberryPi で正常に音が出なくなる.
   let waveBuf = _jReflectArray.newInstance(_jByteType, _samplingRate * _bytesPerSample / 2);
@@ -921,6 +929,10 @@ function _Sound(hz, duration, amp) {
   this.hz = hz;
   this.duration = duration;
   this.amp = amp;
+}
+
+_Sound.prototype._clone = function() {
+  return new _Sound(this.hz, this.duration, this.amp);
 }
 
 function _createSound(volume, hz, duration) {

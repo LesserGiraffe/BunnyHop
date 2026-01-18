@@ -1,0 +1,21 @@
+{
+  "paddingTop" : 1.0,
+  "paddingBottom" : 1.0,
+  "paddingLeft" : 1.0,
+  "paddingRight" : 1.0,
+  "bodyShapeInner" : "RoundRect",
+  "bodyShapeOuter" : "RoundRect",
+  "connectorPos" : "Left",
+  "connectorShift" : 0.0,
+  "connectorWidth" : 0.0,
+  "connectorHeight" : 0.0,
+  "connectorShape" : "None",
+  "connectorShapeFixed" : "None",
+  "connectorBoundsRate" : 0.0,
+
+  "connective" : {
+    "outer" : {
+      "connectorList" : ["NextArg"]
+    }
+  }
+}

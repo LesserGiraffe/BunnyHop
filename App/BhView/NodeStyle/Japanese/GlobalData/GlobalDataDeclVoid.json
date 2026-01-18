@@ -1,14 +1,10 @@
 {
+  "import" : ["../../Common/GlobalDataDecl.json"],
   "component" : "None",
   "paddingTop" : 1.0,
   "paddingBottom" : 1.0,
   "paddingLeft" : 1.75,
-  "paddingRight" : 3.75,
-  "connectorPos" : "Top",
-  "connectorShift" : 1.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "INV_PENTAGON",
-  "connectorBoundsRate" : 1.95,
+  "paddingRight" : 4.66,
+  "bodyShapeOuter" : "None",
   "cssClass" : "voidType"
 }

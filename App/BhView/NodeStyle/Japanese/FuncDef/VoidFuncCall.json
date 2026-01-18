@@ -1,30 +1,36 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 6.25,
-  "paddingRight" : 2.5,
-  "connectorPos" : "Top",
-  "connectorShift" : 1.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "ARROW",
-  "connectorBoundsRate" : 1.95,
+  "import" : ["../../Common/Statement.json"],
   "cssClass" : "voidFuncType",
 
   "connective" : {
     "inner" : {
       "space" : 1.5,
       "arrangement" : "Column",
-      "connectorList" : ["FuncName"],
+
       "subGroup0" : {
-        "space" : 1.5,
-        "arrangement" : "Row",
-        "connectorList" : ["${L2}{入力}", "Arg"]
+        "connectorList" : ["FuncName"]
       },
       "subGroup1" : {
         "space" : 1.5,
         "arrangement" : "Row",
-        "connectorList" : ["${L2}{出力}", "OutArg"]
+
+        "subGroup0" : {
+          "connectorList" : ["${L2}{入力}"]
+        },
+        "subGroup1" : {
+          "connectorList" : ["Arg"]
+        }
+      },
+      "subGroup2" : {
+        "space" : 1.5,
+        "arrangement" : "Row",
+
+        "subGroup0" : {
+          "connectorList" : ["${L2}{出力}"]
+        },
+        "subGroup1" : {
+          "connectorList" : ["OutArg"]
+        }
       }
     },
     
@@ -33,4 +39,3 @@
     }
   }
 }
-

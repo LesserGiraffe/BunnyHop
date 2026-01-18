@@ -15,7 +15,7 @@
   version="bhn-0.1.0">
 
   <ConnectorSection name="StatSctn">
-    
+
     <Connector
       bhConnectorID="idPlaySoundListStat.cnctr0"
       import="idAnyFixedCnctr"

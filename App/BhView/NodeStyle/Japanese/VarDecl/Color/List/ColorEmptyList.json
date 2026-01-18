@@ -1,0 +1,12 @@
+{
+  "import" : ["../../../../Common/EmptyList.json"],
+  "connectorShape" : "CharV",
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 0.0,
+      "connectorList" : ["${L1}{[...]}"]
+    }
+  }
+}

@@ -1,9 +1,21 @@
 {
-  "connectorBoundsRate" : 1.95,
-  "connectorShape" : "ARROW",
-  "connectorPos" : "Top",
   "paddingTop" : 1.0,
   "paddingBottom" : 1.0,
   "paddingLeft" : 6.25,
-  "paddingRight" : 1.5
+  "paddingRight" : 1.5,
+  "bodyShapeInner" : "RoundRect",
+  "bodyShapeOuter" : "RoundRect",
+  "connectorPos" : "Top",
+  "connectorShape" : "Arrow",
+  "connectorShift" : 1.0,
+  "connectorWidth" : 4.25,
+  "connectorHeight" : 4.25,
+  "connectorBoundsRate" : 1.95,
+
+  "connective" : {
+    "outerOffset" : -4.25,
+    "outer" : {
+      "connectorList" : ["NextStat"]
+    }
+  }
 }

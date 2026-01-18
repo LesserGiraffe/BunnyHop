@@ -1,0 +1,13 @@
+{
+  "paddingTop" : 1.0,
+  "paddingBottom" : 1.0,
+  "paddingLeft" : 1.5,
+  "paddingRight" : 1.5,
+  "bodyShapeInner" : "RoundRect",
+  "bodyShapeOuter" : "RoundRect",
+  "connectorPos" : "Left",
+  "connectorShift" : 0.0,
+  "connectorWidth" : 4.25,
+  "connectorHeight" : 4.25,
+  "connectorBoundsRate" : 1.95
+}

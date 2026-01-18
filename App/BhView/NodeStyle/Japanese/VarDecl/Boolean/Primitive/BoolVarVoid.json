@@ -1,18 +1,4 @@
 {
-  "component" : "None",
-  "paddingTop" : 3.0,
-  "paddingBottom" : 3.0,
-  "paddingLeft" : 3.0,
-  "paddingRight" : 3.0,
-  "connectorPos" : "Left",
-  "connectorShift" : 0.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "CROSS",
-  "connectorBoundsRate" : 1.95,
-  "notchPos" : "Right",
-  "notchShape" : "TRIANGLE",
-  "notchWidth" : 1.5,
-  "notchHeight" : 1.5,
-  "cssClass" : "voidVarType"
+  "import" : ["../../../../Common/VarVoid.json"],
+  "connectorShape" : "Cross"
 }

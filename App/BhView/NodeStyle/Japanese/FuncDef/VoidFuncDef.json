@@ -1,36 +1,44 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 2.5,
-  "paddingRight" : 2.5,
-  "connectorPos" : "Left",
-  "connectorShift" : 0.0,
-  "connectorWidth" : 0.0,
-  "connectorHeight" : 0.0,
-  "connectorShape" : "NONE",
-  "connectorBoundsRate" : 1.95,
+  "import" : ["../../Common/Event.json"],
   "cssClass" : "voidFuncDefType",
-    
+
   "connective" : {
     "inner" : {
       "arrangement" : "Column",
       "space" : 2.0,
-      "connectorList" : ["FuncName"],
+
       "subGroup0" : {
+        "connectorList" : ["FuncName"]
+      },
+      "subGroup1" : {
         "arrangement" : "Column",
         "space" : 2.0,
+
         "subGroup0" : {
           "arrangement" : "Row",
           "space" : 2.0,
+
           "subGroup0" : {
             "arrangement" : "Column",
             "space" : 1.0,
-            "connectorList" : ["${L1}{入力}", "ParamDecl"]
+
+            "subGroup0" : {
+              "connectorList" : ["${L1}{入力}"]
+            },
+            "subGroup1" : {
+              "connectorList" : ["ParamDecl"]
+            }
           },
           "subGroup1" : {
             "arrangement" : "Column",
             "space" : 1.0,
-            "connectorList" : ["${L1}{出力}", "OutParamDecl"]
+
+            "subGroup0" : {
+              "connectorList" : ["${L1}{出力}"]
+            },
+            "subGroup1" : {
+              "connectorList" : ["OutParamDecl"]
+            }
           }
         },
         "subGroup1" : {

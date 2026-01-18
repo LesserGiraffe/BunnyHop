@@ -1,0 +1,13 @@
+{
+  "component" : "None",
+  "paddingTop" : 0.0,
+  "paddingBottom" : 0.0,
+  "paddingLeft" : 0.0,
+  "paddingRight" : 0.0,
+  "bodyShapeInner" : "None",
+  "bodyShapeOuter" : "None",
+  "connectorShape" : "None",
+  "connectorShapeFixed" : "None",
+  "notchShape" : "None",
+  "notchShapeFixed" : "None"
+}

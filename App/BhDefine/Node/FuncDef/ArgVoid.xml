@@ -1,8 +1,7 @@
 <Node
   type="text"
   bhNodeID="idArgVoid" 
-  name="ArgVoid" 
-  nodeStyleID="ArgVoid.json"
+  name="ArgVoid"
   breakpoint="ignore"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0"/>

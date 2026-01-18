@@ -5,11 +5,3 @@
 .strType:isEven {
   -fx-fill: strTypeCol;
 }
-
-.strVarType {
-  -fx-fill: linear-gradient(from 0mm 0mm to 1.2mm 1.2mm, repeat, strTypeCol 50%, derive(strTypeCol, 20%) 0mm);
-}
-
-.strVarType:isEven {
-  -fx-fill: strTypeCol;
-}

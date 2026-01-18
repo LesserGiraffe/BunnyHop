@@ -1,16 +1,5 @@
 {
-  "paddingTop" : 0.0,
-  "paddingBottom" : 0.0,
-  "paddingLeft" : 0.0,
-  "paddingRight" : 0.0,
-  "bodyShape" : "NONE",
-  "connectorPos" : "Top",
-  "connectorShift" : 1.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "NONE",
-  "connectorBoundsRate" : 1.95,
-  "cssClass" : "soundType",
+  "import" : ["../../../Common/Bodiless.json"],
 
   "connective" : {
     "inner" : {

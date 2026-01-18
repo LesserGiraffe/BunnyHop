@@ -1,0 +1,9 @@
+{
+  "import" : ["./Statement.json"],
+  "paddingLeft" : 1.5,
+  "cssClass" : "controlType",
+
+  "connective" : {
+    "outer" : {}
+  }
+}

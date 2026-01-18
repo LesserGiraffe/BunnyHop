@@ -1,14 +1,6 @@
 {
-  "paddingTop" : 1.75,
-  "paddingBottom" : 1.75,
-  "paddingLeft" : 2.0,
-  "paddingRight" : 2.0,
-  "connectorPos" : "Left",
-  "connectorShift" : 0.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "CHAR_U",
-  "connectorBoundsRate" : 1.95,
+  "import" : ["../../Common/LiteralExp.json"],
+  "connectorShape" : "CharU",
   "cssClass" : "soundType",
     
   "connective" : {

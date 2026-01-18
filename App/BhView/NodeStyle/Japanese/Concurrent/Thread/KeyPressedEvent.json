@@ -1,17 +1,8 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 2.5,
-  "paddingRight" : 2.5,
-  "connectorPos" : "Left",
-  "connectorShift" : 0.0,
-  "connectorWidth" : 0.0,
-  "connectorHeight" : 0.0,
-  "connectorShape" : "NONE",
-  "connectorBoundsRate" : 1.95,
+  "import" : ["../../../Common/Event.json"],
   "cssClass" : "keyPressedEventType",
     
-    "connective" : {
+  "connective" : {
     "inner" : {
       "arrangement" : "Column",
       "space" : 2.0,

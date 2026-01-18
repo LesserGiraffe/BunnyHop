@@ -71,8 +71,7 @@ class ExpCodeGenerator {
       return genLiteral(code, expNode, nestLevel, option);
 
     } else if (SymbolNames.Literal.EXP_LIST.contains(expSymbolName)) {
-      return genExpression(
-          expNode.findDescendantOf("*", "Literal", "*"), code, nestLevel, option);
+      return genExpression(expNode.findDescendantOf("*", "Literal", "*"), code, nestLevel, option);
 
     } else if (SymbolNames.PreDefFunc.EXP_LIST.contains(expSymbolName)) {
       return genPreDefFuncCallExp(expNode, code, nestLevel, option, true);

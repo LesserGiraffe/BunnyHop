@@ -1,0 +1,5 @@
+{
+  "import" : ["./Variable.json"],
+  "connectorShape" : "None",
+  "cssClass" : "concurrentType"
+}

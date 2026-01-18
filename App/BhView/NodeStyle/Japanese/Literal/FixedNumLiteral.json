@@ -1,18 +1,10 @@
 {
+  "import" : ["../../Common/LiteralExp.json"],
   "component" : "TextField",
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 1.5,
-  "paddingRight" : 1.5,
-  "connectorPos" : "Left",
-  "connectorShift" : 0.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "NONE",
-  "connectorBoundsRate" : 1.95,
+  "connectorShape" : "None",
   "cssClass" : "numType",
     
-    "textField" : {
+  "textField" : {
     "minWidth": 3.0
   }
 }

@@ -26,6 +26,7 @@ import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.ConnectorAlignment;
 import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.NotchPos;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.SimpleCache;
@@ -41,9 +42,9 @@ public final class LabelNodeView extends BhNodeViewBase {
   private final Label label = new Label();
   private final TextNode model;
   /** コネクタ部分を含まないノードサイズのキャッシュデータ. */
-  private final SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<>(new Vec2D());
   /** コネクタ部分を含むノードサイズのキャッシュデータ. */
-  private final SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<>(new Vec2D());
 
   /**
    * コンストラクタ.
@@ -119,6 +120,7 @@ public final class LabelNodeView extends BhNodeViewBase {
     }
 
     Vec2D nodeSize = calcBodySize();
+    updateNodeSizeCache(false, nodeSize);
     if (includeCnctr) {
       Vec2D cnctrSize = getRegionManager().getConnectorSize();
       if (viewStyle.connectorPos == ConnectorPos.LEFT) {
@@ -126,27 +128,47 @@ public final class LabelNodeView extends BhNodeViewBase {
       } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
         nodeSize = calcSizeIncludingTopConnector(nodeSize, cnctrSize);
       }
+      updateNodeSizeCache(true, nodeSize);
     }
-    updateNodeSizeCache(includeCnctr, nodeSize);
     return nodeSize;
   }
 
   /** ノードのボディ部分のサイズを求める. */
   private Vec2D calcBodySize() {
+    if (!nodeSizeCache.isDirty()) {
+      return new Vec2D(nodeSizeCache.getVal());
+    }
     Vec2D commonPartSize = getRegionManager().getCommonPartSize();
     Vec2D innerSize = switch (viewStyle.baseArrangement) {
       case ROW ->
-        new Vec2D(
-            commonPartSize.x + label.getWidth(),
-            Math.max(commonPartSize.y, label.getHeight()));
+          new Vec2D(
+              commonPartSize.x + label.getWidth(),
+              Math.max(commonPartSize.y, label.getHeight()));
       case COLUMN ->
-        new Vec2D(
-            Math.max(commonPartSize.x, label.getWidth()),
-            commonPartSize.y + label.getHeight());
+          new Vec2D(
+              Math.max(commonPartSize.x, label.getWidth()),
+              commonPartSize.y + label.getHeight());
     };
-    return new Vec2D(
-        viewStyle.paddingLeft + innerSize.x + viewStyle.paddingRight,
-        viewStyle.paddingTop + innerSize.y + viewStyle.paddingBottom);
+    return addPaddingAndNotch(innerSize);
+  }
+
+  /**
+   * {@param size} にパディングと切り欠き部分の大きさを加えて返す.
+   *
+   * @param size このサイズにパディングと切り欠き部分の大きさを加える
+   */
+  private Vec2D addPaddingAndNotch(Vec2D size) {
+    double width = viewStyle.paddingLeft + size.x + viewStyle.paddingRight;
+    double height = viewStyle.paddingTop + size.y + viewStyle.paddingBottom;
+    Vec2D notchSize = getRegionManager().getNotchSize();
+    if (viewStyle.notchPos == NotchPos.RIGHT) {
+      width += notchSize.x;
+      height = Math.max(height, notchSize.y);
+    } else if (viewStyle.notchPos == NotchPos.BOTTOM) {
+      width = Math.max(width, notchSize.x);
+      height += notchSize.y;
+    }
+    return new Vec2D(width, height);
   }
 
   /**

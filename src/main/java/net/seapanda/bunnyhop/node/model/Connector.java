@@ -48,8 +48,6 @@ public class Connector extends SyntaxSymbol {
   private BhNode connectedNode;
   /** このオブジェクトを保持する ConnectorSection オブジェクト. */
   private final ConnectorSection parent;
-  /** 外部描画ノードを接続するコネクタの場合true. */
-  private boolean outer = false;
   /** {@link BhNode} 生成用オブジェクト. */
   private final transient BhNodeFactory factory;
   /** このコネクタ対して定義されたイベントハンドラを呼び出すためのオブジェクト. */
@@ -291,12 +289,13 @@ public class Connector extends SyntaxSymbol {
 
   @Override
   public void show(int depth) {
-    System.out.println("%s<Connector bhID=%s nodeID=%s parent=%s>  %s".formatted(
+    System.out.printf(
+        "%s<Connector bhID=%s nodeID=%s parent=%s>  %s%n",
         indent(depth),
         params.connectorId(),
         connectedNode.getId(),
         parent.getSerialNo(),
-        getSerialNo()));
+        getSerialNo());
     connectedNode.show(depth + 1);
   }
 

@@ -31,9 +31,11 @@ import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.TextNode;
+import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeType;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.ConnectorAlignment;
 import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.NotchPos;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
@@ -188,6 +190,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
     }
 
     Vec2D nodeSize = calcBodySize();
+    updateNodeSizeCache(false, nodeSize);
     if (includeCnctr) {
       Vec2D cnctrSize = getRegionManager().getConnectorSize();
       if (viewStyle.connectorPos == ConnectorPos.LEFT) {
@@ -195,13 +198,16 @@ public final class TextFieldNodeView extends TextInputNodeView {
       } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
         nodeSize = calcSizeIncludingTopConnector(nodeSize, cnctrSize);
       }
+      updateNodeSizeCache(true, nodeSize);
     }
-    updateNodeSizeCache(includeCnctr, nodeSize);
     return nodeSize;
   }
 
   /** ノードのボディ部分のサイズを求める. */
   private Vec2D calcBodySize() {
+    if (!nodeSizeCache.isDirty()) {
+      return new Vec2D(nodeSizeCache.getVal());
+    }
     Vec2D commonPartSize = getRegionManager().getCommonPartSize();
     Vec2D innerSize = switch (viewStyle.baseArrangement) {
       case ROW ->
@@ -214,9 +220,29 @@ public final class TextFieldNodeView extends TextInputNodeView {
               Math.max(commonPartSize.x, textField.getPrefWidth()),
               commonPartSize.y + textField.getHeight());
     };
-    return new Vec2D(
-        viewStyle.paddingLeft + innerSize.x + viewStyle.paddingRight,
-        viewStyle.paddingTop + innerSize.y + viewStyle.paddingBottom);
+    return addPaddingAndNotch(innerSize);
+  }
+
+  /**
+   * {@param size} にパディングと切り欠き部分の大きさを加えて返す.
+   *
+   * @param size このサイズにパディングと切り欠き部分の大きさを加える
+   */
+  private Vec2D addPaddingAndNotch(Vec2D size) {
+    if (getLookManager().getBodyShape() == BodyShapeType.NONE) {
+      return size;
+    }
+    double width = viewStyle.paddingLeft + size.x + viewStyle.paddingRight;
+    double height = viewStyle.paddingTop + size.y + viewStyle.paddingBottom;
+    Vec2D notchSize = getRegionManager().getNotchSize();
+    if (viewStyle.notchPos == NotchPos.RIGHT) {
+      width += notchSize.x;
+      height = Math.max(height, notchSize.y);
+    } else if (viewStyle.notchPos == NotchPos.BOTTOM) {
+      width = Math.max(width, notchSize.x);
+      height += notchSize.y;
+    }
+    return new Vec2D(width, height);
   }
 
   /**

@@ -7,16 +7,16 @@ import java.util.Map;
  * ボディの形の識別子を定義した列挙型.
  */
 public enum BodyShapeType {
-  BODY_SHAPE_ROUND_RECT("ROUND_RECT", new BodyRoundRect()),
-  BODY_SHAPE_NONE("NONE", new BodyNone());
+  ROUND_RECT("RoundRect", new BodyRoundRect()),
+  NONE("None", new BodyNone());
 
   public final String name;
   public final BodyShape shape;
   private static final Map<String, BodyShapeType> shapeNameToBodyShape =
       new HashMap<>() {{
-        put(BodyShapeType.BODY_SHAPE_ROUND_RECT.name, BodyShapeType.BODY_SHAPE_ROUND_RECT);
-        put(BodyShapeType.BODY_SHAPE_NONE.name, BodyShapeType.BODY_SHAPE_NONE);
-      }};
+          put(BodyShapeType.ROUND_RECT.name, BodyShapeType.ROUND_RECT);
+          put(BodyShapeType.NONE.name, BodyShapeType.NONE);
+        }};
 
   BodyShapeType(String shapeName, BodyShape shape) {
     name = shapeName;

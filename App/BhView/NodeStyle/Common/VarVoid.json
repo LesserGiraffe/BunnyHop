@@ -1,0 +1,9 @@
+{
+  "import" : ["./Variable.json"],
+  "component" : "None",
+  "paddingTop" : 3.0,
+  "paddingBottom" : 3.0,
+  "paddingLeft" : 2.25,
+  "paddingRight" : 2.25,
+  "cssClass" : "voidType"
+}

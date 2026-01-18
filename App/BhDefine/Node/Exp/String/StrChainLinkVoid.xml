@@ -2,7 +2,6 @@
   type="text"
   bhNodeID="idStrChainLinkVoid"
   name="StrChainLinkVoid"
-  nodeStyleID="StrChainLinkExpVoid.json"
   breakpoint="specifyParent"
   text="''"
   onAliasAsked="OnAliasAsked.js"

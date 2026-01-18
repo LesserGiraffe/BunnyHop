@@ -50,7 +50,8 @@ class BhNodeViewStyleSnippet {
   Double paddingBottom = null;
   Double paddingLeft = null;
   Double paddingRight = null;
-  BodyShapeType bodyShape = null;
+  BodyShapeType bodyShapeInner = null;
+  BodyShapeType bodyShapeOuter = null;
   ConnectorPos connectorPos = null;
   Double connectorShift = null;
   Double connectorWidth = null;
@@ -107,7 +108,8 @@ class BhNodeViewStyleSnippet {
     style.paddingBottom = findPaddingBottom(style.paddingBottom);
     style.paddingLeft = findPaddingLeft(style.paddingLeft);
     style.paddingRight = findPaddingRight(style.paddingRight);
-    style.bodyShape = findBodyShape(style.bodyShape);
+    style.bodyShapeInner = findBodyShapeInner(style.bodyShapeInner);
+    style.bodyShapeOuter = findBodyShapeOuter(style.bodyShapeOuter);
     style.connectorPos = findConnectorPos(style.connectorPos);
     style.connectorShift = findConnectorShift(style.connectorShift);
     style.connectorWidth = findConnectorWidth(style.connectorWidth);
@@ -124,13 +126,13 @@ class BhNodeViewStyleSnippet {
     style.cssClasses = findCssClasses(style.cssClasses);
     style.component = findComponent(style.component);
     style.baseArrangement = findBaseArrangement(style.baseArrangement);
-    connective.populateStyle(style.connective, snippet -> connective);
-    commonPart.populateStyle(style.commonPart, snippet -> commonPart);
-    specificPart.populateStyle(style.specificPart, snippet -> specificPart);
-    textField.populateStyle(style.textField, snippet -> textField);
-    label.populateStyle(style.label, snippet -> label);
-    comboBox.populateStyle(style.comboBox, snippet -> comboBox);
-    textArea.populateStyle(style.textArea, snippet -> textArea);
+    connective.populateStyle(style.connective, snippet -> snippet.connective);
+    commonPart.populateStyle(style.commonPart, snippet -> snippet.commonPart);
+    specificPart.populateStyle(style.specificPart, snippet -> snippet.specificPart);
+    textField.populateStyle(style.textField, snippet -> snippet.textField);
+    label.populateStyle(style.label, snippet -> snippet.label);
+    comboBox.populateStyle(style.comboBox, snippet -> snippet.comboBox);
+    textArea.populateStyle(style.textArea, snippet -> snippet.textArea);
     return style;
   }
 
@@ -143,97 +145,102 @@ class BhNodeViewStyleSnippet {
    * {@link BhNodeViewStyleSnippet} が持つ null でない {@link #paddingTop} があればそれを返す.
    */
   private double findPaddingTop(double defaultVal) {
-    return find(paddingTop, snippet -> snippet.paddingTop).orElse(defaultVal);
+    return find(snippet -> snippet.paddingTop).orElse(defaultVal);
   }
 
   private double findPaddingBottom(double defaultVal) {
-    return find(paddingBottom, snippet -> snippet.paddingBottom).orElse(defaultVal);
+    return find(snippet -> snippet.paddingBottom).orElse(defaultVal);
   }
 
   private double findPaddingLeft(double defaultVal) {
-    return find(paddingLeft, snippet -> snippet.paddingLeft).orElse(defaultVal);
+    return find(snippet -> snippet.paddingLeft).orElse(defaultVal);
   }
 
   private double findPaddingRight(double defaultVal) {
-    return find(paddingRight, snippet -> snippet.paddingRight).orElse(defaultVal);
+    return find(snippet -> snippet.paddingRight).orElse(defaultVal);
   }
 
-  private BodyShapeType findBodyShape(BodyShapeType defaultVal) {
-    return find(bodyShape, snippet -> snippet.bodyShape).orElse(defaultVal);
+  private BodyShapeType findBodyShapeInner(BodyShapeType defaultVal) {
+    return find(snippet -> snippet.bodyShapeInner).orElse(defaultVal);
+  }
+
+  private BodyShapeType findBodyShapeOuter(BodyShapeType defaultVal) {
+    return find(snippet -> snippet.bodyShapeOuter).orElse(defaultVal);
   }
 
   private ConnectorPos findConnectorPos(ConnectorPos defaultVal) {
-    return find(connectorPos, snippet -> snippet.connectorPos).orElse(defaultVal);
+    return find(snippet -> snippet.connectorPos).orElse(defaultVal);
   }
 
   private double findConnectorShift(double defaultVal) {
-    return find(connectorShift, snippet -> snippet.connectorShift).orElse(defaultVal);
+    return find(snippet -> snippet.connectorShift).orElse(defaultVal);
   }
 
   private double findConnectorWidth(double defaultVal) {
-    return find(connectorWidth, snippet -> snippet.connectorWidth).orElse(defaultVal);
+    return find(snippet -> snippet.connectorWidth).orElse(defaultVal);
   }
 
   private double findConnectorHeight(double defaultVal) {
-    return find(connectorHeight, snippet -> snippet.connectorHeight).orElse(defaultVal);
+    return find(snippet -> snippet.connectorHeight).orElse(defaultVal);
   }
 
   private ConnectorAlignment findConnectorAlignment(ConnectorAlignment defaultVal) {
-    return find(connectorAlignment, snippet -> snippet.connectorAlignment).orElse(defaultVal);
+    return find(snippet -> snippet.connectorAlignment).orElse(defaultVal);
   }
 
   private ConnectorShapeType findConnectorShape(ConnectorShapeType defaultVal) {
-    return find(connectorShape, snippet -> snippet.connectorShape).orElse(defaultVal);
+    return find(snippet -> snippet.connectorShape).orElse(defaultVal);
   }
 
   private ConnectorShapeType findConnectorShapeFixed(ConnectorShapeType defaultVal) {
-    return find(connectorShapeFixed, snippet -> snippet.connectorShapeFixed).orElse(defaultVal);
+    return find(snippet -> snippet.connectorShapeFixed).orElse(defaultVal);
   }
 
   private NotchPos findNotchPos(NotchPos defaultVal) {
-    return find(notchPos, snippet -> snippet.notchPos).orElse(defaultVal);
+    return find(snippet -> snippet.notchPos).orElse(defaultVal);
   }
 
   private double findNotchWidth(double defaultVal) {
-    return find(notchWidth, snippet -> snippet.notchWidth).orElse(defaultVal);
+    return find(snippet -> snippet.notchWidth).orElse(defaultVal);
   }
 
   private double findNotchHeight(double defaultVal) {
-    return find(notchHeight, snippet -> snippet.notchHeight).orElse(defaultVal);
+    return find(snippet -> snippet.notchHeight).orElse(defaultVal);
   }
 
   private ConnectorShapeType findNotchShape(ConnectorShapeType defaultVal) {
-    return find(notchShape, snippet -> snippet.notchShape).orElse(defaultVal);
+    return find(snippet -> snippet.notchShape).orElse(defaultVal);
   }
 
   private ConnectorShapeType findNotchShapeFixed(ConnectorShapeType defaultVal) {
-    return find(notchShapeFixed, snippet -> snippet.notchShapeFixed).orElse(defaultVal);
+    return find(snippet -> snippet.notchShapeFixed).orElse(defaultVal);
   }
 
   private double findConnectorBoundsRate(double defaultVal) {
-    return find(connectorBoundsRate, snippet -> snippet.connectorBoundsRate).orElse(defaultVal);
+    return find(snippet -> snippet.connectorBoundsRate).orElse(defaultVal);
   }
 
   private String[] findCssClasses(String[] defaultVal) {
-    return find(cssClasses, snippet -> snippet.cssClasses).orElse(defaultVal);
+    return find(snippet -> snippet.cssClasses).orElse(defaultVal);
   }
 
   private ComponentType findComponent(ComponentType defaultVal) {
-    return find(component, snippet -> snippet.component).orElse(defaultVal);
+    return find(snippet -> snippet.component).orElse(defaultVal);
   }
 
   private ChildArrangement findBaseArrangement(ChildArrangement defaultVal) {
-    return find(baseArrangement, snippet -> snippet.baseArrangement).orElse(defaultVal);
+    return find(snippet -> snippet.baseArrangement).orElse(defaultVal);
   }
 
-  private <T> Optional<T> find(T obj, Function<BhNodeViewStyleSnippet, T> getter) {
-    if (obj != null) {
-      return Optional.of(obj);
+  private <T> Optional<T> find(Function<BhNodeViewStyleSnippet, T> getter) {
+    T val = getter.apply(this);
+    if (val != null) {
+      return Optional.of(val);
     }
     for (var subSnippet : subSnippets) {
-      T val = getter.apply(subSnippet);
-      if (val != null) {
-        return Optional.of(val);
+      Optional<T> valOfSub = subSnippet.find(getter);
+      if (valOfSub.isPresent()) {
+        return valOfSub;
       }
     }
     return Optional.empty();
@@ -255,17 +262,17 @@ class BhNodeViewStyleSnippet {
 
     private double findMinWidth(
         double defaultVal, Function<BhNodeViewStyleSnippet, TextFieldSnippet> getter) {
-      return find(minWidth, snippet -> getter.apply(snippet).minWidth).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).minWidth).orElse(defaultVal);
     }
 
     private boolean findEditable(
         boolean defaultVal, Function<BhNodeViewStyleSnippet, TextFieldSnippet> getter) {
-      return find(editable, snippet -> getter.apply(snippet).editable).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).editable).orElse(defaultVal);
     }
 
     private String findCssClass(
         String defaultVal, Function<BhNodeViewStyleSnippet, TextFieldSnippet> getter) {
-      return find(cssClass, snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
 
@@ -279,7 +286,7 @@ class BhNodeViewStyleSnippet {
 
     private String findCssClass(
         String defaultVal, Function<BhNodeViewStyleSnippet, LabelSnippet> getter) {
-      return find(cssClass, snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
 
@@ -293,25 +300,27 @@ class BhNodeViewStyleSnippet {
 
     private String findCssClass(
         String defaultVal, Function<BhNodeViewStyleSnippet, ComboBoxSnippet> getter) {
-      return find(cssClass, snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
 
   class ConnectiveSnippet {
     ArrangementSnippet inner = null;
     ArrangementSnippet outer = null;
+    Double outerOffset = null;
 
     private void populateStyle(
         BhNodeViewStyle.Connective style,
         Function<BhNodeViewStyleSnippet, ConnectiveSnippet> getter) {
       style.inner = findInner(style.inner, getter);
       style.outer = findOuter(style.outer, getter);
+      style.outerOffset = findOuterOffset(style.outerOffset, getter);
     }
 
     private BhNodeViewStyle.Arrangement findInner(
         BhNodeViewStyle.Arrangement defaultVal,
         Function<BhNodeViewStyleSnippet, ConnectiveSnippet> getter) {
-      return find(inner, snippet -> getter.apply(snippet).inner)
+      return find(snippet -> getter.apply(snippet).inner)
           .map(arrangement -> arrangement.populateStyle(new BhNodeViewStyle.Arrangement()))
           .orElse(defaultVal);
     }
@@ -319,9 +328,14 @@ class BhNodeViewStyleSnippet {
     private BhNodeViewStyle.Arrangement findOuter(
         BhNodeViewStyle.Arrangement defaultVal,
         Function<BhNodeViewStyleSnippet, ConnectiveSnippet> getter) {
-      return find(outer, snippet -> getter.apply(snippet).outer)
+      return find(snippet -> getter.apply(snippet).outer)
           .map(arrangement -> arrangement.populateStyle(new BhNodeViewStyle.Arrangement()))
           .orElse(defaultVal);
+    }
+
+    private double findOuterOffset(
+        double defaultVal, Function<BhNodeViewStyleSnippet, ConnectiveSnippet> getter) {
+      return find(snippet -> getter.apply(snippet).outerOffset).orElse(defaultVal);
     }
   }
 
@@ -368,22 +382,22 @@ class BhNodeViewStyleSnippet {
 
     private double findMinWidth(
         double defaultVal, Function<BhNodeViewStyleSnippet, TextAreaSnippet> getter) {
-      return find(minWidth, snippet -> getter.apply(snippet).minWidth).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).minWidth).orElse(defaultVal);
     }
 
     private double findMinHeight(
         double defaultVal, Function<BhNodeViewStyleSnippet, TextAreaSnippet> getter) {
-      return find(minHeight, snippet -> getter.apply(snippet).minHeight).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).minHeight).orElse(defaultVal);
     }
 
     private boolean findEditable(
         boolean defaultVal, Function<BhNodeViewStyleSnippet, TextAreaSnippet> getter) {
-      return find(editable, snippet -> getter.apply(snippet).editable).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).editable).orElse(defaultVal);
     }
 
     private String findCssClass(
         String defaultVal, Function<BhNodeViewStyleSnippet, TextAreaSnippet> getter) {
-      return find(cssClass, snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
 
@@ -397,7 +411,7 @@ class BhNodeViewStyleSnippet {
 
     private String findCssClass(
         String defaultVal, Function<BhNodeViewStyleSnippet, ButtonSnippet> getter) {
-      return find(cssClass, snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
 
@@ -414,12 +428,12 @@ class BhNodeViewStyleSnippet {
 
     private double findRadius(
         double defaultVal, Function<BhNodeViewStyleSnippet, BreakpointSnippet> getter) {
-      return find(radius, snippet -> getter.apply(snippet).radius).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).radius).orElse(defaultVal);
     }
 
     private String findCssClass(
         String defaultVal, Function<BhNodeViewStyleSnippet, BreakpointSnippet> getter) {
-      return find(cssClass, snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
 
@@ -436,12 +450,12 @@ class BhNodeViewStyleSnippet {
 
     private double findSize(
         double defaultVal, Function<BhNodeViewStyleSnippet, ExecStepMarkSnippet> getter) {
-      return find(size, snippet -> getter.apply(snippet).size).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).size).orElse(defaultVal);
     }
 
     private String findCssClass(
         String defaultVal, Function<BhNodeViewStyleSnippet, ExecStepMarkSnippet> getter) {
-      return find(cssClass, snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
 
@@ -458,12 +472,12 @@ class BhNodeViewStyleSnippet {
 
     private double findSize(
         double defaultVal, Function<BhNodeViewStyleSnippet, CorruptionMarkSnippet> getter) {
-      return find(size, snippet -> getter.apply(snippet).size).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).size).orElse(defaultVal);
     }
 
     private String findCssClass(
         String defaultVal, Function<BhNodeViewStyleSnippet, CorruptionMarkSnippet> getter) {
-      return find(cssClass, snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
 
@@ -480,12 +494,12 @@ class BhNodeViewStyleSnippet {
 
     private double findRadius(
         double defaultVal, Function<BhNodeViewStyleSnippet, EntryPointMarkSnippet> getter) {
-      return find(radius, snippet -> getter.apply(snippet).radius).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).radius).orElse(defaultVal);
     }
 
     private String findCssClass(
         String defaultVal, Function<BhNodeViewStyleSnippet, EntryPointMarkSnippet> getter) {
-      return find(cssClass, snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
 
@@ -515,12 +529,12 @@ class BhNodeViewStyleSnippet {
 
     private String findCssClass(
         String defaultVal, Function<BhNodeViewStyleSnippet, CommonPartSnippet> getter) {
-      return find(cssClass, snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
 
     private ChildArrangement findArrangement(
         ChildArrangement defaultVal, Function<BhNodeViewStyleSnippet, CommonPartSnippet> getter) {
-      return find(arrangement, snippet -> getter.apply(snippet).arrangement).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).arrangement).orElse(defaultVal);
     }
   }
 
@@ -535,7 +549,7 @@ class BhNodeViewStyleSnippet {
 
     private String findCssClass(
         String defaultVal, Function<BhNodeViewStyleSnippet, SpecificPartSnippet> getter) {
-      return find(cssClass, snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
 }

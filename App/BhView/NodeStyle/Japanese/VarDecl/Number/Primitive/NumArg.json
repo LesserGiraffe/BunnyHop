@@ -1,14 +1,5 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 1.0,
-  "paddingRight" : 1.0,
-  "connectorPos" : "Left",
-  "connectorShift" : 0.0,
-  "connectorWidth" : 0.0,
-  "connectorHeight" : 0.0,
-  "connectorShape" : "NONE",
-  "connectorBoundsRate" : 0.0,
+  "import" : ["../../../../Common/Argument.json"],
   "cssClass" : "numType",
     
   "connective" : {
@@ -25,9 +16,6 @@
         "arrangement" : "Row",
         "connectorList" : ["Arg"]
       }
-    },
-    "outer" : {
-      "connectorList" : ["NextArg"]
     }
   }
 }

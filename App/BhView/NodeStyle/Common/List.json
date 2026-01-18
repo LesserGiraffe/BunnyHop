@@ -1,0 +1,20 @@
+{
+  "paddingTop" : 1.0,
+  "paddingBottom" : 1.0,
+  "paddingLeft" : 1.5,
+  "paddingRight" : 1.5,
+  "bodyShapeInner" : "RoundRect",
+  "bodyShapeOuter" : "RoundRect",
+  "connectorShapeFixed" : "None",
+  "connectorPos" : "Left",
+  "connectorAlignment" : "Center",
+  "connectorShift" : 0.0,
+  "connectorWidth" : 7.0,
+  "connectorHeight" : 7.0,
+  "connectorBoundsRate" : 1.15,
+  "notchShape" : "Triangle",
+  "notchShapeFixed" : "None",
+  "notchPos" : "Right",
+  "notchWidth" : 1.5,
+  "notchHeight" : 1.5
+}

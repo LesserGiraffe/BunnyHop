@@ -9,12 +9,7 @@
 .strType:unfixedDefault,
 .boolType:unfixedDefault,
 .soundType:unfixedDefault,
-.colorType:unfixedDefault,
-.numVarType:unfixedDefault,
-.strVarType:unfixedDefault,
-.boolVarType:unfixedDefault,
-.soundVarType:unfixedDefault,
-.colorVarType:unfixedDefault {
+.colorType:unfixedDefault {
   -fx-stroke: white;
 }
 

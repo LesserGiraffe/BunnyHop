@@ -1,21 +1,11 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 6.25,
-  "paddingRight" : 1.5,
-  "connectorPos" : "Top",
-  "connectorShift" : 1.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "INV_PENTAGON",
-  "connectorBoundsRate" : 1.95,
-  "cssClass" : "concurrentType",
+  "import" : ["../../../Common/ConcurrentGlobalDataDecl.json"],
 
   "connective" : {
     "inner" : {
-    
       "arrangement" : "Column",
       "space" : 1.5,
+
       "subGroup0" : {
         "space" : 2.0,
         "arrangement" : "Row",
@@ -31,9 +21,6 @@
         "arrangement" : "Row",
         "connectorList" : ["${L2}{タイマーの初期値}", "Arg0"]
       }
-    },
-    "outer" : {
-      "connectorList" : ["NextGlobalDataDecl"]
     }
   }
 }

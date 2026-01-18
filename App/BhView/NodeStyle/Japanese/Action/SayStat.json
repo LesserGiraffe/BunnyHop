@@ -1,24 +1,11 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 6.25,
-  "paddingRight" : 1.5,
-  "connectorPos" : "Top",
-  "connectorShift" : 1.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "ARROW",
-  "connectorBoundsRate" : 1.95,
-  "cssClass" : "actionType",
+  "import" : ["../../Common/ActionStat.json"],
 
   "connective" : {
     "inner" : {
       "arrangement" : "Row",
       "space" : 2.0,
       "connectorList" : ["Arg0", "${L2}{と言う}"]
-    },
-    "outer" : {
-      "connectorList" : ["NextStat"]
     }
   }
 }

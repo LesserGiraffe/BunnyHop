@@ -1,0 +1,4 @@
+{
+  "import" : ["./GlobalDataDecl.json"],
+  "cssClass" : "concurrentType"
+}

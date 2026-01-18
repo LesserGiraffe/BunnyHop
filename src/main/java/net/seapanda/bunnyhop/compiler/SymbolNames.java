@@ -98,7 +98,7 @@ public class SymbolNames {
             SOUND_LIST));
 
     public static final Map<String, String> INIT_VAL_MAP =
-        new HashMap<String, String>() {{
+        new HashMap<>() {{
             put(NUM_VAR_DECL, "0");
             put(NUM_LIST_DECL, "[]");
             put(STR_VAR_DECL, "''");
@@ -119,7 +119,7 @@ public class SymbolNames {
             put(BOOL_EMPTY_LIST, "[]");
             put(COLOR_EMPTY_LIST, "[]");
             put(SOUND_EMPTY_LIST, "[]");
-          }};
+        }};
 
     public static final Set<String> VAR_VOID_LIST =
         new HashSet<>(List.of(
@@ -143,7 +143,7 @@ public class SymbolNames {
 
   /** 特定の分類を設けない statement に関するシンボル名. */
   public static class Stat {
-    public static final String VOID_STAT = "VoidStat";
+    public static final String STAT_VOID = "StatVoid";
     public static final String STAT_LIST = "StatList";
     public static final String NEXT_STAT = "NextStat";
   }
@@ -380,6 +380,8 @@ public class SymbolNames {
     public static final String OPT_PROPER_SUPERSET = "properSuperset";
     public static final String OPT_FINITE = "finite";
     public static final String OPT_INFINITE = "infinite";
+    public static final String OPT_POS_INF = "posInf";
+    public static final String OPT_NEG_INF = "negInf";
     public static final String OPT_NAN = "nan";
     public static final String OPT_WITH_LINE_BREAK = "withLineBreak";
     public static final String OPT_WITHOUT_LINE_BREAK = "withoutLineBreak";
@@ -520,6 +522,10 @@ public class SymbolNames {
             put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_FINITE), "Number.isFinite");
             put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_INFINITE),
                 ScriptIdentifiers.Funcs.IS_NUM_INFINITE);
+            put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_POS_INF),
+                ScriptIdentifiers.Funcs.IS_NUM_POS_INF);
+            put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_NEG_INF),
+                ScriptIdentifiers.Funcs.IS_NUM_NEG_INF);
             put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_NAN), "Number.isNaN");
             put(FuncId.create(NUM_POW_EXP), "Math.pow");
             put(FuncId.create(NUM_CLAMP_EXP), ScriptIdentifiers.Funcs.NUM_CLAMP);

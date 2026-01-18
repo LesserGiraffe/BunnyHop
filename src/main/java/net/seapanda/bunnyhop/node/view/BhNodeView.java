@@ -192,11 +192,21 @@ public interface BhNodeView extends NodeViewComponent {
      */
     Vec2D getConnectorSize();
 
+    /**
+     * 関連するノードビューの切り欠きの大きさを返す.
+     *
+     * @return 切り欠きの大きさ
+     */
+    Vec2D getNotchSize();
+
     /** 関連するノードビューのボディ部分のワークスペース上での範囲を取得する. */
     BodyRange getBodyRange();
 
     /** 関連するノードビューのコネクタ部分のワークスペース上での範囲を取得する. */
     BodyRange getConnectorRange();
+
+    /** 関連するノードビューのコネクタ部分の左上を原点としたときのボディ部分の左上の位置を取得する. */
+    Vec2D getBodyPosFromConnector();
 
     /**
      * 関連するノードビューのボディの領域が引数のノードビューのボディの領域と重なっているかどうか調べる.
@@ -406,6 +416,9 @@ public interface BhNodeView extends NodeViewComponent {
     /** 関連するノードビューの GUI ツリー上の親要素が変わったときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<ParentViewChangedEvent>.Registry getOnParentViewChanged();
 
+    /** 関連するノードビューの親 {@link BhNodeViewGroup} が変わったときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<ParentGroupChangedEvent>.Registry getOnParentGroupChanged();
+
     /**
      * 関連するノードビューにイベントを伝える.
      *
@@ -490,4 +503,14 @@ public interface BhNodeView extends NodeViewComponent {
    * @param newParent 変更後の親要素.  存在しない場合 null.
    */
   record ParentViewChangedEvent(BhNodeView view, Parent oldParent, Parent newParent) {}
+
+  /**
+   * 親となる {@link BhNodeViewGroup} が変わったときの情報を格納したレコード.
+   *
+   * @param view 親要素が変わったノードビュー
+   * @param oldParent 変更前の親グループ.  存在しない場合 null.
+   * @param newParent 変更後の親グループ.  存在しない場合 null.
+   */
+  record ParentGroupChangedEvent(
+      BhNodeView view, BhNodeViewGroup oldParent, BhNodeViewGroup newParent) {}
 }

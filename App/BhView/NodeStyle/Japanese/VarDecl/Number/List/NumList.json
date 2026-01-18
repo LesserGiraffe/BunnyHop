@@ -1,22 +1,5 @@
 {
-  "paddingTop" : 1.25,
-  "paddingBottom" : 1.25,
-  "paddingLeft" : 1.5,
-  "paddingRight" : 4.0,
-  "connectorPos" : "Left",
-  "connectorAlignment" : "Center",
-  "connectorShift" : 0.0,
-  "connectorWidth" : 7.0,
-  "connectorHeight" : 7.0,
-  "connectorShape" : "DIAMOND",
-  "connectorShapeFixed" : "NONE",
-  "connectorBoundsRate" : 1.15,
-  "notchPos" : "Right",
-  "notchShape" : "TRIANGLE",
-  "notchShapeFixed" : "NONE",
-  "notchWidth" : 1.5,
-  "notchHeight" : 1.5,
-  "cssClass" : "numVarType",
+  "import" : ["../../../../Common/NumListLike.json"],
 
   "connective" : {
     "inner" : {

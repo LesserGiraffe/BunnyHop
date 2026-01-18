@@ -61,7 +61,7 @@ class StatCodeGenerator {
       CompileOption option) {
     String statSymbolName = statementNode.getSymbolName();
     // void がつながっているときは, そこで文は終了する
-    if (statSymbolName.equals(SymbolNames.Stat.VOID_STAT)) {
+    if (statSymbolName.equals(SymbolNames.Stat.STAT_VOID)) {
       return;
     }
     if (SymbolNames.AssignStat.LIST.contains(statSymbolName)) {

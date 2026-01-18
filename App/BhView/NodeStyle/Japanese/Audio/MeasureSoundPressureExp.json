@@ -1,21 +1,11 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 2.5,
-  "paddingRight" : 1.5,
-  "connectorPos" : "Left",
-  "connectorShift" : 0.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "DIAMOND",
-  "connectorBoundsRate" : 1.95,
-  "cssClass" : "numType",
+  "import" : ["../../Common/NumExp.json"],
 
   "connective" : {
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["Arg0", "${L1}{秒間の音声の}", "Option0"]
+      "connectorList" : ["Arg0", "${L1}{秒間の音の大きさの}", "Option0"]
     }
   }
 }

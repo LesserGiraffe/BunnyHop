@@ -1,14 +1,5 @@
 {
-  "component" : "None",
-  "paddingTop" : 3.0,
-  "paddingBottom" : 3.0,
-  "paddingLeft" : 3.0,
-  "paddingRight" : 3.0,
-  "connectorPos" : "Left",
-  "connectorShift" : 0.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "CHAR_U",
-  "connectorBoundsRate" : 1.95,
+  "import" : ["../../../Common/ExpVoid.json"],
+  "connectorShape" : "CharU",
   "cssClass" : "voidType"
 }

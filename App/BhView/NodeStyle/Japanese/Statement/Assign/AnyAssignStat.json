@@ -1,25 +1,11 @@
 {
-  "paddingTop" : 1.5,
-  "paddingBottom" : 1.5,
-  "paddingLeft" : 6.25,
-  "paddingRight" : 1.5,
-  "connectorPos" : "Top",
-  "connectorShift" : 1.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "ARROW",
-  "connectorBoundsRate" : 1.95,
-  "cssClass" : "anyType",
+  "import" : ["../../../Common/AssignStat.json"],
 
   "connective" : {
     "inner" : {
       "arrangement" : "Row",
       "space" : 2.0,
       "connectorList" : ["LeftVar", "${L1}{に}", "RightExp", "${L1}{を代入する}"]
-      
-    },
-    "outer" : {
-      "connectorList" : ["NextStat"]
     }
   }
 }

@@ -490,6 +490,8 @@
 
     "num-type": {
       "finite": "有限の数",
+      "posInf": "+ の無限大",
+      "negInf": "- の無限大",
       "infinite": "+/- 無限大",
       "nan": "非数"
     },
@@ -646,7 +648,7 @@
       "SetAudioVolumeStat": "音量を設定する",
       "GetAudioVolumeExp": "音量を取得する",
       "RecordAudioStat": "録音する",
-      "PlayAudioStat": "音声データを再生する",
+      "PlayAudioStat": "音声ファイルを再生する",
       "GetAudioFilesExp": "音声ファイルの一覧を取得する",
       "DeleteAudioFileStat": "音声ファイルを削除する",
       "DeleteAudioFilesStat": "複数の音声ファイルを削除する",

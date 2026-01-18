@@ -1,25 +1,11 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 6.25,
-  "paddingRight" : 4.0,
-  "connectorPos" : "Top",
-  "connectorShift" : 1.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "CHAR_T",
-  "connectorBoundsRate" : 1.95,
+  "import" : ["../../../../Common/VarDecl.json"],
   "cssClass" : "numType",
 
   "connective" : {
     
     "inner" : {
       "connectorList" : ["VarName"]
-    },
-    
-    "outer" : {
-      "connectorList" : ["NextVarDecl"]
     }
-    
   }
 }

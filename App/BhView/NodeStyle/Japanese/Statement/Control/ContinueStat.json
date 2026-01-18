@@ -1,15 +1,5 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 2.5,
-  "paddingRight" : 2.5,
-  "connectorPos" : "Top",
-  "connectorShift" : 1.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "ARROW",
-  "connectorBoundsRate" : 1.95,
-  "cssClass" : "controlType",
+  "import" : ["../../../Common/TerminalCtrlStat.json"],
 
   "connective" : {
     "inner" : {

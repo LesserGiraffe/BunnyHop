@@ -33,9 +33,9 @@ public class BhSettings {
     /** BhSimulator 初期化待ちタイムアウト (sec). */
     public static volatile int initTimeout = 5;
     /** BhProgram の開始時に BhSimulator をフォーカスするかどうか. */
-    public static volatile boolean focusOnStartBhProgram = true;
+    public static volatile boolean focusOnStartBhProgram = false;
     /** BhSimulator に変化があったとき BhSimulator をフォーカスするかどうか. */
-    public static volatile boolean focusOnChanged = false;
+    public static volatile boolean focusOnChanged = true;
   }
 
   /** デバッグに関するパラメータ. */

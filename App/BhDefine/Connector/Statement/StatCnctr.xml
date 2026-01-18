@@ -1,4 +1,4 @@
 <ConnectorParamSet 
   paramSetID="idStatCnctr"
-  defaultBhNodeID="idVoidStat"
+  defaultBhNodeID="idStatVoid"
     onConnectabilityChecking="StatCnct.js"/>

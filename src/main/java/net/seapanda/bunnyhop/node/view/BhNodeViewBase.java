@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
@@ -154,7 +153,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     shapes = createShapes(style);
     panes = createPanes(style, components);
     cbRegistry = this.new CallbackRegistryBase();
-    lookManager = this.new LookManagerBase(style.bodyShape);
+    lookManager = this.new LookManagerBase();
     lookManager.addCssClass(style.cssClasses);
     lookManager.addCssClass(BhConstants.Css.CLASS_BH_NODE);
   }
@@ -359,21 +358,12 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   /** ノードビューの外観を変更する機能を提供するクラス. */
   public class LookManagerBase implements LookManager {
 
-    /** ボディの形を取得する関数オブジェクト. */
-    private Supplier<BodyShapeType> fnGetBodyShape;
     /** 現在描画されているノードのポリゴンの形状を決めているノードの大きさ. */
     private final Vec2D currentPolygonSize = new Vec2D(Double.MIN_VALUE, Double.MIN_VALUE);
     /** ノードの整列を待っている {@link BhNodeView} のセット. */
     private static final Set<BhNodeView> viewsAwaitingArrangement = new HashSet<>();
 
-    /**
-     * コンストラクタ.
-     *
-     * @param bodyShape 本体部分の形
-     */
-    public LookManagerBase(BodyShapeType bodyShape) {
-      this.fnGetBodyShape = () -> bodyShape;
-    }
+    private LookManagerBase() {}
 
     /**
      * cssクラス名を追加する.
@@ -460,20 +450,13 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
           BhNodeViewBase.this);
     }
 
-    /** ボディの形をセットする関数を設定する. */
-    void setBodyShapeGetter(Supplier<BodyShapeType> fnGetBodyShape) {
-      if (fnGetBodyShape != null) {
-        this.fnGetBodyShape = fnGetBodyShape;
-      }
-    }
-
     /**
      * このノードビューのボディの形状の種類を取得する.
      *
      * @return このノードビューのボディの形状の種類
      */
     BodyShapeType getBodyShape() {
-      return fnGetBodyShape.get();
+      return viewStyle.getBodyShape(parent == null || parent.inner);
     }
 
     @Override
@@ -670,6 +653,11 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     }
 
     @Override
+    public Vec2D getNotchSize() {
+      return viewStyle.getNotchSize(isFixed());
+    }
+
+    @Override
     public BodyRange getBodyRange() {
       return new BodyRange(bodyRange.getUpperLeftPos(), bodyRange.getLowerRightPos());
     }
@@ -677,6 +665,27 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     @Override
     public BodyRange getConnectorRange() {
       return new BodyRange(cnctrRange.getUpperLeftPos(), cnctrRange.getLowerRightPos());
+    }
+
+    @Override
+    public Vec2D getBodyPosFromConnector() {
+      Vec2D relPos = new Vec2D();
+      Vec2D cnctrSize = getConnectorSize();
+      Vec2D bodySize = getNodeSize(false);
+      if (viewStyle.connectorPos == ConnectorPos.LEFT) {
+        relPos.x += cnctrSize.x;
+        relPos.y -= viewStyle.connectorShift;
+        if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
+          relPos.y += (cnctrSize.y - bodySize.y) / 2;
+        }
+      } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
+        relPos.x -= viewStyle.connectorShift;
+        relPos.y += cnctrSize.y;
+        if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
+          relPos.x += (cnctrSize.x - bodySize.x) / 2;
+        }
+      }
+      return relPos;
     }
 
     @Override
@@ -711,7 +720,13 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
      * @param parentGroup このBhNodeViewを保持するBhNodeViewGroup
      */
     void setParentGroup(BhNodeViewGroup parentGroup) {
+      if (parent == parentGroup) {
+        return;
+      }
+      BhNodeViewGroup oldParent = parent;
       parent = parentGroup;
+      cbRegistry.onParentGroupChangedInvoker.invoke(
+          new ParentGroupChangedEvent(BhNodeViewBase.this, oldParent, parent));
     }
 
     @Override
@@ -835,7 +850,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       BhNodeViewBase parentView = view.getTreeManager().getParentView();
       if (parentView != null) {
         BodyShapeType bodyShape = parentView.getLookManager().getBodyShape();
-        if (view.parent.inner && !bodyShape.equals(BodyShapeType.BODY_SHAPE_NONE)) {
+        if (view.parent.inner && bodyShape != BodyShapeType.NONE) {
           view.getTreeManager().isEven = !parentView.getTreeManager().isEven;
         } else {
           view.getTreeManager().isEven = parentView.getTreeManager().isEven;
@@ -1047,6 +1062,10 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     private final ConsumerInvoker<ParentViewChangedEvent> onParentViewChangedInvoker =
         new SimpleConsumerInvoker<>();
 
+    /** 関連するノードビューの親 {@link BhNodeViewGroup} が変わったときのイベントハンドラ. */
+    private final ConsumerInvoker<ParentGroupChangedEvent> onParentGroupChangedInvoker =
+        new SimpleConsumerInvoker<>();
+
     /** {@link #dispatch} で送られたイベントを区別するためのフラグ. */
     private final Deque<MouseEventInfo> eventStack = new LinkedList<>();
 
@@ -1107,6 +1126,11 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     @Override
     public ConsumerInvoker<ParentViewChangedEvent>.Registry getOnParentViewChanged() {
       return onParentViewChangedInvoker.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<ParentGroupChangedEvent>.Registry getOnParentGroupChanged() {
+      return onParentGroupChangedInvoker.getRegistry();
     }
 
     @Override

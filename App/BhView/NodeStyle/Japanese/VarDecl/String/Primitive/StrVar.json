@@ -1,21 +1,7 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 1.5,
-  "paddingRight" : 3.0,
-  "connectorPos" : "Left",
-  "connectorShift" : 0.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "INV_TRIANGLE",
-  "connectorShapeFixed" : "NONE",
-  "connectorBoundsRate" : 1.95,
-  "notchPos" : "Right",
-  "notchShape" : "TRIANGLE",
-  "notchShapeFixed" : "NONE",
-  "notchWidth" : 1.5,
-  "notchHeight" : 1.5,
-  "cssClass" : "strVarType",
+  "import" : ["../../../../Common/Variable.json"],
+  "connectorShape" : "InvTriangle",
+  "cssClass" : "strType",
 
   "connective" : {
     "inner" : {

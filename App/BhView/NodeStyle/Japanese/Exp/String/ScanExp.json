@@ -1,45 +1,21 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 2.5,
-  "paddingRight" : 1.5,
-  "connectorPos" : "Left",
-  "connectorShift" : 0.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "INV_TRIANGLE",
-  "connectorBoundsRate" : 1.95,
-  "cssClass" : "strType",
+  "import" : ["../../../Common/StrExp.json"],
 
   "connective" : {
     "inner" : {
       "arrangement" : "Column",
       "space" : 0.0,
-      "connectorList" : ["${L1}{入力文字列}"],
-      
+
       "subGroup0" : {
         "arrangement" : "Row",
-        "space" : 1.0,
-        
-        "subGroup0" : {
-          "paddingTop": 1.0,
-          "arrangement" : "Row",
-          "connectorList" : ["${L1}{（入力要求メッセージ：}"]
-        },
-        
-        "subGroup1" : {
-          "paddingTop": 0.0,
-          "arrangement" : "Row",
-          "connectorList" : ["Arg0"]
-        },
+        "connectorList" : ["${L1}{入力文字列}"]
+      },
 
-        "subGroup2" : {
-          "paddingTop": 1.0,
-          "arrangement" : "Row",
-          "connectorList" : ["${L1}{）}"]
-        }
+      "subGroup1" : {
+        "arrangement" : "Row",
+        "space" : 1.0,
+        "connectorList" : ["${L1}{(入力要求メッセージ：}", "Arg0", "${L1}{)}"]
       }
     }
   }
 }
-

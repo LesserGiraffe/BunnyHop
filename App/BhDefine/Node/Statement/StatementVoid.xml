@@ -1,8 +1,8 @@
 <Node
   type="text"
-  bhNodeID="idVoidStat" 
-  name="VoidStat" 
-  nodeStyleID="VoidStat.json"
+  bhNodeID="idStatVoid"
+  name="StatVoid"
+  nodeStyleID="StatVoid.json"
   breakpoint="ignore"
   onMovedFromChildToWS="DeleteNode.js"
   onAliasAsked="OnAliasAsked.js"

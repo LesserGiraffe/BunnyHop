@@ -1,15 +1,5 @@
 {
-  "paddingTop" : 2.0,
-  "paddingBottom" : 3.0,
-  "paddingLeft" : 6.25,
-  "paddingRight" : 1.5,
-  "connectorPos" : "Top",
-  "connectorShift" : 1.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "ARROW",
-  "connectorBoundsRate" : 1.95,
-  "cssClass" : "controlType",
+  "import" : ["../../../Common/CtrlStat.json"],
 
   "connective" : {
     "inner" : {
@@ -24,10 +14,6 @@
         "arrangement" : "Column",
         "connectorList" : ["LoopStat"]
       }
-    },
-
-    "outer" : {
-      "connectorList" : ["NextStat"]
     }
   }
 }

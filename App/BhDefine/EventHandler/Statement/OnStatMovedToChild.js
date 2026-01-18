@@ -1,3 +1,3 @@
 (function() {
-  bhCommon.connectToOuterEnd(bhThis, bhReplacedOldNode, 'VoidStat', bhUserOpe);
+  bhCommon.connectToOuterEnd(bhThis, bhReplacedOldNode, 'StatVoid', bhUserOpe);
 })();

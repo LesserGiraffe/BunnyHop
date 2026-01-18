@@ -1,15 +1,5 @@
 {
-  "paddingTop" : 1.0,
-  "paddingBottom" : 1.0,
-  "paddingLeft" : 6.25,
-  "paddingRight" : 1.5,
-  "connectorPos" : "Top",
-  "connectorShift" : 1.0,
-  "connectorWidth" : 4.25,
-  "connectorHeight" : 4.25,
-  "connectorShape" : "INV_PENTAGON",
-  "connectorBoundsRate" : 1.95,
-  "cssClass" : "concurrentType",
+  "import" : ["../../../Common/ConcurrentGlobalDataDecl.json"],
 
   "connective" : {
     "inner" : {
@@ -25,9 +15,6 @@
         "space" : 1.0,
         "connectorList" : ["${L2}{公平に}", "Arg0"]
       }
-    },
-    "outer" : {
-      "connectorList" : ["NextGlobalDataDecl"]
     }
   }
 }

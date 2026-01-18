@@ -1,0 +1,11 @@
+{
+  "import" : ["./Declaration.json"],
+  "connectorShape" : "CharT",
+
+  "connective" : {
+    "outerOffset" : -4.25,
+    "outer" : {
+      "connectorList" : ["NextVarDecl"]
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "import" : ["./Expression.json"],
+  "connectorShape" : "InvTriangle",
+  "cssClass" : "strType"
+}

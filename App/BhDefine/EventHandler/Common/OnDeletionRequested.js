@@ -4,7 +4,7 @@
         bhThis.findOuterNode(1),
         bhThis,
         bhTargetNodes,
-        ['VarDeclVoid', 'GlobalDataDeclVoid', 'VoidStat'],
+        ['VarDeclVoid', 'GlobalDataDeclVoid', 'StatVoid'],
         bhUserOpe);
   }
   return true;
