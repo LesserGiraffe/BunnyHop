@@ -184,6 +184,6 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
     if (node.isDescendantOf(this) || this.isDescendantOf(node)) {
       return false;
     }
-    return parentConnector.isConnectableWith(node);
+    return parentConnector.canConnect(node);
   }
 }

@@ -73,7 +73,7 @@ public class FoundationController {
   /** イベントハンドラを設定する. */
   private void setEventHandlers() {
     foundationVbox.addEventFilter(KeyEvent.ANY, event -> {
-      if (isKeyEventToForward(event)) {
+      if (shouldForwardKeyEvent(event)) {
         event.consume();
         forwardKeyEvent(event);
       }
@@ -89,7 +89,7 @@ public class FoundationController {
   }
 
   /** 基底ペインに転送すべきキーイベントかどうかを判断する. */
-  private boolean isKeyEventToForward(KeyEvent event) {
+  private boolean shouldForwardKeyEvent(KeyEvent event) {
     EventTarget target = event.getTarget();
     if (target instanceof Pane pane) {
       if (pane.getId().equals(BhConstants.UiId.WS_PANE)) {

@@ -52,9 +52,9 @@ public final class TextFieldNodeView extends TextInputNodeView {
   private final TextField textField = new TextField();
   private final TextNode model;
   /** コネクタ部分を含まないノードサイズのキャッシュデータ. */
-  private final SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<>(new Vec2D());
   /** コネクタ部分を含むノードサイズのキャッシュデータ. */
-  private final SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<Vec2D>(new Vec2D());
+  private final SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<>(new Vec2D());
   /** クリック時にテキストを選択するかどうかのフラグ. */
   private boolean shouldSelectText = true;
 
@@ -83,8 +83,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
    * @param viewStyle このノードビューのスタイル
    * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public TextFieldNodeView(BhNodeViewStyle viewStyle)
-      throws ViewConstructionException {
+  public TextFieldNodeView(BhNodeViewStyle viewStyle) throws ViewConstructionException {
     this(null, viewStyle, new LinkedHashSet<>());
   }
 

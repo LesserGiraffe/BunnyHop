@@ -1,5 +1,6 @@
 {
   "import" : ["../../../Common/StrExp.json"],
+  "paddingRight" : 6.0,
 
   "connective" : {
     "inner" : {

@@ -75,6 +75,17 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
     innerGroup.buildSubGroup(viewStyle.connective.inner, factory);
     outerGroup.buildSubGroup(viewStyle.connective.outer, factory);
     getLookManager().addCssClass(BhConstants.Css.CLASS_CONNECTIVE_NODE);
+
+    // 親グループに依存してノードの大きさが変わるので, 親グループが変わったときにキャッシュを無効化する
+    getCallbackRegistry().getOnParentGroupChanged().add(event -> {
+      if (event.oldParent() != null
+          && event.newParent() != null
+          && event.oldParent().inner == event.newParent().inner) {
+        return;
+      }
+      nodeSizeCache.setDirty(true);
+      nodeWithCnctrSizeCache.setDirty(true);
+    });
   }
 
   /**

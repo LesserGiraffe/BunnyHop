@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import net.seapanda.bunnyhop.bhprogram.BhRuntimeController;
 import net.seapanda.bunnyhop.bhprogram.common.BhRuntimeFacade;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
@@ -52,7 +53,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
   private volatile BhRuntimeTransceiver transceiver;
   /** BhProgram を実行中かどうかを表すフラグ. */
   private final AtomicReference<Boolean> programRunning = new AtomicReference<>(false);
-
+  private final ReentrantLock lock = new ReentrantLock();
 
   /** コンストラクタ. */
   public RmiLocalBhRuntimeController(
@@ -62,41 +63,77 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
   }
 
   @Override
-  public synchronized boolean start(Path filePath) {
+  public boolean start(Path filePath) {
+    if (!lock.tryLock()) {
+      return false;
+    }
+    try {
+      return startBhProgram(filePath);
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  private boolean startBhProgram(Path filePath) {
     if (programRunning.get()) {
       terminate();
     }
     msgService.info(TextDefs.BhRuntime.Local.preparingToRun.get());
     try {
-      process = startRuntimeProcess().orElseThrow();
-      BhRuntimeFacade facade = getBhRuntimeFacade().orElseThrow();
-      var oldCarrier = (transceiver == null) ? null : transceiver.getMessageCarrier();
-      transceiver = new BhRuntimeTransceiver(facade);
-      var event = new MessageCarrierRenewedEvent(this, oldCarrier, transceiver.getMessageCarrier());
-      cbRegistry.onMsgCarrierRenewed.invoke(event);
-      transceiver.start();
-      boolean success = transceiver.connect();
+      BhRuntimeFacade facade = startUpRuntime().orElseThrow();
+      boolean success = facade.runScript(filePath.toAbsolutePath().toString());
       if (success) {
-        // BhProgram の開始前に実行したい処理に対応するため, イベントハンドラをここで呼ぶ
-        cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, true));
-        success = facade.runScript(filePath.toAbsolutePath().toString());
+        return invokeStartMethod(filePath);
       }
-      if (success) {
-        msgService.info(TextDefs.BhRuntime.Local.hasStarted.get());
-        var startEvent = new BhProgramEvent(
-            BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
-        send(startEvent);
-        programRunning.set(true);
-        cbRegistry.onBhProgramStarted.invoke(new StartEvent(this, filePath));
-        return true;
-      }
-      throw new Exception();
     } catch (Exception e) {
       msgService.error(TextDefs.BhRuntime.Local.failedToRun.get());
       LogManager.logger().error("Failed to run %s. (local)".formatted(filePath.getFileName()));
       terminate();
+      return false;
     }
     return false;
+  }
+
+  /**
+   * BhRuntime を起動して初期化する.
+   *
+   * @return 起動した BhRuntime を操作するためのオブジェクト.
+   *         処理に失敗した場合は empty.
+   */
+  private Optional<BhRuntimeFacade> startUpRuntime() {
+    try {
+      process = startRuntimeProcess().orElseThrow();
+      BhRuntimeFacade facade = getBhRuntimeFacade().orElseThrow();
+      setupTransceiver(facade);
+      if (!transceiver.connect()) {
+        return Optional.empty();
+      }
+      // BhProgram の開始前に実行したい処理に対応するため, イベントハンドラをここで呼ぶ
+      cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, true));
+      return Optional.of(facade);
+    } catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  /** {@link #transceiver} を初期化し, メッセージキャリア更新イベントを発行する. */
+  private void setupTransceiver(BhRuntimeFacade facade) {
+    var oldCarrier = (transceiver == null) ? null : transceiver.getMessageCarrier();
+    transceiver = new BhRuntimeTransceiver(facade);
+    var event = new MessageCarrierRenewedEvent(this, oldCarrier, transceiver.getMessageCarrier());
+    cbRegistry.onMsgCarrierRenewed.invoke(event);
+    transceiver.start();
+  }
+
+  /** BhProgram の開始時に実行する処理を呼ぶ. */
+  private boolean invokeStartMethod(Path filePath) {
+    msgService.info(TextDefs.BhRuntime.Local.hasStarted.get());
+    var startEvent = new BhProgramEvent(
+        BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
+    send(startEvent);
+    programRunning.set(true);
+    cbRegistry.onBhProgramStarted.invoke(new StartEvent(this, filePath));
+    return true;
   }
 
   private Optional<BhRuntimeFacade> getBhRuntimeFacade() {
@@ -111,62 +148,90 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
   }
   
   @Override
-  public synchronized boolean terminate() {
-    if (!programRunning.get()) {
-      msgService.error(TextDefs.BhRuntime.Local.hasAlreadyEnded.get());
+  public boolean terminate() {
+    if (!lock.tryLock()) {
       return false;
     }
-    msgService.info(TextDefs.BhRuntime.Local.preparingToEnd.get());
-    boolean success = discardTransceiver(0);
-    if (process != null) {
-      success &= BhRuntimeHelper.killProcess(process, BhConstants.BhRuntime.Timeout.PROC_END);
+    try {
+      if (!programRunning.get()) {
+        msgService.error(TextDefs.BhRuntime.Local.hasAlreadyEnded.get());
+        return false;
+      }
+      msgService.info(TextDefs.BhRuntime.Local.preparingToEnd.get());
+      boolean success = discardTransceiver(0);
+      if (process != null) {
+        success &= BhRuntimeHelper.killProcess(process, BhConstants.BhRuntime.Timeout.PROC_END);
+      }
+      process = null;
+      simCmdProcessor.halt();
+      if (!success) {
+        msgService.error(TextDefs.BhRuntime.Local.failedToEnd.get());
+      } else {
+        msgService.info(TextDefs.BhRuntime.Local.hasEnded.get());
+        programRunning.set(false);
+        cbRegistry.onBhProgramTerminated.invoke(new TerminationEvent(this));
+      }
+      return success;
+    } finally {
+      lock.unlock();
     }
-    process = null;
-    simCmdProcessor.halt();
-    if (!success) {
-      msgService.error(TextDefs.BhRuntime.Local.failedToEnd.get());
-    } else {
-      msgService.info(TextDefs.BhRuntime.Local.hasEnded.get());
-      programRunning.set(false);
-      cbRegistry.onBhProgramTerminated.invoke(new TerminationEvent(this));
-    }
-    return success;
   }
 
   @Override
-  public synchronized boolean connect() {
-    if (transceiver == null) {
-      msgService.error(TextDefs.BhRuntime.Local.noRuntimeToConnectTo.get());
+  public boolean connect() {
+    if (!lock.tryLock()) {
       return false;
     }
-    msgService.info(TextDefs.BhRuntime.Local.hasConnected.get());
-    boolean success = transceiver.connect();
-    if (success) {
-      cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, true));
+    try {
+      if (transceiver == null) {
+        msgService.error(TextDefs.BhRuntime.Local.noRuntimeToConnectTo.get());
+        return false;
+      }
+      msgService.info(TextDefs.BhRuntime.Local.hasConnected.get());
+      boolean success = transceiver.connect();
+      if (success) {
+        cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, true));
+      }
+      return success;
+    } finally {
+      lock.unlock();
     }
-    return success;
   }
 
   @Override
-  public synchronized boolean disconnect() {
-    if (transceiver == null) {
-      msgService.error(TextDefs.BhRuntime.Local.noRuntimeToDisconnectFrom.get());
+  public boolean disconnect() {
+    if (!lock.tryLock()) {
       return false;
     }
-    msgService.info(TextDefs.BhRuntime.Local.hasDisconnected.get());
-    boolean success = transceiver.disconnect();
-    if (success) {
-      cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, false));
+    try {
+      if (transceiver == null) {
+        msgService.error(TextDefs.BhRuntime.Local.noRuntimeToDisconnectFrom.get());
+        return false;
+      }
+      msgService.info(TextDefs.BhRuntime.Local.hasDisconnected.get());
+      boolean success = transceiver.disconnect();
+      if (success) {
+        cbRegistry.onConnCondChanged.invoke(new ConnectionEvent(this, false));
+      }
+      return success;
+    } finally {
+      lock.unlock();
     }
-    return success;
   }
 
   @Override
-  public synchronized BhRuntimeStatus send(BhProgramMessage message) {
-    if (transceiver == null) {
-      return BhRuntimeStatus.SEND_WHEN_DISCONNECTED;
+  public BhRuntimeStatus send(BhProgramMessage message) {
+    if (!lock.tryLock()) {
+      return BhRuntimeStatus.BUSY;
     }
-    return transceiver.getMessageCarrier().pushMessage(message);
+    try {
+      if (transceiver == null) {
+        return BhRuntimeStatus.SEND_WHEN_DISCONNECTED;
+      }
+      return transceiver.getMessageCarrier().pushMessage(message);
+    } finally {
+      lock.unlock();
+    }
   }
 
   @Override

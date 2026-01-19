@@ -332,7 +332,7 @@ public abstract class BhNode extends SyntaxSymbol {
       swappedList.addAll(tmp);
     }
     setLastReplaced(newNode, userOpe);
-    parentConnector.connectNode(newNode, userOpe);
+    parentConnector.connect(newNode, userOpe);
     swappedList.addAll(dervReplacer.replace(newNode, this, userOpe));
     return swappedList;
   }

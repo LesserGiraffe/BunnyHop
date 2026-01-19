@@ -81,7 +81,6 @@ public class EntryPointPresenter {
     cbRegistry.getOnBhProgramTerminated().add(this::onBhProgramTerminated);
   }
 
-
   private synchronized void onConnCondChanged(ConnectionEvent event) {
     if (!event.isConnected()) {
       return;
@@ -95,7 +94,6 @@ public class EntryPointPresenter {
     lastSentEntryPointsCmd = new GetEntryPointsCmd();
     event.ctrl().send(lastSentEntryPointsCmd);
   }
-
 
   private synchronized void onBhProgramStarted(StartEvent event) {
     lastSentEntryPointsCmd = new GetEntryPointsCmd();

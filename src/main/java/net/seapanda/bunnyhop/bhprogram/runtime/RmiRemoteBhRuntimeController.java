@@ -261,7 +261,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     if (!lock.tryLock()) {
       return false;
     }
-    if (isCurrentDestSameAs(hostname, uname)) {
+    if (isConnectedTo(hostname, uname)) {
       lock.unlock();
       return true;
     }
@@ -385,7 +385,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
    *
    * @return 同じ場合 true, 異なる場合 false
    */
-  private boolean isCurrentDestSameAs(String hostname, String uname) {
+  private boolean isConnectedTo(String hostname, String uname) {
     if (currentDestInfo == null) {
       return false;
     }
@@ -566,18 +566,18 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       if (!lock.tryLock(timeout, TimeUnit.MILLISECONDS)) {
         return false;
       }
+    } catch (InterruptedException e) {
+      return false;
+    }
+    try {
       if (!isProgramRunning()) {
         return true;
       }
       if (terminate) {
         return terminate(
-            currentDestInfo.hostname(),
-            currentDestInfo.uname(),
-            currentDestInfo.password());
+            currentDestInfo.hostname(), currentDestInfo.uname(), currentDestInfo.password());
       }
       return disconnectImpl(BhConstants.BhRuntime.Timeout.HALT_TRANSCEIVER);
-    } catch (InterruptedException e) {
-      return false;
     } finally {
       lock.unlock();
     }

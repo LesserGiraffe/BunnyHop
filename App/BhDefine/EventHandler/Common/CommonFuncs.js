@@ -134,7 +134,7 @@
     if (cnctr === null || node === null) {
       return false;
     }
-    return cnctr.isConnectableWith(node);
+    return cnctr.canConnect(node);
   }
 
   /** node のワークスペース上の位置を返す. node がビューを持たない場合は null  */

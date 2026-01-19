@@ -103,7 +103,7 @@ public class Connector extends SyntaxSymbol {
       newNode.setDefault(true);
     }
     var newConnector = new Connector(this, parent);
-    newConnector.connectNode(newNode);
+    newConnector.connect(newNode);
     return newConnector;
   }
 
@@ -122,7 +122,7 @@ public class Connector extends SyntaxSymbol {
    * @param node 接続されるノード.  (null 不可)
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public final void connectNode(BhNode node, UserOperation userOpe) {
+  public final void connect(BhNode node, UserOperation userOpe) {
     Objects.requireNonNull(node);
     if (connectedNode != null) {
       connectedNode.setParentConnector(null);
@@ -135,7 +135,7 @@ public class Connector extends SyntaxSymbol {
     if (oldNode != null && oldNode.getWorkspace() != null) {
       oldNode.getWorkspace().addNodeTree(node, userOpe);
     }
-    userOpe.pushCmd(ope -> connectNode(oldNode, ope));
+    userOpe.pushCmd(ope -> connect(oldNode, ope));
     getCallbackRegistry().onNodeReplaced.invoke(new ReplacementEvent(oldNode, node, userOpe));
   }
 
@@ -144,8 +144,8 @@ public class Connector extends SyntaxSymbol {
    *
    * @param node 接続されるノード.  (null 不可)
    */
-  public final void connectNode(BhNode node) {
-    connectNode(node, new UserOperation());
+  public final void connect(BhNode node) {
+    connect(node, new UserOperation());
   }
 
   /**
@@ -174,7 +174,7 @@ public class Connector extends SyntaxSymbol {
    * @param node 接続可能か調べるノード
    * @return 引数で指定したノードがこのコネクタに接続可能な場合, true を返す
    */
-  public boolean isConnectableWith(BhNode node) {
+  public boolean canConnect(BhNode node) {
     if (isFixed()) {
       return false;
     } // ここは残す

@@ -23,6 +23,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.TextNode;
+import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeType;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.ConnectorAlignment;
 import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
@@ -158,6 +159,9 @@ public final class LabelNodeView extends BhNodeViewBase {
    * @param size このサイズにパディングと切り欠き部分の大きさを加える
    */
   private Vec2D addPaddingAndNotch(Vec2D size) {
+    if (getLookManager().getBodyShape() == BodyShapeType.NONE) {
+      return size;
+    }
     double width = viewStyle.paddingLeft + size.x + viewStyle.paddingRight;
     double height = viewStyle.paddingTop + size.y + viewStyle.paddingBottom;
     Vec2D notchSize = getRegionManager().getNotchSize();

@@ -5,7 +5,7 @@
     "inner" : {
       "space" : 2.0,
       "arrangement" : "Row",
-      "connectorList" : ["${L1}{くり返しの初めに戻る}"]
+      "connectorList" : ["${L1}{次のループに移る}"]
     }
   }
 }

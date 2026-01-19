@@ -54,17 +54,15 @@ public class NoContentNodeView extends BhNodeViewBase {
     getLookManager().addCssClass(BhConstants.Css.CLASS_NO_CONTENT_NODE);
     setMouseTransparent(true);
     // 親グループに依存してノードの大きさが変わるので, 親グループが変わったときにキャッシュを無効化する
-    if (viewStyle.bodyShapeInner != viewStyle.bodyShapeOuter) {
-      getCallbackRegistry().getOnParentGroupChanged().add(event -> {
-        if (event.oldParent() != null
-            && event.newParent() != null
-            && event.oldParent().inner == event.newParent().inner) {
-          return;
-        }
-        nodeSizeCache.setDirty(true);
-        nodeWithCnctrSizeCache.setDirty(true);
-      });
-    }
+    getCallbackRegistry().getOnParentGroupChanged().add(event -> {
+      if (event.oldParent() != null
+          && event.newParent() != null
+          && event.oldParent().inner == event.newParent().inner) {
+        return;
+      }
+      nodeSizeCache.setDirty(true);
+      nodeWithCnctrSizeCache.setDirty(true);
+    });
   }
 
   /** ノードサイズのキャッシュ値を更新する. */
