@@ -28,7 +28,6 @@ import net.seapanda.bunnyhop.node.model.parameter.BhNodeParameters;
 import net.seapanda.bunnyhop.node.model.parameter.ConnectorId;
 import net.seapanda.bunnyhop.node.model.parameter.DerivationId;
 import net.seapanda.bunnyhop.node.model.section.Section;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -174,22 +173,5 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
       return new CallbackRegistry();
     }
     return cbRegistry;
-  }
-
-  @Override
-  public void show(int depth) {
-    var parentinstId =
-        (parentConnector != null) ? parentConnector.getSerialNo() : InstanceId.NONE;
-    var lastReplacedInstId =
-        (getLastReplaced() != null) ? getLastReplaced().getSerialNo() : InstanceId.NONE;
-
-    System.out.println("%s<ConnectiveNode  bhID=%s  parent=%s>  %s"
-        .formatted(indent(depth), getId(), parentinstId, getSerialNo()));
-    System.out.println("%s<last replaced>  %s"
-        .formatted(indent(depth + 1), lastReplacedInstId));
-    System.out.println(indent(depth + 1) + "<derivation>");
-    getDerivatives().forEach(derv -> System.out.println(
-        "%s<derivative>  %s".formatted(indent(depth + 2), derv.getSerialNo())));
-    childSection.show(depth + 1);
   }
 }

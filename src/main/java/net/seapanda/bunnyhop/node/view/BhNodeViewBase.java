@@ -60,7 +60,6 @@ import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
 import net.seapanda.bunnyhop.node.view.traverse.NvbCallbackInvoker;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
-import net.seapanda.bunnyhop.utility.Showable;
 import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
@@ -76,7 +75,7 @@ import org.apache.commons.lang3.mutable.MutableDouble;
  *
  * @author K.Koike
  */
-public abstract class BhNodeViewBase implements BhNodeView, Showable {
+public abstract class BhNodeViewBase implements BhNodeView {
 
   // 描画順序. 小さい値ほど手前に描画される.
   protected static final double COMPILE_ERR_MARK_VIEW_ORDER_OFFSET = -4000;
@@ -87,7 +86,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   /** ノードビューの描画に必要な図形オブジェクト一式. */
   private final Shapes shapes;
   /** ノードの見た目のパラメータオブジェクト. */
-  protected final BhNodeViewStyle viewStyle;
+  protected final BhNodeViewStyle style;
   /** このノードビューを保持する親グループ.  このノードビューがルートノードビューの場合は null. */
   protected BhNodeViewGroup parent;
   /** このノードビューに対応するノード. (nullable) */
@@ -105,18 +104,18 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   private final LookManagerBase lookManager;
 
   /**
-   * このノードのボディ部分に末尾までの全外部ノードを加えた大きさを返す.
+   * このノードビューに末尾までの全外部ノードビューを加えた部分の大きさを返す.
    *
    * @param includeCnctr コネクタ部分を含む大きさを返す場合 true.
-   * @return 描画ノードの大きさ
+   * @return このノードビューと末尾までの全外部ノードビューを含んだ部分の大きさ
    */
   protected abstract Vec2D getNodeTreeSize(boolean includeCnctr);
 
   /**
-   * 外部ノードを除くボディ部分の大きさを返す.
+   * このノードビューの大きさを返す.
    *
-   * @param includeCnctr コネクタ部分を含む大きさを返す場合true
-   * @return 描画ノードの大きさ
+   * @param includeCnctr コネクタ部分を含む大きさを返す場合 true
+   * @return このノードビューの大きさ
    */
   protected abstract Vec2D getNodeSize(boolean includeCnctr);
 
@@ -132,13 +131,6 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   protected abstract void updatePosOnWorkspace(double posX, double posY);
 
   /**
-   * ノードのサイズに変更があったときの処理を行う.
-   *
-   * <p>ノードのサイズに変更があったときに自動的に呼ばれるので, サブクラスで呼ばないこと.
-   */
-  protected abstract void onNodeSizeChanged();
-
-  /**
    * コンストラクタ.
    *
    * @param style ノードの見た目を決めるパラメータオブジェクト
@@ -148,7 +140,7 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
   protected BhNodeViewBase(
       BhNodeViewStyle style, DerivativeBase<?> model, SequencedSet<Node> components)
       throws ViewConstructionException {
-    this.viewStyle = style;
+    this.style = style;
     this.model = model;
     shapes = createShapes(style);
     panes = createPanes(style, components);
@@ -241,9 +233,8 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
     event.consume();
   }
 
-  /** このノードビューの子要素のサイズが変更されたときにサブクラスから呼ぶこと. */
+  /** このノードビューに子要素のサイズが変更されたことを伝える. */
   protected void notifyChildSizeChanged() {
-    onNodeSizeChanged();
     if (isSizeChangeNotified) {
       return;
     }
@@ -397,13 +388,13 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       }
       boolean isFixed = BhNodeViewBase.this.isFixed();
       ConnectorShape cnctrShape =
-          isFixed ? viewStyle.connectorShapeFixed.shape : viewStyle.connectorShape.shape;
+          isFixed ? style.connectorShapeFixed.shape : style.connectorShape.shape;
       ConnectorShape notchShape =
-          isFixed ? viewStyle.notchShapeFixed.shape : viewStyle.notchShape.shape;
+          isFixed ? style.notchShapeFixed.shape : style.notchShape.shape;
 
       shapes.nodeShape.getPoints().setAll(
           getBodyShape().shape.createVertices(
-              viewStyle,
+              style,
               bodySize.x,
               bodySize.y,
               cnctrShape,
@@ -456,12 +447,12 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
      * @return このノードビューのボディの形状の種類
      */
     BodyShapeType getBodyShape() {
-      return viewStyle.getBodyShape(parent == null || parent.inner);
+      return style.getBodyShape(parent == null || parent.inner);
     }
 
     @Override
     public ConnectorPos getConnectorPos() {
-      return viewStyle.connectorPos;
+      return style.connectorPos;
     }
 
     @Override
@@ -603,26 +594,26 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       double cnctrUpperLeftY = 0.0;
       double cnctrLowerRightX = 0.0;
       double cnctrLowerRightY = 0.0;
-      double boundsWidth = viewStyle.connectorWidth * viewStyle.connectorBoundsRate;
-      double boundsHeight = viewStyle.connectorHeight * viewStyle.connectorBoundsRate;
+      double boundsWidth = style.connectorWidth * style.connectorBoundsRate;
+      double boundsHeight = style.connectorHeight * style.connectorBoundsRate;
       double alignOffsetX = 0.0;
       double alignOffsetY = 0.0;
 
-      if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
-        alignOffsetX = (bodySize.x - viewStyle.connectorWidth) / 2.0;
-        alignOffsetY = (bodySize.y - viewStyle.connectorHeight) / 2.0;
+      if (style.connectorAlignment == ConnectorAlignment.CENTER) {
+        alignOffsetX = (bodySize.x - style.connectorWidth) / 2.0;
+        alignOffsetY = (bodySize.y - style.connectorHeight) / 2.0;
       }
-      if (viewStyle.connectorPos == ConnectorPos.LEFT) {
-        cnctrUpperLeftX = posX - (boundsWidth + viewStyle.connectorWidth) / 2.0;
+      if (style.connectorPos == ConnectorPos.LEFT) {
+        cnctrUpperLeftX = posX - (boundsWidth + style.connectorWidth) / 2.0;
         cnctrUpperLeftY = (posY + alignOffsetY)
-            - (boundsHeight - viewStyle.connectorHeight) / 2.0 + viewStyle.connectorShift;
+            - (boundsHeight - style.connectorHeight) / 2.0 + style.connectorShift;
         cnctrLowerRightX = cnctrUpperLeftX + boundsWidth;
         cnctrLowerRightY = cnctrUpperLeftY + boundsHeight;
 
-      } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
+      } else if (style.connectorPos == ConnectorPos.TOP) {
         cnctrUpperLeftX = (posX + alignOffsetX)
-            - (boundsWidth - viewStyle.connectorWidth) / 2.0 + viewStyle.connectorShift;
-        cnctrUpperLeftY = posY - (boundsHeight + viewStyle.connectorHeight) / 2.0;
+            - (boundsWidth - style.connectorWidth) / 2.0 + style.connectorShift;
+        cnctrUpperLeftY = posY - (boundsHeight + style.connectorHeight) / 2.0;
         cnctrLowerRightX = cnctrUpperLeftX + boundsWidth;
         cnctrLowerRightY = cnctrUpperLeftY + boundsHeight;
       }
@@ -649,12 +640,12 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
 
     @Override
     public Vec2D getConnectorSize() {
-      return viewStyle.getConnectorSize(isFixed());
+      return style.getConnectorSize(isFixed());
     }
 
     @Override
     public Vec2D getNotchSize() {
-      return viewStyle.getNotchSize(isFixed());
+      return style.getNotchSize(isFixed());
     }
 
     @Override
@@ -672,16 +663,16 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       Vec2D relPos = new Vec2D();
       Vec2D cnctrSize = getConnectorSize();
       Vec2D bodySize = getNodeSize(false);
-      if (viewStyle.connectorPos == ConnectorPos.LEFT) {
+      if (style.connectorPos == ConnectorPos.LEFT) {
         relPos.x += cnctrSize.x;
-        relPos.y -= viewStyle.connectorShift;
-        if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
+        relPos.y -= style.connectorShift;
+        if (style.connectorAlignment == ConnectorAlignment.CENTER) {
           relPos.y += (cnctrSize.y - bodySize.y) / 2;
         }
-      } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
-        relPos.x -= viewStyle.connectorShift;
+      } else if (style.connectorPos == ConnectorPos.TOP) {
+        relPos.x -= style.connectorShift;
         relPos.y += cnctrSize.y;
-        if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
+        if (style.connectorAlignment == ConnectorAlignment.CENTER) {
           relPos.x += (cnctrSize.x - bodySize.x) / 2;
         }
       }
@@ -958,15 +949,15 @@ public abstract class BhNodeViewBase implements BhNodeView, Showable {
       // コネクタの位置と大きさからオフセットを計算する.
       Vec2D cnctrSize = regionManager.getConnectorSize();
       setTreePosOnWorkspace(posX, posY);
-      if (viewStyle.connectorPos == ConnectorPos.LEFT) {
+      if (style.connectorPos == ConnectorPos.LEFT) {
         posX += cnctrSize.x;
-        if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
-          posY += (viewStyle.connectorHeight - regionManager.getNodeSize(false).y) / 2;
+        if (style.connectorAlignment == ConnectorAlignment.CENTER) {
+          posY += (style.connectorHeight - regionManager.getNodeSize(false).y) / 2;
         }
-      } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
+      } else if (style.connectorPos == ConnectorPos.TOP) {
         posY += cnctrSize.y;
-        if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
-          posX += (viewStyle.connectorWidth - regionManager.getNodeSize(false).x) / 2;
+        if (style.connectorAlignment == ConnectorAlignment.CENTER) {
+          posX += (style.connectorWidth - regionManager.getNodeSize(false).x) / 2;
         }
       }
       setTreePosOnWorkspace(posX, posY);

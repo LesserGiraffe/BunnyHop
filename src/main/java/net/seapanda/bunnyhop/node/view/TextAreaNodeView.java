@@ -32,15 +32,10 @@ import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.TextNode;
-import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeType;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
-import net.seapanda.bunnyhop.node.view.style.ConnectorAlignment;
-import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
-import net.seapanda.bunnyhop.node.view.style.NotchPos;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
-import net.seapanda.bunnyhop.utility.SimpleCache;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
@@ -52,25 +47,23 @@ public final class TextAreaNodeView extends TextInputNodeView {
 
   private final TextArea textArea = new TextArea();
   private final TextNode model;
-  /** コネクタ部分を含まないノードサイズのキャッシュデータ. */
-  private final SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<>(new Vec2D());
-  /** コネクタ部分を含むノードサイズのキャッシュデータ. */
-  private final SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<>(new Vec2D());
   /** クリック時にテキストを選択するかどうかのフラグ. */
   private boolean shouldSelectText = true;
+  private final NodeSizeCalculator sizeCalculator;
 
   /**
    * コンストラクタ.
    *
    * @param model このノードビューに対応するノード
-   * @param viewStyle このノードビューのスタイル
+   * @param style このノードビューのスタイル
    * @throws ViewConstructionException ノードビューの初期化に失敗
    */
   public TextAreaNodeView(
-      TextNode model, BhNodeViewStyle viewStyle, SequencedSet<Node> components)
+      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components)
       throws ViewConstructionException {
-    super(model, viewStyle, components);
+    super(model, style, components);
     this.model = model;
+    sizeCalculator = new NodeSizeCalculator(this, this::getTextAreaSize);
     setComponent(textArea);
     textArea.addEventFilter(MouseEvent.ANY, this::forwardEvent);
     textArea.setOnMouseClicked(event -> Platform.runLater(this::selectText));
@@ -81,11 +74,11 @@ public final class TextAreaNodeView extends TextInputNodeView {
   /**
    * コンストラクタ.
    *
-   * @param viewStyle このノードビューのスタイル
+   * @param style このノードビューのスタイル
    * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public TextAreaNodeView(BhNodeViewStyle viewStyle) throws ViewConstructionException {
-    this(null, viewStyle, new LinkedHashSet<>());
+  public TextAreaNodeView(BhNodeViewStyle style) throws ViewConstructionException {
+    this(null, style, new LinkedHashSet<>());
   }
 
   private void forwardEvent(Event event) {
@@ -101,12 +94,17 @@ public final class TextAreaNodeView extends TextInputNodeView {
   }
 
   private void initStyle() {
-    textArea.getStyleClass().add(viewStyle.textArea.cssClass);
+    textArea.getStyleClass().add(style.textArea.cssClass);
     textArea.setWrapText(false);
     textArea.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
     textArea.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-    setEditable(viewStyle.textArea.editable);
+    setEditable(style.textArea.editable);
     getLookManager().addCssClass(BhConstants.Css.CLASS_TEXT_AREA_NODE);
+  }
+
+  private Vec2D getTextAreaSize() {
+    // textArea.getWidth() だと設定した値以外が返る場合がある
+    return new Vec2D(textArea.getPrefWidth(), textArea.getPrefHeight());
   }
 
   private void selectText() {
@@ -124,9 +122,9 @@ public final class TextAreaNodeView extends TextInputNodeView {
   }
 
   @Override
-  protected void onNodeSizeChanged() {
-    nodeSizeCache.setDirty(true);
-    nodeWithCnctrSizeCache.setDirty(true);
+  protected void notifyChildSizeChanged() {
+    sizeCalculator.notifyNodeSizeChanged();
+    super.notifyChildSizeChanged();
   }
 
   @Override
@@ -165,11 +163,11 @@ public final class TextAreaNodeView extends TextInputNodeView {
         textPart.getFont(),
         textPart.getBoundsType(),
         textPart.getLineSpacing());
-    double newWidth = Math.max(textBounds.x, viewStyle.textArea.minWidth);
+    double newWidth = Math.max(textBounds.x, style.textArea.minWidth);
     // 幅を (文字幅 + パディング) にするとwrapの設定によらず文字列が折り返してしまういことがあるので定数 6 を足す
     // この定数はフォントやパディングが違っても機能する.
     newWidth += content.getPadding().getLeft() + content.getPadding().getRight() + 6;
-    double newHeight = Math.max(textBounds.y, viewStyle.textArea.minHeight);
+    double newHeight = Math.max(textBounds.y, style.textArea.minHeight);
     newHeight += content.getPadding().getTop() + content.getPadding().getBottom() + 2;
     textArea.setPrefSize(newWidth, newHeight);
     boolean acceptable = fnCheckFormat.apply(textPart.getText());
@@ -178,131 +176,6 @@ public final class TextAreaNodeView extends TextInputNodeView {
     disableTextAreaCache();
     // textArea.requestLayout() を呼ばないと, newWidth の値によってはノード選択ビューでサイズが更新されない
     Platform.runLater(textArea::requestLayout);
-  }
-
-  /** ノードサイズのキャッシュ値を更新する. */
-  private void updateNodeSizeCache(boolean includeCnctr, Vec2D nodeSize) {
-    if (includeCnctr) {
-      nodeWithCnctrSizeCache.update(new Vec2D(nodeSize));
-    } else {
-      nodeSizeCache.update(new Vec2D(nodeSize));
-    }
-  }
-
-  @Override
-  public void show(int depth) {
-    System.out.printf("%s<TextAreaNodeView>  %s%n", indent(depth), hashCode());
-    System.out.printf("%s<content>  %s%n", indent(depth + 1), textArea.getText());
-  }
-
-  @Override
-  protected void updatePosOnWorkspace(double posX, double posY) {
-    getPositionManager().setPosOnWorkspace(posX, posY);
-  }
-
-  @Override
-  protected Vec2D getNodeSize(boolean includeCnctr) {
-    if (includeCnctr && !nodeWithCnctrSizeCache.isDirty()) {
-      return new Vec2D(nodeWithCnctrSizeCache.getVal());
-    }
-    if (!includeCnctr && !nodeSizeCache.isDirty()) {
-      return new Vec2D(nodeSizeCache.getVal());
-    }
-
-    Vec2D nodeSize = calcBodySize();
-    updateNodeSizeCache(false, nodeSize);
-    if (includeCnctr) {
-      Vec2D cnctrSize = getRegionManager().getConnectorSize();
-      if (viewStyle.connectorPos == ConnectorPos.LEFT) {
-        nodeSize = calcSizeIncludingLeftConnector(nodeSize, cnctrSize);
-      } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
-        nodeSize = calcSizeIncludingTopConnector(nodeSize, cnctrSize);
-      }
-      updateNodeSizeCache(true, nodeSize);
-    }
-    return nodeSize;
-  }
-
-  /** ノードのボディ部分のサイズを求める. */
-  private Vec2D calcBodySize() {
-    if (!nodeSizeCache.isDirty()) {
-      return new Vec2D(nodeSizeCache.getVal());
-    }
-    Vec2D commonPartSize = getRegionManager().getCommonPartSize();
-    Vec2D innerSize = switch (viewStyle.baseArrangement) {
-      case ROW ->
-          // textArea.getWidth() だと設定した値以外が返る場合がある
-          new Vec2D(
-              commonPartSize.x + textArea.getPrefWidth(),
-              Math.max(commonPartSize.y, textArea.getPrefHeight()));
-      case COLUMN ->
-          new Vec2D(
-              Math.max(commonPartSize.x, textArea.getPrefWidth()),
-              commonPartSize.y + textArea.getPrefHeight());
-    };
-    return addPaddingAndNotch(innerSize);
-  }
-
-  /**
-   * {@param size} にパディングと切り欠き部分の大きさを加えて返す.
-   *
-   * @param size このサイズにパディングと切り欠き部分の大きさを加える
-   */
-  private Vec2D addPaddingAndNotch(Vec2D size) {
-    if (getLookManager().getBodyShape() == BodyShapeType.NONE) {
-      return size;
-    }
-    double width = viewStyle.paddingLeft + size.x + viewStyle.paddingRight;
-    double height = viewStyle.paddingTop + size.y + viewStyle.paddingBottom;
-    Vec2D notchSize = getRegionManager().getNotchSize();
-    if (viewStyle.notchPos == NotchPos.RIGHT) {
-      width += notchSize.x;
-      height = Math.max(height, notchSize.y);
-    } else if (viewStyle.notchPos == NotchPos.BOTTOM) {
-      width = Math.max(width, notchSize.x);
-      height += notchSize.y;
-    }
-    return new Vec2D(width, height);
-  }
-
-  /**
-   * 左にコネクタがついている場合のコネクタを含んだサイズを求める.
-   *
-   * @param bodySize ボディ部分のサイズ
-   * @param cnctrSize コネクタサイズ
-   * @return 左にコネクタがついている場合のコネクタを含んだサイズ
-   */
-  private Vec2D calcSizeIncludingLeftConnector(Vec2D bodySize, Vec2D cnctrSize) {
-    double wholeWidth = bodySize.x + cnctrSize.x;
-    // ボディの左上を原点としたときのコネクタの上端の座標
-    double cnctrTopPos = viewStyle.connectorShift;
-    if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
-      cnctrTopPos += (bodySize.y - cnctrSize.y) / 2;
-    }
-    // ボディの左上を原点としたときのコネクタの下端の座標
-    double cnctrBottomPos = cnctrTopPos + cnctrSize.y;
-    double wholeHeight = Math.max(cnctrBottomPos, bodySize.y) - Math.min(cnctrTopPos, 0);
-    return new Vec2D(wholeWidth, wholeHeight);
-  }
-
-  /**
-   * 上にコネクタがついている場合のコネクタを含んだサイズを求める.
-   *
-   * @param bodySize ボディ部分のサイズ
-   * @param cnctrSize コネクタサイズ
-   * @return 左にコネクタがついている場合のコネクタを含んだサイズ
-   */
-  private Vec2D calcSizeIncludingTopConnector(Vec2D bodySize, Vec2D cnctrSize) {
-    double wholeHeight = bodySize.y + cnctrSize.y;
-    // ボディの左上を原点としたときのコネクタの左端の座標
-    double cnctrLeftPos = viewStyle.connectorShift;
-    if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
-      cnctrLeftPos += (bodySize.x - cnctrSize.x) / 2;
-    }
-    // ボディの左上を原点としたときのコネクタの右端の座標
-    double cnctrRightPos = cnctrLeftPos + cnctrSize.x;
-    double wholeWidth = Math.max(cnctrRightPos, bodySize.x) - Math.min(cnctrLeftPos, 0);
-    return new Vec2D(wholeWidth, wholeHeight);
   }
 
   /**
@@ -318,6 +191,16 @@ public final class TextAreaNodeView extends TextInputNodeView {
         child.setCache(false);
       }
     }
+  }
+
+  @Override
+  protected void updatePosOnWorkspace(double posX, double posY) {
+    getPositionManager().setPosOnWorkspace(posX, posY);
+  }
+
+  @Override
+  protected Vec2D getNodeSize(boolean includeCnctr) {
+    return sizeCalculator.calcNodeSize(includeCnctr);
   }
 
   @Override

@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.SequencedMap;
 import java.util.regex.Pattern;
 import javafx.scene.Group;
@@ -34,7 +33,6 @@ import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewComponent;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
-import net.seapanda.bunnyhop.utility.Showable;
 import net.seapanda.bunnyhop.utility.SimpleCache;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
@@ -43,7 +41,7 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
  *
  * @author K.Koike
  */
-public class BhNodeViewGroup implements NodeViewComponent, Showable {
+public class BhNodeViewGroup implements NodeViewComponent {
 
   /** `\\...\$`. */
   private static final Pattern escapeDollar = Pattern.compile("^(\\\\)+\\$");
@@ -362,9 +360,9 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       }
       Vec2D cnctrSize = new Vec2D(0, 0);
       Vec2D childBodySize = new Vec2D(0, 0);
-      if (child.viewStyle.connectorPos == ConnectorPos.TOP) {
+      if (child.style.connectorPos == ConnectorPos.TOP) {
         childBodySize = child.getRegionManager().getNodeTreeSize(true);
-      } else if (child.viewStyle.connectorPos == ConnectorPos.LEFT) {
+      } else if (child.style.connectorPos == ConnectorPos.LEFT) {
         childBodySize = child.getRegionManager().getNodeTreeSize(false);
         cnctrSize = child.getRegionManager().getConnectorSize();
       }
@@ -389,10 +387,10 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
       }
       Vec2D cnctrSize = new Vec2D(0, 0);
       Vec2D childBodySize = new Vec2D(0, 0);
-      if (child.viewStyle.connectorPos == ConnectorPos.TOP) {
+      if (child.style.connectorPos == ConnectorPos.TOP) {
         childBodySize = child.getRegionManager().getNodeTreeSize(false);
         cnctrSize = child.getRegionManager().getConnectorSize();
-      } else if (child.viewStyle.connectorPos == ConnectorPos.LEFT) {
+      } else if (child.style.connectorPos == ConnectorPos.LEFT) {
         childBodySize = child.getRegionManager().getNodeTreeSize(true);
       }
       maxBodyHeight = Math.max(maxBodyHeight, childBodySize.y);
@@ -487,19 +485,5 @@ public class BhNodeViewGroup implements NodeViewComponent, Showable {
   @Override
   public void accept(NodeViewWalker visitor) {
     visitor.visit(this);
-  }
-
-  @Override
-  public void show(int depth) {
-    try {
-      System.out.printf("%s<BhNodeViewGroup>  %s%n", indent(depth), hashCode());
-      System.out.println(indent(depth + 1) + (inner ? "<inner>" : "<outer>"));
-      childNameToNodeView.values().stream()
-          .filter(Objects::nonNull)
-          .forEachOrdered(childNodeView -> childNodeView.show(depth + 1));
-      subGroupList.forEach(subGroup -> subGroup.show(depth + 1));
-    } catch (Exception e) {
-      System.out.println("connectiveNodeView show exception " + e);
-    }
   }
 }

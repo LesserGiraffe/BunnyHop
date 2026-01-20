@@ -170,10 +170,10 @@ public interface BhNodeView extends NodeViewComponent {
     void removeQuadTreeRect();
 
     /**
-     * 関連するノードビューに末尾までの全外部ノードビューを加えた大きさを返す.
+     * 関連するノードビューに末尾までの全外部ノードビューを加えた部分の大きさを返す.
      *
      * @param includeCnctr コネクタ部分を含む大きさを返す場合 true.
-     * @return ノードビューの大きさ
+     * @return 関連するノードビューに末尾までの全外部ノードビューを加えた部分の大きさ
      */
     Vec2D getNodeTreeSize(boolean includeCnctr);
 

@@ -26,7 +26,6 @@ import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeParameters;
 import net.seapanda.bunnyhop.node.model.parameter.DerivationId;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -212,23 +211,6 @@ public class TextNode extends DerivativeBase<TextNode> {
       return new CallbackRegistry();
     }
     return cbRegistry;
-  }
-
-  @Override
-  public void show(int depth) {
-    var parentinstId =
-        (parentConnector != null) ? parentConnector.getSerialNo() : InstanceId.NONE;
-    var lastReplacedInstId =
-        (getLastReplaced() != null) ? getLastReplaced().getSerialNo() : InstanceId.NONE;
-
-    System.out.println("%s<TextNode text=%s  bhID=%s  parent=%s>  %s"
-        .formatted(indent(depth), text, getId(), parentinstId, getSerialNo()));
-    System.out.println("%s<ws>  %s".formatted(indent(depth + 1), workspace));
-    System.out.println(
-        "%s<last replaced>  %s".formatted(indent(depth + 1), lastReplacedInstId));
-    System.out.println(indent(depth + 1) + "<derivation>");
-    getDerivatives().forEach(derv ->  System.out.println(
-        "%s<derivative>  %s".formatted(indent(depth + 2), derv.getSerialNo())));
   }
 
   /** {@link TextNode} に対してイベントハンドラを追加または削除する機能を提供するクラス. */

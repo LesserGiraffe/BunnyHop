@@ -287,18 +287,6 @@ public class Connector extends SyntaxSymbol {
     return parent.isDescendantOf(ancestor);
   }
 
-  @Override
-  public void show(int depth) {
-    System.out.printf(
-        "%s<Connector bhID=%s nodeID=%s parent=%s>  %s%n",
-        indent(depth),
-        params.connectorId(),
-        connectedNode.getId(),
-        parent.getSerialNo(),
-        getSerialNo());
-    connectedNode.show(depth + 1);
-  }
-
   /** イベントハンドラの登録 / 削除を行う機能を提供するクラス. */
   class CallbackRegistry {
 

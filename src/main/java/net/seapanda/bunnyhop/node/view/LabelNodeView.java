@@ -23,14 +23,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.TextNode;
-import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeType;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
-import net.seapanda.bunnyhop.node.view.style.ConnectorAlignment;
-import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
-import net.seapanda.bunnyhop.node.view.style.NotchPos;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
-import net.seapanda.bunnyhop.utility.SimpleCache;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
@@ -42,22 +37,20 @@ public final class LabelNodeView extends BhNodeViewBase {
 
   private final Label label = new Label();
   private final TextNode model;
-  /** コネクタ部分を含まないノードサイズのキャッシュデータ. */
-  private final SimpleCache<Vec2D> nodeSizeCache = new SimpleCache<>(new Vec2D());
-  /** コネクタ部分を含むノードサイズのキャッシュデータ. */
-  private final SimpleCache<Vec2D> nodeWithCnctrSizeCache = new SimpleCache<>(new Vec2D());
+  private final NodeSizeCalculator sizeCalculator;
 
   /**
    * コンストラクタ.
    *
    * @param model このノードビューに対応するノード
-   * @param viewStyle このノードビューのスタイル
+   * @param style このノードビューのスタイル
    * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public LabelNodeView(TextNode model, BhNodeViewStyle viewStyle, SequencedSet<Node> components)
+  public LabelNodeView(TextNode model, BhNodeViewStyle style, SequencedSet<Node> components)
       throws ViewConstructionException {
-    super(viewStyle, model, components);
+    super(style, model, components);
     this.model = model;
+    sizeCalculator = new NodeSizeCalculator(this, this::getLabelSize);
     setComponent(label);
     initStyle();
   }
@@ -65,45 +58,34 @@ public final class LabelNodeView extends BhNodeViewBase {
   /**
    * コンストラクタ.
    *
-   * @param viewStyle このノードビューのスタイル
+   * @param style このノードビューのスタイル
    * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public LabelNodeView(BhNodeViewStyle viewStyle)
+  public LabelNodeView(BhNodeViewStyle style)
       throws ViewConstructionException {
-    this(null, viewStyle, new LinkedHashSet<>());
+    this(null, style, new LinkedHashSet<>());
   }
 
   private void initStyle() {
     label.autosize();
     label.setMouseTransparent(true);
-    label.getStyleClass().add(viewStyle.label.cssClass);
+    label.getStyleClass().add(style.label.cssClass);
     getLookManager().addCssClass(BhConstants.Css.CLASS_LABEL_NODE);
   }
 
-  /** ノードサイズのキャッシュ値を更新する. */
-  private void updateNodeSizeCache(boolean includeCnctr, Vec2D nodeSize) {
-    if (includeCnctr) {
-      nodeWithCnctrSizeCache.update(new Vec2D(nodeSize));
-    } else {
-      nodeSizeCache.update(new Vec2D(nodeSize));
-    }
+  private Vec2D getLabelSize() {
+    return new Vec2D(label.getWidth(), label.getHeight());
   }
 
   @Override
-  protected void onNodeSizeChanged() {
-    nodeSizeCache.setDirty(true);
-    nodeWithCnctrSizeCache.setDirty(true);
+  protected void notifyChildSizeChanged() {
+    sizeCalculator.notifyNodeSizeChanged();
+    super.notifyChildSizeChanged();
   }
 
   @Override
   public Optional<TextNode> getModel() {
     return Optional.ofNullable(model);
-  }
-
-  @Override
-  public void show(int depth) {
-    System.out.printf("%s<LabelView>  %s%n", indent(depth), hashCode());
-    System.out.printf("%s<content>  %s%n", indent(depth + 1), label.getText());
   }
 
   @Override
@@ -113,106 +95,7 @@ public final class LabelNodeView extends BhNodeViewBase {
 
   @Override
   protected Vec2D getNodeSize(boolean includeCnctr) {
-    if (includeCnctr && !nodeWithCnctrSizeCache.isDirty()) {
-      return new Vec2D(nodeWithCnctrSizeCache.getVal());
-    }
-    if (!includeCnctr && !nodeSizeCache.isDirty()) {
-      return new Vec2D(nodeSizeCache.getVal());
-    }
-
-    Vec2D nodeSize = calcBodySize();
-    updateNodeSizeCache(false, nodeSize);
-    if (includeCnctr) {
-      Vec2D cnctrSize = getRegionManager().getConnectorSize();
-      if (viewStyle.connectorPos == ConnectorPos.LEFT) {
-        nodeSize = calcSizeIncludingLeftConnector(nodeSize, cnctrSize);
-      } else if (viewStyle.connectorPos == ConnectorPos.TOP) {
-        nodeSize = calcSizeIncludingTopConnector(nodeSize, cnctrSize);
-      }
-      updateNodeSizeCache(true, nodeSize);
-    }
-    return nodeSize;
-  }
-
-  /** ノードのボディ部分のサイズを求める. */
-  private Vec2D calcBodySize() {
-    if (!nodeSizeCache.isDirty()) {
-      return new Vec2D(nodeSizeCache.getVal());
-    }
-    Vec2D commonPartSize = getRegionManager().getCommonPartSize();
-    Vec2D innerSize = switch (viewStyle.baseArrangement) {
-      case ROW ->
-          new Vec2D(
-              commonPartSize.x + label.getWidth(),
-              Math.max(commonPartSize.y, label.getHeight()));
-      case COLUMN ->
-          new Vec2D(
-              Math.max(commonPartSize.x, label.getWidth()),
-              commonPartSize.y + label.getHeight());
-    };
-    return addPaddingAndNotch(innerSize);
-  }
-
-  /**
-   * {@param size} にパディングと切り欠き部分の大きさを加えて返す.
-   *
-   * @param size このサイズにパディングと切り欠き部分の大きさを加える
-   */
-  private Vec2D addPaddingAndNotch(Vec2D size) {
-    if (getLookManager().getBodyShape() == BodyShapeType.NONE) {
-      return size;
-    }
-    double width = viewStyle.paddingLeft + size.x + viewStyle.paddingRight;
-    double height = viewStyle.paddingTop + size.y + viewStyle.paddingBottom;
-    Vec2D notchSize = getRegionManager().getNotchSize();
-    if (viewStyle.notchPos == NotchPos.RIGHT) {
-      width += notchSize.x;
-      height = Math.max(height, notchSize.y);
-    } else if (viewStyle.notchPos == NotchPos.BOTTOM) {
-      width = Math.max(width, notchSize.x);
-      height += notchSize.y;
-    }
-    return new Vec2D(width, height);
-  }
-
-  /**
-   * 左にコネクタがついている場合のコネクタを含んだサイズを求める.
-   *
-   * @param bodySize ボディ部分のサイズ
-   * @param cnctrSize コネクタサイズ
-   * @return 左にコネクタがついている場合のコネクタを含んだサイズ
-   */
-  private Vec2D calcSizeIncludingLeftConnector(Vec2D bodySize, Vec2D cnctrSize) {
-    double wholeWidth = bodySize.x + cnctrSize.x;
-    // ボディの左上を原点としたときのコネクタの上端の座標
-    double cnctrTopPos = viewStyle.connectorShift;
-    if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
-      cnctrTopPos += (bodySize.y - cnctrSize.y) / 2;
-    }
-    // ボディの左上を原点としたときのコネクタの下端の座標
-    double cnctrBottomPos = cnctrTopPos + cnctrSize.y;
-    double wholeHeight = Math.max(cnctrBottomPos, bodySize.y) - Math.min(cnctrTopPos, 0);
-    return new Vec2D(wholeWidth, wholeHeight);
-  }
-
-  /**
-   * 上にコネクタがついている場合のコネクタを含んだサイズを求める.
-   *
-   * @param bodySize ボディ部分のサイズ
-   * @param cnctrSize コネクタサイズ
-   * @return 左にコネクタがついている場合のコネクタを含んだサイズ
-   */
-  private Vec2D calcSizeIncludingTopConnector(Vec2D bodySize, Vec2D cnctrSize) {
-    double wholeHeight = bodySize.y + cnctrSize.y;
-    // ボディの左上を原点としたときのコネクタの左端の座標
-    double cnctrLeftPos = viewStyle.connectorShift;
-    if (viewStyle.connectorAlignment == ConnectorAlignment.CENTER) {
-      cnctrLeftPos += (bodySize.x - cnctrSize.x) / 2;
-    }
-    // ボディの左上を原点としたときのコネクタの右端の座標
-    double cnctrRightPos = cnctrLeftPos + cnctrSize.x;
-    double wholeWidth = Math.max(cnctrRightPos, bodySize.x) - Math.min(cnctrLeftPos, 0);
-    return new Vec2D(wholeWidth, wholeHeight);
+    return sizeCalculator.calcNodeSize(includeCnctr);
   }
 
   @Override

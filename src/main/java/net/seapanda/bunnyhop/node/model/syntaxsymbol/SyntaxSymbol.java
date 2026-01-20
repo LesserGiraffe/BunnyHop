@@ -24,14 +24,13 @@ import java.util.List;
 import java.util.Objects;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.utility.SerialNumber;
-import net.seapanda.bunnyhop.utility.Showable;
 
 /**
  * 終端記号, 非終端記号を表すクラス.
  *
  * @author K.Koike
  */
-public abstract class SyntaxSymbol implements Showable, Serializable {
+public abstract class SyntaxSymbol implements Serializable {
 
   /** 終端, 非終端記号名. */
   private final String symbolName;

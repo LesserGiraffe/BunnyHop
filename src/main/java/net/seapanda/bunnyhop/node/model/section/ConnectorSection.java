@@ -131,13 +131,4 @@ public class ConnectorSection extends Section {
   public Connector findConnector(ConnectorId id) {
     return cnctrList.stream().filter(cnctr -> cnctr.getId().equals(id)).findFirst().orElse(null);
   }
-
-  @Override
-  public void show(int depth) {
-    var parentInstId =
-        (parentNode != null) ? parentNode.getSerialNo() : parentSection.getSerialNo();
-    System.out.printf("%s<ConnectorSection  name=%s  parent=%s>  %s%n",
-        indent(depth), getSymbolName(), parentInstId, getSerialNo());
-    cnctrList.forEach(connector -> connector.show(depth + 1));
-  }
 }
