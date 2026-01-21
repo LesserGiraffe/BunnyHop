@@ -12,5 +12,5 @@
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <Section name="StatSctn"/>
+  <Section name="Statement"/>
 </Node>

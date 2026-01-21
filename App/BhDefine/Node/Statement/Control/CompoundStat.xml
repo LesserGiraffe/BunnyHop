@@ -13,8 +13,8 @@
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <Section name="StatSctn">
-    <ConnectorSection name="VarScopeSctn">
+  <Section name="Statement">
+    <ConnectorSection name="VarScope">
 
       <Connector
         bhConnectorID="idCompoundStat.cnctr0"

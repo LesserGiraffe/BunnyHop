@@ -12,7 +12,7 @@ let listDeclToLiteral = {
   'StrListDecl'   : 'idStrLiteralExp',
   'BoolListDecl'  : 'idBoolLiteralExp',
   'ColorListDecl' : 'idColorLiteralExp',
-  'SoundListDecl' : 'idFreqSoundLiteral'
+  'SoundListDecl' : 'idFreqSoundLiteralExp'
 };
 
 let listDeclToEmptyList = {

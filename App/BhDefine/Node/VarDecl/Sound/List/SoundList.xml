@@ -11,7 +11,7 @@
   onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
   version="bhn-0.1.0">
 
-  <ConnectorSection name="SoundListSctn">
+  <ConnectorSection name="SoundListExp">
     <Connector
       bhConnectorID="idSoundList.cnctr0"
       import="idAnyFixedCnctr"

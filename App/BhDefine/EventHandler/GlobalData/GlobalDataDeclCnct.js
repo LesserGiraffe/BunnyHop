@@ -6,6 +6,6 @@
     sectionName = String(section.getSymbolName());
   }
 
-  return sectionName === 'GlobalDataDeclSctn';
+  return sectionName === 'GlobalDataDecl';
 })();
 

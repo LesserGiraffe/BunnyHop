@@ -302,7 +302,7 @@
       "sub": "－"
     },
 
-    "eye-ops": {
+    "eye-opts": {
       "both": "両目",
       "right": "右目",
       "left": "左目"
@@ -315,27 +315,27 @@
       "turnLeft": "左回転"
     },
 
-    "mutex-block-wait-ops": {
+    "mutex-block-wait-opts": {
       "true": "待つ",
       "false": "待たない"
     },
 
-    "sync-timer-reset-ops": {
+    "sync-timer-reset-opts": {
       "true": "する",
       "false": "しない"
     },
 
-    "sync-timer-countdown-ops": {
+    "sync-timer-countdown-opts": {
       "true": "減らす",
       "false": "減らさない"
     },
 
-    "semaphore-wait-ops": {
+    "semaphore-wait-opts": {
       "true": "待つ",
       "false": "待たない"
     },
 
-    "print-stat-ops": {
+    "print-stat-opts": {
       "with-line-break": "改行あり",
       "without-line-break": "改行なし"
     },
@@ -430,17 +430,17 @@
       "prompt-text": "入力待ちです"
     },
 
-    "max-min-ops": {
+    "max-min-opts": {
       "max": "大きい方",
       "min": "小さい方"
     },
 
-    "array-index-of-ops": {
+    "array-index-of-opts": {
       "first": "最初の",
       "last": "最後の"
     },
 
-    "list-splice-ops": {
+    "list-splice-opts": {
       "remove": "消す",
       "extract": "残す"
     },
@@ -452,7 +452,7 @@
       "peak": "ピーク値"
     },
 
-    "list-sort-ops": {
+    "list-sort-opts": {
       "ascending": "小さい順",
       "descending": "大きい順"
     },
@@ -618,8 +618,8 @@
       "BoolLiteralExp": "真偽値",
       "ColorLiteralExp": "色",
       "NumLiteralExp": "数値",
-      "FreqSoundLiteral": "音",
-      "ScaleSoundLiteral": "音",
+      "FreqSoundLiteralExp": "音",
+      "ScaleSoundLiteralExp": "音",
       "NewLine": "改行",
       "StrLiteralExp": "文字列",
       "CommentPart": "コメント",
@@ -712,7 +712,7 @@
     "color": "色",
     "control": "制御",
     "variable": "変数 / リスト",
-    "func-def": "関数作成",
+    "func-def": "関数",
     "event": "イベント",
     "misc": "その他"
   }

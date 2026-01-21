@@ -1,6 +1,6 @@
 (function() {
   return [
-    ['remove', bhTextDb.get('node', 'list-splice-ops', 'remove')],
-    ['extract', bhTextDb.get('node', 'list-splice-ops', 'extract')]
+    ['remove', bhTextDb.get('node', 'list-splice-opts', 'remove')],
+    ['extract', bhTextDb.get('node', 'list-splice-opts', 'extract')]
   ];
 })();

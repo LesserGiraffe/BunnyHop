@@ -20,7 +20,7 @@
   <Derivation derivationID="dervIdVarDeclToArg" derivativeID="idColorListArg"/>
   <Derivation derivationID="dervIdVarDeclToOutArg" derivativeID="idColorListArg"/>
 
-  <ConnectorSection name="VarDeclSctn">
+  <ConnectorSection name="VarDecl">
 
     <Connector
       bhConnectorID="idColorListDecl.cnctr0"

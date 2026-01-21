@@ -8,7 +8,7 @@ function genAssignStat() {
     'StrVarDecl'   : 'idStrLiteralExp',
     'BoolVarDecl'  : 'idBoolLiteralExp',
     'ColorVarDecl' : 'idColorLiteralExp',
-    'SoundVarDecl' : 'idFreqSoundLiteral'
+    'SoundVarDecl' : 'idFreqSoundLiteralExp'
   };
 
   let assignStatID = 'idAnyAssignStat';

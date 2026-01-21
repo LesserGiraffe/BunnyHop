@@ -7,7 +7,7 @@
     sectionName = String(section.getSymbolName());
   }
 
-  return sectionName === 'StatSctn' ||
+  return sectionName === 'Statement' ||
        newNodeName === 'BreakStat'||
        newNodeName === 'ContinueStat';
 })();

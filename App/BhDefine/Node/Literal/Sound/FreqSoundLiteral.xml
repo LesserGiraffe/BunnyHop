@@ -1,30 +1,34 @@
 <Node
   type="connective"
-  bhNodeID="idFreqSoundLiteral"
-  name="FreqSoundLiteral"
-  nodeStyleID="FreqSoundLiteral.json"
+  bhNodeID="idFreqSoundLiteralExp"
+  name="FreqSoundLiteralExp"
+  nodeStyleID="FreqSoundLiteralExp.json"
   breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onCreatedAsTemplate="OnSoundLiteralCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
   
-  <ConnectorSection name="SoundExpSctn">
+  <Section name="SoundExp">
+    <Section name="Literal">
+      <ConnectorSection name="FreqSoundLiteral">
 
-    <Connector
-      bhConnectorID="idFreqSoundLiteral.cnctr0" 
-      import="idNumExpCnctr"
-      name="Volume"/>
+        <Connector
+          bhConnectorID="idFreqSoundLiteral.cnctr0"
+          import="idNumExpCnctr"
+          name="Volume"/>
 
-    <Connector
-      bhConnectorID="idFreqSoundLiteral.cnctr1"
-      import="idNumExpCnctr"
-      name="Duration"/>
-    
-    <Connector
-      bhConnectorID="idFreqSoundLiteral.cnctr2"
-      import="idNumExpCnctr"
-      name="Frequency"/>
+        <Connector
+          bhConnectorID="idFreqSoundLiteral.cnctr1"
+          import="idNumExpCnctr"
+          name="Duration"/>
 
-  </ConnectorSection>
+        <Connector
+          bhConnectorID="idFreqSoundLiteral.cnctr2"
+          import="idNumExpCnctr"
+          name="Frequency"/>
+
+      </ConnectorSection>
+    </Section>
+  </Section>
 </Node>

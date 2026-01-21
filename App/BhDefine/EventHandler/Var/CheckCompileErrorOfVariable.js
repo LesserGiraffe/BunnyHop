@@ -8,11 +8,11 @@
     }
     // オリジナルノードのルートノードが VarDecl ならオリジナルノードはグローバル宣言されている
     let rootOfOriginal = original.findRootNode();
-    let varDeclSctnInRoot = rootOfOriginal.findDescendantOf('VarDeclSctn');
-    if (varDeclSctnInRoot !== null) {
+    let VarDeclInRoot = rootOfOriginal.findDescendantOf('VarDecl');
+    if (VarDeclInRoot !== null) {
       return false;
     }
-    let scope = original.findAncestorOf('VarScopeSctn', 1, true);
+    let scope = original.findAncestorOf('VarScope', 1, true);
     if (scope === null) {
       return true;
     }

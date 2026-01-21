@@ -20,7 +20,7 @@
   <Derivation derivationID="dervIdVarDeclToArg" derivativeID="idSoundListArg"/>
   <Derivation derivationID="dervIdVarDeclToOutArg" derivativeID="idSoundListArg"/>
 
-  <ConnectorSection name="VarDeclSctn">
+  <ConnectorSection name="VarDecl">
     
     <Connector
       bhConnectorID="idSoundListDecl.cnctr0"

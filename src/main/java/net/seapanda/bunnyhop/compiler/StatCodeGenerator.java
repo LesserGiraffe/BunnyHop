@@ -236,6 +236,7 @@ class StatCodeGenerator {
     SyntaxSymbol condExp =
         ifElseStatNode.findDescendantOf("*", SymbolNames.ControlStat.COND_EXP, "*");
     String condExpCode = expCodeGen.genExpression(condExp, code, nestLevel, option);
+    condExpCode = condExpCode + " === " + Keywords.Js._true;
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._if_)
         .append("(")
@@ -285,9 +286,10 @@ class StatCodeGenerator {
     SyntaxSymbol condExp =
         whileStatNode.findDescendantOf("*", SymbolNames.ControlStat.COND_EXP, "*");
     String condExpCode = expCodeGen.genExpression(condExp, code, nestLevel + 1, option);
+    condExpCode = condExpCode + " !== " + Keywords.Js._true;
     code.append(common.indent(nestLevel + 1))
         .append(Keywords.Js._if_)
-        .append("(!")
+        .append("(")
         .append(condExpCode)
         .append(") {" + Keywords.newLine)
         .append(common.indent(nestLevel + 2))

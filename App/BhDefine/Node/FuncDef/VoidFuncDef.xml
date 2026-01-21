@@ -12,9 +12,9 @@
 
   <Derivation derivationID="dervIdFuncCall" derivativeID="idVoidFuncCall"/>
 
-  <Section name="FuncDefSctn">
+  <Section>
     
-    <ConnectorSection name="FuncNameSctn">
+    <ConnectorSection>
       <Connector
         bhConnectorID="idVoidFuncDef.cnctr0"
         import="idIdentifierNameCnctr"
@@ -23,7 +23,7 @@
         derivativeJoint="dervJointFuncName"/>
     </ConnectorSection>
     
-    <ConnectorSection name="VarScopeSctn">
+    <ConnectorSection name="VarScope">
       
       <Connector
         bhConnectorID="idVoidFuncDef.cnctr1"

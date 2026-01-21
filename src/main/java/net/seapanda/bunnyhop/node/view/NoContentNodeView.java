@@ -54,11 +54,6 @@ public class NoContentNodeView extends BhNodeViewBase {
     super.notifyChildSizeChanged();
   }
 
-  /**
-   * このビューのモデルであるBhNodeを取得する.
-   *
-   * @return このビューのモデルであるBhNode
-   */
   @Override
   public Optional<TextNode> getModel() {
     return Optional.ofNullable(model);

@@ -257,7 +257,7 @@ public class SymbolNames {
             STR_COMP_EXP));
 
     public static final Map<String, String> OPERATOR_MAP =
-        new HashMap<String, String>() {{
+        new HashMap<>() {{
             put(OP_ADD, " + ");
             put(OP_SUB, " - ");
             put(OP_DIV, " / ");
@@ -286,7 +286,7 @@ public class SymbolNames {
             NEG_EXP));
 
     public static final Map<String, String> OPERATOR_MAP =
-        new HashMap<String, String>() {{
+        new HashMap<>() {{
             put(NOT_EXP, "!");
             put(NEG_EXP, "-");
           }};
@@ -472,7 +472,7 @@ public class SymbolNames {
 
     //  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
     public static final Map<FuncId, String> NAME_MAP =
-        new HashMap<FuncId, String>() {{
+        new HashMap<>() {{
             put(FuncId.create(STR_TO_NUM_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
             put(FuncId.create(STR_TO_NUM_WITH_DEFAULT_VAL_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
             put(FuncId.create(ANY_TO_STR_EXP), ScriptIdentifiers.Funcs.STR);
@@ -655,9 +655,6 @@ public class SymbolNames {
     public static final String FREQ_SOUND_LITERAL = "FreqSoundLiteral";
     public static final String SCALE_SOUND_LITERAL = "ScaleSoundLiteral";
     public static final String COLOR_LITERAL = "ColorLiteral";
-    public static final String SOUND_LITERAL_VOID = "SoundLiteralVoid";
-    public static final String MELODY_EXP_VOID = "MelodyExpVoid";
-    public static final String STR_CHAIN_LINK_VOID = "StrChainLinkVoid";
     public static final String STR_EMPTY_LIST = VarDecl.STR_EMPTY_LIST;
     public static final String NUM_EMPTY_LIST = VarDecl.NUM_EMPTY_LIST;
     public static final String BOOL_EMPTY_LIST = VarDecl.BOOL_EMPTY_LIST;
@@ -669,6 +666,8 @@ public class SymbolNames {
     public static final String NUM_LITERAL_EXP = "NumLiteralExp";
     public static final String BOOL_LITERAL_EXP = "BoolLiteralExp";
     public static final String COLOR_LITERAL_EXP = "ColorLiteralExp";
+    public static final String FREQ_SOUND_LITERAL_EXP = "FreqSoundLiteralExp";
+    public static final String SCALE_SOUND_LITERAL_EXP = "ScaleSoundLiteralExp";
     
     public static final Set<String> LIST =
         new HashSet<>(List.of(
@@ -676,7 +675,6 @@ public class SymbolNames {
             NUM_LITERAL,
             BOOL_LITERAL,
             FREQ_SOUND_LITERAL,
-            SOUND_LITERAL_VOID,
             SCALE_SOUND_LITERAL,
             COLOR_LITERAL,
             STR_EMPTY_LIST,
@@ -684,9 +682,7 @@ public class SymbolNames {
             BOOL_EMPTY_LIST,
             COLOR_EMPTY_LIST,
             SOUND_EMPTY_LIST,
-            ANY_EMPTY_LIST,
-            MELODY_EXP_VOID,
-            STR_CHAIN_LINK_VOID));
+            ANY_EMPTY_LIST));
 
     public static final Set<String> EXP_LIST =
         new HashSet<>(List.of(
@@ -694,7 +690,9 @@ public class SymbolNames {
             NEW_LINE,
             NUM_LITERAL_EXP,
             BOOL_LITERAL_EXP,
-            COLOR_LITERAL_EXP));
+            COLOR_LITERAL_EXP,
+            FREQ_SOUND_LITERAL_EXP,
+            SCALE_SOUND_LITERAL_EXP));
 
     public static final Set<String> ARRAY_TYPES =
         new HashSet<>(List.of(
@@ -703,8 +701,7 @@ public class SymbolNames {
             BOOL_EMPTY_LIST,
             COLOR_EMPTY_LIST,
             ANY_EMPTY_LIST,
-            SOUND_EMPTY_LIST,
-            MELODY_EXP_VOID));
+            SOUND_EMPTY_LIST));
 
     /** 音リテラルに関するシンボル名. */
     public static class Sound {
@@ -778,20 +775,36 @@ public class SymbolNames {
 
   /** BhProgram に定義されたシンボル名. */
   public static class ConstantValue {
-    public static final String NIL_COLOR = "NilColor";
-    public static final String NIL_SOUND = "NilSound";
     public static final String ANY_EXP_VOID = "AnyExpVoid";
-    public static final String LINE_FEED = "LineFeed";
+    public static final String BOOL_EXP_VOID = "BoolExpVoid";
+    public static final String SOUND_EXP_VOID = "SoundExpVoid";
+    public static final String MELODY_EXP_VOID = "MelodyExpVoid";
     public static final String SYNC_TIMER_VAR_VOID = "SyncTimerVarVoid";
     public static final String SEMAPHORE_VAR_VOID = "SemaphoreVarVoid";
+    public static final String STR_CHAIN_LINK_VOID = "StrChainLinkVoid";
+    public static final String LINE_FEED = "LineFeed";
     public static final Set<String> LIST =
         new HashSet<>(List.of(
-            NIL_COLOR,
-            NIL_SOUND,
             ANY_EXP_VOID,
-            LINE_FEED,
+            BOOL_EXP_VOID,
+            SOUND_EXP_VOID,
+            MELODY_EXP_VOID,
             SYNC_TIMER_VAR_VOID,
-            SEMAPHORE_VAR_VOID));
+            SEMAPHORE_VAR_VOID,
+            STR_CHAIN_LINK_VOID,
+            LINE_FEED));
+
+    public static final Map<String, String> VALUE_MAP =
+        new HashMap<>() {{
+            put(ANY_EXP_VOID, "_nil");
+            put(BOOL_EXP_VOID, "_nil");
+            put(SOUND_EXP_VOID, "_nilSound");
+            put(MELODY_EXP_VOID, "[]");
+            put(SYNC_TIMER_VAR_VOID, "_syncTimer.nil");
+            put(SEMAPHORE_VAR_VOID, "_semaphore.nils");
+            put(STR_CHAIN_LINK_VOID, "''");
+            put(LINE_FEED, "'\\n'");
+        }};
   }
 
   /** エントリポイントに関するシンボル一覧. */

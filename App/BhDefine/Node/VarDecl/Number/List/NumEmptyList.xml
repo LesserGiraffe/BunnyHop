@@ -9,7 +9,7 @@
   version="bhn-0.1.0">
 
   <!-- NumList と共通のセクションを持たせる -->
-  <ConnectorSection name="NumListSctn">
+  <ConnectorSection name="NumListExp">
     <Connector
       bhConnectorID="idNumEmptyList.cnctr0"
       name="ListName"

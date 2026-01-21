@@ -1,6 +1,6 @@
 (function() {
   return [
-    ['true', bhTextDb.get('node', 'semaphore-wait-ops', 'true')],
-    ['false', bhTextDb.get('node', 'semaphore-wait-ops', 'false')]
+    ['true', bhTextDb.get('node', 'semaphore-wait-opts', 'true')],
+    ['false', bhTextDb.get('node', 'semaphore-wait-opts', 'false')]
   ];
 })();

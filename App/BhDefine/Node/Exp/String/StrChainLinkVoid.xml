@@ -3,6 +3,5 @@
   bhNodeID="idStrChainLinkVoid"
   name="StrChainLinkVoid"
   breakpoint="specifyParent"
-  text="''"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0"/>

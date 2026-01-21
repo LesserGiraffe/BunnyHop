@@ -8,7 +8,7 @@
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <ConnectorSection name="NumExpSctn">
+  <ConnectorSection name="NumExp">
 
     <Connector
       bhConnectorID="idMeasureSoundPressureExp.cnctr0"

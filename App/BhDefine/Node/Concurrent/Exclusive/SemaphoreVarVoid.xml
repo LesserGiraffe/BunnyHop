@@ -3,7 +3,6 @@
   bhNodeID="idSemaphoreVarVoid" 
   name="SemaphoreVarVoid"
   breakpoint="ignore"
-  text="_semaphore.nil"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0"/>

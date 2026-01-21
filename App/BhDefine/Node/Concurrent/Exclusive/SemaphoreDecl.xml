@@ -18,7 +18,7 @@
 
   <Derivation derivationID="dervIdSemaphoreVar" derivativeID="idSemaphoreVar"/>
 
-  <ConnectorSection name="GlobalDataDeclSctn">
+  <ConnectorSection name="GlobalDataDecl">
 
     <Connector
       bhConnectorID="idSemaphoreDecl.cnctr0"

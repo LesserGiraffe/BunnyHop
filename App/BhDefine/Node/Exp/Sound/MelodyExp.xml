@@ -8,12 +8,12 @@
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <ConnectorSection name="MelodyExpSctn">
+  <ConnectorSection>
 
     <Connector
       bhConnectorID="idMelodyExp.cnctr0"
       name="Arg0"
-      defaultBhNodeID="idSoundLiteralVoid"
+      defaultBhNodeID="idSoundExpVoid"
       onConnectabilityChecking="SoundExpCnct.js"/>
 
     <Connector 

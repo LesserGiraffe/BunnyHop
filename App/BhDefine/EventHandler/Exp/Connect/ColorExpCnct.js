@@ -6,5 +6,5 @@
     sectionName = String(section.getSymbolName());
   }
 
-  return sectionName === 'ColorExpSctn';
+  return sectionName === 'ColorExp';
 })();

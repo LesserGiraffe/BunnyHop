@@ -5,5 +5,5 @@
   if (section !== null) {
     sectionName = String(section.getSymbolName());
   }
-  return sectionName === 'BoolExpSctn';
+  return sectionName === 'BoolExp';
 })();

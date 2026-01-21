@@ -8,7 +8,7 @@
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <ConnectorSection name="BoolExpSctn">
+  <ConnectorSection name="BoolExp">
     
     <Connector
       bhConnectorID="idBoolArrayGetExp.cnctr0"

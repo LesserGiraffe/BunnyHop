@@ -15,7 +15,7 @@
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <ConnectorSection name="StatSctn">
+  <ConnectorSection name="Statement">
     
     <Connector
       bhConnectorID="idAnyArrayInsertStat.cnctr0"

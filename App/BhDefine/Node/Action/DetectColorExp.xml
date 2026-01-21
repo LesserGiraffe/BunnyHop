@@ -7,6 +7,6 @@
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <Section name="ColorExpSctn"/>
+  <Section name="ColorExp"/>
 
 </Node>

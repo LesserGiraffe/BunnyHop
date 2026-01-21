@@ -13,11 +13,12 @@
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <ConnectorSection name="StatSctn">    
+  <ConnectorSection name="Statement">
 
     <Connector
       bhConnectorID="idIfElseStat.cnctr0"
       import="idBoolExpCnctr"
+      defaultBhNodeID="idBoolExpVoid"
       name="CondExp"/>
 
     <Connector

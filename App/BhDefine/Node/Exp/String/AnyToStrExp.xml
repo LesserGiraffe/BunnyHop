@@ -7,7 +7,7 @@
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <ConnectorSection name="StrExpSctn">
+  <ConnectorSection name="StrExp">
     <Connector
       bhConnectorID="idAnyToStrExp.cnctr0"
       import="idAnyExpCnctr"

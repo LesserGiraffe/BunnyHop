@@ -7,7 +7,7 @@
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <ConnectorSection name="EventSctn">
+  <ConnectorSection>
 
     <Connector
       bhConnectorID="idKeyPressedEvent.cnctr0"

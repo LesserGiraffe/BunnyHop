@@ -5,5 +5,5 @@
     sectionName = String(section.getSymbolName());
   }
 
-  return sectionName === 'SoundListSctn';
+  return sectionName === 'SoundListExp';
 })();

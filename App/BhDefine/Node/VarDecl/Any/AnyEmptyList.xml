@@ -8,7 +8,7 @@
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <ConnectorSection name="AnyListSctn">
+  <ConnectorSection name="AnyAnyListExp">
     <Connector
       bhConnectorID="idAnyEmptyList.cnctr0"
       name="ListName"

@@ -5,5 +5,5 @@
     sectionName = String(section.getSymbolName());
   }
 
-  return sectionName === 'StrListSctn';
+  return sectionName === 'StrListExp';
 })();

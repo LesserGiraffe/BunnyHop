@@ -8,7 +8,7 @@
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <ConnectorSection name="ColorExpSctn">
+  <ConnectorSection name="ColorExp">
     <Connector
       bhConnectorID="idColorArrayGetExp.cnctr0"
       import="idAnyFixedCnctr"

@@ -11,7 +11,7 @@
   onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
   version="bhn-0.1.0">
 
-  <ConnectorSection name="NumExpSctn">
+  <ConnectorSection name="NumExp">
     <Connector
       bhConnectorID="idNumVar.cnctr0"
       import="idAnyFixedCnctr"

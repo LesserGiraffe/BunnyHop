@@ -498,19 +498,19 @@ public abstract class BhNode extends SyntaxSymbol {
   /**
    * このノードと入れ替わったノードをセットする.
    *
-   * @param lastReplaced このノードと入れ替わったノード
+   * @param node このノードと入れ替わったノード
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public void setLastReplaced(BhNode lastReplaced, UserOperation userOpe) {
-    BhNode oldLastReplaced = this.lastReplaced;
-    this.lastReplaced = lastReplaced;
+  public void setLastReplaced(BhNode node, UserOperation userOpe) {
+    BhNode oldLastReplaced = lastReplaced;
+    lastReplaced = node;
     userOpe.pushCmd(ope -> setLastReplaced(oldLastReplaced, ope));
   }
 
   /**
    * このノードと入れ替わったノードを取得する.
    *
-   * @return 最後にこのオブジェクトと入れ替わったノード
+   * @return 最後にこのオブジェクトと入れ替わったノード.  (nullable)
    */
   public BhNode getLastReplaced() {
     return lastReplaced;

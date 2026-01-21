@@ -1,53 +1,57 @@
 <Node
   type="connective"
-  bhNodeID="idScaleSoundLiteral"
-  name="ScaleSoundLiteral"
-  nodeStyleID="ScaleSoundLiteral.json"
+  bhNodeID="idScaleSoundLiteralExp"
+  name="ScaleSoundLiteralExp"
+  nodeStyleID="ScaleSoundLiteralExp.json"
   breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onCreatedAsTemplate="OnSoundLiteralCreatedAsTemplate.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
   
-  <ConnectorSection name="SoundExpSctn">
+  <Section name="SoundExp">
+    <Section name="Literal">
+      <ConnectorSection name="ScaleSoundLiteral">
 
-    <Connector
-      bhConnectorID="idScaleSoundLiteral.cnctr0" 
-      import="idNumExpCnctr"
-      name="Volume"/>
+        <Connector
+          bhConnectorID="idScaleSoundLiteral.cnctr0"
+          import="idNumExpCnctr"
+          name="Volume"/>
 
-    <Connector
-      bhConnectorID="idScaleSoundLiteral.cnctr1" 
-      import="idNumExpCnctr"
-      name="Duration"/>
-  
-    <Connector
-      bhConnectorID="idScaleSoundLiteral.cnctr2"
-      name="Octave"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idScaleSoundLiteral.node2"
-        name="NumLiteral"
-        nodeStyleID="WordComboBox.json"
-        breakpoint="specifyParent"
-        onTextOptionsCreating="CreateOctave.js"
-        version="bhn-0.1.0"/>
-    </Connector>
-    
-    <Connector
-      bhConnectorID="idScaleSoundLiteral.cnctr3"
-      name="ScaleSound"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idScaleSoundLiteral.node3"
-        name="NumLiteral"
-        nodeStyleID="WordComboBox.json"
-        breakpoint="specifyParent"
-        onTextOptionsCreating="CreateMusicalScale.js"
-        version="bhn-0.1.0"/>
-    </Connector>
+        <Connector
+          bhConnectorID="idScaleSoundLiteral.cnctr1"
+          import="idNumExpCnctr"
+          name="Duration"/>
 
-  </ConnectorSection>
+        <Connector
+          bhConnectorID="idScaleSoundLiteral.cnctr2"
+          name="Octave"
+          fixed="true">
+          <Node
+            type="text"
+            bhNodeID="idScaleSoundLiteral.node2"
+            name="NumLiteral"
+            nodeStyleID="WordComboBox.json"
+            breakpoint="specifyParent"
+            onTextOptionsCreating="CreateOctave.js"
+            version="bhn-0.1.0"/>
+        </Connector>
+
+        <Connector
+          bhConnectorID="idScaleSoundLiteral.cnctr3"
+          name="ScaleSound"
+          fixed="true">
+          <Node
+            type="text"
+            bhNodeID="idScaleSoundLiteral.node3"
+            name="NumLiteral"
+            nodeStyleID="WordComboBox.json"
+            breakpoint="specifyParent"
+            onTextOptionsCreating="CreateMusicalScale.js"
+            version="bhn-0.1.0"/>
+        </Connector>
+
+      </ConnectorSection>
+    </Section>
+  </Section>
 </Node>

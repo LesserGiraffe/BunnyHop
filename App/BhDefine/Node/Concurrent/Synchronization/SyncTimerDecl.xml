@@ -18,7 +18,7 @@
 
   <Derivation derivationID="dervIdSyncTimerVar" derivativeID="idSyncTimerVar"/>
 
-  <ConnectorSection name="GlobalDataDeclSctn">
+  <ConnectorSection name="GlobalDataDecl">
 
     <Connector
       bhConnectorID="idSyncTimerDecl.cnctr0"

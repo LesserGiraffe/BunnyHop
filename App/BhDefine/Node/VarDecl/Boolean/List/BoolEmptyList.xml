@@ -9,7 +9,7 @@
   version="bhn-0.1.0">
 
   <!-- BoolList と共通のセクションを持たせる -->
-  <ConnectorSection name="BoolListSctn">
+  <ConnectorSection name="BoolListExp">
     <Connector
       bhConnectorID="idBoolEmptyList.cnctr0"
       name="ListName"

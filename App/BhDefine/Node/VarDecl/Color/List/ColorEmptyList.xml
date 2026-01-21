@@ -9,7 +9,7 @@
   version="bhn-0.1.0">
 
   <!-- ColorList と共通のセクションを持たせる -->
-  <ConnectorSection name="ColorListSctn">
+  <ConnectorSection name="ColorListExp">
     <Connector
       bhConnectorID="idColorEmptyList.cnctr0"
       name="ListName"

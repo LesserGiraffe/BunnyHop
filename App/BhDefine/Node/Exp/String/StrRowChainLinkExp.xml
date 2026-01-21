@@ -4,11 +4,11 @@
   name="StrChainLinkExp"
   nodeStyleID="StrRowChainLinkExp.json"
   breakpoint="specifyParent"
-  onChildReplaced="OnChildStrExpInChainReplaced.js"
+  onChildReplaced="OnChildExpInChainReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <ConnectorSection name="StrChainLinkSctn">
+  <ConnectorSection>
 
     <Connector
       bhConnectorID="idStrRowChainLinkExp.cnctr0"

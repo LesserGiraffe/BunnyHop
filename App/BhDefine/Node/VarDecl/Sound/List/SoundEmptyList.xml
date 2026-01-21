@@ -9,7 +9,7 @@
   version="bhn-0.1.0">
 
   <!-- SoundList と共通のセクションを持たせる -->
-  <ConnectorSection name="SoundListSctn">
+  <ConnectorSection name="SoundListExp">
     <Connector
       bhConnectorID="idSoundEmptyList.cnctr0"
       name="ListName"

@@ -8,13 +8,7 @@
 
       "subGroup0" : {
         "arrangement" : "Row",
-        "connectorList" : ["${L1}{入力文字列}"]
-      },
-
-      "subGroup1" : {
-        "arrangement" : "Row",
-        "space" : 1.0,
-        "connectorList" : ["${L1}{(入力要求メッセージ：}", "Arg0", "${L1}{)}"]
+        "connectorList" : ["${L1}{入力文字列  (メッセージ : }", "Arg0", "${L1}{)}"]
       }
     }
   }

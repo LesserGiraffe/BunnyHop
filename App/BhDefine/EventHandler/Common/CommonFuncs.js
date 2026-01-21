@@ -149,11 +149,11 @@
     if (section !== null)
       sectionName = String(section.getSymbolName());
 
-    return sectionName === 'NumExpSctn'
-        || sectionName === 'StrExpSctn'
-        || sectionName === 'BoolExpSctn'
-        || sectionName === 'SoundExpSctn'
-        || sectionName === 'ColorExpSctn';
+    return sectionName === 'NumExp'
+        || sectionName === 'StrExp'
+        || sectionName === 'BoolExp'
+        || sectionName === 'SoundExp'
+        || sectionName === 'ColorExp';
   }
 
   /** リスト型の式である場合 true を返す. */
@@ -163,11 +163,11 @@
     if (section !== null)
       sectionName = String(section.getSymbolName());
 
-    return sectionName === 'NumListSctn'
-        || sectionName === 'StrListSctn'
-        || sectionName === 'BoolListSctn'
-        || sectionName === 'SoundListSctn'
-        || sectionName === 'ColorListSctn';
+    return sectionName === 'NumListExp'
+        || sectionName === 'StrListExp'
+        || sectionName === 'BoolListExp'
+        || sectionName === 'SoundListExp'
+        || sectionName === 'ColorListExp';
   }
 
   /**

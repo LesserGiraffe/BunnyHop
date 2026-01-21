@@ -1,7 +1,7 @@
 (function() {
   return [
-    ['both', bhTextDb.get('node', 'eye-ops', 'both')],
-    ['right', bhTextDb.get('node', 'eye-ops', 'right')],
-    ['left', bhTextDb.get('node', 'eye-ops', 'left')]
+    ['both', bhTextDb.get('node', 'eye-opts', 'both')],
+    ['right', bhTextDb.get('node', 'eye-opts', 'right')],
+    ['left', bhTextDb.get('node', 'eye-opts', 'left')]
   ];
 })();

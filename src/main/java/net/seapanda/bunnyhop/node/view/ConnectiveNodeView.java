@@ -66,11 +66,6 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
     getLookManager().addCssClass(BhConstants.Css.CLASS_CONNECTIVE_NODE);
   }
 
-  /**
-   * このビューのモデルであるBhNodeを取得する.
-   *
-   * @return このビューのモデルであるBhNode
-   */
   @Override
   public Optional<ConnectiveNode> getModel() {
     return Optional.ofNullable(model);
@@ -82,7 +77,7 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
    * @param view ノード内部に描画されるノード
    */
   public void addToGroup(BhNodeViewBase view) {
-    // innerGroup に追加できなかったらouterGroupに入れる
+    // innerGroup に追加できなかった場合は outerGroup に入れる
     if (!innerGroup.addNodeView(view)) {
       outerGroup.addNodeView(view);
     }

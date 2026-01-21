@@ -1,7 +1,8 @@
 <Node
   type="text"
-  bhNodeID="idSyncTimerVarVoid" 
-  name="SyncTimerVarVoid"
+  bhNodeID="idBoolExpVoid"
+  name="BoolExpVoid"
+  nodeStyleID="BoolExpVoid.json"
   breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
