@@ -27,16 +27,44 @@ import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
  * @author K.Koike
  */
 public class CallStackItem {
-  
-  private final int idx;
-  private final long threadId;
-  private final String name;
+
+  /** このコールスタックアイテムのインデックス. */
+  public final int idx;
+  /** このコールスタックアイテムに対応する関数呼び出しを行ったスレッドの ID. */
+  public final long threadId;
+  /** このコールスタックアイテムの名前. */
+  public final String name;
+  /** このコールスタックアイテムに対応する {@link BhNode}. */
   private final BhNode node;
+  /** 次に実行する処理のコールスタックアイテムであるかどうかのフラグ. */
+  public final boolean isNext;
+  /** 例外が発生した処理のコールスタックアイテムであるかどうかのフラグ. */
+  public final boolean isError;
 
   /** このコールスタックアイテムが選択されているかどうかのフラグ. */
   private boolean isSelected = false;
   /** このコールスタックアイテムに登録されたイベントハンドラを管理するオブジェクト. */
   private final CallbackRegistry cbRegistry = new CallbackRegistry();
+
+  /**
+   * コンストラクタ.
+   *
+   * @param idx このコールスタックアイテムのインデックス
+   * @param threadId このコールスタックアイテムに対応する関数呼び出しを行ったスレッドの ID
+   * @param name このコールスタックアイテムの名前
+   * @param node このコールスタックアイテムに対応するノード (nullable)
+   * @param isNext 次に実行する処理のコールスタックアイテムである場合 true
+   * @param isError 例外が発生した処理のコールスタックアイテムである場合 true
+   */
+  public CallStackItem(
+      int idx, long threadId, String name, BhNode node, boolean isNext, boolean isError) {
+    this.idx = idx;
+    this.threadId = threadId;
+    this.name = name;
+    this.node = node;
+    this.isNext = isNext;
+    this.isError = isError;
+  }
 
   /**
    * コンストラクタ.
@@ -51,6 +79,8 @@ public class CallStackItem {
     this.threadId = threadId;
     this.name = name;
     this.node = node;
+    this.isNext = false;
+    this.isError = false;
   }
 
   /**
@@ -62,21 +92,6 @@ public class CallStackItem {
    */
   public CallStackItem(int idx, long threadId, String name) {
     this(idx, threadId, name, null);
-  }
-
-  /** このコールスタックアイテムのインデックスを取得する. */
-  public int getIdx() {
-    return idx;
-  }
-
-  /** このコールスタックアイテムに対応する関数呼び出しを行ったスレッドの ID を取得する. */
-  public long getThreadId() {
-    return threadId;
-  }
-
-  /** このコールスタックアイテムの名前を取得する. */
-  public String getName() {
-    return name;
   }
 
   /** このコールスタックアイテムに対応する {@link BhNode} を取得する. */

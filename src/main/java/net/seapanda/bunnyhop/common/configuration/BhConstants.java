@@ -350,6 +350,7 @@ public class BhConstants {
     public static final String PSEUDO_UNFIXED_DEFAULT = "unfixedDefault";
     public static final String PSEUDO_COLUMN = "column";
     public static final String PSEUDO_ROW = "row";
+    public static final String PSEUDO_NEXT = "next";
     public static final String CLASS_BH_NODE = "BhNode";
     public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";
     public static final String CLASS_TEXT_FIELD_NODE = "textFieldNode";
@@ -365,7 +366,7 @@ public class BhConstants {
 
     public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
     public static final String CLASS_PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
-    public static final String CALL_STACK_ITEM = "callStackItem";
+    public static final String CLASS_CALL_STACK_ITEM = "callStackItem";
     public static final String VARIABLE_LIST_ITEM = "variableListItem";
     public static final String BREAKPOINT_LIST_ITEM = "breakpointListItem";
     public static final String ERROR_NODE_LIST_ITEM = "errorNodeListItem";

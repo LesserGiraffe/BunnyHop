@@ -37,6 +37,8 @@ public class ThreadContext {
   public final SequencedCollection<CallStackItem> callStack;
   /** 次に実行するステップの情報を格納した {@link CallStackItem} オブジェクト. */
   private final CallStackItem nextStep;
+  /** 例外を発生させたステップの情報を格納した {@link CallStackItem} オブジェクト. */
+  private final CallStackItem errorStep;
   /** スレッドで発生した例外. */
   private final BhProgramException exception;
   /** スタックフレームのインデックスとそのインデックスを持つ {@link CallStackItem} のマップ. */
@@ -48,18 +50,20 @@ public class ThreadContext {
       BhThreadState state,
       SequencedCollection<CallStackItem> callStack,
       CallStackItem nextStep,
+      CallStackItem errorStep,
       BhProgramException exception) {
     this.threadId = threadId;
     this.state = state;
     this.callStack = Collections.unmodifiableSequencedCollection(new ArrayList<>(callStack));
     this.nextStep = nextStep;
+    this.errorStep = errorStep;
     this.exception = exception;
-    callStack.forEach(item -> frameIdxToCallStackItem.put(item.getIdx(), item));
+    callStack.forEach(item -> frameIdxToCallStackItem.put(item.idx, item));
   }
 
   /** コンストラクタ. */
   public ThreadContext(long threadId) {
-    this(threadId, BhThreadState.FINISHED, new ArrayList<>(), null, null);
+    this(threadId, BhThreadState.FINISHED, new ArrayList<>(), null, null, null);
   }
 
   /**
@@ -77,5 +81,10 @@ public class ThreadContext {
   /** 次に実行するステップの情報を格納した {@link CallStackItem} オブジェクトを返す. */
   public Optional<CallStackItem> getNextStep() {
     return Optional.ofNullable(nextStep);
+  }
+
+  /** 例外を発生させたステップの情報を格納した {@link CallStackItem} オブジェクトを返す. */
+  public Optional<CallStackItem> getErrorStep() {
+    return Optional.ofNullable(errorStep);
   }
 }

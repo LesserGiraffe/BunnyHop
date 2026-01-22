@@ -183,6 +183,6 @@ public class ThreadContextPresenter {
     if (context.callStack.isEmpty()) {
       return false;
     }
-    return context.callStack.getLast().getIdx() == stackFrameSelection.getIndex();
+    return context.callStack.getLast().idx == stackFrameSelection.getIndex();
   }
 }

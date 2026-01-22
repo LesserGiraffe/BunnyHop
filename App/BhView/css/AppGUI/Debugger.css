@@ -27,6 +27,18 @@
   -fx-underline: true;
 }
 
+.callStackItem:error {
+  -fx-border-style: segments(0.4em, 0.4em);
+  -fx-border-width: 0.25em;
+  -fx-border-color: #ff7878;
+}
+
+.callStackItem:next {
+  -fx-border-style: segments(0.4em, 0.4em);
+  -fx-border-width: 0.25em;
+  -fx-border-color: #2af12a;
+}
+
 .variableListItem {
   -fx-underline: false;
 }

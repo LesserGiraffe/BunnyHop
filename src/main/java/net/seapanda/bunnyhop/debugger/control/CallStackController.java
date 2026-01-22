@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.debugger.control;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -36,11 +37,13 @@ import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
 import net.seapanda.bunnyhop.debugger.model.callstack.CallStackItem;
+import net.seapanda.bunnyhop.debugger.model.callstack.CallStackItem.SelectionEvent;
 import net.seapanda.bunnyhop.debugger.model.callstack.StackFrameSelection;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadSelection;
 import net.seapanda.bunnyhop.debugger.view.CallStackCell;
 import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
@@ -117,18 +120,21 @@ public class CallStackController {
     callStackListView.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldVal, newVal) -> onCallStackCellSelected(oldVal, newVal));
     callStackListView.itemsProperty().addListener((obs, oldVal, newVal) -> searchResult = null);
-    csShowAllCheckBox.selectedProperty().addListener(
-        (observable, oldVal, newVal) -> {
-          if (!isDiscarded) {
-            callStackListView.setItems(createCallStackItems());
-          }
-        });
+    csShowAllCheckBox.selectedProperty().addListener((observable, oldVal, newVal) -> {
+      if (!isDiscarded) {
+        callStackListView.setItems(createCallStackItems());
+      }
+    });
     csSearchButton.setOnAction(action ->  prepareForSearch());
     csJumpCheckBox.selectedProperty().bindBidirectional(sharedJumpFlag);
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(onCurrentThreadChanged);
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().add(onNodeSelStateChanged);
-    Consumer<CallStackItem.SelectionEvent> selectItem = this::onCallStackItemSelected;
+    Consumer<SelectionEvent> selectItem = this::onCallStackItemSelected;
     threadContext.callStack.forEach(
+        item -> item.getCallbackRegistry().getOnSelectionStateChanged().add(selectItem));
+    threadContext.getNextStep().ifPresent(
+        item -> item.getCallbackRegistry().getOnSelectionStateChanged().add(selectItem));
+    threadContext.getErrorStep().ifPresent(
         item -> item.getCallbackRegistry().getOnSelectionStateChanged().add(selectItem));
   }
 
@@ -161,21 +167,29 @@ public class CallStackController {
   /** {@link #callStackListView} に設定するアイテムを作成する. */
   private ObservableList<CallStackItem> createCallStackItems() {
     var callStack = new ArrayList<>(threadContext.callStack);
-    if (!csShowAllCheckBox.isSelected() && callStack.size() > BhSettings.Debug.maxCallStackItems) {
-      var items = new ArrayList<CallStackItem>();
-      int len = BhSettings.Debug.maxCallStackItems / 2;
-      for (int i = 0; i < len; ++i) {
-        items.add(callStack.get(callStack.size() - 1 - i));
-      }
-      items.add(new CallStackItem(-1, -1, TextDefs.Debugger.CallStack.ellipsis.get()));
+    threadContext.getNextStep().ifPresent(callStack::add);
+    threadContext.getErrorStep().ifPresent(callStack::add);
 
-      len = BhSettings.Debug.maxCallStackItems - len;
-      for (int i = len - 1; i >= 0; --i) {
-        items.add(callStack.get(i));
-      }
-      return FXCollections.observableArrayList(items);
+    if (!csShowAllCheckBox.isSelected() && callStack.size() > BhSettings.Debug.maxCallStackItems) {
+      return FXCollections.observableArrayList(createTruncatedCallStack(callStack));
     }
     return FXCollections.observableArrayList(callStack.reversed());
+  }
+
+  /** {@code callStack} の一部を省略したコールスタックを作成する. */
+  private static List<CallStackItem> createTruncatedCallStack(ArrayList<CallStackItem> callStack) {
+    var items = new ArrayList<CallStackItem>();
+    int len = BhSettings.Debug.maxCallStackItems / 2;
+    for (int i = 0; i < len; ++i) {
+      items.add(callStack.get(callStack.size() - 1 - i));
+    }
+    items.add(new CallStackItem(-1, -1, TextDefs.Debugger.CallStack.ellipsis.get()));
+
+    len = BhSettings.Debug.maxCallStackItems - len;
+    for (int i = len - 1; i >= 0; --i) {
+      items.add(callStack.get(i));
+    }
+    return items;
   }
 
   /** コールスタックの UI 要素が選択されたときのイベントハンドラ. */
@@ -192,32 +206,38 @@ public class CallStackController {
   }
 
   /** {@link CallStackItem} が選択されたときのイベントハンドラ. */
-  private void onCallStackItemSelected(CallStackItem.SelectionEvent event) {
+  private void onCallStackItemSelected(SelectionEvent event) {
     if (isDiscarded) {
       return;
     }
+    CallStackItem item = event.item();
     if (event.isSelected()) {
-      callStackListView.getSelectionModel().select(event.item());
-      if (isThisThreadSameAsDebugThread()) {
-        if (csJumpCheckBox.isSelected()) {
-          getNextItemOf(event.item())
-              .flatMap(CallStackItem::getNode)
-              .filter(BhNode::isInWorkspace)
-              .flatMap(BhNode::getView)
-              .ifPresent(view -> {
-                ViewUtil.jump(view);
-                effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
-                effectManager.setEffectEnabled(view, true, VisualEffectType.JUMP_TARGET);
-              });
-        }
-        debugger.selectCurrentStackFrame(StackFrameSelection.of(event.item().getIdx()));
-      }
-    } else {
-      callStackListView.getSelectionModel().clearSelection();
-      if (isThisThreadSameAsDebugThread()) {
-        debugger.selectCurrentStackFrame(StackFrameSelection.NONE);
-      }
+      callStackListView.getSelectionModel().select(item);
     }
+    if (!isThisThreadSameAsDebugThread()) {
+      return;
+    }
+    if (event.isSelected()) {
+      if (csJumpCheckBox.isSelected()) {
+        getJumpTarget(item).ifPresent(this::jumpAndApplyEffect);
+      }
+      int frameIdx = (item.isNext || item.isError) ? Math.max(item.idx - 1, 0) : item.idx;
+      debugger.selectCurrentStackFrame(StackFrameSelection.of(frameIdx));
+    } else {
+      debugger.selectCurrentStackFrame(StackFrameSelection.NONE);
+    }
+  }
+
+  /** {@code item} が選択されたときのジャンプ先のノードを探す. */
+  private Optional<BhNodeView> getJumpTarget(CallStackItem item) {
+    boolean itemIsErrorOrNextStep =
+        threadContext.getNextStep().map(next -> next == item).orElse(false)
+        || threadContext.getErrorStep().map(next -> next == item).orElse(false);
+
+    return (itemIsErrorOrNextStep ? Optional.of(item) : getNextItemOf(item))
+        .flatMap(CallStackItem::getNode)
+        .filter(BhNode::isInWorkspace)
+        .flatMap(BhNode::getView);
   }
 
   /**
@@ -227,10 +247,18 @@ public class CallStackController {
     if (threadContext.callStack.isEmpty()) {
       return Optional.empty();
     }
-    if (threadContext.callStack.getLast().getIdx() == item.getIdx()) {
-      return threadContext.getNextStep();
+    if (threadContext.callStack.getLast().idx == item.idx) {
+      return threadContext.getNextStep().isPresent()
+          ? threadContext.getNextStep() : threadContext.getErrorStep();
     }
-    return threadContext.getCallStackItem(item.getIdx() + 1);
+    return threadContext.getCallStackItem(item.idx + 1);
+  }
+
+  /** {@code view} にジャンプして視覚効果を適用する. */
+  private void jumpAndApplyEffect(BhNodeView view) {
+    ViewUtil.jump(view);
+    effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
+    effectManager.setEffectEnabled(view, true, VisualEffectType.JUMP_TARGET);
   }
 
   /** デバッガの現在のスレッドが変わったときの処理. */
@@ -241,7 +269,7 @@ public class CallStackController {
     CallStackItem selected = callStackListView.getSelectionModel().getSelectedItem();
     StackFrameSelection stackFrameSel = (selected == null)
         ? StackFrameSelection.NONE
-        : StackFrameSelection.of(selected.getIdx());
+        : StackFrameSelection.of(selected.idx);
     debugger.selectCurrentStackFrame(stackFrameSel);
   }
 

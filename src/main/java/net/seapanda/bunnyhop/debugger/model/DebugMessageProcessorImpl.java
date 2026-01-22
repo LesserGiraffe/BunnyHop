@@ -93,13 +93,12 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
             createCallStackItem(item.symbolId(), item.frameIdx(), context.getThreadId(), cache))
         .collect(Collectors.toCollection(ArrayList::new));
 
-    CallStackItem nextStep = null;
-    if (!context.getNextStep().equals(BhSymbolId.NONE)) {
-      int frameIdx = callStack.isEmpty() ? 0 : callStack.getLast().getIdx() + 1;
-      nextStep = createCallStackItem(context.getNextStep(), frameIdx, context.getThreadId(), cache);
-    }
+    int frameIdx = callStack.isEmpty() ? 0 : callStack.getLast().idx + 1;
+    long threadId = context.getThreadId();
+    CallStackItem nextStep = createCallStackItem(context, frameIdx, threadId, cache, true);
+    CallStackItem errorStep = createCallStackItem(context, frameIdx, threadId, cache, false);
     var threadContext = new ThreadContext(
-        context.getThreadId(), context.getState(), callStack, nextStep, context.getException());
+        threadId, context.getState(), callStack, nextStep, errorStep, context.getException());
     debugger.add(threadContext);
   }
 
@@ -162,16 +161,40 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
    * @param frameIdx コールスタックのスタックフレームのインデックス
    * @param threadId コールスタックを持つスレッドの ID
    * @param funcNameCache 関数名を格納するキャッシュ
+   * @param isNext 次に実行する処理のコールスタックアイテムを作成する場合 true
+   * @param isError 例外が発生した処理のコールスタックアイテムを作成する場合 true
    */
   private CallStackItem createCallStackItem(
       BhSymbolId symbolId,
       int frameIdx,
       long threadId,
-      Map<InstanceId, String> funcNameCache) {
+      Map<InstanceId, String> funcNameCache,
+      boolean isNext,
+      boolean isError) {
     var instId = InstanceId.of(symbolId.toString());
     BhNode node = instIdToNode.get(instId);
     String name = getFuncName(node, instId, funcNameCache);
-    return new CallStackItem(frameIdx, threadId, name, node);
+    return new CallStackItem(frameIdx, threadId, name, node, isNext, isError);
+  }
+
+  private CallStackItem createCallStackItem(
+      BhSymbolId symbolId,
+      int frameIdx,
+      long threadId,
+      Map<InstanceId, String> funcNameCache) {
+    return createCallStackItem(symbolId, frameIdx, threadId, funcNameCache, false, false);
+  }
+
+  /** 次に実行する処理か例外が発生した処理のコールスタックを作成する. */
+  private CallStackItem createCallStackItem(
+      BhThreadContext context,
+      int frameIdx,
+      long threadId,
+      HashMap<InstanceId, String> cache,
+      boolean isNextStep) {
+    BhSymbolId symbolId = isNextStep ? context.getNextStep() : context.getErrorStep();
+    return symbolId.equals(BhSymbolId.NONE)
+        ? null : createCallStackItem(symbolId, frameIdx, threadId, cache, isNextStep, !isNextStep);
   }
 
   /**
@@ -204,7 +227,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
       }
     }
     if (!errMsg.isEmpty()) {
-      LogManager.logger().error(errMsg);
+      LogManager.logger().error(exception.getClass().getSimpleName() + "\n" + errMsg);
     }
   }
 

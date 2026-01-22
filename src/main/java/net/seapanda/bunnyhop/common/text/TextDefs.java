@@ -86,12 +86,14 @@ public class TextDefs {
     public static class CallStack {
       public static Getter ellipsis = params -> db.get(
           TextId.of("gui", "debugger", "call-stack", "ellipsis"), params);
-        
       public static Getter unknownNode = params -> db.get(
           TextId.of("gui", "debugger", "call-stack", "unknown-node"), params);
-
       public static Getter mainRoutine = params -> db.get(
           TextId.of("gui", "debugger", "call-stack", "main-routine"), params);
+      public static Getter next = params -> db.get(
+          TextId.of("gui", "debugger", "call-stack", "next"), params);
+      public static Getter error = params -> db.get(
+          TextId.of("gui", "debugger", "call-stack", "error"), params);
     }
 
     /** ワークスペース選択コンポーネントに表示されるテキスト. */
@@ -104,13 +106,10 @@ public class TextDefs {
     public static class VarInspection {
       public static Getter localVars = params -> db.get(
           TextId.of("gui", "debugger", "variable-inspection", "local-vars"), params);
-
       public static Getter globalVars = params -> db.get(
           TextId.of("gui", "debugger", "variable-inspection", "global-vars"), params);
-
       public static Getter emptyList = params -> db.get(
           TextId.of("gui", "debugger", "variable-inspection", "empty-list"), params);
-
       public static Getter unknownVar = params -> db.get(
           TextId.of("gui", "debugger", "variable-inspection", "unknown-var"), params);
     }

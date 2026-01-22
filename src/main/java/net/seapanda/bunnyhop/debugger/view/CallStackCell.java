@@ -24,6 +24,7 @@ import java.util.WeakHashMap;
 import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.debugger.model.callstack.CallStackItem;
 import net.seapanda.bunnyhop.node.model.BhNode;
 
@@ -41,7 +42,7 @@ public class CallStackCell extends ListCell<CallStackItem> {
   /** コンストラクタ. */
   public CallStackCell(Map<BhNode, Set<CallStackCell>> nodeToCells) {
     this.nodeToCells = nodeToCells;
-    getStyleClass().add(BhConstants.Css.CALL_STACK_ITEM);
+    getStyleClass().add(BhConstants.Css.CLASS_CALL_STACK_ITEM);
     setOnMousePressed(event -> clearSelectionIfEmpty());
   }
 
@@ -59,18 +60,36 @@ public class CallStackCell extends ListCell<CallStackItem> {
     if (item != null) {
       decorateText(item.getNode().map(BhNode::isSelected).orElse(false));
     }
+    applyPseudoClass(item);
     model = item;
     this.empty = empty;
+  }
+
+  /** セルに {@code item} の状態に応じた疑似クラスを適用する. */
+  private void applyPseudoClass(CallStackItem item) {
+    if (item == null) {
+      pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_NEXT), false);
+      pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR), false);
+      return;
+    }
+    pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_NEXT), item.isNext);
+    pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR), item.isError);
   }
 
   private static String getText(CallStackItem item, boolean empty) {
     if (empty || item == null) {
       return null;
     }
-    if (item.getIdx() < 0) {
-      return "      %s".formatted(item.getName());
+    if (item.isNext) {
+      return "[%s]    %s".formatted(TextDefs.Debugger.CallStack.next.get(), item.name);
     }
-    return "[%s]    %s".formatted(item.getIdx(), item.getName());
+    if (item.isError) {
+      return "[%s]    %s".formatted(TextDefs.Debugger.CallStack.error.get(), item.name);
+    }
+    if (item.idx < 0) {
+      return "      %s".formatted(item.name);
+    }
+    return "[%s]    %s".formatted(item.idx, item.name);
   }
 
   /** {@link CallStackCell} オブジェクトが {@code item} と紐づく場合に UI に表示される文字列を返す. */

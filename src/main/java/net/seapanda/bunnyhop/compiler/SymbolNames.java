@@ -804,7 +804,7 @@ public class SymbolNames {
             put(SEMAPHORE_VAR_VOID, "_semaphore.nils");
             put(STR_CHAIN_LINK_VOID, "''");
             put(LINE_FEED, "'\\n'");
-        }};
+          }};
   }
 
   /** エントリポイントに関するシンボル一覧. */
