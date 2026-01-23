@@ -6,10 +6,10 @@
       "idMeasureDistanceExp",
       "idDetectColorExp",
       "idMeasureSoundPressureExp",
-      "idSleepStat",
       "idSayStat",
       "idLightEyeStat",
       "idStopRaspiCarStat",
+      "idSleepStat",
       "idGetTimeSinceProgramStartedExp"]
   },
 

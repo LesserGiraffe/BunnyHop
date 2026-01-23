@@ -1,0 +1,33 @@
+<Node
+  type="connective"
+  bhNodeID="idStrListOutArg"
+  name="StrListOutArg"
+  nodeStyleID="StrListArg.json"
+  breakpoint="ignore"
+  onRelatedNodesRequired="GetDerivationFamily.js"
+  onJumpTargetRequired="GetOriginalNode.js"
+  onAliasAsked="OnAliasAsked.js"
+  onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
+  version="bhn-0.1.0">
+    
+  <ConnectorSection>
+    
+    <Connector
+      bhConnectorID="idStrListOutArg.cnctr0"
+      import="idAnyFixedCnctr"
+      name="ListName"
+      derivativeJoint="dervJointListName"/>
+
+    <Connector
+      bhConnectorID="idStrListOutArg.cnctr1"
+      import="idStrListCnctr"
+      name="Arg"/>
+
+    <Connector
+      bhConnectorID="idStrListOutArg.cnctr2"
+      import="idArgCnctr"
+      name="NextArg"
+      derivativeJoint="dervJointNextArg"/>
+
+  </ConnectorSection>    
+</Node>

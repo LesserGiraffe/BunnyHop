@@ -17,7 +17,7 @@
 
     <Connector
       bhConnectorID="idArrayAdapterStat.cnctr0"
-      import="idAnyListCnctr"
+      import="idAnyListExpCnctr"
       name="Target"/>
 
     <Connector

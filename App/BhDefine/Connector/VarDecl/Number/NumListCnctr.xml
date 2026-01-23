@@ -1,0 +1,4 @@
+<ConnectorParamSet 
+  paramSetID="idNumListCnctr"
+  defaultBhNodeID="idNumListVoid"
+  onConnectabilityChecking="NumListCnct.js"/>

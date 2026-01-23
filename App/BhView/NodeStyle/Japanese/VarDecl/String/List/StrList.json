@@ -1,5 +1,7 @@
 {
-  "import" : ["../../../../Common/StrListLike.json"],
+  "import" : ["../../../../Common/List.json"],
+  "connectorShape" : "InvTriangle",
+  "cssClass" : "strType",
 
   "connective" : {
     "inner" : {

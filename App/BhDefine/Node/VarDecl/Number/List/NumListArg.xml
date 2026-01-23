@@ -20,7 +20,7 @@
     
     <Connector
       bhConnectorID="idNumListArg.cnctr1"
-      import="idNumListCnctr"
+      import="idNumListExpCnctr"
       name="Arg"/>
 
     <Connector

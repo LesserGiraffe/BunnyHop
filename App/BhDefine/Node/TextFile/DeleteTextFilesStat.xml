@@ -16,7 +16,7 @@
   <ConnectorSection name="Statement">
     <Connector
       bhConnectorID="idDeleteTextFilesStat.cnctr0"
-      import="idStrListCnctr"
+      import="idStrListExpCnctr"
       name="Arg0"/>
 
     <Connector

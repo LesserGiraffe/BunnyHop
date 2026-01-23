@@ -1,4 +1,0 @@
-<ConnectorParamSet 
-  paramSetID="idSoundListCnctr"
-  defaultBhNodeID="idSoundEmptyList"
-  onConnectabilityChecking="SoundListCnct.js"/>

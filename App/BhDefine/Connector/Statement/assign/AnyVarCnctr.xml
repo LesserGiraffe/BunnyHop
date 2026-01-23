@@ -1,5 +1,0 @@
-<ConnectorParamSet 
-  paramSetID="idAnyVarCnctr"
-  defaultBhNodeID="idAnyVarVoid"
-  onConnectabilityChecking="AnyVarCnct.js"/>
-

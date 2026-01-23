@@ -1,5 +1,7 @@
 {
-  "import" : ["../../../../Common/NumListLike.json"],
+  "import" : ["../../../../Common/List.json"],
+  "connectorShape" : "Diamond",
+  "cssClass" : "numType",
 
   "connective" : {
     "inner" : {

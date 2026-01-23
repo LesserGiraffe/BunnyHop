@@ -1,0 +1,10 @@
+<Node
+  type="text"
+  bhNodeID="idStrListVoid"
+  name="StrListVoid"
+  nodeStyleID="StrListVoid.json"
+  breakpoint="ignore"
+  onMovedFromChildToWS="DeleteNode.js"
+  onAliasAsked="OnAliasAsked.js"
+  text="${node}{list-label}"
+  version="bhn-0.1.0"/>

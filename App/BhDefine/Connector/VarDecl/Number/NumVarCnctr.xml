@@ -2,4 +2,3 @@
   paramSetID="idNumVarCnctr"
   defaultBhNodeID="idNumVarVoid"
   onConnectabilityChecking="NumVarCnct.js"/>
-

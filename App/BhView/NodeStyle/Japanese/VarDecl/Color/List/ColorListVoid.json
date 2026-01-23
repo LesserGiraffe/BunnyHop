@@ -1,0 +1,4 @@
+{
+  "import" : ["../../../../Common/ListVoid.json"],
+  "connectorShape" : "CharV"
+}

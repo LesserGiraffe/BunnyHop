@@ -18,7 +18,7 @@
 
   <Derivation derivationID="dervIdIdentifierName" derivativeID="idBoolList"/>
   <Derivation derivationID="dervIdVarDeclToArg" derivativeID="idBoolListArg"/>
-  <Derivation derivationID="dervIdVarDeclToOutArg" derivativeID="idBoolListArg"/>
+  <Derivation derivationID="dervIdVarDeclToOutArg" derivativeID="idBoolListOutArg"/>
 
   <ConnectorSection name="VarDecl">
     

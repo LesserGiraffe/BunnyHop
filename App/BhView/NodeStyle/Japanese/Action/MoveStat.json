@@ -5,7 +5,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 1.5,
-      "connectorList" : ["${L2}{速さ}", "Arg0", "${L2}{(1～10) で}", "Arg1", "${L2}{秒間}", "Option0", "${L2}{する}"]
+      "connectorList" : ["${L2}{速さ}", "Arg0", "${L2}{(1~10) で}", "Arg1", "${L2}{秒間}", "Option0", "${L2}{する}"]
     }
   }
 }

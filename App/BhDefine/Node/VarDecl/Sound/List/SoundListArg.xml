@@ -20,7 +20,7 @@
     
     <Connector
       bhConnectorID="idSoundListArg.cnctr1"
-      import="idSoundListCnctr"
+      import="idSoundListExpCnctr"
       name="Arg"/>
 
     <Connector

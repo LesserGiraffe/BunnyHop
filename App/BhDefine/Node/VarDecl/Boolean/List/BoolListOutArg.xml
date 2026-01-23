@@ -1,0 +1,33 @@
+<Node
+  type="connective"
+  bhNodeID="idBoolListOutArg"
+  name="BoolListOutArg"
+  nodeStyleID="BoolListArg.json"
+  breakpoint="ignore"
+  onRelatedNodesRequired="GetDerivationFamily.js"
+  onJumpTargetRequired="GetOriginalNode.js"
+  onAliasAsked="OnAliasAsked.js"
+  onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection>
+    
+    <Connector
+      bhConnectorID="idBoolListOutArg.cnctr0"
+      import="idAnyFixedCnctr"
+      name="ListName"
+      derivativeJoint="dervJointListName"/>
+
+    <Connector
+      bhConnectorID="idBoolListOutArg.cnctr1"
+      import="idBoolListCnctr"
+      name="Arg"/>
+
+    <Connector
+      bhConnectorID="idBoolListOutArg.cnctr2"
+      import="idArgCnctr"
+      name="NextArg"
+      derivativeJoint="dervJointNextArg"/>
+
+  </ConnectorSection>    
+</Node>

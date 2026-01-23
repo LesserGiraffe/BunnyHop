@@ -1,6 +1,0 @@
-{
-  "import" : ["../../../Common/VarVoid.json"],
-  "connectorShape" : "Star",
-  "notchShape" : "Triangle",
-  "cssClass" : "voidType"
-}

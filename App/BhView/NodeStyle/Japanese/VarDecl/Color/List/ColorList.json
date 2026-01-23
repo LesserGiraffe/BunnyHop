@@ -1,5 +1,7 @@
 {
-  "import" : ["../../../../Common/ColorListLike.json"],
+  "import" : ["../../../../Common/List.json"],
+  "connectorShape" : "CharV",
+  "cssClass" : "colorType",
 
   "connective" : {
     "inner" : {

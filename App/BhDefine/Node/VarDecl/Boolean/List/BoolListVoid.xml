@@ -1,0 +1,10 @@
+<Node
+  type="text"
+  bhNodeID="idBoolListVoid"
+  name="BoolListVoid"
+  nodeStyleID="BoolListVoid.json"
+  breakpoint="ignore"
+  onMovedFromChildToWS="DeleteNode.js"
+  onAliasAsked="OnAliasAsked.js"
+  text="${node}{list-label}"
+  version="bhn-0.1.0"/>

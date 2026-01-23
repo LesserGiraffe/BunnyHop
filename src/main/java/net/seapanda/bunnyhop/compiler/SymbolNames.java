@@ -38,6 +38,7 @@ public class SymbolNames {
     public static final String NUM_LIST_DECL = "NumListDecl";
     public static final String NUM_LIST = "NumList";
     public static final String NUM_EMPTY_LIST = "NumEmptyList";
+    public static final String NUM_LIST_VOID = "NumListVoid";
 
     public static final String STR_VAR_DECL = "StrVarDecl";
     public static final String STR_VAR = "StrVar";
@@ -45,6 +46,7 @@ public class SymbolNames {
     public static final String STR_LIST_DECL = "StrListDecl";
     public static final String STR_LIST = "StrList";
     public static final String STR_EMPTY_LIST = "StrEmptyList";
+    public static final String STR_LIST_VOID = "StrListVoid";
 
     public static final String BOOL_VAR_DECL = "BoolVarDecl";
     public static final String BOOL_VAR = "BoolVar";
@@ -52,6 +54,7 @@ public class SymbolNames {
     public static final String BOOL_LIST_DECL = "BoolListDecl";
     public static final String BOOL_LIST = "BoolList";
     public static final String BOOL_EMPTY_LIST = "BoolEmptyList";
+    public static final String BOOL_LIST_VOID = "BoolListVoid";
 
     public static final String COLOR_VAR_DECL = "ColorVarDecl";
     public static final String COLOR_VAR = "ColorVar";
@@ -59,6 +62,7 @@ public class SymbolNames {
     public static final String COLOR_LIST_DECL = "ColorListDecl";
     public static final String COLOR_LIST = "ColorList";
     public static final String COLOR_EMPTY_LIST = "ColorEmptyList";
+    public static final String COLOR_LIST_VOID = "ColorListVoid";
 
     public static final String SOUND_VAR_DECL = "SoundVarDecl";
     public static final String SOUND_VAR = "SoundVar";
@@ -66,6 +70,7 @@ public class SymbolNames {
     public static final String SOUND_LIST_DECL = "SoundListDecl";
     public static final String SOUND_LIST = "SoundList";
     public static final String SOUND_EMPTY_LIST = "SoundEmptyList";
+    public static final String SOUND_LIST_VOID = "SoundListVoid";
 
     public static final String VAR_NAME = "VarName";
     public static final String LIST_NAME = "ListName";
@@ -114,6 +119,11 @@ public class SymbolNames {
             put(BOOL_VAR_VOID, "false");
             put(COLOR_VAR_VOID, ScriptIdentifiers.Vars.NIL_COLOR);
             put(SOUND_VAR_VOID, ScriptIdentifiers.Vars.NIL_SOUND);
+            put(NUM_LIST_VOID, "[]");
+            put(STR_LIST_VOID, "[]");
+            put(BOOL_LIST_VOID, "[]");
+            put(COLOR_LIST_VOID, "[]");
+            put(SOUND_LIST_VOID, "[]");
             put(NUM_EMPTY_LIST, "[]");
             put(STR_EMPTY_LIST, "[]");
             put(BOOL_EMPTY_LIST, "[]");
@@ -128,6 +138,11 @@ public class SymbolNames {
             BOOL_VAR_VOID,
             COLOR_VAR_VOID,
             SOUND_VAR_VOID,
+            NUM_LIST_VOID,
+            STR_LIST_VOID,
+            BOOL_LIST_VOID,
+            COLOR_LIST_VOID,
+            SOUND_LIST_VOID,
             NUM_EMPTY_LIST,
             STR_EMPTY_LIST,
             BOOL_EMPTY_LIST,

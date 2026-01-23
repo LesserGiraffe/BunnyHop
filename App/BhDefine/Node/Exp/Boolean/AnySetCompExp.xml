@@ -10,7 +10,7 @@
   <ConnectorSection name="BoolExp">
     <Connector
       bhConnectorID="idAnySetCompExp.cnctr0"
-      import="idAnyListCnctr"
+      import="idAnyListExpCnctr"
       name="Arg0"/>
 
     <Connector
@@ -29,7 +29,7 @@
 
     <Connector
       bhConnectorID="idAnySetCompExp.cnctr2"
-      import="idAnyListCnctr"
+      import="idAnyListExpCnctr"
       name="Arg1"/>
 
   </ConnectorSection>

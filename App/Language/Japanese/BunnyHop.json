@@ -660,6 +660,7 @@
       "BoolEmptyList": "空の真偽値リスト",
       "BoolList": "真偽値リスト (${name})",
       "BoolListArg": "真偽値リストの入力ポート (${name})",
+      "BoolListOutArg": "真偽値リストの出力ポート (${name})",
       "BoolListDecl": "真偽値リストの定義 (${name})",
       "BoolOutArg": "真偽値の出力ポート (${name})",
       "BoolVar": "真偽値変数 (${name})",
@@ -668,6 +669,7 @@
       "ColorEmptyList": "空の色リスト",
       "ColorList": "色リスト (${name})",
       "ColorListArg": "色リストの入力ポート (${name})",
+      "ColorListOutArg": "色リストの出力ポート (${name})",
       "ColorListDecl": "色リストの定義 (${name})",
       "ColorOutArg": "色の出力ポート (${name})",
       "ColorVar": "色変数 (${name})",
@@ -676,6 +678,7 @@
       "NumEmptyList": "空の数値リスト",
       "NumList": "数値リスト (${name})",
       "NumListArg": "数値リストの入力ポート (${name})",
+      "NumListOutArg": "数値リストの出力ポート (${name})",
       "NumListDecl": "数値リストの定義 (${name})",
       "NumOutArg": "数値の出力ポート (${name})",
       "NumVar": "数値変数 (${name})",
@@ -684,6 +687,7 @@
       "SoundEmptyList": "空の音リスト",
       "SoundList": "音リスト (${name})",
       "SoundListArg": "音リストの入力ポート (${name})",
+      "SoundListOutArg": "音リストの出力ポート (${name})",
       "SoundListDecl": "音リストの定義 (${name})",
       "SoundOutArg": "音の出力ポート (${name})",
       "SoundVar": "音変数 (${name})",
@@ -692,6 +696,7 @@
       "StrEmptyList": "空の文字列リスト",
       "StrList": "文字列リスト (${name})",
       "StrListArg": "文字列リストの入力ポート (${name})",
+      "StrListOutArg": "文字列リストの出力ポート (${name})",
       "StrListDecl": "文字列リストの定義 (${name})",
       "StrOutArg": "文字列の出力ポート (${name})",
       "StrVar": "文字列変数 (${name})",
@@ -702,7 +707,8 @@
     "compile-error": {
       "out-of-scope": "スコープの外にあります",
       "out-of-loop": "繰り返しノードの外にあります"
-    }
+    },
+    "list-label": "[...]"
   },
 
   "node-category": {

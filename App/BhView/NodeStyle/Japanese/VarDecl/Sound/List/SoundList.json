@@ -1,5 +1,7 @@
 {
-  "import" : ["../../../../Common/SoundListLike.json"],
+  "import" : ["../../../../Common/List.json"],
+  "connectorShape" : "CharU",
+  "cssClass" : "soundType",
 
   "connective" : {
     "inner" : {

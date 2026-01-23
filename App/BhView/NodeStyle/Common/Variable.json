@@ -7,7 +7,7 @@
   "bodyShapeOuter" : "RoundRect",
   "connectorShapeFixed" : "None",
   "connectorPos" : "Left",
-  "connectorShift" : 1.0,
+  "connectorShift" : 0.0,
   "connectorWidth" : 4.25,
   "connectorHeight" : 4.25,
   "connectorBoundsRate" : 1.95,

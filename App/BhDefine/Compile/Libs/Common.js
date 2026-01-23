@@ -527,6 +527,9 @@ function _aryAddAll(aryA, idx, aryB) {
   idx = _checkAryIdx(idx, aryA.length, 1);
   _checkArySize(aryA.length, aryB.length);
   let tails = aryA.slice(idx, aryA.length);
+  if (aryA === aryB) {
+    aryB = aryA.concat();
+  }
   aryA.length = idx;
   Array.prototype.push.apply(aryA, aryB);
   Array.prototype.push.apply(aryA, tails);

@@ -19,7 +19,7 @@
 
     <Connector
       bhConnectorID="idColorListArg.cnctr1"
-      import="idColorListCnctr"
+      import="idColorListExpCnctr"
       name="Arg"/>
 
     <Connector
