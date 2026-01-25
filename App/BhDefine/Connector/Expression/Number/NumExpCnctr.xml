@@ -1,4 +1,5 @@
 <ConnectorParamSet 
   paramSetID="idNumExpCnctr"
   defaultBhNodeID="idNumLiteralExp"
+  restoreLastDefaultNode="true"
   onConnectabilityChecking="NumExpCnct.js"/>

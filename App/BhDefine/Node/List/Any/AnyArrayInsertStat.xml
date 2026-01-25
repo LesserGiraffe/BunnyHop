@@ -30,7 +30,8 @@
     <Connector
       bhConnectorID="idAnyArrayInsertStat.cnctr2"
       import="idSameTypeOfExpCnctr"
-      name="Arg2"/>
+      name="Arg2"
+      restoreLastDefaultNode="true"/>
 
     <Connector
       bhConnectorID="idAnyArrayInsertStat.cnctr3"

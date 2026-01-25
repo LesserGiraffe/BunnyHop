@@ -1,4 +1,5 @@
 <ConnectorParamSet 
   paramSetID="idBoolExpCnctr"
   defaultBhNodeID="idBoolLiteralExp"
+  restoreLastDefaultNode="true"
   onConnectabilityChecking="BoolExpCnct.js"/>

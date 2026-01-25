@@ -30,10 +30,10 @@ import net.seapanda.bunnyhop.service.script.BhScriptRepository;
 import org.w3c.dom.Element;
 
 /**
-  * {@link Connector} が定義された xml の Connector エレメント以下の情報から {@link Connector} を作成する.
-  *
-  * @author K.Koike
-  */
+ * {@link Connector} が定義された xml の Connector エレメント以下の情報から {@link Connector} を作成する.
+ *
+ * @author K.Koike
+ */
 class ConnectorBuilder {
   
   private final ModelArchive archive;
@@ -103,10 +103,10 @@ class ConnectorBuilder {
   }
 
   /**
-   * コネクタパラメータセットの定義に指定されたパラメータとコネクタの定義に指定されたパラメータを合わせて, 新しくコネクタパラメータを作成する.
+   * コネクタ定義に直接指定されたパラメータとインポートされたコネクタパラメータを合わせて, 新しくコネクタパラメータを作成する.
    *
-   * @param imported コネクタパラメータセットの定義に指定されたパラメータ
-   * @param defined コネクタの定義に指定されたパラメータ
+   * @param imported コネクタ定義にインポートされたパラメータ
+   * @param defined コネクタ定義に直接指定されたパラメータ
    * @return {@code imported} と {@code defined} を合わせたパラメータ
    */
   private ConnectorAttribute buildConnectorParams(
@@ -114,18 +114,14 @@ class ConnectorBuilder {
     var name = defined.name().isEmpty() ? imported.name() : defined.name();
     var defaultNodeId = defined.defaultNodeId().equals(BhNodeId.NONE)
         ? imported.defaultNodeId() : defined.defaultNodeId();
+    boolean restoreLastDefaultNode = resolveRestoreLastDefaultNode(imported, defined);
     var derivationId = defined.derivationId().equals(DerivationId.NONE)
         ? imported.derivationId() : defined.derivationId();
     var derivativeId = defined.derivativeId().equals(BhNodeId.NONE)
         ? imported.derivativeId() : defined.derivativeId();
+    boolean fixed = resolveFixed(imported, defined);
     var derivativeJoint = defined.derivativeJointId().equals(DerivativeJointId.NONE)
         ? imported.derivativeJointId() : defined.derivativeJointId();
-    boolean fixed = false;
-    if (defined.fixed() != null) {
-      fixed = defined.fixed();
-    } else if (imported.fixed() != null) {
-      fixed = imported.fixed();
-    }
     var onConnectabilityChecking = defined.onConnectabilityChecking().isEmpty()
         ? imported.onConnectabilityChecking() : defined.onConnectabilityChecking();
     
@@ -134,12 +130,48 @@ class ConnectorBuilder {
         name,
         ConnectorParamSetId.NONE,
         defaultNodeId,
+        restoreLastDefaultNode,
         derivationId,
         derivativeId,
         derivativeJoint,
         fixed,
         ConnectorParamSetId.NONE,
         onConnectabilityChecking);
+  }
+
+  /**
+   * コネクタ定義に直接指定されたパラメータとインポートされたコネクタパラメータから fixed の値を解決する.
+   *
+   * @param imported コネクタ定義にインポートされたパラメータ
+   * @param defined コネクタ定義に直接指定されたパラメータ
+   * @return 解決された fixed の値
+   */
+  private boolean resolveFixed(ConnectorAttribute imported, ConnectorAttribute defined) {
+    boolean fixed = false;
+    if (defined.fixed() != null) {
+      fixed = defined.fixed();
+    } else if (imported.fixed() != null) {
+      fixed = imported.fixed();
+    }
+    return fixed;
+  }
+
+  /**
+   * コネクタ定義に直接指定されたパラメータとインポートされたコネクタパラメータから restoreLastDefaultNode の値を解決する.
+   *
+   * @param imported コネクタ定義にインポートされたパラメータ
+   * @param defined コネクタ定義に直接指定されたパラメータた
+   * @return 解決された restoreLastDefaultNode の値
+   */
+  private boolean resolveRestoreLastDefaultNode(
+      ConnectorAttribute imported, ConnectorAttribute defined) {
+    boolean restoreLastDefaultNode = false;
+    if (defined.restoreLastDefaultNode() != null) {
+      restoreLastDefaultNode = defined.restoreLastDefaultNode();
+    } else if (imported.restoreLastDefaultNode() != null) {
+      restoreLastDefaultNode = imported.restoreLastDefaultNode();
+    }
+    return restoreLastDefaultNode;
   }
 
   /**

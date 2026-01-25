@@ -30,7 +30,7 @@ import net.seapanda.bunnyhop.service.undo.UserOperation;
 public class DerivativeRemover implements BhNodeWalker {
 
   /** undo 用コマンドオブジェクト. */
-  private UserOperation userOpe;
+  private final UserOperation userOpe;
 
   /**
    * {@code node} 以下にある派生ノードを, そのオリジナルノードの派生ノード一覧から取り除く.

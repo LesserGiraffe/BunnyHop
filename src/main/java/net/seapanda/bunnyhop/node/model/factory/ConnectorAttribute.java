@@ -36,6 +36,7 @@ public record ConnectorAttribute(
     String name,
     ConnectorParamSetId paramSetId,
     BhNodeId defaultNodeId,
+    Boolean restoreLastDefaultNode,
     DerivationId derivationId,
     BhNodeId derivativeId,
     DerivativeJointId derivativeJointId,
@@ -46,7 +47,7 @@ public record ConnectorAttribute(
   /**
    * Connector もしくは ConnectorParamSet タグが持つ属性一覧を読んで, {@link ConnectorAttribute} を返す.
    *
-   * @param node Node タグを表すオブジェクト
+   * @param elem Connector タグを表すオブジェクト
    */
   public static ConnectorAttribute of(Element elem) {
     var connectorId =
@@ -56,34 +57,17 @@ public record ConnectorAttribute(
         ConnectorParamSetId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_PARAM_SET_ID));
     var defaultNodeId =
         BhNodeId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID));
+    Boolean restoreLastDefaultNode =
+        getBoolAttribute(BhConstants.BhModelDef.ATTR_RESTORE_LAST_DEFAULT_NODE, elem);
     var derivationId =
         DerivationId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_DERIVATION_ID));
     var derivativeId =
         BhNodeId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_DERIVATIVE_ID));
     var derivativeJoint =
         DerivativeJointId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_DERIVATIVE_JOINT));
-    var imports = 
+    Boolean fixed = getBoolAttribute(BhConstants.BhModelDef.ATTR_FIXED, elem);
+    var imports =
         ConnectorParamSetId.of(elem.getAttribute(BhConstants.BhModelDef.ATTR_IMPORT));
-
-    String fixedStr = elem.getAttribute(BhConstants.BhModelDef.ATTR_FIXED);
-    if (!fixedStr.isEmpty()
-        && !fixedStr.equals(BhConstants.BhModelDef.ATTR_VAL_TRUE)
-        && !fixedStr.equals(BhConstants.BhModelDef.ATTR_VAL_FALSE)) {
-      LogManager.logger().error(String.format(
-          "The value of a '%s' attribute must be '%s' or '%s'.    '%s=%s' is ignored.\n%s",
-          BhConstants.BhModelDef.ATTR_FIXED,
-          BhConstants.BhModelDef.ATTR_VAL_TRUE,
-          BhConstants.BhModelDef.ATTR_VAL_FALSE,
-          BhConstants.BhModelDef.ATTR_FIXED,
-          fixedStr,
-          elem.getOwnerDocument().getBaseURI()));
-    }
-    Boolean fixed = switch (fixedStr) {
-      case BhConstants.BhModelDef.ATTR_VAL_TRUE -> true;
-      case BhConstants.BhModelDef.ATTR_VAL_FALSE -> false;
-      default -> null;
-    };
-
     String onConnectabilityChecking =
         elem.getAttribute(BhConstants.BhModelDef.ATTR_ON_CONNECTABILITY_CHECKING);
 
@@ -92,6 +76,7 @@ public record ConnectorAttribute(
         name,
         paramSetId,
         defaultNodeId,
+        restoreLastDefaultNode,
         derivationId,
         derivativeId,
         derivativeJoint,
@@ -99,5 +84,31 @@ public record ConnectorAttribute(
         imports,
         onConnectabilityChecking
     );
+  }
+
+  /** 真偽値を取るアトリビュートの値を取得する. */
+  private static Boolean getBoolAttribute(String attrName, Element elem) {
+    String valStr = elem.getAttribute(attrName);
+    if (!valStr.isEmpty()
+        && !valStr.equals(BhConstants.BhModelDef.ATTR_VAL_TRUE)
+        && !valStr.equals(BhConstants.BhModelDef.ATTR_VAL_FALSE)) {
+      logBoolAttributeError(BhConstants.BhModelDef.ATTR_FIXED, valStr, elem);
+    }
+    return switch (valStr) {
+      case BhConstants.BhModelDef.ATTR_VAL_TRUE -> true;
+      case BhConstants.BhModelDef.ATTR_VAL_FALSE -> false;
+      default -> null;
+    };
+  }
+
+  private static void logBoolAttributeError(String attrName, String attrValue, Element elem) {
+    LogManager.logger().error(String.format(
+        "The value of a '%s' attribute must be '%s' or '%s'.    '%s=%s' is ignored.\n%s",
+        attrName,
+        BhConstants.BhModelDef.ATTR_VAL_TRUE,
+        BhConstants.BhModelDef.ATTR_VAL_FALSE,
+        attrName,
+        attrValue,
+        elem.getOwnerDocument().getBaseURI()));
   }
 }

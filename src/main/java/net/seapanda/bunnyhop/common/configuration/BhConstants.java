@@ -186,6 +186,7 @@ public class BhConstants {
     public static final String ATTR_VERSION = "version";
     public static final String ATTR_BH_CONNECTOR_ID = "bhConnectorID";
     public static final String ATTR_DEFAULT_BHNODE_ID = "defaultBhNodeID";
+    public static final String ATTR_RESTORE_LAST_DEFAULT_NODE = "restoreLastDefaultNode";
     public static final String ATTR_PARAM_SET_ID = "paramSetID";
     public static final String ATTR_TYPE = "type";
     public static final String ATTR_NAME = "name";
@@ -248,7 +249,6 @@ public class BhConstants {
     public static final String BH_FORMATTED_TEXT = "bhFormattedText";
     public static final String BH_TEXT_DB = "bhTextDb";
     public static final String BH_UI_EVENT = "bhUiEvent";
-    public static final String BH_NODE_MANIP_MODE = "bhNodeManipMode";
     public static final String IP_ADDR = "ipAddr";
     public static final String UNAME = "uname";
   }

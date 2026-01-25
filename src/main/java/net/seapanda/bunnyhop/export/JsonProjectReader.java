@@ -29,7 +29,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.BhNode;
@@ -212,11 +211,11 @@ public class JsonProjectReader {
    * {@code nodeImage} から元となった {@link BhNode} を復元する.
    * {@code nodeImage} の子孫要素も復元される.
    *
-   * @param nodeImage このオブジェクトから {@link BhNode} を復元する.
+   * @param nodeImage このオブジェクトから {@link BhNode} を復元する. (nullable)
    * @return {@code Image} から復元したノード.
    */
   private BhNode createBhNode(BhNodeImage nodeImage) throws CorruptedSaveDataException {
-    if (!canCreateNodeOf(nodeImage)) {
+    if (nodeImage == null || !canCreateNodeOf(nodeImage)) {
       return null;
     }
     var userOpe = new UserOperation();
@@ -234,7 +233,7 @@ public class JsonProjectReader {
     if (node instanceof TextNode textNode) {
       textNode.setText(nodeImage.text);
     }
-    // InstanceId の重複チェックは genBhNode を呼び出した後で行う必要がある.
+    // InstanceId の重複チェックは buildDescendant を呼び出した後で行う必要がある.
     checkNodeImageInstanceId(nodeImage);
 
     instIdToNode.put(nodeImage.instanceId, node);
@@ -250,8 +249,10 @@ public class JsonProjectReader {
       if (child == null || !(node instanceof ConnectiveNode parent)) {
         continue;
       }
-      connectChild(parent, child, cnctrImage.connectorId)
-          .ifPresent(cnctr -> cnctr.setDefaultNodeId(cnctrImage.defaultNodeId));
+      Connector cnctr = connectChild(parent, child, cnctrImage.connectorId);
+      if (cnctr != null) {
+        cnctr.setLastDefaultNodeSnapshot(createBhNode(cnctrImage.lastDefaultNodeSnapshot));
+      }
     }
   }
 
@@ -311,24 +312,24 @@ public class JsonProjectReader {
    * @param parent 親ノード
    * @param child 子ノード
    * @param id {@code parent} の下にあって, この ID を持つコネクタの下に {@code child} を接続する
-   * @return {@code parent} と {@code child} を接続するコネクタ.  {@code id} に対応するコネクタが見つからなかった場合 empty.
+   * @return {@code parent} と {@code child} を接続するコネクタ.  {@code id} に対応するコネクタが見つからなかった場合 null.
    */
-  private Optional<Connector> connectChild(ConnectiveNode parent, BhNode child, ConnectorId id) {
+  private Connector connectChild(ConnectiveNode parent, BhNode child, ConnectorId id) {
     Connector cnctr = parent.findConnector(id);
     if (cnctr != null) {
       cnctr.connect(child);
-      return Optional.of(cnctr);
+      return cnctr;
     }
     warnings.add(ImportWarning.CONNECTOR_NOT_FOUND);
     cnctrNotFoundInfoList.add(new ConnectorNotFoundInfo(parent, id));
-    return Optional.empty();
+    return null;
   }
 
   /** ロード中に発生した全ての警告のメッセージを取得する. */
   public String getWarningMsg() {
     StringBuilder msg = new StringBuilder();
     if (warnings.contains(ImportWarning.UNKNOWN_BH_NODE_ID)) {
-      msg.append(ImportWarning.UNKNOWN_BH_NODE_ID + "\n");
+      msg.append(ImportWarning.UNKNOWN_BH_NODE_ID).append("\n");
       for (BhNodeId unknownNodeId : unknownNodeIds) {
         msg.append("  %s: %s\n".formatted(
             unknownNodeId.getClass().getSimpleName(),
@@ -337,7 +338,7 @@ public class JsonProjectReader {
       msg.append("\n");
     }
     if (warnings.contains(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION)) {
-      msg.append(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION + "\n");
+      msg.append(ImportWarning.INCOMPATIBLE_BH_NODE_VERSION).append("\n");
       for (IncompatibleNodeVersionInfo info : incompatibleNodeVersionInfoList) {
         msg.append("  %s: %s,  image version: %s,  node version: %s\n".formatted(
             info.node.getId().getClass().getSimpleName(),
@@ -348,7 +349,7 @@ public class JsonProjectReader {
       msg.append("\n");
     }
     if (warnings.contains(ImportWarning.CONNECTOR_NOT_FOUND)) {
-      msg.append(ImportWarning.CONNECTOR_NOT_FOUND + "\n");
+      msg.append(ImportWarning.CONNECTOR_NOT_FOUND).append("\n");
       for (ConnectorNotFoundInfo info : cnctrNotFoundInfoList) {
         msg.append("  connective node id: %s,  %s: %s\n".formatted(
             info.node.getId(),
@@ -358,7 +359,7 @@ public class JsonProjectReader {
       msg.append("\n");
     }
     if (warnings.contains(ImportWarning.DERIVATIVE_NOT_FOUND)) {
-      msg.append(ImportWarning.DERIVATIVE_NOT_FOUND + "\n");
+      msg.append(ImportWarning.DERIVATIVE_NOT_FOUND).append("\n");
       for (DerivativeNotFoundInfo info : dervNotFoundInfoList) {
         msg.append("  %s: %s,  original instance id: %s,  derivative instance id: %s\n".formatted(
             info.orgNode.getId().getClass().getSimpleName(),
@@ -369,7 +370,7 @@ public class JsonProjectReader {
       msg.append("\n");
     }
     if (warnings.contains(ImportWarning.CORRUPTED_NODE)) {
-      msg.append(ImportWarning.CORRUPTED_NODE + "\n");
+      msg.append(ImportWarning.CORRUPTED_NODE).append("\n");
       for (BhNode node : corruptedNodes) {
         msg.append("  %s: %s\n".formatted(
             node.getId().getClass().getSimpleName(),

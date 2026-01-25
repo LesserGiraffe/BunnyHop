@@ -719,7 +719,7 @@
     "sound": "音",
     "color": "色",
     "control": "制御",
-    "variable": "変数 / リスト",
+    "variable": "変数",
     "func-def": "関数",
     "event": "イベント",
     "misc": "その他"

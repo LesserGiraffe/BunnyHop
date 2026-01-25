@@ -25,7 +25,8 @@
     <Connector
       bhConnectorID="idAnyArrayPushStat.cnctr1"
       import="idSameTypeOfExpCnctr"
-      name="Arg1"/>
+      name="Arg1"
+      restoreLastDefaultNode="true"/>
 
     <Connector
       bhConnectorID="idAnyArrayPushStat.cnctr2"

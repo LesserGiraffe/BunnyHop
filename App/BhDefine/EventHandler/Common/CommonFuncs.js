@@ -191,14 +191,17 @@
   }
 
   /**
-   * コネクタのデフォルトノードを変更して, 接続されているノードを変更後のデフォルトノードにする.
+   * defaultNodeId で指定したノードをデフォルトノードとして作成して, コネクタに接続する.
+   *
+   * <p>デフォルトノード指定されたノードをコネクタに接続すると, そのコネクタのデフォルトノードはそのノードの ID になる.
    * @param connector デフォルトノードを変更するコネクタ
    * @param defaultNodeId connector に設定するデフォルトノードの ID
    * @param bhUserOpe undo / redo 用コマンドオブジェクト
    */
   function changeDefaultNode(connector, defaultNodeId, bhUserOpe) {
-    connector.setDefaultNodeId(BhNodeId.of(defaultNodeId));
-    connector.getConnectedNode().remove(bhUserOpe);
+    let defaultNode = bhNodeFactory.create(BhNodeId.of(defaultNodeId), bhUserOpe);
+    defaultNode.setDefault(true);
+    connector.getConnectedNode().replace(defaultNode, bhUserOpe);
   }
 
   /**

@@ -16,7 +16,6 @@
 
 package net.seapanda.bunnyhop.export;
 
-import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.parameter.ConnectorId;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 
@@ -29,8 +28,8 @@ public class ConnectorImage {
 
   final ConnectorId connectorId;
   final InstanceId instanceId; // 保存はするがロード時に使用しない.
-  final BhNodeId defaultNodeId;
   final BhNodeImage connectedNode;
+  final BhNodeImage lastDefaultNodeSnapshot;
 
   /**
    * コンストラクタ.
@@ -38,25 +37,25 @@ public class ConnectorImage {
    *
    * @param connectorId 対象のコネクタの ID
    * @param instanceId 対象のコネクタのインスタンス ID
-   * @param defaultNodeId 対象のコネクタのデフォルトノードの ID
    * @param connectedNode 対象のコネクタに接続されている BhNode の保存イメージ
+   * @param lastDefaultNodeSnapshot 対象のコネクタに最後に接続されていたデフォルトノードのスナップショット
    */
   ConnectorImage(
       InstanceId instanceId,
       ConnectorId connectorId,
       BhNodeImage connectedNode,
-      BhNodeId defaultNodeId) {
+      BhNodeImage lastDefaultNodeSnapshot) {
     this.instanceId = instanceId;
     this.connectorId = connectorId;
-    this.defaultNodeId = defaultNodeId;
     this.connectedNode = connectedNode;
+    this.lastDefaultNodeSnapshot = lastDefaultNodeSnapshot;
   }
 
   /** デフォルトコンストラクタ (デシリアライズ用). */
   public ConnectorImage() {
     this.instanceId = InstanceId.NONE;
     this.connectorId = ConnectorId.NONE;
-    this.defaultNodeId = BhNodeId.NONE;
     this.connectedNode = new BhNodeImage();
+    this.lastDefaultNodeSnapshot = null; // 存在しない場合 null なので, new BhNodeImage() にしないこと
   }
 }

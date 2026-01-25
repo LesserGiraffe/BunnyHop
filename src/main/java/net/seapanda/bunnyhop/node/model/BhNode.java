@@ -356,8 +356,7 @@ public abstract class BhNode extends SyntaxSymbol {
     if (parentConnector == null) {
       return new LinkedHashSet<>();
     }
-    BhNode newNode = factory.create(parentConnector.getDefaultNodeId(), userOpe);
-    newNode.setDefault(true);
+    BhNode newNode = parentConnector.createDefaultNode(userOpe);
     return replace(newNode, userOpe);
   }
 

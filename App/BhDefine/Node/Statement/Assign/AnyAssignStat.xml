@@ -24,7 +24,8 @@
     <Connector
       bhConnectorID="idAnyAssignStat.cnctr1"
       import="idSameTypeOfExpCnctr"
-      name="RightExp"/>
+      name="RightExp"
+      restoreLastDefaultNode="true"/>
   
     <Connector
       bhConnectorID="idAnyAssignStat.cnctr2"

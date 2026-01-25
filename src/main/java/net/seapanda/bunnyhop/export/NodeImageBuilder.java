@@ -102,12 +102,22 @@ public class NodeImageBuilder implements BhNodeWalker {
   @Override
   public void visit(Connector cnctr) {
     cnctr.sendToConnectedNode(this);
+    BhNodeImage snapshotImage = createDefaultNodeSnapshotImage(cnctr);
     var image = new ConnectorImage(
         cnctr.getInstanceId(),
         cnctr.getId(),
         nodeStack.removeLast(),
-        cnctr.getDefaultNodeId());
+        snapshotImage);
     nodeStack.peekLast().addChild(image);
+  }
+
+  /** {@code cnctr} に最後に接続されていたデフォルトノードのスナップショットの保存用イメージを作成する. */
+  private static BhNodeImage createDefaultNodeSnapshotImage(Connector cnctr) {
+    return cnctr.getLastDefaultNodeSnapshot().map(snapshot -> {
+      var builder = new NodeImageBuilder();
+      snapshot.accept(builder);
+      return builder.nodeStack.getLast();
+    }).orElse(null);
   }
 
   /** {@code node} がテンプレートノードか調べる. */

@@ -91,11 +91,11 @@ public class XmlBhNodeRepository implements BhNodeRepository {
     if (!success) {
       throw new NodeConstructionException(msg);
     }
-    success &= checkIfAllDefaultNodesExist();
+    success = checkIfAllDefaultNodesExist();
     if (!success) {
       throw new NodeConstructionException(msg);
     }
-    return success;
+    return true;
   }
 
   /**
@@ -105,30 +105,29 @@ public class XmlBhNodeRepository implements BhNodeRepository {
    * @return コネクタのパラメータセットの作成に成功した場合 true
    */
   private boolean genCnctrParamSet(Path dirPath) {
-    List<Path> files;  // 読み込むファイルパスリスト
-    try {
-      files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"))
-          .toList();
+    // List<Path> files;  // 読み込むファイルパスリスト
+    try (Stream<Path> files =
+             Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"))) {
+      // コネクタ設定ファイル読み込み & 登録
+      boolean success = true;
+      for (Path file : files.toList()) {
+        Element rootElem = toRootElem(file);
+        if (rootElem == null) {
+          success = false;
+          continue;
+        }
+        if (!rootElem.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR_PARAM_SET)) {
+          continue;
+        }
+        success &= buildParamSet(rootElem)
+            .map(params -> registerCnctrParamSet(params, file))
+            .orElse(false);
+      }
+      return success;
     } catch (IOException e) {
       LogManager.logger().error("Directory not found.  (%s)".formatted(dirPath));
       return false;
     }
-    // コネクタ設定ファイル読み込み & 登録
-    boolean success = true;
-    for (Path file : files) {
-      Element rootElem = toRootElem(file);
-      if (rootElem == null) {
-        success = false;
-        continue;
-      }
-      if (!rootElem.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR_PARAM_SET)) {
-        continue;
-      }
-      success &= buildParamSet(rootElem)
-          .map(params -> registerCnctrParamset(params, file))
-          .orElse(false);
-    }
-    return success;
   }
 
   /** コネクタパラメータセットを作成する. */
@@ -137,7 +136,8 @@ public class XmlBhNodeRepository implements BhNodeRepository {
     if (!elem.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR_PARAM_SET)) {
       LogManager.logger().error(String.format("""
           Invalid connector parameter set definition (%s).
-          A connector parameter set definition must have a '%s' root element.\n%s
+          A connector parameter set definition must have a '%s' root element.
+          %s
           """,
           elem.getNodeName(),
           BhConstants.BhModelDef.ELEM_CONNECTOR_PARAM_SET,
@@ -148,7 +148,7 @@ public class XmlBhNodeRepository implements BhNodeRepository {
   }
 
 
-  private boolean registerCnctrParamset(ConnectorAttribute attrbutes, Path file) {
+  private boolean registerCnctrParamSet(ConnectorAttribute attrbutes, Path file) {
     if (attrbutes.paramSetId().equals(ConnectorParamSetId.NONE)) {
       LogManager.logger().error(String.format(
           "A '%s' elements must have a '%s' attribute.\n%s",
@@ -189,23 +189,21 @@ public class XmlBhNodeRepository implements BhNodeRepository {
    */
   private boolean genNode(Path dirPath, BhNodeBuilder builder) {
     // ノードファイルパスリスト取得
-    Stream<Path> files;  //読み込むファイルパスリスト
-    try {
-      files = Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"));
+    try (Stream<Path> files =
+             Files.walk(dirPath, FOLLOW_LINKS).filter(path -> path.toString().endsWith(".xml"))) {
+      // ノード設定ファイル読み込み
+      boolean success = files
+          .allMatch(file -> {
+            Optional<? extends BhNode> nodeOpt = genNodeFromFile(file, builder);
+            nodeOpt.ifPresent(node -> archive.putNode(node.getId(), node));
+            return nodeOpt.isPresent();
+          });
+      success &= checkDerivativeConsistency();
+      return success;
     } catch (IOException e) {
       LogManager.logger().error("Directory not found.  (%s)".formatted(dirPath));
       return false;
     }
-    // ノード設定ファイル読み込み
-    boolean success = files
-        .map(file -> {
-          Optional<? extends BhNode> nodeOpt = genNodeFromFile(file, builder);
-          nodeOpt.ifPresent(node -> archive.putNode(node.getId(), node));
-          return nodeOpt.isPresent();
-        })
-        .allMatch(Boolean::valueOf);
-    success &= checkDerivativeConsistency();
-    return success;
   }
 
   /**
@@ -227,11 +225,7 @@ public class XmlBhNodeRepository implements BhNodeRepository {
     }
   }
 
-  /**
-   * コネクタに最初につながっているノードをテンプレートコネクタに登録する.
-   *
-   * @return 全てのコネクタに対し、ノードの登録が成功した場合 true を返す
-   */
+  /** すべてのコネクタのデフォルトノードが存在するかチェックする. */
   private boolean checkIfAllDefaultNodesExist() {
     List<Connector> errCnctrs = archive.getConnectorIdToConnector().values().stream()
         .filter(cnctr -> !archive.hasNodeOf(cnctr.getDefaultNodeId()))
@@ -304,7 +298,7 @@ public class XmlBhNodeRepository implements BhNodeRepository {
    *
    * @author K.Koike
    */
-  class ModelArchive {
+  static class ModelArchive {
 
     /** {@link BhNode} のテンプレートを格納するハッシュ.*/
     private final Map<BhNodeId, BhNode> nodeIdToNode = new HashMap<>();
@@ -376,12 +370,7 @@ public class XmlBhNodeRepository implements BhNodeRepository {
       return new HashMap<>(cnctrIdToCnctr);
     }
 
-    /**
-     * オリジナルノードの ID と, その派生ノードの ID のペアを登録する.
-     *
-     * @param orgNodeId オリジナルノードの ID
-     * @param dervNodeId 派生ノードの ID
-     */
+    /** オリジナルノードの ID と, その派生ノードの ID のペアを登録する. */
     void putDerivationCorrespondence(DerivationCorrespondence pair) {
       derivationCorrespondenceSet.add(pair);
     }
@@ -396,15 +385,14 @@ public class XmlBhNodeRepository implements BhNodeRepository {
       return Optional.ofNullable(cnctrParamIdToCnctrAttributes.get(id));
     }
 
-    /** {@code id} に対応する {@link ConnectorAttributes} オブジェクトを登録する. */
-    Optional<ConnectorAttribute> putConnectorAttributes(
-        ConnectorParamSetId id, ConnectorAttribute attr) {
-      return Optional.ofNullable(cnctrParamIdToCnctrAttributes.put(id, attr));
+    /** {@code id} に対応する {@link ConnectorAttribute} オブジェクトを登録する. */
+    void putConnectorAttributes(ConnectorParamSetId id, ConnectorAttribute attr) {
+      cnctrParamIdToCnctrAttributes.put(id, attr);
     }
 
     /**
      * {@code id} で指定したコネクタパラメータ ID に対応する
-     * {@link ConnectorAttributes} オブジェクトが登録済みか調べる.
+     * {@link ConnectorAttribute} オブジェクトが登録済みか調べる.
      */
     boolean hasConnectorAttribute(ConnectorParamSetId id) {
       return cnctrParamIdToCnctrAttributes.containsKey(id);

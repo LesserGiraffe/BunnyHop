@@ -70,9 +70,7 @@ public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
    *
    * @param org コピー元オブジェクト
    */
-  private ConnectiveNode(
-      ConnectiveNode org,
-      UserOperation userOpe) {
+  private ConnectiveNode(ConnectiveNode org, UserOperation userOpe) {
     super(org, userOpe);
   }
 

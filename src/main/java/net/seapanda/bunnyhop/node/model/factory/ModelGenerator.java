@@ -105,6 +105,7 @@ public class ModelGenerator {
         attributes.connectorId(),
         attributes.name(),
         attributes.defaultNodeId(),
+        attributes.restoreLastDefaultNode(),
         attributes.derivationId(),
         attributes.derivativeJointId(),
         attributes.fixed());

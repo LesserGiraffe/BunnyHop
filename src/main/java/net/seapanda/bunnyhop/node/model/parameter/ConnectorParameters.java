@@ -25,6 +25,7 @@ import net.seapanda.bunnyhop.node.model.Connector;
  * @param connectorId コネクタ ID
  * @param name コネクタの名前
  * @param defaultNodeId デフォルトノード (コネクタに接続されているノードが削除されたときに代わりにつながるノード) の ID
+ * @param restoreLastDefaultNode デフォルトノードを接続するときに, 最後に接続されていたデフォルトノードの状態を復元するかどうかのフラグ
  * @param derivationId 派生ノードを特定するための ID
  * @param derivativeJointId 派生ノードの接続先を特定するための ID
  * @param fixed 接続されたノードの削除や入れ替えができるかどうかのフラグ
@@ -35,6 +36,7 @@ public record ConnectorParameters(
     ConnectorId connectorId,    
     String name,
     BhNodeId defaultNodeId,
+    boolean restoreLastDefaultNode,
     DerivationId derivationId,
     DerivativeJointId derivativeJointId,
     boolean fixed) implements Serializable {}

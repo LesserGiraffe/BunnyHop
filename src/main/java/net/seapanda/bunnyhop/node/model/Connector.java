@@ -18,7 +18,9 @@ package net.seapanda.bunnyhop.node.model;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
+import net.seapanda.bunnyhop.node.model.derivative.DerivativeRemover;
 import net.seapanda.bunnyhop.node.model.event.ConnectorEventInvoker;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
@@ -42,10 +44,10 @@ public class Connector extends SyntaxSymbol {
 
   // このコネクタの生成時のパラメータ
   private final ConnectorParameters params;
-  /** ノードが取り外されたときに変わりに繋がるノードのID (Connector タグの bhID). */
-  private BhNodeId defaultNodeId;
   /** 接続中のノード. */
   private BhNode connectedNode;
+  /** 最後にこのコネクタに接続されていたデフォルトノードのスナップショット. */
+  private transient BhNode lastDefaultNodeSnapshot;
   /** このオブジェクトを保持する ConnectorSection オブジェクト. */
   private final ConnectorSection parent;
   /** {@link BhNode} 生成用オブジェクト. */
@@ -66,19 +68,28 @@ public class Connector extends SyntaxSymbol {
     super(params.name());
     this.params = params;
     this.factory = factory;
-    this.eventInvoker = invoker;
-    defaultNodeId = params.defaultNodeId();
+    eventInvoker = invoker;
     parent = null;
   }
 
   /** コピーコンストラクタ. */
-  private Connector(Connector org, ConnectorSection parent) {
+  private Connector(Connector org, ConnectorSection parent, UserOperation userOpe) {
     super(org.getSymbolName());
-    this.params = org.params;
-    this.factory = org.factory;
-    this.eventInvoker = org.eventInvoker;
+    params = org.params;
+    factory = org.factory;
+    eventInvoker = org.eventInvoker;
     this.parent = parent;
-    defaultNodeId = org.defaultNodeId;
+    lastDefaultNodeSnapshot = copyLastDefaultNodeSnapshot(org, userOpe);
+  }
+
+  /** 元のコネクタの最後のデフォルトノードのスナップショットをコピーする. */
+  private BhNode copyLastDefaultNodeSnapshot(Connector org, UserOperation userOpe) {
+    if (org.lastDefaultNodeSnapshot == null) {
+      return null;
+    }
+    BhNode snapShot = org.lastDefaultNodeSnapshot.copy(userOpe);
+    DerivativeRemover.remove(snapShot, userOpe);
+    return snapShot;
   }
 
   /**
@@ -99,10 +110,9 @@ public class Connector extends SyntaxSymbol {
     }
     // コピー対象のノードでない場合, デフォルトノードを新規作成して接続する
     if (newNode == null) {
-      newNode = factory.create(defaultNodeId, userOpe);
-      newNode.setDefault(true);
+      newNode = createDefaultNode(userOpe);
     }
-    var newConnector = new Connector(this, parent);
+    var newConnector = new Connector(this, parent, userOpe);
     newConnector.connect(newNode);
     return newConnector;
   }
@@ -120,10 +130,37 @@ public class Connector extends SyntaxSymbol {
    * ノードを接続する.
    *
    * @param node 接続されるノード.  (null 不可)
+   */
+  public final void connect(BhNode node) {
+    connect(node, new UserOperation());
+  }
+
+  /**
+   * ノードを接続する.
+   *
+   * <p>{@code node} がデフォルトノード指定されている場合, このコネクタのデフォルトノードの ID は
+   * そのノードの ID で更新される.
+   * この処理は, 最後に接続されていたデフォルトノードの状態を復元するかどうかのオプションとは関係なく行われる.
+   *
+   * @param node 接続されるノード.  (null 不可)
    * @param userOpe undo 用コマンドオブジェクト
    */
   public final void connect(BhNode node, UserOperation userOpe) {
     Objects.requireNonNull(node);
+    BhNode snapshot = computeNextDefaultNodeSnapshot(node, connectedNode);
+    connectImpl(node, snapshot, userOpe);
+  }
+
+  /**
+   * 接続されたノードの入れ替えと {@link #lastDefaultNodeSnapshot} の更新を行う.
+   *
+   * <p>このメソッドは, デフォルトノードのスナップショットを作成する処理
+   * ({@link #computeNextDefaultNodeSnapshot}) を undo / redo の対象にしないために導入した.
+   * 同処理を undo / redo の対象にすると <b> 旧ノード = 非デフォルトノード, 新ノード = デフォルトノード </b>
+   * であった場合, undo 処理で {@link #lastDefaultNodeSnapshot} に新ノードのスナップショットが保存されるので,
+   * 旧ノードがつながれていたときのスナップショットが復元されない問題が生じる.
+   */
+  private void connectImpl(BhNode node, BhNode snapshot, UserOperation userOpe) {
     if (connectedNode != null) {
       connectedNode.setParentConnector(null);
     }
@@ -132,20 +169,86 @@ public class Connector extends SyntaxSymbol {
     node.setParentConnector(this);
     // コネクタの接続の更新 -> ワークスペースへの登録 -> ノード入れ替え時のイベントハンドラ呼び出し
     // の順に行う必要があるので, ここでワークスペースへの登録を行う.
-    if (oldNode != null && oldNode.getWorkspace() != null) {
-      oldNode.getWorkspace().addNodeTree(node, userOpe);
-    }
-    userOpe.pushCmd(ope -> connect(oldNode, ope));
+    Optional.ofNullable(oldNode)
+        .map(BhNode::getWorkspace)
+        .ifPresent(ws -> ws.addNodeTree(node, userOpe));
+
+    BhNode oldSnapshot = lastDefaultNodeSnapshot;
+    lastDefaultNodeSnapshot = snapshot;
+    userOpe.pushCmd(ope -> connectImpl(oldNode, oldSnapshot, ope));
     getCallbackRegistry().onNodeReplaced.invoke(new ReplacementEvent(oldNode, node, userOpe));
   }
 
   /**
-   * ノードを接続する.
+   * コネクタに接続されるノードが入れ替わったときに {@link #lastDefaultNodeSnapshot} に代入すべき値を取得する.
    *
-   * @param node 接続されるノード.  (null 不可)
+   * @param newNode コネクタに新しく接続されるノード
+   * @param oldNode {@code newNode} と入れ替わるノード
+   * @return コネクタに接続されるノードが入れ替わったときに {@link #lastDefaultNodeSnapshot} に代入すべき値
    */
-  public final void connect(BhNode node) {
-    connect(node, new UserOperation());
+  private BhNode computeNextDefaultNodeSnapshot(BhNode newNode, BhNode oldNode) {
+    // 新ノードがデフォルトノードのとき, それまでのスナップショットは無効になるので null を返す
+    if (newNode.isDefault()) {
+      return null;
+
+    // 旧ノードがデフォルトノードでかつ, 新ノードが非デフォルトノードであった場合, 旧ノードのスナップショットを返す
+    } else if (oldNode != null && oldNode.isDefault()) {
+      var userOpe = new UserOperation();
+      BhNode snapShot = oldNode.copy(userOpe);
+      DerivativeRemover.remove(snapShot, userOpe);
+      return snapShot;
+    }
+    // それ以外の場合スナップショットに変更はない
+    return lastDefaultNodeSnapshot;
+  }
+
+  /** ノードが取り外されたときに変わりに繋がるノード (= デフォルトノード) の ID を取得する. */
+  public BhNodeId getDefaultNodeId() {
+    if (connectedNode != null && connectedNode.isDefault()) {
+      return connectedNode.getId();
+    }
+    if (lastDefaultNodeSnapshot != null) {
+      return lastDefaultNodeSnapshot.getId();
+    }
+    return params.defaultNodeId();
+  }
+
+  /**
+   * このコネクタに指定されたデフォルトノードを新しく作成する.
+   * MVC 構造は構築しない.
+   */
+  public BhNode createDefaultNode(UserOperation userOpe) {
+    BhNode defaultNode;
+    if (!params.restoreLastDefaultNode()) {
+      defaultNode = factory.create(getDefaultNodeId(), userOpe);
+    } else if (connectedNode != null && connectedNode.isDefault()) {
+      defaultNode = connectedNode.copy(userOpe);
+      DerivativeRemover.remove(defaultNode, userOpe);
+    } else if (lastDefaultNodeSnapshot != null) {
+      defaultNode = lastDefaultNodeSnapshot.copy(userOpe);
+      DerivativeRemover.remove(defaultNode, userOpe);
+    } else {
+      defaultNode = factory.create(params.defaultNodeId(), userOpe);
+    }
+    defaultNode.setDefault(true);
+    return defaultNode;
+  }
+
+  /**
+   * 最後に接続されていたデフォルトノードのスナップショットを設定する.
+   *
+   * <p>最後に接続されたデフォルトノードのスナップショットは基本的にこのクラスで管理する.
+   * プロジェクトのロード時など, 必要な場合にのみ呼ぶこと.
+   *
+   * @param node このオブジェクトを最後に接続されていたデフォルトノードのスナップショットとする. (nullable)
+   */
+  public void setLastDefaultNodeSnapshot(BhNode node) {
+    lastDefaultNodeSnapshot = node;
+  }
+
+  /** 最後に接続されていたデフォルトノードのスナップショットを取得する. */
+  public Optional<BhNode> getLastDefaultNodeSnapshot() {
+    return Optional.ofNullable(lastDefaultNodeSnapshot);
   }
 
   /**
@@ -215,21 +318,6 @@ public class Connector extends SyntaxSymbol {
    */
   public DerivativeJointId getDerivativeJoint() {
     return params.derivativeJointId();
-  }
-
-  /**
-   * ノードが取り外されたときに変わりに繋がるノードの ID (= デフォルトノード) を設定する.
-   *
-   * @param nodeId このコネクタに設定するデフォルトノードの ID
-   */
-  public void setDefaultNodeId(BhNodeId nodeId) {
-    Objects.requireNonNull(nodeId);
-    defaultNodeId = nodeId;
-  }
-
-  /** ノードが取り外されたときに変わりに繋がるノードの ID (= デフォルトノード) を取得する. */
-  public BhNodeId getDefaultNodeId() {
-    return defaultNodeId;
   }
 
   /**
@@ -307,5 +395,5 @@ public class Connector extends SyntaxSymbol {
    * @param newNode {@code oldNode} の替わりに接続新しく接続されたノード
    * @param userOpe undo 用コマンドオブジェクト
    */
-  record ReplacementEvent(BhNode oldNode, BhNode newNode, UserOperation userOpe) {}  
+  record ReplacementEvent(BhNode oldNode, BhNode newNode, UserOperation userOpe) {}
 }
