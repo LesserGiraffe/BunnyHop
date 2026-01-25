@@ -6,12 +6,12 @@
       "arrangement" : "Column",
       "space" : 1.5,
       "subGroup0" : {
-        "space" : 2.0,
+        "space" : 1.1,
         "arrangement" : "Row",
         "connectorList" : ["Arg0", "${L2}{からチケットを}", "Arg1", "${L2}{枚取る}"]
       },
       "subGroup1" : {
-        "space" : 2.0,
+        "space" : 1.1,
         "arrangement" : "Row",
         "connectorList" : ["${L2}{( チケットが足りない場合は待つ )}"]
       }

@@ -7,17 +7,17 @@
       "space" : 1.5,
 
       "subGroup0" : {
-        "space" : 2.0,
+        "space" : 1.1,
         "arrangement" : "Row",
         "connectorList" : ["${L2}{処理待ちタイマー}", "SyncTimerName"]
       },
       "subGroup1" : {
-        "space" : 2.0,
+        "space" : 1.1,
         "arrangement" : "Row",
         "connectorList" : ["${L2}{自動リセット}", "Arg1"]
       },
       "subGroup2" : {
-        "space" : 2.0,
+        "space" : 1.1,
         "arrangement" : "Row",
         "connectorList" : ["${L2}{タイマーの初期値}", "Arg0"]
       }

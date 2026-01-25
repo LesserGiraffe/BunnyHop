@@ -4,7 +4,7 @@
   "connective" : {
     "inner" : {
       "arrangement" : "Row",
-      "space" : 2.0,
+      "space" : 1.1,
       "connectorList" : ["${L2}{音声ファイル (}", "Arg0", "${L2}{) を再生する}"]
     }
   }

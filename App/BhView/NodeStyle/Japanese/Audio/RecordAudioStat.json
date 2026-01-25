@@ -4,7 +4,7 @@
   "connective" : {
     "inner" : {
       "arrangement" : "Row",
-      "space" : 2.0,
+      "space" : 1.1,
       "connectorList" : ["Arg1", "${L2}{秒間録音して}", "Arg0", "${L2}{に保存する}"]
     }
   }

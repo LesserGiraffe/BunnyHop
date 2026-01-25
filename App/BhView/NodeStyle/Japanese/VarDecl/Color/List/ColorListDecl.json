@@ -5,7 +5,7 @@
   "connective" : {
     "inner" : {
       "arrangement" : "Row",
-      "space" : 2.0,
+      "space" : 1.1,
       "connectorList" : ["ListName", "${L2}{[...]}"]
     }
   }

@@ -14,13 +14,13 @@
 
       "subGroup1" : {
         "arrangement" : "Row",
-        "space" : 2.0,
+        "space" : 1.1,
         "connectorList" : ["Arg0", "Arg1", "Arg2"]
       },
 
       "subGroup2" : {
         "arrangement" : "Row",
-        "space" : 2.0,
+        "space" : 1.1,
         "connectorList" : ["OutArg0", "OutArg1", "OutArg2"]
       }
     }

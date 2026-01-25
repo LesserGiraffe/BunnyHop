@@ -3,7 +3,7 @@
 
   "connective" : {
     "inner" : {
-      "space" : 2.0,
+      "space" : 1.1,
       "arrangement" : "Row",
       "connectorList" : ["Arg0", "${L1}{を}", "Arg1", "${L1}{以上}", "Arg2", "${L1}{以下に制限した値}"]
     }

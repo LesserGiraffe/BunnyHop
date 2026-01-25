@@ -4,7 +4,7 @@
   "connective" : {
     "inner" : {
       "arrangement" : "Row",
-      "space" : 2.0,
+      "space" : 1.1,
       "connectorList" : ["LeftVar", "${L1}{に}", "RightExp", "${L1}{を代入する}"]
     }
   }

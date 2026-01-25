@@ -256,6 +256,7 @@ public abstract class BhNodeViewBase implements BhNodeView {
   protected void setComponent(Node node) {
     if (node == null) {
       panes.specific.getChildren().clear();
+      return;
     }
     panes.specific.getChildren().setAll(node);
   }
@@ -300,11 +301,14 @@ public abstract class BhNodeViewBase implements BhNodeView {
   private Panes createPanes(BhNodeViewStyle style, SequencedSet<Node> components) {
     boolean isBaseArrangementRow = (style.baseArrangement == ChildArrangement.ROW);
     Pane root = new Pane();
+    root.setPickOnBounds(false);
+    root.setTranslateX(-20000.0);
+    root.setTranslateY(-20000.0); // 適切な位置に配置される前の状態が見えるのを防ぐ. (小さくしすぎると WS のスクロールが正常に行われなくなる)
+
     Pane compBase = isBaseArrangementRow ? new HBox() : new VBox();
     Pane common = (style.commonPart.arrangement == ChildArrangement.ROW) ? new HBox() : new VBox();
     Pane specific = new HBox();
     root.getChildren().addAll(shapes.nodeShape, compBase);
-    root.setPickOnBounds(false);
 
     compBase.getChildren().addAll(common, specific);
     compBase.setPickOnBounds(false);

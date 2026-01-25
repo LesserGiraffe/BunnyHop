@@ -6,12 +6,12 @@
       "arrangement" : "Column",
       "space" : 1.5,
       "subGroup0" : {
-        "space" : 2.0,
+        "space" : 1.1,
         "arrangement" : "Row",
         "connectorList" : ["Arg0", "${L2}{のカウントが 0 になるまで待つ}"]
       },
       "subGroup1" : {
-        "space" : 2.0,
+        "space" : 1.1,
         "arrangement" : "Row",
         "connectorList" : ["${L2}{( 最初にカウントを 1}", "Option0", "${L1}{)}"]
       }

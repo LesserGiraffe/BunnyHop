@@ -3,7 +3,7 @@
 
   "connective" : {
     "inner" : {
-      "space" : 2.0,
+      "space" : 1.1,
       "arrangement" : "Row",
       "connectorList" :["Arg2", "${L1}{秒以内に}" ,"Arg0", "${L1}{からチケットを}", "Arg1", "${L1}{枚取れた}"]
     }

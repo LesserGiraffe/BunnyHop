@@ -3,9 +3,9 @@
 
   "connective" : {
     "inner" : {
-      "space" : 2.0,
+      "space" : 1.1,
       "arrangement" : "Row",
-      "connectorList" : ["Arg0", "${L1}{ (変換に失敗した場合}", "Arg1", "${L1}{)}"]
+      "connectorList" : ["Arg0", "${L1}{ (失敗した場合}", "Arg1", "${L1}{)}"]
     }
   }
 }

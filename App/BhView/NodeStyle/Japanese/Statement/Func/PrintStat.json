@@ -5,7 +5,7 @@
   "connective" : {
     "inner" : {
       "arrangement" : "Row",
-      "space" : 2.0,
+      "space" : 1.1,
       "connectorList" : ["Arg0", "${L1}{を}", "Option0", "${L1}{で出力する}"]
     }
   }

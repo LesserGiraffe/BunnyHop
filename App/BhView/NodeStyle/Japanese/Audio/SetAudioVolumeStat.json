@@ -5,7 +5,7 @@
   "connective" : {
     "inner" : {
       "arrangement" : "Row",
-      "space" : 2.0,
+      "space" : 1.1,
       "connectorList" : ["${L1}{音量を}", "Arg0", "${L1}{% に設定する}"]
     }
   }

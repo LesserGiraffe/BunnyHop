@@ -9,7 +9,7 @@
       "space" : 0.5,
       "subGroup0" : {
         "arrangement" : "Row",
-        "space" : 2.0,
+        "space" : 1.1,
         "connectorList" : ["${L2}{排他区間}", "MutexBlockName"]
       },
       "subGroup1" : {
