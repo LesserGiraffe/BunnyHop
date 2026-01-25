@@ -16,17 +16,30 @@
 
 package net.seapanda.bunnyhop.ui.model;
 
+import javafx.scene.Cursor;
+
 /**
  * ノードの操作モードを定義した列挙型.
  */
 public enum NodeManipulationMode {
 
   /** デフォルトのモード. */
-  MODE_0,
+  MODE_0(Cursor.DEFAULT),
   /** ノードを複数選択するモード. */
-  MODE_1,
+  MODE_1(Cursor.HAND),
   /** ノードに付随する情報を参照するモード. */
-  MODE_2;
+  MODE_2(Cursor.CROSSHAIR);
+
+  private final Cursor cursor;
+
+  private NodeManipulationMode(Cursor cursor) {
+    this.cursor = cursor;
+  }
+
+  /** 操作モードに応じたカーソルを取得する. */
+  public Cursor getCursor() {
+    return cursor;
+  }
 
   // 外部スクリプトから参照するためのメソッド
   public boolean isMode0() {
