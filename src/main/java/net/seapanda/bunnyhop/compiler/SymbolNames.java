@@ -129,7 +129,7 @@ public class SymbolNames {
             put(BOOL_EMPTY_LIST, "[]");
             put(COLOR_EMPTY_LIST, "[]");
             put(SOUND_EMPTY_LIST, "[]");
-        }};
+          }};
 
     public static final Set<String> VAR_VOID_LIST =
         new HashSet<>(List.of(
@@ -178,11 +178,13 @@ public class SymbolNames {
     public static final String NUM_ADD_ASSIGN_STAT = "NumAddAssignStat";
     public static final String STR_ADD_ASSIGN_STAT = "StrAddAssignStat";
     public static final String ANY_ASSIGN_STAT = "AnyAssignStat";
+    public static final String ANY_ARRAY_ASSIGN_STAT = "AnyArrayAssignStat";
     public static final String LEFT_VAR = "LeftVar";
 
     public static final Set<String> LIST =
         new HashSet<>(List.of(
             ANY_ASSIGN_STAT,
+            ANY_ARRAY_ASSIGN_STAT,
             NUM_ADD_ASSIGN_STAT,
             STR_ADD_ASSIGN_STAT));
   }

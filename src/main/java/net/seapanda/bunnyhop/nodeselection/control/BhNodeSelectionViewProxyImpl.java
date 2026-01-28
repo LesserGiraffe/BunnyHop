@@ -142,6 +142,11 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
   }
 
   @Override
+  public void clearNodeTrees(String categoryName, UserOperation userOpe) {
+    getNodeTrees(categoryName).forEach(node -> removeNodeTree(node, userOpe));
+  }
+
+  @Override
   public void zoom(boolean zoomIn) {
     categoryNameToSelectionView.values().forEach(view -> view.zoom(zoomIn));
   }

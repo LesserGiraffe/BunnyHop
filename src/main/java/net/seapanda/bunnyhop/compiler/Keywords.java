@@ -30,6 +30,7 @@ public class Keywords {
     public static final String lockVar = "_lockObj";
     public static final String func = "_f";
     public static final String outArg = "_vo";
+    public static final String instIdVar = "_vid";
   }
 
   /** JavaScript のキーワード. */

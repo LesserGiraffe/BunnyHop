@@ -92,8 +92,7 @@ public abstract class SyntaxSymbol implements Serializable {
    * @param upToTop {@code generation} で指定した世代のみ探す場合 false. トップノードまで探す場合 true.
    * @return シンボル名を持つ {@link SyntaxSymbol} オブジェクト. 見つからなかった場合は null.
    */
-  public abstract SyntaxSymbol findAncestorOf(
-      String symbolName, int generation, boolean upToTop);
+  public abstract SyntaxSymbol findAncestorOf(String symbolName, int generation, boolean upToTop);
 
   /**
    * 引数で指定したシンボル名を持つ {@link SyntaxSymbol} を親以上の {@link SyntaxSymbol} から探す.

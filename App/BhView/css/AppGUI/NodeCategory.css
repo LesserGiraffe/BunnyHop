@@ -109,16 +109,6 @@
   -fx-background: derive(voidFuncTypeCol, 50% );
 }
 
-/*-------------------VarListOpe-----------------*/
-
-#categoryTree .varAndListOpe {
-  -fx-background: linear-gradient(from 0em 0em to 0.0em 0.5em, repeat, #E0E0E0 70%, #F0F0F0 0em);
-  -fx-border-color: black;
-}
-
-#categoryTree .varAndListOpe:hover {
-  -fx-background: linear-gradient(from 0em 0em to 0.0em 0.5em, repeat, #F0F0F0 70%, #FFFFFF 0em);
-}
 /*-------------------var and list ---------------*/
 
 #categoryTree .varAndList {

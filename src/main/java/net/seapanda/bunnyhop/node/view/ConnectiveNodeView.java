@@ -42,6 +42,7 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
   private final BhNodeViewGroup outerGroup = new BhNodeViewGroup(this, false);
   private final ConnectiveNode model;
   private final NodeSizeCalculator sizeCalculator;
+  private boolean childRelPosValid = false;
 
   /**
    * コンストラクタ.
@@ -86,6 +87,7 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
   @Override
   protected void notifyChildSizeChanged() {
     sizeCalculator.notifyNodeSizeChanged();
+    childRelPosValid = false;
     super.notifyChildSizeChanged();
   }
 
@@ -134,6 +136,9 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
   /** ノードの親からの相対位置を更新する. */
   @Override
   protected void updateChildRelativePos() {
+    if (childRelPosValid) {
+      return;
+    }
     Vec2D innerRelPos = new Vec2D(style.paddingLeft, style.paddingTop);
     Vec2D commonPartSize = getRegionManager().getCommonPartSize();
     if (style.baseArrangement == ChildArrangement.ROW) {
@@ -153,6 +158,7 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
       outerGroup.setRelativePosFromParent(0.0, bodySize.y + style.connective.outerOffset);
     }
     outerGroup.updateChildRelativePos();
+    childRelPosValid = true;
   }
 
   /** {@code visitor} を内部ノードを管理するグループに渡す. */

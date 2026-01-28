@@ -35,6 +35,7 @@ import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
+import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 
 /**
  * BhNode をコンパイルするクラス.
@@ -149,8 +150,9 @@ public class BhCompilerImpl implements BhCompiler {
       return;
     }
     String lockVar = Keywords.Prefix.lockVar + ScriptIdentifiers.Funcs.BH_MAIN;
+    SyntaxSymbol mainRoutineSymbol = createMainRoutineSymbol();
     eventHandlerCodeGen.genHeaderSnippetOfEventCall(
-        code, mainRoutineId, false, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 0, option);
+        code, mainRoutineSymbol, false, ScriptIdentifiers.Funcs.BH_MAIN, lockVar, 0, option);
     expCodeGen.genExpression(mainEntryPoint, code, 4, option);
     statCodeGen.genStatement(mainEntryPoint, code, 4, option);
     eventHandlerCodeGen.genFooterSnippetOfEventCall(code, lockVar, 0, option);
@@ -240,6 +242,35 @@ public class BhCompilerImpl implements BhCompiler {
     code.append(common.indent(nestLevel))
         .append(ScriptIdentifiers.Funcs.SET_ENTRY_POINT_IDS)
         .append("([%s]);%s".formatted(entryPointIds, Keywords.newLine));
+  }
+
+  /** メインエントリポイントとなるノードの処理を呼ぶ関数の {@link SyntaxSymbol} を作成する. */
+  private SyntaxSymbol createMainRoutineSymbol() {
+    var symbol = new SyntaxSymbol("") {
+      @Override
+      public boolean isDescendantOf(SyntaxSymbol ancestor) {
+        return false;
+      }
+
+      @Override
+      public void findDescendantOf(
+          int generation,
+          boolean toTerminal,
+          List<SyntaxSymbol> foundSymbolList,
+          String... symbolNames) {
+      }
+
+      @Override
+      public SyntaxSymbol findAncestorOf(String symbolName, int generation, boolean upToTop) {
+        return null;
+      }
+
+      @Override
+      public void accept(BhNodeWalker visitor) {
+      }
+    };
+    symbol.setInstanceId(mainRoutineId);
+    return symbol;
   }
 
   @Override

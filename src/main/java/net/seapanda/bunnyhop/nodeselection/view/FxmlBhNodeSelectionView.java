@@ -33,6 +33,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.transform.Scale;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
+import net.seapanda.bunnyhop.node.view.BhNodeView.PositionManager;
 import net.seapanda.bunnyhop.node.view.BhNodeView.SizeChangedEvent;
 import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
 import net.seapanda.bunnyhop.service.LogManager;
@@ -177,32 +178,38 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
 
   @Override
   public void arrange() {
-    double width = 0.0;
-    double height = 0.0;
-    double offset = nodeSelectionView.getPadding().getTop();
-    final double leftPadding = nodeSelectionView.getPadding().getLeft();
-    final double rightPadding = nodeSelectionView.getPadding().getRight();
-    final double topPadding = nodeSelectionView.getPadding().getTop();
-    final double bottomPadding = nodeSelectionView.getPadding().getBottom();
+    final Padding padding = new Padding(nodeSelectionView.getPadding());
+    double offset = padding.top;
+    double maxWidth = 0.0;
 
     for (BhNodeView nodeView : rootNodeViews) {
-      Vec2D cnctrSize = nodeView.getRegionManager().getConnectorSize();
-      if (nodeView.getLookManager().getConnectorPos() == ConnectorPos.TOP) {
-        nodeView.getPositionManager().setTreePosOnWorkspace(leftPadding, offset + cnctrSize.y);
-      } else if (nodeView.getLookManager().getConnectorPos() == ConnectorPos.LEFT) {
-        nodeView.getPositionManager().setTreePosOnWorkspaceByConnector(
-            leftPadding - cnctrSize.x, offset);
-      }
-      Vec2D treeSizeWithCnctr = nodeView.getRegionManager().getNodeTreeSize(true);
-      offset += treeSizeWithCnctr.y + BhConstants.Ui.BHNODE_SPACE_ON_SELECTION_VIEW;
-      width = Math.max(width, treeSizeWithCnctr.x);
+      offset = positionNodeView(nodeView, offset, padding.left);
+      Vec2D treeSize = nodeView.getRegionManager().getNodeTreeSize(true);
+      offset += treeSize.y + BhConstants.Ui.BHNODE_SPACE_ON_SELECTION_VIEW;
+      maxWidth = Math.max(maxWidth, treeSize.x);
     }
-    height =
-        (offset - BhConstants.Ui.BHNODE_SPACE_ON_SELECTION_VIEW) + topPadding + bottomPadding;
-    width += rightPadding + leftPadding;
+    double width = maxWidth + padding.left + padding.right;
+    double height = calculateHeight(offset, padding);
     nodeSelectionView.setMinSize(width, height);
-    // バインディングではなく, ここでこのメソッドを呼ばないとスクロールバーの稼働域が変わらない
     adjustWrapperSize(width, height);
+  }
+
+  /** ノードビューを配置し, オフセットを返す. */
+  private double positionNodeView(BhNodeView nodeView, double offset, double leftPadding) {
+    Vec2D cnctrSize = nodeView.getRegionManager().getConnectorSize();
+    ConnectorPos connectorPos = nodeView.getLookManager().getConnectorPos();
+    PositionManager posManager = nodeView.getPositionManager();
+    if (connectorPos == ConnectorPos.TOP) {
+      posManager.setTreePosOnWorkspace(leftPadding, offset + cnctrSize.y);
+    } else if (connectorPos == ConnectorPos.LEFT) {
+      posManager.setTreePosOnWorkspaceByConnector(leftPadding - cnctrSize.x, offset);
+    }
+    return offset;
+  }
+
+  /** ノード選択ビューの高さを計算する. */
+  private double calculateHeight(double offset, Padding padding) {
+    return (offset - BhConstants.Ui.BHNODE_SPACE_ON_SELECTION_VIEW) + padding.top + padding.bottom;
   }
 
   /**
@@ -259,5 +266,12 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
   @Override
   public boolean isShowed() {
     return visibleProperty().get();
+  }
+
+  /** パディング情報を保持するレコード. */
+  private record Padding(double left, double right, double top, double bottom) {
+    Padding(javafx.geometry.Insets insets) {
+      this(insets.getLeft(), insets.getRight(), insets.getTop(), insets.getBottom());
+    }
   }
 }

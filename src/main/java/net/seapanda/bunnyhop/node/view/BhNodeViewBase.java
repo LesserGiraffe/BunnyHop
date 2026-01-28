@@ -302,8 +302,8 @@ public abstract class BhNodeViewBase implements BhNodeView {
     boolean isBaseArrangementRow = (style.baseArrangement == ChildArrangement.ROW);
     Pane root = new Pane();
     root.setPickOnBounds(false);
-    root.setTranslateX(-20000.0);
-    root.setTranslateY(-20000.0); // 適切な位置に配置される前の状態が見えるのを防ぐ. (小さくしすぎると WS のスクロールが正常に行われなくなる)
+    // 適切な位置に配置される前の状態が見えるのを防ぐ. (小さくしすぎると WS のスクロールが正常に行われなくなる)
+    root.setTranslateY(-5000.0);
 
     Pane compBase = isBaseArrangementRow ? new HBox() : new VBox();
     Pane common = (style.commonPart.arrangement == ChildArrangement.ROW) ? new HBox() : new VBox();

@@ -38,6 +38,10 @@ public interface BhCompiler {
   Path compile(SourceSet sourceSet, CompileOption option)
       throws CompileError;
 
-  /** エントリポイントとなるノードの処理を呼ぶ関数の ID. */
+  /**
+   * メインエントリポイントとなるノードの処理を呼ぶ関数の ID.
+   *
+   * <p>メインエントリポイント: プログラムの開始時に自動で実行される処理のエントリポイントである.
+   */
   InstanceId mainRoutineId();
 }

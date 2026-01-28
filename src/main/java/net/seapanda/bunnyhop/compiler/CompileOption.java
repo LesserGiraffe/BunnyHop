@@ -32,7 +32,7 @@ public class CompileOption {
   public final boolean addNodeInstIdToContext;
   /** コールスタックに関数呼び出しノードのインスタンス ID を追加および削除するコードを追加する. */
   public final boolean addNodeInstIdToCallStack;
-  /** 変数スタックに変数に対するアクセサを追加および削除するコードを追加する. */
+  /** 変数スタックにアクセサオブジェクトを追加および削除するコードを追加する. */
   public final boolean addVarAccessorToVarStack;
   /** 条件付きで一時停止するコードを追加する. */
   public final boolean addConditionalWait;

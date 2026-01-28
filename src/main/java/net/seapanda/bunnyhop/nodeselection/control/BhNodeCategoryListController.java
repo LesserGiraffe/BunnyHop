@@ -74,6 +74,7 @@ public class BhNodeCategoryListController {
     setEventHandlers();
     buildNodeSelView();
     registerPrivateTemplateView();
+    registerPreRenderingView();
     for (int i = 0; i < Math.abs(BhConstants.Ui.INITIAL_ZOOM_LEVEL); ++i) {
       proxy.zoom(BhConstants.Ui.INITIAL_ZOOM_LEVEL > 0);
     }
@@ -149,7 +150,12 @@ public class BhNodeCategoryListController {
   /** コンパニオンノード用の選択ビューを登録する. */
   private void registerPrivateTemplateView() throws ViewConstructionException {
     proxy.addNodeSelectionView(
-        BhConstants.NodeSelection.PRIVATE_TEMPLATE_NODE,
+        BhConstants.NodeSelection.PRIVATE_TEMPLATE,
         BhConstants.Css.CLASS_PRIVATE_NODE_TEMPLATE);
+  }
+
+  /** ノードをプリレンダリングするためのビューを登録する. */
+  private void registerPreRenderingView() throws ViewConstructionException {
+    proxy.addNodeSelectionView(BhConstants.NodeSelection.PRE_RENDERING, "");
   }
 }

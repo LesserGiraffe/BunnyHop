@@ -2,9 +2,10 @@
   if (bhThis.isDeleted()) {
     return;
   }
-  // オリジナルノードのリスト定義が消えた場合, Arg0 に接続された派生ノードであるリストノードが消えて Arg0 が入れ替わる.
+  // オリジナルノードのリスト定義が消えた場合, Arg0 または LeftVar に接続された派生ノードであるリストノードが消えて新しいノードに入れ替わる.
   // リストノードが消えたとき, このノードを消す.
-  if (String(bhParentConnector.getSymbolName()) === 'Arg0') {
+  let cnctrName = String(bhParentConnector.getSymbolName());
+  if (cnctrName === 'Arg0' || cnctrName === 'LeftVar') {
     bhCommon.moveNodeToAncestor(bhThis.findOuterNode(1), bhThis, [], ['StatVoid'], bhUserOpe);
     bhNodePlacer.deleteNode(bhThis, bhUserOpe);
     return;

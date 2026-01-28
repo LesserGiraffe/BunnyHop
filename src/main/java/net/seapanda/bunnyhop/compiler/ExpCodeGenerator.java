@@ -132,8 +132,7 @@ class ExpCodeGenerator {
     String operatorCode = SymbolNames.BinaryExp.OPERATOR_MAP.get(operator.getText());    
 
     String tmpVar = common.genVarName(binaryExpNode);
-    common.genSetNextNodeInstId(code, binaryExpNode.getInstanceId(), nestLevel, option);
-    genConditionalWait(code, binaryExpNode, nestLevel, option);
+    genDebugCode(binaryExpNode, code, nestLevel, option);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(tmpVar)
@@ -185,8 +184,7 @@ class ExpCodeGenerator {
     SyntaxSymbol rightExp =
         binaryExpNode.findDescendantOf("*", SymbolNames.BinaryExp.RIGHT_EXP, "*");
     String rightExpCode = genExpression(rightExp, code, nestLevel + 1, option);
-    common.genSetNextNodeInstId(code, binaryExpNode.getInstanceId(), nestLevel + 1, option);
-    genConditionalWait(code, binaryExpNode, nestLevel + 1, option);
+    genDebugCode(binaryExpNode, code, nestLevel + 1, option);
     code.append(common.indent(nestLevel + 1))
         .append(tmpVar)
         .append(" = ")
@@ -219,8 +217,7 @@ class ExpCodeGenerator {
     String primaryExpCode = genExpression(primaryExp, code, nestLevel, option);
     String operatorCode = SymbolNames.UnaryExp.OPERATOR_MAP.get(unaryExpNode.getSymbolName());
     String tmpVar = common.genVarName(unaryExpNode);
-    common.genSetNextNodeInstId(code, unaryExpNode.getInstanceId(), nestLevel, option);
-    genConditionalWait(code, unaryExpNode, nestLevel, option);
+    genDebugCode(unaryExpNode, code, nestLevel, option);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(tmpVar)
@@ -233,7 +230,7 @@ class ExpCodeGenerator {
   }
 
   /**
-   * リテラルのコードを作成する.
+   * リテラルのコードを生成する.
    *
    * @param code 生成したコードの格納先
    * @param literal リテラルのシンボル
@@ -296,8 +293,7 @@ class ExpCodeGenerator {
           .append(retValName)
           .append(";" + Keywords.newLine);
     }
-    common.genSetNextNodeInstId(code, funcCallNode.getInstanceId(), nestLevel, option);
-    genConditionalWait(code, funcCallNode, nestLevel, option);
+    genDebugCode(funcCallNode, code, nestLevel, option);
     String[] argArray = argList.toArray(new String[0]);
     String funcCallCode;
     // 恒等写像は最初の引数を結果の変数に代入するだけ
@@ -407,9 +403,7 @@ class ExpCodeGenerator {
           .append(retValName)
           .append(";" + Keywords.newLine);
     }
-    common.genSetNextNodeInstId(code, funcCallNode.getInstanceId(), nestLevel, option);
-    genConditionalWait(code, funcCallNode, nestLevel, option);
-
+    genDebugCode(funcCallNode, code, nestLevel, option);
     code.append(common.indent(nestLevel));
     if (storeRetVal) {
       code.append(retValName).append(" = ");
@@ -541,8 +535,7 @@ class ExpCodeGenerator {
     String soundVar = common.genVarName(freqSoundLiteral);
     String rightExp = common.genFuncCall(
         ScriptIdentifiers.Funcs.CREATE_SOUND, volume, frequency, duration);
-    common.genSetNextNodeInstId(code, freqSoundLiteral.getInstanceId(), nestLevel, option);
-    genConditionalWait(code, freqSoundLiteral, nestLevel, option);
+    genDebugCode(freqSoundLiteral, code, nestLevel, option);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(soundVar)
@@ -588,8 +581,7 @@ class ExpCodeGenerator {
     String soundVar = common.genVarName(scaleSoundLiteral);
     String rightExp = common.genFuncCall(
         ScriptIdentifiers.Funcs.CREATE_SOUND, volume, "(%.3f)".formatted(frequency), duration);
-    common.genSetNextNodeInstId(code, scaleSoundLiteral.getInstanceId(), nestLevel, option);
-    genConditionalWait(code, scaleSoundLiteral, nestLevel, option);
+    genDebugCode(scaleSoundLiteral, code, nestLevel, option);
     code.append(common.indent(nestLevel))
         .append(Keywords.Js._const_)
         .append(soundVar)
@@ -625,7 +617,7 @@ class ExpCodeGenerator {
   }
 
   /**
-   * 定数のコードを作成する.
+   * 定数のコードを生成する.
    *
    * @param constValNode 識別子のノード
    * @return 定数の文字列
@@ -645,22 +637,24 @@ class ExpCodeGenerator {
   }
 
   /**
-   * {@code symbol} が一時停止可能なノードである場合, 一時停止するコードを生成する.
+   * ノードを処理する前のデバッグ用コードを生成する.
    *
    * @param code 生成したコードの格納先
-   * @param symbol このシンボルが一時停止可能なノードである場合, 一時停止するコードを生成する.
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  private void genConditionalWait(
-      StringBuilder code,
+  public void genDebugCode(
       SyntaxSymbol symbol,
+      StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    if (symbol instanceof BhNode node) {
-      if (node.isBreakpointGroupLeader()) {
-        common.genConditionalWait(node.getInstanceId(), code, nestLevel, option);
-      }
+    String instVar = common.genAssignNodeInstId(symbol, code, nestLevel, option);
+    common.genSetInstIdToThreadContext(instVar, code, nestLevel, option);
+    if (!(symbol instanceof BhNode node)) {
+      return;
+    }
+    if (node.isBreakpointGroupLeader()) {
+      common.genConditionalWait(instVar, code, nestLevel, option);
     }
   }
 }

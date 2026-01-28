@@ -35,11 +35,11 @@ public interface BhNodeSelectionViewProxy {
   void addNodeTree(String categoryName, BhNode root, UserOperation userOpe);
 
   /**
-   * {@code root} 以下のノードを全て削除する.
+   * {@code root} 以下の全てのノードをこのノード選択ビューから取り除く.
    *
    * <p>{@code root} のコントローラが {@link TemplateNodeController} であること. </p>
    *
-   * @param root このノード以下のノードを全て削除する.
+   * @param root このノード以下のノードを全てこのノード選択ビューから取り除く.
    * @param userOpe undo 用コマンドオブジェクト
    */
   void removeNodeTree(BhNode root, UserOperation userOpe);
@@ -52,6 +52,14 @@ public interface BhNodeSelectionViewProxy {
    *         登録されていないカテゴリを指定した場合は空のセット.
    */
   SequencedSet<BhNode> getNodeTrees(String categoryName);
+
+  /**
+   * {@code categoryName} に存在する全てのノードをこのノード選択ビューから取り除く.
+   *
+   * @param userOpe undo 用コマンドオブジェクト
+   * @param categoryName 取得するノードツリーのカテゴリ名.
+   */
+  void clearNodeTrees(String categoryName, UserOperation userOpe);
 
   /**
    * 全てのノード選択ビューを拡大もしくは縮小する.

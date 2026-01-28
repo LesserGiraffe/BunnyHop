@@ -1,6 +1,7 @@
+let listDeclName = String(bhThis.getSymbolName());
 let dervIdIdentifierName = 'dervIdIdentifierName';
 
-let listDeclToGetStat = {
+let listDeclToGetExp = {
   'NumListDecl'   : 'idNumArrayGetExp',
   'StrListDecl'   : 'idStrArrayGetExp',
   'BoolListDecl'  : 'idBoolArrayGetExp',
@@ -31,52 +32,48 @@ let listDeclToSortStat = {
   'NumListDecl'   : 'idNumArraySortStat',
   'StrListDecl'   : 'idAnyArraySortStat'};
 
-function genNodeToReplace(symbolMaps) {
-  nodes = [];
-  for (let symbolMap of symbolMaps) {
-    nodes.push(
-      bhCommon.createBhNode(symbolMap[bhThis.getSymbolName()], bhUserOpe));
-  }
-  return nodes;
-}
-
-function genAnyArrayControlNode(arrayCtrlNodeId, argNames, symbolMaps) {
+function genAnyArrayControlNode(arrayCtrlNodeId, listCnctrName, argNameToSymbolMap) {
   let arrayCtrlNode = bhCommon.createBhNode(arrayCtrlNodeId, bhUserOpe);
-  let arg = arrayCtrlNode.findDescendantOf('*', 'Arg0', '*');
+  let arg = arrayCtrlNode.findDescendantOf('*', listCnctrName, '*');
   let newNode = bhCommon.buildDerivative(bhThis, dervIdIdentifierName, bhUserOpe);
   arg.replace(newNode, bhUserOpe);
 
-  for (let i = 0; i < argNames.length; ++i) {
-    cnctr = arrayCtrlNode.findDescendantOf('*', argNames[i]);
-    bhCommon.changeDefaultNode(cnctr, symbolMaps[i][bhThis.getSymbolName()], bhUserOpe);
+  if (argNameToSymbolMap === undefined) {
+    return arrayCtrlNode;
+  }
+  for (let argName in argNameToSymbolMap) {
+    cnctr = arrayCtrlNode.findDescendantOf('*', argName);
+    let defaultNodeId = argNameToSymbolMap[argName][listDeclName];
+    bhCommon.changeDefaultNode(cnctr, defaultNodeId, bhUserOpe);
   }
   return arrayCtrlNode;
 }
 
 (function() {
   let list = bhCommon.buildDerivative(bhThis, dervIdIdentifierName, bhUserOpe);
+  let nameOfGetItem = listDeclToGetExp[listDeclName];
   let templates = [
     list,
-    genAnyArrayControlNode('idAnyArrayToStrExp', [], []),
-    genAnyArrayControlNode('idAnyArrayPushStat', ['Arg1'], [listDeclToLiteral]),
-    genAnyArrayControlNode(listDeclToGetStat[bhThis.getSymbolName()], [], []),
-    genAnyArrayControlNode('idAnyArrayLengthExp', [], []),
-    genAnyArrayControlNode('idAnyArrayInsertStat', ['Arg2'], [listDeclToLiteral]),
-    genAnyArrayControlNode('idAnyArraySetStat', ['Arg2'], [listDeclToLiteral]),
-    genAnyArrayControlNode('idAnyArrayAppendStat', ['Arg2'], [listDeclToEmptyList]),
-    genAnyArrayControlNode('idAnyArraySpliceStat', [], []),
-    genAnyArrayControlNode('idAnyArrayIndexOfExp', ['Arg1'], [listDeclToLiteral]),
-    genAnyArrayControlNode('idAnyArrayIncludesExp', ['Arg1'], [listDeclToLiteral]),
-    genAnyArrayControlNode('idAnyArrayReverseStat', [], [])
+    genAnyArrayControlNode('idAnyArrayToStrExp', 'Arg0'),
+    genAnyArrayControlNode('idAnyArrayPushStat', 'Arg0', {'Arg1' : listDeclToLiteral}),
+    genAnyArrayControlNode(listDeclToGetExp[listDeclName], 'Arg0'),
+    genAnyArrayControlNode('idAnyArrayLengthExp', 'Arg0'),
+    genAnyArrayControlNode('idAnyArrayInsertStat', 'Arg0', {'Arg2' : listDeclToLiteral}),
+    genAnyArrayControlNode('idAnyArraySetStat', 'Arg0', {'Arg2' : listDeclToLiteral}),
+    genAnyArrayControlNode('idAnyArrayAppendStat', 'Arg0', {'Arg2' : listDeclToEmptyList}),
+    genAnyArrayControlNode('idAnyArraySpliceStat', 'Arg0'),
+    genAnyArrayControlNode('idAnyArrayIndexOfExp', 'Arg0', {'Arg1' : listDeclToLiteral}),
+    genAnyArrayControlNode('idAnyArrayIncludesExp', 'Arg0', {'Arg1' : listDeclToLiteral}),
+    genAnyArrayControlNode('idAnyArrayReverseStat', 'Arg0'),
+    genAnyArrayControlNode('idAnyArrayAssignStat', 'LeftVar', {'RightExp' : listDeclToEmptyList}),
   ];
 
-  if (String(bhThis.getSymbolName()) === 'SoundListDecl') {
-    templates.splice(2, 0, genAnyArrayControlNode('idPlaySoundListStat',[], []));
+  if (listDeclName === 'SoundListDecl') {
+    templates.splice(2, 0, genAnyArrayControlNode('idPlaySoundListStat', 'Arg0'));
   }
-  if (String(bhThis.getSymbolName()) === 'NumListDecl'
-    || String(bhThis.getSymbolName()) === 'StrListDecl') {
-    templates.push(genAnyArrayControlNode(listDeclToMinMaxExp[bhThis.getSymbolName()], [], []));
-    templates.push(genAnyArrayControlNode(listDeclToSortStat[bhThis.getSymbolName()], [], []));
+  if (listDeclName === 'NumListDecl' || listDeclName=== 'StrListDecl') {
+    templates.push(genAnyArrayControlNode(listDeclToMinMaxExp[listDeclName], 'Arg0'));
+    templates.push(genAnyArrayControlNode(listDeclToSortStat[listDeclName], 'Arg0'));
   }
   return templates;
 })();

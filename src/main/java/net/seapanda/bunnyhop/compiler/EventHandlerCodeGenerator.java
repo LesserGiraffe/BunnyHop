@@ -23,7 +23,6 @@ import java.util.Optional;
 import net.seapanda.bunnyhop.bhprogram.common.message.BhProgramEvent;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.TextNode;
-import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 
 /**
@@ -133,8 +132,7 @@ class EventHandlerCodeGenerator {
     String lockVar = Keywords.Prefix.lockVar + eventNode.getSerialNo().hexStr();
     String funcName = common.genFuncName(eventNode);
     boolean genCondWait = checkIfGenerateConditionalWait(eventNode);
-    genHeaderSnippetOfEventCall(
-        code, eventNode.getInstanceId(), genCondWait, funcName, lockVar, nestLevel, option);
+    genHeaderSnippetOfEventCall(code, eventNode, genCondWait, funcName, lockVar, nestLevel, option);
     // _sleep(...)
     if (eventNode.getSymbolName().equals(SymbolNames.Event.DELAYED_START_EVENT)) {
       TextNode delayTimeNode =
@@ -187,7 +185,7 @@ class EventHandlerCodeGenerator {
    * イベントハンドラ呼び出しの前の定型文を生成する.
    *
    * @param code 生成したコードの格納先
-   * @param eventInstId イベントハンドラノードの {@link InstanceId}
+   * @param eventNode イベントノード
    * @param lockVar ロックオブジェクトの変数
    * @param genConditionalWait 条件付き一時停止コードを生成する場合 true
    * @param funcName イベントハンドラの名前
@@ -196,7 +194,7 @@ class EventHandlerCodeGenerator {
    */
   void genHeaderSnippetOfEventCall(
       StringBuilder code,
-      InstanceId eventInstId,
+      SyntaxSymbol eventNode,
       boolean genConditionalWait,
       String funcName,
       String lockVar,
@@ -240,11 +238,12 @@ class EventHandlerCodeGenerator {
         .append(";" + Keywords.newLine);
 
     // _threadContext[_idxNextNodeInstId] = 'event-handler-instance-id';
-    common.genSetNextNodeInstId(code, eventInstId, nestLevel + 3, option);
+    String instIdVar = common.genAssignNodeInstId(eventNode, code, nestLevel + 3, option);
+    common.genSetInstIdToThreadContext(instIdVar, code, nestLevel + 3, option);
     
     // _condWait('step-id');
     if (genConditionalWait) {
-      common.genConditionalWait(eventInstId, code, nestLevel + 3, option);
+      common.genConditionalWait(instIdVar, code, nestLevel + 3, option);
     }
 
     // let _callStack = _threadContext[_idxCallStack];

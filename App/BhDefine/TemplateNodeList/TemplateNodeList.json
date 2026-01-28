@@ -60,9 +60,9 @@
       "idNumCompExp",
       "idStrCompExp",
       "idAnyCompExp",
+      "idCheckNumTypeExp",
       "idAnyArrayCompExp",
-      "idAnySetCompExp",
-      "idCheckNumTypeExp"]
+      "idAnySetCompExp"]
   },
 
   "${node-category}{sound}": {

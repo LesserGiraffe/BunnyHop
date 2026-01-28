@@ -59,7 +59,7 @@ class CommonCodeGenerator {
   }
 
   /**
-   * 関数呼び出しのコードを作成する.
+   * 関数呼び出しのコードを生成する.
    *
    * @param funcName 関数名
    * @param argNames 引数名のリスト
@@ -80,21 +80,6 @@ class CommonCodeGenerator {
           .append(")");
     }
     return code.toString();
-  }
-
-  /**
-   * 関数呼び出しのコードを作成する. funcName.call(thisObj, args).
-   *
-   * @param funcName 関数名
-   * @param thisObj call の第一引数
-   * @return 関数呼び出しのコード
-   */
-  String genFuncPrototypeCall(String funcName, String thisObj, String... args) {
-    String[] argList = new String[args.length + 1];
-    argList[0] = thisObj;
-    System.arraycopy(args, 0, argList, 1, args.length);
-    String funcCall = genPropertyAccess(funcName, ScriptIdentifiers.JsFuncs.CALL);
-    return genFuncCall(funcCall, argList);
   }
 
   /**
@@ -122,20 +107,20 @@ class CommonCodeGenerator {
     return varDecl.findAncestorOf(SymbolNames.UserDefFunc.OUT_PARAM_DECL, 1, true) != null;
   }
 
-  /** 出力引数の値を取得するコードを作成する. */
+  /** 出力引数の値を取得するコードを生成する. */
   String genGetOutputParamVal(SyntaxSymbol varDecl) {
     return genPropertyAccess(
         genVarName(varDecl), ScriptIdentifiers.Properties.GET) + "()";
   }
 
-  /** 出力引数に値を設定するコードを作成する. */
+  /** 出力引数に値を設定するコードを生成する. */
   String genSetOutputParamVal(SyntaxSymbol varDecl, String val) {
     return genPropertyAccess(
         genVarName(varDecl), ScriptIdentifiers.Properties.SET) + "(" + val + ")";
   }
 
   /**
-   * コールスタックに関数呼び出しノードのインスタンス ID の追加を行うコードを作成する.
+   * コールスタックに関数呼び出しノードのインスタンス ID の追加を行うコードを生成する.
    *
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
@@ -156,7 +141,7 @@ class CommonCodeGenerator {
     }
   }
 
-  /** コールスタックに関数呼び出しノードのインスタンス ID を追加するコードを作成する. */
+  /** コールスタックに関数呼び出しノードのインスタンス ID を追加するコードを生成する. */
   private String genPushToCallStack() {
     return "%s[%s.%s] = %s[%s]".formatted(
         ScriptIdentifiers.Vars.CALL_STACK,
@@ -166,7 +151,7 @@ class CommonCodeGenerator {
         ScriptIdentifiers.Vars.IDX_NEXT_NODE_INST_ID);
   }
 
-  /** スレッドコンテキストからコールスタックを取り出して, 専用の変数に格納するコードを作成する. */
+  /** スレッドコンテキストからコールスタックを取り出して, 専用の変数に格納するコードを生成する. */
   private String genGetCallStack() {
     // let _callStack = _threadContext[_idxCallStack]
     return "%s%s = %s[%s]".formatted(
@@ -177,7 +162,7 @@ class CommonCodeGenerator {
   }
 
   /**
-   * コールスタックから関数呼び出しノードのインスタンス ID を削除するコードを作成する.
+   * コールスタックから関数呼び出しノードのインスタンス ID を削除するコードを生成する.
    *
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
@@ -194,7 +179,7 @@ class CommonCodeGenerator {
     }
   }
 
-  /** コールスタックから関数呼び出しノードのインスタンス ID を削除するコードを作成する. */
+  /** コールスタックから関数呼び出しノードのインスタンス ID を削除するコードを生成する. */
   private String genPopFromCallStack() {
     return "%s.%s()".formatted(
         ScriptIdentifiers.Vars.CALL_STACK,
@@ -202,35 +187,78 @@ class CommonCodeGenerator {
   }
 
   /**
-   * 次に処理するノードのインスタンス ID をスレッドコンテキストに設定するコードを作成する.
+   * {@link SyntaxSymbol} のインスタンス ID を専用の変数に代入するコードを生成する.
    *
+   * @param symbol この {@link SyntaxSymbol} のインスタンス ID を格納するコードを生成する.
    * @param code 生成したコードの格納先
-   * @param id 次に処理するノードのインスタンス ID
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   * @return ノードのインスタンス ID を格納した変数名. コードを作成しなかった場合は空の文字列.
+   */
+  public String genAssignNodeInstId(
+      SyntaxSymbol symbol,
+      StringBuilder code,
+      int nestLevel,
+      CompileOption option) {
+    if (option.addNodeInstIdToContext || option.addConditionalWait) {
+      String instIdVar = Keywords.Prefix.instIdVar + symbol.getSerialNo();
+      code.append(indent(nestLevel))
+          .append("%s%s = '%s';".formatted(Keywords.Js._let_, instIdVar, symbol.getInstanceId()))
+          .append(Keywords.newLine);
+      return instIdVar;
+    }
+    return "";
+  }
+
+  /**
+   * 次に処理するノードのインスタンス ID をスレッドコンテキストに設定するコードを生成する.
+   *
+   * @param instIdExp {@link InstanceId} に評価される式の文字列
+   * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
    * @param option コンパイルオプション
    */
-  void genSetNextNodeInstId(
+  public void genSetInstIdToThreadContext(
+      String instIdExp,
       StringBuilder code,
-      InstanceId id,
       int nestLevel,
       CompileOption option) {
     if (option.addNodeInstIdToContext) {
+      var assignStat = "%s[%s] = %s;".formatted(
+          ScriptIdentifiers.Vars.THREAD_CONTEXT,
+          ScriptIdentifiers.Vars.IDX_NEXT_NODE_INST_ID,
+          instIdExp);
       code.append(indent(nestLevel))
-          .append(genNextNodeInstId(id))
+          .append(assignStat)
+          .append(Keywords.newLine);
+    }
+  }
+
+  /**
+   * 条件付きで一時停止するコードを生成する.
+   *
+   * <p>本メソッドで生成されるコードは, ブレークポイントなどで一時停止するための機能を実現する.
+   *
+   * @param instIdExp {@link InstanceId} に評価される式の文字列
+   * @param code 生成したコードの格納先
+   * @param nestLevel ソースコードのネストレベル
+   * @param option コンパイルオプション
+   */
+  void genConditionalWait(
+      String instIdExp,
+      StringBuilder code,
+      int nestLevel,
+      CompileOption option) {
+    // _condWait(inst-id-exp);
+    if (option.addConditionalWait) {
+      code.append(indent(nestLevel))
+          .append(genFuncCall(ScriptIdentifiers.Funcs.COND_WAIT, instIdExp))
           .append(";" + Keywords.newLine);
     }
   }
 
-  /** 次に処理するノードのインスタンス ID をスレッドコンテキストに設定するコードを作成する. */
-  private String genNextNodeInstId(InstanceId id) {
-    return "%s[%s] = '%s'".formatted(
-        ScriptIdentifiers.Vars.THREAD_CONTEXT,
-        ScriptIdentifiers.Vars.IDX_NEXT_NODE_INST_ID,
-        id);
-  }
-
   /**
-   * 変数フレームを変数スタックに追加するコードを作成する.
+   * 変数フレームを変数スタックに追加するコードを生成する.
    *
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
@@ -244,7 +272,7 @@ class CommonCodeGenerator {
   }
 
   /**
-   * 変数アクセサを変数フレームに格納して, それを変数スタックに追加するコードを作成する.
+   * 変数アクセサを変数フレームに格納して, それを変数スタックに追加するコードを生成する.
    *
    * @param varDecls 変数宣言ノードのリスト
    * @param outParams 出力パラメータのリスト
@@ -287,7 +315,7 @@ class CommonCodeGenerator {
         .append(";" + Keywords.newLine);
   }
 
-  /** 変数スタックに変数フレームを追加するコードを作成する. */
+  /** 変数スタックに変数フレームを追加するコードを生成する. */
   private String genPushToVarStack() {
     return "%s[%s.%s] = %s".formatted(
         ScriptIdentifiers.Vars.VAR_STACK,
@@ -296,7 +324,7 @@ class CommonCodeGenerator {
         ScriptIdentifiers.Vars.VAR_FRAME);
   }  
 
-  /** スレッドコンテキストから変数スタックを取り出して, 専用の変数に格納するコードを作成する. */
+  /** スレッドコンテキストから変数スタックを取り出して, 専用の変数に格納するコードを生成する. */
   private String genGetVarStack() {
     // let _varStack = _threadContext[_varStackIdx];
     return "%s%s = %s[%s]".formatted(
@@ -307,7 +335,7 @@ class CommonCodeGenerator {
   }
 
   /**
-   * 変数スタックから要素を取り除くコードを作成する.
+   * 変数スタックから要素を取り除くコードを生成する.
    *
    * @param code 生成したコードの格納先
    * @param nestLevel ソースコードのネストレベル
@@ -325,7 +353,7 @@ class CommonCodeGenerator {
         .append(";" + Keywords.newLine);
   }
 
-  /** 変数スタックから要素を取り除くコードを作成する. */
+  /** 変数スタックから要素を取り除くコードを生成する. */
   private String genPopFromToVarStack() {
     return "%s.%s()".formatted(
         ScriptIdentifiers.Vars.VAR_STACK,
@@ -345,7 +373,7 @@ class CommonCodeGenerator {
       StringBuilder code,
       int nestLevel,
       CompileOption option) {
-    if (!option.addVarAccessorToVarStack || varDecls.size() == 0) {
+    if (!option.addVarAccessorToVarStack || varDecls.isEmpty()) {
       return;
     }
     code.append(indent(nestLevel))
@@ -409,30 +437,6 @@ class CommonCodeGenerator {
   }
 
   /**
-   * 条件付きで一時停止するコードを生成する.
-   *
-   * <p>本メソッドで生成されるコードは, ブレークポイントなどで一時停止するための機能を実現する.
-   *
-   * @param stepId 一時停止可能なシンボルの {@link InstanceId}
-   * @param code 生成したコードの格納先
-   * @param nestLevel ソースコードのネストレベル
-   * @param option コンパイルオプション
-   */
-  void genConditionalWait(
-      InstanceId stepId,
-      StringBuilder code,
-      int nestLevel,
-      CompileOption option) {
-    // _condWait('step-id');
-    if (option.addConditionalWait) {
-      code.append(indent(nestLevel))
-          .append(genFuncCall(
-              ScriptIdentifiers.Funcs.COND_WAIT, "'" + stepId.toString() + "'"))
-          .append(";" + Keywords.newLine);
-    }
-  }
-
-  /**
    * 引数で指定した文字列を JavaScript の文字列リテラル表現に変換する.
    */
   String toJsString(String str) {
@@ -455,27 +459,21 @@ class CommonCodeGenerator {
 
   /** インデント分の空白を返す. */
   String indent(int depth) {
-    switch (depth) {
-      case 0: return "";
-      case 1: return "  ";
-      case 2: return "    ";
-      case 3: return "      ";
-      case 4: return "        ";
-      case 5: return "          ";
-      case 6: return "            ";
-      case 7: return "              ";
-      case 8: return "                ";
-      case 9: return "                  ";
-      case 10: return "                    ";
-      case 11: return "                      ";
-      case 12: return "                        ";
-      default: {
-        StringBuilder ret = new StringBuilder("");
-        for (int i = 0; i < depth; ++i) {
-          ret.append("  ");
-        }
-        return ret.toString();
-      }
-    }
+    return switch (depth) {
+      case 0 -> "";
+      case 1 -> "  ";
+      case 2 -> "    ";
+      case 3 -> "      ";
+      case 4 -> "        ";
+      case 5 -> "          ";
+      case 6 -> "            ";
+      case 7 -> "              ";
+      case 8 -> "                ";
+      case 9 -> "                  ";
+      case 10 -> "                    ";
+      case 11 -> "                      ";
+      case 12 -> "                        ";
+      default -> " ".repeat(Math.max(0, depth));
+    };
   }
 }

@@ -546,6 +546,7 @@
       "AnyArraySetStat": "リストの要素を置き換える",
       "AnyArraySpliceStat": "リストの要素を${option}",
       "AnyArrayToStrExp": "リストを文字列に変換する",
+      "AnyArrayAssignStat": "リストの参照を付け替える",
       "AnyArraySortStat": "リストの要素を並べ替える",
       "NumArraySortStat": "リストの要素を並べ替える",
       "AnySetCompExp": "リスト同士を集合として比較する",
@@ -720,6 +721,7 @@
     "color": "色",
     "control": "制御",
     "variable": "変数",
+    "list-ope": "リスト",
     "func-def": "関数",
     "event": "イベント",
     "misc": "その他"

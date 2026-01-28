@@ -76,6 +76,7 @@ public class CallStackController {
   private final VisualEffectManager effectManager;
   private final Map<BhNode, Set<CallStackCell>> nodeToCell = new HashMap<>();
   private boolean isDiscarded = false;
+  private BhNodeView lastJumpTarget;
   private final Consumer<Debugger.CurrentThreadChangedEvent> onCurrentThreadChanged =
       event -> onCurrentDebugThreadChanged();
   private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
@@ -159,6 +160,8 @@ public class CallStackController {
     if (searchBox.unsetOnSearchRequested(onSearchRequested)) {
       searchBox.disable();
     }
+    Optional.ofNullable(lastJumpTarget).ifPresent(
+        view -> effectManager.setEffectEnabled(view, false, VisualEffectType.JUMP_TARGET));
     callStackListView.getItems().clear();
     nodeToCell.clear();
     csJumpCheckBox.selectedProperty().unbindBidirectional(sharedJumpFlag);
@@ -259,17 +262,21 @@ public class CallStackController {
     ViewUtil.jump(view);
     effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
     effectManager.setEffectEnabled(view, true, VisualEffectType.JUMP_TARGET);
+    lastJumpTarget = view;
   }
 
   /** デバッガの現在のスレッドが変わったときの処理. */
   private void onCurrentDebugThreadChanged() {
     if (isDiscarded || !isThisThreadSameAsDebugThread()) {
+      Optional.ofNullable(lastJumpTarget).ifPresent(
+          view -> effectManager.setEffectEnabled(view, false, VisualEffectType.JUMP_TARGET));
       return;
     }
     CallStackItem selected = callStackListView.getSelectionModel().getSelectedItem();
-    StackFrameSelection stackFrameSel = (selected == null)
-        ? StackFrameSelection.NONE
-        : StackFrameSelection.of(selected.idx);
+    StackFrameSelection stackFrameSel = Optional.ofNullable(selected)
+        .map(item -> (item.isNext || item.isError) ? Math.max(item.idx - 1, 0) : item.idx)
+        .map(StackFrameSelection::of)
+        .orElse(StackFrameSelection.NONE);
     debugger.selectCurrentStackFrame(stackFrameSel);
   }
 

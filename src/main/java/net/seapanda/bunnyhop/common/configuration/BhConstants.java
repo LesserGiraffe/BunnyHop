@@ -122,7 +122,6 @@ public class BhConstants {
       public static final String LANGUAGE = "Language";
       /** ライセンスファイルが格納されたディレクトリ. */
       public static final String LICENSE = "License";
-
     }
 
     /** ファイル名のリスト. */
@@ -322,7 +321,9 @@ public class BhConstants {
     public static final String KEY_CSS_CLASS = "cssClass";
     public static final String KEY_CONTENTS = "contents";
     /** ノード固有のノード選択ビューのカテゴリ名. */
-    public static final String PRIVATE_TEMPLATE_NODE = "privateTemplateNode";
+    public static final String PRIVATE_TEMPLATE = "privateTemplate";
+    /** ノードを前もって描画しておくためのビュー. */
+    public static final String PRE_RENDERING = "preRendering";
     /** ノード選択ビューのスペースを表すノードの名前. */
     public static final String SELECTION_VIEW_SPACE = "SelectionViewSpace";
   }

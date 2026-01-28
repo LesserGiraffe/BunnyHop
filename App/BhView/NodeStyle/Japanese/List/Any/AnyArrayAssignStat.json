@@ -5,7 +5,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 1.1,
-      "connectorList" : ["Arg0", "${L1}{の}", "Arg1", "${L1}{番目に}", "Arg2", "${L1}{の要素を全て挿入する}"]
+      "connectorList" : ["LeftVar", "${L1}{の参照を}", "RightExp", "${L1}{に付け替える}"]
     }
   }
 }
