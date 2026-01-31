@@ -317,7 +317,7 @@ public class MenuViewController {
       if (!nodesToDelete.isEmpty()) {
         location = new BhNodeLocation(nodesToDelete.getLast());
       }
-      List<Swapped> swappedNodes = BhNodePlacer.deleteNodes(nodesToDelete, context.userOpe());
+      List<Swapped> swappedNodes = BhNodePlacer.deleteNodes(nodesToDelete, true, context.userOpe());
       for (var swapped : swappedNodes) {
         swapped.newNode().findParentNode().getEventInvoker().onChildReplaced(
             swapped.oldNode(),
@@ -537,7 +537,7 @@ public class MenuViewController {
     }
     Optional<SourceSet> nodeSet = Optional.empty();
     try {
-      nodeSet = executableNodeCollector.collect(context.userOpe());
+      nodeSet = executableNodeCollector.collect();
     } catch (Exception e) {
       LogManager.logger().error(e.toString());
     } finally {

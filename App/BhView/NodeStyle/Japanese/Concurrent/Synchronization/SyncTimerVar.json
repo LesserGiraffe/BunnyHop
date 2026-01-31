@@ -5,7 +5,7 @@
     "inner" : {
       "space" : 1.1,
       "arrangement" : "Row",
-      "connectorList" : ["${L2}{処理待ちタイマー}", "SyncTimerName"]
+      "connectorList" : ["${L2}{同期タイマー}", "SyncTimerName"]
     }
   }
 }

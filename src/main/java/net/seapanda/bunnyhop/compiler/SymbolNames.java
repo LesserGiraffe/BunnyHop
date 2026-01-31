@@ -815,7 +815,7 @@ public class SymbolNames {
         new HashMap<>() {{
             put(ANY_EXP_VOID, "_nil");
             put(BOOL_EXP_VOID, "_nil");
-            put(SOUND_EXP_VOID, "_nilSound");
+            put(SOUND_EXP_VOID, "_nil");
             put(MELODY_EXP_VOID, "[]");
             put(SYNC_TIMER_VAR_VOID, "_syncTimer.nil");
             put(SEMAPHORE_VAR_VOID, "_semaphore.nils");

@@ -21,10 +21,14 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.SequencedSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
+import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeCollector;
-import net.seapanda.bunnyhop.node.model.derivative.DerivativeRemover;
+import net.seapanda.bunnyhop.node.model.derivative.DerivativeUnlinker;
+import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
@@ -61,21 +65,72 @@ public class BhNodePlacer {
    *         </pre>
    */
   public static SequencedSet<Swapped> deleteNode(BhNode node, UserOperation userOpe) {
+    return deleteNode(node, false, userOpe);
+  }
+
+  /**
+   * {@code node} 以下のノードを全て削除する.
+   * {@code node} 以下のノードの派生ノードも削除される.
+   *
+   * @param node このノード以下のノードを全て削除する.
+   * @param invokeDerivativeDeletionEvent 派生ノードの削除イベントを呼び出すかどうか.
+   *                                      イベントを呼び出した結果, 削除が拒否された派生ノードは削除しない.
+   * @param userOpe undo 用コマンドオブジェクト
+   * @return この操作の結果消えた子ノードとそれと入れ替わったノードのペアのリスト.
+   *     <pre>
+   *     {@code node} が子ノードであった場合
+   *         最初の要素 : {@code node} とこれと入れ替わったノードのペア
+   *         残りの要素 : {@code node} 以下のノードの削除によって消えた'子'派生ノードとそれと入れ替わったノードのペア.
+   *                     ただし, 入れ替わった新しいノードがこの削除操作によって削除された場合,
+   *                     戻り値のリストにそのペアは含まれない.
+   *
+   *     {@code node} がルートノードであった場合
+   *         全ての要素 : {@code node} 以下のノードの削除によって消えた'子'派生ノードとそれと入れ替わったノードのペア
+   *                     ただし, 入れ替わった新しいノードがこの削除操作によって削除された場合,
+   *                     戻り値のリストにそのペアは含まれない.
+   *     </pre>
+   */
+  public static SequencedSet<Swapped> deleteNode(
+      BhNode node, boolean invokeDerivativeDeletionEvent, UserOperation userOpe) {
     if (node.isDeleted()) {
       return new LinkedHashSet<>();
     }
-    var derivatives = DerivativeCollector.collect(node);
-    var tmp = new LinkedHashSet<Swapped>(deleteNodes(derivatives, userOpe));
+    Set<Derivative> derivatives = DerivativeCollector.collect(node);
+    Set<Derivative> dervsToDelete = derivatives;
+    if (invokeDerivativeDeletionEvent) {
+      // 派生ノードを退避する場合などを考慮して node をワークスペースから削除する前に呼ぶ
+      dervsToDelete = selectDeletableDerivatives(node, derivatives, userOpe);
+    }
     SequencedSet<Swapped> swappedNodes = delete(node, userOpe);
-    swappedNodes.addAll(tmp);
+    derivatives.forEach(derv -> DerivativeUnlinker.unlink(derv, false, userOpe));
+    var tmp = deleteNodes(dervsToDelete, invokeDerivativeDeletionEvent, userOpe);
+    swappedNodes.addAll(new LinkedHashSet<>(tmp));
     swappedNodes.removeIf(pair -> pair.newNode().isDeleted());
     return swappedNodes;
   }
 
   /**
+   * 各派生ノードの削除イベントを呼び出し, 削除が許可されたノードのみを返す.
+   *
+   * @param node 削除対象となった元々のノード
+   * @param derivatives フィルタリング対象の派生ノード
+   * @param userOpe undo 用コマンドオブジェクト
+   * @return 削除が許可された派生ノードのセット
+   */
+  private static Set<Derivative> selectDeletableDerivatives(
+      BhNode node, Set<Derivative> derivatives, UserOperation userOpe) {
+    return derivatives.stream()
+        .filter(derv -> derv.getEventInvoker().onDeletionRequested(
+            new ArrayList<BhNode>(derivatives) {{ add(node); }},
+            CauseOfDeletion.ORIGINAL_DELETED,
+            userOpe))
+        .collect(Collectors.toSet());
+  }
+
+  /**
    * 引数で指定したノードを全て削除する.
    *
-   * @param nodes 削除するノード.
+   * @param nodes 削除するノードのリスト.
    * @param userOpe undo 用コマンドオブジェクト
    * @return この操作の結果消えた子ノードとそれと入れ替わったノードのペアのリスト.
    *         ただし, 入れ替わった新しいノードがこの削除操作によって削除された場合,
@@ -83,9 +138,27 @@ public class BhNodePlacer {
    */
   public static List<Swapped> deleteNodes(
       Collection<? extends BhNode> nodes, UserOperation userOpe) {
+    return deleteNodes(nodes, false, userOpe);
+  }
+
+  /**
+   * 引数で指定したノードを全て削除する.
+   *
+   * @param nodes 削除するノードのリスト.
+   * @param invokeDerivativeDeletionEvent 派生ノードの削除イベントを呼び出すかどうか.
+   *                                      イベントを呼び出した結果, 削除が拒否された派生ノードは削除しない.
+   * @param userOpe undo 用コマンドオブジェクト
+   * @return この操作の結果消えた子ノードとそれと入れ替わったノードのペアのリスト.
+   *         ただし, 入れ替わった新しいノードがこの削除操作によって削除された場合,
+   *         戻り値のリストにそのペアは含まれない.
+   */
+  public static List<Swapped> deleteNodes(
+      Collection<? extends BhNode> nodes,
+      boolean invokeDerivativeDeletionEvent,
+      UserOperation userOpe) {
     List<Swapped> swappedNodes = new ArrayList<>();
     for (BhNode node : nodes) {
-      swappedNodes.addAll(deleteNode(node, userOpe));
+      swappedNodes.addAll(deleteNode(node, invokeDerivativeDeletionEvent, userOpe));
     }
     swappedNodes.removeIf(pair -> pair.newNode().isDeleted());
     return swappedNodes;
@@ -93,12 +166,12 @@ public class BhNodePlacer {
 
   private static SequencedSet<Swapped> delete(BhNode node, UserOperation userOpe) {
     node.deselect(userOpe);
-    DerivativeRemover.remove(node, userOpe);
+    DerivativeUnlinker.unlink(node, userOpe);
     SequencedSet<Swapped> swappedNodes = node.remove(userOpe);
     node.getWorkspace().removeNodeTree(node, userOpe);
     return swappedNodes;
   }
-  
+
   /**
    * {@code node} 以下のノードを {@code ws} に移動する.
    *
@@ -164,8 +237,7 @@ public class BhNodePlacer {
     if (!oldChild.isChild() || oldChild == newChild) {
       return new LinkedHashSet<>();
     }
-    SequencedSet<Swapped> swappedNodes = new LinkedHashSet<>();
-    swappedNodes.addAll(oldChild.replace(newChild, userOpe));
+    SequencedSet<Swapped> swappedNodes = new LinkedHashSet<>(oldChild.replace(newChild, userOpe));
     for (Swapped swapped : new ArrayList<>(swappedNodes).subList(1, swappedNodes.size())) {
       swappedNodes.addAll(deleteNode(swapped.oldNode(), userOpe));
     }

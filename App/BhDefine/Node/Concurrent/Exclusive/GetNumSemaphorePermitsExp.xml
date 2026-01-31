@@ -4,6 +4,7 @@
   name="GetNumSemaphorePermitsExp"
   nodeStyleID="GetNumSemaphorePermitsExp.json"
   breakpoint="ignore"
+  onChildReplaced="OnChildOfSemaphoreCtrlReplaced.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 

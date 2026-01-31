@@ -276,14 +276,22 @@
 
   /** node から推移的に辿れる全ての派生ノードを dest に格納する. */
   function collectDerivatives(node, dest) {
-    let view = node.getView();
-    // node.getView().map(...).orElse(false) は真偽値を返さないので使用しない
-    if (view.isPresent() && !view.get().isTemplate()) {
+    if (!isTemplateNode(node)) {
       dest.push(node);
     }
     for (let derivative of node.getDerivatives()) {
       collectDerivatives(derivative, dest);
     }
+  }
+
+  /** node がテンプレートノードかどうか調べる. */
+  function isTemplateNode(node) {
+    if (node === null) {
+      return false;
+    }
+    // node.getView().map(...).orElse(false) は真偽値を返さないので使用しない
+    let view = node.getView();
+    return view.isPresent() && view.get().isTemplate();
   }
 
   bhCommon['connectToOuterEnd'] = connectToOuterEnd;
@@ -301,5 +309,6 @@
   bhCommon['selectToOutermost'] = selectToOutermost;
   bhCommon['getPosOnWorkspace'] = getPosOnWorkspace;
   bhCommon['collectDerivationFamily'] = collectDerivationFamily;
+  bhCommon['isTemplateNode'] = isTemplateNode;
   return bhCommon;
 })();

@@ -956,6 +956,7 @@ function _createSound(volume, hz, duration) {
 }
 
 function _pushSound(sound, soundList) {
+  sound = sound === _nil ? _nilSound : sound
   soundList.push(sound);
   return soundList;
 }

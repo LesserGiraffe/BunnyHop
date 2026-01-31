@@ -1,5 +1,5 @@
 (function() {
-  if (bhCauseOfDeletion.isSelectedForDeletion() || bhCauseOfDeletion.isCompileError()) {
+  if (bhCauseOfDeletion.isSelectedForDeletion()) {
     bhCommon.moveNodeToAncestor(
         bhThis.findOuterNode(1),
         bhThis,

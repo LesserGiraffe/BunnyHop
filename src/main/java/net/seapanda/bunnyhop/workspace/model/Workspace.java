@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.function.Consumer;
 import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
@@ -109,6 +110,7 @@ public class Workspace implements Serializable {
     registry.getOnSelectionStateChanged().add(cbRegistry.onNodeSelStateChanged);
     registry.getOnCompileErrorStateUpdated().add(cbRegistry.onNodeCompileErrStateUpdated);
     registry.getOnBreakpointSet().add(cbRegistry.onNodeBreakpointSet);
+    registry.getOnOriginalNodeChanged().add(cbRegistry.onOriginalNodeChanged);
     registry.getOnConnected().add(cbRegistry.onNodeConnected);
   }
 
@@ -162,6 +164,7 @@ public class Workspace implements Serializable {
     registry.getOnSelectionStateChanged().remove(cbRegistry.onNodeSelStateChanged);
     registry.getOnCompileErrorStateUpdated().remove(cbRegistry.onNodeCompileErrStateUpdated);
     registry.getOnBreakpointSet().remove(cbRegistry.onNodeBreakpointSet);
+    registry.getOnOriginalNodeChanged().remove(cbRegistry.onOriginalNodeChanged);
     registry.getOnConnected().remove(cbRegistry.onNodeConnected);
     node.setWorkspace(null, userOpe);
     nodeList.remove(node);
@@ -310,38 +313,42 @@ public class Workspace implements Serializable {
     return cbRegistry;
   }
 
-  /** {@link Workspace} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
+  /** 特定の {@link Workspace} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistry {
 
-    /** 関連するワークスペースのノードの選択状態が変更されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースのノードの選択状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeSelectionEvent> onNodeSelStateChangedInvoker =
         new SimpleConsumerInvoker<>();
     
-    /** 関連するワークスペースのノードのコンパイルエラー状態が更新されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースのノードのコンパイルエラー状態が更新されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeCompileErrorEvent> onNodeCompileErrStateUpdatedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するワークスペースのノードのブレークポイントの設定が変更されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースのノードのブレークポイントの設定が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeBreakpointSetEvent> onNodeBreakpointSetInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するワークスペースにノードが追加されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースのノードのオリジナルノードが変更されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<OriginalNodeChangeEvent> onOriginalNodeChangedInvoker =
+        new SimpleConsumerInvoker<>();
+
+    /** ワークスペースにノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するワークスペースからノードが削除されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースからノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
         new SimpleConsumerInvoker<>();
 
-    /** 関連するワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<RootNodeAddedEvent> onRootNodeAddedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するワークスペースのルートノード一式からルートノードが削除されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースのルートノード一式からルートノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<RootNodeRemovedEvent> onRootNodeRemovedInvoker = 
         new SimpleConsumerInvoker<>();
 
-    /** 関連するワークスペースの名前が変わったときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースの名前が変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NameChangedEvent> onNameChangedInvoker =
         new SimpleConsumerInvoker<>();
 
@@ -349,45 +356,54 @@ public class Workspace implements Serializable {
     private final Consumer<BhNode.ConnectionEvent> onNodeConnected =
         this::onNodeConnected;
 
-    /** 関連するワークスペースのノードが選択されたときのイベントハンドラ. */
+    /** ワークスペースのノードが選択されたときのイベントハンドラ. */
     private final Consumer<? super BhNode.SelectionEvent> onNodeSelStateChanged =
         this::onNodeSelectionStateChanged;
 
-    /** 関連するワークスペースのノードのコンパイルエラー状態が更新されたときのイベントハンドラ. */
+    /** ワークスペースのノードのコンパイルエラー状態が更新されたときのイベントハンドラ. */
     private final Consumer<? super BhNode.CompileErrorEvent> onNodeCompileErrStateUpdated =
         this::onNodeCompileErrStateUpdated;
 
-    /** 関連するワークスペースのノードのブレークポイントの設定が変更されたときのイベントハンドラ. */
+    /** ワークスペースのノードのブレークポイントの設定が変更されたときのイベントハンドラ. */
     private final Consumer<? super BhNode.BreakpointSetEvent> onNodeBreakpointSet =
         this::onNodeBreakpointSet;
 
-    /** 関連するワークスペースのノードの選択状態が変更されたときのイベントハンドラのレジストリを取得する. */
+    /** ワークスペースのノードのオリジナルノードが変わったときのイベントハンドラ. */
+    private final Consumer<? super BhNode.OriginalNodeChangeEvent> onOriginalNodeChanged =
+        this::onOriginalNodeChanged;
+
+    /** ワークスペースのノードの選択状態が変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<NodeSelectionEvent>.Registry getOnNodeSelectionStateChanged() {
       return onNodeSelStateChangedInvoker.getRegistry();
     }
 
-    /** 関連するワークスペースのノードのコンパイルエラー状態が更新されたときのイベントハンドラのレジストリを取得する. */
+    /** ワークスペースのノードのコンパイルエラー状態が更新されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<NodeCompileErrorEvent>.Registry getOnNodeCompileErrorStateUpdated() {
       return onNodeCompileErrStateUpdatedInvoker.getRegistry();
     }
 
-    /** 関連するワークスペースのノードのブレークポイントの設定が変更されたときのイベントハンドラのレジストリを取得する. */
+    /** ワークスペースのノードのブレークポイントの設定が変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<NodeBreakpointSetEvent>.Registry getOnNodeBreakpointSet() {
       return onNodeBreakpointSetInvoker.getRegistry();
     }
 
-    /** 関連するワークスペースにノードが追加されたときのイベントハンドラのレジストリを取得する. */
+    /** ワークスペースのノードのオリジナルノードが変更されたときのイベントハンドラのレジストリを取得する. */
+    public ConsumerInvoker<OriginalNodeChangeEvent>.Registry getOnOriginalNodeChanged() {
+      return onOriginalNodeChangedInvoker.getRegistry();
+    }
+
+    /** ワークスペースにノードが追加されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<NodeAddedEvent>.Registry getOnNodeAdded() {
       return onNodeAddedInvoker.getRegistry();
     }
 
-    /** 関連するワークスペースからノードが削除されたときのイベントハンドラのレジストリを取得する. */
+    /** ワークスペースからノードが削除されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<NodeRemovedEvent>.Registry getOnNodeRemoved() {
       return onNodeRemovedInvoker.getRegistry();
     }
 
     /**
-     * 関連するワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラを
+     * ワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<RootNodeAddedEvent>.Registry getOnRootNodeAdded() {
@@ -395,19 +411,19 @@ public class Workspace implements Serializable {
     }
 
     /**
-     * 関連するワークスペースのルートノード一式からルートノードが削除されたときのイベントハンドラを
+     * ワークスペースのルートノード一式からルートノードが削除されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<RootNodeRemovedEvent>.Registry getOnRootNodeRemoved() {
       return onRootNodeRemovedInvoker.getRegistry();
     }
 
-    /** 関連するワークスペースの名前が変わったときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
+    /** ワークスペースの名前が変わったときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
     public ConsumerInvoker<NameChangedEvent>.Registry getOnNameChanged() {
       return onNameChangedInvoker.getRegistry();
     }
 
-    /** 関連するワークスペースのノードが他のノードと入れ替わったときのイベントハンドラを呼び出す. */
+    /** ワークスペースのノードが他のノードと入れ替わったときのイベントハンドラを呼び出す. */
     private void onNodeConnected(BhNode.ConnectionEvent event) {
       if (event.disconnected() != null
           && event.disconnected().isRoot()
@@ -423,7 +439,7 @@ public class Workspace implements Serializable {
       }
     }
 
-    /** ノードの選択状態が変わったときのイベントハンドラを呼び出す. */
+    /** ワークスペースのノードの選択状態が変わったときのイベントハンドラを呼び出す. */
     private void onNodeSelectionStateChanged(BhNode.SelectionEvent event) {
       if (event.isSelected()) {
         addToSelectedNodeList(event.node());
@@ -434,16 +450,22 @@ public class Workspace implements Serializable {
           Workspace.this, event.node(), event.isSelected(), event.userOpe()));
     }
 
-    /** ノードのコンパイルエラー状態が更新されたときのイベントハンドラを呼び出す. */
+    /** ワークスペースのノードのコンパイルエラー状態が更新されたときのイベントハンドラを呼び出す. */
     private void onNodeCompileErrStateUpdated(BhNode.CompileErrorEvent event) {
       onNodeCompileErrStateUpdatedInvoker.invoke(new NodeCompileErrorEvent(
           Workspace.this, event.node(), event.hasError(), event.userOpe()));
     }
 
-    /** ノードのブレークポイントの設定が変わったときのイベントハンドラを呼び出す. */
+    /** ワークスペースのノードのブレークポイントの設定が変わったときのイベントハンドラを呼び出す. */
     private void onNodeBreakpointSet(BhNode.BreakpointSetEvent event) {
       onNodeBreakpointSetInvoker.invoke(new  NodeBreakpointSetEvent(
           Workspace.this, event.node(), event.isBreakpointSet(), event.userOpe()));
+    }
+
+    /** ワークスペースのノードのオリジナルノードが変わったときのイベントハンドラを呼び出す. */
+    private void onOriginalNodeChanged(BhNode.OriginalNodeChangeEvent event) {
+      onOriginalNodeChangedInvoker.invoke(new  OriginalNodeChangeEvent(
+          Workspace.this, event.node(), event.oldOriginal(), event.newOriginal(), event.userOpe()));
     }
   }
 
@@ -479,6 +501,22 @@ public class Workspace implements Serializable {
    */
   public record NodeBreakpointSetEvent(
       Workspace ws, BhNode node, boolean isBreakpointSet, UserOperation userOpe) {}
+
+  /**
+   * ワークスペースのノードのオリジナルノードが変更されたときの情報を格納したレコード.
+   *
+   * @param ws {@code node} を保持するワークスペース
+   * @param node オリジナルノードが変更されたノード
+   * @param oldOriginal 変更前のオリジナルノード (nullable)
+   * @param newOriginal 変更後のオリジナルノード (nullable)
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record OriginalNodeChangeEvent(
+      Workspace ws,
+      BhNode node,
+      Derivative oldOriginal,
+      Derivative newOriginal,
+      UserOperation userOpe) {}
 
   /**
    * ワークスペースにノードが追加されたときの情報を格納したレコード.

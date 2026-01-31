@@ -48,7 +48,7 @@ public class DerivativeDisplacer implements BhNodeWalker {
   /** 入れ替える新しい派生ノードをこのキャッシュから探す. */
   private final DerivativeCache cache;
   /** 入れ替わった古い派生ノードと新しい派生ノードのペアのリスト. */
-  private Set<Swapped> swappedNodes = new HashSet<>();
+  private final Set<Swapped> swappedNodes = new HashSet<>();
 
   /**
    * <pre>
@@ -237,8 +237,8 @@ public class DerivativeDisplacer implements BhNodeWalker {
    * {@code root} 以下の各ノード a に対して, a を保持していた最後のオリジナルノードが削除されているかどうか調べる.
    *
    * @param root このノード以下の各ノード a に対して, a を保持していた最後のオリジナルノードが削除されているかどうか調べる
-   * @retval true {@code root} 以下の各ノード a の中に, a を保持していた最後のオリジナルノードが削除さているものが有った
-   * @retval false {@code root} 以下のノード a の中に, a を保持していた最後のオリジナルノードが削除さているものは無かった
+   * @return true {@code root} 以下の各ノード a の中に, a を保持していた最後のオリジナルノードが削除さているものが有った. <br>
+   *         false {@code root} 以下のノード a の中に, a を保持していた最後のオリジナルノードが削除さているものは無かった.
    */
   private boolean anyOriginalDeleted(BhNode root) {
     MutableBoolean anyDeleted = new MutableBoolean(false);

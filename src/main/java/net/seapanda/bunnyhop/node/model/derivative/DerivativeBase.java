@@ -27,6 +27,8 @@ import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeParameters;
 import net.seapanda.bunnyhop.node.model.parameter.DerivationId;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
+import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
+import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 
 /**
  * 派生ノードとオリジナルノードに対する操作を実装したクラス.
@@ -59,12 +61,12 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
   /** コンストラクタ. */
   public DerivativeBase(
       BhNodeParameters params,
-      Map<DerivationId, BhNodeId> derivationToDeivative,
+      Map<DerivationId, BhNodeId> derivationToDerivative,
       BhNodeFactory factory,
       DerivativeReplacer replacer,
       NodeEventInvoker invoker) {
     super(params, factory, replacer, invoker);
-    this.derivationToDerivative = derivationToDeivative;
+    this.derivationToDerivative = derivationToDerivative;
     derivatives = new HashSet<>();
   }
 
@@ -87,16 +89,26 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
   }
 
   @Override
+  public abstract CallbackRegistry getCallbackRegistry();
+
+
+  @Override
   public final T getOriginal() {
     return original;
   }
 
   /** このノードのオリジナルノードを設定する. */
-  protected final void setOriginal(T original) {
+  void setOriginal(T original, UserOperation userOpe) {
+    if (this.original == original) {
+      return;
+    }
+    T oldOriginal = this.original;
     this.original = original;
     if (original != null) {
       lastOriginal = original;
     }
+    getCallbackRegistry().onOriginalNodeChangedEventInvoker.invoke(
+        new OriginalNodeChangeEvent(this, oldOriginal, original, userOpe));
   }
 
   @Override
@@ -113,22 +125,21 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
   public void addDerivative(T derivative, UserOperation userOpe) {
     if (!derivatives.contains(derivative)) {
       derivatives.add(derivative);
-      derivative.setOriginal(self());
-      userOpe.pushCmd(ope -> removeDerivative(derivative, userOpe));
+      derivative.setOriginal(self(), userOpe);
+      userOpe.pushCmd(ope -> removeDerivative(derivative, ope));
     }
   }
 
   /**
-   * {@code derivative} で指定したノードが, このノードの派生ノードであった場合, 
+   * {@code derivative} で指定したノードが, このノードの派生ノードであった場合,
    * このノードが保持する派生ノードの一覧から削除する.
    *
    * @param derivative 削除する派生ノード
    * @param userOpe undo 用コマンドオブジェクト
    */
   public void removeDerivative(T derivative, UserOperation userOpe) {
-    if (derivatives.contains((derivative))) {
-      derivatives.remove(derivative);
-      derivative.setOriginal(null);
+    if (derivatives.remove(derivative)) {
+      derivative.setOriginal(null, userOpe);
       userOpe.pushCmd(ope -> addDerivative(derivative, ope));
     }
   }
@@ -185,5 +196,18 @@ public abstract class DerivativeBase<T extends DerivativeBase<T>> extends Deriva
       return false;
     }
     return parentConnector.canConnect(node);
+  }
+
+  /** {@link Derivative} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
+  public class CallbackRegistry extends BhNode.CallbackRegistry {
+
+    /** 関連するノードのオリジナルノードが変わったときのイベントハンドラを管理するオブジェクト. */
+    final ConsumerInvoker<OriginalNodeChangeEvent> onOriginalNodeChangedEventInvoker =
+        new SimpleConsumerInvoker<>();
+
+    @Override
+    public ConsumerInvoker<OriginalNodeChangeEvent>.Registry getOnOriginalNodeChanged() {
+      return onOriginalNodeChangedEventInvoker.getRegistry();
+    }
   }
 }

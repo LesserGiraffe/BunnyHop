@@ -80,6 +80,10 @@ public class PrivateTemplateButtonController {
     }
     try {
       service.begin();
+      if (currentProducerNode == node && isPrivateTemplateShowed()) {
+        proxy.hideCurrentView();
+        return;
+      }
       UserOperation userOpe = new UserOperation();
       proxy.clearNodeTrees(PRE_RENDERING, userOpe);
       proxy.clearNodeTrees(PRIVATE_TEMPLATE, userOpe);
@@ -89,8 +93,8 @@ public class PrivateTemplateButtonController {
           template -> proxy.addNodeTree(PRIVATE_TEMPLATE, template, userOpe));
       proxy.show(PRIVATE_TEMPLATE);
       setCurrentProducerNode(node, userOpe);
-      event.consume();
     } finally {
+      event.consume();
       service.end();
     }
   }
@@ -142,5 +146,10 @@ public class PrivateTemplateButtonController {
     templateNodes.forEach(templateNode -> proxy.addNodeTree(PRE_RENDERING, templateNode, userOpe));
     // ノード選択ビューに追加してからイベントハンドラを呼ぶ
     templateNodes.forEach(templateNode -> invokeOnCreatedAsTemplate(templateNode, userOpe));
+  }
+
+  /** 現在表示されているノード選択ビューがノード固有のテンプレートを表示するためのものであるか調べる. */
+  private boolean isPrivateTemplateShowed() {
+    return proxy.getCurrentCategoryName().map(PRIVATE_TEMPLATE::equals).orElse(false);
   }
 }

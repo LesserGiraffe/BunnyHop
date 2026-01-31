@@ -252,9 +252,9 @@
     },
 
     "compile": {
-      "ask-if-delete-err-nodes": {
-        "title": "コンパイルエラーノードの削除",
-        "body": "コンパイルエラーノードを削除してもよろしいですか?\n「いいえ」を選択した場合、実行を中止します"
+      "inform-compile-error": {
+        "title": "コンパイルエラー",
+        "body": "コンパイルエラーノードがあります.\n削除してから実行してください."
       },
       "inform-failed-to-write": {
         "title": "ファイル書き込みエラー"
@@ -574,13 +574,13 @@
       "VoidFuncDef": "関数定義 (${name})",
       "MutexBlockDecl": "排他区間定義 (${name})",
       "MutexBlockStat": "排他区間 (${name})",
-      "GetSyncTimerCountExp": "処理待ちタイマーの現在のカウントを取得する",
-      "ResetSyncTimerStat": "処理待ちタイマーのカウントを変更する",
-      "SyncTimerAwaitStat": "処理待ちタイマーのカウントが 0 になるまで待つ",
-      "SyncTimerTimedAwaitExp": "処理待ちタイマーのカウントが 0 になるまで待つ (タイムアウト付)",
-      "SyncTimerCountdownStat": "処理待ちタイマーのカウントを 1 減らす",
-      "SyncTimerDecl": "処理待ちタイマー定義 (${name})",
-      "SyncTimerVar": "処理待ちタイマー (${name})",
+      "GetSyncTimerCountExp": "同期タイマーの現在のカウントを取得する",
+      "ResetSyncTimerStat": "同期タイマーのカウントを変更する",
+      "SyncTimerAwaitStat": "同期タイマーのカウントが 0 になるまで待つ",
+      "SyncTimerTimedAwaitExp": "同期タイマーのカウントが 0 になるまで待つ (タイムアウト付)",
+      "SyncTimerCountdownStat": "同期タイマーのカウントを 1 減らす",
+      "SyncTimerDecl": "同期タイマー定義 (${name})",
+      "SyncTimerVar": "同期タイマー (${name})",
       "SemaphoreAcquireStat": "チケットボックスからチケットを取る",
       "SemaphoreTryAcquireExp": "チケットボックスからチケットを取る (タイムアウト付)",
       "SemaphoreReleaseStat": "チケットボックスにチケットを追加する",
@@ -707,7 +707,12 @@
 
     "compile-error": {
       "out-of-scope": "スコープの外にあります",
-      "out-of-loop": "繰り返しノードの外にあります"
+      "out-of-loop": "繰り返しノードの外にあります",
+      "variable-not-declared": "変数が宣言されていません",
+      "mutex-not-declared": "排他区間が宣言されていません",
+      "sync-timer-not-declared": "同期タイマーが宣言されていません",
+      "semaphore-not-declared": "チケットボックスが宣言されていません",
+      "function-not-defined": "関数の定義がありません"
     },
     "list-label": "[...]"
   },

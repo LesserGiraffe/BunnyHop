@@ -25,6 +25,7 @@ import java.util.SequencedCollection;
 import java.util.SequencedSet;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeReplacer;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.model.event.NodeEventInvoker;
@@ -580,7 +581,7 @@ public abstract class BhNode extends SyntaxSymbol {
   }
 
   /**
-   * このノードのルートであるノードを返す <br> ルートノードの場合は自身を帰す.
+   * このノードのルートであるノードを返す <br> ルートノードの場合は自身を返す.
    *
    * @return このノードのルートノード
    */
@@ -719,30 +720,30 @@ public abstract class BhNode extends SyntaxSymbol {
    */
   public record Swapped(BhNode oldNode, BhNode newNode) {}
 
-  /** {@link BhNode} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
-  public class CallbackRegistry {
+  /** 特定の {@link BhNode} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
+  public abstract class CallbackRegistry {
 
-    /** 関連するノードの選択状態が変更されたときのイベントハンドラを管理するオブジェクト. */
+    /** ノードの選択状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<SelectionEvent> onSelStateChangedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するノードのコンパイルエラー状態が変更されたときのイベントハンドラを管理するオブジェクト. */
+    /** ノードのコンパイルエラー状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<CompileErrorEvent> onCompileErrStateUpdatedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するノードが {@link Connector} に接続されたときのイベントハンドラを管理するオブジェクト. */
+    /** ノードが {@link Connector} に接続されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<ConnectionEvent> onConnectedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するノードが属するワークスペースが変わったときのイベントハンドラを管理するオブジェクト. */
+    /** ノードが属するワークスペースが変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceChangeEvent> onWsChangedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するノードのブレークポイントの設定が変わったときのイベントハンドラを管理するオブジェクト. */
+    /** ノードのブレークポイントの設定が変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<BreakpointSetEvent> onBreakpointSetInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するノードの破損の有無が変わったときのイベントハンドラを管理するオブジェクト. */
+    /** ノードの破損の有無が変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<CorruptionStateChangedEvent> onCorruptionStateChangedInvoker =
         new SimpleConsumerInvoker<>();
 
@@ -750,35 +751,38 @@ public abstract class BhNode extends SyntaxSymbol {
     private final Consumer<? super Connector.ReplacementEvent> onNodeReplaced =
         this::onNodeReplaced;
 
-    /** 関連するノードの選択状態が変更されたときのイベントハンドラのレジストリを取得する. */
+    /** ノードの選択状態が変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<SelectionEvent>.Registry getOnSelectionStateChanged() {
       return onSelStateChangedInvoker.getRegistry();
     }
 
-    /** 関連するノードのコンパイルエラー状態が更新されたときのイベントハンドラのレジストリを取得する. */
+    /** ノードのコンパイルエラー状態が更新されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<CompileErrorEvent>.Registry getOnCompileErrorStateUpdated() {
       return onCompileErrStateUpdatedInvoker.getRegistry();
     }
 
-    /** 関連するノードが, {@link Connector} に接続されたときのイベントハンドラのレジストリを取得する. */
+    /** ノードが {@link Connector} に接続されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<ConnectionEvent>.Registry getOnConnected() {
       return onConnectedInvoker.getRegistry();
     }
 
-    /** 関連するノードが属するワークスペースが変更されたときのイベントハンドラのレジストリを取得する. */
+    /** ノードが属するワークスペースが変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<WorkspaceChangeEvent>.Registry getOnWorkspaceChanged() {
       return onWsChangedInvoker.getRegistry();
     }
 
-    /** 関連するノードのブレークポイントの設定が変わったときのイベントハンドラのレジストリを取得する. */
+    /** ノードのブレークポイントの設定が変わったときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<BreakpointSetEvent>.Registry getOnBreakpointSet() {
       return onBreakpointSetInvoker.getRegistry();
     }
 
-    /** 関連するノードの破損の有無が変わったときのイベントハンドラのレジストリを取得する. */
+    /** ノードの破損の有無が変わったときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<CorruptionStateChangedEvent>.Registry getOnCorruptionStateChanged() {
       return onCorruptionStateChangedInvoker.getRegistry();
     }
+
+    /** ノードのオリジナルノードが変わったときのイベントハンドラのレジストリを取得する. */
+    public abstract ConsumerInvoker<OriginalNodeChangeEvent>.Registry getOnOriginalNodeChanged();
 
     /** コネクタに接続されたノードが入れ替わったときに呼び出されるコールバック関数. */
     private void onNodeReplaced(Connector.ReplacementEvent event) {
@@ -846,13 +850,25 @@ public abstract class BhNode extends SyntaxSymbol {
   public record CorruptionStateChangedEvent(
       BhNode node, boolean isCorrupted, UserOperation userOpe) {}
 
-  /** ノードのイベントハンドラを呼び出す機能を提供するクラス. */
+
+  /**
+   * ノードのオリジナルノードが変更されたときの情報を格納したレコード.
+   *
+   * @param node オリジナルノードが変更されたノード
+   * @param oldOriginal 変更前のオリジナルノード (nullable)
+   * @param newOriginal 変更後のオリジナルノード (nullable)
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record OriginalNodeChangeEvent(
+      Derivative node, Derivative oldOriginal, Derivative newOriginal, UserOperation userOpe) {}
+
+  /** 特定のノードのイベントハンドラを呼び出す機能を提供するクラス. */
   public class EventInvoker {
 
     /**
-     * 関連するノードがワークスペースから子ノードに移ったときの処理を実行する.
+     * ノードがワークスペースから子ノードに移ったときの処理を実行する.
      *
-     * @param oldReplaced 関連するノードがつながった位置に, 元々子ノードとしてつながっていたノード
+     * @param oldReplaced ノードがつながった位置に, 元々子ノードとしてつながっていたノード
      * @param userOpe undo 用コマンドオブジェクト
      */
     public void onMovedFromWsToChild(BhNode oldReplaced, UserOperation userOpe) {
@@ -860,11 +876,11 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * 関連するノードが子ノードからワークスペースに移ったときの処理を実行する.
+     * ノードが子ノードからワークスペースに移ったときの処理を実行する.
      *
-     * @param oldParent 移る前に関連するノードが接続されていた親ノード
-     * @param oldRoot 移る前に関連するノードが所属していたノードツリーのルートノード
-     * @param newReplaced ワークスペースに移る際, 関連するノードの替わりにつながったノード
+     * @param oldParent 移る前にノードが接続されていた親ノード
+     * @param oldRoot 移る前にノードが所属していたノードツリーのルートノード
+     * @param newReplaced ワークスペースに移る際, ノードの替わりにつながったノード
      * @param userOpe undo 用コマンドオブジェクト
      */
     public void onMovedFromChildToWs(
@@ -876,7 +892,7 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * 関連するノードの子ノードが入れ替わったときの処理を実行する.
+     * ノードの子ノードが入れ替わったときの処理を実行する.
      *
      * @param oldChild 入れ替わった古いノード
      * @param newChild 入れ替わった新しいノード
@@ -892,10 +908,10 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * 関連するノードの削除前に呼ばれる処理を実行する.
+     * ノードの削除前に呼ばれる処理を実行する.
      *
-     * @param nodesToDelete 関連するノードと共に削除される予定のノード.
-     * @param causeOfDeletion 関連するノードの削除原因
+     * @param nodesToDelete ノードと共に削除される予定のノード.
+     * @param causeOfDeletion ノードの削除原因
      * @param userOpe undo 用コマンドオブジェクト
      * @return 削除をキャンセルする場合 false. 続行する場合 true.
      */
@@ -908,9 +924,9 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * ユーザー操作により, 関連するノードがカット & ペーストされる直前に呼ばれる処理を実行する.
+     * ユーザー操作により, ノードがカット & ペーストされる直前に呼ばれる処理を実行する.
      *
-     * @param nodesToCut 関連するノードとともにカットされる予定のノード
+     * @param nodesToCut ノードとともにカットされる予定のノード
      * @param userOpe undo 用コマンドオブジェクト
      * @return カットをキャンセルする場合 false.  続行する場合 true.
      */
@@ -920,9 +936,9 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * ユーザー操作により, 関連するノードがコピー & ペーストされる直前に呼ばれる処理を実行する.
+     * ユーザー操作により, ノードがコピー & ペーストされる直前に呼ばれる処理を実行する.
      *
-     * @param nodesToCopy 関連するノードとともにコピーされる予定のノード
+     * @param nodesToCopy ノードとともにコピーされる予定のノード
      * @param userOpe undo 用コマンドオブジェクト
      * @return {@link BhNode} を引数にとり, コピーするかどうかの boolean 値を返す関数.
      */
@@ -932,7 +948,7 @@ public abstract class BhNode extends SyntaxSymbol {
     }
   
     /**
-     * 関連するノードがテンプレートノードとして作成されたときの処理を実行する.
+     * ノードがテンプレートノードとして作成されたときの処理を実行する.
      *
      * @param userOpe undo 用コマンドオブジェクト
      */
@@ -941,7 +957,7 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * 関連するノードが UI イベントを受け取ったときの処理を実行する.
+     * ノードが UI イベントを受け取ったときの処理を実行する.
      *
      * @param eventInfo UI イベントに関連する情報を格納したオブジェクト
      * @param userOpe undo 用コマンドオブジェクト
@@ -951,18 +967,18 @@ public abstract class BhNode extends SyntaxSymbol {
     }
 
     /**
-     * 関連するノードと関係のあるノード一覧を取得する.
+     * 関係のあるノード一覧を取得する.
      *
-     * @return 関連するノードと関係のあるノード一覧
+     * @return 関係のあるノード一覧
      */
     public Collection<BhNode> onRelatedNodesRequired() {
       return nodeEventInvoker.onRelatedNodesRequired(BhNode.this);
     }
 
     /**
-     * 関連するノードからジャンプするノードを取得する.
+     * ノードからジャンプするノードを取得する.
      *
-     * @return 関連するノードからジャンプするノード.  存在しない場合 null.
+     * @return ノードからジャンプするノード.  存在しない場合 null.
      */
     public BhNode onJumpTargetRequired() {
       return nodeEventInvoker.onJumpTargetRequired(BhNode.this);

@@ -7,7 +7,7 @@
   onCompanionNodesCreating="CreateSemaphoreCompanions.js"
   onMovedFromChildToWS="OnGlobalDataDeclMovedToWS.js"
   onMovedFromWsToChild="OnGlobalDataDeclMovedToChild.js"
-  onDeletionRequested="OnDeletionRequested.js"
+  onDeletionRequested="OnStatOrDeclDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
   onRelatedNodesRequired="GetDerivationFamily.js"

@@ -320,11 +320,11 @@ public class TextDefs {
   public static class Compile {
 
     /** エラーノードを削除して良いか確認する際のメッセージ. */
-    public static class AskIfDeleteErrNodes {
+    public static class InformCompileError {
       public static Getter title = params -> db.get(
-          TextId.of("msg", "compile", "ask-if-delete-err-nodes", "title"), params);
+          TextId.of("msg", "compile", "inform-compile-error", "title"), params);
       public static Getter body = params -> db.get(
-          TextId.of("msg", "compile", "ask-if-delete-err-nodes", "body"), params);
+          TextId.of("msg", "compile", "inform-compile-error", "body"), params);
     }
 
     /** ファイル書き込みエラーが発生したときのメッセージ. */

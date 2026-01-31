@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.node.model.derivative.DerivativeRemover;
+import net.seapanda.bunnyhop.node.model.derivative.DerivativeUnlinker;
 import net.seapanda.bunnyhop.node.model.event.ConnectorEventInvoker;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
@@ -87,9 +87,7 @@ public class Connector extends SyntaxSymbol {
     if (org.lastDefaultNodeSnapshot == null) {
       return null;
     }
-    BhNode snapShot = org.lastDefaultNodeSnapshot.copy(userOpe);
-    DerivativeRemover.remove(snapShot, userOpe);
-    return snapShot;
+    return copyAsSnapshot(org.lastDefaultNodeSnapshot, userOpe);
   }
 
   /**
@@ -190,13 +188,10 @@ public class Connector extends SyntaxSymbol {
     // 新ノードがデフォルトノードのとき, それまでのスナップショットは無効になるので null を返す
     if (newNode.isDefault()) {
       return null;
-
     // 旧ノードがデフォルトノードでかつ, 新ノードが非デフォルトノードであった場合, 旧ノードのスナップショットを返す
     } else if (oldNode != null && oldNode.isDefault()) {
       var userOpe = new UserOperation();
-      BhNode snapShot = oldNode.copy(userOpe);
-      DerivativeRemover.remove(snapShot, userOpe);
-      return snapShot;
+      return copyAsSnapshot(oldNode, userOpe);
     }
     // それ以外の場合スナップショットに変更はない
     return lastDefaultNodeSnapshot;
@@ -222,11 +217,9 @@ public class Connector extends SyntaxSymbol {
     if (!params.restoreLastDefaultNode()) {
       defaultNode = factory.create(getDefaultNodeId(), userOpe);
     } else if (connectedNode != null && connectedNode.isDefault()) {
-      defaultNode = connectedNode.copy(userOpe);
-      DerivativeRemover.remove(defaultNode, userOpe);
+      defaultNode = copyAsSnapshot(connectedNode, userOpe);
     } else if (lastDefaultNodeSnapshot != null) {
-      defaultNode = lastDefaultNodeSnapshot.copy(userOpe);
-      DerivativeRemover.remove(defaultNode, userOpe);
+      defaultNode = copyAsSnapshot(lastDefaultNodeSnapshot, userOpe);
     } else {
       defaultNode = factory.create(params.defaultNodeId(), userOpe);
     }
@@ -318,6 +311,14 @@ public class Connector extends SyntaxSymbol {
    */
   public DerivativeJointId getDerivativeJoint() {
     return params.derivativeJointId();
+  }
+
+  /** {@code node} をスナップショットとしてコピーする. */
+  private static BhNode copyAsSnapshot(BhNode node, UserOperation userOpe) {
+    BhNode copy = node.copy(userOpe);
+    // スナップショットは派生ノードとして扱わないので, copy をそのオリジナルノードの派生ノード一覧から取り除く.
+    DerivativeUnlinker.unlink(copy, userOpe);
+    return copy;
   }
 
   /**

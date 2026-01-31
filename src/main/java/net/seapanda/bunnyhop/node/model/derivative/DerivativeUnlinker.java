@@ -27,10 +27,11 @@ import net.seapanda.bunnyhop.service.undo.UserOperation;
  *
  * @author K.Koike
  */
-public class DerivativeRemover implements BhNodeWalker {
+public class DerivativeUnlinker implements BhNodeWalker {
 
   /** undo 用コマンドオブジェクト. */
   private final UserOperation userOpe;
+  private final boolean walk;
 
   /**
    * {@code node} 以下にある派生ノードを, そのオリジナルノードの派生ノード一覧から取り除く.
@@ -38,8 +39,20 @@ public class DerivativeRemover implements BhNodeWalker {
    * @param node このノード以下の派生ノードを, そのオリジナルノードの派生ノード一覧から取り除く.
    * @param userOpe undo 用コマンドオブジェクト
    * */
-  public static void remove(BhNode node, UserOperation userOpe) {
-    node.accept(new DerivativeRemover(userOpe));
+  public static void unlink(BhNode node, UserOperation userOpe) {
+    unlink(node, true, userOpe);
+  }
+
+  /**
+   * {@code node} をそのオリジナルノードの派生ノード一覧から取り除く.
+   *
+   * @param node 派生ノード一覧から取り除く対象のノード
+   * @param walk true の場合 {@code node} 以下の派生ノードも取り除く.
+   *             false の場合 {@code node} が派生ノードの場合のみ取り除く
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public static void unlink(BhNode node, boolean walk, UserOperation userOpe) {
+    node.accept(new DerivativeUnlinker(userOpe, walk));
   }
 
   /**
@@ -47,8 +60,9 @@ public class DerivativeRemover implements BhNodeWalker {
    *
    * @param userOpe undo 用コマンドオブジェクト
    */
-  private DerivativeRemover(UserOperation userOpe) {
+  private DerivativeUnlinker(UserOperation userOpe, boolean walk) {
     this.userOpe = userOpe;
+    this.walk = walk;
   }
 
   /**
@@ -61,7 +75,9 @@ public class DerivativeRemover implements BhNodeWalker {
     if (node.isDerivative()) {
       node.getOriginal().removeDerivative(node, userOpe);
     }
-    node.sendToSections(this);
+    if (walk) {
+      node.sendToSections(this);
+    }
   }
 
   @Override

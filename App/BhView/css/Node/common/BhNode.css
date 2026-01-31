@@ -13,16 +13,16 @@
   -fx-stroke: white;
 }
 
-.BhNode:relatedNodeGroup {
-  -fx-stroke: linear-gradient(from 0mm 0mm to 3mm 3mm, repeat, black 50%, yellow 0mm);
-  -fx-stroke-width: 0.35em;
-  -fx-stroke-type: centered;
-}
-
 .BhNode:selected {
   -fx-stroke: gold;
   -fx-stroke-width: 0.15em;
   -fx-stroke-type: inside;
+}
+
+.BhNode:relatedNodeGroup {
+  -fx-stroke: linear-gradient(from 0mm 0mm to 3mm 3mm, repeat, black 50%, yellow 0mm);
+  -fx-stroke-width: 0.35em;
+  -fx-stroke-type: centered;
 }
 
 .BhNode:execStep {

@@ -7,7 +7,7 @@
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
   onChildReplaced="OnChildOfArrayCtrlReplaced.js"
-  onDeletionRequested="OnDeletionRequested.js"
+  onDeletionRequested="OnStatOrDeclDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
   onCreatedAsTemplate="OnAnyArraySpliceStatCreatedAsTemplate.js"

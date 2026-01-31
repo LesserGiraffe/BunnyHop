@@ -24,8 +24,8 @@ package net.seapanda.bunnyhop.node.model.event;
 public enum CauseOfDeletion {
   /** ゴミ箱に入れられた. */
   TRASH_CAN,
-  /** コンパイルエラーノードの削除. */
-  COMPILE_ERROR,
+  /** オリジナルノードが削除された. */
+  ORIGINAL_DELETED,
   /** 選択削除の対象になった. */
   SELECTED_FOR_DELETION,
   /** ワークスペースの削除. */
@@ -35,8 +35,8 @@ public enum CauseOfDeletion {
     return this.equals(TRASH_CAN);
   }
 
-  public boolean isCompileError() {
-    return this.equals(COMPILE_ERROR);
+  public boolean isOriginalDeleted() {
+    return this.equals(ORIGINAL_DELETED);
   }
 
   public boolean isSelectedForDeletion() {

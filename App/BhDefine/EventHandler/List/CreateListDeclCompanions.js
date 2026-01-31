@@ -1,5 +1,5 @@
 let listDeclName = String(bhThis.getSymbolName());
-let dervIdIdentifierName = 'dervIdIdentifierName';
+let dervIdIdVar = 'dervIdVar';
 
 let listDeclToGetExp = {
   'NumListDecl'   : 'idNumArrayGetExp',
@@ -35,7 +35,7 @@ let listDeclToSortStat = {
 function genAnyArrayControlNode(arrayCtrlNodeId, listCnctrName, argNameToSymbolMap) {
   let arrayCtrlNode = bhCommon.createBhNode(arrayCtrlNodeId, bhUserOpe);
   let arg = arrayCtrlNode.findDescendantOf('*', listCnctrName, '*');
-  let newNode = bhCommon.buildDerivative(bhThis, dervIdIdentifierName, bhUserOpe);
+  let newNode = bhCommon.buildDerivative(bhThis, dervIdIdVar, bhUserOpe);
   arg.replace(newNode, bhUserOpe);
 
   if (argNameToSymbolMap === undefined) {
@@ -50,7 +50,7 @@ function genAnyArrayControlNode(arrayCtrlNodeId, listCnctrName, argNameToSymbolM
 }
 
 (function() {
-  let list = bhCommon.buildDerivative(bhThis, dervIdIdentifierName, bhUserOpe);
+  let list = bhCommon.buildDerivative(bhThis, dervIdIdVar, bhUserOpe);
   let nameOfGetItem = listDeclToGetExp[listDeclName];
   let templates = [
     list,

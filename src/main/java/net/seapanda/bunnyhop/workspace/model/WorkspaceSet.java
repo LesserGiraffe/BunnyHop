@@ -23,6 +23,7 @@ import java.util.SequencedSet;
 import java.util.function.Consumer;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
+import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -60,11 +61,12 @@ public class WorkspaceSet {
     registry.getOnNodeSelectionStateChanged().add(cbRegistry.onNodeSelectionStateChanged);
     registry.getOnNodeCompileErrorStateUpdated().add(cbRegistry.onNodeCompileErrStateUpdated);
     registry.getOnNodeBreakpointSet().add(cbRegistry.onNodeBreakpointSet);
+    registry.getOnOriginalNodeChanged().add(cbRegistry.onOriginalNodeChanged);
     registry.getOnNodeAdded().add(cbRegistry.onNodeAdded);
     registry.getOnNodeRemoved().add(cbRegistry.onNodeRemoved);
     registry.getOnRootNodeAdded().add(cbRegistry.onRootNodeAdded);
     registry.getOnRootNodeRemoved().add(cbRegistry.onRootNodeRemoved);
-    registry.getOnNameChanged().add(cbRegistry.onWsNamechanged);
+    registry.getOnNameChanged().add(cbRegistry.onWsNameChanged);
     userOpe.pushCmd(ope -> removeWorkspace(workspace, ope));
     cbRegistry.onWsAddedInvoker.invoke(new WorkspaceAddedEvent(this, workspace, userOpe));
   }
@@ -83,11 +85,12 @@ public class WorkspaceSet {
     registry.getOnNodeSelectionStateChanged().remove(cbRegistry.onNodeSelectionStateChanged);
     registry.getOnNodeCompileErrorStateUpdated().remove(cbRegistry.onNodeCompileErrStateUpdated);
     registry.getOnNodeBreakpointSet().remove(cbRegistry.onNodeBreakpointSet);
+    registry.getOnOriginalNodeChanged().remove(cbRegistry.onOriginalNodeChanged);
     registry.getOnNodeAdded().remove(cbRegistry.onNodeAdded);
     registry.getOnNodeRemoved().remove(cbRegistry.onNodeRemoved);
     registry.getOnRootNodeAdded().remove(cbRegistry.onRootNodeAdded);
     registry.getOnRootNodeRemoved().remove(cbRegistry.onRootNodeRemoved);
-    registry.getOnNameChanged().remove(cbRegistry.onWsNamechanged);
+    registry.getOnNameChanged().remove(cbRegistry.onWsNameChanged);
     userOpe.pushCmd(ope -> addWorkspace(workspace, ope));
     cbRegistry.onWsRemovedInvoker.invoke(new WorkspaceRemovedEvent(this, workspace, userOpe));
   }
@@ -99,7 +102,7 @@ public class WorkspaceSet {
         .filter(node -> node.getEventInvoker().onDeletionRequested(
             new ArrayList<>(rootNodes), CauseOfDeletion.WORKSPACE_DELETION, userOpe))
         .toList();
-    List<Swapped> swappedNodes = BhNodePlacer.deleteNodes(nodesToDelete, userOpe);
+    List<Swapped> swappedNodes = BhNodePlacer.deleteNodes(nodesToDelete, true, userOpe);
     for (var swapped : swappedNodes) {
       swapped.newNode().findParentNode().getEventInvoker().onChildReplaced(
           swapped.oldNode(),
@@ -165,88 +168,96 @@ public class WorkspaceSet {
   /** {@link WorkspaceSet} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
   public class CallbackRegistry {
 
-    /** 関連するワークスペースセット以下のノードの選択状態が変更されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースセットのノードの選択状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeSelectionEvent> onNodeSelStateChangedInvoker =
         new SimpleConsumerInvoker<>();
     
-    /** 関連するワークスペースセット以下のノードのコンパイルエラー状態が更新されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースセットのノードのコンパイルエラー状態が更新されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeCompileErrorEvent> onNodeCompileErrStateUpdatedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するワークスペースセット以下のノードのブレークポイントの状態が変更されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースセットのノードのブレークポイントの状態が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeBreakpointSetEvent>
         onNodeBreakpointSetInvoker = new SimpleConsumerInvoker<>();
 
-    /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースセットのノードのオリジナルノードが変更されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<OriginalNodeChangeEvent>
+        onOriginalNodeChangedInvoker = new SimpleConsumerInvoker<>();
+
+    /** ワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker = 
         new SimpleConsumerInvoker<>();
 
     /**
-     * 関連するワークスペースセットのワークスペースのルートノード一式に
+     * ワークスペースセットのワークスペースのルートノード一式に
      * 新しくルートノードが追加されたときのイベントハンドラを管理するオブジェクト.
      */
     private final ConsumerInvoker<RootNodeAddedEvent> onRootNodeAddedInvoker =
         new SimpleConsumerInvoker<>();
 
     /**
-     * 関連するワークスペースセットのワークスペースのルートノード一式から
+     * ワークスペースセットのワークスペースのルートノード一式から
      * ルートノードが削除されたときのイベントハンドラを管理するオブジェクト.
      */
     private final ConsumerInvoker<RootNodeRemovedEvent> onRootNodeRemovedInvoker = 
         new SimpleConsumerInvoker<>();
     
-    /** 関連するワークスペースセットにワークスペースが追加されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースセットにワークスペースが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceAddedEvent> onWsAddedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するワークスペースセットからワークスペースが削除されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースセットからワークスペースが削除されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceRemovedEvent> onWsRemovedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** 関連するワークスペースセットで操作対象のワークスペースが変わったときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースセットで操作対象のワークスペースが変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<CurrentWorkspaceChangedEvent> onCurrentWsChangedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /* 関連するワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラを管理するオブジェクト. */
+    /** ワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceNameChangedEvent> onWsNameChangedInvoker =
         new SimpleConsumerInvoker<>();
 
-    /** ノードの選択状態が変わったときのイベントハンドラ. */
+    /** ワークスペースセットのノードの選択状態が変わったときのイベントハンドラ. */
     private final Consumer<? super Workspace.NodeSelectionEvent> onNodeSelectionStateChanged =
         this::onNodeSelectionStateChanged;
 
-    /** ノードのコンパイルエラー状態が更新されたときのイベントハンドラ. */
+    /** ワークスペースセットのノードのコンパイルエラー状態が更新されたときのイベントハンドラ. */
     private final Consumer<? super Workspace.NodeCompileErrorEvent> onNodeCompileErrStateUpdated =
         this::onNodeCompileErrStateUpdated;
 
-    /** ノードのブレークポイントの状態が変わったときのイベントハンドラ. */
+    /** ワークスペースセットのノードのブレークポイントの状態が変わったときのイベントハンドラ. */
     private final Consumer<? super Workspace.NodeBreakpointSetEvent> onNodeBreakpointSet =
-        this::onNodeBreakpointSetEvent;
+        this::onNodeBreakpointSet;
 
-    /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラ. */
+    /** ワークスペースセットのノードのオリジナルノードが変わったときのイベントハンドラ. */
+    private final Consumer<? super Workspace.OriginalNodeChangeEvent> onOriginalNodeChanged =
+        this::onOriginalNodeChanged;
+
+    /** ワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラ. */
     private final Consumer<? super Workspace.NodeAddedEvent> onNodeAdded = this::onNodeAdded;
 
-    /** 関連するワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラ. */
+    /** ワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラ. */
     private final Consumer<? super Workspace.NodeRemovedEvent> onNodeRemoved = this::onNodeRemoved;
 
-    /** 関連するワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラ. */
+    /** ワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラ. */
     private final Consumer<? super Workspace.RootNodeAddedEvent> onRootNodeAdded =
         this::onRootNodeAdded;
 
-    /** 関連するワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラ. */
+    /** ワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラ. */
     private final Consumer<? super Workspace.RootNodeRemovedEvent> onRootNodeRemoved =
         this::onRootNodeRemoved;
 
-    /** 関連するワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラ. */
-    private final Consumer<? super Workspace.NameChangedEvent> onWsNamechanged =
+    /** ワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラ. */
+    private final Consumer<? super Workspace.NameChangedEvent> onWsNameChanged =
         this::onWsNameChanger;
 
     /**
-     * 関連するワークスペースセット以下のノードの選択状態が変更されたときのイベントハンドラを
+     * ワークスペースセットのノードの選択状態が変更されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<NodeSelectionEvent>.Registry getOnNodeSelectionStateChanged() {
@@ -254,7 +265,7 @@ public class WorkspaceSet {
     }
 
     /**
-     * 関連するワークスペースセット以下のノードのコンパイルエラー状態が更新されたときのイベントハンドラを
+     * ワークスペースセットのノードのコンパイルエラー状態が更新されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<NodeCompileErrorEvent>.Registry getOnNodeCompileErrStateUpdated() {
@@ -262,7 +273,7 @@ public class WorkspaceSet {
     }
 
     /**
-     * 関連するワークスペースセット以下のノードのブレークポイントの状態が変更されたときのイベントハンドラを
+     * ワークスペースセットのノードのブレークポイントの状態が変更されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<NodeBreakpointSetEvent>.Registry getOnNodeBreakpointSetEvent() {
@@ -270,7 +281,15 @@ public class WorkspaceSet {
     }
 
     /**
-     * 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを
+     * ワークスペースセットのノードのオリジナルノードが変更されたときのイベントハンドラを
+     * 登録 / 削除するためのオブジェクトを取得する.
+     */
+    public ConsumerInvoker<OriginalNodeChangeEvent>.Registry getOnOriginalNodeChanged() {
+      return onOriginalNodeChangedInvoker.getRegistry();
+    }
+
+    /**
+     * ワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<NodeAddedEvent>.Registry getOnNodeAdded() {
@@ -278,7 +297,7 @@ public class WorkspaceSet {
     }
 
     /**
-     * 関連するワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを
+     * ワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<NodeRemovedEvent>.Registry getOnNodeRemoved() {
@@ -286,7 +305,7 @@ public class WorkspaceSet {
     }
 
     /**
-     * 関連するワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときの
+     * ワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときの
      * イベントハンドラのレジストリを取得する.
      */
     public ConsumerInvoker<RootNodeAddedEvent>.Registry getOnRootNodeAdded() {
@@ -294,7 +313,7 @@ public class WorkspaceSet {
     }
 
     /**
-     * 関連するワークスペースセットのワークスペースのルートノード一式からルートノードが削除されたときの
+     * ワークスペースセットのワークスペースのルートノード一式からルートノードが削除されたときの
      * イベントハンドラのレジストリを取得する.
      */
     public ConsumerInvoker<RootNodeRemovedEvent>.Registry getOnRootNodeRemoved() {
@@ -302,7 +321,7 @@ public class WorkspaceSet {
     }
 
     /**
-     * 関連するワークスペースセットにワークスペースが追加されたときのイベントハンドラを
+     * ワークスペースセットにワークスペースが追加されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<WorkspaceAddedEvent>.Registry getOnWorkspaceAdded() {
@@ -310,7 +329,7 @@ public class WorkspaceSet {
     }
 
     /**
-     * 関連するワークスペースセットからワークスペースが削除されたときのイベントハンドラを
+     * ワークスペースセットからワークスペースが削除されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */    
     public ConsumerInvoker<WorkspaceRemovedEvent>.Registry getOnWorkspaceRemoved() {
@@ -318,7 +337,7 @@ public class WorkspaceSet {
     }
 
     /**
-     * 関連するワークスペースセットで操作対象のワークスペースが変わったときのイベントハンドラを
+     * ワークスペースセットで操作対象のワークスペースが変わったときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<CurrentWorkspaceChangedEvent>.Registry getOnCurrentWorkspaceChanged() {
@@ -326,56 +345,67 @@ public class WorkspaceSet {
     }
 
     /**
-     * 関連するワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラを
+     * ワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラを
      * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<WorkspaceNameChangedEvent>.Registry getOnWorkspaceNameChanged() {
       return onWsNameChangedInvoker.getRegistry();
     }
 
-    /** ノードの選択状態に変化があったときのイベントハンドラを呼ぶ. */
+    /** ワークスペースセットのノードの選択状態に変化があったときのイベントハンドラを呼ぶ. */
     private void onNodeSelectionStateChanged(Workspace.NodeSelectionEvent event) {
       onNodeSelStateChangedInvoker.invoke(new NodeSelectionEvent(
           WorkspaceSet.this, event.ws(), event.node(), event.isSelected(), event.userOpe()));
     }
 
-    /** ノードのコンパイルエラー状態が更新されたときのイベントハンドラを呼ぶ. */
+    /** ワークスペースセットのノードのコンパイルエラー状態が更新されたときのイベントハンドラを呼ぶ. */
     private void onNodeCompileErrStateUpdated(Workspace.NodeCompileErrorEvent event) {
       onNodeCompileErrStateUpdatedInvoker.invoke(new NodeCompileErrorEvent(
           WorkspaceSet.this, event.ws(), event.node(), event.hasError(), event.userOpe()));
     }
 
-    /** ノードのブレークポイントの状態に変化があったときのイベントハンドラを呼ぶ. */
-    private void onNodeBreakpointSetEvent(Workspace.NodeBreakpointSetEvent event) {
+    /** ワークスペースセットのノードのブレークポイントの状態に変化があったときのイベントハンドラを呼ぶ. */
+    private void onNodeBreakpointSet(Workspace.NodeBreakpointSetEvent event) {
       onNodeBreakpointSetInvoker.invoke(new NodeBreakpointSetEvent(
           WorkspaceSet.this, event.ws(), event.node(), event.isBreakpointSet(), event.userOpe()));
     }
 
-    /** 関連するワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを呼ぶ. */
+    /** ワークスペースセットのノードのオリジナルノードが変更されたときのイベントハンドラを呼ぶ. */
+    private void onOriginalNodeChanged(Workspace.OriginalNodeChangeEvent event) {
+      onOriginalNodeChangedInvoker.invoke(new OriginalNodeChangeEvent(
+          WorkspaceSet.this,
+          event.ws(),
+          event.node(),
+          event.oldOriginal(),
+          event.newOriginal(),
+          event.userOpe()));
+    }
+
+    /** ワークスペースセットのワークスペースにノードが追加されたときのイベントハンドラを呼ぶ. */
     private void onNodeAdded(Workspace.NodeAddedEvent event) {
       onNodeAddedInvoker.invoke(
           new NodeAddedEvent(WorkspaceSet.this, event.ws(), event.node(), event.userOpe()));
     }
 
-    /** 関連するワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを呼ぶ. */
+    /** ワークスペースセットのワークスペースからノードが削除されたときのイベントハンドラを呼ぶ. */
     private void onNodeRemoved(Workspace.NodeRemovedEvent event) {
       onNodeRemovedInvoker.invoke(
           new NodeRemovedEvent(WorkspaceSet.this, event.ws(), event.node(), event.userOpe()));
     }
 
-    /** 関連するワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラを呼ぶ.*/
+    /** ワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラを呼ぶ.*/
     private void onRootNodeAdded(Workspace.RootNodeAddedEvent event) {
       onRootNodeAddedInvoker.invoke(
           new RootNodeAddedEvent(WorkspaceSet.this, event.ws(), event.node(), event.userOpe()));
     }
 
-    /** 関連するワークスペースセットのワークスペースのルートノード一式からルートノードが削除されたときのイベントハンドラを呼ぶ.*/
+    /** ワークスペースセットのワークスペースのルートノード一式からルートノードが削除されたときのイベントハンドラを呼ぶ.*/
     private void onRootNodeRemoved(Workspace.RootNodeRemovedEvent event) {
       onRootNodeRemovedInvoker.invoke(
           new RootNodeRemovedEvent(WorkspaceSet.this, event.ws(), event.node(), event.userOpe()));
     }
 
-    /** 関連するワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラを呼ぶ. */
+    /** ワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラを呼ぶ. */
     private void onWsNameChanger(Workspace.NameChangedEvent event) {
       onWsNameChangedInvoker.invoke(new WorkspaceNameChangedEvent(
           WorkspaceSet.this, event.ws(), event.oldName(), event.newName()));
@@ -383,7 +413,7 @@ public class WorkspaceSet {
   }
 
   /**
-   * ワークスペースセット以下のノードの選択状態が変更されたときの情報を格納したレコード.
+   * ワークスペースセットのノードの選択状態が変更されたときの情報を格納したレコード.
    *
    * @param wss {@code ws} を保持するワークスペースセット
    * @param ws {@code node} を保持するワークスペース
@@ -399,7 +429,7 @@ public class WorkspaceSet {
       UserOperation userOpe) {}
 
   /**
-   * ワークスペースセット以下のノードのコンパイルエラー状態が更新されたときの情報を格納したレコード.
+   * ワークスペースセットのノードのコンパイルエラー状態が更新されたときの情報を格納したレコード.
    *
    * @param wss {@code ws} を保持するワークスペースセット
    * @param ws {@code node} を保持するワークスペース
@@ -415,7 +445,7 @@ public class WorkspaceSet {
       UserOperation userOpe) {}
 
   /**
-   * ワークスペースセット以下のノードのブレークポイントの設定が変更されたときの情報を格納したレコード.
+   * ワークスペースセットのノードのブレークポイントの設定が変更されたときの情報を格納したレコード.
    *
    * @param wss {@code ws} を保持するワークスペースセット
    * @param ws {@code node} を保持するワークスペース
@@ -428,6 +458,24 @@ public class WorkspaceSet {
       Workspace ws,
       BhNode node,
       boolean isBreakpointSet,
+      UserOperation userOpe) {}
+
+  /**
+   * ワークスペースのノードのオリジナルノードが変更されたときの情報を格納したレコード.
+   *
+   * @param wss {@code ws} を保持するワークスペースセット
+   * @param ws {@code node} を保持するワークスペース
+   * @param node オリジナルノードが変更されたノード
+   * @param oldOriginal 変更前のオリジナルノード (nullable)
+   * @param newOriginal 変更後のオリジナルノード (nullable)
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record OriginalNodeChangeEvent(
+      WorkspaceSet wss,
+      Workspace ws,
+      BhNode node,
+      Derivative oldOriginal,
+      Derivative newOriginal,
       UserOperation userOpe) {}
 
   /**

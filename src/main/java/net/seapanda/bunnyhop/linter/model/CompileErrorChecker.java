@@ -18,11 +18,11 @@ package net.seapanda.bunnyhop.linter.model;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.Set;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.ConnectiveNode;
-import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
@@ -50,6 +50,11 @@ public class CompileErrorChecker {
     registry.getOnNodeRemoved().add(event -> startingPoints.add(event.node()));
     registry.getOnRootNodeAdded().add(event -> startingPoints.add(event.node()));
     registry.getOnRootNodeRemoved().add(event -> startingPoints.add(event.node()));
+    registry.getOnOriginalNodeChanged().add(event -> {
+      startingPoints.add(event.node());
+      Optional.ofNullable(event.newOriginal()).ifPresent(startingPoints::add);
+      Optional.ofNullable(event.oldOriginal()).ifPresent(startingPoints::add);
+    });
   }
 
   /**
@@ -59,39 +64,29 @@ public class CompileErrorChecker {
    */
   public void check(UserOperation userOpe) {
     Set<BhNode> targetNodes = collectTargetNodes();
-    for (BhNode node : targetNodes) {
-      node.checkCompileError(userOpe);
-    }
+    targetNodes.forEach(node -> node.checkCompileError(userOpe));
     startingPoints.clear();
   }
 
-  /** {@link #startingPoints} から親子関係または派生関係でたどれるノード群を取得する. */
+  /** {@link #startingPoints} のノードから親子関係または派生関係で推移的に辿れるノードを取得する. */
   private Set<BhNode> collectTargetNodes() {
     SequencedSet<BhNode> collection = new LinkedHashSet<>();
-    for (BhNode node : startingPoints) {
-      search(node, collection);
-    }
+    startingPoints.forEach(node -> search(node, collection));
     return collection;
   }
 
-  /** {@code node} から親子関係または派生関係でたどれるノードを探査して, {@code collection} に格納する. */
+  /** {@code node} から親子関係または派生関係で推移的に辿れるノードを {@code collection} に格納する. */
   private void search(BhNode node, SequencedSet<BhNode> collection) {
     if (node == null || collection.contains(node)) {
       return;
     }
     collection.add(node);
     getChildNodes(node).forEach(child -> search(child, collection));
-    search(getParentNode(node), collection);
+    search(node.findParentNode(), collection);
     search(node.getOriginal(), collection);
     if (node instanceof Derivative derivative) {
       derivative.getDerivatives().forEach(derv -> search(derv, collection));
     }
-  }
-
-  /** {@code node} の親ノードを取得する. */
-  private BhNode getParentNode(BhNode node) {
-    Connector cnctr = node.getParentConnector();
-    return (cnctr == null) ? null : cnctr.getParentNode();
   }
 
   /** {@code parent} の子ノードを取得する. */

@@ -30,7 +30,7 @@ import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
  */
 public class DerivativeCollector implements BhNodeWalker {
 
-  private Set<Derivative> derivatives = new HashSet<>();
+  private final Set<Derivative> derivatives = new HashSet<>();
 
   /**
    * 引数で指定したノード以下のオリジナルノードが持つ派生ノードを全て返す.

@@ -337,22 +337,19 @@ public class DefaultBhNodeController implements BhNodeController {
   /** ゴミ箱に入れられたノードを削除する. */
   private void deleteTrashedNode() {
     if (model.isRoot() && trashCan.isOpened()) {
+      UserOperation userOpe = ddInfo.context.userOpe();
       boolean canDelete = model.getEventInvoker().onDeletionRequested(
-          new ArrayList<>() {{
-            add(model);
-          }},
-          CauseOfDeletion.TRASH_CAN,
-          ddInfo.context.userOpe());
+          new ArrayList<>() {{ add(model); }}, CauseOfDeletion.TRASH_CAN, userOpe);
       if (!canDelete) {
         return;
       }
-      SequencedSet<Swapped> swappedNodes = BhNodePlacer.deleteNode(model, ddInfo.context.userOpe());
+      SequencedSet<Swapped> swappedNodes = BhNodePlacer.deleteNode(model, true, userOpe);
       for (Swapped swapped : swappedNodes) {
         swapped.newNode().findParentNode().getEventInvoker().onChildReplaced(
             swapped.oldNode(),
             swapped.newNode(),
             swapped.newNode().getParentConnector(),
-            ddInfo.context.userOpe());
+            userOpe);
       }
     }
   }
@@ -488,7 +485,7 @@ public class DefaultBhNodeController implements BhNodeController {
 
   /** {@link MouseEvent} オブジェクトの情報を {@link UiEvent} オブジェクトに格納して返す. */
   private UiEvent toEventInfo(MouseEvent event, boolean isDndTarget) {
-    UiEventType eventType = null;
+    UiEventType eventType;
     if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
       eventType = UiEventType.MOUSE_PRESSED;
     } else if (event.getEventType() == MouseEvent.DRAG_DETECTED) {

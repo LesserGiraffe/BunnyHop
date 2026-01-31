@@ -9,7 +9,7 @@
       "subGroup0" : {
         "space" : 1.1,
         "arrangement" : "Row",
-        "connectorList" : ["${L2}{処理待ちタイマー}", "SyncTimerName"]
+        "connectorList" : ["${L2}{同期タイマー}", "SyncTimerName"]
       },
       "subGroup1" : {
         "space" : 1.1,

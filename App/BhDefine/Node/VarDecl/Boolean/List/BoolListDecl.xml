@@ -7,7 +7,7 @@
   onCompanionNodesCreating="CreateListDeclCompanions.js"
   onMovedFromChildToWS="OnVarDeclMovedToWS.js"
   onMovedFromWsToChild="OnVarDeclMovedToChild.js"
-  onDeletionRequested="OnDeletionRequested.js"
+  onDeletionRequested="OnStatOrDeclDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
   onRelatedNodesRequired="GetDerivationFamily.js"
@@ -16,7 +16,7 @@
   onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
   version="bhn-0.1.0">
 
-  <Derivation derivationID="dervIdIdentifierName" derivativeID="idBoolList"/>
+  <Derivation derivationID="dervIdVar" derivativeID="idBoolList"/>
   <Derivation derivationID="dervIdVarDeclToArg" derivativeID="idBoolListArg"/>
   <Derivation derivationID="dervIdVarDeclToOutArg" derivativeID="idBoolListOutArg"/>
 

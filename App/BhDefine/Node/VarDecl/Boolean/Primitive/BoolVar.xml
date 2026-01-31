@@ -4,9 +4,10 @@
   name="BoolVar"
   nodeStyleID="BoolVar.json"
   breakpoint="ignore"
-  onCompileErrorChecking="CheckCompileErrorOfVariable.js"
   onRelatedNodesRequired="GetDerivationFamily.js"
   onJumpTargetRequired="GetOriginalNode.js"
+  onCompileErrorChecking="CheckCompileErrorOfVariable.js"
+  onDeletionRequested="CancelDeletionIfNotTemplate.js"
   onAliasAsked="OnAliasAsked.js"
   onUserDefinedNameAsked="OnUserDefinedNameAsked.js"
   version="bhn-0.1.0">
