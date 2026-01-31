@@ -21,8 +21,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.derivative.Derivative;
-import net.seapanda.bunnyhop.node.model.derivative.DerivativeBase;
 
 /**
  * オリジナルノードと派生ノードの対応を保持するクラス.
@@ -32,7 +32,7 @@ import net.seapanda.bunnyhop.node.model.derivative.DerivativeBase;
 public class DerivativeCache {
   
   /** インスタンス ID と派生ノードのマップ. */
-  private final Map<Derivative, Set<Derivative>> orgToDerivatives = new HashMap<>();
+  private final Map<BhNode, Set<BhNode>> orgToDerivatives = new HashMap<>();
 
   /**
    * {@code derivative} で指定した派生ノードをキャッシュに格納する.
@@ -42,29 +42,30 @@ public class DerivativeCache {
    * {@code derivative} が派生ノードでなかった場合, 何もしない.
    * </p>
    */
-  public void put(Derivative derivative) {
-    if (derivative.getLastOriginal() instanceof Derivative derv) {
-      orgToDerivatives.putIfAbsent(derv, new HashSet<>());
-      orgToDerivatives.get(derv).add(derivative);
+  public void put(BhNode derivative) {
+    BhNode lastOriginal = derivative.getLastOriginal();
+    if (lastOriginal != null) {
+      orgToDerivatives.putIfAbsent(lastOriginal, new HashSet<>());
+      orgToDerivatives.get(lastOriginal).add(derivative);
     }
   }
 
   /** {@code original} の派生ノードとして格納されたノード一式を取得する.*/
-  public Set<Derivative> get(Derivative original) {
+  public Set<BhNode> get(BhNode original) {
     return new HashSet<>(orgToDerivatives.getOrDefault(original, new HashSet<>()));
   }
 
   /** {@code original} の派生ノードとして格納されたノード一式を取得する.*/
   @SuppressWarnings("unchecked")
-  public <T extends DerivativeBase<T>> Set<T> get(T original) {
+  public <T extends Derivative<T>> Set<T> get(T original) {
     return new HashSet<>(orgToDerivatives.getOrDefault(original, new HashSet<>())).stream()
         .map(derv -> (T) derv)
         .collect(Collectors.toCollection(HashSet::new));
   }
 
   /** {@code derivative} で指定した派生ノードをキャッシュから削除する. */
-  public void remove(Derivative derivative) {
-    for (Set<Derivative> dervs : orgToDerivatives.values()) {
+  public void remove(BhNode derivative) {
+    for (Set<BhNode> dervs : orgToDerivatives.values()) {
       dervs.remove(derivative);
     }
   }

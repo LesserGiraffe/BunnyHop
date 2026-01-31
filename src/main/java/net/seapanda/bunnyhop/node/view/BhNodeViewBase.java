@@ -46,7 +46,7 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.control.BhNodeController;
 import net.seapanda.bunnyhop.node.control.TemplateNodeController;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.derivative.DerivativeBase;
+import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeType;
 import net.seapanda.bunnyhop.node.view.component.PlayIcon;
 import net.seapanda.bunnyhop.node.view.component.Star;
@@ -138,7 +138,7 @@ public abstract class BhNodeViewBase implements BhNodeView {
    * @param components このノードビューの子要素に追加するコンポーネントのリスト
    */
   protected BhNodeViewBase(
-      BhNodeViewStyle style, DerivativeBase<?> model, SequencedSet<Node> components)
+      BhNodeViewStyle style, Derivative<?> model, SequencedSet<Node> components)
       throws ViewConstructionException {
     this.style = style;
     this.model = model;

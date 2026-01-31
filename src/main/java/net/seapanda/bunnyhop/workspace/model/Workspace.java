@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.function.Consumer;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
@@ -514,8 +513,8 @@ public class Workspace implements Serializable {
   public record OriginalNodeChangeEvent(
       Workspace ws,
       BhNode node,
-      Derivative oldOriginal,
-      Derivative newOriginal,
+      BhNode oldOriginal,
+      BhNode newOriginal,
       UserOperation userOpe) {}
 
   /**

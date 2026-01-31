@@ -133,9 +133,9 @@ public class DerivativeDisplacer implements BhNodeWalker {
    * @param joint この ID を指定されたコネクタが {@code parent} の下にあった場合, そのコネクタに接続されたノードを返す
    * @return 入れ替えもしくは削除対象になるノード. 見つからなかった場合 Optional.empty を返す.
    */
-  private Optional<Derivative> findNodeToReplace(
+  private Optional<BhNode> findNodeToReplace(
       ConnectiveNode parent, DerivativeJointId joint) {
-    Derivative connectedNode = DerivativeFinder.find(parent, joint);
+    BhNode connectedNode = DerivativeFinder.find(parent, joint);
     if (connectedNode == null) {
       return Optional.empty();
     }
@@ -155,7 +155,7 @@ public class DerivativeDisplacer implements BhNodeWalker {
    *                   そこに繋がる子ノードを入れ替えの対象とする.
    */
   private void replaceChildren(
-      Collection<ConnectiveNode> parents, Derivative original, DerivativeJointId joint) {
+      Collection<ConnectiveNode> parents, BhNode original, DerivativeJointId joint) {
     for (ConnectiveNode parent : parents) {
       findNodeToReplace(parent, joint).ifPresent(
           toBeReplaced -> replaceChild(toBeReplaced, original));
@@ -168,8 +168,8 @@ public class DerivativeDisplacer implements BhNodeWalker {
    * @param toBeReplaced 入れ替えられるノード
    * @param original このノードの派生ノードで {@code toBeReplaced} を置き換える
    */
-  private void replaceChild(Derivative toBeReplaced, Derivative original) {
-    Derivative newDerv = findOrCreateDerivative(toBeReplaced, original, userOpe);
+  private void replaceChild(BhNode toBeReplaced, BhNode original) {
+    BhNode newDerv = findOrCreateDerivative(toBeReplaced, original, userOpe);
     swappedNodes.addAll(toBeReplaced.replace(newDerv, userOpe));
     cache.put(toBeReplaced);
   }
@@ -196,11 +196,11 @@ public class DerivativeDisplacer implements BhNodeWalker {
    * @param userOpe undo 用コマンドオブジェクト
    * @return {@code toReplace} と入れ替えるための派生ノード
    */
-  private Derivative findOrCreateDerivative(
-      BhNode toBeReplaced, Derivative original, UserOperation userOpe) {
+  private BhNode findOrCreateDerivative(
+      BhNode toBeReplaced, BhNode original, UserOperation userOpe) {
     DerivationId derivationId = original.findDerivationIdUp();
     BhNodeId derivativeNodeId = original.getDerivativeIdOf(derivationId);
-    for (Derivative derivative : cache.get(original)) {
+    for (BhNode derivative : cache.get(original)) {
       if (derivative.getLastOriginal() == original
           && derivative.getId().equals(derivativeNodeId)
           && toBeReplaced.isLinealWith(derivative.getLastReplaced())

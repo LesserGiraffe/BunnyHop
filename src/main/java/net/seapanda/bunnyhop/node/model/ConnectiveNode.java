@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.node.model;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.node.model.derivative.DerivativeBase;
+import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeReplacer;
 import net.seapanda.bunnyhop.node.model.event.NodeEventInvoker;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
@@ -37,7 +37,7 @@ import net.seapanda.bunnyhop.service.undo.UserOperation;
  *
  * @author K.Koike
  */
-public class ConnectiveNode extends DerivativeBase<ConnectiveNode> {
+public class ConnectiveNode extends Derivative<ConnectiveNode> {
 
   private Section childSection;
   /** このノードに登録されたイベントハンドラを管理するオブジェクト. */

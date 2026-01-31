@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.node.model;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.node.model.derivative.DerivativeBase;
+import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeReplacer;
 import net.seapanda.bunnyhop.node.model.event.NodeEventInvoker;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
@@ -37,7 +37,7 @@ import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
  *
  * @author K.Koike
  */
-public class TextNode extends DerivativeBase<TextNode> {
+public class TextNode extends Derivative<TextNode> {
 
   private String text = "";
   /** このノードに登録されたイベントハンドラを管理するオブジェクト. */
@@ -214,7 +214,7 @@ public class TextNode extends DerivativeBase<TextNode> {
   }
 
   /** {@link TextNode} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
-  public class CallbackRegistry extends DerivativeBase<TextNode>.CallbackRegistry {
+  public class CallbackRegistry extends Derivative<TextNode>.CallbackRegistry {
 
     /** 関連するノードのテキストが変更されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<TextChangedEvent> onTextChangedInvoker =

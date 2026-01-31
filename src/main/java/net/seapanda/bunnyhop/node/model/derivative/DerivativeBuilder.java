@@ -33,10 +33,10 @@ import net.seapanda.bunnyhop.service.undo.UserOperation;
 public class DerivativeBuilder implements BhNodeWalker {
 
   /** 現在処理中の {@link BhNode} の親がトップにくるスタック. */
-  private final Deque<Derivative> parentStack = new LinkedList<>();
+  private final Deque<BhNode> parentStack = new LinkedList<>();
   /** undo 用コマンドオブジェクト. */
   UserOperation userOpe;
-  private DerivationId derivationId = DerivationId.NONE;
+  private DerivationId derivationId;
 
   /**
    * {@code node} の {@code derivationId} に対応する派生ノードを作成する.
@@ -46,8 +46,7 @@ public class DerivativeBuilder implements BhNodeWalker {
    * @param userOpe undo 用コマンドオブジェクト
    * @return 作成した派生ノードツリーのトップノード
    */
-  public static Derivative build(
-      Derivative node, DerivationId derivationId, UserOperation userOpe) {
+  public static BhNode build(BhNode node, DerivationId derivationId, UserOperation userOpe) {
     var builder = new DerivativeBuilder(derivationId, userOpe);
     node.accept(builder);
     return builder.parentStack.peekLast();
@@ -63,7 +62,7 @@ public class DerivativeBuilder implements BhNodeWalker {
    */
   @Override
   public void visit(ConnectiveNode node) {
-    DerivationId dervId = DerivationId.NONE;
+    DerivationId dervId;
     if (!derivationId.equals(DerivationId.NONE)) {
       dervId = derivationId;
       derivationId = DerivationId.NONE;
@@ -79,7 +78,7 @@ public class DerivativeBuilder implements BhNodeWalker {
       parentStack.addLast(newDerivation);
       node.sendToSections(this);
     } else {
-      Derivative parent = parentStack.peekLast();
+      BhNode parent = parentStack.peekLast();
       //接続先を探す
       BhNode toBeReplaced =
           DerivativeFinder.find(parent, node.getParentConnector().getDerivativeJoint());
@@ -95,7 +94,7 @@ public class DerivativeBuilder implements BhNodeWalker {
 
   @Override
   public void visit(TextNode node) {
-    DerivationId dervId = DerivationId.NONE;
+    DerivationId dervId;
     if (!derivationId.equals(DerivationId.NONE)) {
       dervId = derivationId;
       derivationId = DerivationId.NONE;
@@ -110,7 +109,7 @@ public class DerivativeBuilder implements BhNodeWalker {
       TextNode newDerivation = node.createDerivative(dervId, userOpe);
       parentStack.addLast(newDerivation);
     } else {
-      Derivative parent = parentStack.peekLast();
+      BhNode parent = parentStack.peekLast();
       //接続先を探す
       BhNode toBeReplaced =
           DerivativeFinder.find(parent, node.getParentConnector().getDerivativeJoint());

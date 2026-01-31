@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.SequencedSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeReplacer;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.model.event.NodeEventInvoker;
@@ -125,6 +125,41 @@ public abstract class BhNode extends SyntaxSymbol {
    *         このノードが一度も派生ノードになったことがない場合 null.
    */
   public abstract BhNode getLastOriginal();
+
+  /**
+   * このノードが派生ノードであった場合 true を返す.
+   *
+   * @return 派生ノードであった場合true を返す
+   */
+  public abstract boolean isDerivative();
+
+  /**
+   * このノードが派生ノードを 1 つ以上持つ場合 true を返す.
+   */
+  public abstract boolean hasDerivatives();
+
+  /**
+   * 引数で指定した派生先 ID に対応する派生ノード ID がある場合 true を返す.
+   *
+   * @param derivationId この派生先 ID に対応する派生ノード ID があるか調べる
+   * @return 派生ノード ID が指定してある場合 true
+   */
+  public abstract boolean hasDerivativeOf(DerivationId derivationId);
+
+  /**
+   * {@code derivationId} で指定した派生先 ID に対応する派生ノード ID を返す.
+   *
+   * @param derivationId この派生先 ID に対応する派生ノード ID を返す
+   * @return 引数で指定したコネクタ名に対応する派生ノード ID
+   */
+  public abstract BhNodeId getDerivativeIdOf(DerivationId derivationId);
+
+  /**
+   * このノードが持つ派生ノードリストを取得する.
+   *
+   * @return 派生ノードのセット. 派生ノードが存在し場合は空のセット.
+   */
+  public abstract Set<? extends BhNode> getDerivatives();
 
   /**
    * 外部ノードを取得する. 指定した世代にあたる外部ノードがなかった場合, nullを返す.
@@ -593,12 +628,12 @@ public abstract class BhNode extends SyntaxSymbol {
   }
 
   /**
-   * このノードの先祖コネクタの中に, DerivationId.NONE 以外の派生先 ID (派生ノードを特定するための ID) があればそれを返す.
-   * なければ, DerivationId.NONE を返す.
+   * このノードの先祖コネクタの中に, {@link DerivationId#NONE} 以外の派生先 ID (派生ノードを特定するための ID) があればそれを返す.
+   * なければ, {@link DerivationId#NONE} を返す.
    */
   public DerivationId findDerivationIdUp() {
     if (getParentConnector() == null) {
-      return null;
+      return DerivationId.NONE;
     }
     return getParentConnector().findDerivationIdUp();
   }
@@ -860,7 +895,7 @@ public abstract class BhNode extends SyntaxSymbol {
    * @param userOpe undo 用コマンドオブジェクト
    */
   public record OriginalNodeChangeEvent(
-      Derivative node, Derivative oldOriginal, Derivative newOriginal, UserOperation userOpe) {}
+      BhNode node, BhNode oldOriginal, BhNode newOriginal, UserOperation userOpe) {}
 
   /** 特定のノードのイベントハンドラを呼び出す機能を提供するクラス. */
   public class EventInvoker {

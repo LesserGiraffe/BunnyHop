@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
-import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeCollector;
 import net.seapanda.bunnyhop.node.model.derivative.DerivativeUnlinker;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
@@ -95,8 +94,8 @@ public class BhNodePlacer {
     if (node.isDeleted()) {
       return new LinkedHashSet<>();
     }
-    Set<Derivative> derivatives = DerivativeCollector.collect(node);
-    Set<Derivative> dervsToDelete = derivatives;
+    Set<BhNode> derivatives = DerivativeCollector.collect(node);
+    Set<BhNode> dervsToDelete = derivatives;
     if (invokeDerivativeDeletionEvent) {
       // 派生ノードを退避する場合などを考慮して node をワークスペースから削除する前に呼ぶ
       dervsToDelete = selectDeletableDerivatives(node, derivatives, userOpe);
@@ -117,11 +116,11 @@ public class BhNodePlacer {
    * @param userOpe undo 用コマンドオブジェクト
    * @return 削除が許可された派生ノードのセット
    */
-  private static Set<Derivative> selectDeletableDerivatives(
-      BhNode node, Set<Derivative> derivatives, UserOperation userOpe) {
+  private static Set<BhNode> selectDeletableDerivatives(
+      BhNode node, Set<BhNode> derivatives, UserOperation userOpe) {
     return derivatives.stream()
         .filter(derv -> derv.getEventInvoker().onDeletionRequested(
-            new ArrayList<BhNode>(derivatives) {{ add(node); }},
+            new ArrayList<>(derivatives) {{ add(node); }},
             CauseOfDeletion.ORIGINAL_DELETED,
             userOpe))
         .collect(Collectors.toSet());

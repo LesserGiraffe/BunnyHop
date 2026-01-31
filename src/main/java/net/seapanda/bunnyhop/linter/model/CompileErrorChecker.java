@@ -22,7 +22,6 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
@@ -99,7 +98,7 @@ public class CompileErrorChecker {
   private static BhNode findRootNode(BhNode node, Set<BhNode> collection) {
     while (!node.isRoot()) {
       node = node.findParentNode();
-      collection.remove(node);
+      collection.remove(node); // 余分な走査を省略する
     }
     return node;
   }
@@ -119,8 +118,8 @@ public class CompileErrorChecker {
     var targets = new LinkedHashSet<>(nodes);
     while (!targets.isEmpty()) {
       BhNode target = targets.removeFirst();
-      if (!target.isDeleted() && target instanceof Derivative derv) {
-        BhNode node = findRootOriginal(derv, targets);
+      if (!target.isDeleted()) {
+        BhNode node = findRootOriginal(target, targets);
         rootOriginals.add(node);
       }
     }
@@ -128,20 +127,20 @@ public class CompileErrorChecker {
   }
 
   /** {@code nodes} から推移的に辿れる最後のオリジナルノードを探し, 途中のノードを {@code collection} から除外する. */
-  private static BhNode findRootOriginal(Derivative derivative, Set<BhNode> collection) {
-    while (derivative.isDerivative()) {
-      derivative = (Derivative) derivative.getOriginal();
-      collection.remove(derivative);
+  private static BhNode findRootOriginal(BhNode nodes, Set<BhNode> collection) {
+    while (nodes.isDerivative()) {
+      nodes = nodes.getOriginal();
+      collection.remove(nodes); // 余分な走査を省略する
     }
-    return derivative;
+    return nodes;
   }
 
   /** {@code node} と {@code node} から推移的に辿れる派生ノードを {@code collection} に格納する. */
   private static void collectDerivatives(BhNode node, Set<BhNode> collection) {
-    if (!(node instanceof Derivative derivative) || derivative.isDeleted()) {
+    if (node == null || node.isDeleted()) {
       return;
     }
     collection.add(node);
-    derivative.getDerivatives().forEach(derv -> collectDerivatives(derv, collection));
+    node.getDerivatives().forEach(derv -> collectDerivatives(derv, collection));
   }
 }

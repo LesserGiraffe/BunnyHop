@@ -23,7 +23,6 @@ import java.util.SequencedSet;
 import java.util.function.Consumer;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
-import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -474,8 +473,8 @@ public class WorkspaceSet {
       WorkspaceSet wss,
       Workspace ws,
       BhNode node,
-      Derivative oldOriginal,
-      Derivative newOriginal,
+      BhNode oldOriginal,
+      BhNode newOriginal,
       UserOperation userOpe) {}
 
   /**

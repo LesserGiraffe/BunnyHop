@@ -25,16 +25,16 @@ import net.seapanda.bunnyhop.node.model.section.Subsection;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 
 /**
- * 派生ノード接続位置を指定し, そこに接続されている {@link Derivative} を見つけるクラス.
+ * 派生ノードの接続位置を指定し, そこに接続されている {@link BhNode} を見つけるクラス.
  *
  * @author K.Koike
  */
 public class DerivativeFinder implements BhNodeWalker {
 
   /** 見つかったノード. */
-  private Derivative foundNode;
+  private BhNode foundNode;
   /** この ID を持つコネクタに接続されている {@link BhNode} を探す. */
-  private DerivativeJointId joint;
+  private final DerivativeJointId joint;
   private boolean found = false;
 
   /**
@@ -44,7 +44,7 @@ public class DerivativeFinder implements BhNodeWalker {
    * @param joint 派生ノード接続位置.
    * @return 見つかったノード. 見つからなかった場合は null.
    */
-  public static Derivative find(BhNode node, DerivativeJointId joint) {
+  public static BhNode find(BhNode node, DerivativeJointId joint) {
     var finder = new DerivativeFinder(joint);
     node.accept(finder);
     return finder.foundNode;
@@ -53,7 +53,7 @@ public class DerivativeFinder implements BhNodeWalker {
   /**
    * コンストラクタ.
    *
-   * @param joint この派生ノード接続位置を持つコネクタに接続されている {@link Derivative} を見つける
+   * @param joint この派生ノード接続位置を持つコネクタに接続されている {@link BhNode} を見つける
    */
   private DerivativeFinder(DerivativeJointId joint) {
     this.joint = joint;
@@ -86,8 +86,9 @@ public class DerivativeFinder implements BhNodeWalker {
       return;
     }
     if (connector.getDerivativeJoint().equals(joint)) {
-      if (connector.getConnectedNode() instanceof Derivative derv) {
-        foundNode = derv;
+      BhNode connected = connector.getConnectedNode();
+      if (connected != null) {
+        foundNode = connected;
         found = true;
       }
     }
