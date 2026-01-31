@@ -16,16 +16,14 @@
 
 package net.seapanda.bunnyhop.linter.model;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Optional;
-import java.util.SequencedSet;
 import java.util.Set;
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.ConnectiveNode;
-import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.derivative.Derivative;
-import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
+import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
@@ -70,46 +68,80 @@ public class CompileErrorChecker {
 
   /** {@link #startingPoints} のノードから親子関係または派生関係で推移的に辿れるノードを取得する. */
   private Set<BhNode> collectTargetNodes() {
-    SequencedSet<BhNode> collection = new LinkedHashSet<>();
-    startingPoints.forEach(node -> search(node, collection));
-    return collection;
+    var liveStartingPoints = startingPoints.stream().filter(node -> !node.isDeleted()).toList();
+    Set<BhNode> rootNodes = collectRootNodes(liveStartingPoints);
+    var descendants = new HashSet<BhNode>();
+    rootNodes.forEach(node -> collectDescendants(node, descendants));
+
+    Set<BhNode> rootOriginals = collectRootOriginals(descendants);
+    var derivatives = new HashSet<BhNode>();
+    rootOriginals.forEach(node -> collectDerivatives(node, derivatives));
+    
+    descendants.addAll(derivatives);
+    return descendants;
   }
 
-  /** {@code node} から親子関係または派生関係で推移的に辿れるノードを {@code collection} に格納する. */
-  private void search(BhNode node, SequencedSet<BhNode> collection) {
-    if (node == null || collection.contains(node)) {
+  /** {@code nodes} のルートノードを全て集める. */
+  private static Set<BhNode> collectRootNodes(Collection<BhNode> nodes) {
+    var rootNodes = new HashSet<BhNode>();
+    var targets = new LinkedHashSet<>(nodes);
+    while (!targets.isEmpty()) {
+      BhNode target = targets.removeFirst();
+      if (!target.isDeleted()) {
+        BhNode root = findRootNode(target, targets);
+        rootNodes.add(root);
+      }
+    }
+    return rootNodes;
+  }
+
+  /** {@code node} のルートノードを探し, 途中のノードを {@code collection} から除外する. */
+  private static BhNode findRootNode(BhNode node, Set<BhNode> collection) {
+    while (!node.isRoot()) {
+      node = node.findParentNode();
+      collection.remove(node);
+    }
+    return node;
+  }
+
+  /** {@code node} とその子孫ノードを {@code collection} に格納する. */
+  private static void collectDescendants(BhNode node, Set<BhNode> collection) {
+    if (node == null || node.isDeleted()) {
+      return;
+    }
+    var callBack = CallbackInvoker.newCallbackRegistry().setForAllNodes(collection::add);
+    CallbackInvoker.invoke(callBack, node);
+  }
+
+  /** {@code nodes} から推移的に辿れる最後のオリジナルノードを全て集める. */
+  private static Set<BhNode> collectRootOriginals(Collection<BhNode> nodes) {
+    var rootOriginals = new HashSet<BhNode>();
+    var targets = new LinkedHashSet<>(nodes);
+    while (!targets.isEmpty()) {
+      BhNode target = targets.removeFirst();
+      if (!target.isDeleted() && target instanceof Derivative derv) {
+        BhNode node = findRootOriginal(derv, targets);
+        rootOriginals.add(node);
+      }
+    }
+    return rootOriginals;
+  }
+
+  /** {@code nodes} から推移的に辿れる最後のオリジナルノードを探し, 途中のノードを {@code collection} から除外する. */
+  private static BhNode findRootOriginal(Derivative derivative, Set<BhNode> collection) {
+    while (derivative.isDerivative()) {
+      derivative = (Derivative) derivative.getOriginal();
+      collection.remove(derivative);
+    }
+    return derivative;
+  }
+
+  /** {@code node} と {@code node} から推移的に辿れる派生ノードを {@code collection} に格納する. */
+  private static void collectDerivatives(BhNode node, Set<BhNode> collection) {
+    if (!(node instanceof Derivative derivative) || derivative.isDeleted()) {
       return;
     }
     collection.add(node);
-    getChildNodes(node).forEach(child -> search(child, collection));
-    search(node.findParentNode(), collection);
-    search(node.getOriginal(), collection);
-    if (node instanceof Derivative derivative) {
-      derivative.getDerivatives().forEach(derv -> search(derv, collection));
-    }
-  }
-
-  /** {@code parent} の子ノードを取得する. */
-  private Set<BhNode> getChildNodes(BhNode parent) {
-    var children = new LinkedHashSet<BhNode>();
-    var walker = new BhNodeWalker() {
-      @Override
-      public void visit(ConnectiveNode node) {
-        if (node == parent) {
-          node.sendToSections(this);
-        } else {
-          children.add(node);
-        }
-      }
-    
-      @Override
-      public void visit(TextNode node) {
-        if (node != parent) {
-          children.add(node);
-        }
-      }
-    };
-    parent.accept(walker);
-    return children;
+    derivative.getDerivatives().forEach(derv -> collectDerivatives(derv, collection));
   }
 }

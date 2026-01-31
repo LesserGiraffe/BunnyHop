@@ -122,7 +122,7 @@ public class CallbackInvoker implements BhNodeWalker {
       return this;
     }
 
-    /** 全 SyntaxSymbol に対して呼ぶコールバック関数を登録する. */
+    /** 全 {@link SyntaxSymbol} に対して呼ぶコールバック関数を登録する. */
     public CallbackRegistry setForAllSyntaxSymbols(Consumer<? super SyntaxSymbol> callback) {
       allSymbols = true;
       callBackForAllSymbols = callback;
