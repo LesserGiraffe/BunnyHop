@@ -1,3 +1,3 @@
 (function() {
-  return bhCommon.isPrimitiveTypeExp(bhNodeToConnect);
+  return bhUtil.isPrimitiveTypeExp(bhNodeToConnect);
 })();

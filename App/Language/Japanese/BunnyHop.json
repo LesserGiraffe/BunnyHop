@@ -254,7 +254,7 @@
     "compile": {
       "inform-compile-error": {
         "title": "コンパイルエラー",
-        "body": "コンパイルエラーノードがあります.\n削除してから実行してください."
+        "body": "コンパイルエラーが発生しています.\n修正してから実行してください."
       },
       "inform-failed-to-write": {
         "title": "ファイル書き込みエラー"
@@ -658,7 +658,7 @@
       "MeasureSoundPressureExp${peak}": "音量のピーク値を測定する",
       "MeasureSoundPressureExp${average}": "音量の平均値を計算する",
 
-      "BoolEmptyList": "空の真偽値リスト",
+      "BoolListExpVoid": "空の真偽値リスト",
       "BoolList": "真偽値リスト (${name})",
       "BoolListArg": "真偽値リストの入力ポート (${name})",
       "BoolListOutArg": "真偽値リストの出力ポート (${name})",
@@ -667,7 +667,7 @@
       "BoolVar": "真偽値変数 (${name})",
       "BoolArg": "真偽値の入力ポート (${name})",
       "BoolVarDecl": "真偽値変数の定義 (${name})",
-      "ColorEmptyList": "空の色リスト",
+      "ColorListExpVoid": "空の色リスト",
       "ColorList": "色リスト (${name})",
       "ColorListArg": "色リストの入力ポート (${name})",
       "ColorListOutArg": "色リストの出力ポート (${name})",
@@ -676,7 +676,7 @@
       "ColorVar": "色変数 (${name})",
       "ColorArg": "色の入力ポート (${name})",
       "ColorVarDecl": "色変数の定義 (${name})",
-      "NumEmptyList": "空の数値リスト",
+      "NumListExpVoid": "空の数値リスト",
       "NumList": "数値リスト (${name})",
       "NumListArg": "数値リストの入力ポート (${name})",
       "NumListOutArg": "数値リストの出力ポート (${name})",
@@ -685,7 +685,7 @@
       "NumVar": "数値変数 (${name})",
       "NumArg": "数値の入力ポート (${name})",
       "NumVarDecl": "数値変数の定義 (${name})",
-      "SoundEmptyList": "空の音リスト",
+      "SoundListExpVoid": "空の音リスト",
       "SoundList": "音リスト (${name})",
       "SoundListArg": "音リストの入力ポート (${name})",
       "SoundListOutArg": "音リストの出力ポート (${name})",
@@ -694,7 +694,7 @@
       "SoundVar": "音変数 (${name})",
       "SoundArg": "音の入力ポート (${name})",
       "SoundVarDecl": "音変数の定義 (${name})",
-      "StrEmptyList": "空の文字列リスト",
+      "StrListExpVoid": "空の文字列リスト",
       "StrList": "文字列リスト (${name})",
       "StrListArg": "文字列リストの入力ポート (${name})",
       "StrListOutArg": "文字列リストの出力ポート (${name})",
@@ -712,7 +712,8 @@
       "mutex-not-declared": "排他区間が宣言されていません",
       "sync-timer-not-declared": "同期タイマーが宣言されていません",
       "semaphore-not-declared": "チケットボックスが宣言されていません",
-      "function-not-defined": "関数の定義がありません"
+      "function-not-defined": "関数の定義がありません",
+      "argument-not-specified": "引数が指定されていません"
     },
     "list-label": "[...]"
   },

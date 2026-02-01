@@ -6,8 +6,8 @@
       && bhUiEvent.isDragAndDropTarget
       && bhUiEvent.isPrimaryButtonPressed
       && bhUiEvent.nodeManipMode.isMode1()) {
-    bhCommon.moveNodeToAncestor(
-        bhCommon.findOuterNotSelected(bhThis), bhThis, [], ['VarDeclVoid'], bhUserOpe);
+    bhUtil.moveNodeToAncestor(
+        bhUtil.findOuterNotSelected(bhThis), bhThis, [], ['VarDeclVoid'], bhUserOpe);
     return;
   }
 
@@ -17,6 +17,6 @@
       && bhUiEvent.clickCount === 2
       && bhUiEvent.nodeManipMode.isMode0()) {
     // ダブルクリックしたとき, 外部末尾ノードまで選択する.
-    bhCommon.selectToOutermost(bhThis, ['VarDeclVoid'], bhUserOpe);
+    bhUtil.selectToOutermost(bhThis, ['VarDeclVoid'], bhUserOpe);
   }
 })();

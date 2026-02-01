@@ -1,22 +1,22 @@
 <Node
   type="connective"
-  bhNodeID="idSoundEmptyList"
-  name="SoundEmptyList"
-  nodeStyleID="SoundEmptyList.json"
+  bhNodeID="idBoolListExpVoid"
+  name="BoolListExpVoid"
+  nodeStyleID="BoolListExpVoid.json"
   breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <!-- SoundList と共通のセクションを持たせる -->
-  <ConnectorSection name="SoundListExp">
+  <!-- BoolList と共通のセクションを持たせる -->
+  <ConnectorSection name="BoolListExp">
     <Connector
-      bhConnectorID="idSoundEmptyList.cnctr0"
+      bhConnectorID="idBoolListExpVoid.cnctr0"
       name="ListName"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idSoundEmptyList.node0"
+        bhNodeID="idBoolListExpVoid.node0"
         name="ListName"
         breakpoint="ignore"
         text="${node}{nameless-list}{text}"

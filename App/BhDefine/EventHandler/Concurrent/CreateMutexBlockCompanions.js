@@ -1,4 +1,4 @@
 (function() {
-  let derivative = bhCommon.buildDerivative(bhThis, 'dervIdMutexBlockStat', bhUserOpe);
+  let derivative = bhUtil.buildDerivative(bhThis, 'dervIdMutexBlockStat', bhUserOpe);
   return [derivative];
 })();

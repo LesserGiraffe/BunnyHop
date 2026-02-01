@@ -37,7 +37,6 @@ public class SymbolNames {
     public static final String NUM_VAR_VOID = "NumVarVoid";
     public static final String NUM_LIST_DECL = "NumListDecl";
     public static final String NUM_LIST = "NumList";
-    public static final String NUM_EMPTY_LIST = "NumEmptyList";
     public static final String NUM_LIST_VOID = "NumListVoid";
 
     public static final String STR_VAR_DECL = "StrVarDecl";
@@ -45,7 +44,6 @@ public class SymbolNames {
     public static final String STR_VAR_VOID = "StrVarVoid";
     public static final String STR_LIST_DECL = "StrListDecl";
     public static final String STR_LIST = "StrList";
-    public static final String STR_EMPTY_LIST = "StrEmptyList";
     public static final String STR_LIST_VOID = "StrListVoid";
 
     public static final String BOOL_VAR_DECL = "BoolVarDecl";
@@ -53,7 +51,6 @@ public class SymbolNames {
     public static final String BOOL_VAR_VOID = "BoolVarVoid";
     public static final String BOOL_LIST_DECL = "BoolListDecl";
     public static final String BOOL_LIST = "BoolList";
-    public static final String BOOL_EMPTY_LIST = "BoolEmptyList";
     public static final String BOOL_LIST_VOID = "BoolListVoid";
 
     public static final String COLOR_VAR_DECL = "ColorVarDecl";
@@ -61,7 +58,6 @@ public class SymbolNames {
     public static final String COLOR_VAR_VOID = "ColorVarVoid";
     public static final String COLOR_LIST_DECL = "ColorListDecl";
     public static final String COLOR_LIST = "ColorList";
-    public static final String COLOR_EMPTY_LIST = "ColorEmptyList";
     public static final String COLOR_LIST_VOID = "ColorListVoid";
 
     public static final String SOUND_VAR_DECL = "SoundVarDecl";
@@ -69,7 +65,6 @@ public class SymbolNames {
     public static final String SOUND_VAR_VOID = "SoundVarVoid";
     public static final String SOUND_LIST_DECL = "SoundListDecl";
     public static final String SOUND_LIST = "SoundList";
-    public static final String SOUND_EMPTY_LIST = "SoundEmptyList";
     public static final String SOUND_LIST_VOID = "SoundListVoid";
 
     public static final String VAR_NAME = "VarName";
@@ -124,11 +119,6 @@ public class SymbolNames {
             put(BOOL_LIST_VOID, "[]");
             put(COLOR_LIST_VOID, "[]");
             put(SOUND_LIST_VOID, "[]");
-            put(NUM_EMPTY_LIST, "[]");
-            put(STR_EMPTY_LIST, "[]");
-            put(BOOL_EMPTY_LIST, "[]");
-            put(COLOR_EMPTY_LIST, "[]");
-            put(SOUND_EMPTY_LIST, "[]");
           }};
 
     public static final Set<String> VAR_VOID_LIST =
@@ -142,12 +132,7 @@ public class SymbolNames {
             STR_LIST_VOID,
             BOOL_LIST_VOID,
             COLOR_LIST_VOID,
-            SOUND_LIST_VOID,
-            NUM_EMPTY_LIST,
-            STR_EMPTY_LIST,
-            BOOL_EMPTY_LIST,
-            COLOR_EMPTY_LIST,
-            SOUND_EMPTY_LIST));
+            SOUND_LIST_VOID));
 
     /** 変数名を保持するノードが接続されるコネクタのリスト. */
     public static final Set<String> VAR_NAME_CNCTR_LIST =
@@ -672,12 +657,6 @@ public class SymbolNames {
     public static final String FREQ_SOUND_LITERAL = "FreqSoundLiteral";
     public static final String SCALE_SOUND_LITERAL = "ScaleSoundLiteral";
     public static final String COLOR_LITERAL = "ColorLiteral";
-    public static final String STR_EMPTY_LIST = VarDecl.STR_EMPTY_LIST;
-    public static final String NUM_EMPTY_LIST = VarDecl.NUM_EMPTY_LIST;
-    public static final String BOOL_EMPTY_LIST = VarDecl.BOOL_EMPTY_LIST;
-    public static final String COLOR_EMPTY_LIST = VarDecl.COLOR_EMPTY_LIST;
-    public static final String SOUND_EMPTY_LIST = VarDecl.SOUND_EMPTY_LIST;
-    public static final String ANY_EMPTY_LIST = "AnyEmptyList";
 
     public static final String STR_LITERAL_EXP = "StrLiteralExp";
     public static final String NUM_LITERAL_EXP = "NumLiteralExp";
@@ -693,13 +672,7 @@ public class SymbolNames {
             BOOL_LITERAL,
             FREQ_SOUND_LITERAL,
             SCALE_SOUND_LITERAL,
-            COLOR_LITERAL,
-            STR_EMPTY_LIST,
-            NUM_EMPTY_LIST,
-            BOOL_EMPTY_LIST,
-            COLOR_EMPTY_LIST,
-            SOUND_EMPTY_LIST,
-            ANY_EMPTY_LIST));
+            COLOR_LITERAL));
 
     public static final Set<String> EXP_LIST =
         new HashSet<>(List.of(
@@ -710,15 +683,6 @@ public class SymbolNames {
             COLOR_LITERAL_EXP,
             FREQ_SOUND_LITERAL_EXP,
             SCALE_SOUND_LITERAL_EXP));
-
-    public static final Set<String> ARRAY_TYPES =
-        new HashSet<>(List.of(
-            STR_EMPTY_LIST,
-            NUM_EMPTY_LIST,
-            BOOL_EMPTY_LIST,
-            COLOR_EMPTY_LIST,
-            ANY_EMPTY_LIST,
-            SOUND_EMPTY_LIST));
 
     /** 音リテラルに関するシンボル名. */
     public static class Sound {
@@ -793,34 +757,62 @@ public class SymbolNames {
   /** BhProgram に定義されたシンボル名. */
   public static class ConstantValue {
     public static final String ANY_EXP_VOID = "AnyExpVoid";
+    public static final String NUM_EXP_VOID = "NumExpVoid";
+    public static final String STR_EXP_VOID = "StrExpVoid";
     public static final String BOOL_EXP_VOID = "BoolExpVoid";
+    public static final String COLOR_EXP_VOID = "ColorExpVoid";
     public static final String SOUND_EXP_VOID = "SoundExpVoid";
     public static final String MELODY_EXP_VOID = "MelodyExpVoid";
     public static final String SYNC_TIMER_VAR_VOID = "SyncTimerVarVoid";
     public static final String SEMAPHORE_VAR_VOID = "SemaphoreVarVoid";
     public static final String STR_CHAIN_LINK_VOID = "StrChainLinkVoid";
     public static final String LINE_FEED = "LineFeed";
+    public static final String ANY_LIST_EXP_VOID = "AnyListExpVoid";
+    public static final String NUM_LIST_EXP_VOID = "NumListExpVoid";
+    public static final String STR_LIST_EXP_VOID = "StrListExpVoid";
+    public static final String BOOL_LIST_EXP_VOID = "BoolListExpVoid";
+    public static final String COLOR_LIST_EXP_VOID = "ColorListExpVoid";
+    public static final String SOUND_LIST_EXP_VOID = "SoundListExpVoid";
+
     public static final Set<String> LIST =
         new HashSet<>(List.of(
             ANY_EXP_VOID,
+            NUM_EXP_VOID,
+            STR_EXP_VOID,
             BOOL_EXP_VOID,
+            COLOR_EXP_VOID,
             SOUND_EXP_VOID,
             MELODY_EXP_VOID,
             SYNC_TIMER_VAR_VOID,
             SEMAPHORE_VAR_VOID,
             STR_CHAIN_LINK_VOID,
-            LINE_FEED));
+            LINE_FEED,
+            ANY_LIST_EXP_VOID,
+            NUM_LIST_EXP_VOID,
+            STR_LIST_EXP_VOID,
+            BOOL_LIST_EXP_VOID,
+            COLOR_LIST_EXP_VOID,
+            SOUND_LIST_EXP_VOID));
 
     public static final Map<String, String> VALUE_MAP =
         new HashMap<>() {{
             put(ANY_EXP_VOID, "_nil");
+            put(NUM_EXP_VOID, "_nil");
+            put(STR_EXP_VOID, "_nil");
             put(BOOL_EXP_VOID, "_nil");
+            put(COLOR_EXP_VOID, "_nil");
             put(SOUND_EXP_VOID, "_nil");
             put(MELODY_EXP_VOID, "[]");
             put(SYNC_TIMER_VAR_VOID, "_syncTimer.nil");
             put(SEMAPHORE_VAR_VOID, "_semaphore.nils");
             put(STR_CHAIN_LINK_VOID, "''");
             put(LINE_FEED, "'\\n'");
+            put(ANY_LIST_EXP_VOID, "[]");
+            put(NUM_LIST_EXP_VOID, "[]");
+            put(STR_LIST_EXP_VOID, "[]");
+            put(BOOL_LIST_EXP_VOID, "[]");
+            put(COLOR_LIST_EXP_VOID, "[]");
+            put(SOUND_LIST_EXP_VOID, "[]");
           }};
   }
 

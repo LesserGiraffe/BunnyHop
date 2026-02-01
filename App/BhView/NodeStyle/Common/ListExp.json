@@ -9,8 +9,8 @@
   "connectorPos" : "Left",
   "connectorAlignment" : "Center",
   "connectorShift" : 0.0,
-  "connectorWidth" : 7.0,
-  "connectorHeight" : 7.0,
+  "connectorWidth" : 6.5,
+  "connectorHeight" : 6.5,
   "connectorBoundsRate" : 1.15,
   "notchWidth" : 1.5,
   "notchHeight" : 1.5

@@ -1,3 +1,3 @@
 (function() {
-  bhCommon.connectToOuterEnd(bhThis, bhReplacedOldNode, 'GlobalDataDeclVoid', bhUserOpe);
+  bhUtil.connectToOuterEnd(bhThis, bhReplacedOldNode, 'GlobalDataDeclVoid', bhUserOpe);
 })();

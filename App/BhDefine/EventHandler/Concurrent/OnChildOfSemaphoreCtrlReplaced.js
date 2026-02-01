@@ -6,7 +6,7 @@
   // セマフォ変数ノードが消えたとき, このノードを消す.
   let cnctrName = String(bhParentConnector.getSymbolName());
   if (cnctrName === 'Arg0') {
-    bhCommon.moveNodeToAncestor(bhThis.findOuterNode(1), bhThis, [], ['StatVoid'], bhUserOpe);
+    bhUtil.moveNodeToAncestor(bhThis.findOuterNode(1), bhThis, [], ['StatVoid'], bhUserOpe);
     bhNodePlacer.deleteNode(bhThis, bhUserOpe);
   }
 })();

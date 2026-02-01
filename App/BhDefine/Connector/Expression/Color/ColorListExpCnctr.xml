@@ -1,4 +1,4 @@
 <ConnectorParamSet 
   paramSetID="idColorListExpCnctr"
-  defaultBhNodeID="idColorEmptyList"
+  defaultBhNodeID="idColorListExpVoid"
   onConnectabilityChecking="ColorListExpCnct.js"/>

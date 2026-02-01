@@ -1,5 +1,5 @@
 (function() {
-  bhCommon.moveNodeToAncestor(
+  bhUtil.moveNodeToAncestor(
       bhThis.findOuterNode(1),
       bhThis,
       bhTargetNodes,

@@ -16,12 +16,12 @@ let listDeclToLiteral = {
   'SoundListDecl' : 'idFreqSoundLiteralExp'
 };
 
-let listDeclToEmptyList = {
-  'NumListDecl'   : 'idNumEmptyList',
-  'StrListDecl'   : 'idStrEmptyList',
-  'BoolListDecl'  : 'idBoolEmptyList',
-  'ColorListDecl' : 'idColorEmptyList',
-  'SoundListDecl' : 'idSoundEmptyList'
+let listDeclToExpVoid = {
+  'NumListDecl'   : 'idNumListExpVoid',
+  'StrListDecl'   : 'idStrListExpVoid',
+  'BoolListDecl'  : 'idBoolListExpVoid',
+  'ColorListDecl' : 'idColorListExpVoid',
+  'SoundListDecl' : 'idSoundListExpVoid'
 };
 
 let listDeclToMinMaxExp = {
@@ -33,9 +33,9 @@ let listDeclToSortStat = {
   'StrListDecl'   : 'idAnyArraySortStat'};
 
 function genAnyArrayControlNode(arrayCtrlNodeId, listCnctrName, argNameToSymbolMap) {
-  let arrayCtrlNode = bhCommon.createBhNode(arrayCtrlNodeId, bhUserOpe);
+  let arrayCtrlNode = bhUtil.createBhNode(arrayCtrlNodeId, bhUserOpe);
   let arg = arrayCtrlNode.findDescendantOf('*', listCnctrName, '*');
-  let newNode = bhCommon.buildDerivative(bhThis, dervIdIdVar, bhUserOpe);
+  let newNode = bhUtil.buildDerivative(bhThis, dervIdIdVar, bhUserOpe);
   arg.replace(newNode, bhUserOpe);
 
   if (argNameToSymbolMap === undefined) {
@@ -44,13 +44,13 @@ function genAnyArrayControlNode(arrayCtrlNodeId, listCnctrName, argNameToSymbolM
   for (let argName in argNameToSymbolMap) {
     cnctr = arrayCtrlNode.findDescendantOf('*', argName);
     let defaultNodeId = argNameToSymbolMap[argName][listDeclName];
-    bhCommon.changeDefaultNode(cnctr, defaultNodeId, bhUserOpe);
+    bhUtil.changeDefaultNode(cnctr, defaultNodeId, bhUserOpe);
   }
   return arrayCtrlNode;
 }
 
 (function() {
-  let list = bhCommon.buildDerivative(bhThis, dervIdIdVar, bhUserOpe);
+  let list = bhUtil.buildDerivative(bhThis, dervIdIdVar, bhUserOpe);
   let nameOfGetItem = listDeclToGetExp[listDeclName];
   let templates = [
     list,
@@ -60,12 +60,12 @@ function genAnyArrayControlNode(arrayCtrlNodeId, listCnctrName, argNameToSymbolM
     genAnyArrayControlNode('idAnyArrayLengthExp', 'Arg0'),
     genAnyArrayControlNode('idAnyArrayInsertStat', 'Arg0', {'Arg2' : listDeclToLiteral}),
     genAnyArrayControlNode('idAnyArraySetStat', 'Arg0', {'Arg2' : listDeclToLiteral}),
-    genAnyArrayControlNode('idAnyArrayAppendStat', 'Arg0', {'Arg2' : listDeclToEmptyList}),
+    genAnyArrayControlNode('idAnyArrayAppendStat', 'Arg0', {'Arg2' : listDeclToExpVoid}),
     genAnyArrayControlNode('idAnyArraySpliceStat', 'Arg0'),
     genAnyArrayControlNode('idAnyArrayIndexOfExp', 'Arg0', {'Arg1' : listDeclToLiteral}),
     genAnyArrayControlNode('idAnyArrayIncludesExp', 'Arg0', {'Arg1' : listDeclToLiteral}),
     genAnyArrayControlNode('idAnyArrayReverseStat', 'Arg0'),
-    genAnyArrayControlNode('idAnyArrayAssignStat', 'LeftVar', {'RightExp' : listDeclToEmptyList}),
+    genAnyArrayControlNode('idAnyArrayAssignStat', 'LeftVar', {'RightExp' : listDeclToExpVoid}),
   ];
 
   if (listDeclName === 'SoundListDecl') {

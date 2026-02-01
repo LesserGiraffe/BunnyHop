@@ -289,7 +289,7 @@ public class CallStackController {
     if (searchBox.getNumConsecutiveSameRequests() >= 2 && searchResult != null) {
       found = query.findNext() ? searchResult.getNext() : searchResult.getPrevious();
     } else {
-      searchResult = ItemSearcher.<CallStackItem>search(
+      searchResult = ItemSearcher.search(
           query, callStackListView.getItems(), CallStackCell::getText);
       found = searchResult.getCurrent();
     }

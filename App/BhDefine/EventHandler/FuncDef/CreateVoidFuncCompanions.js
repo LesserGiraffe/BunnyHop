@@ -1,4 +1,4 @@
 (function() {
-  let derivative = bhCommon.buildDerivative(bhThis, 'dervIdFuncCall', bhUserOpe);
+  let derivative = bhUtil.buildDerivative(bhThis, 'dervIdFuncCall', bhUserOpe);
   return [derivative];
 })();

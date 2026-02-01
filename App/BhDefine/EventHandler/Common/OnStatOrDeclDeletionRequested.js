@@ -1,6 +1,6 @@
 (function() {
   if (bhCauseOfDeletion.isSelectedForDeletion()) {
-    bhCommon.moveNodeToAncestor(
+    bhUtil.moveNodeToAncestor(
         bhThis.findOuterNode(1),
         bhThis,
         bhTargetNodes,

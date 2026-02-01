@@ -4,7 +4,7 @@
   let DerivativeBuilder = net.seapanda.bunnyhop.node.model.derivative.DerivativeBuilder;
   let DerivationId = net.seapanda.bunnyhop.node.model.parameter.DerivationId;
   let MvcType = net.seapanda.bunnyhop.node.model.factory.BhNodeFactory.MvcType;
-  let bhCommon = {
+  let bhUtility = {
     'bhNodeFactory': bhNodeFactory,
     'bhNodePlacer': bhNodePlacer
   };
@@ -294,21 +294,21 @@
     return view.isPresent() && view.get().isTemplate();
   }
 
-  bhCommon['connectToOuterEnd'] = connectToOuterEnd;
-  bhCommon['addNewNodeToWS'] = addNewNodeToWS;
-  bhCommon['replaceDescendant'] = replaceDescendant;
-  bhCommon['moveDescendant'] = moveDescendant;
-  bhCommon['isPrimitiveTypeExp'] = isPrimitiveTypeExp;
-  bhCommon['isListTypeExp'] = isListTypeExp;
-  bhCommon['moveNodeToAncestor'] = moveNodeToAncestor;
-  bhCommon['buildDerivative'] = buildDerivative;
-  bhCommon['createBhNode'] = createBhNode;
-  bhCommon['changeDefaultNode'] = changeDefaultNode;
-  bhCommon['findOuterNotSelected'] = findOuterNotSelected;
-  bhCommon['findNodeWhoseParentIsNotSelected'] = findNodeWhoseParentIsNotSelected;
-  bhCommon['selectToOutermost'] = selectToOutermost;
-  bhCommon['getPosOnWorkspace'] = getPosOnWorkspace;
-  bhCommon['collectDerivationFamily'] = collectDerivationFamily;
-  bhCommon['isTemplateNode'] = isTemplateNode;
-  return bhCommon;
+  bhUtility['connectToOuterEnd'] = connectToOuterEnd;
+  bhUtility['addNewNodeToWS'] = addNewNodeToWS;
+  bhUtility['replaceDescendant'] = replaceDescendant;
+  bhUtility['moveDescendant'] = moveDescendant;
+  bhUtility['isPrimitiveTypeExp'] = isPrimitiveTypeExp;
+  bhUtility['isListTypeExp'] = isListTypeExp;
+  bhUtility['moveNodeToAncestor'] = moveNodeToAncestor;
+  bhUtility['buildDerivative'] = buildDerivative;
+  bhUtility['createBhNode'] = createBhNode;
+  bhUtility['changeDefaultNode'] = changeDefaultNode;
+  bhUtility['findOuterNotSelected'] = findOuterNotSelected;
+  bhUtility['findNodeWhoseParentIsNotSelected'] = findNodeWhoseParentIsNotSelected;
+  bhUtility['selectToOutermost'] = selectToOutermost;
+  bhUtility['getPosOnWorkspace'] = getPosOnWorkspace;
+  bhUtility['collectDerivationFamily'] = collectDerivationFamily;
+  bhUtility['isTemplateNode'] = isTemplateNode;
+  return bhUtility;
 })();

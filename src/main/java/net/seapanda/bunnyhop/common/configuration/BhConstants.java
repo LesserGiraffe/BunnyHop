@@ -146,7 +146,8 @@ public class BhConstants {
       public static final String DEBUG_WINDOW_FXML = "DebugWindow.fxml";
       /** テンプレートノードの配置情報が書かれたファイルの名前. */
       public static final String TEMPLATE_NODE_LIST_JSON = "TemplateNodeList.json";
-      public static final String COMMON_FUNCS_JS = "CommonFuncs.js";
+      /** 外部スクリプトが共通で使用するメソッドを定義したファイルの名前. */
+      public static final String BH_UTILITY_JS = "BhUtility.js";
       /** BunnyHop が作成した BhProgram のスクリプト名. */
       public static final String APP_FILE_NAME_JS = "BhAppScript.js";
       /** リモートの BhProgram 実行環境をスタートさせるコマンドを生成するスクリプト名. */
@@ -240,7 +241,7 @@ public class BhConstants {
     public static final String BH_NODE_TO_CONNECT = "bhNodeToConnect";
     public static final String BH_PARENT_CONNECTOR = "bhParentConnector";
     public static final String BH_USER_OPE = "bhUserOpe";
-    public static final String BH_COMMON = "bhCommon";
+    public static final String BH_UTIL = "bhUtil";
     public static final String BH_NODE_FACTORY = "bhNodeFactory";
     public static final String BH_TARGET_NODES = "bhTargetNodes";
     public static final String BH_CAUSE_OF_DELETION = "bhCauseOfDeletion";

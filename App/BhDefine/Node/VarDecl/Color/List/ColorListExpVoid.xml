@@ -1,8 +1,8 @@
 <Node
   type="connective"
-  bhNodeID="idColorEmptyList"
-  name="ColorEmptyList"
-  nodeStyleID="ColorEmptyList.json"
+  bhNodeID="idColorListExpVoid"
+  name="ColorListExpVoid"
+  nodeStyleID="ColorListExpVoid.json"
   breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
@@ -11,12 +11,12 @@
   <!-- ColorList と共通のセクションを持たせる -->
   <ConnectorSection name="ColorListExp">
     <Connector
-      bhConnectorID="idColorEmptyList.cnctr0"
+      bhConnectorID="idColorListExpVoid.cnctr0"
       name="ListName"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idColorEmptyList.node0"
+        bhNodeID="idColorListExpVoid.node0"
         name="ListName"
         breakpoint="ignore"
         text="${node}{nameless-list}{text}"

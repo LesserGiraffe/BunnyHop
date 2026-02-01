@@ -243,9 +243,6 @@ class ExpCodeGenerator {
       SyntaxSymbol literal,
       int nestLevel,
       CompileOption option) {
-    if (SymbolNames.Literal.ARRAY_TYPES.contains(literal.getSymbolName())) {
-      return "([])";  //空リスト
-    }
     String inputText = "";
     if (literal instanceof TextNode textNode) {
       inputText = textNode.getText();

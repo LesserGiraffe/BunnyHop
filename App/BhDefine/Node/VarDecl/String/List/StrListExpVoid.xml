@@ -1,21 +1,22 @@
 <Node
   type="connective"
-  bhNodeID="idAnyEmptyList"
-  name="AnyEmptyList"
-  nodeStyleID="AnyEmptyList.json"
+  bhNodeID="idStrListExpVoid"
+  name="StrListExpVoid"
+  nodeStyleID="StrListExpVoid.json"
   breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
-  <ConnectorSection name="AnyAnyListExp">
+  <!-- StrList と共通のセクションを持たせる -->
+  <ConnectorSection name="StrListExp">
     <Connector
-      bhConnectorID="idAnyEmptyList.cnctr0"
+      bhConnectorID="idStrListExpVoid.cnctr0"
       name="ListName"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idAnyEmptyList.node0"
+        bhNodeID="idStrListExpVoid.node0"
         name="ListName"
         breakpoint="ignore"
         text="${node}{nameless-list}{text}"

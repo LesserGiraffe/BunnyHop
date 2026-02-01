@@ -2,11 +2,11 @@
   let nextStrChainLinkExp = bhThis.findDescendantOf('*', 'Arg1', '*');
 
   // 文字列挿入
-  if (bhCommon.isPrimitiveTypeExp(bhReplacedNewNode)) {
+  if (bhUtil.isPrimitiveTypeExp(bhReplacedNewNode)) {
 
     // 新文字列リンクノード作成
-    let posOnWS = bhCommon.getPosOnWorkspace(bhThis) ?? {x: 0, y: 0};
-    let newStrChainLinkExp = bhCommon.addNewNodeToWS(
+    let posOnWS = bhUtil.getPosOnWorkspace(bhThis) ?? {x: 0, y: 0};
+    let newStrChainLinkExp = bhUtil.addNewNodeToWS(
       bhThis.getId(), bhThis.getWorkspace(), posOnWS, bhUserOpe);
     bhNodePlacer.exchangeNodes(nextStrChainLinkExp, newStrChainLinkExp, bhUserOpe);
 

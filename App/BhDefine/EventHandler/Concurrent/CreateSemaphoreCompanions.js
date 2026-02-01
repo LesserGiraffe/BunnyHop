@@ -1,6 +1,6 @@
 function genSemaphoreDeclTemplateNode(nodeId) {
-  let semaphore = bhCommon.buildDerivative(bhThis, 'dervIdSemaphoreVar', bhUserOpe);
-  let templateNode = bhCommon.createBhNode(nodeId, bhUserOpe);
+  let semaphore = bhUtil.buildDerivative(bhThis, 'dervIdSemaphoreVar', bhUserOpe);
+  let templateNode = bhUtil.createBhNode(nodeId, bhUserOpe);
   let timerVarArg = templateNode.findDescendantOf('*', 'Arg0', '*');
   timerVarArg.replace(semaphore, bhUserOpe);
   return templateNode;

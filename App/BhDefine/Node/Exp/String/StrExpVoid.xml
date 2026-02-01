@@ -1,8 +1,8 @@
 <Node
   type="text"
-  bhNodeID="idSoundExpVoid"
-  name="SoundExpVoid"
-  nodeStyleID="SoundExpVoid.json"
+  bhNodeID="idStrExpVoid"
+  name="StrExpVoid"
+  nodeStyleID="StrExpVoid.json"
   breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"

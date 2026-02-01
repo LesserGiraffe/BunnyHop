@@ -67,17 +67,17 @@ public class CommonDataSupplier {
 
   /** 各スクリプトが共通で使う JavaScript オブジェクトを生成する. */
   private Object genCommonJsObj() {
-    if (!repository.allExist(BhConstants.Path.File.COMMON_FUNCS_JS)) {
+    if (!repository.allExist(BhConstants.Path.File.BH_UTILITY_JS)) {
       return new NativeObject();
     }
     try {
       Context cx = Context.enter();
-      Object jsObj = repository.getScript(BhConstants.Path.File.COMMON_FUNCS_JS)
+      Object jsObj = repository.getScript(BhConstants.Path.File.BH_UTILITY_JS)
             .exec(cx, createScriptScope(cx));
       return (jsObj instanceof NativeObject) ? jsObj : new NativeObject();
     } catch (Exception e) {
       LogManager.logger().error(
-          "Failed to execute %s\n%s".formatted(BhConstants.Path.File.COMMON_FUNCS_JS, e));
+          "Failed to execute %s\n%s".formatted(BhConstants.Path.File.BH_UTILITY_JS, e));
     } finally {
       Context.exit();
     }

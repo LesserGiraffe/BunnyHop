@@ -1,6 +1,6 @@
 {
-  "import" : ["../../../../Common/EmptyList.json"],
-  "connectorShape" : "InvTriangle",
+  "import" : ["../../../Common/ListExpVoid.json"],
+  "connectorShape" : "Star",
 
   "connective" : {
     "inner" : {

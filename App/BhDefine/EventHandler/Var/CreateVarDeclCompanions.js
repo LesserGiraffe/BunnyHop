@@ -12,18 +12,18 @@ function genAssignStat() {
   };
 
   let assignStatID = 'idAnyAssignStat';
-  let variable = bhCommon.buildDerivative(bhThis, dervIdVar, bhUserOpe);
-  let assignStat = bhCommon.createBhNode(assignStatID, bhUserOpe);
+  let variable = bhUtil.buildDerivative(bhThis, dervIdVar, bhUserOpe);
+  let assignStat = bhUtil.createBhNode(assignStatID, bhUserOpe);
   let leftVar = assignStat.findDescendantOf('*', 'LeftVar', '*');
   leftVar.replace(variable, bhUserOpe);
   let rightExpCnctr = assignStat.findDescendantOf('*', 'RightExp');
-  bhCommon.changeDefaultNode(rightExpCnctr, listDeclToLiteral[bhThis.getSymbolName()], bhUserOpe);
+  bhUtil.changeDefaultNode(rightExpCnctr, listDeclToLiteral[bhThis.getSymbolName()], bhUserOpe);
   return assignStat;
 }
 
 function genAddAssignStat(addAssignStatId, text) {
-  let variable = bhCommon.buildDerivative(bhThis, dervIdVar, bhUserOpe);
-  let addAssignStat = bhCommon.createBhNode(addAssignStatId, bhUserOpe);
+  let variable = bhUtil.buildDerivative(bhThis, dervIdVar, bhUserOpe);
+  let addAssignStat = bhUtil.createBhNode(addAssignStatId, bhUserOpe);
   let leftVar = addAssignStat.findDescendantOf('*', 'LeftVar', '*');
   leftVar.replace(variable, bhUserOpe);
   
@@ -35,7 +35,7 @@ function genAddAssignStat(addAssignStatId, text) {
 }
 
 (function() {
-  let variable = bhCommon.buildDerivative(bhThis, dervIdVar, bhUserOpe);
+  let variable = bhUtil.buildDerivative(bhThis, dervIdVar, bhUserOpe);
   let templates = [variable, genAssignStat()];
   let varDeclName = String(bhThis.getSymbolName());
   if (varDeclName === 'NumVarDecl')

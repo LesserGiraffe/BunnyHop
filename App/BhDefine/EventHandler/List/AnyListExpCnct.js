@@ -1,3 +1,3 @@
 (function() {
-  return bhCommon.isListTypeExp(bhNodeToConnect);
+  return bhUtil.isListTypeExp(bhNodeToConnect);
 })();

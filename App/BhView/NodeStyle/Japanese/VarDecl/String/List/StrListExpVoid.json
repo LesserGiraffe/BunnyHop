@@ -1,6 +1,6 @@
 {
-  "import" : ["../../../../Common/EmptyList.json"],
-  "connectorShape" : "CharU",
+  "import" : ["../../../../Common/ListExpVoid.json"],
+  "connectorShape" : "InvTriangle",
 
   "connective" : {
     "inner" : {

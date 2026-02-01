@@ -531,7 +531,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     new HashMap<>(nameToObj) {{
         put(BhConstants.JsIdName.BH_THIS, target);
         put(BhConstants.JsIdName.BH_NODE_PLACER, nodePlacer);
-        put(BhConstants.JsIdName.BH_COMMON, supplier.getCommonObj());
+        put(BhConstants.JsIdName.BH_UTIL, supplier.getCommonObj());
         put(BhConstants.JsIdName.BH_NODE_FACTORY, factory);
         put(BhConstants.JsIdName.BH_TEXT_DB, textDb);
         if (userOpe != null) {

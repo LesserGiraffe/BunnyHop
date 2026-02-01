@@ -94,7 +94,7 @@ public class ScriptConnectorEventInvokerImpl implements ScriptConnectorEventInvo
     ScriptableObject scope = cx.initStandardObjects();
     new HashMap<>(nameToObj) {{
         put(BhConstants.JsIdName.BH_THIS, target);
-        put(BhConstants.JsIdName.BH_COMMON, supplier.getCommonObj());
+        put(BhConstants.JsIdName.BH_UTIL, supplier.getCommonObj());
       }}
       .forEach((key, val) -> scope.put(key, scope, Context.javaToJS(val, scope)));
     return scope;

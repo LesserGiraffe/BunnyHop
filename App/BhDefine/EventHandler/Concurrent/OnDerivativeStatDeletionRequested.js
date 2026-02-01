@@ -1,12 +1,12 @@
 (function() {
-  if (bhCommon.isTemplateNode(bhThis)) {
+  if (bhUtil.isTemplateNode(bhThis)) {
     return true;
   }
   if (bhCauseOfDeletion.isOriginalDeleted()) {
     return false;
   }
   if (bhCauseOfDeletion.isSelectedForDeletion()) {
-    bhCommon.moveNodeToAncestor(
+    bhUtil.moveNodeToAncestor(
         bhThis.findOuterNode(1),
         bhThis,
         bhTargetNodes,
