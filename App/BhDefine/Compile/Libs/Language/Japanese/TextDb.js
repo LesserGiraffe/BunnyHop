@@ -73,7 +73,7 @@ let _textDb = {
       black: '黒'
     },
     sound:
-      (hz, duration) => `高さ: ${hz} [ヘルツ],  長さ: ${duration} [秒]`
+      (volume, hz, duration) => `音 (大きさ: ${volume} %,  高さ: ${hz} ヘルツ,  長さ: ${duration} 秒)`
   },
   list: {
     empty: '[ 空リスト ]'

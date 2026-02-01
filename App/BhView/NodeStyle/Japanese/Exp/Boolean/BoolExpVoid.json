@@ -1,5 +1,4 @@
 {
   "import" : ["../../../Common/ExpVoid.json"],
-  "connectorShape" : "Cross",
-  "cssClass" : "voidType"
+  "connectorShape" : "Cross"
 }

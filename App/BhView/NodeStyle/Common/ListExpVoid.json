@@ -1,5 +1,6 @@
 {
   "import" : ["./ListExp.json"],
+  "component" : "Label",
   "paddingLeft" : 1.0,
   "paddingRight" : 1.0,
   "cssClass" : "voidType"

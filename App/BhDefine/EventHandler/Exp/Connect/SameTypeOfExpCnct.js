@@ -27,7 +27,7 @@
 
   let newNodeSection = bhNodeToConnect.findDescendantOf('*');
   newNodeSection = (newNodeSection === null) ? '' : String(newNodeSection.getSymbolName());
-  if (voidToExp[String(bhThis.getSymbolName())] === newNodeSection) {
+  if (voidToExp[String(bhCurrentNode.getSymbolName())] === newNodeSection) {
     return true;
   }
 

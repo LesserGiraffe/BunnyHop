@@ -928,14 +928,15 @@ function controlAudioVolume(volume, sourceLine) {
 }
 
 // 音クラス
-function _Sound(hz, duration, amp) {
+function _Sound(hz, duration, volume) {
   this.hz = hz;
   this.duration = duration;
-  this.amp = amp;
+  this.volume = volume;
+  this.amp = Math.pow(10, (volume - 100) / 50) * _maxSoundAmplitude;
 }
 
 _Sound.prototype._clone = function() {
-  return new _Sound(this.hz, this.duration, this.amp);
+  return new _Sound(this.hz, this.duration, this.volume);
 }
 
 function _createSound(volume, hz, duration) {
@@ -951,8 +952,7 @@ function _createSound(volume, hz, duration) {
     throw _newBhProgramException(
       _textDb.errMsg.invalidSoundPitch(hz, 0, Number.MAX_SAFE_INTEGER))
   }
-  let amplitude = Math.pow(10, (volume - 100) / 50) * _maxSoundAmplitude;
-  return new _Sound(hz, duration, amplitude);
+  return new _Sound(hz, duration, volume);
 }
 
 function _pushSound(sound, soundList) {
@@ -1077,7 +1077,7 @@ String.prototype._str = function () {
 }
 
 _Sound.prototype._str = function () {
-  return _textDb.literal.sound(this.hz, this.duration);
+  return _textDb.literal.sound(this.volume, this.hz, this.duration);
 }
 
 _Color.prototype._str = function () {

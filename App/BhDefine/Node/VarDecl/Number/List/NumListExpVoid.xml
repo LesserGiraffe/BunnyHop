@@ -1,26 +1,11 @@
 <Node
-  type="connective"
+  type="text"
   bhNodeID="idNumListExpVoid"
   name="NumListExpVoid"
   nodeStyleID="NumListExpVoid.json"
   breakpoint="ignore"
   onMovedFromChildToWS="OnLiteralMovedToWS.js"
   onAliasAsked="OnAliasAsked.js"
+  text="${node}{list-label}"
   version="bhn-0.1.0">
-
-  <!-- NumList と共通のセクションを持たせる -->
-  <ConnectorSection name="NumListExp">
-    <Connector
-      bhConnectorID="idNumListExpVoid.cnctr0"
-      name="ListName"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idNumListExpVoid.node0"
-        name="ListName"
-        breakpoint="ignore"
-        text="${node}{nameless-list}{text}"
-        version="bhn-0.1.0"/>
-    </Connector>
-  </ConnectorSection>
 </Node>

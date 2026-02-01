@@ -4,5 +4,6 @@
   "paddingTop" : 3.0,
   "paddingBottom" : 3.0,
   "paddingLeft" : 3.0,
-  "paddingRight" : 3.0
+  "paddingRight" : 3.0,
+  "cssClass" : "voidType"
 }

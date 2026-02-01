@@ -1,12 +1,4 @@
 {
   "import" : ["../../../Common/ListExpVoid.json"],
-  "connectorShape" : "Star",
-
-  "connective" : {
-    "inner" : {
-      "arrangement" : "Row",
-      "space" : 0.0,
-      "connectorList" : ["${L1}{[...]}"]
-    }
-  }
+  "connectorShape" : "Star"
 }
