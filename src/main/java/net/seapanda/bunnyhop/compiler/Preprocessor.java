@@ -63,9 +63,8 @@ class Preprocessor {
     SyntaxSymbol listNode = node.findDescendantOf("*", "Arg0", "*");
     SyntaxSymbol listNameNode =
         listNode.findDescendantOf("*", SymbolNames.VarDecl.LIST_NAME, "*");
-    if (listNameNode instanceof TextNode textNode) {
-      SyntaxSymbol dest = node.findDescendantOf("*", "Arg1", "*");
-      ((TextNode) dest).setText(textNode.getText());
-    }
+    String listName = (listNameNode instanceof TextNode textNode) ? textNode.getText() : "";
+    SyntaxSymbol dest = node.findDescendantOf("*", "Arg1", "*");
+    ((TextNode) dest).setText(listName);
   }
 }

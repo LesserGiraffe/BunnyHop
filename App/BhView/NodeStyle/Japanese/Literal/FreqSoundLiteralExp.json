@@ -8,7 +8,7 @@
       "space" : 1.1,
       "arrangement" : "Row",
       "connectorList" : [
-        "${L1}{大きさ}", "Volume", "${L1}{%  }",
+        "${L1}{音量}", "Volume", "${L1}{%  }",
         "${L1}{長さ}", "Duration", "${L1}{秒  }",
         "${L1}{高さ}", "Frequency", "${L1}{ヘルツの音}"
       ]

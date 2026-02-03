@@ -31,15 +31,18 @@ public interface BhNodeViewFactory {
    * {@code node} に対応する {@link BhNodeView} を作成する.
    *
    * @param node この {@link BhNode} に対応する {@link BhNodeView} オブジェクトを作成する
+   * @param isTemplate テンプレートノードビューを作成する場合 true
    * @return 作成した {@link BhNodeView} オブジェクト
    */
-  BhNodeView createViewOf(BhNode node) throws ViewConstructionException;
+  BhNodeView createViewOf(BhNode node, boolean isTemplate) throws ViewConstructionException;
 
   /**
    * 疑似ビュー (= モデルを持たないビュー) を表す文字列から {@link BhNodeView} を作成する.
    *
    * @param specification 疑似ビューの構成を指定した文字列
+   * @param isTemplate テンプレートノードビューを作成する場合 true
    * @return 作成した {@link BhNodeView} オブジェクト
    */
-  BhNodeView createViewOf(String specification) throws ViewConstructionException;
+  BhNodeView createViewOf(String specification, boolean isTemplate)
+      throws ViewConstructionException;
 }

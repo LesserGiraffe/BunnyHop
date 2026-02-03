@@ -183,7 +183,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     double maxWidth = 0.0;
 
     for (BhNodeView nodeView : rootNodeViews) {
-      offset = positionNodeView(nodeView, offset, padding.left);
+      positionNodeView(nodeView, offset, padding.left);
       Vec2D treeSize = nodeView.getRegionManager().getNodeTreeSize(true);
       offset += treeSize.y + BhConstants.Ui.BHNODE_SPACE_ON_SELECTION_VIEW;
       maxWidth = Math.max(maxWidth, treeSize.x);
@@ -194,17 +194,16 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     adjustWrapperSize(width, height);
   }
 
-  /** ノードビューを配置し, オフセットを返す. */
-  private double positionNodeView(BhNodeView nodeView, double offset, double leftPadding) {
+  /** ノードビューを配置する. */
+  private void positionNodeView(BhNodeView nodeView, double offset, double leftPadding) {
     Vec2D cnctrSize = nodeView.getRegionManager().getConnectorSize();
     ConnectorPos connectorPos = nodeView.getLookManager().getConnectorPos();
     PositionManager posManager = nodeView.getPositionManager();
     if (connectorPos == ConnectorPos.TOP) {
       posManager.setTreePosOnWorkspace(leftPadding, offset + cnctrSize.y);
     } else if (connectorPos == ConnectorPos.LEFT) {
-      posManager.setTreePosOnWorkspaceByConnector(leftPadding - cnctrSize.x, offset);
+      posManager.setTreePosOnWorkspaceByUpperLeft(leftPadding - cnctrSize.x, offset);
     }
-    return offset;
   }
 
   /** ノード選択ビューの高さを計算する. */

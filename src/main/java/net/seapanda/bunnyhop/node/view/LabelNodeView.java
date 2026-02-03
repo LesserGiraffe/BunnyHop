@@ -46,9 +46,10 @@ public final class LabelNodeView extends BhNodeViewBase {
    * @param style このノードビューのスタイル
    * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public LabelNodeView(TextNode model, BhNodeViewStyle style, SequencedSet<Node> components)
+  public LabelNodeView(
+      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
       throws ViewConstructionException {
-    super(style, model, components);
+    super(style, model, components, isTemplate);
     this.model = model;
     sizeCalculator = new NodeSizeCalculator(this, this::getLabelSize);
     setComponent(label);
@@ -61,9 +62,9 @@ public final class LabelNodeView extends BhNodeViewBase {
    * @param style このノードビューのスタイル
    * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public LabelNodeView(BhNodeViewStyle style)
+  public LabelNodeView(BhNodeViewStyle style, boolean isTemplate)
       throws ViewConstructionException {
-    this(null, style, new LinkedHashSet<>());
+    this(null, style, new LinkedHashSet<>(), isTemplate);
   }
 
   private void initStyle() {

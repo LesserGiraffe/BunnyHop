@@ -7,7 +7,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 1.1,
-      "connectorList" : ["ListName", "${L1}{[...]}"]
+      "connectorList" : ["ListName"]
     }
   }
 }

@@ -86,7 +86,7 @@ public interface BhNodeView extends NodeViewComponent {
   /** このノードビューに対応する BhNode が固定ノードであるか調べる.. */
   boolean isFixed();
 
-  /** このノードビューがテンプレート (ノード選択画面のノード) かどうか調べる. */
+  /** このノードビューがテンプレートノードビュー (ノード選択用のノードビュー) かどうか調べる. */
   boolean isTemplate();
 
   /**
@@ -113,7 +113,7 @@ public interface BhNodeView extends NodeViewComponent {
      * </p>
      */
     void requestArrangement();
-    
+
     /** 関連するノードビュー以下の可視性を変更する. */
     void setVisible(boolean visible);
 
@@ -156,7 +156,7 @@ public interface BhNodeView extends NodeViewComponent {
      * @return コネクタ部分が 関連するノードビューのコネクタ部分に重なっているノードビューのリスト
      */
     List<BhNodeView> searchForOverlapped();
-    
+
     /**
      * 関連するノードビューのボディの領域を保持する {@link QuadTreeRectangle} と
      *  コネクタの領域を保持する {@link QuadTreeRectangle} を返す.
@@ -339,12 +339,13 @@ public interface BhNodeView extends NodeViewComponent {
     void setTreePosOnWorkspace(double posX, double posY);
 
     /**
-     * 関連するノードビューのコネクタの位置を指定して 関連するノードビュー以下のノードビューのワークスペースの上での位置と 4 分木空間上での位置を更新する.
+     * 関連するノードビューのコネクタも含んだ範囲の左上の位置を基準として,
+     * ワークスペースの上での位置と 4 分木空間上での位置を更新する.
      *
      * @param posX コネクタ左上のワークスペース上での X 位置
      * @param posY コネクタ左上のワークスペース上での Y 位置
      */
-    void setTreePosOnWorkspaceByConnector(double posX, double posY);
+    void setTreePosOnWorkspaceByUpperLeft(double posX, double posY);
 
     /**
      * 関連するノードビュー以下のノードビューの Z 位置を設定する.

@@ -1,0 +1,27 @@
+<Node
+  type="connective"
+  bhNodeID="idBoolArraySliceExp"
+  name="BoolArraySliceExp"
+  nodeStyleID="BoolArraySliceExp.json"
+  breakpoint="ignore"
+  onChildReplaced="OnChildOfArrayCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="BoolListExp">
+    <Connector
+      bhConnectorID="idBoolArraySliceExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+        
+    <Connector
+      bhConnectorID="idBoolArraySliceExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+
+    <Connector
+      bhConnectorID="idBoolArraySliceExp.cnctr2"
+      import="idNumExpCnctr"
+      name="Arg2"/>
+  </ConnectorSection>
+</Node>

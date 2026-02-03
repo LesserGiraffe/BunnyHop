@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.Set;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
-import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 
@@ -63,7 +62,7 @@ public class CompileErrorChecker {
   public void check(UserOperation userOpe) {
     Set<BhNode> targetNodes = collectTargetNodes();
     targetNodes.stream()
-        .filter(node -> !node.getView().map(BhNodeView::isTemplate).orElse(false))
+        .filter(node -> !node.isTemplate())
         .forEach(node -> node.checkCompileError(userOpe));
     startingPoints.clear();
   }

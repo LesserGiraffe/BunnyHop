@@ -75,7 +75,7 @@ public class PrivateTemplateButtonController {
    * @param event ボタン押下イベント
    */
   private void onTemplateCreating(ActionEvent event) {
-    if (isTemplate(node) || node.isDeleted()) {
+    if (node.isTemplate() || node.isDeleted()) {
       return;
     }
     try {
@@ -123,20 +123,9 @@ public class PrivateTemplateButtonController {
     }
   }
 
-  /** {@code node} がテンプレートノードか調べる. */
-  private static boolean isTemplate(BhNode node) {
-    while (node != null) {
-      if (node.getView().isPresent()) {
-        return node.getView().get().isTemplate();
-      }
-      node = node.findParentNode();
-    }
-    return false;
-  }
-
   /** ノード固有のテンプレートノードを作成し, プリレンダリングした後 {@link #templateNodes} に格納する. */
   private void prepareTemplateNodes() {
-    if (isTemplate(node) || templateNodes != null) {
+    if (node.isTemplate() || templateNodes != null) {
       return;
     }
     var userOpe = new UserOperation();

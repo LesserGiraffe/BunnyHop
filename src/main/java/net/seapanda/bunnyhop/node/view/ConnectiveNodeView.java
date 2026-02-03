@@ -50,6 +50,7 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
    * @param model このノードビューに対応するノード
    * @param style このノードビューのスタイル
    * @param components このノードビューに追加する GUI コンポーネント
+   * @param isTemplate このノードビューがテンプレートノードビューの場合 true
    * @param factory サブグループ内の疑似ビューを作成するのに使用するオブジェクト
    * @throws ViewConstructionException ノードビューの初期化に失敗した
    */
@@ -57,13 +58,14 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
       ConnectiveNode model,
       BhNodeViewStyle style,
       SequencedSet<Node> components,
+      boolean isTemplate,
       BhNodeViewFactory factory)
       throws ViewConstructionException {
-    super(style, model, components);
+    super(style, model, components, isTemplate);
     this.model = model;
     sizeCalculator = new NodeSizeCalculator(this, innerGroup::getSize, this::calcOuterSize);
-    innerGroup.buildSubGroup(style.connective.inner, factory);
-    outerGroup.buildSubGroup(style.connective.outer, factory);
+    innerGroup.buildSubGroup(style.connective.inner, factory, isTemplate);
+    outerGroup.buildSubGroup(style.connective.outer, factory, isTemplate);
     getLookManager().addCssClass(BhConstants.Css.CLASS_CONNECTIVE_NODE);
   }
 

@@ -25,6 +25,7 @@ import net.seapanda.bunnyhop.node.model.ConnectiveNode;
 import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
+import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.PositionManager;
@@ -53,9 +54,9 @@ public class NodeImageBuilder implements BhNodeWalker {
 
   @Override
   public void visit(ConnectiveNode node) {
-    List<InstanceId> derivationIds = node.getDerivatives().stream()
-        .filter(NodeImageBuilder::isNotTemplate)
-        .map(derivative -> derivative.getInstanceId())
+    List<InstanceId> derivativeIds = node.getDerivatives().stream()
+        .filter(NodeImageBuilder::shouldSave)
+        .map(SyntaxSymbol::getInstanceId)
         .toList();
     Vec2D pos = node.getView()
         .map(view -> view.getPositionManager().getPosOnWorkspace())
@@ -64,7 +65,7 @@ public class NodeImageBuilder implements BhNodeWalker {
     var nodeImage = new BhNodeImage(
         node.getId(),
         node.getInstanceId(),
-        derivationIds,
+        derivativeIds,
         "",
         node.isDefault(),
         node.isBreakpointSet(),
@@ -77,19 +78,18 @@ public class NodeImageBuilder implements BhNodeWalker {
 
   @Override
   public void visit(TextNode node) {
-    List<InstanceId> derivationIds = node.getDerivatives().stream()
-        .filter(NodeImageBuilder::isNotTemplate)
-        .map(derivative -> derivative.getInstanceId())
+    List<InstanceId> derivativeIds = node.getDerivatives().stream()
+        .filter(NodeImageBuilder::shouldSave)
+        .map(SyntaxSymbol::getInstanceId)
         .toList();
     Vec2D pos = node.getView()
         .map(BhNodeView::getPositionManager)
         .map(PositionManager::getPosOnWorkspace)
         .orElse(new Vec2D());
-
     var nodeImage = new BhNodeImage(
         node.getId(),
         node.getInstanceId(),
-        derivationIds,
+        derivativeIds,
         node.getText(),
         node.isDefault(),
         node.isBreakpointSet(),
@@ -120,14 +120,8 @@ public class NodeImageBuilder implements BhNodeWalker {
     }).orElse(null);
   }
 
-  /** {@code node} がテンプレートノードか調べる. */
-  private static boolean isNotTemplate(BhNode node) {
-    while (node != null) {
-      if (node.getView().isPresent()) {
-        return !node.getView().get().isTemplate();
-      }
-      node = node.findParentNode();
-    }
-    return true;
-  }  
+  /** {@code node} を保存すべきかどうか調べる. */
+  private static boolean shouldSave(BhNode node) {
+    return !(node.isDeleted() || node.isTemplate());
+  }
 }

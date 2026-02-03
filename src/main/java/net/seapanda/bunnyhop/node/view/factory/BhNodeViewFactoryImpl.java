@@ -68,16 +68,18 @@ public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
   }
 
   @Override
-  public BhNodeView createViewOf(BhNode node) throws ViewConstructionException {
+  public BhNodeView createViewOf(BhNode node, boolean isTemplate)
+      throws ViewConstructionException {
     return switch (node) {
-      case TextNode textNode -> createViewOf(textNode);
-      case ConnectiveNode connectiveNode -> createViewOf(connectiveNode);
+      case TextNode textNode -> createViewOf(textNode, isTemplate);
+      case ConnectiveNode connectiveNode -> createViewOf(connectiveNode, isTemplate);
       default -> throw new ViewConstructionException("Invalid BhNode type");
     };
   }
 
   @Override
-  public BhNodeView createViewOf(String specification) throws ViewConstructionException {
+  public BhNodeView createViewOf(String specification, boolean isTemplate)
+      throws ViewConstructionException {
     Matcher matcher = contents.matcher(specification);
     List<String> specifiers = matcher.results().map(
         result -> {  
@@ -86,32 +88,34 @@ public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
         }).toList();
     BhNodeViewStyleId styleId = BhNodeViewStyleId.of(
         specifiers.get(0).endsWith(".json") ? specifiers.get(0) : specifiers.get(0) + ".json");
-    return createModellessNodeView(styleId, specifiers.get(1));
+    return createModellessNodeView(styleId, specifiers.get(1), isTemplate);
   }
 
-  private BhNodeView createViewOf(TextNode node) throws ViewConstructionException {
+  private BhNodeView createViewOf(TextNode node, boolean isTemplate)
+      throws ViewConstructionException {
     BhNodeViewStyle style = nodeStyleFactory.canCreateStyleOf(node.getStyleId())
         ? nodeStyleFactory.createStyleOf(node.getStyleId())
         : new BhNodeViewStyle();
     SequencedSet<Node> components = createComponents(node);
 
     return switch (style.component) {
-      case TEXT_FIELD -> new TextFieldNodeView(node, style, components);
-      case COMBO_BOX -> new ComboBoxNodeView(node, style, components);
-      case LABEL -> new LabelNodeView(node, style, components);
-      case TEXT_AREA -> new TextAreaNodeView(node, style, components);
-      case NONE -> new NoContentNodeView(node, style, components);
+      case TEXT_FIELD -> new TextFieldNodeView(node, style, components, isTemplate);
+      case COMBO_BOX -> new ComboBoxNodeView(node, style, components, isTemplate);
+      case LABEL -> new LabelNodeView(node, style, components, isTemplate);
+      case TEXT_AREA -> new TextAreaNodeView(node, style, components, isTemplate);
+      case NONE -> new NoContentNodeView(node, style, components, isTemplate);
       default -> throw new ViewConstructionException(
           "Invalid component type (%s)".formatted(style.component));
     };
   }
 
-  private BhNodeView createViewOf(ConnectiveNode node) throws ViewConstructionException {
+  private BhNodeView createViewOf(ConnectiveNode node, boolean isTemplate)
+      throws ViewConstructionException {
     BhNodeViewStyle style = nodeStyleFactory.canCreateStyleOf(node.getStyleId())
         ? nodeStyleFactory.createStyleOf(node.getStyleId())
         : new BhNodeViewStyle();
     SequencedSet<Node> components = createComponents(node);
-    return new ConnectiveNodeView(node, style, components, this);
+    return new ConnectiveNodeView(node, style, components, isTemplate, this);
   }
 
   /** {@link BhNodeView} に追加する GUI コンポーネントを作成する. */
@@ -129,9 +133,11 @@ public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
    *
    * @param styleId 作成するビューのスタイル ID
    * @param text 作成するビューに設定する文字列
+   * @param isTemplate テンプレートノードビューを作成する場合 true
    * @return 作成した {@link BhNodeView}
    */
-  private BhNodeView createModellessNodeView(BhNodeViewStyleId styleId, String text)
+  private BhNodeView createModellessNodeView(
+      BhNodeViewStyleId styleId, String text, boolean isTemplate)
       throws ViewConstructionException {
     BhNodeViewStyle style = nodeStyleFactory.canCreateStyleOf(styleId)
         ? nodeStyleFactory.createStyleOf(styleId)
@@ -139,23 +145,23 @@ public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
 
     return switch (style.component) {
       case TEXT_FIELD -> {
-        var view = new TextFieldNodeView(style);
+        var view = new TextFieldNodeView(style, isTemplate);
         view.setTextChangeListener(str -> true);
         view.setText(text);
         yield view;
       }
       case COMBO_BOX -> {
-        var view = new ComboBoxNodeView(style);
+        var view = new ComboBoxNodeView(style, isTemplate);
         view.setValue(new SelectableItem<>(text, text));
         yield view;
       }
       case LABEL -> {
-        var view = new LabelNodeView(style);
+        var view = new LabelNodeView(style, isTemplate);
         view.setText(text);
         yield view;
       }
       case TEXT_AREA -> {
-        var view = new TextAreaNodeView(style);
+        var view = new TextAreaNodeView(style, isTemplate);
         view.setTextChangeListener(str -> true);
         view.setText(text);
         yield view;

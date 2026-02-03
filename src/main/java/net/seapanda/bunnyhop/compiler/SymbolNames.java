@@ -100,20 +100,20 @@ public class SymbolNames {
     public static final Map<String, String> INIT_VAL_MAP =
         new HashMap<>() {{
             put(NUM_VAR_DECL, "0");
-            put(NUM_LIST_DECL, "[]");
             put(STR_VAR_DECL, "''");
-            put(STR_LIST_DECL, "[]");
             put(BOOL_VAR_DECL, "false");
-            put(BOOL_LIST_DECL, "[]");
             put(COLOR_VAR_DECL, ScriptIdentifiers.Vars.NIL_COLOR);
-            put(COLOR_LIST_DECL, "[]");
             put(SOUND_VAR_DECL, ScriptIdentifiers.Vars.NIL_SOUND);
+            put(NUM_LIST_DECL, "[]");
+            put(STR_LIST_DECL, "[]");
+            put(BOOL_LIST_DECL, "[]");
+            put(COLOR_LIST_DECL, "[]");
             put(SOUND_LIST_DECL, "[]");
-            put(NUM_VAR_VOID, "0");
-            put(STR_VAR_VOID, "''");
-            put(BOOL_VAR_VOID, "false");
-            put(COLOR_VAR_VOID, ScriptIdentifiers.Vars.NIL_COLOR);
-            put(SOUND_VAR_VOID, ScriptIdentifiers.Vars.NIL_SOUND);
+            put(NUM_VAR_VOID, ScriptIdentifiers.Vars.NIL);
+            put(STR_VAR_VOID, ScriptIdentifiers.Vars.NIL);
+            put(BOOL_VAR_VOID, ScriptIdentifiers.Vars.NIL);
+            put(COLOR_VAR_VOID, ScriptIdentifiers.Vars.NIL);
+            put(SOUND_VAR_VOID, ScriptIdentifiers.Vars.NIL);
             put(NUM_LIST_VOID, "[]");
             put(STR_LIST_VOID, "[]");
             put(BOOL_LIST_VOID, "[]");
@@ -426,12 +426,17 @@ public class SymbolNames {
             MEASURE_SOUND_PRESSURE_EXP,
 
             Array.NUM_ARRAY_GET_EXP,
+            Array.NUM_ARRAY_SLICE_EXP,
             Array.NUM_ARRAY_MAX_MIN_EXP,
             Array.STR_ARRAY_GET_EXP,
+            Array.STR_ARRAY_SLICE_EXP,
             Array.STR_ARRAY_MAX_MIN_EXP,
             Array.BOOL_ARRAY_GET_EXP,
+            Array.BOOL_ARRAY_SLICE_EXP,
             Array.COLOR_ARRAY_GET_EXP,
+            Array.COLOR_ARRAY_SLICE_EXP,
             Array.SOUND_ARRAY_GET_EXP,
+            Array.SOUND_ARRAY_SLICE_EXP,
             Array.ANY_ARRAY_LEN_EXP,
             Array.ANY_ARRAY_INDEX_OF_EXP,
             Array.ANY_ARRAY_INCLUDES_EXP,
@@ -594,18 +599,23 @@ public class SymbolNames {
             put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_NEQ), ScriptIdentifiers.Funcs.SET_NEQ);
 
             put(FuncId.create(Array.STR_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
+            put(FuncId.create(Array.STR_ARRAY_SLICE_EXP), ScriptIdentifiers.Funcs.ARY_SLICE);
             put(FuncId.create(Array.STR_ARRAY_MAX_MIN_EXP, OPT_MAX),
                 ScriptIdentifiers.Funcs.ARY_MAX);
             put(FuncId.create(Array.STR_ARRAY_MAX_MIN_EXP, OPT_MIN),
                 ScriptIdentifiers.Funcs.ARY_MIN);
             put(FuncId.create(Array.NUM_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
+            put(FuncId.create(Array.NUM_ARRAY_SLICE_EXP), ScriptIdentifiers.Funcs.ARY_SLICE);
             put(FuncId.create(Array.NUM_ARRAY_MAX_MIN_EXP, OPT_MAX),
                 ScriptIdentifiers.Funcs.ARY_NUM_MAX);
             put(FuncId.create(Array.NUM_ARRAY_MAX_MIN_EXP, OPT_MIN),
                 ScriptIdentifiers.Funcs.ARY_NUM_MIN);
             put(FuncId.create(Array.BOOL_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
+            put(FuncId.create(Array.BOOL_ARRAY_SLICE_EXP), ScriptIdentifiers.Funcs.ARY_SLICE);
             put(FuncId.create(Array.COLOR_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
+            put(FuncId.create(Array.COLOR_ARRAY_SLICE_EXP), ScriptIdentifiers.Funcs.ARY_SLICE);
             put(FuncId.create(Array.SOUND_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
+            put(FuncId.create(Array.SOUND_ARRAY_SLICE_EXP), ScriptIdentifiers.Funcs.ARY_SLICE);
           }};
   }
 
@@ -712,12 +722,17 @@ public class SymbolNames {
     public static final String ANY_SET_COMP_EXP = "AnySetCompExp";
 
     public static final String STR_ARRAY_GET_EXP = "StrArrayGetExp";
+    public static final String STR_ARRAY_SLICE_EXP = "StrArraySliceExp";
     public static final String STR_ARRAY_MAX_MIN_EXP = "StrArrayMaxMinExp";
     public static final String NUM_ARRAY_GET_EXP = "NumArrayGetExp";
+    public static final String NUM_ARRAY_SLICE_EXP = "NumArraySliceExp";
     public static final String NUM_ARRAY_MAX_MIN_EXP = "NumArrayMaxMinExp";
     public static final String BOOL_ARRAY_GET_EXP = "BoolArrayGetExp";
+    public static final String BOOL_ARRAY_SLICE_EXP = "BoolArraySliceExp";
     public static final String COLOR_ARRAY_GET_EXP = "ColorArrayGetExp";
+    public static final String COLOR_ARRAY_SLICE_EXP = "ColorArraySliceExp";
     public static final String SOUND_ARRAY_GET_EXP = "SoundArrayGetExp";
+    public static final String SOUND_ARRAY_SLICE_EXP = "SoundArraySliceExp";
   }
 
   /** グローバルデータに関するシンボル名. */
@@ -796,15 +811,15 @@ public class SymbolNames {
 
     public static final Map<String, String> VALUE_MAP =
         new HashMap<>() {{
-            put(ANY_EXP_VOID, "_nil");
-            put(NUM_EXP_VOID, "_nil");
-            put(STR_EXP_VOID, "_nil");
-            put(BOOL_EXP_VOID, "_nil");
-            put(COLOR_EXP_VOID, "_nil");
-            put(SOUND_EXP_VOID, "_nil");
+            put(ANY_EXP_VOID, ScriptIdentifiers.Vars.NIL);
+            put(NUM_EXP_VOID, ScriptIdentifiers.Vars.NIL);
+            put(STR_EXP_VOID, ScriptIdentifiers.Vars.NIL);
+            put(BOOL_EXP_VOID, ScriptIdentifiers.Vars.NIL);
+            put(COLOR_EXP_VOID, ScriptIdentifiers.Vars.NIL);
+            put(SOUND_EXP_VOID, ScriptIdentifiers.Vars.NIL);
             put(MELODY_EXP_VOID, "[]");
-            put(SYNC_TIMER_VAR_VOID, "_syncTimer.nil");
-            put(SEMAPHORE_VAR_VOID, "_semaphore.nils");
+            put(SYNC_TIMER_VAR_VOID, ScriptIdentifiers.Vars.NIL);
+            put(SEMAPHORE_VAR_VOID, ScriptIdentifiers.Vars.NIL);
             put(STR_CHAIN_LINK_VOID, "''");
             put(LINE_FEED, "'\\n'");
             put(ANY_LIST_EXP_VOID, "[]");

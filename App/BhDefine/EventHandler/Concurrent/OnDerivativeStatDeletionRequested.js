@@ -1,5 +1,5 @@
 (function() {
-  if (bhUtil.isTemplateNode(bhThis)) {
+  if (bhThis.isTemplate()) {
     return true;
   }
   if (bhCauseOfDeletion.isOriginalDeleted()) {

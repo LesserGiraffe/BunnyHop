@@ -37,11 +37,13 @@ public class NoContentNodeView extends BhNodeViewBase {
    *
    * @param model ビューに対応するモデル
    * @param style ビューのスタイル
+   * @param components このノードビューに追加する GUI コンポーネント
+   * @param isTemplate このノードビューがテンプレートノードビューの場合 true
    */
   public NoContentNodeView(
-      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components) 
+      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
       throws ViewConstructionException {
-    super(style, model, components);
+    super(style, model, components, isTemplate);
     this.model = model;
     sizeCalculator = new NodeSizeCalculator(this, () -> new Vec2D(0, 0));
     getLookManager().addCssClass(BhConstants.Css.CLASS_NO_CONTENT_NODE);

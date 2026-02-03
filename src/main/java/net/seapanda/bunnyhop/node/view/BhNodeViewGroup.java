@@ -96,9 +96,10 @@ public class BhNodeViewGroup implements NodeViewComponent {
    *
    * @param arrangeParams ノード配置パラメータ
    * @param factory サブグループ内の疑似ビューを作成するのに使用するオブジェクト
+   * @param isTemplate このサブグループがテンプレートノードビューの子グループである場合 true
    * @throws ViewConstructionException グループの初期化に失敗した
    */
-  void buildSubGroup(Arrangement arrangeParams, BhNodeViewFactory factory)
+  void buildSubGroup(Arrangement arrangeParams, BhNodeViewFactory factory, boolean isTemplate)
       throws ViewConstructionException {
     this.arrangeParams = arrangeParams;
     for (String cnctrName : arrangeParams.cnctrNames) {
@@ -107,7 +108,7 @@ public class BhNodeViewGroup implements NodeViewComponent {
       // 疑似ビュー指定パターン
       if (embedded.matcher(cnctrName).find()) {
         childName = "$" + pseudoViewId++;
-        childView = createPseudoView(cnctrName, factory);
+        childView = createPseudoView(cnctrName, factory, isTemplate);
       } else if (escapeDollar.matcher(cnctrName).find()) {
         // 先頭の `\` を取り除く.
         childName = cnctrName.substring(1);
@@ -120,7 +121,7 @@ public class BhNodeViewGroup implements NodeViewComponent {
     }
     for (Arrangement subGroupParams : arrangeParams.subGroups) {
       var subGroup = new BhNodeViewGroup(this, inner);
-      subGroup.buildSubGroup(subGroupParams, factory);
+      subGroup.buildSubGroup(subGroupParams, factory, isTemplate);
       subGroupList.add(subGroup);
     }
   }
@@ -422,9 +423,10 @@ public class BhNodeViewGroup implements NodeViewComponent {
   }
 
   /** このグループの中で定義された MVC 構造を持たない {@link BhNodeView} を作成する. */
-  private BhNodeViewBase createPseudoView(String specification, BhNodeViewFactory factory)
+  private BhNodeViewBase createPseudoView(
+      String specification, BhNodeViewFactory factory, boolean isTemplate)
       throws ViewConstructionException {
-    BhNodeView nodeView = factory.createViewOf(specification);
+    BhNodeView nodeView = factory.createViewOf(specification, isTemplate);
     if (nodeView instanceof BhNodeViewBase view) {
       view.getTreeManager().setParentGroup(this);
       return view;

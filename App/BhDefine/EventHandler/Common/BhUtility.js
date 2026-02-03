@@ -274,24 +274,14 @@
     return findOriginalRoot(original);
   }
 
-  /** node から推移的に辿れる全ての派生ノードを dest に格納する. */
+  /** node から推移的に辿れる全てのテンプレートノード以外の派生ノードを dest に格納する. */
   function collectDerivatives(node, dest) {
-    if (!isTemplateNode(node)) {
+    if (!node.isTemplate()) {
       dest.push(node);
     }
     for (let derivative of node.getDerivatives()) {
       collectDerivatives(derivative, dest);
     }
-  }
-
-  /** node がテンプレートノードかどうか調べる. */
-  function isTemplateNode(node) {
-    if (node === null) {
-      return false;
-    }
-    // node.getView().map(...).orElse(false) は真偽値を返さないので使用しない
-    let view = node.getView();
-    return view.isPresent() && view.get().isTemplate();
   }
 
   bhUtility['connectToOuterEnd'] = connectToOuterEnd;
@@ -309,6 +299,5 @@
   bhUtility['selectToOutermost'] = selectToOutermost;
   bhUtility['getPosOnWorkspace'] = getPosOnWorkspace;
   bhUtility['collectDerivationFamily'] = collectDerivationFamily;
-  bhUtility['isTemplateNode'] = isTemplateNode;
   return bhUtility;
 })();

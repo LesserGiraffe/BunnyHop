@@ -263,7 +263,6 @@
         "title": "実行するノードの選択",
         "body": "実行可能なノードが選択されていません."
       },
-      "cannot-delete-error-nodes": "コンパイルエラーノードを削除できませんでした.\n実行を中止します.",
       "succeeded": "\n-- コンパイル成功 --\n"
     },
 
@@ -498,10 +497,6 @@
       "nan": "非数"
     },
 
-    "nameless-list": {
-      "text": "無名リスト"
-    },
-
     "save-text": {
       "file": "ファイルA"
     },
@@ -551,12 +546,17 @@
       "NumArraySortStat": "リストの要素を並べ替える",
       "AnySetCompExp": "リスト同士を集合として比較する",
       "BoolArrayGetExp": "リストの要素を取得する",
+      "BoolArraySliceExp": "サブリストを取得する",
       "ColorArrayGetExp": "リストの要素を取得する",
+      "ColorArraySliceExp": "サブリストを取得する",
       "NumArrayGetExp": "リストの要素を取得する",
+      "NumArraySliceExp": "サブリストを取得する",
       "NumArrayMaxMinExp${max}": "リストから最大値を見つける",
       "NumArrayMaxMinExp${min}": "リストから最小値を見つける",
       "SoundArrayGetExp": "リストの要素を取得する",
+      "SoundArraySliceExp": "サブリストを取得する",
       "StrArrayGetExp": "リストの要素を取得する",
+      "StrArraySliceExp": "サブリストを取得する",
       "StrArrayMaxMinExp${max}": "リストから最大値を見つける",
       "StrArrayMaxMinExp${min}": "リストから最小値を見つける",
 

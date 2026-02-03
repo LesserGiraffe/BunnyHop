@@ -44,7 +44,6 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.control.BhNodeController;
-import net.seapanda.bunnyhop.node.control.TemplateNodeController;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeType;
@@ -95,6 +94,8 @@ public abstract class BhNodeViewBase implements BhNodeView {
   private BhNodeController controller;
   /** ノードのサイズ変更が通知されたことを示すフラグ. */
   private boolean isSizeChangeNotified = false;
+  /** このノードがテンプレートノードビューである場合 true */
+  private final boolean isTemplate;
 
   private final RegionManagerBase regionManager = this.new RegionManagerBase();
   private final TreeManagerBase treeManager = this.new TreeManagerBase();
@@ -136,12 +137,14 @@ public abstract class BhNodeViewBase implements BhNodeView {
    * @param style ノードの見た目を決めるパラメータオブジェクト
    * @param model ビューが表すモデル (nullable)
    * @param components このノードビューの子要素に追加するコンポーネントのリスト
+   * @param isTemplate このノードビューがテンプレートノードビューである場合 true
    */
   protected BhNodeViewBase(
-      BhNodeViewStyle style, Derivative<?> model, SequencedSet<Node> components)
+      BhNodeViewStyle style, Derivative<?> model, SequencedSet<Node> components, boolean isTemplate)
       throws ViewConstructionException {
     this.style = style;
     this.model = model;
+    this.isTemplate = isTemplate;
     shapes = createShapes(style);
     panes = createPanes(style, components);
     cbRegistry = this.new CallbackRegistryBase();
@@ -204,14 +207,7 @@ public abstract class BhNodeViewBase implements BhNodeView {
 
   @Override
   public boolean isTemplate() {
-    BhNodeView view = this;
-    while (view != null) {
-      if (view.getController().isPresent()) {
-        return view.getController().get() instanceof TemplateNodeController;
-      }
-      view = view.getTreeManager().getParentView();
-    }
-    return false;
+    return isTemplate;
   }
 
   @Override
@@ -948,23 +944,26 @@ public abstract class BhNodeViewBase implements BhNodeView {
     }
 
     @Override
-    public void setTreePosOnWorkspaceByConnector(double posX, double posY) {
-      // ボディの範囲とコネクタの範囲が確定していない状態でも適切な値を返せるように,
-      // コネクタの位置と大きさからオフセットを計算する.
+    public void setTreePosOnWorkspaceByUpperLeft(double posX, double posY) {
       Vec2D cnctrSize = regionManager.getConnectorSize();
-      setTreePosOnWorkspace(posX, posY);
+      Vec2D offset = new Vec2D();
+
       if (style.connectorPos == ConnectorPos.LEFT) {
-        posX += cnctrSize.x;
+        offset.x = cnctrSize.x;
+        offset.y = -style.connectorShift;
         if (style.connectorAlignment == ConnectorAlignment.CENTER) {
-          posY += (style.connectorHeight - regionManager.getNodeSize(false).y) / 2;
+          offset.y += (style.connectorHeight - regionManager.getNodeSize(false).y) / 2;
         }
+        offset.y = Math.max(offset.y, 0);
       } else if (style.connectorPos == ConnectorPos.TOP) {
-        posY += cnctrSize.y;
+        offset.y = cnctrSize.y;
+        offset.x = -style.connectorShift;
         if (style.connectorAlignment == ConnectorAlignment.CENTER) {
           posX += (style.connectorWidth - regionManager.getNodeSize(false).x) / 2;
         }
+        offset.x = Math.max(offset.x, 0);
       }
-      setTreePosOnWorkspace(posX, posY);
+      setTreePosOnWorkspace(posX + offset.x, posY + offset.y);
     }
 
     /** GUI 部品のワークスペース上での位置を更新する. */

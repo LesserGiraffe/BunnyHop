@@ -25,17 +25,14 @@ let _idxErrorMsgs = 2;
 let _idxVarStack = 3;
 let _threadContext = _createThreadContext();
 let _syncTimer = (function () {
-  let nilTimer = bhScriptHelper.factory.newSyncTimer(0, true);
+  let timer = bhScriptHelper.factory.newSyncTimer(0, true);
   return {
-    nil: nilTimer,
-    minCount: nilTimer.MIN_COUNT,
-    maxCount: nilTimer.MAX_COUNT
+    minCount: timer.MIN_COUNT,
+    maxCount: timer.MAX_COUNT
   };
 })();
 let _semaphore = (function () {
-  let nilSemaphore = new _jSemaphore(0, false);
   return {
-    nil: nilSemaphore,
     minPermits: 0,
     maxPermits: 0x7FFF_FFFF
   };
@@ -408,10 +405,10 @@ function _newBhProgramException(msg, cause) {
 //              配列操作
 //==================================================================
 
-function _checkAryIdx(index, len, margin) {
+function _checkAryIdx(index, len, tolerance) {
   let idx = Math.trunc(index);
-  let max = len - 1 + margin;
-  let min = -(len + margin);
+  let max = len - 1 + tolerance;
+  let min = -(len + tolerance);
   if (!_isInRange(idx, min, max)) {
     if (len === 0) {
       throw _newBhProgramException(_textDb.errMsg.listIsEmpty());
@@ -438,6 +435,9 @@ function _checkNumAryElems(num) {
 }
 
 function _aryToStr(ary, listName) {
+  if (!listName)
+    listName = _textDb.list.namelessList;
+
   if (ary.length === 0)
     return listName + ' = ' + _textDb.list.empty;
 
@@ -498,18 +498,12 @@ function _aryInsert(ary, idx, val, num) {
 }
 
 function _aryRemove(ary, idx, num) {
-  if (ary.length === 0) {
-    return;
-  }
   idx = _checkAryIdx(idx, ary.length, 0);
   num = _checkNumAryElems(num);
   ary.splice(idx, num);
 }
 
 function _aryExtract(ary, idx, num) {
-  if (ary.length === 0) {
-    return;
-  }
   idx = _checkAryIdx(idx, ary.length, 0);
   num = _checkNumAryElems(num);
   let len = Math.min(ary.length - idx, num);
@@ -517,6 +511,17 @@ function _aryExtract(ary, idx, num) {
     ary[i] = ary[i + idx];
   }
   ary.splice(len, ary.length);
+}
+
+function _arySlice(ary, idx, num) {
+  // Rhino には, 引数を他の関数に入力すると数値の厳密比較が正常に機能しなくなるバグが存在する.
+  // これを回避するため定数を左に書く.
+  if (0 === num) {
+    return [];
+  }
+  idx = _checkAryIdx(idx, ary.length, 0);
+  num = _checkNumAryElems(num);
+  return ary.slice(idx, idx + num);
 }
 
 function _aryClear(ary) {
@@ -555,7 +560,11 @@ function _aryLen(ary) {
 }
 
 function _aryReverse(ary) {
-  ary.reverse();
+  return ary.reverse();
+}
+
+function _aryReversed(ary) {
+  return ary.toReversed();
 }
 
 function _aryFirstIndexOf(ary, elem) {
@@ -685,12 +694,25 @@ function _numDescComparator(a, b) {
 
 function _arySort(ary, isAscending) {
   let comp = isAscending ? _ascComparator : _descComparator;
-  ary.sort(comp);
+  return ary.sort(comp);
+}
+
+function _arySorted(ary, isAscending) {
+  let comp = isAscending ? _ascComparator : _descComparator;
+  let copy = ary.concat(); // toSorted は遅いので使わない
+  return copy.sort(comp);
+
 }
 
 function _aryNumSort(ary, isAscending) {
   let comp = isAscending ? _numAscComparator : _numDescComparator;
-  ary.sort(comp);
+  return ary.sort(comp);
+}
+
+function _aryNumSorted(ary, isAscending) {
+  let comp = isAscending ? _numAscComparator : _numDescComparator;
+  let copy = ary.concat();
+  return copy.sort(comp);
 }
 
 function _delDuplicates(ary) {
@@ -1147,7 +1169,7 @@ function _newSyncTimer(count, autoReset) {
 }
 
 function _syncTimerCountdown(timer) {
-  if (timer === _syncTimer.nil) {
+  if (timer === _nil) {
     return;
   }
   timer.countdown();
@@ -1155,7 +1177,7 @@ function _syncTimerCountdown(timer) {
 
 /** カウントダウンしてタイマーが 0 になるのを待つ. */
 function _syncTimerCountdownAndAwait(timer) {
-  if (timer === _syncTimer.nil) {
+  if (timer === _nil) {
     return;
   }
   timer.countdownAndAwait();
@@ -1163,7 +1185,7 @@ function _syncTimerCountdownAndAwait(timer) {
 
 /** タイマーが 0 になるのを待つ. */
 function _syncTimerAwait(timer) {
-  if (timer === _syncTimer.nil) {
+  if (timer === _nil) {
     return;
   }
   timer.await();
@@ -1176,7 +1198,7 @@ function _syncTimerAwait(timer) {
  * @return タイマーのカウントが 0 に達した場合 true
  */
 function _syncTimerTimedAwait(timer, timeout) {
-  if (timer === _syncTimer.nil) {
+  if (timer === _nil) {
     return false;
   }
   let max = Math.floor(_nearestLongMax / 1024);
@@ -1194,7 +1216,7 @@ function _syncTimerTimedAwait(timer, timeout) {
  * @return タイマーのカウントが 0 に達した場合 true
  */
 function _syncTimerCountdownAndTimedAwait(timer, timeout) {
-  if (timer === _syncTimer.nil) {
+  if (timer === _nil) {
     return false;
   }
   let max = Math.floor(_nearestLongMax / 1024);
@@ -1206,7 +1228,7 @@ function _syncTimerCountdownAndTimedAwait(timer, timeout) {
 }
 
 function _resetSyncTimer(timer, count) {
-  if (timer === _syncTimer.nil) {
+  if (timer === _nil) {
     return;
   }
   if (!_isIntInRange(count, _syncTimer.minCount, _syncTimer.maxCount)) {
@@ -1217,7 +1239,7 @@ function _resetSyncTimer(timer, count) {
 }
 
 function _getSyncTimerCount(timer) {
-  if (timer === _syncTimer.nil) {
+  if (timer === _nil) {
     return 0;
   }
   return timer.getCount();
@@ -1233,7 +1255,7 @@ function _newSemaphore(numPermits, faire) {
 }
 
 function _semaphoreAcquire(semaphore, numPermits) {
-  if (semaphore === _semaphore.nil) {
+  if (semaphore === _nil) {
     return;
   }
   if (!_isIntInRange(numPermits, _semaphore.minPermits, _semaphore.maxPermits)) {
@@ -1251,7 +1273,7 @@ function _semaphoreAcquire(semaphore, numPermits) {
  * @return セマフォからパーミットが取得できた場合 true
  */
 function _semaphoreTryAcquire(semaphore, numPermits, timeout) {
-  if (semaphore === _semaphore.nil) {
+  if (semaphore === _nil) {
     return false;
   }
   if (!_isIntInRange(numPermits, _semaphore.minPermits, _semaphore.maxPermits)) {
@@ -1267,7 +1289,7 @@ function _semaphoreTryAcquire(semaphore, numPermits, timeout) {
 }
 
 function _getNumSemaphorePermits(semaphore) {
-  if (semaphore === _semaphore.nil) {
+  if (semaphore === _nil) {
     return 0;
   }
   return semaphore.availablePermits();
@@ -1276,7 +1298,7 @@ function _getNumSemaphorePermits(semaphore) {
 // Semaphore オブジェクトごとにロックをかけて呼び出すためのメソッド.
 let _semaphoreReleaseSync = new _jSynchronizer(
     function (semaphore, numPermits) {
-      if (semaphore === _semaphore.nil) {
+      if (semaphore === _nil) {
         return 0;
       }
       if (!_isIntInRange(numPermits, _semaphore.minPermits, _semaphore.maxPermits)) {

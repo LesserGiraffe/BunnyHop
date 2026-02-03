@@ -56,12 +56,14 @@ public final class TextAreaNodeView extends TextInputNodeView {
    *
    * @param model このノードビューに対応するノード
    * @param style このノードビューのスタイル
+   * @param components このノードビューに追加する GUI コンポーネント
+   * @param isTemplate このノードビューがテンプレートノードビューの場合 true
    * @throws ViewConstructionException ノードビューの初期化に失敗
    */
   public TextAreaNodeView(
-      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components)
+      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
       throws ViewConstructionException {
-    super(model, style, components);
+    super(model, style, components, isTemplate);
     this.model = model;
     sizeCalculator = new NodeSizeCalculator(this, this::getTextAreaSize);
     setComponent(textArea);
@@ -75,10 +77,12 @@ public final class TextAreaNodeView extends TextInputNodeView {
    * コンストラクタ.
    *
    * @param style このノードビューのスタイル
+   * @param isTemplate このノードビューがテンプレートノードビューの場合 true
    * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public TextAreaNodeView(BhNodeViewStyle style) throws ViewConstructionException {
-    this(null, style, new LinkedHashSet<>());
+  public TextAreaNodeView(BhNodeViewStyle style, boolean isTemplate)
+      throws ViewConstructionException {
+    this(null, style, new LinkedHashSet<>(), isTemplate);
   }
 
   private void forwardEvent(Event event) {

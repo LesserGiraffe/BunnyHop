@@ -57,6 +57,7 @@ public class ScriptIdentifiers {
     public static final String ARY_NUM_MIN = "_aryNumMin";
     public static final String ARY_SORT = "_arySort";
     public static final String ARY_NUM_SORT = "_aryNumSort";
+    public static final String ARY_SLICE = "_arySlice";
     public static final String IS_SUBSET = "_isSubset";
     public static final String IS_PROPER_SUBSET = "_isProperSubset";
     public static final String IS_SUPERSET = "_isSuperset";
@@ -129,7 +130,6 @@ public class ScriptIdentifiers {
   public static class JsFuncs {
     public static final String PUSH = "push";
     public static final String POP = "pop";
-    public static final String CALL = "call";
     public static final String SPLICE = "splice";
   }
 
@@ -147,6 +147,7 @@ public class ScriptIdentifiers {
 
   /** BhProgram で使用される変数名. */
   public static class Vars {
+    public static final String NIL = "_nil";
     public static final String NIL_SOUND  = "_nilSound";
     public static final String NIL_COLOR = "_nilColor";
     public static final String THREAD_CONTEXT = "_threadContext";

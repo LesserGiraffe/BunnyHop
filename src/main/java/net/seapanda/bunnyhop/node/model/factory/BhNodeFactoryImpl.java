@@ -143,8 +143,10 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
     public void visit(ConnectiveNode node) {
       BhNodeView view = null;
       try {
-        view = viewFactory.createViewOf(node);
+        boolean isTemplate = type == MvcType.TEMPLATE;
+        view = viewFactory.createViewOf(node, isTemplate);
         connectMvc(node, view);
+        node.setTemplate(type == MvcType.TEMPLATE);
       } catch (ViewConstructionException e) {
         LogManager.logger().error(e.toString());
       }
@@ -164,8 +166,10 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
     public void visit(TextNode node) {
       BhNodeView view = null;
       try {
-        view = viewFactory.createViewOf(node);
+        boolean isTemplate = type == MvcType.TEMPLATE;
+        view = viewFactory.createViewOf(node, isTemplate);
         connectMvc(node, view);
+        node.setTemplate(type == MvcType.TEMPLATE);
       } catch (ViewConstructionException e) {
         LogManager.logger().error(e.toString());
       }
@@ -185,12 +189,12 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
       }
       BhNodeController ctrl = createBaseController(node, nodeView);
       switch (nodeView) {
-        case TextFieldNodeView view -> new TextInputNodeController(ctrl);
-        case ComboBoxNodeView view -> new ComboBoxNodeController(ctrl);
-        case LabelNodeView view -> new LabelNodeController(ctrl);
-        case TextAreaNodeView view -> new TextInputNodeController(ctrl);
-        case NoContentNodeView view -> new NoContentNodeController(ctrl);
-        case ConnectiveNodeView view -> new ConnectiveNodeController(ctrl);
+        case TextFieldNodeView ignored -> new TextInputNodeController(ctrl);
+        case ComboBoxNodeView ignored -> new ComboBoxNodeController(ctrl);
+        case LabelNodeView ignored -> new LabelNodeController(ctrl);
+        case TextAreaNodeView ignored -> new TextInputNodeController(ctrl);
+        case NoContentNodeView ignored -> new NoContentNodeController(ctrl);
+        case ConnectiveNodeView ignored -> new ConnectiveNodeController(ctrl);
         default ->
           throw new IllegalStateException("Invalid BhNodeView type (%s)".formatted(nodeView));
       };

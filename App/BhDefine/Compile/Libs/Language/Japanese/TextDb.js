@@ -76,6 +76,7 @@ let _textDb = {
       (volume, hz, duration) => `音 (大きさ: ${volume} %,  高さ: ${hz} ヘルツ,  長さ: ${duration} 秒)`
   },
   list: {
+    namelessList: '無名リスト',
     empty: '[ 空リスト ]'
   }
 };

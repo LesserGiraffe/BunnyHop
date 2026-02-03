@@ -55,11 +55,14 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
    *
    * @param model このノードビューに対応するノード
    * @param style このノードビューのスタイル
+   * @param components このノードビューに追加する GUI コンポーネント
+   * @param isTemplate このノードビューがテンプレートノードビューの場合 true
    * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public ComboBoxNodeView(TextNode model, BhNodeViewStyle style, SequencedSet<Node> components)
+  public ComboBoxNodeView(
+      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
       throws ViewConstructionException {
-    super(style, model, components);
+    super(style, model, components, isTemplate);
     this.model = model;
     sizeCalculator = new NodeSizeCalculator(this, this::getComboBoxSize);
     setComponent(comboBox);
@@ -71,11 +74,12 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
    * コンストラクタ.
    *
    * @param style このノードビューのスタイル
+   * @param isTemplate このノードビューがテンプレートノードビューの場合 true
    * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public ComboBoxNodeView(BhNodeViewStyle style)
+  public ComboBoxNodeView(BhNodeViewStyle style, boolean isTemplate)
       throws ViewConstructionException {
-    this(null, style, new LinkedHashSet<>());
+    this(null, style, new LinkedHashSet<>(), isTemplate);
   }
 
   private void initStyle() {

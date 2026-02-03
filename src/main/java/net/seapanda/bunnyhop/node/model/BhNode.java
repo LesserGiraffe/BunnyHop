@@ -71,6 +71,8 @@ public abstract class BhNode extends SyntaxSymbol {
    * 現在のシステムと互換性のないバージョンのノードから復元された場合, 破損したものとして扱う.
    */
   private boolean isCorrupted = false;
+  /** テンプレートノード (ノード選択ビューに置くためのノード) である場合 true. */
+  private boolean isTemplate = false;
   /** このノードに登録されたイベントハンドラを呼び出すオブジェクト. */
   private final transient EventInvoker eventInvoker = this.new EventInvoker();
   /** 最後にこのノードと入れ替わったノード. */
@@ -333,6 +335,24 @@ public abstract class BhNode extends SyntaxSymbol {
     return isCorrupted;
   }
 
+  /**
+   * このノードがテンプレートノードであるかどうかを設定する.
+   *
+   * @param val このノードテンプレートノードであるかどうかのフラグ.
+   */
+  public void setTemplate(boolean val) {
+    isTemplate = val;
+  }
+
+  /**
+   * このノードがテンプレートノードであるかどうかを調べる.
+   *
+   * @return このノードがテンプレートノードである場合 true.
+   */
+  public boolean isTemplate() {
+    return isTemplate;
+  }
+
   /** このノードのバージョンを取得する. */
   public BhNodeVersion getVersion() {
     return params.version();
@@ -399,9 +419,8 @@ public abstract class BhNode extends SyntaxSymbol {
   /** {@code node} が対応するノードビューを持っていなかった場合, 作成する. */
   private void createMvcIfNotHaveView(BhNode node) {
     if (workspace != null && node.getView().isEmpty()) {
-      getView()
-          .map(view -> view.isTemplate() ? MvcType.TEMPLATE : MvcType.DEFAULT)
-          .ifPresent(type -> factory.setMvc(node, type));
+      MvcType type = isTemplate ? MvcType.TEMPLATE : MvcType.DEFAULT;
+      factory.setMvc(node, type);
     }
   }
 
