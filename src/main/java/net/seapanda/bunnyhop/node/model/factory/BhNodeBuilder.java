@@ -85,7 +85,8 @@ class BhNodeBuilder {
     if (!doc.getFirstChild().getNodeName().equals(BhConstants.BhModelDef.ELEM_NODE)) {
       LogManager.logger().error(String.format("""
           Invalid BhNode definition. (%s)
-          A BhNode definition must have a '%s' root element.\n%s
+          A BhNode definition must have a '%s' root element.
+          %s
           """,
           doc.getFirstChild().getNodeName(),
           BhConstants.BhModelDef.ELEM_NODE,
@@ -99,7 +100,6 @@ class BhNodeBuilder {
    * {@code elem} 以下の xml 要素からノードツリーを作成する.
    *
    * @param elem Node エレメント
-   * @param archive 作成したノードやコネクタの格納先
    * @return 作成したノードツリーのルート {@link BhNode} オブジェクト
    */
   public Optional<? extends BhNode> build(Element elem) {
@@ -148,7 +148,7 @@ class BhNodeBuilder {
             BhConstants.BhModelDef.ELEM_DERIVATION,
             BhConstants.BhModelDef.ATTR_DERIVATION_ID,
             elem.getBaseURI()));
-        success &= false;
+        success = false;
         continue;
       }
 
@@ -160,7 +160,7 @@ class BhNodeBuilder {
             BhConstants.BhModelDef.ELEM_DERIVATION,
             BhConstants.BhModelDef.ATTR_DERIVATIVE_ID,
             elem.getBaseURI()));
-        success &= false;
+        success = false;
         continue;
       }
       derivationToDerivative.put(derivationId, derivativeId);
@@ -241,7 +241,7 @@ class BhNodeBuilder {
 
     return genDerivationAndDerivative(elem, nodeAttrs.bhNodeId())
         .map(derivationToDerivative -> generator.newConnectiveNode(
-            childSection.get().get(0),
+            childSection.get().getFirst(),
             derivationToDerivative, nodeAttrs));
   }
 
@@ -312,23 +312,23 @@ class BhNodeBuilder {
       if (childNode.getNodeType() != Node.ELEMENT_NODE) {
         continue;
       }
-      // parentTag の子ノードの名前が ConnectorSection
+      // elem の子ノードの名前が ConnectorSection
       if (childNode.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR_SECTION)) {
         Optional<ConnectorSection> connectorGroup = genConnectorSection((Element) childNode);
         sectionListTmp.add(connectorGroup);
 
-      // parentTag の子ノードの名前が Section
+      // elem の子ノードの名前が Section
       } else if (childNode.getNodeName().equals(BhConstants.BhModelDef.ELEM_SECTION)) {
         Optional<Subsection> subsection = genSection((Element) childNode);
         sectionListTmp.add(subsection);
       }
     }
     // section (<Group> or <ConnectorGroup>) より下でエラーがあった
-    if (sectionListTmp.contains(Optional.empty())) {
+    if (sectionListTmp.contains(Optional.<Section>empty())) {
       return Optional.empty();
     }
     ArrayList<Section> sectionList = sectionListTmp.stream()
-        .map(section -> section.get())
+        .map(Optional::get)
         .collect(Collectors.toCollection(ArrayList<Section>::new));
     return Optional.of(sectionList);
   }
@@ -395,7 +395,7 @@ class BhNodeBuilder {
     }
     // プライベートノードがある
     if (privateNodeTagList.size() == 1) {
-      Optional<? extends BhNode> privateNode = genPirvateNode(privateNodeTagList.get(0));
+      Optional<? extends BhNode> privateNode = genPirvateNode(privateNodeTagList.getFirst());
       if (privateNode.isPresent()
           && !elem.hasAttribute(BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID)) {
         elem.setAttribute(
@@ -431,8 +431,7 @@ class BhNodeBuilder {
     ArrayList<Element> selectedElementList = new ArrayList<>();
     for (int i = 0; i < elem.getChildNodes().getLength(); ++i) {
       Node node = elem.getChildNodes().item(i);
-      if (node instanceof Element) {
-        Element tag = (Element) node;
+      if (node instanceof Element tag) {
         if (tag.getTagName().equals(childTagName)) {
           selectedElementList.add(tag);
         }

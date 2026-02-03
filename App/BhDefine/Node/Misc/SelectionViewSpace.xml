@@ -1,8 +1,0 @@
-<Node
-    type="text"
-    bhNodeID="idSelectionViewSpace" 
-    name="SelectionViewSpace" 
-    nodeStyleID="SelectionViewSpace.json"
-    breakpoint="ignore"
-    onAliasAsked="OnAliasAsked.js"
-    version="bhn-0.1.0"/>

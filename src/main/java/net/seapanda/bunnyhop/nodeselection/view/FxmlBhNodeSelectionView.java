@@ -142,16 +142,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
 
   @Override
   public long getNumNodeViewTrees() {
-    return rootNodeViews.stream()
-        .filter(root -> !isSpaceNodeView(root))
-        .count();
-  }
-
-  /** {@code view} が空白を開けるための {@link BhNodeView} であるかどうか調べる. */
-  private boolean isSpaceNodeView(BhNodeView view) {
-    return view.getModel().map(
-        model -> model.getSymbolName().equals(BhConstants.NodeSelection.SELECTION_VIEW_SPACE))
-        .orElse(false);
+    return rootNodeViews.size();
   }
 
   @Override

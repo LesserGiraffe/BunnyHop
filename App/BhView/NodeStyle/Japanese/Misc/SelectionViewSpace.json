@@ -1,7 +1,0 @@
-{
-  "import" : ["../../Common/Bodiless.json"],
-  "component" : "None",
-  "paddingTop" : 3.0,
-  "paddingBottom" : 3.0,
-  "cssClass" : "voidType"
-}
