@@ -23,7 +23,7 @@
         name="FourArithOpe"
         nodeStyleID="DefaultComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateFourArithOps.js"
+        onTextOptionsCreating="CreateFourArithOpeOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
     

@@ -25,7 +25,7 @@
         name="MeasureOpe"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateSoundPressureOps.js"
+        onTextOptionsCreating="CreateSoundPressureOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
   </ConnectorSection>

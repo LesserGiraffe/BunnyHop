@@ -37,7 +37,7 @@
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateSyncTimerOps.js"
+        onTextOptionsCreating="CreateSyncTimerOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
 

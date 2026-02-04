@@ -30,7 +30,7 @@
         name="lineFeedOption"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateLineBreakOps.js"
+        onTextOptionsCreating="CreateLineBreakOpts.js"
         version="bhn-0.1.0">
       </Node>
     </Connector>

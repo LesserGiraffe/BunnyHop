@@ -24,7 +24,7 @@
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateSortOrderOps.js"
+        onTextOptionsCreating="CreateSortOrderOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
 

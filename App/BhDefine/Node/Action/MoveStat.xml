@@ -36,7 +36,7 @@
         name="MoveOpe"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateMoveOps.js"
+        onTextOptionsCreating="CreateMoveOpts.js"
         version="bhn-0.1.0">
       </Node>
     </Connector>

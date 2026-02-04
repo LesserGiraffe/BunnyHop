@@ -29,7 +29,7 @@
         name="MaxMinOpe"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateMaxMinOps.js"
+        onTextOptionsCreating="CreateMaxMinOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
 

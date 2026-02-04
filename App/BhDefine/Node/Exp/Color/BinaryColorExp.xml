@@ -23,7 +23,7 @@
         name="BinaryColorOpe"
         nodeStyleID="DefaultComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateAddSubOps.js"
+        onTextOptionsCreating="CreateAddSubOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
     

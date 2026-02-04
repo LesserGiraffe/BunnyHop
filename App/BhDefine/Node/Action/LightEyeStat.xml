@@ -24,7 +24,7 @@
         name="StrLiteral"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateEyeOps.js"
+        onTextOptionsCreating="CreateEyeOpts.js"
         version="bhn-0.1.0">
       </Node>
     </Connector>

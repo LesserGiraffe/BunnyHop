@@ -67,11 +67,11 @@ let nodeToNamePos = {
 };
 
 let nodeToOptionAndTextId = {
-  'MoveStat':           [ ['*', '*', 'MoveOpe'],     ['node', 'move-ops'] ],
+  'MoveStat':           [ ['*', '*', 'MoveOpe'],     ['node', 'move-opts'] ],
   'AnyArraySpliceStat': [ ['*', '*', 'Function'],    ['node', 'list-splice-opts'] ],
-  'AnyCompExp':         [ ['*', '*', 'CompOpe'],     ['node', 'math-comp-ops'] ],
-  'NumCompExp':         [ ['*', '*', 'CompOpe'],     ['node', 'math-comp-ops'] ],
-  'StrCompExp':         [ ['*', '*', 'CompOpe'],     ['node', 'math-comp-ops'] ]
+  'AnyCompExp':         [ ['*', '*', 'CompOpe'],     ['node', 'math-comp-opts'] ],
+  'NumCompExp':         [ ['*', '*', 'CompOpe'],     ['node', 'math-comp-opts'] ],
+  'StrCompExp':         [ ['*', '*', 'CompOpe'],     ['node', 'math-comp-opts'] ]
 };
 
 function getAliasId() {

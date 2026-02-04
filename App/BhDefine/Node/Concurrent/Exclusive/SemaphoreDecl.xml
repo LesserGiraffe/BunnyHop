@@ -37,7 +37,7 @@
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateSemaphoreOps.js"
+        onTextOptionsCreating="CreateSemaphoreOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
 

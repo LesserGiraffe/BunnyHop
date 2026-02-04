@@ -279,7 +279,7 @@
       }
     },
 
-    "menubar-ops": {
+    "menubar-opts": {
       "free-memory": "メモリを解放しました\n",
       "version": {
         "title": "バージョン一覧",
@@ -291,16 +291,18 @@
   },
 
   "node": {
-    "num-round-ops": {
+    "num-round-opts": {
       "floor": "切り捨て",
       "ceil": "切り上げ",
       "round": "四捨五入",
       "trunc": "削除"
     },
 
-    "add-sub-ops": {
+    "four-arith-ope-opts": {
       "add": "＋",
-      "sub": "－"
+      "sub": "－",
+      "mul": "×",
+      "div": "÷"
     },
 
     "eye-opts": {
@@ -309,7 +311,7 @@
       "left": "左目"
     },
 
-    "move-ops": {
+    "move-opts": {
       "moveForward": "前進",
       "moveBackward": "後退",
       "turnRight": "右回転",
@@ -336,9 +338,9 @@
       "false": "待たない"
     },
 
-    "print-stat-opts": {
-      "with-line-break": "改行あり",
-      "without-line-break": "改行なし"
+    "line-break": {
+      "with": "改行あり",
+      "without": "改行なし"
     },
 
     "key-pressed-events": {
@@ -388,7 +390,7 @@
       "Z": "Z"
     },
 
-    "math-comp-ops": {
+    "math-comp-opts": {
       "eq": "＝",
       "neq": "≠",
       "lt": "＜",
@@ -397,7 +399,16 @@
       "gte": "≧"
     },
 
-    "binary-bool-ops": {
+    "set-comp-opts": {
+      "subset": "⊆",
+      "properSubset": "⊂",
+      "superset": "⊇",
+      "properSuperset": "⊃",
+      "eq": "＝",
+      "neq": "≠"
+    },
+
+    "binary-bool-opts": {
       "and": "かつ",
       "or": "または"
     },

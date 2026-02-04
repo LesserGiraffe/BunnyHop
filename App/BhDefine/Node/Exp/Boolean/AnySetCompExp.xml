@@ -23,7 +23,7 @@
         name="StrLiteral"
         nodeStyleID="DefaultComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateSetCompOps.js"
+        onTextOptionsCreating="CreateSetCompOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
 

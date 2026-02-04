@@ -31,7 +31,7 @@
         name="CountdownOption"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateCountdownOps.js"
+        onTextOptionsCreating="CreateCountdownOpts.js"
         version="bhn-0.1.0">
       </Node>
     </Connector>

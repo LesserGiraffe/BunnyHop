@@ -24,7 +24,7 @@
         name="NumRoundOpe"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateNumRoundOps.js"
+        onTextOptionsCreating="CreateNumRoundOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
 

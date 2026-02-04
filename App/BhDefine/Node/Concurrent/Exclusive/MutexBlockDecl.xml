@@ -37,7 +37,7 @@
         name="BoolLiteral"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateMutexBlockOps.js"
+        onTextOptionsCreating="CreateMutexBlockOpts.js"
         version="bhn-0.1.0">
       </Node>
     </Connector>

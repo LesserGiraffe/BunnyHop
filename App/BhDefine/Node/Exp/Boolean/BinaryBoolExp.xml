@@ -24,7 +24,7 @@
         name="BinaryBoolOpe"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateBinaryBoolOps.js"
+        onTextOptionsCreating="CreateBinaryBoolOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
     

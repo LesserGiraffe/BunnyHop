@@ -372,18 +372,18 @@ public class TextDefs {
   /** メニューバーから選択できる操作で表示されるメッセージ. */
   public static class MenubarOps {
     public static Getter freeMemory = params -> db.get(
-        TextId.of("msg", "menubar-ops", "free-memory"), params);
+        TextId.of("msg", "menubar-opts", "free-memory"), params);
     
     /** バージョン画面のメッセージ. */
     public static class Version {
       public static Getter title = params -> db.get(
-          TextId.of("msg", "menubar-ops", "version", "title"), params);
+          TextId.of("msg", "menubar-opts", "version", "title"), params);
       public static Getter system = params -> db.get(
-          TextId.of("msg", "menubar-ops", "version", "system"), params);
+          TextId.of("msg", "menubar-opts", "version", "system"), params);
       public static Getter runtime = params -> db.get(
-          TextId.of("msg", "menubar-ops", "version", "runtime"), params);
+          TextId.of("msg", "menubar-opts", "version", "runtime"), params);
       public static Getter simulator = params -> db.get(
-          TextId.of("msg", "menubar-ops", "version", "simulator"), params);
+          TextId.of("msg", "menubar-opts", "version", "simulator"), params);
     }
   }
 

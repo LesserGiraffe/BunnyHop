@@ -42,7 +42,7 @@
         name="Function"
         nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        onTextOptionsCreating="CreateListSpliceOps.js"
+        onTextOptionsCreating="CreateListSpliceOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
     
