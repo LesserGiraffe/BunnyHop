@@ -6,14 +6,16 @@ let listDeclToGetExp = {
   'StrListDecl'   : 'idStrArrayGetExp',
   'BoolListDecl'  : 'idBoolArrayGetExp',
   'ColorListDecl' : 'idColorArrayGetExp',
-  'SoundListDecl' : 'idSoundArrayGetExp'};
+  'SoundListDecl' : 'idSoundArrayGetExp'
+};
 
 let listDeclToSliceExp = {
   'NumListDecl'   : 'idNumArraySliceExp',
   'StrListDecl'   : 'idStrArraySliceExp',
   'BoolListDecl'  : 'idBoolArraySliceExp',
   'ColorListDecl' : 'idColorArraySliceExp',
-  'SoundListDecl' : 'idSoundArraySliceExp'};
+  'SoundListDecl' : 'idSoundArraySliceExp'
+};
 
 let listDeclToLiteral = {
   'NumListDecl'   : 'idNumLiteralExp',
@@ -33,11 +35,21 @@ let listDeclToExpVoid = {
 
 let listDeclToMinMaxExp = {
   'NumListDecl'   : 'idNumArrayMaxMinExp',
-  'StrListDecl'   : 'idStrArrayMaxMinExp'};
+  'StrListDecl'   : 'idStrArrayMaxMinExp'
+};
 
-let listDeclToSortStat = {
-  'NumListDecl'   : 'idNumArraySortStat',
-  'StrListDecl'   : 'idAnyArraySortStat'};
+let listDeclToSortExp = {
+  'NumListDecl'   : 'idNumArraySortExp',
+  'StrListDecl'   : 'idStrArraySortExp'
+};
+
+let listDeclToReverseExp = {
+  'NumListDecl'   : 'idNumArrayReverseExp',
+  'StrListDecl'   : 'idStrArrayReverseExp',
+  'BoolListDecl'  : 'idBoolArrayReverseExp',
+  'ColorListDecl' : 'idColorArrayReverseExp',
+  'SoundListDecl' : 'idSoundArrayReverseExp'
+};
 
 let listDeclToPlaySoundListStat = {
   'SoundListDecl' : 'idPlaySoundListStat'
@@ -75,12 +87,12 @@ function genAnyArrayControlNode(arrayCtrlNodeId, listCnctrName, argNameToSymbolM
     genAnyArrayControlNode('idAnyArrayInsertStat', 'Arg0', {'Arg2' : listDeclToLiteral}),
     genAnyArrayControlNode('idAnyArrayAppendStat', 'Arg0', {'Arg2' : listDeclToExpVoid}),
     genAnyArrayControlNode('idAnyArraySpliceStat', 'Arg0'),
-    genAnyArrayControlNode(listDeclToSliceExp[listDeclName], 'Arg0'),
+    genAnyArrayControlNode(listDeclToMinMaxExp[listDeclName], 'Arg0'),
     genAnyArrayControlNode('idAnyArrayIndexOfExp', 'Arg0', {'Arg1' : listDeclToLiteral}),
     genAnyArrayControlNode('idAnyArrayIncludesExp', 'Arg0', {'Arg1' : listDeclToLiteral}),
-    genAnyArrayControlNode('idAnyArrayReverseStat', 'Arg0'),
-    genAnyArrayControlNode(listDeclToSortStat[listDeclName], 'Arg0'),
-    genAnyArrayControlNode(listDeclToMinMaxExp[listDeclName], 'Arg0'),
+    genAnyArrayControlNode(listDeclToSortExp[listDeclName], 'Arg0'),
+    genAnyArrayControlNode(listDeclToReverseExp[listDeclName], 'Arg0'),
+    genAnyArrayControlNode(listDeclToSliceExp[listDeclName], 'Arg0'),
     genAnyArrayControlNode('idAnyArrayAssignStat', 'LeftVar', {'RightExp' : listDeclToExpVoid})
   ];
   return templates.filter(node => node !== null);

@@ -34,7 +34,7 @@ public class FuncId {
    *
    * @param snippets IDを構成する情報
    */
-  public static FuncId create(String... snippets) {
+  public static FuncId of(String... snippets) {
 
     var retVal = new FuncId();
     retVal.id = new ArrayList<String>(Arrays.asList(snippets));

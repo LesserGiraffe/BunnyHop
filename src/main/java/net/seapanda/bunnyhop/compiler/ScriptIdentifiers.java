@@ -46,6 +46,7 @@ public class ScriptIdentifiers {
     public static final String ARY_SET = "_arySet";
     public static final String ARY_LEN = "_aryLen";
     public static final String ARY_REVERSE = "_aryReverse";
+    public static final String ARY_REVERSED = "_aryReversed";
     public static final String ARY_FIRST_INDEX_OF = "_aryFirstIndexOf";
     public static final String ARY_LAST_INDEX_OF = "_aryLastIndexOf";
     public static final String ARY_INCLUDES = "_aryIncludes";
@@ -56,7 +57,9 @@ public class ScriptIdentifiers {
     public static final String ARY_NUM_MAX = "_aryNumMax";
     public static final String ARY_NUM_MIN = "_aryNumMin";
     public static final String ARY_SORT = "_arySort";
+    public static final String ARY_SORTED = "_arySorted";
     public static final String ARY_NUM_SORT = "_aryNumSort";
+    public static final String ARY_NUM_SORTED = "_aryNumSorted";
     public static final String ARY_SLICE = "_arySlice";
     public static final String IS_SUBSET = "_isSubset";
     public static final String IS_PROPER_SUBSET = "_isProperSubset";

@@ -363,7 +363,7 @@ class ExpCodeGenerator {
       }
       ++idOption;
     }
-    return FuncId.create(funcIdentifier.toArray(new String[0]));
+    return FuncId.of(funcIdentifier.toArray(new String[0]));
   }
 
   /**

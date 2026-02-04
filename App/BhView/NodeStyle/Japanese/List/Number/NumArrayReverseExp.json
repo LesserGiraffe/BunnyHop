@@ -1,0 +1,11 @@
+{
+  "import" : ["../../../Common/NumListExp.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["Arg0", "${L1}{の要素が逆に並んだ}", "Option0", "${L1}{リスト}"]
+    }
+  }
+}

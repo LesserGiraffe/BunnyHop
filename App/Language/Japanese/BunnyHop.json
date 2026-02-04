@@ -436,7 +436,7 @@
       "min": "小さい方"
     },
 
-    "array-index-of-opts": {
+    "list-index-of-opts": {
       "first": "最初の",
       "last": "最後の"
     },
@@ -456,6 +456,16 @@
     "list-sort-opts": {
       "ascending": "小さい順",
       "descending": "大きい順"
+    },
+
+    "list-sort-in-place-opts": {
+      "in-pace": "元の",
+      "not-in-place": "新しい"
+    },
+
+    "list-reverse-in-place-opts": {
+      "in-pace": "元の",
+      "not-in-place": "新しい"
     },
 
     "bool-literal": {
@@ -537,26 +547,30 @@
       "AnyArrayInsertStat": "リストに要素を挿入する",
       "AnyArrayLengthExp": "リストの要素数を求める",
       "AnyArrayPushStat": "リストに要素を追加する",
-      "AnyArrayReverseStat": "リストの順番を逆にする",
       "AnyArraySetStat": "リストの要素を置き換える",
       "AnyArraySpliceStat": "リストの要素を${option}",
       "AnyArrayToStrExp": "リストを文字列に変換する",
       "AnyArrayAssignStat": "リストの参照を付け替える",
-      "AnyArraySortStat": "リストの要素を並べ替える",
-      "NumArraySortStat": "リストの要素を並べ替える",
       "AnySetCompExp": "リスト同士を集合として比較する",
       "BoolArrayGetExp": "リストの要素を取得する",
       "BoolArraySliceExp": "サブリストを取得する",
+      "BoolArrayReverseExp": "リストの順番を逆にする",
       "ColorArrayGetExp": "リストの要素を取得する",
       "ColorArraySliceExp": "サブリストを取得する",
+      "ColorArrayReverseExp": "リストの順番を逆にする",
       "NumArrayGetExp": "リストの要素を取得する",
       "NumArraySliceExp": "サブリストを取得する",
+      "NumArrayReverseExp": "リストの順番を逆にする",
+      "NumArraySortExp": "リストの要素を並べ替える",
       "NumArrayMaxMinExp${max}": "リストから最大値を見つける",
       "NumArrayMaxMinExp${min}": "リストから最小値を見つける",
       "SoundArrayGetExp": "リストの要素を取得する",
       "SoundArraySliceExp": "サブリストを取得する",
+      "SoundArrayReverseExp": "リストの順番を逆にする",
       "StrArrayGetExp": "リストの要素を取得する",
       "StrArraySliceExp": "サブリストを取得する",
+      "StrArraySortExp": "リストの要素を並べ替える",
+      "StrArrayReverseExp": "リストの順番を逆にする",
       "StrArrayMaxMinExp${max}": "リストから最大値を見つける",
       "StrArrayMaxMinExp${min}": "リストから最小値を見つける",
 

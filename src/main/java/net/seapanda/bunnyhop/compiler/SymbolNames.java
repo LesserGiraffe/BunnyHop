@@ -16,6 +16,9 @@
 
 package net.seapanda.bunnyhop.compiler;
 
+import static net.seapanda.bunnyhop.compiler.ScriptIdentifiers.Funcs;
+import static net.seapanda.bunnyhop.compiler.ScriptIdentifiers.Vars;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -102,18 +105,18 @@ public class SymbolNames {
             put(NUM_VAR_DECL, "0");
             put(STR_VAR_DECL, "''");
             put(BOOL_VAR_DECL, "false");
-            put(COLOR_VAR_DECL, ScriptIdentifiers.Vars.NIL_COLOR);
-            put(SOUND_VAR_DECL, ScriptIdentifiers.Vars.NIL_SOUND);
+            put(COLOR_VAR_DECL, Vars.NIL_COLOR);
+            put(SOUND_VAR_DECL, Vars.NIL_SOUND);
             put(NUM_LIST_DECL, "[]");
             put(STR_LIST_DECL, "[]");
             put(BOOL_LIST_DECL, "[]");
             put(COLOR_LIST_DECL, "[]");
             put(SOUND_LIST_DECL, "[]");
-            put(NUM_VAR_VOID, ScriptIdentifiers.Vars.NIL);
-            put(STR_VAR_VOID, ScriptIdentifiers.Vars.NIL);
-            put(BOOL_VAR_VOID, ScriptIdentifiers.Vars.NIL);
-            put(COLOR_VAR_VOID, ScriptIdentifiers.Vars.NIL);
-            put(SOUND_VAR_VOID, ScriptIdentifiers.Vars.NIL);
+            put(NUM_VAR_VOID, Vars.NIL);
+            put(STR_VAR_VOID, Vars.NIL);
+            put(BOOL_VAR_VOID, Vars.NIL);
+            put(COLOR_VAR_VOID, Vars.NIL);
+            put(SOUND_VAR_VOID, Vars.NIL);
             put(NUM_LIST_VOID, "[]");
             put(STR_LIST_VOID, "[]");
             put(BOOL_LIST_VOID, "[]");
@@ -389,6 +392,8 @@ public class SymbolNames {
     public static final String OPT_WITHOUT_LINE_BREAK = "withoutLineBreak";
     public static final String OPT_WITH_COUNTDOWN = "withCountdown";
     public static final String OPT_WITHOUT_COUNTDOWN = "withoutCountdown";
+    public static final String OPT_IN_PLACE = "inPlace";
+    public static final String OPT_NOT_IN_PLACE = "notInPlace";
 
     /** 定義済み関数式のリスト. */
     public static final Set<String> EXP_LIST =
@@ -427,16 +432,23 @@ public class SymbolNames {
 
             Array.NUM_ARRAY_GET_EXP,
             Array.NUM_ARRAY_SLICE_EXP,
+            Array.NUM_ARRAY_REVERSE_EXP,
+            Array.NUM_ARRAY_SORT_EXP,
             Array.NUM_ARRAY_MAX_MIN_EXP,
             Array.STR_ARRAY_GET_EXP,
             Array.STR_ARRAY_SLICE_EXP,
+            Array.STR_ARRAY_REVERSE_EXP,
+            Array.STR_ARRAY_SORT_EXP,
             Array.STR_ARRAY_MAX_MIN_EXP,
             Array.BOOL_ARRAY_GET_EXP,
             Array.BOOL_ARRAY_SLICE_EXP,
+            Array.BOOL_ARRAY_REVERSE_EXP,
             Array.COLOR_ARRAY_GET_EXP,
             Array.COLOR_ARRAY_SLICE_EXP,
+            Array.COLOR_ARRAY_REVERSE_EXP,
             Array.SOUND_ARRAY_GET_EXP,
             Array.SOUND_ARRAY_SLICE_EXP,
+            Array.SOUND_ARRAY_REVERSE_EXP,
             Array.ANY_ARRAY_LEN_EXP,
             Array.ANY_ARRAY_INDEX_OF_EXP,
             Array.ANY_ARRAY_INCLUDES_EXP,
@@ -472,151 +484,139 @@ public class SymbolNames {
             Array.ANY_ARRAY_APPEND_STAT,
             Array.ANY_ARRAY_INSERT_STAT,
             Array.ANY_ARRAY_SPLICE_STAT,
-            Array.ANY_ARRAY_SET_STAT,
-            Array.ANY_ARRAY_REVERSE_STAT,
-            Array.ANY_ARRAY_SORT_STAT,
-            Array.NUM_ARRAY_SORT_STAT));
+            Array.ANY_ARRAY_SET_STAT));
 
     //  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
-    public static final Map<FuncId, String> NAME_MAP =
-        new HashMap<>() {{
-            put(FuncId.create(STR_TO_NUM_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
-            put(FuncId.create(STR_TO_NUM_WITH_DEFAULT_VAL_EXP), ScriptIdentifiers.Funcs.STR_TO_NUM);
-            put(FuncId.create(ANY_TO_STR_EXP), ScriptIdentifiers.Funcs.STR);
-            put(FuncId.create(PRINT_STAT, OPT_WITH_LINE_BREAK), ScriptIdentifiers.Funcs.PRINTLN);
-            put(FuncId.create(PRINT_STAT, OPT_WITHOUT_LINE_BREAK), ScriptIdentifiers.Funcs.PRINT);
-            put(FuncId.create(SYNC_TIMER_AWAIT_STAT, OPT_WITH_COUNTDOWN),
-                ScriptIdentifiers.Funcs.SYNC_TIMER_COUNTDOWN_AND_AWAIT);
-            put(FuncId.create(SYNC_TIMER_AWAIT_STAT, OPT_WITHOUT_COUNTDOWN),
-                ScriptIdentifiers.Funcs.SYNC_TIMER_AWAIT);
-            put(FuncId.create(RESET_SYNC_TIMER_STAT), ScriptIdentifiers.Funcs.RESET_SYNC_TIMER);
-            put(FuncId.create(SYNC_TIMER_COUNTDOWN_STAT),
-                ScriptIdentifiers.Funcs.SYNC_TIMER_COUNTDOWN);
-            put(FuncId.create(SEMAPHORE_ACQUIRE_STAT), ScriptIdentifiers.Funcs.SEMAPHORE_ACQUIRE);
-            put(FuncId.create(SEMAPHORE_RELEASE_STAT), ScriptIdentifiers.Funcs.SEMAPHORE_RELEASE);
-            put(FuncId.create(SCAM_EXP), ScriptIdentifiers.Funcs.SCAN);
-            put(FuncId.create(NUM_ROUND_EXP, OPT_ROUND), "Math.round");
-            put(FuncId.create(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
-            put(FuncId.create(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor");
-            put(FuncId.create(NUM_ROUND_EXP, OPT_TRUNC), "Math.trunc");
-            put(FuncId.create(ABS_EXP), "Math.abs");
-            put(FuncId.create(MAX_MIN_EXP, OPT_MAX), "Math.max");
-            put(FuncId.create(MAX_MIN_EXP, OPT_MIN), "Math.min");
-            put(FuncId.create(RANDOM_INT_EXP), ScriptIdentifiers.Funcs.RANDOM_INT);
-            put(FuncId.create(MEASURE_DISTANCE_EXP), ScriptIdentifiers.Funcs.MEASURE_DISTANCE);
-            put(FuncId.create(MELODY_EXP), ScriptIdentifiers.Funcs.PUSH_SOUND);
-            put(FuncId.create(ANY_COMP_EXP, OPT_EQ), ScriptIdentifiers.Funcs.ANY_EQ);
-            put(FuncId.create(ANY_COMP_EXP, OPT_NEQ), ScriptIdentifiers.Funcs.ANY_NEQ);
-            put(FuncId.create(BINARY_COLOR_EXP, OPT_ADD), ScriptIdentifiers.Funcs.ADD_COLOR);
-            put(FuncId.create(BINARY_COLOR_EXP, OPT_SUB), ScriptIdentifiers.Funcs.SUB_COLOR);
-            put(FuncId.create(DETECT_COLOR_EXP), ScriptIdentifiers.Funcs.DETECT_COLOR);
-            put(FuncId.create(GET_TIME_SINCE_PROGRAM_STARTED_EXP),
-                ScriptIdentifiers.Funcs.GET_TIMER_VAL);
-            put(FuncId.create(STR_CHAIN_LINK_EXP), ScriptIdentifiers.Funcs.STRCAT);
-            put(FuncId.create(STR_LINE_FEED_CHAIN_LINK_EXP), ScriptIdentifiers.Funcs.STRCAT_LF);
-            put(FuncId.create(STR_CHAIN_EXP), ScriptIdentifiers.Funcs.IDENTITY);
-            put(FuncId.create(GET_SYNC_TIMER_COUNT_EXP),
-                ScriptIdentifiers.Funcs.GET_SYNC_TIMER_COUNT);
-            put(FuncId.create(SYNC_TIMER_TIMED_AWAIT_EXP, OPT_WITH_COUNTDOWN),
-                ScriptIdentifiers.Funcs.SYNC_TIMER_COUNTDOWN_AND_TIMED_AWAIT);
-            put(FuncId.create(SYNC_TIMER_TIMED_AWAIT_EXP, OPT_WITHOUT_COUNTDOWN),
-                ScriptIdentifiers.Funcs.SYNC_TIMER_TIMED_AWAIT);
-            put(FuncId.create(SEMAPHORE_TRY_ACQUIRE_EXP),
-                ScriptIdentifiers.Funcs.SEMAPHORE_TRY_ACQUIRE);
-            put(FuncId.create(GET_NUM_SEMAPHORE_PERMITS_EXP),
-                ScriptIdentifiers.Funcs.GET_NUM_SEMAPHORE_PERMITS);
-            put(FuncId.create(ANY_ARRAY_TO_STR_EXP), ScriptIdentifiers.Funcs.ARY_TO_STR);
-            put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_FINITE), "Number.isFinite");
-            put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_INFINITE),
-                ScriptIdentifiers.Funcs.IS_NUM_INFINITE);
-            put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_POS_INF),
-                ScriptIdentifiers.Funcs.IS_NUM_POS_INF);
-            put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_NEG_INF),
-                ScriptIdentifiers.Funcs.IS_NUM_NEG_INF);
-            put(FuncId.create(CHECK_NUM_TYPE_EXP, OPT_NAN), "Number.isNaN");
-            put(FuncId.create(NUM_POW_EXP), "Math.pow");
-            put(FuncId.create(NUM_CLAMP_EXP), ScriptIdentifiers.Funcs.NUM_CLAMP);
-            put(FuncId.create(LOAD_TEXT_EXP), ScriptIdentifiers.Funcs.LOAD_TEXT);
-            put(FuncId.create(GET_TEXT_FILES_EXP), ScriptIdentifiers.Funcs.GET_TEXT_FILES);
-            put(FuncId.create(GET_AUDIO_VOLUME_EXP), ScriptIdentifiers.Funcs.GET_AUDIO_VOLUME);
-            put(FuncId.create(GET_AUDIO_FILES_EXP), ScriptIdentifiers.Funcs.GET_AUDIO_FILES);
-            put(FuncId.create(MEASURE_SOUND_PRESSURE_EXP, OPT_PEAK),
-                ScriptIdentifiers.Funcs.FIND_SOUND_PRESSURE_PEAK);
-            put(FuncId.create(MEASURE_SOUND_PRESSURE_EXP, OPT_AVERAGE),
-                ScriptIdentifiers.Funcs.FIND_SOUND_PRESSURE_AVERAGE);
-            put(FuncId.create(OUT_ARG_TEST_EXP), ScriptIdentifiers.Funcs.OUT_ARG_TEST);
-            put(FuncId.create(MOVE_STAT, OPT_MOVE_FORWARD), ScriptIdentifiers.Funcs.MOVE_FORWARD);
-            put(FuncId.create(MOVE_STAT, OPT_MOVE_BACKWARD), ScriptIdentifiers.Funcs.MOVE_BACKWARD);
-            put(FuncId.create(MOVE_STAT, OPT_TURN_RIGHT), ScriptIdentifiers.Funcs.TURN_RIGHT);
-            put(FuncId.create(MOVE_STAT, OPT_TURN_LEFT), ScriptIdentifiers.Funcs.TURN_LEFT);
-            put(FuncId.create(STOP_RASPI_CAR_STAT), ScriptIdentifiers.Funcs.STOP_RASPI_CAR);
-            put(FuncId.create(SLEEP_STAT), ScriptIdentifiers.Funcs.SLEEP);
-            put(FuncId.create(PLAY_MELODY_STAT), ScriptIdentifiers.Funcs.PLAY_MELODIES);
-            put(FuncId.create(PLAY_SOUND_LIST_STAT), ScriptIdentifiers.Funcs.PLAY_MELODIES);
-            put(FuncId.create(SAY_STAT), ScriptIdentifiers.Funcs.SAY);
-            put(FuncId.create(LIGHT_EYE_STAT), ScriptIdentifiers.Funcs.LIGHT_EYE);
-            put(FuncId.create(GlobalData.MUTEX_BLOCK_DECL), ScriptIdentifiers.Funcs.NEW_LOCK_OBJ);
-            put(FuncId.create(GlobalData.SYNC_TIMER_DECL), ScriptIdentifiers.Funcs.NEW_SYNC_TIMER);
-            put(FuncId.create(GlobalData.SEMAPHORE_DECL), ScriptIdentifiers.Funcs.NEW_SEMAPHORE);
-            put(FuncId.create(SAVE_TEXT_STAT), ScriptIdentifiers.Funcs.SAVE_TEXT);
-            put(FuncId.create(DELETE_TEXT_FILE_STAT), ScriptIdentifiers.Funcs.DELETE_TEXT_FILE);
-            put(FuncId.create(DELETE_TEXT_FILES_STAT), ScriptIdentifiers.Funcs.DELETE_TEXT_FILES);
-            put(FuncId.create(SET_AUDIO_VOLUME_STAT), ScriptIdentifiers.Funcs.SET_AUDIO_VOLUME);
-            put(FuncId.create(RECORD_AUDIO_STAT), ScriptIdentifiers.Funcs.RECORD_AUDIO);
-            put(FuncId.create(PLAY_AUDIO_STAT), ScriptIdentifiers.Funcs.PLAY_AUDIO);
-            put(FuncId.create(DELETE_AUDIO_FILE_STAT), ScriptIdentifiers.Funcs.DELETE_AUDIO_FILE);
-            put(FuncId.create(DELETE_AUDIO_FILES_STAT), ScriptIdentifiers.Funcs.DELETE_AUDIO_FILES);
+    public static final Map<FuncId, String> NAME_MAP = new HashMap<>() {{
+        put(FuncId.of(STR_TO_NUM_EXP), Funcs.STR_TO_NUM);
+        put(FuncId.of(STR_TO_NUM_WITH_DEFAULT_VAL_EXP), Funcs.STR_TO_NUM);
+        put(FuncId.of(ANY_TO_STR_EXP), Funcs.STR);
+        put(FuncId.of(PRINT_STAT, OPT_WITH_LINE_BREAK), Funcs.PRINTLN);
+        put(FuncId.of(PRINT_STAT, OPT_WITHOUT_LINE_BREAK), Funcs.PRINT);
+        put(FuncId.of(SYNC_TIMER_AWAIT_STAT, OPT_WITH_COUNTDOWN),
+            Funcs.SYNC_TIMER_COUNTDOWN_AND_AWAIT);
+        put(FuncId.of(SYNC_TIMER_AWAIT_STAT, OPT_WITHOUT_COUNTDOWN), Funcs.SYNC_TIMER_AWAIT);
+        put(FuncId.of(RESET_SYNC_TIMER_STAT), Funcs.RESET_SYNC_TIMER);
+        put(FuncId.of(SYNC_TIMER_COUNTDOWN_STAT), Funcs.SYNC_TIMER_COUNTDOWN);
+        put(FuncId.of(SEMAPHORE_ACQUIRE_STAT), Funcs.SEMAPHORE_ACQUIRE);
+        put(FuncId.of(SEMAPHORE_RELEASE_STAT), Funcs.SEMAPHORE_RELEASE);
+        put(FuncId.of(SCAM_EXP), Funcs.SCAN);
+        put(FuncId.of(NUM_ROUND_EXP, OPT_ROUND), "Math.round");
+        put(FuncId.of(NUM_ROUND_EXP, OPT_CEIL), "Math.ceil");
+        put(FuncId.of(NUM_ROUND_EXP, OPT_FLOOR), "Math.floor");
+        put(FuncId.of(NUM_ROUND_EXP, OPT_TRUNC), "Math.trunc");
+        put(FuncId.of(ABS_EXP), "Math.abs");
+        put(FuncId.of(MAX_MIN_EXP, OPT_MAX), "Math.max");
+        put(FuncId.of(MAX_MIN_EXP, OPT_MIN), "Math.min");
+        put(FuncId.of(RANDOM_INT_EXP), Funcs.RANDOM_INT);
+        put(FuncId.of(MEASURE_DISTANCE_EXP), Funcs.MEASURE_DISTANCE);
+        put(FuncId.of(MELODY_EXP), Funcs.PUSH_SOUND);
+        put(FuncId.of(ANY_COMP_EXP, OPT_EQ), Funcs.ANY_EQ);
+        put(FuncId.of(ANY_COMP_EXP, OPT_NEQ), Funcs.ANY_NEQ);
+        put(FuncId.of(BINARY_COLOR_EXP, OPT_ADD), Funcs.ADD_COLOR);
+        put(FuncId.of(BINARY_COLOR_EXP, OPT_SUB), Funcs.SUB_COLOR);
+        put(FuncId.of(DETECT_COLOR_EXP), Funcs.DETECT_COLOR);
+        put(FuncId.of(GET_TIME_SINCE_PROGRAM_STARTED_EXP), Funcs.GET_TIMER_VAL);
+        put(FuncId.of(STR_CHAIN_LINK_EXP), Funcs.STRCAT);
+        put(FuncId.of(STR_LINE_FEED_CHAIN_LINK_EXP), Funcs.STRCAT_LF);
+        put(FuncId.of(STR_CHAIN_EXP), Funcs.IDENTITY);
+        put(FuncId.of(GET_SYNC_TIMER_COUNT_EXP), Funcs.GET_SYNC_TIMER_COUNT);
+        put(FuncId.of(SYNC_TIMER_TIMED_AWAIT_EXP, OPT_WITH_COUNTDOWN),
+            Funcs.SYNC_TIMER_COUNTDOWN_AND_TIMED_AWAIT);
+        put(FuncId.of(SYNC_TIMER_TIMED_AWAIT_EXP, OPT_WITHOUT_COUNTDOWN),
+            Funcs.SYNC_TIMER_TIMED_AWAIT);
+        put(FuncId.of(SEMAPHORE_TRY_ACQUIRE_EXP), Funcs.SEMAPHORE_TRY_ACQUIRE);
+        put(FuncId.of(GET_NUM_SEMAPHORE_PERMITS_EXP), Funcs.GET_NUM_SEMAPHORE_PERMITS);
+        put(FuncId.of(ANY_ARRAY_TO_STR_EXP), Funcs.ARY_TO_STR);
+        put(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_FINITE), "Number.isFinite");
+        put(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_INFINITE), Funcs.IS_NUM_INFINITE);
+        put(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_POS_INF), Funcs.IS_NUM_POS_INF);
+        put(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_NEG_INF), Funcs.IS_NUM_NEG_INF);
+        put(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_NAN), "Number.isNaN");
+        put(FuncId.of(NUM_POW_EXP), "Math.pow");
+        put(FuncId.of(NUM_CLAMP_EXP), Funcs.NUM_CLAMP);
+        put(FuncId.of(LOAD_TEXT_EXP), Funcs.LOAD_TEXT);
+        put(FuncId.of(GET_TEXT_FILES_EXP), Funcs.GET_TEXT_FILES);
+        put(FuncId.of(GET_AUDIO_VOLUME_EXP), Funcs.GET_AUDIO_VOLUME);
+        put(FuncId.of(GET_AUDIO_FILES_EXP), Funcs.GET_AUDIO_FILES);
+        put(FuncId.of(MEASURE_SOUND_PRESSURE_EXP, OPT_PEAK), Funcs.FIND_SOUND_PRESSURE_PEAK);
+        put(FuncId.of(MEASURE_SOUND_PRESSURE_EXP, OPT_AVERAGE), Funcs.FIND_SOUND_PRESSURE_AVERAGE);
+        put(FuncId.of(OUT_ARG_TEST_EXP), Funcs.OUT_ARG_TEST);
+        put(FuncId.of(MOVE_STAT, OPT_MOVE_FORWARD), Funcs.MOVE_FORWARD);
+        put(FuncId.of(MOVE_STAT, OPT_MOVE_BACKWARD), Funcs.MOVE_BACKWARD);
+        put(FuncId.of(MOVE_STAT, OPT_TURN_RIGHT), Funcs.TURN_RIGHT);
+        put(FuncId.of(MOVE_STAT, OPT_TURN_LEFT), Funcs.TURN_LEFT);
+        put(FuncId.of(STOP_RASPI_CAR_STAT), Funcs.STOP_RASPI_CAR);
+        put(FuncId.of(SLEEP_STAT), Funcs.SLEEP);
+        put(FuncId.of(PLAY_MELODY_STAT), Funcs.PLAY_MELODIES);
+        put(FuncId.of(PLAY_SOUND_LIST_STAT), Funcs.PLAY_MELODIES);
+        put(FuncId.of(SAY_STAT), Funcs.SAY);
+        put(FuncId.of(LIGHT_EYE_STAT), Funcs.LIGHT_EYE);
+        put(FuncId.of(GlobalData.MUTEX_BLOCK_DECL), Funcs.NEW_LOCK_OBJ);
+        put(FuncId.of(GlobalData.SYNC_TIMER_DECL), Funcs.NEW_SYNC_TIMER);
+        put(FuncId.of(GlobalData.SEMAPHORE_DECL), Funcs.NEW_SEMAPHORE);
+        put(FuncId.of(SAVE_TEXT_STAT), Funcs.SAVE_TEXT);
+        put(FuncId.of(DELETE_TEXT_FILE_STAT), Funcs.DELETE_TEXT_FILE);
+        put(FuncId.of(DELETE_TEXT_FILES_STAT), Funcs.DELETE_TEXT_FILES);
+        put(FuncId.of(SET_AUDIO_VOLUME_STAT), Funcs.SET_AUDIO_VOLUME);
+        put(FuncId.of(RECORD_AUDIO_STAT), Funcs.RECORD_AUDIO);
+        put(FuncId.of(PLAY_AUDIO_STAT), Funcs.PLAY_AUDIO);
+        put(FuncId.of(DELETE_AUDIO_FILE_STAT), Funcs.DELETE_AUDIO_FILE);
+        put(FuncId.of(DELETE_AUDIO_FILES_STAT), Funcs.DELETE_AUDIO_FILES);
 
-            put(FuncId.create(Array.ANY_ARRAY_PUSH_STAT), ScriptIdentifiers.Funcs.ARY_PUSH);
-            put(FuncId.create(Array.ANY_ARRAY_LEN_EXP), ScriptIdentifiers.Funcs.ARY_LEN);
-            put(FuncId.create(Array.ANY_ARRAY_INSERT_STAT), ScriptIdentifiers.Funcs.ARY_INSERT);
-            put(FuncId.create(Array.ANY_ARRAY_APPEND_STAT), ScriptIdentifiers.Funcs.ARY_ADD_ALL);
-            put(FuncId.create(Array.ANY_ARRAY_SPLICE_STAT, OPT_REMOVE),
-                ScriptIdentifiers.Funcs.ARY_REMOVE);
-            put(FuncId.create(Array.ANY_ARRAY_SPLICE_STAT, OPT_EXTRACT),
-                ScriptIdentifiers.Funcs.ARY_EXTRACT);
-            put(FuncId.create(Array.ANY_ARRAY_SET_STAT), ScriptIdentifiers.Funcs.ARY_SET);
-            put(FuncId.create(Array.ANY_ARRAY_REVERSE_STAT), ScriptIdentifiers.Funcs.ARY_REVERSE);
-            put(FuncId.create(Array.ANY_ARRAY_INDEX_OF_EXP, OPT_FIRST),
-                ScriptIdentifiers.Funcs.ARY_FIRST_INDEX_OF);
-            put(FuncId.create(Array.ANY_ARRAY_INDEX_OF_EXP, OPT_LAST),
-                ScriptIdentifiers.Funcs.ARY_LAST_INDEX_OF);
-            put(FuncId.create(Array.ANY_ARRAY_INCLUDES_EXP), ScriptIdentifiers.Funcs.ARY_INCLUDES);
-            put(FuncId.create(Array.ANY_ARRAY_SORT_STAT), ScriptIdentifiers.Funcs.ARY_SORT);
-            put(FuncId.create(Array.NUM_ARRAY_SORT_STAT), ScriptIdentifiers.Funcs.ARY_NUM_SORT);
-            put(FuncId.create(Array.ANY_ARRAY_COMP_EXP, OPT_EQ), ScriptIdentifiers.Funcs.ARY_EQ);
-            put(FuncId.create(Array.ANY_ARRAY_COMP_EXP, OPT_NEQ), ScriptIdentifiers.Funcs.ARY_NEQ);
+        put(FuncId.of(Array.ANY_ARRAY_PUSH_STAT), Funcs.ARY_PUSH);
+        put(FuncId.of(Array.ANY_ARRAY_LEN_EXP), Funcs.ARY_LEN);
+        put(FuncId.of(Array.ANY_ARRAY_INSERT_STAT), Funcs.ARY_INSERT);
+        put(FuncId.of(Array.ANY_ARRAY_APPEND_STAT), Funcs.ARY_ADD_ALL);
+        put(FuncId.of(Array.ANY_ARRAY_SPLICE_STAT, OPT_REMOVE), Funcs.ARY_REMOVE);
+        put(FuncId.of(Array.ANY_ARRAY_SPLICE_STAT, OPT_EXTRACT), Funcs.ARY_EXTRACT);
+        put(FuncId.of(Array.ANY_ARRAY_SET_STAT), Funcs.ARY_SET);
+        put(FuncId.of(Array.ANY_ARRAY_INDEX_OF_EXP, OPT_FIRST), Funcs.ARY_FIRST_INDEX_OF);
+        put(FuncId.of(Array.ANY_ARRAY_INDEX_OF_EXP, OPT_LAST), Funcs.ARY_LAST_INDEX_OF);
+        put(FuncId.of(Array.ANY_ARRAY_INCLUDES_EXP), Funcs.ARY_INCLUDES);
+        put(FuncId.of(Array.ANY_ARRAY_COMP_EXP, OPT_EQ), Funcs.ARY_EQ);
+        put(FuncId.of(Array.ANY_ARRAY_COMP_EXP, OPT_NEQ), Funcs.ARY_NEQ);
 
-            put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_SUBSET),
-                ScriptIdentifiers.Funcs.IS_SUBSET);
-            put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_PROPER_SUBSET),
-                ScriptIdentifiers.Funcs.IS_PROPER_SUBSET);
-            put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_SUPERSET),
-                ScriptIdentifiers.Funcs.IS_SUPERSET);
-            put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_PROPER_SUPERSET),
-                ScriptIdentifiers.Funcs.IS_PROPER_SUPERSET);
-            put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_EQ), ScriptIdentifiers.Funcs.SET_EQ);
-            put(FuncId.create(Array.ANY_SET_COMP_EXP, OPT_NEQ), ScriptIdentifiers.Funcs.SET_NEQ);
+        put(FuncId.of(Array.ANY_SET_COMP_EXP, OPT_SUBSET), Funcs.IS_SUBSET);
+        put(FuncId.of(Array.ANY_SET_COMP_EXP, OPT_PROPER_SUBSET), Funcs.IS_PROPER_SUBSET);
+        put(FuncId.of(Array.ANY_SET_COMP_EXP, OPT_SUPERSET), Funcs.IS_SUPERSET);
+        put(FuncId.of(Array.ANY_SET_COMP_EXP, OPT_PROPER_SUPERSET), Funcs.IS_PROPER_SUPERSET);
+        put(FuncId.of(Array.ANY_SET_COMP_EXP, OPT_EQ), Funcs.SET_EQ);
+        put(FuncId.of(Array.ANY_SET_COMP_EXP, OPT_NEQ), Funcs.SET_NEQ);
 
-            put(FuncId.create(Array.STR_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
-            put(FuncId.create(Array.STR_ARRAY_SLICE_EXP), ScriptIdentifiers.Funcs.ARY_SLICE);
-            put(FuncId.create(Array.STR_ARRAY_MAX_MIN_EXP, OPT_MAX),
-                ScriptIdentifiers.Funcs.ARY_MAX);
-            put(FuncId.create(Array.STR_ARRAY_MAX_MIN_EXP, OPT_MIN),
-                ScriptIdentifiers.Funcs.ARY_MIN);
-            put(FuncId.create(Array.NUM_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
-            put(FuncId.create(Array.NUM_ARRAY_SLICE_EXP), ScriptIdentifiers.Funcs.ARY_SLICE);
-            put(FuncId.create(Array.NUM_ARRAY_MAX_MIN_EXP, OPT_MAX),
-                ScriptIdentifiers.Funcs.ARY_NUM_MAX);
-            put(FuncId.create(Array.NUM_ARRAY_MAX_MIN_EXP, OPT_MIN),
-                ScriptIdentifiers.Funcs.ARY_NUM_MIN);
-            put(FuncId.create(Array.BOOL_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
-            put(FuncId.create(Array.BOOL_ARRAY_SLICE_EXP), ScriptIdentifiers.Funcs.ARY_SLICE);
-            put(FuncId.create(Array.COLOR_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
-            put(FuncId.create(Array.COLOR_ARRAY_SLICE_EXP), ScriptIdentifiers.Funcs.ARY_SLICE);
-            put(FuncId.create(Array.SOUND_ARRAY_GET_EXP), ScriptIdentifiers.Funcs.ARY_GET);
-            put(FuncId.create(Array.SOUND_ARRAY_SLICE_EXP), ScriptIdentifiers.Funcs.ARY_SLICE);
-          }};
+        put(FuncId.of(Array.STR_ARRAY_GET_EXP), Funcs.ARY_GET);
+        put(FuncId.of(Array.STR_ARRAY_SLICE_EXP), Funcs.ARY_SLICE);
+        put(FuncId.of(Array.STR_ARRAY_REVERSE_EXP, OPT_IN_PLACE), Funcs.ARY_REVERSE);
+        put(FuncId.of(Array.STR_ARRAY_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_REVERSED);
+        put(FuncId.of(Array.STR_ARRAY_SORT_EXP, OPT_IN_PLACE), Funcs.ARY_SORT);
+        put(FuncId.of(Array.STR_ARRAY_SORT_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_SORTED);
+        put(FuncId.of(Array.STR_ARRAY_MAX_MIN_EXP, OPT_MAX), Funcs.ARY_MAX);
+        put(FuncId.of(Array.STR_ARRAY_MAX_MIN_EXP, OPT_MIN), Funcs.ARY_MIN);
+
+        put(FuncId.of(Array.NUM_ARRAY_GET_EXP), Funcs.ARY_GET);
+        put(FuncId.of(Array.NUM_ARRAY_SLICE_EXP), Funcs.ARY_SLICE);
+        put(FuncId.of(Array.NUM_ARRAY_REVERSE_EXP, OPT_IN_PLACE), Funcs.ARY_REVERSE);
+        put(FuncId.of(Array.NUM_ARRAY_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_REVERSED);
+        put(FuncId.of(Array.NUM_ARRAY_SORT_EXP, OPT_IN_PLACE), Funcs.ARY_NUM_SORT);
+        put(FuncId.of(Array.NUM_ARRAY_SORT_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_NUM_SORTED);
+        put(FuncId.of(Array.NUM_ARRAY_MAX_MIN_EXP, OPT_MAX), Funcs.ARY_NUM_MAX);
+        put(FuncId.of(Array.NUM_ARRAY_MAX_MIN_EXP, OPT_MIN), Funcs.ARY_NUM_MIN);
+
+        put(FuncId.of(Array.BOOL_ARRAY_GET_EXP), Funcs.ARY_GET);
+        put(FuncId.of(Array.BOOL_ARRAY_SLICE_EXP), Funcs.ARY_SLICE);
+        put(FuncId.of(Array.BOOL_ARRAY_REVERSE_EXP, OPT_IN_PLACE), Funcs.ARY_REVERSE);
+        put(FuncId.of(Array.BOOL_ARRAY_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_REVERSED);
+
+        put(FuncId.of(Array.COLOR_ARRAY_GET_EXP), Funcs.ARY_GET);
+        put(FuncId.of(Array.COLOR_ARRAY_SLICE_EXP), Funcs.ARY_SLICE);
+        put(FuncId.of(Array.COLOR_ARRAY_REVERSE_EXP, OPT_IN_PLACE), Funcs.ARY_REVERSE);
+        put(FuncId.of(Array.COLOR_ARRAY_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_REVERSED);
+
+        put(FuncId.of(Array.SOUND_ARRAY_GET_EXP), Funcs.ARY_GET);
+        put(FuncId.of(Array.SOUND_ARRAY_SLICE_EXP), Funcs.ARY_SLICE);
+        put(FuncId.of(Array.SOUND_ARRAY_REVERSE_EXP, OPT_IN_PLACE), Funcs.ARY_REVERSE);
+        put(FuncId.of(Array.SOUND_ARRAY_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_REVERSED);
+      }};
   }
 
   /** ユーザ定義関数に関するシンボル名. */
@@ -713,26 +713,34 @@ public class SymbolNames {
     public static final String ANY_ARRAY_INSERT_STAT = "AnyArrayInsertStat";
     public static final String ANY_ARRAY_SPLICE_STAT = "AnyArraySpliceStat";
     public static final String ANY_ARRAY_SET_STAT = "AnyArraySetStat";
-    public static final String ANY_ARRAY_REVERSE_STAT = "AnyArrayReverseStat";
     public static final String ANY_ARRAY_INDEX_OF_EXP = "AnyArrayIndexOfExp";
     public static final String ANY_ARRAY_INCLUDES_EXP = "AnyArrayIncludesExp";
-    public static final String ANY_ARRAY_SORT_STAT = "AnyArraySortStat";
-    public static final String NUM_ARRAY_SORT_STAT = "NumArraySortStat";
     public static final String ANY_ARRAY_COMP_EXP = "AnyArrayCompExp";
     public static final String ANY_SET_COMP_EXP = "AnySetCompExp";
 
     public static final String STR_ARRAY_GET_EXP = "StrArrayGetExp";
     public static final String STR_ARRAY_SLICE_EXP = "StrArraySliceExp";
+    public static final String STR_ARRAY_REVERSE_EXP = "StrArrayReverseExp";
+    public static final String STR_ARRAY_SORT_EXP = "StrArraySortExp";
     public static final String STR_ARRAY_MAX_MIN_EXP = "StrArrayMaxMinExp";
+
     public static final String NUM_ARRAY_GET_EXP = "NumArrayGetExp";
     public static final String NUM_ARRAY_SLICE_EXP = "NumArraySliceExp";
+    public static final String NUM_ARRAY_REVERSE_EXP = "NumArrayReverseExp";
+    public static final String NUM_ARRAY_SORT_EXP = "NumArraySortExp";
     public static final String NUM_ARRAY_MAX_MIN_EXP = "NumArrayMaxMinExp";
+
     public static final String BOOL_ARRAY_GET_EXP = "BoolArrayGetExp";
     public static final String BOOL_ARRAY_SLICE_EXP = "BoolArraySliceExp";
+    public static final String BOOL_ARRAY_REVERSE_EXP = "BoolArrayReverseExp";
+
     public static final String COLOR_ARRAY_GET_EXP = "ColorArrayGetExp";
     public static final String COLOR_ARRAY_SLICE_EXP = "ColorArraySliceExp";
+    public static final String COLOR_ARRAY_REVERSE_EXP = "ColorArrayReverseExp";
+
     public static final String SOUND_ARRAY_GET_EXP = "SoundArrayGetExp";
     public static final String SOUND_ARRAY_SLICE_EXP = "SoundArraySliceExp";
+    public static final String SOUND_ARRAY_REVERSE_EXP = "SoundArrayReverseExp";
   }
 
   /** グローバルデータに関するシンボル名. */
@@ -811,15 +819,15 @@ public class SymbolNames {
 
     public static final Map<String, String> VALUE_MAP =
         new HashMap<>() {{
-            put(ANY_EXP_VOID, ScriptIdentifiers.Vars.NIL);
-            put(NUM_EXP_VOID, ScriptIdentifiers.Vars.NIL);
-            put(STR_EXP_VOID, ScriptIdentifiers.Vars.NIL);
-            put(BOOL_EXP_VOID, ScriptIdentifiers.Vars.NIL);
-            put(COLOR_EXP_VOID, ScriptIdentifiers.Vars.NIL);
-            put(SOUND_EXP_VOID, ScriptIdentifiers.Vars.NIL);
+            put(ANY_EXP_VOID, Vars.NIL);
+            put(NUM_EXP_VOID, Vars.NIL);
+            put(STR_EXP_VOID, Vars.NIL);
+            put(BOOL_EXP_VOID, Vars.NIL);
+            put(COLOR_EXP_VOID, Vars.NIL);
+            put(SOUND_EXP_VOID, Vars.NIL);
             put(MELODY_EXP_VOID, "[]");
-            put(SYNC_TIMER_VAR_VOID, ScriptIdentifiers.Vars.NIL);
-            put(SEMAPHORE_VAR_VOID, ScriptIdentifiers.Vars.NIL);
+            put(SYNC_TIMER_VAR_VOID, Vars.NIL);
+            put(SEMAPHORE_VAR_VOID, Vars.NIL);
             put(STR_CHAIN_LINK_VOID, "''");
             put(LINE_FEED, "'\\n'");
             put(ANY_LIST_EXP_VOID, "[]");
