@@ -1,0 +1,38 @@
+<Node
+  type="connective"
+  bhNodeID="idNumListMaxMinExp"
+  name="NumListMaxMinExp"
+  nodeStyleID="NumListMaxMinExp.json"
+  breakpoint="ignore"
+  onChildReplaced="OnChildOfListCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="NumExp">
+
+    <Connector
+      bhConnectorID="idNumListMaxMinExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idNumListMaxMinExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+
+    <Connector
+      bhConnectorID="idNumListMaxMinExp.cnctr2"
+      name="Option0"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNumListMaxMinExp.node2"
+        name="MaxMinOpe"
+        nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
+        onTextOptionsCreating="CreateListMaxMinOpts.js"
+        version="bhn-0.1.0"/>
+    </Connector>
+
+  </ConnectorSection>
+</Node>

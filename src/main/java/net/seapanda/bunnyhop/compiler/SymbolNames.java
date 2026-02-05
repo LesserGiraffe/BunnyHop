@@ -21,7 +21,6 @@ import static net.seapanda.bunnyhop.compiler.ScriptIdentifiers.Vars;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
@@ -75,7 +74,7 @@ public class SymbolNames {
     public static final String NEXT_VAR_DECL = "NextVarDecl";
 
     public static final Set<String> LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             NUM_VAR_DECL,
             NUM_LIST_DECL,
             STR_VAR_DECL,
@@ -88,7 +87,7 @@ public class SymbolNames {
             SOUND_LIST_DECL));
 
     public static final Set<String> VAR_LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             NUM_VAR,
             NUM_LIST,
             STR_VAR,
@@ -125,7 +124,7 @@ public class SymbolNames {
           }};
 
     public static final Set<String> VAR_VOID_LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             NUM_VAR_VOID,
             STR_VAR_VOID,
             BOOL_VAR_VOID,
@@ -139,7 +138,7 @@ public class SymbolNames {
 
     /** 変数名を保持するノードが接続されるコネクタのリスト. */
     public static final Set<String> VAR_NAME_CNCTR_LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             VAR_NAME,
             LIST_NAME));
   }
@@ -156,7 +155,7 @@ public class SymbolNames {
     public static final String COMMENT_PART = "CommentPart";
 
     public static final Set<String> LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             COMMENT_PART));
   }
 
@@ -166,13 +165,13 @@ public class SymbolNames {
     public static final String NUM_ADD_ASSIGN_STAT = "NumAddAssignStat";
     public static final String STR_ADD_ASSIGN_STAT = "StrAddAssignStat";
     public static final String ANY_ASSIGN_STAT = "AnyAssignStat";
-    public static final String ANY_ARRAY_ASSIGN_STAT = "AnyArrayAssignStat";
+    public static final String ANY_LIST_ASSIGN_STAT = "AnyListAssignStat";
     public static final String LEFT_VAR = "LeftVar";
 
     public static final Set<String> LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             ANY_ASSIGN_STAT,
-            ANY_ARRAY_ASSIGN_STAT,
+            ANY_LIST_ASSIGN_STAT,
             NUM_ADD_ASSIGN_STAT,
             STR_ADD_ASSIGN_STAT));
   }
@@ -196,11 +195,11 @@ public class SymbolNames {
     public static final String MUTEX_BLOCK_STAT = "MutexBlockStat";
     public static final String EXCLUSIVE_STAT = "ExclusiveStat";
     public static final String EXP_ADAPTER_STAT = "ExpAdapterStat";
-    public static final String ARRAY_ADAPTER_STAT = "ArrayAdapterStat";
+    public static final String LIST_ADAPTER_STAT = "ListAdapterStat";
     public static final String TARGET = "Target";
 
     public static final Set<String> LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             IF_STAT,
             IF_ELSE_STAT,
             WHILE_STAT,
@@ -211,7 +210,7 @@ public class SymbolNames {
             RETURN_STAT,
             MUTEX_BLOCK_STAT,
             EXP_ADAPTER_STAT,
-            ARRAY_ADAPTER_STAT));
+            LIST_ADAPTER_STAT));
   }
 
   /** 二項演算式に関するシンボル名. */
@@ -242,7 +241,7 @@ public class SymbolNames {
 
     /** 二項演算のリスト. */
     public static final Set<String> LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             FOUR_ARITH_EXP,
             MOD_EXP,
             BINARY_BOOL_EXP,
@@ -251,11 +250,11 @@ public class SymbolNames {
 
     /** 論理二項演算のリスト. */
     public static final Set<String> LOGICAL_LIST =
-        new HashSet<>(List.of(BINARY_BOOL_EXP));
+        new HashSet<>(java.util.List.of(BINARY_BOOL_EXP));
 
     /** 非論理二項演算のリスト. */
     public static final Set<String> NONLOGICAL_LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             FOUR_ARITH_EXP,
             MOD_EXP,
             NUM_COMP_EXP,
@@ -286,7 +285,7 @@ public class SymbolNames {
     public static final String NEG_EXP = "NegExp";
     public static final String PRIMARY_EXP = "PrimaryExp";
     public static final Set<String> LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             NOT_EXP,
             NEG_EXP));
 
@@ -324,7 +323,7 @@ public class SymbolNames {
     public static final String STR_CHAIN_EXP = "StrChainExp";
     public static final String GET_SYNC_TIMER_COUNT_EXP = "GetSyncTimerCountExp";
     public static final String SYNC_TIMER_TIMED_AWAIT_EXP = "SyncTimerTimedAwaitExp";
-    public static final String ANY_ARRAY_TO_STR_EXP = "AnyArrayToStrExp";
+    public static final String ANY_LIST_TO_STR_EXP = "AnyListToStrExp";
     public static final String CHECK_NUM_TYPE_EXP = "CheckNumTypeExp";
     public static final String NUM_POW_EXP = "NumPowExp";
     public static final String NUM_CLAMP_EXP = "NumClampExp";
@@ -397,7 +396,7 @@ public class SymbolNames {
 
     /** 定義済み関数式のリスト. */
     public static final Set<String> EXP_LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             STR_TO_NUM_EXP,
             STR_TO_NUM_WITH_DEFAULT_VAL_EXP,
             ANY_TO_STR_EXP,
@@ -419,7 +418,7 @@ public class SymbolNames {
             SYNC_TIMER_TIMED_AWAIT_EXP,
             SEMAPHORE_TRY_ACQUIRE_EXP,
             GET_NUM_SEMAPHORE_PERMITS_EXP,
-            ANY_ARRAY_TO_STR_EXP,
+            ANY_LIST_TO_STR_EXP,
             CHECK_NUM_TYPE_EXP,
             NUM_POW_EXP,
             NUM_CLAMP_EXP,
@@ -430,34 +429,34 @@ public class SymbolNames {
             GET_AUDIO_FILES_EXP,
             MEASURE_SOUND_PRESSURE_EXP,
 
-            Array.NUM_ARRAY_GET_EXP,
-            Array.NUM_ARRAY_SLICE_EXP,
-            Array.NUM_ARRAY_REVERSE_EXP,
-            Array.NUM_ARRAY_SORT_EXP,
-            Array.NUM_ARRAY_MAX_MIN_EXP,
-            Array.STR_ARRAY_GET_EXP,
-            Array.STR_ARRAY_SLICE_EXP,
-            Array.STR_ARRAY_REVERSE_EXP,
-            Array.STR_ARRAY_SORT_EXP,
-            Array.STR_ARRAY_MAX_MIN_EXP,
-            Array.BOOL_ARRAY_GET_EXP,
-            Array.BOOL_ARRAY_SLICE_EXP,
-            Array.BOOL_ARRAY_REVERSE_EXP,
-            Array.COLOR_ARRAY_GET_EXP,
-            Array.COLOR_ARRAY_SLICE_EXP,
-            Array.COLOR_ARRAY_REVERSE_EXP,
-            Array.SOUND_ARRAY_GET_EXP,
-            Array.SOUND_ARRAY_SLICE_EXP,
-            Array.SOUND_ARRAY_REVERSE_EXP,
-            Array.ANY_ARRAY_LEN_EXP,
-            Array.ANY_ARRAY_INDEX_OF_EXP,
-            Array.ANY_ARRAY_INCLUDES_EXP,
-            Array.ANY_ARRAY_COMP_EXP,
-            Array.ANY_SET_COMP_EXP));
+            List.NUM_LIST_GET_EXP,
+            List.NUM_LIST_SLICE_EXP,
+            List.NUM_LIST_REVERSE_EXP,
+            List.NUM_LIST_SORT_EXP,
+            List.NUM_LIST_MAX_MIN_EXP,
+            List.STR_LIST_GET_EXP,
+            List.STR_LIST_SLICE_EXP,
+            List.STR_LIST_REVERSE_EXP,
+            List.STR_LIST_SORT_EXP,
+            List.STR_LIST_MAX_MIN_EXP,
+            List.BOOL_LIST_GET_EXP,
+            List.BOOL_LIST_SLICE_EXP,
+            List.BOOL_LIST_REVERSE_EXP,
+            List.COLOR_LIST_GET_EXP,
+            List.COLOR_LIST_SLICE_EXP,
+            List.COLOR_LIST_REVERSE_EXP,
+            List.SOUND_LIST_GET_EXP,
+            List.SOUND_LIST_SLICE_EXP,
+            List.SOUND_LIST_REVERSE_EXP,
+            List.ANY_LIST_LEN_EXP,
+            List.ANY_LIST_INDEX_OF_EXP,
+            List.ANY_LIST_INCLUDES_EXP,
+            List.ANY_LIST_COMP_EXP,
+            List.ANY_SET_COMP_EXP));
 
     /** 定義済み関数文のリスト. */
     public static final Set<String> STAT_LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             PRINT_STAT,
             MOVE_STAT,
             STOP_RASPI_CAR_STAT,
@@ -480,11 +479,11 @@ public class SymbolNames {
             DELETE_AUDIO_FILE_STAT,
             DELETE_AUDIO_FILES_STAT,
 
-            Array.ANY_ARRAY_PUSH_STAT,
-            Array.ANY_ARRAY_APPEND_STAT,
-            Array.ANY_ARRAY_INSERT_STAT,
-            Array.ANY_ARRAY_SPLICE_STAT,
-            Array.ANY_ARRAY_SET_STAT));
+            List.ANY_LIST_PUSH_STAT,
+            List.ANY_LIST_INSERT_ALL_STAT,
+            List.ANY_LIST_INSERT_STAT,
+            List.ANY_LIST_SPLICE_STAT,
+            List.ANY_LIST_SET_STAT));
 
     //  (関数呼び出しノード名, 関数呼び出しオプション...) -> 関数名
     public static final Map<FuncId, String> NAME_MAP = new HashMap<>() {{
@@ -527,7 +526,7 @@ public class SymbolNames {
             Funcs.SYNC_TIMER_TIMED_AWAIT);
         put(FuncId.of(SEMAPHORE_TRY_ACQUIRE_EXP), Funcs.SEMAPHORE_TRY_ACQUIRE);
         put(FuncId.of(GET_NUM_SEMAPHORE_PERMITS_EXP), Funcs.GET_NUM_SEMAPHORE_PERMITS);
-        put(FuncId.of(ANY_ARRAY_TO_STR_EXP), Funcs.ARY_TO_STR);
+        put(FuncId.of(ANY_LIST_TO_STR_EXP), Funcs.LIST_TO_STR);
         put(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_FINITE), "Number.isFinite");
         put(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_INFINITE), Funcs.IS_NUM_INFINITE);
         put(FuncId.of(CHECK_NUM_TYPE_EXP, OPT_POS_INF), Funcs.IS_NUM_POS_INF);
@@ -564,58 +563,58 @@ public class SymbolNames {
         put(FuncId.of(DELETE_AUDIO_FILE_STAT), Funcs.DELETE_AUDIO_FILE);
         put(FuncId.of(DELETE_AUDIO_FILES_STAT), Funcs.DELETE_AUDIO_FILES);
 
-        put(FuncId.of(Array.ANY_ARRAY_PUSH_STAT), Funcs.ARY_PUSH);
-        put(FuncId.of(Array.ANY_ARRAY_LEN_EXP), Funcs.ARY_LEN);
-        put(FuncId.of(Array.ANY_ARRAY_INSERT_STAT), Funcs.ARY_INSERT);
-        put(FuncId.of(Array.ANY_ARRAY_APPEND_STAT), Funcs.ARY_ADD_ALL);
-        put(FuncId.of(Array.ANY_ARRAY_SPLICE_STAT, OPT_REMOVE), Funcs.ARY_REMOVE);
-        put(FuncId.of(Array.ANY_ARRAY_SPLICE_STAT, OPT_EXTRACT), Funcs.ARY_EXTRACT);
-        put(FuncId.of(Array.ANY_ARRAY_SET_STAT), Funcs.ARY_SET);
-        put(FuncId.of(Array.ANY_ARRAY_INDEX_OF_EXP, OPT_FIRST), Funcs.ARY_FIRST_INDEX_OF);
-        put(FuncId.of(Array.ANY_ARRAY_INDEX_OF_EXP, OPT_LAST), Funcs.ARY_LAST_INDEX_OF);
-        put(FuncId.of(Array.ANY_ARRAY_INCLUDES_EXP), Funcs.ARY_INCLUDES);
-        put(FuncId.of(Array.ANY_ARRAY_COMP_EXP, OPT_EQ), Funcs.ARY_EQ);
-        put(FuncId.of(Array.ANY_ARRAY_COMP_EXP, OPT_NEQ), Funcs.ARY_NEQ);
+        put(FuncId.of(List.ANY_LIST_PUSH_STAT), Funcs.LIST_PUSH);
+        put(FuncId.of(List.ANY_LIST_LEN_EXP), Funcs.LIST_LEN);
+        put(FuncId.of(List.ANY_LIST_INSERT_STAT), Funcs.LIST_INSERT);
+        put(FuncId.of(List.ANY_LIST_INSERT_ALL_STAT), Funcs.LIST_INSERT_ALL);
+        put(FuncId.of(List.ANY_LIST_SPLICE_STAT, OPT_REMOVE), Funcs.LIST_REMOVE);
+        put(FuncId.of(List.ANY_LIST_SPLICE_STAT, OPT_EXTRACT), Funcs.LIST_EXTRACT);
+        put(FuncId.of(List.ANY_LIST_SET_STAT), Funcs.LIST_SET);
+        put(FuncId.of(List.ANY_LIST_INDEX_OF_EXP, OPT_FIRST), Funcs.LIST_FIRST_INDEX_OF);
+        put(FuncId.of(List.ANY_LIST_INDEX_OF_EXP, OPT_LAST), Funcs.LIST_LAST_INDEX_OF);
+        put(FuncId.of(List.ANY_LIST_INCLUDES_EXP), Funcs.LIST_INCLUDES);
+        put(FuncId.of(List.ANY_LIST_COMP_EXP, OPT_EQ), Funcs.LIST_EQ);
+        put(FuncId.of(List.ANY_LIST_COMP_EXP, OPT_NEQ), Funcs.LIST_NEQ);
 
-        put(FuncId.of(Array.ANY_SET_COMP_EXP, OPT_SUBSET), Funcs.IS_SUBSET);
-        put(FuncId.of(Array.ANY_SET_COMP_EXP, OPT_PROPER_SUBSET), Funcs.IS_PROPER_SUBSET);
-        put(FuncId.of(Array.ANY_SET_COMP_EXP, OPT_SUPERSET), Funcs.IS_SUPERSET);
-        put(FuncId.of(Array.ANY_SET_COMP_EXP, OPT_PROPER_SUPERSET), Funcs.IS_PROPER_SUPERSET);
-        put(FuncId.of(Array.ANY_SET_COMP_EXP, OPT_EQ), Funcs.SET_EQ);
-        put(FuncId.of(Array.ANY_SET_COMP_EXP, OPT_NEQ), Funcs.SET_NEQ);
+        put(FuncId.of(List.ANY_SET_COMP_EXP, OPT_SUBSET), Funcs.IS_SUBSET);
+        put(FuncId.of(List.ANY_SET_COMP_EXP, OPT_PROPER_SUBSET), Funcs.IS_PROPER_SUBSET);
+        put(FuncId.of(List.ANY_SET_COMP_EXP, OPT_SUPERSET), Funcs.IS_SUPERSET);
+        put(FuncId.of(List.ANY_SET_COMP_EXP, OPT_PROPER_SUPERSET), Funcs.IS_PROPER_SUPERSET);
+        put(FuncId.of(List.ANY_SET_COMP_EXP, OPT_EQ), Funcs.SET_EQ);
+        put(FuncId.of(List.ANY_SET_COMP_EXP, OPT_NEQ), Funcs.SET_NEQ);
 
-        put(FuncId.of(Array.STR_ARRAY_GET_EXP), Funcs.ARY_GET);
-        put(FuncId.of(Array.STR_ARRAY_SLICE_EXP), Funcs.ARY_SLICE);
-        put(FuncId.of(Array.STR_ARRAY_REVERSE_EXP, OPT_IN_PLACE), Funcs.ARY_REVERSE);
-        put(FuncId.of(Array.STR_ARRAY_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_REVERSED);
-        put(FuncId.of(Array.STR_ARRAY_SORT_EXP, OPT_IN_PLACE), Funcs.ARY_SORT);
-        put(FuncId.of(Array.STR_ARRAY_SORT_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_SORTED);
-        put(FuncId.of(Array.STR_ARRAY_MAX_MIN_EXP, OPT_MAX), Funcs.ARY_MAX);
-        put(FuncId.of(Array.STR_ARRAY_MAX_MIN_EXP, OPT_MIN), Funcs.ARY_MIN);
+        put(FuncId.of(List.STR_LIST_GET_EXP), Funcs.LIST_GET);
+        put(FuncId.of(List.STR_LIST_SLICE_EXP), Funcs.LIST_SLICE);
+        put(FuncId.of(List.STR_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE);
+        put(FuncId.of(List.STR_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED);
+        put(FuncId.of(List.STR_LIST_SORT_EXP, OPT_IN_PLACE), Funcs.LIST_SORT);
+        put(FuncId.of(List.STR_LIST_SORT_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_SORTED);
+        put(FuncId.of(List.STR_LIST_MAX_MIN_EXP, OPT_MAX), Funcs.LIST_MAX);
+        put(FuncId.of(List.STR_LIST_MAX_MIN_EXP, OPT_MIN), Funcs.LIST_MIN);
 
-        put(FuncId.of(Array.NUM_ARRAY_GET_EXP), Funcs.ARY_GET);
-        put(FuncId.of(Array.NUM_ARRAY_SLICE_EXP), Funcs.ARY_SLICE);
-        put(FuncId.of(Array.NUM_ARRAY_REVERSE_EXP, OPT_IN_PLACE), Funcs.ARY_REVERSE);
-        put(FuncId.of(Array.NUM_ARRAY_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_REVERSED);
-        put(FuncId.of(Array.NUM_ARRAY_SORT_EXP, OPT_IN_PLACE), Funcs.ARY_NUM_SORT);
-        put(FuncId.of(Array.NUM_ARRAY_SORT_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_NUM_SORTED);
-        put(FuncId.of(Array.NUM_ARRAY_MAX_MIN_EXP, OPT_MAX), Funcs.ARY_NUM_MAX);
-        put(FuncId.of(Array.NUM_ARRAY_MAX_MIN_EXP, OPT_MIN), Funcs.ARY_NUM_MIN);
+        put(FuncId.of(List.NUM_LIST_GET_EXP), Funcs.LIST_GET);
+        put(FuncId.of(List.NUM_LIST_SLICE_EXP), Funcs.LIST_SLICE);
+        put(FuncId.of(List.NUM_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE);
+        put(FuncId.of(List.NUM_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED);
+        put(FuncId.of(List.NUM_LIST_SORT_EXP, OPT_IN_PLACE), Funcs.LIST_NUM_SORT);
+        put(FuncId.of(List.NUM_LIST_SORT_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_NUM_SORTED);
+        put(FuncId.of(List.NUM_LIST_MAX_MIN_EXP, OPT_MAX), Funcs.LIST_NUM_MAX);
+        put(FuncId.of(List.NUM_LIST_MAX_MIN_EXP, OPT_MIN), Funcs.LIST_NUM_MIN);
 
-        put(FuncId.of(Array.BOOL_ARRAY_GET_EXP), Funcs.ARY_GET);
-        put(FuncId.of(Array.BOOL_ARRAY_SLICE_EXP), Funcs.ARY_SLICE);
-        put(FuncId.of(Array.BOOL_ARRAY_REVERSE_EXP, OPT_IN_PLACE), Funcs.ARY_REVERSE);
-        put(FuncId.of(Array.BOOL_ARRAY_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_REVERSED);
+        put(FuncId.of(List.BOOL_LIST_GET_EXP), Funcs.LIST_GET);
+        put(FuncId.of(List.BOOL_LIST_SLICE_EXP), Funcs.LIST_SLICE);
+        put(FuncId.of(List.BOOL_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE);
+        put(FuncId.of(List.BOOL_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED);
 
-        put(FuncId.of(Array.COLOR_ARRAY_GET_EXP), Funcs.ARY_GET);
-        put(FuncId.of(Array.COLOR_ARRAY_SLICE_EXP), Funcs.ARY_SLICE);
-        put(FuncId.of(Array.COLOR_ARRAY_REVERSE_EXP, OPT_IN_PLACE), Funcs.ARY_REVERSE);
-        put(FuncId.of(Array.COLOR_ARRAY_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_REVERSED);
+        put(FuncId.of(List.COLOR_LIST_GET_EXP), Funcs.LIST_GET);
+        put(FuncId.of(List.COLOR_LIST_SLICE_EXP), Funcs.LIST_SLICE);
+        put(FuncId.of(List.COLOR_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE);
+        put(FuncId.of(List.COLOR_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED);
 
-        put(FuncId.of(Array.SOUND_ARRAY_GET_EXP), Funcs.ARY_GET);
-        put(FuncId.of(Array.SOUND_ARRAY_SLICE_EXP), Funcs.ARY_SLICE);
-        put(FuncId.of(Array.SOUND_ARRAY_REVERSE_EXP, OPT_IN_PLACE), Funcs.ARY_REVERSE);
-        put(FuncId.of(Array.SOUND_ARRAY_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.ARY_REVERSED);
+        put(FuncId.of(List.SOUND_LIST_GET_EXP), Funcs.LIST_GET);
+        put(FuncId.of(List.SOUND_LIST_SLICE_EXP), Funcs.LIST_SLICE);
+        put(FuncId.of(List.SOUND_LIST_REVERSE_EXP, OPT_IN_PLACE), Funcs.LIST_REVERSE);
+        put(FuncId.of(List.SOUND_LIST_REVERSE_EXP, OPT_NOT_IN_PLACE), Funcs.LIST_REVERSED);
       }};
   }
 
@@ -634,12 +633,12 @@ public class SymbolNames {
 
     /** 関数定義ノードのリスト. */
     public static final Set<String> LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             VOID_FUNC_DEF));
 
     /** ユーザ定義関数文のリスト. */
     public static final Set<String> CALL_STAT_LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             VOID_FUNC_CALL));
   }
 
@@ -653,7 +652,7 @@ public class SymbolNames {
 
     /** イベントノードのリスト. */
     public static final Set<String> LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             KEY_PRESS_EVENT,
             DELAYED_START_EVENT));
   }
@@ -676,7 +675,7 @@ public class SymbolNames {
     public static final String SCALE_SOUND_LITERAL_EXP = "ScaleSoundLiteralExp";
     
     public static final Set<String> LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             STR_LITERAL,
             NUM_LITERAL,
             BOOL_LITERAL,
@@ -685,7 +684,7 @@ public class SymbolNames {
             COLOR_LITERAL));
 
     public static final Set<String> EXP_LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             STR_LITERAL_EXP,
             NEW_LINE,
             NUM_LITERAL_EXP,
@@ -705,42 +704,42 @@ public class SymbolNames {
   }
 
   /** リストに関するシンボル名. */
-  public static class Array {
+  public static class List {
 
-    public static final String ANY_ARRAY_PUSH_STAT = "AnyArrayPushStat";
-    public static final String ANY_ARRAY_LEN_EXP = "AnyArrayLengthExp";
-    public static final String ANY_ARRAY_APPEND_STAT = "AnyArrayAppendStat";
-    public static final String ANY_ARRAY_INSERT_STAT = "AnyArrayInsertStat";
-    public static final String ANY_ARRAY_SPLICE_STAT = "AnyArraySpliceStat";
-    public static final String ANY_ARRAY_SET_STAT = "AnyArraySetStat";
-    public static final String ANY_ARRAY_INDEX_OF_EXP = "AnyArrayIndexOfExp";
-    public static final String ANY_ARRAY_INCLUDES_EXP = "AnyArrayIncludesExp";
-    public static final String ANY_ARRAY_COMP_EXP = "AnyArrayCompExp";
+    public static final String ANY_LIST_PUSH_STAT = "AnyListPushStat";
+    public static final String ANY_LIST_LEN_EXP = "AnyListLengthExp";
+    public static final String ANY_LIST_INSERT_ALL_STAT = "AnyListInsertAllStat";
+    public static final String ANY_LIST_INSERT_STAT = "AnyListInsertStat";
+    public static final String ANY_LIST_SPLICE_STAT = "AnyListSpliceStat";
+    public static final String ANY_LIST_SET_STAT = "AnyListSetStat";
+    public static final String ANY_LIST_INDEX_OF_EXP = "AnyListIndexOfExp";
+    public static final String ANY_LIST_INCLUDES_EXP = "AnyListIncludesExp";
+    public static final String ANY_LIST_COMP_EXP = "AnyListCompExp";
     public static final String ANY_SET_COMP_EXP = "AnySetCompExp";
 
-    public static final String STR_ARRAY_GET_EXP = "StrArrayGetExp";
-    public static final String STR_ARRAY_SLICE_EXP = "StrArraySliceExp";
-    public static final String STR_ARRAY_REVERSE_EXP = "StrArrayReverseExp";
-    public static final String STR_ARRAY_SORT_EXP = "StrArraySortExp";
-    public static final String STR_ARRAY_MAX_MIN_EXP = "StrArrayMaxMinExp";
+    public static final String STR_LIST_GET_EXP = "StrListGetExp";
+    public static final String STR_LIST_SLICE_EXP = "StrListSliceExp";
+    public static final String STR_LIST_REVERSE_EXP = "StrListReverseExp";
+    public static final String STR_LIST_SORT_EXP = "StrListSortExp";
+    public static final String STR_LIST_MAX_MIN_EXP = "StrListMaxMinExp";
 
-    public static final String NUM_ARRAY_GET_EXP = "NumArrayGetExp";
-    public static final String NUM_ARRAY_SLICE_EXP = "NumArraySliceExp";
-    public static final String NUM_ARRAY_REVERSE_EXP = "NumArrayReverseExp";
-    public static final String NUM_ARRAY_SORT_EXP = "NumArraySortExp";
-    public static final String NUM_ARRAY_MAX_MIN_EXP = "NumArrayMaxMinExp";
+    public static final String NUM_LIST_GET_EXP = "NumListGetExp";
+    public static final String NUM_LIST_SLICE_EXP = "NumListSliceExp";
+    public static final String NUM_LIST_REVERSE_EXP = "NumListReverseExp";
+    public static final String NUM_LIST_SORT_EXP = "NumListSortExp";
+    public static final String NUM_LIST_MAX_MIN_EXP = "NumListMaxMinExp";
 
-    public static final String BOOL_ARRAY_GET_EXP = "BoolArrayGetExp";
-    public static final String BOOL_ARRAY_SLICE_EXP = "BoolArraySliceExp";
-    public static final String BOOL_ARRAY_REVERSE_EXP = "BoolArrayReverseExp";
+    public static final String BOOL_LIST_GET_EXP = "BoolListGetExp";
+    public static final String BOOL_LIST_SLICE_EXP = "BoolListSliceExp";
+    public static final String BOOL_LIST_REVERSE_EXP = "BoolListReverseExp";
 
-    public static final String COLOR_ARRAY_GET_EXP = "ColorArrayGetExp";
-    public static final String COLOR_ARRAY_SLICE_EXP = "ColorArraySliceExp";
-    public static final String COLOR_ARRAY_REVERSE_EXP = "ColorArrayReverseExp";
+    public static final String COLOR_LIST_GET_EXP = "ColorListGetExp";
+    public static final String COLOR_LIST_SLICE_EXP = "ColorListSliceExp";
+    public static final String COLOR_LIST_REVERSE_EXP = "ColorListReverseExp";
 
-    public static final String SOUND_ARRAY_GET_EXP = "SoundArrayGetExp";
-    public static final String SOUND_ARRAY_SLICE_EXP = "SoundArraySliceExp";
-    public static final String SOUND_ARRAY_REVERSE_EXP = "SoundArrayReverseExp";
+    public static final String SOUND_LIST_GET_EXP = "SoundListGetExp";
+    public static final String SOUND_LIST_SLICE_EXP = "SoundListSliceExp";
+    public static final String SOUND_LIST_REVERSE_EXP = "SoundListReverseExp";
   }
 
   /** グローバルデータに関するシンボル名. */
@@ -758,20 +757,20 @@ public class SymbolNames {
     public static final String NEXT_GLOBAL_DATA_DECL = "NextGlobalDataDecl";
 
     public static final Set<String> LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             MUTEX_BLOCK_DECL,
             SYNC_TIMER_DECL,
             SEMAPHORE_DECL,
             NEXT_GLOBAL_DATA_DECL));
 
     public static final Set<String> VAR_LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             SYNC_TIMER_VAR,
             SEMAPHORE_VAR));
 
     /** グローバルデータの名前を保持するノードが接続されるコネクタのリスト. */
     public static final Set<String> DATA_NAME_CNCTR_LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             MUTEX_BLOCK_NAME,
             SYNC_TIMER_NAME,
             SEMAPHORE_NAME));
@@ -798,7 +797,7 @@ public class SymbolNames {
     public static final String SOUND_LIST_EXP_VOID = "SoundListExpVoid";
 
     public static final Set<String> LIST =
-        new HashSet<>(List.of(
+        new HashSet<>(java.util.List.of(
             ANY_EXP_VOID,
             NUM_EXP_VOID,
             STR_EXP_VOID,

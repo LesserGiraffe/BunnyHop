@@ -22,7 +22,7 @@ let _textDb = {
       (val, min, max) => `不正な時間 (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
     invalidNumElems:
       (val, min, max) => `不正な個数 (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,
-    invalidArraySize:
+    invalidListSize:
       (len, num, max) => `リストの要素数が正常な範囲 (0 ~ ${_str(max)} 個) を超えます.  (${_str(len)} + ${_str(num)} = ${_str(len + num)} 個)`,
     invalidListIdx:
       (val, min, max) => `不正なインデックス (= ${_str(val)}) が指定されました.  (有効な値 : ${_str(min)} ~ ${_str(max)})`,

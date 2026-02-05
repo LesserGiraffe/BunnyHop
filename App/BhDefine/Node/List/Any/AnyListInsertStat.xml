@@ -1,0 +1,47 @@
+<Node
+  type="connective"
+  bhNodeID="idAnyListInsertStat"
+  name="AnyListInsertStat"
+  nodeStyleID="AnyListInsertStat.json"
+  breakpoint="set"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedFromWsToChild="OnStatMovedToChild.js"
+  onChildReplaced="OnChildOfListCtrlReplaced.js"
+  onDeletionRequested="OnStatOrDeclDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js"
+  onCreatedAsTemplate="OnAnyListInsertStatCreatedAsTemplate.js"
+  onUiEventReceived="OnUiEventReceivedByStat.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="Statement">
+    
+    <Connector
+      bhConnectorID="idAnyListInsertStat.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+        
+    <Connector
+      bhConnectorID="idAnyListInsertStat.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+        
+    <Connector
+      bhConnectorID="idAnyListInsertStat.cnctr2"
+      import="idSameTypeOfExpCnctr"
+      name="Arg2"
+      restoreLastDefaultNode="true"/>
+
+    <Connector
+      bhConnectorID="idAnyListInsertStat.cnctr3"
+      import="idNumExpCnctr"
+      name="Arg3"/>
+    
+    <Connector
+      bhConnectorID="idAnyListInsertStat.cnctr4"
+      import="idStatCnctr"
+      name="NextStat"/>
+
+  </ConnectorSection>
+</Node>

@@ -40,7 +40,7 @@ let _semaphore = (function () {
 // 倍精度浮動小数点数で表現可能な値の中で long 型の最大値を超えない最大の値.
 let _nearestLongMax = Number(0x7FFFFFFFFFFFFC00n);
 let _nearestLongMin = -_nearestLongMax;
-let _maxArraySize = 0xFFFF_FFFF;
+let _maxListSize = 0xFFFF_FFFF;
 let _programStartingTime = 0;
 let _maxFilePathLength = 250; // bytes
 // ファイルパスに使えない文字列を探すための正規表現.  (英数字, アンダースコア, スラッシュ以外の半角文字にマッチ)
@@ -405,7 +405,7 @@ function _newBhProgramException(msg, cause) {
 //              配列操作
 //==================================================================
 
-function _checkAryIdx(index, len, tolerance) {
+function _checkListIdx(index, len, tolerance) {
   let idx = Math.trunc(index);
   let max = len - 1 + tolerance;
   let min = -(len + tolerance);
@@ -419,239 +419,233 @@ function _checkAryIdx(index, len, tolerance) {
   return (idx < 0) ? (idx - min) : idx;
 }
 
-function _checkArySize(aryLen, increment) {
-  if (!_isInRange(aryLen + increment, 0, _maxArraySize)) {
+function _checkListSize(size, increment) {
+  if (!_isInRange(size + increment, 0, _maxListSize)) {
     throw _newBhProgramException(
-      _textDb.errMsg.invalidArraySize(aryLen, increment, _maxArraySize));
+      _textDb.errMsg.invalidListSize(size, increment, _maxListSize));
   }
 }
 
-function _checkNumAryElems(num) {
+function _checkNumListElems(num) {
   let count = Math.trunc(num);
-  if (!_isInRange(count, 0, _maxArraySize)) {
-    throw _newBhProgramException(_textDb.errMsg.invalidNumElems(num, 0, _maxArraySize));
+  if (!_isInRange(count, 0, _maxListSize)) {
+    throw _newBhProgramException(_textDb.errMsg.invalidNumElems(num, 0, _maxListSize));
   }
   return count;
 }
 
-function _aryToStr(ary, listName) {
+function _listToStr(list, listName) {
   if (!listName)
     listName = _textDb.list.namelessList;
 
-  if (ary.length === 0)
+  if (list.length === 0)
     return listName + ' = ' + _textDb.list.empty;
 
   let halfOfMaxElems = 256;
-  let list = [];
-  if (ary.length > halfOfMaxElems * 2) {
+  let buf = [];
+  if (list.length > halfOfMaxElems * 2) {
     for (let i = 0; i < halfOfMaxElems; ++i) {
-      list[list.length] = _jString.format('%s[%.0f] = %s', listName, i, ary[i]._str());
+      buf[buf.length] = _jString.format('%s[%.0f] = %s', listName, i, list[i]._str());
     }
-    list[list.length] = '  ...  ';
-    for (let i = ary.length - halfOfMaxElems; i < ary.length; ++i) {
-      list[list.length] = _jString.format('%s[%.0f] = %s', listName, i, ary[i]._str());
+    buf[buf.length] = '  ...  ';
+    for (let i = list.length - halfOfMaxElems; i < list.length; ++i) {
+      buf[buf.length] = _jString.format('%s[%.0f] = %s', listName, i, list[i]._str());
     }
   } else {
-    for (let i = 0; i < ary.length; ++i) {
-      list[list.length] = _jString.format('%s[%.0f] = %s', listName, i, ary[i]._str());
+    for (let i = 0; i < list.length; ++i) {
+      buf[buf.length] = _jString.format('%s[%.0f] = %s', listName, i, list[i]._str());
     }
   }
-  return String(_jString.join('\n', list));
+  return String(_jString.join('\n', buf));
 }
 
-function _aryPush(ary, val, num) {
-  num = _checkNumAryElems(num);
-  _checkArySize(ary.length, num);
+function _listPush(list, val, num) {
+  num = _checkNumListElems(num);
+  _checkListSize(list.length, num);
   for (let i = 0; i < num; ++i) {
-    ary[ary.length] = val;
+    list[list.length] = val;
   }
 }
 
-function _aryPop(ary) {
-  ary.pop();
-}
-
-function _aryInsert(ary, idx, val, num) {
-  idx = _checkAryIdx(idx, ary.length, 1);
-  num = _checkNumAryElems(num);
-  _checkArySize(ary.length, num);
+function _listInsert(list, idx, val, num) {
+  idx = _checkListIdx(idx, list.length, 1);
+  num = _checkNumListElems(num);
+  _checkListSize(list.length, num);
 
   // 疎配列にアクセスするとメモリリークを起こすので, 疎配列にせずに高速に挿入する.
-  let len = ary.length;
+  let len = list.length;
   let numToShift = len - idx;
   let numToPush = Math.max(num - numToShift, 0);
   for (let i = 0; i < numToPush; ++i) {
-    ary[ary.length] = val;
+    list[list.length] = val;
   }
   let numToSpillOut = Math.min(numToShift, num);
   for (let i = len - numToSpillOut; i < len; ++i) {
-    ary[ary.length] = ary[i];
+    list[list.length] = list[i];
   }
   let numToCopy = numToShift - numToSpillOut;
   for (let i = idx + numToCopy - 1; i >= idx; --i) {
-    ary[i + num] = ary[i];
+    list[i + num] = list[i];
   }
   len = idx + num - numToPush;
   for (let i = idx; i < len; ++i) {
-    ary[i] = val;
+    list[i] = val;
   }
 }
 
-function _aryRemove(ary, idx, num) {
-  idx = _checkAryIdx(idx, ary.length, 0);
-  num = _checkNumAryElems(num);
-  ary.splice(idx, num);
-}
-
-function _aryExtract(ary, idx, num) {
-  idx = _checkAryIdx(idx, ary.length, 0);
-  num = _checkNumAryElems(num);
-  let len = Math.min(ary.length - idx, num);
-  for (let i = 0; i < len; ++i) {
-    ary[i] = ary[i + idx];
-  }
-  ary.splice(len, ary.length);
-}
-
-function _arySlice(ary, idx, num) {
+function _listRemove(list, idx, num) {
+  num = _checkNumListElems(num);
   // Rhino には, 引数を他の関数に入力すると数値の厳密比較が正常に機能しなくなるバグが存在する.
   // これを回避するため定数を左に書く.
   if (0 === num) {
+    return;
+  }
+  idx = _checkListIdx(idx, list.length, 0);
+  list.splice(idx, num);
+}
+
+function _listExtract(list, idx, num) {
+  num = _checkNumListElems(num);
+  if (0 === num) {
+    list.splice(0);
+    return;
+  }
+  idx = _checkListIdx(idx, list.length, 0);
+  let len = Math.min(list.length - idx, num);
+  for (let i = 0; i < len; ++i) {
+    list[i] = list[i + idx];
+  }
+  list.splice(len, list.length);
+}
+
+function _listSlice(list, idx, num) {
+  num = _checkNumListElems(num);
+  if (0 === num) {
     return [];
   }
-  idx = _checkAryIdx(idx, ary.length, 0);
-  num = _checkNumAryElems(num);
-  return ary.slice(idx, idx + num);
+  idx = _checkListIdx(idx, list.length, 0);
+  return list.slice(idx, idx + num);
 }
 
-function _aryClear(ary) {
-  ary.splice(0, ary.length);
-}
-
-function _aryAddAll(aryA, idx, aryB) {
-  idx = _checkAryIdx(idx, aryA.length, 1);
-  _checkArySize(aryA.length, aryB.length);
-  let tails = aryA.slice(idx, aryA.length);
-  if (aryA === aryB) {
-    aryB = aryA.concat();
+function _listInsertAll(listA, idx, listB) {
+  idx = _checkListIdx(idx, listA.length, 1);
+  _checkListSize(listA.length, listB.length);
+  let tails = listA.slice(idx, listA.length);
+  if (listA === listB) {
+    listB = listA.concat();
   }
-  aryA.length = idx;
-  Array.prototype.push.apply(aryA, aryB);
-  Array.prototype.push.apply(aryA, tails);
+  listA.length = idx;
+  Array.prototype.push.apply(listA, listB);
+  Array.prototype.push.apply(listA, tails);
 }
 
-function _aryGet(ary, idx) {
-  idx = _checkAryIdx(idx, ary.length, 0);
-  return ary[idx];
+function _listGet(list, idx) {
+  idx = _checkListIdx(idx, list.length, 0);
+  return list[idx];
 }
 
-function _aryGetLast(ary) {
-  let idx = _checkAryIdx(ary.length - 1, ary.length, 0);
-  return ary[idx];
+function _listSet(list, idx, val) {
+  idx = _checkListIdx(idx, list.length, 0);
+  list[idx] = val;
 }
 
-function _arySet(ary, idx, val) {
-  idx = _checkAryIdx(idx, ary.length, 0);
-  ary[idx] = val;
+function _listLen(list) {
+  return list.length;
 }
 
-function _aryLen(ary) {
-  return ary.length;
+function _listReverse(list) {
+  return list.reverse();
 }
 
-function _aryReverse(ary) {
-  return ary.reverse();
+function _listReversed(list) {
+  return list.toReversed();
 }
 
-function _aryReversed(ary) {
-  return ary.toReversed();
-}
-
-function _aryFirstIndexOf(ary, elem) {
-  for (let i = 0; i < ary.length; ++i)
-    if (ary[i]._eq(elem))
+function _listFirstIndexOf(list, elem) {
+  for (let i = 0; i < list.length; ++i)
+    if (list[i]._eq(elem))
       return i;
 
   return Number.NaN;
 }
 
-function _aryLastIndexOf(ary, elem) {
-  for (let i = ary.length - 1; i >= 0; --i)
-    if (ary[i]._eq(elem))
+function _listLastIndexOf(list, elem) {
+  for (let i = list.length - 1; i >= 0; --i)
+    if (list[i]._eq(elem))
       return i;
 
   return Number.NaN;
 }
 
-function _aryIncludes(ary, elem) {
-  return _aryFirstIndexOf(ary, elem) >= 0;
+function _listIncludes(list, elem) {
+  return _listFirstIndexOf(list, elem) >= 0;
 }
 
-function _aryEq(aryA, aryB) {
-  if (aryA === aryB)
+function _listEq(listA, listB) {
+  if (listA === listB)
     return true;
 
-  if (aryA.length !== aryB.length)
+  if (listA.length !== listB.length)
     return false;
 
-  for (let i = 0; i < aryA.length; ++i)
-    if (!aryA[i]._eq(aryB[i]))
+  for (let i = 0; i < listA.length; ++i)
+    if (!listA[i]._eq(listB[i]))
       return false;
 
   return true;
 }
 
-function _aryNeq(aryA, aryB) {
-  return !_aryEq(aryA, aryB);
+function _listNeq(listA, listB) {
+  return !_listEq(listA, listB);
 }
 
-function _aryNumMax(ary, defaultVal) {
-  if (ary.length === 0) {
+function _listMax(list, defaultVal) {
+  if (list.length === 0) {
     return defaultVal;
   }
-  let max = ary[0];
-  for (let i = 1; i < ary.length; ++i) {
-    if (ary[i] > max || Number.isNaN(max)) {
-      max = ary[i];
+  let max = list[0];
+  for (let i = 1; i < list.length; ++i) {
+    if (list[i] > max) {
+      max = list[i];
     }
   }
   return max;
 }
 
-function _aryNumMin(ary, defaultVal) {
-  if (ary.length === 0) {
+function _listMin(list, defaultVal) {
+  if (list.length === 0) {
     return defaultVal;
   }
-  let min = ary[0];
-  for (let i = 1; i < ary.length; ++i) {
-    if (ary[i] < min || Number.isNaN(min)) {
-      min = ary[i];
+  let min = list[0];
+  for (let i = 1; i < list.length; ++i) {
+    if (list[i] < min) {
+      min = list[i];
     }
   }
   return min;
 }
 
-function _aryMax(ary, defaultVal) {
-  if (ary.length === 0) {
+function _listNumMax(list, defaultVal) {
+  if (list.length === 0) {
     return defaultVal;
   }
-  let max = ary[0];
-  for (let i = 1; i < ary.length; ++i) {
-    if (ary[i] > max) {
-      max = ary[i];
+  let max = list[0];
+  for (let i = 1; i < list.length; ++i) {
+    if (list[i] > max || Number.isNaN(max)) {
+      max = list[i];
     }
   }
   return max;
 }
 
-function _aryMin(ary, defaultVal) {
-  if (ary.length === 0) {
+function _listNumMin(list, defaultVal) {
+  if (list.length === 0) {
     return defaultVal;
   }
-  let min = ary[0];
-  for (let i = 1; i < ary.length; ++i) {
-    if (ary[i] < min) {
-      min = ary[i];
+  let min = list[0];
+  for (let i = 1; i < list.length; ++i) {
+    if (list[i] < min || Number.isNaN(min)) {
+      min = list[i];
     }
   }
   return min;
@@ -692,34 +686,34 @@ function _numDescComparator(a, b) {
   return (a === b) ? 0 : b - a;
 }
 
-function _arySort(ary, isAscending) {
+function _listSort(list, isAscending) {
   let comp = isAscending ? _ascComparator : _descComparator;
-  return ary.sort(comp);
+  return list.sort(comp);
 }
 
-function _arySorted(ary, isAscending) {
+function _listSorted(list, isAscending) {
   let comp = isAscending ? _ascComparator : _descComparator;
-  let copy = ary.concat(); // toSorted は遅いので使わない
+  let copy = list.concat(); // toSorted は遅いので使わない
   return copy.sort(comp);
 
 }
 
-function _aryNumSort(ary, isAscending) {
+function _listNumSort(list, isAscending) {
   let comp = isAscending ? _numAscComparator : _numDescComparator;
-  return ary.sort(comp);
+  return list.sort(comp);
 }
 
-function _aryNumSorted(ary, isAscending) {
+function _listNumSorted(list, isAscending) {
   let comp = isAscending ? _numAscComparator : _numDescComparator;
-  let copy = ary.concat();
+  let copy = list.concat();
   return copy.sort(comp);
 }
 
-function _delDuplicates(ary) {
+function _delDuplicates(list) {
   let set = [];
-  for (let i = 0; i < ary.length; ++i)
-    if (!_aryIncludes(set, ary[i]))
-      set.push(ary[i]);
+  for (let i = 0; i < list.length; ++i)
+    if (!_listIncludes(set, list[i]))
+      set.push(list[i]);
 
   return set;
 }
@@ -728,65 +722,65 @@ function _delDuplicates(ary) {
 //              Set 操作
 //==================================================================
 
-// aryA is a subset of aryB
-function _isSubset(aryA, aryB) {
-  if (aryA === aryB)
+// listA is a subset of listB
+function _isSubset(listA, listB) {
+  if (listA === listB)
     return true;
 
-  let setA = _delDuplicates(aryA);
-  let setB = _delDuplicates(aryB);
+  let setA = _delDuplicates(listA);
+  let setB = _delDuplicates(listB);
   if (setA.length > setB.length)
     return false;
 
   for (let i = 0; i < setA.length; ++i)
-    if (!_aryIncludes(setB, aryA[i]))
+    if (!_listIncludes(setB, listA[i]))
       return false;
 
   return true;
 }
 
-function _isProperSubset(aryA, aryB) {
-  if (aryA === aryB)
+function _isProperSubset(listA, listB) {
+  if (listA === listB)
     return false;
 
-  let setA = _delDuplicates(aryA);
-  let setB = _delDuplicates(aryB);
+  let setA = _delDuplicates(listA);
+  let setB = _delDuplicates(listB);
   if (setA.length >= setB.length)
     return false;
 
   for (let i = 0; i < setA.length; ++i)
-    if (!_aryIncludes(setB, aryA[i]))
+    if (!_listIncludes(setB, listA[i]))
       return false;
 
   return true;
 }
 
-function _isSuperset(aryA, aryB) {
-  return _isSubset(aryB, aryA);
+function _isSuperset(listA, listB) {
+  return _isSubset(listB, listA);
 }
 
-function _isProperSuperset(aryA, aryB) {
-  return _isProperSubset(aryB, aryA);
+function _isProperSuperset(listA, listB) {
+  return _isProperSubset(listB, listA);
 }
 
-function _setEq(aryA, aryB) {
-  if (aryA === aryB)
+function _setEq(listA, listB) {
+  if (listA === listB)
     return true;
 
-  let setA = _delDuplicates(aryA);
-  let setB = _delDuplicates(aryB);
+  let setA = _delDuplicates(listA);
+  let setB = _delDuplicates(listB);
   if (setA.length !== setB.length)
     return false;
 
   for (let i = 0; i < setA.length; ++i)
-    if (!_aryIncludes(setB, aryA[i]))
+    if (!_listIncludes(setB, listA[i]))
       return false;
 
   return true;
 }
 
-function _setNeq(aryA, aryB) {
-  return !_setEq(aryA, aryB);
+function _setNeq(listA, listB) {
+  return !_setEq(listA, listB);
 }
 
 //==================================================================

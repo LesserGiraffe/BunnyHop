@@ -1,0 +1,27 @@
+<Node
+  type="connective"
+  bhNodeID="idColorListSliceExp"
+  name="ColorListSliceExp"
+  nodeStyleID="ColorListSliceExp.json"
+  breakpoint="ignore"
+  onChildReplaced="OnChildOfListCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="ColorListExp">
+    <Connector
+      bhConnectorID="idColorListSliceExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+        
+    <Connector
+      bhConnectorID="idColorListSliceExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+
+    <Connector
+      bhConnectorID="idColorListSliceExp.cnctr2"
+      import="idNumExpCnctr"
+      name="Arg2"/>
+  </ConnectorSection>
+</Node>

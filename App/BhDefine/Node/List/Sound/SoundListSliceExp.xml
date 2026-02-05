@@ -1,0 +1,27 @@
+<Node
+  type="connective"
+  bhNodeID="idSoundListSliceExp"
+  name="SoundListSliceExp"
+  nodeStyleID="SoundListSliceExp.json"
+  breakpoint="ignore"
+  onChildReplaced="OnChildOfListCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="SoundListExp">
+    <Connector
+      bhConnectorID="idSoundListSliceExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+        
+    <Connector
+      bhConnectorID="idSoundListSliceExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+
+    <Connector
+      bhConnectorID="idSoundListSliceExp.cnctr2"
+      import="idNumExpCnctr"
+      name="Arg2"/>
+  </ConnectorSection>
+</Node>

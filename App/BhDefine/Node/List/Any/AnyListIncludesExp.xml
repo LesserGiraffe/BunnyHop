@@ -1,0 +1,25 @@
+<Node
+  type="connective"
+  bhNodeID="idAnyListIncludesExp"
+  name="AnyListIncludesExp"
+  nodeStyleID="AnyListIncludesExp.json"
+  breakpoint="ignore"
+  onChildReplaced="OnChildOfListCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="BoolExp">
+
+    <Connector
+      bhConnectorID="idAnyListIncludesExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idAnyListIncludesExp.cnctr1"
+      import="idSameTypeOfExpCnctr"
+      name="Arg1"
+      restoreLastDefaultNode="true"/>
+
+  </ConnectorSection>
+</Node>

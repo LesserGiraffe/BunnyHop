@@ -1,8 +1,8 @@
 <Node
   type="connective"
-  bhNodeID="idPlaySoundListStat"
-  name="PlaySoundListStat"
-  nodeStyleID="PlayMelodyStat.json"
+  bhNodeID="idAnyListSpliceStat"
+  name="AnyListSpliceStat"
+  nodeStyleID="AnyListSpliceStat.json"
   breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
@@ -10,33 +10,46 @@
   onDeletionRequested="OnStatOrDeclDeletionRequested.js"
   onCutRequested="OnCutRequested.js"
   onCopyRequested="OnCopyRequested.js"
+  onCreatedAsTemplate="OnAnyListSpliceStatCreatedAsTemplate.js"
   onUiEventReceived="OnUiEventReceivedByStat.js"
   onAliasAsked="OnAliasAsked.js"
   version="bhn-0.1.0">
 
   <ConnectorSection name="Statement">
-
+    
     <Connector
-      bhConnectorID="idPlaySoundListStat.cnctr0"
+      bhConnectorID="idAnyListSpliceStat.cnctr0"
       import="idAnyFixedCnctr"
       name="Arg0"/>
     
     <Connector
-      bhConnectorID="idPlaySoundListStat.cnctr1"
-      name="Arg1"
+      bhConnectorID="idAnyListSpliceStat.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+    
+    <Connector
+      bhConnectorID="idAnyListSpliceStat.cnctr2"
+      import="idNumExpCnctr"
+      name="Arg2"/>
+
+    <Connector
+      bhConnectorID="idAnyListSpliceStat.cnctr3"
+      name="Option0"
       fixed="true">
       <Node
         type="text"
-        bhNodeID="idPlaySoundListStat.node1"
-        name="BoolLiteral"
+        bhNodeID="idAnyListSpliceStat.node3"
+        name="Function"
+        nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
-        text="false"
+        onTextOptionsCreating="CreateListSpliceOpts.js"
         version="bhn-0.1.0"/>
     </Connector>
-      
+    
     <Connector
-      bhConnectorID="idPlaySoundListStat.cnctr2"
+      bhConnectorID="idAnyListSpliceStat.cnctr4"
       import="idStatCnctr"
       name="NextStat"/>
+
   </ConnectorSection>
 </Node>

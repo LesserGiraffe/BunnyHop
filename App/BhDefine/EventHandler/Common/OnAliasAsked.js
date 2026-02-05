@@ -5,8 +5,8 @@ let nodeToSuffixPos = {
   'MaxMinExp':                ['*', '*', 'MaxMinOpe'],
   'NumRoundExp':              ['*', '*', 'NumRoundOpe'],
   'CheckNumTypeExp':          ['*', '*', 'Function'],
-  "NumArrayMaxMinExp":        ['*', '*', 'MaxMinOpe'],
-  "StrArrayMaxMinExp":        ['*', '*', 'MaxMinOpe'],
+  "NumListMaxMinExp":        ['*', '*', 'MaxMinOpe'],
+  "StrListMaxMinExp":        ['*', '*', 'MaxMinOpe'],
   "MeasureSoundPressureExp":  ['*', '*', 'MeasureOpe'],
 };
 
@@ -68,7 +68,7 @@ let nodeToNamePos = {
 
 let nodeToOptionAndTextId = {
   'MoveStat':           [ ['*', '*', 'MoveOpe'],     ['node', 'move-opts'] ],
-  'AnyArraySpliceStat': [ ['*', '*', 'Function'],    ['node', 'list-splice-opts'] ],
+  'AnyListSpliceStat': [ ['*', '*', 'Function'],    ['node', 'list-splice-opts'] ],
   'AnyCompExp':         [ ['*', '*', 'CompOpe'],     ['node', 'math-comp-opts'] ],
   'NumCompExp':         [ ['*', '*', 'CompOpe'],     ['node', 'math-comp-opts'] ],
   'StrCompExp':         [ ['*', '*', 'CompOpe'],     ['node', 'math-comp-opts'] ]

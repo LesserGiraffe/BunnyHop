@@ -1,0 +1,46 @@
+<Node
+  type="connective"
+  bhNodeID="idNumListSortExp"
+  name="NumListSortExp"
+  nodeStyleID="NumListSortExp.json"
+  breakpoint="ignore"
+  onChildReplaced="OnChildOfListCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="NumListExp">
+    <Connector
+      bhConnectorID="idNumListSortExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idNumListSortExp.cnctr1"
+      name="Arg1"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNumListSortExp.node1"
+        name="BoolLiteral"
+        nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
+        onTextOptionsCreating="CreateSortOrderOpts.js"
+        version="bhn-0.1.0"/>
+    </Connector>
+
+    <Connector
+      bhConnectorID="idNumListSortExp.cnctr2"
+      name="Option0"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idNumListSortExp.node2"
+        name="InPlaceOpts"
+        nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
+        onTextOptionsCreating="CreateListSortInPlaceOpts.js"
+        version="bhn-0.1.0">
+      </Node>
+    </Connector>
+  </ConnectorSection>
+</Node>

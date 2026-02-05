@@ -1,0 +1,23 @@
+<Node
+  type="connective"
+  bhNodeID="idStrListGetExp"
+  name="StrListGetExp"
+  nodeStyleID="StrListGetExp.json"
+  breakpoint="ignore"
+  onChildReplaced="OnChildOfListCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="StrExp">
+    
+    <Connector
+      bhConnectorID="idStrListGetExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idStrListGetExp.cnctr1"
+      import="idNumExpCnctr"
+      name="Arg1"/>
+  </ConnectorSection>
+</Node>

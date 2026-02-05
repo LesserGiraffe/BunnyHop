@@ -1,0 +1,32 @@
+<Node
+  type="connective"
+  bhNodeID="idSoundListReverseExp"
+  name="SoundListReverseExp"
+  nodeStyleID="SoundListReverseExp.json"
+  breakpoint="ignore"
+  onChildReplaced="OnChildOfListCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="SoundListExp">
+    <Connector
+      bhConnectorID="idSoundListReverseExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idSoundListReverseExp.cnctr1"
+      name="Option0"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idSoundListReverseExp.node1"
+        name="InPlaceOpts"
+        nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
+        onTextOptionsCreating="CreateListReverseInPlaceOpts.js"
+        version="bhn-0.1.0">
+      </Node>
+    </Connector>
+  </ConnectorSection>
+</Node>

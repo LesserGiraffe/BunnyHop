@@ -1,0 +1,32 @@
+<Node
+  type="connective"
+  bhNodeID="idBoolListReverseExp"
+  name="BoolListReverseExp"
+  nodeStyleID="BoolListReverseExp.json"
+  breakpoint="ignore"
+  onChildReplaced="OnChildOfListCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="BoolListExp">
+    <Connector
+      bhConnectorID="idBoolListReverseExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idBoolListReverseExp.cnctr1"
+      name="Option0"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idBoolListReverseExp.node1"
+        name="InPlaceOpts"
+        nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
+        onTextOptionsCreating="CreateListReverseInPlaceOpts.js"
+        version="bhn-0.1.0">
+      </Node>
+    </Connector>
+  </ConnectorSection>
+</Node>

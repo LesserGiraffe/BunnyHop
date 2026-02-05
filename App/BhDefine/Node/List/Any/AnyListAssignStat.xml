@@ -1,8 +1,8 @@
 <Node
   type="connective"
-  bhNodeID="idPlaySoundListStat"
-  name="PlaySoundListStat"
-  nodeStyleID="PlayMelodyStat.json"
+  bhNodeID="idAnyListAssignStat"
+  name="AnyListAssignStat"
+  nodeStyleID="AnyListAssignStat.json"
   breakpoint="set"
   onMovedFromChildToWS="OnStatMovedToWS.js"
   onMovedFromWsToChild="OnStatMovedToChild.js"
@@ -15,28 +15,21 @@
   version="bhn-0.1.0">
 
   <ConnectorSection name="Statement">
-
-    <Connector
-      bhConnectorID="idPlaySoundListStat.cnctr0"
-      import="idAnyFixedCnctr"
-      name="Arg0"/>
     
     <Connector
-      bhConnectorID="idPlaySoundListStat.cnctr1"
-      name="Arg1"
-      fixed="true">
-      <Node
-        type="text"
-        bhNodeID="idPlaySoundListStat.node1"
-        name="BoolLiteral"
-        breakpoint="specifyParent"
-        text="false"
-        version="bhn-0.1.0"/>
-    </Connector>
-      
+      bhConnectorID="idAnyListAssignStat.cnctr0"
+      import="idAnyFixedCnctr"
+      name="LeftVar"/>
+
     <Connector
-      bhConnectorID="idPlaySoundListStat.cnctr2"
+      bhConnectorID="idAnyListAssignStat.cnctr1"
+      import="idSameTypeOfExpCnctr"
+      name="RightExp"/>
+
+    <Connector
+      bhConnectorID="idAnyListAssignStat.cnctr2"
       import="idStatCnctr"
       name="NextStat"/>
+
   </ConnectorSection>
 </Node>

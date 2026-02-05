@@ -2,19 +2,19 @@ let listDeclName = String(bhThis.getSymbolName());
 let dervIdIdVar = 'dervIdVar';
 
 let listDeclToGetExp = {
-  'NumListDecl'   : 'idNumArrayGetExp',
-  'StrListDecl'   : 'idStrArrayGetExp',
-  'BoolListDecl'  : 'idBoolArrayGetExp',
-  'ColorListDecl' : 'idColorArrayGetExp',
-  'SoundListDecl' : 'idSoundArrayGetExp'
+  'NumListDecl'   : 'idNumListGetExp',
+  'StrListDecl'   : 'idStrListGetExp',
+  'BoolListDecl'  : 'idBoolListGetExp',
+  'ColorListDecl' : 'idColorListGetExp',
+  'SoundListDecl' : 'idSoundListGetExp'
 };
 
 let listDeclToSliceExp = {
-  'NumListDecl'   : 'idNumArraySliceExp',
-  'StrListDecl'   : 'idStrArraySliceExp',
-  'BoolListDecl'  : 'idBoolArraySliceExp',
-  'ColorListDecl' : 'idColorArraySliceExp',
-  'SoundListDecl' : 'idSoundArraySliceExp'
+  'NumListDecl'   : 'idNumListSliceExp',
+  'StrListDecl'   : 'idStrListSliceExp',
+  'BoolListDecl'  : 'idBoolListSliceExp',
+  'ColorListDecl' : 'idColorListSliceExp',
+  'SoundListDecl' : 'idSoundListSliceExp'
 };
 
 let listDeclToLiteral = {
@@ -34,66 +34,66 @@ let listDeclToExpVoid = {
 };
 
 let listDeclToMinMaxExp = {
-  'NumListDecl'   : 'idNumArrayMaxMinExp',
-  'StrListDecl'   : 'idStrArrayMaxMinExp'
+  'NumListDecl'   : 'idNumListMaxMinExp',
+  'StrListDecl'   : 'idStrListMaxMinExp'
 };
 
 let listDeclToSortExp = {
-  'NumListDecl'   : 'idNumArraySortExp',
-  'StrListDecl'   : 'idStrArraySortExp'
+  'NumListDecl'   : 'idNumListSortExp',
+  'StrListDecl'   : 'idStrListSortExp'
 };
 
 let listDeclToReverseExp = {
-  'NumListDecl'   : 'idNumArrayReverseExp',
-  'StrListDecl'   : 'idStrArrayReverseExp',
-  'BoolListDecl'  : 'idBoolArrayReverseExp',
-  'ColorListDecl' : 'idColorArrayReverseExp',
-  'SoundListDecl' : 'idSoundArrayReverseExp'
+  'NumListDecl'   : 'idNumListReverseExp',
+  'StrListDecl'   : 'idStrListReverseExp',
+  'BoolListDecl'  : 'idBoolListReverseExp',
+  'ColorListDecl' : 'idColorListReverseExp',
+  'SoundListDecl' : 'idSoundListReverseExp'
 };
 
 let listDeclToPlaySoundListStat = {
   'SoundListDecl' : 'idPlaySoundListStat'
 }
 
-function genAnyArrayControlNode(arrayCtrlNodeId, listCnctrName, argNameToSymbolMap) {
-  if (!arrayCtrlNodeId) {
+function genAnyListControlNode(listCtrlNodeId, listCnctrName, argNameToSymbolMap) {
+  if (!listCtrlNodeId) {
     return null;
   }
-  let arrayCtrlNode = bhUtil.createBhNode(arrayCtrlNodeId, bhUserOpe);
-  let arg = arrayCtrlNode.findDescendantOf('*', listCnctrName, '*');
+  let listCtrlNode = bhUtil.createBhNode(listCtrlNodeId, bhUserOpe);
+  let arg = listCtrlNode.findDescendantOf('*', listCnctrName, '*');
   let newNode = bhUtil.buildDerivative(bhThis, dervIdIdVar, bhUserOpe);
   arg.replace(newNode, bhUserOpe);
 
   if (argNameToSymbolMap === undefined) {
-    return arrayCtrlNode;
+    return listCtrlNode;
   }
   for (let argName in argNameToSymbolMap) {
-    cnctr = arrayCtrlNode.findDescendantOf('*', argName);
+    cnctr = listCtrlNode.findDescendantOf('*', argName);
     let defaultNodeId = argNameToSymbolMap[argName][listDeclName];
     bhUtil.changeDefaultNode(cnctr, defaultNodeId, bhUserOpe);
   }
-  return arrayCtrlNode;
+  return listCtrlNode;
 }
 
 (function() {
   let templates = [
     bhUtil.buildDerivative(bhThis, dervIdIdVar, bhUserOpe),
-    genAnyArrayControlNode(listDeclToPlaySoundListStat[listDeclName], 'Arg0'),
-    genAnyArrayControlNode('idAnyArrayToStrExp', 'Arg0'),
-    genAnyArrayControlNode('idAnyArrayLengthExp', 'Arg0'),
-    genAnyArrayControlNode('idAnyArrayPushStat', 'Arg0', {'Arg1' : listDeclToLiteral}),
-    genAnyArrayControlNode(listDeclToGetExp[listDeclName], 'Arg0'),
-    genAnyArrayControlNode('idAnyArraySetStat', 'Arg0', {'Arg2' : listDeclToLiteral}),
-    genAnyArrayControlNode('idAnyArrayInsertStat', 'Arg0', {'Arg2' : listDeclToLiteral}),
-    genAnyArrayControlNode('idAnyArrayAppendStat', 'Arg0', {'Arg2' : listDeclToExpVoid}),
-    genAnyArrayControlNode('idAnyArraySpliceStat', 'Arg0'),
-    genAnyArrayControlNode(listDeclToMinMaxExp[listDeclName], 'Arg0'),
-    genAnyArrayControlNode('idAnyArrayIndexOfExp', 'Arg0', {'Arg1' : listDeclToLiteral}),
-    genAnyArrayControlNode('idAnyArrayIncludesExp', 'Arg0', {'Arg1' : listDeclToLiteral}),
-    genAnyArrayControlNode(listDeclToSortExp[listDeclName], 'Arg0'),
-    genAnyArrayControlNode(listDeclToReverseExp[listDeclName], 'Arg0'),
-    genAnyArrayControlNode(listDeclToSliceExp[listDeclName], 'Arg0'),
-    genAnyArrayControlNode('idAnyArrayAssignStat', 'LeftVar', {'RightExp' : listDeclToExpVoid})
+    genAnyListControlNode(listDeclToPlaySoundListStat[listDeclName], 'Arg0'),
+    genAnyListControlNode('idAnyListToStrExp', 'Arg0'),
+    genAnyListControlNode('idAnyListLengthExp', 'Arg0'),
+    genAnyListControlNode('idAnyListPushStat', 'Arg0', {'Arg1' : listDeclToLiteral}),
+    genAnyListControlNode(listDeclToGetExp[listDeclName], 'Arg0'),
+    genAnyListControlNode('idAnyListSetStat', 'Arg0', {'Arg2' : listDeclToLiteral}),
+    genAnyListControlNode('idAnyListInsertStat', 'Arg0', {'Arg2' : listDeclToLiteral}),
+    genAnyListControlNode('idAnyListInsertAllStat', 'Arg0', {'Arg2' : listDeclToExpVoid}),
+    genAnyListControlNode('idAnyListSpliceStat', 'Arg0'),
+    genAnyListControlNode(listDeclToMinMaxExp[listDeclName], 'Arg0'),
+    genAnyListControlNode('idAnyListIndexOfExp', 'Arg0', {'Arg1' : listDeclToLiteral}),
+    genAnyListControlNode('idAnyListIncludesExp', 'Arg0', {'Arg1' : listDeclToLiteral}),
+    genAnyListControlNode(listDeclToSortExp[listDeclName], 'Arg0'),
+    genAnyListControlNode(listDeclToReverseExp[listDeclName], 'Arg0'),
+    genAnyListControlNode(listDeclToSliceExp[listDeclName], 'Arg0'),
+    genAnyListControlNode('idAnyListAssignStat', 'LeftVar', {'RightExp' : listDeclToExpVoid})
   ];
   return templates.filter(node => node !== null);
 })();

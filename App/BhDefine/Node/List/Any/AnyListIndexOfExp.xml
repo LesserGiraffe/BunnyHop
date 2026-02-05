@@ -1,0 +1,39 @@
+<Node
+  type="connective"
+  bhNodeID="idAnyListIndexOfExp"
+  name="AnyListIndexOfExp"
+  nodeStyleID="AnyListIndexOfExp.json"
+  breakpoint="ignore"
+  onChildReplaced="OnChildOfListCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="NumExp">
+    
+    <Connector
+      bhConnectorID="idAnyListIndexOfExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+
+    <Connector
+      bhConnectorID="idAnyListIndexOfExp.cnctr1"
+      name="Option0"
+      fixed="true">
+      <Node
+        type="text"
+        bhNodeID="idAnyListIndexOfExp.node1"
+        name="Position"
+        nodeStyleID="WordComboBox.json"
+        breakpoint="specifyParent"
+        onTextOptionsCreating="CreateListIndexOfOpts.js"
+        version="bhn-0.1.0"/>
+    </Connector>
+
+    <Connector
+      bhConnectorID="idAnyListIndexOfExp.cnctr2"
+      import="idSameTypeOfExpCnctr"
+      name="Arg1"
+      restoreLastDefaultNode="true"/>
+    
+  </ConnectorSection>
+</Node>

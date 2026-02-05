@@ -1,0 +1,17 @@
+<Node
+  type="connective"
+  bhNodeID="idAnyListLengthExp"
+  name="AnyListLengthExp"
+  nodeStyleID="AnyListLengthExp.json"
+  breakpoint="ignore"
+  onChildReplaced="OnChildOfListCtrlReplaced.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="NumExp">
+    <Connector
+      bhConnectorID="idAnyListLengthExp.cnctr0"
+      import="idAnyFixedCnctr"
+      name="Arg0"/>
+  </ConnectorSection>
+</Node>

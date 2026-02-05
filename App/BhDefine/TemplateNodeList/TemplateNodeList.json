@@ -43,7 +43,7 @@
       "idAnyToStrExp",
       "idStrRowChainExp",
       "idStrLineFeedChainExp",
-      "idArrayToStrExp",
+      "idListToStrExp",
       "idSaveTextStat",
       "idLoadTextExp",
       "idGetTextFilesExp",
@@ -61,7 +61,7 @@
       "idStrCompExp",
       "idAnyCompExp",
       "idCheckNumTypeExp",
-      "idAnyArrayCompExp",
+      "idAnyListCompExp",
       "idAnySetCompExp"]
   },
 
@@ -101,7 +101,7 @@
       "idContinueStat",
       "idCompoundStat",
       "idExpAdapterStat",
-      "idArrayAdapterStat"]
+      "idListAdapterStat"]
   },
   
   "${node-category}{variable}": {

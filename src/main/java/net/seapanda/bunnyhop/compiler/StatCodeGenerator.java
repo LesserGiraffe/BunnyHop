@@ -207,7 +207,7 @@ class StatCodeGenerator {
         break;
 
       case SymbolNames.ControlStat.EXP_ADAPTER_STAT:
-      case SymbolNames.ControlStat.ARRAY_ADAPTER_STAT:
+      case SymbolNames.ControlStat.LIST_ADAPTER_STAT:
         genAdapterStat(controlStatNode, code, nestLevel, option);
         break;
 

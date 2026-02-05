@@ -1,0 +1,29 @@
+<Node
+  type="connective"
+  bhNodeID="idListAdapterStat"
+  name="ListAdapterStat"
+  nodeStyleID="ListAdapterStat.json"
+  breakpoint="set"
+  onMovedFromChildToWS="OnStatMovedToWS.js"
+  onMovedFromWsToChild="OnStatMovedToChild.js"
+  onDeletionRequested="OnStatOrDeclDeletionRequested.js"
+  onCutRequested="OnCutRequested.js"
+  onCopyRequested="OnCopyRequested.js"
+  onUiEventReceived="OnUiEventReceivedByStat.js"
+  onAliasAsked="OnAliasAsked.js"
+  version="bhn-0.1.0">
+
+  <ConnectorSection name="Statement">
+
+    <Connector
+      bhConnectorID="idListAdapterStat.cnctr0"
+      import="idAnyListExpCnctr"
+      name="Target"/>
+
+    <Connector
+      bhConnectorID="idListAdapterStat.cnctr1"
+      import="idStatCnctr"
+      name="NextStat"/>
+
+  </ConnectorSection>
+</Node>
