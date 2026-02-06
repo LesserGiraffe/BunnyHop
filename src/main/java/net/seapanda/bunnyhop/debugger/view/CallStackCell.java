@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.debugger.view;
 
+import static javafx.css.PseudoClass.getPseudoClass;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -42,7 +44,7 @@ public class CallStackCell extends ListCell<CallStackItem> {
   /** コンストラクタ. */
   public CallStackCell(Map<BhNode, Set<CallStackCell>> nodeToCells) {
     this.nodeToCells = nodeToCells;
-    getStyleClass().add(BhConstants.Css.CLASS_CALL_STACK_ITEM);
+    getStyleClass().add(BhConstants.Css.Class.CALL_STACK_ITEM);
     setOnMousePressed(event -> clearSelectionIfEmpty());
   }
 
@@ -68,12 +70,12 @@ public class CallStackCell extends ListCell<CallStackItem> {
   /** セルに {@code item} の状態に応じた疑似クラスを適用する. */
   private void applyPseudoClass(CallStackItem item) {
     if (item == null) {
-      pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_NEXT), false);
-      pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR), false);
+      pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.NEXT), false);
+      pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ERROR), false);
       return;
     }
-    pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_NEXT), item.isNext);
-    pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR), item.isError);
+    pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.NEXT), item.isNext);
+    pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ERROR), item.isError);
   }
 
   private static String getText(CallStackItem item, boolean empty) {
@@ -120,7 +122,7 @@ public class CallStackCell extends ListCell<CallStackItem> {
 
   /** このセルに描画される文字を装飾する. */
   public void decorateText(boolean val) {
-    PseudoClass cls = PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_TEXT_DECORATE);
+    PseudoClass cls = getPseudoClass(BhConstants.Css.Pseudo.TEXT_DECORATE);
     pseudoClassStateChanged(cls, val);
   }
 }

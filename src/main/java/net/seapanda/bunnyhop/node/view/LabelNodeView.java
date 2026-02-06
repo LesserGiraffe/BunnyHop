@@ -71,7 +71,7 @@ public final class LabelNodeView extends BhNodeViewBase {
     label.autosize();
     label.setMouseTransparent(true);
     label.getStyleClass().add(style.label.cssClass);
-    getLookManager().addCssClass(BhConstants.Css.CLASS_LABEL_NODE);
+    getLookManager().addCssClass(BhConstants.Css.Class.LABEL_NODE);
   }
 
   private Vec2D getLabelSize() {

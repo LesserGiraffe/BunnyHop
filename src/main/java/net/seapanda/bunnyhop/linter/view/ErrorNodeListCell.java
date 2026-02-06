@@ -40,7 +40,7 @@ public class ErrorNodeListCell extends TreeCell<ErrorNodeListItem> {
   /** コンストラクタ. */
   public ErrorNodeListCell(Map<BhNode, Set<ErrorNodeListCell>> nodeToCells) {
     this.nodeToCells = nodeToCells;
-    getStyleClass().add(BhConstants.Css.ERROR_NODE_LIST_ITEM);
+    getStyleClass().add(BhConstants.Css.Class.ERROR_NODE_LIST_ITEM);
   }
 
   @Override
@@ -96,7 +96,7 @@ public class ErrorNodeListCell extends TreeCell<ErrorNodeListItem> {
 
   /** このセルに描画される文字を装飾する. */
   public void decorateText(boolean val) {
-    PseudoClass cls = PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_TEXT_DECORATE);
+    PseudoClass cls = PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.TEXT_DECORATE);
     pseudoClassStateChanged(cls, val);
   }
 }

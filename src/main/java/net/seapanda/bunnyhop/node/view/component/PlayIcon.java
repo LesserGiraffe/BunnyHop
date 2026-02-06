@@ -21,7 +21,7 @@ public class PlayIcon extends Group {
   public PlayIcon(double radius, String styleClass) {
     // 円を作成
     Circle circle = new Circle(radius);
-    circle.getStyleClass().add(BhConstants.Css.CLASS_CIRCLE);
+    circle.getStyleClass().add(BhConstants.Css.Class.CIRCLE);
 
     // 右向きの三角形を作成
     double triangleSize = radius * 0.9;
@@ -32,7 +32,7 @@ public class PlayIcon extends Group {
         -triangleSize / 2 + offset, triangleSize / 1.5,
         triangleSize * 2 / 3 + offset, 0.0
     );
-    triangle.getStyleClass().add(BhConstants.Css.CLASS_TRIANGLE);
+    triangle.getStyleClass().add(BhConstants.Css.Class.TRIANGLE);
 
     getChildren().addAll(circle, triangle);
     setMouseTransparent(true);

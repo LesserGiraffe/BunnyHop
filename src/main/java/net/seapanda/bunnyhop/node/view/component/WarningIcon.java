@@ -54,7 +54,7 @@ public class WarningIcon extends Group {
     triangle.setFill(Color.YELLOW);
     triangle.setStroke(Color.BLACK);
     triangle.setStrokeWidth(width * 0.03);
-    triangle.getStyleClass().add(BhConstants.Css.CLASS_TRIANGLE);
+    triangle.getStyleClass().add(BhConstants.Css.Class.TRIANGLE);
 
     // エクスクラメーションマークの縦棒部分（長方形）
     Rectangle exclamationBar = new Rectangle();
@@ -65,7 +65,7 @@ public class WarningIcon extends Group {
     exclamationBar.setWidth(barWidth);
     exclamationBar.setHeight(barHeight);
     exclamationBar.setFill(Color.BLACK);
-    exclamationBar.getStyleClass().add(BhConstants.Css.CLASS_EXCLAMATION_BAR);
+    exclamationBar.getStyleClass().add(BhConstants.Css.Class.EXCLAMATION_BAR);
 
     // エクスクラメーションマークの点部分（円）
     Circle exclamationDot = new Circle();
@@ -73,7 +73,7 @@ public class WarningIcon extends Group {
     exclamationDot.setCenterY(height * 0.75);
     exclamationDot.setRadius(width * 0.04);
     exclamationDot.setFill(Color.BLACK);
-    exclamationDot.getStyleClass().add(BhConstants.Css.CLASS_EXCLAMATION_DOT);
+    exclamationDot.getStyleClass().add(BhConstants.Css.Class.EXCLAMATION_DOT);
 
     // すべての図形をグループに追加
     getChildren().addAll(triangle, exclamationBar, exclamationDot);

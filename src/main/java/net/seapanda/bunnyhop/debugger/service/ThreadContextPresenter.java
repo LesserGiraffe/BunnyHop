@@ -178,7 +178,7 @@ public class ThreadContextPresenter {
   }
 
   /** {@code stackFrameSel} で選択したスタックフレームが {@code context} のコールスタックのトップであるか調べる. */
-  private boolean isCallStackItemTop(
+  private static boolean isCallStackItemTop(
       ThreadContext context, StackFrameSelection stackFrameSelection) {
     if (context.callStack.isEmpty()) {
       return false;

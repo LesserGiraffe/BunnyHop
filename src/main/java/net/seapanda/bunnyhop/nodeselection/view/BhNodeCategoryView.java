@@ -51,7 +51,7 @@ public class BhNodeCategoryView extends TreeCell<BhNodeCategory> {
 
   private void onSelected(boolean isSelected) {
     pseudoClassStateChanged(
-        PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_SELECTED), isSelected);
+        PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.SELECTED), isSelected);
   }
 
   @Override
@@ -61,11 +61,11 @@ public class BhNodeCategoryView extends TreeCell<BhNodeCategory> {
       getStyleClass().removeLast();
     }
     if (empty || category == null) {
-      pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_EMPTY), true);
+      pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.EMPTY), true);
       setText(null);
     } else {
       getStyleClass().add(category.getCssClass());
-      pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_EMPTY), false);
+      pseudoClassStateChanged(PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.EMPTY), false);
       setText(category.toString());
     }
     model = category;

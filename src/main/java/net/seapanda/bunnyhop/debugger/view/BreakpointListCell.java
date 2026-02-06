@@ -40,7 +40,7 @@ public class BreakpointListCell extends ListCell<BhNode> {
   /** コンストラクタ. */
   public BreakpointListCell(Map<BhNode, Set<BreakpointListCell>> nodeToCells) {
     this.nodeToCells = nodeToCells;
-    getStyleClass().add(BhConstants.Css.BREAKPOINT_LIST_ITEM);
+    getStyleClass().add(BhConstants.Css.Class.BREAKPOINT_LIST_ITEM);
     setOnMousePressed(event -> clearSelectionIfEmpty());
   }
 
@@ -103,7 +103,7 @@ public class BreakpointListCell extends ListCell<BhNode> {
 
   /** このセルに描画される文字を装飾する. */
   public void decorateText(boolean val) {
-    PseudoClass cls = PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_TEXT_DECORATE);
+    PseudoClass cls = PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.TEXT_DECORATE);
     pseudoClassStateChanged(cls, val);
   }
 }

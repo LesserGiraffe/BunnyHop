@@ -66,7 +66,7 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
     sizeCalculator = new NodeSizeCalculator(this, innerGroup::getSize, this::calcOuterSize);
     innerGroup.buildSubGroup(style.connective.inner, factory, isTemplate);
     outerGroup.buildSubGroup(style.connective.outer, factory, isTemplate);
-    getLookManager().addCssClass(BhConstants.Css.CLASS_CONNECTIVE_NODE);
+    getLookManager().addCssClass(BhConstants.Css.Class.CONNECTIVE_NODE);
   }
 
   @Override

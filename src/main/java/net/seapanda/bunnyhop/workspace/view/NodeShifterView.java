@@ -97,7 +97,7 @@ public class NodeShifterView extends Pane {
     }
     if (!viewToLink.containsKey(view)) {
       var newLink = new Line(0.0, 0.0, 0.0, 0.0);
-      newLink.getStyleClass().add(BhConstants.Css.CLASS_NODE_SHIFTER_LINK);
+      newLink.getStyleClass().add(BhConstants.Css.Class.NODE_SHIFTER_LINK);
       newLink.setStrokeDashOffset(1.0);
       viewToLink.put(view, newLink);
       getChildren().add(newLink);

@@ -151,7 +151,7 @@ public class BhNodeCategoryListController {
   private void registerPrivateTemplateView() throws ViewConstructionException {
     proxy.addNodeSelectionView(
         BhConstants.NodeSelection.PRIVATE_TEMPLATE,
-        BhConstants.Css.CLASS_PRIVATE_NODE_TEMPLATE);
+        BhConstants.Css.Class.PRIVATE_NODE_TEMPLATE);
   }
 
   /** ノードをプリレンダリングするためのビューを登録する. */

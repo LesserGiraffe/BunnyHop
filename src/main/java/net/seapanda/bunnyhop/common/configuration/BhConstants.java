@@ -337,39 +337,50 @@ public class BhConstants {
 
   /** CSS ファイルで使用されるキーワード. */
   public static class Css {
-    public static final String PSEUDO_SELECTED = "selected";
-    public static final String PSEUDO_OVERLAPPED = "overlapped";
-    public static final String PSEUDO_JUMP_TARGET = "jumpTarget";
-    public static final String PSEUDO_RELATED_NODE_GROUP = "relatedNodeGroup";
-    public static final String PSEUDO_EXEC_STEP = "execStep";
-    public static final String PSEUDO_MOVE_GROUP = "moveGroup";
-    public static final String PSEUDO_EMPTY = "empty";
-    public static final String PSEUDO_ERROR = "error";
-    public static final String PSEUDO_IS_EVEN = "isEven";
-    public static final String PSEUDO_TEXT_DECORATE = "textDecorate";
-    public static final String PSEUDO_UNFIXED_DEFAULT = "unfixedDefault";
-    public static final String PSEUDO_COLUMN = "column";
-    public static final String PSEUDO_ROW = "row";
-    public static final String PSEUDO_NEXT = "next";
-    public static final String CLASS_BH_NODE = "BhNode";
-    public static final String CLASS_COMBO_BOX_NODE = "comboBoxNode";
-    public static final String CLASS_TEXT_FIELD_NODE = "textFieldNode";
-    public static final String CLASS_TEXT_AREA_NODE = "textAreaNode";
-    public static final String CLASS_LABEL_NODE = "labelNode";
-    public static final String CLASS_NO_CONTENT_NODE = "noContentNode";
-    public static final String CLASS_CONNECTIVE_NODE = "ConnectiveNode";
-    public static final String CLASS_COMPILE_ERROR_MARK = "compileErrorMark";
-    public static final String CLASS_TRIANGLE = "triangle";
-    public static final String CLASS_EXCLAMATION_BAR = "exclamationBar";
-    public static final String CLASS_EXCLAMATION_DOT = "exclamationDot";
-    public static final String CLASS_CIRCLE = "circle";
 
-    public static final String CLASS_NODE_SHIFTER_LINK = "nodeShifterLink";
-    public static final String CLASS_PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
-    public static final String CLASS_CALL_STACK_ITEM = "callStackItem";
-    public static final String VARIABLE_LIST_ITEM = "variableListItem";
-    public static final String BREAKPOINT_LIST_ITEM = "breakpointListItem";
-    public static final String ERROR_NODE_LIST_ITEM = "errorNodeListItem";
+    /** 疑似クラスの定義. */
+    public static class Pseudo {
+      public static final String SELECTED = "selected";
+      public static final String OVERLAPPED = "overlapped";
+      public static final String JUMP_TARGET = "jumpTarget";
+      public static final String RELATED_NODE_GROUP = "relatedNodeGroup";
+      public static final String EXEC_STEP = "execStep";
+      public static final String MOVE_GROUP = "moveGroup";
+      public static final String EMPTY = "empty";
+      public static final String ERROR = "error";
+      public static final String SUSPENDED = "suspended";
+      public static final String FINISHED = "finished";
+      public static final String IS_EVEN = "isEven";
+      public static final String TEXT_DECORATE = "textDecorate";
+      public static final String UNFIXED_DEFAULT = "unfixedDefault";
+      public static final String COLUMN = "column";
+      public static final String ROW = "row";
+      public static final String NEXT = "next";
+    }
+
+    /** クラスの定義. */
+    public static class Class {
+      public static final String BH_NODE = "BhNode";
+      public static final String COMBO_BOX_NODE = "comboBoxNode";
+      public static final String TEXT_FIELD_NODE = "textFieldNode";
+      public static final String TEXT_AREA_NODE = "textAreaNode";
+      public static final String LABEL_NODE = "labelNode";
+      public static final String NO_CONTENT_NODE = "noContentNode";
+      public static final String CONNECTIVE_NODE = "ConnectiveNode";
+      public static final String COMPILE_ERROR_MARK = "compileErrorMark";
+      public static final String TRIANGLE = "triangle";
+      public static final String EXCLAMATION_BAR = "exclamationBar";
+      public static final String EXCLAMATION_DOT = "exclamationDot";
+      public static final String CIRCLE = "circle";
+      public static final String NODE_SHIFTER_LINK = "nodeShifterLink";
+      public static final String PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
+      public static final String CALL_STACK_ITEM = "callStackItem";
+      public static final String THREAD_SELECTOR_LIST_ITEM = "threadSelectorListItem";
+      public static final String VARIABLE_LIST_ITEM = "variableListItem";
+      public static final String BREAKPOINT_LIST_ITEM = "breakpointListItem";
+      public static final String ERROR_NODE_LIST_ITEM = "errorNodeListItem";
+
+    }
   }
 
   /** BhProgram の実行環境に関するパラメータ. */

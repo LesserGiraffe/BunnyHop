@@ -67,7 +67,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
     sizeCalculator = new NodeSizeCalculator(this, this::getTextFieldSize);
     setComponent(textField);
     textField.addEventFilter(MouseEvent.ANY, this::forwardEvent);
-    textField.setOnMouseClicked(event -> Platform.runLater(this::selectText));
+    textField.setOnMouseClicked(event -> Platform.runLater(() -> onTextFieldClicked(event)));
     textField.focusedProperty().addListener((obs, oldVal, newVal) -> onFocusChanged(newVal));
     initStyle();
   }
@@ -100,7 +100,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
     textField.setMaxWidth(Region.USE_PREF_SIZE);
     textField.setMinWidth(Region.USE_PREF_SIZE);
     setEditable(style.textField.editable);
-    getLookManager().addCssClass(BhConstants.Css.CLASS_TEXT_FIELD_NODE);
+    getLookManager().addCssClass(BhConstants.Css.Class.TEXT_FIELD_NODE);
   }
 
   private Vec2D getTextFieldSize() {
@@ -108,10 +108,14 @@ public final class TextFieldNodeView extends TextInputNodeView {
     return new Vec2D(textField.getPrefWidth(), textField.getHeight());
   }
 
-  private void selectText() {
-    if (textField.isFocused() && textField.isEditable() && shouldSelectText) {
-      textField.selectAll();
-      shouldSelectText = false;
+  private void onTextFieldClicked(MouseEvent event) {
+    if (textField.isFocused() && textField.isEditable()) {
+      if (shouldSelectText) {
+        textField.selectAll();
+        shouldSelectText = false;
+      } else if (event.getClickCount() == 2) {
+        textField.positionCaret(textField.getLength());
+      }
     }
   }
 
@@ -162,7 +166,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
     textField.setPrefWidth(newWidth);
     boolean acceptable = fnCheckFormat.apply(textPart.getText());
     textField.pseudoClassStateChanged(
-        PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR), !acceptable);
+        PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.ERROR), !acceptable);
   }
 
   @Override

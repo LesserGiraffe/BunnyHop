@@ -150,7 +150,7 @@ public abstract class BhNodeViewBase implements BhNodeView {
     cbRegistry = this.new CallbackRegistryBase();
     lookManager = this.new LookManagerBase();
     lookManager.addCssClass(style.cssClasses);
-    lookManager.addCssClass(BhConstants.Css.CLASS_BH_NODE);
+    lookManager.addCssClass(BhConstants.Css.Class.BH_NODE);
   }
 
   @Override
@@ -260,7 +260,7 @@ public abstract class BhNodeViewBase implements BhNodeView {
   /** ノードビューの描画に必要な図形オブジェクトを作成する. */
   private Shapes createShapes(BhNodeViewStyle style) {
     var compileError = new CompileErrorMark(0, 0, 0, 0);
-    compileError.getStyleClass().add(BhConstants.Css.CLASS_COMPILE_ERROR_MARK);
+    compileError.getStyleClass().add(BhConstants.Css.Class.COMPILE_ERROR_MARK);
 
     var nodeShape = new Polygon();
     nodeShape.addEventFilter(Event.ANY, this::forwardEventIfNotHaveController);
@@ -325,7 +325,7 @@ public abstract class BhNodeViewBase implements BhNodeView {
       child.visibleProperty().addListener((obs, oldVal, newVal) -> changeCommonPartValidity());
     });
     var pseudoClass = PseudoClass.getPseudoClass(
-        isBaseArrangementRow ? BhConstants.Css.PSEUDO_ROW : BhConstants.Css.PSEUDO_COLUMN);
+        isBaseArrangementRow ? BhConstants.Css.Pseudo.ROW : BhConstants.Css.Pseudo.COLUMN);
     common.pseudoClassStateChanged(pseudoClass, true);
     boolean anyVisible = common.getChildren().stream().anyMatch(Node::isVisible);
     common.setManaged(anyVisible);
@@ -373,7 +373,7 @@ public abstract class BhNodeViewBase implements BhNodeView {
           && model.isDefault()
           && model.getParentConnector() != null
           && !model.getParentConnector().isFixed();
-      effectManager.setPseudoClassState(isUnfixedDefault, BhConstants.Css.PSEUDO_UNFIXED_DEFAULT);
+      effectManager.setPseudoClassState(isUnfixedDefault, BhConstants.Css.Pseudo.UNFIXED_DEFAULT);
     }
 
     /**
@@ -506,16 +506,16 @@ public abstract class BhNodeViewBase implements BhNodeView {
     private void enableEffect(VisualEffectType type) {
       appliedEffects.add(type);
       switch (type) {
-        case SELECTION -> setPseudoClassState(true, BhConstants.Css.PSEUDO_SELECTED);
-        case MOVE_GROUP -> setPseudoClassState(true, BhConstants.Css.PSEUDO_MOVE_GROUP);
-        case OVERLAP -> setPseudoClassState(true, BhConstants.Css.PSEUDO_OVERLAPPED);
+        case SELECTION -> setPseudoClassState(true, BhConstants.Css.Pseudo.SELECTED);
+        case MOVE_GROUP -> setPseudoClassState(true, BhConstants.Css.Pseudo.MOVE_GROUP);
+        case OVERLAP -> setPseudoClassState(true, BhConstants.Css.Pseudo.OVERLAPPED);
         case EXEC_STEP -> {
           shapes.nextStep.setVisible(true);
-          setPseudoClassState(true, BhConstants.Css.PSEUDO_EXEC_STEP);
+          setPseudoClassState(true, BhConstants.Css.Pseudo.EXEC_STEP);
         }
         case RELATED_NODE_GROUP ->
-            setPseudoClassState(true, BhConstants.Css.PSEUDO_RELATED_NODE_GROUP);
-        case JUMP_TARGET -> setPseudoClassState(true, BhConstants.Css.PSEUDO_JUMP_TARGET);
+            setPseudoClassState(true, BhConstants.Css.Pseudo.RELATED_NODE_GROUP);
+        case JUMP_TARGET -> setPseudoClassState(true, BhConstants.Css.Pseudo.JUMP_TARGET);
         case BREAKPOINT -> shapes.breakpoint.setVisible(true);
         case CORRUPTION -> shapes.corruption.setVisible(true);
         case ENTRY_POINT -> shapes.entryPoint.setVisible(true);
@@ -528,16 +528,16 @@ public abstract class BhNodeViewBase implements BhNodeView {
     private void disableEffect(VisualEffectType type) {
       appliedEffects.remove(type);
       switch (type) {
-        case SELECTION -> setPseudoClassState(false, BhConstants.Css.PSEUDO_SELECTED);
-        case MOVE_GROUP -> setPseudoClassState(false, BhConstants.Css.PSEUDO_MOVE_GROUP);
-        case OVERLAP -> setPseudoClassState(false, BhConstants.Css.PSEUDO_OVERLAPPED);
+        case SELECTION -> setPseudoClassState(false, BhConstants.Css.Pseudo.SELECTED);
+        case MOVE_GROUP -> setPseudoClassState(false, BhConstants.Css.Pseudo.MOVE_GROUP);
+        case OVERLAP -> setPseudoClassState(false, BhConstants.Css.Pseudo.OVERLAPPED);
         case EXEC_STEP -> {
           shapes.nextStep.setVisible(false);
-          setPseudoClassState(false, BhConstants.Css.PSEUDO_EXEC_STEP);
+          setPseudoClassState(false, BhConstants.Css.Pseudo.EXEC_STEP);
         }
         case RELATED_NODE_GROUP ->
-            setPseudoClassState(false, BhConstants.Css.PSEUDO_RELATED_NODE_GROUP);
-        case JUMP_TARGET -> setPseudoClassState(false, BhConstants.Css.PSEUDO_JUMP_TARGET);
+            setPseudoClassState(false, BhConstants.Css.Pseudo.RELATED_NODE_GROUP);
+        case JUMP_TARGET -> setPseudoClassState(false, BhConstants.Css.Pseudo.JUMP_TARGET);
         case BREAKPOINT -> shapes.breakpoint.setVisible(false);
         case CORRUPTION -> shapes.corruption.setVisible(false);
         case ENTRY_POINT -> shapes.entryPoint.setVisible(false);
@@ -850,7 +850,7 @@ public abstract class BhNodeViewBase implements BhNodeView {
         view.getTreeManager().isEven = true;  //ルートは even
       }
       view.effectManager.setPseudoClassState(
-          view.getTreeManager().isEven, BhConstants.Css.PSEUDO_IS_EVEN);
+          view.getTreeManager().isEven, BhConstants.Css.Pseudo.IS_EVEN);
     }
 
     @Override

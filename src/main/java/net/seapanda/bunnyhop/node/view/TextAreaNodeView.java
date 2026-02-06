@@ -68,7 +68,7 @@ public final class TextAreaNodeView extends TextInputNodeView {
     sizeCalculator = new NodeSizeCalculator(this, this::getTextAreaSize);
     setComponent(textArea);
     textArea.addEventFilter(MouseEvent.ANY, this::forwardEvent);
-    textArea.setOnMouseClicked(event -> Platform.runLater(this::selectText));
+    textArea.setOnMouseClicked(event -> Platform.runLater(() -> onTextAreaClicked(event)));
     textArea.focusedProperty().addListener((obs, oldVal, newVal) -> onFocusChanged(newVal));
     initStyle();
   }
@@ -103,7 +103,7 @@ public final class TextAreaNodeView extends TextInputNodeView {
     textArea.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
     textArea.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
     setEditable(style.textArea.editable);
-    getLookManager().addCssClass(BhConstants.Css.CLASS_TEXT_AREA_NODE);
+    getLookManager().addCssClass(BhConstants.Css.Class.TEXT_AREA_NODE);
   }
 
   private Vec2D getTextAreaSize() {
@@ -111,10 +111,14 @@ public final class TextAreaNodeView extends TextInputNodeView {
     return new Vec2D(textArea.getPrefWidth(), textArea.getPrefHeight());
   }
 
-  private void selectText() {
-    if (textArea.isFocused() && textArea.isEditable() && shouldSelectText) {
-      textArea.selectAll();
-      shouldSelectText = false;
+  private void onTextAreaClicked(MouseEvent event) {
+    if (textArea.isFocused() && textArea.isEditable()) {
+      if (shouldSelectText) {
+        textArea.selectAll();
+        shouldSelectText = false;
+      } else if (event.getClickCount() == 2) {
+        textArea.positionCaret(textArea.getLength());
+      }
     }
   }
 
@@ -176,7 +180,7 @@ public final class TextAreaNodeView extends TextInputNodeView {
     textArea.setPrefSize(newWidth, newHeight);
     boolean acceptable = fnCheckFormat.apply(textPart.getText());
     textArea.pseudoClassStateChanged(
-        PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR), !acceptable);
+        PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.ERROR), !acceptable);
     disableTextAreaCache();
     // textArea.requestLayout() を呼ばないと, newWidth の値によってはノード選択ビューでサイズが更新されない
     Platform.runLater(textArea::requestLayout);

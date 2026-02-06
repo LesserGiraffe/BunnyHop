@@ -84,7 +84,7 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
 
   private void initStyle() {
     comboBox.getStyleClass().add(style.comboBox.cssClass);
-    getLookManager().addCssClass(BhConstants.Css.CLASS_COMBO_BOX_NODE);
+    getLookManager().addCssClass(BhConstants.Css.Class.COMBO_BOX_NODE);
     if (!comboBox.getItems().isEmpty()) {
       comboBox.setValue(comboBox.getItems().getFirst());
     }

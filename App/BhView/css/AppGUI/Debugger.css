@@ -87,3 +87,23 @@
 .stepExecutionHbox {
   -fx-alignment: center;
 }
+
+.threadSelectorListItem:error {
+  -fx-background-color: #ff9494;
+  -fx-text-fill: black;
+}
+
+.threadSelectorListItem:finished {
+  -fx-background-color: #c2c2c2;
+  -fx-text-fill: black;
+}
+
+.threadSelectorListItem:suspended {
+  -fx-background-color: #93f493;
+  -fx-text-fill: black;
+}
+
+.threadSelectorListItem:hover {
+  -fx-background-color: #0a8cea;
+  -fx-text-fill: white;
+}

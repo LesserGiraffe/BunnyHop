@@ -65,7 +65,7 @@ public class ThreadStateViewController {
     if (context == null) {
       return;
     }
-    PseudoClass pseudo = PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_ERROR);
+    PseudoClass pseudo = PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.ERROR);
     threadStateText.setText(getThreadStateText(context.state));
     if (context.state != BhThreadState.ERROR) {
       threadStateText.pseudoClassStateChanged(pseudo, false);

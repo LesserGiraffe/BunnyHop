@@ -46,7 +46,7 @@ public class NoContentNodeView extends BhNodeViewBase {
     super(style, model, components, isTemplate);
     this.model = model;
     sizeCalculator = new NodeSizeCalculator(this, () -> new Vec2D(0, 0));
-    getLookManager().addCssClass(BhConstants.Css.CLASS_NO_CONTENT_NODE);
+    getLookManager().addCssClass(BhConstants.Css.Class.NO_CONTENT_NODE);
     setMouseTransparent(true);
   }
 

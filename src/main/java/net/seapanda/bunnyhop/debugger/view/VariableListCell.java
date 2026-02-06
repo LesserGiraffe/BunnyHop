@@ -44,7 +44,7 @@ public class VariableListCell extends TreeCell<VariableListItem> {
       Map<BhNode, Set<VariableListCell>> nodeToCells) {
     this.itemToCells = itemToCells;
     this.nodeToCells = nodeToCells;
-    getStyleClass().add(BhConstants.Css.VARIABLE_LIST_ITEM);
+    getStyleClass().add(BhConstants.Css.Class.VARIABLE_LIST_ITEM);
   }
 
   @Override
@@ -119,7 +119,7 @@ public class VariableListCell extends TreeCell<VariableListItem> {
 
   /** このセルに描画される文字を装飾する. */
   public void decorateText(boolean val) {
-    PseudoClass cls = PseudoClass.getPseudoClass(BhConstants.Css.PSEUDO_TEXT_DECORATE);
+    PseudoClass cls = PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.TEXT_DECORATE);
     pseudoClassStateChanged(cls, val);
   }
 }
