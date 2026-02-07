@@ -437,24 +437,24 @@ class BhNodeViewStyleSnippet {
     }
   }
 
-  class ExecStepIconSnippet {
-    Double size = null;
+  class NextStepIconSnippet {
+    Double radius = null;
     String cssClass = null;
 
     private void populateStyle(
-        BhNodeViewStyle.ExecStepIcon style,
-        Function<BhNodeViewStyleSnippet, ExecStepIconSnippet> getter) {
-      style.size = findSize(style.size, getter);
+        BhNodeViewStyle.NextStepIcon style,
+        Function<BhNodeViewStyleSnippet, NextStepIconSnippet> getter) {
+      style.radius = findSize(style.radius, getter);
       style.cssClass = findCssClass(style.cssClass, getter);
     }
 
     private double findSize(
-        double defaultVal, Function<BhNodeViewStyleSnippet, ExecStepIconSnippet> getter) {
-      return find(snippet -> getter.apply(snippet).size).orElse(defaultVal);
+        double defaultVal, Function<BhNodeViewStyleSnippet, NextStepIconSnippet> getter) {
+      return find(snippet -> getter.apply(snippet).radius).orElse(defaultVal);
     }
 
     private String findCssClass(
-        String defaultVal, Function<BhNodeViewStyleSnippet, ExecStepIconSnippet> getter) {
+        String defaultVal, Function<BhNodeViewStyleSnippet, NextStepIconSnippet> getter) {
       return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
@@ -530,7 +530,7 @@ class BhNodeViewStyleSnippet {
     ChildArrangement arrangement = null;
     ButtonSnippet privateTemplate = new ButtonSnippet();
     BreakpointIconSnippet breakpointIcon = new BreakpointIconSnippet();
-    ExecStepIconSnippet execStepIcon = new ExecStepIconSnippet();
+    NextStepIconSnippet nextStepIcon = new NextStepIconSnippet();
     RuntimeErrorIconSnippet runtimeErrIcon = new RuntimeErrorIconSnippet();
     CorruptionIconSnippet corruptionIcon = new CorruptionIconSnippet();
     EntryPointIconSnippet entryPointIcon = new EntryPointIconSnippet();
@@ -544,8 +544,8 @@ class BhNodeViewStyleSnippet {
           style.privateTemplate, snippet -> getter.apply(snippet).privateTemplate);
       breakpointIcon.populateStyle(
           style.breakpointIcon, snippet -> getter.apply(snippet).breakpointIcon);
-      execStepIcon.populateStyle(
-          style.execStepIcon, snippet -> getter.apply(snippet).execStepIcon);
+      nextStepIcon.populateStyle(
+          style.nextStepIcon, snippet -> getter.apply(snippet).nextStepIcon);
       runtimeErrIcon.populateStyle(
           style.runtimeErrorIcon, snippet -> getter.apply(snippet).runtimeErrIcon);
       corruptionIcon.populateStyle(

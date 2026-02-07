@@ -48,8 +48,8 @@ import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.CommonPartSn
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.ConnectiveSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.CorruptionIconSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.EntryPointIconSnippet;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.ExecStepIconSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.LabelSnippet;
+import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.NextStepIconSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.RuntimeErrorIconSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.SpecificPartSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.TextAreaSnippet;
@@ -440,9 +440,9 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
     readObject(BhConstants.NodeStyleDef.KEY_BREAK_POINT, jsonObj, fileName)
         .ifPresent(unchecked(obj -> populateBreakpointStyle(snippet.breakpointIcon, obj, fileName)));
 
-    // execStep
-    readObject(BhConstants.NodeStyleDef.KEY_EXEC_STEP, jsonObj, fileName).ifPresent(
-        unchecked(obj -> populateExecStepStyle(snippet.execStepIcon, obj, fileName)));
+    // nextStep
+    readObject(BhConstants.NodeStyleDef.KEY_NEXT_STEP, jsonObj, fileName).ifPresent(
+        unchecked(obj -> populateNextStepStyle(snippet.nextStepIcon, obj, fileName)));
 
     // runtimeError
     readObject(BhConstants.NodeStyleDef.KEY_RUNTIME_ERROR, jsonObj, fileName).ifPresent(
@@ -507,25 +507,24 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
   }
 
   /**
-   * {@link ExecStepIconSnippet} にスタイル情報を格納する.
+   * {@link NextStepIconSnippet} にスタイル情報を格納する.
    *
    * @param snippet このオブジェクトにスタイル情報を格納する
    * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
    * @param fileName {@code jsonObj} が記述してある JSON ファイルの名前
    */
-  private void populateExecStepStyle(
-      ExecStepIconSnippet snippet, JsonObject jsonObj, String fileName)
+  private void populateNextStepStyle(
+      NextStepIconSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
     snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(snippet.cssClass);
 
-    // size
-    snippet.size = readNumber(BhConstants.NodeStyleDef.KEY_SIZE, jsonObj, fileName)
+    // radius
+    snippet.radius = readNumber(BhConstants.NodeStyleDef.KEY_RADIUS, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
-        .orElse(snippet.size);
+        .orElse(snippet.radius);
   }
-
 
   /**
    * {@link RuntimeErrorIconSnippet} にスタイル情報を格納する.

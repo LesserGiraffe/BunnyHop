@@ -48,7 +48,7 @@ import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeType;
 import net.seapanda.bunnyhop.node.view.component.BreakpointIcon;
 import net.seapanda.bunnyhop.node.view.component.CorruptionIcon;
-import net.seapanda.bunnyhop.node.view.component.ExecStepIcon;
+import net.seapanda.bunnyhop.node.view.component.NextStepIcon;
 import net.seapanda.bunnyhop.node.view.component.PlayIcon;
 import net.seapanda.bunnyhop.node.view.component.RuntimeErrorIcon;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape;
@@ -270,15 +270,14 @@ public abstract class BhNodeViewBase implements BhNodeView {
     double radius = style.commonPart.breakpointIcon.radius;
     final var circle = new BreakpointIcon(radius, style.commonPart.breakpointIcon.cssClass, false);
 
-    double size = style.commonPart.execStepIcon.size;
-    final var execute =
-        new ExecStepIcon(size, size, 4, style.commonPart.execStepIcon.cssClass, false);
+    radius = style.commonPart.nextStepIcon.radius;
+    final var execute = new NextStepIcon(radius, style.commonPart.nextStepIcon.cssClass, false);
 
     radius = style.commonPart.runtimeErrorIcon.radius;
     var runtimeErr =
         new RuntimeErrorIcon(radius, style.commonPart.runtimeErrorIcon.cssClass, false);
 
-    size = style.commonPart.corruptionIcon.size;
+    double size = style.commonPart.corruptionIcon.size;
     var corruption =
         new CorruptionIcon(size, size, style.commonPart.corruptionIcon.cssClass, false);
 

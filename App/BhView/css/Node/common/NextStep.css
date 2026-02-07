@@ -1,6 +1,10 @@
-.defaultExecStepIcon .star {
-  -fx-fill: gold;
+.defaultNextStepIcon .circle {
+  -fx-fill: yellow;
   -fx-stroke: black;
   -fx-stroke-width: 0.2em;
   -fx-stroke-type: inside;
+}
+
+.defaultNextStepIcon .arrow {
+  -fx-fill: #008100;
 }

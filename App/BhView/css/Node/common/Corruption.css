@@ -1,9 +1,13 @@
 .defaultCorruptionIcon .triangle {
   -fx-fill: yellow;
+  -fx-stroke: black;
+  -fx-stroke-width: 0.2em;
+  -fx-stroke-type: inside;
 }
 
 .defaultCorruptionIcon .exclamationBar {
   -fx-fill: black;
+  -fx-stroke-line-cap: round;
 }
 
 .defaultCorruptionIcon .exclamationDot {

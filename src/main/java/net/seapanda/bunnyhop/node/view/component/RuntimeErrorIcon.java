@@ -17,7 +17,6 @@
 package net.seapanda.bunnyhop.node.view.component;
 
 import javafx.scene.Group;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
@@ -32,14 +31,12 @@ public class RuntimeErrorIcon extends Group {
   /**
    * コンストラクタ.
    *
-   * @param radius 丸の半径
+   * @param radius アイコンの半径
    * @param styleClass CSS で指定するクラス
    * @param visible 作成直後の可視性
    */
   public RuntimeErrorIcon(double radius, String styleClass, boolean visible) {
     var circle = new Circle(radius, radius, radius);
-    circle.setFill(Color.YELLOW);
-    circle.setStroke(Color.GOLD);
     circle.getStyleClass().add(BhConstants.Css.Class.CIRCLE);
 
     final double width = 2 * radius;
@@ -47,16 +44,20 @@ public class RuntimeErrorIcon extends Group {
 
     // エクスクラメーションマークの縦棒部分（長方形）
     double startY = height * 0.22;
+    double barWidth = width * 0.18;
     double barHeight = height * 0.33;
     var exclamationBar = new Line(radius, startY, radius, startY + barHeight);
+    exclamationBar.setStrokeWidth(barWidth);
     exclamationBar.getStyleClass().add(BhConstants.Css.Class.EXCLAMATION_BAR);
 
     // エクスクラメーションマークの点部分（円）
     Circle exclamationDot = new Circle();
     exclamationDot.setCenterX(radius);
     exclamationDot.setCenterY(height * 0.8);
-    exclamationDot.setRadius(width * 0.09);
+    exclamationDot.setRadius(barWidth * 0.5);
     exclamationDot.getStyleClass().add(BhConstants.Css.Class.EXCLAMATION_DOT);
+
+    // すべての図形をグループに追加
     getChildren().addAll(circle, exclamationBar, exclamationDot);
     setMouseTransparent(true);
     getStyleClass().add(styleClass);

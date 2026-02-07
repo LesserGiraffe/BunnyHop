@@ -25,7 +25,7 @@
   -fx-stroke-type: centered;
 }
 
-.BhNode:execStep {
+.BhNode:nextStep {
   -fx-stroke: linear-gradient(from 0mm 0mm to 3mm 3mm, repeat, black 50%, yellow 0mm);
   -fx-stroke-width: 0.35em;
   -fx-stroke-type: centered;

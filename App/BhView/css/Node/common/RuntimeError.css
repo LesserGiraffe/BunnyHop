@@ -7,7 +7,6 @@
 
 .defaultRuntimeErrorIcon .exclamationBar {
   -fx-stroke: red;
-  -fx-stroke-width: 0.45em;
   -fx-stroke-line-cap: round;
 }
 

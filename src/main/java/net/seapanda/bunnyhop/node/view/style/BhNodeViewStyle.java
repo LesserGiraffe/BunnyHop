@@ -300,21 +300,21 @@ public class BhNodeViewStyle {
   }
 
   /** 次に実行するノードであることを表す印のパラメータ. */
-  public static class ExecStepIcon {
-    public double size = 5.5 * BhConstants.Ui.NODE_SCALE;
-    public String cssClass = "defaultExecStepIcon";
+  public static class NextStepIcon {
+    public double radius = 2.75 * BhConstants.Ui.NODE_SCALE;
+    public String cssClass = "defaultNextStepIcon";
 
-    private ExecStepIcon() {}
+    private NextStepIcon() {}
 
-    private ExecStepIcon(ExecStepIcon org) {
-      size = org.size;
+    private NextStepIcon(NextStepIcon org) {
+      radius = org.radius;
       cssClass = org.cssClass;
     }
   }
 
   /** ランタイムエラーが発生したノードであることを表す印のパラメータ. */
   public static class RuntimeErrorIcon {
-    public double radius = 2.75 * BhConstants.Ui.NODE_SCALE; // 2.75
+    public double radius = 2.75 * BhConstants.Ui.NODE_SCALE;
     public String cssClass = "defaultRuntimeErrorIcon";
 
     private RuntimeErrorIcon() {}
@@ -362,7 +362,7 @@ public class BhNodeViewStyle {
     /** ブレークポイントのパラメータ. */
     public Breakpoint breakpointIcon = new Breakpoint();
     /** 次に実行するノードであることを表す印のパラメータ. */
-    public ExecStepIcon execStepIcon = new ExecStepIcon();
+    public NextStepIcon nextStepIcon = new NextStepIcon();
     /** ランタイムエラーが発生したノードであることを表す印のパラメータ. */
     public RuntimeErrorIcon runtimeErrorIcon = new RuntimeErrorIcon();
     /** ノードが破損していることを表す印のパラメータ. */
@@ -379,7 +379,7 @@ public class BhNodeViewStyle {
       arrangement = org.arrangement;
       privateTemplate = new Button(org.privateTemplate);
       breakpointIcon = new Breakpoint(org.breakpointIcon);
-      execStepIcon = new ExecStepIcon(org.execStepIcon);
+      nextStepIcon = new NextStepIcon(org.nextStepIcon);
       corruptionIcon = new CorruptionIcon(org.corruptionIcon);
       runtimeErrorIcon = new RuntimeErrorIcon(org.runtimeErrorIcon);
       entryPointIcon = new EntryPointIcon(org.entryPointIcon);
