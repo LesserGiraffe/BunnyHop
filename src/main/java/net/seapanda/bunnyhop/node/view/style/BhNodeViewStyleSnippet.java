@@ -415,90 +415,112 @@ class BhNodeViewStyleSnippet {
     }
   }
 
-  class BreakpointSnippet {
+  class BreakpointIconSnippet {
     Double radius = null;
     String cssClass = null;
 
     private void populateStyle(
         BhNodeViewStyle.Breakpoint style,
-        Function<BhNodeViewStyleSnippet, BreakpointSnippet> getter) {
+        Function<BhNodeViewStyleSnippet, BreakpointIconSnippet> getter) {
       style.radius = findRadius(style.radius, getter);
       style.cssClass = findCssClass(style.cssClass, getter);
     }
 
     private double findRadius(
-        double defaultVal, Function<BhNodeViewStyleSnippet, BreakpointSnippet> getter) {
+        double defaultVal, Function<BhNodeViewStyleSnippet, BreakpointIconSnippet> getter) {
       return find(snippet -> getter.apply(snippet).radius).orElse(defaultVal);
     }
 
     private String findCssClass(
-        String defaultVal, Function<BhNodeViewStyleSnippet, BreakpointSnippet> getter) {
+        String defaultVal, Function<BhNodeViewStyleSnippet, BreakpointIconSnippet> getter) {
       return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
 
-  class ExecStepMarkSnippet {
+  class ExecStepIconSnippet {
     Double size = null;
     String cssClass = null;
 
     private void populateStyle(
-        BhNodeViewStyle.ExecStepMark style,
-        Function<BhNodeViewStyleSnippet, ExecStepMarkSnippet> getter) {
+        BhNodeViewStyle.ExecStepIcon style,
+        Function<BhNodeViewStyleSnippet, ExecStepIconSnippet> getter) {
       style.size = findSize(style.size, getter);
       style.cssClass = findCssClass(style.cssClass, getter);
     }
 
     private double findSize(
-        double defaultVal, Function<BhNodeViewStyleSnippet, ExecStepMarkSnippet> getter) {
+        double defaultVal, Function<BhNodeViewStyleSnippet, ExecStepIconSnippet> getter) {
       return find(snippet -> getter.apply(snippet).size).orElse(defaultVal);
     }
 
     private String findCssClass(
-        String defaultVal, Function<BhNodeViewStyleSnippet, ExecStepMarkSnippet> getter) {
+        String defaultVal, Function<BhNodeViewStyleSnippet, ExecStepIconSnippet> getter) {
       return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
 
-  class CorruptionMarkSnippet {
-    Double size = null;
-    String cssClass = null;
-
-    private void populateStyle(
-        BhNodeViewStyle.CorruptionMark style,
-        Function<BhNodeViewStyleSnippet, CorruptionMarkSnippet> getter) {
-      style.size = findSize(style.size, getter);
-      style.cssClass = findCssClass(style.cssClass, getter);
-    }
-
-    private double findSize(
-        double defaultVal, Function<BhNodeViewStyleSnippet, CorruptionMarkSnippet> getter) {
-      return find(snippet -> getter.apply(snippet).size).orElse(defaultVal);
-    }
-
-    private String findCssClass(
-        String defaultVal, Function<BhNodeViewStyleSnippet, CorruptionMarkSnippet> getter) {
-      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
-    }
-  }
-
-  class EntryPointMarkSnippet {
+  class RuntimeErrorIconSnippet {
     Double radius = null;
     String cssClass = null;
 
     private void populateStyle(
-        BhNodeViewStyle.EntryPointMark style,
-        Function<BhNodeViewStyleSnippet, EntryPointMarkSnippet> getter) {
+        BhNodeViewStyle.RuntimeErrorIcon style,
+        Function<BhNodeViewStyleSnippet, RuntimeErrorIconSnippet> getter) {
       style.radius = findRadius(style.radius, getter);
       style.cssClass = findCssClass(style.cssClass, getter);
     }
 
     private double findRadius(
-        double defaultVal, Function<BhNodeViewStyleSnippet, EntryPointMarkSnippet> getter) {
+        double defaultVal, Function<BhNodeViewStyleSnippet, RuntimeErrorIconSnippet> getter) {
       return find(snippet -> getter.apply(snippet).radius).orElse(defaultVal);
     }
 
     private String findCssClass(
-        String defaultVal, Function<BhNodeViewStyleSnippet, EntryPointMarkSnippet> getter) {
+        String defaultVal, Function<BhNodeViewStyleSnippet, RuntimeErrorIconSnippet> getter) {
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+    }
+  }
+
+  class CorruptionIconSnippet {
+    Double size = null;
+    String cssClass = null;
+
+    private void populateStyle(
+        BhNodeViewStyle.CorruptionIcon style,
+        Function<BhNodeViewStyleSnippet, CorruptionIconSnippet> getter) {
+      style.size = findSize(style.size, getter);
+      style.cssClass = findCssClass(style.cssClass, getter);
+    }
+
+    private double findSize(
+        double defaultVal, Function<BhNodeViewStyleSnippet, CorruptionIconSnippet> getter) {
+      return find(snippet -> getter.apply(snippet).size).orElse(defaultVal);
+    }
+
+    private String findCssClass(
+        String defaultVal, Function<BhNodeViewStyleSnippet, CorruptionIconSnippet> getter) {
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+    }
+  }
+
+  class EntryPointIconSnippet {
+    Double radius = null;
+    String cssClass = null;
+
+    private void populateStyle(
+        BhNodeViewStyle.EntryPointIcon style,
+        Function<BhNodeViewStyleSnippet, EntryPointIconSnippet> getter) {
+      style.radius = findRadius(style.radius, getter);
+      style.cssClass = findCssClass(style.cssClass, getter);
+    }
+
+    private double findRadius(
+        double defaultVal, Function<BhNodeViewStyleSnippet, EntryPointIconSnippet> getter) {
+      return find(snippet -> getter.apply(snippet).radius).orElse(defaultVal);
+    }
+
+    private String findCssClass(
+        String defaultVal, Function<BhNodeViewStyleSnippet, EntryPointIconSnippet> getter) {
       return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }
@@ -507,10 +529,11 @@ class BhNodeViewStyleSnippet {
     String cssClass = null;
     ChildArrangement arrangement = null;
     ButtonSnippet privateTemplate = new ButtonSnippet();
-    BreakpointSnippet breakpoint = new BreakpointSnippet();
-    ExecStepMarkSnippet execStepMark = new ExecStepMarkSnippet();
-    CorruptionMarkSnippet corruptionMark = new CorruptionMarkSnippet();
-    EntryPointMarkSnippet entryPointMark = new EntryPointMarkSnippet();
+    BreakpointIconSnippet breakpointIcon = new BreakpointIconSnippet();
+    ExecStepIconSnippet execStepIcon = new ExecStepIconSnippet();
+    RuntimeErrorIconSnippet runtimeErrIcon = new RuntimeErrorIconSnippet();
+    CorruptionIconSnippet corruptionIcon = new CorruptionIconSnippet();
+    EntryPointIconSnippet entryPointIcon = new EntryPointIconSnippet();
 
     private void populateStyle(
         BhNodeViewStyle.CommonPart style,
@@ -519,12 +542,16 @@ class BhNodeViewStyleSnippet {
       style.arrangement = findArrangement(style.arrangement, getter);
       privateTemplate.populateStyle(
           style.privateTemplate, snippet -> getter.apply(snippet).privateTemplate);
-      breakpoint.populateStyle(style.breakpoint, snippet -> getter.apply(snippet).breakpoint);
-      execStepMark.populateStyle(style.execStepMark, snippet -> getter.apply(snippet).execStepMark);
-      corruptionMark.populateStyle(
-          style.corruptionMark, snippet -> getter.apply(snippet).corruptionMark);
-      entryPointMark.populateStyle(
-          style.entryPointMark, snippet -> getter.apply(snippet).entryPointMark);
+      breakpointIcon.populateStyle(
+          style.breakpointIcon, snippet -> getter.apply(snippet).breakpointIcon);
+      execStepIcon.populateStyle(
+          style.execStepIcon, snippet -> getter.apply(snippet).execStepIcon);
+      runtimeErrIcon.populateStyle(
+          style.runtimeErrorIcon, snippet -> getter.apply(snippet).runtimeErrIcon);
+      corruptionIcon.populateStyle(
+          style.corruptionIcon, snippet -> getter.apply(snippet).corruptionIcon);
+      entryPointIcon.populateStyle(
+          style.entryPointIcon, snippet -> getter.apply(snippet).entryPointIcon);
     }
 
     private String findCssClass(

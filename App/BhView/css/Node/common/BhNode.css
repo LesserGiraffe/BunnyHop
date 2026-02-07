@@ -32,6 +32,13 @@
   -fx-effect: dropshadow(two-pass-box , #606060D0, 10, 0.3, 0.5em, -0.5em);
 }
 
+.BhNode:runtimeError {
+  -fx-stroke: linear-gradient(from 0mm 0mm to 3mm 3mm, repeat, black 50%, yellow 0mm);
+  -fx-stroke-width: 0.35em;
+  -fx-stroke-type: centered;
+  -fx-effect: dropshadow(two-pass-box , #606060D0, 10, 0.3, 0.5em, -0.5em);
+}
+
 .BhNode:moveGroup {
   -fx-effect: dropshadow(two-pass-box , #606060D0, 10, 0.3, 0.5em, 0.5em);
 }

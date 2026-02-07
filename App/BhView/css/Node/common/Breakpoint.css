@@ -1,4 +1,4 @@
-.defaultBreakpoint {
+.defaultBreakpointIcon .circle {
   -fx-fill: red;
   -fx-stroke: white;
   -fx-stroke-width: 0.2em;

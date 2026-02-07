@@ -1,0 +1,16 @@
+.defaultRuntimeErrorIcon .circle {
+  -fx-fill: yellow;
+  -fx-stroke: black;
+  -fx-stroke-width: 0.2em;
+  -fx-stroke-type: inside;
+}
+
+.defaultRuntimeErrorIcon .exclamationBar {
+  -fx-stroke: red;
+  -fx-stroke-width: 0.45em;
+  -fx-stroke-line-cap: round;
+}
+
+.defaultRuntimeErrorIcon .exclamationDot {
+  -fx-fill: red;
+}

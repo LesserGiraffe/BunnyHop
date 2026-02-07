@@ -1,4 +1,4 @@
 {
   "import" : ["./Statement.json"],
-  "cssClass" : "concurrentType"
+  "cssClass" : "anyType"
 }

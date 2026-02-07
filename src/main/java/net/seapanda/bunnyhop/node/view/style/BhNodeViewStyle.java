@@ -289,7 +289,7 @@ public class BhNodeViewStyle {
   /** ブレークポイントのパラメータ. */
   public static class Breakpoint {
     public double radius = 1.8 * BhConstants.Ui.NODE_SCALE;
-    public String cssClass = "defaultBreakpoint";
+    public String cssClass = "defaultBreakpointIcon";
 
     private Breakpoint() {}
 
@@ -300,39 +300,52 @@ public class BhNodeViewStyle {
   }
 
   /** 次に実行するノードであることを表す印のパラメータ. */
-  public static class ExecStepMark {
+  public static class ExecStepIcon {
     public double size = 5.5 * BhConstants.Ui.NODE_SCALE;
-    public String cssClass = "defaultExecStepMark";
+    public String cssClass = "defaultExecStepIcon";
 
-    private ExecStepMark() {}
+    private ExecStepIcon() {}
 
-    private ExecStepMark(ExecStepMark org) {
+    private ExecStepIcon(ExecStepIcon org) {
       size = org.size;
       cssClass = org.cssClass;
     }
   }
 
+  /** ランタイムエラーが発生したノードであることを表す印のパラメータ. */
+  public static class RuntimeErrorIcon {
+    public double radius = 2.75 * BhConstants.Ui.NODE_SCALE; // 2.75
+    public String cssClass = "defaultRuntimeErrorIcon";
+
+    private RuntimeErrorIcon() {}
+
+    private RuntimeErrorIcon(RuntimeErrorIcon org) {
+      radius = org.radius;
+      cssClass = org.cssClass;
+    }
+  }
+
   /** ノードが破損していることを表す印のパラメータ. */
-  public static class CorruptionMark {
+  public static class CorruptionIcon {
     public double size = 5.5 * BhConstants.Ui.NODE_SCALE;
-    public String cssClass = "defaultCorruptionMark";
+    public String cssClass = "defaultCorruptionIcon";
 
-    private CorruptionMark() {}
+    private CorruptionIcon() {}
 
-    private CorruptionMark(CorruptionMark org) {
+    private CorruptionIcon(CorruptionIcon org) {
       size = org.size;
       cssClass = org.cssClass;
     }
   }
 
   /** ノードがエントリポイントであることを表す印のパラメータ. */
-  public static class EntryPointMark {
+  public static class EntryPointIcon {
     public double radius = 1.8 * BhConstants.Ui.NODE_SCALE;
-    public String cssClass = "defaultEntryPointMark";
+    public String cssClass = "defaultEntryPointIcon";
 
-    private EntryPointMark() {}
+    private EntryPointIcon() {}
 
-    private EntryPointMark(EntryPointMark org) {
+    private EntryPointIcon(EntryPointIcon org) {
       radius = org.radius;
       cssClass = org.cssClass;
     }
@@ -347,13 +360,15 @@ public class BhNodeViewStyle {
     /** プライベートテンプレートボタンのパラメータ. */
     public Button privateTemplate = new Button();
     /** ブレークポイントのパラメータ. */
-    public Breakpoint breakpoint = new Breakpoint();
+    public Breakpoint breakpointIcon = new Breakpoint();
     /** 次に実行するノードであることを表す印のパラメータ. */
-    public ExecStepMark execStepMark = new ExecStepMark();
+    public ExecStepIcon execStepIcon = new ExecStepIcon();
+    /** ランタイムエラーが発生したノードであることを表す印のパラメータ. */
+    public RuntimeErrorIcon runtimeErrorIcon = new RuntimeErrorIcon();
     /** ノードが破損していることを表す印のパラメータ. */
-    public CorruptionMark corruptionMark = new CorruptionMark();
+    public CorruptionIcon corruptionIcon = new CorruptionIcon();
     /** ノードがエントリポイントであることを表す印のパラメータ. */
-    public EntryPointMark entryPointMark = new EntryPointMark();
+    public EntryPointIcon entryPointIcon = new EntryPointIcon();
 
     /** コンストラクタ. */
     private CommonPart() {}
@@ -363,10 +378,11 @@ public class BhNodeViewStyle {
       cssClass = org.cssClass;
       arrangement = org.arrangement;
       privateTemplate = new Button(org.privateTemplate);
-      breakpoint = new Breakpoint(org.breakpoint);
-      execStepMark = new ExecStepMark(org.execStepMark);
-      corruptionMark = new CorruptionMark(org.corruptionMark);
-      entryPointMark = new EntryPointMark(org.entryPointMark);
+      breakpointIcon = new Breakpoint(org.breakpointIcon);
+      execStepIcon = new ExecStepIcon(org.execStepIcon);
+      corruptionIcon = new CorruptionIcon(org.corruptionIcon);
+      runtimeErrorIcon = new RuntimeErrorIcon(org.runtimeErrorIcon);
+      entryPointIcon = new EntryPointIcon(org.entryPointIcon);
     }
   }
 

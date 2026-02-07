@@ -39,7 +39,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
@@ -47,9 +46,11 @@ import net.seapanda.bunnyhop.node.control.BhNodeController;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.derivative.Derivative;
 import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeType;
+import net.seapanda.bunnyhop.node.view.component.BreakpointIcon;
+import net.seapanda.bunnyhop.node.view.component.CorruptionIcon;
+import net.seapanda.bunnyhop.node.view.component.ExecStepIcon;
 import net.seapanda.bunnyhop.node.view.component.PlayIcon;
-import net.seapanda.bunnyhop.node.view.component.Star;
-import net.seapanda.bunnyhop.node.view.component.WarningIcon;
+import net.seapanda.bunnyhop.node.view.component.RuntimeErrorIcon;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
@@ -266,29 +267,30 @@ public abstract class BhNodeViewBase implements BhNodeView {
     nodeShape.addEventFilter(Event.ANY, this::forwardEventIfNotHaveController);
     nodeShape.setCache(true);
 
-    double radius = style.commonPart.breakpoint.radius;
-    var circle = new Circle(radius, radius, radius);
-    circle.setMouseTransparent(true);
-    circle.setVisible(false);
-    circle.getStyleClass().add(style.commonPart.breakpoint.cssClass);
+    double radius = style.commonPart.breakpointIcon.radius;
+    final var circle = new BreakpointIcon(radius, style.commonPart.breakpointIcon.cssClass, false);
 
-    double size = style.commonPart.execStepMark.size;
-    Polygon execute = new Star(size, size, 4, style.commonPart.execStepMark.cssClass);
-    execute.setVisible(false);
+    double size = style.commonPart.execStepIcon.size;
+    final var execute =
+        new ExecStepIcon(size, size, 4, style.commonPart.execStepIcon.cssClass, false);
 
-    size = style.commonPart.corruptionMark.size;
-    var corruption = new WarningIcon(size, size, style.commonPart.corruptionMark.cssClass);
-    corruption.setVisible(false);
+    radius = style.commonPart.runtimeErrorIcon.radius;
+    var runtimeErr =
+        new RuntimeErrorIcon(radius, style.commonPart.runtimeErrorIcon.cssClass, false);
 
-    radius = style.commonPart.entryPointMark.radius;
-    var entryPoint = new PlayIcon(radius, style.commonPart.entryPointMark.cssClass);
-    entryPoint.setVisible(false);
+    size = style.commonPart.corruptionIcon.size;
+    var corruption =
+        new CorruptionIcon(size, size, style.commonPart.corruptionIcon.cssClass, false);
+
+    radius = style.commonPart.entryPointIcon.radius;
+    var entryPoint = new PlayIcon(radius, style.commonPart.entryPointIcon.cssClass, false);
 
     return new Shapes(
         nodeShape,
         compileError,
         circle,
         execute,
+        runtimeErr,
         corruption,
         entryPoint);
   }
@@ -316,6 +318,7 @@ public abstract class BhNodeViewBase implements BhNodeView {
     common.setPickOnBounds(false);
     common.getStyleClass().add(style.commonPart.cssClass);
     common.getChildren().add(shapes.nextStep);
+    common.getChildren().add(shapes.runtimeError);
     common.getChildren().add(shapes.breakpoint);
     common.getChildren().add(shapes.corruption);
     common.getChildren().add(shapes.entryPoint);
@@ -509,9 +512,13 @@ public abstract class BhNodeViewBase implements BhNodeView {
         case SELECTION -> setPseudoClassState(true, BhConstants.Css.Pseudo.SELECTED);
         case MOVE_GROUP -> setPseudoClassState(true, BhConstants.Css.Pseudo.MOVE_GROUP);
         case OVERLAP -> setPseudoClassState(true, BhConstants.Css.Pseudo.OVERLAPPED);
-        case EXEC_STEP -> {
+        case NEXT_STEP -> {
           shapes.nextStep.setVisible(true);
           setPseudoClassState(true, BhConstants.Css.Pseudo.EXEC_STEP);
+        }
+        case RUNTIME_ERROR -> {
+          shapes.runtimeError.setVisible(true);
+          setPseudoClassState(true, BhConstants.Css.Pseudo.RUNTIME_ERROR);
         }
         case RELATED_NODE_GROUP ->
             setPseudoClassState(true, BhConstants.Css.Pseudo.RELATED_NODE_GROUP);
@@ -531,9 +538,13 @@ public abstract class BhNodeViewBase implements BhNodeView {
         case SELECTION -> setPseudoClassState(false, BhConstants.Css.Pseudo.SELECTED);
         case MOVE_GROUP -> setPseudoClassState(false, BhConstants.Css.Pseudo.MOVE_GROUP);
         case OVERLAP -> setPseudoClassState(false, BhConstants.Css.Pseudo.OVERLAPPED);
-        case EXEC_STEP -> {
+        case NEXT_STEP -> {
           shapes.nextStep.setVisible(false);
           setPseudoClassState(false, BhConstants.Css.Pseudo.EXEC_STEP);
+        }
+        case RUNTIME_ERROR -> {
+          shapes.runtimeError.setVisible(false);
+          setPseudoClassState(false, BhConstants.Css.Pseudo.RUNTIME_ERROR);
         }
         case RELATED_NODE_GROUP ->
             setPseudoClassState(false, BhConstants.Css.Pseudo.RELATED_NODE_GROUP);
@@ -1198,13 +1209,15 @@ public abstract class BhNodeViewBase implements BhNodeView {
    * @param compileError コンパイルエラーが発生していることを示す印
    * @param breakpoint ブレークポイントが設定されていることを示す印
    * @param nextStep 次に実行されるノードであることを示す印
+   * @param runtimeError ランタイムエラーが発生したノードであることを示す印
    * @param corruption ノードが破損していることを示す印
    */
   private record Shapes(
       Polygon nodeShape,
       CompileErrorMark compileError,
-      Circle breakpoint,
-      Polygon nextStep,
+      Group breakpoint,
+      Group nextStep,
+      Group runtimeError,
       Group corruption,
       Group entryPoint) {}
 }

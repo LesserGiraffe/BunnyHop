@@ -28,7 +28,7 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
  *
  * @author K.Koike
  */
-public class WarningIcon extends Group {
+public class CorruptionIcon extends Group {
 
   /**
    * コンストラクタ.
@@ -36,8 +36,9 @@ public class WarningIcon extends Group {
    * @param width マークの幅
    * @param height マークの高さ
    * @param styleClass CSS で指定するクラス
+   * @param visible 作成直後の可視性
    */
-  public WarningIcon(double width, double height, String styleClass) {
+  public CorruptionIcon(double width, double height, String styleClass, boolean visible) {
     // 黄色い三角形を作成
     Polygon triangle = new Polygon();
     double centerX = width / 2;
@@ -79,5 +80,6 @@ public class WarningIcon extends Group {
     getChildren().addAll(triangle, exclamationBar, exclamationDot);
     setMouseTransparent(true);
     getStyleClass().add(styleClass);
+    setVisible(visible);
   }
 }

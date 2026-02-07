@@ -1,0 +1,11 @@
+.defaultCorruptionIcon .triangle {
+  -fx-fill: yellow;
+}
+
+.defaultCorruptionIcon .exclamationBar {
+  -fx-fill: black;
+}
+
+.defaultCorruptionIcon .exclamationDot {
+  -fx-fill: black;
+}

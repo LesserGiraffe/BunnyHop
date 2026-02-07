@@ -31,7 +31,7 @@ public interface BhNodeViewStyleFactory {
    * @param styleId この ID のノードスタイルを取得する.
    * @return ノードスタイルオブジェクト.  対応するスタイルが見つからない場合は null.
    */
-  public BhNodeViewStyle createStyleOf(BhNodeViewStyleId styleId);
+  BhNodeViewStyle createStyleOf(BhNodeViewStyleId styleId);
 
   /**
    * {@code styleId} に対応する {@link BhNodeViewStyle} を作成可能か調べる.
@@ -39,5 +39,5 @@ public interface BhNodeViewStyleFactory {
    * @param styleId この ID に対応する {@link BhNodeViewStyle} を作成可能か調べる.
    * @return {@code styleId} に対応する {@link BhNodeViewStyle} を作成可能な場合 true
    */
-  public boolean canCreateStyleOf(BhNodeViewStyleId styleId);
+  boolean canCreateStyleOf(BhNodeViewStyleId styleId);
 }

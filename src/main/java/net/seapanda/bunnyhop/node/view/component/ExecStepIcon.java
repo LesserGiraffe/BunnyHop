@@ -16,14 +16,17 @@
 
 package net.seapanda.bunnyhop.node.view.component;
 
+
+import javafx.scene.Group;
 import javafx.scene.shape.Polygon;
+import net.seapanda.bunnyhop.common.configuration.BhConstants;
 
 /**
  * 星形を描画するクラス.
  *
  * @author K.Koike
  */
-public class Star extends Polygon {
+public class ExecStepIcon extends Group {
 
   /**
    * コンストラクタ.
@@ -32,8 +35,10 @@ public class Star extends Polygon {
    * @param height 星の高さ
    * @param numConvexPoints 凸部分の超点数
    * @param styleClass CSS で指定するクラス
+   * @param visible 作成直後の可視性
    */
-  public Star(double width, double height, int numConvexPoints, String styleClass) {
+  public ExecStepIcon(
+      double width, double height, int numConvexPoints, String styleClass, boolean visible) {
     double innerRadiusRatio = 0.5; // 内側の半径と外側の半径の比率（0.0-1.0）
     double centerX = width / 2.0;
     double centerY = height / 2.0;
@@ -43,6 +48,9 @@ public class Star extends Polygon {
     double innerRadiusY = outerRadiusY * innerRadiusRatio;
     double angleStep = Math.PI / numConvexPoints; // 外側と内側の頂点間の角度
     double startAngle = -Math.PI / 2.0;
+
+    Polygon star = new Polygon();
+    star.getStyleClass().add(BhConstants.Css.Class.STAR);
 
     for (int i = 0; i < numConvexPoints * 2; ++i) {
       double angle = startAngle + i * angleStep;
@@ -58,9 +66,11 @@ public class Star extends Polygon {
       }
       double x = centerX + radiusX * Math.cos(angle);
       double y = centerY + radiusY * Math.sin(angle);
-      getPoints().addAll(x, y);
+      star.getPoints().addAll(x, y);
     }
-    getStyleClass().add(styleClass);
+    getChildren().addAll(star);
     setMouseTransparent(true);
+    getStyleClass().add(styleClass);
+    setVisible(visible);
   }
 }

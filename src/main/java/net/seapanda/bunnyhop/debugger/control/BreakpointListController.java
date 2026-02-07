@@ -116,6 +116,8 @@ public class BreakpointListController {
   private void onFocusChanged(Boolean isFocused) {
     if (isFocused) {
       updateCellValues();
+    } else {
+      bpListView.getSelectionModel().clearSelection();
     }
   }
 

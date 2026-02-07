@@ -8,12 +8,12 @@
       "subGroup0" : {
         "space" : 1.1,
         "arrangement" : "Row",
-        "connectorList" : ["Arg0", "${L2}{からチケットを}", "Arg1", "${L2}{枚取る}"]
+        "connectorList" : ["Arg0", "${L1}{からチケットを}", "Arg1", "${L1}{枚取る}"]
       },
       "subGroup1" : {
         "space" : 1.1,
         "arrangement" : "Row",
-        "connectorList" : ["${L2}{( チケットが足りない場合は待つ )}"]
+        "connectorList" : ["${L1}{( チケットが足りない場合は待つ )}"]
       }
     }
   }

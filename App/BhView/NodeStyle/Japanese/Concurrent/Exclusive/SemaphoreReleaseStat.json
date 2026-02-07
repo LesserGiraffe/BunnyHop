@@ -5,7 +5,7 @@
     "inner" : {
       "space" : 1.1,
       "arrangement" : "Row",
-      "connectorList" : ["Arg0", "${L2}{にチケットを}", "Arg1", "${L2}{枚追加する}"]
+      "connectorList" : ["Arg0", "${L1}{にチケットを}", "Arg1", "${L1}{枚追加する}"]
     }
   }
 }

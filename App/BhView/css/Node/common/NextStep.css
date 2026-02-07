@@ -1,4 +1,4 @@
-.defaultExecStepMark {
+.defaultExecStepIcon .star {
   -fx-fill: gold;
   -fx-stroke: black;
   -fx-stroke-width: 0.2em;

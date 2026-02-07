@@ -8,12 +8,12 @@
       "subGroup0" : {
         "space" : 1.1,
         "arrangement" : "Row",
-        "connectorList" : ["Arg0", "${L2}{のカウントが 0 になるまで待つ}"]
+        "connectorList" : ["Arg0", "${L1}{のカウントが 0 になるまで待つ}"]
       },
       "subGroup1" : {
         "space" : 1.1,
         "arrangement" : "Row",
-        "connectorList" : ["${L2}{( 最初にカウントを 1}", "Option0", "${L1}{)}"]
+        "connectorList" : ["${L1}{( 最初にカウントを 1}", "Option0", "${L1}{)}"]
       }
     }
   }

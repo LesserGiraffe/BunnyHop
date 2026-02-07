@@ -5,7 +5,7 @@
     "inner" : {
       "arrangement" : "Row",
       "space" : 1.1,
-      "connectorList" : ["Arg0", "${L2}{のカウントを 1 減らす}"]
+      "connectorList" : ["Arg0", "${L1}{のカウントを 1 減らす}"]
     }
   }
 }

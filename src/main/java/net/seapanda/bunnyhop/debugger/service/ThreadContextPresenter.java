@@ -16,16 +16,20 @@
 
 package net.seapanda.bunnyhop.debugger.service;
 
-import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.EXEC_STEP;
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.NEXT_STEP;
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.RUNTIME_ERROR;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.bhprogram.common.message.exception.BhProgramException;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.debugger.model.DebugUtil;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
+import net.seapanda.bunnyhop.debugger.model.Debugger.ThreadContextAddedEvent;
 import net.seapanda.bunnyhop.debugger.model.callstack.CallStackItem;
 import net.seapanda.bunnyhop.debugger.model.callstack.StackFrameSelection;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
@@ -33,6 +37,7 @@ import net.seapanda.bunnyhop.debugger.model.thread.ThreadSelection;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
+import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.service.message.MessageService;
 
 /**
@@ -47,11 +52,11 @@ public class ThreadContextPresenter {
   private final VisualEffectManager effectManager;
   /** スレッド ID とスレッドコンテキストのマップ. */
   private final Map<Long, ThreadContext> threadIdToContext = new HashMap<>();
-  /**
-   * key : 止まっているスレッドの ID. <br>
-   * value : key のスレッドが次に実行するノードのビュー.
-   */
-  private final Map<Long, BhNodeView> threadIdToExecStepView = new HashMap<>();
+  /** 実行中もしくは次に実行するノードであることを表す視覚効果が適用された {@link BhNodeView} を格納するセット. */
+  private final Set<BhNodeView> nextStepView = new HashSet<>();
+  /** ランタイムエラーを起こしたことを表す視覚効果が適用された {@link BhNodeView} を格納するセット. */
+  private final Set<BhNodeView> runtimeErrorView = new HashSet<>();
+
 
   /** コンストラクタ. */
   public ThreadContextPresenter(
@@ -66,49 +71,134 @@ public class ThreadContextPresenter {
 
   private void setEventHandlers() {
     Debugger.CallbackRegistry cbRegistry = debugger.getCallbackRegistry();
-    
-    cbRegistry.getOnCleared().add(event -> clearThreadContexts());
-    cbRegistry.getOnCurrentStackFrameChanged()
-        .add(event -> showExecStepMarks(event.currentThread(), event.newVal()));
-    cbRegistry.getOnThreadContextAdded().add(event -> {
-      ThreadContext context = event.context();
-      threadIdToContext.put(context.threadId, context);
-      context.getException().ifPresent(this::outputErrMsg);
-      updateExecStepMark(context);
-    });
+    cbRegistry.getOnCleared().add(event -> reset());
+    cbRegistry.getOnCurrentStackFrameChanged().add(
+        event -> refreshVisualEffects(event.currentThread(), event.newVal()));
+    cbRegistry.getOnThreadContextAdded().add(this::onThreadContextAdded);
   }
 
-  /** スレッドコンテキストと実行ステップマークをすべてクリアする. */
-  private void clearThreadContexts() {
+
+  /** スレッドコンテキストが追加されたときに呼び出されるイベントハンドラ. */
+  private void onThreadContextAdded(ThreadContextAddedEvent event) {
+    ThreadContext context = event.context();
+    threadIdToContext.put(context.threadId, context);
+    context.getException().ifPresent(this::outputErrMsg);
+    refreshVisualEffects(debugger.getCurrentThread(), debugger.getCurrentStackFrame());
+  }
+
+  private void reset() {
+    removeAllVisualEffects();
+    clearEffectViewCache();
     threadIdToContext.clear();
-    threadIdToExecStepView.values().forEach(
-        view -> effectManager.setEffectEnabled(view, false, EXEC_STEP));
-    threadIdToExecStepView.clear();
   }
 
-  /** {@code context} のスレッドの状態とデバッガの現在のスレッドに基づいて次に実行するノードのマークを変更する. */
-  private void updateExecStepMark(ThreadContext context) {
-    if (context.state != BhThreadState.SUSPENDED) {
-      BhNodeView view = threadIdToExecStepView.remove(context.threadId);
-      if (view != null && !threadIdToExecStepView.containsValue(view)) {
-        effectManager.setEffectEnabled(view, false, EXEC_STEP);
-      }
-      return;
-    }
+  /** 現在ノードに適用されているノードの状態を表す視覚効果をすべて消す. */
+  private void removeAllVisualEffects() {
+    nextStepView.forEach(view -> effectManager.setEffectEnabled(view, false, NEXT_STEP));
+    runtimeErrorView.forEach(view -> effectManager.setEffectEnabled(view, false, RUNTIME_ERROR));
+  }
 
-    var threadId = ThreadSelection.of(context.threadId);
-    ThreadSelection currentThread = debugger.getCurrentThread();
-    if (!currentThread.equals(threadId) && !currentThread.equals(ThreadSelection.ALL)) {
+  /** ノードの状態を表す視覚効果がついた {@link BhNodeView} を格納するセットをクリアする. */
+  private void clearEffectViewCache() {
+    nextStepView.clear();
+    runtimeErrorView.clear();
+  }
+
+  /**
+   * 選択されたスレッドとスタックフレームに応じて、ノードに適用する視覚効果を更新する.
+   * 既存の視覚効果を削除した後, 選択状態に基づいて新しい視覚効果を適用する.
+   *
+   * @param threadSelection スレッドの選択状態
+   * @param stackFrameSelection スタックフレームの選択状態
+   */
+  private void refreshVisualEffects(
+      ThreadSelection threadSelection, StackFrameSelection stackFrameSelection) {
+    if (threadSelection.equals(ThreadSelection.NONE)) {
       return;
     }
-    context.getNextStep()
-        .flatMap(CallStackItem::getNode)
-        .flatMap(BhNode::getView)
-        .ifPresent(
-            view -> {
-              effectManager.setEffectEnabled(view, true, EXEC_STEP);
-              threadIdToExecStepView.put(context.threadId, view);
-            });
+    removeAllVisualEffects();
+    clearEffectViewCache();
+    if (threadSelection.equals(ThreadSelection.ALL)) {
+      applyVisualEffectsToAllThreadTopFrames();
+    } else if (threadIdToContext.containsKey(threadSelection.getThreadId())) {
+      applyVisualEffectToStackFrame(threadSelection, stackFrameSelection);
+    }
+  }
+
+  /**
+   * {@code item} に対応するノードビューがある場合, それに {@code effectType} で指定した視覚効果を適用する.
+   *
+   * @return 視覚効果を適用した {@link BhNodeView}
+   */
+  private Optional<BhNodeView> setVisualEffect(CallStackItem item, VisualEffectType effectType) {
+    Optional<BhNodeView> nodeView = item.getNode().flatMap(BhNode::getView);
+    nodeView.ifPresent(view -> effectManager.setEffectEnabled(view, true, effectType));
+    return nodeView;
+  }
+
+  /** すべてのスレッドのコールスタックの最上位ノードに, 実行状態に応じた視覚効果を適用する. */
+  private void applyVisualEffectsToAllThreadTopFrames() {
+    for (ThreadContext context : threadIdToContext.values()) {
+      if (context.state == BhThreadState.SUSPENDED) {
+        context.getNextStep()
+            .flatMap(item -> setVisualEffect(item, NEXT_STEP))
+            .ifPresent(nextStepView::add);
+      } else if (context.state == BhThreadState.ERROR) {
+        context.getErrorStep()
+            .flatMap(item -> setVisualEffect(item, RUNTIME_ERROR))
+            .ifPresent(runtimeErrorView::add);
+      }
+    }
+  }
+
+  /**
+   * {@code threadSelection} と {@code stackFrameSelection} で指定されたスタックフレームに対応するノードに視覚効果を適用する.
+   *
+   * @param threadSelection スレッドの選択状態
+   * @param stackFrameSelection スタックフレームの選択状態
+   */
+  private void applyVisualEffectToStackFrame(
+      ThreadSelection threadSelection, StackFrameSelection stackFrameSelection) {
+    if (stackFrameSelection.equals(StackFrameSelection.NONE)) {
+      return;
+    }
+    findCallStackItem(threadSelection, stackFrameSelection).ifPresent(
+        item -> {
+          if (item.isError) {
+            setVisualEffect(item, RUNTIME_ERROR).ifPresent(runtimeErrorView::add);
+          } else {
+            setVisualEffect(item, NEXT_STEP).ifPresent(nextStepView::add);
+          }
+        });
+  }
+
+  /**
+   * {@code threadSelection} と {@code stackFrameSelection} で指定した {@link CallStackItem} を
+   * {@link #threadIdToContext} から探す.
+   */
+  private Optional<CallStackItem> findCallStackItem(
+      ThreadSelection threadSelection, StackFrameSelection stackFrameSelection) {
+    ThreadContext context = threadIdToContext.get(threadSelection.getThreadId());
+    if (context == null) {
+      return Optional.empty();
+    }
+    if (isCallStackItemTop(context, stackFrameSelection)) {
+      return switch (context.state) {
+        case SUSPENDED -> context.getNextStep();
+        case ERROR -> context.getErrorStep();
+        default -> Optional.empty();
+      };
+    }
+    return context.getCallStackItem(stackFrameSelection.getIndex() + 1);
+  }
+
+  /** {@code stackFrameSelection} で選択したスタックフレームが {@code context} のコールスタックのトップであるか調べる. */
+  private static boolean isCallStackItemTop(
+      ThreadContext context, StackFrameSelection stackFrameSelection) {
+    if (context.callStack.isEmpty()) {
+      return false;
+    }
+    return context.callStack.getLast().idx == stackFrameSelection.getIndex();
   }
 
   /** {@code exception} が持つエラーメッセージを出力する. */
@@ -116,73 +206,5 @@ public class ThreadContextPresenter {
     String errMsg = DebugUtil.getErrMsg(exception);
     String runtimeErrOccurred = TextDefs.Debugger.runtimeErrOccurred.get();
     msgService.error("%s\n%s\n".formatted(runtimeErrOccurred, errMsg));
-  }
-
-  /** {@code threadSelection} で指定されたスレッドで次に実行されるノードに, そのことを示すマークを付ける. */
-  private void showExecStepMarks(
-      ThreadSelection threadSelection, StackFrameSelection stackFrameSelection) {
-    if (threadSelection.equals(ThreadSelection.NONE)) {
-      return;
-    }
-    threadIdToExecStepView.values().forEach(
-        view -> effectManager.setEffectEnabled(view, false, EXEC_STEP));
-    if (threadSelection.equals(ThreadSelection.ALL)) {
-      setExecStepMarksOnCallStackTopNodes();
-    } else if (threadIdToContext.containsKey(threadSelection.getThreadId())) {
-      setExecStepMarkOnCurrentNodeInStackFrame(threadSelection, stackFrameSelection);
-    }
-  }
-
-  /** 全てのスレッドに対して, 次に実行するノードにそのことを示すマークをつける. */
-  private void setExecStepMarksOnCallStackTopNodes() {
-    for (ThreadContext context : threadIdToContext.values()) {
-      if (context.state != BhThreadState.SUSPENDED) {
-        continue;
-      }
-      context.getNextStep()
-          .flatMap(CallStackItem::getNode)
-          .flatMap(BhNode::getView)
-          .ifPresent(
-            view -> {
-              effectManager.setEffectEnabled(view, true, EXEC_STEP);
-              threadIdToExecStepView.put(context.threadId, view);
-            });
-    }
-  }
-
-  /**
-   * {@code threadSelection} と {@code stackFrameSelection} で指定されたスタックフレームの現在実行中のノードに
-   * 実行中であることを表すマークを付ける.
-   */
-  private void setExecStepMarkOnCurrentNodeInStackFrame(
-      ThreadSelection threadSelection, StackFrameSelection stackFrameSelection) {
-    if (stackFrameSelection.equals(StackFrameSelection.NONE)) {
-      return;
-    }
-
-    Optional.ofNullable(threadIdToContext.get(threadSelection.getThreadId()))
-        .flatMap(context -> {
-          if (context.state != BhThreadState.SUSPENDED) {
-            return Optional.empty();
-          }
-          if (isCallStackItemTop(context, stackFrameSelection)) {
-            return context.getNextStep();
-          }
-          return context.getCallStackItem(stackFrameSelection.getIndex() + 1);
-        })
-        .flatMap(callStackItem -> callStackItem.getNode().flatMap(BhNode::getView))
-        .ifPresent(view -> {
-          effectManager.setEffectEnabled(view, true, EXEC_STEP);
-          threadIdToExecStepView.put(threadSelection.getThreadId(), view);
-        });
-  }
-
-  /** {@code stackFrameSel} で選択したスタックフレームが {@code context} のコールスタックのトップであるか調べる. */
-  private static boolean isCallStackItemTop(
-      ThreadContext context, StackFrameSelection stackFrameSelection) {
-    if (context.callStack.isEmpty()) {
-      return false;
-    }
-    return context.callStack.getLast().idx == stackFrameSelection.getIndex();
   }
 }

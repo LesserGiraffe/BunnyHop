@@ -121,6 +121,8 @@ public class CallStackController {
     callStackListView.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldVal, newVal) -> onCallStackCellSelected(oldVal, newVal));
     callStackListView.itemsProperty().addListener((obs, oldVal, newVal) -> searchResult = null);
+    callStackListView.focusedProperty().addListener(
+        (obs, oldVal, newVal) -> onFocusChanged(newVal));
     csShowAllCheckBox.selectedProperty().addListener((observable, oldVal, newVal) -> {
       if (!isDiscarded) {
         callStackListView.setItems(createCallStackItems());
@@ -326,5 +328,12 @@ public class CallStackController {
     }
     searchBox.setOnSearchRequested(onSearchRequested);
     searchBox.enable();
+  }
+
+  /** フォーカスが変更されたときの処理. */
+  private void onFocusChanged(Boolean isFocused) {
+    if (!isFocused) {
+      callStackListView.getSelectionModel().clearSelection();
+    }
   }
 }

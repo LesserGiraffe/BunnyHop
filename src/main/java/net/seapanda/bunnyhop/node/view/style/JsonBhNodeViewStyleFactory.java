@@ -41,15 +41,16 @@ import net.seapanda.bunnyhop.node.view.bodyshape.BodyShape;
 import net.seapanda.bunnyhop.node.view.component.ComponentType;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.ArrangementSnippet;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.BreakpointSnippet;
+import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.BreakpointIconSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.ButtonSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.ComboBoxSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.CommonPartSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.ConnectiveSnippet;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.CorruptionMarkSnippet;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.EntryPointMarkSnippet;
-import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.ExecStepMarkSnippet;
+import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.CorruptionIconSnippet;
+import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.EntryPointIconSnippet;
+import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.ExecStepIconSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.LabelSnippet;
+import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.RuntimeErrorIconSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.SpecificPartSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.TextAreaSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.TextFieldSnippet;
@@ -437,19 +438,23 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
 
     // breakpoint
     readObject(BhConstants.NodeStyleDef.KEY_BREAK_POINT, jsonObj, fileName)
-        .ifPresent(unchecked(obj -> populateBreakpointStyle(snippet.breakpoint, obj, fileName)));
+        .ifPresent(unchecked(obj -> populateBreakpointStyle(snippet.breakpointIcon, obj, fileName)));
 
     // execStep
     readObject(BhConstants.NodeStyleDef.KEY_EXEC_STEP, jsonObj, fileName).ifPresent(
-        unchecked(obj -> populateExecStepMarkStyle(snippet.execStepMark, obj, fileName)));
+        unchecked(obj -> populateExecStepStyle(snippet.execStepIcon, obj, fileName)));
+
+    // runtimeError
+    readObject(BhConstants.NodeStyleDef.KEY_RUNTIME_ERROR, jsonObj, fileName).ifPresent(
+        unchecked(obj -> populateRuntimeErrorStyle(snippet.runtimeErrIcon, obj, fileName)));
 
     // corruption
     readObject(BhConstants.NodeStyleDef.KEY_CORRUPTION, jsonObj, fileName).ifPresent(
-        unchecked(obj -> populateCorruptionMarkStyle(snippet.corruptionMark, obj, fileName)));
+        unchecked(obj -> populateCorruptionStyle(snippet.corruptionIcon, obj, fileName)));
 
     // entryPoint
     readObject(BhConstants.NodeStyleDef.KEY_ENTRY_POINT, jsonObj, fileName).ifPresent(
-        unchecked(obj -> populateEntryPointMarkStyle(snippet.entryPointMark, obj, fileName)));
+        unchecked(obj -> populateEntryPointStyle(snippet.entryPointIcon, obj, fileName)));
   }
 
   /**
@@ -489,7 +494,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
    * @param fileName {@code jsonObj} が記述してある JSON ファイルの名前
    */
   private void populateBreakpointStyle(
-      BreakpointSnippet snippet, JsonObject jsonObj, String fileName)
+      BreakpointIconSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
     snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
@@ -502,14 +507,55 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
   }
 
   /**
-   * {@link ExecStepMarkSnippet} にスタイル情報を格納する.
+   * {@link ExecStepIconSnippet} にスタイル情報を格納する.
    *
    * @param snippet このオブジェクトにスタイル情報を格納する
    * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
    * @param fileName {@code jsonObj} が記述してある JSON ファイルの名前
    */
-  private void populateExecStepMarkStyle(
-      ExecStepMarkSnippet snippet, JsonObject jsonObj, String fileName)
+  private void populateExecStepStyle(
+      ExecStepIconSnippet snippet, JsonObject jsonObj, String fileName)
+      throws ViewConstructionException {
+    // cssClass
+    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(snippet.cssClass);
+
+    // size
+    snippet.size = readNumber(BhConstants.NodeStyleDef.KEY_SIZE, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
+        .orElse(snippet.size);
+  }
+
+
+  /**
+   * {@link RuntimeErrorIconSnippet} にスタイル情報を格納する.
+   *
+   * @param snippet このオブジェクトにスタイル情報を格納する
+   * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
+   * @param fileName {@code jsonObj} が記述してある JSON ファイルの名前
+   */
+  private void populateRuntimeErrorStyle(
+      RuntimeErrorIconSnippet snippet, JsonObject jsonObj, String fileName)
+      throws ViewConstructionException {
+    // cssClass
+    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+        .orElse(snippet.cssClass);
+
+    // radius
+    snippet.radius = readNumber(BhConstants.NodeStyleDef.KEY_RADIUS, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
+        .orElse(snippet.radius);
+  }
+
+  /**
+   * {@link CorruptionIconSnippet} にスタイル情報を格納する.
+   *
+   * @param snippet このオブジェクトにスタイル情報を格納する
+   * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
+   * @param fileName {@code jsonObj} が記述してある JSON ファイルの名前
+   */
+  private void populateCorruptionStyle(
+      CorruptionIconSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
     snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
@@ -522,34 +568,14 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
   }
 
   /**
-   * {@link CorruptionMarkSnippet} にスタイル情報を格納する.
+   * {@link EntryPointIconSnippet} にスタイル情報を格納する.
    *
    * @param snippet このオブジェクトにスタイル情報を格納する
    * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
    * @param fileName {@code jsonObj} が記述してある JSON ファイルの名前
    */
-  private void populateCorruptionMarkStyle(
-      CorruptionMarkSnippet snippet, JsonObject jsonObj, String fileName)
-      throws ViewConstructionException {
-    // cssClass
-    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
-        .orElse(snippet.cssClass);
-
-    // size
-    snippet.size = readNumber(BhConstants.NodeStyleDef.KEY_SIZE, jsonObj, fileName)
-        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
-        .orElse(snippet.size);
-  }
-
-  /**
-   * {@link EntryPointMarkSnippet} にスタイル情報を格納する.
-   *
-   * @param snippet このオブジェクトにスタイル情報を格納する
-   * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
-   * @param fileName {@code jsonObj} が記述してある JSON ファイルの名前
-   */
-  private void populateEntryPointMarkStyle(
-      EntryPointMarkSnippet snippet, JsonObject jsonObj, String fileName)
+  private void populateEntryPointStyle(
+      EntryPointIconSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
     snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)

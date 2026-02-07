@@ -274,6 +274,7 @@ public class BhConstants {
     public static final String KEY_PRIVATE_TEMPLATE = "privateTemplate";
     public static final String KEY_BREAK_POINT = "breakpoint";
     public static final String KEY_EXEC_STEP = "execStep";
+    public static final String KEY_RUNTIME_ERROR = "runtimeError";
     public static final String KEY_CORRUPTION = "corruption";
     public static final String KEY_ENTRY_POINT = "entryPoint";
     public static final String KEY_TEXT_FIELD = "textField";
@@ -345,6 +346,7 @@ public class BhConstants {
       public static final String JUMP_TARGET = "jumpTarget";
       public static final String RELATED_NODE_GROUP = "relatedNodeGroup";
       public static final String EXEC_STEP = "execStep";
+      public static final String RUNTIME_ERROR = "runtimeError";
       public static final String MOVE_GROUP = "moveGroup";
       public static final String EMPTY = "empty";
       public static final String ERROR = "error";
@@ -372,6 +374,7 @@ public class BhConstants {
       public static final String EXCLAMATION_BAR = "exclamationBar";
       public static final String EXCLAMATION_DOT = "exclamationDot";
       public static final String CIRCLE = "circle";
+      public static final String STAR = "star";
       public static final String NODE_SHIFTER_LINK = "nodeShifterLink";
       public static final String PRIVATE_NODE_TEMPLATE = "privateNodeTemplate";
       public static final String CALL_STACK_ITEM = "callStackItem";

@@ -284,7 +284,10 @@ public class ViewUtil {
     Objects.requireNonNull(view);
     runSafe(() ->
         Optional.ofNullable(view.getWorkspaceView())
-            .ifPresent(wsView -> wsView.lookAt(view)));
+            .ifPresent(wsView -> {
+              wsView.lookAt(view);
+              wsView.moveNodeViewToFront(view);
+            }));
   }
 
   /**
