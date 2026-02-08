@@ -16,6 +16,11 @@
 
 package net.seapanda.bunnyhop.debugger.control;
 
+import static net.seapanda.bunnyhop.bhprogram.common.BhThreadState.ERROR;
+import static net.seapanda.bunnyhop.bhprogram.common.BhThreadState.FINISHED;
+import static net.seapanda.bunnyhop.bhprogram.common.BhThreadState.RUNNING;
+import static net.seapanda.bunnyhop.bhprogram.common.BhThreadState.SUSPENDED;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +28,6 @@ import java.util.Optional;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import net.seapanda.bunnyhop.bhprogram.common.BhThreadState;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
 import net.seapanda.bunnyhop.debugger.model.Debugger.CurrentStackFrameChangedEvent;
 import net.seapanda.bunnyhop.debugger.model.Debugger.CurrentThreadChangedEvent;
@@ -119,12 +123,12 @@ public class DebugViewController {
     if (threadId < 1) {
       return;
     }
-    if (context.state == BhThreadState.FINISHED && !threadIdToContext.containsKey(threadId)) {
+    if (context.state == FINISHED && !threadIdToContext.containsKey(threadId)) {
       return;
     }
 
     localVarInspCtrlRegistry.remove(threadId);
-    if (threadIdToContext.isEmpty()) {
+    if (shouldSelectNewThread(context)) {
       debugger.selectCurrentThread(ThreadSelection.of(threadId));
     }
     boolean isContextThreadSameAsDebugThread =
@@ -240,6 +244,34 @@ public class DebugViewController {
     localVarScrollPane.setContent(emptyVarInspCtrl.getView());
     globalVarScrollPane.setContent(globalVarInspCtrl.getView());
     return true;
+  }
+
+  /**
+   * 現在選択されているスレッドの状態と新しく追加されたスレッドの状態を元に,
+   * 新しく追加されたスレッドを選択するかどうかを判定する.
+   */
+  private boolean shouldSelectNewThread(ThreadContext context) {
+    if (threadIdToContext.isEmpty()) {
+      return true;
+    }
+    ThreadSelection currentThread = debugger.getCurrentThread();
+    if (threadIdToContext.isEmpty() || currentThread.equals(ThreadSelection.NONE)) {
+      return context.state == ERROR || context.state == SUSPENDED;
+    }
+    if (currentThread.equals(ThreadSelection.ALL)) {
+      return false;
+    }
+    long threadId = currentThread.getThreadId();
+    ThreadContext currentThreadContext = threadIdToContext.get(threadId);
+    if (currentThreadContext == null) {
+      return true;
+    }
+    if (currentThreadContext.state == FINISHED
+        || currentThreadContext.state == RUNNING
+        || currentThreadContext.state == ERROR) {
+      return context.state == ERROR || context.state == SUSPENDED;
+    }
+    return false;
   }
 
   /** スレッド ID とスタックフレームインデックスのセットと {@link VariableInspectionController} の対応を保持するクラス. */
