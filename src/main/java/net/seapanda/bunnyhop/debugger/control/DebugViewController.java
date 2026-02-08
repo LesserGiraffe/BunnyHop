@@ -261,12 +261,9 @@ public class DebugViewController {
     if (currentThread.equals(ThreadSelection.ALL)) {
       return false;
     }
-    long threadId = currentThread.getThreadId();
-    ThreadContext currentThreadContext = threadIdToContext.get(threadId);
-    if (currentThreadContext == null) {
-      return true;
-    }
-    if (currentThreadContext.state == FINISHED
+    ThreadContext currentThreadContext = threadIdToContext.get(currentThread.getThreadId());
+    if (currentThreadContext == null
+        || currentThreadContext.state == FINISHED
         || currentThreadContext.state == RUNNING
         || currentThreadContext.state == ERROR) {
       return context.state == ERROR || context.state == SUSPENDED;
