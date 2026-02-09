@@ -52,18 +52,18 @@ public interface BhNodeSelectionView {
   void specifyNodeViewAsNotRoot(BhNodeView view);
 
   /**
-   * {@code view} 以下の子孫ノードビューをこのノード選択ビューに追加する.
+   * {@code view} をこのワークスペースビューに追加する.
    *
    * @param view 追加する {@link BhNodeView}
    */
-  void addNodeViewTree(BhNodeView view);
+  void addNodeView(BhNodeView view);
 
   /**
-   * {@code view} 以下の子孫ノードビューをこのノード選択ビューから削除する.
+   * {@code view} をこのワークスペースビューから削除する.
    *
    * @param view 削除する {@link BhNodeView}
    */
-  void removeNodeViewTree(BhNodeView view);
+  void removeNodeView(BhNodeView view);
 
   /** このオブジェクトが現在保持する {@link BhNodeView} のツリーの数を取得する. */
   long getNumNodeViewTrees();

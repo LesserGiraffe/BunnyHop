@@ -134,19 +134,20 @@ public class BhNodeViewGroup implements NodeViewComponent {
    */
   boolean addNodeView(BhNodeViewBase view) {
     Connector cnctr = view.getModel().map(BhNode::getParentConnector).orElse(null);
-    if (cnctr != null) {
-      String cnctrName = cnctr.getSymbolName();
-      // このグループ内に追加すべき場所が見つかった
-      if (childNameToNodeView.containsKey(cnctrName)) {
-        childNameToNodeView.put(cnctrName, view);
-        view.getTreeManager().setParentGroup(this);
-        return true;
-      } else {
-        //サブグループに追加する
-        for (BhNodeViewGroup subGroup : subGroupList) {
-          if (subGroup.addNodeView(view)) {
-            return true;
-          }
+    if (cnctr == null) {
+      return false;
+    }
+    String cnctrName = cnctr.getSymbolName();
+    // このグループ内に追加すべき場所が見つかった
+    if (childNameToNodeView.containsKey(cnctrName)) {
+      childNameToNodeView.put(cnctrName, view);
+      view.getTreeManager().setParentGroup(this);
+      return true;
+    } else {
+      //サブグループに追加する
+      for (BhNodeViewGroup subGroup : subGroupList) {
+        if (subGroup.addNodeView(view)) {
+          return true;
         }
       }
     }

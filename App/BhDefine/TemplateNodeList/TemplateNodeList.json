@@ -68,6 +68,8 @@
   "${node-category}{sound}": {
     "cssClass":"soundOpe",
     "contents":[
+      "idSimpleScaleSoundLiteralExp",
+      "idSimpleFreqSoundLiteralExp",
       "idScaleSoundLiteralExp",
       "idFreqSoundLiteralExp",
       "idPlayMelodyStat",

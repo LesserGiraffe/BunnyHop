@@ -88,12 +88,12 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
 
   /** {@code node} のノードビューをノード選択リストに追加する. */
   private void addNodeView(BhNode node, BhNodeSelectionView view) {
-    node.getView().ifPresent(view::addNodeViewTree);
+    node.getView().ifPresent(view::addNodeView);
   }
 
   /** {@code node} のノードビューをノード選択リストから削除する. */
   private void removeNodeView(BhNode node, BhNodeSelectionView view) {
-    node.getView().ifPresent(view::removeNodeViewTree);
+    node.getView().ifPresent(view::removeNodeView);
     if (view.getNumNodeViewTrees() == 0 && view.isShowed()) {
       view.hide();
       String oldCategory = currentCategory;

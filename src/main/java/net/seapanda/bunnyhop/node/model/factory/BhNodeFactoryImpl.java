@@ -129,8 +129,11 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
     }
 
     private void addChildView(BhNode node, BhNodeViewBase view) {
-      if ((node.getParentConnector() != null) && (parentStack.peekLast() != null)) {
-        parentStack.peekLast().addToGroup(view);
+      if (node.getParentConnector() != null && parentStack.peekLast() != null) {
+        boolean success = parentStack.peekLast().addChild(view);
+        if (!success) {
+          view.getLookManager().setVisible(false);
+        }
       }
     }
 

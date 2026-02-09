@@ -120,7 +120,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
   }
 
   @Override
-  public void addNodeViewTree(BhNodeView view) {
+  public void addNodeView(BhNodeView view) {
     if (nodeViews.contains(view)) {
       return;
     }
@@ -130,7 +130,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
   }
 
   @Override
-  public void removeNodeViewTree(BhNodeView view) {
+  public void removeNodeView(BhNodeView view) {
     if (!nodeViews.contains(view)) {
       return;
     }

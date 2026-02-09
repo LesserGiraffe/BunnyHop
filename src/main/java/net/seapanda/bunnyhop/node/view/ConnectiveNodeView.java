@@ -75,15 +75,17 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
   }
 
   /**
-   * ノード内部に描画されるノードを追加する.
+   * 子ノードを追加する.
    *
-   * @param view ノード内部に描画されるノード
+   * @param view 追加する子ノード
+   * @return 追加に成功した場合 true. 失敗した場合 false.
    */
-  public void addToGroup(BhNodeViewBase view) {
+  public boolean addChild(BhNodeViewBase view) {
     // innerGroup に追加できなかった場合は outerGroup に入れる
     if (!innerGroup.addNodeView(view)) {
-      outerGroup.addNodeView(view);
+      return outerGroup.addNodeView(view);
     }
+    return true;
   }
 
   @Override

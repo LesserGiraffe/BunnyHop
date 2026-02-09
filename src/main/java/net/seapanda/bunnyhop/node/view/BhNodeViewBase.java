@@ -239,7 +239,7 @@ public abstract class BhNodeViewBase implements BhNodeView {
     if (group != null) {
       group.notifyChildSizeChanged();
     }
-    if (getTreeManager().isRootView()) {
+    if (getTreeManager().isRoot()) {
       getLookManager().requestArrangement();
     }
     isSizeChangeNotified = true;
@@ -439,7 +439,7 @@ public abstract class BhNodeViewBase implements BhNodeView {
     @Override
     public void setVisible(boolean visible) {
       NvbCallbackInvoker.invoke(
-          view -> view.shapes.nodeShape.setVisible(visible),
+          view -> view.panes.root.setVisible(visible),
           BhNodeViewBase.this);
     }
 
@@ -873,7 +873,7 @@ public abstract class BhNodeViewBase implements BhNodeView {
     }
 
     @Override
-    public boolean isRootView() {
+    public boolean isRoot() {
       return getParentView() == null;
     }
 

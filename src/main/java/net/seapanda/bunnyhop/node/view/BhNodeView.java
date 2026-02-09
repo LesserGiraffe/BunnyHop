@@ -294,7 +294,7 @@ public interface BhNodeView extends NodeViewComponent {
      *
      * @return 関連するノードビューがルートノードビューの場合 true
      */
-    boolean isRootView();
+    boolean isRoot();
 
     /**
      * 関連するノードビューが外部ノードかどうか調べる.
