@@ -71,9 +71,12 @@ public interface BhNodeSelectionView {
   /**
    * ノード選択ビューのズーム処理を行う.
    *
-   * @param zoomIn 拡大処理を行う場合true
+   * @param zoomIn 拡大する場合 true
    */
   void zoom(boolean zoomIn);
+
+  /** ノード選択ビューの拡大率を設定する. */
+  void zoom(int level);
 
   /** 表示するノードを並べる. */
   void arrange();

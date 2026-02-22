@@ -32,7 +32,7 @@ public enum NodeManipulationMode {
 
   private final Cursor cursor;
 
-  private NodeManipulationMode(Cursor cursor) {
+  NodeManipulationMode(Cursor cursor) {
     this.cursor = cursor;
   }
 

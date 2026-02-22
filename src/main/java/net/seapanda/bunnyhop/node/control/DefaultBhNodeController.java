@@ -448,7 +448,7 @@ public class DefaultBhNodeController implements BhNodeController {
   /** {@link #model} にブレークポイントを設定すべきである場合, 設定する. */
   private void setBreakpoint(MouseEventInfo info) {
     var commonEventInfo = (CommonEventInfo) info.getUserData();
-    if (!BhSettings.Debug.isBreakpointSettingEnabled
+    if (!BhSettings.Debug.canSetBreakpoint
         || BhSettings.Ui.nodeManipMode != NodeManipulationMode.MODE_0
         || info.event.getButton() != MouseButton.SECONDARY
         || commonEventInfo.isBreakpointSet) {

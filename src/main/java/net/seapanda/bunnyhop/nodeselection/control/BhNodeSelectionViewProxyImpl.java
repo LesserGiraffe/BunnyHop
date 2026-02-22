@@ -152,6 +152,11 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
   }
 
   @Override
+  public void zoom(int level) {
+    categoryNameToSelectionView.values().forEach(view -> view.zoom(level));
+  }
+
+  @Override
   public void show(String categoryName) {
     BhNodeSelectionView view = categoryNameToSelectionView.get(categoryName);
     if (view == null) {

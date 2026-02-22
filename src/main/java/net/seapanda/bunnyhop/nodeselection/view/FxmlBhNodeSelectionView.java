@@ -32,6 +32,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.transform.Scale;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.PositionManager;
 import net.seapanda.bunnyhop.node.view.BhNodeView.SizeChangedEvent;
@@ -147,24 +148,18 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
 
   @Override
   public void zoom(boolean zoomIn) {
-    if ((BhConstants.Ui.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn) {
-      return;
-    }
-    if ((BhConstants.Ui.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn) {
-      return;
-    }
-    Scale scale = new Scale();
-    if (zoomIn) {
-      ++zoomLevel;
-    } else {
-      --zoomLevel;
-    }
+    int level = zoomIn ? zoomLevel + 1 : zoomLevel - 1;
+    zoom(level);
+  }
+
+  @Override
+  public void zoom(int level) {
+    zoomLevel = Math.clamp(level, BhConstants.Ui.MIN_ZOOM_LEVEL, BhConstants.Ui.MAX_ZOOM_LEVEL);
     double mag = Math.pow(BhConstants.Ui.ZOOM_MAGNIFICATION, zoomLevel);
-    scale.setX(mag);
-    scale.setY(mag);
-    nodeSelectionView.getTransforms().clear();
-    nodeSelectionView.getTransforms().add(scale);
+    Scale scale = new Scale(mag, mag);
+    nodeSelectionView.getTransforms().set(0, scale);
     adjustWrapperSize(nodeSelectionView.getWidth(), nodeSelectionView.getHeight());
+    BhSettings.Ui.currentNodeSelectionViewZoomLevel = zoomLevel;
   }
 
   @Override
@@ -246,6 +241,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
   @Override
   public void show() {
     setVisible(true);
+    BhSettings.Ui.currentNodeSelectionViewZoomLevel = zoomLevel;
   }
 
   @Override

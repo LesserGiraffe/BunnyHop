@@ -66,11 +66,7 @@ public class BhWindowManager implements WindowManager {
   }
 
   private void setEventHandlers() {
-    primaryStage.focusedProperty().addListener(
-        (obs, oldVal, newVal) -> {
-          handleWindowFocusLoss(!newVal);
-          debugStage.setAlwaysOnTop(newVal);
-        });
+    primaryStage.focusedProperty().addListener((obs, oldVal, newVal) -> onFocusChanged(newVal));
     primaryStage.addEventFilter(MouseEvent.ANY, this::onMouseEventsDetected);
   }
 
@@ -90,6 +86,12 @@ public class BhWindowManager implements WindowManager {
       isMousePressed = false;
     }
     lastMouseEvent = event;
+  }
+
+  /** ウィンドウのフォーカスが変わった時の処理. */
+  private void onFocusChanged(boolean isFocused) {
+    handleWindowFocusLoss(!isFocused);
+    debugStage.setAlwaysOnTop(isFocused);
   }
 
   /**
@@ -170,7 +172,6 @@ public class BhWindowManager implements WindowManager {
   public void focusSimulator(boolean doForcibly) {
     ViewUtil.runSafe(() -> {
       if (doForcibly || !simulatorWindow.isIconified()) {
-        simulatorWindow.restoreWindow();
         simulatorWindow.focusWindow();
       }
     });

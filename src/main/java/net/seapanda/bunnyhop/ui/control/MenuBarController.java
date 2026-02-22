@@ -99,28 +99,22 @@ public class MenuBarController {
     license.setOnAction(action -> openLicenseFolder());
 
     focusSimulator.setOnAction(action -> {
-      switchMenuSetting(focusSimulator, BhSettings.BhSimulator.focusOnStartBhProgram);
+      setMenuChecked(focusSimulator, !BhSettings.BhSimulator.focusOnStartBhProgram);
       BhSettings.BhSimulator.focusOnStartBhProgram = !BhSettings.BhSimulator.focusOnStartBhProgram;
     });
-    if (BhSettings.BhSimulator.focusOnStartBhProgram) {
-      focusSimulator.setText(focusSimulator.getText() + " ✓");
-    }
+    setMenuChecked(focusSimulator, BhSettings.BhSimulator.focusOnStartBhProgram);
 
     trackNodeInCurrentWs.setOnAction(action -> {
-      switchMenuSetting(trackNodeInCurrentWs, BhSettings.Ui.trackNodeInCurrentWorkspace);
+      setMenuChecked(trackNodeInCurrentWs, !BhSettings.Ui.trackNodeInCurrentWorkspace);
       BhSettings.Ui.trackNodeInCurrentWorkspace = !BhSettings.Ui.trackNodeInCurrentWorkspace;
     });
-    if (BhSettings.Ui.trackNodeInCurrentWorkspace) {
-      trackNodeInCurrentWs.setText(trackNodeInCurrentWs.getText() + " ✓");
-    }
+    setMenuChecked(trackNodeInCurrentWs, BhSettings.Ui.trackNodeInCurrentWorkspace);
 
     trackNodeInInactiveWs.setOnAction(action -> {
-      switchMenuSetting(trackNodeInInactiveWs, BhSettings.Ui.trackNodeInInactiveWorkspace);
+      setMenuChecked(trackNodeInInactiveWs, !BhSettings.Ui.trackNodeInInactiveWorkspace);
       BhSettings.Ui.trackNodeInInactiveWorkspace = !BhSettings.Ui.trackNodeInInactiveWorkspace;
     });
-    if (BhSettings.Ui.trackNodeInInactiveWorkspace) {
-      trackNodeInInactiveWs.setText(trackNodeInInactiveWs.getText() + " ✓");
-    }
+    setMenuChecked(trackNodeInInactiveWs, BhSettings.Ui.trackNodeInInactiveWorkspace);
   }
 
   /**
@@ -314,12 +308,18 @@ public class MenuBarController {
     }
   }
 
-  /** 有効/無効を切り替え可能なメニューの設定を変更する. */
-  private static void switchMenuSetting(MenuItem menu, boolean val) {
-    if (val) {
-      menu.setText(menu.getText().replace("✓", ""));
-    } else {
-      menu.setText(menu.getText() + " ✓");
+  /**
+   * メニュー項目にチェックマークを追加または削除する.
+   *
+   * @param menu 対象のメニュー項目
+   * @param checked true の場合チェックマークを表示する.
+   */
+  private static void setMenuChecked(MenuItem menu, boolean checked) {
+    String text = menu.getText();
+    if (checked) {
+      menu.setText(text + " ✓");
+    } else if (text.length() >= 2) {
+      menu.setText(text.substring(0, text.length() - 2));
     }
   }
 

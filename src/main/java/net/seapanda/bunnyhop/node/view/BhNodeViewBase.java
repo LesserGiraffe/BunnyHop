@@ -265,7 +265,6 @@ public abstract class BhNodeViewBase implements BhNodeView {
 
     var nodeShape = new Polygon();
     nodeShape.addEventFilter(Event.ANY, this::forwardEventIfNotHaveController);
-    nodeShape.setCache(true);
 
     double radius = style.commonPart.breakpointIcon.radius;
     final var circle = new BreakpointIcon(radius, style.commonPart.breakpointIcon.cssClass, false);

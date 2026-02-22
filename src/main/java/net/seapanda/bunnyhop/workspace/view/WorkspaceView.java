@@ -116,12 +116,12 @@ public interface WorkspaceView {
   /**
    * ワークスペースビューのズーム処理を行う.
    *
-   * @param zoomIn 拡大処理を行う場合true
+   * @param zoomIn 拡大する場合 true
    */
   void zoom(boolean zoomIn);
 
-  /** ワークスペースビューの表示の拡大率を設定する. */
-  void setZoomLevel(int level);
+  /** ワークスペースビューの拡大率を設定する. */
+  void zoom(int level);
 
   /** 
    * ノードシフタをワークスペースビューに追加する.

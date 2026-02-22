@@ -201,34 +201,36 @@ public class MenuViewController {
   public void initialize() {
     setEventHandlers();
     switchBhRuntime(BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.REMOTE);
+    initializeUiComponentStates();
   }
 
   /** イベントハンドラを登録する. */
   private void setEventHandlers() {
     WorkspaceSet wss = wssCtrl.getWorkspaceSet();
-    copyBtn.setOnAction(action -> copy(wss)); // コピー
-    cutBtn.setOnAction(action -> cut(wss)); // カット
-    pasteBtn.setDisable(true);
-    pasteBtn.setOnAction(action -> paste(wss, wssCtrl.getTabPane())); // ペースト
+    copyBtn.setOnAction(action -> copy(wss));
+    cutBtn.setOnAction(action -> cut(wss));
+    pasteBtn.setOnAction(action -> paste(wss, wssCtrl.getTabPane()));
     deleteBtn.setOnAction(action -> delete(wss));
     setUndoRedoEventHandler(undoBtn, this::undo, () -> undoRedoAgent.getUndoCount() != 0);
     setUndoRedoEventHandler(redoBtn, this::redo, () -> undoRedoAgent.getRedoCount() != 0);
     setZoomEventHandler(zoomInBtn, () -> zoomIn(wss));
     setZoomEventHandler(zoomOutBtn, () -> zoomOut(wss));
-    widenBtn.setOnAction(action -> widen(wss)); // ワークスペースの領域拡大
-    narrowBtn.setOnAction(action -> narrow(wss)); // ワークスペースの領域縮小
-    addWorkspaceBtn.setOnAction(action -> addWorkspace(wss)); // ワークスペース追加
-    executeBtn.setOnAction(action -> execute()); // プログラム実行
-    terminateBtn.setOnAction(action -> terminate()); // プログラム終了
-    connectBtn.setOnAction(action -> connect()); // 接続
-    disconnectBtn.setOnAction(action -> disconnect()); // 切断
-    focusSimBtn.setOnAction(
-        action -> BhSettings.BhSimulator.focusOnChanged = focusSimBtn.isSelected());
-    focusSimBtn.setSelected(BhSettings.BhSimulator.focusOnChanged);
-    breakpointBtn.setOnAction(
-        action -> BhSettings.Debug.isBreakpointSettingEnabled  = breakpointBtn.isSelected());
-    breakpointBtn.setSelected(BhSettings.Debug.isBreakpointSettingEnabled);
-    debugBtn.setOnAction(action -> debugWindowCtrl.setVisibility(debugBtn.isSelected()));
+    widenBtn.setOnAction(action -> widen(wss));
+    narrowBtn.setOnAction(action -> narrow(wss));
+    addWorkspaceBtn.setOnAction(action -> addWorkspace(wss));
+    executeBtn.setOnAction(action -> execute());
+    terminateBtn.setOnAction(action -> terminate());
+    connectBtn.setOnAction(action -> connect());
+    disconnectBtn.setOnAction(action -> disconnect());
+
+    focusSimBtn.setOnAction(action ->
+        BhSettings.BhSimulator.focusOnSimulatorChanged = focusSimBtn.isSelected());
+    breakpointBtn.setOnAction(action ->
+        BhSettings.Debug.canSetBreakpoint = breakpointBtn.isSelected());
+    debugBtn.setOnAction(action -> {
+      BhSettings.Debug.isDebugWindowVisible = debugBtn.isSelected();
+      debugWindowCtrl.setVisibility(BhSettings.Debug.isDebugWindowVisible);
+    });
     sendBtn.setOnAction(action -> send()); // 送信
     bhRuntimeSelBtn.selectedProperty().addListener(
         (observable, oldVal, newVal) -> switchBhRuntime(newVal));
@@ -236,6 +238,16 @@ public class MenuViewController {
     copyAndPaste.getCallbackRegistry().getOnNodeRemoved().add(event -> changePasteButtonState());
     cutAndPaste.getCallbackRegistry().getOnNodeAdded().add(event -> changePasteButtonState());
     cutAndPaste.getCallbackRegistry().getOnNodeRemoved().add(event -> changePasteButtonState());
+  }
+
+  /** 設定値に基づいて UI コンポーネントの初期状態を設定する. */
+  private void initializeUiComponentStates() {
+    pasteBtn.setDisable(true);
+    focusSimBtn.setSelected(BhSettings.BhSimulator.focusOnSimulatorChanged);
+    breakpointBtn.setSelected(BhSettings.Debug.canSetBreakpoint);
+    debugBtn.setSelected(BhSettings.Debug.isDebugWindowVisible);
+    boolean isRemote = BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.REMOTE;
+    bhRuntimeSelBtn.setSelected(isRemote);
   }
 
   /** コピーボタン押下時の処理. */

@@ -65,10 +65,9 @@ public class BhConstants {
     /** ctrl + マウスホイールや拡大, 縮小ボタンを押したときの拡大縮小倍率. */
     public static final double ZOOM_MAGNIFICATION = 1.065;
     /** 拡大レベルの最大値. */
-    public static final double MAX_ZOOM_LEVEL = 30;
+    public static final int MAX_ZOOM_LEVEL = 30;
     /** 拡大レベルの最小値. */
-    public static final double MIN_ZOOM_LEVEL = -40;
-    public static final int INITIAL_ZOOM_LEVEL = -1;
+    public static final int MIN_ZOOM_LEVEL = -40;
     /** 4 分木空間の分割数 (2 ^ NUM_DIV_OF_QTREE_SPACE) ^ 2. */
     public static final int NUM_DIV_OF_QTREE_SPACE = 4;
     /** ワークスペースの大きさレベルの最大値. */
@@ -122,6 +121,9 @@ public class BhConstants {
       public static final String LANGUAGE = "Language";
       /** ライセンスファイルが格納されたディレクトリ. */
       public static final String LICENSE = "License";
+      /** 設定ファイルが格納されたディレクトリ. */
+      public static final String SETTINGS = "Settings";
+
     }
 
     /** ファイル名のリスト. */
@@ -162,6 +164,8 @@ public class BhConstants {
       public static final String BUNNY_HOP_ICON = "BunnyHop16.png";
       /** 言語ファイルの名前. */
       public static final String LANGUAGE_FILE = "BunnyHop.json";
+      /** 設定ファイルの名前. */
+      public static final String BH_SETTINGS_JSON = "BhSettings.json";
 
       /** BhProgram のライブラリのパス. */
       public static class BhLibs {

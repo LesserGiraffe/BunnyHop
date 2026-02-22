@@ -1,0 +1,21 @@
+{
+  "language": "Japanese",
+  "Ui": {
+    "trackNodeInCurrentWorkspace": false,
+    "trackNodeInInactiveWorkspace": true,
+    "currentNodeSelectionViewZoomLevel": -1,
+    "currentWorkspaceZoomLevel": -1
+  },
+  "Debug": {
+    "maxCallStackItems": 32,
+    "canSetBreakpoint": false,
+    "isDebugWindowVisible": false,
+    "maxListTreeChildren": 100,
+    "maxErrMsgChars": 4096
+  },
+  "BhSimulator": {
+    "initTimeout": 5,
+    "focusOnStartBhProgram": false,
+    "focusOnSimulatorChanged": true
+  }
+}

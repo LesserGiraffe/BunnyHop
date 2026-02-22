@@ -38,6 +38,7 @@ import javafx.stage.WindowEvent;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncher;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.compiler.nodecollector.SourceNodeCollector;
 import net.seapanda.bunnyhop.debugger.control.BreakpointListController;
@@ -264,10 +265,10 @@ public class SceneBuilder {
     return null;
   }
 
-  /** メインウィンドウを作成する. */
-  public void createWindow(Stage stage, Stage debugStage, WorkspaceFactory wsFactory)
+  /** ウィンドウを作成する. */
+  public void createWindows(Stage stage, Stage debugStage, WorkspaceFactory wsFactory)
       throws ViewConstructionException {
-    String iconPath = Paths.get(
+    final String iconPath = Paths.get(
         Utility.execPath,
         BhConstants.Path.Dir.VIEW,
         BhConstants.Path.Dir.IMAGES,
@@ -282,15 +283,15 @@ public class SceneBuilder {
     createInitialWorkspace(wsFactory);
     stage.show();
     debugStage.show();
-    debugWindowCtrl.setVisibility(false);
+    debugWindowCtrl.setVisibility(BhSettings.Debug.isDebugWindowVisible);
   }
 
   /** 初期ワークスペースを作成する. */
   private void createInitialWorkspace(WorkspaceFactory wsFactory) throws ViewConstructionException {
     var wsName = TextDefs.Workspace.initialWsName.get();
     Workspace ws = wsFactory.create(wsName);
-    Vec2D wsSize = new Vec2D(
-        BhConstants.Ui.DEFAULT_WORKSPACE_WIDTH, BhConstants.Ui.DEFAULT_WORKSPACE_HEIGHT);
+    Vec2D wsSize =
+        new Vec2D(BhConstants.Ui.DEFAULT_WORKSPACE_WIDTH, BhConstants.Ui.DEFAULT_WORKSPACE_HEIGHT);
     wsFactory.setMvc(ws, wsSize);
     wssCtrl.getWorkspaceSet().addWorkspace(ws, new UserOperation());
   }

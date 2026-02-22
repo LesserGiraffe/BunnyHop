@@ -24,6 +24,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener;
 import java.awt.SplashScreen;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -143,6 +144,7 @@ public class AppMain extends Application {
       TextDefs.setTextDatabase(textDb);
       TextFetcher.setTextDatabase(textDb);
       LogManager.initialize(logger);
+      loadSettings();
 
       final Path fxmlDir =
           Paths.get(Utility.execPath, BhConstants.Path.Dir.VIEW, BhConstants.Path.Dir.FXML);
@@ -320,7 +322,7 @@ public class AppMain extends Application {
           keyCode -> onKeyPressed(keyCode, localRuntimeCtrl, remoteRuntimeCtrl));
       msgService.setWindowStyle(sceneBuilder.scene.getStylesheets());
       msgService.setMainMsgArea(sceneBuilder.msgViewCtrl.getMsgArea());
-      sceneBuilder.createWindow(stage, debugStage, wsFactory);
+      sceneBuilder.createWindows(stage, debugStage, wsFactory);
       undoRedoAgent.deleteCommands();
 
       if (SplashScreen.getSplashScreen() != null) {
@@ -361,7 +363,7 @@ public class AppMain extends Application {
       BhSimulator simulator, BhWindowManager windowManager) {
     simulator.getCmdProcessor().get().getCallbackRegistry().getOnCmdProcessing()
         .add((SimulatorCmdProcessor.CmdProcessingEvent event) -> {
-          if (BhSettings.BhSimulator.focusOnChanged) {
+          if (BhSettings.BhSimulator.focusOnSimulatorChanged) {
             windowManager.focusSimulator();
           }
         });
@@ -430,7 +432,31 @@ public class AppMain extends Application {
       case YES -> terminate.setTrue();
       case CANCEL -> event.consume();
       default -> { /* Do nothing. */ }
-    }    
+    }
+
+    saveSettings();
+  }
+
+  /** アプリケーションの設定をファイルに保存する. */
+  private static void saveSettings() {
+    try {
+      Path filePath = Paths.get(
+          Utility.execPath, BhConstants.Path.Dir.SETTINGS, BhConstants.Path.File.BH_SETTINGS_JSON);
+      Files.createDirectories(filePath.toAbsolutePath().getParent());
+      BhSettings.exportToJson(filePath);
+    } catch (IOException e) { /* Do nothing.*/ }
+  }
+
+  /** アプリケーションの設定をファイルから読み込む. */
+  private static void loadSettings() {
+    try {
+      Path filePath = Paths.get(
+          Utility.execPath, BhConstants.Path.Dir.SETTINGS, BhConstants.Path.File.BH_SETTINGS_JSON);
+      if (!filePath.toFile().exists()) {
+        return;
+      }
+      BhSettings.importFromJson(filePath);
+    } catch (IOException e) { /* Do nothing.*/ }
   }
 
   /**

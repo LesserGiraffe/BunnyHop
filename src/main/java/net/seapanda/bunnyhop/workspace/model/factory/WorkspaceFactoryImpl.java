@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.workspace.model.factory;
 
 import java.nio.file.Path;
+import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewProxy;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
@@ -67,6 +68,7 @@ public class WorkspaceFactoryImpl implements WorkspaceFactory {
   @Override
   public WorkspaceView setMvc(Workspace ws, Vec2D size) throws ViewConstructionException {
     WorkspaceView view = new FxmlWorkspaceView(ws, size, workspaceViewFilePath, notifService);
+    view.zoom(BhSettings.Ui.currentWorkspaceZoomLevel);
     new WorkspaceController(
         ws,
         view,

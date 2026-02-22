@@ -68,6 +68,9 @@ public interface BhNodeSelectionViewProxy {
    */
   void zoom(boolean zoomIn);
 
+  /** 全てのノード選択ビューの拡大率を設定する. */
+  void zoom(int level);
+
   /**
    * {@code categoryName} で指定したカテゴリのノード選択ビューを表示する.
    *

@@ -24,6 +24,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.factory.BhNodeFactory;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
@@ -75,9 +76,7 @@ public class BhNodeCategoryListController {
     buildNodeSelView();
     registerPrivateTemplateView();
     registerPreRenderingView();
-    for (int i = 0; i < Math.abs(BhConstants.Ui.INITIAL_ZOOM_LEVEL); ++i) {
-      proxy.zoom(BhConstants.Ui.INITIAL_ZOOM_LEVEL > 0);
-    }
+    proxy.zoom(BhSettings.Ui.currentNodeSelectionViewZoomLevel);
   }
 
   /** イベントハンドラをセットする. */

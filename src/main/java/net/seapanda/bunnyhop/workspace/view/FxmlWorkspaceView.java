@@ -50,6 +50,7 @@ import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.BhNodeView.RegionManager.Rectangles;
@@ -170,6 +171,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     workspace.getCallbackRegistry().getOnNameChanged().add(
         event -> setTabNameNotEditable(event.newName()));
     cbRegistry.setEventHandlers();
+    setOnSelectionChanged(event -> onSelectionChanged());
   }
 
   /** スクロール時の処理. */
@@ -180,6 +182,14 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
       zoom(zoomIn);
     }
   }
+
+  /** タブの選択状態が変わった時の処理. */
+  private void onSelectionChanged() {
+    if (isSelected()) {
+      BhSettings.Ui.currentWorkspaceZoomLevel = zoomLevel;
+    }
+  }
+
 
   /** ノードを配置する部分の設定を行う. */
   private void configureWsPane() { 
@@ -254,8 +264,8 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     newWidth = Math.max(newWidth, Rem.VAL);
     // 幅を (文字幅 + パディング) にするとキャレットの移動時に文字が左右に移動するので定数 3 を足す.
     // この定数はフォントやパディングが違っても機能する.
-    newWidth += tabNameTextField.getPadding().getLeft()
-        + tabNameTextField.getPadding().getRight() + 3;
+    newWidth +=
+        tabNameTextField.getPadding().getLeft() + tabNameTextField.getPadding().getRight() + 3;
     tabNameTextField.setPrefWidth(newWidth);
   }
 
@@ -437,33 +447,18 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
   @Override
   public void zoom(boolean zoomIn) {
-    if ((BhConstants.Ui.MIN_ZOOM_LEVEL == zoomLevel) && !zoomIn) {
-      return;
-    }
-    if ((BhConstants.Ui.MAX_ZOOM_LEVEL == zoomLevel) && zoomIn) {
-      return;
-    }
-    Scale scale = new Scale();
-    if (zoomIn) {
-      ++zoomLevel;
-    } else {
-      --zoomLevel;
-    }
-    double mag = Math.pow(BhConstants.Ui.ZOOM_MAGNIFICATION, zoomLevel);
-    scale.setX(mag);
-    scale.setY(mag);
-    wsPane.getTransforms().clear();
-    wsPane.getTransforms().add(scale);
-    recalculateScrollableRange();
+    int level = zoomIn ? zoomLevel + 1 : zoomLevel - 1;
+    zoom(level);
   }
 
   @Override
-  public void setZoomLevel(int level) {
-    int numZooms = Math.abs(zoomLevel - level);
-    boolean zoomIn = zoomLevel < level;
-    for (int i = 0; i < numZooms; ++i) {
-      zoom(zoomIn);
-    }
+  public void zoom(int level) {
+    zoomLevel = Math.clamp(level, BhConstants.Ui.MIN_ZOOM_LEVEL, BhConstants.Ui.MAX_ZOOM_LEVEL);
+    double mag = Math.pow(BhConstants.Ui.ZOOM_MAGNIFICATION, zoomLevel);
+    Scale scale = new Scale(mag, mag);
+    wsPane.getTransforms().set(0, scale);
+    recalculateScrollableRange();
+    BhSettings.Ui.currentWorkspaceZoomLevel = zoomLevel;
   }
 
   /** スクロール可能な範囲を再計算する. */
