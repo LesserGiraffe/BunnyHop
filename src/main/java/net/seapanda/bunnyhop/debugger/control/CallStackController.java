@@ -172,9 +172,6 @@ public class CallStackController {
   /** {@link #callStackListView} に設定するアイテムを作成する. */
   private ObservableList<CallStackItem> createCallStackItems() {
     var callStack = new ArrayList<>(threadContext.callStack);
-    threadContext.getNextStep().ifPresent(callStack::add);
-    threadContext.getErrorStep().ifPresent(callStack::add);
-
     if (!csShowAllCheckBox.isSelected() && callStack.size() > BhSettings.Debug.maxCallStackItems) {
       return FXCollections.observableArrayList(createTruncatedCallStack(callStack));
     }
