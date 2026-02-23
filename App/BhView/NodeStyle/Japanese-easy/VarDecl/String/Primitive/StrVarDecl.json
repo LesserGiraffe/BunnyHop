@@ -1,0 +1,13 @@
+{
+  "import" : ["../../../../Common/VarDecl.json"],
+  "cssClass" : "strType",
+
+  "connective" : {
+    "inner" : {
+      "connectorList" : ["VarName"]
+    },
+    "outer" : {
+      "connectorList" : ["NextVarDecl"]
+    }
+  }
+}

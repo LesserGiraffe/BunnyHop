@@ -1,0 +1,4 @@
+{
+  "import" : ["../../../../Common/ListExpVoid.json"],
+  "connectorShape" : "Cross"
+}

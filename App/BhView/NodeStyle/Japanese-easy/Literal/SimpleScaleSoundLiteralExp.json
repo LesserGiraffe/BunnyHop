@@ -1,0 +1,16 @@
+{
+  "import" : ["../../Common/LiteralExp.json"],
+  "connectorShape" : "CharU",
+  "cssClass" : "soundType",
+    
+  "connective" : {
+    "inner" : {
+      "space" : 1.1,
+      "arrangement" : "Row",
+      "connectorList" : [
+        "${L1}{長さ}", "Duration", "${L1}{秒  }",
+        "${L1}{高さ}", "Octave", "${L1}{の}",
+        "ScaleSound"]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "import" : ["../../../../Common/Variable.json"],
+  "connectorShape" : "InvTriangle",
+  "cssClass" : "strType",
+
+  "connective" : {
+    "inner" : {
+      "connectorList" : ["VarName"]
+    }
+  }
+}

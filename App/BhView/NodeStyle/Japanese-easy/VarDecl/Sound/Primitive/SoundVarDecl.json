@@ -1,0 +1,10 @@
+{
+  "import" : ["../../../../Common/VarDecl.json"],
+  "cssClass" : "soundType",
+
+  "connective" : {
+    "inner" : {
+      "connectorList" : ["VarName"]
+    }
+  }
+}

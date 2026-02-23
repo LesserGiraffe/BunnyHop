@@ -67,7 +67,7 @@ let _textDb = {
       green: '緑',
       blue: '青',
       cyan: '水色',
-      purple: 'むらさき',
+      purple: '紫',
       yellow: 'きいろ',
       white: '白',
       black: '黒'

@@ -1,0 +1,18 @@
+{
+  "import" : ["../../Common/ActionStat.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 1.5,
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "connectorList" : ["${L2}{鳴らす}"]
+      },
+      "subGroup1" : {
+        "arrangement" : "Row",
+        "connectorList" : ["Arg0"]
+      }
+    }
+  }
+}

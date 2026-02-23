@@ -1,0 +1,11 @@
+{
+  "import" : ["../../../../Common/Variable.json"],
+  "connectorShape" : "CharU",
+  "cssClass" : "soundType",
+
+  "connective" : {
+    "inner" : {
+      "connectorList" : ["VarName"]
+    }
+  }
+}

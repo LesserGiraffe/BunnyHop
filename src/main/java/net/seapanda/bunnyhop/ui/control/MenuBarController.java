@@ -87,6 +87,7 @@ public class MenuBarController {
   @FXML
   public void initialize() {
     setEventHandlers();
+    menuBar.setMaxWidth(100000);
   }
 
   /** イベントハンドラを設定する. */
@@ -318,7 +319,7 @@ public class MenuBarController {
     String text = menu.getText();
     if (checked) {
       menu.setText(text + " ✓");
-    } else if (text.length() >= 2) {
+    } else if (text.endsWith(" ✓")) {
       menu.setText(text.substring(0, text.length() - 2));
     }
   }

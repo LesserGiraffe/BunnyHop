@@ -1,0 +1,21 @@
+{
+  "import" : ["../../../Common/ConcurrentStat.json"],
+  "paddingTop" : 1.5,
+  "paddingBottom" : 2.5,
+  "cssClass" : "concurrentType",
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 0.5,
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "space" : 1.1,
+        "connectorList" : ["${L2}{はいた区間}", "MutexBlockName"]
+      },
+      "subGroup1" : {
+        "connectorList" : ["ExclusiveStat"]
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "import" : ["../../Common/Statement.json"],
+  "cssClass" : "anyType",
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["${L1}{音りょうを}", "Arg0", "${L1}{% に せっていする}"]
+    }
+  }
+}

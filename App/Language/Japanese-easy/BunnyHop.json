@@ -1,0 +1,759 @@
+{
+  "gui": {
+    "menu-view": {
+      "copy": "コピー",
+      "cut": "カット",
+      "paste": "はりつけ",
+      "delete": "さくじょ",
+      "connect": "せつぞく",
+      "disconnect": "せつだん",
+      "local": "ローカル",
+      "remote": "リモート",
+      "hostname": "ホスト名",
+      "username": "ユーザー名",
+      "password": "パスワード",
+      "stdin": "入力",
+      "send": "そうしん",
+
+      "tooltip": {
+        "copy": "ブロックをコピーする",
+        "cut": "ブロックをカットする",
+        "paste": "コピーまたはカットしたブロックをはりつける",
+        "delete": "ブロックを さくじょする",
+        "undo": "元にもどす",
+        "redo": "やり直す",
+        "zoom-in": "ワークスペースを かくだいする",
+        "zoom-out": "ワークスペースを しゅくしょうする",
+        "add-workspace": "ワークスペースを ついかする",
+        "widen": "ワークスペースを大きくする",
+        "narrow": "ワークスペースを小さくする",
+        "execute": "プログラムを開始する",
+        "terminate": "プログラムを終りょうする",
+        "connect": "実行かんきょうとの つうしんを ゆうこうにする",
+        "disconnect": "実行かんきょうとの つうしんを むこうにする",
+        "focus-on-simulator": "シミュレータに へんかがあったとき 自動で前面にひょうじする",
+        "breakpoint": "ブレークポイントを せっていできるようにする (右クリック)",
+        "debug": "デバッグウィンドウを ひょうじする",
+        "select-runtime": "実行かんきょうを きりかえる",
+        "send": "実行かんきょうに文字列を そうしんする"
+      }
+    },
+
+    "menu-bar": {
+      "file": "ファイル",
+      "load": "ファイルを開く",
+      "save": "上書きほぞん",
+      "save-as": "名前をつけてほぞん",
+      "operation": "そうさ",
+      "free-memory": "メモリかいほう",
+      "settings": "せってい",
+      "focus-simulator": "プログラム開始時にシミュレータを ひょうじする",
+      "undo-redo": "元にもどす / やり直す",
+      "track-node-in-current-workspace": "せんたく中のワークスぺースで いどうしたブロックに注目する",
+      "track-node-in-inactive-workspace": "せんたくしていないワークスぺースで いどうしたブロックに注目する",
+      "help": "ヘルプ",
+      "version-info": "バージョン",
+      "license": "ライセンス"
+    },
+
+    "notification-view": {
+      "msg-view-name": "メッセージ",
+      "debug-view-name": "デバッグ",
+      "breakpoint-list-view-name": "ブレークポイント",
+      "error-node-list-view-name": "エラーブロック"
+    },
+
+    "msg-view": {
+      "search": "🔍",
+      "tooltip": {
+        "search": "メッセージを けんさくする"
+      }
+    },
+
+    "debugger": {
+      "thread": "スレッド",
+      "all-threads": "すべてのスレッド",
+      "stack-overflow": "スタックオーバーフロー",
+      "out-of-memory": "メモリが ふそくしています",
+      "runtime-error-occurred": "-- プログラムの実行中にエラーが発生しました --",
+      "thread-status": {
+        "status": "じょうたい",
+        "error": "エラー",
+        "running": "動作中",
+        "suspended": "一時ていし",
+        "finished": "終りょう"
+      },
+      "call-stack": {
+        "name": "コールスタック",
+        "show-all": "全てひょうじ",
+        "ellipsis": "...",
+        "unknown-node": "ふめいなブロック",
+        "search": "🔍",
+        "jump": "ジャンプ",
+        "main-routine": "プログラムスタート",
+        "next": "次",
+        "error": "エラー",
+        "tooltip": {
+          "search": "スタックフレームを けんさくする"
+        }
+      },
+      "breakpoint": {
+        "search": "🔍",
+        "jump": "ジャンプ",
+        "tooltip": {
+          "search": "ブレークポイントを けんさくする"
+        }
+      },
+      "workspace-selector": {
+        "all-ws": "すべてのワークスペース"
+      },
+      "variable-inspection": {
+        "search": "🔍",
+        "jump": "ジャンプ",
+        "local-vars": "ローカルへんすう",
+        "global-vars": "グローバルへんすう",
+        "empty-list": "空",
+        "unknown-var": "ふめいな へんすう",
+        "tooltip": {
+          "search": "へんすうを けんさくする",
+          "reload": "へんすうの じょうほうを こうしんする"
+        }
+      },
+      "step-execution": {
+        "tooltip": {
+          "resume": "プログラムを さいかいする",
+          "suspend": "プログラムを一時ていしする",
+          "reload": "スレッドのじょうほうを しゅとくする",
+          "step-over": "ステップオーバー",
+          "step-into": "ステップイン",
+          "step-out": "ステップアウト"
+        }
+      }
+    },
+
+    "search-box": {
+      "close": "❌",
+      "regex": "[.*]",
+      "case-sensitive": "[Aa]",
+      "find-prev": "▲",
+      "find-next": "▼",
+      "result": "けっか: %s",
+      "result-count": "けっか %s 件",
+      "tooltip": {
+        "close": "とじる",
+        "regex": "せいきひょうげんを使う",
+        "case-sensitive": "大文字と小文字を区べつする",
+        "find-prev": "前をけんさくする",
+        "find-next": "次をけんさくする"
+      }
+    }
+  },
+
+  "msg": {
+    "export": {
+      "ask-if-save": {
+        "title": "BunnyHop",
+        "body": "ほぞんしますか"
+      },
+      "inform-no-ws-to-save": {
+        "title": "ほぞんエラー",
+        "body": "ほぞんするワークスペースがありません"
+      },
+      "file-chooser": {
+        "title": "名前をつけてほぞん"
+      },
+      "inform-failed-to-save": {
+        "title": "プロジェクトのほぞんに しっぱいしました"
+      },
+      "has-saved": "-- ほぞんかんりょう (%s)--\n"
+    },
+
+    "import": {
+      "ask-if-continue": {
+        "title": "けいこく",
+        "body": "ロードをつづけますか?\nつづける場合は [%s]    止める場合は [%s]",
+        "some-nodes-are-missing": "一部のブロックが見つかりませんでした.",
+        "loaded-incompatible-nodes": "ごかんせいのないブロックを読みこみました.",
+        "loaded-corrupted-nodes": "はそんしたブロックを読みこみました.",
+        "changed-duplicate-instance-ids": "ちょうふくするインスタンス ID が書きかえられました."
+      },
+      "ask-if-keep-existing-ws": {
+        "title": "きぞんのワークスペースを のこしますか?",
+        "body": "きぞんのワークスペースを のこす場合は [%s]\nきぞんのワークスペースを 全てさくじょする場合は [%s]"
+      },
+      "error": {
+        "title": "ロードエラー",
+        "unsupported-save-data-version": "サポートしていないバージョンのセーブデータです.\n  (file: %s)  (app: %s)",
+        "corrupted-save-data": "セーブデータが はそんしています",
+        "failed-to-read-save-file": "ファイルを読みこめませんでした"
+      },
+      "file-chooser": {
+        "title": "開く"
+      }
+    },
+
+    "bh-runtime": {
+      "local": {
+        "preparing-to-start": "-- プログラム実行じゅんび中 (local) --\n",
+        "failed-to-start": "!! プログラムを開始できませんでした (local) !!\n",
+        "has-started": "-- プログラム実行開始 (local) --\n",
+        "has-already-ended": "!! プログラムは終りょうしています (local) !!\n",
+        "preparing-to-end": "-- プログラム終りょうじゅんび中 (local)  --\n",
+        "failed-to-end": "!! プログラムを終りょうできませんでした (local)  !!\n",
+        "has-ended": "-- プログラム終りょうかんりょう (local)  --\n",
+        "has-connected": "-- せつぞく かんりょう (local) --\n",
+        "failed-to-connect": "!! せつぞく しっぱい (local)  !!\n",
+        "no-runtime-to-connect-to": "!! せつぞく しっぱい (プログラムを実行していません) !!\n",
+        "has-disconnected": "-- せつだん かんりょう (local) --\n",
+        "failed-to-disconnect": "!! せつだん しっぱい (local)  !!\n",
+        "no-runtime-to-disconnect-from": "!! せつだん しっぱい (プログラムを実行していません) !!\n"
+      },
+      "remote": {
+        "preparing-to-start": "-- プログラム実行じゅんび中 (remote) --\n",
+        "failed-to-start": "!! プログラムを開始できませんでした (remote) !!\n",
+        "has-started": "-- プログラム実行開始 (remote) --\n",
+        "preparing-to-end": "-- プログラム終りょうじゅんび中 (remote)  --\n",
+        "failed-to-end": "!! プログラムを終りょうできませんでした (remote)  !!\n",
+        "has-ended": "-- プログラム終りょうかんりょう (remote)  --\n",
+        "transferring": "-- プログラム転送中 --\n",
+        "failed-to-transfer": "!! プログラム転送しっぱい !!\n  %s\n",
+        "preparing-to-connect": "-- せつぞくじゅんび中 (remote) --\n",
+        "has-connected": "-- せつぞく かんりょう (remote) --\n",
+        "failed-to-connect": "!! せつぞく しっぱい (remote)  !!\n",
+        "preparing-to-disconnect": "-- せつだんじゅんび中 (remote) --\n",
+        "has-disconnected": "-- せつだん かんりょう (remote) --\n",
+        "failed-to-disconnect": "!! せつだん しっぱい (remote)  !!\n",
+        "ask-if-stop": {
+          "title": "プログラムていしの かくにん",
+          "body": "実行中のプログラムを ていししますか?"
+        }
+      },
+      "already-doing": {
+        "preparation": "!! 実行じゅんび中 !!\n",
+        "termination": "!! 終りょうじゅんび中 !!\n",
+        "connection": "!! せつぞくじゅんび中 !!\n",
+        "disconnection": "!! せつだんじゅんび中 !!\n"
+      },
+      "file-transfer": {
+        "stopped": "%s 転送中止\n",
+        "transferring": "%s 転送中 (%s%%)\n",
+        "complete": "%s 転送かんりょう\n",
+        "start": "転送開始\n  %s -> %s (%s Bytes)\n"
+      },
+      "communication": {
+        "preparing-to-communicate": "-- つうしんじゅんび中 --\n",
+        "failed-to-establish-connection": "!! 実行かんきょうとの せつぞくを かくりつできませんでした !!\n",
+        "has-sent-text": "-- そうしん かんりょう --\n",
+        "other-ops-are-in-progress": "!! 他のしょりを実行中です !!\n",
+        "failed-to-process-text": "!! テキストデータのしょりに しっぱいしました.  (%s) !!\n",
+        "failed-to-push-text": "!! テキストデータをこれ以上ついかできません !!\n",
+        "failed-to-send-text-for-no-connection": "!! 実行かんきょうに せつぞくしていないのでテキストデータを送れません !!\n"
+      }
+    },
+
+    "compile": {
+      "inform-compile-error": {
+        "title": "コンパイルエラー",
+        "body": "コンパイルエラーが発生しています.\nしゅうせいしてから実行してください."
+      },
+      "inform-failed-to-write": {
+        "title": "ファイル書きこみエラー"
+      },
+      "inform-no-entry-points": {
+        "title": "実行するブロックのせんたく",
+        "body": "実行かのうなブロックが せんたくされていません."
+      },
+      "succeeded": "\n-- コンパイル成功 --\n"
+    },
+
+    "workspace": {
+      "initial-ws-name": "メイン",
+      "default-ws-name": "ワークスペース%s",
+      "prompt-to-name-ws": {
+        "title": "ワークスペースの さくせい",
+        "body": "ワークスペース名を入力してください"
+      },
+      "ask-if-delete-ws": {
+        "title": "ワークスペースの さくじょ",
+        "body": "「%s」を さくじょします"
+      }
+    },
+
+    "menubar-opts": {
+      "free-memory": "メモリを かいほうしました\n",
+      "version": {
+        "title": "バージョンいちらん",
+        "system": "システム",
+        "runtime": "ランタイム",
+        "simulator": "シミュレータ"    
+      }
+    }
+  },
+
+  "node": {
+    "num-round-opts": {
+      "floor": "切りすて",
+      "ceil": "切り上げ",
+      "round": "四しゃ五入",
+      "trunc": "さくじょ"
+    },
+
+    "four-arith-ope-opts": {
+      "add": "＋",
+      "sub": "－",
+      "mul": "×",
+      "div": "÷"
+    },
+
+    "eye-opts": {
+      "both": "両目",
+      "right": "右目",
+      "left": "左目"
+    },
+
+    "move-opts": {
+      "moveForward": "前進",
+      "moveBackward": "後たい",
+      "turnRight": "右回転",
+      "turnLeft": "左回転"
+    },
+
+    "mutex-block-wait-opts": {
+      "true": "待つ",
+      "false": "待たない"
+    },
+
+    "sync-timer-reset-opts": {
+      "true": "する",
+      "false": "しない"
+    },
+
+    "sync-timer-countdown-opts": {
+      "true": "へらす",
+      "false": "へらさない"
+    },
+
+    "semaphore-wait-opts": {
+      "true": "待つ",
+      "false": "待たない"
+    },
+
+    "line-break": {
+      "with": "かい行あり",
+      "without": "かい行なし"
+    },
+
+    "key-pressed-events": {
+      "LEFT": "←",
+      "RIGHT": "→",
+      "UP": "↑",
+      "DOWN": "↓",
+      "SPACE": "スペース",
+      "ENTER": "エンター",
+      "SHIFT": "シフト",
+      "CTRL": "コントロール",
+      "DIGIT0": "0",
+      "DIGIT1": "1",
+      "DIGIT2": "2",
+      "DIGIT3": "3",
+      "DIGIT4": "4",
+      "DIGIT5": "5",
+      "DIGIT6": "6",
+      "DIGIT7": "7",
+      "DIGIT8": "8",
+      "DIGIT9": "9",
+      "A": "A",
+      "B": "B",
+      "C": "C",
+      "D": "D",
+      "E": "E",
+      "F": "F",
+      "G": "G",
+      "H": "H",
+      "I": "I",
+      "J": "J",
+      "K": "K",
+      "L": "L",
+      "M": "M",
+      "N": "N",
+      "O": "O",
+      "P": "P",
+      "Q": "Q",
+      "R": "R",
+      "S": "S",
+      "T": "T",
+      "U": "U",
+      "V": "V",
+      "W": "W",
+      "X": "X",
+      "Y": "Y",
+      "Z": "Z"
+    },
+
+    "math-comp-opts": {
+      "eq": "＝",
+      "neq": "≠",
+      "lt": "＜",
+      "lte": "≦",
+      "gt": "＞",
+      "gte": "≧"
+    },
+
+    "set-comp-opts": {
+      "subset": "⊆",
+      "properSubset": "⊂",
+      "superset": "⊇",
+      "properSuperset": "⊃",
+      "eq": "＝",
+      "neq": "≠"
+    },
+
+    "binary-bool-opts": {
+      "and": "かつ",
+      "or": "または"
+    },
+
+    "str-literal": {
+      "text": "テキスト"
+    },
+
+    "comment-part": {
+      "text": "せつめい"
+    },
+
+    "default-identifier-name": {
+      "num-var": "すうち へんすう",
+      "str-var": "文字列へんすう",
+      "bool-var": "ろんり へんすう",
+      "color-var": "色へんすう",
+      "sound-var": "音へんすう",
+      "num-list": "すうちリスト",
+      "str-list": "文字列リスト",
+      "bool-list": "ろんりリスト",
+      "color-list": "色リスト",
+      "sound-list": "音リスト",
+      "mutex-block": "区間A",
+      "sync-timer": "タイマーA",
+      "semaphore": "ボックスA",
+      "void-func-def": "かんすうA"
+    },
+
+    "scan-exp": {
+      "prompt-text": "入力待ちです"
+    },
+
+    "max-min-opts": {
+      "max": "大きい方",
+      "min": "小さい方"
+    },
+
+    "list-index-of-opts": {
+      "first": "さいしょの",
+      "last": "さいごの"
+    },
+
+    "list-splice-opts": {
+      "remove": "消す",
+      "extract": "のこす"
+    },
+
+    "list-statistics": {
+      "max": "さいだいち",
+      "min": "さいしょうち",
+      "average": "へいきんち",
+      "peak": "ピークち"
+    },
+
+    "list-sort-opts": {
+      "ascending": "小さいじゅん",
+      "descending": "大きいじゅん"
+    },
+
+    "list-sort-in-place-opts": {
+      "in-pace": "元の",
+      "not-in-place": "新しい"
+    },
+
+    "list-reverse-in-place-opts": {
+      "in-pace": "元の",
+      "not-in-place": "新しい"
+    },
+
+    "bool-literal": {
+      "true": "真",
+      "false": "偽 (ぎ)"
+    },
+
+    "color-literal": {
+      "red": "赤",
+      "green": "緑",
+      "blue": "青",
+      "cyan": "水色",
+      "magenta": "むらさき",
+      "yellow": "きいろ",
+      "white": "白",
+      "black": "黒" 
+    },
+
+    "musical-scale": {
+      "c": "ド",
+      "c#": "ド＃",
+      "d": "レ",
+      "d#": "レ＃",
+      "e": "ミ",
+      "f": "ファ",
+      "f#": "ファ＃",
+      "g": "ソ",
+      "g#": "ソ＃",
+      "a": "ラ",
+      "a#": "ラ＃",
+      "b": "シ"
+    },
+
+    "num-type": {
+      "finite": "ゆうげんの数",
+      "posInf": "+ むげん大",
+      "negInf": "- むげん大",
+      "infinite": "+/- むげん大",
+      "nan": "非数"
+    },
+
+    "save-text": {
+      "file": "ファイルA"
+    },
+
+    "load-text": {
+      "file": "ファイルA"
+    },
+
+    "get-text-files": {
+      "text": "テキストファイルいちらん"
+    },
+
+    "delete-text-file": {
+      "file": "ファイルA"
+    },
+
+    "record-audio": {
+      "file": "ファイルB"
+    },
+
+    "play-audio": {
+      "file": "ファイルB"
+    },
+
+    "get-audio-files": {
+      "text": "音声ファイルいちらん"
+    },
+
+    "delete-audio-file": {
+      "file": "ファイルB"
+    },
+
+    "alias": {
+      "AnyListInsertAllStat": "リストにリストのようそを全て そうにゅうする",
+      "AnyListCompExp": "リストどうしを ひかくする",
+      "AnyListIncludesExp": "リストに とくていの あたいが ふくまれているか調べる",
+      "AnyListIndexOfExp": "リストが持つ とくていの あたいのインデックスを もとめる",
+      "AnyListInsertStat": "リストに あたいを そうにゅうする",
+      "AnyListLengthExp": "リストの ようその数 を求める",
+      "AnyListPushStat": "リストに あたいを ついかする",
+      "AnyListSetStat": "リストの ようそを書きかえる",
+      "AnyListSpliceStat": "リストの ようそを${option}",
+      "AnyListToStrExp": "リストを文字列に へんかんする",
+      "AnyListAssignStat": "リストの さんしょうを つけかえる",
+      "AnySetCompExp": "リストどうしを集合として ひかくする",
+      "BoolListGetExp": "リストの ようそを しゅとくする",
+      "BoolListSliceExp": "サブリストを しゅとくする",
+      "BoolListReverseExp": "リストの じゅんばんを ぎゃくにする",
+      "ColorListGetExp": "リストの ようそを しゅとくする",
+      "ColorListSliceExp": "サブリストを しゅとくする",
+      "ColorListReverseExp": "リストの じゅんばんを ぎゃくにする",
+      "NumListGetExp": "リストの ようそを しゅとくする",
+      "NumListSliceExp": "サブリストを しゅとくする",
+      "NumListReverseExp": "リストの じゅんばんを ぎゃくにする",
+      "NumListSortExp": "リストの ようそを ならべかえる",
+      "NumListMaxMinExp${max}": "リストから さいだいち を見つける",
+      "NumListMaxMinExp${min}": "リストから さいしょうち を見つける",
+      "SoundListGetExp": "リストの ようそを しゅとくする",
+      "SoundListSliceExp": "サブリストを しゅとくする",
+      "SoundListReverseExp": "リストの じゅんばんを ぎゃくにする",
+      "StrListGetExp": "リストの ようそを しゅとくする",
+      "StrListSliceExp": "サブリストを しゅとくする",
+      "StrListSortExp": "リストの ようそを ならべかえる",
+      "StrListReverseExp": "リストの じゅんばんを ぎゃくにする",
+      "StrListMaxMinExp${max}": "リストから さいだいち を見つける",
+      "StrListMaxMinExp${min}": "リストから さいしょうち を見つける",
+
+      "DetectColorExp": "色をけんしゅつする",
+      "GetTimeSinceProgramStartedExp": "プログラム開始からの時間を しゅとくする",
+      "LightEyeStat": "ロボットの目を光らせる",
+      "MeasureDistanceExp": "きょりを そくていする",
+      "PlayMelodyStat": "音を鳴らす",
+      "PlaySoundListStat": "音を鳴らす",
+      "SayStat": "言う",
+      "SleepStat": "プログラムを指定した時間ていしする",
+      "StopRaspiCarStat": "ロボットを止める",
+      "MoveStat": "ロボットを動かす (${option})",
+      "VoidFuncCall": "(𝐅) ${name}",
+      "VoidFuncDef": "かんすうていぎ (${name})",
+      "MutexBlockDecl": "はいた区間の せんげん (${name})",
+      "MutexBlockStat": "はいた区間 (${name})",
+      "GetSyncTimerCountExp": "同期タイマーの現在のカウントを しゅとくする",
+      "ResetSyncTimerStat": "同期タイマーのカウントを へんこうする",
+      "SyncTimerAwaitStat": "同期タイマーのカウントが 0 になるまで待つ",
+      "SyncTimerTimedAwaitExp": "同期タイマーのカウントが 0 になるまで待つ (タイムアウトつき)",
+      "SyncTimerCountdownStat": "同期タイマーのカウントを 1 へらす",
+      "SyncTimerDecl": "同期タイマーの せんげん (${name})",
+      "SyncTimerVar": "同期タイマー (${name})",
+      "SemaphoreAcquireStat": "チケットボックスからチケットを取る",
+      "SemaphoreTryAcquireExp": "チケットボックスからチケットを取る (タイムアウトつき)",
+      "SemaphoreReleaseStat": "チケットボックスにチケットを ついかする",
+      "GetNumSemaphorePermitExp": "チケットボックスのチケットの数を しゅとくする",
+      "SemaphoreDecl": "チケットボックスの せんげん (${name})",
+      "SemaphoreVar": "チケットボックス (${name})",
+      "DelayedStartEvent": "指定した時間だけ待ってから しょりを始める",
+      "KeyPressedEvent": "キーを押したとき しょりを始める",
+      "AnyCompExp": "あたいの ひかく (${option})",
+      "AnyToStrExp": "文字列化",
+      "BinaryBoolExp${and}": "ろんりせき",
+      "BinaryBoolExp${or}": "ろんりわ",
+      "NotExp": "ろんりひてい",
+      "BinaryColorExp${add}": "色の足し算",
+      "BinaryColorExp${sub}": "色の引き算",
+      "AbsExp": "ぜったいち",
+      "FourArithExp${add}": "足し算",
+      "FourArithExp${sub}": "引き算",
+      "FourArithExp${mul}": "かけ算",
+      "FourArithExp${div}": "わり算",
+      "MaxMinExp${max}": "さいだいち",
+      "MaxMinExp${min}": "さいしょうち",
+      "ModExp": "あまり",
+      "NegExp": "ふごう反転",
+      "NumCompExp": "数のひかく (${option})",
+      "NumRoundExp${floor}": "小数点いかを切りすてる",
+      "NumRoundExp${ceil}": "小数点いかを切り上げる",
+      "NumRoundExp${round}": "小数点いかを四しゃ五入する",
+      "NumRoundExp${trunc}": "小数点いかを さくじょする",
+      "NumPowExp": "べき乗",
+      "NumClampExp": "あたいの はんいを せいげんする",
+      "RandomIntExp": "ランダムな整数",
+      "ScanExp": "文字列の入力を待つ",
+      "StrChainExp": "文字列の れんけつ",
+      "StrCompExp": "文字列の ひかく (${option})",
+      "StrToNumExp": "文字列の すうち化",
+      "StrToNumWithDefaultValExp": "文字列の すうち化",
+      "BoolLiteralExp": "真偽値",
+      "ColorLiteralExp": "色",
+      "NumLiteralExp": "すうち",
+      "FreqSoundLiteralExp": "音",
+      "ScaleSoundLiteralExp": "音",
+      "NewLine": "かい行",
+      "StrLiteralExp": "文字列",
+      "CommentPart": "コメント",
+      "AnyAssignStat": "代入する",
+      "NumAddAssignStat": "すうちを足しこむ",
+      "StrAddAssignStat": "文字列を ついかする",
+      "BreakStat": "くり返しを ぬける",
+      "CompoundStat": "ブロック文",
+      "ContinueStat": "くり返しの初めにもどる",
+      "IfElseStat": "じょうけんぶんき (二者たくいつ)",
+      "IfStat": "じょうけんぶんき",
+      "RepeatStat": "くり返し",
+      "ReturnStat": "かんすうから ぬける",
+      "WhileStat": "じょうけんつきくり返し",
+      "ExpAdapterStat": "式を文に へんかんする",
+      "ListAdapterStat": "リストを文に へんかんする",
+      "PrintStat": "文字列を出力する",
+      "CheckNumTypeExp${finite}": "ゆうげんの あたいか調べる",
+      "CheckNumTypeExp${infinite}": "+/- むげん大の あたいか調べる",
+      "CheckNumTypeExp${nan}": "非数か調べる",
+      "SaveTextStat": "テキストデータをファイルに ほぞんする",
+      "LoadTextExp": "テキストデータをファイルから読みだす",
+      "GetTextFilesExp": "テキストファイルのいちらんを しゅとくする",
+      "DeleteTextFileStat": "テキストファイルを さくじょする",
+      "DeleteTextFilesStat": "ふくすうのテキストファイルを さくじょする",
+      "SetAudioVolumeStat": "音りょうを せっていする",
+      "GetAudioVolumeExp": "音りょうを しゅとくする",
+      "RecordAudioStat": "ろく音する",
+      "PlayAudioStat": "音声ファイルを さいせいする",
+      "GetAudioFilesExp": "音声ファイルの いちらんを しゅとくする",
+      "DeleteAudioFileStat": "音声ファイルを さくじょする",
+      "DeleteAudioFilesStat": "ふくすうの音声ファイルを さくじょする",
+      "MeasureSoundPressureExp${peak}": "音りょうのピークちを そくていする",
+      "MeasureSoundPressureExp${average}": "音りょうの へいきんちを計算する",
+
+      "BoolListExpVoid": "空の ろんりリスト",
+      "BoolList": "ろんりリスト (${name})",
+      "BoolListArg": "ろんりリストの入力引数 (${name})",
+      "BoolListOutArg": "ろんりリストの出力引数 (${name})",
+      "BoolListDecl": "ろんりリストの せんげん (${name})",
+      "BoolOutArg": "真偽値の出力引数 (${name})",
+      "BoolVar": "ろんり へんすう (${name})",
+      "BoolArg": "真偽値の入力引数 (${name})",
+      "BoolVarDecl": "ろんり へんすうの せんげん (${name})",
+      "ColorListExpVoid": "空の色リスト",
+      "ColorList": "色リスト (${name})",
+      "ColorListArg": "色リストの入力引数 (${name})",
+      "ColorListOutArg": "色リストの出力引数 (${name})",
+      "ColorListDecl": "色リストの せんげん (${name})",
+      "ColorOutArg": "色の出力引数 (${name})",
+      "ColorVar": "色へんすう (${name})",
+      "ColorArg": "色の入力引数 (${name})",
+      "ColorVarDecl": "色へんすうの せんげん (${name})",
+      "NumListExpVoid": "空のすうちリスト",
+      "NumList": "すうちリスト (${name})",
+      "NumListArg": "すうちリストの入力引数 (${name})",
+      "NumListOutArg": "すうちリストの出力引数 (${name})",
+      "NumListDecl": "すうちリストの せんげん (${name})",
+      "NumOutArg": "すうちの出力引数 (${name})",
+      "NumVar": "すうち へんすう (${name})",
+      "NumArg": "すうちの入力引数 (${name})",
+      "NumVarDecl": "すうち へんすうの せんげん (${name})",
+      "SoundListExpVoid": "空の音リスト",
+      "SoundList": "音リスト (${name})",
+      "SoundListArg": "音リストの入力引数 (${name})",
+      "SoundListOutArg": "音リストの出力引数 (${name})",
+      "SoundListDecl": "音リストの せんげん (${name})",
+      "SoundOutArg": "音の出力引数 (${name})",
+      "SoundVar": "音へんすう (${name})",
+      "SoundArg": "音の入力引数 (${name})",
+      "SoundVarDecl": "音へんすうの せんげん (${name})",
+      "StrListExpVoid": "空の文字列リスト",
+      "StrList": "文字列リスト (${name})",
+      "StrListArg": "文字列リストの入力引数 (${name})",
+      "StrListOutArg": "文字列リストの出力引数 (${name})",
+      "StrListDecl": "文字列リストの せんげん (${name})",
+      "StrOutArg": "文字列の出力引数 (${name})",
+      "StrVar": "文字列へんすう (${name})",
+      "StrArg": "文字列の入力引数 (${name})",
+      "StrVarDecl": "文字列へんすうの せんげん (${name})"
+    },
+
+    "compile-error": {
+      "out-of-scope": "スコープの外にあります",
+      "out-of-loop": "くりかえしブロックの外にあります",
+      "variable-not-declared": "へんすうが せんげんされていません",
+      "mutex-not-declared": "はいた区間が せんげんされていません",
+      "sync-timer-not-declared": "同期タイマーが せんげんされていません",
+      "semaphore-not-declared": "チケットボックスが せんげんされていません",
+      "function-not-defined": "かんすうの ていぎがありません",
+      "argument-not-specified": "引数が指定されていません"
+    },
+    "list-label": "[...]"
+  },
+
+  "node-category": {
+    "action": "動作",
+    "number": "すうち",
+    "string": "文字列",
+    "boolean": "ろんり",
+    "sound": "音",
+    "color": "色",
+    "control": "せいぎょ",
+    "variable": "へんすう",
+    "func-def": "かんすう",
+    "event": "イベント",
+    "misc": "その他"
+  }
+}

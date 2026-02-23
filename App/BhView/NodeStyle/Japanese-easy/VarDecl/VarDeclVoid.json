@@ -1,0 +1,10 @@
+{
+  "import" : ["../../Common/VarDecl.json"],
+  "component" : "None",
+  "paddingTop" : 1.0,
+  "paddingBottom" : 1.0,
+  "paddingLeft" : 1.75,
+  "paddingRight" : 4.66,
+  "bodyShapeOuter" : "None",
+  "cssClass" : "voidType"
+}

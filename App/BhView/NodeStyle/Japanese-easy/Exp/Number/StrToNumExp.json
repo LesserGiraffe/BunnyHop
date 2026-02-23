@@ -1,0 +1,12 @@
+{
+  "import" : ["../../../Common/NumExp.json"],
+  "paddingRight" : 6.0,
+
+  "connective" : {
+    "inner" : {
+      "space" : 1.1,
+      "arrangement" : "Row",
+      "connectorList" : ["Arg0"]
+    }
+  }
+}

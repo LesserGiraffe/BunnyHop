@@ -1,0 +1,20 @@
+{
+  "import" : ["../../../Common/ConcurrentGlobalDataDecl.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 2.0,
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "space" : 1.1,
+        "connectorList" : ["${L2}{はいた区間}", "MutexBlockName"]
+      },
+      "subGroup1" : {
+        "arrangement" : "Row",
+        "space" : 1.1,
+        "connectorList" : ["${L2}{公平に}", "Arg0"]
+      }
+    }
+  }
+}

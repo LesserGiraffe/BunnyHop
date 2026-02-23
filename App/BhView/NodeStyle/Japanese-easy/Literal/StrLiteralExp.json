@@ -1,0 +1,13 @@
+{
+  "import" : ["../../Common/LiteralExp.json"],
+  "connectorShape" : "InvTriangle",
+  "cssClass" : "strType",
+    
+  "connective" : {
+    "inner" : {
+      "space" : 0.0,
+      "arrangement" : "Row",
+      "connectorList" : ["Literal"]
+    }
+  }
+}

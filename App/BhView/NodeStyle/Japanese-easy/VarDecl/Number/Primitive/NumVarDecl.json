@@ -1,0 +1,11 @@
+{
+  "import" : ["../../../../Common/VarDecl.json"],
+  "cssClass" : "numType",
+
+  "connective" : {
+    
+    "inner" : {
+      "connectorList" : ["VarName"]
+    }
+  }
+}

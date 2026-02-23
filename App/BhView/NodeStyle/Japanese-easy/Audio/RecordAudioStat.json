@@ -1,0 +1,11 @@
+{
+  "import" : ["../../Common/ActionStat.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["Arg1", "${L2}{秒間ろくおんして}", "Arg0", "${L2}{に ほぞんする}"]
+    }
+  }
+}

@@ -1,14 +1,14 @@
 {
   "obj-ctrl": {
     "color": {
-      "black": "くろ",
-      "red": "あか",
-      "green": "みどり",
-      "blue": "あお",
-      "magenta": "むらさき",
-      "cyan": "みずいろ",
+      "black": "黒",
+      "red": "赤",
+      "green": "緑",
+      "blue": "青",
+      "magenta": "紫",
+      "cyan": "水色",
       "yellow": "きいろ",
-      "white": "しろ"
+      "white": "白"
     },
 
     "raspi-car": {

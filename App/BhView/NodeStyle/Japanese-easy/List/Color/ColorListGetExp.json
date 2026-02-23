@@ -1,0 +1,11 @@
+{
+  "import" : ["../../../Common/ColorExp.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["Arg0", "${L2}{の}", "Arg1", "${L2}{番目のようそ}"]
+    }
+  }
+}

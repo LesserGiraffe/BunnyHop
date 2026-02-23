@@ -1,0 +1,11 @@
+{
+  "import" : ["../../Common/ActionStat.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["${L2}{ロボットを止める}"]
+    }
+  }
+}

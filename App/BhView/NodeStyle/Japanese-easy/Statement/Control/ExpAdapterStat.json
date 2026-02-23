@@ -1,0 +1,14 @@
+{
+  "import" : ["../../../Common/CtrlStat.json"],
+  "paddingTop" : 1.0,
+  "paddingBottom" : 1.0,
+  "paddingRight" : 6.0,
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["Target"]
+    }
+  }
+}

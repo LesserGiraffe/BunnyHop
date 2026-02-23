@@ -123,7 +123,8 @@ public class BhConstants {
       public static final String LICENSE = "License";
       /** 設定ファイルが格納されたディレクトリ. */
       public static final String SETTINGS = "Settings";
-
+      /** ノード以外の GUI 部品の css ファイルが格納されたディレクトリ. */
+      public static final String APP_GUI = "AppGUI";
     }
 
     /** ファイル名のリスト. */
@@ -144,8 +145,12 @@ public class BhConstants {
       public static final String CALL_STACK_VIEW_FXML = "CallStackView.fxml";
       /** 変数検査ビューが定義してあるfxmlの名前. */
       public static final String VARIABLE_INSPECTION_VIEW_FXML = "VariableInspectionView.fxml";
-      /** デバッグウィンドウの基底部分のビューが定義してあるfxmlファイルの名前. */
+      /** デバッグウィンドウの基底部分のビューが定義してある fxml ファイルの名前. */
       public static final String DEBUG_WINDOW_FXML = "DebugWindow.fxml";
+      /** BunnyHop の設定用アプリケーションのビューが定義してある fxml ファイルの名前. */
+      public static final String BH_CONFIGURATOR_FXML = "BhConfigurator.fxml";
+      /** BunnyHop の設定用アプリケーションのスタイルが定義してある css ファイルの名前. */
+      public static final String BH_CONFIGURATOR_CSS = "BhConfigurator.css";
       /** テンプレートノードの配置情報が書かれたファイルの名前. */
       public static final String TEMPLATE_NODE_LIST_JSON = "TemplateNodeList.json";
       /** 外部スクリプトが共通で使用するメソッドを定義したファイルの名前. */

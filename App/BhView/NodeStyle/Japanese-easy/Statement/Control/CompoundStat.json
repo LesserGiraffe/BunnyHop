@@ -1,0 +1,16 @@
+{
+  "import" : ["../../../Common/CtrlStat.json"],
+    
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 4.0,
+      "subGroup0" : {
+        "connectorList" : ["StatList"]
+      },
+      "subGroup1" : {
+        "connectorList" : ["LocalVarDecl"]
+      }
+    }
+  }
+}

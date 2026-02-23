@@ -16,6 +16,37 @@
 
 package net.seapanda.bunnyhop.launch;
 
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Message.LOG_FILE_SIZE_LIMIT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Message.MAX_LOG_FILE_NUM;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.BH_DEF;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.COMPILE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.CONNECTOR_DEF;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.EVENT_HANDLERS;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.FXML;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.LANGUAGE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.LIBS;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.LOG;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.NODE_DEF;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.NODE_STYLE_DEF;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.REMOTE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.SETTINGS;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.TEMPLATE_NODE_LIST;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.Dir.VIEW;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.BH_SETTINGS_JSON;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.BhLibs;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.CALL_STACK_VIEW_FXML;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.DEBUG_WINDOW_FXML;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.FOUNDATION_FXML;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.LANGUAGE_FILE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.LOG_MSG;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.NODE_SELECTION_VIEW_FXML;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.NODE_SHIFTER_FXML;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.PRIVATE_TEMPLATE_BUTTON_FXML;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.TEMPLATE_NODE_LIST_JSON;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.VARIABLE_INSPECTION_VIEW_FXML;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.WORKSPACE_FXML;
+import static net.seapanda.bunnyhop.utility.Utility.execPath;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
@@ -97,8 +128,9 @@ import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.ui.control.SearchBoxController;
 import net.seapanda.bunnyhop.ui.model.ExclusiveSelection;
 import net.seapanda.bunnyhop.ui.service.window.BhWindowManager;
-import net.seapanda.bunnyhop.utility.Utility;
 import net.seapanda.bunnyhop.utility.log.FileLogger;
+import net.seapanda.bunnyhop.utility.serialization.JsonExporter;
+import net.seapanda.bunnyhop.utility.serialization.JsonImporter;
 import net.seapanda.bunnyhop.utility.textdb.JsonTextDatabase;
 import net.seapanda.bunnyhop.workspace.control.TrashCanController;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSetController;
@@ -110,7 +142,8 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
- * メインクラス.
+ * BunnyHop アプリケーションのエントリポイントとなるクラス.
+ * JavaFX アプリケーションの起動, 初期化, 終了処理を管理する.
  *
  * @author K.Koike
  */
@@ -128,64 +161,36 @@ public class AppMain extends Application {
   @Override
   public void start(Stage stage) throws Exception {
     var msgService = new BhMessageService();
-    Path logDir = Paths.get(Utility.execPath, BhConstants.Path.Dir.LOG, BhConstants.APP_NAME);
-    var logger = new FileLogger(
-        logDir,
-        BhConstants.Path.File.LOG_MSG,
-        BhConstants.Message.LOG_FILE_SIZE_LIMIT,
-        BhConstants.Message.MAX_LOG_FILE_NUM);
+    Path logDir = Paths.get(execPath, LOG, BhConstants.APP_NAME);
+    var logger = new FileLogger(logDir, LOG_MSG, LOG_FILE_SIZE_LIMIT, MAX_LOG_FILE_NUM);
     try {
-      Path textDbFile = Paths.get(
-          Utility.execPath,
-          BhConstants.Path.Dir.LANGUAGE,
-          BhSettings.language,
-          BhConstants.Path.File.LANGUAGE_FILE);
+      importSettings();
+      Path textDbFile = Paths.get(execPath, LANGUAGE, BhSettings.language, LANGUAGE_FILE);
       final var textDb = new JsonTextDatabase(textDbFile);
       TextDefs.setTextDatabase(textDb);
       TextFetcher.setTextDatabase(textDb);
       LogManager.initialize(logger);
-      loadSettings();
 
       final Path fxmlDir =
-          Paths.get(Utility.execPath, BhConstants.Path.Dir.VIEW, BhConstants.Path.Dir.FXML);
+          Paths.get(execPath, VIEW, FXML);
       var fxmlCollector = new FileCollector(fxmlDir, "fxml");
-      final Path guiDefFile = fxmlCollector.getFilePath(BhConstants.Path.File.FOUNDATION_FXML);
-      final Path debugDefFile = fxmlCollector.getFilePath(BhConstants.Path.File.DEBUG_WINDOW_FXML);
-      final Path wsViewFile = fxmlCollector.getFilePath(BhConstants.Path.File.WORKSPACE_FXML);
-      final Path btnFile =
-          fxmlCollector.getFilePath(BhConstants.Path.File.PRIVATE_TEMPLATE_BUTTON_FXML);
-      final Path nodeShifterViewFile =
-          fxmlCollector.getFilePath(BhConstants.Path.File.NODE_SHIFTER_FXML);
-      final Path nodeSelectionViewFile =
-          fxmlCollector.getFilePath(BhConstants.Path.File.NODE_SELECTION_VIEW_FXML);
-      final Path callStackViewFile =
-          fxmlCollector.getFilePath(BhConstants.Path.File.CALL_STACK_VIEW_FXML);
-      final Path varInspectionViewFilePath =
-          fxmlCollector.getFilePath(BhConstants.Path.File.VARIABLE_INSPECTION_VIEW_FXML);
+      final Path guiDefFile = fxmlCollector.getFilePath(FOUNDATION_FXML);
+      final Path debugDefFile = fxmlCollector.getFilePath(DEBUG_WINDOW_FXML);
+      final Path wsViewFile = fxmlCollector.getFilePath(WORKSPACE_FXML);
+      final Path btnFile = fxmlCollector.getFilePath(PRIVATE_TEMPLATE_BUTTON_FXML);
+      final Path nodeShifterViewFile = fxmlCollector.getFilePath(NODE_SHIFTER_FXML);
+      final Path nodeSelectionViewFile = fxmlCollector.getFilePath(NODE_SELECTION_VIEW_FXML);
+      final Path callStackViewFile = fxmlCollector.getFilePath(CALL_STACK_VIEW_FXML);
+      final Path varInspectionViewFile = fxmlCollector.getFilePath(VARIABLE_INSPECTION_VIEW_FXML);
       final Path[] scriptDirs = new Path[] {
-        Paths.get(
-            Utility.execPath, BhConstants.Path.Dir.BH_DEF, BhConstants.Path.Dir.EVENT_HANDLERS),
-        Paths.get(
-            Utility.execPath, BhConstants.Path.Dir.BH_DEF, BhConstants.Path.Dir.TEMPLATE_NODE_LIST),
-        Paths.get(Utility.execPath, BhConstants.Path.Dir.REMOTE)};
-      final Path viewStyleDir = Paths.get(
-          Utility.execPath,
-          BhConstants.Path.Dir.VIEW,
-          BhConstants.Path.Dir.NODE_STYLE_DEF,
-          BhSettings.language);
+        Paths.get(execPath, BH_DEF, EVENT_HANDLERS),
+        Paths.get(execPath, BH_DEF, TEMPLATE_NODE_LIST),
+        Paths.get(execPath, REMOTE)};
+      final Path viewStyleDir = Paths.get(execPath, VIEW, NODE_STYLE_DEF, BhSettings.language);
       final Path nodeSelectionFile = Paths.get(
-          Utility.execPath,
-          BhConstants.Path.Dir.BH_DEF,
-          BhConstants.Path.Dir.TEMPLATE_NODE_LIST,
-          BhConstants.Path.File.TEMPLATE_NODE_LIST_JSON);
-      final Path nodeDir = Paths.get(
-          Utility.execPath,
-          BhConstants.Path.Dir.BH_DEF,
-          BhConstants.Path.Dir.NODE_DEF);
-      final Path cnctrDir = Paths.get(
-          Utility.execPath,
-          BhConstants.Path.Dir.BH_DEF,
-          BhConstants.Path.Dir.CONNECTOR_DEF);
+          execPath, BH_DEF, TEMPLATE_NODE_LIST, TEMPLATE_NODE_LIST_JSON);
+      final Path nodeDir = Paths.get(execPath, BH_DEF, NODE_DEF);
+      final Path cnctrDir = Paths.get(execPath, BH_DEF, CONNECTOR_DEF);
 
       final var simulator = createSimulator();
       final var debugStage = new Stage();
@@ -257,7 +262,7 @@ public class AppMain extends Application {
       final var debugger = new BhDebugger(localRuntimeCtrl, remoteRuntimeCtrl, breakpointCache);
       final var debugViewFactory = new DebugViewFactoryImpl(
           callStackViewFile,
-          varInspectionViewFilePath,
+          varInspectionViewFile,
           searchBoxCtrl,
           debugger,
           wss,
@@ -434,28 +439,28 @@ public class AppMain extends Application {
       default -> { /* Do nothing. */ }
     }
 
-    saveSettings();
+    exportSettings();
   }
 
   /** アプリケーションの設定をファイルに保存する. */
-  private static void saveSettings() {
+  private static void exportSettings() {
     try {
       Path filePath = Paths.get(
-          Utility.execPath, BhConstants.Path.Dir.SETTINGS, BhConstants.Path.File.BH_SETTINGS_JSON);
+          execPath, SETTINGS, BH_SETTINGS_JSON);
       Files.createDirectories(filePath.toAbsolutePath().getParent());
-      BhSettings.exportToJson(filePath);
+      JsonExporter.export(BhSettings.class, filePath);
     } catch (IOException e) { /* Do nothing.*/ }
   }
 
   /** アプリケーションの設定をファイルから読み込む. */
-  private static void loadSettings() {
+  private static void importSettings() {
     try {
       Path filePath = Paths.get(
-          Utility.execPath, BhConstants.Path.Dir.SETTINGS, BhConstants.Path.File.BH_SETTINGS_JSON);
+          execPath, SETTINGS, BH_SETTINGS_JSON);
       if (!filePath.toFile().exists()) {
         return;
       }
-      BhSettings.importFromJson(filePath);
+      JsonImporter.imports(BhSettings.class, filePath);
     } catch (IOException e) { /* Do nothing.*/ }
   }
 
@@ -528,29 +533,29 @@ public class AppMain extends Application {
   /** {@link BhCompiler} オブジェクトを作成する. */
   private BhCompiler genCompiler(boolean isLocal) throws IOException {
     var languageFilePath = Paths.get(
-        Utility.execPath,
-        BhConstants.Path.Dir.BH_DEF,
-        BhConstants.Path.Dir.COMPILE,
-        BhConstants.Path.Dir.LIBS,
-        BhConstants.Path.Dir.LANGUAGE,
+        execPath,
+        BH_DEF,
+        COMPILE,
+        LIBS,
+        LANGUAGE,
         BhSettings.language,
-        BhConstants.Path.File.BhLibs.TEXT_DB_JS);
+        BhLibs.TEXT_DB_JS);
 
     var commonLibPath = Paths.get(
-        Utility.execPath,
-        BhConstants.Path.Dir.BH_DEF,
-        BhConstants.Path.Dir.COMPILE,
-        BhConstants.Path.Dir.LIBS,
-        BhConstants.Path.File.BhLibs.COMMON_JS);
+        execPath,
+        BH_DEF,
+        COMPILE,
+        LIBS,
+        BhLibs.COMMON_JS);
   
     var fileName = isLocal
-        ? BhConstants.Path.File.BhLibs.LOCAL_COMMON_JS
-        : BhConstants.Path.File.BhLibs.REMOTE_COMMON_JS;
+        ? BhLibs.LOCAL_COMMON_JS
+        : BhLibs.REMOTE_COMMON_JS;
     var localOrRemoteLibPath = Paths.get(
-        Utility.execPath,
-        BhConstants.Path.Dir.BH_DEF,
-        BhConstants.Path.Dir.COMPILE,
-        BhConstants.Path.Dir.LIBS,
+        execPath,
+        BH_DEF,
+        COMPILE,
+        LIBS,
         fileName);
     try {
       return new BhCompilerImpl(languageFilePath, commonLibPath, localOrRemoteLibPath);

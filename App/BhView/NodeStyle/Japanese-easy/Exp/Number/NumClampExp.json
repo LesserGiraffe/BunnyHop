@@ -1,0 +1,11 @@
+{
+  "import" : ["../../../Common/NumExp.json"],
+
+  "connective" : {
+    "inner" : {
+      "space" : 1.1,
+      "arrangement" : "Row",
+      "connectorList" : ["Arg0", "${L1}{を}", "Arg1", "${L1}{いじょう}", "Arg2", "${L1}{いかに おさめた あたい}"]
+    }
+  }
+}

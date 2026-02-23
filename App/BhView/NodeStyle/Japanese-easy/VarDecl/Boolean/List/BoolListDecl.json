@@ -1,0 +1,12 @@
+{
+  "import" : ["../../../../Common/VarDecl.json"],
+  "cssClass" : "boolType",
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["ListName", "${L1}{[...]}"]
+    }
+  }
+}

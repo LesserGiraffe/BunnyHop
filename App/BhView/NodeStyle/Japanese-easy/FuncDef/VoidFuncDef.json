@@ -1,0 +1,52 @@
+{
+  "import" : ["../../Common/Event.json"],
+  "cssClass" : "voidFuncDefType",
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 2.0,
+
+      "subGroup0" : {
+        "connectorList" : ["FuncName"]
+      },
+      "subGroup1" : {
+        "arrangement" : "Column",
+        "space" : 2.0,
+
+        "subGroup0" : {
+          "arrangement" : "Row",
+          "space" : 2.0,
+
+          "subGroup0" : {
+            "arrangement" : "Column",
+            "space" : 1.0,
+
+            "subGroup0" : {
+              "connectorList" : ["${L1}{入力}"]
+            },
+            "subGroup1" : {
+              "connectorList" : ["ParamDecl"]
+            }
+          },
+          "subGroup1" : {
+            "arrangement" : "Column",
+            "space" : 1.0,
+
+            "subGroup0" : {
+              "connectorList" : ["${L1}{出力}"]
+            },
+            "subGroup1" : {
+              "connectorList" : ["OutParamDecl"]
+            }
+          }
+        },
+        "subGroup1" : {
+          "arrangement" : "Column",
+          "space" : 0.0,
+          "connectorList" : ["StatList"]
+        }
+      }
+    }
+  }
+}

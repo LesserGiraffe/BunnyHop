@@ -1,0 +1,21 @@
+{
+  "import" : ["../../../Common/Event.json"],
+  "cssClass" : "keyPressedEventType",
+    
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 2.0,
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "space" : 1.1,
+        "connectorList" : ["keyCodeCnctr", "${L2}{が おされたとき}"]
+      },
+      "subGroup1" : {
+        "arrangement" : "Column",
+        "space" : 0.0,
+        "connectorList" : ["StatList"]
+      }
+    }
+  }
+}

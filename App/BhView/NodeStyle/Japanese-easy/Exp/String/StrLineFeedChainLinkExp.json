@@ -1,0 +1,16 @@
+{
+  "import" : ["../../../Common/Bodiless.json"],
+  "connectorPos" : "Top",
+
+  "connective" : {
+    "inner" : {
+      "space" : 1.0,
+      "arrangement" : "Row",
+      "connectorList" : ["${SignLabel}{＋}", "Arg0"]
+    },
+    
+    "outer" : {
+      "connectorList" : ["Arg1"]
+    }
+  }
+}

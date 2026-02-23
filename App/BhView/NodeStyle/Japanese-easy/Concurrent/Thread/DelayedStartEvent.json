@@ -1,0 +1,21 @@
+{
+  "import" : ["../../../Common/Event.json"],
+  "cssClass" : "delayedStartEventType",
+    
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 2.0,
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "space" : 1.1,
+        "connectorList" : ["TimeCnctr", "${L2}{秒後に始める}"]
+      },
+      "subGroup1" : {
+        "arrangement" : "Column",
+        "space" : 0.0,
+        "connectorList" : ["StatList"]
+      }
+    }
+  }
+}

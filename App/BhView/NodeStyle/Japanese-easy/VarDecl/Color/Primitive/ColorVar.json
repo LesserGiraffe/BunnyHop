@@ -1,0 +1,11 @@
+{
+  "import" : ["../../../../Common/Variable.json"],
+  "connectorShape" : "CharV",
+  "cssClass" : "colorType",
+
+  "connective" : {
+    "inner" : {
+      "connectorList" : ["VarName"]
+    }
+  }
+}

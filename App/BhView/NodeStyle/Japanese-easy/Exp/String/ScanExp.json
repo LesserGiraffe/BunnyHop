@@ -1,0 +1,16 @@
+{
+  "import" : ["../../../Common/StrExp.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 0.0,
+
+      "subGroup0" : {
+        "space" : 1.1,
+        "arrangement" : "Row",
+        "connectorList" : ["${L1}{入力文字列 (メッセージ :}", "Arg0", "${L1}{)}"]
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "import" : ["../../../../Common/List.json"],
+  "connectorShape" : "Diamond",
+  "cssClass" : "numType",
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["ListName"]
+    }
+  }
+}

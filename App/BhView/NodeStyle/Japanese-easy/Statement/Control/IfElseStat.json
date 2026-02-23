@@ -1,0 +1,29 @@
+{
+  "import" : ["../../../Common/CtrlStat.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 0.5,
+      
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "space" : 2.0,
+        "connectorList" : ["${L1}{もし}", "CondExp", "${L1}{なら}"]
+      },
+      
+      "subGroup1" : {
+        "paddingBottom" : 2.5,
+        "connectorList" : ["ThenStat"]
+      },
+
+      "subGroup2" : {
+        "connectorList" : ["${L1}{そうでないなら}"]
+      },
+
+      "subGroup3" : {
+        "connectorList" : ["ElseStat"]
+      }
+    }
+  }
+}

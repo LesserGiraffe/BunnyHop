@@ -1,0 +1,10 @@
+{
+  "import" : ["../../Common/LiteralExp.json"],
+  "component" : "TextField",
+  "connectorShape" : "None",
+  "cssClass" : "numType",
+    
+  "textField" : {
+    "minWidth": 3.0
+  }
+}

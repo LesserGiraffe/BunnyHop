@@ -1,0 +1,21 @@
+{
+  "import" : ["../../../../Common/Argument.json"],
+  "cssClass" : "boolType",
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 0.9,
+
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "connectorList" : ["ListName"]
+      },
+
+      "subGroup1" : {
+        "arrangement" : "Row",
+        "connectorList" : ["Arg"]
+      }
+    }
+  }
+}

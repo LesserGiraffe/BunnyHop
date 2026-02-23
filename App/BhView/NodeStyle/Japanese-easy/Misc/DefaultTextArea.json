@@ -1,0 +1,8 @@
+{
+  "import" : ["../../Common/Bodiless.json"],
+  "component" : "TextArea",
+
+  "textArea" : {
+    "minWidth" : 4
+  }
+}

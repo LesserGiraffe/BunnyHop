@@ -1,0 +1,11 @@
+{
+  "import" : ["../../../../Common/Variable.json"],
+  "connectorShape" : "Cross",
+  "cssClass" : "boolType",
+
+  "connective" : {
+    "inner" : {
+      "connectorList" : ["VarName"]
+    }
+  }
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import net.seapanda.bunnyhop.configuration.*?>
+<?import javafx.collections.FXCollections?>
+
+<VBox
+  xmlns:fx="http://javafx.com/fxml"
+  fx:id="foundationVBox">
+
+  <HBox>
+    <Label id="languageLabel" text="Language" />
+    <ComboBox
+      xmlns:fx="http://javafx.com/fxml"
+      fx:id="languageComboBox">
+      <value>
+        <Language fx:value="JAPANESE"/>
+      </value>
+      <items>
+        <FXCollections fx:factory="observableArrayList">
+          <Language fx:value="JAPANESE" />
+          <Language fx:value="JAPANESE_EASY" />
+        </FXCollections>
+      </items>
+    </ComboBox>
+  </HBox>
+</VBox>

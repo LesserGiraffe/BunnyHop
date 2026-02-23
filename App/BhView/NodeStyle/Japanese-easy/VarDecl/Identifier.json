@@ -1,0 +1,9 @@
+{
+  "import" : ["../../Common/Bodiless.json"],
+  "component" : "TextField",
+  "cssClass" : "Identifier",
+
+  "textField" : {
+    "minWidth": 4.0
+  }
+}

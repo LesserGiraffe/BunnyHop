@@ -1,0 +1,19 @@
+{
+  "import" : ["../../../Common/CtrlStat.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 1.5,
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "space" : 1.1,
+        "connectorList" : ["CondExp", "${L1}{回くり返す}"]
+      },
+      "subGroup1" : {
+        "arrangement" : "Column",
+        "connectorList" : ["LoopStat"]
+      }
+    }
+  }
+}

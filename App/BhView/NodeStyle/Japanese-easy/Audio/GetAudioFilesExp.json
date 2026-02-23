@@ -1,0 +1,11 @@
+{
+  "import" : ["../../Common/StrListExp.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["${L1}{音声ファイルいちらん}"]
+    }
+  }
+}

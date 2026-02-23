@@ -1,0 +1,15 @@
+{
+  "import" : ["../../Common/LiteralExp.json"],
+  "paddingLeft" : 2.0,
+  "paddingRight" : 2.0,
+  "connectorShape" : "InvTriangle",
+  "cssClass" : "strType",
+  
+  "connective" : {
+    "inner" : {
+      "space" : 0.0,
+      "arrangement" : "Row",
+      "connectorList" : ["${L1}{かい行}"]
+    }
+  }
+}

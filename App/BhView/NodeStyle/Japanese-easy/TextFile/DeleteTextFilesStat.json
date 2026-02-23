@@ -1,0 +1,11 @@
+{
+  "import" : ["../../Common/FileCtrlStat.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["Arg0", "${L1}{のテキストファイルを全て さくじょする}"]
+    }
+  }
+}

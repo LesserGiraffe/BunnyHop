@@ -1,0 +1,13 @@
+{
+  "import" : ["../../../../Common/List.json"],
+  "connectorShape" : "CharV",
+  "cssClass" : "colorType",
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["ListName"]
+    }
+  }
+}

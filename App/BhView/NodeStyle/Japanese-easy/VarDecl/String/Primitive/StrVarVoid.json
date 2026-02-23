@@ -1,0 +1,4 @@
+{
+  "import" : ["../../../../Common/VarVoid.json"],
+  "connectorShape" : "InvTriangle"
+}

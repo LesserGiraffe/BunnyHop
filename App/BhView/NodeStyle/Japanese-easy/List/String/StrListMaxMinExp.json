@@ -1,0 +1,11 @@
+{
+  "import" : ["../../../Common/StrExp.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["Arg0", "${L1}{の ようその}", "Option0", "${L1}{(空の場合}", "Arg1", "${L1}{)}"]
+    }
+  }
+}

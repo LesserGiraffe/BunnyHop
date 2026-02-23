@@ -1,0 +1,20 @@
+{
+  "import" : ["../../../Common/ConcurrentStat.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 1.5,
+      "subGroup0" : {
+        "space" : 1.1,
+        "arrangement" : "Row",
+        "connectorList" : ["Arg0", "${L1}{のカウントが 0 になるまで待つ}"]
+      },
+      "subGroup1" : {
+        "space" : 1.1,
+        "arrangement" : "Row",
+        "connectorList" : ["${L1}{( さいしょにカウントを 1}", "Option0", "${L1}{)}"]
+      }
+    }
+  }
+}

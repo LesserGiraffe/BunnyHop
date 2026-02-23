@@ -1,0 +1,4 @@
+{
+  "import" : ["../../Common/Bodiless.json"],
+  "component" : "ComboBox"
+}

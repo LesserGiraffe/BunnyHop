@@ -1,0 +1,21 @@
+{
+  "import" : ["../../Common/MiscStat.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 1.5,
+
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "connectorList" : ["${L2}{コメント}"]
+      },
+
+      "subGroup1" : {
+        "arrangement" : "Row",
+        "space" : 1.0,
+        "connectorList" : ["Comment"]
+      }
+    }
+  }
+}

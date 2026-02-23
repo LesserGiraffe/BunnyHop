@@ -1,0 +1,16 @@
+{
+  "import" : ["../../../Common/StrExp.json"],
+
+  "connective" : {
+    "inner" : {
+      "space" : 0.0,
+      "arrangement" : "Row",
+      "subGroup0" : {
+        "connectorList" : ["${SignLabel}{⏎}"]
+      },
+      "subGroup1" : {
+        "connectorList" : ["Arg0"]
+      }
+    }
+  }
+}

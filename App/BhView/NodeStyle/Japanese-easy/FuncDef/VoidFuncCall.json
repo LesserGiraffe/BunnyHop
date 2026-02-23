@@ -1,0 +1,41 @@
+{
+  "import" : ["../../Common/Statement.json"],
+  "cssClass" : "voidFuncType",
+
+  "connective" : {
+    "inner" : {
+      "space" : 1.5,
+      "arrangement" : "Column",
+
+      "subGroup0" : {
+        "connectorList" : ["FuncName"]
+      },
+      "subGroup1" : {
+        "space" : 1.5,
+        "arrangement" : "Row",
+
+        "subGroup0" : {
+          "connectorList" : ["${L2}{入力}"]
+        },
+        "subGroup1" : {
+          "connectorList" : ["Arg"]
+        }
+      },
+      "subGroup2" : {
+        "space" : 1.5,
+        "arrangement" : "Row",
+
+        "subGroup0" : {
+          "connectorList" : ["${L2}{出力}"]
+        },
+        "subGroup1" : {
+          "connectorList" : ["OutArg"]
+        }
+      }
+    },
+    
+    "outer" : {
+      "connectorList" : ["NextStat"]
+    }
+  }
+}

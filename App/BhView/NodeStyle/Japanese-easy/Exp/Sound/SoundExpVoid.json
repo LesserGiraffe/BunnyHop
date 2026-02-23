@@ -1,0 +1,4 @@
+{
+  "import" : ["../../../Common/ExpVoid.json"],
+  "connectorShape" : "CharU"
+}

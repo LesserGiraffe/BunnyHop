@@ -1,0 +1,10 @@
+#foundationVBox {
+  -fx-min-width: 200;
+  -fx-min-height: 100;
+  -fx-padding: 1em;
+}
+
+#languageLabel {
+  -fx-padding: 0 1em 0 0;
+}
+

@@ -1,0 +1,10 @@
+{
+  "import" : ["../../../../Common/VarDecl.json"],
+  "cssClass" : "colorType",
+
+  "connective" : {
+    "inner" : {
+      "connectorList" : ["VarName"]
+    }
+  }
+}

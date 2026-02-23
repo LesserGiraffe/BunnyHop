@@ -1,0 +1,11 @@
+{
+  "import" : ["../../../Common/BoolExp.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["Arg0", "Option0", "Arg1"]
+    }
+  }
+}

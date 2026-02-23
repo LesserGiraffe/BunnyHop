@@ -1,0 +1,11 @@
+{
+  "import" : ["../../../Common/TerminalCtrlStat.json"],
+  
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Column",
+      "space" : 1.5,
+      "connectorList" : ["${L1}{かんすうから ぬける}"]
+    }
+  }
+}

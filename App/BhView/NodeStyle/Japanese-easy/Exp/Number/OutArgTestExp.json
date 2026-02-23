@@ -1,0 +1,29 @@
+{
+  "import" : ["../../../Common/NumExp.json"],
+
+  "connective" : {
+    "inner" : {
+
+      "arrangement" : "Column",
+      "space" : 1.5,
+      "subGroup0" : {
+        "arrangement" : "Row",
+        "space" : 0.0,
+        "connectorList" : ["OutArgTest"]
+      },
+
+      "subGroup1" : {
+        "arrangement" : "Row",
+        "space" : 1.1,
+        "connectorList" : ["Arg0", "Arg1", "Arg2"]
+      },
+
+      "subGroup2" : {
+        "arrangement" : "Row",
+        "space" : 1.1,
+        "connectorList" : ["OutArg0", "OutArg1", "OutArg2"]
+      }
+    }
+  }
+}
+

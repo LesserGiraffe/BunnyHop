@@ -1,0 +1,11 @@
+{
+  "import" : ["../../Common/FileCtrlStat.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["Arg0", "${L1}{を}", "Arg1", "${L1}{に ほぞんする}"]
+    }
+  }
+}

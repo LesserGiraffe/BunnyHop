@@ -1,0 +1,14 @@
+{
+  "import" : ["../../../Common/AssignStat.json"],
+
+  "connective" : {
+    "inner" : {
+      "arrangement" : "Row",
+      "space" : 1.1,
+      "connectorList" : ["LeftVar", "${L1}{に}", "RightExp", "${L1}{を足す}"]
+    },
+    "outer" : {
+      "connectorList" : ["NextStat"]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "import" : ["../../../Common/StrExp.json"],
+
+  "connective" : {
+    "inner" : {
+      "space" : 0.0,
+      "arrangement" : "Row",
+      "connectorList" : ["Arg0"]
+    }
+  }
+}

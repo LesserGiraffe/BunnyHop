@@ -1,0 +1,11 @@
+{
+  "import" : ["../../../../Common/Variable.json"],
+  "connectorShape" : "Diamond",
+  "cssClass" : "numType",
+
+  "connective" : {
+    "inner" : {
+      "connectorList" : ["VarName"]
+    }
+  }
+}
