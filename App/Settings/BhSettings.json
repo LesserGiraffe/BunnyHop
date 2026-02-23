@@ -1,14 +1,10 @@
 {
   "language": "Japanese",
   "Ui": {
-    "nodeManipMode": "MODE_0",
     "trackNodeInCurrentWorkspace": false,
     "trackNodeInInactiveWorkspace": true,
     "currentNodeSelectionViewZoomLevel": -1,
     "currentWorkspaceZoomLevel": -1
-  },
-  "BhRuntime": {
-    "currentBhRuntimeType": "LOCAL"
   },
   "Debug": {
     "maxCallStackItems": 32,

@@ -246,8 +246,6 @@ public class MenuViewController {
     focusSimBtn.setSelected(BhSettings.BhSimulator.focusOnSimulatorChanged);
     breakpointBtn.setSelected(BhSettings.Debug.canSetBreakpoint);
     debugBtn.setSelected(BhSettings.Debug.isDebugWindowVisible);
-    boolean isRemote = BhSettings.BhRuntime.currentBhRuntimeType == BhRuntimeType.REMOTE;
-    bhRuntimeSelBtn.setSelected(isRemote);
   }
 
   /** コピーボタン押下時の処理. */

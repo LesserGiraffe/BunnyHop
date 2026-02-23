@@ -96,6 +96,7 @@ public class BhConfigurator extends Application {
     VBox root = loader.load();
     var scene = new Scene(root);
     stage.setScene(scene);
+    stage.setTitle("BhConfigurator");
     applyStyle(scene);
   }
 

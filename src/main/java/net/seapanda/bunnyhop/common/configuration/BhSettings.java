@@ -18,6 +18,7 @@ package net.seapanda.bunnyhop.common.configuration;
 
 import net.seapanda.bunnyhop.bhprogram.runtime.BhRuntimeType;
 import net.seapanda.bunnyhop.ui.model.NodeManipulationMode;
+import net.seapanda.bunnyhop.utility.serialization.PreventExport;
 
 /**
  * BunnyHop の設定一式をまとめたクラス.
