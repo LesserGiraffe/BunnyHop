@@ -24,7 +24,6 @@ import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
 import javafx.scene.Node;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
@@ -181,24 +180,8 @@ public final class TextAreaNodeView extends TextInputNodeView {
     boolean acceptable = fnCheckFormat.apply(textPart.getText());
     textArea.pseudoClassStateChanged(
         PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.ERROR), !acceptable);
-    disableTextAreaCache();
     // textArea.requestLayout() を呼ばないと, newWidth の値によってはノード選択ビューでサイズが更新されない
     Platform.runLater(textArea::requestLayout);
-  }
-
-  /**
-   * テキストエリアの描画データのキャッシュを無効化する.
-   *
-   * <p>この無効化を行わない場合, テキストエリアの文字がにじむ.
-   */
-  private void disableTextAreaCache() {
-    textArea.setCache(false);
-    if (textArea.getChildrenUnmodifiable().getFirst() instanceof ScrollPane sp) {
-      sp.setCache(false);
-      for (Node child : sp.getChildrenUnmodifiable()) {
-        child.setCache(false);
-      }
-    }
   }
 
   @Override

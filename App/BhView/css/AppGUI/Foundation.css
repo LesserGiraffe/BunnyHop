@@ -52,3 +52,7 @@
   -fx-show-delay: 600ms;
   -fx-show-duration: indefinite;
 }
+
+.scroll-pane {
+  -fx-skin: "net.seapanda.bunnyhop.ui.view.AntiBlurScrollPaneSkin"
+}

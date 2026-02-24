@@ -68,10 +68,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
    * @param categoryName このビューに関連付けられたカテゴリ名
    * @param cssClass ビューに適用する css クラス名
    */
-  public FxmlBhNodeSelectionView(
-      Path filePath,
-      String categoryName,
-      String cssClass)
+  public FxmlBhNodeSelectionView(Path filePath, String categoryName, String cssClass)
       throws ViewConstructionException {
     this.categoryName = categoryName;
     try {
