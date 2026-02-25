@@ -38,6 +38,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.VBox;
@@ -58,6 +59,8 @@ public class BhConfigurator extends Application {
 
   @FXML
   private ComboBox<Language> languageComboBox;
+  @FXML
+  private Button resetWindowStatesButton;
 
   /** 設定ファイルとその設定を反映するクラスのクラスオブジェクト. */
   private final Map<Path, Class<?>> pathToClass = new HashMap<>() {{
@@ -110,8 +113,7 @@ public class BhConfigurator extends Application {
   /** アプリケーションの設定をファイルに保存する. */
   private void exportSettings() {
     try {
-      pathToClass.entrySet().stream()
-          .filter(entry -> entry.getKey().toFile().exists())
+      pathToClass.entrySet()
           .forEach(unchecked(entry -> JsonExporter.export(entry.getValue(), entry.getKey())));
     } catch (Exception e) { /* Do nothing.*/ }
   }
@@ -140,6 +142,13 @@ public class BhConfigurator extends Application {
     languageComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
       BhSettings.language = newVal.getValue();
       BhSimSettings.language = newVal.getValue();
+    });
+    resetWindowStatesButton.setOnAction(action -> {
+      BhSettings.Window.main = new BhSettings.WindowState();
+      BhSettings.Window.debug = new BhSettings.WindowState();
+      BhSettings.Window.nodeSelectionSplitPos = -1;
+      BhSettings.Window.notificationSplitPos = -1;
+      BhSimSettings.Ui.window = new BhSimSettings.Window();
     });
   }
 }

@@ -23,6 +23,7 @@ import java.util.SequencedCollection;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 
 /**
@@ -32,12 +33,14 @@ import net.seapanda.bunnyhop.ui.view.ViewUtil;
  */
 public class BhWindowManager implements WindowManager {
 
-  private final Stage primaryStage;
-  private final Stage debugStage;
   private final Lwjgl3Window simulatorWindow;
   private final Deque<MouseEvent> mousePressedEvents = new LinkedList<>();
+  private final WindowStatePersistence mainPersistence;
+  private final WindowStatePersistence debugPersistence;
+
   /** マウスボタンが押されているかどうかのフラグ. */
   private boolean isMousePressed = false;
+
   /**
    * マウスボタンが押されている間にウィンドウフォーカスが外れた場合,
    * ウィンドウフォーカス復帰直後のマウスドラッグイベントが, 最初のドラッグ対象を追跡しない不具合がある.
@@ -54,25 +57,26 @@ public class BhWindowManager implements WindowManager {
   /**
    * コンストラクタ.
    *
-   * @param primaryStage アプリケーションのメインウィンドウに対応する {@link Stage}.
+   * @param mainStage アプリケーションのメインウィンドウに対応する {@link Stage}.
    * @param debugStage デバッガの操作 UI を保持する {@link Stage}
    * @param simulatorWindow シミュレータを表示するウィンドウに対応する {@link Lwjgl3Window}
    */
-  public BhWindowManager(Stage primaryStage, Stage debugStage, Lwjgl3Window simulatorWindow) {
-    this.primaryStage = primaryStage;
-    this.debugStage = debugStage;
+  public BhWindowManager(Stage mainStage, Stage debugStage, Lwjgl3Window simulatorWindow) {
+    this.mainPersistence = new WindowStatePersistence(mainStage, BhSettings.Window.main);
+    this.debugPersistence = new WindowStatePersistence(debugStage, BhSettings.Window.debug);
     this.simulatorWindow = simulatorWindow;
     setEventHandlers();
   }
 
   private void setEventHandlers() {
-    primaryStage.focusedProperty().addListener((obs, oldVal, newVal) -> onFocusChanged(newVal));
-    primaryStage.addEventFilter(MouseEvent.ANY, this::onMouseEventsDetected);
+    mainPersistence.stage.focusedProperty().addListener(
+        (obs, oldVal, newVal) -> onFocusChanged(newVal));
+    mainPersistence.stage.addEventFilter(MouseEvent.ANY, this::onMouseEventsDetected);
   }
 
   /** マウスイベントを検出した時の処理. */
   private void onMouseEventsDetected(MouseEvent event) {
-    if (primaryStage.focusedProperty().get() && needsOneClick) {
+    if (mainPersistence.stage.focusedProperty().get() && needsOneClick) {
       event.consume();
       if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
         needsOneClick = false;
@@ -91,7 +95,7 @@ public class BhWindowManager implements WindowManager {
   /** ウィンドウのフォーカスが変わった時の処理. */
   private void onFocusChanged(boolean isFocused) {
     handleWindowFocusLoss(!isFocused);
-    debugStage.setAlwaysOnTop(isFocused);
+    debugPersistence.stage.setAlwaysOnTop(isFocused);
   }
 
   /**
@@ -180,5 +184,17 @@ public class BhWindowManager implements WindowManager {
   @Override
   public void focusSimulator() {
     focusSimulator(false);
+  }
+
+  @Override
+  public void restoreWindowStates() {
+    mainPersistence.restore();
+    debugPersistence.restore();
+  }
+
+  @Override
+  public void saveWindowStates() {
+    mainPersistence.save();
+    debugPersistence.save();
   }
 }

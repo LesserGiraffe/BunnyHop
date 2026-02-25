@@ -1,5 +1,23 @@
 {
   "language": "Japanese",
+  "Window": {
+    "main": {
+      "width": -2147483648,
+      "height": -2147483648,
+      "posX": -2147483648,
+      "posY": -2147483648,
+      "maximized": false
+    },
+    "debug": {
+      "width": -2147483648,
+      "height": -2147483648,
+      "posX": -2147483648,
+      "posY": -2147483648,
+      "maximized": false
+    },
+    "nodeSelectionSplitPos": -1.0,
+    "notificationSplitPos": -1.0
+  },
   "Ui": {
     "trackNodeInCurrentWorkspace": false,
     "trackNodeInInactiveWorkspace": true,
@@ -9,12 +27,12 @@
   "Debug": {
     "maxCallStackItems": 32,
     "canSetBreakpoint": false,
-    "isDebugWindowVisible": false,
+    "debugWindowVisible": false,
     "maxListTreeChildren": 100,
     "maxErrMsgChars": 4096
   },
   "BhSimulator": {
-    "initTimeout": 5,
+    "initTimeout": 10,
     "focusOnStartBhProgram": false,
     "focusOnSimulatorChanged": true
   }

@@ -146,6 +146,7 @@ task jlink(type: Exec) {
     delete fileTree("$projectDir/../$projName/$appDirName/Compiled"){}
     delete fileTree("$projectDir/../$projName/$appDirName/UserData/Text"){}
     delete fileTree("$projectDir/../$projName/$appDirName/UserData/Audio"){}
+    delete fileTree("$projectDir/../$projName/$appDirName/UserData/Settings"){}
     delete files("$projectDir/../$projName/release")
   }
 }

@@ -2,9 +2,17 @@
   -fx-min-width: 200;
   -fx-min-height: 100;
   -fx-padding: 1em;
+  -fx-spacing: 1em;
 }
 
 #languageLabel {
+  -fx-font-size: 1.1em;
+  -fx-font-family: "Meiryo UI";
   -fx-padding: 0 1em 0 0;
 }
 
+#resetWindowStatesButton {
+  -fx-font-size: 1.1em;
+  -fx-font-family: "Meiryo UI";
+  -fx-padding: 0.5em;
+}

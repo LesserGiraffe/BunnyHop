@@ -1,6 +1,13 @@
 {
   "language": "Japanese",
   "Ui": {
-    "SCALE": 1.0
+    "scale": 1.0,
+    "window": {
+      "width": -2147483648,
+      "height": -2147483648,
+      "posX": -2147483648,
+      "posY": -2147483648,
+      "maximized": false
+    }
   }
 }

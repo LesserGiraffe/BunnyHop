@@ -32,7 +32,7 @@ public class BhSettings {
   /** BhSimulator に関するパラメータ. */
   public static class BhSimulator {
     /** BhSimulator 初期化待ちタイムアウト (sec). */
-    public static volatile int initTimeout = 5;
+    public static volatile int initTimeout = 10;
     /** BhProgram の開始時に BhSimulator をフォーカスするかどうか. */
     public static volatile boolean focusOnStartBhProgram = false;
     /** BhSimulator に変化があったとき BhSimulator をフォーカスするかどうか. */
@@ -46,7 +46,7 @@ public class BhSettings {
     /** ブレークポイントの設定が有効かどうか. */
     public static volatile boolean canSetBreakpoint = false;
     /** デバッグウィンドウが表示されているかどうか. */
-    public static volatile boolean isDebugWindowVisible = false;
+    public static volatile boolean debugWindowVisible = false;
     /** リスト変数を階層表示する際に, 各階層で表示可能な最大の子要素の数. */
     public static volatile int maxListTreeChildren = 100;
     /** 表示されるエラーメッセージの最大文字数. */
@@ -72,5 +72,31 @@ public class BhSettings {
     public static volatile int currentNodeSelectionViewZoomLevel = -1;
     /** 現在のワークスペースの拡大・縮小レベル. */
     public static volatile int currentWorkspaceZoomLevel = -1;
+  }
+
+  /** ウィンドウ関連のパラメータ. */
+  public static class Window {
+    /** メインウィンドウ関連のパラメータ. */
+    public static volatile WindowState main = new WindowState();
+    /** デバッグウィンドウ関連のパラメータ. */
+    public static volatile WindowState debug = new WindowState();
+    /** ノード選択ビューとそれ以外の部分を分ける位置. */
+    public static volatile double nodeSelectionSplitPos = -1;
+    /** 通知ビューとそれ以外の部分を分ける位置. */
+    public static volatile double notificationSplitPos = -1;
+  }
+
+  /** ウィンドウの状態を保持するクラス. */
+  public static class WindowState {
+    /** ウィンドウの幅. */
+    public volatile int width = Integer.MIN_VALUE;
+    /** ウィンドウの高さ. */
+    public volatile int height = Integer.MIN_VALUE;
+    /** ウィンドウの X 座標. */
+    public volatile int posX = Integer.MIN_VALUE;
+    /** ウィンドウの Y 座標. */
+    public volatile int posY = Integer.MIN_VALUE;
+    /** ウィンドウが最大化されていたかどうか. */
+    public volatile boolean maximized = false;
   }
 }

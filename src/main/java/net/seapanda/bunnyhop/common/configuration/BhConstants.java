@@ -60,6 +60,14 @@ public class BhConstants {
     public static final double DEFAULT_APP_WIDTH_RATE = 0.7;
     /** 起動時の画面高さのディスプレイに対する割合. */
     public static final double DEFAULT_APP_HEIGHT_RATE = 0.7;
+    /** 起動時のシミュレータの画面幅のディスプレイに対する割合. */
+    public static final double DEFAULT_SIM_WIDTH_RATE = 0.5;
+    /** 起動時のシミュレータの画面高さのディスプレイに対する割合. */
+    public static final double DEFAULT_SIM_HEIGHT_RATE = 0.6;
+    /** 起動時のシミュレータの画面幅の最大値. */
+    public static final double MAX_DEFAULT_SIM_WIDTH = 1600;
+    /** 起動時のシミュレータの画面高さの最大値. */
+    public static final double MAX_DEFAULT_SIM_HEIGHT = 1200;
     public static final double DEFAULT_WORKSPACE_WIDTH = 200 * Rem.VAL;
     public static final double DEFAULT_WORKSPACE_HEIGHT = 200 * Rem.VAL;
     /** ctrl + マウスホイールや拡大, 縮小ボタンを押したときの拡大縮小倍率. */
@@ -343,6 +351,8 @@ public class BhConstants {
     public static final String WS_SCROLL_PANE = "wsScrollPane";
     public static final String WORKSPACE_SET_TAB = "workspaceSetTab";
     public static final String BH_RUNTIME_ERR_MSG = "bhRuntimeErrMsg";
+    public static final String VERTICAL_SPLIT_PANE = "verticalSplitPane";
+    public static final String HORIZONTALSPLIT_PANE = "horizontalSplitPane";
   }
 
   /** CSS ファイルで使用されるキーワード. */

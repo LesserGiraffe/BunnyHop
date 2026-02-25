@@ -37,4 +37,10 @@ public interface WindowManager {
    * <p>シミュレータがアイコン化されている場合は何もしない
    */
   void focusSimulator();
+
+  /** 永続化されたウィンドウの状態を読み込み, 各ウィンドウに適用する. */
+  void restoreWindowStates();
+
+  /** 現在のウィンドウの状態を永続化する. */
+  void saveWindowStates();
 }

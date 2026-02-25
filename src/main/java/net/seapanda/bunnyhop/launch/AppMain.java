@@ -45,6 +45,10 @@ import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.P
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.TEMPLATE_NODE_LIST_JSON;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.VARIABLE_INSPECTION_VIEW_FXML;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Path.File.WORKSPACE_FXML;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Ui.DEFAULT_SIM_HEIGHT_RATE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Ui.DEFAULT_SIM_WIDTH_RATE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Ui.MAX_DEFAULT_SIM_HEIGHT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Ui.MAX_DEFAULT_SIM_WIDTH;
 import static net.seapanda.bunnyhop.utility.Utility.execPath;
 
 import com.badlogic.gdx.Gdx;
@@ -66,9 +70,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Supplier;
 import javafx.application.Application;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncherImpl;
@@ -128,6 +134,7 @@ import net.seapanda.bunnyhop.simulator.SimulatorCmdProcessor;
 import net.seapanda.bunnyhop.ui.control.SearchBoxController;
 import net.seapanda.bunnyhop.ui.model.ExclusiveSelection;
 import net.seapanda.bunnyhop.ui.service.window.BhWindowManager;
+import net.seapanda.bunnyhop.ui.service.window.WindowManager;
 import net.seapanda.bunnyhop.utility.log.FileLogger;
 import net.seapanda.bunnyhop.utility.serialization.JsonExporter;
 import net.seapanda.bunnyhop.utility.serialization.JsonImporter;
@@ -171,8 +178,7 @@ public class AppMain extends Application {
       TextFetcher.setTextDatabase(textDb);
       LogManager.initialize(logger);
 
-      final Path fxmlDir =
-          Paths.get(execPath, VIEW, FXML);
+      final Path fxmlDir = Paths.get(execPath, VIEW, FXML);
       var fxmlCollector = new FileCollector(fxmlDir, "fxml");
       final Path guiDefFile = fxmlCollector.getFilePath(FOUNDATION_FXML);
       final Path debugDefFile = fxmlCollector.getFilePath(DEBUG_WINDOW_FXML);
@@ -187,8 +193,8 @@ public class AppMain extends Application {
         Paths.get(execPath, BH_DEF, TEMPLATE_NODE_LIST),
         Paths.get(execPath, REMOTE)};
       final Path viewStyleDir = Paths.get(execPath, VIEW, NODE_STYLE_DEF, BhSettings.language);
-      final Path nodeSelectionFile = Paths.get(
-          execPath, BH_DEF, TEMPLATE_NODE_LIST, TEMPLATE_NODE_LIST_JSON);
+      final Path nodeSelectionFile =
+          Paths.get(execPath, BH_DEF, TEMPLATE_NODE_LIST, TEMPLATE_NODE_LIST_JSON);
       final Path nodeDir = Paths.get(execPath, BH_DEF, NODE_DEF);
       final Path cnctrDir = Paths.get(execPath, BH_DEF, CONNECTOR_DEF);
 
@@ -320,6 +326,7 @@ public class AppMain extends Application {
           localRuntimeCtrl,
           remoteRuntimeCtrl,
           msgService,
+          windowManager,
           remoteRuntimeCtrl::isProgramRunning,
           wss::isDirty,
           () -> sceneBuilder.menuBarCtrl.save(wss));
@@ -396,6 +403,7 @@ public class AppMain extends Application {
       RmiLocalBhRuntimeController localCtrl,
       RmiRemoteBhRuntimeController remoteCtrl,
       BhMessageService msgService,
+      WindowManager windowManager,
       Supplier<Boolean> fnIsProgramRunning,
       Supplier<Boolean> fnIsProjectDirty,
       Supplier<Boolean> fnSave) {
@@ -404,6 +412,7 @@ public class AppMain extends Application {
         event,
         killRemoteProcess,
         msgService,
+        windowManager,
         fnIsProgramRunning,
         fnIsProjectDirty,
         fnSave));
@@ -420,7 +429,8 @@ public class AppMain extends Application {
   private void onCloseRequest(
       WindowEvent event,
       MutableBoolean terminate,
-      MessageService msgService, 
+      MessageService msgService,
+      WindowManager windowManager,
       Supplier<Boolean> fnIsProgramRunning,
       Supplier<Boolean> fnIsProjectDirty,
       Supplier<Boolean> fnSave) {
@@ -439,14 +449,14 @@ public class AppMain extends Application {
       default -> { /* Do nothing. */ }
     }
 
+    windowManager.saveWindowStates();
     exportSettings();
   }
 
   /** アプリケーションの設定をファイルに保存する. */
   private static void exportSettings() {
     try {
-      Path filePath = Paths.get(
-          execPath, SETTINGS, BH_SETTINGS_JSON);
+      Path filePath = Paths.get(execPath, SETTINGS, BH_SETTINGS_JSON);
       Files.createDirectories(filePath.toAbsolutePath().getParent());
       JsonExporter.export(BhSettings.class, filePath);
     } catch (IOException e) { /* Do nothing.*/ }
@@ -455,8 +465,7 @@ public class AppMain extends Application {
   /** アプリケーションの設定をファイルから読み込む. */
   private static void importSettings() {
     try {
-      Path filePath = Paths.get(
-          execPath, SETTINGS, BH_SETTINGS_JSON);
+      Path filePath = Paths.get(execPath, SETTINGS, BH_SETTINGS_JSON);
       if (!filePath.toFile().exists()) {
         return;
       }
@@ -525,7 +534,12 @@ public class AppMain extends Application {
     };
     var config = new Lwjgl3ApplicationConfiguration();
     config.setWindowListener(windowListener);
-    config.setWindowedMode(1200, 900);
+    Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+    int width =
+        (int) Math.min(screenBounds.getWidth() * DEFAULT_SIM_WIDTH_RATE, MAX_DEFAULT_SIM_WIDTH);
+    int height =
+        (int) Math.min(screenBounds.getHeight() * DEFAULT_SIM_HEIGHT_RATE, MAX_DEFAULT_SIM_HEIGHT);
+    config.setWindowedMode(width, height);
     config.setForegroundFPS(60);
     new Lwjgl3Application(simulator, config);
   }

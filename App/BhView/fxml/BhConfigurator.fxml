@@ -25,4 +25,5 @@
       </items>
     </ComboBox>
   </HBox>
+  <Button fx:id="resetWindowStatesButton"> Reset Window Layout </Button>
 </VBox>

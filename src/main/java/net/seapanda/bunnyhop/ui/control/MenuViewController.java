@@ -228,8 +228,8 @@ public class MenuViewController {
     breakpointBtn.setOnAction(action ->
         BhSettings.Debug.canSetBreakpoint = breakpointBtn.isSelected());
     debugBtn.setOnAction(action -> {
-      BhSettings.Debug.isDebugWindowVisible = debugBtn.isSelected();
-      debugWindowCtrl.setVisibility(BhSettings.Debug.isDebugWindowVisible);
+      BhSettings.Debug.debugWindowVisible = debugBtn.isSelected();
+      debugWindowCtrl.setVisibility(BhSettings.Debug.debugWindowVisible);
     });
     sendBtn.setOnAction(action -> send()); // 送信
     bhRuntimeSelBtn.selectedProperty().addListener(
@@ -245,7 +245,7 @@ public class MenuViewController {
     pasteBtn.setDisable(true);
     focusSimBtn.setSelected(BhSettings.BhSimulator.focusOnSimulatorChanged);
     breakpointBtn.setSelected(BhSettings.Debug.canSetBreakpoint);
-    debugBtn.setSelected(BhSettings.Debug.isDebugWindowVisible);
+    debugBtn.setSelected(BhSettings.Debug.debugWindowVisible);
   }
 
   /** コピーボタン押下時の処理. */

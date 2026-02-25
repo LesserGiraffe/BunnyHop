@@ -281,9 +281,10 @@ public class SceneBuilder {
     debugStage.setOnCloseRequest(WindowEvent::consume);
     msgService.setAppStages(stage, debugStage);
     createInitialWorkspace(wsFactory);
+    windowManager.restoreWindowStates();
     stage.show();
     debugStage.show();
-    debugWindowCtrl.setVisibility(BhSettings.Debug.isDebugWindowVisible);
+    debugWindowCtrl.setVisibility(BhSettings.Debug.debugWindowVisible);
   }
 
   /** 初期ワークスペースを作成する. */
