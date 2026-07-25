@@ -46,7 +46,7 @@ class SizeChangeNotifier {
     }
     BhNodeViewGroup group = view.getTreeControl().getParentGroup();
     if (group != null) {
-      group.notifyDescendantSizeChanged();
+      group.getGeometry().notifySubTreeSizeChanged();
     }
     if (view.getTreeControl().isRoot()) {
       view.getArrangement().requestArrangement();

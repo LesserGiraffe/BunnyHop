@@ -29,42 +29,8 @@ public class TravelUpCallbackInvoker {
 
   /** ノードビューに対して呼び出すコールバック関数. */
   private final Consumer<BhNodeView> callbackForNode;
-  /** ノードグループに対して呼び出すコールバック関数. */
-  private final Consumer<BhNodeViewGroup> callbackForGroup;
   /** 親要素の走査後にコールバック関数を呼び出すかどうか. */
   private final boolean rootFirst;
-
-  /**
-   * コールバック関数を呼び出す.
-   *
-   * @param callbackForNode ノードビューに対して呼び出すコールバック関数
-   * @param callbackForGroup ノードビューグループ呼び出すコールバック関数
-   * @param nodeView これ以上のノードビューに対してコールバック関数を呼び出す
-   */
-  public static void invoke(
-      Consumer<BhNodeView> callbackForNode,
-      Consumer<BhNodeViewGroup> callbackForGroup,
-      BhNodeView nodeView) {
-    new TravelUpCallbackInvoker(callbackForNode, callbackForGroup, false)
-        .visit(nodeView);
-  }
-
-  /**
-   * コールバック関数を呼び出す.
-   *
-   * @param callbackForNode ノードビューに対して呼び出すコールバック関数
-   * @param callbackForGroup ノードビューグループ呼び出すコールバック関数
-   * @param nodeView これ以上のノードビューに対してコールバック関数を呼び出す
-   * @param rootFirst 親要素を走査してから {@code callback} を呼ぶ場合 true.
-   */
-  public static void invoke(
-      Consumer<BhNodeView> callbackForNode,
-      Consumer<BhNodeViewGroup> callbackForGroup,
-      BhNodeView nodeView,
-      boolean rootFirst) {
-    new TravelUpCallbackInvoker(callbackForNode, callbackForGroup, rootFirst)
-        .visit(nodeView);
-  }
 
   /**
    * コールバック関数を呼び出す.
@@ -73,7 +39,7 @@ public class TravelUpCallbackInvoker {
    * @param nodeView これ以上のノードビューに対して callback を呼び出す
    */
   public static void invoke(Consumer<BhNodeView> callback, BhNodeView nodeView) {
-    new TravelUpCallbackInvoker(callback, g -> {}, false)
+    new TravelUpCallbackInvoker(callback, false)
         .visit(nodeView);
   }
 
@@ -86,16 +52,13 @@ public class TravelUpCallbackInvoker {
    */
   public static void invoke(
       Consumer<BhNodeView> callback, BhNodeView nodeView, boolean rootFirst) {
-    new TravelUpCallbackInvoker(callback, g -> {}, rootFirst)
+    new TravelUpCallbackInvoker(callback, rootFirst)
         .visit(nodeView);
   }
 
   private TravelUpCallbackInvoker(
-      Consumer<BhNodeView> callbackForNode,
-      Consumer<BhNodeViewGroup> callbackForGroup,
-      boolean rootFirst) {
+      Consumer<BhNodeView> callbackForNode, boolean rootFirst) {
     this.callbackForNode = callbackForNode;
-    this.callbackForGroup = callbackForGroup;
     this.rootFirst = rootFirst;
   }
 
@@ -113,17 +76,11 @@ public class TravelUpCallbackInvoker {
   }
 
   private void visit(BhNodeViewGroup group) {
-    if (!rootFirst) {
-      callbackForGroup.accept(group);
-    }
     BhNodeViewGroup parentGroup = group.getParentGroup();
     if (parentGroup != null) {
       visit(parentGroup);
     } else {
       visit(group.getParentView());
-    }
-    if (rootFirst) {
-      callbackForGroup.accept(group);
     }
   }
 }

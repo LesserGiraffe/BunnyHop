@@ -56,9 +56,7 @@ class ArrangementImpl implements BhNodeView.Arrange {
     view.getGeometry().updateDescendantRelativePositions();
     Vec2D pos = view.getGeometry().getPosition();
     view.getGeometry().setTreePosition(pos.x, pos.y);
-    NvbCallbackInvoker.invoke(
-        nodeView -> nodeView.getArrangement().updateViewLayout(),
-        view);
+    NvbCallbackInvoker.invoke(view -> view.getArrangement().updateViewLayout(), view);
     NvbCallbackInvoker.invoke(view -> view.getArrangement().updateEvenFlag(), view);
     notif.markSubtreeSizeUpToDate();
   }

@@ -65,7 +65,7 @@ class TreeControlImpl implements BhNodeView.TreeControl {
     parent.replace(view, (BhNodeViewBase) newNode);
     BhNodeViewGroup group = newNode.getTreeControl().getParentGroup();
     if (group != null) {
-      group.notifyDescendantSizeChanged();
+      group.getGeometry().notifySubTreeSizeChanged();
     }
     WorkspaceView wsView = newNode.getWorkspaceView();
     if (wsView != null) {

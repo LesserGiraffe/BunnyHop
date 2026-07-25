@@ -50,11 +50,11 @@ abstract class GeometryBase implements Geometry {
   /** 親 {@link BhNodeViewGroup} からの相対位置. */
   private final Vec2D relativePos = new Vec2D();
 
-  /** 関連するノードビューの子孫ノードビューの親 {@link BhNodeViewGroup} からの相対位置を更新する. */
+  /** 関連するノードビューの子孫要素の親からの相対位置を更新する. */
   abstract void updateDescendantRelativePositions();
 
   /**
-   * このノードビュー以下のノードビューのワークスペース上の位置を更新する.
+   * 関連するノードビュー以下の子孫要素の位置を更新する.
    *
    * @param posX このノードのボディ部分の左上の X 位置
    * @param posY このノードのボディ部分の左上の Y 位置

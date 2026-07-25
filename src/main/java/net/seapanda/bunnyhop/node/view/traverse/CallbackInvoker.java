@@ -34,7 +34,6 @@ import net.seapanda.bunnyhop.node.view.TextFieldNodeView;
 public class CallbackInvoker implements NodeViewWalker {
 
   private final Consumer<? super BhNodeView> callback;
-  private final Consumer<? super BhNodeViewGroup> callbackForGroup;
   /** 外部ノードのみ巡る場合 true. */
   private final boolean visitOnlyOuter;
   /** 子要素を走査してからコールバック関数を呼ぶ場合 true. */
@@ -45,12 +44,10 @@ public class CallbackInvoker implements NodeViewWalker {
   /** コンストラクタ. */
   private CallbackInvoker(
       Consumer<? super BhNodeView> callback,
-      Consumer<? super BhNodeViewGroup> callbackForGroup,
       boolean visitOnlyOuter,
       boolean visitOnlyGroup,
       boolean depthFirst) {
     this.callback = callback;
-    this.callbackForGroup = callbackForGroup;
     this.visitOnlyOuter = visitOnlyOuter;
     this.visitOnlyGroup = visitOnlyGroup;
     this.depthFirst = depthFirst;
@@ -63,7 +60,7 @@ public class CallbackInvoker implements NodeViewWalker {
    * @param nodeView これ以下のノードビューに対して, callback を呼び出す
    */
   public static void invoke(Consumer<? super BhNodeView> callback, BhNodeView nodeView) {
-    nodeView.accept(new CallbackInvoker(callback, g -> {}, false, false, false));
+    nodeView.accept(new CallbackInvoker(callback, false, false, false));
   }
 
   /**
@@ -77,39 +74,7 @@ public class CallbackInvoker implements NodeViewWalker {
       Consumer<? super BhNodeView> callback,
       BhNodeView nodeView,
       boolean depthFirst) {
-    nodeView.accept(new CallbackInvoker(callback, g -> {}, false, false, depthFirst));
-  }
-
-  /**
-   * コールバック関数を呼び出す.
-   *
-   * @param callbackForNode ノードビューに対して呼び出すコールバック関数
-   * @param callbackForGroup ノードビューグループ呼び出すコールバック関数
-   * @param nodeView これ以下のノードビューに対して, callback を呼び出す
-   */
-  public static void invoke(
-      Consumer<? super BhNodeView> callbackForNode,
-      Consumer<? super BhNodeViewGroup> callbackForGroup,
-      BhNodeView nodeView) {
-    nodeView.accept(
-        new CallbackInvoker(callbackForNode, callbackForGroup, false, false, false));
-  }
-
-  /**
-   * コールバック関数を呼び出す.
-   *
-   * @param callbackForNode ノードビューに対して呼び出すコールバック関数
-   * @param callbackForGroup ノードビューグループ呼び出すコールバック関数
-   * @param nodeView これ以下のノードビューに対して, callback を呼び出す
-   * @param depthFirst 子要素を走査してから {@code callback} を呼ぶ場合 true.
-   */
-  public static void invoke(
-      Consumer<? super BhNodeView> callbackForNode,
-      Consumer<? super BhNodeViewGroup> callbackForGroup,
-      BhNodeView nodeView,
-      boolean depthFirst) {
-    nodeView.accept(
-        new CallbackInvoker(callbackForNode, callbackForGroup, false, false, depthFirst));
+    nodeView.accept(new CallbackInvoker(callback, false, false, depthFirst));
   }
 
   /**
@@ -120,33 +85,15 @@ public class CallbackInvoker implements NodeViewWalker {
    */
   public static void invokeForOuters(
       Consumer<? super BhNodeView> callback, BhNodeView nodeView) {
-    nodeView.accept(new CallbackInvoker(callback, g -> {}, true, false, false));
-  }
-
-  /**
-   * {@code nodeView} の子 {@link BhNodeViewGroup} を対象としてコールバック関数を呼び出す.
-   *
-   * @param callback 呼び出すコールバック関数
-   * @param nodeView このノードから他のノードを辿らずに辿れる {@link BhNodeViewGroup} を経由しながら
-   *                 コールバック関数を呼び出す.
-   */
-  public static void invokeForGroups(
-      Consumer<? super BhNodeViewGroup> callback, BhNodeView nodeView) {
-    nodeView.accept(new CallbackInvoker(n -> {}, callback, false, true, false));
+    nodeView.accept(new CallbackInvoker(callback, true, false, false));
   }
 
   @Override
   public void visit(BhNodeViewGroup group) {
-    if (!depthFirst) {
-      callbackForGroup.accept(group);
-    }
     if (!visitOnlyGroup) {
       group.sendToChildNode(this);
     }
     group.sendToSubGroupList(this);
-    if (depthFirst) {
-      callbackForGroup.accept(group);
-    }
   }
 
   @Override
