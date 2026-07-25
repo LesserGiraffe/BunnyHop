@@ -28,20 +28,20 @@ import javafx.scene.layout.Pane;
 import net.seapanda.bunnyhop.node.control.BhNodeController;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
-import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
-import net.seapanda.bunnyhop.node.view.traverse.NodeViewComponent;
+import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
+import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
-import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeRectangle;
-import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeRectangle.OverlapOption;
+import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem;
+import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeSpace;
 
 /**
  * {@link BhNode} に対応するビュークラスのインタフェース.
  *
  * @author K.Koike
  */
-public interface BhNodeView extends NodeViewComponent {
+public interface BhNodeView {
   
   /**
    * このノードビューのモデルを取得する.
@@ -60,20 +60,23 @@ public interface BhNodeView extends NodeViewComponent {
    */
   void setController(BhNodeController controller);
 
-  /** このノードビューの領域に関する処理を行うオブジェクト返す. */
-  RegionManager getRegionManager();
+  /** このノードビューの整列を行うオブジェクトを返す. */
+  Arrange getArrangement();
+
+  /** 四分木空間へのノードビューの追加と削除を行うオブジェクトを返す. */
+  QuadTreeSpaceRegistration getQuadTreeSpaceRegistration();
+
+  /** このノードビューの視覚効果を変更する処理を行うオブジェクトを返す. */
+  Visual getVisual();
+
+  /** このノードビューの幾何形状を操作するオブジェクトを返す. */
+  Geometry getGeometry();
 
   /** このノードビューの GUI ツリーに関する処理を行うオブジェクト返す. */
-  TreeManager getTreeManager();
-
-  /** このノードビューの位置に関する処理を行うオブジェクト返す. */
-  PositionManager getPositionManager();
+  TreeControl getTreeControl();
 
   /** このノードビューに対するイベントハンドラの登録 / 削除機能を提供するオブジェクトを返す. */
   CallbackRegistry getCallbackRegistry();
-
-  /** このノードビューの外観を変更する処理を行うオブジェクトを返す. */
-  LookManager getLookManager();
 
   /**
    * このノードビューがマウスイベントを受け付けるかどうかを設定する.
@@ -97,9 +100,12 @@ public interface BhNodeView extends NodeViewComponent {
    */
   WorkspaceView getWorkspaceView();
 
-  /** ノードビューの外観を変更する機能を規定したインタフェース. */
-  interface LookManager {
 
+  /** {@code visitor} にこのオブジェクトを渡す. */
+  void accept(NodeViewWalker visitor);
+
+  /** ノードビューを整列する機能を規定したインタフェース. */
+  interface Arrange {
     /** 関連するノードビュー以下のノードビューのワークスペース上の位置, 四分木空間上の位置, および配置を更新する. */
     void arrange();
 
@@ -109,20 +115,32 @@ public interface BhNodeView extends NodeViewComponent {
      *
      * <p>
      * 大きなノードツリーをワークスペースに初めて配置したときに, 複数の子要素がサイズの更新を要求する.
-     * それらの更新要求を全てまとめて処理するために本メソッドを用意した.
+     * それらの更新要求を全てまとめて処理するために本メソッドは存在する.
      * </p>
      */
     void requestArrangement();
+  }
 
-    /** 関連するノードビュー以下の可視性を変更する. */
-    void setVisible(boolean visible);
+  /** 四分木空間へのノードビューの追加と削除を規定したインタフェース. */
+  interface QuadTreeSpaceRegistration {
 
     /**
-     * 関連するノードビューのコネクタの位置を取得する.
+     * 関連するノードビューを引数で指定した四分木空間に追加する.
      *
-     * @return 関連するノードビューのコネクタの位置
+     * @param bodySpace ボディ部分の衝突判定を行う四分木空間
+     * @param cnctrSpace コネクタ部分の衝突判定を行う四分木空間
      */
-    ConnectorPos getConnectorPos();
+    void addToQtSpace(QuadTreeSpace bodySpace, QuadTreeSpace cnctrSpace);
+
+    /** 関連するノードビューをそれが現在所属している四分木空間から消す. */
+    void removeFromQtSpace();
+  }
+
+  /** ノードビューの視覚効果に関する機能を規定したインタフェース. */
+  interface Visual {
+
+    /** 関連するノードビュー以下のノードの可視性を変更する. */
+    void setVisible(boolean visible);
 
     /**
      * 関連するノードビューの視覚効果の有効 / 無効を切り替える.
@@ -147,30 +165,36 @@ public interface BhNodeView extends NodeViewComponent {
     boolean isEffectEnabled(VisualEffectType effect);
   }
 
-  /** ノードビューの領域に関する操作を規定したインタフェース. */
-  interface RegionManager {
+
+  /** ノードビューの幾何形状に関する操作を規定したインタフェース. */
+  interface Geometry {
+
+    /**
+     * 関連するノードビューのコネクタの向きを取得する.
+     *
+     * @return 関連するノードビューのコネクタの位置
+     */
+    ConnectorOrientation getConnectorOrientation();
 
     /**
      * コネクタ部分が 関連するノードビューのコネクタ部分に重なっているノードビューを探す.
      *
      * @return コネクタ部分が 関連するノードビューのコネクタ部分に重なっているノードビューのリスト
      */
-    List<BhNodeView> searchForOverlapped();
+    List<BhNodeView> findOverlappedNodeViews();
+
 
     /**
-     * 関連するノードビューのボディの領域を保持する {@link QuadTreeRectangle} と
-     *  コネクタの領域を保持する {@link QuadTreeRectangle} を返す.
+     * 関連するノードビューのボディの部分が引数のノードビューのボディの領域と重なっているかどうか調べる.
      *
-     * @return 関連するノードビューのボディの領域を保持する {@link QuadTreeRectangle} と
-     *         コネクタの領域を保持する {@link QuadTreeRectangle}
+     * @param view 関連するノードビューとのボディ部分の重なりを調べるノード
+     * @param option 重なり具合を判定するオプション
+     * @return 関連するノードビューのボディの領域が引数のノードビューのボディと重なっている場合 true.
      */
-    Rectangles getRegions();
-
-    /** 関連するノードビューをそれが現在所属している 4 分木空間から消す. */
-    void removeQuadTreeRect();
+    boolean overlapsWith(BhNodeView view, QuadTreeItem.OverlapOption option);
 
     /**
-     * 関連するノードビューに末尾までの全外部ノードビューを加えた部分の大きさを返す.
+     * 関連するノードビュー以下の全てのノードビューが占める部分を含む矩形の大きさを返す.
      *
      * @param includeCnctr コネクタ部分を含む大きさを返す場合 true.
      * @return 関連するノードビューに末尾までの全外部ノードビューを加えた部分の大きさ
@@ -199,50 +223,95 @@ public interface BhNodeView extends NodeViewComponent {
      */
     Vec2D getNotchSize();
 
-    /** 関連するノードビューのボディ部分のワークスペース上での範囲を取得する. */
-    BodyRange getBodyRange();
+    /**
+     * 関連するノードビューのボディ部分のワークスペース上での範囲を返す.
+     *
+     * @return 関連するノードビューのボディ部分のワークスペース上での範囲
+     */
+    Bounds getBodyBounds();
 
-    /** 関連するノードビューのコネクタ部分のワークスペース上での範囲を取得する. */
-    BodyRange getConnectorRange();
+    /**
+     * 関連するノードビューのコネクタ部分のワークスペース上での範囲を返す.
+     *
+     * @return 関連するノードビューのコネクタ部分のワークスペース上での範囲
+     */
+    Bounds getConnectorBounds();
 
     /** 関連するノードビューのコネクタ部分の左上を原点としたときのボディ部分の左上の位置を取得する. */
     Vec2D getBodyPosFromConnector();
 
     /**
-     * 関連するノードビューのボディの領域が引数のノードビューのボディの領域と重なっているかどうか調べる.
+     * 関連するノードビューのワークスペース上での位置を返す.
      *
-     * @param view 関連するノードビューとのボディ部分の重なりを調べるノード
-     * @param option 重なり具合を判定するオプション
-     * @return 関連するノードビューのボディの領域が引数のノードビューのボディと重なっている場合 true.
+     * @return 関連するノードビューのワークスペース上での位置
      */
-    boolean overlapsWith(BhNodeView view, OverlapOption option);
+    Vec2D getPosition();
 
     /**
-     * ノードの共通部分のサイズを取得する.
+     * 関連するノードビュー以下のノードビューのワークスペースの上での位置と四分木空間上での位置を更新する.
      *
-     * @return ノードの共通部分のサイズ
+     * @param posX 本体部分左上のワークスペース上での X 位置
+     * @param posY 本体部分左上のワークスペース上での Y 位置
      */
-    Vec2D getCommonPartSize();
+    void setTreePosition(double posX, double posY);
 
     /**
-     * ノードビューのボディとコネクタ部分の領域に対応する {@link QuadTreeRectangle} をまとめたレコード.
+     * 関連するノードビューのコネクタも含んだ範囲の左上の位置を基準として,
+     * ワークスペースの上での位置と四分木空間上での位置を更新する.
      *
-     * @param body ボディ部分の矩形領域に対応する {@link QuadTreeRectangle} オブジェクト
-     * @param cnctr コネクタ部分の矩形領域に対応する {@link QuadTreeRectangle} オブジェクト
+     * @param posX コネクタ左上のワークスペース上での X 位置
+     * @param posY コネクタ左上のワークスペース上での Y 位置
      */
-    record Rectangles(QuadTreeRectangle body, QuadTreeRectangle cnctr) { }
+    void setTreePositionByUpperLeft(double posX, double posY);
 
     /**
-     * ノードビューのボディ部分の矩形領域.
+     * 関連するノードビュー以下のノードビューの Z 位置を設定する.
      *
-     * @param upperLeft 矩形領域の左上のワークスペース上での位置
-     * @param lowerRight 矩形領域の右下のワークスペース上での位置
+     * @param pos 関連するノードビューの Z 位置
      */
-    record BodyRange(Vec2D upperLeft, Vec2D lowerRight) { }
+    void setTreeZposition(double pos);
+
+    /**
+     * 関連するノードビューの Z 位置を取得する.
+     *
+     * @return 関連するノードビューの Z 位置
+     */
+    double getZposition();
+
+    /**
+     * 関連するノードビュー以下のノードビューをワークスペースからはみ出さないように動かす.
+     *
+     * @param diffX X 方向移動量
+     * @param diffY Y 方向移動量
+     */
+    void moveTree(double diffX, double diffY);
+
+    /**
+     * 関連するノードビュー以下のノードビューをワークスペースからはみ出さないように動かす.
+     *
+     * @param diff 移動量
+     */
+    void moveTree(Vec2D diff);
+
+    /**
+     * シーンの座標空間の位置 {@code pos} を 関連するノードビューのローカル座標空間の位置に変換する.
+     *
+     * @param pos シーンの座標空間の位置
+     * @return {@code pos} のローカル座標空間における位置.
+     */
+    Vec2D sceneToLocal(Vec2D pos);
+
+    /**
+     * 関連するノードビューのローカル座標空間の位置 {@code pos} をシーンの座標空間の位置に変換する.
+     *
+     * @param pos 関連するノードビューのローカル座標空間の位置
+     * @return {@code pos} のシーンの座標空間の位置
+     */
+    Vec2D localToScene(Vec2D pos);
   }
 
-  /** ノードビューの GUI ツリーに関する操作を規定したインタフェース. */
-  interface TreeManager {
+  /** ノードビューのツリーに関する操作を規定したインタフェース. */
+  interface TreeControl {
 
     /**
      * 関連するノードビューの親グループを取得する.
@@ -270,21 +339,21 @@ public interface BhNodeView extends NodeViewComponent {
      * 関連するノードビュー以下のノードビューを GUI ツリーから取り除く.
      * {@link BhNodeViewGroup} からは取り除かない.
      */
-    void removeFromGuiTree();
+    void removeFromTree();
 
     /**
      * 関連するノードビューを {@code parent} に子要素として追加する.
      *
      * @param parent 親となる GUI コンポーネント.
      */
-    void addToGuiTree(Group parent);
+    void addToTree(Group parent);
 
     /**
      * 関連するノードビューを {@code parent} に子要素として追加する.
      *
      * @param parent 親となる GUI コンポーネント.
      */
-    void addToGuiTree(Pane parent);
+    void addToTree(Pane parent);
 
     /** 関連するノードビューのルートノードビューを返す. */
     BhNodeView getRootView();
@@ -304,93 +373,6 @@ public interface BhNodeView extends NodeViewComponent {
      * @return 関連するノードビューが外部ノードである場合 true
      */
     boolean isOuter();
-
-    /**
-     * 関連するノードビューを保持する GUI コンポーネントを取得する.
-     *
-     * @return 関連するノードビュー保持する GUI コンポーネント.
-     */
-    Parent getParentGuiComponent();
-  }
-
-  /** ノードビューの位置の変更, 取得に関する操作を規定したインタフェース. */
-  interface PositionManager {
-
-    /**
-     * 関連するノードビューのワークスペース上での位置を返す.
-     *
-     * @return 関連するノードビューのワークスペース上での位置
-     */
-    Vec2D getPosOnWorkspace();
-
-    /**
-     * 関連するノードビューのボディ部分のワークスペース上での範囲を返す.
-     *
-     * @return 関連するノードビューのボディ部分のワークスペース上での範囲
-     */
-    Bounds getBounds();
-
-    /**
-     * 関連するノードビュー以下のノードビューのワークスペースの上での位置と 4 分木空間上での位置を更新する.
-     *
-     * @param posX 本体部分左上のワークスペース上での X 位置
-     * @param posY 本体部分左上のワークスペース上での Y 位置
-     */
-    void setTreePosOnWorkspace(double posX, double posY);
-
-    /**
-     * 関連するノードビューのコネクタも含んだ範囲の左上の位置を基準として,
-     * ワークスペースの上での位置と 4 分木空間上での位置を更新する.
-     *
-     * @param posX コネクタ左上のワークスペース上での X 位置
-     * @param posY コネクタ左上のワークスペース上での Y 位置
-     */
-    void setTreePosOnWorkspaceByUpperLeft(double posX, double posY);
-
-    /**
-     * 関連するノードビュー以下のノードビューの Z 位置を設定する.
-     *
-     * @param pos 関連するノードビューの Z 位置
-     */
-    void setTreeZpos(double pos);
-
-    /**
-     * 関連するノードビューの Z 位置を取得する.
-     *
-     * @return 関連するノードビューの Z 位置
-     */
-    double getZpos();
-
-    /**
-     * 関連するノードビュー 以下のノードビューをワークスペースビューからはみ出さないように動かす.
-     *
-     * @param diffX X 方向移動量
-     * @param diffY Y 方向移動量
-     */
-    void move(double diffX, double diffY);
-
-    /**
-     * 関連するノードビュー 以下のノードビューをワークスペースビューからはみ出さないように動かす.
-     *
-     * @param diff 移動量
-     */
-    void move(Vec2D diff);
-
-    /**
-     * シーンの座標空間の位置 {@code pos} を 関連するノードビューのローカル座標空間の位置に変換する.
-     *
-     * @param pos シーンの座標空間の位置
-     * @return {@code pos} のローカル座標空間における位置.
-     */
-    Vec2D sceneToLocal(Vec2D pos);
-
-    /**
-     * 関連するノードビューのローカル座標空間の位置 {@code pos} をシーンの座標空間の位置に変換する.
-     *
-     * @param pos 関連するノードビューのローカル座標空間の位置
-     * @return {@code pos} のシーンの座標空間の位置
-     */
-    Vec2D localToScene(Vec2D pos);
   }
 
   /** {@link BhNodeView} に対してイベントハンドラを追加または削除する機能を規定したインタフェース. */

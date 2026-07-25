@@ -24,10 +24,11 @@ import net.seapanda.bunnyhop.node.model.ConnectiveNode;
 import net.seapanda.bunnyhop.node.view.factory.BhNodeViewFactory;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.ChildArrangement;
-import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem;
 
 /**
  * {@link ConnectiveNode} に対応するビュークラス.
@@ -41,8 +42,7 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
   /** ノード外部に描画されるノードのGroup. */
   private final BhNodeViewGroup outerGroup = new BhNodeViewGroup(this, false);
   private final ConnectiveNode model;
-  private final NodeSizeCalculator sizeCalculator;
-  private boolean childRelPosValid = false;
+  private final Geometry geometry;
 
   /**
    * コンストラクタ.
@@ -63,15 +63,11 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
       throws ViewConstructionException {
     super(style, model, components, isTemplate);
     this.model = model;
-    sizeCalculator = new NodeSizeCalculator(this, innerGroup::getSize, this::calcOuterSize);
     innerGroup.buildSubGroup(style.connective.inner, factory, isTemplate);
     outerGroup.buildSubGroup(style.connective.outer, factory, isTemplate);
-    getLookManager().addCssClass(BhConstants.Css.Class.CONNECTIVE_NODE);
-  }
-
-  @Override
-  public Optional<ConnectiveNode> getModel() {
-    return Optional.ofNullable(model);
+    var qtsReg = getQuadTreeSpaceRegistration();
+    geometry = new Geometry(qtsReg.getBodyQtItem(), qtsReg.getConnectorQtItem());
+    getVisual().addCssClass(BhConstants.Css.Class.CONNECTIVE_NODE);
   }
 
   /**
@@ -80,89 +76,15 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
    * @param view 追加する子ノード
    * @return 追加に成功した場合 true. 失敗した場合 false.
    */
-  public boolean addChild(BhNodeViewBase view) {
+  public boolean addChild(BhNodeView view) {
+    if (!(view instanceof BhNodeViewBase viewBase)) {
+      return false;
+    }
     // innerGroup に追加できなかった場合は outerGroup に入れる
-    if (!innerGroup.addNodeView(view)) {
-      return outerGroup.addNodeView(view);
+    if (!innerGroup.addNodeView(viewBase)) {
+      return outerGroup.addNodeView(viewBase);
     }
     return true;
-  }
-
-  @Override
-  protected void notifyChildSizeChanged() {
-    sizeCalculator.notifyNodeSizeChanged();
-    childRelPosValid = false;
-    super.notifyChildSizeChanged();
-  }
-
-  @Override
-  protected void updatePosOnWorkspace(double posX, double posY) {
-    getPositionManager().setPosOnWorkspace(posX, posY);
-
-    //内部ノード絶対位置更新
-    Vec2D relativePos = innerGroup.getRelativePosFromParent();
-    innerGroup.updateTreePosOnWorkspace(posX + relativePos.x, posY + relativePos.y);
-
-    //外部ノード絶対位置更新
-    Vec2D bodySize = getRegionManager().getNodeSize(false);
-    //外部ノードが右に繋がる
-    if (style.connectorPos == ConnectorPos.LEFT) {
-      outerGroup.updateTreePosOnWorkspace(
-          posX + bodySize.x + style.connective.outerOffset, posY);
-    //外部ノードが下に繋がる
-    } else {
-      outerGroup.updateTreePosOnWorkspace(
-          posX, posY + bodySize.y + style.connective.outerOffset);
-    }
-  }
-
-  @Override
-  protected Vec2D getNodeSize(boolean includeCnctr) {
-    return sizeCalculator.calcNodeSize(includeCnctr);
-  }
-
-  @Override
-  protected Vec2D getNodeTreeSize(boolean includeCnctr) {
-    return sizeCalculator.calcNodeTreeSize(includeCnctr);
-  }
-
-  /** 外部ノードグループのサイズを計算する. */
-  private Vec2D calcOuterSize() {
-    Vec2D outerSize = outerGroup.getSize();
-    if (style.connectorPos == ConnectorPos.LEFT) {
-      outerSize.x = Math.max(outerSize.x + style.connective.outerOffset, 0);
-    } else if (style.connectorPos == ConnectorPos.TOP) {
-      outerSize.y = Math.max(outerSize.y + style.connective.outerOffset, 0);
-    }
-    return outerSize;
-  }
-
-  /** ノードの親からの相対位置を更新する. */
-  @Override
-  protected void updateChildRelativePos() {
-    if (childRelPosValid) {
-      return;
-    }
-    Vec2D innerRelPos = new Vec2D(style.paddingLeft, style.paddingTop);
-    Vec2D commonPartSize = getRegionManager().getCommonPartSize();
-    if (style.baseArrangement == ChildArrangement.ROW) {
-      innerRelPos.x += commonPartSize.x;
-    } else if (style.baseArrangement == ChildArrangement.COLUMN) {
-      innerRelPos.y += commonPartSize.y;
-    }
-    innerGroup.setRelativePosFromParent(innerRelPos.x, innerRelPos.y);
-    innerGroup.updateChildRelativePos();
-
-    Vec2D bodySize = getRegionManager().getNodeSize(false);
-    // 外部ノードが右に繋がる
-    if (style.connectorPos == ConnectorPos.LEFT) {
-      outerGroup.setRelativePosFromParent(bodySize.x + style.connective.outerOffset, 0.0);
-    // 外部ノードが下に繋がる
-    } else if (style.connectorPos == ConnectorPos.TOP) {
-      outerGroup.setRelativePosFromParent(0.0, bodySize.y + style.connective.outerOffset);
-    }
-    outerGroup.updateChildRelativePos();
-    childRelPosValid = true;
   }
 
   /** {@code visitor} を内部ノードを管理するグループに渡す. */
@@ -176,7 +98,109 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
   }
 
   @Override
+  public Optional<ConnectiveNode> getModel() {
+    return Optional.ofNullable(model);
+  }
+
+  @Override
+  public Geometry getGeometry() {
+    return geometry;
+  }
+
+  @Override
   public void accept(NodeViewWalker visitor) {
     visitor.visit(this);
+  }
+
+
+  /** ノードビューの幾何形状に関する操作を提供するクラス. */
+  public class Geometry extends GeometryBase {
+
+    private final NodeSizeCalculator sizeCalculator;
+    /** 子孫ノードビューの親要素からの相対位置が最新の値かどうかを示すフラグ. */
+    private boolean isRelativePositionUpToDate = false;
+
+    private Geometry(QuadTreeItem bodyItem, QuadTreeItem cnctrItem) {
+      super(ConnectiveNodeView.this, bodyItem, cnctrItem);
+      ConnectiveNodeView view = ConnectiveNodeView.this;
+      sizeCalculator = new NodeSizeCalculator(view, view.innerGroup::getSize, this::calcOuterSize);
+      view.getSizeChangeNotifier().setOnDescendantSizeChanged(this::onDescendantSizeChanged);
+    }
+
+    void onDescendantSizeChanged() {
+      sizeCalculator.notifyNodeSizeChanged();
+      isRelativePositionUpToDate = false;
+    }
+
+
+    @Override
+    void updateTreePosition(double posX, double posY) {
+      //内部ノード絶対位置更新
+      Vec2D relativePos = innerGroup.getRelativePosition();
+      innerGroup.updateTreePosition(posX + relativePos.x, posY + relativePos.y);
+
+      //外部ノード絶対位置更新
+      BhNodeViewStyle style = ConnectiveNodeView.this.getStyle();
+      Vec2D bodySize = getNodeSize(false);
+      //外部ノードが右に繋がる
+      if (style.connectorOrientation == ConnectorOrientation.LEFT) {
+        outerGroup.updateTreePosition(posX + bodySize.x + style.connective.outerOffset, posY);
+      //外部ノードが下に繋がる
+      } else {
+        outerGroup.updateTreePosition(posX, posY + bodySize.y + style.connective.outerOffset);
+      }
+      setComponentPositions(posX, posY);
+      setPositionsOnQuadTreeSpace(posX, posY);
+    }
+
+    @Override
+    public Vec2D getNodeSize(boolean includeCnctr) {
+      return sizeCalculator.calcNodeSize(includeCnctr);
+    }
+
+    @Override
+    public Vec2D getNodeTreeSize(boolean includeCnctr) {
+      return sizeCalculator.calcNodeTreeSize(includeCnctr);
+    }
+
+    @Override
+    void updateDescendantRelativePositions() {
+      if (isRelativePositionUpToDate) {
+        return;
+      }
+      BhNodeViewStyle style = ConnectiveNodeView.this.getStyle();
+      Vec2D innerRelPos = new Vec2D(style.paddingLeft, style.paddingTop);
+      Vec2D commonPartSize = geometry.getCommonPartSize();
+      if (style.baseArrangement == ChildArrangement.ROW) {
+        innerRelPos.x += commonPartSize.x;
+      } else if (style.baseArrangement == ChildArrangement.COLUMN) {
+        innerRelPos.y += commonPartSize.y;
+      }
+      innerGroup.setRelativePosition(innerRelPos.x, innerRelPos.y);
+      innerGroup.updateDescendantRelativePositions();
+
+      Vec2D bodySize = geometry.getNodeSize(false);
+      // 外部ノードが右に繋がる
+      if (style.connectorOrientation == ConnectorOrientation.LEFT) {
+        outerGroup.setRelativePosition(bodySize.x + style.connective.outerOffset, 0.0);
+      // 外部ノードが下に繋がる
+      } else if (style.connectorOrientation == ConnectorOrientation.TOP) {
+        outerGroup.setRelativePosition(0.0, bodySize.y + style.connective.outerOffset);
+      }
+      outerGroup.updateDescendantRelativePositions();
+      isRelativePositionUpToDate = true;
+    }
+
+    /** 外部ノードグループのサイズを計算する. */
+    private Vec2D calcOuterSize() {
+      BhNodeViewStyle style = ConnectiveNodeView.this.getStyle();
+      Vec2D outerSize = outerGroup.getSize();
+      if (style.connectorOrientation == ConnectorOrientation.LEFT) {
+        outerSize.x = Math.max(outerSize.x + style.connective.outerOffset, 0);
+      } else if (style.connectorOrientation == ConnectorOrientation.TOP) {
+        outerSize.y = Math.max(outerSize.y + style.connective.outerOffset, 0);
+      }
+      return outerSize;
+    }
   }
 }

@@ -186,7 +186,7 @@ public class DefaultBhNodeController implements BhNodeController {
       if (ddInfo.isDragDetected && isInNodeMoveMode(info.event)) {
         double diffX = event.getX() - ddInfo.mousePressedPos.x;
         double diffY = event.getY() - ddInfo.mousePressedPos.y;
-        view.getPositionManager().move(diffX, diffY);
+        view.getGeometry().moveTree(diffX, diffY);
         // ドラッグ検出されていない場合, 強調は行わない.
         // 子ノードがワークスペース直下にいないのに, 重なったノード (入れ替え候補) が検出されるのを防ぐ
         highlightOverlappedNode();
@@ -265,8 +265,8 @@ public class DefaultBhNodeController implements BhNodeController {
     SequencedSet<Swapped> swappedNodes = BhNodePlacer.moveToWs(
         model.getWorkspace(),
         model,
-        ddInfo.posOnWorkspace.x,
-        ddInfo.posOnWorkspace.y,
+        ddInfo.position.x,
+        ddInfo.position.y,
         ddInfo.context.userOpe());
     for (var swapped : swappedNodes) {
       swapped.newNode().findParentNode().getEventInvoker().onChildReplaced(
@@ -291,7 +291,7 @@ public class DefaultBhNodeController implements BhNodeController {
     UserOperation userOpe = ddInfo.context.userOpe();
     //ワークスペースから移動する場合
     if (model.isRoot()) {
-      ViewUtil.pushReverseMoveCmd(view, ddInfo.posOnWorkspace, userOpe);
+      ViewUtil.pushReverseMoveCmd(view, ddInfo.position, userOpe);
     }
     // 入れ替えられるノードの親ノード
     final ConnectiveNode oldParentOfReplaced = oldChildNode.findParentNode();
@@ -322,15 +322,15 @@ public class DefaultBhNodeController implements BhNodeController {
 
   /** {@code view} の位置を {@code amount} だけずらす. */
   private static void shift(BhNodeView view, Vec2D amount, UserOperation userOpe) {
-    Vec2D pos = view.getPositionManager().getPosOnWorkspace();
-    view.getPositionManager().setTreePosOnWorkspace(pos.x + amount.x, pos.y + amount.y);
+    Vec2D pos = view.getGeometry().getPosition();
+    view.getGeometry().setTreePosition(pos.x + amount.x, pos.y + amount.y);
     ViewUtil.pushReverseMoveCmd(view, pos, userOpe);
   }
 
   /** 同一ワークスペースへの移動処理. */
   private void toSameWorkspace() {
     if (ddInfo.isDragDetected && model.isRoot()) {
-      ViewUtil.pushReverseMoveCmd(view, ddInfo.posOnWorkspace, ddInfo.context.userOpe());
+      ViewUtil.pushReverseMoveCmd(view, ddInfo.position, ddInfo.context.userOpe());
     }
   }
 
@@ -361,7 +361,7 @@ public class DefaultBhNodeController implements BhNodeController {
       effectManager.setEffectEnabled(ddInfo.currentOverlapped, false, OVERLAP);
     }
     ddInfo.currentOverlapped = null;
-    List<BhNodeView> overlappedList = view.getRegionManager().searchForOverlapped();
+    List<BhNodeView> overlappedList = view.getGeometry().findOverlappedNodeViews();
     for (BhNodeView overlapped : overlappedList) {
       if (overlapped.getModel().map(node -> node.canBeReplacedWith(model)).orElse(false)) {
         effectManager.setEffectEnabled(overlapped, true, OVERLAP);
@@ -442,7 +442,7 @@ public class DefaultBhNodeController implements BhNodeController {
   private void replaceView(BhNode oldNode) {
     Optional.ofNullable(oldNode)
         .flatMap(BhNode::getView)
-        .ifPresent(oldView -> oldView.getTreeManager().replace(view));
+        .ifPresent(oldView -> oldView.getTreeControl().replace(view));
   }
 
   /** {@link #model} にブレークポイントを設定すべきである場合, 設定する. */
@@ -513,8 +513,8 @@ public class DefaultBhNodeController implements BhNodeController {
   /** D&D 操作に必要な位置を {@link #ddInfo} に保存する. */
   private void savePositions(MouseEvent event) {
     Vec2D mousePressedPos = new Vec2D(event.getSceneX(), event.getSceneY());
-    ddInfo.mousePressedPos = view.getPositionManager().sceneToLocal(mousePressedPos);
-    ddInfo.posOnWorkspace = view.getPositionManager().getPosOnWorkspace();
+    ddInfo.mousePressedPos = view.getGeometry().sceneToLocal(mousePressedPos);
+    ddInfo.position = view.getGeometry().getPosition();
     ddInfo.nodeLocation = new BhNodeLocation(model);
   }
 
@@ -593,7 +593,7 @@ public class DefaultBhNodeController implements BhNodeController {
    */
   private static class DndEventInfo {
     private Vec2D mousePressedPos = new Vec2D();
-    private Vec2D posOnWorkspace = new Vec2D();
+    private Vec2D position = new Vec2D();
     private BhNodeLocation nodeLocation = new BhNodeLocation();
     /** 現在重なっている View. */
     private BhNodeView currentOverlapped = null;

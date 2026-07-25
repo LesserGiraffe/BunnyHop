@@ -54,7 +54,7 @@ public class BhNodeLocation {
         .orElse(null);
     Bounds bounds = Optional.ofNullable(node)
         .flatMap(BhNode::getView)
-        .map(view -> view.getPositionManager().getBounds())
+        .map(view -> view.getGeometry().getBodyBounds())
         .orElse(null);
     if (bounds == null) {
       origin = null;

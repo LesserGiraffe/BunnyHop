@@ -116,8 +116,8 @@ public class TemplateNodeController implements BhNodeController {
         return;
       }
 
-      Vec2D posOnWs = calcClickPosOnWs(event, currentWs);
-      BhNodePlacer.moveToWs(currentWs, newNode, posOnWs.x, posOnWs.y, context.userOpe());
+      Vec2D position = calcClickPosition(event, currentWs);
+      BhNodePlacer.moveToWs(currentWs, newNode, position.x, position.y, context.userOpe());
       ddInfo.currentView.getCallbackRegistry().forward(info);
       nodeSelectionViewProxy.hideCurrentView();
     } catch (Throwable e) {
@@ -170,7 +170,7 @@ public class TemplateNodeController implements BhNodeController {
   }
 
   /** クリックされたノードからの相対クリック位置をワークスペース上の位置に変換する. */
-  private Vec2D calcClickPosOnWs(MouseEvent event, Workspace currentWs) {
+  private Vec2D calcClickPosition(MouseEvent event, Workspace currentWs) {
     // クリックされたテンプレートノードのルートノード上でのクリック位置
     Vec2D posOnRootView = calcRelativePosFromRoot();
     posOnRootView.add(event.getX(), event.getY());
@@ -184,15 +184,15 @@ public class TemplateNodeController implements BhNodeController {
 
   /** view の rootView からの相対位置を求める. */
   private Vec2D calcRelativePosFromRoot() {
-    Vec2D pos = view.getPositionManager().localToScene(new Vec2D(0, 0));
-    return view.getTreeManager().getRootView().getPositionManager().sceneToLocal(pos);
+    Vec2D pos = view.getGeometry().localToScene(new Vec2D(0, 0));
+    return view.getTreeControl().getRootView().getGeometry().sceneToLocal(pos);
   }
 
   /** {@link #view} と {@code oldNode} のノードビューを入れ替える. */
   private void replaceView(BhNode oldNode) {
     Optional.ofNullable(oldNode)
         .flatMap(BhNode::getView)
-        .ifPresent(oldView -> oldView.getTreeManager().replace(view));
+        .ifPresent(oldView -> oldView.getTreeControl().replace(view));
   }
 
   /** D&D を終えたときの処理. */

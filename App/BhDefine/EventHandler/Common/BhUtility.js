@@ -102,8 +102,8 @@
       return;
     }
     // node をワークスペースに移動
-    let posOnWS = getPosOnWorkspace(node) ?? {x: 0, y: 0};
-    bhNodePlacer.moveToWs(node.getWorkspace(), node, posOnWS.x, posOnWS.y, userOpe);
+    let position = getPosition(node) ?? {x: 0, y: 0};
+    bhNodePlacer.moveToWs(node.getWorkspace(), node, position.x, position.y, userOpe);
     // node と toBeReplaced が入れ替え可能かチェック
     if (toBeReplaced === null || !canConnect(toBeReplaced.getParentConnector(), node)) {
       return;
@@ -138,8 +138,8 @@
   }
 
   /** node のワークスペース上の位置を返す. node がビューを持たない場合は null  */
-  function getPosOnWorkspace(node) {
-    return node.getView().map(view => view.getPositionManager().getPosOnWorkspace()).orElse(null);
+  function getPosition(node) {
+    return node.getView().map(view => view.getGeometry().getPosition()).orElse(null);
   }
 
   /** プリミティブ型の式である場合 true を返す. */
@@ -297,7 +297,7 @@
   bhUtility['findOuterNotSelected'] = findOuterNotSelected;
   bhUtility['findNodeWhoseParentIsNotSelected'] = findNodeWhoseParentIsNotSelected;
   bhUtility['selectToOutermost'] = selectToOutermost;
-  bhUtility['getPosOnWorkspace'] = getPosOnWorkspace;
+  bhUtility['getPosition'] = getPosition;
   bhUtility['collectDerivationFamily'] = collectDerivationFamily;
   return bhUtility;
 })();

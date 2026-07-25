@@ -27,8 +27,6 @@ import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.InstanceId;
 import net.seapanda.bunnyhop.node.model.syntaxsymbol.SyntaxSymbol;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
-import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.node.view.BhNodeView.PositionManager;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
@@ -59,7 +57,7 @@ public class NodeImageBuilder implements BhNodeWalker {
         .map(SyntaxSymbol::getInstanceId)
         .toList();
     Vec2D pos = node.getView()
-        .map(view -> view.getPositionManager().getPosOnWorkspace())
+        .map(view -> view.getGeometry().getPosition())
         .orElse(new Vec2D());
 
     var nodeImage = new BhNodeImage(
@@ -83,8 +81,7 @@ public class NodeImageBuilder implements BhNodeWalker {
         .map(SyntaxSymbol::getInstanceId)
         .toList();
     Vec2D pos = node.getView()
-        .map(BhNodeView::getPositionManager)
-        .map(PositionManager::getPosOnWorkspace)
+        .map(view -> view.getGeometry().getPosition())
         .orElse(new Vec2D());
     var nodeImage = new BhNodeImage(
         node.getId(),

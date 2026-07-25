@@ -13,9 +13,9 @@
   // 文字列挿入
   } else if (bhUtil.isPrimitiveTypeExp(bhReplacedNewNode)) {
     // 新文字列リンクノード作成
-    let posOnWS = bhUtil.getPosOnWorkspace(bhThis) ?? {x: 0, y: 0};
+    let position = bhUtil.getPosition(bhThis) ?? {x: 0, y: 0};
     let newStrChainLinkExp = bhUtil.addNewNodeToWS(
-        bhThis.getId(), bhThis.getWorkspace(), posOnWS, bhUserOpe);
+        bhThis.getId(), bhThis.getWorkspace(), position, bhUserOpe);
     bhNodePlacer.exchangeNodes(nextStrChainLinkExp, newStrChainLinkExp, bhUserOpe);
 
     // 新ノードの末尾に旧ノードを追加

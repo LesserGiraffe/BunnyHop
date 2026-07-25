@@ -200,7 +200,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
 
     // connectorPos
     snippet.connectorPos = readString(BhConstants.NodeStyleDef.KEY_CONNECTOR_POS, jsonObj, fileName)
-        .map(ConnectorPos::of)
+        .map(ConnectorOrientation::of)
         .orElse(snippet.connectorPos);
 
     // connectorShift

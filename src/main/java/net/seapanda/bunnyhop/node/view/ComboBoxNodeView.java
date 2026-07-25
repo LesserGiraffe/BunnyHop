@@ -43,12 +43,11 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
  *
  * @author K.Koike
  */
-public final class ComboBoxNodeView extends BhNodeViewBase {
+public final class ComboBoxNodeView extends LeafNodeView {
 
   private final ComboBox<SelectableItem<String, Object>> comboBox = new ComboBox<>();
   private final TextNode model;
   private final MutableBoolean dragging = new MutableBoolean();
-  private final NodeSizeCalculator sizeCalculator;
 
   /**
    * コンストラクタ.
@@ -62,9 +61,8 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
   public ComboBoxNodeView(
       TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
       throws ViewConstructionException {
-    super(style, model, components, isTemplate);
+    super(model, style, components, isTemplate);
     this.model = model;
-    sizeCalculator = new NodeSizeCalculator(this, this::getComboBoxSize);
     setComponent(comboBox);
     setEventHandlers();
     initStyle();
@@ -83,15 +81,11 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
   }
 
   private void initStyle() {
-    comboBox.getStyleClass().add(style.comboBox.cssClass);
-    getLookManager().addCssClass(BhConstants.Css.Class.COMBO_BOX_NODE);
+    comboBox.getStyleClass().add(getStyle().comboBox.cssClass);
+    getVisual().addCssClass(BhConstants.Css.Class.COMBO_BOX_NODE);
     if (!comboBox.getItems().isEmpty()) {
       comboBox.setValue(comboBox.getItems().getFirst());
     }
-  }
-
-  private Vec2D getComboBoxSize() {
-    return new Vec2D(comboBox.getWidth(), comboBox.getHeight());
   }
 
   private void setEventHandlers() {
@@ -111,17 +105,6 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
     return new ArrayList<>(comboBox.getItems());
   }
 
-  @Override
-  protected void notifyChildSizeChanged() {
-    sizeCalculator.notifyNodeSizeChanged();
-    super.notifyChildSizeChanged();
-  }
-
-  @Override
-  public Optional<TextNode> getModel() {
-    return Optional.ofNullable(model);
-  }
-
   /**
    * コンボボックスでアイテムが選択された時のイベントハンドラを登録する.
    *
@@ -130,24 +113,6 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
   public void setOnItemSelected(ChangeListener<SelectableItem<String, Object>> handler) {
     comboBox.valueProperty().addListener(handler);
   }
-
-  @Override
-  protected void updatePosOnWorkspace(double posX, double posY) {
-    getPositionManager().setPosOnWorkspace(posX, posY);
-  }
-
-  @Override
-  protected Vec2D getNodeSize(boolean includeCnctr) {
-    return sizeCalculator.calcNodeSize(includeCnctr);
-  }
-
-  @Override
-  protected Vec2D getNodeTreeSize(boolean includeCnctr) {
-    return getNodeSize(includeCnctr);
-  }
-
-  @Override
-  protected void updateChildRelativePos() {}
 
   /**
    * 現在選択中のコンボボックスのアイテムを取得する.
@@ -183,7 +148,7 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
   }
 
   private void forwardEvent(Event event) {
-    BhNodeView view = (model == null) ? getTreeManager().getParentView() : this;
+    BhNodeView view = (model == null) ? getTreeControl().getParentView() : this;
     if (view == null) {
       event.consume();
       return;
@@ -197,6 +162,16 @@ public final class ComboBoxNodeView extends BhNodeViewBase {
     } else if (event.getEventType().equals(MouseEvent.MOUSE_RELEASED)) {
       dragging.setFalse();
     }
+  }
+
+  @Override
+  public Optional<TextNode> getModel() {
+    return Optional.ofNullable(model);
+  }
+
+  @Override
+  Vec2D getContentRegionSize() {
+    return new Vec2D(comboBox.getWidth(), comboBox.getHeight());
   }
 
   @Override

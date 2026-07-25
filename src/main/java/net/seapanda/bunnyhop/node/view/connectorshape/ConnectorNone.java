@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.node.view.connectorshape;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
 
 /**
  * 非表示コネクタクラス.
@@ -36,7 +36,7 @@ public class ConnectorNone extends ConnectorShape {
    */
   @Override
   public List<Double> createVertices(
-      double offsetX, double offsetY, double width, double height, ConnectorPos pos) {
+      double offsetX, double offsetY, double width, double height, ConnectorOrientation pos) {
     return new ArrayList<>();
   }
 }

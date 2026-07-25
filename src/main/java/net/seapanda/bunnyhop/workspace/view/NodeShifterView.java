@@ -27,6 +27,7 @@ import javafx.collections.ObservableMap;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
@@ -35,7 +36,6 @@ import javafx.scene.shape.Polygon;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhConstants.Ui;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.node.view.BhNodeView.RegionManager.BodyRange;
 import net.seapanda.bunnyhop.ui.view.Rem;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
@@ -153,7 +153,7 @@ public class NodeShifterView extends Pane {
     }
     shifterX = shifterX / viewToLink.size() - shifterCircle.getRadius();
     shifterY = shifterY / viewToLink.size() - shifterCircle.getRadius();
-    setPosOnWorkspace(shifterX, shifterY);
+    setPosition(shifterX, shifterY);
 
     for (BhNodeView view : viewToLink.keySet()) {
       updateLinkPos(view);
@@ -168,9 +168,9 @@ public class NodeShifterView extends Pane {
    */
   private Point2D calcLinkPosFor(BhNodeView view) {
     final double yOffset = 0.5 * Rem.VAL;
-    BodyRange bodyRange = view.getRegionManager().getBodyRange();
-    double linkPosX = (bodyRange.upperLeft().x + bodyRange.lowerRight().x) / 2;
-    double linkPosY = bodyRange.upperLeft().y + yOffset;
+    Bounds bounds = view.getGeometry().getBodyBounds();
+    double linkPosX = (bounds.getMinX() + bounds.getMaxX()) / 2;
+    double linkPosY = bounds.getMinY() + yOffset;
     return new Point2D(linkPosX, linkPosY);
   }
 
@@ -230,8 +230,8 @@ public class NodeShifterView extends Pane {
    * @return 実際に移動した量
    */
   public Vec2D move(Vec2D diff, Vec2D wsSize, boolean moveLink) {
-    Vec2D distance = ViewUtil.distance(diff, wsSize, getPosOnWorkspace());
-    setPosOnWorkspace(getTranslateX() + distance.x, getTranslateY() + distance.y);
+    Vec2D distance = ViewUtil.distance(diff, wsSize, getPosition());
+    setPosition(getTranslateX() + distance.x, getTranslateY() + distance.y);
     if (moveLink) {
       for (BhNodeView view : viewToLink.keySet()) {
         updateLinkPos(view);
@@ -241,12 +241,12 @@ public class NodeShifterView extends Pane {
   }
 
   /** ノードシフタのワークスペース上での位置を取得する. */
-  public Vec2D getPosOnWorkspace() {
-    return ViewUtil.getPosOnWorkspace(this);
+  public Vec2D getPosition() {
+    return ViewUtil.getPosition(this);
   }
 
   /** ノードシフタのワークスペース上での位置を設定する. */
-  public void setPosOnWorkspace(double x, double y) {
+  public void setPosition(double x, double y) {
     setTranslateX(x);
     setTranslateY(y);
   }

@@ -33,11 +33,10 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
  *
  * @author K.Koike
  */
-public final class LabelNodeView extends BhNodeViewBase {
+public final class LabelNodeView extends LeafNodeView {
 
   private final Label label = new Label();
   private final TextNode model;
-  private final NodeSizeCalculator sizeCalculator;
 
   /**
    * コンストラクタ.
@@ -49,9 +48,8 @@ public final class LabelNodeView extends BhNodeViewBase {
   public LabelNodeView(
       TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
       throws ViewConstructionException {
-    super(style, model, components, isTemplate);
+    super(model, style, components, isTemplate);
     this.model = model;
-    sizeCalculator = new NodeSizeCalculator(this, this::getLabelSize);
     setComponent(label);
     initStyle();
   }
@@ -70,18 +68,16 @@ public final class LabelNodeView extends BhNodeViewBase {
   private void initStyle() {
     label.autosize();
     label.setMouseTransparent(true);
-    label.getStyleClass().add(style.label.cssClass);
-    getLookManager().addCssClass(BhConstants.Css.Class.LABEL_NODE);
+    label.getStyleClass().add(getStyle().label.cssClass);
+    getVisual().addCssClass(BhConstants.Css.Class.LABEL_NODE);
   }
 
-  private Vec2D getLabelSize() {
-    return new Vec2D(label.getWidth(), label.getHeight());
+  public String getText() {
+    return label.getText();
   }
 
-  @Override
-  protected void notifyChildSizeChanged() {
-    sizeCalculator.notifyNodeSizeChanged();
-    super.notifyChildSizeChanged();
+  public void setText(String text) {
+    label.setText(text);
   }
 
   @Override
@@ -90,29 +86,8 @@ public final class LabelNodeView extends BhNodeViewBase {
   }
 
   @Override
-  protected void updatePosOnWorkspace(double posX, double posY) {
-    getPositionManager().setPosOnWorkspace(posX, posY);
-  }
-
-  @Override
-  protected Vec2D getNodeSize(boolean includeCnctr) {
-    return sizeCalculator.calcNodeSize(includeCnctr);
-  }
-
-  @Override
-  protected Vec2D getNodeTreeSize(boolean includeCnctr) {
-    return getNodeSize(includeCnctr);
-  }
-
-  @Override
-  protected void updateChildRelativePos() {}
-
-  public String getText() {
-    return label.getText();
-  }
-
-  public void setText(String text) {
-    label.setText(text);
+  Vec2D getContentRegionSize() {
+    return new Vec2D(label.getWidth(), label.getHeight());
   }
 
   @Override

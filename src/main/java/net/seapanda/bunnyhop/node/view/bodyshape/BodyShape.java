@@ -23,7 +23,7 @@ import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.ConnectorAlignment;
-import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
 import net.seapanda.bunnyhop.node.view.style.NotchPos;
 
 /** {@link BhNodeView} のボディを描画するクラスの基底クラス. */
@@ -74,14 +74,14 @@ public abstract class BodyShape {
       offsetX = (bodyWidth - cnctrWidth) / 2.0;
       offsetY = (bodyHeight - cnctrHeight) / 2.0;
     }
-    if (style.connectorPos == ConnectorPos.LEFT) {
+    if (style.connectorOrientation == ConnectorOrientation.LEFT) {
       offsetX = -cnctrWidth;
       offsetY += cnctrShift;
-    } else if (style.connectorPos == ConnectorPos.TOP) {
+    } else if (style.connectorOrientation == ConnectorOrientation.TOP) {
       offsetX += cnctrShift;
       offsetY = -cnctrHeight;
     }
-    return connector.createVertices(offsetX, offsetY, cnctrWidth, cnctrHeight, style.connectorPos);
+    return connector.createVertices(offsetX, offsetY, cnctrWidth, cnctrHeight, style.connectorOrientation);
   }
 
   /**
@@ -105,16 +105,16 @@ public abstract class BodyShape {
 
     double offsetX = 0.0;
     double offsetY = 0.0;
-    ConnectorPos cnctrPos = ConnectorPos.LEFT;
+    ConnectorOrientation cnctrPos = ConnectorOrientation.LEFT;
 
     if (notchPos == NotchPos.RIGHT) {
       offsetX = bodyWidth - notchWidth;
       offsetY = (bodyHeight - notchHeight) * 0.5;
-      cnctrPos = ConnectorPos.LEFT;
+      cnctrPos = ConnectorOrientation.LEFT;
     } else if (notchPos == NotchPos.BOTTOM) {
       offsetX = (bodyWidth - notchWidth) * 0.5;
       offsetY = bodyHeight - notchHeight;
-      cnctrPos = ConnectorPos.TOP;
+      cnctrPos = ConnectorOrientation.TOP;
     }
 
     List<Double> vertices =

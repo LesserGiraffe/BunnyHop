@@ -76,7 +76,7 @@ public class BhConstants {
     public static final int MAX_ZOOM_LEVEL = 30;
     /** 拡大レベルの最小値. */
     public static final int MIN_ZOOM_LEVEL = -40;
-    /** 4 分木空間の分割数 (2 ^ NUM_DIV_OF_QTREE_SPACE) ^ 2. */
+    /** 四分木空間の分割数 (2 ^ NUM_DIV_OF_QTREE_SPACE) ^ 2. */
     public static final int NUM_DIV_OF_QTREE_SPACE = 4;
     /** ワークスペースの大きさレベルの最大値. */
     public static final double MAX_WORKSPACE_SIZE_LEVEL = 3;

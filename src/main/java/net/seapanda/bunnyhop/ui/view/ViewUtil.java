@@ -105,7 +105,7 @@ public class ViewUtil {
    * @param node ワークペース上での位置を計算するノード
    * @return {@code node} のワークスペース上での位置.
    */
-  public static Vec2D getPosOnWorkspace(Node node) {
+  public static Vec2D getPosition(Node node) {
     Parent parent = node.getParent();
     while (parent != null && !BhConstants.UiId.WS_PANE.equals(parent.getId())) {
       parent = parent.getParent();
@@ -300,8 +300,8 @@ public class ViewUtil {
   public static void pushReverseMoveCmd(BhNodeView view, Vec2D pos, UserOperation userOpe) {
     userOpe.pushCmd(
         ope -> {
-          Vec2D currentPos = view.getPositionManager().getPosOnWorkspace();
-          view.getPositionManager().setTreePosOnWorkspace(pos.x, pos.y);
+          Vec2D currentPos = view.getGeometry().getPosition();
+          view.getGeometry().setTreePosition(pos.x, pos.y);
           pushReverseMoveCmd(view, currentPos, ope);
         });
   }

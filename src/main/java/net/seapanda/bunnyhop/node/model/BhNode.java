@@ -619,7 +619,7 @@ public abstract class BhNode extends SyntaxSymbol {
    * @return このノードが外部ノードの場合 true
    */
   public boolean isOuter() {
-    return getView().map(view -> view.getTreeManager().isOuter()).orElse(false);
+    return getView().map(view -> view.getTreeControl().isOuter()).orElse(false);
   }
 
   /**

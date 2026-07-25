@@ -118,7 +118,7 @@ public class CopyAndPaste {
           userOpe);
       //コピー直後のノードは大きさが未確定なので, コピー元ノードの大きさを元に貼り付け位置を算出する.
       Vec2D size = orgAndCopy.org().getView()
-          .map(view -> view.getRegionManager().getNodeTreeSize(true))
+          .map(view -> view.getGeometry().getNodeTreeSize(true))
           .orElse(new Vec2D());
       basePos.x += size.x + BhConstants.Ui.REPLACED_NODE_SHIFT * 2;
     }

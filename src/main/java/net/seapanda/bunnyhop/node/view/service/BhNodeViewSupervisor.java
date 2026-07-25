@@ -63,13 +63,13 @@ public class BhNodeViewSupervisor implements VisualEffectManager {
 
   /** {@link #effectToNodes} に {@code view} を追加する. */
   private void registerNodeByEffect(BhNodeView view) {
-    view.getLookManager().getAppliedEffects()
+    view.getVisual().getAppliedEffects()
         .forEach(effect -> effectToNodes.get(effect).add(view));
   }
 
   /** {@link #effectToNodes} から {@code view} を削除する. */
   private void deregisterNodeByEffect(BhNodeView view) {
-    view.getLookManager().getAppliedEffects()
+    view.getVisual().getAppliedEffects()
         .forEach(effect -> effectToNodes.get(effect).remove(view));
   }
 
@@ -94,10 +94,10 @@ public class BhNodeViewSupervisor implements VisualEffectManager {
   @Override
   public void setEffectEnabled(
       BhNodeView view, boolean enable, VisualEffectType type, UserOperation userOpe) {
-    if (view.getLookManager().isEffectEnabled(type) == enable) {
+    if (view.getVisual().isEffectEnabled(type) == enable) {
       return;
     }
-    view.getLookManager().setEffectEnabled(enable, type);
+    view.getVisual().setEffectEnabled(enable, type);
     if (enable) {
       effectToNodes.get(type).add(view);
     } else {
@@ -117,7 +117,7 @@ public class BhNodeViewSupervisor implements VisualEffectManager {
         .filter(view -> nodeViewBelongsToWorkspace(view, ws))
         .collect(Collectors.toSet());
     for (BhNodeView view : nodeViews) {
-      view.getLookManager().setEffectEnabled(false, type);
+      view.getVisual().setEffectEnabled(false, type);
     }
     effectToNodes.get(type).removeAll(nodeViews);
   }
@@ -129,7 +129,7 @@ public class BhNodeViewSupervisor implements VisualEffectManager {
 
   @Override
   public void disableEffects(VisualEffectType type, UserOperation userOpe) {
-    effectToNodes.get(type).forEach(view -> view.getLookManager().setEffectEnabled(false, type));
+    effectToNodes.get(type).forEach(view -> view.getVisual().setEffectEnabled(false, type));
     effectToNodes.get(type).clear();
   }
 

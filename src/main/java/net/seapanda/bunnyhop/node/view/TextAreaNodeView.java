@@ -48,7 +48,6 @@ public final class TextAreaNodeView extends TextInputNodeView {
   private final TextNode model;
   /** クリック時にテキストを選択するかどうかのフラグ. */
   private boolean shouldSelectText = true;
-  private final NodeSizeCalculator sizeCalculator;
 
   /**
    * コンストラクタ.
@@ -64,7 +63,6 @@ public final class TextAreaNodeView extends TextInputNodeView {
       throws ViewConstructionException {
     super(model, style, components, isTemplate);
     this.model = model;
-    sizeCalculator = new NodeSizeCalculator(this, this::getTextAreaSize);
     setComponent(textArea);
     textArea.addEventFilter(MouseEvent.ANY, this::forwardEvent);
     textArea.setOnMouseClicked(event -> Platform.runLater(() -> onTextAreaClicked(event)));
@@ -85,7 +83,7 @@ public final class TextAreaNodeView extends TextInputNodeView {
   }
 
   private void forwardEvent(Event event) {
-    BhNodeView view = (model == null) ? getTreeManager().getParentView() : this;
+    BhNodeView view = (model == null) ? getTreeControl().getParentView() : this;
     if (view == null) {
       event.consume();
       return;
@@ -97,17 +95,12 @@ public final class TextAreaNodeView extends TextInputNodeView {
   }
 
   private void initStyle() {
-    textArea.getStyleClass().add(style.textArea.cssClass);
+    textArea.getStyleClass().add(getStyle().textArea.cssClass);
     textArea.setWrapText(false);
     textArea.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
     textArea.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-    setEditable(style.textArea.editable);
-    getLookManager().addCssClass(BhConstants.Css.Class.TEXT_AREA_NODE);
-  }
-
-  private Vec2D getTextAreaSize() {
-    // textArea.getWidth() だと設定した値以外が返る場合がある
-    return new Vec2D(textArea.getPrefWidth(), textArea.getPrefHeight());
+    setEditable(getStyle().textArea.editable);
+    getVisual().addCssClass(BhConstants.Css.Class.TEXT_AREA_NODE);
   }
 
   private void onTextAreaClicked(MouseEvent event) {
@@ -126,17 +119,6 @@ public final class TextAreaNodeView extends TextInputNodeView {
       textArea.deselect();
       shouldSelectText = true;
     }
-  }
-
-  @Override
-  protected void notifyChildSizeChanged() {
-    sizeCalculator.notifyNodeSizeChanged();
-    super.notifyChildSizeChanged();
-  }
-
-  @Override
-  public Optional<TextNode> getModel() {
-    return Optional.ofNullable(model);
   }
 
   /**
@@ -170,11 +152,11 @@ public final class TextAreaNodeView extends TextInputNodeView {
         textPart.getFont(),
         textPart.getBoundsType(),
         textPart.getLineSpacing());
-    double newWidth = Math.max(textBounds.x, style.textArea.minWidth);
+    double newWidth = Math.max(textBounds.x, getStyle().textArea.minWidth);
     // 幅を (文字幅 + パディング) にするとwrapの設定によらず文字列が折り返してしまういことがあるので定数 6 を足す
     // この定数はフォントやパディングが違っても機能する.
     newWidth += content.getPadding().getLeft() + content.getPadding().getRight() + 6;
-    double newHeight = Math.max(textBounds.y, style.textArea.minHeight);
+    double newHeight = Math.max(textBounds.y, getStyle().textArea.minHeight);
     newHeight += content.getPadding().getTop() + content.getPadding().getBottom() + 2;
     textArea.setPrefSize(newWidth, newHeight);
     boolean acceptable = fnCheckFormat.apply(textPart.getText());
@@ -185,22 +167,15 @@ public final class TextAreaNodeView extends TextInputNodeView {
   }
 
   @Override
-  protected void updatePosOnWorkspace(double posX, double posY) {
-    getPositionManager().setPosOnWorkspace(posX, posY);
+  public Optional<TextNode> getModel() {
+    return Optional.ofNullable(model);
   }
 
   @Override
-  protected Vec2D getNodeSize(boolean includeCnctr) {
-    return sizeCalculator.calcNodeSize(includeCnctr);
+  Vec2D getContentRegionSize() {
+    // textArea.getWidth() だと設定した値以外が返る場合がある
+    return new Vec2D(textArea.getPrefWidth(), textArea.getPrefHeight());
   }
-
-  @Override
-  protected Vec2D getNodeTreeSize(boolean includeCnctr) {
-    return getNodeSize(includeCnctr);
-  }
-
-  @Override
-  protected void updateChildRelativePos() {}
 
   @Override
   protected TextInputControl getTextInputControl() {

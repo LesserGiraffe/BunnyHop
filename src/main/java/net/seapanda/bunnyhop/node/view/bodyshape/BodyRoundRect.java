@@ -23,7 +23,7 @@ import java.util.List;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
-import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
 import net.seapanda.bunnyhop.node.view.style.NotchPos;
 
 /**
@@ -67,9 +67,9 @@ public class BodyRoundRect extends BodyShape {
 
     List<Double> cnctrVertices = createConnectorVertices(
         connector, style, cnctrWidth, cnctrHeight, cnctrShift, bodyWidth, bodyHeight);
-    if (style.connectorPos == ConnectorPos.LEFT) {
+    if (style.connectorOrientation == ConnectorOrientation.LEFT) {
       bodyVertices.addAll(cnctrVertices);
-    } else if (style.connectorPos == ConnectorPos.TOP) {
+    } else if (style.connectorOrientation == ConnectorOrientation.TOP) {
       bodyVertices.addAll(4, cnctrVertices);
     }
     return bodyVertices;

@@ -201,8 +201,8 @@ public class BhNodePlacer {
     }
     ws.addNodeTree(node, userOpe);
     node.getView().ifPresent(view -> {
-      Vec2D oldPos = view.getPositionManager().getPosOnWorkspace();
-      view.getPositionManager().setTreePosOnWorkspace(x, y);
+      Vec2D oldPos = view.getGeometry().getPosition();
+      view.getGeometry().setTreePosition(x, y);
       ViewUtil.pushReverseMoveCmd(view, oldPos, userOpe);
     });
     if (!swappedNodes.isEmpty()) {
@@ -269,8 +269,8 @@ public class BhNodePlacer {
       nodeB = tmp;
     }
 
-    Vec2D posA = nodeA.getView().map(BhNodePlacer::getPosOnWs).orElse(new Vec2D());
-    Vec2D posB = nodeB.getView().map(BhNodePlacer::getPosOnWs).orElse(new Vec2D());
+    Vec2D posA = nodeA.getView().map(BhNodePlacer::getPosition).orElse(new Vec2D());
+    Vec2D posB = nodeB.getView().map(BhNodePlacer::getPosition).orElse(new Vec2D());
     Workspace wsA = nodeB.getWorkspace();
     Workspace wsB = nodeB.getWorkspace();
 
@@ -297,7 +297,7 @@ public class BhNodePlacer {
     }
   }
 
-  private static Vec2D getPosOnWs(BhNodeView view) {
-    return view.getPositionManager().getPosOnWorkspace();
+  private static Vec2D getPosition(BhNodeView view) {
+    return view.getGeometry().getPosition();
   }
 }

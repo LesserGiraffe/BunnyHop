@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javafx.geometry.BoundingBox;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseButton;
@@ -43,8 +44,8 @@ import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 import net.seapanda.bunnyhop.workspace.view.NodeShifterView;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
-import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeRectangle;
-import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeRectangle.OverlapOption;
+import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem;
+import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem.OverlapOption;
 
 /**
  * ワークスペースとそれに関連するビューのコントローラ.
@@ -167,9 +168,10 @@ public class WorkspaceController {
       double minY = Math.min(ddInfo.mousePressedPos.y, event.getY());
       double maxX = Math.max(ddInfo.mousePressedPos.x, event.getX());
       double maxY = Math.max(ddInfo.mousePressedPos.y, event.getY());
-      var selectionRange = new QuadTreeRectangle(minX, minY, maxX, maxY, null);
+      var selectionRange = new QuadTreeItem(minX, minY, maxX, maxY, null);
+      var bounds = new BoundingBox(minX, minY, maxX - minX, maxY - minY);
       List<BhNodeView> containedNodes =
-          view.searchForOverlappedNodeViews(selectionRange, true, OverlapOption.CONTAIN).stream()
+          view.findOverlappedNodeViews(bounds, true, OverlapOption.CONTAIN).stream()
               .filter(WorkspaceController::isNodeSelectable)
               .sorted(this::compareViewSize)
               .collect(Collectors.toCollection(ArrayList::new));
@@ -186,9 +188,9 @@ public class WorkspaceController {
   }
 
   private int compareViewSize(BhNodeView viewA, BhNodeView viewB) {
-    Vec2D sizeA = viewA.getRegionManager().getNodeSize(false);
+    Vec2D sizeA = viewA.getGeometry().getNodeSize(false);
     double areaA = sizeA.x * sizeA.y;
-    Vec2D sizeB = viewB.getRegionManager().getNodeSize(false);
+    Vec2D sizeB = viewB.getGeometry().getNodeSize(false);
     double areaB = sizeB.x * sizeB.y;
     if (areaA < areaB) {
       return 1;
@@ -212,7 +214,7 @@ public class WorkspaceController {
       larger.getModel().get().select(userOpe); // ノード選択
       // 子孫 - 先祖関係にあってかつ領域が包含関係にある -> 矩形選択の対象としない
       nodesToSelect.removeIf(
-          smaller -> larger.getRegionManager().overlapsWith(smaller, OverlapOption.CONTAIN)
+          smaller -> larger.getGeometry().overlapsWith(smaller, OverlapOption.CONTAIN)
             && smaller.getModel().get().isDescendantOf(larger.getModel().get()));
     }
   }

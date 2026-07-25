@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.node.view;
 import java.util.function.Supplier;
 import net.seapanda.bunnyhop.node.view.BhNodeView.ParentGroupChangedEvent;
 import net.seapanda.bunnyhop.node.view.bodyshape.BodyShapeType;
+import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.ConnectorAlignment;
 import net.seapanda.bunnyhop.node.view.style.NotchPos;
 import net.seapanda.bunnyhop.utility.SimpleCache;
@@ -105,7 +106,7 @@ class NodeSizeCalculator {
       return new Vec2D(cache.getVal());
     }
     Vec2D outerSize = fnGetOuterGroupSize.get();
-    var nodeTreeSize = switch (view.style.connectorPos) {
+    var nodeTreeSize = switch (view.getStyle().connectorOrientation) {
       // 外部ノードが右に接続される
       case LEFT -> new Vec2D(nodeSize.x + outerSize.x, Math.max(nodeSize.y, outerSize.y));
       // 外部ノードが下に接続される
@@ -143,8 +144,8 @@ class NodeSizeCalculator {
       return new Vec2D(wholeSizeCache.getVal());
     }
     Vec2D nodeSize = calcBodySize();
-    Vec2D cnctrSize = view.getRegionManager().getConnectorSize();
-    nodeSize = switch (view.style.connectorPos) {
+    Vec2D cnctrSize = view.getGeometry().getConnectorSize();
+    nodeSize = switch (view.getStyle().connectorOrientation) {
       case LEFT -> calcSizeIncludingLeftConnector(nodeSize, cnctrSize);
       case TOP -> calcSizeIncludingTopConnector(nodeSize, cnctrSize);
     };
@@ -158,9 +159,9 @@ class NodeSizeCalculator {
     if (!bodySizeCache.isDirty()) {
       return new Vec2D(bodySizeCache.getVal());
     }
-    Vec2D commonPartSize = view.getRegionManager().getCommonPartSize();
+    Vec2D commonPartSize = view.getGeometry().getCommonPartSize();
     Vec2D componentSize = fnGetInnerComponentSize.get();
-    Vec2D innerSize = switch (view.style.baseArrangement) {
+    Vec2D innerSize = switch (view.getStyle().baseArrangement) {
       case ROW -> new Vec2D(
           commonPartSize.x + componentSize.x,
           Math.max(commonPartSize.y, componentSize.y));
@@ -168,7 +169,7 @@ class NodeSizeCalculator {
           Math.max(commonPartSize.x, componentSize.x),
           commonPartSize.y + componentSize.y);
     };
-    if (view.getLookManager().getBodyShape() != BodyShapeType.NONE) {
+    if (view.getGeometry().getBodyShape() != BodyShapeType.NONE) {
       innerSize = addPaddingAndNotch(innerSize);
     }
     bodySizeCache.update(innerSize);
@@ -181,13 +182,14 @@ class NodeSizeCalculator {
    * @param size このサイズにパディングと切り欠き部分の大きさを加える
    */
   private Vec2D addPaddingAndNotch(Vec2D size) {
-    double width = view.style.paddingLeft + size.x + view.style.paddingRight;
-    double height = view.style.paddingTop + size.y + view.style.paddingBottom;
-    Vec2D notchSize = view.getRegionManager().getNotchSize();
-    if (view.style.notchPos == NotchPos.RIGHT) {
+    BhNodeViewStyle style = view.getStyle();
+    double width = style.paddingLeft + size.x + style.paddingRight;
+    double height = style.paddingTop + size.y + style.paddingBottom;
+    Vec2D notchSize = view.getGeometry().getNotchSize();
+    if (style.notchPos == NotchPos.RIGHT) {
       width += notchSize.x;
       height = Math.max(height, notchSize.y);
-    } else if (view.style.notchPos == NotchPos.BOTTOM) {
+    } else if (style.notchPos == NotchPos.BOTTOM) {
       width = Math.max(width, notchSize.x);
       height += notchSize.y;
     }
@@ -204,8 +206,8 @@ class NodeSizeCalculator {
   private Vec2D calcSizeIncludingLeftConnector(Vec2D bodySize, Vec2D cnctrSize) {
     double wholeWidth = bodySize.x + cnctrSize.x;
     // ボディの左上を原点としたときのコネクタの上端の座標
-    double cnctrTopPos = view.style.connectorShift;
-    if (view.style.connectorAlignment == ConnectorAlignment.CENTER) {
+    double cnctrTopPos = view.getStyle().connectorShift;
+    if (view.getStyle().connectorAlignment == ConnectorAlignment.CENTER) {
       cnctrTopPos += (bodySize.y - cnctrSize.y) / 2;
     }
     // ボディの左上を原点としたときのコネクタの下端の座標
@@ -224,8 +226,8 @@ class NodeSizeCalculator {
   private Vec2D calcSizeIncludingTopConnector(Vec2D bodySize, Vec2D cnctrSize) {
     double wholeHeight = bodySize.y + cnctrSize.y;
     // ボディの左上を原点としたときのコネクタの左端の座標
-    double cnctrLeftPos = view.style.connectorShift;
-    if (view.style.connectorAlignment == ConnectorAlignment.CENTER) {
+    double cnctrLeftPos = view.getStyle().connectorShift;
+    if (view.getStyle().connectorAlignment == ConnectorAlignment.CENTER) {
       cnctrLeftPos += (bodySize.x - cnctrSize.x) / 2;
     }
     // ボディの左上を原点としたときのコネクタの右端の座標

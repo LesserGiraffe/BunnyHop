@@ -17,7 +17,7 @@
 package net.seapanda.bunnyhop.node.view.connectorshape;
 
 import java.util.List;
-import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
 
 /**
  * コネクタ描画クラスの基底クラス.
@@ -36,7 +36,7 @@ public abstract class ConnectorShape {
    * @return コネクタを形成する点群
    * */
   public abstract List<Double> createVertices(
-      double offsetX, double offsetY, double width, double height, ConnectorPos pos);
+      double offsetX, double offsetY, double width, double height, ConnectorOrientation pos);
 
   /**
    * コネクタ名から対応する CNCTR_SHAPE を返す.

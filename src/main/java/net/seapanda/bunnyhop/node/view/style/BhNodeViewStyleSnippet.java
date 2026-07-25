@@ -52,7 +52,7 @@ class BhNodeViewStyleSnippet {
   Double paddingRight = null;
   BodyShapeType bodyShapeInner = null;
   BodyShapeType bodyShapeOuter = null;
-  ConnectorPos connectorPos = null;
+  ConnectorOrientation connectorPos = null;
   Double connectorShift = null;
   Double connectorWidth = null;
   Double connectorHeight = null;
@@ -110,7 +110,7 @@ class BhNodeViewStyleSnippet {
     style.paddingRight = findPaddingRight(style.paddingRight);
     style.bodyShapeInner = findBodyShapeInner(style.bodyShapeInner);
     style.bodyShapeOuter = findBodyShapeOuter(style.bodyShapeOuter);
-    style.connectorPos = findConnectorPos(style.connectorPos);
+    style.connectorOrientation = findConnectorPos(style.connectorOrientation);
     style.connectorShift = findConnectorShift(style.connectorShift);
     style.connectorWidth = findConnectorWidth(style.connectorWidth);
     style.connectorHeight = findConnectorHeight(style.connectorHeight);
@@ -168,7 +168,7 @@ class BhNodeViewStyleSnippet {
     return find(snippet -> snippet.bodyShapeOuter).orElse(defaultVal);
   }
 
-  private ConnectorPos findConnectorPos(ConnectorPos defaultVal) {
+  private ConnectorOrientation findConnectorPos(ConnectorOrientation defaultVal) {
     return find(snippet -> snippet.connectorPos).orElse(defaultVal);
   }
 

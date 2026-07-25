@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.nodeselection.view;
 
+import static net.seapanda.bunnyhop.node.view.BhNodeView.Geometry;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
@@ -34,9 +36,8 @@ import javafx.scene.transform.Scale;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.node.view.BhNodeView.PositionManager;
 import net.seapanda.bunnyhop.node.view.BhNodeView.SizeChangedEvent;
-import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
 import net.seapanda.bunnyhop.service.LogManager;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
@@ -108,8 +109,8 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     }
     rootNodeViews.remove(view);
     rootNodeViews.addLast(view);
-    view.getLookManager().arrange();
-    view.getPositionManager().setTreeZpos(0);
+    view.getArrangement().arrange();
+    view.getGeometry().setTreeZposition(0);
   }
 
   @Override
@@ -123,7 +124,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
       return;
     }
     nodeViews.add(view);
-    view.getTreeManager().addToGuiTree(nodeSelectionView);
+    view.getTreeControl().addToTree(nodeSelectionView);
     view.getCallbackRegistry().getOnSizeChanged().add(onNodeSizeChanged);
   }
 
@@ -134,7 +135,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
     }
     specifyNodeViewAsNotRoot(view);
     nodeViews.remove(view);
-    view.getTreeManager().removeFromGuiTree();
+    view.getTreeControl().removeFromTree();
     view.getCallbackRegistry().getOnSizeChanged().remove(onNodeSizeChanged);
   }
 
@@ -167,7 +168,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
 
     for (BhNodeView nodeView : rootNodeViews) {
       positionNodeView(nodeView, offset, padding.left);
-      Vec2D treeSize = nodeView.getRegionManager().getNodeTreeSize(true);
+      Vec2D treeSize = nodeView.getGeometry().getNodeTreeSize(true);
       offset += treeSize.y + BhConstants.Ui.BHNODE_SPACE_ON_SELECTION_VIEW;
       maxWidth = Math.max(maxWidth, treeSize.x);
     }
@@ -179,13 +180,13 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
 
   /** ノードビューを配置する. */
   private void positionNodeView(BhNodeView nodeView, double offset, double leftPadding) {
-    Vec2D cnctrSize = nodeView.getRegionManager().getConnectorSize();
-    ConnectorPos connectorPos = nodeView.getLookManager().getConnectorPos();
-    PositionManager posManager = nodeView.getPositionManager();
-    if (connectorPos == ConnectorPos.TOP) {
-      posManager.setTreePosOnWorkspace(leftPadding, offset + cnctrSize.y);
-    } else if (connectorPos == ConnectorPos.LEFT) {
-      posManager.setTreePosOnWorkspaceByUpperLeft(leftPadding - cnctrSize.x, offset);
+    Geometry geometry = nodeView.getGeometry();
+    ConnectorOrientation connectorPos = geometry.getConnectorOrientation();
+    Vec2D cnctrSize = nodeView.getGeometry().getConnectorSize();
+    if (connectorPos == ConnectorOrientation.TOP) {
+      geometry.setTreePosition(leftPadding, offset + cnctrSize.y);
+    } else if (connectorPos == ConnectorOrientation.LEFT) {
+      geometry.setTreePositionByUpperLeft(leftPadding - cnctrSize.x, offset);
     }
   }
 

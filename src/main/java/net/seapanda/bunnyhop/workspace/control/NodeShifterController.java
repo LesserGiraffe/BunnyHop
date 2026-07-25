@@ -99,7 +99,7 @@ public class NodeShifterController {
       ddInfo.mousePressedPos = new Vec2D(pos.getX(), pos.getY());
       view.toFront();
       view.getLinkedNodes().forEach(
-          view -> ddInfo.viewToOrgPos.put(view, view.getPositionManager().getPosOnWorkspace()));
+          view -> ddInfo.viewToOrgPos.put(view, view.getGeometry().getPosition()));
       ddInfo.dragging = true;
       event.consume();
     } catch (Throwable e) {
@@ -127,7 +127,7 @@ public class NodeShifterController {
         view.move(new Vec2D(diffX, diffY), wsSize, true);
       } else {
         Vec2D distance = view.move(new Vec2D(diffX, diffY), wsSize, false);
-        view.getLinkedNodes().forEach(nodeView -> nodeView.getPositionManager().move(distance));
+        view.getLinkedNodes().forEach(nodeView -> nodeView.getGeometry().moveTree(distance));
       }
       event.consume();
     } catch (Throwable e) {

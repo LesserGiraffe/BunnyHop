@@ -26,11 +26,14 @@ import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
-/** 内部に何も表示しないノードビュー. */
-public class NoContentNodeView extends BhNodeViewBase {
+/**
+ * 内部に何も表示しないノードビュー.
+ *
+ * @author K.Koike
+ */
+public class NoContentNodeView extends LeafNodeView {
 
   private final TextNode model;
-  private final NodeSizeCalculator sizeCalculator;
 
   /**
    * コンストラクタ.
@@ -43,17 +46,10 @@ public class NoContentNodeView extends BhNodeViewBase {
   public NoContentNodeView(
       TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
       throws ViewConstructionException {
-    super(style, model, components, isTemplate);
+    super(model, style, components, isTemplate);
     this.model = model;
-    sizeCalculator = new NodeSizeCalculator(this, () -> new Vec2D(0, 0));
-    getLookManager().addCssClass(BhConstants.Css.Class.NO_CONTENT_NODE);
+    getVisual().addCssClass(BhConstants.Css.Class.NO_CONTENT_NODE);
     setMouseTransparent(true);
-  }
-
-  @Override
-  protected void notifyChildSizeChanged() {
-    sizeCalculator.notifyNodeSizeChanged();
-    super.notifyChildSizeChanged();
   }
 
   @Override
@@ -62,23 +58,9 @@ public class NoContentNodeView extends BhNodeViewBase {
   }
 
   @Override
-  protected void updatePosOnWorkspace(double posX, double posY) {
-    getPositionManager().setPosOnWorkspace(posX, posY);
+  Vec2D getContentRegionSize() {
+    return new Vec2D();
   }
-
-  @Override
-  protected Vec2D getNodeSize(boolean includeCnctr) {
-    return sizeCalculator.calcNodeSize(includeCnctr);
-  }
-
-
-  @Override
-  protected Vec2D getNodeTreeSize(boolean includeCnctr) {
-    return getNodeSize(includeCnctr);
-  }
-
-  @Override
-  protected void updateChildRelativePos() {}
 
   @Override
   public void accept(NodeViewWalker visitor) {

@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.node.view.connectorshape;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
 
 /**
  * 八角形型コネクタクラス.
@@ -37,10 +37,10 @@ public class ConnectorOctagon extends ConnectorShape {
    */
   @Override
   public List<Double> createVertices(
-      double offsetX, double offsetY, double width, double height, ConnectorPos pos) {
+      double offsetX, double offsetY, double width, double height, ConnectorOrientation pos) {
     ArrayList<Double> vertices = null;
     final double ofs = 0.5;
-    if (pos == ConnectorPos.LEFT) {
+    if (pos == ConnectorOrientation.LEFT) {
       vertices = new ArrayList<>(Arrays.asList(
         offsetX + width * (ofs + 0.5),                       offsetY + height * (ofs + 0),
         offsetX + width * (ofs + 0.353553),  offsetY + height * (ofs + 0.353553),
@@ -51,7 +51,7 @@ public class ConnectorOctagon extends ConnectorShape {
         offsetX + width * (ofs + 0),                         offsetY + height * (ofs - 0.5),
         offsetX + width * (ofs + 0.353553),  offsetY + height * (ofs - 0.353553),
         offsetX + width * (ofs + 0.5),                       offsetY + height * (ofs + 0)));
-    } else if (pos == ConnectorPos.TOP) {
+    } else if (pos == ConnectorOrientation.TOP) {
       vertices = new ArrayList<>(Arrays.asList(
         offsetX + width * (ofs + 0),                         offsetY + height * (ofs + 0.5),
         offsetX + width * (ofs - 0.353553),  offsetY + height * (ofs + 0.353553),

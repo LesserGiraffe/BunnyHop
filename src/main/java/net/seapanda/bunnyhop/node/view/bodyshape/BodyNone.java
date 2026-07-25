@@ -23,7 +23,7 @@ import java.util.List;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorNone;
 import net.seapanda.bunnyhop.node.view.connectorshape.ConnectorShape;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
-import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
 
 /**
  * 何も描画しないボディ.
@@ -49,9 +49,9 @@ public class BodyNone extends BodyShape {
     }
     List<Double> vertices = createConnectorVertices(
         connector, style, cnctrWidth, cnctrHeight, cnctrShift, bodyWidth, bodyHeight);
-    if (style.connectorPos == ConnectorPos.LEFT) {
+    if (style.connectorOrientation == ConnectorOrientation.LEFT) {
       vertices.addAll(Arrays.asList(0.0, cnctrShift + cnctrHeight * 0.5));
-    } else if (style.connectorPos == ConnectorPos.TOP) {
+    } else if (style.connectorOrientation == ConnectorOrientation.TOP) {
       vertices.addAll(Arrays.asList(cnctrShift + cnctrWidth * 0.5, 0.0));
     }
     return vertices;

@@ -28,6 +28,7 @@ import javafx.animation.Animation;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 import javafx.fxml.FXML;
+import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TabPane;
@@ -293,8 +294,7 @@ public class MenuViewController {
       if (currentWs == null) {
         return;
       }
-      javafx.geometry.Point2D pos =
-          workspaceSetTab.localToScene(0, workspaceSetTab.getHeight() / 3.0);
+      Point2D pos = workspaceSetTab.localToScene(0, workspaceSetTab.getHeight() / 3.0);
       var posOnScene = new Vec2D(pos.getX(), pos.getY());
       Vec2D pastePos =
           currentWs.getView().map(wsv -> wsv.sceneToWorkspace(posOnScene))

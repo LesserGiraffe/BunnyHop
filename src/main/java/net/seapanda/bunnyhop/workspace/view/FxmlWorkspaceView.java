@@ -53,7 +53,6 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.node.view.BhNodeView.RegionManager.Rectangles;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.ui.view.Rem;
@@ -63,9 +62,9 @@ import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
-import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeManager;
-import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeRectangle;
-import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeRectangle.OverlapOption;
+import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem;
+import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem.OverlapOption;
+import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeSpace;
 
 /**
  * {@link Workspace} のビュー.
@@ -106,9 +105,9 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   /** このワークスペースビューが保持する {@link BhNodeView} のセット. */
   private final Set<BhNodeView> nodeViews = new HashSet<>();
   /** ノードの本体部分の重なり判定に使う4 分木管理クラス. */
-  private QuadTreeManager quadTreeMngForBody;
+  private QuadTreeSpace qtSpaceForBody;
   /** ノードのコネクタ部分の重なり判定に使う4 分木管理クラス. */
-  private QuadTreeManager quadTreeMngForConnector;
+  private QuadTreeSpace qtSpaceForConnector;
   /**ワークスペースビューの拡大/縮小の段階. */
   private int zoomLevel = 0;
   /**ワークスペースビューの大きさの段階. */
@@ -139,11 +138,11 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     this.notifService = service;
     configureGuiComponents(filePath);
     setEventHandlers();
-    quadTreeMngForBody =
-        new QuadTreeManager(BhConstants.Ui.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
-    quadTreeMngForConnector =
-        new QuadTreeManager(BhConstants.Ui.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
-    drawGridLines(minPaneSize.x, minPaneSize.y, quadTreeMngForBody.getNumPartitions());
+    qtSpaceForBody =
+        new QuadTreeSpace(BhConstants.Ui.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
+    qtSpaceForConnector =
+        new QuadTreeSpace(BhConstants.Ui.NUM_DIV_OF_QTREE_SPACE, minPaneSize.x, minPaneSize.y);
+    drawGridLines(minPaneSize.x, minPaneSize.y, qtSpaceForBody.getNumPartitions());
     rectSelTool.setViewOrder(Z_POS_OF_RECT_SEL_TOOL);
   }
 
@@ -298,11 +297,11 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     }
     rootNodeViews.remove(view);
     rootNodeViews.addLast(view);
-    view.getLookManager().arrange();
+    view.getArrangement().arrange();
     if (MAX_Z_POS_OF_NODE_VIEW_TREES < frontZpos) {
       updateZposOfTrees();
     } else {
-      view.getPositionManager().setTreeZpos(frontZpos);
+      view.getGeometry().setTreeZposition(frontZpos);
       frontZpos += Z_POS_INTERVAL_BETWEEN_NODE_VIEW_TREES;
     }
   }
@@ -318,10 +317,10 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
       return;
     }
     nodeViews.add(view);
-    view.getTreeManager().addToGuiTree(wsPane);
+    view.getTreeControl().addToTree(wsPane);
     view.getCallbackRegistry().getOnMoved().add(cbRegistry.onNodeMoved);
     view.getCallbackRegistry().getOnSizeChanged().add(cbRegistry.onNodeSizeChanged);
-    addRectToQuadTreeSpace(view);
+    view.getQuadTreeSpaceRegistration().addToQtSpace(qtSpaceForBody, qtSpaceForConnector);
   }
 
   @Override
@@ -331,49 +330,39 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     }
     specifyNodeViewAsNotRoot(view);
     nodeViews.remove(view);
-    view.getTreeManager().removeFromGuiTree();
+    view.getTreeControl().removeFromTree();
     view.getCallbackRegistry().getOnMoved().remove(cbRegistry.onNodeMoved);
     view.getCallbackRegistry().getOnSizeChanged().remove(cbRegistry.onNodeSizeChanged);
-    view.getRegionManager().removeQuadTreeRect();
-  }
-
-  /**
-   * 4 分木空間に矩形を登録する.
-   *
-   * @param nodeView 登録する矩形を持つ {@link BhNodeView} オブジェクト
-   */
-  private void addRectToQuadTreeSpace(BhNodeView nodeView) {
-    Rectangles rects = nodeView.getRegionManager().getRegions();
-    quadTreeMngForBody.addQuadTreeObj(rects.body());
-    quadTreeMngForConnector.addQuadTreeObj(rects.cnctr());
+    view.getQuadTreeSpaceRegistration().removeFromQtSpace();
   }
 
   /** このワークスペースの全てのノドビューの Z 位置を更新する. */
   private void updateZposOfTrees() {
     frontZpos = 0;
     for (BhNodeView root : rootNodeViews) {
-      root.getPositionManager().setTreeZpos(frontZpos);
+      root.getGeometry().setTreeZposition(frontZpos);
       frontZpos += Z_POS_INTERVAL_BETWEEN_NODE_VIEW_TREES;
     }
   }
 
   @Override
-  public List<BhNodeView> searchForOverlappedNodeViews(
-      QuadTreeRectangle rect, boolean overlapWithBodyPart, OverlapOption option) {
-    if (rect == null) {
+  public List<BhNodeView> findOverlappedNodeViews(
+      Bounds bounds, boolean overlapWithBodyPart, OverlapOption option) {
+    if (bounds == null) {
       return new ArrayList<>();
     }
+    QuadTreeItem item =
+        new QuadTreeItem(bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMaxY());
     if (overlapWithBodyPart) {
-      quadTreeMngForBody.addQuadTreeObj(rect);
+      qtSpaceForBody.addItem(item);
     } else {
-      quadTreeMngForConnector.addQuadTreeObj(rect);
+      qtSpaceForConnector.addItem(item);
     }
-    rect.updatePos();
-    List<QuadTreeRectangle> overlappedRectList = rect.searchOverlappedRects(option);
-    QuadTreeManager.removeQuadTreeObj(rect);
+    List<QuadTreeItem> overlappedItems = item.findOverlappedItems(option);
+    QuadTreeSpace.removeItem(item);
 
-    return overlappedRectList.stream()
-        .map(QuadTreeRectangle::<BhNodeView>getUserData)
+    return overlappedItems.stream()
+        .map(QuadTreeItem::<BhNodeView>getUserData)
         .collect(Collectors.toCollection(ArrayList::new));
   }
 
@@ -396,23 +385,17 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
       return;
     }
     workspaceSizeLevel = widen ? workspaceSizeLevel + 1 : workspaceSizeLevel - 1;
-    Vec2D currentSize = quadTreeMngForBody.getQtSpaceSize();
+    Vec2D currentSize = qtSpaceForBody.getSize();
     double newWsWidth = widen ? currentSize.x * 2.0 : currentSize.x / 2.0;
     double newWsHeight = widen ? currentSize.y * 2.0 : currentSize.y / 2.0;
 
     wsPane.setMinSize(newWsWidth, newWsHeight);
     wsPane.setMaxSize(newWsWidth, newWsHeight);
-    quadTreeMngForBody = new QuadTreeManager(
-        quadTreeMngForBody, BhConstants.Ui.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
-    quadTreeMngForConnector = new QuadTreeManager(
-        quadTreeMngForConnector, BhConstants.Ui.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
-
-    //全ノードの位置更新
-    for (BhNodeView rootView : rootNodeViews) {
-      Vec2D pos = rootView.getPositionManager().getPosOnWorkspace();  //workspace からの相対位置を計算
-      rootView.getPositionManager().setTreePosOnWorkspace(pos.x, pos.y);
-    }
-    drawGridLines(newWsWidth, newWsHeight, quadTreeMngForBody.getNumPartitions());
+    qtSpaceForBody = new QuadTreeSpace(
+        qtSpaceForBody, BhConstants.Ui.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
+    qtSpaceForConnector = new QuadTreeSpace(
+        qtSpaceForConnector, BhConstants.Ui.NUM_DIV_OF_QTREE_SPACE, newWsWidth, newWsHeight);
+    drawGridLines(newWsWidth, newWsHeight, qtSpaceForBody.getNumPartitions());
     recalculateScrollableRange();
   }
 
@@ -468,8 +451,8 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     // 全ノードの内の右端の最大の位置と下端の最大の位置
     Vec2D maxLowerRightPosOfNodes = rootNodeViews.stream()
         .map(nodeView -> {
-          Vec2D nodeSize = nodeView.getRegionManager().getNodeTreeSize(false);
-          Vec2D nodePos = nodeView.getPositionManager().getPosOnWorkspace();
+          Vec2D nodeSize = nodeView.getGeometry().getNodeTreeSize(false);
+          Vec2D nodePos = nodeView.getGeometry().getPosition();
           return new Vec2D(
             magX * (nodePos.x + nodeSize.x) + BhConstants.Ui.NODE_SCALE * 20,
             magY * (nodePos.y + nodeSize.y) + BhConstants.Ui.NODE_SCALE * 20);
@@ -513,8 +496,8 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     if (!this.equals(view.getWorkspaceView())) {
       return;
     }
-    Bounds nodeBounds = view.getPositionManager().getBounds();
-    lookAt(new Vec2D(nodeBounds.getCenterX(), nodeBounds.getCenterY()));
+    Bounds bounds = view.getGeometry().getBodyBounds();
+    lookAt(new Vec2D(bounds.getCenterX(), bounds.getCenterY()));
   }
 
   @Override
@@ -555,7 +538,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
   @Override
   public void moveNodeViewToFront(BhNodeView view) {
-    BhNodeView root = view.getTreeManager().getRootView();
+    BhNodeView root = view.getTreeControl().getRootView();
     if (!rootNodeViews.contains(root)) {
       return;
     }
@@ -564,7 +547,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     if (MAX_Z_POS_OF_NODE_VIEW_TREES < frontZpos) {
       updateZposOfTrees();
     } else {
-      root.getPositionManager().setTreeZpos(frontZpos);
+      root.getGeometry().setTreeZposition(frontZpos);
       frontZpos += Z_POS_INTERVAL_BETWEEN_NODE_VIEW_TREES;
     }
   }

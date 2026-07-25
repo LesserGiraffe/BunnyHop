@@ -34,12 +34,12 @@ import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
  *
  * @author K.Koike
  */
-public abstract class TextInputNodeView extends BhNodeViewBase {
+public abstract class TextInputNodeView extends LeafNodeView {
 
   protected TextInputNodeView(
       TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
       throws ViewConstructionException {
-    super(style, model, components, isTemplate);
+    super(model, style, components, isTemplate);
   }
 
   /** テキスト入力用GUIコンポーネントを取得する. */

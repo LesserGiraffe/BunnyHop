@@ -18,7 +18,7 @@ package net.seapanda.bunnyhop.node.model.parameter;
 
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 
-/** {@link BhNode} のタイプ. */
+/** ノードのタイプ. */
 public enum BhNodeType {
   
   CONNECTIVE(BhConstants.BhModelDef.ATTR_VAL_CONNECTIVE),

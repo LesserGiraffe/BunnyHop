@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.node.view.connectorshape;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
 
 /**
  * 五角形コネクタクラス.
@@ -37,20 +37,20 @@ public class ConnectorPentagon extends ConnectorShape {
    */
   @Override
   public List<Double> createVertices(
-      double offsetX, double offsetY, double width, double height, ConnectorPos pos) {
+      double offsetX, double offsetY, double width, double height, ConnectorOrientation pos) {
     ArrayList<Double> vertices = null;
     final double p = 4.0;
     final double q = 1.1;
     final double r = 4.0;
     final double s = 2.0;
-    if (pos == ConnectorPos.LEFT) {
+    if (pos == ConnectorOrientation.LEFT) {
       vertices = new ArrayList<>(Arrays.asList(
         offsetX + width,                  offsetY + height * (1.0 - q / p),
         offsetX + width * (s / r),        offsetY + height,
         offsetX + 0.0,                    offsetY + height * 0.5,
         offsetX + width * (s / r),        offsetY + 0.0,
         offsetX + width,                  offsetY + height * (q / p)));
-    } else if (pos == ConnectorPos.TOP) {
+    } else if (pos == ConnectorOrientation.TOP) {
       vertices = new ArrayList<>(Arrays.asList(
         offsetX + width * (q / p),        offsetY + height,
         offsetX + 0.0,                    offsetY + height * (s / r),

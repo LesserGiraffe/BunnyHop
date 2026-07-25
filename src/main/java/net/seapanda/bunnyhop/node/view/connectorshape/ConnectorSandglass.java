@@ -19,7 +19,7 @@ package net.seapanda.bunnyhop.node.view.connectorshape;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import net.seapanda.bunnyhop.node.view.style.ConnectorPos;
+import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
 
 /**
  * 砂時計コネクタクラス.
@@ -37,14 +37,14 @@ public class ConnectorSandglass extends ConnectorShape {
    */
   @Override
   public List<Double> createVertices(
-      double offsetX, double offsetY, double width, double height, ConnectorPos pos) {
+      double offsetX, double offsetY, double width, double height, ConnectorOrientation pos) {
     ArrayList<Double> vertices = null;
     final double p = 0.3;
     final double q = 0.2;
     final double r = 0.25;
     final double s = 0.45;
 
-    if (pos == ConnectorPos.LEFT) {
+    if (pos == ConnectorOrientation.LEFT) {
       vertices = new ArrayList<>(Arrays.asList(
         offsetX + width,             offsetY + height,
         offsetX + width * (1.0 - q), offsetY + height,
@@ -56,7 +56,7 @@ public class ConnectorSandglass extends ConnectorShape {
         offsetX + width * (1.0 - s), offsetY + height * p,
         offsetX + width * (1.0 - q), offsetY,
         offsetX + width,             offsetY));
-    } else if (pos == ConnectorPos.TOP) {
+    } else if (pos == ConnectorOrientation.TOP) {
       vertices = new ArrayList<>(Arrays.asList(
         offsetX,                     offsetY + height,
         offsetX,                     offsetY + height * (1.0 - q),

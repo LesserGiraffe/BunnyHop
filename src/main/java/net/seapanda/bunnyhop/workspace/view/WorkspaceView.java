@@ -20,13 +20,13 @@ import java.util.List;
 import java.util.SequencedSet;
 import java.util.function.Supplier;
 import javafx.event.Event;
+import javafx.geometry.Bounds;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
-import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeRectangle;
-import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeRectangle.OverlapOption;
+import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem.OverlapOption;
 
 /**
  * {@link Workspace} のビューが持つ機能を規定したインタフェース.
@@ -66,14 +66,14 @@ public interface WorkspaceView {
   /**
    * 引数で指定した矩形と重なるこのワークスペースビュー上にあるノードを探す.
    *
-   * @param rect この矩形と重なるノードを探す.
+   * @param bounds この矩形と重なるノードを探す.
    * @param overlapWithBodyPart ノードのボディ部分と重なるノードを探す場合 true.
    *                            ノードのコネクタ部分と重なるノードを探す場合 false.
    * @param option 検索オプション
    * @return 引数の矩形と重なるノードのビュー
    */
-  List<BhNodeView> searchForOverlappedNodeViews(
-      QuadTreeRectangle rect, boolean overlapWithBodyPart, OverlapOption option);
+  List<BhNodeView> findOverlappedNodeViews(
+      Bounds bounds, boolean overlapWithBodyPart, OverlapOption option);
 
   /**
    * ワークスペースビューの大きさを返す.

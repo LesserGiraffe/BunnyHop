@@ -48,7 +48,6 @@ public final class TextFieldNodeView extends TextInputNodeView {
   private final TextNode model;
   /** クリック時にテキストを選択するかどうかのフラグ. */
   private boolean shouldSelectText = true;
-  private final NodeSizeCalculator sizeCalculator;
 
   /**
    * コンストラクタ.
@@ -64,7 +63,6 @@ public final class TextFieldNodeView extends TextInputNodeView {
       throws ViewConstructionException {
     super(model, style, components, isTemplate);
     this.model = model;
-    sizeCalculator = new NodeSizeCalculator(this, this::getTextFieldSize);
     setComponent(textField);
     textField.addEventFilter(MouseEvent.ANY, this::forwardEvent);
     textField.setOnMouseClicked(event -> Platform.runLater(() -> onTextFieldClicked(event)));
@@ -84,7 +82,7 @@ public final class TextFieldNodeView extends TextInputNodeView {
   }
 
   private void forwardEvent(Event event) {
-    BhNodeView view = (model == null) ? getTreeManager().getParentView() : this;
+    BhNodeView view = (model == null) ? getTreeControl().getParentView() : this;
     if (view == null) {
       event.consume();
       return;
@@ -96,16 +94,11 @@ public final class TextFieldNodeView extends TextInputNodeView {
   }
 
   private void initStyle() {
-    textField.getStyleClass().add(style.textField.cssClass);
+    textField.getStyleClass().add(getStyle().textField.cssClass);
     textField.setMaxWidth(Region.USE_PREF_SIZE);
     textField.setMinWidth(Region.USE_PREF_SIZE);
-    setEditable(style.textField.editable);
-    getLookManager().addCssClass(BhConstants.Css.Class.TEXT_FIELD_NODE);
-  }
-
-  private Vec2D getTextFieldSize() {
-    // textField.getWidth() だと設定した値以外が返る場合がある
-    return new Vec2D(textField.getPrefWidth(), textField.getHeight());
+    setEditable(getStyle().textField.editable);
+    getVisual().addCssClass(BhConstants.Css.Class.TEXT_FIELD_NODE);
   }
 
   private void onTextFieldClicked(MouseEvent event) {
@@ -127,24 +120,24 @@ public final class TextFieldNodeView extends TextInputNodeView {
   }
 
   @Override
-  protected void notifyChildSizeChanged() {
-    sizeCalculator.notifyNodeSizeChanged();
-    super.notifyChildSizeChanged();
-  }
-
-  @Override
   public Optional<TextNode> getModel() {
     return Optional.ofNullable(model);
   }
 
   @Override
+  Vec2D getContentRegionSize() {
+    // textField.getWidth() だと設定した値以外が返る場合がある
+    return new Vec2D(textField.getPrefWidth(), textField.getHeight());
+  }
+
+  @Override
   public void setTextChangeListener(Function<String, Boolean> fnCheckFormat) {
     textField.boundsInLocalProperty().addListener(
-        (observable, oldVal, newVal) -> updateTextFieldLook(fnCheckFormat));
+        (observable, oldVal, newVal) -> updateTextFieldLooks(fnCheckFormat));
 
     // テキストの長さに応じてTextField の長さが変わるように
     textField.textProperty().addListener(
-        (observable, oldVal, newVal) ->  updateTextFieldLook(fnCheckFormat));
+        (observable, oldVal, newVal) ->  updateTextFieldLooks(fnCheckFormat));
   }
 
   /**
@@ -152,14 +145,14 @@ public final class TextFieldNodeView extends TextInputNodeView {
    *
    * @param fnCheckFormat テキストのフォーマットをチェックする関数
    */
-  private void updateTextFieldLook(Function<String, Boolean> fnCheckFormat) {
+  private void updateTextFieldLooks(Function<String, Boolean> fnCheckFormat) {
     Text textPart = (Text) textField.lookup(".text");
     if (textPart == null) {
       return;
     }
     // 正確な文字部分の境界を取得するため, GUI 部品内部の Text の境界は使わない.
     double newWidth = ViewUtil.calcStrWidth(textPart.getText(), textPart.getFont());
-    newWidth = Math.max(newWidth, style.textField.minWidth);
+    newWidth = Math.max(newWidth, getStyle().textField.minWidth);
     // 幅を (文字幅 + パディング) にするとキャレットの移動時に文字が左右に移動するので定数 3 を足す.
     // この定数はフォントやパディングが違っても機能する.
     newWidth += textField.getPadding().getLeft() + textField.getPadding().getRight() + 3;
@@ -168,24 +161,6 @@ public final class TextFieldNodeView extends TextInputNodeView {
     textField.pseudoClassStateChanged(
         PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.ERROR), !acceptable);
   }
-
-  @Override
-  protected void updatePosOnWorkspace(double posX, double posY) {
-    getPositionManager().setPosOnWorkspace(posX, posY);
-  }
-
-  @Override
-  protected Vec2D getNodeSize(boolean includeCnctr) {
-    return sizeCalculator.calcNodeSize(includeCnctr);
-  }
-
-  @Override
-  protected Vec2D getNodeTreeSize(boolean includeCnctr) {
-    return getNodeSize(includeCnctr);
-  }
-  
-  @Override
-  protected void updateChildRelativePos() {}
 
   @Override
   protected TextInputControl getTextInputControl() {

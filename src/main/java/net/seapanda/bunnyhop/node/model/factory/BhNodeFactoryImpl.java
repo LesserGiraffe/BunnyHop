@@ -34,7 +34,6 @@ import net.seapanda.bunnyhop.node.model.derivative.DerivativeTextSetter;
 import net.seapanda.bunnyhop.node.model.parameter.BhNodeId;
 import net.seapanda.bunnyhop.node.model.traverse.BhNodeWalker;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.node.view.BhNodeViewBase;
 import net.seapanda.bunnyhop.node.view.ComboBoxNodeView;
 import net.seapanda.bunnyhop.node.view.ConnectiveNodeView;
 import net.seapanda.bunnyhop.node.view.LabelNodeView;
@@ -128,11 +127,11 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
       this.type = type;
     }
 
-    private void addChildView(BhNode node, BhNodeViewBase view) {
+    private void addChildView(BhNode node, BhNodeView view) {
       if (node.getParentConnector() != null && parentStack.peekLast() != null) {
         boolean success = parentStack.peekLast().addChild(view);
         if (!success) {
-          view.getLookManager().setVisible(false);
+          view.getVisual().setVisible(false);
         }
       }
     }
@@ -180,9 +179,7 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
       if (root == null) {
         root = view;
       }
-      if (view instanceof BhNodeViewBase nodeViewBase) {
-        addChildView(node, nodeViewBase);
-      }
+      addChildView(node, view);
     }
 
     /** MVC のコントローラを作って {@link BhNode} と {@link BhNodeView} を渡す. */

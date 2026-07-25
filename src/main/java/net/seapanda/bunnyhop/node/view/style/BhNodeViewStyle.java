@@ -50,7 +50,7 @@ public class BhNodeViewStyle {
   /** ノードが外部ノードであるときのボディの形. */
   public BodyShapeType bodyShapeOuter = BodyShapeType.NONE;
   /** コネクタの位置. */
-  public ConnectorPos connectorPos = ConnectorPos.TOP;
+  public ConnectorOrientation connectorOrientation = ConnectorOrientation.TOP;
   /** ノードの左上からのコネクタの位置. */
   public double connectorShift = 0;
   /** コネクタ部分の幅. */
@@ -108,7 +108,7 @@ public class BhNodeViewStyle {
     paddingRight = org.paddingRight;
     bodyShapeInner = org.bodyShapeInner;
     bodyShapeOuter = org.bodyShapeOuter;
-    connectorPos = org.connectorPos;
+    connectorOrientation = org.connectorOrientation;
     connectorShift = org.connectorShift;
     connectorAlignment = org.connectorAlignment;
     connectorWidth = org.connectorWidth;
