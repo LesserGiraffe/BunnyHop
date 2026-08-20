@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.ui.model;
+package net.seapanda.bunnyhop.search;
 
 /**
  * 検索処理の結果を格納するレコード.

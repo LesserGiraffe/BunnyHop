@@ -27,8 +27,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.text.TextDefs;
-import net.seapanda.bunnyhop.ui.model.SearchQuery;
-import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
+import net.seapanda.bunnyhop.search.SearchQuery;
+import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 
 /**

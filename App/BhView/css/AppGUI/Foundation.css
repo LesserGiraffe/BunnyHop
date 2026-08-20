@@ -54,5 +54,5 @@
 }
 
 .scroll-pane {
-  -fx-skin: "net.seapanda.bunnyhop.ui.view.AntiBlurScrollPaneSkin"
+  -fx-skin: "net.seapanda.bunnyhop.ui.skin.AntiBlurScrollPaneSkin"
 }

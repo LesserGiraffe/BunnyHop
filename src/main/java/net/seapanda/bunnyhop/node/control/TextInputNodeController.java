@@ -35,15 +35,15 @@ public class TextInputNodeController implements BhNodeController {
 
   /** コンストラクタ. */
   public TextInputNodeController(BhNodeController controller) {
-    if (controller.getModel() instanceof TextNode model) {
-      this.model = model;
+    if (controller.getModel() instanceof TextNode node) {
+      model = node;
     } else {
       throw new IllegalStateException(
           "The model is not %s".formatted(TextNode.class.getSimpleName()));
     }
 
-    if (controller.getView() instanceof TextInputNodeView view) {
-      this.view = view;
+    if (controller.getView() instanceof TextInputNodeView nodeView) {
+      view = nodeView;
     } else {
       throw new IllegalStateException(
           "The view is not %s".formatted(TextInputNodeView.class.getSimpleName()));
@@ -56,8 +56,7 @@ public class TextInputNodeController implements BhNodeController {
   private void setEventHandlers() {
     view.setTextFormatter(model::formatText);
     view.setTextChangeListener(model::isTextAcceptable);
-    view.addFocusListener(
-        (observable, oldValue, newValue) -> onFocusChanged(!newValue));
+    view.addFocusListener((observable, oldValue, newValue) -> onFocusChanged(!newValue));
 
     String initText = model.getText();
     view.setText(initText + " ");  //初期文字列が空文字だったときのため

@@ -16,10 +16,13 @@
 
 package net.seapanda.bunnyhop.node.view;
 
+import static net.seapanda.bunnyhop.ui.skin.HighlightingChangePolicy.REFRESH;
+
 import java.util.LinkedHashSet;
-import java.util.Optional;
+import java.util.SequencedCollection;
 import java.util.SequencedSet;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
@@ -33,9 +36,12 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
+import net.seapanda.bunnyhop.search.Substring;
+import net.seapanda.bunnyhop.ui.skin.HighlightableTextAreaSkin;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * テキストエリアを入力フォームに持つビュー.
@@ -44,10 +50,15 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
  */
 public final class TextAreaNodeView extends TextInputNodeView {
 
-  private final TextArea textArea = new TextArea();
   private final TextNode model;
+  private final TextArea textArea = new TextArea();
+  private final Visual visual = new Visual(this);
+  private final Geometry geometry;
+
   /** クリック時にテキストを選択するかどうかのフラグ. */
   private boolean shouldSelectText = true;
+  /** {@link #textArea} がフォーカスを得る前に保持していたテキスト. */
+  private String textBeforeFocused = "";
 
   /**
    * コンストラクタ.
@@ -63,11 +74,13 @@ public final class TextAreaNodeView extends TextInputNodeView {
       throws ViewConstructionException {
     super(model, style, components, isTemplate);
     this.model = model;
+    geometry = new Geometry(this, new NodeSizeCalculator(this, this::getContentRegionSize)) {};
     setComponent(textArea);
     textArea.addEventFilter(MouseEvent.ANY, this::forwardEvent);
     textArea.setOnMouseClicked(event -> Platform.runLater(() -> onTextAreaClicked(event)));
     textArea.focusedProperty().addListener((obs, oldVal, newVal) -> onFocusChanged(newVal));
-    initStyle();
+    setEditable(getStyle().textArea.editable);
+    initializeStyle();
   }
 
   /**
@@ -94,13 +107,14 @@ public final class TextAreaNodeView extends TextInputNodeView {
     }
   }
 
-  private void initStyle() {
+  private void initializeStyle() {
     textArea.getStyleClass().add(getStyle().textArea.cssClass);
     textArea.setWrapText(false);
     textArea.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
     textArea.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-    setEditable(getStyle().textArea.editable);
-    getVisual().addCssClass(BhConstants.Css.Class.TEXT_AREA_NODE);
+    visual.addCssClass(getStyle().cssClasses);
+    visual.addCssClass(BhConstants.Css.Class.BH_NODE);
+    visual.addCssClass(BhConstants.Css.Class.TEXT_AREA_NODE);
   }
 
   private void onTextAreaClicked(MouseEvent event) {
@@ -114,10 +128,17 @@ public final class TextAreaNodeView extends TextInputNodeView {
     }
   }
 
+  /** {@link #textArea} のフォーカスステートが変わったときのイベントハンドラ. */
   private void onFocusChanged(boolean focused) {
-    if (!focused) {
-      textArea.deselect();
-      shouldSelectText = true;
+    if (focused) {
+      textBeforeFocused = getText();
+      return;
+    }
+    textArea.deselect();
+    shouldSelectText = true;
+    if (!StringUtils.equals(textBeforeFocused, getText())) {
+      var event = new TextChangeEvent(this, textBeforeFocused, getText());
+      getCallbackRegistry().onTextChangedInvoker.invoke(event);
     }
   }
 
@@ -132,7 +153,7 @@ public final class TextAreaNodeView extends TextInputNodeView {
 
     // テキストの長さに応じてTextArea のサイズが変わるようにする.
     textArea.textProperty().addListener(
-        (observable, oldVal, newVal) ->  updateTextAreaLooks(fnCheckFormat));
+        (observable, oldVal, newVal) -> updateTextAreaLooks(fnCheckFormat));
   }
 
   /**
@@ -141,49 +162,86 @@ public final class TextAreaNodeView extends TextInputNodeView {
    * @param fnCheckFormat テキストのフォーマットをチェックする関数
    */
   private void updateTextAreaLooks(Function<String, Boolean> fnCheckFormat) {
-    Text textPart = (Text) textArea.lookup(".text");
+    Text text = (Text) textArea.lookup(".text");
     Region content = (Region) textArea.lookup(".content");
-    if (textPart == null || content == null) {
+    if (text == null || content == null) {
       return;
     }
     // 正確な文字部分の境界を取得するため, GUI部品内部のTextの境界は使わない.
     Vec2D textBounds = ViewUtil.calcStrBounds(
-        textPart.getText(),
-        textPart.getFont(),
-        textPart.getBoundsType(),
-        textPart.getLineSpacing());
+        text.getText(), text.getFont(), text.getBoundsType(), text.getLineSpacing());
     double newWidth = Math.max(textBounds.x, getStyle().textArea.minWidth);
-    // 幅を (文字幅 + パディング) にするとwrapの設定によらず文字列が折り返してしまういことがあるので定数 6 を足す
+    // 幅を (文字幅 + パディング) にするとwrapの設定によらず文字列が折り返してしまうことがあるので定数 6 を足す
     // この定数はフォントやパディングが違っても機能する.
     newWidth += content.getPadding().getLeft() + content.getPadding().getRight() + 6;
     double newHeight = Math.max(textBounds.y, getStyle().textArea.minHeight);
     newHeight += content.getPadding().getTop() + content.getPadding().getBottom() + 2;
     textArea.setPrefSize(newWidth, newHeight);
-    boolean acceptable = fnCheckFormat.apply(textPart.getText());
+    boolean acceptable = fnCheckFormat.apply(text.getText());
     textArea.pseudoClassStateChanged(
         PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.ERROR), !acceptable);
     // textArea.requestLayout() を呼ばないと, newWidth の値によってはノード選択ビューでサイズが更新されない
     Platform.runLater(textArea::requestLayout);
   }
 
-  @Override
-  public Optional<TextNode> getModel() {
-    return Optional.ofNullable(model);
-  }
-
-  @Override
-  Vec2D getContentRegionSize() {
+  /** コンテンツを表示する領域の大きさを取得する. */
+  private Vec2D getContentRegionSize() {
     // textArea.getWidth() だと設定した値以外が返る場合がある
     return new Vec2D(textArea.getPrefWidth(), textArea.getPrefHeight());
   }
 
   @Override
-  protected TextInputControl getTextInputControl() {
+  TextInputControl getTextInputControl() {
     return textArea;
+  }
+
+  @Override
+  public Visual getVisual() {
+    return visual;
+  }
+
+  @Override
+  public Geometry getGeometry() {
+    return geometry;
   }
 
   @Override
   public void accept(NodeViewWalker visitor) {
     visitor.visit(this);
+  }
+
+  /** ノードビューの視覚効果に関する機能を提供するクラス. */
+  public static class Visual extends TextNodeView.Visual {
+
+    /** テキストエリアに適用するスキン. */
+    private final HighlightableTextAreaSkin skin;
+
+    Visual(TextAreaNodeView view) {
+      super(view);
+      String styleClass = view.getStyle().textArea.textHighlight.cssClass;
+      skin = new HighlightableTextAreaSkin(view.textArea, styleClass, REFRESH);
+      view.textArea.setSkin(skin);
+    }
+
+    @Override
+    public SequencedCollection<Substring> enableTextHighlighting(
+        Pattern pattern, int maxHighlights) {
+      return skin.enableHighlighting(pattern, maxHighlights);
+    }
+
+    @Override
+    public void disableTextHighlighting() {
+      skin.disableHighlighting();
+    }
+
+    @Override
+    public SequencedCollection<Substring> getHighlightedTexts() {
+      return skin.getHighlightedTexts();
+    }
+
+    @Override
+    public boolean isTextHighlightingEnabled() {
+      return skin.isHighlightingEnabled();
+    }
   }
 }

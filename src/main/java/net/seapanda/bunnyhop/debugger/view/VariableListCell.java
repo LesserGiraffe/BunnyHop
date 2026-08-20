@@ -85,7 +85,7 @@ public class VariableListCell extends TreeCell<VariableListItem> {
         .ifPresent(itm -> {
           itemToCells
               .computeIfAbsent(
-                  itm, key -> Collections.<VariableListCell>newSetFromMap(new WeakHashMap<>()))
+                  itm, key -> Collections.newSetFromMap(new WeakHashMap<>()))
               .add(this);
         });
   }
@@ -105,7 +105,7 @@ public class VariableListCell extends TreeCell<VariableListItem> {
         .ifPresent(node -> {
           nodeToCells
               .computeIfAbsent(
-                  node, key -> Collections.<VariableListCell>newSetFromMap(new WeakHashMap<>()))
+                  node, key -> Collections.newSetFromMap(new WeakHashMap<>()))
               .add(this);
         });
   }

@@ -78,9 +78,9 @@ public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
   }
 
   @Override
-  public BhNodeView createViewOf(String specification, boolean isTemplate)
+  public BhNodeView createViewOf(String definition, boolean isTemplate)
       throws ViewConstructionException {
-    Matcher matcher = contents.matcher(specification);
+    Matcher matcher = contents.matcher(definition);
     List<String> specifiers = matcher.results().map(
         result -> {  
           String tmp = escapeLbrace.matcher(result.group(1)).replaceAll("{");

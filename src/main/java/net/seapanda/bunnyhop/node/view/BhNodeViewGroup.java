@@ -282,19 +282,18 @@ public class BhNodeViewGroup {
       return embedded.matcher(pattern).find();
     }
 
-    private ChildViewBinding build(
-        String specification, BhNodeViewFactory factory, boolean isTemplate)
+    private ChildViewBinding build(String definition, BhNodeViewFactory factory, boolean isTemplate)
         throws ViewConstructionException {
       return new ChildViewBinding(
           "$" + pseudoViewId++,
-          createPseudoView(specification, factory, isTemplate));
+          createPseudoView(definition, factory, isTemplate));
     }
 
     /** このグループの中で定義された MVC 構造を持たない {@link BhNodeView} を作成する. */
     private BhNodeViewBase createPseudoView(
-        String specification, BhNodeViewFactory factory, boolean isTemplate)
+        String definition, BhNodeViewFactory factory, boolean isTemplate)
         throws ViewConstructionException {
-      BhNodeView nodeView = factory.createViewOf(specification, isTemplate);
+      BhNodeView nodeView = factory.createViewOf(definition, isTemplate);
       if (nodeView instanceof BhNodeViewBase view) {
         view.getTreeControl().setParentGroup(BhNodeViewGroup.this);
         return view;

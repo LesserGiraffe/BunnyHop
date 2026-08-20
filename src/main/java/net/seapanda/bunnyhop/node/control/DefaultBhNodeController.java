@@ -165,6 +165,7 @@ public class DefaultBhNodeController implements BhNodeController {
       toFront();
       selectNode(event);
       savePositions(event);
+
     } catch (Throwable e) {
       terminateDnd(info);
       throw e;

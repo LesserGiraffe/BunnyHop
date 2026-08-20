@@ -28,11 +28,11 @@ import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
 
 /**
- * {@link BhNodeView} に対してイベントハンドラを追加または削除する機能を提供するクラス.
+ * ノードビューに対してイベントハンドラを追加または削除する機能を提供するクラス.
  *
  * @author K.Koike
  */
-class CallbackRegistryImpl implements BhNodeView.CallbackRegistry {
+abstract class CallbackRegistryBase implements BhNodeView.CallbackRegistry {
 
   private final BhNodeViewBase view;
 
@@ -60,11 +60,11 @@ class CallbackRegistryImpl implements BhNodeView.CallbackRegistry {
   final ConsumerInvoker<BhNodeView.SizeChangedEvent> onSizeChangedInvoker =
       new SimpleConsumerInvoker<>();
 
-  /** 関連するノードビューの GUI ツリー上の親要素が変わったときのイベントハンドラ. */
+  /** 関連するノードビューの GUI ツリー上の親要素が変わったときのイベントハンドラを管理するオブジェクト. */
   final ConsumerInvoker<BhNodeView.ParentViewChangedEvent> onParentViewChangedInvoker =
       new SimpleConsumerInvoker<>();
 
-  /** 関連するノードビューの親 {@link BhNodeViewGroup} が変わったときのイベントハンドラ. */
+  /** 関連するノードビューの親 {@link BhNodeViewGroup} が変わったときのイベントハンドラを管理するオブジェクト. */
   final ConsumerInvoker<BhNodeView.ParentGroupChangedEvent> onParentGroupChangedInvoker =
       new SimpleConsumerInvoker<>();
 
@@ -72,7 +72,7 @@ class CallbackRegistryImpl implements BhNodeView.CallbackRegistry {
   private final Deque<BhNodeView.MouseEventInfo> eventStack = new LinkedList<>();
 
   /** コンストラクタ. */
-  CallbackRegistryImpl(BhNodeViewBase view) {
+  CallbackRegistryBase(BhNodeViewBase view) {
     this.view = view;
     Shapes shapes = view.getShapes();
     shapes.nodeShape().setOnMousePressed(event -> {

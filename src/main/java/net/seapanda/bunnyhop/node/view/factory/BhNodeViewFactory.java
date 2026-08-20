@@ -39,10 +39,10 @@ public interface BhNodeViewFactory {
   /**
    * 疑似ビュー (= モデルを持たないビュー) を表す文字列から {@link BhNodeView} を作成する.
    *
-   * @param specification 疑似ビューの構成を指定した文字列
+   * @param definition 疑似ビューの構成を定義した文字列
    * @param isTemplate テンプレートノードビューを作成する場合 true
    * @return 作成した {@link BhNodeView} オブジェクト
    */
-  BhNodeView createViewOf(String specification, boolean isTemplate)
+  BhNodeView createViewOf(String definition, boolean isTemplate)
       throws ViewConstructionException;
 }

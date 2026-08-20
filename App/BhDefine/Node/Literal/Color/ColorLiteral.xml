@@ -18,7 +18,7 @@
         type="text"
         bhNodeID="idColorLiteralExp.node0"
         name="ColorLiteral"
-        nodeStyleID="ColorLiteral.json"
+        nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
         onTextOptionsCreating="CreateColorLiteral.js"
         version="bhn-0.1.0"/>

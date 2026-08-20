@@ -34,6 +34,10 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
 public class NoContentNodeView extends LeafNodeView {
 
   private final TextNode model;
+  private final Geometry geometry;
+  private final CallbackRegistry cbRegistry = new CallbackRegistry(this) {};
+  private final Visual visual = new Visual(this) {};
+
 
   /**
    * コンストラクタ.
@@ -48,8 +52,15 @@ public class NoContentNodeView extends LeafNodeView {
       throws ViewConstructionException {
     super(model, style, components, isTemplate);
     this.model = model;
-    getVisual().addCssClass(BhConstants.Css.Class.NO_CONTENT_NODE);
+    geometry = new Geometry(this, new NodeSizeCalculator(this, Vec2D::new)) {};
+    initializeStyle();
     setMouseTransparent(true);
+  }
+
+  private void initializeStyle() {
+    visual.addCssClass(getStyle().cssClasses);
+    visual.addCssClass(BhConstants.Css.Class.BH_NODE);
+    visual.addCssClass(BhConstants.Css.Class.NO_CONTENT_NODE);
   }
 
   @Override
@@ -58,8 +69,18 @@ public class NoContentNodeView extends LeafNodeView {
   }
 
   @Override
-  Vec2D getContentRegionSize() {
-    return new Vec2D();
+  public Geometry getGeometry() {
+    return geometry;
+  }
+
+  @Override
+  public CallbackRegistry getCallbackRegistry() {
+    return cbRegistry;
+  }
+
+  @Override
+  public Visual getVisual() {
+    return visual;
   }
 
   @Override

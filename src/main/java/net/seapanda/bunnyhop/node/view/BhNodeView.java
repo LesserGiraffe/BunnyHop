@@ -375,7 +375,7 @@ public interface BhNodeView {
     boolean isOuter();
   }
 
-  /** {@link BhNodeView} に対してイベントハンドラを追加または削除する機能を規定したインタフェース. */
+  /** ノードビューに対してイベントハンドラを追加または削除する機能を規定したインタフェース. */
   interface CallbackRegistry {
 
     /** 関連するノードビュー上でマウスボタンが押下されたときのイベントハンドラのレジストリを取得する. */

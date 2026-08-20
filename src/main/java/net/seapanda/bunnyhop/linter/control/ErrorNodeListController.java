@@ -39,16 +39,15 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
+import net.seapanda.bunnyhop.search.ItemSearcher;
+import net.seapanda.bunnyhop.search.SearchQuery;
+import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
-import net.seapanda.bunnyhop.ui.model.SearchQuery;
-import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
-import net.seapanda.bunnyhop.ui.service.search.ItemSearcher;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.collection.ImmutableCircularList;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSelectorController;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * エラーノードを表示する UI コンポーネントのコントローラ.
@@ -198,14 +197,14 @@ public class ErrorNodeListController {
 
   /** 変数一覧から {@code query} に一致する要素を探して選択する. */
   private SearchQueryResult selectItem(SearchQuery query) {
-    if (StringUtils.isEmpty(query.word())) {
+    if (query.isEmpty()) {
       return new SearchQueryResult(0, 0);
     }
-    ErrorNodeTreeItem found = null;
+    ErrorNodeTreeItem found;
     if (searchBox.getNumConsecutiveSameRequests() >= 2 && searchResult != null) {
-      found = query.findNext() ? searchResult.getNext() : searchResult.getPrevious();
+      found = query.isForward() ? searchResult.getNext() : searchResult.getPrevious();
     } else {
-      searchResult = ItemSearcher.<ErrorNodeTreeItem>search(
+      searchResult = ItemSearcher.search(
           query,
           rootErrorNodeItem.collectDescendants(),
           treeItem -> ErrorNodeListCell.getText(treeItem.getValue()));
@@ -264,7 +263,7 @@ public class ErrorNodeListController {
   }
 
   /** 変数情報を表示する {@link TreeView} がの各要素のモデル. */
-  private class ErrorNodeTreeItem extends TreeItem<ErrorNodeListItem> {
+  private static class ErrorNodeTreeItem extends TreeItem<ErrorNodeListItem> {
 
     private final ErrorNodeListItem item;
 

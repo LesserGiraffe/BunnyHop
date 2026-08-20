@@ -16,10 +16,13 @@
 
 package net.seapanda.bunnyhop.node.view;
 
+import static net.seapanda.bunnyhop.ui.skin.HighlightingChangePolicy.REFRESH;
+
 import java.util.LinkedHashSet;
-import java.util.Optional;
+import java.util.SequencedCollection;
 import java.util.SequencedSet;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
@@ -33,9 +36,12 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
+import net.seapanda.bunnyhop.search.Substring;
+import net.seapanda.bunnyhop.ui.skin.HighlightableTextFieldSkin;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * テキストフィールドを入力フォームに持つビュー.
@@ -44,10 +50,15 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
  */
 public final class TextFieldNodeView extends TextInputNodeView {
 
-  private final TextField textField = new TextField();
   private final TextNode model;
+  private final TextField textField = new TextField();
+  private final Visual visual = new Visual(this);
+  private final Geometry geometry;
+
   /** クリック時にテキストを選択するかどうかのフラグ. */
   private boolean shouldSelectText = true;
+  /** {@link #textField} がフォーカスを得る前に保持していたテキスト. */
+  private String textBeforeFocused = "";
 
   /**
    * コンストラクタ.
@@ -67,7 +78,9 @@ public final class TextFieldNodeView extends TextInputNodeView {
     textField.addEventFilter(MouseEvent.ANY, this::forwardEvent);
     textField.setOnMouseClicked(event -> Platform.runLater(() -> onTextFieldClicked(event)));
     textField.focusedProperty().addListener((obs, oldVal, newVal) -> onFocusChanged(newVal));
-    initStyle();
+    geometry = new Geometry(this, new NodeSizeCalculator(this, this::getContentRegionSize)) {};
+    setEditable(getStyle().textField.editable);
+    initializeStyle();
   }
 
   /**
@@ -93,12 +106,13 @@ public final class TextFieldNodeView extends TextInputNodeView {
     }
   }
 
-  private void initStyle() {
+  private void initializeStyle() {
     textField.getStyleClass().add(getStyle().textField.cssClass);
     textField.setMaxWidth(Region.USE_PREF_SIZE);
     textField.setMinWidth(Region.USE_PREF_SIZE);
-    setEditable(getStyle().textField.editable);
-    getVisual().addCssClass(BhConstants.Css.Class.TEXT_FIELD_NODE);
+    visual.addCssClass(getStyle().cssClasses);
+    visual.addCssClass(BhConstants.Css.Class.BH_NODE);
+    visual.addCssClass(BhConstants.Css.Class.TEXT_FIELD_NODE);
   }
 
   private void onTextFieldClicked(MouseEvent event) {
@@ -117,15 +131,21 @@ public final class TextFieldNodeView extends TextInputNodeView {
       textField.deselect();
       shouldSelectText = true;
     }
+
+    if (focused) {
+      textBeforeFocused = getText();
+      return;
+    }
+    textField.deselect();
+    shouldSelectText = true;
+    if (!StringUtils.equals(textBeforeFocused, getText())) {
+      var event = new TextChangeEvent(this, textBeforeFocused, getText());
+      getCallbackRegistry().onTextChangedInvoker.invoke(event);
+    }
   }
 
-  @Override
-  public Optional<TextNode> getModel() {
-    return Optional.ofNullable(model);
-  }
-
-  @Override
-  Vec2D getContentRegionSize() {
+  /** コンテンツを表示する領域の大きさを取得する. */
+  private Vec2D getContentRegionSize() {
     // textField.getWidth() だと設定した値以外が返る場合がある
     return new Vec2D(textField.getPrefWidth(), textField.getHeight());
   }
@@ -146,18 +166,18 @@ public final class TextFieldNodeView extends TextInputNodeView {
    * @param fnCheckFormat テキストのフォーマットをチェックする関数
    */
   private void updateTextFieldLooks(Function<String, Boolean> fnCheckFormat) {
-    Text textPart = (Text) textField.lookup(".text");
-    if (textPart == null) {
+    Text text = (Text) textField.lookup(".text");
+    if (text == null) {
       return;
     }
     // 正確な文字部分の境界を取得するため, GUI 部品内部の Text の境界は使わない.
-    double newWidth = ViewUtil.calcStrWidth(textPart.getText(), textPart.getFont());
+    double newWidth = ViewUtil.calcStrWidth(text.getText(), text.getFont());
     newWidth = Math.max(newWidth, getStyle().textField.minWidth);
     // 幅を (文字幅 + パディング) にするとキャレットの移動時に文字が左右に移動するので定数 3 を足す.
     // この定数はフォントやパディングが違っても機能する.
     newWidth += textField.getPadding().getLeft() + textField.getPadding().getRight() + 3;
     textField.setPrefWidth(newWidth);
-    boolean acceptable = fnCheckFormat.apply(textPart.getText());
+    boolean acceptable = fnCheckFormat.apply(text.getText());
     textField.pseudoClassStateChanged(
         PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.ERROR), !acceptable);
   }
@@ -168,7 +188,52 @@ public final class TextFieldNodeView extends TextInputNodeView {
   }
 
   @Override
+  public Visual getVisual() {
+    return visual;
+  }
+
+  @Override
+  public Geometry getGeometry() {
+    return geometry;
+  }
+
+  @Override
   public void accept(NodeViewWalker visitor) {
     visitor.visit(this);
+  }
+
+  /** ノードビューの視覚効果に関する機能を提供するクラス. */
+  public static class Visual extends TextNodeView.Visual {
+
+    /** テキストフィールドに適用するスキン. */
+    private final HighlightableTextFieldSkin skin;
+
+    Visual(TextFieldNodeView view) {
+      super(view);
+      String styleClass = view.getStyle().textField.textHighlight.cssClass;
+      skin = new HighlightableTextFieldSkin(view.textField, styleClass, REFRESH);
+      view.textField.setSkin(skin);
+    }
+
+    @Override
+    public SequencedCollection<Substring> enableTextHighlighting(
+        Pattern pattern, int maxHighlights) {
+      return skin.enableHighlighting(pattern, maxHighlights);
+    }
+
+    @Override
+    public void disableTextHighlighting() {
+      skin.disableHighlighting();
+    }
+
+    @Override
+    public SequencedCollection<Substring> getHighlightedTexts() {
+      return skin.getHighlightedTexts();
+    }
+
+    @Override
+    public boolean isTextHighlightingEnabled() {
+      return skin.isHighlightingEnabled();
+    }
   }
 }

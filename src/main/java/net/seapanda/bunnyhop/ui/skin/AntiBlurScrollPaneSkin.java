@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.ui.view;
+package net.seapanda.bunnyhop.ui.skin;
 
 import java.lang.reflect.Field;
 import javafx.scene.control.ScrollPane;

@@ -28,22 +28,23 @@ import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.TextNode.FormatResult;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * テキスト入力可能な NodeView の基底クラス.
  *
  * @author K.Koike
  */
-public abstract class TextInputNodeView extends LeafNodeView {
+public abstract class TextInputNodeView extends TextNodeView {
 
-  protected TextInputNodeView(
+  TextInputNodeView(
       TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
       throws ViewConstructionException {
     super(model, style, components, isTemplate);
   }
 
-  /** テキスト入力用GUIコンポーネントを取得する. */
-  protected abstract TextInputControl getTextInputControl();
+  /** テキスト入力用 GUI コンポーネントを取得する. */
+  abstract TextInputControl getTextInputControl();
 
   /**
    * テキスト変更時のイベントハンドラを登録する.
@@ -77,8 +78,8 @@ public abstract class TextInputNodeView extends LeafNodeView {
   public final void setTextFormatter(
       BiFunction<String, String, FormatResult> formatter) {
     TextInputControl control = getTextInputControl();
-    control.setTextFormatter(new TextFormatter<Object>(
-        change -> setFormattedText(formatter, control.getLength(), change)));
+    control.setTextFormatter(
+        new TextFormatter<>(change -> setFormattedText(formatter, control.getLength(), change)));
   }
 
   /**
@@ -105,7 +106,11 @@ public abstract class TextInputNodeView extends LeafNodeView {
 
   /** View に表示するテキストを設定する. */
   public final void setText(String text) {
-    getTextInputControl().setText(text);
+    String oldText = getText();
+    if (!StringUtils.equals(oldText, text)) {
+      getTextInputControl().setText(text);
+      getCallbackRegistry().onTextChangedInvoker.invoke(new TextChangeEvent(this, oldText, text));
+    }
   }
 
 

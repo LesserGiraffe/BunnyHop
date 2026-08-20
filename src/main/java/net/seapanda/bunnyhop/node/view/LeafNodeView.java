@@ -22,7 +22,6 @@ import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
-import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem;
 
 /**
  * 子要素を持たない NodeView の基底クラス.
@@ -31,35 +30,27 @@ import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem;
  */
 abstract class LeafNodeView extends BhNodeViewBase {
 
-  private final Geometry geometry;
-
-  /** コンテンツを表示する領域の大きさを取得する. */
-  abstract Vec2D getContentRegionSize();
+  @Override
+  public abstract Geometry getGeometry();
 
   LeafNodeView(
       TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
       throws ViewConstructionException {
     super(style, model, components, isTemplate);
-    var qtsReg = getQuadTreeSpaceRegistration();
-    geometry = new Geometry(qtsReg.getBodyQtItem(), qtsReg.getConnectorQtItem());
-  }
-
-  @Override
-  public Geometry getGeometry() {
-    return geometry;
   }
 
   /** ノードビューの幾何形状に関する操作を提供するクラス. */
-  public class Geometry extends GeometryBase {
+  public abstract static class Geometry extends GeometryBase {
 
-    private final NodeSizeCalculator sizeCalculator;
+    private final NodeSizeCalculator nodeSizeCalc;
 
-    private Geometry(QuadTreeItem bodyItem, QuadTreeItem cnctrItem) {
-      super(LeafNodeView.this, bodyItem, cnctrItem);
-      sizeCalculator =
-          new NodeSizeCalculator(LeafNodeView.this, LeafNodeView.this::getContentRegionSize);
-      LeafNodeView.this.getSizeChangeNotifier().setOnDescendantSizeChanged(
-          sizeCalculator::notifyNodeSizeChanged);
+    Geometry(LeafNodeView view, NodeSizeCalculator nodeSizeCalc) {
+      super(
+          view,
+          view.getQuadTreeSpaceRegistration().getBodyQtItem(),
+          view.getQuadTreeSpaceRegistration().getConnectorQtItem());
+      this.nodeSizeCalc = nodeSizeCalc;
+      view.getSizeChangeNotifier().setOnDescendantSizeChanged(nodeSizeCalc::notifyNodeSizeChanged);
     }
 
     @Override
@@ -70,7 +61,7 @@ abstract class LeafNodeView extends BhNodeViewBase {
 
     @Override
     public Vec2D getNodeSize(boolean includeCnctr) {
-      return sizeCalculator.calcNodeSize(includeCnctr);
+      return nodeSizeCalc.calcNodeSize(includeCnctr);
     }
 
     @Override
@@ -80,5 +71,19 @@ abstract class LeafNodeView extends BhNodeViewBase {
 
     @Override
     void updateDescendantRelativePositions() {}
+  }
+
+  /** ノードビューの視覚効果に関する機能を提供するクラス. */
+  public abstract static class Visual extends VisualBase {
+    Visual(LeafNodeView view) {
+      super(view);
+    }
+  }
+
+  /** ノードビューに対してイベントハンドラを追加または削除する機能を提供するクラス. */
+  public abstract static class CallbackRegistry extends CallbackRegistryBase {
+    CallbackRegistry(LeafNodeView view) {
+      super(view);
+    }
   }
 }

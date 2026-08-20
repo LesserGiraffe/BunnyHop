@@ -320,6 +320,7 @@ public class BhConstants {
     public static final String KEY_SPECIFIC_PART = "specificPart";
     public static final String KEY_RADIUS = "radius";
     public static final String KEY_SIZE = "size";
+    public static final String KEY_TEXT_HIGHLIGHT = "textHighlight";
     public static final String VAL_ROW = "Row";
     public static final String VAL_COLUMN = "Column";
     public static final String VAL_LEFT = "Left";

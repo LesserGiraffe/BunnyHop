@@ -17,6 +17,58 @@
 package net.seapanda.bunnyhop.node.view.style;
 
 import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_ARRANGEMENT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_BASE_ARRANGEMENT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_BODY_SHAPE_INNER;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_BODY_SHAPE_OUTER;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_BREAK_POINT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_COMBO_BOX;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_COMMON_PART;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_COMPONENT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_CONNECTIVE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_CONNECTOR_ALIGNMENT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_CONNECTOR_BOUNDS_RATE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_CONNECTOR_HEIGHT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_CONNECTOR_LIST;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_CONNECTOR_POS;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_CONNECTOR_SHAPE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_CONNECTOR_SHAPE_FIXED;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_CONNECTOR_SHIFT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_CONNECTOR_WIDTH;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_CORRUPTION;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_CSS_CLASS;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_EDITABLE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_ENTRY_POINT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_IMPORT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_INNER;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_LABEL;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_MIN_HEIGHT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_MIN_WIDTH;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_NEXT_STEP;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_NOTCH_HEIGHT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_NOTCH_POS;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_NOTCH_SHAPE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_NOTCH_SHAPE_FIXED;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_NOTCH_WIDTH;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_OUTER;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_OUTER_OFFSET;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_PADDING_BOTTOM;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_PADDING_LEFT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_PADDING_RIGHT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_PADDING_TOP;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_PRIVATE_TEMPLATE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_RADIUS;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_RUNTIME_ERROR;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_SIZE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_SPACE;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_SPECIFIC_PART;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_SUB_GROUP;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_TEXT_AREA;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_TEXT_FIELD;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.NodeStyleDef.KEY_TEXT_HIGHLIGHT;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.Arrangement;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.Breakpoint;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.TextHighlight;
 import static net.seapanda.bunnyhop.utility.function.ThrowingConsumer.unchecked;
 
 import com.google.gson.Gson;
@@ -54,6 +106,7 @@ import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.RuntimeError
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.SpecificPartSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.TextAreaSnippet;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.TextFieldSnippet;
+import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyleSnippet.TextHighlightSnippet;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.function.ThrowingFunction;
 
@@ -137,7 +190,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
     try {
       String pathStr = filePath.toFile().getCanonicalPath();
       var styles = new ArrayList<BhNodeViewStyleSnippet>();
-      readArray(BhConstants.NodeStyleDef.KEY_IMPORT, jsonObj, pathStr)
+      readArray(KEY_IMPORT, jsonObj, pathStr)
           .orElse(new JsonArray())
           .asList().stream()
           .filter(val -> val.isJsonPrimitive() && val.getAsJsonPrimitive().isString())
@@ -166,158 +219,142 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       throws ViewConstructionException {
 
     // paddingTop
-    snippet.paddingTop = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_TOP, jsonObj, fileName)
+    snippet.paddingTop = readNumber(KEY_PADDING_TOP, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.paddingTop);
 
     // paddingBottom
-    snippet.paddingBottom =
-        readNumber(BhConstants.NodeStyleDef.KEY_PADDING_BOTTOM, jsonObj, fileName)
+    snippet.paddingBottom = readNumber(KEY_PADDING_BOTTOM, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.paddingBottom);
 
     // paddingLeft
-    snippet.paddingLeft = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_LEFT, jsonObj, fileName)
+    snippet.paddingLeft = readNumber(KEY_PADDING_LEFT, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.paddingLeft);
 
     // paddingRight
-    snippet.paddingRight = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_RIGHT, jsonObj, fileName)
+    snippet.paddingRight = readNumber(KEY_PADDING_RIGHT, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.paddingRight);
 
     // bodyShapeInner
-    snippet.bodyShapeInner =
-        readString(BhConstants.NodeStyleDef.KEY_BODY_SHAPE_INNER, jsonObj, fileName)
+    snippet.bodyShapeInner = readString(KEY_BODY_SHAPE_INNER, jsonObj, fileName)
         .map(val -> BodyShape.getBodyTypeFromName(val, fileName))
         .orElse(snippet.bodyShapeInner);
 
     // bodyShapeOuter
-    snippet.bodyShapeOuter =
-        readString(BhConstants.NodeStyleDef.KEY_BODY_SHAPE_OUTER, jsonObj, fileName)
+    snippet.bodyShapeOuter = readString(KEY_BODY_SHAPE_OUTER, jsonObj, fileName)
         .map(val -> BodyShape.getBodyTypeFromName(val, fileName))
         .orElse(snippet.bodyShapeOuter);
 
     // connectorPos
-    snippet.connectorPos = readString(BhConstants.NodeStyleDef.KEY_CONNECTOR_POS, jsonObj, fileName)
+    snippet.connectorPos = readString(KEY_CONNECTOR_POS, jsonObj, fileName)
         .map(ConnectorOrientation::of)
         .orElse(snippet.connectorPos);
 
     // connectorShift
-    snippet.connectorShift =
-        readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHIFT, jsonObj, fileName)
+    snippet.connectorShift = readNumber(KEY_CONNECTOR_SHIFT, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.connectorShift);
 
     // connectorWidth
-    snippet.connectorWidth =
-        readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_WIDTH, jsonObj, fileName)
-            .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
-            .orElse(snippet.connectorWidth);
+    snippet.connectorWidth = readNumber(KEY_CONNECTOR_WIDTH, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
+        .orElse(snippet.connectorWidth);
 
     // connectorHeight
-    snippet.connectorHeight =
-        readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_HEIGHT, jsonObj, fileName)
-            .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
-            .orElse(snippet.connectorHeight);
+    snippet.connectorHeight = readNumber(KEY_CONNECTOR_HEIGHT, jsonObj, fileName)
+        .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
+        .orElse(snippet.connectorHeight);
 
     // connectorAlignment
-    snippet.connectorAlignment =
-        readString(BhConstants.NodeStyleDef.KEY_CONNECTOR_ALIGNMENT, jsonObj, fileName)
+    snippet.connectorAlignment = readString(KEY_CONNECTOR_ALIGNMENT, jsonObj, fileName)
         .map(ConnectorAlignment::of)
         .orElse(snippet.connectorAlignment);
 
     // connectorShape
-    snippet.connectorShape =
-        readString(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHAPE, jsonObj, fileName)
+    snippet.connectorShape = readString(KEY_CONNECTOR_SHAPE, jsonObj, fileName)
         .map(val -> ConnectorShape.getConnectorTypeFromName(val, fileName))
         .orElse(snippet.connectorShape);
 
     // connectorShapeFixed
-    snippet.connectorShapeFixed =
-        readString(BhConstants.NodeStyleDef.KEY_CONNECTOR_SHAPE_FIXED, jsonObj, fileName)
+    snippet.connectorShapeFixed = readString(KEY_CONNECTOR_SHAPE_FIXED, jsonObj, fileName)
         .map(val -> ConnectorShape.getConnectorTypeFromName(val, fileName))
         .orElse(snippet.connectorShapeFixed);
 
     // notchPos
-    snippet.notchPos = readString(BhConstants.NodeStyleDef.KEY_NOTCH_POS, jsonObj, fileName)
+    snippet.notchPos = readString(KEY_NOTCH_POS, jsonObj, fileName)
         .map(NotchPos::of)
         .orElse(snippet.notchPos);
 
     // notchWidth
-    snippet.notchWidth = readNumber(BhConstants.NodeStyleDef.KEY_NOTCH_WIDTH, jsonObj, fileName)
+    snippet.notchWidth = readNumber(KEY_NOTCH_WIDTH, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.notchWidth);
 
     // notchHeight
-    snippet.notchHeight = readNumber(BhConstants.NodeStyleDef.KEY_NOTCH_HEIGHT, jsonObj, fileName)
+    snippet.notchHeight = readNumber(KEY_NOTCH_HEIGHT, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.notchHeight);
 
     // notchShape
-    snippet.notchShape =
-        readString(BhConstants.NodeStyleDef.KEY_NOTCH_SHAPE, jsonObj, fileName)
+    snippet.notchShape = readString(KEY_NOTCH_SHAPE, jsonObj, fileName)
         .map(val -> ConnectorShape.getConnectorTypeFromName(val, fileName))
         .orElse(snippet.notchShape);
 
     // notchShapeFixed
-    snippet.notchShapeFixed =
-        readString(BhConstants.NodeStyleDef.KEY_NOTCH_SHAPE_FIXED, jsonObj, fileName)
+    snippet.notchShapeFixed = readString(KEY_NOTCH_SHAPE_FIXED, jsonObj, fileName)
         .map(val -> ConnectorShape.getConnectorTypeFromName(val, fileName))
         .orElse(snippet.notchShapeFixed);
 
     // connectorBoundsRate
-    snippet.connectorBoundsRate =
-        readNumber(BhConstants.NodeStyleDef.KEY_CONNECTOR_BOUNDS_RATE, jsonObj, fileName)
+    snippet.connectorBoundsRate = readNumber(KEY_CONNECTOR_BOUNDS_RATE, jsonObj, fileName)
         .map(Number::doubleValue)
         .orElse(snippet.connectorBoundsRate);
 
     // cssClass
-    snippet.cssClasses = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+    snippet.cssClasses = readString(KEY_CSS_CLASS, jsonObj, fileName)
         .map(clz -> clz.split(","))
         .orElse(snippet.cssClasses);
 
     // component
-    snippet.component = readString(BhConstants.NodeStyleDef.KEY_COMPONENT, jsonObj, fileName)
+    snippet.component = readString(KEY_COMPONENT, jsonObj, fileName)
         .map(ComponentType::of)
         .orElse(snippet.component);
 
     // baseArrangement
-    snippet.baseArrangement =
-        readString(BhConstants.NodeStyleDef.KEY_BASE_ARRANGEMENT, jsonObj, fileName)
+    snippet.baseArrangement = readString(KEY_BASE_ARRANGEMENT, jsonObj, fileName)
         .map(ChildArrangement::of)
         .orElse(snippet.baseArrangement);
 
     // connective
-    readObject(BhConstants.NodeStyleDef.KEY_CONNECTIVE, jsonObj, fileName)
-        .ifPresent(
-            unchecked(obj -> populateConnectiveParams(snippet.connective, obj, fileName)));
+    readObject(KEY_CONNECTIVE, jsonObj, fileName)
+        .ifPresent(unchecked(obj -> populateConnectiveParams(snippet.connective, obj, fileName)));
 
     // commonPart
-    readObject(BhConstants.NodeStyleDef.KEY_COMMON_PART, jsonObj, fileName)
+    readObject(KEY_COMMON_PART, jsonObj, fileName)
         .ifPresent(unchecked(obj -> populateCommonPartStyle(snippet.commonPart, obj, fileName)));
 
     // specificPart
-    readObject(BhConstants.NodeStyleDef.KEY_SPECIFIC_PART, jsonObj, fileName).ifPresent(
+    readObject(KEY_SPECIFIC_PART, jsonObj, fileName).ifPresent(
         unchecked(obj -> populateSpecificPartStyle(snippet.specificPart, obj, fileName)));
 
     // textField
-    readObject(BhConstants.NodeStyleDef.KEY_TEXT_FIELD, jsonObj, fileName)
+    readObject(KEY_TEXT_FIELD, jsonObj, fileName)
         .ifPresent(unchecked(obj -> populateTextFieldStyle(snippet.textField, obj, fileName)));
 
     // label
-    readObject(BhConstants.NodeStyleDef.KEY_LABEL, jsonObj, fileName)
+    readObject(KEY_LABEL, jsonObj, fileName)
         .ifPresent(unchecked(obj -> populateLabelStyle(snippet.label, obj, fileName)));
 
     // comboBox
-    readObject(BhConstants.NodeStyleDef.KEY_COMBO_BOX, jsonObj, fileName)
-        .ifPresent(
-            unchecked(obj -> populateComboBoxStyle(snippet.comboBox, obj, fileName)));
+    readObject(KEY_COMBO_BOX, jsonObj, fileName)
+        .ifPresent(unchecked(obj -> populateComboBoxStyle(snippet.comboBox, obj, fileName)));
 
     // textArea
-    readObject(BhConstants.NodeStyleDef.KEY_TEXT_AREA, jsonObj, fileName)
-        .ifPresent(
-            unchecked(obj -> populateTextAreaStyle(snippet.textArea, obj, fileName)));
+    readObject(KEY_TEXT_AREA, jsonObj, fileName)
+        .ifPresent(unchecked(obj -> populateTextAreaStyle(snippet.textArea, obj, fileName)));
   }
 
   /**
@@ -331,25 +368,25 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       ConnectiveSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // inner
-    snippet.inner = readObject(BhConstants.NodeStyleDef.KEY_INNER, jsonObj, fileName)
+    snippet.inner = readObject(KEY_INNER, jsonObj, fileName)
         .map(ThrowingFunction.unchecked(
             obj -> populateArrangementStyle(new ArrangementSnippet(), obj, fileName)))
         .orElse(snippet.inner);
 
     // outer
-    snippet.outer = readObject(BhConstants.NodeStyleDef.KEY_OUTER, jsonObj, fileName)
+    snippet.outer = readObject(KEY_OUTER, jsonObj, fileName)
         .map(ThrowingFunction.unchecked(
             obj -> populateArrangementStyle(new ArrangementSnippet(), obj, fileName)))
         .orElse(snippet.outer);
 
     // outerOffset
-    snippet.outerOffset = readNumber(BhConstants.NodeStyleDef.KEY_OUTER_OFFSET, jsonObj, fileName)
+    snippet.outerOffset = readNumber(KEY_OUTER_OFFSET, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.outerOffset);
   }
 
   /**
-   * {@link BhNodeViewStyle.Arrangement} にスタイル情報を格納する.
+   * {@link Arrangement} にスタイル情報を格納する.
    *
    * @param snippet このオブジェクトにスタイル情報を格納する
    * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
@@ -359,38 +396,38 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       ArrangementSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // space
-    snippet.space = readNumber(BhConstants.NodeStyleDef.KEY_SPACE, jsonObj, fileName)
+    snippet.space = readNumber(KEY_SPACE, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.space);
 
     // paddingTop
-    snippet.paddingTop = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_TOP, jsonObj, fileName)
+    snippet.paddingTop = readNumber(KEY_PADDING_TOP, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.paddingTop);
 
     // paddingRight
-    snippet.paddingRight = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_RIGHT, jsonObj, fileName)
+    snippet.paddingRight = readNumber(KEY_PADDING_RIGHT, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.paddingRight);
 
     // paddingBottom
     snippet.paddingBottom =
-        readNumber(BhConstants.NodeStyleDef.KEY_PADDING_BOTTOM, jsonObj, fileName)
+        readNumber(KEY_PADDING_BOTTOM, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.paddingBottom);
 
     // paddingLeft
-    snippet.paddingLeft = readNumber(BhConstants.NodeStyleDef.KEY_PADDING_LEFT, jsonObj, fileName)
+    snippet.paddingLeft = readNumber(KEY_PADDING_LEFT, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.paddingLeft);
 
     // arrangement
-    snippet.arrangement = readString(BhConstants.NodeStyleDef.KEY_ARRANGEMENT, jsonObj, fileName)
+    snippet.arrangement = readString(KEY_ARRANGEMENT, jsonObj, fileName)
         .map(ChildArrangement::of)
         .orElse(snippet.arrangement);
 
     // cnctrNameList
-    readArray(BhConstants.NodeStyleDef.KEY_CONNECTOR_LIST, jsonObj, fileName)
+    readArray(KEY_CONNECTOR_LIST, jsonObj, fileName)
         .orElse(new JsonArray())
         .asList().stream()
         .filter(val -> val.isJsonPrimitive() && val.getAsJsonPrimitive().isString())
@@ -400,7 +437,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
     // subGroup
     int groupId = 0;
     while (true) {
-      String subGroupKeyName = BhConstants.NodeStyleDef.KEY_SUB_GROUP + groupId++;
+      String subGroupKeyName = KEY_SUB_GROUP + groupId++;
       JsonObject obj = readObject(subGroupKeyName, jsonObj, fileName).orElse(null);
       if (obj == null) {
         break;
@@ -423,37 +460,36 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       CommonPartSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
-    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+    snippet.cssClass = readString(KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(snippet.cssClass);
 
     // arrangement
-    snippet.arrangement = readString(BhConstants.NodeStyleDef.KEY_ARRANGEMENT, jsonObj, fileName)
+    snippet.arrangement = readString(KEY_ARRANGEMENT, jsonObj, fileName)
         .map(ChildArrangement::of)
         .orElse(snippet.arrangement);
 
     // privateTemplate
-    readObject(BhConstants.NodeStyleDef.KEY_PRIVATE_TEMPLATE, jsonObj, fileName)
-        .ifPresent(
-            unchecked(obj -> populateButtonStyle(snippet.privateTemplate, obj, fileName)));
+    readObject(KEY_PRIVATE_TEMPLATE, jsonObj, fileName)
+        .ifPresent(unchecked(obj -> populateButtonStyle(snippet.privateTemplate, obj, fileName)));
 
     // breakpoint
-    readObject(BhConstants.NodeStyleDef.KEY_BREAK_POINT, jsonObj, fileName)
-        .ifPresent(unchecked(obj -> populateBreakpointStyle(snippet.breakpointIcon, obj, fileName)));
+    readObject(KEY_BREAK_POINT, jsonObj, fileName).ifPresent(
+        unchecked(obj -> populateBreakpointStyle(snippet.breakpointIcon, obj, fileName)));
 
     // nextStep
-    readObject(BhConstants.NodeStyleDef.KEY_NEXT_STEP, jsonObj, fileName).ifPresent(
+    readObject(KEY_NEXT_STEP, jsonObj, fileName).ifPresent(
         unchecked(obj -> populateNextStepStyle(snippet.nextStepIcon, obj, fileName)));
 
     // runtimeError
-    readObject(BhConstants.NodeStyleDef.KEY_RUNTIME_ERROR, jsonObj, fileName).ifPresent(
+    readObject(KEY_RUNTIME_ERROR, jsonObj, fileName).ifPresent(
         unchecked(obj -> populateRuntimeErrorStyle(snippet.runtimeErrIcon, obj, fileName)));
 
     // corruption
-    readObject(BhConstants.NodeStyleDef.KEY_CORRUPTION, jsonObj, fileName).ifPresent(
+    readObject(KEY_CORRUPTION, jsonObj, fileName).ifPresent(
         unchecked(obj -> populateCorruptionStyle(snippet.corruptionIcon, obj, fileName)));
 
     // entryPoint
-    readObject(BhConstants.NodeStyleDef.KEY_ENTRY_POINT, jsonObj, fileName).ifPresent(
+    readObject(KEY_ENTRY_POINT, jsonObj, fileName).ifPresent(
         unchecked(obj -> populateEntryPointStyle(snippet.entryPointIcon, obj, fileName)));
   }
 
@@ -468,7 +504,7 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       SpecificPartSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
-    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+    snippet.cssClass = readString(KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(snippet.cssClass);
   }
 
@@ -482,12 +518,12 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
   private void populateButtonStyle(ButtonSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
-    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+    snippet.cssClass = readString(KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(snippet.cssClass);
   }
 
   /**
-   * {@link BhNodeViewStyle.Breakpoint} にスタイル情報を格納する.
+   * {@link Breakpoint} にスタイル情報を格納する.
    *
    * @param snippet このオブジェクトにスタイル情報を格納する
    * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
@@ -497,11 +533,11 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       BreakpointIconSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
-    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+    snippet.cssClass = readString(KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(snippet.cssClass);
 
     // radius
-    snippet.radius = readNumber(BhConstants.NodeStyleDef.KEY_RADIUS, jsonObj, fileName)
+    snippet.radius = readNumber(KEY_RADIUS, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.radius);
   }
@@ -517,11 +553,11 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       NextStepIconSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
-    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+    snippet.cssClass = readString(KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(snippet.cssClass);
 
     // radius
-    snippet.radius = readNumber(BhConstants.NodeStyleDef.KEY_RADIUS, jsonObj, fileName)
+    snippet.radius = readNumber(KEY_RADIUS, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.radius);
   }
@@ -537,11 +573,11 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       RuntimeErrorIconSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
-    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+    snippet.cssClass = readString(KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(snippet.cssClass);
 
     // radius
-    snippet.radius = readNumber(BhConstants.NodeStyleDef.KEY_RADIUS, jsonObj, fileName)
+    snippet.radius = readNumber(KEY_RADIUS, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.radius);
   }
@@ -557,11 +593,11 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       CorruptionIconSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
-    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+    snippet.cssClass = readString(KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(snippet.cssClass);
 
     // size
-    snippet.size = readNumber(BhConstants.NodeStyleDef.KEY_SIZE, jsonObj, fileName)
+    snippet.size = readNumber(KEY_SIZE, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.size);
   }
@@ -577,11 +613,11 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       EntryPointIconSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
-    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+    snippet.cssClass = readString(KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(snippet.cssClass);
 
     // radius
-    snippet.radius = readNumber(BhConstants.NodeStyleDef.KEY_RADIUS, jsonObj, fileName)
+    snippet.radius = readNumber(KEY_RADIUS, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.radius);
   }
@@ -597,17 +633,21 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
       TextFieldSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
-    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+    snippet.cssClass = readString(KEY_CSS_CLASS, jsonObj, fileName)
           .orElse(snippet.cssClass);
 
     // minWidth
-    snippet.minWidth = readNumber(BhConstants.NodeStyleDef.KEY_MIN_WIDTH, jsonObj, fileName)
+    snippet.minWidth = readNumber(KEY_MIN_WIDTH, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.minWidth);
         
     // editable
-    snippet.editable = readBool(BhConstants.NodeStyleDef.KEY_EDITABLE, jsonObj, fileName)
+    snippet.editable = readBool(KEY_EDITABLE, jsonObj, fileName)
         .orElse(snippet.editable);
+
+    // textHighlight
+    readObject(KEY_TEXT_HIGHLIGHT, jsonObj, fileName).ifPresent(
+        unchecked(obj -> populateTextHighlightStyle(snippet.textHighlight, obj, fileName)));
   }
 
   /**
@@ -620,8 +660,12 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
   private void populateLabelStyle(LabelSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
-    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+    snippet.cssClass = readString(KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(snippet.cssClass);
+
+    // textHighlight
+    readObject(KEY_TEXT_HIGHLIGHT, jsonObj, fileName).ifPresent(
+        unchecked(obj -> populateTextHighlightStyle(snippet.textHighlight, obj, fileName)));
   }
 
   /**
@@ -634,8 +678,12 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
   private void populateComboBoxStyle(ComboBoxSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
-    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+    snippet.cssClass = readString(KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(snippet.cssClass);
+
+    // textHighlight
+    readObject(KEY_TEXT_HIGHLIGHT, jsonObj, fileName).ifPresent(
+        unchecked(obj -> populateTextHighlightStyle(snippet.textHighlight, obj, fileName)));
   }
 
   /**
@@ -648,22 +696,41 @@ public class JsonBhNodeViewStyleFactory implements BhNodeViewStyleFactory {
   private void populateTextAreaStyle(TextAreaSnippet snippet, JsonObject jsonObj, String fileName)
       throws ViewConstructionException {
     // cssClass
-    snippet.cssClass = readString(BhConstants.NodeStyleDef.KEY_CSS_CLASS, jsonObj, fileName)
+    snippet.cssClass = readString(KEY_CSS_CLASS, jsonObj, fileName)
         .orElse(snippet.cssClass);
 
     // minWidth
-    snippet.minWidth = readNumber(BhConstants.NodeStyleDef.KEY_MIN_WIDTH, jsonObj, fileName)
+    snippet.minWidth = readNumber(KEY_MIN_WIDTH, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.minWidth);
 
     // minHeight
-    snippet.minHeight = readNumber(BhConstants.NodeStyleDef.KEY_MIN_HEIGHT, jsonObj, fileName)
+    snippet.minHeight = readNumber(KEY_MIN_HEIGHT, jsonObj, fileName)
         .map(val -> val.doubleValue() * BhConstants.Ui.NODE_SCALE)
         .orElse(snippet.minHeight);
 
     // editable
-    snippet.editable = readBool(BhConstants.NodeStyleDef.KEY_EDITABLE, jsonObj, fileName)
+    snippet.editable = readBool(KEY_EDITABLE, jsonObj, fileName)
         .orElse(snippet.editable);
+
+    // textHighlight
+    readObject(KEY_TEXT_HIGHLIGHT, jsonObj, fileName).ifPresent(
+        unchecked(obj -> populateTextHighlightStyle(snippet.textHighlight, obj, fileName)));
+  }
+
+  /**
+   * {@link TextHighlight} にスタイル情報を格納する.
+   *
+   * @param snippet このオブジェクトにスタイル情報を格納する
+   * @param jsonObj この JSON オブジェクトからスタイル情報を取得する
+   * @param fileName {@code jsonObj} が記述してある JSON ファイルの名前
+   */
+  private static void populateTextHighlightStyle(
+      TextHighlightSnippet snippet, JsonObject jsonObj, String fileName)
+      throws ViewConstructionException {
+    // cssClass
+    snippet.cssClass = readString(KEY_CSS_CLASS, jsonObj, fileName)
+          .orElse(snippet.cssClass);
   }
 
   /**

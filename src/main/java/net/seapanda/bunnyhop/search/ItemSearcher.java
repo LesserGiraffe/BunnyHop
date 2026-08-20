@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.ui.service.search;
+package net.seapanda.bunnyhop.search;
 
 import java.util.List;
 import java.util.SequencedCollection;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import net.seapanda.bunnyhop.ui.model.SearchQuery;
 import net.seapanda.bunnyhop.utility.collection.ImmutableCircularList;
 
 /**
@@ -42,21 +41,14 @@ public class ItemSearcher<T> {
    */
   public static <T> ImmutableCircularList<T> search(
       SearchQuery query, SequencedCollection<T> items, Function<T, String> toString) {
-    return new ItemSearcher<T>().searchImpl(query, items, toString);
-  }
-
-  private ImmutableCircularList<T> searchImpl(
-      SearchQuery query, SequencedCollection<T> items, Function<T, String> toString) {
     ImmutableCircularList<T> result = new ImmutableCircularList<>();
     try {
-      String searchWord = query.isRegex() ? query.word() : Pattern.quote(query.word());
-      int regexFlag = query.isCaseSensitive() ? 0 : Pattern.CASE_INSENSITIVE;
-      Pattern pattern = Pattern.compile(searchWord, regexFlag);
+      Pattern pattern = query.getPattern();
       List<T> results = items.stream()
           .filter(item -> pattern.matcher(toString.apply(item)).find())
           .toList();
       result = new ImmutableCircularList<>(results);
-      if (!query.findNext()) {
+      if (!query.isForward()) {
         result.movePrevious(1);
       }
     } catch (PatternSyntaxException e) { /* Do nothing */ }

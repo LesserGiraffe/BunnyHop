@@ -29,13 +29,13 @@ import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
  *
  * @author K.Koike
  */
-class VisualImpl implements BhNodeView.Visual {
+abstract class VisualBase implements BhNodeView.Visual {
 
   private final BhNodeViewBase view;
   /** 現在適用されている視覚効果. */
   private final Set<VisualEffectType> appliedEffects = new HashSet<>();
 
-  VisualImpl(BhNodeViewBase view) {
+  VisualBase(BhNodeViewBase view) {
     this.view = view;
   }
 

@@ -18,7 +18,7 @@
         type="text"
         bhNodeID="idBoolLiteralExp.node0"
         name="BoolLiteral"
-        nodeStyleID="BoolLiteral.json"
+        nodeStyleID="WordComboBox.json"
         breakpoint="specifyParent"
         onTextOptionsCreating="CreateBoolLiteral.js"
         version="bhn-0.1.0"/>

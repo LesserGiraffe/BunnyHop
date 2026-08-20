@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javafx.collections.ListChangeListener.Change;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -32,16 +33,15 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
+import net.seapanda.bunnyhop.search.ItemSearcher;
+import net.seapanda.bunnyhop.search.SearchQuery;
+import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
-import net.seapanda.bunnyhop.ui.model.SearchQuery;
-import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
-import net.seapanda.bunnyhop.ui.service.search.ItemSearcher;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.collection.ImmutableCircularList;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSelectorController;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * ブレークポイントを表示する UI コンポーネントのコントローラ.
@@ -90,7 +90,7 @@ public class BreakpointListController {
     bpListView.setCellFactory(stack -> new BreakpointListCell(nodeToCells));
     bpListView.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldVal, newVal) -> onBreakpointSelected(newVal));
-    bpListView.itemsProperty().addListener((obs, oldVal, newVal) -> searchResult = null);
+    bpListView.getItems().addListener((Change<? extends BhNode> change) -> searchResult = null);
     bpListView.focusedProperty().addListener(
         (obs, oldVal, newVal) -> onFocusChanged(newVal));
 
@@ -130,15 +130,14 @@ public class BreakpointListController {
 
   /** ブレークポイント一覧から {@code query} で指定された文字列に一致する要素を探して選択する. */
   private SearchQueryResult selectItem(SearchQuery query) {
-    if (StringUtils.isEmpty(query.word())) {
+    if (query.isEmpty()) {
       return new SearchQueryResult(0, 0);
     }
-    BhNode found = null;
+    BhNode found;
     if (searchBox.getNumConsecutiveSameRequests() >= 2 && searchResult != null) {
-      found = query.findNext() ? searchResult.getNext() : searchResult.getPrevious();
+      found = query.isForward() ? searchResult.getNext() : searchResult.getPrevious();
     } else {
-      searchResult =
-          ItemSearcher.<BhNode>search(query, bpListView.getItems(), BreakpointListCell::getText);
+      searchResult = ItemSearcher.search(query, bpListView.getItems(), BreakpointListCell::getText);
       found = searchResult.getCurrent();
     }
     if (found != null) {

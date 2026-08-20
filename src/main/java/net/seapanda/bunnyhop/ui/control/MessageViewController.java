@@ -20,11 +20,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
-import net.seapanda.bunnyhop.ui.model.SearchQuery;
-import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
-import net.seapanda.bunnyhop.ui.service.search.StringSearcher;
+import net.seapanda.bunnyhop.search.SearchQuery;
+import net.seapanda.bunnyhop.search.SearchQueryResult;
+import net.seapanda.bunnyhop.search.StringSearcher;
+import net.seapanda.bunnyhop.search.Substring;
 import net.seapanda.bunnyhop.utility.collection.ImmutableCircularList;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * ユーザへのメッセージを表示する UI 部分のコントローラ.
@@ -37,7 +37,7 @@ public class MessageViewController {
   @FXML Button mvSearchButton;
 
   private final SearchBox searchBox;
-  private ImmutableCircularList<StringSearcher.Substring> searchResult;
+  private ImmutableCircularList<Substring> searchResult;
 
   /** コンストラクタ. */
   public MessageViewController(SearchBox searchBox) {
@@ -90,19 +90,19 @@ public class MessageViewController {
 
   /** {@link #mainMsgArea} から {@code query} に一致する文字列を探して強調する. */
   private SearchQueryResult highlightText(SearchQuery query) {
-    if (StringUtils.isEmpty(query.word())) {
+    if (query.isEmpty()) {
       return new SearchQueryResult(0, 0);
     }
-    StringSearcher.Substring found = null;
+    Substring found;
     if (searchBox.getNumConsecutiveSameRequests() >= 2 && searchResult != null) {
-      found = query.findNext() ? searchResult.getNext() : searchResult.getPrevious();
+      found = query.isForward() ? searchResult.getNext() : searchResult.getPrevious();
     } else {
       searchResult = StringSearcher.search(query, mainMsgArea.getText());
       found = searchResult.getCurrent();
     }
     if (found != null) {
       mainMsgArea.setScrollTop(-1); // 選択位置に自動でジャンプするために必要
-      mainMsgArea.selectRange(found.pos(), found.pos() + found.text().length());
+      mainMsgArea.selectRange(found.getStart(), found.getStart() + found.getLength());
     }
     return new SearchQueryResult(searchResult.getPointer(), searchResult.size());
   }

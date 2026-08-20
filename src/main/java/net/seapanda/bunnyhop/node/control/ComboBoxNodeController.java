@@ -73,11 +73,11 @@ public class ComboBoxNodeController implements BhNodeController {
 
     List<SelectableItem<String, Object>> items = createItems();
     view.setItems(items);
-    view.setOnItemSelected(
+    view.addOnItemSelected(
         (observable, oldVal, newVal) -> checkAndSetContent(oldVal, newVal));
     view.getItemByModelText(model.getText())
         .ifPresentOrElse(
-            item -> view.setValue(item),
+            view::setValue,
             () -> {
               model.setText(items.get(0).getModel());
               view.setValue(items.get(0));

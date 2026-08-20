@@ -232,7 +232,7 @@ public class ViewUtil {
     ListCell<? extends T> buttonCell = comboBox.getButtonCell();
     Font font = buttonCell.fontProperty().get();
     double maxWidth = comboBox.getItems().stream()
-        .map(fnConvertToStr::apply)
+        .map(fnConvertToStr)
         .mapToDouble(str -> ViewUtil.calcStrWidth(str, font))
         .max().orElse(0);
     

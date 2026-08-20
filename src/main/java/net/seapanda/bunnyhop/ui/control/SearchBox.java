@@ -17,8 +17,8 @@
 package net.seapanda.bunnyhop.ui.control;
 
 import java.util.function.Function;
-import net.seapanda.bunnyhop.ui.model.SearchQuery;
-import net.seapanda.bunnyhop.ui.model.SearchQueryResult;
+import net.seapanda.bunnyhop.search.SearchQuery;
+import net.seapanda.bunnyhop.search.SearchQueryResult;
 
 /**
  * 検索クエリを受け取る UI コンポーネントのインタフェース.

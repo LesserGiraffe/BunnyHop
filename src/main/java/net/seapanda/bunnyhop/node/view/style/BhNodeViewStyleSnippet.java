@@ -16,6 +16,22 @@
 
 package net.seapanda.bunnyhop.node.view.style;
 
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.Arrangement;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.Breakpoint;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.Button;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.ComboBox;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.CommonPart;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.Connective;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.CorruptionIcon;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.EntryPointIcon;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.Label;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.NextStepIcon;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.RuntimeErrorIcon;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.SpecificPart;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.TextArea;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.TextField;
+import static net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle.TextHighlight;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -251,13 +267,16 @@ class BhNodeViewStyleSnippet {
     Double minWidth = null;
     Boolean editable = null;
     String cssClass = null;
+    TextHighlightSnippet textHighlight = new TextHighlightSnippet();
 
     private void populateStyle(
-        BhNodeViewStyle.TextField style,
+        TextField style,
         Function<BhNodeViewStyleSnippet, TextFieldSnippet> getter) {
       style.minWidth = findMinWidth(style.minWidth, getter);
       style.editable = findEditable(style.editable, getter);
       style.cssClass = findCssClass(style.cssClass, getter);
+      textHighlight.populateStyle(
+          style.textHighlight, snippet -> getter.apply(snippet).textHighlight);
     }
 
     private double findMinWidth(
@@ -278,10 +297,13 @@ class BhNodeViewStyleSnippet {
 
   class LabelSnippet {
     String cssClass = null;
+    TextHighlightSnippet textHighlight = new TextHighlightSnippet();
 
     private void populateStyle(
-        BhNodeViewStyle.Label style, Function<BhNodeViewStyleSnippet, LabelSnippet> getter) {
+        Label style, Function<BhNodeViewStyleSnippet, LabelSnippet> getter) {
       style.cssClass = findCssClass(style.cssClass, getter);
+      textHighlight.populateStyle(
+          style.textHighlight, snippet -> getter.apply(snippet).textHighlight);
     }
 
     private String findCssClass(
@@ -292,10 +314,13 @@ class BhNodeViewStyleSnippet {
 
   class ComboBoxSnippet {
     String cssClass = null;
+    TextHighlightSnippet textHighlight = new TextHighlightSnippet();
 
     private void populateStyle(
-        BhNodeViewStyle.ComboBox style, Function<BhNodeViewStyleSnippet, ComboBoxSnippet> getter) {
+        ComboBox style, Function<BhNodeViewStyleSnippet, ComboBoxSnippet> getter) {
       style.cssClass = findCssClass(style.cssClass, getter);
+      textHighlight.populateStyle(
+          style.textHighlight, snippet -> getter.apply(snippet).textHighlight);
     }
 
     private String findCssClass(
@@ -310,26 +335,26 @@ class BhNodeViewStyleSnippet {
     Double outerOffset = null;
 
     private void populateStyle(
-        BhNodeViewStyle.Connective style,
+        Connective style,
         Function<BhNodeViewStyleSnippet, ConnectiveSnippet> getter) {
       style.inner = findInner(style.inner, getter);
       style.outer = findOuter(style.outer, getter);
       style.outerOffset = findOuterOffset(style.outerOffset, getter);
     }
 
-    private BhNodeViewStyle.Arrangement findInner(
-        BhNodeViewStyle.Arrangement defaultVal,
+    private Arrangement findInner(
+        Arrangement defaultVal,
         Function<BhNodeViewStyleSnippet, ConnectiveSnippet> getter) {
       return find(snippet -> getter.apply(snippet).inner)
-          .map(arrangement -> arrangement.populateStyle(new BhNodeViewStyle.Arrangement()))
+          .map(arrangement -> arrangement.populateStyle(new Arrangement()))
           .orElse(defaultVal);
     }
 
-    private BhNodeViewStyle.Arrangement findOuter(
-        BhNodeViewStyle.Arrangement defaultVal,
+    private Arrangement findOuter(
+        Arrangement defaultVal,
         Function<BhNodeViewStyleSnippet, ConnectiveSnippet> getter) {
       return find(snippet -> getter.apply(snippet).outer)
-          .map(arrangement -> arrangement.populateStyle(new BhNodeViewStyle.Arrangement()))
+          .map(arrangement -> arrangement.populateStyle(new Arrangement()))
           .orElse(defaultVal);
     }
 
@@ -349,7 +374,7 @@ class BhNodeViewStyleSnippet {
     final List<String> cnctrNames = new ArrayList<>();
     final List<ArrangementSnippet> subGroups = new ArrayList<>();
 
-    private BhNodeViewStyle.Arrangement populateStyle(BhNodeViewStyle.Arrangement style) {
+    private Arrangement populateStyle(Arrangement style) {
       // ArrangementSnippet が保持するパラメータは, 複数のスニペットを合成するのではなく,
       // 単一のオブジェクトを不可分な値として使用する.
       style.space = (space == null) ? style.space : space;
@@ -360,7 +385,7 @@ class BhNodeViewStyleSnippet {
       style.arrangement = (arrangement == null) ? style.arrangement : arrangement;
       style.cnctrNames = new ArrayList<>(cnctrNames);
       style.subGroups = subGroups.stream()
-          .map(subGroup -> subGroup.populateStyle(new BhNodeViewStyle.Arrangement()))
+          .map(subGroup -> subGroup.populateStyle(new Arrangement()))
           .collect(Collectors.toCollection(ArrayList::new));
       return style;
     }
@@ -371,13 +396,16 @@ class BhNodeViewStyleSnippet {
     Double minHeight = null;
     Boolean editable = null;
     String cssClass = null;
+    TextHighlightSnippet textHighlight = new TextHighlightSnippet();
 
     private void populateStyle(
-        BhNodeViewStyle.TextArea style, Function<BhNodeViewStyleSnippet, TextAreaSnippet> getter) {
+        TextArea style, Function<BhNodeViewStyleSnippet, TextAreaSnippet> getter) {
       style.minWidth = findMinWidth(style.minWidth, getter);
       style.minHeight = findMinHeight(style.minHeight, getter);
       style.editable = findEditable(style.editable, getter);
       style.cssClass = findCssClass(style.cssClass, getter);
+      textHighlight.populateStyle(
+          style.textHighlight, snippet -> getter.apply(snippet).textHighlight);
     }
 
     private double findMinWidth(
@@ -405,7 +433,7 @@ class BhNodeViewStyleSnippet {
     String cssClass = null;
 
     private void populateStyle(
-        BhNodeViewStyle.Button style, Function<BhNodeViewStyleSnippet, ButtonSnippet> getter) {
+        Button style, Function<BhNodeViewStyleSnippet, ButtonSnippet> getter) {
       style.cssClass = findCssClass(style.cssClass, getter);
     }
 
@@ -420,7 +448,7 @@ class BhNodeViewStyleSnippet {
     String cssClass = null;
 
     private void populateStyle(
-        BhNodeViewStyle.Breakpoint style,
+        Breakpoint style,
         Function<BhNodeViewStyleSnippet, BreakpointIconSnippet> getter) {
       style.radius = findRadius(style.radius, getter);
       style.cssClass = findCssClass(style.cssClass, getter);
@@ -442,7 +470,7 @@ class BhNodeViewStyleSnippet {
     String cssClass = null;
 
     private void populateStyle(
-        BhNodeViewStyle.NextStepIcon style,
+        NextStepIcon style,
         Function<BhNodeViewStyleSnippet, NextStepIconSnippet> getter) {
       style.radius = findSize(style.radius, getter);
       style.cssClass = findCssClass(style.cssClass, getter);
@@ -464,7 +492,7 @@ class BhNodeViewStyleSnippet {
     String cssClass = null;
 
     private void populateStyle(
-        BhNodeViewStyle.RuntimeErrorIcon style,
+        RuntimeErrorIcon style,
         Function<BhNodeViewStyleSnippet, RuntimeErrorIconSnippet> getter) {
       style.radius = findRadius(style.radius, getter);
       style.cssClass = findCssClass(style.cssClass, getter);
@@ -486,7 +514,7 @@ class BhNodeViewStyleSnippet {
     String cssClass = null;
 
     private void populateStyle(
-        BhNodeViewStyle.CorruptionIcon style,
+        CorruptionIcon style,
         Function<BhNodeViewStyleSnippet, CorruptionIconSnippet> getter) {
       style.size = findSize(style.size, getter);
       style.cssClass = findCssClass(style.cssClass, getter);
@@ -508,7 +536,7 @@ class BhNodeViewStyleSnippet {
     String cssClass = null;
 
     private void populateStyle(
-        BhNodeViewStyle.EntryPointIcon style,
+        EntryPointIcon style,
         Function<BhNodeViewStyleSnippet, EntryPointIconSnippet> getter) {
       style.radius = findRadius(style.radius, getter);
       style.cssClass = findCssClass(style.cssClass, getter);
@@ -536,7 +564,7 @@ class BhNodeViewStyleSnippet {
     EntryPointIconSnippet entryPointIcon = new EntryPointIconSnippet();
 
     private void populateStyle(
-        BhNodeViewStyle.CommonPart style,
+        CommonPart style,
         Function<BhNodeViewStyleSnippet, CommonPartSnippet> getter) {
       style.cssClass = findCssClass(style.cssClass, getter);
       style.arrangement = findArrangement(style.arrangement, getter);
@@ -569,13 +597,27 @@ class BhNodeViewStyleSnippet {
     String cssClass = null;
 
     private void populateStyle(
-        BhNodeViewStyle.SpecificPart style,
+        SpecificPart style,
         Function<BhNodeViewStyleSnippet, SpecificPartSnippet> getter) {
       style.cssClass = findCssClass(style.cssClass, getter);
     }
 
     private String findCssClass(
         String defaultVal, Function<BhNodeViewStyleSnippet, SpecificPartSnippet> getter) {
+      return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
+    }
+  }
+
+  class TextHighlightSnippet {
+    String cssClass = null;
+
+    private void populateStyle(
+        TextHighlight style, Function<BhNodeViewStyleSnippet, TextHighlightSnippet> getter) {
+      style.cssClass = findCssClass(style.cssClass, getter);
+    }
+
+    private String findCssClass(
+        String defaultVal, Function<BhNodeViewStyleSnippet, TextHighlightSnippet> getter) {
       return find(snippet -> getter.apply(snippet).cssClass).orElse(defaultVal);
     }
   }

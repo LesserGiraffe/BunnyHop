@@ -225,6 +225,7 @@ public class BhNodeViewStyle {
     public double minWidth = 0;
     public boolean editable = true;
     public String cssClass = "defaultTextField";
+    public TextHighlight textHighlight = new TextHighlight();
 
     private TextField() {}
 
@@ -232,29 +233,34 @@ public class BhNodeViewStyle {
       minWidth = org.minWidth;
       editable = org.editable;
       cssClass = org.cssClass;
+      textHighlight = new TextHighlight(org.textHighlight);
     }
   }
 
   /** ラベルのパラメータ. */
   public static class Label {
     public String cssClass = "defaultLabel";
+    public TextHighlight textHighlight = new TextHighlight();
 
     private Label() {}
 
     /** コピーコンストラクタ. */
     private Label(Label org) {
       cssClass = org.cssClass;
+      textHighlight = new TextHighlight(org.textHighlight);
     }
   }
 
   /** コンボボックスのパラメータ. */
   public static class ComboBox {
     public String cssClass = "defaultComboBox";
+    public TextHighlight textHighlight = new TextHighlight();
 
     private ComboBox() {}
 
     private ComboBox(ComboBox org) {
       cssClass = org.cssClass;
+      textHighlight = new TextHighlight(org.textHighlight);
     }
   }
 
@@ -264,6 +270,7 @@ public class BhNodeViewStyle {
     public double minHeight = 0;
     public boolean editable = true;
     public String cssClass = "defaultTextArea";
+    public TextHighlight textHighlight = new TextHighlight();
 
     private TextArea() {}
 
@@ -272,6 +279,7 @@ public class BhNodeViewStyle {
       minHeight = org.minHeight;
       editable = org.editable;
       cssClass = org.cssClass;
+      textHighlight = new TextHighlight(org.textHighlight);
     }
   }
 
@@ -393,6 +401,17 @@ public class BhNodeViewStyle {
     private SpecificPart() {}
 
     private SpecificPart(SpecificPart org) {
+      cssClass = org.cssClass;
+    }
+  }
+
+  /** テキストの強調表示をする要素のパラメータ. */
+  public static class TextHighlight {
+    public String cssClass = "defaultTextHighlight";
+
+    private TextHighlight() {}
+
+    private TextHighlight(TextHighlight org) {
       cssClass = org.cssClass;
     }
   }

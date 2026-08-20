@@ -68,10 +68,8 @@ abstract class BhNodeViewBase implements BhNodeView {
   private final boolean isTemplate;
 
   private final QuadTreeSpaceRegistrationImpl qtsRegistration;
-  private final VisualImpl visual;
   private final TreeControlImpl treeCtrl;
   private final ArrangementImpl arrangement;
-  private final CallbackRegistryImpl cbRegistry;
   private final SizeChangeNotifier sizeChangeNotif;
 
   /**
@@ -94,18 +92,24 @@ abstract class BhNodeViewBase implements BhNodeView {
 
     var body = new QuadTreeItem(0, 0, 0, 0, this);
     var cnctr = new QuadTreeItem(0, 0, 0, 0, this);
-    cbRegistry = new CallbackRegistryImpl(this);
     qtsRegistration = new QuadTreeSpaceRegistrationImpl(body, cnctr);
     arrangement = new ArrangementImpl(this, sizeChangeNotif);
-    visual = new VisualImpl(this);
     treeCtrl = new TreeControlImpl(this);
-    visual.addCssClass(style.cssClasses);
-    visual.addCssClass(BhConstants.Css.Class.BH_NODE);
   }
-
 
   @Override
   public abstract GeometryBase getGeometry();
+
+  @Override
+  public abstract VisualBase getVisual();
+
+  @Override
+  public abstract CallbackRegistryBase getCallbackRegistry();
+
+  @Override
+  public TreeControlImpl getTreeControl() {
+    return treeCtrl;
+  }
 
   @Override
   public ArrangementImpl getArrangement() {
@@ -115,21 +119,6 @@ abstract class BhNodeViewBase implements BhNodeView {
   @Override
   public QuadTreeSpaceRegistrationImpl getQuadTreeSpaceRegistration() {
     return qtsRegistration;
-  }
-
-  @Override
-  public VisualImpl getVisual() {
-    return visual;
-  }
-
-  @Override
-  public TreeControlImpl getTreeControl() {
-    return treeCtrl;
-  }
-
-  @Override
-  public CallbackRegistryImpl getCallbackRegistry() {
-    return cbRegistry;
   }
 
   @Override
@@ -259,19 +248,19 @@ abstract class BhNodeViewBase implements BhNodeView {
     // 適切な位置に配置される前の状態が見えるのを防ぐ. (小さくしすぎると WS のスクロールが正常に行われなくなる)
     root.setTranslateY(-5000.0);
 
-    Pane compBase = isBaseArrangementRow ? new HBox() : new VBox();
+    Pane compLayer = isBaseArrangementRow ? new HBox() : new VBox();
     Pane common = (style.commonPart.arrangement == ChildArrangement.ROW) ? new HBox() : new VBox();
     Pane specific = new HBox();
-    root.getChildren().addAll(shapes.nodeShape, compBase);
+    root.getChildren().addAll(shapes.nodeShape, compLayer);
 
-    compBase.getChildren().addAll(common, specific);
-    compBase.setPickOnBounds(false);
-    compBase.widthProperty().addListener(
+    compLayer.getChildren().addAll(common, specific);
+    compLayer.setPickOnBounds(false);
+    compLayer.widthProperty().addListener(
         (obs, oldVal, newVal) -> sizeChangeNotif.notifySubtreeSizeChanged());
-    compBase.heightProperty().addListener(
+    compLayer.heightProperty().addListener(
         (obs, oldVal, newVal) -> sizeChangeNotif.notifySubtreeSizeChanged());
-    compBase.setTranslateX(style.paddingLeft);
-    compBase.setTranslateY(style.paddingTop);
+    compLayer.setTranslateX(style.paddingLeft);
+    compLayer.setTranslateY(style.paddingTop);
 
     common.setPickOnBounds(false);
     common.getStyleClass().add(style.commonPart.cssClass);
@@ -294,7 +283,7 @@ abstract class BhNodeViewBase implements BhNodeView {
     specific.setPickOnBounds(false);
     specific.pseudoClassStateChanged(pseudoClass, true);
     specific.getStyleClass().add(style.specificPart.cssClass);
-    return new Panes(root, compBase, common, specific);
+    return new Panes(root, compLayer, common, specific);
   }
 
   /** 共通部分が持つ UI コンポーネントの可視性に応じて, 共通部分の UI ツリー上での有効性を変更する. */

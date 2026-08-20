@@ -1,8 +1,0 @@
-{
-  "import" : ["../../Common/Bodiless.json"],
-  "component" : "ComboBox",
-
-  "comboBox" : {
-    "cssClass" : "wordComboBox"
-  }
-}

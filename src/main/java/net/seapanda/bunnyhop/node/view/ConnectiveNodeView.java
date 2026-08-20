@@ -42,6 +42,8 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
   /** ノード外部に描画されるノードのGroup. */
   private final BhNodeViewGroup outerGroup = new BhNodeViewGroup(this, false);
   private final ConnectiveNode model;
+  private final CallbackRegistry cbRegistry = new CallbackRegistry(this) {};
+  private final Visual visual = new Visual(this) {};
   private final Geometry geometry;
 
   /**
@@ -67,7 +69,13 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
     outerGroup.buildSubGroup(style.connective.outer, factory, isTemplate);
     var qtsReg = getQuadTreeSpaceRegistration();
     geometry = new Geometry(qtsReg.getBodyQtItem(), qtsReg.getConnectorQtItem());
-    getVisual().addCssClass(BhConstants.Css.Class.CONNECTIVE_NODE);
+    initializeStyle();
+  }
+
+  private void initializeStyle() {
+    visual.addCssClass(getStyle().cssClasses);
+    visual.addCssClass(BhConstants.Css.Class.BH_NODE);
+    visual.addCssClass(BhConstants.Css.Class.CONNECTIVE_NODE);
   }
 
   /**
@@ -105,6 +113,16 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
   @Override
   public Geometry getGeometry() {
     return geometry;
+  }
+
+  @Override
+  public Visual getVisual() {
+    return visual;
+  }
+
+  @Override
+  public CallbackRegistry getCallbackRegistry() {
+    return cbRegistry;
   }
 
   @Override
@@ -208,6 +226,20 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
         outerSize.y = Math.max(outerSize.y + style.connective.outerOffset, 0);
       }
       return outerSize;
+    }
+  }
+
+  /** ノードビューの視覚効果に関する機能を提供するクラス. */
+  public abstract static class Visual extends VisualBase {
+    Visual(ConnectiveNodeView view) {
+      super(view);
+    }
+  }
+
+  /** ノードビューに対してイベントハンドラを追加または削除する機能を提供するクラス. */
+  public abstract static class CallbackRegistry extends CallbackRegistryBase {
+    CallbackRegistry(ConnectiveNodeView view) {
+      super(view);
     }
   }
 }
