@@ -52,7 +52,7 @@ public class IoMessageProcessorImpl implements IoMessageProcessor {
   public void process(InputTextResp resp) {
     if (!resp.success) {
       msgService.info(TextDefs.BhRuntime.Communication.failedToProcessText.get(resp.text));
-      LogManager.logger().error("Failed to process a text data.  (%s)".formatted(resp.text));
+      LogManager.logger().error("Failed to process a text data.  (%s)", resp.text);
     }
   }
 }

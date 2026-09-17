@@ -66,7 +66,7 @@ class SftpProgressMonitorImpl implements SftpProgressMonitor {
     if (fileCopyHasBeenCancelled) {
       msgService.info(TextDefs.BhRuntime.FileTransfer.stopped.get(fileName));
       LogManager.logger().info(
-          "A transfer is cancelled\n   %s -> %s  (%s / %s)".formatted(src, dest, allByteSent, max));
+          "A transfer is cancelled\n   %s -> %s  (%s / %s)", src, dest, allByteSent, max);
     } else if (newRateOfDataSent >= rateOfDataSent + 4) {
       msgService.info(
           TextDefs.BhRuntime.FileTransfer.transferring.get(fileName, newRateOfDataSent));

@@ -100,7 +100,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     try {
       defined.script().exec(cx, scope);
     } catch (Exception e) {
-      LogManager.logger().error(defined.name() + "\n" + e);
+      LogManager.logger().error("%s\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -127,7 +127,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     try {
       defined.script().exec(cx, scope);
     } catch (Exception e) {
-      LogManager.logger().error(defined.name() + "\n" + e);
+      LogManager.logger().error("%s\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -154,7 +154,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     try {
       defined.script().exec(cx, scope);
     } catch (Exception e) {
-      LogManager.logger().error(defined.name() + "\n" + e);
+      LogManager.logger().error("%s\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -179,7 +179,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     try {
       return (Boolean) defined.script().exec(cx, scope);
     } catch (Exception e) {
-      LogManager.logger().error(defined.name() + "\n" + e);
+      LogManager.logger().error("%s\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -201,8 +201,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     try {
       return (Boolean) defined.script().exec(cx, scope);
     } catch (Exception e) {
-      LogManager.logger().error(
-          "'%s' must return a boolean value.\n%s".formatted(defined.name(), e));
+      LogManager.logger().error("'%s' must return a boolean value.\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -230,8 +229,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       }
       return node -> isNodeToCopy(node, copyCheckFunc, defined.name());
     } catch (Exception e) {
-      LogManager.logger().error(String.format(
-          "'%s' must return a function that returns a boolean value.\n%s", defined.name(), e));
+      LogManager.logger().error(
+          "'%s' must return a function that returns a boolean value.\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -252,8 +251,8 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     try {
       return (Boolean) copyCheckFunc.call(cx, scope, scope, new Object[] {node});
     } catch (Exception e) {
-      LogManager.logger().error(String.format(
-          "'%s' must return null or a function that returns a boolean value.\n%s", scriptName, e));
+      LogManager.logger().error(
+          "'%s' must return null or a function that returns a boolean value.\n%s", scriptName, e);
       throw e;
     } finally {
       Context.exit();
@@ -272,7 +271,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     try {
       defined.script().exec(cx, scope);
     } catch (Exception e) {
-      LogManager.logger().error(defined.name() + "\n" + e);
+      LogManager.logger().error("%s\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -292,7 +291,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     try {
       defined.script().exec(cx, scope);
     } catch (Exception e) {
-      LogManager.logger().error(defined.name() + "\n" + e);
+      LogManager.logger().error("%s\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -319,8 +318,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     try {
       return (Boolean) defined.script().exec(cx, scope);
     } catch (Exception e) {
-      LogManager.logger().error(
-          "'%s' must return a boolean value.\n%s".formatted(defined.name(), e));
+      LogManager.logger().error("'%s' must return a boolean value.\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -346,8 +344,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       String formattedText = (String) jsObj.get(BhConstants.JsIdName.BH_FORMATTED_TEXT);
       return new FormatResult(isWholeFormatted, formattedText);
     } catch (Exception e) {
-      LogManager.logger().error(
-          "Invalid text formatter  (%s).\n%s".formatted(defined.name(), e));
+      LogManager.logger().error("Invalid text formatter  (%s).\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -371,7 +368,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       }
       return options;
     } catch (Exception e) {
-      LogManager.logger().error(defined.name() + "\n" + e);
+      LogManager.logger().error("%s\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -398,7 +395,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       return companionNodes;
     } catch (Exception e) {
       LogManager.logger().error(
-          "'%s' must return a collection of BhNode(s).\n%s".formatted(defined.name(), e));
+          "'%s' must return a collection of BhNode(s).\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -418,7 +415,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
           .map(Object::toString)
           .collect(Collectors.toCollection(ArrayList::new));
     } catch (Exception e) {
-      LogManager.logger().error("'%s' must return a collection.\n%s".formatted(defined.name(), e));
+      LogManager.logger().error("'%s' must return a collection.\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -436,8 +433,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     try {
       return (String) defined.script().exec(cx, scope);
     } catch (Exception e) {
-      LogManager.logger().error(
-          "'%s' must return a string value.\n%s".formatted(defined.name(), e));
+      LogManager.logger().error("'%s' must return a string value.\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -455,8 +451,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
     try {
       return Optional.of((String) defined.script().exec(cx, scope));
     } catch (Exception e) {
-      LogManager.logger().error(
-          "'%s' must return a string value.\n%s".formatted(defined.name(), e));
+      LogManager.logger().error("'%s' must return a string value.\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -478,7 +473,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
           .collect(Collectors.toCollection(ArrayList::new));
     } catch (Exception e) {
       LogManager.logger().error(
-          "'%s' must return a collection of BhNode(s).\n%s".formatted(defined.name(), e));
+          "'%s' must return a collection of BhNode(s).\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }
@@ -497,8 +492,7 @@ public class ScriptNodeEventInvokerImpl implements ScriptNodeEventInvoker {
       // 外部スクリプトが null を返した場合 null が返る.
       return (BhNode) Context.jsToJava(defined.script().exec(cx, scope), BhNode.class);
     } catch (Exception e) {
-      LogManager.logger().error(
-          "'%s' must return a BhNode or null.\n%s".formatted(defined.name(), e));
+      LogManager.logger().error("'%s' must return a BhNode or null.\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }

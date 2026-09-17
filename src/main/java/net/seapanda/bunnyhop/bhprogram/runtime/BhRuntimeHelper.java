@@ -72,7 +72,7 @@ class BhRuntimeHelper {
       process.getInputStream().close();
       process.getOutputStream().close();
     } catch (IOException e) {
-      LogManager.logger().error("Failed to close the IO stream.\n" + e);
+      LogManager.logger().error("Failed to close the IO stream.\n%s", e);
       success = false;
     }
     return success;
@@ -84,7 +84,7 @@ class BhRuntimeHelper {
       success = process.waitFor(timeout, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      LogManager.logger().error("Failed to wait for the process to end.\n" + e);
+      LogManager.logger().error("Failed to wait for the process to end.\n%s", e);
     }
     return success;
   }

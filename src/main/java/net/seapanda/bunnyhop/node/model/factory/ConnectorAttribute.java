@@ -102,13 +102,13 @@ public record ConnectorAttribute(
   }
 
   private static void logBoolAttributeError(String attrName, String attrValue, Element elem) {
-    LogManager.logger().error(String.format(
+    LogManager.logger().error(
         "The value of a '%s' attribute must be '%s' or '%s'.    '%s=%s' is ignored.\n%s",
         attrName,
         BhConstants.BhModelDef.ATTR_VAL_TRUE,
         BhConstants.BhModelDef.ATTR_VAL_FALSE,
         attrName,
         attrValue,
-        elem.getOwnerDocument().getBaseURI()));
+        elem.getOwnerDocument().getBaseURI());
   }
 }

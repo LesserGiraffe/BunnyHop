@@ -316,7 +316,7 @@ public class SceneBuilder {
           .map(file -> file.toUri().toString())
           .toList();
     } catch (IOException e) {
-      LogManager.logger().error("Directory not found.  (%s)".formatted(dirPath));
+      LogManager.logger().error("Directory not found.  (%s)", dirPath);
       return new ArrayList<>();
     }
   }

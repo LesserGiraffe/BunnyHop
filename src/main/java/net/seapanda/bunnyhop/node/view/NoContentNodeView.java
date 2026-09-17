@@ -23,7 +23,6 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
-import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
@@ -48,8 +47,7 @@ public class NoContentNodeView extends LeafNodeView {
    * @param isTemplate このノードビューがテンプレートノードビューの場合 true
    */
   public NoContentNodeView(
-      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
-      throws ViewConstructionException {
+      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate) {
     super(model, style, components, isTemplate);
     this.model = model;
     geometry = new Geometry(this, new NodeSizeCalculator(this, Vec2D::new)) {};

@@ -163,7 +163,7 @@ public record BhNodeAttributes(
     if (!setting.equals(BhConstants.BhModelDef.ATTR_VAL_SET)
         && !setting.equals(BhConstants.BhModelDef.ATTR_VAL_IGNORE)
         && !setting.equals(BhConstants.BhModelDef.ATTR_VAL_SPECIFY_PARENT)) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "The value of a '%s' attribute must be '%s', '%s' or '%s'.    '%s=%s' is ignored.\n%s",
           BhConstants.BhModelDef.ATTR_BREAKPOINT,
           BhConstants.BhModelDef.ATTR_VAL_SET,
@@ -171,7 +171,7 @@ public record BhNodeAttributes(
           BhConstants.BhModelDef.ATTR_VAL_SPECIFY_PARENT,
           BhConstants.BhModelDef.ATTR_FIXED,
           setting,
-          elem.getOwnerDocument().getBaseURI()));
+          elem.getOwnerDocument().getBaseURI());
       setting = BhConstants.BhModelDef.ATTR_VAL_SPECIFY_PARENT;
     }
     return BreakpointSetting.of(setting);

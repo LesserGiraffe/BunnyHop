@@ -218,7 +218,7 @@ public class JsonProjectImporter implements ProjectImporter {
       return "";
     }
     StringBuilder msg = new StringBuilder();
-    msg.append(ImportWarning.DUPLICATE_INSTANCE_ID + "\n");
+    msg.append(ImportWarning.DUPLICATE_INSTANCE_ID).append("\n");
     for (Map.Entry<InstanceId, BhNode> orgInstIdAndNode : instIdToNode.entrySet()) {
       msg.append("  instance id: %s,  node id %s\n".formatted(
           orgInstIdAndNode.getKey(), orgInstIdAndNode.getValue().getId()));

@@ -91,7 +91,7 @@ public class BhScriptRepositoryImpl implements BhScriptRepository {
           .filter(path -> path.getFileName().toString().endsWith(".js")) // .jsファイルだけ収集
           .toList();
     } catch (IOException e) {
-      LogManager.logger().error("Directory not found.  (%s)".formatted(dirPath));
+      LogManager.logger().error("Directory not found.  (%s)", dirPath);
       throw e;
     }
   }

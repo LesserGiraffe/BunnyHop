@@ -74,8 +74,7 @@ public class ScriptConnectorEventInvokerImpl implements ScriptConnectorEventInvo
     try {
       return (Boolean) defined.script().exec(cx, scriptScope);
     } catch (Exception e) {
-      LogManager.logger().error(
-          "'%s' must return a boolean value.\n%s".formatted(defined.name(), e));
+      LogManager.logger().error("'%s' must return a boolean value.\n%s", defined.name(), e);
     } finally {
       Context.exit();
     }

@@ -83,13 +83,14 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       BhRuntimeFacade facade = startUpRuntime().orElseThrow();
       boolean success = facade.runScript(filePath.toAbsolutePath().toString());
       if (success) {
-        return invokeStartMethod(filePath);
+        invokeStartMethod(filePath);
+        return true;
       }
+      throw new Exception();
     } catch (Exception e) {
       msgService.error(TextDefs.BhRuntime.Local.failedToRun.get());
-      LogManager.logger().error("Failed to run %s. (local)".formatted(filePath.getFileName()));
+      LogManager.logger().error("Failed to run %s. (local)", filePath.getFileName());
       terminate();
-      return false;
     }
     return false;
   }
@@ -126,14 +127,13 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
   }
 
   /** BhProgram の開始時に実行する処理を呼ぶ. */
-  private boolean invokeStartMethod(Path filePath) {
+  private void invokeStartMethod(Path filePath) {
     msgService.info(TextDefs.BhRuntime.Local.hasStarted.get());
     var startEvent = new BhProgramEvent(
         BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
     send(startEvent);
     programRunning.set(true);
     cbRegistry.onBhProgramStarted.invoke(new StartEvent(this, filePath));
-    return true;
   }
 
   private Optional<BhRuntimeFacade> getBhRuntimeFacade() {
@@ -142,7 +142,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
       facade = BhRuntimeHelper.getBhRuntimeFacade(
           BhConstants.BhRuntime.LOCAL_HOST, br, BhConstants.BhRuntime.Timeout.LOCAL_START);
     } catch (Exception e) {
-      LogManager.logger().error("Failed to get BhRuntime facade.\n%s".formatted(e));
+      LogManager.logger().error("Failed to get BhRuntime facade.\n%s", e);
     }
     return Optional.ofNullable(facade);
   }
@@ -257,7 +257,7 @@ public class RmiLocalBhRuntimeController implements LocalBhRuntimeController {
     try {
       proc = procBuilder.start();
     } catch (IOException e) {
-      LogManager.logger().error("Failed to start BhRuntime\n" +  e);
+      LogManager.logger().error("Failed to start BhRuntime\n%s", e);
     }
     return Optional.ofNullable(proc);
   }

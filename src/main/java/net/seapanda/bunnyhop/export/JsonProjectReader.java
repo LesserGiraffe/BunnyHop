@@ -121,8 +121,7 @@ public class JsonProjectReader {
           importer.filePath);
     } catch (Exception e) {
       if (!importer.warnings.isEmpty()) {
-        LogManager.logger().error(
-            "Import %s\n[Warnings]\n%s".formatted(filePath, importer.getWarningMsg()));
+        LogManager.logger().error("Import %s\n[Warnings]\n%s", filePath, importer.getWarningMsg());
       }
       throw e;
     }

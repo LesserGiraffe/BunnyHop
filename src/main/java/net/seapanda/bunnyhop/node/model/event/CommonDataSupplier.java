@@ -77,7 +77,7 @@ public class CommonDataSupplier {
       return (jsObj instanceof NativeObject) ? jsObj : new NativeObject();
     } catch (Exception e) {
       LogManager.logger().error(
-          "Failed to execute %s\n%s".formatted(BhConstants.Path.File.BH_UTILITY_JS, e));
+          "Failed to execute %s\n%s", BhConstants.Path.File.BH_UTILITY_JS, e);
     } finally {
       Context.exit();
     }

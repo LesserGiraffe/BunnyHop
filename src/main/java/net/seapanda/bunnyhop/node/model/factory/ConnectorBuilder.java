@@ -60,25 +60,25 @@ class ConnectorBuilder {
   public Optional<Connector> build(Element elem) {
     // ルートエレメントチェック
     if (!elem.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR)) {
-      LogManager.logger().error(String.format("""
+      LogManager.logger().error("""
           Invalid connector definition. (%s)
           A connector definition must have a '%s' root element.
           %s
           """,
           elem.getNodeName(),
           BhConstants.BhModelDef.ELEM_CONNECTOR,
-          elem.getBaseURI()));
+          elem.getBaseURI());
       return Optional.empty();
     }
 
     var cnctrAttrs = ConnectorAttribute.of(elem);
     // コネクタ ID 存在チェック
     if (cnctrAttrs.connectorId().equals(ConnectorId.NONE)) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "A '%s' elements must have a '%s' attribute.\n%s",
           BhConstants.BhModelDef.ELEM_CONNECTOR,
           BhConstants.BhModelDef.ATTR_BH_CONNECTOR_ID,
-          elem.getBaseURI()));
+          elem.getBaseURI());
       return Optional.empty();
     }
     // スクリプト存在チェック
@@ -93,11 +93,11 @@ class ConnectorBuilder {
     // デフォルトノードの存在チェック.
     if (imported.defaultNodeId().equals(BhNodeId.NONE)
         && cnctrAttrs.defaultNodeId().equals(BhNodeId.NONE)) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "A '%s' elements must have a '%s' attribute.\n%s",
           BhConstants.BhModelDef.ELEM_CONNECTOR,
           BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID,
-          elem.getBaseURI()));
+          elem.getBaseURI());
       return Optional.empty();
     }
     return Optional.of(generator.newConnector(buildConnectorParams(imported, cnctrAttrs)));
@@ -182,8 +182,7 @@ class ConnectorBuilder {
    * @param fileName {@code scriptName} が書いてあったファイルの名前
    */
   private static void outputScriptNotFoundMsg(String scriptName, String fileName) {
-    LogManager.logger().error(
-        "Cannot find '%s'.  file: %s".formatted(scriptName, fileName));
+    LogManager.logger().error("Cannot find '%s'.  file: %s", scriptName, fileName);
   }
 }
   

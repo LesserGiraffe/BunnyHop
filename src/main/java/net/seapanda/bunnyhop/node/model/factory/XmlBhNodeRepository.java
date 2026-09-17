@@ -134,14 +134,14 @@ public class XmlBhNodeRepository implements BhNodeRepository {
   private Optional<ConnectorAttribute> buildParamSet(Element elem) {
     //ルートエレメントチェック
     if (!elem.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR_PARAM_SET)) {
-      LogManager.logger().error(String.format("""
+      LogManager.logger().error("""
           Invalid connector parameter set definition (%s).
           A connector parameter set definition must have a '%s' root element.
           %s
           """,
           elem.getNodeName(),
           BhConstants.BhModelDef.ELEM_CONNECTOR_PARAM_SET,
-          elem.getBaseURI()));
+          elem.getBaseURI());
       return Optional.empty();
     }
     return Optional.of(ConnectorAttribute.of(elem));
@@ -150,19 +150,19 @@ public class XmlBhNodeRepository implements BhNodeRepository {
 
   private boolean registerCnctrParamSet(ConnectorAttribute attrbutes, Path file) {
     if (attrbutes.paramSetId().equals(ConnectorParamSetId.NONE)) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "A '%s' elements must have a '%s' attribute.\n%s",
           BhConstants.BhModelDef.ELEM_CONNECTOR_PARAM_SET,
           BhConstants.BhModelDef.ATTR_PARAM_SET_ID,
-          file.toAbsolutePath()));
+          file.toAbsolutePath());
       return false;
     }
     if (archive.hasConnectorAttribute(attrbutes.paramSetId())) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "Duplicated '%s'. (%s)\n%s",
           BhConstants.BhModelDef.ATTR_PARAM_SET_ID,
           attrbutes.paramSetId(),
-          file.toAbsolutePath()));
+          file.toAbsolutePath());
       return false;
     }
     archive.putConnectorAttributes(attrbutes.paramSetId(), attrbutes);
@@ -175,7 +175,7 @@ public class XmlBhNodeRepository implements BhNodeRepository {
       DocumentBuilder builder = dbfactory.newDocumentBuilder();
       return builder.parse(file.toFile()).getDocumentElement();
     } catch (IOException | ParserConfigurationException | SAXException e) {
-      LogManager.logger().error(e + "\n" + file.toAbsolutePath());
+      LogManager.logger().error("%s\n%s", e, file.toAbsolutePath());
       return null;
     }
   }
@@ -201,7 +201,7 @@ public class XmlBhNodeRepository implements BhNodeRepository {
       success &= checkDerivativeConsistency();
       return success;
     } catch (IOException e) {
-      LogManager.logger().error("Directory not found.  (%s)".formatted(dirPath));
+      LogManager.logger().error("Directory not found.  (%s)", dirPath);
       return false;
     }
   }
@@ -220,7 +220,7 @@ public class XmlBhNodeRepository implements BhNodeRepository {
       Document doc = docBuilder.parse(file.toFile());
       return builder.build(doc);
     } catch (IOException | ParserConfigurationException | SAXException e) {
-      LogManager.logger().error(e + "\n" + file.toAbsolutePath());
+      LogManager.logger().error("%s\n%s", e, file.toAbsolutePath());
       return Optional.empty();
     }
   }
@@ -232,12 +232,12 @@ public class XmlBhNodeRepository implements BhNodeRepository {
         .toList();
     
     for (Connector errCnctr : errCnctrs) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "Cannot find '%s' with the '%s' matching the '%s' %s.",
           BhConstants.BhModelDef.ELEM_NODE,
           BhConstants.BhModelDef.ATTR_BH_NODE_ID,
           BhConstants.BhModelDef.ATTR_DEFAULT_BHNODE_ID,
-          errCnctr.getDefaultNodeId()));
+          errCnctr.getDefaultNodeId());
     }
     return errCnctrs.isEmpty();
   }
@@ -251,13 +251,13 @@ public class XmlBhNodeRepository implements BhNodeRepository {
     var allValid = true; 
     for (DerivationCorrespondence pair : archive.getDerivationCorrespondence()) {
       if (!archive.hasNodeOf(pair.derivative())) {
-        LogManager.logger().error(String.format(
+        LogManager.logger().error(
             "Cannot find '%s' with the '%s' matching the '%s' %s that is defined in %s.",
             BhConstants.BhModelDef.ELEM_NODE,
             BhConstants.BhModelDef.ATTR_BH_NODE_ID,
             BhConstants.BhModelDef.ATTR_DERIVATION_ID,
             pair.derivative(),
-            pair.original()));
+            pair.original());
         allValid = false;
       }
       
@@ -268,7 +268,8 @@ public class XmlBhNodeRepository implements BhNodeRepository {
             """
             An original node and it's derivative node must have the same '%s' Attribute.
                 original: %s    derivative: %s
-            """.formatted(BhConstants.BhModelDef.ATTR_TYPE, pair.original(), pair.derivative()));
+            """,
+            BhConstants.BhModelDef.ATTR_TYPE, pair.original(), pair.derivative());
         allValid = false;
       }      
     }
@@ -320,7 +321,7 @@ public class XmlBhNodeRepository implements BhNodeRepository {
     boolean putNode(BhNodeId nodeId, BhNode node) {
       if (nodeIdToNode.containsKey(nodeId)) {
         LogManager.logger().error(
-            "Duplicated '%s'  (%s)".formatted(BhConstants.BhModelDef.ATTR_BH_NODE_ID, nodeId));
+            "Duplicated '%s'  (%s)", BhConstants.BhModelDef.ATTR_BH_NODE_ID, nodeId);
         return false;
       }
       nodeIdToNode.put(nodeId, node);
@@ -357,8 +358,8 @@ public class XmlBhNodeRepository implements BhNodeRepository {
      */
     boolean putConnector(ConnectorId cnctrId, Connector cnctr) {
       if (this.cnctrIdToCnctr.containsKey(cnctrId)) {
-        LogManager.logger().error(String.format(
-            "Duplicated '%s'.  (%s)", BhConstants.BhModelDef.ATTR_BH_CONNECTOR_ID, cnctrId));
+        LogManager.logger().error(
+            "Duplicated '%s'.  (%s)", BhConstants.BhModelDef.ATTR_BH_CONNECTOR_ID, cnctrId);
         return false;
       }
       cnctrIdToCnctr.put(cnctrId, cnctr);

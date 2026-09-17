@@ -574,7 +574,7 @@ public class AppMain extends Application {
     try {
       return new BhCompilerImpl(languageFilePath, commonLibPath, localOrRemoteLibPath);
     } catch (IOException e) {
-      LogManager.logger().error("Failed to initialize Compiler.\n%s".formatted(e));
+      LogManager.logger().error("Failed to initialize Compiler.\n%s", e);
       throw e;
     }
   }
@@ -586,7 +586,7 @@ public class AppMain extends Application {
       if (!factory.canCreateStyleOf(node.getStyleId())) {
         allExist = false;
         LogManager.logger().error(
-            "A node style (%s) is not found among *.json files.".formatted(node.getStyleId()));
+            "A node style (%s) is not found among *.json files.", node.getStyleId());
       }
     }
     return allExist;

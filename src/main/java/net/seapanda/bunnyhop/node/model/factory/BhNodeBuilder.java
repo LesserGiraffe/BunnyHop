@@ -83,14 +83,14 @@ class BhNodeBuilder {
    */
   public Optional<? extends BhNode> build(Document doc) {
     if (!doc.getFirstChild().getNodeName().equals(BhConstants.BhModelDef.ELEM_NODE)) {
-      LogManager.logger().error(String.format("""
+      LogManager.logger().error("""
           Invalid BhNode definition. (%s)
           A BhNode definition must have a '%s' root element.
           %s
           """,
           doc.getFirstChild().getNodeName(),
           BhConstants.BhModelDef.ELEM_NODE,
-          doc.getBaseURI()));
+          doc.getBaseURI());
       return Optional.empty();
     }
     return build(doc.getDocumentElement());
@@ -118,8 +118,7 @@ class BhNodeBuilder {
         break;
 
       default:
-        LogManager.logger().error(
-            "Unknown BhNode type.  (%s)\n%s".formatted(type, elem.getBaseURI()));
+        LogManager.logger().error("Unknown BhNode type.  (%s)\n%s", type, elem.getBaseURI());
         break;
     }
     return templateNode;
@@ -143,11 +142,11 @@ class BhNodeBuilder {
       DerivationId derivationId =
           DerivationId.of(derivationElem.getAttribute(BhConstants.BhModelDef.ATTR_DERIVATION_ID));
       if (derivationId.equals(DerivationId.NONE)) {
-        LogManager.logger().error(String.format(
+        LogManager.logger().error(
             "A '%s' element must have a '%s' attribute.\n%s",
             BhConstants.BhModelDef.ELEM_DERIVATION,
             BhConstants.BhModelDef.ATTR_DERIVATION_ID,
-            elem.getBaseURI()));
+            elem.getBaseURI());
         success = false;
         continue;
       }
@@ -155,11 +154,11 @@ class BhNodeBuilder {
       BhNodeId derivativeId =
           BhNodeId.of(derivationElem.getAttribute(BhConstants.BhModelDef.ATTR_DERIVATIVE_ID));
       if (derivativeId.equals(BhNodeId.NONE)) {
-        LogManager.logger().error(String.format(
+        LogManager.logger().error(
             "A '%s' element must have a '%s' attribute.\n%s",
             BhConstants.BhModelDef.ELEM_DERIVATION,
             BhConstants.BhModelDef.ATTR_DERIVATIVE_ID,
-            elem.getBaseURI()));
+            elem.getBaseURI());
         success = false;
         continue;
       }
@@ -184,20 +183,20 @@ class BhNodeBuilder {
     BhNodeAttributes nodeAttrs = BhNodeAttributes.create(elem, textDb);
 
     if (nodeAttrs.bhNodeId().equals(BhNodeId.NONE)) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "A '%s' element must have a '%s' attribute.\n%s",
           BhConstants.BhModelDef.ELEM_NODE,
           BhConstants.BhModelDef.ATTR_BH_NODE_ID,
-          elem.getBaseURI()));
+          elem.getBaseURI());
       return Optional.empty();
     }
 
     if (nodeAttrs.version().equals(BhNodeVersion.NONE)) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "A '%s' element must have a '%s' attribute.\n%s",
           BhConstants.BhModelDef.ELEM_NODE,
           BhConstants.BhModelDef.ATTR_VERSION,
-          elem.getBaseURI()));
+          elem.getBaseURI());
       return Optional.empty();
     }
     Optional<ArrayList<Section>> childSection = genSectionList(elem);
@@ -206,7 +205,7 @@ class BhNodeBuilder {
     }
 
     if (childSection.get().size() != 1) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           ("A '%s' element whose '%s' is '%s' must have a child '%s' element "
           + "or a child '%s' element.\n%s"),
           BhConstants.BhModelDef.ELEM_SECTION,
@@ -214,7 +213,7 @@ class BhNodeBuilder {
           BhConstants.BhModelDef.ATTR_VAL_CONNECTIVE,
           BhConstants.BhModelDef.ELEM_SECTION,
           BhConstants.BhModelDef.ELEM_CONNECTOR_SECTION,
-          elem.getBaseURI()));
+          elem.getBaseURI());
       return Optional.empty();
     }
 
@@ -250,20 +249,20 @@ class BhNodeBuilder {
     BhNodeAttributes nodeAttrs = BhNodeAttributes.create(elem, textDb);
 
     if (nodeAttrs.bhNodeId().equals(BhNodeId.NONE)) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "A '%s' element must have a '%s' attribute.\n%s",
           BhConstants.BhModelDef.ELEM_NODE,
           BhConstants.BhModelDef.ATTR_BH_NODE_ID,
-          elem.getBaseURI()));
+          elem.getBaseURI());
       return Optional.empty();
     }
 
     if (nodeAttrs.version().equals(BhNodeVersion.NONE)) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "A '%s' element must have a '%s' attribute.\n%s",
           BhConstants.BhModelDef.ELEM_NODE,
           BhConstants.BhModelDef.ATTR_VERSION,
-          elem.getBaseURI()));
+          elem.getBaseURI());
       return Optional.empty();
     }
 
@@ -357,11 +356,11 @@ class BhNodeBuilder {
     List<Connector> cnctrList = new ArrayList<>();
   
     if (connectorTags.isEmpty()) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "A '%s' element must have at least one child '%s' element.\n%s",
           BhConstants.BhModelDef.ELEM_CONNECTOR_SECTION,
           BhConstants.BhModelDef.ELEM_CONNECTOR,
-          elem.getBaseURI()));
+          elem.getBaseURI());
       return Optional.empty();
     }
 
@@ -386,11 +385,11 @@ class BhNodeBuilder {
     List<Element> privateNodeTagList =
         getElementsByTagNameFromChild(elem, BhConstants.BhModelDef.ELEM_NODE);
     if (privateNodeTagList.size() >= 2) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "A '%s' element cannot have more than two child '%s' elements.\n%s",
           BhConstants.BhModelDef.ELEM_CONNECTOR,
           BhConstants.BhModelDef.ELEM_NODE,
-          elem.getBaseURI()));
+          elem.getBaseURI());
       return Optional.empty();
     }
     // プライベートノードがある
@@ -447,7 +446,6 @@ class BhNodeBuilder {
    * @param fileName {@code scriptName} が書いてあったファイルの名前
    */
   private static void outputScriptNotFoundMsg(String scriptName, String fileName) {
-    LogManager.logger().error(
-        "Cannot find '%s'.  file: %s".formatted(scriptName, fileName));
+    LogManager.logger().error("Cannot find '%s'.  file: %s", scriptName, fileName);
   }
 }

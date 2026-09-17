@@ -105,14 +105,4 @@ public interface VisualEffectManager {
    * @param type 無効にする視覚効果の種類
    */
   void disableEffects(VisualEffectType type);
-
-  /** 外部スクリプトから {@link VisualEffectType} にアクセスするためのメソッド. */
-  default VisualEffectType effectType() {
-    return VisualEffectType.SELECTION;
-  }
-
-  /** 外部スクリプトから {@link VisualEffectTarget} にアクセスするためのメソッド. */
-  default VisualEffectTarget effectTarget() {
-    return VisualEffectTarget.SELF;
-  }
 }

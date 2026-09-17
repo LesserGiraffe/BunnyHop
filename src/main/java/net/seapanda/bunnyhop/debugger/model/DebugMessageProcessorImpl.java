@@ -227,7 +227,7 @@ public class DebugMessageProcessorImpl implements DebugMessageProcessor {
       }
     }
     if (!errMsg.isEmpty()) {
-      LogManager.logger().error(exception.getClass().getSimpleName() + "\n" + errMsg);
+      LogManager.logger().error("%s\n%s", exception.getClass().getSimpleName(), errMsg);
     }
   }
 

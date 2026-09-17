@@ -123,7 +123,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       return Optional.of(session);
     } catch (JSchException e) {
       msgService.error(TextDefs.BhRuntime.Communication.failedToEstablishConnection.get());
-      LogManager.logger().error("Failed to establish SSH session.\n%s".formatted(e));
+      LogManager.logger().error("Failed to establish SSH session.\n%s", e);
     }
     return Optional.empty();
   }
@@ -158,19 +158,14 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
         success = facade.runScript(destPath);
       }
       if (success) {
-        msgService.info(TextDefs.BhRuntime.Remote.hasStarted.get());
-        var startEvent = new BhProgramEvent(
-            BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
-        // プログラムスタートイベントを送信する
-        send(startEvent);
-        cbRegistry.onBhProgramStarted.invoke(new StartEvent(this, filePath));
+        invokeStartMethod(filePath);
         return true;
       }
       throw new Exception();
     } catch (Exception e) {
       disconnectImpl(0);
       msgService.error(TextDefs.BhRuntime.Remote.failedToRun.get());
-      LogManager.logger().error("Failed to run %s. (remote)".formatted(filePath.getFileName()));
+      LogManager.logger().error("Failed to run %s. (remote)", filePath.getFileName());
     }
     return false;
   }
@@ -206,7 +201,17 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     } catch (Exception e) {
       return Optional.empty();
     }
-  } 
+  }
+
+  /** BhProgram の開始時に実行する処理を呼ぶ. */
+  private void invokeStartMethod(Path filePath) {
+    msgService.info(TextDefs.BhRuntime.Remote.hasStarted.get());
+    var startEvent = new BhProgramEvent(
+        BhProgramEvent.Name.PROGRAM_START, ScriptIdentifiers.Funcs.GET_EVENT_HANDLER_NAMES);
+    // プログラムスタートイベントを送信する
+    send(startEvent);
+    cbRegistry.onBhProgramStarted.invoke(new StartEvent(this, filePath));
+  }
 
   @Override
   public boolean terminate(String hostname, String uname, String password) {
@@ -375,7 +380,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     try (var br = new BufferedReader(new InputStreamReader(is))) {
       facade = BhRuntimeHelper.getBhRuntimeFacade(hostname, br, timeout);
     } catch (Exception e) {
-      LogManager.logger().error("Failed to get BhRuntime facade.\n%s".formatted(e));
+      LogManager.logger().error("Failed to get BhRuntime facade.\n%s", e);
     }
     return Optional.ofNullable(facade);
   }
@@ -404,9 +409,9 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     try {
       return Optional.ofNullable((String) scripts.start().exec(cx, scope));
     } catch (Exception e) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "Failed to generate BhProgram start command  (%s).\n%s",
-          BhConstants.Path.File.GEN_REMOTE_EXEC_CMD_JS, e));
+          BhConstants.Path.File.GEN_REMOTE_EXEC_CMD_JS, e);
     } finally {
       Context.exit();
     }
@@ -423,9 +428,9 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     try {
       return Optional.ofNullable((String) scripts.kill().exec(cx, cx.initStandardObjects()));
     } catch (Exception e) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "Failed to generate BhProgram kill command  (%s).\n%s",
-          BhConstants.Path.File.GEN_REMOTE_KILL_CMD_JS, e));
+          BhConstants.Path.File.GEN_REMOTE_KILL_CMD_JS, e);
     } finally {
       Context.exit();
     }
@@ -445,8 +450,8 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     try {
       return Optional.ofNullable((String) scripts.destPath().exec(cx, scope));
     } catch (Exception e) {
-      LogManager.logger().error(String.format(
-          "Failed to generate the destination path to which BhProgram shuld be copied.\n%s", e));
+      LogManager.logger().error(
+          "Failed to generate the destination path to which BhProgram shuld be copied.\n%s", e);
     } finally {
       Context.exit();
     }
@@ -463,9 +468,9 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
     try {
       return Optional.ofNullable((String) scripts.getPort().exec(cx, cx.initStandardObjects()));
     } catch (Exception e) {
-      LogManager.logger().error(String.format(
+      LogManager.logger().error(
           "Failed to generate Get BhRuntime Port command  (%s).\n%s",
-          BhConstants.Path.File.GEN_GET_PORT_CMD_JS, e));
+          BhConstants.Path.File.GEN_GET_PORT_CMD_JS, e);
     } finally {
       Context.exit();
     }
@@ -487,7 +492,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
       channel.connect(BhConstants.BhRuntime.Timeout.SSH_CONNECTION);
       return Optional.of(new CmdResultProvider(channel, inputStream));
     } catch (IOException | JSchException e) {
-      LogManager.logger().error("Failed to execute a cmd remotely (%s).\n%s".formatted(cmd, e));
+      LogManager.logger().error("Failed to execute a cmd remotely (%s).\n%s", cmd, e);
     }
     return Optional.empty();
   }
@@ -548,7 +553,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
         }
       }
     } catch (Exception e) {
-      LogManager.logger().error("channel close err " + e);
+      LogManager.logger().error("channel close err\n%s", e);
       return Optional.empty();
     }
     return Optional.of(channel.getExitStatus());
