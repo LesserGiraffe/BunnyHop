@@ -23,7 +23,7 @@ import java.util.function.Consumer;
  *
  * @author K.Koike
  */
-public class TravelUpNvbCallbackInvoker {
+class TravelUpNvbCallbackInvoker {
 
   /** ノードビューに対して呼び出すコールバック関数. */
   private final Consumer<BhNodeViewBase> callbackForNode;

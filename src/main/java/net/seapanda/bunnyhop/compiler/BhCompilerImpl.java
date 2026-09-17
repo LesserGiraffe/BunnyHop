@@ -170,7 +170,7 @@ public class BhCompilerImpl implements BhCompiler {
         "'%s'".formatted(event));
     code.append(common.indent(nestLevel))
         .append(addEventCallStat + ";")
-        .append(Keywords.newLine.repeat(2));
+        .repeat(Keywords.newLine, 2);
   }
 
   /**

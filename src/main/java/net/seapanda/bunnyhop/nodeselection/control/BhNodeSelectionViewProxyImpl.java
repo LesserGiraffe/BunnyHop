@@ -197,10 +197,10 @@ public class BhNodeSelectionViewProxyImpl implements BhNodeSelectionViewProxy {
   }
 
   /** {@link BhNodeSelectionViewProxy} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
-  class CallbackRegistryImpl implements CallbackRegistry {
+  static class CallbackRegistryImpl implements CallbackRegistry {
 
     /** 選択中の BhNode のカテゴリが変更されたときのイベントハンドラを管理するオブジェクト. */
-    ConsumerInvoker<CurrentCategoryChangedEvent> onCurrentCategoryChangedInvoker =
+    final ConsumerInvoker<CurrentCategoryChangedEvent> onCurrentCategoryChangedInvoker =
         new SimpleConsumerInvoker<>();
 
     @Override

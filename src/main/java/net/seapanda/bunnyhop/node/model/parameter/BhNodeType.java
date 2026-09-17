@@ -25,7 +25,7 @@ public enum BhNodeType {
   TEXT(BhConstants.BhModelDef.ATTR_VAL_TEXT);
   private final String typeName;
 
-  private BhNodeType(String typeName) {
+  BhNodeType(String typeName) {
     this.typeName = typeName;
   }
 

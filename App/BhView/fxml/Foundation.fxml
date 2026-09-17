@@ -8,7 +8,7 @@
   fx:id="foundationVbox"
   fx:controller="net.seapanda.bunnyhop.ui.control.FoundationController">
   <fx:include fx:id="menuBar" source="MenuBar.fxml"/>
-  <Separator orientation="HORIZONTAL"/>
+  <Separator/>
   <fx:include fx:id="menuView" source="MenuView.fxml"/>
   
   <SplitPane fx:id="verticalSplitPane" VBox.vgrow="ALWAYS" dividerPositions="1">

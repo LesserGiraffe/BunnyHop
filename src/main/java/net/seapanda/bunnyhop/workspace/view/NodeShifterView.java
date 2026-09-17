@@ -50,7 +50,7 @@ public class NodeShifterView extends Pane {
 
   /** ノードシフタが操作するノードビューとリンクのマップ.  */
   private final ObservableMap<BhNodeView, Line> viewToLink =
-      FXCollections.observableMap(new HashMap<BhNodeView, Line>());
+      FXCollections.observableMap(new HashMap<>());
   @FXML private Pane shifterBase;
   @FXML private Circle shifterCircle;
   @FXML private Polygon shifterArrow;

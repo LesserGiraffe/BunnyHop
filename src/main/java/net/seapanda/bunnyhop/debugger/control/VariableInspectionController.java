@@ -292,7 +292,7 @@ public class VariableInspectionController {
     if (isDiscarded || query.isEmpty()) {
       return new SearchQueryResult(0, 0);
     }
-    VariableTreeItem found = null;
+    VariableTreeItem found;
     if (searchBox.getNumConsecutiveSameRequests() >= 2 && searchResult != null) {
       found = query.isForward() ? searchResult.getNext() : searchResult.getPrevious();
     } else {

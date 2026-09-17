@@ -130,7 +130,7 @@ public class VariableListItem {
   }
 
   /** {@link VariableListItem} に対するイベントハンドラの登録および削除操作を提供するクラス. */
-  public class CallbackRegistry {
+  public static class CallbackRegistry {
 
     /**
      * {@link VariableListItem} が保持する {@link Variable} の値が

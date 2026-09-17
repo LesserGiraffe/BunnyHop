@@ -197,7 +197,7 @@ public class BhNodeFactoryImpl implements BhNodeFactory {
         case ConnectiveNodeView ignored -> new ConnectiveNodeController(ctrl);
         default ->
           throw new IllegalStateException("Invalid BhNodeView type (%s)".formatted(nodeView));
-      };
+      }
     }
 
     private BhNodeController createBaseController(BhNode node, BhNodeView nodeView) {

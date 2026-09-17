@@ -85,7 +85,7 @@ public class BreakpointCache {
   }
 
   /** {@link BreakpointCache} に対するイベントハンドラの登録および削除操作を規定したインタフェース. */
-  public class CallbackRegistry {
+  public static class CallbackRegistry {
 
     /** {@link BreakpointCache} にノードが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NodeAddedEvent> onNodeAdded = new SimpleConsumerInvoker<>();

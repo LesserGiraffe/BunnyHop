@@ -40,15 +40,15 @@ public class ComboBoxNodeController implements BhNodeController {
 
   /** コンストラクタ. */
   public ComboBoxNodeController(BhNodeController controller) {
-    if (controller.getModel() instanceof TextNode model) {
-      this.model = model;
+    if (controller.getModel() instanceof TextNode node) {
+      this.model = node;
     } else {
       throw new IllegalStateException(
           "The model is not %s".formatted(TextNode.class.getSimpleName()));
     }
 
-    if (controller.getView() instanceof ComboBoxNodeView view) {
-      this.view = view;
+    if (controller.getView() instanceof ComboBoxNodeView nodeView) {
+      this.view = nodeView;
     } else {
       throw new IllegalStateException(
           "The view is not %s".formatted(ComboBoxNodeView.class.getSimpleName()));
@@ -56,12 +56,10 @@ public class ComboBoxNodeController implements BhNodeController {
     notifService = controller.getNotificationService();
 
     setEventHandlers();
-    model.getCallbackRegistry().getOnTextChanged().add(event -> {
-      view.getItems().stream()
-          .filter(item -> item.getModel().equals(event.newText()))
-          .findFirst()
-          .ifPresent(view::setValue);
-    });
+    node.getCallbackRegistry().getOnTextChanged().add(event -> nodeView.getItems().stream()
+        .filter(item -> item.getModel().equals(event.newText()))
+        .findFirst()
+        .ifPresent(nodeView::setValue));
   }
 
   private void setEventHandlers() {
@@ -79,8 +77,8 @@ public class ComboBoxNodeController implements BhNodeController {
         .ifPresentOrElse(
             view::setValue,
             () -> {
-              model.setText(items.get(0).getModel());
-              view.setValue(items.get(0));
+              model.setText(items.getFirst().getModel());
+              view.setValue(items.getFirst());
             });
   }
 

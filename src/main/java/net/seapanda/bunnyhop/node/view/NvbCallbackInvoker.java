@@ -135,9 +135,9 @@ class NvbCallbackInvoker implements NodeViewWalker {
       callbackForGroup.accept(group);
     }
     if (!visitOnlyGroup) {
-      group.sendToChildNode(this);
+      group.sendToChildNodes(this);
     }
-    group.sendToSubGroupList(this);
+    group.sendToSubGroups(this);
     if (depthFirst) {
       callbackForGroup.accept(group);
     }

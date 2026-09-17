@@ -97,7 +97,7 @@ public class ScalarVariable extends Variable {
   public record Swapped(String oldVal, String newVal) {}
 
   /** {@link ScalarVariable} に対するイベントハンドラの登録および削除操作を提供するクラス. */
-  public class CallbackRegistry {
+  public static class CallbackRegistry {
 
     /** 関連する {@link ScalarVariable} の値が変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<ValueChangedEvent> onValueChanged = new SimpleConsumerInvoker<>();

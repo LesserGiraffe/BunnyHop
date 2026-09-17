@@ -81,7 +81,8 @@ public abstract class BodyShape {
       offsetX += cnctrShift;
       offsetY = -cnctrHeight;
     }
-    return connector.createVertices(offsetX, offsetY, cnctrWidth, cnctrHeight, style.connectorOrientation);
+    return connector.createVertices(
+        offsetX, offsetY, cnctrWidth, cnctrHeight, style.connectorOrientation);
   }
 
   /**
@@ -105,7 +106,7 @@ public abstract class BodyShape {
 
     double offsetX = 0.0;
     double offsetY = 0.0;
-    ConnectorOrientation cnctrPos = ConnectorOrientation.LEFT;
+    ConnectorOrientation cnctrPos = null;
 
     if (notchPos == NotchPos.RIGHT) {
       offsetX = bodyWidth - notchWidth;

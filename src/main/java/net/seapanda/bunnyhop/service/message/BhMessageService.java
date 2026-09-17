@@ -17,7 +17,6 @@
 package net.seapanda.bunnyhop.service.message;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -53,7 +52,7 @@ public class BhMessageService implements Closeable, MessageService {
   private volatile boolean isClosed = false;
 
   /** コンストラクタ. */
-  public BhMessageService() throws IOException {
+  public BhMessageService() {
     var keyFrame = new KeyFrame(Duration.millis(100), event -> outputMsg());
     msgPrintTimer = new Timeline(keyFrame);
     msgPrintTimer.setCycleCount(Timeline.INDEFINITE);

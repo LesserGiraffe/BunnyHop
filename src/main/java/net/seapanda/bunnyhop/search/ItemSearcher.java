@@ -33,7 +33,7 @@ public class ItemSearcher<T> {
   private ItemSearcher() {}
 
   /**
-   * {@code items} から {@code query} に一致する要素をすべて見つけて {@link ImmutableCircularList<T>} に格納して返す.
+   * {@code items} から {@code query} に一致する要素をすべて見つけて {@link ImmutableCircularList} に格納して返す.
    *
    * @param query 検索クエリ
    * @param items このコレクションの中から {@code query} に一致する要素を探す.

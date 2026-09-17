@@ -42,7 +42,7 @@ public class JsonBhNodeCategoryTree implements BhNodeCategoryTree {
 
   private static final Pattern escapeLbrace = Pattern.compile(Pattern.quote("\\{"));
   private static final Pattern escapeRbrace = Pattern.compile(Pattern.quote("\\}"));
-  /** `\\...\$`/ */
+  /** `\\...\$`/ .*/
   private static final Pattern escapeDollar = Pattern.compile("^(\\\\)+\\$");
   /** テキスト DB 参照パターン `${a}{b}...{z}`. */
   private static final Pattern embedded =
@@ -65,8 +65,6 @@ public class JsonBhNodeCategoryTree implements BhNodeCategoryTree {
       JsonObject jsonObj = gson.fromJson(jr, JsonObject.class);      
       root = new TreeNode<>("root");
       addChildren(jsonObj, root, filePath.toString());
-    } catch (NodeConstructionException | IOException e) {
-      throw e;
     }
   }
 

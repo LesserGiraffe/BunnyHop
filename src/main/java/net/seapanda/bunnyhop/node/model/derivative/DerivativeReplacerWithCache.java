@@ -29,7 +29,7 @@ import net.seapanda.bunnyhop.service.undo.UserOperation;
  */
 public class DerivativeReplacerWithCache implements DerivativeReplacer {
   
-  private DerivativeCache cache;
+  private final DerivativeCache cache;
 
   public DerivativeReplacerWithCache(DerivativeCache cache) {
     this.cache = cache;

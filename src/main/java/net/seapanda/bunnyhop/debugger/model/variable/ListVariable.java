@@ -158,7 +158,7 @@ public class ListVariable extends Variable {
   }
 
   /** {@link ListVariable} に対するイベントハンドラの登録および削除操作を提供するクラス. */
-  public class CallbackRegistry {
+  public static class CallbackRegistry {
 
     /**
      * 関連する {@link ListVariable} の値が変わったときのイベントハンドラを

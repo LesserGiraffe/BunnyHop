@@ -58,7 +58,7 @@ public class SelectableItem<T, U> {
 
   @Override
   public String toString() {
-    return model.toString() + " : " + view.toString();
+    return String.format("%s : %s", model, view);
   }
   
   @Override

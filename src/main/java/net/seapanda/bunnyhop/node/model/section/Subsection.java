@@ -34,7 +34,7 @@ import net.seapanda.bunnyhop.service.undo.UserOperation;
  */
 public class Subsection extends Section {
 
-  List<Section> subsectionList = new ArrayList<>();
+  final List<Section> subsectionList = new ArrayList<>();
 
   /**
    * コンストラクタ.

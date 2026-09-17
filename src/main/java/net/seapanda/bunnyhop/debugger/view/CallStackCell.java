@@ -112,12 +112,9 @@ public class CallStackCell extends ListCell<CallStackItem> {
         .filter(itm -> !empty)
         .filter(itm -> model != itm)
         .flatMap(CallStackItem::getNode)
-        .ifPresent(node -> {
-          nodeToCells
-              .computeIfAbsent(
-                  node, key -> Collections.<CallStackCell>newSetFromMap(new WeakHashMap<>()))
-              .add(this);
-        });
+        .ifPresent(node -> nodeToCells
+            .computeIfAbsent(node, key -> Collections.newSetFromMap(new WeakHashMap<>()))
+            .add(this));
   }
 
   /** このセルに描画される文字を装飾する. */

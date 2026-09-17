@@ -85,13 +85,9 @@ public class BreakpointListCell extends ListCell<BhNode> {
     Optional.ofNullable(node)
         .filter(bhNode -> !empty)
         .filter(bhNode -> model != bhNode)
-        .ifPresent(bhNode -> {
-          nodeToCells
-              .computeIfAbsent(
-                  node,
-                  key -> Collections.<BreakpointListCell>newSetFromMap(new WeakHashMap<>()))
-              .add(this);
-        });
+        .ifPresent(bhNode -> nodeToCells
+            .computeIfAbsent(node, key -> Collections.newSetFromMap(new WeakHashMap<>()))
+            .add(this));
   }
 
   /** このセルが表示する値を更新する. */

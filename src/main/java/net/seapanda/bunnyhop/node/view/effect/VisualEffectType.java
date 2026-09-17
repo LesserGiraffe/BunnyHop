@@ -44,5 +44,5 @@ public enum VisualEffectType {
   /** ジャンプ先として指定されたことを示す視覚効果. */
   JUMP_TARGET,
   /** ノードがコンパイルエラーを起こしていることを表す視覚効果. */
-  COMPILE_ERROR;
+  COMPILE_ERROR
 }

@@ -22,11 +22,4 @@ package net.seapanda.bunnyhop.debugger.model.callstack;
  * @param threadId スタックフレームを含むコールスタックに関連するスレッドの ID
  * @param frameIdx スタックフレームのコールスタックにおけるインデックス
  */
-public record StackFrameId(long threadId, long frameIdx) {
-
-  /** コンストラクタ. */
-  public StackFrameId(long threadId, long frameIdx) {
-    this.threadId = threadId;
-    this.frameIdx = frameIdx;
-  }
-}
+public record StackFrameId(long threadId, long frameIdx) {}

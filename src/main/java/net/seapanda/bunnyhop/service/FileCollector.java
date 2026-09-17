@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * ファイル名とそのパスを保持するクラス.
@@ -46,9 +47,11 @@ public class FileCollector {
       extension = "." + extension;
     }
     String ext = extension.startsWith(".") ? extension : "." + extension;
-    Files.walk(dirPath, FOLLOW_LINKS)
-        .filter(path -> path.getFileName().toString().endsWith(ext))
-        .forEach(filePath -> fileNameToFilePath.put(filePath.getFileName().toString(), filePath));
+    try (Stream<Path> filePaths = Files.walk(dirPath, FOLLOW_LINKS)) {
+      filePaths
+          .filter(path -> path.getFileName().toString().endsWith(ext))
+          .forEach(filePath -> fileNameToFilePath.put(filePath.getFileName().toString(), filePath));
+    }
   }
 
   /**

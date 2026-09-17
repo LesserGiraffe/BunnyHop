@@ -33,8 +33,8 @@ public interface NodeViewWalker {
 
   /** {@link BhNodeViewGroup} に対する処理を行う. */
   default void visit(BhNodeViewGroup group) {
-    group.sendToChildNode(this);
-    group.sendToSubGroupList(this);
+    group.sendToChildNodes(this);
+    group.sendToSubGroups(this);
   }
 
   /** {@link ConnectiveNodeView} に対する処理を行う. */

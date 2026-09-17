@@ -42,7 +42,6 @@ import net.seapanda.bunnyhop.node.view.component.PlayIcon;
 import net.seapanda.bunnyhop.node.view.component.RuntimeErrorIcon;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.ChildArrangement;
-import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem;
@@ -81,8 +80,10 @@ abstract class BhNodeViewBase implements BhNodeView {
    * @param isTemplate このノードビューがテンプレートノードビューである場合 true
    */
   BhNodeViewBase(
-      BhNodeViewStyle style, Derivative<?> model, SequencedSet<Node> components, boolean isTemplate)
-      throws ViewConstructionException {
+      BhNodeViewStyle style,
+      Derivative<?> model,
+      SequencedSet<Node> components,
+      boolean isTemplate) {
     this.style = style;
     this.model = model;
     this.isTemplate = isTemplate;

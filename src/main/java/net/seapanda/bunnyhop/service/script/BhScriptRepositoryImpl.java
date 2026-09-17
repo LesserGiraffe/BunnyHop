@@ -23,8 +23,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -65,31 +64,35 @@ public class BhScriptRepositoryImpl implements BhScriptRepository {
   /**
    * JavaScript ファイルを読み込み、コンパイルする.
    *
-   * @param dirPaths このディレクトリの下にある.jsファイルをコンパイルする
-   * @return ひとつでもコンパイル不能なJSファイルがあった場合 false を返す
+   * @param dirPaths このディレクトリの下にある .js ファイルをコンパイルする
    */
   private void compile(Path... dirPaths) throws IOException {
-    for (Path dirPath : dirPaths) {
-      List<Path> jsFilePaths = new ArrayList<>();
-      try {
-        jsFilePaths = Files.walk(dirPath, FOLLOW_LINKS)
-            .filter(path -> path.getFileName().toString().endsWith(".js")) // .jsファイルだけ収集
-            .toList();
-      } catch (IOException e) {
-        LogManager.logger().error("Directory not found.  (%s)".formatted(dirPath));
-        throw e;
+    try (Context cx = ContextFactory.getGlobal().enterContext()) {
+      for (Path dirPath : dirPaths) {
+        Collection<Path> jsFilePaths = collectJavaScriptFilePaths(dirPath);
+        compile(jsFilePaths, cx);
       }
-      Context cx = ContextFactory.getGlobal().enterContext();
-      cx.setLanguageVersion(Context.VERSION_ES6);
-      for (Path path : jsFilePaths) {
-        try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-          Script script = cx.compileReader(reader, path.getFileName().toString(), 1, null);
-          scriptNameToScript.put(path.getFileName().toString(), script);
-        } catch (IOException e) {
-          throw e;
-        }
+    }
+  }
+
+  private void compile(Collection<Path> jsFilePaths, Context cx) throws IOException {
+    for (Path path : jsFilePaths) {
+      try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+        Script script = cx.compileReader(reader, path.getFileName().toString(), 1, null);
+        scriptNameToScript.put(path.getFileName().toString(), script);
       }
-      Context.exit();
+    }
+  }
+
+  /** 引数で指定したディレクトリ以下にある .js ファイルのパスを取得する. */
+  private Collection<Path> collectJavaScriptFilePaths(Path dirPath) throws IOException {
+    try (var jsFilePaths = Files.walk(dirPath, FOLLOW_LINKS)) {
+      return jsFilePaths
+          .filter(path -> path.getFileName().toString().endsWith(".js")) // .jsファイルだけ収集
+          .toList();
+    } catch (IOException e) {
+      LogManager.logger().error("Directory not found.  (%s)".formatted(dirPath));
+      throw e;
     }
   }
 

@@ -340,7 +340,7 @@ public class DefaultBhNodeController implements BhNodeController {
     if (model.isRoot() && trashCan.isOpened()) {
       UserOperation userOpe = ddInfo.context.userOpe();
       boolean canDelete = model.getEventInvoker().onDeletionRequested(
-          new ArrayList<>() {{ add(model); }}, CauseOfDeletion.TRASH_CAN, userOpe);
+          new ArrayList<>(List.of(model)), CauseOfDeletion.TRASH_CAN, userOpe);
       if (!canDelete) {
         return;
       }

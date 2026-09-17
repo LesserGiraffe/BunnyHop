@@ -52,7 +52,7 @@ public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
       Pattern.compile("\\{((?:\\\\\\{|\\\\}|[^{}])*)}");
 
   private final BhNodeViewStyleFactory nodeStyleFactory;
-  PrivateTemplateButtonFactory buttonFactory;
+  private final PrivateTemplateButtonFactory buttonFactory;
 
   /**
    * コンストラクタ.
@@ -166,11 +166,9 @@ public class BhNodeViewFactoryImpl implements BhNodeViewFactory {
         view.setText(text);
         yield view;
       }
-      default -> {
-        throw new ViewConstructionException(
-            "Cannot create a modelless node view whose component is '%s'.  (%s)"
-                .formatted(style.component, styleId));
-      }
+      default -> throw new ViewConstructionException(
+          "Cannot create a modelless node view whose component is '%s'.  (%s)"
+              .formatted(style.component, styleId));
     };
   }  
 }

@@ -285,7 +285,7 @@ public class CallStackController {
     if (isDiscarded || query.isEmpty()) {
       return new SearchQueryResult(0, 0);
     }
-    CallStackItem found = null;
+    CallStackItem found;
     if (searchBox.getNumConsecutiveSameRequests() >= 2 && searchResult != null) {
       found = query.isForward() ? searchResult.getNext() : searchResult.getPrevious();
     } else {

@@ -37,7 +37,7 @@ public class FuncId {
   public static FuncId of(String... snippets) {
 
     var retVal = new FuncId();
-    retVal.id = new ArrayList<String>(Arrays.asList(snippets));
+    retVal.id = new ArrayList<>(Arrays.asList(snippets));
     return retVal;
   }
 

@@ -35,7 +35,7 @@ public class DerivativeBuilder implements BhNodeWalker {
   /** 現在処理中の {@link BhNode} の親がトップにくるスタック. */
   private final Deque<BhNode> parentStack = new LinkedList<>();
   /** undo 用コマンドオブジェクト. */
-  UserOperation userOpe;
+  final UserOperation userOpe;
   private DerivationId derivationId;
 
   /**

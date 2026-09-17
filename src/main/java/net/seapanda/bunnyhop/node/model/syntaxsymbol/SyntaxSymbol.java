@@ -140,7 +140,7 @@ public abstract class SyntaxSymbol implements Serializable {
       while ((parent = parent.findAncestorOf("*", 1, false)) != this) {
         path.addFirst(parent.getSymbolName());
       }
-      return path.toArray(new String[path.size()]);
+      return path.toArray(new String[0]);
 
     } else if (this.isDescendantOf(syntaxSymbol)) {
       SyntaxSymbol parent = this;
@@ -148,7 +148,7 @@ public abstract class SyntaxSymbol implements Serializable {
         path.addLast(parent.getSymbolName());
       }
       path.addLast(syntaxSymbol.getSymbolName());
-      return path.toArray(new String[path.size()]);
+      return path.toArray(new String[0]);
     }
     return null;
   }

@@ -96,10 +96,8 @@ class BhRuntimeHelper {
    */
   static BhRuntimeFacade getBhRuntimeFacade(String hostname, BufferedReader br, int timeout)
       throws IOException,
-      TimeoutException, 
-      MalformedURLException, 
-      NotBoundException, 
-      RemoteException {
+      TimeoutException,
+      NotBoundException {
     String portStr = getSuffixedLine(
         br,
         BhConstants.BhRuntime.RMI_TCP_PORT_SUFFIX,

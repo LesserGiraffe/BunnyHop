@@ -100,7 +100,7 @@ public class CompileErrorNodeCache {
   }
 
   /** {@link CompileErrorNodeCache} に対するイベントハンドラの登録および削除操作を規定したインタフェース. */
-  public class CallbackRegistry {
+  public static class CallbackRegistry {
 
     /** ノードのコンパイルエラー状態が更新されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<CompileErrorStateUpdatedEvent> onCompileErrorStateUpdated =

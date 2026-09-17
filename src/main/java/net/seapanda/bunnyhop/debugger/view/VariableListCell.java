@@ -82,12 +82,9 @@ public class VariableListCell extends TreeCell<VariableListItem> {
     Optional.ofNullable(item)
         .filter(itm -> !empty)
         .filter(itm -> model != itm)
-        .ifPresent(itm -> {
-          itemToCells
-              .computeIfAbsent(
-                  itm, key -> Collections.newSetFromMap(new WeakHashMap<>()))
-              .add(this);
-        });
+        .ifPresent(itm -> itemToCells
+            .computeIfAbsent(itm, key -> Collections.newSetFromMap(new WeakHashMap<>()))
+            .add(this));
   }
 
   /** {@code item} に対応する {@link BhNode} とこのセルを {@link #nodeToCells} の中で対応付ける. */
@@ -102,12 +99,10 @@ public class VariableListCell extends TreeCell<VariableListItem> {
         .filter(itm -> !empty)
         .filter(itm -> model != itm)
         .flatMap(model -> model.variable.getNode())
-        .ifPresent(node -> {
-          nodeToCells
-              .computeIfAbsent(
-                  node, key -> Collections.newSetFromMap(new WeakHashMap<>()))
-              .add(this);
-        });
+        .ifPresent(node -> nodeToCells
+            .computeIfAbsent(
+                node, key -> Collections.newSetFromMap(new WeakHashMap<>()))
+            .add(this));
   }
 
   /** このセルが表示する値を更新する. */

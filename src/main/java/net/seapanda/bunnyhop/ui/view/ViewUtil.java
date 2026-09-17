@@ -336,7 +336,7 @@ public class ViewUtil {
       return;
     }
     BiFunction<WorkspaceView, Vec2D, Boolean> shouldChange =
-        (fnShouldChange == null) ? (wsView, point) -> true : fnShouldChange;;
+        (fnShouldChange == null) ? (wsView, point) -> true : fnShouldChange;
     userOpe.pushCmd(
         ope -> {
           if (oldWsView != null

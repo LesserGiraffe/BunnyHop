@@ -39,7 +39,7 @@ public final class ConnectiveNodeView extends BhNodeViewBase {
 
   /** ノード内部に描画されるノードの Group. */
   private final BhNodeViewGroup innerGroup = new BhNodeViewGroup(this, true);
-  /** ノード外部に描画されるノードのGroup. */
+  /** ノード外部に描画されるノードの Group. */
   private final BhNodeViewGroup outerGroup = new BhNodeViewGroup(this, false);
   private final ConnectiveNode model;
   private final CallbackRegistry cbRegistry = new CallbackRegistry(this) {};

@@ -33,7 +33,7 @@ public enum BreakpointSetting {
 
   private final String setting;
 
-  private BreakpointSetting(String setting) {
+  BreakpointSetting(String setting) {
     this.setting = setting;
   }
 

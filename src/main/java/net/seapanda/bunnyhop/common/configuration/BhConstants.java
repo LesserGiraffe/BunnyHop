@@ -353,7 +353,7 @@ public class BhConstants {
     public static final String WORKSPACE_SET_TAB = "workspaceSetTab";
     public static final String BH_RUNTIME_ERR_MSG = "bhRuntimeErrMsg";
     public static final String VERTICAL_SPLIT_PANE = "verticalSplitPane";
-    public static final String HORIZONTALSPLIT_PANE = "horizontalSplitPane";
+    public static final String HORIZONTAL_SPLIT_PANE = "horizontalSplitPane";
   }
 
   /** CSS ファイルで使用されるキーワード. */

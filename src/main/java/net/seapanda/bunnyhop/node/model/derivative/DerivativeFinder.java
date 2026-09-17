@@ -17,7 +17,6 @@
 package net.seapanda.bunnyhop.node.model.derivative;
 
 import net.seapanda.bunnyhop.node.model.BhNode;
-import net.seapanda.bunnyhop.node.model.ConnectiveNode;
 import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.parameter.DerivativeJointId;
 import net.seapanda.bunnyhop.node.model.section.ConnectorSection;
@@ -57,11 +56,6 @@ public class DerivativeFinder implements BhNodeWalker {
    */
   private DerivativeFinder(DerivativeJointId joint) {
     this.joint = joint;
-  }
-
-  @Override
-  public void visit(ConnectiveNode node) {
-    node.sendToSections(this);
   }
 
   @Override

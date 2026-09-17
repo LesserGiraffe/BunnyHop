@@ -306,7 +306,7 @@ public class BhDebugger implements Debugger {
 
 
   /** イベントハンドラの管理を行うクラス. */
-  public class CallbackRegistryImpl implements CallbackRegistry {
+  public static class CallbackRegistryImpl implements CallbackRegistry {
 
     /** {@link ThreadContext} を取得したときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<ThreadContextAddedEvent> onThreadContextAddedInvoker =

@@ -45,7 +45,8 @@ public abstract class ConnectorShape {
    * @param fileName コネクタの形が記述してあるjsonファイルの名前 (nullable)
    * @return shapeStrに対応する CNCTR_SHAPE 列挙子 (オプション)
    */
-  public static ConnectorShapeType getConnectorTypeFromName(String cnctrShapeName, String fileName) {
+  public static ConnectorShapeType getConnectorTypeFromName(
+      String cnctrShapeName, String fileName) {
     ConnectorShapeType type = ConnectorShapeType.getByName(cnctrShapeName);
     if (type == null) {
       throw new IllegalArgumentException(

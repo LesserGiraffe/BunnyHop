@@ -158,9 +158,7 @@ public class VariableInfo {
           valChangedVars.add(registered);
         }
       }
-      default -> {
-        throw new AssertionError("Unknown variable type");
-      }
+      default -> throw new AssertionError("Unknown variable type");
     }
   }
 
@@ -197,7 +195,7 @@ public class VariableInfo {
   }
 
   /** {@link VariableInfo} に対するイベントハンドラの登録および削除操作を提供するクラス. */
-  public class CallbackRegistry {
+  public static class CallbackRegistry {
 
     /** 関連する {@link VariableInfo} に新しく変数が追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<VariablesAddedEvent> onVarsAddedInvoker =

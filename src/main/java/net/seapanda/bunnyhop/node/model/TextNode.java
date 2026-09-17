@@ -39,7 +39,7 @@ import net.seapanda.bunnyhop.utility.event.SimpleConsumerInvoker;
  */
 public class TextNode extends Derivative<TextNode> {
 
-  private String text = "";
+  private String text;
   /** このノードに登録されたイベントハンドラを管理するオブジェクト. */
   private final transient CallbackRegistry cbRegistry = new CallbackRegistry();
 
@@ -160,7 +160,7 @@ public class TextNode extends Derivative<TextNode> {
    */
   public void assignContentsToDerivatives() {
     getDerivatives().forEach(derv -> derv.setText(text));
-    getDerivatives().forEach(derv -> derv.assignContentsToDerivatives());
+    getDerivatives().forEach(TextNode::assignContentsToDerivatives);
   }
 
   @Override
@@ -190,11 +190,10 @@ public class TextNode extends Derivative<TextNode> {
   @Override
   public TextNode createDerivative(DerivationId derivationId, UserOperation userOpe) {
     BhNode node = factory.create(getDerivativeIdOf(derivationId), userOpe);
-    if (!(node instanceof TextNode)) {
+    if (!(node instanceof TextNode derivative)) {
       throw new AssertionError("derivative node type inconsistency");
     }
     //オリジナルと派生ノードの関連付け
-    TextNode derivative = (TextNode) node;
     addDerivative(derivative, userOpe);
     return derivative;
   }

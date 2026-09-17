@@ -45,7 +45,7 @@ public class BhNodeViewGroup {
   /** `\\...\$`. */
   private static final Pattern escapeDollar = Pattern.compile("^(\\\\)+\\$");
 
-  /** このグループが子となる {@link BhNodeViewGroup} のリスト. */
+  /** このグループの子となる {@link BhNodeViewGroup} のリスト. */
   private final List<BhNodeViewGroup> subGroupList = new ArrayList<>();
   /** このグループを持つ {@link ConnectiveNodeView}. */
   private final ConnectiveNodeView parentView;
@@ -205,7 +205,7 @@ public class BhNodeViewGroup {
    *
    * @param visitor サブグループに渡す visitor
    */
-  public void sendToSubGroupList(NodeViewWalker visitor) {
+  public void sendToSubGroups(NodeViewWalker visitor) {
     subGroupList.forEach(group -> group.accept(visitor));
   }
 
@@ -214,7 +214,7 @@ public class BhNodeViewGroup {
    *
    * @param visitor 子ノードビューに渡す visitor
    */
-  public void sendToChildNode(NodeViewWalker visitor) {
+  public void sendToChildNodes(NodeViewWalker visitor) {
     for (BhNodeView child : childNameToNodeView.values()) {
       if (child != null) {
         child.accept(visitor);
@@ -223,7 +223,7 @@ public class BhNodeViewGroup {
   }
 
   /** {@code visitor} にこのオブジェクトを渡す. */
-  public void accept(NodeViewWalker visitor) {
+  void accept(NodeViewWalker visitor) {
     visitor.visit(this);
   }
 

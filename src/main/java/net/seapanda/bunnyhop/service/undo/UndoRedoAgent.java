@@ -116,7 +116,7 @@ public class UndoRedoAgent {
   }
 
   /** {@link UndoRedoAgent} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
-  public class CallbackRegistry {
+  public static class CallbackRegistry {
 
     /** Undo スタックに変化があったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<UndoStackChangedEvent> onUndoStackChanged =
@@ -133,5 +133,5 @@ public class UndoRedoAgent {
    *
    * @param agent Undo スタックに変化があった {@link UndoRedoAgent} クラス.
    */
-  public record UndoStackChangedEvent(UndoRedoAgent agent) {};
+  public record UndoStackChangedEvent(UndoRedoAgent agent) {}
 }

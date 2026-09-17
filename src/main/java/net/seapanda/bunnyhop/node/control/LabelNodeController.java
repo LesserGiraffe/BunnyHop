@@ -35,20 +35,20 @@ public class LabelNodeController implements BhNodeController {
 
   /** コンストラクタ. */
   public LabelNodeController(BhNodeController controller) {
-    if (controller.getModel() instanceof TextNode model) {
-      this.model = model;
+    if (controller.getModel() instanceof TextNode node) {
+      this.model = node;
     } else {
       throw new IllegalStateException(
           "The model is not %s".formatted(TextNode.class.getSimpleName()));
     }
-    if (controller.getView() instanceof LabelNodeView view) {
-      this.view = view;
+    if (controller.getView() instanceof LabelNodeView nodeView) {
+      this.view = nodeView;
     } else {
       throw new IllegalStateException(
           "The view is not %s".formatted(LabelNodeView.class.getSimpleName()));
     }
     notifService = controller.getNotificationService();
-    model.getCallbackRegistry().getOnTextChanged().add(event -> view.setText(event.newText()));
+    node.getCallbackRegistry().getOnTextChanged().add(event -> nodeView.setText(event.newText()));
     setInitStr();
   }
 

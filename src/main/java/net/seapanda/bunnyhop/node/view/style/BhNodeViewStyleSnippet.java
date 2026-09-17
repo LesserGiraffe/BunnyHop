@@ -267,7 +267,7 @@ class BhNodeViewStyleSnippet {
     Double minWidth = null;
     Boolean editable = null;
     String cssClass = null;
-    TextHighlightSnippet textHighlight = new TextHighlightSnippet();
+    final TextHighlightSnippet textHighlight = new TextHighlightSnippet();
 
     private void populateStyle(
         TextField style,
@@ -297,7 +297,7 @@ class BhNodeViewStyleSnippet {
 
   class LabelSnippet {
     String cssClass = null;
-    TextHighlightSnippet textHighlight = new TextHighlightSnippet();
+    final TextHighlightSnippet textHighlight = new TextHighlightSnippet();
 
     private void populateStyle(
         Label style, Function<BhNodeViewStyleSnippet, LabelSnippet> getter) {
@@ -314,7 +314,7 @@ class BhNodeViewStyleSnippet {
 
   class ComboBoxSnippet {
     String cssClass = null;
-    TextHighlightSnippet textHighlight = new TextHighlightSnippet();
+    final TextHighlightSnippet textHighlight = new TextHighlightSnippet();
 
     private void populateStyle(
         ComboBox style, Function<BhNodeViewStyleSnippet, ComboBoxSnippet> getter) {
@@ -396,7 +396,7 @@ class BhNodeViewStyleSnippet {
     Double minHeight = null;
     Boolean editable = null;
     String cssClass = null;
-    TextHighlightSnippet textHighlight = new TextHighlightSnippet();
+    final TextHighlightSnippet textHighlight = new TextHighlightSnippet();
 
     private void populateStyle(
         TextArea style, Function<BhNodeViewStyleSnippet, TextAreaSnippet> getter) {
@@ -556,12 +556,12 @@ class BhNodeViewStyleSnippet {
   class CommonPartSnippet {
     String cssClass = null;
     ChildArrangement arrangement = null;
-    ButtonSnippet privateTemplate = new ButtonSnippet();
-    BreakpointIconSnippet breakpointIcon = new BreakpointIconSnippet();
-    NextStepIconSnippet nextStepIcon = new NextStepIconSnippet();
-    RuntimeErrorIconSnippet runtimeErrIcon = new RuntimeErrorIconSnippet();
-    CorruptionIconSnippet corruptionIcon = new CorruptionIconSnippet();
-    EntryPointIconSnippet entryPointIcon = new EntryPointIconSnippet();
+    final ButtonSnippet privateTemplate = new ButtonSnippet();
+    final BreakpointIconSnippet breakpointIcon = new BreakpointIconSnippet();
+    final NextStepIconSnippet nextStepIcon = new NextStepIconSnippet();
+    final RuntimeErrorIconSnippet runtimeErrIcon = new RuntimeErrorIconSnippet();
+    final CorruptionIconSnippet corruptionIcon = new CorruptionIconSnippet();
+    final EntryPointIconSnippet entryPointIcon = new EntryPointIconSnippet();
 
     private void populateStyle(
         CommonPart style,

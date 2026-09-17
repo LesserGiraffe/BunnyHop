@@ -62,7 +62,8 @@ class ConnectorBuilder {
     if (!elem.getNodeName().equals(BhConstants.BhModelDef.ELEM_CONNECTOR)) {
       LogManager.logger().error(String.format("""
           Invalid connector definition. (%s)
-          A connector definition must have a '%s' root element.\n%s
+          A connector definition must have a '%s' root element.
+          %s
           """,
           elem.getNodeName(),
           BhConstants.BhModelDef.ELEM_CONNECTOR,

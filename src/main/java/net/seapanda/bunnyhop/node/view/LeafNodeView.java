@@ -20,7 +20,6 @@ import java.util.SequencedSet;
 import javafx.scene.Node;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
-import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
@@ -34,8 +33,7 @@ abstract class LeafNodeView extends BhNodeViewBase {
   public abstract Geometry getGeometry();
 
   LeafNodeView(
-      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
-      throws ViewConstructionException {
+      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate) {
     super(style, model, components, isTemplate);
   }
 

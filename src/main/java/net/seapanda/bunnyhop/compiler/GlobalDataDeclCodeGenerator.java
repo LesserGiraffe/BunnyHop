@@ -79,12 +79,11 @@ class GlobalDataDeclCodeGenerator {
           .filter(Objects::nonNull)
           .findFirst()
           .map(TextNode::getText)
-          .ifPresent(comment -> {
-            code.append(common.indent(nestLevel))
-                .append(" /*")
-                .append(comment)
-                .append("*/" + Keywords.newLine);
-          });
+          .ifPresent(comment ->
+              code.append(common.indent(nestLevel))
+                  .append(" /*")
+                  .append(comment)
+                  .append("*/" + Keywords.newLine));
     }
 
     String varName =

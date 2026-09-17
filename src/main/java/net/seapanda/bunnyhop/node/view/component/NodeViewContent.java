@@ -46,17 +46,13 @@ public abstract class NodeViewContent {
    * @throws IllegalArgumentException {@code json} から {@link NodeViewContent} オブジェクトを作れなかった場合
    */
   public static NodeViewContent fromJson(String json) throws IllegalArgumentException {
-    try {
-      JsonElement root = JsonParser.parseString(json);
-      String type = root.getAsJsonObject().get("type").getAsString();
-      return switch (type) {
-        case Text.type -> new Gson().fromJson(json, new TypeToken<Text>(){}.getType());
-        default -> throw new Exception();
-      };
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Cannot create a %s object from json.\n%s".formatted(
-          NodeViewContent.class.getSimpleName(), json));
+    JsonElement root = JsonParser.parseString(json);
+    String type = root.getAsJsonObject().get("type").getAsString();
+    if (type.equals(Text.type)) {
+      return new Gson().fromJson(json, new TypeToken<Text>(){}.getType());
     }
+    throw new IllegalArgumentException("Cannot create a %s object from json.\n%s".formatted(
+        NodeViewContent.class.getSimpleName(), json));
   }
 
   /** 文字列を持つコンテンツ. */

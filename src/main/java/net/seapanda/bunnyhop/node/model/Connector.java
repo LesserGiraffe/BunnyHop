@@ -377,11 +377,11 @@ public class Connector extends SyntaxSymbol {
   }
 
   /** イベントハンドラの登録 / 削除を行う機能を提供するクラス. */
-  class CallbackRegistry {
+  static class CallbackRegistry {
 
     /** このノードが選択されたときのイベントハンドラを管理するオブジェクト. */
     private final transient ConsumerInvoker<ReplacementEvent> onNodeReplaced =
-        new SimpleConsumerInvoker<ReplacementEvent>();
+        new SimpleConsumerInvoker<>();
     
     /** このコネクタに接続されるノードが入れ替わったときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<ReplacementEvent>.Registry getOnNodeReplaced() {

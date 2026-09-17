@@ -857,5 +857,5 @@ public class SymbolNames {
     public static final Set<String> AUTO_LIST = new HashSet<>() {{
         addAll(Event.LIST);
       }};
-  };
+  }
 }

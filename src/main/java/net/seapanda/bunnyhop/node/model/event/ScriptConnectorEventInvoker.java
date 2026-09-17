@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.node.model.event;
 
+import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.model.parameter.ConnectorId;
 
 /**

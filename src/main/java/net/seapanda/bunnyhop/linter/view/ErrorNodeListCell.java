@@ -79,12 +79,9 @@ public class ErrorNodeListCell extends TreeCell<ErrorNodeListItem> {
         .filter(itm -> !empty)
         .filter(itm -> model != itm)
         .map(ErrorNodeListItem::node)
-        .ifPresent(node -> {
-          nodeToCells
-              .computeIfAbsent(
-                  node, key -> Collections.<ErrorNodeListCell>newSetFromMap(new WeakHashMap<>()))
-              .add(this);
-        });
+        .ifPresent(node -> nodeToCells
+            .computeIfAbsent(node, key -> Collections.newSetFromMap(new WeakHashMap<>()))
+            .add(this));
   }
 
   /** このセルが表示する値を更新する. */

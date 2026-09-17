@@ -54,9 +54,7 @@
     <TextFetcher fx:id="selectRuntimeTooltip" textId="gui,menu-view,tooltip,select-runtime"/>
     <TextFetcher fx:id="sendTextTooltip" textId="gui,menu-view,tooltip,send"/>
   </fx:define>
-  <FlowPane
-    fx:id="menuViewUpper"
-    styleClass="menuViewFlowPane">
+  <FlowPane fx:id="menuViewUpper">
 
     <Button text="$copyText.text" fx:id="copyBtn" styleClass="flatButton"> <!-- コピー -->
       <tooltip>
@@ -248,9 +246,7 @@
     </ToggleButton>
   </FlowPane>
 
-  <FlowPane
-    fx:id="menuViewLower"
-    styleClass="menuViewFlowPane">
+  <FlowPane fx:id="menuViewLower">
 
     <ToggleButton fx:id="bhRuntimeSelBtn" text="$localText.text"> <!-- リモート/ローカル-->
       <tooltip>

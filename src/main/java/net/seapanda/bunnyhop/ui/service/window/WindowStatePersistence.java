@@ -166,7 +166,7 @@ class WindowStatePersistence {
       splitPane.getDividers().getFirst().setPosition(nodeSelectionSplitPos);
     }
 
-    node = stage.getScene().lookup("#" + BhConstants.UiId.HORIZONTALSPLIT_PANE);
+    node = stage.getScene().lookup("#" + BhConstants.UiId.HORIZONTAL_SPLIT_PANE);
     if (node instanceof SplitPane splitPane && notificationSplitPos >= 0) {
       splitPane.getDividers().getFirst().setPosition(notificationSplitPos);
     }
@@ -178,7 +178,7 @@ class WindowStatePersistence {
       nodeSelectionSplitPos = splitPane.getDividers().getFirst().getPosition();
     }
 
-    node = stage.getScene().lookup("#" + BhConstants.UiId.HORIZONTALSPLIT_PANE);
+    node = stage.getScene().lookup("#" + BhConstants.UiId.HORIZONTAL_SPLIT_PANE);
     if (node instanceof SplitPane splitPane) {
       notificationSplitPos = splitPane.getDividers().getFirst().getPosition();
     }

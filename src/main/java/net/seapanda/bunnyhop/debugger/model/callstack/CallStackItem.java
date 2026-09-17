@@ -134,7 +134,7 @@ public class CallStackItem {
   }
 
   /** {@link CallStackItem} に対してイベントハンドラを追加または削除する機能を提供するクラス. */
-  public class CallbackRegistry {
+  public static class CallbackRegistry {
     
     /** 関連する {@link CallStackItem} が選択されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<SelectionEvent> onSelectionStateChangedInvoker =

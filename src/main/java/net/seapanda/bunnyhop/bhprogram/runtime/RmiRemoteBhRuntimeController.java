@@ -617,7 +617,7 @@ public class RmiRemoteBhRuntimeController implements RemoteBhRuntimeController {
   private record CmdResultProvider(Channel channel, InputStream inputStream) {}
 
   /** {@link BhRuntimeController} に対するイベントハンドラの登録および削除操作を提供するクラス. */
-  public class CallbackRegistryImpl implements BhRuntimeController.CallbackRegistry {
+  public static class CallbackRegistryImpl implements BhRuntimeController.CallbackRegistry {
 
     /** BhRuntime との通信用オブジェクトが置き換わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<MessageCarrierRenewedEvent> onMsgCarrierRenewed =

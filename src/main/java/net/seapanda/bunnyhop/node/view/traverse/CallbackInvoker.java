@@ -18,7 +18,6 @@ package net.seapanda.bunnyhop.node.view.traverse;
 
 import java.util.function.Consumer;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
-import net.seapanda.bunnyhop.node.view.BhNodeViewGroup;
 import net.seapanda.bunnyhop.node.view.ComboBoxNodeView;
 import net.seapanda.bunnyhop.node.view.ConnectiveNodeView;
 import net.seapanda.bunnyhop.node.view.LabelNodeView;
@@ -38,18 +37,14 @@ public class CallbackInvoker implements NodeViewWalker {
   private final boolean visitOnlyOuter;
   /** 子要素を走査してからコールバック関数を呼ぶ場合 true. */
   private final boolean depthFirst;
-  /** グループのみを巡る場合 true. */
-  private final boolean visitOnlyGroup;
 
   /** コンストラクタ. */
   private CallbackInvoker(
       Consumer<? super BhNodeView> callback,
       boolean visitOnlyOuter,
-      boolean visitOnlyGroup,
       boolean depthFirst) {
     this.callback = callback;
     this.visitOnlyOuter = visitOnlyOuter;
-    this.visitOnlyGroup = visitOnlyGroup;
     this.depthFirst = depthFirst;
   }
 
@@ -60,7 +55,7 @@ public class CallbackInvoker implements NodeViewWalker {
    * @param nodeView これ以下のノードビューに対して, callback を呼び出す
    */
   public static void invoke(Consumer<? super BhNodeView> callback, BhNodeView nodeView) {
-    nodeView.accept(new CallbackInvoker(callback, false, false, false));
+    nodeView.accept(new CallbackInvoker(callback, false, false));
   }
 
   /**
@@ -74,7 +69,7 @@ public class CallbackInvoker implements NodeViewWalker {
       Consumer<? super BhNodeView> callback,
       BhNodeView nodeView,
       boolean depthFirst) {
-    nodeView.accept(new CallbackInvoker(callback, false, false, depthFirst));
+    nodeView.accept(new CallbackInvoker(callback, false, depthFirst));
   }
 
   /**
@@ -85,27 +80,19 @@ public class CallbackInvoker implements NodeViewWalker {
    */
   public static void invokeForOuters(
       Consumer<? super BhNodeView> callback, BhNodeView nodeView) {
-    nodeView.accept(new CallbackInvoker(callback, true, false, false));
-  }
-
-  @Override
-  public void visit(BhNodeViewGroup group) {
-    if (!visitOnlyGroup) {
-      group.sendToChildNode(this);
-    }
-    group.sendToSubGroupList(this);
+    nodeView.accept(new CallbackInvoker(callback, true, false));
   }
 
   @Override
   public void visit(ConnectiveNodeView view) {
-    if (!depthFirst && !visitOnlyGroup) {
+    if (!depthFirst) {
       callback.accept(view);
     }
     if (!visitOnlyOuter) {
       view.sendToInnerGroup(this);
     }
     view.sendToOuterGroup(this);
-    if (depthFirst && !visitOnlyGroup) {
+    if (depthFirst) {
       callback.accept(view);
     }
   }
