@@ -403,14 +403,14 @@ public class BhConstants {
       public static final String VARIABLE_LIST_ITEM = "variableListItem";
       public static final String BREAKPOINT_LIST_ITEM = "breakpointListItem";
       public static final String ERROR_NODE_LIST_ITEM = "errorNodeListItem";
-
+      public static final String DEFAULT_TEXT_HIGHLIGHT = "defaultTextHighlight";
+      public static final String FOCUSED_TEXT_HIGHLIGHT = "focusedTextHighlight";
     }
   }
 
   /** BhProgram の実行環境に関するパラメータ. */
   public static class BhRuntime {
-    public static final String BH_PROGRAM_EXEC_MAIN_CLASS =
-        "net.seapanda.bunnyhop.runtime.AppMain";
+    public static final String BH_PROGRAM_EXEC_MAIN_CLASS = "net.seapanda.bunnyhop.runtime.AppMain";
     
     /** タイムアウト. */
     public static class Timeout {
@@ -449,10 +449,5 @@ public class BhConstants {
     public static final int MAX_LOG_FILE_NUM = 4;
     /** ログファイル1つあたりの最大バイト数. */
     public static final int LOG_FILE_SIZE_LIMIT = 1024 * 1024;
-  }
-
-  /** 言語一覧. */
-  public static class Language {
-    public static final String JAPANESE = "Japanese";
   }
 }

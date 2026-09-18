@@ -149,7 +149,8 @@ public class SearchBoxController implements SearchBox {
     if (result.numFound() == 0 || result.currentIdx() < 0) {
       searchResultLabel.setText(TextDefs.SearchBox.resultCount.get(result.numFound()));
     } else {
-      String text = "%s / %s".formatted(result.currentIdx() + 1, result.numFound());
+      String plus = result.truncated() ? "+" : "";
+      String text = "%s / %s%s".formatted(result.currentIdx() + 1, result.numFound(), plus);
       searchResultLabel.setText(TextDefs.SearchBox.result.get(text));
     }
   }

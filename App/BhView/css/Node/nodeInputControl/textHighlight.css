@@ -2,3 +2,8 @@
   -fx-fill: #e3a000;
   -fx-stroke-width: 0;
 }
+
+.focusedTextHighlight {
+  -fx-fill: #f68df7;
+  -fx-stroke-width: 0;
+}

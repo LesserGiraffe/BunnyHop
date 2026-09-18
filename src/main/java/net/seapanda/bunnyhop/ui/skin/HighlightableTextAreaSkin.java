@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2017 K.Koike
  *
@@ -17,7 +18,6 @@
 package net.seapanda.bunnyhop.ui.skin;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.SequencedCollection;
@@ -38,26 +38,32 @@ import org.apache.commons.lang3.IntegerRange;
  */
 public class HighlightableTextAreaSkin extends TextAreaSkin {
 
-  private final Collection<Substring> highlightedTexts = new ArrayList<>();
-  private final List<Path> highlights = new ArrayList<>();
-  private final String styleClass;
+  /** 強調表示中の文字列のリスト. */
+  private List<Substring> highlightedTexts = new ArrayList<>();
+  /** 1 層目の強調表示として現在描画されている {@link Path} のリスト. */
+  private List<Path> primaryHighlights = new ArrayList<>();
+  /** 2 層目の強調表示として現在描画されている {@link Path} のリスト. */
+  private List<Path> secondaryHighlights = new ArrayList<>();
+  /** 1 層目の強調表示に適用するスタイルのクラス名. */
+  private String primaryStyleClass;
+  /** 2 層目の強調表示に適用するスタイルのクラス名. */
+  private String secondaryStyleClass;
   private final Text text;
   /** 強調表示する文字列のパターン. */
   private Pattern pattern;
   /** 強調表示する箇所の上限. */
   private int maxHighlights;
+  /** 2 層目の強調表示をする部分文字列のインデックス. */
+  private List<Integer> secondaryHighlightIndexes = new ArrayList<>();
 
   /**
    * コンストラクタ.
    *
    * @param textArea このスキンを適用するテキストエリア
-   * @param styleClass 強調表示部分に適用するスタイルのクラス
    * @param policy テキストエリアのテキストが変更されたときの強調表示の変更方法
    */
-  public HighlightableTextAreaSkin(
-      TextArea textArea, String styleClass, HighlightingChangePolicy policy) {
+  public HighlightableTextAreaSkin(TextArea textArea, HighlightingChangePolicy policy) {
     super(textArea);
-    this.styleClass = styleClass;
     var sp = (ScrollPane) textArea.lookup(".scroll-pane");
     text = (Text) sp.getContent().lookup(".text");
     text.textProperty().addListener((obs, oldVal, newVal) -> onTextChanged(policy));
@@ -73,26 +79,40 @@ public class HighlightableTextAreaSkin extends TextAreaSkin {
 
   private void updateHighlighting() {
     if (isHighlightingEnabled()) {
-      enableHighlighting(pattern, maxHighlights);
+      enableHighlighting(pattern, primaryStyleClass, maxHighlights);
     }
   }
 
   /**
    * テキストの強調表示を有効化する.
    *
+   * <p>{@code pattern} に一致する全ての文字列を, 1 層目のスタイル ({@code styleClass}) で
+   * 強調表示する. 既に 2 層目のスタイル ({@link #setSecondaryStyle}) が設定されている場合は,
+   * 同じインデックスに対してそれも再適用される.
+   *
    * @param pattern 強調表示する文字列の正規表現
+   * @param styleClass 強調表示部分に適用する 1 層目のスタイルのクラス
+   * @return {@code pattern} に一致した部分文字列のコレクション (テキスト中に現れる順)
    */
-  public SequencedCollection<Substring> enableHighlighting(Pattern pattern) {
-    return enableHighlighting(pattern, -1);
+  public SequencedCollection<Substring> enableHighlighting(Pattern pattern, String styleClass) {
+    return enableHighlighting(pattern, styleClass, -1);
   }
 
   /**
    * テキストの強調表示を有効化する.
    *
+   * <p>{@code pattern} に一致する文字列を, 1 層目のスタイル ({@code styleClass}) で
+   * 強調表示する. 既に 2 層目のスタイル ({@link #setSecondaryStyle}) が設定されている場合は,
+   * 同じインデックスに対してそれも再適用される.
+   *
    * @param pattern 強調表示する文字列の正規表現
+   * @param styleClass 強調表示部分に適用する 1 層目のスタイルのクラス
    * @param maxHighlights 強調表示する箇所の上限.  負の数を指定すると全ての一致箇所を強調表示する.
+   * @return {@code pattern} に一致した部分文字列のコレクション (テキスト中に現れる順)
    */
-  public SequencedCollection<Substring> enableHighlighting(Pattern pattern, int maxHighlights) {
+  public SequencedCollection<Substring> enableHighlighting(
+      Pattern pattern, String styleClass, int maxHighlights) {
+    this.primaryStyleClass = styleClass;
     this.pattern = pattern;
     this.maxHighlights = maxHighlights;
     SequencedCollection<Substring> substrings = search(pattern, maxHighlights);
@@ -106,36 +126,34 @@ public class HighlightableTextAreaSkin extends TextAreaSkin {
     if (!getSkinnable().isWrapText()) {
       text.setWrappingWidth(0);
     }
-    replaceHighlightPaths(TextRangePathFactory.create(text, ranges, styleClass));
+    List<Path> newHighlights = TextRangePathFactory.create(text, ranges, primaryStyleClass);
+    replaceHighlightPaths(primaryHighlights, newHighlights);
+    primaryHighlights = newHighlights;
+    setSecondaryStyle(secondaryStyleClass, secondaryHighlightIndexes.toArray(new Integer[0]));
     return substrings;
   }
 
   private SequencedCollection<Substring> search(Pattern pattern, int maxHighlights) {
     SequencedCollection<Substring> substrings =
         StringSearcher.search(pattern, text.getText(), maxHighlights);
-    highlightedTexts.clear();
-    highlightedTexts.addAll(substrings);
+    highlightedTexts = new ArrayList<>(substrings);
     return substrings;
   }
 
-  /**
-   * 表示中の強調表示パスを指定したパス群で置き換える.
-   *
-   * @param paths 新たに表示する強調表示のパス
-   */
-  private void replaceHighlightPaths(List<Path> paths) {
-    removeHighlight(highlights);
-    addHighlight(paths, 0);
-    highlights.clear();
-    highlights.addAll(paths);
+  private void replaceHighlightPaths(List<Path> oldPaths, List<Path> newPaths) {
+    removeHighlight(oldPaths);
+    addHighlight(newPaths, 0);
   }
 
   /** テキストの強調表示を無効化する. */
   public void disableHighlighting() {
+    removeHighlight(primaryHighlights);
+    removeHighlight(secondaryHighlights);
     pattern = null;
-    removeHighlight(highlights);
-    highlights.clear();
-    highlightedTexts.clear();
+    primaryHighlights = new ArrayList<>();
+    secondaryHighlights = new ArrayList<>();
+    secondaryHighlightIndexes = new ArrayList<>();
+    highlightedTexts = new ArrayList<>();
   }
 
   /** 強調表示が有効かどうかを調べる. */
@@ -146,5 +164,42 @@ public class HighlightableTextAreaSkin extends TextAreaSkin {
   /** 現在強調表示されている文字列のリストを返す. */
   public SequencedCollection<Substring> getHighlightedTexts() {
     return new ArrayList<>(highlightedTexts);
+  }
+
+  /**
+   * 既に強調表示している文字列のうち, {@code indexes} で指定した要素に対して,
+   * 1 層目の強調表示 ({@link #enableHighlighting}) とは別のスタイルを重ねて適用する.
+   *
+   * <p>それまで重ねて適用されていたスタイルは全て取り除かれる.
+   *
+   * @param styleClass 重ねて適用するスタイルのクラス名
+   * @param indexes 強調表示対象の文字列のうち, このスタイルを適用する要素のインデックス
+   */
+  public void setSecondaryStyle(String styleClass, Integer... indexes) {
+    secondaryHighlightIndexes = List.of(indexes);
+    secondaryStyleClass = styleClass;
+    List<Path> newHighlights = secondaryHighlightIndexes.stream()
+        .flatMap(index -> calcSecondaryStylePaths(index, styleClass).stream())
+        .toList();
+    replaceHighlightPaths(secondaryHighlights, newHighlights);
+    secondaryHighlights = newHighlights;
+  }
+
+  private List<Path> calcSecondaryStylePaths(int index, String styleClass) {
+    if (index < 0 || highlightedTexts.size() <= index) {
+      return new ArrayList<>();
+    }
+    return highlightedTexts.get(index)
+        .getRange()
+        .map(range -> TextRangePathFactory.create(text, List.of(range), styleClass))
+        .orElse(new ArrayList<>());
+  }
+
+  /** {@link #setSecondaryStyle} で適用したスタイルを全て取り除く. */
+  public void removeSecondaryStyle() {
+    var newHighlights = new ArrayList<Path>();
+    replaceHighlightPaths(secondaryHighlights, newHighlights);
+    secondaryHighlights = newHighlights;
+    secondaryHighlightIndexes = new ArrayList<>();
   }
 }

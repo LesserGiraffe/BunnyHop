@@ -16,8 +16,10 @@
 
 package net.seapanda.bunnyhop.search;
 
+import java.util.ArrayList;
 import java.util.SequencedCollection;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import net.seapanda.bunnyhop.utility.collection.ImmutableCircularList;
 
 /**
@@ -85,7 +87,7 @@ public class StringSearcher {
       .limit(max)
       .filter(found -> !found.group().isEmpty())
       .map(found -> new Substring(text, found.start(), found.group()))
-      .toList();
+      .collect(Collectors.toCollection(ArrayList::new));
   }
 
   /**

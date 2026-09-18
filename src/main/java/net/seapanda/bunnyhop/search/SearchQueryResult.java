@@ -22,5 +22,11 @@ package net.seapanda.bunnyhop.search;
  * @param currentIdx 現在注目している検索結果のインデックス. <br>
  *                   負の数のとき, 注目している検索結果が存在しなことを示す.
  * @param numFound 検索結果の個数.
+ * @param truncated 検索結果の数が検索可能な上限に達しているかどうか.
  */
-public record SearchQueryResult(int currentIdx, int numFound) {}
+public record SearchQueryResult(int currentIdx, int numFound, boolean truncated) {
+
+  public SearchQueryResult(int currentIdx, int numFound) {
+    this(currentIdx, numFound, false);
+  }
+}

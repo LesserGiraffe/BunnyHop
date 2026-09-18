@@ -1,5 +1,8 @@
 {
   "language": "Japanese",
+  "Search": {
+    "maxResultsInMainMessage": 500
+  },
   "Window": {
     "main": {
       "width": -2147483648,

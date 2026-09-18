@@ -99,4 +99,10 @@ public class BhSettings {
     /** ウィンドウが最大化されていたかどうか. */
     public volatile boolean maximized = false;
   }
+
+  /** 検索に関するパラメータ. */
+  public static class Search {
+    /** メインメッセージエリアの文字列検索の結果の最大数. */
+    public static volatile int maxResultsInMainMessage = 500;
+  }
 }
