@@ -16,10 +16,13 @@
 
 package net.seapanda.bunnyhop.ui.control;
 
+import static javafx.css.PseudoClass.getPseudoClass;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
+import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.search.StringSearcher;
@@ -84,8 +87,8 @@ public class MessageViewController {
 
   /** 検索の準備をする. */
   private void prepareForSearch() {
-    searchBox.setOnSearchRequested(this::highlightText);
-    searchBox.enable();
+    mvSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
+    searchBox.open(new SearchBoxDelegateImpl());
   }
 
   /** {@link #mainMsgArea} から {@code query} に一致する文字列を探して強調する. */
@@ -105,5 +108,25 @@ public class MessageViewController {
       mainMsgArea.selectRange(found.getStart(), found.getStart() + found.getLength());
     }
     return new SearchQueryResult(searchResult.getPointer(), searchResult.size());
+  }
+
+
+  /** {@link SearchBox} によるメッセージ欄の検索を担当するクラス. */
+  private class SearchBoxDelegateImpl implements SearchBoxDelegate {
+
+    @Override
+    public SearchQueryResult onSearchRequested(SearchQuery query) {
+      return highlightText(query);
+    }
+
+    @Override
+    public void onClosed() {
+      mvSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), false);
+    }
+
+    @Override
+    public Object getUser() {
+      return MessageViewController.this;
+    }
   }
 }

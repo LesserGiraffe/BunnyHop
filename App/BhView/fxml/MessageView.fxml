@@ -17,7 +17,7 @@
 
   <VBox fx:id="mvVbox">
     <HBox fx:id="mvHbox">
-      <Button fx:id="mvSearchButton" text="$search.text" styleClass="flatButton">
+      <Button fx:id="mvSearchButton" text="$search.text" styleClass="flatButton, searchButton">
         <tooltip>
           <Tooltip text="$searchTooltip.text" styleClass="uiFunctionTooltip"/>
         </tooltip>

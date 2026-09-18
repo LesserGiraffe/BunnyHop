@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.ui.control;
 
-import java.util.function.Function;
+import java.util.Objects;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -27,6 +27,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import net.seapanda.bunnyhop.common.text.TextDefs;
+import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
@@ -46,12 +47,10 @@ public class SearchBoxController implements SearchBox {
   @FXML private Button findPrevButton;
   @FXML private Button findNextButton;
   @FXML private Label searchResultLabel;
-
-  private Function<? super SearchQuery, ? extends SearchQueryResult> onSearchRequested =
-      query -> null;
   /** 同じ検索クエリと検索ハンドラで検索された回数. */
   private long countConsecutiveSameRequests = 0;
   private SearchQuery previousQuery;
+  private SearchBoxDelegate delegate = new NullSearchBoxDelegate();
 
   /** このコントローラの UI 要素を初期化する. */
   @FXML
@@ -65,7 +64,7 @@ public class SearchBoxController implements SearchBox {
   private void setEventHandlers() {
     searchWordField.textProperty().addListener(
         (obs, oldVal, newVal) -> updateSearchWordFieldLength());
-    searchBoxCloseButton.setOnAction(event -> disable());
+    searchBoxCloseButton.setOnAction(event -> close());
     findPrevButton.setOnAction(event -> onSearchRequested(false));
     findNextButton.setOnAction(event -> onSearchRequested(true));
   }
@@ -95,7 +94,7 @@ public class SearchBoxController implements SearchBox {
         findNext);
   }
 
-  /** 検索がリスエストされたときの処理. */
+  /** 検索をリクエストされたときの処理. */
   private void onSearchRequested(boolean findNext) {
     clearSearchResult();
     var currentQuery = createQuery(findNext);
@@ -103,48 +102,28 @@ public class SearchBoxController implements SearchBox {
       countConsecutiveSameRequests = 0;
     }
     ++countConsecutiveSameRequests;
-    SearchQueryResult result = onSearchRequested.apply(currentQuery);
+    SearchQueryResult result = delegate.onSearchRequested(currentQuery);
     showSearchResult(result);
     previousQuery = currentQuery;
   }
 
   @Override
-  public void setOnSearchRequested(
-      Function<? super SearchQuery, ? extends SearchQueryResult> handler) {
-    if (handler == null) {
-      onSearchRequested = query -> null;
-      countConsecutiveSameRequests = 0;
-      clearSearchResult();
-      return;
+  public void open(SearchBoxDelegate delegate) {
+    Objects.requireNonNull(delegate);
+    if (this.delegate.getUser() != delegate.getUser()) {
+      close();
+      this.delegate = delegate;
     }
-    if (onSearchRequested != handler) {
-      onSearchRequested = handler;
-      countConsecutiveSameRequests = 0;
-      clearSearchResult();
-    }
-  }
-
-  @Override
-  public boolean unsetOnSearchRequested(Object handler) {
-    if (onSearchRequested == handler) {
-      onSearchRequested = query -> null;
-      countConsecutiveSameRequests = 0;
-      clearSearchResult();
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  public void enable() {
     searchBoxViewBase.visibleProperty().set(true);
   }
 
   @Override
-  public void disable() {
+  public void close() {
     searchBoxViewBase.visibleProperty().set(false);
     countConsecutiveSameRequests = 0;
     clearSearchResult();
+    delegate.onClosed();
+    delegate = new NullSearchBoxDelegate();
   }
 
   @Override
@@ -169,5 +148,27 @@ public class SearchBoxController implements SearchBox {
   @Override
   public void clearSearchResult() {
     searchResultLabel.setText("");
+  }
+
+  @Override
+  public Object getUser() {
+    return delegate.getUser();
+  }
+
+  /** {@link SearchBoxDelegate} の Null オブジェクト. */
+  private static class NullSearchBoxDelegate implements SearchBoxDelegate {
+
+    @Override
+    public SearchQueryResult onSearchRequested(SearchQuery query) {
+      return null;
+    }
+
+    @Override
+    public void onClosed() {}
+
+    @Override
+    public Object getUser() {
+      return this;
+    }
   }
 }

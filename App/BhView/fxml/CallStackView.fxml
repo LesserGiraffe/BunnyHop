@@ -31,7 +31,7 @@
       text="$jump.text">
     </CheckBox>
 
-    <Button fx:id="csSearchButton" text="$search.text" styleClass="flatButton">
+    <Button fx:id="csSearchButton" text="$search.text" styleClass="flatButton, searchButton">
       <tooltip>
         <Tooltip text="$searchTooltip.text" styleClass="uiFunctionTooltip"/>
       </tooltip>

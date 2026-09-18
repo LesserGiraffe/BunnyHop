@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.debugger.control;
 
+import static javafx.css.PseudoClass.getPseudoClass;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
@@ -34,6 +35,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
+import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
@@ -48,6 +50,7 @@ import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.search.ItemSearcher;
+import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
@@ -81,7 +84,6 @@ public class CallStackController {
       event -> onCurrentDebugThreadChanged();
   private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
       event -> updateCellDecoration(event.node());
-  private final Function<SearchQuery, SearchQueryResult> onSearchRequested = this::selectItem;
   private ImmutableCircularList<CallStackItem> searchResult;
 
   /**
@@ -160,8 +162,8 @@ public class CallStackController {
     isDiscarded = true;
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().remove(onCurrentThreadChanged);
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().remove(onNodeSelStateChanged);
-    if (searchBox.unsetOnSearchRequested(onSearchRequested)) {
-      searchBox.disable();
+    if (searchBox.getUser() == this) {
+      searchBox.close();
     }
     Optional.ofNullable(lastJumpTarget).ifPresent(
         view -> effectManager.setEffectEnabled(view, false, VisualEffectType.JUMP_TARGET));
@@ -324,14 +326,33 @@ public class CallStackController {
     if (isDiscarded) {
       return;
     }
-    searchBox.setOnSearchRequested(onSearchRequested);
-    searchBox.enable();
+    csSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
+    searchBox.open(new SearchBoxDelegateImpl());
   }
 
   /** フォーカスが変更されたときの処理. */
   private void onFocusChanged(Boolean isFocused) {
     if (!isFocused) {
       callStackListView.getSelectionModel().clearSelection();
+    }
+  }
+
+  /** {@link SearchBox} を使ったコールスタック一覧の検索を担当するクラス. */
+  private class SearchBoxDelegateImpl implements SearchBoxDelegate {
+
+    @Override
+    public SearchQueryResult onSearchRequested(SearchQuery query) {
+      return selectItem(query);
+    }
+
+    @Override
+    public void onClosed() {
+      csSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), false);
+    }
+
+    @Override
+    public Object getUser() {
+      return CallStackController.this;
     }
   }
 }

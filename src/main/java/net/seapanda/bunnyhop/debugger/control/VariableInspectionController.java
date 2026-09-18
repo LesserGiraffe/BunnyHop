@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.debugger.control;
 
+import static javafx.css.PseudoClass.getPseudoClass;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,7 +27,6 @@ import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import javafx.beans.property.BooleanProperty;
@@ -38,6 +39,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.VBox;
+import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
 import net.seapanda.bunnyhop.debugger.model.variable.ListVariable;
@@ -51,6 +53,7 @@ import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.search.ItemSearcher;
+import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
@@ -83,7 +86,6 @@ public class VariableInspectionController {
   private boolean isDiscarded = false;
   private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
       event -> updateCellDecoration(event.node());
-  private final Function<SearchQuery, SearchQueryResult> onSearchRequested = this::selectItem;
   private ImmutableCircularList<VariableTreeItem> searchResult;
   /**
    * 変数情報を選択したときに対応するノードにジャンプするかどうかのフラグを
@@ -240,8 +242,8 @@ public class VariableInspectionController {
     }
     isDiscarded = true;
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().remove(onNodeSelStateChanged);
-    if (searchBox.unsetOnSearchRequested(onSearchRequested)) {
-      searchBox.disable();
+    if (searchBox.getUser() == this) {
+      searchBox.close();
     }
     dataStore.clear();
     variableTreeView.setRoot(null);
@@ -283,8 +285,8 @@ public class VariableInspectionController {
     if (isDiscarded) {
       return;
     }
-    searchBox.setOnSearchRequested(onSearchRequested);
-    searchBox.enable();
+    viSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
+    searchBox.open(new SearchBoxDelegateImpl());
   }
 
   /** 変数一覧から {@code query} に一致する要素を探して選択する. */
@@ -436,6 +438,25 @@ public class VariableInspectionController {
     @Override
     public boolean isLeaf() {
       return isLeaf;
+    }
+  }
+
+  /** {@link SearchBox} を使った変数一覧の検索を担当するクラス. */
+  private class SearchBoxDelegateImpl implements SearchBoxDelegate {
+
+    @Override
+    public SearchQueryResult onSearchRequested(SearchQuery query) {
+      return selectItem(query);
+    }
+
+    @Override
+    public void onClosed() {
+      viSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), false);
+    }
+
+    @Override
+    public Object getUser() {
+      return VariableInspectionController.this;
     }
   }
 }

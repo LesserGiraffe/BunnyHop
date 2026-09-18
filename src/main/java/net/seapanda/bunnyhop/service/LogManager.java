@@ -27,10 +27,10 @@ public class LogManager {
 
   private static volatile Logger logger = new Logger() {
     @Override
-    public void info(String msg) {}
+    public void info(String msg, Object... args) {}
 
     @Override
-    public void error(String msg) {}
+    public void error(String msg, Object... args) {}
   };
 
   /** 初期化処理を行う. */

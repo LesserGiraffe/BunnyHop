@@ -378,6 +378,7 @@ public class BhConstants {
       public static final String COLUMN = "column";
       public static final String ROW = "row";
       public static final String NEXT = "next";
+      public static final String ON = "on";
     }
 
     /** クラスの定義. */

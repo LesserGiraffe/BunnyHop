@@ -11,6 +11,10 @@
   -fx-font-size: 1.1em;
 }
 
+.searchButton:on {
+  -fx-background-color: #a6ef3c;
+}
+
 .flatButton:hover {
   -fx-border-color: black;
   -fx-border-width: 1;

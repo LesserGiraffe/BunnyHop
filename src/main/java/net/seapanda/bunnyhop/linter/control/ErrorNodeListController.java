@@ -16,6 +16,8 @@
 
 package net.seapanda.bunnyhop.linter.control;
 
+import static javafx.css.PseudoClass.getPseudoClass;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +26,6 @@ import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
@@ -32,6 +33,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.linter.model.CompileErrorNodeCache;
 import net.seapanda.bunnyhop.linter.model.ErrorNodeListItem;
 import net.seapanda.bunnyhop.linter.view.ErrorNodeListCell;
@@ -40,6 +42,7 @@ import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.search.ItemSearcher;
+import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
@@ -69,7 +72,6 @@ public class ErrorNodeListController {
   private final DataStore dataStore;
   private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
       event -> updateCellDecoration(event.node());
-  private final Function<SearchQuery, SearchQueryResult> onSearchRequested = this::selectItem;
   private ImmutableCircularList<ErrorNodeTreeItem> searchResult;
 
   /** コンストラクタ. */
@@ -190,8 +192,8 @@ public class ErrorNodeListController {
 
   /** 検索の準備をする. */
   private void prepareForSearch() {
-    searchBox.setOnSearchRequested(onSearchRequested);
-    searchBox.enable();
+    enSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
+    searchBox.open(new SearchBoxDelegateImpl());
     updateCellValues();
   }
 
@@ -265,16 +267,12 @@ public class ErrorNodeListController {
   /** 変数情報を表示する {@link TreeView} がの各要素のモデル. */
   private static class ErrorNodeTreeItem extends TreeItem<ErrorNodeListItem> {
 
-    private final ErrorNodeListItem item;
-
     ErrorNodeTreeItem() {
       super(null);
-      this.item = null;
     }
 
     ErrorNodeTreeItem(ErrorNodeListItem item) {
       super(item);
-      this.item = item;
     }
 
     /**
@@ -302,6 +300,25 @@ public class ErrorNodeListController {
       return super.getChildren().stream()
           .map(item -> (ErrorNodeTreeItem) item)
           .collect(Collectors.toCollection(ArrayList::new));
+    }
+  }
+
+  /** {@link SearchBox} を使ったエラーノード一覧の検索を担当するクラス. */
+  private class SearchBoxDelegateImpl implements SearchBoxDelegate {
+
+    @Override
+    public SearchQueryResult onSearchRequested(SearchQuery query) {
+      return selectItem(query);
+    }
+
+    @Override
+    public void onClosed() {
+      enSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), false);
+    }
+
+    @Override
+    public Object getUser() {
+      return ErrorNodeListController.this;
     }
   }
 }

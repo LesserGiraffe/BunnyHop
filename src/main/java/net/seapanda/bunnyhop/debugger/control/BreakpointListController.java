@@ -17,6 +17,8 @@
 package net.seapanda.bunnyhop.debugger.control;
 
 
+import static javafx.css.PseudoClass.getPseudoClass;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
+import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointCache;
 import net.seapanda.bunnyhop.debugger.view.BreakpointListCell;
 import net.seapanda.bunnyhop.node.model.BhNode;
@@ -34,6 +37,7 @@ import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.search.ItemSearcher;
+import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.control.SearchBox;
@@ -123,8 +127,8 @@ public class BreakpointListController {
 
   /** 検索の準備をする. */
   private void prepareForSearch() {
-    searchBox.setOnSearchRequested(this::selectItem);
-    searchBox.enable();
+    bpSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
+    searchBox.open(new SearchBoxDelegateImpl());
     updateCellValues();
   }
 
@@ -200,5 +204,24 @@ public class BreakpointListController {
     ViewUtil.jump(view);
     effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
     effectManager.setEffectEnabled(view, true, VisualEffectType.JUMP_TARGET);
+  }
+
+  /** {@link SearchBox} を使ったブレークポイント一覧の検索を担当するクラス. */
+  private class SearchBoxDelegateImpl implements SearchBoxDelegate {
+
+    @Override
+    public SearchQueryResult onSearchRequested(SearchQuery query) {
+      return selectItem(query);
+    }
+
+    @Override
+    public void onClosed() {
+      bpSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), false);
+    }
+
+    @Override
+    public Object getUser() {
+      return BreakpointListController.this;
+    }
   }
 }

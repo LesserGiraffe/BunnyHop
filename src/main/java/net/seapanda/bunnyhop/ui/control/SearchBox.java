@@ -16,9 +16,7 @@
 
 package net.seapanda.bunnyhop.ui.control;
 
-import java.util.function.Function;
-import net.seapanda.bunnyhop.search.SearchQuery;
-import net.seapanda.bunnyhop.search.SearchQueryResult;
+import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 
 /**
  * 検索クエリを受け取る UI コンポーネントのインタフェース.
@@ -26,28 +24,12 @@ import net.seapanda.bunnyhop.search.SearchQueryResult;
  * @author K.Koike
  */
 public interface SearchBox {
-  
-  /**
-   * 検索クエリを受け取ったときに実行するイベントハンドラを設定する.
-   *
-   * @param handler  検索クエリを受け取ったときに実行するイベントハンドラ.
-   */
-  void setOnSearchRequested(Function<? super SearchQuery, ? extends SearchQueryResult> handler);
-
-  /**
-   * 検索クエリを受け取ったときに実行するイベントハンドラを解除する.
-   *
-   * @param handler このハンドラがこのオブジェクトに設定されている場合, 設定を解除する.
-   *                そうでない場合何もしない.
-   * @return 設定を解除した場合 true, 何もしなかった場合 false
-   */
-  boolean unsetOnSearchRequested(Object handler);
 
   /** 検索クエリの入力を有効化する. */
-  void enable();
+  void open(SearchBoxDelegate delegate);
 
   /** 検索クエリの入力を無効化する. */
-  void disable();
+  void close();
 
   /**
    * 同じ検索ハンドラと検索クエリ (次 or 前は除く) で連続して検索された回数を取得する.
@@ -60,4 +42,7 @@ public interface SearchBox {
 
   /** 検索結果をクリアする. */
   void clearSearchResult();
+
+  /** 検索ボックスの現在の利用者を表すオブジェクトを返す. */
+  Object getUser();
 }
