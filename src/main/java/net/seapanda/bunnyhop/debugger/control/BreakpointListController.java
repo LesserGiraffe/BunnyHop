@@ -98,7 +98,7 @@ public class BreakpointListController {
     bpListView.focusedProperty().addListener(
         (obs, oldVal, newVal) -> onFocusChanged(newVal));
 
-    bpSearchButton.setOnAction(action -> prepareForSearch());
+    bpSearchButton.setOnAction(action -> onSearchButtonClicked());
     bpWsSelectorController.setOnWorkspaceSelected(
         event -> showBreakpoints(event.newWs(), event.isAllSelected()));
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged()
@@ -125,8 +125,12 @@ public class BreakpointListController {
     }
   }
 
-  /** 検索の準備をする. */
-  private void prepareForSearch() {
+  /** 検索ボタンが押されたときの処理. */
+  private void onSearchButtonClicked() {
+    if (searchBox.getUser() == this) {
+      searchBox.close();
+      return;
+    }
     bpSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
     searchBox.open(new SearchBoxDelegateImpl());
     updateCellValues();

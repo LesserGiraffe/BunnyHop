@@ -107,7 +107,7 @@ public class ErrorNodeListController {
         (obs, oldVal, newVal) -> onFocusChanged(newVal));
     rootErrorNodeItem.getChildren().addListener(
         (ListChangeListener<? super TreeItem<ErrorNodeListItem>>) change -> searchResult = null);
-    enSearchButton.setOnAction(action -> prepareForSearch());
+    enSearchButton.setOnAction(action -> onSearchButtonClicked());
     enWsSelectorController.setOnWorkspaceSelected(
         event -> showErrorNodes(event.newWs(), event.isAllSelected()));
 
@@ -190,8 +190,12 @@ public class ErrorNodeListController {
     }
   }
 
-  /** 検索の準備をする. */
-  private void prepareForSearch() {
+  /** 検索ボタンが押されたときの処理. */
+  private void onSearchButtonClicked() {
+    if (searchBox.getUser() == this) {
+      searchBox.close();
+      return;
+    }
     enSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
     searchBox.open(new SearchBoxDelegateImpl());
     updateCellValues();

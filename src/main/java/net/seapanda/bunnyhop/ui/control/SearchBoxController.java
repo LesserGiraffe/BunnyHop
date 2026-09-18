@@ -23,6 +23,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
@@ -64,6 +66,7 @@ public class SearchBoxController implements SearchBox {
   private void setEventHandlers() {
     searchWordField.textProperty().addListener(
         (obs, oldVal, newVal) -> updateSearchWordFieldLength());
+    searchWordField.setOnKeyPressed(this::onKeyPressed);
     searchBoxCloseButton.setOnAction(event -> close());
     findPrevButton.setOnAction(event -> onSearchRequested(false));
     findNextButton.setOnAction(event -> onSearchRequested(true));
@@ -83,6 +86,12 @@ public class SearchBoxController implements SearchBox {
     newWidth +=
         searchWordField.getPadding().getLeft() + searchWordField.getPadding().getRight() + 3;
     searchWordField.setPrefWidth(newWidth);
+  }
+
+  private void onKeyPressed(KeyEvent event) {
+    if (event.getCode() == KeyCode.ENTER) {
+      onSearchRequested(!event.isShiftDown());
+    }
   }
 
   /** UI の状態と引数をもとに {@link SearchQuery} オブジェクトを作成する. */

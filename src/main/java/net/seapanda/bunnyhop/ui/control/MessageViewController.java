@@ -59,7 +59,7 @@ public class MessageViewController {
       }
     });
 
-    mvSearchButton.setOnAction(action -> prepareForSearch());
+    mvSearchButton.setOnAction(action -> onSearchButtonClicked());
   }
 
   /** {@link #mainMsgArea} のテキストが変わったときの処理. */
@@ -85,8 +85,12 @@ public class MessageViewController {
     return mainMsgArea;
   }
 
-  /** 検索の準備をする. */
-  private void prepareForSearch() {
+  /** 検索ボタンが押されたときの処理. */
+  private void onSearchButtonClicked() {
+    if (searchBox.getUser() == this) {
+      searchBox.close();
+      return;
+    }
     mvSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
     searchBox.open(new SearchBoxDelegateImpl());
   }

@@ -194,7 +194,7 @@ public class VariableInspectionController {
         (obs, oldVal, newVal) -> onFocusChanged(newVal));
 
     viReloadBtn.setOnAction(event -> reloadVarInfo());
-    viSearchButton.setOnAction(action -> prepareForSearch());
+    viSearchButton.setOnAction(action -> onSearchButtonClicked());
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().add(onNodeSelStateChanged);
     VariableInfo.CallbackRegistry registry = varInfo.getCallbackRegistry();
     registry.getOnVariablesAdded().add(event -> addVarInfo(event.added()));
@@ -280,9 +280,13 @@ public class VariableInspectionController {
     }
   }
 
-  /** 検索の準備をする. */
-  private void prepareForSearch() {
+  /** 検索ボタンが押されたときの処理. */
+  private void onSearchButtonClicked() {
     if (isDiscarded) {
+      return;
+    }
+    if (searchBox.getUser() == this) {
+      searchBox.close();
       return;
     }
     viSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);

@@ -131,7 +131,7 @@ public class CallStackController {
         callStackListView.setItems(createCallStackItems());
       }
     });
-    csSearchButton.setOnAction(action ->  prepareForSearch());
+    csSearchButton.setOnAction(action -> onSearchButtonClicked());
     csJumpCheckBox.selectedProperty().bindBidirectional(sharedJumpFlag);
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(onCurrentThreadChanged);
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().add(onNodeSelStateChanged);
@@ -321,9 +321,13 @@ public class CallStackController {
     }
   }
 
-  /** 検索の準備をする. */
-  private void prepareForSearch() {
+  /** 検索ボタンが押されたときの処理. */
+  private void onSearchButtonClicked() {
     if (isDiscarded) {
+      return;
+    }
+    if (searchBox.getUser() == this) {
+      searchBox.close();
       return;
     }
     csSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
