@@ -1,7 +1,8 @@
 {
   "language": "Japanese",
   "Search": {
-    "maxResultsInMainMessage": 500
+    "maxResultsInMainMessage": 500,
+    "maxResultsInVariableInspection": 500
   },
   "Window": {
     "main": {

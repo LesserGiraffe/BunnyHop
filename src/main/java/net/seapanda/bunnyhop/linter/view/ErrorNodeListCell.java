@@ -28,7 +28,7 @@ import net.seapanda.bunnyhop.linter.model.ErrorNodeListItem;
 import net.seapanda.bunnyhop.node.model.BhNode;
 
 /**
- * デバッガの変数一覧に表示される要素のビュー.
+ * デバッガのエラーノード一覧に表示される要素のビュー.
  *
  * @author K.Koike
  */

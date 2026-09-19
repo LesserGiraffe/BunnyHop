@@ -104,5 +104,7 @@ public class BhSettings {
   public static class Search {
     /** メインメッセージエリアの文字列検索の結果の最大数. */
     public static volatile int maxResultsInMainMessage = 500;
+    /** 変数一覧における文字列検索の結果の最大数. */
+    public static volatile int maxResultsInVariableInspection = 500;
   }
 }

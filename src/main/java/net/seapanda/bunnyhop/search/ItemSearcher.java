@@ -16,6 +16,7 @@
 
 package net.seapanda.bunnyhop.search;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.SequencedCollection;
 import java.util.function.Function;
@@ -41,12 +42,38 @@ public class ItemSearcher<T> {
    */
   public static <T> ImmutableCircularList<T> search(
       SearchQuery query, SequencedCollection<T> items, Function<T, String> toString) {
+    return search(query, items, toString, -1);
+  }
+
+  /**
+   * {@code items} から {@code query} に一致する要素をすべて見つけて {@link ImmutableCircularList} に格納して返す.
+   *
+   * @param query 検索クエリ
+   * @param items このコレクションの中から {@code query} に一致する要素を探す.
+   * @param toString {@code items} の各要素から文字列を取得するための関数オブジェクト
+   * @param maxResults 取得する検索結果の上限. 負の数を指定すると全ての結果を返す.
+   */
+  public static <T> ImmutableCircularList<T> search(
+      SearchQuery query,
+      SequencedCollection<T> items,
+      Function<T, String> toString,
+      int maxResults) {
+    long max = maxResults < 0 ? Long.MAX_VALUE : maxResults;
     ImmutableCircularList<T> result = new ImmutableCircularList<>();
+    if (max == 0) {
+      return result;
+    }
     try {
       Pattern pattern = query.getPattern();
-      List<T> results = items.stream()
-          .filter(item -> pattern.matcher(toString.apply(item)).find())
-          .toList();
+      List<T> results = new ArrayList<>();
+      for (T item : items) {
+        if (pattern.matcher(toString.apply(item)).find()) {
+          results.add(item);
+          if (results.size() >= max) {
+            break;
+          }
+        }
+      }
       result = new ImmutableCircularList<>(results);
       if (!query.isForward()) {
         result.movePrevious(1);

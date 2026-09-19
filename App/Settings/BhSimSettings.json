@@ -3,10 +3,10 @@
   "Ui": {
     "scale": 1.0,
     "window": {
-      "width": -2147483648,
-      "height": -2147483648,
-      "posX": -2147483648,
-      "posY": -2147483648,
+      "width": 960,
+      "height": 619,
+      "posX": 480,
+      "posY": 206,
       "maximized": false
     }
   }
