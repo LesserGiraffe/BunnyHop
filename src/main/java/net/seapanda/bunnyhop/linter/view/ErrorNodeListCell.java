@@ -16,16 +16,14 @@
 
 package net.seapanda.bunnyhop.linter.view;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.linter.model.ErrorNodeListItem;
-import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.ui.skin.HighlightableTreeCellSkin;
 
 /**
  * デバッガのエラーノード一覧に表示される要素のビュー.
@@ -35,22 +33,21 @@ import net.seapanda.bunnyhop.node.model.BhNode;
 public class ErrorNodeListCell extends TreeCell<ErrorNodeListItem> {
 
   private ErrorNodeListItem model;
-  private final Map<BhNode, Set<ErrorNodeListCell>> nodeToCells;
+  private final HighlightableTreeCellSkin<ErrorNodeListItem> skin;
+  private Consumer<? super ItemChangeEvent> onItemChanged = event -> {};
 
   /** コンストラクタ. */
-  public ErrorNodeListCell(Map<BhNode, Set<ErrorNodeListCell>> nodeToCells) {
-    this.nodeToCells = nodeToCells;
+  public ErrorNodeListCell() {
     getStyleClass().add(BhConstants.Css.Class.ERROR_NODE_LIST_ITEM);
+    skin = new HighlightableTreeCellSkin<>(this);
+    setSkin(skin);
   }
 
   @Override
   protected void updateItem(ErrorNodeListItem item, boolean empty) {
     super.updateItem(item, empty);
     setText(getText(item, empty));
-    mapCellToNode(item, empty);
-    if (item != null && item.node() != null) {
-      decorateText(item.node().isSelected());
-    }
+    onItemChanged.accept(new ItemChangeEvent(this, model, item, empty));
     model = item;
   }
 
@@ -67,28 +64,16 @@ public class ErrorNodeListCell extends TreeCell<ErrorNodeListItem> {
     return text == null ? "" : text;
   }
 
-  /** {@code item} に対応する {@link BhNode} とこのセルを {@link #nodeToCells} の中で対応付ける. */
-  private void mapCellToNode(ErrorNodeListItem item, boolean empty) {
-    Optional.ofNullable(model)
-        .filter(model -> empty || model != item)
-        .map(ErrorNodeListItem::node)
-        .filter(nodeToCells::containsKey)
-        .ifPresent(node -> nodeToCells.get(node).remove(this));
-
-    Optional.ofNullable(item)
-        .filter(itm -> !empty)
-        .filter(itm -> model != itm)
-        .map(ErrorNodeListItem::node)
-        .ifPresent(node -> nodeToCells
-            .computeIfAbsent(node, key -> Collections.newSetFromMap(new WeakHashMap<>()))
-            .add(this));
-  }
-
-  /** このセルが表示する値を更新する. */
-  public void updateValue() {
-    if (model != null) {
-      setText(getText(model, false));
-    }
+  /**
+   * このセルが表示する値を更新する.
+   *
+   * @return 更新によって値が変わった場合 true を返す.
+   */
+  public boolean updateValue() {
+    String oldText = getText();
+    String newText = getText(model, isEmpty());
+    setText(newText);
+    return !Objects.equals(newText, oldText);
   }
 
   /** このセルに描画される文字を装飾する. */
@@ -96,5 +81,32 @@ public class ErrorNodeListCell extends TreeCell<ErrorNodeListItem> {
     PseudoClass cls = PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.TEXT_DECORATE);
     pseudoClassStateChanged(cls, val);
   }
+
+  /**
+   * このセルのテキストの強調表示を有効化する.
+   *
+   * @param pattern 強調表示する文字列の正規表現
+   * @param styleClass 強調表示部分に適用するスタイルクラス
+   */
+  public void enableHighlighting(Pattern pattern, String styleClass) {
+    skin.enableHighlighting(pattern, styleClass);
+  }
+
+  /** このセルのテキストの強調表示を無効化する. */
+  public void disableHighlighting() {
+    skin.disableHighlighting();
+  }
+
+  /** このセルに割り当てられたアイテムが変わったときのイベントハンドラを設定する. */
+  public void setOnItemChanged(Consumer<? super ItemChangeEvent> handler) {
+    if (handler == null) {
+      handler = event -> {};
+    }
+    onItemChanged = handler;
+  }
+
+  /** このセルに割り当てられたアイテムが変わったときのイベント. */
+  public record ItemChangeEvent(
+      ErrorNodeListCell cell, ErrorNodeListItem oldVal, ErrorNodeListItem newVal, boolean empty) {}
 }
 

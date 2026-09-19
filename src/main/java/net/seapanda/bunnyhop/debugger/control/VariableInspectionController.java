@@ -89,7 +89,7 @@ public class VariableInspectionController {
   private final VisualEffectManager effectManager;
   private final String viewName;
   private final VariableTreeItem rootVarItem;
-  private final CellRegistry cellStorage;
+  private final CellRegistry cellRegistry;
   private boolean isDiscarded = false;
   private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
       event -> updateCellDecoration(event.node());
@@ -124,7 +124,7 @@ public class VariableInspectionController {
     this.effectManager = visualEffectManager;
     this.sharedJumpFlag = sharedJumpFlag;
     this.rootVarItem = new VariableTreeItem();
-    this.cellStorage = new CellRegistry();
+    this.cellRegistry = new CellRegistry();
     rootVarItem.setExpanded(false);
     addVarInfo(varInfo.getVariables());
   }
@@ -195,7 +195,7 @@ public class VariableInspectionController {
 
   /** イベントハンドラを設定する. */
   private void setEventHandlers() {
-    variableTreeView.setCellFactory(view -> cellStorage.createCell());
+    variableTreeView.setCellFactory(view -> cellRegistry.createCell());
     variableTreeView.getSelectionModel().selectedItemProperty().addListener(
         (obs, oldVal, newVal) -> onVariableSelected(newVal));
     variableTreeView.focusedProperty().addListener(
@@ -212,38 +212,10 @@ public class VariableInspectionController {
 
   /** {@link VariableListCell} に割り当てられるアイテムが変わったときの処理. */
   private void onCellItemChanged(ItemChangeEvent event) {
-    cellStorage.updateItemToCellsMap(event);
-    cellStorage.updateNodeToCellsMap(event);
+    cellRegistry.updateItemToCellsMap(event);
+    cellRegistry.updateNodeToCellsMap(event);
     updateCellDecoration(event);
     updateSearchResultHighlight(event);
-  }
-
-  /**
-   * {@link VariableListCell} に新しく割り当てられたアイテムの {@link BhNode} の選択状態に応じて,
-   * セルの装飾を更新する.
-   */
-  private static void updateCellDecoration(ItemChangeEvent event) {
-    boolean shouldDecorate =
-        !event.empty()
-        && event.newVal() != null
-        && event.newVal().variable.getNode()
-          .map(BhNode::isSelected)
-          .orElse(false);
-    event.cell().decorateText(shouldDecorate);
-  }
-
-  /** {@link VariableListCell} に新しく割り当てられたアイテムに応じて, セルの強調表示を更新する. */
-  private void updateSearchResultHighlight(ItemChangeEvent event) {
-    boolean shouldHighlight =
-        !event.empty()
-        && event.newVal() != null
-        && searchResult != null
-        && searchResult.listItems().contains(event.newVal());
-    if (shouldHighlight) {
-      event.cell().enableHighlighting(searchResult.query().getPattern(), DEFAULT_TEXT_HIGHLIGHT);
-    } else {
-      event.cell().disableHighlighting();
-    }
   }
 
   /** 変数が選択されたときの処理. */
@@ -287,7 +259,7 @@ public class VariableInspectionController {
     if (searchBox.getUser() == this) {
       searchBox.close();
     }
-    cellStorage.clear();
+    cellRegistry.clear();
     variableTreeView.setRoot(null);
     viJumpCheckBox.selectedProperty().unbindBidirectional(sharedJumpFlag);
   }
@@ -297,7 +269,12 @@ public class VariableInspectionController {
     if (isDiscarded) {
       return;
     }
-    cellStorage.getCells(varItem).forEach(VariableListCell::updateValue);
+    boolean isAnyChanged = cellRegistry
+        .getCells(varItem).stream()
+        .anyMatch(VariableListCell::updateValue);
+    if (isAnyChanged) {
+      clearSearchResult();
+    }
   }
 
   /** {@code node} に対応する {@link VariableListCell} の装飾を変更する. */
@@ -305,7 +282,35 @@ public class VariableInspectionController {
     if (isDiscarded) {
       return;
     }
-    cellStorage.getCells(node).forEach(cell -> cell.decorateText(node.isSelected()));
+    cellRegistry.getCells(node).forEach(cell -> cell.decorateText(node.isSelected()));
+  }
+
+  /**
+   * {@link VariableListCell} に新しく割り当てられたアイテムの {@link BhNode} の選択状態に応じて,
+   * セルの装飾を更新する.
+   */
+  private static void updateCellDecoration(ItemChangeEvent event) {
+    boolean shouldDecorate =
+        !event.empty()
+        && event.newVal() != null
+        && event.newVal().variable.getNode()
+          .map(BhNode::isSelected)
+          .orElse(false);
+    event.cell().decorateText(shouldDecorate);
+  }
+
+  /** {@link VariableListCell} に新しく割り当てられたアイテムに応じて, セルの強調表示を更新する. */
+  private void updateSearchResultHighlight(ItemChangeEvent event) {
+    boolean shouldHighlight =
+        !event.empty()
+        && event.newVal() != null
+        && searchResult != null
+        && searchResult.listItems().contains(event.newVal());
+    if (shouldHighlight) {
+      event.cell().enableHighlighting(searchResult.query().getPattern(), DEFAULT_TEXT_HIGHLIGHT);
+    } else {
+      event.cell().disableHighlighting();
+    }
   }
 
   /** 変数情報を再取得する. */
@@ -362,8 +367,7 @@ public class VariableInspectionController {
    * @return {@code query} に一致した {@link VariableTreeItem} を格納する巡回リスト
    */
   private ImmutableCircularList<VariableTreeItem> searchAndHighlight(SearchQuery query) {
-    ImmutableCircularList<VariableTreeItem> matchedItems;
-    matchedItems = ItemSearcher.search(
+    ImmutableCircularList<VariableTreeItem> matchedItems = ItemSearcher.search(
         query,
         rootVarItem.collectDescendants(),
         treeItem -> VariableListCell.getText(treeItem.getValue()),
@@ -376,7 +380,7 @@ public class VariableInspectionController {
   private void highlightSearchResult(SearchResult result) {
     Pattern pattern = result.query().getPattern();
     for (VariableListItem listItem : result.listItems()) {
-      cellStorage
+      cellRegistry
           .getCells(listItem)
           .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
     }
@@ -385,7 +389,7 @@ public class VariableInspectionController {
   /** 現在の検索結果を破棄し, それに伴う強調表示を全て解除する. */
   private void clearSearchResult() {
     searchResult = null;
-    cellStorage.getCells().forEach(VariableListCell::disableHighlighting);
+    cellRegistry.getCells().forEach(VariableListCell::disableHighlighting);
   }
 
   /** {@code item} の先祖要素を全て展開する. */
@@ -481,17 +485,17 @@ public class VariableInspectionController {
     /**
      * このオブジェクトの子孫要素を深さ優先探査で取得して返す.
      *
-     * @return このオブジェクトの子孫のコレクション.  先頭の要素はこのオブジェクト.
+     * @return このオブジェクトの子孫のコレクション.
      */
     public SequencedCollection<VariableTreeItem> collectDescendants() {
       SequencedCollection<VariableTreeItem> descendants = new ArrayList<>();
-      collectDescendants(descendants);
+      getCurrentChildren().forEach(item -> item.collectSubTree(descendants));
       return descendants;
     }
 
-    private void collectDescendants(SequencedCollection<VariableTreeItem> descendants) {
+    private void collectSubTree(SequencedCollection<VariableTreeItem> descendants) {
       descendants.addLast(this);
-      getCurrentChildren().forEach(item -> item.collectDescendants(descendants));
+      getCurrentChildren().forEach(item -> item.collectSubTree(descendants));
     }
 
     @Override
