@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.function.Consumer;
 import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.traverse.CallbackInvoker;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
@@ -111,6 +112,9 @@ public class Workspace implements Serializable {
     registry.getOnBreakpointSet().add(cbRegistry.onNodeBreakpointSet);
     registry.getOnOriginalNodeChanged().add(cbRegistry.onOriginalNodeChanged);
     registry.getOnConnected().add(cbRegistry.onNodeConnected);
+    if (node instanceof TextNode textNode) {
+      textNode.getCallbackRegistry().getOnTextChanged().add(cbRegistry.onNodeTextChanged);
+    }
   }
 
   /** ノードツリーの追加に伴うコールバック関数を呼ぶ. */
@@ -167,6 +171,9 @@ public class Workspace implements Serializable {
     registry.getOnConnected().remove(cbRegistry.onNodeConnected);
     node.setWorkspace(null, userOpe);
     nodeList.remove(node);
+    if (node instanceof TextNode textNode) {
+      textNode.getCallbackRegistry().getOnTextChanged().remove(cbRegistry.onNodeTextChanged);
+    }
   }
 
   /** ノードツリーの削除に伴うコールバック関数を呼ぶ. */
@@ -347,6 +354,10 @@ public class Workspace implements Serializable {
     private final ConsumerInvoker<RootNodeRemovedEvent> onRootNodeRemovedInvoker = 
         new SimpleConsumerInvoker<>();
 
+    /** ワークスペースの {@link TextNode} のテキストが変更されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeTextChangedEvent> onNodeTextChangedInvoker =
+        new SimpleConsumerInvoker<>();
+
     /** ワークスペースの名前が変わったときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<NameChangedEvent> onNameChangedInvoker =
         new SimpleConsumerInvoker<>();
@@ -370,6 +381,9 @@ public class Workspace implements Serializable {
     /** ワークスペースのノードのオリジナルノードが変わったときのイベントハンドラ. */
     private final Consumer<? super BhNode.OriginalNodeChangeEvent> onOriginalNodeChanged =
         this::onOriginalNodeChanged;
+
+    private final Consumer<? super TextNode.TextChangedEvent> onNodeTextChanged =
+        this::onNodeTextChanged;
 
     /** ワークスペースのノードの選択状態が変更されたときのイベントハンドラのレジストリを取得する. */
     public ConsumerInvoker<NodeSelectionEvent>.Registry getOnNodeSelectionStateChanged() {
@@ -415,6 +429,14 @@ public class Workspace implements Serializable {
      */
     public ConsumerInvoker<RootNodeRemovedEvent>.Registry getOnRootNodeRemoved() {
       return onRootNodeRemovedInvoker.getRegistry();
+    }
+
+    /**
+     * ワークスペースの {@link TextNode} のテキストが変更されたときのイベントハンドラを
+     * 登録 / 削除するためのオブジェクトを取得する.
+     */
+    public ConsumerInvoker<NodeTextChangedEvent>.Registry getOnNodeTextChanged() {
+      return onNodeTextChangedInvoker.getRegistry();
     }
 
     /** ワークスペースの名前が変わったときのイベントハンドラを登録 / 削除するためのオブジェクトを取得する. */
@@ -465,6 +487,12 @@ public class Workspace implements Serializable {
     private void onOriginalNodeChanged(BhNode.OriginalNodeChangeEvent event) {
       onOriginalNodeChangedInvoker.invoke(new  OriginalNodeChangeEvent(
           Workspace.this, event.node(), event.oldOriginal(), event.newOriginal(), event.userOpe()));
+    }
+
+    /** ワークスペースの {@link TextNode} のテキストが変更されたときのイベントハンドラを呼び出す. */
+    private void onNodeTextChanged(TextNode.TextChangedEvent event) {
+      onNodeTextChangedInvoker.invoke(new NodeTextChangedEvent(
+          Workspace.this, event.node(), event.oldText(), event.newText(), event.userOpe()));
     }
   }
 
@@ -552,6 +580,18 @@ public class Workspace implements Serializable {
    * @param userOpe undo 用コマンドオブジェクト
    */  
   public record RootNodeRemovedEvent(Workspace ws, BhNode node, UserOperation userOpe) {}
+
+  /**
+   * ワークスペースの {@link TextNode} のテキストが変更されたときの情報を格納したレコード.
+   *
+   * @param ws テキストが変わったノードを保持するワークスペース
+   * @param node テキストが変わったノード
+   * @param oldText 変更前のテキスト
+   * @param newText 変更後のテキスト
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record NodeTextChangedEvent(
+      Workspace ws, TextNode node, String oldText, String newText, UserOperation userOpe) {}
 
   /**
    * ワークスペース名が変わったときの情報を格納したレコード.

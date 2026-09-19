@@ -23,6 +23,7 @@ import java.util.SequencedSet;
 import java.util.function.Consumer;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.BhNode.Swapped;
+import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.event.CauseOfDeletion;
 import net.seapanda.bunnyhop.node.model.service.BhNodePlacer;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
@@ -65,6 +66,7 @@ public class WorkspaceSet {
     registry.getOnNodeRemoved().add(cbRegistry.onNodeRemoved);
     registry.getOnRootNodeAdded().add(cbRegistry.onRootNodeAdded);
     registry.getOnRootNodeRemoved().add(cbRegistry.onRootNodeRemoved);
+    registry.getOnNodeTextChanged().add(cbRegistry.onNodeTextChanged);
     registry.getOnNameChanged().add(cbRegistry.onWsNameChanged);
     userOpe.pushCmd(ope -> removeWorkspace(workspace, ope));
     cbRegistry.onWsAddedInvoker.invoke(new WorkspaceAddedEvent(this, workspace, userOpe));
@@ -89,6 +91,7 @@ public class WorkspaceSet {
     registry.getOnNodeRemoved().remove(cbRegistry.onNodeRemoved);
     registry.getOnRootNodeAdded().remove(cbRegistry.onRootNodeAdded);
     registry.getOnRootNodeRemoved().remove(cbRegistry.onRootNodeRemoved);
+    registry.getOnNodeTextChanged().remove(cbRegistry.onNodeTextChanged);
     registry.getOnNameChanged().remove(cbRegistry.onWsNameChanged);
     userOpe.pushCmd(ope -> addWorkspace(workspace, ope));
     cbRegistry.onWsRemovedInvoker.invoke(new WorkspaceRemovedEvent(this, workspace, userOpe));
@@ -204,6 +207,10 @@ public class WorkspaceSet {
      */
     private final ConsumerInvoker<RootNodeRemovedEvent> onRootNodeRemovedInvoker = 
         new SimpleConsumerInvoker<>();
+
+    /** ワークスペースのセットの {@link TextNode} のテキストが変更されたときのイベントを管理するオブジェクト.*/
+    private final ConsumerInvoker<NodeTextChangedEvent> onNodeTextChangedInvoker =
+        new SimpleConsumerInvoker<>();
     
     /** ワークスペースセットにワークスペースが追加されたときのイベントハンドラを管理するオブジェクト. */
     private final ConsumerInvoker<WorkspaceAddedEvent> onWsAddedInvoker =
@@ -250,6 +257,10 @@ public class WorkspaceSet {
     /** ワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラ. */
     private final Consumer<? super Workspace.RootNodeRemovedEvent> onRootNodeRemoved =
         this::onRootNodeRemoved;
+
+    /** ワークスペースセットの {@link TextNode} のテキストが変更されたときのイベントハンドラ. */
+    private final Consumer<? super Workspace.NodeTextChangedEvent> onNodeTextChanged =
+        this::onNodeTextChanged;
 
     /** ワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラ. */
     private final Consumer<? super Workspace.NameChangedEvent> onWsNameChanged =
@@ -304,19 +315,27 @@ public class WorkspaceSet {
     }
 
     /**
-     * ワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときの
-     * イベントハンドラのレジストリを取得する.
+     * ワークスペースセットのワークスペースのルートノード一式に新しくルートノードが追加されたときのイベントハンドラを
+     * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<RootNodeAddedEvent>.Registry getOnRootNodeAdded() {
       return onRootNodeAddedInvoker.getRegistry();
     }
 
     /**
-     * ワークスペースセットのワークスペースのルートノード一式からルートノードが削除されたときの
-     * イベントハンドラのレジストリを取得する.
+     * ワークスペースセットのワークスペースのルートノード一式からルートノードが削除されたときのイベントハンドラを
+     * 登録 / 削除するためのオブジェクトを取得する.
      */
     public ConsumerInvoker<RootNodeRemovedEvent>.Registry getOnRootNodeRemoved() {
       return onRootNodeRemovedInvoker.getRegistry();
+    }
+
+    /**
+     * ワークスペースセットの {@link TextNode} のテキストが変更されたときのイベントハンドラを
+     * 登録 / 削除するためのオブジェクトを取得する.
+     */
+    public ConsumerInvoker<NodeTextChangedEvent>.Registry getOnNodeTextChanged() {
+      return onNodeTextChangedInvoker.getRegistry();
     }
 
     /**
@@ -402,6 +421,19 @@ public class WorkspaceSet {
     private void onRootNodeRemoved(Workspace.RootNodeRemovedEvent event) {
       onRootNodeRemovedInvoker.invoke(
           new RootNodeRemovedEvent(WorkspaceSet.this, event.ws(), event.node(), event.userOpe()));
+    }
+
+    /** ワークスペースセットの {@link TextNode} のテキストが変更されたときのイベントハンドラを呼ぶ. */
+    private void onNodeTextChanged(Workspace.NodeTextChangedEvent event) {
+      onNodeTextChangedInvoker.invoke(
+          new NodeTextChangedEvent(
+              WorkspaceSet.this,
+              event.ws(),
+              event.node(),
+              event.oldText(),
+              event.newText(),
+              event.userOpe())
+      );
     }
 
     /** ワークスペースセットのワークスペースの名前が変更されたときのイベントハンドラを呼ぶ. */
@@ -520,6 +552,24 @@ public class WorkspaceSet {
    */  
   public record RootNodeRemovedEvent(
       WorkspaceSet wss, Workspace ws, BhNode node, UserOperation userOpe) {}
+
+  /**
+   * ワークスペースセットの {@link TextNode} のテキストが変更されたときの情報を格納したレコード.
+   *
+   * @param wss {@code ws} を保持するワークスペースセット
+   * @param ws テキストが変わったノードを保持するワークスペース
+   * @param node テキストが変わったノード
+   * @param oldText 変更前のテキスト
+   * @param newText 変更後のテキスト
+   * @param userOpe undo 用コマンドオブジェクト
+   */
+  public record NodeTextChangedEvent(
+      WorkspaceSet wss,
+      Workspace ws,
+      TextNode node,
+      String oldText,
+      String newText,
+      UserOperation userOpe) {}
 
   /**
    * ワークスペースセットにワークスペースが追加されたときの情報を格納したレコード.

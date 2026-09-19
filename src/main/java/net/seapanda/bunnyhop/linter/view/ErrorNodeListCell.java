@@ -16,7 +16,6 @@
 
 package net.seapanda.bunnyhop.linter.view;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import javafx.css.PseudoClass;
@@ -64,16 +63,9 @@ public class ErrorNodeListCell extends TreeCell<ErrorNodeListItem> {
     return text == null ? "" : text;
   }
 
-  /**
-   * このセルが表示する値を更新する.
-   *
-   * @return 更新によって値が変わった場合 true を返す.
-   */
-  public boolean updateValue() {
-    String oldText = getText();
-    String newText = getText(model, isEmpty());
-    setText(newText);
-    return !Objects.equals(newText, oldText);
+  /** このセルが表示する値を更新する. */
+  public void updateValue() {
+    setText(getText(model, isEmpty()));
   }
 
   /** このセルに描画される文字を装飾する. */

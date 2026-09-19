@@ -119,7 +119,8 @@ public class TextNode extends Derivative<TextNode> {
     String oldText = this.text;
     this.text = text;
     userOpe.pushCmd(ope -> setText(oldText, ope));
-    getCallbackRegistry().onTextChangedInvoker.invoke(new TextChangedEvent(oldText, text, userOpe));
+    var event = new TextChangedEvent(this, oldText, text, userOpe);
+    getCallbackRegistry().onTextChangedInvoker.invoke(event);
   }
 
   /**
@@ -228,11 +229,13 @@ public class TextNode extends Derivative<TextNode> {
   /**
    * ノードのテキストが変更されたときの情報を格納したレコード.
    *
+   * @param node テキストが変更されたノード
    * @param oldText 変更前のテキスト
    * @param newText 変更後のテキスト
    * @param userOpe undo 用コマンドオブジェクト
    */
-  public record TextChangedEvent(String oldText, String newText, UserOperation userOpe) {}
+  public record TextChangedEvent(
+      TextNode node, String oldText, String newText, UserOperation userOpe) {}
 
   /**
    * テキストをフォーマットした結果を格納するレコード.

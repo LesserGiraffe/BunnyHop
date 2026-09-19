@@ -120,6 +120,7 @@ public class ErrorNodeListController {
 
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().add(
         event -> updateCellDecoration(event.node()));
+    wss.getCallbackRegistry().getOnNodeTextChanged().add(event -> clearSearchResult());
     CompileErrorNodeCache.CallbackRegistry registry = compileErrorNodeCache.getCallbackRegistry();
     registry.getOnCompileErrorStateUpdated().add(event -> addErrorNode(event.updated()));
     registry.getOnNodeAdded().add(event -> addErrorNode(event.added()));
@@ -267,15 +268,9 @@ public class ErrorNodeListController {
 
   /** 現在表示されている {@link ErrorNodeListCell} の内容を更新する. */
   private void updateCellValues() {
-    boolean isAnyChanged = false;
     for (TreeItem<ErrorNodeListItem> item : rootErrorNodeItem.getChildren()) {
       BhNode node = item.getValue().node();
-      for (ErrorNodeListCell cell : cellRegistry.getCells(node)) {
-        isAnyChanged |= cell.updateValue();
-      }
-    }
-    if (isAnyChanged) {
-      clearSearchResult();
+      cellRegistry.getCells(node).forEach(ErrorNodeListCell::updateValue);
     }
   }
 
@@ -462,7 +457,11 @@ public class ErrorNodeListController {
     ErrorNodeTreeItem getTreeItem(BhNode node) {
       return nodeToTreeItem.computeIfAbsent(
           node,
-          bhNode -> new ErrorNodeTreeItem(new ErrorNodeListItem(bhNode)));
+          bhNode -> {
+            var item = new ErrorNodeTreeItem(new ErrorNodeListItem(bhNode));
+            treeItems.add(item);
+            return item;
+          });
     }
 
     /** このオブジェクトが作成した全ての {@link ErrorNodeTreeItem} を取得する. */

@@ -67,6 +67,8 @@ import net.seapanda.bunnyhop.ui.control.SearchBox;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 import net.seapanda.bunnyhop.utility.collection.ImmutableCircularList;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
+import net.seapanda.bunnyhop.workspace.model.WorkspaceSet.NodeSelectionEvent;
+import net.seapanda.bunnyhop.workspace.model.WorkspaceSet.NodeTextChangedEvent;
 
 /**
  * 変数情報を表示するビューのコントローラ.
@@ -91,8 +93,9 @@ public class VariableInspectionController {
   private final VariableTreeItem rootVarItem;
   private final CellRegistry cellRegistry;
   private boolean isDiscarded = false;
-  private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
+  private final Consumer<NodeSelectionEvent> onNodeSelStateChanged =
       event -> updateCellDecoration(event.node());
+  private final Consumer<NodeTextChangedEvent> onNodeTextChanged = event -> clearSearchResult();
   private SearchResult searchResult;
   /**
    * 変数情報を選択したときに対応するノードにジャンプするかどうかのフラグを
@@ -204,6 +207,7 @@ public class VariableInspectionController {
     viReloadBtn.setOnAction(event -> reloadVarInfo());
     viSearchButton.setOnAction(action -> onSearchButtonClicked());
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().add(onNodeSelStateChanged);
+    wss.getCallbackRegistry().getOnNodeTextChanged().add(onNodeTextChanged);
     VariableInfo.CallbackRegistry registry = varInfo.getCallbackRegistry();
     registry.getOnVariablesAdded().add(event -> addVarInfo(event.added()));
     registry.getOnVariablesRemoved().add(event -> removeVarInfo(event.removed()));
@@ -256,6 +260,7 @@ public class VariableInspectionController {
     }
     isDiscarded = true;
     wss.getCallbackRegistry().getOnNodeSelectionStateChanged().remove(onNodeSelStateChanged);
+    wss.getCallbackRegistry().getOnNodeTextChanged().remove(onNodeTextChanged);
     if (searchBox.getUser() == this) {
       searchBox.close();
     }
@@ -269,12 +274,7 @@ public class VariableInspectionController {
     if (isDiscarded) {
       return;
     }
-    boolean isAnyChanged = cellRegistry
-        .getCells(varItem).stream()
-        .anyMatch(VariableListCell::updateValue);
-    if (isAnyChanged) {
-      clearSearchResult();
-    }
+    cellRegistry.getCells(varItem).forEach(VariableListCell::updateValue);
   }
 
   /** {@code node} に対応する {@link VariableListCell} の装飾を変更する. */
