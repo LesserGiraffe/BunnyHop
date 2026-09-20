@@ -17,17 +17,22 @@
 package net.seapanda.bunnyhop.debugger.control;
 
 import static javafx.css.PseudoClass.getPseudoClass;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
+import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInCallStack;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -45,6 +50,8 @@ import net.seapanda.bunnyhop.debugger.model.callstack.StackFrameSelection;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadSelection;
 import net.seapanda.bunnyhop.debugger.view.CallStackCell;
+import net.seapanda.bunnyhop.debugger.view.CallStackCell.ItemChangeEvent;
+import net.seapanda.bunnyhop.debugger.view.VariableListCell;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
@@ -77,14 +84,14 @@ public class CallStackController {
   private final WorkspaceSet wss;
   private final BooleanProperty sharedJumpFlag;
   private final VisualEffectManager effectManager;
-  private final Map<BhNode, Set<CallStackCell>> nodeToCell = new HashMap<>();
+  private final CellRegistry cellRegistry;
   private boolean isDiscarded = false;
   private BhNodeView lastJumpTarget;
   private final Consumer<Debugger.CurrentThreadChangedEvent> onCurrentThreadChanged =
       event -> onCurrentDebugThreadChanged();
   private final Consumer<WorkspaceSet.NodeSelectionEvent> onNodeSelStateChanged =
       event -> updateCellDecoration(event.node());
-  private ImmutableCircularList<CallStackItem> searchResult;
+  private SearchResult searchResult;
 
   /**
    * コンストラクタ.
@@ -107,23 +114,23 @@ public class CallStackController {
     this.debugger = debugger;
     this.wss = wss;
     this.sharedJumpFlag = sharedJumpFlag;
-    this.effectManager = visualEffectManager;
+    effectManager = visualEffectManager;
+    cellRegistry = new CellRegistry();
   }
 
   /** このコントローラの UI 要素を初期化する. */
   @FXML
   public void initialize() {
     setEventHandlers();
+    callStackListView.setItems(createCallStackItems());
   }
 
   /** イベントハンドラを設定する. */
   private void setEventHandlers() {
-    callStackListView.setCellFactory(stack -> new CallStackCell(nodeToCell));
-    callStackListView.setItems(createCallStackItems());
+    callStackListView.setCellFactory(stack -> cellRegistry.createCell());
     callStackListView.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldVal, newVal) -> onCallStackCellSelected(oldVal, newVal));
-    callStackListView.getItems().addListener(
-        (Change<? extends CallStackItem> change) -> searchResult = null);
+    callStackListView.itemsProperty().addListener(event -> clearSearchResult());
     callStackListView.focusedProperty().addListener(
         (obs, oldVal, newVal) -> onFocusChanged(newVal));
     csShowAllCheckBox.selectedProperty().addListener((observable, oldVal, newVal) -> {
@@ -168,7 +175,7 @@ public class CallStackController {
     Optional.ofNullable(lastJumpTarget).ifPresent(
         view -> effectManager.setEffectEnabled(view, false, VisualEffectType.JUMP_TARGET));
     callStackListView.getItems().clear();
-    nodeToCell.clear();
+    cellRegistry.clear();
     csJumpCheckBox.selectedProperty().unbindBidirectional(sharedJumpFlag);
   }
 
@@ -287,19 +294,47 @@ public class CallStackController {
     if (isDiscarded || query.isEmpty()) {
       return new SearchQueryResult(0, 0);
     }
+    ImmutableCircularList<CallStackItem> matchedItems;
     CallStackItem found;
     if (searchBox.getNumConsecutiveSameRequests() >= 2 && searchResult != null) {
-      found = query.isForward() ? searchResult.getNext() : searchResult.getPrevious();
+      matchedItems = searchResult.items();
+      found = query.isForward() ? matchedItems.getNext() : matchedItems.getPrevious();
     } else {
-      searchResult = ItemSearcher.search(
-          query, callStackListView.getItems(), CallStackCell::getText);
-      found = searchResult.getCurrent();
+      matchedItems = searchAndHighlight(query);
+      found = matchedItems.getCurrent();
     }
     if (found != null) {
       callStackListView.getSelectionModel().select(found);
       callStackListView.scrollTo(found);
     }
-    return new SearchQueryResult(searchResult.getPointer(), searchResult.size());
+    boolean truncated = matchedItems.size() == maxResultsInCallStack;
+    return new SearchQueryResult(matchedItems.getPointer(), matchedItems.size(), truncated);
+  }
+
+  /**
+   * {@code query} で変数一覧全体を検索し, 一致した要素を強調表示した上で, それらを巡回可能なリストとして返す.
+   *
+   * @param query 検索条件
+   * @return {@code query} に一致した {@link CallStackItem} を格納する巡回リスト
+   */
+  private ImmutableCircularList<CallStackItem> searchAndHighlight(SearchQuery query) {
+    ImmutableCircularList<CallStackItem> matchedItems = ItemSearcher.search(
+        query,
+        callStackListView.getItems(),
+        CallStackCell::getText,
+        maxResultsInCallStack);
+    searchResult = new SearchResult(matchedItems, query);
+    highlightSearchResult(searchResult);
+    return matchedItems;
+  }
+
+  private void highlightSearchResult(SearchResult result) {
+    Pattern pattern = result.query().getPattern();
+    for (CallStackItem item : result.itemSet) {
+      cellRegistry
+          .getCells(item)
+          .forEach(cell -> cell.enableHighlighting(pattern, DEFAULT_TEXT_HIGHLIGHT));
+    }
   }
 
   /** デバッガの現在のスレッド ID が, このコントローラが保持するスレッドコンテキストのスレッド ID と同じか調べる. */
@@ -316,9 +351,43 @@ public class CallStackController {
     if (isDiscarded) {
       return;
     }
-    if (nodeToCell.containsKey(node)) {
-      nodeToCell.get(node).forEach(cell -> cell.decorateText(node.isSelected()));
+    cellRegistry.getCells(node).forEach(cell -> cell.decorateText(node.isSelected()));
+  }
+
+  /**
+   * {@link CallStackCell} に新しく割り当てられたアイテムの {@link BhNode} の選択状態に応じて,
+   * セルの装飾を更新する.
+   */
+  private static void updateCellDecoration(ItemChangeEvent event) {
+    boolean shouldDecorate =
+        !event.empty()
+        && Optional.ofNullable(event.newVal())
+            .flatMap(CallStackItem::getNode)
+            .map(BhNode::isSelected)
+            .orElse(false);
+    event.cell().decorateText(shouldDecorate);
+  }
+
+  /** {@link CallStackCell} に新しく割り当てられたアイテムに応じて, セルの強調表示を更新する. */
+  private void updateSearchResultHighlight(ItemChangeEvent event) {
+    boolean shouldHighlight =
+        !event.empty()
+        && event.newVal() != null
+        && searchResult != null
+        && searchResult.itemSet().contains(event.newVal());
+    if (shouldHighlight) {
+      event.cell().enableHighlighting(searchResult.query().getPattern(), DEFAULT_TEXT_HIGHLIGHT);
+    } else {
+      event.cell().disableHighlighting();
     }
+  }
+
+  /** {@link CallStackCell} に割り当てられるアイテムが変わったときの処理. */
+  private void onCellItemChanged(ItemChangeEvent event) {
+    cellRegistry.updateItemToCellsMap(event);
+    cellRegistry.updateNodeToCellsMap(event);
+    updateCellDecoration(event);
+    updateSearchResultHighlight(event);
   }
 
   /** 検索ボタンが押されたときの処理. */
@@ -341,6 +410,12 @@ public class CallStackController {
     }
   }
 
+  /** 現在の検索結果を破棄し, それに伴う強調表示を全て解除する. */
+  private void clearSearchResult() {
+    searchResult = null;
+    cellRegistry.getCells().forEach(CallStackCell::disableHighlighting);
+  }
+
   /** {@link SearchBox} を使ったコールスタック一覧の検索を担当するクラス. */
   private class SearchBoxDelegateImpl implements SearchBoxDelegate {
 
@@ -352,11 +427,103 @@ public class CallStackController {
     @Override
     public void onClosed() {
       csSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), false);
+      clearSearchResult();
     }
 
     @Override
     public Object getUser() {
       return CallStackController.this;
+    }
+  }
+
+  /**
+   * {@link CallStackController} が生成した全ての {@link CallStackCell} を管理し,
+   * 各セルに現在割り当てられている {@link CallStackItem} および {@link BhNode} との対応関係を追跡するクラス.
+   */
+  private class CellRegistry {
+
+    private final Map<CallStackItem, Set<CallStackCell>> itemToCells = new HashMap<>();
+    private final Map<BhNode, Set<CallStackCell>> nodeToCells = new HashMap<>();
+    private final Set<CallStackCell> cells = new HashSet<>();
+
+    /** このオブジェクトが持つデータをクリアする. */
+    void clear() {
+      itemToCells.clear();
+      nodeToCells.clear();
+      cells.clear();
+    }
+
+    /** {@link CallStackItem} と {@link CallStackCell} の対応関係を更新する. */
+    void updateItemToCellsMap(ItemChangeEvent event) {
+      Optional.ofNullable(event.oldVal())
+          .filter(oldVal -> event.empty() || oldVal != event.newVal())
+          .filter(itemToCells::containsKey)
+          .ifPresent(oldVal -> itemToCells.get(oldVal).remove(event.cell()));
+
+      Optional.ofNullable(event.newVal())
+          .filter(newVal -> !event.empty())
+          .filter(newVal -> event.oldVal() != newVal)
+          .ifPresent(newVal -> itemToCells
+              .computeIfAbsent(newVal, key -> Collections.newSetFromMap(new WeakHashMap<>()))
+              .add(event.cell()));
+    }
+
+    /** {@link BhNode} と {@link CallStackCell} の対応関係を更新する. */
+    void updateNodeToCellsMap(ItemChangeEvent event) {
+      Optional.ofNullable(event.oldVal())
+          .filter(oldVal -> event.empty() || oldVal != event.newVal())
+          .flatMap(CallStackItem::getNode)
+          .filter(nodeToCells::containsKey)
+          .ifPresent(node -> nodeToCells.get(node).remove(event.cell()));
+
+      Optional.ofNullable(event.newVal())
+          .filter(newVal -> !event.empty())
+          .filter(newVal -> event.oldVal() != newVal)
+          .flatMap(CallStackItem::getNode)
+          .ifPresent(node -> nodeToCells
+              .computeIfAbsent(node, key -> Collections.newSetFromMap(new WeakHashMap<>()))
+              .add(event.cell()));
+    }
+
+    /** 引数で指定した {@link CallStackItem} に対応する {@link VariableListCell} のセットを取得する. */
+    Set<CallStackCell> getCells(CallStackItem item) {
+      return itemToCells.getOrDefault(item, new HashSet<>());
+    }
+
+    /** 引数で指定した {@link BhNode} に対応する {@link CallStackCell} のセットを取得する. */
+    Set<CallStackCell> getCells(BhNode node) {
+      return nodeToCells.getOrDefault(node, new HashSet<>());
+    }
+
+    /** このオブジェクトが作成した全ての {@link CallStackCell} を取得する. */
+    Set<CallStackCell> getCells() {
+      return cells;
+    }
+
+    /**
+     * {@link VariableListCell} を生成し, このオブジェクトの管理下に加える.
+     *
+     * @return 生成した {@link VariableListCell}
+     */
+    CallStackCell createCell() {
+      var cell = new CallStackCell();
+      cell.setOnItemChanged(CallStackController.this::onCellItemChanged);
+      cells.add(cell);
+      return cell;
+    }
+  }
+
+  /** 検索結果を格納するレコード. */
+  record SearchResult(
+      ImmutableCircularList<CallStackItem> items,
+      Set<CallStackItem> itemSet,
+      SearchQuery query) {
+
+    SearchResult(ImmutableCircularList<CallStackItem> items, SearchQuery query) {
+      this(
+          items,
+          new HashSet<>(items.getItems()),
+          query);
     }
   }
 }

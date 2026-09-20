@@ -124,10 +124,10 @@ public class VariableInspectionController {
     this.searchBox = searchBox;
     this.debugger = debugger;
     this.wss = wss;
-    this.effectManager = visualEffectManager;
+    effectManager = visualEffectManager;
     this.sharedJumpFlag = sharedJumpFlag;
-    this.rootVarItem = new VariableTreeItem();
-    this.cellRegistry = new CellRegistry();
+    cellRegistry = new CellRegistry();
+    rootVarItem = new VariableTreeItem();
     rootVarItem.setExpanded(false);
     addVarInfo(varInfo.getVariables());
   }
@@ -189,11 +189,11 @@ public class VariableInspectionController {
   /** このコントローラの UI 要素を初期化する. */
   @FXML
   public void initialize() {
+    setEventHandlers();
     viViewName.setText(viewName);
     variableTreeView.setShowRoot(false);
     variableTreeView.setRoot(rootVarItem);
     viJumpCheckBox.selectedProperty().bindBidirectional(sharedJumpFlag);
-    setEventHandlers();
   }
 
   /** イベントハンドラを設定する. */
@@ -529,6 +529,7 @@ public class VariableInspectionController {
    * 各セルに現在割り当てられている {@link VariableListItem} および {@link BhNode} との対応関係を追跡するクラス.
    */
   private class CellRegistry {
+
     private final Map<VariableListItem, Set<VariableListCell>> itemToCells = new HashMap<>();
     private final Map<BhNode, Set<VariableListCell>> nodeToCells = new HashMap<>();
     private final Set<VariableListCell> cells = new HashSet<>();

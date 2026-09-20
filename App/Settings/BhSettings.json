@@ -3,7 +3,8 @@
   "Search": {
     "maxResultsInMainMessage": 500,
     "maxResultsInVariableInspection": 500,
-    "maxResultsInErrorNodeList": 500
+    "maxResultsInErrorNodeList": 500,
+    "maxResultsInCallStack": 500
   },
   "Window": {
     "main": {

@@ -224,8 +224,8 @@ public final class ComboBoxNodeView extends TextNodeView {
 
     private final HighlightableListCellSkin<SelectableItem<String, Object>> skin;
 
-    ComboBoxNodeListCell(String styleClass) {
-      skin = new HighlightableListCellSkin<>(this, styleClass);
+    ComboBoxNodeListCell() {
+      skin = new HighlightableListCellSkin<>(this);
       setSkin(skin);
     }
 
@@ -243,10 +243,12 @@ public final class ComboBoxNodeView extends TextNodeView {
      * セルのテキストの強調表示を有効化する.
      *
      * @param pattern 強調表示する文字列の正規表現
+     * @param styleClass 強調表示する部分に適用するスタイルクラス
      * @param maxHighlights  強調表示する箇所の上限.  負の数を指定すると全ての一致箇所を強調表示する.
      */
-    private SequencedCollection<Substring> enableHighlighting(Pattern pattern, int maxHighlights) {
-      return skin.enableHighlighting(pattern, maxHighlights);
+    private SequencedCollection<Substring> enableHighlighting(
+        Pattern pattern, String styleClass,  int maxHighlights) {
+      return skin.enableHighlighting(pattern, styleClass, maxHighlights);
     }
 
     /** セルのテキストの強調表示を無効化する. */
@@ -264,24 +266,27 @@ public final class ComboBoxNodeView extends TextNodeView {
    * ノードビューの視覚効果に関する機能を提供するクラス.
    */
   public static class Visual extends TextNodeView.Visual {
+
     /** コンボボックスが持つセル一覧. */
     private final List<ComboBoxNodeListCell> cells = new ArrayList<>();
     /** 現在有効になっている強調表示のパターン. */
     private Pattern highlightPattern;
     /** 強調表示する箇所の上限. */
     private int maxHighlights;
+    /** 強調表示部分に適用するスタイルクラス. */
+    private final String styleClass;
 
     private Visual(ComboBoxNodeView view) {
       super(view);
-      String styleClass = view.getStyle().comboBox.textHighlight.cssClass;
-      view.comboBox.setButtonCell(createCell(styleClass));
-      view.comboBox.setCellFactory(listView -> createCell(styleClass));
+      styleClass = view.getStyle().comboBox.textHighlight.cssClass;
+      view.comboBox.setButtonCell(createCell());
+      view.comboBox.setCellFactory(listView -> createCell());
     }
 
-    private ComboBoxNodeListCell createCell(String styleClass) {
-      var cell = new ComboBoxNodeListCell(styleClass);
+    private ComboBoxNodeListCell createCell() {
+      var cell = new ComboBoxNodeListCell();
       if (isTextHighlightingEnabled()) {
-        cell.enableHighlighting(highlightPattern, maxHighlights);
+        cell.enableHighlighting(highlightPattern, styleClass, maxHighlights);
       }
       cells.add(cell);
       return cell;
@@ -293,8 +298,8 @@ public final class ComboBoxNodeView extends TextNodeView {
       highlightPattern = pattern;
       this.maxHighlights = maxHighlights;
       cells.subList(1, cells.size())
-          .forEach(cell -> cell.enableHighlighting(pattern, maxHighlights));
-      return cells.getFirst().enableHighlighting(pattern, maxHighlights);
+          .forEach(cell -> cell.enableHighlighting(pattern, styleClass, maxHighlights));
+      return cells.getFirst().enableHighlighting(pattern, styleClass, maxHighlights);
     }
 
     @Override

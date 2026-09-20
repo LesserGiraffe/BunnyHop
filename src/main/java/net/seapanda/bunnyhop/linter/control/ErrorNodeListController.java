@@ -100,9 +100,9 @@ public class ErrorNodeListController {
   /** このコントローラの UI 要素を初期化する. */
   @FXML
   public void initialize() {
+    setEventHandlers();
     enTreeView.setShowRoot(false);
     enTreeView.setRoot(rootErrorNodeItem);
-    setEventHandlers();
   }
 
   /** イベントハンドラを設定する. */
@@ -391,6 +391,7 @@ public class ErrorNodeListController {
    * 各セルに現在割り当てられている {@link BhNode} との対応関係を追跡するクラス.
    */
   private class CellRegistry {
+
     private final Map<BhNode, Set<ErrorNodeListCell>> nodeToCells = new HashMap<>();
     private final Set<ErrorNodeListCell> cells = new HashSet<>();
 
@@ -444,6 +445,7 @@ public class ErrorNodeListController {
    * 各アイテムに割り当てられた {@link BhNode} との対応関係を追跡するクラス.
    */
   private static class TreeItemRegistry {
+
     private final Map<BhNode, ErrorNodeTreeItem> nodeToTreeItem = new HashMap<>();
     private final Set<ErrorNodeTreeItem> treeItems = new HashSet<>();
 

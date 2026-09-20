@@ -18,17 +18,14 @@ package net.seapanda.bunnyhop.debugger.view;
 
 import static javafx.css.PseudoClass.getPseudoClass;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.debugger.model.callstack.CallStackItem;
-import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.ui.skin.HighlightableListCellSkin;
 
 /**
  * デバッガのコールスタックに表示される要素のビュー.
@@ -39,12 +36,14 @@ public class CallStackCell extends ListCell<CallStackItem> {
 
   private CallStackItem model;
   private boolean empty = true;
-  private final Map<BhNode, Set<CallStackCell>> nodeToCells;
+  private final HighlightableListCellSkin<CallStackItem> skin;
+  private Consumer<? super ItemChangeEvent> onItemChanged = event -> {};
 
   /** コンストラクタ. */
-  public CallStackCell(Map<BhNode, Set<CallStackCell>> nodeToCells) {
-    this.nodeToCells = nodeToCells;
+  public CallStackCell() {
     getStyleClass().add(BhConstants.Css.Class.CALL_STACK_ITEM);
+    skin = new HighlightableListCellSkin<>(this);
+    setSkin(skin);
     setOnMousePressed(event -> clearSelectionIfEmpty());
   }
 
@@ -58,11 +57,8 @@ public class CallStackCell extends ListCell<CallStackItem> {
   protected void updateItem(CallStackItem item, boolean empty) {
     super.updateItem(item, empty);
     setText(getText(item, empty));
-    mapNodeToCell(item, empty);
-    if (item != null) {
-      decorateText(item.getNode().map(BhNode::isSelected).orElse(false));
-    }
     applyPseudoClass(item);
+    onItemChanged.accept(new ItemChangeEvent(this, model, item, empty));
     model = item;
     this.empty = empty;
   }
@@ -100,26 +96,36 @@ public class CallStackCell extends ListCell<CallStackItem> {
     return text == null ? "" : text;
   }
 
-  /** {@code item} が持つ {@link BhNode} とこのセルを {@link #nodeToCells} の中で対応付ける. */
-  private void mapNodeToCell(CallStackItem item, boolean empty) {
-    Optional.ofNullable(model)
-        .filter(model -> empty || model != item)
-        .flatMap(CallStackItem::getNode)
-        .filter(nodeToCells::containsKey)
-        .ifPresent(node -> nodeToCells.get(node).remove(this));
-
-    Optional.ofNullable(item)
-        .filter(itm -> !empty)
-        .filter(itm -> model != itm)
-        .flatMap(CallStackItem::getNode)
-        .ifPresent(node -> nodeToCells
-            .computeIfAbsent(node, key -> Collections.newSetFromMap(new WeakHashMap<>()))
-            .add(this));
-  }
-
   /** このセルに描画される文字を装飾する. */
   public void decorateText(boolean val) {
     PseudoClass cls = getPseudoClass(BhConstants.Css.Pseudo.TEXT_DECORATE);
     pseudoClassStateChanged(cls, val);
   }
+
+  /**
+   * このセルのテキストの強調表示を有効化する.
+   *
+   * @param pattern 強調表示する文字列の正規表現
+   * @param styleClass 強調表示部分に適用するスタイルクラス
+   */
+  public void enableHighlighting(Pattern pattern, String styleClass) {
+    skin.enableHighlighting(pattern, styleClass);
+  }
+
+  /** このセルのテキストの強調表示を無効化する. */
+  public void disableHighlighting() {
+    skin.disableHighlighting();
+  }
+
+  /** このセルに割り当てられたアイテムが変わったときのイベントハンドラを設定する. */
+  public void setOnItemChanged(Consumer<? super ItemChangeEvent> handler) {
+    if (handler == null) {
+      handler = event -> {};
+    }
+    onItemChanged = handler;
+  }
+
+  /** このセルに割り当てられたアイテムが変わったときのイベント. */
+  public record ItemChangeEvent(
+      CallStackCell cell, CallStackItem oldVal, CallStackItem newVal, boolean empty) {}
 }

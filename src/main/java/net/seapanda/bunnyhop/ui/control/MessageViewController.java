@@ -56,6 +56,13 @@ public class MessageViewController {
   /** このコントローラの UI 要素を初期化する. */
   @FXML
   public void initialize() {
+    setEventHandlers();
+    skin = new HighlightableTextAreaSkin(mainMsgArea, DISABLE);
+    mainMsgArea.setSkin(skin);
+  }
+
+  /** イベントハンドラを設定する. */
+  private void setEventHandlers() {
     mainMsgArea.textProperty().addListener(
         (observable, oldVal, newVal) -> onMessageChanged(newVal));
     mainMsgArea.scrollTopProperty().addListener((observable, oldVal, newVal) -> {
@@ -64,9 +71,6 @@ public class MessageViewController {
       }
     });
     mvSearchButton.setOnAction(action -> onSearchButtonClicked());
-
-    skin = new HighlightableTextAreaSkin(mainMsgArea, DISABLE);
-    mainMsgArea.setSkin(skin);
   }
 
   /** {@link #mainMsgArea} のテキストが変わったときの処理. */

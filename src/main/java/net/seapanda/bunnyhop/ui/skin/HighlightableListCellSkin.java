@@ -40,7 +40,7 @@ public class HighlightableListCellSkin<T> extends ListCellSkin<T> {
 
   private final Collection<Substring> highlightedTexts = new ArrayList<>();
   private final Pane highlightLayer = new Pane();
-  private final String styleClass;
+  private String styleClass;
   private final Text text;
   /** 強調表示する文字列のパターン. */
   private Pattern pattern;
@@ -51,11 +51,9 @@ public class HighlightableListCellSkin<T> extends ListCellSkin<T> {
    * コンストラクタ.
    *
    * @param cell このスキンを適用するセル
-   * @param styleClass 強調表示部分に適用するスタイルクラス
    */
-  public HighlightableListCellSkin(ListCell<T> cell, String styleClass) {
+  public HighlightableListCellSkin(ListCell<T> cell) {
     super(cell);
-    this.styleClass = styleClass;
     text = (Text) cell.lookup(".text");
     highlightLayer.setViewOrder(1);
     text.textProperty().addListener((obs, oldVal, newVal) -> updateHighlighting());
@@ -63,7 +61,7 @@ public class HighlightableListCellSkin<T> extends ListCellSkin<T> {
 
   private void updateHighlighting() {
     if (isHighlightingEnabled()) {
-      enableHighlighting(pattern, maxHighlights);
+      enableHighlighting(pattern, styleClass, maxHighlights);
     }
   }
 
@@ -72,8 +70,8 @@ public class HighlightableListCellSkin<T> extends ListCellSkin<T> {
    *
    * @param pattern 強調表示する文字列の正規表現
    */
-  public SequencedCollection<Substring> enableHighlighting(Pattern pattern) {
-    return enableHighlighting(pattern, -1);
+  public SequencedCollection<Substring> enableHighlighting(Pattern pattern, String styleClass) {
+    return enableHighlighting(pattern, styleClass, -1);
   }
 
   /**
@@ -82,8 +80,10 @@ public class HighlightableListCellSkin<T> extends ListCellSkin<T> {
    * @param pattern 強調表示する文字列の正規表現
    * @param maxHighlights 強調表示する箇所の上限.  負の数を指定すると全ての一致箇所を強調表示する.
    */
-  public SequencedCollection<Substring> enableHighlighting(Pattern pattern, int maxHighlights) {
+  public SequencedCollection<Substring> enableHighlighting(
+      Pattern pattern, String styleClass, int maxHighlights) {
     this.pattern = pattern;
+    this.styleClass = styleClass;
     this.maxHighlights = maxHighlights;
     SequencedCollection<Substring> substrings = search(pattern, maxHighlights);
     var ranges = substrings.stream()
