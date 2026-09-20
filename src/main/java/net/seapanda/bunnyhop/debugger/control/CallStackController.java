@@ -33,9 +33,11 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
@@ -122,22 +124,22 @@ public class CallStackController {
   @FXML
   public void initialize() {
     setEventHandlers();
-    callStackListView.setItems(createCallStackItems());
+    callStackListView.getItems().setAll(createCallStackItems());
   }
 
   /** イベントハンドラを設定する. */
   private void setEventHandlers() {
+    callStackViewBase.parentProperty().addListener(
+        (obs, oldVal, newVal) -> onViewParentChanged(newVal));
     callStackListView.setCellFactory(stack -> cellRegistry.createCell());
     callStackListView.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldVal, newVal) -> onCallStackCellSelected(oldVal, newVal));
-    callStackListView.itemsProperty().addListener(event -> clearSearchResult());
+    callStackListView.getItems().addListener(
+        (ListChangeListener<? super CallStackItem>) event -> clearSearchResult());
     callStackListView.focusedProperty().addListener(
         (obs, oldVal, newVal) -> onFocusChanged(newVal));
-    csShowAllCheckBox.selectedProperty().addListener((observable, oldVal, newVal) -> {
-      if (!isDiscarded) {
-        callStackListView.setItems(createCallStackItems());
-      }
-    });
+    csShowAllCheckBox.selectedProperty().addListener(
+        (observable, oldVal, newVal) -> updateCallStackItems());
     csSearchButton.setOnAction(action -> onSearchButtonClicked());
     csJumpCheckBox.selectedProperty().bindBidirectional(sharedJumpFlag);
     debugger.getCallbackRegistry().getOnCurrentThreadChanged().add(onCurrentThreadChanged);
@@ -172,10 +174,12 @@ public class CallStackController {
     if (searchBox.getUser() == this) {
       searchBox.close();
     }
-    Optional.ofNullable(lastJumpTarget).ifPresent(
-        view -> effectManager.setEffectEnabled(view, false, VisualEffectType.JUMP_TARGET));
+    if (lastJumpTarget != null) {
+      effectManager.setEffectEnabled(lastJumpTarget, false, VisualEffectType.JUMP_TARGET);
+    }
     callStackListView.getItems().clear();
     cellRegistry.clear();
+    clearSearchResult();
     csJumpCheckBox.selectedProperty().unbindBidirectional(sharedJumpFlag);
   }
 
@@ -231,7 +235,7 @@ public class CallStackController {
     }
     if (event.isSelected()) {
       if (csJumpCheckBox.isSelected()) {
-        getJumpTarget(item).ifPresent(this::jumpAndApplyEffect);
+        getJumpTarget(item).ifPresent(this::jumpTo);
       }
       int frameIdx = (item.isNext || item.isError) ? Math.max(item.idx - 1, 0) : item.idx;
       debugger.selectCurrentStackFrame(StackFrameSelection.of(frameIdx));
@@ -267,7 +271,7 @@ public class CallStackController {
   }
 
   /** {@code view} にジャンプして視覚効果を適用する. */
-  private void jumpAndApplyEffect(BhNodeView view) {
+  private void jumpTo(BhNodeView view) {
     ViewUtil.jump(view);
     effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
     effectManager.setEffectEnabled(view, true, VisualEffectType.JUMP_TARGET);
@@ -346,7 +350,7 @@ public class CallStackController {
           && debugThread.equals(thisThread);
   }
 
-  /** {@code node} に対応する {@link CallStackCell} の装飾を変更する. */
+  /** {@code nodes} に対応する {@link CallStackCell} の装飾を変更する. */
   private void updateCellDecoration(BhNode node) {
     if (isDiscarded) {
       return;
@@ -410,6 +414,23 @@ public class CallStackController {
     }
   }
 
+  /** コールスタックビューの親要素が変わったときのイベントハンドラ. */
+  private void onViewParentChanged(Parent newParent) {
+    if (newParent == null && searchBox.getUser() == this) {
+      searchBox.close();
+      // 検索ボタンに適用した CSS が処理されない問題を回避するために必要.
+      csSearchButton.applyCss();
+    }
+  }
+
+  /** {@link #callStackListView} の表示項目を更新する. */
+  private void updateCallStackItems() {
+    if (!isDiscarded) {
+      // 意図したコールバック関数が呼ばれないので ListView::setItems を使わないこと.
+      callStackListView.getItems().setAll(createCallStackItems());
+    }
+  }
+
   /** 現在の検索結果を破棄し, それに伴う強調表示を全て解除する. */
   private void clearSearchResult() {
     searchResult = null;
@@ -426,8 +447,8 @@ public class CallStackController {
 
     @Override
     public void onClosed() {
-      csSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), false);
       clearSearchResult();
+      csSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), false);
     }
 
     @Override

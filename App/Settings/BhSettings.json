@@ -4,7 +4,8 @@
     "maxResultsInMainMessage": 500,
     "maxResultsInVariableInspection": 500,
     "maxResultsInErrorNodeList": 500,
-    "maxResultsInCallStack": 500
+    "maxResultsInCallStack": 500,
+    "maxResultsInBreakpointList": 500
   },
   "Window": {
     "main": {

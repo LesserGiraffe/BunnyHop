@@ -118,13 +118,13 @@ public class ErrorNodeListController {
     enWsSelectorController.setOnWorkspaceSelected(
         event -> showErrorNodes(event.newWs(), event.isAllSelected()));
 
-    wss.getCallbackRegistry().getOnNodeSelectionStateChanged().add(
-        event -> updateCellDecoration(event.node()));
-    wss.getCallbackRegistry().getOnNodeTextChanged().add(event -> clearSearchResult());
-    CompileErrorNodeCache.CallbackRegistry registry = compileErrorNodeCache.getCallbackRegistry();
-    registry.getOnCompileErrorStateUpdated().add(event -> addErrorNode(event.updated()));
-    registry.getOnNodeAdded().add(event -> addErrorNode(event.added()));
-    registry.getOnNodeRemoved().add(event -> removeErrorNode(event.removed()));
+    WorkspaceSet.CallbackRegistry wssCbRegistry = wss.getCallbackRegistry();
+    wssCbRegistry.getOnNodeSelectionStateChanged().add(event -> updateCellDecoration(event.node()));
+    wssCbRegistry.getOnNodeTextChanged().add(event -> clearSearchResult());
+    CompileErrorNodeCache.CallbackRegistry cbRegistry = compileErrorNodeCache.getCallbackRegistry();
+    cbRegistry.getOnCompileErrorStateUpdated().add(event -> addErrorNode(event.updated()));
+    cbRegistry.getOnNodeAdded().add(event -> addErrorNode(event.added()));
+    cbRegistry.getOnNodeRemoved().add(event -> removeErrorNode(event.removed()));
   }
 
   /** エラーノード情報を一覧に追加する. */

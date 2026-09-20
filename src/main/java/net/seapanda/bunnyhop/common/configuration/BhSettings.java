@@ -110,5 +110,7 @@ public class BhSettings {
     public static volatile int maxResultsInErrorNodeList = 500;
     /** コーススタックビューにおける文字列検索の結果の最大数. */
     public static volatile int maxResultsInCallStack = 500;
+    /** ブレークポイント一覧における文字列検索の結果の最大数. */
+    public static volatile int maxResultsInBreakpointList = 500;
   }
 }

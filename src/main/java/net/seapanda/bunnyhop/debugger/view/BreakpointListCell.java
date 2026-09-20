@@ -16,15 +16,13 @@
 
 package net.seapanda.bunnyhop.debugger.view;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.BhNode;
+import net.seapanda.bunnyhop.ui.skin.HighlightableListCellSkin;
 
 /**
  * ブレークポイント一覧に表示される要素のビュー.
@@ -35,12 +33,14 @@ public class BreakpointListCell extends ListCell<BhNode> {
 
   private BhNode model;
   private boolean empty = true;
-  private final Map<BhNode, Set<BreakpointListCell>> nodeToCells;
+  private final HighlightableListCellSkin<BhNode> skin;
+  private Consumer<? super ItemChangeEvent> onItemChanged = event -> {};
 
   /** コンストラクタ. */
-  public BreakpointListCell(Map<BhNode, Set<BreakpointListCell>> nodeToCells) {
-    this.nodeToCells = nodeToCells;
+  public BreakpointListCell() {
     getStyleClass().add(BhConstants.Css.Class.BREAKPOINT_LIST_ITEM);
+    skin = new HighlightableListCellSkin<>(this);
+    setSkin(skin);
     setOnMousePressed(event -> clearSelectionIfEmpty());
   }
 
@@ -54,10 +54,7 @@ public class BreakpointListCell extends ListCell<BhNode> {
   protected void updateItem(BhNode item, boolean empty) {
     super.updateItem(item, empty);
     setText(getText(item, empty));
-    mapNodeToCell(item, empty);
-    if (item != null) {
-      decorateText(item.isSelected());
-    }
+    onItemChanged.accept(new ItemChangeEvent(this, model, item, empty));
     model = item;
     this.empty = empty;
   }
@@ -75,21 +72,6 @@ public class BreakpointListCell extends ListCell<BhNode> {
     return text == null ? "" : text;
   }
 
-  /** {@code node} とこのセルを {@link #nodeToCells} の中で対応付ける. */
-  private void mapNodeToCell(BhNode node, boolean empty) {
-    Optional.ofNullable(model)
-        .filter(model -> empty || model != node)
-        .filter(nodeToCells::containsKey)
-        .ifPresent(model -> nodeToCells.get(model).remove(this));
-
-    Optional.ofNullable(node)
-        .filter(bhNode -> !empty)
-        .filter(bhNode -> model != bhNode)
-        .ifPresent(bhNode -> nodeToCells
-            .computeIfAbsent(node, key -> Collections.newSetFromMap(new WeakHashMap<>()))
-            .add(this));
-  }
-
   /** このセルが表示する値を更新する. */
   public void updateValue() {
     if (model != null) {
@@ -102,4 +84,31 @@ public class BreakpointListCell extends ListCell<BhNode> {
     PseudoClass cls = PseudoClass.getPseudoClass(BhConstants.Css.Pseudo.TEXT_DECORATE);
     pseudoClassStateChanged(cls, val);
   }
+
+  /**
+   * このセルのテキストの強調表示を有効化する.
+   *
+   * @param pattern 強調表示する文字列の正規表現
+   * @param styleClass 強調表示部分に適用するスタイルクラス
+   */
+  public void enableHighlighting(Pattern pattern, String styleClass) {
+    skin.enableHighlighting(pattern, styleClass);
+  }
+
+  /** このセルのテキストの強調表示を無効化する. */
+  public void disableHighlighting() {
+    skin.disableHighlighting();
+  }
+
+  /** このセルに割り当てられたアイテムが変わったときのイベントハンドラを設定する. */
+  public void setOnItemChanged(Consumer<? super ItemChangeEvent> handler) {
+    if (handler == null) {
+      handler = event -> {};
+    }
+    onItemChanged = handler;
+  }
+
+  /** このセルに割り当てられたアイテムが変わったときのイベント. */
+  public record ItemChangeEvent(
+      BreakpointListCell cell, BhNode oldVal, BhNode newVal, boolean empty) {}
 }

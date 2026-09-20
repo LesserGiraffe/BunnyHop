@@ -39,6 +39,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -93,6 +94,7 @@ public class VariableInspectionController {
   private final VariableTreeItem rootVarItem;
   private final CellRegistry cellRegistry;
   private boolean isDiscarded = false;
+  private BhNodeView lastJumpTarget;
   private final Consumer<NodeSelectionEvent> onNodeSelStateChanged =
       event -> updateCellDecoration(event.node());
   private final Consumer<NodeTextChangedEvent> onNodeTextChanged = event -> clearSearchResult();
@@ -198,6 +200,8 @@ public class VariableInspectionController {
 
   /** イベントハンドラを設定する. */
   private void setEventHandlers() {
+    variableInspectionViewBase.parentProperty().addListener(
+        (obs, oldVal, newVal) -> onViewParentChanged(newVal));
     variableTreeView.setCellFactory(view -> cellRegistry.createCell());
     variableTreeView.getSelectionModel().selectedItemProperty().addListener(
         (obs, oldVal, newVal) -> onVariableSelected(newVal));
@@ -243,6 +247,14 @@ public class VariableInspectionController {
     }
   }
 
+  /** 変数リストビューの親要素が変わったときのイベントハンドラ. */
+  private void onViewParentChanged(Parent newParent) {
+    if (newParent == null && searchBox.getUser() == this) {
+      searchBox.close();
+      viSearchButton.applyCss();
+    }
+  }
+
   /** このコントローラが管理するビューのルート要素を返す. */
   public Node getView() {
     return variableInspectionViewBase;
@@ -264,7 +276,11 @@ public class VariableInspectionController {
     if (searchBox.getUser() == this) {
       searchBox.close();
     }
+    if (lastJumpTarget != null) {
+      effectManager.setEffectEnabled(lastJumpTarget, false, VisualEffectType.JUMP_TARGET);
+    }
     cellRegistry.clear();
+    clearSearchResult();
     variableTreeView.setRoot(null);
     viJumpCheckBox.selectedProperty().unbindBidirectional(sharedJumpFlag);
   }
@@ -277,7 +293,7 @@ public class VariableInspectionController {
     cellRegistry.getCells(varItem).forEach(VariableListCell::updateValue);
   }
 
-  /** {@code node} に対応する {@link VariableListCell} の装飾を変更する. */
+  /** {@code nodes} に対応する {@link VariableListCell} の装飾を変更する. */
   private void updateCellDecoration(BhNode node) {
     if (isDiscarded) {
       return;
@@ -406,6 +422,7 @@ public class VariableInspectionController {
     ViewUtil.jump(view);
     effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
     effectManager.setEffectEnabled(view, true, VisualEffectType.JUMP_TARGET);
+    lastJumpTarget = view;
   }
 
   /** 変数情報を表示する {@link TreeView} の各要素のモデル. */
