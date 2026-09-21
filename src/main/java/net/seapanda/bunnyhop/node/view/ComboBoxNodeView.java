@@ -265,7 +265,7 @@ public final class ComboBoxNodeView extends TextNodeView {
   /**
    * ノードビューの視覚効果に関する機能を提供するクラス.
    */
-  public static class Visual extends TextNodeView.Visual {
+  public class Visual extends TextNodeView.Visual {
 
     /** コンボボックスが持つセル一覧. */
     private final List<ComboBoxNodeListCell> cells = new ArrayList<>();
@@ -273,12 +273,9 @@ public final class ComboBoxNodeView extends TextNodeView {
     private Pattern highlightPattern;
     /** 強調表示する箇所の上限. */
     private int maxHighlights;
-    /** 強調表示部分に適用するスタイルクラス. */
-    private final String styleClass;
 
     private Visual(ComboBoxNodeView view) {
       super(view);
-      styleClass = view.getStyle().comboBox.textHighlight.cssClass;
       view.comboBox.setButtonCell(createCell());
       view.comboBox.setCellFactory(listView -> createCell());
     }
@@ -286,6 +283,7 @@ public final class ComboBoxNodeView extends TextNodeView {
     private ComboBoxNodeListCell createCell() {
       var cell = new ComboBoxNodeListCell();
       if (isTextHighlightingEnabled()) {
+        String styleClass = ComboBoxNodeView.this.getStyle().comboBox.textHighlight.cssClass;
         cell.enableHighlighting(highlightPattern, styleClass, maxHighlights);
       }
       cells.add(cell);
@@ -297,6 +295,7 @@ public final class ComboBoxNodeView extends TextNodeView {
         Pattern pattern, int maxHighlights) {
       highlightPattern = pattern;
       this.maxHighlights = maxHighlights;
+      String styleClass = ComboBoxNodeView.this.getStyle().comboBox.textHighlight.cssClass;
       cells.subList(1, cells.size())
           .forEach(cell -> cell.enableHighlighting(pattern, styleClass, maxHighlights));
       return cells.getFirst().enableHighlighting(pattern, styleClass, maxHighlights);

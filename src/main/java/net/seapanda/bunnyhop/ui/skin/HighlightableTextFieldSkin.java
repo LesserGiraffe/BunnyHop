@@ -39,8 +39,8 @@ public class HighlightableTextFieldSkin extends TextFieldSkin {
 
   private final Collection<Substring> highlightedTexts = new ArrayList<>();
   private final Pane highlightLayer = new Pane();
-  private final String styleClass;
   private final Text text;
+  private String styleClass;
   /** 強調表示する文字列のパターン. */
   private Pattern pattern;
   /** 強調表示する箇所の上限. */
@@ -50,13 +50,10 @@ public class HighlightableTextFieldSkin extends TextFieldSkin {
    * コンストラクタ.
    *
    * @param textField このスキンを適用するテキストフィールド
-   * @param styleClass 強調表示部分に適用するスタイルのクラス
    * @param policy テキストフィールドのテキストが変更されたときの強調表示の変更方法
    */
-  public HighlightableTextFieldSkin(
-      TextField textField, String styleClass, HighlightingChangePolicy policy) {
+  public HighlightableTextFieldSkin(TextField textField, HighlightingChangePolicy policy) {
     super(textField);
-    this.styleClass = styleClass;
     text = (Text) textField.lookup(".text");
     highlightLayer.setViewOrder(1);
     getChildren().add(highlightLayer);
@@ -81,7 +78,7 @@ public class HighlightableTextFieldSkin extends TextFieldSkin {
 
   private void updateHighlighting() {
     if (isHighlightingEnabled()) {
-      enableHighlighting(pattern, maxHighlights);
+      enableHighlighting(pattern, styleClass, maxHighlights);
     }
   }
 
@@ -89,10 +86,13 @@ public class HighlightableTextFieldSkin extends TextFieldSkin {
    * テキストの強調表示を有効化する.
    *
    * @param pattern 強調表示する文字列の正規表現
+   * @param styleClass 強調表示部分に適用するスタイルクラス
    * @param maxHighlights 強調表示する箇所の上限.  負の数を指定すると全ての一致箇所を強調表示する.
    */
-  public SequencedCollection<Substring> enableHighlighting(Pattern pattern, int maxHighlights) {
+  public SequencedCollection<Substring> enableHighlighting(
+      Pattern pattern, String styleClass, int maxHighlights) {
     this.pattern = pattern;
+    this.styleClass = styleClass;
     this.maxHighlights = maxHighlights;
     SequencedCollection<Substring> substrings = search(pattern, maxHighlights);
     SequencedCollection<IntegerRange> ranges = substrings.stream()
@@ -108,9 +108,10 @@ public class HighlightableTextFieldSkin extends TextFieldSkin {
    * テキストの強調表示を有効化する.
    *
    * @param pattern 強調表示する文字列の正規表現
+   * @param styleClass 強調表示部分に適用するスタイルクラス
    */
-  public SequencedCollection<Substring> enableHighlighting(Pattern pattern) {
-    return enableHighlighting(pattern, -1);
+  public SequencedCollection<Substring> enableHighlighting(Pattern pattern, String styleClass) {
+    return enableHighlighting(pattern, styleClass, -1);
   }
 
   private SequencedCollection<Substring> search(Pattern pattern, int maxHighlights) {

@@ -41,8 +41,8 @@ public class HighlightableLabelSkin extends LabelSkin {
 
   private final Collection<Substring> highlightedTexts = new ArrayList<>();
   private final Pane highlightLayer = new Pane();
-  private final String styleClass;
   private final Text text;
+  private String styleClass;
   /** 強調表示する文字列のパターン. */
   private Pattern pattern;
   /** 強調表示する箇所の上限. */
@@ -52,12 +52,10 @@ public class HighlightableLabelSkin extends LabelSkin {
    * コンストラクタ.
    *
    * @param label このスキンを適用するラベル
-   * @param styleClass 強調表示部分に適用するスタイルクラス
    * @param policy ラベルのテキストが変更されたときの強調表示の変更方法
    */
-  public HighlightableLabelSkin(Label label, String styleClass, HighlightingChangePolicy policy) {
+  public HighlightableLabelSkin(Label label, HighlightingChangePolicy policy) {
     super(label);
-    this.styleClass = styleClass;
     text = (Text) label.lookup(".text");
     highlightLayer.setViewOrder(1);
     text.textProperty().addListener((obs, oldVal, newVal) -> onTextChanged(policy));
@@ -73,7 +71,7 @@ public class HighlightableLabelSkin extends LabelSkin {
 
   private void updateHighlighting() {
     if (isHighlightingEnabled()) {
-      enableHighlighting(pattern, maxHighlights);
+      enableHighlighting(pattern, styleClass, maxHighlights);
     }
   }
 
@@ -81,19 +79,23 @@ public class HighlightableLabelSkin extends LabelSkin {
    * テキストの強調表示を有効化する.
    *
    * @param pattern 強調表示する文字列の正規表現
+   * @param styleClass 強調表示部分に適用するスタイルクラス
    */
-  public SequencedCollection<Substring> enableHighlighting(Pattern pattern) {
-    return enableHighlighting(pattern, -1);
+  public SequencedCollection<Substring> enableHighlighting(Pattern pattern, String styleClass) {
+    return enableHighlighting(pattern, styleClass, -1);
   }
 
   /**
    * テキストの強調表示を有効化する.
    *
    * @param pattern 強調表示する文字列の正規表現
+   * @param styleClass 強調表示部分に適用するスタイルクラス
    * @param maxHighlights 強調表示する箇所の上限.  負の数を指定すると全ての一致箇所を強調表示する.
    */
-  public SequencedCollection<Substring> enableHighlighting(Pattern pattern, int maxHighlights) {
+  public SequencedCollection<Substring> enableHighlighting(
+      Pattern pattern, String styleClass, int maxHighlights) {
     this.pattern = pattern;
+    this.styleClass = styleClass;
     this.maxHighlights = maxHighlights;
     SequencedCollection<Substring> substrings = search(pattern, maxHighlights);
     SequencedCollection<IntegerRange> ranges = substrings.stream()

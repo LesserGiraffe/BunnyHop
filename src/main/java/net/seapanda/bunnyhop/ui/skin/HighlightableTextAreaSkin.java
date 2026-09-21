@@ -38,6 +38,7 @@ import org.apache.commons.lang3.IntegerRange;
  */
 public class HighlightableTextAreaSkin extends TextAreaSkin {
 
+  private final Text text;
   /** 強調表示中の文字列のリスト. */
   private List<Substring> highlightedTexts = new ArrayList<>();
   /** 1 層目の強調表示として現在描画されている {@link Path} のリスト. */
@@ -48,7 +49,6 @@ public class HighlightableTextAreaSkin extends TextAreaSkin {
   private String primaryStyleClass;
   /** 2 層目の強調表示に適用するスタイルのクラス名. */
   private String secondaryStyleClass;
-  private final Text text;
   /** 強調表示する文字列のパターン. */
   private Pattern pattern;
   /** 強調表示する箇所の上限. */
@@ -112,8 +112,8 @@ public class HighlightableTextAreaSkin extends TextAreaSkin {
    */
   public SequencedCollection<Substring> enableHighlighting(
       Pattern pattern, String styleClass, int maxHighlights) {
-    this.primaryStyleClass = styleClass;
     this.pattern = pattern;
+    this.primaryStyleClass = styleClass;
     this.maxHighlights = maxHighlights;
     SequencedCollection<Substring> substrings = search(pattern, maxHighlights);
     SequencedCollection<IntegerRange> ranges = substrings.stream()

@@ -40,8 +40,8 @@ public class HighlightableListCellSkin<T> extends ListCellSkin<T> {
 
   private final Collection<Substring> highlightedTexts = new ArrayList<>();
   private final Pane highlightLayer = new Pane();
-  private String styleClass;
   private final Text text;
+  private String styleClass;
   /** 強調表示する文字列のパターン. */
   private Pattern pattern;
   /** 強調表示する箇所の上限. */
@@ -69,6 +69,7 @@ public class HighlightableListCellSkin<T> extends ListCellSkin<T> {
    * テキストの強調表示を有効化する.
    *
    * @param pattern 強調表示する文字列の正規表現
+   * @param styleClass 強調表示部分に適用するスタイルクラス
    */
   public SequencedCollection<Substring> enableHighlighting(Pattern pattern, String styleClass) {
     return enableHighlighting(pattern, styleClass, -1);
@@ -78,6 +79,7 @@ public class HighlightableListCellSkin<T> extends ListCellSkin<T> {
    * テキストの強調表示を有効化する.
    *
    * @param pattern 強調表示する文字列の正規表現
+   * @param styleClass 強調表示部分に適用するスタイルクラス
    * @param maxHighlights 強調表示する箇所の上限.  負の数を指定すると全ての一致箇所を強調表示する.
    */
   public SequencedCollection<Substring> enableHighlighting(

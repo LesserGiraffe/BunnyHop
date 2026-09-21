@@ -40,8 +40,8 @@ public class HighlightableTreeCellSkin<T> extends TreeCellSkin<T> {
 
   private final Collection<Substring> highlightedTexts = new ArrayList<>();
   private final Pane highlightLayer = new Pane();
-  private String styleClass;
   private final Text text;
+  private String styleClass;
   /** 強調表示する文字列のパターン. */
   private Pattern pattern;
   /** 強調表示する箇所の上限. */

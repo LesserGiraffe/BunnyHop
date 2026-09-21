@@ -60,7 +60,8 @@
       "msg-view-name": "メッセージ",
       "debug-view-name": "デバッグ",
       "breakpoint-list-view-name": "ブレークポイント",
-      "error-node-list-view-name": "エラーブロック"
+      "error-node-list-view-name": "エラーブロック",
+      "node-search-view-name": "けんさく"
     },
 
     "msg-view": {
@@ -128,6 +129,16 @@
           "step-into": "ステップイン",
           "step-out": "ステップアウト"
         }
+      }
+    },
+
+    "node-search-view": {
+      "search": "🔍",
+      "clear": "❌",
+      "jump": "ジャンプ",
+      "tooltip": {
+        "search": "ブロックを けんさくする",
+        "clear": "けんさくけっかを けす"
       }
     },
 

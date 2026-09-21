@@ -10,8 +10,9 @@
     tabClosingPolicy="UNAVAILABLE"
     tabDragPolicy="REORDER">
     <fx:include fx:id="messageView" source="MessageView.fxml"/>
+    <fx:include fx:id="nodeSearchView" source="NodeSearchView.fxml"/>
     <fx:include fx:id="errorNodeList" source="ErrorNodeListView.fxml"/>
-    <fx:include fx:id="debugView" source="DebugView.fxml"/>
     <fx:include fx:id="breakpointList" source="BreakpointListView.fxml"/>
+    <fx:include fx:id="debugView" source="DebugView.fxml"/>
   </TabPane>
 </StackPane>

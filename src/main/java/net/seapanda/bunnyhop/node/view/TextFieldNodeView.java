@@ -203,22 +203,22 @@ public final class TextFieldNodeView extends TextInputNodeView {
   }
 
   /** ノードビューの視覚効果に関する機能を提供するクラス. */
-  public static class Visual extends TextNodeView.Visual {
+  public class Visual extends TextNodeView.Visual {
 
     /** テキストフィールドに適用するスキン. */
     private final HighlightableTextFieldSkin skin;
 
     Visual(TextFieldNodeView view) {
       super(view);
-      String styleClass = view.getStyle().textField.textHighlight.cssClass;
-      skin = new HighlightableTextFieldSkin(view.textField, styleClass, REFRESH);
+      skin = new HighlightableTextFieldSkin(view.textField, REFRESH);
       view.textField.setSkin(skin);
     }
 
     @Override
     public SequencedCollection<Substring> enableTextHighlighting(
         Pattern pattern, int maxHighlights) {
-      return skin.enableHighlighting(pattern, maxHighlights);
+      String styleClass = TextFieldNodeView.this.getStyle().textField.textHighlight.cssClass;
+      return skin.enableHighlighting(pattern, styleClass, maxHighlights);
     }
 
     @Override

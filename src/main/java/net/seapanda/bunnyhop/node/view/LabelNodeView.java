@@ -108,22 +108,22 @@ public final class LabelNodeView extends TextNodeView {
   }
 
   /** ノードビューの視覚効果に関する機能を提供するクラス. */
-  public static class Visual extends TextNodeView.Visual {
+  public class Visual extends TextNodeView.Visual {
 
     /** ラベルに適用するスキン. */
     private final HighlightableLabelSkin skin;
 
     Visual(LabelNodeView view) {
       super(view);
-      String styleClass = view.getStyle().label.textHighlight.cssClass;
-      skin = new HighlightableLabelSkin(view.label, styleClass, REFRESH);
+      skin = new HighlightableLabelSkin(view.label, REFRESH);
       view.label.setSkin(skin);
     }
 
     @Override
     public SequencedCollection<Substring> enableTextHighlighting(
         Pattern pattern, int maxHighlights) {
-      return skin.enableHighlighting(pattern, maxHighlights);
+      String styleClass = LabelNodeView.this.getStyle().label.textHighlight.cssClass;
+      return skin.enableHighlighting(pattern, styleClass, maxHighlights);
     }
 
     @Override

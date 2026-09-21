@@ -211,15 +211,13 @@ public final class TextAreaNodeView extends TextInputNodeView {
   }
 
   /** ノードビューの視覚効果に関する機能を提供するクラス. */
-  public static class Visual extends TextNodeView.Visual {
+  public class Visual extends TextNodeView.Visual {
 
     /** テキストエリアに適用するスキン. */
     private final HighlightableTextAreaSkin skin;
-    private final String styleClass;
 
     Visual(TextAreaNodeView view) {
       super(view);
-      styleClass = view.getStyle().textArea.textHighlight.cssClass;
       skin = new HighlightableTextAreaSkin(view.textArea, REFRESH);
       view.textArea.setSkin(skin);
     }
@@ -227,6 +225,7 @@ public final class TextAreaNodeView extends TextInputNodeView {
     @Override
     public SequencedCollection<Substring> enableTextHighlighting(
         Pattern pattern, int maxHighlights) {
+      String styleClass = TextAreaNodeView.this.getStyle().textArea.textHighlight.cssClass;
       return skin.enableHighlighting(pattern, styleClass, maxHighlights);
     }
 
