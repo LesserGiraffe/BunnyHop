@@ -34,6 +34,9 @@ public interface SearchBoxDelegate {
   /** この検索ボックスが閉じられたときに呼ばれる. */
   void onClosed();
 
+  /** この検索結果がクリアされたときに呼ばれる. */
+  void onCleared();
+
   /**
    * この検索ボックスの利用者を表すオブジェクトを返す.
    *

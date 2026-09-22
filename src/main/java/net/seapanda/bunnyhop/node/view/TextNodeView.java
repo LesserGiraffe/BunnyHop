@@ -67,11 +67,11 @@ public abstract class TextNodeView extends LeafNodeView {
      * ノードビューが表示する文字列の強調表示を有効にする.
      *
      * @param pattern 強調表示する部分の正規表現
-     * @param maxHighlilghts 強調表示する箇所の上限.  負の数を指定すると全ての一致箇所を強調表示する.
+     * @param maxHighlights 強調表示する箇所の上限.  負の数を指定すると全ての一致箇所を強調表示する.
      * @return 一致した部分文字列のリスト
      */
     public abstract SequencedCollection<Substring> enableTextHighlighting(
-        Pattern pattern, int maxHighlilghts);
+        Pattern pattern, int maxHighlights);
 
     /**
      * ノードビューが表示する文字列の強調表示を有効にする.
@@ -92,6 +92,9 @@ public abstract class TextNodeView extends LeafNodeView {
     /** 文字列の強調表示が有効かどうかを調べる. */
     public abstract boolean isTextHighlightingEnabled();
 
+    /** 現在指定されている強調表示のパターンを取得する. */
+    public abstract Optional<Pattern> getHighlightingPattern();
+
     Visual(TextNodeView view) {
       super(view);
     }
@@ -108,7 +111,7 @@ public abstract class TextNodeView extends LeafNodeView {
     }
 
     /** 関連するノードビューのテキストが変わったときのイベントハンドラのレジストリを取得する. */
-    public ConsumerInvoker<TextChangeEvent>.Registry getTextChanged() {
+    public ConsumerInvoker<TextChangeEvent>.Registry getOnTextChanged() {
       return onTextChangedInvoker.getRegistry();
     }
 

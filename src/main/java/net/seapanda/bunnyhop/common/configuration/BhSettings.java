@@ -102,15 +102,19 @@ public class BhSettings {
 
   /** 検索に関するパラメータ. */
   public static class Search {
-    /** メインメッセージエリアの文字列検索の結果の最大数. */
+    /** メインメッセージエリアにおける文字列検索で表示される結果の最大数. */
     public static volatile int maxResultsInMainMessage = 500;
-    /** 変数一覧における文字列検索の結果の最大数. */
+    /** 変数一覧における文字列検索で表示される結果の最大数. */
     public static volatile int maxResultsInVariableInspection = 500;
-    /** エラーノード一覧における文字列検索の結果の最大数. */
+    /** エラーノード一覧における文字列検索で表示される結果の最大数. */
     public static volatile int maxResultsInErrorNodeList = 500;
-    /** コーススタックビューにおける文字列検索の結果の最大数. */
+    /** コーススタックビューにおける文字列検索で表示される結果の最大数. */
     public static volatile int maxResultsInCallStack = 500;
-    /** ブレークポイント一覧における文字列検索の結果の最大数. */
+    /** ブレークポイント一覧における文字列検索で表示される結果の最大数. */
     public static volatile int maxResultsInBreakpointList = 500;
+    /** ノード検索で表示される結果の最大数. */
+    public static volatile int maxItemsInNodeSearchResult = 500;
+    /** ノード検索結果の 1 項目に表示する文字列の最大文字数. */
+    public static volatile int maxCharsInNodeSearchResultItem = 64;
   }
 }

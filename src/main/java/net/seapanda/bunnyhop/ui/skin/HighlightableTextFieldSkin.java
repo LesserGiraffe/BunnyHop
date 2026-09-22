@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.ui.skin;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.regex.Pattern;
 import javafx.scene.control.TextField;
@@ -61,14 +62,18 @@ public class HighlightableTextFieldSkin extends TextFieldSkin {
   }
 
   private void setEventHandlers(HighlightingChangePolicy policy) {
-    text.textProperty().addListener((obs, oldVal, newVal) -> onTextChanged(policy));
-    text.layoutXProperty().addListener(
-        (obs, oldVal, newVal) -> highlightLayer.setTranslateX(newVal.doubleValue()));
-    text.layoutYProperty().addListener(
-        (obs, oldVal, newVal) -> highlightLayer.setTranslateY(newVal.doubleValue()));
+    text.textProperty().addListener((obs, oldVal, newVal) -> refreshHighlighting(policy));
+    text.layoutXProperty().addListener((obs, oldVal, newVal) -> {
+      highlightLayer.setTranslateX(newVal.doubleValue());
+      refreshHighlighting(policy);
+    });
+    text.layoutYProperty().addListener((obs, oldVal, newVal) -> {
+      highlightLayer.setTranslateY(newVal.doubleValue());
+      refreshHighlighting(policy);
+    });
   }
 
-  private void onTextChanged(HighlightingChangePolicy policy) {
+  private void refreshHighlighting(HighlightingChangePolicy policy) {
     switch (policy) {
       case REFRESH -> updateHighlighting();
       case DISABLE -> disableHighlighting();
@@ -137,5 +142,10 @@ public class HighlightableTextFieldSkin extends TextFieldSkin {
   /** 現在強調表示されている文字列のリストを返す. */
   public SequencedCollection<Substring> getHighlightedTexts() {
     return new ArrayList<>(highlightedTexts);
+  }
+
+  /** 現在指定されている強調表示のパターンを返す. */
+  public Optional<Pattern> getHighlightingPattern() {
+    return Optional.ofNullable(pattern);
   }
 }

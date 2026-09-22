@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.node.view;
 import static net.seapanda.bunnyhop.ui.skin.HighlightingChangePolicy.REFRESH;
 
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.SequencedSet;
 import java.util.function.Function;
@@ -127,11 +128,6 @@ public final class TextFieldNodeView extends TextInputNodeView {
   }
 
   private void onFocusChanged(boolean focused) {
-    if (!focused) {
-      textField.deselect();
-      shouldSelectText = true;
-    }
-
     if (focused) {
       textBeforeFocused = getText();
       return;
@@ -234,6 +230,11 @@ public final class TextFieldNodeView extends TextInputNodeView {
     @Override
     public boolean isTextHighlightingEnabled() {
       return skin.isHighlightingEnabled();
+    }
+
+    @Override
+    public Optional<Pattern> getHighlightingPattern() {
+      return skin.getHighlightingPattern();
     }
   }
 }

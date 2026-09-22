@@ -61,7 +61,7 @@
       "debug-view-name": "デバッグ",
       "breakpoint-list-view-name": "ブレークポイント",
       "error-node-list-view-name": "エラーブロック",
-      "node-search-view-name": "検索"
+      "node-search-view-name": "ブロック検索"
     },
 
     "msg-view": {
@@ -133,13 +133,7 @@
     },
 
     "node-search-view": {
-      "search": "🔍",
-      "clear": "❌",
-      "jump": "ジャンプ",
-      "tooltip": {
-        "search": "ブロックを検索する",
-        "clear": "検索結果を消去する"
-      }
+      "jump": "ジャンプ"
     },
 
     "search-box": {
@@ -148,6 +142,8 @@
       "case-sensitive": "[Aa]",
       "find-prev": "▲",
       "find-next": "▼",
+      "request": "🔍",
+      "clear": "❌",
       "result": "結果: %s",
       "result-count": "結果 %s 件",
       "tooltip": {
@@ -155,7 +151,9 @@
         "regex": "正規表現を使う",
         "case-sensitive": "大文字と小文字を区別する",
         "find-prev": "前を検索する",
-        "find-next": "次を検索する"
+        "find-next": "次を検索する",
+        "request": "検索する",
+        "clear": "検索結果を消去する"
       }
     }
   },

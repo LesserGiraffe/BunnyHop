@@ -19,13 +19,14 @@ package net.seapanda.bunnyhop.nodeselection.view;
 import java.util.SequencedSet;
 import javafx.scene.layout.Region;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
+import net.seapanda.bunnyhop.workspace.view.BhNodeViewContainer;
 
 /**
  * テンプレートノードを表示するビューの機能を規定したインタフェース.
  *
  * @author K.Koike
  */
-public interface BhNodeSelectionView {
+public interface BhNodeSelectionView extends BhNodeViewContainer {
 
   /** このビューの {@link Region} オブジェクトを取得する. */
   Region getRegion();
@@ -50,20 +51,6 @@ public interface BhNodeSelectionView {
    * @param view 非ルートとして指定するビュー
    */
   void specifyNodeViewAsNotRoot(BhNodeView view);
-
-  /**
-   * {@code view} をこのワークスペースビューに追加する.
-   *
-   * @param view 追加する {@link BhNodeView}
-   */
-  void addNodeView(BhNodeView view);
-
-  /**
-   * {@code view} をこのワークスペースビューから削除する.
-   *
-   * @param view 削除する {@link BhNodeView}
-   */
-  void removeNodeView(BhNodeView view);
 
   /** このオブジェクトが現在保持する {@link BhNodeView} のツリーの数を取得する. */
   long getNumNodeViewTrees();

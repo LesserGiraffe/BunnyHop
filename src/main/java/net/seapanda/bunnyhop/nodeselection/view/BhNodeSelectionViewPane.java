@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package net.seapanda.bunnyhop.workspace.view;
+package net.seapanda.bunnyhop.nodeselection.view;
+
+import net.seapanda.bunnyhop.workspace.view.BhNodeViewContainerPane;
 
 /**
- * {@link WorkspaceView} 上にノードビューを配置するためのペイン.
+ * {@link BhNodeSelectionView} 上にノードビューを配置するためのペイン.
  *
  * @author K.Koike
  */
-public class WorkspaceViewPane extends BhNodeViewContainerPane {
+public class BhNodeSelectionViewPane extends BhNodeViewContainerPane {
 
-  private WorkspaceView view;
+  private BhNodeSelectionView view;
 
-  void setContainer(WorkspaceView view) {
+  void setContainer(BhNodeSelectionView view) {
     this.view = view;
   }
 
   @Override
-  public WorkspaceView getContainer() {
+  public BhNodeSelectionView getContainer() {
     return view;
   }
 }

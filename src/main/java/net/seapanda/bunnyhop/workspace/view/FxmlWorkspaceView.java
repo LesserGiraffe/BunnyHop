@@ -53,6 +53,7 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.configuration.BhSettings;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
+import net.seapanda.bunnyhop.node.view.TextNodeView;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionContext;
 import net.seapanda.bunnyhop.service.accesscontrol.TransactionNotificationService;
 import net.seapanda.bunnyhop.ui.view.Rem;
@@ -85,7 +86,7 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
   /** {@link BhNode} を置くペイン. */
   @FXML private WorkspaceViewPane wsPane;
   /** エラー情報表示用. */
-  @FXML private WorkspaceViewPane errInfoPane;
+  @FXML private Pane errInfoPane;
   /** {@code wsPane} の親ペイン. */
   @FXML private Pane wsWrapper;
   /** 矩形選択用ビュー. */
@@ -191,10 +192,9 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
 
   /** ノードを配置する部分の設定を行う. */
-  private void configureWsPane() { 
-    setErrInfoPaneListener();
-    errInfoPane.setContainer(this);
+  private void configureWsPane() {
     wsPane.setContainer(this);
+    setErrInfoPaneListener();
     //  スクロールバーが表示されなくなるので setPrefSize() は使わない.   
     wsPane.setMinSize(minPaneSize.x, minPaneSize.y);
     wsPane.setMaxSize(minPaneSize.x, minPaneSize.y);
@@ -321,6 +321,10 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     view.getCallbackRegistry().getOnMoved().add(cbRegistry.onNodeMoved);
     view.getCallbackRegistry().getOnSizeChanged().add(cbRegistry.onNodeSizeChanged);
     view.getQuadTreeSpaceRegistration().addToQtSpace(qtSpaceForBody, qtSpaceForConnector);
+    if (view instanceof TextNodeView textNodeView) {
+      textNodeView.getCallbackRegistry().getOnTextChanged().add(cbRegistry.onNodeTextChanged);
+    }
+    cbRegistry.onNodeAddedInvoker.invoke(new NodeAddedEvent(this, view));
   }
 
   @Override
@@ -334,6 +338,10 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     view.getCallbackRegistry().getOnMoved().remove(cbRegistry.onNodeMoved);
     view.getCallbackRegistry().getOnSizeChanged().remove(cbRegistry.onNodeSizeChanged);
     view.getQuadTreeSpaceRegistration().removeFromQtSpace();
+    if (view instanceof TextNodeView textNodeView) {
+      textNodeView.getCallbackRegistry().getOnTextChanged().remove(cbRegistry.onNodeTextChanged);
+    }
+    cbRegistry.onNodeRemovedInvoker.invoke(new NodeRemovedEvent(this, view));
   }
 
   /** このワークスペースの全てのノドビューの Z 位置を更新する. */
@@ -597,7 +605,19 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
         new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースビューのノードビューのサイズが変更されたときのイベントハンドラを管理するオブジェクト. */
-    private final ConsumerInvoker<NodeSizeChangedEvent> onNodeSizeChangedInvoke =
+    private final ConsumerInvoker<NodeSizeChangedEvent> onNodeSizeChangedInvoker =
+        new SimpleConsumerInvoker<>();
+
+    /** 関連するワークスペースビューのノードビューのテキストが変更されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeTextChangedEvent> onNodeTextChangedInvoker =
+        new SimpleConsumerInvoker<>();
+
+    /** 関連するワークスペースビューにノードビューが追加されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeAddedEvent> onNodeAddedInvoker =
+        new SimpleConsumerInvoker<>();
+
+    /** 関連するワークスペースビューからノードビューが削除されたときのイベントハンドラを管理するオブジェクト. */
+    private final ConsumerInvoker<NodeRemovedEvent> onNodeRemovedInvoker =
         new SimpleConsumerInvoker<>();
 
     /** 関連するワークスペースビューが閉じられたときのイベントハンドラを管理するオブジェクト. */
@@ -612,6 +632,10 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
     /** 関連するワークスペースビュー上でノードビューのサイズが変更されたときのイベントハンドラ. */
     private final Consumer<? super BhNodeView.SizeChangedEvent> onNodeSizeChanged =
         this::onNodeSizeChanged;
+
+    /** 関連するワークスペースビュー上のノードビューのテキストが変更されたときのイベントハンドラ. */
+    private final Consumer<? super TextNodeView.TextChangeEvent> onNodeTextChanged =
+        this::onNodeTextChanged;
 
     private void setEventHandlers() {
       wsPane.addEventHandler(
@@ -665,7 +689,22 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
     @Override
     public ConsumerInvoker<NodeSizeChangedEvent>.Registry getOnNodeSizeChanged() {
-      return onNodeSizeChangedInvoke.getRegistry();
+      return onNodeSizeChangedInvoker.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<NodeTextChangedEvent>.Registry getOnNodeTextChanged() {
+      return onNodeTextChangedInvoker.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<NodeAddedEvent>.Registry getOnNodeAdded() {
+      return onNodeAddedInvoker.getRegistry();
+    }
+
+    @Override
+    public ConsumerInvoker<NodeRemovedEvent>.Registry getOnNodeRemoved() {
+      return onNodeRemovedInvoker.getRegistry();
     }
 
     @Override
@@ -702,8 +741,13 @@ public class FxmlWorkspaceView extends Tab implements WorkspaceView {
 
     /** 関連するワークスペースビュー上で {@link BhNodeView} が移動したときのイベントハンドラを呼び出す. */
     private void onNodeSizeChanged(BhNodeView.SizeChangedEvent event) {
-      onNodeSizeChangedInvoke.invoke(
+      onNodeSizeChangedInvoker.invoke(
           new NodeSizeChangedEvent(FxmlWorkspaceView.this, event.view()));
+    }
+
+    private void onNodeTextChanged(TextNodeView.TextChangeEvent event) {
+      onNodeTextChangedInvoker.invoke(
+          new NodeTextChangedEvent(FxmlWorkspaceView.this, event.view()));
     }
 
     /** ワークスペースビューが閉じられたときのイベントハンドラを呼び出す. */

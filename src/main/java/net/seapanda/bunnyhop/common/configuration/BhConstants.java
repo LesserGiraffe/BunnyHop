@@ -379,6 +379,7 @@ public class BhConstants {
       public static final String ROW = "row";
       public static final String NEXT = "next";
       public static final String ON = "on";
+      public static final String SEARCH_RESULT = "searchResult";
     }
 
     /** クラスの定義. */
@@ -403,6 +404,7 @@ public class BhConstants {
       public static final String VARIABLE_LIST_ITEM = "variableListItem";
       public static final String BREAKPOINT_LIST_ITEM = "breakpointListItem";
       public static final String ERROR_NODE_LIST_ITEM = "errorNodeListItem";
+      public static final String NODE_SEARCH_RESULT_ITEM = "nodeSearchResultItem";
       public static final String DEFAULT_TEXT_HIGHLIGHT = "defaultTextHighlight";
       public static final String FOCUSED_TEXT_HIGHLIGHT = "focusedTextHighlight";
     }

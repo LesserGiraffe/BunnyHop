@@ -21,10 +21,8 @@ import java.util.Optional;
 import java.util.Set;
 import javafx.event.Event;
 import javafx.geometry.Bounds;
-import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import net.seapanda.bunnyhop.node.control.BhNodeController;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
@@ -32,6 +30,8 @@ import net.seapanda.bunnyhop.node.view.style.ConnectorOrientation;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import net.seapanda.bunnyhop.workspace.view.BhNodeViewContainer;
+import net.seapanda.bunnyhop.workspace.view.BhNodeViewContainerPane;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem;
 import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeSpace;
@@ -99,6 +99,14 @@ public interface BhNodeView {
    * @return このノードビューが属している {@link WorkspaceView}
    */
   WorkspaceView getWorkspaceView();
+
+  /**
+   * このノードビューが属している {@link BhNodeViewContainer} を取得する.
+   * 見つからない場合は null.
+   *
+   * @return このノードビューが属している {@link BhNodeViewContainer}
+   */
+  BhNodeViewContainer getContainer();
 
 
   /** {@code visitor} にこのオブジェクトを渡す. */
@@ -346,14 +354,7 @@ public interface BhNodeView {
      *
      * @param parent 親となる GUI コンポーネント.
      */
-    void addToTree(Group parent);
-
-    /**
-     * 関連するノードビューを {@code parent} に子要素として追加する.
-     *
-     * @param parent 親となる GUI コンポーネント.
-     */
-    void addToTree(Pane parent);
+    void addToTree(BhNodeViewContainerPane parent);
 
     /** 関連するノードビューのルートノードビューを返す. */
     BhNodeView getRootView();

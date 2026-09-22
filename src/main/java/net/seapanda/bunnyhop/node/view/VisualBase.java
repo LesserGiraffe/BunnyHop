@@ -17,11 +17,18 @@
 package net.seapanda.bunnyhop.node.view;
 
 import static javafx.css.PseudoClass.getPseudoClass;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Pseudo.EXEC_STEP;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Pseudo.JUMP_TARGET;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Pseudo.MOVE_GROUP;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Pseudo.OVERLAPPED;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Pseudo.RELATED_NODE_GROUP;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Pseudo.RUNTIME_ERROR;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Pseudo.SEARCH_RESULT;
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Pseudo.SELECTED;
 import static net.seapanda.bunnyhop.node.view.BhNodeViewBase.Shapes;
 
 import java.util.HashSet;
 import java.util.Set;
-import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 
 /**
@@ -79,20 +86,21 @@ abstract class VisualBase implements BhNodeView.Visual {
     Shapes shapes = view.getShapes();
     appliedEffects.add(type);
     switch (type) {
-      case SELECTION -> setPseudoClassState(true, BhConstants.Css.Pseudo.SELECTED);
-      case MOVE_GROUP -> setPseudoClassState(true, BhConstants.Css.Pseudo.MOVE_GROUP);
-      case OVERLAP -> setPseudoClassState(true, BhConstants.Css.Pseudo.OVERLAPPED);
+      case SELECTION -> setPseudoClassState(true, SELECTED);
+      case MOVE_GROUP -> setPseudoClassState(true, MOVE_GROUP);
+      case OVERLAP -> setPseudoClassState(true, OVERLAPPED);
+      case SEARCH_RESULT -> view.getComponent().ifPresent(
+            node -> node.pseudoClassStateChanged(getPseudoClass(SEARCH_RESULT), true));
       case NEXT_STEP -> {
         shapes.nextStep().setVisible(true);
-        setPseudoClassState(true, BhConstants.Css.Pseudo.EXEC_STEP);
+        setPseudoClassState(true, EXEC_STEP);
       }
       case RUNTIME_ERROR -> {
         shapes.runtimeError().setVisible(true);
-        setPseudoClassState(true, BhConstants.Css.Pseudo.RUNTIME_ERROR);
+        setPseudoClassState(true, RUNTIME_ERROR);
       }
-      case RELATED_NODE_GROUP ->
-          setPseudoClassState(true, BhConstants.Css.Pseudo.RELATED_NODE_GROUP);
-      case JUMP_TARGET -> setPseudoClassState(true, BhConstants.Css.Pseudo.JUMP_TARGET);
+      case RELATED_NODE_GROUP -> setPseudoClassState(true, RELATED_NODE_GROUP);
+      case JUMP_TARGET -> setPseudoClassState(true, JUMP_TARGET);
       case BREAKPOINT -> shapes.breakpoint().setVisible(true);
       case CORRUPTION -> shapes.corruption().setVisible(true);
       case ENTRY_POINT -> shapes.entryPoint().setVisible(true);
@@ -106,20 +114,21 @@ abstract class VisualBase implements BhNodeView.Visual {
     Shapes shapes = view.getShapes();
     appliedEffects.remove(type);
     switch (type) {
-      case SELECTION -> setPseudoClassState(false, BhConstants.Css.Pseudo.SELECTED);
-      case MOVE_GROUP -> setPseudoClassState(false, BhConstants.Css.Pseudo.MOVE_GROUP);
-      case OVERLAP -> setPseudoClassState(false, BhConstants.Css.Pseudo.OVERLAPPED);
+      case SELECTION -> setPseudoClassState(false, SELECTED);
+      case MOVE_GROUP -> setPseudoClassState(false, MOVE_GROUP);
+      case OVERLAP -> setPseudoClassState(false, OVERLAPPED);
+      case SEARCH_RESULT -> view.getComponent().ifPresent(
+            node -> node.pseudoClassStateChanged(getPseudoClass(SEARCH_RESULT), false));
       case NEXT_STEP -> {
         shapes.nextStep().setVisible(false);
-        setPseudoClassState(false, BhConstants.Css.Pseudo.EXEC_STEP);
+        setPseudoClassState(false, EXEC_STEP);
       }
       case RUNTIME_ERROR -> {
         shapes.runtimeError().setVisible(false);
-        setPseudoClassState(false, BhConstants.Css.Pseudo.RUNTIME_ERROR);
+        setPseudoClassState(false, RUNTIME_ERROR);
       }
-      case RELATED_NODE_GROUP ->
-          setPseudoClassState(false, BhConstants.Css.Pseudo.RELATED_NODE_GROUP);
-      case JUMP_TARGET -> setPseudoClassState(false, BhConstants.Css.Pseudo.JUMP_TARGET);
+      case RELATED_NODE_GROUP -> setPseudoClassState(false, RELATED_NODE_GROUP);
+      case JUMP_TARGET -> setPseudoClassState(false, JUMP_TARGET);
       case BREAKPOINT -> shapes.breakpoint().setVisible(false);
       case CORRUPTION -> shapes.corruption().setVisible(false);
       case ENTRY_POINT -> shapes.entryPoint().setVisible(false);

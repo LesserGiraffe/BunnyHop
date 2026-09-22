@@ -43,6 +43,7 @@ import net.seapanda.bunnyhop.node.view.component.RuntimeErrorIcon;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.style.ChildArrangement;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
+import net.seapanda.bunnyhop.workspace.view.BhNodeViewContainer;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem;
 
@@ -159,6 +160,11 @@ abstract class BhNodeViewBase implements BhNodeView {
     return ViewUtil.getWorkspaceView(panes.root);
   }
 
+  @Override
+  public BhNodeViewContainer getContainer() {
+    return ViewUtil.getBhNodeViewContainer(panes.root);
+  }
+
   /** このノードビューがコントローラを持たない場合, 親ノードビューにイベントを渡す. */
   private void forwardEventIfNotHaveController(Event event) {
     if (controller != null) {
@@ -174,9 +180,9 @@ abstract class BhNodeViewBase implements BhNodeView {
   }
 
   /**
-   * このビューに GUI コンポーネントを追加する.
+   * このビューに GUI コンポーネントを設定する.
    *
-   * @param node 追加するコンポーネント. (nullable)
+   * @param node 設定するコンポーネント. (nullable)
    */
   void setComponent(Node node) {
     if (node == null) {
@@ -184,6 +190,14 @@ abstract class BhNodeViewBase implements BhNodeView {
       return;
     }
     panes.specific.getChildren().setAll(node);
+  }
+
+  /** このビューに設定された GUI コンポーネントを取得する. */
+  Optional<Node> getComponent() {
+    if (panes.specific.getChildren().isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(panes.specific.getChildren().getFirst());
   }
 
   SizeChangeNotifier getSizeChangeNotifier() {

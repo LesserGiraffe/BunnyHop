@@ -6,6 +6,12 @@
   -fx-alignment: center-left;
 }
 
+#nodeSearchBoxViewBase {
+  -fx-font-size: 1.1em;
+  -fx-font-family: "Meiryo UI";
+  -fx-alignment: center-left;
+}
+
 #searchBoxCloseButton {
   -fx-text-fill: red;
 }

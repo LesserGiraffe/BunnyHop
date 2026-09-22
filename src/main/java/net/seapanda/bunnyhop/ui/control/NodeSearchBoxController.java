@@ -35,21 +35,21 @@ import net.seapanda.bunnyhop.search.SearchQuery;
 import net.seapanda.bunnyhop.search.SearchQueryResult;
 import net.seapanda.bunnyhop.ui.view.ViewUtil;
 
+
 /**
- * 検索ボックスのコントローラ.
+ * ノード検索用検索ボックスのコントローラ.
  *
  * @author K.Koike
  */
-public class SearchBoxController implements SearchBox {
-  
-  @FXML HBox searchBoxViewBase;
-  @FXML TextField searchWordField;
-  @FXML ToggleButton regexButton;
-  @FXML ToggleButton caseSensitiveButton;
-  @FXML Button searchBoxCloseButton;
-  @FXML Button findPrevButton;
-  @FXML Button findNextButton;
-  @FXML Label searchResultLabel;
+public class NodeSearchBoxController implements SearchBox {
+
+  @FXML private HBox nodeSearchBoxViewBase;
+  @FXML private TextField searchWordField;
+  @FXML private ToggleButton regexButton;
+  @FXML private ToggleButton caseSensitiveButton;
+  @FXML private Button requestButton;
+  @FXML private Button clearButton;
+  @FXML private Label searchResultLabel;
   /** 同じ検索クエリと検索ハンドラで検索された回数. */
   private long countConsecutiveSameRequests = 0;
   private SearchQuery previousQuery;
@@ -58,7 +58,7 @@ public class SearchBoxController implements SearchBox {
   /** このコントローラの UI 要素を初期化する. */
   @FXML
   public void initialize() {
-    searchBoxViewBase.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+    nodeSearchBoxViewBase.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
     setEventHandlers();
     Platform.runLater(this::updateSearchWordFieldLength);
   }
@@ -68,9 +68,8 @@ public class SearchBoxController implements SearchBox {
     searchWordField.textProperty().addListener(
         (obs, oldVal, newVal) -> updateSearchWordFieldLength());
     searchWordField.setOnKeyPressed(this::onKeyPressed);
-    searchBoxCloseButton.setOnAction(event -> close());
-    findPrevButton.setOnAction(event -> onSearchRequested(false));
-    findNextButton.setOnAction(event -> onSearchRequested(true));
+    requestButton.setOnAction(event -> onSearchRequested());
+    clearButton.setOnAction(event -> clearSearchResult());
   }
 
   /** 検索ワード入力フィールドの幅をテキストの長さに応じて帰る. */
@@ -91,23 +90,23 @@ public class SearchBoxController implements SearchBox {
 
   private void onKeyPressed(KeyEvent event) {
     if (event.getCode() == KeyCode.ENTER) {
-      onSearchRequested(!event.isShiftDown());
+      onSearchRequested();
     }
   }
 
   /** UI の状態と引数をもとに {@link SearchQuery} オブジェクトを作成する. */
-  private SearchQuery createQuery(boolean findNext) {
+  private SearchQuery createQuery() {
     return new SearchQuery(
         searchWordField.getText(),
         regexButton.isSelected(),
         caseSensitiveButton.isSelected(),
-        findNext);
+        true);
   }
 
   /** 検索をリクエストされたときの処理. */
-  private void onSearchRequested(boolean findNext) {
+  private void onSearchRequested() {
     clearSearchResult();
-    var currentQuery = createQuery(findNext);
+    var currentQuery = createQuery();
     if (!currentQuery.isEqualTo(previousQuery)) {
       countConsecutiveSameRequests = 0;
     }
@@ -124,12 +123,12 @@ public class SearchBoxController implements SearchBox {
       close();
       this.delegate = delegate;
     }
-    searchBoxViewBase.visibleProperty().set(true);
+    nodeSearchBoxViewBase.visibleProperty().set(true);
   }
 
   @Override
   public void close() {
-    searchBoxViewBase.visibleProperty().set(false);
+    nodeSearchBoxViewBase.visibleProperty().set(false);
     countConsecutiveSameRequests = 0;
     clearSearchResult();
     delegate.onClosed();
@@ -147,13 +146,9 @@ public class SearchBoxController implements SearchBox {
       clearSearchResult();
       return;
     }
-    if (result.numFound() == 0 || result.currentIdx() < 0) {
-      searchResultLabel.setText(TextDefs.SearchBox.resultCount.get(result.numFound()));
-    } else {
-      String plus = result.truncated() ? "+" : "";
-      String text = "%s / %s%s".formatted(result.currentIdx() + 1, result.numFound(), plus);
-      searchResultLabel.setText(TextDefs.SearchBox.result.get(text));
-    }
+    String plus = result.truncated() ? "+" : "";
+    String text = "%s%s".formatted(result.numFound(), plus);
+    searchResultLabel.setText(TextDefs.SearchBox.resultCount.get(text));
   }
 
   @Override

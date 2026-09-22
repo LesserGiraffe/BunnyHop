@@ -49,7 +49,7 @@ import net.seapanda.bunnyhop.utility.math.Vec2D;
  */
 public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeSelectionView {
 
-  @FXML private Pane nodeSelectionView;  // FXML で Pane 以外使わないこと
+  @FXML private BhNodeSelectionViewPane nodeSelectionView;
   @FXML private Pane nodeSelectionViewWrapper;
   @FXML private ScrollPane nodeSelectionViewBase;
 
@@ -82,7 +82,7 @@ public final class FxmlBhNodeSelectionView extends ScrollPane implements BhNodeS
       throw new ViewConstructionException(
           "Failed to initialize " + BhNodeSelectionView.class.getSimpleName());
     }
-
+    nodeSelectionView.setContainer(this);
     nodeSelectionView.getTransforms().add(new Scale());
     getStyleClass().add(cssClass);
     nodeSelectionView.getStyleClass().add(cssClass);

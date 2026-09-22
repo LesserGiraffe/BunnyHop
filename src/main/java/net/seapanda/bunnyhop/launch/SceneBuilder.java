@@ -68,6 +68,8 @@ import net.seapanda.bunnyhop.ui.control.FoundationController;
 import net.seapanda.bunnyhop.ui.control.MenuBarController;
 import net.seapanda.bunnyhop.ui.control.MenuViewController;
 import net.seapanda.bunnyhop.ui.control.MessageViewController;
+import net.seapanda.bunnyhop.ui.control.NodeSearchBoxController;
+import net.seapanda.bunnyhop.ui.control.NodeSearchViewController;
 import net.seapanda.bunnyhop.ui.control.SearchBoxController;
 import net.seapanda.bunnyhop.ui.service.window.WindowManager;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
@@ -81,6 +83,7 @@ import net.seapanda.bunnyhop.workspace.model.CutAndPaste;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 import net.seapanda.bunnyhop.workspace.model.factory.WorkspaceFactory;
+import net.seapanda.bunnyhop.workspace.view.WorkspaceSetViewCallBackRegistry;
 
 /**
  * GUI 画面のロードと初期化を行う.
@@ -115,6 +118,7 @@ public class SceneBuilder {
   private final TrashCanController trashCanCtrl;
   private final WindowManager windowManager;
   private final VisualEffectManager effectManager;
+  private final WorkspaceSetViewCallBackRegistry wssViewCbRegistry;
   public final MenuBarController menuBarCtrl;
   public final MessageViewController msgViewCtrl;
 
@@ -150,7 +154,8 @@ public class SceneBuilder {
       SearchBoxController searchBoxCtrl,
       TrashCanController trashCanCtrl,
       WindowManager windowManager,
-      VisualEffectManager visualEffectManager)
+      VisualEffectManager visualEffectManager,
+      WorkspaceSetViewCallBackRegistry wssViewCbRegistry)
       throws AppInitializationException {
     this.wss = wss;
     this.nodeCategoryRoot = nodeCategoryRoot;
@@ -173,6 +178,7 @@ public class SceneBuilder {
     this.trashCanCtrl = trashCanCtrl;
     this.windowManager = windowManager;
     this.effectManager = visualEffectManager;
+    this.wssViewCbRegistry = wssViewCbRegistry;
     this.wssCtrl = wssCtrl;
     this.debugWindowCtrl = new DebugWindowController(debugger);
     this.menuBarCtrl = new MenuBarController(
@@ -225,11 +231,17 @@ public class SceneBuilder {
     if (type == DebugViewController.class) {
       return new DebugViewController(debugger, debugViewFactory);
     }
+    if (type == NodeSearchViewController.class) {
+      return new NodeSearchViewController(wssViewCbRegistry, effectManager);
+    }
     if (type == BhNodeCategoryListController.class) {
       return new BhNodeCategoryListController(nodeCategoryRoot, nodeSelProxy, nodeFactory);
     }
     if (type == SearchBoxController.class) {
       return searchBoxCtrl;
+    }
+    if (type == NodeSearchBoxController.class) {
+      return new NodeSearchBoxController();
     }
     if (type == TrashCanController.class) {
       return trashCanCtrl;

@@ -25,7 +25,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.bhprogram.LocalBhProgramLauncher;
 import net.seapanda.bunnyhop.bhprogram.RemoteBhProgramController;
@@ -37,6 +36,7 @@ import net.seapanda.bunnyhop.compiler.ScriptIdentifiers;
 import net.seapanda.bunnyhop.service.KeyCodeConverter;
 import net.seapanda.bunnyhop.ui.model.NodeManipulationMode;
 import net.seapanda.bunnyhop.workspace.control.WorkspaceSetController;
+import net.seapanda.bunnyhop.workspace.view.WorkspaceViewPane;
 
 /**
  * GUIの基底部分のコントローラ.
@@ -95,10 +95,8 @@ public class FoundationController {
   /** 基底ペインに転送すべきキーイベントかどうかを判断する. */
   private boolean shouldForwardKeyEvent(KeyEvent event) {
     EventTarget target = event.getTarget();
-    if (target instanceof Pane pane) {
-      if (pane.getId().equals(BhConstants.UiId.WS_PANE)) {
-        return true;
-      }
+    if (target instanceof WorkspaceViewPane) {
+      return true;
     }
     // タブペインが矢印キーで切り替わらないようにする
     if (target == workspaceSetController.getTabPane()) {

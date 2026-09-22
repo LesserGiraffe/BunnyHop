@@ -16,21 +16,14 @@
 
 package net.seapanda.bunnyhop.workspace.view;
 
+import javafx.scene.layout.Pane;
+
 /**
- * {@link WorkspaceView} 上にノードビューを配置するためのペイン.
+ * ノードビューのコンポーネントを配置するためのペイン.
  *
  * @author K.Koike
  */
-public class WorkspaceViewPane extends BhNodeViewContainerPane {
+public abstract class BhNodeViewContainerPane extends Pane {
 
-  private WorkspaceView view;
-
-  void setContainer(WorkspaceView view) {
-    this.view = view;
-  }
-
-  @Override
-  public WorkspaceView getContainer() {
-    return view;
-  }
+  public abstract BhNodeViewContainer getContainer();
 }

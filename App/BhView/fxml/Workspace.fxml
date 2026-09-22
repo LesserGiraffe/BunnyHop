@@ -29,7 +29,7 @@
           styleClass="rectSelTool"/>
       </WorkspaceViewPane>
       
-      <WorkspaceViewPane
+      <Pane
         fx:id="errInfoPane"
         mouseTransparent="true"/>
     </Pane>

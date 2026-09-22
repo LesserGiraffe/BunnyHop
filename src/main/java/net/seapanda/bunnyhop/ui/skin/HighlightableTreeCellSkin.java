@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.ui.skin;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.regex.Pattern;
 import javafx.geometry.Insets;
@@ -120,6 +121,11 @@ public class HighlightableTreeCellSkin<T> extends TreeCellSkin<T> {
   /** 現在強調表示されている文字列のリストを返す. */
   public SequencedCollection<Substring> getHighlightedTexts() {
     return new ArrayList<>(highlightedTexts);
+  }
+
+  /** 現在指定されている強調表示のパターンを返す. */
+  public Optional<Pattern> getHighlightingPattern() {
+    return Optional.ofNullable(pattern);
   }
 
   @Override

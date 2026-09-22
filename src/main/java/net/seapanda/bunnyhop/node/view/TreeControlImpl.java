@@ -20,10 +20,10 @@ import static net.seapanda.bunnyhop.node.view.BhNodeViewBase.Panes;
 import static net.seapanda.bunnyhop.node.view.BhNodeViewBase.Shapes;
 
 import java.util.Optional;
-import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.layout.Pane;
 import net.seapanda.bunnyhop.node.view.BhNodeView.ParentViewChangedEvent;
+import net.seapanda.bunnyhop.workspace.view.BhNodeViewContainerPane;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 
 /**
@@ -83,7 +83,7 @@ class TreeControlImpl implements BhNodeView.TreeControl {
     view.getPanes().root().setMouseTransparent(true);
     removeComponentsFromParent();
     NvbCallbackInvoker.invokeForGroups(
-        BhNodeViewGroup::removePseudoViewFromGuiTree,
+        BhNodeViewGroup::removePseudoViewFromContainer,
         view);
   }
 
@@ -92,12 +92,7 @@ class TreeControlImpl implements BhNodeView.TreeControl {
     Panes panes = view.getPanes();
     Shapes shapes = view.getShapes();
     Parent parent = panes.root().getParent();
-    if (parent instanceof Group group) {
-      group.getChildren().remove(panes.root());
-      group.getChildren().remove(shapes.compileError());
-      view.getCallbackRegistry().onParentViewChangedInvoker.invoke(
-          new ParentViewChangedEvent(view, group, null));
-    } else if (parent instanceof Pane pane) {
+    if (parent instanceof Pane pane) {
       pane.getChildren().remove(panes.root());
       pane.getChildren().remove(shapes.compileError());
       view.getCallbackRegistry().onParentViewChangedInvoker.invoke(
@@ -106,40 +101,19 @@ class TreeControlImpl implements BhNodeView.TreeControl {
   }
 
   @Override
-  public void addToTree(Group parent) {
+  public void addToTree(BhNodeViewContainerPane parent) {
     if (parent == null) {
       return;
     }
     // JDK-8205092 対策
     view.getPanes().root().setMouseTransparent(false);
     addComponentsToParent(parent);
-    NvbCallbackInvoker.invokeForGroups(
-        group -> group.addPseudoViewToGuiTree(parent),
-        view);
-  }
-
-  @Override
-  public void addToTree(Pane parent) {
-    if (parent == null) {
+    if (parent.getContainer() == null) {
       return;
     }
-    // JDK-8205092 対策
-    view.getPanes().root().setMouseTransparent(false);
-    addComponentsToParent(parent);
     NvbCallbackInvoker.invokeForGroups(
-        group -> group.addPseudoViewToGuiTree(parent),
+        group -> group.addPseudoViewToContainer(parent.getContainer()),
         view);
-  }
-
-  /** このノードの描画物 (ボディや影など) を {@code parent} に追加する. */
-  private void addComponentsToParent(Group parent) {
-    Parent oldParent = view.getPanes().root().getParent();
-    if (oldParent != parent) {
-      parent.getChildren().add(view.getPanes().root());
-      parent.getChildren().add(view.getShapes().compileError());
-      view.getCallbackRegistry().onParentViewChangedInvoker.invoke(
-          new ParentViewChangedEvent(view, oldParent, parent));
-    }
   }
 
   /** このノードの描画物 (ボディや影など) を {@code parent} に追加する. */

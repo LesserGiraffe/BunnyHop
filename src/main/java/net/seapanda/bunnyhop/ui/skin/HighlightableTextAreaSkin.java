@@ -20,6 +20,7 @@ package net.seapanda.bunnyhop.ui.skin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.regex.Pattern;
 import javafx.scene.control.ScrollPane;
@@ -66,10 +67,12 @@ public class HighlightableTextAreaSkin extends TextAreaSkin {
     super(textArea);
     var sp = (ScrollPane) textArea.lookup(".scroll-pane");
     text = (Text) sp.getContent().lookup(".text");
-    text.textProperty().addListener((obs, oldVal, newVal) -> onTextChanged(policy));
+    text.textProperty().addListener((obs, oldVal, newVal) -> refreshHighlighting(policy));
+    text.layoutXProperty().addListener((obs, oldVal, newVal) -> refreshHighlighting(policy));
+    text.layoutYProperty().addListener((obs, oldVal, newVal) -> refreshHighlighting(policy));
   }
 
-  private void onTextChanged(HighlightingChangePolicy policy) {
+  private void refreshHighlighting(HighlightingChangePolicy policy) {
     switch (policy) {
       case REFRESH -> updateHighlighting();
       case DISABLE -> disableHighlighting();
@@ -164,6 +167,11 @@ public class HighlightableTextAreaSkin extends TextAreaSkin {
   /** 現在強調表示されている文字列のリストを返す. */
   public SequencedCollection<Substring> getHighlightedTexts() {
     return new ArrayList<>(highlightedTexts);
+  }
+
+  /** 現在指定されている強調表示のパターンを返す. */
+  public Optional<Pattern> getHighlightingPattern() {
+    return Optional.ofNullable(pattern);
   }
 
   /**

@@ -17,6 +17,7 @@
 package net.seapanda.bunnyhop.ui.control;
 
 import net.seapanda.bunnyhop.search.SearchBoxDelegate;
+import net.seapanda.bunnyhop.search.SearchQueryResult;
 
 /**
  * 検索クエリを受け取る UI コンポーネントのインタフェース.
@@ -42,6 +43,9 @@ public interface SearchBox {
 
   /** 検索結果をクリアする. */
   void clearSearchResult();
+
+  /** 検索結果を設定する. */
+  void setSearchResult(SearchQueryResult result);
 
   /** 検索ボックスの現在の利用者を表すオブジェクトを返す. */
   Object getUser();

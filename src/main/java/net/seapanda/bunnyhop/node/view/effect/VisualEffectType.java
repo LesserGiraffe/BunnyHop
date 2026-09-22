@@ -29,6 +29,8 @@ public enum VisualEffectType {
   MOVE_GROUP,
   /** 置き換え可能なノードが重なっていることを示す視覚効果. */
   OVERLAP,
+  /** ノードが検索結果に含まれていることを表す視覚効果. */
+  SEARCH_RESULT,
   /** 現在実行中もしくは, 次に実行するノードであることを示す視覚効果. */
   NEXT_STEP,
   /** ランタイムエラーが発生したノードであることを示す視覚効果. */
@@ -44,5 +46,5 @@ public enum VisualEffectType {
   /** ジャンプ先として指定されたことを示す視覚効果. */
   JUMP_TARGET,
   /** ノードがコンパイルエラーを起こしていることを表す視覚効果. */
-  COMPILE_ERROR
+  COMPILE_ERROR,
 }

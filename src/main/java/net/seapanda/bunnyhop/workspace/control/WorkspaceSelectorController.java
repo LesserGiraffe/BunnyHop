@@ -98,6 +98,18 @@ public class WorkspaceSelectorController {
   }
 
   /**
+   * {@code ws} が現在選択されているワークスペースに一致するか調べる.
+   * 「すべてのワークスペース」が選択されている場合, 一致するとみなす.
+   *
+   * @param ws 現在の選択に一致するか調べるワークスペース
+   * @return {@code ws} が現在の選択に一致する場合 true
+   */
+  public boolean matchesSelection(Workspace ws) {
+    return isAllSelected()
+        || getSelected().map(selected -> ws == selected).orElse(false);
+  }
+
+  /**
    * スレッドが選択されたときのイベントハンドラを登録する.
    *
    * @param handler 登録するイベントハンドラ.

@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import net.seapanda.bunnyhop.nodeselection.view.BhNodeSelectionViewPane?>
 
 <fx:root
   xmlns:fx="http://javafx.com/fxml"
@@ -11,6 +12,6 @@
   StackPane.alignment="TOP_RIGHT"
   fx:id="nodeSelectionViewBase">
   <Pane fx:id="nodeSelectionViewWrapper">
-    <Pane fx:id="nodeSelectionView"/>
+    <BhNodeSelectionViewPane fx:id="nodeSelectionView"/>
   </Pane>
 </fx:root>

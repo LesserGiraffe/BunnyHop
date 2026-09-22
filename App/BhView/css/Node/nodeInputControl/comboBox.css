@@ -3,6 +3,11 @@
   -fx-font-size: 2.0em;
 }
 
+.defaultComboBox:searchResult {
+  -fx-border-color: red;
+  -fx-border-width: 0.15em;
+}
+
 .defaultComboBox > .arrow-button {
   -fx-padding: 0.0em 0.2em 0.0em 0.0em;
 }
@@ -17,6 +22,11 @@
   -fx-font-size: 1.5em;
 }
 
+.wordComboBox:searchResult {
+  -fx-border-color: red;
+  -fx-border-width: 0.15em;
+}
+
 .wordComboBox > .arrow-button {
   -fx-padding: 0.0em 0.2em 0.0em 0.0em;
 }
@@ -25,4 +35,3 @@
     -fx-padding: 0.0em 0.2em 0.0em 0.2em;
   -fx-alignment: center;
 }
-

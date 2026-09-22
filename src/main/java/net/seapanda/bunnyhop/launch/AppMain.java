@@ -145,6 +145,7 @@ import net.seapanda.bunnyhop.workspace.model.CopyAndPaste;
 import net.seapanda.bunnyhop.workspace.model.CutAndPaste;
 import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
 import net.seapanda.bunnyhop.workspace.model.factory.WorkspaceFactoryImpl;
+import net.seapanda.bunnyhop.workspace.view.WorkspaceSetViewCallBackRegistry;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -207,6 +208,7 @@ public class AppMain extends Application {
           () -> new AppInitializationException("Simulator Command Processor not found."));
 
       final var wss = new WorkspaceSet();
+      final var wssViewCbRegistry = new WorkspaceSetViewCallBackRegistry(wss);
       final var compileErrorNodeCache = new CompileErrorNodeCache(wss);
       final var executableNodeCollector =
           new SourceNodeCollector(wss, compileErrorNodeCache, msgService);
@@ -234,8 +236,7 @@ public class AppMain extends Application {
           wss,
           nodeSelViewProxy,
           nodeViewSuperVisor);
-      final var commonDataSupplier =
-          new CommonDataSupplier(scriptRepository, nodeFactory, textDb);
+      final var commonDataSupplier = new CommonDataSupplier(scriptRepository, nodeFactory, textDb);
       final var modelGenerator = new ModelGenerator(
           nodeFactory,
           new DerivativeReplacerWithCache(derivativeCache),
@@ -319,7 +320,8 @@ public class AppMain extends Application {
           searchBoxCtrl,
           trashCanCtrl,
           windowManager,
-          nodeViewSuperVisor);
+          nodeViewSuperVisor,
+          wssViewCbRegistry);
 
       setOnCloseHandler(
           stage,

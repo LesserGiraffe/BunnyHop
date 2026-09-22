@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.node.view;
 import static net.seapanda.bunnyhop.ui.skin.HighlightingChangePolicy.REFRESH;
 
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.SequencedSet;
 import java.util.function.Function;
@@ -242,6 +243,11 @@ public final class TextAreaNodeView extends TextInputNodeView {
     @Override
     public boolean isTextHighlightingEnabled() {
       return skin.isHighlightingEnabled();
+    }
+
+    @Override
+    public Optional<Pattern> getHighlightingPattern() {
+      return skin.getHighlightingPattern();
     }
   }
 }

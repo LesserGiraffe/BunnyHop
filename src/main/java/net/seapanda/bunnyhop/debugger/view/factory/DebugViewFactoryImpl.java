@@ -23,7 +23,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.VBox;
 import net.seapanda.bunnyhop.common.text.TextDefs;
-import net.seapanda.bunnyhop.debugger.control.CallStackController;
+import net.seapanda.bunnyhop.debugger.control.CallStackViewController;
 import net.seapanda.bunnyhop.debugger.control.VariableInspectionController;
 import net.seapanda.bunnyhop.debugger.model.Debugger;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
@@ -67,11 +67,11 @@ public class DebugViewFactoryImpl implements DebugViewFactory {
   }
 
   @Override
-  public CallStackController createCallStackView(ThreadContext context)
+  public CallStackViewController createCallStackView(ThreadContext context)
       throws ViewConstructionException {
     try {
       var root = new VBox();
-      var ctrl = new CallStackController(
+      var ctrl = new CallStackViewController(
           context, searchBox, debugger, wss, callStackCtrlJumpFlag, effectManager);
       FXMLLoader loader = new FXMLLoader(callStackViewFilePath.toUri().toURL());
       loader.setRoot(root);

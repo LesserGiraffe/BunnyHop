@@ -23,6 +23,7 @@ import javafx.event.Event;
 import javafx.geometry.Bounds;
 import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
+import net.seapanda.bunnyhop.node.view.TextNodeView;
 import net.seapanda.bunnyhop.utility.event.ConsumerInvoker;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 import net.seapanda.bunnyhop.workspace.model.Workspace;
@@ -33,7 +34,7 @@ import net.seapanda.bunnyhop.workspace.view.quadtree.QuadTreeItem.OverlapOption;
  *
  * @author K.Koike
  */
-public interface WorkspaceView {
+public interface WorkspaceView extends BhNodeViewContainer {
 
   /**
    * このワークスペースビューに対し {@code view} をルートとして指定する.
@@ -48,20 +49,6 @@ public interface WorkspaceView {
    * @param view ルートの指定を解除するするビュー
    */
   void specifyNodeViewAsNotRoot(BhNodeView view);
-
-  /**
-   * {@code view} をこのワークスペースビューに追加する.
-   *
-   * @param view 追加する {@link BhNodeView}
-   */
-  void addNodeView(BhNodeView view);
-
-  /**
-   * {@code view} をこのワークスペースビューから削除する.
-   *
-   * @param view 削除する {@link BhNodeView}
-   */
-  void removeNodeView(BhNodeView view);
 
   /**
    * 引数で指定した矩形と重なるこのワークスペースビュー上にあるノードを探す.
@@ -204,6 +191,15 @@ public interface WorkspaceView {
     /** 関連するワークスペースビューのノードビューのサイズが変更されたときのイベントハンドラのレジストリを取得する. */
     ConsumerInvoker<NodeSizeChangedEvent>.Registry getOnNodeSizeChanged();
 
+    /** 関連するワークスペースビューのノードビューのテキストが変更されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<NodeTextChangedEvent>.Registry getOnNodeTextChanged();
+
+    /** 関連するワークスペースビューにノードビューが追加されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<NodeAddedEvent>.Registry getOnNodeAdded();
+
+    /** 関連するワークスペースビューからノードビューが削除されたときのイベントハンドラのレジストリを取得する. */
+    ConsumerInvoker<NodeRemovedEvent>.Registry getOnNodeRemoved();
+
     /**
      * 関連するワークスペースビューを閉じるリクエストを受け取ったときに呼ぶイベントハンドラを設定する.
      * 
@@ -228,7 +224,7 @@ public interface WorkspaceView {
   /**
    * ワークスペースビュー上でノードビューの位置が変更されたときの情報を格納したレコード.
    *
-   * @param wsView {@code nodeView } を保持するワークスペースビュー
+   * @param wsView {@code nodeView} を保持するワークスペースビュー
    * @param nodeView 位置が変更されたノードビュー
    */
   record NodeMoveEvent(WorkspaceView wsView, BhNodeView nodeView) {}
@@ -236,10 +232,34 @@ public interface WorkspaceView {
   /**
    * ワークスペースビュー上でノードビューのサイズが変更されたときの情報を格納したレコード.
    *
-   * @param wsView {@code nodeView } を保持するワークスペースビュー
+   * @param wsView {@code nodeView} を保持するワークスペースビュー
    * @param nodeView サイズが変更されたノードビュー
    */
   record NodeSizeChangedEvent(WorkspaceView wsView, BhNodeView nodeView) {}
+
+  /**
+   * ワークスペースビュー上のノードビューのテキストが変更されたときの情報を格納したレコード.
+   *
+   * @param wsView {@code nodeView} を保持するワークスペースビュー
+   * @param nodeView テキストが変更されたノードビュー
+   */
+  record NodeTextChangedEvent(WorkspaceView wsView, TextNodeView nodeView) {}
+
+  /**
+   * ワークスペースにビューにノードビューが追加されたときの情報を格納したレコード.
+   *
+   * @param wsView {@code nodeView} が追加されたワークスペース
+   * @param nodeView {@code wsView} に追加されたノードビュー
+   */
+  record NodeAddedEvent(WorkspaceView wsView, BhNodeView nodeView) {}
+
+  /**
+   * ワークスペースビューからノードビューが削除されたときの情報を格納したレコード.
+   *
+   * @param wsView {@code nodeView} が追加されたワークスペース
+   * @param nodeView {@code wsView} に追加されたノードビュー
+   */
+  record NodeRemovedEvent(WorkspaceView wsView, BhNodeView nodeView) {}
 
   /**
    * ワークスペースビューが閉じられたときの情報を格納したレコード.

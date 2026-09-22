@@ -536,6 +536,9 @@ public class VariableInspectionController {
     }
 
     @Override
+    public void onCleared() {}
+
+    @Override
     public Object getUser() {
       return VariableInspectionController.this;
     }

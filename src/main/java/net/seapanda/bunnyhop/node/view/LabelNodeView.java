@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.node.view;
 import static net.seapanda.bunnyhop.ui.skin.HighlightingChangePolicy.REFRESH;
 
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.SequencedSet;
 import java.util.regex.Pattern;
@@ -28,9 +29,9 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
+import net.seapanda.bunnyhop.search.StringSearcher;
 import net.seapanda.bunnyhop.search.Substring;
 import net.seapanda.bunnyhop.ui.skin.HighlightableLabelSkin;
-import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
 
 /**
@@ -49,11 +50,9 @@ public final class LabelNodeView extends TextNodeView {
    *
    * @param model このノードビューに対応するノード
    * @param style このノードビューのスタイル
-   * @throws ViewConstructionException ノードビューの初期化に失敗
    */
   public LabelNodeView(
-      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
-      throws ViewConstructionException {
+      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate) {
     super(model, style, components, isTemplate);
     geometry = new Geometry(this, new NodeSizeCalculator(this, this::getContentRegionSize)) {};
     setComponent(label);
@@ -64,9 +63,8 @@ public final class LabelNodeView extends TextNodeView {
    * コンストラクタ.
    *
    * @param style このノードビューのスタイル
-   * @throws ViewConstructionException ノードビューの初期化に失敗
    */
-  public LabelNodeView(BhNodeViewStyle style, boolean isTemplate) throws ViewConstructionException {
+  public LabelNodeView(BhNodeViewStyle style, boolean isTemplate) {
     this(null, style, new LinkedHashSet<>(), isTemplate);
   }
 
@@ -123,7 +121,9 @@ public final class LabelNodeView extends TextNodeView {
     public SequencedCollection<Substring> enableTextHighlighting(
         Pattern pattern, int maxHighlights) {
       String styleClass = LabelNodeView.this.getStyle().label.textHighlight.cssClass;
-      return skin.enableHighlighting(pattern, styleClass, maxHighlights);
+      skin.enableHighlighting(pattern, styleClass, maxHighlights);
+      // skin のテキストが準備できていない場合があるので, Label のテキストを参照する.
+      return StringSearcher.search(pattern, LabelNodeView.this.label.getText(), maxHighlights);
     }
 
     @Override
@@ -139,6 +139,11 @@ public final class LabelNodeView extends TextNodeView {
     @Override
     public boolean isTextHighlightingEnabled() {
       return skin.isHighlightingEnabled();
+    }
+
+    @Override
+    public Optional<Pattern> getHighlightingPattern() {
+      return skin.getHighlightingPattern();
     }
   }
 }

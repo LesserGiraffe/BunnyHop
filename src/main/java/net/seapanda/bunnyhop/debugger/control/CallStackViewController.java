@@ -72,7 +72,7 @@ import net.seapanda.bunnyhop.workspace.model.WorkspaceSet;
  *
  * @author K.Koike
  */
-public class CallStackController {
+public class CallStackViewController {
 
   @FXML private VBox callStackViewBase;
   @FXML private CheckBox csShowAllCheckBox;
@@ -102,9 +102,9 @@ public class CallStackController {
    * @param searchBox 検索クエリを受け取る UI コンポーネントのインタフェース
    * @param sharedJumpFlag スタックフレームが選択されたときに対応するノードへジャンプするかどうかのフラグ.
    *                       同じ {@link BooleanProperty} オブジェクトが指定された
-   *                       {@link CallStackController} は全て同じフラグ値を共有する.
+   *                       {@link CallStackViewController} は全て同じフラグ値を共有する.
    */
-  public CallStackController(
+  public CallStackViewController(
       ThreadContext threadContext,
       SearchBox searchBox,
       Debugger debugger,
@@ -452,13 +452,16 @@ public class CallStackController {
     }
 
     @Override
+    public void onCleared() {}
+
+    @Override
     public Object getUser() {
-      return CallStackController.this;
+      return CallStackViewController.this;
     }
   }
 
   /**
-   * {@link CallStackController} が生成した全ての {@link CallStackCell} を管理し,
+   * {@link CallStackViewController} が生成した全ての {@link CallStackCell} を管理し,
    * 各セルに現在割り当てられている {@link CallStackItem} および {@link BhNode} との対応関係を追跡するクラス.
    */
   private class CellRegistry {
@@ -528,7 +531,7 @@ public class CallStackController {
      */
     CallStackCell createCell() {
       var cell = new CallStackCell();
-      cell.setOnItemChanged(CallStackController.this::onCellItemChanged);
+      cell.setOnItemChanged(CallStackViewController.this::onCellItemChanged);
       cells.add(cell);
       return cell;
     }

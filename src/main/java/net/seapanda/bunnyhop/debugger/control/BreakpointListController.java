@@ -39,7 +39,6 @@ import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.debugger.model.breakpoint.BreakpointCache;
 import net.seapanda.bunnyhop.debugger.view.BreakpointListCell;
 import net.seapanda.bunnyhop.debugger.view.BreakpointListCell.ItemChangeEvent;
-import net.seapanda.bunnyhop.debugger.view.VariableListCell;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
@@ -99,7 +98,7 @@ public class BreakpointListController {
     cbRegistry.getOnNodeAdded().add(event -> addBreakpoint(event.added()));
     cbRegistry.getOnNodeRemoved().add(event -> removeBreakpoint(event.removed()));
 
-    bpListView.setCellFactory(stack -> cellRegistry.createCell());
+    bpListView.setCellFactory(view -> cellRegistry.createCell());
     bpListView.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldVal, newVal) -> onBreakpointSelected(newVal));
     bpListView.getItems().addListener(
@@ -197,8 +196,7 @@ public class BreakpointListController {
 
   /** {@code nodes} をブレークポイント一覧に加える. */
   private void addBreakpoint(BhNode node) {
-    if (bpWsSelectorController.isAllSelected()
-        || bpWsSelectorController.getSelected().orElse(new Workspace("")) == node.getWorkspace()) {
+    if (bpWsSelectorController.matchesSelection(node.getWorkspace())) {
       bpListView.getItems().add(node);
     }
   }
@@ -300,6 +298,9 @@ public class BreakpointListController {
     }
 
     @Override
+    public void onCleared() {}
+
+    @Override
     public Object getUser() {
       return BreakpointListController.this;
     }
@@ -345,9 +346,9 @@ public class BreakpointListController {
     }
 
     /**
-     * {@link VariableListCell} を生成し, このオブジェクトの管理下に加える.
+     * {@link BreakpointListCell} を生成し, このオブジェクトの管理下に加える.
      *
-     * @return 生成した {@link VariableListCell}
+     * @return 生成した {@link BreakpointListCell}
      */
     BreakpointListCell createCell() {
       var cell = new BreakpointListCell();

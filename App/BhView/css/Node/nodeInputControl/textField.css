@@ -13,3 +13,8 @@
     -fx-text-fill: white;
     -fx-background-color: #353535;
 }
+
+.defaultTextField:searchResult {
+  -fx-border-color: red;
+  -fx-border-width: 0.15em;
+}

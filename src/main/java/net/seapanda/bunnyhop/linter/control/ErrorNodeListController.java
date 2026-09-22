@@ -136,8 +136,7 @@ public class ErrorNodeListController {
     treeItem.getChildren().clear();
     treeItem.getChildren().addAll(messages);
     treeItem.setExpanded(true);
-    if (!enWsSelectorController.isAllSelected()
-        && enWsSelectorController.getSelected().orElse(null) != node.getWorkspace()) {
+    if (!enWsSelectorController.matchesSelection(node.getWorkspace())) {
       return;
     }
     if (treeItem.getParent() == null) {
@@ -379,6 +378,9 @@ public class ErrorNodeListController {
       clearSearchResult();
       enSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), false);
     }
+
+    @Override
+    public void onCleared() {}
 
     @Override
     public Object getUser() {

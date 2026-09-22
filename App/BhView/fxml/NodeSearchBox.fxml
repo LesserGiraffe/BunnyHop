@@ -8,48 +8,31 @@
 
 <HBox
   xmlns:fx="http://javafx.com/fxml"
-  fx:id="searchBoxViewBase"
-  fx:controller="net.seapanda.bunnyhop.ui.control.SearchBoxController">
+  fx:id="nodeSearchBoxViewBase"
+  fx:controller="net.seapanda.bunnyhop.ui.control.NodeSearchBoxController">
   <fx:define>
-    <Rem fx:id="searchWordFieldMargin" rem="0.3"/> 
     <Rem fx:id="regexSwitchMargin" rem="0.2"/>
     <Rem fx:id="caseSensitiveSwitchMargin" rem="0.2"/>
-    <Rem fx:id="findPrevButtonMargin" rem="0.5"/>
-    <Rem fx:id="findNextButtonMargin" rem="0.2"/>
+    <Rem fx:id="requestSearchButtonMargin" rem="0.5"/>
     <Rem fx:id="searchResultLabelMargin" rem="0.5"/>
-    <TextFetcher fx:id="close" textId="gui,search-box,close"/>
     <TextFetcher fx:id="regex" textId="gui,search-box,regex"/>
     <TextFetcher fx:id="caseSensitive" textId="gui,search-box,case-sensitive"/>
-    <TextFetcher fx:id="findPrev" textId="gui,search-box,find-prev"/>
-    <TextFetcher fx:id="findNext" textId="gui,search-box,find-next"/>
-    <TextFetcher fx:id="closeTooltip" textId="gui,search-box,tooltip,close"/>
+    <TextFetcher fx:id="requestSearch" textId="gui,search-box,request"/>
+    <TextFetcher fx:id="clearResult" textId="gui,search-box,clear"/>
     <TextFetcher fx:id="regexTooltip" textId="gui,search-box,tooltip,regex"/>
     <TextFetcher fx:id="caseSensitiveTooltip" textId="gui,search-box,tooltip,case-sensitive"/>
-    <TextFetcher fx:id="findPrevTooltip" textId="gui,search-box,tooltip,find-prev"/>
-    <TextFetcher fx:id="findNextTooltip" textId="gui,search-box,tooltip,find-next"/>
+    <TextFetcher fx:id="requestSearchTooltip" textId="gui,search-box,tooltip,request"/>
+    <TextFetcher fx:id="clearResultTooltip" textId="gui,search-box,tooltip,clear"/>
   </fx:define>
 
-  <Button
-    fx:id="searchBoxCloseButton"
-    text="$close.text"
-    styleClass="flatButton">
-    <tooltip>
-      <Tooltip text="$closeTooltip.text" styleClass="uiFunctionTooltip"/>
-    </tooltip>
-  </Button>
-
-  <TextField fx:id="searchWordField">
-    <HBox.margin>
-      <Insets left="$searchWordFieldMargin.rem"/>
-    </HBox.margin>
-  </TextField>
+  <TextField fx:id="searchWordField"> </TextField>
 
   <ToggleButton
     fx:id="regexButton"
     text="$regex.text"
     styleClass="flatButton">
     <HBox.margin>
-      <Insets left="$regexSwitchMargin.rem"/>
+      <Insets left="$regexSwitchMargin.rem" />
     </HBox.margin>
     <tooltip>
       <Tooltip text="$regexTooltip.text" styleClass="uiFunctionTooltip"/>
@@ -61,28 +44,25 @@
     text="$caseSensitive.text"
     styleClass="flatButton">
     <HBox.margin>
-      <Insets left="$caseSensitiveSwitchMargin.rem"/>
+      <Insets left="$caseSensitiveSwitchMargin.rem" />
     </HBox.margin>
     <tooltip>
       <Tooltip text="$caseSensitiveTooltip.text" styleClass="uiFunctionTooltip"/>
     </tooltip>
   </ToggleButton>
 
-  <Button fx:id="findPrevButton" text="$findPrev.text" styleClass="flatButton">
+  <Button fx:id="requestButton" text="$requestSearch.text" styleClass="flatButton">
     <HBox.margin>
-      <Insets left="$findPrevButtonMargin.rem"/>
+      <Insets left="$requestSearchButtonMargin.rem"/>
     </HBox.margin>
     <tooltip>
-      <Tooltip text="$findPrevTooltip.text" styleClass="uiFunctionTooltip"/>
+      <Tooltip text="$requestSearchTooltip.text" styleClass="uiFunctionTooltip"/>
     </tooltip>
   </Button>
 
-  <Button fx:id="findNextButton" text="$findNext.text" styleClass="flatButton">
-    <HBox.margin>
-      <Insets left="$findNextButtonMargin.rem"/>
-    </HBox.margin>
+  <Button fx:id="clearButton" text="$clearResult.text" styleClass="flatButton">
     <tooltip>
-      <Tooltip text="$findNextTooltip.text" styleClass="uiFunctionTooltip"/>
+      <Tooltip text="$clearResultTooltip.text" styleClass="uiFunctionTooltip"/>
     </tooltip>
   </Button>
 

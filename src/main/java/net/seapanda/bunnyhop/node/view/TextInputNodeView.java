@@ -27,7 +27,6 @@ import javafx.scene.control.TextInputControl;
 import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.model.TextNode.FormatResult;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
-import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -38,8 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 public abstract class TextInputNodeView extends TextNodeView {
 
   TextInputNodeView(
-      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate)
-      throws ViewConstructionException {
+      TextNode model, BhNodeViewStyle style, SequencedSet<Node> components, boolean isTemplate) {
     super(model, style, components, isTemplate);
   }
 

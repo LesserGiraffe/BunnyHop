@@ -16,7 +16,7 @@
 
 package net.seapanda.bunnyhop.debugger.view.factory;
 
-import net.seapanda.bunnyhop.debugger.control.CallStackController;
+import net.seapanda.bunnyhop.debugger.control.CallStackViewController;
 import net.seapanda.bunnyhop.debugger.control.VariableInspectionController;
 import net.seapanda.bunnyhop.debugger.model.thread.ThreadContext;
 import net.seapanda.bunnyhop.debugger.model.variable.VariableInfo;
@@ -36,7 +36,7 @@ public interface DebugViewFactory {
    * @return コールスタックを表示するビューのコントローラ.
    * @throws ViewConstructionException ビューの初期化に失敗した場合
    */
-  CallStackController createCallStackView(ThreadContext context)
+  CallStackViewController createCallStackView(ThreadContext context)
       throws ViewConstructionException;
 
 

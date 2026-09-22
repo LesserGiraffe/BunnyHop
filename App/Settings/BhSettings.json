@@ -5,25 +5,27 @@
     "maxResultsInVariableInspection": 500,
     "maxResultsInErrorNodeList": 500,
     "maxResultsInCallStack": 500,
-    "maxResultsInBreakpointList": 500
+    "maxResultsInBreakpointList": 500,
+    "maxItemsInNodeSearchResult": 500,
+    "maxCharsInNodeSearchResultItem": 64
   },
   "Window": {
     "main": {
-      "width": -2147483648,
-      "height": -2147483648,
-      "posX": -2147483648,
-      "posY": -2147483648,
+      "width": 1360,
+      "height": 762,
+      "posX": 302,
+      "posY": 88,
       "maximized": false
     },
     "debug": {
-      "width": -2147483648,
-      "height": -2147483648,
-      "posX": -2147483648,
-      "posY": -2147483648,
+      "width": 150,
+      "height": 187,
+      "posX": 885,
+      "posY": 282,
       "maximized": false
     },
-    "nodeSelectionSplitPos": -1.0,
-    "notificationSplitPos": -1.0
+    "nodeSelectionSplitPos": 0.8904619970193741,
+    "notificationSplitPos": 0.5961538461538461
   },
   "Ui": {
     "trackNodeInCurrentWorkspace": false,
@@ -33,7 +35,7 @@
   },
   "Debug": {
     "maxCallStackItems": 32,
-    "canSetBreakpoint": false,
+    "canSetBreakpoint": true,
     "debugWindowVisible": false,
     "maxListTreeChildren": 100,
     "maxErrMsgChars": 4096

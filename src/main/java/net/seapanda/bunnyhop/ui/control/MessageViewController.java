@@ -154,6 +154,9 @@ public class MessageViewController {
     }
 
     @Override
+    public void onCleared() {}
+
+    @Override
     public Object getUser() {
       return MessageViewController.this;
     }

@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SequencedMap;
 import java.util.regex.Pattern;
-import javafx.scene.Group;
-import javafx.scene.layout.Pane;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.model.Connector;
 import net.seapanda.bunnyhop.node.view.factory.BhNodeViewFactory;
@@ -34,6 +32,7 @@ import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
 import net.seapanda.bunnyhop.utility.SimpleCache;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import net.seapanda.bunnyhop.workspace.view.BhNodeViewContainer;
 
 /**
  * {@link BhNodeView} の集合を持つクラス.
@@ -227,29 +226,24 @@ public class BhNodeViewGroup {
     visitor.visit(this);
   }
 
-  /** このグループが保持する疑似ビューを {@code parent} に子要素として追加する. */
-  void addPseudoViewToGuiTree(Pane parent) {
+  /** このグループが保持する疑似ビューを {@link BhNodeViewContainer} に追加する. */
+  void addPseudoViewToContainer(BhNodeViewContainer container) {
     for (BhNodeView child : childNameToNodeView.values()) {
       if (isPseudoView(child)) {
-        child.getTreeControl().addToTree(parent);
+        container.addNodeView(child);
       }
     }
   }
 
-  /** このグループが保持する疑似ビューを {@code parent} に子要素として追加する. */
-  void addPseudoViewToGuiTree(Group parent) {
+  /** このグループが保持する疑似ビューを属している {@link BhNodeViewContainer} から取り除く. */
+  void removePseudoViewFromContainer() {
     for (BhNodeView child : childNameToNodeView.values()) {
-      if (isPseudoView(child)) {
-        child.getTreeControl().addToTree(parent);
+      if (!isPseudoView(child)) {
+        continue;
       }
-    }
-  }
-
-  /** このグループが保持する疑似ビューを親 GUI コンポーネントから取り除く. */
-  void removePseudoViewFromGuiTree() {
-    for (BhNodeView child : childNameToNodeView.values()) {
-      if (isPseudoView(child)) {
-        child.getTreeControl().removeFromTree();
+      BhNodeViewContainer container = child.getContainer();
+      if (container != null) {
+        container.removeNodeView(child);
       }
     }
   }

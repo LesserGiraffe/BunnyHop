@@ -1,4 +1,4 @@
-.defaultLabel{
+.defaultLabel {
   -fx-text-fill: black;
   -fx-font-family: "Meiryo UI";
   -fx-font-size: 1.5em;
@@ -6,7 +6,12 @@
   -fx-text-overrun: clip;
 }
 
-.labelStyle2{
+.defaultLabel:searchResult {
+  -fx-border-color: red;
+  -fx-border-width: 0.15em;
+}
+
+.labelStyle2 {
   -fx-text-fill: white;
   -fx-font-family: "Meiryo UI";
   -fx-font-size: 1.5em;
@@ -14,7 +19,12 @@
   -fx-text-overrun: clip;
 }
 
-.smallCharLabelStyle1{
+.labelStyle2:searchResult {
+  -fx-border-color: red;
+  -fx-border-width: 0.15em;
+}
+
+.smallCharLabelStyle1 {
   -fx-text-fill: black;
   -fx-font-family: "Meiryo UI";
   -fx-font-size: 1.2em;
@@ -22,7 +32,12 @@
   -fx-text-overrun: clip;
 }
 
-.smallCharLabelStyle2{
+.smallCharLabelStyle1:searchResult {
+  -fx-border-color: red;
+  -fx-border-width: 0.15em;
+}
+
+.smallCharLabelStyle2 {
   -fx-text-fill: white;
   -fx-font-family: "Meiryo UI";
   -fx-font-size: 1.2em;
@@ -30,7 +45,12 @@
   -fx-text-overrun: clip;
 }
 
-.signLabel{
+.smallCharLabelStyle2:searchResult {
+  -fx-border-color: red;
+  -fx-border-width: 0.15em;
+}
+
+.signLabel {
   -fx-text-fill: black;
   -fx-font-family: "Meiryo UI";
   -fx-font-size: 2.0em;
@@ -38,3 +58,7 @@
   -fx-text-overrun: clip;
 }
 
+.signLabel:searchResult {
+  -fx-border-color: red;
+  -fx-border-width: 0.15em;
+}

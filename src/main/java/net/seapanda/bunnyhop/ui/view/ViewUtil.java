@@ -32,10 +32,11 @@ import javafx.scene.control.ScrollBar;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
-import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.service.undo.UserOperation;
 import net.seapanda.bunnyhop.utility.math.Vec2D;
+import net.seapanda.bunnyhop.workspace.view.BhNodeViewContainer;
+import net.seapanda.bunnyhop.workspace.view.BhNodeViewContainerPane;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceView;
 import net.seapanda.bunnyhop.workspace.view.WorkspaceViewPane;
 
@@ -107,7 +108,7 @@ public class ViewUtil {
    */
   public static Vec2D getPosition(Node node) {
     Parent parent = node.getParent();
-    while (parent != null && !BhConstants.UiId.WS_PANE.equals(parent.getId())) {
+    while (parent != null && !(parent instanceof WorkspaceViewPane)) {
       parent = parent.getParent();
     }
     if (parent != null) {
@@ -125,12 +126,23 @@ public class ViewUtil {
    *         どのワークスペースビューにも属していない場合は null を返す.
    */
   public static WorkspaceView getWorkspaceView(Node node) {
+    BhNodeViewContainer container = getBhNodeViewContainer(node);
+    return (container instanceof WorkspaceView view) ? view : null;
+  }
+
+  /**
+   * {@code node} が属する {@link BhNodeViewContainer} を取得する.
+   *
+   * @return {@code node} が属する {@link BhNodeViewContainer}.
+   *         どの {@link BhNodeViewContainer} にも属していない場合は null を返す.
+   */
+  public static BhNodeViewContainer getBhNodeViewContainer(Node node) {
     Parent parent = node.getParent();
-    while (parent != null && !BhConstants.UiId.WS_PANE.equals(parent.getId())) {
+    while (parent != null && !(parent instanceof BhNodeViewContainerPane)) {
       parent = parent.getParent();
     }
     if (parent != null) {
-      return ((WorkspaceViewPane) parent).getContainer();
+      return ((BhNodeViewContainerPane) parent).getContainer();
     }
     return null;
   }

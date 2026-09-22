@@ -12,10 +12,6 @@
   <fx:define>
     <TextFetcher fx:id="nodeSearchViewName" textId="gui,notification-view,node-search-view-name"/>
     <TextFetcher fx:id="jump" textId="gui,node-search-view,jump"/>
-    <TextFetcher fx:id="search" textId="gui,node-search-view,search"/>
-    <TextFetcher fx:id="clear" textId="gui,node-search-view,clear"/>
-    <TextFetcher fx:id="searchTooltip" textId="gui,node-search-view,tooltip,search"/>
-    <TextFetcher fx:id="clearTooltip" textId="gui,node-search-view,tooltip,clear"/>
   </fx:define>
   <VBox>
     <HBox fx:id="nsHbox">
@@ -24,16 +20,7 @@
          styleClass="flatCheckBox"
          selected="true"
          text="$jump.text"/>
-      <Button fx:id="nsSearchButton" text="$search.text" styleClass="flatButton, searchButton">
-        <tooltip>
-          <Tooltip text="$searchTooltip.text" styleClass="uiFunctionTooltip"/>
-        </tooltip>
-      </Button>
-      <Button fx:id="nsClearButton" text="$clear.text" styleClass="flatButton">
-        <tooltip>
-          <Tooltip text="$clearTooltip.text" styleClass="uiFunctionTooltip"/>
-        </tooltip>
-      </Button>
+      <fx:include fx:id="nsSearchBox" source="NodeSearchBox.fxml"/>
     </HBox>
 
     <HBox>

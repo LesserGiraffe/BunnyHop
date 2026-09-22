@@ -52,7 +52,7 @@ public class DebugViewController {
   @FXML private ScrollPane globalVarScrollPane;
 
   /** スレッド ID とコールスタックビューのマップ. */
-  private final Map<Long, CallStackController> threadIdToCallStackCtrl = new HashMap<>();
+  private final Map<Long, CallStackViewController> threadIdToCallStackViewCtrl = new HashMap<>();
   /** スタックフレームごとに {@link VariableInspectionController} を保持するオブジェクト. */
   private final VarInspCtrlRegistry localVarInspCtrlRegistry = new VarInspCtrlRegistry();
   /** グローバル変数情報を表示するための {@link VariableInspectionController} オブジェクト. */
@@ -60,7 +60,7 @@ public class DebugViewController {
   /** スレッド ID とスレッドコンテキストのマップ. */
   private final Map<Long, ThreadContext> threadIdToContext = new HashMap<>();
   /** 空の情報を表示するコールスタックビューのコントローラ. */
-  private CallStackController emptyCallStackCtrl;
+  private CallStackViewController emptyCallStackViewCtrl;
   /** 空の変数情報を表示する変数検査ビューのコントローラ. */
   private VariableInspectionController emptyVarInspCtrl;
   private final DebugViewFactory factory;
@@ -103,14 +103,14 @@ public class DebugViewController {
   /** 空の情報を表示するビューとコントローラを作成する. */
   private boolean createEmptyCtrl() {
     long threadId = ThreadSelection.NONE.getThreadId();
-    emptyCallStackCtrl = createCallStackCtrl(new ThreadContext(threadId)).orElse(null);
+    emptyCallStackViewCtrl = createCallStackCtrl(new ThreadContext(threadId)).orElse(null);
 
     var stackFrameId =
         new StackFrameId(ThreadSelection.NONE.getThreadId(), StackFrameSelection.NONE.getIndex());
     var varInfo = new VariableInfo(stackFrameId);
     emptyVarInspCtrl = createVariableInspectionCtrl(varInfo, true).orElse(null);
 
-    return emptyCallStackCtrl != null && emptyVarInspCtrl != null;
+    return emptyCallStackViewCtrl != null && emptyVarInspCtrl != null;
   }
 
   /**
@@ -138,25 +138,25 @@ public class DebugViewController {
       debugger.selectCurrentStackFrame(StackFrameSelection.NONE);
     }
     threadIdToContext.put(threadId, context);
-    CallStackController callStackCtrl = createCallStackCtrl(context).orElse(null);
-    if (callStackCtrl == null) {
+    CallStackViewController newCtrl = createCallStackCtrl(context).orElse(null);
+    if (newCtrl == null) {
       return;
     }
-    CallStackController oldCallStackCtrl = threadIdToCallStackCtrl.put(threadId, callStackCtrl);
-    if (oldCallStackCtrl != null) {
-      oldCallStackCtrl.discard();
+    CallStackViewController oldCtrl = threadIdToCallStackViewCtrl.put(threadId, newCtrl);
+    if (oldCtrl != null) {
+      oldCtrl.discard();
     }
     // 最初にコールスタックのトップを選択しておく.
-    if (!callStackCtrl.getThreadContext().callStack.isEmpty()) {
-      callStackCtrl.getThreadContext().callStack.getLast().select();
+    if (!newCtrl.getThreadContext().callStack.isEmpty()) {
+      newCtrl.getThreadContext().callStack.getLast().select();
     }
     if (isContextThreadSameAsDebugThread) {
-      callStackScrollPane.setContent(callStackCtrl.getView());
+      callStackScrollPane.setContent(newCtrl.getView());
     }
   }
 
   /** {@code context} からコールスタックを表示するビューを作成する. */
-  private Optional<CallStackController> createCallStackCtrl(ThreadContext context) {
+  private Optional<CallStackViewController> createCallStackCtrl(ThreadContext context) {
     try {
       return Optional.ofNullable(factory.createCallStackView(context));
     } catch (ViewConstructionException e) {
@@ -168,9 +168,9 @@ public class DebugViewController {
   /** コールスタックビューを表示する. */
   private void showCallStackView(CurrentThreadChangedEvent event) {
     long currentThreadId = event.newVal().getThreadId();
-    Node callStackView = threadIdToCallStackCtrl.containsKey(currentThreadId)
-        ? threadIdToCallStackCtrl.get(currentThreadId).getView()
-        : emptyCallStackCtrl.getView();
+    Node callStackView = threadIdToCallStackViewCtrl.containsKey(currentThreadId)
+        ? threadIdToCallStackViewCtrl.get(currentThreadId).getView()
+        : emptyCallStackViewCtrl.getView();
     callStackScrollPane.setContent(callStackView);
   }
 
@@ -225,13 +225,13 @@ public class DebugViewController {
   }
 
   /**
-   * 既存の {@link CallStackController} と {@link VariableInspectionController} を全て破棄して
+   * 既存の {@link CallStackViewController} と {@link VariableInspectionController} を全て破棄して
    * このオブジェクトが管理するデバッグ情報を初期状態に戻す.
    */
   private boolean resetDebugState() {
     threadIdToContext.clear();
-    threadIdToCallStackCtrl.values().forEach(CallStackController::discard);
-    threadIdToCallStackCtrl.clear();
+    threadIdToCallStackViewCtrl.values().forEach(CallStackViewController::discard);
+    threadIdToCallStackViewCtrl.clear();
     localVarInspCtrlRegistry.clearAll();
     if (globalVarInspCtrl != null) {
       globalVarInspCtrl.discard();
@@ -240,7 +240,7 @@ public class DebugViewController {
     if (globalVarInspCtrl == null) {
       return false;
     }
-    callStackScrollPane.setContent(emptyCallStackCtrl.getView());
+    callStackScrollPane.setContent(emptyCallStackViewCtrl.getView());
     localVarScrollPane.setContent(emptyVarInspCtrl.getView());
     globalVarScrollPane.setContent(globalVarInspCtrl.getView());
     return true;

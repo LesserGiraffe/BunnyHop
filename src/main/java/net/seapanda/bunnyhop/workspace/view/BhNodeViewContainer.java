@@ -16,21 +16,24 @@
 
 package net.seapanda.bunnyhop.workspace.view;
 
+import net.seapanda.bunnyhop.node.view.BhNodeView;
+
 /**
- * {@link WorkspaceView} 上にノードビューを配置するためのペイン.
- *
- * @author K.Koike
+ * {@link BhNodeView} を保持するクラスが共通で持つインタフェース.
  */
-public class WorkspaceViewPane extends BhNodeViewContainerPane {
+public interface BhNodeViewContainer {
 
-  private WorkspaceView view;
+  /**
+   * {@code view} をこのコンテナに追加する.
+   *
+   * @param view 追加する {@link BhNodeView}
+   */
+  void addNodeView(BhNodeView view);
 
-  void setContainer(WorkspaceView view) {
-    this.view = view;
-  }
-
-  @Override
-  public WorkspaceView getContainer() {
-    return view;
-  }
+  /**
+   * {@code view} をこのコンテナから削除する.
+   *
+   * @param view 削除する {@link BhNodeView}
+   */
+  void removeNodeView(BhNodeView view);
 }

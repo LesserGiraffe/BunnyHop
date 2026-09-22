@@ -35,6 +35,7 @@ import net.seapanda.bunnyhop.node.model.TextNode;
 import net.seapanda.bunnyhop.node.view.component.SelectableItem;
 import net.seapanda.bunnyhop.node.view.style.BhNodeViewStyle;
 import net.seapanda.bunnyhop.node.view.traverse.NodeViewWalker;
+import net.seapanda.bunnyhop.search.StringSearcher;
 import net.seapanda.bunnyhop.search.Substring;
 import net.seapanda.bunnyhop.ui.skin.HighlightableListCellSkin;
 import net.seapanda.bunnyhop.ui.view.ViewConstructionException;
@@ -296,9 +297,9 @@ public final class ComboBoxNodeView extends TextNodeView {
       highlightPattern = pattern;
       this.maxHighlights = maxHighlights;
       String styleClass = ComboBoxNodeView.this.getStyle().comboBox.textHighlight.cssClass;
-      cells.subList(1, cells.size())
-          .forEach(cell -> cell.enableHighlighting(pattern, styleClass, maxHighlights));
-      return cells.getFirst().enableHighlighting(pattern, styleClass, maxHighlights);
+      cells.forEach(cell -> cell.enableHighlighting(pattern, styleClass, maxHighlights));
+      String text = ComboBoxNodeView.this.getValue().getView().toString();
+      return StringSearcher.search(pattern, text, maxHighlights);
     }
 
     @Override
@@ -315,6 +316,11 @@ public final class ComboBoxNodeView extends TextNodeView {
     @Override
     public boolean isTextHighlightingEnabled() {
       return highlightPattern != null;
+    }
+
+    @Override
+    public Optional<Pattern> getHighlightingPattern() {
+      return Optional.ofNullable(highlightPattern);
     }
   }
 }
