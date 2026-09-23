@@ -110,17 +110,18 @@ public class ErrorNodeListController {
     enTreeView.setCellFactory(view -> cellRegistry.createCell());
     enTreeView.getSelectionModel().selectedItemProperty().addListener(
         (obs, oldVal, newVal) -> onItemSelected(newVal));
-    enTreeView.focusedProperty().addListener(
-        (obs, oldVal, newVal) -> onFocusChanged(newVal));
     rootErrorNodeItem.getChildren().addListener(
         (ListChangeListener<? super TreeItem<ErrorNodeListItem>>) change -> clearSearchResult());
     enSearchButton.setOnAction(action -> onSearchButtonClicked());
     enWsSelectorController.setOnWorkspaceSelected(
-        event -> showErrorNodes(event.newWs(), event.isAllSelected()));
+        event -> refreshErrorNodeList(event.newWs(), event.isAllSelected()));
 
     WorkspaceSet.CallbackRegistry wssCbRegistry = wss.getCallbackRegistry();
     wssCbRegistry.getOnNodeSelectionStateChanged().add(event -> updateCellDecoration(event.node()));
-    wssCbRegistry.getOnNodeTextChanged().add(event -> clearSearchResult());
+    wssCbRegistry.getOnNodeTextChanged().add(event -> {
+      clearSearchResult();
+      updateCellValues();
+    });
     CompileErrorNodeCache.CallbackRegistry cbRegistry = compileErrorNodeCache.getCallbackRegistry();
     cbRegistry.getOnCompileErrorStateUpdated().add(event -> addErrorNode(event.updated()));
     cbRegistry.getOnNodeAdded().add(event -> addErrorNode(event.added()));
@@ -129,13 +130,7 @@ public class ErrorNodeListController {
 
   /** エラーノード情報を一覧に追加する. */
   private void addErrorNode(BhNode node) {
-    var messages = node.getCompileErrorMessages().stream()
-        .map(msg -> new ErrorNodeTreeItem(new ErrorNodeListItem(node, msg)))
-        .toList();
-    ErrorNodeTreeItem treeItem = treeItemRegistry.getTreeItem(node);
-    treeItem.getChildren().clear();
-    treeItem.getChildren().addAll(messages);
-    treeItem.setExpanded(true);
+    ErrorNodeTreeItem treeItem = treeItemRegistry.getOrCreateTreeItem(node);
     if (!enWsSelectorController.matchesSelection(node.getWorkspace())) {
       return;
     }
@@ -160,16 +155,20 @@ public class ErrorNodeListController {
     }
   }
 
-  /** {@code ws} 上にあるエラーノードを表示する. */
-  private void showErrorNodes(Workspace ws, boolean isAllSelected) {
-    rootErrorNodeItem.getChildren().clear();
+  /**
+   * 引数で指定したワークスペース上にあるエラーノードを表示する.
+   *
+   * {@code isAllSelected} が true なら, 全てのワークペース上にあるエラーノードを表示する.
+   */
+  private void refreshErrorNodeList(Workspace ws, boolean isAllSelected) {
     if (ws == null && !isAllSelected) {
+      rootErrorNodeItem.getChildren().clear();
       return;
     }
     List<ErrorNodeTreeItem> treeItems = treeItemRegistry.getTreeItems().stream()
         .filter(treeItem -> treeItem.getValue().node().getWorkspace() == ws || isAllSelected)
         .toList();
-    rootErrorNodeItem.getChildren().addAll(treeItems);
+    rootErrorNodeItem.getChildren().setAll(treeItems);
     updateCellValues();
   }
 
@@ -186,15 +185,6 @@ public class ErrorNodeListController {
         .ifPresent(this::jumpTo);
   }
 
-  /** フォーカスが変更されたときの処理. */
-  private void onFocusChanged(Boolean isFocused) {
-    if (!isFocused) {
-      enTreeView.getSelectionModel().clearSelection();
-    } else {
-      updateCellValues();
-    }
-  }
-
   /** 検索ボタンが押されたときの処理. */
   private void onSearchButtonClicked() {
     if (searchBox.getUser() == this) {
@@ -203,7 +193,6 @@ public class ErrorNodeListController {
     }
     enSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
     searchBox.open(new SearchBoxDelegateImpl());
-    updateCellValues();
   }
 
   /** 変数一覧から {@code query} に一致する要素を探して選択する. */
@@ -326,7 +315,7 @@ public class ErrorNodeListController {
     cellRegistry.getCells().forEach(ErrorNodeListCell::disableHighlighting);
   }
 
-  /** 変数情報を表示する {@link TreeView} がの各要素のモデル. */
+  /** エラーノード情報を表示する {@link TreeView} の各要素のモデル. */
   private static class ErrorNodeTreeItem extends TreeItem<ErrorNodeListItem> {
 
     ErrorNodeTreeItem() {
@@ -443,7 +432,7 @@ public class ErrorNodeListController {
   }
 
   /**
-   * {@link ErrorNodeListController} が生成した全ての {@link ErrorNodeTreeItem} を管理し,
+   * {@link ErrorNodeListController} が生成した {@link ErrorNodeTreeItem} を管理し,
    * 各アイテムに割り当てられた {@link BhNode} との対応関係を追跡するクラス.
    */
   private static class TreeItemRegistry {
@@ -458,14 +447,23 @@ public class ErrorNodeListController {
 
      * @return {@code node} に対応する {@link ErrorNodeTreeItem}
      */
-    ErrorNodeTreeItem getTreeItem(BhNode node) {
-      return nodeToTreeItem.computeIfAbsent(
+    ErrorNodeTreeItem getOrCreateTreeItem(BhNode node) {
+      ErrorNodeTreeItem treeItem = nodeToTreeItem.computeIfAbsent(
           node,
           bhNode -> {
             var item = new ErrorNodeTreeItem(new ErrorNodeListItem(bhNode));
             treeItems.add(item);
             return item;
           });
+      treeItem.getChildren().setAll(createErrorMessageItems(node));
+      treeItem.setExpanded(true);
+      return treeItem;
+    }
+
+    private List<ErrorNodeTreeItem> createErrorMessageItems(BhNode node) {
+      return node.getCompileErrorMessages().stream()
+          .map(msg -> new ErrorNodeTreeItem(new ErrorNodeListItem(node, msg)))
+          .toList();
     }
 
     /** このオブジェクトが作成した全ての {@link ErrorNodeTreeItem} を取得する. */

@@ -13,8 +13,8 @@
     "main": {
       "width": 1360,
       "height": 762,
-      "posX": 302,
-      "posY": 88,
+      "posX": 110,
+      "posY": 74,
       "maximized": false
     },
     "debug": {
@@ -31,7 +31,7 @@
     "trackNodeInCurrentWorkspace": false,
     "trackNodeInInactiveWorkspace": true,
     "currentNodeSelectionViewZoomLevel": -1,
-    "currentWorkspaceZoomLevel": -1
+    "currentWorkspaceZoomLevel": -3
   },
   "Debug": {
     "maxCallStackItems": 32,

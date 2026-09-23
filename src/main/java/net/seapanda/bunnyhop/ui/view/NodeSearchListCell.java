@@ -32,7 +32,7 @@ public class NodeSearchListCell extends ListCell<NodeSearchListItem> {
     if (empty || model == null || model == selModel.getSelectedItem()) {
       getListView().getSelectionModel().clearSelection();
     } else {
-      selModel.select(model);
+      selModel.select(getIndex());
     }
     getListView().requestFocus();
     event.consume();

@@ -20,6 +20,8 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeItem;
+import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.linter.model.ErrorNodeListItem;
 import net.seapanda.bunnyhop.ui.skin.HighlightableTreeCellSkin;
@@ -40,6 +42,20 @@ public class ErrorNodeListCell extends TreeCell<ErrorNodeListItem> {
     getStyleClass().add(BhConstants.Css.Class.ERROR_NODE_LIST_ITEM);
     skin = new HighlightableTreeCellSkin<>(this);
     setSkin(skin);
+    addEventFilter(MouseEvent.MOUSE_PRESSED, this::changeSelectionState);
+  }
+
+  private void changeSelectionState(MouseEvent event) {
+    var selModel = getTreeView().getSelectionModel();
+    TreeItem<ErrorNodeListItem> selected = selModel.getSelectedItem();
+    ErrorNodeListItem selectedListItem = selected == null ? null : selected.getValue();
+    if (isEmpty() || model == null || model == selectedListItem) {
+      selModel.clearSelection();
+    } else {
+      selModel.select(getIndex());
+    }
+    getTreeView().requestFocus();
+    event.consume();
   }
 
   @Override
