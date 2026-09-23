@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
+import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.common.text.TextDefs;
 import net.seapanda.bunnyhop.debugger.model.callstack.CallStackItem;
@@ -44,12 +45,26 @@ public class CallStackCell extends ListCell<CallStackItem> {
     getStyleClass().add(BhConstants.Css.Class.CALL_STACK_ITEM);
     skin = new HighlightableListCellSkin<>(this);
     setSkin(skin);
-    setOnMousePressed(event -> clearSelectionIfEmpty());
+    addEventFilter(MouseEvent.MOUSE_PRESSED, this::onCellClicked);
   }
 
-  private void clearSelectionIfEmpty() {
-    if (empty || model == null) {
-      getListView().getSelectionModel().clearSelection();
+  private void onCellClicked(MouseEvent event) {
+    changeSelectionState(event);
+    event.consume();
+    getListView().requestFocus();
+  }
+
+  private void changeSelectionState(MouseEvent event) {
+    if (!event.isPrimaryButtonDown()) {
+      return;
+    }
+    var selModel = getListView().getSelectionModel();
+    if (empty
+        || model == null
+        || (model == selModel.getSelectedItem() && event.isShiftDown())) {
+      selModel.clearSelection();
+    } else {
+      selModel.select(getIndex());
     }
   }
 

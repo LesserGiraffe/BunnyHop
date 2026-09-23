@@ -244,6 +244,7 @@ public class WorkspaceController {
     effectManager.disableEffects(model, VisualEffectType.MOVE_GROUP, ddInfo.context.userOpe());
     effectManager.disableEffects(VisualEffectType.RELATED_NODE_GROUP, ddInfo.context.userOpe());
     effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
+    effectManager.disableEffects(VisualEffectType.SEARCH_RESULT);
   }
 
   /** D&D を終えたときの処理. */

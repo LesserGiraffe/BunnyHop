@@ -24,18 +24,27 @@ public class NodeSearchListCell extends ListCell<NodeSearchListItem> {
     getStyleClass().add(BhConstants.Css.Class.NODE_SEARCH_RESULT_ITEM);
     skin = new HighlightableListCellSkin<>(this);
     setSkin(skin);
-    addEventFilter(MouseEvent.MOUSE_PRESSED, this::changeSelectionState);
+    addEventFilter(MouseEvent.MOUSE_PRESSED, this::onCellClicked);
+  }
+
+  private void onCellClicked(MouseEvent event) {
+    changeSelectionState(event);
+    event.consume();
+    getListView().requestFocus();
   }
 
   private void changeSelectionState(MouseEvent event) {
+    if (!event.isPrimaryButtonDown()) {
+      return;
+    }
     var selModel = getListView().getSelectionModel();
-    if (empty || model == null || model == selModel.getSelectedItem()) {
-      getListView().getSelectionModel().clearSelection();
+    if (empty
+        || model == null
+        || (model == selModel.getSelectedItem() && event.isShiftDown())) {
+      selModel.clearSelection();
     } else {
       selModel.select(getIndex());
     }
-    getListView().requestFocus();
-    event.consume();
   }
 
   @Override

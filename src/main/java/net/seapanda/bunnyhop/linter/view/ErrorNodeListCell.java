@@ -22,6 +22,7 @@ import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.linter.model.ErrorNodeListItem;
 import net.seapanda.bunnyhop.ui.skin.HighlightableTreeCellSkin;
@@ -34,6 +35,7 @@ import net.seapanda.bunnyhop.ui.skin.HighlightableTreeCellSkin;
 public class ErrorNodeListCell extends TreeCell<ErrorNodeListItem> {
 
   private ErrorNodeListItem model;
+  private boolean empty = true;
   private final HighlightableTreeCellSkin<ErrorNodeListItem> skin;
   private Consumer<? super ItemChangeEvent> onItemChanged = event -> {};
 
@@ -42,20 +44,41 @@ public class ErrorNodeListCell extends TreeCell<ErrorNodeListItem> {
     getStyleClass().add(BhConstants.Css.Class.ERROR_NODE_LIST_ITEM);
     skin = new HighlightableTreeCellSkin<>(this);
     setSkin(skin);
-    addEventFilter(MouseEvent.MOUSE_PRESSED, this::changeSelectionState);
+    addEventFilter(MouseEvent.MOUSE_PRESSED, this::onCellClicked);
+  }
+
+  private void onCellClicked(MouseEvent event) {
+    changeSelectionState(event);
+    // 矢印部分がクリックされた場合, ツリーの展開と折り畳みを行う.
+    if (event.getTarget() instanceof StackPane) {
+      changeExpandedState(event);
+    }
+    event.consume();
+    getTreeView().requestFocus();
   }
 
   private void changeSelectionState(MouseEvent event) {
+    if (!event.isPrimaryButtonDown()) {
+      return;
+    }
     var selModel = getTreeView().getSelectionModel();
     TreeItem<ErrorNodeListItem> selected = selModel.getSelectedItem();
     ErrorNodeListItem selectedListItem = selected == null ? null : selected.getValue();
-    if (isEmpty() || model == null || model == selectedListItem) {
+    if (empty
+        || model == null
+        || (model == selectedListItem && event.isShiftDown())) {
       selModel.clearSelection();
     } else {
       selModel.select(getIndex());
     }
-    getTreeView().requestFocus();
-    event.consume();
+  }
+
+  private void changeExpandedState(MouseEvent event) {
+    TreeItem<ErrorNodeListItem> clicked = getTreeView().getTreeItem(this.getIndex());
+    if (clicked == null || !event.isPrimaryButtonDown() || event.isShiftDown()) {
+      return;
+    }
+    clicked.setExpanded(!clicked.isExpanded());
   }
 
   @Override
@@ -64,6 +87,7 @@ public class ErrorNodeListCell extends TreeCell<ErrorNodeListItem> {
     setText(getText(item, empty));
     onItemChanged.accept(new ItemChangeEvent(this, model, item, empty));
     model = item;
+    this.empty = empty;
   }
 
   private static String getText(ErrorNodeListItem item, boolean empty) {
@@ -81,7 +105,7 @@ public class ErrorNodeListCell extends TreeCell<ErrorNodeListItem> {
 
   /** このセルが表示する値を更新する. */
   public void updateValue() {
-    setText(getText(model, isEmpty()));
+    setText(getText(model, empty));
   }
 
   /** このセルに描画される文字を装飾する. */

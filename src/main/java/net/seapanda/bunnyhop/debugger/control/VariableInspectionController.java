@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.debugger.control;
 import static javafx.css.PseudoClass.getPseudoClass;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
 import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInVariableInspection;
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.JUMP_TARGET;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,7 +60,6 @@ import net.seapanda.bunnyhop.debugger.view.VariableListCell.ItemChangeEvent;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
-import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.search.ItemSearcher;
 import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
@@ -204,9 +204,7 @@ public class VariableInspectionController {
         (obs, oldVal, newVal) -> onViewParentChanged(newVal));
     variableTreeView.setCellFactory(view -> cellRegistry.createCell());
     variableTreeView.getSelectionModel().selectedItemProperty().addListener(
-        (obs, oldVal, newVal) -> onVariableSelected(newVal));
-    variableTreeView.focusedProperty().addListener(
-        (obs, oldVal, newVal) -> onFocusChanged(newVal));
+        (obs, oldVal, newVal) -> onVariableSelected(oldVal, newVal));
 
     viReloadBtn.setOnAction(event -> reloadVarInfo());
     viSearchButton.setOnAction(action -> onSearchButtonClicked());
@@ -227,11 +225,19 @@ public class VariableInspectionController {
   }
 
   /** 変数が選択されたときの処理. */
-  private void onVariableSelected(TreeItem<VariableListItem> item) {
+  private void onVariableSelected(
+      TreeItem<VariableListItem> deselected, TreeItem<VariableListItem> selected) {
+    Optional.ofNullable(deselected)
+        .map(TreeItem::getValue)
+        .map(varListItem -> varListItem.variable)
+        .flatMap(Variable::getNode)
+        .flatMap(BhNode::getView)
+        .ifPresent(view -> effectManager.setEffectEnabled(view, false, JUMP_TARGET));
+
     if (!viJumpCheckBox.isSelected()) {
       return;
     }
-    Optional.ofNullable(item)
+    Optional.ofNullable(selected)
         .map(TreeItem::getValue)
         .map(varListItem -> varListItem.variable)
         .flatMap(Variable::getNode)
@@ -240,11 +246,12 @@ public class VariableInspectionController {
         .ifPresent(this::jumpTo);
   }
 
-  /** フォーカスが変更されたときの処理. */
-  private void onFocusChanged(Boolean isFocused) {
-    if (!isFocused) {
-      variableTreeView.getSelectionModel().clearSelection();
-    }
+  /** {@code view} にジャンプし, ジャンプ先となった際の視覚効果をつける. */
+  private void jumpTo(BhNodeView view) {
+    ViewUtil.jump(view);
+    effectManager.disableEffects(JUMP_TARGET);
+    effectManager.setEffectEnabled(view, true, JUMP_TARGET);
+    lastJumpTarget = view;
   }
 
   /** 変数リストビューの親要素が変わったときのイベントハンドラ. */
@@ -277,7 +284,7 @@ public class VariableInspectionController {
       searchBox.close();
     }
     if (lastJumpTarget != null) {
-      effectManager.setEffectEnabled(lastJumpTarget, false, VisualEffectType.JUMP_TARGET);
+      effectManager.setEffectEnabled(lastJumpTarget, false, JUMP_TARGET);
     }
     cellRegistry.clear();
     clearSearchResult();
@@ -415,14 +422,6 @@ public class VariableInspectionController {
       parent.setExpanded(true);
       parent = parent.getParent();
     }
-  }
-
-  /** {@code view} にジャンプし, ジャンプ先となった際の視覚効果をつける. */
-  private void jumpTo(BhNodeView view) {
-    ViewUtil.jump(view);
-    effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
-    effectManager.setEffectEnabled(view, true, VisualEffectType.JUMP_TARGET);
-    lastJumpTarget = view;
   }
 
   /** 変数情報を表示する {@link TreeView} の各要素のモデル. */

@@ -19,6 +19,7 @@ package net.seapanda.bunnyhop.debugger.control;
 import static javafx.css.PseudoClass.getPseudoClass;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
 import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInCallStack;
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.JUMP_TARGET;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,7 +58,6 @@ import net.seapanda.bunnyhop.debugger.view.VariableListCell;
 import net.seapanda.bunnyhop.node.model.BhNode;
 import net.seapanda.bunnyhop.node.view.BhNodeView;
 import net.seapanda.bunnyhop.node.view.effect.VisualEffectManager;
-import net.seapanda.bunnyhop.node.view.effect.VisualEffectType;
 import net.seapanda.bunnyhop.search.ItemSearcher;
 import net.seapanda.bunnyhop.search.SearchBoxDelegate;
 import net.seapanda.bunnyhop.search.SearchQuery;
@@ -136,8 +136,6 @@ public class CallStackViewController {
         (observable, oldVal, newVal) -> onCallStackCellSelected(oldVal, newVal));
     callStackListView.getItems().addListener(
         (ListChangeListener<? super CallStackItem>) event -> clearSearchResult());
-    callStackListView.focusedProperty().addListener(
-        (obs, oldVal, newVal) -> onFocusChanged(newVal));
     csShowAllCheckBox.selectedProperty().addListener(
         (observable, oldVal, newVal) -> updateCallStackItems());
     csSearchButton.setOnAction(action -> onSearchButtonClicked());
@@ -175,7 +173,7 @@ public class CallStackViewController {
       searchBox.close();
     }
     if (lastJumpTarget != null) {
-      effectManager.setEffectEnabled(lastJumpTarget, false, VisualEffectType.JUMP_TARGET);
+      effectManager.setEffectEnabled(lastJumpTarget, false, JUMP_TARGET);
     }
     callStackListView.getItems().clear();
     cellRegistry.clear();
@@ -240,6 +238,8 @@ public class CallStackViewController {
       int frameIdx = (item.isNext || item.isError) ? Math.max(item.idx - 1, 0) : item.idx;
       debugger.selectCurrentStackFrame(StackFrameSelection.of(frameIdx));
     } else {
+      getJumpTarget(item)
+          .ifPresent(view -> effectManager.setEffectEnabled(view, false, JUMP_TARGET));
       debugger.selectCurrentStackFrame(StackFrameSelection.NONE);
     }
   }
@@ -273,8 +273,8 @@ public class CallStackViewController {
   /** {@code view} にジャンプして視覚効果を適用する. */
   private void jumpTo(BhNodeView view) {
     ViewUtil.jump(view);
-    effectManager.disableEffects(VisualEffectType.JUMP_TARGET);
-    effectManager.setEffectEnabled(view, true, VisualEffectType.JUMP_TARGET);
+    effectManager.disableEffects(JUMP_TARGET);
+    effectManager.setEffectEnabled(view, true, JUMP_TARGET);
     lastJumpTarget = view;
   }
 
@@ -282,7 +282,7 @@ public class CallStackViewController {
   private void onCurrentDebugThreadChanged() {
     if (isDiscarded || !isThisThreadSameAsDebugThread()) {
       Optional.ofNullable(lastJumpTarget).ifPresent(
-          view -> effectManager.setEffectEnabled(view, false, VisualEffectType.JUMP_TARGET));
+          view -> effectManager.setEffectEnabled(view, false, JUMP_TARGET));
       return;
     }
     CallStackItem selected = callStackListView.getSelectionModel().getSelectedItem();
@@ -405,13 +405,6 @@ public class CallStackViewController {
     }
     csSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
     searchBox.open(new SearchBoxDelegateImpl());
-  }
-
-  /** フォーカスが変更されたときの処理. */
-  private void onFocusChanged(Boolean isFocused) {
-    if (!isFocused) {
-      callStackListView.getSelectionModel().clearSelection();
-    }
   }
 
   /** コールスタックビューの親要素が変わったときのイベントハンドラ. */

@@ -20,11 +20,13 @@ import static javafx.css.PseudoClass.getPseudoClass;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
 import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInErrorNodeList;
 import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInVariableInspection;
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.JUMP_TARGET;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -109,7 +111,7 @@ public class ErrorNodeListController {
   private void setEventHandlers() {
     enTreeView.setCellFactory(view -> cellRegistry.createCell());
     enTreeView.getSelectionModel().selectedItemProperty().addListener(
-        (obs, oldVal, newVal) -> onItemSelected(newVal));
+        (obs, oldVal, newVal) -> onItemSelected(oldVal, newVal));
     rootErrorNodeItem.getChildren().addListener(
         (ListChangeListener<? super TreeItem<ErrorNodeListItem>>) change -> clearSearchResult());
     enSearchButton.setOnAction(action -> onSearchButtonClicked());
@@ -158,7 +160,7 @@ public class ErrorNodeListController {
   /**
    * 引数で指定したワークスペース上にあるエラーノードを表示する.
    *
-   * {@code isAllSelected} が true なら, 全てのワークペース上にあるエラーノードを表示する.
+   * <p>{@code isAllSelected} が true なら, 全てのワークペース上にあるエラーノードを表示する.
    */
   private void refreshErrorNodeList(Workspace ws, boolean isAllSelected) {
     if (ws == null && !isAllSelected) {
@@ -173,11 +175,18 @@ public class ErrorNodeListController {
   }
 
   /** エラーの項目が選択された時の処理. */
-  private void onItemSelected(TreeItem<ErrorNodeListItem> item) {
+  private void onItemSelected(
+      TreeItem<ErrorNodeListItem> deselected, TreeItem<ErrorNodeListItem> selected) {
+    Optional.ofNullable(deselected)
+        .map(TreeItem::getValue)
+        .map(ErrorNodeListItem::node)
+        .flatMap(BhNode::getView)
+        .ifPresent(view -> effectManager.setEffectEnabled(view, false, JUMP_TARGET));
+
     if (!enJumpCheckBox.isSelected()) {
       return;
     }
-    Optional.ofNullable(item)
+    Optional.ofNullable(selected)
         .map(TreeItem::getValue)
         .map(ErrorNodeListItem::node)
         .filter(BhNode::isInWorkspace)
@@ -432,13 +441,12 @@ public class ErrorNodeListController {
   }
 
   /**
-   * {@link ErrorNodeListController} が生成した {@link ErrorNodeTreeItem} を管理し,
+   * {@link ErrorNodeListController} が生成した全ての {@link ErrorNodeTreeItem} を管理し,
    * 各アイテムに割り当てられた {@link BhNode} との対応関係を追跡するクラス.
    */
   private static class TreeItemRegistry {
 
-    private final Map<BhNode, ErrorNodeTreeItem> nodeToTreeItem = new HashMap<>();
-    private final Set<ErrorNodeTreeItem> treeItems = new HashSet<>();
+    private final Map<BhNode, ErrorNodeTreeItem> nodeToTreeItem = new LinkedHashMap<>();
 
     /**
      * 引数で指定した {@link BhNode} に対応する {@link ErrorNodeTreeItem} を取得する.
@@ -450,17 +458,13 @@ public class ErrorNodeListController {
     ErrorNodeTreeItem getOrCreateTreeItem(BhNode node) {
       ErrorNodeTreeItem treeItem = nodeToTreeItem.computeIfAbsent(
           node,
-          bhNode -> {
-            var item = new ErrorNodeTreeItem(new ErrorNodeListItem(bhNode));
-            treeItems.add(item);
-            return item;
-          });
+          bhNode -> new ErrorNodeTreeItem(new ErrorNodeListItem(bhNode)));
       treeItem.getChildren().setAll(createErrorMessageItems(node));
       treeItem.setExpanded(true);
       return treeItem;
     }
 
-    private List<ErrorNodeTreeItem> createErrorMessageItems(BhNode node) {
+    private static List<ErrorNodeTreeItem> createErrorMessageItems(BhNode node) {
       return node.getCompileErrorMessages().stream()
           .map(msg -> new ErrorNodeTreeItem(new ErrorNodeListItem(node, msg)))
           .toList();
@@ -468,7 +472,7 @@ public class ErrorNodeListController {
 
     /** このオブジェクトが作成した全ての {@link ErrorNodeTreeItem} を取得する. */
     Set<ErrorNodeTreeItem> getTreeItems() {
-      return treeItems;
+      return new HashSet<>(nodeToTreeItem.values());
     }
 
     /**

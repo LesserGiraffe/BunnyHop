@@ -1,8 +1,10 @@
 package net.seapanda.bunnyhop.ui.control;
 
+import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
 import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxItemsInNodeSearchResult;
 import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.SEARCH_RESULT;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -10,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
@@ -61,7 +64,7 @@ public class NodeSearchViewController {
 
   /** イベントハンドラを設定する. */
   private void setEventHandlers() {
-    nsListView.setCellFactory(view -> new NodeSearchListCell());
+    nsListView.setCellFactory(view -> createListCell());
     nsListView.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldVal, newVal) -> onSearchResultItemSelected(oldVal, newVal));
     nsWsSelectorController.setOnWorkspaceSelected(event -> refreshResultListView(searchResult));
@@ -74,6 +77,12 @@ public class NodeSearchViewController {
       nodeViews.remove(event.nodeView());
       removeSearchResultItems(event.nodeView());
     });
+  }
+
+  private NodeSearchListCell createListCell() {
+    var cell = new NodeSearchListCell();
+    cell.enableHighlighting(DEFAULT_TEXT_HIGHLIGHT);
+    return cell;
   }
 
   /** ノード検索結果の要素が選択されたときのイベントハンドラ. */
@@ -240,24 +249,23 @@ public class NodeSearchViewController {
   private static class ListItemRegistry {
 
     private final Map<BhNodeView, Set<NodeSearchListItem>> nodeViewToListItems = new HashMap<>();
-    private final Set<NodeSearchListItem> listItems = new HashSet<>();
 
     /** このオブジェクトが持つデータをクリアする. */
     void clear() {
       nodeViewToListItems.clear();
-      listItems.clear();
     }
 
     NodeSearchListItem createListItem(Substring matched, TextNodeView view) {
       var item = new NodeSearchListItem(matched, view);
-      nodeViewToListItems.computeIfAbsent(view, key -> new HashSet<>()).add(item);
-      listItems.add(item);
+      nodeViewToListItems.computeIfAbsent(view, key -> new LinkedHashSet<>()).add(item);
       return item;
     }
 
     /** このオブジェクトが作成した全ての {@link NodeSearchListItem} を取得する. */
     Set<NodeSearchListItem> getListItems() {
-      return listItems;
+      return nodeViewToListItems.values().stream()
+          .flatMap(Collection::stream)
+          .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     /**

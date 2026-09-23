@@ -20,6 +20,8 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeItem;
+import javafx.scene.input.MouseEvent;
 import net.seapanda.bunnyhop.common.configuration.BhConstants;
 import net.seapanda.bunnyhop.debugger.model.variable.VariableListItem;
 import net.seapanda.bunnyhop.ui.skin.HighlightableTreeCellSkin;
@@ -32,6 +34,7 @@ import net.seapanda.bunnyhop.ui.skin.HighlightableTreeCellSkin;
 public class VariableListCell extends TreeCell<VariableListItem> {
 
   private VariableListItem model;
+  private boolean empty = true;
   private final HighlightableTreeCellSkin<VariableListItem> skin;
   private Consumer<? super ItemChangeEvent> onItemChanged = event -> {};
 
@@ -40,6 +43,38 @@ public class VariableListCell extends TreeCell<VariableListItem> {
     getStyleClass().add(BhConstants.Css.Class.VARIABLE_LIST_ITEM);
     skin = new HighlightableTreeCellSkin<>(this);
     setSkin(skin);
+    addEventFilter(MouseEvent.MOUSE_PRESSED, this::onCellClicked);
+  }
+
+  private void onCellClicked(MouseEvent event) {
+    changeSelectionState(event);
+    changeExpandedState(event);
+    event.consume();
+    getTreeView().requestFocus();
+  }
+
+  private void changeSelectionState(MouseEvent event) {
+    if (!event.isPrimaryButtonDown()) {
+      return;
+    }
+    var selModel = getTreeView().getSelectionModel();
+    TreeItem<VariableListItem> selected = selModel.getSelectedItem();
+    VariableListItem selectedListItem = selected == null ? null : selected.getValue();
+    if (empty
+        || model == null
+        || (model == selectedListItem && event.isShiftDown())) {
+      selModel.clearSelection();
+    } else {
+      selModel.select(getIndex());
+    }
+  }
+
+  private void changeExpandedState(MouseEvent event) {
+    TreeItem<VariableListItem> clicked = getTreeView().getTreeItem(this.getIndex());
+    if (clicked == null || !event.isPrimaryButtonDown() || event.isShiftDown()) {
+      return;
+    }
+    clicked.setExpanded(!clicked.isExpanded());
   }
 
   @Override
@@ -48,6 +83,7 @@ public class VariableListCell extends TreeCell<VariableListItem> {
     setText(getText(item, empty));
     onItemChanged.accept(new ItemChangeEvent(this, model, item, empty));
     model = item;
+    this.empty = empty;
   }
 
   private static String getText(VariableListItem item, boolean empty) {
@@ -65,7 +101,7 @@ public class VariableListCell extends TreeCell<VariableListItem> {
 
   /** このセルが表示する値を更新する. */
   public void updateValue() {
-    setText(getText(model, isEmpty()));
+    setText(getText(model, empty));
   }
 
   /** このセルに描画される文字を装飾する. */

@@ -20,6 +20,7 @@ package net.seapanda.bunnyhop.debugger.control;
 import static javafx.css.PseudoClass.getPseudoClass;
 import static net.seapanda.bunnyhop.common.configuration.BhConstants.Css.Class.DEFAULT_TEXT_HIGHLIGHT;
 import static net.seapanda.bunnyhop.common.configuration.BhSettings.Search.maxResultsInBreakpointList;
+import static net.seapanda.bunnyhop.node.view.effect.VisualEffectType.JUMP_TARGET;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -100,23 +101,28 @@ public class BreakpointListController {
 
     bpListView.setCellFactory(view -> cellRegistry.createCell());
     bpListView.getSelectionModel().selectedItemProperty().addListener(
-        (observable, oldVal, newVal) -> onBreakpointSelected(newVal));
+        (observable, oldVal, newVal) -> onBreakpointSelected(oldVal, newVal));
     bpListView.getItems().addListener(
         (ListChangeListener<? super BhNode>) event -> clearSearchResult());
-    bpListView.focusedProperty().addListener(
-        (obs, oldVal, newVal) -> onFocusChanged(newVal));
 
     bpSearchButton.setOnAction(action -> onSearchButtonClicked());
     bpWsSelectorController.setOnWorkspaceSelected(
-        event -> showBreakpoints(event.newWs(), event.isAllSelected()));
+        event -> refreshBreakpointList(event.newWs(), event.isAllSelected()));
 
     WorkspaceSet.CallbackRegistry wssCbRegistry = wss.getCallbackRegistry();
     wssCbRegistry.getOnNodeSelectionStateChanged().add(event -> updateCellDecoration(event.node()));
-    wssCbRegistry.getOnNodeTextChanged().add(event -> clearSearchResult());
+    wssCbRegistry.getOnNodeTextChanged().add(event -> {
+      clearSearchResult();
+      updateCellValues();
+    });
   }
 
   /** ブレークポイント一覧のブレークポイントが選択されたときのイベントハンドラ. */
-  private void onBreakpointSelected(BhNode selected) {
+  private void onBreakpointSelected(BhNode deselected, BhNode selected) {
+    Optional.ofNullable(deselected)
+        .flatMap(BhNode::getView)
+        .ifPresent(view -> effectManager.setEffectEnabled(view, false, JUMP_TARGET));
+
     if (!bpJumpCheckBox.isSelected()) {
       return;
     }
@@ -124,15 +130,6 @@ public class BreakpointListController {
         .filter(BhNode::isInWorkspace)
         .flatMap(BhNode::getView)
         .ifPresent(this::jumpTo);
-  }
-
-  /** フォーカスが変更されたときの処理. */
-  private void onFocusChanged(Boolean isFocused) {
-    if (isFocused) {
-      updateCellValues();
-    } else {
-      bpListView.getSelectionModel().clearSelection();
-    }
   }
 
   /** 検索ボタンが押されたときの処理. */
@@ -143,7 +140,6 @@ public class BreakpointListController {
     }
     bpSearchButton.pseudoClassStateChanged(getPseudoClass(BhConstants.Css.Pseudo.ON), true);
     searchBox.open(new SearchBoxDelegateImpl());
-    updateCellValues();
   }
 
   /** ブレークポイント一覧から {@code query} で指定された文字列に一致する要素を探して選択する. */
@@ -212,7 +208,7 @@ public class BreakpointListController {
   }
 
   /** {@code ws} 上にある, ブレークポイントを指定されたノードを表示する. */
-  private void showBreakpoints(Workspace ws, boolean isAllSelected) {
+  private void refreshBreakpointList(Workspace ws, boolean isAllSelected) {
     if (ws == null && !isAllSelected) {
       bpListView.getItems().clear();
       return;
@@ -313,12 +309,6 @@ public class BreakpointListController {
   private class CellRegistry {
     private final Map<BhNode, Set<BreakpointListCell>> nodeToCells = new HashMap<>();
     private final Set<BreakpointListCell> cells = new HashSet<>();
-
-    /** このオブジェクトが持つデータをクリアする. */
-    void clear() {
-      nodeToCells.clear();
-      cells.clear();
-    }
 
     /** {@link BhNode} と {@link BreakpointListCell} の対応関係を更新する. */
     void updateNodeToCellsMap(ItemChangeEvent event) {
